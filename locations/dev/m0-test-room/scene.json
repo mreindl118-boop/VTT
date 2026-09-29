@@ -1,0 +1,78 @@
+{
+  "schema": 1,
+  "location": "m0-test-room",
+  "chapter": "dev",
+  "name": "M0 Test Room",
+  "bookScaleFt": 5,
+  "ambient": "darkness",
+  "levels": [
+    {
+      "id": "ground",
+      "name": "Ground",
+      "elevationFt": 0,
+      "ceilingFt": 10,
+      "rooms": [
+        { "key": "T1", "name": "Hall", "polygon": [[0,0],[40,0],[40,30],[0,30]], "floor": "flagstone" },
+        { "key": "T2", "name": "Twenty-foot room", "polygon": [[40,5],[60,5],[60,25],[40,25]], "floor": "plank" },
+        { "key": "T3", "name": "Secret closet", "polygon": [[10,-15],[30,-15],[30,0],[10,0]], "floor": "dirt" }
+      ],
+      "walls": [
+        { "id": "w-t1-n1", "a": [0,0], "b": [17.5,0], "flags": ["normal"], "material": "ashlar" },
+        { "id": "w-t1-sd", "a": [17.5,0], "b": [22.5,0], "flags": ["secret-door"], "material": "ashlar" },
+        { "id": "w-t1-n2", "a": [22.5,0], "b": [40,0], "flags": ["normal"], "material": "ashlar" },
+        { "id": "w-t1-w", "a": [0,0], "b": [0,30], "flags": ["normal"], "material": "ashlar" },
+        { "id": "w-t1-s", "a": [0,30], "b": [40,30], "flags": ["normal"], "material": "ashlar" },
+        { "id": "w-t1-e1", "a": [40,0], "b": [40,12.5], "flags": ["normal"], "material": "ashlar" },
+        { "id": "d-t1-t2", "a": [40,12.5], "b": [40,17.5], "flags": ["door"], "material": "ashlar", "open": false },
+        { "id": "w-t1-e2", "a": [40,17.5], "b": [40,30], "flags": ["normal"], "material": "ashlar" },
+        { "id": "w-t2-n", "a": [40,5], "b": [60,5], "flags": ["normal"], "material": "plaster" },
+        { "id": "w-t2-e", "a": [60,5], "b": [60,25], "flags": ["normal"], "material": "plaster" },
+        { "id": "w-t2-s1", "a": [40,25], "b": [47.5,25], "flags": ["normal"], "material": "plaster" },
+        { "id": "win-t2-s", "a": [47.5,25], "b": [52.5,25], "flags": ["window"], "material": "plaster" },
+        { "id": "w-t2-s2", "a": [52.5,25], "b": [60,25], "flags": ["normal"], "material": "plaster" },
+        { "id": "w-t3-n", "a": [10,-15], "b": [30,-15], "flags": ["normal"], "material": "rubble" },
+        { "id": "w-t3-w", "a": [10,-15], "b": [10,0], "flags": ["normal"], "material": "rubble" },
+        { "id": "w-t3-e", "a": [30,-15], "b": [30,0], "flags": ["normal"], "material": "rubble" }
+      ],
+      "lights": [
+        { "id": "l-torch-t1", "pos": [2,6,15], "preset": "torch", "bright": 20, "dim": 40 },
+        { "id": "l-candle-t2", "pos": [55,3.5,10], "preset": "candle", "bright": 5, "dim": 10 }
+      ],
+      "objects": [
+        { "id": "sd-t1-t3", "kind": "secret-panel", "pos": [20,0,0], "vis": "secret-door", "wall": "w-t1-sd", "key": "T1", "label": "Secret door" },
+        { "id": "trap-t1-plate", "kind": "pressure-plate", "pos": [35,0,7.5], "vis": "trap", "key": "T1", "label": "Pressure plate", "dims": { "w": 5, "d": 5 } },
+        { "id": "cr-t3-ghoul", "kind": "ghoul", "pos": [20,0,-7.5], "vis": "hidden-creature", "key": "T3", "label": "Ghoul", "size": "medium" },
+        { "id": "ob-t2-chest", "kind": "chest", "pos": [55,0,20], "vis": "hidden-object", "key": "T2", "label": "Hidden cache" },
+        { "id": "pr-t1-table", "kind": "table", "pos": [15,0,15], "rotY": 0, "vis": "player", "key": "T1" },
+        { "id": "pr-t1-col1", "kind": "column", "pos": [10,0,25], "vis": "player", "key": "T1" },
+        { "id": "pr-t1-col2", "kind": "column", "pos": [25,0,5], "vis": "player", "key": "T1" },
+        { "id": "st-t1-up", "kind": "stairs-straight", "pos": [32.5,0,25], "rotY": 0, "vis": "player", "key": "T1", "dims": { "w": 5, "run": 10, "rise": 12, "fromZ": 30, "toZ": 20 } },
+        { "id": "note-t1", "kind": "note", "pos": [5,0,5], "vis": "dm-note", "key": "T1", "label": "M0: torch 20/40 here" }
+      ]
+    },
+    {
+      "id": "upper",
+      "name": "Upper",
+      "elevationFt": 12,
+      "ceilingFt": 10,
+      "rooms": [
+        { "key": "T4", "name": "Landing", "polygon": [[20,10],[40,10],[40,30],[20,30]], "floor": "plank" }
+      ],
+      "walls": [
+        { "id": "w-t4-n", "a": [20,10], "b": [40,10], "flags": ["normal"], "material": "plaster" },
+        { "id": "w-t4-e", "a": [40,10], "b": [40,30], "flags": ["normal"], "material": "plaster" },
+        { "id": "w-t4-s", "a": [20,30], "b": [40,30], "flags": ["normal"], "material": "plaster" },
+        { "id": "w-t4-w", "a": [20,10], "b": [20,30], "flags": ["normal"], "material": "plaster" }
+      ],
+      "lights": [
+        { "id": "l-lamp-t4", "pos": [30,4,12], "preset": "lamp", "bright": 15, "dim": 45 }
+      ],
+      "objects": [
+        { "id": "pr-t4-bed", "kind": "bed", "pos": [25,0,15], "vis": "player", "key": "T4" }
+      ]
+    }
+  ],
+  "links": [
+    { "id": "lk-stairs", "kind": "stairs", "from": { "level": "ground", "pos": [32.5,27.5] }, "to": { "level": "upper", "pos": [32.5,17.5] } }
+  ]
+}

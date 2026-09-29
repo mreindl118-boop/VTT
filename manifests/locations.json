@@ -1,0 +1,4110 @@
+{
+ "schema": 1,
+ "source": "occ prompt v1 §7/§9 seed — verify with scripts/manifest-report.ts after OCR",
+ "chapters": [
+  {
+   "id": "ch02",
+   "number": 2,
+   "title": "The Lands of Barovia"
+  },
+  {
+   "id": "ch03",
+   "number": 3,
+   "title": "The Village of Barovia"
+  },
+  {
+   "id": "ch04",
+   "number": 4,
+   "title": "Castle Ravenloft"
+  },
+  {
+   "id": "ch05",
+   "number": 5,
+   "title": "The Town of Vallaki"
+  },
+  {
+   "id": "ch06",
+   "number": 6,
+   "title": "Old Bonegrinder"
+  },
+  {
+   "id": "ch07",
+   "number": 7,
+   "title": "Argynvostholt"
+  },
+  {
+   "id": "ch08",
+   "number": 8,
+   "title": "The Village of Krezk"
+  },
+  {
+   "id": "ch09",
+   "number": 9,
+   "title": "Tsolenka Pass"
+  },
+  {
+   "id": "ch10",
+   "number": 10,
+   "title": "The Ruins of Berez"
+  },
+  {
+   "id": "ch11",
+   "number": 11,
+   "title": "Van Richten's Tower"
+  },
+  {
+   "id": "ch12",
+   "number": 12,
+   "title": "The Wizard of Wines"
+  },
+  {
+   "id": "ch13",
+   "number": 13,
+   "title": "The Amber Temple"
+  },
+  {
+   "id": "ch14",
+   "number": 14,
+   "title": "Yester Hill"
+  },
+  {
+   "id": "ch15",
+   "number": 15,
+   "title": "Werewolf Den"
+  },
+  {
+   "id": "appB",
+   "number": null,
+   "title": "Appendix B: Death House"
+  }
+ ],
+ "locations": [
+  {
+   "id": "barovia-region",
+   "name": "The Lands of Barovia (regional map)",
+   "chapter": "ch02",
+   "status": "regional",
+   "mapPages": [
+    35
+   ],
+   "bookScaleFt": null,
+   "poster": true,
+   "path": "locations/ch02/barovia-region",
+   "areas": [
+    {
+     "key": "A",
+     "name": "Old Svalich Road",
+     "page": null,
+     "pin": true
+    },
+    {
+     "key": "B",
+     "name": "Gates of Barovia",
+     "page": null,
+     "pin": true
+    },
+    {
+     "key": "C",
+     "name": "Svalich Woods",
+     "page": null,
+     "pin": true
+    },
+    {
+     "key": "D",
+     "name": "River Ivlis",
+     "page": null,
+     "pin": true
+    },
+    {
+     "key": "E",
+     "name": "Village of Barovia",
+     "page": null,
+     "pin": true
+    },
+    {
+     "key": "F",
+     "name": "River Ivlis Crossroads",
+     "page": null,
+     "pin": true
+    },
+    {
+     "key": "G",
+     "name": "Tser Pool Encampment",
+     "page": null,
+     "pin": true
+    },
+    {
+     "key": "H",
+     "name": "Tser Falls",
+     "page": null,
+     "pin": true
+    },
+    {
+     "key": "I",
+     "name": "Black Carriage",
+     "page": null,
+     "pin": true
+    },
+    {
+     "key": "J",
+     "name": "Gates of Ravenloft",
+     "page": null,
+     "pin": true
+    },
+    {
+     "key": "K",
+     "name": "Castle Ravenloft",
+     "page": null,
+     "pin": true
+    },
+    {
+     "key": "L",
+     "name": "Lake Zarovich",
+     "page": null,
+     "pin": true
+    },
+    {
+     "key": "M",
+     "name": "Mount Baratok",
+     "page": null,
+     "pin": true
+    },
+    {
+     "key": "N",
+     "name": "Town of Vallaki",
+     "page": null,
+     "pin": true
+    },
+    {
+     "key": "O",
+     "name": "Old Bonegrinder",
+     "page": null,
+     "pin": true
+    },
+    {
+     "key": "P",
+     "name": "Luna River Crossroads",
+     "page": null,
+     "pin": true
+    },
+    {
+     "key": "Q",
+     "name": "Argynvostholt",
+     "page": null,
+     "pin": true
+    },
+    {
+     "key": "R",
+     "name": "Raven River Crossroads",
+     "page": null,
+     "pin": true
+    },
+    {
+     "key": "S",
+     "name": "Village of Krezk",
+     "page": null,
+     "pin": true
+    },
+    {
+     "key": "T",
+     "name": "Tsolenka Pass",
+     "page": null,
+     "pin": true
+    },
+    {
+     "key": "U",
+     "name": "Ruins of Berez",
+     "page": null,
+     "pin": true
+    },
+    {
+     "key": "V",
+     "name": "Van Richten's Tower",
+     "page": null,
+     "pin": true
+    },
+    {
+     "key": "W",
+     "name": "The Wizard of Wines",
+     "page": null,
+     "pin": true
+    },
+    {
+     "key": "X",
+     "name": "The Amber Temple",
+     "page": null,
+     "pin": true
+    },
+    {
+     "key": "Y",
+     "name": "Yester Hill",
+     "page": null,
+     "pin": true
+    },
+    {
+     "key": "Z",
+     "name": "Werewolf Den",
+     "page": null,
+     "pin": true
+    }
+   ],
+   "placementLayer": {
+    "hexFt": 1320,
+    "hexOrientation": "pointy",
+    "note": "Book legend reads 'One square = 1/4 mile' but prints hexes; treat as 1 hex = 1/4 mile."
+   },
+   "notes": "Features: Old Svalich Road, Ravenloft/Vallaki road, Rivers Ivlis/Luna/Raven, Tser Pool & Falls, Lakes Zarovich/Baratok/Luna, Mounts Baratok/Ghakis, Balinok range, Svalich Woods, the Mists."
+  },
+  {
+   "id": "G",
+   "name": "Tser Pool Encampment",
+   "chapter": "ch02",
+   "status": "mapped",
+   "mapPages": [
+    36
+   ],
+   "bookScaleFt": 5,
+   "poster": true,
+   "path": "locations/ch02/G",
+   "areas": [
+    {
+     "key": "G",
+     "name": "Tser Pool Encampment",
+     "page": null
+    }
+   ],
+   "notes": "Vistani wagons, Madam Eva's tent, the pool and falls approach. Sub-keys to be completed from OCR."
+  },
+  {
+   "id": "A",
+   "name": "Old Svalich Road",
+   "chapter": "ch02",
+   "status": "possible",
+   "mapPages": [],
+   "bookScaleFt": null,
+   "poster": false,
+   "path": "locations/ch02/A",
+   "areas": [
+    {
+     "key": "A",
+     "name": "Old Svalich Road",
+     "page": null
+    }
+   ],
+   "notes": "road through pines, mist wall"
+  },
+  {
+   "id": "B",
+   "name": "Gates of Barovia",
+   "chapter": "ch02",
+   "status": "possible",
+   "mapPages": [],
+   "bookScaleFt": null,
+   "poster": false,
+   "path": "locations/ch02/B",
+   "areas": [
+    {
+     "key": "B",
+     "name": "Gates of Barovia",
+     "page": null
+    }
+   ],
+   "notes": "stone gate with headless statues"
+  },
+  {
+   "id": "C",
+   "name": "Svalich Woods",
+   "chapter": "ch02",
+   "status": "possible",
+   "mapPages": [],
+   "bookScaleFt": null,
+   "poster": false,
+   "path": "locations/ch02/C",
+   "areas": [
+    {
+     "key": "C",
+     "name": "Svalich Woods",
+     "page": null
+    }
+   ],
+   "notes": "forest road segments: straight, bend, fork"
+  },
+  {
+   "id": "D",
+   "name": "River Ivlis",
+   "chapter": "ch02",
+   "status": "possible",
+   "mapPages": [],
+   "bookScaleFt": null,
+   "poster": false,
+   "path": "locations/ch02/D",
+   "areas": [
+    {
+     "key": "D",
+     "name": "River Ivlis",
+     "page": null,
+     "dims": {
+      "widthFt": 50,
+      "depthFt": [
+       5,
+       10
+      ]
+     }
+    }
+   ],
+   "notes": "50-ft-wide river, two arching stone bridges, 5–10 ft deep"
+  },
+  {
+   "id": "F",
+   "name": "River Ivlis Crossroads",
+   "chapter": "ch02",
+   "status": "possible",
+   "mapPages": [],
+   "bookScaleFt": null,
+   "poster": false,
+   "path": "locations/ch02/F",
+   "areas": [
+    {
+     "key": "F",
+     "name": "River Ivlis Crossroads",
+     "page": null
+    }
+   ],
+   "notes": "gallows, signpost, small graveyard"
+  },
+  {
+   "id": "H",
+   "name": "Tser Falls",
+   "chapter": "ch02",
+   "status": "possible",
+   "mapPages": [],
+   "bookScaleFt": null,
+   "poster": false,
+   "path": "locations/ch02/H",
+   "areas": [
+    {
+     "key": "H",
+     "name": "Tser Falls",
+     "page": null
+    }
+   ],
+   "notes": "bridge over the falls, Tser Pool below"
+  },
+  {
+   "id": "I",
+   "name": "Black Carriage",
+   "chapter": "ch02",
+   "status": "possible",
+   "mapPages": [],
+   "bookScaleFt": null,
+   "poster": false,
+   "path": "locations/ch02/I",
+   "areas": [
+    {
+     "key": "I",
+     "name": "Black Carriage",
+     "page": null
+    }
+   ],
+   "notes": "road encounter stage"
+  },
+  {
+   "id": "J",
+   "name": "Gates of Ravenloft",
+   "chapter": "ch02",
+   "status": "possible",
+   "mapPages": [],
+   "bookScaleFt": null,
+   "poster": false,
+   "path": "locations/ch02/J",
+   "areas": [
+    {
+     "key": "J",
+     "name": "Gates of Ravenloft",
+     "page": null
+    }
+   ],
+   "notes": "approach, drawbridge and chasm"
+  },
+  {
+   "id": "L",
+   "name": "Lake Zarovich",
+   "chapter": "ch02",
+   "status": "possible",
+   "mapPages": [],
+   "bookScaleFt": null,
+   "poster": false,
+   "path": "locations/ch02/L",
+   "areas": [
+    {
+     "key": "L",
+     "name": "Lake Zarovich",
+     "page": null
+    }
+   ],
+   "notes": "shore, Bluto's rowboat, fishing spot"
+  },
+  {
+   "id": "M",
+   "name": "Mount Baratok",
+   "chapter": "ch02",
+   "status": "possible",
+   "mapPages": [],
+   "bookScaleFt": null,
+   "poster": false,
+   "path": "locations/ch02/M",
+   "areas": [
+    {
+     "key": "M",
+     "name": "Mount Baratok",
+     "page": null
+    }
+   ],
+   "notes": "rocky slopes, the Mad Mage encounter"
+  },
+  {
+   "id": "P",
+   "name": "Luna River Crossroads",
+   "chapter": "ch02",
+   "status": "possible",
+   "mapPages": [],
+   "bookScaleFt": null,
+   "poster": false,
+   "path": "locations/ch02/P",
+   "areas": [
+    {
+     "key": "P",
+     "name": "Luna River Crossroads",
+     "page": null
+    }
+   ],
+   "notes": "bridge, signpost, treeline"
+  },
+  {
+   "id": "R",
+   "name": "Raven River Crossroads",
+   "chapter": "ch02",
+   "status": "possible",
+   "mapPages": [],
+   "bookScaleFt": null,
+   "poster": false,
+   "path": "locations/ch02/R",
+   "areas": [
+    {
+     "key": "R",
+     "name": "Raven River Crossroads",
+     "page": null
+    }
+   ],
+   "notes": "bridge, signpost, treeline"
+  },
+  {
+   "id": "E",
+   "name": "The Village of Barovia",
+   "chapter": "ch03",
+   "status": "placement",
+   "mapPages": [
+    42
+   ],
+   "bookScaleFt": null,
+   "poster": true,
+   "path": "locations/ch03/E",
+   "areas": [
+    {
+     "key": "E1",
+     "name": "Bildrath's Mercantile",
+     "page": null,
+     "inset": true
+    },
+    {
+     "key": "E2",
+     "name": "Blood of the Vine Tavern",
+     "page": null,
+     "inset": true,
+     "dims": {
+      "footprintFt": [
+       60,
+       60
+      ]
+     }
+    },
+    {
+     "key": "E3",
+     "name": "Mad Mary's Townhouse",
+     "page": null,
+     "inset": true,
+     "dims": {
+      "footprintFt": [
+       40,
+       40
+      ]
+     }
+    },
+    {
+     "key": "E4",
+     "name": "Burgomaster's Mansion",
+     "page": null,
+     "inset": true
+    },
+    {
+     "key": "E5",
+     "name": "Church",
+     "page": null
+    }
+   ],
+   "placementLayer": {
+    "ftPerSquare": 40
+   },
+   "insets": [
+    {
+     "id": "E1",
+     "name": "Bildrath's Mercantile",
+     "reason": "no interior map"
+    },
+    {
+     "id": "E2",
+     "name": "Blood of the Vine Tavern",
+     "reason": "no map; ~60 ft square"
+    },
+    {
+     "id": "E3",
+     "name": "Mad Mary's Townhouse",
+     "reason": "no map; ~40 ft square, boarded"
+    },
+    {
+     "id": "E4",
+     "name": "Burgomaster's Mansion",
+     "reason": "no map; Kolyan's wake"
+    }
+   ],
+   "events": [
+    {
+     "id": "march-of-the-dead",
+     "name": "March of the Dead",
+     "page": 48
+    }
+   ],
+   "notes": "Death House (Appendix B) exterior is placed on this layer."
+  },
+  {
+   "id": "E5",
+   "name": "Church (Village of Barovia)",
+   "chapter": "ch03",
+   "status": "mapped",
+   "mapPages": [
+    46
+   ],
+   "bookScaleFt": 5,
+   "poster": false,
+   "path": "locations/ch03/E5",
+   "areas": [
+    {
+     "key": "E5a",
+     "name": "Hall",
+     "page": null
+    },
+    {
+     "key": "E5b",
+     "name": "Doru's Bedroom",
+     "page": null
+    },
+    {
+     "key": "E5c",
+     "name": "Donavich's Bedroom",
+     "page": null
+    },
+    {
+     "key": "E5d",
+     "name": "Trapdoor",
+     "page": null
+    },
+    {
+     "key": "E5e",
+     "name": "Office",
+     "page": null
+    },
+    {
+     "key": "E5f",
+     "name": "Chapel",
+     "page": null
+    },
+    {
+     "key": "E5g",
+     "name": "Undercroft",
+     "page": null
+    }
+   ],
+   "levels": [
+    {
+     "id": "ground",
+     "name": "Ground floor"
+    },
+    {
+     "id": "basement",
+     "name": "Basement"
+    }
+   ]
+  },
+  {
+   "id": "K",
+   "name": "Castle Ravenloft",
+   "chapter": "ch04",
+   "status": "mapped",
+   "mapPages": [
+    53,
+    55,
+    62,
+    65,
+    71,
+    72,
+    73,
+    75,
+    76,
+    80
+   ],
+   "bookScaleFt": 10,
+   "poster": true,
+   "path": "locations/ch04/K",
+   "areas": [
+    {
+     "key": "K1",
+     "name": "Front Courtyard",
+     "page": null,
+     "map": "Map 2",
+     "mapPage": 53
+    },
+    {
+     "key": "K2",
+     "name": "Center Court Gate",
+     "page": null,
+     "map": "Map 2",
+     "mapPage": 53
+    },
+    {
+     "key": "K3",
+     "name": "Servants' Courtyard",
+     "page": null,
+     "map": "Map 2",
+     "mapPage": 53
+    },
+    {
+     "key": "K4",
+     "name": "Carriage House",
+     "page": null,
+     "map": "Map 2",
+     "mapPage": 53
+    },
+    {
+     "key": "K5",
+     "name": "Chapel Garden",
+     "page": null,
+     "map": "Map 2",
+     "mapPage": 53
+    },
+    {
+     "key": "K6",
+     "name": "Overlook",
+     "page": null,
+     "map": "Map 2",
+     "mapPage": 53
+    },
+    {
+     "key": "K7",
+     "name": "Entry",
+     "page": null,
+     "map": "Map 3",
+     "mapPage": 55
+    },
+    {
+     "key": "K8",
+     "name": "Great Entry",
+     "page": null,
+     "map": "Map 3",
+     "mapPage": 55
+    },
+    {
+     "key": "K9",
+     "name": "Guests' Hall",
+     "page": null,
+     "map": "Map 3",
+     "mapPage": 55
+    },
+    {
+     "key": "K10",
+     "name": "Dining Hall",
+     "page": null,
+     "map": "Map 3",
+     "mapPage": 55
+    },
+    {
+     "key": "K11",
+     "name": "South Archers' Post",
+     "page": null,
+     "map": "Map 3",
+     "mapPage": 55
+    },
+    {
+     "key": "K12",
+     "name": "Turret Post",
+     "page": null,
+     "map": "Map 3",
+     "mapPage": 55,
+     "dims": {
+      "shape": "octagon",
+      "widthFt": 30,
+      "bookSquares": 3,
+      "check": "scale acceptance: 6 cells"
+     }
+    },
+    {
+     "key": "K13",
+     "name": "Turret Post Access Hall",
+     "page": null,
+     "map": "Map 3",
+     "mapPage": 55
+    },
+    {
+     "key": "K14",
+     "name": "Hall of Faith",
+     "page": null,
+     "map": "Map 3",
+     "mapPage": 55
+    },
+    {
+     "key": "K15",
+     "name": "Chapel",
+     "page": null,
+     "map": "Map 3",
+     "mapPage": 55
+    },
+    {
+     "key": "K16",
+     "name": "North Chapel Access",
+     "page": null,
+     "map": "Map 3",
+     "mapPage": 55
+    },
+    {
+     "key": "K17",
+     "name": "South Chapel Access",
+     "page": null,
+     "map": "Map 3",
+     "mapPage": 55
+    },
+    {
+     "key": "K18",
+     "name": "High Tower Staircase",
+     "page": null,
+     "map": "Map 3",
+     "mapPage": 55
+    },
+    {
+     "key": "K18a",
+     "name": "High Tower Shaft",
+     "page": null,
+     "map": "Map 3",
+     "mapPage": 55
+    },
+    {
+     "key": "K19",
+     "name": "Grand Landing",
+     "page": null,
+     "map": "Map 3",
+     "mapPage": 55
+    },
+    {
+     "key": "K20",
+     "name": "Heart of Sorrow",
+     "page": null,
+     "map": "Map 3",
+     "mapPage": 55
+    },
+    {
+     "key": "K20a",
+     "name": "Tower Hall Stair",
+     "page": null,
+     "map": "Map 3",
+     "mapPage": 55
+    },
+    {
+     "key": "K21",
+     "name": "South Tower Stair",
+     "page": null,
+     "map": "Map 3",
+     "mapPage": 55
+    },
+    {
+     "key": "K22",
+     "name": "North Archers' Post",
+     "page": null,
+     "map": "Map 3",
+     "mapPage": 55
+    },
+    {
+     "key": "K23",
+     "name": "Servants' Entrance",
+     "page": null,
+     "map": "Map 3",
+     "mapPage": 55
+    },
+    {
+     "key": "K24",
+     "name": "Servants' Quarters",
+     "page": null,
+     "map": "Map 3",
+     "mapPage": 55
+    },
+    {
+     "key": "K25",
+     "name": "Audience Hall",
+     "page": null,
+     "map": "Map 4",
+     "mapPage": 62
+    },
+    {
+     "key": "K26",
+     "name": "Guards' Post",
+     "page": null,
+     "map": "Map 4",
+     "mapPage": 62
+    },
+    {
+     "key": "K27",
+     "name": "King's Hall",
+     "page": null,
+     "map": "Map 4",
+     "mapPage": 62
+    },
+    {
+     "key": "K28",
+     "name": "King's Balcony",
+     "page": null,
+     "map": "Map 4",
+     "mapPage": 62
+    },
+    {
+     "key": "K29",
+     "name": "Creaky Landing",
+     "page": null,
+     "map": "Map 4",
+     "mapPage": 62
+    },
+    {
+     "key": "K30",
+     "name": "King's Accountant",
+     "page": null,
+     "map": "Map 4",
+     "mapPage": 62
+    },
+    {
+     "key": "K31",
+     "name": "Trapworks",
+     "page": null,
+     "map": "Map 4",
+     "mapPage": 62
+    },
+    {
+     "key": "K31a",
+     "name": "K31a",
+     "page": null,
+     "parent": "K31",
+     "map": "Map 4",
+     "mapPage": 62
+    },
+    {
+     "key": "K31b",
+     "name": "K31b",
+     "page": null,
+     "parent": "K31",
+     "map": "Map 4",
+     "mapPage": 62
+    },
+    {
+     "key": "K32",
+     "name": "Maid in Hell",
+     "page": null,
+     "map": "Map 4",
+     "mapPage": 62
+    },
+    {
+     "key": "K33",
+     "name": "King's Apartment Stair",
+     "page": null,
+     "map": "Map 4",
+     "mapPage": 62
+    },
+    {
+     "key": "K34",
+     "name": "Servants' Upper Floor",
+     "page": null,
+     "map": "Map 4",
+     "mapPage": 62
+    },
+    {
+     "key": "K35",
+     "name": "Guardian Vermin",
+     "page": null,
+     "map": "Map 5",
+     "mapPage": 65
+    },
+    {
+     "key": "K36",
+     "name": "Dining Hall of the Count",
+     "page": null,
+     "map": "Map 5",
+     "mapPage": 65
+    },
+    {
+     "key": "K37",
+     "name": "Study",
+     "page": null,
+     "map": "Map 5",
+     "mapPage": 65
+    },
+    {
+     "key": "K38",
+     "name": "False Treasury",
+     "page": null,
+     "map": "Map 5",
+     "mapPage": 65
+    },
+    {
+     "key": "K39",
+     "name": "Hall of Webs",
+     "page": null,
+     "map": "Map 5",
+     "mapPage": 65
+    },
+    {
+     "key": "K40",
+     "name": "Belfry",
+     "page": null,
+     "map": "Map 5",
+     "mapPage": 65
+    },
+    {
+     "key": "K41",
+     "name": "Treasury",
+     "page": null,
+     "map": "Map 5",
+     "mapPage": 65
+    },
+    {
+     "key": "K42",
+     "name": "King's Bedchamber",
+     "page": null,
+     "map": "Map 5",
+     "mapPage": 65
+    },
+    {
+     "key": "K43",
+     "name": "Bath Chamber",
+     "page": null,
+     "map": "Map 5",
+     "mapPage": 65
+    },
+    {
+     "key": "K44",
+     "name": "Closet",
+     "page": null,
+     "map": "Map 5",
+     "mapPage": 65
+    },
+    {
+     "key": "K45",
+     "name": "Hall of Heroes",
+     "page": null,
+     "map": "Map 5",
+     "mapPage": 65
+    },
+    {
+     "key": "K46",
+     "name": "Parapets",
+     "page": null,
+     "map": "Map 5",
+     "mapPage": 65
+    },
+    {
+     "key": "K47",
+     "name": "Portrait of Strahd",
+     "page": null,
+     "map": "Maps 6–10",
+     "mapPage": 71
+    },
+    {
+     "key": "K48",
+     "name": "Offstair",
+     "page": null,
+     "map": "Maps 6–10",
+     "mapPage": 71
+    },
+    {
+     "key": "K49",
+     "name": "Lounge",
+     "page": null,
+     "map": "Maps 6–10",
+     "mapPage": 71
+    },
+    {
+     "key": "K50",
+     "name": "Guest Room",
+     "page": null,
+     "map": "Maps 6–10",
+     "mapPage": 71
+    },
+    {
+     "key": "K51",
+     "name": "Closet",
+     "page": null,
+     "map": "Maps 6–10",
+     "mapPage": 71
+    },
+    {
+     "key": "K52",
+     "name": "Smokestack",
+     "page": null,
+     "map": "Maps 6–10",
+     "mapPage": 71
+    },
+    {
+     "key": "K53",
+     "name": "Rooftop",
+     "page": null,
+     "map": "Maps 6–10",
+     "mapPage": 71
+    },
+    {
+     "key": "K54",
+     "name": "Familiar Room",
+     "page": null,
+     "map": "Maps 6–10",
+     "mapPage": 71
+    },
+    {
+     "key": "K55",
+     "name": "Element Room",
+     "page": null,
+     "map": "Maps 6–10",
+     "mapPage": 71
+    },
+    {
+     "key": "K56",
+     "name": "Cauldron",
+     "page": null,
+     "map": "Maps 6–10",
+     "mapPage": 71
+    },
+    {
+     "key": "K57",
+     "name": "Tower Roof",
+     "page": null,
+     "map": "Maps 6–10",
+     "mapPage": 71
+    },
+    {
+     "key": "K58",
+     "name": "Bridge",
+     "page": null,
+     "map": "Maps 6–10",
+     "mapPage": 71
+    },
+    {
+     "key": "K59",
+     "name": "High Tower Peak",
+     "page": null,
+     "map": "Maps 6–10",
+     "mapPage": 71
+    },
+    {
+     "key": "K60",
+     "name": "North Tower Peak",
+     "page": null,
+     "map": "Maps 6–10",
+     "mapPage": 71
+    },
+    {
+     "key": "K60a",
+     "name": "North Tower Rooftop",
+     "page": null,
+     "map": "Maps 6–10",
+     "mapPage": 71
+    },
+    {
+     "key": "K61",
+     "name": "Elevator Trap",
+     "page": null,
+     "map": "Map 11",
+     "mapPage": 75
+    },
+    {
+     "key": "K62",
+     "name": "Servants' Hall",
+     "page": null,
+     "map": "Map 11",
+     "mapPage": 75
+    },
+    {
+     "key": "K63",
+     "name": "Wine Cellar",
+     "page": null,
+     "map": "Map 11",
+     "mapPage": 75
+    },
+    {
+     "key": "K64",
+     "name": "Guards' Stair",
+     "page": null,
+     "map": "Map 11",
+     "mapPage": 75
+    },
+    {
+     "key": "K65",
+     "name": "Kitchen",
+     "page": null,
+     "map": "Map 11",
+     "mapPage": 75
+    },
+    {
+     "key": "K66",
+     "name": "Butler's Quarters",
+     "page": null,
+     "map": "Map 11",
+     "mapPage": 75
+    },
+    {
+     "key": "K67",
+     "name": "Hall of Bones",
+     "page": null,
+     "map": "Map 11",
+     "mapPage": 75
+    },
+    {
+     "key": "K68",
+     "name": "Guards' Run",
+     "page": null,
+     "map": "Map 11",
+     "mapPage": 75
+    },
+    {
+     "key": "K69",
+     "name": "Guards' Quarters",
+     "page": null,
+     "map": "Map 11",
+     "mapPage": 75
+    },
+    {
+     "key": "K70",
+     "name": "Kingsmen Hall",
+     "page": null,
+     "map": "Map 11",
+     "mapPage": 75
+    },
+    {
+     "key": "K71",
+     "name": "Kingsmen Quarters",
+     "page": null,
+     "map": "Map 11",
+     "mapPage": 75
+    },
+    {
+     "key": "K72",
+     "name": "Chamberlain's Office",
+     "page": null,
+     "map": "Map 11",
+     "mapPage": 75
+    },
+    {
+     "key": "K73",
+     "name": "Dungeon Hall",
+     "page": null,
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K74",
+     "name": "North Dungeon",
+     "page": null,
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K74a",
+     "name": "North Dungeon cell a",
+     "page": null,
+     "parent": "K74",
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K74b",
+     "name": "North Dungeon cell b",
+     "page": null,
+     "parent": "K74",
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K74c",
+     "name": "North Dungeon cell c",
+     "page": null,
+     "parent": "K74",
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K74d",
+     "name": "North Dungeon cell d",
+     "page": null,
+     "parent": "K74",
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K74e",
+     "name": "North Dungeon cell e",
+     "page": null,
+     "parent": "K74",
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K74f",
+     "name": "North Dungeon cell f",
+     "page": null,
+     "parent": "K74",
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K74g",
+     "name": "North Dungeon cell g",
+     "page": null,
+     "parent": "K74",
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K74h",
+     "name": "North Dungeon cell h",
+     "page": null,
+     "parent": "K74",
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K75",
+     "name": "South Dungeon",
+     "page": null,
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K75a",
+     "name": "South Dungeon cell a",
+     "page": null,
+     "parent": "K75",
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K75b",
+     "name": "South Dungeon cell b",
+     "page": null,
+     "parent": "K75",
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K75c",
+     "name": "South Dungeon cell c",
+     "page": null,
+     "parent": "K75",
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K75d",
+     "name": "South Dungeon cell d",
+     "page": null,
+     "parent": "K75",
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K75e",
+     "name": "South Dungeon cell e",
+     "page": null,
+     "parent": "K75",
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K75f",
+     "name": "South Dungeon cell f",
+     "page": null,
+     "parent": "K75",
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K75g",
+     "name": "South Dungeon cell g",
+     "page": null,
+     "parent": "K75",
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K75h",
+     "name": "South Dungeon cell h",
+     "page": null,
+     "parent": "K75",
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K76",
+     "name": "Torture Chamber",
+     "page": null,
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K77",
+     "name": "Observation Balcony",
+     "page": null,
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K78",
+     "name": "Brazier Room",
+     "page": null,
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K79",
+     "name": "Western Stair",
+     "page": null,
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K80",
+     "name": "Center Stair",
+     "page": null,
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K81",
+     "name": "Tunnel",
+     "page": null,
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K82",
+     "name": "Marble Slide",
+     "page": null,
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K83",
+     "name": "Spiral Stair",
+     "page": null,
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K83a",
+     "name": "Spiral Stair Landing",
+     "page": null,
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K84",
+     "name": "Catacombs",
+     "page": null,
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K84-1",
+     "name": "Crypt 1",
+     "page": null,
+     "parent": "K84",
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K84-2",
+     "name": "Crypt 2",
+     "page": null,
+     "parent": "K84",
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K84-3",
+     "name": "Crypt 3",
+     "page": null,
+     "parent": "K84",
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K84-4",
+     "name": "Crypt 4",
+     "page": null,
+     "parent": "K84",
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K84-5",
+     "name": "Crypt 5",
+     "page": null,
+     "parent": "K84",
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K84-6",
+     "name": "Crypt 6",
+     "page": null,
+     "parent": "K84",
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K84-7",
+     "name": "Crypt 7",
+     "page": null,
+     "parent": "K84",
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K84-8",
+     "name": "Crypt 8",
+     "page": null,
+     "parent": "K84",
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K84-9",
+     "name": "Crypt 9",
+     "page": null,
+     "parent": "K84",
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K84-10",
+     "name": "Crypt 10",
+     "page": null,
+     "parent": "K84",
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K84-11",
+     "name": "Crypt 11",
+     "page": null,
+     "parent": "K84",
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K84-12",
+     "name": "Crypt 12",
+     "page": null,
+     "parent": "K84",
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K84-13",
+     "name": "Crypt 13",
+     "page": null,
+     "parent": "K84",
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K84-14",
+     "name": "Crypt 14",
+     "page": null,
+     "parent": "K84",
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K84-15",
+     "name": "Crypt 15",
+     "page": null,
+     "parent": "K84",
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K84-16",
+     "name": "Crypt 16",
+     "page": null,
+     "parent": "K84",
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K84-17",
+     "name": "Crypt 17",
+     "page": null,
+     "parent": "K84",
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K84-18",
+     "name": "Crypt 18",
+     "page": null,
+     "parent": "K84",
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K84-19",
+     "name": "Crypt 19",
+     "page": null,
+     "parent": "K84",
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K84-20",
+     "name": "Crypt 20",
+     "page": null,
+     "parent": "K84",
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K84-21",
+     "name": "Crypt 21",
+     "page": null,
+     "parent": "K84",
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K84-22",
+     "name": "Crypt 22",
+     "page": null,
+     "parent": "K84",
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K84-23",
+     "name": "Crypt 23",
+     "page": null,
+     "parent": "K84",
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K84-24",
+     "name": "Crypt 24",
+     "page": null,
+     "parent": "K84",
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K84-25",
+     "name": "Crypt 25",
+     "page": null,
+     "parent": "K84",
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K84-26",
+     "name": "Crypt 26",
+     "page": null,
+     "parent": "K84",
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K84-27",
+     "name": "Crypt 27",
+     "page": null,
+     "parent": "K84",
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K84-28",
+     "name": "Crypt 28",
+     "page": null,
+     "parent": "K84",
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K84-29",
+     "name": "Crypt 29",
+     "page": null,
+     "parent": "K84",
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K84-30",
+     "name": "Crypt 30",
+     "page": null,
+     "parent": "K84",
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K84-31",
+     "name": "Crypt 31",
+     "page": null,
+     "parent": "K84",
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K84-32",
+     "name": "Crypt 32",
+     "page": null,
+     "parent": "K84",
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K84-33",
+     "name": "Crypt 33",
+     "page": null,
+     "parent": "K84",
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K84-34",
+     "name": "Crypt 34",
+     "page": null,
+     "parent": "K84",
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K84-35",
+     "name": "Crypt 35",
+     "page": null,
+     "parent": "K84",
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K84-36",
+     "name": "Crypt 36",
+     "page": null,
+     "parent": "K84",
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K84-37",
+     "name": "Crypt 37",
+     "page": null,
+     "parent": "K84",
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K84-38",
+     "name": "Crypt 38",
+     "page": null,
+     "parent": "K84",
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K84-39",
+     "name": "Crypt 39",
+     "page": null,
+     "parent": "K84",
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K84-40",
+     "name": "Crypt 40",
+     "page": null,
+     "parent": "K84",
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K85",
+     "name": "Sergei's Tomb",
+     "page": null,
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K86",
+     "name": "Strahd's Tomb",
+     "page": null,
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K87",
+     "name": "Guardians",
+     "page": null,
+     "map": "Map 12",
+     "mapPage": 75
+    },
+    {
+     "key": "K88",
+     "name": "Tomb of King Barov and Queen Ravenovia",
+     "page": null,
+     "map": "Map 12",
+     "mapPage": 75
+    }
+   ],
+   "levels": [
+    {
+     "id": "map1",
+     "name": "Map 1 Ravenloft Heights",
+     "role": "elevation diagram, poster only"
+    },
+    {
+     "id": "map2",
+     "name": "Map 2 Walls of Ravenloft",
+     "page": 53
+    },
+    {
+     "id": "map3",
+     "name": "Map 3 Main Floor",
+     "page": 55
+    },
+    {
+     "id": "map4",
+     "name": "Map 4 Court of the Count",
+     "page": 62
+    },
+    {
+     "id": "map5",
+     "name": "Map 5 Rooms of Weeping",
+     "page": 65
+    },
+    {
+     "id": "map6-10",
+     "name": "Maps 6–10 Spires of Ravenloft",
+     "page": 71
+    },
+    {
+     "id": "map11",
+     "name": "Map 11 Larders of Ill Omen",
+     "page": 75
+    },
+    {
+     "id": "map12",
+     "name": "Map 12 Dungeon and Catacombs",
+     "page": 75
+    }
+   ],
+   "insets": [
+    {
+     "id": "K61-elevator",
+     "name": "Elevator Trap",
+     "reason": "book inset",
+     "page": 76
+    },
+    {
+     "id": "K73-traps",
+     "name": "Traps in Area K73",
+     "reason": "book inset",
+     "page": 80
+    }
+   ],
+   "notes": "Isometric poster maps; 10-ft squares subdivide 2x2. K12 is a 30-ft octagon (scale acceptance test). Crypt keys use K84-N."
+  },
+  {
+   "id": "N",
+   "name": "The Town of Vallaki",
+   "chapter": "ch05",
+   "status": "placement",
+   "mapPages": [
+    97
+   ],
+   "bookScaleFt": null,
+   "poster": true,
+   "path": "locations/ch05/N",
+   "areas": [
+    {
+     "key": "N1",
+     "name": "St. Andral's Church",
+     "page": null,
+     "inset": true
+    },
+    {
+     "key": "N2",
+     "name": "Blue Water Inn",
+     "page": null
+    },
+    {
+     "key": "N3",
+     "name": "Burgomaster's Mansion",
+     "page": null
+    },
+    {
+     "key": "N4",
+     "name": "Wachterhaus",
+     "page": null
+    },
+    {
+     "key": "N5",
+     "name": "Arasek Stockyard",
+     "page": null,
+     "inset": true
+    },
+    {
+     "key": "N6",
+     "name": "Coffin Maker's Shop",
+     "page": null
+    },
+    {
+     "key": "N7",
+     "name": "Blinsky Toys",
+     "page": null,
+     "inset": true
+    },
+    {
+     "key": "N8",
+     "name": "Town Square",
+     "page": null,
+     "inset": true
+    },
+    {
+     "key": "N9",
+     "name": "Vistani Camp",
+     "page": null
+    }
+   ],
+   "placementLayer": {
+    "scaleBar": true,
+    "note": "no grid; digitize from the scale bar"
+   },
+   "insets": [
+    {
+     "id": "N1",
+     "name": "St. Andral's Church",
+     "reason": "book: reuse E5 church without the undercroft",
+     "cloneOf": "E5",
+     "omit": [
+      "E5g"
+     ]
+    },
+    {
+     "id": "N5",
+     "name": "Arasek Stockyard",
+     "reason": "sheds, warehouse, Rictavio's carnival wagon"
+    },
+    {
+     "id": "N7",
+     "name": "Blinsky Toys",
+     "reason": "no map"
+    },
+    {
+     "id": "N8",
+     "name": "Town Square",
+     "reason": "stocks, festival stage"
+    },
+    {
+     "id": "vallaki-gates",
+     "name": "Vallaki gates and palisade",
+     "reason": "unmapped"
+    }
+   ],
+   "events": [
+    {
+     "id": "st-andrals-feast",
+     "name": "St. Andral's Feast",
+     "stage": "N1"
+    },
+    {
+     "id": "festival-of-the-blazing-sun",
+     "name": "Festival of the Blazing Sun",
+     "stage": "N8"
+    },
+    {
+     "id": "lady-wachters-wish",
+     "name": "Lady Wachter's Wish",
+     "stage": "N4"
+    }
+   ]
+  },
+  {
+   "id": "N2",
+   "name": "Blue Water Inn",
+   "chapter": "ch05",
+   "status": "mapped",
+   "mapPages": [
+    99
+   ],
+   "bookScaleFt": 5,
+   "poster": false,
+   "path": "locations/ch05/N2",
+   "areas": [
+    {
+     "key": "N2a",
+     "name": "Well",
+     "page": null
+    },
+    {
+     "key": "N2b",
+     "name": "Outside Staircase",
+     "page": null
+    },
+    {
+     "key": "N2c",
+     "name": "Taproom",
+     "page": null
+    },
+    {
+     "key": "N2d",
+     "name": "Wine Storage",
+     "page": null
+    },
+    {
+     "key": "N2e",
+     "name": "Kitchen",
+     "page": null
+    },
+    {
+     "key": "N2f",
+     "name": "Stable",
+     "page": null
+    },
+    {
+     "key": "N2g",
+     "name": "Storage",
+     "page": null
+    },
+    {
+     "key": "N2h",
+     "name": "Ravens' Loft",
+     "page": null
+    },
+    {
+     "key": "N2i",
+     "name": "Secret Stairs and Hall",
+     "page": null
+    },
+    {
+     "key": "N2j",
+     "name": "Great Balcony",
+     "page": null
+    },
+    {
+     "key": "N2k",
+     "name": "Guest Balcony",
+     "page": null
+    },
+    {
+     "key": "N2l",
+     "name": "Guest Rooms",
+     "page": null
+    },
+    {
+     "key": "N2m",
+     "name": "Guest Room",
+     "page": null
+    },
+    {
+     "key": "N2n",
+     "name": "Private Guest Room",
+     "page": null
+    },
+    {
+     "key": "N2o",
+     "name": "Boys' Bedroom",
+     "page": null
+    },
+    {
+     "key": "N2p",
+     "name": "Master Bedroom",
+     "page": null
+    },
+    {
+     "key": "N2q",
+     "name": "Secret Attic",
+     "page": null
+    }
+   ],
+   "levels": [
+    {
+     "id": "ground",
+     "name": "Ground floor"
+    },
+    {
+     "id": "upper",
+     "name": "Upper floor"
+    },
+    {
+     "id": "attic",
+     "name": "Attic / roof"
+    }
+   ]
+  },
+  {
+   "id": "N3",
+   "name": "Burgomaster's Mansion (Vallaki)",
+   "chapter": "ch05",
+   "status": "mapped",
+   "mapPages": [
+    104
+   ],
+   "bookScaleFt": 5,
+   "poster": false,
+   "path": "locations/ch05/N3",
+   "areas": [
+    {
+     "key": "N3a",
+     "name": "Entrance Hall and Vestibule",
+     "page": null
+    },
+    {
+     "key": "N3b",
+     "name": "Parlor",
+     "page": null
+    },
+    {
+     "key": "N3c",
+     "name": "Dining Room",
+     "page": null
+    },
+    {
+     "key": "N3d",
+     "name": "Preparation Room",
+     "page": null
+    },
+    {
+     "key": "N3e",
+     "name": "Den",
+     "page": null
+    },
+    {
+     "key": "N3f",
+     "name": "Servants' Quarters",
+     "page": null
+    },
+    {
+     "key": "N3g",
+     "name": "Kitchen",
+     "page": null
+    },
+    {
+     "key": "N3h",
+     "name": "Pantry",
+     "page": null
+    },
+    {
+     "key": "N3i",
+     "name": "Upstairs Gallery",
+     "page": null
+    },
+    {
+     "key": "N3j",
+     "name": "Izek's Bedroom",
+     "page": null
+    },
+    {
+     "key": "N3k",
+     "name": "Victor's Bedroom",
+     "page": null
+    },
+    {
+     "key": "N3l",
+     "name": "Library",
+     "page": null
+    },
+    {
+     "key": "N3m",
+     "name": "Locked Closet",
+     "page": null
+    },
+    {
+     "key": "N3n",
+     "name": "Master Bedroom Closet",
+     "page": null
+    },
+    {
+     "key": "N3o",
+     "name": "Master Bedroom",
+     "page": null
+    },
+    {
+     "key": "N3p",
+     "name": "Bridal Gown and Spirit Mirror",
+     "page": null
+    },
+    {
+     "key": "N3q",
+     "name": "Bathroom",
+     "page": null
+    },
+    {
+     "key": "N3r",
+     "name": "Attic Room",
+     "page": null
+    },
+    {
+     "key": "N3s",
+     "name": "Attic Storage",
+     "page": null
+    },
+    {
+     "key": "N3t",
+     "name": "Victor's Workroom",
+     "page": null
+    }
+   ]
+  },
+  {
+   "id": "N4",
+   "name": "Wachterhaus",
+   "chapter": "ch05",
+   "status": "mapped",
+   "mapPages": [
+    111
+   ],
+   "bookScaleFt": 5,
+   "poster": false,
+   "path": "locations/ch05/N4",
+   "areas": [
+    {
+     "key": "N4a",
+     "name": "Front Door and Vestibule",
+     "page": null
+    },
+    {
+     "key": "N4b",
+     "name": "Staircase",
+     "page": null
+    },
+    {
+     "key": "N4c",
+     "name": "Kitchen",
+     "page": null
+    },
+    {
+     "key": "N4d",
+     "name": "Storage Room",
+     "page": null
+    },
+    {
+     "key": "N4e",
+     "name": "Back Vestibule",
+     "page": null
+    },
+    {
+     "key": "N4f",
+     "name": "Servants' Closet",
+     "page": null
+    },
+    {
+     "key": "N4g",
+     "name": "Secret Staircase",
+     "page": null
+    },
+    {
+     "key": "N4h",
+     "name": "Servants' Quarters",
+     "page": null
+    },
+    {
+     "key": "N4i",
+     "name": "Parlor",
+     "page": null
+    },
+    {
+     "key": "N4j",
+     "name": "Dining Room",
+     "page": null
+    },
+    {
+     "key": "N4k",
+     "name": "Den",
+     "page": null
+    },
+    {
+     "key": "N4l",
+     "name": "Upstairs Hall",
+     "page": null
+    },
+    {
+     "key": "N4m",
+     "name": "Brothers' Rooms",
+     "page": null
+    },
+    {
+     "key": "N4n",
+     "name": "Stella's Room",
+     "page": null
+    },
+    {
+     "key": "N4o",
+     "name": "Master Bedroom",
+     "page": null
+    },
+    {
+     "key": "N4p",
+     "name": "Library",
+     "page": null
+    },
+    {
+     "key": "N4q",
+     "name": "Storage Room",
+     "page": null
+    },
+    {
+     "key": "N4r",
+     "name": "Cellar Entrance",
+     "page": null
+    },
+    {
+     "key": "N4s",
+     "name": "Cellar",
+     "page": null
+    },
+    {
+     "key": "N4t",
+     "name": "Cult Headquarters",
+     "page": null
+    }
+   ],
+   "levels": [
+    {
+     "id": "ground",
+     "name": "Ground floor"
+    },
+    {
+     "id": "upper",
+     "name": "Upper floor"
+    },
+    {
+     "id": "cellar",
+     "name": "Cellar"
+    }
+   ]
+  },
+  {
+   "id": "N6",
+   "name": "Coffin Maker's Shop",
+   "chapter": "ch05",
+   "status": "mapped",
+   "mapPages": [
+    116
+   ],
+   "bookScaleFt": 5,
+   "poster": false,
+   "path": "locations/ch05/N6",
+   "areas": [
+    {
+     "key": "N6a",
+     "name": "Coffin Storage",
+     "page": null
+    },
+    {
+     "key": "N6b",
+     "name": "Junk Room",
+     "page": null
+    },
+    {
+     "key": "N6c",
+     "name": "Workshop",
+     "page": null
+    },
+    {
+     "key": "N6d",
+     "name": "Kitchen",
+     "page": null
+    },
+    {
+     "key": "N6e",
+     "name": "Henrik's Bedroom",
+     "page": null
+    },
+    {
+     "key": "N6f",
+     "name": "Vampire Nest and Piccolo",
+     "page": null
+    }
+   ]
+  },
+  {
+   "id": "N9",
+   "name": "Vistani Camp",
+   "chapter": "ch05",
+   "status": "mapped",
+   "mapPages": [
+    120
+   ],
+   "bookScaleFt": 10,
+   "poster": false,
+   "path": "locations/ch05/N9",
+   "areas": [
+    {
+     "key": "N9a",
+     "name": "Kasimir's Hovel",
+     "page": null
+    },
+    {
+     "key": "N9b",
+     "name": "Dusk Elf Hovels",
+     "page": null
+    },
+    {
+     "key": "N9c",
+     "name": "Vistani Tent",
+     "page": null
+    },
+    {
+     "key": "N9d",
+     "name": "Horses",
+     "page": null
+    },
+    {
+     "key": "N9e",
+     "name": "Luvash's Wagon",
+     "page": null
+    },
+    {
+     "key": "N9f",
+     "name": "Wagon of Sleeping Vistani",
+     "page": null
+    },
+    {
+     "key": "N9g",
+     "name": "Wagon of Gambling Vistani",
+     "page": null
+    },
+    {
+     "key": "N9h",
+     "name": "Vistani Family Wagon",
+     "page": null
+    },
+    {
+     "key": "N9i",
+     "name": "Vistani Treasure Wagon",
+     "page": null
+    }
+   ]
+  },
+  {
+   "id": "O",
+   "name": "Old Bonegrinder",
+   "chapter": "ch06",
+   "status": "mapped",
+   "mapPages": [
+    127
+   ],
+   "bookScaleFt": 5,
+   "poster": false,
+   "path": "locations/ch06/O",
+   "areas": [
+    {
+     "key": "O1",
+     "name": "Ground Floor",
+     "page": null
+    },
+    {
+     "key": "O2",
+     "name": "Bone Mill",
+     "page": null
+    },
+    {
+     "key": "O3",
+     "name": "Bedroom",
+     "page": null
+    },
+    {
+     "key": "O4",
+     "name": "Domed Attic",
+     "page": null
+    }
+   ],
+   "insets": [
+    {
+     "id": "megaliths",
+     "name": "The Megaliths",
+     "reason": "unmapped ring of standing stones",
+     "page": 128
+    }
+   ]
+  },
+  {
+   "id": "Q",
+   "name": "Argynvostholt",
+   "chapter": "ch07",
+   "status": "mapped",
+   "mapPages": [
+    131,
+    137
+   ],
+   "bookScaleFt": 10,
+   "poster": false,
+   "path": "locations/ch07/Q",
+   "areas": [
+    {
+     "key": "Q1",
+     "name": "Dragon Statue",
+     "page": null
+    },
+    {
+     "key": "Q2",
+     "name": "Main Entrance",
+     "page": null
+    },
+    {
+     "key": "Q3",
+     "name": "Dragon's Foyer",
+     "page": null
+    },
+    {
+     "key": "Q4",
+     "name": "Spiders' Ballroom",
+     "page": null
+    },
+    {
+     "key": "Q5",
+     "name": "Ruined Stable",
+     "page": null
+    },
+    {
+     "key": "Q6",
+     "name": "Dragon's Den",
+     "page": null
+    },
+    {
+     "key": "Q7",
+     "name": "Parlor",
+     "page": null
+    },
+    {
+     "key": "Q8",
+     "name": "Iron Gate",
+     "page": null
+    },
+    {
+     "key": "Q9",
+     "name": "Servants' Quarters",
+     "page": null
+    },
+    {
+     "key": "Q10",
+     "name": "Kitchen",
+     "page": null
+    },
+    {
+     "key": "Q11",
+     "name": "Wine Storage",
+     "page": null
+    },
+    {
+     "key": "Q12",
+     "name": "Dining Hall",
+     "page": null
+    },
+    {
+     "key": "Q13",
+     "name": "Chapel of Morning",
+     "page": null
+    },
+    {
+     "key": "Q14",
+     "name": "Chapel Staircases",
+     "page": null
+    },
+    {
+     "key": "Q15",
+     "name": "Cemetery",
+     "page": null
+    },
+    {
+     "key": "Q16",
+     "name": "Dragon's Mausoleum",
+     "page": null
+    },
+    {
+     "key": "Q17",
+     "name": "West Staircases",
+     "page": null
+    },
+    {
+     "key": "Q18",
+     "name": "Balconies",
+     "page": null
+    },
+    {
+     "key": "Q19",
+     "name": "Ruined Bedchambers",
+     "page": null
+    },
+    {
+     "key": "Q20",
+     "name": "South Alcove",
+     "page": null
+    },
+    {
+     "key": "Q21",
+     "name": "North Alcove",
+     "page": null
+    },
+    {
+     "key": "Q22",
+     "name": "Bathroom",
+     "page": null
+    },
+    {
+     "key": "Q23",
+     "name": "Storage Room",
+     "page": null
+    },
+    {
+     "key": "Q24",
+     "name": "Chapel Balcony",
+     "page": null
+    },
+    {
+     "key": "Q25",
+     "name": "Trapped Hallway",
+     "page": null
+    },
+    {
+     "key": "Q26",
+     "name": "Northeast Guest Room",
+     "page": null
+    },
+    {
+     "key": "Q27",
+     "name": "Knights' Quarters",
+     "page": null
+    },
+    {
+     "key": "Q28",
+     "name": "Knights' Quarters",
+     "page": null
+    },
+    {
+     "key": "Q29",
+     "name": "Northwest Guest Room",
+     "page": null
+    },
+    {
+     "key": "Q30",
+     "name": "Curtained Staircase",
+     "page": null
+    },
+    {
+     "key": "Q31",
+     "name": "East Staircases",
+     "page": null
+    },
+    {
+     "key": "Q32",
+     "name": "Ruined Bedchambers",
+     "page": null
+    },
+    {
+     "key": "Q33",
+     "name": "Collapsed Ceiling",
+     "page": null
+    },
+    {
+     "key": "Q34",
+     "name": "Ruined Bathroom",
+     "page": null
+    },
+    {
+     "key": "Q35",
+     "name": "Upstairs Gallery",
+     "page": null
+    },
+    {
+     "key": "Q36",
+     "name": "Dragon's Audience Hall",
+     "page": null
+    },
+    {
+     "key": "Q37",
+     "name": "Knights of the Order",
+     "page": null
+    },
+    {
+     "key": "Q38",
+     "name": "Closet",
+     "page": null
+    },
+    {
+     "key": "Q39",
+     "name": "Vladimir's Bedroom",
+     "page": null
+    },
+    {
+     "key": "Q40",
+     "name": "Argynvost's Study",
+     "page": null
+    },
+    {
+     "key": "Q41",
+     "name": "Dragon's Vault",
+     "page": null
+    },
+    {
+     "key": "Q42",
+     "name": "Argynvost's Bedroom",
+     "page": null
+    },
+    {
+     "key": "Q43",
+     "name": "Hole in Roof",
+     "page": null
+    },
+    {
+     "key": "Q44",
+     "name": "Dragon Gargoyle",
+     "page": null
+    },
+    {
+     "key": "Q45",
+     "name": "Ancient Ballista",
+     "page": null
+    },
+    {
+     "key": "Q46",
+     "name": "Destroyed Ballista",
+     "page": null
+    },
+    {
+     "key": "Q47",
+     "name": "Roof Turrets",
+     "page": null
+    },
+    {
+     "key": "Q48",
+     "name": "Roof's Edge",
+     "page": null
+    },
+    {
+     "key": "Q49",
+     "name": "Beacon Tower Door",
+     "page": null
+    },
+    {
+     "key": "Q50",
+     "name": "Beacon, Lower Landing",
+     "page": null
+    },
+    {
+     "key": "Q51",
+     "name": "Beacon, Upper Landing",
+     "page": null
+    },
+    {
+     "key": "Q52",
+     "name": "Beacon Turrets",
+     "page": null
+    },
+    {
+     "key": "Q53",
+     "name": "Beacon of Argynvostholt",
+     "page": null
+    }
+   ],
+   "levels": [
+    {
+     "id": "ground",
+     "name": "Ground floor",
+     "page": 131
+    },
+    {
+     "id": "second",
+     "name": "Second floor",
+     "page": 131
+    },
+    {
+     "id": "third",
+     "name": "Third floor",
+     "page": 137
+    },
+    {
+     "id": "roof",
+     "name": "Rooftop",
+     "page": 137
+    },
+    {
+     "id": "beacon",
+     "name": "Beacon",
+     "page": 137
+    }
+   ],
+   "events": [
+    {
+     "id": "special-delivery",
+     "name": "Special Delivery"
+    },
+    {
+     "id": "arrigals-hunt",
+     "name": "Arrigal's Hunt"
+    },
+    {
+     "id": "lighting-the-beacon",
+     "name": "Lighting the Beacon",
+     "regionalState": "beacon"
+    }
+   ]
+  },
+  {
+   "id": "S",
+   "name": "The Village of Krezk",
+   "chapter": "ch08",
+   "status": "placement",
+   "mapPages": [
+    144
+   ],
+   "bookScaleFt": null,
+   "poster": true,
+   "path": "locations/ch08/S",
+   "areas": [
+    {
+     "key": "S1",
+     "name": "Road Junction",
+     "page": null
+    },
+    {
+     "key": "S2",
+     "name": "Gatehouse",
+     "page": null
+    },
+    {
+     "key": "S3",
+     "name": "Village of Krezk",
+     "page": null
+    },
+    {
+     "key": "S4",
+     "name": "Pool and Shrine",
+     "page": null
+    },
+    {
+     "key": "S5",
+     "name": "Winding Road",
+     "page": null
+    },
+    {
+     "key": "S6",
+     "name": "North Gate",
+     "page": null
+    },
+    {
+     "key": "S7",
+     "name": "Graveyard",
+     "page": null
+    },
+    {
+     "key": "S8",
+     "name": "Garden Gatehouse",
+     "page": null
+    },
+    {
+     "key": "S9",
+     "name": "Gardens",
+     "page": null
+    }
+   ],
+   "placementLayer": {
+    "ftPerSquare": 50
+   },
+   "insets": [
+    {
+     "id": "S2",
+     "name": "Gatehouse and walls",
+     "reason": "interior unmapped"
+    },
+    {
+     "id": "S4",
+     "name": "Pool and Shrine",
+     "reason": "battle inset"
+    },
+    {
+     "id": "krezk-burgomaster-cottage",
+     "name": "Burgomaster's cottage",
+     "reason": "unmapped"
+    }
+   ],
+   "events": [
+    {
+     "id": "something-old-new-blue",
+     "name": "Something Old, Something New, Something Blue",
+     "stage": "S13/S12, S4"
+    }
+   ]
+  },
+  {
+   "id": "S10",
+   "name": "Abbey of Saint Markovia",
+   "chapter": "ch08",
+   "status": "mapped",
+   "mapPages": [
+    149,
+    153
+   ],
+   "bookScaleFt": 10,
+   "poster": false,
+   "path": "locations/ch08/S10",
+   "areas": [
+    {
+     "key": "S10",
+     "name": "Abbey Entrance",
+     "page": null
+    },
+    {
+     "key": "S11",
+     "name": "Inner Gatehouses",
+     "page": null
+    },
+    {
+     "key": "S12",
+     "name": "Courtyard",
+     "page": null
+    },
+    {
+     "key": "S12a",
+     "name": "Well",
+     "page": null,
+     "parent": "S12"
+    },
+    {
+     "key": "S12b",
+     "name": "Old Troughs",
+     "page": null,
+     "parent": "S12"
+    },
+    {
+     "key": "S12c",
+     "name": "Chicken Sheds",
+     "page": null,
+     "parent": "S12"
+    },
+    {
+     "key": "S12d",
+     "name": "Tethering Posts",
+     "page": null,
+     "parent": "S12"
+    },
+    {
+     "key": "S13",
+     "name": "Main Hall",
+     "page": null
+    },
+    {
+     "key": "S14",
+     "name": "Foyer",
+     "page": null
+    },
+    {
+     "key": "S15",
+     "name": "Madhouse",
+     "page": null
+    },
+    {
+     "key": "S15a",
+     "name": "Fearful Mongrelfolk",
+     "page": null,
+     "parent": "S15"
+    },
+    {
+     "key": "S15b",
+     "name": "Quarreling Mongrelfolk",
+     "page": null,
+     "parent": "S15"
+    },
+    {
+     "key": "S15c",
+     "name": "Incanting Mongrelfolk",
+     "page": null,
+     "parent": "S15"
+    },
+    {
+     "key": "S15d",
+     "name": "Hungry Mongrelfolk",
+     "page": null,
+     "parent": "S15"
+    },
+    {
+     "key": "S15e",
+     "name": "Mongrelfolk Horde",
+     "page": null,
+     "parent": "S15"
+    },
+    {
+     "key": "S15f",
+     "name": "Singing and Dancing Mongrelfolk",
+     "page": null,
+     "parent": "S15"
+    },
+    {
+     "key": "S15g",
+     "name": "Mongrelfolk Babies",
+     "page": null,
+     "parent": "S15"
+    },
+    {
+     "key": "S15h",
+     "name": "Mongrelfolk Fort",
+     "page": null,
+     "parent": "S15"
+    },
+    {
+     "key": "S16",
+     "name": "Wine Cellar",
+     "page": null
+    },
+    {
+     "key": "S17",
+     "name": "Loft and Belfry",
+     "page": null
+    },
+    {
+     "key": "S18",
+     "name": "Curtain Wall",
+     "page": null
+    },
+    {
+     "key": "S19",
+     "name": "Barracks",
+     "page": null
+    },
+    {
+     "key": "S20",
+     "name": "Upstairs Office",
+     "page": null
+    },
+    {
+     "key": "S21",
+     "name": "Haunted Hospital",
+     "page": null
+    },
+    {
+     "key": "S22",
+     "name": "Operating Room",
+     "page": null
+    },
+    {
+     "key": "S23",
+     "name": "Nursery",
+     "page": null
+    },
+    {
+     "key": "S24",
+     "name": "Morgue",
+     "page": null
+    }
+   ],
+   "levels": [
+    {
+     "id": "ground",
+     "name": "Ground floor",
+     "page": 149
+    },
+    {
+     "id": "upper",
+     "name": "Upper floor",
+     "page": 153
+    },
+    {
+     "id": "cellar",
+     "name": "Cellar",
+     "page": 153
+    }
+   ]
+  },
+  {
+   "id": "T",
+   "name": "Tsolenka Pass",
+   "chapter": "ch09",
+   "status": "mapped",
+   "mapPages": [
+    158
+   ],
+   "bookScaleFt": 10,
+   "poster": false,
+   "path": "locations/ch09/T",
+   "areas": [
+    {
+     "key": "T1",
+     "name": "Gatehouse Portcullis",
+     "page": null
+    },
+    {
+     "key": "T2",
+     "name": "Demon Statues",
+     "page": null
+    },
+    {
+     "key": "T3",
+     "name": "Curtain of Green Flame",
+     "page": null
+    },
+    {
+     "key": "T4",
+     "name": "Guard Tower, Ground Floor",
+     "page": null
+    },
+    {
+     "key": "T5",
+     "name": "Guard Tower, Upper Floor",
+     "page": null
+    },
+    {
+     "key": "T6",
+     "name": "Guard Tower Rooftop",
+     "page": null
+    },
+    {
+     "key": "T7",
+     "name": "Western Arch",
+     "page": null
+    },
+    {
+     "key": "T8",
+     "name": "Stone Bridge",
+     "page": null
+    },
+    {
+     "key": "T9",
+     "name": "Eastern Arch",
+     "page": null
+    }
+   ],
+   "events": [
+    {
+     "id": "bloodhorns-charge",
+     "name": "Bloodhorn's Charge",
+     "stage": "T8"
+    }
+   ],
+   "notes": "Side-view elevation contours +100 to +900 ft: the floor plane climbs."
+  },
+  {
+   "id": "U",
+   "name": "The Ruins of Berez",
+   "chapter": "ch10",
+   "status": "placement",
+   "mapPages": [
+    164
+   ],
+   "bookScaleFt": null,
+   "poster": true,
+   "path": "locations/ch10/U",
+   "areas": [
+    {
+     "key": "U1",
+     "name": "Abandoned Cottages",
+     "page": null
+    },
+    {
+     "key": "U2",
+     "name": "Ulrich Mansion",
+     "page": null
+    },
+    {
+     "key": "U3",
+     "name": "Baba Lysaga's Hut",
+     "page": null
+    },
+    {
+     "key": "U4",
+     "name": "Churchyard",
+     "page": null
+    },
+    {
+     "key": "U5",
+     "name": "Marina's Monument",
+     "page": null
+    },
+    {
+     "key": "U6",
+     "name": "Standing Stones",
+     "page": null
+    }
+   ],
+   "placementLayer": {
+    "ftPerSquare": 100
+   },
+   "events": [
+    {
+     "id": "creeping-hut",
+     "name": "Creeping Hut"
+    },
+    {
+     "id": "lost-battlefield",
+     "name": "Lost Battlefield"
+    }
+   ],
+   "notes": "Marsh floor throughout."
+  },
+  {
+   "id": "U3",
+   "name": "Baba Lysaga's Creeping Hut",
+   "chapter": "ch10",
+   "status": "mapped",
+   "mapPages": [
+    163
+   ],
+   "bookScaleFt": 5,
+   "poster": false,
+   "path": "locations/ch10/U3",
+   "areas": [
+    {
+     "key": "U3",
+     "name": "Baba Lysaga's Hut (interior)",
+     "page": null
+    }
+   ],
+   "notes": "The hut walks: movable footprint on the Berez layer."
+  },
+  {
+   "id": "V",
+   "name": "Van Richten's Tower",
+   "chapter": "ch11",
+   "status": "mapped",
+   "mapPages": [
+    170
+   ],
+   "bookScaleFt": 5,
+   "poster": false,
+   "path": "locations/ch11/V",
+   "areas": [
+    {
+     "key": "V1",
+     "name": "Ezmerelda's Magic Wagon",
+     "page": null
+    },
+    {
+     "key": "V2",
+     "name": "Tower Door",
+     "page": null
+    },
+    {
+     "key": "V3",
+     "name": "Rickety Scaffolding",
+     "page": null
+    },
+    {
+     "key": "V4",
+     "name": "Tower, First Floor",
+     "page": null
+    },
+    {
+     "key": "V5",
+     "name": "Tower, Second Floor",
+     "page": null
+    },
+    {
+     "key": "V6",
+     "name": "Tower, Third Floor",
+     "page": null
+    },
+    {
+     "key": "V7",
+     "name": "Tower, Fourth Floor",
+     "page": null
+    }
+   ],
+   "levels": [
+    {
+     "id": "grounds",
+     "name": "Grounds (Lake Baratok shore, causeway)"
+    },
+    {
+     "id": "f1",
+     "name": "First floor"
+    },
+    {
+     "id": "f2",
+     "name": "Second floor"
+    },
+    {
+     "id": "f3",
+     "name": "Third floor"
+    },
+    {
+     "id": "f4",
+     "name": "Fourth floor"
+    }
+   ],
+   "events": [
+    {
+     "id": "pack-attack",
+     "name": "Pack Attack"
+    },
+    {
+     "id": "ezmereldas-retreat",
+     "name": "Ezmerelda's Retreat"
+    }
+   ]
+  },
+  {
+   "id": "W",
+   "name": "The Wizard of Wines",
+   "chapter": "ch12",
+   "status": "mapped",
+   "mapPages": [
+    175
+   ],
+   "bookScaleFt": 5,
+   "poster": false,
+   "path": "locations/ch12/W",
+   "areas": [
+    {
+     "key": "W1",
+     "name": "Stables",
+     "page": null
+    },
+    {
+     "key": "W2",
+     "name": "Loading Dock",
+     "page": null
+    },
+    {
+     "key": "W3",
+     "name": "Barrel Maker's Workshop",
+     "page": null
+    },
+    {
+     "key": "W4",
+     "name": "Barrel Storage",
+     "page": null
+    },
+    {
+     "key": "W5",
+     "name": "Veranda",
+     "page": null
+    },
+    {
+     "key": "W6",
+     "name": "Well",
+     "page": null
+    },
+    {
+     "key": "W7",
+     "name": "Outhouse",
+     "page": null
+    },
+    {
+     "key": "W8",
+     "name": "Storage",
+     "page": null
+    },
+    {
+     "key": "W9",
+     "name": "Fermentation Vats",
+     "page": null
+    },
+    {
+     "key": "W10",
+     "name": "Glassblower's Workshop",
+     "page": null
+    },
+    {
+     "key": "W11",
+     "name": "Spiral Staircase",
+     "page": null
+    },
+    {
+     "key": "W12",
+     "name": "Ramp",
+     "page": null
+    },
+    {
+     "key": "W13",
+     "name": "Back Staircase",
+     "page": null
+    },
+    {
+     "key": "W14",
+     "name": "Wine Cellar",
+     "page": null
+    },
+    {
+     "key": "W15",
+     "name": "Brown Mold",
+     "page": null
+    },
+    {
+     "key": "W16",
+     "name": "Loading Winch",
+     "page": null
+    },
+    {
+     "key": "W17",
+     "name": "Master Bedroom",
+     "page": null
+    },
+    {
+     "key": "W18",
+     "name": "Kitchen and Dining Room",
+     "page": null
+    },
+    {
+     "key": "W19",
+     "name": "Sleeping Quarters",
+     "page": null
+    },
+    {
+     "key": "W20",
+     "name": "Printing Press",
+     "page": null
+    }
+   ],
+   "insets": [
+    {
+     "id": "vineyard",
+     "name": "Vineyard approach",
+     "reason": "unmapped rows of vines"
+    }
+   ],
+   "events": [
+    {
+     "id": "wine-delivery",
+     "name": "Wine Delivery"
+    },
+    {
+     "id": "wintersplinter-attacks",
+     "name": "Wintersplinter Attacks",
+     "needs": "Huge clear zone"
+    }
+   ]
+  },
+  {
+   "id": "X",
+   "name": "The Amber Temple",
+   "chapter": "ch13",
+   "status": "mapped",
+   "mapPages": [
+    182,
+    190
+   ],
+   "bookScaleFt": 10,
+   "poster": false,
+   "path": "locations/ch13/X",
+   "areas": [
+    {
+     "key": "X1",
+     "name": "Temple Facade",
+     "page": null
+    },
+    {
+     "key": "X1a",
+     "name": "Narrow Fissure",
+     "page": null,
+     "parent": "X1"
+    },
+    {
+     "key": "X2",
+     "name": "Entrance",
+     "page": null
+    },
+    {
+     "key": "X2a",
+     "name": "Guard Room",
+     "page": null,
+     "parent": "X2"
+    },
+    {
+     "key": "X2b",
+     "name": "Guard Room",
+     "page": null,
+     "parent": "X2"
+    },
+    {
+     "key": "X3",
+     "name": "Empty Barracks",
+     "page": null
+    },
+    {
+     "key": "X4",
+     "name": "Overlook",
+     "page": null
+    },
+    {
+     "key": "X5",
+     "name": "Temple of Lost Secrets",
+     "page": null
+    },
+    {
+     "key": "X5a",
+     "name": "God of Secrets",
+     "page": null,
+     "parent": "X5"
+    },
+    {
+     "key": "X5b",
+     "name": "Secret Door",
+     "page": null,
+     "parent": "X5"
+    },
+    {
+     "key": "X5c",
+     "name": "Locked Doors",
+     "page": null,
+     "parent": "X5"
+    },
+    {
+     "key": "X5d",
+     "name": "Amber Reflections",
+     "page": null,
+     "parent": "X5"
+    },
+    {
+     "key": "X6",
+     "name": "Southeast Annex",
+     "page": null
+    },
+    {
+     "key": "X7",
+     "name": "Secret Scroll Repository",
+     "page": null
+    },
+    {
+     "key": "X8",
+     "name": "Upper East Hall",
+     "page": null
+    },
+    {
+     "key": "X9",
+     "name": "Lecture Hall",
+     "page": null
+    },
+    {
+     "key": "X10",
+     "name": "Northeast Annex",
+     "page": null
+    },
+    {
+     "key": "X11",
+     "name": "Northeast Balcony",
+     "page": null
+    },
+    {
+     "key": "X12",
+     "name": "East Shrine",
+     "page": null
+    },
+    {
+     "key": "X13",
+     "name": "East Archer Post",
+     "page": null
+    },
+    {
+     "key": "X14",
+     "name": "North Staircase",
+     "page": null
+    },
+    {
+     "key": "X14a",
+     "name": "Collapsed Lower Hall",
+     "page": null,
+     "parent": "X14"
+    },
+    {
+     "key": "X15",
+     "name": "Southwest Annex",
+     "page": null
+    },
+    {
+     "key": "X16",
+     "name": "West Scroll Repository",
+     "page": null
+    },
+    {
+     "key": "X17",
+     "name": "Upper West Hall",
+     "page": null
+    },
+    {
+     "key": "X18",
+     "name": "Hallway",
+     "page": null
+    },
+    {
+     "key": "X19",
+     "name": "Potion Storage",
+     "page": null
+    },
+    {
+     "key": "X20",
+     "name": "Architect's Room",
+     "page": null
+    },
+    {
+     "key": "X21",
+     "name": "West Staircase",
+     "page": null
+    },
+    {
+     "key": "X22",
+     "name": "Northwest Annex",
+     "page": null
+    },
+    {
+     "key": "X23",
+     "name": "Northwest Balcony",
+     "page": null
+    },
+    {
+     "key": "X24",
+     "name": "West Shrine",
+     "page": null
+    },
+    {
+     "key": "X25",
+     "name": "West Archer Post",
+     "page": null
+    },
+    {
+     "key": "X26",
+     "name": "Secret Alcove",
+     "page": null
+    },
+    {
+     "key": "X27",
+     "name": "Lich's Lair",
+     "page": null
+    },
+    {
+     "key": "X28",
+     "name": "Hidden Phylactery",
+     "page": null
+    },
+    {
+     "key": "X29",
+     "name": "Secret Room",
+     "page": null
+    },
+    {
+     "key": "X30",
+     "name": "Preserved Library",
+     "page": null
+    },
+    {
+     "key": "X31",
+     "name": "Central Catacombs",
+     "page": null
+    },
+    {
+     "key": "X31a",
+     "name": "West Catacombs",
+     "page": null,
+     "parent": "X31"
+    },
+    {
+     "key": "X31b",
+     "name": "East Catacombs",
+     "page": null,
+     "parent": "X31"
+    },
+    {
+     "key": "X32",
+     "name": "Lower East Hall",
+     "page": null
+    },
+    {
+     "key": "X33",
+     "name": "Amber Vaults",
+     "page": null
+    },
+    {
+     "key": "X33a",
+     "name": "Vault of Shalx",
+     "page": null,
+     "parent": "X33"
+    },
+    {
+     "key": "X33b",
+     "name": "Vault of Maverus",
+     "page": null,
+     "parent": "X33"
+    },
+    {
+     "key": "X33c",
+     "name": "Ghastly Vault",
+     "page": null,
+     "parent": "X33"
+    },
+    {
+     "key": "X33d",
+     "name": "Breached Vault",
+     "page": null,
+     "parent": "X33"
+    },
+    {
+     "key": "X33e",
+     "name": "Vault of Harkotha",
+     "page": null,
+     "parent": "X33"
+    },
+    {
+     "key": "X33f",
+     "name": "Vault of Thangob",
+     "page": null,
+     "parent": "X33"
+    },
+    {
+     "key": "X34",
+     "name": "Wizard's Bedchamber",
+     "page": null
+    },
+    {
+     "key": "X35",
+     "name": "Sleeping Guardian",
+     "page": null
+    },
+    {
+     "key": "X36",
+     "name": "Lower West Hall",
+     "page": null
+    },
+    {
+     "key": "X37",
+     "name": "Wizard's Bedchamber",
+     "page": null
+    },
+    {
+     "key": "X38",
+     "name": "Haunted Room",
+     "page": null
+    },
+    {
+     "key": "X39",
+     "name": "Plundered Treasury",
+     "page": null
+    },
+    {
+     "key": "X40",
+     "name": "Sealed Treasury",
+     "page": null
+    },
+    {
+     "key": "X41",
+     "name": "Fissure",
+     "page": null
+    },
+    {
+     "key": "X42",
+     "name": "Amber Vault",
+     "page": null
+    }
+   ],
+   "levels": [
+    {
+     "id": "upper",
+     "name": "Upper level",
+     "page": 182
+    },
+    {
+     "id": "lower",
+     "name": "Lower level",
+     "page": 190
+    }
+   ],
+   "events": [
+    {
+     "id": "rahadins-prayer",
+     "name": "Rahadin's Prayer"
+    }
+   ],
+   "notes": "Amber sarcophagi are hidden-object slots. Snow and ice outside."
+  },
+  {
+   "id": "Y",
+   "name": "Yester Hill",
+   "chapter": "ch14",
+   "status": "placement",
+   "mapPages": [
+    199
+   ],
+   "bookScaleFt": null,
+   "poster": false,
+   "path": "locations/ch14/Y",
+   "areas": [
+    {
+     "key": "Y1",
+     "name": "Trail",
+     "page": null
+    },
+    {
+     "key": "Y2",
+     "name": "Berserker Cairns",
+     "page": null
+    },
+    {
+     "key": "Y3",
+     "name": "Druids' Circle",
+     "page": null
+    },
+    {
+     "key": "Y4",
+     "name": "Gulthias Tree",
+     "page": null
+    },
+    {
+     "key": "Y5",
+     "name": "Wall of Fog",
+     "page": null
+    }
+   ],
+   "placementLayer": {
+    "ftPerSquare": 50
+   },
+   "insets": [
+    {
+     "id": "summit",
+     "name": "Yester Hill summit",
+     "reason": "battle inset"
+    }
+   ],
+   "events": [
+    {
+     "id": "druids-ritual",
+     "name": "Druids' Ritual",
+     "needs": "Huge footprint (Wintersplinter)"
+    }
+   ]
+  },
+  {
+   "id": "Z",
+   "name": "Werewolf Den",
+   "chapter": "ch15",
+   "status": "mapped",
+   "mapPages": [
+    202
+   ],
+   "bookScaleFt": 10,
+   "poster": false,
+   "path": "locations/ch15/Z",
+   "areas": [
+    {
+     "key": "Z1",
+     "name": "Cave Mouth",
+     "page": null
+    },
+    {
+     "key": "Z2",
+     "name": "Guard Post",
+     "page": null
+    },
+    {
+     "key": "Z3",
+     "name": "Wolf Den",
+     "page": null
+    },
+    {
+     "key": "Z4",
+     "name": "Underground Spring",
+     "page": null
+    },
+    {
+     "key": "Z5",
+     "name": "Deep Caves",
+     "page": null
+    },
+    {
+     "key": "Z5a",
+     "name": "South Cave",
+     "page": null,
+     "parent": "Z5"
+    },
+    {
+     "key": "Z5b",
+     "name": "North Cave",
+     "page": null,
+     "parent": "Z5"
+    },
+    {
+     "key": "Z6",
+     "name": "Kiril's Cave",
+     "page": null
+    },
+    {
+     "key": "Z7",
+     "name": "Shrine of Mother Night",
+     "page": null
+    },
+    {
+     "key": "Z8",
+     "name": "Ring of Stone",
+     "page": null
+    }
+   ],
+   "events": [
+    {
+     "id": "leader-of-the-pack",
+     "name": "Leader of the Pack"
+    }
+   ]
+  },
+  {
+   "id": "death-house",
+   "name": "Death House",
+   "chapter": "appB",
+   "status": "mapped",
+   "mapPages": [
+    216
+   ],
+   "bookScaleFt": 5,
+   "poster": false,
+   "path": "locations/appB/death-house",
+   "areas": [
+    {
+     "key": "1",
+     "name": "Entrance",
+     "page": null
+    },
+    {
+     "key": "2",
+     "name": "Main Hall",
+     "page": null
+    },
+    {
+     "key": "3",
+     "name": "Den of Wolves",
+     "page": null
+    },
+    {
+     "key": "4",
+     "name": "Kitchen and Pantry",
+     "page": null
+    },
+    {
+     "key": "5",
+     "name": "Dining Room",
+     "page": null
+    },
+    {
+     "key": "6",
+     "name": "Upper Hall",
+     "page": null
+    },
+    {
+     "key": "7",
+     "name": "Servants' Room",
+     "page": null
+    },
+    {
+     "key": "8",
+     "name": "Library",
+     "page": null
+    },
+    {
+     "key": "9",
+     "name": "Secret Room",
+     "page": null
+    },
+    {
+     "key": "10",
+     "name": "Conservatory",
+     "page": null
+    },
+    {
+     "key": "11",
+     "name": "Balcony",
+     "page": null
+    },
+    {
+     "key": "12",
+     "name": "Master Suite",
+     "page": null
+    },
+    {
+     "key": "13",
+     "name": "Bathroom",
+     "page": null
+    },
+    {
+     "key": "14",
+     "name": "Storage Room",
+     "page": null
+    },
+    {
+     "key": "15",
+     "name": "Nursemaid's Suite",
+     "page": null
+    },
+    {
+     "key": "16",
+     "name": "Attic Hall",
+     "page": null
+    },
+    {
+     "key": "17",
+     "name": "Spare Bedroom",
+     "page": null
+    },
+    {
+     "key": "18",
+     "name": "Storage Room",
+     "page": null
+    },
+    {
+     "key": "19",
+     "name": "Spare Bedroom",
+     "page": null
+    },
+    {
+     "key": "20",
+     "name": "Children's Room",
+     "page": null
+    },
+    {
+     "key": "21",
+     "name": "Secret Stairs",
+     "page": null
+    },
+    {
+     "key": "22",
+     "name": "Dungeon Level Access",
+     "page": null
+    },
+    {
+     "key": "23",
+     "name": "Family Crypts",
+     "page": null
+    },
+    {
+     "key": "24",
+     "name": "Cult Initiates' Quarters",
+     "page": null
+    },
+    {
+     "key": "25",
+     "name": "Well and Cultist Quarters",
+     "page": null
+    },
+    {
+     "key": "26",
+     "name": "Hidden Spiked Pit",
+     "page": null
+    },
+    {
+     "key": "27",
+     "name": "Dining Hall",
+     "page": null
+    },
+    {
+     "key": "28",
+     "name": "Larder",
+     "page": null
+    },
+    {
+     "key": "29",
+     "name": "Ghoulish Encounter",
+     "page": null
+    },
+    {
+     "key": "30",
+     "name": "Stairs Down",
+     "page": null
+    },
+    {
+     "key": "31",
+     "name": "Darklord's Shrine",
+     "page": null
+    },
+    {
+     "key": "32",
+     "name": "Hidden Trapdoor",
+     "page": null
+    },
+    {
+     "key": "33",
+     "name": "Cult Leaders' Den",
+     "page": null
+    },
+    {
+     "key": "34",
+     "name": "Cult Leaders' Quarters",
+     "page": null
+    },
+    {
+     "key": "35",
+     "name": "Reliquary",
+     "page": null
+    },
+    {
+     "key": "36",
+     "name": "Prison",
+     "page": null
+    },
+    {
+     "key": "37",
+     "name": "Portcullis",
+     "page": null
+    },
+    {
+     "key": "38",
+     "name": "Ritual Chamber",
+     "page": null
+    }
+   ],
+   "levels": [
+    {
+     "id": "f1",
+     "name": "Ground floor"
+    },
+    {
+     "id": "f2",
+     "name": "Second floor"
+    },
+    {
+     "id": "f3",
+     "name": "Third floor"
+    },
+    {
+     "id": "attic",
+     "name": "Attic"
+    },
+    {
+     "id": "dungeon",
+     "name": "Dungeon"
+    }
+   ],
+   "notes": "Keys are the bare numbers; UI label is \"Death House N\". Exterior placed on the Village of Barovia layer. Milestone M1."
+  },
+  {
+   "id": "encounter-terrain",
+   "name": "Encounter terrain kit",
+   "chapter": "ch02",
+   "status": "kit",
+   "mapPages": [],
+   "bookScaleFt": null,
+   "poster": false,
+   "path": "locations/ch02/encounter-terrain",
+   "areas": [],
+   "notes": "Reusable terrain from the Ch. 2 random-encounter tables and the castle table; see manifests/encounters.json."
+  }
+ ]
+}

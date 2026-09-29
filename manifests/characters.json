@@ -1,0 +1,2019 @@
+{
+ "schema": 1,
+ "source": "occ prompt v1 §11 seed — complete from OCR (appendix D refs, bold stat blocks)",
+ "notes": "Night hags are Tier 3 stat blocks but the three Bonegrinder hags get Tier 1 models.",
+ "characters": [
+  {
+   "id": "strahd-von-zarovich",
+   "name": "Strahd von Zarovich",
+   "tier": 1,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "K"
+   ],
+   "kind": "npc",
+   "variants": [
+    "humanoid",
+    "bat",
+    "wolf",
+    "mist"
+   ]
+  },
+  {
+   "id": "ireena-kolyana",
+   "name": "Ireena Kolyana",
+   "tier": 1,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "E4"
+   ],
+   "kind": "npc"
+  },
+  {
+   "id": "ismark-kolyanovich",
+   "name": "Ismark Kolyanovich",
+   "tier": 1,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "E2",
+    "E4"
+   ],
+   "kind": "npc"
+  },
+  {
+   "id": "kolyan-indirovich",
+   "name": "Kolyan Indirovich",
+   "tier": 1,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "E4"
+   ],
+   "kind": "npc",
+   "variants": [
+    "corpse"
+   ]
+  },
+  {
+   "id": "rahadin",
+   "name": "Rahadin",
+   "tier": 1,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "K"
+   ],
+   "kind": "npc"
+  },
+  {
+   "id": "ezmerelda-davenir",
+   "name": "Ezmerelda d'Avenir",
+   "tier": 1,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "V1"
+   ],
+   "kind": "npc"
+  },
+  {
+   "id": "rudolph-van-richten",
+   "name": "Rudolph van Richten",
+   "tier": 1,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "N5"
+   ],
+   "kind": "npc",
+   "variants": [
+    "rictavio"
+   ]
+  },
+  {
+   "id": "madam-eva",
+   "name": "Madam Eva",
+   "tier": 1,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "G"
+   ],
+   "kind": "npc"
+  },
+  {
+   "id": "the-abbot",
+   "name": "The Abbot",
+   "tier": 1,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "S10"
+   ],
+   "kind": "npc"
+  },
+  {
+   "id": "vasilka",
+   "name": "Vasilka",
+   "tier": 1,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "S10"
+   ],
+   "kind": "npc"
+  },
+  {
+   "id": "baba-lysaga",
+   "name": "Baba Lysaga",
+   "tier": 1,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "U"
+   ],
+   "kind": "npc"
+  },
+  {
+   "id": "kasimir-velikov",
+   "name": "Kasimir Velikov",
+   "tier": 1,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "N9a",
+    "X"
+   ],
+   "kind": "npc"
+  },
+  {
+   "id": "vladimir-horngaard",
+   "name": "Vladimir Horngaard",
+   "tier": 1,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "Q"
+   ],
+   "kind": "npc"
+  },
+  {
+   "id": "sir-godfrey-gwilym",
+   "name": "Sir Godfrey Gwilym",
+   "tier": 1,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "Q"
+   ],
+   "kind": "npc"
+  },
+  {
+   "id": "izek-strazni",
+   "name": "Izek Strazni",
+   "tier": 1,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "N3"
+   ],
+   "kind": "npc"
+  },
+  {
+   "id": "baron-vargas-vallakovich",
+   "name": "Baron Vargas Vallakovich",
+   "tier": 1,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "N3"
+   ],
+   "kind": "npc"
+  },
+  {
+   "id": "baroness-lydia-petrovna",
+   "name": "Baroness Lydia Petrovna",
+   "tier": 1,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "N3"
+   ],
+   "kind": "npc"
+  },
+  {
+   "id": "victor-vallakovich",
+   "name": "Victor Vallakovich",
+   "tier": 1,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "N3t"
+   ],
+   "kind": "npc"
+  },
+  {
+   "id": "lady-fiona-wachter",
+   "name": "Lady Fiona Wachter",
+   "tier": 1,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "N4"
+   ],
+   "kind": "npc"
+  },
+  {
+   "id": "stella-wachter",
+   "name": "Stella Wachter",
+   "tier": 1,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "N4n"
+   ],
+   "kind": "npc"
+  },
+  {
+   "id": "nikolai-wachter",
+   "name": "Nikolai Wachter",
+   "tier": 1,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "N4"
+   ],
+   "kind": "npc"
+  },
+  {
+   "id": "karl-wachter",
+   "name": "Karl Wachter",
+   "tier": 1,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "N4"
+   ],
+   "kind": "npc"
+  },
+  {
+   "id": "father-lucian-petrovich",
+   "name": "Father Lucian Petrovich",
+   "tier": 1,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "N1"
+   ],
+   "kind": "npc"
+  },
+  {
+   "id": "urwin-martikov",
+   "name": "Urwin Martikov",
+   "tier": 1,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "N2"
+   ],
+   "kind": "npc"
+  },
+  {
+   "id": "danika-martikov",
+   "name": "Danika Martikov",
+   "tier": 1,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "N2"
+   ],
+   "kind": "npc"
+  },
+  {
+   "id": "brom-martikov",
+   "name": "Brom Martikov",
+   "tier": 1,
+   "size": "small",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "N2"
+   ],
+   "kind": "npc"
+  },
+  {
+   "id": "bray-martikov",
+   "name": "Bray Martikov",
+   "tier": 1,
+   "size": "small",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "N2"
+   ],
+   "kind": "npc"
+  },
+  {
+   "id": "davian-martikov",
+   "name": "Davian Martikov",
+   "tier": 1,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "W"
+   ],
+   "kind": "npc"
+  },
+  {
+   "id": "szoldar-szoldarovich",
+   "name": "Szoldar Szoldarovich",
+   "tier": 1,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "N2"
+   ],
+   "kind": "npc"
+  },
+  {
+   "id": "yevgeni-krushkin",
+   "name": "Yevgeni Krushkin",
+   "tier": 1,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "N2"
+   ],
+   "kind": "npc"
+  },
+  {
+   "id": "morgantha",
+   "name": "Morgantha",
+   "tier": 1,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "O"
+   ],
+   "kind": "npc",
+   "variants": [
+    "hag",
+    "old-woman"
+   ]
+  },
+  {
+   "id": "bella-sunbane",
+   "name": "Bella Sunbane",
+   "tier": 1,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "O"
+   ],
+   "kind": "npc",
+   "variants": [
+    "hag",
+    "old-woman"
+   ]
+  },
+  {
+   "id": "offalia-wormwiggle",
+   "name": "Offalia Wormwiggle",
+   "tier": 1,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "O"
+   ],
+   "kind": "npc",
+   "variants": [
+    "hag",
+    "old-woman"
+   ]
+  },
+  {
+   "id": "gadof-blinsky",
+   "name": "Gadof Blinsky",
+   "tier": 1,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "N7"
+   ],
+   "kind": "npc"
+  },
+  {
+   "id": "henrik-van-der-voort",
+   "name": "Henrik van der Voort",
+   "tier": 1,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "N6"
+   ],
+   "kind": "npc"
+  },
+  {
+   "id": "luvash",
+   "name": "Luvash",
+   "tier": 1,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "N9"
+   ],
+   "kind": "npc"
+  },
+  {
+   "id": "arrigal",
+   "name": "Arrigal",
+   "tier": 1,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "N9"
+   ],
+   "kind": "npc"
+  },
+  {
+   "id": "arabelle",
+   "name": "Arabelle",
+   "tier": 1,
+   "size": "small",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "L",
+    "N9"
+   ],
+   "kind": "npc"
+  },
+  {
+   "id": "kiril-stoyanovich",
+   "name": "Kiril Stoyanovich",
+   "tier": 1,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "Z"
+   ],
+   "kind": "npc",
+   "variants": [
+    "human",
+    "hybrid",
+    "wolf"
+   ]
+  },
+  {
+   "id": "emil-toranescu",
+   "name": "Emil Toranescu",
+   "tier": 1,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "Z"
+   ],
+   "kind": "npc",
+   "variants": [
+    "human",
+    "hybrid",
+    "wolf"
+   ]
+  },
+  {
+   "id": "zuleika-toranescu",
+   "name": "Zuleika Toranescu",
+   "tier": 1,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "Z"
+   ],
+   "kind": "npc",
+   "variants": [
+    "human",
+    "hybrid",
+    "wolf"
+   ]
+  },
+  {
+   "id": "exethanter",
+   "name": "Exethanter",
+   "tier": 1,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "X"
+   ],
+   "kind": "npc"
+  },
+  {
+   "id": "neferon",
+   "name": "Neferon",
+   "tier": 1,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "X"
+   ],
+   "kind": "npc"
+  },
+  {
+   "id": "vilnius",
+   "name": "Vilnius",
+   "tier": 1,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "V"
+   ],
+   "kind": "npc"
+  },
+  {
+   "id": "pidlwick-ii",
+   "name": "Pidlwick II",
+   "tier": 1,
+   "size": "small",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "K"
+   ],
+   "kind": "npc"
+  },
+  {
+   "id": "escher",
+   "name": "Escher",
+   "tier": 1,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "K"
+   ],
+   "kind": "npc"
+  },
+  {
+   "id": "ludmilla-vilisevic",
+   "name": "Ludmilla Vilisevic",
+   "tier": 1,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "K"
+   ],
+   "kind": "npc"
+  },
+  {
+   "id": "anastrasya-karelova",
+   "name": "Anastrasya Karelova",
+   "tier": 1,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "K"
+   ],
+   "kind": "npc"
+  },
+  {
+   "id": "volenta-popofsky",
+   "name": "Volenta Popofsky",
+   "tier": 1,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "K"
+   ],
+   "kind": "npc"
+  },
+  {
+   "id": "patrina-velikovna",
+   "name": "Patrina Velikovna",
+   "tier": 1,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "K84"
+   ],
+   "kind": "npc"
+  },
+  {
+   "id": "sergei-von-zarovich",
+   "name": "Sergei von Zarovich",
+   "tier": 1,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "K85"
+   ],
+   "kind": "npc",
+   "variants": [
+    "ghost"
+   ]
+  },
+  {
+   "id": "tatyana",
+   "name": "Tatyana",
+   "tier": 1,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "K"
+   ],
+   "kind": "npc"
+  },
+  {
+   "id": "rose-durst",
+   "name": "Rose Durst",
+   "tier": 1,
+   "size": "small",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "death-house"
+   ],
+   "kind": "npc",
+   "variants": [
+    "ghost"
+   ]
+  },
+  {
+   "id": "thorn-durst",
+   "name": "Thorn Durst",
+   "tier": 1,
+   "size": "small",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "death-house"
+   ],
+   "kind": "npc",
+   "variants": [
+    "ghost"
+   ]
+  },
+  {
+   "id": "gustav-durst",
+   "name": "Gustav Durst",
+   "tier": 1,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "death-house"
+   ],
+   "kind": "npc"
+  },
+  {
+   "id": "elisabeth-durst",
+   "name": "Elisabeth Durst",
+   "tier": 1,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "death-house"
+   ],
+   "kind": "npc"
+  },
+  {
+   "id": "donavich",
+   "name": "Donavich",
+   "tier": 1,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "E5"
+   ],
+   "kind": "npc"
+  },
+  {
+   "id": "doru",
+   "name": "Doru",
+   "tier": 1,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "E5g"
+   ],
+   "kind": "npc"
+  },
+  {
+   "id": "mad-mary",
+   "name": "Mad Mary",
+   "tier": 1,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "E3"
+   ],
+   "kind": "npc"
+  },
+  {
+   "id": "gertruda",
+   "name": "Gertruda",
+   "tier": 1,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "E3",
+    "K"
+   ],
+   "kind": "npc"
+  },
+  {
+   "id": "bildrath-cantemir",
+   "name": "Bildrath Cantemir",
+   "tier": 1,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "E1"
+   ],
+   "kind": "npc"
+  },
+  {
+   "id": "parriwimple",
+   "name": "Parriwimple",
+   "tier": 1,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "E1"
+   ],
+   "kind": "npc"
+  },
+  {
+   "id": "milivoj",
+   "name": "Milivoj",
+   "tier": 1,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "S"
+   ],
+   "kind": "npc"
+  },
+  {
+   "id": "bluto-krogarov",
+   "name": "Bluto Krogarov",
+   "tier": 1,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "L"
+   ],
+   "kind": "npc"
+  },
+  {
+   "id": "dmitri-krezkov",
+   "name": "Dmitri Krezkov",
+   "tier": 1,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "S"
+   ],
+   "kind": "npc"
+  },
+  {
+   "id": "anna-krezkov",
+   "name": "Anna Krezkov",
+   "tier": 1,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "S"
+   ],
+   "kind": "npc"
+  },
+  {
+   "id": "clovin-belview",
+   "name": "Clovin Belview",
+   "tier": 1,
+   "size": "small",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "S10"
+   ],
+   "kind": "npc"
+  },
+  {
+   "id": "otto-belview",
+   "name": "Otto Belview",
+   "tier": 1,
+   "size": "small",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "S10"
+   ],
+   "kind": "npc"
+  },
+  {
+   "id": "zygfrek-belview",
+   "name": "Zygfrek Belview",
+   "tier": 1,
+   "size": "small",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "S10"
+   ],
+   "kind": "npc"
+  },
+  {
+   "id": "cyrus-belview",
+   "name": "Cyrus Belview",
+   "tier": 1,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "K"
+   ],
+   "kind": "npc"
+  },
+  {
+   "id": "lief-lipsiege",
+   "name": "Lief Lipsiege",
+   "tier": 1,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "K30"
+   ],
+   "kind": "npc"
+  },
+  {
+   "id": "helga-ruvak",
+   "name": "Helga Ruvak",
+   "tier": 1,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "K"
+   ],
+   "kind": "npc"
+  },
+  {
+   "id": "ernst-larnak",
+   "name": "Ernst Larnak",
+   "tier": 1,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "V"
+   ],
+   "kind": "npc"
+  },
+  {
+   "id": "mordenkainen",
+   "name": "Mordenkainen",
+   "tier": 1,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "M"
+   ],
+   "kind": "npc",
+   "variants": [
+    "mad-mage"
+   ]
+  },
+  {
+   "id": "argynvost",
+   "name": "Argynvost",
+   "tier": 1,
+   "size": "huge",
+   "baseIn": 3,
+   "visibility": "hidden-creature",
+   "tags": [
+    "Q"
+   ],
+   "kind": "npc",
+   "variants": [
+    "dragon-spirit",
+    "beacon"
+   ]
+  },
+  {
+   "id": "beucephalus",
+   "name": "Beucephalus",
+   "tier": 1,
+   "size": "large",
+   "baseIn": 2,
+   "visibility": "hidden-creature",
+   "tags": [
+    "K"
+   ],
+   "kind": "npc"
+  },
+  {
+   "id": "lorghoth-the-decayer",
+   "name": "Lorghoth the Decayer",
+   "tier": 1,
+   "size": "large",
+   "baseIn": 2,
+   "visibility": "hidden-creature",
+   "tags": [
+    "Q"
+   ],
+   "kind": "npc"
+  },
+  {
+   "id": "wintersplinter",
+   "name": "Wintersplinter",
+   "tier": 1,
+   "size": "huge",
+   "baseIn": 3,
+   "visibility": "hidden-creature",
+   "tags": [
+    "Y",
+    "W"
+   ],
+   "kind": "npc"
+  },
+  {
+   "id": "barovian-witch",
+   "name": "Barovian witch",
+   "tier": 2,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "creature"
+  },
+  {
+   "id": "broom-of-animated-attack",
+   "name": "Broom of animated attack",
+   "tier": 2,
+   "size": "small",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "creature"
+  },
+  {
+   "id": "baba-lysagas-creeping-hut",
+   "name": "Baba Lysaga's creeping hut",
+   "tier": 2,
+   "size": "gargantuan",
+   "baseIn": 4,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "creature"
+  },
+  {
+   "id": "tree-blight",
+   "name": "Tree blight",
+   "tier": 2,
+   "size": "huge",
+   "baseIn": 3,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "creature"
+  },
+  {
+   "id": "mongrelfolk",
+   "name": "Mongrelfolk",
+   "tier": 2,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "creature",
+   "variants": [
+    "body-a",
+    "body-b",
+    "body-c",
+    "body-d"
+   ]
+  },
+  {
+   "id": "phantom-warrior",
+   "name": "Phantom warrior",
+   "tier": 2,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "creature"
+  },
+  {
+   "id": "strahd-zombie",
+   "name": "Strahd zombie",
+   "tier": 2,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "creature",
+   "variants": [
+    "standing",
+    "crawling"
+   ]
+  },
+  {
+   "id": "wereraven",
+   "name": "Wereraven",
+   "tier": 2,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "creature",
+   "variants": [
+    "human",
+    "hybrid",
+    "raven"
+   ]
+  },
+  {
+   "id": "vistani-bandit",
+   "name": "Vistani bandit",
+   "tier": 2,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "creature"
+  },
+  {
+   "id": "vistani-thug",
+   "name": "Vistani thug",
+   "tier": 2,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "creature"
+  },
+  {
+   "id": "dusk-elf",
+   "name": "Dusk elf",
+   "tier": 2,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "creature"
+  },
+  {
+   "id": "skeletal-rider",
+   "name": "Skeletal rider",
+   "tier": 2,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "creature"
+  },
+  {
+   "id": "amber-golem",
+   "name": "Amber golem",
+   "tier": 2,
+   "size": "large",
+   "baseIn": 2,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "creature"
+  },
+  {
+   "id": "flesh-golem-the-abbots",
+   "name": "Flesh golem (the Abbot's)",
+   "tier": 2,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "creature"
+  },
+  {
+   "id": "clay-golem-van-richtens-tower",
+   "name": "Clay golem (Van Richten's tower)",
+   "tier": 2,
+   "size": "large",
+   "baseIn": 2,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "creature"
+  },
+  {
+   "id": "gulthias-tree",
+   "name": "Gulthias tree",
+   "tier": 2,
+   "size": "huge",
+   "baseIn": 3,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "creature"
+  },
+  {
+   "id": "heart-of-sorrow",
+   "name": "Heart of Sorrow",
+   "tier": 2,
+   "size": "large",
+   "baseIn": 2,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "creature"
+  },
+  {
+   "id": "wolf",
+   "name": "Wolf",
+   "tier": 3,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "dire-wolf",
+   "name": "Dire wolf",
+   "tier": 3,
+   "size": "large",
+   "baseIn": 2,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "werewolf",
+   "name": "Werewolf",
+   "tier": 3,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual",
+   "variants": [
+    "human",
+    "hybrid",
+    "wolf"
+   ]
+  },
+  {
+   "id": "bat",
+   "name": "Bat",
+   "tier": 3,
+   "size": "tiny",
+   "baseIn": 0.5,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "swarm-of-bats",
+   "name": "Swarm of bats",
+   "tier": 3,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "raven",
+   "name": "Raven",
+   "tier": 3,
+   "size": "tiny",
+   "baseIn": 0.5,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "swarm-of-ravens",
+   "name": "Swarm of ravens",
+   "tier": 3,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "swarm-of-rats",
+   "name": "Swarm of rats",
+   "tier": 3,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "swarm-of-insects",
+   "name": "Swarm of insects",
+   "tier": 3,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual",
+   "variants": [
+    "spiders"
+   ]
+  },
+  {
+   "id": "giant-spider",
+   "name": "Giant spider",
+   "tier": 3,
+   "size": "large",
+   "baseIn": 2,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "ghoul",
+   "name": "Ghoul",
+   "tier": 3,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "ghast",
+   "name": "Ghast",
+   "tier": 3,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "zombie",
+   "name": "Zombie",
+   "tier": 3,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "skeleton",
+   "name": "Skeleton",
+   "tier": 3,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "shadow",
+   "name": "Shadow",
+   "tier": 3,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "specter",
+   "name": "Specter",
+   "tier": 3,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "poltergeist",
+   "name": "Poltergeist",
+   "tier": 3,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "wraith",
+   "name": "Wraith",
+   "tier": 3,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "wight",
+   "name": "Wight",
+   "tier": 3,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "ghost",
+   "name": "Ghost",
+   "tier": 3,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "banshee",
+   "name": "Banshee",
+   "tier": 3,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "revenant",
+   "name": "Revenant",
+   "tier": 3,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "vampire-spawn",
+   "name": "Vampire spawn",
+   "tier": 3,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "scarecrow",
+   "name": "Scarecrow",
+   "tier": 3,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "twig-blight",
+   "name": "Twig blight",
+   "tier": 3,
+   "size": "small",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "needle-blight",
+   "name": "Needle blight",
+   "tier": 3,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "vine-blight",
+   "name": "Vine blight",
+   "tier": 3,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "druid",
+   "name": "Druid",
+   "tier": 3,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "berserker",
+   "name": "Berserker",
+   "tier": 3,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "will-o-wisp",
+   "name": "Will-o'-wisp",
+   "tier": 3,
+   "size": "tiny",
+   "baseIn": 0.5,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "night-hag",
+   "name": "Night hag",
+   "tier": 3,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "gargoyle",
+   "name": "Gargoyle",
+   "tier": 3,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "animated-armor",
+   "name": "Animated armor",
+   "tier": 3,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "flying-sword",
+   "name": "Flying sword",
+   "tier": 3,
+   "size": "small",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "rug-of-smothering",
+   "name": "Rug of smothering",
+   "tier": 3,
+   "size": "large",
+   "baseIn": 2,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "crawling-claw",
+   "name": "Crawling claw",
+   "tier": 3,
+   "size": "tiny",
+   "baseIn": 0.5,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "gray-ooze",
+   "name": "Gray ooze",
+   "tier": 3,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "red-dragon-wyrmling",
+   "name": "Red dragon wyrmling",
+   "tier": 3,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "mimic",
+   "name": "Mimic",
+   "tier": 3,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "grick",
+   "name": "Grick",
+   "tier": 3,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "shambling-mound",
+   "name": "Shambling mound",
+   "tier": 3,
+   "size": "large",
+   "baseIn": 2,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "flameskull",
+   "name": "Flameskull",
+   "tier": 3,
+   "size": "tiny",
+   "baseIn": 0.5,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "shield-guardian",
+   "name": "Shield guardian",
+   "tier": 3,
+   "size": "large",
+   "baseIn": 2,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "arcanaloth",
+   "name": "Arcanaloth",
+   "tier": 3,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "lich",
+   "name": "Lich",
+   "tier": 3,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "deva",
+   "name": "Deva",
+   "tier": 3,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "hell-hound",
+   "name": "Hell hound",
+   "tier": 3,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "nightmare",
+   "name": "Nightmare",
+   "tier": 3,
+   "size": "large",
+   "baseIn": 2,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "vrock",
+   "name": "Vrock",
+   "tier": 3,
+   "size": "large",
+   "baseIn": 2,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "roc",
+   "name": "Roc",
+   "tier": 3,
+   "size": "gargantuan",
+   "baseIn": 4,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "saber-toothed-tiger",
+   "name": "Saber-toothed tiger",
+   "tier": 3,
+   "size": "large",
+   "baseIn": 2,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "quasit",
+   "name": "Quasit",
+   "tier": 3,
+   "size": "tiny",
+   "baseIn": 0.5,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "imp",
+   "name": "Imp",
+   "tier": 3,
+   "size": "tiny",
+   "baseIn": 0.5,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "invisible-stalker",
+   "name": "Invisible stalker",
+   "tier": 3,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "black-cat",
+   "name": "Black cat",
+   "tier": 3,
+   "size": "tiny",
+   "baseIn": 0.5,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "riding-horse",
+   "name": "Riding horse",
+   "tier": 3,
+   "size": "large",
+   "baseIn": 2,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "draft-horse",
+   "name": "Draft horse",
+   "tier": 3,
+   "size": "large",
+   "baseIn": 2,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "mastiff",
+   "name": "Mastiff",
+   "tier": 3,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "commoner",
+   "name": "Commoner",
+   "tier": 3,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "noncombatant-child",
+   "name": "Noncombatant child",
+   "tier": 3,
+   "size": "small",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "scout",
+   "name": "Scout",
+   "tier": 3,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "guard",
+   "name": "Guard",
+   "tier": 3,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "priest",
+   "name": "Priest",
+   "tier": 3,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "acolyte",
+   "name": "Acolyte",
+   "tier": 3,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "mage",
+   "name": "Mage",
+   "tier": 3,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "noble",
+   "name": "Noble",
+   "tier": 3,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "knight",
+   "name": "Knight",
+   "tier": 3,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "bandit",
+   "name": "Bandit",
+   "tier": 3,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "bandit-captain",
+   "name": "Bandit captain",
+   "tier": 3,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "cultist",
+   "name": "Cultist",
+   "tier": 3,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "cult-fanatic",
+   "name": "Cult fanatic",
+   "tier": 3,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "assassin",
+   "name": "Assassin",
+   "tier": 3,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "spy",
+   "name": "Spy",
+   "tier": 3,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "thug",
+   "name": "Thug",
+   "tier": 3,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "veteran",
+   "name": "Veteran",
+   "tier": 3,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [],
+   "kind": "monster-manual"
+  },
+  {
+   "id": "barovian-generic",
+   "name": "Barovian (generic)",
+   "tier": 3,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "player",
+   "tags": [],
+   "kind": "generic",
+   "variants": [
+    "adult-m",
+    "adult-f",
+    "child",
+    "elder"
+   ]
+  },
+  {
+   "id": "vistana-generic",
+   "name": "Vistana (generic)",
+   "tier": 3,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "player",
+   "tags": [],
+   "kind": "generic",
+   "variants": [
+    "adult-m",
+    "adult-f",
+    "child"
+   ]
+  },
+  {
+   "id": "pc-kit",
+   "name": "Player character kit",
+   "tier": 4,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "player",
+   "tags": [],
+   "kind": "pc",
+   "variants": [
+    "barbarian",
+    "bard",
+    "cleric",
+    "druid",
+    "fighter",
+    "monk",
+    "paladin",
+    "ranger",
+    "rogue",
+    "sorcerer",
+    "warlock",
+    "wizard"
+   ]
+  },
+  {
+   "id": "standee",
+   "name": "Flat standee (fallback)",
+   "tier": 4,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "player",
+   "tags": [],
+   "kind": "token",
+   "variants": [
+    "tiny",
+    "small",
+    "medium",
+    "large",
+    "huge",
+    "gargantuan"
+   ]
+  }
+ ]
+}

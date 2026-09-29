@@ -1,0 +1,32 @@
+{
+  "name": "mistlab",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "description": "Curse of Strahd 3D tabletop PWA (iPad-first)",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --port 4173 --strictPort",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "ocr": "bash scripts/ocr.sh",
+    "manifests:check": "vitest run tests/manifests.test.ts"
+  },
+  "dependencies": {
+    "three": "^0.180.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.56.1",
+    "@types/node": "^26.6.3",
+    "@types/three": "^0.186.0",
+    "fake-indexeddb": "^6.2.5",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.1",
+    "vitest": "^5.0.2"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

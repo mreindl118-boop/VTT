@@ -1,0 +1,604 @@
+{
+ "schema": 1,
+ "source": "occ prompt v1 §9 seed; table rows (d-results) to be keyed from OCR, no book text",
+ "tables": [
+  {
+   "id": "ch02-day",
+   "name": "Barovia random encounters (day)",
+   "page": null,
+   "rows": []
+  },
+  {
+   "id": "ch02-night",
+   "name": "Barovia random encounters (night)",
+   "page": null,
+   "rows": []
+  },
+  {
+   "id": "ravenloft",
+   "name": "Castle Ravenloft random encounters",
+   "page": null,
+   "rows": [],
+   "restCheckMinutes": 10
+  }
+ ],
+ "terrain": [
+  {
+   "id": "forest-road-day",
+   "spawnSlots": [
+    "commoner",
+    "scout",
+    "vistani-bandit",
+    "skeletal-rider",
+    "swarm-of-ravens",
+    "swarm-of-bats",
+    "wereraven",
+    "wolf",
+    "dire-wolf",
+    "berserker",
+    "werewolf",
+    "druid",
+    "twig-blight",
+    "needle-blight",
+    "scarecrow",
+    "zombie",
+    "strahd-zombie",
+    "will-o-wisp",
+    "revenant",
+    "ghost"
+   ]
+  },
+  {
+   "id": "forest-road-night",
+   "spawnSlots": [
+    "commoner",
+    "scout",
+    "vistani-bandit",
+    "skeletal-rider",
+    "swarm-of-ravens",
+    "swarm-of-bats",
+    "wereraven",
+    "wolf",
+    "dire-wolf",
+    "berserker",
+    "werewolf",
+    "druid",
+    "twig-blight",
+    "needle-blight",
+    "scarecrow",
+    "zombie",
+    "strahd-zombie",
+    "will-o-wisp",
+    "revenant",
+    "ghost"
+   ]
+  },
+  {
+   "id": "forest-clearing",
+   "spawnSlots": [
+    "commoner",
+    "scout",
+    "vistani-bandit",
+    "skeletal-rider",
+    "swarm-of-ravens",
+    "swarm-of-bats",
+    "wereraven",
+    "wolf",
+    "dire-wolf",
+    "berserker",
+    "werewolf",
+    "druid",
+    "twig-blight",
+    "needle-blight",
+    "scarecrow",
+    "zombie",
+    "strahd-zombie",
+    "will-o-wisp",
+    "revenant",
+    "ghost"
+   ]
+  },
+  {
+   "id": "riverbank",
+   "spawnSlots": [
+    "commoner",
+    "scout",
+    "vistani-bandit",
+    "skeletal-rider",
+    "swarm-of-ravens",
+    "swarm-of-bats",
+    "wereraven",
+    "wolf",
+    "dire-wolf",
+    "berserker",
+    "werewolf",
+    "druid",
+    "twig-blight",
+    "needle-blight",
+    "scarecrow",
+    "zombie",
+    "strahd-zombie",
+    "will-o-wisp",
+    "revenant",
+    "ghost"
+   ]
+  },
+  {
+   "id": "lakeshore",
+   "spawnSlots": [
+    "commoner",
+    "scout",
+    "vistani-bandit",
+    "skeletal-rider",
+    "swarm-of-ravens",
+    "swarm-of-bats",
+    "wereraven",
+    "wolf",
+    "dire-wolf",
+    "berserker",
+    "werewolf",
+    "druid",
+    "twig-blight",
+    "needle-blight",
+    "scarecrow",
+    "zombie",
+    "strahd-zombie",
+    "will-o-wisp",
+    "revenant",
+    "ghost"
+   ]
+  },
+  {
+   "id": "mountain-trail",
+   "spawnSlots": [
+    "commoner",
+    "scout",
+    "vistani-bandit",
+    "skeletal-rider",
+    "swarm-of-ravens",
+    "swarm-of-bats",
+    "wereraven",
+    "wolf",
+    "dire-wolf",
+    "berserker",
+    "werewolf",
+    "druid",
+    "twig-blight",
+    "needle-blight",
+    "scarecrow",
+    "zombie",
+    "strahd-zombie",
+    "will-o-wisp",
+    "revenant",
+    "ghost"
+   ]
+  },
+  {
+   "id": "foggy-graveyard",
+   "spawnSlots": [
+    "commoner",
+    "scout",
+    "vistani-bandit",
+    "skeletal-rider",
+    "swarm-of-ravens",
+    "swarm-of-bats",
+    "wereraven",
+    "wolf",
+    "dire-wolf",
+    "berserker",
+    "werewolf",
+    "druid",
+    "twig-blight",
+    "needle-blight",
+    "scarecrow",
+    "zombie",
+    "strahd-zombie",
+    "will-o-wisp",
+    "revenant",
+    "ghost"
+   ]
+  },
+  {
+   "id": "ruined-tower",
+   "spawnSlots": [
+    "commoner",
+    "scout",
+    "vistani-bandit",
+    "skeletal-rider",
+    "swarm-of-ravens",
+    "swarm-of-bats",
+    "wereraven",
+    "wolf",
+    "dire-wolf",
+    "berserker",
+    "werewolf",
+    "druid",
+    "twig-blight",
+    "needle-blight",
+    "scarecrow",
+    "zombie",
+    "strahd-zombie",
+    "will-o-wisp",
+    "revenant",
+    "ghost"
+   ]
+  },
+  {
+   "id": "hunting-trap-thicket",
+   "spawnSlots": [
+    "commoner",
+    "scout",
+    "vistani-bandit",
+    "skeletal-rider",
+    "swarm-of-ravens",
+    "swarm-of-bats",
+    "wereraven",
+    "wolf",
+    "dire-wolf",
+    "berserker",
+    "werewolf",
+    "druid",
+    "twig-blight",
+    "needle-blight",
+    "scarecrow",
+    "zombie",
+    "strahd-zombie",
+    "will-o-wisp",
+    "revenant",
+    "ghost"
+   ]
+  },
+  {
+   "id": "roadside-grave",
+   "spawnSlots": [
+    "commoner",
+    "scout",
+    "vistani-bandit",
+    "skeletal-rider",
+    "swarm-of-ravens",
+    "swarm-of-bats",
+    "wereraven",
+    "wolf",
+    "dire-wolf",
+    "berserker",
+    "werewolf",
+    "druid",
+    "twig-blight",
+    "needle-blight",
+    "scarecrow",
+    "zombie",
+    "strahd-zombie",
+    "will-o-wisp",
+    "revenant",
+    "ghost"
+   ]
+  },
+  {
+   "id": "corpse-marker",
+   "spawnSlots": [
+    "commoner",
+    "scout",
+    "vistani-bandit",
+    "skeletal-rider",
+    "swarm-of-ravens",
+    "swarm-of-bats",
+    "wereraven",
+    "wolf",
+    "dire-wolf",
+    "berserker",
+    "werewolf",
+    "druid",
+    "twig-blight",
+    "needle-blight",
+    "scarecrow",
+    "zombie",
+    "strahd-zombie",
+    "will-o-wisp",
+    "revenant",
+    "ghost"
+   ]
+  },
+  {
+   "id": "hidden-bundle",
+   "spawnSlots": [
+    "commoner",
+    "scout",
+    "vistani-bandit",
+    "skeletal-rider",
+    "swarm-of-ravens",
+    "swarm-of-bats",
+    "wereraven",
+    "wolf",
+    "dire-wolf",
+    "berserker",
+    "werewolf",
+    "druid",
+    "twig-blight",
+    "needle-blight",
+    "scarecrow",
+    "zombie",
+    "strahd-zombie",
+    "will-o-wisp",
+    "revenant",
+    "ghost"
+   ]
+  },
+  {
+   "id": "marsh",
+   "spawnSlots": [
+    "commoner",
+    "scout",
+    "vistani-bandit",
+    "skeletal-rider",
+    "swarm-of-ravens",
+    "swarm-of-bats",
+    "wereraven",
+    "wolf",
+    "dire-wolf",
+    "berserker",
+    "werewolf",
+    "druid",
+    "twig-blight",
+    "needle-blight",
+    "scarecrow",
+    "zombie",
+    "strahd-zombie",
+    "will-o-wisp",
+    "revenant",
+    "ghost"
+   ]
+  },
+  {
+   "id": "snowfield",
+   "spawnSlots": [
+    "commoner",
+    "scout",
+    "vistani-bandit",
+    "skeletal-rider",
+    "swarm-of-ravens",
+    "swarm-of-bats",
+    "wereraven",
+    "wolf",
+    "dire-wolf",
+    "berserker",
+    "werewolf",
+    "druid",
+    "twig-blight",
+    "needle-blight",
+    "scarecrow",
+    "zombie",
+    "strahd-zombie",
+    "will-o-wisp",
+    "revenant",
+    "ghost"
+   ]
+  },
+  {
+   "id": "ice",
+   "spawnSlots": [
+    "commoner",
+    "scout",
+    "vistani-bandit",
+    "skeletal-rider",
+    "swarm-of-ravens",
+    "swarm-of-bats",
+    "wereraven",
+    "wolf",
+    "dire-wolf",
+    "berserker",
+    "werewolf",
+    "druid",
+    "twig-blight",
+    "needle-blight",
+    "scarecrow",
+    "zombie",
+    "strahd-zombie",
+    "will-o-wisp",
+    "revenant",
+    "ghost"
+   ]
+  },
+  {
+   "id": "vistani-wagon-circle",
+   "spawnSlots": [
+    "commoner",
+    "scout",
+    "vistani-bandit",
+    "skeletal-rider",
+    "swarm-of-ravens",
+    "swarm-of-bats",
+    "wereraven",
+    "wolf",
+    "dire-wolf",
+    "berserker",
+    "werewolf",
+    "druid",
+    "twig-blight",
+    "needle-blight",
+    "scarecrow",
+    "zombie",
+    "strahd-zombie",
+    "will-o-wisp",
+    "revenant",
+    "ghost"
+   ]
+  },
+  {
+   "id": "barovian-cottage-interior",
+   "spawnSlots": [
+    "commoner",
+    "scout",
+    "vistani-bandit",
+    "skeletal-rider",
+    "swarm-of-ravens",
+    "swarm-of-bats",
+    "wereraven",
+    "wolf",
+    "dire-wolf",
+    "berserker",
+    "werewolf",
+    "druid",
+    "twig-blight",
+    "needle-blight",
+    "scarecrow",
+    "zombie",
+    "strahd-zombie",
+    "will-o-wisp",
+    "revenant",
+    "ghost"
+   ]
+  },
+  {
+   "id": "barovian-cottage-exterior",
+   "spawnSlots": [
+    "commoner",
+    "scout",
+    "vistani-bandit",
+    "skeletal-rider",
+    "swarm-of-ravens",
+    "swarm-of-bats",
+    "wereraven",
+    "wolf",
+    "dire-wolf",
+    "berserker",
+    "werewolf",
+    "druid",
+    "twig-blight",
+    "needle-blight",
+    "scarecrow",
+    "zombie",
+    "strahd-zombie",
+    "will-o-wisp",
+    "revenant",
+    "ghost"
+   ]
+  }
+ ],
+ "specialEvents": [
+  {
+   "id": "march-of-the-dead",
+   "name": "March of the Dead",
+   "page": 48,
+   "location": "E"
+  },
+  {
+   "id": "st-andrals-feast",
+   "name": "St. Andral's Feast",
+   "stage": "N1",
+   "location": "N"
+  },
+  {
+   "id": "festival-of-the-blazing-sun",
+   "name": "Festival of the Blazing Sun",
+   "stage": "N8",
+   "location": "N"
+  },
+  {
+   "id": "lady-wachters-wish",
+   "name": "Lady Wachter's Wish",
+   "stage": "N4",
+   "location": "N"
+  },
+  {
+   "id": "special-delivery",
+   "name": "Special Delivery",
+   "location": "Q"
+  },
+  {
+   "id": "arrigals-hunt",
+   "name": "Arrigal's Hunt",
+   "location": "Q"
+  },
+  {
+   "id": "lighting-the-beacon",
+   "name": "Lighting the Beacon",
+   "regionalState": "beacon",
+   "location": "Q"
+  },
+  {
+   "id": "something-old-new-blue",
+   "name": "Something Old, Something New, Something Blue",
+   "stage": "S13/S12, S4",
+   "location": "S"
+  },
+  {
+   "id": "bloodhorns-charge",
+   "name": "Bloodhorn's Charge",
+   "stage": "T8",
+   "location": "T"
+  },
+  {
+   "id": "creeping-hut",
+   "name": "Creeping Hut",
+   "location": "U"
+  },
+  {
+   "id": "lost-battlefield",
+   "name": "Lost Battlefield",
+   "location": "U"
+  },
+  {
+   "id": "pack-attack",
+   "name": "Pack Attack",
+   "location": "V"
+  },
+  {
+   "id": "ezmereldas-retreat",
+   "name": "Ezmerelda's Retreat",
+   "location": "V"
+  },
+  {
+   "id": "wine-delivery",
+   "name": "Wine Delivery",
+   "location": "W"
+  },
+  {
+   "id": "wintersplinter-attacks",
+   "name": "Wintersplinter Attacks",
+   "needs": "Huge clear zone",
+   "location": "W"
+  },
+  {
+   "id": "rahadins-prayer",
+   "name": "Rahadin's Prayer",
+   "location": "X"
+  },
+  {
+   "id": "druids-ritual",
+   "name": "Druids' Ritual",
+   "needs": "Huge footprint (Wintersplinter)",
+   "location": "Y"
+  },
+  {
+   "id": "leader-of-the-pack",
+   "name": "Leader of the Pack",
+   "location": "Z"
+  },
+  {
+   "id": "strahds-dinner",
+   "name": "Strahd's dinner",
+   "location": "K",
+   "stage": "K10/K36"
+  },
+  {
+   "id": "heart-of-sorrow",
+   "name": "The Heart of Sorrow",
+   "location": "K",
+   "stage": "K20"
+  },
+  {
+   "id": "k61-elevator",
+   "name": "K61 elevator",
+   "location": "K",
+   "stage": "K61",
+   "moving": true
+  },
+  {
+   "id": "k82-slide",
+   "name": "K82 marble slide",
+   "location": "K",
+   "stage": "K82",
+   "moving": true
+  }
+ ]
+}
