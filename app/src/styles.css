@@ -268,3 +268,17 @@ body[data-view='players'] .topbar { grid-template-columns: auto 1fr; grid-templa
 .section .sec-ft { min-width: 36px; font-variant-numeric: tabular-nums; color: var(--ink); }
 .section.free .sec-label { color: var(--accent); font-weight: 600; }
 .section button.icon { width: 28px; height: 28px; }
+
+/* world map: tooltips, reveal state */
+.world-tip { position: absolute; z-index: 3; pointer-events: none; max-width: 270px; background: var(--bg); color: var(--ink); border-radius: 10px; box-shadow: 0 8px 28px rgba(0,0,0,.3); padding: 8px 10px; font-size: 12.5px; display: grid; gap: 3px; }
+.world-tip[hidden] { display: none; }
+.world-tip b { font-size: 13px; }
+.world-tip .dm, .world-card .wc-dm { color: #7b2d26; }
+.world-tip .vis { color: var(--ink-2); font-size: 11.5px; }
+.world-card .wc-blurb { font-size: 13px; }
+.world-card .wc-where { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.chip-btn { font: 600 11px/1 -apple-system, system-ui, sans-serif; padding: 5px 8px; border-radius: 999px; border: 1px solid var(--hair); background: var(--bg-2, transparent); color: var(--ink-2); cursor: pointer; }
+.chip-btn[aria-pressed="true"] { background: #2f6b3a; color: #fff; border-color: transparent; }
+.world-key li .eye { margin-left: auto; width: 26px; height: 26px; opacity: .45; }
+.world-key li .eye[aria-pressed="true"] { opacity: 1; color: #2f6b3a; }
+.world-key li[hidden] { display: none; }

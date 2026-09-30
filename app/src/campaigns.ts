@@ -10,7 +10,8 @@ export interface Theme { id: string; mist: string; page0: string; page1: string;
 export interface Campaign { id: string; name: string; subtitle: string; manifest: string; prefixes: string[]; world: string; home: string; theme: Theme }
 export interface WorldData {
   name: string; bounds: { minX: number; minY: number; maxX: number; maxY: number };
-  pins: { key: string; name: string; pos: [number, number]; type: string; scenes?: string[] }[];
+  /** blurb: what players read about the place; dm: the DM's own note. */
+  pins: { key: string; name: string; pos: [number, number]; type: string; scenes?: string[]; blurb?: string; dm?: string }[];
   roads: { name: string; pts: [number, number][] }[]; rivers: { name: string; pts: [number, number][] }[];
   lakes: { name: string; center: [number, number]; r: [number, number] }[]; peaks: { name: string; pos: [number, number] }[];
   woods: { name: string; pos: [number, number] }[]; high: [number, number][];

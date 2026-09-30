@@ -208,6 +208,16 @@ for p in pins:
 pins = merged
 
 
+# Keep the hand-written player blurbs and DM notes from the file already on disk.
+def keep_notes(world, path):
+    import os as _os, json as _json
+    if not _os.path.exists(path): return
+    old = {p['key']: p for p in _json.load(open(path))['pins']}
+    for p in world['pins']:
+        for k in ('blurb', 'dm'):
+            if k in old.get(p['key'], {}) and k not in p: p[k] = old[p['key']][k]
+
+
 def join_roads(roads):
     # The export's road runs stop one hex short of each other where a town hex sits between them: bridge the
     # gap so the road is continuous through the town (a gap under a hex and a half is a gap, not a fork).
@@ -229,6 +239,7 @@ world = OrderedDict(schema=1, name=R['poster_title'] if R.get('poster_title') el
     rivers=[OrderedDict(name='Stream', pts=[hx(*c) for c in st]) for st in R['streams']],
     lakes=[], peaks=[OrderedDict(name='The hills', pos=hx(*k)) for k in list(k for k in cells if cells[k]['code'] == 'H')[:1]], high=high, woods=woods)
 os.makedirs(f'{out_root}/00-region', exist_ok=True)
+keep_notes(world, f'{out_root}/00-region/world.json')
 json.dump(world, open(f'{out_root}/00-region/world.json', 'w'), indent=1)
 manifest = OrderedDict(schema=1, source=f'tabletop-mapset 1.0 export (reference/imports/{CAMP}); geometry only, notes in the export\'s own words',
     title=M['module']['title'], publisher=M['module']['publisher'],

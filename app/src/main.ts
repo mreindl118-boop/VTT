@@ -183,6 +183,9 @@ function buildDmUi(): void {
       case 'library': openLibrary(builtPaths, app.campaign, (p) => { localStorage.setItem('mistlab.scene', p); void app.open(p).then(() => app.layoutChanged()); }); break;
       case 'world': openWorldMap({
         canMove: !app.restricted,
+        dm: !app.restricted,
+        revealed: () => app.pinsRevealed,
+        reveal: (key, on) => app.revealPin(key, on),
         get: () => app.state.world,
         move: (pos, key, miles) => app.moveWorld(pos, key, miles),
         enter: (path) => { localStorage.setItem('mistlab.scene', path); void app.open(path).then(() => app.layoutChanged()); },

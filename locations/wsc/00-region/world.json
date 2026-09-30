@@ -21,7 +21,9 @@
    "type": "settlement",
    "scenes": [
     "wsc/01-tavern"
-   ]
+   ],
+   "blurb": "The village inn on the main road, where the job begins.",
+   "dm": "The sheep waits inside with the note."
   },
   {
    "key": "2",
@@ -33,7 +35,9 @@
    "type": "settlement",
    "scenes": [
     "wsc/02-street"
-   ]
+   ],
+   "blurb": "The village square: temple, town hall, well and stables.",
+   "dm": "Guz and his wolves arrive to seize the sheep."
   },
   {
    "key": "3",
@@ -45,7 +49,9 @@
    "type": "landmark",
    "scenes": [
     "wsc/03a-road"
-   ]
+   ],
+   "blurb": "The road east out of the village toward the hills.",
+   "dm": "Ambush point on the way to the tower."
   },
   {
    "key": "4",
@@ -57,7 +63,9 @@
    "type": "landmark",
    "scenes": [
     "wsc/03b-path"
-   ]
+   ],
+   "blurb": "A footpath that leaves the road and climbs along the stream.",
+   "dm": "Difficult ground in the undergrowth; the stream fords."
   },
   {
    "key": "5",
@@ -69,7 +77,9 @@
    "type": "tower",
    "scenes": [
     "wsc/03-compound"
-   ]
+   ],
+   "blurb": "A wizard's treehouse tower in a clearing among the hills.",
+   "dm": "Noke's platforms: deck, hall, bedroom."
   }
  ],
  "roads": [

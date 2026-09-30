@@ -675,6 +675,15 @@ export class App {
   moveWorld(pos: Vec2, key: string | undefined, miles: number, save = true): void {
     const w = this.state.world, trail = [...(w?.trail ?? (w ? [{ pos: w.pos, key: w.key, miles: 0, at: Date.now() }] : [])), { pos, key, miles: Math.round(miles * 100) / 100, at: Date.now() }].slice(-50);
     this.state.world = { pos, key, trail };
+    if (key) this.revealPin(key, true, false); // a place the party has been to is known to the players
+    if (save) this.commit();
+  }
+  /** World-map places the players know. */
+  get pinsRevealed(): Set<string> { return new Set(this.state.worldRevealed ?? []); }
+  revealPin(key: string, on: boolean, save = true): void {
+    const set = this.pinsRevealed; if (set.has(key) === on) return;
+    if (on) set.add(key); else set.delete(key);
+    this.state.worldRevealed = [...set];
     if (save) this.commit();
   }
   undo(): void { if (this.state.reveals.pop()) this.commit(); }

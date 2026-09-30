@@ -90,3 +90,21 @@ test('campaigns: opening another module switches its manifest, world map and sav
   await page.waitForTimeout(300);
   expect(await page.evaluate(() => { const a = (window as any).__mistlab.app; return [a.campaign.id, a.state.roster[0].name]; })).toEqual(['cos', 'Strahd-side fighter']);
 });
+
+test('world map: places carry tooltips, the DM reveals them, and a tap on a place opens its map', async ({ page }) => {
+  await boot(page, '', SCENES[1]);
+  await page.click('[data-act="world"]');
+  await page.locator('.wm-pin[data-key="G"]').hover();
+  await expect(page.locator('.world-tip')).toContainText('Tser Pool Encampment');
+  await expect(page.locator('.world-tip')).toContainText('Hidden from players');
+  await page.locator('.world-key li[data-key="G"] [data-reveal]').click();
+  expect(await page.evaluate(() => [...(window as any).__mistlab.app.pinsRevealed].sort())).toEqual(['E', 'G']);
+  await page.locator('.wm-pin[data-key="G"]').click();
+  await page.waitForFunction(() => (window as any).__mistlab.app.cur?.path === 'ch02/G');
+  // the players' end only sees revealed places
+  await page.evaluate(() => (window as any).__mistlab.app.setView('players'));
+  await page.click('[data-act="world"]');
+  expect(await page.locator('.wm-pin[data-key="C"]').getAttribute('visibility')).toBe('hidden');
+  expect(await page.locator('.wm-pin[data-key="G"]').getAttribute('visibility')).toBe('visible');
+  expect(await page.locator('.world-key [data-reveal]').count()).toBe(0);
+});

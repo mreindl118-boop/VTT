@@ -68,6 +68,8 @@ export interface CampaignState {
   opened: Record<string, boolean>;
   /** Where the party is on the world map (miles), the pin it is at, and the trail of moves. */
   world?: WorldPos;
+  /** World-map places the DM has revealed to the players (pin keys). */
+  worldRevealed?: string[];
   /** Player characters and recurring foes, for initiative and ranges. */
   roster: Sheet[];
   /** The running encounter, if any. */

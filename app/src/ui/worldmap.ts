@@ -7,7 +7,7 @@ import { PACES, type Pace } from '../core/travel';
 import { ICON } from './icons';
 
 type P = [number, number];
-interface Pin { key: string; name: string; pos: P; type: string; scenes?: string[] }
+interface Pin { key: string; name: string; pos: P; type: string; scenes?: string[]; blurb?: string; dm?: string }
 let W: WorldData & { milesPerHex?: number } = { name: '', bounds: { minX: 0, minY: 0, maxX: 1, maxY: 1 }, pins: [], roads: [], rivers: [], lakes: [], peaks: [], woods: [], high: [] };
 let STYLE: 'gothic' | 'pastoral' = 'gothic';
 /** Point the world map at the active campaign's data and look. */
@@ -125,6 +125,10 @@ function paint(cv: HTMLCanvasElement, vb: { x: number; y: number; w: number; h: 
 // ---------------------------------------------------------------- the sheet
 export interface WorldHost {
   canMove: boolean;
+  /** The DM's end: every place shows, with its DM note, and each can be revealed to or hidden from the players. */
+  dm: boolean;
+  revealed(): Set<string>;
+  reveal(key: string, on: boolean): void;
   get(): { pos: P; key?: string } | undefined;
   move(pos: P, key: string | undefined, miles: number): void;
   enter(scene: string): void;
@@ -193,15 +197,36 @@ export function openWorldMap(host: WorldHost): void {
   // pins
   const pins = el('g', { class: 'wm-pins' }, svg);
   const major = (p: Pin) => ['settlement', 'castle', 'camp', 'tower', 'temple', 'ruin', 'pass', 'den', 'hill', 'landmark'].includes(p.type);
+  // Players see only the places the DM has revealed (and wherever the party has been); the DM sees all.
+  const known = (p: Pin) => host.dm || host.revealed().has(p.key);
+  const pinEls = new Map<string, { g: SVGGElement; li: HTMLLIElement }>();
   for (const p of W.pins) {
     const g = el('g', { class: `wm-pin t-${p.type}${p.scenes ? ' has-scene' : ''}${major(p) ? ' major' : ''}`, transform: `translate(${p.pos[0]},${p.pos[1]})`, 'data-key': p.key }, pins);
     el('circle', { r: 0.26 }, g);
     const t = el('text', { y: 0.09 }, g); t.textContent = keyOf(p);
     const n = el('text', { class: 'wm-pin-name', y: 0.62 }, g); n.textContent = p.name;
-    el('title', {}, g).textContent = `${keyOf(p)} · ${p.name}${p.scenes ? ' · map ready' : ''}`;
-    const li = document.createElement('li'); li.dataset.key = p.key; li.innerHTML = `<b>${keyOf(p)}</b><span>${p.name}</span>${p.scenes ? '<i>map</i>' : ''}`; keyList.appendChild(li);
+    const li = document.createElement('li'); li.dataset.key = p.key;
+    li.innerHTML = `<b>${keyOf(p)}</b><span>${p.name}</span>${p.scenes ? '<i>map</i>' : ''}${host.dm ? `<button class="icon eye" data-reveal="${p.key}" aria-label="Reveal to players" title="Reveal to players">${ICON.eye ?? '◉'}</button>` : ''}`;
+    keyList.appendChild(li);
+    pinEls.set(p.key, { g, li });
   }
-  keyList.addEventListener('click', (e) => { const li = (e.target as HTMLElement).closest<HTMLElement>('li'); const p = li && W.pins.find((x) => x.key === li.dataset.key); if (!p) return; view.x = p.pos[0] - view.w / 2; view.y = p.pos[1] - view.h / 2; apply(); void showCard(p, p.pos, dist(at, p.pos)); });
+  const refreshKnown = () => { const r = host.revealed(); for (const p of W.pins) { const e = pinEls.get(p.key)!, on = known(p), rev = r.has(p.key); e.g.setAttribute('visibility', on ? 'visible' : 'hidden'); e.li.hidden = !on; e.li.classList.toggle('revealed', rev); e.li.querySelector('.eye')?.setAttribute('aria-pressed', String(rev)); } };
+  refreshKnown();
+  keyList.addEventListener('click', (e) => {
+    const t = e.target as HTMLElement, li = t.closest<HTMLElement>('li'); const p = li && W.pins.find((x) => x.key === li.dataset.key); if (!p) return;
+    const eye = t.closest<HTMLElement>('[data-reveal]'); if (eye) { host.reveal(p.key, !host.revealed().has(p.key)); refreshKnown(); return; }
+    view.x = p.pos[0] - view.w / 2; view.y = p.pos[1] - view.h / 2; apply(); void showCard(p, p.pos, dist(at, p.pos));
+  });
+  // hover: a tooltip with the place's blurb (and, for the DM, the DM note and whether players can see it)
+  const tip = document.createElement('div'); tip.className = 'world-tip'; tip.hidden = true; body.appendChild(tip);
+  svg.addEventListener('pointermove', (e) => {
+    const g = (e.target as Element).closest<SVGGElement>('.wm-pin'); const p = g && W.pins.find((x) => x.key === g.dataset.key);
+    if (!p || !known(p) || drag) { tip.hidden = true; return; }
+    const r = body.getBoundingClientRect();
+    tip.innerHTML = `<b>${keyOf(p)} · ${p.name}</b>${p.blurb ? `<div>${p.blurb}</div>` : ''}${host.dm && p.dm ? `<div class="dm">${p.dm}</div>` : ''}${host.dm ? `<div class="vis">${host.revealed().has(p.key) ? 'Players can see this place' : 'Hidden from players'}</div>` : ''}${p.scenes?.length ? '<div class="vis">Tap to open the map</div>' : ''}`;
+    tip.style.left = `${Math.min(e.clientX - r.left + 14, r.width - 280)}px`; tip.style.top = `${e.clientY - r.top + 14}px`; tip.hidden = false;
+  });
+  svg.addEventListener('pointerleave', () => { tip.hidden = true; });
   // party marker
   const party = el('g', { class: `wm-party${host.canMove ? ' movable' : ''}` }, svg);
   el('circle', { r: 0.42, class: 'halo' }, party); el('circle', { r: 0.3 }, party);
@@ -217,7 +242,11 @@ export function openWorldMap(host: WorldHost): void {
   const zoom = (k: number, c: P = [view.x + view.w / 2, view.y + view.h / 2]) => { const w = Math.min(vb.w * 1.2, Math.max(1.5, view.w * k)), h = (w / view.w) * view.h; view.x = c[0] - ((c[0] - view.x) * w) / view.w; view.y = c[1] - ((c[1] - view.y) * h) / view.h; view.w = w; view.h = h; apply(); };
   svg.addEventListener('wheel', (e) => { e.preventDefault(); zoom(e.deltaY > 0 ? 1.15 : 1 / 1.15, toMap(e)); }, { passive: false });
   let drag: { kind: 'pan'; x: number; y: number; vx: number; vy: number } | { kind: 'party' } | null = null;
+  let downOn: { key: string; x: number; y: number } | null = null;
   svg.addEventListener('pointerdown', (e) => {
+    tip.hidden = true;
+    const pinG = (e.target as Element).closest<SVGGElement>('.wm-pin');
+    downOn = pinG ? { key: pinG.dataset.key!, x: e.clientX, y: e.clientY } : null;
     if (host.canMove && (e.target as Element).closest('.wm-party')) { drag = { kind: 'party' }; card.hidden = true; }
     else drag = { kind: 'pan', x: e.clientX, y: e.clientY, vx: view.x, vy: view.y };
     svg.setPointerCapture(e.pointerId);
@@ -231,12 +260,19 @@ export function openWorldMap(host: WorldHost): void {
   });
   svg.addEventListener('pointerup', (e) => {
     const d = drag; drag = null;
+    // a tap on a place (no pan) links there: its map opens when it has one, else its card shows
+    if (downOn && Math.hypot(e.clientX - downOn.x, e.clientY - downOn.y) < 6) {
+      const p = W.pins.find((x) => x.key === downOn!.key); downOn = null;
+      if (p && known(p)) { if (p.scenes?.length === 1 && host.canMove) { host.enter(p.scenes[0]); back.remove(); } else void showCard(p, p.pos, dist(at, p.pos)); }
+      return;
+    }
+    downOn = null;
     if (!d || d.kind !== 'party') return;
     const p = toMap(e), near = W.pins.find((x) => dist(x.pos, p) < SNAP_MI), to: P = near ? [...near.pos] as P : [Math.round(p[0] * 100) / 100, Math.round(p[1] * 100) / 100];
     const miles = dist(at, to);
     if (miles < 0.05) { place(at); return; }
     host.move(to, near?.key, miles);
-    at = to; place(at); drawTrail();
+    at = to; place(at); drawTrail(); refreshKnown();
     void showCard(near, to, miles);
   });
   const drawTrail = () => { const t = host.get(); const pts = (t as { trail?: { pos: P }[] } | undefined)?.trail?.map((x) => x.pos) ?? []; trail.setAttribute('d', pts.length > 1 ? path(pts.slice(-12)) : ''); };
@@ -249,11 +285,15 @@ export function openWorldMap(host: WorldHost): void {
     const where = pin ? `<b>${keyOf(pin)}</b> ${pin.name}` : (() => { const n = nearestName(to); return `Wilderness · ${n.mi.toFixed(1)} mi from ${n.name}`; })();
     const scenes = pin?.scenes ?? [];
     const labels = await Promise.all(scenes.map((s) => host.sceneName(s)));
-    card.innerHTML = `<div class="wc-where">${where}</div><div class="wc-travel">${miles.toFixed(1)} mi as the crow flies · about ${fmtHours(hours)} at a ${pace} pace (${speed} mph)</div>
+    const rev = pin ? host.revealed().has(pin.key) : false;
+    card.innerHTML = `<div class="wc-where">${where}${pin && host.dm ? `<button class="chip-btn" data-reveal="${pin.key}" aria-pressed="${rev}">${rev ? 'Shown to players' : 'Hidden from players'}</button>` : ''}</div>${pin?.blurb ? `<div class="wc-blurb">${pin.blurb}</div>` : ''}${pin?.dm && host.dm ? `<div class="wc-dm">${pin.dm}</div>` : ''}<div class="wc-travel">${miles.toFixed(1)} mi as the crow flies · about ${fmtHours(hours)} at a ${pace} pace (${speed} mph)</div>
       ${scenes.length ? `<div class="wc-actions">${scenes.map((s, i) => `<button class="primary" data-scene="${s}">Open ${labels[i]}</button>`).join('')}</div>` : '<div class="wc-note">No battle map here yet; run it theatre-of-the-mind or pick a nearby place.</div>'}`;
     card.hidden = false;
   }
-  card.addEventListener('click', (e) => { const s = (e.target as HTMLElement).closest<HTMLElement>('[data-scene]')?.dataset.scene; if (s) { host.enter(s); back.remove(); } });
+  card.addEventListener('click', (e) => {
+    const t = e.target as HTMLElement, s = t.closest<HTMLElement>('[data-scene]')?.dataset.scene; if (s) { host.enter(s); back.remove(); return; }
+    const rv = t.closest<HTMLElement>('[data-reveal]'); if (rv) { const p = W.pins.find((x) => x.key === rv.dataset.reveal)!; host.reveal(p.key, !host.revealed().has(p.key)); refreshKnown(); void showCard(p, p.pos, dist(at, p.pos)); }
+  });
   back.querySelector('.pace')!.addEventListener('click', (e) => { const b2 = (e.target as HTMLElement).closest<HTMLElement>('[data-pace]'); if (!b2) return; pace = b2.dataset.pace as Pace; back.querySelectorAll('[data-pace]').forEach((x) => x.setAttribute('aria-selected', String(x === b2))); });
   back.addEventListener('click', (e) => {
     const t = e.target as HTMLElement;

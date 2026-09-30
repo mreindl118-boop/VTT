@@ -18,7 +18,9 @@
     17.87,
     7.2
    ],
-   "type": "road"
+   "type": "road",
+   "blurb": "The old road through the Svalich Woods, the only way into the valley.",
+   "dm": "The mists close behind travellers; the road brings the party to the gates."
   },
   {
    "key": "B",
@@ -27,7 +29,9 @@
     17.36,
     6.68
    ],
-   "type": "gate"
+   "type": "gate",
+   "blurb": "Two crumbling stone pillars and a rusted iron gate, headless statues to either side.",
+   "dm": "The gate swings open on its own; the mists keep anyone from turning back."
   },
   {
    "key": "C",
@@ -39,7 +43,9 @@
    "type": "woods",
    "scenes": [
     "ch02/C"
-   ]
+   ],
+   "blurb": "Dark pines press in on the road; wolves howl at dusk.",
+   "dm": "Wolf and dire wolf encounters on the road; the body with the letter lies here."
   },
   {
    "key": "D",
@@ -48,7 +54,8 @@
     14.09,
     8.68
    ],
-   "type": "river"
+   "type": "river",
+   "blurb": "A cold, fast river running down from the falls to the village."
   },
   {
    "key": "E",
@@ -62,7 +69,9 @@
     "ch03/E",
     "ch03/E5",
     "appB/death-house"
-   ]
+   ],
+   "blurb": "A grim village of shuttered houses in the castle's shadow.",
+   "dm": "Ismark and Ireena, the burgomaster's wake, Death House at the edge of town."
   },
   {
    "key": "F",
@@ -71,7 +80,9 @@
     12.07,
     9.35
    ],
-   "type": "crossroads"
+   "type": "crossroads",
+   "blurb": "A crossroads by the river with an old gallows.",
+   "dm": "The gallows sometimes shows a hanged figure that looks like one of the party."
   },
   {
    "key": "G",
@@ -83,7 +94,9 @@
    "type": "camp",
    "scenes": [
     "ch02/G"
-   ]
+   ],
+   "blurb": "A Vistani camp beside a still pool below the falls; fires and music at night.",
+   "dm": "Madam Eva reads the party's fortune here; the reading sets where the treasures and the ally are."
   },
   {
    "key": "H",
@@ -92,7 +105,8 @@
     10.54,
     6.79
    ],
-   "type": "falls"
+   "type": "falls",
+   "blurb": "A thousand-foot waterfall spanned by a stone bridge on the road to the castle."
   },
   {
    "key": "I",
@@ -101,7 +115,9 @@
     10.58,
     6.02
    ],
-   "type": "landmark"
+   "type": "landmark",
+   "blurb": "A black carriage waits by the road, its horses standing silent.",
+   "dm": "Strahd's carriage; it carries invited guests up to the castle."
   },
   {
    "key": "B2",
@@ -110,7 +126,8 @@
     10.58,
     5.4
    ],
-   "type": "gate"
+   "type": "gate",
+   "blurb": "The western gate of the same kind: pillars, iron and mist."
   },
   {
    "key": "J",
@@ -119,7 +136,8 @@
     12.12,
     6.43
    ],
-   "type": "gate"
+   "type": "gate",
+   "blurb": "Iron gates and a gatehouse at the foot of the castle's crag."
   },
   {
    "key": "K",
@@ -128,7 +146,9 @@
     13.0,
     6.68
    ],
-   "type": "castle"
+   "type": "castle",
+   "blurb": "The castle of the lord of Barovia, perched on a pillar of rock a thousand feet above the valley.",
+   "dm": "Strahd's seat. Playable once the castle levels are built."
   },
   {
    "key": "L",
@@ -137,7 +157,9 @@
     6.68,
     2.98
    ],
-   "type": "lake"
+   "type": "lake",
+   "blurb": "A wide mountain lake, cold and deep, fished by folk from Vallaki.",
+   "dm": "Bluto and his rowboat; Arabelle."
   },
   {
    "key": "M",
@@ -146,7 +168,8 @@
     9.42,
     1.51
    ],
-   "type": "peak"
+   "type": "peak",
+   "blurb": "A snow-capped peak north of Vallaki."
   },
   {
    "key": "N",
@@ -155,7 +178,9 @@
     6.35,
     4.36
    ],
-   "type": "settlement"
+   "type": "settlement",
+   "blurb": "A walled town that keeps the devil at bay with festivals and locked gates.",
+   "dm": "Baron Vargas, the Wachters, Blinsky, St. Andral's church and the missing bones."
   },
   {
    "key": "O",
@@ -164,7 +189,9 @@
     8.1,
     5.04
    ],
-   "type": "landmark"
+   "type": "landmark",
+   "blurb": "A windmill on a hill, its sails turning even in still air.",
+   "dm": "Morgantha and her daughters; the dream pastries."
   },
   {
    "key": "P",
@@ -173,7 +200,8 @@
     5.44,
     4.52
    ],
-   "type": "crossroads"
+   "type": "crossroads",
+   "blurb": "Where the road to Krezk meets the Luna River."
   },
   {
    "key": "Q",
@@ -182,7 +210,9 @@
     4.87,
     6.25
    ],
-   "type": "castle"
+   "type": "castle",
+   "blurb": "A ruined mansion of a fallen knightly order.",
+   "dm": "Revenants of the order; the dragon's skull; the beacon."
   },
   {
    "key": "R",
@@ -191,7 +221,8 @@
     2.63,
     4.09
    ],
-   "type": "crossroads"
+   "type": "crossroads",
+   "blurb": "A crossroads on the Raven River, west of Vallaki."
   },
   {
    "key": "S",
@@ -200,7 +231,9 @@
     0.75,
     3.71
    ],
-   "type": "settlement"
+   "type": "settlement",
+   "blurb": "A walled village high in the mountains with an abbey above it.",
+   "dm": "Burgomaster Krezkov, the Abbot and the abbey's residents."
   },
   {
    "key": "T",
@@ -209,7 +242,9 @@
     3.2,
     9.8
    ],
-   "type": "pass"
+   "type": "pass",
+   "blurb": "A high mountain pass guarded by a gate and a bridge over a gorge.",
+   "dm": "The bridge over the gorge; the roc's nest."
   },
   {
    "key": "U",
@@ -218,7 +253,9 @@
     4.91,
     7.64
    ],
-   "type": "ruin"
+   "type": "ruin",
+   "blurb": "A drowned village in the marsh.",
+   "dm": "Baba Lysaga's walking hut; the ruined mansion."
   },
   {
    "key": "V",
@@ -227,7 +264,9 @@
     3.27,
     3.2
    ],
-   "type": "tower"
+   "type": "tower",
+   "blurb": "A lone tower on an island in a mountain lake, reached by a causeway.",
+   "dm": "The monster hunter's tower; Ezmerelda's wagon."
   },
   {
    "key": "W",
@@ -236,7 +275,9 @@
     0.51,
     5.97
    ],
-   "type": "settlement"
+   "type": "settlement",
+   "blurb": "A winery in the hills that supplies the valley's wine.",
+   "dm": "Druids and blights hold the winery; the missing gems."
   },
   {
    "key": "X",
@@ -245,7 +286,9 @@
     5.0,
     10.82
    ],
-   "type": "temple"
+   "type": "temple",
+   "blurb": "A buried temple high in the peaks where dark powers sleep.",
+   "dm": "Amber sarcophagi and their vestiges; the arcanaloth."
   },
   {
    "key": "Y",
@@ -254,7 +297,9 @@
     -0.57,
     6.68
    ],
-   "type": "hill"
+   "type": "hill",
+   "blurb": "A hill topped by a circle of standing stones and a crude giant statue.",
+   "dm": "The druids' ritual; the tree blight."
   },
   {
    "key": "Z",
@@ -263,7 +308,9 @@
     1.79,
     2.63
    ],
-   "type": "den"
+   "type": "den",
+   "blurb": "A cave in the mountains where the wolves that walk as men lair.",
+   "dm": "Kiril's pack; the captured children."
   }
  ],
  "roads": [

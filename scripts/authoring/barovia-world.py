@@ -75,5 +75,16 @@ out = OrderedDict(
   high=[m(*p) for p in HIGH],
   woods=[OrderedDict(name=n, pos=m(*p)) for n, p in WOODS],
 )
+# Keep the hand-written player blurbs and DM notes from the file already on disk.
+def keep_notes(world, path):
+    import os as _os, json as _json
+    if not _os.path.exists(path): return
+    old = {p['key']: p for p in _json.load(open(path))['pins']}
+    for p in world['pins']:
+        for k in ('blurb', 'dm'):
+            if k in old.get(p['key'], {}) and k not in p: p[k] = old[p['key']][k]
+
+
+keep_notes(out, 'locations/ch02/barovia-region/world.json')
 json.dump(out, open('locations/ch02/barovia-region/world.json', 'w'), indent=1)
 print('world:', len(PINS), 'pins,', len(ROADS), 'roads')
