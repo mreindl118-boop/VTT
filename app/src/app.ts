@@ -7,7 +7,8 @@ import { squareCellAt, squareCellCenter, squareDistanceFt, worldToHex, hexToWorl
 import type { GridFile, Level, LightSource, SceneFile } from './core/schema';
 import { classOpacity, fogCurve, hiddenCurve, labelCurve } from './core/slider';
 import { baseRingFt, CELL_FT } from './core/units';
-import { baseRing, pawn } from './kit/pieces';
+import { baseRing } from './kit/pieces';
+import { adventurer } from './kit/creatures';
 import { PALETTE } from './kit/palette';
 import { buildLevel, type BuiltLevel, type LabelSpec } from './render/build';
 import { fogUniforms, setOpacity } from './render/materials';
@@ -43,6 +44,8 @@ export class App {
   levelId = '';
   tool: Tool = 'none';
   gridMode: GridMode = 'square';
+  /** DM label density: area keys only, everything, or none. */
+  labelMode: 'keys' | 'all' | 'none' = 'keys';
   lowWalls = true;
   camPreset: CameraPreset = 'tabletop';
   lockPlayerCamera = true;
@@ -167,7 +170,8 @@ export class App {
     for (const t of this.tokensHere()) {
       const base = baseRingFt(t.size);
       const g = new THREE.Group();
-      g.add(baseRing(base, t.color), pawn(PALETTE.bone, base));
+      const fig = adventurer(); fig.position.y = 0.3;
+      g.add(baseRing(base, t.color), fig);
       g.traverse((c) => {
         const m = c as THREE.Mesh;
         if (!m.isMesh) return;
@@ -260,6 +264,7 @@ export class App {
       if (lb.spec.vis === 'dm-note') o = labelCurve(T);
       else o = cov.state(lb.spec.pos.x, lb.spec.pos.z) !== Cov.Unexplored ? 1 : 1 - fogCurve(T);
       if (this.renderMode === 'floorMask') o = 0;
+      if (this.labelMode === 'none' || (this.labelMode === 'keys' && lb.spec.vis === 'dm-note' && lb.spec.kind !== 'key')) o = 0;
       lb.obj.element.style.opacity = o.toFixed(3);
       lb.obj.visible = o > 0.001;
     }

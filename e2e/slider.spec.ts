@@ -24,7 +24,7 @@ for (const sc of SCENES) {
 
   test(`${sc.scene}/${sc.level}: t = 1 shows every area key label and hidden object`, async ({ page }) => {
     await boot(page, '', sc);
-    await page.evaluate(() => (window as any).__mistlab.setT(1));
+    await page.evaluate(() => { const m = (window as any).__mistlab; m.setLabels('all'); m.setT(1); });
     const labels = await page.evaluate(() => (window as any).__mistlab.labels());
     const keys = labels.filter((l: any) => l.id.startsWith('key:')).map((l: any) => l.id);
     for (const k of sc.keys) expect(keys).toContain(k);

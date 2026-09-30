@@ -52,3 +52,25 @@
   House second floor and the lower dungeon (63 acceptance tests).
 - Known: draw calls on the dungeon level are ~170 (props are separate meshes); instancing lands with M4's
   performance pass. Room labels overlap at DM view on dense levels; label declutter is queued for M9.
+
+## M1.1 Characterization pass — 2026-09-30
+
+- Kit v2 (`app/src/kit/creatures.ts`, `props.ts`): a modular low-poly humanoid (skin, cloth, hunch, claws,
+  robe, cloak, wolf-helm, weapons) with ghoul, ghast, cultist, adventurer and animated-armor variants;
+  translucent ghosts, specter and shadows; the mimic as a door with a maw; Lorghoth as a shambling mound;
+  the grick; insect swarm; the broom; wolves (live and stuffed). The party token is now an adventurer.
+- Death House props now follow the room descriptions: wrought-iron gate and chained oil lamps (1A), the
+  Durst coat-of-arms and portraits (1B), black marble fireplace and the longsword (2A), cloaks and top hat
+  (2B), stag's head, three stuffed wolves, fur chairs, cask and candelabrum, chandelier (3), the domed oven
+  and stocked shelves (4), crystal chandelier, red silk drapes, tapestry and painting (5), suits of armor
+  with wolf helms and the family portrait (6), the floor-to-ceiling shelves, ladder and windmill picture
+  (8), the clawed-foot chest with the skeleton (9), brass chandelier, stained-glass hangings, harpsichord
+  and harp (10), four-poster beds, vanity and mirror, tiger rug, burgundy drapes (12), clawed tub, stove and
+  spigot barrel (13), the shrouded crib (15B), ivy-framed mirror (15A), child beds, the two small skeletons,
+  windmill toy chest and dollhouse (20), sheeted furniture (18), the doll in the window (17); earthen
+  tunnels with timber braces every 5 ft and wooden posts (dungeon), slabs and biers (23), the well (25),
+  benches and strewn bones (27), the Strahd statue with the wolf and the shackled skeletons (31), the
+  ghoul-carved altar with hanging chains, pillars, ledges and dais (38), shackles in the prison alcoves (36).
+- Cobwebs on the third floor, attic and dungeon; wall materials `paneling`, `paneling-dusty`, `earth`, `brick`.
+- UI: label density toggle (keys / all / none), default keys only.
+- Tests: acceptance diff threshold raised from 2 to 6 levels (transparent-sort blending noise); 63 e2e green.

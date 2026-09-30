@@ -7,6 +7,7 @@ import { FLOOR_COLOR, PALETTE, WALL_COLOR } from '../kit/palette';
 import { baseRing, merge, pawn, PROP_BUILDERS, segmentBox, slabGeometry, stairsStraight, WALL_T } from '../kit/pieces';
 import { mat, matClone, patchFog } from './materials';
 import { PROPS_V1 } from '../kit/props';
+import { CREATURES } from '../kit/creatures';
 import { buildGridOverlay } from './gridOverlay';
 
 export interface LabelSpec { id: string; text: string; sub?: string; pos: THREE.Vector3; vis: VisClass; kind: 'key' | 'object' | 'tread' | 'note'; objectId?: string }
@@ -231,9 +232,13 @@ function buildObject(o: SceneObject, y0: number, labels: LabelSpec[]): THREE.Obj
   if (b) return b();
   const v1 = PROPS_V1[o.kind];
   if (v1) return v1(o.dims ?? {});
-  // Unknown kinds with a size are creatures: pawn + base ring until M8 models land.
+  // Creatures: a kit figure on a base ring sized by creature size; a pawn if no figure exists yet.
   const base = baseRingFt(o.size ?? 'medium');
   const g = new THREE.Group();
-  g.add(baseRing(base, PALETTE.blood), pawn(PALETTE.mist2, base));
+  const fig = CREATURES[o.kind];
+  const scale = { tiny: 0.5, small: 0.75, medium: 1, large: 1.6, huge: 2.3, gargantuan: 3 }[o.size ?? 'medium'];
+  const body = fig ? fig({ ...(o.dims ?? {}), scale: (o.dims?.scale ?? 1) * (o.kind === 'shambling-mound' || o.kind === 'dire-wolf' ? 1 : scale) }) : pawn(PALETTE.mist2, base);
+  body.position.y = 0.3;
+  g.add(baseRing(base, PALETTE.blood), body);
   return g;
 }

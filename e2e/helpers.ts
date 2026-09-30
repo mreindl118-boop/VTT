@@ -41,7 +41,7 @@ export async function diff(page: Page, a: string, b: string, mask?: string): Pro
       for (let x = 0; x < w; x++) {
         const k = (y * w + x) * 4;
         const d = Math.max(Math.abs(A.data[k] - B.data[k]), Math.abs(A.data[k + 1] - B.data[k + 1]), Math.abs(A.data[k + 2] - B.data[k + 2]));
-        if (d <= 2) continue;
+        if (d <= 6) continue; // transparent-sort blending noise is ≤4 levels; grid lines differ by 20+
         changed++;
         if (M) {
           // A grid pixel must sit on, or within 2 px (MSAA fringe) of, a visible floor pixel.

@@ -15,7 +15,7 @@ export type FloorMaterial = (typeof FLOOR_MATERIALS)[number];
 /** Materials whose cells cost double to enter. Rooms may also set `difficult`. */
 export const DIFFICULT_FLOORS: readonly FloorMaterial[] = ['snow', 'ice', 'shallow-water', 'marsh'];
 
-export const WALL_MATERIALS = ['ashlar', 'rubble', 'half-timber', 'log', 'cave-rock', 'amber', 'plaster'] as const;
+export const WALL_MATERIALS = ['ashlar', 'rubble', 'half-timber', 'log', 'cave-rock', 'amber', 'plaster', 'paneling', 'paneling-dusty', 'earth', 'brick'] as const;
 export type WallMaterial = (typeof WALL_MATERIALS)[number];
 
 export type Ambient = 'darkness' | 'interior-dim' | 'barovian-overcast' | 'night' | 'fog' | 'storm';

@@ -136,3 +136,129 @@ export const PROPS_V1: Record<string, (d: Dims) => THREE.Object3D> = {
   'armor-suit': armorSuit, statue, altar, well, portcullis, ledge, dais, pallet, niche, trunk, cabinet,
   sheeted: sheetedFurniture, refuse, trapdoor, gate, wheel, skeleton, 'pit-cover': pitCover, dollhouse, 'toy-chest': toyChest, lamp, dumbwaiter,
 };
+
+// ---------------------------------------------------------------- kit v2: characterized props
+import { wolf } from './creatures';
+const boxr = (w: number, h: number, d: number, color: string, x: number, y: number, z: number, ry: number) => { const m = box(w, h, d, color, x, y, z); m.rotation.y = ry; return m; };
+const cyl = (rt: number, rb: number, h: number, color: string, x = 0, y = 0, z = 0, seg = 8) => { const m = new THREE.Mesh(new THREE.CylinderGeometry(rt, rb, h, seg), mat(color)); m.position.set(x, y, z); return m; };
+const ico = (r: number, color: string, x = 0, y = 0, z = 0) => { const m = new THREE.Mesh(new THREE.IcosahedronGeometry(r, 0), mat(color)); m.position.set(x, y, z); return m; };
+
+export function chandelier(d: Dims): THREE.Group {
+  const y = d.y ?? 8, brass = d.brass ? PALETTE.amberDeep : PALETTE.iron;
+  const g = g_(cyl(0.08, 0.08, 3, brass, 0, y + 1.5, 0), cyl(1.6, 1.6, 0.18, brass, 0, y, 0, 10));
+  for (let i = 0; i < 8; i++) { const a = (i / 8) * Math.PI * 2; g.add(box(0.14, 0.5, 0.14, PALETTE.bone, Math.cos(a) * 1.4, y + 0.35, Math.sin(a) * 1.4), ico(0.1, PALETTE.amber, Math.cos(a) * 1.4, y + 0.7, Math.sin(a) * 1.4)); }
+  if (d.crystal) for (let i = 0; i < 8; i++) { const a = (i / 8 + 0.06) * Math.PI * 2; g.add(ico(0.12, PALETTE.mist0, Math.cos(a) * 1.1, y - 0.4, Math.sin(a) * 1.1)); }
+  return g;
+}
+/** Drapes over a window: two hanging panels, colour per room (red silk, burgundy, red velvet, gossamer). */
+export function drapes(d: Dims): THREE.Group {
+  const color = d.color !== undefined ? '#' + d.color.toString(16).padStart(6, '0') : PALETTE.wine;
+  const w = d.w ?? 5;
+  return g_(box(w + 0.6, 0.18, 0.4, PALETTE.woodDark, 0, 8.2, 0), box(w * 0.32, 7.6, 0.25, color, -w * 0.32, 4.3, 0.15), box(w * 0.32, 7.6, 0.25, color, w * 0.32, 4.3, 0.15));
+}
+/** Wall-mounted shield with the Durst arms (a golden windmill on red). */
+export function shieldOfArms(): THREE.Group {
+  const g = g_(box(2.2, 2.6, 0.3, PALETTE.wine, 0, 5.4, 0));
+  for (let i = 0; i < 4; i++) { const s = box(0.25, 1.1, 0.12, PALETTE.amber, 0, 5.4, 0.2); s.rotation.z = (i * Math.PI) / 4; g.add(s); }
+  return g;
+}
+export function portrait(d: Dims): THREE.Group {
+  const w = d.w ?? 2.2, h = d.h ?? 2.8, y = d.y ?? 6;
+  const g = g_(box(w, h, 0.25, PALETTE.amberDeep, 0, y, 0), box(w - 0.4, h - 0.4, 0.3, d.dusty ? '#4a4540' : '#2b2530', 0, y, 0.02));
+  if (!d.landscape) g.add(ico(0.32, d.dusty ? '#7a7068' : '#c9a98a', 0, y + 0.3, 0.2), box(0.9, 0.9, 0.2, '#1a171d', 0, y - 0.45, 0.2));
+  else g.add(box(w - 0.6, 0.6, 0.2, PALETTE.pine, 0, y - 0.5, 0.2), box(w - 0.8, 0.5, 0.2, PALETTE.mist1, 0, y + 0.4, 0.2));
+  return g;
+}
+export function stagHead(): THREE.Group {
+  const g = g_(box(1.4, 1.6, 0.3, PALETTE.woodDark, 0, 7, 0), box(0.9, 1.1, 1.2, '#7a5a3e', 0, 7, 0.6), box(0.5, 0.5, 0.6, '#5a4030', 0, 6.7, 1.3));
+  for (const x of [-0.5, 0.5]) { g.add(box(0.12, 1.6, 0.12, PALETTE.bone, x, 8.3, 0.4), box(0.6, 0.1, 0.1, PALETTE.bone, x, 8.6, 0.4), box(0.5, 0.1, 0.1, PALETTE.bone, x * 1.4, 8.2, 0.4)); }
+  return g;
+}
+export const stuffedWolf = () => wolf({ stuffed: 1 });
+export function cloakHooks(): THREE.Group {
+  const g = g_(box(4, 0.2, 0.2, PALETTE.woodDark, 0, 6.6, 0));
+  for (let i = 0; i < 4; i++) { const c = new THREE.Mesh(new THREE.ConeGeometry(0.55, 4.6, 5), mat('#1a171d')); c.position.set(-1.5 + i, 4.2, 0.3); g.add(c); }
+  g.add(box(0.5, 0.35, 0.5, '#1a171d', 1.6, 7.4, 0.1), cyl(0.4, 0.4, 0.5, '#1a171d', 1.6, 7.85, 0.1, 10));
+  return g;
+}
+export function shelves(d: Dims): THREE.Group {
+  const w = d.w ?? 5, g = g_(box(w, 7, 1, PALETTE.woodDark, 0, 3.5, 0));
+  for (let i = 0; i < 4; i++) { g.add(box(w - 0.3, 0.12, 1.1, PALETTE.wood, 0, 1.4 + i * 1.7, 0)); for (let k = 0; k < 3; k++) g.add(d.food ? ico(0.28, k % 2 ? '#8a6b3a' : PALETTE.bone, -w / 3 + k * (w / 3), 1.75 + i * 1.7, 0.2) : cyl(0.25, 0.25, 0.5, k % 2 ? PALETTE.mist1 : PALETTE.amberDeep, -w / 3 + k * (w / 3), 1.7 + i * 1.7, 0.2, 8)); }
+  return g;
+}
+export function barrelSpigot(): THREE.Group { return g_(cyl(1, 1.1, 2.6, PALETTE.wood, 0, 1.3, 0, 10), box(0.5, 0.5, 0.5, PALETTE.iron, 0, 1.8, 0.9), cyl(0.15, 0.15, 3, PALETTE.iron, 0, 4.6, 0.6)); }
+export function tub(): THREE.Group {
+  const g = g_(box(5, 2.2, 2.6, PALETTE.wood, 0, 1.4, 0), box(4.4, 0.3, 2, '#3e5566', 0, 2.4, 0));
+  for (const [x, z] of [[-2.2, -1.1], [2.2, -1.1], [-2.2, 1.1], [2.2, 1.1]]) g.add(ico(0.3, PALETTE.iron, x, 0.25, z));
+  return g;
+}
+export function standingMirror(d: Dims): THREE.Group {
+  return g_(box(2.6, 6.6, 0.3, d.ivy ? PALETTE.pineDeep : PALETTE.woodDark, 0, 3.6, 0), box(2.1, 6.0, 0.2, '#8fa3b8', 0, 3.6, 0.1));
+}
+export function fourPosterBed(): THREE.Group {
+  const g = g_(box(6, 1.8, 7.5, PALETTE.woodDark, 0, 0.9, 0), box(5.4, 0.8, 6.9, PALETTE.bone, 0, 2.2, 0.2), box(2, 0.4, 1.2, PALETTE.mist1, 0, 2.8, -2.6));
+  for (const [x, z] of [[-2.8, -3.5], [2.8, -3.5], [-2.8, 3.5], [2.8, 3.5]]) g.add(cyl(0.18, 0.18, 8, PALETTE.woodDark, x, 4, z));
+  g.add(box(6.2, 0.2, 7.7, PALETTE.woodDark, 0, 8, 0), box(0.25, 5.2, 7.2, '#5b1f2b', -2.85, 5.1, 0), box(0.25, 5.2, 7.2, '#5b1f2b', 2.85, 5.1, 0));
+  return g;
+}
+export function nightstand(): THREE.Group { return g_(box(1.6, 2.4, 1.6, PALETTE.woodDark, 0, 1.2, 0), ico(0.2, PALETTE.amber, 0, 2.7, 0)); }
+export function rockingChair(): THREE.Group { return g_(box(1.8, 0.25, 1.8, PALETTE.wood, 0, 1.4, 0), box(1.8, 2.6, 0.25, PALETTE.wood, 0, 2.6, -0.8), cyl(0.12, 0.12, 2.8, PALETTE.woodDark, -0.8, 0.35, 0), cyl(0.12, 0.12, 2.8, PALETTE.woodDark, 0.8, 0.35, 0)); }
+export function candlestick(d: Dims): THREE.Group { const h = d.h ?? 3.5; return g_(cyl(0.35, 0.5, 0.2, PALETTE.iron, 0, 0.1, 0), cyl(0.08, 0.08, h, PALETTE.iron, 0, h / 2, 0), box(0.3, 0.6, 0.3, PALETTE.bone, 0, h + 0.3, 0), ico(0.12, PALETTE.amber, 0, h + 0.75, 0)); }
+export function bierCoffin(): THREE.Group { return g_(box(7, 2.2, 3, PALETTE.stoneDeep, 0, 1.1, 0), box(6.2, 1.4, 2.2, PALETTE.woodDark, 0, 2.9, 0)); }
+export function stoneSlab(d: Dims): THREE.Group { const s = box(4.6, 6.4, 0.5, PALETTE.stone, 0, 3.2, 0); if (d.leaning) { s.rotation.x = -0.18; s.position.z = 0.6; } return g_(s); }
+/** Timber brace across a 4-ft tunnel: two posts and a lintel. */
+export function timberBrace(d: Dims): THREE.Group { const w = d.w ?? 4.6, h = d.h ?? 7; return g_(box(0.5, h, 0.5, PALETTE.woodDark, -w / 2, h / 2, 0), box(0.5, h, 0.5, PALETTE.woodDark, w / 2, h / 2, 0), box(w + 0.5, 0.5, 0.6, PALETTE.woodDark, 0, h, 0)); }
+export function post(d: Dims): THREE.Group { const h = d.h ?? 8; return g_(box(0.8, h, 0.8, PALETTE.woodDark, 0, h / 2, 0), box(5, 0.6, 0.8, PALETTE.woodDark, 0, h - 0.3, 0)); }
+/** Corner cobweb: a translucent pale triangle. */
+export function cobweb(d: Dims): THREE.Group {
+  const s = d.s ?? 3, y = d.y ?? 7;
+  const shape = new THREE.Shape([new THREE.Vector2(0, 0), new THREE.Vector2(s, 0), new THREE.Vector2(0, -s)]);
+  const geo = new THREE.ShapeGeometry(shape); const m = new THREE.MeshBasicMaterial({ color: '#e8e4dc', transparent: true, opacity: 0.35, side: THREE.DoubleSide, depthWrite: false });
+  const mesh = new THREE.Mesh(geo, m); mesh.position.y = y; mesh.rotation.y = Math.PI / 4;
+  const g = g_(mesh); g.userData.role = 'marker';
+  return g;
+}
+export function chains(d: Dims): THREE.Group { const y = d.y ?? 16, len = d.len ?? 8; const g = g_(); for (const x of [-1.2, 1.2]) { for (let i = 0; i < len * 2; i++) g.add(box(0.32, 0.5, 0.32, PALETTE.iron, x, y - i * 0.5, 0)); g.add(cyl(0.5, 0.5, 0.35, PALETTE.iron, x, y - len, 0, 10)); } return g; }
+export function tapestry(d: Dims): THREE.Group { const w = d.w ?? 6; return g_(box(w, 0.2, 0.2, PALETTE.iron, 0, 8, 0), box(w - 0.2, 5, 0.15, '#5a2a30', 0, 5.4, 0.1), box(w - 1, 0.6, 0.12, PALETTE.amberDeep, 0, 4.2, 0.2), box(1.4, 0.8, 0.12, '#6b5d4a', -w / 4, 5.8, 0.2), box(1.4, 0.8, 0.12, '#6b5d4a', w / 4, 5.8, 0.2)); }
+export function glassHanging(): THREE.Group { const g = g_(box(2.4, 3.2, 0.15, PALETTE.iron, 0, 6, 0)); const cs = [PALETTE.wine, PALETTE.amber, PALETTE.pine, '#3e5566']; for (let i = 0; i < 4; i++) g.add(box(0.95, 1.35, 0.1, cs[i], (i % 2 ? 0.55 : -0.55), i < 2 ? 6.75 : 5.25, 0.06)); return g; }
+export function bench(d: Dims): THREE.Group { const l = d.l ?? 8; return g_(box(l, 0.3, 1.1, PALETTE.wood, 0, 1.5, 0), box(0.3, 1.4, 1, PALETTE.woodDark, -l / 2 + 0.5, 0.7, 0), box(0.3, 1.4, 1, PALETTE.woodDark, l / 2 - 0.5, 0.7, 0)); }
+export function torchCrate(): THREE.Group { const g = g_(box(3, 1.8, 2.2, PALETTE.wood, 0, 0.9, 0)); for (let i = 0; i < 8; i++) g.add(boxr(0.2, 2.6, 0.2, PALETTE.woodDark, -1.1 + (i % 4) * 0.7, 2.2, -0.5 + Math.floor(i / 4), 0)); return g; }
+export function doll(): THREE.Group { const g = g_(box(0.7, 0.9, 0.5, '#e8d36a', 0, 0.45, 0), ico(0.28, '#e9cdb0', 0, 1.1, 0)); return g; }
+export function bones(): THREE.Group { const g = g_(); for (let i = 0; i < 7; i++) g.add(boxr(0.15, 0.15, 1.2 + (i % 3) * 0.5, PALETTE.bone, -1.5 + (i * 0.6), 0.1, -1 + (i % 4) * 0.5, i * 0.9)); g.add(ico(0.42, PALETTE.bone, 0.6, 0.35, 0.4)); return g; }
+export function shackledSkeleton(): THREE.Group { const g = g_(box(1.4, 3, 0.5, PALETTE.bone, 0, 3.6, 0), ico(0.5, PALETTE.bone, 0, 5.6, 0), box(0.3, 2.6, 0.3, PALETTE.bone, -0.9, 3.4, 0), box(0.3, 2.6, 0.3, PALETTE.bone, 0.9, 3.4, 0), box(0.3, 2.4, 0.3, PALETTE.bone, -0.4, 1.2, 0), box(0.3, 2.4, 0.3, PALETTE.bone, 0.4, 1.2, 0)); for (const x of [-1.2, 1.2]) g.add(cyl(0.3, 0.3, 0.2, PALETTE.iron, x, 5, 0, 8), box(0.15, 1.4, 0.15, PALETTE.iron, x, 5.8, 0)); return g; }
+export function strahdStatue(): THREE.Group {
+  const g = g_(box(6, 1, 5, PALETTE.stoneDeep, 0, 0.5, 0));
+  const figure = box(1.7, 5.4, 1.1, '#141218', -1.2, 3.7, 0); g.add(figure);
+  const cloak = new THREE.Mesh(new THREE.ConeGeometry(1.5, 5.6, 6), mat('#0f0d12')); cloak.position.set(-1.2, 3.8, -0.3); cloak.scale.z = 0.6; g.add(cloak);
+  g.add(ico(0.55, '#d8d3d0', -1.2, 6.9, 0), box(0.4, 1.8, 0.4, '#d8d3d0', -0.2, 4.6, 0.3), ico(0.42, '#8a8f9a', 0.1, 5.7, 0.5));
+  const w = wolf({ scale: 0.9, stuffed: 1 }); w.position.set(1.4, 1, 0); w.rotation.y = Math.PI / 2; g.add(w);
+  return g;
+}
+export function ghoulAltar(): THREE.Group {
+  const g = g_(box(6, 3, 3, PALETTE.stoneDeep, 0, 1.5, 0), box(6.4, 0.4, 3.4, PALETTE.blood, 0, 3.2, 0));
+  for (let i = 0; i < 4; i++) g.add(box(0.5, 1.2, 0.2, '#3d4247', -2.1 + i * 1.4, 1.6, 1.55), ico(0.22, '#3d4247', -2.1 + i * 1.4, 2.4, 1.6));
+  return g;
+}
+export function planksCeiling(d: Dims): THREE.Group { const w = d.w ?? 5, dd = d.d ?? 5, y = d.y ?? 6; const g = g_(); for (let i = 0; i < 5; i++) g.add(box(w, 0.2, dd / 5 - 0.1, PALETTE.woodDark, 0, y, -dd / 2 + dd / 10 + i * (dd / 5))); return g; }
+export function pitOpen(): THREE.Group { const g = g_(box(4.6, 0.1, 4.6, '#0a0908', 0, 0.02, 0)); for (let i = 0; i < 6; i++) g.add(new THREE.Mesh(new THREE.ConeGeometry(0.18, 1.4, 5), mat(PALETTE.woodDark)).translateX(-1.6 + i * 0.65).translateY(-0.3).translateZ((i % 2) * 1.2 - 0.6)); return g; }
+export function beds(): THREE.Group { return g_(box(3.5, 1.4, 6.5, PALETTE.woodDark, 0, 0.7, 0), box(3.1, 0.5, 6, '#d9cfb5', 0, 1.6, 0.2), box(3.5, 2.6, 0.4, PALETTE.woodDark, 0, 1.3, -3.2)); }
+export function childBed(): THREE.Group { return g_(box(2.6, 1.2, 4.6, PALETTE.woodDark, 0, 0.6, 0), box(2.2, 0.4, 4.2, '#8fa3b8', 0, 1.4, 0.1)); }
+export function smallSkeletons(): THREE.Group { const g = g_(); for (const [x, z, r] of [[-0.8, 0, 0.3], [0.8, 0.4, -0.5]]) { const s = box(0.8, 0.4, 2.6, PALETTE.bone, x, 0.2, z); s.rotation.y = r; g.add(s, ico(0.3, PALETTE.bone, x, 0.4, z - 1.4)); } g.add(box(0.5, 0.7, 0.4, '#b89a7a', 1.3, 0.35, 1.3)); return g; }
+export function wineCask(): THREE.Group { return g_(cyl(0.6, 0.7, 1.4, PALETTE.wood, 0, 0.7, 0, 10), cyl(0.25, 0.25, 0.4, PALETTE.iron, 0, 1.2, 0.6, 6)); }
+export function oilLamp(d: Dims): THREE.Group { const y = d.y ?? 6.5; return g_(box(0.3, 0.9, 0.3, PALETTE.iron, 0, y - 0.6, 0), box(0.6, 0.7, 0.6, PALETTE.amber, 0, y, 0), box(0.25, 0.8, 0.25, PALETTE.iron, 0, y + 0.7, 0)); }
+export function dumbwaiterShaft(): THREE.Group { return g_(box(2, 6, 2, PALETTE.stoneDeep, 0, 3, 0), box(1.4, 1.2, 0.2, PALETTE.woodDark, 0, 3, 1.05), ico(0.15, PALETTE.amberDeep, 1.3, 4.5, 1.05)); }
+export function crateChest(): THREE.Group { return g_(box(3.5, 1.6, 2, PALETTE.woodDark, 0, 0.8, 0), box(3.7, 0.3, 2.2, PALETTE.iron, 0, 1.7, 0), box(0.5, 0.6, 0.2, PALETTE.iron, 0, 1, 1.05)); }
+export function clawChestSkeleton(): THREE.Group { const g = crateChest(); const lid = box(3.7, 0.3, 2.2, PALETTE.iron, 0, 2.4, -0.8); lid.rotation.x = -0.9; g.add(lid); for (const [x, z] of [[-1.5, -0.8], [1.5, -0.8], [-1.5, 0.8], [1.5, 0.8]]) g.add(ico(0.22, PALETTE.iron, x, 0.15, z)); g.add(box(0.9, 2.4, 0.6, PALETTE.bone, 0.6, 1.9, 0.2), ico(0.42, PALETTE.bone, 0.6, 3.3, 0.3), box(0.25, 1.8, 0.25, PALETTE.bone, -0.4, 2.6, 0.9)); return g; }
+export function toyChestWindmills(): THREE.Group { const g = g_(box(2.6, 1.4, 1.6, PALETTE.wood, 0, 0.7, 0)); for (let i = 0; i < 2; i++) { const s = box(0.1, 0.7, 0.05, PALETTE.amber, -0.6 + i * 1.2, 0.7, 0.82); s.rotation.z = 0.78; g.add(s, box(0.7, 0.1, 0.05, PALETTE.amber, -0.6 + i * 1.2, 0.7, 0.82)); } return g; }
+export function dollhouseReplica(): THREE.Group { return g_(box(2.2, 2.4, 1.4, '#7a6a5a', 0, 1.2, 0), box(2.4, 1, 1.6, '#3b2f47', 0, 2.9, 0), box(0.3, 0.5, 0.05, PALETTE.woodDark, 0, 0.3, 0.72), box(0.3, 0.3, 0.05, PALETTE.amber, -0.6, 1.4, 0.72), box(0.3, 0.3, 0.05, PALETTE.amber, 0.6, 1.4, 0.72)); }
+
+function g_(...m: THREE.Object3D[]): THREE.Group { const grp = new THREE.Group(); if (m.length) grp.add(...m); return grp; }
+
+Object.assign(PROPS_V1, {
+  chandelier, drapes, 'shield-of-arms': shieldOfArms, portrait, 'stag-head': stagHead, 'stuffed-wolf': stuffedWolf, 'cloak-hooks': cloakHooks, shelves, 'barrel-spigot': barrelSpigot,
+  tub, 'standing-mirror': standingMirror, 'four-poster-bed': fourPosterBed, nightstand, 'rocking-chair': rockingChair, candlestick, 'bier-coffin': bierCoffin, 'stone-slab': stoneSlab,
+  'timber-brace': timberBrace, post, cobweb, chains, tapestry, 'glass-hanging': glassHanging, bench, 'torch-crate': torchCrate, doll, bones, 'shackled-skeleton': shackledSkeleton,
+  'strahd-statue': strahdStatue, 'ghoul-altar': ghoulAltar, 'planks-ceiling': planksCeiling, 'pit-open': pitOpen, 'bed-plain': beds, 'child-bed': childBed, 'small-skeletons': smallSkeletons,
+  'wine-cask': wineCask, 'oil-lamp': oilLamp, 'dumbwaiter-shaft': dumbwaiterShaft, 'crate-chest': crateChest, 'claw-chest-skeleton': clawChestSkeleton, 'toy-chest-windmills': toyChestWindmills,
+  'dollhouse-replica': dollhouseReplica,
+} as Record<string, (d: Dims) => THREE.Object3D>);

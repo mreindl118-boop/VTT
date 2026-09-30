@@ -24,6 +24,7 @@ const ready = app.init(builtPaths.has(path) ? path : 'dev/m0-test-room');
   app,
   ready: ready.then(() => true),
   setT: (t: number) => { slider?.set(t); app.setT(t); app.world.renderNow(); },
+  setLabels: (m: 'keys' | 'all' | 'none') => { app.labelMode = m; app.applySlider(); app.world.renderNow(); },
   setGrid: (g: GridMode) => { app.gridMode = g; app.layoutChanged(); app.world.renderNow(); },
   setLowWalls: (on: boolean) => { app.lowWalls = on; app.layoutChanged(); app.world.renderNow(); },
   setRenderMode: (m: 'normal' | 'floorMask') => { app.setRenderMode(m); app.world.renderNow(); },
@@ -67,6 +68,7 @@ function buildDmUi(): void {
       <button class="icon" data-act="grid" aria-label="Grid: square / hex / off"></button>
       <button class="icon" data-act="walls" aria-label="Walls: low / full">${ICON.walls}</button>
       <button class="icon" data-act="camera" aria-label="Camera: tabletop / top-down"></button>
+      <button class="icon" data-act="labels" aria-label="Labels: keys / all / none"></button>
       <span class="divider"></span>
       <button class="icon" data-act="lock" aria-label="Player camera follows DM"></button>
       <button class="icon" data-act="display" aria-label="Open Player Display">${ICON.display}</button>
@@ -87,6 +89,7 @@ function buildDmUi(): void {
     top.querySelectorAll<HTMLElement>('[data-tool]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.tool === app.tool)));
     top.querySelector('[data-act="grid"]')!.innerHTML = app.gridMode === 'hex' ? ICON.hex : app.gridMode === 'square' ? ICON.grid : ICON.gridOff;
     top.querySelector('[data-act="camera"]')!.innerHTML = app.camPreset === 'top' ? ICON.top : ICON.camera;
+    top.querySelector('[data-act="labels"]')!.innerHTML = app.labelMode === 'all' ? ICON.label : app.labelMode === 'keys' ? ICON.labelKeys : ICON.labelOff;
     top.querySelector('[data-act="walls"]')!.setAttribute('aria-pressed', String(!app.lowWalls));
     top.querySelector('[data-act="lock"]')!.innerHTML = app.lockPlayerCamera ? ICON.lock : ICON.unlock;
   };
@@ -103,6 +106,7 @@ function buildDmUi(): void {
       case 'grid': app.gridMode = app.gridMode === 'square' ? 'hex' : app.gridMode === 'hex' ? 'off' : 'square'; app.layoutChanged(); break;
       case 'walls': app.lowWalls = !app.lowWalls; app.layoutChanged(); break;
       case 'camera': app.frameLevel(app.camPreset === 'top' ? 'tabletop' : 'top'); break;
+      case 'labels': app.labelMode = app.labelMode === 'keys' ? 'all' : app.labelMode === 'all' ? 'none' : 'keys'; app.applySlider(); break;
       case 'lock': app.lockPlayerCamera = !app.lockPlayerCamera; app.layoutChanged(); break;
       case 'display': window.open(`${location.pathname}?display=player&scene=${encodeURIComponent(app.cur?.path ?? '')}`, 'mistlab-player', 'popup,width=1280,height=800'); break;
     }

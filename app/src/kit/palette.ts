@@ -20,4 +20,5 @@ export const FLOOR_COLOR: Record<FloorMaterial, string> = {
 };
 export const WALL_COLOR: Record<WallMaterial, string> = {
   ashlar: '#7c858e', rubble: '#6d6860', 'half-timber': '#8a7f6e', log: '#5d4636', 'cave-rock': '#5b5752', amber: '#c9822e', plaster: '#8f8a84',
+  paneling: '#5a3f2c', 'paneling-dusty': '#6a5a4c', earth: '#5a4a38', brick: '#6e4a3c',
 };

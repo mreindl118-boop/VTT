@@ -17,5 +17,8 @@ export const ICON = {
   lock: svg('<rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V8a4 4 0 018 0v3"/>'),
   unlock: svg('<rect x="5" y="11" width="14" height="9" rx="1.5"/><path d="M8 11V8a4 4 0 017.5-2"/>'),
   close: svg('<path d="M6 6l12 12M18 6L6 18"/>'),
+  label: svg('<path d="M4 7h10M4 12h16M4 17h7"/>'),
+  labelKeys: svg('<rect x="4" y="6" width="8" height="5" rx="1"/><path d="M4 16h16"/>'),
+  labelOff: svg('<path d="M4 7h6M4 12h6M4 17h6M14 9l6 6M20 9l-6 6"/>'),
   token: svg('<circle cx="12" cy="8" r="3.5"/><path d="M5 20c1-4 4-6 7-6s6 2 7 6"/>'),
 };
