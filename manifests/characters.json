@@ -19,7 +19,16 @@
     "bat",
     "wolf",
     "mist"
-   ]
+   ],
+   "figure": {
+    "skin": "#cfcfd6",
+    "cloth": "#1d1a22",
+    "accent": "#4d1119",
+    "hair": "#1a1a1a",
+    "cloak": true,
+    "weapon": "sword"
+   },
+   "role": "hostile"
   },
   {
    "id": "ireena-kolyana",
@@ -31,7 +40,14 @@
    "tags": [
     "E4"
    ],
-   "kind": "npc"
+   "kind": "npc",
+   "figure": {
+    "skin": "#d9b899",
+    "cloth": "#6d3b4d",
+    "accent": "#e8dfc8",
+    "hair": "#a04a2a"
+   },
+   "role": "ally"
   },
   {
    "id": "ismark-kolyanovich",
@@ -44,7 +60,15 @@
     "E2",
     "E4"
    ],
-   "kind": "npc"
+   "kind": "npc",
+   "figure": {
+    "skin": "#c99a72",
+    "cloth": "#5a4632",
+    "accent": "#3a3b40",
+    "hair": "#3a2a1a",
+    "weapon": "sword"
+   },
+   "role": "ally"
   },
   {
    "id": "kolyan-indirovich",
@@ -59,7 +83,14 @@
    "kind": "npc",
    "variants": [
     "corpse"
-   ]
+   ],
+   "figure": {
+    "skin": "#cfcfd6",
+    "cloth": "#1a171d",
+    "accent": "#e8dfc8",
+    "hair": "#7a7a7a"
+   },
+   "role": "neutral"
   },
   {
    "id": "rahadin",
@@ -71,7 +102,16 @@
    "tags": [
     "K"
    ],
-   "kind": "npc"
+   "kind": "npc",
+   "figure": {
+    "skin": "#a67c5b",
+    "cloth": "#3a3f4a",
+    "accent": "#3a3b40",
+    "hair": "#1a1a1a",
+    "cloak": true,
+    "weapon": "sword"
+   },
+   "role": "hostile"
   },
   {
    "id": "ezmerelda-davenir",
@@ -83,7 +123,16 @@
    "tags": [
     "V1"
    ],
-   "kind": "npc"
+   "kind": "npc",
+   "figure": {
+    "skin": "#c99a72",
+    "cloth": "#4b2b3a",
+    "accent": "#c9a227",
+    "hair": "#1a1a1a",
+    "weapon": "sword",
+    "hat": "wide"
+   },
+   "role": "ally"
   },
   {
    "id": "rudolph-van-richten",
@@ -98,7 +147,16 @@
    "kind": "npc",
    "variants": [
     "rictavio"
-   ]
+   ],
+   "figure": {
+    "skin": "#d9b899",
+    "cloth": "#3d3b4a",
+    "accent": "#b08d3a",
+    "hair": "#d9d9d9",
+    "hat": "wide",
+    "weapon": "lantern"
+   },
+   "role": "ally"
   },
   {
    "id": "madam-eva",
@@ -110,7 +168,15 @@
    "tags": [
     "G"
    ],
-   "kind": "npc"
+   "kind": "npc",
+   "figure": {
+    "skin": "#c99a72",
+    "cloth": "#5a2a4a",
+    "accent": "#c9a227",
+    "hair": "#d9d9d9",
+    "hat": "hood"
+   },
+   "role": "neutral"
   },
   {
    "id": "the-abbot",
@@ -122,7 +188,14 @@
    "tags": [
     "S10"
    ],
-   "kind": "npc"
+   "kind": "npc",
+   "figure": {
+    "skin": "#d9b899",
+    "cloth": "#e8e2d2",
+    "accent": "#c9a227",
+    "hair": "#8a5a2a"
+   },
+   "role": "neutral"
   },
   {
    "id": "vasilka",
@@ -134,7 +207,15 @@
    "tags": [
     "S10"
    ],
-   "kind": "npc"
+   "kind": "npc",
+   "figure": {
+    "skin": "#cfcfd6",
+    "cloth": "#e8dfc8",
+    "accent": "#5b4a6b",
+    "hair": "#d9d9d9",
+    "undead": true
+   },
+   "role": "neutral"
   },
   {
    "id": "baba-lysaga",
@@ -146,7 +227,16 @@
    "tags": [
     "U"
    ],
-   "kind": "npc"
+   "kind": "npc",
+   "figure": {
+    "skin": "#8a9a7c",
+    "cloth": "#2f3a2a",
+    "accent": "#55603a",
+    "hair": "#7a7a7a",
+    "hat": "hood",
+    "weapon": "staff"
+   },
+   "role": "hostile"
   },
   {
    "id": "kasimir-velikov",
@@ -159,7 +249,15 @@
     "N9a",
     "X"
    ],
-   "kind": "npc"
+   "kind": "npc",
+   "figure": {
+    "skin": "#d9b899",
+    "cloth": "#2c2f45",
+    "accent": "#5b4a6b",
+    "hair": "#7a7a7a",
+    "weapon": "staff"
+   },
+   "role": "neutral"
   },
   {
    "id": "vladimir-horngaard",
@@ -171,7 +269,17 @@
    "tags": [
     "Q"
    ],
-   "kind": "npc"
+   "kind": "npc",
+   "figure": {
+    "skin": "#cfcfd6",
+    "cloth": "#3a3b40",
+    "accent": "#b8c4d6",
+    "hair": null,
+    "hat": "helm",
+    "weapon": "sword",
+    "undead": true
+   },
+   "role": "hostile"
   },
   {
    "id": "sir-godfrey-gwilym",
@@ -183,7 +291,16 @@
    "tags": [
     "Q"
    ],
-   "kind": "npc"
+   "kind": "npc",
+   "figure": {
+    "skin": "#cfcfd6",
+    "cloth": "#3a3b40",
+    "accent": "#b8c4d6",
+    "hair": "#7a7a7a",
+    "weapon": "sword",
+    "undead": true
+   },
+   "role": "neutral"
   },
   {
    "id": "izek-strazni",
@@ -195,7 +312,15 @@
    "tags": [
     "N3"
    ],
-   "kind": "npc"
+   "kind": "npc",
+   "figure": {
+    "skin": "#c99a72",
+    "cloth": "#4a2a2a",
+    "accent": "#4d1119",
+    "hair": "#1a1a1a",
+    "weapon": "axe"
+   },
+   "role": "hostile"
   },
   {
    "id": "baron-vargas-vallakovich",
@@ -207,7 +332,15 @@
    "tags": [
     "N3"
    ],
-   "kind": "npc"
+   "kind": "npc",
+   "figure": {
+    "skin": "#d9b899",
+    "cloth": "#5a2a3a",
+    "accent": "#c9a227",
+    "hair": "#3a2a1a",
+    "weapon": "sword"
+   },
+   "role": "neutral"
   },
   {
    "id": "baroness-lydia-petrovna",
@@ -219,7 +352,14 @@
    "tags": [
     "N3"
    ],
-   "kind": "npc"
+   "kind": "npc",
+   "figure": {
+    "skin": "#d9b899",
+    "cloth": "#7a5a7a",
+    "accent": "#c9a227",
+    "hair": "#8a5a2a"
+   },
+   "role": "neutral"
   },
   {
    "id": "victor-vallakovich",
@@ -231,7 +371,14 @@
    "tags": [
     "N3t"
    ],
-   "kind": "npc"
+   "kind": "npc",
+   "figure": {
+    "skin": "#d9b899",
+    "cloth": "#2f2f3f",
+    "accent": "#5b4a6b",
+    "hair": "#1a1a1a"
+   },
+   "role": "neutral"
   },
   {
    "id": "lady-fiona-wachter",
@@ -243,7 +390,14 @@
    "tags": [
     "N4"
    ],
-   "kind": "npc"
+   "kind": "npc",
+   "figure": {
+    "skin": "#d9b899",
+    "cloth": "#2a2a3a",
+    "accent": "#7a1f2b",
+    "hair": "#7a7a7a"
+   },
+   "role": "hostile"
   },
   {
    "id": "stella-wachter",
@@ -255,7 +409,14 @@
    "tags": [
     "N4n"
    ],
-   "kind": "npc"
+   "kind": "npc",
+   "figure": {
+    "skin": "#d9b899",
+    "cloth": "#e8dfc8",
+    "accent": "#e8dfc8",
+    "hair": "#3a2a1a"
+   },
+   "role": "neutral"
   },
   {
    "id": "nikolai-wachter",
@@ -291,7 +452,14 @@
    "tags": [
     "N1"
    ],
-   "kind": "npc"
+   "kind": "npc",
+   "figure": {
+    "skin": "#d9b899",
+    "cloth": "#e2dccc",
+    "accent": "#c9a227",
+    "hair": "#7a7a7a"
+   },
+   "role": "ally"
   },
   {
    "id": "urwin-martikov",
@@ -303,7 +471,14 @@
    "tags": [
     "N2"
    ],
-   "kind": "npc"
+   "kind": "npc",
+   "figure": {
+    "skin": "#c99a72",
+    "cloth": "#5a4632",
+    "accent": "#6b4a33",
+    "hair": "#1a1a1a"
+   },
+   "role": "ally"
   },
   {
    "id": "danika-martikov",
@@ -315,7 +490,14 @@
    "tags": [
     "N2"
    ],
-   "kind": "npc"
+   "kind": "npc",
+   "figure": {
+    "skin": "#d9b899",
+    "cloth": "#5a4a3a",
+    "accent": "#e8dfc8",
+    "hair": "#3a2a1a"
+   },
+   "role": "ally"
   },
   {
    "id": "brom-martikov",
@@ -351,7 +533,14 @@
    "tags": [
     "W"
    ],
-   "kind": "npc"
+   "kind": "npc",
+   "figure": {
+    "skin": "#c99a72",
+    "cloth": "#5a4632",
+    "accent": "#7a1f2b",
+    "hair": "#7a7a7a"
+   },
+   "role": "ally"
   },
   {
    "id": "szoldar-szoldarovich",
@@ -363,7 +552,14 @@
    "tags": [
     "N2"
    ],
-   "kind": "npc"
+   "kind": "npc",
+   "figure": {
+    "skin": "#c99a72",
+    "cloth": "#5a4632",
+    "accent": "#7a6a55",
+    "hair": "#1a1a1a"
+   },
+   "role": "neutral"
   },
   {
    "id": "yevgeni-krushkin",
@@ -375,7 +571,14 @@
    "tags": [
     "N2"
    ],
-   "kind": "npc"
+   "kind": "npc",
+   "figure": {
+    "skin": "#c99a72",
+    "cloth": "#5a4632",
+    "accent": "#7a6a55",
+    "hair": "#3a2a1a"
+   },
+   "role": "neutral"
   },
   {
    "id": "morgantha",
@@ -391,7 +594,15 @@
    "variants": [
     "hag",
     "old-woman"
-   ]
+   ],
+   "figure": {
+    "skin": "#8a9a7c",
+    "cloth": "#2a3a2a",
+    "accent": "#55603a",
+    "hair": "#7a7a7a",
+    "hat": "hood"
+   },
+   "role": "hostile"
   },
   {
    "id": "bella-sunbane",
@@ -407,7 +618,15 @@
    "variants": [
     "hag",
     "old-woman"
-   ]
+   ],
+   "figure": {
+    "skin": "#8a9a7c",
+    "cloth": "#3a2a2a",
+    "accent": "#55603a",
+    "hair": "#1a1a1a",
+    "hat": "hood"
+   },
+   "role": "hostile"
   },
   {
    "id": "offalia-wormwiggle",
@@ -423,7 +642,15 @@
    "variants": [
     "hag",
     "old-woman"
-   ]
+   ],
+   "figure": {
+    "skin": "#8a9a7c",
+    "cloth": "#2a2a3a",
+    "accent": "#55603a",
+    "hair": "#3a2a1a",
+    "hat": "hood"
+   },
+   "role": "hostile"
   },
   {
    "id": "gadof-blinsky",
@@ -435,7 +662,14 @@
    "tags": [
     "N7"
    ],
-   "kind": "npc"
+   "kind": "npc",
+   "figure": {
+    "skin": "#d9b899",
+    "cloth": "#7a4a2a",
+    "accent": "#c9a227",
+    "hair": "#3a2a1a"
+   },
+   "role": "neutral"
   },
   {
    "id": "henrik-van-der-voort",
@@ -447,7 +681,14 @@
    "tags": [
     "N6"
    ],
-   "kind": "npc"
+   "kind": "npc",
+   "figure": {
+    "skin": "#d9b899",
+    "cloth": "#4a3a2a",
+    "accent": "#e8dfc8",
+    "hair": "#d9d9d9"
+   },
+   "role": "neutral"
   },
   {
    "id": "luvash",
@@ -459,7 +700,15 @@
    "tags": [
     "N9"
    ],
-   "kind": "npc"
+   "kind": "npc",
+   "figure": {
+    "skin": "#c99a72",
+    "cloth": "#5a2a2a",
+    "accent": "#c9a227",
+    "hair": "#1a1a1a",
+    "weapon": "sword"
+   },
+   "role": "neutral"
   },
   {
    "id": "arrigal",
@@ -471,7 +720,15 @@
    "tags": [
     "N9"
    ],
-   "kind": "npc"
+   "kind": "npc",
+   "figure": {
+    "skin": "#c99a72",
+    "cloth": "#2a2a2a",
+    "accent": "#c9a227",
+    "hair": "#1a1a1a",
+    "weapon": "sword"
+   },
+   "role": "hostile"
   },
   {
    "id": "arabelle",
@@ -484,7 +741,14 @@
     "L",
     "N9"
    ],
-   "kind": "npc"
+   "kind": "npc",
+   "figure": {
+    "skin": "#d9b899",
+    "cloth": "#6a3a5a",
+    "accent": "#c9a227",
+    "hair": "#1a1a1a"
+   },
+   "role": "ally"
   },
   {
    "id": "kiril-stoyanovich",
@@ -501,7 +765,15 @@
     "human",
     "hybrid",
     "wolf"
-   ]
+   ],
+   "figure": {
+    "skin": "#c99a72",
+    "cloth": "#5a4632",
+    "accent": "#7a6a55",
+    "hair": "#1a1a1a",
+    "weapon": "axe"
+   },
+   "role": "hostile"
   },
   {
    "id": "emil-toranescu",
@@ -518,7 +790,14 @@
     "human",
     "hybrid",
     "wolf"
-   ]
+   ],
+   "figure": {
+    "skin": "#c99a72",
+    "cloth": "#5a4632",
+    "accent": "#7a6a55",
+    "hair": "#3a2a1a"
+   },
+   "role": "ally"
   },
   {
    "id": "zuleika-toranescu",
@@ -535,7 +814,14 @@
     "human",
     "hybrid",
     "wolf"
-   ]
+   ],
+   "figure": {
+    "skin": "#c99a72",
+    "cloth": "#5a4632",
+    "accent": "#7a6a55",
+    "hair": "#1a1a1a"
+   },
+   "role": "ally"
   },
   {
    "id": "exethanter",
@@ -547,7 +833,17 @@
    "tags": [
     "X"
    ],
-   "kind": "npc"
+   "kind": "npc",
+   "figure": {
+    "skin": "#cfcfd6",
+    "cloth": "#2a2440",
+    "accent": "#c9822e",
+    "hair": null,
+    "hat": "hood",
+    "weapon": "staff",
+    "undead": true
+   },
+   "role": "neutral"
   },
   {
    "id": "neferon",
@@ -559,7 +855,15 @@
    "tags": [
     "X"
    ],
-   "kind": "npc"
+   "kind": "npc",
+   "figure": {
+    "skin": "#8a9a7c",
+    "cloth": "#3a2a4a",
+    "accent": "#c9a227",
+    "hair": "#1a1a1a",
+    "weapon": "staff"
+   },
+   "role": "hostile"
   },
   {
    "id": "vilnius",
@@ -571,7 +875,15 @@
    "tags": [
     "V"
    ],
-   "kind": "npc"
+   "kind": "npc",
+   "figure": {
+    "skin": "#d9b899",
+    "cloth": "#3a4a5a",
+    "accent": "#5b4a6b",
+    "hair": "#3a2a1a",
+    "weapon": "staff"
+   },
+   "role": "hostile"
   },
   {
    "id": "pidlwick-ii",
@@ -583,7 +895,15 @@
    "tags": [
     "K"
    ],
-   "kind": "npc"
+   "kind": "npc",
+   "figure": {
+    "skin": "#cfcfd6",
+    "cloth": "#6a2a5a",
+    "accent": "#c9a227",
+    "hair": "#a04a2a",
+    "hat": "crown"
+   },
+   "role": "neutral"
   },
   {
    "id": "escher",
@@ -595,7 +915,15 @@
    "tags": [
     "K"
    ],
-   "kind": "npc"
+   "kind": "npc",
+   "figure": {
+    "skin": "#cfcfd6",
+    "cloth": "#3a2a3a",
+    "accent": "#7a1f2b",
+    "hair": "#8a5a2a",
+    "undead": true
+   },
+   "role": "hostile"
   },
   {
    "id": "ludmilla-vilisevic",
@@ -607,7 +935,15 @@
    "tags": [
     "K"
    ],
-   "kind": "npc"
+   "kind": "npc",
+   "figure": {
+    "skin": "#cfcfd6",
+    "cloth": "#4a1a2a",
+    "accent": "#c9a227",
+    "hair": "#1a1a1a",
+    "undead": true
+   },
+   "role": "hostile"
   },
   {
    "id": "anastrasya-karelova",
@@ -619,7 +955,15 @@
    "tags": [
     "K"
    ],
-   "kind": "npc"
+   "kind": "npc",
+   "figure": {
+    "skin": "#cfcfd6",
+    "cloth": "#2a1a3a",
+    "accent": "#c9a227",
+    "hair": "#8a5a2a",
+    "undead": true
+   },
+   "role": "hostile"
   },
   {
    "id": "volenta-popofsky",
@@ -631,7 +975,15 @@
    "tags": [
     "K"
    ],
-   "kind": "npc"
+   "kind": "npc",
+   "figure": {
+    "skin": "#cfcfd6",
+    "cloth": "#1a1a1a",
+    "accent": "#4d1119",
+    "hair": "#1a1a1a",
+    "undead": true
+   },
+   "role": "hostile"
   },
   {
    "id": "patrina-velikovna",
@@ -643,7 +995,16 @@
    "tags": [
     "K84"
    ],
-   "kind": "npc"
+   "kind": "npc",
+   "figure": {
+    "skin": "#cfcfd6",
+    "cloth": "#2a2a4a",
+    "accent": "#5b4a6b",
+    "hair": "#1a1a1a",
+    "undead": true,
+    "weapon": "staff"
+   },
+   "role": "hostile"
   },
   {
    "id": "sergei-von-zarovich",
@@ -658,7 +1019,15 @@
    "kind": "npc",
    "variants": [
     "ghost"
-   ]
+   ],
+   "figure": {
+    "skin": "#cfcfd6",
+    "cloth": "#cfd6e8",
+    "accent": "#cfd6e8",
+    "hair": "#d9d9d9",
+    "ghost": true
+   },
+   "role": "ally"
   },
   {
    "id": "tatyana",
@@ -670,7 +1039,15 @@
    "tags": [
     "K"
    ],
-   "kind": "npc"
+   "kind": "npc",
+   "figure": {
+    "skin": "#cfcfd6",
+    "cloth": "#cfd6e8",
+    "accent": "#cfd6e8",
+    "hair": "#a04a2a",
+    "ghost": true
+   },
+   "role": "neutral"
   },
   {
    "id": "rose-durst",
@@ -685,7 +1062,15 @@
    "kind": "npc",
    "variants": [
     "ghost"
-   ]
+   ],
+   "figure": {
+    "skin": "#cfcfd6",
+    "cloth": "#cfd6e8",
+    "accent": "#cfd6e8",
+    "hair": "#8a5a2a",
+    "ghost": true
+   },
+   "role": "neutral"
   },
   {
    "id": "thorn-durst",
@@ -700,7 +1085,15 @@
    "kind": "npc",
    "variants": [
     "ghost"
-   ]
+   ],
+   "figure": {
+    "skin": "#cfcfd6",
+    "cloth": "#cfd6e8",
+    "accent": "#cfd6e8",
+    "hair": "#3a2a1a",
+    "ghost": true
+   },
+   "role": "neutral"
   },
   {
    "id": "gustav-durst",
@@ -712,7 +1105,15 @@
    "tags": [
     "death-house"
    ],
-   "kind": "npc"
+   "kind": "npc",
+   "figure": {
+    "skin": "#cfcfd6",
+    "cloth": "#cfd6e8",
+    "accent": "#cfd6e8",
+    "hair": "#7a7a7a",
+    "ghost": true
+   },
+   "role": "hostile"
   },
   {
    "id": "elisabeth-durst",
@@ -724,7 +1125,15 @@
    "tags": [
     "death-house"
    ],
-   "kind": "npc"
+   "kind": "npc",
+   "figure": {
+    "skin": "#cfcfd6",
+    "cloth": "#cfd6e8",
+    "accent": "#cfd6e8",
+    "hair": "#1a1a1a",
+    "ghost": true
+   },
+   "role": "hostile"
   },
   {
    "id": "donavich",
@@ -736,7 +1145,14 @@
    "tags": [
     "E5"
    ],
-   "kind": "npc"
+   "kind": "npc",
+   "figure": {
+    "skin": "#d9b899",
+    "cloth": "#3a3a44",
+    "accent": "#c9a227",
+    "hair": "#7a7a7a"
+   },
+   "role": "neutral"
   },
   {
    "id": "doru",
@@ -748,7 +1164,15 @@
    "tags": [
     "E5g"
    ],
-   "kind": "npc"
+   "kind": "npc",
+   "figure": {
+    "skin": "#cfcfd6",
+    "cloth": "#2a2a2a",
+    "accent": "#4d1119",
+    "hair": "#1a1a1a",
+    "undead": true
+   },
+   "role": "hostile"
   },
   {
    "id": "mad-mary",
@@ -760,7 +1184,14 @@
    "tags": [
     "E3"
    ],
-   "kind": "npc"
+   "kind": "npc",
+   "figure": {
+    "skin": "#d9b899",
+    "cloth": "#3a3a3a",
+    "accent": "#e8dfc8",
+    "hair": "#7a7a7a"
+   },
+   "role": "neutral"
   },
   {
    "id": "gertruda",
@@ -773,7 +1204,14 @@
     "E3",
     "K"
    ],
-   "kind": "npc"
+   "kind": "npc",
+   "figure": {
+    "skin": "#d9b899",
+    "cloth": "#6a5a7a",
+    "accent": "#e8dfc8",
+    "hair": "#8a5a2a"
+   },
+   "role": "neutral"
   },
   {
    "id": "bildrath-cantemir",
@@ -785,7 +1223,14 @@
    "tags": [
     "E1"
    ],
-   "kind": "npc"
+   "kind": "npc",
+   "figure": {
+    "skin": "#d9b899",
+    "cloth": "#4a4a3a",
+    "accent": "#b08d3a",
+    "hair": "#7a7a7a"
+   },
+   "role": "neutral"
   },
   {
    "id": "parriwimple",
@@ -797,7 +1242,14 @@
    "tags": [
     "E1"
    ],
-   "kind": "npc"
+   "kind": "npc",
+   "figure": {
+    "skin": "#d9b899",
+    "cloth": "#5a4a3a",
+    "accent": "#e8dfc8",
+    "hair": "#3a2a1a"
+   },
+   "role": "neutral"
   },
   {
    "id": "milivoj",
@@ -809,7 +1261,14 @@
    "tags": [
     "S"
    ],
-   "kind": "npc"
+   "kind": "npc",
+   "figure": {
+    "skin": "#d9b899",
+    "cloth": "#5a4632",
+    "accent": "#6b4a33",
+    "hair": "#3a2a1a"
+   },
+   "role": "neutral"
   },
   {
    "id": "bluto-krogarov",
@@ -821,7 +1280,14 @@
    "tags": [
     "L"
    ],
-   "kind": "npc"
+   "kind": "npc",
+   "figure": {
+    "skin": "#d9b899",
+    "cloth": "#4a4a4a",
+    "accent": "#5a4632",
+    "hair": "#3a2a1a"
+   },
+   "role": "neutral"
   },
   {
    "id": "dmitri-krezkov",
@@ -833,7 +1299,14 @@
    "tags": [
     "S"
    ],
-   "kind": "npc"
+   "kind": "npc",
+   "figure": {
+    "skin": "#d9b899",
+    "cloth": "#3a4a5a",
+    "accent": "#c9a227",
+    "hair": "#7a7a7a"
+   },
+   "role": "neutral"
   },
   {
    "id": "anna-krezkov",
@@ -857,7 +1330,14 @@
    "tags": [
     "S10"
    ],
-   "kind": "npc"
+   "kind": "npc",
+   "figure": {
+    "skin": "#a67c5b",
+    "cloth": "#6a5a3a",
+    "accent": "#55603a",
+    "hair": "#3a2a1a"
+   },
+   "role": "neutral"
   },
   {
    "id": "otto-belview",
@@ -893,7 +1373,14 @@
    "tags": [
     "K"
    ],
-   "kind": "npc"
+   "kind": "npc",
+   "figure": {
+    "skin": "#a67c5b",
+    "cloth": "#4a4a4a",
+    "accent": "#55603a",
+    "hair": null
+   },
+   "role": "neutral"
   },
   {
    "id": "lief-lipsiege",
@@ -905,7 +1392,14 @@
    "tags": [
     "K30"
    ],
-   "kind": "npc"
+   "kind": "npc",
+   "figure": {
+    "skin": "#d9b899",
+    "cloth": "#3a3a3a",
+    "accent": "#b08d3a",
+    "hair": "#7a7a7a"
+   },
+   "role": "neutral"
   },
   {
    "id": "helga-ruvak",
@@ -917,7 +1411,15 @@
    "tags": [
     "K"
    ],
-   "kind": "npc"
+   "kind": "npc",
+   "figure": {
+    "skin": "#cfcfd6",
+    "cloth": "#4a3a4a",
+    "accent": "#e8dfc8",
+    "hair": "#8a5a2a",
+    "undead": true
+   },
+   "role": "neutral"
   },
   {
    "id": "ernst-larnak",
@@ -929,7 +1431,15 @@
    "tags": [
     "V"
    ],
-   "kind": "npc"
+   "kind": "npc",
+   "figure": {
+    "skin": "#d9b899",
+    "cloth": "#2a2a2a",
+    "accent": "#3a3b40",
+    "hair": "#3a2a1a",
+    "hat": "hood"
+   },
+   "role": "hostile"
   },
   {
    "id": "mordenkainen",
@@ -944,7 +1454,16 @@
    "kind": "npc",
    "variants": [
     "mad-mage"
-   ]
+   ],
+   "figure": {
+    "skin": "#d9b899",
+    "cloth": "#3a3a5a",
+    "accent": "#5b4a6b",
+    "hair": "#7a7a7a",
+    "weapon": "staff",
+    "hat": "hood"
+   },
+   "role": "neutral"
   },
   {
    "id": "argynvost",
@@ -960,7 +1479,13 @@
    "variants": [
     "dragon-spirit",
     "beacon"
-   ]
+   ],
+   "figure": {
+    "kind": "blob",
+    "fill": "#cfd6e8",
+    "ghost": true
+   },
+   "role": "ally"
   },
   {
    "id": "beucephalus",
@@ -972,7 +1497,13 @@
    "tags": [
     "K"
    ],
-   "kind": "npc"
+   "kind": "npc",
+   "figure": {
+    "kind": "horse",
+    "fur": "#1a1a1a",
+    "flaming": true
+   },
+   "role": "hostile"
   },
   {
    "id": "lorghoth-the-decayer",
@@ -984,7 +1515,12 @@
    "tags": [
     "Q"
    ],
-   "kind": "npc"
+   "kind": "npc",
+   "figure": {
+    "kind": "blob",
+    "fill": "#55603a"
+   },
+   "role": "hostile"
   },
   {
    "id": "wintersplinter",
@@ -997,7 +1533,11 @@
     "Y",
     "W"
    ],
-   "kind": "npc"
+   "kind": "npc",
+   "figure": {
+    "kind": "blight"
+   },
+   "role": "hostile"
   },
   {
    "id": "barovian-witch",
@@ -1007,7 +1547,16 @@
    "baseIn": 1,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "creature"
+   "kind": "creature",
+   "figure": {
+    "skin": "#d9b899",
+    "cloth": "#2a2a2a",
+    "accent": "#5b4a6b",
+    "hair": "#1a1a1a",
+    "hat": "wide",
+    "weapon": "staff"
+   },
+   "role": "hostile"
   },
   {
    "id": "broom-of-animated-attack",
@@ -1017,7 +1566,11 @@
    "baseIn": 1,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "creature"
+   "kind": "creature",
+   "figure": {
+    "kind": "broom"
+   },
+   "role": "hostile"
   },
   {
    "id": "baba-lysagas-creeping-hut",
@@ -1027,7 +1580,11 @@
    "baseIn": 4,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "creature"
+   "kind": "creature",
+   "figure": {
+    "kind": "hut"
+   },
+   "role": "hostile"
   },
   {
    "id": "tree-blight",
@@ -1037,7 +1594,11 @@
    "baseIn": 3,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "creature"
+   "kind": "creature",
+   "figure": {
+    "kind": "blight"
+   },
+   "role": "hostile"
   },
   {
    "id": "mongrelfolk",
@@ -1053,7 +1614,14 @@
     "body-b",
     "body-c",
     "body-d"
-   ]
+   ],
+   "figure": {
+    "skin": "#a67c5b",
+    "cloth": "#5a4a3a",
+    "accent": "#55603a",
+    "hair": "#3a2a1a"
+   },
+   "role": "neutral"
   },
   {
    "id": "phantom-warrior",
@@ -1063,7 +1631,17 @@
    "baseIn": 1,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "creature"
+   "kind": "creature",
+   "figure": {
+    "skin": "#cfcfd6",
+    "cloth": "#cfd6e8",
+    "accent": "#cfd6e8",
+    "hair": null,
+    "hat": "helm",
+    "weapon": "sword",
+    "ghost": true
+   },
+   "role": "hostile"
   },
   {
    "id": "strahd-zombie",
@@ -1077,7 +1655,15 @@
    "variants": [
     "standing",
     "crawling"
-   ]
+   ],
+   "figure": {
+    "skin": "#8a9a7c",
+    "cloth": "#3a3a2a",
+    "accent": "#55603a",
+    "hair": null,
+    "undead": true
+   },
+   "role": "hostile"
   },
   {
    "id": "wereraven",
@@ -1092,7 +1678,14 @@
     "human",
     "hybrid",
     "raven"
-   ]
+   ],
+   "figure": {
+    "skin": "#d9b899",
+    "cloth": "#1a1a22",
+    "accent": "#3a3b40",
+    "hair": "#1a1a1a"
+   },
+   "role": "ally"
   },
   {
    "id": "vistani-bandit",
@@ -1102,7 +1695,15 @@
    "baseIn": 1,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "creature"
+   "kind": "creature",
+   "figure": {
+    "skin": "#c99a72",
+    "cloth": "#6a2a3a",
+    "accent": "#c9a227",
+    "hair": "#1a1a1a",
+    "weapon": "sword"
+   },
+   "role": "hostile"
   },
   {
    "id": "vistani-thug",
@@ -1122,7 +1723,14 @@
    "baseIn": 1,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "creature"
+   "kind": "creature",
+   "figure": {
+    "skin": "#a67c5b",
+    "cloth": "#2a2a3a",
+    "accent": "#5b4a6b",
+    "hair": "#1a1a1a"
+   },
+   "role": "neutral"
   },
   {
    "id": "skeletal-rider",
@@ -1132,7 +1740,12 @@
    "baseIn": 1,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "creature"
+   "kind": "creature",
+   "figure": {
+    "kind": "horse",
+    "fur": "#e8dfc8"
+   },
+   "role": "hostile"
   },
   {
    "id": "amber-golem",
@@ -1142,7 +1755,14 @@
    "baseIn": 2,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "creature"
+   "kind": "creature",
+   "figure": {
+    "skin": "#c9822e",
+    "cloth": "#c9822e",
+    "accent": "#c9822e",
+    "hair": null
+   },
+   "role": "hostile"
   },
   {
    "id": "flesh-golem-the-abbots",
@@ -1192,7 +1812,11 @@
    "baseIn": 1,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "monster-manual"
+   "kind": "monster-manual",
+   "figure": {
+    "kind": "wolf"
+   },
+   "role": "hostile"
   },
   {
    "id": "dire-wolf",
@@ -1202,7 +1826,12 @@
    "baseIn": 2,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "monster-manual"
+   "kind": "monster-manual",
+   "figure": {
+    "kind": "wolf",
+    "fur": "#3d3a38"
+   },
+   "role": "hostile"
   },
   {
    "id": "werewolf",
@@ -1217,7 +1846,12 @@
     "human",
     "hybrid",
     "wolf"
-   ]
+   ],
+   "figure": {
+    "kind": "wolf",
+    "fur": "#7a6a55"
+   },
+   "role": "hostile"
   },
   {
    "id": "bat",
@@ -1227,7 +1861,11 @@
    "baseIn": 0.5,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "monster-manual"
+   "kind": "monster-manual",
+   "figure": {
+    "kind": "bat"
+   },
+   "role": "hostile"
   },
   {
    "id": "swarm-of-bats",
@@ -1237,7 +1875,12 @@
    "baseIn": 1,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "monster-manual"
+   "kind": "monster-manual",
+   "figure": {
+    "kind": "bat",
+    "scale": 1.6
+   },
+   "role": "hostile"
   },
   {
    "id": "raven",
@@ -1247,7 +1890,11 @@
    "baseIn": 0.5,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "monster-manual"
+   "kind": "monster-manual",
+   "figure": {
+    "kind": "raven"
+   },
+   "role": "neutral"
   },
   {
    "id": "swarm-of-ravens",
@@ -1257,7 +1904,12 @@
    "baseIn": 1,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "monster-manual"
+   "kind": "monster-manual",
+   "figure": {
+    "kind": "raven",
+    "scale": 1.8
+   },
+   "role": "hostile"
   },
   {
    "id": "swarm-of-rats",
@@ -1267,7 +1919,12 @@
    "baseIn": 1,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "monster-manual"
+   "kind": "monster-manual",
+   "figure": {
+    "kind": "blob",
+    "fill": "#3d3a38"
+   },
+   "role": "hostile"
   },
   {
    "id": "swarm-of-insects",
@@ -1280,7 +1937,12 @@
    "kind": "monster-manual",
    "variants": [
     "spiders"
-   ]
+   ],
+   "figure": {
+    "kind": "blob",
+    "fill": "#3a3b40"
+   },
+   "role": "hostile"
   },
   {
    "id": "giant-spider",
@@ -1290,7 +1952,11 @@
    "baseIn": 2,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "monster-manual"
+   "kind": "monster-manual",
+   "figure": {
+    "kind": "spider"
+   },
+   "role": "hostile"
   },
   {
    "id": "ghoul",
@@ -1300,7 +1966,15 @@
    "baseIn": 1,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "monster-manual"
+   "kind": "monster-manual",
+   "figure": {
+    "skin": "#8a9a7c",
+    "cloth": "#3a3a3a",
+    "accent": "#55603a",
+    "hair": null,
+    "undead": true
+   },
+   "role": "hostile"
   },
   {
    "id": "ghast",
@@ -1310,7 +1984,15 @@
    "baseIn": 1,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "monster-manual"
+   "kind": "monster-manual",
+   "figure": {
+    "skin": "#8a9a7c",
+    "cloth": "#2a3a2a",
+    "accent": "#55603a",
+    "hair": null,
+    "undead": true
+   },
+   "role": "hostile"
   },
   {
    "id": "zombie",
@@ -1320,7 +2002,15 @@
    "baseIn": 1,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "monster-manual"
+   "kind": "monster-manual",
+   "figure": {
+    "skin": "#a67c5b",
+    "cloth": "#4a4a3a",
+    "accent": "#55603a",
+    "hair": "#7a7a7a",
+    "undead": true
+   },
+   "role": "hostile"
   },
   {
    "id": "skeleton",
@@ -1330,7 +2020,15 @@
    "baseIn": 1,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "monster-manual"
+   "kind": "monster-manual",
+   "figure": {
+    "skin": "#e8dfc8",
+    "cloth": "#e8dfc8",
+    "accent": "#3a3b40",
+    "hair": null,
+    "weapon": "sword"
+   },
+   "role": "hostile"
   },
   {
    "id": "shadow",
@@ -1340,7 +2038,15 @@
    "baseIn": 1,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "monster-manual"
+   "kind": "monster-manual",
+   "figure": {
+    "skin": "#1a171d",
+    "cloth": "#1a171d",
+    "accent": "#1a171d",
+    "hair": null,
+    "ghost": true
+   },
+   "role": "hostile"
   },
   {
    "id": "specter",
@@ -1350,7 +2056,15 @@
    "baseIn": 1,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "monster-manual"
+   "kind": "monster-manual",
+   "figure": {
+    "skin": "#cfcfd6",
+    "cloth": "#cfd6e8",
+    "accent": "#cfd6e8",
+    "hair": null,
+    "ghost": true
+   },
+   "role": "hostile"
   },
   {
    "id": "poltergeist",
@@ -1360,7 +2074,15 @@
    "baseIn": 1,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "monster-manual"
+   "kind": "monster-manual",
+   "figure": {
+    "skin": "#cfcfd6",
+    "cloth": "#cfd6e8",
+    "accent": "#cfd6e8",
+    "hair": null,
+    "ghost": true
+   },
+   "role": "hostile"
   },
   {
    "id": "wraith",
@@ -1370,7 +2092,16 @@
    "baseIn": 1,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "monster-manual"
+   "kind": "monster-manual",
+   "figure": {
+    "skin": "#1a171d",
+    "cloth": "#1a171d",
+    "accent": "#5b4a6b",
+    "hair": null,
+    "hat": "hood",
+    "ghost": true
+   },
+   "role": "hostile"
   },
   {
    "id": "wight",
@@ -1380,7 +2111,16 @@
    "baseIn": 1,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "monster-manual"
+   "kind": "monster-manual",
+   "figure": {
+    "skin": "#cfcfd6",
+    "cloth": "#3a3a4a",
+    "accent": "#3a3b40",
+    "hair": "#7a7a7a",
+    "undead": true,
+    "weapon": "sword"
+   },
+   "role": "hostile"
   },
   {
    "id": "ghost",
@@ -1390,7 +2130,15 @@
    "baseIn": 1,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "monster-manual"
+   "kind": "monster-manual",
+   "figure": {
+    "skin": "#cfcfd6",
+    "cloth": "#cfd6e8",
+    "accent": "#cfd6e8",
+    "hair": "#d9d9d9",
+    "ghost": true
+   },
+   "role": "hostile"
   },
   {
    "id": "banshee",
@@ -1400,7 +2148,15 @@
    "baseIn": 1,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "monster-manual"
+   "kind": "monster-manual",
+   "figure": {
+    "skin": "#cfcfd6",
+    "cloth": "#cfd6e8",
+    "accent": "#cfd6e8",
+    "hair": "#d9d9d9",
+    "ghost": true
+   },
+   "role": "hostile"
   },
   {
    "id": "revenant",
@@ -1410,7 +2166,16 @@
    "baseIn": 1,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "monster-manual"
+   "kind": "monster-manual",
+   "figure": {
+    "skin": "#8a9a7c",
+    "cloth": "#3a3b40",
+    "accent": "#4d1119",
+    "hair": "#7a7a7a",
+    "undead": true,
+    "weapon": "sword"
+   },
+   "role": "hostile"
   },
   {
    "id": "vampire-spawn",
@@ -1420,7 +2185,15 @@
    "baseIn": 1,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "monster-manual"
+   "kind": "monster-manual",
+   "figure": {
+    "skin": "#cfcfd6",
+    "cloth": "#2a1a22",
+    "accent": "#4d1119",
+    "hair": "#1a1a1a",
+    "undead": true
+   },
+   "role": "hostile"
   },
   {
    "id": "scarecrow",
@@ -1430,7 +2203,15 @@
    "baseIn": 1,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "monster-manual"
+   "kind": "monster-manual",
+   "figure": {
+    "skin": "#5a4632",
+    "cloth": "#6a5a3a",
+    "accent": "#c9822e",
+    "hair": "#8a5a2a",
+    "hat": "wide"
+   },
+   "role": "hostile"
   },
   {
    "id": "twig-blight",
@@ -1440,7 +2221,12 @@
    "baseIn": 1,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "monster-manual"
+   "kind": "monster-manual",
+   "figure": {
+    "kind": "blight",
+    "scale": 0.6
+   },
+   "role": "hostile"
   },
   {
    "id": "needle-blight",
@@ -1450,7 +2236,11 @@
    "baseIn": 1,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "monster-manual"
+   "kind": "monster-manual",
+   "figure": {
+    "kind": "blight"
+   },
+   "role": "hostile"
   },
   {
    "id": "vine-blight",
@@ -1460,7 +2250,12 @@
    "baseIn": 1,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "monster-manual"
+   "kind": "monster-manual",
+   "figure": {
+    "kind": "blob",
+    "fill": "#2f4a3a"
+   },
+   "role": "hostile"
   },
   {
    "id": "druid",
@@ -1470,7 +2265,15 @@
    "baseIn": 1,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "monster-manual"
+   "kind": "monster-manual",
+   "figure": {
+    "skin": "#d9b899",
+    "hair": "#8a5a2a",
+    "cloth": "#4a5a3a",
+    "accent": "#2f4a3a",
+    "weapon": "staff"
+   },
+   "role": "hostile"
   },
   {
    "id": "berserker",
@@ -1480,7 +2283,15 @@
    "baseIn": 1,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "monster-manual"
+   "kind": "monster-manual",
+   "figure": {
+    "skin": "#c99a72",
+    "cloth": "#7a6a55",
+    "accent": "#5a4632",
+    "hair": "#3a2a1a",
+    "weapon": "axe"
+   },
+   "role": "hostile"
   },
   {
    "id": "will-o-wisp",
@@ -1490,7 +2301,13 @@
    "baseIn": 0.5,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "monster-manual"
+   "kind": "monster-manual",
+   "figure": {
+    "kind": "blob",
+    "fill": "#f2b35b",
+    "scale": 0.4
+   },
+   "role": "hostile"
   },
   {
    "id": "night-hag",
@@ -1500,7 +2317,15 @@
    "baseIn": 1,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "monster-manual"
+   "kind": "monster-manual",
+   "figure": {
+    "skin": "#8a9a7c",
+    "cloth": "#2a2a2a",
+    "accent": "#55603a",
+    "hair": "#7a7a7a",
+    "hat": "hood"
+   },
+   "role": "hostile"
   },
   {
    "id": "gargoyle",
@@ -1510,7 +2335,14 @@
    "baseIn": 1,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "monster-manual"
+   "kind": "monster-manual",
+   "figure": {
+    "skin": "#4b5560",
+    "cloth": "#4b5560",
+    "accent": "#4b5560",
+    "hair": null
+   },
+   "role": "hostile"
   },
   {
    "id": "animated-armor",
@@ -1520,7 +2352,11 @@
    "baseIn": 1,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "monster-manual"
+   "kind": "monster-manual",
+   "figure": {
+    "kind": "armor"
+   },
+   "role": "hostile"
   },
   {
    "id": "flying-sword",
@@ -1530,7 +2366,11 @@
    "baseIn": 1,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "monster-manual"
+   "kind": "monster-manual",
+   "figure": {
+    "kind": "sword"
+   },
+   "role": "hostile"
   },
   {
    "id": "rug-of-smothering",
@@ -1540,7 +2380,11 @@
    "baseIn": 2,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "monster-manual"
+   "kind": "monster-manual",
+   "figure": {
+    "kind": "rug"
+   },
+   "role": "hostile"
   },
   {
    "id": "crawling-claw",
@@ -1550,7 +2394,11 @@
    "baseIn": 0.5,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "monster-manual"
+   "kind": "monster-manual",
+   "figure": {
+    "kind": "claw"
+   },
+   "role": "hostile"
   },
   {
    "id": "gray-ooze",
@@ -1560,7 +2408,12 @@
    "baseIn": 1,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "monster-manual"
+   "kind": "monster-manual",
+   "figure": {
+    "kind": "blob",
+    "fill": "#9aa3ad"
+   },
+   "role": "hostile"
   },
   {
    "id": "red-dragon-wyrmling",
@@ -1570,7 +2423,12 @@
    "baseIn": 1,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "monster-manual"
+   "kind": "monster-manual",
+   "figure": {
+    "kind": "spider",
+    "scale": 1.2
+   },
+   "role": "hostile"
   },
   {
    "id": "mimic",
@@ -1580,7 +2438,12 @@
    "baseIn": 1,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "monster-manual"
+   "kind": "monster-manual",
+   "figure": {
+    "kind": "blob",
+    "fill": "#6b4a33"
+   },
+   "role": "hostile"
   },
   {
    "id": "grick",
@@ -1590,7 +2453,12 @@
    "baseIn": 1,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "monster-manual"
+   "kind": "monster-manual",
+   "figure": {
+    "kind": "blob",
+    "fill": "#5b4a6b"
+   },
+   "role": "hostile"
   },
   {
    "id": "shambling-mound",
@@ -1600,7 +2468,12 @@
    "baseIn": 2,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "monster-manual"
+   "kind": "monster-manual",
+   "figure": {
+    "kind": "blob",
+    "fill": "#55603a"
+   },
+   "role": "hostile"
   },
   {
    "id": "flameskull",
@@ -1610,7 +2483,11 @@
    "baseIn": 0.5,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "monster-manual"
+   "kind": "monster-manual",
+   "figure": {
+    "kind": "skull"
+   },
+   "role": "hostile"
   },
   {
    "id": "shield-guardian",
@@ -1620,7 +2497,12 @@
    "baseIn": 2,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "monster-manual"
+   "kind": "monster-manual",
+   "figure": {
+    "kind": "armor",
+    "scale": 1.7
+   },
+   "role": "hostile"
   },
   {
    "id": "arcanaloth",
@@ -1660,7 +2542,12 @@
    "baseIn": 1,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "monster-manual"
+   "kind": "monster-manual",
+   "figure": {
+    "kind": "wolf",
+    "fur": "#2a1a1a"
+   },
+   "role": "hostile"
   },
   {
    "id": "nightmare",
@@ -1680,7 +2567,12 @@
    "baseIn": 2,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "monster-manual"
+   "kind": "monster-manual",
+   "figure": {
+    "kind": "bat",
+    "scale": 3
+   },
+   "role": "hostile"
   },
   {
    "id": "roc",
@@ -1690,7 +2582,12 @@
    "baseIn": 4,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "monster-manual"
+   "kind": "monster-manual",
+   "figure": {
+    "kind": "raven",
+    "scale": 6
+   },
+   "role": "hostile"
   },
   {
    "id": "saber-toothed-tiger",
@@ -1700,7 +2597,12 @@
    "baseIn": 2,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "monster-manual"
+   "kind": "monster-manual",
+   "figure": {
+    "kind": "wolf",
+    "fur": "#a8823a"
+   },
+   "role": "hostile"
   },
   {
    "id": "quasit",
@@ -1710,7 +2612,12 @@
    "baseIn": 0.5,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "monster-manual"
+   "kind": "monster-manual",
+   "figure": {
+    "kind": "bat",
+    "scale": 0.7
+   },
+   "role": "hostile"
   },
   {
    "id": "imp",
@@ -1720,7 +2627,12 @@
    "baseIn": 0.5,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "monster-manual"
+   "kind": "monster-manual",
+   "figure": {
+    "kind": "bat",
+    "scale": 0.7
+   },
+   "role": "hostile"
   },
   {
    "id": "invisible-stalker",
@@ -1740,7 +2652,13 @@
    "baseIn": 0.5,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "monster-manual"
+   "kind": "monster-manual",
+   "figure": {
+    "kind": "wolf",
+    "fur": "#3a3b40",
+    "scale": 0.35
+   },
+   "role": "neutral"
   },
   {
    "id": "riding-horse",
@@ -1770,7 +2688,12 @@
    "baseIn": 1,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "monster-manual"
+   "kind": "monster-manual",
+   "figure": {
+    "kind": "wolf",
+    "fur": "#5a4632"
+   },
+   "role": "neutral"
   },
   {
    "id": "commoner",
@@ -1780,7 +2703,14 @@
    "baseIn": 1,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "monster-manual"
+   "kind": "monster-manual",
+   "figure": {
+    "skin": "#d9b899",
+    "cloth": "#4a4a44",
+    "accent": "#5a4632",
+    "hair": "#3a2a1a"
+   },
+   "role": "neutral"
   },
   {
    "id": "noncombatant-child",
@@ -1800,7 +2730,15 @@
    "baseIn": 1,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "monster-manual"
+   "kind": "monster-manual",
+   "figure": {
+    "skin": "#d9b899",
+    "cloth": "#5a4632",
+    "accent": "#2f4a3a",
+    "hair": "#3a2a1a",
+    "hat": "hood"
+   },
+   "role": "neutral"
   },
   {
    "id": "guard",
@@ -1810,7 +2748,16 @@
    "baseIn": 1,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "monster-manual"
+   "kind": "monster-manual",
+   "figure": {
+    "skin": "#d9b899",
+    "cloth": "#3a3b40",
+    "accent": "#7a1f2b",
+    "hair": "#3a2a1a",
+    "hat": "helm",
+    "weapon": "sword"
+   },
+   "role": "neutral"
   },
   {
    "id": "priest",
@@ -1820,7 +2767,14 @@
    "baseIn": 1,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "monster-manual"
+   "kind": "monster-manual",
+   "figure": {
+    "skin": "#d9b899",
+    "cloth": "#e2dccc",
+    "accent": "#c9a227",
+    "hair": "#7a7a7a"
+   },
+   "role": "neutral"
   },
   {
    "id": "acolyte",
@@ -1830,7 +2784,14 @@
    "baseIn": 1,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "monster-manual"
+   "kind": "monster-manual",
+   "figure": {
+    "skin": "#d9b899",
+    "cloth": "#cfc8b8",
+    "accent": "#b08d3a",
+    "hair": "#3a2a1a"
+   },
+   "role": "neutral"
   },
   {
    "id": "mage",
@@ -1840,7 +2801,15 @@
    "baseIn": 1,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "monster-manual"
+   "kind": "monster-manual",
+   "figure": {
+    "skin": "#d9b899",
+    "cloth": "#3a3a5a",
+    "accent": "#5b4a6b",
+    "hair": "#7a7a7a",
+    "weapon": "staff"
+   },
+   "role": "neutral"
   },
   {
    "id": "noble",
@@ -1850,7 +2819,14 @@
    "baseIn": 1,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "monster-manual"
+   "kind": "monster-manual",
+   "figure": {
+    "skin": "#d9b899",
+    "cloth": "#5a2a3a",
+    "accent": "#c9a227",
+    "hair": "#3a2a1a"
+   },
+   "role": "neutral"
   },
   {
    "id": "knight",
@@ -1860,7 +2836,16 @@
    "baseIn": 1,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "monster-manual"
+   "kind": "monster-manual",
+   "figure": {
+    "skin": "#d9b899",
+    "cloth": "#3a3b40",
+    "accent": "#b8c4d6",
+    "hair": null,
+    "hat": "helm",
+    "weapon": "sword"
+   },
+   "role": "neutral"
   },
   {
    "id": "bandit",
@@ -1870,7 +2855,15 @@
    "baseIn": 1,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "monster-manual"
+   "kind": "monster-manual",
+   "figure": {
+    "skin": "#c99a72",
+    "cloth": "#5a4632",
+    "accent": "#3a3b40",
+    "hair": "#1a1a1a",
+    "weapon": "sword"
+   },
+   "role": "hostile"
   },
   {
    "id": "bandit-captain",
@@ -1890,7 +2883,15 @@
    "baseIn": 1,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "monster-manual"
+   "kind": "monster-manual",
+   "figure": {
+    "skin": "#d9b899",
+    "cloth": "#1a1a1a",
+    "accent": "#4d1119",
+    "hair": null,
+    "hat": "hood"
+   },
+   "role": "hostile"
   },
   {
    "id": "cult-fanatic",
@@ -1900,7 +2901,16 @@
    "baseIn": 1,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "monster-manual"
+   "kind": "monster-manual",
+   "figure": {
+    "skin": "#d9b899",
+    "cloth": "#2a1a1a",
+    "accent": "#4d1119",
+    "hair": null,
+    "hat": "hood",
+    "weapon": "sword"
+   },
+   "role": "hostile"
   },
   {
    "id": "assassin",
@@ -1910,7 +2920,16 @@
    "baseIn": 1,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "monster-manual"
+   "kind": "monster-manual",
+   "figure": {
+    "skin": "#c99a72",
+    "cloth": "#1a1a22",
+    "accent": "#3a3b40",
+    "hair": "#1a1a1a",
+    "hat": "hood",
+    "weapon": "sword"
+   },
+   "role": "hostile"
   },
   {
    "id": "spy",
@@ -1920,7 +2939,15 @@
    "baseIn": 1,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "monster-manual"
+   "kind": "monster-manual",
+   "figure": {
+    "skin": "#d9b899",
+    "cloth": "#3a3a3a",
+    "accent": "#3a3b40",
+    "hair": "#3a2a1a",
+    "hat": "hood"
+   },
+   "role": "neutral"
   },
   {
    "id": "thug",
@@ -1930,7 +2957,15 @@
    "baseIn": 1,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "monster-manual"
+   "kind": "monster-manual",
+   "figure": {
+    "skin": "#c99a72",
+    "cloth": "#5a4632",
+    "accent": "#3a3b40",
+    "hair": "#1a1a1a",
+    "weapon": "axe"
+   },
+   "role": "hostile"
   },
   {
    "id": "veteran",
@@ -1940,7 +2975,15 @@
    "baseIn": 1,
    "visibility": "hidden-creature",
    "tags": [],
-   "kind": "monster-manual"
+   "kind": "monster-manual",
+   "figure": {
+    "skin": "#d9b899",
+    "cloth": "#3a3b40",
+    "accent": "#5a4632",
+    "hair": "#7a7a7a",
+    "weapon": "sword"
+   },
+   "role": "neutral"
   },
   {
    "id": "barovian-generic",

@@ -4,7 +4,7 @@ import type { CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js'
 import { bounds, pointInPolygon, type Vec2 } from './core/geometry';
 import { CoverageMap, Cov } from './core/coverage';
 import { squareCellAt, squareCellCenter, squareDistanceFt, worldToHex, hexToWorld, hexDistanceFt, hexSizeFromWidth } from './core/grid';
-import type { GridFile, Level, LightSource, SceneFile } from './core/schema';
+import type { GridFile, Level, LightSource, SceneFile, SceneObject } from './core/schema';
 import { classOpacity, fogCurve, hiddenCurve, labelCurve } from './core/slider';
 import { baseRingFt, CELL_FT } from './core/units';
 import { baseRing } from './kit/pieces';
@@ -22,6 +22,13 @@ import { idbGet, idbSet } from './state/idb';
 export type Mode = 'dm' | 'player';
 export type Tool = 'none' | 'reveal' | 'brush-reveal' | 'brush-fog';
 export type GridMode = 'off' | 'square' | 'hex';
+export interface TapHit {
+  room?: { key: string; name: string; revealed: boolean };
+  pos: Vec2;
+  door?: { wallId: string; open: boolean };
+  secretDoor?: { id: string; revealed: boolean };
+  object?: { id: string; label: string; vis: string; revealed: boolean; kind: string; desc?: string; dm?: string; page?: number; visibleToPlayers: boolean };
+}
 
 interface Loaded {
   path: string;
@@ -110,10 +117,18 @@ export class App {
       tex.minFilter = THREE.LinearFilter;
       tex.needsUpdate = true;
       covTex.set(l.id, tex);
+      for (const k of scene.links) for (const [end, other] of [[k.from, k.to], [k.to, k.from]] as const) {
+        if (end.level !== l.id) continue;
+        const to = scene.levels.find((x) => x.id === other.level);
+        const up = (to?.elevationFt ?? 0) > l.elevationFt;
+        b.labels.push({ id: `link:${k.id}:${end.level}`, text: `${up ? '↑' : '↓'} ${to?.name ?? other.level}`, pos: new THREE.Vector3(end.pos[0], l.elevationFt + 3, end.pos[1]), vis: 'player', kind: 'link', linkId: k.id });
+      }
       for (const spec of b.labels) {
         if (this.mode === 'player' && spec.vis === 'dm-note') continue; // no DM UI on the Player Display
         const obj = this.world.label(spec.text, spec.sub, `${spec.kind} ${spec.vis}`);
         obj.position.copy(spec.pos);
+        if (spec.kind === 'door') obj.element.addEventListener('click', () => this.toggleDoor(spec.wallId!));
+        if (spec.kind === 'link') obj.element.addEventListener('click', () => this.takeLink(spec.linkId!));
         b.root.add(obj);
         labels.push({ obj, spec, level: l.id });
       }
@@ -203,6 +218,31 @@ export class App {
     const l = this.level;
     this.world.moveTo(new THREE.Vector3(t.pos[0], l.elevationFt, t.pos[1]), undefined, animate);
   }
+
+  /** Is this object currently shown to players (class + reveals + coverage)? */
+  playerCanSee(o: SceneObject): boolean {
+    const rs = revealSets(this.state, this.cur!.scene.location);
+    const base = o.vis === 'player' || o.vis === 'explored' || rs.objects.has(o.id) || (o.vis === 'secret-door' && rs.secretDoors.has(o.id));
+    if (!base) return false;
+    const cov = this.cur!.coverage.get(this.levelId)!;
+    return cov.state(o.pos[0], o.pos[2]) !== Cov.Unexplored;
+  }
+
+  /** UI moved the party token directly (menu / list). */
+  afterPartyMoveFromUi(): void { this.afterPartyMove(); this.commit(); }
+
+  /** Move the party through a vertical link (either end). */
+  takeLink(linkId: string): void {
+    const t = this.party, k = this.cur?.scene.links.find((x) => x.id === linkId);
+    if (!t || !k) return;
+    const here = k.from.level === t.level ? k.from : k.to.level === t.level ? k.to : k.from;
+    t.level = here.level; t.pos = squareCellCenter(squareCellAt(here.pos));
+    this.afterPartyMove();
+    this.commit();
+  }
+
+  /** What the DM tapped; the UI turns it into a menu of actions. */
+  onTap: ((hit: TapHit, x: number, y: number) => void) | null = null;
 
   isRevealed(key: string): boolean {
     const loc = this.cur!.scene.location;
@@ -304,7 +344,7 @@ export class App {
     const rs = revealSets(this.state, this.cur.scene.location);
     fogUniforms.uFog.value = fogCurve(T);
     fogUniforms.uMemory.value = 1 - hiddenCurve(T);
-    fogUniforms.uCovEnabled.value = this.renderMode === 'floorMask' ? 0 : 1;
+    fogUniforms.uCovEnabled.value = this.renderMode === 'floorMask' || this.cur.scene.kind === 'placement' ? 0 : 1;
     const b = this.built;
     for (const tg of b.targets) {
       const revealed = rs.objects.has(tg.id);
@@ -336,6 +376,7 @@ export class App {
       else o = cov.state(lb.spec.pos.x, lb.spec.pos.z) !== Cov.Unexplored ? 1 : 1 - fogCurve(T);
       if (this.renderMode === 'floorMask') o = 0;
       if (this.labelMode === 'none' || (this.labelMode === 'keys' && lb.spec.vis === 'dm-note' && lb.spec.kind !== 'key')) o = 0;
+      if (lb.spec.kind === 'door') { const open = this.state.doorsOpen[`${this.cur.scene.location}/${lb.spec.wallId}`] ?? this.level.walls.find((w) => w.id === lb.spec.wallId)?.open; lb.obj.element.classList.toggle('open', !!open); }
       lb.obj.element.style.opacity = o.toFixed(3);
       lb.obj.visible = o > 0.001;
     }
@@ -492,10 +533,30 @@ export class App {
     const now = performance.now();
     const dbl = now - this.lastTap < 320; this.lastTap = now;
     if (dbl) { const p = this.floorPoint(e); const room = p && this.roomAt(this.level, p); if (room) { this.jumpTo(room.key); return; } }
-    if (this.view === 'players') return;
     const hit = this.pick(e);
+    if (this.view === 'players') {
+      // Players may look at what they can see: a description card, nothing else.
+      const oid = hit && findUp(hit.object, 'objectId');
+      const obj = oid ? this.level.objects.find((o) => o.id === oid) : undefined;
+      if (obj && this.onTap && this.playerCanSee(obj)) this.onTap({ pos: [0, 0], object: { id: obj.id, label: obj.label ?? kindName(obj.kind), vis: obj.vis, revealed: true, kind: obj.kind, desc: obj.desc ?? KIND_DESC[obj.kind], visibleToPlayers: true } }, e.clientX, e.clientY);
+      return;
+    }
     const sd = hit && (findUp(hit.object, 'secretDoor') ?? (hit.object.userData.role === 'door' ? this.built.secretDoors.find((s) => s.door === hit.object)?.objectId : undefined));
     const wallId = hit && hit.object.userData.role === 'door' ? (hit.object.userData.wallId as string | undefined) : undefined;
+    if (this.tool === 'none' && this.onTap) {
+      const oid = hit && findUp(hit.object, 'objectId');
+      const p = this.floorPoint(e);
+      const room = p && this.roomAt(this.level, p);
+      const obj = oid ? this.level.objects.find((o) => o.id === oid) : undefined;
+      const pos = p ? ([p[0], p[1]] as Vec2) : ([0, 0] as Vec2);
+      const rs = revealSets(this.state, this.cur!.scene.location);
+      const info: TapHit = { room: room ? { key: room.key, name: room.name, revealed: this.isRevealed(room.key) } : undefined, pos,
+        door: wallId ? { wallId, open: !!(this.state.doorsOpen[`${this.cur!.scene.location}/${wallId}`] ?? this.level.walls.find((w) => w.id === wallId)?.open) } : undefined,
+        secretDoor: sd ? { id: sd, revealed: rs.secretDoors.has(sd) } : undefined,
+        object: obj ? { id: obj.id, label: obj.label ?? kindName(obj.kind), vis: obj.vis, revealed: rs.objects.has(obj.id), kind: obj.kind, desc: obj.desc ?? KIND_DESC[obj.kind], dm: obj.dm, page: this.level.rooms.find((r) => r.key === obj.key)?.page, visibleToPlayers: this.playerCanSee(obj) } : undefined };
+      this.onTap(info, e.clientX, e.clientY);
+      return;
+    }
     if (this.tool === 'reveal') {
       if (sd) return this.revealSecretDoor(sd);
       const oid = hit && findUp(hit.object, 'objectId');
@@ -599,3 +660,26 @@ function isShown(o: THREE.Object3D | null): boolean {
   while (o) { if (!o.visible) return false; o = o.parent; }
   return true;
 }
+
+/** Generic player-facing descriptions by kind, used when an object has none of its own. Original wording. */
+export const KIND_DESC: Record<string, string> = {
+  table: 'A wooden table.', chair: 'A wooden chair.', bed: 'A bed with a straw mattress.', 'bed-plain': 'A plain wood-framed bed.', 'four-poster-bed': 'A four-poster bed hung with curtains.',
+  'child-bed': 'A small bed, sized for a child.', chest: 'A wooden chest.', trunk: 'A wooden trunk.', 'crate-chest': 'A wooden chest with an iron padlock.', 'claw-chest-skeleton': 'A heavy chest on clawed iron feet. A skeleton in leather armor hangs half out of it.',
+  coffin: 'A wooden coffin.', 'bier-coffin': 'A stone bier with a coffin resting on it.', 'stone-slab': 'A heavy stone slab.', column: 'A stone pillar.', post: 'A thick wooden post with a crossbeam.',
+  fireplace: 'A fireplace, unlit.', chandelier: 'A chandelier hangs from the ceiling.', drapes: 'Heavy drapes cover the window.', 'shield-of-arms': 'A shield painted with a coat of arms: a golden windmill on a red field.',
+  portrait: 'A framed portrait.', 'stag-head': "A stag's head mounted above the mantel.", 'stuffed-wolf': 'A stuffed wolf, posed mid-snarl.', 'cloak-hooks': 'Cloaks hang from hooks on the wall; a top hat sits on the shelf above.',
+  shelves: 'Shelves stacked with wares.', bookshelf: 'Shelves of books.', desk: 'A writing desk.', wardrobe: 'A tall wardrobe.', stove: 'A small iron stove.', oven: 'A domed stone oven with a bent stovepipe.',
+  crib: 'A crib draped in a black shroud.', harpsichord: 'A harpsichord with a bench.', harp: 'A tall standing harp.', 'armor-suit': 'A suit of armor with a wolf-shaped visor, holding a spear.', 'glass-hanging': 'A stained-glass hanging of figures singing and playing.',
+  tub: 'A wooden tub on clawed feet.', 'barrel-spigot': 'A barrel beneath a spigot in the wall.', 'standing-mirror': 'A full-length mirror in a carved frame.', nightstand: 'A small bedside table.', 'rocking-chair': 'A rocking chair.',
+  candlestick: 'An iron candlestick.', 'oil-lamp': 'An oil lamp, unlit.', lamp: 'An oil lamp.', tapestry: 'A tapestry of riders and hounds at the hunt.', bench: 'A long wooden bench.', 'torch-crate': 'An open crate of torches.',
+  doll: 'A smiling doll in a lacy yellow dress, draped in cobwebs.', bones: 'Moldy bones scattered on the floor.', skeleton: 'Skeletal remains.', 'shackled-skeleton': 'A skeleton hangs from rusted shackles on the wall.', 'small-skeletons': 'Two small skeletons in tattered clothes; the smaller cradles a stuffed doll.',
+  'strahd-statue': 'A painted wooden statue of a gaunt, pale man in a black cloak, one hand resting on the head of a wolf. He holds a smoky crystal orb.', 'ghoul-altar': 'A stone altar carved with grasping ghouls, stained dark with old blood.',
+  chains: 'Rusty chains and shackles hang from the ceiling.', 'planks-ceiling': 'A low ceiling of close-fitting planks.', 'pit-open': 'An open pit lined with sharpened stakes.', 'pit-cover': 'The earthen floor.', well: 'A stone-lipped well; a bucket hangs from a rope and pulley.',
+  pallet: 'A moldy straw pallet.', niche: 'A wall niche holding a small object.', dais: 'An octagonal stone dais rising from the water.', ledge: 'A dry stone ledge above the water.', altar: 'A stone altar.', wheel: 'A wooden wheel half-embedded in the wall.',
+  refuse: 'A half-submerged heap of refuse.', portcullis: 'A rusty iron portcullis.', gate: 'A wrought-iron gate on shrieking hinges.', 'timber-brace': 'Timber braces shore up the tunnel.', cobweb: 'Thick cobwebs.', sheeted: 'Old furniture draped in dusty white sheets.',
+  'wine-cask': 'A small cask of wine.', 'dumbwaiter-shaft': 'A small door in the wall opens onto a dumbwaiter shaft.', dumbwaiter: 'A dumbwaiter door.', trapdoor: 'A trapdoor set into the floor.', 'toy-chest-windmills': 'A toy chest painted with windmills.', 'dollhouse-replica': 'A dollhouse: an exact replica of this house.',
+  'toy-chest': 'A small box.', 'spiral-stair': 'A spiral staircase.', 'stairs-straight': 'A staircase.', cabinet: 'A wooden cabinet.', 'secret-panel': 'A section of wall.', 'pressure-plate': 'The floor.',
+  ghoul: 'A hunched, gray-skinned corpse with long claws.', ghast: 'A gaunt, robed corpse that reeks of the grave.', shadow: 'A patch of darkness shaped like a person.', ghost: 'A translucent figure drifting above the floor.', specter: 'A skeletally thin, translucent woman, screaming silently.',
+  'animated-armor': 'A suit of black plate armor draped in cobwebs.', mimic: 'A wooden door.', 'shambling-mound': 'A mound of rotting vegetation and refuse.', grick: 'A worm-like thing with a beak ringed by tentacles.', 'swarm-of-insects': 'A boiling mass of centipedes.', 'broom-of-animated-attack': 'A cobweb-covered broom leaning against the wall.',
+};
+export function kindName(kind: string): string { return kind.replace(/-/g, ' ').replace(/^./, (c) => c.toUpperCase()); }

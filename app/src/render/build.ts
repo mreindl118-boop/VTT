@@ -10,7 +10,9 @@ import { PROPS_V1 } from '../kit/props';
 import { CREATURES } from '../kit/creatures';
 import { buildGridOverlay } from './gridOverlay';
 
-export interface LabelSpec { id: string; text: string; sub?: string; pos: THREE.Vector3; vis: VisClass; kind: 'key' | 'object' | 'tread' | 'note'; objectId?: string }
+const SCATTER = new Set(['pine', 'bush', 'dead-tree', 'boulder', 'gravestone', 'fence', 'timber-brace', 'post', 'column', 'rubble']);
+
+export interface LabelSpec { id: string; text: string; sub?: string; pos: THREE.Vector3; vis: VisClass; kind: 'key' | 'object' | 'tread' | 'note' | 'door' | 'link'; objectId?: string; wallId?: string; linkId?: string }
 
 export interface SliderTarget {
   id: string;
@@ -78,6 +80,7 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
   const secretDoors: SecretDoorHandle[] = [];
   const secretAsWall: THREE.Mesh[] = [];
   const doors = new Map<string, THREE.Object3D>();
+  const scatter: { obj: THREE.Object3D; o: SceneObject; p: THREE.Vector3 }[] = [];
 
   // Floors: one merged mesh per floor material.
   const floors: THREE.Mesh[] = [];
@@ -88,6 +91,11 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
     byFloor.set(r.floor, arr);
     const [cx, cz] = centroid(r.polygon);
     labels.push({ id: `key:${r.key}`, text: r.key, sub: r.name + (r.page ? ` · p.${r.page}` : ''), pos: new THREE.Vector3(cx, y0 + 0.5, cz), vis: 'dm-note', kind: 'key' });
+  }
+  for (const t of level.terrain ?? []) {
+    const arr = byFloor.get(t.floor) ?? [];
+    arr.push(slabGeometry(t.polygon, y0 - 0.05, 1));
+    byFloor.set(t.floor, arr);
   }
   for (const [f, gs] of byFloor) {
     const m = new THREE.Mesh(merge(gs), mat(FLOOR_COLOR[f as keyof typeof FLOOR_COLOR]));
@@ -127,6 +135,7 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
       slab.visible = !w.open;
       doors.set(w.id, slab);
       wallsGroup.add(slab);
+      labels.push({ id: `door:${w.id}`, text: f.has('locked') ? 'locked' : 'door', pos: new THREE.Vector3((w.a[0] + w.b[0]) / 2, y0 + doorTop + 0.5, (w.a[1] + w.b[1]) / 2), vis: 'player', kind: 'door', wallId: w.id });
       continue;
     }
     if (f.has('invisible') || f.has('ethereal')) continue;
@@ -172,6 +181,7 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
       continue;
     }
     const obj = buildObject(o, y0, labels);
+    if (SCATTER.has(o.kind) && o.vis === 'player') { scatter.push({ obj, o, p }); continue; }
     obj.position.copy(p);
     if (o.kind === 'stairs-straight') obj.position.set(0, y0, 0);
     obj.rotation.y = ((o.rotY ?? 0) * Math.PI) / 180;
@@ -182,6 +192,30 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
       const tint = o.vis === 'dm-note' ? undefined : new THREE.Color(PALETTE.violet);
       targets.push({ id: o.id, vis: o.vis, materials: privatize(obj, tint), root: obj });
       if (o.label) labels.push({ id: `obj:${o.id}`, text: o.label, pos: p.clone().setY(p.y + 7), vis: 'dm-note', kind: 'object', objectId: o.id });
+    }
+  }
+
+  // Scatter props (trees, braces, stones...) merge into one mesh per material: they are never picked or revealed.
+  if (scatter.length) {
+    const byMat = new Map<THREE.Material, THREE.BufferGeometry[]>();
+    for (const { obj, o, p } of scatter) {
+      obj.position.copy(p);
+      obj.rotation.y = ((o.rotY ?? 0) * Math.PI) / 180;
+      obj.updateMatrixWorld(true);
+      obj.traverse((c) => {
+        const m = c as THREE.Mesh;
+        if (!m.isMesh) return;
+        const g = m.geometry.clone().applyMatrix4(m.matrixWorld);
+        const arr = byMat.get(m.material as THREE.Material) ?? [];
+        arr.push(g);
+        byMat.set(m.material as THREE.Material, arr);
+      });
+    }
+    for (const [material, gs] of byMat) {
+      const m = new THREE.Mesh(merge(gs), material);
+      m.userData.role = 'prop';
+      m.name = 'scatter';
+      root.add(m);
     }
   }
 

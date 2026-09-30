@@ -56,7 +56,7 @@ button.icon[aria-pressed='true'] { background: var(--ink); color: var(--bg); }
 .status { position: absolute; left: 50%; bottom: calc(env(safe-area-inset-bottom) + 16px); transform: translateX(-50%); padding: 6px 14px; border-radius: 999px; background: var(--panel); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: var(--hairline, 1px) solid var(--hair); font-size: 13px; font-variant-numeric: tabular-nums; opacity: 0; transition: opacity .15s; pointer-events: none !important; }
 .status.on { opacity: 1; }
 
-.lbl { font: 600 12px/1.2 var(--font); color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.8); white-space: nowrap; text-align: center; transition: none; }
+.lbl { font: 600 11px/1.2 var(--font); color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.8); white-space: nowrap; text-align: center; transition: none; }
 .lbl span { display: block; font-weight: 400; font-size: 11px; opacity: .85; }
 .lbl.key { padding: 2px 7px; border-radius: 6px; background: rgba(91, 74, 107, .85); text-shadow: none; }
 .lbl.object { color: #e4d8f0; font-weight: 500; }
@@ -115,3 +115,29 @@ body[data-view='players'] .lbl.key { display: none; }
 .sheet.help dd { margin: 2px 0 0; color: var(--ink-2); }
 .lbl.key { font-size: 11px; padding: 1px 6px; }
 @media (max-width: 900px) { .finder { top: calc(env(safe-area-inset-top) + 112px); } .topbar { flex-wrap: wrap; } }
+
+/* ---- affordances (M1.3) */
+#stage .labels .lbl.door, #stage .labels .lbl.link { pointer-events: auto; cursor: pointer; }
+.lbl.door { font-size: 10px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: #1d1b22; background: #f2b35b; border-radius: 999px; padding: 2px 7px; text-shadow: none; box-shadow: 0 1px 3px rgba(0,0,0,.4); }
+.lbl.door.open { background: #cfd6e8; color: #1d1b22; opacity: .85; }
+.lbl.door:hover { transform: scale(1.1); }
+.lbl.link { font-size: 11px; font-weight: 600; color: #fff; background: rgba(47, 74, 58, .92); border: 1px solid rgba(255,255,255,.35); border-radius: 999px; padding: 3px 9px; text-shadow: none; }
+.lbl.link:hover { background: rgba(60, 96, 74, 1); }
+body[data-view='players'] .lbl.link { display: none; }
+.tapmenu { position: absolute; z-index: 5; min-width: 220px; padding: 4px; background: var(--bg); border: var(--hairline, 1px) solid var(--hair); border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,.3); display: flex; flex-direction: column; }
+.tapmenu button { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 8px; text-align: left; font-size: 14px; }
+.tapmenu button:hover { background: var(--hair); }
+.tapmenu svg { width: 18px; height: 18px; color: var(--ink-2); flex: none; }
+
+/* ---- info card (M1.3) */
+.infocard { position: absolute; z-index: 6; width: min(340px, calc(100vw - 24px)); background: var(--bg); border: var(--hairline, 1px) solid var(--hair); border-radius: 14px; box-shadow: 0 12px 40px rgba(0,0,0,.3); overflow: hidden; }
+.infocard header { display: flex; align-items: flex-start; gap: 8px; padding: 12px 8px 8px 16px; border-bottom: var(--hairline, 1px) solid var(--hair); }
+.infocard h2 { margin: 0; font-size: 16px; flex: 1; }
+.infocard .where { font-size: 12px; color: var(--ink-2); }
+.infocard .body { padding: 10px 16px 6px; display: grid; gap: 8px; }
+.infocard .desc { font-size: 14px; }
+.infocard .dm { font-size: 13px; color: var(--ink); background: color-mix(in srgb, var(--accent) 12%, transparent); border-left: 3px solid var(--accent); padding: 6px 10px; border-radius: 0 8px 8px 0; }
+.infocard .state { font-size: 12px; color: var(--ink-2); }
+.infocard .actions { display: flex; flex-wrap: wrap; gap: 6px; padding: 6px 12px 12px; }
+.infocard .actions button { font-size: 13px; padding: 7px 12px; border-radius: 999px; border: var(--hairline, 1px) solid var(--hair); }
+.infocard .actions button.primary { background: var(--ink); color: var(--bg); border-color: transparent; }

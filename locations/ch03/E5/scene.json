@@ -1,0 +1,2205 @@
+{
+ "schema": 1,
+ "location": "E5",
+ "chapter": "ch03",
+ "name": "Church",
+ "mapPage": 46,
+ "bookScaleFt": 5,
+ "ambient": "darkness",
+ "levels": [
+  {
+   "id": "ground",
+   "name": "Ground Floor",
+   "elevationFt": 0,
+   "ceilingFt": 14,
+   "terrain": [
+    {
+     "polygon": [
+      [
+       -20,
+       -15
+      ],
+      [
+       65,
+       -15
+      ],
+      [
+       65,
+       60
+      ],
+      [
+       -20,
+       60
+      ]
+     ],
+     "floor": "grass"
+    }
+   ],
+   "rooms": [
+    {
+     "key": "E5f",
+     "name": "Chapel",
+     "page": 46,
+     "polygon": [
+      [
+       5,
+       0
+      ],
+      [
+       40,
+       0
+      ],
+      [
+       40,
+       25
+      ],
+      [
+       5,
+       25
+      ]
+     ],
+     "floor": "flagstone"
+    },
+    {
+     "key": "E5a",
+     "name": "Hall",
+     "page": 45,
+     "polygon": [
+      [
+       15,
+       25
+      ],
+      [
+       30,
+       25
+      ],
+      [
+       30,
+       42.5
+      ],
+      [
+       15,
+       42.5
+      ]
+     ],
+     "floor": "flagstone"
+    },
+    {
+     "key": "E5c",
+     "name": "Donavich's Bedroom",
+     "page": 45,
+     "polygon": [
+      [
+       5,
+       25
+      ],
+      [
+       15,
+       25
+      ],
+      [
+       15,
+       33.75
+      ],
+      [
+       5,
+       33.75
+      ]
+     ],
+     "floor": "flagstone"
+    },
+    {
+     "key": "E5b",
+     "name": "Doru's Bedroom",
+     "page": 45,
+     "polygon": [
+      [
+       5,
+       33.75
+      ],
+      [
+       15,
+       33.75
+      ],
+      [
+       15,
+       42.5
+      ],
+      [
+       5,
+       42.5
+      ]
+     ],
+     "floor": "flagstone"
+    },
+    {
+     "key": "E5e",
+     "name": "Office",
+     "page": 46,
+     "polygon": [
+      [
+       30,
+       25
+      ],
+      [
+       40,
+       25
+      ],
+      [
+       40,
+       33.75
+      ],
+      [
+       30,
+       33.75
+      ]
+     ],
+     "floor": "flagstone"
+    },
+    {
+     "key": "E5d",
+     "name": "Trapdoor",
+     "page": 45,
+     "polygon": [
+      [
+       30,
+       33.75
+      ],
+      [
+       40,
+       33.75
+      ],
+      [
+       40,
+       42.5
+      ],
+      [
+       30,
+       42.5
+      ]
+     ],
+     "floor": "flagstone"
+    }
+   ],
+   "walls": [
+    {
+     "id": "ground-w-1",
+     "a": [
+      5.0,
+      0.0
+     ],
+     "b": [
+      10.0,
+      0.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-2",
+     "a": [
+      10.0,
+      0.0
+     ],
+     "b": [
+      15.0,
+      0.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-3",
+     "a": [
+      15.0,
+      0.0
+     ],
+     "b": [
+      20.0,
+      0.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-4",
+     "a": [
+      20.0,
+      0.0
+     ],
+     "b": [
+      25.0,
+      0.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-5",
+     "a": [
+      25.0,
+      0.0
+     ],
+     "b": [
+      30.0,
+      0.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-6",
+     "a": [
+      30.0,
+      0.0
+     ],
+     "b": [
+      35.0,
+      0.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-7",
+     "a": [
+      35.0,
+      0.0
+     ],
+     "b": [
+      40.0,
+      0.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-8",
+     "a": [
+      40.0,
+      0.0
+     ],
+     "b": [
+      40.0,
+      5.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-9",
+     "a": [
+      40.0,
+      5.0
+     ],
+     "b": [
+      40.0,
+      10.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-10",
+     "a": [
+      40.0,
+      10.0
+     ],
+     "b": [
+      40.0,
+      15.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-11",
+     "a": [
+      40.0,
+      15.0
+     ],
+     "b": [
+      40.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-12",
+     "a": [
+      40.0,
+      20.0
+     ],
+     "b": [
+      40.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-13",
+     "a": [
+      35.0,
+      25.0
+     ],
+     "b": [
+      40.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-14",
+     "a": [
+      30.0,
+      25.0
+     ],
+     "b": [
+      35.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-15",
+     "a": [
+      25.0,
+      25.0
+     ],
+     "b": [
+      30.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-16",
+     "a": [
+      20.0,
+      25.0
+     ],
+     "b": [
+      25.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-17",
+     "a": [
+      15.0,
+      25.0
+     ],
+     "b": [
+      20.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-18",
+     "a": [
+      10.0,
+      25.0
+     ],
+     "b": [
+      15.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-19",
+     "a": [
+      5.0,
+      25.0
+     ],
+     "b": [
+      10.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-20",
+     "a": [
+      5.0,
+      20.0
+     ],
+     "b": [
+      5.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-21",
+     "a": [
+      5.0,
+      15.0
+     ],
+     "b": [
+      5.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-22",
+     "a": [
+      5.0,
+      10.0
+     ],
+     "b": [
+      5.0,
+      15.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-23",
+     "a": [
+      5.0,
+      5.0
+     ],
+     "b": [
+      5.0,
+      10.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-24",
+     "a": [
+      5.0,
+      0.0
+     ],
+     "b": [
+      5.0,
+      5.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-25",
+     "a": [
+      30.0,
+      25.0
+     ],
+     "b": [
+      30.0,
+      29.375
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-26",
+     "a": [
+      30.0,
+      29.375
+     ],
+     "b": [
+      30.0,
+      33.75
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-27",
+     "a": [
+      30.0,
+      33.75
+     ],
+     "b": [
+      30.0,
+      38.125
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-28",
+     "a": [
+      30.0,
+      38.125
+     ],
+     "b": [
+      30.0,
+      42.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-29",
+     "a": [
+      25.0,
+      42.5
+     ],
+     "b": [
+      30.0,
+      42.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-30",
+     "a": [
+      20.0,
+      42.5
+     ],
+     "b": [
+      25.0,
+      42.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-31",
+     "a": [
+      15.0,
+      42.5
+     ],
+     "b": [
+      20.0,
+      42.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-32",
+     "a": [
+      15.0,
+      38.125
+     ],
+     "b": [
+      15.0,
+      42.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-33",
+     "a": [
+      15.0,
+      33.75
+     ],
+     "b": [
+      15.0,
+      38.125
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-34",
+     "a": [
+      15.0,
+      29.375
+     ],
+     "b": [
+      15.0,
+      33.75
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-35",
+     "a": [
+      15.0,
+      25.0
+     ],
+     "b": [
+      15.0,
+      29.375
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-36",
+     "a": [
+      10.0,
+      33.75
+     ],
+     "b": [
+      15.0,
+      33.75
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-37",
+     "a": [
+      5.0,
+      33.75
+     ],
+     "b": [
+      10.0,
+      33.75
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-38",
+     "a": [
+      5.0,
+      29.375
+     ],
+     "b": [
+      5.0,
+      33.75
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-39",
+     "a": [
+      5.0,
+      25.0
+     ],
+     "b": [
+      5.0,
+      29.375
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-40",
+     "a": [
+      10.0,
+      42.5
+     ],
+     "b": [
+      15.0,
+      42.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-41",
+     "a": [
+      5.0,
+      42.5
+     ],
+     "b": [
+      10.0,
+      42.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-42",
+     "a": [
+      5.0,
+      38.125
+     ],
+     "b": [
+      5.0,
+      42.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-43",
+     "a": [
+      5.0,
+      33.75
+     ],
+     "b": [
+      5.0,
+      38.125
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-44",
+     "a": [
+      40.0,
+      25.0
+     ],
+     "b": [
+      40.0,
+      29.375
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-45",
+     "a": [
+      40.0,
+      29.375
+     ],
+     "b": [
+      40.0,
+      33.75
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-46",
+     "a": [
+      35.0,
+      33.75
+     ],
+     "b": [
+      40.0,
+      33.75
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-47",
+     "a": [
+      30.0,
+      33.75
+     ],
+     "b": [
+      35.0,
+      33.75
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-48",
+     "a": [
+      40.0,
+      33.75
+     ],
+     "b": [
+      40.0,
+      38.125
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-49",
+     "a": [
+      40.0,
+      38.125
+     ],
+     "b": [
+      40.0,
+      42.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-50",
+     "a": [
+      35.0,
+      42.5
+     ],
+     "b": [
+      40.0,
+      42.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-51",
+     "a": [
+      30.0,
+      42.5
+     ],
+     "b": [
+      35.0,
+      42.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-52",
+     "a": [
+      17.5,
+      42.5
+     ],
+     "b": [
+      22.5,
+      42.5
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "ashlar",
+     "open": false
+    },
+    {
+     "id": "ground-w-53",
+     "a": [
+      15,
+      25.0
+     ],
+     "b": [
+      15,
+      30.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "ashlar",
+     "open": false
+    },
+    {
+     "id": "ground-w-54",
+     "a": [
+      15,
+      33.75
+     ],
+     "b": [
+      15,
+      38.75
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "ashlar",
+     "open": false
+    },
+    {
+     "id": "ground-w-55",
+     "a": [
+      30,
+      25.0
+     ],
+     "b": [
+      30,
+      30.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "ashlar",
+     "open": false
+    },
+    {
+     "id": "ground-w-56",
+     "a": [
+      30,
+      33.75
+     ],
+     "b": [
+      30,
+      38.75
+     ],
+     "flags": [
+      "door",
+      "locked"
+     ],
+     "material": "ashlar",
+     "open": false
+    },
+    {
+     "id": "ground-w-57",
+     "a": [
+      5,
+      2.5
+     ],
+     "b": [
+      5,
+      7.5
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-58",
+     "a": [
+      5,
+      12.5
+     ],
+     "b": [
+      5,
+      17.5
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-59",
+     "a": [
+      40,
+      2.5
+     ],
+     "b": [
+      40,
+      7.5
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-60",
+     "a": [
+      40,
+      12.5
+     ],
+     "b": [
+      40,
+      17.5
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-61",
+     "a": [
+      12.5,
+      0
+     ],
+     "b": [
+      17.5,
+      0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-62",
+     "a": [
+      22.5,
+      0
+     ],
+     "b": [
+      27.5,
+      0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    }
+   ],
+   "lights": [
+    {
+     "id": "ground-l10",
+     "pos": [
+      15,
+      5,
+      5
+     ],
+     "preset": "candle",
+     "bright": 10,
+     "dim": 20
+    },
+    {
+     "id": "ground-l11",
+     "pos": [
+      30,
+      5,
+      5
+     ],
+     "preset": "candle",
+     "bright": 10,
+     "dim": 20
+    },
+    {
+     "id": "ground-l12",
+     "pos": [
+      22.5,
+      1.5,
+      23.0
+     ],
+     "preset": "candle",
+     "bright": 5,
+     "dim": 10
+    },
+    {
+     "id": "ground-l13",
+     "pos": [
+      7.0,
+      1.5,
+      23.0
+     ],
+     "preset": "candle",
+     "bright": 5,
+     "dim": 10
+    },
+    {
+     "id": "ground-l14",
+     "pos": [
+      38.0,
+      1.5,
+      23.0
+     ],
+     "preset": "candle",
+     "bright": 5,
+     "dim": 10
+    }
+   ],
+   "objects": [
+    {
+     "id": "ground-p1",
+     "kind": "altar",
+     "pos": [
+      22.5,
+      0,
+      3.5
+     ],
+     "vis": "player",
+     "label": "Claw-scarred altar",
+     "dims": {
+      "w": 5
+     }
+    },
+    {
+     "id": "ground-p2",
+     "kind": "bench",
+     "pos": [
+      12.0,
+      0,
+      9.0
+     ],
+     "vis": "player",
+     "dims": {
+      "l": 8
+     }
+    },
+    {
+     "id": "ground-p3",
+     "kind": "bench",
+     "pos": [
+      12.0,
+      0,
+      13.0
+     ],
+     "vis": "player",
+     "dims": {
+      "l": 8
+     }
+    },
+    {
+     "id": "ground-p4",
+     "kind": "bench",
+     "pos": [
+      12.0,
+      0,
+      17.0
+     ],
+     "vis": "player",
+     "dims": {
+      "l": 8
+     }
+    },
+    {
+     "id": "ground-p5",
+     "kind": "bench",
+     "pos": [
+      12.0,
+      0,
+      21.0
+     ],
+     "vis": "player",
+     "rotY": 8,
+     "dims": {
+      "l": 8
+     }
+    },
+    {
+     "id": "ground-p6",
+     "kind": "bench",
+     "pos": [
+      33.0,
+      0,
+      9.0
+     ],
+     "vis": "player",
+     "dims": {
+      "l": 8
+     }
+    },
+    {
+     "id": "ground-p7",
+     "kind": "bench",
+     "pos": [
+      33.0,
+      0,
+      13.0
+     ],
+     "vis": "player",
+     "rotY": -12,
+     "dims": {
+      "l": 8
+     }
+    },
+    {
+     "id": "ground-p8",
+     "kind": "bench",
+     "pos": [
+      33.0,
+      0,
+      17.0
+     ],
+     "vis": "player",
+     "dims": {
+      "l": 8
+     }
+    },
+    {
+     "id": "ground-p9",
+     "kind": "bench",
+     "pos": [
+      33.0,
+      0,
+      21.0
+     ],
+     "vis": "player",
+     "dims": {
+      "l": 8
+     }
+    },
+    {
+     "id": "ground-p10",
+     "kind": "candlestick",
+     "pos": [
+      15,
+      0,
+      5
+     ],
+     "vis": "player",
+     "dims": {
+      "h": 4
+     }
+    },
+    {
+     "id": "ground-p11",
+     "kind": "candlestick",
+     "pos": [
+      30,
+      0,
+      5
+     ],
+     "vis": "player",
+     "dims": {
+      "h": 4
+     }
+    },
+    {
+     "id": "ground-p12",
+     "kind": "candlestick",
+     "pos": [
+      22.5,
+      0,
+      23.0
+     ],
+     "vis": "player",
+     "dims": {
+      "h": 1.5
+     }
+    },
+    {
+     "id": "ground-p13",
+     "kind": "candlestick",
+     "pos": [
+      7.0,
+      0,
+      23.0
+     ],
+     "vis": "player",
+     "dims": {
+      "h": 1.5
+     }
+    },
+    {
+     "id": "ground-p14",
+     "kind": "candlestick",
+     "pos": [
+      38.0,
+      0,
+      23.0
+     ],
+     "vis": "player",
+     "dims": {
+      "h": 1.5
+     }
+    },
+    {
+     "id": "ground-p15",
+     "kind": "bed-plain",
+     "pos": [
+      10,
+      0,
+      29.0
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "dims": {
+      "w": 3,
+      "l": 5
+     }
+    },
+    {
+     "id": "ground-p16",
+     "kind": "bed-plain",
+     "pos": [
+      10,
+      0,
+      38.0
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "dims": {
+      "w": 3,
+      "l": 5
+     }
+    },
+    {
+     "id": "ground-p17",
+     "kind": "desk",
+     "pos": [
+      35,
+      0,
+      29.0
+     ],
+     "vis": "player",
+     "dims": {
+      "w": 4,
+      "d": 2
+     }
+    },
+    {
+     "id": "ground-p18",
+     "kind": "chair",
+     "pos": [
+      35,
+      0,
+      32.5
+     ],
+     "vis": "player",
+     "rotY": 180
+    },
+    {
+     "id": "ground-p19",
+     "kind": "bookshelf",
+     "pos": [
+      37.5,
+      0,
+      26.5
+     ],
+     "vis": "player",
+     "dims": {
+      "w": 2,
+      "h": 5
+     }
+    },
+    {
+     "id": "ground-p20",
+     "kind": "trapdoor",
+     "pos": [
+      35,
+      0,
+      38.0
+     ],
+     "vis": "player",
+     "label": "Trapdoor to the undercroft (iron padlock)",
+     "dims": {
+      "w": 4
+     }
+    },
+    {
+     "id": "ground-p21",
+     "kind": "rug",
+     "pos": [
+      22.5,
+      0,
+      33.5
+     ],
+     "vis": "player",
+     "dims": {
+      "w": 8,
+      "d": 12
+     }
+    },
+    {
+     "id": "ground-p22",
+     "kind": "pine",
+     "pos": [
+      -10,
+      0,
+      0
+     ],
+     "vis": "player",
+     "dims": {
+      "h": 24,
+      "r": 6
+     }
+    },
+    {
+     "id": "ground-p23",
+     "kind": "pine",
+     "pos": [
+      55,
+      0,
+      10
+     ],
+     "vis": "player",
+     "dims": {
+      "h": 20,
+      "r": 5
+     }
+    },
+    {
+     "id": "ground-p24",
+     "kind": "pine",
+     "pos": [
+      52.5,
+      0,
+      45
+     ],
+     "vis": "player",
+     "dims": {
+      "h": 26,
+      "r": 6
+     }
+    },
+    {
+     "id": "ground-p25",
+     "kind": "gravestone",
+     "pos": [
+      -7.5,
+      0,
+      30
+     ],
+     "vis": "player"
+    },
+    {
+     "id": "ground-p26",
+     "kind": "gravestone",
+     "pos": [
+      -12.5,
+      0,
+      37.5
+     ],
+     "vis": "player"
+    },
+    {
+     "id": "ground-p27",
+     "kind": "gravestone",
+     "pos": [
+      -6.0,
+      0,
+      45
+     ],
+     "vis": "player"
+    },
+    {
+     "id": "ground-p28",
+     "kind": "fence",
+     "pos": [
+      -10,
+      0,
+      22.5
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "dims": {
+      "w": 20
+     }
+    },
+    {
+     "id": "ground-spawn0",
+     "kind": "commoner",
+     "pos": [
+      22.5,
+      0,
+      20
+     ],
+     "vis": "player",
+     "label": "Donavich",
+     "size": "medium",
+     "dm": "Praying through the night"
+    }
+   ]
+  },
+  {
+   "id": "undercroft",
+   "name": "Undercroft (E5g)",
+   "elevationFt": -14,
+   "ceilingFt": 8,
+   "rooms": [
+    {
+     "key": "E5g",
+     "name": "Undercroft",
+     "page": 47,
+     "polygon": [
+      [
+       0,
+       0
+      ],
+      [
+       45,
+       0
+      ],
+      [
+       45,
+       30
+      ],
+      [
+       0,
+       30
+      ]
+     ],
+     "floor": "flagstone"
+    }
+   ],
+   "walls": [
+    {
+     "id": "undercroft-w-1",
+     "a": [
+      0.0,
+      0.0
+     ],
+     "b": [
+      5.0,
+      0.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "undercroft-w-2",
+     "a": [
+      5.0,
+      0.0
+     ],
+     "b": [
+      10.0,
+      0.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "undercroft-w-3",
+     "a": [
+      10.0,
+      0.0
+     ],
+     "b": [
+      15.0,
+      0.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "undercroft-w-4",
+     "a": [
+      15.0,
+      0.0
+     ],
+     "b": [
+      20.0,
+      0.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "undercroft-w-5",
+     "a": [
+      20.0,
+      0.0
+     ],
+     "b": [
+      25.0,
+      0.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "undercroft-w-6",
+     "a": [
+      25.0,
+      0.0
+     ],
+     "b": [
+      30.0,
+      0.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "undercroft-w-7",
+     "a": [
+      30.0,
+      0.0
+     ],
+     "b": [
+      35.0,
+      0.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "undercroft-w-8",
+     "a": [
+      35.0,
+      0.0
+     ],
+     "b": [
+      40.0,
+      0.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "undercroft-w-9",
+     "a": [
+      40.0,
+      0.0
+     ],
+     "b": [
+      45.0,
+      0.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "undercroft-w-10",
+     "a": [
+      45.0,
+      0.0
+     ],
+     "b": [
+      45.0,
+      5.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "undercroft-w-11",
+     "a": [
+      45.0,
+      5.0
+     ],
+     "b": [
+      45.0,
+      10.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "undercroft-w-12",
+     "a": [
+      45.0,
+      10.0
+     ],
+     "b": [
+      45.0,
+      15.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "undercroft-w-13",
+     "a": [
+      45.0,
+      15.0
+     ],
+     "b": [
+      45.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "undercroft-w-14",
+     "a": [
+      45.0,
+      20.0
+     ],
+     "b": [
+      45.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "undercroft-w-15",
+     "a": [
+      45.0,
+      25.0
+     ],
+     "b": [
+      45.0,
+      30.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "undercroft-w-16",
+     "a": [
+      40.0,
+      30.0
+     ],
+     "b": [
+      45.0,
+      30.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "undercroft-w-17",
+     "a": [
+      35.0,
+      30.0
+     ],
+     "b": [
+      40.0,
+      30.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "undercroft-w-18",
+     "a": [
+      30.0,
+      30.0
+     ],
+     "b": [
+      35.0,
+      30.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "undercroft-w-19",
+     "a": [
+      25.0,
+      30.0
+     ],
+     "b": [
+      30.0,
+      30.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "undercroft-w-20",
+     "a": [
+      20.0,
+      30.0
+     ],
+     "b": [
+      25.0,
+      30.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "undercroft-w-21",
+     "a": [
+      15.0,
+      30.0
+     ],
+     "b": [
+      20.0,
+      30.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "undercroft-w-22",
+     "a": [
+      10.0,
+      30.0
+     ],
+     "b": [
+      15.0,
+      30.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "undercroft-w-23",
+     "a": [
+      5.0,
+      30.0
+     ],
+     "b": [
+      10.0,
+      30.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "undercroft-w-24",
+     "a": [
+      0.0,
+      30.0
+     ],
+     "b": [
+      5.0,
+      30.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "undercroft-w-25",
+     "a": [
+      0.0,
+      25.0
+     ],
+     "b": [
+      0.0,
+      30.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "undercroft-w-26",
+     "a": [
+      0.0,
+      20.0
+     ],
+     "b": [
+      0.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "undercroft-w-27",
+     "a": [
+      0.0,
+      15.0
+     ],
+     "b": [
+      0.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "undercroft-w-28",
+     "a": [
+      0.0,
+      10.0
+     ],
+     "b": [
+      0.0,
+      15.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "undercroft-w-29",
+     "a": [
+      0.0,
+      5.0
+     ],
+     "b": [
+      0.0,
+      10.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "undercroft-w-30",
+     "a": [
+      0.0,
+      0.0
+     ],
+     "b": [
+      0.0,
+      5.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    }
+   ],
+   "lights": [],
+   "objects": [
+    {
+     "id": "undercroft-p1",
+     "kind": "column",
+     "pos": [
+      10,
+      0,
+      7.5
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 0.6,
+      "h": 8
+     }
+    },
+    {
+     "id": "undercroft-p2",
+     "kind": "column",
+     "pos": [
+      22.5,
+      0,
+      7.5
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 0.6,
+      "h": 8
+     }
+    },
+    {
+     "id": "undercroft-p3",
+     "kind": "column",
+     "pos": [
+      35,
+      0,
+      7.5
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 0.6,
+      "h": 8
+     }
+    },
+    {
+     "id": "undercroft-p4",
+     "kind": "column",
+     "pos": [
+      10,
+      0,
+      22.5
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 0.6,
+      "h": 8
+     }
+    },
+    {
+     "id": "undercroft-p5",
+     "kind": "column",
+     "pos": [
+      22.5,
+      0,
+      22.5
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 0.6,
+      "h": 8
+     }
+    },
+    {
+     "id": "undercroft-p6",
+     "kind": "column",
+     "pos": [
+      35,
+      0,
+      22.5
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 0.6,
+      "h": 8
+     }
+    },
+    {
+     "id": "undercroft-p7",
+     "kind": "stairs-straight",
+     "pos": [
+      40,
+      0,
+      15
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "dims": {
+      "w": 3,
+      "rise": 8,
+      "fromZ": 17.5,
+      "toZ": 12.5
+     }
+    },
+    {
+     "id": "undercroft-p8",
+     "kind": "bones",
+     "pos": [
+      7.5,
+      0,
+      15
+     ],
+     "vis": "player"
+    },
+    {
+     "id": "undercroft-p9",
+     "kind": "rubble",
+     "pos": [
+      15,
+      0,
+      26.0
+     ],
+     "vis": "player"
+    },
+    {
+     "id": "undercroft-spawn0",
+     "kind": "vampire-spawn",
+     "pos": [
+      15,
+      0,
+      12.5
+     ],
+     "vis": "hidden-creature",
+     "label": "Doru (vampire spawn)",
+     "size": "medium",
+     "dm": "Vampire spawn chained in the dark"
+    }
+   ]
+  }
+ ],
+ "links": [
+  {
+   "id": "lk-ground-undercroft",
+   "kind": "stairs",
+   "from": {
+    "level": "ground",
+    "pos": [
+     35,
+     38.0
+    ]
+   },
+   "to": {
+    "level": "undercroft",
+    "pos": [
+     35,
+     38.0
+    ]
+   }
+  }
+ ]
+}

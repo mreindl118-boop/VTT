@@ -12,3 +12,4 @@ reference/module/*
 *.mistlab
 .DS_Store
 preview/
+reference/imports/

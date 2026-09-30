@@ -5,7 +5,7 @@ import type { Polygon, Vec2 } from '../core/geometry';
 import { mat } from '../render/materials';
 import { PALETTE } from './palette';
 
-export const WALL_T = 1;
+export const WALL_T = 0.7;
 
 /** Horizontal slab from a plan polygon, top face at y = top. */
 export function slabGeometry(poly: Polygon, top: number, thickness = 1): THREE.BufferGeometry {

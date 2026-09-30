@@ -89,3 +89,20 @@
 - Readability: DM work-light scales with the slider (players keep the true darkness), doors in warm wood
   with a red band when locked, lighter floors, smaller key pills, level names shortened, first-run help.
 - docs/SLIDER.md: Players mode documented alongside the Player Display.
+
+## M1.3 Affordances + M2 seeds — 2026-09-30
+
+- Right-drag / two-finger twist rotates the camera freely; the buttons still turn in 90° steps.
+- Every door carries a tappable marker (open/closed/locked); every stair, trapdoor and dumbwaiter end carries a
+  level marker that moves the party. Tapping a room, door or secret door opens a menu of what you can do.
+- Info card: tapping any asset in DM mode shows its name, area key and page, a player-facing description, DM
+  notes, its visibility state and actions; in Players mode only the description, and only if it is in view.
+  Death House carries 83 descriptions / 88 DM notes (own wording) plus generic descriptions by kind.
+- Breathing room: 45° tabletop framing from further back, 40° FOV, walls 0.7 ft, smaller labels.
+- Imported the uploaded seed locations via `scripts/authoring/import-ml.py`: Church E5 (ground + undercroft,
+  E5a–E5g), Tser Pool Encampment (G), Svalich Woods road kit (C), Village of Barovia placement layer (E1–E7).
+  Outdoor kit: pines, bushes, dead trees, boulders, gravestones, fences, water, tents, wagons, signposts,
+  braziers, houses, church massing, gate arch; horses, scarecrow, vampire spawn, gargoyle, wyrmling.
+- Schema: `terrain` (unkeyed ground floors), `placementFt` / `kind: placement` (no fog, no grid).
+- Scatter props merge into one mesh per material (road kit 678 → 74 draw calls).
+- 151 character figure recipes (skin, cloth, hair, hat, weapon) attached to `manifests/characters.json`.

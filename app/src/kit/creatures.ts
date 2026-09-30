@@ -149,3 +149,23 @@ export const CREATURES: Record<string, (d: Dims) => THREE.Group> = {
   'swarm-of-insects': (d) => swarm(d), 'broom-of-animated-attack': () => broom(), wolf: (d) => wolf(d), 'dire-wolf': () => wolf({ scale: 1.6 }),
   cultist: () => cultist(), adventurer: () => adventurer(), skeleton: () => skeletonStanding(), commoner: () => humanoid({ cloth: '#5b4a3a' }),
 };
+
+// ---- outdoor / village creatures (M2)
+export function horse(d: Dims = {}): THREE.Group {
+  const s = (d.scale ?? 1) * 1.5, color = d.bone ? PALETTE.bone : '#4a3a2e';
+  const g = grp(box(4.4 * s, 1.8 * s, 1.5 * s, color, 0, 3.2 * s, 0));
+  for (const [x, z] of [[-1.6, -0.5], [1.6, -0.5], [-1.6, 0.5], [1.6, 0.5]]) g.add(box(0.4 * s, 2.6 * s, 0.4 * s, color, x * s, 1.3 * s, z * s));
+  const neck = box(0.9 * s, 2.2 * s, 0.9 * s, color, 2.4 * s, 4.6 * s, 0); neck.rotation.z = -0.6; g.add(neck, box(1.4 * s, 0.8 * s, 0.8 * s, color, 3.4 * s, 5.4 * s, 0));
+  const tail = box(0.3 * s, 2 * s, 0.3 * s, '#2a2020', -2.3 * s, 2.6 * s, 0); tail.rotation.z = 0.4; g.add(tail);
+  return g;
+}
+export const scarecrow = () => { const g = humanoid({ skin: '#a08a5a', cloth: '#6a5a3a', trim: '#5a4a3a', helm: 'cap', weapon: 'none' }); g.add(box(0.2, 7, 0.2, PALETTE.woodDark, 0, 3.5, -0.6), box(4, 0.2, 0.2, PALETTE.woodDark, 0, 3.4, -0.6)); return g; };
+export const vampireSpawn = () => humanoid({ skin: '#d8d3d0', cloth: '#2a1a22', trim: '#1a171d', hair: '#1a1a1a', claws: true });
+export const gargoyle = () => { const g = humanoid({ skin: PALETTE.stoneDeep, cloth: PALETTE.stoneDeep, trim: PALETTE.stoneDeep, hunch: 0.4, claws: true }); for (const x of [-1.6, 1.6]) { const w = box(2.2, 2.6, 0.15, PALETTE.stoneDeep, x, 4.2, -0.6); w.rotation.z = x > 0 ? -0.5 : 0.5; g.add(w); } return g; };
+export function wyrmling(): THREE.Group {
+  const c = '#7a1f2b', g = grp(box(3.2, 1.2, 1.3, c, 0, 1.4, 0), box(1.2, 0.9, 1, c, 2, 2.1, 0), cone(0.35, 1.2, c, -2.3, 1.4, 0));
+  for (const [x, z] of [[-1, -0.5], [1, -0.5], [-1, 0.5], [1, 0.5]]) g.add(box(0.35, 1, 0.35, c, x, 0.5, z));
+  for (const z of [-0.9, 0.9]) { const w = box(2.6, 0.12, 1.6, '#5b1f2b', 0, 2.4, z); w.rotation.x = z > 0 ? -0.6 : 0.6; g.add(w); }
+  return g;
+}
+Object.assign(CREATURES, { horse: (d) => horse(d), scarecrow: () => scarecrow(), 'vampire-spawn': () => vampireSpawn(), gargoyle: () => gargoyle(), 'red-dragon-wyrmling': () => wyrmling() } as Record<string, (d: Dims) => THREE.Group>);

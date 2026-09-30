@@ -74,7 +74,6 @@ function buildDmUi(): void {
       <span class="divider"></span>
       <button class="icon" data-act="lock" aria-label="Player camera follows DM"></button>
       <button class="icon" data-act="display" aria-label="Open Player Display">${ICON.display}</button>
-      <button class="icon" data-act="help" aria-label="Help">${ICON.help}</button>
     </div>`;
   ui.appendChild(top);
 
@@ -90,7 +89,9 @@ function buildDmUi(): void {
     <button class="icon" data-cam="zoomOut" aria-label="Zoom out">${ICON.zoomOut}</button>
     <span class="divider"></span>
     <button class="icon" data-cam="party" aria-label="Find the party">${ICON.party}</button>
-    <button class="icon" data-cam="follow" aria-label="Follow the party" aria-pressed="true">${ICON.token}</button>`;
+    <button class="icon" data-cam="follow" aria-label="Follow the party" aria-pressed="true">${ICON.token}</button>
+    <span class="divider"></span>
+    <button class="icon" data-cam="help" aria-label="Help">${ICON.help}</button>`;
   ui.appendChild(cam);
   cam.addEventListener('click', (e) => {
     const b = (e.target as HTMLElement).closest<HTMLElement>('button');
@@ -103,6 +104,7 @@ function buildDmUi(): void {
       case 'zoomOut': app.world.zoomBy(1.4); break;
       case 'party': app.findParty(); break;
       case 'follow': app.follow = !app.follow; break;
+      case 'help': showHelp(); break;
     }
     refresh();
   });
@@ -188,6 +190,50 @@ function buildDmUi(): void {
     const rv = t.closest<HTMLElement>('[data-reveal]'); if (rv) { app.toggleRoom(rv.dataset.reveal!); renderRooms(); }
   });
 
+  // Tap menu: what you can do with the thing you tapped.
+  let menu: HTMLElement | null = null;
+  const closeMenu = () => { menu?.remove(); menu = null; };
+  app.onTap = (hit, x, y) => {
+    closeMenu();
+    const items: { label: string; act: () => void; icon?: string }[] = [];
+    if (hit.object) {
+      // Info card: what it is, where, what players see, DM notes, state, actions.
+      const o = hit.object, players = app.view === 'players';
+      const card = document.createElement('div');
+      card.className = 'infocard';
+      const where = hit.room ? `${hit.room.key} · ${hit.room.name}${o.page ? ` · p.${o.page}` : ''}` : '';
+      const state = players ? '' : o.vis === 'player' ? 'Visible to players when in sight' : `${o.vis.replace('-', ' ')} · ${o.revealed ? 'revealed to players' : o.visibleToPlayers ? 'in players\' view' : 'hidden from players'}`;
+      card.innerHTML = `<header><div><h2>${o.label}</h2>${where && !players ? `<div class="where">${where}</div>` : ''}</div><button class="icon close" aria-label="Close">${ICON.close}</button></header>
+        <div class="body">${o.desc ? `<div class="desc">${o.desc}</div>` : ''}${!players && o.dm ? `<div class="dm">${o.dm}</div>` : ''}${state ? `<div class="state">${state}</div>` : ''}</div>
+        ${players ? '' : `<div class="actions">${o.vis !== 'player' ? `<button class="primary" data-a="reveal">${o.revealed ? 'Hide from players' : 'Reveal to players'}</button>` : ''}${hit.room ? `<button data-a="frame">Frame ${hit.room.key}</button>` : ''}${hit.secretDoor ? `<button data-a="secret">${hit.secretDoor.revealed ? 'Hide secret door' : 'Reveal secret door'}</button>` : ''}</div>`}`;
+      card.style.left = `${Math.min(x, innerWidth - 360)}px`; card.style.top = `${Math.min(y, innerHeight - 260)}px`;
+      card.addEventListener('click', (e) => {
+        const b = (e.target as HTMLElement).closest<HTMLElement>('button'); if (!b) return;
+        if (b.classList.contains('close')) return closeMenu();
+        if (b.dataset.a === 'reveal') app.toggleObject(o.id); if (b.dataset.a === 'frame') app.jumpTo(hit.room!.key); if (b.dataset.a === 'secret') app.revealSecretDoor(hit.secretDoor!.id);
+        closeMenu(); refresh();
+      });
+      menu = card; ui.appendChild(card);
+      setTimeout(() => addEventListener('pointerdown', (e) => { if (menu && !menu.contains(e.target as Node)) closeMenu(); }, { once: true }), 0);
+      return;
+    }
+    if (hit.door) items.push({ label: hit.door.open ? 'Close door' : 'Open door', icon: ICON.walls, act: () => app.toggleDoor(hit.door!.wallId) });
+    if (hit.secretDoor) items.push({ label: hit.secretDoor.revealed ? 'Hide secret door again' : 'Reveal secret door to players', icon: ICON.eye, act: () => app.revealSecretDoor(hit.secretDoor!.id) });
+    if (hit.room) {
+      items.push({ label: `${hit.room.revealed ? 'Hide' : 'Reveal'} ${hit.room.key} ${hit.room.name}`, icon: ICON.reveal, act: () => app.toggleRoom(hit.room!.key) });
+      items.push({ label: 'Move party here', icon: ICON.token, act: () => { const t = app.party; if (t) { t.level = app.levelId; t.pos = app.snap(hit.pos); app.afterPartyMoveFromUi(); } } });
+      items.push({ label: `Frame ${hit.room.key}`, icon: ICON.party, act: () => app.jumpTo(hit.room!.key) });
+    }
+    if (!items.length) return;
+    menu = document.createElement('div');
+    menu.className = 'tapmenu';
+    menu.innerHTML = items.map((it, i) => `<button data-i="${i}">${it.icon ?? ''}<span>${it.label}</span></button>`).join('');
+    menu.style.left = `${Math.min(x, innerWidth - 260)}px`; menu.style.top = `${Math.min(y, innerHeight - 40 * items.length - 20)}px`;
+    menu.addEventListener('click', (e) => { const b = (e.target as HTMLElement).closest<HTMLElement>('button'); if (!b) return; items[Number(b.dataset.i)].act(); closeMenu(); refresh(); });
+    ui.appendChild(menu);
+    setTimeout(() => addEventListener('pointerdown', (e) => { if (menu && !menu.contains(e.target as Node)) closeMenu(); }, { once: true }), 0);
+  };
+
   // Keyboard: R rotate, F find party, / search, Esc clears the tool.
   addEventListener('keydown', (e) => {
     if ((e.target as HTMLElement).tagName === 'INPUT') return;
@@ -196,21 +242,21 @@ function buildDmUi(): void {
     if (e.key === 'Escape') { app.tool = 'none'; app.setStatus(''); refresh(); }
   });
 
-  const showHelp = () => {
+  function showHelp(): void {
     const h = document.createElement('div');
     h.className = 'sheet-backdrop';
     h.innerHTML = `<div class="sheet help"><header><h2>Running a session</h2><button class="icon close" aria-label="Close">${ICON.close}</button></header><div class="sheet-body">
       <dl>
         <dt>Move the party</dt><dd>Drag the amber token. The room it enters is revealed and remembered; step onto stairs or a trapdoor to change level; the camera follows.</dd>
-        <dt>Look around</dt><dd>One finger / left-drag pans. Pinch or scroll zooms. Rotate and tilt with the buttons bottom-left (or R). Double-tap a room to frame it.</dd>
+        <dt>Look around</dt><dd>One finger / left-drag pans. Right-drag or a two-finger twist rotates; pinch or scroll zooms. The buttons bottom-left turn in 90° steps, tilt, zoom and find the party. Double-tap a room to frame it.</dd>
         <dt>Find an area</dt><dd>Type a key or name in the search box (or press /). The Rooms list shows every key with its revealed state.</dd>
-        <dt>Show or hide things</dt><dd>Reveal tool: tap a room, hidden object or secret door. Tap a door to open it. The slider previews what players see; Players mode locks it.</dd>
+        <dt>Doors, stairs and choices</dt><dd>Door markers open and close doors; stair and trapdoor markers move the party between levels. Tap anything for a menu of what you can do with it (reveal, hide, move the party, frame). The slider previews what players see.</dd>
         <dt>Players mode</dt><dd>Turn the iPad to the table: only revealed rooms, no DM chrome. DM mode brings everything back.</dd>
       </dl></div></div>`;
     h.addEventListener('click', (e) => { const t = e.target as HTMLElement; if (t === h || t.closest('.close')) h.remove(); });
     document.body.appendChild(h);
     localStorage.setItem('mistlab.helpSeen', '1');
-  };
+  }
   if (!localStorage.getItem('mistlab.helpSeen')) queueMicrotask(() => ready.then(showHelp));
 }
 

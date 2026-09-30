@@ -30,6 +30,8 @@ export interface Room {
   floor: FloorMaterial;
   difficult?: boolean;
   ceilingFt?: number;
+  desc?: string;
+  dm?: string;
 }
 
 export interface Wall {
@@ -69,6 +71,10 @@ export interface SceneObject {
   wall?: string;
   /** Free-form extra dims (e.g. stairs run/rise). */
   dims?: Record<string, number>;
+  /** What players see when they look at it (original wording, never the book's text). */
+  desc?: string;
+  /** DM-only notes: mechanics, checks, what it hides. */
+  dm?: string;
 }
 
 export type LinkKind = 'stairs' | 'spiral' | 'shaft' | 'elevator' | 'slide' | 'ladder' | 'trapdoor' | 'dumbwaiter';
@@ -88,6 +94,8 @@ export interface Level {
   ambient?: Ambient;
   /** Which plan axis points to map north; default "-z". Death House's map is printed with north to the left. */
   north?: '-z' | '+z' | '-x' | '+x';
+  /** Unkeyed ground (lawns, roads, open country): drawn as floor, gridded, never a room. */
+  terrain?: { polygon: Polygon; floor: FloorMaterial }[];
   rooms: Room[];
   walls: Wall[];
   lights: LightSource[];
@@ -102,6 +110,9 @@ export interface SceneFile {
   name: string;
   mapPage?: number;
   bookScaleFt: BookScaleFt;
+  /** Town/site maps: feet per printed square; the map is a placement layer, not a battle map. */
+  placementFt?: number;
+  kind?: 'battle' | 'placement' | 'regional';
   ambient: Ambient;
   levels: Level[];
   links: VerticalLink[];

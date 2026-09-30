@@ -499,10 +499,98 @@ braces(dl, '35', [(1, 2), (1, 3), (1, 4)], 'z'); braces(dl, '35', [(2, 1)], 'x')
 dl.note('up30', (1.5, 4.5), '35', 'Stair up to 30')
 dl.note('cultists', (8, 7), '38', '13 apparitions on the ledges when the dais is climbed; "One must die!"')
 
+
+# ------------------------------------------------------------------ descriptions (own wording, never the book's text)
+DESC = {
+  'f1-gate-iron': ("A wrought-iron gate with a lock on one side. Its hinges are rusted.", "Unlocked; the hinges shriek when it opens."),
+  'f1-shield': ("A shield bearing a golden windmill on a red field, flanked by portraits of stern aristocrats.", "The Durst family arms. The portraits are long-dead Dursts."),
+  'f1-sword': ("A longsword hangs above the black marble mantel; a windmill is worked into its hilt.", "Nonmagical longsword. The paneling hides serpents and skulls in its carvings (DC 12 Perception)."),
+  'f1-spiral': ("A sweeping staircase of red marble curls up to the floor above.", "Continues to the second and third floors; the carved paneling follows it."),
+  'f1-stag': ("A stag's head glowers from above the hearth.", None),
+  'f1-cab-lock': ("A locked wooden cabinet.", "East cabinet: DC 15 Dexterity (thieves' tools). Heavy, light and hand crossbows with 20 bolts each. The north cabinet is unlocked: playing cards and wine glasses."),
+  'f1-trapdoor': ("", "Trapdoor in the southwest corner. Cannot be found or opened from this side until the party reaches area 32 below."),
+  'f1-chandelier5': ("A crystal chandelier glitters over a table set with polished silver.", "The silver tarnishes and the crystal cracks if taken from the house."),
+  'f1-tapestry5': ("A tapestry of hounds and mounted nobles hunting a wolf.", "Rots if removed from the house."),
+  'f1-painting5': ("A painting of an alpine valley in a mahogany frame.", "Fades if removed from the house."),
+  'f1-oven': ("A stone oven shaped like a dome, its bent iron stovepipe running into the ceiling.", "Behind and left of the stove is the dumbwaiter door."),
+  'f1-dumbwaiter': ("A small door opens onto a stone shaft with a wooden box on ropes.", "2-ft shaft to 7A and 12A; a Small creature can ride it (DC 10 Acrobatics). Rope holds 200 lb. A bell rings here when a button upstairs is pressed."),
+  'f1-hooks2b': ("Black cloaks hang from hooks; a top hat rests on a high shelf.", None),
+  'f2-shelves': ("Floor-to-ceiling shelves of books, with a rolling ladder.", "Hundreds of tomes on history, warfare, alchemy, poetry. One red-covered book with a blank spine is a switch (DC 13 Perception): it opens the secret door to 9."),
+  'f2-key': ("A mahogany desk with an oil lamp, ink, quill, tinderbox and a letter kit.", "The drawer holds an iron key that unlocks the door to area 20. The wooden seal bears the windmill."),
+  'f2-chest9': ("A heavy chest with clawed iron feet, lid half open. A skeleton in leather armor is slumped over it, three darts in its ribs.", "Dart trap is spent. The skeleton clutches a letter under Strahd's seal. Inside: three blank black books (25 gp each), scrolls of bless, protection from poison and spiritual weapon, the deeds to the house and to a windmill, and the Dursts' will."),
+  'f2-shelves9': ("Shelves of tomes about summoning fiends and a cult's rites.", "The rituals are bogus (1 hour of study + DC 12 Arcana)."),
+  'f2-portrait': ("A wood-framed family portrait above the mantel: a man, a woman and two smiling children; the father cradles a swaddled baby.", "The mother regards the baby with scorn: Walter, the nursemaid's stillborn child."),
+  'f2-armor0': ("A suit of armor with a wolf's-head visor, spear in hand.", "Decorative. The doors it flanks are carved with dancers who, on inspection (DC 12), are fighting off bats."),
+  'f2-harpsichord': ("A harpsichord and bench.", None), 'f2-harp': ("A tall standing harp.", None),
+  'f2-figurines': ("Alabaster figurines of dancers line the mantelpiece.", "Several are carved as well-dressed skeletons."),
+  'f3-bed': ("A four-poster bed hung with embroidered curtains and rotting gossamer veils.", None),
+  'f3-jewelry': ("A vanity with a mirror and a silver jewelry box.", "Box worth 75 gp: three gold rings (25 gp each) and a platinum necklace with a topaz pendant (750 gp)."),
+  'f3-rug': ("A rotting tiger-skin rug before the fireplace.", None), 'f3-portrait12': ("A dust-covered portrait of a man and a woman above the fireplace.", "Gustav and Elisabeth Durst."),
+  'f3-tub': ("A wooden tub on clawed feet; a kettle sits on a small stove.", None), 'f3-barrel': ("A barrel under a spigot in the wall.", "The rooftop cistern's plumbing no longer works."),
+  'f3-broom': ("A cobweb-covered broom leaning against the far wall.", "Broom of animated attack. Attacks anything within 5 ft."),
+  'f3-crib': ("A crib covered by a hanging black shroud.", "Under the shroud: a tightly wrapped, baby-sized bundle. It is empty."),
+  'f3-armor': ("A suit of black plate armor stands against the wall, draped in cobwebs.", "Animated armor. Attacks when damaged or approached within 5 ft; fights until destroyed."),
+  'f3-mirror': ("A full-length mirror in a frame carved with ivy and berries.", "DC 12 Perception: eyeballs among the berries. The wall behind it holds a secret door (DC 15) to the attic stair."),
+  'f3-specter': ("", "The nursemaid's specter. Manifests when the nursery door (15B) opens, unless already destroyed in 18. Cannot speak or be reasoned with."),
+  'attic-remains': ("Two small skeletons in tattered clothes lie in the middle of the floor. The smaller one cradles a stuffed doll.", "Rose and Thorn. Placing their remains in crypts 23E and 23F lays the ghosts to rest."),
+  'attic-toychest': ("A toy chest painted with windmills.", "Stuffed animals and toys. Disturbing it summons the ghosts."),
+  'attic-dollhouse': ("A dollhouse that is a perfect replica of this house.", "DC 15 Perception reveals every secret door in the house, including the attic spiral stair (21). Disturbing it summons the ghosts."),
+  'attic-rose': ("", "Ghost, Small, lawful good, 35 hp, no Horrifying Visage, CR 3. Fights only in self-defense; may possess a character who tries to leave."),
+  'attic-thorn': ("", "Ghost, Small, lawful good, 35 hp, no Horrifying Visage, CR 3. Fights only in self-defense; may possess a character who tries to leave."),
+  'attic-trunk': ("A wooden trunk under a dusty sheet, beside an iron stove.", "Unlocked. The nursemaid's skeleton wrapped in a bloodstained sheet (DC 14 Medicine: stabbed). Disturbing it summons her specter unless destroyed in 15."),
+  'attic-doll': ("A smiling doll in a lacy yellow dress sits in the window box, cobwebs draping it like a veil.", None),
+  'attic-spiral21': ("A narrow, creaking wooden spiral stair in a stone shaft, choked with cobwebs.", "5-ft shaft, 50 ft down to area 22. Visibility 5 ft. Exists only after the party reads Strahd's letter (9) or finds the dollhouse's secret door (20)."),
+  'dungeon-spiral22': ("The wooden spiral stair ends here in an earthen chamber.", "Up to 21 (the attic)."),
+  'dungeon-well': ("A well with a 3-ft stone lip; a bucket hangs from a rope and pulley bolted to the beams.", "4 ft across, 30 ft down to a water-filled cistern."),
+  'dungeon-chest25A': ("A padlocked wooden chest.", "DC 15 Dex (thieves' tools). 11 gp and 60 sp in a pouch of human skin."),
+  'dungeon-chest25B': ("A padlocked wooden chest.", "DC 15. Three moss agates (10 gp each) in black cloth."),
+  'dungeon-chest25C': ("A padlocked wooden chest.", "DC 15. A leather eyepatch set with a carnelian (50 gp)."),
+  'dungeon-chest25D': ("A padlocked wooden chest.", "DC 15. An ivory hairbrush with silver bristles (25 gp)."),
+  'dungeon-chest25E': ("A padlocked wooden chest.", "DC 15. A silvered shortsword (110 gp)."),
+  'dungeon-slabA': ("A blank stone slab leans against the wall beside an open, empty crypt.", None),
+  'dungeon-slabB': ("A stone slab etched with a name leans against the wall; the crypt is empty.", "Walter Durst."),
+  'dungeon-coffinC': ("An empty coffin on a stone bier.", "Gustav's crypt. Slab: DC 15 Athletics to remove (advantage with a crowbar)."),
+  'dungeon-coffinD': ("An empty coffin on a stone bier.", "Elisabeth's crypt. A swarm of insects (centipedes) bursts from the back wall if the coffin is disturbed."),
+  'dungeon-coffinE': ("An empty coffin on a stone bier.", "Rose's crypt. Her remains laid here put her ghost to rest."),
+  'dungeon-coffinF': ("An empty coffin on a stone bier.", "Thorn's crypt. His remains laid here put his ghost to rest."),
+  'dungeon-pit': ("Bare earthen floor.", "Hidden spiked pit under rotted planks and a skin of dirt: 5 ft long, 10 ft deep. DC 15 Perception notices the missing footprints. Fall: 1d6 bludgeoning + 2d10 piercing, prone."),
+  'dungeon-grick': ("A dark alcove.", "A grick lurks here and attacks the first creature within 5 ft; passive Perception under 12 is surprised."),
+  'dungeon-ghoul0': ("", "One of four ghouls (former cultists) that rise from the ground when the party reaches the midpoint of the crossing. They fight until destroyed."),
+  'dungeon-statue': ("A painted wooden statue of a gaunt, pale-faced man in a voluminous black cloak, his left hand on the head of a wolf, a smoky crystal orb in his right.", "Strahd. Touching the statue or taking the orb summons five shadows that pursue beyond the room. The orb is worth 25 gp and works as an arcane focus."),
+  'dungeon-shadow0': ("", "One of five shadows (former cultists) that form around the statue if it is touched."),
+  'dungeon-shackles0': ("Moldy skeletons hang from rusty shackles along the walls.", "Harmless decor."),
+  'dungeon-trapdoor32': ("A wooden trapdoor in a low plank ceiling, bolted from this side.", "Pushes open into the den (3) above. Once found it stays available as a way in and out."),
+  'dungeon-mimic': ("A rotted wooden door.", "Mimic. Anything touching it adheres; it attacks when touched or damaged."),
+  'dungeon-footlocker': ("An unlocked footlocker at the foot of the bed.", "Cloak of protection, coffer with four potions of healing, chain shirt, mess kit, alchemist's fire, bullseye lantern, thieves' tools, and a wizard's spellbook (1st: disguise self, identify, mage armor, magic missile, protection from evil and good; 2nd: darkvision, hold person, invisibility, magic weapon). Taking anything brings the ghasts out of the walls."),
+  'dungeon-ghast-g': ("", "Gustav Durst, a ghast hidden in a cavity behind the earthen wall. Bursts out if anything is taken from the footlocker."),
+  'dungeon-ghast-e': ("", "Elisabeth Durst, a ghast hidden behind the wall. Bursts out with Gustav."),
+  'dungeon-crate34': ("An open crate of thirty torches and a sack of fifteen candles.", None),
+  'dungeon-lower-relic0': ("A niche holding a small mummified yellow hand on a loop of rope.", "Worthless relic (goblin's hand)."),
+  'dungeon-lower-ring': ("A skeleton in a tattered black robe hangs on the back wall of the cell.", "A cultist who questioned the cult. A gold ring (25 gp) on one finger."),
+  'dungeon-lower-altar': ("A stone altar carved with grasping ghouls, stained with dried blood. Chains and shackles dangle above it.", "Climbing the dais summons thirteen harmless apparitions chanting for a sacrifice. A creature must die on the altar, or the cultists rouse Lorghoth."),
+  'dungeon-lower-wheel': ("A wooden wheel half-embedded in the wall.", "An action turns it, raising or lowering the portcullis (37). Out of reach from the far side."),
+  'dungeon-lower-lorghoth': ("A half-submerged heap of refuse fills a natural alcove.", "Lorghoth the Decayer, a shambling mound, asleep. DC 15 Nature reveals it. Wakes if attacked or if the party refuses the sacrifice; pursues but never leaves the dungeon."),
+  'dungeon-lower-dais': ("Stairs rise to an octagonal stone dais above the water.", "5 ft high; the water is 2 ft deep. Ceiling 16 ft."),
+}
+RELIC = ["a knife carved from human bone", "a dagger with a rat's skull in the pommel", "an 8-inch varnished orb made from a nothic's eye", "a bone aspergillum", "a folded cloak of stitched ghoul skin", "a desiccated frog lashed to a stick", "a bag of bat guano", "a hag's severed finger", "a 6-inch wooden mummy figurine", "an iron pendant with a devil's face", "the shrunken head of a halfling", "a small coffer holding a dire wolf's withered tongue"]
+for i, r in enumerate(RELIC): DESC[f'dungeon-lower-relic{i + 1}'] = (f"A wall niche holding {r}.", "Worthless cult relic.")
+for i in range(1, 4): DESC[f'dungeon-ghoul{i}'] = DESC['dungeon-ghoul0']
+for i in range(1, 5): DESC[f'dungeon-shadow{i}'] = DESC['dungeon-shadow0']
+for i in range(1, 5): DESC[f'dungeon-shackles{i}'] = DESC['dungeon-shackles0']
+for i in range(1, 4): DESC[f'f2-armor{i}'] = DESC['f2-armor0']
+def apply_desc(levels):
+    for lv in levels:
+        for o in lv['objects']:
+            d = DESC.get(o['id'])
+            if d:
+                if d[0]: o['desc'] = d[0]
+                if d[1]: o['dm'] = d[1]
+
 # ================================================================== assemble
 levels = [f1, f2, f3, at, du, dl]
 scene = OrderedDict(schema=1, location='death-house', chapter='appB', name='Death House', mapPage=216, bookScaleFt=5, ambient='interior-dim')
 scene['levels'] = [lv.to_json() for lv in levels]
+apply_desc(scene['levels'])
 scene['levels'][5]['walls'] += extra_walls
 for w in scene['levels'][5]['walls']:
     if w['id'] in ('dungeon-lower-w-0',) or True:

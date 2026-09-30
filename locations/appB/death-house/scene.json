@@ -982,7 +982,9 @@
       55
      ],
      "vis": "player",
-     "key": "1A"
+     "key": "1A",
+     "desc": "A wrought-iron gate with a lock on one side. Its hinges are rusted.",
+     "dm": "Unlocked; the hinges shriek when it opens."
     },
     {
      "id": "f1-lamp1a",
@@ -1022,7 +1024,9 @@
      ],
      "vis": "player",
      "rotY": -90,
-     "key": "1B"
+     "key": "1B",
+     "desc": "A shield bearing a golden windmill on a red field, flanked by portraits of stern aristocrats.",
+     "dm": "The Durst family arms. The portraits are long-dead Dursts."
     },
     {
      "id": "f1-portrait1",
@@ -1073,7 +1077,9 @@
      "label": "Longsword above the mantel (windmill cameo)",
      "dims": {
       "y": 7.5
-     }
+     },
+     "desc": "A longsword hangs above the black marble mantel; a windmill is worked into its hilt.",
+     "dm": "Nonmagical longsword. The paneling hides serpents and skulls in its carvings (DC 12 Perception)."
     },
     {
      "id": "f1-spiral",
@@ -1088,7 +1094,9 @@
      "dims": {
       "rise": 10,
       "r": 6
-     }
+     },
+     "desc": "A sweeping staircase of red marble curls up to the floor above.",
+     "dm": "Continues to the second and third floors; the carved paneling follows it."
     },
     {
      "id": "f1-hooks2b",
@@ -1099,7 +1107,8 @@
       15.75
      ],
      "vis": "player",
-     "key": "2B"
+     "key": "2B",
+     "desc": "Black cloaks hang from hooks; a top hat rests on a high shelf."
     },
     {
      "id": "f1-fire3",
@@ -1123,7 +1132,8 @@
      ],
      "vis": "player",
      "rotY": -90,
-     "key": "3"
+     "key": "3",
+     "desc": "A stag's head glowers from above the hearth."
     },
     {
      "id": "f1-wolf0",
@@ -1328,7 +1338,9 @@
      ],
      "vis": "hidden-object",
      "key": "3",
-     "label": "Locked east cabinet: crossbows (DC 15)"
+     "label": "Locked east cabinet: crossbows (DC 15)",
+     "desc": "A locked wooden cabinet.",
+     "dm": "East cabinet: DC 15 Dexterity (thieves' tools). Heavy, light and hand crossbows with 20 bolts each. The north cabinet is unlocked: playing cards and wine glasses."
     },
     {
      "id": "f1-trapdoor",
@@ -1340,7 +1352,8 @@
      ],
      "vis": "hidden-object",
      "key": "3",
-     "label": "Hidden trapdoor to 32 (only from below)"
+     "label": "Hidden trapdoor to 32 (only from below)",
+     "dm": "Trapdoor in the southwest corner. Cannot be found or opened from this side until the party reaches area 32 below."
     },
     {
      "id": "f1-table",
@@ -1459,7 +1472,9 @@
      "dims": {
       "y": 8,
       "crystal": 1
-     }
+     },
+     "desc": "A crystal chandelier glitters over a table set with polished silver.",
+     "dm": "The silver tarnishes and the crystal cracks if taken from the house."
     },
     {
      "id": "f1-fire5",
@@ -1489,7 +1504,9 @@
       "w": 3,
       "h": 2,
       "y": 7.5
-     }
+     },
+     "desc": "A painting of an alpine valley in a mahogany frame.",
+     "dm": "Fades if removed from the house."
     },
     {
      "id": "f1-tapestry5",
@@ -1501,7 +1518,9 @@
      ],
      "vis": "player",
      "rotY": -90,
-     "key": "5"
+     "key": "5",
+     "desc": "A tapestry of hounds and mounted nobles hunting a wolf.",
+     "dm": "Rots if removed from the house."
     },
     {
      "id": "f1-drapes5a",
@@ -1546,7 +1565,9 @@
       7.0
      ],
      "vis": "player",
-     "key": "4A"
+     "key": "4A",
+     "desc": "A stone oven shaped like a dome, its bent iron stovepipe running into the ceiling.",
+     "dm": "Behind and left of the stove is the dumbwaiter door."
     },
     {
      "id": "f1-worktable",
@@ -1585,7 +1606,9 @@
      ],
      "vis": "player",
      "rotY": 180,
-     "key": "4A"
+     "key": "4A",
+     "desc": "A small door opens onto a stone shaft with a wooden box on ropes.",
+     "dm": "2-ft shaft to 7A and 12A; a Small creature can ride it (DC 10 Acrobatics). Rope holds 200 lb. A bell rings here when a button upstairs is pressed."
     },
     {
      "id": "f1-shelves4b",
@@ -2432,7 +2455,9 @@
      "key": "8",
      "dims": {
       "w": 14
-     }
+     },
+     "desc": "Floor-to-ceiling shelves of books, with a rolling ladder.",
+     "dm": "Hundreds of tomes on history, warfare, alchemy, poetry. One red-covered book with a blank spine is a switch (DC 13 Perception): it opens the secret door to 9."
     },
     {
      "id": "f2-ladder",
@@ -2558,7 +2583,9 @@
      ],
      "vis": "hidden-object",
      "key": "8",
-     "label": "Desk drawer: iron key to area 20"
+     "label": "Desk drawer: iron key to area 20",
+     "desc": "A mahogany desk with an oil lamp, ink, quill, tinderbox and a letter kit.",
+     "dm": "The drawer holds an iron key that unlocks the door to area 20. The wooden seal bears the windmill."
     },
     {
      "id": "f2-desk-lamp",
@@ -2585,7 +2612,9 @@
      "vis": "hidden-object",
      "rotY": -90,
      "key": "9",
-     "label": "Chest: Strahd's letter, deeds, will (dart trap spent)"
+     "label": "Chest: Strahd's letter, deeds, will (dart trap spent)",
+     "desc": "A heavy chest with clawed iron feet, lid half open. A skeleton in leather armor is slumped over it, three darts in its ribs.",
+     "dm": "Dart trap is spent. The skeleton clutches a letter under Strahd's seal. Inside: three blank black books (25 gp each), scrolls of bless, protection from poison and spiritual weapon, the deeds to the house and to a windmill, and the Dursts' will."
     },
     {
      "id": "f2-shelves9",
@@ -2599,7 +2628,9 @@
      "key": "9",
      "dims": {
       "w": 5
-     }
+     },
+     "desc": "Shelves of tomes about summoning fiends and a cult's rites.",
+     "dm": "The rituals are bogus (1 hour of study + DC 12 Arcana)."
     },
     {
      "id": "f2-bed7a",
@@ -2692,7 +2723,9 @@
       22.0
      ],
      "vis": "player",
-     "key": "6"
+     "key": "6",
+     "desc": "A suit of armor with a wolf's-head visor, spear in hand.",
+     "dm": "Decorative. The doors it flanks are carved with dancers who, on inspection (DC 12), are fighting off bats."
     },
     {
      "id": "f2-armor1",
@@ -2703,7 +2736,9 @@
       22.0
      ],
      "vis": "player",
-     "key": "6"
+     "key": "6",
+     "desc": "A suit of armor with a wolf's-head visor, spear in hand.",
+     "dm": "Decorative. The doors it flanks are carved with dancers who, on inspection (DC 12), are fighting off bats."
     },
     {
      "id": "f2-armor2",
@@ -2714,7 +2749,9 @@
       33.0
      ],
      "vis": "player",
-     "key": "6"
+     "key": "6",
+     "desc": "A suit of armor with a wolf's-head visor, spear in hand.",
+     "dm": "Decorative. The doors it flanks are carved with dancers who, on inspection (DC 12), are fighting off bats."
     },
     {
      "id": "f2-armor3",
@@ -2725,7 +2762,9 @@
       33.0
      ],
      "vis": "player",
-     "key": "6"
+     "key": "6",
+     "desc": "A suit of armor with a wolf's-head visor, spear in hand.",
+     "dm": "Decorative. The doors it flanks are carved with dancers who, on inspection (DC 12), are fighting off bats."
     },
     {
      "id": "f2-fire6",
@@ -2753,7 +2792,9 @@
      "label": "Durst family portrait (the swaddled baby)",
      "dims": {
       "y": 7.5
-     }
+     },
+     "desc": "A wood-framed family portrait above the mantel: a man, a woman and two smiling children; the father cradles a swaddled baby.",
+     "dm": "The mother regards the baby with scorn: Walter, the nursemaid's stillborn child."
     },
     {
      "id": "f2-lamp60",
@@ -2809,7 +2850,8 @@
      ],
      "vis": "player",
      "rotY": 20,
-     "key": "10"
+     "key": "10",
+     "desc": "A harpsichord and bench."
     },
     {
      "id": "f2-hbench",
@@ -2834,7 +2876,8 @@
       41.0
      ],
      "vis": "player",
-     "key": "10"
+     "key": "10",
+     "desc": "A tall standing harp."
     },
     {
      "id": "f2-fire10",
@@ -2875,7 +2918,9 @@
      "key": "10",
      "dims": {
       "h": 1.2
-     }
+     },
+     "desc": "Alabaster figurines of dancers line the mantelpiece.",
+     "dm": "Several are carved as well-dressed skeletons."
     },
     {
      "id": "f2-seat0",
@@ -4275,7 +4320,8 @@
       5.0
      ],
      "vis": "player",
-     "key": "12A"
+     "key": "12A",
+     "desc": "A four-poster bed hung with embroidered curtains and rotting gossamer veils."
     },
     {
      "id": "f3-wardrobe1",
@@ -4332,7 +4378,9 @@
      ],
      "vis": "hidden-object",
      "key": "12A",
-     "label": "Jewelry box: rings, topaz necklace"
+     "label": "Jewelry box: rings, topaz necklace",
+     "desc": "A vanity with a mirror and a silver jewelry box.",
+     "dm": "Box worth 75 gp: three gold rings (25 gp each) and a platinum necklace with a topaz pendant (750 gp)."
     },
     {
      "id": "f3-padded-chair",
@@ -4356,7 +4404,8 @@
      ],
      "vis": "player",
      "rotY": 90,
-     "key": "12A"
+     "key": "12A",
+     "desc": "A rotting tiger-skin rug before the fireplace."
     },
     {
      "id": "f3-fire12",
@@ -4384,7 +4433,9 @@
      "dims": {
       "dusty": 1,
       "y": 7
-     }
+     },
+     "desc": "A dust-covered portrait of a man and a woman above the fireplace.",
+     "dm": "Gustav and Elisabeth Durst."
     },
     {
      "id": "f3-drapes120",
@@ -4541,7 +4592,8 @@
       26.0
      ],
      "vis": "player",
-     "key": "13"
+     "key": "13",
+     "desc": "A wooden tub on clawed feet; a kettle sits on a small stove."
     },
     {
      "id": "f3-stove13",
@@ -4563,7 +4615,9 @@
       22.0
      ],
      "vis": "player",
-     "key": "13"
+     "key": "13",
+     "desc": "A barrel under a spigot in the wall.",
+     "dm": "The rooftop cistern's plumbing no longer works."
     },
     {
      "id": "f3-shelves14",
@@ -4590,7 +4644,9 @@
      "vis": "hidden-creature",
      "key": "14",
      "label": "Broom of animated attack",
-     "size": "small"
+     "size": "small",
+     "desc": "A cobweb-covered broom leaning against the far wall.",
+     "dm": "Broom of animated attack. Attacks anything within 5 ft."
     },
     {
      "id": "f3-crib",
@@ -4601,7 +4657,9 @@
       40
      ],
      "vis": "player",
-     "key": "15B"
+     "key": "15B",
+     "desc": "A crib covered by a hanging black shroud.",
+     "dm": "Under the shroud: a tightly wrapped, baby-sized bundle. It is empty."
     },
     {
      "id": "f3-bundle",
@@ -4656,7 +4714,9 @@
      "vis": "hidden-creature",
      "key": "11",
      "label": "Animated armor (attacks within 5 ft)",
-     "size": "medium"
+     "size": "medium",
+     "desc": "A suit of black plate armor stands against the wall, draped in cobwebs.",
+     "dm": "Animated armor. Attacks when damaged or approached within 5 ft; fights until destroyed."
     },
     {
      "id": "f3-lamp110",
@@ -4830,7 +4890,9 @@
      "label": "Full-length mirror, ivy frame (eyeballs in the berries)",
      "dims": {
       "ivy": 1
-     }
+     },
+     "desc": "A full-length mirror in a frame carved with ivy and berries.",
+     "dm": "DC 12 Perception: eyeballs among the berries. The wall behind it holds a secret door (DC 15) to the attic stair."
     },
     {
      "id": "f3-specter",
@@ -4843,7 +4905,8 @@
      "vis": "hidden-creature",
      "key": "15A",
      "label": "Specter (nursemaid) — when the nursery door opens",
-     "size": "medium"
+     "size": "medium",
+     "dm": "The nursemaid's specter. Manifests when the nursery door (15B) opens, unless already destroyed in 18. Cannot speak or be reasoned with."
     },
     {
      "id": "f3-web-15A-0",
@@ -5777,7 +5840,9 @@
      ],
      "vis": "hidden-object",
      "key": "20",
-     "label": "Rose & Thorn: skeletal remains + doll"
+     "label": "Rose & Thorn: skeletal remains + doll",
+     "desc": "Two small skeletons in tattered clothes lie in the middle of the floor. The smaller one cradles a stuffed doll.",
+     "dm": "Rose and Thorn. Placing their remains in crypts 23E and 23F lays the ghosts to rest."
     },
     {
      "id": "attic-toychest",
@@ -5789,7 +5854,9 @@
      ],
      "vis": "hidden-object",
      "key": "20",
-     "label": "Toy chest"
+     "label": "Toy chest",
+     "desc": "A toy chest painted with windmills.",
+     "dm": "Stuffed animals and toys. Disturbing it summons the ghosts."
     },
     {
      "id": "attic-dollhouse",
@@ -5801,7 +5868,9 @@
      ],
      "vis": "hidden-object",
      "key": "20",
-     "label": "Dollhouse: reveals all secret doors (DC 15)"
+     "label": "Dollhouse: reveals all secret doors (DC 15)",
+     "desc": "A dollhouse that is a perfect replica of this house.",
+     "dm": "DC 15 Perception reveals every secret door in the house, including the attic spiral stair (21). Disturbing it summons the ghosts."
     },
     {
      "id": "attic-rose",
@@ -5814,7 +5883,8 @@
      "vis": "hidden-creature",
      "key": "20",
      "label": "Rose (ghost)",
-     "size": "small"
+     "size": "small",
+     "dm": "Ghost, Small, lawful good, 35 hp, no Horrifying Visage, CR 3. Fights only in self-defense; may possess a character who tries to leave."
     },
     {
      "id": "attic-thorn",
@@ -5827,7 +5897,8 @@
      "vis": "hidden-creature",
      "key": "20",
      "label": "Thorn (ghost)",
-     "size": "small"
+     "size": "small",
+     "dm": "Ghost, Small, lawful good, 35 hp, no Horrifying Visage, CR 3. Fights only in self-defense; may possess a character who tries to leave."
     },
     {
      "id": "attic-web-20-0",
@@ -5903,7 +5974,9 @@
       "rise": 0.1,
       "r": 2.2,
       "turns": 1
-     }
+     },
+     "desc": "A narrow, creaking wooden spiral stair in a stone shaft, choked with cobwebs.",
+     "dm": "5-ft shaft, 50 ft down to area 22. Visibility 5 ft. Exists only after the party reads Strahd's letter (9) or finds the dollhouse's secret door (20)."
     },
     {
      "id": "attic-web-21-0",
@@ -6055,7 +6128,9 @@
      ],
      "vis": "hidden-object",
      "key": "18",
-     "label": "Trunk: nursemaid's remains (specter if disturbed)"
+     "label": "Trunk: nursemaid's remains (specter if disturbed)",
+     "desc": "A wooden trunk under a dusty sheet, beside an iron stove.",
+     "dm": "Unlocked. The nursemaid's skeleton wrapped in a bloodstained sheet (DC 14 Medicine: stabbed). Disturbing it summons her specter unless destroyed in 15."
     },
     {
      "id": "attic-web-18-0",
@@ -6209,7 +6284,8 @@
       52.5
      ],
      "vis": "player",
-     "key": "17"
+     "key": "17",
+     "desc": "A smiling doll in a lacy yellow dress sits in the window box, cobwebs draping it like a veil."
     },
     {
      "id": "attic-web-17-0",
@@ -9757,7 +9833,9 @@
       37.5
      ],
      "vis": "player",
-     "key": "25"
+     "key": "25",
+     "desc": "A well with a 3-ft stone lip; a bucket hangs from a rope and pulley bolted to the beams.",
+     "dm": "4 ft across, 30 ft down to a water-filled cistern."
     },
     {
      "id": "dungeon-post250",
@@ -9825,7 +9903,9 @@
      ],
      "vis": "hidden-object",
      "key": "25A",
-     "label": "Padlocked chest A (DC 15)"
+     "label": "Padlocked chest A (DC 15)",
+     "desc": "A padlocked wooden chest.",
+     "dm": "DC 15 Dex (thieves' tools). 11 gp and 60 sp in a pouch of human skin."
     },
     {
      "id": "dungeon-bed25B",
@@ -9848,7 +9928,9 @@
      ],
      "vis": "hidden-object",
      "key": "25B",
-     "label": "Padlocked chest B (DC 15)"
+     "label": "Padlocked chest B (DC 15)",
+     "desc": "A padlocked wooden chest.",
+     "dm": "DC 15. Three moss agates (10 gp each) in black cloth."
     },
     {
      "id": "dungeon-bed25C",
@@ -9871,7 +9953,9 @@
      ],
      "vis": "hidden-object",
      "key": "25C",
-     "label": "Padlocked chest C (DC 15)"
+     "label": "Padlocked chest C (DC 15)",
+     "desc": "A padlocked wooden chest.",
+     "dm": "DC 15. A leather eyepatch set with a carnelian (50 gp)."
     },
     {
      "id": "dungeon-bed25D",
@@ -9895,7 +9979,9 @@
      ],
      "vis": "hidden-object",
      "key": "25D",
-     "label": "Padlocked chest D (DC 15)"
+     "label": "Padlocked chest D (DC 15)",
+     "desc": "A padlocked wooden chest.",
+     "dm": "DC 15. An ivory hairbrush with silver bristles (25 gp)."
     },
     {
      "id": "dungeon-bed25E",
@@ -9919,7 +10005,9 @@
      ],
      "vis": "hidden-object",
      "key": "25E",
-     "label": "Padlocked chest E (DC 15)"
+     "label": "Padlocked chest E (DC 15)",
+     "desc": "A padlocked wooden chest.",
+     "dm": "DC 15. A silvered shortsword (110 gp)."
     },
     {
      "id": "dungeon-spiral22",
@@ -9935,7 +10023,9 @@
       "rise": 0.1,
       "r": 2.2,
       "turns": 1
-     }
+     },
+     "desc": "The wooden spiral stair ends here in an earthen chamber.",
+     "dm": "Up to 21 (the attic)."
     },
     {
      "id": "dungeon-steps22",
@@ -9964,7 +10054,9 @@
      ],
      "vis": "player",
      "rotY": 90,
-     "key": "23C"
+     "key": "23C",
+     "desc": "An empty coffin on a stone bier.",
+     "dm": "Gustav's crypt. Slab: DC 15 Athletics to remove (advantage with a crowbar)."
     },
     {
      "id": "dungeon-coffinD",
@@ -9976,7 +10068,9 @@
      ],
      "vis": "player",
      "rotY": 90,
-     "key": "23D"
+     "key": "23D",
+     "desc": "An empty coffin on a stone bier.",
+     "dm": "Elisabeth's crypt. A swarm of insects (centipedes) bursts from the back wall if the coffin is disturbed."
     },
     {
      "id": "dungeon-coffinE",
@@ -9988,7 +10082,9 @@
      ],
      "vis": "player",
      "rotY": 90,
-     "key": "23E"
+     "key": "23E",
+     "desc": "An empty coffin on a stone bier.",
+     "dm": "Rose's crypt. Her remains laid here put her ghost to rest."
     },
     {
      "id": "dungeon-coffinF",
@@ -10000,7 +10096,9 @@
      ],
      "vis": "player",
      "rotY": 90,
-     "key": "23F"
+     "key": "23F",
+     "desc": "An empty coffin on a stone bier.",
+     "dm": "Thorn's crypt. His remains laid here put his ghost to rest."
     },
     {
      "id": "dungeon-slabA",
@@ -10015,7 +10113,8 @@
      "key": "23A",
      "dims": {
       "leaning": 1
-     }
+     },
+     "desc": "A blank stone slab leans against the wall beside an open, empty crypt."
     },
     {
      "id": "dungeon-slabB",
@@ -10030,7 +10129,9 @@
      "key": "23B",
      "dims": {
       "leaning": 1
-     }
+     },
+     "desc": "A stone slab etched with a name leans against the wall; the crypt is empty.",
+     "dm": "Walter Durst."
     },
     {
      "id": "dungeon-centipedes",
@@ -10180,7 +10281,9 @@
      "vis": "hidden-creature",
      "key": "28",
      "label": "Grick (attacks within 5 ft of the alcove)",
-     "size": "medium"
+     "size": "medium",
+     "desc": "A dark alcove.",
+     "dm": "A grick lurks here and attacks the first creature within 5 ft; passive Perception under 12 is surprised."
     },
     {
      "id": "dungeon-pit",
@@ -10196,7 +10299,9 @@
      "dims": {
       "w": 5,
       "d": 5
-     }
+     },
+     "desc": "Bare earthen floor.",
+     "dm": "Hidden spiked pit under rotted planks and a skin of dirt: 5 ft long, 10 ft deep. DC 15 Perception notices the missing footprints. Fall: 1d6 bludgeoning + 2d10 piercing, prone."
     },
     {
      "id": "dungeon-stairs30",
@@ -10238,7 +10343,8 @@
      "vis": "hidden-creature",
      "key": "29",
      "label": "Ghoul 1 (rises from the ground at the midpoint)",
-     "size": "medium"
+     "size": "medium",
+     "dm": "One of four ghouls (former cultists) that rise from the ground when the party reaches the midpoint of the crossing. They fight until destroyed."
     },
     {
      "id": "dungeon-ghoul1",
@@ -10251,7 +10357,8 @@
      "vis": "hidden-creature",
      "key": "29",
      "label": "Ghoul 2 (rises from the ground at the midpoint)",
-     "size": "medium"
+     "size": "medium",
+     "dm": "One of four ghouls (former cultists) that rise from the ground when the party reaches the midpoint of the crossing. They fight until destroyed."
     },
     {
      "id": "dungeon-ghoul2",
@@ -10264,7 +10371,8 @@
      "vis": "hidden-creature",
      "key": "29",
      "label": "Ghoul 3 (rises from the ground at the midpoint)",
-     "size": "medium"
+     "size": "medium",
+     "dm": "One of four ghouls (former cultists) that rise from the ground when the party reaches the midpoint of the crossing. They fight until destroyed."
     },
     {
      "id": "dungeon-ghoul3",
@@ -10277,7 +10385,8 @@
      "vis": "hidden-creature",
      "key": "29",
      "label": "Ghoul 4 (rises from the ground at the midpoint)",
-     "size": "medium"
+     "size": "medium",
+     "dm": "One of four ghouls (former cultists) that rise from the ground when the party reaches the midpoint of the crossing. They fight until destroyed."
     },
     {
      "id": "dungeon-stairs32",
@@ -10322,7 +10431,9 @@
      ],
      "vis": "hidden-object",
      "key": "32",
-     "label": "Trapdoor (bolted this side) up to the den (3)"
+     "label": "Trapdoor (bolted this side) up to the den (3)",
+     "desc": "A wooden trapdoor in a low plank ceiling, bolted from this side.",
+     "dm": "Pushes open into the den (3) above. Once found it stays available as a way in and out."
     },
     {
      "id": "dungeon-statue",
@@ -10334,7 +10445,9 @@
      ],
      "vis": "player",
      "rotY": -90,
-     "key": "31"
+     "key": "31",
+     "desc": "A painted wooden statue of a gaunt, pale-faced man in a voluminous black cloak, his left hand on the head of a wolf, a smoky crystal orb in his right.",
+     "dm": "Strahd. Touching the statue or taking the orb summons five shadows that pursue beyond the room. The orb is worth 25 gp and works as an arcane focus."
     },
     {
      "id": "dungeon-orb",
@@ -10362,7 +10475,8 @@
      "vis": "hidden-creature",
      "key": "31",
      "label": "Shadow 1 (if the statue is touched)",
-     "size": "medium"
+     "size": "medium",
+     "dm": "One of five shadows (former cultists) that form around the statue if it is touched."
     },
     {
      "id": "dungeon-shadow1",
@@ -10375,7 +10489,8 @@
      "vis": "hidden-creature",
      "key": "31",
      "label": "Shadow 2 (if the statue is touched)",
-     "size": "medium"
+     "size": "medium",
+     "dm": "One of five shadows (former cultists) that form around the statue if it is touched."
     },
     {
      "id": "dungeon-shadow2",
@@ -10388,7 +10503,8 @@
      "vis": "hidden-creature",
      "key": "31",
      "label": "Shadow 3 (if the statue is touched)",
-     "size": "medium"
+     "size": "medium",
+     "dm": "One of five shadows (former cultists) that form around the statue if it is touched."
     },
     {
      "id": "dungeon-shadow3",
@@ -10401,7 +10517,8 @@
      "vis": "hidden-creature",
      "key": "31",
      "label": "Shadow 4 (if the statue is touched)",
-     "size": "medium"
+     "size": "medium",
+     "dm": "One of five shadows (former cultists) that form around the statue if it is touched."
     },
     {
      "id": "dungeon-shadow4",
@@ -10414,7 +10531,8 @@
      "vis": "hidden-creature",
      "key": "31",
      "label": "Shadow 5 (if the statue is touched)",
-     "size": "medium"
+     "size": "medium",
+     "dm": "One of five shadows (former cultists) that form around the statue if it is touched."
     },
     {
      "id": "dungeon-shackles0",
@@ -10426,7 +10544,9 @@
      ],
      "vis": "player",
      "rotY": 90,
-     "key": "31"
+     "key": "31",
+     "desc": "Moldy skeletons hang from rusty shackles along the walls.",
+     "dm": "Harmless decor."
     },
     {
      "id": "dungeon-shackles1",
@@ -10438,7 +10558,9 @@
      ],
      "vis": "player",
      "rotY": 90,
-     "key": "31"
+     "key": "31",
+     "desc": "Moldy skeletons hang from rusty shackles along the walls.",
+     "dm": "Harmless decor."
     },
     {
      "id": "dungeon-shackles2",
@@ -10449,7 +10571,9 @@
       70.75
      ],
      "vis": "player",
-     "key": "31"
+     "key": "31",
+     "desc": "Moldy skeletons hang from rusty shackles along the walls.",
+     "dm": "Harmless decor."
     },
     {
      "id": "dungeon-shackles3",
@@ -10461,7 +10585,9 @@
      ],
      "vis": "player",
      "rotY": 180,
-     "key": "31"
+     "key": "31",
+     "desc": "Moldy skeletons hang from rusty shackles along the walls.",
+     "dm": "Harmless decor."
     },
     {
      "id": "dungeon-shackles4",
@@ -10473,7 +10599,9 @@
      ],
      "vis": "player",
      "rotY": 90,
-     "key": "31"
+     "key": "31",
+     "desc": "Moldy skeletons hang from rusty shackles along the walls.",
+     "dm": "Harmless decor."
     },
     {
      "id": "dungeon-mimic",
@@ -10486,7 +10614,9 @@
      "vis": "hidden-creature",
      "key": "33",
      "label": "Mimic disguised as the door",
-     "size": "medium"
+     "size": "medium",
+     "desc": "A rotted wooden door.",
+     "dm": "Mimic. Anything touching it adheres; it attacks when touched or damaged."
     },
     {
      "id": "dungeon-chandelier33",
@@ -10598,7 +10728,8 @@
       92.0
      ],
      "vis": "player",
-     "key": "34"
+     "key": "34",
+     "desc": "An open crate of thirty torches and a sack of fifteen candles."
     },
     {
      "id": "dungeon-candle34a",
@@ -10638,7 +10769,9 @@
      ],
      "vis": "hidden-object",
      "key": "34",
-     "label": "Footlocker: cloak of protection, potions, spellbook"
+     "label": "Footlocker: cloak of protection, potions, spellbook",
+     "desc": "An unlocked footlocker at the foot of the bed.",
+     "dm": "Cloak of protection, coffer with four potions of healing, chain shirt, mess kit, alchemist's fire, bullseye lantern, thieves' tools, and a wizard's spellbook (1st: disguise self, identify, mage armor, magic missile, protection from evil and good; 2nd: darkvision, hold person, invisibility, magic weapon). Taking anything brings the ghasts out of the walls."
     },
     {
      "id": "dungeon-ghast-g",
@@ -10651,7 +10784,8 @@
      "vis": "hidden-creature",
      "key": "34",
      "label": "Ghast (Gustav Durst) — behind the wall",
-     "size": "medium"
+     "size": "medium",
+     "dm": "Gustav Durst, a ghast hidden in a cavity behind the earthen wall. Bursts out if anything is taken from the footlocker."
     },
     {
      "id": "dungeon-ghast-e",
@@ -10664,7 +10798,8 @@
      "vis": "hidden-creature",
      "key": "34",
      "label": "Ghast (Elisabeth Durst) — behind the wall",
-     "size": "medium"
+     "size": "medium",
+     "dm": "Elisabeth Durst, a ghast hidden behind the wall. Bursts out with Gustav."
     },
     {
      "id": "dungeon-chant",
@@ -13031,7 +13166,9 @@
       "w": 15,
       "h": 5,
       "steps": 3
-     }
+     },
+     "desc": "Stairs rise to an octagonal stone dais above the water.",
+     "dm": "5 ft high; the water is 2 ft deep. Ceiling 16 ft."
     },
     {
      "id": "dungeon-lower-altar",
@@ -13043,7 +13180,9 @@
      ],
      "vis": "player",
      "rotY": 90,
-     "key": "38"
+     "key": "38",
+     "desc": "A stone altar carved with grasping ghouls, stained with dried blood. Chains and shackles dangle above it.",
+     "dm": "Climbing the dais summons thirteen harmless apparitions chanting for a sacrifice. A creature must die on the altar, or the cultists rouse Lorghoth."
     },
     {
      "id": "dungeon-lower-chains",
@@ -13084,7 +13223,9 @@
       31.0
      ],
      "vis": "player",
-     "key": "38"
+     "key": "38",
+     "desc": "A wooden wheel half-embedded in the wall.",
+     "dm": "An action turns it, raising or lowering the portcullis (37). Out of reach from the far side."
     },
     {
      "id": "dungeon-lower-lorghoth",
@@ -13097,7 +13238,9 @@
      "vis": "hidden-creature",
      "key": "38",
      "label": "Lorghoth the Decayer (shambling mound, asleep)",
-     "size": "large"
+     "size": "large",
+     "desc": "A half-submerged heap of refuse fills a natural alcove.",
+     "dm": "Lorghoth the Decayer, a shambling mound, asleep. DC 15 Nature reveals it. Wakes if attacked or if the party refuses the sacrifice; pursues but never leaves the dungeon."
     },
     {
      "id": "dungeon-lower-refuse",
@@ -13154,7 +13297,9 @@
      ],
      "vis": "hidden-object",
      "key": "35",
-     "label": "Relic niche 1"
+     "label": "Relic niche 1",
+     "desc": "A niche holding a small mummified yellow hand on a loop of rope.",
+     "dm": "Worthless relic (goblin's hand)."
     },
     {
      "id": "dungeon-lower-relic1",
@@ -13166,7 +13311,9 @@
      ],
      "vis": "hidden-object",
      "key": "35",
-     "label": "Relic niche 2"
+     "label": "Relic niche 2",
+     "desc": "A wall niche holding a knife carved from human bone.",
+     "dm": "Worthless cult relic."
     },
     {
      "id": "dungeon-lower-relic2",
@@ -13178,7 +13325,9 @@
      ],
      "vis": "hidden-object",
      "key": "35",
-     "label": "Relic niche 3"
+     "label": "Relic niche 3",
+     "desc": "A wall niche holding a dagger with a rat's skull in the pommel.",
+     "dm": "Worthless cult relic."
     },
     {
      "id": "dungeon-lower-relic3",
@@ -13190,7 +13339,9 @@
      ],
      "vis": "hidden-object",
      "key": "35",
-     "label": "Relic niche 4"
+     "label": "Relic niche 4",
+     "desc": "A wall niche holding an 8-inch varnished orb made from a nothic's eye.",
+     "dm": "Worthless cult relic."
     },
     {
      "id": "dungeon-lower-relic4",
@@ -13202,7 +13353,9 @@
      ],
      "vis": "hidden-object",
      "key": "35",
-     "label": "Relic niche 5"
+     "label": "Relic niche 5",
+     "desc": "A wall niche holding a bone aspergillum.",
+     "dm": "Worthless cult relic."
     },
     {
      "id": "dungeon-lower-relic5",
@@ -13214,7 +13367,9 @@
      ],
      "vis": "hidden-object",
      "key": "35",
-     "label": "Relic niche 6"
+     "label": "Relic niche 6",
+     "desc": "A wall niche holding a folded cloak of stitched ghoul skin.",
+     "dm": "Worthless cult relic."
     },
     {
      "id": "dungeon-lower-relic6",
@@ -13226,7 +13381,9 @@
      ],
      "vis": "hidden-object",
      "key": "35",
-     "label": "Relic niche 7"
+     "label": "Relic niche 7",
+     "desc": "A wall niche holding a desiccated frog lashed to a stick.",
+     "dm": "Worthless cult relic."
     },
     {
      "id": "dungeon-lower-relic7",
@@ -13238,7 +13395,9 @@
      ],
      "vis": "hidden-object",
      "key": "35",
-     "label": "Relic niche 8"
+     "label": "Relic niche 8",
+     "desc": "A wall niche holding a bag of bat guano.",
+     "dm": "Worthless cult relic."
     },
     {
      "id": "dungeon-lower-relic8",
@@ -13250,7 +13409,9 @@
      ],
      "vis": "hidden-object",
      "key": "35",
-     "label": "Relic niche 9"
+     "label": "Relic niche 9",
+     "desc": "A wall niche holding a hag's severed finger.",
+     "dm": "Worthless cult relic."
     },
     {
      "id": "dungeon-lower-relic9",
@@ -13262,7 +13423,9 @@
      ],
      "vis": "hidden-object",
      "key": "35",
-     "label": "Relic niche 10"
+     "label": "Relic niche 10",
+     "desc": "A wall niche holding a 6-inch wooden mummy figurine.",
+     "dm": "Worthless cult relic."
     },
     {
      "id": "dungeon-lower-relic10",
@@ -13274,7 +13437,9 @@
      ],
      "vis": "hidden-object",
      "key": "35",
-     "label": "Relic niche 11"
+     "label": "Relic niche 11",
+     "desc": "A wall niche holding an iron pendant with a devil's face.",
+     "dm": "Worthless cult relic."
     },
     {
      "id": "dungeon-lower-relic11",
@@ -13286,7 +13451,9 @@
      ],
      "vis": "hidden-object",
      "key": "35",
-     "label": "Relic niche 12"
+     "label": "Relic niche 12",
+     "desc": "A wall niche holding the shrunken head of a halfling.",
+     "dm": "Worthless cult relic."
     },
     {
      "id": "dungeon-lower-relic12",
@@ -13298,7 +13465,9 @@
      ],
      "vis": "hidden-object",
      "key": "35",
-     "label": "Relic niche 13"
+     "label": "Relic niche 13",
+     "desc": "A wall niche holding a small coffer holding a dire wolf's withered tongue.",
+     "dm": "Worthless cult relic."
     },
     {
      "id": "dungeon-lower-post0",
@@ -13416,7 +13585,9 @@
      "vis": "hidden-object",
      "rotY": 90,
      "key": "36",
-     "label": "Skeleton in a black robe: gold ring (25 gp)"
+     "label": "Skeleton in a black robe: gold ring (25 gp)",
+     "desc": "A skeleton in a tattered black robe hangs on the back wall of the cell.",
+     "dm": "A cultist who questioned the cult. A gold ring (25 gp) on one finger."
     },
     {
      "id": "dungeon-lower-shackle-6-1",

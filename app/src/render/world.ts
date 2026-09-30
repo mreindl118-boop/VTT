@@ -38,7 +38,7 @@ export class World {
     host.appendChild(this.labelRenderer.domElement);
 
     this.scene.background = new THREE.Color(PALETTE.fog);
-    this.camera = new THREE.PerspectiveCamera(35, 1, 2, 4000);
+    this.camera = new THREE.PerspectiveCamera(40, 1, 2, 4000);
     this.camera.position.set(30, 70, 90);
 
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
@@ -47,12 +47,14 @@ export class World {
     // Tabletop rig: the tilt stays in a comfortable band; yaw turns in 90° steps from the buttons, not by gesture.
     this.controls.minPolarAngle = Math.PI * 0.05;
     this.controls.maxPolarAngle = Math.PI * 0.4;
-    this.controls.enableRotate = false;
+    this.controls.enableRotate = true;   // right-drag / two-finger twist; the buttons turn in 90° steps
+    this.controls.rotateSpeed = 0.6;
     this.controls.screenSpacePanning = false;
     this.controls.minDistance = 12;
     this.controls.maxDistance = 400;
-    this.controls.touches = { ONE: THREE.TOUCH.PAN, TWO: THREE.TOUCH.DOLLY_PAN };
-    this.controls.mouseButtons = { LEFT: THREE.MOUSE.PAN, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.PAN };
+    this.controls.touches = { ONE: THREE.TOUCH.PAN, TWO: THREE.TOUCH.DOLLY_ROTATE };
+    this.controls.mouseButtons = { LEFT: THREE.MOUSE.PAN, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.ROTATE };
+    this.renderer.domElement.addEventListener('contextmenu', (e) => e.preventDefault());
     this.controls.addEventListener('change', () => { this.invalidate(); this.onCamera?.(); });
 
     this.hemi = new THREE.HemisphereLight('#b9c3d6', '#2a2530', 1.4);
@@ -94,10 +96,11 @@ export class World {
     this.invalidate();
   }
 
-  private rigOffset(dist: number): THREE.Vector3 {
+  /** Camera offset from the target for the current azimuth (free, from the gesture) and tilt band. */
+  private rigOffset(dist: number, azimuthDelta = 0): THREE.Vector3 {
     const pitch = this.tilt ? Math.PI * 0.06 : Math.PI * 0.25; // angle from vertical: 45° tabletop, near-vertical top-down
-    const a = (this.yaw * Math.PI) / 2 + Math.PI / 4;
-    return new THREE.Vector3(Math.sin(pitch) * Math.cos(a) * dist, Math.cos(pitch) * dist, Math.sin(pitch) * Math.sin(a) * dist);
+    const a = this.controls.getAzimuthalAngle() + azimuthDelta;
+    return new THREE.Vector3(Math.sin(pitch) * Math.sin(a) * dist, Math.cos(pitch) * dist, Math.sin(pitch) * Math.cos(a) * dist);
   }
 
   /** Frame a plan-space box (bounding-sphere fit, leaving room for the chrome). */
@@ -107,13 +110,13 @@ export class World {
     const r = Math.hypot(box.maxX - box.minX, box.maxZ - box.minZ) / 2 + 4;
     const vHalf = THREE.MathUtils.degToRad(this.camera.fov / 2);
     const hHalf = Math.atan(Math.tan(vHalf) * this.camera.aspect);
-    const d = Math.min(this.controls.maxDistance, Math.max(this.controls.minDistance, (r / Math.sin(Math.min(vHalf, hHalf))) * 0.82));
+    const d = Math.min(this.controls.maxDistance, Math.max(45, (r / Math.sin(Math.min(vHalf, hHalf))) * 1.05));
     this.moveTo(new THREE.Vector3(cx, y, cz), d, animate);
   }
 
   /** Point the rig at a plan position, keeping (or setting) the distance. */
-  moveTo(target: THREE.Vector3, dist = this.camera.position.distanceTo(this.controls.target), animate = true): void {
-    const camTo = target.clone().add(this.rigOffset(dist));
+  moveTo(target: THREE.Vector3, dist = this.camera.position.distanceTo(this.controls.target), animate = true, azimuthDelta = 0): void {
+    const camTo = target.clone().add(this.rigOffset(dist, azimuthDelta));
     if (!animate) {
       this.controls.target.copy(target); this.camera.position.copy(camTo); this.camera.lookAt(target); this.controls.update(); this.invalidate();
       return;
@@ -134,8 +137,7 @@ export class World {
   }
 
   rotate(steps: number): void {
-    this.yaw = ((this.yaw + steps) % 4 + 4) % 4;
-    this.moveTo(this.controls.target.clone());
+    this.moveTo(this.controls.target.clone(), undefined, true, (steps * Math.PI) / 2);
   }
   setTilt(top: boolean): void { this.tilt = top ? 1 : 0; this.moveTo(this.controls.target.clone()); }
   zoomBy(factor: number): void { this.moveTo(this.controls.target.clone(), THREE.MathUtils.clamp(this.camera.position.distanceTo(this.controls.target) * factor, this.controls.minDistance, this.controls.maxDistance)); }

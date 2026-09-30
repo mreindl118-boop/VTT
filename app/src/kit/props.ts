@@ -262,3 +262,48 @@ Object.assign(PROPS_V1, {
   'wine-cask': wineCask, 'oil-lamp': oilLamp, 'dumbwaiter-shaft': dumbwaiterShaft, 'crate-chest': crateChest, 'claw-chest-skeleton': clawChestSkeleton, 'toy-chest-windmills': toyChestWindmills,
   'dollhouse-replica': dollhouseReplica,
 } as Record<string, (d: Dims) => THREE.Object3D>);
+
+// ---------------------------------------------------------------- outdoor kit (M2)
+export function pine(d: Dims): THREE.Group {
+  const h = (d.h ?? 24) * (d.scale ?? 1), r = (d.r ?? 6) * (d.scale ?? 1);
+  const g = g_(cyl(0.5, 0.7, h * 0.3, PALETTE.woodDark, 0, h * 0.15, 0, 6));
+  for (let i = 0; i < 3; i++) { const c = new THREE.Mesh(new THREE.ConeGeometry(r * (1 - i * 0.28), h * 0.42, 7), mat(i % 2 ? PALETTE.pineDeep : PALETTE.pine)); c.position.y = h * 0.3 + i * h * 0.22 + h * 0.2; g.add(c); }
+  return g;
+}
+export function bush(d: Dims): THREE.Group { const s = d.scale ?? 1; return g_(ico(2 * s, PALETTE.pineDeep, 0, 1.4 * s, 0), ico(1.4 * s, PALETTE.pine, 1.2 * s, 1 * s, 0.6 * s)); }
+export function deadTree(d: Dims): THREE.Group {
+  const s = d.scale ?? 1, g = g_(cyl(0.5 * s, 0.9 * s, 14 * s, '#3b3230', 0, 7 * s, 0, 6));
+  for (let i = 0; i < 4; i++) { const b = box(0.35 * s, 6 * s, 0.35 * s, '#3b3230', 0, 12 * s, 0); b.rotation.z = (i - 1.5) * 0.7; b.rotation.y = i * 1.3; b.position.x = Math.cos(i * 1.3) * 2 * s; b.position.z = Math.sin(i * 1.3) * 2 * s; g.add(b); }
+  return g;
+}
+export function boulder(d: Dims): THREE.Group { const r = d.r ?? 2.5; const m = new THREE.Mesh(new THREE.IcosahedronGeometry(r, 0), mat(PALETTE.stoneDeep)); m.scale.y = 0.7; m.position.y = r * 0.5; return g_(m); }
+export function gravestone(): THREE.Group { return g_(box(1.6, 2.6, 0.4, PALETTE.mist3, 0, 1.3, 0), box(0.6, 0.6, 0.42, PALETTE.mist3, 0, 2.8, 0)); }
+export function fence(d: Dims): THREE.Group { const w = d.w ?? 10, g = g_(); for (let x = -w / 2; x <= w / 2; x += 4) g.add(box(0.4, 3.5, 0.4, PALETTE.woodDark, x, 1.75, 0)); g.add(box(w, 0.3, 0.2, PALETTE.wood, 0, 1.4, 0), box(w, 0.3, 0.2, PALETTE.wood, 0, 2.8, 0)); return g; }
+export function water(d: Dims): THREE.Group { const m = box(d.w ?? 20, 0.2, d.d ?? 20, '#3e5566', 0, 0.05, 0); m.userData.role = 'floor'; return g_(m); }
+export function tent(d: Dims): THREE.Group { const r = d.r ?? 5, h = d.h ?? 8; const c = new THREE.Mesh(new THREE.ConeGeometry(r, h, 8), mat(PALETTE.wine)); c.position.y = h / 2; return g_(c, cyl(0.15, 0.15, h + 1, PALETTE.woodDark, 0, (h + 1) / 2, 0)); }
+export function wagon(d: Dims): THREE.Group {
+  const g = g_(box(9, 2.5, 5, PALETTE.wood, 0, 3, 0), box(9.4, 0.4, 5.4, PALETTE.woodDark, 0, 1.8, 0));
+  const top = new THREE.Mesh(new THREE.CylinderGeometry(2.8, 2.8, 8.6, 10, 1, false, 0, Math.PI), mat(d.color ? '#' + d.color.toString(16) : PALETTE.bone)); top.rotation.z = Math.PI / 2; top.position.y = 4.2; g.add(top);
+  for (const [x, z] of [[-3, -2.8], [3, -2.8], [-3, 2.8], [3, 2.8]]) { const wh = cyl(1.2, 1.2, 0.4, PALETTE.woodDark, x, 1.2, z, 10); wh.rotation.x = Math.PI / 2; g.add(wh); }
+  return g;
+}
+export function signpost(): THREE.Group { return g_(box(0.3, 8, 0.3, PALETTE.woodDark, 0, 4, 0), box(3, 0.8, 0.2, PALETTE.wood, 1.2, 6.5, 0), box(3, 0.8, 0.2, PALETTE.wood, -1.2, 5.4, 0)); }
+export function brazier(): THREE.Group { return g_(cyl(1.2, 0.8, 0.5, PALETTE.iron, 0, 2.6, 0, 8), cyl(0.15, 0.15, 2.4, PALETTE.iron, 0, 1.2, 0), ico(0.6, PALETTE.amber, 0, 3.2, 0)); }
+export function rubble(d: Dims): THREE.Group { const g = g_(); for (let i = 0; i < (d.n ?? 6); i++) g.add(ico(0.5 + (i % 3) * 0.3, PALETTE.stoneDeep, Math.cos(i * 2.1) * 1.6, 0.4, Math.sin(i * 2.1) * 1.6)); return g; }
+export function rug(d: Dims): THREE.Group { return g_(box(d.w ?? 8, 0.08, d.d ?? 6, '#5a2a30', 0, 0.04, 0), box((d.w ?? 8) - 1, 0.09, (d.d ?? 6) - 1, '#7a3a40', 0, 0.045, 0)); }
+/** Village house: plain block with a pitched roof; stories from dims. */
+export function house(d: Dims): THREE.Group {
+  const w = d.w ?? 20, dd = d.d ?? 20, h = (d.h ?? 10) * (d.stories ?? 1);
+  const g = g_(box(w, h, dd, d.stories && d.stories > 1 ? PALETTE.mist3 : PALETTE.woodDark, 0, h / 2, 0));
+  const roof = new THREE.Mesh(new THREE.CylinderGeometry(0.01, Math.min(w, dd) * 0.72, 5, 4), mat('#3b2f47')); roof.rotation.y = Math.PI / 4; roof.position.y = h + 2.5; roof.scale.set(w / Math.min(w, dd), 1, dd / Math.min(w, dd)); g.add(roof);
+  g.add(box(2, 3.5, 0.4, PALETTE.wood, 0, 1.75, dd / 2 + 0.1));
+  return g;
+}
+export function churchBuilding(): THREE.Group {
+  const g = g_(box(40, 16, 50, PALETTE.mist3, 0, 8, 0));
+  const roof = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 30, 8, 4), mat('#3b2f47')); roof.rotation.y = Math.PI / 4; roof.position.y = 20; roof.scale.set(1.2, 1, 1.5); g.add(roof);
+  g.add(box(8, 30, 8, PALETTE.mist3, 0, 15, -18), box(0.6, 4, 0.6, PALETTE.iron, 0, 32, -18), box(2.4, 0.6, 0.6, PALETTE.iron, 0, 33, -18));
+  return g;
+}
+export function gateArch(): THREE.Group { return g_(box(3, 14, 3, PALETTE.stoneDeep, -7, 7, 0), box(3, 14, 3, PALETTE.stoneDeep, 7, 7, 0), box(17, 2.5, 3, PALETTE.stoneDeep, 0, 14.5, 0)); }
+Object.assign(PROPS_V1, { pine, bush, 'dead-tree': deadTree, boulder, gravestone, fence, water, tent, wagon, signpost, brazier, rubble, rug, house, 'church-building': churchBuilding, 'gate-arch': gateArch } as Record<string, (d: Dims) => THREE.Object3D>);
