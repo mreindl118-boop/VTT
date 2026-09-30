@@ -62,9 +62,12 @@ function mesh(g: THREE.BufferGeometry, color: string): THREE.Mesh { return new T
 function group(...m: THREE.Object3D[]): THREE.Group { const g = new THREE.Group(); g.add(...m); return g; }
 function at<T extends THREE.Object3D>(o: T, x: number, y: number, z: number): T { o.position.set(x, y, z); return o; }
 
-export function table(): THREE.Group {
-  const top = at(mesh(new THREE.BoxGeometry(8, 0.4, 4), PALETTE.wood), 0, 2.8, 0);
-  const legs = [[-3.5, -1.5], [3.5, -1.5], [-3.5, 1.5], [3.5, 1.5]].map(([x, z]) => at(mesh(new THREE.BoxGeometry(0.4, 2.6, 0.4), PALETTE.woodDark), x, 1.3, z));
+/** A table at real height (2.5 ft); size it to its use: w × d in feet (default 6 × 3). */
+export function table(d: Record<string, number> = {}): THREE.Group {
+  const w = d.w ?? 6, dp = d.d ?? 3, h = d.h ?? 2.5;
+  const top = at(mesh(new THREE.BoxGeometry(w, 0.25, dp), PALETTE.wood), 0, h - 0.125, 0);
+  const lx = w / 2 - 0.35, lz = dp / 2 - 0.35;
+  const legs = [[-lx, -lz], [lx, -lz], [-lx, lz], [lx, lz]].map(([x, z]) => at(mesh(new THREE.BoxGeometry(0.28, h - 0.25, 0.28), PALETTE.woodDark), x, (h - 0.25) / 2, z));
   return group(top, ...legs);
 }
 export function column(): THREE.Group {
@@ -120,10 +123,11 @@ export function pawn(color: string, baseFt: number): THREE.Group {
   return group(body, head);
 }
 export function baseRing(baseFt: number, color: string): THREE.Mesh {
-  const r = baseFt / 2;
+  // Drawn at ~60% of the footprint: a person stands on a small base, not a disc filling the square.
+  const r = (baseFt * 0.62) / 2;
   const g = new THREE.CylinderGeometry(r * 0.95, r, 0.3, 24);
   g.translate(0, 0.15, 0);
   return mesh(g, color);
 }
 
-export const PROP_BUILDERS: Record<string, () => THREE.Object3D> = { table, column, chest, bed, coffin, 'pressure-plate': () => pressurePlate() };
+export const PROP_BUILDERS: Record<string, (d: Record<string, number>) => THREE.Object3D> = { table, column, chest, bed, coffin, 'pressure-plate': () => pressurePlate() };

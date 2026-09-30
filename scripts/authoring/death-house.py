@@ -243,17 +243,17 @@ f1.prop('spiral', 'spiral-stair', (5.1, 5.5), '2A', dims={'rise': 10, 'r': 6})
 f1.prop('hooks2b', 'cloak-hooks', (2.5, 3.15), '2B')
 f1.prop('fire3', 'fireplace', (5.75, 9.5), '3', rotY=-90); f1.prop('stag', 'stag-head', (5.6, 9.5), '3', rotY=-90)
 [f1.prop(f'wolf{i}', 'stuffed-wolf', p, '3', rotY=r) for i, (p, r) in enumerate([((2.5, 7.5), 40), ((4.2, 7.4), -20), ((5.4, 10.6), 160)])]
-f1.prop('fur-a', 'chair', (5, 8.8), '3', rotY=-90); f1.prop('fur-b', 'chair', (5, 10.2), '3', rotY=-90); f1.prop('oak-table', 'table', (4.7, 9.5), '3', dims={}); f1.prop('cask', 'wine-cask', (4.7, 9.5), '3'); f1.prop('candelabrum', 'candlestick', (4.3, 9.3), '3', dims={'h': 2.6})
+f1.prop('fur-a', 'chair', (5, 8.8), '3', rotY=-90); f1.prop('fur-b', 'chair', (5, 10.2), '3', rotY=-90); f1.prop('oak-table', 'table', (4.7, 9.5), '3', dims={'w': 3, 'd': 2}); f1.prop('cask', 'wine-cask', (4.7, 9.25), '3', y=2.5); f1.prop('candelabrum', 'candlestick', (4.3, 9.3), '3', dims={'h': 2.6})
 f1.prop('chandelier3', 'chandelier', (3.3, 9.6), '3', dims={'y': 8})
-f1.prop('den-table', 'table', (3.3, 9.6), '3'); [f1.prop(f'denchair{i}', 'chair', p, '3', rotY=r) for i, (p, r) in enumerate([((2.7, 8.9), 135), ((3.9, 8.9), -135), ((2.7, 10.3), 45), ((3.9, 10.3), -45)])]
+f1.prop('den-table', 'table', (3.3, 9.6), '3', dims={'w': 4, 'd': 4}); [f1.prop(f'denchair{i}', 'chair', p, '3', rotY=r) for i, (p, r) in enumerate([((2.7, 8.9), 135), ((3.9, 8.9), -135), ((2.7, 10.3), 45), ((3.9, 10.3), -45)])]
 f1.prop('cab-e', 'cabinet', (5.7, 8.2), '3', rotY=-90); f1.prop('cab-n', 'cabinet', (2.3, 8.3), '3', rotY=90)
 f1.hidden('cab-lock', 'crossbow-rack', (5.45, 8.2), '3', 'Locked east cabinet: crossbows (DC 15)', rotY=-90)
-f1.prop('den-goblets', 'tabletop', (4.7, 9.5), '3', dims={'set': 3, 'y': 3})
+f1.prop('den-goblets', 'tabletop', (4.7, 9.5), '3', dims={'set': 3, 'y': 2.5})
 f1.hidden('trapdoor', 'trapdoor', (5.5, 10.5), '3', 'Hidden trapdoor to 32 (only from below)')
-f1.prop('table', 'table', (2, 1.5), '5'); [f1.prop(f'chair{i}', 'chair', p, '5', rotY=r) for i, (p, r) in enumerate([((1.2, 0.7), 180), ((2, 0.7), 180), ((2.8, 0.7), 180), ((1.2, 2.3), 0), ((2, 2.3), 0), ((2.8, 2.3), 0), ((0.7, 1.5), 90), ((3.3, 1.5), -90)])]
+f1.prop('table', 'table', (2, 1.5), '5', dims={'w': 10, 'd': 4.5}); [f1.prop(f'chair{i}', 'chair', p, '5', rotY=r) for i, (p, r) in enumerate([((1.2, 0.7), 180), ((2, 0.7), 180), ((2.8, 0.7), 180), ((1.2, 2.3), 0), ((2, 2.3), 0), ((2.8, 2.3), 0), ((0.7, 1.5), 90), ((3.3, 1.5), -90)])]
 f1.prop('chandelier5', 'chandelier', (2, 1.5), '5', dims={'y': 8, 'crystal': 1}); f1.prop('fire5', 'fireplace', (0.25, 2.5), '5', rotY=90); f1.prop('painting5', 'portrait', (0.4, 2.5), '5', rotY=90, dims={'landscape': 1, 'w': 3, 'h': 2, 'y': 7.5})
-f1.prop('silver5', 'tabletop', (2, 1.5), '5', dims={'set': 0, 'y': 3}); f1.prop('tapestry5', 'tapestry', (3.85, 1.5), '5', rotY=-90); f1.prop('drapes5a', 'drapes', (0.5, 0.1), '5'); f1.prop('drapes5b', 'drapes', (2.5, 0.1), '5'); f1.prop('drapes5c', 'drapes', (0.1, 1.5), '5', rotY=90)
-f1.prop('oven', 'oven', (5.2, 1.4), '4A'); f1.prop('worktable', 'table', (4.8, 2.5), '4A', rotY=90); f1.prop('shelves4a', 'shelves', (4.15, 1.8), '4A', rotY=90, dims={'w': 5})
+f1.prop('silver5', 'tabletop', (2, 1.5), '5', dims={'set': 0, 'y': 2.5}); f1.prop('tapestry5', 'tapestry', (3.85, 1.5), '5', rotY=-90); f1.prop('drapes5a', 'drapes', (0.5, 0.1), '5'); f1.prop('drapes5b', 'drapes', (2.5, 0.1), '5'); f1.prop('drapes5c', 'drapes', (0.1, 1.5), '5', rotY=90)
+f1.prop('oven', 'oven', (5.2, 1.4), '4A'); f1.prop('worktable', 'table', (4.8, 2.5), '4A', rotY=90, dims={'w': 5, 'd': 2.5}); f1.prop('shelves4a', 'shelves', (4.15, 1.8), '4A', rotY=90, dims={'w': 5})
 f1.prop('dumbwaiter', 'dumbwaiter-shaft', (5.7, 3.7), '4A', rotY=180); f1.prop('bell4a', 'brass-bell', (5.2, 3.9), '4A', rotY=180, dims={'y': 5}); f1.prop('pots4a', 'hanging-pots', (4.8, 2.5), '4A', rotY=90, dims={'w': 6}); f1.prop('sacks4b', 'sacks', (4.6, 0.65), '4B'); f1.prop('shelves4b', 'shelves', (5, 0.15), '4B', dims={'w': 8, 'food': 1})
 f1.hidden('shaft-f1', 'dumbwaiter', (0.5, 3.5), '21', 'Secret stair shaft (21) passes here')
 f1.obj('spawn', 'spawn', (1.5, 10.5), 'dm-note', '1A', 'Party spawn: portico (Rose & Thorn wait here)')
@@ -325,7 +325,7 @@ f3.prop('vanity', 'desk', (1.5, 2.6), '12A'); f3.prop('vanity-mirror', 'standing
 f3.prop('padded-chair', 'chair', (2.3, 2.3), '12A', rotY=-40)
 f3.prop('rug', 'tiger-rug', (1.6, 1.5), '12A', rotY=180); f3.prop('fire12', 'fireplace', (0.25, 1.5), '12A', rotY=90); f3.prop('portrait12', 'portrait', (0.4, 1.5), '12A', rotY=90, dims={'dusty': 1, 'y': 7})
 [f3.prop(f'drapes12{i}', 'drapes', p, '12A', rotY=r, dims={'color': 0x5b1f2b}) for i, (p, r) in enumerate([((0.5, 0.1), 0), ((0.1, 1.5), 90), ((3.5, 0.1), 0)])]
-f3.prop('parlor-table', 'table', (5, 3), '12A'); f3.prop('pchair1', 'chair', (4.5, 2.5), '12A', rotY=135); f3.prop('pchair2', 'chair', (5.5, 3.5), '12A', rotY=-45); f3.prop('bowl', 'tabletop', (5, 3), '12A', dims={'set': 2, 'y': 3})
+f3.prop('parlor-table', 'table', (5, 3), '12A', dims={'w': 3, 'd': 3}); f3.prop('pchair1', 'chair', (4.5, 2.5), '12A', rotY=135); f3.prop('pchair2', 'chair', (5.5, 3.5), '12A', rotY=-45); f3.prop('bowl', 'tabletop', (5, 3), '12A', dims={'set': 2, 'y': 2.5})
 f3.prop('dumbwaiter', 'dumbwaiter-shaft', (5.7, 3.7), '12A', rotY=180)
 cobwebs(f3, [(0, 0), (5, 0), (6, 4), (0, 3)], '12A', y=6.5, n=3)
 f3.prop('tub', 'tub', (1.2, 5.2), '13'); f3.prop('stove13', 'stove', (0.4, 4.4), '13'); f3.prop('barrel', 'barrel-spigot', (1.7, 4.4), '13')
@@ -416,7 +416,7 @@ du.door((12, 6), (12, 7), id='crypt-E', locked=True); du.door((12, 8), (12, 9), 
 du.secret((17, 14), (18, 14), 'concealed', 'Concealed door under clay (DC 10) to the stair (32)', '31')
 du.door((16, 19), (16, 20), id='mimic-door')   # the "door" in 33's southwest corner is a mimic
 # props & creatures
-du.prop('table24', 'table', (9.5, 1.5), '24', rotY=90); [du.prop(f'ch24{i}', 'chair', p, '24', rotY=r) for i, (p, r) in enumerate([((8.7, 1.5), 90), ((10.3, 1.5), -90), ((9.5, 0.7), 180), ((9.5, 2.3), 0)])]
+du.prop('table24', 'table', (9.5, 1.5), '24', rotY=90, dims={'w': 5, 'd': 3}); [du.prop(f'ch24{i}', 'chair', p, '24', rotY=r) for i, (p, r) in enumerate([((8.7, 1.5), 90), ((10.3, 1.5), -90), ((9.5, 0.7), 180), ((9.5, 2.3), 0)])]
 [du.prop(f'pallet{i}', 'pallet', p, '24', rotY=r) for i, (p, r) in enumerate([((7.5, 5), 0), ((10.5, 4.5), 0), ((7.5, 7.5), 0), ((9, 7.7), 90)])]
 [du.prop(f'post24{i}', 'post', p, '24') for i, p in enumerate([(9, 4), (10, 6), (8, 8)])]
 du.prop('well', 'well', (5.3, 7.5), '25'); [du.prop(f'post25{i}', 'post', p, '25') for i, p in enumerate([(3, 6), (6, 6), (3, 9), (6, 9)])]
@@ -428,7 +428,7 @@ for k, pos in [('A', (17.2, 1.5)), ('B', (17.2, 4.5)), ('C', (17.2, 6.5)), ('D',
     if k in 'CDEF': du.prop(f'coffin{k}', 'bier-coffin', pos, f'23{k}', rotY=90)
 du.prop('slabA', 'stone-slab', (16.4, 1.2), '23A', rotY=90, dims={'leaning': 1}); du.prop('slabB', 'stone-slab', (16.4, 4.8), '23B', rotY=90, dims={'leaning': 1})
 du.creature('centipedes', 'swarm-of-insects', (17.5, 8.5), '23D', 'Swarm of insects (if the coffin is disturbed)')
-du.prop('table27', 'table', (14.6, 10.5), '27', rotY=90); du.prop('bench1', 'bench', (13.9, 10.5), '27', rotY=90); du.prop('bench2', 'bench', (15.3, 10.5), '27', rotY=90)
+du.prop('table27', 'table', (14.6, 10.5), '27', rotY=90, dims={'w': 10, 'd': 3}); du.prop('bench1', 'bench', (13.9, 10.5), '27', rotY=90); du.prop('bench2', 'bench', (15.3, 10.5), '27', rotY=90)
 [du.prop(f'bones{i}', 'bones', p, '27') for i, p in enumerate([(12.6, 9.6), (16.2, 11.4), (13.3, 11.6), (15.8, 9.5)])]
 [du.prop(f'post27{i}', 'post', p, '27') for i, p in enumerate([(13, 10), (16, 10), (13, 12), (16, 12)])]
 du.creature('grick', 'grick', (17.5, 10.5), '28', 'Grick (attacks within 5 ft of the alcove)')
@@ -443,8 +443,8 @@ du.prop('statue', 'strahd-statue', (19.3, 16.5), '31', rotY=-90); du.hidden('orb
 for i in range(5): du.creature(f'shadow{i}', 'shadow', (18.4 + 0.5 * (i % 2), 15.3 + i * 0.6), '31', f'Shadow {i + 1} (if the statue is touched)')
 [du.prop(f'shackles{i}', 'shackled-skeleton', p, '31', rotY=r) for i, (p, r) in enumerate([((16.15, 15), 90), ((16.15, 17.5), 90), ((17.5, 14.15), 0), ((18.6, 19.85), 180), ((16.15, 19), 90)])]
 du.creature('mimic', 'mimic', (16, 19.5), '33', 'Mimic disguised as the door', size='medium')
-du.prop('chandelier33', 'chandelier', (14, 18.6), '33', dims={'y': 7}); du.prop('table33', 'table', (14, 18.6), '33', rotY=40); du.prop('ch33a', 'chair', (13.2, 18), '33', rotY=130); du.prop('ch33b', 'chair', (14.8, 19.2), '33', rotY=-50)
-du.prop('jug33', 'tabletop', (14, 18.6), '33', dims={'set': 1, 'y': 3}); du.prop('candle33a', 'candlestick', (12.3, 17.3), '33', dims={'h': 4}); du.prop('candle33b', 'candlestick', (15.7, 17.3), '33', dims={'h': 4})
+du.prop('chandelier33', 'chandelier', (14, 18.6), '33', dims={'y': 7}); du.prop('table33', 'table', (14, 18.6), '33', dims={'w': 4, 'd': 3}, rotY=40); du.prop('ch33a', 'chair', (13.2, 18), '33', rotY=130); du.prop('ch33b', 'chair', (14.8, 19.2), '33', rotY=-50)
+du.prop('jug33', 'tabletop', (14, 18.6), '33', dims={'set': 1, 'y': 2.5}); du.prop('candle33a', 'candlestick', (12.3, 17.3), '33', dims={'h': 4}); du.prop('candle33b', 'candlestick', (15.7, 17.3), '33', dims={'h': 4})
 du.prop('bed34', 'bed-plain', (9.5, 19.8), '34', rotY=0); du.prop('wardrobe34', 'wardrobe', (8.5, 18.3), '34', rotY=90); du.prop('crate34', 'torch-crate', (10.5, 18.4), '34')
 du.prop('candle34a', 'candlestick', (8.3, 20.7), '34', dims={'h': 4}); du.prop('candle34b', 'candlestick', (10.7, 20.7), '34', dims={'h': 4})
 du.hidden('footlocker', 'trunk', (9.5, 18.6), '34', 'Footlocker: cloak of protection, potions, spellbook')

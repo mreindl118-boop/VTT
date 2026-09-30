@@ -141,3 +141,14 @@
   DM; opening reveals hidden contents (the den's crossbows, the library key, the jewelry box).
 - Hover tooltips name what is under the mouse. A new location clears the old one's labels. Search opens
   from a button and the top bar lays out in rows without overlapping.
+
+## M1.7 Real-world proportions — 2026-09-30
+
+- Measured every kit piece in feet against real sizes. Humanoids are now ~6 ft tall with ~1.4-ft shoulders
+  and a human-sized head (they were 3+ ft wide). Tables take a real size per use at 2.5 ft high (the den's
+  side table 3 × 2, card table 4 × 4, dining 10 × 4.5, parlor 3 × 3). Base rings draw at ~60% of the
+  square. Result: rooms read at true scale with floor to move across.
+- Camera: 40° lens (was a telephoto 30°) with distances matched so things keep their on-screen size, and a
+  slightly more oblique tabletop angle for natural depth.
+- Grid test: the players'-end, full-wall tabletop case needs fewer visible grid pixels (walls hide most of
+  the one revealed room); the no-leak check is unchanged.

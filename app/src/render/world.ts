@@ -45,7 +45,7 @@ export class World {
     mistFloor.rotation.x = -Math.PI / 2; mistFloor.position.y = -1.2; mistFloor.userData.role = 'marker'; mistFloor.name = 'mist-floor';
     this.scene.add(mistFloor);
     this.mistFloor = mistFloor;
-    this.camera = new THREE.PerspectiveCamera(30, 1, 2, 4000);
+    this.camera = new THREE.PerspectiveCamera(40, 1, 2, 4000);
     this.camera.position.set(30, 70, 90);
 
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
@@ -105,7 +105,7 @@ export class World {
 
   /** Camera offset from the target for the current azimuth (free, from the gesture) and tilt band. */
   private rigOffset(dist: number, azimuthDelta = 0): THREE.Vector3 {
-    const pitch = this.tilt ? Math.PI * 0.06 : Math.PI * 0.22; // angle from vertical: ~50° tabletop, near-vertical top-down
+    const pitch = this.tilt ? Math.PI * 0.06 : Math.PI * 0.27; // angle from vertical: ~49° tabletop (natural depth), near-vertical top-down
     const a = this.controls.getAzimuthalAngle() + azimuthDelta;
     return new THREE.Vector3(Math.sin(pitch) * Math.sin(a) * dist, Math.cos(pitch) * dist, Math.sin(pitch) * Math.cos(a) * dist);
   }
@@ -117,7 +117,7 @@ export class World {
     const r = Math.hypot(box.maxX - box.minX, box.maxZ - box.minZ) / 2 + 4;
     const vHalf = THREE.MathUtils.degToRad(this.camera.fov / 2);
     const hHalf = Math.atan(Math.tan(vHalf) * this.camera.aspect);
-    const d = Math.min(this.controls.maxDistance, Math.max(48, (r / Math.sin(Math.min(vHalf, hHalf))) * 1.0));
+    const d = Math.min(this.controls.maxDistance, Math.max(36, (r / Math.sin(Math.min(vHalf, hHalf))) * 1.0));
     this.moveTo(new THREE.Vector3(cx, y, cz), d, animate);
   }
 

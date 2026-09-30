@@ -25,27 +25,27 @@ export function humanoid(o: HumanoidOpts = {}): THREE.Group {
   const g = grp();
   const hunch = o.hunch ?? 0;
   // legs
-  g.add(box(0.55 * s, 2.4 * s, 0.6 * s, trim, -0.4 * s, 1.2 * s, 0), box(0.55 * s, 2.4 * s, 0.6 * s, trim, 0.4 * s, 1.2 * s, 0));
-  if (o.robe || o.skirt) g.add(cone(1.25 * s, 2.7 * s, cloth, 0, 1.35 * s, 0));
+  g.add(box(0.42 * s, 2.8 * s, 0.48 * s, trim, -0.3 * s, 1.4 * s, 0), box(0.42 * s, 2.8 * s, 0.48 * s, trim, 0.3 * s, 1.4 * s, 0));
+  if (o.robe || o.skirt) g.add(cone(0.95 * s, 3.0 * s, cloth, 0, 1.5 * s, 0));
   // torso
-  const torso = box(1.7 * s, 2.2 * s, 0.9 * s, cloth, 0, 3.5 * s, hunch * 0.5 * s);
+  const torso = box(1.35 * s, 2.3 * s, 0.75 * s, cloth, 0, 3.95 * s, hunch * 0.5 * s);
   torso.rotation.x = hunch * 0.6;
   g.add(torso);
   // arms
-  const armL = box(0.45 * s, 2 * s, 0.45 * s, o.claws ? skin : cloth, -1.15 * s, 3.4 * s, hunch * 0.9 * s);
-  const armR = box(0.45 * s, 2 * s, 0.45 * s, o.claws ? skin : cloth, 1.15 * s, 3.4 * s, hunch * 0.9 * s);
+  const armL = box(0.34 * s, 2.3 * s, 0.34 * s, o.claws ? skin : cloth, -0.88 * s, 3.8 * s, hunch * 0.9 * s);
+  const armR = box(0.34 * s, 2.3 * s, 0.34 * s, o.claws ? skin : cloth, 0.88 * s, 3.8 * s, hunch * 0.9 * s);
   armL.rotation.x = hunch * 1.4 - 0.2; armR.rotation.x = hunch * 1.4 - 0.2;
   g.add(armL, armR);
-  if (o.claws) for (const x of [-1.15, 1.15]) for (let i = -1; i <= 1; i++) g.add(box(0.1 * s, 0.6 * s, 0.1 * s, PALETTE.bone, x * s + i * 0.14 * s, 2.35 * s, (hunch * 1.4 + 0.5) * s));
+  if (o.claws) for (const x of [-0.88, 0.88]) for (let i = -1; i <= 1; i++) g.add(box(0.08 * s, 0.5 * s, 0.08 * s, PALETTE.bone, x * s + i * 0.1 * s, 2.5 * s, (hunch * 1.4 + 0.5) * s));
   // head
-  const headY = (4.9 - hunch * 0.9) * s, headZ = hunch * 1.2 * s;
-  g.add(sphere(0.55 * s, skin, 0, headY, headZ));
-  if (o.hair) g.add(sphere(0.5 * s, o.hair, 0, headY + 0.25 * s, headZ - 0.1 * s));
-  if (o.helm === 'wolf') { g.add(box(1.1 * s, 0.8 * s, 1.3 * s, PALETTE.iron, 0, headY + 0.15 * s, headZ + 0.1 * s), cone(0.18 * s, 0.5 * s, PALETTE.iron, -0.35 * s, headY + 0.75 * s, headZ), cone(0.18 * s, 0.5 * s, PALETTE.iron, 0.35 * s, headY + 0.75 * s, headZ)); }
-  if (o.helm === 'cap') g.add(sphere(0.6 * s, trim, 0, headY + 0.2 * s, headZ));
-  if (o.cloak) { const c = cone(1.4 * s, 4.6 * s, o.cloth ?? '#1a171d', 0, 2.4 * s, -0.35 * s); c.scale.z = 0.5; g.add(c); }
+  const headY = (5.55 - hunch * 0.9) * s, headZ = hunch * 1.2 * s;
+  g.add(sphere(0.42 * s, skin, 0, headY, headZ));
+  if (o.hair) g.add(sphere(0.39 * s, o.hair, 0, headY + 0.18 * s, headZ - 0.08 * s));
+  if (o.helm === 'wolf') { g.add(box(0.9 * s, 0.7 * s, 1.1 * s, PALETTE.iron, 0, headY + 0.15 * s, headZ + 0.1 * s), cone(0.18 * s, 0.5 * s, PALETTE.iron, -0.35 * s, headY + 0.75 * s, headZ), cone(0.18 * s, 0.5 * s, PALETTE.iron, 0.35 * s, headY + 0.75 * s, headZ)); }
+  if (o.helm === 'cap') g.add(sphere(0.46 * s, trim, 0, headY + 0.15 * s, headZ));
+  if (o.cloak) { const c = cone(1.05 * s, 5.0 * s, o.cloth ?? '#1a171d', 0, 2.6 * s, -0.3 * s); c.scale.z = 0.5; g.add(c); }
   // weapon in the right hand
-  const hx = 1.15 * s, hy = 2.5 * s;
+  const hx = 0.88 * s, hy = 2.7 * s;
   if (o.weapon === 'sword') g.add(box(0.12 * s, 2.6 * s, 0.35 * s, PALETTE.mist1, hx + 0.3 * s, hy + 1.2 * s, 0.4 * s), box(0.7 * s, 0.12 * s, 0.12 * s, PALETTE.amberDeep, hx + 0.3 * s, hy, 0.4 * s));
   if (o.weapon === 'spear') g.add(box(0.12 * s, 7 * s, 0.12 * s, PALETTE.woodDark, hx + 0.3 * s, 3.5 * s, 0.4 * s), cone(0.2 * s, 0.8 * s, PALETTE.mist1, hx + 0.3 * s, 7.3 * s, 0.4 * s));
   if (o.weapon === 'staff') g.add(box(0.14 * s, 6 * s, 0.14 * s, PALETTE.woodDark, hx + 0.3 * s, 3 * s, 0.4 * s));

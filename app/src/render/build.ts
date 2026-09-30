@@ -270,7 +270,7 @@ function buildObject(o: SceneObject, y0: number, labels: LabelSpec[]): THREE.Obj
     return g;
   }
   const b = PROP_BUILDERS[o.kind];
-  if (b) return b();
+  if (b) return b(o.dims ?? {});
   const v1 = PROPS_V1[o.kind];
   if (v1) return v1(o.dims ?? {});
   // Creatures: a kit figure on a base ring sized by creature size; a pawn if no figure exists yet.

@@ -238,7 +238,7 @@ export class App {
     if (t.level !== this.levelId) this.setLevel(t.level);
     const l = this.level;
     // Close working distance: the party's room and its neighbours fill the screen.
-    const dist = Math.min(this.world.camera.position.distanceTo(this.world.controls.target), 90);
+    const dist = Math.min(this.world.camera.position.distanceTo(this.world.controls.target), 66); // ~same on-screen size as before at the wider 40° lens
     this.world.moveTo(new THREE.Vector3(t.pos[0], l.elevationFt, t.pos[1]), dist, animate);
   }
 
@@ -586,7 +586,7 @@ export class App {
     const t = id ? this.state.tokens.find((x) => x.id === id) : undefined;
     const obj = id ? this.cur?.tokens.get(id) : undefined;
     if (t && obj) {
-      const r = baseRingFt(t.size) / 2 + 0.8; ring.scale.setScalar(r); ghost.scale.setScalar(r);
+      const r = baseRingFt(t.size) * 0.31 + 0.6; ring.scale.setScalar(r); ghost.scale.setScalar(r);
       obj.add(ring);
       this.setStatus(this.restricted ? 'Tap where the party goes' : 'Tap where it goes · tap the token again to cancel');
     } else this.setStatus('');
