@@ -11,3 +11,4 @@ reference/module/*
 !reference/module/README.md
 *.mistlab
 .DS_Store
+preview/
