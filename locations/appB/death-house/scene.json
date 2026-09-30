@@ -9,7 +9,7 @@
  "levels": [
   {
    "id": "f1",
-   "name": "First floor",
+   "name": "Floor 1",
    "elevationFt": 0,
    "ceilingFt": 10,
    "ambient": "interior-dim",
@@ -1630,7 +1630,7 @@
   },
   {
    "id": "f2",
-   "name": "Second floor",
+   "name": "Floor 2",
    "elevationFt": 10,
    "ceilingFt": 12,
    "ambient": "interior-dim",
@@ -3097,7 +3097,7 @@
   },
   {
    "id": "f3",
-   "name": "Third floor",
+   "name": "Floor 3",
    "elevationFt": 22,
    "ceilingFt": 8,
    "ambient": "interior-dim",
@@ -6364,7 +6364,7 @@
   },
   {
    "id": "dungeon",
-   "name": "Dungeon level",
+   "name": "Dungeon",
    "elevationFt": -20,
    "ceilingFt": 8,
    "ambient": "darkness",
@@ -11722,7 +11722,7 @@
   },
   {
    "id": "dungeon-lower",
-   "name": "Dungeon level (lower)",
+   "name": "Lower dungeon",
    "elevationFt": -30,
    "ceilingFt": 8,
    "ambient": "darkness",

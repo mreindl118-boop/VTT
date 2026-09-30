@@ -46,6 +46,12 @@ export class App {
   gridMode: GridMode = 'square';
   /** DM label density: area keys only, everything, or none. */
   labelMode: 'keys' | 'all' | 'none' = 'keys';
+  /** Camera follows the party token after it moves. */
+  follow = true;
+  /** Entering a room reveals and remembers it for the players. */
+  autoReveal = true;
+  /** One-screen play: 'players' hides every DM affordance and pins t = 0. */
+  view: 'dm' | 'players' = 'dm';
   lowWalls = true;
   camPreset: CameraPreset = 'tabletop';
   lockPlayerCamera = true;
@@ -69,7 +75,7 @@ export class App {
   }
 
   /** Effective slider: the Player Display is pinned at 0. */
-  get T(): number { return this.mode === 'player' ? 0 : this.t; }
+  get T(): number { return this.mode === 'player' || this.view === 'players' ? 0 : this.t; }
 
   async init(path: string): Promise<void> {
     const saved = await idbGet<CampaignState>(STORE_KEY).catch(() => undefined);
@@ -160,6 +166,71 @@ export class App {
     const c = squareCellCenter(squareCellAt(pos));
     // The party carries a torch (PHB 20/40) so unlit maps are playable out of the box.
     this.state.tokens.push({ id: `pc-${loc}`, name: 'Party', location: loc, level: level.id, pos: c, size: 'medium', darkvisionFt: 0, color: PALETTE.amber, light: { bright: 20, dim: 40 } });
+  }
+
+  /** The party token for the loaded location. */
+  get party(): Token | undefined { return this.state.tokens.find((t) => t.location === this.cur?.scene.location); }
+
+  roomAt(level: Level, p: Vec2) { return level.rooms.find((r) => pointInPolygon(p, r.polygon)); }
+
+  /** Rooms across levels matching a key or name fragment. */
+  findRooms(q: string): { level: Level; room: Level['rooms'][number] }[] {
+    const n = q.trim().toLowerCase();
+    if (!n || !this.cur) return [];
+    const out: { level: Level; room: Level['rooms'][number] }[] = [];
+    for (const l of this.cur.scene.levels) for (const r of l.rooms) if (r.key.toLowerCase() === n || r.key.toLowerCase().startsWith(n) || r.name.toLowerCase().includes(n)) out.push({ level: l, room: r });
+    return out.sort((a, b) => (a.room.key.toLowerCase() === n ? -1 : b.room.key.toLowerCase() === n ? 1 : a.room.key.length - b.room.key.length));
+  }
+
+  /** Jump the camera to an area key (switching level if needed). */
+  jumpTo(key: string): boolean {
+    const hit = this.findRooms(key)[0];
+    if (!hit) return false;
+    if (hit.level.id !== this.levelId) this.setLevel(hit.level.id);
+    const b = bounds([hit.room.polygon]);
+    this.world.frame(b, hit.level.elevationFt, this.camPreset, true);
+    this.flashKey = hit.room.key;
+    this.onChange?.();
+    return true;
+  }
+  flashKey = '';
+
+  /** Frame the camera on the party token. */
+  findParty(animate = true): void {
+    const t = this.party;
+    if (!t || !this.cur) return;
+    if (t.level !== this.levelId) this.setLevel(t.level);
+    const l = this.level;
+    this.world.moveTo(new THREE.Vector3(t.pos[0], l.elevationFt, t.pos[1]), undefined, animate);
+  }
+
+  isRevealed(key: string): boolean {
+    const loc = this.cur!.scene.location;
+    const last = [...this.state.reveals].reverse().find((r) => r.type === 'room' && r.location === loc && r.key === key) as Extract<Reveal, { type: 'room' }> | undefined;
+    return !!last && last.mode !== 'fog';
+  }
+
+  /** After the party moves: reveal the room it entered, take stairs it stepped on, follow with the camera. */
+  private afterPartyMove(): void {
+    const t = this.party;
+    if (!t || !this.cur) return;
+    const loc = this.cur.scene.location;
+    // vertical links: stepping within one cell of an endpoint takes the stairs
+    for (const k of this.cur.scene.links) {
+      for (const [end, other] of [[k.from, k.to], [k.to, k.from]] as const) {
+        if (end.level !== t.level) continue;
+        if (Math.hypot(end.pos[0] - t.pos[0], end.pos[1] - t.pos[1]) <= 5.5) {
+          t.level = other.level; t.pos = squareCellCenter(squareCellAt(other.pos));
+          this.setStatus(`${k.kind === 'trapdoor' ? 'Through the trapdoor' : k.kind === 'dumbwaiter' ? 'Down the dumbwaiter' : 'Took the stairs'} → ${this.cur.scene.levels.find((l) => l.id === other.level)?.name ?? other.level}`);
+          this.setLevel(other.level);
+          break;
+        }
+      }
+    }
+    const l = this.cur.scene.levels.find((x) => x.id === t.level)!;
+    const room = this.roomAt(l, t.pos);
+    if (room && this.autoReveal && !this.isRevealed(room.key)) this.state.reveals.push({ type: 'room', location: loc, key: room.key, mode: 'explored' });
+    if (this.follow) this.findParty(true);
   }
 
   tokensHere(): Token[] { return this.state.tokens.filter((t) => t.location === this.cur?.scene.location && t.level === this.levelId); }
@@ -268,6 +339,7 @@ export class App {
       lb.obj.element.style.opacity = o.toFixed(3);
       lb.obj.visible = o > 0.001;
     }
+    this.world.setWorkLight(this.renderMode === 'floorMask' ? 0 : T);
     b.grid.visible = this.gridMode !== 'off' && this.renderMode === 'normal';
     if (this.gridMode !== 'off') setGridType(b.grid, this.gridMode);
     const s = this.lowWalls ? 0.4 : 1;
@@ -277,6 +349,7 @@ export class App {
   }
 
   setT(t: number): void { this.t = t; this.applySlider(); }
+  setView(v: 'dm' | 'players'): void { this.view = v; this.tool = 'none'; this.applySlider(); this.onChange?.(); }
 
   // ------------------------------------------------------------------ reveals
 
@@ -356,6 +429,7 @@ export class App {
     let drag: { kind: 'token'; id: string; start: Vec2 } | { kind: 'brush'; pts: Vec2[] } | { kind: 'tap'; x: number; y: number } | null = null;
     el.addEventListener('pointerdown', (e) => {
       if (this.mode === 'player' || !this.cur || e.button > 0) return;
+      if (this.view === 'players' && this.tool !== 'none') this.tool = 'none';
       const hit = this.pick(e);
       const tokId = hit && findUp(hit.object, 'tokenId');
       if (tokId) {
@@ -400,6 +474,7 @@ export class App {
         const t = this.state.tokens.find((x) => x.id === d.id)!;
         if (p) t.pos = this.snap(p);
         this.setStatus('');
+        if (t.id === this.party?.id) this.afterPartyMove();
         this.commit();
       } else if (d.kind === 'brush') {
         if (d.pts.length) this.state.reveals.push({ type: 'brush', location: this.cur!.scene.location, level: this.levelId, mode: this.tool === 'brush-fog' ? 'fog' : 'reveal', r: 3, pts: d.pts.map(([x, z]) => [Math.round(x * 10) / 10, Math.round(z * 10) / 10]) });
@@ -412,7 +487,12 @@ export class App {
     el.addEventListener('pointercancel', end);
   }
 
+  private lastTap = 0;
   private tap(e: PointerEvent): void {
+    const now = performance.now();
+    const dbl = now - this.lastTap < 320; this.lastTap = now;
+    if (dbl) { const p = this.floorPoint(e); const room = p && this.roomAt(this.level, p); if (room) { this.jumpTo(room.key); return; } }
+    if (this.view === 'players') return;
     const hit = this.pick(e);
     const sd = hit && (findUp(hit.object, 'secretDoor') ?? (hit.object.userData.role === 'door' ? this.built.secretDoors.find((s) => s.door === hit.object)?.objectId : undefined));
     const wallId = hit && hit.object.userData.role === 'door' ? (hit.object.userData.wallId as string | undefined) : undefined;

@@ -74,3 +74,18 @@
 - Cobwebs on the third floor, attic and dungeon; wall materials `paneling`, `paneling-dusty`, `earth`, `brick`.
 - UI: label density toggle (keys / all / none), default keys only.
 - Tests: acceptance diff threshold raised from 2 to 6 levels (transparent-sort blending noise); 63 e2e green.
+
+## M1.2 Run mode — 2026-09-30
+
+- DM / Players switch on one screen: Players mode pins the view to t = 0 and hides every DM affordance
+  (slider, tools, labels, finder); DM mode restores them. The separate Player Display window remains.
+- Token-driven play: moving the party token reveals and remembers the room it enters (`autoReveal`),
+  stepping within a cell of a stair / trapdoor / dumbwaiter endpoint changes level, the camera follows
+  (`follow`, toggle in the camera cluster). Level tabs show a dot where the party is.
+- Camera rig: fixed tabletop tilt (45°) or top-down, yaw in 90° steps (buttons, R / Shift-R), drag to pan,
+  pinch / scroll to zoom, zoom buttons, "find the party" (F), double-tap a room to frame it, damped motion.
+- Find any area: search box (/) jumps to a key or name across levels; Rooms sheet lists every key per level
+  with page ref, revealed state (eye toggles reveal / hide) and the party's room highlighted.
+- Readability: DM work-light scales with the slider (players keep the true darkness), doors in warm wood
+  with a red band when locked, lighter floors, smaller key pills, level names shortened, first-run help.
+- docs/SLIDER.md: Players mode documented alongside the Player Display.

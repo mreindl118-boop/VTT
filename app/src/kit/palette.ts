@@ -15,7 +15,7 @@ export type PaletteKey = keyof typeof PALETTE;
 import type { FloorMaterial, WallMaterial } from '../core/schema';
 
 export const FLOOR_COLOR: Record<FloorMaterial, string> = {
-  flagstone: '#595f66', plank: '#5a4332', dirt: '#4d4034', cobble: '#5f6167', grass: '#3d5241',
+  flagstone: '#6a7078', plank: '#6b5240', dirt: '#5e5044', cobble: '#5f6167', grass: '#3d5241',
   snow: '#c9ccd2', ice: '#9fb3c2', 'shallow-water': '#3e5566', marsh: '#3f4636',
 };
 export const WALL_COLOR: Record<WallMaterial, string> = {

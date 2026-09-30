@@ -213,7 +213,7 @@ def pg(key):
     return PAGE.get(key) or PAGE.get(base)
 
 # ================================================================== FIRST FLOOR (10-ft ceilings)
-f1 = Level('f1', 'First floor', 0, 10, ambient='interior-dim', interior='paneling', exterior='brick')
+f1 = Level('f1', 'Floor 1', 0, 10, ambient='interior-dim', interior='paneling', exterior='brick')
 f1.room('1A', 'Entrance (portico)', rect(0, 10, 2, 11), 'flagstone', page=pg('1'))
 f1.room('1B', 'Entrance (foyer)', rect(0, 7, 2, 10), page=pg('1'))
 f1.room('3', 'Den of Wolves', rect(2, 7, 6, 11), page=pg('3'))
@@ -258,7 +258,7 @@ f1.hidden('shaft-f1', 'dumbwaiter', (0.5, 3.5), '21', 'Secret stair shaft (21) p
 f1.obj('spawn', 'spawn', (1.5, 10.5), 'dm-note', '1A', 'Party spawn: portico (Rose & Thorn wait here)')
 
 # ================================================================== SECOND FLOOR (12-ft ceilings)
-f2 = Level('f2', 'Second floor', 10, 12, ambient='interior-dim', interior='paneling', exterior='brick')
+f2 = Level('f2', 'Floor 2', 10, 12, ambient='interior-dim', interior='paneling', exterior='brick')
 f2.room('8', 'Library', [(0, 0), (4, 0), (4, 3), (3, 3), (3, 4), (1, 4), (1, 3), (0, 3)], page=pg('8'))
 f2.room('9', 'Secret Room', rect(4, 0, 6, 1), page=pg('9'))
 f2.room('7A', "Servants' Room", rect(4, 1, 6, 4), page=pg('7'))
@@ -294,7 +294,7 @@ f2.prop('chandelier10', 'chandelier', (3, 9), '10', dims={'y': 10, 'brass': 1});
 f2.hidden('shaft-f2', 'dumbwaiter', (0.5, 3.5), '21', 'Secret stair shaft (21) passes here')
 
 # ================================================================== THIRD FLOOR (8-ft ceilings)
-f3 = Level('f3', 'Third floor', 22, 8, ambient='interior-dim', interior='paneling-dusty', exterior='brick')
+f3 = Level('f3', 'Floor 3', 22, 8, ambient='interior-dim', interior='paneling-dusty', exterior='brick')
 f3.room('12A', 'Master Bedroom', [(0, 0), (5, 0), (5, 2), (6, 2), (6, 4), (4, 4), (4, 3), (0, 3)], page=pg('12'))
 f3.room('12B', 'Closet', rect(3, 3, 4, 4), page=pg('12'))
 f3.room('12C', 'Balcony (back)', rect(5, 0, 6, 2), 'flagstone', page=pg('12'))
@@ -376,7 +376,7 @@ at.prop('stair-head', 'stairs-straight', (5.5, 6.5), '16', dims={'w': 5, 'rise':
 at.note('milestone', (3, 3.5), '16', 'Milestone: access to 21 = 2nd level')
 
 # ================================================================== DUNGEON (upper) — earth & timber, 8-ft rooms
-du = Level('dungeon', 'Dungeon level', -20, 8, ambient='darkness', interior='earth', exterior='earth')
+du = Level('dungeon', 'Dungeon', -20, 8, ambient='darkness', interior='earth', exterior='earth')
 D = 'dirt'
 du.room('24', "Cult Initiates' Quarters", [(8, 0), (11, 0), (11, 9), (7, 9), (7, 4), (8, 4)], D, page=pg('24'))
 du.room('25', 'Well and Cultist Quarters', rect(2, 5, 7, 10), D, page=pg('25'))
@@ -459,7 +459,7 @@ for key, poly in [('24', [(8, 0), (11, 0), (11, 9), (7, 9)]), ('25', [(2, 5), (7
     cobwebs(du, poly, key, y=6.5, n=3)
 
 # ================================================================== DUNGEON (lower) — 35–38
-dl = Level('dungeon-lower', 'Dungeon level (lower)', -30, 8, ambient='darkness', interior='earth', exterior='earth')
+dl = Level('dungeon-lower', 'Lower dungeon', -30, 8, ambient='darkness', interior='earth', exterior='earth')
 dl.room('35', 'Reliquary', [(1, 1), (8, 1), (8, 4), (3, 4), (3, 2), (2, 2), (2, 5), (1, 5)], D, page=pg('35'))
 dl.room('36', 'Prison', [(4, 4), (5, 4), (5, 6), (4, 6), (4, 13), (1, 13), (1, 6), (2, 6), (2, 5), (4, 5)], D, page=pg('36'))
 dl.room('37', 'Portcullis', rect(6, 4, 7, 6), 'shallow-water', page=pg('37'), difficult=True)

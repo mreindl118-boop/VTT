@@ -7,7 +7,7 @@ import { ViewSlider } from './ui/viewSlider';
 
 const q = new URLSearchParams(location.search);
 const mode = q.get('display') === 'player' ? 'player' : 'dm';
-const path = q.get('scene') ?? localStorage.getItem('mistlab.scene') ?? 'dev/m0-test-room';
+const path = q.get('scene') ?? localStorage.getItem('mistlab.scene') ?? 'appB/death-house';
 document.body.dataset.mode = mode;
 document.title = mode === 'player' ? 'mistLAB · Player Display' : 'mistLAB';
 
@@ -24,18 +24,17 @@ const ready = app.init(builtPaths.has(path) ? path : 'dev/m0-test-room');
   app,
   ready: ready.then(() => true),
   setT: (t: number) => { slider?.set(t); app.setT(t); app.world.renderNow(); },
-  setLabels: (m: 'keys' | 'all' | 'none') => { app.labelMode = m; app.applySlider(); app.world.renderNow(); },
   setGrid: (g: GridMode) => { app.gridMode = g; app.layoutChanged(); app.world.renderNow(); },
   setLowWalls: (on: boolean) => { app.lowWalls = on; app.layoutChanged(); app.world.renderNow(); },
   setRenderMode: (m: 'normal' | 'floorMask') => { app.setRenderMode(m); app.world.renderNow(); },
   setSecretAsWall: (on: boolean) => { app.secretAsWall = on; app.applySlider(); app.world.renderNow(); },
+  setLabels: (m: 'keys' | 'all' | 'none') => { app.labelMode = m; app.applySlider(); app.world.renderNow(); },
   frame: (p: 'tabletop' | 'top') => { app.frameLevel(p); app.world.renderNow(); },
   render: () => app.world.renderNow(),
   labels: () => app.cur!.labels.filter((l) => l.level === app.levelId).map((l) => ({ id: l.spec.id, vis: l.spec.vis, opacity: Number(l.obj.element.style.opacity), visible: l.obj.visible })),
   targets: () => app.built.targets.map((t) => ({ id: t.id, vis: t.vis, visible: t.root.visible, opacity: t.materials[0]?.opacity ?? 1 })),
   flush: () => app.flush(),
-  /** Move the party token to a level/position (tests and DM shortcuts). */
-  moveParty: (level: string, x: number, z: number) => { const t = app.state.tokens.find((k) => k.location === app.cur!.scene.location); if (t) { t.level = level; t.pos = [x, z]; } app.setLevel(level); app.world.renderNow(); },
+  moveParty: (level: string, x: number, z: number) => { const t = app.party; if (t) { t.level = level; t.pos = [x, z]; } app.setLevel(level); app.world.renderNow(); },
 };
 
 if ('serviceWorker' in navigator && import.meta.env.PROD && !q.has('nosw')) {
@@ -55,9 +54,12 @@ function buildDmUi(): void {
     <div class="group left">
       <button class="icon" data-act="library" aria-label="Library">${ICON.library}</button>
       <div class="title"><span class="loc"></span><span class="sub"></span></div>
-      <div class="seg levels" role="tablist"></div>
+      <div class="seg mode" role="tablist" aria-label="Mode">
+        <button role="tab" data-view="dm">DM</button><button role="tab" data-view="players">Players</button>
+      </div>
     </div>
-    <div class="group right">
+    <div class="group center"><div class="seg levels" role="tablist"></div></div>
+    <div class="group right dm-only">
       <div class="seg tools" role="toolbar" aria-label="Reveal tools">
         <button class="icon" data-tool="reveal" aria-label="Reveal / hide (tap a room, object or secret door)">${ICON.reveal}</button>
         <button class="icon" data-tool="brush-reveal" aria-label="Paint reveal">${ICON.brush}</button>
@@ -65,33 +67,85 @@ function buildDmUi(): void {
         <button class="icon" data-act="undo" aria-label="Undo reveal">${ICON.undo}</button>
       </div>
       <span class="divider"></span>
+      <button class="icon" data-act="rooms" aria-label="Rooms">${ICON.list}</button>
       <button class="icon" data-act="grid" aria-label="Grid: square / hex / off"></button>
       <button class="icon" data-act="walls" aria-label="Walls: low / full">${ICON.walls}</button>
-      <button class="icon" data-act="camera" aria-label="Camera: tabletop / top-down"></button>
       <button class="icon" data-act="labels" aria-label="Labels: keys / all / none"></button>
       <span class="divider"></span>
       <button class="icon" data-act="lock" aria-label="Player camera follows DM"></button>
       <button class="icon" data-act="display" aria-label="Open Player Display">${ICON.display}</button>
+      <button class="icon" data-act="help" aria-label="Help">${ICON.help}</button>
     </div>`;
   ui.appendChild(top);
+
+  // Camera cluster: bottom-left, thumb-reachable.
+  const cam = document.createElement('div');
+  cam.className = 'camcluster';
+  cam.innerHTML = `
+    <button class="icon" data-cam="rotL" aria-label="Rotate left">${ICON.rotateL}</button>
+    <button class="icon" data-cam="rotR" aria-label="Rotate right">${ICON.rotateR}</button>
+    <button class="icon" data-cam="tilt" aria-label="Tabletop / top-down">${ICON.top}</button>
+    <span class="divider"></span>
+    <button class="icon" data-cam="zoomIn" aria-label="Zoom in">${ICON.zoomIn}</button>
+    <button class="icon" data-cam="zoomOut" aria-label="Zoom out">${ICON.zoomOut}</button>
+    <span class="divider"></span>
+    <button class="icon" data-cam="party" aria-label="Find the party">${ICON.party}</button>
+    <button class="icon" data-cam="follow" aria-label="Follow the party" aria-pressed="true">${ICON.token}</button>`;
+  ui.appendChild(cam);
+  cam.addEventListener('click', (e) => {
+    const b = (e.target as HTMLElement).closest<HTMLElement>('button');
+    if (!b) return;
+    switch (b.dataset.cam) {
+      case 'rotL': app.world.rotate(1); break;
+      case 'rotR': app.world.rotate(-1); break;
+      case 'tilt': app.camPreset = app.camPreset === 'top' ? 'tabletop' : 'top'; app.world.setTilt(app.camPreset === 'top'); break;
+      case 'zoomIn': app.world.zoomBy(0.7); break;
+      case 'zoomOut': app.world.zoomBy(1.4); break;
+      case 'party': app.findParty(); break;
+      case 'follow': app.follow = !app.follow; break;
+    }
+    refresh();
+  });
+
+  // Room finder: search + list sheet.
+  const finder = document.createElement('div');
+  finder.className = 'finder dm-only';
+  finder.innerHTML = `<label class="search">${ICON.search}<input type="search" placeholder="Go to area… (12A, ritual)" aria-label="Find an area" autocomplete="off"></label><ul class="results" hidden></ul>`;
+  ui.appendChild(finder);
+  const input = finder.querySelector('input')!, results = finder.querySelector<HTMLElement>('.results')!;
+  const renderResults = () => {
+    const hits = app.findRooms(input.value).slice(0, 8);
+    results.hidden = hits.length === 0;
+    results.innerHTML = hits.map((h) => `<li><button data-key="${h.room.key}"><b>${h.room.key}</b> ${h.room.name}<span>${h.level.name}</span></button></li>`).join('');
+  };
+  input.addEventListener('input', renderResults);
+  input.addEventListener('keydown', (e) => { if (e.key === 'Enter') { const first = results.querySelector<HTMLElement>('button'); first?.click(); } if (e.key === 'Escape') { input.value = ''; results.hidden = true; input.blur(); } });
+  results.addEventListener('click', (e) => { const b = (e.target as HTMLElement).closest<HTMLElement>('[data-key]'); if (!b) return; app.jumpTo(b.dataset.key!); input.value = ''; results.hidden = true; input.blur(); });
+
   const status = document.createElement('div');
   status.className = 'status';
   ui.appendChild(status);
-  app.onStatus = (s) => { status.textContent = s; status.classList.toggle('on', !!s); };
+  app.onStatus = (s) => { status.textContent = s; status.classList.toggle('on', !!s); if (s) { clearTimeout(statusTimer); statusTimer = window.setTimeout(() => { if (app.tool === 'none') { status.classList.remove('on'); } }, 2200); } };
+  let statusTimer = 0;
 
   const refresh = () => {
     if (!app.cur) return;
+    document.body.dataset.view = app.view;
     top.querySelector('.loc')!.textContent = app.cur.scene.name;
-    top.querySelector('.sub')!.textContent = `${app.cur.scene.chapter} · ${app.cur.scene.mapPage ? `map p.${app.cur.scene.mapPage}` : 'dev'} · ${app.cur.scene.bookScaleFt}-ft map`;
+    top.querySelector('.sub')!.textContent = `${app.cur.scene.mapPage ? `map p.${app.cur.scene.mapPage}` : app.cur.scene.chapter} · ${app.cur.scene.bookScaleFt}-ft squares`;
+    top.querySelectorAll<HTMLElement>('[data-view]').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.view === app.view)));
     const lv = top.querySelector('.levels')!;
-    lv.innerHTML = app.cur.scene.levels.map((l) => `<button role="tab" data-level="${l.id}" aria-selected="${l.id === app.levelId}">${l.name}</button>`).join('');
+    lv.innerHTML = app.cur.scene.levels.map((l) => `<button role="tab" data-level="${l.id}" aria-selected="${l.id === app.levelId}">${l.name}${app.party?.level === l.id ? ' <i class="dot"></i>' : ''}</button>`).join('');
     (lv as HTMLElement).style.display = app.cur.scene.levels.length > 1 ? '' : 'none';
     top.querySelectorAll<HTMLElement>('[data-tool]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.tool === app.tool)));
     top.querySelector('[data-act="grid"]')!.innerHTML = app.gridMode === 'hex' ? ICON.hex : app.gridMode === 'square' ? ICON.grid : ICON.gridOff;
-    top.querySelector('[data-act="camera"]')!.innerHTML = app.camPreset === 'top' ? ICON.top : ICON.camera;
     top.querySelector('[data-act="labels"]')!.innerHTML = app.labelMode === 'all' ? ICON.label : app.labelMode === 'keys' ? ICON.labelKeys : ICON.labelOff;
     top.querySelector('[data-act="walls"]')!.setAttribute('aria-pressed', String(!app.lowWalls));
     top.querySelector('[data-act="lock"]')!.innerHTML = app.lockPlayerCamera ? ICON.lock : ICON.unlock;
+    cam.querySelector('[data-cam="follow"]')!.setAttribute('aria-pressed', String(app.follow));
+    cam.querySelector('[data-cam="tilt"]')!.innerHTML = app.camPreset === 'top' ? ICON.camera : ICON.top;
+    slider!.el.hidden = app.view === 'players';
+    if (roomsSheet) renderRooms();
   };
   app.onChange = refresh;
 
@@ -99,19 +153,65 @@ function buildDmUi(): void {
     const b = (e.target as HTMLElement).closest<HTMLElement>('button');
     if (!b) return;
     if (b.dataset.level) app.setLevel(b.dataset.level, true);
+    if (b.dataset.view) app.setView(b.dataset.view as 'dm' | 'players');
     if (b.dataset.tool) { app.tool = app.tool === b.dataset.tool ? 'none' : (b.dataset.tool as typeof app.tool); app.setStatus(app.tool === 'none' ? '' : b.getAttribute('aria-label')!); }
     switch (b.dataset.act) {
       case 'library': openLibrary(builtPaths, (p) => { localStorage.setItem('mistlab.scene', p); void app.open(p).then(() => app.layoutChanged()); }); break;
       case 'undo': app.undo(); break;
+      case 'rooms': toggleRooms(); break;
       case 'grid': app.gridMode = app.gridMode === 'square' ? 'hex' : app.gridMode === 'hex' ? 'off' : 'square'; app.layoutChanged(); break;
       case 'walls': app.lowWalls = !app.lowWalls; app.layoutChanged(); break;
-      case 'camera': app.frameLevel(app.camPreset === 'top' ? 'tabletop' : 'top'); break;
       case 'labels': app.labelMode = app.labelMode === 'keys' ? 'all' : app.labelMode === 'all' ? 'none' : 'keys'; app.applySlider(); break;
       case 'lock': app.lockPlayerCamera = !app.lockPlayerCamera; app.layoutChanged(); break;
       case 'display': window.open(`${location.pathname}?display=player&scene=${encodeURIComponent(app.cur?.path ?? '')}`, 'mistlab-player', 'popup,width=1280,height=800'); break;
+      case 'help': showHelp(); break;
     }
     refresh();
   });
+
+  // Rooms sheet (right side): every area key by level, revealed state, tap = go, eye = reveal/hide.
+  let roomsSheet: HTMLElement | null = null;
+  const toggleRooms = () => { if (roomsSheet) { roomsSheet.remove(); roomsSheet = null; return; } roomsSheet = document.createElement('aside'); roomsSheet.className = 'rooms dm-only'; ui.appendChild(roomsSheet); renderRooms(); };
+  const renderRooms = () => {
+    if (!roomsSheet || !app.cur) return;
+    roomsSheet.innerHTML = `<header><h2>Rooms</h2><button class="icon close" aria-label="Close">${ICON.close}</button></header><div class="rooms-body">` +
+      app.cur.scene.levels.map((l) => `<section><h3>${l.name}${app.party?.level === l.id ? ' · party' : ''}</h3>${l.rooms.map((r) => {
+        const on = app.isRevealed(r.key), here = app.party?.level === l.id && app.roomAt(l, app.party.pos)?.key === r.key;
+        return `<div class="room${on ? ' on' : ''}${here ? ' here' : ''}"><button class="go" data-go="${r.key}"><b>${r.key}</b><span>${r.name}</span>${r.page ? `<em>p.${r.page}</em>` : ''}</button><button class="icon eye" data-reveal="${r.key}" aria-label="${on ? 'Hide from players' : 'Reveal to players'}" aria-pressed="${on}">${ICON.eye}</button></div>`;
+      }).join('')}</section>`).join('') + '</div>';
+  };
+  ui.addEventListener('click', (e) => {
+    const t = e.target as HTMLElement;
+    if (!roomsSheet || !roomsSheet.contains(t)) return;
+    if (t.closest('.close')) return toggleRooms();
+    const go = t.closest<HTMLElement>('[data-go]'); if (go) return void app.jumpTo(go.dataset.go!);
+    const rv = t.closest<HTMLElement>('[data-reveal]'); if (rv) { app.toggleRoom(rv.dataset.reveal!); renderRooms(); }
+  });
+
+  // Keyboard: R rotate, F find party, / search, Esc clears the tool.
+  addEventListener('keydown', (e) => {
+    if ((e.target as HTMLElement).tagName === 'INPUT') return;
+    if (e.key === 'r') app.world.rotate(1); if (e.key === 'R') app.world.rotate(-1);
+    if (e.key === 'f') app.findParty(); if (e.key === '/') { e.preventDefault(); input.focus(); }
+    if (e.key === 'Escape') { app.tool = 'none'; app.setStatus(''); refresh(); }
+  });
+
+  const showHelp = () => {
+    const h = document.createElement('div');
+    h.className = 'sheet-backdrop';
+    h.innerHTML = `<div class="sheet help"><header><h2>Running a session</h2><button class="icon close" aria-label="Close">${ICON.close}</button></header><div class="sheet-body">
+      <dl>
+        <dt>Move the party</dt><dd>Drag the amber token. The room it enters is revealed and remembered; step onto stairs or a trapdoor to change level; the camera follows.</dd>
+        <dt>Look around</dt><dd>One finger / left-drag pans. Pinch or scroll zooms. Rotate and tilt with the buttons bottom-left (or R). Double-tap a room to frame it.</dd>
+        <dt>Find an area</dt><dd>Type a key or name in the search box (or press /). The Rooms list shows every key with its revealed state.</dd>
+        <dt>Show or hide things</dt><dd>Reveal tool: tap a room, hidden object or secret door. Tap a door to open it. The slider previews what players see; Players mode locks it.</dd>
+        <dt>Players mode</dt><dd>Turn the iPad to the table: only revealed rooms, no DM chrome. DM mode brings everything back.</dd>
+      </dl></div></div>`;
+    h.addEventListener('click', (e) => { const t = e.target as HTMLElement; if (t === h || t.closest('.close')) h.remove(); });
+    document.body.appendChild(h);
+    localStorage.setItem('mistlab.helpSeen', '1');
+  };
+  if (!localStorage.getItem('mistlab.helpSeen')) queueMicrotask(() => ready.then(showHelp));
 }
 
 function buildHud(): void {

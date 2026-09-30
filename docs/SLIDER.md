@@ -64,6 +64,12 @@ including on the Player Display. All are persisted per campaign in IndexedDB and
 Everything the slider can show can also be revealed with these tools, so a DM can run an entire session
 on one shared screen at `t = 0`.
 
+## Players mode (one screen)
+
+The DM / Players switch in the top bar sets `App.view`. In Players mode the effective `t` is 0, the slider and
+every DM control are hidden, and the camera keeps following the party. It is the same picture the Player Display
+shows, for tables that run on one iPad passed around.
+
 ## Player Display
 
 `?display=player` opens a window that subscribes to the campaign over `BroadcastChannel('mistlab')`.
