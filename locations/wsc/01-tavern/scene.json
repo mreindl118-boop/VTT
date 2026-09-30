@@ -5,6 +5,7 @@
  "name": "The Tavern",
  "bookScaleFt": 5,
  "ambient": "barovian-overcast",
+ "stacked": true,
  "levels": [
   {
    "id": "L0",
@@ -2113,6 +2114,16 @@
      "vis": "dm-note",
      "key": "T1",
      "label": "Party spawn: the party table"
+    },
+    {
+     "id": "L0-sign",
+     "kind": "signpost",
+     "pos": [
+      27.0,
+      0,
+      63.5
+     ],
+     "vis": "player"
     }
    ],
    "terrain": [
@@ -3493,6 +3504,36 @@
       "rise": 0.1,
       "fromZ": 60,
       "toZ": 45
+     }
+    },
+    {
+     "id": "L1-roof",
+     "kind": "roof-gable",
+     "pos": [
+      32.5,
+      0,
+      32.5
+     ],
+     "vis": "player",
+     "dims": {
+      "w": 57,
+      "d": 57,
+      "h": 14,
+      "y": 8.2
+     }
+    },
+    {
+     "id": "L1-chimney",
+     "kind": "chimney",
+     "pos": [
+      8.0,
+      0,
+      40
+     ],
+     "vis": "player",
+     "dims": {
+      "h": 9,
+      "y": 8
      }
     }
    ]

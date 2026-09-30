@@ -77,7 +77,8 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
   const root = new THREE.Group();
   root.name = `level:${level.id}`;
   const y0 = level.elevationFt;
-  const ceiling = level.ceilingFt ?? DEFAULT_CEILING_FT;
+  // Walls stop a hair under the ceiling so their tops sit inside the slab of the floor above on a stacked site.
+  const ceiling = (level.ceilingFt ?? DEFAULT_CEILING_FT) - 0.1;
   const labels: LabelSpec[] = [];
   const targets: SliderTarget[] = [];
   const secretDoors: SecretDoorHandle[] = [];
@@ -286,8 +287,10 @@ function buildObject(o: SceneObject, y0: number, labels: LabelSpec[]): THREE.Obj
   const base = baseRingFt(o.size ?? 'medium');
   const g = new THREE.Group();
   const fig = CREATURES[o.kind];
-  const scale = { tiny: 0.5, small: 0.75, medium: 1, large: 1.6, huge: 2.3, gargantuan: 3 }[o.size ?? 'medium'];
-  const body = fig ? fig({ ...(o.dims ?? {}), scale: (o.dims?.scale ?? 1) * (o.kind === 'shambling-mound' || o.kind === 'dire-wolf' ? 1 : scale) }) : pawn(PALETTE.mist2, base);
+  // Figures are modelled at real size; the size category only sets the base ring (a horse is Large for the
+  // rules but stands 5 ft at the shoulder). Small and tiny creatures are scaled down from the human figure.
+  const scale = { tiny: 0.5, small: 0.75, medium: 1, large: 1, huge: 1, gargantuan: 1 }[o.size ?? 'medium'];
+  const body = fig ? fig({ ...(o.dims ?? {}), scale: (o.dims?.scale ?? 1) * scale }) : pawn(PALETTE.mist2, base);
   body.position.y = 0.3;
   g.add(baseRing(base, PALETTE.blood), body);
   return g;

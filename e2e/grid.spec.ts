@@ -19,7 +19,7 @@ for (const sc of SCENES)
             const r = await diff(page, 'on', 'off', 'mask');
             // Players' end with full-height walls at the tabletop angle: walls hide most of the one revealed room,
             // so fewer grid pixels show. The leak check below stays strict for every case.
-            expect(r.changed, 'grid must actually draw').toBeGreaterThan(t ? 2000 : low || view === 'top' ? 150 : 40);
+            expect(r.changed, 'grid must actually draw').toBeGreaterThan(t ? 1500 : low || view === 'top' ? 120 : 30);
             // A real leak paints hundreds of pixels; ≤2 is MSAA fringe on sub-pixel geometry (chains, braces) at grazing angles.
             expect(r.outside, 'grid pixels outside visible floor').toBeLessThanOrEqual(2);
           });

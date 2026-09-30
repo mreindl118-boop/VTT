@@ -1377,38 +1377,34 @@
      "label": "The tavern"
     },
     {
-     "id": "L0-tavern-roof",
-     "kind": "prism",
+     "id": "L0-tavern-facade",
+     "kind": "house",
      "pos": [
+      42.5,
       0,
-      0,
-      0
+      32.5
      ],
      "vis": "player",
-     "polygon": [
-      [
-       15,
-       5
-      ],
-      [
-       70,
-       5
-      ],
-      [
-       70,
-       60
-      ],
-      [
-       15,
-       60
-      ]
-     ],
      "dims": {
-      "h": 0.3,
-      "y": 10.1,
-      "color": 4012606
-     },
-     "label": "The tavern (roof)"
+      "w": 55,
+      "d": 55,
+      "h": 10,
+      "stories": 2
+     }
+    },
+    {
+     "id": "L0-tavern-chimney",
+     "kind": "chimney",
+     "pos": [
+      18.0,
+      0,
+      40
+     ],
+     "vis": "player",
+     "dims": {
+      "h": 9,
+      "y": 20
+     }
     },
     {
      "id": "L0-well",
@@ -1985,7 +1981,7 @@
     },
     {
      "id": "L0-bear",
-     "kind": "commoner",
+     "kind": "bear",
      "pos": [
       15,
       0,

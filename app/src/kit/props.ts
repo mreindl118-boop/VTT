@@ -505,3 +505,17 @@ export function temple(d: Dims): THREE.Group {
   return g;
 }
 Object.assign(PROPS_V1, { 'cask-rack': caskRack, hay, trough, 'table-round': tableRound, 'bar-top': barTop, temple } as Record<string, (d: Dims) => THREE.Object3D>);
+
+/** A gabled roof over a w × d footprint, ridge along the long side, eaves overhanging; sits at `y`. */
+export function roofGable(d: Dims): THREE.Group {
+  const w = d.w ?? 30, dd = d.d ?? 30, h = d.h ?? 12, y = d.y ?? 10, long = w >= dd, L = (long ? w : dd) + 2, S = (long ? dd : w) + 2.4;
+  const shape = new THREE.Shape([new THREE.Vector2(-S / 2, 0), new THREE.Vector2(S / 2, 0), new THREE.Vector2(0, h)]);
+  const prism = new THREE.ExtrudeGeometry(shape, { depth: L, bevelEnabled: false }); prism.translate(0, 0, -L / 2);
+  const roof = new THREE.Mesh(prism, mat('#3d3a3e')); roof.position.y = y; if (long) roof.rotation.y = Math.PI / 2;
+  const g = g_(roof);
+  for (let i = 0; i < 6; i++) { const t = box(long ? L : 0.5, 0.25, long ? 0.5 : L, '#2b292d', long ? 0 : (-S / 2 + (i + 0.5) * (S / 6)), y + (i + 0.5) * (h / 6) + 0.2, long ? (-S / 2 + (i + 0.5) * (S / 6)) : 0); g.add(t); }
+  return g;
+}
+/** A stone chimney stack rising `h` ft from `y`. */
+export function chimney(d: Dims): THREE.Group { const h = d.h ?? 8, y = d.y ?? 10; return g_(box(2.6, h, 2.6, '#6a6560', 0, y + h / 2, 0), box(3.2, 0.8, 3.2, '#4d4845', 0, y + h + 0.4, 0)); }
+Object.assign(PROPS_V1, { 'roof-gable': roofGable, chimney } as Record<string, (d: Dims) => THREE.Object3D>);

@@ -5311,6 +5311,6 @@
    }
   }
  ],
- "stacked": true,
+ "stacked": "open",
  "valley": true
 }

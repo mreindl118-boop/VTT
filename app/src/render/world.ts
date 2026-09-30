@@ -46,7 +46,7 @@ export class World {
     mistFloor.rotation.x = -Math.PI / 2; mistFloor.position.y = -1.2; mistFloor.userData.role = 'marker'; mistFloor.name = 'mist-floor';
     this.scene.add(mistFloor);
     this.mistFloor = mistFloor;
-    this.camera = new THREE.PerspectiveCamera(40, 1, 2, 12000);
+    this.camera = new THREE.PerspectiveCamera(40, 1, 2, 120000);
     this.camera.position.set(30, 70, 90);
 
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);

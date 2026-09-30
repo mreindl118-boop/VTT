@@ -526,7 +526,7 @@ def apply_desc(levels):
 
 # ================================================================== assemble
 levels = [f1, f2, f3, at, du, dl]
-scene = OrderedDict(schema=1, location='death-house', chapter='appB', name='Death House', mapPage=216, bookScaleFt=5, ambient='interior-dim')
+scene = OrderedDict(schema=1, location='death-house', chapter='appB', name='Death House', mapPage=216, bookScaleFt=5, ambient='interior-dim', stacked=True)
 scene['levels'] = [lv.to_json() for lv in levels]
 apply_desc(scene['levels'])
 scene['levels'][5]['walls'] += extra_walls

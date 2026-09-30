@@ -147,7 +147,7 @@ def build_scene(scene_id, name, parts, chapter, ambient, page=None):
             links.append(OrderedDict(id=f'lk-{sid}', kind='stairs', **{'from': {'level': lo_l, 'pos': lo}, 'to': {'level': up_l, 'pos': up}}))
         grid_levels[lid] = OrderedDict(floorPolygons=[r['polygon'] for r in rooms], type='square', hexOrientation='pointy', origin=[0, 0], color='#1d1b22', opacity=0.55)
     scene = OrderedDict(schema=1, location=scene_id, chapter=chapter, name=name, bookScaleFt=5, ambient=ambient, levels=levels, links=links)
-    if len(parts) > 1 and all(p['canvas'] == parts[0]['canvas'] for p in parts) and ambient != 'interior-dim': scene['stacked'] = True
+    if len(parts) > 1 and all(p['canvas'] == parts[0]['canvas'] for p in parts) and ambient != 'interior-dim': scene['stacked'] = 'open'  # open platforms: the cut rests above the top
     if any(p['source'] == 'mapped' for p in parts) or 'path' in scene_id: scene['valley'] = True
     if page: scene['mapPage'] = page
     return scene, OrderedDict(schema=1, levels=grid_levels)
@@ -195,7 +195,7 @@ for stop in M['module']['route']:
     if not ah: continue
     scene = site_of.get(stop['map'])
     if any(p['key'] == str(stop['stop']) for p in pins): continue
-    pins.append(OrderedDict(key=str(stop['stop']), name=stop['name'], pos=hx(*ah), type='settlement' if 'T' == cells[tuple(ah)]['code'] else 'landmark', **({'scenes': [f'{CAMP}/{scene}']} if scene else {})))
+    pins.append(OrderedDict(key=str(stop['stop']), name=stop['name'], pos=hx(*ah), type='settlement' if 'T' == cells[tuple(ah)]['code'] else 'tower' if 'Tower' in stop['name'] else 'landmark', **({'scenes': [f'{CAMP}/{scene}']} if scene else {})))
 # merge scenes that share a pin position
 merged = []
 for p in pins:

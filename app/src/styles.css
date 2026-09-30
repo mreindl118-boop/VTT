@@ -260,3 +260,11 @@ body[data-view='players'] .topbar { grid-template-columns: auto 1fr; grid-templa
 .sheet.library .campaigns b { font-size: 14px; } .sheet.library .campaigns span { font-size: 11.5px; opacity: .75; }
 .sheet.library .pointer { display: flex; gap: 10px; align-items: baseline; padding: 6px 12px; font-size: 13px; color: var(--ink-2); }
 .sheet.library .pointer .k { min-width: 40px; font-weight: 600; } .sheet.library .pointer .meta { margin-left: auto; font-size: 11px; }
+
+/* ---- section slicer (stacked buildings) */
+.section { display: flex; align-items: center; gap: 6px; padding: 0 8px 0 10px; border-left: var(--hairline, 1px) solid var(--hair); margin-left: 4px; font-size: 11px; color: var(--ink-2); }
+.section[hidden] { display: none; }
+.section input[type=range] { width: 120px; accent-color: var(--accent); }
+.section .sec-ft { min-width: 36px; font-variant-numeric: tabular-nums; color: var(--ink); }
+.section.free .sec-label { color: var(--accent); font-weight: 600; }
+.section button.icon { width: 28px; height: 28px; }

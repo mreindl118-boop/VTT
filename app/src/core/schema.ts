@@ -137,8 +137,10 @@ export interface SceneFile {
   /** Town/site maps: feet per printed square; the map is a placement layer, not a battle map. */
   placementFt?: number;
   kind?: 'battle' | 'placement' | 'regional';
-  /** Levels stack in one place (platforms, a tower): show the ones below the current level too. */
-  stacked?: boolean;
+  /** Levels stack in one place: every level renders at once and a section cut slices the stack.
+   *  true = a roofed building: the cut follows the current floor. 'open' = open platforms (a tower, a treehouse):
+   *  the cut rests above the top platform until the DM moves it, so the whole stack stays in view. */
+  stacked?: boolean | 'open';
   /** Outdoors in a wooded mountain valley: taller ridges and deeper forest in the backdrop. */
   valley?: boolean;
   ambient: Ambient;

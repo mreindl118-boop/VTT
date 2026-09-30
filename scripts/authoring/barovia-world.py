@@ -17,7 +17,7 @@ PINS = [  # key, name, px, type, scenes (built scene paths reachable from here)
   ('E', 'Village of Barovia', (992, 537), 'settlement', ['ch03/E', 'ch03/E5', 'appB/death-house']),
   ('F', 'River Ivlis Crossroads', (850, 658), 'crossroads', []),
   ('G', 'Tser Pool Encampment', (798, 546), 'camp', ['ch02/G']),
-  ('H', 'Tser Falls', (742, 478), 'landmark', []),
+  ('H', 'Tser Falls', (742, 478), 'falls', []),
   ('I', 'Black Carriage', (745, 424), 'landmark', []),
   ('B2', 'Gates of Barovia (west)', (745, 380), 'gate', []),
   ('J', 'Gates of Ravenloft', (853, 453), 'gate', []),

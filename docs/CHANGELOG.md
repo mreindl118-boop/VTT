@@ -225,3 +225,22 @@
   symbols, serif place names, a key panel listing every place (click to centre), a hex grid at the map's own
   scale (¼ mile in Barovia, 1 mile round the town), a scale bar that follows the zoom, and a compass.
 - Camera: more glide (lower damping), gentler zoom steps, and a zoom-out limit that grows with the map.
+
+## M2.5 Distant sites at true scale, real creature sizes, the section slicer — 2026-09-30
+
+- Every outdoor map shows the other mapped places in the distance at their real distance and bearing from
+  the world map (miles × 5280 ft), as silhouettes only: settlements, camps, castles, towers, temples, ruins
+  and Tser Falls (a 1,000-ft cliff, white water, the stone arch bridge, mist and the river below), with the
+  near ridges opened toward mapped neighbours and haze thickening with distance. Castle Ravenloft is only
+  named at K.
+- Creatures are modelled at real size; the size category sets the base ring, not the model. Horses stand
+  about 5½ ft at the shoulder, the bear and the ape are new, the humanoids keep real proportions.
+- Small buildings (the tavern, Death House) are stacked sites: every floor renders at once and the Section
+  slider beside the floor tabs cuts the building at any height, up through the roof or down into the cellar.
+  The cut follows the floor you pick (5 ft up with low walls, just under the ceiling with full walls) until
+  you move it; the arrow button snaps it back. Only the current floor is annotated. A house and the dungeon
+  under its garden are separate stacks; open sites (Noke's tower) keep the cut above the top platform so the
+  whole tower stays in view.
+- Facades: houses have timber frames, gabled roofs with chimneys, shutters and sills; the tavern on the
+  square is the same building seen from outside.
+- Wall tops stop a hair under the ceiling so they never fight the floor slab above them.

@@ -64,7 +64,7 @@ function buildDmUi(): void {
         <button role="tab" data-view="dm">DM</button><button role="tab" data-view="players">Players</button>
       </div>
     </div>
-    <div class="group center"><div class="seg levels" role="tablist"></div></div>
+    <div class="group center"><div class="seg levels" role="tablist"></div><label class="section" hidden title="Section: slide to cut the building at any height"><span class="sec-label">Section</span><input type="range" min="0" max="100" step="0.5" aria-label="Section height"><span class="sec-ft"></span><button class="icon" data-act="sec-follow" aria-label="Follow the floor">${ICON.walls}</button></label></div>
     <div class="group right dm-only">
       <div class="seg tools" role="toolbar" aria-label="Reveal tools">
         <button class="icon" data-tool="reveal" aria-label="Reveal / hide (tap a room, object or secret door)">${ICON.reveal}</button>
@@ -146,8 +146,13 @@ function buildDmUi(): void {
   app.onStatus = (s) => { status.textContent = s; status.classList.toggle('on', !!s); if (s) { clearTimeout(statusTimer); statusTimer = window.setTimeout(() => { if (app.tool === 'none') { status.classList.remove('on'); } }, 2200); } };
   let statusTimer = 0;
 
+  const section = top.querySelector<HTMLElement>('.section')!, secIn = section.querySelector<HTMLInputElement>('input')!, secFt = section.querySelector<HTMLElement>('.sec-ft')!;
+  secIn.addEventListener('input', () => { app.setCut(Number(secIn.value)); refresh(); });
   const refresh = () => {
     bar.update();
+    const range = app.sectionRange;
+    section.hidden = !range;
+    if (range) { secIn.min = String(range.min); secIn.max = String(range.max); const v = app.cutFt ?? app.followCutFt; secIn.value = String(v); secFt.textContent = `${Math.round(v)} ft`; section.classList.toggle('free', app.cutFt !== undefined); }
     if (!app.cur) return;
     document.body.dataset.view = app.view;
     top.querySelector('.loc')!.textContent = app.cur.scene.name;
@@ -185,6 +190,7 @@ function buildDmUi(): void {
       }); break;
       case 'encounter': app.encounter ? bar.update() : openEncounterSheet(app, refresh); break;
       case 'undo': app.undo(); break;
+      case 'sec-follow': app.setCut(undefined); break;
       case 'search': finder.hidden ? openFinder() : closeFinder(); break;
       case 'rooms': toggleRooms(); break;
       case 'grid': app.gridMode = app.gridMode === 'square' ? 'hex' : app.gridMode === 'hex' ? 'off' : 'square'; app.layoutChanged(); break;
@@ -317,6 +323,7 @@ function buildDmUi(): void {
         <dt>Look around</dt><dd>One finger / left-drag pans. Right-drag or a two-finger twist rotates; pinch or scroll zooms. The buttons bottom-left turn in 90° steps, tilt, zoom and find the party. Double-tap a room to frame it.</dd>
         <dt>World map</dt><dd>The map button beside the library opens the Lands of Barovia. Drag the party to a lettered pin or into the wilderness; the card shows the distance and travel time at your pace, and opens the battle map for that place when one is built. Opening a location moves the party marker there.</dd>
         <dt>Initiative</dt><dd>The crossed-swords button opens the roster: speed, reach, range and initiative from each character sheet. Start an encounter and each combatant gets a token. On a turn, green squares are where that combatant can still move and red squares are what it could strike from there; a paler red shows ranged reach with a clear line. Next turn (or N) advances; End folds everyone back into the party marker.</dd>
+        <dt>Section slicer</dt><dd>Buildings with several floors show all of them at once. The Section slider beside the floor tabs cuts the building at any height: slide it up to see the roof, down through the floors, below ground into a cellar. The floor tabs follow the cut; the arrow button snaps the cut back to the current floor.</dd>
         <dt>Find an area</dt><dd>Type a key or name in the search box (or press /). The Rooms list shows every key with its revealed state.</dd>
         <dt>Doors, stairs and choices</dt><dd>Door markers open and close doors; stair and trapdoor markers move the party between levels. Tap anything for a menu of what you can do with it (reveal, hide, move the party, frame). The slider previews what players see.</dd>
         <dt>Players mode</dt><dd>Turn the iPad to the table: only revealed rooms, no DM chrome. DM mode brings everything back.</dd>

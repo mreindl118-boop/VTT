@@ -6,6 +6,7 @@
  "mapPage": 216,
  "bookScaleFt": 5,
  "ambient": "interior-dim",
+ "stacked": true,
  "levels": [
   {
    "id": "f1",

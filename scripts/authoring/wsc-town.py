@@ -94,8 +94,10 @@ L1.prop('mezz-table', 'table', (6.5, 2.5), 'U1', dims={'w': 5, 'd': 3}); [L1.pro
 L1.prop('gallery-bench', 'bench', (11.6, 5), 'U2', rotY=90, dims={'l': 8}); L1.prop('linen', 'shelves', (9.15, 6.5), 'U2', rotY=90, dims={'w': 3, 'linen': 1})
 L1.prop('stair-top', 'stairs-straight', (11.5, 0), 'U7', dims={'w': 5, 'rise': 0.1, 'fromZ': 60, 'toZ': 45})
 L1.light('mezz', (6.5, 2.5), 'lamp', 15, 30, y=6)
+L1.prop('roof', 'roof-gable', (6.5, 6.5), None, dims={'w': 57, 'd': 57, 'h': 14, 'y': 8.2}); L1.prop('chimney', 'chimney', (1.6, 8), None, dims={'h': 9, 'y': 8})
+L0.prop('sign', 'signpost', (5.4, 12.7), None)
 
-tavern = OrderedDict(schema=1, location='01-tavern', chapter=CAMP, name='The Tavern', bookScaleFt=5, ambient='barovian-overcast')
+tavern = OrderedDict(schema=1, location='01-tavern', chapter=CAMP, name='The Tavern', bookScaleFt=5, ambient='barovian-overcast', stacked=True)
 tavern['levels'] = [L0.to_json(), L1.to_json()]
 tavern['links'] = [OrderedDict(id='lk-stairs', kind='stairs', **{'from': {'level': 'L0', 'pos': [57.5, 57.5]}, 'to': {'level': 'L1', 'pos': [57.5, 42.5]}})]
 for lv, notes in [(tavern['levels'][0], {
@@ -139,8 +141,7 @@ S.railing((16, 7), (19, 7)); S.railing((16, 9), (19, 9)); S.door((16, 8), (16, 9
 S.wall((1 + OX, 1), (12 + OX, 1)); S.wall((1 + OX, 1), (1 + OX, 12)); S.wall((12 + OX, 1), (12 + OX, 12)); S.wall((1 + OX, 12), (5 + OX, 12)); S.wall((7 + OX, 12), (12 + OX, 12))
 S.wall((5 + OX, 12), (7 + OX, 12), flags=['door'], id='sq-tavern-front')
 S.obj('tavern-sign', 'signpost', (6 + OX, 12.6), 'player', 'S1', 'The tavern', dims={})
-S.prop('tavern-roof', 'prism', (0, 0), None)
-S.objects[-1]['polygon'] = ft([(1 + OX, 1), (12 + OX, 1), (12 + OX, 12), (1 + OX, 12)]); S.objects[-1]['dims'] = {'h': 0.3, 'y': 10.1, 'color': 0x3d3a3e}; S.objects[-1]['label'] = 'The tavern (roof)'
+S.prop('tavern-facade', 'house', (6.5 + OX, 6.5), None, rotY=0, dims={'w': 55, 'd': 55, 'h': 10, 'stories': 2}); S.prop('tavern-chimney', 'chimney', (1.6 + OX, 8), None, dims={'h': 9, 'y': 20})
 # well in the middle of the square; temple south; town hall east; houses around
 S.prop('well', 'well', (15, 19), 'S1')
 S.prop('temple', 'temple', (9, 27.2), 'S4', dims={'w': 30, 'd': 45, 'h': 14})
@@ -158,7 +159,7 @@ for i, z in enumerate([6, 8, 10]):
 S.prop('sq-cart', 'wagon', (17.5, 2.2), 'S5', rotY=20); S.prop('sq-yard-well', 'well', (15.2, 9.6), 'S5')
 S.obj('sheep-1', 'sheep', (14.4, 18.2), 'hidden-creature', 'S1', 'Finethir Shinebright (polymorphed sheep)', size='small', dims={'scroll': 1})
 S.obj('guz', 'commoner', (8, 19), 'hidden-creature', 'S2', 'Guz (half-orc mercenary)'); [S.obj(f'wolf{i}', 'wolf', p, 'hidden-creature', 'S2', f'Collared wolf {i + 1} (polymorphed henchman)') for i, p in enumerate([(6.5, 18), (6.5, 20), (5, 19)])]
-S.obj('bear', 'commoner', (3, 19), 'hidden-creature', 'S2', 'Brown bear (polymorphed henchman)', size='large')
+S.obj('bear', 'bear', (3, 19), 'hidden-creature', 'S2', 'Brown bear (polymorphed henchman)', size='large')
 S.obj('spawn', 'spawn', (8 + OX, 13.5), 'dm-note', 'S1', 'Party spawn: outside the tavern door')
 S.note('pop', (15, 15), 'S1', 'A town of about fifty: the tavern, the temple, the town hall, a dozen houses. The well is the meeting place.')
 square = OrderedDict(schema=1, location='02-street', chapter=CAMP, name='The Town Square', bookScaleFt=5, ambient='barovian-overcast')

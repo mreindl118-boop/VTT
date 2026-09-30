@@ -13,7 +13,7 @@ import { baseRing } from './kit/pieces';
 import { adventurer } from './kit/creatures';
 import { PALETTE } from './kit/palette';
 import { buildLevel, type BuiltLevel, type LabelSpec } from './render/build';
-import { fogUniforms, setOpacity, setWallCut, WALL_CLIP } from './render/materials';
+import { fogUniforms, sectionClip, setOpacity, setWallCut, WALL_CLIP } from './render/materials';
 const WALL_CUT_FT = 5;
 import { setGridType } from './render/gridOverlay';
 import { World, type CameraPreset } from './render/world';
@@ -75,6 +75,27 @@ export class App {
   secretAsWall = false;
   renderMode: 'normal' | 'floorMask' = 'normal';
   backdrop?: THREE.Group;
+  /** Section height (ft, absolute) on a stacked site; undefined follows the current level, null = none. */
+  cutFt: number | null | undefined = undefined;
+  private keepCut = false;
+  /** Where the cut sits while it follows the floor (5 ft up with low walls, else just under the ceiling). */
+  followCutFt = 0;
+  /** Move the section cut; the current level becomes the highest floor below it. */
+  setCut(ft: number | undefined): void {
+    if (!this.cur?.scene.stacked) return;
+    this.cutFt = ft;
+    if (ft !== undefined) {
+      const below = [...this.cur.scene.levels].filter((l) => l.elevationFt < ft - 0.5).sort((a, b) => b.elevationFt - a.elevationFt)[0] ?? this.cur.scene.levels[0];
+      if (below.id !== this.levelId) { this.keepCut = true; this.setLevel(below.id); this.keepCut = false; this.broadcast(); return; }
+    }
+    this.applySlider(); this.broadcast();
+  }
+  /** The span of floors on a stacked site, for the slicer. */
+  get sectionRange(): { min: number; max: number } | undefined {
+    if (!this.cur?.scene.stacked) return undefined;
+    const ls = this.cur.scene.levels;
+    return { min: Math.min(...ls.map((l) => l.elevationFt)) - 2, max: Math.max(...ls.map((l) => l.elevationFt + (l.ceilingFt ?? 10))) + 12 };
+  }
   status = '';
   onStatus: ((s: string) => void) | null = null;
   onChange: (() => void) | null = null;
@@ -193,10 +214,13 @@ export class App {
 
   setLevel(id: string, frame = false): void {
     if (!this.cur) return;
+    if (this.levelId !== id && this.cutFt !== undefined && !this.keepCut) this.cutFt = undefined;
     this.levelId = id;
-    // Stacked sites (a treehouse, a tower) show every level up to the current one, so the place reads as a whole.
-    const stacked = !!this.cur.scene.stacked, elev = this.level.elevationFt;
-    for (const [lid, b] of this.cur.levels) b.root.visible = lid === id || (stacked && (this.cur.scene.levels.find((l) => l.id === lid)?.elevationFt ?? Infinity) < elev);
+    // Stacked sites (a house, a treehouse, a tower) show every level at once; the section cut hides what is above.
+    const stacked = !!this.cur.scene.stacked;
+    const stack = this.stackOf(id);
+    for (const [lid, b] of this.cur.levels) b.root.visible = lid === id || (stacked && stack.has(lid));
+    if (stacked && this.cutFt === null) this.cutFt = undefined; // follow the level
     const cov = this.cur.coverage.get(id)!;
     fogUniforms.uCovTex.value = this.cur.covTex.get(id)!;
     fogUniforms.uCovOrigin.value.set(cov.originX, cov.originZ);
@@ -209,14 +233,26 @@ export class App {
     this.onChange?.();
   }
 
+  /** The floors that stand on one another around a level: each one's ceiling meets the next one's floor.
+   *  A house and the dungeon dug under its garden are two stacks; an open site (a tower) is one. */
+  stackOf(id: string): Set<string> {
+    const ls = this.cur!.scene.levels, out = new Set<string>([id]);
+    if (this.cur!.scene.stacked === 'open') { for (const l of ls) out.add(l.id); return out; }
+    const top = (l: Level) => l.elevationFt + (l.ceilingFt ?? 10);
+    const meets = (a: Level, b: Level) => Math.abs(top(a) - b.elevationFt) <= 3 || Math.abs(top(b) - a.elevationFt) <= 3;
+    for (let grew = true; grew;) { grew = false; for (const l of ls) if (!out.has(l.id) && ls.some((o) => out.has(o.id) && meets(o, l))) { out.add(l.id); grew = true; } }
+    return out;
+  }
+
   get level(): Level { return this.cur!.scene.levels.find((l) => l.id === this.levelId)!; }
   get built(): BuiltLevel { return this.cur!.levels.get(this.levelId)!; }
 
   frameLevel(preset = this.camPreset): void {
     this.camPreset = preset;
     const l = this.level;
-    // A stacked site frames as a whole (every level's rooms), so the tower reads top to bottom.
-    const polys = this.cur!.scene.stacked ? this.cur!.scene.levels.flatMap((x) => x.rooms.map((r) => r.polygon)) : l.rooms.map((r) => r.polygon);
+    // A stacked site frames the current floor's footprint: the floors above and below share it (a tower,
+    // a house), while a level that sits elsewhere in plan (the dungeon under the garden) stays out of frame.
+    const polys = l.rooms.map((r) => r.polygon);
     const b = bounds(polys);
     this.world.controls.maxDistance = Math.max(400, Math.hypot(b.maxX - b.minX, b.maxZ - b.minZ) * 2.5);
     this.world.frame(b, l.elevationFt, preset);
@@ -524,7 +560,7 @@ export class App {
     for (const r of b.lightRings) { (r.material as THREE.LineBasicMaterial).opacity = labelCurve(T) * r.userData.baseOpacity; r.visible = labelCurve(T) > 0.001; }
     const cov = this.cur.coverage.get(this.levelId)!;
     for (const lb of this.cur.labels) {
-      if (lb.level !== this.levelId) continue;
+      if (lb.level !== this.levelId) { lb.obj.visible = false; continue; } // stacked sites: only the current floor is annotated
       let o: number;
       if (lb.spec.vis === 'dm-note') o = labelCurve(T);
       else o = cov.state(lb.spec.pos.x, lb.spec.pos.z) !== Cov.Unexplored ? 1 : 1 - fogCurve(T);
@@ -536,9 +572,15 @@ export class App {
     }
     this.world.setWorkLight(this.renderMode === 'floorMask' ? 0 : T);
     b.grid.visible = this.gridMode !== 'off' && this.renderMode === 'normal';
+    for (const [lid, o] of this.cur.levels) if (lid !== this.levelId) o.grid.visible = false;
     if (this.gridMode !== 'off') setGridType(b.grid, this.gridMode);
     // Cutaway: walls and doors keep their real height; the top is clipped at 5 ft above the floor.
-    setWallCut(this.lowWalls ? this.level.elevationFt + WALL_CUT_FT : null);
+    // The section cut: on stacked sites it is a slicer the DM can move; elsewhere it trims walls at 5 ft.
+    const followCut = this.cur.scene.stacked === 'open' ? this.sectionRange!.max : this.level.elevationFt + (this.lowWalls ? WALL_CUT_FT : (this.level.ceilingFt ?? 10) - 0.5);
+    const cut = this.cur.scene.stacked ? (this.cutFt ?? followCut) : this.lowWalls ? this.level.elevationFt + WALL_CUT_FT : null;
+    this.followCutFt = followCut;
+    setWallCut(cut);
+    if (this.cur.scene.stacked) for (const b of this.cur.levels.values()) sectionClip(b.root, true);
     this.world.invalidate();
   }
 
@@ -898,7 +940,7 @@ export class App {
   private broadcast(): void {
     if (this.mode !== 'dm' || !this.cur) return;
     this.channel.send({ kind: 'state', state: this.state, location: this.cur.path, level: this.levelId });
-    this.channel.send({ kind: 'layout', grid: this.gridMode === 'hex' ? 'hex' : 'square', gridOn: this.gridMode !== 'off', lowWalls: this.lowWalls });
+    this.channel.send({ kind: 'layout', grid: this.gridMode === 'hex' ? 'hex' : 'square', gridOn: this.gridMode !== 'off', lowWalls: this.lowWalls, cut: this.cutFt ?? undefined });
     this.sendCamera(true);
   }
   layoutChanged(): void { this.applySlider(); this.broadcast(); }
@@ -928,7 +970,7 @@ export class App {
       this.world.invalidate();
     } else if (m.kind === 'layout') {
       this.gridMode = m.gridOn ? m.grid : 'off';
-      this.lowWalls = m.lowWalls;
+      this.lowWalls = m.lowWalls; this.cutFt = m.cut;
       this.applySlider();
     }
   }
@@ -938,26 +980,31 @@ export class App {
   setRenderMode(mode: 'normal' | 'floorMask'): void {
     if (mode === this.renderMode) return;
     if (mode === 'normal') this.renderMode = mode;
-    const root = this.built.root;
     if (mode === 'floorMask') {
       this.renderMode = mode;
       this.applySlider();
       const white = new THREE.MeshBasicMaterial({ color: '#ffffff' });
       const black = new THREE.MeshBasicMaterial({ color: '#000000' });
       const blackWall = new THREE.MeshBasicMaterial({ color: '#000000', clippingPlanes: [WALL_CLIP] }); // same cutaway as the render
-      root.traverse((o) => {
+      const stacked = !!this.cur!.scene.stacked;
+      const blackCut = new THREE.MeshBasicMaterial({ color: '#000000', clippingPlanes: [WALL_CLIP] });
+      const whiteCut = new THREE.MeshBasicMaterial({ color: '#ffffff', clippingPlanes: [WALL_CLIP], polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -2 });
+      for (const [lid, b] of this.cur!.levels) { if (!b.root.visible) continue; const here = lid === this.levelId; b.root.traverse((o) => {
         if (o.userData.role === 'grid') return;
         const m = o as THREE.Mesh;
         const mat = m.material as THREE.Material | undefined;
         // Translucent ghosts and line overlays do not occlude the floor: hide them from the mask.
-        if ((o as THREE.Line).isLine || (m.isMesh && mat && mat.transparent && mat.opacity < 0.999)) {
+        // On another floor of a stacked site only its floor and walls count: a stair-top or prop that just
+        // grazes this floor's plane is drawn under the grid, not over it.
+        const shell = o.userData.role === 'floor' || o.userData.role === 'wall' || o.userData.role === 'door';
+        if ((o as THREE.Line).isLine || (m.isMesh && mat && mat.transparent && mat.opacity < 0.999) || (m.isMesh && stacked && !here && !shell)) {
           if (o.visible) { this.maskHidden.push(o); o.visible = false; }
           return;
         }
         if (!m.isMesh) return;
         this.maskSwap.set(m, m.material);
-        m.material = o.userData.role === 'floor' ? white : o.userData.role === 'wall' || o.userData.role === 'door' ? blackWall : black;
-      });
+        m.material = stacked ? (o.userData.role === 'floor' && here ? whiteCut : blackCut) : o.userData.role === 'floor' ? white : o.userData.role === 'wall' || o.userData.role === 'door' ? blackWall : black;
+      }); }
       this.world.scene.background = new THREE.Color('#000000'); this.world.mistFloor.visible = false; this.world.scene.fog = null; if (this.backdrop) this.backdrop.visible = false;
     } else {
       for (const [m, mat] of this.maskSwap) m.material = mat;

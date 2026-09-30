@@ -152,7 +152,7 @@ export const CREATURES: Record<string, (d: Dims) => THREE.Group> = {
 
 // ---- outdoor / village creatures (M2)
 export function horse(d: Dims = {}): THREE.Group {
-  const s = (d.scale ?? 1) * 1.5, color = d.bone ? PALETTE.bone : '#4a3a2e';
+  const s = (d.scale ?? 1) * 1.75, color = d.bone ? PALETTE.bone : '#4a3a2e'; // ~8 ft long, 5 ft at the withers
   const g = grp(box(4.4 * s, 1.8 * s, 1.5 * s, color, 0, 3.2 * s, 0));
   for (const [x, z] of [[-1.6, -0.5], [1.6, -0.5], [-1.6, 0.5], [1.6, 0.5]]) g.add(box(0.4 * s, 2.6 * s, 0.4 * s, color, x * s, 1.3 * s, z * s));
   const neck = box(0.9 * s, 2.2 * s, 0.9 * s, color, 2.4 * s, 4.6 * s, 0); neck.rotation.z = -0.6; g.add(neck, box(1.4 * s, 0.8 * s, 0.8 * s, color, 3.4 * s, 5.4 * s, 0));
@@ -180,3 +180,15 @@ export function sheep(d: Dims = {}): THREE.Group {
   return g;
 }
 Object.assign(CREATURES, { sheep: (d) => sheep(d) } as Record<string, (d: Dims) => THREE.Group>);
+
+/** A brown bear: heavy quadruped, ~6 ft long, 3.5 ft at the shoulder. */
+export function bear(d: Dims = {}): THREE.Group {
+  const s = d.scale ?? 1, c = '#4a3323', g = grp();
+  const body = new THREE.Mesh(new THREE.IcosahedronGeometry(1.7 * s, 1), mat(c)); body.scale.set(1.8, 1, 1.1); body.position.set(0, 2.2 * s, 0); g.add(body);
+  g.add(box(1.3 * s, 1.1 * s, 1.1 * s, c, 2.8 * s, 2.7 * s, 0), box(0.5 * s, 0.4 * s, 0.6 * s, '#2a1a10', 3.55 * s, 2.5 * s, 0));
+  for (const [x, z] of [[-1.7, -0.5], [1.7, -0.5], [-1.7, 0.5], [1.7, 0.5]]) g.add(box(0.7 * s, 1.5 * s, 0.7 * s, c, x * s, 0.75 * s, z * s));
+  return g;
+}
+/** An ape: hunched, long-armed, ~5 ft tall. */
+export const ape = (d: Dims = {}) => { const g = humanoid({ skin: '#3a2a22', cloth: '#3a2a22', trim: '#2a1c16', hunch: 0.55, scale: (d.scale ?? 1) * 0.95, weapon: d.sword ? 'sword' : 'none' }); return g; };
+Object.assign(CREATURES, { bear: (d) => bear(d), ape: (d) => ape(d) } as Record<string, (d: Dims) => THREE.Group>);
