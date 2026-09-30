@@ -1,0 +1,483 @@
+#!/usr/bin/env python3
+"""Death House (Appendix B, map p.216, one square = 5 ft) -> locations/appB/death-house/{scene,grid}.json
+
+Authored in CELLS from the book's map (1 cell = 5 ft); x = map right, z = map down. The map is printed
+with north to the LEFT, so `north: "-x"`. Only keys, names, page refs, dimensions and placements live here.
+Walls are derived from room polygons, then doors/windows/openings/secret doors are stamped over them.
+"""
+import json, os, sys
+from collections import OrderedDict
+
+ROOT = os.path.join(os.path.dirname(__file__), '..', '..')
+C = 5  # ft per cell
+
+# ------------------------------------------------------------------ helpers
+def rect(c0, r0, c1, r1):
+    return [(c0, r0), (c1, r0), (c1, r1), (c0, r1)]
+
+def ft(poly):
+    return [[round(x * C, 3), round(z * C, 3)] for x, z in poly]
+
+def seg_key(a, b):
+    a, b = tuple(a), tuple(b)
+    return (a, b) if a <= b else (b, a)
+
+def unit_edges(poly):
+    """Split polygon edges into 1-cell segments where axis-aligned; keep diagonals whole."""
+    out = []
+    n = len(poly)
+    for i in range(n):
+        (x0, z0), (x1, z1) = poly[i], poly[(i + 1) % n]
+        if x0 == x1 or z0 == z1:
+            steps = int(round(abs(x1 - x0) + abs(z1 - z0)))
+            steps = max(1, steps)
+            for k in range(steps):
+                t0, t1 = k / steps, (k + 1) / steps
+                out.append(((x0 + (x1 - x0) * t0, z0 + (z1 - z0) * t0), (x0 + (x1 - x0) * t1, z0 + (z1 - z0) * t1)))
+        else:
+            out.append(((x0, z0), (x1, z1)))
+    return out
+
+class Level:
+    def __init__(self, id, name, elevation, ceiling, ambient=None, interior='plaster', exterior='rubble'):
+        self.id, self.name, self.elevation, self.ceiling, self.ambient = id, name, elevation, ceiling, ambient
+        self.interior, self.exterior = interior, exterior
+        self.rooms = []      # (key, name, poly, floor, extra)
+        self.overrides = {}  # seg_key -> dict(flags=[...], open=bool, material, heightFt, id)
+        self.objects = []
+        self.lights = []
+        self.floor_polys = []
+        self.extra = []
+        self.n = 0
+
+    def room(self, key, name, poly, floor='plank', **extra):
+        self.rooms.append((key, name, poly, floor, extra))
+        self.floor_polys.append(poly)
+
+    def _stamp(self, a, b, **kw):
+        """Stamp an override on every 1-cell segment along a->b (coordinates must be whole cells)."""
+        (x0, z0), (x1, z1) = a, b
+        steps = max(1, int(round(abs(x1 - x0) + abs(z1 - z0))))
+        for k in range(steps):
+            t0, t1 = k / steps, (k + 1) / steps
+            key = seg_key((x0 + (x1 - x0) * t0, z0 + (z1 - z0) * t0), (x0 + (x1 - x0) * t1, z0 + (z1 - z0) * t1))
+            self.overrides[key] = dict(self.overrides.get(key, {}), **kw)
+
+    def wall(self, a, b, **kw):
+        """Explicit extra wall (not derived from room polygons), e.g. a partition inside one keyed room."""
+        self.extra.append((a, b, kw))
+
+    def door(self, a, b, id=None, locked=False, open=False, double=False):
+        self.n += 1
+        flags = ['door'] + (['locked'] if locked else [])
+        self._stamp(a, b, flags=flags, id=id or f'{self.id}-door-{self.n}', open=open, wall=True)
+
+    def window(self, a, b):
+        self._stamp(a, b, flags=['window'], wall=True)
+
+    def opening(self, a, b):
+        self._stamp(a, b, open_wall=True)
+
+    def secret(self, a, b, id, label, key, kind='secret-panel', extra=False):
+        self.n += 1
+        wid = f'{self.id}-sd-{id}'
+        if extra: self.extra.append((a, b, dict(flags=['secret-door'], id=wid)))
+        else: self._stamp(a, b, flags=['secret-door'], id=wid, wall=True)
+        (x0, z0), (x1, z1) = a, b
+        self.obj(f'sdo-{id}', kind, ((x0 + x1) / 2, (z0 + z1) / 2), 'secret-door', key, label, wall=wid)
+
+    def railing(self, a, b):
+        self._stamp(a, b, flags=['normal'], heightFt=3.5, wall=True, material='plaster')
+
+    def obj(self, id, kind, pos, vis='player', key=None, label=None, rotY=0, size=None, dims=None, wall=None, y=0):
+        o = OrderedDict(id=f'{self.id}-{id}', kind=kind, pos=[round(pos[0] * C, 3), y, round(pos[1] * C, 3)], vis=vis)
+        if rotY: o['rotY'] = rotY
+        if key: o['key'] = key
+        if label: o['label'] = label
+        if size: o['size'] = size
+        if wall: o['wall'] = wall
+        if dims: o['dims'] = dims
+        self.objects.append(o)
+
+    def creature(self, id, kind, pos, key, label, size='medium'):
+        self.obj(id, kind, pos, 'hidden-creature', key, label, size=size)
+
+    def hidden(self, id, kind, pos, key, label, rotY=0, dims=None):
+        self.obj(id, kind, pos, 'hidden-object', key, label, rotY=rotY, dims=dims)
+
+    def prop(self, id, kind, pos, key, rotY=0, dims=None, y=0):
+        self.obj(id, kind, pos, 'player', key, rotY=rotY, dims=dims, y=y)
+
+    def note(self, id, pos, key, text):
+        self.obj(id, 'note', pos, 'dm-note', key, text)
+
+    def light(self, id, pos, preset, bright, dim, y=6):
+        self.lights.append(OrderedDict(id=f'{self.id}-l-{id}', pos=[pos[0] * C, y, pos[1] * C], preset=preset, bright=bright, dim=dim))
+
+    def build_walls(self):
+        # Every unit edge of every room; edges shared by two rooms are interior.
+        count = {}
+        for _, _, poly, _, _ in self.rooms:
+            for a, b in unit_edges(poly):
+                k = seg_key(a, b)
+                count[k] = count.get(k, 0) + 1
+        segs = []
+        for k, c in count.items():
+            ov = self.overrides.get(k, {})
+            if ov.get('open_wall'):
+                continue
+            a, b = k
+            w = OrderedDict(id=ov.get('id') or f'{self.id}-w-{len(segs)}', a=[a[0] * C, a[1] * C], b=[b[0] * C, b[1] * C],
+                            flags=ov.get('flags', ['normal']), material=ov.get('material') or (self.interior if c > 1 else self.exterior))
+            if 'heightFt' in ov: w['heightFt'] = ov['heightFt']
+            if 'door' in w['flags']: w['open'] = ov.get('open', False)
+            segs.append((k, w))
+        # merge collinear plain walls to keep the wall count down
+        merged = []
+        used = set()
+        by_start = {}
+        for k, w in segs:
+            by_start.setdefault(tuple(w['a']), []).append((k, w))
+        def plain(w): return w['flags'] == ['normal'] and 'heightFt' not in w
+        for k, w in segs:
+            if k in used:
+                continue
+            used.add(k)
+            cur = OrderedDict(w)
+            if plain(w):
+                while True:
+                    nxt = None
+                    for k2, w2 in by_start.get(tuple(cur['b']), []):
+                        if k2 in used or not plain(w2) or w2['material'] != cur['material']:
+                            continue
+                        dx1, dz1 = cur['b'][0] - cur['a'][0], cur['b'][1] - cur['a'][1]
+                        dx2, dz2 = w2['b'][0] - w2['a'][0], w2['b'][1] - w2['a'][1]
+                        if abs(dx1 * dz2 - dz1 * dx2) < 1e-9 and (dx1 * dx2 + dz1 * dz2) > 0:
+                            nxt = (k2, w2); break
+                    if not nxt:
+                        break
+                    used.add(nxt[0]); cur['b'] = nxt[1]['b']
+            merged.append(cur)
+        for i, w in enumerate(merged):
+            if w['id'].startswith(f'{self.id}-w-'): w['id'] = f'{self.id}-w-{i}'
+        for j, (a, b, kw) in enumerate(self.extra):
+            w = OrderedDict(id=kw.get('id') or f'{self.id}-x-{j}', a=[a[0] * C, a[1] * C], b=[b[0] * C, b[1] * C], flags=kw.get('flags', ['normal']), material=kw.get('material', self.interior))
+            if 'heightFt' in kw: w['heightFt'] = kw['heightFt']
+            merged.append(w)
+        return merged
+
+    def to_json(self):
+        rooms = []
+        for key, name, poly, floor, extra in self.rooms:
+            r = OrderedDict(key=key, name=name, page=extra.get('page'), polygon=ft(poly), floor=floor)
+            if extra.get('difficult'): r['difficult'] = True
+            if extra.get('ceilingFt'): r['ceilingFt'] = extra['ceilingFt']
+            rooms.append(r)
+        lv = OrderedDict(id=self.id, name=self.name, elevationFt=self.elevation, ceilingFt=self.ceiling)
+        if self.ambient: lv['ambient'] = self.ambient
+        lv['north'] = '-x'
+        lv['rooms'] = rooms
+        lv['walls'] = self.build_walls()
+        lv['lights'] = self.lights
+        lv['objects'] = self.objects
+        return lv
+
+# ------------------------------------------------------------------ pages (printed) from the OCR report when available
+pages = {}
+try:
+    pj = json.load(open(os.path.join(ROOT, 'reference', 'pages.json')))
+    pages = {k.split('/')[1]: v for k, v in pj.items() if k.startswith('death-house/')}
+except Exception:
+    pass
+# Printed pages of the keyed descriptions (Appendix B), verified against the OCR.
+PAGE = {**{k: 212 for k in ['1', '2']}, **{k: 213 for k in ['3', '4', '5', '6', '7', '8']}, **{k: 214 for k in ['9', '10', '11', '12']},
+        **{k: 215 for k in ['13', '14', '15', '16', '17', '18', '19', '20']}, **{k: 217 for k in ['21', '22', '23']},
+        **{k: 218 for k in ['24', '25', '26']}, **{k: 219 for k in ['27', '28', '29', '30', '31', '32', '33', '34', '35']},
+        **{k: 220 for k in ['36', '37', '38']}}
+for k, v in pages.items():
+    if v: PAGE[k] = v
+def pg(key):
+    base = ''.join(ch for ch in key if ch.isdigit())
+    return PAGE.get(key) or PAGE.get(base)
+
+# ================================================================== FIRST FLOOR (10-ft ceilings)
+f1 = Level('f1', 'First floor', 0, 10, ambient='interior-dim')
+f1.room('1A', 'Entrance (portico)', rect(0, 10, 2, 11), 'flagstone', page=pg('1'))
+f1.room('1B', 'Entrance (foyer)', rect(0, 7, 2, 10), page=pg('1'))
+f1.room('3', 'Den of Wolves', rect(2, 7, 6, 11), page=pg('3'))
+f1.room('2A', 'Main Hall', [(0, 4), (3, 4), (3, 3), (4, 3), (4, 4), (6, 4), (6, 7), (0, 7)], page=pg('2'))
+f1.room('2B', 'Cloakroom', rect(2, 3, 3, 4), page=pg('2'))
+f1.room('5', 'Dining Room', [(0, 0), (4, 0), (4, 3), (2, 3), (2, 4), (1, 4), (1, 3), (0, 3)], page=pg('5'))
+f1.room('4A', 'Kitchen', rect(4, 1, 6, 4), 'flagstone', page=pg('4'))
+f1.room('4B', 'Pantry', rect(4, 0, 6, 1), 'flagstone', page=pg('4'))
+# doors
+f1.door((0, 11), (1, 11), id='f1-gate')            # wrought-iron gate (portico)
+f1.door((0, 10), (1, 10), id='f1-front-doors')     # oaken doors into the foyer
+f1.door((0, 7), (1, 7), id='f1-foyer-hall')        # stained-glass double doors to 2A
+f1.door((2, 7), (3, 7))                                # 2A -> 3
+f1.door((1, 4), (2, 4))                                # 5 -> 2A
+f1.door((3, 3), (4, 3))                                # 5 -> 2A corridor cell
+f1.door((2, 4), (3, 4))                                # 2A -> 2B
+f1.door((4, 3), (4, 4))                                # 2A -> 4A
+f1.door((4, 1), (5, 1))                            # 4A -> 4B (thin door)
+# windows (hinged, swing outward)
+for a, b in [((0, 0), (1, 0)), ((2, 0), (3, 0)), ((5, 0), (6, 0)), ((0, 1), (0, 2)), ((0, 5), (0, 6)), ((6, 8), (6, 9)), ((3, 11), (4, 11)), ((4, 11), (5, 11))]:
+    f1.window(a, b)
+# props
+f1.prop('table', 'table', (2, 1.5), '5'); [f1.prop(f'chair{i}', 'chair', p, '5', rotY=r) for i, (p, r) in enumerate([((1.2, 0.6), 180), ((2, 0.6), 180), ((2.8, 0.6), 180), ((1.2, 2.4), 0), ((2, 2.4), 0), ((2.8, 2.4), 0), ((0.6, 1.5), 90), ((3.4, 1.5), -90)])]
+f1.prop('fire5', 'fireplace', (0.2, 2.5), '5', rotY=90)
+f1.prop('fire2a', 'fireplace', (0.2, 4.5), '2A', rotY=90)
+f1.hidden('sword', 'lamp', (0.3, 4.5), '2A', 'Longsword above the mantel (windmill cameo)')
+f1.prop('spiral', 'spiral-stair', (5.1, 5.5), '2A', dims={'rise': 10, 'r': 6})
+f1.prop('oven', 'oven', (5.2, 1.6), '4A'); f1.prop('worktable', 'table', (4.8, 2.6), '4A', rotY=90)
+f1.prop('dumbwaiter', 'dumbwaiter', (5.7, 3.7), '4A')
+f1.prop('fire3', 'fireplace', (5.8, 9.5), '3', rotY=-90); f1.prop('den-table', 'table', (4.3, 10.3), '3'); [f1.prop(f'denchair{i}', 'chair', p, '3', rotY=r) for i, (p, r) in enumerate([((3.7, 9.6), 180), ((4.9, 9.6), 180), ((3.7, 11 - 0.6), 0), ((4.9, 10.4), 0)])]
+f1.prop('cab-e', 'cabinet', (5.7, 8.3), '3', rotY=-90); f1.prop('cab-n', 'cabinet', (2.3, 8.5), '3', rotY=90)
+[f1.prop(f'wolf{i}', 'sheeted', p, '3') for i, p in enumerate([(3.3, 7.4), (5.3, 7.4), (4.6, 10.6)])]
+f1.hidden('cab-lock', 'toy-chest', (5.6, 8.3), '3', 'Locked cabinet: crossbows (DC 15)')
+f1.hidden('trapdoor', 'trapdoor', (5.5, 10.5), '3', 'Hidden trapdoor to 32 (only from below)')
+f1.prop('coat-rack', 'cabinet', (2.5, 3.3), '2B')
+f1.prop('lamp1a', 'lamp', (0.3, 10.5), '1A'); f1.prop('lamp1b', 'lamp', (1.7, 10.5), '1A'); f1.prop('gate-iron', 'gate', (0.5, 11), '1A')
+f1.hidden('shaft-f1', 'dumbwaiter', (0.5, 3.5), '21', 'Secret stair shaft (21) passes here')
+f1.obj('spawn', 'spawn', (1.5, 10.5), 'dm-note', '1A', 'Party spawn: portico (Rose & Thorn wait here)')
+
+# ================================================================== SECOND FLOOR (12-ft ceilings)
+f2 = Level('f2', 'Second floor', 10, 12, ambient='interior-dim')
+f2.room('8', 'Library', [(0, 0), (4, 0), (4, 3), (3, 3), (3, 4), (1, 4), (1, 3), (0, 3)], page=pg('8'))
+f2.room('9', 'Secret Room', rect(4, 0, 6, 1), page=pg('9'))
+f2.room('7A', "Servants' Room", rect(4, 1, 6, 4), page=pg('7'))
+f2.room('7B', "Servants' Closet", rect(3, 3, 4, 4), page=pg('7'))
+f2.room('6', 'Upper Hall', rect(0, 4, 6, 7), page=pg('6'))
+f2.room('10', 'Conservatory', rect(0, 7, 6, 11), page=pg('10'))
+f2.door((1, 4), (2, 4))                      # 6 -> 8 (east door, flanked by armor)
+f2.door((3, 4), (4, 4))                      # 6 -> 7B
+f2.door((4, 4), (5, 4))                      # 6 -> 7A
+f2.door((4, 3), (4, 4))                      # 7B -> 7A
+f2.door((1, 7), (2, 7))                      # 6 -> 10 (west door)
+f2.secret((4, 0), (4, 1), 'lib', 'Secret door behind the bookshelf (DC 13)', '8')
+for a, b in [((0, 0), (1, 0)), ((2, 0), (3, 0)), ((0, 1), (0, 2)), ((0, 5), (0, 6)), ((6, 8), (6, 9)), ((0, 11), (1, 11)), ((2, 11), (3, 11)), ((4, 11), (5, 11))]:
+    f2.window(a, b)
+f2.prop('shelves', 'bookshelf', (3.6, 1.5), '8', rotY=90, dims={'w': 12})
+f2.prop('desk', 'desk', (1.6, 1.3), '8', rotY=-30); f2.prop('deskchair', 'chair', (1.6, 2.1), '8'); f2.prop('chairA', 'chair', (0.5, 0.5), '8', rotY=135); f2.prop('chairB', 'chair', (0.5, 2.6), '8', rotY=45)
+f2.prop('fire8', 'fireplace', (2.5, 0.2), '8')
+f2.hidden('key', 'toy-chest', (1.8, 1.3), '8', 'Desk drawer: iron key to area 20')
+f2.hidden('chest9', 'chest', (5.6, 0.5), '9', "Chest: Strahd's letter, deeds, will (dart trap spent)", rotY=-90)
+f2.prop('shelves9', 'bookshelf', (4.5, 0.15), '9', dims={'w': 5})
+f2.prop('bed7a', 'bed', (4.6, 1.8), '7A'); f2.prop('bed7b', 'bed', (5.5, 1.8), '7A'); f2.prop('footlocker1', 'trunk', (4.6, 2.9), '7A'); f2.prop('footlocker2', 'trunk', (5.5, 2.9), '7A')
+f2.prop('dumbwaiter', 'dumbwaiter', (5.7, 3.7), '7A')
+f2.prop('spiral', 'spiral-stair', (5.1, 5.5), '6', dims={'rise': 12, 'r': 6})
+[f2.prop(f'armor{i}', 'armor-suit', p, '6') for i, p in enumerate([(0.6, 4.4), (2.4, 4.4), (0.6, 6.6), (2.4, 6.6)])]
+f2.prop('fire6', 'fireplace', (0.2, 4.7), '6', rotY=90)
+f2.hidden('portrait', 'lamp', (0.3, 4.7), '6', 'Durst family portrait (the baby)')
+f2.prop('harpsichord', 'harpsichord', (0.9, 10.2), '10', rotY=20); f2.prop('harp', 'harp', (1.2, 8.0), '10'); f2.prop('fire10', 'fireplace', (0.2, 8.5), '10', rotY=90)
+[f2.prop(f'seat{i}', 'chair', (0.6 + i * 0.9, 7.35), '10', rotY=180) for i in range(6)]
+[f2.prop(f'seatb{i}', 'chair', (2.6 + i * 0.9, 10.65), '10') for i in range(4)]
+f2.hidden('shaft-f2', 'dumbwaiter', (0.5, 3.5), '21', 'Secret stair shaft (21) passes here')
+
+# ================================================================== THIRD FLOOR (8-ft ceilings)
+f3 = Level('f3', 'Third floor', 22, 8, ambient='interior-dim')
+f3.room('12A', 'Master Bedroom', [(0, 0), (5, 0), (5, 2), (6, 2), (6, 4), (4, 4), (4, 3), (0, 3)], page=pg('12'))
+f3.room('12B', 'Closet', rect(3, 3, 4, 4), page=pg('12'))
+f3.room('12C', 'Balcony (back)', rect(5, 0, 6, 2), 'flagstone', page=pg('12'))
+f3.room('13', 'Bathroom', rect(0, 4, 2, 6), page=pg('13'))
+f3.room('14', 'Storage Room', rect(0, 6, 2, 7), page=pg('14'))
+f3.room('15B', 'Nursery', rect(0, 7, 2, 9), page=pg('15'))
+f3.room('15C', 'Balcony (front)', rect(0, 9, 2, 11), 'flagstone', page=pg('15'))
+f3.room('11', 'Balcony (landing)', [(2, 3), (3, 3), (3, 4), (6, 4), (6, 7), (5, 7), (5, 8), (2, 8)], page=pg('11'))
+f3.room('15A', "Nursemaid's Bedroom", rect(2, 8, 6, 11), page=pg('15'))
+f3.door((2, 3), (3, 3), id='f3-master-doors')   # stained-glass double doors 12A -> 11 (via the passage cell)
+f3.door((3, 3), (4, 3))                          # 12A -> 12B (mirror door)
+f3.door((5, 2), (6, 2))                          # parlour -> 12C
+f3.door((2, 5), (2, 6))                          # 11 -> 13
+f3.door((2, 6), (2, 7))                          # 11 -> 14
+f3.door((2, 8), (2, 9))                          # 15A -> 15B
+f3.door((2, 10), (2, 11), id='f3-balcony-doors') # 15A -> 15C
+f3.opening((2, 8), (3, 8))                       # landing passage into 15A
+f3.secret((3, 7), (4, 7), 'attic-a', 'Secret door to the attic stair (DC 15)', '11', extra=True)
+f3.wall((4, 7), (5, 7))
+f3.secret((3, 8), (4, 8), 'attic-b', 'Secret door behind the mirror (DC 15)', '15A')
+for a, b in [((0, 0), (1, 0)), ((3, 0), (4, 0)), ((5, 1), (5, 2)), ((0, 1), (0, 2)), ((0, 5), (0, 6)), ((6, 8), (6, 9))]:
+    f3.window(a, b)
+for a, b in [((5, 0), (6, 0)), ((6, 0), (6, 2)), ((0, 11), (2, 11)), ((0, 9), (0, 11))]:
+    f3.railing(a, b)
+f3.prop('bed', 'bed', (3.5, 0.9), '12A'); f3.prop('wardrobe1', 'wardrobe', (4.6, 0.3), '12A'); f3.prop('wardrobe2', 'wardrobe', (0.5, 2.6), '12A', rotY=90)
+f3.prop('vanity', 'desk', (1.5, 2.6), '12A'); f3.hidden('jewelry', 'toy-chest', (1.5, 2.6), '12A', 'Jewelry box: rings, topaz necklace')
+f3.prop('rug', 'pallet', (1.5, 1.5), '12A', rotY=90); f3.prop('fire12', 'fireplace', (0.2, 1.5), '12A', rotY=90)
+f3.prop('parlor-table', 'table', (5, 3), '12A'); f3.prop('pchair1', 'chair', (4.5, 2.5), '12A', rotY=135); f3.prop('pchair2', 'chair', (5.5, 3.5), '12A', rotY=-45)
+f3.prop('dumbwaiter', 'dumbwaiter', (5.7, 3.7), '12A')
+f3.prop('tub', 'bed', (1.3, 5), '13'); f3.prop('stove13', 'stove', (0.4, 4.4), '13')
+f3.creature('broom', 'broom-of-animated-attack', (0.5, 6.5), '14', 'Broom of animated attack', size='small')
+f3.prop('crib', 'crib', (1, 8), '15B'); f3.hidden('bundle', 'toy-chest', (1, 8), '15B', 'Shrouded crib: empty bundle')
+f3.creature('armor', 'animated-armor', (2.5, 4.5), '11', 'Animated armor (attacks within 5 ft)')
+f3.prop('spiral', 'spiral-stair', (5.1, 5.5), '11', dims={'rise': 8, 'r': 6})
+f3.prop('attic-stair', 'stairs-straight', (3, 7.5), '11', dims={'w': 5, 'rise': 8, 'fromX': 15, 'toX': 25})
+f3.prop('bed15', 'bed', (4, 10), '15A'); f3.prop('wardrobe15', 'wardrobe', (5.6, 9), '15A', rotY=-90); f3.hidden('mirror', 'lamp', (3.5, 8.2), '15A', 'Full-length mirror (eyeballs in the berries)')
+f3.creature('specter', 'specter', (3.5, 9.2), '15A', 'Specter (nursemaid) — when the nursery door opens')
+f3.hidden('shaft-f3', 'dumbwaiter', (0.5, 3.5), '21', 'Secret stair shaft (21) passes here')
+
+# ================================================================== ATTIC (13-ft ceilings)
+at = Level('attic', 'Attic', 30, 13, ambient='interior-dim')
+at.room('19', 'Spare Bedroom', rect(0, 0, 2, 3), page=pg('19'))
+at.room('20', "Children's Room", rect(2, 0, 5, 3), page=pg('20'))
+at.room('21', 'Secret Stairs', rect(0, 3, 1, 4), 'flagstone', page=pg('21'))
+at.room('16', 'Attic Hall', [(1, 3), (5, 3), (5, 5), (6, 5), (6, 8), (3, 8), (3, 4), (1, 4)], page=pg('16'))
+at.room('18', 'Storage Room', rect(0, 4, 3, 9), page=pg('18'))
+at.room('17', 'Spare Bedroom', [(3, 8), (5, 8), (5, 11), (2, 11), (2, 9), (3, 9)], page=pg('17'))
+at.door((1, 3), (2, 3))                                  # 16 -> 19
+at.door((3, 3), (4, 3), id='attic-locked', locked=True)  # 16 -> 20 (padlocked)
+at.door((1, 4), (2, 4))                                  # 16 -> 18
+at.door((3, 8), (4, 8))                                  # 16 -> 17
+at.secret((0, 4), (1, 4), 'shaft', 'Secret door to the spiral stair (appears after 9 or 20)', '18')
+for a, b in [((0, 0), (1, 0)), ((0, 1), (0, 2)), ((2, 10), (2, 11)), ((3, 11), (4, 11))]:
+    at.window(a, b)
+at.prop('bed19', 'bed', (1.5, 1), '19'); at.prop('stove19', 'stove', (0.4, 2.5), '19'); at.prop('wardrobe19', 'wardrobe', (0.5, 0.3), '19')
+at.prop('bed20a', 'bed', (2.6, 0.9), '20'); at.prop('bed20b', 'bed', (4.4, 0.9), '20')
+at.hidden('remains', 'skeleton', (3.5, 1.7), '20', 'Rose & Thorn: skeletal remains + doll')
+at.hidden('toychest', 'toy-chest', (2.7, 2.6), '20', 'Toy chest'); at.hidden('dollhouse', 'dollhouse', (4.3, 2.6), '20', 'Dollhouse: reveals all secret doors (DC 15)')
+at.creature('rose', 'ghost', (3.2, 1.4), '20', 'Rose (ghost)', size='small'); at.creature('thorn', 'ghost', (3.8, 1.9), '20', "Thorn (ghost)", size='small')
+at.prop('spiral21', 'spiral-stair', (0.5, 3.5), '21', dims={'rise': 0.1, 'r': 2.2, 'turns': 1})
+[at.prop(f'sheet{i}', 'sheeted', p, '18') for i, p in enumerate([(1, 5.3), (2.3, 4.8), (1.5, 6.6), (2.5, 6.2), (1, 7.6), (2.4, 7.8), (0.6, 8.4), (2, 8.6)])]
+at.prop('stove18', 'stove', (0.5, 6), '18'); at.hidden('trunk', 'trunk', (0.7, 6.6), '18', "Trunk: nursemaid's remains (specter if disturbed)")
+at.prop('bed17', 'bed', (4.2, 8.9), '17'); at.prop('stove17', 'stove', (4.6, 10.5), '17'); at.prop('desk17', 'desk', (3.3, 10.3), '17', rotY=90); at.prop('rocker', 'chair', (2.5, 10.4), '17', rotY=90)
+at.prop('stair-head', 'stairs-straight', (5.5, 6.5), '16', dims={'w': 5, 'rise': 0.1, 'fromZ': 40, 'toZ': 25})
+at.note('milestone', (3, 3.5), '16', 'Milestone: access to 21 = 2nd level')
+
+# ================================================================== DUNGEON (upper) — earth & timber, 8-ft rooms
+du = Level('dungeon', 'Dungeon level', -20, 8, ambient='darkness', interior='cave-rock', exterior='cave-rock')
+D = 'dirt'
+du.room('24', "Cult Initiates' Quarters", [(8, 0), (11, 0), (11, 9), (7, 9), (7, 4), (8, 4)], D, page=pg('24'))
+du.room('25', 'Well and Cultist Quarters', rect(2, 5, 7, 10), D, page=pg('25'))
+du.room('25A', 'Cultist Quarters A', rect(3, 3, 5, 5), D, page=pg('25'))
+du.room('25B', 'Cultist Quarters B', rect(1, 3, 3, 5), D, page=pg('25'))
+du.room('25C', 'Cultist Quarters C', rect(0, 6, 2, 8), D, page=pg('25'))
+du.room('25D', 'Cultist Quarters D', rect(2, 10, 4, 12), D, page=pg('25'))
+du.room('25E', 'Cultist Quarters E', rect(4, 10, 6, 12), D, page=pg('25'))
+du.room('22', 'Dungeon Level Access', [(11, 1), (14, 1), (14, 2), (13, 2), (13, 5), (11, 5)], D, page=pg('22'))
+du.room('23', 'Family Crypts', [(13, 2), (15, 2), (15, 1), (16, 1), (16, 5), (15, 5), (15, 3), (14, 3), (14, 7), (15, 7), (15, 6), (16, 6), (16, 10), (15, 10), (15, 8), (14, 8), (14, 9), (12, 9), (12, 6), (13, 6)], D, page=pg('23'))
+du.room('23A', "Empty Crypt", rect(16, 1, 18, 2), D, page=pg('23'))
+du.room('23B', "Walter's Crypt", rect(16, 4, 18, 5), D, page=pg('23'))
+du.room('23C', "Gustav's Crypt", rect(16, 6, 18, 7), D, page=pg('23'))
+du.room('23D', "Elisabeth's Crypt", rect(16, 8, 18, 9), D, page=pg('23'))
+du.room('23E', "Rose's Crypt", rect(10, 6, 12, 7), D, page=pg('23'))
+du.room('23F', "Thorn's Crypt", rect(10, 8, 12, 9), D, page=pg('23'))
+du.room('27', 'Dining Hall', rect(12, 9, 17, 12), D, page=pg('27'))
+du.room('28', 'Larder', rect(17, 10, 18, 11), D, page=pg('28'))
+du.room('26', 'Hidden Spiked Pit', [(7, 9), (12, 9), (12, 10), (10, 10), (10, 13), (12, 13), (12, 14), (9, 14), (9, 10), (7, 10)], D, page=pg('26'))
+du.room('30', 'Stairs Down', rect(8, 14, 10, 16), D, page=pg('30'))
+du.room('29', 'Ghoulish Encounter', [(13, 12), (14, 12), (14, 13), (16, 13), (16, 15), (15, 15), (15, 14), (14, 14), (14, 17), (13, 17), (13, 14), (12, 14), (12, 13), (13, 13)], D, page=pg('29'))
+du.room('32', 'Hidden Trapdoor (stair)', rect(17, 11, 18, 14), 'flagstone', page=pg('32'))
+du.room('31', "Darklord's Shrine", [(16, 14), (19, 14), (19, 15), (20, 15.5), (20, 17.5), (19, 18), (19, 20), (16, 20)], D, page=pg('31'))
+du.room('33', "Cult Leaders' Den", [(12, 17), (16, 17), (16, 20), (12, 20), (12, 19), (11, 19), (11, 18), (12, 18)], D, page=pg('33'))
+du.room('34', "Cult Leaders' Quarters", rect(8, 18, 11, 21), D, page=pg('34'))
+# openings between tunnel pieces (no wall)
+for a, b in [((11, 1), (11, 2)), ((13, 2), (14, 2)), ((13, 4), (13, 5)), ((7, 5), (7, 6)), ((7, 9), (7, 10)), ((7, 9), (8, 9)),
+             ((12, 9), (13, 9)), ((13, 9), (14, 9)), ((12, 9), (12, 10)), ((13, 12), (14, 12)), ((13, 17), (14, 17)), ((16, 14), (16, 15)),
+             ((11, 18), (11, 19)), ((17, 10), (17, 11)), ((3, 5), (4, 5)), ((2, 5), (3, 5)), ((2, 6), (2, 7)), ((3, 10), (4, 10)), ((4, 10), (5, 10)),
+             ((12, 13), (12, 14)), ((9, 14), (10, 14))]:
+    du.opening(a, b)
+# crypt slabs: C, D, E, F sealed (locked); A and B stand open
+du.door((16, 1), (16, 2), id='crypt-A', open=True); du.door((16, 4), (16, 5), id='crypt-B', open=True)
+du.door((16, 6), (16, 7), id='crypt-C', locked=True); du.door((16, 8), (16, 9), id='crypt-D', locked=True)
+du.door((12, 6), (12, 7), id='crypt-E', locked=True); du.door((12, 8), (12, 9), id='crypt-F', locked=True)
+du.secret((17, 14), (18, 14), 'concealed', 'Concealed door under clay (DC 10) to the stair (32)', '31')
+du.door((16, 19), (16, 20), id='mimic-door')   # the "door" in 33's southwest corner is a mimic
+# props & creatures
+du.prop('table24', 'table', (9.5, 1.5), '24', rotY=90); [du.prop(f'ch24{i}', 'chair', p, '24', rotY=r) for i, (p, r) in enumerate([((8.7, 1.5), 90), ((10.3, 1.5), -90), ((9.5, 0.7), 180), ((9.5, 2.3), 0)])]
+[du.prop(f'pallet{i}', 'pallet', p, '24', rotY=r) for i, (p, r) in enumerate([((7.5, 5), 0), ((10.5, 4.5), 0), ((7.5, 7.5), 0), ((9, 7.7), 90)])]
+du.prop('well', 'well', (5.3, 7.5), '25')
+for k, pos, r in [('A', (4, 4), 90), ('B', (2.2, 4), 0), ('C', (1.2, 7), 0), ('D', (3, 11), 90), ('E', (5, 11), 90)]:
+    du.prop(f'bed25{k}', 'bed', pos, f'25{k}', rotY=r); du.hidden(f'chest25{k}', 'trunk', (pos[0] + (0.6 if r else 0), pos[1] + (0 if r else 0.8)), f'25{k}', f'Padlocked chest {k} (DC 15)')
+du.prop('spiral22', 'spiral-stair', (11.9, 4.1), '22', dims={'rise': 0.1, 'r': 2.2, 'turns': 1})
+du.prop('steps22', 'stairs-straight', (12, 1.5), '22', dims={'w': 5, 'rise': 2, 'fromZ': 10, 'toZ': 5})
+for k, pos in [('A', (17.2, 1.5)), ('B', (17.2, 4.5)), ('C', (17.2, 6.5)), ('D', (17.2, 8.5)), ('E', (10.8, 6.5)), ('F', (10.8, 8.5))]:
+    if k in 'CDEF': du.prop(f'coffin{k}', 'coffin', pos, f'23{k}', rotY=90)
+du.creature('centipedes', 'swarm-of-insects', (17.5, 8.5), '23D', 'Swarm of insects (if the coffin is disturbed)')
+du.prop('table27', 'table', (14.6, 10.5), '27', rotY=90); du.prop('bench1', 'pallet', (14, 10.5), '27'); du.prop('bench2', 'pallet', (15.2, 10.5), '27')
+[du.prop(f'bones{i}', 'skeleton', p, '27', rotY=r) for i, (p, r) in enumerate([((12.6, 9.6), 30), ((16.2, 11.4), -60), ((13.3, 11.6), 100)])]
+du.creature('grick', 'grick', (17.5, 10.5), '28', 'Grick (attacks within 5 ft of the alcove)')
+du.obj('pit', 'pit-cover', (9.5, 11.5), 'trap', '26', 'Hidden spiked pit: 5 ft long, 10 ft deep (DC 15 to notice)', dims={'w': 5, 'd': 5})
+du.prop('stairs30', 'stairs-straight', (9, 15), '30', dims={'w': 10, 'rise': 0.1, 'fromZ': 70, 'toZ': 80})
+du.note('down35', (9, 14.3), '30', '20-ft stair down to 35')
+for i, p in enumerate([(14.5, 13.5), (13.5, 14.5), (15.5, 14.5), (13.5, 16.5)]):
+    du.creature(f'ghoul{i}', 'ghoul', p, '29', f'Ghoul {i + 1} (rises from the ground at the midpoint)')
+du.prop('stairs32', 'stairs-straight', (17.5, 12.5), '32', dims={'w': 5, 'rise': 10, 'fromZ': 70, 'toZ': 55})
+du.hidden('trapdoor32', 'trapdoor', (17.5, 11.3), '32', 'Trapdoor (bolted this side) up to the den (3)')
+du.prop('statue', 'statue', (19.3, 16.5), '31', rotY=-90); du.hidden('orb', 'lamp', (19.3, 16.5), '31', 'Crystal orb (25 gp, arcane focus)')
+for i in range(5): du.creature(f'shadow{i}', 'shadow', (18.4 + 0.5 * (i % 2), 15.3 + i * 0.6), '31', f'Shadow {i + 1} (if the statue is touched)')
+[du.prop(f'shackles{i}', 'skeleton', p, '31', rotY=90) for i, p in enumerate([(16.3, 15), (16.3, 17.5), (17.5, 14.3), (18.6, 19.7)])]
+du.creature('mimic', 'mimic', (16, 19.5), '33', 'Mimic disguised as the door')
+du.prop('table33', 'table', (14, 18.6), '33', rotY=40); du.prop('ch33a', 'chair', (13.2, 18), '33', rotY=130); du.prop('ch33b', 'chair', (14.8, 19.2), '33', rotY=-50)
+du.prop('candle33a', 'lamp', (12.3, 17.3), '33'); du.prop('candle33b', 'lamp', (15.7, 17.3), '33')
+du.prop('bed34', 'bed', (9.5, 19.8), '34', rotY=0); du.prop('wardrobe34', 'wardrobe', (8.5, 18.3), '34', rotY=90); du.prop('crate34', 'trunk', (10.5, 18.4), '34')
+du.hidden('footlocker', 'trunk', (9.5, 18.6), '34', 'Footlocker: cloak of protection, potions, spellbook')
+du.creature('ghast-g', 'ghast', (9.5, 17.5), '34', 'Ghast (Gustav Durst) — behind the wall'); du.creature('ghast-e', 'ghast', (7.5, 19.5), '34', 'Ghast (Elisabeth Durst) — behind the wall')
+du.note('chant', (12.5, 13.5), '29', 'Chanting is louder toward 30/35')
+
+# ================================================================== DUNGEON (lower) — 35–38
+dl = Level('dungeon-lower', 'Dungeon level (lower)', -30, 8, ambient='darkness', interior='cave-rock', exterior='cave-rock')
+dl.room('35', 'Reliquary', [(1, 1), (8, 1), (8, 4), (3, 4), (3, 2), (2, 2), (2, 5), (1, 5)], D, page=pg('35'))
+dl.room('36', 'Prison', [(4, 4), (5, 4), (5, 6), (4, 6), (4, 13), (1, 13), (1, 6), (2, 6), (2, 5), (4, 5)], D, page=pg('36'))
+dl.room('37', 'Portcullis', rect(6, 4, 7, 6), 'shallow-water', page=pg('37'), difficult=True)
+dl.room('38', 'Ritual Chamber', [(4, 6), (12, 6), (12, 14), (8, 14), (8, 16), (6, 16), (6, 14), (4, 14)], 'shallow-water', page=pg('38'), difficult=True, ceilingFt=16)
+for a, b in [((4, 4), (5, 4)), ((6, 4), (7, 4))]:
+    dl.opening(a, b)
+dl.door((6, 6), (7, 6), id='portcullis', locked=True)
+dl.secret((4, 9), (4, 10), 'prison', 'Secret door to the ritual chamber (DC 15)', '36')
+# prison alcove partitions (short walls) — stamped as extra walls via a helper room-less trick: add thin walls directly
+extra_walls = []
+for r in (7, 8, 9, 10, 11, 12):
+    for c0, c1 in ((1, 2), (3, 4)):
+        extra_walls.append(OrderedDict(id=f'dungeon-lower-cell-{r}-{c0}', a=[c0 * C, r * C], b=[c1 * C, r * C], flags=['normal'], material='cave-rock'))
+# 38: walls 16 ft; ledges, pillars, dais, altar, wheel, stairs, cave
+for i, (pos, dims) in enumerate([(((8, 6.5)), {'w': 40, 'd': 5, 'h': 5}), (((8, 13.5)), {'w': 40, 'd': 5, 'h': 5}), (((4.5, 10)), {'w': 5, 'd': 30, 'h': 5}), (((11.5, 10)), {'w': 5, 'd': 30, 'h': 5})]):
+    dl.prop(f'ledge{i}', 'ledge', pos, '38', dims=dims)
+for i, p in enumerate([(5, 7), (7, 7), (9, 7), (11, 7), (5, 9), (11, 9), (5, 11), (11, 11), (5, 13), (7, 13), (9, 13), (11, 13)]):
+    dl.prop(f'pillar{i}', 'column', p, '38', y=5)
+dl.prop('dais', 'dais', (8, 10), '38', dims={'w': 15, 'h': 5, 'steps': 3})
+dl.prop('altar', 'altar', (8.4, 10), '38', y=5, rotY=90)
+dl.hidden('chains', 'lamp', (8.4, 10), '38', 'Chains and shackles above the altar (8 ft)')
+dl.prop('wheel', 'wheel', (7.6, 6.2), '38', y=5)
+dl.creature('lorghoth', 'shambling-mound', (7, 15.2), '38', 'Lorghoth the Decayer (shambling mound, asleep)', size='large')
+dl.prop('refuse', 'refuse', (7, 15.2), '38')
+[dl.prop(f'stair38{i}', 'stairs-straight', p, '38', dims={'w': 5, 'rise': 5, 'fromZ': fz, 'toZ': tz}) for i, (p, fz, tz) in enumerate([((6.5, 7.5), 40, 35), ((6.5, 12.5), 60, 65)])]
+for i, p in enumerate([(3.5, 1.2), (4.5, 1.2), (5.5, 1.2), (6.5, 1.2), (7.5, 1.2), (3.5, 3.8), (4.5, 3.8), (5.5, 3.8), (6.5, 3.8), (7.5, 3.8), (7.8, 2.0), (7.8, 3.0), (3.2, 3.0)]):
+    dl.hidden(f'relic{i}', 'niche', p, '35', f'Relic niche {i + 1}')
+for i, p in enumerate([(4, 2), (5, 2), (6, 2), (7, 2), (4, 3), (5, 3), (6, 3), (7, 3)]):
+    dl.prop(f'post{i}', 'column', p, '35')
+dl.prop('stairs30', 'stairs-straight', (1.5, 4), '35', dims={'w': 5, 'rise': 0.1, 'fromZ': 25, 'toZ': 15})
+dl.hidden('ring', 'skeleton', (1.5, 10.5), '36', 'Skeleton in a black robe: gold ring (25 gp)')
+dl.note('up30', (1.5, 4.5), '35', 'Stair up to 30')
+dl.note('cultists', (8, 7), '38', '13 apparitions on the ledges when the dais is climbed; "One must die!"')
+
+# ================================================================== assemble
+levels = [f1, f2, f3, at, du, dl]
+scene = OrderedDict(schema=1, location='death-house', chapter='appB', name='Death House', mapPage=216, bookScaleFt=5, ambient='interior-dim')
+scene['levels'] = [lv.to_json() for lv in levels]
+scene['levels'][5]['walls'] += extra_walls
+for w in scene['levels'][5]['walls']:
+    if w['id'] in ('dungeon-lower-w-0',) or True:
+        # 38's masonry is 16 ft
+        a, b = w['a'], w['b']
+        if all(20 <= v[0] <= 60 and 30 <= v[1] <= 80 for v in (a, b)): w['heightFt'] = 16; w['material'] = 'ashlar'
+scene['links'] = [
+    OrderedDict(id='lk-spiral-1-2', kind='spiral', **{'from': {'level': 'f1', 'pos': [25.5, 27.5]}, 'to': {'level': 'f2', 'pos': [25.5, 27.5]}}),
+    OrderedDict(id='lk-spiral-2-3', kind='spiral', **{'from': {'level': 'f2', 'pos': [25.5, 27.5]}, 'to': {'level': 'f3', 'pos': [25.5, 27.5]}}),
+    OrderedDict(id='lk-attic-stair', kind='stairs', **{'from': {'level': 'f3', 'pos': [20, 37.5]}, 'to': {'level': 'attic', 'pos': [27.5, 32.5]}}),
+    OrderedDict(id='lk-21', kind='spiral', **{'from': {'level': 'attic', 'pos': [2.5, 17.5]}, 'to': {'level': 'dungeon', 'pos': [59.5, 20.5]}}),
+    OrderedDict(id='lk-dumbwaiter-1-2', kind='dumbwaiter', **{'from': {'level': 'f1', 'pos': [28.5, 18.5]}, 'to': {'level': 'f2', 'pos': [28.5, 18.5]}}),
+    OrderedDict(id='lk-dumbwaiter-2-3', kind='dumbwaiter', **{'from': {'level': 'f2', 'pos': [28.5, 18.5]}, 'to': {'level': 'f3', 'pos': [28.5, 18.5]}}),
+    OrderedDict(id='lk-trapdoor', kind='trapdoor', **{'from': {'level': 'dungeon', 'pos': [87.5, 56.5]}, 'to': {'level': 'f1', 'pos': [27.5, 52.5]}}),
+    OrderedDict(id='lk-30', kind='stairs', **{'from': {'level': 'dungeon', 'pos': [45, 75]}, 'to': {'level': 'dungeon-lower', 'pos': [7.5, 20]}}),
+]
+scene['nonSpatialKeys'] = ['1', '2', '4', '7', '12', '15']
+
+grid = OrderedDict(schema=1, levels=OrderedDict())
+for lv in levels:
+    grid['levels'][lv.id] = OrderedDict(floorPolygons=[ft(p) for p in lv.floor_polys], type='square', hexOrientation='pointy', origin=[0, 0], color='#1d1b22', opacity=0.55)
+
+out = os.path.join(ROOT, 'locations', 'appB', 'death-house')
+os.makedirs(out, exist_ok=True)
+json.dump(scene, open(os.path.join(out, 'scene.json'), 'w'), indent=1, ensure_ascii=False)
+json.dump(grid, open(os.path.join(out, 'grid.json'), 'w'), indent=1, ensure_ascii=False)
+nw = sum(len(l['walls']) for l in scene['levels']); no = sum(len(l['objects']) for l in scene['levels']); nr = sum(len(l['rooms']) for l in scene['levels'])
+print(f'death-house: {len(levels)} levels, {nr} rooms, {nw} walls, {no} objects')

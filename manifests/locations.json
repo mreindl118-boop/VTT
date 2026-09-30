@@ -3896,9 +3896,33 @@
      "page": 212
     },
     {
+     "key": "1A",
+     "name": "Entrance (portico)",
+     "page": 212,
+     "parent": "1"
+    },
+    {
+     "key": "1B",
+     "name": "Entrance (foyer)",
+     "page": 212,
+     "parent": "1"
+    },
+    {
      "key": "2",
      "name": "Main Hall",
      "page": 212
+    },
+    {
+     "key": "2A",
+     "name": "Main Hall",
+     "page": 212,
+     "parent": "2"
+    },
+    {
+     "key": "2B",
+     "name": "Cloakroom",
+     "page": 212,
+     "parent": "2"
     },
     {
      "key": "3",
@@ -3909,6 +3933,18 @@
      "key": "4",
      "name": "Kitchen and Pantry",
      "page": 213
+    },
+    {
+     "key": "4A",
+     "name": "Kitchen",
+     "page": 213,
+     "parent": "4"
+    },
+    {
+     "key": "4B",
+     "name": "Pantry",
+     "page": 213,
+     "parent": "4"
     },
     {
      "key": "5",
@@ -3924,6 +3960,18 @@
      "key": "7",
      "name": "Servants' Room",
      "page": 213
+    },
+    {
+     "key": "7A",
+     "name": "Servants' Room",
+     "page": 213,
+     "parent": "7"
+    },
+    {
+     "key": "7B",
+     "name": "Servants' Closet",
+     "page": 213,
+     "parent": "7"
     },
     {
      "key": "8",
@@ -3951,6 +3999,24 @@
      "page": 214
     },
     {
+     "key": "12A",
+     "name": "Master Bedroom",
+     "page": 214,
+     "parent": "12"
+    },
+    {
+     "key": "12B",
+     "name": "Closet",
+     "page": 214,
+     "parent": "12"
+    },
+    {
+     "key": "12C",
+     "name": "Balcony (back)",
+     "page": 214,
+     "parent": "12"
+    },
+    {
      "key": "13",
      "name": "Bathroom",
      "page": 215
@@ -3964,6 +4030,24 @@
      "key": "15",
      "name": "Nursemaid's Suite",
      "page": 215
+    },
+    {
+     "key": "15A",
+     "name": "Nursemaid's Bedroom",
+     "page": 215,
+     "parent": "15"
+    },
+    {
+     "key": "15B",
+     "name": "Nursery",
+     "page": 215,
+     "parent": "15"
+    },
+    {
+     "key": "15C",
+     "name": "Balcony (front)",
+     "page": 215,
+     "parent": "15"
     },
     {
      "key": "16",
@@ -4006,6 +4090,42 @@
      "page": 217
     },
     {
+     "key": "23A",
+     "name": "Empty Crypt",
+     "page": 217,
+     "parent": "23"
+    },
+    {
+     "key": "23B",
+     "name": "Walter's Crypt",
+     "page": 217,
+     "parent": "23"
+    },
+    {
+     "key": "23C",
+     "name": "Gustav's Crypt",
+     "page": 217,
+     "parent": "23"
+    },
+    {
+     "key": "23D",
+     "name": "Elisabeth's Crypt",
+     "page": 217,
+     "parent": "23"
+    },
+    {
+     "key": "23E",
+     "name": "Rose's Crypt",
+     "page": 217,
+     "parent": "23"
+    },
+    {
+     "key": "23F",
+     "name": "Thorn's Crypt",
+     "page": 217,
+     "parent": "23"
+    },
+    {
      "key": "24",
      "name": "Cult Initiates' Quarters",
      "page": 218
@@ -4014,6 +4134,36 @@
      "key": "25",
      "name": "Well and Cultist Quarters",
      "page": 218
+    },
+    {
+     "key": "25A",
+     "name": "Cultist Quarters A",
+     "page": 218,
+     "parent": "25"
+    },
+    {
+     "key": "25B",
+     "name": "Cultist Quarters B",
+     "page": 218,
+     "parent": "25"
+    },
+    {
+     "key": "25C",
+     "name": "Cultist Quarters C",
+     "page": 218,
+     "parent": "25"
+    },
+    {
+     "key": "25D",
+     "name": "Cultist Quarters D",
+     "page": 218,
+     "parent": "25"
+    },
+    {
+     "key": "25E",
+     "name": "Cultist Quarters E",
+     "page": 218,
+     "parent": "25"
     },
     {
      "key": "26",
@@ -4103,7 +4253,7 @@
      "name": "Dungeon"
     }
    ],
-   "notes": "Keys are the bare numbers; UI label is \"Death House N\". Exterior placed on the Village of Barovia layer. Milestone M1."
+   "notes": "Keys are the bare numbers; sub-areas use the book's letters (1A, 23E). UI label is \"Death House N\". Map p.216 is printed with north to the left. Exterior placed on the Village of Barovia layer (E7). Milestone M1."
   },
   {
    "id": "encounter-terrain",

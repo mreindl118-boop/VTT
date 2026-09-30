@@ -1,0 +1,11023 @@
+{
+ "schema": 1,
+ "location": "death-house",
+ "chapter": "appB",
+ "name": "Death House",
+ "mapPage": 216,
+ "bookScaleFt": 5,
+ "ambient": "interior-dim",
+ "levels": [
+  {
+   "id": "f1",
+   "name": "First floor",
+   "elevationFt": 0,
+   "ceilingFt": 10,
+   "ambient": "interior-dim",
+   "north": "-x",
+   "rooms": [
+    {
+     "key": "1A",
+     "name": "Entrance (portico)",
+     "page": 212,
+     "polygon": [
+      [
+       0,
+       50
+      ],
+      [
+       10,
+       50
+      ],
+      [
+       10,
+       55
+      ],
+      [
+       0,
+       55
+      ]
+     ],
+     "floor": "flagstone"
+    },
+    {
+     "key": "1B",
+     "name": "Entrance (foyer)",
+     "page": 212,
+     "polygon": [
+      [
+       0,
+       35
+      ],
+      [
+       10,
+       35
+      ],
+      [
+       10,
+       50
+      ],
+      [
+       0,
+       50
+      ]
+     ],
+     "floor": "plank"
+    },
+    {
+     "key": "3",
+     "name": "Den of Wolves",
+     "page": 212,
+     "polygon": [
+      [
+       10,
+       35
+      ],
+      [
+       30,
+       35
+      ],
+      [
+       30,
+       55
+      ],
+      [
+       10,
+       55
+      ]
+     ],
+     "floor": "plank"
+    },
+    {
+     "key": "2A",
+     "name": "Main Hall",
+     "page": 212,
+     "polygon": [
+      [
+       0,
+       20
+      ],
+      [
+       15,
+       20
+      ],
+      [
+       15,
+       15
+      ],
+      [
+       20,
+       15
+      ],
+      [
+       20,
+       20
+      ],
+      [
+       30,
+       20
+      ],
+      [
+       30,
+       35
+      ],
+      [
+       0,
+       35
+      ]
+     ],
+     "floor": "plank"
+    },
+    {
+     "key": "2B",
+     "name": "Cloakroom",
+     "page": 212,
+     "polygon": [
+      [
+       10,
+       15
+      ],
+      [
+       15,
+       15
+      ],
+      [
+       15,
+       20
+      ],
+      [
+       10,
+       20
+      ]
+     ],
+     "floor": "plank"
+    },
+    {
+     "key": "5",
+     "name": "Dining Room",
+     "page": 213,
+     "polygon": [
+      [
+       0,
+       0
+      ],
+      [
+       20,
+       0
+      ],
+      [
+       20,
+       15
+      ],
+      [
+       10,
+       15
+      ],
+      [
+       10,
+       20
+      ],
+      [
+       5,
+       20
+      ],
+      [
+       5,
+       15
+      ],
+      [
+       0,
+       15
+      ]
+     ],
+     "floor": "plank"
+    },
+    {
+     "key": "4A",
+     "name": "Kitchen",
+     "page": 213,
+     "polygon": [
+      [
+       20,
+       5
+      ],
+      [
+       30,
+       5
+      ],
+      [
+       30,
+       20
+      ],
+      [
+       20,
+       20
+      ]
+     ],
+     "floor": "flagstone"
+    },
+    {
+     "key": "4B",
+     "name": "Pantry",
+     "page": 213,
+     "polygon": [
+      [
+       20,
+       0
+      ],
+      [
+       30,
+       0
+      ],
+      [
+       30,
+       5
+      ],
+      [
+       20,
+       5
+      ]
+     ],
+     "floor": "flagstone"
+    }
+   ],
+   "walls": [
+    {
+     "id": "f1-front-doors",
+     "a": [
+      0.0,
+      50.0
+     ],
+     "b": [
+      5.0,
+      50.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "plaster",
+     "open": false
+    },
+    {
+     "id": "f1-w-1",
+     "a": [
+      5.0,
+      50.0
+     ],
+     "b": [
+      10.0,
+      50.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "f1-w-2",
+     "a": [
+      10.0,
+      50.0
+     ],
+     "b": [
+      10.0,
+      55.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "f1-w-3",
+     "a": [
+      5.0,
+      55.0
+     ],
+     "b": [
+      15.0,
+      55.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f1-gate",
+     "a": [
+      0.0,
+      55.0
+     ],
+     "b": [
+      5.0,
+      55.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "rubble",
+     "open": false
+    },
+    {
+     "id": "f1-w-5",
+     "a": [
+      0.0,
+      50.0
+     ],
+     "b": [
+      0.0,
+      55.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f1-foyer-hall",
+     "a": [
+      0.0,
+      35.0
+     ],
+     "b": [
+      5.0,
+      35.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "plaster",
+     "open": false
+    },
+    {
+     "id": "f1-w-7",
+     "a": [
+      5.0,
+      35.0
+     ],
+     "b": [
+      10.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "f1-w-8",
+     "a": [
+      10.0,
+      35.0
+     ],
+     "b": [
+      10.0,
+      50.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "f1-w-9",
+     "a": [
+      0.0,
+      45.0
+     ],
+     "b": [
+      0.0,
+      50.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f1-w-10",
+     "a": [
+      0.0,
+      40.0
+     ],
+     "b": [
+      0.0,
+      45.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f1-w-11",
+     "a": [
+      0.0,
+      35.0
+     ],
+     "b": [
+      0.0,
+      40.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f1-door-4",
+     "a": [
+      10.0,
+      35.0
+     ],
+     "b": [
+      15.0,
+      35.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "plaster",
+     "open": false
+    },
+    {
+     "id": "f1-w-13",
+     "a": [
+      15.0,
+      35.0
+     ],
+     "b": [
+      30.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "f1-w-14",
+     "a": [
+      30.0,
+      35.0
+     ],
+     "b": [
+      30.0,
+      40.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f1-w-15",
+     "a": [
+      30.0,
+      40.0
+     ],
+     "b": [
+      30.0,
+      45.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f1-w-16",
+     "a": [
+      30.0,
+      45.0
+     ],
+     "b": [
+      30.0,
+      55.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f1-w-17",
+     "a": [
+      25.0,
+      55.0
+     ],
+     "b": [
+      30.0,
+      55.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f1-w-18",
+     "a": [
+      20.0,
+      55.0
+     ],
+     "b": [
+      25.0,
+      55.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f1-w-19",
+     "a": [
+      15.0,
+      55.0
+     ],
+     "b": [
+      20.0,
+      55.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f1-w-20",
+     "a": [
+      0.0,
+      20.0
+     ],
+     "b": [
+      5.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f1-door-5",
+     "a": [
+      5.0,
+      20.0
+     ],
+     "b": [
+      10.0,
+      20.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "plaster",
+     "open": false
+    },
+    {
+     "id": "f1-door-7",
+     "a": [
+      10.0,
+      20.0
+     ],
+     "b": [
+      15.0,
+      20.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "plaster",
+     "open": false
+    },
+    {
+     "id": "f1-w-23",
+     "a": [
+      15.0,
+      15.0
+     ],
+     "b": [
+      15.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "f1-door-6",
+     "a": [
+      15.0,
+      15.0
+     ],
+     "b": [
+      20.0,
+      15.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "plaster",
+     "open": false
+    },
+    {
+     "id": "f1-door-8",
+     "a": [
+      20.0,
+      15.0
+     ],
+     "b": [
+      20.0,
+      20.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "plaster",
+     "open": false
+    },
+    {
+     "id": "f1-w-26",
+     "a": [
+      20.0,
+      20.0
+     ],
+     "b": [
+      30.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "f1-w-27",
+     "a": [
+      30.0,
+      20.0
+     ],
+     "b": [
+      30.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f1-w-28",
+     "a": [
+      0.0,
+      30.0
+     ],
+     "b": [
+      0.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f1-w-29",
+     "a": [
+      0.0,
+      25.0
+     ],
+     "b": [
+      0.0,
+      30.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f1-w-30",
+     "a": [
+      0.0,
+      20.0
+     ],
+     "b": [
+      0.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f1-w-31",
+     "a": [
+      10.0,
+      15.0
+     ],
+     "b": [
+      15.0,
+      15.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "f1-w-32",
+     "a": [
+      10.0,
+      15.0
+     ],
+     "b": [
+      10.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "f1-w-33",
+     "a": [
+      0.0,
+      0.0
+     ],
+     "b": [
+      5.0,
+      0.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f1-w-34",
+     "a": [
+      5.0,
+      0.0
+     ],
+     "b": [
+      10.0,
+      0.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f1-w-35",
+     "a": [
+      10.0,
+      0.0
+     ],
+     "b": [
+      15.0,
+      0.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f1-w-36",
+     "a": [
+      15.0,
+      0.0
+     ],
+     "b": [
+      25.0,
+      0.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f1-w-37",
+     "a": [
+      20.0,
+      0.0
+     ],
+     "b": [
+      20.0,
+      15.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "f1-w-38",
+     "a": [
+      5.0,
+      15.0
+     ],
+     "b": [
+      5.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f1-w-39",
+     "a": [
+      0.0,
+      15.0
+     ],
+     "b": [
+      5.0,
+      15.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f1-w-40",
+     "a": [
+      0.0,
+      10.0
+     ],
+     "b": [
+      0.0,
+      15.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f1-w-41",
+     "a": [
+      0.0,
+      5.0
+     ],
+     "b": [
+      0.0,
+      10.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f1-w-42",
+     "a": [
+      0.0,
+      0.0
+     ],
+     "b": [
+      0.0,
+      5.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f1-door-9",
+     "a": [
+      20.0,
+      5.0
+     ],
+     "b": [
+      25.0,
+      5.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "plaster",
+     "open": false
+    },
+    {
+     "id": "f1-w-44",
+     "a": [
+      25.0,
+      5.0
+     ],
+     "b": [
+      30.0,
+      5.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "f1-w-45",
+     "a": [
+      30.0,
+      5.0
+     ],
+     "b": [
+      30.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f1-w-46",
+     "a": [
+      25.0,
+      0.0
+     ],
+     "b": [
+      30.0,
+      0.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f1-w-47",
+     "a": [
+      30.0,
+      0.0
+     ],
+     "b": [
+      30.0,
+      5.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    }
+   ],
+   "lights": [],
+   "objects": [
+    {
+     "id": "f1-table",
+     "kind": "table",
+     "pos": [
+      10,
+      0,
+      7.5
+     ],
+     "vis": "player",
+     "key": "5"
+    },
+    {
+     "id": "f1-chair0",
+     "kind": "chair",
+     "pos": [
+      6.0,
+      0,
+      3.0
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "key": "5"
+    },
+    {
+     "id": "f1-chair1",
+     "kind": "chair",
+     "pos": [
+      10,
+      0,
+      3.0
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "key": "5"
+    },
+    {
+     "id": "f1-chair2",
+     "kind": "chair",
+     "pos": [
+      14.0,
+      0,
+      3.0
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "key": "5"
+    },
+    {
+     "id": "f1-chair3",
+     "kind": "chair",
+     "pos": [
+      6.0,
+      0,
+      12.0
+     ],
+     "vis": "player",
+     "key": "5"
+    },
+    {
+     "id": "f1-chair4",
+     "kind": "chair",
+     "pos": [
+      10,
+      0,
+      12.0
+     ],
+     "vis": "player",
+     "key": "5"
+    },
+    {
+     "id": "f1-chair5",
+     "kind": "chair",
+     "pos": [
+      14.0,
+      0,
+      12.0
+     ],
+     "vis": "player",
+     "key": "5"
+    },
+    {
+     "id": "f1-chair6",
+     "kind": "chair",
+     "pos": [
+      3.0,
+      0,
+      7.5
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "5"
+    },
+    {
+     "id": "f1-chair7",
+     "kind": "chair",
+     "pos": [
+      17.0,
+      0,
+      7.5
+     ],
+     "vis": "player",
+     "rotY": -90,
+     "key": "5"
+    },
+    {
+     "id": "f1-fire5",
+     "kind": "fireplace",
+     "pos": [
+      1.0,
+      0,
+      12.5
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "5"
+    },
+    {
+     "id": "f1-fire2a",
+     "kind": "fireplace",
+     "pos": [
+      1.0,
+      0,
+      22.5
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "2A"
+    },
+    {
+     "id": "f1-sword",
+     "kind": "lamp",
+     "pos": [
+      1.5,
+      0,
+      22.5
+     ],
+     "vis": "hidden-object",
+     "key": "2A",
+     "label": "Longsword above the mantel (windmill cameo)"
+    },
+    {
+     "id": "f1-spiral",
+     "kind": "spiral-stair",
+     "pos": [
+      25.5,
+      0,
+      27.5
+     ],
+     "vis": "player",
+     "key": "2A",
+     "dims": {
+      "rise": 10,
+      "r": 6
+     }
+    },
+    {
+     "id": "f1-oven",
+     "kind": "oven",
+     "pos": [
+      26.0,
+      0,
+      8.0
+     ],
+     "vis": "player",
+     "key": "4A"
+    },
+    {
+     "id": "f1-worktable",
+     "kind": "table",
+     "pos": [
+      24.0,
+      0,
+      13.0
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "4A"
+    },
+    {
+     "id": "f1-dumbwaiter",
+     "kind": "dumbwaiter",
+     "pos": [
+      28.5,
+      0,
+      18.5
+     ],
+     "vis": "player",
+     "key": "4A"
+    },
+    {
+     "id": "f1-fire3",
+     "kind": "fireplace",
+     "pos": [
+      29.0,
+      0,
+      47.5
+     ],
+     "vis": "player",
+     "rotY": -90,
+     "key": "3"
+    },
+    {
+     "id": "f1-den-table",
+     "kind": "table",
+     "pos": [
+      21.5,
+      0,
+      51.5
+     ],
+     "vis": "player",
+     "key": "3"
+    },
+    {
+     "id": "f1-denchair0",
+     "kind": "chair",
+     "pos": [
+      18.5,
+      0,
+      48.0
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "key": "3"
+    },
+    {
+     "id": "f1-denchair1",
+     "kind": "chair",
+     "pos": [
+      24.5,
+      0,
+      48.0
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "key": "3"
+    },
+    {
+     "id": "f1-denchair2",
+     "kind": "chair",
+     "pos": [
+      18.5,
+      0,
+      52.0
+     ],
+     "vis": "player",
+     "key": "3"
+    },
+    {
+     "id": "f1-denchair3",
+     "kind": "chair",
+     "pos": [
+      24.5,
+      0,
+      52.0
+     ],
+     "vis": "player",
+     "key": "3"
+    },
+    {
+     "id": "f1-cab-e",
+     "kind": "cabinet",
+     "pos": [
+      28.5,
+      0,
+      41.5
+     ],
+     "vis": "player",
+     "rotY": -90,
+     "key": "3"
+    },
+    {
+     "id": "f1-cab-n",
+     "kind": "cabinet",
+     "pos": [
+      11.5,
+      0,
+      42.5
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "3"
+    },
+    {
+     "id": "f1-wolf0",
+     "kind": "sheeted",
+     "pos": [
+      16.5,
+      0,
+      37.0
+     ],
+     "vis": "player",
+     "key": "3"
+    },
+    {
+     "id": "f1-wolf1",
+     "kind": "sheeted",
+     "pos": [
+      26.5,
+      0,
+      37.0
+     ],
+     "vis": "player",
+     "key": "3"
+    },
+    {
+     "id": "f1-wolf2",
+     "kind": "sheeted",
+     "pos": [
+      23.0,
+      0,
+      53.0
+     ],
+     "vis": "player",
+     "key": "3"
+    },
+    {
+     "id": "f1-cab-lock",
+     "kind": "toy-chest",
+     "pos": [
+      28.0,
+      0,
+      41.5
+     ],
+     "vis": "hidden-object",
+     "key": "3",
+     "label": "Locked cabinet: crossbows (DC 15)"
+    },
+    {
+     "id": "f1-trapdoor",
+     "kind": "trapdoor",
+     "pos": [
+      27.5,
+      0,
+      52.5
+     ],
+     "vis": "hidden-object",
+     "key": "3",
+     "label": "Hidden trapdoor to 32 (only from below)"
+    },
+    {
+     "id": "f1-coat-rack",
+     "kind": "cabinet",
+     "pos": [
+      12.5,
+      0,
+      16.5
+     ],
+     "vis": "player",
+     "key": "2B"
+    },
+    {
+     "id": "f1-lamp1a",
+     "kind": "lamp",
+     "pos": [
+      1.5,
+      0,
+      52.5
+     ],
+     "vis": "player",
+     "key": "1A"
+    },
+    {
+     "id": "f1-lamp1b",
+     "kind": "lamp",
+     "pos": [
+      8.5,
+      0,
+      52.5
+     ],
+     "vis": "player",
+     "key": "1A"
+    },
+    {
+     "id": "f1-gate-iron",
+     "kind": "gate",
+     "pos": [
+      2.5,
+      0,
+      55
+     ],
+     "vis": "player",
+     "key": "1A"
+    },
+    {
+     "id": "f1-shaft-f1",
+     "kind": "dumbwaiter",
+     "pos": [
+      2.5,
+      0,
+      17.5
+     ],
+     "vis": "hidden-object",
+     "key": "21",
+     "label": "Secret stair shaft (21) passes here"
+    },
+    {
+     "id": "f1-spawn",
+     "kind": "spawn",
+     "pos": [
+      7.5,
+      0,
+      52.5
+     ],
+     "vis": "dm-note",
+     "key": "1A",
+     "label": "Party spawn: portico (Rose & Thorn wait here)"
+    }
+   ]
+  },
+  {
+   "id": "f2",
+   "name": "Second floor",
+   "elevationFt": 10,
+   "ceilingFt": 12,
+   "ambient": "interior-dim",
+   "north": "-x",
+   "rooms": [
+    {
+     "key": "8",
+     "name": "Library",
+     "page": 213,
+     "polygon": [
+      [
+       0,
+       0
+      ],
+      [
+       20,
+       0
+      ],
+      [
+       20,
+       15
+      ],
+      [
+       15,
+       15
+      ],
+      [
+       15,
+       20
+      ],
+      [
+       5,
+       20
+      ],
+      [
+       5,
+       15
+      ],
+      [
+       0,
+       15
+      ]
+     ],
+     "floor": "plank"
+    },
+    {
+     "key": "9",
+     "name": "Secret Room",
+     "page": 214,
+     "polygon": [
+      [
+       20,
+       0
+      ],
+      [
+       30,
+       0
+      ],
+      [
+       30,
+       5
+      ],
+      [
+       20,
+       5
+      ]
+     ],
+     "floor": "plank"
+    },
+    {
+     "key": "7A",
+     "name": "Servants' Room",
+     "page": 213,
+     "polygon": [
+      [
+       20,
+       5
+      ],
+      [
+       30,
+       5
+      ],
+      [
+       30,
+       20
+      ],
+      [
+       20,
+       20
+      ]
+     ],
+     "floor": "plank"
+    },
+    {
+     "key": "7B",
+     "name": "Servants' Closet",
+     "page": 213,
+     "polygon": [
+      [
+       15,
+       15
+      ],
+      [
+       20,
+       15
+      ],
+      [
+       20,
+       20
+      ],
+      [
+       15,
+       20
+      ]
+     ],
+     "floor": "plank"
+    },
+    {
+     "key": "6",
+     "name": "Upper Hall",
+     "page": 213,
+     "polygon": [
+      [
+       0,
+       20
+      ],
+      [
+       30,
+       20
+      ],
+      [
+       30,
+       35
+      ],
+      [
+       0,
+       35
+      ]
+     ],
+     "floor": "plank"
+    },
+    {
+     "key": "10",
+     "name": "Conservatory",
+     "page": 214,
+     "polygon": [
+      [
+       0,
+       35
+      ],
+      [
+       30,
+       35
+      ],
+      [
+       30,
+       55
+      ],
+      [
+       0,
+       55
+      ]
+     ],
+     "floor": "plank"
+    }
+   ],
+   "walls": [
+    {
+     "id": "f2-w-0",
+     "a": [
+      0.0,
+      0.0
+     ],
+     "b": [
+      5.0,
+      0.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f2-w-1",
+     "a": [
+      5.0,
+      0.0
+     ],
+     "b": [
+      10.0,
+      0.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f2-w-2",
+     "a": [
+      10.0,
+      0.0
+     ],
+     "b": [
+      15.0,
+      0.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f2-w-3",
+     "a": [
+      15.0,
+      0.0
+     ],
+     "b": [
+      30.0,
+      0.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f2-sd-lib",
+     "a": [
+      20.0,
+      0.0
+     ],
+     "b": [
+      20.0,
+      5.0
+     ],
+     "flags": [
+      "secret-door"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "f2-w-5",
+     "a": [
+      20.0,
+      5.0
+     ],
+     "b": [
+      20.0,
+      15.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "f2-w-6",
+     "a": [
+      15.0,
+      15.0
+     ],
+     "b": [
+      20.0,
+      15.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "f2-w-7",
+     "a": [
+      15.0,
+      15.0
+     ],
+     "b": [
+      15.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "f2-w-8",
+     "a": [
+      10.0,
+      20.0
+     ],
+     "b": [
+      15.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "f2-door-1",
+     "a": [
+      5.0,
+      20.0
+     ],
+     "b": [
+      10.0,
+      20.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "plaster",
+     "open": false
+    },
+    {
+     "id": "f2-w-10",
+     "a": [
+      5.0,
+      15.0
+     ],
+     "b": [
+      5.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f2-w-11",
+     "a": [
+      0.0,
+      15.0
+     ],
+     "b": [
+      5.0,
+      15.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f2-w-12",
+     "a": [
+      0.0,
+      10.0
+     ],
+     "b": [
+      0.0,
+      15.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f2-w-13",
+     "a": [
+      0.0,
+      5.0
+     ],
+     "b": [
+      0.0,
+      10.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f2-w-14",
+     "a": [
+      0.0,
+      0.0
+     ],
+     "b": [
+      0.0,
+      5.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f2-w-15",
+     "a": [
+      30.0,
+      0.0
+     ],
+     "b": [
+      30.0,
+      40.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f2-w-16",
+     "a": [
+      25.0,
+      5.0
+     ],
+     "b": [
+      30.0,
+      5.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "f2-w-17",
+     "a": [
+      20.0,
+      5.0
+     ],
+     "b": [
+      25.0,
+      5.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "f2-w-18",
+     "a": [
+      25.0,
+      20.0
+     ],
+     "b": [
+      30.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "f2-door-3",
+     "a": [
+      20.0,
+      20.0
+     ],
+     "b": [
+      25.0,
+      20.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "plaster",
+     "open": false
+    },
+    {
+     "id": "f2-door-4",
+     "a": [
+      20.0,
+      15.0
+     ],
+     "b": [
+      20.0,
+      20.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "plaster",
+     "open": false
+    },
+    {
+     "id": "f2-door-2",
+     "a": [
+      15.0,
+      20.0
+     ],
+     "b": [
+      20.0,
+      20.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "plaster",
+     "open": false
+    },
+    {
+     "id": "f2-w-22",
+     "a": [
+      0.0,
+      20.0
+     ],
+     "b": [
+      5.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f2-w-23",
+     "a": [
+      25.0,
+      35.0
+     ],
+     "b": [
+      30.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "f2-w-24",
+     "a": [
+      20.0,
+      35.0
+     ],
+     "b": [
+      25.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "f2-w-25",
+     "a": [
+      15.0,
+      35.0
+     ],
+     "b": [
+      20.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "f2-w-26",
+     "a": [
+      10.0,
+      35.0
+     ],
+     "b": [
+      15.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "f2-door-5",
+     "a": [
+      5.0,
+      35.0
+     ],
+     "b": [
+      10.0,
+      35.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "plaster",
+     "open": false
+    },
+    {
+     "id": "f2-w-28",
+     "a": [
+      0.0,
+      35.0
+     ],
+     "b": [
+      5.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "f2-w-29",
+     "a": [
+      0.0,
+      30.0
+     ],
+     "b": [
+      0.0,
+      55.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f2-w-30",
+     "a": [
+      0.0,
+      25.0
+     ],
+     "b": [
+      0.0,
+      30.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f2-w-31",
+     "a": [
+      0.0,
+      20.0
+     ],
+     "b": [
+      0.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f2-w-32",
+     "a": [
+      30.0,
+      40.0
+     ],
+     "b": [
+      30.0,
+      45.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f2-w-33",
+     "a": [
+      30.0,
+      45.0
+     ],
+     "b": [
+      30.0,
+      55.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f2-w-34",
+     "a": [
+      25.0,
+      55.0
+     ],
+     "b": [
+      30.0,
+      55.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f2-w-35",
+     "a": [
+      20.0,
+      55.0
+     ],
+     "b": [
+      25.0,
+      55.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f2-w-36",
+     "a": [
+      15.0,
+      55.0
+     ],
+     "b": [
+      20.0,
+      55.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f2-w-37",
+     "a": [
+      10.0,
+      55.0
+     ],
+     "b": [
+      15.0,
+      55.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f2-w-38",
+     "a": [
+      5.0,
+      55.0
+     ],
+     "b": [
+      10.0,
+      55.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f2-w-39",
+     "a": [
+      0.0,
+      55.0
+     ],
+     "b": [
+      5.0,
+      55.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "rubble"
+    }
+   ],
+   "lights": [],
+   "objects": [
+    {
+     "id": "f2-sdo-lib",
+     "kind": "secret-panel",
+     "pos": [
+      20.0,
+      0,
+      2.5
+     ],
+     "vis": "secret-door",
+     "key": "8",
+     "label": "Secret door behind the bookshelf (DC 13)",
+     "wall": "f2-sd-lib"
+    },
+    {
+     "id": "f2-shelves",
+     "kind": "bookshelf",
+     "pos": [
+      18.0,
+      0,
+      7.5
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "8",
+     "dims": {
+      "w": 12
+     }
+    },
+    {
+     "id": "f2-desk",
+     "kind": "desk",
+     "pos": [
+      8.0,
+      0,
+      6.5
+     ],
+     "vis": "player",
+     "rotY": -30,
+     "key": "8"
+    },
+    {
+     "id": "f2-deskchair",
+     "kind": "chair",
+     "pos": [
+      8.0,
+      0,
+      10.5
+     ],
+     "vis": "player",
+     "key": "8"
+    },
+    {
+     "id": "f2-chairA",
+     "kind": "chair",
+     "pos": [
+      2.5,
+      0,
+      2.5
+     ],
+     "vis": "player",
+     "rotY": 135,
+     "key": "8"
+    },
+    {
+     "id": "f2-chairB",
+     "kind": "chair",
+     "pos": [
+      2.5,
+      0,
+      13.0
+     ],
+     "vis": "player",
+     "rotY": 45,
+     "key": "8"
+    },
+    {
+     "id": "f2-fire8",
+     "kind": "fireplace",
+     "pos": [
+      12.5,
+      0,
+      1.0
+     ],
+     "vis": "player",
+     "key": "8"
+    },
+    {
+     "id": "f2-key",
+     "kind": "toy-chest",
+     "pos": [
+      9.0,
+      0,
+      6.5
+     ],
+     "vis": "hidden-object",
+     "key": "8",
+     "label": "Desk drawer: iron key to area 20"
+    },
+    {
+     "id": "f2-chest9",
+     "kind": "chest",
+     "pos": [
+      28.0,
+      0,
+      2.5
+     ],
+     "vis": "hidden-object",
+     "rotY": -90,
+     "key": "9",
+     "label": "Chest: Strahd's letter, deeds, will (dart trap spent)"
+    },
+    {
+     "id": "f2-shelves9",
+     "kind": "bookshelf",
+     "pos": [
+      22.5,
+      0,
+      0.75
+     ],
+     "vis": "player",
+     "key": "9",
+     "dims": {
+      "w": 5
+     }
+    },
+    {
+     "id": "f2-bed7a",
+     "kind": "bed",
+     "pos": [
+      23.0,
+      0,
+      9.0
+     ],
+     "vis": "player",
+     "key": "7A"
+    },
+    {
+     "id": "f2-bed7b",
+     "kind": "bed",
+     "pos": [
+      27.5,
+      0,
+      9.0
+     ],
+     "vis": "player",
+     "key": "7A"
+    },
+    {
+     "id": "f2-footlocker1",
+     "kind": "trunk",
+     "pos": [
+      23.0,
+      0,
+      14.5
+     ],
+     "vis": "player",
+     "key": "7A"
+    },
+    {
+     "id": "f2-footlocker2",
+     "kind": "trunk",
+     "pos": [
+      27.5,
+      0,
+      14.5
+     ],
+     "vis": "player",
+     "key": "7A"
+    },
+    {
+     "id": "f2-dumbwaiter",
+     "kind": "dumbwaiter",
+     "pos": [
+      28.5,
+      0,
+      18.5
+     ],
+     "vis": "player",
+     "key": "7A"
+    },
+    {
+     "id": "f2-spiral",
+     "kind": "spiral-stair",
+     "pos": [
+      25.5,
+      0,
+      27.5
+     ],
+     "vis": "player",
+     "key": "6",
+     "dims": {
+      "rise": 12,
+      "r": 6
+     }
+    },
+    {
+     "id": "f2-armor0",
+     "kind": "armor-suit",
+     "pos": [
+      3.0,
+      0,
+      22.0
+     ],
+     "vis": "player",
+     "key": "6"
+    },
+    {
+     "id": "f2-armor1",
+     "kind": "armor-suit",
+     "pos": [
+      12.0,
+      0,
+      22.0
+     ],
+     "vis": "player",
+     "key": "6"
+    },
+    {
+     "id": "f2-armor2",
+     "kind": "armor-suit",
+     "pos": [
+      3.0,
+      0,
+      33.0
+     ],
+     "vis": "player",
+     "key": "6"
+    },
+    {
+     "id": "f2-armor3",
+     "kind": "armor-suit",
+     "pos": [
+      12.0,
+      0,
+      33.0
+     ],
+     "vis": "player",
+     "key": "6"
+    },
+    {
+     "id": "f2-fire6",
+     "kind": "fireplace",
+     "pos": [
+      1.0,
+      0,
+      23.5
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "6"
+    },
+    {
+     "id": "f2-portrait",
+     "kind": "lamp",
+     "pos": [
+      1.5,
+      0,
+      23.5
+     ],
+     "vis": "hidden-object",
+     "key": "6",
+     "label": "Durst family portrait (the baby)"
+    },
+    {
+     "id": "f2-harpsichord",
+     "kind": "harpsichord",
+     "pos": [
+      4.5,
+      0,
+      51.0
+     ],
+     "vis": "player",
+     "rotY": 20,
+     "key": "10"
+    },
+    {
+     "id": "f2-harp",
+     "kind": "harp",
+     "pos": [
+      6.0,
+      0,
+      40.0
+     ],
+     "vis": "player",
+     "key": "10"
+    },
+    {
+     "id": "f2-fire10",
+     "kind": "fireplace",
+     "pos": [
+      1.0,
+      0,
+      42.5
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "10"
+    },
+    {
+     "id": "f2-seat0",
+     "kind": "chair",
+     "pos": [
+      3.0,
+      0,
+      36.75
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "key": "10"
+    },
+    {
+     "id": "f2-seat1",
+     "kind": "chair",
+     "pos": [
+      7.5,
+      0,
+      36.75
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "key": "10"
+    },
+    {
+     "id": "f2-seat2",
+     "kind": "chair",
+     "pos": [
+      12.0,
+      0,
+      36.75
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "key": "10"
+    },
+    {
+     "id": "f2-seat3",
+     "kind": "chair",
+     "pos": [
+      16.5,
+      0,
+      36.75
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "key": "10"
+    },
+    {
+     "id": "f2-seat4",
+     "kind": "chair",
+     "pos": [
+      21.0,
+      0,
+      36.75
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "key": "10"
+    },
+    {
+     "id": "f2-seat5",
+     "kind": "chair",
+     "pos": [
+      25.5,
+      0,
+      36.75
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "key": "10"
+    },
+    {
+     "id": "f2-seatb0",
+     "kind": "chair",
+     "pos": [
+      13.0,
+      0,
+      53.25
+     ],
+     "vis": "player",
+     "key": "10"
+    },
+    {
+     "id": "f2-seatb1",
+     "kind": "chair",
+     "pos": [
+      17.5,
+      0,
+      53.25
+     ],
+     "vis": "player",
+     "key": "10"
+    },
+    {
+     "id": "f2-seatb2",
+     "kind": "chair",
+     "pos": [
+      22.0,
+      0,
+      53.25
+     ],
+     "vis": "player",
+     "key": "10"
+    },
+    {
+     "id": "f2-seatb3",
+     "kind": "chair",
+     "pos": [
+      26.5,
+      0,
+      53.25
+     ],
+     "vis": "player",
+     "key": "10"
+    },
+    {
+     "id": "f2-shaft-f2",
+     "kind": "dumbwaiter",
+     "pos": [
+      2.5,
+      0,
+      17.5
+     ],
+     "vis": "hidden-object",
+     "key": "21",
+     "label": "Secret stair shaft (21) passes here"
+    }
+   ]
+  },
+  {
+   "id": "f3",
+   "name": "Third floor",
+   "elevationFt": 22,
+   "ceilingFt": 8,
+   "ambient": "interior-dim",
+   "north": "-x",
+   "rooms": [
+    {
+     "key": "12A",
+     "name": "Master Bedroom",
+     "page": 214,
+     "polygon": [
+      [
+       0,
+       0
+      ],
+      [
+       25,
+       0
+      ],
+      [
+       25,
+       10
+      ],
+      [
+       30,
+       10
+      ],
+      [
+       30,
+       20
+      ],
+      [
+       20,
+       20
+      ],
+      [
+       20,
+       15
+      ],
+      [
+       0,
+       15
+      ]
+     ],
+     "floor": "plank"
+    },
+    {
+     "key": "12B",
+     "name": "Closet",
+     "page": 214,
+     "polygon": [
+      [
+       15,
+       15
+      ],
+      [
+       20,
+       15
+      ],
+      [
+       20,
+       20
+      ],
+      [
+       15,
+       20
+      ]
+     ],
+     "floor": "plank"
+    },
+    {
+     "key": "12C",
+     "name": "Balcony (back)",
+     "page": 214,
+     "polygon": [
+      [
+       25,
+       0
+      ],
+      [
+       30,
+       0
+      ],
+      [
+       30,
+       10
+      ],
+      [
+       25,
+       10
+      ]
+     ],
+     "floor": "flagstone"
+    },
+    {
+     "key": "13",
+     "name": "Bathroom",
+     "page": 215,
+     "polygon": [
+      [
+       0,
+       20
+      ],
+      [
+       10,
+       20
+      ],
+      [
+       10,
+       30
+      ],
+      [
+       0,
+       30
+      ]
+     ],
+     "floor": "plank"
+    },
+    {
+     "key": "14",
+     "name": "Storage Room",
+     "page": 215,
+     "polygon": [
+      [
+       0,
+       30
+      ],
+      [
+       10,
+       30
+      ],
+      [
+       10,
+       35
+      ],
+      [
+       0,
+       35
+      ]
+     ],
+     "floor": "plank"
+    },
+    {
+     "key": "15B",
+     "name": "Nursery",
+     "page": 215,
+     "polygon": [
+      [
+       0,
+       35
+      ],
+      [
+       10,
+       35
+      ],
+      [
+       10,
+       45
+      ],
+      [
+       0,
+       45
+      ]
+     ],
+     "floor": "plank"
+    },
+    {
+     "key": "15C",
+     "name": "Balcony (front)",
+     "page": 215,
+     "polygon": [
+      [
+       0,
+       45
+      ],
+      [
+       10,
+       45
+      ],
+      [
+       10,
+       55
+      ],
+      [
+       0,
+       55
+      ]
+     ],
+     "floor": "flagstone"
+    },
+    {
+     "key": "11",
+     "name": "Balcony (landing)",
+     "page": 214,
+     "polygon": [
+      [
+       10,
+       15
+      ],
+      [
+       15,
+       15
+      ],
+      [
+       15,
+       20
+      ],
+      [
+       30,
+       20
+      ],
+      [
+       30,
+       35
+      ],
+      [
+       25,
+       35
+      ],
+      [
+       25,
+       40
+      ],
+      [
+       10,
+       40
+      ]
+     ],
+     "floor": "plank"
+    },
+    {
+     "key": "15A",
+     "name": "Nursemaid's Bedroom",
+     "page": 215,
+     "polygon": [
+      [
+       10,
+       40
+      ],
+      [
+       30,
+       40
+      ],
+      [
+       30,
+       55
+      ],
+      [
+       10,
+       55
+      ]
+     ],
+     "floor": "plank"
+    }
+   ],
+   "walls": [
+    {
+     "id": "f3-w-0",
+     "a": [
+      0.0,
+      0.0
+     ],
+     "b": [
+      5.0,
+      0.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f3-w-1",
+     "a": [
+      5.0,
+      0.0
+     ],
+     "b": [
+      15.0,
+      0.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f3-w-2",
+     "a": [
+      15.0,
+      0.0
+     ],
+     "b": [
+      20.0,
+      0.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f3-w-3",
+     "a": [
+      20.0,
+      0.0
+     ],
+     "b": [
+      25.0,
+      0.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f3-w-4",
+     "a": [
+      25.0,
+      0.0
+     ],
+     "b": [
+      25.0,
+      5.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "f3-w-5",
+     "a": [
+      25.0,
+      5.0
+     ],
+     "b": [
+      25.0,
+      10.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "f3-door-3",
+     "a": [
+      25.0,
+      10.0
+     ],
+     "b": [
+      30.0,
+      10.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "plaster",
+     "open": false
+    },
+    {
+     "id": "f3-w-7",
+     "a": [
+      30.0,
+      10.0
+     ],
+     "b": [
+      30.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f3-w-8",
+     "a": [
+      25.0,
+      20.0
+     ],
+     "b": [
+      30.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "f3-w-9",
+     "a": [
+      20.0,
+      20.0
+     ],
+     "b": [
+      25.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "f3-w-10",
+     "a": [
+      20.0,
+      15.0
+     ],
+     "b": [
+      20.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "f3-door-2",
+     "a": [
+      15.0,
+      15.0
+     ],
+     "b": [
+      20.0,
+      15.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "plaster",
+     "open": false
+    },
+    {
+     "id": "f3-master-doors",
+     "a": [
+      10.0,
+      15.0
+     ],
+     "b": [
+      15.0,
+      15.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "plaster",
+     "open": false
+    },
+    {
+     "id": "f3-w-13",
+     "a": [
+      5.0,
+      15.0
+     ],
+     "b": [
+      10.0,
+      15.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f3-w-14",
+     "a": [
+      0.0,
+      15.0
+     ],
+     "b": [
+      5.0,
+      15.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f3-w-15",
+     "a": [
+      0.0,
+      10.0
+     ],
+     "b": [
+      0.0,
+      15.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f3-w-16",
+     "a": [
+      0.0,
+      5.0
+     ],
+     "b": [
+      0.0,
+      10.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f3-w-17",
+     "a": [
+      0.0,
+      0.0
+     ],
+     "b": [
+      0.0,
+      5.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f3-w-18",
+     "a": [
+      15.0,
+      20.0
+     ],
+     "b": [
+      20.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "f3-w-19",
+     "a": [
+      15.0,
+      15.0
+     ],
+     "b": [
+      15.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "f3-w-20",
+     "a": [
+      25.0,
+      0.0
+     ],
+     "b": [
+      30.0,
+      0.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 3.5
+    },
+    {
+     "id": "f3-w-21",
+     "a": [
+      30.0,
+      0.0
+     ],
+     "b": [
+      30.0,
+      5.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 3.5
+    },
+    {
+     "id": "f3-w-22",
+     "a": [
+      30.0,
+      5.0
+     ],
+     "b": [
+      30.0,
+      10.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 3.5
+    },
+    {
+     "id": "f3-w-23",
+     "a": [
+      0.0,
+      20.0
+     ],
+     "b": [
+      10.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f3-w-24",
+     "a": [
+      10.0,
+      20.0
+     ],
+     "b": [
+      10.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "f3-door-4",
+     "a": [
+      10.0,
+      25.0
+     ],
+     "b": [
+      10.0,
+      30.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "plaster",
+     "open": false
+    },
+    {
+     "id": "f3-w-26",
+     "a": [
+      5.0,
+      30.0
+     ],
+     "b": [
+      10.0,
+      30.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "f3-w-27",
+     "a": [
+      0.0,
+      30.0
+     ],
+     "b": [
+      5.0,
+      30.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "f3-w-28",
+     "a": [
+      0.0,
+      25.0
+     ],
+     "b": [
+      0.0,
+      30.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f3-w-29",
+     "a": [
+      0.0,
+      20.0
+     ],
+     "b": [
+      0.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f3-door-5",
+     "a": [
+      10.0,
+      30.0
+     ],
+     "b": [
+      10.0,
+      35.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "plaster",
+     "open": false
+    },
+    {
+     "id": "f3-w-31",
+     "a": [
+      5.0,
+      35.0
+     ],
+     "b": [
+      10.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "f3-w-32",
+     "a": [
+      0.0,
+      35.0
+     ],
+     "b": [
+      5.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "f3-w-33",
+     "a": [
+      0.0,
+      30.0
+     ],
+     "b": [
+      0.0,
+      45.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f3-w-34",
+     "a": [
+      10.0,
+      35.0
+     ],
+     "b": [
+      10.0,
+      40.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "f3-door-6",
+     "a": [
+      10.0,
+      40.0
+     ],
+     "b": [
+      10.0,
+      45.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "plaster",
+     "open": false
+    },
+    {
+     "id": "f3-w-36",
+     "a": [
+      5.0,
+      45.0
+     ],
+     "b": [
+      10.0,
+      45.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "f3-w-37",
+     "a": [
+      0.0,
+      45.0
+     ],
+     "b": [
+      5.0,
+      45.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "f3-w-38",
+     "a": [
+      10.0,
+      45.0
+     ],
+     "b": [
+      10.0,
+      50.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "f3-balcony-doors",
+     "a": [
+      10.0,
+      50.0
+     ],
+     "b": [
+      10.0,
+      55.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "plaster",
+     "open": false
+    },
+    {
+     "id": "f3-w-40",
+     "a": [
+      5.0,
+      55.0
+     ],
+     "b": [
+      10.0,
+      55.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 3.5
+    },
+    {
+     "id": "f3-w-41",
+     "a": [
+      0.0,
+      55.0
+     ],
+     "b": [
+      5.0,
+      55.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 3.5
+    },
+    {
+     "id": "f3-w-42",
+     "a": [
+      0.0,
+      50.0
+     ],
+     "b": [
+      0.0,
+      55.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 3.5
+    },
+    {
+     "id": "f3-w-43",
+     "a": [
+      0.0,
+      45.0
+     ],
+     "b": [
+      0.0,
+      50.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 3.5
+    },
+    {
+     "id": "f3-w-44",
+     "a": [
+      25.0,
+      35.0
+     ],
+     "b": [
+      30.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f3-w-45",
+     "a": [
+      25.0,
+      35.0
+     ],
+     "b": [
+      25.0,
+      40.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f3-w-46",
+     "a": [
+      20.0,
+      40.0
+     ],
+     "b": [
+      25.0,
+      40.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "f3-sd-attic-b",
+     "a": [
+      15.0,
+      40.0
+     ],
+     "b": [
+      20.0,
+      40.0
+     ],
+     "flags": [
+      "secret-door"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "f3-w-48",
+     "a": [
+      10.0,
+      15.0
+     ],
+     "b": [
+      10.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f3-w-49",
+     "a": [
+      25.0,
+      40.0
+     ],
+     "b": [
+      30.0,
+      40.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f3-w-50",
+     "a": [
+      30.0,
+      40.0
+     ],
+     "b": [
+      30.0,
+      45.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f3-w-51",
+     "a": [
+      30.0,
+      45.0
+     ],
+     "b": [
+      30.0,
+      55.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f3-w-52",
+     "a": [
+      25.0,
+      55.0
+     ],
+     "b": [
+      30.0,
+      55.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f3-w-53",
+     "a": [
+      20.0,
+      55.0
+     ],
+     "b": [
+      25.0,
+      55.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f3-w-54",
+     "a": [
+      15.0,
+      55.0
+     ],
+     "b": [
+      20.0,
+      55.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f3-w-55",
+     "a": [
+      10.0,
+      55.0
+     ],
+     "b": [
+      15.0,
+      55.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "f3-sd-attic-a",
+     "a": [
+      15,
+      35
+     ],
+     "b": [
+      20,
+      35
+     ],
+     "flags": [
+      "secret-door"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "f3-x-1",
+     "a": [
+      20,
+      35
+     ],
+     "b": [
+      25,
+      35
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    }
+   ],
+   "lights": [],
+   "objects": [
+    {
+     "id": "f3-sdo-attic-a",
+     "kind": "secret-panel",
+     "pos": [
+      17.5,
+      0,
+      35.0
+     ],
+     "vis": "secret-door",
+     "key": "11",
+     "label": "Secret door to the attic stair (DC 15)",
+     "wall": "f3-sd-attic-a"
+    },
+    {
+     "id": "f3-sdo-attic-b",
+     "kind": "secret-panel",
+     "pos": [
+      17.5,
+      0,
+      40.0
+     ],
+     "vis": "secret-door",
+     "key": "15A",
+     "label": "Secret door behind the mirror (DC 15)",
+     "wall": "f3-sd-attic-b"
+    },
+    {
+     "id": "f3-bed",
+     "kind": "bed",
+     "pos": [
+      17.5,
+      0,
+      4.5
+     ],
+     "vis": "player",
+     "key": "12A"
+    },
+    {
+     "id": "f3-wardrobe1",
+     "kind": "wardrobe",
+     "pos": [
+      23.0,
+      0,
+      1.5
+     ],
+     "vis": "player",
+     "key": "12A"
+    },
+    {
+     "id": "f3-wardrobe2",
+     "kind": "wardrobe",
+     "pos": [
+      2.5,
+      0,
+      13.0
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "12A"
+    },
+    {
+     "id": "f3-vanity",
+     "kind": "desk",
+     "pos": [
+      7.5,
+      0,
+      13.0
+     ],
+     "vis": "player",
+     "key": "12A"
+    },
+    {
+     "id": "f3-jewelry",
+     "kind": "toy-chest",
+     "pos": [
+      7.5,
+      0,
+      13.0
+     ],
+     "vis": "hidden-object",
+     "key": "12A",
+     "label": "Jewelry box: rings, topaz necklace"
+    },
+    {
+     "id": "f3-rug",
+     "kind": "pallet",
+     "pos": [
+      7.5,
+      0,
+      7.5
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "12A"
+    },
+    {
+     "id": "f3-fire12",
+     "kind": "fireplace",
+     "pos": [
+      1.0,
+      0,
+      7.5
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "12A"
+    },
+    {
+     "id": "f3-parlor-table",
+     "kind": "table",
+     "pos": [
+      25,
+      0,
+      15
+     ],
+     "vis": "player",
+     "key": "12A"
+    },
+    {
+     "id": "f3-pchair1",
+     "kind": "chair",
+     "pos": [
+      22.5,
+      0,
+      12.5
+     ],
+     "vis": "player",
+     "rotY": 135,
+     "key": "12A"
+    },
+    {
+     "id": "f3-pchair2",
+     "kind": "chair",
+     "pos": [
+      27.5,
+      0,
+      17.5
+     ],
+     "vis": "player",
+     "rotY": -45,
+     "key": "12A"
+    },
+    {
+     "id": "f3-dumbwaiter",
+     "kind": "dumbwaiter",
+     "pos": [
+      28.5,
+      0,
+      18.5
+     ],
+     "vis": "player",
+     "key": "12A"
+    },
+    {
+     "id": "f3-tub",
+     "kind": "bed",
+     "pos": [
+      6.5,
+      0,
+      25
+     ],
+     "vis": "player",
+     "key": "13"
+    },
+    {
+     "id": "f3-stove13",
+     "kind": "stove",
+     "pos": [
+      2.0,
+      0,
+      22.0
+     ],
+     "vis": "player",
+     "key": "13"
+    },
+    {
+     "id": "f3-broom",
+     "kind": "broom-of-animated-attack",
+     "pos": [
+      2.5,
+      0,
+      32.5
+     ],
+     "vis": "hidden-creature",
+     "key": "14",
+     "label": "Broom of animated attack",
+     "size": "small"
+    },
+    {
+     "id": "f3-crib",
+     "kind": "crib",
+     "pos": [
+      5,
+      0,
+      40
+     ],
+     "vis": "player",
+     "key": "15B"
+    },
+    {
+     "id": "f3-bundle",
+     "kind": "toy-chest",
+     "pos": [
+      5,
+      0,
+      40
+     ],
+     "vis": "hidden-object",
+     "key": "15B",
+     "label": "Shrouded crib: empty bundle"
+    },
+    {
+     "id": "f3-armor",
+     "kind": "animated-armor",
+     "pos": [
+      12.5,
+      0,
+      22.5
+     ],
+     "vis": "hidden-creature",
+     "key": "11",
+     "label": "Animated armor (attacks within 5 ft)",
+     "size": "medium"
+    },
+    {
+     "id": "f3-spiral",
+     "kind": "spiral-stair",
+     "pos": [
+      25.5,
+      0,
+      27.5
+     ],
+     "vis": "player",
+     "key": "11",
+     "dims": {
+      "rise": 8,
+      "r": 6
+     }
+    },
+    {
+     "id": "f3-attic-stair",
+     "kind": "stairs-straight",
+     "pos": [
+      15,
+      0,
+      37.5
+     ],
+     "vis": "player",
+     "key": "11",
+     "dims": {
+      "w": 5,
+      "rise": 8,
+      "fromX": 15,
+      "toX": 25
+     }
+    },
+    {
+     "id": "f3-bed15",
+     "kind": "bed",
+     "pos": [
+      20,
+      0,
+      50
+     ],
+     "vis": "player",
+     "key": "15A"
+    },
+    {
+     "id": "f3-wardrobe15",
+     "kind": "wardrobe",
+     "pos": [
+      28.0,
+      0,
+      45
+     ],
+     "vis": "player",
+     "rotY": -90,
+     "key": "15A"
+    },
+    {
+     "id": "f3-mirror",
+     "kind": "lamp",
+     "pos": [
+      17.5,
+      0,
+      41.0
+     ],
+     "vis": "hidden-object",
+     "key": "15A",
+     "label": "Full-length mirror (eyeballs in the berries)"
+    },
+    {
+     "id": "f3-specter",
+     "kind": "specter",
+     "pos": [
+      17.5,
+      0,
+      46.0
+     ],
+     "vis": "hidden-creature",
+     "key": "15A",
+     "label": "Specter (nursemaid) — when the nursery door opens",
+     "size": "medium"
+    },
+    {
+     "id": "f3-shaft-f3",
+     "kind": "dumbwaiter",
+     "pos": [
+      2.5,
+      0,
+      17.5
+     ],
+     "vis": "hidden-object",
+     "key": "21",
+     "label": "Secret stair shaft (21) passes here"
+    }
+   ]
+  },
+  {
+   "id": "attic",
+   "name": "Attic",
+   "elevationFt": 30,
+   "ceilingFt": 13,
+   "ambient": "interior-dim",
+   "north": "-x",
+   "rooms": [
+    {
+     "key": "19",
+     "name": "Spare Bedroom",
+     "page": 215,
+     "polygon": [
+      [
+       0,
+       0
+      ],
+      [
+       10,
+       0
+      ],
+      [
+       10,
+       15
+      ],
+      [
+       0,
+       15
+      ]
+     ],
+     "floor": "plank"
+    },
+    {
+     "key": "20",
+     "name": "Children's Room",
+     "page": 215,
+     "polygon": [
+      [
+       10,
+       0
+      ],
+      [
+       25,
+       0
+      ],
+      [
+       25,
+       15
+      ],
+      [
+       10,
+       15
+      ]
+     ],
+     "floor": "plank"
+    },
+    {
+     "key": "21",
+     "name": "Secret Stairs",
+     "page": 217,
+     "polygon": [
+      [
+       0,
+       15
+      ],
+      [
+       5,
+       15
+      ],
+      [
+       5,
+       20
+      ],
+      [
+       0,
+       20
+      ]
+     ],
+     "floor": "flagstone"
+    },
+    {
+     "key": "16",
+     "name": "Attic Hall",
+     "page": 215,
+     "polygon": [
+      [
+       5,
+       15
+      ],
+      [
+       25,
+       15
+      ],
+      [
+       25,
+       25
+      ],
+      [
+       30,
+       25
+      ],
+      [
+       30,
+       40
+      ],
+      [
+       15,
+       40
+      ],
+      [
+       15,
+       20
+      ],
+      [
+       5,
+       20
+      ]
+     ],
+     "floor": "plank"
+    },
+    {
+     "key": "18",
+     "name": "Storage Room",
+     "page": 215,
+     "polygon": [
+      [
+       0,
+       20
+      ],
+      [
+       15,
+       20
+      ],
+      [
+       15,
+       45
+      ],
+      [
+       0,
+       45
+      ]
+     ],
+     "floor": "plank"
+    },
+    {
+     "key": "17",
+     "name": "Spare Bedroom",
+     "page": 215,
+     "polygon": [
+      [
+       15,
+       40
+      ],
+      [
+       25,
+       40
+      ],
+      [
+       25,
+       55
+      ],
+      [
+       10,
+       55
+      ],
+      [
+       10,
+       45
+      ],
+      [
+       15,
+       45
+      ]
+     ],
+     "floor": "plank"
+    }
+   ],
+   "walls": [
+    {
+     "id": "attic-w-0",
+     "a": [
+      0.0,
+      0.0
+     ],
+     "b": [
+      5.0,
+      0.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "attic-w-1",
+     "a": [
+      5.0,
+      0.0
+     ],
+     "b": [
+      25.0,
+      0.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "attic-w-2",
+     "a": [
+      10.0,
+      0.0
+     ],
+     "b": [
+      10.0,
+      15.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "attic-door-1",
+     "a": [
+      5.0,
+      15.0
+     ],
+     "b": [
+      10.0,
+      15.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "plaster",
+     "open": false
+    },
+    {
+     "id": "attic-w-4",
+     "a": [
+      0.0,
+      15.0
+     ],
+     "b": [
+      5.0,
+      15.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "attic-w-5",
+     "a": [
+      0.0,
+      10.0
+     ],
+     "b": [
+      0.0,
+      45.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "attic-w-6",
+     "a": [
+      0.0,
+      5.0
+     ],
+     "b": [
+      0.0,
+      10.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "attic-w-7",
+     "a": [
+      0.0,
+      0.0
+     ],
+     "b": [
+      0.0,
+      5.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "attic-w-8",
+     "a": [
+      25.0,
+      0.0
+     ],
+     "b": [
+      25.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "attic-w-9",
+     "a": [
+      20.0,
+      15.0
+     ],
+     "b": [
+      25.0,
+      15.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "attic-locked",
+     "a": [
+      15.0,
+      15.0
+     ],
+     "b": [
+      20.0,
+      15.0
+     ],
+     "flags": [
+      "door",
+      "locked"
+     ],
+     "material": "plaster",
+     "open": false
+    },
+    {
+     "id": "attic-w-11",
+     "a": [
+      10.0,
+      15.0
+     ],
+     "b": [
+      15.0,
+      15.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "attic-w-12",
+     "a": [
+      5.0,
+      15.0
+     ],
+     "b": [
+      5.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "attic-sd-shaft",
+     "a": [
+      0.0,
+      20.0
+     ],
+     "b": [
+      5.0,
+      20.0
+     ],
+     "flags": [
+      "secret-door"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "attic-w-14",
+     "a": [
+      25.0,
+      25.0
+     ],
+     "b": [
+      30.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "attic-w-15",
+     "a": [
+      30.0,
+      25.0
+     ],
+     "b": [
+      30.0,
+      40.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "attic-w-16",
+     "a": [
+      25.0,
+      40.0
+     ],
+     "b": [
+      30.0,
+      40.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "attic-w-17",
+     "a": [
+      20.0,
+      40.0
+     ],
+     "b": [
+      25.0,
+      40.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "attic-door-4",
+     "a": [
+      15.0,
+      40.0
+     ],
+     "b": [
+      20.0,
+      40.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "plaster",
+     "open": false
+    },
+    {
+     "id": "attic-w-19",
+     "a": [
+      15.0,
+      35.0
+     ],
+     "b": [
+      15.0,
+      45.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "attic-w-20",
+     "a": [
+      15.0,
+      30.0
+     ],
+     "b": [
+      15.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "attic-w-21",
+     "a": [
+      15.0,
+      25.0
+     ],
+     "b": [
+      15.0,
+      30.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "attic-w-22",
+     "a": [
+      15.0,
+      20.0
+     ],
+     "b": [
+      15.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "attic-w-23",
+     "a": [
+      10.0,
+      20.0
+     ],
+     "b": [
+      15.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "attic-door-3",
+     "a": [
+      5.0,
+      20.0
+     ],
+     "b": [
+      10.0,
+      20.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "plaster",
+     "open": false
+    },
+    {
+     "id": "attic-w-25",
+     "a": [
+      10.0,
+      45.0
+     ],
+     "b": [
+      15.0,
+      45.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "attic-w-26",
+     "a": [
+      5.0,
+      45.0
+     ],
+     "b": [
+      10.0,
+      45.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "attic-w-27",
+     "a": [
+      0.0,
+      45.0
+     ],
+     "b": [
+      5.0,
+      45.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "attic-w-28",
+     "a": [
+      25.0,
+      40.0
+     ],
+     "b": [
+      25.0,
+      55.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "attic-w-29",
+     "a": [
+      20.0,
+      55.0
+     ],
+     "b": [
+      25.0,
+      55.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "attic-w-30",
+     "a": [
+      15.0,
+      55.0
+     ],
+     "b": [
+      20.0,
+      55.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "attic-w-31",
+     "a": [
+      10.0,
+      55.0
+     ],
+     "b": [
+      15.0,
+      55.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "attic-w-32",
+     "a": [
+      10.0,
+      50.0
+     ],
+     "b": [
+      10.0,
+      55.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "attic-w-33",
+     "a": [
+      10.0,
+      45.0
+     ],
+     "b": [
+      10.0,
+      50.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    }
+   ],
+   "lights": [],
+   "objects": [
+    {
+     "id": "attic-sdo-shaft",
+     "kind": "secret-panel",
+     "pos": [
+      2.5,
+      0,
+      20.0
+     ],
+     "vis": "secret-door",
+     "key": "18",
+     "label": "Secret door to the spiral stair (appears after 9 or 20)",
+     "wall": "attic-sd-shaft"
+    },
+    {
+     "id": "attic-bed19",
+     "kind": "bed",
+     "pos": [
+      7.5,
+      0,
+      5
+     ],
+     "vis": "player",
+     "key": "19"
+    },
+    {
+     "id": "attic-stove19",
+     "kind": "stove",
+     "pos": [
+      2.0,
+      0,
+      12.5
+     ],
+     "vis": "player",
+     "key": "19"
+    },
+    {
+     "id": "attic-wardrobe19",
+     "kind": "wardrobe",
+     "pos": [
+      2.5,
+      0,
+      1.5
+     ],
+     "vis": "player",
+     "key": "19"
+    },
+    {
+     "id": "attic-bed20a",
+     "kind": "bed",
+     "pos": [
+      13.0,
+      0,
+      4.5
+     ],
+     "vis": "player",
+     "key": "20"
+    },
+    {
+     "id": "attic-bed20b",
+     "kind": "bed",
+     "pos": [
+      22.0,
+      0,
+      4.5
+     ],
+     "vis": "player",
+     "key": "20"
+    },
+    {
+     "id": "attic-remains",
+     "kind": "skeleton",
+     "pos": [
+      17.5,
+      0,
+      8.5
+     ],
+     "vis": "hidden-object",
+     "key": "20",
+     "label": "Rose & Thorn: skeletal remains + doll"
+    },
+    {
+     "id": "attic-toychest",
+     "kind": "toy-chest",
+     "pos": [
+      13.5,
+      0,
+      13.0
+     ],
+     "vis": "hidden-object",
+     "key": "20",
+     "label": "Toy chest"
+    },
+    {
+     "id": "attic-dollhouse",
+     "kind": "dollhouse",
+     "pos": [
+      21.5,
+      0,
+      13.0
+     ],
+     "vis": "hidden-object",
+     "key": "20",
+     "label": "Dollhouse: reveals all secret doors (DC 15)"
+    },
+    {
+     "id": "attic-rose",
+     "kind": "ghost",
+     "pos": [
+      16.0,
+      0,
+      7.0
+     ],
+     "vis": "hidden-creature",
+     "key": "20",
+     "label": "Rose (ghost)",
+     "size": "small"
+    },
+    {
+     "id": "attic-thorn",
+     "kind": "ghost",
+     "pos": [
+      19.0,
+      0,
+      9.5
+     ],
+     "vis": "hidden-creature",
+     "key": "20",
+     "label": "Thorn (ghost)",
+     "size": "small"
+    },
+    {
+     "id": "attic-spiral21",
+     "kind": "spiral-stair",
+     "pos": [
+      2.5,
+      0,
+      17.5
+     ],
+     "vis": "player",
+     "key": "21",
+     "dims": {
+      "rise": 0.1,
+      "r": 2.2,
+      "turns": 1
+     }
+    },
+    {
+     "id": "attic-sheet0",
+     "kind": "sheeted",
+     "pos": [
+      5,
+      0,
+      26.5
+     ],
+     "vis": "player",
+     "key": "18"
+    },
+    {
+     "id": "attic-sheet1",
+     "kind": "sheeted",
+     "pos": [
+      11.5,
+      0,
+      24.0
+     ],
+     "vis": "player",
+     "key": "18"
+    },
+    {
+     "id": "attic-sheet2",
+     "kind": "sheeted",
+     "pos": [
+      7.5,
+      0,
+      33.0
+     ],
+     "vis": "player",
+     "key": "18"
+    },
+    {
+     "id": "attic-sheet3",
+     "kind": "sheeted",
+     "pos": [
+      12.5,
+      0,
+      31.0
+     ],
+     "vis": "player",
+     "key": "18"
+    },
+    {
+     "id": "attic-sheet4",
+     "kind": "sheeted",
+     "pos": [
+      5,
+      0,
+      38.0
+     ],
+     "vis": "player",
+     "key": "18"
+    },
+    {
+     "id": "attic-sheet5",
+     "kind": "sheeted",
+     "pos": [
+      12.0,
+      0,
+      39.0
+     ],
+     "vis": "player",
+     "key": "18"
+    },
+    {
+     "id": "attic-sheet6",
+     "kind": "sheeted",
+     "pos": [
+      3.0,
+      0,
+      42.0
+     ],
+     "vis": "player",
+     "key": "18"
+    },
+    {
+     "id": "attic-sheet7",
+     "kind": "sheeted",
+     "pos": [
+      10,
+      0,
+      43.0
+     ],
+     "vis": "player",
+     "key": "18"
+    },
+    {
+     "id": "attic-stove18",
+     "kind": "stove",
+     "pos": [
+      2.5,
+      0,
+      30
+     ],
+     "vis": "player",
+     "key": "18"
+    },
+    {
+     "id": "attic-trunk",
+     "kind": "trunk",
+     "pos": [
+      3.5,
+      0,
+      33.0
+     ],
+     "vis": "hidden-object",
+     "key": "18",
+     "label": "Trunk: nursemaid's remains (specter if disturbed)"
+    },
+    {
+     "id": "attic-bed17",
+     "kind": "bed",
+     "pos": [
+      21.0,
+      0,
+      44.5
+     ],
+     "vis": "player",
+     "key": "17"
+    },
+    {
+     "id": "attic-stove17",
+     "kind": "stove",
+     "pos": [
+      23.0,
+      0,
+      52.5
+     ],
+     "vis": "player",
+     "key": "17"
+    },
+    {
+     "id": "attic-desk17",
+     "kind": "desk",
+     "pos": [
+      16.5,
+      0,
+      51.5
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "17"
+    },
+    {
+     "id": "attic-rocker",
+     "kind": "chair",
+     "pos": [
+      12.5,
+      0,
+      52.0
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "17"
+    },
+    {
+     "id": "attic-stair-head",
+     "kind": "stairs-straight",
+     "pos": [
+      27.5,
+      0,
+      32.5
+     ],
+     "vis": "player",
+     "key": "16",
+     "dims": {
+      "w": 5,
+      "rise": 0.1,
+      "fromZ": 40,
+      "toZ": 25
+     }
+    },
+    {
+     "id": "attic-milestone",
+     "kind": "note",
+     "pos": [
+      15,
+      0,
+      17.5
+     ],
+     "vis": "dm-note",
+     "key": "16",
+     "label": "Milestone: access to 21 = 2nd level"
+    }
+   ]
+  },
+  {
+   "id": "dungeon",
+   "name": "Dungeon level",
+   "elevationFt": -20,
+   "ceilingFt": 8,
+   "ambient": "darkness",
+   "north": "-x",
+   "rooms": [
+    {
+     "key": "24",
+     "name": "Cult Initiates' Quarters",
+     "page": 218,
+     "polygon": [
+      [
+       40,
+       0
+      ],
+      [
+       55,
+       0
+      ],
+      [
+       55,
+       45
+      ],
+      [
+       35,
+       45
+      ],
+      [
+       35,
+       20
+      ],
+      [
+       40,
+       20
+      ]
+     ],
+     "floor": "dirt"
+    },
+    {
+     "key": "25",
+     "name": "Well and Cultist Quarters",
+     "page": 218,
+     "polygon": [
+      [
+       10,
+       25
+      ],
+      [
+       35,
+       25
+      ],
+      [
+       35,
+       50
+      ],
+      [
+       10,
+       50
+      ]
+     ],
+     "floor": "dirt"
+    },
+    {
+     "key": "25A",
+     "name": "Cultist Quarters A",
+     "page": 218,
+     "polygon": [
+      [
+       15,
+       15
+      ],
+      [
+       25,
+       15
+      ],
+      [
+       25,
+       25
+      ],
+      [
+       15,
+       25
+      ]
+     ],
+     "floor": "dirt"
+    },
+    {
+     "key": "25B",
+     "name": "Cultist Quarters B",
+     "page": 218,
+     "polygon": [
+      [
+       5,
+       15
+      ],
+      [
+       15,
+       15
+      ],
+      [
+       15,
+       25
+      ],
+      [
+       5,
+       25
+      ]
+     ],
+     "floor": "dirt"
+    },
+    {
+     "key": "25C",
+     "name": "Cultist Quarters C",
+     "page": 218,
+     "polygon": [
+      [
+       0,
+       30
+      ],
+      [
+       10,
+       30
+      ],
+      [
+       10,
+       40
+      ],
+      [
+       0,
+       40
+      ]
+     ],
+     "floor": "dirt"
+    },
+    {
+     "key": "25D",
+     "name": "Cultist Quarters D",
+     "page": 218,
+     "polygon": [
+      [
+       10,
+       50
+      ],
+      [
+       20,
+       50
+      ],
+      [
+       20,
+       60
+      ],
+      [
+       10,
+       60
+      ]
+     ],
+     "floor": "dirt"
+    },
+    {
+     "key": "25E",
+     "name": "Cultist Quarters E",
+     "page": 218,
+     "polygon": [
+      [
+       20,
+       50
+      ],
+      [
+       30,
+       50
+      ],
+      [
+       30,
+       60
+      ],
+      [
+       20,
+       60
+      ]
+     ],
+     "floor": "dirt"
+    },
+    {
+     "key": "22",
+     "name": "Dungeon Level Access",
+     "page": 217,
+     "polygon": [
+      [
+       55,
+       5
+      ],
+      [
+       70,
+       5
+      ],
+      [
+       70,
+       10
+      ],
+      [
+       65,
+       10
+      ],
+      [
+       65,
+       25
+      ],
+      [
+       55,
+       25
+      ]
+     ],
+     "floor": "dirt"
+    },
+    {
+     "key": "23",
+     "name": "Family Crypts",
+     "page": 217,
+     "polygon": [
+      [
+       65,
+       10
+      ],
+      [
+       75,
+       10
+      ],
+      [
+       75,
+       5
+      ],
+      [
+       80,
+       5
+      ],
+      [
+       80,
+       25
+      ],
+      [
+       75,
+       25
+      ],
+      [
+       75,
+       15
+      ],
+      [
+       70,
+       15
+      ],
+      [
+       70,
+       35
+      ],
+      [
+       75,
+       35
+      ],
+      [
+       75,
+       30
+      ],
+      [
+       80,
+       30
+      ],
+      [
+       80,
+       50
+      ],
+      [
+       75,
+       50
+      ],
+      [
+       75,
+       40
+      ],
+      [
+       70,
+       40
+      ],
+      [
+       70,
+       45
+      ],
+      [
+       60,
+       45
+      ],
+      [
+       60,
+       30
+      ],
+      [
+       65,
+       30
+      ]
+     ],
+     "floor": "dirt"
+    },
+    {
+     "key": "23A",
+     "name": "Empty Crypt",
+     "page": 217,
+     "polygon": [
+      [
+       80,
+       5
+      ],
+      [
+       90,
+       5
+      ],
+      [
+       90,
+       10
+      ],
+      [
+       80,
+       10
+      ]
+     ],
+     "floor": "dirt"
+    },
+    {
+     "key": "23B",
+     "name": "Walter's Crypt",
+     "page": 217,
+     "polygon": [
+      [
+       80,
+       20
+      ],
+      [
+       90,
+       20
+      ],
+      [
+       90,
+       25
+      ],
+      [
+       80,
+       25
+      ]
+     ],
+     "floor": "dirt"
+    },
+    {
+     "key": "23C",
+     "name": "Gustav's Crypt",
+     "page": 217,
+     "polygon": [
+      [
+       80,
+       30
+      ],
+      [
+       90,
+       30
+      ],
+      [
+       90,
+       35
+      ],
+      [
+       80,
+       35
+      ]
+     ],
+     "floor": "dirt"
+    },
+    {
+     "key": "23D",
+     "name": "Elisabeth's Crypt",
+     "page": 217,
+     "polygon": [
+      [
+       80,
+       40
+      ],
+      [
+       90,
+       40
+      ],
+      [
+       90,
+       45
+      ],
+      [
+       80,
+       45
+      ]
+     ],
+     "floor": "dirt"
+    },
+    {
+     "key": "23E",
+     "name": "Rose's Crypt",
+     "page": 217,
+     "polygon": [
+      [
+       50,
+       30
+      ],
+      [
+       60,
+       30
+      ],
+      [
+       60,
+       35
+      ],
+      [
+       50,
+       35
+      ]
+     ],
+     "floor": "dirt"
+    },
+    {
+     "key": "23F",
+     "name": "Thorn's Crypt",
+     "page": 217,
+     "polygon": [
+      [
+       50,
+       40
+      ],
+      [
+       60,
+       40
+      ],
+      [
+       60,
+       45
+      ],
+      [
+       50,
+       45
+      ]
+     ],
+     "floor": "dirt"
+    },
+    {
+     "key": "27",
+     "name": "Dining Hall",
+     "page": 218,
+     "polygon": [
+      [
+       60,
+       45
+      ],
+      [
+       85,
+       45
+      ],
+      [
+       85,
+       60
+      ],
+      [
+       60,
+       60
+      ]
+     ],
+     "floor": "dirt"
+    },
+    {
+     "key": "28",
+     "name": "Larder",
+     "page": 218,
+     "polygon": [
+      [
+       85,
+       50
+      ],
+      [
+       90,
+       50
+      ],
+      [
+       90,
+       55
+      ],
+      [
+       85,
+       55
+      ]
+     ],
+     "floor": "dirt"
+    },
+    {
+     "key": "26",
+     "name": "Hidden Spiked Pit",
+     "page": 218,
+     "polygon": [
+      [
+       35,
+       45
+      ],
+      [
+       60,
+       45
+      ],
+      [
+       60,
+       50
+      ],
+      [
+       50,
+       50
+      ],
+      [
+       50,
+       65
+      ],
+      [
+       60,
+       65
+      ],
+      [
+       60,
+       70
+      ],
+      [
+       45,
+       70
+      ],
+      [
+       45,
+       50
+      ],
+      [
+       35,
+       50
+      ]
+     ],
+     "floor": "dirt"
+    },
+    {
+     "key": "30",
+     "name": "Stairs Down",
+     "page": 218,
+     "polygon": [
+      [
+       40,
+       70
+      ],
+      [
+       50,
+       70
+      ],
+      [
+       50,
+       80
+      ],
+      [
+       40,
+       80
+      ]
+     ],
+     "floor": "dirt"
+    },
+    {
+     "key": "29",
+     "name": "Ghoulish Encounter",
+     "page": 218,
+     "polygon": [
+      [
+       65,
+       60
+      ],
+      [
+       70,
+       60
+      ],
+      [
+       70,
+       65
+      ],
+      [
+       80,
+       65
+      ],
+      [
+       80,
+       75
+      ],
+      [
+       75,
+       75
+      ],
+      [
+       75,
+       70
+      ],
+      [
+       70,
+       70
+      ],
+      [
+       70,
+       85
+      ],
+      [
+       65,
+       85
+      ],
+      [
+       65,
+       70
+      ],
+      [
+       60,
+       70
+      ],
+      [
+       60,
+       65
+      ],
+      [
+       65,
+       65
+      ]
+     ],
+     "floor": "dirt"
+    },
+    {
+     "key": "32",
+     "name": "Hidden Trapdoor (stair)",
+     "page": 219,
+     "polygon": [
+      [
+       85,
+       55
+      ],
+      [
+       90,
+       55
+      ],
+      [
+       90,
+       70
+      ],
+      [
+       85,
+       70
+      ]
+     ],
+     "floor": "flagstone"
+    },
+    {
+     "key": "31",
+     "name": "Darklord's Shrine",
+     "page": 218,
+     "polygon": [
+      [
+       80,
+       70
+      ],
+      [
+       95,
+       70
+      ],
+      [
+       95,
+       75
+      ],
+      [
+       100,
+       77.5
+      ],
+      [
+       100,
+       87.5
+      ],
+      [
+       95,
+       90
+      ],
+      [
+       95,
+       100
+      ],
+      [
+       80,
+       100
+      ]
+     ],
+     "floor": "dirt"
+    },
+    {
+     "key": "33",
+     "name": "Cult Leaders' Den",
+     "page": 219,
+     "polygon": [
+      [
+       60,
+       85
+      ],
+      [
+       80,
+       85
+      ],
+      [
+       80,
+       100
+      ],
+      [
+       60,
+       100
+      ],
+      [
+       60,
+       95
+      ],
+      [
+       55,
+       95
+      ],
+      [
+       55,
+       90
+      ],
+      [
+       60,
+       90
+      ]
+     ],
+     "floor": "dirt"
+    },
+    {
+     "key": "34",
+     "name": "Cult Leaders' Quarters",
+     "page": 219,
+     "polygon": [
+      [
+       40,
+       90
+      ],
+      [
+       55,
+       90
+      ],
+      [
+       55,
+       105
+      ],
+      [
+       40,
+       105
+      ]
+     ],
+     "floor": "dirt"
+    }
+   ],
+   "walls": [
+    {
+     "id": "dungeon-w-0",
+     "a": [
+      40.0,
+      0.0
+     ],
+     "b": [
+      55.0,
+      0.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-1",
+     "a": [
+      55.0,
+      0.0
+     ],
+     "b": [
+      55.0,
+      5.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-2",
+     "a": [
+      55.0,
+      10.0
+     ],
+     "b": [
+      55.0,
+      45.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-3",
+     "a": [
+      50.0,
+      45.0
+     ],
+     "b": [
+      60.0,
+      45.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-4",
+     "a": [
+      45.0,
+      45.0
+     ],
+     "b": [
+      50.0,
+      45.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-5",
+     "a": [
+      40.0,
+      45.0
+     ],
+     "b": [
+      45.0,
+      45.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-6",
+     "a": [
+      35.0,
+      40.0
+     ],
+     "b": [
+      35.0,
+      45.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-7",
+     "a": [
+      35.0,
+      35.0
+     ],
+     "b": [
+      35.0,
+      40.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-8",
+     "a": [
+      35.0,
+      30.0
+     ],
+     "b": [
+      35.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-9",
+     "a": [
+      35.0,
+      20.0
+     ],
+     "b": [
+      35.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-10",
+     "a": [
+      35.0,
+      20.0
+     ],
+     "b": [
+      40.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-11",
+     "a": [
+      40.0,
+      15.0
+     ],
+     "b": [
+      40.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-12",
+     "a": [
+      40.0,
+      10.0
+     ],
+     "b": [
+      40.0,
+      15.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-13",
+     "a": [
+      40.0,
+      5.0
+     ],
+     "b": [
+      40.0,
+      10.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-14",
+     "a": [
+      40.0,
+      0.0
+     ],
+     "b": [
+      40.0,
+      5.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-15",
+     "a": [
+      20.0,
+      25.0
+     ],
+     "b": [
+      35.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-16",
+     "a": [
+      30.0,
+      50.0
+     ],
+     "b": [
+      45.0,
+      50.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-17",
+     "a": [
+      25.0,
+      50.0
+     ],
+     "b": [
+      30.0,
+      50.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-18",
+     "a": [
+      10.0,
+      50.0
+     ],
+     "b": [
+      15.0,
+      50.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-19",
+     "a": [
+      10.0,
+      45.0
+     ],
+     "b": [
+      10.0,
+      60.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-20",
+     "a": [
+      10.0,
+      40.0
+     ],
+     "b": [
+      10.0,
+      45.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-21",
+     "a": [
+      10.0,
+      35.0
+     ],
+     "b": [
+      10.0,
+      40.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-22",
+     "a": [
+      10.0,
+      25.0
+     ],
+     "b": [
+      10.0,
+      30.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-23",
+     "a": [
+      15.0,
+      15.0
+     ],
+     "b": [
+      25.0,
+      15.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-24",
+     "a": [
+      25.0,
+      15.0
+     ],
+     "b": [
+      25.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-25",
+     "a": [
+      15.0,
+      20.0
+     ],
+     "b": [
+      15.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-26",
+     "a": [
+      15.0,
+      15.0
+     ],
+     "b": [
+      15.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-27",
+     "a": [
+      5.0,
+      15.0
+     ],
+     "b": [
+      15.0,
+      15.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-28",
+     "a": [
+      5.0,
+      25.0
+     ],
+     "b": [
+      10.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-29",
+     "a": [
+      5.0,
+      20.0
+     ],
+     "b": [
+      5.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-30",
+     "a": [
+      5.0,
+      15.0
+     ],
+     "b": [
+      5.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-31",
+     "a": [
+      0.0,
+      30.0
+     ],
+     "b": [
+      10.0,
+      30.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-32",
+     "a": [
+      5.0,
+      40.0
+     ],
+     "b": [
+      10.0,
+      40.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-33",
+     "a": [
+      0.0,
+      40.0
+     ],
+     "b": [
+      5.0,
+      40.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-34",
+     "a": [
+      0.0,
+      35.0
+     ],
+     "b": [
+      0.0,
+      40.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-35",
+     "a": [
+      0.0,
+      30.0
+     ],
+     "b": [
+      0.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-36",
+     "a": [
+      20.0,
+      50.0
+     ],
+     "b": [
+      20.0,
+      60.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-37",
+     "a": [
+      15.0,
+      60.0
+     ],
+     "b": [
+      30.0,
+      60.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-38",
+     "a": [
+      10.0,
+      60.0
+     ],
+     "b": [
+      15.0,
+      60.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-39",
+     "a": [
+      30.0,
+      50.0
+     ],
+     "b": [
+      30.0,
+      60.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-40",
+     "a": [
+      55.0,
+      5.0
+     ],
+     "b": [
+      70.0,
+      5.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-41",
+     "a": [
+      70.0,
+      5.0
+     ],
+     "b": [
+      70.0,
+      10.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-42",
+     "a": [
+      65.0,
+      10.0
+     ],
+     "b": [
+      65.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-43",
+     "a": [
+      60.0,
+      25.0
+     ],
+     "b": [
+      65.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-44",
+     "a": [
+      55.0,
+      25.0
+     ],
+     "b": [
+      60.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-45",
+     "a": [
+      70.0,
+      10.0
+     ],
+     "b": [
+      75.0,
+      10.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-46",
+     "a": [
+      75.0,
+      5.0
+     ],
+     "b": [
+      75.0,
+      10.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-47",
+     "a": [
+      75.0,
+      5.0
+     ],
+     "b": [
+      90.0,
+      5.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "crypt-A",
+     "a": [
+      80.0,
+      5.0
+     ],
+     "b": [
+      80.0,
+      10.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "cave-rock",
+     "open": true
+    },
+    {
+     "id": "dungeon-w-49",
+     "a": [
+      80.0,
+      10.0
+     ],
+     "b": [
+      80.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "crypt-B",
+     "a": [
+      80.0,
+      20.0
+     ],
+     "b": [
+      80.0,
+      25.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "cave-rock",
+     "open": true
+    },
+    {
+     "id": "dungeon-w-51",
+     "a": [
+      75.0,
+      25.0
+     ],
+     "b": [
+      90.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-52",
+     "a": [
+      75.0,
+      20.0
+     ],
+     "b": [
+      75.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-53",
+     "a": [
+      75.0,
+      15.0
+     ],
+     "b": [
+      75.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-54",
+     "a": [
+      70.0,
+      15.0
+     ],
+     "b": [
+      75.0,
+      15.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-55",
+     "a": [
+      70.0,
+      15.0
+     ],
+     "b": [
+      70.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-56",
+     "a": [
+      70.0,
+      35.0
+     ],
+     "b": [
+      75.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-57",
+     "a": [
+      75.0,
+      30.0
+     ],
+     "b": [
+      75.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-58",
+     "a": [
+      75.0,
+      30.0
+     ],
+     "b": [
+      90.0,
+      30.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "crypt-C",
+     "a": [
+      80.0,
+      30.0
+     ],
+     "b": [
+      80.0,
+      35.0
+     ],
+     "flags": [
+      "door",
+      "locked"
+     ],
+     "material": "cave-rock",
+     "open": false
+    },
+    {
+     "id": "dungeon-w-60",
+     "a": [
+      80.0,
+      35.0
+     ],
+     "b": [
+      80.0,
+      40.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "crypt-D",
+     "a": [
+      80.0,
+      40.0
+     ],
+     "b": [
+      80.0,
+      45.0
+     ],
+     "flags": [
+      "door",
+      "locked"
+     ],
+     "material": "cave-rock",
+     "open": false
+    },
+    {
+     "id": "dungeon-w-62",
+     "a": [
+      80.0,
+      45.0
+     ],
+     "b": [
+      80.0,
+      50.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-63",
+     "a": [
+      75.0,
+      50.0
+     ],
+     "b": [
+      80.0,
+      50.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-64",
+     "a": [
+      75.0,
+      45.0
+     ],
+     "b": [
+      75.0,
+      50.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-65",
+     "a": [
+      75.0,
+      40.0
+     ],
+     "b": [
+      75.0,
+      45.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-66",
+     "a": [
+      70.0,
+      40.0
+     ],
+     "b": [
+      75.0,
+      40.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-67",
+     "a": [
+      70.0,
+      40.0
+     ],
+     "b": [
+      70.0,
+      45.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "crypt-F",
+     "a": [
+      60.0,
+      40.0
+     ],
+     "b": [
+      60.0,
+      45.0
+     ],
+     "flags": [
+      "door",
+      "locked"
+     ],
+     "material": "cave-rock",
+     "open": false
+    },
+    {
+     "id": "dungeon-w-69",
+     "a": [
+      60.0,
+      35.0
+     ],
+     "b": [
+      60.0,
+      40.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "crypt-E",
+     "a": [
+      60.0,
+      30.0
+     ],
+     "b": [
+      60.0,
+      35.0
+     ],
+     "flags": [
+      "door",
+      "locked"
+     ],
+     "material": "cave-rock",
+     "open": false
+    },
+    {
+     "id": "dungeon-w-71",
+     "a": [
+      60.0,
+      30.0
+     ],
+     "b": [
+      65.0,
+      30.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-72",
+     "a": [
+      65.0,
+      25.0
+     ],
+     "b": [
+      65.0,
+      30.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-73",
+     "a": [
+      90.0,
+      5.0
+     ],
+     "b": [
+      90.0,
+      10.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-74",
+     "a": [
+      85.0,
+      10.0
+     ],
+     "b": [
+      90.0,
+      10.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-75",
+     "a": [
+      80.0,
+      10.0
+     ],
+     "b": [
+      85.0,
+      10.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-76",
+     "a": [
+      80.0,
+      20.0
+     ],
+     "b": [
+      90.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-77",
+     "a": [
+      90.0,
+      20.0
+     ],
+     "b": [
+      90.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-78",
+     "a": [
+      90.0,
+      30.0
+     ],
+     "b": [
+      90.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-79",
+     "a": [
+      85.0,
+      35.0
+     ],
+     "b": [
+      90.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-80",
+     "a": [
+      80.0,
+      35.0
+     ],
+     "b": [
+      85.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-81",
+     "a": [
+      80.0,
+      40.0
+     ],
+     "b": [
+      90.0,
+      40.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-82",
+     "a": [
+      90.0,
+      40.0
+     ],
+     "b": [
+      90.0,
+      45.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-83",
+     "a": [
+      85.0,
+      45.0
+     ],
+     "b": [
+      90.0,
+      45.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-84",
+     "a": [
+      80.0,
+      45.0
+     ],
+     "b": [
+      85.0,
+      45.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-85",
+     "a": [
+      50.0,
+      30.0
+     ],
+     "b": [
+      60.0,
+      30.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-86",
+     "a": [
+      55.0,
+      35.0
+     ],
+     "b": [
+      60.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-87",
+     "a": [
+      50.0,
+      35.0
+     ],
+     "b": [
+      55.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-88",
+     "a": [
+      50.0,
+      30.0
+     ],
+     "b": [
+      50.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-89",
+     "a": [
+      50.0,
+      40.0
+     ],
+     "b": [
+      60.0,
+      40.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-90",
+     "a": [
+      50.0,
+      40.0
+     ],
+     "b": [
+      50.0,
+      45.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-91",
+     "a": [
+      70.0,
+      45.0
+     ],
+     "b": [
+      80.0,
+      45.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-92",
+     "a": [
+      85.0,
+      45.0
+     ],
+     "b": [
+      85.0,
+      50.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-93",
+     "a": [
+      85.0,
+      55.0
+     ],
+     "b": [
+      85.0,
+      70.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-94",
+     "a": [
+      80.0,
+      60.0
+     ],
+     "b": [
+      85.0,
+      60.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-95",
+     "a": [
+      75.0,
+      60.0
+     ],
+     "b": [
+      80.0,
+      60.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-96",
+     "a": [
+      70.0,
+      60.0
+     ],
+     "b": [
+      75.0,
+      60.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-97",
+     "a": [
+      60.0,
+      60.0
+     ],
+     "b": [
+      65.0,
+      60.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-98",
+     "a": [
+      60.0,
+      55.0
+     ],
+     "b": [
+      60.0,
+      60.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-99",
+     "a": [
+      60.0,
+      50.0
+     ],
+     "b": [
+      60.0,
+      55.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-100",
+     "a": [
+      85.0,
+      50.0
+     ],
+     "b": [
+      90.0,
+      50.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-101",
+     "a": [
+      90.0,
+      50.0
+     ],
+     "b": [
+      90.0,
+      70.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-102",
+     "a": [
+      85.0,
+      55.0
+     ],
+     "b": [
+      90.0,
+      55.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-103",
+     "a": [
+      55.0,
+      50.0
+     ],
+     "b": [
+      60.0,
+      50.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-104",
+     "a": [
+      50.0,
+      50.0
+     ],
+     "b": [
+      55.0,
+      50.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-105",
+     "a": [
+      50.0,
+      50.0
+     ],
+     "b": [
+      50.0,
+      65.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-106",
+     "a": [
+      50.0,
+      65.0
+     ],
+     "b": [
+      65.0,
+      65.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-107",
+     "a": [
+      55.0,
+      70.0
+     ],
+     "b": [
+      65.0,
+      70.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-108",
+     "a": [
+      50.0,
+      70.0
+     ],
+     "b": [
+      55.0,
+      70.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-109",
+     "a": [
+      45.0,
+      65.0
+     ],
+     "b": [
+      45.0,
+      70.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-110",
+     "a": [
+      45.0,
+      60.0
+     ],
+     "b": [
+      45.0,
+      65.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-111",
+     "a": [
+      45.0,
+      55.0
+     ],
+     "b": [
+      45.0,
+      60.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-112",
+     "a": [
+      45.0,
+      50.0
+     ],
+     "b": [
+      45.0,
+      55.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-113",
+     "a": [
+      40.0,
+      70.0
+     ],
+     "b": [
+      45.0,
+      70.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-114",
+     "a": [
+      50.0,
+      70.0
+     ],
+     "b": [
+      50.0,
+      80.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-115",
+     "a": [
+      45.0,
+      80.0
+     ],
+     "b": [
+      50.0,
+      80.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-116",
+     "a": [
+      40.0,
+      80.0
+     ],
+     "b": [
+      45.0,
+      80.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-117",
+     "a": [
+      40.0,
+      75.0
+     ],
+     "b": [
+      40.0,
+      80.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-118",
+     "a": [
+      40.0,
+      70.0
+     ],
+     "b": [
+      40.0,
+      75.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-119",
+     "a": [
+      70.0,
+      60.0
+     ],
+     "b": [
+      70.0,
+      65.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-120",
+     "a": [
+      70.0,
+      65.0
+     ],
+     "b": [
+      80.0,
+      65.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-121",
+     "a": [
+      80.0,
+      65.0
+     ],
+     "b": [
+      80.0,
+      70.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-122",
+     "a": [
+      75.0,
+      75.0
+     ],
+     "b": [
+      80.0,
+      75.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-123",
+     "a": [
+      75.0,
+      70.0
+     ],
+     "b": [
+      75.0,
+      75.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-124",
+     "a": [
+      70.0,
+      70.0
+     ],
+     "b": [
+      75.0,
+      70.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-125",
+     "a": [
+      70.0,
+      70.0
+     ],
+     "b": [
+      70.0,
+      85.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-126",
+     "a": [
+      65.0,
+      80.0
+     ],
+     "b": [
+      65.0,
+      85.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-127",
+     "a": [
+      65.0,
+      75.0
+     ],
+     "b": [
+      65.0,
+      80.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-128",
+     "a": [
+      65.0,
+      70.0
+     ],
+     "b": [
+      65.0,
+      75.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-129",
+     "a": [
+      65.0,
+      60.0
+     ],
+     "b": [
+      65.0,
+      65.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-sd-concealed",
+     "a": [
+      85.0,
+      70.0
+     ],
+     "b": [
+      90.0,
+      70.0
+     ],
+     "flags": [
+      "secret-door"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-131",
+     "a": [
+      80.0,
+      70.0
+     ],
+     "b": [
+      85.0,
+      70.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-132",
+     "a": [
+      90.0,
+      70.0
+     ],
+     "b": [
+      95.0,
+      70.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-133",
+     "a": [
+      95.0,
+      70.0
+     ],
+     "b": [
+      95.0,
+      75.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-134",
+     "a": [
+      95,
+      75
+     ],
+     "b": [
+      100,
+      77.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-135",
+     "a": [
+      100.0,
+      77.5
+     ],
+     "b": [
+      100.0,
+      87.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-136",
+     "a": [
+      95,
+      90
+     ],
+     "b": [
+      100,
+      87.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-137",
+     "a": [
+      95.0,
+      90.0
+     ],
+     "b": [
+      95.0,
+      100.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-138",
+     "a": [
+      90.0,
+      100.0
+     ],
+     "b": [
+      95.0,
+      100.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-139",
+     "a": [
+      85.0,
+      100.0
+     ],
+     "b": [
+      90.0,
+      100.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-140",
+     "a": [
+      80.0,
+      100.0
+     ],
+     "b": [
+      85.0,
+      100.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "mimic-door",
+     "a": [
+      80.0,
+      95.0
+     ],
+     "b": [
+      80.0,
+      100.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "cave-rock",
+     "open": false
+    },
+    {
+     "id": "dungeon-w-142",
+     "a": [
+      80.0,
+      90.0
+     ],
+     "b": [
+      80.0,
+      95.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-143",
+     "a": [
+      80.0,
+      85.0
+     ],
+     "b": [
+      80.0,
+      90.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-144",
+     "a": [
+      80.0,
+      80.0
+     ],
+     "b": [
+      80.0,
+      85.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-145",
+     "a": [
+      80.0,
+      75.0
+     ],
+     "b": [
+      80.0,
+      80.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-146",
+     "a": [
+      60.0,
+      85.0
+     ],
+     "b": [
+      65.0,
+      85.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-147",
+     "a": [
+      70.0,
+      85.0
+     ],
+     "b": [
+      80.0,
+      85.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-148",
+     "a": [
+      75.0,
+      100.0
+     ],
+     "b": [
+      80.0,
+      100.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-149",
+     "a": [
+      70.0,
+      100.0
+     ],
+     "b": [
+      75.0,
+      100.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-150",
+     "a": [
+      65.0,
+      100.0
+     ],
+     "b": [
+      70.0,
+      100.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-151",
+     "a": [
+      60.0,
+      100.0
+     ],
+     "b": [
+      65.0,
+      100.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-152",
+     "a": [
+      60.0,
+      95.0
+     ],
+     "b": [
+      60.0,
+      100.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-153",
+     "a": [
+      55.0,
+      95.0
+     ],
+     "b": [
+      60.0,
+      95.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-154",
+     "a": [
+      55.0,
+      90.0
+     ],
+     "b": [
+      60.0,
+      90.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-155",
+     "a": [
+      60.0,
+      85.0
+     ],
+     "b": [
+      60.0,
+      90.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-156",
+     "a": [
+      40.0,
+      90.0
+     ],
+     "b": [
+      55.0,
+      90.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-157",
+     "a": [
+      55.0,
+      95.0
+     ],
+     "b": [
+      55.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-158",
+     "a": [
+      50.0,
+      105.0
+     ],
+     "b": [
+      55.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-159",
+     "a": [
+      45.0,
+      105.0
+     ],
+     "b": [
+      50.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-160",
+     "a": [
+      40.0,
+      105.0
+     ],
+     "b": [
+      45.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-161",
+     "a": [
+      40.0,
+      100.0
+     ],
+     "b": [
+      40.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-162",
+     "a": [
+      40.0,
+      95.0
+     ],
+     "b": [
+      40.0,
+      100.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-w-163",
+     "a": [
+      40.0,
+      90.0
+     ],
+     "b": [
+      40.0,
+      95.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    }
+   ],
+   "lights": [],
+   "objects": [
+    {
+     "id": "dungeon-sdo-concealed",
+     "kind": "secret-panel",
+     "pos": [
+      87.5,
+      0,
+      70.0
+     ],
+     "vis": "secret-door",
+     "key": "31",
+     "label": "Concealed door under clay (DC 10) to the stair (32)",
+     "wall": "dungeon-sd-concealed"
+    },
+    {
+     "id": "dungeon-table24",
+     "kind": "table",
+     "pos": [
+      47.5,
+      0,
+      7.5
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "24"
+    },
+    {
+     "id": "dungeon-ch240",
+     "kind": "chair",
+     "pos": [
+      43.5,
+      0,
+      7.5
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "24"
+    },
+    {
+     "id": "dungeon-ch241",
+     "kind": "chair",
+     "pos": [
+      51.5,
+      0,
+      7.5
+     ],
+     "vis": "player",
+     "rotY": -90,
+     "key": "24"
+    },
+    {
+     "id": "dungeon-ch242",
+     "kind": "chair",
+     "pos": [
+      47.5,
+      0,
+      3.5
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "key": "24"
+    },
+    {
+     "id": "dungeon-ch243",
+     "kind": "chair",
+     "pos": [
+      47.5,
+      0,
+      11.5
+     ],
+     "vis": "player",
+     "key": "24"
+    },
+    {
+     "id": "dungeon-pallet0",
+     "kind": "pallet",
+     "pos": [
+      37.5,
+      0,
+      25
+     ],
+     "vis": "player",
+     "key": "24"
+    },
+    {
+     "id": "dungeon-pallet1",
+     "kind": "pallet",
+     "pos": [
+      52.5,
+      0,
+      22.5
+     ],
+     "vis": "player",
+     "key": "24"
+    },
+    {
+     "id": "dungeon-pallet2",
+     "kind": "pallet",
+     "pos": [
+      37.5,
+      0,
+      37.5
+     ],
+     "vis": "player",
+     "key": "24"
+    },
+    {
+     "id": "dungeon-pallet3",
+     "kind": "pallet",
+     "pos": [
+      45,
+      0,
+      38.5
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "24"
+    },
+    {
+     "id": "dungeon-well",
+     "kind": "well",
+     "pos": [
+      26.5,
+      0,
+      37.5
+     ],
+     "vis": "player",
+     "key": "25"
+    },
+    {
+     "id": "dungeon-bed25A",
+     "kind": "bed",
+     "pos": [
+      20,
+      0,
+      20
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "25A"
+    },
+    {
+     "id": "dungeon-chest25A",
+     "kind": "trunk",
+     "pos": [
+      23.0,
+      0,
+      20
+     ],
+     "vis": "hidden-object",
+     "key": "25A",
+     "label": "Padlocked chest A (DC 15)"
+    },
+    {
+     "id": "dungeon-bed25B",
+     "kind": "bed",
+     "pos": [
+      11.0,
+      0,
+      20
+     ],
+     "vis": "player",
+     "key": "25B"
+    },
+    {
+     "id": "dungeon-chest25B",
+     "kind": "trunk",
+     "pos": [
+      11.0,
+      0,
+      24.0
+     ],
+     "vis": "hidden-object",
+     "key": "25B",
+     "label": "Padlocked chest B (DC 15)"
+    },
+    {
+     "id": "dungeon-bed25C",
+     "kind": "bed",
+     "pos": [
+      6.0,
+      0,
+      35
+     ],
+     "vis": "player",
+     "key": "25C"
+    },
+    {
+     "id": "dungeon-chest25C",
+     "kind": "trunk",
+     "pos": [
+      6.0,
+      0,
+      39.0
+     ],
+     "vis": "hidden-object",
+     "key": "25C",
+     "label": "Padlocked chest C (DC 15)"
+    },
+    {
+     "id": "dungeon-bed25D",
+     "kind": "bed",
+     "pos": [
+      15,
+      0,
+      55
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "25D"
+    },
+    {
+     "id": "dungeon-chest25D",
+     "kind": "trunk",
+     "pos": [
+      18.0,
+      0,
+      55
+     ],
+     "vis": "hidden-object",
+     "key": "25D",
+     "label": "Padlocked chest D (DC 15)"
+    },
+    {
+     "id": "dungeon-bed25E",
+     "kind": "bed",
+     "pos": [
+      25,
+      0,
+      55
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "25E"
+    },
+    {
+     "id": "dungeon-chest25E",
+     "kind": "trunk",
+     "pos": [
+      28.0,
+      0,
+      55
+     ],
+     "vis": "hidden-object",
+     "key": "25E",
+     "label": "Padlocked chest E (DC 15)"
+    },
+    {
+     "id": "dungeon-spiral22",
+     "kind": "spiral-stair",
+     "pos": [
+      59.5,
+      0,
+      20.5
+     ],
+     "vis": "player",
+     "key": "22",
+     "dims": {
+      "rise": 0.1,
+      "r": 2.2,
+      "turns": 1
+     }
+    },
+    {
+     "id": "dungeon-steps22",
+     "kind": "stairs-straight",
+     "pos": [
+      60,
+      0,
+      7.5
+     ],
+     "vis": "player",
+     "key": "22",
+     "dims": {
+      "w": 5,
+      "rise": 2,
+      "fromZ": 10,
+      "toZ": 5
+     }
+    },
+    {
+     "id": "dungeon-coffinC",
+     "kind": "coffin",
+     "pos": [
+      86.0,
+      0,
+      32.5
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "23C"
+    },
+    {
+     "id": "dungeon-coffinD",
+     "kind": "coffin",
+     "pos": [
+      86.0,
+      0,
+      42.5
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "23D"
+    },
+    {
+     "id": "dungeon-coffinE",
+     "kind": "coffin",
+     "pos": [
+      54.0,
+      0,
+      32.5
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "23E"
+    },
+    {
+     "id": "dungeon-coffinF",
+     "kind": "coffin",
+     "pos": [
+      54.0,
+      0,
+      42.5
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "23F"
+    },
+    {
+     "id": "dungeon-centipedes",
+     "kind": "swarm-of-insects",
+     "pos": [
+      87.5,
+      0,
+      42.5
+     ],
+     "vis": "hidden-creature",
+     "key": "23D",
+     "label": "Swarm of insects (if the coffin is disturbed)",
+     "size": "medium"
+    },
+    {
+     "id": "dungeon-table27",
+     "kind": "table",
+     "pos": [
+      73.0,
+      0,
+      52.5
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "27"
+    },
+    {
+     "id": "dungeon-bench1",
+     "kind": "pallet",
+     "pos": [
+      70,
+      0,
+      52.5
+     ],
+     "vis": "player",
+     "key": "27"
+    },
+    {
+     "id": "dungeon-bench2",
+     "kind": "pallet",
+     "pos": [
+      76.0,
+      0,
+      52.5
+     ],
+     "vis": "player",
+     "key": "27"
+    },
+    {
+     "id": "dungeon-bones0",
+     "kind": "skeleton",
+     "pos": [
+      63.0,
+      0,
+      48.0
+     ],
+     "vis": "player",
+     "rotY": 30,
+     "key": "27"
+    },
+    {
+     "id": "dungeon-bones1",
+     "kind": "skeleton",
+     "pos": [
+      81.0,
+      0,
+      57.0
+     ],
+     "vis": "player",
+     "rotY": -60,
+     "key": "27"
+    },
+    {
+     "id": "dungeon-bones2",
+     "kind": "skeleton",
+     "pos": [
+      66.5,
+      0,
+      58.0
+     ],
+     "vis": "player",
+     "rotY": 100,
+     "key": "27"
+    },
+    {
+     "id": "dungeon-grick",
+     "kind": "grick",
+     "pos": [
+      87.5,
+      0,
+      52.5
+     ],
+     "vis": "hidden-creature",
+     "key": "28",
+     "label": "Grick (attacks within 5 ft of the alcove)",
+     "size": "medium"
+    },
+    {
+     "id": "dungeon-pit",
+     "kind": "pit-cover",
+     "pos": [
+      47.5,
+      0,
+      57.5
+     ],
+     "vis": "trap",
+     "key": "26",
+     "label": "Hidden spiked pit: 5 ft long, 10 ft deep (DC 15 to notice)",
+     "dims": {
+      "w": 5,
+      "d": 5
+     }
+    },
+    {
+     "id": "dungeon-stairs30",
+     "kind": "stairs-straight",
+     "pos": [
+      45,
+      0,
+      75
+     ],
+     "vis": "player",
+     "key": "30",
+     "dims": {
+      "w": 10,
+      "rise": 0.1,
+      "fromZ": 70,
+      "toZ": 80
+     }
+    },
+    {
+     "id": "dungeon-down35",
+     "kind": "note",
+     "pos": [
+      45,
+      0,
+      71.5
+     ],
+     "vis": "dm-note",
+     "key": "30",
+     "label": "20-ft stair down to 35"
+    },
+    {
+     "id": "dungeon-ghoul0",
+     "kind": "ghoul",
+     "pos": [
+      72.5,
+      0,
+      67.5
+     ],
+     "vis": "hidden-creature",
+     "key": "29",
+     "label": "Ghoul 1 (rises from the ground at the midpoint)",
+     "size": "medium"
+    },
+    {
+     "id": "dungeon-ghoul1",
+     "kind": "ghoul",
+     "pos": [
+      67.5,
+      0,
+      72.5
+     ],
+     "vis": "hidden-creature",
+     "key": "29",
+     "label": "Ghoul 2 (rises from the ground at the midpoint)",
+     "size": "medium"
+    },
+    {
+     "id": "dungeon-ghoul2",
+     "kind": "ghoul",
+     "pos": [
+      77.5,
+      0,
+      72.5
+     ],
+     "vis": "hidden-creature",
+     "key": "29",
+     "label": "Ghoul 3 (rises from the ground at the midpoint)",
+     "size": "medium"
+    },
+    {
+     "id": "dungeon-ghoul3",
+     "kind": "ghoul",
+     "pos": [
+      67.5,
+      0,
+      82.5
+     ],
+     "vis": "hidden-creature",
+     "key": "29",
+     "label": "Ghoul 4 (rises from the ground at the midpoint)",
+     "size": "medium"
+    },
+    {
+     "id": "dungeon-stairs32",
+     "kind": "stairs-straight",
+     "pos": [
+      87.5,
+      0,
+      62.5
+     ],
+     "vis": "player",
+     "key": "32",
+     "dims": {
+      "w": 5,
+      "rise": 10,
+      "fromZ": 70,
+      "toZ": 55
+     }
+    },
+    {
+     "id": "dungeon-trapdoor32",
+     "kind": "trapdoor",
+     "pos": [
+      87.5,
+      0,
+      56.5
+     ],
+     "vis": "hidden-object",
+     "key": "32",
+     "label": "Trapdoor (bolted this side) up to the den (3)"
+    },
+    {
+     "id": "dungeon-statue",
+     "kind": "statue",
+     "pos": [
+      96.5,
+      0,
+      82.5
+     ],
+     "vis": "player",
+     "rotY": -90,
+     "key": "31"
+    },
+    {
+     "id": "dungeon-orb",
+     "kind": "lamp",
+     "pos": [
+      96.5,
+      0,
+      82.5
+     ],
+     "vis": "hidden-object",
+     "key": "31",
+     "label": "Crystal orb (25 gp, arcane focus)"
+    },
+    {
+     "id": "dungeon-shadow0",
+     "kind": "shadow",
+     "pos": [
+      92.0,
+      0,
+      76.5
+     ],
+     "vis": "hidden-creature",
+     "key": "31",
+     "label": "Shadow 1 (if the statue is touched)",
+     "size": "medium"
+    },
+    {
+     "id": "dungeon-shadow1",
+     "kind": "shadow",
+     "pos": [
+      94.5,
+      0,
+      79.5
+     ],
+     "vis": "hidden-creature",
+     "key": "31",
+     "label": "Shadow 2 (if the statue is touched)",
+     "size": "medium"
+    },
+    {
+     "id": "dungeon-shadow2",
+     "kind": "shadow",
+     "pos": [
+      92.0,
+      0,
+      82.5
+     ],
+     "vis": "hidden-creature",
+     "key": "31",
+     "label": "Shadow 3 (if the statue is touched)",
+     "size": "medium"
+    },
+    {
+     "id": "dungeon-shadow3",
+     "kind": "shadow",
+     "pos": [
+      94.5,
+      0,
+      85.5
+     ],
+     "vis": "hidden-creature",
+     "key": "31",
+     "label": "Shadow 4 (if the statue is touched)",
+     "size": "medium"
+    },
+    {
+     "id": "dungeon-shadow4",
+     "kind": "shadow",
+     "pos": [
+      92.0,
+      0,
+      88.5
+     ],
+     "vis": "hidden-creature",
+     "key": "31",
+     "label": "Shadow 5 (if the statue is touched)",
+     "size": "medium"
+    },
+    {
+     "id": "dungeon-shackles0",
+     "kind": "skeleton",
+     "pos": [
+      81.5,
+      0,
+      75
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "31"
+    },
+    {
+     "id": "dungeon-shackles1",
+     "kind": "skeleton",
+     "pos": [
+      81.5,
+      0,
+      87.5
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "31"
+    },
+    {
+     "id": "dungeon-shackles2",
+     "kind": "skeleton",
+     "pos": [
+      87.5,
+      0,
+      71.5
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "31"
+    },
+    {
+     "id": "dungeon-shackles3",
+     "kind": "skeleton",
+     "pos": [
+      93.0,
+      0,
+      98.5
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "31"
+    },
+    {
+     "id": "dungeon-mimic",
+     "kind": "mimic",
+     "pos": [
+      80,
+      0,
+      97.5
+     ],
+     "vis": "hidden-creature",
+     "key": "33",
+     "label": "Mimic disguised as the door",
+     "size": "medium"
+    },
+    {
+     "id": "dungeon-table33",
+     "kind": "table",
+     "pos": [
+      70,
+      0,
+      93.0
+     ],
+     "vis": "player",
+     "rotY": 40,
+     "key": "33"
+    },
+    {
+     "id": "dungeon-ch33a",
+     "kind": "chair",
+     "pos": [
+      66.0,
+      0,
+      90
+     ],
+     "vis": "player",
+     "rotY": 130,
+     "key": "33"
+    },
+    {
+     "id": "dungeon-ch33b",
+     "kind": "chair",
+     "pos": [
+      74.0,
+      0,
+      96.0
+     ],
+     "vis": "player",
+     "rotY": -50,
+     "key": "33"
+    },
+    {
+     "id": "dungeon-candle33a",
+     "kind": "lamp",
+     "pos": [
+      61.5,
+      0,
+      86.5
+     ],
+     "vis": "player",
+     "key": "33"
+    },
+    {
+     "id": "dungeon-candle33b",
+     "kind": "lamp",
+     "pos": [
+      78.5,
+      0,
+      86.5
+     ],
+     "vis": "player",
+     "key": "33"
+    },
+    {
+     "id": "dungeon-bed34",
+     "kind": "bed",
+     "pos": [
+      47.5,
+      0,
+      99.0
+     ],
+     "vis": "player",
+     "key": "34"
+    },
+    {
+     "id": "dungeon-wardrobe34",
+     "kind": "wardrobe",
+     "pos": [
+      42.5,
+      0,
+      91.5
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "34"
+    },
+    {
+     "id": "dungeon-crate34",
+     "kind": "trunk",
+     "pos": [
+      52.5,
+      0,
+      92.0
+     ],
+     "vis": "player",
+     "key": "34"
+    },
+    {
+     "id": "dungeon-footlocker",
+     "kind": "trunk",
+     "pos": [
+      47.5,
+      0,
+      93.0
+     ],
+     "vis": "hidden-object",
+     "key": "34",
+     "label": "Footlocker: cloak of protection, potions, spellbook"
+    },
+    {
+     "id": "dungeon-ghast-g",
+     "kind": "ghast",
+     "pos": [
+      47.5,
+      0,
+      87.5
+     ],
+     "vis": "hidden-creature",
+     "key": "34",
+     "label": "Ghast (Gustav Durst) — behind the wall",
+     "size": "medium"
+    },
+    {
+     "id": "dungeon-ghast-e",
+     "kind": "ghast",
+     "pos": [
+      37.5,
+      0,
+      97.5
+     ],
+     "vis": "hidden-creature",
+     "key": "34",
+     "label": "Ghast (Elisabeth Durst) — behind the wall",
+     "size": "medium"
+    },
+    {
+     "id": "dungeon-chant",
+     "kind": "note",
+     "pos": [
+      62.5,
+      0,
+      67.5
+     ],
+     "vis": "dm-note",
+     "key": "29",
+     "label": "Chanting is louder toward 30/35"
+    }
+   ]
+  },
+  {
+   "id": "dungeon-lower",
+   "name": "Dungeon level (lower)",
+   "elevationFt": -30,
+   "ceilingFt": 8,
+   "ambient": "darkness",
+   "north": "-x",
+   "rooms": [
+    {
+     "key": "35",
+     "name": "Reliquary",
+     "page": 219,
+     "polygon": [
+      [
+       5,
+       5
+      ],
+      [
+       40,
+       5
+      ],
+      [
+       40,
+       20
+      ],
+      [
+       15,
+       20
+      ],
+      [
+       15,
+       10
+      ],
+      [
+       10,
+       10
+      ],
+      [
+       10,
+       25
+      ],
+      [
+       5,
+       25
+      ]
+     ],
+     "floor": "dirt"
+    },
+    {
+     "key": "36",
+     "name": "Prison",
+     "page": 219,
+     "polygon": [
+      [
+       20,
+       20
+      ],
+      [
+       25,
+       20
+      ],
+      [
+       25,
+       30
+      ],
+      [
+       20,
+       30
+      ],
+      [
+       20,
+       65
+      ],
+      [
+       5,
+       65
+      ],
+      [
+       5,
+       30
+      ],
+      [
+       10,
+       30
+      ],
+      [
+       10,
+       25
+      ],
+      [
+       20,
+       25
+      ]
+     ],
+     "floor": "dirt"
+    },
+    {
+     "key": "37",
+     "name": "Portcullis",
+     "page": 220,
+     "polygon": [
+      [
+       30,
+       20
+      ],
+      [
+       35,
+       20
+      ],
+      [
+       35,
+       30
+      ],
+      [
+       30,
+       30
+      ]
+     ],
+     "floor": "shallow-water",
+     "difficult": true
+    },
+    {
+     "key": "38",
+     "name": "Ritual Chamber",
+     "page": 219,
+     "polygon": [
+      [
+       20,
+       30
+      ],
+      [
+       60,
+       30
+      ],
+      [
+       60,
+       70
+      ],
+      [
+       40,
+       70
+      ],
+      [
+       40,
+       80
+      ],
+      [
+       30,
+       80
+      ],
+      [
+       30,
+       70
+      ],
+      [
+       20,
+       70
+      ]
+     ],
+     "floor": "shallow-water",
+     "difficult": true,
+     "ceilingFt": 16
+    }
+   ],
+   "walls": [
+    {
+     "id": "dungeon-lower-w-0",
+     "a": [
+      5.0,
+      5.0
+     ],
+     "b": [
+      40.0,
+      5.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-lower-w-1",
+     "a": [
+      40.0,
+      5.0
+     ],
+     "b": [
+      40.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-lower-w-2",
+     "a": [
+      35.0,
+      20.0
+     ],
+     "b": [
+      40.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-lower-w-3",
+     "a": [
+      25.0,
+      20.0
+     ],
+     "b": [
+      30.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-lower-w-4",
+     "a": [
+      15.0,
+      20.0
+     ],
+     "b": [
+      20.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-lower-w-5",
+     "a": [
+      15.0,
+      15.0
+     ],
+     "b": [
+      15.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-lower-w-6",
+     "a": [
+      15.0,
+      10.0
+     ],
+     "b": [
+      15.0,
+      15.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-lower-w-7",
+     "a": [
+      10.0,
+      10.0
+     ],
+     "b": [
+      15.0,
+      10.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-lower-w-8",
+     "a": [
+      10.0,
+      10.0
+     ],
+     "b": [
+      10.0,
+      30.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-lower-w-9",
+     "a": [
+      5.0,
+      25.0
+     ],
+     "b": [
+      20.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-lower-w-10",
+     "a": [
+      5.0,
+      20.0
+     ],
+     "b": [
+      5.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-lower-w-11",
+     "a": [
+      5.0,
+      15.0
+     ],
+     "b": [
+      5.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-lower-w-12",
+     "a": [
+      5.0,
+      10.0
+     ],
+     "b": [
+      5.0,
+      15.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-lower-w-13",
+     "a": [
+      5.0,
+      5.0
+     ],
+     "b": [
+      5.0,
+      10.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-lower-w-14",
+     "a": [
+      25.0,
+      20.0
+     ],
+     "b": [
+      25.0,
+      30.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-lower-w-15",
+     "a": [
+      20.0,
+      30.0
+     ],
+     "b": [
+      30.0,
+      30.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 16
+    },
+    {
+     "id": "dungeon-lower-w-16",
+     "a": [
+      20.0,
+      30.0
+     ],
+     "b": [
+      20.0,
+      45.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 16
+    },
+    {
+     "id": "dungeon-lower-sd-prison",
+     "a": [
+      20.0,
+      45.0
+     ],
+     "b": [
+      20.0,
+      50.0
+     ],
+     "flags": [
+      "secret-door"
+     ],
+     "material": "ashlar",
+     "heightFt": 16
+    },
+    {
+     "id": "dungeon-lower-w-18",
+     "a": [
+      20.0,
+      50.0
+     ],
+     "b": [
+      20.0,
+      70.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 16
+    },
+    {
+     "id": "dungeon-lower-w-19",
+     "a": [
+      15.0,
+      65.0
+     ],
+     "b": [
+      20.0,
+      65.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-lower-w-20",
+     "a": [
+      10.0,
+      65.0
+     ],
+     "b": [
+      15.0,
+      65.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-lower-w-21",
+     "a": [
+      5.0,
+      65.0
+     ],
+     "b": [
+      10.0,
+      65.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-lower-w-22",
+     "a": [
+      5.0,
+      60.0
+     ],
+     "b": [
+      5.0,
+      65.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-lower-w-23",
+     "a": [
+      5.0,
+      55.0
+     ],
+     "b": [
+      5.0,
+      60.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-lower-w-24",
+     "a": [
+      5.0,
+      50.0
+     ],
+     "b": [
+      5.0,
+      55.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-lower-w-25",
+     "a": [
+      5.0,
+      45.0
+     ],
+     "b": [
+      5.0,
+      50.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-lower-w-26",
+     "a": [
+      5.0,
+      40.0
+     ],
+     "b": [
+      5.0,
+      45.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-lower-w-27",
+     "a": [
+      5.0,
+      35.0
+     ],
+     "b": [
+      5.0,
+      40.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-lower-w-28",
+     "a": [
+      5.0,
+      30.0
+     ],
+     "b": [
+      5.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-lower-w-29",
+     "a": [
+      5.0,
+      30.0
+     ],
+     "b": [
+      10.0,
+      30.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-lower-w-30",
+     "a": [
+      20.0,
+      20.0
+     ],
+     "b": [
+      20.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-lower-w-31",
+     "a": [
+      35.0,
+      20.0
+     ],
+     "b": [
+      35.0,
+      30.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "portcullis",
+     "a": [
+      30.0,
+      30.0
+     ],
+     "b": [
+      35.0,
+      30.0
+     ],
+     "flags": [
+      "door",
+      "locked"
+     ],
+     "material": "ashlar",
+     "open": false,
+     "heightFt": 16
+    },
+    {
+     "id": "dungeon-lower-w-33",
+     "a": [
+      30.0,
+      25.0
+     ],
+     "b": [
+      30.0,
+      30.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-lower-w-34",
+     "a": [
+      30.0,
+      20.0
+     ],
+     "b": [
+      30.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-lower-w-35",
+     "a": [
+      35.0,
+      30.0
+     ],
+     "b": [
+      60.0,
+      30.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 16
+    },
+    {
+     "id": "dungeon-lower-w-36",
+     "a": [
+      60.0,
+      30.0
+     ],
+     "b": [
+      60.0,
+      70.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 16
+    },
+    {
+     "id": "dungeon-lower-w-37",
+     "a": [
+      55.0,
+      70.0
+     ],
+     "b": [
+      60.0,
+      70.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 16
+    },
+    {
+     "id": "dungeon-lower-w-38",
+     "a": [
+      50.0,
+      70.0
+     ],
+     "b": [
+      55.0,
+      70.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 16
+    },
+    {
+     "id": "dungeon-lower-w-39",
+     "a": [
+      45.0,
+      70.0
+     ],
+     "b": [
+      50.0,
+      70.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 16
+    },
+    {
+     "id": "dungeon-lower-w-40",
+     "a": [
+      40.0,
+      70.0
+     ],
+     "b": [
+      45.0,
+      70.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 16
+    },
+    {
+     "id": "dungeon-lower-w-41",
+     "a": [
+      40.0,
+      70.0
+     ],
+     "b": [
+      40.0,
+      80.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 16
+    },
+    {
+     "id": "dungeon-lower-w-42",
+     "a": [
+      35.0,
+      80.0
+     ],
+     "b": [
+      40.0,
+      80.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 16
+    },
+    {
+     "id": "dungeon-lower-w-43",
+     "a": [
+      30.0,
+      80.0
+     ],
+     "b": [
+      35.0,
+      80.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 16
+    },
+    {
+     "id": "dungeon-lower-w-44",
+     "a": [
+      30.0,
+      75.0
+     ],
+     "b": [
+      30.0,
+      80.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 16
+    },
+    {
+     "id": "dungeon-lower-w-45",
+     "a": [
+      30.0,
+      70.0
+     ],
+     "b": [
+      30.0,
+      75.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 16
+    },
+    {
+     "id": "dungeon-lower-w-46",
+     "a": [
+      25.0,
+      70.0
+     ],
+     "b": [
+      30.0,
+      70.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 16
+    },
+    {
+     "id": "dungeon-lower-w-47",
+     "a": [
+      20.0,
+      70.0
+     ],
+     "b": [
+      25.0,
+      70.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 16
+    },
+    {
+     "id": "dungeon-lower-cell-7-1",
+     "a": [
+      5,
+      35
+     ],
+     "b": [
+      10,
+      35
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-lower-cell-7-3",
+     "a": [
+      15,
+      35
+     ],
+     "b": [
+      20,
+      35
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-lower-cell-8-1",
+     "a": [
+      5,
+      40
+     ],
+     "b": [
+      10,
+      40
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-lower-cell-8-3",
+     "a": [
+      15,
+      40
+     ],
+     "b": [
+      20,
+      40
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-lower-cell-9-1",
+     "a": [
+      5,
+      45
+     ],
+     "b": [
+      10,
+      45
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-lower-cell-9-3",
+     "a": [
+      15,
+      45
+     ],
+     "b": [
+      20,
+      45
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-lower-cell-10-1",
+     "a": [
+      5,
+      50
+     ],
+     "b": [
+      10,
+      50
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-lower-cell-10-3",
+     "a": [
+      15,
+      50
+     ],
+     "b": [
+      20,
+      50
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-lower-cell-11-1",
+     "a": [
+      5,
+      55
+     ],
+     "b": [
+      10,
+      55
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-lower-cell-11-3",
+     "a": [
+      15,
+      55
+     ],
+     "b": [
+      20,
+      55
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-lower-cell-12-1",
+     "a": [
+      5,
+      60
+     ],
+     "b": [
+      10,
+      60
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "dungeon-lower-cell-12-3",
+     "a": [
+      15,
+      60
+     ],
+     "b": [
+      20,
+      60
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    }
+   ],
+   "lights": [],
+   "objects": [
+    {
+     "id": "dungeon-lower-sdo-prison",
+     "kind": "secret-panel",
+     "pos": [
+      20.0,
+      0,
+      47.5
+     ],
+     "vis": "secret-door",
+     "key": "36",
+     "label": "Secret door to the ritual chamber (DC 15)",
+     "wall": "dungeon-lower-sd-prison"
+    },
+    {
+     "id": "dungeon-lower-ledge0",
+     "kind": "ledge",
+     "pos": [
+      40,
+      0,
+      32.5
+     ],
+     "vis": "player",
+     "key": "38",
+     "dims": {
+      "w": 40,
+      "d": 5,
+      "h": 5
+     }
+    },
+    {
+     "id": "dungeon-lower-ledge1",
+     "kind": "ledge",
+     "pos": [
+      40,
+      0,
+      67.5
+     ],
+     "vis": "player",
+     "key": "38",
+     "dims": {
+      "w": 40,
+      "d": 5,
+      "h": 5
+     }
+    },
+    {
+     "id": "dungeon-lower-ledge2",
+     "kind": "ledge",
+     "pos": [
+      22.5,
+      0,
+      50
+     ],
+     "vis": "player",
+     "key": "38",
+     "dims": {
+      "w": 5,
+      "d": 30,
+      "h": 5
+     }
+    },
+    {
+     "id": "dungeon-lower-ledge3",
+     "kind": "ledge",
+     "pos": [
+      57.5,
+      0,
+      50
+     ],
+     "vis": "player",
+     "key": "38",
+     "dims": {
+      "w": 5,
+      "d": 30,
+      "h": 5
+     }
+    },
+    {
+     "id": "dungeon-lower-pillar0",
+     "kind": "column",
+     "pos": [
+      25,
+      5,
+      35
+     ],
+     "vis": "player",
+     "key": "38"
+    },
+    {
+     "id": "dungeon-lower-pillar1",
+     "kind": "column",
+     "pos": [
+      35,
+      5,
+      35
+     ],
+     "vis": "player",
+     "key": "38"
+    },
+    {
+     "id": "dungeon-lower-pillar2",
+     "kind": "column",
+     "pos": [
+      45,
+      5,
+      35
+     ],
+     "vis": "player",
+     "key": "38"
+    },
+    {
+     "id": "dungeon-lower-pillar3",
+     "kind": "column",
+     "pos": [
+      55,
+      5,
+      35
+     ],
+     "vis": "player",
+     "key": "38"
+    },
+    {
+     "id": "dungeon-lower-pillar4",
+     "kind": "column",
+     "pos": [
+      25,
+      5,
+      45
+     ],
+     "vis": "player",
+     "key": "38"
+    },
+    {
+     "id": "dungeon-lower-pillar5",
+     "kind": "column",
+     "pos": [
+      55,
+      5,
+      45
+     ],
+     "vis": "player",
+     "key": "38"
+    },
+    {
+     "id": "dungeon-lower-pillar6",
+     "kind": "column",
+     "pos": [
+      25,
+      5,
+      55
+     ],
+     "vis": "player",
+     "key": "38"
+    },
+    {
+     "id": "dungeon-lower-pillar7",
+     "kind": "column",
+     "pos": [
+      55,
+      5,
+      55
+     ],
+     "vis": "player",
+     "key": "38"
+    },
+    {
+     "id": "dungeon-lower-pillar8",
+     "kind": "column",
+     "pos": [
+      25,
+      5,
+      65
+     ],
+     "vis": "player",
+     "key": "38"
+    },
+    {
+     "id": "dungeon-lower-pillar9",
+     "kind": "column",
+     "pos": [
+      35,
+      5,
+      65
+     ],
+     "vis": "player",
+     "key": "38"
+    },
+    {
+     "id": "dungeon-lower-pillar10",
+     "kind": "column",
+     "pos": [
+      45,
+      5,
+      65
+     ],
+     "vis": "player",
+     "key": "38"
+    },
+    {
+     "id": "dungeon-lower-pillar11",
+     "kind": "column",
+     "pos": [
+      55,
+      5,
+      65
+     ],
+     "vis": "player",
+     "key": "38"
+    },
+    {
+     "id": "dungeon-lower-dais",
+     "kind": "dais",
+     "pos": [
+      40,
+      0,
+      50
+     ],
+     "vis": "player",
+     "key": "38",
+     "dims": {
+      "w": 15,
+      "h": 5,
+      "steps": 3
+     }
+    },
+    {
+     "id": "dungeon-lower-altar",
+     "kind": "altar",
+     "pos": [
+      42.0,
+      5,
+      50
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "38"
+    },
+    {
+     "id": "dungeon-lower-chains",
+     "kind": "lamp",
+     "pos": [
+      42.0,
+      0,
+      50
+     ],
+     "vis": "hidden-object",
+     "key": "38",
+     "label": "Chains and shackles above the altar (8 ft)"
+    },
+    {
+     "id": "dungeon-lower-wheel",
+     "kind": "wheel",
+     "pos": [
+      38.0,
+      5,
+      31.0
+     ],
+     "vis": "player",
+     "key": "38"
+    },
+    {
+     "id": "dungeon-lower-lorghoth",
+     "kind": "shambling-mound",
+     "pos": [
+      35,
+      0,
+      76.0
+     ],
+     "vis": "hidden-creature",
+     "key": "38",
+     "label": "Lorghoth the Decayer (shambling mound, asleep)",
+     "size": "large"
+    },
+    {
+     "id": "dungeon-lower-refuse",
+     "kind": "refuse",
+     "pos": [
+      35,
+      0,
+      76.0
+     ],
+     "vis": "player",
+     "key": "38"
+    },
+    {
+     "id": "dungeon-lower-stair380",
+     "kind": "stairs-straight",
+     "pos": [
+      32.5,
+      0,
+      37.5
+     ],
+     "vis": "player",
+     "key": "38",
+     "dims": {
+      "w": 5,
+      "rise": 5,
+      "fromZ": 40,
+      "toZ": 35
+     }
+    },
+    {
+     "id": "dungeon-lower-stair381",
+     "kind": "stairs-straight",
+     "pos": [
+      32.5,
+      0,
+      62.5
+     ],
+     "vis": "player",
+     "key": "38",
+     "dims": {
+      "w": 5,
+      "rise": 5,
+      "fromZ": 60,
+      "toZ": 65
+     }
+    },
+    {
+     "id": "dungeon-lower-relic0",
+     "kind": "niche",
+     "pos": [
+      17.5,
+      0,
+      6.0
+     ],
+     "vis": "hidden-object",
+     "key": "35",
+     "label": "Relic niche 1"
+    },
+    {
+     "id": "dungeon-lower-relic1",
+     "kind": "niche",
+     "pos": [
+      22.5,
+      0,
+      6.0
+     ],
+     "vis": "hidden-object",
+     "key": "35",
+     "label": "Relic niche 2"
+    },
+    {
+     "id": "dungeon-lower-relic2",
+     "kind": "niche",
+     "pos": [
+      27.5,
+      0,
+      6.0
+     ],
+     "vis": "hidden-object",
+     "key": "35",
+     "label": "Relic niche 3"
+    },
+    {
+     "id": "dungeon-lower-relic3",
+     "kind": "niche",
+     "pos": [
+      32.5,
+      0,
+      6.0
+     ],
+     "vis": "hidden-object",
+     "key": "35",
+     "label": "Relic niche 4"
+    },
+    {
+     "id": "dungeon-lower-relic4",
+     "kind": "niche",
+     "pos": [
+      37.5,
+      0,
+      6.0
+     ],
+     "vis": "hidden-object",
+     "key": "35",
+     "label": "Relic niche 5"
+    },
+    {
+     "id": "dungeon-lower-relic5",
+     "kind": "niche",
+     "pos": [
+      17.5,
+      0,
+      19.0
+     ],
+     "vis": "hidden-object",
+     "key": "35",
+     "label": "Relic niche 6"
+    },
+    {
+     "id": "dungeon-lower-relic6",
+     "kind": "niche",
+     "pos": [
+      22.5,
+      0,
+      19.0
+     ],
+     "vis": "hidden-object",
+     "key": "35",
+     "label": "Relic niche 7"
+    },
+    {
+     "id": "dungeon-lower-relic7",
+     "kind": "niche",
+     "pos": [
+      27.5,
+      0,
+      19.0
+     ],
+     "vis": "hidden-object",
+     "key": "35",
+     "label": "Relic niche 8"
+    },
+    {
+     "id": "dungeon-lower-relic8",
+     "kind": "niche",
+     "pos": [
+      32.5,
+      0,
+      19.0
+     ],
+     "vis": "hidden-object",
+     "key": "35",
+     "label": "Relic niche 9"
+    },
+    {
+     "id": "dungeon-lower-relic9",
+     "kind": "niche",
+     "pos": [
+      37.5,
+      0,
+      19.0
+     ],
+     "vis": "hidden-object",
+     "key": "35",
+     "label": "Relic niche 10"
+    },
+    {
+     "id": "dungeon-lower-relic10",
+     "kind": "niche",
+     "pos": [
+      39.0,
+      0,
+      10.0
+     ],
+     "vis": "hidden-object",
+     "key": "35",
+     "label": "Relic niche 11"
+    },
+    {
+     "id": "dungeon-lower-relic11",
+     "kind": "niche",
+     "pos": [
+      39.0,
+      0,
+      15.0
+     ],
+     "vis": "hidden-object",
+     "key": "35",
+     "label": "Relic niche 12"
+    },
+    {
+     "id": "dungeon-lower-relic12",
+     "kind": "niche",
+     "pos": [
+      16.0,
+      0,
+      15.0
+     ],
+     "vis": "hidden-object",
+     "key": "35",
+     "label": "Relic niche 13"
+    },
+    {
+     "id": "dungeon-lower-post0",
+     "kind": "column",
+     "pos": [
+      20,
+      0,
+      10
+     ],
+     "vis": "player",
+     "key": "35"
+    },
+    {
+     "id": "dungeon-lower-post1",
+     "kind": "column",
+     "pos": [
+      25,
+      0,
+      10
+     ],
+     "vis": "player",
+     "key": "35"
+    },
+    {
+     "id": "dungeon-lower-post2",
+     "kind": "column",
+     "pos": [
+      30,
+      0,
+      10
+     ],
+     "vis": "player",
+     "key": "35"
+    },
+    {
+     "id": "dungeon-lower-post3",
+     "kind": "column",
+     "pos": [
+      35,
+      0,
+      10
+     ],
+     "vis": "player",
+     "key": "35"
+    },
+    {
+     "id": "dungeon-lower-post4",
+     "kind": "column",
+     "pos": [
+      20,
+      0,
+      15
+     ],
+     "vis": "player",
+     "key": "35"
+    },
+    {
+     "id": "dungeon-lower-post5",
+     "kind": "column",
+     "pos": [
+      25,
+      0,
+      15
+     ],
+     "vis": "player",
+     "key": "35"
+    },
+    {
+     "id": "dungeon-lower-post6",
+     "kind": "column",
+     "pos": [
+      30,
+      0,
+      15
+     ],
+     "vis": "player",
+     "key": "35"
+    },
+    {
+     "id": "dungeon-lower-post7",
+     "kind": "column",
+     "pos": [
+      35,
+      0,
+      15
+     ],
+     "vis": "player",
+     "key": "35"
+    },
+    {
+     "id": "dungeon-lower-stairs30",
+     "kind": "stairs-straight",
+     "pos": [
+      7.5,
+      0,
+      20
+     ],
+     "vis": "player",
+     "key": "35",
+     "dims": {
+      "w": 5,
+      "rise": 0.1,
+      "fromZ": 25,
+      "toZ": 15
+     }
+    },
+    {
+     "id": "dungeon-lower-ring",
+     "kind": "skeleton",
+     "pos": [
+      7.5,
+      0,
+      52.5
+     ],
+     "vis": "hidden-object",
+     "key": "36",
+     "label": "Skeleton in a black robe: gold ring (25 gp)"
+    },
+    {
+     "id": "dungeon-lower-up30",
+     "kind": "note",
+     "pos": [
+      7.5,
+      0,
+      22.5
+     ],
+     "vis": "dm-note",
+     "key": "35",
+     "label": "Stair up to 30"
+    },
+    {
+     "id": "dungeon-lower-cultists",
+     "kind": "note",
+     "pos": [
+      40,
+      0,
+      35
+     ],
+     "vis": "dm-note",
+     "key": "38",
+     "label": "13 apparitions on the ledges when the dais is climbed; \"One must die!\""
+    }
+   ]
+  }
+ ],
+ "links": [
+  {
+   "id": "lk-spiral-1-2",
+   "kind": "spiral",
+   "from": {
+    "level": "f1",
+    "pos": [
+     25.5,
+     27.5
+    ]
+   },
+   "to": {
+    "level": "f2",
+    "pos": [
+     25.5,
+     27.5
+    ]
+   }
+  },
+  {
+   "id": "lk-spiral-2-3",
+   "kind": "spiral",
+   "from": {
+    "level": "f2",
+    "pos": [
+     25.5,
+     27.5
+    ]
+   },
+   "to": {
+    "level": "f3",
+    "pos": [
+     25.5,
+     27.5
+    ]
+   }
+  },
+  {
+   "id": "lk-attic-stair",
+   "kind": "stairs",
+   "from": {
+    "level": "f3",
+    "pos": [
+     20,
+     37.5
+    ]
+   },
+   "to": {
+    "level": "attic",
+    "pos": [
+     27.5,
+     32.5
+    ]
+   }
+  },
+  {
+   "id": "lk-21",
+   "kind": "spiral",
+   "from": {
+    "level": "attic",
+    "pos": [
+     2.5,
+     17.5
+    ]
+   },
+   "to": {
+    "level": "dungeon",
+    "pos": [
+     59.5,
+     20.5
+    ]
+   }
+  },
+  {
+   "id": "lk-dumbwaiter-1-2",
+   "kind": "dumbwaiter",
+   "from": {
+    "level": "f1",
+    "pos": [
+     28.5,
+     18.5
+    ]
+   },
+   "to": {
+    "level": "f2",
+    "pos": [
+     28.5,
+     18.5
+    ]
+   }
+  },
+  {
+   "id": "lk-dumbwaiter-2-3",
+   "kind": "dumbwaiter",
+   "from": {
+    "level": "f2",
+    "pos": [
+     28.5,
+     18.5
+    ]
+   },
+   "to": {
+    "level": "f3",
+    "pos": [
+     28.5,
+     18.5
+    ]
+   }
+  },
+  {
+   "id": "lk-trapdoor",
+   "kind": "trapdoor",
+   "from": {
+    "level": "dungeon",
+    "pos": [
+     87.5,
+     56.5
+    ]
+   },
+   "to": {
+    "level": "f1",
+    "pos": [
+     27.5,
+     52.5
+    ]
+   }
+  },
+  {
+   "id": "lk-30",
+   "kind": "stairs",
+   "from": {
+    "level": "dungeon",
+    "pos": [
+     45,
+     75
+    ]
+   },
+   "to": {
+    "level": "dungeon-lower",
+    "pos": [
+     7.5,
+     20
+    ]
+   }
+  }
+ ],
+ "nonSpatialKeys": [
+  "1",
+  "2",
+  "4",
+  "7",
+  "12",
+  "15"
+ ]
+}

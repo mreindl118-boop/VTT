@@ -16,7 +16,7 @@ npm run ocr              # OCR reference/module/curse-of-strahd.pdf into referen
 node --experimental-strip-types scripts/manifest-report.ts   # flag manifest vs book mismatches
 ```
 
-URL options: `?scene=dev/m0-test-room`, `?display=player` (Player Display), `?hud=1` (tris/calls/fps).
+URL options: `?scene=appB/death-house` (or `dev/m0-test-room`), `?display=player` (Player Display), `?hud=1` (tris/calls/fps).
 
 ## Using it
 
@@ -38,4 +38,4 @@ docs/         UNITS · SLIDER · STYLE · PIPELINE · CHANGELOG
 tests/ e2e/   Vitest + Playwright
 ```
 
-Milestones are listed in `docs/CHANGELOG.md`; M0 Foundations is done.
+Milestones are listed in `docs/CHANGELOG.md`; M0 Foundations and M1 Death House are done.

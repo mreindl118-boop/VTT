@@ -6,6 +6,7 @@ import { baseRingFt, DEFAULT_CEILING_FT } from '../core/units';
 import { FLOOR_COLOR, PALETTE, WALL_COLOR } from '../kit/palette';
 import { baseRing, merge, pawn, PROP_BUILDERS, segmentBox, slabGeometry, stairsStraight, WALL_T } from '../kit/pieces';
 import { mat, matClone, patchFog } from './materials';
+import { PROPS_V1 } from '../kit/props';
 import { buildGridOverlay } from './gridOverlay';
 
 export interface LabelSpec { id: string; text: string; sub?: string; pos: THREE.Vector3; vis: VisClass; kind: 'key' | 'object' | 'tread' | 'note'; objectId?: string }
@@ -164,8 +165,8 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
       labels.push({ id: `obj:${o.id}`, text: o.label ?? 'Secret door', pos: new THREE.Vector3(p.x, y0 + h + 1.5, p.z), vis: 'dm-note', kind: 'object', objectId: o.id });
       continue;
     }
-    if (o.kind === 'note') {
-      labels.push({ id: `note:${o.id}`, text: o.label ?? '', pos: p, vis: 'dm-note', kind: 'note' });
+    if (o.kind === 'note' || o.kind === 'spawn') {
+      labels.push({ id: `note:${o.id}`, text: o.label ?? (o.kind === 'spawn' ? 'Spawn' : ''), pos: p, vis: 'dm-note', kind: 'note' });
       continue;
     }
     const obj = buildObject(o, y0, labels);
@@ -228,6 +229,8 @@ function buildObject(o: SceneObject, y0: number, labels: LabelSpec[]): THREE.Obj
   }
   const b = PROP_BUILDERS[o.kind];
   if (b) return b();
+  const v1 = PROPS_V1[o.kind];
+  if (v1) return v1(o.dims ?? {});
   // Unknown kinds with a size are creatures: pawn + base ring until M8 models land.
   const base = baseRingFt(o.size ?? 'medium');
   const g = new THREE.Group();

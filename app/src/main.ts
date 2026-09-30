@@ -33,6 +33,8 @@ const ready = app.init(builtPaths.has(path) ? path : 'dev/m0-test-room');
   labels: () => app.cur!.labels.filter((l) => l.level === app.levelId).map((l) => ({ id: l.spec.id, vis: l.spec.vis, opacity: Number(l.obj.element.style.opacity), visible: l.obj.visible })),
   targets: () => app.built.targets.map((t) => ({ id: t.id, vis: t.vis, visible: t.root.visible, opacity: t.materials[0]?.opacity ?? 1 })),
   flush: () => app.flush(),
+  /** Move the party token to a level/position (tests and DM shortcuts). */
+  moveParty: (level: string, x: number, z: number) => { const t = app.state.tokens.find((k) => k.location === app.cur!.scene.location); if (t) { t.level = level; t.pos = [x, z]; } app.setLevel(level); app.world.renderNow(); },
 };
 
 if ('serviceWorker' in navigator && import.meta.env.PROD && !q.has('nosw')) {

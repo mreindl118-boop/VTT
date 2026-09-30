@@ -143,10 +143,20 @@ export class App {
   private ensureDefaultToken(): void {
     const loc = this.cur!.scene.location;
     if (this.state.tokens.some((t) => t.location === loc)) return;
-    const l = this.cur!.scene.levels[0];
-    const b = bounds([l.rooms[0].polygon]);
-    const c = squareCellCenter(squareCellAt([(b.minX + b.maxX) / 2 + 2.5, (b.minZ + b.maxZ) / 2 + 2.5]));
-    this.state.tokens.push({ id: `pc-${loc}`, name: 'Party', location: loc, level: l.id, pos: c, size: 'medium', darkvisionFt: 0, color: PALETTE.amber });
+    // Prefer an authored spawn point; otherwise the cell under the first room's centroid.
+    let level = this.cur!.scene.levels[0];
+    let pos: Vec2 | null = null;
+    for (const l of this.cur!.scene.levels) {
+      const sp = l.objects.find((o) => o.kind === 'spawn');
+      if (sp) { level = l; pos = [sp.pos[0], sp.pos[2]]; break; }
+    }
+    if (!pos) {
+      const b = bounds([level.rooms[0].polygon]);
+      pos = [(b.minX + b.maxX) / 2, (b.minZ + b.maxZ) / 2];
+    }
+    const c = squareCellCenter(squareCellAt(pos));
+    // The party carries a torch (PHB 20/40) so unlit maps are playable out of the box.
+    this.state.tokens.push({ id: `pc-${loc}`, name: 'Party', location: loc, level: level.id, pos: c, size: 'medium', darkvisionFt: 0, color: PALETTE.amber, light: { bright: 20, dim: 40 } });
   }
 
   tokensHere(): Token[] { return this.state.tokens.filter((t) => t.location === this.cur?.scene.location && t.level === this.levelId); }
@@ -194,7 +204,7 @@ export class App {
       if (t.light) lights.push({ id: `tok:${t.id}`, pos: [t.pos[0], 4, t.pos[1]], bright: t.light.bright, dim: t.light.dim });
       return { pos: t.pos, darkvisionFt: t.darkvisionFt };
     });
-    cov.updateVision(viewers, this.cur.grid.levels[l.id].floorPolygons.concat(l.rooms.map((r) => r.polygon)), walls, lights, this.cur.scene.ambient, rs.secretWalls);
+    cov.updateVision(viewers, this.cur.grid.levels[l.id].floorPolygons.concat(l.rooms.map((r) => r.polygon)), walls, lights, l.ambient ?? this.cur.scene.ambient, rs.secretWalls);
     this.state.seen[`${loc}/${l.id}`] = cov.serialize().seen;
     const tex = this.cur.covTex.get(l.id)!;
     cov.toTexture(tex.image.data as Uint8Array);

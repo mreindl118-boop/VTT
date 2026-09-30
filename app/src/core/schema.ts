@@ -71,7 +71,7 @@ export interface SceneObject {
   dims?: Record<string, number>;
 }
 
-export type LinkKind = 'stairs' | 'spiral' | 'shaft' | 'elevator' | 'slide' | 'ladder' | 'trapdoor';
+export type LinkKind = 'stairs' | 'spiral' | 'shaft' | 'elevator' | 'slide' | 'ladder' | 'trapdoor' | 'dumbwaiter';
 export interface VerticalLink {
   id: string;
   kind: LinkKind;
@@ -84,6 +84,10 @@ export interface Level {
   name: string;
   elevationFt: number;
   ceilingFt?: number;
+  /** Overrides the scene ambient (e.g. an unlit dungeon under a daylit house). */
+  ambient?: Ambient;
+  /** Which plan axis points to map north; default "-z". Death House's map is printed with north to the left. */
+  north?: '-z' | '+z' | '-x' | '+x';
   rooms: Room[];
   walls: Wall[];
   lights: LightSource[];

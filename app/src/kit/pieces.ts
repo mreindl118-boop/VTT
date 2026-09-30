@@ -35,6 +35,21 @@ export function segmentBox(a: Vec2, b: Vec2, y0: number, y1: number, t = WALL_T,
   return g;
 }
 
+/** Regular polygon slab (e.g. an octagonal dais tier), flat-to-flat `width`, from y=0 to y=top. */
+export function regularPolygonGeometry(sides: number, width: number, top: number): THREE.BufferGeometry {
+  const r = width / 2 / Math.cos(Math.PI / sides);
+  const shape = new THREE.Shape();
+  for (let i = 0; i < sides; i++) {
+    const a = Math.PI / sides + (i * 2 * Math.PI) / sides;
+    const x = Math.cos(a) * r, y = Math.sin(a) * r;
+    if (i === 0) shape.moveTo(x, y); else shape.lineTo(x, y);
+  }
+  const g = new THREE.ExtrudeGeometry(shape, { depth: top, bevelEnabled: false });
+  g.rotateX(-Math.PI / 2);
+  g.translate(0, top, 0);
+  return g;
+}
+
 export function merge(geoms: THREE.BufferGeometry[]): THREE.BufferGeometry {
   const ni = geoms.map((g) => (g.index ? g.toNonIndexed() : g));
   for (const g of ni) { for (const k of Object.keys(g.attributes)) if (k !== 'position' && k !== 'normal') g.deleteAttribute(k); }
@@ -73,22 +88,27 @@ export function coffin(): THREE.Group {
 export function pressurePlate(w = 5, d = 5): THREE.Group {
   return group(at(mesh(new THREE.BoxGeometry(w - 0.6, 0.15, d - 0.6), PALETTE.wine), 0, 0.08, 0));
 }
-/** Straight stair: dims.w wide, climbing from z=fromZ to z=toZ (plan), rising `rise` ft, 1 step per ~0.75 ft. */
+/** Straight stair, `dims.w` wide, rising `rise` ft. Runs along z from fromZ→toZ at origin.x, or along x from
+ *  fromX→toX at origin.z when `fromX` is given. Treads are marked every 5 ft of rise as elevation labels. */
 export function stairsStraight(dims: Record<string, number>, origin: Vec2): { mesh: THREE.Mesh; treadLabels: { pos: THREE.Vector3; text: string }[] } {
-  const { w = 5, rise = 10, fromZ = 0, toZ = 10 } = dims;
-  const run = Math.abs(toZ - fromZ), dir = Math.sign(toZ - fromZ);
-  const steps = Math.max(2, Math.round(rise / 0.75));
+  const { w = 5, rise = 10 } = dims;
+  const alongX = dims.fromX !== undefined;
+  const from = alongX ? dims.fromX! : (dims.fromZ ?? 0), to = alongX ? (dims.toX ?? from + 10) : (dims.toZ ?? from + 10);
+  const run = Math.max(0.5, Math.abs(to - from)), dir = Math.sign(to - from) || 1;
+  const steps = Math.max(2, Math.round(Math.max(rise, 1) / 0.75));
   const gs: THREE.BufferGeometry[] = [];
   for (let i = 0; i < steps; i++) {
     const h = ((i + 1) / steps) * rise;
-    const z0 = fromZ + dir * (i / steps) * run, z1 = fromZ + dir * run;
-    const g = new THREE.BoxGeometry(w, h, Math.abs(z1 - z0));
-    g.translate(origin[0], h / 2, (z0 + z1) / 2);
+    const s0 = from + dir * (i / steps) * run, s1 = from + dir * run;
+    const len = Math.abs(s1 - s0), mid = (s0 + s1) / 2;
+    const g = alongX ? new THREE.BoxGeometry(len, h, w) : new THREE.BoxGeometry(w, h, len);
+    if (alongX) g.translate(mid, h / 2, origin[1]); else g.translate(origin[0], h / 2, mid);
     gs.push(g);
   }
   const labels = [];
-  for (let e = 5; e < rise; e += 5) labels.push({ pos: new THREE.Vector3(origin[0], e + 0.3, fromZ + dir * (e / rise) * run), text: `+${e} ft` });
-  labels.push({ pos: new THREE.Vector3(origin[0], rise + 0.3, toZ), text: `+${rise} ft` });
+  const at = (e: number) => from + dir * (e / Math.max(rise, 0.1)) * run;
+  for (let e = 5; e < rise; e += 5) labels.push({ pos: alongX ? new THREE.Vector3(at(e), e + 0.3, origin[1]) : new THREE.Vector3(origin[0], e + 0.3, at(e)), text: `+${e} ft` });
+  if (rise >= 1) labels.push({ pos: alongX ? new THREE.Vector3(to, rise + 0.3, origin[1]) : new THREE.Vector3(origin[0], rise + 0.3, to), text: `+${rise} ft` });
   return { mesh: mesh(merge(gs), PALETTE.stoneDeep), treadLabels: labels };
 }
 

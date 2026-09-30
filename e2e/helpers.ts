@@ -1,9 +1,17 @@
 import type { Page } from '@playwright/test';
 
-export async function boot(page: Page, query = ''): Promise<void> {
-  await page.goto(`/?nosw${query}`);
+/** Scenes the acceptance suites run against: the M0 test room and Death House (M1), by level. */
+export const SCENES = [
+  { scene: 'dev/m0-test-room', level: 'ground', spawn: [22.5, 17.5], keys: ['key:T1', 'key:T2', 'key:T3'], secret: 'sd-t1-t3', hidden: 'ob-t2-chest', room: 'T2' },
+  { scene: 'appB/death-house', level: 'f2', spawn: [12.5, 27.5], keys: ['key:10', 'key:6', 'key:7A', 'key:7B', 'key:8', 'key:9'], secret: 'f2-sdo-lib', hidden: 'f2-chest9', room: '9' },
+  { scene: 'appB/death-house', level: 'dungeon-lower', spawn: [27.5, 12.5], keys: ['key:35', 'key:36', 'key:37', 'key:38'], secret: 'dungeon-lower-sdo-prison', hidden: 'dungeon-lower-ring', room: '36' },
+];
+
+export async function boot(page: Page, query = '', scene = SCENES[0]): Promise<void> {
+  await page.goto(`/?nosw&scene=${encodeURIComponent(scene.scene)}${query}`);
   await page.waitForFunction(() => (window as any).__mistlab?.ready);
   await page.evaluate(() => (window as any).__mistlab.ready);
+  await page.evaluate(({ level, spawn }) => { const m = (window as any).__mistlab; m.moveParty(level, spawn[0], spawn[1]); m.app.frameLevel(); }, scene);
 }
 
 /** Read the WebGL canvas into window.__snaps[name] (kept in-page; large arrays never cross CDP). */
@@ -36,8 +44,9 @@ export async function diff(page: Page, a: string, b: string, mask?: string): Pro
         if (d <= 2) continue;
         changed++;
         if (M) {
+          // A grid pixel must sit on, or within 2 px (MSAA fringe) of, a visible floor pixel.
           let ok = false;
-          for (let dy = -1; dy <= 1 && !ok; dy++) for (let dx = -1; dx <= 1 && !ok; dx++) ok = white(x + dx, y + dy);
+          for (let dy = -2; dy <= 2 && !ok; dy++) for (let dx = -2; dx <= 2 && !ok; dx++) ok = white(x + dx, y + dy);
           if (!ok) outside++;
         }
       }

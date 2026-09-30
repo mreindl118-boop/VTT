@@ -28,7 +28,7 @@ describe('manifests', () => {
   });
   it('the seed from §7 is complete', () => {
     const count = (id: string) => locations.locations.find((l) => l.id === id)!.areas.length;
-    expect(count('death-house')).toBe(38);
+    expect(count('death-house')).toBe(63); // 38 numbered keys + 25 lettered sub-areas
     expect(count('Q')).toBe(53);
     expect(count('N2')).toBe(17);
     expect(count('N3')).toBe(20);

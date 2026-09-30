@@ -28,3 +28,27 @@
   House (village keys missing from the seed); named K31a Elevator Shaft and K31b Shaft Access.
 - 46 keys whose headings the OCR couldn't read (mostly Argynvostholt Q19–Q53, some Vallaki interiors) keep
   `page: null`; they get pages when their chapter is modeled.
+
+## M1 Death House — 2026-09-30
+
+- `locations/appB/death-house/`: all 38 keyed areas (plus the book's lettered sub-areas 1A–25E, 63 keys) across
+  six levels: first, second, third floor, attic, dungeon, lower dungeon. Authored from the p.216 map at its
+  printed scale (one square = 5 ft) by `scripts/authoring/death-house.py` (cells → feet; walls derived from
+  room polygons, then doors, windows, openings, railings and secret doors stamped over them).
+- Wired: 5 secret/concealed doors, the hidden spiked pit (26), the hidden trapdoor (3/32), the padlocked
+  door (20), the portcullis (37), crypt slabs, 20 hidden-creature slots (broom, specter, animated armor,
+  Rose & Thorn, centipedes, grick, 4 ghouls, 5 shadows, mimic, 2 ghasts, Lorghoth), ~35 hidden-object
+  slots (chests, relic niches, remains, keys), page refs on every key, vertical links (spiral stair, attic
+  stair, the 21 shaft, dumbwaiter, trapdoor, stairs to 35), a party spawn in the portico.
+- Kit v1 props: spiral stair, fireplace, chairs, bookshelves, desk, wardrobe, stoves, oven, crib,
+  harpsichord, harp, armor, statue, altar, well, portcullis, ledges, octagonal dais, pallets, niches, trunks,
+  cabinets, sheeted furniture, refuse mound, trapdoors, gate, wheel, skeletons, pit cover, dollhouse, lamps,
+  dumbwaiter. Straight stairs can now run along x.
+- Schema: per-level `ambient` (house `interior-dim`, dungeon `darkness`) and `north` (this map prints north
+  to the left); `spawn` objects; `dumbwaiter` links.
+- The default party token carries a torch (20/40) so unlit levels are playable immediately.
+- Tests: scale acceptance for area 38 (forty-foot square = 8 × 8 cells); manifest ↔ scene no-orphan check
+  covers all 63 Death House keys; Playwright grid-on-floor and slider suites now run on the test room, Death
+  House second floor and the lower dungeon (63 acceptance tests).
+- Known: draw calls on the dungeon level are ~170 (props are separate meshes); instancing lands with M4's
+  performance pass. Room labels overlap at DM view on dense levels; label declutter is queued for M9.

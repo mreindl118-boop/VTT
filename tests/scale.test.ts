@@ -2,6 +2,7 @@
 import { describe, expect, it } from 'vitest';
 import manifest from '../manifests/locations.json';
 import testRoom from '../locations/dev/m0-test-room/scene.json';
+import deathHouse from '../locations/appB/death-house/scene.json';
 import { extentX, extentZ, regularPolygon } from '../app/src/core/geometry';
 import { bookSquaresToCells, feetToCells } from '../app/src/core/units';
 
@@ -27,6 +28,18 @@ describe('scale acceptance', () => {
   });
   it('River Ivlis (D) is 50 ft wide = 10 cells', () => {
     expect(feetToCells((area('D', 'D').dims as { widthFt: number }).widthFt)).toBe(10);
+  });
+  it('Death House 38 Ritual Chamber: the book says forty feet square -> 8 x 8 cells; the house is 6 cells (30 ft) wide', () => {
+    const lower = deathHouse.levels.find((l) => l.id === 'dungeon-lower')!;
+    const r38 = lower.rooms.find((r) => r.key === '38')!;
+    // The main square (without the refuse cave breach on the west side).
+    const xs = r38.polygon.map((p) => p[0]), zs = r38.polygon.filter((p) => p[1] <= 70).map((p) => p[1]);
+    expect(feetToCells(Math.max(...xs) - Math.min(...xs))).toBe(8);
+    expect(feetToCells(Math.max(...zs) - Math.min(...zs))).toBe(8);
+    const f1 = deathHouse.levels.find((l) => l.id === 'f1')!;
+    const hall = f1.rooms.find((r) => r.key === '2A')!;
+    expect(feetToCells(extentX(hall.polygon as [number, number][]))).toBe(6);
+    expect(deathHouse.bookScaleFt).toBe(5);
   });
   it.todo('Church nave (E5) measures to the book once OCR supplies its dimensions');
 });
