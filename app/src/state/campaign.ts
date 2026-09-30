@@ -21,6 +21,8 @@ export interface Token {
   light?: { bright: number; dim: number };
 }
 
+export interface WorldPos { pos: [number, number]; key?: string; trail: { pos: [number, number]; key?: string; miles: number; at: number }[] }
+
 export interface CampaignState {
   id: string;
   name: string;
@@ -31,6 +33,8 @@ export interface CampaignState {
   doorsOpen: Record<string, boolean>;
   /** Opened containers by `${location}/${objectId}`. */
   opened: Record<string, boolean>;
+  /** Where the party is on the world map (miles), the pin it is at, and the trail of moves. */
+  world?: WorldPos;
   updatedAt: number;
 }
 

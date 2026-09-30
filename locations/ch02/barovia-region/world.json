@@ -1,0 +1,874 @@
+{
+ "schema": 1,
+ "name": "The Lands of Barovia",
+ "page": 35,
+ "milesPerHex": 0.25,
+ "note": "Positions measured from the regional map; art is original. Yester Hill approximate (off the printed crop).",
+ "bounds": {
+  "minX": -1.14,
+  "minY": 0,
+  "maxX": 18.47,
+  "maxY": 13.07
+ },
+ "pins": [
+  {
+   "key": "A",
+   "name": "Old Svalich Road",
+   "pos": [
+    17.87,
+    7.2
+   ],
+   "type": "road"
+  },
+  {
+   "key": "B",
+   "name": "Gates of Barovia (east)",
+   "pos": [
+    17.36,
+    6.68
+   ],
+   "type": "gate"
+  },
+  {
+   "key": "C",
+   "name": "Svalich Woods",
+   "pos": [
+    17.09,
+    7.63
+   ],
+   "type": "woods",
+   "scenes": [
+    "ch02/C"
+   ]
+  },
+  {
+   "key": "D",
+   "name": "River Ivlis",
+   "pos": [
+    14.09,
+    8.68
+   ],
+   "type": "river"
+  },
+  {
+   "key": "E",
+   "name": "Village of Barovia",
+   "pos": [
+    14.09,
+    7.63
+   ],
+   "type": "settlement",
+   "scenes": [
+    "ch03/E",
+    "ch03/E5",
+    "appB/death-house"
+   ]
+  },
+  {
+   "key": "F",
+   "name": "River Ivlis Crossroads",
+   "pos": [
+    12.07,
+    9.35
+   ],
+   "type": "crossroads"
+  },
+  {
+   "key": "G",
+   "name": "Tser Pool Encampment",
+   "pos": [
+    11.34,
+    7.76
+   ],
+   "type": "camp",
+   "scenes": [
+    "ch02/G"
+   ]
+  },
+  {
+   "key": "H",
+   "name": "Tser Falls",
+   "pos": [
+    10.54,
+    6.79
+   ],
+   "type": "landmark"
+  },
+  {
+   "key": "I",
+   "name": "Black Carriage",
+   "pos": [
+    10.58,
+    6.02
+   ],
+   "type": "landmark"
+  },
+  {
+   "key": "B2",
+   "name": "Gates of Barovia (west)",
+   "pos": [
+    10.58,
+    5.4
+   ],
+   "type": "gate"
+  },
+  {
+   "key": "J",
+   "name": "Gates of Ravenloft",
+   "pos": [
+    12.12,
+    6.43
+   ],
+   "type": "gate"
+  },
+  {
+   "key": "K",
+   "name": "Castle Ravenloft",
+   "pos": [
+    13.0,
+    6.68
+   ],
+   "type": "castle"
+  },
+  {
+   "key": "L",
+   "name": "Lake Zarovich",
+   "pos": [
+    6.68,
+    2.98
+   ],
+   "type": "lake"
+  },
+  {
+   "key": "M",
+   "name": "Mount Baratok",
+   "pos": [
+    9.42,
+    1.51
+   ],
+   "type": "peak"
+  },
+  {
+   "key": "N",
+   "name": "Town of Vallaki",
+   "pos": [
+    6.35,
+    4.36
+   ],
+   "type": "settlement"
+  },
+  {
+   "key": "O",
+   "name": "Old Bonegrinder",
+   "pos": [
+    8.1,
+    5.04
+   ],
+   "type": "landmark"
+  },
+  {
+   "key": "P",
+   "name": "Luna River Crossroads",
+   "pos": [
+    5.44,
+    4.52
+   ],
+   "type": "crossroads"
+  },
+  {
+   "key": "Q",
+   "name": "Argynvostholt",
+   "pos": [
+    4.87,
+    6.25
+   ],
+   "type": "castle"
+  },
+  {
+   "key": "R",
+   "name": "Raven River Crossroads",
+   "pos": [
+    2.63,
+    4.09
+   ],
+   "type": "crossroads"
+  },
+  {
+   "key": "S",
+   "name": "Village of Krezk",
+   "pos": [
+    0.75,
+    3.71
+   ],
+   "type": "settlement"
+  },
+  {
+   "key": "T",
+   "name": "Tsolenka Pass",
+   "pos": [
+    3.2,
+    9.8
+   ],
+   "type": "pass"
+  },
+  {
+   "key": "U",
+   "name": "Ruins of Berez",
+   "pos": [
+    4.91,
+    7.64
+   ],
+   "type": "ruin"
+  },
+  {
+   "key": "V",
+   "name": "Van Richten's Tower",
+   "pos": [
+    3.27,
+    3.2
+   ],
+   "type": "tower"
+  },
+  {
+   "key": "W",
+   "name": "The Wizard of Wines",
+   "pos": [
+    0.51,
+    5.97
+   ],
+   "type": "settlement"
+  },
+  {
+   "key": "X",
+   "name": "The Amber Temple",
+   "pos": [
+    5.0,
+    10.82
+   ],
+   "type": "temple"
+  },
+  {
+   "key": "Y",
+   "name": "Yester Hill",
+   "pos": [
+    -0.57,
+    6.68
+   ],
+   "type": "hill"
+  },
+  {
+   "key": "Z",
+   "name": "Werewolf Den",
+   "pos": [
+    1.79,
+    2.63
+   ],
+   "type": "den"
+  }
+ ],
+ "roads": [
+  {
+   "name": "Old Svalich Road",
+   "pts": [
+    [
+     18.32,
+     7.2
+    ],
+    [
+     17.87,
+     7.2
+    ],
+    [
+     17.36,
+     6.96
+    ],
+    [
+     16.83,
+     7.6
+    ],
+    [
+     15.62,
+     7.93
+    ],
+    [
+     14.2,
+     8.0
+    ],
+    [
+     13.85,
+     8.49
+    ],
+    [
+     13.28,
+     9.09
+    ],
+    [
+     12.5,
+     9.3
+    ],
+    [
+     12.07,
+     9.35
+    ]
+   ]
+  },
+  {
+   "name": "Old Svalich Road",
+   "pts": [
+    [
+     12.07,
+     9.35
+    ],
+    [
+     11.58,
+     9.09
+    ],
+    [
+     11.25,
+     8.38
+    ],
+    [
+     11.34,
+     7.76
+    ],
+    [
+     10.87,
+     7.32
+    ],
+    [
+     10.54,
+     6.79
+    ],
+    [
+     10.58,
+     6.02
+    ],
+    [
+     10.58,
+     5.4
+    ],
+    [
+     9.94,
+     5.11
+    ],
+    [
+     9.38,
+     4.69
+    ],
+    [
+     9.09,
+     4.26
+    ],
+    [
+     7.95,
+     4.2
+    ],
+    [
+     6.35,
+     4.26
+    ],
+    [
+     5.44,
+     4.52
+    ]
+   ]
+  },
+  {
+   "name": "Road to Ravenloft",
+   "pts": [
+    [
+     10.58,
+     6.02
+    ],
+    [
+     11.22,
+     5.75
+    ],
+    [
+     11.79,
+     6.11
+    ],
+    [
+     12.12,
+     6.43
+    ],
+    [
+     12.86,
+     6.56
+    ]
+   ]
+  },
+  {
+   "name": "Ravenloft/Vallaki road",
+   "pts": [
+    [
+     12.07,
+     9.35
+    ],
+    [
+     11.22,
+     9.23
+    ],
+    [
+     10.8,
+     8.52
+    ],
+    [
+     9.94,
+     8.17
+    ],
+    [
+     9.8,
+     8.38
+    ],
+    [
+     10.51,
+     8.81
+    ],
+    [
+     11.08,
+     9.09
+    ]
+   ]
+  },
+  {
+   "name": "Old Svalich Road",
+   "pts": [
+    [
+     5.44,
+     4.52
+    ],
+    [
+     4.83,
+     4.26
+    ],
+    [
+     3.55,
+     4.15
+    ],
+    [
+     2.63,
+     4.09
+    ],
+    [
+     1.56,
+     3.84
+    ],
+    [
+     0.75,
+     3.71
+    ],
+    [
+     0.0,
+     3.72
+    ]
+   ]
+  },
+  {
+   "name": "Tsolenka road",
+   "pts": [
+    [
+     2.63,
+     4.09
+    ],
+    [
+     2.13,
+     4.97
+    ],
+    [
+     1.78,
+     5.97
+    ],
+    [
+     1.42,
+     7.32
+    ],
+    [
+     2.41,
+     7.95
+    ],
+    [
+     2.91,
+     9.09
+    ],
+    [
+     3.2,
+     9.8
+    ],
+    [
+     4.26,
+     9.94
+    ],
+    [
+     4.69,
+     10.51
+    ],
+    [
+     5.0,
+     10.82
+    ],
+    [
+     5.97,
+     11.79
+    ]
+   ]
+  },
+  {
+   "name": "Trail to Berez",
+   "pts": [
+    [
+     5.44,
+     4.52
+    ],
+    [
+     5.37,
+     5.97
+    ],
+    [
+     5.11,
+     6.82
+    ],
+    [
+     4.91,
+     7.64
+    ]
+   ]
+  },
+  {
+   "name": "Road to Argynvostholt",
+   "pts": [
+    [
+     2.63,
+     4.09
+    ],
+    [
+     3.55,
+     4.97
+    ],
+    [
+     4.26,
+     5.68
+    ],
+    [
+     4.87,
+     6.25
+    ]
+   ]
+  },
+  {
+   "name": "Road to the tower",
+   "pts": [
+    [
+     2.63,
+     4.09
+    ],
+    [
+     3.05,
+     3.55
+    ],
+    [
+     3.27,
+     3.2
+    ]
+   ]
+  },
+  {
+   "name": "Road to the vineyard",
+   "pts": [
+    [
+     1.56,
+     3.84
+    ],
+    [
+     0.85,
+     5.11
+    ],
+    [
+     0.51,
+     5.97
+    ]
+   ]
+  }
+ ],
+ "rivers": [
+  {
+   "name": "River Ivlis",
+   "pts": [
+    [
+     12.14,
+     8.03
+    ],
+    [
+     12.78,
+     8.52
+    ],
+    [
+     13.64,
+     8.69
+    ],
+    [
+     14.09,
+     8.68
+    ],
+    [
+     15.06,
+     8.84
+    ],
+    [
+     16.31,
+     9.05
+    ],
+    [
+     18.04,
+     8.69
+    ]
+   ]
+  },
+  {
+   "name": "Luna River",
+   "pts": [
+    [
+     5.68,
+     3.84
+    ],
+    [
+     5.61,
+     5.11
+    ],
+    [
+     5.82,
+     6.25
+    ],
+    [
+     5.97,
+     6.82
+    ],
+    [
+     5.4,
+     7.95
+    ],
+    [
+     4.69,
+     9.09
+    ],
+    [
+     3.55,
+     10.01
+    ]
+   ]
+  },
+  {
+   "name": "Raven River",
+   "pts": [
+    [
+     2.7,
+     2.91
+    ],
+    [
+     2.63,
+     4.09
+    ],
+    [
+     2.27,
+     4.69
+    ],
+    [
+     1.7,
+     5.11
+    ],
+    [
+     0.85,
+     5.4
+    ],
+    [
+     0.0,
+     5.68
+    ]
+   ]
+  }
+ ],
+ "lakes": [
+  {
+   "name": "Lake Zarovich",
+   "center": [
+    7.1,
+    2.77
+   ],
+   "r": [
+    2.41,
+    0.68
+   ]
+  },
+  {
+   "name": "Lake Baratok",
+   "center": [
+    2.7,
+    2.91
+   ],
+   "r": [
+    0.43,
+    0.31
+   ]
+  },
+  {
+   "name": "Tser Pool",
+   "center": [
+    12.07,
+    7.98
+   ],
+   "r": [
+    0.23,
+    0.17
+   ]
+  },
+  {
+   "name": "Luna Lake",
+   "center": [
+    2.84,
+    10.11
+   ],
+   "r": [
+    0.78,
+    0.31
+   ]
+  }
+ ],
+ "peaks": [
+  {
+   "name": "Mount Baratok",
+   "pos": [
+    12.07,
+    0.99
+   ]
+  },
+  {
+   "name": "Mount Ghakis",
+   "pos": [
+    7.17,
+    11.08
+   ]
+  },
+  {
+   "name": "Balinok Mountains",
+   "pos": [
+    2.27,
+    6.68
+   ]
+  }
+ ],
+ "high": [
+  [
+   12.86,
+   6.11
+  ],
+  [
+   12.22,
+   5.4
+  ],
+  [
+   8.81,
+   8.81
+  ],
+  [
+   7.95,
+   9.8
+  ],
+  [
+   9.09,
+   7.39
+  ],
+  [
+   3.55,
+   7.95
+  ],
+  [
+   1.7,
+   7.95
+  ],
+  [
+   2.84,
+   6.11
+  ],
+  [
+   14.91,
+   1.7
+  ],
+  [
+   16.76,
+   1.56
+  ],
+  [
+   13.92,
+   2.84
+  ],
+  [
+   9.94,
+   2.84
+  ],
+  [
+   11.65,
+   4.26
+  ],
+  [
+   10.8,
+   3.55
+  ],
+  [
+   7.39,
+   6.82
+  ],
+  [
+   6.39,
+   8.52
+  ],
+  [
+   4.26,
+   10.8
+  ],
+  [
+   2.13,
+   11.65
+  ],
+  [
+   17.76,
+   3.55
+  ]
+ ],
+ "woods": [
+  {
+   "name": "Svalich Woods",
+   "pos": [
+    16.34,
+    5.4
+   ]
+  },
+  {
+   "name": "Svalich Woods",
+   "pos": [
+    14.06,
+    10.8
+   ]
+  },
+  {
+   "name": "Svalich Woods",
+   "pos": [
+    6.53,
+    1.85
+   ]
+  },
+  {
+   "name": "Svalich Woods",
+   "pos": [
+    1.28,
+    6.39
+   ]
+  },
+  {
+   "name": "Svalich Woods",
+   "pos": [
+    0.43,
+    10.8
+   ]
+  }
+ ]
+}

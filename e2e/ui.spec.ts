@@ -38,3 +38,16 @@ test('containers: players cannot open locked ones; the DM can, and opening revea
   });
   expect(r).toEqual({ lockedByPlayers: false, unlockedByPlayers: true, byDm: true, crossbowsRevealed: true, east: true, north: true });
 });
+
+test('world map: the party marker follows the scene, drags to a pin, and opens that pin\'s map', async ({ page }) => {
+  await boot(page, '', SCENES[1]); // Death House lies in the village (pin E)
+  expect(await page.evaluate(() => (window as any).__mistlab.app.state.world?.key)).toBe('E');
+  await page.click('[data-act="world"]');
+  const from = (await page.locator('.wm-party').boundingBox())!, to = (await page.locator('.wm-pin.t-camp').boundingBox())!;
+  await page.mouse.move(from.x + from.width / 2, from.y + from.height / 2); await page.mouse.down();
+  await page.mouse.move(to.x + to.width / 2 + 2, to.y + to.height / 2, { steps: 8 }); await page.mouse.up();
+  await expect(page.locator('.world-card')).toContainText('Tser Pool Encampment');
+  expect(await page.evaluate(() => (window as any).__mistlab.app.state.world.key)).toBe('G');
+  await page.locator('.world-card [data-scene="ch02/G"]').click();
+  await expect.poll(() => page.evaluate(() => (window as any).__mistlab.app.cur?.path)).toBe('ch02/G');
+});

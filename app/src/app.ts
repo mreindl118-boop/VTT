@@ -19,6 +19,7 @@ import { setGridType } from './render/gridOverlay';
 import { World, type CameraPreset } from './render/world';
 import { loadLocation } from './data';
 import { ICON } from './ui/icons';
+import { pinForScene } from './ui/worldmap';
 import { Channel, type Msg } from './state/channel';
 import { newCampaign, revealSets, type CampaignState, type Reveal, type Token } from './state/campaign';
 import { idbGet, idbSet } from './state/idb';
@@ -154,6 +155,9 @@ export class App {
       }
     }
     this.cur = { path, scene, grid, levels, coverage, covTex, labels, tokens: new Map() };
+    // The world-map marker follows the party into whichever pin this scene belongs to.
+    const pin = pinForScene(path);
+    if (pin && this.state.world?.key !== pin.key) this.moveWorld([...pin.pos] as Vec2, pin.key, this.state.world ? Math.hypot(this.state.world.pos[0] - pin.pos[0], this.state.world.pos[1] - pin.pos[1]) : 0, false);
     this.ensureDefaultToken();
     this.setLevel(levelId && levels.has(levelId) ? levelId : scene.levels[0].id, true);
     this.onChange?.();
@@ -492,6 +496,12 @@ export class App {
     if (this.restricted && w?.flags.includes('locked') && !(this.state.doorsOpen[k] ?? w.open)) { this.flashStatus('Locked'); return; }
     this.state.doorsOpen[k] = !(this.state.doorsOpen[k] ?? w?.open ?? false);
     this.commit();
+  }
+  /** Move the party on the world map (miles); keeps a short trail of moves. */
+  moveWorld(pos: Vec2, key: string | undefined, miles: number, save = true): void {
+    const w = this.state.world, trail = [...(w?.trail ?? (w ? [{ pos: w.pos, key: w.key, miles: 0, at: Date.now() }] : [])), { pos, key, miles: Math.round(miles * 100) / 100, at: Date.now() }].slice(-50);
+    this.state.world = { pos, key, trail };
+    if (save) this.commit();
   }
   undo(): void { if (this.state.reveals.pop()) this.commit(); }
   resetCampaign(): void { this.state = newCampaign(); this.ensureDefaultToken(); this.syncTokens(); this.commit(); }

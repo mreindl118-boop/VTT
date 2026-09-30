@@ -1,7 +1,8 @@
 import * as THREE from 'three';
 import './styles.css';
 import { App, type GridMode } from './app';
-import { builtPaths } from './data';
+import { builtPaths, loadLocation } from './data';
+import { openWorldMap } from './ui/worldmap';
 import { ICON } from './ui/icons';
 import { openLibrary } from './ui/library';
 import { ViewSlider } from './ui/viewSlider';
@@ -56,6 +57,7 @@ function buildDmUi(): void {
   top.innerHTML = `
     <div class="group left">
       <button class="icon" data-act="library" aria-label="Library">${ICON.library}</button>
+      <button class="icon" data-act="world" aria-label="World map" title="World map of Barovia">${ICON.map}</button>
       <div class="title"><span class="loc"></span><span class="sub"></span></div>
       <div class="seg mode" role="tablist" aria-label="Mode">
         <button role="tab" data-view="dm">DM</button><button role="tab" data-view="players">Players</button>
@@ -167,6 +169,13 @@ function buildDmUi(): void {
     if (b.dataset.tool) { app.tool = app.tool === b.dataset.tool ? 'none' : (b.dataset.tool as typeof app.tool); app.setStatus(app.tool === 'none' ? '' : b.getAttribute('aria-label')!); }
     switch (b.dataset.act) {
       case 'library': openLibrary(builtPaths, (p) => { localStorage.setItem('mistlab.scene', p); void app.open(p).then(() => app.layoutChanged()); }); break;
+      case 'world': openWorldMap({
+        canMove: !app.restricted,
+        get: () => app.state.world,
+        move: (pos, key, miles) => app.moveWorld(pos, key, miles),
+        enter: (path) => { localStorage.setItem('mistlab.scene', path); void app.open(path).then(() => app.layoutChanged()); },
+        sceneName: async (path) => (await loadLocation(path)).scene.name,
+      }); break;
       case 'undo': app.undo(); break;
       case 'search': finder.hidden ? openFinder() : closeFinder(); break;
       case 'rooms': toggleRooms(); break;
@@ -297,6 +306,7 @@ function buildDmUi(): void {
       <dl>
         <dt>Move the party</dt><dd>Tap the amber token to pick it up, then tap where it goes (tap it again or press Esc to cancel). The room it enters is revealed and remembered; step onto stairs or a trapdoor to change level; the camera follows. In Players mode the party walks: walls and closed doors stop it, and locked doors stay shut until the DM opens them.</dd>
         <dt>Look around</dt><dd>One finger / left-drag pans. Right-drag or a two-finger twist rotates; pinch or scroll zooms. The buttons bottom-left turn in 90° steps, tilt, zoom and find the party. Double-tap a room to frame it.</dd>
+        <dt>World map</dt><dd>The map button beside the library opens the Lands of Barovia. Drag the party to a lettered pin or into the wilderness; the card shows the distance and travel time at your pace, and opens the battle map for that place when one is built. Opening a location moves the party marker there.</dd>
         <dt>Find an area</dt><dd>Type a key or name in the search box (or press /). The Rooms list shows every key with its revealed state.</dd>
         <dt>Doors, stairs and choices</dt><dd>Door markers open and close doors; stair and trapdoor markers move the party between levels. Tap anything for a menu of what you can do with it (reveal, hide, move the party, frame). The slider previews what players see.</dd>
         <dt>Players mode</dt><dd>Turn the iPad to the table: only revealed rooms, no DM chrome. DM mode brings everything back.</dd>
