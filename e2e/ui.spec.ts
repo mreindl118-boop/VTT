@@ -51,3 +51,27 @@ test('world map: the party marker follows the scene, drags to a pin, and opens t
   await page.locator('.world-card [data-scene="ch02/G"]').click();
   await expect.poll(() => page.evaluate(() => (window as any).__mistlab.app.cur?.path)).toBe('ch02/G');
 });
+
+test('initiative: tokens per combatant, green/red ranges on the current turn, movement spends speed', async ({ page }) => {
+  await boot(page, '', SCENES[0]); // test room, party at 22.5,17.5 in T1
+  await page.evaluate(() => { const m = (window as any).__mistlab; m.setT(1); m.frame('top'); });
+  const r = await page.evaluate(() => {
+    const a = (window as any).__mistlab.app;
+    a.toggleDoor('d-t1-t2'); // open the door to T2 so movement and ranged fire can pass through it
+    a.startEncounter([{ sheetId: 'pc-1', init: 15 }, { sheetId: 'pc-2', init: 20 }]);
+    const cur = a.current, overlay = a.built.root.getObjectByName('range-overlay');
+    const range = a.rangeOf(cur.token.id);
+    const far = range.move.reduce((m: number, c: any) => Math.max(m, c.costFt), 0);
+    const to = range.move.find((c: any) => c.costFt === 10).cell;
+    const moved = a.moveTokenTo(cur.token.id, to);
+    const after = a.rangeOf(cur.token.id).move.reduce((m: number, c: any) => Math.max(m, c.costFt), 0);
+    return { members: a.tokensHere().filter((t: any) => t.role === 'member').length, first: cur.sheet.name, hasOverlay: !!overlay, strike: range.strike.length > 0, ranged: range.ranged.length > 0, far, moved, after, spent: a.encounter.movedFt };
+  });
+  expect(r).toMatchObject({ members: 2, first: 'Rogue', hasOverlay: true, strike: true, far: 30, moved: true, after: 20, spent: 10 }); // ranged-only cells need a bigger map: covered by the unit test
+  // Next turn: the Fighter; the players' side cannot move the Rogue now.
+  const r2 = await page.evaluate(() => { const a = (window as any).__mistlab.app; a.nextTurn(1); a.setView('players'); const rogue = a.encounter.order[0].tokenId; const ok = a.moveTokenTo(rogue, [7.5, 7.5]); a.setView('dm'); return { now: a.current.sheet.name, ok }; });
+  expect(r2).toEqual({ now: 'Fighter', ok: false });
+  await expect(page.locator('.turnbar .cb.now')).toHaveText(/Fighter/);
+  await page.evaluate(() => (window as any).__mistlab.app.endEncounter());
+  expect(await page.evaluate(() => { const a = (window as any).__mistlab.app; return [a.tokensHere().length, a.party?.role, !!a.built.root.getObjectByName('range-overlay')]; })).toEqual([1, 'party', false]);
+});

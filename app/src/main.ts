@@ -3,6 +3,7 @@ import './styles.css';
 import { App, type GridMode } from './app';
 import { builtPaths, loadLocation } from './data';
 import { openWorldMap } from './ui/worldmap';
+import { openEncounterSheet, turnBar } from './ui/encounter';
 import { ICON } from './ui/icons';
 import { openLibrary } from './ui/library';
 import { ViewSlider } from './ui/viewSlider';
@@ -72,6 +73,8 @@ function buildDmUi(): void {
         <button class="icon" data-act="undo" aria-label="Undo reveal">${ICON.undo}</button>
       </div>
       <span class="divider"></span>
+      <button class="icon" data-act="encounter" aria-label="Initiative" title="Initiative (roll, ranges, turns)">${ICON.swords}</button>
+      <span class="divider"></span>
       <button class="icon" data-act="search" aria-label="Go to area (/)" title="Go to area (/)">${ICON.search}</button>
       <button class="icon" data-act="rooms" aria-label="Rooms">${ICON.list}</button>
       <button class="icon" data-act="grid" aria-label="Grid: square / hex / off"></button>
@@ -134,6 +137,9 @@ function buildDmUi(): void {
   input.addEventListener('keydown', (e) => { if (e.key === 'Enter') { const first = results.querySelector<HTMLElement>('button'); first?.click(); } if (e.key === 'Escape') closeFinder(); });
   results.addEventListener('click', (e) => { const b = (e.target as HTMLElement).closest<HTMLElement>('[data-key]'); if (!b) return; app.jumpTo(b.dataset.key!); closeFinder(); });
 
+  const bar = turnBar(app, () => refresh()) as HTMLElement & { update: () => void };
+  ui.appendChild(bar);
+
   const status = document.createElement('div');
   status.className = 'status';
   ui.appendChild(status);
@@ -141,6 +147,7 @@ function buildDmUi(): void {
   let statusTimer = 0;
 
   const refresh = () => {
+    bar.update();
     if (!app.cur) return;
     document.body.dataset.view = app.view;
     top.querySelector('.loc')!.textContent = app.cur.scene.name;
@@ -176,6 +183,7 @@ function buildDmUi(): void {
         enter: (path) => { localStorage.setItem('mistlab.scene', path); void app.open(path).then(() => app.layoutChanged()); },
         sceneName: async (path) => (await loadLocation(path)).scene.name,
       }); break;
+      case 'encounter': app.encounter ? bar.update() : openEncounterSheet(app, refresh); break;
       case 'undo': app.undo(); break;
       case 'search': finder.hidden ? openFinder() : closeFinder(); break;
       case 'rooms': toggleRooms(); break;
@@ -295,6 +303,7 @@ function buildDmUi(): void {
   addEventListener('keydown', (e) => {
     if ((e.target as HTMLElement).tagName === 'INPUT') return;
     if (e.key === 'r') app.world.rotate(1); if (e.key === 'R') app.world.rotate(-1);
+    if (e.key === 'n' && app.encounter && !app.restricted) { app.nextTurn(1); refresh(); }
     if (e.key === 'f') app.findParty(); if (e.key === '/') { e.preventDefault(); openFinder(); }
     if (e.key === 'Escape') { document.querySelectorAll('.sheet-backdrop').forEach((s) => s.remove()); app.select(null); app.tool = 'none'; app.setStatus(''); refresh(); }
   });
@@ -307,6 +316,7 @@ function buildDmUi(): void {
         <dt>Move the party</dt><dd>Tap the amber token to pick it up, then tap where it goes (tap it again or press Esc to cancel). The room it enters is revealed and remembered; step onto stairs or a trapdoor to change level; the camera follows. In Players mode the party walks: walls and closed doors stop it, and locked doors stay shut until the DM opens them.</dd>
         <dt>Look around</dt><dd>One finger / left-drag pans. Right-drag or a two-finger twist rotates; pinch or scroll zooms. The buttons bottom-left turn in 90° steps, tilt, zoom and find the party. Double-tap a room to frame it.</dd>
         <dt>World map</dt><dd>The map button beside the library opens the Lands of Barovia. Drag the party to a lettered pin or into the wilderness; the card shows the distance and travel time at your pace, and opens the battle map for that place when one is built. Opening a location moves the party marker there.</dd>
+        <dt>Initiative</dt><dd>The crossed-swords button opens the roster: speed, reach, range and initiative from each character sheet. Start an encounter and each combatant gets a token. On a turn, green squares are where that combatant can still move and red squares are what it could strike from there; a paler red shows ranged reach with a clear line. Next turn (or N) advances; End folds everyone back into the party marker.</dd>
         <dt>Find an area</dt><dd>Type a key or name in the search box (or press /). The Rooms list shows every key with its revealed state.</dd>
         <dt>Doors, stairs and choices</dt><dd>Door markers open and close doors; stair and trapdoor markers move the party between levels. Tap anything for a menu of what you can do with it (reveal, hide, move the party, frame). The slider previews what players see.</dd>
         <dt>Players mode</dt><dd>Turn the iPad to the table: only revealed rooms, no DM chrome. DM mode brings everything back.</dd>

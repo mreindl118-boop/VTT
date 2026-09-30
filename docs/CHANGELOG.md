@@ -177,3 +177,16 @@
   timber-framed Barovian houses with shutters and chimneys, varied per house.
 - Placement layers say so in the subtitle ("40-ft placement squares") and frame an area with its
   neighbourhood.
+
+## M2.2 Initiative and tactical ranges — 2026-09-30
+
+- Roster of character sheets (name, colour, speed, reach, range, darkvision, initiative modifier; PC or foe),
+  edited in the Initiative sheet and saved with the campaign. Tick who is in, roll or type initiative, start.
+- An encounter gives every combatant its own token (coloured base, name label) placed around the party
+  marker; ending it folds them back into one party marker.
+- On each turn a Fire-Emblem-style overlay shows green squares the combatant can still move to (5e grid
+  movement with the chosen diagonal rule, no corner cutting, closed doors and other creatures block), red
+  squares it could strike in melee from anywhere it can reach, and a paler red for ranged reach with a clear
+  line. Moving onto a green square spends that movement; the players' side may not move outside it or on
+  someone else's turn. The DM may place a token anywhere (no movement spent). `core/range.ts` is unit-tested.
+- Turn bar with the order, round, movement left, Next (or N) / previous / End; shown on the Player Display too.

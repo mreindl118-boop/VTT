@@ -98,7 +98,7 @@ export function shadow(): THREE.Group {
 export const ghoul = () => humanoid({ skin: '#8a9a7c', cloth: '#4a4238', trim: '#3b352c', hunch: 0.6, claws: true });
 export const ghast = () => humanoid({ skin: '#6f7f68', cloth: '#1a171d', trim: '#1a171d', hunch: 0.5, claws: true, robe: true });
 export const cultist = () => humanoid({ skin: '#d9b899', cloth: '#1a171d', trim: '#1a171d', robe: true, cloak: true, weapon: 'torch' });
-export const adventurer = () => humanoid({ skin: '#d9b899', cloth: PALETTE.pine, trim: PALETTE.woodDark, hair: '#3a2a1a', weapon: 'sword' });
+export const adventurer = (o: { cloth?: string } = {}) => humanoid({ skin: '#d9b899', cloth: o.cloth ?? PALETTE.pine, trim: PALETTE.woodDark, hair: '#3a2a1a', weapon: 'sword' });
 export const animatedArmor = () => humanoid({ skin: PALETTE.iron, cloth: '#2b2c31', trim: '#2b2c31', helm: 'wolf', weapon: 'spear' });
 
 export function mimic(): THREE.Group {

@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import type { CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
 import { bounds, pointInPolygon, type Vec2 } from './core/geometry';
 import { CoverageMap, Cov } from './core/coverage';
-import { squareCellAt, squareCellCenter, squareDistanceFt, worldToHex, hexToWorld, hexDistanceFt, hexSizeFromWidth } from './core/grid';
+import { squareCellAt, squareCellCenter, squareDistanceFt, worldToHex, hexToWorld, hexDistanceFt, hexSizeFromWidth, type DiagonalRule } from './core/grid';
 import { OPENABLE_KINDS, type Container, type GridFile, type Level, type LightSource, type SceneFile, type SceneObject, type Wall } from './core/schema';
 import { moveBlockers } from './core/light';
 import { canWalk } from './core/movement';
@@ -22,7 +22,10 @@ import { ICON } from './ui/icons';
 import { pinForScene } from './ui/worldmap';
 import { buildBackdrop } from './render/backdrop';
 import { Channel, type Msg } from './state/channel';
-import { newCampaign, revealSets, type CampaignState, type Reveal, type Token } from './state/campaign';
+import { newCampaign, revealSets, type CampaignState, type Combatant, type Encounter, type Reveal, type Sheet, type Token } from './state/campaign';
+import { tacticalRange, type RangeResult } from './core/range';
+import { buildRangeOverlay } from './render/rangeOverlay';
+import { sightBlockers } from './core/light';
 import { idbGet, idbSet } from './state/idb';
 
 export type Mode = 'dm' | 'player';
@@ -217,11 +220,96 @@ export class App {
     }
     const c = squareCellCenter(squareCellAt(pos));
     // The party carries a torch (PHB 20/40) so unlit maps are playable out of the box.
-    this.state.tokens.push({ id: `pc-${loc}`, name: 'Party', location: loc, level: level.id, pos: c, size: 'medium', darkvisionFt: 0, color: PALETTE.amber, light: { bright: 20, dim: 40 } });
+    this.state.tokens.push({ id: `pc-${loc}`, name: 'Party', location: loc, level: level.id, pos: c, size: 'medium', darkvisionFt: 0, color: PALETTE.amber, light: { bright: 20, dim: 40 }, role: 'party' });
   }
 
   /** The party token for the loaded location. */
-  get party(): Token | undefined { return this.state.tokens.find((t) => t.location === this.cur?.scene.location); }
+  get party(): Token | undefined { const here = this.state.tokens.filter((t) => t.location === this.cur?.scene.location); return here.find((t) => t.role !== 'member') ?? here[0]; }
+
+  // ------------------------------------------------------------------ encounters: initiative, turns, ranges
+
+  get encounter(): Encounter | undefined { const e = this.state.encounter; return e && e.location === this.cur?.scene.location ? e : undefined; }
+  get current(): { c: Combatant; sheet: Sheet; token: Token } | undefined {
+    const e = this.encounter; if (!e || !e.order.length) return undefined;
+    const c = e.order[e.turn % e.order.length], sheet = this.state.roster.find((x) => x.id === c.sheetId), token = this.state.tokens.find((t) => t.id === c.tokenId);
+    return sheet && token ? { c, sheet, token } : undefined;
+  }
+  /** Roll initiative and put one token per combatant on the map around the party marker. */
+  startEncounter(entries: { sheetId: string; init: number }[]): void {
+    if (!this.cur || !entries.length) return;
+    const loc = this.cur.scene.location, party = this.party;
+    const level = party?.level ?? this.levelId, l = this.cur.scene.levels.find((x) => x.id === level)!;
+    const at = party ? this.snap(party.pos) : this.snap([bounds([l.rooms[0].polygon]).minX + 2.5, bounds([l.rooms[0].polygon]).minZ + 2.5]);
+    this.endEncounter(false);
+    const floor = this.cur.grid.levels[level].floorPolygons.concat(l.rooms.map((r) => r.polygon));
+    const free: Vec2[] = [];
+    // Spiral outward from the party marker over floor cells.
+    for (let ring = 0; ring < 6 && free.length < entries.length + 2; ring++) for (let dj = -ring; dj <= ring; dj++) for (let di = -ring; di <= ring; di++) {
+      if (Math.max(Math.abs(di), Math.abs(dj)) !== ring) continue;
+      const p: Vec2 = [at[0] + di * 5, at[1] + dj * 5];
+      if (floor.some((poly) => pointInPolygon(p, poly)) && canWalk(at, p, moveBlockers(this.effectiveWalls()), floor)) free.push(p);
+    }
+    const order: Combatant[] = [];
+    entries.slice().sort((a, b) => b.init - a.init).forEach((en, i) => {
+      const sh = this.state.roster.find((x) => x.id === en.sheetId); if (!sh) return;
+      const id = `tok-${loc}-${sh.id}`;
+      this.state.tokens.push({ id, name: sh.name, location: loc, level, pos: free[i] ?? at, size: sh.size, darkvisionFt: sh.darkvisionFt, color: sh.color, role: 'member', sheetId: sh.id, light: sh.kind === 'pc' && i === 0 ? { bright: 20, dim: 40 } : undefined });
+      order.push({ sheetId: sh.id, tokenId: id, init: en.init });
+    });
+    if (party) this.state.tokens = this.state.tokens.filter((t) => t !== party);
+    this.state.encounter = { location: loc, level, round: 1, order, turn: 0, movedFt: 0, partyPos: party?.pos ?? at };
+    this.select(null);
+    if (level !== this.levelId) this.setLevel(level); else this.syncTokens();
+    this.commit();
+    this.findParty(true);
+  }
+  /** Fold the combatants back into one party marker where the first of them stands. */
+  endEncounter(save = true): void {
+    const e = this.state.encounter; if (!e) return;
+    const loc = e.location, members = this.state.tokens.filter((t) => t.role === 'member' && t.location === loc);
+    const lead = members[0];
+    this.state.tokens = this.state.tokens.filter((t) => !(t.role === 'member' && t.location === loc));
+    if (!this.state.tokens.some((t) => t.location === loc)) this.state.tokens.push({ id: `pc-${loc}`, name: 'Party', location: loc, level: lead?.level ?? e.level, pos: lead?.pos ?? e.partyPos, size: 'medium', darkvisionFt: 0, color: PALETTE.amber, light: { bright: 20, dim: 40 }, role: 'party' });
+    this.state.encounter = undefined;
+    this.select(null);
+    if (this.cur?.scene.location === loc) this.syncTokens();
+    if (save) this.commit();
+  }
+  nextTurn(dir = 1): void {
+    const e = this.encounter; if (!e) return;
+    let t = e.turn + dir;
+    if (t >= e.order.length) { t = 0; e.round++; } else if (t < 0) { t = e.order.length - 1; e.round = Math.max(1, e.round - 1); }
+    e.turn = t; e.movedFt = 0;
+    this.select(null);
+    const cur = this.current;
+    if (cur && cur.token.level !== this.levelId) this.setLevel(cur.token.level);
+    this.commit();
+    if (cur && this.follow) this.world.moveTo(new THREE.Vector3(cur.token.pos[0], this.level.elevationFt, cur.token.pos[1]), Math.min(this.world.camera.position.distanceTo(this.world.controls.target), 66), true);
+  }
+  /** Tactical range of a combatant token from where it stands, with the movement it has left. */
+  rangeOf(tokenId: string): RangeResult | undefined {
+    const e = this.encounter, t = this.state.tokens.find((x) => x.id === tokenId), sheet = t?.sheetId ? this.state.roster.find((x) => x.id === t.sheetId) : undefined;
+    if (!e || !t || !sheet || t.level !== this.levelId) return undefined;
+    const spent = this.current?.token.id === tokenId ? e.movedFt : 0;
+    const walls = this.effectiveWalls(), g = this.cur!.grid.levels[this.levelId];
+    return tacticalRange({ start: t.pos, speedFt: Math.max(0, sheet.speedFt - spent), reachFt: sheet.reachFt, rangeFt: sheet.rangeFt || undefined,
+      floor: g.floorPolygons.concat(this.level.rooms.map((r) => r.polygon)), moveBlockers: moveBlockers(walls), sightBlockers: sightBlockers(walls, revealSets(this.state, this.cur!.scene.location).secretWalls),
+      occupied: this.tokensHere().filter((x) => x.id !== tokenId).map((x) => x.pos), origin: g.origin, rule: this.diagonalRule });
+  }
+  diagonalRule: DiagonalRule = 'five';
+  private rangeMesh?: THREE.Group;
+  private rangeFor?: RangeResult;
+  /** Show the current combatant's ranges (per turn, in initiative only). */
+  refreshRange(): void {
+    this.rangeMesh?.removeFromParent(); this.rangeMesh = undefined; this.rangeFor = undefined;
+    const cur = this.current;
+    if (!cur || cur.token.level !== this.levelId || this.renderMode === 'floorMask' || this.gridMode === 'hex') { this.world.invalidate(); return; }
+    const r = this.rangeOf(cur.token.id); if (!r) return;
+    this.rangeFor = r;
+    this.rangeMesh = buildRangeOverlay(r, this.level.elevationFt);
+    this.built.root.add(this.rangeMesh);
+    this.world.invalidate();
+  }
 
   roomAt(level: Level, p: Vec2) { return level.rooms.find((r) => pointInPolygon(p, r.polygon)); }
 
@@ -291,6 +379,12 @@ export class App {
     return !!last && last.mode !== 'fog';
   }
 
+  /** A combatant moved: reveal the room it entered (players' side sees by its own light). */
+  private afterMemberMove(t: Token): void {
+    const room = this.roomAt(this.level, t.pos), loc = this.cur!.scene.location;
+    if (this.autoReveal && room && !this.isRevealed(room.key)) this.state.reveals.push({ type: 'room', location: loc, key: room.key, mode: 'explored' });
+    this.recompute();
+  }
   /** After the party moves: reveal the room it entered, take stairs it stepped on, follow with the camera. */
   private afterPartyMove(): void {
     const t = this.party;
@@ -318,12 +412,13 @@ export class App {
 
   private syncTokens(): void {
     const b = this.built;
-    for (const [id, g] of this.cur!.tokens) { g.parent?.remove(g); this.cur!.tokens.delete(id); }
+    for (const [id, g] of this.cur!.tokens) { g.traverse((c) => { const e = (c as CSS2DObject).element; if (e instanceof HTMLElement) e.remove(); }); g.parent?.remove(g); this.cur!.tokens.delete(id); }
     for (const t of this.tokensHere()) {
       const base = baseRingFt(t.size);
       const g = new THREE.Group();
-      const fig = adventurer(); fig.position.y = 0.3;
+      const fig = adventurer(t.role === 'member' ? { cloth: t.color } : undefined); fig.position.y = 0.3;
       g.add(baseRing(base, t.color), fig);
+      if (t.role === 'member') { const lb = this.world.label(t.name, undefined, 'token'); lb.position.set(0, 7.2, 0); lb.element.style.setProperty('--tok', t.color); g.add(lb); }
       g.traverse((c) => {
         const m = c as THREE.Mesh;
         if (!m.isMesh) return;
@@ -364,6 +459,7 @@ export class App {
     for (const [oid, h] of this.built.openables) { const o = l.objects.find((x) => x.id === oid); if (o) h.set(this.isOpen(o)); }
     for (const [wid, door] of this.built.doors) door.visible = !(this.state.doorsOpen[`${loc}/${wid}`] ?? l.walls.find((w) => w.id === wid)?.open);
     this.applySlider();
+    this.refreshRange();
   }
 
   private applyReveal(r: Reveal, cov: CoverageMap, l: Level): void {
@@ -431,7 +527,7 @@ export class App {
 
   // ------------------------------------------------------------------ reveals
 
-  private commit(): void {
+  commit(): void {
     this.state.updatedAt = Date.now();
     this.recompute();
     this.broadcast();
@@ -644,10 +740,18 @@ export class App {
   moveTokenTo(id: string, to: Vec2): boolean {
     const t = this.state.tokens.find((x) => x.id === id);
     if (!t) return false;
-    if (!this.canWalkTo(t.pos, to)) { this.flashStatus('No way through: walls block the party. Open a door first.'); return false; }
+    const e = this.encounter, cur = this.current;
+    if (e && t.role === 'member') {
+      if (cur?.token.id !== id) { this.flashStatus(`Not ${t.name}'s turn`); return false; }
+      const cell = this.rangeFor?.move.find((m) => m.cell[0] === to[0] && m.cell[1] === to[1]);
+      if (cell) e.movedFt += cell.costFt;
+      else if (this.restricted) { this.flashStatus('Out of movement range'); return false; }
+      else this.flashStatus('Placed by the DM: no movement spent');
+    } else if (!this.canWalkTo(t.pos, to)) { this.flashStatus('No way through: walls block the party. Open a door first.'); return false; }
     t.pos = to;
     this.cur!.tokens.get(id)?.position.set(to[0], this.level.elevationFt, to[1]);
     if (id === this.party?.id) this.afterPartyMove();
+    else if (this.encounter) this.afterMemberMove(t);
     this.commit();
     return true;
   }
@@ -707,7 +811,11 @@ export class App {
     const tokHit = this.pick(e), fp = this.floorPoint(e);
     // The figure is small from above: a tap anywhere on its base ring picks it up too.
     const tokId = (tokHit && findUp(tokHit.object, 'tokenId')) || (fp && this.tokensHere().find((t) => Math.hypot(t.pos[0] - fp[0], t.pos[1] - fp[1]) <= baseRingFt(t.size) / 2 + 1)?.id);
-    if (tokId) { this.select(this.selected === tokId ? null : tokId); return; }
+    if (tokId) {
+      const cur = this.current;
+      if (this.encounter && this.restricted && cur && cur.token.id !== tokId) { this.flashStatus(`Not ${this.state.tokens.find((x) => x.id === tokId)?.name ?? 'their'}'s turn`); return; }
+      this.select(this.selected === tokId ? null : tokId); return;
+    }
     if (this.selected) {
       const p = fp;
       if (p && this.moveTokenTo(this.selected, this.snap(p))) this.select(null);
