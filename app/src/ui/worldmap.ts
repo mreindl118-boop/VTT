@@ -1,21 +1,19 @@
 // World map of Barovia: original 2D art drawn from measured positions (locations/ch02/barovia-region/world.json).
 // The party marker mirrors campaign state. The DM drags it to a pin (enter a built scene there) or into the
 // wilderness; the card shows straight-line distance and travel time at the chosen pace.
-import world from '../../../locations/ch02/barovia-region/world.json';
+import type { WorldData } from '../campaigns';
 import { PACES, type Pace } from '../core/travel';
 import { ICON } from './icons';
 
 type P = [number, number];
 interface Pin { key: string; name: string; pos: P; type: string; scenes?: string[] }
-const W = world as unknown as {
-  name: string; bounds: { minX: number; minY: number; maxX: number; maxY: number };
-  pins: Pin[]; roads: { name: string; pts: P[] }[]; rivers: { name: string; pts: P[] }[];
-  lakes: { name: string; center: P; r: P }[]; peaks: { name: string; pos: P }[]; woods: { name: string; pos: P }[]; high: P[];
-};
+let W: WorldData = { name: '', bounds: { minX: 0, minY: 0, maxX: 1, maxY: 1 }, pins: [], roads: [], rivers: [], lakes: [], peaks: [], woods: [], high: [] };
+/** Point the world map at the active campaign's data. */
+export function useWorld(w: WorldData): void { W = w; }
 
-export const WORLD_PINS = W.pins;
 /** The pin a built scene belongs to (the party marker jumps there when that scene opens). */
 export const pinForScene = (path: string): Pin | undefined => W.pins.find((p) => p.scenes?.includes(path));
+export const worldPins = (): Pin[] => W.pins;
 
 const SNAP_MI = 0.35;
 const dist = (a: P, b: P) => Math.hypot(a[0] - b[0], a[1] - b[1]);
@@ -65,14 +63,15 @@ export function openWorldMap(host: WorldHost): void {
   const highPts = [...W.high, ...W.peaks.map((p) => p.pos)], woodPts = W.woods.map((w) => w.pos);
   const onWater = (p: P) => W.lakes.some((l) => ((p[0] - l.center[0]) / (l.r[0] + 0.2)) ** 2 + ((p[1] - l.center[1]) / (l.r[1] + 0.2)) ** 2 < 1);
   const nearRoad = (p: P) => W.roads.some((r) => r.pts.some((q) => dist(p, q) < 0.28));
+  const span = Math.max(b.maxX - b.minX, b.maxY - b.minY), kw = Math.max(0.6, span * 0.16), kh = Math.max(0.5, span * 0.055), step = Math.max(0.12, span * 0.016);
   const hills = el('g', { class: 'wm-hills' }, svg), woods = el('g', { class: 'wm-woods' }, svg), peaks = el('g', { class: 'wm-peaks' }, svg);
-  for (let y = b.minY; y <= b.maxY; y += 0.3) for (let x = b.minX; x <= b.maxX; x += 0.3) {
-    const j = hash(x, y), p: P = [x + (j - 0.5) * 0.25, y + (hash(y, x) - 0.5) * 0.25];
+  for (let y = b.minY; y <= b.maxY; y += step) for (let x = b.minX; x <= b.maxX; x += step) {
+    const j = hash(x, y), p: P = [x + (j - 0.5) * step * 0.8, y + (hash(y, x) - 0.5) * step * 0.8];
     if (onWater(p)) continue;
-    const hi = near(p, highPts, 1.1), wd = near(p, woodPts, 3.2) * 0.6 + 0.35;
-    if (hi > 0.6 && j > 0.45) { const s = 0.16 + hi * 0.08 + j * 0.08; el('path', { d: `M${p[0] - s},${p[1] + s * 0.7} L${p[0]},${p[1] - s} L${p[0] + s},${p[1] + s * 0.7} Z`, class: hi > 1.45 ? 'snow' : '' }, peaks); }
-    else if (hi > 0.3) el('circle', { cx: p[0], cy: p[1], r: 0.2 }, hills);
-    else if (wd + j * 0.5 > 0.7 && !nearRoad(p)) el('circle', { cx: p[0], cy: p[1], r: 0.13 + j * 0.08 }, woods);
+    const hi = near(p, highPts, kh) * (W.high.length > 40 ? 0.35 : 1), wd = (near(p, woodPts, kw) / Math.max(1, W.woods.length / 5)) * 0.6 + 0.35;
+    if (hi > 0.6 && j > 0.45) { const s = (0.16 + hi * 0.08 + j * 0.08) * (step / 0.3); el('path', { d: `M${p[0] - s},${p[1] + s * 0.7} L${p[0]},${p[1] - s} L${p[0] + s},${p[1] + s * 0.7} Z`, class: hi > 1.45 ? 'snow' : '' }, peaks); }
+    else if (hi > 0.3) el('circle', { cx: p[0], cy: p[1], r: 0.2 * (step / 0.3) }, hills);
+    else if (wd + j * 0.5 > 0.7 && !nearRoad(p)) el('circle', { cx: p[0], cy: p[1], r: (0.13 + j * 0.08) * (step / 0.3) }, woods);
   }
   const water = el('g', { class: 'wm-water' }, svg);
   for (const l of W.lakes) el('ellipse', { cx: l.center[0], cy: l.center[1], rx: l.r[0], ry: l.r[1] }, water);
@@ -82,7 +81,10 @@ export function openWorldMap(host: WorldHost): void {
   const names = el('g', { class: 'wm-names' }, svg);
   for (const p of W.peaks) el('text', { x: p.pos[0], y: p.pos[1] + 0.9 }, names).textContent = p.name;
   for (const l of W.lakes) if (l.r[0] > 0.5) el('text', { x: l.center[0], y: l.center[1] + 0.1 }, names).textContent = l.name;
-  for (const w of W.woods) { const t = el('text', { x: w.pos[0], y: w.pos[1], class: 'wm-wood-name' }, names); t.textContent = w.name; }
+  // One label per named tract, at the centroid of its points (imported hex maps list a point per hex).
+  const tracts = new Map<string, P[]>();
+  for (const w of W.woods) tracts.set(w.name, [...(tracts.get(w.name) ?? []), w.pos]);
+  for (const [name, pts] of tracts) { const c: P = [pts.reduce((a, q) => a + q[0], 0) / pts.length, pts.reduce((a, q) => a + q[1], 0) / pts.length]; const t = el('text', { x: c[0], y: c[1], class: 'wm-wood-name' }, names); t.textContent = name; }
   // Trail of past moves.
   const trail = el('path', { class: 'wm-trail', d: '' }, svg);
   // Pins.
@@ -100,7 +102,7 @@ export function openWorldMap(host: WorldHost): void {
   el('circle', { r: 0.42, class: 'halo' }, party); el('circle', { r: 0.3 }, party);
   const icon = el('path', { d: 'M0,-0.16 a0.07,0.07 0 1 1 0.001,0 M-0.13,0.15 q0.13,-0.22 0.26,0', class: 'glyph' }, party); void icon;
   el('title', {}, party).textContent = host.canMove ? 'The party · drag to travel' : 'The party';
-  const start = host.get() ?? { pos: W.pins.find((p) => p.key === 'E')!.pos };
+  const start = host.get() ?? { pos: (W.pins.find((p) => p.scenes?.length) ?? W.pins[0]).pos };
   let at: P = [...start.pos] as P;
   const place = (p: P) => party.setAttribute('transform', `translate(${p[0]},${p[1]})`);
   place(at);

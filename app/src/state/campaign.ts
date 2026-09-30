@@ -76,7 +76,7 @@ export interface CampaignState {
 }
 
 export function newCampaign(id = 'default'): CampaignState {
-  return { id, name: 'Curse of Strahd', reveals: [], tokens: [], seen: {}, doorsOpen: {}, opened: {}, roster: defaultRoster(), updatedAt: Date.now() };
+  return { id, name: id, reveals: [], tokens: [], seen: {}, doorsOpen: {}, opened: {}, roster: defaultRoster(), updatedAt: Date.now() };
 }
 
 /** Derived lookup of what players have been shown (for one location). */

@@ -73,6 +73,8 @@ export interface SceneObject {
   wall?: string;
   /** Free-form extra dims (e.g. stairs run/rise). */
   dims?: Record<string, number>;
+  /** Plan polygon for shape-driven pieces (prisms, decks); pos is then ignored. */
+  polygon?: Polygon;
   /** What players see when they look at it (original wording, never the book's text). */
   desc?: string;
   /** DM-only notes: mechanics, checks, what it hides. */

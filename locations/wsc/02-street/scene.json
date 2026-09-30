@@ -1,0 +1,1066 @@
+{
+ "schema": 1,
+ "location": "02-street",
+ "chapter": "wsc",
+ "name": "The Street",
+ "bookScaleFt": 5,
+ "ambient": "barovian-overcast",
+ "levels": [
+  {
+   "id": "L0",
+   "name": "The street outside the tavern",
+   "elevationFt": 0.0,
+   "ceilingFt": 10,
+   "rooms": [
+    {
+     "key": "L0-1",
+     "name": "Cobbles",
+     "polygon": [
+      [
+       60.0,
+       0.0
+      ],
+      [
+       70.0,
+       0.0
+      ],
+      [
+       70.0,
+       40.0
+      ],
+      [
+       60.0,
+       40.0
+      ]
+     ],
+     "floor": "cobble",
+     "desc": "Shepherds, Crooks",
+     "dm": "Guz, a half-orc mercenary, comes for the sheep with three collared wolves and a brown bear (both polymorphed henchmen). The tavern block on this map is the same building as 01a; its doors line up. Creatures: Guz (half-orc), 3 wolves (polymorphed), brown bear (polymorphed)."
+    },
+    {
+     "key": "L0-2",
+     "name": "Cobbles",
+     "polygon": [
+      [
+       0.0,
+       40.0
+      ],
+      [
+       90.0,
+       40.0
+      ],
+      [
+       90.0,
+       60.0
+      ],
+      [
+       0.0,
+       60.0
+      ]
+     ],
+     "floor": "cobble"
+    }
+   ],
+   "walls": [
+    {
+     "id": "02-street-L0-w1",
+     "a": [
+      30.0,
+      0.5
+     ],
+     "b": [
+      60.0,
+      0.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 10.0
+    },
+    {
+     "id": "02-street-L0-w2",
+     "a": [
+      59.503,
+      0.0
+     ],
+     "b": [
+      59.497,
+      31.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 10.0
+    },
+    {
+     "id": "02-street-L0-w3",
+     "a": [
+      59.501,
+      34.0
+     ],
+     "b": [
+      59.499,
+      40.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 10.0
+    },
+    {
+     "id": "02-street-L0-w4",
+     "a": [
+      60.0,
+      39.501
+     ],
+     "b": [
+      56.5,
+      39.499
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 10.0
+    },
+    {
+     "id": "02-street-L0-w5",
+     "a": [
+      53.5,
+      39.501
+     ],
+     "b": [
+      47.5,
+      39.499
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 10.0
+    },
+    {
+     "id": "02-street-L0-w6",
+     "a": [
+      42.5,
+      39.501
+     ],
+     "b": [
+      36.5,
+      39.499
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 10.0
+    },
+    {
+     "id": "02-street-L0-w7",
+     "a": [
+      33.5,
+      39.501
+     ],
+     "b": [
+      30.0,
+      39.499
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 10.0
+    },
+    {
+     "id": "02-street-L0-w8",
+     "a": [
+      30.504,
+      40.0
+     ],
+     "b": [
+      30.496,
+      0.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 10.0
+    },
+    {
+     "id": "02-street-L0-w9",
+     "a": [
+      0.0,
+      0.5
+     ],
+     "b": [
+      30.0,
+      0.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 10.0
+    },
+    {
+     "id": "02-street-L0-w10",
+     "a": [
+      29.504,
+      0.0
+     ],
+     "b": [
+      29.496,
+      40.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 10.0
+    },
+    {
+     "id": "02-street-L0-w11",
+     "a": [
+      30.0,
+      39.503
+     ],
+     "b": [
+      16.5,
+      39.497
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 10.0
+    },
+    {
+     "id": "02-street-L0-w12",
+     "a": [
+      13.5,
+      39.503
+     ],
+     "b": [
+      0.0,
+      39.497
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 10.0
+    },
+    {
+     "id": "02-street-L0-w13",
+     "a": [
+      0.504,
+      40.0
+     ],
+     "b": [
+      0.496,
+      0.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 10.0
+    },
+    {
+     "id": "02-street-L0-w14",
+     "a": [
+      70.0,
+      0.5
+     ],
+     "b": [
+      90.0,
+      0.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 10.0
+    },
+    {
+     "id": "02-street-L0-w15",
+     "a": [
+      89.504,
+      0.0
+     ],
+     "b": [
+      89.496,
+      40.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 10.0
+    },
+    {
+     "id": "02-street-L0-w16",
+     "a": [
+      90.0,
+      39.502
+     ],
+     "b": [
+      81.5,
+      39.498
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 10.0
+    },
+    {
+     "id": "02-street-L0-w17",
+     "a": [
+      78.5,
+      39.502
+     ],
+     "b": [
+      70.0,
+      39.498
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 10.0
+    },
+    {
+     "id": "02-street-L0-w18",
+     "a": [
+      70.502,
+      40.0
+     ],
+     "b": [
+      70.498,
+      16.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 10.0
+    },
+    {
+     "id": "02-street-L0-w19",
+     "a": [
+      70.501,
+      13.5
+     ],
+     "b": [
+      70.499,
+      0.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 10.0
+    },
+    {
+     "id": "02-street-L0-w20",
+     "a": [
+      0.0,
+      60.5
+     ],
+     "b": [
+      13.5,
+      60.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 10.0
+    },
+    {
+     "id": "02-street-L0-w21",
+     "a": [
+      16.5,
+      60.5
+     ],
+     "b": [
+      30.0,
+      60.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 10.0
+    },
+    {
+     "id": "02-street-L0-w22",
+     "a": [
+      29.502,
+      60.0
+     ],
+     "b": [
+      29.498,
+      80.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 10.0
+    },
+    {
+     "id": "02-street-L0-w23",
+     "a": [
+      30.0,
+      79.506
+     ],
+     "b": [
+      0.0,
+      79.494
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 10.0
+    },
+    {
+     "id": "02-street-L0-w24",
+     "a": [
+      0.502,
+      80.0
+     ],
+     "b": [
+      0.498,
+      60.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 10.0
+    },
+    {
+     "id": "02-street-L0-w25",
+     "a": [
+      30.0,
+      60.5
+     ],
+     "b": [
+      43.5,
+      60.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 10.0
+    },
+    {
+     "id": "02-street-L0-w26",
+     "a": [
+      46.5,
+      60.5
+     ],
+     "b": [
+      60.0,
+      60.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 10.0
+    },
+    {
+     "id": "02-street-L0-w27",
+     "a": [
+      59.502,
+      60.0
+     ],
+     "b": [
+      59.498,
+      80.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 10.0
+    },
+    {
+     "id": "02-street-L0-w28",
+     "a": [
+      60.0,
+      79.506
+     ],
+     "b": [
+      30.0,
+      79.494
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 10.0
+    },
+    {
+     "id": "02-street-L0-w29",
+     "a": [
+      30.502,
+      80.0
+     ],
+     "b": [
+      30.498,
+      60.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 10.0
+    },
+    {
+     "id": "02-street-L0-w30",
+     "a": [
+      60.0,
+      60.5
+     ],
+     "b": [
+      73.5,
+      60.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 10.0
+    },
+    {
+     "id": "02-street-L0-w31",
+     "a": [
+      76.5,
+      60.5
+     ],
+     "b": [
+      90.0,
+      60.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 10.0
+    },
+    {
+     "id": "02-street-L0-w32",
+     "a": [
+      89.502,
+      60.0
+     ],
+     "b": [
+      89.498,
+      80.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 10.0
+    },
+    {
+     "id": "02-street-L0-w33",
+     "a": [
+      90.0,
+      79.506
+     ],
+     "b": [
+      60.0,
+      79.494
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 10.0
+    },
+    {
+     "id": "02-street-L0-w34",
+     "a": [
+      60.502,
+      80.0
+     ],
+     "b": [
+      60.498,
+      60.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 10.0
+    },
+    {
+     "id": "02-street-L0-w35",
+     "a": [
+      67.0,
+      50.0
+     ],
+     "b": [
+      66.0,
+      51.732
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 3.0
+    },
+    {
+     "id": "02-street-L0-w36",
+     "a": [
+      66.0,
+      51.732
+     ],
+     "b": [
+      64.0,
+      51.732
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 3.0
+    },
+    {
+     "id": "02-street-L0-w37",
+     "a": [
+      64.0,
+      51.732
+     ],
+     "b": [
+      63.0,
+      50.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 3.0
+    },
+    {
+     "id": "02-street-L0-w38",
+     "a": [
+      63.0,
+      50.0
+     ],
+     "b": [
+      64.0,
+      48.268
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 3.0
+    },
+    {
+     "id": "02-street-L0-w39",
+     "a": [
+      64.0,
+      48.268
+     ],
+     "b": [
+      66.0,
+      48.268
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 3.0
+    },
+    {
+     "id": "02-street-L0-w40",
+     "a": [
+      66.0,
+      48.268
+     ],
+     "b": [
+      67.0,
+      50.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 3.0
+    },
+    {
+     "id": "02-street-L0-w41",
+     "a": [
+      1.501,
+      40.0
+     ],
+     "b": [
+      1.499,
+      47.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 3.0
+    },
+    {
+     "id": "02-street-L0-w42",
+     "a": [
+      1.501,
+      52.5
+     ],
+     "b": [
+      1.499,
+      60.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 3.0
+    },
+    {
+     "id": "02-street-L0-o1",
+     "a": [
+      42.5,
+      39.501
+     ],
+     "b": [
+      47.5,
+      39.499
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "plaster",
+     "open": false
+    },
+    {
+     "id": "02-street-L0-o2",
+     "a": [
+      59.499,
+      34.0
+     ],
+     "b": [
+      59.501,
+      31.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "plaster",
+     "open": false
+    },
+    {
+     "id": "02-street-L0-o3",
+     "a": [
+      33.5,
+      39.501
+     ],
+     "b": [
+      36.5,
+      39.499
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "02-street-L0-o4",
+     "a": [
+      53.5,
+      39.501
+     ],
+     "b": [
+      56.5,
+      39.499
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "02-street-L0-o5",
+     "a": [
+      13.5,
+      39.501
+     ],
+     "b": [
+      16.5,
+      39.499
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "plaster",
+     "open": false
+    },
+    {
+     "id": "02-street-L0-o6",
+     "a": [
+      78.5,
+      39.501
+     ],
+     "b": [
+      81.5,
+      39.499
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "plaster",
+     "open": false
+    },
+    {
+     "id": "02-street-L0-o7",
+     "a": [
+      70.5,
+      13.5
+     ],
+     "b": [
+      70.5,
+      16.5
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "plaster",
+     "open": false
+    },
+    {
+     "id": "02-street-L0-o8",
+     "a": [
+      16.5,
+      60.5
+     ],
+     "b": [
+      13.5,
+      60.5
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "plaster",
+     "open": false
+    },
+    {
+     "id": "02-street-L0-o9",
+     "a": [
+      46.5,
+      60.5
+     ],
+     "b": [
+      43.5,
+      60.5
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "plaster",
+     "open": false
+    },
+    {
+     "id": "02-street-L0-o10",
+     "a": [
+      76.5,
+      60.5
+     ],
+     "b": [
+      73.5,
+      60.5
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "plaster",
+     "open": false
+    },
+    {
+     "id": "02-street-L0-o11",
+     "a": [
+      1.499,
+      52.5
+     ],
+     "b": [
+      1.501,
+      47.5
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "plaster",
+     "open": false
+    }
+   ],
+   "objects": [],
+   "lights": [],
+   "terrain": [
+    {
+     "polygon": [
+      [
+       60.0,
+       60.0
+      ],
+      [
+       90.0,
+       60.0
+      ],
+      [
+       90.0,
+       80.0
+      ],
+      [
+       60.0,
+       80.0
+      ]
+     ],
+     "floor": "flagstone"
+    },
+    {
+     "polygon": [
+      [
+       30.0,
+       60.0
+      ],
+      [
+       60.0,
+       60.0
+      ],
+      [
+       60.0,
+       80.0
+      ],
+      [
+       30.0,
+       80.0
+      ]
+     ],
+     "floor": "flagstone"
+    },
+    {
+     "polygon": [
+      [
+       0.0,
+       60.0
+      ],
+      [
+       30.0,
+       60.0
+      ],
+      [
+       30.0,
+       80.0
+      ],
+      [
+       0.0,
+       80.0
+      ]
+     ],
+     "floor": "flagstone"
+    },
+    {
+     "polygon": [
+      [
+       70.0,
+       0.0
+      ],
+      [
+       90.0,
+       0.0
+      ],
+      [
+       90.0,
+       40.0
+      ],
+      [
+       70.0,
+       40.0
+      ]
+     ],
+     "floor": "flagstone"
+    },
+    {
+     "polygon": [
+      [
+       0.0,
+       0.0
+      ],
+      [
+       30.0,
+       0.0
+      ],
+      [
+       30.0,
+       40.0
+      ],
+      [
+       0.0,
+       40.0
+      ]
+     ],
+     "floor": "flagstone"
+    },
+    {
+     "polygon": [
+      [
+       30.0,
+       0.0
+      ],
+      [
+       60.0,
+       0.0
+      ],
+      [
+       60.0,
+       40.0
+      ],
+      [
+       30.0,
+       40.0
+      ]
+     ],
+     "floor": "plank"
+    },
+    {
+     "polygon": [
+      [
+       0.0,
+       0.0
+      ],
+      [
+       90.0,
+       0.0
+      ],
+      [
+       90.0,
+       80.0
+      ],
+      [
+       0.0,
+       80.0
+      ]
+     ],
+     "floor": "dirt"
+    }
+   ]
+  }
+ ],
+ "links": []
+}

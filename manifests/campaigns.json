@@ -1,0 +1,7 @@
+{
+ "schema": 1,
+ "campaigns": [
+  { "id": "cos", "name": "Curse of Strahd", "subtitle": "Death House, the village, the lands of Barovia", "manifest": "locations.json", "prefixes": ["appB", "ch02", "ch03", "dev"], "world": "ch02/barovia-region", "home": "appB/death-house" },
+  { "id": "wsc", "name": "A Wild Sheep Chase", "subtitle": "The tavern, the street, the road and Noke's tower", "manifest": "wsc-locations.json", "prefixes": ["wsc"], "world": "wsc/00-region", "home": "wsc/01-tavern" }
+ ]
+}

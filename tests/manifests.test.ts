@@ -5,6 +5,8 @@ import { join } from 'node:path';
 import locations from '../manifests/locations.json';
 import characters from '../manifests/characters.json';
 import encounters from '../manifests/encounters.json';
+import campaigns from '../manifests/campaigns.json';
+import wsc from '../manifests/wsc-locations.json';
 import { sceneAreaKeys, validateScene, type GridFile, type SceneFile } from '../app/src/core/schema';
 
 type Loc = (typeof locations.locations)[number];
@@ -75,7 +77,10 @@ describe('built scenes', () => {
     it(`${path} validates`, () => expect(validateScene(scene, grid)).toEqual([]));
     if (scene.chapter === 'dev') continue;
     it(`${path}: no orphan keys (manifest <-> scene)`, () => {
-      const m = locations.locations.find((l: Loc) => l.id === scene.location)!;
+      const camp = campaigns.campaigns.find((c) => c.prefixes.includes(scene.chapter))!;
+      expect(camp, `campaign for chapter ${scene.chapter}`).toBeTruthy();
+      const list = (camp.manifest === 'locations.json' ? locations.locations : (wsc as unknown as { locations: Loc[] }).locations) as Loc[];
+      const m = list.find((l: Loc) => l.id === scene.location)!;
       expect(m, `manifest location ${scene.location}`).toBeTruthy();
       expect(`locations/${scene.chapter}/${scene.location}`).toBe(path.replace(/\\/g, '/'));
       expect(new Set(sceneAreaKeys(scene))).toEqual(new Set(m.areas.map((a) => a.key)));

@@ -1,0 +1,35 @@
+{
+ "schema": 1,
+ "levels": {
+  "L0": {
+   "floorPolygons": [
+    [
+     [
+      0.0,
+      0.0
+     ],
+     [
+      60.0,
+      0.0
+     ],
+     [
+      60.0,
+      100.0
+     ],
+     [
+      0.0,
+      100.0
+     ]
+    ]
+   ],
+   "type": "square",
+   "hexOrientation": "pointy",
+   "origin": [
+    0,
+    0
+   ],
+   "color": "#1d1b22",
+   "opacity": 0.55
+  }
+ }
+}

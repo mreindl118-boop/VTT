@@ -19,7 +19,8 @@ import { setGridType } from './render/gridOverlay';
 import { World, type CameraPreset } from './render/world';
 import { loadLocation } from './data';
 import { ICON } from './ui/icons';
-import { pinForScene } from './ui/worldmap';
+import { pinForScene, useWorld } from './ui/worldmap';
+import { campaignOf, worldOf, type Campaign } from './campaigns';
 import { buildBackdrop } from './render/backdrop';
 import { Channel, type Msg } from './state/channel';
 import { newCampaign, revealSets, type CampaignState, type Combatant, type Encounter, type Reveal, type Sheet, type Token } from './state/campaign';
@@ -50,7 +51,7 @@ interface Loaded {
   tokens: Map<string, THREE.Group>;
 }
 
-const STORE_KEY = 'campaign:default';
+const storeKey = (campaignId: string) => (campaignId === 'cos' ? 'campaign:default' : `campaign:${campaignId}`); // CoS keeps its original save
 
 export class App {
   readonly world: World;
@@ -94,9 +95,19 @@ export class App {
   /** Effective slider: the Player Display is pinned at 0. */
   get T(): number { return this.mode === 'player' || this.view === 'players' ? 0 : this.t; }
 
+  campaign: Campaign = campaignOf('appB/death-house');
+  /** Load the saved state of the campaign a path belongs to (each campaign has its own save). */
+  private async loadCampaign(path: string): Promise<void> {
+    const c = campaignOf(path);
+    if (this.cur && c.id === this.campaign.id) return;
+    if (this.cur) await this.flush();
+    this.campaign = c;
+    const saved = await idbGet<CampaignState>(storeKey(c.id)).catch(() => undefined);
+    this.state = saved ? { ...newCampaign(c.id), ...saved } : newCampaign(c.id); // older saves lack newer fields
+    useWorld(worldOf(c));
+  }
   async init(path: string): Promise<void> {
-    const saved = await idbGet<CampaignState>(STORE_KEY).catch(() => undefined);
-    if (saved) this.state = { ...newCampaign(), ...saved }; // older saves lack newer fields
+    await this.loadCampaign(path);
     await this.open(path);
     if (this.mode === 'player') this.channel.send({ kind: 'hello' });
     else this.broadcast();
@@ -105,6 +116,7 @@ export class App {
   // ------------------------------------------------------------------ loading
 
   async open(path: string, levelId?: string): Promise<void> {
+    await this.loadCampaign(path);
     if (this.cur) {
       // Labels are page elements: detach each one, or they linger over the next location.
       for (const lb of this.cur.labels) { lb.obj.removeFromParent(); lb.obj.element.remove(); }
@@ -167,7 +179,7 @@ export class App {
     const l0 = scene.levels[0], outdoor = !!pin && !!l0.terrain?.length && (scene.ambient ?? l0.ambient) !== 'darkness';
     if (outdoor) {
       const bb = bounds([...l0.rooms.map((r) => r.polygon), ...(l0.terrain ?? []).map((t) => t.polygon)]);
-      this.backdrop = buildBackdrop({ center: [(bb.minX + bb.maxX) / 2, (bb.minZ + bb.maxZ) / 2], radius: Math.hypot(bb.maxX - bb.minX, bb.maxZ - bb.minZ) / 2, elevation: l0.elevationFt, pin: pin!.pos as Vec2 });
+      this.backdrop = buildBackdrop({ center: [(bb.minX + bb.maxX) / 2, (bb.minZ + bb.maxZ) / 2], radius: Math.hypot(bb.maxX - bb.minX, bb.maxZ - bb.minZ) / 2, elevation: l0.elevationFt, pin: pin!.pos as Vec2, world: worldOf(this.campaign) });
       this.world.scene.add(this.backdrop);
     }
     this.world.setOutdoor(outdoor);
@@ -532,12 +544,12 @@ export class App {
     this.recompute();
     this.broadcast();
     clearTimeout(this.saveTimer);
-    this.saveTimer = window.setTimeout(() => void idbSet(STORE_KEY, this.state), 150);
+    this.saveTimer = window.setTimeout(() => void idbSet(storeKey(this.campaign.id), this.state), 150);
     this.onChange?.();
   }
 
   /** Awaitable save (tests, pagehide). */
-  async flush(): Promise<void> { clearTimeout(this.saveTimer); await idbSet(STORE_KEY, this.state); }
+  async flush(): Promise<void> { clearTimeout(this.saveTimer); await idbSet(storeKey(this.campaign.id), this.state); }
 
   toggleRoom(key: string): void {
     const loc = this.cur!.scene.location;
@@ -897,9 +909,9 @@ export class App {
   private async onMsg(m: Msg): Promise<void> {
     if (this.mode === 'dm') { if (m.kind === 'hello') this.broadcast(); return; }
     if (m.kind === 'state') {
-      this.state = { ...newCampaign(), ...m.state };
       if (!this.cur || this.cur.path !== m.location) await this.open(m.location, m.level);
-      else if (this.levelId !== m.level) this.setLevel(m.level);
+      this.state = { ...newCampaign(this.campaign.id), ...m.state };
+      if (this.levelId !== m.level) this.setLevel(m.level);
       else { this.syncTokens(); this.recompute(); }
     } else if (m.kind === 'camera' && m.locked) {
       this.world.camera.position.set(...m.pos);

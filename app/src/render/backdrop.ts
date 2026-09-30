@@ -2,18 +2,18 @@
 // valley's mountains and Castle Ravenloft stand at their true bearings (from the world map), compressed in
 // distance so they sit on the horizon. Unlit by fog on purpose: colours are pre-blended toward the mist.
 import * as THREE from 'three';
-import world from '../../../locations/ch02/barovia-region/world.json';
+import type { WorldData } from '../campaigns';
 
 type P = [number, number];
-const W = world as unknown as { pins: { key: string; pos: P }[]; peaks: { name: string; pos: P }[]; high: P[]; woods: { pos: P }[] };
 const MIST = new THREE.Color('#2b2733');
 
 const blend = (hex: string, t: number) => new THREE.Color(hex).lerp(MIST, Math.min(1, Math.max(0, t)));
 const lambert = (c: THREE.Color) => new THREE.MeshLambertMaterial({ color: c, fog: false, flatShading: true });
 
-export interface BackdropOpts { center: P; radius: number; elevation: number; pin: P }
+export interface BackdropOpts { center: P; radius: number; elevation: number; pin: P; world: WorldData }
 
 export function buildBackdrop(o: BackdropOpts): THREE.Group {
+  const W = o.world;
   const g = new THREE.Group();
   g.name = 'backdrop';
   g.userData.role = 'backdrop';
@@ -22,7 +22,7 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
   const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
 
   // 1. Ground apron: the land keeps going, fading into mist.
-  const apron = new THREE.RingGeometry(R * 0.85, 7000, 96, 12);
+  const apron = new THREE.RingGeometry(0.5, 7000, 96, 12); // a full disc: the map's own floors sit above it
   const pos = apron.attributes.position, cols: number[] = [];
   for (let i = 0; i < pos.count; i++) { const d = Math.hypot(pos.getX(i), pos.getY(i)); const c = blend('#2e3a31', (d - R) / 2600); cols.push(c.r, c.g, c.b); }
   apron.setAttribute('color', new THREE.Float32BufferAttribute(cols, 3));
@@ -76,7 +76,7 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
   }
 
   // 4. Castle Ravenloft on its pillar of rock, where the world map puts it.
-  const k = W.pins.find((x) => x.key === 'K');
+  const k = W.pins.find((x) => x.key === 'K' && x.name.includes('Ravenloft'));
   if (k) {
     const t = toScene(k.pos, 1900, 3200), dark = lambert(blend('#1e1c24', 0.15)), rockM = lambert(blend('#34333a', 0.2));
     const castle = new THREE.Group();

@@ -1,0 +1,1094 @@
+{
+ "schema": 1,
+ "location": "01-tavern",
+ "chapter": "wsc",
+ "name": "The Tavern",
+ "bookScaleFt": 5,
+ "ambient": "interior-dim",
+ "levels": [
+  {
+   "id": "L0",
+   "name": "The tavern, ground floor",
+   "elevationFt": 0.0,
+   "ceilingFt": 10,
+   "rooms": [
+    {
+     "key": "L0-1",
+     "name": "Plank floor",
+     "polygon": [
+      [
+       5.0,
+       5.0
+      ],
+      [
+       35.0,
+       5.0
+      ],
+      [
+       35.0,
+       45.0
+      ],
+      [
+       5.0,
+       45.0
+      ]
+     ],
+     "floor": "plank",
+     "desc": "Baaaa-d News",
+     "dm": "The party is at their table when a sheep bursts in through the front door carrying a scroll: it is the wizard Finethir Shinebright, polymorphed. Moments later the 'shepherds' arrive. Creatures: Finethir Shinebright (sheep)."
+    },
+    {
+     "key": "L0-2",
+     "name": "Cobbles",
+     "polygon": [
+      [
+       0.0,
+       0.0
+      ],
+      [
+       40.0,
+       0.0
+      ],
+      [
+       40.0,
+       50.0
+      ],
+      [
+       0.0,
+       50.0
+      ]
+     ],
+     "floor": "cobble"
+    }
+   ],
+   "walls": [
+    {
+     "id": "01-tavern-L0-w1",
+     "a": [
+      5.0,
+      5.5
+     ],
+     "b": [
+      35.0,
+      5.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 10.0
+    },
+    {
+     "id": "01-tavern-L0-w2",
+     "a": [
+      34.501,
+      5.0
+     ],
+     "b": [
+      34.499,
+      11.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 10.0
+    },
+    {
+     "id": "01-tavern-L0-w3",
+     "a": [
+      34.502,
+      14.0
+     ],
+     "b": [
+      34.498,
+      36.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 10.0
+    },
+    {
+     "id": "01-tavern-L0-w4",
+     "a": [
+      34.501,
+      39.0
+     ],
+     "b": [
+      34.499,
+      45.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 10.0
+    },
+    {
+     "id": "01-tavern-L0-w5",
+     "a": [
+      35.0,
+      44.503
+     ],
+     "b": [
+      22.5,
+      44.497
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 10.0
+    },
+    {
+     "id": "01-tavern-L0-w6",
+     "a": [
+      17.5,
+      44.501
+     ],
+     "b": [
+      11.5,
+      44.499
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 10.0
+    },
+    {
+     "id": "01-tavern-L0-w7",
+     "a": [
+      8.5,
+      44.501
+     ],
+     "b": [
+      5.0,
+      44.499
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 10.0
+    },
+    {
+     "id": "01-tavern-L0-w8",
+     "a": [
+      5.501,
+      45.0
+     ],
+     "b": [
+      5.499,
+      31.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 10.0
+    },
+    {
+     "id": "01-tavern-L0-w9",
+     "a": [
+      5.501,
+      28.5
+     ],
+     "b": [
+      5.499,
+      16.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 10.0
+    },
+    {
+     "id": "01-tavern-L0-w10",
+     "a": [
+      5.501,
+      13.5
+     ],
+     "b": [
+      5.499,
+      5.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 10.0
+    },
+    {
+     "id": "01-tavern-L0-w11",
+     "a": [
+      25.001,
+      5.0
+     ],
+     "b": [
+      24.999,
+      16.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 10.0
+    },
+    {
+     "id": "01-tavern-L0-w12",
+     "a": [
+      25.001,
+      19.0
+     ],
+     "b": [
+      24.999,
+      30.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 10.0
+    },
+    {
+     "id": "01-tavern-L0-w13",
+     "a": [
+      25.0,
+      20.0
+     ],
+     "b": [
+      35.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 10.0
+    },
+    {
+     "id": "01-tavern-L0-w14",
+     "a": [
+      25.0,
+      30.0
+     ],
+     "b": [
+      28.5,
+      30.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 10.0
+    },
+    {
+     "id": "01-tavern-L0-w15",
+     "a": [
+      31.5,
+      30.0
+     ],
+     "b": [
+      35.0,
+      30.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 10.0
+    },
+    {
+     "id": "01-tavern-L0-w16",
+     "a": [
+      25.001,
+      30.0
+     ],
+     "b": [
+      24.999,
+      42.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 4.0
+    },
+    {
+     "id": "01-tavern-L0-w17",
+     "a": [
+      12.5,
+      6.75
+     ],
+     "b": [
+      17.5,
+      6.75
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 4.0
+    },
+    {
+     "id": "01-tavern-L0-o1",
+     "a": [
+      17.5,
+      44.501
+     ],
+     "b": [
+      22.5,
+      44.499
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "plaster",
+     "open": false
+    },
+    {
+     "id": "01-tavern-L0-o2",
+     "a": [
+      34.499,
+      39.0
+     ],
+     "b": [
+      34.501,
+      36.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "plaster",
+     "open": false
+    },
+    {
+     "id": "01-tavern-L0-o3",
+     "a": [
+      8.5,
+      44.501
+     ],
+     "b": [
+      11.5,
+      44.499
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "01-tavern-L0-o4",
+     "a": [
+      5.5,
+      13.5
+     ],
+     "b": [
+      5.5,
+      16.5
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "01-tavern-L0-o5",
+     "a": [
+      5.5,
+      28.5
+     ],
+     "b": [
+      5.5,
+      31.5
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "01-tavern-L0-o6",
+     "a": [
+      34.499,
+      14.0
+     ],
+     "b": [
+      34.501,
+      11.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "01-tavern-L0-o7",
+     "a": [
+      24.999,
+      19.0
+     ],
+     "b": [
+      25.001,
+      16.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "plaster",
+     "open": false
+    },
+    {
+     "id": "01-tavern-L0-o8",
+     "a": [
+      31.5,
+      30.0
+     ],
+     "b": [
+      28.5,
+      30.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "plaster",
+     "open": false
+    }
+   ],
+   "objects": [
+    {
+     "id": "01-tavern-stair_L0_L1",
+     "kind": "stairs-run",
+     "pos": [
+      27.5,
+      0,
+      19.5
+     ],
+     "vis": "player",
+     "rotY": 90.0,
+     "dims": {
+      "len": 14.0,
+      "w": 5.0,
+      "rise": 10.0
+     },
+     "label": "Stairs to L1"
+    }
+   ],
+   "lights": []
+  },
+  {
+   "id": "L1",
+   "name": "The tavern, upper floor",
+   "elevationFt": 10.0,
+   "ceilingFt": 8,
+   "rooms": [
+    {
+     "key": "L1-1",
+     "name": "Plank floor",
+     "polygon": [
+      [
+       5.0,
+       5.0
+      ],
+      [
+       35.0,
+       5.0
+      ],
+      [
+       35.0,
+       45.0
+      ],
+      [
+       5.0,
+       45.0
+      ]
+     ],
+     "floor": "plank",
+     "desc": "Baaaa-d News",
+     "dm": "Guest rooms; a place for the chase to spill upstairs or for the party to hide the sheep."
+    }
+   ],
+   "walls": [
+    {
+     "id": "01-tavern-L1-w1",
+     "a": [
+      5.0,
+      5.5
+     ],
+     "b": [
+      35.0,
+      5.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 8.0
+    },
+    {
+     "id": "01-tavern-L1-w2",
+     "a": [
+      34.502,
+      5.0
+     ],
+     "b": [
+      34.498,
+      23.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 8.0
+    },
+    {
+     "id": "01-tavern-L1-w3",
+     "a": [
+      34.501,
+      26.5
+     ],
+     "b": [
+      34.499,
+      36.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 8.0
+    },
+    {
+     "id": "01-tavern-L1-w4",
+     "a": [
+      34.501,
+      39.0
+     ],
+     "b": [
+      34.499,
+      45.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 8.0
+    },
+    {
+     "id": "01-tavern-L1-w5",
+     "a": [
+      35.0,
+      44.501
+     ],
+     "b": [
+      29.0,
+      44.499
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 8.0
+    },
+    {
+     "id": "01-tavern-L1-w6",
+     "a": [
+      26.0,
+      44.503
+     ],
+     "b": [
+      11.5,
+      44.497
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 8.0
+    },
+    {
+     "id": "01-tavern-L1-w7",
+     "a": [
+      8.5,
+      44.501
+     ],
+     "b": [
+      5.0,
+      44.499
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 8.0
+    },
+    {
+     "id": "01-tavern-L1-w8",
+     "a": [
+      5.5,
+      45.0
+     ],
+     "b": [
+      5.5,
+      41.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 8.0
+    },
+    {
+     "id": "01-tavern-L1-w9",
+     "a": [
+      5.501,
+      38.5
+     ],
+     "b": [
+      5.499,
+      29.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 8.0
+    },
+    {
+     "id": "01-tavern-L1-w10",
+     "a": [
+      5.501,
+      26.0
+     ],
+     "b": [
+      5.499,
+      14.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 8.0
+    },
+    {
+     "id": "01-tavern-L1-w11",
+     "a": [
+      5.501,
+      11.0
+     ],
+     "b": [
+      5.499,
+      5.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 8.0
+    },
+    {
+     "id": "01-tavern-L1-w12",
+     "a": [
+      15.001,
+      5.0
+     ],
+     "b": [
+      14.999,
+      11.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 8.0
+    },
+    {
+     "id": "01-tavern-L1-w13",
+     "a": [
+      15.001,
+      14.0
+     ],
+     "b": [
+      14.999,
+      26.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 8.0
+    },
+    {
+     "id": "01-tavern-L1-w14",
+     "a": [
+      15.001,
+      29.0
+     ],
+     "b": [
+      14.999,
+      38.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 8.0
+    },
+    {
+     "id": "01-tavern-L1-w15",
+     "a": [
+      15.0,
+      41.5
+     ],
+     "b": [
+      15.0,
+      45.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 8.0
+    },
+    {
+     "id": "01-tavern-L1-w16",
+     "a": [
+      20.0,
+      20.0
+     ],
+     "b": [
+      20.0,
+      23.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 8.0
+    },
+    {
+     "id": "01-tavern-L1-w17",
+     "a": [
+      20.001,
+      26.5
+     ],
+     "b": [
+      19.999,
+      36.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 8.0
+    },
+    {
+     "id": "01-tavern-L1-w18",
+     "a": [
+      20.001,
+      39.0
+     ],
+     "b": [
+      19.999,
+      45.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 8.0
+    },
+    {
+     "id": "01-tavern-L1-w19",
+     "a": [
+      5.0,
+      20.0
+     ],
+     "b": [
+      15.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 8.0
+    },
+    {
+     "id": "01-tavern-L1-w20",
+     "a": [
+      5.0,
+      35.0
+     ],
+     "b": [
+      15.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 8.0
+    },
+    {
+     "id": "01-tavern-L1-w21",
+     "a": [
+      20.0,
+      20.0
+     ],
+     "b": [
+      35.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 8.0
+    },
+    {
+     "id": "01-tavern-L1-w22",
+     "a": [
+      20.0,
+      30.0
+     ],
+     "b": [
+      35.0,
+      30.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 8.0
+    },
+    {
+     "id": "01-tavern-L1-w23",
+     "a": [
+      30.002,
+      5.0
+     ],
+     "b": [
+      29.998,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log",
+     "heightFt": 3.0
+    },
+    {
+     "id": "01-tavern-L1-o1",
+     "a": [
+      8.5,
+      44.501
+     ],
+     "b": [
+      11.5,
+      44.499
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "01-tavern-L1-o2",
+     "a": [
+      5.5,
+      11.0
+     ],
+     "b": [
+      5.5,
+      14.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "01-tavern-L1-o3",
+     "a": [
+      5.5,
+      26.0
+     ],
+     "b": [
+      5.5,
+      29.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "01-tavern-L1-o4",
+     "a": [
+      5.5,
+      38.5
+     ],
+     "b": [
+      5.5,
+      41.5
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "01-tavern-L1-o5",
+     "a": [
+      34.499,
+      26.5
+     ],
+     "b": [
+      34.501,
+      23.5
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "01-tavern-L1-o6",
+     "a": [
+      34.499,
+      39.0
+     ],
+     "b": [
+      34.501,
+      36.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "01-tavern-L1-o7",
+     "a": [
+      26.0,
+      44.501
+     ],
+     "b": [
+      29.0,
+      44.499
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "01-tavern-L1-o8",
+     "a": [
+      14.999,
+      14.0
+     ],
+     "b": [
+      15.001,
+      11.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "plaster",
+     "open": false
+    },
+    {
+     "id": "01-tavern-L1-o9",
+     "a": [
+      14.999,
+      29.0
+     ],
+     "b": [
+      15.001,
+      26.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "plaster",
+     "open": false
+    },
+    {
+     "id": "01-tavern-L1-o10",
+     "a": [
+      14.999,
+      41.5
+     ],
+     "b": [
+      15.001,
+      38.5
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "plaster",
+     "open": false
+    },
+    {
+     "id": "01-tavern-L1-o11",
+     "a": [
+      19.999,
+      26.5
+     ],
+     "b": [
+      20.001,
+      23.5
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "plaster",
+     "open": false
+    },
+    {
+     "id": "01-tavern-L1-o12",
+     "a": [
+      19.999,
+      39.0
+     ],
+     "b": [
+      20.001,
+      36.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "plaster",
+     "open": false
+    }
+   ],
+   "objects": [],
+   "lights": []
+  }
+ ],
+ "links": [
+  {
+   "id": "lk-stair_L0_L1",
+   "kind": "stairs",
+   "from": {
+    "level": "L0",
+    "pos": [
+     27.5,
+     19.5
+    ]
+   },
+   "to": {
+    "level": "L1",
+    "pos": [
+     27.5,
+     5.5
+    ]
+   }
+  }
+ ]
+}

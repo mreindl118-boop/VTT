@@ -1,0 +1,209 @@
+{
+ "schema": 1,
+ "source": "tabletop-mapset 1.0 export (reference/imports/wsc); geometry only, notes in the export's own words",
+ "title": "A Wild Sheep Chase",
+ "publisher": "Winghorn Press",
+ "chapters": [
+  {
+   "id": "wsc",
+   "number": null,
+   "title": "A Wild Sheep Chase"
+  }
+ ],
+ "sections": [
+  {
+   "id": "00",
+   "title": "framing: Summary \u00b7 Using This Adventure \u00b7 Adventure Hooks",
+   "maps": [
+    "00-region"
+   ]
+  },
+  {
+   "id": "01",
+   "title": "Baaaa-d News",
+   "maps": [
+    "01a-tavern-L0",
+    "01b-tavern-L1"
+   ]
+  },
+  {
+   "id": "02",
+   "title": "Shepherds, Crooks",
+   "maps": [
+    "02-town-street"
+   ]
+  },
+  {
+   "id": "03",
+   "title": "The House in the Woods",
+   "maps": [
+    "03a-main-road-pasture",
+    "03b-woodland-path",
+    "03c-compound-L0-ground",
+    "03d-compound-L1-lower-platform",
+    "03e-compound-L2-main-hall",
+    "03f-compound-L3-bedroom",
+    "03g-compound-assembled"
+   ]
+  },
+  {
+   "id": "04",
+   "title": "Ewe are Very Clever...",
+   "maps": [
+    "04-ewe-are-very-clever"
+   ]
+  },
+  {
+   "id": "05",
+   "title": "Big Choices \u00b7 Consequences \u00b7 Not Like This...",
+   "maps": [
+    "05-big-choices-consequences-not-like-this"
+   ]
+  }
+ ],
+ "locations": [
+  {
+   "id": "01-tavern",
+   "name": "The Tavern",
+   "chapter": "wsc",
+   "section": "01",
+   "status": "built",
+   "mapPages": [],
+   "areas": [
+    {
+     "key": "L0-1",
+     "name": "The tavern, ground floor: Plank floor"
+    },
+    {
+     "key": "L0-2",
+     "name": "The tavern, ground floor: Cobbles"
+    },
+    {
+     "key": "L1-1",
+     "name": "The tavern, upper floor: Plank floor"
+    }
+   ],
+   "path": "locations/wsc/01-tavern",
+   "notes": "The party is at their table when a sheep bursts in through the front door carrying a scroll: it is the wizard Finethir Shinebright, polymorphed. Moments later the 'shepherds' arrive. Guest rooms; a place for the chase to spill upstairs or for the party to hide the sheep."
+  },
+  {
+   "id": "02-street",
+   "name": "The Street",
+   "chapter": "wsc",
+   "section": "02",
+   "status": "built",
+   "mapPages": [],
+   "areas": [
+    {
+     "key": "L0-1",
+     "name": "The street outside the tavern: Cobbles"
+    },
+    {
+     "key": "L0-2",
+     "name": "The street outside the tavern: Cobbles"
+    }
+   ],
+   "path": "locations/wsc/02-street",
+   "notes": "Guz, a half-orc mercenary, comes for the sheep with three collared wolves and a brown bear (both polymorphed henchmen). The tavern block on this map is the same building as 01a; its doors line up."
+  },
+  {
+   "id": "03a-road",
+   "name": "The Main Road",
+   "chapter": "wsc",
+   "section": "03",
+   "status": "built",
+   "mapPages": [],
+   "areas": [
+    {
+     "key": "L0-1",
+     "name": "The main road and a pasture: Plank floor"
+    },
+    {
+     "key": "L0-2",
+     "name": "The main road and a pasture: Pasture"
+    }
+   ],
+   "path": "locations/wsc/03a-road",
+   "notes": "A few miles out of town the side path leaves the main road at the signpost. Possible location for a road encounter or the hooks."
+  },
+  {
+   "id": "03b-path",
+   "name": "The Side Path",
+   "chapter": "wsc",
+   "section": "03",
+   "status": "built",
+   "mapPages": [],
+   "areas": [
+    {
+     "key": "L0-1",
+     "name": "The side path through the woodland: Woodland floor"
+    }
+   ],
+   "path": "locations/wsc/03b-path",
+   "notes": "About a mile of sparse woodland between the road and the compound; the cut segment for a stealthy approach or an ambush. The stream has a stepping-stone ford."
+  },
+  {
+   "id": "03-compound",
+   "name": "Noke's Tower",
+   "chapter": "wsc",
+   "section": "03",
+   "status": "built",
+   "mapPages": [],
+   "areas": [
+    {
+     "key": "L0-1",
+     "name": "Compound grounds (L0): Plank floor"
+    },
+    {
+     "key": "L0-2",
+     "name": "Compound grounds (L0): Plank floor"
+    },
+    {
+     "key": "L0-3",
+     "name": "Compound grounds (L0): Plank floor"
+    },
+    {
+     "key": "L0-4",
+     "name": "Compound grounds (L0): Grass"
+    },
+    {
+     "key": "L1-1",
+     "name": "Lower platform / deck (L1, 10 ft): Deck"
+    },
+    {
+     "key": "L2-1",
+     "name": "Main hall / middle platform (L2, 20 ft): Deck"
+    },
+    {
+     "key": "L3-1",
+     "name": "Bedroom platform (L3, 30 ft): Deck"
+    }
+   ],
+   "path": "locations/wsc/03-compound",
+   "notes": "The grounds under the three oak platforms: two huts, the large outhouse (a brown bear is inside), the trunks that carry the platforms, the stair foot up to the deck. The open deck 10 ft up where the three apes idle. Stair down to the ground, stair-bridge up to the hall. The 60-ft hall 20 ft up: dining room and kitchen (north-west), sitting room (south-west), library and lab (east half). Ahmed Noke works here when not upstairs. The top platform, 30 ft up: the bedroom. Noke's last stand; the bed becomes the Bed Dragon Wyrmling; the modified wand of true polymorph is here."
+  }
+ ],
+ "pointers": [
+  {
+   "id": "04-ewe-are-very-clever",
+   "title": "Ewe are Very Clever... \u2014 luring Noke out",
+   "pointsTo": [
+    "03-compound",
+    "03-compound",
+    "03-compound",
+    "03-compound",
+    "03g-compound-assembled"
+   ],
+   "note": "No new geometry: this section plays out at the compound. A scene that lures Noke down onto the ground uses `03c-compound-L0-ground` (the grounds, huts and outhouse) with the lower platform `03d` as the vantage the apes hold; a fight that stays inside uses `03e` (hall) and `03f` (bedroom). The pegged `03g` stack shows all of it at once. Files live in `../03-house-in-the-woods/`."
+  },
+  {
+   "id": "05-big-choices-consequences-not-like-this",
+   "title": "Big Choices \u00b7 Consequences \u00b7 Not Like This... \u2014 the epilogue",
+   "pointsTo": [
+    "01-tavern",
+    "01-tavern"
+   ],
+   "note": "No new geometry: the closing scenes (using the damaged wand, its consequences, and the ending where things go wrong) return to the tavern. Use `01a-tavern-L0` and `01b-tavern-L1` from `../01-baaaa-d-news/`, or the bedroom `03f` if the ending is played at the compound."
+  }
+ ]
+}

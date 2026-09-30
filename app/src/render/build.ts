@@ -189,7 +189,7 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
     if (openMode && o.kind !== 'claw-chest-skeleton' && !(SCATTER.has(o.kind) && o.vis === 'player')) openables.set(o.id, makeOpenable(obj, openMode, !!o.container?.open));
     if (SCATTER.has(o.kind) && o.vis === 'player') { scatter.push({ obj, o, p }); continue; }
     obj.position.copy(p);
-    if (o.kind === 'stairs-straight') obj.position.set(0, y0, 0);
+    if (o.kind === 'stairs-straight' || (o.kind === 'prism' && o.polygon)) obj.position.set(0, y0, 0);
     obj.rotation.y = ((o.rotY ?? 0) * Math.PI) / 180;
     obj.userData.objectId = o.id;
     obj.traverse((c) => { if (!c.userData.role) c.userData.role = o.size ? 'token' : 'prop'; });
@@ -260,6 +260,15 @@ function buildObject(o: SceneObject, y0: number, labels: LabelSpec[]): THREE.Obj
     mesh.userData.role = 'stairs';
     treadLabels.forEach((t, i) => labels.push({ id: `tread:${o.id}:${i}`, text: t.text, pos: t.pos.clone().setY(t.pos.y + y0), vis: 'player', kind: 'tread' }));
     return mesh;
+  }
+  if (o.kind === 'prism' && o.polygon) {
+    // A flat-topped block on the floor with the given plan (raised ground, a deck, a road crown).
+    const shape = new THREE.Shape(o.polygon.map(([x, z]) => new THREE.Vector2(x, z)));
+    const h = o.dims?.h ?? 1, y = o.dims?.y ?? 0;
+    const geo = new THREE.ExtrudeGeometry(shape, { depth: h, bevelEnabled: false }).rotateX(Math.PI / 2).translate(0, y + h, 0);
+    const color = o.dims?.color !== undefined ? '#' + o.dims.color.toString(16).padStart(6, '0') : PALETTE.stone;
+    const m = new THREE.Mesh(geo, mat(color)); m.userData.role = 'floor';
+    const g = new THREE.Group(); g.add(m); return g;
   }
   if (o.kind === 'pressure-plate') {
     const g = new THREE.Group();

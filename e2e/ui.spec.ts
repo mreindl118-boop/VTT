@@ -75,3 +75,18 @@ test('initiative: tokens per combatant, green/red ranges on the current turn, mo
   await page.evaluate(() => (window as any).__mistlab.app.endEncounter());
   expect(await page.evaluate(() => { const a = (window as any).__mistlab.app; return [a.tokensHere().length, a.party?.role, !!a.built.root.getObjectByName('range-overlay')]; })).toEqual([1, 'party', false]);
 });
+
+test('campaigns: opening another module switches its manifest, world map and saved state', async ({ page }) => {
+  await boot(page, '', SCENES[0]);
+  await page.evaluate(() => { const a = (window as any).__mistlab.app; a.state.roster[0].name = 'Strahd-side fighter'; a.commit(); return a.flush(); });
+  await page.evaluate(() => (window as any).__mistlab.app.open('wsc/01-tavern'));
+  await page.waitForTimeout(300);
+  const r = await page.evaluate(() => { const a = (window as any).__mistlab.app; return { camp: a.campaign.id, roster: a.state.roster[0].name, world: a.state.world?.key, levels: a.cur.scene.levels.length }; });
+  expect(r).toEqual({ camp: 'wsc', roster: 'Fighter', world: '1', levels: 2 });
+  await page.click('[data-act="world"]');
+  await expect(page.locator('.sheet.world h2')).toContainText('Country');
+  await page.keyboard.press('Escape');
+  await page.evaluate(() => (window as any).__mistlab.app.open('appB/death-house'));
+  await page.waitForTimeout(300);
+  expect(await page.evaluate(() => { const a = (window as any).__mistlab.app; return [a.campaign.id, a.state.roster[0].name]; })).toEqual(['cos', 'Strahd-side fighter']);
+});

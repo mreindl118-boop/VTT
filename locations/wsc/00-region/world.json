@@ -1,0 +1,385 @@
+{
+ "schema": 1,
+ "name": "The Country Round the Town",
+ "page": null,
+ "milesPerHex": 1,
+ "note": "Hex codes from the export: T town, G pasture, R road, P path, W/F woodland and forest, H hills, S stream, C the compound clearing.",
+ "bounds": {
+  "minX": 0,
+  "minY": 0,
+  "maxX": 12.5,
+  "maxY": 8.083
+ },
+ "pins": [
+  {
+   "key": "1",
+   "name": "The Tavern",
+   "pos": [
+    2.5,
+    4.041
+   ],
+   "type": "settlement",
+   "scenes": [
+    "wsc/01-tavern"
+   ]
+  },
+  {
+   "key": "2",
+   "name": "The Street",
+   "pos": [
+    3.5,
+    4.041
+   ],
+   "type": "settlement",
+   "scenes": [
+    "wsc/02-street"
+   ]
+  },
+  {
+   "key": "3",
+   "name": "The Main Road",
+   "pos": [
+    6.5,
+    4.041
+   ],
+   "type": "landmark",
+   "scenes": [
+    "wsc/03a-road"
+   ]
+  },
+  {
+   "key": "4",
+   "name": "The Side Path",
+   "pos": [
+    9.0,
+    3.175
+   ],
+   "type": "landmark",
+   "scenes": [
+    "wsc/03b-path"
+   ]
+  },
+  {
+   "key": "5",
+   "name": "Noke's Tower",
+   "pos": [
+    9.5,
+    2.309
+   ],
+   "type": "landmark",
+   "scenes": [
+    "wsc/03-compound"
+   ]
+  }
+ ],
+ "roads": [
+  {
+   "name": "Main road",
+   "pts": [
+    [
+     3.5,
+     4.041
+    ],
+    [
+     4.5,
+     4.041
+    ],
+    [
+     5.5,
+     4.041
+    ],
+    [
+     6.5,
+     4.041
+    ],
+    [
+     7.5,
+     4.041
+    ],
+    [
+     8.5,
+     4.041
+    ],
+    [
+     9.5,
+     4.041
+    ],
+    [
+     10.5,
+     4.041
+    ],
+    [
+     11.5,
+     4.041
+    ]
+   ]
+  },
+  {
+   "name": "Main road",
+   "pts": [
+    [
+     2.5,
+     4.041
+    ],
+    [
+     2.0,
+     4.907
+    ],
+    [
+     1.0,
+     4.907
+    ]
+   ]
+  },
+  {
+   "name": "Side path",
+   "pts": [
+    [
+     6.5,
+     4.041
+    ],
+    [
+     8.0,
+     3.175
+    ],
+    [
+     9.0,
+     3.175
+    ],
+    [
+     8.5,
+     2.309
+    ],
+    [
+     9.5,
+     2.309
+    ]
+   ]
+  }
+ ],
+ "rivers": [
+  {
+   "name": "Stream",
+   "pts": [
+    [
+     1.0,
+     6.64
+    ],
+    [
+     2.0,
+     6.64
+    ],
+    [
+     2.5,
+     5.774
+    ],
+    [
+     3.5,
+     5.774
+    ],
+    [
+     5.0,
+     4.907
+    ],
+    [
+     6.0,
+     4.907
+    ],
+    [
+     7.0,
+     4.907
+    ],
+    [
+     8.0,
+     4.907
+    ],
+    [
+     8.5,
+     4.041
+    ],
+    [
+     10.0,
+     3.175
+    ],
+    [
+     10.5,
+     2.309
+    ],
+    [
+     12.0,
+     1.443
+    ]
+   ]
+  }
+ ],
+ "lakes": [],
+ "peaks": [
+  {
+   "name": "The hills",
+   "pos": [
+    9.5,
+    5.774
+   ]
+  }
+ ],
+ "high": [
+  [
+   9.5,
+   5.774
+  ],
+  [
+   10.5,
+   5.774
+  ],
+  [
+   11.5,
+   5.774
+  ],
+  [
+   9.0,
+   6.64
+  ],
+  [
+   10.0,
+   6.64
+  ],
+  [
+   11.0,
+   6.64
+  ],
+  [
+   12.0,
+   6.64
+  ],
+  [
+   8.5,
+   7.506
+  ],
+  [
+   9.5,
+   7.506
+  ],
+  [
+   10.5,
+   7.506
+  ],
+  [
+   11.5,
+   7.506
+  ]
+ ],
+ "woods": [
+  {
+   "name": "Dense Forest",
+   "pos": [
+    0.5,
+    0.577
+   ]
+  },
+  {
+   "name": "Dense Forest",
+   "pos": [
+    1.5,
+    0.577
+   ]
+  },
+  {
+   "name": "Dense Forest",
+   "pos": [
+    2.5,
+    0.577
+   ]
+  },
+  {
+   "name": "Dense Forest",
+   "pos": [
+    3.5,
+    0.577
+   ]
+  },
+  {
+   "name": "Dense Forest",
+   "pos": [
+    4.5,
+    0.577
+   ]
+  },
+  {
+   "name": "Dense Forest",
+   "pos": [
+    5.5,
+    0.577
+   ]
+  },
+  {
+   "name": "Dense Forest",
+   "pos": [
+    1.0,
+    1.443
+   ]
+  },
+  {
+   "name": "Dense Forest",
+   "pos": [
+    2.0,
+    1.443
+   ]
+  },
+  {
+   "name": "Dense Forest",
+   "pos": [
+    3.0,
+    1.443
+   ]
+  },
+  {
+   "name": "Sparse Oak Woodland",
+   "pos": [
+    10.0,
+    1.443
+   ]
+  },
+  {
+   "name": "Sparse Oak Woodland",
+   "pos": [
+    7.5,
+    2.309
+   ]
+  },
+  {
+   "name": "Sparse Oak Woodland",
+   "pos": [
+    8.5,
+    2.309
+   ]
+  },
+  {
+   "name": "Sparse Oak Woodland",
+   "pos": [
+    10.5,
+    2.309
+   ]
+  },
+  {
+   "name": "Sparse Oak Woodland",
+   "pos": [
+    8.0,
+    3.175
+   ]
+  },
+  {
+   "name": "Sparse Oak Woodland",
+   "pos": [
+    9.0,
+    3.175
+   ]
+  },
+  {
+   "name": "Sparse Oak Woodland",
+   "pos": [
+    10.0,
+    3.175
+   ]
+  }
+ ]
+}

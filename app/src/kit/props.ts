@@ -444,3 +444,29 @@ Object.assign(PROPS_V1, {
   'crossbow-rack': crossbowRack, sacks, 'hanging-pots': hangingPots, 'brass-bell': brassBell, tabletop, 'rolling-ladder': rollingLadder,
   'bricked-window': brickedWindow, footprints, 'sheeted-shape': sheetedShape,
 } as Record<string, (d: Dims) => THREE.Object3D>);
+
+// ---------------------------------------------------------------- kit v4: mapset pieces (runs, prisms, trunks)
+/** A straight stair run from the origin along +x: `len` ft long, `w` wide, rising `rise` ft. Rotate with rotY. */
+export function stairsRun(d: Dims): THREE.Group {
+  const len = d.len ?? 10, w = d.w ?? 5, rise = d.rise ?? 10, steps = Math.max(2, Math.round(rise / 0.75));
+  const g = g_();
+  for (let i = 0; i < steps; i++) {
+    const h = ((i + 1) / steps) * rise, x0 = (i / steps) * len, x1 = len;
+    const m = box(x1 - x0, h, w, i % 2 ? PALETTE.wood : PALETTE.woodDark, (x0 + x1) / 2, h / 2, 0);
+    m.userData.role = 'stairs';
+    g.add(m);
+  }
+  return g;
+}
+/** A round timber post (structural) from the floor up `h` ft. */
+export function postRound(d: Dims): THREE.Group { const r = d.r ?? 1, h = d.h ?? 10; return g_(cyl(r * 0.9, r, h, PALETTE.woodDark, 0, h / 2, 0, 10)); }
+/** An oak: trunk of radius `r` and height `h`, a canopy when `canopy` > 0 (free-standing trees), a stub otherwise. */
+export function oak(d: Dims): THREE.Group {
+  const r = d.r ?? 1.25, h = d.h ?? 20, c = d.canopy ?? 0;
+  const g = g_(cyl(r * 0.8, r * 1.15, h, '#4a3524', 0, h / 2, 0, 9));
+  if (c > 0) {
+    for (let i = 0; i < 4; i++) { const m = new THREE.Mesh(new THREE.IcosahedronGeometry(c * (0.55 + (i % 2) * 0.2), 1), mat(i % 2 ? '#2f5a35' : '#3a6b3d')); m.position.set(Math.cos(i * 1.7) * c * 0.35, h * 0.92 + (i % 3) * c * 0.2, Math.sin(i * 1.7) * c * 0.35); g.add(m); }
+  }
+  return g;
+}
+Object.assign(PROPS_V1, { 'stairs-run': stairsRun, 'post-round': postRound, oak } as Record<string, (d: Dims) => THREE.Object3D>);

@@ -190,3 +190,18 @@
   line. Moving onto a green square spends that movement; the players' side may not move outside it or on
   someone else's turn. The DM may place a token anywhere (no movement spent). `core/range.ts` is unit-tested.
 - Turn bar with the order, round, movement left, Next (or N) / previous / End; shown on the Player Display too.
+
+## M2.3 Campaigns — 2026-09-30
+
+- Campaign registry (`manifests/campaigns.json`, `app/src/campaigns.ts`): each campaign has its own manifest,
+  world map and saved state; the library's top row switches between them and opening a location switches to
+  its campaign, saving the previous one. See `docs/CAMPAIGNS.md`.
+- A Wild Sheep Chase (Winghorn Press) imported from a `tabletop-mapset 1.0` export with
+  `scripts/authoring/import-mapset.py`: the tavern (two floors), the street, the main road, the side path and
+  Noke's tower (four platforms at 0/10/20/30 ft with stair runs and vertical links). Floors → rooms and terrain,
+  walls clipped by their openings with door and window flags, posts → oaks and timber posts, raised patches →
+  prisms (undergrowth noted as difficult terrain), the stream → water, decals → terrain. The export's DM notes
+  ride along as room notes; pointer sections show in the library as "uses …". Regional hex map → world map
+  with the route's five stops as pins.
+- New kit pieces: `stairs-run` (any bearing), `prism` (polygon-shaped block), `oak`, `post-round`. World-map
+  terrain density scales with the map; one label per named tract; the outdoor ground apron is a full disc.
