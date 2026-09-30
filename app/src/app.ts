@@ -202,7 +202,9 @@ export class App {
     const l0 = scene.levels[0], outdoor = !!pin && !!l0.terrain?.length && (scene.ambient ?? l0.ambient) !== 'darkness';
     if (outdoor) {
       const bb = bounds([...l0.rooms.map((r) => r.polygon), ...(l0.terrain ?? []).map((t) => t.polygon)]);
-      this.backdrop = buildBackdrop({ center: [(bb.minX + bb.maxX) / 2, (bb.minZ + bb.maxZ) / 2], radius: Math.hypot(bb.maxX - bb.minX, bb.maxZ - bb.minZ) / 2, elevation: l0.elevationFt, pin: pin!.pos as Vec2, world: worldOf(this.campaign), theme: this.campaign.theme, valley: !!scene.valley });
+      const roadLike = (f: string | undefined, name = '') => f === 'cobble' || f === 'dirt' || /road|street|lane|square|path|trail|track/i.test(name);
+      const roads = [...l0.rooms.filter((r) => roadLike(r.floor, r.name)).map((r) => r.polygon), ...(l0.terrain ?? []).filter((t) => roadLike(t.floor)).map((t) => t.polygon)];
+      this.backdrop = buildBackdrop({ center: [(bb.minX + bb.maxX) / 2, (bb.minZ + bb.maxZ) / 2], radius: Math.hypot(bb.maxX - bb.minX, bb.maxZ - bb.minZ) / 2, elevation: l0.elevationFt, pin: pin!.pos as Vec2, world: worldOf(this.campaign), theme: this.campaign.theme, valley: !!scene.valley, bounds: bb, north: l0.north, roads });
       this.world.scene.add(this.backdrop);
     }
     this.world.setOutdoor(outdoor);

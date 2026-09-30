@@ -10,7 +10,13 @@ let MIST = new THREE.Color('#2b2733');
 const blend = (hex: string, t: number) => new THREE.Color(hex).lerp(MIST, Math.min(1, Math.max(0, t)));
 const lambert = (c: THREE.Color) => new THREE.MeshLambertMaterial({ color: c, fog: false, flatShading: true });
 
-export interface BackdropOpts { center: P; radius: number; elevation: number; pin: P; world: WorldData; theme: Theme; valley?: boolean }
+export interface BackdropOpts {
+  center: P; radius: number; elevation: number; pin: P; world: WorldData; theme: Theme; valley?: boolean;
+  /** The map's own extent (ft) and which plan axis points north; default -z. */
+  bounds?: { minX: number; minZ: number; maxX: number; maxZ: number }; north?: '-z' | '+z' | '-x' | '+x';
+  /** The map's roads (cobbles, dirt, lanes): a world road leaving the site starts where one of these ends. */
+  roads?: P[][];
+}
 
 export function buildBackdrop(o: BackdropOpts): THREE.Group {
   const W = o.world, T = o.theme, V = o.valley ? 2.2 : 1;
@@ -31,31 +37,78 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
   apronMesh.rotation.x = -Math.PI / 2; apronMesh.position.set(cx, y0 - 0.35, cz);
   g.add(apronMesh);
 
+  // World-map positions at TRUE scale: miles → feet, x east, z south. Distant things are hazed by distance
+  // (pre-blended toward the mist), never fogged by the map's own fog.
+  const FT = 5280;
+  // The map's north axis: world east/south (map x/y) turn into plan x/z accordingly.
+  const N: P = o.north === '+z' ? [0, 1] : o.north === '-x' ? [-1, 0] : o.north === '+x' ? [1, 0] : [0, -1];
+  const E: P = [-N[1], N[0]], S: P = [-N[0], -N[1]];
+  const toPlan = (w: P) => { const dx = (w[0] - o.pin[0]) * FT, dy = (w[1] - o.pin[1]) * FT; return [E[0] * dx + S[0] * dy, E[1] * dx + S[1] * dy] as P; };
+  const toWorld = (w: P) => { const [dx, dz] = toPlan(w); return { x: cx + dx, z: cz + dz, d: Math.hypot(dx, dz) }; };
+  const haze = (d: number) => Math.min(0.85, 1 - Math.exp(-d / 32000));
+  const hazed = (hex: string, d: number) => lambert(blend(hex, haze(d)));
+  // Roads and rivers from the world map, in plan feet. A road through this site leaves from the far end of the
+  // map's own road in that direction (else the map's edge); the forest and the ridges make way for it.
+  type Path = { pts: { x: number; z: number }[]; w: number; hex: string };
+  const roadPaths: Path[] = [], riverPaths: Path[] = [], roadBearings: number[] = [];
+  // Where a road leaving the site in a direction starts: the far end of the map's own road that reaches
+  // farthest that way, else the map's edge.
+  const bb = o.bounds ?? { minX: cx - R, maxX: cx + R, minZ: cz - R, maxZ: cz + R };
+  const exitFor = (bearing: number) => {
+    const ux = Math.cos(bearing), uz = Math.sin(bearing);
+    let best: { proj: number; pts: P[] } | undefined;
+    for (const poly of o.roads ?? []) {
+      let mx = -Infinity; for (const [x, z] of poly) mx = Math.max(mx, (x - cx) * ux + (z - cz) * uz);
+      if (!best || mx > best.proj) best = { proj: mx, pts: poly.filter(([x, z]) => (x - cx) * ux + (z - cz) * uz > mx - 6) };
+    }
+    if (best && best.proj > R * 0.25) { const n = best.pts.length; return { x: best.pts.reduce((a, p) => a + p[0], 0) / n, z: best.pts.reduce((a, p) => a + p[1], 0) / n }; }
+    const ts = [ux > 0 ? (bb.maxX - cx) / ux : ux < 0 ? (bb.minX - cx) / ux : Infinity, uz > 0 ? (bb.maxZ - cz) / uz : uz < 0 ? (bb.minZ - cz) / uz : Infinity];
+    const t = Math.min(...ts); return { x: cx + ux * t, z: cz + uz * t };
+  };
+  for (const road of W.roads) {
+    const path = /path|trail|track/i.test(road.name), w = path ? 9 : 16, hex = path ? '#6d6150' : '#7a6c5a';
+    const ds = road.pts.map((p) => toWorld(p).d);
+    const near = ds.indexOf(Math.min(...ds));
+    if (ds[near] > 0.5 * FT) { // passes elsewhere: draw it whole
+      const pts = road.pts.map(toWorld).filter((t) => t.d < 70000); if (pts.length > 1) roadPaths.push({ pts, w, hex });
+      continue;
+    }
+    // Through this site: each half leaves from the map's own road in that direction.
+    for (const half of [road.pts.slice(0, near + 1).reverse(), road.pts.slice(near)]) {
+      const out = half.map(toWorld).filter((t) => t.d > R + 150 && t.d < 70000);
+      if (!out.length) continue;
+      const bearing = Math.atan2(out[0].z - cz, out[0].x - cx);
+      roadBearings.push(bearing);
+      roadPaths.push({ pts: [exitFor(bearing), ...out], w, hex });
+    }
+  }
+  for (const river of W.rivers) {
+    const pts = river.pts.map(toWorld).filter((t) => t.d < 70000); if (pts.length > 1) riverPaths.push({ pts, w: 40, hex: '#5e7d94' });
+  }
+  const nearRoad = (x: number, z: number, within: number) => roadPaths.some((r) => { for (let i = 0; i + 1 < r.pts.length; i++) { const a = r.pts[i], b = r.pts[i + 1]; const dx = b.x - a.x, dz = b.z - a.z, L2 = dx * dx + dz * dz || 1; const t = Math.max(0, Math.min(1, ((x - a.x) * dx + (z - a.z) * dz) / L2)); if (Math.hypot(x - a.x - dx * t, z - a.z - dz * t) < within + r.w / 2) return true; } return false; });
+
   // 2. Forest ring: instanced pines from just past the edge out to the tree line.
   const tree = new THREE.ConeGeometry(6, 28, 6); tree.translate(0, 14, 0);
   const n = o.valley ? 1500 : 900, trees = new THREE.InstancedMesh(tree, new THREE.MeshLambertMaterial({ fog: false, flatShading: true }), n);
   const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), s = new THREE.Vector3(), p = new THREE.Vector3();
   for (let i = 0; i < n; i++) {
     const a = rnd() * Math.PI * 2, d = R + 45 + Math.pow(rnd(), 1.3) * 1000, k = 0.6 + rnd() * 0.6;
-    p.set(cx + Math.cos(a) * d, y0, cz + Math.sin(a) * d); s.set(k, k * (0.9 + rnd() * 0.4), k); m4.compose(p, q, s);
+    const tx = cx + Math.cos(a) * d, tz = cz + Math.sin(a) * d;
+    if (nearRoad(tx, tz, 14)) { s.set(0, 0, 0); p.set(tx, y0 - 50, tz); m4.compose(p, q, s); trees.setMatrixAt(i, m4); continue; } // a ride through the wood for the road
+    p.set(tx, y0, tz); s.set(k, k * (0.9 + rnd() * 0.4), k); m4.compose(p, q, s);
     trees.setMatrixAt(i, m4); trees.setColorAt(i, blend(i % 3 ? T.forest[0] : T.forest[1], (d - R) / 1100));
   }
   g.add(trees);
 
-  // World-map positions at TRUE scale: miles → feet, x east, z south. Distant things are hazed by distance
-  // (pre-blended toward the mist), never fogged by the map's own fog.
-  const FT = 5280;
-  const toWorld = (w: P) => { const dx = (w[0] - o.pin[0]) * FT, dz = (w[1] - o.pin[1]) * FT; return { x: cx + dx, z: cz + dz, d: Math.hypot(dx, dz) }; };
-  const haze = (d: number) => Math.min(0.85, 1 - Math.exp(-d / 32000));
-  const hazed = (hex: string, d: number) => lambert(blend(hex, haze(d)));
 
   // 3. Valley walls: two rings of ridges near the site, higher where the world map has high ground in that direction.
   const highAll = [...W.high, ...W.peaks.map((x) => x.pos)];
   // Bearings toward mapped places within a few miles stay open, so those places show in the distance.
-  const openB = W.pins.filter((p) => p.scenes?.length && Math.hypot(p.pos[0] - o.pin[0], p.pos[1] - o.pin[1]) > 0.05 && Math.hypot(p.pos[0] - o.pin[0], p.pos[1] - o.pin[1]) < 6).map((p) => Math.atan2(p.pos[1] - o.pin[1], p.pos[0] - o.pin[0]));
+  const openB = W.pins.filter((p) => p.scenes?.length && Math.hypot(p.pos[0] - o.pin[0], p.pos[1] - o.pin[1]) > 0.05 && Math.hypot(p.pos[0] - o.pin[0], p.pos[1] - o.pin[1]) < 6).map((p) => { const [dx, dz] = toPlan(p.pos); return Math.atan2(dz, dx); });
+  openB.push(...roadBearings);
   const openness = (bearing: number) => openB.reduce((k, b) => { const db = Math.abs(Math.atan2(Math.sin(b - bearing), Math.cos(b - bearing))); return Math.min(k, 0.25 + 0.75 * Math.min(1, db / 0.35)); }, 1);
   const heightAt = (bearing: number) => openness(bearing) * highAll.reduce((h, w) => {
-    const dx = w[0] - o.pin[0], dy = w[1] - o.pin[1], b = Math.atan2(dy, dx), mi = Math.hypot(dx, dy);
+    const [dx, dz] = toPlan(w), b = Math.atan2(dz, dx), mi = Math.hypot(dx, dz) / FT;
     const db = Math.abs(Math.atan2(Math.sin(b - bearing), Math.cos(b - bearing)));
     return h + Math.exp(-(db * db) / 0.12) * Math.exp(-mi / 7) * 260;
   }, 120 * V);
@@ -63,9 +116,11 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
     const count = ring ? 70 : 90;
     for (let i = 0; i < count; i++) {
       const b = (i / count) * Math.PI * 2 + rnd() * 0.08, h = heightAt(b) * (ring ? 1.6 : 1) * (0.75 + rnd() * 0.5), d = dist + R + rnd() * 250;
-      const geo = new THREE.ConeGeometry(h * (0.8 + rnd() * 0.4), h, 5); geo.translate(0, h / 2, 0);
+      const rx = cx + Math.cos(b) * d, rz = cz + Math.sin(b) * d, base = h * (0.8 + rnd() * 0.4);
+      if (nearRoad(rx, rz, base * 0.6)) continue; // the road passes through a gap in the ridge
+      const geo = new THREE.ConeGeometry(base, h, 5); geo.translate(0, h / 2, 0);
       const m = new THREE.Mesh(geo, lambert(blend(col, ring ? 0.45 : 0.25)));
-      m.position.set(cx + Math.cos(b) * d, y0 - 10, cz + Math.sin(b) * d); m.rotation.y = rnd() * Math.PI;
+      m.position.set(rx, y0 - 10, rz); m.rotation.y = rnd() * Math.PI;
       g.add(m);
     }
   }
@@ -140,6 +195,24 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
     g.add(s);
   };
   for (const p of W.pins) { if (Math.hypot(p.pos[0] - o.pin[0], p.pos[1] - o.pin[1]) < 0.05) continue; site(p); }
+
+  // 5. Roads and rivers from the world map at true scale, as flat ribbons on the land. They run under the
+  //    map itself (its floors sit above the apron), so only the stretches outside the map show.
+  const ribbon = (pts: { x: number; z: number }[], w: number, hex: string, y: number) => {
+    const P3: number[] = [], C: number[] = [], h = w / 2;
+    const col = (x: number, z: number) => { const c = blend(hex, haze(Math.hypot(x - cx, z - cz))); C.push(c.r, c.g, c.b); };
+    const tri = (a: [number, number], b: [number, number], c: [number, number]) => { for (const [x, z] of [a, b, c]) { P3.push(x, y, z); col(x, z); } };
+    for (let i = 0; i + 1 < pts.length; i++) {
+      const p = pts[i], q = pts[i + 1], dx = q.x - p.x, dz = q.z - p.z, L = Math.hypot(dx, dz) || 1, nx = (-dz / L) * h, nz = (dx / L) * h;
+      tri([p.x + nx, p.z + nz], [p.x - nx, p.z - nz], [q.x + nx, q.z + nz]); tri([p.x - nx, p.z - nz], [q.x - nx, q.z - nz], [q.x + nx, q.z + nz]);
+      if (i) for (let k = 0; k < 8; k++) { const a0 = (k / 8) * Math.PI * 2, a1 = ((k + 1) / 8) * Math.PI * 2; tri([p.x, p.z], [p.x + Math.cos(a0) * h, p.z + Math.sin(a0) * h], [p.x + Math.cos(a1) * h, p.z + Math.sin(a1) * h]); }
+    }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(P3, 3)); geo.setAttribute('color', new THREE.Float32BufferAttribute(C, 3));
+    g.add(new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ vertexColors: true, fog: false, side: THREE.DoubleSide })));
+  };
+  for (const r of roadPaths) ribbon(r.pts, r.w, r.hex, y0 - 0.16);
+  for (const r of riverPaths) ribbon(r.pts, r.w, r.hex, y0 - 0.18);
   g.traverse((c) => { c.userData.role = 'backdrop'; });
   return g;
 }

@@ -10,7 +10,8 @@ export's own structural summaries, not module text).
 
 Usage: import-mapset.py <campaign-id>   (reads reference/imports/<id>/mapset.json)
 """
-import json, math, sys
+import json
+import math, sys
 from collections import OrderedDict
 
 CAMP = sys.argv[1] if len(sys.argv) > 1 else 'wsc'
@@ -205,11 +206,26 @@ for p in pins:
         same.setdefault('scenes', []); [same['scenes'].append(s) for s in p.get('scenes', []) if s not in same['scenes']]
     else: merged.append(p)
 pins = merged
+
+
+def join_roads(roads):
+    # The export's road runs stop one hex short of each other where a town hex sits between them: bridge the
+    # gap so the road is continuous through the town (a gap under a hex and a half is a gap, not a fork).
+    out = list(roads)
+    for i, a in enumerate(roads):
+        for b in roads[i + 1:]:
+            ends = [(a['pts'][0], b['pts'][-1]), (a['pts'][-1], b['pts'][0]), (a['pts'][0], b['pts'][0]), (a['pts'][-1], b['pts'][-1])]
+            gap = min(ends, key=lambda e: math.hypot(e[0][0] - e[1][0], e[0][1] - e[1][1]))
+            d = math.hypot(gap[0][0] - gap[1][0], gap[0][1] - gap[1][1])
+            if 0.01 < d <= 1.5 * f: out.append(OrderedDict(name=a['name'], pts=[list(gap[0]), list(gap[1])]))
+    return out
+
+
 world = OrderedDict(schema=1, name=R['poster_title'] if R.get('poster_title') else 'The region', page=None, milesPerHex=1,
     note='Hex codes from the export: T town, G pasture, R road, P path, W/F woodland and forest, H hills, S stream, C the compound clearing.',
     bounds=OrderedDict(minX=0, minY=0, maxX=r3(R['hex']['cols'] * f + f / 2), maxY=r3(h / 2 + (R['hex']['rows'] - 1) * 0.75 * h + h / 2)),
     pins=pins,
-    roads=[OrderedDict(name='Main road', pts=[hx(*c) for c in rd]) for rd in R['roads']] + [OrderedDict(name='Side path', pts=[hx(*c) for c in rd]) for rd in R['paths']],
+    roads=join_roads([OrderedDict(name='Main road', pts=[hx(*c) for c in rd]) for rd in R['roads']]) + [OrderedDict(name='Side path', pts=[hx(*c) for c in rd]) for rd in R['paths']],
     rivers=[OrderedDict(name='Stream', pts=[hx(*c) for c in st]) for st in R['streams']],
     lakes=[], peaks=[OrderedDict(name='The hills', pos=hx(*k)) for k in list(k for k in cells if cells[k]['code'] == 'H')[:1]], high=high, woods=woods)
 os.makedirs(f'{out_root}/00-region', exist_ok=True)
