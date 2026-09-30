@@ -29,5 +29,10 @@ export const ICON = {
   list: svg('<path d="M8 6h12M8 12h12M8 18h12"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/>'),
   help: svg('<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7M12 17h.01"/>'),
   stairs: svg('<path d="M4 20h4v-4h4v-4h4V8h4"/>'),
+  doorClosed: svg('<path d="M6 3h12v18H6z"/><path d="M14.5 12h.01" stroke-width="2.4"/>'),
+  doorOpen: svg('<path d="M6 3h12v18H6"/><path d="M6 3l7 2.5v18L6 21z"/><path d="M11 12.5h.01" stroke-width="2.4"/>'),
+  padlock: svg('<rect x="6" y="11" width="12" height="9" rx="1.5"/><path d="M9 11V8a3 3 0 016 0v3"/>'),
+  stairsUp: svg('<path d="M3 21h4v-4h4v-4h4V9h4V5"/><path d="M15 5h4v4"/>'),
+  stairsDown: svg('<path d="M3 5h4v4h4v4h4v4h4v4"/><path d="M19 17v4h-4"/>'),
   token: svg('<circle cx="12" cy="8" r="3.5"/><path d="M5 20c1-4 4-6 7-6s6 2 7 6"/>'),
 };

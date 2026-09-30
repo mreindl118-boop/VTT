@@ -118,10 +118,14 @@ body[data-view='players'] .lbl.key { display: none; }
 
 /* ---- affordances (M1.3) */
 #stage .labels .lbl.door, #stage .labels .lbl.link { pointer-events: auto; cursor: pointer; }
-.lbl.door { font-size: 10px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: #1d1b22; background: #f2b35b; border-radius: 999px; padding: 2px 7px; text-shadow: none; box-shadow: 0 1px 3px rgba(0,0,0,.4); }
-.lbl.door.open { background: #cfd6e8; color: #1d1b22; opacity: .85; }
-.lbl.door:hover { transform: scale(1.1); }
-.lbl.link { font-size: 11px; font-weight: 600; color: #fff; background: rgba(47, 74, 58, .92); border: 1px solid rgba(255,255,255,.35); border-radius: 999px; padding: 3px 9px; text-shadow: none; }
+.lbl.door { position: relative; width: 26px; height: 26px; border-radius: 50%; background: rgba(20, 18, 24, .78); border: 1.5px solid rgba(242, 179, 91, .95); color: #f2b35b; display: grid; place-items: center; text-shadow: none; box-shadow: 0 1px 4px rgba(0,0,0,.5); }
+.lbl.door i { display: none; line-height: 0; } .lbl.door i svg { width: 16px; height: 16px; }
+.lbl.door .closed { display: block; } .lbl.door.open .closed { display: none; } .lbl.door.open .opened { display: block; }
+.lbl.door.open { border-color: rgba(207, 214, 232, .8); color: #cfd6e8; opacity: .8; }
+.lbl.door b { position: absolute; right: -6px; top: -6px; width: 14px; height: 14px; border-radius: 50%; background: #7a1f2b; display: grid; place-items: center; line-height: 0; } .lbl.door b svg { width: 9px; height: 9px; color: #fff; }
+.lbl.door:hover { transform: scale(1.15); }
+.lbl.link { display: flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; color: #fff; background: rgba(47, 74, 58, .92); border: 1px solid rgba(255,255,255,.35); border-radius: 999px; padding: 2px 8px 2px 4px; text-shadow: none; }
+.lbl.link svg { width: 16px; height: 16px; }
 .lbl.link:hover { background: rgba(60, 96, 74, 1); }
 body[data-view='players'] .lbl.link { display: none; }
 .tapmenu { position: absolute; z-index: 5; min-width: 220px; padding: 4px; background: var(--bg); border: var(--hairline, 1px) solid var(--hair); border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,.3); display: flex; flex-direction: column; }

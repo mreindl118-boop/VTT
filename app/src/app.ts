@@ -15,6 +15,7 @@ import { fogUniforms, setOpacity } from './render/materials';
 import { setGridType } from './render/gridOverlay';
 import { World, type CameraPreset } from './render/world';
 import { loadLocation } from './data';
+import { ICON } from './ui/icons';
 import { Channel, type Msg } from './state/channel';
 import { newCampaign, revealSets, type CampaignState, type Reveal, type Token } from './state/campaign';
 import { idbGet, idbSet } from './state/idb';
@@ -127,8 +128,18 @@ export class App {
         if (this.mode === 'player' && spec.vis === 'dm-note') continue; // no DM UI on the Player Display
         const obj = this.world.label(spec.text, spec.sub, `${spec.kind} ${spec.vis}`);
         obj.position.copy(spec.pos);
-        if (spec.kind === 'door') obj.element.addEventListener('click', () => this.toggleDoor(spec.wallId!));
-        if (spec.kind === 'link') obj.element.addEventListener('click', () => this.takeLink(spec.linkId!));
+        if (spec.kind === 'door') {
+          const locked = spec.text === 'locked';
+          obj.element.innerHTML = `<i class="closed">${ICON.doorClosed}</i><i class="opened">${ICON.doorOpen}</i>${locked ? `<b>${ICON.padlock}</b>` : ''}`;
+          obj.element.title = locked ? 'Locked door' : 'Door';
+          if (locked) obj.element.classList.add('locked');
+          obj.element.addEventListener('click', () => this.toggleDoor(spec.wallId!));
+        }
+        if (spec.kind === 'link') {
+          const up = spec.text.startsWith('↑');
+          obj.element.innerHTML = `${up ? ICON.stairsUp : ICON.stairsDown}<span>${spec.text.slice(2)}</span>`;
+          obj.element.addEventListener('click', () => this.takeLink(spec.linkId!));
+        }
         b.root.add(obj);
         labels.push({ obj, spec, level: l.id });
       }
@@ -216,7 +227,9 @@ export class App {
     if (!t || !this.cur) return;
     if (t.level !== this.levelId) this.setLevel(t.level);
     const l = this.level;
-    this.world.moveTo(new THREE.Vector3(t.pos[0], l.elevationFt, t.pos[1]), undefined, animate);
+    // Close working distance: the party's room and its neighbours fill the screen.
+    const dist = Math.min(this.world.camera.position.distanceTo(this.world.controls.target), 75);
+    this.world.moveTo(new THREE.Vector3(t.pos[0], l.elevationFt, t.pos[1]), dist, animate);
   }
 
   /** Is this object currently shown to players (class + reveals + coverage)? */
