@@ -12,7 +12,7 @@ npm install
 npm run dev              # http://localhost:5173 (use your LAN IP on the iPad)
 npm test                 # unit tests (Vitest)
 npm run test:e2e         # acceptance tests (Playwright: build + preview + Chromium)
-npm run ocr              # OCR reference/curse-of-strahd.pdf into reference/ocr (gitignored)
+npm run ocr              # OCR reference/module/curse-of-strahd.pdf into reference/ocr (gitignored)
 node --experimental-strip-types scripts/manifest-report.ts   # flag manifest vs book mismatches
 ```
 

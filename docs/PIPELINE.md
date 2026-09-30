@@ -2,7 +2,7 @@
 
 ## From book to data
 
-1. `reference/curse-of-strahd.pdf` (gitignored).
+1. `reference/module/curse-of-strahd.pdf` (gitignored).
 2. `npm run ocr` → `reference/ocr/page-NNN.txt` (pdftoppm 300 DPI → tesseract).
 3. `node --experimental-strip-types scripts/manifest-report.ts` cross-checks every key/name in
    `manifests/*.json` against the OCR and prints **mismatches to flag** (never auto-renames).

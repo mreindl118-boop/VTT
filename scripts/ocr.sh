@@ -2,7 +2,8 @@
 # OCR the scanned book: pdftoppm @ 300 DPI -> tesseract -> reference/ocr/page-NNN.txt (PDF page index).
 # Resumable (skips pages already done) and parallel. Output stays in reference/ (gitignored).
 set -euo pipefail
-PDF="${1:-reference/curse-of-strahd.pdf}"
+PDF="${1:-reference/module/curse-of-strahd.pdf}"
+[ -f "$PDF" ] || [ ! -f reference/curse-of-strahd.pdf ] || PDF=reference/curse-of-strahd.pdf
 OUT="reference/ocr"
 command -v pdftoppm >/dev/null || { echo "need poppler-utils (pdftoppm)"; exit 1; }
 command -v tesseract >/dev/null || { echo "need tesseract-ocr"; exit 1; }

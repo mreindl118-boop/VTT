@@ -6,5 +6,8 @@ e2e/__screens__/
 # The book and everything derived from it never enter the repo.
 reference/*
 !reference/README.md
+!reference/module/
+reference/module/*
+!reference/module/README.md
 *.mistlab
 .DS_Store
