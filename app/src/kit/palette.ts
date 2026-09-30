@@ -15,10 +15,10 @@ export type PaletteKey = keyof typeof PALETTE;
 import type { FloorMaterial, WallMaterial } from '../core/schema';
 
 export const FLOOR_COLOR: Record<FloorMaterial, string> = {
-  flagstone: '#6a7078', plank: '#6b5240', dirt: '#5e5044', cobble: '#5f6167', grass: '#3d5241',
+  flagstone: '#737980', plank: '#755a46', dirt: '#66584a', cobble: '#5f6167', grass: '#3d5241',
   snow: '#c9ccd2', ice: '#9fb3c2', 'shallow-water': '#3e5566', marsh: '#3f4636',
 };
 export const WALL_COLOR: Record<WallMaterial, string> = {
   ashlar: '#7c858e', rubble: '#6d6860', 'half-timber': '#8a7f6e', log: '#5d4636', 'cave-rock': '#5b5752', amber: '#c9822e', plaster: '#8f8a84',
-  paneling: '#5a3f2c', 'paneling-dusty': '#6a5a4c', earth: '#5a4a38', brick: '#6e4a3c',
+  paneling: '#6e5140', 'paneling-dusty': '#75665a', earth: '#665646', brick: '#7a5648',
 };

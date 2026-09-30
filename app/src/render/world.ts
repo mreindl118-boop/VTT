@@ -2,7 +2,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { CSS2DObject, CSS2DRenderer } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
-import { PALETTE } from '../kit/palette';
 
 export type CameraPreset = 'tabletop' | 'top';
 
@@ -18,6 +17,7 @@ export class World {
   private frames = 0;
   private fpsT = performance.now();
   fps = 0;
+  mistFloor!: THREE.Mesh;
   private tween: { t0: number; dur: number; from: THREE.Vector3; to: THREE.Vector3; camFrom: THREE.Vector3; camTo: THREE.Vector3 } | null = null;
   /** Yaw in quarter turns (0..3); the camera sits south-east of the target at yaw 0. */
   yaw = 0;
@@ -27,8 +27,9 @@ export class World {
   onCamera: (() => void) | null = null;
 
   constructor(private host: HTMLElement) {
-    this.renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance', preserveDrawingBuffer: true });
+    this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance', preserveDrawingBuffer: true });
     this.renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    this.renderer.localClippingEnabled = true;
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     host.appendChild(this.renderer.domElement);
     this.renderer.domElement.classList.add('gl');
@@ -37,7 +38,13 @@ export class World {
     this.labelRenderer.domElement.classList.add('labels');
     host.appendChild(this.labelRenderer.domElement);
 
-    this.scene.background = new THREE.Color(PALETTE.fog);
+    // The map sits in a misty space, not a black void: transparent clear over a CSS gradient, distance fog, a wide mist floor.
+    this.renderer.setClearColor(0x000000, 0);
+    this.scene.fog = new THREE.FogExp2('#2b2733', 0.0032);
+    const mistFloor = new THREE.Mesh(new THREE.CircleGeometry(420, 48), new THREE.MeshBasicMaterial({ color: '#2a2631', transparent: true, opacity: 0.9 }));
+    mistFloor.rotation.x = -Math.PI / 2; mistFloor.position.y = -1.2; mistFloor.userData.role = 'marker'; mistFloor.name = 'mist-floor';
+    this.scene.add(mistFloor);
+    this.mistFloor = mistFloor;
     this.camera = new THREE.PerspectiveCamera(30, 1, 2, 4000);
     this.camera.position.set(30, 70, 90);
 
@@ -57,10 +64,10 @@ export class World {
     this.renderer.domElement.addEventListener('contextmenu', (e) => e.preventDefault());
     this.controls.addEventListener('change', () => { this.invalidate(); this.onCamera?.(); });
 
-    this.hemi = new THREE.HemisphereLight('#b9c3d6', '#2a2530', 1.4);
+    this.hemi = new THREE.HemisphereLight('#c8ccd8', '#3a3138', 1.6);
     this.scene.add(this.hemi);
-    this.key = new THREE.DirectionalLight('#c9d2e6', 0.9);
-    this.key.position.set(-40, 80, 30);
+    this.key = new THREE.DirectionalLight('#f0e2c8', 1.1);
+    this.key.position.set(-40, 90, 50);
     this.scene.add(this.key);
 
     new ResizeObserver(() => this.resize()).observe(host);
@@ -98,7 +105,7 @@ export class World {
 
   /** Camera offset from the target for the current azimuth (free, from the gesture) and tilt band. */
   private rigOffset(dist: number, azimuthDelta = 0): THREE.Vector3 {
-    const pitch = this.tilt ? Math.PI * 0.06 : Math.PI * 0.25; // angle from vertical: 45° tabletop, near-vertical top-down
+    const pitch = this.tilt ? Math.PI * 0.06 : Math.PI * 0.22; // angle from vertical: ~50° tabletop, near-vertical top-down
     const a = this.controls.getAzimuthalAngle() + azimuthDelta;
     return new THREE.Vector3(Math.sin(pitch) * Math.sin(a) * dist, Math.cos(pitch) * dist, Math.sin(pitch) * Math.cos(a) * dist);
   }
@@ -110,7 +117,7 @@ export class World {
     const r = Math.hypot(box.maxX - box.minX, box.maxZ - box.minZ) / 2 + 4;
     const vHalf = THREE.MathUtils.degToRad(this.camera.fov / 2);
     const hHalf = Math.atan(Math.tan(vHalf) * this.camera.aspect);
-    const d = Math.min(this.controls.maxDistance, Math.max(40, (r / Math.sin(Math.min(vHalf, hHalf))) * 0.78));
+    const d = Math.min(this.controls.maxDistance, Math.max(40, (r / Math.sin(Math.min(vHalf, hHalf))) * 0.9));
     this.moveTo(new THREE.Vector3(cx, y, cz), d, animate);
   }
 
@@ -118,6 +125,7 @@ export class World {
   moveTo(target: THREE.Vector3, dist = this.camera.position.distanceTo(this.controls.target), animate = true, azimuthDelta = 0): void {
     const camTo = target.clone().add(this.rigOffset(dist, azimuthDelta));
     if (!animate) {
+      this.tween = null; // an instant move cancels any glide still in flight
       this.controls.target.copy(target); this.camera.position.copy(camTo); this.camera.lookAt(target); this.controls.update(); this.invalidate();
       return;
     }
@@ -144,8 +152,8 @@ export class World {
 
   /** DM work light: lifts the scene so the DM can read unlit rooms; players keep the true darkness. */
   setWorkLight(k: number): void {
-    this.hemi.intensity = 1.4 + 2.2 * k;
-    this.key.intensity = 0.9 + 0.8 * k;
+    this.hemi.intensity = 1.6 + 1.8 * k;
+    this.key.intensity = 1.1 + 0.6 * k;
     this.invalidate();
   }
 

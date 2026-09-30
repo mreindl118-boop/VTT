@@ -90,3 +90,14 @@ export function setOpacity(m: THREE.Material, o: number): void {
   m.opacity = transparent ? o : 1;
   m.depthWrite = !transparent;
 }
+
+/** Cutaway plane for walls and doors: everything above `y` is clipped while low walls are on. Real proportions stay. */
+export const WALL_CLIP = new THREE.Plane(new THREE.Vector3(0, -1, 0), 1e6);
+export function setWallCut(y: number | null): void { WALL_CLIP.constant = y === null ? 1e6 : y; }
+/** Private wall material that honours the cutaway plane. */
+export function wallMat(color: string, opts: { emissive?: string } = {}): THREE.MeshLambertMaterial {
+  const m = matClone(color);
+  if (opts.emissive) m.emissive.set(opts.emissive);
+  m.clippingPlanes = [WALL_CLIP];
+  return m;
+}

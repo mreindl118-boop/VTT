@@ -11,7 +11,8 @@ import { baseRing } from './kit/pieces';
 import { adventurer } from './kit/creatures';
 import { PALETTE } from './kit/palette';
 import { buildLevel, type BuiltLevel, type LabelSpec } from './render/build';
-import { fogUniforms, setOpacity } from './render/materials';
+import { fogUniforms, setOpacity, setWallCut, WALL_CLIP } from './render/materials';
+const WALL_CUT_FT = 5;
 import { setGridType } from './render/gridOverlay';
 import { World, type CameraPreset } from './render/world';
 import { loadLocation } from './data';
@@ -158,6 +159,7 @@ export class App {
     fogUniforms.uCovTex.value = this.cur.covTex.get(id)!;
     fogUniforms.uCovOrigin.value.set(cov.originX, cov.originZ);
     fogUniforms.uCovSize.value.set(cov.width, cov.height);
+    this.world.mistFloor.position.y = this.level.elevationFt - 1.2;
     this.syncTokens();
     this.recompute();
     if (frame) this.frameLevel();
@@ -396,9 +398,8 @@ export class App {
     this.world.setWorkLight(this.renderMode === 'floorMask' ? 0 : T);
     b.grid.visible = this.gridMode !== 'off' && this.renderMode === 'normal';
     if (this.gridMode !== 'off') setGridType(b.grid, this.gridMode);
-    const s = this.lowWalls ? 0.4 : 1;
-    b.wallsGroup.scale.y = s;
-    b.wallsGroup.position.y = this.level.elevationFt * (1 - s);
+    // Cutaway: walls and doors keep their real height; the top is clipped at 5 ft above the floor.
+    setWallCut(this.lowWalls ? this.level.elevationFt + WALL_CUT_FT : null);
     this.world.invalidate();
   }
 
@@ -639,6 +640,7 @@ export class App {
       this.applySlider();
       const white = new THREE.MeshBasicMaterial({ color: '#ffffff' });
       const black = new THREE.MeshBasicMaterial({ color: '#000000' });
+      const blackWall = new THREE.MeshBasicMaterial({ color: '#000000', clippingPlanes: [WALL_CLIP] }); // same cutaway as the render
       root.traverse((o) => {
         if (o.userData.role === 'grid') return;
         const m = o as THREE.Mesh;
@@ -650,15 +652,15 @@ export class App {
         }
         if (!m.isMesh) return;
         this.maskSwap.set(m, m.material);
-        m.material = o.userData.role === 'floor' ? white : black;
+        m.material = o.userData.role === 'floor' ? white : o.userData.role === 'wall' || o.userData.role === 'door' ? blackWall : black;
       });
-      this.world.scene.background = new THREE.Color('#000000');
+      this.world.scene.background = new THREE.Color('#000000'); this.world.mistFloor.visible = false; this.world.scene.fog = null;
     } else {
       for (const [m, mat] of this.maskSwap) m.material = mat;
       this.maskSwap.clear();
       for (const o of this.maskHidden) o.visible = true;
       this.maskHidden = [];
-      this.world.scene.background = new THREE.Color(PALETTE.fog);
+      this.world.scene.background = null; this.world.mistFloor.visible = true; this.world.scene.fog = new THREE.FogExp2('#2b2733', 0.0032);
       this.applySlider();
     }
     this.world.invalidate();

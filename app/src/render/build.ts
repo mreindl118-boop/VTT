@@ -5,7 +5,7 @@ import type { Polygon } from '../core/geometry';
 import { baseRingFt, DEFAULT_CEILING_FT } from '../core/units';
 import { FLOOR_COLOR, PALETTE, WALL_COLOR } from '../kit/palette';
 import { baseRing, merge, pawn, PROP_BUILDERS, segmentBox, slabGeometry, stairsStraight, WALL_T } from '../kit/pieces';
-import { mat, matClone, patchFog } from './materials';
+import { mat, matClone, patchFog, wallMat } from './materials';
 import { PROPS_V1 } from '../kit/props';
 import { CREATURES } from '../kit/creatures';
 import { buildGridOverlay } from './gridOverlay';
@@ -121,15 +121,15 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
     if (f.has('window')) {
       pushWall(color, segmentBox(w.a, w.b, y0, y0 + 3));
       pushWall(color, segmentBox(w.a, w.b, y0 + 7, y0 + h));
-      const pane = new THREE.Mesh(segmentBox(w.a, w.b, y0 + 3, y0 + 7, 0.2, false), mat(PALETTE.stone, { emissive: '#1b2530' }));
+      const pane = new THREE.Mesh(segmentBox(w.a, w.b, y0 + 3, y0 + 7, 0.2, false), wallMat(PALETTE.stone, { emissive: '#1b2530' }));
       pane.userData.role = 'wall';
       wallsGroup.add(pane);
       continue;
     }
     if (f.has('door')) {
       pushWall(color, segmentBox(w.a, w.b, y0 + doorTop, y0 + h));
-      const slab = new THREE.Mesh(segmentBox(w.a, w.b, y0, y0 + doorTop, 0.5, false), mat(f.has('locked') ? PALETTE.iron : '#9a6a3a'));
-      if (f.has('locked')) { const band = new THREE.Mesh(segmentBox(w.a, w.b, y0 + 3, y0 + 3.6, 0.6, false), mat(PALETTE.wine)); band.userData.role = 'door'; band.userData.wallId = w.id; wallsGroup.add(band); }
+      const slab = new THREE.Mesh(segmentBox(w.a, w.b, y0, y0 + doorTop, 0.5, false), wallMat(f.has('locked') ? PALETTE.iron : '#9a6a3a'));
+      if (f.has('locked')) { const band = new THREE.Mesh(segmentBox(w.a, w.b, y0 + 3, y0 + 3.6, 0.6, false), wallMat(PALETTE.wine)); band.userData.role = 'door'; band.userData.wallId = w.id; wallsGroup.add(band); }
       slab.userData.role = 'door';
       slab.userData.wallId = w.id;
       slab.visible = !w.open;
@@ -142,7 +142,7 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
     pushWall(color, segmentBox(w.a, w.b, y0, y0 + h));
   }
   for (const [color, gs] of byWallMat) {
-    const m = new THREE.Mesh(merge(gs), mat(color));
+    const m = new THREE.Mesh(merge(gs), wallMat(color));
     m.userData.role = 'wall';
     wallsGroup.add(m);
   }
@@ -157,16 +157,16 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
       const h = w.heightFt ?? ceiling;
       const color = wallColor(w);
       const geo = segmentBox(w.a, w.b, y0, y0 + h);
-      const panel = new THREE.Mesh(geo, matClone(color));
+      const panel = new THREE.Mesh(geo, wallMat(color));
       panel.userData.role = 'wall';
       panel.userData.secretDoor = o.id;
       wallsGroup.add(panel);
-      const asWall = new THREE.Mesh(geo, mat(color));
+      const asWall = new THREE.Mesh(geo, wallMat(color));
       asWall.userData.role = 'wall';
       asWall.visible = false;
       wallsGroup.add(asWall);
       secretAsWall.push(asWall);
-      const door = new THREE.Mesh(segmentBox(w.a, w.b, y0, y0 + doorTop, WALL_T + 0.3, false), matClone(PALETTE.wood));
+      const door = new THREE.Mesh(segmentBox(w.a, w.b, y0, y0 + doorTop, WALL_T + 0.3, false), wallMat(PALETTE.wood));
       door.userData.role = 'door';
       wallsGroup.add(door);
       const marker = new THREE.Mesh(segmentBox(w.a, w.b, y0 + h, y0 + h + 0.3, WALL_T + 0.6, false), new THREE.MeshBasicMaterial({ color: PALETTE.violet, transparent: true, opacity: 0 }));

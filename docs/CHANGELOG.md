@@ -106,3 +106,13 @@
 - Schema: `terrain` (unkeyed ground floors), `placementFt` / `kind: placement` (no fog, no grid).
 - Scatter props merge into one mesh per material (road kit 678 → 74 draw calls).
 - 151 character figure recipes (skin, cloth, hair, hat, weapon) attached to `manifests/characters.json`.
+
+## M1.4 Scale and atmosphere — 2026-09-30
+
+- Walls and doors keep their real height. The low-walls view is now a cutaway: a clipping plane trims
+  everything above 5 ft over the floor instead of squashing the wall group, so doors stay door-sized.
+- Tighter, closer camera (30° field of view) with room around the framed level; walls 0.6 ft thick.
+- Atmosphere: soft background gradient, exponential ground fog, and a mist floor that follows the
+  current level's elevation (no longer covering the dungeon). Lighter floor and wall palette; softer grid.
+- Instant camera moves cancel any glide still in flight (fixed a timing-dependent grid test failure).
+- Esc closes the help sheet and other sheets.

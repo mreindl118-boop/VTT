@@ -18,7 +18,7 @@
 @media (min-resolution: 2dppx) { :root { --hairline: 0.5px; } }
 * { box-sizing: border-box; }
 html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); font: 15px/1.35 var(--font); -webkit-font-smoothing: antialiased; overflow: hidden; overscroll-behavior: none; }
-#stage { position: fixed; inset: 0; }
+#stage { position: fixed; inset: 0; background: radial-gradient(ellipse at 50% 35%, #3a3442 0%, #221f28 55%, #15131a 100%); }
 #stage canvas.gl { display: block; width: 100%; height: 100%; touch-action: none; }
 #stage .labels { position: absolute; inset: 0; pointer-events: none; }
 #ui { position: fixed; inset: 0; pointer-events: none; }
@@ -58,7 +58,8 @@ button.icon[aria-pressed='true'] { background: var(--ink); color: var(--bg); }
 
 .lbl { font: 600 11px/1.2 var(--font); color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.8); white-space: nowrap; text-align: center; transition: none; }
 .lbl span { display: block; font-weight: 400; font-size: 11px; opacity: .85; }
-.lbl.key { padding: 2px 7px; border-radius: 6px; background: rgba(91, 74, 107, .85); text-shadow: none; }
+.lbl.key { padding: 2px 7px; border-radius: 6px; background: rgba(91, 74, 107, .72); text-shadow: none; font-size: 10px; }
+.lbl.key span { font-size: 9.5px; }
 .lbl.object { color: #e4d8f0; font-weight: 500; }
 .lbl.note { color: #f2b35b; font-weight: 500; font-style: italic; }
 .lbl.tread { font-size: 10px; font-weight: 500; color: #e8dfc8; }

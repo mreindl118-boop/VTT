@@ -239,7 +239,7 @@ function buildDmUi(): void {
     if ((e.target as HTMLElement).tagName === 'INPUT') return;
     if (e.key === 'r') app.world.rotate(1); if (e.key === 'R') app.world.rotate(-1);
     if (e.key === 'f') app.findParty(); if (e.key === '/') { e.preventDefault(); input.focus(); }
-    if (e.key === 'Escape') { app.tool = 'none'; app.setStatus(''); refresh(); }
+    if (e.key === 'Escape') { document.querySelectorAll('.sheet-backdrop').forEach((s) => s.remove()); app.tool = 'none'; app.setStatus(''); refresh(); }
   });
 
   function showHelp(): void {

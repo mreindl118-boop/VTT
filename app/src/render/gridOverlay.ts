@@ -79,7 +79,7 @@ export function buildGridOverlay(g: GridLevel, elevation: number): THREE.Mesh {
     depthWrite: false,
     uniforms: {
       uColor: { value: new THREE.Color(g.color) },
-      uOpacity: { value: g.opacity },
+      uOpacity: { value: g.opacity * 0.6 },
       uCell: { value: CELL_FT },
       uHex: { value: g.type === 'hex' ? 1 : 0 },
       uPointy: { value: g.hexOrientation === 'pointy' ? 1 : 0 },
