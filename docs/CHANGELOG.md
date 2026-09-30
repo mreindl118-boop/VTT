@@ -116,3 +116,15 @@
   current level's elevation (no longer covering the dungeon). Lighter floor and wall palette; softer grid.
 - Instant camera moves cancel any glide still in flight (fixed a timing-dependent grid test failure).
 - Esc closes the help sheet and other sheets.
+
+## M1.5 Player-side rules — 2026-09-30
+
+- Moving is two deliberate taps: tap a token to pick it up (white ring), then tap where it goes. Tap it
+  again or press Esc to cancel. Swiping from a token pans the camera instead of moving anyone. With a
+  mouse, a ghost ring and the distance preview the landing cell.
+- Players' side (Players view and the Player Display) walks: `core/movement.ts` searches a 2.5-ft
+  lattice over the floor and never crosses a wall, window, closed door or undiscovered secret door. Open
+  doors and revealed, opened secret doors let the party through. A blocked move keeps the token picked up.
+  Locked doors cannot be opened from the players' side. The DM still places tokens anywhere.
+- DM secrets stay secret: info cards on the players' side use a player-facing name (`playerLabel`) and
+  description, never the DM label. DM cards tag notes "DM only" and show what players will call the thing.

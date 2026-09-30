@@ -578,6 +578,26 @@ for i in range(1, 4): DESC[f'dungeon-ghoul{i}'] = DESC['dungeon-ghoul0']
 for i in range(1, 5): DESC[f'dungeon-shadow{i}'] = DESC['dungeon-shadow0']
 for i in range(1, 5): DESC[f'dungeon-shackles{i}'] = DESC['dungeon-shackles0']
 for i in range(1, 4): DESC[f'f2-armor{i}'] = DESC['f2-armor0']
+
+# What players call hidden or disguised things once they can see them (never the DM label).
+PLAYER_LABEL = {
+    'f1-sword': 'Longsword', 'f1-cab-lock': 'Locked cabinet', 'f1-trapdoor': 'Trapdoor',
+    'f2-sdo-lib': 'Hidden door', 'f2-key': 'Desk', 'f2-chest9': 'Chest and skeleton', 'f2-portrait': 'Family portrait',
+    'f3-sdo-attic-a': 'Hidden door', 'f3-sdo-attic-b': 'Hidden door', 'f3-jewelry': 'Vanity', 'f3-bundle': 'Shrouded bundle',
+    'f3-broom': 'Broom', 'f3-armor': 'Black plate armor', 'f3-mirror': 'Full-length mirror', 'f3-specter': 'Specter',
+    'attic-sdo-shaft': 'Hidden door', 'attic-remains': 'Small skeletons', 'attic-toychest': 'Toy chest', 'attic-dollhouse': 'Dollhouse',
+    'attic-rose': 'Ghostly girl', 'attic-thorn': 'Ghostly boy', 'attic-trunk': 'Trunk',
+    'dungeon-sdo-concealed': 'Hidden door', 'dungeon-centipedes': 'Swarm of centipedes', 'dungeon-grick': 'Dark alcove',
+    'dungeon-pit': 'Earthen floor', 'dungeon-trapdoor32': 'Trapdoor', 'dungeon-orb': 'Crystal orb',
+    'dungeon-shadow0': 'Shadow', 'dungeon-shadow1': 'Shadow', 'dungeon-shadow2': 'Shadow', 'dungeon-shadow3': 'Shadow', 'dungeon-shadow4': 'Shadow',
+    'dungeon-ghoul0': 'Ghoul', 'dungeon-ghoul1': 'Ghoul', 'dungeon-ghoul2': 'Ghoul', 'dungeon-ghoul3': 'Ghoul',
+    'dungeon-mimic': 'Rotted door', 'dungeon-footlocker': 'Footlocker', 'dungeon-ghast-g': 'Ghast', 'dungeon-ghast-e': 'Ghast',
+    'dungeon-lower-sdo-prison': 'Hidden door', 'dungeon-lower-chains-note': 'Chains and shackles', 'dungeon-lower-lorghoth': 'Refuse heap',
+    'dungeon-lower-ring': 'Robed skeleton', 'f1-shaft-f1': 'Stone shaft', 'f2-shaft-f2': 'Stone shaft', 'f3-shaft-f3': 'Stone shaft',
+}
+for _i in range(5): PLAYER_LABEL[f'dungeon-chest25{"ABCDE"[_i]}'] = 'Padlocked chest'
+for _i in range(13): PLAYER_LABEL[f'dungeon-lower-relic{_i}'] = 'Wall niche'
+
 def apply_desc(levels):
     for lv in levels:
         for o in lv['objects']:
@@ -585,6 +605,7 @@ def apply_desc(levels):
             if d:
                 if d[0]: o['desc'] = d[0]
                 if d[1]: o['dm'] = d[1]
+            if o['id'] in PLAYER_LABEL: o['playerLabel'] = PLAYER_LABEL[o['id']]
 
 # ================================================================== assemble
 levels = [f1, f2, f3, at, du, dl]

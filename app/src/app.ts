@@ -4,7 +4,9 @@ import type { CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js'
 import { bounds, pointInPolygon, type Vec2 } from './core/geometry';
 import { CoverageMap, Cov } from './core/coverage';
 import { squareCellAt, squareCellCenter, squareDistanceFt, worldToHex, hexToWorld, hexDistanceFt, hexSizeFromWidth } from './core/grid';
-import type { GridFile, Level, LightSource, SceneFile, SceneObject } from './core/schema';
+import type { GridFile, Level, LightSource, SceneFile, SceneObject, Wall } from './core/schema';
+import { moveBlockers } from './core/light';
+import { canWalk } from './core/movement';
 import { classOpacity, fogCurve, hiddenCurve, labelCurve } from './core/slider';
 import { baseRingFt, CELL_FT } from './core/units';
 import { baseRing } from './kit/pieces';
@@ -29,7 +31,7 @@ export interface TapHit {
   pos: Vec2;
   door?: { wallId: string; open: boolean };
   secretDoor?: { id: string; revealed: boolean };
-  object?: { id: string; label: string; vis: string; revealed: boolean; kind: string; desc?: string; dm?: string; page?: number; visibleToPlayers: boolean };
+  object?: { id: string; label: string; playerLabel?: string; vis: string; revealed: boolean; kind: string; desc?: string; dm?: string; page?: number; visibleToPlayers: boolean };
 }
 
 interface Loaded {
@@ -324,11 +326,7 @@ export class App {
     const rs = revealSets(this.state, loc);
     cov.paint.fill(0);
     for (const r of this.state.reveals) this.applyReveal(r, cov, l);
-    const walls = l.walls.map((w) => ({
-      ...w,
-      flags: w.flags.includes('secret-door') && rs.secretWalls.has(w.id) ? (['door'] as typeof w.flags) : w.flags,
-      open: this.state.doorsOpen[`${loc}/${w.id}`] ?? w.open,
-    }));
+    const walls = this.effectiveWalls();
     const lights: LightSource[] = [...l.lights];
     const viewers = this.tokensHere().map((t) => {
       if (t.light) lights.push({ id: `tok:${t.id}`, pos: [t.pos[0], 4, t.pos[1]], bright: t.light.bright, dim: t.light.dim });
@@ -442,9 +440,26 @@ export class App {
     else this.state.reveals.push({ type: 'secret-door', location: loc, id, wallId: sd.wallId });
     this.commit();
   }
+  /** Walls as they stand now: revealed secret doors act as doors, doors carry their open state. */
+  effectiveWalls(): Wall[] {
+    const loc = this.cur!.scene.location, rs = revealSets(this.state, loc);
+    return this.level.walls.map((w) => ({
+      ...w,
+      flags: w.flags.includes('secret-door') && rs.secretWalls.has(w.id) ? (['door'] as typeof w.flags) : w.flags,
+      open: this.state.doorsOpen[`${loc}/${w.id}`] ?? w.open,
+    }));
+  }
+  /** Players' side (Players view or the Player Display) is bound by walls; the DM moves freely. */
+  get restricted(): boolean { return this.mode === 'player' || this.view === 'players'; }
+  canWalkTo(from: Vec2, to: Vec2): boolean {
+    if (!this.restricted) return true;
+    const floor = this.cur!.grid.levels[this.levelId].floorPolygons.concat(this.level.rooms.map((r) => r.polygon));
+    return canWalk(from, to, moveBlockers(this.effectiveWalls()), floor);
+  }
   toggleDoor(wallId: string): void {
     const k = `${this.cur!.scene.location}/${wallId}`;
     const w = this.level.walls.find((x) => x.id === wallId);
+    if (this.restricted && w?.flags.includes('locked') && !(this.state.doorsOpen[k] ?? w.open)) { this.flashStatus('Locked'); return; }
     this.state.doorsOpen[k] = !(this.state.doorsOpen[k] ?? w?.open ?? false);
     this.commit();
   }
@@ -481,16 +496,11 @@ export class App {
 
   private installPointer(): void {
     const el = this.world.renderer.domElement;
-    let drag: { kind: 'token'; id: string; start: Vec2 } | { kind: 'brush'; pts: Vec2[] } | { kind: 'tap'; x: number; y: number } | null = null;
+    let drag: { kind: 'brush'; pts: Vec2[] } | { kind: 'tap'; x: number; y: number } | null = null;
     el.addEventListener('pointerdown', (e) => {
       if (this.mode === 'player' || !this.cur || e.button > 0) return;
       if (this.view === 'players' && this.tool !== 'none') this.tool = 'none';
-      const hit = this.pick(e);
-      const tokId = hit && findUp(hit.object, 'tokenId');
-      if (tokId) {
-        const t = this.state.tokens.find((x) => x.id === tokId)!;
-        drag = { kind: 'token', id: tokId, start: [...t.pos] as Vec2 };
-      } else if (this.tool === 'brush-reveal' || this.tool === 'brush-fog') {
+      if (this.tool === 'brush-reveal' || this.tool === 'brush-fog') {
         const p = this.floorPoint(e);
         drag = { kind: 'brush', pts: p ? [p] : [] };
       } else {
@@ -501,15 +511,11 @@ export class App {
       el.setPointerCapture(e.pointerId);
     });
     el.addEventListener('pointermove', (e) => {
+      if (!drag && this.selected && e.pointerType === 'mouse') return this.previewMove(e);
       if (!drag || drag.kind === 'tap') return;
       const p = this.floorPoint(e);
       if (!p) return;
-      if (drag.kind === 'token') {
-        const s = this.snap(p);
-        this.cur!.tokens.get(drag.id)?.position.set(s[0], this.level.elevationFt, s[1]);
-        this.setStatus(`${this.distanceFt(drag.start, s)} ft`);
-        this.world.invalidate();
-      } else {
+      {
         drag.pts.push(p);
         const cov = this.cur!.coverage.get(this.levelId)!;
         cov.brush(p[0], p[1], 3, this.tool === 'brush-fog' ? 'fog' : 'reveal');
@@ -524,14 +530,7 @@ export class App {
       drag = null;
       this.world.controls.enabled = true;
       if (!d) return;
-      if (d.kind === 'token') {
-        const p = this.floorPoint(e);
-        const t = this.state.tokens.find((x) => x.id === d.id)!;
-        if (p) t.pos = this.snap(p);
-        this.setStatus('');
-        if (t.id === this.party?.id) this.afterPartyMove();
-        this.commit();
-      } else if (d.kind === 'brush') {
+      if (d.kind === 'brush') {
         if (d.pts.length) this.state.reveals.push({ type: 'brush', location: this.cur!.scene.location, level: this.levelId, mode: this.tool === 'brush-fog' ? 'fog' : 'reveal', r: 3, pts: d.pts.map(([x, z]) => [Math.round(x * 10) / 10, Math.round(z * 10) / 10]) });
         this.commit();
       } else if (Math.hypot(e.clientX - d.x, e.clientY - d.y) < 6) {
@@ -542,8 +541,70 @@ export class App {
     el.addEventListener('pointercancel', end);
   }
 
+  /** The token picked up for a move (tap it, then tap where it goes). */
+  selected: string | null = null;
+  private selRing?: THREE.Mesh;
+  private ghost?: THREE.Mesh;
+  select(id: string | null): void {
+    this.selected = id;
+    const ring = (this.selRing ??= this.makeRing('#ffffff', 0.85)), ghost = (this.ghost ??= this.makeRing(PALETTE.amber, 0.55));
+    ring.removeFromParent(); ghost.visible = false;
+    const t = id ? this.state.tokens.find((x) => x.id === id) : undefined;
+    const obj = id ? this.cur?.tokens.get(id) : undefined;
+    if (t && obj) {
+      const r = baseRingFt(t.size) / 2 + 0.8; ring.scale.setScalar(r); ghost.scale.setScalar(r);
+      obj.add(ring);
+      this.setStatus(this.restricted ? 'Tap where the party goes' : 'Tap where it goes · tap the token again to cancel');
+    } else this.setStatus('');
+    this.onSelect?.(id);
+    this.world.invalidate();
+  }
+  onSelect?: (id: string | null) => void;
+  private makeRing(color: string, opacity: number): THREE.Mesh {
+    const m = new THREE.Mesh(new THREE.RingGeometry(0.86, 1, 48).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color, transparent: true, opacity, depthWrite: false }));
+    m.position.y = 0.12; m.renderOrder = 5; m.userData.role = 'marker';
+    return m;
+  }
+  /** Mouse hover while a token is picked up: a ghost ring where it would land, and the distance. */
+  private previewMove(e: PointerEvent): void {
+    const t = this.state.tokens.find((x) => x.id === this.selected), p = this.floorPoint(e), g = this.ghost;
+    if (!t || !g) return;
+    if (!p) { g.visible = false; this.world.invalidate(); return; }
+    const s = this.snap(p);
+    if (g.userData.at?.[0] === s[0] && g.userData.at?.[1] === s[1]) return;
+    g.userData.at = s;
+    const ok = this.canWalkTo(t.pos, s);
+    if (!g.parent) this.world.scene.add(g);
+    g.visible = true; g.position.set(s[0], this.level.elevationFt + 0.12, s[1]);
+    (g.material as THREE.MeshBasicMaterial).color.set(ok ? PALETTE.amber : '#c0392b');
+    this.setStatus(ok ? `${this.distanceFt(t.pos, s)} ft` : 'No way through');
+    this.world.invalidate();
+  }
+  /** Move a token if it can get there; players' side must walk (walls and closed doors stop it). */
+  moveTokenTo(id: string, to: Vec2): boolean {
+    const t = this.state.tokens.find((x) => x.id === id);
+    if (!t) return false;
+    if (!this.canWalkTo(t.pos, to)) { this.flashStatus('No way through: walls block the party. Open a door first.'); return false; }
+    t.pos = to;
+    this.cur!.tokens.get(id)?.position.set(to[0], this.level.elevationFt, to[1]);
+    if (id === this.party?.id) this.afterPartyMove();
+    this.commit();
+    return true;
+  }
+
   private lastTap = 0;
   private tap(e: PointerEvent): void {
+    // Moving is two deliberate taps: the token, then where it goes. A swipe never moves anyone.
+    const tokHit = this.pick(e), fp = this.floorPoint(e);
+    // The figure is small from above: a tap anywhere on its base ring picks it up too.
+    const tokId = (tokHit && findUp(tokHit.object, 'tokenId')) || (fp && this.tokensHere().find((t) => Math.hypot(t.pos[0] - fp[0], t.pos[1] - fp[1]) <= baseRingFt(t.size) / 2 + 1)?.id);
+    if (tokId) { this.select(this.selected === tokId ? null : tokId); return; }
+    if (this.selected) {
+      const p = fp;
+      if (p && this.moveTokenTo(this.selected, this.snap(p))) this.select(null);
+      else if (!p) this.select(null);
+      return;
+    }
     const now = performance.now();
     const dbl = now - this.lastTap < 320; this.lastTap = now;
     if (dbl) { const p = this.floorPoint(e); const room = p && this.roomAt(this.level, p); if (room) { this.jumpTo(room.key); return; } }
@@ -552,7 +613,7 @@ export class App {
       // Players may look at what they can see: a description card, nothing else.
       const oid = hit && findUp(hit.object, 'objectId');
       const obj = oid ? this.level.objects.find((o) => o.id === oid) : undefined;
-      if (obj && this.onTap && this.playerCanSee(obj)) this.onTap({ pos: [0, 0], object: { id: obj.id, label: obj.label ?? kindName(obj.kind), vis: obj.vis, revealed: true, kind: obj.kind, desc: obj.desc ?? KIND_DESC[obj.kind], visibleToPlayers: true } }, e.clientX, e.clientY);
+      if (obj && this.onTap && this.playerCanSee(obj)) this.onTap({ pos: [0, 0], object: { id: obj.id, label: playerLabel(obj), vis: obj.vis, revealed: true, kind: obj.kind, desc: playerDesc(obj), visibleToPlayers: true } }, e.clientX, e.clientY);
       return;
     }
     const sd = hit && (findUp(hit.object, 'secretDoor') ?? (hit.object.userData.role === 'door' ? this.built.secretDoors.find((s) => s.door === hit.object)?.objectId : undefined));
@@ -567,7 +628,7 @@ export class App {
       const info: TapHit = { room: room ? { key: room.key, name: room.name, revealed: this.isRevealed(room.key) } : undefined, pos,
         door: wallId ? { wallId, open: !!(this.state.doorsOpen[`${this.cur!.scene.location}/${wallId}`] ?? this.level.walls.find((w) => w.id === wallId)?.open) } : undefined,
         secretDoor: sd ? { id: sd, revealed: rs.secretDoors.has(sd) } : undefined,
-        object: obj ? { id: obj.id, label: obj.label ?? kindName(obj.kind), vis: obj.vis, revealed: rs.objects.has(obj.id), kind: obj.kind, desc: obj.desc ?? KIND_DESC[obj.kind], dm: obj.dm, page: this.level.rooms.find((r) => r.key === obj.key)?.page, visibleToPlayers: this.playerCanSee(obj) } : undefined };
+        object: obj ? { id: obj.id, label: obj.label ?? kindName(obj.kind), playerLabel: playerLabel(obj), vis: obj.vis, revealed: rs.objects.has(obj.id), kind: obj.kind, desc: playerDesc(obj), dm: obj.dm, page: this.level.rooms.find((r) => r.key === obj.key)?.page, visibleToPlayers: this.playerCanSee(obj) } : undefined };
       this.onTap(info, e.clientX, e.clientY);
       return;
     }
@@ -586,6 +647,9 @@ export class App {
       this.toggleDoor(s.wallId);
     }
   }
+  private flashT = 0;
+  /** A status line that clears itself after a moment. */
+  flashStatus(s: string): void { this.setStatus(s); clearTimeout(this.flashT); this.flashT = window.setTimeout(() => { if (this.status === s) this.setStatus(""); }, 2600); }
 
   setStatus(s: string): void { this.status = s; this.onStatus?.(s); }
 
@@ -698,3 +762,13 @@ export const KIND_DESC: Record<string, string> = {
   'animated-armor': 'A suit of black plate armor draped in cobwebs.', mimic: 'A wooden door.', 'shambling-mound': 'A mound of rotting vegetation and refuse.', grick: 'A worm-like thing with a beak ringed by tentacles.', 'swarm-of-insects': 'A boiling mass of centipedes.', 'broom-of-animated-attack': 'A cobweb-covered broom leaning against the wall.',
 };
 export function kindName(kind: string): string { return kind.replace(/-/g, ' ').replace(/^./, (c) => c.toUpperCase()); }
+
+/** What players call a thing: never the DM label of something hidden or disguised. */
+export function playerLabel(o: SceneObject): string {
+  if (o.playerLabel) return o.playerLabel;
+  return o.vis === 'player' || !o.vis ? o.label ?? kindName(o.kind) : kindName(o.kind);
+}
+/** What players read: the authored description, else a generic one for plainly visible things. */
+export function playerDesc(o: SceneObject): string | undefined {
+  return o.desc ?? (o.vis === 'player' || !o.vis || o.vis === 'hidden-creature' ? KIND_DESC[o.kind] : undefined);
+}

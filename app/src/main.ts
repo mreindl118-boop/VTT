@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 import './styles.css';
 import { App, type GridMode } from './app';
 import { builtPaths } from './data';
@@ -34,7 +35,9 @@ const ready = app.init(builtPaths.has(path) ? path : 'dev/m0-test-room');
   labels: () => app.cur!.labels.filter((l) => l.level === app.levelId).map((l) => ({ id: l.spec.id, vis: l.spec.vis, opacity: Number(l.obj.element.style.opacity), visible: l.obj.visible })),
   targets: () => app.built.targets.map((t) => ({ id: t.id, vis: t.vis, visible: t.root.visible, opacity: t.materials[0]?.opacity ?? 1 })),
   flush: () => app.flush(),
-  moveParty: (level: string, x: number, z: number) => { const t = app.party; if (t) { t.level = level; t.pos = [x, z]; } app.setLevel(level); app.world.renderNow(); },
+  screenOf: (x: number, z: number, y = 0) => { const v = new THREE.Vector3(x, app.level.elevationFt + y, z).project(app.world.camera); const r = app.world.renderer.domElement.getBoundingClientRect(); return [r.left + (v.x + 1) / 2 * r.width, r.top + (1 - v.y) / 2 * r.height]; },
+  partyPos: () => app.party?.pos,
+    moveParty: (level: string, x: number, z: number) => { const t = app.party; if (t) { t.level = level; t.pos = [x, z]; } app.setLevel(level); app.world.renderNow(); },
 };
 
 if ('serviceWorker' in navigator && import.meta.env.PROD && !q.has('nosw')) {
@@ -198,13 +201,13 @@ function buildDmUi(): void {
     const items: { label: string; act: () => void; icon?: string }[] = [];
     if (hit.object) {
       // Info card: what it is, where, what players see, DM notes, state, actions.
-      const o = hit.object, players = app.view === 'players';
+      const o = hit.object, players = app.restricted;
       const card = document.createElement('div');
       card.className = 'infocard';
       const where = hit.room ? `${hit.room.key} · ${hit.room.name}${o.page ? ` · p.${o.page}` : ''}` : '';
       const state = players ? '' : o.vis === 'player' ? 'Visible to players when in sight' : `${o.vis.replace('-', ' ')} · ${o.revealed ? 'revealed to players' : o.visibleToPlayers ? 'in players\' view' : 'hidden from players'}`;
       card.innerHTML = `<header><div><h2>${o.label}</h2>${where && !players ? `<div class="where">${where}</div>` : ''}</div><button class="icon close" aria-label="Close">${ICON.close}</button></header>
-        <div class="body">${o.desc ? `<div class="desc">${o.desc}</div>` : ''}${!players && o.dm ? `<div class="dm">${o.dm}</div>` : ''}${state ? `<div class="state">${state}</div>` : ''}</div>
+        <div class="body">${o.desc ? `<div class="desc">${o.desc}</div>` : ''}${!players && o.playerLabel && o.playerLabel !== o.label ? `<div class="seen-as">Players see: <b>${o.playerLabel}</b></div>` : ''}${!players && o.dm ? `<div class="dm"><span class="dm-tag">${ICON.eyeOff}DM only</span>${o.dm}</div>` : ''}${state ? `<div class="state">${state}</div>` : ''}</div>
         ${players ? '' : `<div class="actions">${o.vis !== 'player' ? `<button class="primary" data-a="reveal">${o.revealed ? 'Hide from players' : 'Reveal to players'}</button>` : ''}${hit.room ? `<button data-a="frame">Frame ${hit.room.key}</button>` : ''}${hit.secretDoor ? `<button data-a="secret">${hit.secretDoor.revealed ? 'Hide secret door' : 'Reveal secret door'}</button>` : ''}</div>`}`;
       card.style.left = `${Math.min(x, innerWidth - 360)}px`; card.style.top = `${Math.min(y, innerHeight - 260)}px`;
       card.addEventListener('click', (e) => {
@@ -239,7 +242,7 @@ function buildDmUi(): void {
     if ((e.target as HTMLElement).tagName === 'INPUT') return;
     if (e.key === 'r') app.world.rotate(1); if (e.key === 'R') app.world.rotate(-1);
     if (e.key === 'f') app.findParty(); if (e.key === '/') { e.preventDefault(); input.focus(); }
-    if (e.key === 'Escape') { document.querySelectorAll('.sheet-backdrop').forEach((s) => s.remove()); app.tool = 'none'; app.setStatus(''); refresh(); }
+    if (e.key === 'Escape') { document.querySelectorAll('.sheet-backdrop').forEach((s) => s.remove()); app.select(null); app.tool = 'none'; app.setStatus(''); refresh(); }
   });
 
   function showHelp(): void {
@@ -247,7 +250,7 @@ function buildDmUi(): void {
     h.className = 'sheet-backdrop';
     h.innerHTML = `<div class="sheet help"><header><h2>Running a session</h2><button class="icon close" aria-label="Close">${ICON.close}</button></header><div class="sheet-body">
       <dl>
-        <dt>Move the party</dt><dd>Drag the amber token. The room it enters is revealed and remembered; step onto stairs or a trapdoor to change level; the camera follows.</dd>
+        <dt>Move the party</dt><dd>Tap the amber token to pick it up, then tap where it goes (tap it again or press Esc to cancel). The room it enters is revealed and remembered; step onto stairs or a trapdoor to change level; the camera follows. In Players mode the party walks: walls and closed doors stop it, and locked doors stay shut until the DM opens them.</dd>
         <dt>Look around</dt><dd>One finger / left-drag pans. Right-drag or a two-finger twist rotates; pinch or scroll zooms. The buttons bottom-left turn in 90° steps, tilt, zoom and find the party. Double-tap a room to frame it.</dd>
         <dt>Find an area</dt><dd>Type a key or name in the search box (or press /). The Rooms list shows every key with its revealed state.</dd>
         <dt>Doors, stairs and choices</dt><dd>Door markers open and close doors; stair and trapdoor markers move the party between levels. Tap anything for a menu of what you can do with it (reveal, hide, move the party, frame). The slider previews what players see.</dd>

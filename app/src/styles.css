@@ -142,6 +142,9 @@ body[data-view='players'] .lbl.link { display: none; }
 .infocard .body { padding: 10px 16px 6px; display: grid; gap: 8px; }
 .infocard .desc { font-size: 14px; }
 .infocard .dm { font-size: 13px; color: var(--ink); background: color-mix(in srgb, var(--accent) 12%, transparent); border-left: 3px solid var(--accent); padding: 6px 10px; border-radius: 0 8px 8px 0; }
+.infocard .dm-tag { display: flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); margin-bottom: 3px; }
+.infocard .dm-tag svg { width: 12px; height: 12px; }
+.infocard .seen-as { font-size: 12px; color: var(--ink-2); }
 .infocard .state { font-size: 12px; color: var(--ink-2); }
 .infocard .actions { display: flex; flex-wrap: wrap; gap: 6px; padding: 6px 12px 12px; }
 .infocard .actions button { font-size: 13px; padding: 7px 12px; border-radius: 999px; border: var(--hairline, 1px) solid var(--hair); }

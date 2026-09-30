@@ -66,6 +66,8 @@ export interface SceneObject {
   /** Area key this object belongs to. */
   key?: string;
   label?: string;
+  /** What players call it once they can see it (hidden or disguised things); defaults to a generic name. */
+  playerLabel?: string;
   size?: CreatureSize;
   /** Wall id for secret doors. */
   wall?: string;
