@@ -665,6 +665,32 @@ ROOM_DESC = {
   '38': ("A forty-foot hall of smooth stone and pillars, half flooded. Stairs rise to dry ledges and to a central dais with a blood-stained altar under hanging chains. A breach opens west on a heap of refuse.", "The chant stops as they enter. Climbing the dais summons thirteen apparitions: 'One must die!' Refusing wakes Lorghoth (the refuse heap)."),
 }
 
+# Everything that opens: lock state, what players find inside (own wording), what opening reveals.
+EMPTY = 'Empty.'
+CONTAINERS = {
+  'f1-cab-e': dict(locked=True, contents='A heavy, a light and a hand crossbow, with twenty bolts for each.', reveals=['f1-cab-lock']),
+  'f1-cab-n': dict(contents='A small box holding a deck of playing cards, and rows of wine glasses.'),
+  'f2-desk': dict(contents='An iron key in the drawer. On the desk: an oil lamp, ink and quill, a tinderbox and a letter kit with a windmill seal.', reveals=['f2-key']),
+  'f2-chest9': dict(open=True, contents='Three blank books bound in black leather, three spell scrolls, the deed to this house, the deed to a windmill, and a signed will.'),
+  'f2-footlocker1': dict(contents=EMPTY), 'f2-footlocker2': dict(contents=EMPTY),
+  'f3-wardrobe1': dict(contents=EMPTY), 'f3-wardrobe2': dict(contents=EMPTY),
+  'f3-vanity': dict(contents='Dusty drawers; the jewelry box sits on top.', reveals=['f3-jewelry']),
+  'f3-jewelry': dict(contents='Three gold rings and a thin platinum necklace with a topaz pendant.'),
+  'f3-end1': dict(contents=EMPTY), 'f3-end2': dict(contents=EMPTY), 'f3-wardrobe15': dict(contents=EMPTY),
+  'attic-night19': dict(contents=EMPTY), 'attic-wardrobe19': dict(contents=EMPTY),
+  'attic-toychest': dict(contents='Stuffed animals and wooden toys.'),
+  'attic-trunk': dict(contents="A woman's bones wrapped in a tattered sheet stiff with old blood."),
+  'attic-night17': dict(contents=EMPTY), 'attic-desk17': dict(contents='A few sheets of yellowed paper.'), 'attic-wardrobe17': dict(contents=EMPTY),
+  'dungeon-chest25A': dict(locked=True, contents='Worthless odds and ends, and a coin pouch made of an unsettling pale leather.'),
+  'dungeon-chest25B': dict(locked=True, contents='Worthless odds and ends, and three mossy green stones folded in black cloth.'),
+  'dungeon-chest25C': dict(locked=True, contents='Worthless odds and ends, and a black leather eyepatch with a red stone sewn into it.'),
+  'dungeon-chest25D': dict(locked=True, contents='Worthless odds and ends, and an ivory hairbrush with silver bristles.'),
+  'dungeon-chest25E': dict(locked=True, contents='Worthless odds and ends, and a silvered shortsword.'),
+  'dungeon-coffinC': dict(contents=EMPTY), 'dungeon-coffinD': dict(contents=EMPTY), 'dungeon-coffinE': dict(contents=EMPTY), 'dungeon-coffinF': dict(contents=EMPTY),
+  'dungeon-wardrobe34': dict(contents='Several old black robes.'),
+  'dungeon-footlocker': dict(contents="A folded cloak, a small coffer with four potions, a chain shirt, a mess kit, a flask of alchemist's fire, a bullseye lantern, thieves' tools and a spellbook bound in yellow leather."),
+}
+
 def apply_desc(levels):
     for lv in levels:
         for o in lv['objects']:
@@ -673,6 +699,7 @@ def apply_desc(levels):
                 if d[0]: o['desc'] = d[0]
                 if d[1]: o['dm'] = d[1]
             if o['id'] in PLAYER_LABEL: o['playerLabel'] = PLAYER_LABEL[o['id']]
+            if o['id'] in CONTAINERS: o['container'] = OrderedDict(sorted(CONTAINERS[o['id']].items()))
         for r in lv['rooms']:
             d = ROOM_DESC.get(r['key'])
             if d:

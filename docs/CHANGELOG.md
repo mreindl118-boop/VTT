@@ -128,3 +128,16 @@
   Locked doors cannot be opened from the players' side. The DM still places tokens anywhere.
 - DM secrets stay secret: info cards on the players' side use a player-facing name (`playerLabel`) and
   description, never the DM label. DM cards tag notes "DM only" and show what players will call the thing.
+
+## M1.6 Details, openables, UI hygiene — 2026-09-30
+
+- Death House details from the module: purpose-built props replace placeholders (mounted longsword,
+  crossbow rack, desk key, jewelry box, tiger-skin rug, swaddled bundle, crystal orb); new pieces for table
+  settings, pantry stores, hanging cookware and the dumbwaiter bell, linens, sheeted storage shapes, a
+  bricked-up window, a rolling ladder, and old footprints across the dungeon (none over the hidden pit).
+- Every room has a player description and a DM-only note (original wording), shown in a room card.
+- Openables: every chest, trunk, footlocker, cabinet, wardrobe, coffin, desk, nightstand and jewelry box
+  opens (lids lift, doors swing, drawers slide). Contents are mapped from the module; locked ones need the
+  DM; opening reveals hidden contents (the den's crossbows, the library key, the jewelry box).
+- Hover tooltips name what is under the mouse. A new location clears the old one's labels. Search opens
+  from a button and the top bar lays out in rows without overlapping.

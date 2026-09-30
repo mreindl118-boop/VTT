@@ -77,7 +77,27 @@ export interface SceneObject {
   desc?: string;
   /** DM-only notes: mechanics, checks, what it hides. */
   dm?: string;
+  /** Things that open (chests, wardrobes, coffins, drawers). Openable kinds get a default record. */
+  container?: Container;
 }
+
+export interface Container {
+  /** Players cannot open it; the DM can (after a check, a key, or force). */
+  locked?: boolean;
+  /** What players find inside once it is open (original wording). */
+  contents?: string;
+  /** Hidden objects that become revealed to players when it is opened. */
+  reveals?: string[];
+  /** Starts open (e.g. a lid left ajar). */
+  open?: boolean;
+}
+
+/** Kit kinds that open, and how: a lid that lifts, doors that swing, or a drawer that slides. */
+export const OPENABLE_KINDS: Record<string, 'lid' | 'doors' | 'drawer'> = {
+  trunk: 'lid', 'crate-chest': 'lid', 'toy-chest': 'lid', 'toy-chest-windmills': 'lid', 'claw-chest-skeleton': 'lid', 'bier-coffin': 'lid',
+  'jewelry-box': 'lid', chest: 'lid', coffin: 'lid',
+  cabinet: 'doors', wardrobe: 'doors', nightstand: 'drawer', desk: 'drawer',
+};
 
 export type LinkKind = 'stairs' | 'spiral' | 'shaft' | 'elevator' | 'slide' | 'ladder' | 'trapdoor' | 'dumbwaiter';
 export interface VerticalLink {
@@ -162,6 +182,7 @@ export function validateScene(s: SceneFile, g?: GridFile): string[] {
       need(!ids.has(o.id), `duplicate id ${o.id}`); ids.add(o.id);
       need((VIS_CLASSES as readonly string[]).includes(o.vis), `object ${o.id} bad vis ${o.vis}`);
       if (o.vis === 'secret-door') need(!!o.wall && wallIds.has(o.wall), `secret door ${o.id} must reference a wall on its level`);
+      for (const r of o.container?.reveals ?? []) need(l.objects.some((x) => x.id === r), `container ${o.id} reveals unknown object ${r}`);
     }
     for (const li of l.lights) { need(!ids.has(li.id), `duplicate id ${li.id}`); ids.add(li.id); need(li.dim >= li.bright, `light ${li.id} dim < bright`); }
     if (g) need(!!g.levels[l.id], `grid.json missing level ${l.id}`);

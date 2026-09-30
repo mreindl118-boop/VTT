@@ -4,7 +4,7 @@ import type { CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js'
 import { bounds, pointInPolygon, type Vec2 } from './core/geometry';
 import { CoverageMap, Cov } from './core/coverage';
 import { squareCellAt, squareCellCenter, squareDistanceFt, worldToHex, hexToWorld, hexDistanceFt, hexSizeFromWidth } from './core/grid';
-import type { GridFile, Level, LightSource, SceneFile, SceneObject, Wall } from './core/schema';
+import { OPENABLE_KINDS, type Container, type GridFile, type Level, type LightSource, type SceneFile, type SceneObject, type Wall } from './core/schema';
 import { moveBlockers } from './core/light';
 import { canWalk } from './core/movement';
 import { classOpacity, fogCurve, hiddenCurve, labelCurve } from './core/slider';
@@ -31,7 +31,7 @@ export interface TapHit {
   pos: Vec2;
   door?: { wallId: string; open: boolean };
   secretDoor?: { id: string; revealed: boolean };
-  object?: { id: string; label: string; playerLabel?: string; vis: string; revealed: boolean; kind: string; desc?: string; dm?: string; page?: number; visibleToPlayers: boolean };
+  object?: { id: string; label: string; playerLabel?: string; container?: { locked: boolean; open: boolean; contents?: string }; vis: string; revealed: boolean; kind: string; desc?: string; dm?: string; page?: number; visibleToPlayers: boolean };
 }
 
 interface Loaded {
@@ -90,7 +90,7 @@ export class App {
 
   async init(path: string): Promise<void> {
     const saved = await idbGet<CampaignState>(STORE_KEY).catch(() => undefined);
-    if (saved) this.state = saved;
+    if (saved) this.state = { ...newCampaign(), ...saved }; // older saves lack newer fields
     await this.open(path);
     if (this.mode === 'player') this.channel.send({ kind: 'hello' });
     else this.broadcast();
@@ -343,6 +343,7 @@ export class App {
     const tex = this.cur.covTex.get(l.id)!;
     cov.toTexture(tex.image.data as Uint8Array);
     tex.needsUpdate = true;
+    for (const [oid, h] of this.built.openables) { const o = l.objects.find((x) => x.id === oid); if (o) h.set(this.isOpen(o)); }
     for (const [wid, door] of this.built.doors) door.visible = !(this.state.doorsOpen[`${loc}/${wid}`] ?? l.walls.find((w) => w.id === wid)?.open);
     this.applySlider();
   }
@@ -436,6 +437,29 @@ export class App {
     if (i >= 0) this.state.reveals.splice(i, 1);
     else this.state.reveals.push({ type: 'object', location: loc, id });
     this.commit();
+  }
+  /** What a card may show about a container; players learn the contents only once it is open. */
+  containerInfo(o: SceneObject, players: boolean): { locked: boolean; open: boolean; contents?: string } | undefined {
+    const c = this.containerOf(o); if (!c) return undefined;
+    const open = this.isOpen(o);
+    return { locked: !!c.locked, open, contents: players && !open ? undefined : c.contents };
+  }
+  /** Container record for an object: authored, or a default for any kind that opens. */
+  containerOf(o: SceneObject): Container | undefined {
+    return o.container ?? (OPENABLE_KINDS[o.kind] ? {} : undefined);
+  }
+  isOpen(o: SceneObject): boolean { return this.state.opened[`${this.cur!.scene.location}/${o.id}`] ?? !!o.container?.open; }
+  /** Open or close a container. Players cannot open locked ones; opening reveals what it held. */
+  toggleOpen(id: string): boolean {
+    const o = this.level.objects.find((x) => x.id === id), c = o && this.containerOf(o);
+    if (!o || !c) return false;
+    const open = this.isOpen(o);
+    if (!open && c.locked && this.restricted) { this.flashStatus('Locked'); return false; }
+    const loc = this.cur!.scene.location;
+    this.state.opened[`${loc}/${id}`] = !open;
+    if (!open) for (const r of c.reveals ?? []) if (!this.state.reveals.some((x) => x.type === 'object' && x.location === loc && x.id === r)) this.state.reveals.push({ type: 'object', location: loc, id: r });
+    this.commit();
+    return true;
   }
   revealSecretDoor(id: string): void {
     const loc = this.cur!.scene.location;
@@ -622,10 +646,12 @@ export class App {
     const oid = o && findUp(o, 'objectId');
     const obj = oid ? this.level.objects.find((x) => x.id === oid) : undefined;
     if (obj) {
-      if (players) return this.playerCanSee(obj) ? { title: playerLabel(obj) } : null;
+      const ci = this.containerInfo(obj, players);
+      const cs = ci ? (ci.open ? 'Open' : ci.locked ? (players ? 'Locked' : 'Locked · closed') : 'Closed · tap to open') : undefined;
+      if (players) return this.playerCanSee(obj) ? { title: playerLabel(obj), sub: cs } : null;
       const rs = revealSets(this.state, loc);
       const vis = obj.vis === 'player' || !obj.vis ? undefined : `${obj.vis.replace('-', ' ')} · ${rs.objects.has(obj.id) ? 'revealed' : 'hidden from players'}`;
-      return { title: obj.label ?? kindName(obj.kind), sub: [vis, where].filter(Boolean).join(' · ') || undefined };
+      return { title: obj.label ?? kindName(obj.kind), sub: [cs, vis, where].filter(Boolean).join(' · ') || undefined };
     }
     const role = o?.userData.role as string | undefined;
     const wallId = o?.userData.wallId as string | undefined;
@@ -672,7 +698,7 @@ export class App {
       // Players may look at what they can see: a description card, nothing else.
       const oid = hit && findUp(hit.object, 'objectId');
       const obj = oid ? this.level.objects.find((o) => o.id === oid) : undefined;
-      if (obj && this.onTap && this.playerCanSee(obj)) { this.onTap({ pos: [0, 0], object: { id: obj.id, label: playerLabel(obj), vis: obj.vis, revealed: true, kind: obj.kind, desc: playerDesc(obj), visibleToPlayers: true } }, e.clientX, e.clientY); return; }
+      if (obj && this.onTap && this.playerCanSee(obj)) { this.onTap({ pos: [0, 0], object: { id: obj.id, label: playerLabel(obj), container: this.containerInfo(obj, true), vis: obj.vis, revealed: true, kind: obj.kind, desc: playerDesc(obj), visibleToPlayers: true } }, e.clientX, e.clientY); return; }
       // A revealed room: its name and what the party notices there.
       const fp = this.floorPoint(e), room = fp && this.roomAt(this.level, fp);
       if (room && this.onTap && this.isRevealed(room.key)) this.onTap({ pos: fp!, room: { key: room.key, name: room.name, revealed: true, desc: room.desc } }, e.clientX, e.clientY);
@@ -690,7 +716,7 @@ export class App {
       const info: TapHit = { room: room ? { key: room.key, name: room.name, revealed: this.isRevealed(room.key), desc: room.desc, dm: room.dm, page: room.page } : undefined, pos,
         door: wallId ? { wallId, open: !!(this.state.doorsOpen[`${this.cur!.scene.location}/${wallId}`] ?? this.level.walls.find((w) => w.id === wallId)?.open) } : undefined,
         secretDoor: sd ? { id: sd, revealed: rs.secretDoors.has(sd) } : undefined,
-        object: obj ? { id: obj.id, label: obj.label ?? kindName(obj.kind), playerLabel: playerLabel(obj), vis: obj.vis, revealed: rs.objects.has(obj.id), kind: obj.kind, desc: playerDesc(obj), dm: obj.dm, page: this.level.rooms.find((r) => r.key === obj.key)?.page, visibleToPlayers: this.playerCanSee(obj) } : undefined };
+        object: obj ? { id: obj.id, label: obj.label ?? kindName(obj.kind), playerLabel: playerLabel(obj), container: this.containerInfo(obj, false), vis: obj.vis, revealed: rs.objects.has(obj.id), kind: obj.kind, desc: playerDesc(obj), dm: obj.dm, page: this.level.rooms.find((r) => r.key === obj.key)?.page, visibleToPlayers: this.playerCanSee(obj) } : undefined };
       this.onTap(info, e.clientX, e.clientY);
       return;
     }
@@ -739,7 +765,7 @@ export class App {
   private async onMsg(m: Msg): Promise<void> {
     if (this.mode === 'dm') { if (m.kind === 'hello') this.broadcast(); return; }
     if (m.kind === 'state') {
-      this.state = m.state;
+      this.state = { ...newCampaign(), ...m.state };
       if (!this.cur || this.cur.path !== m.location) await this.open(m.location, m.level);
       else if (this.levelId !== m.level) this.setLevel(m.level);
       else { this.syncTokens(); this.recompute(); }

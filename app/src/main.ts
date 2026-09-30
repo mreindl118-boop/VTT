@@ -228,13 +228,19 @@ function buildDmUi(): void {
       card.className = 'infocard';
       const where = hit.room ? `${hit.room.key} · ${hit.room.name}${o.page ? ` · p.${o.page}` : ''}` : '';
       const state = players ? '' : o.vis === 'player' ? 'Visible to players when in sight' : `${o.vis.replace('-', ' ')} · ${o.revealed ? 'revealed to players' : o.visibleToPlayers ? 'in players\' view' : 'hidden from players'}`;
+      const c = o.container;
+      const inside = !c ? '' : c.open ? `<div class="inside"><b>Inside</b> ${c.contents ?? 'Nothing of note.'}</div>`
+        : players ? `<div class="inside">${c.locked ? `${ICON.padlock} Locked` : 'Closed'}</div>`
+        : `<div class="inside">${c.locked ? `${ICON.padlock} Locked · ` : ''}Closed${c.contents ? ` · holds: ${c.contents}` : ''}</div>`;
+      const openBtn = c && (!players || !c.locked || c.open) ? `<button class="primary" data-a="open">${c.open ? 'Close' : 'Open'}</button>` : '';
       card.innerHTML = `<header><div><h2>${o.label}</h2>${where && !players ? `<div class="where">${where}</div>` : ''}</div><button class="icon close" aria-label="Close">${ICON.close}</button></header>
-        <div class="body">${o.desc ? `<div class="desc">${o.desc}</div>` : ''}${!players && o.playerLabel && o.playerLabel !== o.label ? `<div class="seen-as">Players see: <b>${o.playerLabel}</b></div>` : ''}${!players && o.dm ? `<div class="dm"><span class="dm-tag">${ICON.eyeOff}DM only</span>${o.dm}</div>` : ''}${state ? `<div class="state">${state}</div>` : ''}</div>
-        ${players ? '' : `<div class="actions">${o.vis !== 'player' ? `<button class="primary" data-a="reveal">${o.revealed ? 'Hide from players' : 'Reveal to players'}</button>` : ''}${hit.room ? `<button data-a="frame">Frame ${hit.room.key}</button>` : ''}${hit.secretDoor ? `<button data-a="secret">${hit.secretDoor.revealed ? 'Hide secret door' : 'Reveal secret door'}</button>` : ''}</div>`}`;
+        <div class="body">${o.desc ? `<div class="desc">${o.desc}</div>` : ''}${!players && o.playerLabel && o.playerLabel !== o.label ? `<div class="seen-as">Players see: <b>${o.playerLabel}</b></div>` : ''}${!players && o.dm ? `<div class="dm"><span class="dm-tag">${ICON.eyeOff}DM only</span>${o.dm}</div>` : ''}${inside}${state ? `<div class="state">${state}</div>` : ''}</div>
+        ${players ? (openBtn ? `<div class="actions">${openBtn}</div>` : '') : `<div class="actions">${openBtn}${o.vis !== 'player' ? `<button class="${openBtn ? '' : 'primary'}" data-a="reveal">${o.revealed ? 'Hide from players' : 'Reveal to players'}</button>` : ''}${hit.room ? `<button data-a="frame">Frame ${hit.room.key}</button>` : ''}${hit.secretDoor ? `<button data-a="secret">${hit.secretDoor.revealed ? 'Hide secret door' : 'Reveal secret door'}</button>` : ''}</div>`}`;
       card.style.left = `${Math.min(x, innerWidth - 360)}px`; card.style.top = `${Math.min(y, innerHeight - 260)}px`;
       card.addEventListener('click', (e) => {
         const b = (e.target as HTMLElement).closest<HTMLElement>('button'); if (!b) return;
         if (b.classList.contains('close')) return closeMenu();
+        if (b.dataset.a === 'open') app.toggleOpen(o.id);
         if (b.dataset.a === 'reveal') app.toggleObject(o.id); if (b.dataset.a === 'frame') app.jumpTo(hit.room!.key); if (b.dataset.a === 'secret') app.revealSecretDoor(hit.secretDoor!.id);
         closeMenu(); refresh();
       });

@@ -1,6 +1,7 @@
 // scene.json level -> three.js graph, with handles the slider and reveal tools drive.
 import * as THREE from 'three';
-import type { GridLevel, Level, SceneObject, VisClass, Wall } from '../core/schema';
+import { OPENABLE_KINDS, type GridLevel, type Level, type SceneObject, type VisClass, type Wall } from '../core/schema';
+import { makeOpenable, type OpenHandle } from './openable';
 import type { Polygon } from '../core/geometry';
 import { baseRingFt, DEFAULT_CEILING_FT } from '../core/units';
 import { FLOOR_COLOR, PALETTE, WALL_COLOR } from '../kit/palette';
@@ -47,6 +48,8 @@ export interface BuiltLevel {
   secretAsWall: THREE.Mesh[];
   wallsGroup: THREE.Group;
   doors: Map<string, THREE.Object3D>;
+  /** Containers that open (chests, wardrobes, coffins, drawers), by object id. */
+  openables: Map<string, OpenHandle>;
 }
 
 function centroid(p: Polygon): [number, number] {
@@ -80,6 +83,7 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
   const secretDoors: SecretDoorHandle[] = [];
   const secretAsWall: THREE.Mesh[] = [];
   const doors = new Map<string, THREE.Object3D>();
+  const openables = new Map<string, OpenHandle>();
   const scatter: { obj: THREE.Object3D; o: SceneObject; p: THREE.Vector3 }[] = [];
 
   // Floors: one merged mesh per floor material.
@@ -181,6 +185,8 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
       continue;
     }
     const obj = buildObject(o, y0, labels);
+    const openMode = OPENABLE_KINDS[o.kind];
+    if (openMode && o.kind !== 'claw-chest-skeleton' && !(SCATTER.has(o.kind) && o.vis === 'player')) openables.set(o.id, makeOpenable(obj, openMode, !!o.container?.open));
     if (SCATTER.has(o.kind) && o.vis === 'player') { scatter.push({ obj, o, p }); continue; }
     obj.position.copy(p);
     if (o.kind === 'stairs-straight') obj.position.set(0, y0, 0);
@@ -245,7 +251,7 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
   const gridMesh = buildGridOverlay(grid, y0);
   root.add(gridMesh);
 
-  return { level, root, grid: gridMesh, floors, targets, secretDoors, labels, lights, lightRings, secretAsWall, wallsGroup, doors };
+  return { level, root, grid: gridMesh, floors, targets, secretDoors, labels, lights, lightRings, secretAsWall, wallsGroup, doors, openables };
 }
 
 function buildObject(o: SceneObject, y0: number, labels: LabelSpec[]): THREE.Object3D {

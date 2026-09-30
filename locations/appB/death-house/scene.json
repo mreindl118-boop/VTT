@@ -1331,7 +1331,14 @@
      ],
      "vis": "player",
      "rotY": -90,
-     "key": "3"
+     "key": "3",
+     "container": {
+      "contents": "A heavy, a light and a hand crossbow, with twenty bolts for each.",
+      "locked": true,
+      "reveals": [
+       "f1-cab-lock"
+      ]
+     }
     },
     {
      "id": "f1-cab-n",
@@ -1343,7 +1350,10 @@
      ],
      "vis": "player",
      "rotY": 90,
-     "key": "3"
+     "key": "3",
+     "container": {
+      "contents": "A small box holding a deck of playing cards, and rows of wine glasses."
+     }
     },
     {
      "id": "f1-cab-lock",
@@ -2588,7 +2598,13 @@
      ],
      "vis": "player",
      "rotY": -30,
-     "key": "8"
+     "key": "8",
+     "container": {
+      "contents": "An iron key in the drawer. On the desk: an oil lamp, ink and quill, a tinderbox and a letter kit with a windmill seal.",
+      "reveals": [
+       "f2-key"
+      ]
+     }
     },
     {
      "id": "f2-deskchair",
@@ -2723,7 +2739,11 @@
      "label": "Chest: Strahd's letter, deeds, will (dart trap spent)",
      "desc": "A heavy chest with clawed iron feet, lid half open. A skeleton in leather armor is slumped over it, three darts in its ribs.",
      "dm": "Dart trap is spent. The skeleton clutches a letter under Strahd's seal. Inside: three blank black books (25 gp each), scrolls of bless, protection from poison and spiritual weapon, the deeds to the house and to a windmill, and the Dursts' will.",
-     "playerLabel": "Chest and skeleton"
+     "playerLabel": "Chest and skeleton",
+     "container": {
+      "contents": "Three blank books bound in black leather, three spell scrolls, the deed to this house, the deed to a windmill, and a signed will.",
+      "open": true
+     }
     },
     {
      "id": "f2-shelves9",
@@ -2772,7 +2792,10 @@
       14.5
      ],
      "vis": "player",
-     "key": "7A"
+     "key": "7A",
+     "container": {
+      "contents": "Empty."
+     }
     },
     {
      "id": "f2-footlocker2",
@@ -2783,7 +2806,10 @@
       14.5
      ],
      "vis": "player",
-     "key": "7A"
+     "key": "7A",
+     "container": {
+      "contents": "Empty."
+     }
     },
     {
      "id": "f2-dumbwaiter",
@@ -4460,7 +4486,10 @@
       1.5
      ],
      "vis": "player",
-     "key": "12A"
+     "key": "12A",
+     "container": {
+      "contents": "Empty."
+     }
     },
     {
      "id": "f3-wardrobe2",
@@ -4472,7 +4501,10 @@
      ],
      "vis": "player",
      "rotY": 90,
-     "key": "12A"
+     "key": "12A",
+     "container": {
+      "contents": "Empty."
+     }
     },
     {
      "id": "f3-vanity",
@@ -4483,7 +4515,13 @@
       13.0
      ],
      "vis": "player",
-     "key": "12A"
+     "key": "12A",
+     "container": {
+      "contents": "Dusty drawers; the jewelry box sits on top.",
+      "reveals": [
+       "f3-jewelry"
+      ]
+     }
     },
     {
      "id": "f3-vanity-mirror",
@@ -4512,7 +4550,10 @@
      },
      "desc": "A vanity with a mirror and a silver jewelry box.",
      "dm": "Box worth 75 gp: three gold rings (25 gp each) and a platinum necklace with a topaz pendant (750 gp).",
-     "playerLabel": "Vanity"
+     "playerLabel": "Vanity",
+     "container": {
+      "contents": "Three gold rings and a thin platinum necklace with a topaz pendant."
+     }
     },
     {
      "id": "f3-padded-chair",
@@ -5011,7 +5052,10 @@
       53.0
      ],
      "vis": "player",
-     "key": "15A"
+     "key": "15A",
+     "container": {
+      "contents": "Empty."
+     }
     },
     {
      "id": "f3-end2",
@@ -5022,7 +5066,10 @@
       53.0
      ],
      "vis": "player",
-     "key": "15A"
+     "key": "15A",
+     "container": {
+      "contents": "Empty."
+     }
     },
     {
      "id": "f3-wardrobe15",
@@ -5034,7 +5081,10 @@
      ],
      "vis": "player",
      "rotY": -90,
-     "key": "15A"
+     "key": "15A",
+     "container": {
+      "contents": "Empty."
+     }
     },
     {
      "id": "f3-mirror",
@@ -5884,7 +5934,10 @@
       2.5
      ],
      "vis": "player",
-     "key": "19"
+     "key": "19",
+     "container": {
+      "contents": "Empty."
+     }
     },
     {
      "id": "attic-stove19",
@@ -5907,7 +5960,10 @@
      ],
      "vis": "player",
      "rotY": 180,
-     "key": "19"
+     "key": "19",
+     "container": {
+      "contents": "Empty."
+     }
     },
     {
      "id": "attic-rocker19",
@@ -6042,7 +6098,10 @@
      "label": "Toy chest",
      "desc": "A toy chest painted with windmills.",
      "dm": "Stuffed animals and toys. Disturbing it summons the ghosts.",
-     "playerLabel": "Toy chest"
+     "playerLabel": "Toy chest",
+     "container": {
+      "contents": "Stuffed animals and wooden toys."
+     }
     },
     {
      "id": "attic-dollhouse",
@@ -6347,7 +6406,10 @@
      "label": "Trunk: nursemaid's remains (specter if disturbed)",
      "desc": "A wooden trunk under a dusty sheet, beside an iron stove.",
      "dm": "Unlocked. The nursemaid's skeleton wrapped in a bloodstained sheet (DC 14 Medicine: stabbed). Disturbing it summons her specter unless destroyed in 15.",
-     "playerLabel": "Trunk"
+     "playerLabel": "Trunk",
+     "container": {
+      "contents": "A woman's bones wrapped in a tattered sheet stiff with old blood."
+     }
     },
     {
      "id": "attic-web-18-0",
@@ -6429,7 +6491,10 @@
       42.0
      ],
      "vis": "player",
-     "key": "17"
+     "key": "17",
+     "container": {
+      "contents": "Empty."
+     }
     },
     {
      "id": "attic-stove17",
@@ -6452,7 +6517,10 @@
      ],
      "vis": "player",
      "rotY": 90,
-     "key": "17"
+     "key": "17",
+     "container": {
+      "contents": "A few sheets of yellowed paper."
+     }
     },
     {
      "id": "attic-stool17",
@@ -6478,7 +6546,10 @@
      ],
      "vis": "player",
      "rotY": -90,
-     "key": "17"
+     "key": "17",
+     "container": {
+      "contents": "Empty."
+     }
     },
     {
      "id": "attic-rocker",
@@ -10169,7 +10240,11 @@
      "label": "Padlocked chest A (DC 15)",
      "desc": "A padlocked wooden chest.",
      "dm": "DC 15 Dex (thieves' tools). 11 gp and 60 sp in a pouch of human skin.",
-     "playerLabel": "Padlocked chest"
+     "playerLabel": "Padlocked chest",
+     "container": {
+      "contents": "Worthless odds and ends, and a coin pouch made of an unsettling pale leather.",
+      "locked": true
+     }
     },
     {
      "id": "dungeon-bed25B",
@@ -10195,7 +10270,11 @@
      "label": "Padlocked chest B (DC 15)",
      "desc": "A padlocked wooden chest.",
      "dm": "DC 15. Three moss agates (10 gp each) in black cloth.",
-     "playerLabel": "Padlocked chest"
+     "playerLabel": "Padlocked chest",
+     "container": {
+      "contents": "Worthless odds and ends, and three mossy green stones folded in black cloth.",
+      "locked": true
+     }
     },
     {
      "id": "dungeon-bed25C",
@@ -10221,7 +10300,11 @@
      "label": "Padlocked chest C (DC 15)",
      "desc": "A padlocked wooden chest.",
      "dm": "DC 15. A leather eyepatch set with a carnelian (50 gp).",
-     "playerLabel": "Padlocked chest"
+     "playerLabel": "Padlocked chest",
+     "container": {
+      "contents": "Worthless odds and ends, and a black leather eyepatch with a red stone sewn into it.",
+      "locked": true
+     }
     },
     {
      "id": "dungeon-bed25D",
@@ -10248,7 +10331,11 @@
      "label": "Padlocked chest D (DC 15)",
      "desc": "A padlocked wooden chest.",
      "dm": "DC 15. An ivory hairbrush with silver bristles (25 gp).",
-     "playerLabel": "Padlocked chest"
+     "playerLabel": "Padlocked chest",
+     "container": {
+      "contents": "Worthless odds and ends, and an ivory hairbrush with silver bristles.",
+      "locked": true
+     }
     },
     {
      "id": "dungeon-bed25E",
@@ -10275,7 +10362,11 @@
      "label": "Padlocked chest E (DC 15)",
      "desc": "A padlocked wooden chest.",
      "dm": "DC 15. A silvered shortsword (110 gp).",
-     "playerLabel": "Padlocked chest"
+     "playerLabel": "Padlocked chest",
+     "container": {
+      "contents": "Worthless odds and ends, and a silvered shortsword.",
+      "locked": true
+     }
     },
     {
      "id": "dungeon-spiral22",
@@ -10324,7 +10415,10 @@
      "rotY": 90,
      "key": "23C",
      "desc": "An empty coffin on a stone bier.",
-     "dm": "Gustav's crypt. Slab: DC 15 Athletics to remove (advantage with a crowbar)."
+     "dm": "Gustav's crypt. Slab: DC 15 Athletics to remove (advantage with a crowbar).",
+     "container": {
+      "contents": "Empty."
+     }
     },
     {
      "id": "dungeon-coffinD",
@@ -10338,7 +10432,10 @@
      "rotY": 90,
      "key": "23D",
      "desc": "An empty coffin on a stone bier.",
-     "dm": "Elisabeth's crypt. A swarm of insects (centipedes) bursts from the back wall if the coffin is disturbed."
+     "dm": "Elisabeth's crypt. A swarm of insects (centipedes) bursts from the back wall if the coffin is disturbed.",
+     "container": {
+      "contents": "Empty."
+     }
     },
     {
      "id": "dungeon-coffinE",
@@ -10352,7 +10449,10 @@
      "rotY": 90,
      "key": "23E",
      "desc": "An empty coffin on a stone bier.",
-     "dm": "Rose's crypt. Her remains laid here put her ghost to rest."
+     "dm": "Rose's crypt. Her remains laid here put her ghost to rest.",
+     "container": {
+      "contents": "Empty."
+     }
     },
     {
      "id": "dungeon-coffinF",
@@ -10366,7 +10466,10 @@
      "rotY": 90,
      "key": "23F",
      "desc": "An empty coffin on a stone bier.",
-     "dm": "Thorn's crypt. His remains laid here put his ghost to rest."
+     "dm": "Thorn's crypt. His remains laid here put his ghost to rest.",
+     "container": {
+      "contents": "Empty."
+     }
     },
     {
      "id": "dungeon-slabA",
@@ -11015,7 +11118,10 @@
      ],
      "vis": "player",
      "rotY": 90,
-     "key": "34"
+     "key": "34",
+     "container": {
+      "contents": "Several old black robes."
+     }
     },
     {
      "id": "dungeon-crate34",
@@ -11070,7 +11176,10 @@
      "label": "Footlocker: cloak of protection, potions, spellbook",
      "desc": "An unlocked footlocker at the foot of the bed.",
      "dm": "Cloak of protection, coffer with four potions of healing, chain shirt, mess kit, alchemist's fire, bullseye lantern, thieves' tools, and a wizard's spellbook (1st: disguise self, identify, mage armor, magic missile, protection from evil and good; 2nd: darkvision, hold person, invisibility, magic weapon). Taking anything brings the ghasts out of the walls.",
-     "playerLabel": "Footlocker"
+     "playerLabel": "Footlocker",
+     "container": {
+      "contents": "A folded cloak, a small coffer with four potions, a chain shirt, a mess kit, a flask of alchemist's fire, a bullseye lantern, thieves' tools and a spellbook bound in yellow leather."
+     }
     },
     {
      "id": "dungeon-ghast-g",

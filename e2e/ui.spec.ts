@@ -23,3 +23,18 @@ test('DM hover names what is under the cursor', async ({ page }) => {
   await expect(page.locator('.tip')).toBeVisible();
   await expect(page.locator('.tip b')).toContainText('T2');
 });
+
+test('containers: players cannot open locked ones; the DM can, and opening reveals what is inside', async ({ page }) => {
+  await boot(page, '', { ...SCENES[1], level: 'f1', spawn: [12.5, 47.5] });
+  const r = await page.evaluate(() => {
+    const a = (window as any).__mistlab.app, key = (id: string) => a.state.opened[`death-house/${id}`];
+    a.setView('players');
+    const lockedByPlayers = a.toggleOpen('f1-cab-e');
+    const unlockedByPlayers = a.toggleOpen('f1-cab-n');
+    a.setView('dm');
+    const byDm = a.toggleOpen('f1-cab-e');
+    const crossbowsRevealed = a.state.reveals.some((x: any) => x.type === 'object' && x.id === 'f1-cab-lock');
+    return { lockedByPlayers, unlockedByPlayers, byDm, crossbowsRevealed, east: key('f1-cab-e'), north: key('f1-cab-n') };
+  });
+  expect(r).toEqual({ lockedByPlayers: false, unlockedByPlayers: true, byDm: true, crossbowsRevealed: true, east: true, north: true });
+});

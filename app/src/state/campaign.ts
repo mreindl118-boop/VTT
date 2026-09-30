@@ -29,11 +29,13 @@ export interface CampaignState {
   /** Explored memory by `${location}/${level}` (RLE). */
   seen: Record<string, string>;
   doorsOpen: Record<string, boolean>;
+  /** Opened containers by `${location}/${objectId}`. */
+  opened: Record<string, boolean>;
   updatedAt: number;
 }
 
 export function newCampaign(id = 'default'): CampaignState {
-  return { id, name: 'Curse of Strahd', reveals: [], tokens: [], seen: {}, doorsOpen: {}, updatedAt: Date.now() };
+  return { id, name: 'Curse of Strahd', reveals: [], tokens: [], seen: {}, doorsOpen: {}, opened: {}, updatedAt: Date.now() };
 }
 
 /** Derived lookup of what players have been shown (for one location). */
