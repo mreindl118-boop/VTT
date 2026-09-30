@@ -122,7 +122,7 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
       pushWall(color, segmentBox(w.a, w.b, y0, y0 + 3));
       pushWall(color, segmentBox(w.a, w.b, y0 + 7, y0 + h));
       const pane = new THREE.Mesh(segmentBox(w.a, w.b, y0 + 3, y0 + 7, 0.2, false), wallMat(PALETTE.stone, { emissive: '#1b2530' }));
-      pane.userData.role = 'wall';
+      pane.userData.role = 'wall'; pane.userData.window = true;
       wallsGroup.add(pane);
       continue;
     }

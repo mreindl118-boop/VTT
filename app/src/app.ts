@@ -27,7 +27,7 @@ export type Mode = 'dm' | 'player';
 export type Tool = 'none' | 'reveal' | 'brush-reveal' | 'brush-fog';
 export type GridMode = 'off' | 'square' | 'hex';
 export interface TapHit {
-  room?: { key: string; name: string; revealed: boolean };
+  room?: { key: string; name: string; revealed: boolean; desc?: string; dm?: string; page?: number };
   pos: Vec2;
   door?: { wallId: string; open: boolean };
   secretDoor?: { id: string; revealed: boolean };
@@ -100,6 +100,10 @@ export class App {
 
   async open(path: string, levelId?: string): Promise<void> {
     if (this.cur) {
+      // Labels are page elements: detach each one, or they linger over the next location.
+      for (const lb of this.cur.labels) { lb.obj.removeFromParent(); lb.obj.element.remove(); }
+      this.select(null);
+      this.onLeave?.();
       for (const b of this.cur.levels.values()) this.world.scene.remove(b.root);
       for (const tx of this.cur.covTex.values()) tx.dispose();
     }
@@ -134,13 +138,15 @@ export class App {
         if (spec.kind === 'door') {
           const locked = spec.text === 'locked';
           obj.element.innerHTML = `<i class="closed">${ICON.doorClosed}</i><i class="opened">${ICON.doorOpen}</i>${locked ? `<b>${ICON.padlock}</b>` : ''}`;
-          obj.element.title = locked ? 'Locked door' : 'Door';
+          obj.element.title = locked ? 'Locked door · the DM opens it' : 'Door · click to open or close';
           if (locked) obj.element.classList.add('locked');
           obj.element.addEventListener('click', () => this.toggleDoor(spec.wallId!));
         }
         if (spec.kind === 'link') {
           const up = spec.text.startsWith('↑');
           obj.element.innerHTML = `${up ? ICON.stairsUp : ICON.stairsDown}<span>${spec.text.slice(2)}</span>`;
+          const lk = scene.links.find((k) => k.id === spec.linkId);
+          obj.element.title = `${lk?.kind === 'trapdoor' ? 'Trapdoor' : lk?.kind === 'dumbwaiter' ? 'Dumbwaiter' : 'Stairs'} ${up ? 'up' : 'down'} to ${spec.text.slice(2)} · click to take the party`;
           obj.element.addEventListener('click', () => this.takeLink(spec.linkId!));
         }
         b.root.add(obj);
@@ -232,7 +238,7 @@ export class App {
     if (t.level !== this.levelId) this.setLevel(t.level);
     const l = this.level;
     // Close working distance: the party's room and its neighbours fill the screen.
-    const dist = Math.min(this.world.camera.position.distanceTo(this.world.controls.target), 75);
+    const dist = Math.min(this.world.camera.position.distanceTo(this.world.controls.target), 90);
     this.world.moveTo(new THREE.Vector3(t.pos[0], l.elevationFt, t.pos[1]), dist, animate);
   }
 
@@ -480,7 +486,10 @@ export class App {
   }
   private pick(e: PointerEvent): THREE.Intersection | undefined {
     this.raycaster.setFromCamera(this.ndc(e), this.world.camera);
-    return this.raycaster.intersectObject(this.built.root, true).find((h) => h.object.visible && (h.object as THREE.Mesh).isMesh && h.object.userData.role !== 'grid' && h.object.userData.role !== 'marker' && isShown(h.object));
+    const cut = this.lowWalls ? this.level.elevationFt + WALL_CUT_FT : Infinity;
+    return this.raycaster.intersectObject(this.built.root, true).find((h) => h.object.visible && (h.object as THREE.Mesh).isMesh && h.object.userData.role !== 'grid' && h.object.userData.role !== 'marker' && isShown(h.object)
+      // The cutaway clips walls visually; ignore hits on the clipped-away part.
+      && !((h.object.userData.role === 'wall' || h.object.userData.role === 'door') && h.point.y > cut + 0.01));
   }
 
   snap(p: Vec2): Vec2 {
@@ -512,6 +521,7 @@ export class App {
     });
     el.addEventListener('pointermove', (e) => {
       if (!drag && this.selected && e.pointerType === 'mouse') return this.previewMove(e);
+      if (!drag && e.pointerType === 'mouse') { this.hoverEvt = e; if (!this.hoverRaf) this.hoverRaf = requestAnimationFrame(() => { this.hoverRaf = 0; if (this.hoverEvt) this.hover(this.hoverEvt); }); }
       if (!drag || drag.kind === 'tap') return;
       const p = this.floorPoint(e);
       if (!p) return;
@@ -560,6 +570,8 @@ export class App {
     this.world.invalidate();
   }
   onSelect?: (id: string | null) => void;
+  /** Called before a location closes, so menus, cards and tooltips can go too. */
+  onLeave?: () => void;
   private makeRing(color: string, opacity: number): THREE.Mesh {
     const m = new THREE.Mesh(new THREE.RingGeometry(0.86, 1, 48).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color, transparent: true, opacity, depthWrite: false }));
     m.position.y = 0.12; m.renderOrder = 5; m.userData.role = 'marker';
@@ -592,6 +604,53 @@ export class App {
     return true;
   }
 
+  private hoverEvt?: PointerEvent;
+  private hoverRaf = 0;
+  onHover?: (tip: { title: string; sub?: string } | null, x: number, y: number) => void;
+  /** Mouse hover: name what is under the cursor. The DM sees everything; players only what they can see. */
+  private hover(e: PointerEvent): void {
+    if (!this.cur || !this.onHover) return;
+    this.onHover(this.describe(e), e.clientX, e.clientY);
+  }
+  describe(e: PointerEvent): { title: string; sub?: string } | null {
+    const hit = this.pick(e), o = hit?.object, loc = this.cur!.scene.location, p = this.floorPoint(e);
+    const room = p ? this.roomAt(this.level, p) : undefined;
+    const where = room ? `${room.key} · ${room.name}` : undefined;
+    const players = this.restricted;
+    const tokId = o && findUp(o, 'tokenId');
+    if (tokId) { const t = this.state.tokens.find((x) => x.id === tokId); return { title: t?.name ?? 'Token', sub: this.selected === tokId ? 'Tap where it goes' : 'Tap to pick up and move' }; }
+    const oid = o && findUp(o, 'objectId');
+    const obj = oid ? this.level.objects.find((x) => x.id === oid) : undefined;
+    if (obj) {
+      if (players) return this.playerCanSee(obj) ? { title: playerLabel(obj) } : null;
+      const rs = revealSets(this.state, loc);
+      const vis = obj.vis === 'player' || !obj.vis ? undefined : `${obj.vis.replace('-', ' ')} · ${rs.objects.has(obj.id) ? 'revealed' : 'hidden from players'}`;
+      return { title: obj.label ?? kindName(obj.kind), sub: [vis, where].filter(Boolean).join(' · ') || undefined };
+    }
+    const role = o?.userData.role as string | undefined;
+    const wallId = o?.userData.wallId as string | undefined;
+    const sd = o && (findUp(o, 'secretDoor') ?? this.built.secretDoors.find((x) => x.door === o || x.panel === o)?.objectId);
+    if (sd) {
+      if (players) return null;
+      const r = revealSets(this.state, loc).secretDoors.has(sd);
+      const so = this.level.objects.find((x) => x.id === sd);
+      return { title: so?.label ?? 'Secret door', sub: r ? 'Revealed · tap to open or close' : 'Hidden from players · Reveal tool shows it' };
+    }
+    if (role === 'door' && wallId) {
+      const w = this.level.walls.find((x) => x.id === wallId), open = this.state.doorsOpen[`${loc}/${wallId}`] ?? w?.open;
+      const locked = w?.flags.includes('locked');
+      return { title: locked ? 'Locked door' : 'Door', sub: `${open ? 'Open' : 'Closed'}${players && locked && !open ? ' · the DM holds the key' : ' · tap the door icon to ' + (open ? 'close' : 'open')}` };
+    }
+    if (role === 'stairs') return { title: 'Stairs', sub: where };
+    if (role === 'wall') {
+      if (players) return null;
+      const glass = o?.userData.window;
+      return { title: glass ? 'Window' : 'Wall', sub: where };
+    }
+    if (room && (!players || this.isRevealed(room.key))) return { title: players ? room.name : `${room.key} · ${room.name}`, sub: players ? undefined : `${this.isRevealed(room.key) ? 'Revealed' : 'Not revealed'}${room.page ? ` · p.${room.page}` : ''}` };
+    return null;
+  }
+
   private lastTap = 0;
   private tap(e: PointerEvent): void {
     // Moving is two deliberate taps: the token, then where it goes. A swipe never moves anyone.
@@ -613,7 +672,10 @@ export class App {
       // Players may look at what they can see: a description card, nothing else.
       const oid = hit && findUp(hit.object, 'objectId');
       const obj = oid ? this.level.objects.find((o) => o.id === oid) : undefined;
-      if (obj && this.onTap && this.playerCanSee(obj)) this.onTap({ pos: [0, 0], object: { id: obj.id, label: playerLabel(obj), vis: obj.vis, revealed: true, kind: obj.kind, desc: playerDesc(obj), visibleToPlayers: true } }, e.clientX, e.clientY);
+      if (obj && this.onTap && this.playerCanSee(obj)) { this.onTap({ pos: [0, 0], object: { id: obj.id, label: playerLabel(obj), vis: obj.vis, revealed: true, kind: obj.kind, desc: playerDesc(obj), visibleToPlayers: true } }, e.clientX, e.clientY); return; }
+      // A revealed room: its name and what the party notices there.
+      const fp = this.floorPoint(e), room = fp && this.roomAt(this.level, fp);
+      if (room && this.onTap && this.isRevealed(room.key)) this.onTap({ pos: fp!, room: { key: room.key, name: room.name, revealed: true, desc: room.desc } }, e.clientX, e.clientY);
       return;
     }
     const sd = hit && (findUp(hit.object, 'secretDoor') ?? (hit.object.userData.role === 'door' ? this.built.secretDoors.find((s) => s.door === hit.object)?.objectId : undefined));
@@ -625,7 +687,7 @@ export class App {
       const obj = oid ? this.level.objects.find((o) => o.id === oid) : undefined;
       const pos = p ? ([p[0], p[1]] as Vec2) : ([0, 0] as Vec2);
       const rs = revealSets(this.state, this.cur!.scene.location);
-      const info: TapHit = { room: room ? { key: room.key, name: room.name, revealed: this.isRevealed(room.key) } : undefined, pos,
+      const info: TapHit = { room: room ? { key: room.key, name: room.name, revealed: this.isRevealed(room.key), desc: room.desc, dm: room.dm, page: room.page } : undefined, pos,
         door: wallId ? { wallId, open: !!(this.state.doorsOpen[`${this.cur!.scene.location}/${wallId}`] ?? this.level.walls.find((w) => w.id === wallId)?.open) } : undefined,
         secretDoor: sd ? { id: sd, revealed: rs.secretDoors.has(sd) } : undefined,
         object: obj ? { id: obj.id, label: obj.label ?? kindName(obj.kind), playerLabel: playerLabel(obj), vis: obj.vis, revealed: rs.objects.has(obj.id), kind: obj.kind, desc: playerDesc(obj), dm: obj.dm, page: this.level.rooms.find((r) => r.key === obj.key)?.page, visibleToPlayers: this.playerCanSee(obj) } : undefined };

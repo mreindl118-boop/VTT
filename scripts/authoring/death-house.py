@@ -238,7 +238,7 @@ for a, b in [((0, 0), (1, 0)), ((2, 0), (3, 0)), ((5, 0), (6, 0)), ((0, 1), (0, 
 # props (module descriptions, area by area)
 f1.prop('gate-iron', 'gate', (0.5, 11), '1A'); f1.prop('lamp1a', 'oil-lamp', (0.3, 10.5), '1A', dims={'y': 7}); f1.prop('lamp1b', 'oil-lamp', (1.7, 10.5), '1A', dims={'y': 7})
 f1.prop('shield', 'shield-of-arms', (1.9, 8.5), '1B', rotY=-90); f1.prop('portrait1', 'portrait', (1.9, 7.6), '1B', rotY=-90); f1.prop('portrait2', 'portrait', (1.9, 9.4), '1B', rotY=-90)
-f1.prop('fire2a', 'fireplace', (0.25, 4.7), '2A', rotY=90); f1.hidden('sword', 'oil-lamp', (0.4, 4.7), '2A', 'Longsword above the mantel (windmill cameo)', dims={'y': 7.5})
+f1.prop('fire2a', 'fireplace', (0.25, 4.7), '2A', rotY=90); f1.obj('sword', 'wall-sword', (0.35, 4.7), 'player', '2A', 'Longsword', rotY=90, dims={'y': 7.2})
 f1.prop('spiral', 'spiral-stair', (5.1, 5.5), '2A', dims={'rise': 10, 'r': 6})
 f1.prop('hooks2b', 'cloak-hooks', (2.5, 3.15), '2B')
 f1.prop('fire3', 'fireplace', (5.75, 9.5), '3', rotY=-90); f1.prop('stag', 'stag-head', (5.6, 9.5), '3', rotY=-90)
@@ -247,13 +247,14 @@ f1.prop('fur-a', 'chair', (5, 8.8), '3', rotY=-90); f1.prop('fur-b', 'chair', (5
 f1.prop('chandelier3', 'chandelier', (3.3, 9.6), '3', dims={'y': 8})
 f1.prop('den-table', 'table', (3.3, 9.6), '3'); [f1.prop(f'denchair{i}', 'chair', p, '3', rotY=r) for i, (p, r) in enumerate([((2.7, 8.9), 135), ((3.9, 8.9), -135), ((2.7, 10.3), 45), ((3.9, 10.3), -45)])]
 f1.prop('cab-e', 'cabinet', (5.7, 8.2), '3', rotY=-90); f1.prop('cab-n', 'cabinet', (2.3, 8.3), '3', rotY=90)
-f1.hidden('cab-lock', 'toy-chest', (5.6, 8.2), '3', 'Locked east cabinet: crossbows (DC 15)')
+f1.hidden('cab-lock', 'crossbow-rack', (5.45, 8.2), '3', 'Locked east cabinet: crossbows (DC 15)', rotY=-90)
+f1.prop('den-goblets', 'tabletop', (4.7, 9.5), '3', dims={'set': 3, 'y': 3})
 f1.hidden('trapdoor', 'trapdoor', (5.5, 10.5), '3', 'Hidden trapdoor to 32 (only from below)')
 f1.prop('table', 'table', (2, 1.5), '5'); [f1.prop(f'chair{i}', 'chair', p, '5', rotY=r) for i, (p, r) in enumerate([((1.2, 0.7), 180), ((2, 0.7), 180), ((2.8, 0.7), 180), ((1.2, 2.3), 0), ((2, 2.3), 0), ((2.8, 2.3), 0), ((0.7, 1.5), 90), ((3.3, 1.5), -90)])]
 f1.prop('chandelier5', 'chandelier', (2, 1.5), '5', dims={'y': 8, 'crystal': 1}); f1.prop('fire5', 'fireplace', (0.25, 2.5), '5', rotY=90); f1.prop('painting5', 'portrait', (0.4, 2.5), '5', rotY=90, dims={'landscape': 1, 'w': 3, 'h': 2, 'y': 7.5})
-f1.prop('tapestry5', 'tapestry', (3.85, 1.5), '5', rotY=-90); f1.prop('drapes5a', 'drapes', (0.5, 0.1), '5'); f1.prop('drapes5b', 'drapes', (2.5, 0.1), '5'); f1.prop('drapes5c', 'drapes', (0.1, 1.5), '5', rotY=90)
+f1.prop('silver5', 'tabletop', (2, 1.5), '5', dims={'set': 0, 'y': 3}); f1.prop('tapestry5', 'tapestry', (3.85, 1.5), '5', rotY=-90); f1.prop('drapes5a', 'drapes', (0.5, 0.1), '5'); f1.prop('drapes5b', 'drapes', (2.5, 0.1), '5'); f1.prop('drapes5c', 'drapes', (0.1, 1.5), '5', rotY=90)
 f1.prop('oven', 'oven', (5.2, 1.4), '4A'); f1.prop('worktable', 'table', (4.8, 2.5), '4A', rotY=90); f1.prop('shelves4a', 'shelves', (4.15, 1.8), '4A', rotY=90, dims={'w': 5})
-f1.prop('dumbwaiter', 'dumbwaiter-shaft', (5.7, 3.7), '4A', rotY=180); f1.prop('shelves4b', 'shelves', (5, 0.15), '4B', dims={'w': 8, 'food': 1})
+f1.prop('dumbwaiter', 'dumbwaiter-shaft', (5.7, 3.7), '4A', rotY=180); f1.prop('bell4a', 'brass-bell', (5.2, 3.9), '4A', rotY=180, dims={'y': 5}); f1.prop('pots4a', 'hanging-pots', (4.8, 2.5), '4A', rotY=90, dims={'w': 6}); f1.prop('sacks4b', 'sacks', (4.6, 0.65), '4B'); f1.prop('shelves4b', 'shelves', (5, 0.15), '4B', dims={'w': 8, 'food': 1})
 f1.hidden('shaft-f1', 'dumbwaiter', (0.5, 3.5), '21', 'Secret stair shaft (21) passes here')
 f1.obj('spawn', 'spawn', (1.5, 10.5), 'dm-note', '1A', 'Party spawn: portico (Rose & Thorn wait here)')
 
@@ -273,11 +274,11 @@ f2.door((1, 7), (2, 7))                      # 6 -> 10 (west door)
 f2.secret((4, 0), (4, 1), 'lib', 'Secret door behind the bookshelf (DC 13)', '8')
 for a, b in [((0, 0), (1, 0)), ((2, 0), (3, 0)), ((0, 1), (0, 2)), ((0, 5), (0, 6)), ((6, 8), (6, 9)), ((0, 11), (1, 11)), ((2, 11), (3, 11)), ((4, 11), (5, 11))]:
     f2.window(a, b)
-f2.prop('shelves', 'bookshelf', (3.65, 1.5), '8', rotY=90, dims={'w': 14}); f2.prop('ladder', 'bench', (3.3, 0.9), '8', rotY=90, dims={'l': 2})
+f2.prop('shelves', 'bookshelf', (3.65, 1.5), '8', rotY=90, dims={'w': 14}); f2.prop('ladder', 'rolling-ladder', (3.35, 0.9), '8', rotY=90, dims={'h': 11})
 f2.prop('desk', 'desk', (1.7, 1.4), '8', rotY=-30); f2.prop('deskchair', 'chair', (1.9, 2.2), '8', rotY=150); f2.prop('chairA', 'chair', (0.5, 0.5), '8', rotY=135); f2.prop('chairB', 'chair', (0.5, 2.6), '8', rotY=45)
 f2.prop('fire8', 'fireplace', (2.5, 0.25), '8'); f2.prop('windmill-pic', 'portrait', (2.5, 0.4), '8', dims={'landscape': 1, 'w': 2.4, 'h': 1.8, 'y': 7.5})
 f2.prop('drapes8a', 'drapes', (0.5, 0.1), '8'); f2.prop('drapes8b', 'drapes', (0.1, 1.5), '8', rotY=90)
-f2.hidden('key', 'toy-chest', (1.7, 1.4), '8', 'Desk drawer: iron key to area 20'); f2.prop('desk-lamp', 'oil-lamp', (1.4, 1.2), '8', dims={'y': 3})
+f2.hidden('key', 'desk-key', (1.8, 1.45), '8', 'Desk drawer: iron key to area 20', dims={'y': 2.8}); f2.prop('desk-lamp', 'oil-lamp', (1.4, 1.2), '8', dims={'y': 3})
 f2.hidden('chest9', 'claw-chest-skeleton', (5.5, 0.5), '9', "Chest: Strahd's letter, deeds, will (dart trap spent)", rotY=-90)
 f2.prop('shelves9', 'bookshelf', (4.5, 0.15), '9', dims={'w': 5})
 f2.prop('bed7a', 'bed-plain', (4.6, 1.8), '7A'); f2.prop('bed7b', 'bed-plain', (5.5, 1.8), '7A'); f2.prop('footlocker1', 'trunk', (4.6, 2.9), '7A'); f2.prop('footlocker2', 'trunk', (5.5, 2.9), '7A')
@@ -320,17 +321,17 @@ for a, b in [((0, 0), (1, 0)), ((3, 0), (4, 0)), ((5, 1), (5, 2)), ((0, 1), (0, 
 for a, b in [((5, 0), (6, 0)), ((6, 0), (6, 2)), ((0, 11), (2, 11)), ((0, 9), (0, 11))]:
     f3.railing(a, b)
 f3.prop('bed', 'four-poster-bed', (3.5, 1.0), '12A'); f3.prop('wardrobe1', 'wardrobe', (4.6, 0.3), '12A'); f3.prop('wardrobe2', 'wardrobe', (0.4, 2.6), '12A', rotY=90)
-f3.prop('vanity', 'desk', (1.5, 2.6), '12A'); f3.prop('vanity-mirror', 'standing-mirror', (1.5, 2.85), '12A'); f3.hidden('jewelry', 'toy-chest', (1.5, 2.6), '12A', 'Jewelry box: rings, topaz necklace')
+f3.prop('vanity', 'desk', (1.5, 2.6), '12A'); f3.prop('vanity-mirror', 'standing-mirror', (1.5, 2.85), '12A'); f3.hidden('jewelry', 'jewelry-box', (1.3, 2.55), '12A', 'Jewelry box: rings, topaz necklace', dims={'y': 2.75})
 f3.prop('padded-chair', 'chair', (2.3, 2.3), '12A', rotY=-40)
-f3.prop('rug', 'stuffed-wolf', (1.5, 1.5), '12A', rotY=90); f3.prop('fire12', 'fireplace', (0.25, 1.5), '12A', rotY=90); f3.prop('portrait12', 'portrait', (0.4, 1.5), '12A', rotY=90, dims={'dusty': 1, 'y': 7})
+f3.prop('rug', 'tiger-rug', (1.6, 1.5), '12A', rotY=180); f3.prop('fire12', 'fireplace', (0.25, 1.5), '12A', rotY=90); f3.prop('portrait12', 'portrait', (0.4, 1.5), '12A', rotY=90, dims={'dusty': 1, 'y': 7})
 [f3.prop(f'drapes12{i}', 'drapes', p, '12A', rotY=r, dims={'color': 0x5b1f2b}) for i, (p, r) in enumerate([((0.5, 0.1), 0), ((0.1, 1.5), 90), ((3.5, 0.1), 0)])]
-f3.prop('parlor-table', 'table', (5, 3), '12A'); f3.prop('pchair1', 'chair', (4.5, 2.5), '12A', rotY=135); f3.prop('pchair2', 'chair', (5.5, 3.5), '12A', rotY=-45); f3.prop('bowl', 'wine-cask', (5, 3), '12A')
+f3.prop('parlor-table', 'table', (5, 3), '12A'); f3.prop('pchair1', 'chair', (4.5, 2.5), '12A', rotY=135); f3.prop('pchair2', 'chair', (5.5, 3.5), '12A', rotY=-45); f3.prop('bowl', 'tabletop', (5, 3), '12A', dims={'set': 2, 'y': 3})
 f3.prop('dumbwaiter', 'dumbwaiter-shaft', (5.7, 3.7), '12A', rotY=180)
 cobwebs(f3, [(0, 0), (5, 0), (6, 4), (0, 3)], '12A', y=6.5, n=3)
 f3.prop('tub', 'tub', (1.2, 5.2), '13'); f3.prop('stove13', 'stove', (0.4, 4.4), '13'); f3.prop('barrel', 'barrel-spigot', (1.7, 4.4), '13')
-f3.prop('shelves14', 'shelves', (1, 6.15), '14', dims={'w': 8})
+f3.prop('shelves14', 'shelves', (1, 6.15), '14', dims={'w': 8, 'linen': 1}); f3.prop('shelves14b', 'shelves', (0.15, 6.5), '14', rotY=90, dims={'w': 4, 'linen': 1})
 f3.creature('broom', 'broom-of-animated-attack', (0.5, 6.6), '14', 'Broom of animated attack', size='small')
-f3.prop('crib', 'crib', (1, 8), '15B'); f3.hidden('bundle', 'toy-chest', (1, 8), '15B', 'Shrouded crib: empty bundle'); cobwebs(f3, [(0, 7), (2, 7), (2, 9), (0, 9)], '15B', y=6.5)
+f3.prop('crib', 'crib', (1, 8), '15B'); f3.hidden('bundle', 'swaddled-bundle', (1, 8), '15B', 'Shrouded crib: empty bundle', dims={'y': 1.8}); cobwebs(f3, [(0, 7), (2, 7), (2, 9), (0, 9)], '15B', y=6.5)
 f3.creature('armor', 'animated-armor', (2.5, 4.5), '11', 'Animated armor (attacks within 5 ft)')
 [f3.prop(f'lamp11{i}', 'oil-lamp', p, '11') for i, p in enumerate([(3.5, 4.1), (2.1, 6.5)])]
 f3.prop('spiral', 'spiral-stair', (5.1, 5.5), '11', dims={'rise': 8, 'r': 6})
@@ -359,14 +360,14 @@ for a, b in [((0, 0), (1, 0)), ((0, 1), (0, 2)), ((2, 10), (2, 11)), ((3, 11), (
     at.window(a, b)
 at.prop('bed19', 'bed-plain', (1.5, 1), '19'); at.prop('night19', 'nightstand', (0.6, 0.5), '19'); at.prop('stove19', 'stove', (0.4, 2.5), '19'); at.prop('wardrobe19', 'wardrobe', (1.5, 2.7), '19', rotY=180); at.prop('rocker19', 'rocking-chair', (0.7, 1.8), '19', rotY=90)
 cobwebs(at, [(0, 0), (2, 0), (2, 3), (0, 3)], '19', y=6, n=4)
-at.prop('bed20a', 'child-bed', (2.6, 0.8), '20'); at.prop('bed20b', 'child-bed', (4.4, 0.8), '20')
+at.prop('bricked20', 'bricked-window', (3.5, 0.08), '20'); at.prop('bed20a', 'child-bed', (2.6, 0.8), '20'); at.prop('bed20b', 'child-bed', (4.4, 0.8), '20')
 at.hidden('remains', 'small-skeletons', (3.5, 1.7), '20', 'Rose & Thorn: skeletal remains + doll')
 at.hidden('toychest', 'toy-chest-windmills', (2.7, 2.6), '20', 'Toy chest'); at.hidden('dollhouse', 'dollhouse-replica', (4.3, 2.6), '20', 'Dollhouse: reveals all secret doors (DC 15)')
 at.creature('rose', 'ghost', (3.2, 1.4), '20', 'Rose (ghost)', size='small'); at.creature('thorn', 'ghost', (3.8, 1.9), '20', "Thorn (ghost)", size='small')
 cobwebs(at, [(2, 0), (5, 0), (5, 3), (2, 3)], '20', y=6, n=4)
 at.prop('spiral21', 'spiral-stair', (0.5, 3.5), '21', dims={'rise': 0.1, 'r': 2.2, 'turns': 1}); cobwebs(at, [(0, 3), (1, 3), (1, 4), (0, 4)], '21', y=5, n=2)
-[at.prop(f'sheet{i}', 'sheeted', p, '18') for i, p in enumerate([(1, 5.3), (2.3, 4.8), (1.5, 6.6), (2.5, 6.2), (1, 7.6), (2.4, 7.8), (0.6, 8.4), (2, 8.6)])]
-at.prop('mannequin', 'armor-suit', (2.6, 7), '18'); at.prop('stove18', 'stove', (0.5, 6), '18'); at.hidden('trunk', 'trunk', (0.7, 6.6), '18', "Trunk: nursemaid's remains (specter if disturbed)")
+[at.prop(f'sheet{i}', 'sheeted-shape', p, '18', dims={'shape': sh}) for i, (p, sh) in enumerate([((1, 5.3), 0), ((2.3, 4.8), 1), ((1.5, 6.6), 3), ((2.5, 6.2), 2), ((1, 7.6), 0), ((2.4, 7.8), 3), ((0.6, 8.4), 1), ((2, 8.6), 0)])]
+at.prop('mannequin', 'sheeted-shape', (2.6, 7.1), '18', dims={'shape': 2}); at.prop('stove18', 'stove', (0.5, 6), '18'); at.hidden('trunk', 'trunk', (0.7, 6.6), '18', "Trunk: nursemaid's remains (specter if disturbed)")
 cobwebs(at, [(0, 4), (3, 4), (3, 9), (0, 9)], '18', y=6, n=4)
 at.prop('bed17', 'bed-plain', (4.2, 8.9), '17'); at.prop('night17', 'nightstand', (3.4, 8.4), '17'); at.prop('stove17', 'stove', (4.6, 10.5), '17'); at.prop('desk17', 'desk', (3.3, 10.3), '17', rotY=90); at.prop('stool17', 'bench', (2.9, 10.3), '17', dims={'l': 1.4})
 at.prop('wardrobe17', 'wardrobe', (4.6, 9.8), '17', rotY=-90); at.prop('rocker', 'rocking-chair', (2.5, 9.7), '17', rotY=90); at.prop('doll', 'doll', (2.15, 10.5), '17')
@@ -438,17 +439,21 @@ for i, p in enumerate([(14.5, 13.5), (13.5, 14.5), (15.5, 14.5), (13.5, 16.5)]):
     du.creature(f'ghoul{i}', 'ghoul', p, '29', f'Ghoul {i + 1} (rises from the ground at the midpoint)')
 du.prop('stairs32', 'stairs-straight', (17.5, 12.5), '32', dims={'w': 5, 'rise': 10, 'fromZ': 70, 'toZ': 55})
 du.prop('planks32', 'planks-ceiling', (17.5, 11.5), '32', dims={'w': 5, 'd': 5, 'y': 16}); du.hidden('trapdoor32', 'trapdoor', (17.5, 11.3), '32', 'Trapdoor (bolted this side) up to the den (3)')
-du.prop('statue', 'strahd-statue', (19.3, 16.5), '31', rotY=-90); du.hidden('orb', 'oil-lamp', (19.1, 16.4), '31', 'Crystal orb (25 gp, arcane focus)', dims={'y': 5.5})
+du.prop('statue', 'strahd-statue', (19.3, 16.5), '31', rotY=-90); du.hidden('orb', 'crystal-orb', (19.0, 16.9), '31', 'Crystal orb (25 gp, arcane focus)', dims={'y': 4.6})
 for i in range(5): du.creature(f'shadow{i}', 'shadow', (18.4 + 0.5 * (i % 2), 15.3 + i * 0.6), '31', f'Shadow {i + 1} (if the statue is touched)')
 [du.prop(f'shackles{i}', 'shackled-skeleton', p, '31', rotY=r) for i, (p, r) in enumerate([((16.15, 15), 90), ((16.15, 17.5), 90), ((17.5, 14.15), 0), ((18.6, 19.85), 180), ((16.15, 19), 90)])]
 du.creature('mimic', 'mimic', (16, 19.5), '33', 'Mimic disguised as the door', size='medium')
 du.prop('chandelier33', 'chandelier', (14, 18.6), '33', dims={'y': 7}); du.prop('table33', 'table', (14, 18.6), '33', rotY=40); du.prop('ch33a', 'chair', (13.2, 18), '33', rotY=130); du.prop('ch33b', 'chair', (14.8, 19.2), '33', rotY=-50)
-du.prop('candle33a', 'candlestick', (12.3, 17.3), '33', dims={'h': 4}); du.prop('candle33b', 'candlestick', (15.7, 17.3), '33', dims={'h': 4})
+du.prop('jug33', 'tabletop', (14, 18.6), '33', dims={'set': 1, 'y': 3}); du.prop('candle33a', 'candlestick', (12.3, 17.3), '33', dims={'h': 4}); du.prop('candle33b', 'candlestick', (15.7, 17.3), '33', dims={'h': 4})
 du.prop('bed34', 'bed-plain', (9.5, 19.8), '34', rotY=0); du.prop('wardrobe34', 'wardrobe', (8.5, 18.3), '34', rotY=90); du.prop('crate34', 'torch-crate', (10.5, 18.4), '34')
 du.prop('candle34a', 'candlestick', (8.3, 20.7), '34', dims={'h': 4}); du.prop('candle34b', 'candlestick', (10.7, 20.7), '34', dims={'h': 4})
 du.hidden('footlocker', 'trunk', (9.5, 18.6), '34', 'Footlocker: cloak of protection, potions, spellbook')
 du.creature('ghast-g', 'ghast', (9.5, 17.5), '34', 'Ghast (Gustav Durst) — behind the wall'); du.creature('ghast-e', 'ghast', (7.5, 19.5), '34', 'Ghast (Elisabeth Durst) — behind the wall')
 du.note('chant', (12.5, 13.5), '29', 'Chanting is louder toward 30/35')
+# centuries-old footprints lead every which way — except over the hidden pit in 26
+for i, (pos, r, n) in enumerate([((12, 3), 0, 10), ((13.5, 5), 0, 12), ((15.5, 3), 0, 8), ((15.5, 8), 0, 8), ((12.5, 7.5), 0, 6), ((9.5, 3), 20, 10), ((8, 6.5), 0, 8),
+                                 ((4.5, 7.5), 70, 10), ((14.5, 11), 90, 10), ((13.5, 15), 0, 10), ((14.5, 13.5), 90, 6), ((17.5, 16.5), 0, 8), ((13.5, 18.5), 90, 8), ((9.5, 19.5), 40, 6), ((11.5, 9.5), 90, 5)]):
+    du.prop(f'footprints{i}', 'footprints', pos, None, rotY=r, dims={'n': n, 'len': n * 1.1, 'seed': i + 1})
 # timber braces every 5 ft along the 4-ft tunnels
 braces(du, '22', [(13, 1), (11, 1), (12, 1)], 'x'); braces(du, '22', [(12, 3), (12, 4)], 'z')
 braces(du, '23', [(13, r) for r in range(2, 9)], 'z'); braces(du, '23', [(15, r) for r in range(1, 5)], 'z'); braces(du, '23', [(15, r) for r in range(6, 10)], 'z'); braces(du, '23', [(12, r) for r in range(6, 9)], 'z'); braces(du, '23', [(14, 2), (14, 7)], 'x')
@@ -480,7 +485,7 @@ for i, p in enumerate([(5, 7), (7, 7), (9, 7), (11, 7), (5, 9), (11, 9), (5, 11)
     dl.prop(f'pillar{i}', 'column', p, '38', y=5)
 dl.prop('dais', 'dais', (8, 10), '38', dims={'w': 15, 'h': 5, 'steps': 3})
 dl.prop('altar', 'ghoul-altar', (8.4, 10), '38', y=5, rotY=90)
-dl.prop('chains', 'chains', (8.4, 10), '38', dims={'y': 16, 'len': 8}); dl.hidden('chains-note', 'oil-lamp', (8.4, 10), '38', 'Chains and shackles above the altar (8 ft)', dims={'y': 12})
+dl.prop('chains', 'chains', (8.4, 10), '38', dims={'y': 16, 'len': 8}); dl.note('chains-note', (8.4, 10.6), '38', 'Chains 8 ft long above the altar: prisoners were hung here and bled onto it')
 dl.prop('wheel', 'wheel', (7.6, 6.2), '38', y=5)
 dl.creature('lorghoth', 'shambling-mound', (7, 15.2), '38', 'Lorghoth the Decayer (shambling mound, asleep)', size='large')
 dl.prop('refuse', 'refuse', (7, 15.2), '38')
@@ -497,6 +502,7 @@ for r in (6, 8, 10, 12):
 cobwebs(dl, [(1, 6), (4, 6), (4, 13), (1, 13)], '36', y=6.5, n=4); cobwebs(dl, [(3, 1), (8, 1), (8, 4), (3, 4)], '35', y=6.5, n=4)
 braces(dl, '35', [(1, 2), (1, 3), (1, 4)], 'z'); braces(dl, '35', [(2, 1)], 'x'); braces(dl, '36', [(4, 4), (4, 5)], 'z'); braces(dl, '36', [(2, 5), (3, 5)], 'x')
 dl.note('up30', (1.5, 4.5), '35', 'Stair up to 30')
+dl.prop('footprints-a', 'footprints', (1.5, 3), None, dims={'n': 8, 'len': 9, 'seed': 31}); dl.prop('footprints-b', 'footprints', (5.5, 2.5), None, rotY=90, dims={'n': 8, 'len': 9, 'seed': 32})
 dl.note('cultists', (8, 7), '38', '13 apparitions on the ledges when the dais is climbed; "One must die!"')
 
 
@@ -592,11 +598,72 @@ PLAYER_LABEL = {
     'dungeon-shadow0': 'Shadow', 'dungeon-shadow1': 'Shadow', 'dungeon-shadow2': 'Shadow', 'dungeon-shadow3': 'Shadow', 'dungeon-shadow4': 'Shadow',
     'dungeon-ghoul0': 'Ghoul', 'dungeon-ghoul1': 'Ghoul', 'dungeon-ghoul2': 'Ghoul', 'dungeon-ghoul3': 'Ghoul',
     'dungeon-mimic': 'Rotted door', 'dungeon-footlocker': 'Footlocker', 'dungeon-ghast-g': 'Ghast', 'dungeon-ghast-e': 'Ghast',
-    'dungeon-lower-sdo-prison': 'Hidden door', 'dungeon-lower-chains-note': 'Chains and shackles', 'dungeon-lower-lorghoth': 'Refuse heap',
+    'dungeon-lower-sdo-prison': 'Hidden door', 'dungeon-lower-lorghoth': 'Refuse heap',
     'dungeon-lower-ring': 'Robed skeleton', 'f1-shaft-f1': 'Stone shaft', 'f2-shaft-f2': 'Stone shaft', 'f3-shaft-f3': 'Stone shaft',
 }
 for _i in range(5): PLAYER_LABEL[f'dungeon-chest25{"ABCDE"[_i]}'] = 'Padlocked chest'
 for _i in range(13): PLAYER_LABEL[f'dungeon-lower-relic{_i}'] = 'Wall niche'
+
+# Rooms: what players notice on entering (desc) and what the DM should keep in mind (dm). Own wording.
+ROOM_DESC = {
+  '1A': ("A stone portico. A rusted iron gate shrieks on its hinges; oil lamps hang on chains either side of heavy oak doors.", "The gate is unlocked. The mists close in on anyone who lingers outside."),
+  '1B': ("A grand foyer. A shield with a golden windmill on red hangs between portraits of stern nobles. Stained-glass double doors lead on.", "The portraits are long-dead Dursts."),
+  '2A': ("A wide hall with a black marble fireplace at one end and a red marble staircase sweeping up at the other. Carved paneling of vines, nymphs and satyrs.", "DC 12 Perception on the paneling: serpents and skulls hidden in the carving. The paneling follows the stair upward."),
+  '2B': ("A cloakroom: black cloaks on hooks, a top hat on a high shelf.", None),
+  '3': ("A hunter's den paneled in oak: a stag's head over the hearth, three stuffed wolves, fur-draped chairs, a card table under a chandelier.", "East cabinet locked (DC 15): three crossbows and bolts. North cabinet: cards and wine glasses. A trapdoor in the southwest corner stays hidden until found from below (32)."),
+  '4A': ("A tidy kitchen: shelves of dishes, a worktable with a rolling pin, a domed stone oven. A small door hides a dumbwaiter with a brass bell beside it.", "Dumbwaiter: 2-ft shaft to 7A and 12A; a Small creature fits (DC 10 Acrobatics); holds 200 lb."),
+  '4B': ("A well-stocked pantry.", "The food looks fresh but tastes of nothing."),
+  '5': ("A paneled dining room: a mahogany table for eight laid with gleaming silver and crystal, a painting of an alpine valley, red silk drapes and a hunting tapestry.", "DC 12 Perception on the paneling: twisted faces in the trees and wolves in the leaves. Silver tarnishes, crystal cracks, the painting fades and the tapestry rots if taken from the house."),
+  '6': ("An elegant upper hall: a family portrait over the mantel, suits of wolf-helmed armor beside carved doors. A cold draft spills down the stairs.", "The mother in the portrait eyes the baby with scorn. DC 12 Perception on the doors: the dancing youths are fighting off bats."),
+  '7A': ("A plain bedroom with two straw-mattress beds and a footlocker at each foot.", "The footlockers are empty. A button by the dumbwaiter rings the kitchen bell."),
+  '7B': ("A closet of neatly hung servants' uniforms.", None),
+  '8': ("A library in red velvet: a mahogany desk facing the hearth, a painting of a windmill on a crag, overstuffed chairs, shelves to the ceiling with a rolling ladder.", "Desk drawer: iron key to 20. Secret door behind a shelf: a red book with a blank spine is the switch (DC 13); it swings shut unless propped. Books rot if removed."),
+  '9': ("A hidden study lined with shelves of occult books. A skeleton in leather armor sprawls over a clawed chest.", "Books on fiend summoning and the Priests of Osybus, all bogus (1 hour + DC 12 Arcana). Dart trap is spent. The letter from Strahd is the trigger that opens the stair (21). Chest: blank books, three scrolls, deeds, the will."),
+  '10': ("A conservatory: gossamer drapes, a brass chandelier, chairs along the walls, stained glass of singers and players, a harpsichord and a tall harp.", "Some mantel figurines are skeletons in fine clothes."),
+  '11': ("A dusty balcony at the top of the red stair. A suit of black plate armor stands against the wall under cobwebs.", "The armor animates at 5 ft or when damaged. DC 12 Perception on the paneling: tiny corpses in the trees, worms from the soil. Secret door west (DC 15) to the attic stair."),
+  '12A': ("A dusty master bedroom: a curtained four-poster, two wardrobes, a vanity, a rotting tiger-skin rug before the hearth, a small parlor with a bowl and jug.", "Jewelry box: three gold rings and a topaz necklace (750 gp). Mirror door to the closet (12B). Dumbwaiter button rings the kitchen."),
+  '12B': ("An empty closet thick with dust.", None),
+  '12C': ("A balcony over the back of the house, lost in mist.", None),
+  '13': ("A dark bathroom: a clawed wooden tub, an iron stove with a kettle, a barrel under a wall spigot.", "The rooftop cistern plumbing no longer works."),
+  '14': ("A storeroom with shelves of folded linens, blankets and old soap. A broom leans against the far wall.", "The broom attacks anyone within 5 ft."),
+  '15A': ("A once-elegant bedroom under dust: a large bed, end tables, a wardrobe and a tall mirror framed in carved ivy.", "The nursemaid's specter appears when the nursery door opens. DC 12 on the mirror: eyeballs among the berries. Secret door behind it (DC 15) to the attic stair."),
+  '15B': ("A nursery. A crib hides beneath a hanging black shroud.", "The swaddled bundle inside is empty (the stillborn Walter)."),
+  '15C': ("A balcony over the front of the house, behind stained-glass doors.", None),
+  '16': ("A bare attic hall choked with dust.", "The door to 20 is padlocked: key in the library desk, or DC 15 thieves' tools."),
+  '17': ("A cobwebbed spare room: a narrow bed, a writing desk and stool, a stove, a rocking chair. A smiling doll in yellow lace sits in the window.", None),
+  '18': ("A storeroom packed with furniture under dusty sheets: chairs, coat racks, mirrors, dress forms.", "Trunk by the stove: the nursemaid's remains (DC 14 Medicine: stabbed many times). Disturbing them brings the specter. A secret door east appears only after 9's letter or 20's dollhouse."),
+  '19': ("A web-filled spare room: bed, nightstand, rocking chair, wardrobe, stove.", None),
+  '20': ("A children's room with a bricked-up window between two small beds, a toy chest painted with windmills and a dollhouse copy of this house.", "Two small skeletons in familiar clothes lie on the floor. Disturbing the chest or dollhouse calls Rose and Thorn's ghosts. DC 15 on the dollhouse reveals every secret door."),
+  '21': ("A narrow wooden spiral stair in a stone shaft, thick with cobwebs.", "Cobwebs cut sight to 5 ft. The shaft exists only once the house reveals it; it descends 50 ft to 22."),
+  '22': ("The spiral stair ends in an earthen chamber. A narrow tunnel runs south, then branches.", "A faint chant echoes from somewhere; its source is unclear until 26 or 29."),
+  '23': ("Crypts hewn into the earth, sealed with stone slabs.", "Moving a slab: DC 15 Athletics (advantage with a crowbar). Laying Rose and Thorn's remains in 23E/23F puts them to rest."),
+  '23A': ("An empty crypt; its blank slab leans nearby.", None),
+  '23B': ("An empty crypt; its slab, leaning nearby, bears a name.", "Walter Durst."),
+  '23C': ("An empty coffin on a stone bier.", "Gustav Durst's crypt."),
+  '23D': ("An empty coffin on a stone bier.", "Elisabeth Durst's crypt. Centipedes boil out of the wall if the coffin is disturbed."),
+  '23E': ("An empty coffin on a stone bier.", "Rose's crypt: her remains here lay her ghost to rest."),
+  '23F': ("An empty coffin on a stone bier.", "Thorn's crypt: his remains here lay his ghost to rest."),
+  '24': ("A table and four chairs at one end; moldy straw pallets in alcoves at the other.", None),
+  '25': ("A stone-lipped well drops into darkness; a bucket hangs from a pulley on the beams. Small rooms open off the chamber.", "Well: 30 ft to a cistern. Each side room has a bed and a padlocked chest (DC 15)."),
+  '25A': ("A moldy bed and a padlocked chest.", "Chest: 11 gp and 60 sp in a human-skin pouch."),
+  '25B': ("A moldy bed and a padlocked chest.", "Chest: three moss agates (10 gp each)."),
+  '25C': ("A moldy bed and a padlocked chest.", "Chest: eyepatch with a carnelian (50 gp)."),
+  '25D': ("A moldy bed and a padlocked chest.", "Chest: ivory hairbrush with silver bristles (25 gp)."),
+  '25E': ("A moldy bed and a padlocked chest.", "Chest: silvered shortsword (110 gp)."),
+  '26': ("A tunnel west. The chanting grows louder.", "DC 15 Perception: no footprints here. Hidden spiked pit: 1d6 + 2d10 to the first to step on it."),
+  '27': ("A plain table between long benches. Moldy human bones litter the floor.", "Anyone within 5 ft of the dark alcove (28) provokes the grick."),
+  '28': ("A dark alcove.", "A grick lurks here; passive Perception under 12 is surprised."),
+  '29': ("A four-way tunnel crossing. The chant is louder to the north.", "At the midpoint, four ghouls rise from the ground and fight to the end."),
+  '30': ("A 20-ft stair leading down. The chanting clearly rises from below.", None),
+  '31': ("A shrine hung with shackled skeletons. In an alcove stands a painted statue of a gaunt, pale man in a black cloak, one hand on a wolf, the other holding a grey crystal orb.", "Touching the statue or taking the orb raises five shadows. Concealed door east under clay (DC 10) to the stair (32)."),
+  '32': ("A stone stair up to a landing under a low ceiling of planks with a bolted trapdoor.", "Opens into the den (3); once found it stays usable."),
+  '33': ("A den with a chandelier over a table, two high-backed chairs, a clay jug and flagons, iron candlesticks.", "The door in the southwest corner is a mimic: it sticks to whoever touches it."),
+  '34': ("A bedroom: a rotted feather bed, a wardrobe of old robes, candlesticks, a crate of torches and candles, a footlocker at the bed's foot.", "Removing anything from the footlocker frees two ghasts from the walls (Gustav and Elisabeth). Footlocker: cloak of protection, four healing potions, spellbook and gear."),
+  '35': ("Thirteen niches of grisly curios. Here the chant resolves into words: 'He is the Ancient. He is the Land.'", "The relics are worthless. The south tunnel slopes into murky water to a portcullis (37)."),
+  '36': ("Alcoves with rusty shackles, empty now.", "A robed skeleton in the marked cell wears a gold ring. Secret door south (DC 15) to 38."),
+  '37': ("A rusty iron portcullis over 2 ft of murky water.", "DC 20 Athletics to lift, or turn the wheel inside 38."),
+  '38': ("A forty-foot hall of smooth stone and pillars, half flooded. Stairs rise to dry ledges and to a central dais with a blood-stained altar under hanging chains. A breach opens west on a heap of refuse.", "The chant stops as they enter. Climbing the dais summons thirteen apparitions: 'One must die!' Refusing wakes Lorghoth (the refuse heap)."),
+}
 
 def apply_desc(levels):
     for lv in levels:
@@ -606,6 +673,11 @@ def apply_desc(levels):
                 if d[0]: o['desc'] = d[0]
                 if d[1]: o['dm'] = d[1]
             if o['id'] in PLAYER_LABEL: o['playerLabel'] = PLAYER_LABEL[o['id']]
+        for r in lv['rooms']:
+            d = ROOM_DESC.get(r['key'])
+            if d:
+                if d[0]: r['desc'] = d[0]
+                if d[1]: r['dm'] = d[1]
 
 # ================================================================== assemble
 levels = [f1, f2, f3, at, du, dl]

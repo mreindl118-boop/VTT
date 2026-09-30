@@ -37,7 +37,9 @@
        55
       ]
      ],
-     "floor": "flagstone"
+     "floor": "flagstone",
+     "desc": "A stone portico. A rusted iron gate shrieks on its hinges; oil lamps hang on chains either side of heavy oak doors.",
+     "dm": "The gate is unlocked. The mists close in on anyone who lingers outside."
     },
     {
      "key": "1B",
@@ -61,7 +63,9 @@
        50
       ]
      ],
-     "floor": "plank"
+     "floor": "plank",
+     "desc": "A grand foyer. A shield with a golden windmill on red hangs between portraits of stern nobles. Stained-glass double doors lead on.",
+     "dm": "The portraits are long-dead Dursts."
     },
     {
      "key": "3",
@@ -85,7 +89,9 @@
        55
       ]
      ],
-     "floor": "plank"
+     "floor": "plank",
+     "desc": "A hunter's den paneled in oak: a stag's head over the hearth, three stuffed wolves, fur-draped chairs, a card table under a chandelier.",
+     "dm": "East cabinet locked (DC 15): three crossbows and bolts. North cabinet: cards and wine glasses. A trapdoor in the southwest corner stays hidden until found from below (32)."
     },
     {
      "key": "2A",
@@ -125,7 +131,9 @@
        35
       ]
      ],
-     "floor": "plank"
+     "floor": "plank",
+     "desc": "A wide hall with a black marble fireplace at one end and a red marble staircase sweeping up at the other. Carved paneling of vines, nymphs and satyrs.",
+     "dm": "DC 12 Perception on the paneling: serpents and skulls hidden in the carving. The paneling follows the stair upward."
     },
     {
      "key": "2B",
@@ -149,7 +157,8 @@
        20
       ]
      ],
-     "floor": "plank"
+     "floor": "plank",
+     "desc": "A cloakroom: black cloaks on hooks, a top hat on a high shelf."
     },
     {
      "key": "5",
@@ -189,7 +198,9 @@
        15
       ]
      ],
-     "floor": "plank"
+     "floor": "plank",
+     "desc": "A paneled dining room: a mahogany table for eight laid with gleaming silver and crystal, a painting of an alpine valley, red silk drapes and a hunting tapestry.",
+     "dm": "DC 12 Perception on the paneling: twisted faces in the trees and wolves in the leaves. Silver tarnishes, crystal cracks, the painting fades and the tapestry rots if taken from the house."
     },
     {
      "key": "4A",
@@ -213,7 +224,9 @@
        20
       ]
      ],
-     "floor": "flagstone"
+     "floor": "flagstone",
+     "desc": "A tidy kitchen: shelves of dishes, a worktable with a rolling pin, a domed stone oven. A small door hides a dumbwaiter with a brass bell beside it.",
+     "dm": "Dumbwaiter: 2-ft shaft to 7A and 12A; a Small creature fits (DC 10 Acrobatics); holds 200 lb."
     },
     {
      "key": "4B",
@@ -237,7 +250,9 @@
        5
       ]
      ],
-     "floor": "flagstone"
+     "floor": "flagstone",
+     "desc": "A well-stocked pantry.",
+     "dm": "The food looks fresh but tastes of nothing."
     }
    ],
    "walls": [
@@ -1066,17 +1081,18 @@
     },
     {
      "id": "f1-sword",
-     "kind": "oil-lamp",
+     "kind": "wall-sword",
      "pos": [
-      2.0,
+      1.75,
       0,
       23.5
      ],
-     "vis": "hidden-object",
+     "vis": "player",
+     "rotY": 90,
      "key": "2A",
-     "label": "Longsword above the mantel (windmill cameo)",
+     "label": "Longsword",
      "dims": {
-      "y": 7.5
+      "y": 7.2
      },
      "desc": "A longsword hangs above the black marble mantel; a windmill is worked into its hilt.",
      "dm": "Nonmagical longsword. The paneling hides serpents and skulls in its carvings (DC 12 Perception).",
@@ -1331,18 +1347,34 @@
     },
     {
      "id": "f1-cab-lock",
-     "kind": "toy-chest",
+     "kind": "crossbow-rack",
      "pos": [
-      28.0,
+      27.25,
       0,
       41.0
      ],
      "vis": "hidden-object",
+     "rotY": -90,
      "key": "3",
      "label": "Locked east cabinet: crossbows (DC 15)",
      "desc": "A locked wooden cabinet.",
      "dm": "East cabinet: DC 15 Dexterity (thieves' tools). Heavy, light and hand crossbows with 20 bolts each. The north cabinet is unlocked: playing cards and wine glasses.",
      "playerLabel": "Locked cabinet"
+    },
+    {
+     "id": "f1-den-goblets",
+     "kind": "tabletop",
+     "pos": [
+      23.5,
+      0,
+      47.5
+     ],
+     "vis": "player",
+     "key": "3",
+     "dims": {
+      "set": 3,
+      "y": 3
+     }
     },
     {
      "id": "f1-trapdoor",
@@ -1512,6 +1544,21 @@
      "dm": "Fades if removed from the house."
     },
     {
+     "id": "f1-silver5",
+     "kind": "tabletop",
+     "pos": [
+      10,
+      0,
+      7.5
+     ],
+     "vis": "player",
+     "key": "5",
+     "dims": {
+      "set": 0,
+      "y": 3
+     }
+    },
+    {
      "id": "f1-tapestry5",
      "kind": "tapestry",
      "pos": [
@@ -1614,6 +1661,47 @@
      "dm": "2-ft shaft to 7A and 12A; a Small creature can ride it (DC 10 Acrobatics). Rope holds 200 lb. A bell rings here when a button upstairs is pressed."
     },
     {
+     "id": "f1-bell4a",
+     "kind": "brass-bell",
+     "pos": [
+      26.0,
+      0,
+      19.5
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "key": "4A",
+     "dims": {
+      "y": 5
+     }
+    },
+    {
+     "id": "f1-pots4a",
+     "kind": "hanging-pots",
+     "pos": [
+      24.0,
+      0,
+      12.5
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "4A",
+     "dims": {
+      "w": 6
+     }
+    },
+    {
+     "id": "f1-sacks4b",
+     "kind": "sacks",
+     "pos": [
+      23.0,
+      0,
+      3.25
+     ],
+     "vis": "player",
+     "key": "4B"
+    },
+    {
      "id": "f1-shelves4b",
      "kind": "shelves",
      "pos": [
@@ -1701,7 +1789,9 @@
        15
       ]
      ],
-     "floor": "plank"
+     "floor": "plank",
+     "desc": "A library in red velvet: a mahogany desk facing the hearth, a painting of a windmill on a crag, overstuffed chairs, shelves to the ceiling with a rolling ladder.",
+     "dm": "Desk drawer: iron key to 20. Secret door behind a shelf: a red book with a blank spine is the switch (DC 13); it swings shut unless propped. Books rot if removed."
     },
     {
      "key": "9",
@@ -1725,7 +1815,9 @@
        5
       ]
      ],
-     "floor": "plank"
+     "floor": "plank",
+     "desc": "A hidden study lined with shelves of occult books. A skeleton in leather armor sprawls over a clawed chest.",
+     "dm": "Books on fiend summoning and the Priests of Osybus, all bogus (1 hour + DC 12 Arcana). Dart trap is spent. The letter from Strahd is the trigger that opens the stair (21). Chest: blank books, three scrolls, deeds, the will."
     },
     {
      "key": "7A",
@@ -1749,7 +1841,9 @@
        20
       ]
      ],
-     "floor": "plank"
+     "floor": "plank",
+     "desc": "A plain bedroom with two straw-mattress beds and a footlocker at each foot.",
+     "dm": "The footlockers are empty. A button by the dumbwaiter rings the kitchen bell."
     },
     {
      "key": "7B",
@@ -1773,7 +1867,8 @@
        20
       ]
      ],
-     "floor": "plank"
+     "floor": "plank",
+     "desc": "A closet of neatly hung servants' uniforms."
     },
     {
      "key": "6",
@@ -1797,7 +1892,9 @@
        35
       ]
      ],
-     "floor": "plank"
+     "floor": "plank",
+     "desc": "An elegant upper hall: a family portrait over the mantel, suits of wolf-helmed armor beside carved doors. A cold draft spills down the stairs.",
+     "dm": "The mother in the portrait eyes the baby with scorn. DC 12 Perception on the doors: the dancing youths are fighting off bats."
     },
     {
      "key": "10",
@@ -1821,7 +1918,9 @@
        55
       ]
      ],
-     "floor": "plank"
+     "floor": "plank",
+     "desc": "A conservatory: gossamer drapes, a brass chandelier, chairs along the walls, stained glass of singers and players, a harpsichord and a tall harp.",
+     "dm": "Some mantel figurines are skeletons in fine clothes."
     }
    ],
    "walls": [
@@ -2466,9 +2565,9 @@
     },
     {
      "id": "f2-ladder",
-     "kind": "bench",
+     "kind": "rolling-ladder",
      "pos": [
-      16.5,
+      16.75,
       0,
       4.5
      ],
@@ -2476,7 +2575,7 @@
      "rotY": 90,
      "key": "8",
      "dims": {
-      "l": 2
+      "h": 11
      }
     },
     {
@@ -2580,15 +2679,18 @@
     },
     {
      "id": "f2-key",
-     "kind": "toy-chest",
+     "kind": "desk-key",
      "pos": [
-      8.5,
+      9.0,
       0,
-      7.0
+      7.25
      ],
      "vis": "hidden-object",
      "key": "8",
      "label": "Desk drawer: iron key to area 20",
+     "dims": {
+      "y": 2.8
+     },
      "desc": "A mahogany desk with an oil lamp, ink, quill, tinderbox and a letter kit.",
      "dm": "The drawer holds an iron key that unlocks the door to area 20. The wooden seal bears the windmill.",
      "playerLabel": "Desk"
@@ -3195,7 +3297,9 @@
        15
       ]
      ],
-     "floor": "plank"
+     "floor": "plank",
+     "desc": "A dusty master bedroom: a curtained four-poster, two wardrobes, a vanity, a rotting tiger-skin rug before the hearth, a small parlor with a bowl and jug.",
+     "dm": "Jewelry box: three gold rings and a topaz necklace (750 gp). Mirror door to the closet (12B). Dumbwaiter button rings the kitchen."
     },
     {
      "key": "12B",
@@ -3219,7 +3323,8 @@
        20
       ]
      ],
-     "floor": "plank"
+     "floor": "plank",
+     "desc": "An empty closet thick with dust."
     },
     {
      "key": "12C",
@@ -3243,7 +3348,8 @@
        10
       ]
      ],
-     "floor": "flagstone"
+     "floor": "flagstone",
+     "desc": "A balcony over the back of the house, lost in mist."
     },
     {
      "key": "13",
@@ -3267,7 +3373,9 @@
        30
       ]
      ],
-     "floor": "plank"
+     "floor": "plank",
+     "desc": "A dark bathroom: a clawed wooden tub, an iron stove with a kettle, a barrel under a wall spigot.",
+     "dm": "The rooftop cistern plumbing no longer works."
     },
     {
      "key": "14",
@@ -3291,7 +3399,9 @@
        35
       ]
      ],
-     "floor": "plank"
+     "floor": "plank",
+     "desc": "A storeroom with shelves of folded linens, blankets and old soap. A broom leans against the far wall.",
+     "dm": "The broom attacks anyone within 5 ft."
     },
     {
      "key": "15B",
@@ -3315,7 +3425,9 @@
        45
       ]
      ],
-     "floor": "plank"
+     "floor": "plank",
+     "desc": "A nursery. A crib hides beneath a hanging black shroud.",
+     "dm": "The swaddled bundle inside is empty (the stillborn Walter)."
     },
     {
      "key": "15C",
@@ -3339,7 +3451,8 @@
        55
       ]
      ],
-     "floor": "flagstone"
+     "floor": "flagstone",
+     "desc": "A balcony over the front of the house, behind stained-glass doors."
     },
     {
      "key": "11",
@@ -3379,7 +3492,9 @@
        40
       ]
      ],
-     "floor": "plank"
+     "floor": "plank",
+     "desc": "A dusty balcony at the top of the red stair. A suit of black plate armor stands against the wall under cobwebs.",
+     "dm": "The armor animates at 5 ft or when damaged. DC 12 Perception on the paneling: tiny corpses in the trees, worms from the soil. Secret door west (DC 15) to the attic stair."
     },
     {
      "key": "15A",
@@ -3403,7 +3518,9 @@
        55
       ]
      ],
-     "floor": "plank"
+     "floor": "plank",
+     "desc": "A once-elegant bedroom under dust: a large bed, end tables, a wardrobe and a tall mirror framed in carved ivy.",
+     "dm": "The nursemaid's specter appears when the nursery door opens. DC 12 on the mirror: eyeballs among the berries. Secret door behind it (DC 15) to the attic stair."
     }
    ],
    "walls": [
@@ -4381,15 +4498,18 @@
     },
     {
      "id": "f3-jewelry",
-     "kind": "toy-chest",
+     "kind": "jewelry-box",
      "pos": [
-      7.5,
+      6.5,
       0,
-      13.0
+      12.75
      ],
      "vis": "hidden-object",
      "key": "12A",
      "label": "Jewelry box: rings, topaz necklace",
+     "dims": {
+      "y": 2.75
+     },
      "desc": "A vanity with a mirror and a silver jewelry box.",
      "dm": "Box worth 75 gp: three gold rings (25 gp each) and a platinum necklace with a topaz pendant (750 gp).",
      "playerLabel": "Vanity"
@@ -4408,14 +4528,14 @@
     },
     {
      "id": "f3-rug",
-     "kind": "stuffed-wolf",
+     "kind": "tiger-rug",
      "pos": [
-      7.5,
+      8.0,
       0,
       7.5
      ],
      "vis": "player",
-     "rotY": 90,
+     "rotY": 180,
      "key": "12A",
      "desc": "A rotting tiger-skin rug before the fireplace."
     },
@@ -4529,14 +4649,18 @@
     },
     {
      "id": "f3-bowl",
-     "kind": "wine-cask",
+     "kind": "tabletop",
      "pos": [
       25,
       0,
       15
      ],
      "vis": "player",
-     "key": "12A"
+     "key": "12A",
+     "dims": {
+      "set": 2,
+      "y": 3
+     }
     },
     {
      "id": "f3-dumbwaiter",
@@ -4642,7 +4766,24 @@
      "vis": "player",
      "key": "14",
      "dims": {
-      "w": 8
+      "w": 8,
+      "linen": 1
+     }
+    },
+    {
+     "id": "f3-shelves14b",
+     "kind": "shelves",
+     "pos": [
+      0.75,
+      0,
+      32.5
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "14",
+     "dims": {
+      "w": 4,
+      "linen": 1
      }
     },
     {
@@ -4676,7 +4817,7 @@
     },
     {
      "id": "f3-bundle",
-     "kind": "toy-chest",
+     "kind": "swaddled-bundle",
      "pos": [
       5,
       0,
@@ -4685,6 +4826,9 @@
      "vis": "hidden-object",
      "key": "15B",
      "label": "Shrouded crib: empty bundle",
+     "dims": {
+      "y": 1.8
+     },
      "playerLabel": "Shrouded bundle"
     },
     {
@@ -5030,7 +5174,8 @@
        15
       ]
      ],
-     "floor": "plank"
+     "floor": "plank",
+     "desc": "A web-filled spare room: bed, nightstand, rocking chair, wardrobe, stove."
     },
     {
      "key": "20",
@@ -5054,7 +5199,9 @@
        15
       ]
      ],
-     "floor": "plank"
+     "floor": "plank",
+     "desc": "A children's room with a bricked-up window between two small beds, a toy chest painted with windmills and a dollhouse copy of this house.",
+     "dm": "Two small skeletons in familiar clothes lie on the floor. Disturbing the chest or dollhouse calls Rose and Thorn's ghosts. DC 15 on the dollhouse reveals every secret door."
     },
     {
      "key": "21",
@@ -5078,7 +5225,9 @@
        20
       ]
      ],
-     "floor": "flagstone"
+     "floor": "flagstone",
+     "desc": "A narrow wooden spiral stair in a stone shaft, thick with cobwebs.",
+     "dm": "Cobwebs cut sight to 5 ft. The shaft exists only once the house reveals it; it descends 50 ft to 22."
     },
     {
      "key": "16",
@@ -5118,7 +5267,9 @@
        20
       ]
      ],
-     "floor": "plank"
+     "floor": "plank",
+     "desc": "A bare attic hall choked with dust.",
+     "dm": "The door to 20 is padlocked: key in the library desk, or DC 15 thieves' tools."
     },
     {
      "key": "18",
@@ -5142,7 +5293,9 @@
        45
       ]
      ],
-     "floor": "plank"
+     "floor": "plank",
+     "desc": "A storeroom packed with furniture under dusty sheets: chairs, coat racks, mirrors, dress forms.",
+     "dm": "Trunk by the stove: the nursemaid's remains (DC 14 Medicine: stabbed many times). Disturbing them brings the specter. A secret door east appears only after 9's letter or 20's dollhouse."
     },
     {
      "key": "17",
@@ -5174,7 +5327,8 @@
        45
       ]
      ],
-     "floor": "plank"
+     "floor": "plank",
+     "desc": "A cobwebbed spare room: a narrow bed, a writing desk and stool, a stove, a rocking chair. A smiling doll in yellow lace sits in the window."
     }
    ],
    "walls": [
@@ -5828,6 +5982,17 @@
      }
     },
     {
+     "id": "attic-bricked20",
+     "kind": "bricked-window",
+     "pos": [
+      17.5,
+      0,
+      0.4
+     ],
+     "vis": "player",
+     "key": "20"
+    },
+    {
      "id": "attic-bed20a",
      "kind": "child-bed",
      "pos": [
@@ -6034,102 +6199,129 @@
     },
     {
      "id": "attic-sheet0",
-     "kind": "sheeted",
+     "kind": "sheeted-shape",
      "pos": [
       5,
       0,
       26.5
      ],
      "vis": "player",
-     "key": "18"
+     "key": "18",
+     "dims": {
+      "shape": 0
+     }
     },
     {
      "id": "attic-sheet1",
-     "kind": "sheeted",
+     "kind": "sheeted-shape",
      "pos": [
       11.5,
       0,
       24.0
      ],
      "vis": "player",
-     "key": "18"
+     "key": "18",
+     "dims": {
+      "shape": 1
+     }
     },
     {
      "id": "attic-sheet2",
-     "kind": "sheeted",
+     "kind": "sheeted-shape",
      "pos": [
       7.5,
       0,
       33.0
      ],
      "vis": "player",
-     "key": "18"
+     "key": "18",
+     "dims": {
+      "shape": 3
+     }
     },
     {
      "id": "attic-sheet3",
-     "kind": "sheeted",
+     "kind": "sheeted-shape",
      "pos": [
       12.5,
       0,
       31.0
      ],
      "vis": "player",
-     "key": "18"
+     "key": "18",
+     "dims": {
+      "shape": 2
+     }
     },
     {
      "id": "attic-sheet4",
-     "kind": "sheeted",
+     "kind": "sheeted-shape",
      "pos": [
       5,
       0,
       38.0
      ],
      "vis": "player",
-     "key": "18"
+     "key": "18",
+     "dims": {
+      "shape": 0
+     }
     },
     {
      "id": "attic-sheet5",
-     "kind": "sheeted",
+     "kind": "sheeted-shape",
      "pos": [
       12.0,
       0,
       39.0
      ],
      "vis": "player",
-     "key": "18"
+     "key": "18",
+     "dims": {
+      "shape": 3
+     }
     },
     {
      "id": "attic-sheet6",
-     "kind": "sheeted",
+     "kind": "sheeted-shape",
      "pos": [
       3.0,
       0,
       42.0
      ],
      "vis": "player",
-     "key": "18"
+     "key": "18",
+     "dims": {
+      "shape": 1
+     }
     },
     {
      "id": "attic-sheet7",
-     "kind": "sheeted",
+     "kind": "sheeted-shape",
      "pos": [
       10,
       0,
       43.0
      ],
      "vis": "player",
-     "key": "18"
+     "key": "18",
+     "dims": {
+      "shape": 0
+     }
     },
     {
      "id": "attic-mannequin",
-     "kind": "armor-suit",
+     "kind": "sheeted-shape",
      "pos": [
       13.0,
       0,
-      35
+      35.5
      ],
      "vis": "player",
-     "key": "18"
+     "key": "18",
+     "dims": {
+      "shape": 2
+     }
     },
     {
      "id": "attic-stove18",
@@ -6501,7 +6693,8 @@
        20
       ]
      ],
-     "floor": "dirt"
+     "floor": "dirt",
+     "desc": "A table and four chairs at one end; moldy straw pallets in alcoves at the other."
     },
     {
      "key": "25",
@@ -6525,7 +6718,9 @@
        50
       ]
      ],
-     "floor": "dirt"
+     "floor": "dirt",
+     "desc": "A stone-lipped well drops into darkness; a bucket hangs from a pulley on the beams. Small rooms open off the chamber.",
+     "dm": "Well: 30 ft to a cistern. Each side room has a bed and a padlocked chest (DC 15)."
     },
     {
      "key": "25A",
@@ -6549,7 +6744,9 @@
        25
       ]
      ],
-     "floor": "dirt"
+     "floor": "dirt",
+     "desc": "A moldy bed and a padlocked chest.",
+     "dm": "Chest: 11 gp and 60 sp in a human-skin pouch."
     },
     {
      "key": "25B",
@@ -6573,7 +6770,9 @@
        25
       ]
      ],
-     "floor": "dirt"
+     "floor": "dirt",
+     "desc": "A moldy bed and a padlocked chest.",
+     "dm": "Chest: three moss agates (10 gp each)."
     },
     {
      "key": "25C",
@@ -6597,7 +6796,9 @@
        40
       ]
      ],
-     "floor": "dirt"
+     "floor": "dirt",
+     "desc": "A moldy bed and a padlocked chest.",
+     "dm": "Chest: eyepatch with a carnelian (50 gp)."
     },
     {
      "key": "25D",
@@ -6621,7 +6822,9 @@
        60
       ]
      ],
-     "floor": "dirt"
+     "floor": "dirt",
+     "desc": "A moldy bed and a padlocked chest.",
+     "dm": "Chest: ivory hairbrush with silver bristles (25 gp)."
     },
     {
      "key": "25E",
@@ -6645,7 +6848,9 @@
        60
       ]
      ],
-     "floor": "dirt"
+     "floor": "dirt",
+     "desc": "A moldy bed and a padlocked chest.",
+     "dm": "Chest: silvered shortsword (110 gp)."
     },
     {
      "key": "22",
@@ -6677,7 +6882,9 @@
        25
       ]
      ],
-     "floor": "dirt"
+     "floor": "dirt",
+     "desc": "The spiral stair ends in an earthen chamber. A narrow tunnel runs south, then branches.",
+     "dm": "A faint chant echoes from somewhere; its source is unclear until 26 or 29."
     },
     {
      "key": "23",
@@ -6765,7 +6972,9 @@
        30
       ]
      ],
-     "floor": "dirt"
+     "floor": "dirt",
+     "desc": "Crypts hewn into the earth, sealed with stone slabs.",
+     "dm": "Moving a slab: DC 15 Athletics (advantage with a crowbar). Laying Rose and Thorn's remains in 23E/23F puts them to rest."
     },
     {
      "key": "23A",
@@ -6789,7 +6998,8 @@
        10
       ]
      ],
-     "floor": "dirt"
+     "floor": "dirt",
+     "desc": "An empty crypt; its blank slab leans nearby."
     },
     {
      "key": "23B",
@@ -6813,7 +7023,9 @@
        25
       ]
      ],
-     "floor": "dirt"
+     "floor": "dirt",
+     "desc": "An empty crypt; its slab, leaning nearby, bears a name.",
+     "dm": "Walter Durst."
     },
     {
      "key": "23C",
@@ -6837,7 +7049,9 @@
        35
       ]
      ],
-     "floor": "dirt"
+     "floor": "dirt",
+     "desc": "An empty coffin on a stone bier.",
+     "dm": "Gustav Durst's crypt."
     },
     {
      "key": "23D",
@@ -6861,7 +7075,9 @@
        45
       ]
      ],
-     "floor": "dirt"
+     "floor": "dirt",
+     "desc": "An empty coffin on a stone bier.",
+     "dm": "Elisabeth Durst's crypt. Centipedes boil out of the wall if the coffin is disturbed."
     },
     {
      "key": "23E",
@@ -6885,7 +7101,9 @@
        35
       ]
      ],
-     "floor": "dirt"
+     "floor": "dirt",
+     "desc": "An empty coffin on a stone bier.",
+     "dm": "Rose's crypt: her remains here lay her ghost to rest."
     },
     {
      "key": "23F",
@@ -6909,7 +7127,9 @@
        45
       ]
      ],
-     "floor": "dirt"
+     "floor": "dirt",
+     "desc": "An empty coffin on a stone bier.",
+     "dm": "Thorn's crypt: his remains here lay his ghost to rest."
     },
     {
      "key": "27",
@@ -6933,7 +7153,9 @@
        60
       ]
      ],
-     "floor": "dirt"
+     "floor": "dirt",
+     "desc": "A plain table between long benches. Moldy human bones litter the floor.",
+     "dm": "Anyone within 5 ft of the dark alcove (28) provokes the grick."
     },
     {
      "key": "28",
@@ -6957,7 +7179,9 @@
        55
       ]
      ],
-     "floor": "dirt"
+     "floor": "dirt",
+     "desc": "A dark alcove.",
+     "dm": "A grick lurks here; passive Perception under 12 is surprised."
     },
     {
      "key": "26",
@@ -7005,7 +7229,9 @@
        50
       ]
      ],
-     "floor": "dirt"
+     "floor": "dirt",
+     "desc": "A tunnel west. The chanting grows louder.",
+     "dm": "DC 15 Perception: no footprints here. Hidden spiked pit: 1d6 + 2d10 to the first to step on it."
     },
     {
      "key": "30",
@@ -7029,7 +7255,8 @@
        80
       ]
      ],
-     "floor": "dirt"
+     "floor": "dirt",
+     "desc": "A 20-ft stair leading down. The chanting clearly rises from below."
     },
     {
      "key": "29",
@@ -7093,7 +7320,9 @@
        65
       ]
      ],
-     "floor": "dirt"
+     "floor": "dirt",
+     "desc": "A four-way tunnel crossing. The chant is louder to the north.",
+     "dm": "At the midpoint, four ghouls rise from the ground and fight to the end."
     },
     {
      "key": "32",
@@ -7117,7 +7346,9 @@
        70
       ]
      ],
-     "floor": "flagstone"
+     "floor": "flagstone",
+     "desc": "A stone stair up to a landing under a low ceiling of planks with a bolted trapdoor.",
+     "dm": "Opens into the den (3); once found it stays usable."
     },
     {
      "key": "31",
@@ -7157,7 +7388,9 @@
        100
       ]
      ],
-     "floor": "dirt"
+     "floor": "dirt",
+     "desc": "A shrine hung with shackled skeletons. In an alcove stands a painted statue of a gaunt, pale man in a black cloak, one hand on a wolf, the other holding a grey crystal orb.",
+     "dm": "Touching the statue or taking the orb raises five shadows. Concealed door east under clay (DC 10) to the stair (32)."
     },
     {
      "key": "33",
@@ -7197,7 +7430,9 @@
        90
       ]
      ],
-     "floor": "dirt"
+     "floor": "dirt",
+     "desc": "A den with a chandelier over a table, two high-backed chairs, a clay jug and flagons, iron candlesticks.",
+     "dm": "The door in the southwest corner is a mimic: it sticks to whoever touches it."
     },
     {
      "key": "34",
@@ -7221,7 +7456,9 @@
        105
       ]
      ],
-     "floor": "dirt"
+     "floor": "dirt",
+     "desc": "A bedroom: a rotted feather bed, a wardrobe of old robes, candlesticks, a crate of torches and candles, a footlocker at the bed's foot.",
+     "dm": "Removing anything from the footlocker frees two ghasts from the walls (Gustav and Elisabeth). Footlocker: cloak of protection, four healing potions, spellbook and gear."
     }
    ],
    "walls": [
@@ -10490,17 +10727,17 @@
     },
     {
      "id": "dungeon-orb",
-     "kind": "oil-lamp",
+     "kind": "crystal-orb",
      "pos": [
-      95.5,
+      95.0,
       0,
-      82.0
+      84.5
      ],
      "vis": "hidden-object",
      "key": "31",
      "label": "Crystal orb (25 gp, arcane focus)",
      "dims": {
-      "y": 5.5
+      "y": 4.6
      },
      "playerLabel": "Crystal orb"
     },
@@ -10715,6 +10952,21 @@
      "key": "33"
     },
     {
+     "id": "dungeon-jug33",
+     "kind": "tabletop",
+     "pos": [
+      70,
+      0,
+      93.0
+     ],
+     "vis": "player",
+     "key": "33",
+     "dims": {
+      "set": 1,
+      "y": 3
+     }
+    },
+    {
      "id": "dungeon-candle33a",
      "kind": "candlestick",
      "pos": [
@@ -10861,6 +11113,238 @@
      "vis": "dm-note",
      "key": "29",
      "label": "Chanting is louder toward 30/35"
+    },
+    {
+     "id": "dungeon-footprints0",
+     "kind": "footprints",
+     "pos": [
+      60,
+      0,
+      15
+     ],
+     "vis": "player",
+     "dims": {
+      "n": 10,
+      "len": 11.0,
+      "seed": 1
+     }
+    },
+    {
+     "id": "dungeon-footprints1",
+     "kind": "footprints",
+     "pos": [
+      67.5,
+      0,
+      25
+     ],
+     "vis": "player",
+     "dims": {
+      "n": 12,
+      "len": 13.200000000000001,
+      "seed": 2
+     }
+    },
+    {
+     "id": "dungeon-footprints2",
+     "kind": "footprints",
+     "pos": [
+      77.5,
+      0,
+      15
+     ],
+     "vis": "player",
+     "dims": {
+      "n": 8,
+      "len": 8.8,
+      "seed": 3
+     }
+    },
+    {
+     "id": "dungeon-footprints3",
+     "kind": "footprints",
+     "pos": [
+      77.5,
+      0,
+      40
+     ],
+     "vis": "player",
+     "dims": {
+      "n": 8,
+      "len": 8.8,
+      "seed": 4
+     }
+    },
+    {
+     "id": "dungeon-footprints4",
+     "kind": "footprints",
+     "pos": [
+      62.5,
+      0,
+      37.5
+     ],
+     "vis": "player",
+     "dims": {
+      "n": 6,
+      "len": 6.6000000000000005,
+      "seed": 5
+     }
+    },
+    {
+     "id": "dungeon-footprints5",
+     "kind": "footprints",
+     "pos": [
+      47.5,
+      0,
+      15
+     ],
+     "vis": "player",
+     "rotY": 20,
+     "dims": {
+      "n": 10,
+      "len": 11.0,
+      "seed": 6
+     }
+    },
+    {
+     "id": "dungeon-footprints6",
+     "kind": "footprints",
+     "pos": [
+      40,
+      0,
+      32.5
+     ],
+     "vis": "player",
+     "dims": {
+      "n": 8,
+      "len": 8.8,
+      "seed": 7
+     }
+    },
+    {
+     "id": "dungeon-footprints7",
+     "kind": "footprints",
+     "pos": [
+      22.5,
+      0,
+      37.5
+     ],
+     "vis": "player",
+     "rotY": 70,
+     "dims": {
+      "n": 10,
+      "len": 11.0,
+      "seed": 8
+     }
+    },
+    {
+     "id": "dungeon-footprints8",
+     "kind": "footprints",
+     "pos": [
+      72.5,
+      0,
+      55
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "dims": {
+      "n": 10,
+      "len": 11.0,
+      "seed": 9
+     }
+    },
+    {
+     "id": "dungeon-footprints9",
+     "kind": "footprints",
+     "pos": [
+      67.5,
+      0,
+      75
+     ],
+     "vis": "player",
+     "dims": {
+      "n": 10,
+      "len": 11.0,
+      "seed": 10
+     }
+    },
+    {
+     "id": "dungeon-footprints10",
+     "kind": "footprints",
+     "pos": [
+      72.5,
+      0,
+      67.5
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "dims": {
+      "n": 6,
+      "len": 6.6000000000000005,
+      "seed": 11
+     }
+    },
+    {
+     "id": "dungeon-footprints11",
+     "kind": "footprints",
+     "pos": [
+      87.5,
+      0,
+      82.5
+     ],
+     "vis": "player",
+     "dims": {
+      "n": 8,
+      "len": 8.8,
+      "seed": 12
+     }
+    },
+    {
+     "id": "dungeon-footprints12",
+     "kind": "footprints",
+     "pos": [
+      67.5,
+      0,
+      92.5
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "dims": {
+      "n": 8,
+      "len": 8.8,
+      "seed": 13
+     }
+    },
+    {
+     "id": "dungeon-footprints13",
+     "kind": "footprints",
+     "pos": [
+      47.5,
+      0,
+      97.5
+     ],
+     "vis": "player",
+     "rotY": 40,
+     "dims": {
+      "n": 6,
+      "len": 6.6000000000000005,
+      "seed": 14
+     }
+    },
+    {
+     "id": "dungeon-footprints14",
+     "kind": "footprints",
+     "pos": [
+      57.5,
+      0,
+      47.5
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "dims": {
+      "n": 5,
+      "len": 5.5,
+      "seed": 15
+     }
     },
     {
      "id": "dungeon-brace-22-13-1",
@@ -11950,7 +12434,9 @@
        25
       ]
      ],
-     "floor": "dirt"
+     "floor": "dirt",
+     "desc": "Thirteen niches of grisly curios. Here the chant resolves into words: 'He is the Ancient. He is the Land.'",
+     "dm": "The relics are worthless. The south tunnel slopes into murky water to a portcullis (37)."
     },
     {
      "key": "36",
@@ -11998,7 +12484,9 @@
        25
       ]
      ],
-     "floor": "dirt"
+     "floor": "dirt",
+     "desc": "Alcoves with rusty shackles, empty now.",
+     "dm": "A robed skeleton in the marked cell wears a gold ring. Secret door south (DC 15) to 38."
     },
     {
      "key": "37",
@@ -12023,7 +12511,9 @@
       ]
      ],
      "floor": "shallow-water",
-     "difficult": true
+     "difficult": true,
+     "desc": "A rusty iron portcullis over 2 ft of murky water.",
+     "dm": "DC 20 Athletics to lift, or turn the wheel inside 38."
     },
     {
      "key": "38",
@@ -12065,7 +12555,9 @@
      ],
      "floor": "shallow-water",
      "difficult": true,
-     "ceilingFt": 16
+     "ceilingFt": 16,
+     "desc": "A forty-foot hall of smooth stone and pillars, half flooded. Stairs rise to dry ledges and to a central dais with a blood-stained altar under hanging chains. A breach opens west on a heap of refuse.",
+     "dm": "The chant stops as they enter. Climbing the dais summons thirteen apparitions: 'One must die!' Refusing wakes Lorghoth (the refuse heap)."
     }
    ],
    "walls": [
@@ -13251,19 +13743,15 @@
     },
     {
      "id": "dungeon-lower-chains-note",
-     "kind": "oil-lamp",
+     "kind": "note",
      "pos": [
       42.0,
       0,
-      50
+      53.0
      ],
-     "vis": "hidden-object",
+     "vis": "dm-note",
      "key": "38",
-     "label": "Chains and shackles above the altar (8 ft)",
-     "dims": {
-      "y": 12
-     },
-     "playerLabel": "Chains and shackles"
+     "label": "Chains 8 ft long above the altar: prisoners were hung here and bled onto it"
     },
     {
      "id": "dungeon-lower-wheel",
@@ -14014,6 +14502,37 @@
      "vis": "dm-note",
      "key": "35",
      "label": "Stair up to 30"
+    },
+    {
+     "id": "dungeon-lower-footprints-a",
+     "kind": "footprints",
+     "pos": [
+      7.5,
+      0,
+      15
+     ],
+     "vis": "player",
+     "dims": {
+      "n": 8,
+      "len": 9,
+      "seed": 31
+     }
+    },
+    {
+     "id": "dungeon-lower-footprints-b",
+     "kind": "footprints",
+     "pos": [
+      27.5,
+      0,
+      12.5
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "dims": {
+      "n": 8,
+      "len": 9,
+      "seed": 32
+     }
     },
     {
      "id": "dungeon-lower-cultists",

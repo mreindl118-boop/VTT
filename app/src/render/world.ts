@@ -117,7 +117,7 @@ export class World {
     const r = Math.hypot(box.maxX - box.minX, box.maxZ - box.minZ) / 2 + 4;
     const vHalf = THREE.MathUtils.degToRad(this.camera.fov / 2);
     const hHalf = Math.atan(Math.tan(vHalf) * this.camera.aspect);
-    const d = Math.min(this.controls.maxDistance, Math.max(40, (r / Math.sin(Math.min(vHalf, hHalf))) * 0.9));
+    const d = Math.min(this.controls.maxDistance, Math.max(48, (r / Math.sin(Math.min(vHalf, hHalf))) * 1.0));
     this.moveTo(new THREE.Vector3(cx, y, cz), d, animate);
   }
 

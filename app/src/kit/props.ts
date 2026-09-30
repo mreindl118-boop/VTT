@@ -57,7 +57,13 @@ export function oven(): THREE.Group {
   dome.position.y = 1;
   return g(box(4.5, 1, 4.5, PALETTE.stone, 0, 0.5, 0), dome);
 }
-export function crib(): THREE.Group { return g(box(2.4, 2.2, 3.4, PALETTE.woodDark, 0, 1.1, 0), box(2.6, 2.6, 3.6, '#121016', 0, 3.6, 0)); }
+/** Crib under a hanging black shroud: dark drapes on four sides, open to the top-down view. */
+export function crib(): THREE.Group {
+  const shroud = '#121016';
+  return g(box(2.4, 1.6, 3.4, PALETTE.woodDark, 0, 0.8, 0), box(2.2, 0.2, 3.2, PALETTE.bone, 0, 1.7, 0),
+    box(0.1, 4.2, 3.7, shroud, -1.3, 3.1, 0), box(0.1, 4.2, 3.7, shroud, 1.3, 3.1, 0), box(2.7, 4.2, 0.1, shroud, 0, 3.1, -1.8), box(1.6, 3.4, 0.1, shroud, -0.5, 3.5, 1.8),
+    box(0.12, 0.12, 3.8, PALETTE.iron, 0, 5.2, 0));
+}
 export function harpsichord(): THREE.Group { return g(box(6, 0.4, 3, PALETTE.woodDark, 0, 2.8, 0), box(5.5, 2.4, 2.5, PALETTE.wood, 0, 1.4, 0), box(2, 0.4, 3.2, PALETTE.bone, -2, 3, 0)); }
 export function harp(): THREE.Group {
   const frame = new THREE.Mesh(new THREE.TorusGeometry(1.8, 0.2, 6, 10, Math.PI), mat(PALETTE.amberDeep));
@@ -183,7 +189,7 @@ export function cloakHooks(): THREE.Group {
 }
 export function shelves(d: Dims): THREE.Group {
   const w = d.w ?? 5, g = g_(box(w, 7, 1, PALETTE.woodDark, 0, 3.5, 0));
-  for (let i = 0; i < 4; i++) { g.add(box(w - 0.3, 0.12, 1.1, PALETTE.wood, 0, 1.4 + i * 1.7, 0)); for (let k = 0; k < 3; k++) g.add(d.food ? ico(0.28, k % 2 ? '#8a6b3a' : PALETTE.bone, -w / 3 + k * (w / 3), 1.75 + i * 1.7, 0.2) : cyl(0.25, 0.25, 0.5, k % 2 ? PALETTE.mist1 : PALETTE.amberDeep, -w / 3 + k * (w / 3), 1.7 + i * 1.7, 0.2, 8)); }
+  for (let i = 0; i < 4; i++) { g.add(box(w - 0.3, 0.12, 1.1, PALETTE.wood, 0, 1.4 + i * 1.7, 0)); for (let k = 0; k < 3; k++) g.add(d.linen ? box(w / 4, 0.35 + (k % 2) * 0.2, 0.8, k === 1 ? '#c9c2b0' : PALETTE.bone, -w / 3 + k * (w / 3), 1.65 + i * 1.7, 0.1) : d.food ? ico(0.28, k % 2 ? '#8a6b3a' : PALETTE.bone, -w / 3 + k * (w / 3), 1.75 + i * 1.7, 0.2) : cyl(0.25, 0.25, 0.5, k % 2 ? PALETTE.mist1 : PALETTE.amberDeep, -w / 3 + k * (w / 3), 1.7 + i * 1.7, 0.2, 8)); }
   return g;
 }
 export function barrelSpigot(): THREE.Group { return g_(cyl(1, 1.1, 2.6, PALETTE.wood, 0, 1.3, 0, 10), box(0.5, 0.5, 0.5, PALETTE.iron, 0, 1.8, 0.9), cyl(0.15, 0.15, 3, PALETTE.iron, 0, 4.6, 0.6)); }
@@ -307,3 +313,113 @@ export function churchBuilding(): THREE.Group {
 }
 export function gateArch(): THREE.Group { return g_(box(3, 14, 3, PALETTE.stoneDeep, -7, 7, 0), box(3, 14, 3, PALETTE.stoneDeep, 7, 7, 0), box(17, 2.5, 3, PALETTE.stoneDeep, 0, 14.5, 0)); }
 Object.assign(PROPS_V1, { pine, bush, 'dead-tree': deadTree, boulder, gravestone, fence, water, tent, wagon, signpost, brazier, rubble, rug, house, 'church-building': churchBuilding, 'gate-arch': gateArch } as Record<string, (d: Dims) => THREE.Object3D>);
+
+// ---------------------------------------------------------------- kit v3: module details (Death House pass)
+/** Longsword mounted flat above a mantel; the hilt carries a small windmill cameo. */
+export function wallSword(d: Dims): THREE.Group {
+  const y = d.y ?? 7.5;
+  return g_(box(4.2, 0.18, 0.12, PALETTE.mist0, 0.4, y, 0.2), box(0.2, 0.9, 0.2, PALETTE.amberDeep, -1.8, y, 0.2), box(1.0, 0.22, 0.22, PALETTE.woodDark, -2.4, y, 0.2), ico(0.2, PALETTE.amber, -2.95, y, 0.2),
+    box(0.14, 0.6, 0.1, PALETTE.iron, -0.6, y + 0.1, 0.05), box(0.14, 0.6, 0.1, PALETTE.iron, 1.6, y + 0.1, 0.05));
+}
+/** Silver jewelry box with gold filigree, sized for a vanity top. */
+export function jewelryBox(d: Dims): THREE.Group {
+  const y = d.y ?? 3;
+  return g_(box(0.9, 0.45, 0.6, '#b9bec6', 0, y + 0.22, 0), box(0.95, 0.08, 0.65, PALETTE.amber, 0, y + 0.48, 0), box(0.12, 0.12, 0.05, PALETTE.amber, 0, y + 0.3, 0.32));
+}
+/** Rotting tiger-skin rug: flat pelt, stripes, and a low head. */
+export function tigerRug(): THREE.Group {
+  const g = g_(box(5.5, 0.06, 3.4, '#a8682c', 0, 0.03, 0), box(1.6, 0.06, 5, '#a8682c', 0, 0.03, 0));
+  for (let i = 0; i < 5; i++) g.add(box(0.28, 0.07, 3.0, '#3a2718', -2 + i * 0.95, 0.04, 0));
+  g.add(box(1.1, 0.55, 1.0, '#a8682c', 3.2, 0.3, 0), box(0.5, 0.3, 0.6, '#e8dcc6', 3.8, 0.2, 0), ico(0.12, PALETTE.amber, 3.55, 0.6, 0.3), ico(0.12, PALETTE.amber, 3.55, 0.6, -0.3));
+  return g;
+}
+/** Tightly wrapped, baby-sized bundle (empty) lying in the crib. */
+export function swaddledBundle(d: Dims): THREE.Group {
+  const m = new THREE.Mesh(new THREE.CapsuleGeometry(0.35, 0.8, 3, 8), mat(PALETTE.bone)); m.rotation.z = Math.PI / 2; m.position.y = (d.y ?? 2.1) + 0.35;
+  return g_(m);
+}
+/** Smoky-grey crystal orb held at hand height. */
+export function crystalOrb(d: Dims): THREE.Group { return g_(ico(0.35, '#7d8290', 0, d.y ?? 4.6, 0)); }
+/** Iron key lying on a desk top (the desk drawer's contents). */
+export function deskKey(d: Dims): THREE.Group { const y = d.y ?? 3.05; return g_(box(0.9, 0.06, 0.1, PALETTE.iron, 0, y, 0), box(0.3, 0.06, 0.3, PALETTE.iron, -0.5, y, 0), box(0.12, 0.06, 0.25, PALETTE.iron, 0.4, y, 0.12)); }
+/** Heavy, light and hand crossbows racked with bolts, seen through an opened cabinet. */
+export function crossbowRack(): THREE.Group {
+  const g = g_();
+  for (let i = 0; i < 3; i++) { const s = 1.2 - i * 0.3; g.add(box(0.2, 0.2, 2.2 * s, PALETTE.woodDark, -0.8 + i * 0.8, 3 + i * 1.3, 0.2), box(1.8 * s, 0.12, 0.12, PALETTE.iron, -0.8 + i * 0.8, 3 + i * 1.3, 0.2 - s)); }
+  for (let k = 0; k < 6; k++) g.add(box(0.05, 1.1, 0.05, PALETTE.bone, -1 + k * 0.4, 1.5, 0.5));
+  return g;
+}
+/** Pantry stores: grain sacks, a small barrel and a hanging ham. */
+export function sacks(): THREE.Group {
+  const g = g_();
+  for (const [x, z, s] of [[-0.8, 0, 1], [0.4, 0.2, 0.9], [-0.2, 0.9, 0.8]] as const) { const m = new THREE.Mesh(new THREE.IcosahedronGeometry(0.8 * s, 1), mat('#9a8460')); m.scale.set(1, 1.3, 1); m.position.set(x, 0.9 * s, z); g.add(m); }
+  g.add(cyl(0.6, 0.65, 1.5, PALETTE.wood, 1.6, 0.75, -0.2, 10), box(0.08, 1.2, 0.08, PALETTE.iron, 0.6, 7.2, -0.6), ico(0.55, '#8a4a38', 0.6, 6.4, -0.6));
+  return g;
+}
+/** Cookware on an iron rail: pots and pans hanging over a worktable. */
+export function hangingPots(d: Dims): THREE.Group {
+  const w = d.w ?? 5, y = d.y ?? 7.4, g = g_(box(w, 0.12, 0.12, PALETTE.iron, 0, y, 0));
+  for (let i = 0; i < 5; i++) { const x = -w / 2 + 0.5 + i * ((w - 1) / 4); g.add(box(0.05, 0.6, 0.05, PALETTE.iron, x, y - 0.3, 0), cyl(0.35 - (i % 2) * 0.1, 0.3, 0.35, i % 2 ? PALETTE.iron : PALETTE.amberDeep, x, y - 0.8, 0, 8)); }
+  return g;
+}
+/** Tiny brass bell on a wall bracket, wired to the dumbwaiter buttons upstairs. */
+export function brassBell(d: Dims): THREE.Group { const y = d.y ?? 5.5; return g_(box(0.5, 0.1, 0.4, PALETTE.woodDark, 0, y + 0.4, 0.1), cyl(0.05, 0.28, 0.35, PALETTE.amber, 0, y + 0.15, 0.3, 8), box(0.04, 1.6, 0.04, PALETTE.iron, 0.2, y + 1.2, 0.05)); }
+/** Things set out on a table top: place settings, a jug and cups, or a bowl and jug. */
+export function tabletop(d: Dims): THREE.Group {
+  // set: 0 dinner service, 1 clay jug and flagons, 2 porcelain bowl and jug, 3 den (goblets, cask, pipe rack)
+  const y = d.y ?? 3, set = d.set ?? 0, g = g_();
+  const shine = set === 0 ? '#d7dbe2' : set === 1 ? '#8a5a3a' : '#e8e4dc';
+  if (set === 0) {
+    for (let i = 0; i < 8; i++) { const x = -3 + (i % 4) * 2, z = i < 4 ? -1.2 : 1.2; g.add(cyl(0.45, 0.45, 0.05, shine, x, y + 0.03, z, 12), cyl(0.12, 0.08, 0.5, '#cfe3ee', x + 0.55, y + 0.25, z * 0.8, 8), box(0.05, 0.03, 0.7, shine, x - 0.6, y + 0.03, z)); }
+    g.add(cyl(0.3, 0.4, 1.1, shine, 0, y + 0.55, 0, 10), cyl(0.3, 0.4, 1.1, shine, 2, y + 0.55, 0, 10));
+  } else {
+    g.add(cyl(0.3, 0.4, 0.9, shine, -0.4, y + 0.45, 0, 10), box(0.1, 0.4, 0.3, shine, -0.05, y + 0.6, 0));
+    if (set === 2) g.add(cyl(0.6, 0.35, 0.35, shine, 0.6, y + 0.18, 0.1, 12));
+    else for (const [x, z] of [[0.5, -0.4], [0.6, 0.5]]) g.add(cyl(0.22, 0.18, 0.5, shine, x, y + 0.25, z, 8));
+    if (set === 3) g.add(box(1, 0.2, 0.3, PALETTE.woodDark, 0.2, y + 0.1, -0.9), cyl(0.18, 0.14, 0.45, PALETTE.woodDark, 1.2, y + 0.22, 0.2, 8));
+  }
+  return g;
+}
+/** Rolling library ladder leaning against the shelves. */
+export function rollingLadder(d: Dims): THREE.Group {
+  const h = d.h ?? 10, g = g_();
+  for (const x of [-0.7, 0.7]) { const r = box(0.15, h, 0.15, PALETTE.woodDark, x, h / 2, 0); r.rotation.x = -0.18; g.add(r); }
+  for (let i = 1; i < h / 1.2; i++) { const r = box(1.4, 0.1, 0.12, PALETTE.wood, 0, i * 1.2, -0.21 * i * 1.2 * 0.9 + 0.8); g.add(r); }
+  g.add(cyl(0.2, 0.2, 0.2, PALETTE.iron, -0.7, 0.1, 0.9, 8), cyl(0.2, 0.2, 0.2, PALETTE.iron, 0.7, 0.1, 0.9, 8));
+  return g;
+}
+/** A window bricked up from inside. */
+export function brickedWindow(): THREE.Group {
+  const g = g_(box(4.4, 5, 0.35, '#5c3a30', 0, 5.5, 0));
+  for (let r = 0; r < 6; r++) g.add(box(4.4, 0.06, 0.4, '#3a2620', 0, 3.2 + r * 0.85, 0));
+  return g;
+}
+/** Old footprints pressed into an earthen floor. Flat decal, treated as floor. */
+export function footprints(d: Dims): THREE.Group {
+  const n = d.n ?? 10, len = d.len ?? 10, g = g_(); let seed = (d.seed ?? 1) * 9301;
+  const rnd = () => ((seed = (seed * 9301 + 49297) % 233280) / 233280);
+  const geo = new THREE.CircleGeometry(0.28, 8).rotateX(-Math.PI / 2); geo.scale(0.7, 1, 1.5);
+  for (let i = 0; i < n; i++) {
+    const m = new THREE.Mesh(geo, mat('#3b2c20'));
+    const t = (i / n - 0.5) * len;
+    m.position.set((i % 2 ? 0.35 : -0.35) + (rnd() - 0.5) * 0.8, 0.012, t + (rnd() - 0.5) * 0.5);
+    m.rotation.y = (rnd() - 0.5) * 0.6 + (rnd() < 0.3 ? Math.PI : 0);
+    m.userData.role = 'floor';
+    g.add(m);
+  }
+  return g;
+}
+/** Sheet-draped storage shapes: chair, coat rack, standing mirror or dress mannequin. */
+export function sheetedShape(d: Dims): THREE.Group {
+  // shape: 0 chair, 1 coat rack, 2 standing mirror, 3 dress mannequin
+  const shape = d.shape ?? 0, m = mat(PALETTE.mist1);
+  if (shape === 1) { const c = new THREE.Mesh(new THREE.ConeGeometry(0.9, 6, 7), m); c.position.y = 3; return g_(c, cyl(0.1, 0.1, 0.6, PALETTE.woodDark, 0, 6.2, 0)); }
+  if (shape === 2) { const b = box(2.6, 6.4, 0.9, PALETTE.mist1, 0, 3.2, 0); return g_(b); }
+  if (shape === 3) { const c = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 1.3, 4.6, 8), m); c.position.y = 2.3; const h = new THREE.Mesh(new THREE.IcosahedronGeometry(0.55, 0), m); h.position.y = 5.1; return g_(c, h); }
+  const s = new THREE.Mesh(new THREE.IcosahedronGeometry(1.5, 0), m); s.scale.set(1, 1.2, 1); s.position.y = 1.8; return g_(s);
+}
+Object.assign(PROPS_V1, {
+  'wall-sword': wallSword, 'jewelry-box': jewelryBox, 'tiger-rug': tigerRug, 'swaddled-bundle': swaddledBundle, 'crystal-orb': crystalOrb, 'desk-key': deskKey,
+  'crossbow-rack': crossbowRack, sacks, 'hanging-pots': hangingPots, 'brass-bell': brassBell, tabletop, 'rolling-ladder': rollingLadder,
+  'bricked-window': brickedWindow, footprints, 'sheeted-shape': sheetedShape,
+} as Record<string, (d: Dims) => THREE.Object3D>);

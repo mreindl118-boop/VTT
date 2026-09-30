@@ -70,6 +70,7 @@ function buildDmUi(): void {
         <button class="icon" data-act="undo" aria-label="Undo reveal">${ICON.undo}</button>
       </div>
       <span class="divider"></span>
+      <button class="icon" data-act="search" aria-label="Go to area (/)" title="Go to area (/)">${ICON.search}</button>
       <button class="icon" data-act="rooms" aria-label="Rooms">${ICON.list}</button>
       <button class="icon" data-act="grid" aria-label="Grid: square / hex / off"></button>
       <button class="icon" data-act="walls" aria-label="Walls: low / full">${ICON.walls}</button>
@@ -115,17 +116,21 @@ function buildDmUi(): void {
   // Room finder: search + list sheet.
   const finder = document.createElement('div');
   finder.className = 'finder dm-only';
+  finder.hidden = true; // opens from the search button or "/", drops down under the top bar
   finder.innerHTML = `<label class="search">${ICON.search}<input type="search" placeholder="Go to area… (12A, ritual)" aria-label="Find an area" autocomplete="off"></label><ul class="results" hidden></ul>`;
   ui.appendChild(finder);
   const input = finder.querySelector('input')!, results = finder.querySelector<HTMLElement>('.results')!;
+  const openFinder = () => { finder.style.top = `${top.getBoundingClientRect().bottom + 8}px`; finder.hidden = false; input.focus(); };
+  const closeFinder = () => { input.value = ''; results.hidden = true; finder.hidden = true; input.blur(); };
+  input.addEventListener('blur', () => setTimeout(() => { if (!finder.contains(document.activeElement) && !input.value) closeFinder(); }, 150));
   const renderResults = () => {
     const hits = app.findRooms(input.value).slice(0, 8);
     results.hidden = hits.length === 0;
     results.innerHTML = hits.map((h) => `<li><button data-key="${h.room.key}"><b>${h.room.key}</b> ${h.room.name}<span>${h.level.name}</span></button></li>`).join('');
   };
   input.addEventListener('input', renderResults);
-  input.addEventListener('keydown', (e) => { if (e.key === 'Enter') { const first = results.querySelector<HTMLElement>('button'); first?.click(); } if (e.key === 'Escape') { input.value = ''; results.hidden = true; input.blur(); } });
-  results.addEventListener('click', (e) => { const b = (e.target as HTMLElement).closest<HTMLElement>('[data-key]'); if (!b) return; app.jumpTo(b.dataset.key!); input.value = ''; results.hidden = true; input.blur(); });
+  input.addEventListener('keydown', (e) => { if (e.key === 'Enter') { const first = results.querySelector<HTMLElement>('button'); first?.click(); } if (e.key === 'Escape') closeFinder(); });
+  results.addEventListener('click', (e) => { const b = (e.target as HTMLElement).closest<HTMLElement>('[data-key]'); if (!b) return; app.jumpTo(b.dataset.key!); closeFinder(); });
 
   const status = document.createElement('div');
   status.className = 'status';
@@ -163,6 +168,7 @@ function buildDmUi(): void {
     switch (b.dataset.act) {
       case 'library': openLibrary(builtPaths, (p) => { localStorage.setItem('mistlab.scene', p); void app.open(p).then(() => app.layoutChanged()); }); break;
       case 'undo': app.undo(); break;
+      case 'search': finder.hidden ? openFinder() : closeFinder(); break;
       case 'rooms': toggleRooms(); break;
       case 'grid': app.gridMode = app.gridMode === 'square' ? 'hex' : app.gridMode === 'hex' ? 'off' : 'square'; app.layoutChanged(); break;
       case 'walls': app.lowWalls = !app.lowWalls; app.layoutChanged(); break;
@@ -196,6 +202,22 @@ function buildDmUi(): void {
   // Tap menu: what you can do with the thing you tapped.
   let menu: HTMLElement | null = null;
   const closeMenu = () => { menu?.remove(); menu = null; };
+  // Hover tooltip (mouse): what is under the cursor.
+  const tip = document.createElement('div');
+  tip.className = 'tip'; tip.hidden = true;
+  ui.appendChild(tip);
+  app.onHover = (t, x, y) => {
+    if (!t || menu) { tip.hidden = true; return; }
+    tip.innerHTML = `<b></b>${t.sub ? '<span></span>' : ''}`;
+    tip.querySelector('b')!.textContent = t.title;
+    if (t.sub) tip.querySelector('span')!.textContent = t.sub;
+    tip.hidden = false;
+    tip.style.left = `${Math.min(x + 14, innerWidth - tip.offsetWidth - 8)}px`;
+    tip.style.top = `${Math.min(y + 16, innerHeight - tip.offsetHeight - 8)}px`;
+  };
+  app.world.renderer.domElement.addEventListener('pointerleave', () => { tip.hidden = true; });
+  app.onLeave = () => { closeMenu(); tip.hidden = true; };
+
   app.onTap = (hit, x, y) => {
     closeMenu();
     const items: { label: string; act: () => void; icon?: string }[] = [];
@@ -220,6 +242,19 @@ function buildDmUi(): void {
       setTimeout(() => addEventListener('pointerdown', (e) => { if (menu && !menu.contains(e.target as Node)) closeMenu(); }, { once: true }), 0);
       return;
     }
+    if (app.restricted && hit.room) {
+      // Players: a read-only room card.
+      const r = hit.room, card = document.createElement('div');
+      card.className = 'infocard';
+      card.innerHTML = `<header><div><h2></h2></div><button class="icon close" aria-label="Close">${ICON.close}</button></header>${r.desc ? '<div class="body"><div class="desc"></div></div>' : ''}`;
+      card.querySelector('h2')!.textContent = r.name;
+      if (r.desc) card.querySelector('.desc')!.textContent = r.desc;
+      card.style.left = `${Math.min(x, innerWidth - 360)}px`; card.style.top = `${Math.min(y, innerHeight - 200)}px`;
+      card.addEventListener('click', (e) => { if ((e.target as HTMLElement).closest('.close')) closeMenu(); });
+      menu = card; ui.appendChild(card);
+      setTimeout(() => addEventListener('pointerdown', (e) => { if (menu && !menu.contains(e.target as Node)) closeMenu(); }, { once: true }), 0);
+      return;
+    }
     if (hit.door) items.push({ label: hit.door.open ? 'Close door' : 'Open door', icon: ICON.walls, act: () => app.toggleDoor(hit.door!.wallId) });
     if (hit.secretDoor) items.push({ label: hit.secretDoor.revealed ? 'Hide secret door again' : 'Reveal secret door to players', icon: ICON.eye, act: () => app.revealSecretDoor(hit.secretDoor!.id) });
     if (hit.room) {
@@ -230,8 +265,12 @@ function buildDmUi(): void {
     if (!items.length) return;
     menu = document.createElement('div');
     menu.className = 'tapmenu';
-    menu.innerHTML = items.map((it, i) => `<button data-i="${i}">${it.icon ?? ''}<span>${it.label}</span></button>`).join('');
-    menu.style.left = `${Math.min(x, innerWidth - 260)}px`; menu.style.top = `${Math.min(y, innerHeight - 40 * items.length - 20)}px`;
+    const r = !hit.door && !hit.secretDoor ? hit.room : undefined;
+    const head = r ? `<div class="roomhead"><div class="rh-title"><b>${r.key}</b> ${r.name}${r.page ? ` <i>p.${r.page}</i>` : ''}</div>${r.desc ? `<div class="desc">${r.desc}</div>` : ''}${r.dm ? `<div class="dm"><span class="dm-tag">${ICON.eyeOff}DM only</span>${r.dm}</div>` : ''}</div>` : '';
+    menu.innerHTML = head + items.map((it, i) => `<button data-i="${i}">${it.icon ?? ''}<span>${it.label}</span></button>`).join('');
+    if (r) menu.classList.add('withroom');
+    ui.appendChild(menu);
+    menu.style.left = `${Math.max(8, Math.min(x, innerWidth - menu.offsetWidth - 8))}px`; menu.style.top = `${Math.max(8, Math.min(y, innerHeight - menu.offsetHeight - 8))}px`;
     menu.addEventListener('click', (e) => { const b = (e.target as HTMLElement).closest<HTMLElement>('button'); if (!b) return; items[Number(b.dataset.i)].act(); closeMenu(); refresh(); });
     ui.appendChild(menu);
     setTimeout(() => addEventListener('pointerdown', (e) => { if (menu && !menu.contains(e.target as Node)) closeMenu(); }, { once: true }), 0);
@@ -241,7 +280,7 @@ function buildDmUi(): void {
   addEventListener('keydown', (e) => {
     if ((e.target as HTMLElement).tagName === 'INPUT') return;
     if (e.key === 'r') app.world.rotate(1); if (e.key === 'R') app.world.rotate(-1);
-    if (e.key === 'f') app.findParty(); if (e.key === '/') { e.preventDefault(); input.focus(); }
+    if (e.key === 'f') app.findParty(); if (e.key === '/') { e.preventDefault(); openFinder(); }
     if (e.key === 'Escape') { document.querySelectorAll('.sheet-backdrop').forEach((s) => s.remove()); app.select(null); app.tool = 'none'; app.setStatus(''); refresh(); }
   });
 
