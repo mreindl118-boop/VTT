@@ -14,10 +14,14 @@ echo "OCR $PAGES pages -> $OUT"
 ocr_page() {
   local i=$1 base
   base=$(printf '%s/page-%03d' "$OUT" "$i")
-  [ -s "$base.txt" ] && return 0
+  [ -f "$base.txt" ] && [ -s "$base.txt" ] && return 0
   pdftoppm -r 300 -gray -f "$i" -l "$i" -png "$PDF" "$OUT/tmp/p$i"
   local png; png=$(ls "$OUT"/tmp/p"$i"-*.png | head -1)
-  tesseract "$png" "$base" --psm 3 -l eng >/dev/null 2>&1
+  # One thread per process: tesseract's OpenMP threads thrash when pages run in parallel.
+  # Art-only pages (covers, maps) can stall layout analysis, so cap each page and fall back.
+  OMP_THREAD_LIMIT=1 timeout 120 tesseract "$png" "$base" --psm 3 -l eng >/dev/null 2>&1 \
+    || OMP_THREAD_LIMIT=1 timeout 120 tesseract "$png" "$base" --psm 6 -l eng >/dev/null 2>&1 \
+    || echo "[ocr timed out]" > "$base.txt"
   rm -f "$png"
   echo -n "."
 }
