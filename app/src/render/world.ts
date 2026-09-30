@@ -45,7 +45,7 @@ export class World {
     mistFloor.rotation.x = -Math.PI / 2; mistFloor.position.y = -1.2; mistFloor.userData.role = 'marker'; mistFloor.name = 'mist-floor';
     this.scene.add(mistFloor);
     this.mistFloor = mistFloor;
-    this.camera = new THREE.PerspectiveCamera(40, 1, 2, 4000);
+    this.camera = new THREE.PerspectiveCamera(40, 1, 2, 12000);
     this.camera.position.set(30, 70, 90);
 
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
@@ -84,6 +84,15 @@ export class World {
     requestAnimationFrame(loop);
   }
 
+  outdoor = false;
+  /** Outdoors the camera may drop lower toward the horizon. */
+  /** Fog density: thinner outdoors, where maps are hundreds of feet across. */
+  get fogDensity(): number { return this.outdoor ? 0.0011 : 0.0032; }
+  setOutdoor(on: boolean): void {
+    this.outdoor = on; this.controls.maxPolarAngle = Math.PI * (on ? 0.46 : 0.4);
+    if (this.scene.fog instanceof THREE.FogExp2) this.scene.fog.density = this.fogDensity;
+    this.invalidate();
+  }
   invalidate(): void { this.dirty = true; }
 
   renderNow(): void {
@@ -105,7 +114,8 @@ export class World {
 
   /** Camera offset from the target for the current azimuth (free, from the gesture) and tilt band. */
   private rigOffset(dist: number, azimuthDelta = 0): THREE.Vector3 {
-    const pitch = this.tilt ? Math.PI * 0.06 : Math.PI * 0.27; // angle from vertical: ~49° tabletop (natural depth), near-vertical top-down
+    // Angle from vertical: ~49° tabletop indoors, ~61° outdoors so the horizon shows; near-vertical top-down.
+    const pitch = this.tilt ? Math.PI * 0.06 : this.outdoor ? Math.PI * 0.34 : Math.PI * 0.27;
     const a = this.controls.getAzimuthalAngle() + azimuthDelta;
     return new THREE.Vector3(Math.sin(pitch) * Math.sin(a) * dist, Math.cos(pitch) * dist, Math.sin(pitch) * Math.cos(a) * dist);
   }

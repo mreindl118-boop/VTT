@@ -144,7 +144,7 @@ function buildDmUi(): void {
     if (!app.cur) return;
     document.body.dataset.view = app.view;
     top.querySelector('.loc')!.textContent = app.cur.scene.name;
-    top.querySelector('.sub')!.textContent = `${app.cur.scene.mapPage ? `map p.${app.cur.scene.mapPage}` : app.cur.scene.chapter} · ${app.cur.scene.bookScaleFt}-ft squares`;
+    top.querySelector('.sub')!.textContent = `${app.cur.scene.mapPage ? `map p.${app.cur.scene.mapPage}` : app.cur.scene.chapter} · ${app.cur.scene.placementFt ? `${app.cur.scene.placementFt}-ft placement squares` : `${app.cur.scene.bookScaleFt}-ft squares`}`;
     top.querySelectorAll<HTMLElement>('[data-view]').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.view === app.view)));
     const lv = top.querySelector('.levels')!;
     lv.innerHTML = app.cur.scene.levels.map((l) => `<button role="tab" data-level="${l.id}" aria-selected="${l.id === app.levelId}">${l.name}${app.party?.level === l.id ? ' <i class="dot"></i>' : ''}</button>`).join('');

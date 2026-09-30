@@ -164,3 +164,16 @@
   gives straight-line miles and travel time at slow / normal / fast pace, and opens the built battle maps at
   that pin (Village of Barovia: village, church, Death House; Tser Pool; the Svalich Woods road). Opening a
   location moves the marker to its pin; a trail of recent moves is kept.
+
+## M2.1 Outdoors — 2026-09-30
+
+- Distant scenery for outdoor locations (`render/backdrop.ts`): the land runs on past the map edge, a
+  forest ring closes in, ridges rise where the world map has high ground in that direction, the named
+  peaks stand snow-capped at their bearings, and Castle Ravenloft crowns its pillar of rock where the
+  world map puts it. Outdoor camera may tilt lower toward the horizon; fog is thinner outdoors.
+- Village of Barovia remapped from the book map (p.42, one square = 40 ft): 116 building footprints
+  measured from the roof shapes at 200 dpi (`scripts/authoring/village-map.py`), E1–E7 squares placed on
+  their markers, the seed's roads and props carried into the measured frame. Houses are now gabled
+  timber-framed Barovian houses with shutters and chimneys, varied per house.
+- Placement layers say so in the subtitle ("40-ft placement squares") and frame an area with its
+  neighbourhood.

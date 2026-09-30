@@ -20,6 +20,7 @@ import { World, type CameraPreset } from './render/world';
 import { loadLocation } from './data';
 import { ICON } from './ui/icons';
 import { pinForScene } from './ui/worldmap';
+import { buildBackdrop } from './render/backdrop';
 import { Channel, type Msg } from './state/channel';
 import { newCampaign, revealSets, type CampaignState, type Reveal, type Token } from './state/campaign';
 import { idbGet, idbSet } from './state/idb';
@@ -69,6 +70,7 @@ export class App {
   lockPlayerCamera = true;
   secretAsWall = false;
   renderMode: 'normal' | 'floorMask' = 'normal';
+  backdrop?: THREE.Group;
   status = '';
   onStatus: ((s: string) => void) | null = null;
   onChange: (() => void) | null = null;
@@ -157,6 +159,15 @@ export class App {
     this.cur = { path, scene, grid, levels, coverage, covTex, labels, tokens: new Map() };
     // The world-map marker follows the party into whichever pin this scene belongs to.
     const pin = pinForScene(path);
+    // Outdoors: the land, forest, mountains and the castle continue to the horizon.
+    this.backdrop?.removeFromParent(); this.backdrop = undefined;
+    const l0 = scene.levels[0], outdoor = !!pin && !!l0.terrain?.length && (scene.ambient ?? l0.ambient) !== 'darkness';
+    if (outdoor) {
+      const bb = bounds([...l0.rooms.map((r) => r.polygon), ...(l0.terrain ?? []).map((t) => t.polygon)]);
+      this.backdrop = buildBackdrop({ center: [(bb.minX + bb.maxX) / 2, (bb.minZ + bb.maxZ) / 2], radius: Math.hypot(bb.maxX - bb.minX, bb.maxZ - bb.minZ) / 2, elevation: l0.elevationFt, pin: pin!.pos as Vec2 });
+      this.world.scene.add(this.backdrop);
+    }
+    this.world.setOutdoor(outdoor);
     if (pin && this.state.world?.key !== pin.key) this.moveWorld([...pin.pos] as Vec2, pin.key, this.state.world ? Math.hypot(this.state.world.pos[0] - pin.pos[0], this.state.world.pos[1] - pin.pos[1]) : 0, false);
     this.ensureDefaultToken();
     this.setLevel(levelId && levels.has(levelId) ? levelId : scene.levels[0].id, true);
@@ -172,6 +183,7 @@ export class App {
     fogUniforms.uCovOrigin.value.set(cov.originX, cov.originZ);
     fogUniforms.uCovSize.value.set(cov.width, cov.height);
     this.world.mistFloor.position.y = this.level.elevationFt - 1.2;
+    this.world.mistFloor.visible = !this.backdrop;
     this.syncTokens();
     this.recompute();
     if (frame) this.frameLevel();
@@ -228,7 +240,9 @@ export class App {
     if (!hit) return false;
     if (hit.level.id !== this.levelId) this.setLevel(hit.level.id);
     const b = bounds([hit.room.polygon]);
-    this.world.frame(b, hit.level.elevationFt, this.camPreset, true);
+    // On a placement layer a "room" is one 40-ft square: frame it with its neighbourhood, not its doorstep.
+    const pad = this.cur!.scene.placementFt ? this.cur!.scene.placementFt * 1.5 : 0;
+    this.world.frame({ minX: b.minX - pad, minZ: b.minZ - pad, maxX: b.maxX + pad, maxZ: b.maxZ + pad }, hit.level.elevationFt, this.camPreset, true);
     this.flashKey = hit.room.key;
     this.onChange?.();
     return true;
@@ -816,13 +830,13 @@ export class App {
         this.maskSwap.set(m, m.material);
         m.material = o.userData.role === 'floor' ? white : o.userData.role === 'wall' || o.userData.role === 'door' ? blackWall : black;
       });
-      this.world.scene.background = new THREE.Color('#000000'); this.world.mistFloor.visible = false; this.world.scene.fog = null;
+      this.world.scene.background = new THREE.Color('#000000'); this.world.mistFloor.visible = false; this.world.scene.fog = null; if (this.backdrop) this.backdrop.visible = false;
     } else {
       for (const [m, mat] of this.maskSwap) m.material = mat;
       this.maskSwap.clear();
       for (const o of this.maskHidden) o.visible = true;
       this.maskHidden = [];
-      this.world.scene.background = null; this.world.mistFloor.visible = true; this.world.scene.fog = new THREE.FogExp2('#2b2733', 0.0032);
+      this.world.scene.background = null; this.world.mistFloor.visible = !this.backdrop; this.world.scene.fog = new THREE.FogExp2('#2b2733', this.world.fogDensity); if (this.backdrop) this.backdrop.visible = true;
       this.applySlider();
     }
     this.world.invalidate();

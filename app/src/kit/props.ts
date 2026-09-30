@@ -298,11 +298,32 @@ export function brazier(): THREE.Group { return g_(cyl(1.2, 0.8, 0.5, PALETTE.ir
 export function rubble(d: Dims): THREE.Group { const g = g_(); for (let i = 0; i < (d.n ?? 6); i++) g.add(ico(0.5 + (i % 3) * 0.3, PALETTE.stoneDeep, Math.cos(i * 2.1) * 1.6, 0.4, Math.sin(i * 2.1) * 1.6)); return g; }
 export function rug(d: Dims): THREE.Group { return g_(box(d.w ?? 8, 0.08, d.d ?? 6, '#5a2a30', 0, 0.04, 0), box((d.w ?? 8) - 1, 0.09, (d.d ?? 6) - 1, '#7a3a40', 0, 0.045, 0)); }
 /** Village house: plain block with a pitched roof; stories from dims. */
+/** A Barovian house: timber frame over plaster, a steep gabled roof along the long side, shuttered windows,
+ * a chimney. Tones vary per house (deterministically from its size) so a street never looks cloned. */
 export function house(d: Dims): THREE.Group {
   const w = d.w ?? 20, dd = d.d ?? 20, h = (d.h ?? 10) * (d.stories ?? 1);
-  const g = g_(box(w, h, dd, d.stories && d.stories > 1 ? PALETTE.mist3 : PALETTE.woodDark, 0, h / 2, 0));
-  const roof = new THREE.Mesh(new THREE.CylinderGeometry(0.01, Math.min(w, dd) * 0.72, 5, 4), mat('#3b2f47')); roof.rotation.y = Math.PI / 4; roof.position.y = h + 2.5; roof.scale.set(w / Math.min(w, dd), 1, dd / Math.min(w, dd)); g.add(roof);
-  g.add(box(2, 3.5, 0.4, PALETTE.wood, 0, 1.75, dd / 2 + 0.1));
+  const v = Math.abs(Math.sin(w * 12.9898 + dd * 78.233)) % 1;
+  const plaster = ['#8f8676', '#7d7466', '#9a917f', '#6f675b'][Math.floor(v * 4)], beam = '#3a2c22';
+  const roofC = ['#3d3a3e', '#4a3a33', '#35393a', '#51463c'][Math.floor(v * 7) % 4];
+  const g = g_(box(w, h, dd, plaster, 0, h / 2, 0));
+  // Timber frame: corner posts, sill and eave beams, a mid rail.
+  for (const [x, z] of [[-w / 2, -dd / 2], [w / 2, -dd / 2], [-w / 2, dd / 2], [w / 2, dd / 2]]) g.add(box(0.8, h, 0.8, beam, x, h / 2, z));
+  for (const y of [0.4, h * 0.55, h - 0.3]) { g.add(box(w + 0.2, 0.5, 0.3, beam, 0, y, dd / 2 + 0.05), box(w + 0.2, 0.5, 0.3, beam, 0, y, -dd / 2 - 0.05), box(0.3, 0.5, dd + 0.2, beam, w / 2 + 0.05, y, 0), box(0.3, 0.5, dd + 0.2, beam, -w / 2 - 0.05, y, 0)); }
+  // Gabled roof along the long axis (prism), overhanging the walls.
+  const long = w >= dd, L = (long ? w : dd) + 2, S = (long ? dd : w) + 2.4, rise = S * 0.62;
+  const shape = new THREE.Shape([new THREE.Vector2(-S / 2, 0), new THREE.Vector2(S / 2, 0), new THREE.Vector2(0, rise)]);
+  const prism = new THREE.ExtrudeGeometry(shape, { depth: L, bevelEnabled: false }); prism.translate(0, 0, -L / 2);
+  const roof = new THREE.Mesh(prism, mat(roofC)); roof.position.y = h; if (long) roof.rotation.y = Math.PI / 2; g.add(roof);
+  // Shuttered windows on the long faces, a door on the front.
+  const faces = long ? [[0, dd / 2 + 0.2, 0], [0, -dd / 2 - 0.2, Math.PI]] : [[w / 2 + 0.2, 0, Math.PI / 2], [-w / 2 - 0.2, 0, -Math.PI / 2]];
+  const span = long ? w : dd;
+  for (const [fx, fz, ry] of faces) for (let i = -1; i <= 1; i += 2) {
+    const win = box(2.6, 3, 0.25, '#2a2320', 0, h * 0.62, 0); const sh = box(1.2, 3.1, 0.3, '#4b3a2c', 1.35, h * 0.62, 0.05);
+    const grp = g_(win, sh); grp.position.set(fx + (long ? i * span * 0.28 : 0), 0, fz + (long ? 0 : i * span * 0.28)); grp.rotation.y = ry as number; g.add(grp);
+  }
+  g.add(box(3, 6.5, 0.4, '#3b2a1e', 0, 3.25, dd / 2 + 0.25));
+  // Chimney on the roof ridge.
+  g.add(box(2.4, rise + 5, 2.4, '#4d4845', (long ? w * 0.28 : 0), h + (rise + 5) / 2, (long ? 0 : dd * 0.28)));
   return g;
 }
 export function churchBuilding(): THREE.Group {
