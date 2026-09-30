@@ -1,6 +1,6 @@
 {
  "schema": 1,
- "source": "occ prompt v1 §7/§9 seed — verify with scripts/manifest-report.ts after OCR",
+ "source": "occ prompt v1 seed, verified against the OCR of reference/module/curse-of-strahd.pdf (scripts/manifest-report.ts); printed page = pdf page - 1",
  "chapters": [
   {
    "id": "ch02",
@@ -94,19 +94,19 @@
     {
      "key": "A",
      "name": "Old Svalich Road",
-     "page": null,
+     "page": 33,
      "pin": true
     },
     {
      "key": "B",
      "name": "Gates of Barovia",
-     "page": null,
+     "page": 33,
      "pin": true
     },
     {
      "key": "C",
      "name": "Svalich Woods",
-     "page": null,
+     "page": 34,
      "pin": true
     },
     {
@@ -118,49 +118,49 @@
     {
      "key": "E",
      "name": "Village of Barovia",
-     "page": null,
+     "page": 35,
      "pin": true
     },
     {
      "key": "F",
      "name": "River Ivlis Crossroads",
-     "page": null,
+     "page": 35,
      "pin": true
     },
     {
      "key": "G",
      "name": "Tser Pool Encampment",
-     "page": null,
+     "page": 36,
      "pin": true
     },
     {
      "key": "H",
      "name": "Tser Falls",
-     "page": null,
+     "page": 37,
      "pin": true
     },
     {
      "key": "I",
      "name": "Black Carriage",
-     "page": null,
+     "page": 37,
      "pin": true
     },
     {
      "key": "J",
      "name": "Gates of Ravenloft",
-     "page": null,
+     "page": 38,
      "pin": true
     },
     {
      "key": "K",
      "name": "Castle Ravenloft",
-     "page": null,
+     "page": 38,
      "pin": true
     },
     {
      "key": "L",
      "name": "Lake Zarovich",
-     "page": null,
+     "page": 38,
      "pin": true
     },
     {
@@ -172,79 +172,79 @@
     {
      "key": "N",
      "name": "Town of Vallaki",
-     "page": null,
+     "page": 40,
      "pin": true
     },
     {
      "key": "O",
      "name": "Old Bonegrinder",
-     "page": null,
+     "page": 40,
      "pin": true
     },
     {
      "key": "P",
      "name": "Luna River Crossroads",
-     "page": null,
+     "page": 40,
      "pin": true
     },
     {
      "key": "Q",
      "name": "Argynvostholt",
-     "page": null,
+     "page": 40,
      "pin": true
     },
     {
      "key": "R",
      "name": "Raven River Crossroads",
-     "page": null,
+     "page": 40,
      "pin": true
     },
     {
      "key": "S",
      "name": "Village of Krezk",
-     "page": null,
+     "page": 40,
      "pin": true
     },
     {
      "key": "T",
      "name": "Tsolenka Pass",
-     "page": null,
+     "page": 40,
      "pin": true
     },
     {
      "key": "U",
      "name": "Ruins of Berez",
-     "page": null,
+     "page": 40,
      "pin": true
     },
     {
      "key": "V",
      "name": "Van Richten's Tower",
-     "page": null,
+     "page": 40,
      "pin": true
     },
     {
      "key": "W",
      "name": "The Wizard of Wines",
-     "page": null,
+     "page": 40,
      "pin": true
     },
     {
      "key": "X",
      "name": "The Amber Temple",
-     "page": null,
+     "page": 40,
      "pin": true
     },
     {
      "key": "Y",
      "name": "Yester Hill",
-     "page": null,
+     "page": 40,
      "pin": true
     },
     {
      "key": "Z",
      "name": "Werewolf Den",
-     "page": null,
+     "page": 40,
      "pin": true
     }
    ],
@@ -270,7 +270,7 @@
     {
      "key": "G",
      "name": "Tser Pool Encampment",
-     "page": null
+     "page": 36
     }
    ],
    "notes": "Vistani wagons, Madam Eva's tent, the pool and falls approach. Sub-keys to be completed from OCR."
@@ -288,7 +288,7 @@
     {
      "key": "A",
      "name": "Old Svalich Road",
-     "page": null
+     "page": 33
     }
    ],
    "notes": "road through pines, mist wall"
@@ -306,7 +306,7 @@
     {
      "key": "B",
      "name": "Gates of Barovia",
-     "page": null
+     "page": 33
     }
    ],
    "notes": "stone gate with headless statues"
@@ -324,7 +324,7 @@
     {
      "key": "C",
      "name": "Svalich Woods",
-     "page": null
+     "page": 34
     }
    ],
    "notes": "forest road segments: straight, bend, fork"
@@ -367,7 +367,7 @@
     {
      "key": "F",
      "name": "River Ivlis Crossroads",
-     "page": null
+     "page": 35
     }
    ],
    "notes": "gallows, signpost, small graveyard"
@@ -385,7 +385,7 @@
     {
      "key": "H",
      "name": "Tser Falls",
-     "page": null
+     "page": 37
     }
    ],
    "notes": "bridge over the falls, Tser Pool below"
@@ -403,7 +403,7 @@
     {
      "key": "I",
      "name": "Black Carriage",
-     "page": null
+     "page": 37
     }
    ],
    "notes": "road encounter stage"
@@ -421,7 +421,7 @@
     {
      "key": "J",
      "name": "Gates of Ravenloft",
-     "page": null
+     "page": 38
     }
    ],
    "notes": "approach, drawbridge and chasm"
@@ -439,7 +439,7 @@
     {
      "key": "L",
      "name": "Lake Zarovich",
-     "page": null
+     "page": 38
     }
    ],
    "notes": "shore, Bluto's rowboat, fishing spot"
@@ -475,7 +475,7 @@
     {
      "key": "P",
      "name": "Luna River Crossroads",
-     "page": null
+     "page": 40
     }
    ],
    "notes": "bridge, signpost, treeline"
@@ -493,7 +493,7 @@
     {
      "key": "R",
      "name": "Raven River Crossroads",
-     "page": null
+     "page": 40
     }
    ],
    "notes": "bridge, signpost, treeline"
@@ -513,13 +513,13 @@
     {
      "key": "E1",
      "name": "Bildrath's Mercantile",
-     "page": null,
+     "page": 43,
      "inset": true
     },
     {
      "key": "E2",
      "name": "Blood of the Vine Tavern",
-     "page": null,
+     "page": 43,
      "inset": true,
      "dims": {
       "footprintFt": [
@@ -531,7 +531,7 @@
     {
      "key": "E3",
      "name": "Mad Mary's Townhouse",
-     "page": null,
+     "page": 44,
      "inset": true,
      "dims": {
       "footprintFt": [
@@ -543,13 +543,24 @@
     {
      "key": "E4",
      "name": "Burgomaster's Mansion",
-     "page": null,
+     "page": 44,
      "inset": true
     },
     {
      "key": "E5",
      "name": "Church",
-     "page": null
+     "page": 45
+    },
+    {
+     "key": "E6",
+     "name": "Cemetery",
+     "page": 48
+    },
+    {
+     "key": "E7",
+     "name": "Haunted House",
+     "page": 48,
+     "note": "Death House exterior (Appendix B)"
     }
    ],
    "placementLayer": {
@@ -601,37 +612,37 @@
     {
      "key": "E5a",
      "name": "Hall",
-     "page": null
+     "page": 45
     },
     {
      "key": "E5b",
      "name": "Doru's Bedroom",
-     "page": null
+     "page": 45
     },
     {
      "key": "E5c",
      "name": "Donavich's Bedroom",
-     "page": null
+     "page": 45
     },
     {
      "key": "E5d",
      "name": "Trapdoor",
-     "page": null
+     "page": 45
     },
     {
      "key": "E5e",
      "name": "Office",
-     "page": null
+     "page": 46
     },
     {
      "key": "E5f",
      "name": "Chapel",
-     "page": null
+     "page": 46
     },
     {
      "key": "E5g",
      "name": "Undercroft",
-     "page": null
+     "page": 47
     }
    ],
    "levels": [
@@ -669,63 +680,63 @@
     {
      "key": "K1",
      "name": "Front Courtyard",
-     "page": null,
+     "page": 52,
      "map": "Map 2",
      "mapPage": 53
     },
     {
      "key": "K2",
      "name": "Center Court Gate",
-     "page": null,
+     "page": 54,
      "map": "Map 2",
      "mapPage": 53
     },
     {
      "key": "K3",
      "name": "Servants' Courtyard",
-     "page": null,
+     "page": 54,
      "map": "Map 2",
      "mapPage": 53
     },
     {
      "key": "K4",
      "name": "Carriage House",
-     "page": null,
+     "page": 54,
      "map": "Map 2",
      "mapPage": 53
     },
     {
      "key": "K5",
      "name": "Chapel Garden",
-     "page": null,
+     "page": 54,
      "map": "Map 2",
      "mapPage": 53
     },
     {
      "key": "K6",
      "name": "Overlook",
-     "page": null,
+     "page": 54,
      "map": "Map 2",
      "mapPage": 53
     },
     {
      "key": "K7",
      "name": "Entry",
-     "page": null,
+     "page": 54,
      "map": "Map 3",
      "mapPage": 55
     },
     {
      "key": "K8",
      "name": "Great Entry",
-     "page": null,
+     "page": 55,
      "map": "Map 3",
      "mapPage": 55
     },
     {
      "key": "K9",
      "name": "Guests' Hall",
-     "page": null,
+     "page": 56,
      "map": "Map 3",
      "mapPage": 55
     },
@@ -739,14 +750,14 @@
     {
      "key": "K11",
      "name": "South Archers' Post",
-     "page": null,
+     "page": 57,
      "map": "Map 3",
      "mapPage": 55
     },
     {
      "key": "K12",
      "name": "Turret Post",
-     "page": null,
+     "page": 57,
      "map": "Map 3",
      "mapPage": 55,
      "dims": {
@@ -759,153 +770,153 @@
     {
      "key": "K13",
      "name": "Turret Post Access Hall",
-     "page": null,
+     "page": 57,
      "map": "Map 3",
      "mapPage": 55
     },
     {
      "key": "K14",
      "name": "Hall of Faith",
-     "page": null,
+     "page": 57,
      "map": "Map 3",
      "mapPage": 55
     },
     {
      "key": "K15",
      "name": "Chapel",
-     "page": null,
+     "page": 57,
      "map": "Map 3",
      "mapPage": 55
     },
     {
      "key": "K16",
      "name": "North Chapel Access",
-     "page": null,
+     "page": 58,
      "map": "Map 3",
      "mapPage": 55
     },
     {
      "key": "K17",
      "name": "South Chapel Access",
-     "page": null,
+     "page": 58,
      "map": "Map 3",
      "mapPage": 55
     },
     {
      "key": "K18",
      "name": "High Tower Staircase",
-     "page": null,
+     "page": 58,
      "map": "Map 3",
      "mapPage": 55
     },
     {
      "key": "K18a",
      "name": "High Tower Shaft",
-     "page": null,
+     "page": 58,
      "map": "Map 3",
      "mapPage": 55
     },
     {
      "key": "K19",
      "name": "Grand Landing",
-     "page": null,
+     "page": 58,
      "map": "Map 3",
      "mapPage": 55
     },
     {
      "key": "K20",
      "name": "Heart of Sorrow",
-     "page": null,
+     "page": 59,
      "map": "Map 3",
      "mapPage": 55
     },
     {
      "key": "K20a",
      "name": "Tower Hall Stair",
-     "page": null,
+     "page": 59,
      "map": "Map 3",
      "mapPage": 55
     },
     {
      "key": "K21",
      "name": "South Tower Stair",
-     "page": null,
+     "page": 59,
      "map": "Map 3",
      "mapPage": 55
     },
     {
      "key": "K22",
      "name": "North Archers' Post",
-     "page": null,
+     "page": 59,
      "map": "Map 3",
      "mapPage": 55
     },
     {
      "key": "K23",
      "name": "Servants' Entrance",
-     "page": null,
+     "page": 59,
      "map": "Map 3",
      "mapPage": 55
     },
     {
      "key": "K24",
      "name": "Servants' Quarters",
-     "page": null,
+     "page": 61,
      "map": "Map 3",
      "mapPage": 55
     },
     {
      "key": "K25",
      "name": "Audience Hall",
-     "page": null,
+     "page": 61,
      "map": "Map 4",
      "mapPage": 62
     },
     {
      "key": "K26",
      "name": "Guards' Post",
-     "page": null,
+     "page": 61,
      "map": "Map 4",
      "mapPage": 62
     },
     {
      "key": "K27",
      "name": "King's Hall",
-     "page": null,
+     "page": 61,
      "map": "Map 4",
      "mapPage": 62
     },
     {
      "key": "K28",
      "name": "King's Balcony",
-     "page": null,
+     "page": 62,
      "map": "Map 4",
      "mapPage": 62
     },
     {
      "key": "K29",
      "name": "Creaky Landing",
-     "page": null,
+     "page": 62,
      "map": "Map 4",
      "mapPage": 62
     },
     {
      "key": "K30",
      "name": "King's Accountant",
-     "page": null,
+     "page": 62,
      "map": "Map 4",
      "mapPage": 62
     },
     {
      "key": "K31",
      "name": "Trapworks",
-     "page": null,
+     "page": 63,
      "map": "Map 4",
      "mapPage": 62
     },
     {
      "key": "K31a",
-     "name": "K31a",
+     "name": "Elevator Shaft",
      "page": null,
      "parent": "K31",
      "map": "Map 4",
@@ -913,7 +924,7 @@
     },
     {
      "key": "K31b",
-     "name": "K31b",
+     "name": "Shaft Access",
      "page": null,
      "parent": "K31",
      "map": "Map 4",
@@ -922,315 +933,315 @@
     {
      "key": "K32",
      "name": "Maid in Hell",
-     "page": null,
+     "page": 64,
      "map": "Map 4",
      "mapPage": 62
     },
     {
      "key": "K33",
      "name": "King's Apartment Stair",
-     "page": null,
+     "page": 64,
      "map": "Map 4",
      "mapPage": 62
     },
     {
      "key": "K34",
      "name": "Servants' Upper Floor",
-     "page": null,
+     "page": 64,
      "map": "Map 4",
      "mapPage": 62
     },
     {
      "key": "K35",
      "name": "Guardian Vermin",
-     "page": null,
+     "page": 64,
      "map": "Map 5",
      "mapPage": 65
     },
     {
      "key": "K36",
      "name": "Dining Hall of the Count",
-     "page": null,
+     "page": 65,
      "map": "Map 5",
      "mapPage": 65
     },
     {
      "key": "K37",
      "name": "Study",
-     "page": null,
+     "page": 66,
      "map": "Map 5",
      "mapPage": 65
     },
     {
      "key": "K38",
      "name": "False Treasury",
-     "page": null,
+     "page": 66,
      "map": "Map 5",
      "mapPage": 65
     },
     {
      "key": "K39",
      "name": "Hall of Webs",
-     "page": null,
+     "page": 67,
      "map": "Map 5",
      "mapPage": 65
     },
     {
      "key": "K40",
      "name": "Belfry",
-     "page": null,
+     "page": 67,
      "map": "Map 5",
      "mapPage": 65
     },
     {
      "key": "K41",
      "name": "Treasury",
-     "page": null,
+     "page": 67,
      "map": "Map 5",
      "mapPage": 65
     },
     {
      "key": "K42",
      "name": "King's Bedchamber",
-     "page": null,
+     "page": 68,
      "map": "Map 5",
      "mapPage": 65
     },
     {
      "key": "K43",
      "name": "Bath Chamber",
-     "page": null,
+     "page": 68,
      "map": "Map 5",
      "mapPage": 65
     },
     {
      "key": "K44",
      "name": "Closet",
-     "page": null,
+     "page": 69,
      "map": "Map 5",
      "mapPage": 65
     },
     {
      "key": "K45",
      "name": "Hall of Heroes",
-     "page": null,
+     "page": 69,
      "map": "Map 5",
      "mapPage": 65
     },
     {
      "key": "K46",
      "name": "Parapets",
-     "page": null,
+     "page": 69,
      "map": "Map 5",
      "mapPage": 65
     },
     {
      "key": "K47",
      "name": "Portrait of Strahd",
-     "page": null,
+     "page": 69,
      "map": "Maps 6–10",
      "mapPage": 71
     },
     {
      "key": "K48",
      "name": "Offstair",
-     "page": null,
+     "page": 70,
      "map": "Maps 6–10",
      "mapPage": 71
     },
     {
      "key": "K49",
      "name": "Lounge",
-     "page": null,
+     "page": 70,
      "map": "Maps 6–10",
      "mapPage": 71
     },
     {
      "key": "K50",
      "name": "Guest Room",
-     "page": null,
+     "page": 70,
      "map": "Maps 6–10",
      "mapPage": 71
     },
     {
      "key": "K51",
      "name": "Closet",
-     "page": null,
+     "page": 70,
      "map": "Maps 6–10",
      "mapPage": 71
     },
     {
      "key": "K52",
      "name": "Smokestack",
-     "page": null,
+     "page": 71,
      "map": "Maps 6–10",
      "mapPage": 71
     },
     {
      "key": "K53",
      "name": "Rooftop",
-     "page": null,
+     "page": 71,
      "map": "Maps 6–10",
      "mapPage": 71
     },
     {
      "key": "K54",
      "name": "Familiar Room",
-     "page": null,
+     "page": 71,
      "map": "Maps 6–10",
      "mapPage": 71
     },
     {
      "key": "K55",
      "name": "Element Room",
-     "page": null,
+     "page": 72,
      "map": "Maps 6–10",
      "mapPage": 71
     },
     {
      "key": "K56",
      "name": "Cauldron",
-     "page": null,
+     "page": 72,
      "map": "Maps 6–10",
      "mapPage": 71
     },
     {
      "key": "K57",
      "name": "Tower Roof",
-     "page": null,
+     "page": 72,
      "map": "Maps 6–10",
      "mapPage": 71
     },
     {
      "key": "K58",
      "name": "Bridge",
-     "page": null,
+     "page": 73,
      "map": "Maps 6–10",
      "mapPage": 71
     },
     {
      "key": "K59",
      "name": "High Tower Peak",
-     "page": null,
+     "page": 73,
      "map": "Maps 6–10",
      "mapPage": 71
     },
     {
      "key": "K60",
      "name": "North Tower Peak",
-     "page": null,
+     "page": 74,
      "map": "Maps 6–10",
      "mapPage": 71
     },
     {
      "key": "K60a",
      "name": "North Tower Rooftop",
-     "page": null,
+     "page": 74,
      "map": "Maps 6–10",
      "mapPage": 71
     },
     {
      "key": "K61",
      "name": "Elevator Trap",
-     "page": null,
+     "page": 74,
      "map": "Map 11",
      "mapPage": 75
     },
     {
      "key": "K62",
      "name": "Servants' Hall",
-     "page": null,
+     "page": 76,
      "map": "Map 11",
      "mapPage": 75
     },
     {
      "key": "K63",
      "name": "Wine Cellar",
-     "page": null,
+     "page": 77,
      "map": "Map 11",
      "mapPage": 75
     },
     {
      "key": "K64",
      "name": "Guards' Stair",
-     "page": null,
+     "page": 78,
      "map": "Map 11",
      "mapPage": 75
     },
     {
      "key": "K65",
      "name": "Kitchen",
-     "page": null,
+     "page": 78,
      "map": "Map 11",
      "mapPage": 75
     },
     {
      "key": "K66",
      "name": "Butler's Quarters",
-     "page": null,
+     "page": 78,
      "map": "Map 11",
      "mapPage": 75
     },
     {
      "key": "K67",
      "name": "Hall of Bones",
-     "page": null,
+     "page": 78,
      "map": "Map 11",
      "mapPage": 75
     },
     {
      "key": "K68",
      "name": "Guards' Run",
-     "page": null,
+     "page": 79,
      "map": "Map 11",
      "mapPage": 75
     },
     {
      "key": "K69",
      "name": "Guards' Quarters",
-     "page": null,
+     "page": 79,
      "map": "Map 11",
      "mapPage": 75
     },
     {
      "key": "K70",
      "name": "Kingsmen Hall",
-     "page": null,
+     "page": 79,
      "map": "Map 11",
      "mapPage": 75
     },
     {
      "key": "K71",
      "name": "Kingsmen Quarters",
-     "page": null,
+     "page": 79,
      "map": "Map 11",
      "mapPage": 75
     },
     {
      "key": "K72",
      "name": "Chamberlain's Office",
-     "page": null,
+     "page": 79,
      "map": "Map 11",
      "mapPage": 75
     },
     {
      "key": "K73",
      "name": "Dungeon Hall",
-     "page": null,
+     "page": 79,
      "map": "Map 12",
      "mapPage": 75
     },
     {
      "key": "K74",
      "name": "North Dungeon",
-     "page": null,
+     "page": 80,
      "map": "Map 12",
      "mapPage": 75
     },
     {
      "key": "K74a",
      "name": "North Dungeon cell a",
-     "page": null,
+     "page": 80,
      "parent": "K74",
      "map": "Map 12",
      "mapPage": 75
@@ -1238,7 +1249,7 @@
     {
      "key": "K74b",
      "name": "North Dungeon cell b",
-     "page": null,
+     "page": 80,
      "parent": "K74",
      "map": "Map 12",
      "mapPage": 75
@@ -1246,7 +1257,7 @@
     {
      "key": "K74c",
      "name": "North Dungeon cell c",
-     "page": null,
+     "page": 80,
      "parent": "K74",
      "map": "Map 12",
      "mapPage": 75
@@ -1254,7 +1265,7 @@
     {
      "key": "K74d",
      "name": "North Dungeon cell d",
-     "page": null,
+     "page": 80,
      "parent": "K74",
      "map": "Map 12",
      "mapPage": 75
@@ -1262,7 +1273,7 @@
     {
      "key": "K74e",
      "name": "North Dungeon cell e",
-     "page": null,
+     "page": 80,
      "parent": "K74",
      "map": "Map 12",
      "mapPage": 75
@@ -1270,7 +1281,7 @@
     {
      "key": "K74f",
      "name": "North Dungeon cell f",
-     "page": null,
+     "page": 80,
      "parent": "K74",
      "map": "Map 12",
      "mapPage": 75
@@ -1278,7 +1289,7 @@
     {
      "key": "K74g",
      "name": "North Dungeon cell g",
-     "page": null,
+     "page": 80,
      "parent": "K74",
      "map": "Map 12",
      "mapPage": 75
@@ -1286,7 +1297,7 @@
     {
      "key": "K74h",
      "name": "North Dungeon cell h",
-     "page": null,
+     "page": 80,
      "parent": "K74",
      "map": "Map 12",
      "mapPage": 75
@@ -1294,14 +1305,14 @@
     {
      "key": "K75",
      "name": "South Dungeon",
-     "page": null,
+     "page": 81,
      "map": "Map 12",
      "mapPage": 75
     },
     {
      "key": "K75a",
      "name": "South Dungeon cell a",
-     "page": null,
+     "page": 81,
      "parent": "K75",
      "map": "Map 12",
      "mapPage": 75
@@ -1309,7 +1320,7 @@
     {
      "key": "K75b",
      "name": "South Dungeon cell b",
-     "page": null,
+     "page": 81,
      "parent": "K75",
      "map": "Map 12",
      "mapPage": 75
@@ -1317,7 +1328,7 @@
     {
      "key": "K75c",
      "name": "South Dungeon cell c",
-     "page": null,
+     "page": 81,
      "parent": "K75",
      "map": "Map 12",
      "mapPage": 75
@@ -1325,7 +1336,7 @@
     {
      "key": "K75d",
      "name": "South Dungeon cell d",
-     "page": null,
+     "page": 81,
      "parent": "K75",
      "map": "Map 12",
      "mapPage": 75
@@ -1333,7 +1344,7 @@
     {
      "key": "K75e",
      "name": "South Dungeon cell e",
-     "page": null,
+     "page": 81,
      "parent": "K75",
      "map": "Map 12",
      "mapPage": 75
@@ -1341,7 +1352,7 @@
     {
      "key": "K75f",
      "name": "South Dungeon cell f",
-     "page": null,
+     "page": 81,
      "parent": "K75",
      "map": "Map 12",
      "mapPage": 75
@@ -1349,7 +1360,7 @@
     {
      "key": "K75g",
      "name": "South Dungeon cell g",
-     "page": null,
+     "page": 81,
      "parent": "K75",
      "map": "Map 12",
      "mapPage": 75
@@ -1357,7 +1368,7 @@
     {
      "key": "K75h",
      "name": "South Dungeon cell h",
-     "page": null,
+     "page": 81,
      "parent": "K75",
      "map": "Map 12",
      "mapPage": 75
@@ -1365,77 +1376,77 @@
     {
      "key": "K76",
      "name": "Torture Chamber",
-     "page": null,
+     "page": 82,
      "map": "Map 12",
      "mapPage": 75
     },
     {
      "key": "K77",
      "name": "Observation Balcony",
-     "page": null,
+     "page": 82,
      "map": "Map 12",
      "mapPage": 75
     },
     {
      "key": "K78",
      "name": "Brazier Room",
-     "page": null,
+     "page": 82,
      "map": "Map 12",
      "mapPage": 75
     },
     {
      "key": "K79",
      "name": "Western Stair",
-     "page": null,
+     "page": 84,
      "map": "Map 12",
      "mapPage": 75
     },
     {
      "key": "K80",
      "name": "Center Stair",
-     "page": null,
+     "page": 84,
      "map": "Map 12",
      "mapPage": 75
     },
     {
      "key": "K81",
      "name": "Tunnel",
-     "page": null,
+     "page": 84,
      "map": "Map 12",
      "mapPage": 75
     },
     {
      "key": "K82",
      "name": "Marble Slide",
-     "page": null,
+     "page": 85,
      "map": "Map 12",
      "mapPage": 75
     },
     {
      "key": "K83",
      "name": "Spiral Stair",
-     "page": null,
+     "page": 85,
      "map": "Map 12",
      "mapPage": 75
     },
     {
      "key": "K83a",
      "name": "Spiral Stair Landing",
-     "page": null,
+     "page": 85,
      "map": "Map 12",
      "mapPage": 75
     },
     {
      "key": "K84",
      "name": "Catacombs",
-     "page": null,
+     "page": 85,
      "map": "Map 12",
      "mapPage": 75
     },
     {
      "key": "K84-1",
      "name": "Crypt 1",
-     "page": null,
+     "page": 86,
      "parent": "K84",
      "map": "Map 12",
      "mapPage": 75
@@ -1443,7 +1454,7 @@
     {
      "key": "K84-2",
      "name": "Crypt 2",
-     "page": null,
+     "page": 86,
      "parent": "K84",
      "map": "Map 12",
      "mapPage": 75
@@ -1451,7 +1462,7 @@
     {
      "key": "K84-3",
      "name": "Crypt 3",
-     "page": null,
+     "page": 86,
      "parent": "K84",
      "map": "Map 12",
      "mapPage": 75
@@ -1459,7 +1470,7 @@
     {
      "key": "K84-4",
      "name": "Crypt 4",
-     "page": null,
+     "page": 86,
      "parent": "K84",
      "map": "Map 12",
      "mapPage": 75
@@ -1467,7 +1478,7 @@
     {
      "key": "K84-5",
      "name": "Crypt 5",
-     "page": null,
+     "page": 86,
      "parent": "K84",
      "map": "Map 12",
      "mapPage": 75
@@ -1475,7 +1486,7 @@
     {
      "key": "K84-6",
      "name": "Crypt 6",
-     "page": null,
+     "page": 86,
      "parent": "K84",
      "map": "Map 12",
      "mapPage": 75
@@ -1483,7 +1494,7 @@
     {
      "key": "K84-7",
      "name": "Crypt 7",
-     "page": null,
+     "page": 87,
      "parent": "K84",
      "map": "Map 12",
      "mapPage": 75
@@ -1491,7 +1502,7 @@
     {
      "key": "K84-8",
      "name": "Crypt 8",
-     "page": null,
+     "page": 87,
      "parent": "K84",
      "map": "Map 12",
      "mapPage": 75
@@ -1499,7 +1510,7 @@
     {
      "key": "K84-9",
      "name": "Crypt 9",
-     "page": null,
+     "page": 87,
      "parent": "K84",
      "map": "Map 12",
      "mapPage": 75
@@ -1507,7 +1518,7 @@
     {
      "key": "K84-10",
      "name": "Crypt 10",
-     "page": null,
+     "page": 87,
      "parent": "K84",
      "map": "Map 12",
      "mapPage": 75
@@ -1515,7 +1526,7 @@
     {
      "key": "K84-11",
      "name": "Crypt 11",
-     "page": null,
+     "page": 87,
      "parent": "K84",
      "map": "Map 12",
      "mapPage": 75
@@ -1523,7 +1534,7 @@
     {
      "key": "K84-12",
      "name": "Crypt 12",
-     "page": null,
+     "page": 87,
      "parent": "K84",
      "map": "Map 12",
      "mapPage": 75
@@ -1531,7 +1542,7 @@
     {
      "key": "K84-13",
      "name": "Crypt 13",
-     "page": null,
+     "page": 88,
      "parent": "K84",
      "map": "Map 12",
      "mapPage": 75
@@ -1539,7 +1550,7 @@
     {
      "key": "K84-14",
      "name": "Crypt 14",
-     "page": null,
+     "page": 86,
      "parent": "K84",
      "map": "Map 12",
      "mapPage": 75
@@ -1547,7 +1558,7 @@
     {
      "key": "K84-15",
      "name": "Crypt 15",
-     "page": null,
+     "page": 88,
      "parent": "K84",
      "map": "Map 12",
      "mapPage": 75
@@ -1555,7 +1566,7 @@
     {
      "key": "K84-16",
      "name": "Crypt 16",
-     "page": null,
+     "page": 89,
      "parent": "K84",
      "map": "Map 12",
      "mapPage": 75
@@ -1563,7 +1574,7 @@
     {
      "key": "K84-17",
      "name": "Crypt 17",
-     "page": null,
+     "page": 89,
      "parent": "K84",
      "map": "Map 12",
      "mapPage": 75
@@ -1571,7 +1582,7 @@
     {
      "key": "K84-18",
      "name": "Crypt 18",
-     "page": null,
+     "page": 89,
      "parent": "K84",
      "map": "Map 12",
      "mapPage": 75
@@ -1579,7 +1590,7 @@
     {
      "key": "K84-19",
      "name": "Crypt 19",
-     "page": null,
+     "page": 89,
      "parent": "K84",
      "map": "Map 12",
      "mapPage": 75
@@ -1587,7 +1598,7 @@
     {
      "key": "K84-20",
      "name": "Crypt 20",
-     "page": null,
+     "page": 89,
      "parent": "K84",
      "map": "Map 12",
      "mapPage": 75
@@ -1595,7 +1606,7 @@
     {
      "key": "K84-21",
      "name": "Crypt 21",
-     "page": null,
+     "page": 89,
      "parent": "K84",
      "map": "Map 12",
      "mapPage": 75
@@ -1603,7 +1614,7 @@
     {
      "key": "K84-22",
      "name": "Crypt 22",
-     "page": null,
+     "page": 90,
      "parent": "K84",
      "map": "Map 12",
      "mapPage": 75
@@ -1611,7 +1622,7 @@
     {
      "key": "K84-23",
      "name": "Crypt 23",
-     "page": null,
+     "page": 86,
      "parent": "K84",
      "map": "Map 12",
      "mapPage": 75
@@ -1619,7 +1630,7 @@
     {
      "key": "K84-24",
      "name": "Crypt 24",
-     "page": null,
+     "page": 89,
      "parent": "K84",
      "map": "Map 12",
      "mapPage": 75
@@ -1627,7 +1638,7 @@
     {
      "key": "K84-25",
      "name": "Crypt 25",
-     "page": null,
+     "page": 90,
      "parent": "K84",
      "map": "Map 12",
      "mapPage": 75
@@ -1635,7 +1646,7 @@
     {
      "key": "K84-26",
      "name": "Crypt 26",
-     "page": null,
+     "page": 86,
      "parent": "K84",
      "map": "Map 12",
      "mapPage": 75
@@ -1643,7 +1654,7 @@
     {
      "key": "K84-27",
      "name": "Crypt 27",
-     "page": null,
+     "page": 90,
      "parent": "K84",
      "map": "Map 12",
      "mapPage": 75
@@ -1651,7 +1662,7 @@
     {
      "key": "K84-28",
      "name": "Crypt 28",
-     "page": null,
+     "page": 90,
      "parent": "K84",
      "map": "Map 12",
      "mapPage": 75
@@ -1659,7 +1670,7 @@
     {
      "key": "K84-29",
      "name": "Crypt 29",
-     "page": null,
+     "page": 91,
      "parent": "K84",
      "map": "Map 12",
      "mapPage": 75
@@ -1667,7 +1678,7 @@
     {
      "key": "K84-30",
      "name": "Crypt 30",
-     "page": null,
+     "page": 91,
      "parent": "K84",
      "map": "Map 12",
      "mapPage": 75
@@ -1675,7 +1686,7 @@
     {
      "key": "K84-31",
      "name": "Crypt 31",
-     "page": null,
+     "page": 91,
      "parent": "K84",
      "map": "Map 12",
      "mapPage": 75
@@ -1683,7 +1694,7 @@
     {
      "key": "K84-32",
      "name": "Crypt 32",
-     "page": null,
+     "page": 91,
      "parent": "K84",
      "map": "Map 12",
      "mapPage": 75
@@ -1691,7 +1702,7 @@
     {
      "key": "K84-33",
      "name": "Crypt 33",
-     "page": null,
+     "page": 91,
      "parent": "K84",
      "map": "Map 12",
      "mapPage": 75
@@ -1699,7 +1710,7 @@
     {
      "key": "K84-34",
      "name": "Crypt 34",
-     "page": null,
+     "page": 92,
      "parent": "K84",
      "map": "Map 12",
      "mapPage": 75
@@ -1707,7 +1718,7 @@
     {
      "key": "K84-35",
      "name": "Crypt 35",
-     "page": null,
+     "page": 92,
      "parent": "K84",
      "map": "Map 12",
      "mapPage": 75
@@ -1715,7 +1726,7 @@
     {
      "key": "K84-36",
      "name": "Crypt 36",
-     "page": null,
+     "page": 92,
      "parent": "K84",
      "map": "Map 12",
      "mapPage": 75
@@ -1723,7 +1734,7 @@
     {
      "key": "K84-37",
      "name": "Crypt 37",
-     "page": null,
+     "page": 86,
      "parent": "K84",
      "map": "Map 12",
      "mapPage": 75
@@ -1731,7 +1742,7 @@
     {
      "key": "K84-38",
      "name": "Crypt 38",
-     "page": null,
+     "page": 92,
      "parent": "K84",
      "map": "Map 12",
      "mapPage": 75
@@ -1739,7 +1750,7 @@
     {
      "key": "K84-39",
      "name": "Crypt 39",
-     "page": null,
+     "page": 93,
      "parent": "K84",
      "map": "Map 12",
      "mapPage": 75
@@ -1747,7 +1758,7 @@
     {
      "key": "K84-40",
      "name": "Crypt 40",
-     "page": null,
+     "page": 93,
      "parent": "K84",
      "map": "Map 12",
      "mapPage": 75
@@ -1755,28 +1766,28 @@
     {
      "key": "K85",
      "name": "Sergei's Tomb",
-     "page": null,
+     "page": 93,
      "map": "Map 12",
      "mapPage": 75
     },
     {
      "key": "K86",
      "name": "Strahd's Tomb",
-     "page": null,
+     "page": 93,
      "map": "Map 12",
      "mapPage": 75
     },
     {
      "key": "K87",
      "name": "Guardians",
-     "page": null,
+     "page": 94,
      "map": "Map 12",
      "mapPage": 75
     },
     {
      "key": "K88",
      "name": "Tomb of King Barov and Queen Ravenovia",
-     "page": null,
+     "page": 94,
      "map": "Map 12",
      "mapPage": 75
     }
@@ -1860,7 +1871,7 @@
     {
      "key": "N2",
      "name": "Blue Water Inn",
-     "page": null
+     "page": 98
     },
     {
      "key": "N3",
@@ -1870,12 +1881,12 @@
     {
      "key": "N4",
      "name": "Wachterhaus",
-     "page": null
+     "page": 110
     },
     {
      "key": "N5",
      "name": "Arasek Stockyard",
-     "page": null,
+     "page": 115,
      "inset": true
     },
     {
@@ -1886,19 +1897,19 @@
     {
      "key": "N7",
      "name": "Blinsky Toys",
-     "page": null,
+     "page": 118,
      "inset": true
     },
     {
      "key": "N8",
      "name": "Town Square",
-     "page": null,
+     "page": 119,
      "inset": true
     },
     {
      "key": "N9",
      "name": "Vistani Camp",
-     "page": null
+     "page": 119
     }
    ],
    "placementLayer": {
@@ -1974,22 +1985,22 @@
     {
      "key": "N2b",
      "name": "Outside Staircase",
-     "page": null
+     "page": 98
     },
     {
      "key": "N2c",
      "name": "Taproom",
-     "page": null
+     "page": 100
     },
     {
      "key": "N2d",
      "name": "Wine Storage",
-     "page": null
+     "page": 101
     },
     {
      "key": "N2e",
      "name": "Kitchen",
-     "page": null
+     "page": 101
     },
     {
      "key": "N2f",
@@ -1999,7 +2010,7 @@
     {
      "key": "N2g",
      "name": "Storage",
-     "page": null
+     "page": 101
     },
     {
      "key": "N2h",
@@ -2009,47 +2020,47 @@
     {
      "key": "N2i",
      "name": "Secret Stairs and Hall",
-     "page": null
+     "page": 101
     },
     {
      "key": "N2j",
      "name": "Great Balcony",
-     "page": null
+     "page": 102
     },
     {
      "key": "N2k",
      "name": "Guest Balcony",
-     "page": null
+     "page": 102
     },
     {
      "key": "N2l",
      "name": "Guest Rooms",
-     "page": null
+     "page": 102
     },
     {
      "key": "N2m",
      "name": "Guest Room",
-     "page": null
+     "page": 102
     },
     {
      "key": "N2n",
      "name": "Private Guest Room",
-     "page": null
+     "page": 102
     },
     {
      "key": "N2o",
      "name": "Boys' Bedroom",
-     "page": null
+     "page": 102
     },
     {
      "key": "N2p",
      "name": "Master Bedroom",
-     "page": null
+     "page": 103
     },
     {
      "key": "N2q",
      "name": "Secret Attic",
-     "page": null
+     "page": 103
     }
    ],
    "levels": [
@@ -2082,17 +2093,17 @@
     {
      "key": "N3a",
      "name": "Entrance Hall and Vestibule",
-     "page": null
+     "page": 105
     },
     {
      "key": "N3b",
      "name": "Parlor",
-     "page": null
+     "page": 106
     },
     {
      "key": "N3c",
      "name": "Dining Room",
-     "page": null
+     "page": 106
     },
     {
      "key": "N3d",
@@ -2102,32 +2113,32 @@
     {
      "key": "N3e",
      "name": "Den",
-     "page": null
+     "page": 106
     },
     {
      "key": "N3f",
      "name": "Servants' Quarters",
-     "page": null
+     "page": 106
     },
     {
      "key": "N3g",
      "name": "Kitchen",
-     "page": null
+     "page": 106
     },
     {
      "key": "N3h",
      "name": "Pantry",
-     "page": null
+     "page": 106
     },
     {
      "key": "N3i",
      "name": "Upstairs Gallery",
-     "page": null
+     "page": 106
     },
     {
      "key": "N3j",
      "name": "Izek's Bedroom",
-     "page": null
+     "page": 107
     },
     {
      "key": "N3k",
@@ -2147,22 +2158,22 @@
     {
      "key": "N3n",
      "name": "Master Bedroom Closet",
-     "page": null
+     "page": 108
     },
     {
      "key": "N3o",
      "name": "Master Bedroom",
-     "page": null
+     "page": 108
     },
     {
      "key": "N3p",
      "name": "Bridal Gown and Spirit Mirror",
-     "page": null
+     "page": 108
     },
     {
      "key": "N3q",
      "name": "Bathroom",
-     "page": null
+     "page": 108
     },
     {
      "key": "N3r",
@@ -2172,7 +2183,7 @@
     {
      "key": "N3s",
      "name": "Attic Storage",
-     "page": null
+     "page": 109
     },
     {
      "key": "N3t",
@@ -2196,22 +2207,22 @@
     {
      "key": "N4a",
      "name": "Front Door and Vestibule",
-     "page": null
+     "page": 110
     },
     {
      "key": "N4b",
      "name": "Staircase",
-     "page": null
+     "page": 110
     },
     {
      "key": "N4c",
      "name": "Kitchen",
-     "page": null
+     "page": 112
     },
     {
      "key": "N4d",
      "name": "Storage Room",
-     "page": null
+     "page": 112
     },
     {
      "key": "N4e",
@@ -2221,42 +2232,42 @@
     {
      "key": "N4f",
      "name": "Servants' Closet",
-     "page": null
+     "page": 112
     },
     {
      "key": "N4g",
      "name": "Secret Staircase",
-     "page": null
+     "page": 112
     },
     {
      "key": "N4h",
      "name": "Servants' Quarters",
-     "page": null
+     "page": 112
     },
     {
      "key": "N4i",
      "name": "Parlor",
-     "page": null
+     "page": 112
     },
     {
      "key": "N4j",
      "name": "Dining Room",
-     "page": null
+     "page": 112
     },
     {
      "key": "N4k",
      "name": "Den",
-     "page": null
+     "page": 112
     },
     {
      "key": "N4l",
      "name": "Upstairs Hall",
-     "page": null
+     "page": 113
     },
     {
      "key": "N4m",
      "name": "Brothers' Rooms",
-     "page": null
+     "page": 113
     },
     {
      "key": "N4n",
@@ -2266,7 +2277,7 @@
     {
      "key": "N4o",
      "name": "Master Bedroom",
-     "page": null
+     "page": 113
     },
     {
      "key": "N4p",
@@ -2276,22 +2287,22 @@
     {
      "key": "N4q",
      "name": "Storage Room",
-     "page": null
+     "page": 114
     },
     {
      "key": "N4r",
      "name": "Cellar Entrance",
-     "page": null
+     "page": 114
     },
     {
      "key": "N4s",
      "name": "Cellar",
-     "page": null
+     "page": 114
     },
     {
      "key": "N4t",
      "name": "Cult Headquarters",
-     "page": null
+     "page": 114
     }
    ],
    "levels": [
@@ -2324,7 +2335,7 @@
     {
      "key": "N6a",
      "name": "Coffin Storage",
-     "page": null
+     "page": 117
     },
     {
      "key": "N6b",
@@ -2334,22 +2345,22 @@
     {
      "key": "N6c",
      "name": "Workshop",
-     "page": null
+     "page": 117
     },
     {
      "key": "N6d",
      "name": "Kitchen",
-     "page": null
+     "page": 117
     },
     {
      "key": "N6e",
      "name": "Henrik's Bedroom",
-     "page": null
+     "page": 117
     },
     {
      "key": "N6f",
      "name": "Vampire Nest and Piccolo",
-     "page": null
+     "page": 118
     }
    ]
   },
@@ -2368,47 +2379,47 @@
     {
      "key": "N9a",
      "name": "Kasimir's Hovel",
-     "page": null
+     "page": 121
     },
     {
      "key": "N9b",
      "name": "Dusk Elf Hovels",
-     "page": null
+     "page": 121
     },
     {
      "key": "N9c",
      "name": "Vistani Tent",
-     "page": null
+     "page": 121
     },
     {
      "key": "N9d",
      "name": "Horses",
-     "page": null
+     "page": 122
     },
     {
      "key": "N9e",
      "name": "Luvash's Wagon",
-     "page": null
+     "page": 122
     },
     {
      "key": "N9f",
      "name": "Wagon of Sleeping Vistani",
-     "page": null
+     "page": 122
     },
     {
      "key": "N9g",
      "name": "Wagon of Gambling Vistani",
-     "page": null
+     "page": 122
     },
     {
      "key": "N9h",
      "name": "Vistani Family Wagon",
-     "page": null
+     "page": 119
     },
     {
      "key": "N9i",
      "name": "Vistani Treasure Wagon",
-     "page": null
+     "page": 119
     }
    ]
   },
@@ -2427,22 +2438,22 @@
     {
      "key": "O1",
      "name": "Ground Floor",
-     "page": null
+     "page": 126
     },
     {
      "key": "O2",
      "name": "Bone Mill",
-     "page": null
+     "page": 127
     },
     {
      "key": "O3",
      "name": "Bedroom",
-     "page": null
+     "page": 127
     },
     {
      "key": "O4",
      "name": "Domed Attic",
-     "page": null
+     "page": 128
     }
    ],
    "insets": [
@@ -2470,17 +2481,17 @@
     {
      "key": "Q1",
      "name": "Dragon Statue",
-     "page": null
+     "page": 130
     },
     {
      "key": "Q2",
      "name": "Main Entrance",
-     "page": null
+     "page": 130
     },
     {
      "key": "Q3",
      "name": "Dragon's Foyer",
-     "page": null
+     "page": 132
     },
     {
      "key": "Q4",
@@ -2495,67 +2506,67 @@
     {
      "key": "Q6",
      "name": "Dragon's Den",
-     "page": null
+     "page": 132
     },
     {
      "key": "Q7",
      "name": "Parlor",
-     "page": null
+     "page": 133
     },
     {
      "key": "Q8",
      "name": "Iron Gate",
-     "page": null
+     "page": 133
     },
     {
      "key": "Q9",
      "name": "Servants' Quarters",
-     "page": null
+     "page": 133
     },
     {
      "key": "Q10",
      "name": "Kitchen",
-     "page": null
+     "page": 133
     },
     {
      "key": "Q11",
      "name": "Wine Storage",
-     "page": null
+     "page": 133
     },
     {
      "key": "Q12",
      "name": "Dining Hall",
-     "page": null
+     "page": 133
     },
     {
      "key": "Q13",
      "name": "Chapel of Morning",
-     "page": null
+     "page": 134
     },
     {
      "key": "Q14",
      "name": "Chapel Staircases",
-     "page": null
+     "page": 134
     },
     {
      "key": "Q15",
      "name": "Cemetery",
-     "page": null
+     "page": 134
     },
     {
      "key": "Q16",
      "name": "Dragon's Mausoleum",
-     "page": null
+     "page": 134
     },
     {
      "key": "Q17",
      "name": "West Staircases",
-     "page": null
+     "page": 135
     },
     {
      "key": "Q18",
      "name": "Balconies",
-     "page": null
+     "page": 135
     },
     {
      "key": "Q19",
@@ -2565,17 +2576,17 @@
     {
      "key": "Q20",
      "name": "South Alcove",
-     "page": null
+     "page": 135
     },
     {
      "key": "Q21",
      "name": "North Alcove",
-     "page": null
+     "page": 135
     },
     {
      "key": "Q22",
      "name": "Bathroom",
-     "page": null
+     "page": 135
     },
     {
      "key": "Q23",
@@ -2600,12 +2611,12 @@
     {
      "key": "Q27",
      "name": "Knights' Quarters",
-     "page": null
+     "page": 136
     },
     {
      "key": "Q28",
      "name": "Knights' Quarters",
-     "page": null
+     "page": 136
     },
     {
      "key": "Q29",
@@ -2615,12 +2626,12 @@
     {
      "key": "Q30",
      "name": "Curtained Staircase",
-     "page": null
+     "page": 136
     },
     {
      "key": "Q31",
      "name": "East Staircases",
-     "page": null
+     "page": 138
     },
     {
      "key": "Q32",
@@ -2645,22 +2656,22 @@
     {
      "key": "Q36",
      "name": "Dragon's Audience Hall",
-     "page": null
+     "page": 138
     },
     {
      "key": "Q37",
      "name": "Knights of the Order",
-     "page": null
+     "page": 139
     },
     {
      "key": "Q38",
      "name": "Closet",
-     "page": null
+     "page": 139
     },
     {
      "key": "Q39",
      "name": "Vladimir's Bedroom",
-     "page": null
+     "page": 140
     },
     {
      "key": "Q40",
@@ -2670,7 +2681,7 @@
     {
      "key": "Q41",
      "name": "Dragon's Vault",
-     "page": null
+     "page": 140
     },
     {
      "key": "Q42",
@@ -2680,7 +2691,7 @@
     {
      "key": "Q43",
      "name": "Hole in Roof",
-     "page": null
+     "page": 140
     },
     {
      "key": "Q44",
@@ -2715,12 +2726,12 @@
     {
      "key": "Q50",
      "name": "Beacon, Lower Landing",
-     "page": null
+     "page": 141
     },
     {
      "key": "Q51",
      "name": "Beacon, Upper Landing",
-     "page": null
+     "page": 141
     },
     {
      "key": "Q52",
@@ -2791,7 +2802,7 @@
     {
      "key": "S1",
      "name": "Road Junction",
-     "page": null
+     "page": 143
     },
     {
      "key": "S2",
@@ -2801,37 +2812,37 @@
     {
      "key": "S3",
      "name": "Village of Krezk",
-     "page": null
+     "page": 145
     },
     {
      "key": "S4",
      "name": "Pool and Shrine",
-     "page": null
+     "page": 146
     },
     {
      "key": "S5",
      "name": "Winding Road",
-     "page": null
+     "page": 147
     },
     {
      "key": "S6",
      "name": "North Gate",
-     "page": null
+     "page": 147
     },
     {
      "key": "S7",
      "name": "Graveyard",
-     "page": null
+     "page": 148
     },
     {
      "key": "S8",
      "name": "Garden Gatehouse",
-     "page": null
+     "page": 148
     },
     {
      "key": "S9",
      "name": "Gardens",
-     "page": null
+     "page": 148
     }
    ],
    "placementLayer": {
@@ -2878,12 +2889,12 @@
     {
      "key": "S10",
      "name": "Abbey Entrance",
-     "page": null
+     "page": 148
     },
     {
      "key": "S11",
      "name": "Inner Gatehouses",
-     "page": null
+     "page": 148
     },
     {
      "key": "S12",
@@ -2893,7 +2904,7 @@
     {
      "key": "S12a",
      "name": "Well",
-     "page": null,
+     "page": 150,
      "parent": "S12"
     },
     {
@@ -2905,107 +2916,107 @@
     {
      "key": "S12c",
      "name": "Chicken Sheds",
-     "page": null,
+     "page": 150,
      "parent": "S12"
     },
     {
      "key": "S12d",
      "name": "Tethering Posts",
-     "page": null,
+     "page": 150,
      "parent": "S12"
     },
     {
      "key": "S13",
      "name": "Main Hall",
-     "page": null
+     "page": 150
     },
     {
      "key": "S14",
      "name": "Foyer",
-     "page": null
+     "page": 151
     },
     {
      "key": "S15",
      "name": "Madhouse",
-     "page": null
+     "page": 151
     },
     {
      "key": "S15a",
      "name": "Fearful Mongrelfolk",
-     "page": null,
+     "page": 152,
      "parent": "S15"
     },
     {
      "key": "S15b",
      "name": "Quarreling Mongrelfolk",
-     "page": null,
+     "page": 152,
      "parent": "S15"
     },
     {
      "key": "S15c",
      "name": "Incanting Mongrelfolk",
-     "page": null,
+     "page": 152,
      "parent": "S15"
     },
     {
      "key": "S15d",
      "name": "Hungry Mongrelfolk",
-     "page": null,
+     "page": 152,
      "parent": "S15"
     },
     {
      "key": "S15e",
      "name": "Mongrelfolk Horde",
-     "page": null,
+     "page": 152,
      "parent": "S15"
     },
     {
      "key": "S15f",
      "name": "Singing and Dancing Mongrelfolk",
-     "page": null,
+     "page": 152,
      "parent": "S15"
     },
     {
      "key": "S15g",
      "name": "Mongrelfolk Babies",
-     "page": null,
+     "page": 152,
      "parent": "S15"
     },
     {
      "key": "S15h",
      "name": "Mongrelfolk Fort",
-     "page": null,
+     "page": 152,
      "parent": "S15"
     },
     {
      "key": "S16",
      "name": "Wine Cellar",
-     "page": null
+     "page": 152
     },
     {
      "key": "S17",
      "name": "Loft and Belfry",
-     "page": null
+     "page": 152
     },
     {
      "key": "S18",
      "name": "Curtain Wall",
-     "page": null
+     "page": 154
     },
     {
      "key": "S19",
      "name": "Barracks",
-     "page": null
+     "page": 154
     },
     {
      "key": "S20",
      "name": "Upstairs Office",
-     "page": null
+     "page": 154
     },
     {
      "key": "S21",
      "name": "Haunted Hospital",
-     "page": null
+     "page": 154
     },
     {
      "key": "S22",
@@ -3015,12 +3026,12 @@
     {
      "key": "S23",
      "name": "Nursery",
-     "page": null
+     "page": 155
     },
     {
      "key": "S24",
      "name": "Morgue",
-     "page": null
+     "page": 155
     }
    ],
    "levels": [
@@ -3056,47 +3067,47 @@
     {
      "key": "T1",
      "name": "Gatehouse Portcullis",
-     "page": null
+     "page": 157
     },
     {
      "key": "T2",
      "name": "Demon Statues",
-     "page": null
+     "page": 157
     },
     {
      "key": "T3",
      "name": "Curtain of Green Flame",
-     "page": null
+     "page": 157
     },
     {
      "key": "T4",
      "name": "Guard Tower, Ground Floor",
-     "page": null
+     "page": 157
     },
     {
      "key": "T5",
      "name": "Guard Tower, Upper Floor",
-     "page": null
+     "page": 159
     },
     {
      "key": "T6",
      "name": "Guard Tower Rooftop",
-     "page": null
+     "page": 159
     },
     {
      "key": "T7",
      "name": "Western Arch",
-     "page": null
+     "page": 159
     },
     {
      "key": "T8",
      "name": "Stone Bridge",
-     "page": null
+     "page": 159
     },
     {
      "key": "T9",
      "name": "Eastern Arch",
-     "page": null
+     "page": 159
     }
    ],
    "events": [
@@ -3123,32 +3134,32 @@
     {
      "key": "U1",
      "name": "Abandoned Cottages",
-     "page": null
+     "page": 162
     },
     {
      "key": "U2",
      "name": "Ulrich Mansion",
-     "page": null
+     "page": 162
     },
     {
      "key": "U3",
      "name": "Baba Lysaga's Hut",
-     "page": null
+     "page": 163
     },
     {
      "key": "U4",
      "name": "Churchyard",
-     "page": null
+     "page": 164
     },
     {
      "key": "U5",
      "name": "Marina's Monument",
-     "page": null
+     "page": 164
     },
     {
      "key": "U6",
      "name": "Standing Stones",
-     "page": null
+     "page": 165
     }
    ],
    "placementLayer": {
@@ -3181,7 +3192,7 @@
     {
      "key": "U3",
      "name": "Baba Lysaga's Hut (interior)",
-     "page": null
+     "page": 163
     }
    ],
    "notes": "The hut walks: movable footprint on the Berez layer."
@@ -3201,37 +3212,37 @@
     {
      "key": "V1",
      "name": "Ezmerelda's Magic Wagon",
-     "page": null
+     "page": 168
     },
     {
      "key": "V2",
      "name": "Tower Door",
-     "page": null
+     "page": 169
     },
     {
      "key": "V3",
      "name": "Rickety Scaffolding",
-     "page": null
+     "page": 170
     },
     {
      "key": "V4",
      "name": "Tower, First Floor",
-     "page": null
+     "page": 170
     },
     {
      "key": "V5",
      "name": "Tower, Second Floor",
-     "page": null
+     "page": 170
     },
     {
      "key": "V6",
      "name": "Tower, Third Floor",
-     "page": null
+     "page": 171
     },
     {
      "key": "V7",
      "name": "Tower, Fourth Floor",
-     "page": null
+     "page": 171
     }
    ],
    "levels": [
@@ -3282,47 +3293,47 @@
     {
      "key": "W1",
      "name": "Stables",
-     "page": null
+     "page": 176
     },
     {
      "key": "W2",
      "name": "Loading Dock",
-     "page": null
+     "page": 176
     },
     {
      "key": "W3",
      "name": "Barrel Maker's Workshop",
-     "page": null
+     "page": 176
     },
     {
      "key": "W4",
      "name": "Barrel Storage",
-     "page": null
+     "page": 176
     },
     {
      "key": "W5",
      "name": "Veranda",
-     "page": null
+     "page": 176
     },
     {
      "key": "W6",
      "name": "Well",
-     "page": null
+     "page": 176
     },
     {
      "key": "W7",
      "name": "Outhouse",
-     "page": null
+     "page": 176
     },
     {
      "key": "W8",
      "name": "Storage",
-     "page": null
+     "page": 176
     },
     {
      "key": "W9",
      "name": "Fermentation Vats",
-     "page": null
+     "page": 176
     },
     {
      "key": "W10",
@@ -3337,47 +3348,47 @@
     {
      "key": "W12",
      "name": "Ramp",
-     "page": null
+     "page": 177
     },
     {
      "key": "W13",
      "name": "Back Staircase",
-     "page": null
+     "page": 178
     },
     {
      "key": "W14",
      "name": "Wine Cellar",
-     "page": null
+     "page": 178
     },
     {
      "key": "W15",
      "name": "Brown Mold",
-     "page": null
+     "page": 178
     },
     {
      "key": "W16",
      "name": "Loading Winch",
-     "page": null
+     "page": 178
     },
     {
      "key": "W17",
      "name": "Master Bedroom",
-     "page": null
+     "page": 178
     },
     {
      "key": "W18",
      "name": "Kitchen and Dining Room",
-     "page": null
+     "page": 179
     },
     {
      "key": "W19",
      "name": "Sleeping Quarters",
-     "page": null
+     "page": 179
     },
     {
      "key": "W20",
      "name": "Printing Press",
-     "page": null
+     "page": 179
     }
    ],
    "insets": [
@@ -3415,308 +3426,308 @@
     {
      "key": "X1",
      "name": "Temple Facade",
-     "page": null
+     "page": 183
     },
     {
      "key": "X1a",
      "name": "Narrow Fissure",
-     "page": null,
+     "page": 183,
      "parent": "X1"
     },
     {
      "key": "X2",
      "name": "Entrance",
-     "page": null
+     "page": 183
     },
     {
      "key": "X2a",
      "name": "Guard Room",
-     "page": null,
+     "page": 183,
      "parent": "X2"
     },
     {
      "key": "X2b",
      "name": "Guard Room",
-     "page": null,
+     "page": 183,
      "parent": "X2"
     },
     {
      "key": "X3",
      "name": "Empty Barracks",
-     "page": null
+     "page": 183
     },
     {
      "key": "X4",
      "name": "Overlook",
-     "page": null
+     "page": 183
     },
     {
      "key": "X5",
      "name": "Temple of Lost Secrets",
-     "page": null
+     "page": 183
     },
     {
      "key": "X5a",
      "name": "God of Secrets",
-     "page": null,
+     "page": 184,
      "parent": "X5"
     },
     {
      "key": "X5b",
      "name": "Secret Door",
-     "page": null,
+     "page": 184,
      "parent": "X5"
     },
     {
      "key": "X5c",
      "name": "Locked Doors",
-     "page": null,
+     "page": 184,
      "parent": "X5"
     },
     {
      "key": "X5d",
      "name": "Amber Reflections",
-     "page": null,
+     "page": 184,
      "parent": "X5"
     },
     {
      "key": "X6",
      "name": "Southeast Annex",
-     "page": null
+     "page": 185
     },
     {
      "key": "X7",
      "name": "Secret Scroll Repository",
-     "page": null
+     "page": 185
     },
     {
      "key": "X8",
      "name": "Upper East Hall",
-     "page": null
+     "page": 185
     },
     {
      "key": "X9",
      "name": "Lecture Hall",
-     "page": null
+     "page": 185
     },
     {
      "key": "X10",
      "name": "Northeast Annex",
-     "page": null
+     "page": 186
     },
     {
      "key": "X11",
      "name": "Northeast Balcony",
-     "page": null
+     "page": 186
     },
     {
      "key": "X12",
      "name": "East Shrine",
-     "page": null
+     "page": 186
     },
     {
      "key": "X13",
      "name": "East Archer Post",
-     "page": null
+     "page": 186
     },
     {
      "key": "X14",
      "name": "North Staircase",
-     "page": null
+     "page": 186
     },
     {
      "key": "X14a",
      "name": "Collapsed Lower Hall",
-     "page": null,
+     "page": 186,
      "parent": "X14"
     },
     {
      "key": "X15",
      "name": "Southwest Annex",
-     "page": null
+     "page": 186
     },
     {
      "key": "X16",
      "name": "West Scroll Repository",
-     "page": null
+     "page": 187
     },
     {
      "key": "X17",
      "name": "Upper West Hall",
-     "page": null
+     "page": 187
     },
     {
      "key": "X18",
      "name": "Hallway",
-     "page": null
+     "page": 187
     },
     {
      "key": "X19",
      "name": "Potion Storage",
-     "page": null
+     "page": 187
     },
     {
      "key": "X20",
      "name": "Architect's Room",
-     "page": null
+     "page": 187
     },
     {
      "key": "X21",
      "name": "West Staircase",
-     "page": null
+     "page": 187
     },
     {
      "key": "X22",
      "name": "Northwest Annex",
-     "page": null
+     "page": 187
     },
     {
      "key": "X23",
      "name": "Northwest Balcony",
-     "page": null
+     "page": 188
     },
     {
      "key": "X24",
      "name": "West Shrine",
-     "page": null
+     "page": 188
     },
     {
      "key": "X25",
      "name": "West Archer Post",
-     "page": null
+     "page": 188
     },
     {
      "key": "X26",
      "name": "Secret Alcove",
-     "page": null
+     "page": 188
     },
     {
      "key": "X27",
      "name": "Lich's Lair",
-     "page": null
+     "page": 188
     },
     {
      "key": "X28",
      "name": "Hidden Phylactery",
-     "page": null
+     "page": 189
     },
     {
      "key": "X29",
      "name": "Secret Room",
-     "page": null
+     "page": 189
     },
     {
      "key": "X30",
      "name": "Preserved Library",
-     "page": null
+     "page": 189
     },
     {
      "key": "X31",
      "name": "Central Catacombs",
-     "page": null
+     "page": 189
     },
     {
      "key": "X31a",
      "name": "West Catacombs",
-     "page": null,
+     "page": 191,
      "parent": "X31"
     },
     {
      "key": "X31b",
      "name": "East Catacombs",
-     "page": null,
+     "page": 191,
      "parent": "X31"
     },
     {
      "key": "X32",
      "name": "Lower East Hall",
-     "page": null
+     "page": 191
     },
     {
      "key": "X33",
      "name": "Amber Vaults",
-     "page": null
+     "page": 191
     },
     {
      "key": "X33a",
      "name": "Vault of Shalx",
-     "page": null,
+     "page": 191,
      "parent": "X33"
     },
     {
      "key": "X33b",
      "name": "Vault of Maverus",
-     "page": null,
+     "page": 192,
      "parent": "X33"
     },
     {
      "key": "X33c",
      "name": "Ghastly Vault",
-     "page": null,
+     "page": 192,
      "parent": "X33"
     },
     {
      "key": "X33d",
      "name": "Breached Vault",
-     "page": null,
+     "page": 192,
      "parent": "X33"
     },
     {
      "key": "X33e",
      "name": "Vault of Harkotha",
-     "page": null,
+     "page": 193,
      "parent": "X33"
     },
     {
      "key": "X33f",
      "name": "Vault of Thangob",
-     "page": null,
+     "page": 193,
      "parent": "X33"
     },
     {
      "key": "X34",
      "name": "Wizard's Bedchamber",
-     "page": null
+     "page": 194
     },
     {
      "key": "X35",
      "name": "Sleeping Guardian",
-     "page": null
+     "page": 194
     },
     {
      "key": "X36",
      "name": "Lower West Hall",
-     "page": null
+     "page": 194
     },
     {
      "key": "X37",
      "name": "Wizard's Bedchamber",
-     "page": null
+     "page": 194
     },
     {
      "key": "X38",
      "name": "Haunted Room",
-     "page": null
+     "page": 194
     },
     {
      "key": "X39",
      "name": "Plundered Treasury",
-     "page": null
+     "page": 194
     },
     {
      "key": "X40",
      "name": "Sealed Treasury",
-     "page": null
+     "page": 194
     },
     {
      "key": "X41",
      "name": "Fissure",
-     "page": null
+     "page": 195
     },
     {
      "key": "X42",
      "name": "Amber Vault",
-     "page": null
+     "page": 195
     }
    ],
    "levels": [
@@ -3754,27 +3765,27 @@
     {
      "key": "Y1",
      "name": "Trail",
-     "page": null
+     "page": 197
     },
     {
      "key": "Y2",
      "name": "Berserker Cairns",
-     "page": null
+     "page": 197
     },
     {
      "key": "Y3",
      "name": "Druids' Circle",
-     "page": null
+     "page": 197
     },
     {
      "key": "Y4",
      "name": "Gulthias Tree",
-     "page": null
+     "page": 198
     },
     {
      "key": "Y5",
      "name": "Wall of Fog",
-     "page": null
+     "page": 200
     }
    ],
    "placementLayer": {
@@ -3815,49 +3826,49 @@
     {
      "key": "Z2",
      "name": "Guard Post",
-     "page": null
+     "page": 203
     },
     {
      "key": "Z3",
      "name": "Wolf Den",
-     "page": null
+     "page": 203
     },
     {
      "key": "Z4",
      "name": "Underground Spring",
-     "page": null
+     "page": 203
     },
     {
      "key": "Z5",
      "name": "Deep Caves",
-     "page": null
+     "page": 203
     },
     {
      "key": "Z5a",
      "name": "South Cave",
-     "page": null,
+     "page": 203,
      "parent": "Z5"
     },
     {
      "key": "Z5b",
      "name": "North Cave",
-     "page": null,
+     "page": 203,
      "parent": "Z5"
     },
     {
      "key": "Z6",
      "name": "Kiril's Cave",
-     "page": null
+     "page": 204
     },
     {
      "key": "Z7",
      "name": "Shrine of Mother Night",
-     "page": null
+     "page": 204
     },
     {
      "key": "Z8",
      "name": "Ring of Stone",
-     "page": null
+     "page": 205
     }
    ],
    "events": [
@@ -3882,182 +3893,182 @@
     {
      "key": "1",
      "name": "Entrance",
-     "page": null
+     "page": 212
     },
     {
      "key": "2",
      "name": "Main Hall",
-     "page": null
+     "page": 212
     },
     {
      "key": "3",
      "name": "Den of Wolves",
-     "page": null
+     "page": 212
     },
     {
      "key": "4",
      "name": "Kitchen and Pantry",
-     "page": null
+     "page": 213
     },
     {
      "key": "5",
      "name": "Dining Room",
-     "page": null
+     "page": 213
     },
     {
      "key": "6",
      "name": "Upper Hall",
-     "page": null
+     "page": 213
     },
     {
      "key": "7",
      "name": "Servants' Room",
-     "page": null
+     "page": 213
     },
     {
      "key": "8",
      "name": "Library",
-     "page": null
+     "page": 213
     },
     {
      "key": "9",
      "name": "Secret Room",
-     "page": null
+     "page": 214
     },
     {
      "key": "10",
      "name": "Conservatory",
-     "page": null
+     "page": 214
     },
     {
      "key": "11",
      "name": "Balcony",
-     "page": null
+     "page": 214
     },
     {
      "key": "12",
      "name": "Master Suite",
-     "page": null
+     "page": 214
     },
     {
      "key": "13",
      "name": "Bathroom",
-     "page": null
+     "page": 215
     },
     {
      "key": "14",
      "name": "Storage Room",
-     "page": null
+     "page": 215
     },
     {
      "key": "15",
      "name": "Nursemaid's Suite",
-     "page": null
+     "page": 215
     },
     {
      "key": "16",
      "name": "Attic Hall",
-     "page": null
+     "page": 215
     },
     {
      "key": "17",
      "name": "Spare Bedroom",
-     "page": null
+     "page": 215
     },
     {
      "key": "18",
      "name": "Storage Room",
-     "page": null
+     "page": 215
     },
     {
      "key": "19",
      "name": "Spare Bedroom",
-     "page": null
+     "page": 215
     },
     {
      "key": "20",
      "name": "Children's Room",
-     "page": null
+     "page": 215
     },
     {
      "key": "21",
      "name": "Secret Stairs",
-     "page": null
+     "page": 217
     },
     {
      "key": "22",
      "name": "Dungeon Level Access",
-     "page": null
+     "page": 217
     },
     {
      "key": "23",
      "name": "Family Crypts",
-     "page": null
+     "page": 217
     },
     {
      "key": "24",
      "name": "Cult Initiates' Quarters",
-     "page": null
+     "page": 218
     },
     {
      "key": "25",
      "name": "Well and Cultist Quarters",
-     "page": null
+     "page": 218
     },
     {
      "key": "26",
      "name": "Hidden Spiked Pit",
-     "page": null
+     "page": 218
     },
     {
      "key": "27",
      "name": "Dining Hall",
-     "page": null
+     "page": 218
     },
     {
      "key": "28",
      "name": "Larder",
-     "page": null
+     "page": 218
     },
     {
      "key": "29",
      "name": "Ghoulish Encounter",
-     "page": null
+     "page": 218
     },
     {
      "key": "30",
      "name": "Stairs Down",
-     "page": null
+     "page": 218
     },
     {
      "key": "31",
      "name": "Darklord's Shrine",
-     "page": null
+     "page": 218
     },
     {
      "key": "32",
      "name": "Hidden Trapdoor",
-     "page": null
+     "page": 219
     },
     {
      "key": "33",
      "name": "Cult Leaders' Den",
-     "page": null
+     "page": 219
     },
     {
      "key": "34",
      "name": "Cult Leaders' Quarters",
-     "page": null
+     "page": 219
     },
     {
      "key": "35",
      "name": "Reliquary",
-     "page": null
+     "page": 219
     },
     {
      "key": "36",
      "name": "Prison",
-     "page": null
+     "page": 219
     },
     {
      "key": "37",
@@ -4067,7 +4078,7 @@
     {
      "key": "38",
      "name": "Ritual Chamber",
-     "page": null
+     "page": 219
     }
    ],
    "levels": [

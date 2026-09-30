@@ -18,3 +18,13 @@
 - Tests: 40 Vitest unit tests (+2 todo waiting on OCR/M2) and 21 Playwright acceptance tests (grid-on-floor
   pixel proof in 16 camera/wall/grid/slider combos, secret-door pixel identity, slider 0/0.5/1, Player
   Display isolation, reveal persistence).
+
+## Book verification — 2026-09-30
+
+- Book scanned into `reference/module/` (local only), OCR'd with `npm run ocr` (258 pages, ~9 min).
+- `scripts/manifest-report.ts` hardened for real OCR: small-caps sub-letters (E5r → E5f), O/l digit
+  confusions (QOl3 → Q13), fuzzy name match, Appendix B-only numbered keys, printed page = PDF page − 1.
+- `manifests/locations.json`: printed pages filled for 476 area keys; added E6 Cemetery and E7 Haunted
+  House (village keys missing from the seed); named K31a Elevator Shaft and K31b Shaft Access.
+- 46 keys whose headings the OCR couldn't read (mostly Argynvostholt Q19–Q53, some Vallaki interiors) keep
+  `page: null`; they get pages when their chapter is modeled.
