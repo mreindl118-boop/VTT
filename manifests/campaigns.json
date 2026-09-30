@@ -1,7 +1,66 @@
 {
  "schema": 1,
  "campaigns": [
-  { "id": "cos", "name": "Curse of Strahd", "subtitle": "Death House, the village, the lands of Barovia", "manifest": "locations.json", "prefixes": ["appB", "ch02", "ch03", "dev"], "world": "ch02/barovia-region", "home": "appB/death-house" },
-  { "id": "wsc", "name": "A Wild Sheep Chase", "subtitle": "The tavern, the street, the road and Noke's tower", "manifest": "wsc-locations.json", "prefixes": ["wsc"], "world": "wsc/00-region", "home": "wsc/01-tavern" }
+  {
+   "id": "cos",
+   "name": "Curse of Strahd",
+   "subtitle": "Death House, the village, the lands of Barovia",
+   "manifest": "locations.json",
+   "prefixes": [
+    "appB",
+    "ch02",
+    "ch03",
+    "dev"
+   ],
+   "world": "ch02/barovia-region",
+   "home": "appB/death-house",
+   "theme": {
+    "id": "gothic",
+    "mist": "#2b2733",
+    "page0": "#3a3242",
+    "page1": "#1e1a24",
+    "skyLight": "#c8ccd8",
+    "groundLight": "#3a3138",
+    "hemi": 1.6,
+    "key": 1.1,
+    "keyColor": "#f0e2c8",
+    "fogOut": 0.0011,
+    "fogIn": 0.0032,
+    "apron": "#2e3a31",
+    "forest": [
+     "#1d3325",
+     "#243c2c"
+    ]
+   }
+  },
+  {
+   "id": "wsc",
+   "name": "A Wild Sheep Chase",
+   "subtitle": "The tavern, the street, the road and Noke's tower",
+   "manifest": "wsc-locations.json",
+   "prefixes": [
+    "wsc"
+   ],
+   "world": "wsc/00-region",
+   "home": "wsc/01-tavern",
+   "theme": {
+    "id": "pastoral",
+    "mist": "#cfd6d2",
+    "page0": "#dfe6df",
+    "page1": "#b9c6bb",
+    "skyLight": "#eef3f8",
+    "groundLight": "#7d8a66",
+    "hemi": 2.1,
+    "key": 1.5,
+    "keyColor": "#fff4dc",
+    "fogOut": 0.0007,
+    "fogIn": 0.0016,
+    "apron": "#6f8a55",
+    "forest": [
+     "#4f7a44",
+     "#5b8a4d"
+    ]
+   }
+  }
  ]
 }

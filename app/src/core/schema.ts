@@ -137,6 +137,10 @@ export interface SceneFile {
   /** Town/site maps: feet per printed square; the map is a placement layer, not a battle map. */
   placementFt?: number;
   kind?: 'battle' | 'placement' | 'regional';
+  /** Levels stack in one place (platforms, a tower): show the ones below the current level too. */
+  stacked?: boolean;
+  /** Outdoors in a wooded mountain valley: taller ridges and deeper forest in the backdrop. */
+  valley?: boolean;
   ambient: Ambient;
   levels: Level[];
   links: VerticalLink[];

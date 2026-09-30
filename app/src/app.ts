@@ -104,7 +104,9 @@ export class App {
     this.campaign = c;
     const saved = await idbGet<CampaignState>(storeKey(c.id)).catch(() => undefined);
     this.state = saved ? { ...newCampaign(c.id), ...saved } : newCampaign(c.id); // older saves lack newer fields
-    useWorld(worldOf(c));
+    useWorld(worldOf(c), c.theme.id === 'pastoral' ? 'pastoral' : 'gothic');
+    this.world.setTheme(c.theme);
+    document.body.dataset.campaign = c.id;
   }
   async init(path: string): Promise<void> {
     await this.loadCampaign(path);
@@ -179,7 +181,7 @@ export class App {
     const l0 = scene.levels[0], outdoor = !!pin && !!l0.terrain?.length && (scene.ambient ?? l0.ambient) !== 'darkness';
     if (outdoor) {
       const bb = bounds([...l0.rooms.map((r) => r.polygon), ...(l0.terrain ?? []).map((t) => t.polygon)]);
-      this.backdrop = buildBackdrop({ center: [(bb.minX + bb.maxX) / 2, (bb.minZ + bb.maxZ) / 2], radius: Math.hypot(bb.maxX - bb.minX, bb.maxZ - bb.minZ) / 2, elevation: l0.elevationFt, pin: pin!.pos as Vec2, world: worldOf(this.campaign) });
+      this.backdrop = buildBackdrop({ center: [(bb.minX + bb.maxX) / 2, (bb.minZ + bb.maxZ) / 2], radius: Math.hypot(bb.maxX - bb.minX, bb.maxZ - bb.minZ) / 2, elevation: l0.elevationFt, pin: pin!.pos as Vec2, world: worldOf(this.campaign), theme: this.campaign.theme, valley: !!scene.valley });
       this.world.scene.add(this.backdrop);
     }
     this.world.setOutdoor(outdoor);
@@ -192,7 +194,9 @@ export class App {
   setLevel(id: string, frame = false): void {
     if (!this.cur) return;
     this.levelId = id;
-    for (const [lid, b] of this.cur.levels) b.root.visible = lid === id;
+    // Stacked sites (a treehouse, a tower) show every level up to the current one, so the place reads as a whole.
+    const stacked = !!this.cur.scene.stacked, elev = this.level.elevationFt;
+    for (const [lid, b] of this.cur.levels) b.root.visible = lid === id || (stacked && (this.cur.scene.levels.find((l) => l.id === lid)?.elevationFt ?? Infinity) < elev);
     const cov = this.cur.coverage.get(id)!;
     fogUniforms.uCovTex.value = this.cur.covTex.get(id)!;
     fogUniforms.uCovOrigin.value.set(cov.originX, cov.originZ);
@@ -211,7 +215,11 @@ export class App {
   frameLevel(preset = this.camPreset): void {
     this.camPreset = preset;
     const l = this.level;
-    this.world.frame(bounds(l.rooms.map((r) => r.polygon)), l.elevationFt, preset);
+    // A stacked site frames as a whole (every level's rooms), so the tower reads top to bottom.
+    const polys = this.cur!.scene.stacked ? this.cur!.scene.levels.flatMap((x) => x.rooms.map((r) => r.polygon)) : l.rooms.map((r) => r.polygon);
+    const b = bounds(polys);
+    this.world.controls.maxDistance = Math.max(400, Math.hypot(b.maxX - b.minX, b.maxZ - b.minZ) * 2.5);
+    this.world.frame(b, l.elevationFt, preset);
   }
 
   // ------------------------------------------------------------------ tokens
@@ -956,7 +964,7 @@ export class App {
       this.maskSwap.clear();
       for (const o of this.maskHidden) o.visible = true;
       this.maskHidden = [];
-      this.world.scene.background = null; this.world.mistFloor.visible = !this.backdrop; this.world.scene.fog = new THREE.FogExp2('#2b2733', this.world.fogDensity); if (this.backdrop) this.backdrop.visible = true;
+      this.world.scene.background = null; this.world.mistFloor.visible = !this.backdrop; this.world.scene.fog = new THREE.FogExp2(this.world.theme.mist, this.world.fogDensity); if (this.backdrop) this.backdrop.visible = true;
       this.applySlider();
     }
     this.world.invalidate();

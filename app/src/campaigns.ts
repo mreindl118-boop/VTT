@@ -6,7 +6,8 @@ import wsc from '../../manifests/wsc-locations.json';
 import barovia from '../../locations/ch02/barovia-region/world.json';
 import sheep from '../../locations/wsc/00-region/world.json';
 
-export interface Campaign { id: string; name: string; subtitle: string; manifest: string; prefixes: string[]; world: string; home: string }
+export interface Theme { id: string; mist: string; page0: string; page1: string; skyLight: string; groundLight: string; hemi: number; key: number; keyColor: string; fogOut: number; fogIn: number; apron: string; forest: [string, string] }
+export interface Campaign { id: string; name: string; subtitle: string; manifest: string; prefixes: string[]; world: string; home: string; theme: Theme }
 export interface WorldData {
   name: string; bounds: { minX: number; minY: number; maxX: number; maxY: number };
   pins: { key: string; name: string; pos: [number, number]; type: string; scenes?: string[] }[];
@@ -17,7 +18,7 @@ export interface WorldData {
 export interface ManifestLoc { id: string; name: string; chapter: string; status: string; mapPages: number[]; areas: { key: string; name: string }[]; path: string; section?: string; notes?: string }
 export interface Manifest { chapters: { id: string; number: number | null; title: string }[]; locations: ManifestLoc[]; sections?: { id: string; title: string }[]; pointers?: { id: string; title: string; pointsTo: string[]; note: string }[] }
 
-export const CAMPAIGNS: Campaign[] = (campaigns as { campaigns: Campaign[] }).campaigns;
+export const CAMPAIGNS: Campaign[] = (campaigns as unknown as { campaigns: Campaign[] }).campaigns;
 const MANIFESTS: Record<string, Manifest> = { 'locations.json': cos as unknown as Manifest, 'wsc-locations.json': wsc as unknown as Manifest };
 const WORLDS: Record<string, WorldData> = { 'ch02/barovia-region': barovia as unknown as WorldData, 'wsc/00-region': sheep as unknown as WorldData };
 

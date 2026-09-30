@@ -2,18 +2,19 @@
 // valley's mountains and Castle Ravenloft stand at their true bearings (from the world map), compressed in
 // distance so they sit on the horizon. Unlit by fog on purpose: colours are pre-blended toward the mist.
 import * as THREE from 'three';
-import type { WorldData } from '../campaigns';
+import type { Theme, WorldData } from '../campaigns';
 
 type P = [number, number];
-const MIST = new THREE.Color('#2b2733');
+let MIST = new THREE.Color('#2b2733');
 
 const blend = (hex: string, t: number) => new THREE.Color(hex).lerp(MIST, Math.min(1, Math.max(0, t)));
 const lambert = (c: THREE.Color) => new THREE.MeshLambertMaterial({ color: c, fog: false, flatShading: true });
 
-export interface BackdropOpts { center: P; radius: number; elevation: number; pin: P; world: WorldData }
+export interface BackdropOpts { center: P; radius: number; elevation: number; pin: P; world: WorldData; theme: Theme; valley?: boolean }
 
 export function buildBackdrop(o: BackdropOpts): THREE.Group {
-  const W = o.world;
+  const W = o.world, T = o.theme, V = o.valley ? 2.2 : 1;
+  MIST = new THREE.Color(T.mist);
   const g = new THREE.Group();
   g.name = 'backdrop';
   g.userData.role = 'backdrop';
@@ -24,7 +25,7 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
   // 1. Ground apron: the land keeps going, fading into mist.
   const apron = new THREE.RingGeometry(0.5, 7000, 96, 12); // a full disc: the map's own floors sit above it
   const pos = apron.attributes.position, cols: number[] = [];
-  for (let i = 0; i < pos.count; i++) { const d = Math.hypot(pos.getX(i), pos.getY(i)); const c = blend('#2e3a31', (d - R) / 2600); cols.push(c.r, c.g, c.b); }
+  for (let i = 0; i < pos.count; i++) { const d = Math.hypot(pos.getX(i), pos.getY(i)); const c = blend(T.apron, (d - R) / 2600); cols.push(c.r, c.g, c.b); }
   apron.setAttribute('color', new THREE.Float32BufferAttribute(cols, 3));
   const apronMesh = new THREE.Mesh(apron, new THREE.MeshBasicMaterial({ vertexColors: true, fog: false }));
   apronMesh.rotation.x = -Math.PI / 2; apronMesh.position.set(cx, y0 - 0.35, cz);
@@ -32,12 +33,12 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
 
   // 2. Forest ring: instanced pines from just past the edge out to the tree line.
   const tree = new THREE.ConeGeometry(6, 28, 6); tree.translate(0, 14, 0);
-  const n = 900, trees = new THREE.InstancedMesh(tree, new THREE.MeshLambertMaterial({ fog: false, flatShading: true }), n);
+  const n = o.valley ? 1500 : 900, trees = new THREE.InstancedMesh(tree, new THREE.MeshLambertMaterial({ fog: false, flatShading: true }), n);
   const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), s = new THREE.Vector3(), p = new THREE.Vector3();
   for (let i = 0; i < n; i++) {
     const a = rnd() * Math.PI * 2, d = R + 45 + Math.pow(rnd(), 1.3) * 1000, k = 0.6 + rnd() * 0.6;
     p.set(cx + Math.cos(a) * d, y0, cz + Math.sin(a) * d); s.set(k, k * (0.9 + rnd() * 0.4), k); m4.compose(p, q, s);
-    trees.setMatrixAt(i, m4); trees.setColorAt(i, blend(i % 3 ? '#1d3325' : '#243c2c', (d - R) / 1100));
+    trees.setMatrixAt(i, m4); trees.setColorAt(i, blend(i % 3 ? T.forest[0] : T.forest[1], (d - R) / 1100));
   }
   g.add(trees);
 
@@ -54,7 +55,7 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
     const dx = w[0] - o.pin[0], dy = w[1] - o.pin[1], b = Math.atan2(dy, dx), mi = Math.hypot(dx, dy);
     const db = Math.abs(Math.atan2(Math.sin(b - bearing), Math.cos(b - bearing)));
     return h + Math.exp(-(db * db) / 0.12) * Math.exp(-mi / 7) * 260;
-  }, 120);
+  }, 120 * V);
   for (const [ring, dist, col] of [[0, 1400, '#39413d'], [1, 2600, '#4a4f56']] as const) {
     const count = ring ? 70 : 90;
     for (let i = 0; i < count; i++) {

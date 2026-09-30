@@ -5310,5 +5310,7 @@
     ]
    }
   }
- ]
+ ],
+ "stacked": true,
+ "valley": true
 }

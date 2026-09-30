@@ -71,16 +71,60 @@
    "mapPages": [],
    "areas": [
     {
-     "key": "L0-1",
-     "name": "The tavern, ground floor: Plank floor"
+     "key": "T1",
+     "name": "Common Room"
     },
     {
-     "key": "L0-2",
-     "name": "The tavern, ground floor: Cobbles"
+     "key": "T2",
+     "name": "Bar"
     },
     {
-     "key": "L1-1",
-     "name": "The tavern, upper floor: Plank floor"
+     "key": "T3",
+     "name": "Innkeeper's Office"
+    },
+    {
+     "key": "T4",
+     "name": "Kitchen"
+    },
+    {
+     "key": "T5",
+     "name": "Storeroom"
+    },
+    {
+     "key": "T6",
+     "name": "Stables"
+    },
+    {
+     "key": "T7",
+     "name": "Yard"
+    },
+    {
+     "key": "U1",
+     "name": "Mezzanine"
+    },
+    {
+     "key": "U2",
+     "name": "Gallery"
+    },
+    {
+     "key": "U3",
+     "name": "Landing"
+    },
+    {
+     "key": "U4",
+     "name": "Inn Room 1"
+    },
+    {
+     "key": "U5",
+     "name": "Inn Room 2"
+    },
+    {
+     "key": "U6",
+     "name": "Inn Room 3"
+    },
+    {
+     "key": "U7",
+     "name": "Stair head"
     }
    ],
    "path": "locations/wsc/01-tavern",
@@ -88,19 +132,35 @@
   },
   {
    "id": "02-street",
-   "name": "The Street",
+   "name": "The Town Square",
    "chapter": "wsc",
    "section": "02",
    "status": "built",
    "mapPages": [],
    "areas": [
     {
-     "key": "L0-1",
-     "name": "The street outside the tavern: Cobbles"
+     "key": "S1",
+     "name": "The Square"
     },
     {
-     "key": "L0-2",
-     "name": "The street outside the tavern: Cobbles"
+     "key": "S2",
+     "name": "Main Street"
+    },
+    {
+     "key": "S3",
+     "name": "East Lane"
+    },
+    {
+     "key": "S4",
+     "name": "Temple Yard"
+    },
+    {
+     "key": "S5",
+     "name": "Tavern Yard"
+    },
+    {
+     "key": "S6",
+     "name": "Stables"
     }
    ],
    "path": "locations/wsc/02-street",

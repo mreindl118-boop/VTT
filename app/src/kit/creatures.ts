@@ -169,3 +169,14 @@ export function wyrmling(): THREE.Group {
   return g;
 }
 Object.assign(CREATURES, { horse: (d) => horse(d), scarecrow: () => scarecrow(), 'vampire-spawn': () => vampireSpawn(), gargoyle: () => gargoyle(), 'red-dragon-wyrmling': () => wyrmling() } as Record<string, (d: Dims) => THREE.Group>);
+
+/** A sheep: woolly body, dark face and legs. `polymorphed` adds a scroll in its mouth (Finethir). */
+export function sheep(d: Dims = {}): THREE.Group {
+  const s = d.scale ?? 1, g = grp();
+  const body = new THREE.Mesh(new THREE.IcosahedronGeometry(1.1 * s, 1), mat('#e9e4d8')); body.scale.set(1.35, 0.9, 1); body.position.set(0, 1.7 * s, 0); g.add(body);
+  g.add(box(0.55 * s, 0.6 * s, 0.7 * s, '#2a2420', 1.35 * s, 1.9 * s, 0));
+  for (const [x, z] of [[-0.7, -0.4], [0.7, -0.4], [-0.7, 0.4], [0.7, 0.4]]) g.add(box(0.22 * s, 1.1 * s, 0.22 * s, '#2a2420', x * s, 0.55 * s, z * s));
+  if (d.scroll) g.add(box(0.7 * s, 0.18 * s, 0.18 * s, PALETTE.bone, 1.75 * s, 1.75 * s, 0));
+  return g;
+}
+Object.assign(CREATURES, { sheep: (d) => sheep(d) } as Record<string, (d: Dims) => THREE.Group>);

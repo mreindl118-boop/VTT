@@ -2,809 +2,1073 @@
  "schema": 1,
  "location": "02-street",
  "chapter": "wsc",
- "name": "The Street",
+ "name": "The Town Square",
  "bookScaleFt": 5,
  "ambient": "barovian-overcast",
  "levels": [
   {
    "id": "L0",
-   "name": "The street outside the tavern",
-   "elevationFt": 0.0,
+   "name": "The square",
+   "elevationFt": 0,
    "ceilingFt": 10,
+   "ambient": "barovian-overcast",
+   "north": "-z",
    "rooms": [
     {
-     "key": "L0-1",
-     "name": "Cobbles",
+     "key": "S1",
+     "name": "The Square",
+     "page": null,
      "polygon": [
       [
-       60.0,
-       0.0
+       20,
+       70
       ],
       [
-       70.0,
-       0.0
+       130,
+       70
       ],
       [
-       70.0,
-       40.0
+       130,
+       120
       ],
       [
-       60.0,
-       40.0
+       20,
+       120
       ]
      ],
      "floor": "cobble",
-     "desc": "Shepherds, Crooks",
-     "dm": "Guz, a half-orc mercenary, comes for the sheep with three collared wolves and a brown bear (both polymorphed henchmen). The tavern block on this map is the same building as 01a; its doors line up. Creatures: Guz (half-orc), 3 wolves (polymorphed), brown bear (polymorphed)."
+     "desc": "A cobbled square around a stone well: the tavern on the north side, the temple to the south, the town hall to the east, houses all round.",
+     "dm": "Shepherds, Crooks: Guz comes up the main street from the west with three collared wolves and a brown bear. The tavern's front door is where the sheep bolted in."
     },
     {
-     "key": "L0-2",
-     "name": "Cobbles",
+     "key": "S2",
+     "name": "Main Street",
+     "page": null,
      "polygon": [
       [
-       0.0,
-       40.0
+       0,
+       85
       ],
       [
-       90.0,
-       40.0
+       20,
+       85
       ],
       [
-       90.0,
-       60.0
+       20,
+       105
       ],
       [
-       0.0,
-       60.0
+       0,
+       105
       ]
      ],
-     "floor": "cobble"
+     "floor": "cobble",
+     "desc": "The main street, leaving town to the west."
+    },
+    {
+     "key": "S3",
+     "name": "East Lane",
+     "page": null,
+     "polygon": [
+      [
+       130,
+       85
+      ],
+      [
+       170,
+       85
+      ],
+      [
+       170,
+       105
+      ],
+      [
+       130,
+       105
+      ]
+     ],
+     "floor": "cobble",
+     "desc": "The lane east, past the town hall."
+    },
+    {
+     "key": "S4",
+     "name": "Temple Yard",
+     "page": null,
+     "polygon": [
+      [
+       20,
+       120
+      ],
+      [
+       70,
+       120
+      ],
+      [
+       70,
+       150
+      ],
+      [
+       20,
+       150
+      ]
+     ],
+     "floor": "grass",
+     "desc": "The temple's grassy yard."
+    },
+    {
+     "key": "S5",
+     "name": "Tavern Yard",
+     "page": null,
+     "polygon": [
+      [
+       80,
+       0
+      ],
+      [
+       110,
+       0
+      ],
+      [
+       110,
+       65
+      ],
+      [
+       70,
+       65
+      ],
+      [
+       70,
+       60
+      ],
+      [
+       80,
+       60
+      ]
+     ],
+     "floor": "dirt",
+     "desc": "The tavern's yard and stables."
+    },
+    {
+     "key": "S6",
+     "name": "Stables",
+     "page": null,
+     "polygon": [
+      [
+       80,
+       25
+      ],
+      [
+       95,
+       25
+      ],
+      [
+       95,
+       55
+      ],
+      [
+       80,
+       55
+      ]
+     ],
+     "floor": "dirt",
+     "desc": "Three stalls, hay, troughs; two horses."
     }
    ],
    "walls": [
     {
-     "id": "02-street-L0-w1",
+     "id": "L0-w-0",
      "a": [
-      30.0,
-      0.5
+      20.0,
+      70.0
      ],
      "b": [
-      60.0,
-      0.5
+      130.0,
+      70.0
      ],
      "flags": [
       "normal"
-     ],
-     "material": "plaster",
-     "heightFt": 10.0
-    },
-    {
-     "id": "02-street-L0-w2",
-     "a": [
-      59.503,
-      0.0
-     ],
-     "b": [
-      59.497,
-      31.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster",
-     "heightFt": 10.0
-    },
-    {
-     "id": "02-street-L0-w3",
-     "a": [
-      59.501,
-      34.0
-     ],
-     "b": [
-      59.499,
-      40.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster",
-     "heightFt": 10.0
-    },
-    {
-     "id": "02-street-L0-w4",
-     "a": [
-      60.0,
-      39.501
-     ],
-     "b": [
-      56.5,
-      39.499
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster",
-     "heightFt": 10.0
-    },
-    {
-     "id": "02-street-L0-w5",
-     "a": [
-      53.5,
-      39.501
-     ],
-     "b": [
-      47.5,
-      39.499
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster",
-     "heightFt": 10.0
-    },
-    {
-     "id": "02-street-L0-w6",
-     "a": [
-      42.5,
-      39.501
-     ],
-     "b": [
-      36.5,
-      39.499
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster",
-     "heightFt": 10.0
-    },
-    {
-     "id": "02-street-L0-w7",
-     "a": [
-      33.5,
-      39.501
-     ],
-     "b": [
-      30.0,
-      39.499
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster",
-     "heightFt": 10.0
-    },
-    {
-     "id": "02-street-L0-w8",
-     "a": [
-      30.504,
-      40.0
-     ],
-     "b": [
-      30.496,
-      0.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster",
-     "heightFt": 10.0
-    },
-    {
-     "id": "02-street-L0-w9",
-     "a": [
-      0.0,
-      0.5
-     ],
-     "b": [
-      30.0,
-      0.5
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster",
-     "heightFt": 10.0
-    },
-    {
-     "id": "02-street-L0-w10",
-     "a": [
-      29.504,
-      0.0
-     ],
-     "b": [
-      29.496,
-      40.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster",
-     "heightFt": 10.0
-    },
-    {
-     "id": "02-street-L0-w11",
-     "a": [
-      30.0,
-      39.503
-     ],
-     "b": [
-      16.5,
-      39.497
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster",
-     "heightFt": 10.0
-    },
-    {
-     "id": "02-street-L0-w12",
-     "a": [
-      13.5,
-      39.503
-     ],
-     "b": [
-      0.0,
-      39.497
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster",
-     "heightFt": 10.0
-    },
-    {
-     "id": "02-street-L0-w13",
-     "a": [
-      0.504,
-      40.0
-     ],
-     "b": [
-      0.496,
-      0.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster",
-     "heightFt": 10.0
-    },
-    {
-     "id": "02-street-L0-w14",
-     "a": [
-      70.0,
-      0.5
-     ],
-     "b": [
-      90.0,
-      0.5
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster",
-     "heightFt": 10.0
-    },
-    {
-     "id": "02-street-L0-w15",
-     "a": [
-      89.504,
-      0.0
-     ],
-     "b": [
-      89.496,
-      40.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster",
-     "heightFt": 10.0
-    },
-    {
-     "id": "02-street-L0-w16",
-     "a": [
-      90.0,
-      39.502
-     ],
-     "b": [
-      81.5,
-      39.498
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster",
-     "heightFt": 10.0
-    },
-    {
-     "id": "02-street-L0-w17",
-     "a": [
-      78.5,
-      39.502
-     ],
-     "b": [
-      70.0,
-      39.498
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster",
-     "heightFt": 10.0
-    },
-    {
-     "id": "02-street-L0-w18",
-     "a": [
-      70.502,
-      40.0
-     ],
-     "b": [
-      70.498,
-      16.5
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster",
-     "heightFt": 10.0
-    },
-    {
-     "id": "02-street-L0-w19",
-     "a": [
-      70.501,
-      13.5
-     ],
-     "b": [
-      70.499,
-      0.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster",
-     "heightFt": 10.0
-    },
-    {
-     "id": "02-street-L0-w20",
-     "a": [
-      0.0,
-      60.5
-     ],
-     "b": [
-      13.5,
-      60.5
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster",
-     "heightFt": 10.0
-    },
-    {
-     "id": "02-street-L0-w21",
-     "a": [
-      16.5,
-      60.5
-     ],
-     "b": [
-      30.0,
-      60.5
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster",
-     "heightFt": 10.0
-    },
-    {
-     "id": "02-street-L0-w22",
-     "a": [
-      29.502,
-      60.0
-     ],
-     "b": [
-      29.498,
-      80.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster",
-     "heightFt": 10.0
-    },
-    {
-     "id": "02-street-L0-w23",
-     "a": [
-      30.0,
-      79.506
-     ],
-     "b": [
-      0.0,
-      79.494
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster",
-     "heightFt": 10.0
-    },
-    {
-     "id": "02-street-L0-w24",
-     "a": [
-      0.502,
-      80.0
-     ],
-     "b": [
-      0.498,
-      60.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster",
-     "heightFt": 10.0
-    },
-    {
-     "id": "02-street-L0-w25",
-     "a": [
-      30.0,
-      60.5
-     ],
-     "b": [
-      43.5,
-      60.5
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster",
-     "heightFt": 10.0
-    },
-    {
-     "id": "02-street-L0-w26",
-     "a": [
-      46.5,
-      60.5
-     ],
-     "b": [
-      60.0,
-      60.5
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster",
-     "heightFt": 10.0
-    },
-    {
-     "id": "02-street-L0-w27",
-     "a": [
-      59.502,
-      60.0
-     ],
-     "b": [
-      59.498,
-      80.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster",
-     "heightFt": 10.0
-    },
-    {
-     "id": "02-street-L0-w28",
-     "a": [
-      60.0,
-      79.506
-     ],
-     "b": [
-      30.0,
-      79.494
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster",
-     "heightFt": 10.0
-    },
-    {
-     "id": "02-street-L0-w29",
-     "a": [
-      30.502,
-      80.0
-     ],
-     "b": [
-      30.498,
-      60.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster",
-     "heightFt": 10.0
-    },
-    {
-     "id": "02-street-L0-w30",
-     "a": [
-      60.0,
-      60.5
-     ],
-     "b": [
-      73.5,
-      60.5
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster",
-     "heightFt": 10.0
-    },
-    {
-     "id": "02-street-L0-w31",
-     "a": [
-      76.5,
-      60.5
-     ],
-     "b": [
-      90.0,
-      60.5
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster",
-     "heightFt": 10.0
-    },
-    {
-     "id": "02-street-L0-w32",
-     "a": [
-      89.502,
-      60.0
-     ],
-     "b": [
-      89.498,
-      80.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster",
-     "heightFt": 10.0
-    },
-    {
-     "id": "02-street-L0-w33",
-     "a": [
-      90.0,
-      79.506
-     ],
-     "b": [
-      60.0,
-      79.494
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster",
-     "heightFt": 10.0
-    },
-    {
-     "id": "02-street-L0-w34",
-     "a": [
-      60.502,
-      80.0
-     ],
-     "b": [
-      60.498,
-      60.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster",
-     "heightFt": 10.0
-    },
-    {
-     "id": "02-street-L0-w35",
-     "a": [
-      67.0,
-      50.0
-     ],
-     "b": [
-      66.0,
-      51.732
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster",
-     "heightFt": 3.0
-    },
-    {
-     "id": "02-street-L0-w36",
-     "a": [
-      66.0,
-      51.732
-     ],
-     "b": [
-      64.0,
-      51.732
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster",
-     "heightFt": 3.0
-    },
-    {
-     "id": "02-street-L0-w37",
-     "a": [
-      64.0,
-      51.732
-     ],
-     "b": [
-      63.0,
-      50.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster",
-     "heightFt": 3.0
-    },
-    {
-     "id": "02-street-L0-w38",
-     "a": [
-      63.0,
-      50.0
-     ],
-     "b": [
-      64.0,
-      48.268
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster",
-     "heightFt": 3.0
-    },
-    {
-     "id": "02-street-L0-w39",
-     "a": [
-      64.0,
-      48.268
-     ],
-     "b": [
-      66.0,
-      48.268
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster",
-     "heightFt": 3.0
-    },
-    {
-     "id": "02-street-L0-w40",
-     "a": [
-      66.0,
-      48.268
-     ],
-     "b": [
-      67.0,
-      50.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster",
-     "heightFt": 3.0
-    },
-    {
-     "id": "02-street-L0-w41",
-     "a": [
-      1.501,
-      40.0
-     ],
-     "b": [
-      1.499,
-      47.5
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster",
-     "heightFt": 3.0
-    },
-    {
-     "id": "02-street-L0-w42",
-     "a": [
-      1.501,
-      52.5
-     ],
-     "b": [
-      1.499,
-      60.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster",
-     "heightFt": 3.0
-    },
-    {
-     "id": "02-street-L0-o1",
-     "a": [
-      42.5,
-      39.501
-     ],
-     "b": [
-      47.5,
-      39.499
-     ],
-     "flags": [
-      "door"
-     ],
-     "material": "plaster",
-     "open": false
-    },
-    {
-     "id": "02-street-L0-o2",
-     "a": [
-      59.499,
-      34.0
-     ],
-     "b": [
-      59.501,
-      31.0
-     ],
-     "flags": [
-      "door"
-     ],
-     "material": "plaster",
-     "open": false
-    },
-    {
-     "id": "02-street-L0-o3",
-     "a": [
-      33.5,
-      39.501
-     ],
-     "b": [
-      36.5,
-      39.499
-     ],
-     "flags": [
-      "window"
      ],
      "material": "plaster"
     },
     {
-     "id": "02-street-L0-o4",
+     "id": "L0-w-1",
      "a": [
-      53.5,
-      39.501
+      130.0,
+      70.0
      ],
      "b": [
-      56.5,
-      39.499
+      130.0,
+      85.0
      ],
      "flags": [
-      "window"
+      "normal"
      ],
      "material": "plaster"
     },
     {
-     "id": "02-street-L0-o5",
+     "id": "L0-w-2",
      "a": [
-      13.5,
-      39.501
+      130.0,
+      105.0
      ],
      "b": [
-      16.5,
-      39.499
+      130.0,
+      120.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-3",
+     "a": [
+      125.0,
+      120.0
+     ],
+     "b": [
+      130.0,
+      120.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-4",
+     "a": [
+      120.0,
+      120.0
+     ],
+     "b": [
+      125.0,
+      120.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-5",
+     "a": [
+      115.0,
+      120.0
+     ],
+     "b": [
+      120.0,
+      120.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-6",
+     "a": [
+      110.0,
+      120.0
+     ],
+     "b": [
+      115.0,
+      120.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-7",
+     "a": [
+      105.0,
+      120.0
+     ],
+     "b": [
+      110.0,
+      120.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-8",
+     "a": [
+      100.0,
+      120.0
+     ],
+     "b": [
+      105.0,
+      120.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-9",
+     "a": [
+      95.0,
+      120.0
+     ],
+     "b": [
+      100.0,
+      120.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-10",
+     "a": [
+      90.0,
+      120.0
+     ],
+     "b": [
+      95.0,
+      120.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-11",
+     "a": [
+      85.0,
+      120.0
+     ],
+     "b": [
+      90.0,
+      120.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-12",
+     "a": [
+      80.0,
+      120.0
+     ],
+     "b": [
+      85.0,
+      120.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-13",
+     "a": [
+      75.0,
+      120.0
+     ],
+     "b": [
+      80.0,
+      120.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-14",
+     "a": [
+      70.0,
+      120.0
+     ],
+     "b": [
+      75.0,
+      120.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-15",
+     "a": [
+      55.00000000000001,
+      120.0
+     ],
+     "b": [
+      60.0,
+      120.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-16",
+     "a": [
+      50.0,
+      120.0
+     ],
+     "b": [
+      55.00000000000001,
+      120.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-17",
+     "a": [
+      20.0,
+      115.0
+     ],
+     "b": [
+      20.0,
+      150.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-18",
+     "a": [
+      20.0,
+      110.0
+     ],
+     "b": [
+      20.0,
+      115.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-19",
+     "a": [
+      20.0,
+      105.0
+     ],
+     "b": [
+      20.0,
+      110.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-20",
+     "a": [
+      20.0,
+      80.0
+     ],
+     "b": [
+      20.0,
+      85.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-21",
+     "a": [
+      20.0,
+      75.0
+     ],
+     "b": [
+      20.0,
+      80.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-22",
+     "a": [
+      20.0,
+      70.0
+     ],
+     "b": [
+      20.0,
+      75.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-23",
+     "a": [
+      0.0,
+      85.0
+     ],
+     "b": [
+      20.0,
+      85.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-24",
+     "a": [
+      15.0,
+      105.0
+     ],
+     "b": [
+      20.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-25",
+     "a": [
+      10.0,
+      105.0
+     ],
+     "b": [
+      15.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-26",
+     "a": [
+      5.0,
+      105.0
+     ],
+     "b": [
+      10.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-27",
+     "a": [
+      0.0,
+      105.0
+     ],
+     "b": [
+      5.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-28",
+     "a": [
+      0.0,
+      100.0
+     ],
+     "b": [
+      0.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-29",
+     "a": [
+      0.0,
+      95.0
+     ],
+     "b": [
+      0.0,
+      100.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-30",
+     "a": [
+      0.0,
+      90.0
+     ],
+     "b": [
+      0.0,
+      95.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-31",
+     "a": [
+      0.0,
+      85.0
+     ],
+     "b": [
+      0.0,
+      90.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-32",
+     "a": [
+      130.0,
+      85.0
+     ],
+     "b": [
+      170.0,
+      85.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-33",
+     "a": [
+      170.0,
+      85.0
+     ],
+     "b": [
+      170.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-34",
+     "a": [
+      165.0,
+      105.0
+     ],
+     "b": [
+      170.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-35",
+     "a": [
+      160.0,
+      105.0
+     ],
+     "b": [
+      165.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-36",
+     "a": [
+      155.0,
+      105.0
+     ],
+     "b": [
+      160.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-37",
+     "a": [
+      150.0,
+      105.0
+     ],
+     "b": [
+      155.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-38",
+     "a": [
+      145.0,
+      105.0
+     ],
+     "b": [
+      150.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-39",
+     "a": [
+      140.0,
+      105.0
+     ],
+     "b": [
+      145.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-40",
+     "a": [
+      135.0,
+      105.0
+     ],
+     "b": [
+      140.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-41",
+     "a": [
+      130.0,
+      105.0
+     ],
+     "b": [
+      135.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-42",
+     "a": [
+      70.0,
+      120.0
+     ],
+     "b": [
+      70.0,
+      150.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-43",
+     "a": [
+      65.0,
+      150.0
+     ],
+     "b": [
+      70.0,
+      150.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-44",
+     "a": [
+      60.0,
+      150.0
+     ],
+     "b": [
+      65.0,
+      150.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-45",
+     "a": [
+      55.0,
+      150.0
+     ],
+     "b": [
+      60.0,
+      150.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-46",
+     "a": [
+      50.0,
+      150.0
+     ],
+     "b": [
+      55.0,
+      150.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-47",
+     "a": [
+      45.0,
+      150.0
+     ],
+     "b": [
+      50.0,
+      150.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-48",
+     "a": [
+      40.0,
+      150.0
+     ],
+     "b": [
+      45.0,
+      150.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-49",
+     "a": [
+      35.0,
+      150.0
+     ],
+     "b": [
+      40.0,
+      150.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-50",
+     "a": [
+      30.0,
+      150.0
+     ],
+     "b": [
+      35.0,
+      150.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-51",
+     "a": [
+      25.0,
+      150.0
+     ],
+     "b": [
+      30.0,
+      150.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-52",
+     "a": [
+      20.0,
+      150.0
+     ],
+     "b": [
+      25.0,
+      150.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-53",
+     "a": [
+      75.0,
+      65.0
+     ],
+     "b": [
+      80.0,
+      65.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-54",
+     "a": [
+      70.0,
+      65.0
+     ],
+     "b": [
+      75.0,
+      65.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-55",
+     "a": [
+      70.0,
+      60.0
+     ],
+     "b": [
+      70.0,
+      65.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-56",
+     "a": [
+      80.0,
+      55.0
+     ],
+     "b": [
+      80.0,
+      60.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-57",
+     "a": [
+      80.0,
+      50.0
+     ],
+     "b": [
+      80.0,
+      55.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-58",
+     "a": [
+      80.0,
+      45.0
+     ],
+     "b": [
+      80.0,
+      50.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "sq-stable-door",
+     "a": [
+      80.0,
+      40.0
+     ],
+     "b": [
+      80.0,
+      45.0
      ],
      "flags": [
       "door"
@@ -813,251 +1077,971 @@
      "open": false
     },
     {
-     "id": "02-street-L0-o6",
+     "id": "L0-w-60",
      "a": [
-      78.5,
-      39.501
+      80.0,
+      35.0
      ],
      "b": [
-      81.5,
-      39.499
+      80.0,
+      40.0
      ],
      "flags": [
-      "door"
+      "normal"
      ],
-     "material": "plaster",
-     "open": false
+     "material": "plaster"
     },
     {
-     "id": "02-street-L0-o7",
+     "id": "L0-w-61",
      "a": [
-      70.5,
-      13.5
+      80.0,
+      30.0
      ],
      "b": [
-      70.5,
-      16.5
+      80.0,
+      35.0
      ],
      "flags": [
-      "door"
+      "normal"
      ],
-     "material": "plaster",
-     "open": false
+     "material": "plaster"
     },
     {
-     "id": "02-street-L0-o8",
+     "id": "L0-w-62",
      "a": [
-      16.5,
-      60.5
+      80.0,
+      25.0
      ],
      "b": [
-      13.5,
-      60.5
+      80.0,
+      30.0
      ],
      "flags": [
-      "door"
+      "normal"
      ],
-     "material": "plaster",
-     "open": false
+     "material": "plaster"
     },
     {
-     "id": "02-street-L0-o9",
+     "id": "L0-w-63",
      "a": [
-      46.5,
-      60.5
+      80.0,
+      20.0
      ],
      "b": [
-      43.5,
-      60.5
+      80.0,
+      25.0
      ],
      "flags": [
-      "door"
+      "normal"
      ],
-     "material": "plaster",
-     "open": false
+     "material": "plaster"
     },
     {
-     "id": "02-street-L0-o10",
+     "id": "L0-w-64",
      "a": [
-      76.5,
-      60.5
+      80.0,
+      15.0
      ],
      "b": [
-      73.5,
-      60.5
+      80.0,
+      20.0
      ],
      "flags": [
-      "door"
+      "normal"
      ],
-     "material": "plaster",
-     "open": false
+     "material": "plaster"
     },
     {
-     "id": "02-street-L0-o11",
+     "id": "L0-w-65",
      "a": [
-      1.499,
-      52.5
+      80.0,
+      10.0
      ],
      "b": [
-      1.501,
-      47.5
+      80.0,
+      15.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-66",
+     "a": [
+      80.0,
+      5.0
+     ],
+     "b": [
+      80.0,
+      10.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-67",
+     "a": [
+      80.0,
+      0.0
+     ],
+     "b": [
+      80.0,
+      5.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-68",
+     "a": [
+      80.0,
+      25.0
+     ],
+     "b": [
+      95.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-69",
+     "a": [
+      95.0,
+      25.0
+     ],
+     "b": [
+      95.0,
+      55.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-70",
+     "a": [
+      90.0,
+      55.0
+     ],
+     "b": [
+      95.0,
+      55.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-71",
+     "a": [
+      85.0,
+      55.0
+     ],
+     "b": [
+      90.0,
+      55.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-72",
+     "a": [
+      80.0,
+      55.0
+     ],
+     "b": [
+      85.0,
+      55.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-x-0",
+     "a": [
+      15,
+      5
+     ],
+     "b": [
+      70,
+      5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-x-1",
+     "a": [
+      15,
+      5
+     ],
+     "b": [
+      15,
+      60
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-x-2",
+     "a": [
+      70,
+      5
+     ],
+     "b": [
+      70,
+      60
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-x-3",
+     "a": [
+      15,
+      60
+     ],
+     "b": [
+      35,
+      60
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-x-4",
+     "a": [
+      45,
+      60
+     ],
+     "b": [
+      70,
+      60
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "sq-tavern-front",
+     "a": [
+      35,
+      60
+     ],
+     "b": [
+      45,
+      60
      ],
      "flags": [
       "door"
      ],
-     "material": "plaster",
-     "open": false
+     "material": "plaster"
     }
    ],
-   "objects": [],
    "lights": [],
+   "objects": [
+    {
+     "id": "L0-tavern-sign",
+     "kind": "signpost",
+     "pos": [
+      40,
+      0,
+      63.0
+     ],
+     "vis": "player",
+     "key": "S1",
+     "label": "The tavern"
+    },
+    {
+     "id": "L0-tavern-roof",
+     "kind": "prism",
+     "pos": [
+      0,
+      0,
+      0
+     ],
+     "vis": "player",
+     "polygon": [
+      [
+       15,
+       5
+      ],
+      [
+       70,
+       5
+      ],
+      [
+       70,
+       60
+      ],
+      [
+       15,
+       60
+      ]
+     ],
+     "dims": {
+      "h": 0.3,
+      "y": 10.1,
+      "color": 4012606
+     },
+     "label": "The tavern (roof)"
+    },
+    {
+     "id": "L0-well",
+     "kind": "well",
+     "pos": [
+      75,
+      0,
+      95
+     ],
+     "vis": "player",
+     "key": "S1"
+    },
+    {
+     "id": "L0-temple",
+     "kind": "temple",
+     "pos": [
+      45,
+      0,
+      136.0
+     ],
+     "vis": "player",
+     "key": "S4",
+     "dims": {
+      "w": 30,
+      "d": 45,
+      "h": 14
+     }
+    },
+    {
+     "id": "L0-hall",
+     "kind": "house",
+     "pos": [
+      150,
+      0,
+      70
+     ],
+     "vis": "player",
+     "key": "S3",
+     "dims": {
+      "w": 35,
+      "d": 25,
+      "h": 12,
+      "stories": 2
+     }
+    },
+    {
+     "id": "L0-hall-sign",
+     "kind": "signpost",
+     "pos": [
+      150,
+      0,
+      86.0
+     ],
+     "vis": "player",
+     "key": "S3",
+     "label": "Town hall"
+    },
+    {
+     "id": "L0-trough-sq",
+     "kind": "trough",
+     "pos": [
+      65,
+      0,
+      102.5
+     ],
+     "vis": "player",
+     "key": "S1"
+    },
+    {
+     "id": "L0-notice",
+     "kind": "signpost",
+     "pos": [
+      27.5,
+      0,
+      112.5
+     ],
+     "vis": "player",
+     "key": "S1"
+    },
+    {
+     "id": "L0-bench0",
+     "kind": "bench",
+     "pos": [
+      87.5,
+      0,
+      105
+     ],
+     "vis": "player",
+     "key": "S1",
+     "dims": {
+      "l": 6
+     }
+    },
+    {
+     "id": "L0-bench1",
+     "kind": "bench",
+     "pos": [
+      62.5,
+      0,
+      85
+     ],
+     "vis": "player",
+     "key": "S1",
+     "dims": {
+      "l": 6
+     }
+    },
+    {
+     "id": "L0-house0",
+     "kind": "house",
+     "pos": [
+      10,
+      0,
+      30
+     ],
+     "vis": "player",
+     "dims": {
+      "w": 25,
+      "d": 20,
+      "h": 13,
+      "stories": 2
+     }
+    },
+    {
+     "id": "L0-house1",
+     "kind": "house",
+     "pos": [
+      10,
+      0,
+      60
+     ],
+     "vis": "player",
+     "dims": {
+      "w": 20,
+      "d": 20,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "L0-house2",
+     "kind": "house",
+     "pos": [
+      150,
+      0,
+      30
+     ],
+     "vis": "player",
+     "dims": {
+      "w": 25,
+      "d": 25,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "L0-house3",
+     "kind": "house",
+     "pos": [
+      150,
+      0,
+      120
+     ],
+     "vis": "player",
+     "dims": {
+      "w": 20,
+      "d": 25,
+      "h": 13,
+      "stories": 2
+     }
+    },
+    {
+     "id": "L0-house4",
+     "kind": "house",
+     "pos": [
+      150,
+      0,
+      150
+     ],
+     "vis": "player",
+     "dims": {
+      "w": 25,
+      "d": 20,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "L0-house5",
+     "kind": "house",
+     "pos": [
+      100,
+      0,
+      135
+     ],
+     "vis": "player",
+     "dims": {
+      "w": 25,
+      "d": 20,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "L0-house6",
+     "kind": "house",
+     "pos": [
+      130,
+      0,
+      140
+     ],
+     "vis": "player",
+     "rotY": 12,
+     "dims": {
+      "w": 20,
+      "d": 20,
+      "h": 13,
+      "stories": 2
+     }
+    },
+    {
+     "id": "L0-house7",
+     "kind": "house",
+     "pos": [
+      10,
+      0,
+      130
+     ],
+     "vis": "player",
+     "dims": {
+      "w": 20,
+      "d": 20,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "L0-house8",
+     "kind": "house",
+     "pos": [
+      40,
+      0,
+      15
+     ],
+     "vis": "player",
+     "dims": {
+      "w": 20,
+      "d": 20,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "L0-house9",
+     "kind": "house",
+     "pos": [
+      45,
+      0,
+      45
+     ],
+     "vis": "player",
+     "dims": {
+      "w": 20,
+      "d": 22,
+      "h": 13,
+      "stories": 2
+     }
+    },
+    {
+     "id": "L0-house10",
+     "kind": "house",
+     "pos": [
+      120,
+      0,
+      10
+     ],
+     "vis": "player",
+     "dims": {
+      "w": 20,
+      "d": 20,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "L0-house11",
+     "kind": "house",
+     "pos": [
+      125,
+      0,
+      45
+     ],
+     "vis": "player",
+     "dims": {
+      "w": 20,
+      "d": 20,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "L0-tree0",
+     "kind": "oak",
+     "pos": [
+      5,
+      0,
+      5
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 1.1,
+      "h": 22,
+      "canopy": 8
+     }
+    },
+    {
+     "id": "L0-tree1",
+     "kind": "oak",
+     "pos": [
+      170,
+      0,
+      5
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 1.1,
+      "h": 22,
+      "canopy": 8
+     }
+    },
+    {
+     "id": "L0-tree2",
+     "kind": "oak",
+     "pos": [
+      170,
+      0,
+      165
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 1.1,
+      "h": 22,
+      "canopy": 8
+     }
+    },
+    {
+     "id": "L0-tree3",
+     "kind": "oak",
+     "pos": [
+      5,
+      0,
+      165
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 1.1,
+      "h": 22,
+      "canopy": 8
+     }
+    },
+    {
+     "id": "L0-tree4",
+     "kind": "oak",
+     "pos": [
+      90,
+      0,
+      165
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 1.1,
+      "h": 22,
+      "canopy": 8
+     }
+    },
+    {
+     "id": "L0-tree5",
+     "kind": "oak",
+     "pos": [
+      40,
+      0,
+      165
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 1.1,
+      "h": 22,
+      "canopy": 8
+     }
+    },
+    {
+     "id": "L0-sq-trough0",
+     "kind": "trough",
+     "pos": [
+      93.0,
+      0,
+      30
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "S6"
+    },
+    {
+     "id": "L0-sq-hay0",
+     "kind": "hay",
+     "pos": [
+      84.0,
+      0,
+      32.5
+     ],
+     "vis": "player",
+     "key": "S6"
+    },
+    {
+     "id": "L0-sq-horse0",
+     "kind": "horse",
+     "pos": [
+      88.0,
+      0,
+      30
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "S6",
+     "label": "Horse",
+     "size": "large"
+    },
+    {
+     "id": "L0-sq-trough1",
+     "kind": "trough",
+     "pos": [
+      93.0,
+      0,
+      40
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "S6"
+    },
+    {
+     "id": "L0-sq-hay1",
+     "kind": "hay",
+     "pos": [
+      84.0,
+      0,
+      42.5
+     ],
+     "vis": "player",
+     "key": "S6"
+    },
+    {
+     "id": "L0-sq-horse1",
+     "kind": "horse",
+     "pos": [
+      88.0,
+      0,
+      40
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "S6",
+     "label": "Horse",
+     "size": "large"
+    },
+    {
+     "id": "L0-sq-trough2",
+     "kind": "trough",
+     "pos": [
+      93.0,
+      0,
+      50
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "S6"
+    },
+    {
+     "id": "L0-sq-hay2",
+     "kind": "hay",
+     "pos": [
+      84.0,
+      0,
+      52.5
+     ],
+     "vis": "player",
+     "key": "S6"
+    },
+    {
+     "id": "L0-sq-cart",
+     "kind": "wagon",
+     "pos": [
+      87.5,
+      0,
+      11.0
+     ],
+     "vis": "player",
+     "rotY": 20,
+     "key": "S5"
+    },
+    {
+     "id": "L0-sq-yard-well",
+     "kind": "well",
+     "pos": [
+      76.0,
+      0,
+      48.0
+     ],
+     "vis": "player",
+     "key": "S5"
+    },
+    {
+     "id": "L0-sheep-1",
+     "kind": "sheep",
+     "pos": [
+      72.0,
+      0,
+      91.0
+     ],
+     "vis": "hidden-creature",
+     "key": "S1",
+     "label": "Finethir Shinebright (polymorphed sheep)",
+     "size": "small",
+     "dims": {
+      "scroll": 1
+     }
+    },
+    {
+     "id": "L0-guz",
+     "kind": "commoner",
+     "pos": [
+      40,
+      0,
+      95
+     ],
+     "vis": "hidden-creature",
+     "key": "S2",
+     "label": "Guz (half-orc mercenary)"
+    },
+    {
+     "id": "L0-wolf0",
+     "kind": "wolf",
+     "pos": [
+      32.5,
+      0,
+      90
+     ],
+     "vis": "hidden-creature",
+     "key": "S2",
+     "label": "Collared wolf 1 (polymorphed henchman)"
+    },
+    {
+     "id": "L0-wolf1",
+     "kind": "wolf",
+     "pos": [
+      32.5,
+      0,
+      100
+     ],
+     "vis": "hidden-creature",
+     "key": "S2",
+     "label": "Collared wolf 2 (polymorphed henchman)"
+    },
+    {
+     "id": "L0-wolf2",
+     "kind": "wolf",
+     "pos": [
+      25,
+      0,
+      95
+     ],
+     "vis": "hidden-creature",
+     "key": "S2",
+     "label": "Collared wolf 3 (polymorphed henchman)"
+    },
+    {
+     "id": "L0-bear",
+     "kind": "commoner",
+     "pos": [
+      15,
+      0,
+      95
+     ],
+     "vis": "hidden-creature",
+     "key": "S2",
+     "label": "Brown bear (polymorphed henchman)",
+     "size": "large"
+    },
+    {
+     "id": "L0-spawn",
+     "kind": "spawn",
+     "pos": [
+      50,
+      0,
+      67.5
+     ],
+     "vis": "dm-note",
+     "key": "S1",
+     "label": "Party spawn: outside the tavern door"
+    },
+    {
+     "id": "L0-pop",
+     "kind": "note",
+     "pos": [
+      75,
+      0,
+      75
+     ],
+     "vis": "dm-note",
+     "key": "S1",
+     "label": "A town of about fifty: the tavern, the temple, the town hall, a dozen houses. The well is the meeting place."
+    }
+   ],
    "terrain": [
     {
      "polygon": [
       [
-       60.0,
-       60.0
+       -10,
+       -10
       ],
       [
-       90.0,
-       60.0
+       180,
+       -10
       ],
       [
-       90.0,
-       80.0
+       180,
+       170
       ],
       [
-       60.0,
-       80.0
+       -10,
+       170
       ]
      ],
-     "floor": "flagstone"
-    },
-    {
-     "polygon": [
-      [
-       30.0,
-       60.0
-      ],
-      [
-       60.0,
-       60.0
-      ],
-      [
-       60.0,
-       80.0
-      ],
-      [
-       30.0,
-       80.0
-      ]
-     ],
-     "floor": "flagstone"
-    },
-    {
-     "polygon": [
-      [
-       0.0,
-       60.0
-      ],
-      [
-       30.0,
-       60.0
-      ],
-      [
-       30.0,
-       80.0
-      ],
-      [
-       0.0,
-       80.0
-      ]
-     ],
-     "floor": "flagstone"
-    },
-    {
-     "polygon": [
-      [
-       70.0,
-       0.0
-      ],
-      [
-       90.0,
-       0.0
-      ],
-      [
-       90.0,
-       40.0
-      ],
-      [
-       70.0,
-       40.0
-      ]
-     ],
-     "floor": "flagstone"
-    },
-    {
-     "polygon": [
-      [
-       0.0,
-       0.0
-      ],
-      [
-       30.0,
-       0.0
-      ],
-      [
-       30.0,
-       40.0
-      ],
-      [
-       0.0,
-       40.0
-      ]
-     ],
-     "floor": "flagstone"
-    },
-    {
-     "polygon": [
-      [
-       30.0,
-       0.0
-      ],
-      [
-       60.0,
-       0.0
-      ],
-      [
-       60.0,
-       40.0
-      ],
-      [
-       30.0,
-       40.0
-      ]
-     ],
-     "floor": "plank"
-    },
-    {
-     "polygon": [
-      [
-       0.0,
-       0.0
-      ],
-      [
-       90.0,
-       0.0
-      ],
-      [
-       90.0,
-       80.0
-      ],
-      [
-       0.0,
-       80.0
-      ]
-     ],
-     "floor": "dirt"
+     "floor": "grass"
     }
    ]
   }

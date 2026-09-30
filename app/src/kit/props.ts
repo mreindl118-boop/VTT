@@ -470,3 +470,38 @@ export function oak(d: Dims): THREE.Group {
   return g;
 }
 Object.assign(PROPS_V1, { 'stairs-run': stairsRun, 'post-round': postRound, oak } as Record<string, (d: Dims) => THREE.Object3D>);
+
+// ---------------------------------------------------------------- kit v5: inn and town pieces
+/** A rack of big barrels lying on their sides, stacked in a pyramid against a wall (ale, wine, cider). */
+export function caskRack(d: Dims): THREE.Group {
+  const n = d.n ?? 3, r = 1.05, g = g_(box(n * 2.3, 0.35, 2.6, PALETTE.woodDark, 0, 0.18, 0));
+  for (let row = 0; row < 2; row++) for (let i = 0; i < n - row; i++) {
+    const c = new THREE.Mesh(new THREE.CylinderGeometry(r, r, 2.6, 12), mat(row ? '#6b4b30' : PALETTE.wood)); c.rotation.x = Math.PI / 2;
+    c.position.set(-((n - row - 1) * 2.3) / 2 + i * 2.3, 0.35 + r + row * r * 1.72, 0); g.add(c);
+    for (const z of [-0.9, 0.9]) { const ring = new THREE.Mesh(new THREE.TorusGeometry(r + 0.03, 0.06, 6, 16), mat(PALETTE.iron)); ring.position.copy(c.position); ring.position.z += z; g.add(ring); }
+    if (row === 0 && i === 0) g.add(box(0.35, 0.35, 0.5, PALETTE.iron, c.position.x, c.position.y - 0.5, 1.45));
+  }
+  return g;
+}
+/** A heap of hay. */
+export function hay(): THREE.Group { const m = new THREE.Mesh(new THREE.IcosahedronGeometry(1.6, 1), mat('#c9b25a')); m.scale.set(1.3, 0.65, 1); m.position.y = 1; return g_(m); }
+/** Feed trough for a stall. */
+export function trough(): THREE.Group { return g_(box(3.2, 1.2, 1.2, PALETTE.woodDark, 0, 0.6, 0), box(2.8, 0.3, 0.8, '#b89b52', 0, 1.15, 0)); }
+/** A round table for a whole party, with a plank top on a pedestal. */
+export function tableRound(d: Dims): THREE.Group { const r = d.r ?? 3.5; return g_(cyl(r, r, 0.25, PALETTE.wood, 0, 2.5, 0, 16), cyl(0.35, 0.5, 2.4, PALETTE.woodDark, 0, 1.2, 0, 8), cyl(1.4, 1.5, 0.2, PALETTE.woodDark, 0, 0.1, 0, 10)); }
+/** Tankards and a jug along a bar top. */
+export function barTop(d: Dims): THREE.Group { const w = d.w ?? 20, y = d.y ?? 3.5, g = g_(); for (let i = 0; i < Math.floor(w / 4); i++) g.add(cyl(0.22, 0.18, 0.5, '#8a5a3a', -w / 2 + 2 + i * 4, y + 0.25, 0, 8)); g.add(cyl(0.35, 0.45, 0.9, '#8a5a3a', w / 2 - 2, y + 0.45, 0, 10)); return g; }
+/** A small country temple: stone hall, gabled roof, a squat bell tower with a bell. */
+export function temple(d: Dims): THREE.Group {
+  const w = d.w ?? 30, dd = d.d ?? 45, h = d.h ?? 14;
+  const g = g_(box(w, h, dd, '#9a948a', 0, h / 2, 0));
+  const shape = new THREE.Shape([new THREE.Vector2(-w / 2 - 1, 0), new THREE.Vector2(w / 2 + 1, 0), new THREE.Vector2(0, w * 0.5)]);
+  const prism = new THREE.ExtrudeGeometry(shape, { depth: dd + 2, bevelEnabled: false }); prism.translate(0, 0, -(dd + 2) / 2);
+  const roof = new THREE.Mesh(prism, mat('#4a4550')); roof.position.y = h; g.add(roof);
+  g.add(box(9, h + 12, 9, '#8f8980', 0, (h + 12) / 2, -dd / 2 + 6), box(11, 1.2, 11, '#4a4550', 0, h + 12.5, -dd / 2 + 6));
+  const bell = new THREE.Mesh(new THREE.ConeGeometry(1.2, 2, 10), mat(PALETTE.amberDeep)); bell.position.set(0, h + 9, -dd / 2 + 6); g.add(bell);
+  for (const x of [-w / 2 - 0.2, w / 2 + 0.2]) for (let i = 0; i < 3; i++) g.add(box(0.3, 6, 2.2, '#2a2a3a', x, h * 0.55, -dd / 4 + i * dd / 4));
+  g.add(box(6, 9, 0.6, '#3b2a1e', 0, 4.5, dd / 2 + 0.3));
+  return g;
+}
+Object.assign(PROPS_V1, { 'cask-rack': caskRack, hay, trough, 'table-round': tableRound, 'bar-top': barTop, temple } as Record<string, (d: Dims) => THREE.Object3D>);

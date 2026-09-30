@@ -205,3 +205,23 @@
   with the route's five stops as pins.
 - New kit pieces: `stairs-run` (any bearing), `prism` (polygon-shaped block), `oak`, `post-round`. World-map
   terrain density scales with the map; one label per named tract; the outdoor ground apron is a full disc.
+
+## M2.4 Sheep Chase town, painted world maps, themes — 2026-09-30
+
+- The tavern (`scripts/authoring/wsc-town.py`, shared helpers in `authorlib.py`): a 60 × 50 ft inn with a
+  round table for six under the chandelier, the bar along the north side under a mezzanine with casks racked
+  in the wall, an innkeeper's office with a strongbox, kitchen and store, stairs to a gallery, a railed landing
+  and three inn rooms; a yard with a well and cart, and stables with three stalls and two horses.
+- The town square replaces the street: a cobbled square around the well for a town of fifty, the tavern
+  (same footprint, front door in the same place), a temple with a bell tower, the town hall, a dozen houses,
+  the stables; Guz, his wolves and the bear placed for the DM. New kit: cask rack, hay, trough, round table,
+  bar top, temple, sheep.
+- Campaign themes: A Wild Sheep Chase is pastoral (light sky, green ground, thin fog, bright daylight);
+  Curse of Strahd stays gothic. Backdrops, page gradient, fog and lights follow the theme.
+- Noke's tower is a stacked site: every platform below the current one stays visible so the treehouse reads
+  as one, framing takes the whole site, and its backdrop is a deeper wooded valley with taller ridges.
+- World maps are painted: textured ground, forests of tree symbols with shadows, shaded hills and snow-capped
+  mountains, lakes with banks and ripples, cased roads and dashed paths, town, castle, camp and ruin
+  symbols, serif place names, a key panel listing every place (click to centre), a hex grid at the map's own
+  scale (¼ mile in Barovia, 1 mile round the town), a scale bar that follows the zoom, and a compass.
+- Camera: more glide (lower damping), gentler zoom steps, and a zoom-out limit that grows with the map.

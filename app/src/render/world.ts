@@ -1,5 +1,6 @@
 // Renderer, camera, controls, CSS labels. Renders on demand (battery on iPad).
 import * as THREE from 'three';
+import type { Theme } from '../campaigns';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { CSS2DObject, CSS2DRenderer } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
 
@@ -50,7 +51,7 @@ export class World {
 
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     this.controls.enableDamping = true;
-    this.controls.dampingFactor = 0.18;
+    this.controls.dampingFactor = 0.1; // more glide, less snap
     // Tabletop rig: the tilt stays in a comfortable band; yaw turns in 90° steps from the buttons, not by gesture.
     this.controls.minPolarAngle = Math.PI * 0.05;
     this.controls.maxPolarAngle = Math.PI * 0.4;
@@ -87,7 +88,19 @@ export class World {
   outdoor = false;
   /** Outdoors the camera may drop lower toward the horizon. */
   /** Fog density: thinner outdoors, where maps are hundreds of feet across. */
-  get fogDensity(): number { return this.outdoor ? 0.0011 : 0.0032; }
+  theme: Theme = { id: 'gothic', mist: '#2b2733', page0: '#3a3242', page1: '#1e1a24', skyLight: '#c8ccd8', groundLight: '#3a3138', hemi: 1.6, key: 1.1, keyColor: '#f0e2c8', fogOut: 0.0011, fogIn: 0.0032, apron: '#2e3a31', forest: ['#1d3325', '#243c2c'] };
+  get fogDensity(): number { return this.outdoor ? this.theme.fogOut : this.theme.fogIn; }
+  /** A campaign's look: mist colour, page gradient, light colours and strengths. */
+  setTheme(t: Theme): void {
+    this.theme = t;
+    if (this.scene.fog instanceof THREE.FogExp2) { this.scene.fog.color.set(t.mist); this.scene.fog.density = this.fogDensity; }
+    (this.mistFloor.material as THREE.MeshBasicMaterial).color.set(t.mist);
+    this.hemi.color.set(t.skyLight); this.hemi.groundColor.set(t.groundLight); this.key.color.set(t.keyColor);
+    this.baseHemi = t.hemi; this.baseKey = t.key; this.setWorkLight(this.workK);
+    this.host.style.setProperty('--page0', t.page0); this.host.style.setProperty('--page1', t.page1);
+    this.invalidate();
+  }
+  private baseHemi = 1.6; private baseKey = 1.1; private workK = 0;
   setOutdoor(on: boolean): void {
     this.outdoor = on; this.controls.maxPolarAngle = Math.PI * (on ? 0.46 : 0.4);
     if (this.scene.fog instanceof THREE.FogExp2) this.scene.fog.density = this.fogDensity;
@@ -162,8 +175,9 @@ export class World {
 
   /** DM work light: lifts the scene so the DM can read unlit rooms; players keep the true darkness. */
   setWorkLight(k: number): void {
-    this.hemi.intensity = 1.6 + 1.8 * k;
-    this.key.intensity = 1.1 + 0.6 * k;
+    this.workK = k;
+    this.hemi.intensity = this.baseHemi + 1.8 * k;
+    this.key.intensity = this.baseKey + 0.6 * k;
     this.invalidate();
   }
 

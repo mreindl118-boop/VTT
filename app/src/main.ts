@@ -109,8 +109,8 @@ function buildDmUi(): void {
       case 'rotL': app.world.rotate(1); break;
       case 'rotR': app.world.rotate(-1); break;
       case 'tilt': app.camPreset = app.camPreset === 'top' ? 'tabletop' : 'top'; app.world.setTilt(app.camPreset === 'top'); break;
-      case 'zoomIn': app.world.zoomBy(0.7); break;
-      case 'zoomOut': app.world.zoomBy(1.4); break;
+      case 'zoomIn': app.world.zoomBy(0.78); break;
+      case 'zoomOut': app.world.zoomBy(1.28); break;
       case 'party': app.findParty(); break;
       case 'follow': app.follow = !app.follow; break;
       case 'help': showHelp(); break;

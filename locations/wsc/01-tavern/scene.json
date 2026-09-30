@@ -4,260 +4,288 @@
  "chapter": "wsc",
  "name": "The Tavern",
  "bookScaleFt": 5,
- "ambient": "interior-dim",
+ "ambient": "barovian-overcast",
  "levels": [
   {
    "id": "L0",
-   "name": "The tavern, ground floor",
-   "elevationFt": 0.0,
+   "name": "Ground floor",
+   "elevationFt": 0,
    "ceilingFt": 10,
+   "ambient": "interior-dim",
+   "north": "-z",
    "rooms": [
     {
-     "key": "L0-1",
-     "name": "Plank floor",
+     "key": "T1",
+     "name": "Common Room",
+     "page": null,
      "polygon": [
       [
-       5.0,
-       5.0
+       5,
+       20
       ],
       [
-       35.0,
-       5.0
+       45,
+       20
       ],
       [
-       35.0,
-       45.0
+       45,
+       40
       ],
       [
-       5.0,
-       45.0
+       60,
+       40
+      ],
+      [
+       60,
+       60
+      ],
+      [
+       5,
+       60
       ]
      ],
      "floor": "plank",
-     "desc": "Baaaa-d News",
-     "dm": "The party is at their table when a sheep bursts in through the front door carrying a scroll: it is the wizard Finethir Shinebright, polymorphed. Moments later the 'shepherds' arrive. Creatures: Finethir Shinebright (sheep)."
+     "desc": "A big common room: a round table for six under the chandelier, smaller tables by the walls, a hearth at the west end and the bar along the north side under the mezzanine.",
+     "dm": "Baaaa-d News: the sheep bursts in through the front door with a scroll; the 'shepherds' follow. The stairs by the east wall go up to the gallery."
     },
     {
-     "key": "L0-2",
-     "name": "Cobbles",
+     "key": "T2",
+     "name": "Bar",
+     "page": null,
      "polygon": [
       [
-       0.0,
-       0.0
+       20,
+       5
       ],
       [
-       40.0,
-       0.0
+       45,
+       5
       ],
       [
-       40.0,
-       50.0
+       45,
+       20
       ],
       [
-       0.0,
-       50.0
+       20,
+       20
       ]
      ],
-     "floor": "cobble"
+     "floor": "plank",
+     "desc": "Behind the counter: big casks of ale and wine racked in the wall, a spigot barrel, shelves of bottles.",
+     "dm": "The flap is at the east end of the counter. A door leads to the innkeeper's office, another to the kitchen."
+    },
+    {
+     "key": "T3",
+     "name": "Innkeeper's Office",
+     "page": null,
+     "polygon": [
+      [
+       5,
+       5
+      ],
+      [
+       20,
+       5
+      ],
+      [
+       20,
+       20
+      ],
+      [
+       5,
+       20
+      ]
+     ],
+     "floor": "plank",
+     "desc": "The innkeeper's office: a desk and ledger, a cabinet, a strongbox.",
+     "dm": "The strongbox holds the week's takings."
+    },
+    {
+     "key": "T4",
+     "name": "Kitchen",
+     "page": null,
+     "polygon": [
+      [
+       45,
+       5
+      ],
+      [
+       60,
+       5
+      ],
+      [
+       60,
+       25
+      ],
+      [
+       45,
+       25
+      ]
+     ],
+     "floor": "flagstone",
+     "desc": "A kitchen with a domed oven, a worktable under hanging pots, and a back door to the yard."
+    },
+    {
+     "key": "T5",
+     "name": "Storeroom",
+     "page": null,
+     "polygon": [
+      [
+       45,
+       25
+      ],
+      [
+       60,
+       25
+      ],
+      [
+       60,
+       40
+      ],
+      [
+       45,
+       40
+      ]
+     ],
+     "floor": "flagstone",
+     "desc": "A storeroom of sacks and casks."
+    },
+    {
+     "key": "T6",
+     "name": "Stables",
+     "page": null,
+     "polygon": [
+      [
+       70,
+       25
+      ],
+      [
+       85,
+       25
+      ],
+      [
+       85,
+       55
+      ],
+      [
+       70,
+       55
+      ]
+     ],
+     "floor": "dirt",
+     "desc": "Stables with three stalls, hay and troughs; two horses.",
+     "dm": "A place to hide the sheep, or for the wolves to sniff it out."
+    },
+    {
+     "key": "T7",
+     "name": "Yard",
+     "page": null,
+     "polygon": [
+      [
+       60,
+       0
+      ],
+      [
+       90,
+       0
+      ],
+      [
+       90,
+       65
+      ],
+      [
+       60,
+       65
+      ],
+      [
+       60,
+       60
+      ],
+      [
+       70,
+       60
+      ],
+      [
+       70,
+       55
+      ],
+      [
+       85,
+       55
+      ],
+      [
+       85,
+       25
+      ],
+      [
+       70,
+       25
+      ],
+      [
+       70,
+       20
+      ],
+      [
+       60,
+       20
+      ]
+     ],
+     "floor": "dirt",
+     "desc": "The yard: a cart, a well, a woodpile."
     }
    ],
    "walls": [
     {
-     "id": "01-tavern-L0-w1",
+     "id": "L0-w-0",
      "a": [
       5.0,
-      5.5
+      20.0
      ],
      "b": [
-      35.0,
-      5.5
+      20.0,
+      20.0
      ],
      "flags": [
       "normal"
      ],
-     "material": "plaster",
-     "heightFt": 10.0
+     "material": "paneling"
     },
     {
-     "id": "01-tavern-L0-w2",
+     "id": "L0-w-1",
      "a": [
-      34.501,
-      5.0
+      20.0,
+      20.0
      ],
      "b": [
-      34.499,
-      11.0
+      25.0,
+      20.0
      ],
      "flags": [
       "normal"
      ],
-     "material": "plaster",
-     "heightFt": 10.0
+     "material": "paneling",
+     "heightFt": 3.5
     },
     {
-     "id": "01-tavern-L0-w3",
-     "a": [
-      34.502,
-      14.0
-     ],
-     "b": [
-      34.498,
-      36.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster",
-     "heightFt": 10.0
-    },
-    {
-     "id": "01-tavern-L0-w4",
-     "a": [
-      34.501,
-      39.0
-     ],
-     "b": [
-      34.499,
-      45.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster",
-     "heightFt": 10.0
-    },
-    {
-     "id": "01-tavern-L0-w5",
-     "a": [
-      35.0,
-      44.503
-     ],
-     "b": [
-      22.5,
-      44.497
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster",
-     "heightFt": 10.0
-    },
-    {
-     "id": "01-tavern-L0-w6",
-     "a": [
-      17.5,
-      44.501
-     ],
-     "b": [
-      11.5,
-      44.499
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster",
-     "heightFt": 10.0
-    },
-    {
-     "id": "01-tavern-L0-w7",
-     "a": [
-      8.5,
-      44.501
-     ],
-     "b": [
-      5.0,
-      44.499
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster",
-     "heightFt": 10.0
-    },
-    {
-     "id": "01-tavern-L0-w8",
-     "a": [
-      5.501,
-      45.0
-     ],
-     "b": [
-      5.499,
-      31.5
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster",
-     "heightFt": 10.0
-    },
-    {
-     "id": "01-tavern-L0-w9",
-     "a": [
-      5.501,
-      28.5
-     ],
-     "b": [
-      5.499,
-      16.5
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster",
-     "heightFt": 10.0
-    },
-    {
-     "id": "01-tavern-L0-w10",
-     "a": [
-      5.501,
-      13.5
-     ],
-     "b": [
-      5.499,
-      5.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster",
-     "heightFt": 10.0
-    },
-    {
-     "id": "01-tavern-L0-w11",
-     "a": [
-      25.001,
-      5.0
-     ],
-     "b": [
-      24.999,
-      16.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster",
-     "heightFt": 10.0
-    },
-    {
-     "id": "01-tavern-L0-w12",
-     "a": [
-      25.001,
-      19.0
-     ],
-     "b": [
-      24.999,
-      30.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster",
-     "heightFt": 10.0
-    },
-    {
-     "id": "01-tavern-L0-w13",
+     "id": "L0-w-2",
      "a": [
       25.0,
+      20.0
+     ],
+     "b": [
+      30.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling",
+     "heightFt": 3.5
+    },
+    {
+     "id": "L0-w-3",
+     "a": [
+      30.0,
       20.0
      ],
      "b": [
@@ -267,114 +295,548 @@
      "flags": [
       "normal"
      ],
-     "material": "plaster",
-     "heightFt": 10.0
+     "material": "paneling",
+     "heightFt": 3.5
     },
     {
-     "id": "01-tavern-L0-w14",
+     "id": "L0-w-4",
      "a": [
-      25.0,
-      30.0
+      35.0,
+      20.0
      ],
      "b": [
-      28.5,
+      40.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling",
+     "heightFt": 3.5
+    },
+    {
+     "id": "L0-w-5",
+     "a": [
+      45.0,
+      25.0
+     ],
+     "b": [
+      45.0,
       30.0
      ],
      "flags": [
       "normal"
      ],
-     "material": "plaster",
-     "heightFt": 10.0
+     "material": "paneling"
     },
     {
-     "id": "01-tavern-L0-w15",
+     "id": "store-door",
      "a": [
-      31.5,
+      45.0,
       30.0
+     ],
+     "b": [
+      45.0,
+      35.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "paneling",
+     "open": false
+    },
+    {
+     "id": "L0-w-7",
+     "a": [
+      45.0,
+      35.0
+     ],
+     "b": [
+      45.0,
+      40.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "L0-w-8",
+     "a": [
+      45.0,
+      40.0
+     ],
+     "b": [
+      60.0,
+      40.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "L0-w-9",
+     "a": [
+      60.0,
+      40.0
+     ],
+     "b": [
+      60.0,
+      55.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-10",
+     "a": [
+      55.0,
+      60.0
+     ],
+     "b": [
+      60.0,
+      60.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-11",
+     "a": [
+      50.0,
+      60.0
+     ],
+     "b": [
+      55.0,
+      60.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-12",
+     "a": [
+      45.0,
+      60.0
+     ],
+     "b": [
+      50.0,
+      60.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-13",
+     "a": [
+      40.0,
+      60.0
+     ],
+     "b": [
+      45.0,
+      60.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-14",
+     "a": [
+      35.0,
+      60.0
+     ],
+     "b": [
+      40.0,
+      60.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "tavern-front",
+     "a": [
+      25.0,
+      60.0
      ],
      "b": [
       35.0,
+      60.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "plaster",
+     "open": false
+    },
+    {
+     "id": "L0-w-16",
+     "a": [
+      20.0,
+      60.0
+     ],
+     "b": [
+      25.0,
+      60.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-17",
+     "a": [
+      15.0,
+      60.0
+     ],
+     "b": [
+      20.0,
+      60.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-18",
+     "a": [
+      10.0,
+      60.0
+     ],
+     "b": [
+      15.0,
+      60.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-19",
+     "a": [
+      5.0,
+      60.0
+     ],
+     "b": [
+      10.0,
+      60.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-20",
+     "a": [
+      5.0,
+      55.0
+     ],
+     "b": [
+      5.0,
+      60.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-21",
+     "a": [
+      5.0,
+      50.0
+     ],
+     "b": [
+      5.0,
+      55.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-22",
+     "a": [
+      5.0,
+      45.0
+     ],
+     "b": [
+      5.0,
+      50.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-23",
+     "a": [
+      5.0,
+      40.0
+     ],
+     "b": [
+      5.0,
+      45.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-24",
+     "a": [
+      5.0,
+      35.0
+     ],
+     "b": [
+      5.0,
+      40.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-25",
+     "a": [
+      5.0,
+      30.0
+     ],
+     "b": [
+      5.0,
+      35.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-26",
+     "a": [
+      5.0,
+      25.0
+     ],
+     "b": [
+      5.0,
       30.0
      ],
      "flags": [
       "normal"
      ],
-     "material": "plaster",
-     "heightFt": 10.0
+     "material": "plaster"
     },
     {
-     "id": "01-tavern-L0-w16",
+     "id": "L0-w-27",
      "a": [
-      25.001,
-      30.0
+      5.0,
+      20.0
      ],
      "b": [
-      24.999,
-      42.0
+      5.0,
+      25.0
      ],
      "flags": [
       "normal"
      ],
-     "material": "plaster",
-     "heightFt": 4.0
+     "material": "plaster"
     },
     {
-     "id": "01-tavern-L0-w17",
+     "id": "L0-w-28",
      "a": [
-      12.5,
-      6.75
+      20.0,
+      5.0
      ],
      "b": [
-      17.5,
-      6.75
+      30.0,
+      5.0
      ],
      "flags": [
       "normal"
      ],
-     "material": "plaster",
-     "heightFt": 4.0
+     "material": "plaster"
     },
     {
-     "id": "01-tavern-L0-o1",
+     "id": "L0-w-29",
      "a": [
-      17.5,
-      44.501
+      30.0,
+      5.0
      ],
      "b": [
-      22.5,
-      44.499
+      35.0,
+      5.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-30",
+     "a": [
+      35.0,
+      5.0
+     ],
+     "b": [
+      60.0,
+      5.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-31",
+     "a": [
+      45.0,
+      5.0
+     ],
+     "b": [
+      45.0,
+      10.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "kitchen-door",
+     "a": [
+      45.0,
+      10.0
+     ],
+     "b": [
+      45.0,
+      15.0
      ],
      "flags": [
       "door"
      ],
-     "material": "plaster",
+     "material": "paneling",
      "open": false
     },
     {
-     "id": "01-tavern-L0-o2",
+     "id": "L0-w-33",
      "a": [
-      34.499,
-      39.0
+      45.0,
+      15.0
      ],
      "b": [
-      34.501,
-      36.0
+      45.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "L0-w-34",
+     "a": [
+      20.0,
+      15.0
+     ],
+     "b": [
+      20.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "office-door",
+     "a": [
+      20.0,
+      10.0
+     ],
+     "b": [
+      20.0,
+      15.0
      ],
      "flags": [
       "door"
      ],
-     "material": "plaster",
+     "material": "paneling",
      "open": false
     },
     {
-     "id": "01-tavern-L0-o3",
+     "id": "L0-w-36",
      "a": [
-      8.5,
-      44.501
+      20.0,
+      5.0
      ],
      "b": [
-      11.5,
-      44.499
+      20.0,
+      10.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "L0-w-37",
+     "a": [
+      5.0,
+      5.0
+     ],
+     "b": [
+      20.0,
+      5.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-38",
+     "a": [
+      5.0,
+      15.0
+     ],
+     "b": [
+      5.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-39",
+     "a": [
+      5.0,
+      10.0
+     ],
+     "b": [
+      5.0,
+      15.0
      ],
      "flags": [
       "window"
@@ -382,429 +844,2053 @@
      "material": "plaster"
     },
     {
-     "id": "01-tavern-L0-o4",
+     "id": "L0-w-40",
      "a": [
-      5.5,
-      13.5
+      5.0,
+      5.0
      ],
      "b": [
-      5.5,
-      16.5
+      5.0,
+      10.0
      ],
      "flags": [
-      "window"
+      "normal"
      ],
      "material": "plaster"
     },
     {
-     "id": "01-tavern-L0-o5",
+     "id": "L0-w-41",
      "a": [
-      5.5,
-      28.5
+      60.0,
+      5.0
      ],
      "b": [
-      5.5,
-      31.5
+      60.0,
+      10.0
      ],
      "flags": [
-      "window"
+      "normal"
      ],
-     "material": "plaster"
+     "material": "paneling"
     },
     {
-     "id": "01-tavern-L0-o6",
+     "id": "back-door",
      "a": [
-      34.499,
-      14.0
+      60.0,
+      10.0
      ],
      "b": [
-      34.501,
-      11.0
-     ],
-     "flags": [
-      "window"
-     ],
-     "material": "plaster"
-    },
-    {
-     "id": "01-tavern-L0-o7",
-     "a": [
-      24.999,
-      19.0
-     ],
-     "b": [
-      25.001,
-      16.0
+      60.0,
+      15.0
      ],
      "flags": [
       "door"
      ],
-     "material": "plaster",
+     "material": "paneling",
      "open": false
     },
     {
-     "id": "01-tavern-L0-o8",
+     "id": "L0-w-43",
      "a": [
-      31.5,
+      60.0,
+      15.0
+     ],
+     "b": [
+      60.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "L0-w-44",
+     "a": [
+      55.0,
+      25.0
+     ],
+     "b": [
+      60.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "L0-w-45",
+     "a": [
+      50.0,
+      25.0
+     ],
+     "b": [
+      55.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "L0-w-46",
+     "a": [
+      45.0,
+      25.0
+     ],
+     "b": [
+      50.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "L0-w-47",
+     "a": [
+      60.0,
+      25.0
+     ],
+     "b": [
+      60.0,
+      30.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-48",
+     "a": [
+      60.0,
       30.0
      ],
      "b": [
-      28.5,
-      30.0
+      60.0,
+      35.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-49",
+     "a": [
+      60.0,
+      35.0
+     ],
+     "b": [
+      60.0,
+      40.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-50",
+     "a": [
+      70.0,
+      25.0
+     ],
+     "b": [
+      85.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "L0-w-51",
+     "a": [
+      85.0,
+      25.0
+     ],
+     "b": [
+      85.0,
+      55.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "L0-w-52",
+     "a": [
+      80.0,
+      55.0
+     ],
+     "b": [
+      85.0,
+      55.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "L0-w-53",
+     "a": [
+      75.0,
+      55.0
+     ],
+     "b": [
+      80.0,
+      55.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "L0-w-54",
+     "a": [
+      70.0,
+      55.0
+     ],
+     "b": [
+      75.0,
+      55.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "L0-w-55",
+     "a": [
+      70.0,
+      50.0
+     ],
+     "b": [
+      70.0,
+      60.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-56",
+     "a": [
+      70.0,
+      45.0
+     ],
+     "b": [
+      70.0,
+      50.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "stable-door",
+     "a": [
+      70.0,
+      40.0
+     ],
+     "b": [
+      70.0,
+      45.0
      ],
      "flags": [
       "door"
      ],
      "material": "plaster",
      "open": false
+    },
+    {
+     "id": "L0-w-58",
+     "a": [
+      70.0,
+      35.0
+     ],
+     "b": [
+      70.0,
+      40.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-59",
+     "a": [
+      70.0,
+      30.0
+     ],
+     "b": [
+      70.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-60",
+     "a": [
+      70.0,
+      25.0
+     ],
+     "b": [
+      70.0,
+      30.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-61",
+     "a": [
+      60.0,
+      60.0
+     ],
+     "b": [
+      60.0,
+      65.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-62",
+     "a": [
+      70.0,
+      20.0
+     ],
+     "b": [
+      70.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-63",
+     "a": [
+      65.0,
+      20.0
+     ],
+     "b": [
+      70.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-64",
+     "a": [
+      60.0,
+      20.0
+     ],
+     "b": [
+      65.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L0-w-65",
+     "a": [
+      60.0,
+      0.0
+     ],
+     "b": [
+      60.0,
+      5.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    }
+   ],
+   "lights": [
+    {
+     "id": "L0-l-hearth",
+     "pos": [
+      8.0,
+      3,
+      40
+     ],
+     "preset": "hearth",
+     "bright": 20,
+     "dim": 40
+    },
+    {
+     "id": "L0-l-chandelier",
+     "pos": [
+      27.5,
+      9,
+      40
+     ],
+     "preset": "lamp",
+     "bright": 15,
+     "dim": 30
+    },
+    {
+     "id": "L0-l-bar",
+     "pos": [
+      30,
+      7,
+      12.5
+     ],
+     "preset": "lamp",
+     "bright": 15,
+     "dim": 30
+    },
+    {
+     "id": "L0-l-kitchen",
+     "pos": [
+      52.5,
+      7,
+      12.5
+     ],
+     "preset": "lamp",
+     "bright": 15,
+     "dim": 30
     }
    ],
    "objects": [
     {
-     "id": "01-tavern-stair_L0_L1",
-     "kind": "stairs-run",
+     "id": "L0-party-table",
+     "kind": "table-round",
      "pos": [
       27.5,
       0,
-      19.5
+      40
      ],
      "vis": "player",
-     "rotY": 90.0,
+     "key": "T1",
      "dims": {
-      "len": 14.0,
-      "w": 5.0,
-      "rise": 10.0
-     },
-     "label": "Stairs to L1"
+      "r": 3.6
+     }
+    },
+    {
+     "id": "L0-party-chair0",
+     "kind": "chair",
+     "pos": [
+      32.75,
+      0,
+      40.0
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "T1"
+    },
+    {
+     "id": "L0-party-chair1",
+     "kind": "chair",
+     "pos": [
+      30.125,
+      0,
+      44.547
+     ],
+     "vis": "player",
+     "rotY": 30,
+     "key": "T1"
+    },
+    {
+     "id": "L0-party-chair2",
+     "kind": "chair",
+     "pos": [
+      24.875,
+      0,
+      44.547
+     ],
+     "vis": "player",
+     "rotY": -30,
+     "key": "T1"
+    },
+    {
+     "id": "L0-party-chair3",
+     "kind": "chair",
+     "pos": [
+      22.25,
+      0,
+      40.0
+     ],
+     "vis": "player",
+     "rotY": -90,
+     "key": "T1"
+    },
+    {
+     "id": "L0-party-chair4",
+     "kind": "chair",
+     "pos": [
+      24.875,
+      0,
+      35.453
+     ],
+     "vis": "player",
+     "rotY": -150,
+     "key": "T1"
+    },
+    {
+     "id": "L0-party-chair5",
+     "kind": "chair",
+     "pos": [
+      30.125,
+      0,
+      35.453
+     ],
+     "vis": "player",
+     "rotY": -210,
+     "key": "T1"
+    },
+    {
+     "id": "L0-table-w",
+     "kind": "table",
+     "pos": [
+      12.0,
+      0,
+      30
+     ],
+     "vis": "player",
+     "key": "T1",
+     "dims": {
+      "w": 6,
+      "d": 3
+     }
+    },
+    {
+     "id": "L0-chair-w0",
+     "kind": "chair",
+     "pos": [
+      9.0,
+      0,
+      26.75
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "key": "T1"
+    },
+    {
+     "id": "L0-chair-w1",
+     "kind": "chair",
+     "pos": [
+      15,
+      0,
+      26.75
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "key": "T1"
+    },
+    {
+     "id": "L0-chair-w2",
+     "kind": "chair",
+     "pos": [
+      9.0,
+      0,
+      33.25
+     ],
+     "vis": "player",
+     "key": "T1"
+    },
+    {
+     "id": "L0-chair-w3",
+     "kind": "chair",
+     "pos": [
+      15,
+      0,
+      33.25
+     ],
+     "vis": "player",
+     "key": "T1"
+    },
+    {
+     "id": "L0-table-s",
+     "kind": "table",
+     "pos": [
+      15,
+      0,
+      53.0
+     ],
+     "vis": "player",
+     "key": "T1",
+     "dims": {
+      "w": 6,
+      "d": 3
+     }
+    },
+    {
+     "id": "L0-chair-s0",
+     "kind": "chair",
+     "pos": [
+      12.0,
+      0,
+      49.75
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "key": "T1"
+    },
+    {
+     "id": "L0-chair-s1",
+     "kind": "chair",
+     "pos": [
+      18.0,
+      0,
+      49.75
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "key": "T1"
+    },
+    {
+     "id": "L0-chair-s2",
+     "kind": "chair",
+     "pos": [
+      12.0,
+      0,
+      56.25
+     ],
+     "vis": "player",
+     "key": "T1"
+    },
+    {
+     "id": "L0-chair-s3",
+     "kind": "chair",
+     "pos": [
+      18.0,
+      0,
+      56.25
+     ],
+     "vis": "player",
+     "key": "T1"
+    },
+    {
+     "id": "L0-table-e",
+     "kind": "table",
+     "pos": [
+      42.5,
+      0,
+      53.0
+     ],
+     "vis": "player",
+     "key": "T1",
+     "dims": {
+      "w": 6,
+      "d": 3
+     }
+    },
+    {
+     "id": "L0-chair-e0",
+     "kind": "chair",
+     "pos": [
+      39.5,
+      0,
+      49.75
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "key": "T1"
+    },
+    {
+     "id": "L0-chair-e1",
+     "kind": "chair",
+     "pos": [
+      45.5,
+      0,
+      49.75
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "key": "T1"
+    },
+    {
+     "id": "L0-chair-e2",
+     "kind": "chair",
+     "pos": [
+      39.5,
+      0,
+      56.25
+     ],
+     "vis": "player",
+     "key": "T1"
+    },
+    {
+     "id": "L0-chair-e3",
+     "kind": "chair",
+     "pos": [
+      45.5,
+      0,
+      56.25
+     ],
+     "vis": "player",
+     "key": "T1"
+    },
+    {
+     "id": "L0-bench-e",
+     "kind": "bench",
+     "pos": [
+      54.0,
+      0,
+      45
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "T1",
+     "dims": {
+      "l": 8
+     }
+    },
+    {
+     "id": "L0-hearth",
+     "kind": "fireplace",
+     "pos": [
+      6.25,
+      0,
+      40
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "T1"
+    },
+    {
+     "id": "L0-stag",
+     "kind": "stag-head",
+     "pos": [
+      7.0,
+      0,
+      40
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "T1"
+    },
+    {
+     "id": "L0-bar-top",
+     "kind": "bar-top",
+     "pos": [
+      30,
+      0,
+      20
+     ],
+     "vis": "player",
+     "key": "T1",
+     "dims": {
+      "w": 18,
+      "y": 3.5
+     }
+    },
+    {
+     "id": "L0-stool0",
+     "kind": "chair",
+     "pos": [
+      23.0,
+      0,
+      22.75
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "key": "T1"
+    },
+    {
+     "id": "L0-stool1",
+     "kind": "chair",
+     "pos": [
+      27.5,
+      0,
+      22.75
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "key": "T1"
+    },
+    {
+     "id": "L0-stool2",
+     "kind": "chair",
+     "pos": [
+      32.0,
+      0,
+      22.75
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "key": "T1"
+    },
+    {
+     "id": "L0-stool3",
+     "kind": "chair",
+     "pos": [
+      36.5,
+      0,
+      22.75
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "key": "T1"
+    },
+    {
+     "id": "L0-chandelier",
+     "kind": "chandelier",
+     "pos": [
+      27.5,
+      0,
+      40
+     ],
+     "vis": "player",
+     "key": "T1",
+     "dims": {
+      "y": 9,
+      "brass": 1
+     }
+    },
+    {
+     "id": "L0-lamp0",
+     "kind": "oil-lamp",
+     "pos": [
+      5.75,
+      0,
+      25
+     ],
+     "vis": "player",
+     "key": "T1",
+     "dims": {
+      "y": 7
+     }
+    },
+    {
+     "id": "L0-lamp1",
+     "kind": "oil-lamp",
+     "pos": [
+      5.75,
+      0,
+      55
+     ],
+     "vis": "player",
+     "key": "T1",
+     "dims": {
+      "y": 7
+     }
+    },
+    {
+     "id": "L0-lamp2",
+     "kind": "oil-lamp",
+     "pos": [
+      52.5,
+      0,
+      41.0
+     ],
+     "vis": "player",
+     "key": "T1",
+     "dims": {
+      "y": 7
+     }
+    },
+    {
+     "id": "L0-lamp3",
+     "kind": "oil-lamp",
+     "pos": [
+      59.25,
+      0,
+      55
+     ],
+     "vis": "player",
+     "key": "T1",
+     "dims": {
+      "y": 7
+     }
+    },
+    {
+     "id": "L0-stairs",
+     "kind": "stairs-straight",
+     "pos": [
+      57.5,
+      0,
+      0
+     ],
+     "vis": "player",
+     "key": "T1",
+     "dims": {
+      "w": 5,
+      "rise": 10,
+      "fromZ": 60,
+      "toZ": 45
+     }
+    },
+    {
+     "id": "L0-casks-ale",
+     "kind": "cask-rack",
+     "pos": [
+      26.0,
+      0,
+      7.25
+     ],
+     "vis": "player",
+     "key": "T2",
+     "dims": {
+      "n": 3
+     }
+    },
+    {
+     "id": "L0-casks-wine",
+     "kind": "cask-rack",
+     "pos": [
+      39.5,
+      0,
+      7.25
+     ],
+     "vis": "player",
+     "key": "T2",
+     "dims": {
+      "n": 2
+     }
+    },
+    {
+     "id": "L0-spigot",
+     "kind": "barrel-spigot",
+     "pos": [
+      43.0,
+      0,
+      17.0
+     ],
+     "vis": "player",
+     "key": "T2"
+    },
+    {
+     "id": "L0-shelves-bar",
+     "kind": "shelves",
+     "pos": [
+      20.75,
+      0,
+      13.0
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "T2",
+     "dims": {
+      "w": 4
+     }
+    },
+    {
+     "id": "L0-worktable-bar",
+     "kind": "table",
+     "pos": [
+      32.5,
+      0,
+      13.5
+     ],
+     "vis": "player",
+     "key": "T2",
+     "dims": {
+      "w": 5,
+      "d": 2
+     }
+    },
+    {
+     "id": "L0-desk",
+     "kind": "desk",
+     "pos": [
+      12.0,
+      0,
+      11.0
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "key": "T3"
+    },
+    {
+     "id": "L0-desk-chair",
+     "kind": "chair",
+     "pos": [
+      12.0,
+      0,
+      7.5
+     ],
+     "vis": "player",
+     "key": "T3"
+    },
+    {
+     "id": "L0-strongbox",
+     "kind": "trunk",
+     "pos": [
+      7.5,
+      0,
+      17.5
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "T3"
+    },
+    {
+     "id": "L0-cabinet",
+     "kind": "cabinet",
+     "pos": [
+      18.0,
+      0,
+      6.5
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "key": "T3"
+    },
+    {
+     "id": "L0-ledger-lamp",
+     "kind": "oil-lamp",
+     "pos": [
+      10,
+      0,
+      11.0
+     ],
+     "vis": "player",
+     "key": "T3",
+     "dims": {
+      "y": 3
+     }
+    },
+    {
+     "id": "L0-oven",
+     "kind": "oven",
+     "pos": [
+      51.0,
+      0,
+      7.0
+     ],
+     "vis": "player",
+     "key": "T4"
+    },
+    {
+     "id": "L0-worktable",
+     "kind": "table",
+     "pos": [
+      53.0,
+      0,
+      17.0
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "T4",
+     "dims": {
+      "w": 5,
+      "d": 2.5
+     }
+    },
+    {
+     "id": "L0-pots",
+     "kind": "hanging-pots",
+     "pos": [
+      53.0,
+      0,
+      17.0
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "T4",
+     "dims": {
+      "w": 5
+     }
+    },
+    {
+     "id": "L0-shelves-k",
+     "kind": "shelves",
+     "pos": [
+      59.25,
+      0,
+      8.0
+     ],
+     "vis": "player",
+     "rotY": -90,
+     "key": "T4",
+     "dims": {
+      "w": 4,
+      "food": 1
+     }
+    },
+    {
+     "id": "L0-sacks",
+     "kind": "sacks",
+     "pos": [
+      48.5,
+      0,
+      28.5
+     ],
+     "vis": "player",
+     "key": "T5"
+    },
+    {
+     "id": "L0-casks-store",
+     "kind": "cask-rack",
+     "pos": [
+      55,
+      0,
+      37.5
+     ],
+     "vis": "player",
+     "key": "T5",
+     "dims": {
+      "n": 2
+     }
+    },
+    {
+     "id": "L0-shelves-s",
+     "kind": "shelves",
+     "pos": [
+      59.25,
+      0,
+      30
+     ],
+     "vis": "player",
+     "rotY": -90,
+     "key": "T5",
+     "dims": {
+      "w": 4,
+      "food": 1
+     }
+    },
+    {
+     "id": "L0-trough0",
+     "kind": "trough",
+     "pos": [
+      83.0,
+      0,
+      30
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "T6"
+    },
+    {
+     "id": "L0-hay0",
+     "kind": "hay",
+     "pos": [
+      74.0,
+      0,
+      32.5
+     ],
+     "vis": "player",
+     "key": "T6"
+    },
+    {
+     "id": "L0-horse0",
+     "kind": "horse",
+     "pos": [
+      78.0,
+      0,
+      30
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "T6",
+     "label": "Horse",
+     "size": "large"
+    },
+    {
+     "id": "L0-trough1",
+     "kind": "trough",
+     "pos": [
+      83.0,
+      0,
+      40
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "T6"
+    },
+    {
+     "id": "L0-hay1",
+     "kind": "hay",
+     "pos": [
+      74.0,
+      0,
+      42.5
+     ],
+     "vis": "player",
+     "key": "T6"
+    },
+    {
+     "id": "L0-horse1",
+     "kind": "horse",
+     "pos": [
+      78.0,
+      0,
+      40
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "T6",
+     "label": "Horse",
+     "size": "large"
+    },
+    {
+     "id": "L0-trough2",
+     "kind": "trough",
+     "pos": [
+      83.0,
+      0,
+      50
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "T6"
+    },
+    {
+     "id": "L0-hay2",
+     "kind": "hay",
+     "pos": [
+      74.0,
+      0,
+      52.5
+     ],
+     "vis": "player",
+     "key": "T6"
+    },
+    {
+     "id": "L0-cart",
+     "kind": "wagon",
+     "pos": [
+      77.5,
+      0,
+      11.0
+     ],
+     "vis": "player",
+     "rotY": 20,
+     "key": "T7"
+    },
+    {
+     "id": "L0-yard-well",
+     "kind": "well",
+     "pos": [
+      66.0,
+      0,
+      48.0
+     ],
+     "vis": "player",
+     "key": "T7"
+    },
+    {
+     "id": "L0-woodpile",
+     "kind": "rubble",
+     "pos": [
+      63.0,
+      0,
+      6.0
+     ],
+     "vis": "player",
+     "key": "T7"
+    },
+    {
+     "id": "L0-spawn",
+     "kind": "spawn",
+     "pos": [
+      27.5,
+      0,
+      46.5
+     ],
+     "vis": "dm-note",
+     "key": "T1",
+     "label": "Party spawn: the party table"
     }
    ],
-   "lights": []
+   "terrain": [
+    {
+     "polygon": [
+      [
+       -5,
+       60
+      ],
+      [
+       90,
+       60
+      ],
+      [
+       90,
+       70
+      ],
+      [
+       -5,
+       70
+      ]
+     ],
+     "floor": "cobble"
+    },
+    {
+     "polygon": [
+      [
+       -10,
+       -5
+      ],
+      [
+       95,
+       -5
+      ],
+      [
+       95,
+       75
+      ],
+      [
+       -10,
+       75
+      ]
+     ],
+     "floor": "grass"
+    }
+   ]
   },
   {
    "id": "L1",
-   "name": "The tavern, upper floor",
-   "elevationFt": 10.0,
+   "name": "Upper floor",
+   "elevationFt": 10,
    "ceilingFt": 8,
+   "ambient": "interior-dim",
+   "north": "-z",
    "rooms": [
     {
-     "key": "L1-1",
-     "name": "Plank floor",
+     "key": "U1",
+     "name": "Mezzanine",
+     "page": null,
      "polygon": [
       [
-       5.0,
-       5.0
+       20,
+       5
       ],
       [
-       35.0,
-       5.0
+       45,
+       5
       ],
       [
-       35.0,
-       45.0
+       45,
+       20
       ],
       [
-       5.0,
-       45.0
+       20,
+       20
       ]
      ],
      "floor": "plank",
-     "desc": "Baaaa-d News",
-     "dm": "Guest rooms; a place for the chase to spill upstairs or for the party to hide the sheep."
+     "desc": "A mezzanine over the bar with a table, railed above the common room.",
+     "dm": "Line of sight down onto the whole common room."
+    },
+    {
+     "key": "U2",
+     "name": "Gallery",
+     "page": null,
+     "polygon": [
+      [
+       45,
+       5
+      ],
+      [
+       60,
+       5
+      ],
+      [
+       60,
+       40
+      ],
+      [
+       45,
+       40
+      ]
+     ],
+     "floor": "plank",
+     "desc": "A gallery along the east side, a bench and a linen press."
+    },
+    {
+     "key": "U3",
+     "name": "Landing",
+     "page": null,
+     "polygon": [
+      [
+       20,
+       20
+      ],
+      [
+       25,
+       20
+      ],
+      [
+       25,
+       50
+      ],
+      [
+       20,
+       50
+      ]
+     ],
+     "floor": "plank",
+     "desc": "A railed landing above the common room, doors to the inn rooms."
+    },
+    {
+     "key": "U4",
+     "name": "Inn Room 1",
+     "page": null,
+     "polygon": [
+      [
+       5,
+       5
+      ],
+      [
+       20,
+       5
+      ],
+      [
+       20,
+       20
+      ],
+      [
+       5,
+       20
+      ]
+     ],
+     "floor": "plank",
+     "desc": "An inn room: bed, nightstand, chest, chair."
+    },
+    {
+     "key": "U5",
+     "name": "Inn Room 2",
+     "page": null,
+     "polygon": [
+      [
+       5,
+       20
+      ],
+      [
+       20,
+       20
+      ],
+      [
+       20,
+       35
+      ],
+      [
+       5,
+       35
+      ]
+     ],
+     "floor": "plank",
+     "desc": "An inn room: bed, nightstand, chest, chair."
+    },
+    {
+     "key": "U6",
+     "name": "Inn Room 3",
+     "page": null,
+     "polygon": [
+      [
+       5,
+       35
+      ],
+      [
+       20,
+       35
+      ],
+      [
+       20,
+       50
+      ],
+      [
+       5,
+       50
+      ]
+     ],
+     "floor": "plank",
+     "desc": "An inn room: bed, nightstand, chest, chair."
+    },
+    {
+     "key": "U7",
+     "name": "Stair head",
+     "page": null,
+     "polygon": [
+      [
+       55,
+       40
+      ],
+      [
+       60,
+       40
+      ],
+      [
+       60,
+       60
+      ],
+      [
+       55,
+       60
+      ]
+     ],
+     "floor": "plank",
+     "desc": "The head of the stairs."
     }
    ],
    "walls": [
     {
-     "id": "01-tavern-L1-w1",
+     "id": "L1-w-0",
      "a": [
-      5.0,
-      5.5
+      20.0,
+      5.0
+     ],
+     "b": [
+      30.0,
+      5.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L1-w-1",
+     "a": [
+      30.0,
+      5.0
      ],
      "b": [
       35.0,
-      5.5
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster",
-     "heightFt": 8.0
-    },
-    {
-     "id": "01-tavern-L1-w2",
-     "a": [
-      34.502,
       5.0
      ],
-     "b": [
-      34.498,
-      23.5
-     ],
      "flags": [
-      "normal"
+      "window"
      ],
-     "material": "plaster",
-     "heightFt": 8.0
+     "material": "plaster"
     },
     {
-     "id": "01-tavern-L1-w3",
-     "a": [
-      34.501,
-      26.5
-     ],
-     "b": [
-      34.499,
-      36.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster",
-     "heightFt": 8.0
-    },
-    {
-     "id": "01-tavern-L1-w4",
-     "a": [
-      34.501,
-      39.0
-     ],
-     "b": [
-      34.499,
-      45.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster",
-     "heightFt": 8.0
-    },
-    {
-     "id": "01-tavern-L1-w5",
+     "id": "L1-w-2",
      "a": [
       35.0,
-      44.501
+      5.0
      ],
      "b": [
-      29.0,
-      44.499
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster",
-     "heightFt": 8.0
-    },
-    {
-     "id": "01-tavern-L1-w6",
-     "a": [
-      26.0,
-      44.503
-     ],
-     "b": [
-      11.5,
-      44.497
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster",
-     "heightFt": 8.0
-    },
-    {
-     "id": "01-tavern-L1-w7",
-     "a": [
-      8.5,
-      44.501
-     ],
-     "b": [
-      5.0,
-      44.499
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster",
-     "heightFt": 8.0
-    },
-    {
-     "id": "01-tavern-L1-w8",
-     "a": [
-      5.5,
-      45.0
-     ],
-     "b": [
-      5.5,
-      41.5
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster",
-     "heightFt": 8.0
-    },
-    {
-     "id": "01-tavern-L1-w9",
-     "a": [
-      5.501,
-      38.5
-     ],
-     "b": [
-      5.499,
-      29.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster",
-     "heightFt": 8.0
-    },
-    {
-     "id": "01-tavern-L1-w10",
-     "a": [
-      5.501,
-      26.0
-     ],
-     "b": [
-      5.499,
-      14.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster",
-     "heightFt": 8.0
-    },
-    {
-     "id": "01-tavern-L1-w11",
-     "a": [
-      5.501,
-      11.0
-     ],
-     "b": [
-      5.499,
+      60.0,
       5.0
      ],
      "flags": [
       "normal"
      ],
-     "material": "plaster",
-     "heightFt": 8.0
+     "material": "plaster"
     },
     {
-     "id": "01-tavern-L1-w12",
+     "id": "L1-w-3",
      "a": [
-      15.001,
+      40.0,
+      20.0
+     ],
+     "b": [
+      45.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 3.5
+    },
+    {
+     "id": "L1-w-4",
+     "a": [
+      35.0,
+      20.0
+     ],
+     "b": [
+      40.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 3.5
+    },
+    {
+     "id": "L1-w-5",
+     "a": [
+      30.0,
+      20.0
+     ],
+     "b": [
+      35.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 3.5
+    },
+    {
+     "id": "L1-w-6",
+     "a": [
+      25.0,
+      20.0
+     ],
+     "b": [
+      30.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 3.5
+    },
+    {
+     "id": "L1-w-7",
+     "a": [
+      20.0,
+      15.0
+     ],
+     "b": [
+      20.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "inn1",
+     "a": [
+      20.0,
+      10.0
+     ],
+     "b": [
+      20.0,
+      15.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "paneling",
+     "open": false
+    },
+    {
+     "id": "L1-w-9",
+     "a": [
+      20.0,
       5.0
      ],
      "b": [
-      14.999,
-      11.0
+      20.0,
+      10.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "L1-w-10",
+     "a": [
+      60.0,
+      5.0
+     ],
+     "b": [
+      60.0,
+      10.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L1-w-11",
+     "a": [
+      60.0,
+      10.0
+     ],
+     "b": [
+      60.0,
+      15.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L1-w-12",
+     "a": [
+      60.0,
+      15.0
+     ],
+     "b": [
+      60.0,
+      30.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L1-w-13",
+     "a": [
+      60.0,
+      30.0
+     ],
+     "b": [
+      60.0,
+      35.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L1-w-14",
+     "a": [
+      60.0,
+      35.0
+     ],
+     "b": [
+      60.0,
+      60.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L1-w-15",
+     "a": [
+      50.0,
+      40.0
+     ],
+     "b": [
+      55.0,
+      40.0
      ],
      "flags": [
       "normal"
      ],
      "material": "plaster",
-     "heightFt": 8.0
+     "heightFt": 3.5
     },
     {
-     "id": "01-tavern-L1-w13",
+     "id": "L1-w-16",
      "a": [
-      15.001,
-      14.0
+      45.0,
+      40.0
      ],
      "b": [
-      14.999,
-      26.0
+      50.0,
+      40.0
      ],
      "flags": [
       "normal"
      ],
      "material": "plaster",
-     "heightFt": 8.0
+     "heightFt": 3.5
     },
     {
-     "id": "01-tavern-L1-w14",
+     "id": "L1-w-17",
      "a": [
-      15.001,
-      29.0
+      45.0,
+      35.0
      ],
      "b": [
-      14.999,
-      38.5
+      45.0,
+      40.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L1-w-18",
+     "a": [
+      45.0,
+      30.0
+     ],
+     "b": [
+      45.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L1-w-19",
+     "a": [
+      45.0,
+      25.0
+     ],
+     "b": [
+      45.0,
+      30.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L1-w-20",
+     "a": [
+      45.0,
+      20.0
+     ],
+     "b": [
+      45.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L1-w-21",
+     "a": [
+      25.0,
+      20.0
+     ],
+     "b": [
+      25.0,
+      25.0
      ],
      "flags": [
       "normal"
      ],
      "material": "plaster",
-     "heightFt": 8.0
+     "heightFt": 3.5
     },
     {
-     "id": "01-tavern-L1-w15",
+     "id": "L1-w-22",
      "a": [
-      15.0,
-      41.5
+      25.0,
+      25.0
      ],
      "b": [
-      15.0,
+      25.0,
+      30.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 3.5
+    },
+    {
+     "id": "L1-w-23",
+     "a": [
+      25.0,
+      30.0
+     ],
+     "b": [
+      25.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 3.5
+    },
+    {
+     "id": "L1-w-24",
+     "a": [
+      25.0,
+      35.0
+     ],
+     "b": [
+      25.0,
+      40.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 3.5
+    },
+    {
+     "id": "L1-w-25",
+     "a": [
+      25.0,
+      40.0
+     ],
+     "b": [
+      25.0,
       45.0
      ],
      "flags": [
       "normal"
      ],
      "material": "plaster",
-     "heightFt": 8.0
+     "heightFt": 3.5
     },
     {
-     "id": "01-tavern-L1-w16",
+     "id": "L1-w-26",
+     "a": [
+      25.0,
+      45.0
+     ],
+     "b": [
+      25.0,
+      50.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 3.5
+    },
+    {
+     "id": "L1-w-27",
      "a": [
       20.0,
+      50.0
+     ],
+     "b": [
+      25.0,
+      50.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster",
+     "heightFt": 3.5
+    },
+    {
+     "id": "L1-w-28",
+     "a": [
+      20.0,
+      45.0
+     ],
+     "b": [
+      20.0,
+      50.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "inn3",
+     "a": [
+      20.0,
+      40.0
+     ],
+     "b": [
+      20.0,
+      45.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "paneling",
+     "open": false
+    },
+    {
+     "id": "L1-w-30",
+     "a": [
+      20.0,
+      35.0
+     ],
+     "b": [
+      20.0,
+      40.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "L1-w-31",
+     "a": [
+      20.0,
+      30.0
+     ],
+     "b": [
+      20.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "inn2",
+     "a": [
+      20.0,
+      25.0
+     ],
+     "b": [
+      20.0,
+      30.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "paneling",
+     "open": false
+    },
+    {
+     "id": "L1-w-33",
+     "a": [
+      5.0,
+      5.0
+     ],
+     "b": [
+      20.0,
+      5.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L1-w-34",
+     "a": [
+      15.0,
       20.0
      ],
      "b": [
       20.0,
-      23.5
+      20.0
      ],
      "flags": [
       "normal"
      ],
-     "material": "plaster",
-     "heightFt": 8.0
+     "material": "paneling"
     },
     {
-     "id": "01-tavern-L1-w17",
+     "id": "L1-w-35",
      "a": [
-      20.001,
-      26.5
-     ],
-     "b": [
-      19.999,
-      36.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster",
-     "heightFt": 8.0
-    },
-    {
-     "id": "01-tavern-L1-w18",
-     "a": [
-      20.001,
-      39.0
-     ],
-     "b": [
-      19.999,
-      45.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster",
-     "heightFt": 8.0
-    },
-    {
-     "id": "01-tavern-L1-w19",
-     "a": [
-      5.0,
+      10.0,
       20.0
      ],
      "b": [
@@ -814,13 +2900,87 @@
      "flags": [
       "normal"
      ],
-     "material": "plaster",
-     "heightFt": 8.0
+     "material": "paneling"
     },
     {
-     "id": "01-tavern-L1-w20",
+     "id": "L1-w-36",
      "a": [
       5.0,
+      20.0
+     ],
+     "b": [
+      10.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "L1-w-37",
+     "a": [
+      5.0,
+      15.0
+     ],
+     "b": [
+      5.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L1-w-38",
+     "a": [
+      5.0,
+      10.0
+     ],
+     "b": [
+      5.0,
+      15.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L1-w-39",
+     "a": [
+      5.0,
+      5.0
+     ],
+     "b": [
+      5.0,
+      10.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L1-w-40",
+     "a": [
+      15.0,
+      35.0
+     ],
+     "b": [
+      20.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "L1-w-41",
+     "a": [
+      10.0,
       35.0
      ],
      "b": [
@@ -830,263 +2990,530 @@
      "flags": [
       "normal"
      ],
-     "material": "plaster",
-     "heightFt": 8.0
+     "material": "paneling"
     },
     {
-     "id": "01-tavern-L1-w21",
+     "id": "L1-w-42",
      "a": [
-      20.0,
-      20.0
+      5.0,
+      35.0
      ],
      "b": [
-      35.0,
-      20.0
+      10.0,
+      35.0
      ],
      "flags": [
       "normal"
      ],
-     "material": "plaster",
-     "heightFt": 8.0
+     "material": "paneling"
     },
     {
-     "id": "01-tavern-L1-w22",
+     "id": "L1-w-43",
      "a": [
-      20.0,
+      5.0,
       30.0
      ],
      "b": [
-      35.0,
+      5.0,
+      40.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L1-w-44",
+     "a": [
+      5.0,
+      25.0
+     ],
+     "b": [
+      5.0,
       30.0
      ],
      "flags": [
+      "window"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L1-w-45",
+     "a": [
+      15.0,
+      50.0
+     ],
+     "b": [
+      20.0,
+      50.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L1-w-46",
+     "a": [
+      10.0,
+      50.0
+     ],
+     "b": [
+      15.0,
+      50.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L1-w-47",
+     "a": [
+      5.0,
+      50.0
+     ],
+     "b": [
+      10.0,
+      50.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L1-w-48",
+     "a": [
+      5.0,
+      45.0
+     ],
+     "b": [
+      5.0,
+      50.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L1-w-49",
+     "a": [
+      5.0,
+      40.0
+     ],
+     "b": [
+      5.0,
+      45.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L1-w-50",
+     "a": [
+      55.0,
+      60.0
+     ],
+     "b": [
+      60.0,
+      60.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "L1-w-51",
+     "a": [
+      55.0,
+      55.0
+     ],
+     "b": [
+      55.0,
+      60.0
+     ],
+     "flags": [
       "normal"
      ],
      "material": "plaster",
-     "heightFt": 8.0
+     "heightFt": 3.5
     },
     {
-     "id": "01-tavern-L1-w23",
+     "id": "L1-w-52",
      "a": [
-      30.002,
-      5.0
+      55.0,
+      50.0
      ],
      "b": [
-      29.998,
-      20.0
+      55.0,
+      55.0
      ],
      "flags": [
       "normal"
      ],
-     "material": "log",
-     "heightFt": 3.0
+     "material": "plaster",
+     "heightFt": 3.5
     },
     {
-     "id": "01-tavern-L1-o1",
+     "id": "L1-w-53",
      "a": [
-      8.5,
-      44.501
+      55.0,
+      45.0
      ],
      "b": [
-      11.5,
-      44.499
+      55.0,
+      50.0
      ],
      "flags": [
-      "window"
-     ],
-     "material": "plaster"
-    },
-    {
-     "id": "01-tavern-L1-o2",
-     "a": [
-      5.5,
-      11.0
-     ],
-     "b": [
-      5.5,
-      14.0
-     ],
-     "flags": [
-      "window"
-     ],
-     "material": "plaster"
-    },
-    {
-     "id": "01-tavern-L1-o3",
-     "a": [
-      5.5,
-      26.0
-     ],
-     "b": [
-      5.5,
-      29.0
-     ],
-     "flags": [
-      "window"
-     ],
-     "material": "plaster"
-    },
-    {
-     "id": "01-tavern-L1-o4",
-     "a": [
-      5.5,
-      38.5
-     ],
-     "b": [
-      5.5,
-      41.5
-     ],
-     "flags": [
-      "window"
-     ],
-     "material": "plaster"
-    },
-    {
-     "id": "01-tavern-L1-o5",
-     "a": [
-      34.499,
-      26.5
-     ],
-     "b": [
-      34.501,
-      23.5
-     ],
-     "flags": [
-      "window"
-     ],
-     "material": "plaster"
-    },
-    {
-     "id": "01-tavern-L1-o6",
-     "a": [
-      34.499,
-      39.0
-     ],
-     "b": [
-      34.501,
-      36.0
-     ],
-     "flags": [
-      "window"
-     ],
-     "material": "plaster"
-    },
-    {
-     "id": "01-tavern-L1-o7",
-     "a": [
-      26.0,
-      44.501
-     ],
-     "b": [
-      29.0,
-      44.499
-     ],
-     "flags": [
-      "window"
-     ],
-     "material": "plaster"
-    },
-    {
-     "id": "01-tavern-L1-o8",
-     "a": [
-      14.999,
-      14.0
-     ],
-     "b": [
-      15.001,
-      11.0
-     ],
-     "flags": [
-      "door"
+      "normal"
      ],
      "material": "plaster",
-     "open": false
+     "heightFt": 3.5
     },
     {
-     "id": "01-tavern-L1-o9",
+     "id": "L1-w-54",
      "a": [
-      14.999,
-      29.0
+      55.0,
+      40.0
      ],
      "b": [
-      15.001,
-      26.0
+      55.0,
+      45.0
      ],
      "flags": [
-      "door"
+      "normal"
      ],
      "material": "plaster",
-     "open": false
-    },
-    {
-     "id": "01-tavern-L1-o10",
-     "a": [
-      14.999,
-      41.5
-     ],
-     "b": [
-      15.001,
-      38.5
-     ],
-     "flags": [
-      "door"
-     ],
-     "material": "plaster",
-     "open": false
-    },
-    {
-     "id": "01-tavern-L1-o11",
-     "a": [
-      19.999,
-      26.5
-     ],
-     "b": [
-      20.001,
-      23.5
-     ],
-     "flags": [
-      "door"
-     ],
-     "material": "plaster",
-     "open": false
-    },
-    {
-     "id": "01-tavern-L1-o12",
-     "a": [
-      19.999,
-      39.0
-     ],
-     "b": [
-      20.001,
-      36.0
-     ],
-     "flags": [
-      "door"
-     ],
-     "material": "plaster",
-     "open": false
+     "heightFt": 3.5
     }
    ],
-   "objects": [],
-   "lights": []
+   "lights": [
+    {
+     "id": "L1-l-mezz",
+     "pos": [
+      32.5,
+      6,
+      12.5
+     ],
+     "preset": "lamp",
+     "bright": 15,
+     "dim": 30
+    }
+   ],
+   "objects": [
+    {
+     "id": "L1-bed0",
+     "kind": "bed-plain",
+     "pos": [
+      10,
+      0,
+      12.0
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "U4"
+    },
+    {
+     "id": "L1-night0",
+     "kind": "nightstand",
+     "pos": [
+      7.0,
+      0,
+      17.0
+     ],
+     "vis": "player",
+     "key": "U4"
+    },
+    {
+     "id": "L1-chest0",
+     "kind": "trunk",
+     "pos": [
+      17.0,
+      0,
+      18.0
+     ],
+     "vis": "player",
+     "key": "U4"
+    },
+    {
+     "id": "L1-chair0",
+     "kind": "chair",
+     "pos": [
+      17.0,
+      0,
+      8.0
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "key": "U4"
+    },
+    {
+     "id": "L1-lamp-u0",
+     "kind": "oil-lamp",
+     "pos": [
+      19.25,
+      0,
+      12.5
+     ],
+     "vis": "player",
+     "key": "U4",
+     "dims": {
+      "y": 5.5
+     }
+    },
+    {
+     "id": "L1-bed1",
+     "kind": "bed-plain",
+     "pos": [
+      10,
+      0,
+      27.0
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "U5"
+    },
+    {
+     "id": "L1-night1",
+     "kind": "nightstand",
+     "pos": [
+      7.0,
+      0,
+      32.0
+     ],
+     "vis": "player",
+     "key": "U5"
+    },
+    {
+     "id": "L1-chest1",
+     "kind": "trunk",
+     "pos": [
+      17.0,
+      0,
+      33.0
+     ],
+     "vis": "player",
+     "key": "U5"
+    },
+    {
+     "id": "L1-chair1",
+     "kind": "chair",
+     "pos": [
+      17.0,
+      0,
+      23.0
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "key": "U5"
+    },
+    {
+     "id": "L1-lamp-u1",
+     "kind": "oil-lamp",
+     "pos": [
+      19.25,
+      0,
+      27.5
+     ],
+     "vis": "player",
+     "key": "U5",
+     "dims": {
+      "y": 5.5
+     }
+    },
+    {
+     "id": "L1-bed2",
+     "kind": "bed-plain",
+     "pos": [
+      10,
+      0,
+      42.0
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "U6"
+    },
+    {
+     "id": "L1-night2",
+     "kind": "nightstand",
+     "pos": [
+      7.0,
+      0,
+      47.0
+     ],
+     "vis": "player",
+     "key": "U6"
+    },
+    {
+     "id": "L1-chest2",
+     "kind": "trunk",
+     "pos": [
+      17.0,
+      0,
+      48.0
+     ],
+     "vis": "player",
+     "key": "U6"
+    },
+    {
+     "id": "L1-chair2",
+     "kind": "chair",
+     "pos": [
+      17.0,
+      0,
+      38.0
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "key": "U6"
+    },
+    {
+     "id": "L1-lamp-u2",
+     "kind": "oil-lamp",
+     "pos": [
+      19.25,
+      0,
+      42.5
+     ],
+     "vis": "player",
+     "key": "U6",
+     "dims": {
+      "y": 5.5
+     }
+    },
+    {
+     "id": "L1-mezz-table",
+     "kind": "table",
+     "pos": [
+      32.5,
+      0,
+      12.5
+     ],
+     "vis": "player",
+     "key": "U1",
+     "dims": {
+      "w": 5,
+      "d": 3
+     }
+    },
+    {
+     "id": "L1-mezz-chair0",
+     "kind": "chair",
+     "pos": [
+      29.5,
+      0,
+      9.5
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "key": "U1"
+    },
+    {
+     "id": "L1-mezz-chair1",
+     "kind": "chair",
+     "pos": [
+      35.5,
+      0,
+      9.5
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "key": "U1"
+    },
+    {
+     "id": "L1-mezz-chair2",
+     "kind": "chair",
+     "pos": [
+      29.5,
+      0,
+      15.5
+     ],
+     "vis": "player",
+     "key": "U1"
+    },
+    {
+     "id": "L1-mezz-chair3",
+     "kind": "chair",
+     "pos": [
+      35.5,
+      0,
+      15.5
+     ],
+     "vis": "player",
+     "key": "U1"
+    },
+    {
+     "id": "L1-gallery-bench",
+     "kind": "bench",
+     "pos": [
+      58.0,
+      0,
+      25
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "U2",
+     "dims": {
+      "l": 8
+     }
+    },
+    {
+     "id": "L1-linen",
+     "kind": "shelves",
+     "pos": [
+      45.75,
+      0,
+      32.5
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "U2",
+     "dims": {
+      "w": 3,
+      "linen": 1
+     }
+    },
+    {
+     "id": "L1-stair-top",
+     "kind": "stairs-straight",
+     "pos": [
+      57.5,
+      0,
+      0
+     ],
+     "vis": "player",
+     "key": "U7",
+     "dims": {
+      "w": 5,
+      "rise": 0.1,
+      "fromZ": 60,
+      "toZ": 45
+     }
+    }
+   ]
   }
  ],
  "links": [
   {
-   "id": "lk-stair_L0_L1",
+   "id": "lk-stairs",
    "kind": "stairs",
    "from": {
     "level": "L0",
     "pos": [
-     27.5,
-     19.5
+     57.5,
+     57.5
     ]
    },
    "to": {
     "level": "L1",
     "pos": [
-     27.5,
-     5.5
+     57.5,
+     42.5
     ]
    }
   }
