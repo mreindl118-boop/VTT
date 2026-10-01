@@ -148,7 +148,7 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
   // Named peaks, snow-capped, at their true bearings and distances, at mountain heights.
   for (const pk of W.peaks) {
     const t = toWorld(pk.pos); if (t.d > 80000) continue;
-    const h = /Ghakis/.test(pk.name) ? 5200 : /Baratok/.test(pk.name) ? 4500 : /hill/i.test(pk.name) ? 1200 : 3800;
+    const h = /Ghakis/.test(pk.name) ? 5200 : /Baratok/.test(pk.name) ? 4500 : /fell|tor\b/i.test(pk.name) ? 2600 : /hill/i.test(pk.name) ? 1200 : 3800;
     const rock = new THREE.ConeGeometry(h * 1.1, h, 6); rock.translate(0, h / 2, 0);
     const snow = new THREE.ConeGeometry(h * 0.3, h * 0.28, 6); snow.translate(0, h * 0.86, 0);
     const m = new THREE.Mesh(rock, hazed('#5a5f67', t.d)), c = new THREE.Mesh(snow, hazed('#d9dde3', t.d));

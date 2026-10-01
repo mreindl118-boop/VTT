@@ -8,7 +8,7 @@ those two sites; the manifest's area lists are refreshed. x east, z south, north
 import json, os, sys
 from collections import OrderedDict
 sys.path.insert(0, os.path.dirname(__file__))
-from authorlib import ROOT, C, rect, ft, Level
+from authorlib import seg_key, ROOT, C, rect, ft, Level
 
 CAMP = 'wsc'
 N = '-z'
@@ -126,14 +126,24 @@ json.dump(OrderedDict(schema=1, levels=OrderedDict((lv.id, OrderedDict(floorPoly
 S = Level('L0', 'The square', 0, 10, ambient='barovian-overcast', interior='plaster', exterior='plaster', north=N)
 # The tavern's ground floor stands on the north side of the square, at the same footprint (offset +2 cells x, 0 z):
 OX, OZ = 2, 0
-S.room('S1', 'The Square', rect(4, 14, 26, 24), 'cobble')
-S.room('S2', 'Main Street', [(0, 17), (4, 17), (4, 21), (0, 21)], 'cobble')
-S.room('S3', 'East Lane', rect(26, 17, 34, 21), 'cobble')
-S.room('S4', 'Temple Yard', rect(4, 24, 14, 30), 'grass')
+# A small town's square: a cobbled circle round the well, a dirt ring road round that, and the important buildings
+# facing the ring: the tavern north, the town hall east, the temple south, the stables in the tavern's yard. Few houses.
+CX, CZ = 15, 21
+OCT = [(13, 15), (17, 15), (21, 19), (21, 23), (17, 27), (13, 27), (9, 23), (9, 19)]
+S.room('S1', 'The Square', OCT, 'cobble')
+S.room('S2', 'Main Street', [(0, 19), (9, 19), (9, 23), (0, 23)], 'dirt')
+S.room('S3', 'East Lane', rect(21, 19, 34, 23), 'dirt')
+S.room('S4', 'Temple Yard', rect(9, 30, 21, 37), 'grass')
 S.room('S5', 'Tavern Yard', [(14 + OX, 0), (20 + OX, 0), (20 + OX, 13), (12 + OX, 13), (12 + OX, 12), (14 + OX, 12)], 'dirt')
 S.room('S6', 'Stables', rect(14 + OX, 5, 17 + OX, 11), 'dirt')
-S.terrain.append((rect(-2, -2, 36, 34), 'grass'))
-for a, b in [((4, 17), (4, 21)), ((26, 17), (26, 21)), ((4, 24), (14, 24)), ((14 + OX, 12), (12 + OX, 13)), ((14 + OX, 12), (20 + OX, 12))]:
+S.terrain.append((rect(-2, -2, 38, 42), 'grass'))
+import math
+for i in range(16):  # the ring road: a dirt annulus between the cobbles and the buildings
+    a0, a1 = i * math.pi / 8, (i + 1) * math.pi / 8
+    S.terrain.append(([(round(CX + math.cos(a0) * 6.2, 2), round(CZ + math.sin(a0) * 6.2, 2)), (round(CX + math.cos(a0) * 10, 2), round(CZ + math.sin(a0) * 10, 2)), (round(CX + math.cos(a1) * 10, 2), round(CZ + math.sin(a1) * 10, 2)), (round(CX + math.cos(a1) * 6.2, 2), round(CZ + math.sin(a1) * 6.2, 2))], 'dirt'))
+for i in range(8):   # the square is open on every side
+    S.overrides[seg_key(OCT[i], OCT[(i + 1) % 8])] = dict(open_wall=True)
+for a, b in [((0, 19), (9, 19)), ((0, 23), (9, 23)), ((0, 19), (0, 23)), ((21, 19), (34, 19)), ((21, 23), (34, 23)), ((34, 19), (34, 23)), ((9, 30), (21, 30)), ((9, 30), (9, 37)), ((21, 30), (21, 37)), ((9, 37), (21, 37)), ((14 + OX, 12), (12 + OX, 13)), ((14 + OX, 12), (20 + OX, 12))]:
     S.opening(a, b)
 S.opening((16, 0), (22, 0)); S.opening((22, 0), (22, 13)); S.opening((16, 13), (22, 13)); S.opening((14, 12), (16, 12)); S.opening((14, 4), (14, 5)); S.opening((14, 11), (14, 12))
 S.railing((16, 7), (19, 7)); S.railing((16, 9), (19, 9)); S.door((16, 8), (16, 9), id='sq-stable-door')
@@ -142,33 +152,33 @@ S.wall((1 + OX, 1), (12 + OX, 1)); S.wall((1 + OX, 1), (1 + OX, 12)); S.wall((12
 S.wall((5 + OX, 12), (7 + OX, 12), flags=['door'], id='sq-tavern-front')
 S.obj('tavern-sign', 'signpost', (6 + OX, 12.6), 'player', 'S1', 'The tavern', dims={})
 S.prop('tavern-facade', 'house', (6.5 + OX, 6.5), None, rotY=0, dims={'w': 55, 'd': 55, 'h': 10, 'stories': 2}); S.prop('tavern-chimney', 'chimney', (1.6 + OX, 8), None, dims={'h': 9, 'y': 20})
-# well in the middle of the square; temple south; town hall east; houses around
-S.prop('well', 'well', (15, 19), 'S1')
-S.prop('temple', 'temple', (9, 27.2), 'S4', dims={'w': 30, 'd': 45, 'h': 14})
-S.prop('hall', 'house', (30, 14), 'S3', dims={'w': 35, 'd': 25, 'h': 12, 'stories': 2}); S.obj('hall-sign', 'signpost', (30, 17.2), 'player', 'S3', 'Town hall')
-S.prop('trough-sq', 'trough', (13, 20.5), 'S1'); S.prop('notice', 'signpost', (5.5, 22.5), 'S1')
-[S.prop(f'bench{i}', 'bench', p, 'S1', rotY=r, dims={'l': 6}) for i, (p, r) in enumerate([((17.5, 21), 0), ((12.5, 17), 0)])]
-houses = [((2, 6), 25, 20, 0), ((2, 12), 20, 20, 0), ((30, 6), 25, 25, 0), ((30, 24), 20, 25, 0), ((30, 30), 25, 20, 0), ((20, 27), 25, 20, 0), ((26, 28), 20, 20, 12), ((2, 26), 20, 20, 0), ((8, 3), 20, 20, 0), ((9, 9), 20, 22, 0), ((24, 2), 20, 20, 0), ((25, 9), 20, 20, 0)]
+# the well at the centre; the temple south across the ring; the town hall east; a few houses beyond
+S.prop('well', 'well', (CX, CZ), 'S1')
+S.prop('temple', 'temple', (15, 33.5), 'S4', dims={'w': 30, 'd': 45, 'h': 14}); S.obj('temple-sign', 'signpost', (15, 30.6), 'player', 'S4', 'The temple')
+S.prop('hall', 'house', (31, 11), 'S3', dims={'w': 35, 'd': 28, 'h': 12, 'stories': 2}); S.obj('hall-sign', 'signpost', (31, 18.4), 'player', 'S3', 'Town hall')
+S.prop('trough-sq', 'trough', (12, 23), 'S1'); S.prop('notice', 'signpost', (10.5, 24.5), 'S1')
+[S.prop(f'bench{i}', 'bench', p, 'S1', rotY=r, dims={'l': 6}) for i, (p, r) in enumerate([((18, 24), 0), ((12, 18), 0)])]
+houses = [((30, 32), 20, 20, 0), ((4, 32), 20, 20, 0), ((2, 15), 18, 18, 0), ((32, -1), 20, 20, 0), ((25, 38), 25, 20, 0)]
 for i, ((cx, cz), w, d, r) in enumerate(houses):
     S.prop(f'house{i}', 'house', (cx, cz), None, rotY=r, dims={'w': w, 'd': d, 'h': 11 if i % 3 else 13, 'stories': 1 if i % 3 else 2})
-for i, (cx, cz) in enumerate([(1, 1), (34, 1), (34, 33), (1, 33), (18, 33), (8, 33)]):
+for i, (cx, cz) in enumerate([(1, 1), (34, 1), (34, 36), (1, 38), (24, 30), (6, 27), (27, 27)]):
     S.prop(f'tree{i}', 'oak', (cx, cz), None, dims={'r': 1.1, 'h': 22, 'canopy': 8})
 for i, z in enumerate([6, 8, 10]):
     S.prop(f'sq-trough{i}', 'trough', (18.6, z), 'S6', rotY=90); S.prop(f'sq-hay{i}', 'hay', (16.8, z + 0.5), 'S6')
     if i < 2: S.obj(f'sq-horse{i}', 'horse', (17.6, z), 'player', 'S6', 'Horse', rotY=90, size='large')
 S.prop('sq-cart', 'wagon', (17.5, 2.2), 'S5', rotY=20); S.prop('sq-yard-well', 'well', (15.2, 9.6), 'S5')
-S.obj('sheep-1', 'sheep', (14.4, 18.2), 'hidden-creature', 'S1', 'Finethir Shinebright (polymorphed sheep)', size='small', dims={'scroll': 1})
-S.obj('guz', 'commoner', (8, 19), 'hidden-creature', 'S2', 'Guz (half-orc mercenary)'); [S.obj(f'wolf{i}', 'wolf', p, 'hidden-creature', 'S2', f'Collared wolf {i + 1} (polymorphed henchman)') for i, p in enumerate([(6.5, 18), (6.5, 20), (5, 19)])]
-S.obj('bear', 'bear', (3, 19), 'hidden-creature', 'S2', 'Brown bear (polymorphed henchman)', size='large')
+S.obj('sheep-1', 'sheep', (14.4, 20.2), 'hidden-creature', 'S1', 'Finethir Shinebright (polymorphed sheep)', size='small', dims={'scroll': 1})
+S.obj('guz', 'commoner', (7, 21), 'hidden-creature', 'S2', 'Guz (half-orc mercenary)'); [S.obj(f'wolf{i}', 'wolf', p, 'hidden-creature', 'S2', f'Collared wolf {i + 1} (polymorphed henchman)') for i, p in enumerate([(5.5, 20), (5.5, 22), (4, 21)])]
+S.obj('bear', 'bear', (2, 21), 'hidden-creature', 'S2', 'Brown bear (polymorphed henchman)', size='large')
 S.obj('spawn', 'spawn', (8 + OX, 13.5), 'dm-note', 'S1', 'Party spawn: outside the tavern door')
-S.note('pop', (15, 15), 'S1', 'A town of about fifty: the tavern, the temple, the town hall, a dozen houses. The well is the meeting place.')
+S.note('pop', (15, 17), 'S1', 'A town of about fifty: the tavern, the temple, the town hall, a handful of houses beyond the ring road. The well is the meeting place.')
 square = OrderedDict(schema=1, location='02-street', chapter=CAMP, name='The Town Square', bookScaleFt=5, ambient='barovian-overcast')
 square['levels'] = [S.to_json()]
 square['links'] = []
 for r in square['levels'][0]['rooms']:
     r['desc'], r['dm'] = {
-        'S1': ("A cobbled square around a stone well: the tavern on the north side, the temple to the south, the town hall to the east, houses all round.", "Shepherds, Crooks: Guz comes up the main street from the west with three collared wolves and a brown bear. The tavern's front door is where the sheep bolted in."),
-        'S2': ("The main street, leaving town to the west.", None), 'S3': ("The lane east, past the town hall.", None),
+        'S1': ("A cobbled circle round a stone well, a dirt ring road around it: the tavern on the north side, the temple to the south, the town hall to the east, a few houses beyond.", "Shepherds, Crooks: Guz comes up the main street from the west with three collared wolves and a brown bear. The tavern's front door is where the sheep bolted in."),
+        'S2': ("The main street, a dirt road leaving town to the west.", None), 'S3': ("The lane east, under the town hall.", None),
         'S4': ("The temple's grassy yard.", None), 'S5': ("The tavern's yard and stables.", None), 'S6': ("Three stalls, hay, troughs; two horses.", None)}[r['key']]
     if not r['dm']: del r['dm']
 os.makedirs(os.path.join(ROOT, 'locations', CAMP, '02-street'), exist_ok=True)

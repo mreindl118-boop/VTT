@@ -237,7 +237,7 @@ world = OrderedDict(schema=1, name=R['poster_title'] if R.get('poster_title') el
     pins=pins,
     roads=join_roads([OrderedDict(name='Main road', pts=[hx(*c) for c in rd]) for rd in R['roads']]) + [OrderedDict(name='Side path', pts=[hx(*c) for c in rd]) for rd in R['paths']],
     rivers=[OrderedDict(name='Stream', pts=[hx(*c) for c in st]) for st in R['streams']],
-    lakes=[], peaks=[OrderedDict(name='The hills', pos=hx(*k)) for k in list(k for k in cells if cells[k]['code'] == 'H')[:1]], high=high, woods=woods)
+    lakes=[], peaks=[OrderedDict(name='Ramsback Fell', pos=hx(*k)) for k in list(k for k in cells if cells[k]['code'] == 'H')[:1]], high=high, woods=woods)
 os.makedirs(f'{out_root}/00-region', exist_ok=True)
 keep_notes(world, f'{out_root}/00-region/world.json')
 json.dump(world, open(f'{out_root}/00-region/world.json', 'w'), indent=1)

@@ -20,24 +20,40 @@
      "page": null,
      "polygon": [
       [
-       20,
-       70
+       65,
+       75
       ],
       [
-       130,
-       70
+       85,
+       75
       ],
       [
-       130,
-       120
+       105,
+       95
       ],
       [
-       20,
-       120
+       105,
+       115
+      ],
+      [
+       85,
+       135
+      ],
+      [
+       65,
+       135
+      ],
+      [
+       45,
+       115
+      ],
+      [
+       45,
+       95
       ]
      ],
      "floor": "cobble",
-     "desc": "A cobbled square around a stone well: the tavern on the north side, the temple to the south, the town hall to the east, houses all round.",
+     "desc": "A cobbled circle round a stone well, a dirt ring road around it: the tavern on the north side, the temple to the south, the town hall to the east, a few houses beyond.",
      "dm": "Shepherds, Crooks: Guz comes up the main street from the west with three collared wolves and a brown bear. The tavern's front door is where the sheep bolted in."
     },
     {
@@ -47,23 +63,23 @@
      "polygon": [
       [
        0,
-       85
+       95
       ],
       [
-       20,
-       85
+       45,
+       95
       ],
       [
-       20,
-       105
+       45,
+       115
       ],
       [
        0,
-       105
+       115
       ]
      ],
-     "floor": "cobble",
-     "desc": "The main street, leaving town to the west."
+     "floor": "dirt",
+     "desc": "The main street, a dirt road leaving town to the west."
     },
     {
      "key": "S3",
@@ -71,24 +87,24 @@
      "page": null,
      "polygon": [
       [
-       130,
-       85
+       105,
+       95
       ],
       [
        170,
-       85
+       95
       ],
       [
        170,
-       105
+       115
       ],
       [
-       130,
-       105
+       105,
+       115
       ]
      ],
-     "floor": "cobble",
-     "desc": "The lane east, past the town hall."
+     "floor": "dirt",
+     "desc": "The lane east, under the town hall."
     },
     {
      "key": "S4",
@@ -96,20 +112,20 @@
      "page": null,
      "polygon": [
       [
-       20,
-       120
-      ],
-      [
-       70,
-       120
-      ],
-      [
-       70,
+       45,
        150
       ],
       [
-       20,
+       105,
        150
+      ],
+      [
+       105,
+       185
+      ],
+      [
+       45,
+       185
       ]
      ],
      "floor": "grass",
@@ -178,12 +194,12 @@
     {
      "id": "L0-w-0",
      "a": [
-      20.0,
-      70.0
+      65.0,
+      75.0
      ],
      "b": [
-      130.0,
-      70.0
+      85.0,
+      75.0
      ],
      "flags": [
       "normal"
@@ -193,12 +209,12 @@
     {
      "id": "L0-w-1",
      "a": [
-      130.0,
-      70.0
+      105.0,
+      95.0
      ],
      "b": [
-      130.0,
-      85.0
+      105.0,
+      115.0
      ],
      "flags": [
       "normal"
@@ -208,12 +224,12 @@
     {
      "id": "L0-w-2",
      "a": [
-      130.0,
-      105.0
+      80.0,
+      135.0
      ],
      "b": [
-      130.0,
-      120.0
+      85.0,
+      135.0
      ],
      "flags": [
       "normal"
@@ -223,12 +239,12 @@
     {
      "id": "L0-w-3",
      "a": [
-      125.0,
-      120.0
+      75.0,
+      135.0
      ],
      "b": [
-      130.0,
-      120.0
+      80.0,
+      135.0
      ],
      "flags": [
       "normal"
@@ -238,12 +254,12 @@
     {
      "id": "L0-w-4",
      "a": [
-      120.0,
-      120.0
+      70.0,
+      135.0
      ],
      "b": [
-      125.0,
-      120.0
+      75.0,
+      135.0
      ],
      "flags": [
       "normal"
@@ -253,12 +269,12 @@
     {
      "id": "L0-w-5",
      "a": [
-      115.0,
-      120.0
+      65.0,
+      135.0
      ],
      "b": [
-      120.0,
-      120.0
+      70.0,
+      135.0
      ],
      "flags": [
       "normal"
@@ -268,12 +284,12 @@
     {
      "id": "L0-w-6",
      "a": [
-      110.0,
-      120.0
+      45.0,
+      110.0
      ],
      "b": [
-      115.0,
-      120.0
+      45.0,
+      115.0
      ],
      "flags": [
       "normal"
@@ -283,12 +299,12 @@
     {
      "id": "L0-w-7",
      "a": [
-      105.0,
-      120.0
+      45.0,
+      105.0
      ],
      "b": [
-      110.0,
-      120.0
+      45.0,
+      110.0
      ],
      "flags": [
       "normal"
@@ -298,12 +314,12 @@
     {
      "id": "L0-w-8",
      "a": [
-      100.0,
-      120.0
+      45.0,
+      100.0
      ],
      "b": [
-      105.0,
-      120.0
+      45.0,
+      105.0
      ],
      "flags": [
       "normal"
@@ -313,12 +329,12 @@
     {
      "id": "L0-w-9",
      "a": [
-      95.0,
-      120.0
+      45.0,
+      95.0
      ],
      "b": [
-      100.0,
-      120.0
+      45.0,
+      100.0
      ],
      "flags": [
       "normal"
@@ -328,12 +344,12 @@
     {
      "id": "L0-w-10",
      "a": [
-      90.0,
-      120.0
+      75.0,
+      65.0
      ],
      "b": [
-      95.0,
-      120.0
+      80.0,
+      65.0
      ],
      "flags": [
       "normal"
@@ -343,12 +359,12 @@
     {
      "id": "L0-w-11",
      "a": [
-      85.0,
-      120.0
+      70.0,
+      65.0
      ],
      "b": [
-      90.0,
-      120.0
+      75.0,
+      65.0
      ],
      "flags": [
       "normal"
@@ -357,651 +373,6 @@
     },
     {
      "id": "L0-w-12",
-     "a": [
-      80.0,
-      120.0
-     ],
-     "b": [
-      85.0,
-      120.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster"
-    },
-    {
-     "id": "L0-w-13",
-     "a": [
-      75.0,
-      120.0
-     ],
-     "b": [
-      80.0,
-      120.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster"
-    },
-    {
-     "id": "L0-w-14",
-     "a": [
-      70.0,
-      120.0
-     ],
-     "b": [
-      75.0,
-      120.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster"
-    },
-    {
-     "id": "L0-w-15",
-     "a": [
-      55.00000000000001,
-      120.0
-     ],
-     "b": [
-      60.0,
-      120.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster"
-    },
-    {
-     "id": "L0-w-16",
-     "a": [
-      50.0,
-      120.0
-     ],
-     "b": [
-      55.00000000000001,
-      120.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster"
-    },
-    {
-     "id": "L0-w-17",
-     "a": [
-      20.0,
-      115.0
-     ],
-     "b": [
-      20.0,
-      150.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster"
-    },
-    {
-     "id": "L0-w-18",
-     "a": [
-      20.0,
-      110.0
-     ],
-     "b": [
-      20.0,
-      115.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster"
-    },
-    {
-     "id": "L0-w-19",
-     "a": [
-      20.0,
-      105.0
-     ],
-     "b": [
-      20.0,
-      110.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster"
-    },
-    {
-     "id": "L0-w-20",
-     "a": [
-      20.0,
-      80.0
-     ],
-     "b": [
-      20.0,
-      85.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster"
-    },
-    {
-     "id": "L0-w-21",
-     "a": [
-      20.0,
-      75.0
-     ],
-     "b": [
-      20.0,
-      80.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster"
-    },
-    {
-     "id": "L0-w-22",
-     "a": [
-      20.0,
-      70.0
-     ],
-     "b": [
-      20.0,
-      75.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster"
-    },
-    {
-     "id": "L0-w-23",
-     "a": [
-      0.0,
-      85.0
-     ],
-     "b": [
-      20.0,
-      85.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster"
-    },
-    {
-     "id": "L0-w-24",
-     "a": [
-      15.0,
-      105.0
-     ],
-     "b": [
-      20.0,
-      105.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster"
-    },
-    {
-     "id": "L0-w-25",
-     "a": [
-      10.0,
-      105.0
-     ],
-     "b": [
-      15.0,
-      105.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster"
-    },
-    {
-     "id": "L0-w-26",
-     "a": [
-      5.0,
-      105.0
-     ],
-     "b": [
-      10.0,
-      105.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster"
-    },
-    {
-     "id": "L0-w-27",
-     "a": [
-      0.0,
-      105.0
-     ],
-     "b": [
-      5.0,
-      105.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster"
-    },
-    {
-     "id": "L0-w-28",
-     "a": [
-      0.0,
-      100.0
-     ],
-     "b": [
-      0.0,
-      105.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster"
-    },
-    {
-     "id": "L0-w-29",
-     "a": [
-      0.0,
-      95.0
-     ],
-     "b": [
-      0.0,
-      100.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster"
-    },
-    {
-     "id": "L0-w-30",
-     "a": [
-      0.0,
-      90.0
-     ],
-     "b": [
-      0.0,
-      95.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster"
-    },
-    {
-     "id": "L0-w-31",
-     "a": [
-      0.0,
-      85.0
-     ],
-     "b": [
-      0.0,
-      90.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster"
-    },
-    {
-     "id": "L0-w-32",
-     "a": [
-      130.0,
-      85.0
-     ],
-     "b": [
-      170.0,
-      85.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster"
-    },
-    {
-     "id": "L0-w-33",
-     "a": [
-      170.0,
-      85.0
-     ],
-     "b": [
-      170.0,
-      105.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster"
-    },
-    {
-     "id": "L0-w-34",
-     "a": [
-      165.0,
-      105.0
-     ],
-     "b": [
-      170.0,
-      105.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster"
-    },
-    {
-     "id": "L0-w-35",
-     "a": [
-      160.0,
-      105.0
-     ],
-     "b": [
-      165.0,
-      105.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster"
-    },
-    {
-     "id": "L0-w-36",
-     "a": [
-      155.0,
-      105.0
-     ],
-     "b": [
-      160.0,
-      105.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster"
-    },
-    {
-     "id": "L0-w-37",
-     "a": [
-      150.0,
-      105.0
-     ],
-     "b": [
-      155.0,
-      105.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster"
-    },
-    {
-     "id": "L0-w-38",
-     "a": [
-      145.0,
-      105.0
-     ],
-     "b": [
-      150.0,
-      105.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster"
-    },
-    {
-     "id": "L0-w-39",
-     "a": [
-      140.0,
-      105.0
-     ],
-     "b": [
-      145.0,
-      105.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster"
-    },
-    {
-     "id": "L0-w-40",
-     "a": [
-      135.0,
-      105.0
-     ],
-     "b": [
-      140.0,
-      105.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster"
-    },
-    {
-     "id": "L0-w-41",
-     "a": [
-      130.0,
-      105.0
-     ],
-     "b": [
-      135.0,
-      105.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster"
-    },
-    {
-     "id": "L0-w-42",
-     "a": [
-      70.0,
-      120.0
-     ],
-     "b": [
-      70.0,
-      150.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster"
-    },
-    {
-     "id": "L0-w-43",
-     "a": [
-      65.0,
-      150.0
-     ],
-     "b": [
-      70.0,
-      150.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster"
-    },
-    {
-     "id": "L0-w-44",
-     "a": [
-      60.0,
-      150.0
-     ],
-     "b": [
-      65.0,
-      150.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster"
-    },
-    {
-     "id": "L0-w-45",
-     "a": [
-      55.0,
-      150.0
-     ],
-     "b": [
-      60.0,
-      150.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster"
-    },
-    {
-     "id": "L0-w-46",
-     "a": [
-      50.0,
-      150.0
-     ],
-     "b": [
-      55.0,
-      150.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster"
-    },
-    {
-     "id": "L0-w-47",
-     "a": [
-      45.0,
-      150.0
-     ],
-     "b": [
-      50.0,
-      150.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster"
-    },
-    {
-     "id": "L0-w-48",
-     "a": [
-      40.0,
-      150.0
-     ],
-     "b": [
-      45.0,
-      150.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster"
-    },
-    {
-     "id": "L0-w-49",
-     "a": [
-      35.0,
-      150.0
-     ],
-     "b": [
-      40.0,
-      150.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster"
-    },
-    {
-     "id": "L0-w-50",
-     "a": [
-      30.0,
-      150.0
-     ],
-     "b": [
-      35.0,
-      150.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster"
-    },
-    {
-     "id": "L0-w-51",
-     "a": [
-      25.0,
-      150.0
-     ],
-     "b": [
-      30.0,
-      150.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster"
-    },
-    {
-     "id": "L0-w-52",
-     "a": [
-      20.0,
-      150.0
-     ],
-     "b": [
-      25.0,
-      150.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster"
-    },
-    {
-     "id": "L0-w-53",
-     "a": [
-      75.0,
-      65.0
-     ],
-     "b": [
-      80.0,
-      65.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster"
-    },
-    {
-     "id": "L0-w-54",
-     "a": [
-      70.0,
-      65.0
-     ],
-     "b": [
-      75.0,
-      65.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster"
-    },
-    {
-     "id": "L0-w-55",
      "a": [
       70.0,
       60.0
@@ -1016,7 +387,7 @@
      "material": "plaster"
     },
     {
-     "id": "L0-w-56",
+     "id": "L0-w-13",
      "a": [
       80.0,
       55.0
@@ -1031,7 +402,7 @@
      "material": "plaster"
     },
     {
-     "id": "L0-w-57",
+     "id": "L0-w-14",
      "a": [
       80.0,
       50.0
@@ -1046,7 +417,7 @@
      "material": "plaster"
     },
     {
-     "id": "L0-w-58",
+     "id": "L0-w-15",
      "a": [
       80.0,
       45.0
@@ -1077,7 +448,7 @@
      "open": false
     },
     {
-     "id": "L0-w-60",
+     "id": "L0-w-17",
      "a": [
       80.0,
       35.0
@@ -1092,7 +463,7 @@
      "material": "plaster"
     },
     {
-     "id": "L0-w-61",
+     "id": "L0-w-18",
      "a": [
       80.0,
       30.0
@@ -1107,7 +478,7 @@
      "material": "plaster"
     },
     {
-     "id": "L0-w-62",
+     "id": "L0-w-19",
      "a": [
       80.0,
       25.0
@@ -1122,7 +493,7 @@
      "material": "plaster"
     },
     {
-     "id": "L0-w-63",
+     "id": "L0-w-20",
      "a": [
       80.0,
       20.0
@@ -1137,7 +508,7 @@
      "material": "plaster"
     },
     {
-     "id": "L0-w-64",
+     "id": "L0-w-21",
      "a": [
       80.0,
       15.0
@@ -1152,7 +523,7 @@
      "material": "plaster"
     },
     {
-     "id": "L0-w-65",
+     "id": "L0-w-22",
      "a": [
       80.0,
       10.0
@@ -1167,7 +538,7 @@
      "material": "plaster"
     },
     {
-     "id": "L0-w-66",
+     "id": "L0-w-23",
      "a": [
       80.0,
       5.0
@@ -1182,7 +553,7 @@
      "material": "plaster"
     },
     {
-     "id": "L0-w-67",
+     "id": "L0-w-24",
      "a": [
       80.0,
       0.0
@@ -1197,7 +568,7 @@
      "material": "plaster"
     },
     {
-     "id": "L0-w-68",
+     "id": "L0-w-25",
      "a": [
       80.0,
       25.0
@@ -1212,7 +583,7 @@
      "material": "plaster"
     },
     {
-     "id": "L0-w-69",
+     "id": "L0-w-26",
      "a": [
       95.0,
       25.0
@@ -1227,7 +598,7 @@
      "material": "plaster"
     },
     {
-     "id": "L0-w-70",
+     "id": "L0-w-27",
      "a": [
       90.0,
       55.0
@@ -1242,7 +613,7 @@
      "material": "plaster"
     },
     {
-     "id": "L0-w-71",
+     "id": "L0-w-28",
      "a": [
       85.0,
       55.0
@@ -1257,7 +628,7 @@
      "material": "plaster"
     },
     {
-     "id": "L0-w-72",
+     "id": "L0-w-29",
      "a": [
       80.0,
       55.0
@@ -1412,7 +783,7 @@
      "pos": [
       75,
       0,
-      95
+      105
      ],
      "vis": "player",
      "key": "S1"
@@ -1421,9 +792,9 @@
      "id": "L0-temple",
      "kind": "temple",
      "pos": [
-      45,
+      75,
       0,
-      136.0
+      167.5
      ],
      "vis": "player",
      "key": "S4",
@@ -1434,18 +805,30 @@
      }
     },
     {
+     "id": "L0-temple-sign",
+     "kind": "signpost",
+     "pos": [
+      75,
+      0,
+      153.0
+     ],
+     "vis": "player",
+     "key": "S4",
+     "label": "The temple"
+    },
+    {
      "id": "L0-hall",
      "kind": "house",
      "pos": [
-      150,
+      155,
       0,
-      70
+      55
      ],
      "vis": "player",
      "key": "S3",
      "dims": {
       "w": 35,
-      "d": 25,
+      "d": 28,
       "h": 12,
       "stories": 2
      }
@@ -1454,9 +837,9 @@
      "id": "L0-hall-sign",
      "kind": "signpost",
      "pos": [
-      150,
+      155,
       0,
-      86.0
+      92.0
      ],
      "vis": "player",
      "key": "S3",
@@ -1466,9 +849,9 @@
      "id": "L0-trough-sq",
      "kind": "trough",
      "pos": [
-      65,
+      60,
       0,
-      102.5
+      115
      ],
      "vis": "player",
      "key": "S1"
@@ -1477,9 +860,9 @@
      "id": "L0-notice",
      "kind": "signpost",
      "pos": [
-      27.5,
+      52.5,
       0,
-      112.5
+      122.5
      ],
      "vis": "player",
      "key": "S1"
@@ -1488,9 +871,9 @@
      "id": "L0-bench0",
      "kind": "bench",
      "pos": [
-      87.5,
+      90,
       0,
-      105
+      120
      ],
      "vis": "player",
      "key": "S1",
@@ -1502,9 +885,9 @@
      "id": "L0-bench1",
      "kind": "bench",
      "pos": [
-      62.5,
+      60,
       0,
-      85
+      90
      ],
      "vis": "player",
      "key": "S1",
@@ -1516,13 +899,13 @@
      "id": "L0-house0",
      "kind": "house",
      "pos": [
-      10,
+      150,
       0,
-      30
+      160
      ],
      "vis": "player",
      "dims": {
-      "w": 25,
+      "w": 20,
       "d": 20,
       "h": 13,
       "stories": 2
@@ -1532,9 +915,9 @@
      "id": "L0-house1",
      "kind": "house",
      "pos": [
-      10,
+      20,
       0,
-      60
+      160
      ],
      "vis": "player",
      "dims": {
@@ -1548,14 +931,14 @@
      "id": "L0-house2",
      "kind": "house",
      "pos": [
-      150,
+      10,
       0,
-      30
+      75
      ],
      "vis": "player",
      "dims": {
-      "w": 25,
-      "d": 25,
+      "w": 18,
+      "d": 18,
       "h": 11,
       "stories": 1
      }
@@ -1564,14 +947,14 @@
      "id": "L0-house3",
      "kind": "house",
      "pos": [
-      150,
+      160,
       0,
-      120
+      -5
      ],
      "vis": "player",
      "dims": {
       "w": 20,
-      "d": 25,
+      "d": 20,
       "h": 13,
       "stories": 2
      }
@@ -1580,126 +963,13 @@
      "id": "L0-house4",
      "kind": "house",
      "pos": [
-      150,
-      0,
-      150
-     ],
-     "vis": "player",
-     "dims": {
-      "w": 25,
-      "d": 20,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "L0-house5",
-     "kind": "house",
-     "pos": [
-      100,
-      0,
-      135
-     ],
-     "vis": "player",
-     "dims": {
-      "w": 25,
-      "d": 20,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "L0-house6",
-     "kind": "house",
-     "pos": [
-      130,
-      0,
-      140
-     ],
-     "vis": "player",
-     "rotY": 12,
-     "dims": {
-      "w": 20,
-      "d": 20,
-      "h": 13,
-      "stories": 2
-     }
-    },
-    {
-     "id": "L0-house7",
-     "kind": "house",
-     "pos": [
-      10,
-      0,
-      130
-     ],
-     "vis": "player",
-     "dims": {
-      "w": 20,
-      "d": 20,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "L0-house8",
-     "kind": "house",
-     "pos": [
-      40,
-      0,
-      15
-     ],
-     "vis": "player",
-     "dims": {
-      "w": 20,
-      "d": 20,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "L0-house9",
-     "kind": "house",
-     "pos": [
-      45,
-      0,
-      45
-     ],
-     "vis": "player",
-     "dims": {
-      "w": 20,
-      "d": 22,
-      "h": 13,
-      "stories": 2
-     }
-    },
-    {
-     "id": "L0-house10",
-     "kind": "house",
-     "pos": [
-      120,
-      0,
-      10
-     ],
-     "vis": "player",
-     "dims": {
-      "w": 20,
-      "d": 20,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "L0-house11",
-     "kind": "house",
-     "pos": [
       125,
       0,
-      45
+      190
      ],
      "vis": "player",
      "dims": {
-      "w": 20,
+      "w": 25,
       "d": 20,
       "h": 11,
       "stories": 1
@@ -1741,7 +1011,7 @@
      "pos": [
       170,
       0,
-      165
+      180
      ],
      "vis": "player",
      "dims": {
@@ -1756,7 +1026,7 @@
      "pos": [
       5,
       0,
-      165
+      190
      ],
      "vis": "player",
      "dims": {
@@ -1769,9 +1039,9 @@
      "id": "L0-tree4",
      "kind": "oak",
      "pos": [
-      90,
+      120,
       0,
-      165
+      150
      ],
      "vis": "player",
      "dims": {
@@ -1784,9 +1054,24 @@
      "id": "L0-tree5",
      "kind": "oak",
      "pos": [
-      40,
+      30,
       0,
-      165
+      135
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 1.1,
+      "h": 22,
+      "canopy": 8
+     }
+    },
+    {
+     "id": "L0-tree6",
+     "kind": "oak",
+     "pos": [
+      135,
+      0,
+      135
      ],
      "vis": "player",
      "dims": {
@@ -1921,7 +1206,7 @@
      "pos": [
       72.0,
       0,
-      91.0
+      101.0
      ],
      "vis": "hidden-creature",
      "key": "S1",
@@ -1935,9 +1220,9 @@
      "id": "L0-guz",
      "kind": "commoner",
      "pos": [
-      40,
+      35,
       0,
-      95
+      105
      ],
      "vis": "hidden-creature",
      "key": "S2",
@@ -1947,9 +1232,9 @@
      "id": "L0-wolf0",
      "kind": "wolf",
      "pos": [
-      32.5,
+      27.5,
       0,
-      90
+      100
      ],
      "vis": "hidden-creature",
      "key": "S2",
@@ -1959,9 +1244,9 @@
      "id": "L0-wolf1",
      "kind": "wolf",
      "pos": [
-      32.5,
+      27.5,
       0,
-      100
+      110
      ],
      "vis": "hidden-creature",
      "key": "S2",
@@ -1971,9 +1256,9 @@
      "id": "L0-wolf2",
      "kind": "wolf",
      "pos": [
-      25,
+      20,
       0,
-      95
+      105
      ],
      "vis": "hidden-creature",
      "key": "S2",
@@ -1983,9 +1268,9 @@
      "id": "L0-bear",
      "kind": "bear",
      "pos": [
-      15,
+      10,
       0,
-      95
+      105
      ],
      "vis": "hidden-creature",
      "key": "S2",
@@ -2010,11 +1295,11 @@
      "pos": [
       75,
       0,
-      75
+      85
      ],
      "vis": "dm-note",
      "key": "S1",
-     "label": "A town of about fifty: the tavern, the temple, the town hall, a dozen houses. The well is the meeting place."
+     "label": "A town of about fifty: the tavern, the temple, the town hall, a handful of houses beyond the ring road. The well is the meeting place."
     }
    ],
    "terrain": [
@@ -2025,19 +1310,355 @@
        -10
       ],
       [
-       180,
+       190,
        -10
       ],
       [
-       180,
-       170
+       190,
+       210
       ],
       [
        -10,
-       170
+       210
       ]
      ],
      "floor": "grass"
+    },
+    {
+     "polygon": [
+      [
+       106.0,
+       105.0
+      ],
+      [
+       125.0,
+       105.0
+      ],
+      [
+       121.2,
+       124.15
+      ],
+      [
+       103.65,
+       116.85
+      ]
+     ],
+     "floor": "dirt"
+    },
+    {
+     "polygon": [
+      [
+       103.65,
+       116.85
+      ],
+      [
+       121.2,
+       124.15
+      ],
+      [
+       110.35,
+       140.35
+      ],
+      [
+       96.9,
+       126.9
+      ]
+     ],
+     "floor": "dirt"
+    },
+    {
+     "polygon": [
+      [
+       96.9,
+       126.9
+      ],
+      [
+       110.35,
+       140.35
+      ],
+      [
+       94.15,
+       151.2
+      ],
+      [
+       86.85,
+       133.65
+      ]
+     ],
+     "floor": "dirt"
+    },
+    {
+     "polygon": [
+      [
+       86.85,
+       133.65
+      ],
+      [
+       94.15,
+       151.2
+      ],
+      [
+       75.0,
+       155.0
+      ],
+      [
+       75.0,
+       136.0
+      ]
+     ],
+     "floor": "dirt"
+    },
+    {
+     "polygon": [
+      [
+       75.0,
+       136.0
+      ],
+      [
+       75.0,
+       155.0
+      ],
+      [
+       55.85,
+       151.2
+      ],
+      [
+       63.15,
+       133.65
+      ]
+     ],
+     "floor": "dirt"
+    },
+    {
+     "polygon": [
+      [
+       63.15,
+       133.65
+      ],
+      [
+       55.85,
+       151.2
+      ],
+      [
+       39.65,
+       140.35
+      ],
+      [
+       53.1,
+       126.9
+      ]
+     ],
+     "floor": "dirt"
+    },
+    {
+     "polygon": [
+      [
+       53.1,
+       126.9
+      ],
+      [
+       39.65,
+       140.35
+      ],
+      [
+       28.8,
+       124.15
+      ],
+      [
+       46.35,
+       116.85
+      ]
+     ],
+     "floor": "dirt"
+    },
+    {
+     "polygon": [
+      [
+       46.35,
+       116.85
+      ],
+      [
+       28.8,
+       124.15
+      ],
+      [
+       25.0,
+       105.0
+      ],
+      [
+       44.0,
+       105.0
+      ]
+     ],
+     "floor": "dirt"
+    },
+    {
+     "polygon": [
+      [
+       44.0,
+       105.0
+      ],
+      [
+       25.0,
+       105.0
+      ],
+      [
+       28.8,
+       85.85
+      ],
+      [
+       46.35,
+       93.15
+      ]
+     ],
+     "floor": "dirt"
+    },
+    {
+     "polygon": [
+      [
+       46.35,
+       93.15
+      ],
+      [
+       28.8,
+       85.85
+      ],
+      [
+       39.65,
+       69.65
+      ],
+      [
+       53.1,
+       83.1
+      ]
+     ],
+     "floor": "dirt"
+    },
+    {
+     "polygon": [
+      [
+       53.1,
+       83.1
+      ],
+      [
+       39.65,
+       69.65
+      ],
+      [
+       55.85,
+       58.8
+      ],
+      [
+       63.15,
+       76.35
+      ]
+     ],
+     "floor": "dirt"
+    },
+    {
+     "polygon": [
+      [
+       63.15,
+       76.35
+      ],
+      [
+       55.85,
+       58.8
+      ],
+      [
+       75.0,
+       55.0
+      ],
+      [
+       75.0,
+       74.0
+      ]
+     ],
+     "floor": "dirt"
+    },
+    {
+     "polygon": [
+      [
+       75.0,
+       74.0
+      ],
+      [
+       75.0,
+       55.0
+      ],
+      [
+       94.15,
+       58.8
+      ],
+      [
+       86.85,
+       76.35
+      ]
+     ],
+     "floor": "dirt"
+    },
+    {
+     "polygon": [
+      [
+       86.85,
+       76.35
+      ],
+      [
+       94.15,
+       58.8
+      ],
+      [
+       110.35,
+       69.65
+      ],
+      [
+       96.9,
+       83.1
+      ]
+     ],
+     "floor": "dirt"
+    },
+    {
+     "polygon": [
+      [
+       96.9,
+       83.1
+      ],
+      [
+       110.35,
+       69.65
+      ],
+      [
+       121.2,
+       85.85
+      ],
+      [
+       103.65,
+       93.15
+      ]
+     ],
+     "floor": "dirt"
+    },
+    {
+     "polygon": [
+      [
+       103.65,
+       93.15
+      ],
+      [
+       121.2,
+       85.85
+      ],
+      [
+       125.0,
+       105.0
+      ],
+      [
+       106.0,
+       105.0
+      ]
+     ],
+     "floor": "dirt"
     }
    ]
   }
