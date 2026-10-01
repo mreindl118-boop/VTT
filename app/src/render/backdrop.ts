@@ -169,9 +169,9 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
     const looming = p.key === 'K' && p.type === 'castle';
     // Ravenloft is drawn for dread, not for the surveyor: pulled in to a few hundred yards and made half again
     // as big, on a cliff that overhangs the water below as if about to let go.
-    if (looming) { const k = Math.min(1, 3200 / t.d); t = { x: cx + (t.x - cx) * k, z: cz + (t.z - cz) * k, d: t.d * k }; }
-    const lift = looming ? Math.max(p.heightFt ?? 0, 1000) : (p.heightFt ?? 0);
-    const S = 1; // the looming castle is drawn larger; its cliff still stands on the valley floor
+    if (looming) { const k = Math.min(1, 1500 / t.d); t = { x: cx + (t.x - cx) * k, z: cz + (t.z - cz) * k, d: t.d * k }; }
+    const lift = looming ? Math.max(p.heightFt ?? 0, 1100) : (p.heightFt ?? 0);
+    const S = looming ? 1.25 : 1; // the looming castle is drawn larger; its cliff still stands on the valley floor
     const s = new THREE.Group(); s.position.set(t.x, y0 + lift * S, t.z); s.name = `site-${p.key}`; s.rotation.y = -Math.atan2(E[1], E[0]);
     if (looming) {
       const toward = Math.atan2(cz - t.z, cx - t.x); // the cliff leans out toward the viewer's side
@@ -237,6 +237,13 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
   };
   for (const p of W.pins) { if (Math.hypot(p.pos[0] - o.pin[0], p.pos[1] - o.pin[1]) < 0.05) continue; site(p); }
   const rl = g.getObjectByName('site-K'); if (rl) rl.name = 'castle-ravenloft';
+  // 4b. A moon hangs behind Ravenloft and lights it from behind and above: the castle is seen by moonlight.
+  if (rl && loomB !== undefined) {
+    const mx = cx + Math.cos(loomB) * 40000, mz = cz + Math.sin(loomB) * 40000, my = y0 + 16000;
+    const moon = new THREE.Mesh(new THREE.SphereGeometry(900, 24, 16), new THREE.MeshBasicMaterial({ color: '#ece8d6', fog: false })); moon.position.set(mx, my, mz); g.add(moon);
+    const halo = new THREE.Mesh(new THREE.SphereGeometry(2600, 24, 16), new THREE.MeshBasicMaterial({ color: '#cfd3e6', transparent: true, opacity: 0.16, fog: false, depthWrite: false })); halo.position.copy(moon.position); g.add(halo);
+    const light = new THREE.DirectionalLight('#c3cbe6', 0.45); light.position.set(mx - rl.position.x, my - rl.position.y, mz - rl.position.z).normalize().multiplyScalar(5000).add(rl.position); light.target = rl; g.add(light, rl);
+  }
 
   // 5. Roads and rivers from the world map at true scale, as flat ribbons on the land. They run under the
   //    map itself (its floors sit above the apron), so only the stretches outside the map show.
