@@ -67,7 +67,16 @@ for a, b in [((4, 4), (72, 4)), ((72, 4), (72, 64)), ((72, 64), (4, 64)), ((4, 6
     g._stamp(a, b, flags=['normal'], heightFt=WALL_H, material='ashlar', wall=True)
 for a, b in [((0, 0), (76, 0)), ((76, 0), (76, 68)), ((76, 68), (0, 68)), ((0, 68), (0, 0))]:
     g.wall(a, b, heightFt=WALL_H, material='ashlar')
-g.terrain.append(([(-18, 31), (0, 31), (0, 37), (-18, 37)], 'flagstone'))  # the bridge over the chasm from J
+# The approach from the Gates of Ravenloft (J): the road along the ridge, the fifty-foot chasm, the drawbridge of
+# old shored-up beams across it, the two gate towers either side of the entry tunnel (p.37-38)
+g.terrain.append(([(-62, 30), (-11, 30), (-11, 38), (-62, 38)], 'cobble'))                  # the road on the ridge
+g.terrain.append(([(-62, 22), (-11, 22), (-11, 46), (-62, 46)], 'grass'))                   # the ridge's crown either side
+g.room('K1-bridge', 'Drawbridge', [(-11, 32), (0, 32), (0, 36), (-11, 36)], 'plank', ceilingFt=None)
+g.prop('J-chasm', 'chasm', (-5.5, 34), 'K1-bridge', dims={'w': 50, 'len': 340, 'depth': 1000})
+g.prop('J-drawbridge', 'drawbridge', (-5.5, 34), 'K1-bridge', dims={'len': 56, 'w': 18})
+for s_ in (-1, 1): g.prop(f'J-tower{s_}', 'gate-tower', (-1.6, 34 + s_ * 4.6), None, dims={'r': 7, 'h': 100})
+g.prop('J-portcullis', 'portcullis', (0.3, 34), 'K1-g', rotY=90)
+g.note('J-bridge-note', (-6, 31), 'K1-bridge', 'The drawbridge: 5% chance a board breaks under any crosser but Strahd and his horses; DC 10 Dexterity save or fall 1,000 ft (advantage if a companion within 5 ft grabs you).')
 g.terrain.append(([(0, 0), (76, 0), (76, 68), (0, 68)], 'flagstone'))        # wall tops / foundations under everything
 g.prop('carriage', 'wagon', (67, 7), 'K4', rotY=90)
 g.note('K6-note', (81, 33), 'K6', 'Balcony over the cliff: the village lies a thousand feet below; a window-set stone box juts from the cliff 100 ft down (K63).')

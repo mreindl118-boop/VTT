@@ -630,6 +630,34 @@ export function standingStone(d: Dims): THREE.Group {
   geo.computeVertexNormals();
   return g_(new THREE.Mesh(geo, mat('#6f6e66')), box(2.6, 0.5, 0.1, '#4d5a3f', 0, h * 0.2, 1.02));
 }
+/** A chasm: two sheer rock faces plunging `depth` ft (drawn to 400 and lost in fog), a fog floor between them.
+ *  Spans `w` across (local x) and runs `len` along (local z). */
+export function chasm(d: Dims): THREE.Group {
+  const w = d.w ?? 50, L = d.len ?? 120, D = Math.min(400, d.depth ?? 1000), g = g_();
+  for (const sx of [-1, 1]) {
+    const face = new THREE.BoxGeometry(6, D, L, 1, 6, 6); face.translate(sx * (w / 2 + 3), -D / 2, 0);
+    const pv = face.attributes.position; for (let i = 0; i < pv.count; i++) if (Math.sign(pv.getX(i)) === -sx || Math.abs(pv.getX(i)) < w / 2 + 3) pv.setX(i, pv.getX(i) - sx * (((i * 7919) % 11) / 11) * 3);
+    face.computeVertexNormals(); g.add(new THREE.Mesh(face, mat('#3d3d45')));
+  }
+  const fog = new THREE.Mesh(new THREE.PlaneGeometry(w + 6, L), new THREE.MeshBasicMaterial({ color: '#8a90a0', transparent: true, opacity: 0.85 })); fog.rotation.x = -Math.PI / 2; fog.position.y = -60; g.add(fog);
+  const fog2 = new THREE.Mesh(new THREE.PlaneGeometry(w + 6, L), new THREE.MeshBasicMaterial({ color: '#5e6270' })); fog2.rotation.x = -Math.PI / 2; fog2.position.y = -140; g.add(fog2);
+  return g;
+}
+/** The drawbridge: old shored-up beams across `len` ft (local x), `w` wide, a few boards missing, chains up to the gate. */
+export function drawbridge(d: Dims): THREE.Group {
+  const L = d.len ?? 56, w = d.w ?? 16, g = g_(box(L, 0.6, 1, PALETTE.woodDark, 0, -0.6, -w / 2 + 0.5), box(L, 0.6, 1, PALETTE.woodDark, 0, -0.6, w / 2 - 0.5));
+  const n = Math.floor(L / 1.2);
+  for (let i = 0; i < n; i++) { if (i % 11 === 4 || i % 17 === 9) continue; g.add(box(1.1, 0.4, w, i % 3 ? PALETTE.wood : '#5a4632', -L / 2 + 0.6 + i * 1.2, 0, 0)); }
+  for (const sz of [-1, 1]) { const ch = box(0.3, 0.3, Math.hypot(L * 0.9, 22), PALETTE.iron, L / 2 - L * 0.45, 11, sz * (w / 2)); ch.rotation.y = Math.PI / 2; ch.rotation.x = 0; ch.rotation.z = Math.atan2(22, L * 0.9); g.add(ch); }
+  return g;
+}
+/** A round stone gate tower with a conical slate roof. */
+export function gateTower(d: Dims): THREE.Group {
+  const r = d.r ?? 7, h = d.h ?? 60, g = g_(cyl(r * 0.95, r, h, '#7a828b', 0, h / 2, 0, 12));
+  const roof = new THREE.Mesh(new THREE.ConeGeometry(r + 1.5, r * 2.4, 12), mat('#3a3340')); roof.position.y = h + r * 1.2; g.add(roof);
+  for (let i = 0; i < 3; i++) g.add(box(1, 3, 0.3, '#ffd36b', Math.cos(i * 2) * r, h * (0.4 + i * 0.18), Math.sin(i * 2) * r));
+  return g;
+}
 /** A smith's anvil on its block. */
 export function anvil(): THREE.Group { return g_(cyl(0.9, 1.0, 1.6, PALETTE.woodDark, 0, 0.8, 0, 8), box(2.2, 0.5, 0.9, PALETTE.iron, 0, 1.85, 0), box(1.2, 0.45, 0.8, PALETTE.iron, 0.9, 2.25, 0), box(1.6, 0.4, 0.7, PALETTE.iron, -0.2, 2.25, 0)); }
 /** The pillory: two posts and a hinged board with holes for a head and two hands, on a little step. */
@@ -650,4 +678,4 @@ export function roofCone(d: Dims): THREE.Group {
 }
 /** A stone chimney stack rising `h` ft from `y`. */
 export function chimney(d: Dims): THREE.Group { const h = d.h ?? 8, y = d.y ?? 10; return g_(box(2.6, h, 2.6, '#6a6560', 0, y + h / 2, 0), box(3.2, 0.8, 3.2, '#4d4845', 0, y + h + 0.4, 0)); }
-Object.assign(PROPS_V1, { 'roof-gable': roofGable, 'roof-cone': roofCone, chimney, stump, anvil, pillory, palisade, watchtower, millstone, 'gear-shaft': gearShaft, 'onion-dome': onionDome, 'mill-sails': millSails, 'standing-stone': standingStone, vardo, campfire, 'big-tent': bigTent, mound, washline } as Record<string, (d: Dims) => THREE.Object3D>);
+Object.assign(PROPS_V1, { 'roof-gable': roofGable, 'roof-cone': roofCone, chimney, stump, anvil, pillory, chasm, drawbridge, 'gate-tower': gateTower, palisade, watchtower, millstone, 'gear-shaft': gearShaft, 'onion-dome': onionDome, 'mill-sails': millSails, 'standing-stone': standingStone, vardo, campfire, 'big-tent': bigTent, mound, washline } as Record<string, (d: Dims) => THREE.Object3D>);

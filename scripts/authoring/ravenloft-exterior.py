@@ -102,7 +102,10 @@ for b in merged:
                 if (hash((round(fx), round(fz), y, s)) % 3) == 0: continue  # not every window burns
                 win.append([round(fx + (0 if nx else off), 1), round(fz + (off if nx else 0), 1), y, 1 if nx else 0])
 
-out = OrderedDict(note='Derived from locations/ch04/K by scripts/authoring/ravenloft-exterior.py; castle-centred feet, x east, z south.',
+# the approach: the drawbridge west from the gate across the fifty-foot chasm, the gate towers, the road beyond
+gate = (0 - cx, 170 - cz)
+approach = OrderedDict(gate=[round(gate[0], 1), round(gate[1], 1)], chasm=50, bridgeW=18, towers=[[round(gate[0] - 8, 1), round(gate[1] - 23, 1)], [round(gate[0] - 8, 1), round(gate[1] + 23, 1)]])
+out = OrderedDict(approach=approach, note='Derived from locations/ch04/K by scripts/authoring/ravenloft-exterior.py; castle-centred feet, x east, z south.',
                   centre=[round(cx, 1), round(cz, 1)], blocks=merged, walls=walls, towers=tw, windows=win[:400])
 json.dump(out, open(os.path.join(ROOT, 'locations/ch04/K/exterior.json'), 'w'), separators=(',', ':'))
 print('ravenloft exterior:', len(merged), 'blocks,', len(walls), 'wall runs,', len(tw), 'towers,', len(out['windows']), 'windows; top', max(b[4] for b in merged))

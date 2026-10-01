@@ -75,7 +75,9 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
         if (lat < wdt * 1.6) { const los = yTop + 40 + (sight.top - yTop - 40) * tt - 60, k = smooth(wdt * 1.6, wdt * 0.7, lat); if (h > los) h = h + (los - h) * k; }
       }
     }
-    if (crag > 0) { const cliff = yTop - crag * smooth(40, 320, d); return cliff + (h - (yTop - crag)) * smooth(320, 1400, d); }
+    // a site on its crag: the map's own floors are its rock top; under and past them the land falls away at once (so a
+    // chasm left open in the map shows its depth), then the valley carries on from the foot of the cliff
+    if (crag > 0) { const cliff = yTop - crag; return cliff + (h - cliff) * smooth(320, 1400, d); }
     return yTop + (h - yTop) * smooth(120, 900, d);
   };
   const lakeLevel = new Map<object, number>();
@@ -320,6 +322,18 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
         const a = (i / 13) * Math.PI * 2 + r1() * 0.4, d = pr * (0.85 + r1() * 0.35), h = ph * (0.55 + r1() * 0.43);
         column(Math.cos(a) * d, Math.sin(a) * d, pr * (0.32 + r1() * 0.22), pr * (0.06 + r1() * 0.12), h + embed, -ph + h + 0.5, 0.14, i % 3 === 0 ? '#3a3a42' : i % 3 === 1 ? '#4a4a52' : '#45454d', 7);
       }
+      const AP = p.key === 'K' ? (RAVENLOFT as { approach?: { gate: number[]; chasm: number } }).approach : undefined;
+      if (AP) {
+        // the far side of the chasm: a spur of the same rock, its top at the castle's floor, carrying the road; the road
+        // then falls away along the ridge toward the Gates of Ravenloft
+        const sx = AP.gate[0] - AP.chasm - 45, sz = AP.gate[1];
+        column(sx, sz, 70, 52, ph + embed, 0.3, 0.02, '#45454d', 9);
+        const ramp = new THREE.BoxGeometry(900, ph, 130, 6, 1, 2); ramp.translate(-450, -ph * 0.5, 0);
+        const rp = ramp.attributes.position; for (let i = 0; i < rp.count; i++) { const x = rp.getX(i), y = rp.getY(i); if (y > -1) rp.setY(i, y + (x / 900) * ph * 0.75); }
+        ramp.computeVertexNormals(); const rm = new THREE.Mesh(ramp, hazed('#4a4a52', t.d)); rm.position.set(sx - 40, 0, sz); s.add(rm);
+        const road = new THREE.BoxGeometry(900, 1, 16); road.translate(-450, 0.6, 0); const rdp = road.attributes.position; for (let i = 0; i < rdp.count; i++) rdp.setY(i, rdp.getY(i) + (rdp.getX(i) / 900) * ph * 0.75);
+        const rdm = new THREE.Mesh(road, hazed('#6d6a66', t.d)); rdm.position.set(sx - 40, 0, sz); s.add(rdm);
+      }
       for (let i = 0; i < 4; i++) { const a = r1() * Math.PI * 2, d = pr * (1.5 + r1() * 0.6), h = ph * (0.25 + r1() * 0.3); column(Math.cos(a) * d, Math.sin(a) * d, pr * 0.16, pr * 0.05, h + embed, -ph + h, 0.2, '#47474f', 6); }
       // talus at the foot
       for (let i = 0; i < 18; i++) { const a = r1() * Math.PI * 2, r = pr * (1.15 + r1() * 1.1); const bd = new THREE.Mesh(new THREE.IcosahedronGeometry(pr * (0.05 + r1() * 0.09), 0), hazed('#44444c', t.d)); bd.position.set(Math.cos(a) * r, -ph + r1() * 12, Math.sin(a) * r); s.add(bd); }
@@ -543,6 +557,13 @@ function ravenloft(s: THREE.Group, mat: (hex: string) => THREE.Material): void {
   // lit windows (unlit material: they glow through the night and the mist)
   const glow = new THREE.MeshBasicMaterial({ color: GLOW, fog: false });
   for (const [x, z, y, alongZ] of E.windows) { const g = new THREE.BoxGeometry(alongZ ? 1 : 5, 9, alongZ ? 5 : 1); g.translate(0, 4.5, 0); add(g, glow, x, y, z); }
+  // the gate towers either side of the entry tunnel, and the drawbridge across the chasm to the west
+  const A = (RAVENLOFT as { approach?: { gate: number[]; chasm: number; bridgeW: number; towers: number[][] } }).approach;
+  if (A) {
+    for (const [x, z] of A.towers) { const c = new THREE.CylinderGeometry(7, 7.5, 100, 12); c.translate(0, 50, 0); add(c, mat(DARK), x, 0, z); const cap = new THREE.ConeGeometry(9, 18, 12); cap.translate(0, 9, 0); add(cap, mat(SLATE), x, 100, z); }
+    box(A.chasm + 6, 1.2, A.bridgeW, A.gate[0] - A.chasm / 2 - 3, A.gate[1], -1.2, '#5a4632');
+    for (const s2 of [-1, 1]) { const ch = new THREE.BoxGeometry(0.6, 0.6, Math.hypot(A.chasm, 24)); ch.rotateX(-Math.atan2(24, A.chasm)); ch.rotateY(Math.PI / 2); add(ch, mat('#2b2b30'), A.gate[0] - A.chasm / 2, 12, A.gate[1] + s2 * (A.bridgeW / 2)); }
+  }
   // the overlook on the east and its stone box in the cliff below (the wine cellar)
   box(40, 6, 30, 200, 0, 0, STONE); box(30, 20, 24, 190, 0, -110, DARK);
 }

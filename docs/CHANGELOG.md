@@ -405,3 +405,8 @@
   the west, a quarter smaller than before, in its phase; Barovia's sun is a small pale disc behind the overcast.
 - Floors are a dropdown (no more cut-off tabs) with a Whole building button that lifts the cut and frames every
   floor at once.
+- Ravenloft's approach (p.37-38), on the castle map and in every view of it: the road along the ridge from the
+  Gates of Ravenloft, the fifty-foot chasm (its faces dropping into fog), the drawbridge of old shored-up beams with
+  boards missing and its chains, the two gate towers either side of the entry tunnel, the portcullis; the board-
+  breaking rule as a DM note. Under a crag site's map the land falls away at once, so the chasm shows its depth.
+  From afar: the gate towers, the drawbridge and the far rock spur carrying the road down the ridge.

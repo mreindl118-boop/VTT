@@ -11707,6 +11707,30 @@
      "floor": "flagstone"
     },
     {
+     "key": "K1-bridge",
+     "name": "Drawbridge",
+     "page": null,
+     "polygon": [
+      [
+       -55,
+       160
+      ],
+      [
+       0,
+       160
+      ],
+      [
+       0,
+       180
+      ],
+      [
+       -55,
+       180
+      ]
+     ],
+     "floor": "plank"
+    },
+    {
      "key": "K12-n",
      "name": "Turret Post (north-west)",
      "page": 57,
@@ -18224,12 +18248,12 @@
     {
      "id": "ground-w-364",
      "a": [
-      88.787,
-      105.0
+      -55.0,
+      160.0
      ],
      "b": [
-      101.213,
-      105.0
+      0.0,
+      160.0
      ],
      "flags": [
       "normal"
@@ -18239,12 +18263,12 @@
     {
      "id": "ground-w-365",
      "a": [
-      101.213,
-      105.0
+      -5.0,
+      180.0
      ],
      "b": [
-      110.0,
-      113.787
+      0.0,
+      180.0
      ],
      "flags": [
       "normal"
@@ -18254,12 +18278,12 @@
     {
      "id": "ground-w-366",
      "a": [
-      110.0,
-      113.787
+      -10.0,
+      180.0
      ],
      "b": [
-      110.0,
-      126.213
+      -5.0,
+      180.0
      ],
      "flags": [
       "normal"
@@ -18269,6 +18293,246 @@
     {
      "id": "ground-w-367",
      "a": [
+      -15.0,
+      180.0
+     ],
+     "b": [
+      -10.0,
+      180.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-368",
+     "a": [
+      -20.0,
+      180.0
+     ],
+     "b": [
+      -15.0,
+      180.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-369",
+     "a": [
+      -25.0,
+      180.0
+     ],
+     "b": [
+      -20.0,
+      180.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-370",
+     "a": [
+      -30.0,
+      180.0
+     ],
+     "b": [
+      -25.0,
+      180.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-371",
+     "a": [
+      -35.0,
+      180.0
+     ],
+     "b": [
+      -30.0,
+      180.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-372",
+     "a": [
+      -40.0,
+      180.0
+     ],
+     "b": [
+      -35.0,
+      180.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-373",
+     "a": [
+      -45.0,
+      180.0
+     ],
+     "b": [
+      -40.0,
+      180.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-374",
+     "a": [
+      -50.0,
+      180.0
+     ],
+     "b": [
+      -45.0,
+      180.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-375",
+     "a": [
+      -55.0,
+      180.0
+     ],
+     "b": [
+      -50.0,
+      180.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-376",
+     "a": [
+      -55.0,
+      175.0
+     ],
+     "b": [
+      -55.0,
+      180.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-377",
+     "a": [
+      -55.0,
+      170.0
+     ],
+     "b": [
+      -55.0,
+      175.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-378",
+     "a": [
+      -55.0,
+      165.0
+     ],
+     "b": [
+      -55.0,
+      170.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-379",
+     "a": [
+      -55.0,
+      160.0
+     ],
+     "b": [
+      -55.0,
+      165.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-380",
+     "a": [
+      88.787,
+      105.0
+     ],
+     "b": [
+      101.213,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-381",
+     "a": [
+      101.213,
+      105.0
+     ],
+     "b": [
+      110.0,
+      113.787
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-382",
+     "a": [
+      110.0,
+      113.787
+     ],
+     "b": [
+      110.0,
+      126.213
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-383",
+     "a": [
       101.213,
       135.0
      ],
@@ -18282,7 +18546,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-368",
+     "id": "ground-w-384",
      "a": [
       95.0,
       135.0
@@ -18297,7 +18561,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-369",
+     "id": "ground-w-385",
      "a": [
       88.787,
       135.0
@@ -18312,7 +18576,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-370",
+     "id": "ground-w-386",
      "a": [
       80.0,
       126.213
@@ -18327,7 +18591,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-371",
+     "id": "ground-w-387",
      "a": [
       80.0,
       120.0
@@ -18342,7 +18606,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-372",
+     "id": "ground-w-388",
      "a": [
       80.0,
       113.787
@@ -18357,7 +18621,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-373",
+     "id": "ground-w-389",
      "a": [
       80.0,
       113.787
@@ -18372,254 +18636,14 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-374",
-     "a": [
-      88.787,
-      220.0
-     ],
-     "b": [
-      101.213,
-      220.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-375",
-     "a": [
-      101.213,
-      220.0
-     ],
-     "b": [
-      110.0,
-      228.78699999999998
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-376",
-     "a": [
-      110.0,
-      228.78699999999998
-     ],
-     "b": [
-      110.0,
-      241.21300000000002
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-377",
-     "a": [
-      101.213,
-      250.0
-     ],
-     "b": [
-      110.0,
-      241.21300000000002
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-378",
-     "a": [
-      95.0,
-      250.0
-     ],
-     "b": [
-      101.213,
-      250.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-379",
-     "a": [
-      88.787,
-      250.0
-     ],
-     "b": [
-      95.0,
-      250.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-380",
-     "a": [
-      80.0,
-      241.21300000000002
-     ],
-     "b": [
-      88.787,
-      250.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-381",
-     "a": [
-      80.0,
-      235.0
-     ],
-     "b": [
-      80.0,
-      241.21300000000002
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-382",
-     "a": [
-      80.0,
-      228.78699999999998
-     ],
-     "b": [
-      80.0,
-      235.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-383",
-     "a": [
-      80.0,
-      228.78699999999998
-     ],
-     "b": [
-      88.787,
-      220.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-384",
-     "a": [
-      110.0,
-      115.0
-     ],
-     "b": [
-      140.0,
-      115.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-385",
-     "a": [
-      140.0,
-      115.0
-     ],
-     "b": [
-      140.0,
-      120.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-386",
-     "a": [
-      135.0,
-      125.0
-     ],
-     "b": [
-      140.0,
-      125.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-387",
-     "a": [
-      130.0,
-      125.0
-     ],
-     "b": [
-      135.0,
-      125.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-388",
-     "a": [
-      125.0,
-      125.0
-     ],
-     "b": [
-      130.0,
-      125.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-389",
-     "a": [
-      120.0,
-      125.0
-     ],
-     "b": [
-      125.0,
-      125.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
      "id": "ground-w-390",
      "a": [
-      115.0,
-      125.0
+      88.787,
+      220.0
      ],
      "b": [
-      120.0,
-      125.0
+      101.213,
+      220.0
      ],
      "flags": [
       "normal"
@@ -18629,12 +18653,12 @@
     {
      "id": "ground-w-391",
      "a": [
-      110.0,
-      125.0
+      101.213,
+      220.0
      ],
      "b": [
-      115.0,
-      125.0
+      110.0,
+      228.78699999999998
      ],
      "flags": [
       "normal"
@@ -18645,6 +18669,246 @@
      "id": "ground-w-392",
      "a": [
       110.0,
+      228.78699999999998
+     ],
+     "b": [
+      110.0,
+      241.21300000000002
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-393",
+     "a": [
+      101.213,
+      250.0
+     ],
+     "b": [
+      110.0,
+      241.21300000000002
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-394",
+     "a": [
+      95.0,
+      250.0
+     ],
+     "b": [
+      101.213,
+      250.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-395",
+     "a": [
+      88.787,
+      250.0
+     ],
+     "b": [
+      95.0,
+      250.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-396",
+     "a": [
+      80.0,
+      241.21300000000002
+     ],
+     "b": [
+      88.787,
+      250.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-397",
+     "a": [
+      80.0,
+      235.0
+     ],
+     "b": [
+      80.0,
+      241.21300000000002
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-398",
+     "a": [
+      80.0,
+      228.78699999999998
+     ],
+     "b": [
+      80.0,
+      235.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-399",
+     "a": [
+      80.0,
+      228.78699999999998
+     ],
+     "b": [
+      88.787,
+      220.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-400",
+     "a": [
+      110.0,
+      115.0
+     ],
+     "b": [
+      140.0,
+      115.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-401",
+     "a": [
+      140.0,
+      115.0
+     ],
+     "b": [
+      140.0,
+      120.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-402",
+     "a": [
+      135.0,
+      125.0
+     ],
+     "b": [
+      140.0,
+      125.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-403",
+     "a": [
+      130.0,
+      125.0
+     ],
+     "b": [
+      135.0,
+      125.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-404",
+     "a": [
+      125.0,
+      125.0
+     ],
+     "b": [
+      130.0,
+      125.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-405",
+     "a": [
+      120.0,
+      125.0
+     ],
+     "b": [
+      125.0,
+      125.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-406",
+     "a": [
+      115.0,
+      125.0
+     ],
+     "b": [
+      120.0,
+      125.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-407",
+     "a": [
+      110.0,
+      125.0
+     ],
+     "b": [
+      115.0,
+      125.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-408",
+     "a": [
+      110.0,
       115.0
      ],
      "b": [
@@ -18657,7 +18921,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-393",
+     "id": "ground-w-409",
      "a": [
       85.0,
       135.0
@@ -18672,7 +18936,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-394",
+     "id": "ground-w-410",
      "a": [
       95.0,
       135.0
@@ -18687,7 +18951,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-395",
+     "id": "ground-w-411",
      "a": [
       95.0,
       150.0
@@ -18702,7 +18966,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-396",
+     "id": "ground-w-412",
      "a": [
       90.0,
       210.0
@@ -18717,7 +18981,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-397",
+     "id": "ground-w-413",
      "a": [
       85.0,
       210.0
@@ -18732,7 +18996,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-398",
+     "id": "ground-w-414",
      "a": [
       85.0,
       205.0
@@ -18747,7 +19011,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-399",
+     "id": "ground-w-415",
      "a": [
       85.0,
       200.0
@@ -18762,7 +19026,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-400",
+     "id": "ground-w-416",
      "a": [
       85.0,
       195.0
@@ -18777,7 +19041,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-401",
+     "id": "ground-w-417",
      "a": [
       85.0,
       190.0
@@ -18792,7 +19056,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-402",
+     "id": "ground-w-418",
      "a": [
       85.0,
       185.0
@@ -18807,7 +19071,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-403",
+     "id": "ground-w-419",
      "a": [
       85.0,
       180.0
@@ -18822,7 +19086,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-404",
+     "id": "ground-w-420",
      "a": [
       85.0,
       175.0
@@ -18837,7 +19101,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-405",
+     "id": "ground-w-421",
      "a": [
       85.0,
       170.0
@@ -18852,7 +19116,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-406",
+     "id": "ground-w-422",
      "a": [
       85.0,
       165.0
@@ -18867,7 +19131,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-407",
+     "id": "ground-w-423",
      "a": [
       85.0,
       160.0
@@ -18882,7 +19146,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-408",
+     "id": "ground-w-424",
      "a": [
       85.0,
       155.0
@@ -18897,7 +19161,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-409",
+     "id": "ground-w-425",
      "a": [
       85.0,
       150.0
@@ -18912,7 +19176,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-410",
+     "id": "ground-w-426",
      "a": [
       85.0,
       145.0
@@ -18927,7 +19191,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-411",
+     "id": "ground-w-427",
      "a": [
       85.0,
       140.0
@@ -18942,7 +19206,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-412",
+     "id": "ground-w-428",
      "a": [
       85.0,
       135.0
@@ -18957,7 +19221,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-413",
+     "id": "ground-w-429",
      "a": [
       110.0,
       230.0
@@ -18972,7 +19236,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-414",
+     "id": "ground-w-430",
      "a": [
       155.0,
       230.0
@@ -18987,7 +19251,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-415",
+     "id": "ground-w-431",
      "a": [
       150.0,
       240.0
@@ -19002,7 +19266,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-416",
+     "id": "ground-w-432",
      "a": [
       145.0,
       240.0
@@ -19017,7 +19281,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-417",
+     "id": "ground-w-433",
      "a": [
       140.0,
       240.0
@@ -19032,7 +19296,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-418",
+     "id": "ground-w-434",
      "a": [
       135.0,
       240.0
@@ -19047,7 +19311,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-419",
+     "id": "ground-w-435",
      "a": [
       130.0,
       240.0
@@ -19062,7 +19326,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-420",
+     "id": "ground-w-436",
      "a": [
       125.0,
       240.0
@@ -19077,7 +19341,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-421",
+     "id": "ground-w-437",
      "a": [
       120.0,
       240.0
@@ -19092,7 +19356,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-422",
+     "id": "ground-w-438",
      "a": [
       115.0,
       240.0
@@ -19107,7 +19371,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-423",
+     "id": "ground-w-439",
      "a": [
       110.0,
       240.0
@@ -19122,7 +19386,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-424",
+     "id": "ground-w-440",
      "a": [
       100.0,
       125.0
@@ -19137,7 +19401,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-425",
+     "id": "ground-w-441",
      "a": [
       120.0,
       125.0
@@ -19152,7 +19416,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-426",
+     "id": "ground-w-442",
      "a": [
       115.0,
       145.0
@@ -19167,7 +19431,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-427",
+     "id": "ground-w-443",
      "a": [
       110.0,
       145.0
@@ -19182,7 +19446,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-428",
+     "id": "ground-w-444",
      "a": [
       105.0,
       145.0
@@ -19197,7 +19461,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-429",
+     "id": "ground-w-445",
      "a": [
       100.0,
       145.0
@@ -19212,7 +19476,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-430",
+     "id": "ground-w-446",
      "a": [
       100.0,
       140.0
@@ -19227,7 +19491,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-431",
+     "id": "ground-w-447",
      "a": [
       100.0,
       135.0
@@ -19242,7 +19506,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-432",
+     "id": "ground-w-448",
      "a": [
       100.0,
       130.0
@@ -19257,7 +19521,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-433",
+     "id": "ground-w-449",
      "a": [
       100.0,
       125.0
@@ -19272,7 +19536,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-434",
+     "id": "ground-w-450",
      "a": [
       110.0,
       210.0
@@ -19303,7 +19567,7 @@
      "open": false
     },
     {
-     "id": "ground-w-436",
+     "id": "ground-w-452",
      "a": [
       110.0,
       225.0
@@ -19318,7 +19582,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-437",
+     "id": "ground-w-453",
      "a": [
       105.0,
       230.0
@@ -19333,7 +19597,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-438",
+     "id": "ground-w-454",
      "a": [
       100.0,
       230.0
@@ -19348,7 +19612,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-439",
+     "id": "ground-w-455",
      "a": [
       95.0,
       230.0
@@ -19363,7 +19627,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-440",
+     "id": "ground-w-456",
      "a": [
       95.0,
       225.0
@@ -19378,7 +19642,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-441",
+     "id": "ground-w-457",
      "a": [
       95.0,
       220.0
@@ -19393,7 +19657,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-442",
+     "id": "ground-w-458",
      "a": [
       95.0,
       215.0
@@ -19408,7 +19672,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-443",
+     "id": "ground-w-459",
      "a": [
       95.0,
       210.0
@@ -19423,253 +19687,13 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-444",
-     "a": [
-      130.858,
-      145.0
-     ],
-     "b": [
-      139.142,
-      145.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-445",
-     "a": [
-      139.142,
-      145.0
-     ],
-     "b": [
-      145.0,
-      150.858
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-446",
-     "a": [
-      145.0,
-      150.858
-     ],
-     "b": [
-      145.0,
-      159.142
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-447",
-     "a": [
-      139.142,
-      165.0
-     ],
-     "b": [
-      145.0,
-      159.142
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-448",
-     "a": [
-      135.0,
-      165.0
-     ],
-     "b": [
-      139.142,
-      165.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-449",
-     "a": [
-      130.858,
-      165.0
-     ],
-     "b": [
-      135.0,
-      165.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-450",
-     "a": [
-      125.0,
-      159.142
-     ],
-     "b": [
-      130.858,
-      165.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-451",
-     "a": [
-      125.0,
-      155.0
-     ],
-     "b": [
-      125.0,
-      159.142
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-452",
-     "a": [
-      125.0,
-      150.858
-     ],
-     "b": [
-      125.0,
-      155.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-453",
-     "a": [
-      125.0,
-      150.858
-     ],
-     "b": [
-      130.858,
-      145.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-454",
-     "a": [
-      145.0,
-      95.0
-     ],
-     "b": [
-      160.0,
-      95.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-455",
-     "a": [
-      160.0,
-      95.0
-     ],
-     "b": [
-      160.0,
-      165.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-456",
-     "a": [
-      145.0,
-      160.0
-     ],
-     "b": [
-      145.0,
-      165.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-457",
-     "a": [
-      145.0,
-      155.0
-     ],
-     "b": [
-      145.0,
-      160.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-458",
-     "a": [
-      145.0,
-      150.0
-     ],
-     "b": [
-      145.0,
-      155.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-459",
-     "a": [
-      145.0,
-      145.0
-     ],
-     "b": [
-      145.0,
-      150.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
      "id": "ground-w-460",
      "a": [
-      145.0,
-      140.0
+      130.858,
+      145.0
      ],
      "b": [
-      145.0,
+      139.142,
       145.0
      ],
      "flags": [
@@ -19680,6 +19704,246 @@
     {
      "id": "ground-w-461",
      "a": [
+      139.142,
+      145.0
+     ],
+     "b": [
+      145.0,
+      150.858
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-462",
+     "a": [
+      145.0,
+      150.858
+     ],
+     "b": [
+      145.0,
+      159.142
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-463",
+     "a": [
+      139.142,
+      165.0
+     ],
+     "b": [
+      145.0,
+      159.142
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-464",
+     "a": [
+      135.0,
+      165.0
+     ],
+     "b": [
+      139.142,
+      165.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-465",
+     "a": [
+      130.858,
+      165.0
+     ],
+     "b": [
+      135.0,
+      165.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-466",
+     "a": [
+      125.0,
+      159.142
+     ],
+     "b": [
+      130.858,
+      165.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-467",
+     "a": [
+      125.0,
+      155.0
+     ],
+     "b": [
+      125.0,
+      159.142
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-468",
+     "a": [
+      125.0,
+      150.858
+     ],
+     "b": [
+      125.0,
+      155.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-469",
+     "a": [
+      125.0,
+      150.858
+     ],
+     "b": [
+      130.858,
+      145.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-470",
+     "a": [
+      145.0,
+      95.0
+     ],
+     "b": [
+      160.0,
+      95.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-471",
+     "a": [
+      160.0,
+      95.0
+     ],
+     "b": [
+      160.0,
+      165.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-472",
+     "a": [
+      145.0,
+      160.0
+     ],
+     "b": [
+      145.0,
+      165.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-473",
+     "a": [
+      145.0,
+      155.0
+     ],
+     "b": [
+      145.0,
+      160.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-474",
+     "a": [
+      145.0,
+      150.0
+     ],
+     "b": [
+      145.0,
+      155.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-475",
+     "a": [
+      145.0,
+      145.0
+     ],
+     "b": [
+      145.0,
+      150.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-476",
+     "a": [
+      145.0,
+      140.0
+     ],
+     "b": [
+      145.0,
+      145.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-477",
+     "a": [
       145.0,
       135.0
      ],
@@ -19693,7 +19957,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-462",
+     "id": "ground-w-478",
      "a": [
       145.0,
       130.0
@@ -19708,7 +19972,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-463",
+     "id": "ground-w-479",
      "a": [
       145.0,
       125.0
@@ -19723,7 +19987,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-464",
+     "id": "ground-w-480",
      "a": [
       145.0,
       120.0
@@ -19738,7 +20002,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-465",
+     "id": "ground-w-481",
      "a": [
       145.0,
       115.0
@@ -19753,7 +20017,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-466",
+     "id": "ground-w-482",
      "a": [
       145.0,
       110.0
@@ -19768,7 +20032,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-467",
+     "id": "ground-w-483",
      "a": [
       145.0,
       105.0
@@ -19783,7 +20047,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-468",
+     "id": "ground-w-484",
      "a": [
       145.0,
       100.0
@@ -19798,7 +20062,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-469",
+     "id": "ground-w-485",
      "a": [
       145.0,
       95.0
@@ -19813,7 +20077,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-470",
+     "id": "ground-w-486",
      "a": [
       120.0,
       170.0
@@ -19828,7 +20092,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-471",
+     "id": "ground-w-487",
      "a": [
       140.0,
       170.0
@@ -19859,7 +20123,7 @@
      "open": false
     },
     {
-     "id": "ground-w-473",
+     "id": "ground-w-489",
      "a": [
       140.0,
       185.0
@@ -19874,7 +20138,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-474",
+     "id": "ground-w-490",
      "a": [
       135.0,
       190.0
@@ -19889,7 +20153,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-475",
+     "id": "ground-w-491",
      "a": [
       130.0,
       190.0
@@ -19904,7 +20168,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-476",
+     "id": "ground-w-492",
      "a": [
       125.0,
       190.0
@@ -19919,7 +20183,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-477",
+     "id": "ground-w-493",
      "a": [
       120.0,
       190.0
@@ -19934,7 +20198,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-478",
+     "id": "ground-w-494",
      "a": [
       120.0,
       185.0
@@ -19965,7 +20229,7 @@
      "open": true
     },
     {
-     "id": "ground-w-480",
+     "id": "ground-w-496",
      "a": [
       120.0,
       170.0
@@ -19980,7 +20244,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-481",
+     "id": "ground-w-497",
      "a": [
       140.0,
       165.0
@@ -19995,7 +20259,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-482",
+     "id": "ground-w-498",
      "a": [
       160.0,
       165.0
@@ -20010,7 +20274,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-483",
+     "id": "ground-w-499",
      "a": [
       180.0,
       165.0
@@ -20041,7 +20305,7 @@
      "open": false
     },
     {
-     "id": "ground-w-485",
+     "id": "ground-w-501",
      "a": [
       180.0,
       185.0
@@ -20056,7 +20320,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-486",
+     "id": "ground-w-502",
      "a": [
       175.0,
       195.0
@@ -20071,7 +20335,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-487",
+     "id": "ground-w-503",
      "a": [
       170.0,
       195.0
@@ -20086,7 +20350,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-488",
+     "id": "ground-w-504",
      "a": [
       165.0,
       195.0
@@ -20117,7 +20381,7 @@
      "open": false
     },
     {
-     "id": "ground-w-490",
+     "id": "ground-w-506",
      "a": [
       150.0,
       195.0
@@ -20132,7 +20396,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-491",
+     "id": "ground-w-507",
      "a": [
       145.0,
       195.0
@@ -20147,7 +20411,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-492",
+     "id": "ground-w-508",
      "a": [
       140.0,
       195.0
@@ -20162,7 +20426,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-493",
+     "id": "ground-w-509",
      "a": [
       140.0,
       165.0
@@ -20177,7 +20441,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-494",
+     "id": "ground-w-510",
      "a": [
       180.0,
       170.0
@@ -20192,7 +20456,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-495",
+     "id": "ground-w-511",
      "a": [
       245.0,
       170.0
@@ -20207,7 +20471,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-496",
+     "id": "ground-w-512",
      "a": [
       250.0,
       170.0
@@ -20238,7 +20502,7 @@
      "open": false
     },
     {
-     "id": "ground-w-498",
+     "id": "ground-w-514",
      "a": [
       250.0,
       185.0
@@ -20253,7 +20517,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-499",
+     "id": "ground-w-515",
      "a": [
       245.0,
       190.0
@@ -20268,7 +20532,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-500",
+     "id": "ground-w-516",
      "a": [
       235.0,
       190.0
@@ -20283,7 +20547,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-501",
+     "id": "ground-w-517",
      "a": [
       230.0,
       190.0
@@ -20298,7 +20562,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-502",
+     "id": "ground-w-518",
      "a": [
       225.0,
       190.0
@@ -20313,7 +20577,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-503",
+     "id": "ground-w-519",
      "a": [
       220.0,
       190.0
@@ -20328,7 +20592,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-504",
+     "id": "ground-w-520",
      "a": [
       215.0,
       190.0
@@ -20343,7 +20607,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-505",
+     "id": "ground-w-521",
      "a": [
       210.0,
       190.0
@@ -20358,7 +20622,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-506",
+     "id": "ground-w-522",
      "a": [
       205.0,
       190.0
@@ -20373,7 +20637,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-507",
+     "id": "ground-w-523",
      "a": [
       200.0,
       190.0
@@ -20388,7 +20652,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-508",
+     "id": "ground-w-524",
      "a": [
       195.0,
       190.0
@@ -20403,7 +20667,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-509",
+     "id": "ground-w-525",
      "a": [
       190.0,
       190.0
@@ -20418,7 +20682,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-510",
+     "id": "ground-w-526",
      "a": [
       185.0,
       190.0
@@ -20433,7 +20697,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-511",
+     "id": "ground-w-527",
      "a": [
       180.0,
       190.0
@@ -20448,7 +20712,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-512",
+     "id": "ground-w-528",
      "a": [
       235.0,
       150.0
@@ -20463,7 +20727,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-513",
+     "id": "ground-w-529",
      "a": [
       250.0,
       150.0
@@ -20478,7 +20742,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-514",
+     "id": "ground-w-530",
      "a": [
       250.0,
       165.0
@@ -20493,7 +20757,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-515",
+     "id": "ground-w-531",
      "a": [
       235.0,
       150.0
@@ -20508,7 +20772,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-516",
+     "id": "ground-w-532",
      "a": [
       250.0,
       205.0
@@ -20523,7 +20787,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-517",
+     "id": "ground-w-533",
      "a": [
       245.0,
       210.0
@@ -20538,7 +20802,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-518",
+     "id": "ground-w-534",
      "a": [
       240.0,
       210.0
@@ -20553,7 +20817,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-519",
+     "id": "ground-w-535",
      "a": [
       235.0,
       210.0
@@ -20568,7 +20832,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-520",
+     "id": "ground-w-536",
      "a": [
       235.0,
       205.0
@@ -20583,7 +20847,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-521",
+     "id": "ground-w-537",
      "a": [
       235.0,
       190.0
@@ -20598,7 +20862,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-522",
+     "id": "ground-w-538",
      "a": [
       260.0,
       130.0
@@ -20613,7 +20877,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-523",
+     "id": "ground-w-539",
      "a": [
       290,
       130
@@ -20628,7 +20892,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-524",
+     "id": "ground-w-540",
      "a": [
       290,
       240
@@ -20643,7 +20907,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-525",
+     "id": "ground-w-541",
      "a": [
       285.0,
       240.0
@@ -20658,7 +20922,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-526",
+     "id": "ground-w-542",
      "a": [
       280.0,
       240.0
@@ -20673,7 +20937,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-527",
+     "id": "ground-w-543",
      "a": [
       275.0,
       240.0
@@ -20688,7 +20952,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-528",
+     "id": "ground-w-544",
      "a": [
       270.0,
       240.0
@@ -20703,7 +20967,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-529",
+     "id": "ground-w-545",
      "a": [
       265.0,
       240.0
@@ -20718,7 +20982,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-530",
+     "id": "ground-w-546",
      "a": [
       260.0,
       240.0
@@ -20733,7 +20997,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-531",
+     "id": "ground-w-547",
      "a": [
       250,
       230
@@ -20748,7 +21012,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-532",
+     "id": "ground-w-548",
      "a": [
       250.0,
       145.0
@@ -20763,7 +21027,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-533",
+     "id": "ground-w-549",
      "a": [
       250.0,
       140.0
@@ -20778,7 +21042,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-534",
+     "id": "ground-w-550",
      "a": [
       250,
       140
@@ -20793,7 +21057,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-535",
+     "id": "ground-w-551",
      "a": [
       170.0,
       195.0
@@ -20808,7 +21072,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-536",
+     "id": "ground-w-552",
      "a": [
       170.0,
       215.0
@@ -20823,7 +21087,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-537",
+     "id": "ground-w-553",
      "a": [
       165.0,
       225.0
@@ -20838,7 +21102,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-538",
+     "id": "ground-w-554",
      "a": [
       160.0,
       225.0
@@ -20853,7 +21117,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-539",
+     "id": "ground-w-555",
      "a": [
       155.0,
       225.0
@@ -20868,7 +21132,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-540",
+     "id": "ground-w-556",
      "a": [
       150.0,
       225.0
@@ -20883,7 +21147,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-541",
+     "id": "ground-w-557",
      "a": [
       145.0,
       225.0
@@ -20898,7 +21162,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-542",
+     "id": "ground-w-558",
      "a": [
       140.0,
       225.0
@@ -20913,7 +21177,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-543",
+     "id": "ground-w-559",
      "a": [
       140.0,
       220.0
@@ -20928,7 +21192,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-544",
+     "id": "ground-w-560",
      "a": [
       140.0,
       215.0
@@ -20959,7 +21223,7 @@
      "open": true
     },
     {
-     "id": "ground-w-546",
+     "id": "ground-w-562",
      "a": [
       170.0,
       205.0
@@ -20974,7 +21238,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-547",
+     "id": "ground-w-563",
      "a": [
       180.0,
       215.0
@@ -20989,7 +21253,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-548",
+     "id": "ground-w-564",
      "a": [
       175.0,
       215.0
@@ -21004,7 +21268,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-549",
+     "id": "ground-w-565",
      "a": [
       170.0,
       215.0
@@ -21019,7 +21283,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-550",
+     "id": "ground-w-566",
      "a": [
       110.0,
       195.0
@@ -21034,7 +21298,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-551",
+     "id": "ground-w-567",
      "a": [
       135.0,
       220.0
@@ -21049,7 +21313,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-552",
+     "id": "ground-w-568",
      "a": [
       130.0,
       220.0
@@ -21064,7 +21328,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-553",
+     "id": "ground-w-569",
      "a": [
       125.0,
       220.0
@@ -21079,7 +21343,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-554",
+     "id": "ground-w-570",
      "a": [
       120.0,
       220.0
@@ -21094,7 +21358,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-555",
+     "id": "ground-w-571",
      "a": [
       115.0,
       220.0
@@ -21109,7 +21373,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-556",
+     "id": "ground-w-572",
      "a": [
       110.0,
       220.0
@@ -21124,7 +21388,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-557",
+     "id": "ground-w-573",
      "a": [
       110.0,
       205.0
@@ -21139,254 +21403,14 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-558",
-     "a": [
-      110.0,
-      200.0
-     ],
-     "b": [
-      110.0,
-      205.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-559",
-     "a": [
-      110.0,
-      195.0
-     ],
-     "b": [
-      110.0,
-      200.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-560",
-     "a": [
-      185.0,
-      195.0
-     ],
-     "b": [
-      205.0,
-      195.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-561",
-     "a": [
-      205.0,
-      195.0
-     ],
-     "b": [
-      205.0,
-      205.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-562",
-     "a": [
-      185.0,
-      200.0
-     ],
-     "b": [
-      185.0,
-      205.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-563",
-     "a": [
-      185.0,
-      195.0
-     ],
-     "b": [
-      185.0,
-      200.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-564",
-     "a": [
-      208.78699999999998,
-      185.0
-     ],
-     "b": [
-      221.21300000000002,
-      185.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-565",
-     "a": [
-      221.21300000000002,
-      185.0
-     ],
-     "b": [
-      230.0,
-      193.78699999999998
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-566",
-     "a": [
-      230.0,
-      193.78699999999998
-     ],
-     "b": [
-      230.0,
-      206.21300000000002
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-567",
-     "a": [
-      221.21300000000002,
-      215.0
-     ],
-     "b": [
-      230.0,
-      206.21300000000002
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-568",
-     "a": [
-      215.0,
-      215.0
-     ],
-     "b": [
-      221.21300000000002,
-      215.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-569",
-     "a": [
-      208.78699999999998,
-      215.0
-     ],
-     "b": [
-      215.0,
-      215.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-570",
-     "a": [
-      200.0,
-      206.21300000000002
-     ],
-     "b": [
-      208.78699999999998,
-      215.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-571",
-     "a": [
-      200.0,
-      200.0
-     ],
-     "b": [
-      200.0,
-      206.21300000000002
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-572",
-     "a": [
-      200.0,
-      193.78699999999998
-     ],
-     "b": [
-      200.0,
-      200.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-573",
-     "a": [
-      200.0,
-      193.78699999999998
-     ],
-     "b": [
-      208.78699999999998,
-      185.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
      "id": "ground-w-574",
      "a": [
-      183.78699999999998,
-      215.0
+      110.0,
+      200.0
      ],
      "b": [
-      196.21300000000002,
-      215.0
+      110.0,
+      205.0
      ],
      "flags": [
       "normal"
@@ -21396,12 +21420,12 @@
     {
      "id": "ground-w-575",
      "a": [
-      196.21300000000002,
-      215.0
+      110.0,
+      195.0
      ],
      "b": [
-      205.0,
-      223.78699999999998
+      110.0,
+      200.0
      ],
      "flags": [
       "normal"
@@ -21411,12 +21435,12 @@
     {
      "id": "ground-w-576",
      "a": [
-      205.0,
-      223.78699999999998
+      185.0,
+      195.0
      ],
      "b": [
       205.0,
-      236.21300000000002
+      195.0
      ],
      "flags": [
       "normal"
@@ -21426,6 +21450,246 @@
     {
      "id": "ground-w-577",
      "a": [
+      205.0,
+      195.0
+     ],
+     "b": [
+      205.0,
+      205.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-578",
+     "a": [
+      185.0,
+      200.0
+     ],
+     "b": [
+      185.0,
+      205.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-579",
+     "a": [
+      185.0,
+      195.0
+     ],
+     "b": [
+      185.0,
+      200.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-580",
+     "a": [
+      208.78699999999998,
+      185.0
+     ],
+     "b": [
+      221.21300000000002,
+      185.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-581",
+     "a": [
+      221.21300000000002,
+      185.0
+     ],
+     "b": [
+      230.0,
+      193.78699999999998
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-582",
+     "a": [
+      230.0,
+      193.78699999999998
+     ],
+     "b": [
+      230.0,
+      206.21300000000002
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-583",
+     "a": [
+      221.21300000000002,
+      215.0
+     ],
+     "b": [
+      230.0,
+      206.21300000000002
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-584",
+     "a": [
+      215.0,
+      215.0
+     ],
+     "b": [
+      221.21300000000002,
+      215.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-585",
+     "a": [
+      208.78699999999998,
+      215.0
+     ],
+     "b": [
+      215.0,
+      215.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-586",
+     "a": [
+      200.0,
+      206.21300000000002
+     ],
+     "b": [
+      208.78699999999998,
+      215.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-587",
+     "a": [
+      200.0,
+      200.0
+     ],
+     "b": [
+      200.0,
+      206.21300000000002
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-588",
+     "a": [
+      200.0,
+      193.78699999999998
+     ],
+     "b": [
+      200.0,
+      200.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-589",
+     "a": [
+      200.0,
+      193.78699999999998
+     ],
+     "b": [
+      208.78699999999998,
+      185.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-590",
+     "a": [
+      183.78699999999998,
+      215.0
+     ],
+     "b": [
+      196.21300000000002,
+      215.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-591",
+     "a": [
+      196.21300000000002,
+      215.0
+     ],
+     "b": [
+      205.0,
+      223.78699999999998
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-592",
+     "a": [
+      205.0,
+      223.78699999999998
+     ],
+     "b": [
+      205.0,
+      236.21300000000002
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-593",
+     "a": [
       196.21300000000002,
       245.0
      ],
@@ -21439,7 +21703,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-578",
+     "id": "ground-w-594",
      "a": [
       190.0,
       245.0
@@ -21454,7 +21718,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-579",
+     "id": "ground-w-595",
      "a": [
       183.78699999999998,
       245.0
@@ -21469,7 +21733,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-580",
+     "id": "ground-w-596",
      "a": [
       175.0,
       236.21300000000002
@@ -21484,7 +21748,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-581",
+     "id": "ground-w-597",
      "a": [
       175.0,
       230.0
@@ -21499,7 +21763,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-582",
+     "id": "ground-w-598",
      "a": [
       175.0,
       223.78699999999998
@@ -21514,7 +21778,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-583",
+     "id": "ground-w-599",
      "a": [
       175.0,
       223.78699999999998
@@ -21529,7 +21793,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-584",
+     "id": "ground-w-600",
      "a": [
       170.0,
       230.0
@@ -21544,7 +21808,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-585",
+     "id": "ground-w-601",
      "a": [
       165.0,
       245.0
@@ -21559,7 +21823,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-586",
+     "id": "ground-w-602",
      "a": [
       160.0,
       245.0
@@ -21574,7 +21838,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-587",
+     "id": "ground-w-603",
      "a": [
       155.0,
       245.0
@@ -21589,7 +21853,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-588",
+     "id": "ground-w-604",
      "a": [
       172.7515,
       127.5
@@ -21604,7 +21868,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-589",
+     "id": "ground-w-605",
      "a": [
       187.2485,
       127.5
@@ -21619,7 +21883,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-590",
+     "id": "ground-w-606",
      "a": [
       197.5,
       137.7515
@@ -21634,7 +21898,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-591",
+     "id": "ground-w-607",
      "a": [
       187.2485,
       162.5
@@ -21649,7 +21913,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-592",
+     "id": "ground-w-608",
      "a": [
       182.41616666666664,
       162.5
@@ -21664,7 +21928,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-593",
+     "id": "ground-w-609",
      "a": [
       177.58383333333336,
       162.5
@@ -21679,7 +21943,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-594",
+     "id": "ground-w-610",
      "a": [
       172.7515,
       162.5
@@ -21694,7 +21958,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-595",
+     "id": "ground-w-611",
      "a": [
       162.5,
       152.2485
@@ -21709,7 +21973,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-596",
+     "id": "ground-w-612",
      "a": [
       162.5,
       147.41616666666667
@@ -21724,7 +21988,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-597",
+     "id": "ground-w-613",
      "a": [
       162.5,
       142.58383333333333
@@ -21739,7 +22003,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-598",
+     "id": "ground-w-614",
      "a": [
       162.5,
       137.7515
@@ -21754,7 +22018,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-599",
+     "id": "ground-w-615",
      "a": [
       162.5,
       137.7515
@@ -21769,7 +22033,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-600",
+     "id": "ground-w-616",
      "a": [
       205.0,
       155.0
@@ -21784,7 +22048,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-601",
+     "id": "ground-w-617",
      "a": [
       205.0,
       155.0
@@ -21799,7 +22063,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-602",
+     "id": "ground-w-618",
      "a": [
       215.0,
       120.0
@@ -21830,7 +22094,7 @@
      "open": true
     },
     {
-     "id": "ground-w-604",
+     "id": "ground-w-620",
      "a": [
       230.0,
       120.0
@@ -21845,7 +22109,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-605",
+     "id": "ground-w-621",
      "a": [
       240.0,
       120.0
@@ -21876,7 +22140,7 @@
      "open": false
     },
     {
-     "id": "ground-w-607",
+     "id": "ground-w-623",
      "a": [
       240.0,
       140.0
@@ -21891,7 +22155,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-608",
+     "id": "ground-w-624",
      "a": [
       235.0,
       145.0
@@ -21906,7 +22170,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-609",
+     "id": "ground-w-625",
      "a": [
       230.0,
       145.0
@@ -21921,7 +22185,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-610",
+     "id": "ground-w-626",
      "a": [
       225.0,
       145.0
@@ -21936,7 +22200,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-611",
+     "id": "ground-w-627",
      "a": [
       220.0,
       145.0
@@ -21951,7 +22215,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-612",
+     "id": "ground-w-628",
      "a": [
       215.0,
       145.0
@@ -21966,7 +22230,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-613",
+     "id": "ground-w-629",
      "a": [
       215.0,
       140.0
@@ -21997,7 +22261,7 @@
      "open": false
     },
     {
-     "id": "ground-w-615",
+     "id": "ground-w-631",
      "a": [
       215.0,
       125.0
@@ -22012,7 +22276,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-616",
+     "id": "ground-w-632",
      "a": [
       215.0,
       120.0
@@ -22027,7 +22291,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-617",
+     "id": "ground-w-633",
      "a": [
       205.0,
       100.0
@@ -22042,7 +22306,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-618",
+     "id": "ground-w-634",
      "a": [
       240.0,
       100.0
@@ -22057,7 +22321,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-619",
+     "id": "ground-w-635",
      "a": [
       210.0,
       120.0
@@ -22072,7 +22336,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-620",
+     "id": "ground-w-636",
      "a": [
       205.0,
       120.0
@@ -22087,7 +22351,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-621",
+     "id": "ground-w-637",
      "a": [
       205.0,
       115.0
@@ -22102,7 +22366,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-622",
+     "id": "ground-w-638",
      "a": [
       205.0,
       110.0
@@ -22117,7 +22381,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-623",
+     "id": "ground-w-639",
      "a": [
       205.0,
       105.0
@@ -22132,7 +22396,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-624",
+     "id": "ground-w-640",
      "a": [
       205.0,
       100.0
@@ -22324,6 +22588,89 @@
     }
    ],
    "objects": [
+    {
+     "id": "ground-J-chasm",
+     "kind": "chasm",
+     "pos": [
+      -27.5,
+      0,
+      170
+     ],
+     "vis": "player",
+     "key": "K1-bridge",
+     "dims": {
+      "w": 50,
+      "len": 340,
+      "depth": 1000
+     }
+    },
+    {
+     "id": "ground-J-drawbridge",
+     "kind": "drawbridge",
+     "pos": [
+      -27.5,
+      0,
+      170
+     ],
+     "vis": "player",
+     "key": "K1-bridge",
+     "dims": {
+      "len": 56,
+      "w": 18
+     }
+    },
+    {
+     "id": "ground-J-tower-1",
+     "kind": "gate-tower",
+     "pos": [
+      -8.0,
+      0,
+      147.0
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 7,
+      "h": 100
+     }
+    },
+    {
+     "id": "ground-J-tower1",
+     "kind": "gate-tower",
+     "pos": [
+      -8.0,
+      0,
+      193.0
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 7,
+      "h": 100
+     }
+    },
+    {
+     "id": "ground-J-portcullis",
+     "kind": "portcullis",
+     "pos": [
+      1.5,
+      0,
+      170
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "K1-g"
+    },
+    {
+     "id": "ground-J-bridge-note",
+     "kind": "note",
+     "pos": [
+      -30,
+      0,
+      155
+     ],
+     "vis": "dm-note",
+     "key": "K1-bridge",
+     "label": "The drawbridge: 5% chance a board breaks under any crosser but Strahd and his horses; DC 10 Dexterity save or fall 1,000 ft (advantage if a companion within 5 ft grabs you)."
+    },
     {
      "id": "ground-carriage",
      "kind": "wagon",
@@ -23104,23 +23451,44 @@
     {
      "polygon": [
       [
-       -90,
-       155
+       -310,
+       150
       ],
       [
-       0,
-       155
+       -55,
+       150
       ],
       [
-       0,
-       185
+       -55,
+       190
       ],
       [
-       -90,
-       185
+       -310,
+       190
       ]
      ],
-     "floor": "flagstone"
+     "floor": "cobble"
+    },
+    {
+     "polygon": [
+      [
+       -310,
+       110
+      ],
+      [
+       -55,
+       110
+      ],
+      [
+       -55,
+       230
+      ],
+      [
+       -310,
+       230
+      ]
+     ],
+     "floor": "grass"
     },
     {
      "polygon": [
