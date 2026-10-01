@@ -14,7 +14,7 @@ import { buildGridOverlay } from './gridOverlay';
 /** Kinds whose meshes carry a role of their own (stairs, raised ground, plates): built and placed one by one. */
 const UNMERGED = new Set(['stairs-straight', 'prism', 'pressure-plate']);
 /** Building shells: their roof, walls and chimney are cut by the section plane like a wall. */
-const ROOF_KINDS = new Set(['roof-gable', 'roof-cone', 'chimney', 'house', 'church-building', 'temple', 'big-tent']);
+const ROOF_KINDS = new Set(['roof-gable', 'roof-cone', 'onion-dome', 'mill-sails', 'chimney', 'house', 'church-building', 'temple', 'big-tent']);
 
 /** A face range of a merged mesh that belongs to one scene object (so a tap on a merged house still names it). */
 export interface MergedRange { start: number; end: number; id: string }
@@ -216,7 +216,7 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
     const obj = buildObject(o, y0, labels);
     const ROOF = ROOF_KINDS.has(o.kind);
     // A roof piece raised on top of authored walls (a cap): it goes when the walls are cut down, or it floats.
-    const CAP = (o.kind === 'roof-gable' || o.kind === 'roof-cone' || o.kind === 'chimney') && (o.dims?.y ?? 10) >= 6;
+    const CAP = (o.kind === 'roof-gable' || o.kind === 'roof-cone' || o.kind === 'onion-dome' || o.kind === 'mill-sails' || o.kind === 'chimney') && (o.dims?.y ?? 10) >= 6;
     if (ROOF) obj.traverse((c) => { c.userData.role = 'roof'; if (CAP) c.userData.cap = true; });
     const openMode = OPENABLE_KINDS[o.kind];
     if (openMode && o.kind !== 'claw-chest-skeleton') openables.set(o.id, makeOpenable(obj, openMode, !!o.container?.open));

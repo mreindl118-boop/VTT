@@ -1,0 +1,1862 @@
+{
+ "schema": 1,
+ "location": "O",
+ "chapter": "ch06",
+ "name": "Old Bonegrinder",
+ "mapPage": 127,
+ "bookScaleFt": 5,
+ "ambient": "barovian-overcast",
+ "stacked": true,
+ "entry": "O1L",
+ "levels": [
+  {
+   "id": "O1L",
+   "name": "Ground floor (O1)",
+   "elevationFt": 0,
+   "ceilingFt": 8,
+   "ambient": "interior-dim",
+   "north": "-z",
+   "rooms": [
+    {
+     "key": "O1",
+     "name": "Ground Floor",
+     "page": 126,
+     "polygon": [
+      [
+       115,
+       105
+      ],
+      [
+       125,
+       105
+      ],
+      [
+       135,
+       115
+      ],
+      [
+       135,
+       125
+      ],
+      [
+       125,
+       135
+      ],
+      [
+       115,
+       135
+      ],
+      [
+       105,
+       125
+      ],
+      [
+       105,
+       115
+      ]
+     ],
+     "floor": "flagstone",
+     "ceilingFt": 8,
+     "desc": "A filthy makeshift kitchen: baskets and dishes everywhere, a peddler's cart, a chicken coop, a heavy trunk, a cabinet painted with flowers, a warm brick oven, an open barrel reeking of something foul. Small bones on the flagstones.",
+     "dm": "Dream pastries in the oven; the barrel is demon ichor (scrying font, dretches); the cabinet holds three elixirs; the trunk holds a hundred toads."
+    }
+   ],
+   "walls": [
+    {
+     "id": "O1L-w-0",
+     "a": [
+      115.0,
+      105.0
+     ],
+     "b": [
+      125.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "brick"
+    },
+    {
+     "id": "O1L-w-1",
+     "a": [
+      125,
+      105
+     ],
+     "b": [
+      135,
+      115
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "brick"
+    },
+    {
+     "id": "O1L-w-2",
+     "a": [
+      135.0,
+      115.0
+     ],
+     "b": [
+      135.0,
+      120.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "brick"
+    },
+    {
+     "id": "O1L-w-3",
+     "a": [
+      135.0,
+      120.0
+     ],
+     "b": [
+      135.0,
+      125.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "brick"
+    },
+    {
+     "id": "O1L-w-4",
+     "a": [
+      125,
+      135
+     ],
+     "b": [
+      135,
+      125
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "brick"
+    },
+    {
+     "id": "O1-door",
+     "a": [
+      120.0,
+      135.0
+     ],
+     "b": [
+      125.0,
+      135.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "brick",
+     "open": false
+    },
+    {
+     "id": "O1L-w-6",
+     "a": [
+      115.0,
+      135.0
+     ],
+     "b": [
+      120.0,
+      135.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "brick"
+    },
+    {
+     "id": "O1L-w-7",
+     "a": [
+      105,
+      125
+     ],
+     "b": [
+      115,
+      135
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "brick"
+    },
+    {
+     "id": "O1L-w-8",
+     "a": [
+      105.0,
+      120.0
+     ],
+     "b": [
+      105.0,
+      125.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "brick"
+    },
+    {
+     "id": "O1L-w-9",
+     "a": [
+      105.0,
+      115.0
+     ],
+     "b": [
+      105.0,
+      120.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "brick"
+    },
+    {
+     "id": "O1L-w-10",
+     "a": [
+      105,
+      115
+     ],
+     "b": [
+      115,
+      105
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "brick"
+    }
+   ],
+   "lights": [
+    {
+     "id": "O1L-l-O1-oven",
+     "pos": [
+      131.0,
+      3,
+      113.0
+     ],
+     "preset": "candle",
+     "bright": 5,
+     "dim": 10
+    }
+   ],
+   "objects": [
+    {
+     "id": "O1L-O1-oven",
+     "kind": "oven",
+     "pos": [
+      131.0,
+      0,
+      113.0
+     ],
+     "vis": "player",
+     "rotY": -90,
+     "key": "O1"
+    },
+    {
+     "id": "O1L-O1-stair",
+     "kind": "spiral-stair",
+     "pos": [
+      112.5,
+      0,
+      124.5
+     ],
+     "vis": "player",
+     "key": "O1",
+     "dims": {
+      "r": 4,
+      "rise": 10
+     }
+    },
+    {
+     "id": "O1L-O1-barrel",
+     "kind": "wine-cask",
+     "pos": [
+      121.0,
+      0,
+      121.0
+     ],
+     "vis": "player",
+     "key": "O1"
+    },
+    {
+     "id": "O1L-O1-cabinet",
+     "kind": "cabinet",
+     "pos": [
+      132.0,
+      0,
+      126.0
+     ],
+     "vis": "player",
+     "rotY": -90,
+     "key": "O1"
+    },
+    {
+     "id": "O1L-O1-trunk",
+     "kind": "trunk",
+     "pos": [
+      109.0,
+      0,
+      113.0
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "O1"
+    },
+    {
+     "id": "O1L-O1-coop",
+     "kind": "crate-chest",
+     "pos": [
+      117.0,
+      0,
+      108.5
+     ],
+     "vis": "player",
+     "key": "O1"
+    },
+    {
+     "id": "O1L-O1-cart",
+     "kind": "wagon",
+     "pos": [
+      96.0,
+      0,
+      138.0
+     ],
+     "vis": "player",
+     "rotY": 70,
+     "key": "O1"
+    },
+    {
+     "id": "O1L-O1-bones",
+     "kind": "bones",
+     "pos": [
+      116.0,
+      0,
+      128.0
+     ],
+     "vis": "player",
+     "key": "O1"
+    },
+    {
+     "id": "O1L-O1-baskets",
+     "kind": "refuse",
+     "pos": [
+      126.0,
+      0,
+      131.0
+     ],
+     "vis": "player",
+     "key": "O1"
+    },
+    {
+     "id": "O1L-O1-pastries",
+     "kind": "niche",
+     "pos": [
+      131.0,
+      0,
+      113.0
+     ],
+     "vis": "hidden-object",
+     "key": "O1",
+     "label": "A dozen dream pastries baking in the oven; Morgantha checks them every 10 minutes"
+    },
+    {
+     "id": "O1L-O1-ichor",
+     "kind": "niche",
+     "pos": [
+      121.0,
+      0,
+      121.0
+     ],
+     "vis": "hidden-object",
+     "key": "O1",
+     "label": "Demon ichor: a scrying font; three knocks summon a dretch (nine in all)"
+    },
+    {
+     "id": "O1L-O1-elixirs",
+     "kind": "niche",
+     "pos": [
+      132.0,
+      0,
+      126.0
+     ],
+     "vis": "hidden-object",
+     "key": "O1",
+     "label": "Three labelled elixirs in the painted cabinet: Youth, Laughter (cackle fever), Mother's Milk (pale tincture); locks of hair on the doors"
+    },
+    {
+     "id": "O1L-O1-toads",
+     "kind": "niche",
+     "pos": [
+      109.0,
+      0,
+      113.0
+     ],
+     "vis": "hidden-object",
+     "key": "O1",
+     "label": "A hundred toads in the trunk, holes bored in its lid"
+    },
+    {
+     "id": "O1L-megalith0",
+     "kind": "standing-stone",
+     "pos": [
+      30,
+      0,
+      30
+     ],
+     "vis": "player",
+     "rotY": 15,
+     "dims": {
+      "h": 6
+     }
+    },
+    {
+     "id": "O1L-megalith1",
+     "kind": "standing-stone",
+     "pos": [
+      50,
+      0,
+      15
+     ],
+     "vis": "player",
+     "rotY": 55,
+     "dims": {
+      "h": 7
+     }
+    },
+    {
+     "id": "O1L-megalith2",
+     "kind": "standing-stone",
+     "pos": [
+      20,
+      0,
+      55
+     ],
+     "vis": "player",
+     "rotY": 95,
+     "dims": {
+      "h": 6
+     }
+    },
+    {
+     "id": "O1L-megalith3",
+     "kind": "standing-stone",
+     "pos": [
+      45,
+      0,
+      45
+     ],
+     "vis": "player",
+     "rotY": 135,
+     "dims": {
+      "h": 7
+     }
+    },
+    {
+     "id": "O1L-megaliths",
+     "kind": "note",
+     "pos": [
+      35,
+      0,
+      35
+     ],
+     "vis": "dm-note",
+     "label": "The Megaliths (p.128): four squat stones carved with the Four Cities; ravens circle; a dream pastry and a pile of children's teeth in the ring."
+    },
+    {
+     "id": "O1L-pine0",
+     "kind": "pine",
+     "pos": [
+      215.0,
+      0,
+      120.0
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.1
+     }
+    },
+    {
+     "id": "O1L-pine1",
+     "kind": "pine",
+     "pos": [
+      226.804,
+      0,
+      146.325
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.3
+     }
+    },
+    {
+     "id": "O1L-pine2",
+     "kind": "pine",
+     "pos": [
+      212.973,
+      0,
+      168.796
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.5
+     }
+    },
+    {
+     "id": "O1L-pine3",
+     "kind": "pine",
+     "pos": [
+      194.851,
+      0,
+      186.312
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.1
+     }
+    },
+    {
+     "id": "O1L-pine4",
+     "kind": "pine",
+     "pos": [
+      173.966,
+      0,
+      198.183
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.3
+     }
+    },
+    {
+     "id": "O1L-pine5",
+     "kind": "pine",
+     "pos": [
+      159.007,
+      0,
+      222.852
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.5
+     }
+    },
+    {
+     "id": "O1L-pine8",
+     "kind": "pine",
+     "pos": [
+      86.313,
+      0,
+      208.827
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.5
+     }
+    },
+    {
+     "id": "O1L-pine9",
+     "kind": "pine",
+     "pos": [
+      57.513,
+      0,
+      210.528
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.1
+     }
+    },
+    {
+     "id": "O1L-pine10",
+     "kind": "pine",
+     "pos": [
+      41.406,
+      0,
+      189.628
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.3
+     }
+    },
+    {
+     "id": "O1L-pine11",
+     "kind": "pine",
+     "pos": [
+      31.454,
+      0,
+      166.472
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.5
+     }
+    },
+    {
+     "id": "O1L-pine12",
+     "kind": "pine",
+     "pos": [
+      27.761,
+      0,
+      142.735
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.1
+     }
+    },
+    {
+     "id": "O1L-pine13",
+     "kind": "pine",
+     "pos": [
+      10.0,
+      0,
+      120.0
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.3
+     }
+    },
+    {
+     "id": "O1L-pine14",
+     "kind": "pine",
+     "pos": [
+      18.051,
+      0,
+      94.872
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.5
+     }
+    },
+    {
+     "id": "O1L-pine15",
+     "kind": "pine",
+     "pos": [
+      31.454,
+      0,
+      73.528
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.1
+     }
+    },
+    {
+     "id": "O1L-pine18",
+     "kind": "pine",
+     "pos": [
+      82.766,
+      0,
+      21.823
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.1
+     }
+    },
+    {
+     "id": "O1L-pine19",
+     "kind": "pine",
+     "pos": [
+      107.946,
+      0,
+      20.729
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.3
+     }
+    },
+    {
+     "id": "O1L-pine20",
+     "kind": "pine",
+     "pos": [
+      131.451,
+      0,
+      25.693
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.5
+     }
+    },
+    {
+     "id": "O1L-pine21",
+     "kind": "pine",
+     "pos": [
+      159.007,
+      0,
+      17.148
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.1
+     }
+    },
+    {
+     "id": "O1L-pine22",
+     "kind": "pine",
+     "pos": [
+      179.647,
+      0,
+      33.587
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.3
+     }
+    },
+    {
+     "id": "O1L-pine23",
+     "kind": "pine",
+     "pos": [
+      194.851,
+      0,
+      53.688
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.5
+     }
+    },
+    {
+     "id": "O1L-pine24",
+     "kind": "pine",
+     "pos": [
+      204.118,
+      0,
+      75.851
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.1
+     }
+    },
+    {
+     "id": "O1L-pine25",
+     "kind": "pine",
+     "pos": [
+      226.804,
+      0,
+      93.675
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.3
+     }
+    },
+    {
+     "id": "O1L-raven",
+     "kind": "note",
+     "pos": [
+      122.5,
+      0,
+      138.0
+     ],
+     "vis": "dm-note",
+     "label": "A raven on the beam above the door squawks a warning, then flies off toward Vallaki."
+    }
+   ],
+   "terrain": [
+    {
+     "polygon": [
+      [
+       0,
+       0
+      ],
+      [
+       240,
+       0
+      ],
+      [
+       240,
+       240
+      ],
+      [
+       0,
+       240
+      ]
+     ],
+     "floor": "grass"
+    },
+    {
+     "polygon": [
+      [
+       115,
+       135
+      ],
+      [
+       125,
+       135
+      ],
+      [
+       130,
+       240
+      ],
+      [
+       110,
+       240
+      ]
+     ],
+     "floor": "dirt"
+    }
+   ]
+  },
+  {
+   "id": "O2L",
+   "name": "Bone mill (O2)",
+   "elevationFt": 10,
+   "ceilingFt": 8,
+   "ambient": "interior-dim",
+   "north": "-z",
+   "rooms": [
+    {
+     "key": "O2",
+     "name": "Bone Mill",
+     "page": 127,
+     "polygon": [
+      [
+       115,
+       105
+      ],
+      [
+       125,
+       105
+      ],
+      [
+       135,
+       115
+      ],
+      [
+       135,
+       125
+      ],
+      [
+       125,
+       135
+      ],
+      [
+       115,
+       135
+      ],
+      [
+       105,
+       125
+      ],
+      [
+       105,
+       115
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 8,
+     "desc": "A dusty chamber taken up by a great millstone on a gear shaft that rises through the ceiling. Dirt-caked windows.",
+     "dm": "Morgantha sweeps here; she sells dream pastries at 1 gp and calls her daughters if attacked."
+    }
+   ],
+   "walls": [
+    {
+     "id": "O2L-w-0",
+     "a": [
+      115.0,
+      105.0
+     ],
+     "b": [
+      125.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "brick"
+    },
+    {
+     "id": "O2L-w-1",
+     "a": [
+      125,
+      105
+     ],
+     "b": [
+      135,
+      115
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "brick"
+    },
+    {
+     "id": "O2L-w-2",
+     "a": [
+      135.0,
+      115.0
+     ],
+     "b": [
+      135.0,
+      120.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "brick"
+    },
+    {
+     "id": "O2L-w-3",
+     "a": [
+      135.0,
+      120.0
+     ],
+     "b": [
+      135.0,
+      125.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "brick"
+    },
+    {
+     "id": "O2L-w-4",
+     "a": [
+      125,
+      135
+     ],
+     "b": [
+      135,
+      125
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "brick"
+    },
+    {
+     "id": "O2L-w-5",
+     "a": [
+      120.0,
+      135.0
+     ],
+     "b": [
+      125.0,
+      135.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "brick"
+    },
+    {
+     "id": "O2L-w-6",
+     "a": [
+      115.0,
+      135.0
+     ],
+     "b": [
+      120.0,
+      135.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "brick"
+    },
+    {
+     "id": "O2L-w-7",
+     "a": [
+      105,
+      125
+     ],
+     "b": [
+      115,
+      135
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "brick"
+    },
+    {
+     "id": "O2L-w-8",
+     "a": [
+      105.0,
+      120.0
+     ],
+     "b": [
+      105.0,
+      125.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "brick"
+    },
+    {
+     "id": "O2L-w-9",
+     "a": [
+      105.0,
+      115.0
+     ],
+     "b": [
+      105.0,
+      120.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "brick"
+    },
+    {
+     "id": "O2L-w-10",
+     "a": [
+      105,
+      115
+     ],
+     "b": [
+      115,
+      105
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "brick"
+    }
+   ],
+   "lights": [],
+   "objects": [
+    {
+     "id": "O2L-O2-platform",
+     "kind": "prism",
+     "pos": [
+      0,
+      0,
+      0
+     ],
+     "vis": "player",
+     "dims": {
+      "h": 0.6,
+      "y": -0.7,
+      "color": 7032371
+     },
+     "polygon": [
+      [
+       146.0,
+       120.0
+      ],
+      [
+       142.5,
+       133.0
+      ],
+      [
+       133.0,
+       142.5
+      ],
+      [
+       120.0,
+       146.0
+      ],
+      [
+       107.0,
+       142.5
+      ],
+      [
+       97.5,
+       133.0
+      ],
+      [
+       94.0,
+       120.0
+      ],
+      [
+       97.5,
+       107.0
+      ],
+      [
+       107.0,
+       97.5
+      ],
+      [
+       120.0,
+       94.0
+      ],
+      [
+       133.0,
+       97.5
+      ],
+      [
+       142.5,
+       107.0
+      ]
+     ]
+    },
+    {
+     "id": "O2L-O2-millstone",
+     "kind": "millstone",
+     "pos": [
+      123.0,
+      0,
+      118.0
+     ],
+     "vis": "player",
+     "key": "O2",
+     "dims": {
+      "r": 3.2
+     }
+    },
+    {
+     "id": "O2L-O2-shaft",
+     "kind": "gear-shaft",
+     "pos": [
+      123.0,
+      0,
+      118.0
+     ],
+     "vis": "player",
+     "key": "O2",
+     "dims": {
+      "h": 29
+     }
+    },
+    {
+     "id": "O2L-O2-stair",
+     "kind": "spiral-stair",
+     "pos": [
+      112.5,
+      0,
+      124.5
+     ],
+     "vis": "player",
+     "key": "O2",
+     "dims": {
+      "r": 4,
+      "rise": 10
+     }
+    },
+    {
+     "id": "O2L-O2-bones",
+     "kind": "bones",
+     "pos": [
+      114.0,
+      0,
+      112.0
+     ],
+     "vis": "player",
+     "key": "O2"
+    },
+    {
+     "id": "O2L-O2-morgantha",
+     "kind": "commoner",
+     "pos": [
+      128.0,
+      0,
+      127.0
+     ],
+     "vis": "hidden-creature",
+     "key": "O2",
+     "label": "Morgantha, a night hag in the guise of a heavyset old woman, sweeping bone dust",
+     "size": "medium"
+    }
+   ]
+  },
+  {
+   "id": "O3L",
+   "name": "Bedroom (O3)",
+   "elevationFt": 20,
+   "ceilingFt": 9,
+   "ambient": "interior-dim",
+   "north": "-z",
+   "rooms": [
+    {
+     "key": "O3",
+     "name": "Bedroom",
+     "page": 127,
+     "polygon": [
+      [
+       115,
+       105
+      ],
+      [
+       125,
+       105
+      ],
+      [
+       135,
+       115
+      ],
+      [
+       135,
+       125
+      ],
+      [
+       125,
+       135
+      ],
+      [
+       115,
+       135
+      ],
+      [
+       105,
+       125
+      ],
+      [
+       105,
+       115
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 9,
+     "desc": "A cramped round room: a thick gear shaft, a rotting closet with three stacked crates, a heap of children's clothes, a ladder to a trapdoor, a mouldy canopied bed.",
+     "dm": "Bella and Offalia; Freek and Myrtle in the crates; jewellery in the mattress."
+    }
+   ],
+   "walls": [
+    {
+     "id": "O3L-w-0",
+     "a": [
+      115.0,
+      105.0
+     ],
+     "b": [
+      120.0,
+      105.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "brick"
+    },
+    {
+     "id": "O3L-w-1",
+     "a": [
+      120.0,
+      105.0
+     ],
+     "b": [
+      125.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "brick"
+    },
+    {
+     "id": "O3L-w-2",
+     "a": [
+      125,
+      105
+     ],
+     "b": [
+      135,
+      115
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "brick"
+    },
+    {
+     "id": "O3L-w-3",
+     "a": [
+      135.0,
+      115.0
+     ],
+     "b": [
+      135.0,
+      125.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "brick"
+    },
+    {
+     "id": "O3L-w-4",
+     "a": [
+      125,
+      135
+     ],
+     "b": [
+      135,
+      125
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "brick"
+    },
+    {
+     "id": "O3L-w-5",
+     "a": [
+      120.0,
+      135.0
+     ],
+     "b": [
+      125.0,
+      135.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "brick"
+    },
+    {
+     "id": "O3L-w-6",
+     "a": [
+      115.0,
+      135.0
+     ],
+     "b": [
+      120.0,
+      135.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "brick"
+    },
+    {
+     "id": "O3L-w-7",
+     "a": [
+      105,
+      125
+     ],
+     "b": [
+      115,
+      135
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "brick"
+    },
+    {
+     "id": "O3L-w-8",
+     "a": [
+      105.0,
+      120.0
+     ],
+     "b": [
+      105.0,
+      125.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "brick"
+    },
+    {
+     "id": "O3L-w-9",
+     "a": [
+      105.0,
+      115.0
+     ],
+     "b": [
+      105.0,
+      120.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "brick"
+    },
+    {
+     "id": "O3L-w-10",
+     "a": [
+      105,
+      115
+     ],
+     "b": [
+      115,
+      105
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "brick"
+    }
+   ],
+   "lights": [],
+   "objects": [
+    {
+     "id": "O3L-O3-shaft",
+     "kind": "gear-shaft",
+     "pos": [
+      123.0,
+      0,
+      118.0
+     ],
+     "vis": "player",
+     "key": "O3",
+     "dims": {
+      "h": 9
+     }
+    },
+    {
+     "id": "O3L-O3-bed",
+     "kind": "four-poster-bed",
+     "pos": [
+      112.0,
+      0,
+      113.0
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "O3"
+    },
+    {
+     "id": "O3L-O3-closet",
+     "kind": "wardrobe",
+     "pos": [
+      131.5,
+      0,
+      125.0
+     ],
+     "vis": "player",
+     "rotY": -90,
+     "key": "O3"
+    },
+    {
+     "id": "O3L-O3-crate0",
+     "kind": "crate-chest",
+     "pos": [
+      128.0,
+      0,
+      131.0
+     ],
+     "vis": "player",
+     "key": "O3"
+    },
+    {
+     "id": "O3L-O3-crate1",
+     "kind": "crate-chest",
+     "pos": [
+      128.0,
+      3,
+      131.0
+     ],
+     "vis": "player",
+     "key": "O3"
+    },
+    {
+     "id": "O3L-O3-crate2",
+     "kind": "crate-chest",
+     "pos": [
+      128.0,
+      6,
+      131.0
+     ],
+     "vis": "player",
+     "key": "O3"
+    },
+    {
+     "id": "O3L-O3-clothes",
+     "kind": "refuse",
+     "pos": [
+      121.0,
+      0,
+      132.0
+     ],
+     "vis": "player",
+     "key": "O3"
+    },
+    {
+     "id": "O3L-O3-trapdoor",
+     "kind": "trapdoor",
+     "pos": [
+      117.5,
+      8.9,
+      123.0
+     ],
+     "vis": "player",
+     "key": "O3"
+    },
+    {
+     "id": "O3L-O3-bella",
+     "kind": "commoner",
+     "pos": [
+      118.0,
+      0,
+      116.0
+     ],
+     "vis": "hidden-creature",
+     "key": "O3",
+     "label": "Bella Sunbane, a night hag dancing round the shaft",
+     "size": "medium"
+    },
+    {
+     "id": "O3L-O3-offalia",
+     "kind": "commoner",
+     "pos": [
+      127.0,
+      0,
+      112.0
+     ],
+     "vis": "hidden-creature",
+     "key": "O3",
+     "label": "Offalia Wormwiggle, a night hag dancing round the shaft",
+     "size": "medium"
+    },
+    {
+     "id": "O3L-O3-children",
+     "kind": "niche",
+     "pos": [
+      128.0,
+      0,
+      131.0
+     ],
+     "vis": "hidden-object",
+     "key": "O3",
+     "label": "Freek (7) and Myrtle (5) in the middle and lower crates, fattened on crumbs"
+    },
+    {
+     "id": "O3L-O3-jewelry",
+     "kind": "niche",
+     "pos": [
+      112.0,
+      0,
+      113.0
+     ],
+     "vis": "hidden-object",
+     "key": "O3",
+     "label": "Six pieces of cheap jewellery (25 gp each) in the mouldy mattress"
+    }
+   ]
+  },
+  {
+   "id": "O4L",
+   "name": "Domed attic (O4)",
+   "elevationFt": 30,
+   "ceilingFt": 10,
+   "ambient": "darkness",
+   "north": "-z",
+   "rooms": [
+    {
+     "key": "O4",
+     "name": "Domed Attic",
+     "page": 128,
+     "polygon": [
+      [
+       115,
+       110
+      ],
+      [
+       125,
+       110
+      ],
+      [
+       130,
+       115
+      ],
+      [
+       130,
+       125
+      ],
+      [
+       125,
+       130
+      ],
+      [
+       115,
+       130
+      ],
+      [
+       110,
+       125
+      ],
+      [
+       110,
+       115
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 10,
+     "desc": "The domed peak, full of old machinery; light through small holes in the walls.",
+     "dm": "Old bird's nests."
+    }
+   ],
+   "walls": [
+    {
+     "id": "O4L-w-0",
+     "a": [
+      115.0,
+      110.0
+     ],
+     "b": [
+      125.0,
+      110.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "brick"
+    },
+    {
+     "id": "O4L-w-1",
+     "a": [
+      125,
+      110
+     ],
+     "b": [
+      130,
+      115
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "brick"
+    },
+    {
+     "id": "O4L-w-2",
+     "a": [
+      130.0,
+      115.0
+     ],
+     "b": [
+      130.0,
+      125.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "brick"
+    },
+    {
+     "id": "O4L-w-3",
+     "a": [
+      125,
+      130
+     ],
+     "b": [
+      130,
+      125
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "brick"
+    },
+    {
+     "id": "O4L-w-4",
+     "a": [
+      120.0,
+      130.0
+     ],
+     "b": [
+      125.0,
+      130.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "brick"
+    },
+    {
+     "id": "O4L-w-5",
+     "a": [
+      115.0,
+      130.0
+     ],
+     "b": [
+      120.0,
+      130.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "brick"
+    },
+    {
+     "id": "O4L-w-6",
+     "a": [
+      110,
+      125
+     ],
+     "b": [
+      115,
+      130
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "brick"
+    },
+    {
+     "id": "O4L-w-7",
+     "a": [
+      110.0,
+      120.0
+     ],
+     "b": [
+      110.0,
+      125.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "brick"
+    },
+    {
+     "id": "O4L-w-8",
+     "a": [
+      110.0,
+      115.0
+     ],
+     "b": [
+      110.0,
+      120.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "brick"
+    },
+    {
+     "id": "O4L-w-9",
+     "a": [
+      110,
+      115
+     ],
+     "b": [
+      115,
+      110
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "brick"
+    }
+   ],
+   "lights": [],
+   "objects": [
+    {
+     "id": "O4L-O4-gear",
+     "kind": "gear-shaft",
+     "pos": [
+      123.0,
+      0,
+      118.0
+     ],
+     "vis": "player",
+     "key": "O4",
+     "dims": {
+      "h": 4
+     }
+    },
+    {
+     "id": "O4L-O4-nests",
+     "kind": "refuse",
+     "pos": [
+      115,
+      0,
+      125
+     ],
+     "vis": "player",
+     "key": "O4"
+    },
+    {
+     "id": "O4L-O4-nest",
+     "kind": "niche",
+     "pos": [
+      115,
+      0,
+      125
+     ],
+     "vis": "hidden-object",
+     "key": "O4",
+     "label": "Old bird's nests; a card-reading treasure would be here, in a nest or under dirt in a corner"
+    },
+    {
+     "id": "O4L-O4-dome",
+     "kind": "onion-dome",
+     "pos": [
+      120,
+      0,
+      120
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 12,
+      "y": 9
+     }
+    },
+    {
+     "id": "O4L-O4-sails",
+     "kind": "mill-sails",
+     "pos": [
+      120,
+      5,
+      107.0
+     ],
+     "vis": "player",
+     "dims": {
+      "len": 30,
+      "a": 22
+     }
+    }
+   ]
+  }
+ ],
+ "links": [
+  {
+   "id": "O-stair-1",
+   "kind": "stairs",
+   "from": {
+    "level": "O1L",
+    "pos": [
+     112.5,
+     124.5
+    ]
+   },
+   "to": {
+    "level": "O2L",
+    "pos": [
+     112.5,
+     124.5
+    ]
+   }
+  },
+  {
+   "id": "O-stair-2",
+   "kind": "stairs",
+   "from": {
+    "level": "O2L",
+    "pos": [
+     112.5,
+     124.5
+    ]
+   },
+   "to": {
+    "level": "O3L",
+    "pos": [
+     112.5,
+     124.5
+    ]
+   }
+  },
+  {
+   "id": "O-ladder",
+   "kind": "trapdoor",
+   "from": {
+    "level": "O3L",
+    "pos": [
+     117.5,
+     123.0
+    ]
+   },
+   "to": {
+    "level": "O4L",
+    "pos": [
+     117.5,
+     123.0
+    ]
+   }
+  }
+ ]
+}

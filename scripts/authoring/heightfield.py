@@ -13,7 +13,7 @@ import numpy as np
 from scipy import ndimage as ndi
 
 CLASS_FT = {'.': 140, 'f': 160, 'h': 900, 'm': 2600, 'w': -30, 'x': 3200}
-PEAK_FT = {'Ghakis': 7400, 'Baratok': 5600, 'Balinok': 4200, 'Fell': 2600, 'Tor': 1800, 'Hill': 900}
+PEAK_FT = {'Ghakis': 7400, 'Baratok': 7800, 'Balinok': 4200, 'Fell': 2600, 'Tor': 1800, 'Hill': 900}
 
 def peak_height(name):
     for k, v in PEAK_FT.items():
@@ -65,7 +65,8 @@ def build(world):
         H = ndi.gaussian_filter(H, 1.0)
     # named peaks are true summits
     for pk in world.get('peaks', []):
-        h = peak_height(pk['name']); d = np.hypot(gx - pk['pos'][0], gy - pk['pos'][1]); sig = 0.7 if h > 4000 else 0.5
+        # Mount Baratok is a single monolith (the module: its presence oppressive, the slopes climbing from the lake); broad
+        h = peak_height(pk['name']); d = np.hypot(gx - pk['pos'][0], gy - pk['pos'][1]); sig = pk.get('spread', 1.25 if 'Baratok' in pk['name'] else 0.7 if h > 4000 else 0.5)
         H = np.maximum(H, H * 0.3 + h * np.exp(-(d * d) / (2 * sig ** 2)))
     # a site on its crag: a pillar of rock rising out of whatever stands there
     for p in world.get('pins', []):

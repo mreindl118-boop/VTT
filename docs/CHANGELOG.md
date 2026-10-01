@@ -388,3 +388,12 @@
 - Vallaki's palisade: 22-ft timber trunks sharpened to points, binding rails, a fighting walk on the town side,
   guard towers every 300 ft and a pair at each gate (`palisade`, `watchtower` props). A livery stable with its
   paddock and horses north of the main road; worn paths to Blinsky Toys. The stray dot under the toolbar is gone.
+- Old Bonegrinder (ch06/O, `scripts/authoring/old-bonegrinder.py`): the brick windmill on its hill, four storeys
+  from the map and text: the filthy kitchen with the oven, the ichor barrel, the painted cabinet, the toad trunk
+  and the coop (O1, 8 ft); the bone mill with the millstone and gear shaft and the rotten platform round the mill
+  (O2, 8 ft); the bedroom with the canopied bed, the closet and the three crates (O3, 9 ft); the domed attic under
+  the onion dome with the dead sails (O4). Morgantha, Bella and Offalia, Freek and Myrtle, every secret from the
+  text; the path from the road and the four megaliths at the forest's edge. Opens from the world map. New
+  `millstone`, `gear-shaft`, `onion-dome`, `mill-sails`, `standing-stone` props.
+- The mountains per the module: Mount Baratok is one monolith climbing from the north shore of Lake Zarovich (the
+  M markers are its base), Mount Ghakis the snowy height to the south; high ground stands clear of the haze.

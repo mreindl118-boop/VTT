@@ -589,6 +589,47 @@ export function watchtower(d: Dims): THREE.Group {
   g.add(box(0.4, H * 0.9, 1.8, '#3b2d22', w / 2 + 0.6, H * 0.45, 0));   // the ladder side
   return g;
 }
+/** A millstone pair on its timber bed, the runner stone over the bed stone, a hopper above. */
+export function millstone(d: Dims): THREE.Group {
+  const r = d.r ?? 3.2;
+  return g_(box(r * 2.4, 1.2, r * 2.4, PALETTE.woodDark, 0, 0.6, 0), cyl(r, r, 0.9, '#7a766f', 0, 1.65, 0, 16), cyl(r * 0.98, r * 0.98, 0.8, '#8a857c', 0, 2.5, 0, 16), cyl(0.5, 0.5, 0.3, '#2b2420', 0, 2.95, 0, 8),
+    box(1.6, 1.4, 1.6, PALETTE.wood, 0, 4.4, 0));
+}
+/** The wooden gear shaft that rises through the floors, with a crown gear at the top of its run. */
+export function gearShaft(d: Dims): THREE.Group {
+  const h = d.h ?? 30, g = g_(cyl(0.7, 0.7, h, PALETTE.woodDark, 0, h / 2, 0, 8));
+  const gear = cyl(2.6, 2.6, 0.6, PALETTE.wood, 0, h - 1.5, 0, 16); g.add(gear);
+  for (let i = 0; i < 12; i++) { const a = (i / 12) * Math.PI * 2; g.add(box(0.5, 0.6, 0.5, PALETTE.woodDark, Math.cos(a) * 2.7, h - 1.1, Math.sin(a) * 2.7)); }
+  return g;
+}
+/** An onion dome cap (a windmill's or a church's), radius r at its widest, sitting at y. */
+export function onionDome(d: Dims): THREE.Group {
+  const r = d.r ?? 10, y = d.y ?? 10, pts: THREE.Vector2[] = [];
+  for (let i = 0; i <= 14; i++) { const t = i / 14, rad = t < 0.45 ? r * (0.82 + Math.sin((t / 0.45) * Math.PI * 0.5) * 0.25) : r * 1.07 * Math.cos(((t - 0.45) / 0.55) * Math.PI * 0.5) ** 1.4; pts.push(new THREE.Vector2(Math.max(0.05, rad), t * r * 1.6)); }
+  const dome = new THREE.Mesh(new THREE.LatheGeometry(pts, 12), mat(d.color ? '#' + d.color.toString(16) : '#7d6a55')); dome.position.y = y;
+  return g_(dome, cyl(0.25, 0.25, 3, '#2b2420', 0, y + r * 1.6 + 1.2, 0, 6));
+}
+/** Windmill sails: four lattice arms on a hub, the frame turned by angle a; some sail-cloth torn away. */
+export function millSails(d: Dims): THREE.Group {
+  const L = d.len ?? 26, g = g_(cyl(1.2, 1.2, 2.4, PALETTE.woodDark, 0, 0, 0, 10).rotateX(Math.PI / 2));
+  const arms = new THREE.Group(); arms.rotation.z = (d.a ?? 20) * Math.PI / 180;
+  for (let i = 0; i < 4; i++) {
+    const arm = new THREE.Group(); arm.rotation.z = (i * Math.PI) / 2;
+    arm.add(box(0.5, L, 0.4, PALETTE.woodDark, 0, L / 2, 1.3));
+    for (let k = 1; k < 7; k++) arm.add(box(5, 0.25, 0.2, PALETTE.wood, 2.2, (k / 7) * L, 1.3));
+    arm.add(box(0.25, L * 0.85, 0.2, PALETTE.wood, 4.6, L * 0.55, 1.3));
+    if (i % 2 === 0) arm.add(box(4.2, L * 0.6, 0.1, '#bfb49c', 2.4, L * 0.5, 1.5));
+    arms.add(arm);
+  }
+  g.add(arms); return g;
+}
+/** A squat standing stone, mossy, with a carving on its face. */
+export function standingStone(d: Dims): THREE.Group {
+  const h = d.h ?? 7, geo = new THREE.BoxGeometry(3.2, h, 2, 1, 3, 1); geo.translate(0, h / 2, 0);
+  const pv = geo.attributes.position; for (let i = 0; i < pv.count; i++) { const y = pv.getY(i); pv.setX(i, pv.getX(i) * (1 - y / h * 0.25)); }
+  geo.computeVertexNormals();
+  return g_(new THREE.Mesh(geo, mat('#6f6e66')), box(2.6, 0.5, 0.1, '#4d5a3f', 0, h * 0.2, 1.02));
+}
 /** A smith's anvil on its block. */
 export function anvil(): THREE.Group { return g_(cyl(0.9, 1.0, 1.6, PALETTE.woodDark, 0, 0.8, 0, 8), box(2.2, 0.5, 0.9, PALETTE.iron, 0, 1.85, 0), box(1.2, 0.45, 0.8, PALETTE.iron, 0.9, 2.25, 0), box(1.6, 0.4, 0.7, PALETTE.iron, -0.2, 2.25, 0)); }
 /** The pillory: two posts and a hinged board with holes for a head and two hands, on a little step. */
@@ -609,4 +650,4 @@ export function roofCone(d: Dims): THREE.Group {
 }
 /** A stone chimney stack rising `h` ft from `y`. */
 export function chimney(d: Dims): THREE.Group { const h = d.h ?? 8, y = d.y ?? 10; return g_(box(2.6, h, 2.6, '#6a6560', 0, y + h / 2, 0), box(3.2, 0.8, 3.2, '#4d4845', 0, y + h + 0.4, 0)); }
-Object.assign(PROPS_V1, { 'roof-gable': roofGable, 'roof-cone': roofCone, chimney, stump, anvil, pillory, palisade, watchtower, vardo, campfire, 'big-tent': bigTent, mound, washline } as Record<string, (d: Dims) => THREE.Object3D>);
+Object.assign(PROPS_V1, { 'roof-gable': roofGable, 'roof-cone': roofCone, chimney, stump, anvil, pillory, palisade, watchtower, millstone, 'gear-shaft': gearShaft, 'onion-dome': onionDome, 'mill-sails': millSails, 'standing-stone': standingStone, vardo, campfire, 'big-tent': bigTent, mound, washline } as Record<string, (d: Dims) => THREE.Object3D>);

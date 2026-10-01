@@ -280,7 +280,8 @@ print('grid', cols_n, 'x', rows_n, {c: sum(l.count(c) for l in grid) for c in CH
 # ------------------------------------------------------------------ labels from the page (page px → miles)
 WOODS = [('Svalich Woods', (345, 525), -38), ('Svalich Woods', (1245, 365), -8), ('Svalich Woods', (480, 1060), -62), ('Svalich Woods', (300, 1650), -20),
          ('Svalich Woods', (2620, 870), 20), ('Svalich Woods', (2280, 1620), -22)]
-PEAKS = [('Mount Baratok', (1980, 250)), ('Mount Ghakis', (1320, 1690)), ('Balinok Mountains', (650, 1180))]
+PEAKS = [('Mount Baratok', (1482, 197)),  # the summit north of the lake (the page letters the name to the east)
+         ('Mount Ghakis', (1320, 1690)), ('Balinok Mountains', (650, 1180))]
 RIVER_LABELS = [('Raven River', (300, 730), -2), ('Luna River', (330, 1400), 50), ('Ivlis River', (2300, 1440), 12), ('Tser Falls', (1690, 1130), 0)]
 
 out = OrderedDict(schema=2, name=base['name'], page=base['page'], milesPerHex=base['milesPerHex'],

@@ -26,7 +26,7 @@ PINS = [  # key, name, px, type, scenes (built scene paths reachable from here)
   ('L', 'Lake Zarovich', (470, 210), 'lake', []),
   ('M', 'Mount Baratok', (663, 106), 'peak', []),
   ('N', 'Town of Vallaki', (447, 307), 'settlement', ['ch05/N']),
-  ('O', 'Old Bonegrinder', (570, 355), 'landmark', []),
+  ('O', 'Old Bonegrinder', (570, 355), 'landmark', ['ch06/O']),
   ('P', 'Luna River Crossroads', (383, 318), 'crossroads', []),
   ('Q', 'Argynvostholt', (343, 440), 'castle', []),
   ('R', 'Raven River Crossroads', (185, 288), 'crossroads', []),

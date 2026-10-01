@@ -88,7 +88,8 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
       const c = apronC.clone(); if (terrain.hasCover) { c.lerp(forestC, Math.min(1, f * 1.2)); c.lerp(hillC, hl); c.lerp(rock, Math.min(1, m * 1.1 + mist * 0.8)); c.lerp(waterC, Math.min(1, w * 1.5)); }
       for (const q of W.pins) if (q.heightFt) { const [qx, qz] = toPlan(q.pos); const dd = Math.hypot(x - cx - qx, z - cz - qz) / FT; if (dd < 0.3) c.lerp(rock, 1 - dd / 0.3); }
       const above = y - yTop + hPin; if (above > snowLine) c.lerp(snowC, Math.min(1, (above - snowLine) / 1200));
-      return c.lerp(MIST, haze(d));
+      // the high peaks stand clear of the haze: the higher the ground, the less mist between it and the eye
+      return c.lerp(MIST, haze(d) * Math.max(0.35, 1 - Math.max(0, above - 1500) / 5000));
     };
     for (let ri = 0; ri < radii.length; ri++) for (let k = 0; k < SEG; k++) {
       const a = (k / SEG) * Math.PI * 2, r = radii[ri], x = cx + Math.cos(a) * r, z = cz + Math.sin(a) * r;
