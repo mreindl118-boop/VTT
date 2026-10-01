@@ -282,3 +282,8 @@ body[data-view='players'] .topbar { grid-template-columns: auto 1fr; grid-templa
 .world-key li .eye { margin-left: auto; width: 26px; height: 26px; opacity: .45; }
 .world-key li .eye[aria-pressed="true"] { opacity: 1; color: #2f6b3a; }
 .world-key li[hidden] { display: none; }
+
+/* label density by camera distance */
+body[data-zoom='mid'] .lbl.key span, body[data-zoom='far'] .lbl.key span { display: none; }
+body[data-zoom='mid'] .lbl.tread, body[data-zoom='far'] .lbl.tread, body[data-zoom='far'] .lbl.note, body[data-zoom='far'] .lbl.object, body[data-zoom='far'] .lbl.door, body[data-zoom='far'] .lbl.link { display: none !important; }
+body[data-zoom='mid'] .lbl.link { font-size: 10px; }

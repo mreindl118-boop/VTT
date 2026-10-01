@@ -150,6 +150,8 @@ export interface SceneFile {
   nonSpatialKeys?: string[];
   /** Still being built: the scene covers only some of the manifest's keyed areas. */
   partial?: boolean;
+  /** The level a visit starts on when the state has none (default: the first). */
+  entry?: string;
 }
 
 export interface GridLevel {

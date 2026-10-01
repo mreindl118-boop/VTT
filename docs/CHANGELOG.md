@@ -244,3 +244,24 @@
 - Facades: houses have timber frames, gabled roofs with chimneys, shutters and sills; the tavern on the
   square is the same building seen from outside.
 - Wall tops stop a hair under the ceiling so they never fight the floor slab above them.
+
+## M2.6 Castle Ravenloft, world-map places, roads — 2026-10-01
+
+- Castle Ravenloft (`locations/ch04/K`, `scripts/authoring/castle-ravenloft.py`): a reconstruction of the
+  whole castle from the book's isometric plates. Each plate is rectified into plan view (the two grid
+  directions measured, the squares warped square) and the rooms read off a labelled grid, then placed in one
+  frame registered on the towers. Twelve levels: dungeon and catacombs (-80, the 40 crypts and the tombs),
+  the larders (-40), courtyard and main floor, the grand landing (+30), the court of the count (+50), the
+  rooms of weeping (+90), the spires (+130), the witches' floor of the south tower (+150), the tower roofs
+  and the bridge (+190), the north tower peak and roof (+240/+250) and the high tower peak (+300). Every
+  keyed area K1–K88 with the dungeon cells, the stair towers rising through every floor, the elevator
+  shaft, secret doors, own-wording descriptions and DM notes, and stair links between the floors. The
+  castle is a stacked site: lift the section above the high tower and the whole castle stands.
+- A keyed area split into several rooms uses `KEY-part`; a scene can be `partial` while it is built; a scene
+  can name its `entry` level; the level that meets the open air decides the fog and the backdrop.
+- Labels thin out with distance: far out only the area keys remain.
+- World map: every place carries a player blurb and a DM note; hovering shows them; a tap on a place with a
+  map opens it; the DM reveals places to the players (the players' map shows only known places).
+- Roads and rivers from the world map run in and out of every outdoor map at true scale, joined to the
+  map's own road at its edge, with gaps in the forest and the ridges along them.
+- The section slider snaps to each floor's default cut.

@@ -116,7 +116,7 @@ export class App {
   constructor(host: HTMLElement, readonly mode: Mode) {
     this.world = new World(host);
     this.channel = new Channel((m) => this.onMsg(m));
-    this.world.onCamera = () => this.sendCamera();
+    this.world.onCamera = () => { this.sendCamera(); this.labelDensity(); };
     this.installPointer();
   }
 
@@ -206,7 +206,8 @@ export class App {
     const pin = pinForScene(path);
     // Outdoors: the land, forest, mountains and the castle continue to the horizon.
     this.backdrop?.removeFromParent(); this.backdrop = undefined;
-    const l0 = scene.levels[0], outdoor = !!pin && !!l0.terrain?.length && (scene.ambient ?? l0.ambient) !== 'darkness';
+    // The level that meets the open air (the one with terrain: a courtyard, a street) decides outdoor fog and the backdrop.
+    const l0 = scene.levels.find((l) => l.terrain?.length) ?? scene.levels[0], outdoor = !!pin && !!l0.terrain?.length && (l0.ambient ?? scene.ambient) !== 'darkness';
     if (outdoor) {
       const bb = bounds([...l0.rooms.map((r) => r.polygon), ...(l0.terrain ?? []).map((t) => t.polygon)]);
       const roadLike = (f: string | undefined, name = '') => f === 'cobble' || f === 'dirt' || /road|street|lane|square|path|trail|track/i.test(name);
@@ -217,7 +218,7 @@ export class App {
     this.world.setOutdoor(outdoor);
     if (pin && this.state.world?.key !== pin.key) this.moveWorld([...pin.pos] as Vec2, pin.key, this.state.world ? Math.hypot(this.state.world.pos[0] - pin.pos[0], this.state.world.pos[1] - pin.pos[1]) : 0, false);
     this.ensureDefaultToken();
-    this.setLevel(levelId && levels.has(levelId) ? levelId : scene.levels[0].id, true);
+    this.setLevel(levelId && levels.has(levelId) ? levelId : scene.entry && levels.has(scene.entry) ? scene.entry : scene.levels[0].id, true);
     this.onChange?.();
   }
 
@@ -261,7 +262,9 @@ export class App {
     const l = this.level;
     // A stacked site frames the current floor's footprint: the floors above and below share it (a tower,
     // a house), while a level that sits elsewhere in plan (the dungeon under the garden) stays out of frame.
-    const polys = l.rooms.map((r) => r.polygon);
+    // With the cut lifted clear above the whole stack the building shows entire: frame every floor of the stack.
+    const whole = this.cur!.scene.stacked && this.cutFt !== undefined && this.cutFt !== null && this.sectionRange && this.cutFt >= this.sectionRange.max - 1;
+    const polys = whole ? [...this.stackOf(l.id)].flatMap((id) => this.cur!.scene.levels.find((x) => x.id === id)!.rooms.map((r) => r.polygon)) : l.rooms.map((r) => r.polygon);
     const b = bounds(polys);
     this.world.controls.maxDistance = Math.max(400, Math.hypot(b.maxX - b.minX, b.maxZ - b.minZ) * 2.5);
     this.world.frame(b, l.elevationFt, preset);
@@ -593,6 +596,12 @@ export class App {
     this.world.invalidate();
   }
 
+  /** Far out, a big map keeps only its area keys: notes, door and stair markers and sublabels wait until you come closer. */
+  labelDensity(): void {
+    const d = this.world.camera.position.distanceTo(this.world.controls.target);
+    const z = d > 900 ? 'far' : d > 420 ? 'mid' : 'near';
+    if (document.body.dataset.zoom !== z) document.body.dataset.zoom = z;
+  }
   setT(t: number): void { this.t = t; this.applySlider(); }
   setView(v: 'dm' | 'players'): void { this.view = v; this.tool = 'none'; this.applySlider(); this.onChange?.(); }
 
