@@ -36,12 +36,26 @@ uniform vec2 uCovOrigin;
 uniform vec2 uCovSize;
 uniform float uFog;
 uniform float uCovEnabled;
+uniform float uPxPerFt;   // what a foot is worth on screen: decides which grid orders show
 
-float squareLine(vec2 p) {
-  vec2 g = abs(fract(p / uCell - 0.5) - 0.5) * uCell;  // distance to nearest line, feet
+// A line of a given spacing (feet): 1 on the line, 0 off it; bold widens it.
+float lineAt(vec2 p, float spacing, float bold) {
+  vec2 g = abs(fract(p / spacing - 0.5) - 0.5) * spacing;
   float d = min(g.x, g.y);
   float w = max(fwidth(p.x), fwidth(p.y));
-  return 1.0 - smoothstep(0.06, 0.06 + 1.2 * w, d);
+  return 1.0 - smoothstep(0.06 * bold, 0.06 * bold + 1.2 * w, d);
+}
+// How much an order of lines shows at this zoom: fading in once its spacing spans ~10 px, full by ~40 px.
+float orderWeight(float spacing) { return smoothstep(10.0, 40.0, spacing * uPxPerFt); }
+// Drafting-style regridding: the cell lines, then every 10, 50, 100 and 500 ft stronger, each order fading as the
+// camera pulls back past it and the next order taking over.
+float squareLine(vec2 p) {
+  float a = lineAt(p, uCell, 1.0) * orderWeight(uCell) * 0.55;
+  a = max(a, lineAt(p, 10.0, 1.3) * orderWeight(10.0) * 0.7);
+  a = max(a, lineAt(p, 50.0, 1.7) * orderWeight(50.0) * 0.85);
+  a = max(a, lineAt(p, 100.0, 2.1) * orderWeight(100.0) * 1.0);
+  a = max(a, lineAt(p, 500.0, 2.6) * orderWeight(500.0) * 1.1);
+  return min(1.0, a);
 }
 
 // Distance (feet) to the nearest hex edge.
@@ -57,7 +71,7 @@ float hexLine(vec2 p) {
   float inner = max(q.x, dot(q, vec2(0.5, sqrt(3.0) * 0.5)));
   float d = (sqrt(3.0) * 0.5 * s) - inner;
   float w = max(fwidth(p.x), fwidth(p.y));
-  return 1.0 - smoothstep(0.06, 0.06 + 1.2 * w, d);
+  return (1.0 - smoothstep(0.06, 0.06 + 1.2 * w, d)) * max(orderWeight(uHexSize * 1.5), 0.0);
 }
 
 void main() {
@@ -73,6 +87,9 @@ void main() {
   if (a < 0.003) discard;
   gl_FragColor = vec4(uColor, a);
 }`;
+
+/** Shared by every grid: what a foot is worth on screen right now (the app updates it as the camera moves). */
+export const gridUniforms = { uPxPerFt: { value: 6 } };
 
 /** Height above the floor top. No polygon offset: at grazing angles it lets the grid bleed through thin props. */
 export const GRID_LIFT_FT = 0.04;
@@ -102,6 +119,7 @@ export function buildGridOverlay(g: GridLevel, elevation: number, ground = true)
       uCovSize: fogUniforms.uCovSize,
       uFog: fogUniforms.uFog,
       uCovEnabled: fogUniforms.uCovEnabled,
+      uPxPerFt: gridUniforms.uPxPerFt,
     },
   });
   const mesh = new THREE.Mesh(geo, m);

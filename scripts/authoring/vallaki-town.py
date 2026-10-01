@@ -28,9 +28,11 @@ STREETS = [
     ('Market street', 14, [(1250, 520), (1300, 600), (1330, 680), (1360, 740)]),
     ('Camp track', 12, [(170, 545), (60, 620), (-100, 780), (-260, 950), (-330, 1010)]),
 ]
-MARK = {'N1': (430, 470), 'N2': (995, 435), 'N3': (920, 690), 'N4': (1200, 305), 'N5': (1690, 690), 'N6': (1420, 720), 'N7': (1080, 605), 'N8': (1215, 622), 'N9': (-337, 1006)}
-NAMES = {'N1': "St. Andral's Church", 'N2': 'Blue Water Inn', 'N3': "Burgomaster's Mansion", 'N4': 'Wachterhaus', 'N5': 'Arasek Stockyard', 'N6': "Coffin Maker's Shop", 'N7': 'Blinsky Toys', 'N8': 'Town Square', 'N9': 'Vistani Camp'}
-ENTER = {'N1': 'ch05/N1', 'N2': 'ch05/N2', 'N3': 'ch05/N3', 'N4': 'ch05/N4', 'N5': 'ch05/N5', 'N6': 'ch05/N6', 'N7': 'ch05/N7', 'N9': 'ch05/N9'}
+MARK = {'N1': (430, 470), 'N2': (995, 435), 'N3': (920, 690), 'N4': (1200, 305), 'N5': (1690, 690), 'N6': (1420, 720), 'N7': (1080, 605), 'N8': (1215, 622), 'N9': (-337, 1006),
+        'N8a': (1215, 566), 'N8b': (1262, 600), 'N8c': (1176, 618), 'N8d': (1222, 664)}  # the shops round the square: north, round the east corner, west, south
+NAMES = {'N1': "St. Andral's Church", 'N2': 'Blue Water Inn', 'N3': "Burgomaster's Mansion", 'N4': 'Wachterhaus', 'N5': 'Arasek Stockyard', 'N6': "Coffin Maker's Shop", 'N7': 'Blinsky Toys', 'N8': 'Town Square', 'N9': 'Vistani Camp',
+         'N8a': 'Smithy and Armourer', 'N8b': "Jeweller's", 'N8c': "Alchemist's", 'N8d': 'General Store'}
+ENTER = {'N1': 'ch05/N1', 'N2': 'ch05/N2', 'N3': 'ch05/N3', 'N4': 'ch05/N4', 'N5': 'ch05/N5', 'N6': 'ch05/N6', 'N7': 'ch05/N7', 'N9': 'ch05/N9', 'N8': 'ch05/N8', 'N8a': 'ch05/N8', 'N8b': 'ch05/N8', 'N8c': 'ch05/N8', 'N8d': 'ch05/N8'}
 _M = json.load(open(os.path.join(ROOT, 'manifests', 'locations.json')))
 PAGE = {a['key']: a['page'] for l in _M['locations'] if l['id'] == 'N' for a in l['areas']}
 
@@ -71,7 +73,16 @@ for i, h in enumerate(houses):
 # unless one already stands there, a keyed site needs the room, or another street runs through.
 import random
 rng = random.Random(7)
-streets_ft = [(name, w, [ft(*p) for p in pts]) for name, w, pts in STREETS]
+def chaikin(pts, passes=2):
+    """Round a traced centreline: each pass cuts every corner at a quarter and three quarters, so the street bends instead of kinking."""
+    for _ in range(passes):
+        out = [pts[0]]
+        for a, b in zip(pts[:-1], pts[1:]):
+            out.append([round(a[0] * 0.75 + b[0] * 0.25, 1), round(a[1] * 0.75 + b[1] * 0.25, 1)]); out.append([round(a[0] * 0.25 + b[0] * 0.75, 1), round(a[1] * 0.25 + b[1] * 0.75, 1)])
+        out.append(pts[-1]); pts = out
+    return pts
+STREETS = [(name, w, pts) for name, w, pts in STREETS]
+streets_ft = [(name, w, chaikin([ft(*p) for p in pts])) for name, w, pts in STREETS]
 def near_street(p, margin):
     for name, w, pts in streets_ft:
         for i in range(len(pts) - 1):
@@ -80,7 +91,7 @@ def near_street(p, margin):
             if math.hypot(p[0] - a[0] - dx * t, p[1] - a[1] - dz * t) < w / 2 + margin: return True
     return False
 placed = [h['pos'] for h in houses if inside(h['pos'], wall)]
-KEEP_CLEAR = {k: (60 if k in ('N8', 'N1', 'N5') else 34) for k in MARK}
+KEEP_CLEAR = {k: (110 if k == 'N8' else 60 if k in ('N1', 'N5') else 34) for k in MARK}
 for name, w, pts in streets_ft:
     for i in range(len(pts) - 1):
         a, b = pts[i], pts[i + 1]; dx, dz = b[0] - a[0], b[1] - a[1]; L = math.hypot(dx, dz)
@@ -120,7 +131,11 @@ for j, (dx, dz) in enumerate([(-14, -10), (14, -10), (0, 12)]):
     objects.append(OrderedDict(id=f'vallaki-wagon-{j}', kind='wagon', pos=[marks['N9'][0] + dx, 0, marks['N9'][1] + dz], vis='player', key='N9', rotY=j * 50))
 for j, (dx, dz) in enumerate([(-12, 0), (12, 0)]):
     objects.append(OrderedDict(id=f'vallaki-pen-{j}', kind='fence', pos=[marks['N5'][0] + dx, 0, marks['N5'][1] + 14], vis='player', key='N5', dims=OrderedDict(len=20)))
-objects.append(OrderedDict(id='vallaki-well', kind='well', pos=[marks['N8'][0], 0, marks['N8'][1]], vis='player', key='N8'))
+objects.append(OrderedDict(id='vallaki-well', kind='well', pos=[marks['N8'][0] - 5, 0, marks['N8'][1] + 10], vis='player', key='N8'))
+objects.append(OrderedDict(id='vallaki-stage', kind='dais', pos=[marks['N8'][0], 0, marks['N8'][1] - 32], vis='player', key='N8', dims=OrderedDict(w=20, h=4, steps=3)))
+objects.append(OrderedDict(id='vallaki-stocks', kind='pillory', pos=[marks['N8'][0] + 32, 0, marks['N8'][1] + 8], vis='player', key='N8', rotY=20))
+objects.append(OrderedDict(id='vallaki-stocks-b', kind='pillory', pos=[marks['N8'][0] + 42, 0, marks['N8'][1] + 8], vis='player', key='N8', rotY=-15))
+for j, (dx, dz) in enumerate([(-65, -45), (65, -45), (-65, 45), (65, 45)]): objects.append(OrderedDict(id=f'vallaki-brazier-{j}', kind='brazier', pos=[marks['N8'][0] + dx, 0, marks['N8'][1] + dz], vis='player', key='N8'))
 # the palisade: 15-ft timber walls with a gate where the road crosses east and west
 walls = []
 def gate_cross(a, b, road_pts):
@@ -130,7 +145,7 @@ def gate_cross(a, b, road_pts):
         def ccw(A, B, C): return (C[1] - A[1]) * (B[0] - A[0]) > (B[1] - A[1]) * (C[0] - A[0])
         if ccw(a, p, q) != ccw(b, p, q) and ccw(a, b, p) != ccw(a, b, q): return True
     return False
-road_main = [ft(*p) for p in STREETS[0][2]]; road_lake = [ft(*p) for p in STREETS[1][2]]; road_camp = [ft(*p) for p in STREETS[6][2]]
+road_main = streets_ft[0][2]; road_lake = streets_ft[1][2]; road_camp = streets_ft[6][2]
 for i in range(len(wall)):
     a, b = wall[i], wall[(i + 1) % len(wall)]
     gate = gate_cross(a, b, road_main) or gate_cross(a, b, road_lake)
@@ -144,9 +159,10 @@ for i in range(len(wall)):
     else:
         walls.append(OrderedDict(id=f'pal-{i}', a=a, b=b, flags=['normal'], material='log', heightFt=15))
 rooms = []
-for k in ['N1', 'N2', 'N4', 'N7', 'N8', 'N3', 'N6', 'N5', 'N9']:
-    x, z = marks[k]; s = 30 if k in ('N7', 'N6') else 40 if k not in ('N8', 'N9', 'N5') else 60
+for k in ['N1', 'N2', 'N4', 'N7', 'N8', 'N3', 'N6', 'N5', 'N9', 'N8a', 'N8b', 'N8c', 'N8d']:
+    x, z = marks[k]; s = 30 if k in ('N7', 'N6', 'N8b', 'N8c') else 40 if k not in ('N8', 'N9', 'N5') else 60
     r = OrderedDict(key=k, name=NAMES[k], page=PAGE.get(k), polygon=[[round(x - s / 2, 1), round(z - s / 2, 1)], [round(x + s / 2, 1), round(z - s / 2, 1)], [round(x + s / 2, 1), round(z + s / 2, 1)], [round(x - s / 2, 1), round(z + s / 2, 1)]], floor='cobble' if k != 'N9' else 'dirt')
+    if k == 'N8': r['polygon'] = [[round(x - 75, 1), round(z - 55, 1)], [round(x + 75, 1), round(z - 55, 1)], [round(x + 75, 1), round(z + 55, 1)], [round(x - 75, 1), round(z + 55, 1)]]
     if k in ENTER: r['enter'] = ENTER[k]
     rooms.append(r)
 DESC = {
@@ -163,17 +179,80 @@ DESC = {
 for r in rooms:
     d = DESC.get(r['key'])
     if d: r['desc'] = d[0]; r['dm'] = d[1]
-terrain = [OrderedDict(polygon=[[0, 0], [7350, 0], [7350, 4580], [0, 4580]], floor='grass')]
-for name, w, pts in STREETS:
-    for poly in strip([ft(*p) for p in pts], w): terrain.append(OrderedDict(polygon=poly, floor='cobble' if name == 'Old Svalich Road' else 'dirt'))
+# The town's ground: the palisade and a belt round it. Beyond, the land is the region's own (the lake shore to
+# the north, the slopes climbing south and east), so the map must not carry a flat plain out there.
+_wx = [p[0] for p in wall] + [m[0] for m in marks.values()]; _wz = [p[1] for p in wall] + [m[1] for m in marks.values()]; BELT = 420
+GX0, GX1, GZ0, GZ1 = round(min(_wx) - BELT, 1), round(max(_wx) + BELT, 1), round(min(_wz) - BELT, 1), round(max(_wz) + BELT, 1)
+terrain = [OrderedDict(polygon=[[GX0, GZ0], [GX1, GZ0], [GX1, GZ1], [GX0, GZ1]], floor='grass')]
+objects = [o for o in objects if not (o['kind'] == 'pine' and not (GX0 < o['pos'][0] < GX1 and GZ0 < o['pos'][2] < GZ1))]
+# the approaches are felled: every tree within 200 yards of the palisade is a stump (the town burns a lot of wood)
+def _wall_dist(p):
+    best = 1e9
+    for i in range(len(wall)):
+        a, b = wall[i], wall[(i + 1) % len(wall)]; dx, dz = b[0] - a[0], b[1] - a[1]; L2 = dx * dx + dz * dz or 1
+        t = max(0, min(1, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dz) / L2)); best = min(best, math.hypot(p[0] - a[0] - dx * t, p[1] - a[1] - dz * t))
+    return best
+for o in objects:
+    if o['kind'] == 'pine' and _wall_dist((o['pos'][0], o['pos'][2])) < 600:
+        o['kind'] = 'stump'; o['dims'] = OrderedDict(r=0.9 + (o['dims'].get('scale', 1) - 0.9) * 0.8, h=1.6 + (o['dims'].get('scale', 1) - 0.9) * 1.5)
+pines = sum(1 for o in objects if o['kind'] == 'pine')
+for name, w, pts in streets_ft:
+    for poly in strip(pts, w): terrain.append(OrderedDict(polygon=poly, floor='cobble' if name == 'Old Svalich Road' else 'dirt'))
 # settle: nothing on a street, through the palisade or through another house; every keyed site has its building
 import sys; sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from settle import settle
-SITE_SIZES = {'N2': (62, 40, 2), 'N3': (52, 42, 2), 'N4': (46, 36, 2), 'N6': (30, 24, 1), 'N7': (30, 24, 1), 'N5': (44, 30, 1)}
+SITE_SIZES = {'N2': (62, 40, 2), 'N3': (52, 42, 2), 'N4': (46, 36, 2), 'N6': (30, 24, 1), 'N7': (30, 24, 1), 'N5': (44, 30, 1), 'N8a': (50, 30, 1), 'N8b': (30, 30, 1), 'N8c': (30, 24, 1), 'N8d': (50, 30, 1)}
 _level = OrderedDict(terrain=terrain, rooms=rooms, walls=walls, objects=objects)
 print('settle:', settle(_level, keyed=SITE_SIZES)); objects = _level['objects']
+# Desire paths: the minor walked ways between the streets, worn across the open blocks by people cutting the corner.
+# Not thoroughfares: 3 ft wide, dirt, a little crooked, only where a straight walk between two streets crosses open
+# ground long enough to be worth it and no house stands in the way.
+def _seg_pts(pts, every):
+    out = []
+    for a, b in zip(pts[:-1], pts[1:]):
+        L = math.hypot(b[0] - a[0], b[1] - a[1]); n = max(1, int(L / every))
+        for k in range(n): t = k / n; out.append((a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t))
+    return out
+street_pts = [(i, p) for i, (name, w, pts) in enumerate(streets_ft) for p in _seg_pts(pts, 60)]
+_houses = [o for o in objects if o['kind'] == 'house']
+from settle import rect as _hrect, overlap as _overlap
+_hrects = [_hrect(o) for o in _houses]
+def _blocked(a, b):
+    """Does the walk a-b run through a house (its middle 70%: the ends may squeeze between the houses that line the
+    street), or cross another street on the way?"""
+    dx, dz = b[0] - a[0], b[1] - a[1]; L = math.hypot(dx, dz) or 1; nx, nz = -dz / L * 1.5, dx / L * 1.5
+    e = min(0.3, 10 / L); a2 = (a[0] + dx * e, a[1] + dz * e); b2 = (b[0] - dx * e, b[1] - dz * e)  # the first and last ten feet squeeze between the houses that line the street
+    strip_poly = [(a2[0] + nx, a2[1] + nz), (b2[0] + nx, b2[1] + nz), (b2[0] - nx, b2[1] - nz), (a2[0] - nx, a2[1] - nz)]
+    if any(_overlap(strip_poly, r, slack=0.5) for r in _hrects): return True  # the whole walk keeps clear of every house
+    for k in range(2, 9):
+        t = k / 10; q = (a[0] + dx * t, a[1] + dz * t)
+        if near_street(q, 3): return True
+    return False
+trails = []; drng = random.Random(11)
+for si, a in street_pts:
+    if not inside(a, wall) or drng.random() < 0.35: continue
+    cands = [(sj, b) for sj, b in street_pts if sj != si and inside(b, wall) and 110 < math.hypot(b[0] - a[0], b[1] - a[1]) < 420]
+    drng.shuffle(cands)
+    for sj, b in cands[:6]:
+        if any(math.hypot(a[0] - t0[0], a[1] - t0[1]) < 70 or math.hypot(b[0] - t1[0], b[1] - t1[1]) < 70 for t0, t1 in trails): continue
+        if _blocked(a, b): continue
+        trails.append((a, b)); break
+for a, b in trails:
+    # a crooked line of three legs
+    mx, mz = (a[0] + b[0]) / 2, (a[1] + b[1]) / 2; dx, dz = b[0] - a[0], b[1] - a[1]; L = math.hypot(dx, dz) or 1; nx, nz = -dz / L, dx / L
+    bend = (drng.random() - 0.5) * L * 0.18
+    for poly in strip([a, (mx + nx * bend, mz + nz * bend), b], 3): terrain.append(OrderedDict(polygon=poly, floor='dirt'))
+print('desire paths:', len(trails))
+# Trodden soil: the ground under every house and round it is bare earth, not grass, and the keyed yards too.
+from settle import rect as _frect
+for o in objects:
+    if o['kind'] not in ('house', 'church-building'): continue
+    q = OrderedDict(o); q['dims'] = OrderedDict(w=(o.get('dims') or {}).get('w', 60) + 8, d=(o.get('dims') or {}).get('d', 30) + 8)
+    terrain.append(OrderedDict(polygon=[[round(x, 1), round(z, 1)] for x, z in _frect(q)], floor='dirt'))
+for r in rooms:
+    if r.get('floor') == 'cobble' and r['key'] != 'N8': r['floor'] = 'dirt'   # only the square keeps paving; yards are earth
 level = OrderedDict(id='town', name='Vallaki', elevationFt=0, ceilingFt=15, ambient='barovian-overcast', north='-z', terrain=terrain, rooms=rooms, walls=walls, lights=[], objects=objects)
-scene = OrderedDict(schema=1, location='N', chapter='ch05', name='The Town of Vallaki', mapPage=97, bookScaleFt=5, ambient='barovian-overcast', placementFt=40, kind='placement', levels=[level], links=[], frame='measured-p97-400dpi')
+scene = OrderedDict(schema=1, location='N', chapter='ch05', name='The Town of Vallaki', mapPage=97, bookScaleFt=5, ambient='barovian-overcast', placementFt=40, kind='placement', clearingFt=900, levels=[level], links=[], frame='measured-p97-400dpi')
 grid = OrderedDict(schema=1, levels=OrderedDict(town=OrderedDict(floorPolygons=[terrain[0]['polygon']], type='square', hexOrientation='pointy', origin=[0, 0], color='#1d1b22', opacity=0)))
 os.makedirs(OUT, exist_ok=True)
 json.dump(scene, open(os.path.join(OUT, 'scene.json'), 'w'), indent=1)

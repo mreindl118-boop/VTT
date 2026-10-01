@@ -349,3 +349,13 @@
   hall, a conical roof (new `roof-cone` prop), the spiral stair up the inside of the wall, windows on the
   valley; the shepherd hut, the outhouse with the bear, the yard and the track climbing to the door; the oaks
   round about. Same levels and area keys as before. An upper floor's grid stays within its own walls.
+- Vallaki on its lake: the pin sits on the shore, the valley floor climbs away from the water toward the hills,
+  the town's ground stops at a belt round the palisade so the lake and slopes show beyond, every tree within
+  200 yards of the walls is a stump, the forest stands back a quarter mile. Streets smoothed (two corner-cutting
+  passes); the Old Svalich Road the only cobbled street; bare earth under every house; a few worn desire paths.
+- The town square (N8) is a 150 × 110 ft plaza with the festival stage, two pillories, the well and braziers, and
+  four shops round it (smithy and armourer, the jeweller round the corner, an alchemist, a general store), on the
+  town map and as its own area map (`scripts/authoring/vallaki-square.py`).
+- Grid: drafting-style orders (cells, then 10, 50, 100, 500 ft) that strengthen as the camera pulls back; Square /
+  Hex / Off in the View menu. The camera may look straight down.
+- Tser Falls is the land's own drop, not a standing block; Ravenloft stands on a sheer pillar of bare rock.

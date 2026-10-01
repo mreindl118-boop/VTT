@@ -56,7 +56,7 @@ export class World {
     this.controls.enableDamping = true;
     this.controls.dampingFactor = 0.1; // more glide, less snap
     // Tabletop rig: the tilt stays in a comfortable band; yaw turns in 90° steps from the buttons, not by gesture.
-    this.controls.minPolarAngle = Math.PI * 0.05;
+    this.controls.minPolarAngle = 0; // straight down is allowed
     this.controls.maxPolarAngle = Math.PI * 0.4;
     this.controls.enableRotate = true;   // right-drag / two-finger twist; the buttons turn in 90° steps
     this.controls.rotateSpeed = 0.6;
@@ -155,7 +155,7 @@ export class World {
   /** Camera offset from the target for the current azimuth (free, from the gesture) and tilt band. */
   private rigOffset(dist: number, azimuthDelta = 0): THREE.Vector3 {
     // Angle from vertical: ~49° tabletop indoors, ~61° outdoors so the horizon shows; near-vertical top-down.
-    const pitch = this.tilt === 1 ? Math.PI * 0.06 : this.tilt === 2 ? ISO_PITCH : this.outdoor ? Math.PI * 0.34 : Math.PI * 0.27;
+    const pitch = this.tilt === 1 ? Math.PI * 0.02 : this.tilt === 2 ? ISO_PITCH : this.outdoor ? Math.PI * 0.34 : Math.PI * 0.27;
     let a = this.controls.getAzimuthalAngle() + azimuthDelta;
     // The snapped rigs: overhead squares to a cardinal, isometric to a diagonal of the grid.
     if (this.tilt === 1) a = Math.round(a / (Math.PI / 2)) * (Math.PI / 2);

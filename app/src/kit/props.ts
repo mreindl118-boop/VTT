@@ -516,6 +516,16 @@ export function roofGable(d: Dims): THREE.Group {
   for (let i = 0; i < 6; i++) { const t = box(long ? L : 0.5, 0.25, long ? 0.5 : L, '#2b292d', long ? 0 : (-S / 2 + (i + 0.5) * (S / 6)), y + (i + 0.5) * (h / 6) + 0.2, long ? (-S / 2 + (i + 0.5) * (S / 6)) : 0); g.add(t); }
   return g;
 }
+/** A smith's anvil on its block. */
+export function anvil(): THREE.Group { return g_(cyl(0.9, 1.0, 1.6, PALETTE.woodDark, 0, 0.8, 0, 8), box(2.2, 0.5, 0.9, PALETTE.iron, 0, 1.85, 0), box(1.2, 0.45, 0.8, PALETTE.iron, 0.9, 2.25, 0), box(1.6, 0.4, 0.7, PALETTE.iron, -0.2, 2.25, 0)); }
+/** The pillory: two posts and a hinged board with holes for a head and two hands, on a little step. */
+export function pillory(): THREE.Group {
+  const g = g_(box(5, 0.5, 2.6, '#6a5a48', 0, 0.25, 0), box(0.5, 6, 0.5, PALETTE.woodDark, -1.8, 3.25, 0), box(0.5, 6, 0.5, PALETTE.woodDark, 1.8, 3.25, 0), box(4.6, 1.3, 0.35, PALETTE.wood, 0, 5.2, 0));
+  for (const x of [-1.1, 0, 1.1]) g.add(cyl(x ? 0.22 : 0.34, x ? 0.22 : 0.34, 0.4, '#2b2420', x, 5.2, 0, 8).rotateX(Math.PI / 2));
+  return g;
+}
+/** A felled tree's stump, cut a couple of feet up, the top pale where the axe went through. */
+export function stump(d: Dims): THREE.Group { const r = d.r ?? 1.1, h = d.h ?? 2; return g_(cyl(r * 0.92, r * 1.15, h, PALETTE.woodDark, 0, h / 2, 0, 8), cyl(r * 0.9, r * 0.9, 0.12, '#c9b893', 0, h + 0.06, 0, 8)); }
 /** A conical roof (a tower's cap): radius `r` (a little past the walls), height `h`, sitting at `y`. */
 export function roofCone(d: Dims): THREE.Group {
   const r = (d.r ?? 20) + 1.5, h = d.h ?? 14, y = d.y ?? 10;
@@ -526,4 +536,4 @@ export function roofCone(d: Dims): THREE.Group {
 }
 /** A stone chimney stack rising `h` ft from `y`. */
 export function chimney(d: Dims): THREE.Group { const h = d.h ?? 8, y = d.y ?? 10; return g_(box(2.6, h, 2.6, '#6a6560', 0, y + h / 2, 0), box(3.2, 0.8, 3.2, '#4d4845', 0, y + h + 0.4, 0)); }
-Object.assign(PROPS_V1, { 'roof-gable': roofGable, 'roof-cone': roofCone, chimney } as Record<string, (d: Dims) => THREE.Object3D>);
+Object.assign(PROPS_V1, { 'roof-gable': roofGable, 'roof-cone': roofCone, chimney, stump, anvil, pillory } as Record<string, (d: Dims) => THREE.Object3D>);

@@ -20,6 +20,8 @@ export interface BackdropOpts {
   roads?: P[][];
   /** How far this site stands above the surrounding land: the land, forest and other places sit that far below. */
   crag?: number;
+  /** Felled ground: no forest within this many feet of the map (a walled town keeps its approaches clear). */
+  clearing?: number;
 }
 
 export function buildBackdrop(o: BackdropOpts): THREE.Group {
@@ -66,12 +68,13 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
     const colAt = (x: number, z: number, y: number, d: number) => {
       const [mx, my] = toMiles(x, z), f = terrain.cover('f', mx, my), m = terrain.cover('m', mx, my), hl = terrain.cover('h', mx, my), w = terrain.cover('w', mx, my), mist = terrain.cover('x', mx, my);
       const c = apronC.clone(); if (terrain.hasCover) { c.lerp(forestC, Math.min(1, f * 1.2)); c.lerp(hillC, hl); c.lerp(rock, Math.min(1, m * 1.1 + mist * 0.8)); c.lerp(waterC, Math.min(1, w * 1.5)); }
+      for (const q of W.pins) if (q.heightFt) { const [qx, qz] = toPlan(q.pos); const dd = Math.hypot(x - cx - qx, z - cz - qz) / FT; if (dd < 0.3) c.lerp(rock, 1 - dd / 0.3); }
       const above = y - yTop + hPin; if (above > snowLine) c.lerp(snowC, Math.min(1, (above - snowLine) / 1200));
       return c.lerp(MIST, haze(d));
     };
     for (let ri = 0; ri < radii.length; ri++) for (let k = 0; k < SEG; k++) {
       const a = (k / SEG) * Math.PI * 2, r = radii[ri], x = cx + Math.cos(a) * r, z = cz + Math.sin(a) * r;
-      let y = yAt(x, z) - 3;
+      let y = yAt(x, z) - (mapDist(x, z) < 150 ? 0.4 : 3); // flush where the land meets the map
       for (const l of W.lakes) { const [mx, my] = toMiles(x, z); if (((mx - l.center[0]) / l.r[0]) ** 2 + ((my - l.center[1]) / l.r[1]) ** 2 < 1) y = Math.min(y, yTop + (terrain.heightAt(l.center[0], l.center[1]) - hPin) - 6); }
       P3.push(x, y, z); const c = colAt(x, z, y, r); C.push(c.r, c.g, c.b);
     }
@@ -153,7 +156,7 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
   for (let i = 0; i < n; i++) {
     const a = rnd() * Math.PI * 2, d = terrain.hasCover ? R + 40 + Math.sqrt(rnd()) * 9000 : R + 45 + Math.pow(rnd(), 1.3) * 1000, k = (0.6 + rnd() * 0.6) * (terrain.hasCover ? 1 + d / 9000 : 1);
     const tx = cx + Math.cos(a) * d, tz = cz + Math.sin(a) * d;
-    let drop = nearRoad(tx, tz, 14) || mapDist(tx, tz) < 30; // a ride through the wood for the road; nothing on the map itself
+    let drop = nearRoad(tx, tz, 14) || mapDist(tx, tz) < Math.max(30, o.clearing ?? 0); // a ride through the wood for the road; nothing on the map or its felled approaches
     if (terrain.hasCover && !drop) { const [mx, my] = toMiles(tx, tz); drop = terrain.cover('f', mx, my) < 0.45 + rnd() * 0.3; }
     if (drop) { s.set(0, 0, 0); p.set(tx, y0 - 50, tz); m4.compose(p, q, s); trees.setMatrixAt(i, m4); continue; }
     p.set(tx, yAt(tx, tz) - 1, tz); s.set(k, k * (0.9 + rnd() * 0.4), k); m4.compose(p, q, s);
@@ -235,10 +238,13 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
       // black water at the foot of the cliff, and the river that feeds it
       const lake = new THREE.Mesh(new THREE.CircleGeometry(900, 40), new THREE.MeshBasicMaterial({ color: blend('#1e2a33', haze(t.d) * 0.5), fog: false })); lake.rotation.x = -Math.PI / 2; lake.position.y = -lift + 0.4; s.add(lake);
       const spray = new THREE.Mesh(new THREE.TorusGeometry(260, 60, 6, 24), new THREE.MeshBasicMaterial({ color: '#c9d2d8', transparent: true, opacity: 0.35, fog: false })); spray.rotation.x = -Math.PI / 2; spray.position.y = -lift + 30; s.add(spray);
-    } else if (lift > 0 && !HF) { // its own crag
-      const pr = p.type === 'castle' ? 330 : 120;
-      const pillar = new THREE.CylinderGeometry(pr, pr * 1.6, lift, 12, 1, true); pillar.translate(0, -lift / 2, 0);
+    } else if (lift > 0) { // its own crag: the Pillarstone, sheer where the land's own hump is too soft to carry a castle
+      const pr = p.type === 'castle' ? 330 : 120, ph = HF ? lift * 1.1 : lift;
+      const pillar = new THREE.CylinderGeometry(pr, pr * 1.7, ph, 14, 4, true); pillar.translate(0, -ph / 2, 0);
+      const pv = pillar.attributes.position; for (let i = 0; i < pv.count; i++) { const j = ((i * 7919) % 13) / 13 - 0.5; pv.setX(i, pv.getX(i) * (1 + 0.14 * j)); pv.setZ(i, pv.getZ(i) * (1 + 0.14 * j)); }
+      pillar.computeVertexNormals();
       const pm = new THREE.Mesh(pillar, hazed('#4a4a52', t.d)); s.add(pm);
+      for (let i = 0; i < 12; i++) { const a = (i / 12) * Math.PI * 2 + 0.4, r = pr * (1.1 + (i % 3) * 0.2), bh = -ph * (0.12 + (i % 5) * 0.17); const bd = new THREE.Mesh(new THREE.IcosahedronGeometry(pr * (0.12 + (i % 4) * 0.05), 0), hazed('#44444c', t.d)); bd.position.set(Math.cos(a) * r, bh, Math.sin(a) * r); s.add(bd); }
       const foot = new THREE.Mesh(new THREE.ConeGeometry(pr * 2.4, lift * 0.35, 12), hazed('#3f3f47', t.d)); foot.position.y = -lift + lift * 0.175; s.add(foot);
     }
     const mat = (hex: string) => hazed(hex, t.d);
@@ -272,9 +278,12 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
     } else if (type === 'ruin') {
       for (let i = 0; i < 5; i++) box(20 + rnd() * 20, 12 + rnd() * 25, 6, -40 + i * 20, rnd() * 30 - 15, 0, '#7a766f', rnd());
     } else if (type === 'falls') {
-      // A canyon head: a cliff a thousand feet high, white water down its face, a stone arch bridge across the top, mist at the foot.
-      const cliffH = 1000;
-      box(700, cliffH, 300, 0, -150, -40, '#4a4a52'); box(520, cliffH * 0.9, 200, -30, -300, -40, '#3f3f47');
+      // A canyon head: white water down the face, a stone arch bridge across the top, mist at the foot. On a heightfield
+      // the land itself is the cliff (the river's cut), so only the fall, the bridge and the mist are added, sized to
+      // the drop the land actually makes there; without one, a cliff a thousand feet high stands in for it.
+      let cliffH = 1000;
+      if (HF) { let low = yAt(t.x, t.z); for (let k = 0; k < 12; k++) { const a = (k / 12) * Math.PI * 2; low = Math.min(low, yAt(t.x + Math.cos(a) * 900, t.z + Math.sin(a) * 900)); } cliffH = Math.max(140, Math.min(420, yAt(t.x, t.z) - low)); s.position.y -= cliffH; }
+      else { box(700, cliffH, 300, 0, -150, -40, '#4a4a52'); box(520, cliffH * 0.9, 200, -30, -300, -40, '#3f3f47'); }
       box(70, cliffH - 60, 12, 0, 6, 0, '#e6ecf0'); box(40, cliffH - 60, 8, 10, 8, 0, '#f4f7f9');
       // gap in the cliff for the bridge, spanned by an arch
       box(60, 70, 300, -190, -150, cliffH, '#5c5c64'); box(60, 70, 300, 190, -150, cliffH, '#5c5c64');

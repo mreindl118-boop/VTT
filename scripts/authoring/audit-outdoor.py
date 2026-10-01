@@ -63,6 +63,8 @@ def audit(path):
         rooms = lv.get('rooms') or []; walls = lv.get('walls') or []
         objs = lv.get('objects') or []
         buildings = [(o, rect(o)) for o in objs if o['kind'] in BUILDING]
+        # a patch of earth with a house standing in it is that house's yard, not a street
+        streets = [st for st in streets if not any(inside([o['pos'][0], o['pos'][2]], st) for o, _ in buildings)]
         # 1. buildings on streets
         for o, r in buildings:
             for st in streets:

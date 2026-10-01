@@ -82,9 +82,13 @@ def refine(p):
 EXTRA = [('M2', 'Mount Baratok', (1005, 381), 'peak'), ('M3', 'Mount Baratok', (1215, 300), 'peak'), ('M4', 'Mount Baratok', (1455, 336), 'peak'),
          ('M5', 'Mount Baratok', (1770, 366), 'peak'), ('D2', 'River Ivlis (east bridge)', (2604, 1386), 'river')]
 FIX = {'Y': (240, 1245)}  # discs the detector misses on the page (Yester Hill stands in the mist at the west edge)
+# the letter is drawn beside the place: where it stands off the symbol, the pin moves onto it (miles, +y south)
+NUDGE = {'N': (0.0, -0.45)}   # Vallaki's letter sits on the road south of the town, which lies on the lake shore
 pins = []
 for p in base['pins']:
-    q = refine(p['pos']) if p['key'] not in FIX else np.array(FIX[p['key']], float); e = OrderedDict(p); e['pos'] = mi(*q); pins.append(e)
+    q = refine(p['pos']) if p['key'] not in FIX else np.array(FIX[p['key']], float); e = OrderedDict(p); e['pos'] = mi(*q)
+    if p['key'] in NUDGE: e['pos'] = [round(e['pos'][0] + NUDGE[p['key']][0], 2), round(e['pos'][1] + NUDGE[p['key']][1], 2)]
+    pins.append(e)
 have = {p['key'] for p in pins}
 for key, name, at, typ in EXTRA:
     if key in have: continue

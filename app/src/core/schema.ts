@@ -143,6 +143,8 @@ export interface SceneFile {
    *  true = a roofed building: the cut follows the current floor. 'open' = open platforms (a tower, a treehouse):
    *  the cut rests above the top platform until the DM moves it, so the whole stack stays in view. */
   stacked?: boolean | 'open';
+  /** Felled ground round a walled site: no forest within this many feet of the map's edge. */
+  clearingFt?: number;
   /** Outdoors in a wooded mountain valley: taller ridges and deeper forest in the backdrop. */
   valley?: boolean;
   ambient: Ambient;

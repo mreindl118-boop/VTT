@@ -1910,6 +1910,30 @@
      "key": "N9",
      "name": "Vistani Camp",
      "page": 119
+    },
+    {
+     "key": "N8a",
+     "name": "Smithy and Armourer",
+     "page": 119,
+     "inset": true
+    },
+    {
+     "key": "N8b",
+     "name": "Jeweller's",
+     "page": 119,
+     "inset": true
+    },
+    {
+     "key": "N8c",
+     "name": "Alchemist's",
+     "page": 119,
+     "inset": true
+    },
+    {
+     "key": "N8d",
+     "name": "General Store",
+     "page": 119,
+     "inset": true
     }
    ],
    "placementLayer": {
@@ -2361,6 +2385,45 @@
      "key": "N6f",
      "name": "Vampire Nest and Piccolo",
      "page": 118
+    }
+   ]
+  },
+  {
+   "id": "N8",
+   "name": "Town Square",
+   "chapter": "ch05",
+   "status": "mapped",
+   "mapPages": [
+    119
+   ],
+   "bookScaleFt": 5,
+   "poster": false,
+   "path": "locations/ch05/N8",
+   "areas": [
+    {
+     "key": "N8",
+     "name": "Town Square",
+     "page": 119
+    },
+    {
+     "key": "N8a",
+     "name": "Smithy and Armourer",
+     "page": 119
+    },
+    {
+     "key": "N8b",
+     "name": "Jeweller's",
+     "page": 119
+    },
+    {
+     "key": "N8c",
+     "name": "Alchemist's",
+     "page": 119
+    },
+    {
+     "key": "N8d",
+     "name": "General Store",
+     "page": 119
     }
    ]
   },

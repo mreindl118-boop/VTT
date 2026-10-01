@@ -84,7 +84,7 @@ function buildDmUi(): void {
       <button class="icon" data-act="search" aria-label="Go to area (/)" title="Go to area (/)">${ICON.search}</button>
       <button class="icon" data-act="rooms" aria-label="Rooms" title="Rooms">${ICON.list}</button>
       <details class="menu" data-menu="view"><summary class="icon" aria-label="View options" title="View">${ICON.grid}</summary><div class="menu-panel">
-        <button class="icon" data-act="grid" aria-label="Grid: square / hex / off" title="Grid"><i></i><span>Grid</span></button>
+        <div class="menu-row seg-row" role="radiogroup" aria-label="Grid"><span>Grid</span><div class="seg"><button role="radio" data-grid="square">Square</button><button role="radio" data-grid="hex">Hex</button><button role="radio" data-grid="off">Off</button></div></div>
         <label class="menu-row" title="Grid opacity"><span>Opacity</span><input type="range" min="0" max="100" step="5" data-opt="gridOpacity" aria-label="Grid opacity"></label>
         <button class="icon" data-act="snap" aria-label="Snap moves to the grid" aria-pressed="true" title="Snap to grid">${ICON.grid}<span>Snap to grid</span></button>
         <button class="icon" data-act="walls" aria-label="Walls: low / full" title="Walls">${ICON.walls}<span>Walls low / full</span></button>
@@ -247,7 +247,8 @@ function buildDmUi(): void {
     (lv as HTMLElement).style.display = app.cur.scene.levels.length > 1 ? '' : 'none';
     top.querySelectorAll<HTMLElement>('[data-tool]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.tool === app.tool)));
     const slot = (act: string, html: string) => { const b = top.querySelector(`[data-act="${act}"]`)!; (b.querySelector('i') ?? b).innerHTML = html; };
-    slot('grid', app.gridMode === 'hex' ? ICON.hex : app.gridMode === 'square' ? ICON.grid : ICON.gridOff);
+    top.querySelectorAll<HTMLElement>('[data-grid]').forEach((b) => b.setAttribute('aria-checked', String(b.dataset.grid === app.gridMode)));
+    { const sm = top.querySelector('details[data-menu="view"] > summary')!; sm.innerHTML = app.gridMode === 'hex' ? ICON.hex : app.gridMode === 'square' ? ICON.grid : ICON.gridOff; }
     slot('labels', app.labelMode === 'all' ? ICON.label : app.labelMode === 'keys' ? ICON.labelKeys : ICON.labelOff);
     top.querySelector('[data-act="walls"]')!.setAttribute('aria-pressed', String(!app.lowWalls));
     top.querySelector('[data-act="snap"]')!.setAttribute('aria-pressed', String(app.gridSnap));
@@ -271,6 +272,7 @@ function buildDmUi(): void {
     const b = (e.target as HTMLElement).closest<HTMLElement>('button');
     if (!b) return;
     if (b.dataset.tool) b.closest<HTMLDetailsElement>('details.menu')?.removeAttribute('open');
+    if (b.dataset.grid) { app.gridMode = b.dataset.grid as typeof app.gridMode; app.layoutChanged(); return; }
     if (b.dataset.level) app.setLevel(b.dataset.level, true);
     if (b.dataset.view) app.setView(b.dataset.view as 'dm' | 'players');
     if (b.dataset.tool) { app.tool = app.tool === b.dataset.tool ? 'none' : (b.dataset.tool as typeof app.tool); app.setStatus(app.tool === 'none' ? '' : b.getAttribute('aria-label')!); }

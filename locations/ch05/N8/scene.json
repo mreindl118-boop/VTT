@@ -1,0 +1,2119 @@
+{
+ "schema": 1,
+ "location": "N8",
+ "chapter": "ch05",
+ "name": "Town Square",
+ "mapPage": 119,
+ "bookScaleFt": 5,
+ "ambient": "barovian-overcast",
+ "parent": "ch05/N",
+ "kind": "placement",
+ "levels": [
+  {
+   "id": "square",
+   "name": "The square",
+   "elevationFt": 0,
+   "ceilingFt": 12,
+   "ambient": "barovian-overcast",
+   "north": "-z",
+   "rooms": [
+    {
+     "key": "N8",
+     "name": "Town Square",
+     "page": 119,
+     "polygon": [
+      [
+       40,
+       40
+      ],
+      [
+       190,
+       40
+      ],
+      [
+       190,
+       150
+      ],
+      [
+       40,
+       150
+      ]
+     ],
+     "floor": "cobble",
+     "desc": "The town square of Vallaki: the stage for the Festival of the Blazing Sun, the stocks, the dry well, the shops along its sides.",
+     "dm": "Izek Strazni's guards keep an eye on the square; anyone who mutters about the festival ends in the stocks."
+    },
+    {
+     "key": "N8a",
+     "name": "Smithy and Armourer",
+     "page": 119,
+     "polygon": [
+      [
+       80,
+       5
+      ],
+      [
+       130,
+       5
+      ],
+      [
+       130,
+       35
+      ],
+      [
+       80,
+       35
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 10,
+     "desc": "Smithy and armourer on the north side of the square.",
+     "dm": "Dimitri. Arms and mail to order, slowly; he reports strangers who buy weapons to the Baron."
+    },
+    {
+     "key": "N8b",
+     "name": "Jeweller's",
+     "page": 119,
+     "polygon": [
+      [
+       195,
+       5
+      ],
+      [
+       225,
+       5
+      ],
+      [
+       225,
+       35
+      ],
+      [
+       195,
+       35
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 10,
+     "desc": "The jeweller's, round the corner up the east lane.",
+     "dm": "Mila buys gems without questions. The strongbox is her nest egg; she is no fool."
+    },
+    {
+     "key": "N8c",
+     "name": "Alchemist's",
+     "page": 119,
+     "polygon": [
+      [
+       10,
+       55
+      ],
+      [
+       40,
+       55
+      ],
+      [
+       40,
+       80
+      ],
+      [
+       10,
+       80
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 10,
+     "desc": "The alchemist's potion shop on the west side.",
+     "dm": "Varushka. Two potions of healing (50 gp each), basic poison, the sleeping draught the Baron buys for his own nights."
+    },
+    {
+     "key": "N8d",
+     "name": "General Store",
+     "page": 119,
+     "polygon": [
+      [
+       130,
+       155
+      ],
+      [
+       180,
+       155
+      ],
+      [
+       180,
+       185
+      ],
+      [
+       130,
+       185
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 10,
+     "desc": "The general store on the south side.",
+     "dm": "Nadia sells the staples; the Baron taxes her hard and she likes him not at all."
+    }
+   ],
+   "walls": [
+    {
+     "id": "square-w-0",
+     "a": [
+      80.0,
+      5.0
+     ],
+     "b": [
+      130.0,
+      5.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "square-w-1",
+     "a": [
+      130.0,
+      5.0
+     ],
+     "b": [
+      130.0,
+      15.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "square-w-2",
+     "a": [
+      130.0,
+      15.0
+     ],
+     "b": [
+      130.0,
+      20.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "square-w-3",
+     "a": [
+      130.0,
+      20.0
+     ],
+     "b": [
+      130.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "square-w-4",
+     "a": [
+      125.0,
+      35.0
+     ],
+     "b": [
+      130.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "square-w-5",
+     "a": [
+      120.0,
+      35.0
+     ],
+     "b": [
+      125.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "square-w-6",
+     "a": [
+      115.0,
+      35.0
+     ],
+     "b": [
+      120.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "square-w-7",
+     "a": [
+      110.0,
+      35.0
+     ],
+     "b": [
+      115.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "square-w-8",
+     "a": [
+      105.0,
+      35.0
+     ],
+     "b": [
+      110.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "N8a-door",
+     "a": [
+      100.0,
+      35.0
+     ],
+     "b": [
+      105.0,
+      35.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "half-timber",
+     "open": false
+    },
+    {
+     "id": "square-w-10",
+     "a": [
+      95.0,
+      35.0
+     ],
+     "b": [
+      100.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "square-w-11",
+     "a": [
+      90.0,
+      35.0
+     ],
+     "b": [
+      95.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "square-w-12",
+     "a": [
+      85.0,
+      35.0
+     ],
+     "b": [
+      90.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "square-w-13",
+     "a": [
+      80.0,
+      35.0
+     ],
+     "b": [
+      85.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "square-w-14",
+     "a": [
+      80.0,
+      30.0
+     ],
+     "b": [
+      80.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "square-w-15",
+     "a": [
+      80.0,
+      25.0
+     ],
+     "b": [
+      80.0,
+      30.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "square-w-16",
+     "a": [
+      80.0,
+      20.0
+     ],
+     "b": [
+      80.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "square-w-17",
+     "a": [
+      80.0,
+      15.0
+     ],
+     "b": [
+      80.0,
+      20.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "square-w-18",
+     "a": [
+      80.0,
+      10.0
+     ],
+     "b": [
+      80.0,
+      15.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "square-w-19",
+     "a": [
+      80.0,
+      5.0
+     ],
+     "b": [
+      80.0,
+      10.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "square-w-20",
+     "a": [
+      195.0,
+      5.0
+     ],
+     "b": [
+      210.0,
+      5.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "square-w-21",
+     "a": [
+      210.0,
+      5.0
+     ],
+     "b": [
+      215.0,
+      5.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "square-w-22",
+     "a": [
+      215.0,
+      5.0
+     ],
+     "b": [
+      225.0,
+      5.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "square-w-23",
+     "a": [
+      225.0,
+      5.0
+     ],
+     "b": [
+      225.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "square-w-24",
+     "a": [
+      220.0,
+      35.0
+     ],
+     "b": [
+      225.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "square-w-25",
+     "a": [
+      215.0,
+      35.0
+     ],
+     "b": [
+      220.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "square-w-26",
+     "a": [
+      210.0,
+      35.0
+     ],
+     "b": [
+      215.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "square-w-27",
+     "a": [
+      205.0,
+      35.0
+     ],
+     "b": [
+      210.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "square-w-28",
+     "a": [
+      200.0,
+      35.0
+     ],
+     "b": [
+      205.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "square-w-29",
+     "a": [
+      195.0,
+      35.0
+     ],
+     "b": [
+      200.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "square-w-30",
+     "a": [
+      195.0,
+      30.0
+     ],
+     "b": [
+      195.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "square-w-31",
+     "a": [
+      195.0,
+      25.0
+     ],
+     "b": [
+      195.0,
+      30.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "N8b-door",
+     "a": [
+      195.0,
+      20.0
+     ],
+     "b": [
+      195.0,
+      25.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "half-timber",
+     "open": false
+    },
+    {
+     "id": "square-w-33",
+     "a": [
+      195.0,
+      15.0
+     ],
+     "b": [
+      195.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "square-w-34",
+     "a": [
+      195.0,
+      10.0
+     ],
+     "b": [
+      195.0,
+      15.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "square-w-35",
+     "a": [
+      195.0,
+      5.0
+     ],
+     "b": [
+      195.0,
+      10.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "square-w-36",
+     "a": [
+      10.0,
+      55.0
+     ],
+     "b": [
+      40.0,
+      55.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "square-w-37",
+     "a": [
+      40.0,
+      70.0
+     ],
+     "b": [
+      40.0,
+      80.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "square-w-38",
+     "a": [
+      35.0,
+      80.0
+     ],
+     "b": [
+      40.0,
+      80.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "square-w-39",
+     "a": [
+      30.0,
+      80.0
+     ],
+     "b": [
+      35.0,
+      80.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "square-w-40",
+     "a": [
+      25.0,
+      80.0
+     ],
+     "b": [
+      30.0,
+      80.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "square-w-41",
+     "a": [
+      20.0,
+      80.0
+     ],
+     "b": [
+      25.0,
+      80.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "square-w-42",
+     "a": [
+      15.0,
+      80.0
+     ],
+     "b": [
+      20.0,
+      80.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "square-w-43",
+     "a": [
+      10.0,
+      80.0
+     ],
+     "b": [
+      15.0,
+      80.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "square-w-44",
+     "a": [
+      10.0,
+      75.0
+     ],
+     "b": [
+      10.0,
+      80.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "square-w-45",
+     "a": [
+      10.0,
+      70.0
+     ],
+     "b": [
+      10.0,
+      75.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "square-w-46",
+     "a": [
+      10.0,
+      65.0
+     ],
+     "b": [
+      10.0,
+      70.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "square-w-47",
+     "a": [
+      10.0,
+      60.0
+     ],
+     "b": [
+      10.0,
+      65.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "square-w-48",
+     "a": [
+      10.0,
+      55.0
+     ],
+     "b": [
+      10.0,
+      60.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "square-w-49",
+     "a": [
+      130.0,
+      155.0
+     ],
+     "b": [
+      150.0,
+      155.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "N8d-door",
+     "a": [
+      150.0,
+      155.0
+     ],
+     "b": [
+      155.0,
+      155.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "half-timber",
+     "open": false
+    },
+    {
+     "id": "square-w-51",
+     "a": [
+      155.0,
+      155.0
+     ],
+     "b": [
+      180.0,
+      155.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "square-w-52",
+     "a": [
+      180.0,
+      155.0
+     ],
+     "b": [
+      180.0,
+      165.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "square-w-53",
+     "a": [
+      180.0,
+      165.0
+     ],
+     "b": [
+      180.0,
+      170.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "square-w-54",
+     "a": [
+      180.0,
+      170.0
+     ],
+     "b": [
+      180.0,
+      185.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "square-w-55",
+     "a": [
+      175.0,
+      185.0
+     ],
+     "b": [
+      180.0,
+      185.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "square-w-56",
+     "a": [
+      170.0,
+      185.0
+     ],
+     "b": [
+      175.0,
+      185.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "square-w-57",
+     "a": [
+      165.0,
+      185.0
+     ],
+     "b": [
+      170.0,
+      185.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "square-w-58",
+     "a": [
+      160.0,
+      185.0
+     ],
+     "b": [
+      165.0,
+      185.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "square-w-59",
+     "a": [
+      155.0,
+      185.0
+     ],
+     "b": [
+      160.0,
+      185.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "square-w-60",
+     "a": [
+      150.0,
+      185.0
+     ],
+     "b": [
+      155.0,
+      185.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "square-w-61",
+     "a": [
+      145.0,
+      185.0
+     ],
+     "b": [
+      150.0,
+      185.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "square-w-62",
+     "a": [
+      140.0,
+      185.0
+     ],
+     "b": [
+      145.0,
+      185.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "square-w-63",
+     "a": [
+      135.0,
+      185.0
+     ],
+     "b": [
+      140.0,
+      185.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "square-w-64",
+     "a": [
+      130.0,
+      185.0
+     ],
+     "b": [
+      135.0,
+      185.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "square-w-65",
+     "a": [
+      130.0,
+      180.0
+     ],
+     "b": [
+      130.0,
+      185.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "square-w-66",
+     "a": [
+      130.0,
+      175.0
+     ],
+     "b": [
+      130.0,
+      180.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "square-w-67",
+     "a": [
+      130.0,
+      170.0
+     ],
+     "b": [
+      130.0,
+      175.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "square-w-68",
+     "a": [
+      130.0,
+      165.0
+     ],
+     "b": [
+      130.0,
+      170.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "square-w-69",
+     "a": [
+      130.0,
+      160.0
+     ],
+     "b": [
+      130.0,
+      165.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "square-w-70",
+     "a": [
+      130.0,
+      155.0
+     ],
+     "b": [
+      130.0,
+      160.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    }
+   ],
+   "lights": [
+    {
+     "id": "square-l-brazier0",
+     "pos": [
+      50,
+      5,
+      50
+     ],
+     "preset": "torch",
+     "bright": 10,
+     "dim": 20
+    },
+    {
+     "id": "square-l-brazier1",
+     "pos": [
+      180,
+      5,
+      50
+     ],
+     "preset": "torch",
+     "bright": 10,
+     "dim": 20
+    },
+    {
+     "id": "square-l-brazier2",
+     "pos": [
+      50,
+      5,
+      140
+     ],
+     "preset": "torch",
+     "bright": 10,
+     "dim": 20
+    },
+    {
+     "id": "square-l-brazier3",
+     "pos": [
+      180,
+      5,
+      140
+     ],
+     "preset": "torch",
+     "bright": 10,
+     "dim": 20
+    },
+    {
+     "id": "square-l-N8a-forge",
+     "pos": [
+      90,
+      4,
+      10
+     ],
+     "preset": "torch",
+     "bright": 10,
+     "dim": 20
+    },
+    {
+     "id": "square-l-N8b-lamp",
+     "pos": [
+      210,
+      6,
+      20
+     ],
+     "preset": "lantern",
+     "bright": 10,
+     "dim": 20
+    },
+    {
+     "id": "square-l-N8c-lamp",
+     "pos": [
+      25,
+      6,
+      67.5
+     ],
+     "preset": "candle",
+     "bright": 5,
+     "dim": 10
+    },
+    {
+     "id": "square-l-N8d-lamp",
+     "pos": [
+      155,
+      6,
+      170
+     ],
+     "preset": "lantern",
+     "bright": 10,
+     "dim": 20
+    }
+   ],
+   "objects": [
+    {
+     "id": "square-stage",
+     "kind": "dais",
+     "pos": [
+      115,
+      0,
+      65
+     ],
+     "vis": "player",
+     "key": "N8",
+     "dims": {
+      "w": 20,
+      "h": 4,
+      "steps": 3
+     }
+    },
+    {
+     "id": "square-pillory",
+     "kind": "pillory",
+     "pos": [
+      145,
+      0,
+      105
+     ],
+     "vis": "player",
+     "rotY": 20,
+     "key": "N8"
+    },
+    {
+     "id": "square-pillory-b",
+     "kind": "pillory",
+     "pos": [
+      155,
+      0,
+      105
+     ],
+     "vis": "player",
+     "rotY": -15,
+     "key": "N8"
+    },
+    {
+     "id": "square-well",
+     "kind": "well",
+     "pos": [
+      110,
+      0,
+      110
+     ],
+     "vis": "player",
+     "key": "N8"
+    },
+    {
+     "id": "square-brazier0",
+     "kind": "brazier",
+     "pos": [
+      50,
+      0,
+      50
+     ],
+     "vis": "player",
+     "key": "N8"
+    },
+    {
+     "id": "square-brazier1",
+     "kind": "brazier",
+     "pos": [
+      180,
+      0,
+      50
+     ],
+     "vis": "player",
+     "key": "N8"
+    },
+    {
+     "id": "square-brazier2",
+     "kind": "brazier",
+     "pos": [
+      50,
+      0,
+      140
+     ],
+     "vis": "player",
+     "key": "N8"
+    },
+    {
+     "id": "square-brazier3",
+     "kind": "brazier",
+     "pos": [
+      180,
+      0,
+      140
+     ],
+     "vis": "player",
+     "key": "N8"
+    },
+    {
+     "id": "square-notice",
+     "kind": "signpost",
+     "pos": [
+      70,
+      0,
+      130
+     ],
+     "vis": "player",
+     "key": "N8"
+    },
+    {
+     "id": "square-trough",
+     "kind": "trough",
+     "pos": [
+      170,
+      0,
+      125
+     ],
+     "vis": "player",
+     "key": "N8"
+    },
+    {
+     "id": "square-cart",
+     "kind": "wagon",
+     "pos": [
+      60,
+      0,
+      70
+     ],
+     "vis": "player",
+     "rotY": 70,
+     "key": "N8"
+    },
+    {
+     "id": "square-N8-stage",
+     "kind": "note",
+     "pos": [
+      115,
+      0,
+      55
+     ],
+     "vis": "dm-note",
+     "key": "N8",
+     "label": "The festival stage: the Baron harangues the town from here on festival days; the stocks beside it hold whoever grumbled."
+    },
+    {
+     "id": "square-N8-stocks",
+     "kind": "note",
+     "pos": [
+      150,
+      0,
+      115
+     ],
+     "vis": "dm-note",
+     "key": "N8",
+     "label": "Two sets of stocks. A malcontent locked in one, the guards nearby; freeing anyone is a crime in Vallaki."
+    },
+    {
+     "id": "square-guard-a",
+     "kind": "commoner",
+     "pos": [
+      140,
+      0,
+      120
+     ],
+     "vis": "hidden-creature",
+     "key": "N8",
+     "label": "Town guard (Izek's man)",
+     "size": "medium"
+    },
+    {
+     "id": "square-guard-b",
+     "kind": "commoner",
+     "pos": [
+      160,
+      0,
+      120
+     ],
+     "vis": "hidden-creature",
+     "key": "N8",
+     "label": "Town guard",
+     "size": "medium"
+    },
+    {
+     "id": "square-stocks-man",
+     "kind": "commoner",
+     "pos": [
+      150,
+      0,
+      102.5
+     ],
+     "vis": "hidden-creature",
+     "key": "N8",
+     "label": "Udo Lukovich, locked in the stocks for a bad word about the festival",
+     "size": "medium"
+    },
+    {
+     "id": "square-N8a-forge",
+     "kind": "stove",
+     "pos": [
+      90,
+      0,
+      10
+     ],
+     "vis": "player",
+     "key": "N8a"
+    },
+    {
+     "id": "square-N8a-anvil",
+     "kind": "anvil",
+     "pos": [
+      100,
+      0,
+      17.5
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "N8a"
+    },
+    {
+     "id": "square-N8a-quench",
+     "kind": "trough",
+     "pos": [
+      110,
+      0,
+      10
+     ],
+     "vis": "player",
+     "key": "N8a"
+    },
+    {
+     "id": "square-N8a-suit",
+     "kind": "armor-suit",
+     "pos": [
+      125,
+      0,
+      10
+     ],
+     "vis": "player",
+     "key": "N8a"
+    },
+    {
+     "id": "square-N8a-suit-b",
+     "kind": "armor-suit",
+     "pos": [
+      125,
+      0,
+      25
+     ],
+     "vis": "player",
+     "key": "N8a"
+    },
+    {
+     "id": "square-N8a-counter",
+     "kind": "bar-top",
+     "pos": [
+      110,
+      0,
+      30
+     ],
+     "vis": "player",
+     "key": "N8a",
+     "dims": {
+      "w": 6
+     }
+    },
+    {
+     "id": "square-N8a-racks",
+     "kind": "shelves",
+     "pos": [
+      85,
+      0,
+      30
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "key": "N8a"
+    },
+    {
+     "id": "square-N8a-keeper",
+     "kind": "commoner",
+     "pos": [
+      115,
+      0,
+      20
+     ],
+     "vis": "hidden-creature",
+     "key": "N8a",
+     "label": "Dimitri the smith, arms and mail to order; he will not shoe a Vistani horse",
+     "size": "medium"
+    },
+    {
+     "id": "square-N8a-note",
+     "kind": "note",
+     "pos": [
+      115,
+      0,
+      20
+     ],
+     "vis": "dm-note",
+     "key": "N8a",
+     "label": "The forge glows all day. Spears and a few swords on the racks, a mail shirt on the stand, prices steep for strangers."
+    },
+    {
+     "id": "square-N8b-case",
+     "kind": "cabinet",
+     "pos": [
+      205,
+      0,
+      10
+     ],
+     "vis": "player",
+     "key": "N8b"
+    },
+    {
+     "id": "square-N8b-case-b",
+     "kind": "cabinet",
+     "pos": [
+      220,
+      0,
+      10
+     ],
+     "vis": "player",
+     "key": "N8b"
+    },
+    {
+     "id": "square-N8b-counter",
+     "kind": "bar-top",
+     "pos": [
+      210,
+      0,
+      22.5
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "N8b",
+     "dims": {
+      "w": 4
+     }
+    },
+    {
+     "id": "square-N8b-desk",
+     "kind": "desk",
+     "pos": [
+      217.5,
+      0,
+      30
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "key": "N8b"
+    },
+    {
+     "id": "square-N8b-chair",
+     "kind": "chair",
+     "pos": [
+      217.5,
+      0,
+      25
+     ],
+     "vis": "player",
+     "key": "N8b"
+    },
+    {
+     "id": "square-N8b-strongbox",
+     "kind": "chest",
+     "pos": [
+      200,
+      0,
+      31.5
+     ],
+     "vis": "hidden-object",
+     "key": "N8b",
+     "label": "An iron strongbox under the desk: the good pieces and the week's coin"
+    },
+    {
+     "id": "square-N8b-lamp",
+     "kind": "oil-lamp",
+     "pos": [
+      210,
+      6,
+      20
+     ],
+     "vis": "player",
+     "key": "N8b"
+    },
+    {
+     "id": "square-N8b-keeper",
+     "kind": "commoner",
+     "pos": [
+      205,
+      0,
+      25
+     ],
+     "vis": "hidden-creature",
+     "key": "N8b",
+     "label": "Mila Dragomir, jeweller, who buys gems quietly and asks nothing",
+     "size": "medium"
+    },
+    {
+     "id": "square-N8b-note",
+     "kind": "note",
+     "pos": [
+      205,
+      0,
+      25
+     ],
+     "vis": "dm-note",
+     "key": "N8b",
+     "label": "Rings and brooches under glass, most of them Vallakian wedding silver; the real stones are in the strongbox."
+    },
+    {
+     "id": "square-N8c-shelves",
+     "kind": "shelves",
+     "pos": [
+      15,
+      0,
+      60
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "N8c"
+    },
+    {
+     "id": "square-N8c-shelves-b",
+     "kind": "shelves",
+     "pos": [
+      15,
+      0,
+      75
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "N8c"
+    },
+    {
+     "id": "square-N8c-table",
+     "kind": "table",
+     "pos": [
+      27.5,
+      0,
+      62.5
+     ],
+     "vis": "player",
+     "key": "N8c",
+     "dims": {
+      "w": 4,
+      "d": 3
+     }
+    },
+    {
+     "id": "square-N8c-counter",
+     "kind": "bar-top",
+     "pos": [
+      32.5,
+      0,
+      75
+     ],
+     "vis": "player",
+     "key": "N8c",
+     "dims": {
+      "w": 3
+     }
+    },
+    {
+     "id": "square-N8c-cabinet",
+     "kind": "cabinet",
+     "pos": [
+      20,
+      0,
+      77.5
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "key": "N8c"
+    },
+    {
+     "id": "square-N8c-poisons",
+     "kind": "niche",
+     "pos": [
+      20,
+      0,
+      77.5
+     ],
+     "vis": "hidden-object",
+     "key": "N8c",
+     "label": "The locked cabinet: two potions of healing, a vial of basic poison, and the sleeping draught the Baron buys"
+    },
+    {
+     "id": "square-N8c-keeper",
+     "kind": "commoner",
+     "pos": [
+      30,
+      0,
+      67.5
+     ],
+     "vis": "hidden-creature",
+     "key": "N8c",
+     "label": "Old Varushka, who sells remedies and reads the customer as closely as the coin",
+     "size": "medium"
+    },
+    {
+     "id": "square-N8c-note",
+     "kind": "note",
+     "pos": [
+      30,
+      0,
+      67.5
+     ],
+     "vis": "dm-note",
+     "key": "N8c",
+     "label": "A small dim shop smelling of vinegar and herbs. Healing potions at a price, if she likes the look of you."
+    },
+    {
+     "id": "square-N8d-shelves",
+     "kind": "shelves",
+     "pos": [
+      135,
+      0,
+      165
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "N8d"
+    },
+    {
+     "id": "square-N8d-shelves-b",
+     "kind": "shelves",
+     "pos": [
+      135,
+      0,
+      180
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "N8d"
+    },
+    {
+     "id": "square-N8d-shelves-c",
+     "kind": "shelves",
+     "pos": [
+      175,
+      0,
+      170
+     ],
+     "vis": "player",
+     "rotY": -90,
+     "key": "N8d"
+    },
+    {
+     "id": "square-N8d-counter",
+     "kind": "bar-top",
+     "pos": [
+      155,
+      0,
+      165
+     ],
+     "vis": "player",
+     "key": "N8d",
+     "dims": {
+      "w": 8
+     }
+    },
+    {
+     "id": "square-N8d-crates",
+     "kind": "crate-chest",
+     "pos": [
+      145,
+      0,
+      180
+     ],
+     "vis": "player",
+     "key": "N8d"
+    },
+    {
+     "id": "square-N8d-crates-b",
+     "kind": "crate-chest",
+     "pos": [
+      155,
+      0,
+      180
+     ],
+     "vis": "player",
+     "key": "N8d"
+    },
+    {
+     "id": "square-N8d-casks",
+     "kind": "cask-rack",
+     "pos": [
+      170,
+      0,
+      180
+     ],
+     "vis": "player",
+     "key": "N8d"
+    },
+    {
+     "id": "square-N8d-hay",
+     "kind": "hay",
+     "pos": [
+      165,
+      0,
+      162.5
+     ],
+     "vis": "player",
+     "key": "N8d"
+    },
+    {
+     "id": "square-N8d-keeper",
+     "kind": "commoner",
+     "pos": [
+      155,
+      0,
+      172.5
+     ],
+     "vis": "hidden-creature",
+     "key": "N8d",
+     "label": "Nadia the storekeeper, who keeps honest prices and her opinions of the Baron to herself",
+     "size": "medium"
+    },
+    {
+     "id": "square-N8d-note",
+     "kind": "note",
+     "pos": [
+      155,
+      0,
+      172.5
+     ],
+     "vis": "dm-note",
+     "key": "N8d",
+     "label": "Rope, lanterns, oil, rations, blankets, a few tools: the adventuring staples at honest Vallaki prices."
+    },
+    {
+     "id": "square-N8a-roof",
+     "kind": "roof-gable",
+     "pos": [
+      105,
+      0,
+      20
+     ],
+     "vis": "player",
+     "dims": {
+      "w": 50,
+      "d": 30,
+      "h": 9,
+      "y": 10
+     }
+    },
+    {
+     "id": "square-N8b-roof",
+     "kind": "roof-gable",
+     "pos": [
+      210,
+      0,
+      20
+     ],
+     "vis": "player",
+     "dims": {
+      "w": 30,
+      "d": 30,
+      "h": 9,
+      "y": 10
+     }
+    },
+    {
+     "id": "square-N8c-roof",
+     "kind": "roof-gable",
+     "pos": [
+      25,
+      0,
+      67.5
+     ],
+     "vis": "player",
+     "dims": {
+      "w": 30,
+      "d": 25,
+      "h": 9,
+      "y": 10
+     }
+    },
+    {
+     "id": "square-N8d-roof",
+     "kind": "roof-gable",
+     "pos": [
+      155,
+      0,
+      170
+     ],
+     "vis": "player",
+     "dims": {
+      "w": 50,
+      "d": 30,
+      "h": 9,
+      "y": 10
+     }
+    }
+   ],
+   "terrain": [
+    {
+     "polygon": [
+      [
+       0,
+       0
+      ],
+      [
+       230,
+       0
+      ],
+      [
+       230,
+       190
+      ],
+      [
+       0,
+       190
+      ]
+     ],
+     "floor": "grass"
+    },
+    {
+     "polygon": [
+      [
+       40,
+       40
+      ],
+      [
+       190,
+       40
+      ],
+      [
+       190,
+       150
+      ],
+      [
+       40,
+       150
+      ]
+     ],
+     "floor": "cobble"
+    },
+    {
+     "polygon": [
+      [
+       190,
+       40
+      ],
+      [
+       230,
+       40
+      ],
+      [
+       230,
+       60
+      ],
+      [
+       190,
+       60
+      ]
+     ],
+     "floor": "dirt"
+    },
+    {
+     "polygon": [
+      [
+       0,
+       85
+      ],
+      [
+       40,
+       85
+      ],
+      [
+       40,
+       105
+      ],
+      [
+       0,
+       105
+      ]
+     ],
+     "floor": "dirt"
+    },
+    {
+     "polygon": [
+      [
+       105,
+       150
+      ],
+      [
+       125,
+       150
+      ],
+      [
+       125,
+       190
+      ],
+      [
+       105,
+       190
+      ]
+     ],
+     "floor": "dirt"
+    }
+   ]
+  }
+ ],
+ "links": []
+}

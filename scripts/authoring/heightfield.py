@@ -32,6 +32,21 @@ def build(world):
             line = cover[r] if r < len(cover) else ''
             for c in range(cols): H[r, c] = CLASS_FT.get(line[c] if c < len(line) else 'x', 140)
         H = ndi.gaussian_filter(H, 1.6)
+        # the valley floor is not a table: the land climbs away from the rivers and lakes toward the hills,
+        # so every lowland town sits in a bowl with its water at the bottom
+        water = np.zeros((rows, cols), bool)
+        for r in range(rows):
+            line = cover[r] if r < len(cover) else ''
+            for c in range(cols): water[r, c] = (line[c] if c < len(line) else 'x') == 'w'
+        for rv in world.get('rivers', []):
+            pts = np.array(rv['pts'], float)
+            for a, c2 in zip(pts[:-1], pts[1:]):
+                dx, dy = c2 - a; L2 = dx * dx + dy * dy or 1e-9
+                t = np.clip(((gx - a[0]) * dx + (gy - a[1]) * dy) / L2, 0, 1); d = np.hypot(gx - a[0] - dx * t, gy - a[1] - dy * t)
+                water |= d < cell * 0.75
+        if water.any():
+            dist = ndi.distance_transform_edt(~water) * cell   # miles to the nearest water
+            H += np.clip(dist, 0, 2.5) * 150                   # 150 ft per mile, up to 375 ft
         # the mists: beyond the frame the ground keeps rising (the valley has no way out)
         edge = np.minimum.reduce([gx - b['minX'], b['maxX'] - gx, gy - b['minY'], b['maxY'] - gy])
         H += np.clip((0.6 - edge) / 0.6, 0, 1) * 1800
@@ -57,7 +72,7 @@ def build(world):
         if p.get('heightFt'):
             d = np.hypot(gx - p['pos'][0], gy - p['pos'][1])
             base = H[np.unravel_index(np.argmin(d), d.shape)]
-            H = np.maximum(H, base + p['heightFt'] * np.clip(1 - (d - 0.06) / 0.2, 0, 1))
+            H = np.where(d < 0.26, np.maximum(H, base + p['heightFt'] * np.clip(1 - (d - 0.06) / 0.2, 0, 1)), H)
     # the lowest settlement is the datum
     sett = [p for p in world.get('pins', []) if p['type'] == 'settlement'] or world.get('pins', [])[:1]
     datum = min(float(H[min(rows - 1, max(0, int((p['pos'][1] - b['minY']) / cell))), min(cols - 1, max(0, int((p['pos'][0] - b['minX']) / cell)))]) for p in sett) if sett else float(H.min())
