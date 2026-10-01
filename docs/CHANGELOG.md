@@ -359,3 +359,8 @@
 - Grid: drafting-style orders (cells, then 10, 50, 100, 500 ft) that strengthen as the camera pulls back; Square /
   Hex / Off in the View menu. The camera may look straight down.
 - Tser Falls is the land's own drop, not a standing block; Ravenloft stands on a sheer pillar of bare rock.
+- Castle Ravenloft's exterior is built from its own plans (`scripts/authoring/ravenloft-exterior.py` →
+  `locations/ch04/K/exterior.json`): every 5-ft column rises to its highest roofed room with a slate cap, the
+  courtyards stay open, the 90-ft curtain walls carry battlements, every stair tower is a round tower to its top
+  with a conical cap, windows burn along the outer faces. It stands on the Pillarstone: a cluster of jagged rock
+  shards, not a drum.

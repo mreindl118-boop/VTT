@@ -5,6 +5,7 @@ import * as THREE from 'three';
 import type { Theme, WorldData } from '../campaigns';
 import { merge } from '../kit/pieces';
 import { terrainOf } from '../core/terrain';
+import RAVENLOFT from '../../../locations/ch04/K/exterior.json';
 
 type P = [number, number];
 let MIST = new THREE.Color('#2b2733');
@@ -239,13 +240,23 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
       const lake = new THREE.Mesh(new THREE.CircleGeometry(900, 40), new THREE.MeshBasicMaterial({ color: blend('#1e2a33', haze(t.d) * 0.5), fog: false })); lake.rotation.x = -Math.PI / 2; lake.position.y = -lift + 0.4; s.add(lake);
       const spray = new THREE.Mesh(new THREE.TorusGeometry(260, 60, 6, 24), new THREE.MeshBasicMaterial({ color: '#c9d2d8', transparent: true, opacity: 0.35, fog: false })); spray.rotation.x = -Math.PI / 2; spray.position.y = -lift + 30; s.add(spray);
     } else if (lift > 0) { // its own crag: the Pillarstone, sheer where the land's own hump is too soft to carry a castle
-      const pr = p.type === 'castle' ? 330 : 120, ph = HF ? lift * 1.1 : lift;
-      const pillar = new THREE.CylinderGeometry(pr, pr * 1.7, ph, 14, 4, true); pillar.translate(0, -ph / 2, 0);
-      const pv = pillar.attributes.position; for (let i = 0; i < pv.count; i++) { const j = ((i * 7919) % 13) / 13 - 0.5; pv.setX(i, pv.getX(i) * (1 + 0.14 * j)); pv.setZ(i, pv.getZ(i) * (1 + 0.14 * j)); }
-      pillar.computeVertexNormals();
-      const pm = new THREE.Mesh(pillar, hazed('#4a4a52', t.d)); s.add(pm);
-      for (let i = 0; i < 12; i++) { const a = (i / 12) * Math.PI * 2 + 0.4, r = pr * (1.1 + (i % 3) * 0.2), bh = -ph * (0.12 + (i % 5) * 0.17); const bd = new THREE.Mesh(new THREE.IcosahedronGeometry(pr * (0.12 + (i % 4) * 0.05), 0), hazed('#44444c', t.d)); bd.position.set(Math.cos(a) * r, bh, Math.sin(a) * r); s.add(bd); }
-      const foot = new THREE.Mesh(new THREE.ConeGeometry(pr * 2.4, lift * 0.35, 12), hazed('#3f3f47', t.d)); foot.position.y = -lift + lift * 0.175; s.add(foot);
+      // The Pillarstone: not a drum but a cluster of tall faceted rock shards, the central one carrying the castle's
+      // floor, the others leaning off it and falling away down the slope, every vertex roughened.
+      const pr = p.type === 'castle' ? 240 : 90, ph = HF ? lift * 1.15 : lift;
+      let sd = 97; const r1 = () => ((sd = (sd * 16807) % 2147483647) / 2147483647);
+      const shard = (x: number, z: number, rBase: number, rTop: number, h: number, y: number, tilt: number, hex: string) => {
+        const g2 = new THREE.CylinderGeometry(rTop, rBase, h, 6, 4); g2.translate(0, -h / 2, 0);
+        const pv = g2.attributes.position; for (let i = 0; i < pv.count; i++) { const k = 1 + (r1() - 0.5) * 0.28; pv.setX(i, pv.getX(i) * k); pv.setZ(i, pv.getZ(i) * (1 + (r1() - 0.5) * 0.28)); if (pv.getY(i) < -2 && pv.getY(i) > -h + 2) pv.setY(i, pv.getY(i) + (r1() - 0.5) * h * 0.06); }
+        g2.computeVertexNormals();
+        const m = new THREE.Mesh(g2, hazed(hex, t.d)); m.position.set(x, y, z); m.rotation.set(tilt * (r1() - 0.5), r1() * Math.PI, tilt * (r1() - 0.5)); s.add(m);
+      };
+      shard(0, 0, pr * 1.25, pr * 1.02, ph, 0.5, 0, '#4a4a52');                                  // the castle's own rock, flat-topped
+      for (let i = 0; i < 9; i++) {                                                               // its neighbours, lower and leaning
+        const a = (i / 9) * Math.PI * 2 + r1() * 0.4, d = pr * (0.95 + r1() * 0.45), h = ph * (0.45 + r1() * 0.5);
+        shard(Math.cos(a) * d, Math.sin(a) * d, pr * (0.35 + r1() * 0.25), pr * (0.08 + r1() * 0.12), h, -ph * (0.05 + r1() * 0.2) + h * 0.15, 0.25, i % 2 ? '#44444c' : '#505058');
+      }
+      for (let i = 0; i < 14; i++) { const a = r1() * Math.PI * 2, r = pr * (1.2 + r1() * 0.8), bh = -ph * (0.3 + r1() * 0.65); const bd = new THREE.Mesh(new THREE.IcosahedronGeometry(pr * (0.08 + r1() * 0.1), 0), hazed('#44444c', t.d)); bd.position.set(Math.cos(a) * r, bh, Math.sin(a) * r); s.add(bd); }
+      if (!HF) { const foot = new THREE.Mesh(new THREE.ConeGeometry(pr * 2.4, lift * 0.35, 12), hazed('#3f3f47', t.d)); foot.position.y = -lift + lift * 0.175; s.add(foot); }
     }
     const mat = (hex: string) => hazed(hex, t.d);
     const box = (w: number, h: number, d: number, x: number, z: number, y: number, hex: string, ry = 0) => { const b = new THREE.BoxGeometry(w, h, d); b.translate(0, h / 2, 0); const m = new THREE.Mesh(b, mat(hex)); m.position.set(x, y, z); m.rotation.y = ry; s.add(m); };
@@ -376,45 +387,34 @@ function cradle(g: THREE.Group, at: { x: number; z: number }, towardX: number, t
 /** Castle Ravenloft as it stands on the Pillarstone: the plan of `scripts/authoring/castle-ravenloft.py` (x east,
  *  z south, centred on the courtyard) raised to the heights of its levels. Lit windows pick it out at night. */
 function ravenloft(s: THREE.Group, mat: (hex: string) => THREE.Material): void {
-  const add = (geo: THREE.BufferGeometry, hex: string, x: number, y: number, z: number, ry = 0) => { const m = new THREE.Mesh(geo, mat(hex)); m.position.set(x, y, z); m.rotation.y = ry; s.add(m); return m; };
-  const box = (w: number, h: number, d: number, x: number, z: number, y: number, hex: string, ry = 0) => { const b = new THREE.BoxGeometry(w, h, d); b.translate(0, h / 2, 0); return add(b, hex, x, y, z, ry); };
-  const cyl = (r: number, h: number, x: number, z: number, y: number, hex: string) => { const c = new THREE.CylinderGeometry(r * 0.92, r, h, 12); c.translate(0, h / 2, 0); return add(c, hex, x, y, z); };
-  const cone = (r: number, h: number, x: number, z: number, y: number, hex: string, seg = 12) => { const c = new THREE.ConeGeometry(r, h, seg); c.translate(0, h / 2, 0); return add(c, hex, x, y, z); };
-  const gable = (w: number, len: number, h: number, x: number, z: number, y: number, hex: string, alongX: boolean) => {
-    const g = new THREE.CylinderGeometry(0, w / Math.SQRT2, len, 4, 1); g.rotateY(Math.PI / 4); g.scale(1, 1, h / (w / 2)); // a square pyramid stretched: a prism roof
-    const geo = new THREE.BoxGeometry(w, h, len); // simpler: a ridge box as the roof mass
-    geo.translate(0, h / 2, 0); const m = add(geo, hex, x, y, z, alongX ? 0 : Math.PI / 2); m.scale.y = 1; return m;
-  };
-  const STONE = '#7c858e', DARK = '#4b4f58', ROOF = '#3c3341', GLOW = '#ffd36b';
-  const X = (ft: number) => ft - 190, Z = (ft: number) => ft - 170; // castle frame → centred
-  // curtain wall, 20 ft thick, 90 ft high, with square corner towers and a battlemented top
-  box(380, 90, 20, X(190), Z(10), 0, STONE); box(380, 90, 20, X(190), Z(330), 0, STONE); box(20, 90, 340, X(10), Z(170), 0, STONE); box(20, 90, 340, X(370), Z(170), 0, STONE);
-  for (const [x, z] of [[10, 10], [370, 10], [10, 330], [370, 330]]) { box(44, 110, 44, X(x), Z(z), 0, DARK); cone(26, 30, X(x), Z(z), 110, ROOF, 4); }
-  // the gatehouse on the west wall and the bridge over the chasm to the gates
-  cyl(14, 100, X(0), Z(150), 0, DARK); cyl(14, 100, X(0), Z(190), 0, DARK); cone(16, 26, X(0), Z(150), 100, ROOF); cone(16, 26, X(0), Z(190), 100, ROOF);
-  box(90, 8, 22, X(-45), Z(170), -6, '#6d6a66');
-  // the keep: the west wing, the main block, the servants' side and the chapel with its dome
-  box(60, 130, 160, X(110), Z(170), 0, STONE); gable(50, 150, 20, X(110), Z(170), 130, ROOF, false);
-  box(140, 130, 90, X(210), Z(140), 0, STONE); gable(90, 130, 26, X(210), Z(140), 130, ROOF, true);
-  box(90, 60, 70, X(215), Z(225), 0, STONE); gable(60, 80, 18, X(215), Z(225), 60, ROOF, true);
-  box(50, 50, 50, X(320), Z(75), 0, STONE); // servants' entrance block
-  cyl(52, 90, X(275), Z(185), 0, STONE); add(new THREE.SphereGeometry(52, 16, 10, 0, Math.PI * 2, 0, Math.PI / 2), '#4f7a6e', X(275), 90, Z(185));
-  for (let i = 0; i < 8; i++) { const a = (i / 8) * Math.PI * 2; box(6, 14, 2, X(275) + Math.cos(a) * 52, Z(185) + Math.sin(a) * 52, 40, GLOW, -a); }
-  // the towers: the turrets, the spiral stair, the heart of sorrow, the south tower, the high tower
-  for (const [x, z] of [[95, 120], [95, 235]]) { cyl(16, 140, X(x), Z(z), 0, DARK); cone(18, 30, X(x), Z(z), 140, ROOF, 8); }
-  cyl(10, 135, X(145), Z(185), 0, DARK); cone(12, 20, X(145), Z(185), 135, ROOF, 8);
-  cyl(18, 250, X(180), Z(145), 0, DARK); cone(20, 36, X(180), Z(145), 250, ROOF, 10);
-  cyl(21, 190, X(190), Z(235), 0, DARK); cone(23, 40, X(190), Z(235), 190, ROOF, 10);
-  cyl(16, 300, X(215), Z(200), 0, STONE); cone(19, 50, X(215), Z(200), 300, ROOF, 10);
-  box(4, 46, 30, X(201), Z(190), 190, '#6d6a66'); // the bridge between the towers
-  box(10, 30, 10, X(170), Z(120), 150, DARK);     // the smokestack
-  // lit windows on the keep and the towers, seen for a mile across the valley
-  const win = (x: number, z: number, y: number, ry: number, w = 8, h = 12) => { const m = box(w, h, 1.5, x, z, y, GLOW, ry); (m.material as THREE.Material).dispose(); m.material = new THREE.MeshBasicMaterial({ color: GLOW, fog: false }); };
-  for (const y of [40, 70, 100]) for (const z of [120, 150, 180, 210]) win(X(79), Z(z), y, 0);
-  for (const y of [45, 80, 110]) for (const x of [160, 200, 240, 270]) win(X(x), Z(94), y, Math.PI / 2);
-  for (const y of [60, 120, 180, 230]) win(X(180) - 18, Z(145), y, 0, 6, 10);
-  for (const y of [60, 110, 160]) win(X(190) - 21, Z(235), y, 0, 6, 10);
-  for (const y of [120, 200, 270]) win(X(215) - 16, Z(200), y, 0, 6, 10);
-  // the overlook on the east and its stone box in the cliff a hundred feet down (the wine cellar)
-  box(40, 6, 30, X(390), Z(170), 0, STONE); box(30, 20, 24, X(380), Z(170), -110, DARK);
+  // Built from the castle's own plans (scripts/authoring/ravenloft-exterior.py): every column of the castle rises to its
+  // highest roofed room, the curtain walls stand at their height with battlements, every stair tower is a round tower
+  // with a conical cap, and windows burn along the outer faces.
+  const E = RAVENLOFT as { blocks: number[][]; walls: number[][]; towers: number[][]; windows: number[][] };
+  const STONE = '#7a828b', STONE2 = '#6c737c', SLATE = '#3a3340', DARK = '#4b4f58', GLOW = '#ffd36b';
+  const add = (geo: THREE.BufferGeometry, m: THREE.Material, x: number, y: number, z: number, ry = 0) => { const o = new THREE.Mesh(geo, m); o.position.set(x, y, z); o.rotation.y = ry; s.add(o); return o; };
+  const box = (w: number, h: number, d: number, x: number, z: number, y: number, hex: string, ry = 0) => { const g = new THREE.BoxGeometry(w, h, d); g.translate(0, h / 2, 0); return add(g, mat(hex), x, y, z, ry); };
+  // the massing, with a slate cap and a parapet on every roof
+  for (const [x, z, w, d, h] of E.blocks) {
+    box(w, h, d, x, z, 0, h > 120 ? STONE2 : STONE);
+    box(w + 0.6, 1.6, d + 0.6, x, z, h, SLATE);
+  }
+  // curtain walls with merlons
+  for (const [x0, z0, x1, z1, h] of E.walls) {
+    const L = Math.hypot(x1 - x0, z1 - z0), ry = -Math.atan2(z1 - z0, x1 - x0), mx = (x0 + x1) / 2, mz = (z0 + z1) / 2;
+    box(L + 10, h, 10, mx, mz, 0, STONE, ry);
+    const n = Math.floor(L / 8), ux = (x1 - x0) / L, uz = (z1 - z0) / L;
+    for (let i = 0; i <= n; i++) { const t = -L / 2 + i * 8; box(4, 4, 10, mx + ux * t, mz + uz * t, h, STONE, ry); }
+  }
+  // the round towers and their caps
+  for (const [x, z, r, top] of E.towers) {
+    const c = new THREE.CylinderGeometry(r * 0.94, r, top, 14); c.translate(0, top / 2, 0); add(c, mat(DARK), x, 0, z);
+    const cap = new THREE.ConeGeometry(r + 2.5, r * 2.4, 14); cap.translate(0, r * 1.2, 0); add(cap, mat(SLATE), x, top, z);
+    const ring = new THREE.CylinderGeometry(r + 1.5, r + 1.5, 3, 14); ring.translate(0, 1.5, 0); add(ring, mat(STONE2), x, top - 3, z);
+  }
+  // lit windows (unlit material: they glow through the night and the mist)
+  const glow = new THREE.MeshBasicMaterial({ color: GLOW, fog: false });
+  for (const [x, z, y, alongZ] of E.windows) { const g = new THREE.BoxGeometry(alongZ ? 1 : 5, 9, alongZ ? 5 : 1); g.translate(0, 4.5, 0); add(g, glow, x, y, z); }
+  // the overlook on the east and its stone box in the cliff below (the wine cellar)
+  box(40, 6, 30, 200, 0, 0, STONE); box(30, 20, 24, 190, 0, -110, DARK);
 }
