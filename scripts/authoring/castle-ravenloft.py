@@ -21,11 +21,13 @@ from authorlib import ROOT, Level, rect, cobwebs  # noqa: F401
 
 OUT = os.path.join(ROOT, 'locations', 'ch04', 'K')
 
-# printed pages of the keyed text (from the OCR index)
-PAGE = {'K1': 53, 'K2': 53, 'K3': 53, 'K4': 53, 'K5': 53, 'K6': 53, 'K7': 53, 'K8': 54, 'K9': 55, 'K10': 55, 'K11': 56, 'K12': 56,
+# printed pages of the keyed text: the manifest's area list (verified against the OCR)
+_M = json.load(open(os.path.join(ROOT, 'manifests', 'locations.json')))
+PAGE = {a['key']: a['page'] for l in _M['locations'] if l['id'] == 'K' for a in l['areas']}
+_OLD_PAGE = {'K1': 53, 'K2': 53, 'K3': 53, 'K4': 53, 'K5': 53, 'K6': 53, 'K7': 53, 'K8': 54, 'K9': 55, 'K10': 55, 'K11': 56, 'K12': 56,
         'K13': 56, 'K14': 56, 'K15': 56, 'K16': 57, 'K17': 57, 'K18': 57, 'K18a': 57, 'K19': 57, 'K20': 58, 'K20a': 58, 'K21': 58,
         'K22': 58, 'K23': 58, 'K24': 60, 'K29': 61, 'K31a': 62, 'K64': 77, 'K83': 84}
-def pg(k): return PAGE.get(k)
+def pg(k): return PAGE.get(k.split('-')[0])
 
 # ------------------------------------------------------------------ frames
 # Map 3 (main floor) 10-ft cells -> castle 5-ft cells. The keep (cells 9..31 × 12..28) sits centred in the courtyard.
@@ -47,12 +49,12 @@ WALL_H = 90  # the curtain walls (p.53)
 # the curtain wall north and south of it; K3 the servants' courtyard takes the east.
 g.room('K1', 'Front Courtyard', [(4, 4), (50, 4), (50, 18), (16, 18), (16, 50), (48, 50), (48, 64), (4, 64)], 'cobble', page=pg('K1'))
 g.room('K3', "Servants' Courtyard", [(50, 4), (62, 4), (62, 10), (72, 10), (72, 30), (60, 30), (60, 18), (50, 18)], 'cobble', page=pg('K3'))
-g.room('K3s', "Servants' Courtyard (south)", [(48, 50), (60, 50), (60, 36), (72, 36), (72, 64), (48, 64)], 'cobble', page=pg('K3'))
+g.room('K3-s', "Servants' Courtyard (south)", [(48, 50), (60, 50), (60, 36), (72, 36), (72, 64), (48, 64)], 'cobble', page=pg('K3'))
 g.room('K4', 'Carriage House', rect(62, 4, 72, 10), 'flagstone', page=pg('K4'), ceilingFt=15)
 g.room('K5', 'Chapel Garden', rect(60, 30, 72, 36), 'grass', page=pg('K5'))
-g.room('K5p', 'Postern', rect(72, 31, 76, 35), 'flagstone', page=pg('K5'))
+g.room('K5-p', 'Postern', rect(72, 31, 76, 35), 'flagstone', page=pg('K5'))
 g.room('K6', 'Overlook', [(76, 30), (84, 30), (86, 32), (86, 34), (84, 36), (76, 36)], 'flagstone', page=pg('K6'))
-g.room('K1g', 'Gatehouse Passage', rect(0, 32, 4, 36), 'flagstone', page=pg('K1'))
+g.room('K1-g', 'Gatehouse Passage', rect(0, 32, 4, 36), 'flagstone', page=pg('K1'))
 # gates in K2's walls and the passages
 g.door((50, 10), (50, 12), id='K2-north-gate', double=True)
 g.door((48, 56), (48, 58), id='K2-south-gate', double=True)
@@ -72,15 +74,15 @@ g.note('K6-note', (81, 33), 'K6', 'Balcony over the cliff: the village lies a th
 g.light('K7-torch-a', (14.5, 25), 'torch', 20, 40, y=8); g.light('K7-torch-b', (14.5, 27), 'torch', 20, 40, y=8)
 
 # --- the keep's main floor (map 3), 10-ft cells read off the rectified plate
-g.room('K12n', 'Turret Post (north-west)', oct3(10.5, 15, 1.5), 'flagstone', page=pg('K12'), ceilingFt=30)
-g.room('K12s', 'Turret Post (south-west)', oct3(10.5, 26.5, 1.5), 'flagstone', page=pg('K12'), ceilingFt=30)
-g.room('K13n', 'Turret Post Access Hall (north)', rect3(12, 14.5, 15, 15.5), 'flagstone', page=pg('K13'), ceilingFt=15)
-g.room('K13w', 'Turret Post Access Hall (west)', rect3(9.5, 16.5, 10.5, 24), 'flagstone', page=pg('K13'), ceilingFt=15)
-g.room('K13s', 'Turret Post Access Hall (south)', rect3(12, 26, 16.5, 27), 'flagstone', page=pg('K13'), ceilingFt=15)
+g.room('K12-n', 'Turret Post (north-west)', oct3(10.5, 15, 1.5), 'flagstone', page=pg('K12'), ceilingFt=30)
+g.room('K12-s', 'Turret Post (south-west)', oct3(10.5, 26.5, 1.5), 'flagstone', page=pg('K12'), ceilingFt=30)
+g.room('K13-n', 'Turret Post Access Hall (north)', rect3(12, 14.5, 15, 15.5), 'flagstone', page=pg('K13'), ceilingFt=15)
+g.room('K13-w', 'Turret Post Access Hall (west)', rect3(9.5, 16.5, 10.5, 24), 'flagstone', page=pg('K13'), ceilingFt=15)
+g.room('K13-s', 'Turret Post Access Hall (south)', rect3(12, 26, 16.5, 27), 'flagstone', page=pg('K13'), ceilingFt=15)
 g.room('K22', "North Archers' Post", rect3(11, 15.5, 13, 17.5), 'flagstone', page=pg('K22'), ceilingFt=15)
 g.room('K11', "South Archers' Post", rect3(10.5, 24, 12, 26), 'flagstone', page=pg('K11'), ceilingFt=15)
 g.room('K83', 'Spiral Stair', oct3(14.5, 18.5, 1), 'flagstone', page=pg('K83'), ceilingFt=50)
-g.room('K8s', 'Grand Staircase', rect3(15.5, 12.5, 17, 19.5), 'flagstone', page=pg('K8'), ceilingFt=40)
+g.room('K8-s', 'Grand Staircase', rect3(15.5, 12.5, 17, 19.5), 'flagstone', page=pg('K8'), ceilingFt=40)
 g.room('K7', 'Entry', rect3(13, 20, 15, 22), 'flagstone', page=pg('K7'), ceilingFt=20)
 g.room('K8', 'Great Entry', rect3(15, 19.5, 19, 22.5), 'flagstone', page=pg('K8'), ceilingFt=40)
 g.room('K14', 'Turret Access Hall', rect3(19, 20, 26, 22), 'flagstone', page=pg('K14'), ceilingFt=15)
@@ -88,7 +90,7 @@ g.room('K16', 'North Chapel Access', rect3(24.5, 18, 26, 20), 'flagstone', page=
 g.room('K17', 'South Chapel Access', rect3(24.5, 22, 26, 24), 'flagstone', page=pg('K17'), ceilingFt=15)
 g.room('K15', 'Chapel', poly3([(27, 16), (30, 16), (31, 17), (31, 26), (30, 27), (27, 27), (26, 26), (26, 17)]), 'flagstone', page=pg('K15'), ceilingFt=90)
 g.room('K9', "Guests' Hall", rect3(15, 22.5, 18, 25.5), 'flagstone', page=pg('K9'), ceilingFt=20)
-g.room('K9h', 'Arched Hallway', rect3(18, 23.5, 19.5, 24.5), 'flagstone', page=pg('K9'), ceilingFt=15)
+g.room('K9-h', 'Arched Hallway', rect3(18, 23.5, 19.5, 24.5), 'flagstone', page=pg('K9'), ceilingFt=15)
 g.room('K10', 'Dining Hall', rect3(12, 22.5, 15, 25), 'flagstone', page=pg('K10'), ceilingFt=20)
 g.room('K31a', 'Elevator Shaft', rect3(19.5, 22.5, 21.5, 23.5), 'flagstone', page=pg('K31a'), ceilingFt=170)
 g.room('K18', 'High Tower Staircase', oct3(22.5, 23, 1.5), 'flagstone', page=pg('K18'), ceilingFt=300)
@@ -167,7 +169,7 @@ DESC = {
   'K1': ("A wide courtyard of broken flagstones before the keep, its walls rising ninety feet on every side. The doors of the keep stand open under torches.", "Lightning and rain; the gate behind the party swings shut on its own if Strahd wills it."),
   'K2': ("A gate in a wall that runs from the keep to the curtain wall.", "North and south gates: unlocked, heavy."),
   'K3': ("A narrow courtyard between the keep and the eastern wall; a carriage house stands in the corner.", "The door into the keep (K23) is swollen shut: DC 10 Strength."),
-  'K3s': ("The courtyard continues round the south-east of the keep.", None),
+  'K3-s': ("The courtyard continues round the south-east of the keep.", None),
   'K4': ("A stone carriage house with hinged wooden doors.", "The black carriage with glass windows and brass lanterns; the horses are elsewhere."),
   'K5': ("A struggling garden behind the keep under boarded stained-glass windows.", None),
   'K6': ("A stone balcony beyond the east wall, open to the storm.", "The village lies a thousand feet below. Perception 15: a stone box with three dirty windows juts from the cliff a hundred feet down (K63, the wine cellar)."),
@@ -176,9 +178,9 @@ DESC = {
   'K9': ("A hall with a suit of armour in a shallow alcove; double doors to the west stand ajar, organ music and bright light spilling through them. An arched hallway runs east.", "The armour is only armour. The east hallway ends at the south tower stair (K21)."),
   'K10': ("A dining hall laid for a feast under a crystal chandelier; a pipe organ thunders at the far wall.", "The food is real but the gracious host is Strahd; the organ plays itself. The scene is a trap of hospitality."),
   'K11': ("A post with arrow slits looking out over the courtyard.", None), 'K22': ("A post with arrow slits looking out over the courtyard.", None),
-  'K12n': ("An octagonal turret room thirty feet across under a domed ceiling with faded frescoes; arrow slits in every wall.", None),
-  'K12s': ("An octagonal turret room thirty feet across under a domed ceiling with faded frescoes; arrow slits in every wall.", None),
-  'K13n': ("A plain hall linking the turrets.", None), 'K13w': ("A plain hall linking the turrets.", None), 'K13s': ("A plain hall linking the turrets.", None),
+  'K12-n': ("An octagonal turret room thirty feet across under a domed ceiling with faded frescoes; arrow slits in every wall.", None),
+  'K12-s': ("An octagonal turret room thirty feet across under a domed ceiling with faded frescoes; arrow slits in every wall.", None),
+  'K13-n': ("A plain hall linking the turrets.", None), 'K13-w': ("A plain hall linking the turrets.", None), 'K13-s': ("A plain hall linking the turrets.", None),
   'K14': ("A long hall draped in cobwebs; life-sized statues of knights line both sides. Double doors stand at each end, a bronze sun above the eastern pair.", "The statues are only statues; cobwebs cut sight to a few feet."),
   'K15': ("The ancient chapel: a dome ninety feet overhead, bats among the rafters, broken stained glass boarded up, a balcony along the west wall. An altar on a platform at the east end, a cloaked figure draped across it, a black mace on the floor.", "The figure is a corpse (the mace is a holy symbol's resting place per the card reading). Strahd may be among the bats. The balcony is K28 (+50)."),
   'K16': ("An arched room with alcoves holding eight-foot statues of helmed knights; a creaking wooden stair rises to the west.", None),
@@ -192,8 +194,8 @@ DESC = {
   'K31a': ("A rectangular shaft, cold and mildewed, iron chains taut up and down it.", "The elevator trap's shaft (see K61)."),
   'K64': ("A bare, windy staircase.", "From K68 (-40) past K13 to K46 (+90)."),
   'K83': ("A dark spiral stair behind a door.", "From K78 (-80) past K83a to K37 (+90)."),
-  'K8s': ("A broad staircase of worn stone climbing into darkness.", "Up 30 ft to K19, the grand landing."),
-  'K9h': ("An arched hallway twenty feet long.", None),
+  'K8-s': ("A broad staircase of worn stone climbing into darkness.", "Up 30 ft to K19, the grand landing."),
+  'K9-h': ("An arched hallway twenty feet long.", None),
 }
 
 def apply_desc(lvls):
@@ -204,7 +206,7 @@ def apply_desc(lvls):
                 r['desc'] = d[0]
                 if d[1]: r['dm'] = d[1]
 
-scene = OrderedDict(schema=1, location='K', chapter='ch04', name='Castle Ravenloft', mapPage=53, bookScaleFt=5, ambient='storm', stacked=True)
+scene = OrderedDict(schema=1, location='K', chapter='ch04', name='Castle Ravenloft', mapPage=53, bookScaleFt=5, ambient='storm', stacked=True, partial=True)
 scene['levels'] = [lv.to_json() for lv in levels]
 apply_desc(scene['levels'])
 scene['links'] = []

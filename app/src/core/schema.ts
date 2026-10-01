@@ -148,6 +148,8 @@ export interface SceneFile {
   links: VerticalLink[];
   /** Area keys that exist in the manifest but are intentionally not rooms (e.g. whole-map events). */
   nonSpatialKeys?: string[];
+  /** Still being built: the scene covers only some of the manifest's keyed areas. */
+  partial?: boolean;
 }
 
 export interface GridLevel {
@@ -202,5 +204,6 @@ export function validateScene(s: SceneFile, g?: GridFile): string[] {
 }
 
 export function sceneAreaKeys(s: SceneFile): string[] {
-  return [...s.levels.flatMap((l) => l.rooms.map((r) => r.key)), ...(s.nonSpatialKeys ?? [])];
+  // A keyed area split into several rooms uses `KEY-part` (K12-n, K13-w): the part belongs to KEY.
+  return [...s.levels.flatMap((l) => l.rooms.map((r) => r.key.replace(/-[a-z]+$/, ''))), ...(s.nonSpatialKeys ?? [])];
 }

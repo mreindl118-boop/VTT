@@ -83,7 +83,9 @@ describe('built scenes', () => {
       const m = list.find((l: Loc) => l.id === scene.location)!;
       expect(m, `manifest location ${scene.location}`).toBeTruthy();
       expect(`locations/${scene.chapter}/${scene.location}`).toBe(path.replace(/\\/g, '/'));
-      expect(new Set(sceneAreaKeys(scene))).toEqual(new Set(m.areas.map((a) => a.key)));
+      const want = new Set(m.areas.map((a) => a.key)), have = new Set(sceneAreaKeys(scene));
+      if (scene.partial) for (const k of have) expect(want, `manifest key for ${k}`).toContain(k);
+      else expect(have).toEqual(want);
     });
   }
 });

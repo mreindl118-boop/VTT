@@ -7,6 +7,7 @@
  "bookScaleFt": 5,
  "ambient": "storm",
  "stacked": true,
+ "partial": true,
  "levels": [
   {
    "id": "ground",
@@ -19,7 +20,7 @@
     {
      "key": "K1",
      "name": "Front Courtyard",
-     "page": 53,
+     "page": 52,
      "polygon": [
       [
        20,
@@ -61,7 +62,7 @@
     {
      "key": "K3",
      "name": "Servants' Courtyard",
-     "page": 53,
+     "page": 54,
      "polygon": [
       [
        250,
@@ -101,9 +102,9 @@
      "dm": "The door into the keep (K23) is swollen shut: DC 10 Strength."
     },
     {
-     "key": "K3s",
+     "key": "K3-s",
      "name": "Servants' Courtyard (south)",
-     "page": 53,
+     "page": 54,
      "polygon": [
       [
        240,
@@ -136,7 +137,7 @@
     {
      "key": "K4",
      "name": "Carriage House",
-     "page": 53,
+     "page": 54,
      "polygon": [
       [
        310,
@@ -163,7 +164,7 @@
     {
      "key": "K5",
      "name": "Chapel Garden",
-     "page": 53,
+     "page": 54,
      "polygon": [
       [
        300,
@@ -186,9 +187,9 @@
      "desc": "A struggling garden behind the keep under boarded stained-glass windows."
     },
     {
-     "key": "K5p",
+     "key": "K5-p",
      "name": "Postern",
-     "page": 53,
+     "page": 54,
      "polygon": [
       [
        360,
@@ -212,7 +213,7 @@
     {
      "key": "K6",
      "name": "Overlook",
-     "page": 53,
+     "page": 54,
      "polygon": [
       [
        380,
@@ -244,9 +245,9 @@
      "dm": "The village lies a thousand feet below. Perception 15: a stone box with three dirty windows juts from the cliff a hundred feet down (K63, the wine cellar)."
     },
     {
-     "key": "K1g",
+     "key": "K1-g",
      "name": "Gatehouse Passage",
-     "page": 53,
+     "page": 52,
      "polygon": [
       [
        0,
@@ -268,9 +269,9 @@
      "floor": "flagstone"
     },
     {
-     "key": "K12n",
+     "key": "K12-n",
      "name": "Turret Post (north-west)",
-     "page": 56,
+     "page": 57,
      "polygon": [
       [
        88.787,
@@ -310,9 +311,9 @@
      "desc": "An octagonal turret room thirty feet across under a domed ceiling with faded frescoes; arrow slits in every wall."
     },
     {
-     "key": "K12s",
+     "key": "K12-s",
      "name": "Turret Post (south-west)",
-     "page": 56,
+     "page": 57,
      "polygon": [
       [
        88.787,
@@ -352,9 +353,9 @@
      "desc": "An octagonal turret room thirty feet across under a domed ceiling with faded frescoes; arrow slits in every wall."
     },
     {
-     "key": "K13n",
+     "key": "K13-n",
      "name": "Turret Post Access Hall (north)",
-     "page": 56,
+     "page": 57,
      "polygon": [
       [
        110,
@@ -378,9 +379,9 @@
      "desc": "A plain hall linking the turrets."
     },
     {
-     "key": "K13w",
+     "key": "K13-w",
      "name": "Turret Post Access Hall (west)",
-     "page": 56,
+     "page": 57,
      "polygon": [
       [
        85.0,
@@ -404,9 +405,9 @@
      "desc": "A plain hall linking the turrets."
     },
     {
-     "key": "K13s",
+     "key": "K13-s",
      "name": "Turret Post Access Hall (south)",
-     "page": 56,
+     "page": 57,
      "polygon": [
       [
        110,
@@ -432,7 +433,7 @@
     {
      "key": "K22",
      "name": "North Archers' Post",
-     "page": 58,
+     "page": 59,
      "polygon": [
       [
        100,
@@ -458,7 +459,7 @@
     {
      "key": "K11",
      "name": "South Archers' Post",
-     "page": 56,
+     "page": 57,
      "polygon": [
       [
        95.0,
@@ -484,7 +485,7 @@
     {
      "key": "K83",
      "name": "Spiral Stair",
-     "page": 84,
+     "page": 85,
      "polygon": [
       [
        130.858,
@@ -525,9 +526,9 @@
      "dm": "From K78 (-80) past K83a to K37 (+90)."
     },
     {
-     "key": "K8s",
+     "key": "K8-s",
      "name": "Grand Staircase",
-     "page": 54,
+     "page": 55,
      "polygon": [
       [
        145.0,
@@ -554,7 +555,7 @@
     {
      "key": "K7",
      "name": "Entry",
-     "page": 53,
+     "page": 54,
      "polygon": [
       [
        120,
@@ -581,7 +582,7 @@
     {
      "key": "K8",
      "name": "Great Entry",
-     "page": 54,
+     "page": 55,
      "polygon": [
       [
        140,
@@ -608,7 +609,7 @@
     {
      "key": "K14",
      "name": "Turret Access Hall",
-     "page": 56,
+     "page": 57,
      "polygon": [
       [
        180,
@@ -635,7 +636,7 @@
     {
      "key": "K16",
      "name": "North Chapel Access",
-     "page": 57,
+     "page": 58,
      "polygon": [
       [
        235.0,
@@ -661,7 +662,7 @@
     {
      "key": "K17",
      "name": "South Chapel Access",
-     "page": 57,
+     "page": 58,
      "polygon": [
       [
        235.0,
@@ -688,7 +689,7 @@
     {
      "key": "K15",
      "name": "Chapel",
-     "page": 56,
+     "page": 57,
      "polygon": [
       [
        260,
@@ -731,7 +732,7 @@
     {
      "key": "K9",
      "name": "Guests' Hall",
-     "page": 55,
+     "page": 56,
      "polygon": [
       [
        140,
@@ -756,9 +757,9 @@
      "dm": "The armour is only armour. The east hallway ends at the south tower stair (K21)."
     },
     {
-     "key": "K9h",
+     "key": "K9-h",
      "name": "Arched Hallway",
-     "page": 55,
+     "page": 56,
      "polygon": [
       [
        170,
@@ -784,7 +785,7 @@
     {
      "key": "K10",
      "name": "Dining Hall",
-     "page": 55,
+     "page": null,
      "polygon": [
       [
        110,
@@ -811,7 +812,7 @@
     {
      "key": "K31a",
      "name": "Elevator Shaft",
-     "page": 62,
+     "page": null,
      "polygon": [
       [
        185.0,
@@ -838,7 +839,7 @@
     {
      "key": "K18",
      "name": "High Tower Staircase",
-     "page": 57,
+     "page": 58,
      "polygon": [
       [
        208.787,
@@ -881,7 +882,7 @@
     {
      "key": "K21",
      "name": "South Tower Stair",
-     "page": 58,
+     "page": 59,
      "polygon": [
       [
        183.787,
@@ -924,7 +925,7 @@
     {
      "key": "K64",
      "name": "Guards' Stair",
-     "page": 77,
+     "page": 78,
      "polygon": [
       [
        155.0,
@@ -951,7 +952,7 @@
     {
      "key": "K20",
      "name": "Heart of Sorrow",
-     "page": 58,
+     "page": 59,
      "polygon": [
       [
        172.751,
@@ -994,7 +995,7 @@
     {
      "key": "K29",
      "name": "Creaky Landing",
-     "page": 61,
+     "page": 62,
      "polygon": [
       [
        205.0,
@@ -1021,7 +1022,7 @@
     {
      "key": "K23",
      "name": "Servants' Entrance",
-     "page": 58,
+     "page": 59,
      "polygon": [
       [
        215.0,
@@ -1048,7 +1049,7 @@
     {
      "key": "K24",
      "name": "Servants' Quarters",
-     "page": 60,
+     "page": 61,
      "polygon": [
       [
        205.0,
