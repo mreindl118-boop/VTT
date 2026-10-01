@@ -331,3 +331,17 @@
 - The clock popover edits the calendar directly (day of the campaign, Harptos month and day, the festival
   days) and carries a travel calculator from the pace table (slow, normal, fast; difficult terrain halves it; a
   mount gallops its first hour) that advances the clock by the journey, eight travelling hours to a day.
+
+## M3.0 The lie of the land — 2026-10-01
+
+- Every region has a heightfield (`scripts/authoring/heightfield.py`): Barovia's rises by land cover read off
+  the printed map (valley and forest low, hills, mountains, the mists walling the rim), with Mount Ghakis,
+  Mount Baratok and the Balinok range as true summits and the Pillarstone of Ravenloft as a true crag; the
+  Sheep Chase country's rises from its hills, the fell and the stream's cut. Heights are relative to the lowest
+  settlement, on the cover lattice (`height` in world.json).
+- Outdoor backdrops stand on that land (`core/terrain.ts`): one low-poly mesh from the map edge to the
+  horizon, coloured by cover (forest, hill, rock, snow above the snow line, water, mist) with the light baked in;
+  the map's own ground is flattened into it, a crag site drops away just past its walls; roads and rivers drape
+  over it; the forest stands where the cover says; every other place sits at its own height. From the village
+  the mountains close the valley and Ravenloft stands on its height; from Vallaki, Lake Zarovich and Baratok;
+  from Noke's tower, Ramsback Fell. Nothing on stilts.

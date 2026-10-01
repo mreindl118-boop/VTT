@@ -4,6 +4,7 @@
 import * as THREE from 'three';
 import type { Theme, WorldData } from '../campaigns';
 import { merge } from '../kit/pieces';
+import { terrainOf } from '../core/terrain';
 
 type P = [number, number];
 let MIST = new THREE.Color('#2b2733');
@@ -31,15 +32,9 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
   let seed = 7;
   const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
 
-  // 1. Ground apron: the land keeps going, fading into mist.
-  const apron = new THREE.RingGeometry(0.5, 90000, 96, 16); // a full disc: the map's own floors sit above it
-  const pos = apron.attributes.position, cols: number[] = [];
-  for (let i = 0; i < pos.count; i++) { const d = Math.hypot(pos.getX(i), pos.getY(i)); const c = blend(T.apron, Math.min(0.9, (d - R) / 26000)); cols.push(c.r, c.g, c.b); }
-  apron.setAttribute('color', new THREE.Float32BufferAttribute(cols, 3));
-  const apronMesh = new THREE.Mesh(apron, new THREE.MeshBasicMaterial({ vertexColors: true, fog: false }));
-  apronMesh.rotation.x = -Math.PI / 2; apronMesh.position.set(cx, y0 - 3, cz); // well under the map's own ground: big maps have little depth precision to spare
-  g.add(apronMesh);
-
+  // 1. The land: a heightfield read from the region's terrain (see core/terrain.ts), flattened to the map's own
+  //    ground near the map and rising and falling at true scale beyond it. Without a heightfield, a flat apron.
+  const terrain = terrainOf(W), HF = terrain.hasHeight;
   // World-map positions at TRUE scale: miles → feet, x east, z south. Distant things are hazed by distance
   // (pre-blended toward the mist), never fogged by the map's own fog.
   const FT = 5280;
@@ -50,6 +45,55 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
   const toWorld = (w: P) => { const [dx, dz] = toPlan(w); return { x: cx + dx, z: cz + dz, d: Math.hypot(dx, dz) }; };
   const haze = (d: number) => Math.min(0.85, 1 - Math.exp(-d / 32000));
   const hazed = (hex: string, d: number) => lambert(blend(hex, haze(d)));
+  // plan feet → world miles (the inverse of toPlan) and the ground's height there, flattened to the map near it
+  const toMiles = (x: number, z: number): P => { const dx = x - cx, dz = z - cz; return [o.pin[0] + (E[0] * dx + E[1] * dz) / FT, o.pin[1] + (S[0] * dx + S[1] * dz) / FT]; };
+  const hPin = HF ? terrain.heightAt(o.pin[0], o.pin[1]) : 0;
+  const bbm = o.bounds ?? { minX: cx - R, maxX: cx + R, minZ: cz - R, maxZ: cz + R };
+  const mapDist = (x: number, z: number) => Math.max(0, bbm.minX - x, x - bbm.maxX, bbm.minZ - z, z - bbm.maxZ);
+  const smooth = (a: number, b: number, t: number) => { const k = Math.min(1, Math.max(0, (t - a) / (b - a))); return k * k * (3 - 2 * k); };
+  const yAt = (x: number, z: number): number => {
+    if (!HF) return y0;
+    const [mx, my] = toMiles(x, z);
+    const h = yTop + (terrain.heightAt(mx, my) - hPin), d = mapDist(x, z);
+    if (crag > 0) { const cliff = yTop - crag * smooth(40, 320, d); return cliff + (h - (yTop - crag)) * smooth(320, 1400, d); }
+    return yTop + (h - yTop) * smooth(120, 900, d);
+  };
+  if (HF) {
+    // a polar mesh: fine near the site, coarse toward the horizon
+    const radii: number[] = [0]; for (let r = 90; r <= 3000; r += 130) radii.push(r); for (let r = 3400; r <= 16000; r += 450) radii.push(r); for (let r = 18500; r <= 90000; r += 2500) radii.push(r);
+    const SEG = 96, P3: number[] = [], C: number[] = [], idx: number[] = [];
+    const snowLine = 4200, rock = new THREE.Color('#6a6d74'), hillC = new THREE.Color('#66705f'), forestC = new THREE.Color(T.forest[0]), waterC = new THREE.Color('#5e7d94'), snowC = new THREE.Color('#e4e6ea'), apronC = new THREE.Color(T.forest[1]).lerp(new THREE.Color(T.apron), 0.35);
+    const colAt = (x: number, z: number, y: number, d: number) => {
+      const [mx, my] = toMiles(x, z), f = terrain.cover('f', mx, my), m = terrain.cover('m', mx, my), hl = terrain.cover('h', mx, my), w = terrain.cover('w', mx, my), mist = terrain.cover('x', mx, my);
+      const c = apronC.clone(); if (terrain.hasCover) { c.lerp(forestC, Math.min(1, f * 1.2)); c.lerp(hillC, hl); c.lerp(rock, Math.min(1, m * 1.1 + mist * 0.8)); c.lerp(waterC, Math.min(1, w * 1.5)); }
+      const above = y - yTop + hPin; if (above > snowLine) c.lerp(snowC, Math.min(1, (above - snowLine) / 1200));
+      return c.lerp(MIST, haze(d));
+    };
+    for (let ri = 0; ri < radii.length; ri++) for (let k = 0; k < SEG; k++) {
+      const a = (k / SEG) * Math.PI * 2, r = radii[ri], x = cx + Math.cos(a) * r, z = cz + Math.sin(a) * r;
+      let y = yAt(x, z) - 3;
+      for (const l of W.lakes) { const [mx, my] = toMiles(x, z); if (((mx - l.center[0]) / l.r[0]) ** 2 + ((my - l.center[1]) / l.r[1]) ** 2 < 1) y = Math.min(y, yTop + (terrain.heightAt(l.center[0], l.center[1]) - hPin) - 6); }
+      P3.push(x, y, z); const c = colAt(x, z, y, r); C.push(c.r, c.g, c.b);
+    }
+    for (let ri = 0; ri + 1 < radii.length; ri++) for (let k = 0; k < SEG; k++) { const k1 = (k + 1) % SEG, a0 = ri * SEG + k, a1 = ri * SEG + k1, b0 = (ri + 1) * SEG + k, b1 = (ri + 1) * SEG + k1; idx.push(a0, b1, b0, a0, a1, b1); }
+    const land = new THREE.BufferGeometry(); land.setAttribute('position', new THREE.Float32BufferAttribute(P3, 3)); land.setAttribute('color', new THREE.Float32BufferAttribute(C, 3)); land.setIndex(idx);
+    // light baked into the colours (one sun low in the south-west), so the land reads the same under every sky
+    const flat = land.toNonIndexed(); flat.computeVertexNormals();
+    const fp = flat.attributes.position, fn = flat.attributes.normal, fc = flat.attributes.color, L = new THREE.Vector3(-0.5, 0.75, 0.45).normalize(), nv = new THREE.Vector3();
+    for (let i = 0; i < fp.count; i += 3) {
+      nv.set(fn.getX(i), fn.getY(i), fn.getZ(i)); const k = 0.55 + 0.6 * Math.max(0, nv.dot(L));
+      for (let j = i; j < i + 3; j++) fc.setXYZ(j, Math.min(1, fc.getX(j) * k), Math.min(1, fc.getY(j) * k), Math.min(1, fc.getZ(j) * k));
+    }
+    const landMesh = new THREE.Mesh(flat, new THREE.MeshBasicMaterial({ vertexColors: true, fog: false })); landMesh.name = 'land'; g.add(landMesh);
+  } else {
+    const apron = new THREE.RingGeometry(0.5, 90000, 96, 16); // a full disc: the map's own floors sit above it
+    const pos = apron.attributes.position, cols: number[] = [];
+    for (let i = 0; i < pos.count; i++) { const d = Math.hypot(pos.getX(i), pos.getY(i)); const c = blend(T.apron, Math.min(0.9, (d - R) / 26000)); cols.push(c.r, c.g, c.b); }
+    apron.setAttribute('color', new THREE.Float32BufferAttribute(cols, 3));
+    const apronMesh = new THREE.Mesh(apron, new THREE.MeshBasicMaterial({ vertexColors: true, fog: false }));
+    apronMesh.rotation.x = -Math.PI / 2; apronMesh.position.set(cx, y0 - 3, cz); // well under the map's own ground: big maps have little depth precision to spare
+    g.add(apronMesh);
+  }
   // Roads and rivers from the world map, in plan feet. A road through this site leaves from the far end of the
   // map's own road in that direction (else the map's edge); the forest and the ridges make way for it.
   type Path = { pts: { x: number; z: number }[]; w: number; hex: string };
@@ -91,7 +135,7 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
   const nearRoad = (x: number, z: number, within: number) => roadPaths.some((r) => { for (let i = 0; i + 1 < r.pts.length; i++) { const a = r.pts[i], b = r.pts[i + 1]; const dx = b.x - a.x, dz = b.z - a.z, L2 = dx * dx + dz * dz || 1; const t = Math.max(0, Math.min(1, ((x - a.x) * dx + (z - a.z) * dz) / L2)); if (Math.hypot(x - a.x - dx * t, z - a.z - dz * t) < within + r.w / 2) return true; } return false; });
 
   // 1b. A site on a crag stands on its pillar of rock; the land below is the valley floor.
-  if (crag > 0) {
+  if (crag > 0 && !HF) {
     const vil = W.pins.find((p) => p.key === 'E');
     if (vil) { const [vx, vz] = toPlan(vil.pos); cradle(g, { x: cx, z: cz }, cx + vx, cz + vz, Math.hypot(vx, vz), y0, (hex) => lambert(blend(hex, 0.15)), 0); }
     // the Pillarstone: wider at its brow than its foot, so the castle hangs over the black water below
@@ -104,14 +148,16 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
   }
   // 2. Forest ring: instanced pines from just past the edge out to the tree line.
   const tree = new THREE.ConeGeometry(6, 28, 6); tree.translate(0, 14, 0);
-  const n = o.valley ? 1500 : 900, trees = new THREE.InstancedMesh(tree, new THREE.MeshLambertMaterial({ fog: false, flatShading: true }), n);
+  const n = terrain.hasCover ? 2600 : o.valley ? 1500 : 900, trees = new THREE.InstancedMesh(tree, new THREE.MeshLambertMaterial({ fog: false, flatShading: true }), n);
   const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), s = new THREE.Vector3(), p = new THREE.Vector3();
   for (let i = 0; i < n; i++) {
-    const a = rnd() * Math.PI * 2, d = R + 45 + Math.pow(rnd(), 1.3) * 1000, k = 0.6 + rnd() * 0.6;
+    const a = rnd() * Math.PI * 2, d = terrain.hasCover ? R + 40 + Math.sqrt(rnd()) * 9000 : R + 45 + Math.pow(rnd(), 1.3) * 1000, k = (0.6 + rnd() * 0.6) * (terrain.hasCover ? 1 + d / 9000 : 1);
     const tx = cx + Math.cos(a) * d, tz = cz + Math.sin(a) * d;
-    if (nearRoad(tx, tz, 14)) { s.set(0, 0, 0); p.set(tx, y0 - 50, tz); m4.compose(p, q, s); trees.setMatrixAt(i, m4); continue; } // a ride through the wood for the road
-    p.set(tx, y0, tz); s.set(k, k * (0.9 + rnd() * 0.4), k); m4.compose(p, q, s);
-    trees.setMatrixAt(i, m4); trees.setColorAt(i, blend(i % 3 ? T.forest[0] : T.forest[1], (d - R) / 1100));
+    let drop = nearRoad(tx, tz, 14) || mapDist(tx, tz) < 30; // a ride through the wood for the road; nothing on the map itself
+    if (terrain.hasCover && !drop) { const [mx, my] = toMiles(tx, tz); drop = terrain.cover('f', mx, my) < 0.45 + rnd() * 0.3; }
+    if (drop) { s.set(0, 0, 0); p.set(tx, y0 - 50, tz); m4.compose(p, q, s); trees.setMatrixAt(i, m4); continue; }
+    p.set(tx, yAt(tx, tz) - 1, tz); s.set(k, k * (0.9 + rnd() * 0.4), k); m4.compose(p, q, s);
+    trees.setMatrixAt(i, m4); trees.setColorAt(i, blend(i % 3 ? T.forest[0] : T.forest[1], terrain.hasCover ? haze(d) : (d - R) / 1100));
   }
   g.add(trees);
 
@@ -129,7 +175,7 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
     const db = Math.abs(Math.atan2(Math.sin(b - bearing), Math.cos(b - bearing)));
     return h + Math.exp(-(db * db) / 0.12) * Math.exp(-mi / 7) * 260;
   }, 120 * V);
-  for (const [ring, dist, col] of (crag > 0 ? [] : [[0, 1400, '#39413d'], [1, 2600, '#4a4f56']]) as readonly (readonly [number, number, string])[]) { // a crag site stands clear of the near ridges
+  for (const [ring, dist, col] of (crag > 0 || HF ? [] : [[0, 1400, '#39413d'], [1, 2600, '#4a4f56']]) as readonly (readonly [number, number, string])[]) { // a crag site stands clear of the near ridges
     const count = ring ? 70 : 90;
     for (let i = 0; i < count; i++) {
       const b = (i / count) * Math.PI * 2 + rnd() * 0.08, h = heightAt(b) * (ring ? 1.6 : 1) * (0.75 + rnd() * 0.5), d = dist + R + rnd() * 250;
@@ -143,13 +189,13 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
     }
   }
   // High ground from the world map, at true distance: broad hills (one per high point).
-  for (const hp of W.high) {
+  for (const hp of HF ? [] : W.high) {
     const t = toWorld(hp); if (t.d < 1500 || t.d > 60000) continue;
     const h = 900 + rnd() * 700, geo = new THREE.ConeGeometry(h * 2.2, h, 7); geo.translate(0, h / 2, 0);
     const m = new THREE.Mesh(geo, hazed('#4a4f56', t.d)); m.position.set(t.x, y0 - 40, t.z); m.rotation.y = rnd() * Math.PI; g.add(m);
   }
   // Named peaks, snow-capped, at their true bearings and distances, at mountain heights.
-  for (const pk of W.peaks) {
+  for (const pk of HF ? [] : W.peaks) {
     const t = toWorld(pk.pos); if (t.d > 80000) continue;
     const h = /Ghakis/.test(pk.name) ? 5200 : /Baratok/.test(pk.name) ? 4500 : /fell|tor\b/i.test(pk.name) ? 2600 : /hill/i.test(pk.name) ? 1200 : 3800;
     const rock = new THREE.ConeGeometry(h * 1.1, h, 6); rock.translate(0, h / 2, 0);
@@ -163,7 +209,7 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
   for (const l of W.lakes) {
     const t = toWorld(l.center); if (t.d > 80000) continue;
     const m = new THREE.Mesh(new THREE.CircleGeometry(1, 48), new THREE.MeshBasicMaterial({ color: blend('#5e7d94', haze(t.d)), fog: false }));
-    m.rotation.x = -Math.PI / 2; m.scale.set(l.r[0] * FT, l.r[1] * FT, 1); m.position.set(t.x, y0 - 2.6, t.z); g.add(m);
+    m.rotation.x = -Math.PI / 2; m.scale.set(l.r[0] * FT, l.r[1] * FT, 1); m.position.set(t.x, HF ? yTop + (terrain.heightAt(l.center[0], l.center[1]) - hPin) - 5 : y0 - 2.6, t.z); g.add(m);
   }
 
   // 4. The other places on the world map, at true scale and distance: visual only, nothing to click.
@@ -175,8 +221,8 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
     // Ravenloft keeps its true map position: a thousand feet up on the Pillarstone, the valley at its feet.
     const lift = p.heightFt ?? 0;
     const S = 1; // the looming castle is drawn larger; its cliff still stands on the valley floor
-    const s = new THREE.Group(); s.position.set(t.x, y0 + lift * S, t.z); s.name = `site-${p.key}`; s.rotation.y = -Math.atan2(E[1], E[0]);
-    if (looming) {
+    const s = new THREE.Group(); s.position.set(t.x, HF ? yAt(t.x, t.z) : y0 + lift * S, t.z); s.name = `site-${p.key}`; s.rotation.y = -Math.atan2(E[1], E[0]);
+    if (looming && !HF) {
       const toward = Math.atan2(cz - t.z, cx - t.x); // the cliff leans out toward the viewer's side
       s.rotation.z = 0.06 * Math.cos(toward - s.rotation.y); s.rotation.x = -0.06 * Math.sin(toward - s.rotation.y);
       s.scale.setScalar(S);
@@ -189,7 +235,7 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
       // black water at the foot of the cliff, and the river that feeds it
       const lake = new THREE.Mesh(new THREE.CircleGeometry(900, 40), new THREE.MeshBasicMaterial({ color: blend('#1e2a33', haze(t.d) * 0.5), fog: false })); lake.rotation.x = -Math.PI / 2; lake.position.y = -lift + 0.4; s.add(lake);
       const spray = new THREE.Mesh(new THREE.TorusGeometry(260, 60, 6, 24), new THREE.MeshBasicMaterial({ color: '#c9d2d8', transparent: true, opacity: 0.35, fog: false })); spray.rotation.x = -Math.PI / 2; spray.position.y = -lift + 30; s.add(spray);
-    } else if (lift > 0) { // its own crag
+    } else if (lift > 0 && !HF) { // its own crag
       const pr = p.type === 'castle' ? 330 : 120;
       const pillar = new THREE.CylinderGeometry(pr, pr * 1.6, lift, 12, 1, true); pillar.translate(0, -lift / 2, 0);
       const pm = new THREE.Mesh(pillar, hazed('#4a4a52', t.d)); s.add(pm);
@@ -213,7 +259,7 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
       ravenloft(s, mat);
       // the valley always opens toward the Village of Barovia, whichever map we look from
       const vil = W.pins.find((q) => q.key === 'E'), vp = vil ? toPlan(vil.pos) : [cx - t.x, cz - t.z];
-      const cr = new THREE.Group(); cr.position.set(t.x, 0, t.z); g.add(cr);
+      const cr = new THREE.Group(); cr.position.set(t.x, 0, t.z); if (!HF) g.add(cr);
       cradle(cr, { x: 0, z: 0 }, (vil ? cx + vp[0] : cx) - t.x, (vil ? cz + vp[1] : cz) - t.z, Math.hypot((vil ? cx + vp[0] : cx) - t.x, (vil ? cz + vp[1] : cz) - t.z), y0 - lift, (hex, d) => hazed(hex, d), t.d);
     } else if (type === 'castle') {
       cyl(150, 600, 0, 0, 0, '#34333a');
@@ -254,10 +300,13 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
 
   // 5. Roads and rivers from the world map at true scale, as flat ribbons on the land. They run under the
   //    map itself (its floors sit above the apron), so only the stretches outside the map show.
-  const ribbon = (pts: { x: number; z: number }[], w: number, hex: string, y: number) => {
+  const ribbon = (pts0: { x: number; z: number }[], w: number, hex: string, y: number) => {
     const P3: number[] = [], C: number[] = [], h = w / 2;
     const col = (x: number, z: number) => { const c = blend(hex, haze(Math.hypot(x - cx, z - cz))); C.push(c.r, c.g, c.b); };
-    const tri = (a: [number, number], b: [number, number], c: [number, number]) => { for (const [x, z] of [a, b, c]) { P3.push(x, y, z); col(x, z); } };
+    const tri = (a: [number, number], b: [number, number], c: [number, number]) => { for (const [x, z] of [a, b, c]) { P3.push(x, HF ? yAt(x, z) + (y - y0) + 3 : y, z); col(x, z); } };
+    // on a heightfield the ribbon follows the ground: segments are split every 200 ft
+    const pts: { x: number; z: number }[] = [];
+    for (let i = 0; i < pts0.length; i++) { if (i && HF) { const a = pts0[i - 1], b = pts0[i], n = Math.max(1, Math.ceil(Math.hypot(b.x - a.x, b.z - a.z) / 200)); for (let k = 1; k < n; k++) pts.push({ x: a.x + (b.x - a.x) * k / n, z: a.z + (b.z - a.z) * k / n }); } pts.push(pts0[i]); }
     for (let i = 0; i + 1 < pts.length; i++) {
       const p = pts[i], q = pts[i + 1], dx = q.x - p.x, dz = q.z - p.z, L = Math.hypot(dx, dz) || 1, nx = (-dz / L) * h, nz = (dx / L) * h;
       tri([p.x + nx, p.z + nz], [p.x - nx, p.z - nz], [q.x + nx, q.z + nz]); tri([p.x - nx, p.z - nz], [q.x - nx, q.z - nz], [q.x + nx, q.z + nz]);
