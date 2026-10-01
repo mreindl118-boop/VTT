@@ -30,7 +30,7 @@ export class World {
   constructor(private host: HTMLElement) {
     // A logarithmic depth buffer: a town a mile across and mountains ten miles off share one view without the ground fighting the apron.
     this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance', preserveDrawingBuffer: true, logarithmicDepthBuffer: true });
-    this.renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    this.renderer.setPixelRatio(Math.min(devicePixelRatio, 1.5)); // 1.5 keeps a Retina iPad sharp at half the fragments of 2
     this.renderer.localClippingEnabled = true;
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     host.appendChild(this.renderer.domElement);

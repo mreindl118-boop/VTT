@@ -3,6 +3,7 @@
 // distance so they sit on the horizon. Unlit by fog on purpose: colours are pre-blended toward the mist.
 import * as THREE from 'three';
 import type { Theme, WorldData } from '../campaigns';
+import { merge } from '../kit/pieces';
 
 type P = [number, number];
 let MIST = new THREE.Color('#2b2733');
@@ -268,8 +269,32 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
   };
   for (const r of roadPaths) ribbon(r.pts, r.w, r.hex, y0 - 2.2);
   for (const r of riverPaths) ribbon(r.pts, r.w, r.hex, y0 - 2.4);
+  collapse(g);
   g.traverse((c) => { c.userData.role = 'backdrop'; });
   return g;
+}
+
+/** Hundreds of ridges, peaks and distant buildings each carry a material of their own; nothing out there ever moves
+ *  or is picked, so every opaque solid-coloured mesh folds into one mesh per material look. Instanced forest, the
+ *  vertex-coloured apron and ribbons, and the translucent mists keep their own draw. */
+function collapse(g: THREE.Group): void {
+  const buckets = new Map<string, { material: THREE.Material; gs: THREE.BufferGeometry[] }>();
+  const drop: THREE.Object3D[] = [];
+  g.updateMatrixWorld(true);
+  g.traverse((c) => {
+    const m = c as THREE.Mesh;
+    if (!m.isMesh || (m as THREE.InstancedMesh).isInstancedMesh || Array.isArray(m.material)) return;
+    const mat = m.material as THREE.MeshLambertMaterial | THREE.MeshBasicMaterial;
+    if (mat.transparent || mat.vertexColors || !mat.color) return;
+    if (!m.visible) { drop.push(m); return; }
+    const key = [mat.type, mat.color.getHexString(), mat.fog, (mat as THREE.MeshLambertMaterial).flatShading, mat.side, mat.depthWrite].join('|');
+    let b = buckets.get(key);
+    if (!b) { b = { material: mat, gs: [] }; buckets.set(key, b); }
+    b.gs.push(m.geometry.clone().applyMatrix4(m.matrixWorld));
+    drop.push(m);
+  });
+  for (const o of drop) o.removeFromParent();
+  for (const { material, gs } of buckets.values()) g.add(new THREE.Mesh(merge(gs), material));
 }
 
 /** The mountains the castle is tucked into: a horseshoe of peaks behind and beside it, open only on the bearing of

@@ -11,7 +11,34 @@ import { PROPS_V1 } from '../kit/props';
 import { CREATURES } from '../kit/creatures';
 import { buildGridOverlay } from './gridOverlay';
 
-const SCATTER = new Set(['pine', 'bush', 'dead-tree', 'boulder', 'gravestone', 'fence', 'timber-brace', 'post', 'column', 'rubble']);
+/** Kinds whose meshes carry a role of their own (stairs, raised ground, plates): built and placed one by one. */
+const UNMERGED = new Set(['stairs-straight', 'prism', 'pressure-plate']);
+/** Building shells: their roof, walls and chimney are cut by the section plane like a wall. */
+const ROOF_KINDS = new Set(['roof-gable', 'chimney', 'house', 'church-building', 'temple']);
+
+/** A face range of a merged mesh that belongs to one scene object (so a tap on a merged house still names it). */
+export interface MergedRange { start: number; end: number; id: string }
+/** The scene object a raycast hit belongs to: merged static props map the face back, anything else walks up the graph. */
+export function hitObjectId(h: THREE.Intersection | undefined): string | undefined {
+  if (!h) return undefined;
+  const ranges = h.object.userData.ranges as MergedRange[] | undefined;
+  if (ranges && h.faceIndex != null) {
+    const f = h.faceIndex;
+    let lo = 0, hi = ranges.length - 1;
+    while (lo <= hi) { const mid = (lo + hi) >> 1, r = ranges[mid]; if (f < r.start) hi = mid - 1; else if (f >= r.end) lo = mid + 1; else return r.id; }
+    return undefined;
+  }
+  let o: THREE.Object3D | null = h.object;
+  while (o) { if (o.userData.objectId) return o.userData.objectId as string; o = o.parent; }
+  return undefined;
+}
+
+/** Static things a player can always see and never operate (houses, trees, fences, furniture that does not open):
+ *  one mesh per material per level instead of thousands of small ones. Anything interactive stays its own object. */
+function isStatic(o: SceneObject): boolean {
+  if (o.vis !== 'player' || o.size || UNMERGED.has(o.kind) || OPENABLE_KINDS[o.kind] || CREATURES[o.kind]) return false;
+  return !!(PROP_BUILDERS[o.kind] || PROPS_V1[o.kind]);
+}
 
 export interface LabelSpec { id: string; text: string; sub?: string; pos: THREE.Vector3; vis: VisClass; kind: 'key' | 'object' | 'tread' | 'note' | 'door' | 'link'; objectId?: string; wallId?: string; linkId?: string }
 
@@ -187,11 +214,11 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
       continue;
     }
     const obj = buildObject(o, y0, labels);
-    const ROOF = o.kind === 'roof-gable' || o.kind === 'chimney' || o.kind === 'house' || o.kind === 'church-building' || o.kind === 'temple';
+    const ROOF = ROOF_KINDS.has(o.kind);
     if (ROOF) obj.traverse((c) => { c.userData.role = 'roof'; });
     const openMode = OPENABLE_KINDS[o.kind];
-    if (openMode && o.kind !== 'claw-chest-skeleton' && !(SCATTER.has(o.kind) && o.vis === 'player')) openables.set(o.id, makeOpenable(obj, openMode, !!o.container?.open));
-    if (SCATTER.has(o.kind) && o.vis === 'player' && !ROOF) { scatter.push({ obj, o, p }); continue; }
+    if (openMode && o.kind !== 'claw-chest-skeleton') openables.set(o.id, makeOpenable(obj, openMode, !!o.container?.open));
+    if (isStatic(o)) { scatter.push({ obj, o, p }); continue; }
     obj.position.copy(p);
     if (o.kind === 'stairs-straight' || (o.kind === 'prism' && o.polygon)) obj.position.set(0, y0, 0);
     obj.rotation.y = ((o.rotY ?? 0) * Math.PI) / 180;
@@ -205,9 +232,12 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
     }
   }
 
-  // Scatter props (trees, braces, stones...) merge into one mesh per material: they are never picked or revealed.
+  // Static props (houses, trees, fences, furniture that never opens) merge into one mesh per material and role:
+  // a town of a thousand houses draws in a dozen calls. Each mesh keeps face ranges back to its objects for picking.
+  // Roofs (building shells) keep their role so the section plane slices them like walls; the rest stays a prop.
   if (scatter.length) {
-    const byMat = new Map<THREE.Material, THREE.BufferGeometry[]>();
+    type Bucket = { gs: THREE.BufferGeometry[]; ranges: MergedRange[]; faces: number };
+    const byMat = new Map<string, { material: THREE.Material; role: string; b: Bucket }>();
     for (const { obj, o, p } of scatter) {
       obj.position.copy(p);
       obj.rotation.y = ((o.rotY ?? 0) * Math.PI) / 180;
@@ -215,16 +245,24 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
       obj.traverse((c) => {
         const m = c as THREE.Mesh;
         if (!m.isMesh) return;
+        const role = c.userData.role === 'roof' ? 'roof' : 'prop';
+        const material = m.material as THREE.Material;
+        const key = `${role}:${material.uuid}`;
+        let e = byMat.get(key);
+        if (!e) { e = { material, role, b: { gs: [], ranges: [], faces: 0 } }; byMat.set(key, e); }
         const g = m.geometry.clone().applyMatrix4(m.matrixWorld);
-        const arr = byMat.get(m.material as THREE.Material) ?? [];
-        arr.push(g);
-        byMat.set(m.material as THREE.Material, arr);
+        const n = (g.index ? g.index.count : g.attributes.position.count) / 3;
+        const last = e.b.ranges[e.b.ranges.length - 1];
+        if (last && last.id === o.id && last.end === e.b.faces) last.end += n; else e.b.ranges.push({ start: e.b.faces, end: e.b.faces + n, id: o.id });
+        e.b.faces += n;
+        e.b.gs.push(g);
       });
     }
-    for (const [material, gs] of byMat) {
-      const m = new THREE.Mesh(merge(gs), material);
-      m.userData.role = 'prop';
-      m.name = 'scatter';
+    for (const { material, role, b } of byMat.values()) {
+      const m = new THREE.Mesh(merge(b.gs), material);
+      m.userData.role = role;
+      m.userData.ranges = b.ranges;
+      m.name = role === 'roof' ? 'merged-roofs' : 'scatter';
       root.add(m);
     }
   }

@@ -52,7 +52,7 @@ export function regularPolygonGeometry(sides: number, width: number, top: number
 
 export function merge(geoms: THREE.BufferGeometry[]): THREE.BufferGeometry {
   const ni = geoms.map((g) => (g.index ? g.toNonIndexed() : g));
-  for (const g of ni) { for (const k of Object.keys(g.attributes)) if (k !== 'position' && k !== 'normal') g.deleteAttribute(k); }
+  for (const g of ni) { for (const k of Object.keys(g.attributes)) if (k !== 'position' && k !== 'normal') g.deleteAttribute(k); if (!g.attributes.normal) g.computeVertexNormals(); }
   return mergeGeometries(ni)!;
 }
 

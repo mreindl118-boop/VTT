@@ -12,7 +12,7 @@ import { baseRingFt, CELL_FT } from './core/units';
 import { baseRing } from './kit/pieces';
 import { adventurer } from './kit/creatures';
 import { PALETTE } from './kit/palette';
-import { buildLevel, type BuiltLevel, type LabelSpec } from './render/build';
+import { buildLevel, hitObjectId, type BuiltLevel, type LabelSpec } from './render/build';
 import { fogUniforms, sectionClip, setOpacity, setWallCut, WALL_CLIP } from './render/materials';
 const WALL_CUT_FT = 5;
 import { setGridType } from './render/gridOverlay';
@@ -1020,7 +1020,7 @@ export class App {
       }
       return { title: t.name, sub: this.selected === tokId ? 'Tap where it goes' : 'Tap to pick up and move' };
     }
-    const oid = o && findUp(o, 'objectId');
+    const oid = hitObjectId(hit);
     const obj = oid ? this.level.objects.find((x) => x.id === oid) : undefined;
     if (obj) {
       const ci = this.containerInfo(obj, players);
@@ -1083,7 +1083,7 @@ export class App {
     const hit = this.pick(e);
     if (this.view === 'players') {
       // Players may look at what they can see: a description card, nothing else.
-      const oid = hit && findUp(hit.object, 'objectId');
+      const oid = hitObjectId(hit);
       const obj = oid ? this.level.objects.find((o) => o.id === oid) : undefined;
       if (obj && this.onTap && this.playerCanSee(obj)) { this.onTap({ pos: [0, 0], object: { id: obj.id, label: playerLabel(obj), container: this.containerInfo(obj, true), vis: obj.vis, revealed: true, kind: obj.kind, desc: playerDesc(obj), visibleToPlayers: true } }, e.clientX, e.clientY); return; }
       // A revealed room: its name and what the party notices there.
@@ -1095,7 +1095,7 @@ export class App {
     const wallId = hit && hit.object.userData.role === 'door' ? (hit.object.userData.wallId as string | undefined) : undefined;
     if (this.tool === 'measure') { if (fp) this.measureTap(fp); return; }
     if (this.tool === 'none' && this.onTap) {
-      const oid = hit && findUp(hit.object, 'objectId');
+      const oid = hitObjectId(hit);
       const p = this.floorPoint(e);
       const room = p && this.roomAt(this.level, p);
       const obj = oid ? this.level.objects.find((o) => o.id === oid) : undefined;
@@ -1110,7 +1110,7 @@ export class App {
     }
     if (this.tool === 'reveal') {
       if (sd) return this.revealSecretDoor(sd);
-      const oid = hit && findUp(hit.object, 'objectId');
+      const oid = hitObjectId(hit);
       if (oid && this.built.targets.some((t) => t.id === oid)) return this.toggleObject(oid);
       const p = this.floorPoint(e);
       const room = p && this.level.rooms.find((r) => pointInPolygon(p, r.polygon));

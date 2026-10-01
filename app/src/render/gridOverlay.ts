@@ -7,16 +7,22 @@ import { hexSizeFromWidth } from '../core/grid';
 import { merge, planeGeometry } from '../kit/pieces';
 import { fogUniforms } from './materials';
 
+// The renderer uses a logarithmic depth buffer: without its chunks this shader would write plain z and lose the depth
+// test against every floor, so the grid would never show.
 const vert = `
+#include <common>
+#include <logdepthbuf_pars_vertex>
 varying vec3 vW;
 void main() {
   vec4 w = modelMatrix * vec4(position, 1.0);
   vW = w.xyz;
   gl_Position = projectionMatrix * viewMatrix * w;
+  #include <logdepthbuf_vertex>
 }`;
 
 const frag = `
 precision highp float;
+#include <logdepthbuf_pars_fragment>
 varying vec3 vW;
 uniform vec3 uColor;
 uniform float uOpacity;
@@ -55,6 +61,7 @@ float hexLine(vec2 p) {
 }
 
 void main() {
+  #include <logdepthbuf_fragment>
   vec2 p = vW.xz - uOrigin;
   float line = uHex > 0.5 ? hexLine(p) : squareLine(p);
   float a = line * uOpacity;
