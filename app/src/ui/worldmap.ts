@@ -7,7 +7,7 @@ import { PACES, type Pace } from '../core/travel';
 import { ICON } from './icons';
 
 type P = [number, number];
-interface Pin { key: string; name: string; pos: P; type: string; scenes?: string[]; blurb?: string; dm?: string }
+interface Pin { key: string; name: string; pos: P; type: string; scenes?: string[]; blurb?: string; dm?: string; heightFt?: number }
 let W: WorldData & { milesPerHex?: number } = { name: '', bounds: { minX: 0, minY: 0, maxX: 1, maxY: 1 }, pins: [], roads: [], rivers: [], lakes: [], peaks: [], woods: [], high: [] };
 let STYLE: 'gothic' | 'pastoral' = 'gothic';
 /** Point the world map at the active campaign's data and look. */

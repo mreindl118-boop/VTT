@@ -9,6 +9,7 @@ from collections import OrderedDict
 PX_PER_MILE = 17.6 * 4          # 4 hexes per mile
 m = lambda x, y: [round(x / PX_PER_MILE, 2), round(y / PX_PER_MILE, 2)]
 
+HEIGHT = {'K': 1000}  # the Pillarstone of Ravenloft: the castle stands a thousand feet above the valley (p.53)
 PINS = [  # key, name, px, type, scenes (built scene paths reachable from here)
   ('A', 'Old Svalich Road', (1258, 507), 'road', []),
   ('B', 'Gates of Barovia (east)', (1222, 470), 'gate', []),
@@ -67,7 +68,7 @@ out = OrderedDict(
   schema=1, name='The Lands of Barovia', page=35, milesPerHex=0.25,
   note='Positions measured from the regional map; art is original. Yester Hill approximate (off the printed crop).',
   bounds=m(1300, 920) and OrderedDict(minX=m(-80, 0)[0], minY=0, maxX=m(1300, 0)[0], maxY=m(0, 920)[1]),
-  pins=[OrderedDict(key=k, name=n, pos=m(*p), type=t, **({'scenes': sc} if sc else {})) for k, n, p, t, sc in PINS],
+  pins=[OrderedDict(key=k, name=n, pos=m(*p), type=t, **({'scenes': sc} if sc else {}), **({'heightFt': HEIGHT[k]} if k in HEIGHT else {})) for k, n, p, t, sc in PINS],
   roads=[OrderedDict(name=n, pts=[m(*p) for p in pts]) for n, pts in ROADS],
   rivers=[OrderedDict(name=n, pts=[m(*p) for p in pts]) for n, pts in RIVERS],
   lakes=[OrderedDict(name=n, center=m(*c), r=m(*r)) for n, c, r in LAKES],
