@@ -40,7 +40,7 @@ function isStatic(o: SceneObject): boolean {
   return !!(PROP_BUILDERS[o.kind] || PROPS_V1[o.kind]);
 }
 
-export interface LabelSpec { id: string; text: string; sub?: string; pos: THREE.Vector3; vis: VisClass; kind: 'key' | 'object' | 'tread' | 'note' | 'door' | 'link'; objectId?: string; wallId?: string; linkId?: string }
+export interface LabelSpec { id: string; text: string; sub?: string; page?: number; pos: THREE.Vector3; vis: VisClass; kind: 'key' | 'object' | 'tread' | 'note' | 'door' | 'link'; objectId?: string; wallId?: string; linkId?: string }
 
 export interface SliderTarget {
   id: string;
@@ -122,7 +122,7 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
     arr.push(slabGeometry(r.polygon, y0, 1));
     byFloor.set(r.floor, arr);
     const [cx, cz] = centroid(r.polygon);
-    labels.push({ id: `key:${r.key}`, text: r.key, sub: r.name + (r.page ? ` · p.${r.page}` : ''), pos: new THREE.Vector3(cx, y0 + 0.5, cz), vis: 'dm-note', kind: 'key' });
+    labels.push({ id: `key:${r.key}`, text: r.key, sub: r.name, page: r.page, pos: new THREE.Vector3(cx, y0 + 0.5, cz), vis: 'dm-note', kind: 'key' });
   }
   for (const t of level.terrain ?? []) {
     const arr = byFloor.get(t.floor) ?? [];

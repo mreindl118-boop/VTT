@@ -8,7 +8,7 @@ export class ViewSlider {
   private thumb: HTMLElement;
   private fill: HTMLElement;
   private readout: HTMLElement;
-  private t = 0;
+  private t = 1;
   private peekFrom: number | null = null;
   private anim = 0;
 

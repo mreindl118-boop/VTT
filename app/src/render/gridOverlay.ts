@@ -4,7 +4,7 @@ import * as THREE from 'three';
 import type { GridLevel } from '../core/schema';
 import { CELL_FT } from '../core/units';
 import { hexSizeFromWidth } from '../core/grid';
-import { merge, planeGeometry } from '../kit/pieces';
+import { planeGeometry } from '../kit/pieces';
 import { fogUniforms } from './materials';
 
 // The renderer uses a logarithmic depth buffer: without its chunks this shader would write plain z and lose the depth
@@ -78,7 +78,11 @@ void main() {
 export const GRID_LIFT_FT = 0.04;
 
 export function buildGridOverlay(g: GridLevel, elevation: number): THREE.Mesh {
-  const geo = merge(g.floorPolygons.map((p) => planeGeometry(p, elevation + GRID_LIFT_FT)));
+  // One plane over the level's whole extent: the grid is a feature of the ground, not of any floor's texture.
+  const xs = g.floorPolygons.flat().map((q) => q[0]), zs = g.floorPolygons.flat().map((q) => q[1]);
+  const minX = Math.min(...xs), maxX = Math.max(...xs), minZ = Math.min(...zs), maxZ = Math.max(...zs);
+  const pad = Math.max(30, 0.12 * Math.max(maxX - minX, maxZ - minZ)), y = elevation + GRID_LIFT_FT;
+  const geo = planeGeometry([[minX - pad, minZ - pad], [maxX + pad, minZ - pad], [maxX + pad, maxZ + pad], [minX - pad, maxZ + pad]], y);
   const m = new THREE.ShaderMaterial({
     vertexShader: vert,
     fragmentShader: frag,

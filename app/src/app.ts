@@ -61,7 +61,7 @@ const storeKey = (campaignId: string) => (campaignId === 'cos' ? 'campaign:defau
 
 export class App {
   readonly world: World;
-  t = 0;
+  t = 1; // the DM starts at the DM end of the view slider: the whole map, every secret
   state: CampaignState = newCampaign();
   cur: Loaded | null = null;
   levelId = '';
@@ -191,7 +191,7 @@ export class App {
       }
       for (const spec of b.labels) {
         if (this.mode === 'player' && spec.vis === 'dm-note') continue; // no DM UI on the Player Display
-        const obj = this.world.label(spec.text, spec.sub, `${spec.kind} ${spec.vis}`);
+        const obj = this.world.label(spec.text, spec.sub, `${spec.kind} ${spec.vis}`, spec.page);
         obj.position.copy(spec.pos);
         if (spec.kind === 'door') {
           const locked = spec.text === 'locked';
@@ -634,8 +634,9 @@ export class App {
 
   /** Far out, a big map keeps only its area keys: notes, door and stair markers and sublabels wait until you come closer. */
   labelDensity(): void {
-    const d = this.world.camera.position.distanceTo(this.world.controls.target);
-    const z = d > 900 ? 'far' : d > 420 ? 'mid' : 'near';
+    // By what a foot is worth on screen, not by distance: a 5-ft square under 14 px is 'far', under 32 px is 'mid'.
+    const px = this.cameraFrame().pxPerFt;
+    const z = px < 2.8 ? 'far' : px < 6.4 ? 'mid' : 'near';
     if (document.body.dataset.zoom !== z) document.body.dataset.zoom = z;
   }
   setT(t: number): void { this.t = t; this.applySlider(); }

@@ -99,7 +99,7 @@ function buildDmUi(): void {
   cam.innerHTML = `
     <button class="icon" data-cam="rotL" aria-label="Rotate left">${ICON.rotateL}</button>
     <button class="icon" data-cam="rotR" aria-label="Rotate right">${ICON.rotateR}</button>
-    <button class="icon" data-cam="tilt" aria-label="Tabletop / top-down">${ICON.top}</button>
+    <button class="icon" data-cam="tilt" aria-label="Tabletop view" title="Tabletop · isometric · overhead" data-preset="tabletop">${ICON.top}</button>
     <span class="divider"></span>
     <button class="icon" data-cam="zoomIn" aria-label="Zoom in">${ICON.zoomIn}</button>
     <button class="icon" data-cam="zoomOut" aria-label="Zoom out">${ICON.zoomOut}</button>
@@ -116,7 +116,7 @@ function buildDmUi(): void {
     switch (b.dataset.cam) {
       case 'rotL': app.world.rotate(1); break;
       case 'rotR': app.world.rotate(-1); break;
-      case 'tilt': app.camPreset = app.camPreset === 'top' ? 'tabletop' : 'top'; app.world.setTilt(app.camPreset === 'top'); break;
+      case 'tilt': { const next = { tabletop: 'iso', iso: 'top', top: 'tabletop' } as const; app.camPreset = next[app.camPreset]; app.world.setPreset(app.camPreset); b.setAttribute('aria-label', { tabletop: 'Tabletop view', iso: 'Isometric view', top: 'Overhead view' }[app.camPreset]); b.dataset.preset = app.camPreset; break; }
       case 'zoomIn': app.world.zoomBy(0.78); break;
       case 'zoomOut': app.world.zoomBy(1.28); break;
       case 'party': app.findParty(); break;

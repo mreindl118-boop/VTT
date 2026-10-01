@@ -75,20 +75,28 @@ def settle(level, *, keyed=None, ground_margin=60, report=None):
     houses = [o for o in objs if o['kind'] == 'house' or o['kind'] in FOOT]
     others = [o for o in objs if o['kind'] != 'house' and o['kind'] not in FOOT]
     houses = split_terraces(houses); rep['split'] = len(houses) - sum(1 for o in objs if o['kind'] == 'house')
+    # 0. everything sits on the grid: footprints to the 5-ft lattice (half-cells for centres), walls turned in 45° steps
+    for o in houses + others:
+        if o['kind'] in ('pine', 'oak', 'tree', 'willow'): continue
+        o['pos'][0] = round(o['pos'][0] / 2.5) * 2.5; o['pos'][2] = round(o['pos'][2] / 2.5) * 2.5
+        if 'rotY' in o: o['rotY'] = round(o['rotY'] / 45) * 45
+        d = o.get('dims')
+        if d and 'w' in d and 'd' in d and o['kind'] == 'house': d['w'] = max(10, round(d['w'] / 5) * 5); d['d'] = max(10, round(d['d'] / 5) * 5)
     fixed = [o for o in others if o['kind'] in ('tower',)]
     fixed_rects = [rect(o) if 'dims' in o else None for o in fixed]
     # 1. off the street: push a house back along the street's normal, up to 30 ft, else drop it
     kept = []; rep['pushed'] = rep['dropped-street'] = 0
     for o in houses:
         r = rect(o); moved = 0.0
-        for _ in range(24 if o.get('key') else 12):
+        for _ in range(30 if o.get('key') else 14):
             hit = next((st for st in streets if overlap(r, st, slack=0.5)), None)
             if hit is None: break
             # the street polygon's long axis gives the push direction (away from its centre)
             c = centroid(hit); e = max(((hit[i], hit[(i + 1) % len(hit)]) for i in range(len(hit))), key=lambda ab: math.hypot(ab[1][0] - ab[0][0], ab[1][1] - ab[0][1]))
             ex, ez = e[1][0] - e[0][0], e[1][1] - e[0][1]; L = math.hypot(ex, ez) or 1; nx, nz = -ez / L, ex / L
             if (o['pos'][0] - c[0]) * nx + (o['pos'][2] - c[1]) * nz < 0: nx, nz = -nx, -nz
-            o['pos'][0] = round(o['pos'][0] + nx * 3, 1); o['pos'][2] = round(o['pos'][2] + nz * 3, 1); moved += 3; r = rect(o)
+            sx, sz = (2.5 * (1 if nx > 0 else -1), 0) if abs(nx) >= abs(nz) else (0, 2.5 * (1 if nz > 0 else -1))
+            o['pos'][0] = round(o['pos'][0] + sx, 1); o['pos'][2] = round(o['pos'][2] + sz, 1); moved += 2.5; r = rect(o)
         if (any(overlap(r, st, slack=0.5) for st in streets) or moved > (72 if o.get('key') else 30)) and not o.get('key'): rep['dropped-street'] += 1; continue
         if moved: rep['pushed'] += 1
         kept.append(o)
@@ -110,7 +118,8 @@ def settle(level, *, keyed=None, ground_margin=60, report=None):
             hit = next((p for p in placed if overlap(r, p[1], slack=0.5)), None)
             if hit is None: break
             dx, dz = o['pos'][0] - hit[0]['pos'][0], o['pos'][2] - hit[0]['pos'][2]; L = math.hypot(dx, dz) or 1
-            o['pos'][0] = round(o['pos'][0] + dx / L * 2.5, 1); o['pos'][2] = round(o['pos'][2] + dz / L * 2.5, 1); r = rect(o); rep['nudged'] += 1
+            sx, sz = (2.5 * (1 if dx > 0 else -1), 0) if abs(dx) >= abs(dz) else (0, 2.5 * (1 if dz > 0 else -1))
+            o['pos'][0] = round(o['pos'][0] + sx, 1); o['pos'][2] = round(o['pos'][2] + sz, 1); r = rect(o); rep['nudged'] += 1
             if any(overlap(r, st, slack=0.5) for st in streets): ok = False; break
         if (not ok or any(overlap(r, p[1], slack=0.5) for p in placed)) and not o.get('key'): rep['dropped-overlap'] += 1; continue
         placed.append((o, r))
@@ -136,7 +145,7 @@ def settle(level, *, keyed=None, ground_margin=60, report=None):
                 sc = centroid(st); d = math.hypot(sc[0] - c[0], sc[1] - c[1])
                 if best is None or d < best: best, ang = d, math.degrees(math.atan2(-(e[1][1] - e[0][1]), e[1][0] - e[0][0]))
             w, d, stories = spec
-            has = OrderedDict(id=f'site-{k}', kind='house', pos=[round(c[0], 1), 0, round(c[1], 1)], vis='player', key=k, label=rm.get('name'), rotY=round(ang, 1), dims=OrderedDict(w=w, d=d, h=13, stories=stories))
+            has = OrderedDict(id=f'site-{k}', kind='house', pos=[round(c[0] / 2.5) * 2.5, 0, round(c[1] / 2.5) * 2.5], vis='player', key=k, label=rm.get('name'), rotY=round(ang / 45) * 45, dims=OrderedDict(w=w, d=d, h=13, stories=stories))
             # clear the ground: houses the site box or the new footprint touches move out of the way or go
             r = rect(has); before = len(houses)
             houses = [o for o in houses if not overlap(rect(o), r, slack=0.5)]

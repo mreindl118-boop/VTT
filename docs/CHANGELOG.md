@@ -317,3 +317,10 @@
   through a house, every keyed site with its building on it, the ground under everything), and
   `audit-outdoor.py` checks it. Mist thins as the camera pulls back, so a map read from above never greys out.
   Token markers and name tags no longer follow the party into the next map.
+- Legibility: the DM starts at the DM end of the view slider (the whole floor, every key, no fog); labels thin
+  by what a foot is worth on screen, so a framed building shows its keys and names and keeps page numbers and
+  stair rises for when you lean in; the default framing is a notch closer.
+- The grid is a feature of the ground: one plane under the whole level, not a texture clipped to each floor.
+  Settled buildings sit on the 5-ft lattice, turned in 45° steps.
+- Camera presets: tabletop (free turn), isometric (true 35° pitch, snapped to the grid's diagonals) and
+  overhead (north up, square to the grid); the tilt button cycles them.

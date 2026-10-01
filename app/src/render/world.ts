@@ -4,7 +4,9 @@ import type { Theme } from '../campaigns';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { CSS2DObject, CSS2DRenderer } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
 
-export type CameraPreset = 'tabletop' | 'top';
+export type CameraPreset = 'tabletop' | 'iso' | 'top';
+const TILT: Record<CameraPreset, number> = { tabletop: 0, top: 1, iso: 2 };
+const ISO_PITCH = Math.PI / 2 - Math.atan(Math.SQRT1_2); // 35.26° above the horizon: true isometric
 
 export class World {
   readonly renderer: THREE.WebGLRenderer;
@@ -153,19 +155,22 @@ export class World {
   /** Camera offset from the target for the current azimuth (free, from the gesture) and tilt band. */
   private rigOffset(dist: number, azimuthDelta = 0): THREE.Vector3 {
     // Angle from vertical: ~49° tabletop indoors, ~61° outdoors so the horizon shows; near-vertical top-down.
-    const pitch = this.tilt ? Math.PI * 0.06 : this.outdoor ? Math.PI * 0.34 : Math.PI * 0.27;
-    const a = this.controls.getAzimuthalAngle() + azimuthDelta;
+    const pitch = this.tilt === 1 ? Math.PI * 0.06 : this.tilt === 2 ? ISO_PITCH : this.outdoor ? Math.PI * 0.34 : Math.PI * 0.27;
+    let a = this.controls.getAzimuthalAngle() + azimuthDelta;
+    // The snapped rigs: overhead squares to a cardinal, isometric to a diagonal of the grid.
+    if (this.tilt === 1) a = Math.round(a / (Math.PI / 2)) * (Math.PI / 2);
+    else if (this.tilt === 2) a = Math.round((a - Math.PI / 4) / (Math.PI / 2)) * (Math.PI / 2) + Math.PI / 4;
     return new THREE.Vector3(Math.sin(pitch) * Math.sin(a) * dist, Math.cos(pitch) * dist, Math.sin(pitch) * Math.cos(a) * dist);
   }
 
   /** Frame a plan-space box (bounding-sphere fit, leaving room for the chrome). */
   frame(box: { minX: number; minZ: number; maxX: number; maxZ: number }, y: number, preset: CameraPreset, animate = false): void {
-    this.tilt = preset === 'top' ? 1 : 0;
+    this.tilt = TILT[preset];
     const cx = (box.minX + box.maxX) / 2, cz = (box.minZ + box.maxZ) / 2;
     const r = Math.hypot(box.maxX - box.minX, box.maxZ - box.minZ) / 2 + 4;
     const vHalf = THREE.MathUtils.degToRad(this.camera.fov / 2);
     const hHalf = Math.atan(Math.tan(vHalf) * this.camera.aspect);
-    const d = Math.min(this.controls.maxDistance, Math.max(36, (r / Math.sin(Math.min(vHalf, hHalf))) * 1.0));
+    const d = Math.min(this.controls.maxDistance, Math.max(36, (r / Math.sin(Math.min(vHalf, hHalf))) * 0.86));
     this.moveTo(new THREE.Vector3(cx, y, cz), d, animate);
   }
 
@@ -194,9 +199,12 @@ export class World {
   }
 
   rotate(steps: number): void {
-    this.moveTo(this.controls.target.clone(), undefined, true, (steps * Math.PI) / 2);
+    this.moveTo(this.controls.target.clone(), undefined, true, steps * (this.tilt === 2 ? Math.PI / 2 : Math.PI / 2));
   }
-  setTilt(top: boolean): void { this.tilt = top ? 1 : 0; this.moveTo(this.controls.target.clone()); }
+  setTilt(top: boolean): void { this.setPreset(top ? 'top' : 'tabletop'); }
+  /** Tabletop (free turn), isometric (snapped to the grid's diagonals) or overhead (north up, square to the grid). */
+  setPreset(preset: CameraPreset): void { this.tilt = TILT[preset]; this.moveTo(this.controls.target.clone()); }
+  get preset(): CameraPreset { return this.tilt === 1 ? 'top' : this.tilt === 2 ? 'iso' : 'tabletop'; }
   zoomBy(factor: number): void { this.moveTo(this.controls.target.clone(), THREE.MathUtils.clamp(this.camera.position.distanceTo(this.controls.target) * factor, this.controls.minDistance, this.controls.maxDistance)); }
 
   /** DM work light: lifts the scene so the DM can read unlit rooms; players keep the true darkness. */
@@ -207,11 +215,12 @@ export class World {
     this.invalidate();
   }
 
-  label(text: string, sub: string | undefined, cls: string): CSS2DObject {
+  label(text: string, sub: string | undefined, cls: string, page?: number): CSS2DObject {
     const el = document.createElement('div');
     el.className = `lbl ${cls}`;
     el.textContent = text;
     if (sub) { const s = document.createElement('span'); s.textContent = sub; el.appendChild(s); }
+    if (page) { const i = document.createElement('i'); i.textContent = `p.${page}`; el.appendChild(i); }
     const o = new CSS2DObject(el);
     return o;
   }
