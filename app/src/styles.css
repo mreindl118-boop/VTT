@@ -58,7 +58,7 @@ button.icon[aria-pressed='true'] { background: var(--ink); color: var(--bg); }
 
 .lbl { font: 600 11px/1.2 var(--font); color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.8); white-space: nowrap; text-align: center; transition: none; }
 .lbl span { display: block; font-weight: 400; font-size: 11px; opacity: .85; }
-.lbl.key { padding: 2px 7px; border-radius: 6px; background: rgba(91, 74, 107, .72); text-shadow: none; font-size: 10px; }
+.lbl.key { padding: 1px 6px; border-radius: 6px; background: rgba(60, 50, 72, .55); text-shadow: none; font-size: 10px; }
 .lbl.key span { font-size: 9.5px; }
 .lbl.object { color: #e4d8f0; font-weight: 500; }
 .lbl.note { color: #f2b35b; font-weight: 500; font-style: italic; }
@@ -126,7 +126,10 @@ body[data-view='players'] .lbl.key { display: none; }
 .lbl.door.open { border-color: rgba(207, 214, 232, .8); color: #cfd6e8; opacity: .8; }
 .lbl.door b { position: absolute; right: -6px; top: -6px; width: 14px; height: 14px; border-radius: 50%; background: #7a1f2b; display: grid; place-items: center; line-height: 0; } .lbl.door b svg { width: 9px; height: 9px; color: #fff; }
 .lbl.door:hover { transform: scale(1.15); }
-.lbl.link { display: flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; color: #fff; background: rgba(47, 74, 58, .92); border: 1px solid rgba(255,255,255,.35); border-radius: 999px; padding: 2px 8px 2px 4px; text-shadow: none; }
+.lbl.link { display: flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; color: #fff; background: rgba(47, 74, 58, .85); border: 1px solid rgba(255,255,255,.35); border-radius: 999px; padding: 2px; text-shadow: none; }
+.lbl.link span { display: none; padding-right: 6px; }
+.lbl.link:hover span { display: inline; }
+.lbl.declutter { visibility: hidden; }
 .lbl.link svg { width: 16px; height: 16px; }
 .lbl.link:hover { background: rgba(60, 96, 74, 1); }
 body[data-view='players'] .lbl.link { display: none; }
@@ -286,7 +289,9 @@ body[data-view='players'] .topbar { grid-template-columns: auto 1fr; grid-templa
 .world-key li[hidden] { display: none; }
 
 /* label density by camera distance */
-body[data-zoom='mid'] .lbl.key i, body[data-zoom='far'] .lbl.key span, body[data-zoom='far'] .lbl.key i { display: none; }
+/* Labels stay small: the key always, the name only up close, the page never (it is in the tooltip and the rooms list). */
+.lbl.key i { display: none; }
+body[data-zoom='mid'] .lbl.key span, body[data-zoom='far'] .lbl.key span { display: none; }
 .lbl.key i { font-style: normal; opacity: .7; margin-left: .35em; }
 body[data-zoom='mid'] .lbl.tread, body[data-zoom='far'] .lbl.tread, body[data-zoom='far'] .lbl.note, body[data-zoom='far'] .lbl.object, body[data-zoom='far'] .lbl.door, body[data-zoom='far'] .lbl.link { display: none !important; }
 body[data-zoom='mid'] .lbl.link { font-size: 10px; }

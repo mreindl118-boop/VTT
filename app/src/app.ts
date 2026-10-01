@@ -87,6 +87,8 @@ export class App {
   secretAsWall = false;
   renderMode: 'normal' | 'floorMask' = 'normal';
   backdrop?: THREE.Group;
+  /** The parent map's surroundings drawn round an area map. */
+  context?: THREE.Object3D;
   /** Section height (ft, absolute) on a stacked site; undefined follows the current level, null = none. */
   cutFt: number | null | undefined = undefined;
   private keepCut = false;
@@ -189,8 +191,11 @@ export class App {
       tex.minFilter = THREE.LinearFilter;
       tex.needsUpdate = true;
       covTex.set(l.id, tex);
+      const linkSpots: [number, number][] = [];
       for (const k of scene.links) for (const [end, other] of [[k.from, k.to], [k.to, k.from]] as const) {
         if (end.level !== l.id) continue;
+        if (linkSpots.some((q) => Math.hypot(q[0] - end.pos[0], q[1] - end.pos[1]) < 12)) continue; // one marker per stair
+        linkSpots.push([end.pos[0], end.pos[1]]);
         const to = scene.levels.find((x) => x.id === other.level);
         const up = (to?.elevationFt ?? 0) > l.elevationFt;
         b.labels.push({ id: `link:${k.id}:${end.level}`, text: `${up ? '↑' : '↓'} ${to?.name ?? other.level}`, pos: new THREE.Vector3(end.pos[0], l.elevationFt + 3, end.pos[1]), vis: 'player', kind: 'link', linkId: k.id });
@@ -222,15 +227,18 @@ export class App {
     const pin = pinForScene(path) ?? (scene.parent ? pinForScene(scene.parent) : undefined);
     // Outdoors: the land, forest, mountains and the castle continue to the horizon.
     this.backdrop?.removeFromParent(); this.backdrop = undefined;
+    this.context?.removeFromParent(); this.context = undefined;
     // The level that meets the open air (the one with terrain: a courtyard, a street) decides outdoor fog and the backdrop.
     const l0 = scene.levels.find((l) => l.terrain?.length) ?? scene.levels[0], outdoor = !!pin && !!l0.terrain?.length && (l0.ambient ?? scene.ambient) !== 'darkness';
     if (outdoor) {
       const bb = bounds([...l0.rooms.map((r) => r.polygon), ...(l0.terrain ?? []).map((t) => t.polygon)]);
       const roadLike = (f: string | undefined, name = '') => f === 'cobble' || f === 'dirt' || /road|street|lane|square|path|trail|track/i.test(name);
       const roads = [...l0.rooms.filter((r) => roadLike(r.floor, r.name)).map((r) => r.polygon), ...(l0.terrain ?? []).filter((t) => roadLike(t.floor)).map((t) => t.polygon)];
-      this.backdrop = buildBackdrop({ center: [(bb.minX + bb.maxX) / 2, (bb.minZ + bb.maxZ) / 2], radius: Math.hypot(bb.maxX - bb.minX, bb.maxZ - bb.minZ) / 2, elevation: l0.elevationFt, pin: pin!.pos as Vec2, world: worldOf(this.campaign), theme: this.campaign.theme, valley: !!scene.valley, bounds: bb, north: l0.north, roads, crag: pin!.heightFt ?? 0, clearing: scene.clearingFt });
+      this.backdrop = buildBackdrop({ center: [(bb.minX + bb.maxX) / 2, (bb.minZ + bb.maxZ) / 2], radius: Math.hypot(bb.maxX - bb.minX, bb.maxZ - bb.minZ) / 2, elevation: l0.elevationFt, pin: pin!.pos as Vec2, world: worldOf(this.campaign), theme: this.campaign.theme, valley: !!scene.valley, bounds: bb, north: l0.north, roads, crag: pin!.heightFt ?? 0, clearing: scene.clearingFt ?? (scene.parent ? 1100 : undefined) }); // an area map inside a town keeps the town's ground clear
       this.world.scene.add(this.backdrop);
     }
+    // An area map stands in its surroundings: the parent map's streets, houses and trees round it, as scenery.
+    if (scene.parent) void this.buildContext(path, scene, l0);
     const span = Math.hypot(bounds(l0.rooms.map((r) => r.polygon).concat((l0.terrain ?? []).map((t) => t.polygon))).maxX - bounds(l0.rooms.map((r) => r.polygon).concat((l0.terrain ?? []).map((t) => t.polygon))).minX, 1);
     this.world.fogScale = outdoor ? Math.min(1, 900 / span) : 1;
     this.world.setOutdoor(outdoor);
@@ -629,6 +637,10 @@ export class App {
     const cut = this.cur.scene.stacked ? (this.cutFt ?? followCut) : this.lowWalls ? this.level.elevationFt + WALL_CUT_FT : null;
     this.followCutFt = followCut;
     setWallCut(cut);
+    // Roofs raised over authored walls (a shop's gable, a tower's cone) go whenever the walls are cut down to a cutaway,
+    // and come back with full walls; on stacked sites the section plane slices them instead.
+    if (!this.cur.scene.stacked) for (const b2 of this.cur.levels.values()) b2.root.traverse((o) => { if (o.userData.cap) o.visible = !this.lowWalls; });
+    this.declutter();
     if (this.cur.scene.stacked) for (const [lid, b] of this.cur.levels) {
       sectionClip(b.root, true);
       // What stands on a floor is never sliced: it shows whole while the cut is above that floor and goes with the floor when the cut drops below it.
@@ -645,6 +657,28 @@ export class App {
     gridUniforms.uPxPerFt.value = px;
     const z = px < 2.8 ? 'far' : px < 6.4 ? 'mid' : 'near';
     if (document.body.dataset.zoom !== z) document.body.dataset.zoom = z;
+    this.declutter();
+  }
+
+  /** Labels never pile up: once the frame is drawn, labels are placed in order of importance (room keys, then stairs,
+   *  objects, doors, notes) and any that would overlap one already placed is hidden until the view changes. */
+  private declutterQ = 0;
+  declutter(): void {
+    if (this.declutterQ) return;
+    this.declutterQ = requestAnimationFrame(() => requestAnimationFrame(() => {
+      this.declutterQ = 0;
+      if (!this.cur) return;
+      const PRI: Record<string, number> = { key: 0, link: 1, object: 2, door: 3, note: 4, tread: 5 };
+      const live = this.cur.labels.filter((l) => l.obj.visible && l.obj.element.style.display !== 'none' && Number(l.obj.element.style.opacity || 1) > 0.05);
+      for (const l of live) l.obj.element.classList.remove('declutter');
+      live.sort((a, b) => (PRI[a.spec.kind] ?? 9) - (PRI[b.spec.kind] ?? 9));
+      const placed: DOMRect[] = [];
+      for (const l of live) {
+        const r = l.obj.element.getBoundingClientRect(); if (!r.width) continue;
+        if (placed.some((p) => r.left < p.right + 2 && r.right > p.left - 2 && r.top < p.bottom + 1 && r.bottom > p.top - 1)) { l.obj.element.classList.add('declutter'); continue; }
+        placed.push(r);
+      }
+    }));
   }
   setT(t: number): void { this.t = t; this.applySlider(); }
   setView(v: 'dm' | 'players'): void { this.view = v; this.tool = 'none'; this.clearRuler(); this.stopPlacing(); this.select(null); if (this.cur) { this.syncTokens(); this.recompute(); } this.applySlider(); this.onChange?.(); }
@@ -844,6 +878,46 @@ export class App {
     const hit = this.raycaster.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0, 1, 0), -this.level.elevationFt), p);
     return hit ? [p.x, p.z] : null;
   }
+  /** The parent map's surroundings round an area map: what stands within a few hundred feet of the room that opens
+   *  this map, moved into this map's frame (offset and north), skipping whatever lies inside this map's own extent.
+   *  Built with the same kit, muted a little toward the mist, never picked, never fogged, never cut. */
+  private async buildContext(path: string, scene: SceneFile, l0: Level): Promise<void> {
+    const par = await loadLocation(scene.parent!).catch(() => undefined);
+    if (!par || this.cur?.path !== path) return;
+    const KINDS = new Set(['house', 'church-building', 'temple', 'pine', 'oak', 'stump', 'well', 'fence', 'wagon', 'vardo', 'big-tent', 'mound', 'dais', 'pillory', 'brazier', 'campfire', 'trough', 'signpost', 'roof-gable', 'washline', 'bush', 'boulder', 'gravestone']);
+    const nvec = (n?: string): [number, number] => (n === '+z' ? [0, 1] : n === '-x' ? [-1, 0] : n === '+x' ? [1, 0] : [0, -1]);
+    for (const pl of par.scene.levels) {
+      const room = pl.rooms.find((r) => r.enter === path && r.key === scene.location) ?? pl.rooms.find((r) => r.enter === path);
+      if (!room) continue;
+      const pc: Vec2 = [room.polygon.reduce((a, p) => a + p[0], 0) / room.polygon.length, room.polygon.reduce((a, p) => a + p[1], 0) / room.polygon.length];
+      const bb = bounds([...l0.rooms.map((r) => r.polygon), ...(l0.terrain ?? []).map((t) => t.polygon)]);
+      const bc: Vec2 = [(bb.minX + bb.maxX) / 2, (bb.minZ + bb.maxZ) / 2], pad = 8;
+      const np = nvec(pl.north), nb = nvec(l0.north), th = Math.atan2(nb[1], nb[0]) - Math.atan2(np[1], np[0]), c = Math.cos(th), sn = Math.sin(th);
+      const tf = (p: number[]): [number, number] => { const x = p[0] - pc[0], z = p[1] - pc[1]; return [bc[0] + x * c - z * sn, bc[1] + x * sn + z * c]; };
+      const inside = (p: [number, number]) => p[0] > bb.minX - pad && p[0] < bb.maxX + pad && p[1] > bb.minZ - pad && p[1] < bb.maxZ + pad;
+      const R = Math.max(bb.maxX - bb.minX, bb.maxZ - bb.minZ) / 2 + 450, near = (p: [number, number]) => Math.hypot(p[0] - bc[0], p[1] - bc[1]) < R;
+      const objects = pl.objects.filter((o) => KINDS.has(o.kind)).map((o) => { const q = tf([o.pos[0], o.pos[2]]); return { ...o, id: `ctx-${o.id}`, key: undefined, label: undefined, vis: 'player' as const, pos: [q[0], o.pos[1], q[1]] as [number, number, number], rotY: (o.rotY ?? 0) - (th * 180) / Math.PI }; })
+        .filter((o) => { const q: [number, number] = [o.pos[0], o.pos[2]]; return near(q) && !inside(q); });
+      const terrain = (pl.terrain ?? []).filter((t) => t.floor !== 'grass').map((t) => ({ ...t, polygon: t.polygon.map(tf) }))
+        .filter((t) => { const cx = t.polygon.reduce((a, p) => a + p[0], 0) / t.polygon.length, cz = t.polygon.reduce((a, p) => a + p[1], 0) / t.polygon.length; return near([cx, cz]) && !t.polygon.every((p) => inside(p as [number, number])); });
+      terrain.unshift({ polygon: [[bc[0] - R, bc[1] - R], [bc[0] + R, bc[1] - R], [bc[0] + R, bc[1] + R], [bc[0] - R, bc[1] + R]], floor: 'grass' } as (typeof terrain)[number]);
+      const lvl = { id: 'context', name: 'Surroundings', elevationFt: l0.elevationFt - 0.05, ceilingFt: 10, north: l0.north, rooms: [], walls: [], lights: [], objects, terrain } as unknown as Level;
+      const built = buildLevel(lvl, { floorPolygons: [], type: 'square', hexOrientation: 'pointy', origin: [0, 0], color: '#000000', opacity: 0 });
+      const mist = new THREE.Color(this.world.theme.mist);
+      built.root.traverse((o) => {
+        const m = o as THREE.Mesh; if (!m.isMesh) return;
+        if (o.userData.role === 'grid') { o.visible = false; return; }
+        const mats = (Array.isArray(m.material) ? m.material : [m.material]).map((mm) => { const k = mm.clone() as THREE.MeshLambertMaterial; k.clippingPlanes = null; if (k.color) k.color.lerp(mist, 0.22); return k; });
+        m.material = Array.isArray(m.material) ? mats : mats[0];
+        o.userData.role = 'context';
+      });
+      built.root.name = 'context';
+      if (this.cur?.path !== path) return;
+      this.context = built.root; this.world.scene.add(built.root); this.world.invalidate();
+      return;
+    }
+  }
+
   private pick(e: PointerEvent): THREE.Intersection | undefined {
     this.raycaster.setFromCamera(this.ndc(e), this.world.camera);
     const cut = this.lowWalls ? this.level.elevationFt + WALL_CUT_FT : Infinity;
@@ -1051,7 +1125,10 @@ export class App {
       return { title: t.name, sub: this.selected === tokId ? 'Tap where it goes' : 'Tap to pick up and move' };
     }
     const oid = hitObjectId(hit);
-    const obj = oid ? this.level.objects.find((x) => x.id === oid) : undefined;
+    const obj0 = oid ? this.level.objects.find((x) => x.id === oid) : undefined;
+    // roofs and chimneys are scenery: hovering one describes the room beneath, not the roof
+    const obj = obj0 && !['roof-gable', 'roof-cone', 'chimney'].includes(obj0.kind) ? obj0 : undefined;
+    if (obj0 && !obj) return room ? { title: players ? room.name : `${room.key} · ${room.name}` } : null;
     if (obj) {
       const ci = this.containerInfo(obj, players);
       const cs = ci ? (ci.open ? 'Open' : ci.locked ? (players ? 'Locked' : 'Locked · closed') : 'Closed · tap to open') : undefined;

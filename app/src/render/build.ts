@@ -215,7 +215,9 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
     }
     const obj = buildObject(o, y0, labels);
     const ROOF = ROOF_KINDS.has(o.kind);
-    if (ROOF) obj.traverse((c) => { c.userData.role = 'roof'; });
+    // A roof piece raised on top of authored walls (a cap): it goes when the walls are cut down, or it floats.
+    const CAP = (o.kind === 'roof-gable' || o.kind === 'roof-cone' || o.kind === 'chimney') && (o.dims?.y ?? 10) >= 6;
+    if (ROOF) obj.traverse((c) => { c.userData.role = 'roof'; if (CAP) c.userData.cap = true; });
     const openMode = OPENABLE_KINDS[o.kind];
     if (openMode && o.kind !== 'claw-chest-skeleton') openables.set(o.id, makeOpenable(obj, openMode, !!o.container?.open));
     if (isStatic(o)) { scatter.push({ obj, o, p }); continue; }
@@ -237,7 +239,7 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
   // Roofs (building shells) keep their role so the section plane slices them like walls; the rest stays a prop.
   if (scatter.length) {
     type Bucket = { gs: THREE.BufferGeometry[]; ranges: MergedRange[]; faces: number };
-    const byMat = new Map<string, { material: THREE.Material; role: string; b: Bucket }>();
+    const byMat = new Map<string, { material: THREE.Material; role: string; cap: boolean; b: Bucket }>();
     for (const { obj, o, p } of scatter) {
       obj.position.copy(p);
       obj.rotation.y = ((o.rotY ?? 0) * Math.PI) / 180;
@@ -245,11 +247,11 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
       obj.traverse((c) => {
         const m = c as THREE.Mesh;
         if (!m.isMesh) return;
-        const role = c.userData.role === 'roof' ? 'roof' : 'prop';
+        const role = c.userData.role === 'roof' ? 'roof' : 'prop', cap = !!c.userData.cap;
         const material = m.material as THREE.Material;
-        const key = `${role}:${material.uuid}`;
+        const key = `${role}:${cap}:${material.uuid}`;
         let e = byMat.get(key);
-        if (!e) { e = { material, role, b: { gs: [], ranges: [], faces: 0 } }; byMat.set(key, e); }
+        if (!e) { e = { material, role, cap, b: { gs: [], ranges: [], faces: 0 } }; byMat.set(key, e); }
         const g = m.geometry.clone().applyMatrix4(m.matrixWorld);
         const n = (g.index ? g.index.count : g.attributes.position.count) / 3;
         const last = e.b.ranges[e.b.ranges.length - 1];
@@ -258,9 +260,9 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
         e.b.gs.push(g);
       });
     }
-    for (const { material, role, b } of byMat.values()) {
+    for (const { material, role, cap, b } of byMat.values()) {
       const m = new THREE.Mesh(merge(b.gs), material);
-      m.userData.role = role;
+      m.userData.role = role; if (cap) m.userData.cap = true;
       m.userData.ranges = b.ranges;
       m.name = role === 'roof' ? 'merged-roofs' : 'scatter';
       root.add(m);

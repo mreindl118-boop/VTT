@@ -372,3 +372,9 @@
   jointed column of rock crowded with spurs, talus at its foot and soft mist pooled round it, so the castle stands
   far above the village on a cliff a real crag could make. Relief beyond every map is drawn a quarter steeper and
   a thick wood presses up to each map's edge wherever the land cover is forest (one instanced draw).
+- Context: an area map stands in its surroundings. The parent map's houses, trees, streets and props within a few
+  hundred feet of the room that opens it are drawn round it as muted scenery (moved into the area map's frame and
+  north), and the backdrop forest keeps out of the town. The town square sits among Vallaki's streets.
+- Indoors legibility: one compact stair marker per stair (the destination shows on hover), room labels slimmer,
+  and a declutter pass hides any label that would overlap a more important one. Roofs raised over walls go when the
+  walls are cut down; hovering a roof describes the room beneath.
