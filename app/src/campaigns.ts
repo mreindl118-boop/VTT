@@ -12,7 +12,7 @@ export interface WorldData {
   name: string; bounds: { minX: number; minY: number; maxX: number; maxY: number };
   /** blurb: what players read about the place; dm: the DM's own note. */
   /** heightFt: how far the site stands above the surrounding land (a castle on its crag). */
-  pins: { key: string; name: string; pos: [number, number]; type: string; scenes?: string[]; blurb?: string; dm?: string; heightFt?: number }[];
+  pins: { key: string; name: string; pos: [number, number]; type: string; scenes?: string[]; blurb?: string; dm?: string; heightFt?: number; sheltered?: boolean }[];
   roads: { name: string; kind?: 'road' | 'trail'; pts: [number, number][] }[]; rivers: { name: string; pts: [number, number][] }[];
   lakes: { name: string; center: [number, number]; r: [number, number] }[]; peaks: { name: string; pos: [number, number] }[];
   woods: { name: string; pos: [number, number]; angle?: number }[]; high: [number, number][];

@@ -31,7 +31,7 @@ STREETS = [
 MARK = {'N1': (430, 470), 'N2': (995, 435), 'N3': (920, 690), 'N4': (1200, 305), 'N5': (1690, 690), 'N6': (1420, 720), 'N7': (1080, 605), 'N8': (1215, 622), 'N9': (-337, 1006),
         'N8a': (1215, 566), 'N8b': (1262, 600), 'N8c': (1176, 618), 'N8d': (1222, 664)}  # the shops round the square: north, round the east corner, west, south
 NAMES = {'N1': "St. Andral's Church", 'N2': 'Blue Water Inn', 'N3': "Burgomaster's Mansion", 'N4': 'Wachterhaus', 'N5': 'Arasek Stockyard', 'N6': "Coffin Maker's Shop", 'N7': 'Blinsky Toys', 'N8': 'Town Square', 'N9': 'Vistani Camp',
-         'N8a': 'Smithy and Armourer', 'N8b': "Jeweller's", 'N8c': "Alchemist's", 'N8d': 'General Store'}
+         'N8a': 'Smithy and Armourer', 'N8b': "Jeweller's", 'N8c': "Alchemist's", 'N8d': 'General Store', 'N10': 'Livery Stable'}
 ENTER = {'N1': 'ch05/N1', 'N2': 'ch05/N2', 'N3': 'ch05/N3', 'N4': 'ch05/N4', 'N5': 'ch05/N5', 'N6': 'ch05/N6', 'N7': 'ch05/N7', 'N9': 'ch05/N9', 'N8': 'ch05/N8', 'N8a': 'ch05/N8', 'N8b': 'ch05/N8', 'N8c': 'ch05/N8', 'N8d': 'ch05/N8'}
 _M = json.load(open(os.path.join(ROOT, 'manifests', 'locations.json')))
 PAGE = {a['key']: a['page'] for l in _M['locations'] if l['id'] == 'N' for a in l['areas']}
@@ -57,6 +57,7 @@ wall = [ft(*p) for p in WALL]
 houses_src = os.path.join(ROOT, 'reference', 'imports', 'vallaki-houses.json')
 houses = json.load(open(houses_src)) if os.path.exists(houses_src) else []
 marks = {k: ft(*v) for k, v in MARK.items()}
+marks['N10'] = [6050.0, 2470.0]   # the livery stable, north of the main road between the coffin shop and the stockyard (the DM's addition)
 objects = []
 kept = 0
 for i, h in enumerate(houses):
@@ -161,21 +162,23 @@ for i in range(len(wall)):
         # split the segment: wall - gate (20 ft) - wall
         L = math.hypot(b[0] - a[0], b[1] - a[1]); ux, uz = (b[0] - a[0]) / L, (b[1] - a[1]) / L; m = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2]
         g0 = [round(m[0] - ux * 10, 1), round(m[1] - uz * 10, 1)]; g1 = [round(m[0] + ux * 10, 1), round(m[1] + uz * 10, 1)]
-        walls.append(OrderedDict(id=f'pal-{i}a', a=a, b=g0, flags=['normal'], material='log', heightFt=15))
-        walls.append(OrderedDict(id=f'gate-{i}', a=g0, b=g1, flags=['door'], material='log', heightFt=15, open=True))
-        walls.append(OrderedDict(id=f'pal-{i}b', a=g1, b=b, flags=['normal'], material='log', heightFt=15))
+        walls.append(OrderedDict(id=f'pal-{i}a', a=a, b=g0, flags=['normal'], material='log', heightFt=22))
+        walls.append(OrderedDict(id=f'gate-{i}', a=g0, b=g1, flags=['door'], material='log', heightFt=22, open=True))
+        walls.append(OrderedDict(id=f'pal-{i}b', a=g1, b=b, flags=['normal'], material='log', heightFt=22))
     else:
-        walls.append(OrderedDict(id=f'pal-{i}', a=a, b=b, flags=['normal'], material='log', heightFt=15))
+        walls.append(OrderedDict(id=f'pal-{i}', a=a, b=b, flags=['normal'], material='log', heightFt=22))
 rooms = []
-for k in ['N1', 'N2', 'N4', 'N7', 'N8', 'N3', 'N6', 'N5', 'N9', 'N8a', 'N8b', 'N8c', 'N8d']:
+for k in ['N1', 'N2', 'N4', 'N7', 'N8', 'N3', 'N6', 'N5', 'N9', 'N8a', 'N8b', 'N8c', 'N8d', 'N10']:
     x, z = marks[k]; s = 30 if k in ('N7', 'N6', 'N8b', 'N8c') else 40 if k not in ('N8', 'N9', 'N5') else 60
     if k == 'N9': s = 340  # the whole camp, the hill and its ring of wagons (grass: the box is a key, not paving)
     r = OrderedDict(key=k, name=NAMES[k], page=PAGE.get(k), polygon=[[round(x - s / 2, 1), round(z - s / 2, 1)], [round(x + s / 2, 1), round(z - s / 2, 1)], [round(x + s / 2, 1), round(z + s / 2, 1)], [round(x - s / 2, 1), round(z + s / 2, 1)]], floor='cobble' if k != 'N9' else 'dirt')
     if k == 'N8': r['polygon'] = [[round(x - 75, 1), round(z - 55, 1)], [round(x + 75, 1), round(z - 55, 1)], [round(x + 75, 1), round(z + 55, 1)], [round(x - 75, 1), round(z + 55, 1)]]
     if k == 'N9': r['floor'] = 'grass'
+    if k == 'N10': r['floor'] = 'dirt'; r['polygon'] = [[x - 45, z - 20], [x + 45, z - 20], [x + 45, z + 55], [x - 45, z + 55]]
     if k in ENTER: r['enter'] = ENTER[k]
     rooms.append(r)
 DESC = {
+  'N10': ('A long timber barn and a fenced paddock: the livery where travellers stable their horses.', "The DM's addition: stabling 5 cp a night; the hostler gossips with the Vistani horse-traders."),
   'N1': ("A slouching stone church with a bulging steeple, stained glass of saints cracked in every window, an iron-fenced garden of graves beside it.", "Father Lucian, Yeska and Milivoj. The bones of St. Andral are gone from the crypt: Milivoj took them to the coffin maker. Same plan as the village church, no undercroft."),
   'N2': ("A two-storey inn on the main street with a well in its yard and an outside stair.", "The Martikovs' inn: Urwin and Danika, the boys, Rictavio's wagon in the stable yard. Open the map for the floors."),
   'N3': ("The burgomaster's mansion behind its gate, banners of the festival on the posts.", "Baron Vargas, Lydia, Victor in the attic, Izek. The cells in the basement hold the town's complainers."),
@@ -208,10 +211,29 @@ for o in objects:
 pines = sum(1 for o in objects if o['kind'] == 'pine')
 for name, w, pts in streets_ft:
     for poly in strip(pts, w): terrain.append(OrderedDict(polygon=poly, floor='cobble' if name == 'Old Svalich Road' else 'dirt'))
+# The palisade itself: trunk runs along every wall piece (not the gates), the fighting walk on the town side; a guard
+# station every 300 ft or so, and a pair at each gate.
+_since = 0.0
+for wl in walls:
+    a, b = wl['a'], wl['b']; dx, dz = b[0] - a[0], b[1] - a[1]; L = math.hypot(dx, dz)
+    if L < 1: continue
+    mx, mz = (a[0] + b[0]) / 2, (a[1] + b[1]) / 2; th = math.atan2(-dz, dx)
+    nx, nz = math.sin(th), math.cos(th)   # local +z in plan
+    flip = 0 if inside((mx + nx * 6, mz + nz * 6), wall) else 1
+    if 'door' in wl['flags']:
+        for s_ in (-1, 1):
+            objects.append(OrderedDict(id=f"{wl['id']}-gt{s_}", kind='watchtower', pos=[round(mx + dx / L * (L / 2 + 7) * s_, 1), 0, round(mz + dz / L * (L / 2 + 7) * s_, 1)], vis='player', rotY=round(math.degrees(th), 1), dims=OrderedDict(h=32, w=12)))
+        continue
+    objects.append(OrderedDict(id=f"{wl['id']}-pal", kind='palisade', pos=[round(mx, 1), 0, round(mz, 1)], vis='player', rotY=round(math.degrees(th), 1), dims=OrderedDict(len=round(L, 1), h=22, flip=flip)))
+    _since += L
+    if _since > 300:
+        _since = 0
+        sx = (1 if not flip else -1)
+        objects.append(OrderedDict(id=f"{wl['id']}-tower", kind='watchtower', pos=[round(mx + nx * 6 * sx, 1), 0, round(mz + nz * 6 * sx, 1)], vis='player', rotY=round(math.degrees(th), 1), dims=OrderedDict(h=30, w=12)))
 # settle: nothing on a street, through the palisade or through another house; every keyed site has its building
 import sys; sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from settle import settle
-SITE_SIZES = {'N2': (62, 40, 2), 'N3': (52, 42, 2), 'N4': (46, 36, 2), 'N6': (30, 24, 1), 'N7': (30, 24, 1), 'N5': (44, 30, 1), 'N8a': (50, 30, 1), 'N8b': (30, 30, 1), 'N8c': (30, 24, 1), 'N8d': (50, 30, 1)}
+SITE_SIZES = {'N2': (62, 40, 2), 'N3': (52, 42, 2), 'N4': (46, 36, 2), 'N6': (30, 24, 1), 'N7': (30, 24, 1), 'N5': (44, 30, 1), 'N8a': (50, 30, 1), 'N8b': (30, 30, 1), 'N8c': (30, 24, 1), 'N8d': (50, 30, 1), 'N10': (70, 30, 1)}
 _level = OrderedDict(terrain=terrain, rooms=rooms, walls=walls, objects=objects)
 print('settle:', settle(_level, keyed=SITE_SIZES)); objects = _level['objects']
 # Desire paths: the minor walked ways between the streets, worn across the open blocks by people cutting the corner.
@@ -255,6 +277,30 @@ for a, b in trails:
 _paths = [tp['polygon'] for tp in terrain[-len(trails) * 3:]] if trails else []
 objects = [o for o in objects if not (o['kind'] == 'house' and not o.get('key') and any(_overlap(_hrect(o), pp, slack=0.5) for pp in _paths))]
 print('desire paths:', len(trails))
+# The livery stable's yard: a fenced paddock beside the barn, a trough, hay, the horses.
+_sx, _sz = marks['N10']
+for j, (dx, dz, rot) in enumerate([(-20, 45, 0), (20, 45, 0), (40, 25, 90), (-40, 25, 90)]): objects.append(OrderedDict(id=f'vallaki-n10-fence{j}', kind='fence', pos=[_sx + dx, 0, _sz + dz], vis='player', key='N10', rotY=rot, dims=OrderedDict(w=40)))
+objects.append(OrderedDict(id='vallaki-n10-trough', kind='trough', pos=[_sx + 10, 0, _sz + 30], vis='player', key='N10'))
+objects.append(OrderedDict(id='vallaki-n10-hay', kind='hay', pos=[_sx - 25, 0, _sz + 28], vis='player', key='N10'))
+for j, (dx, dz) in enumerate([(-12, 34), (6, 38), (24, 32)]): objects.append(OrderedDict(id=f'vallaki-n10-horse{j}', kind='horse', pos=[_sx + dx, 0, _sz + dz], vis='player', key='N10', size='large', rotY=j * 70))
+# Trails to Blinsky Toys: worn footpaths from the toymaker's door to the nearest point of each street round it
+_bx, _bz = marks['N7']
+def _nearest_on(pts, p):
+    best = None
+    for a, b in zip(pts[:-1], pts[1:]):
+        dx, dz = b[0] - a[0], b[1] - a[1]; L2 = dx * dx + dz * dz or 1; t_ = max(0, min(1, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dz) / L2)); q = (a[0] + dx * t_, a[1] + dz * t_)
+        d = math.hypot(q[0] - p[0], q[1] - p[1])
+        if best is None or d < best[0]: best = (d, q)
+    return best
+_ends = sorted((_nearest_on(pts, (_bx, _bz)) + (name,) for name, _w, pts in streets_ft), key=lambda e: e[0])
+_bl = []
+for d, q, name in _ends[:3]:
+    if d < 12 or d > 260: continue
+    mx, mz = (_bx + q[0]) / 2, (_bz + q[1]) / 2; dx, dz = q[0] - _bx, q[1] - _bz; L = math.hypot(dx, dz) or 1
+    pts_ = [(_bx, _bz), (mx - dz / L * L * 0.08, mz + dx / L * L * 0.08), q]
+    for poly in strip(pts_, 4): terrain.append(OrderedDict(polygon=poly, floor='dirt')); _bl.append(poly)
+objects = [o for o in objects if not (o['kind'] == 'house' and not o.get('key') and any(_overlap(_hrect(o), pp, slack=0.5) for pp in _bl))]
+print('trails to Blinsky Toys:', len(_bl) // 3)
 # Trodden soil: the ground under every house and round it is bare earth, not grass, and the keyed yards too.
 from settle import rect as _frect
 for o in objects:

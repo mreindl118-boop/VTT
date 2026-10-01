@@ -1934,6 +1934,12 @@
      "name": "General Store",
      "page": 119,
      "inset": true
+    },
+    {
+     "key": "N10",
+     "name": "Livery Stable",
+     "page": null,
+     "inset": true
     }
    ],
    "placementLayer": {

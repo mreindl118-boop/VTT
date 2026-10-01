@@ -16307,6 +16307,85 @@
     {
      "polygon": [
       [
+       4633.5,
+       2652.0
+      ],
+      [
+       4569.7,
+       2650.1
+      ],
+      [
+       4569.6,
+       2654.1
+      ],
+      [
+       4633.3,
+       2656.0
+      ]
+     ],
+     "floor": "dirt"
+    },
+    {
+     "polygon": [
+      [
+       4569.1,
+       2650.2
+      ],
+      [
+       4507.9,
+       2668.3
+      ],
+      [
+       4509.0,
+       2672.1
+      ],
+      [
+       4570.2,
+       2654.0
+      ]
+     ],
+     "floor": "dirt"
+    },
+    {
+     "polygon": [
+      [
+       4571.6,
+       2652.1
+      ],
+      [
+       4571.0,
+       2653.5
+      ],
+      [
+       4569.6,
+       2654.1
+      ],
+      [
+       4568.2,
+       2653.5
+      ],
+      [
+       4567.6,
+       2652.1
+      ],
+      [
+       4568.2,
+       2650.7
+      ],
+      [
+       4569.6,
+       2650.1
+      ],
+      [
+       4571.0,
+       2650.7
+      ]
+     ],
+     "floor": "dirt"
+    },
+    {
+     "polygon": [
+      [
        2708.5,
        2264.0
       ],
@@ -37181,27 +37260,6 @@
     {
      "polygon": [
       [
-       4539.0,
-       2653.5
-      ],
-      [
-       4539.0,
-       2686.5
-      ],
-      [
-       4516.0,
-       2686.5
-      ],
-      [
-       4516.0,
-       2653.5
-      ]
-     ],
-     "floor": "dirt"
-    },
-    {
-     "polygon": [
-      [
        4511.5,
        2736.0
       ],
@@ -38185,6 +38243,27 @@
       ]
      ],
      "floor": "dirt"
+    },
+    {
+     "polygon": [
+      [
+       6011.0,
+       2468.5
+      ],
+      [
+       6089.0,
+       2468.5
+      ],
+      [
+       6089.0,
+       2506.5
+      ],
+      [
+       6011.0,
+       2506.5
+      ]
+     ],
+     "floor": "dirt"
     }
    ],
    "rooms": [
@@ -38530,6 +38609,32 @@
      ],
      "floor": "dirt",
      "enter": "ch05/N8"
+    },
+    {
+     "key": "N10",
+     "name": "Livery Stable",
+     "page": null,
+     "polygon": [
+      [
+       6015.0,
+       2472.5
+      ],
+      [
+       6085.0,
+       2472.5
+      ],
+      [
+       6085.0,
+       2502.5
+      ],
+      [
+       6015.0,
+       2502.5
+      ]
+     ],
+     "floor": "dirt",
+     "desc": "A long timber barn and a fenced paddock: the livery where travellers stable their horses.",
+     "dm": "The DM's addition: stabling 5 cp a night; the hostler gossips with the Vistani horse-traders."
     }
    ],
    "walls": [
@@ -38547,7 +38652,7 @@
       "normal"
      ],
      "material": "log",
-     "heightFt": 15
+     "heightFt": 22
     },
     {
      "id": "pal-1",
@@ -38563,7 +38668,7 @@
       "normal"
      ],
      "material": "log",
-     "heightFt": 15
+     "heightFt": 22
     },
     {
      "id": "pal-2",
@@ -38579,7 +38684,7 @@
       "normal"
      ],
      "material": "log",
-     "heightFt": 15
+     "heightFt": 22
     },
     {
      "id": "pal-3",
@@ -38595,7 +38700,7 @@
       "normal"
      ],
      "material": "log",
-     "heightFt": 15
+     "heightFt": 22
     },
     {
      "id": "pal-4",
@@ -38611,7 +38716,7 @@
       "normal"
      ],
      "material": "log",
-     "heightFt": 15
+     "heightFt": 22
     },
     {
      "id": "pal-5",
@@ -38627,7 +38732,7 @@
       "normal"
      ],
      "material": "log",
-     "heightFt": 15
+     "heightFt": 22
     },
     {
      "id": "pal-6",
@@ -38643,7 +38748,7 @@
       "normal"
      ],
      "material": "log",
-     "heightFt": 15
+     "heightFt": 22
     },
     {
      "id": "pal-7",
@@ -38659,7 +38764,7 @@
       "normal"
      ],
      "material": "log",
-     "heightFt": 15
+     "heightFt": 22
     },
     {
      "id": "pal-8",
@@ -38675,7 +38780,7 @@
       "normal"
      ],
      "material": "log",
-     "heightFt": 15
+     "heightFt": 22
     },
     {
      "id": "pal-9",
@@ -38691,7 +38796,7 @@
       "normal"
      ],
      "material": "log",
-     "heightFt": 15
+     "heightFt": 22
     },
     {
      "id": "pal-10",
@@ -38707,7 +38812,7 @@
       "normal"
      ],
      "material": "log",
-     "heightFt": 15
+     "heightFt": 22
     },
     {
      "id": "pal-11",
@@ -38723,7 +38828,7 @@
       "normal"
      ],
      "material": "log",
-     "heightFt": 15
+     "heightFt": 22
     },
     {
      "id": "pal-12",
@@ -38739,7 +38844,7 @@
       "normal"
      ],
      "material": "log",
-     "heightFt": 15
+     "heightFt": 22
     },
     {
      "id": "pal-13",
@@ -38755,7 +38860,7 @@
       "normal"
      ],
      "material": "log",
-     "heightFt": 15
+     "heightFt": 22
     },
     {
      "id": "pal-14",
@@ -38771,7 +38876,7 @@
       "normal"
      ],
      "material": "log",
-     "heightFt": 15
+     "heightFt": 22
     },
     {
      "id": "pal-15",
@@ -38787,7 +38892,7 @@
       "normal"
      ],
      "material": "log",
-     "heightFt": 15
+     "heightFt": 22
     },
     {
      "id": "pal-16a",
@@ -38803,7 +38908,7 @@
       "normal"
      ],
      "material": "log",
-     "heightFt": 15
+     "heightFt": 22
     },
     {
      "id": "gate-16",
@@ -38819,7 +38924,7 @@
       "door"
      ],
      "material": "log",
-     "heightFt": 15,
+     "heightFt": 22,
      "open": true
     },
     {
@@ -38836,7 +38941,7 @@
       "normal"
      ],
      "material": "log",
-     "heightFt": 15
+     "heightFt": 22
     },
     {
      "id": "pal-17",
@@ -38852,7 +38957,7 @@
       "normal"
      ],
      "material": "log",
-     "heightFt": 15
+     "heightFt": 22
     },
     {
      "id": "pal-18",
@@ -38868,7 +38973,7 @@
       "normal"
      ],
      "material": "log",
-     "heightFt": 15
+     "heightFt": 22
     },
     {
      "id": "pal-19",
@@ -38884,7 +38989,7 @@
       "normal"
      ],
      "material": "log",
-     "heightFt": 15
+     "heightFt": 22
     },
     {
      "id": "pal-20",
@@ -38900,7 +39005,7 @@
       "normal"
      ],
      "material": "log",
-     "heightFt": 15
+     "heightFt": 22
     },
     {
      "id": "pal-21a",
@@ -38916,7 +39021,7 @@
       "normal"
      ],
      "material": "log",
-     "heightFt": 15
+     "heightFt": 22
     },
     {
      "id": "gate-21",
@@ -38932,7 +39037,7 @@
       "door"
      ],
      "material": "log",
-     "heightFt": 15,
+     "heightFt": 22,
      "open": true
     },
     {
@@ -38949,7 +39054,7 @@
       "normal"
      ],
      "material": "log",
-     "heightFt": 15
+     "heightFt": 22
     },
     {
      "id": "pal-22",
@@ -38965,7 +39070,7 @@
       "normal"
      ],
      "material": "log",
-     "heightFt": 15
+     "heightFt": 22
     },
     {
      "id": "pal-23a",
@@ -38981,7 +39086,7 @@
       "normal"
      ],
      "material": "log",
-     "heightFt": 15
+     "heightFt": 22
     },
     {
      "id": "gate-23",
@@ -38997,7 +39102,7 @@
       "door"
      ],
      "material": "log",
-     "heightFt": 15,
+     "heightFt": 22,
      "open": true
     },
     {
@@ -39014,7 +39119,7 @@
       "normal"
      ],
      "material": "log",
-     "heightFt": 15
+     "heightFt": 22
     },
     {
      "id": "pal-24",
@@ -39030,7 +39135,7 @@
       "normal"
      ],
      "material": "log",
-     "heightFt": 15
+     "heightFt": 22
     },
     {
      "id": "pal-25",
@@ -39046,7 +39151,7 @@
       "normal"
      ],
      "material": "log",
-     "heightFt": 15
+     "heightFt": 22
     },
     {
      "id": "pal-26",
@@ -39062,7 +39167,7 @@
       "normal"
      ],
      "material": "log",
-     "heightFt": 15
+     "heightFt": 22
     },
     {
      "id": "pal-27a",
@@ -39078,7 +39183,7 @@
       "normal"
      ],
      "material": "log",
-     "heightFt": 15
+     "heightFt": 22
     },
     {
      "id": "gate-27",
@@ -39094,7 +39199,7 @@
       "door"
      ],
      "material": "log",
-     "heightFt": 15,
+     "heightFt": 22,
      "open": true
     },
     {
@@ -39111,7 +39216,7 @@
       "normal"
      ],
      "material": "log",
-     "heightFt": 15
+     "heightFt": 22
     }
    ],
    "lights": [],
@@ -52847,6 +52952,998 @@
      ],
      "vis": "player",
      "key": "N8"
+    },
+    {
+     "id": "pal-0-pal",
+     "kind": "palisade",
+     "pos": [
+      2147.5,
+      0,
+      2272.5
+     ],
+     "vis": "player",
+     "rotY": 45,
+     "dims": {
+      "len": 475.8,
+      "h": 22,
+      "flip": 0
+     }
+    },
+    {
+     "id": "pal-0-tower",
+     "kind": "watchtower",
+     "pos": [
+      2152.5,
+      0,
+      2277.5
+     ],
+     "vis": "player",
+     "rotY": 45,
+     "dims": {
+      "h": 30,
+      "w": 12
+     }
+    },
+    {
+     "id": "pal-1-pal",
+     "kind": "palisade",
+     "pos": [
+      2667.5,
+      0,
+      2082.5
+     ],
+     "vis": "player",
+     "rotY": 0,
+     "dims": {
+      "len": 655.8,
+      "h": 22,
+      "flip": 0
+     }
+    },
+    {
+     "id": "pal-1-tower",
+     "kind": "watchtower",
+     "pos": [
+      2670.0,
+      0,
+      2087.5
+     ],
+     "vis": "player",
+     "rotY": 0,
+     "dims": {
+      "h": 30,
+      "w": 12
+     }
+    },
+    {
+     "id": "pal-2-pal",
+     "kind": "palisade",
+     "pos": [
+      3315.0,
+      0,
+      1965.0
+     ],
+     "vis": "player",
+     "rotY": 0,
+     "dims": {
+      "len": 655.8,
+      "h": 22,
+      "flip": 0
+     }
+    },
+    {
+     "id": "pal-2-tower",
+     "kind": "watchtower",
+     "pos": [
+      3315.0,
+      0,
+      1970.0
+     ],
+     "vis": "player",
+     "rotY": 0,
+     "dims": {
+      "h": 30,
+      "w": 12
+     }
+    },
+    {
+     "id": "pal-3-pal",
+     "kind": "palisade",
+     "pos": [
+      3812.5,
+      0,
+      1847.5
+     ],
+     "vis": "player",
+     "rotY": 0,
+     "dims": {
+      "len": 370.9,
+      "h": 22,
+      "flip": 0
+     }
+    },
+    {
+     "id": "pal-3-tower",
+     "kind": "watchtower",
+     "pos": [
+      3815.0,
+      0,
+      1852.5
+     ],
+     "vis": "player",
+     "rotY": 0,
+     "dims": {
+      "h": 30,
+      "w": 12
+     }
+    },
+    {
+     "id": "pal-4-pal",
+     "kind": "palisade",
+     "pos": [
+      4062.5,
+      0,
+      1642.5
+     ],
+     "vis": "player",
+     "rotY": 45,
+     "dims": {
+      "len": 327.9,
+      "h": 22,
+      "flip": 0
+     }
+    },
+    {
+     "id": "pal-4-tower",
+     "kind": "watchtower",
+     "pos": [
+      4067.5,
+      0,
+      1645.0
+     ],
+     "vis": "player",
+     "rotY": 45,
+     "dims": {
+      "h": 30,
+      "w": 12
+     }
+    },
+    {
+     "id": "pal-5-pal",
+     "kind": "palisade",
+     "pos": [
+      4192.5,
+      0,
+      1350.0
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "dims": {
+      "len": 315.9,
+      "h": 22,
+      "flip": 0
+     }
+    },
+    {
+     "id": "pal-5-tower",
+     "kind": "watchtower",
+     "pos": [
+      4200.0,
+      0,
+      1350.0
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "dims": {
+      "h": 30,
+      "w": 12
+     }
+    },
+    {
+     "id": "pal-6-pal",
+     "kind": "palisade",
+     "pos": [
+      4325.0,
+      0,
+      1055.0
+     ],
+     "vis": "player",
+     "rotY": 45,
+     "dims": {
+      "len": 327.8,
+      "h": 22,
+      "flip": 0
+     }
+    },
+    {
+     "id": "pal-6-tower",
+     "kind": "watchtower",
+     "pos": [
+      4330.0,
+      0,
+      1057.5
+     ],
+     "vis": "player",
+     "rotY": 45,
+     "dims": {
+      "h": 30,
+      "w": 12
+     }
+    },
+    {
+     "id": "pal-7-pal",
+     "kind": "palisade",
+     "pos": [
+      4545.0,
+      0,
+      880.0
+     ],
+     "vis": "player",
+     "rotY": 0,
+     "dims": {
+      "len": 299.1,
+      "h": 22,
+      "flip": 0
+     }
+    },
+    {
+     "id": "pal-8-pal",
+     "kind": "palisade",
+     "pos": [
+      4837.5,
+      0,
+      895.0
+     ],
+     "vis": "player",
+     "rotY": 0,
+     "dims": {
+      "len": 306.1,
+      "h": 22,
+      "flip": 0
+     }
+    },
+    {
+     "id": "pal-8-tower",
+     "kind": "watchtower",
+     "pos": [
+      4837.5,
+      0,
+      900.0
+     ],
+     "vis": "player",
+     "rotY": 0,
+     "dims": {
+      "h": 30,
+      "w": 12
+     }
+    },
+    {
+     "id": "pal-9-pal",
+     "kind": "palisade",
+     "pos": [
+      5045.0,
+      0,
+      1157.5
+     ],
+     "vis": "player",
+     "rotY": -90,
+     "dims": {
+      "len": 455.3,
+      "h": 22,
+      "flip": 0
+     }
+    },
+    {
+     "id": "pal-9-tower",
+     "kind": "watchtower",
+     "pos": [
+      5037.5,
+      0,
+      1160.0
+     ],
+     "vis": "player",
+     "rotY": -90,
+     "dims": {
+      "h": 30,
+      "w": 12
+     }
+    },
+    {
+     "id": "pal-10-pal",
+     "kind": "palisade",
+     "pos": [
+      5147.5,
+      0,
+      1540.0
+     ],
+     "vis": "player",
+     "rotY": -90,
+     "dims": {
+      "len": 334.4,
+      "h": 22,
+      "flip": 0
+     }
+    },
+    {
+     "id": "pal-10-tower",
+     "kind": "watchtower",
+     "pos": [
+      5140.0,
+      0,
+      1540.0
+     ],
+     "vis": "player",
+     "rotY": -90,
+     "dims": {
+      "h": 30,
+      "w": 12
+     }
+    },
+    {
+     "id": "pal-11-pal",
+     "kind": "palisade",
+     "pos": [
+      5292.5,
+      0,
+      1802.5
+     ],
+     "vis": "player",
+     "rotY": -45,
+     "dims": {
+      "len": 290.3,
+      "h": 22,
+      "flip": 0
+     }
+    },
+    {
+     "id": "pal-12-pal",
+     "kind": "palisade",
+     "pos": [
+      5630.0,
+      0,
+      1950.0
+     ],
+     "vis": "player",
+     "rotY": 0,
+     "dims": {
+      "len": 477.4,
+      "h": 22,
+      "flip": 0
+     }
+    },
+    {
+     "id": "pal-12-tower",
+     "kind": "watchtower",
+     "pos": [
+      5630.0,
+      0,
+      1955.0
+     ],
+     "vis": "player",
+     "rotY": 0,
+     "dims": {
+      "h": 30,
+      "w": 12
+     }
+    },
+    {
+     "id": "pal-13-pal",
+     "kind": "palisade",
+     "pos": [
+      6100.0,
+      0,
+      2022.5
+     ],
+     "vis": "player",
+     "rotY": 0,
+     "dims": {
+      "len": 472.9,
+      "h": 22,
+      "flip": 0
+     }
+    },
+    {
+     "id": "pal-13-tower",
+     "kind": "watchtower",
+     "pos": [
+      6100.0,
+      0,
+      2030.0
+     ],
+     "vis": "player",
+     "rotY": 0,
+     "dims": {
+      "h": 30,
+      "w": 12
+     }
+    },
+    {
+     "id": "pal-14-pal",
+     "kind": "palisade",
+     "pos": [
+      6510.0,
+      0,
+      2170.0
+     ],
+     "vis": "player",
+     "rotY": -45,
+     "dims": {
+      "len": 422.9,
+      "h": 22,
+      "flip": 0
+     }
+    },
+    {
+     "id": "pal-14-tower",
+     "kind": "watchtower",
+     "pos": [
+      6507.5,
+      0,
+      2175.0
+     ],
+     "vis": "player",
+     "rotY": -45,
+     "dims": {
+      "h": 30,
+      "w": 12
+     }
+    },
+    {
+     "id": "pal-15-pal",
+     "kind": "palisade",
+     "pos": [
+      6715.0,
+      0,
+      2447.5
+     ],
+     "vis": "player",
+     "rotY": -90,
+     "dims": {
+      "len": 327.9,
+      "h": 22,
+      "flip": 0
+     }
+    },
+    {
+     "id": "pal-15-tower",
+     "kind": "watchtower",
+     "pos": [
+      6710.0,
+      0,
+      2450.0
+     ],
+     "vis": "player",
+     "rotY": -90,
+     "dims": {
+      "h": 30,
+      "w": 12
+     }
+    },
+    {
+     "id": "pal-16a-pal",
+     "kind": "palisade",
+     "pos": [
+      6737.5,
+      0,
+      2662.5
+     ],
+     "vis": "player",
+     "rotY": -90,
+     "dims": {
+      "len": 108.2,
+      "h": 22,
+      "flip": 0
+     }
+    },
+    {
+     "id": "gate-16-gt-1",
+     "kind": "watchtower",
+     "pos": [
+      6732.5,
+      0,
+      2710.0
+     ],
+     "vis": "player",
+     "rotY": -90,
+     "dims": {
+      "h": 32,
+      "w": 12
+     }
+    },
+    {
+     "id": "gate-16-gt1",
+     "kind": "watchtower",
+     "pos": [
+      6727.5,
+      0,
+      2745.0
+     ],
+     "vis": "player",
+     "rotY": -90,
+     "dims": {
+      "h": 32,
+      "w": 12
+     }
+    },
+    {
+     "id": "pal-16b-pal",
+     "kind": "palisade",
+     "pos": [
+      6722.5,
+      0,
+      2790.0
+     ],
+     "vis": "player",
+     "rotY": -90,
+     "dims": {
+      "len": 108.2,
+      "h": 22,
+      "flip": 0
+     }
+    },
+    {
+     "id": "pal-17-pal",
+     "kind": "palisade",
+     "pos": [
+      6627.5,
+      0,
+      2947.5
+     ],
+     "vis": "player",
+     "rotY": -135,
+     "dims": {
+      "len": 270.3,
+      "h": 22,
+      "flip": 0
+     }
+    },
+    {
+     "id": "pal-17-tower",
+     "kind": "watchtower",
+     "pos": [
+      6622.5,
+      0,
+      2942.5
+     ],
+     "vis": "player",
+     "rotY": -135,
+     "dims": {
+      "h": 30,
+      "w": 12
+     }
+    },
+    {
+     "id": "pal-18-pal",
+     "kind": "palisade",
+     "pos": [
+      6320.0,
+      0,
+      3152.5
+     ],
+     "vis": "player",
+     "rotY": -135,
+     "dims": {
+      "len": 485.4,
+      "h": 22,
+      "flip": 0
+     }
+    },
+    {
+     "id": "pal-18-tower",
+     "kind": "watchtower",
+     "pos": [
+      6317.5,
+      0,
+      3147.5
+     ],
+     "vis": "player",
+     "rotY": -135,
+     "dims": {
+      "h": 30,
+      "w": 12
+     }
+    },
+    {
+     "id": "pal-19-pal",
+     "kind": "palisade",
+     "pos": [
+      5835.0,
+      0,
+      3315.0
+     ],
+     "vis": "player",
+     "rotY": -180,
+     "dims": {
+      "len": 540.8,
+      "h": 22,
+      "flip": 0
+     }
+    },
+    {
+     "id": "pal-19-tower",
+     "kind": "watchtower",
+     "pos": [
+      5835.0,
+      0,
+      3307.5
+     ],
+     "vis": "player",
+     "rotY": -180,
+     "dims": {
+      "h": 30,
+      "w": 12
+     }
+    },
+    {
+     "id": "pal-20-pal",
+     "kind": "palisade",
+     "pos": [
+      5277.5,
+      0,
+      3402.5
+     ],
+     "vis": "player",
+     "rotY": -180,
+     "dims": {
+      "len": 589.4,
+      "h": 22,
+      "flip": 0
+     }
+    },
+    {
+     "id": "pal-20-tower",
+     "kind": "watchtower",
+     "pos": [
+      5277.5,
+      0,
+      3395.0
+     ],
+     "vis": "player",
+     "rotY": -180,
+     "dims": {
+      "h": 30,
+      "w": 12
+     }
+    },
+    {
+     "id": "pal-21a-pal",
+     "kind": "palisade",
+     "pos": [
+      4887.5,
+      0,
+      3410.0
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "dims": {
+      "len": 199.9,
+      "h": 22,
+      "flip": 0
+     }
+    },
+    {
+     "id": "gate-21-gt-1",
+     "kind": "watchtower",
+     "pos": [
+      4797.5,
+      0,
+      3390.0
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "dims": {
+      "h": 32,
+      "w": 12
+     }
+    },
+    {
+     "id": "gate-21-gt1",
+     "kind": "watchtower",
+     "pos": [
+      4762.5,
+      0,
+      3382.5
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "dims": {
+      "h": 32,
+      "w": 12
+     }
+    },
+    {
+     "id": "pal-21b-pal",
+     "kind": "palisade",
+     "pos": [
+      4672.5,
+      0,
+      3365.0
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "dims": {
+      "len": 199.9,
+      "h": 22,
+      "flip": 0
+     }
+    },
+    {
+     "id": "pal-21b-tower",
+     "kind": "watchtower",
+     "pos": [
+      4675.0,
+      0,
+      3357.5
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "dims": {
+      "h": 30,
+      "w": 12
+     }
+    },
+    {
+     "id": "pal-22-pal",
+     "kind": "palisade",
+     "pos": [
+      4282.5,
+      0,
+      3270.0
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "dims": {
+      "len": 604.5,
+      "h": 22,
+      "flip": 0
+     }
+    },
+    {
+     "id": "pal-22-tower",
+     "kind": "watchtower",
+     "pos": [
+      4282.5,
+      0,
+      3265.0
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "dims": {
+      "h": 30,
+      "w": 12
+     }
+    },
+    {
+     "id": "pal-23a-pal",
+     "kind": "palisade",
+     "pos": [
+      3847.5,
+      0,
+      3160.0
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "dims": {
+      "len": 292.2,
+      "h": 22,
+      "flip": 0
+     }
+    },
+    {
+     "id": "gate-23-gt-1",
+     "kind": "watchtower",
+     "pos": [
+      3712.5,
+      0,
+      3127.5
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "dims": {
+      "h": 32,
+      "w": 12
+     }
+    },
+    {
+     "id": "gate-23-gt1",
+     "kind": "watchtower",
+     "pos": [
+      3677.5,
+      0,
+      3120.0
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "dims": {
+      "h": 32,
+      "w": 12
+     }
+    },
+    {
+     "id": "pal-23b-pal",
+     "kind": "palisade",
+     "pos": [
+      3542.5,
+      0,
+      3085.0
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "dims": {
+      "len": 292.2,
+      "h": 22,
+      "flip": 0
+     }
+    },
+    {
+     "id": "pal-23b-tower",
+     "kind": "watchtower",
+     "pos": [
+      3545.0,
+      0,
+      3080.0
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "dims": {
+      "h": 30,
+      "w": 12
+     }
+    },
+    {
+     "id": "pal-24-pal",
+     "kind": "palisade",
+     "pos": [
+      3137.5,
+      0,
+      2977.5
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "dims": {
+      "len": 547.9,
+      "h": 22,
+      "flip": 0
+     }
+    },
+    {
+     "id": "pal-24-tower",
+     "kind": "watchtower",
+     "pos": [
+      3140.0,
+      0,
+      2970.0
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "dims": {
+      "h": 30,
+      "w": 12
+     }
+    },
+    {
+     "id": "pal-25-pal",
+     "kind": "palisade",
+     "pos": [
+      2655.0,
+      0,
+      2845.0
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "dims": {
+      "len": 455.3,
+      "h": 22,
+      "flip": 0
+     }
+    },
+    {
+     "id": "pal-25-tower",
+     "kind": "watchtower",
+     "pos": [
+      2655.0,
+      0,
+      2840.0
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "dims": {
+      "h": 30,
+      "w": 12
+     }
+    },
+    {
+     "id": "pal-26-pal",
+     "kind": "palisade",
+     "pos": [
+      2242.5,
+      0,
+      2697.5
+     ],
+     "vis": "player",
+     "rotY": 135,
+     "dims": {
+      "len": 419.8,
+      "h": 22,
+      "flip": 0
+     }
+    },
+    {
+     "id": "pal-26-tower",
+     "kind": "watchtower",
+     "pos": [
+      2245.0,
+      0,
+      2692.5
+     ],
+     "vis": "player",
+     "rotY": 135,
+     "dims": {
+      "h": 30,
+      "w": 12
+     }
+    },
+    {
+     "id": "pal-27a-pal",
+     "kind": "palisade",
+     "pos": [
+      2030.0,
+      0,
+      2562.5
+     ],
+     "vis": "player",
+     "rotY": 135,
+     "dims": {
+      "len": 104.8,
+      "h": 22,
+      "flip": 0
+     }
+    },
+    {
+     "id": "gate-27-gt-1",
+     "kind": "watchtower",
+     "pos": [
+      2010.0,
+      0,
+      2522.5
+     ],
+     "vis": "player",
+     "rotY": 135,
+     "dims": {
+      "h": 32,
+      "w": 12
+     }
+    },
+    {
+     "id": "gate-27-gt1",
+     "kind": "watchtower",
+     "pos": [
+      1995.0,
+      0,
+      2492.5
+     ],
+     "vis": "player",
+     "rotY": 135,
+     "dims": {
+      "h": 32,
+      "w": 12
+     }
+    },
+    {
+     "id": "pal-27b-pal",
+     "kind": "palisade",
+     "pos": [
+      1972.5,
+      0,
+      2452.5
+     ],
+     "vis": "player",
+     "rotY": 135,
+     "dims": {
+      "len": 104.8,
+      "h": 22,
+      "flip": 0
+     }
     },
     {
      "id": "vallaki-church",
@@ -69745,23 +70842,6 @@
      }
     },
     {
-     "id": "vallaki-s711",
-     "kind": "house",
-     "pos": [
-      4527.5,
-      0,
-      2670.0
-     ],
-     "vis": "player",
-     "rotY": -90,
-     "dims": {
-      "w": 25,
-      "d": 15,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
      "id": "vallaki-s716",
      "kind": "house",
      "pos": [
@@ -70577,6 +71657,146 @@
       "h": 13,
       "stories": 1
      }
+    },
+    {
+     "id": "site-N10",
+     "kind": "house",
+     "pos": [
+      6050.0,
+      0,
+      2487.5
+     ],
+     "vis": "player",
+     "key": "N10",
+     "label": "Livery Stable",
+     "rotY": 0,
+     "dims": {
+      "w": 70,
+      "d": 30,
+      "h": 13,
+      "stories": 1
+     }
+    },
+    {
+     "id": "vallaki-n10-fence0",
+     "kind": "fence",
+     "pos": [
+      6030.0,
+      0,
+      2515.0
+     ],
+     "vis": "player",
+     "key": "N10",
+     "rotY": 0,
+     "dims": {
+      "w": 40
+     }
+    },
+    {
+     "id": "vallaki-n10-fence1",
+     "kind": "fence",
+     "pos": [
+      6070.0,
+      0,
+      2515.0
+     ],
+     "vis": "player",
+     "key": "N10",
+     "rotY": 0,
+     "dims": {
+      "w": 40
+     }
+    },
+    {
+     "id": "vallaki-n10-fence2",
+     "kind": "fence",
+     "pos": [
+      6090.0,
+      0,
+      2495.0
+     ],
+     "vis": "player",
+     "key": "N10",
+     "rotY": 90,
+     "dims": {
+      "w": 40
+     }
+    },
+    {
+     "id": "vallaki-n10-fence3",
+     "kind": "fence",
+     "pos": [
+      6010.0,
+      0,
+      2495.0
+     ],
+     "vis": "player",
+     "key": "N10",
+     "rotY": 90,
+     "dims": {
+      "w": 40
+     }
+    },
+    {
+     "id": "vallaki-n10-trough",
+     "kind": "trough",
+     "pos": [
+      6060.0,
+      0,
+      2500.0
+     ],
+     "vis": "player",
+     "key": "N10"
+    },
+    {
+     "id": "vallaki-n10-hay",
+     "kind": "hay",
+     "pos": [
+      6025.0,
+      0,
+      2498.0
+     ],
+     "vis": "player",
+     "key": "N10"
+    },
+    {
+     "id": "vallaki-n10-horse0",
+     "kind": "horse",
+     "pos": [
+      6038.0,
+      0,
+      2504.0
+     ],
+     "vis": "player",
+     "key": "N10",
+     "size": "large",
+     "rotY": 0
+    },
+    {
+     "id": "vallaki-n10-horse1",
+     "kind": "horse",
+     "pos": [
+      6056.0,
+      0,
+      2508.0
+     ],
+     "vis": "player",
+     "key": "N10",
+     "size": "large",
+     "rotY": 70
+    },
+    {
+     "id": "vallaki-n10-horse2",
+     "kind": "horse",
+     "pos": [
+      6074.0,
+      0,
+      2502.0
+     ],
+     "vis": "player",
+     "key": "N10",
+     "size": "large",
+     "rotY": 140
     }
    ]
   }

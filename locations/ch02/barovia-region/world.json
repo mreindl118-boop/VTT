@@ -203,7 +203,8 @@
     "ch02/G"
    ],
    "blurb": "A Vistani camp beside a still pool below the falls; fires and music at night.",
-   "dm": "Madam Eva reads the party's fortune here; the reading sets where the treasures and the ally are."
+   "dm": "Madam Eva reads the party's fortune here; the reading sets where the treasures and the ally are.",
+   "sheltered": true
   },
   {
    "key": "H",

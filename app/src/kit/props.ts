@@ -560,6 +560,35 @@ export function washline(d: Dims): THREE.Group {
   for (let i = 0; i < Math.floor(w / 2.4); i++) g.add(box(1.6, 2 + (i % 3) * 0.4, 0.1, C[i % C.length], -w / 2 + 1.4 + i * 2.4, 5.4 - (i % 3) * 0.2, 0));
   return g;
 }
+/** A run of palisade: whole timber trunks set side by side, sharpened to points, bound by a rail, with a plank
+ *  fighting walk and its parapet on the inner side (local +z, or -z with flip). Built along local x, centred. */
+export function palisade(d: Dims): THREE.Group {
+  const L = d.len ?? 20, H = d.h ?? 22, side = d.flip ? -1 : 1, g = g_();
+  const n = Math.max(1, Math.round(L / 1.9));
+  for (let i = 0; i < n; i++) {
+    const x = -L / 2 + (i + 0.5) * (L / n), h = H + (((i * 7919) % 7) / 7 - 0.5) * 1.6, r = 0.95 + (((i * 104729) % 5) / 5) * 0.15;
+    g.add(cyl(r * 0.92, r, h, i % 3 ? PALETTE.woodDark : '#4a3828', x, h / 2, 0, 6));
+    const tip = new THREE.Mesh(new THREE.ConeGeometry(r * 0.92, 2.6, 6), mat('#5a4632')); tip.position.set(x, h + 1.3, 0); g.add(tip);
+  }
+  g.add(box(L, 0.6, 0.5, '#3b2d22', 0, H * 0.72, side * 1.1), box(L, 0.6, 0.5, '#3b2d22', 0, H * 0.25, side * 1.1));   // binding rails
+  const wy = H - 6.5;                                                                                                  // the fighting walk
+  g.add(box(L, 0.5, 4, PALETTE.wood, 0, wy, side * 3.2));
+  for (let x = -L / 2 + 2; x < L / 2; x += 8) g.add(box(0.5, wy, 0.5, PALETTE.woodDark, x, wy / 2, side * 5));
+  return g;
+}
+/** A guard station on the wall: a timber tower over the palisade with a railed platform, a shingled roof, a brazier. */
+export function watchtower(d: Dims): THREE.Group {
+  const H = d.h ?? 30, w = d.w ?? 12, g = g_();
+  for (const [x, z] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) g.add(box(1.2, H, 1.2, PALETTE.woodDark, x * w / 2, H / 2, z * w / 2));
+  g.add(box(w + 2, 0.8, w + 2, PALETTE.wood, 0, H, 0));
+  for (const [x, z, ww, dd] of [[0, -w / 2 - 0.8, w + 2, 0.4], [0, w / 2 + 0.8, w + 2, 0.4], [-w / 2 - 0.8, 0, 0.4, w + 2], [w / 2 + 0.8, 0, 0.4, w + 2]] as const) g.add(box(ww, 3.5, dd, '#4a3828', x, H + 2.2, z));
+  for (const [x, z] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) g.add(box(0.6, 7, 0.6, PALETTE.woodDark, x * w / 2, H + 4, z * w / 2));
+  const roof = new THREE.Mesh(new THREE.ConeGeometry(w * 0.95, 6, 4), mat('#3d3a3e')); roof.rotation.y = Math.PI / 4; roof.position.y = H + 10.5; g.add(roof);
+  g.add(cyl(0.9, 0.6, 1.2, PALETTE.iron, 0, H + 1.4, 0, 8));
+  const fl = new THREE.Mesh(new THREE.ConeGeometry(0.7, 1.6, 6), new THREE.MeshBasicMaterial({ color: '#f2a03a' })); fl.position.y = H + 2.6; g.add(fl);
+  g.add(box(0.4, H * 0.9, 1.8, '#3b2d22', w / 2 + 0.6, H * 0.45, 0));   // the ladder side
+  return g;
+}
 /** A smith's anvil on its block. */
 export function anvil(): THREE.Group { return g_(cyl(0.9, 1.0, 1.6, PALETTE.woodDark, 0, 0.8, 0, 8), box(2.2, 0.5, 0.9, PALETTE.iron, 0, 1.85, 0), box(1.2, 0.45, 0.8, PALETTE.iron, 0.9, 2.25, 0), box(1.6, 0.4, 0.7, PALETTE.iron, -0.2, 2.25, 0)); }
 /** The pillory: two posts and a hinged board with holes for a head and two hands, on a little step. */
@@ -580,4 +609,4 @@ export function roofCone(d: Dims): THREE.Group {
 }
 /** A stone chimney stack rising `h` ft from `y`. */
 export function chimney(d: Dims): THREE.Group { const h = d.h ?? 8, y = d.y ?? 10; return g_(box(2.6, h, 2.6, '#6a6560', 0, y + h / 2, 0), box(3.2, 0.8, 3.2, '#4d4845', 0, y + h + 0.4, 0)); }
-Object.assign(PROPS_V1, { 'roof-gable': roofGable, 'roof-cone': roofCone, chimney, stump, anvil, pillory, vardo, campfire, 'big-tent': bigTent, mound, washline } as Record<string, (d: Dims) => THREE.Object3D>);
+Object.assign(PROPS_V1, { 'roof-gable': roofGable, 'roof-cone': roofCone, chimney, stump, anvil, pillory, palisade, watchtower, vardo, campfire, 'big-tent': bigTent, mound, washline } as Record<string, (d: Dims) => THREE.Object3D>);

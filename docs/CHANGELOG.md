@@ -378,3 +378,13 @@
 - Indoors legibility: one compact stair marker per stair (the destination shows on hover), room labels slimmer,
   and a declutter pass hides any label that would overlap a more important one. Roofs raised over walls go when the
   walls are cut down; hovering a roof describes the room beneath.
+- Ravenloft's gaze: a notch is cut through any ridge between a map and the castle, so it stands on the skyline from
+  every place in the valley, except the Tser Pool camp, sheltered in the gorge at the foot of the falls. Distant
+  landmarks are drawn nearer than surveyed (true distance to 3,000 ft, then under half the rest) with less haze,
+  and the moonlight on the castle is stronger.
+- The moon: a great disc low over the mountains in its true phase from the clock, with a halo, behind Ravenloft
+  wherever the castle is in view.
+- Argynvostholt is a ruined manor with its beacon tower on a ridge, not a dark column.
+- Vallaki's palisade: 22-ft timber trunks sharpened to points, binding rails, a fighting walk on the town side,
+  guard towers every 300 ft and a pair at each gate (`palisade`, `watchtower` props). A livery stable with its
+  paddock and horses north of the main road; worn paths to Blinsky Toys. The stray dot under the toolbar is gone.

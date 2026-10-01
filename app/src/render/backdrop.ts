@@ -54,11 +54,27 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
   const bbm = o.bounds ?? { minX: cx - R, maxX: cx + R, minZ: cz - R, maxZ: cz + R };
   const mapDist = (x: number, z: number) => Math.max(0, bbm.minX - x, x - bbm.maxX, bbm.minZ - z, z - bbm.maxZ);
   const smooth = (a: number, b: number, t: number) => { const k = Math.min(1, Math.max(0, (t - a) / (b - a))); return k * k * (3 - 2 * k); };
+  // Distant landmarks are drawn nearer than surveyed (a painter's foreshortening): true distance up to 3,000 ft, then
+  // under half of the rest, so the castle and the towns impose on the skyline at their true size.
+  const pull = (d: number) => (d <= 3000 ? 1 : (3000 + (d - 3000) * 0.42) / d);
+  const kPin = W.pins.find((q) => q.key === 'K' && q.type === 'castle' && Math.hypot(q.pos[0] - o.pin[0], q.pos[1] - o.pin[1]) > 0.3);
+  // a sheltered place (the Tser Pool camp, in the gorge at the foot of the falls) is spared the castle's gaze
+  const here = W.pins.find((q) => Math.hypot(q.pos[0] - o.pin[0], q.pos[1] - o.pin[1]) < 0.05) as { sheltered?: boolean } | undefined;
+  const sight = HF && kPin && !here?.sheltered ? (() => { const [dx0, dz0] = toPlan(kPin.pos), f = pull(Math.hypot(dx0, dz0)), dx = dx0 * f, dz = dz0 * f; return { x: cx + dx, z: cz + dz, top: yTop + (terrain.heightAt(kPin.pos[0], kPin.pos[1]) - hPin) * 1.25 + (kPin.heightFt ?? 0) * 0.55 + 120 }; })() : null;
   const yAt = (x: number, z: number): number => {
     if (!HF) return y0;
     const [mx, my] = toMiles(x, z);
     // relief beyond the map is drawn a quarter steeper than surveyed, as a mapmaker would, so the valley walls close in
-    const h = yTop + (terrain.heightAt(mx, my) - hPin) * 1.25, d = mapDist(x, z);
+    let h = yTop + (terrain.heightAt(mx, my) - hPin) * 1.25; const d = mapDist(x, z);
+    // Ravenloft watches every place in the valley: a notch is cut through whatever ridge stands between this map and the
+    // castle, deep enough that the line of sight from the map to the castle's brow clears it, widening with distance.
+    if (sight) {
+      const vx = sight.x - cx, vz = sight.z - cz, L2 = vx * vx + vz * vz, tt = ((x - cx) * vx + (z - cz) * vz) / L2;
+      if (tt > 0.02 && tt < 0.94) {
+        const lat = Math.abs((x - cx) * vz - (z - cz) * vx) / Math.sqrt(L2), wdt = 350 + tt * 2600;
+        if (lat < wdt * 1.6) { const los = yTop + 40 + (sight.top - yTop - 40) * tt - 60, k = smooth(wdt * 1.6, wdt * 0.7, lat); if (h > los) h = h + (los - h) * k; }
+      }
+    }
     if (crag > 0) { const cliff = yTop - crag * smooth(40, 320, d); return cliff + (h - (yTop - crag)) * smooth(320, 1400, d); }
     return yTop + (h - yTop) * smooth(120, 900, d);
   };
@@ -226,7 +242,9 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
 
   // 4. The other places on the world map, at true scale and distance: visual only, nothing to click.
   const site = (p: { key: string; name: string; type: string; pos: P; heightFt?: number }) => {
-    const t = toWorld(p.pos); if (t.d < 400 || t.d > 60000) return;
+    const t0 = toWorld(p.pos); if (t0.d < 400 || t0.d > 60000) return;
+    const f = pull(t0.d), t = { x: cx + (t0.x - cx) * f, z: cz + (t0.z - cz) * f, d: t0.d * f };
+    const dropY = HF ? Math.max(0, yAt(t0.x, t0.z) - yAt(t.x, t.z)) : 0; // the ground at the drawn spot may lie lower than at the true one
     const looming = p.key === 'K' && p.type === 'castle';
     // Ravenloft is drawn for dread, not for the surveyor: pulled in to a few hundred yards and made half again
     // as big, on a cliff that overhangs the water below as if about to let go.
@@ -235,7 +253,7 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
     const S = 1; // the looming castle is drawn larger; its cliff still stands on the valley floor
     // on a heightfield the land carries the crag's shoulder; the sheer rock above it (ROCK) is drawn here
     const ROCK = HF && lift > 0 ? lift * 0.55 : 0;
-    const s = new THREE.Group(); s.position.set(t.x, HF ? yAt(t.x, t.z) + ROCK : y0 + lift * S, t.z); s.name = `site-${p.key}`; s.rotation.y = -Math.atan2(E[1], E[0]);
+    const s = new THREE.Group(); s.position.set(t.x, HF ? Math.max(yAt(t.x, t.z), yAt(t0.x, t0.z)) + ROCK : y0 + lift * S, t.z); s.name = `site-${p.key}`; s.rotation.y = -Math.atan2(E[1], E[0]);
     if (looming && !HF) {
       const toward = Math.atan2(cz - t.z, cx - t.x); // the cliff leans out toward the viewer's side
       s.rotation.z = 0.06 * Math.cos(toward - s.rotation.y); s.rotation.x = -0.06 * Math.sin(toward - s.rotation.y);
@@ -252,7 +270,7 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
     } else if (lift > 0) { // its own crag: the Pillarstone, sheer where the land's own hump is too soft to carry a castle
       // The Pillarstone: not a drum but a cluster of tall faceted rock shards, the central one carrying the castle's
       // floor, the others leaning off it and falling away down the slope, every vertex roughened.
-      const pr = p.type === 'castle' ? 250 : 90, ph = HF ? ROCK : lift, embed = HF ? lift * 0.4 : 0;
+      const pr = p.type === 'castle' ? 250 : 90, ph = HF ? ROCK : lift, embed = HF ? lift * 0.4 + dropY : 0;
       let sd = 97; const r1 = () => ((sd = (sd * 16807) % 2147483647) / 2147483647);
       // a column of rock: near-vertical sides fluted into ribs (the same jitter all the way down a rib, so the face
       // reads as jointed stone, not lumps), a little irregular ledge every so often
@@ -288,7 +306,7 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
 
       if (!HF) { const foot = new THREE.Mesh(new THREE.ConeGeometry(pr * 2.4, lift * 0.35, 12), hazed('#3f3f47', t.d)); foot.position.y = -lift + lift * 0.175; s.add(foot); }
     }
-    const mat = (hex: string) => hazed(hex, t.d);
+    const mat = (hex: string) => hazed(hex, t.d * 0.6); // landmarks keep their shape through the haze
     const box = (w: number, h: number, d: number, x: number, z: number, y: number, hex: string, ry = 0) => { const b = new THREE.BoxGeometry(w, h, d); b.translate(0, h / 2, 0); const m = new THREE.Mesh(b, mat(hex)); m.position.set(x, y, z); m.rotation.y = ry; s.add(m); };
     const cone = (r: number, h: number, x: number, z: number, y: number, hex: string, seg = 6) => { const c = new THREE.ConeGeometry(r, h, seg); c.translate(0, h / 2, 0); const m = new THREE.Mesh(c, mat(hex)); m.position.set(x, y, z); s.add(m); };
     const cyl = (r: number, h: number, x: number, z: number, y: number, hex: string) => { const c = new THREE.CylinderGeometry(r * 0.9, r, h, 8); c.translate(0, h / 2, 0); const m = new THREE.Mesh(c, mat(hex)); m.position.set(x, y, z); s.add(m); };
@@ -309,10 +327,14 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
       const cr = new THREE.Group(); cr.position.set(t.x, 0, t.z); if (!HF) g.add(cr);
       cradle(cr, { x: 0, z: 0 }, (vil ? cx + vp[0] : cx) - t.x, (vil ? cz + vp[1] : cz) - t.z, Math.hypot((vil ? cx + vp[0] : cx) - t.x, (vil ? cz + vp[1] : cz) - t.z), y0 - lift, (hex, d) => hazed(hex, d), t.d);
     } else if (type === 'castle') {
-      cyl(150, 600, 0, 0, 0, '#34333a');
-      box(130, 60, 100, 0, 0, 600, '#1e1c24'); box(32, 150, 32, -48, -32, 600, '#1e1c24'); box(28, 125, 28, 48, -28, 600, '#1e1c24'); box(26, 105, 26, -44, 36, 600, '#1e1c24'); box(22, 190, 22, 12, 8, 600, '#1e1c24');
-      cone(24, 60, -48, -32, 750, '#1e1c24'); cone(21, 55, 48, -28, 725, '#1e1c24'); cone(18, 80, 12, 8, 790, '#1e1c24'); cone(20, 50, -44, 36, 705, '#1e1c24');
-    } else if (type === 'tower') {
+      // Argynvostholt: a ruined manor of grey stone on its ridge, roofs fallen in, one wing standing taller, and the
+      // slender beacon tower at its west end (dark until the beacon is relit).
+      box(120, 34, 60, 0, 0, 0, '#5d5c62'); box(60, 46, 50, 50, -10, 0, '#57565c'); box(40, 26, 40, -70, 18, 0, '#5d5c62');
+      for (const [x, z, w] of [[-20, 0, 50], [45, -10, 40]] as const) { const r2 = new THREE.ConeGeometry(w * 0.72, 18, 4); r2.rotateY(Math.PI / 4); r2.translate(0, 9, 0); const m2 = new THREE.Mesh(r2, mat('#3a3740')); m2.position.set(x, x < 0 ? 34 : 46, z); m2.scale.set(1.3, 1, 0.75); s.add(m2); }
+      for (let i = 0; i < 7; i++) box(5 + (i % 3) * 3, 6 + (i % 4) * 4, 3, -55 + i * 16, -32, 34 - (i % 3) * 4, '#4c4b51');   // broken parapet
+      cyl(9, 120, -95, 10, 0, '#64636a'); box(16, 10, 16, -95, 10, 120, '#4c4b51'); cone(11, 14, -95, 10, 130, '#3a3740', 8);  // the beacon tower
+      for (let i = 0; i < 3; i++) box(12 + i * 6, 5, 3, -20 + i * 30, 34, 0, '#4c4b51');
+        } else if (type === 'tower') {
       cyl(14, 60, 0, 0, 0, '#8a8075'); cone(17, 20, 0, 0, 60, '#4a4550', 8);
     } else if (type === 'temple') {
       box(30, 14, 45, 0, 0, 0, '#9a948a'); cone(24, 16, 0, 0, 14, '#4a4550', 4); box(9, 26, 9, 0, -18, 0, '#8f8980'); cone(8, 8, 0, -18, 26, '#4a4550', 4);
@@ -340,13 +362,21 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
   };
   for (const p of W.pins) { if (Math.hypot(p.pos[0] - o.pin[0], p.pos[1] - o.pin[1]) < 0.05) continue; site(p); }
   const rl = g.getObjectByName('site-K'); if (rl) rl.name = 'castle-ravenloft';
-  // 4b. A moon hangs behind Ravenloft and lights it from behind and above: the castle is seen by moonlight.
-  if (rl && loomB !== undefined) {
-    const mx = cx + Math.cos(loomB) * 40000, mz = cz + Math.sin(loomB) * 40000, my = y0 + 16000;
-    const moon = new THREE.Mesh(new THREE.SphereGeometry(900, 24, 16), new THREE.MeshBasicMaterial({ color: '#ece8d6', fog: false })); moon.position.set(mx, my, mz); g.add(moon);
-    const halo = new THREE.Mesh(new THREE.SphereGeometry(2600, 24, 16), new THREE.MeshBasicMaterial({ color: '#cfd3e6', transparent: true, opacity: 0.16, fog: false, depthWrite: false })); halo.position.copy(moon.position); g.add(halo);
-    const light = new THREE.DirectionalLight('#c3cbe6', 0.45); light.position.set(mx - rl.position.x, my - rl.position.y, mz - rl.position.z).normalize().multiplyScalar(5000).add(rl.position); light.target = rl; g.add(light, rl);
+  // 4b. The moon: a great disc low over the mountains in its true phase (set from the clock), behind Ravenloft where the
+  //     castle is in view, lighting it from behind and above.
+  {
+    const mb = loomB ?? -Math.PI * 0.35, MD = 42000;
+    const mx = cx + Math.cos(mb) * MD, mz = cz + Math.sin(mb) * MD, my = y0 + 9000;
+    const tex = moonTexture(0.5), mm = new THREE.SpriteMaterial({ map: tex, fog: false, transparent: true, depthWrite: false });
+    const moon = new THREE.Sprite(mm); moon.scale.set(9500, 9500, 1); moon.position.set(mx, my, mz); moon.name = 'moon'; moon.renderOrder = -1; g.add(moon);
+    const halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: haloTexture(), color: '#cfd6ea', fog: false, transparent: true, opacity: 0.55, depthWrite: false })); halo.scale.set(26000, 26000, 1); halo.position.copy(moon.position); halo.renderOrder = -2; g.add(halo);
+    g.userData.setMoon = (phase: number, night: boolean) => {
+      drawMoon(tex.image as HTMLCanvasElement, phase); tex.needsUpdate = true;
+      const lit = 1 - Math.abs(phase - 0.5) * 2; (halo.material as THREE.SpriteMaterial).opacity = (night ? 0.55 : 0.2) * (0.25 + lit * 0.75); mm.opacity = night ? 1 : 0.55;
+    };
+    if (rl) { const light = new THREE.DirectionalLight('#c3cbe6', 0.85); light.position.set(mx - rl.position.x, my - rl.position.y, mz - rl.position.z).normalize().multiplyScalar(5000).add(rl.position); light.target = rl; g.add(light, rl); }
   }
+
 
   // 5. Roads and rivers from the world map at true scale, as flat ribbons on the land. They run under the
   //    map itself (its floors sit above the apron), so only the stretches outside the map show.
@@ -376,6 +406,28 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
 /** Hundreds of ridges, peaks and distant buildings each carry a material of their own; nothing out there ever moves
  *  or is picked, so every opaque solid-coloured mesh folds into one mesh per material look. Instanced forest, the
  *  vertex-coloured apron and ribbons, and the translucent mists keep their own draw. */
+/** The moon's face in a phase (0 new, 0.5 full): the lit part bright and mottled with maria, the dark part a faint earthshine. */
+function drawMoon(c: HTMLCanvasElement, phase: number): void {
+  const x = c.getContext('2d')!, S = c.width, r = S * 0.46, o = S / 2;
+  x.clearRect(0, 0, S, S);
+  x.fillStyle = 'rgba(70,74,92,0.55)'; x.beginPath(); x.arc(o, o, r, 0, Math.PI * 2); x.fill();          // earthshine
+  // the lit part: a half disc on the lit side plus an ellipse that adds (gibbous) or cuts (crescent)
+  const waxing = phase < 0.5, k = Math.cos(phase * Math.PI * 2), side = waxing ? 1 : -1;
+  const lit = document.createElement('canvas'); lit.width = lit.height = S; const l = lit.getContext('2d')!;
+  l.fillStyle = '#efeadb'; l.beginPath(); l.arc(o, o, r, -Math.PI / 2, Math.PI / 2, side < 0); l.closePath(); l.fill();
+  l.globalCompositeOperation = k > 0 ? 'destination-out' : 'source-over';
+  l.beginPath(); l.ellipse(o, o, Math.abs(k) * r, r, 0, 0, Math.PI * 2); l.fill();
+  l.globalCompositeOperation = 'source-atop';                                                          // maria on the lit face
+  l.fillStyle = 'rgba(150,150,140,0.45)';
+  for (const [a, b, rr] of [[-0.25, -0.2, 0.22], [0.15, -0.3, 0.16], [0.05, 0.1, 0.26], [-0.3, 0.25, 0.14], [0.3, 0.3, 0.12]]) { l.beginPath(); l.arc(o + a * r, o + b * r, rr * r, 0, Math.PI * 2); l.fill(); }
+  x.drawImage(lit, 0, 0);
+}
+function moonTexture(phase: number): THREE.CanvasTexture { const c = document.createElement('canvas'); c.width = c.height = 256; drawMoon(c, phase); return new THREE.CanvasTexture(c); }
+function haloTexture(): THREE.CanvasTexture {
+  const c = document.createElement('canvas'); c.width = c.height = 128; const x = c.getContext('2d')!;
+  const g = x.createRadialGradient(64, 64, 10, 64, 64, 64); g.addColorStop(0, 'rgba(255,255,255,0.9)'); g.addColorStop(0.35, 'rgba(255,255,255,0.25)'); g.addColorStop(1, 'rgba(255,255,255,0)');
+  x.fillStyle = g; x.fillRect(0, 0, 128, 128); return new THREE.CanvasTexture(c);
+}
 let MIST_TEX: THREE.CanvasTexture | null = null;
 /** A soft ring of mist: clear at the centre (the rock stands there), densest a third of the way out, fading to nothing at the rim. */
 function mistTexture(): THREE.CanvasTexture {
