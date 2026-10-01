@@ -90,6 +90,13 @@ export class App {
     }
     this.applySlider(); this.broadcast();
   }
+  /** Each floor's default section height on a stacked site: the slicer's detents. */
+  get floorCuts(): { level: string; name: string; ft: number }[] {
+    if (!this.cur?.scene.stacked) return [];
+    const stack = this.stackOf(this.levelId);
+    if (this.cur.scene.stacked === 'open') return this.cur.scene.levels.filter((l) => stack.has(l.id)).map((l) => ({ level: l.id, name: l.name, ft: l.elevationFt + (l.ceilingFt ?? 10) + 2 }));
+    return this.cur.scene.levels.filter((l) => stack.has(l.id)).map((l) => ({ level: l.id, name: l.name, ft: l.elevationFt + (this.lowWalls ? WALL_CUT_FT : (l.ceilingFt ?? 10) - 0.5) }));
+  }
   /** The span of floors on a stacked site, for the slicer. */
   get sectionRange(): { min: number; max: number } | undefined {
     if (!this.cur?.scene.stacked) return undefined;

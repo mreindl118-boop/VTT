@@ -108,3 +108,14 @@ test('world map: places carry tooltips, the DM reveals them, and a tap on a plac
   expect(await page.locator('.wm-pin[data-key="G"]').getAttribute('visibility')).toBe('visible');
   expect(await page.locator('.world-key [data-reveal]').count()).toBe(0);
 });
+
+test('section slider: dragging near a floor\'s detent picks that floor with its default cut', async ({ page }) => {
+  await boot(page, '', SCENES[1]);
+  const detents = await page.evaluate(() => (window as any).__mistlab.app.floorCuts);
+  expect(detents.map((d: { level: string }) => d.level)).toEqual(['f1', 'f2', 'f3', 'attic']);
+  const attic = detents.find((d: { level: string }) => d.level === 'attic');
+  await page.locator('.section input').fill(String(attic.ft + 1));
+  expect(await page.evaluate(() => [(window as any).__mistlab.app.levelId, (window as any).__mistlab.app.cutFt ?? null])).toEqual(['attic', null]);
+  await page.locator('.section input').fill(String(attic.ft + 6));
+  expect(await page.evaluate(() => [(window as any).__mistlab.app.levelId, (window as any).__mistlab.app.cutFt])).toEqual(['attic', attic.ft + 6]);
+});

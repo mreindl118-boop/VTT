@@ -64,7 +64,7 @@ function buildDmUi(): void {
         <button role="tab" data-view="dm">DM</button><button role="tab" data-view="players">Players</button>
       </div>
     </div>
-    <div class="group center"><div class="seg levels" role="tablist"></div><label class="section" hidden title="Section: slide to cut the building at any height"><span class="sec-label">Section</span><input type="range" min="0" max="100" step="0.5" aria-label="Section height"><span class="sec-ft"></span><button class="icon" data-act="sec-follow" aria-label="Follow the floor">${ICON.walls}</button></label></div>
+    <div class="group center"><div class="seg levels" role="tablist"></div><label class="section" hidden title="Section: slide to cut the building at any height"><span class="sec-label">Section</span><input type="range" min="0" max="100" step="0.5" list="sec-detents" aria-label="Section height"><datalist id="sec-detents"></datalist><span class="sec-ft"></span><button class="icon" data-act="sec-follow" aria-label="Follow the floor">${ICON.walls}</button></label></div>
     <div class="group right dm-only">
       <div class="seg tools" role="toolbar" aria-label="Reveal tools">
         <button class="icon" data-tool="reveal" aria-label="Reveal / hide (tap a room, object or secret door)">${ICON.reveal}</button>
@@ -147,12 +147,23 @@ function buildDmUi(): void {
   let statusTimer = 0;
 
   const section = top.querySelector<HTMLElement>('.section')!, secIn = section.querySelector<HTMLInputElement>('input')!, secFt = section.querySelector<HTMLElement>('.sec-ft')!;
-  secIn.addEventListener('input', () => { app.setCut(Number(secIn.value)); refresh(); });
+  const secList = section.querySelector<HTMLDataListElement>('datalist')!;
+  // The slider snaps to each floor's default view: land near a detent and that floor is picked with its own cut.
+  secIn.addEventListener('input', () => {
+    const v = Number(secIn.value), near = app.floorCuts.find((d) => Math.abs(d.ft - v) <= 1.5);
+    if (near) { if (app.levelId !== near.level) app.setLevel(near.level); app.setCut(undefined); }
+    else app.setCut(v);
+    refresh();
+  });
   const refresh = () => {
     bar.update();
     const range = app.sectionRange;
     section.hidden = !range;
-    if (range) { secIn.min = String(range.min); secIn.max = String(range.max); const v = app.cutFt ?? app.followCutFt; secIn.value = String(v); secFt.textContent = `${Math.round(v)} ft`; section.classList.toggle('free', app.cutFt !== undefined); }
+    if (range) {
+      secIn.min = String(range.min); secIn.max = String(range.max); const v = app.cutFt ?? app.followCutFt; secIn.value = String(v); secFt.textContent = `${Math.round(v)} ft`; section.classList.toggle('free', app.cutFt !== undefined);
+      const detents = app.floorCuts.map((d) => `<option value="${d.ft}" label="${d.name}"></option>`).join('');
+      if (secList.innerHTML !== detents) secList.innerHTML = detents;
+    }
     if (!app.cur) return;
     document.body.dataset.view = app.view;
     top.querySelector('.loc')!.textContent = app.cur.scene.name;
