@@ -21,7 +21,7 @@ PINS = [  # key, name, px, type, scenes (built scene paths reachable from here)
   ('I', 'Black Carriage', (745, 424), 'landmark', []),
   ('B2', 'Gates of Barovia (west)', (745, 380), 'gate', []),
   ('J', 'Gates of Ravenloft', (853, 453), 'gate', []),
-  ('K', 'Castle Ravenloft', (915, 470), 'castle', []),
+  ('K', 'Castle Ravenloft', (915, 470), 'castle', ['ch04/K']),
   ('L', 'Lake Zarovich', (470, 210), 'lake', []),
   ('M', 'Mount Baratok', (663, 106), 'peak', []),
   ('N', 'Town of Vallaki', (447, 307), 'settlement', []),

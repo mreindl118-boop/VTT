@@ -147,6 +147,9 @@
     6.68
    ],
    "type": "castle",
+   "scenes": [
+    "ch04/K"
+   ],
    "blurb": "The castle of the lord of Barovia, perched on a pillar of rock a thousand feet above the valley.",
    "dm": "Strahd's seat. Playable once the castle levels are built."
   },
