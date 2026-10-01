@@ -511,9 +511,53 @@ export function roofGable(d: Dims): THREE.Group {
   const w = d.w ?? 30, dd = d.d ?? 30, h = d.h ?? 12, y = d.y ?? 10, long = w >= dd, L = (long ? w : dd) + 2, S = (long ? dd : w) + 2.4;
   const shape = new THREE.Shape([new THREE.Vector2(-S / 2, 0), new THREE.Vector2(S / 2, 0), new THREE.Vector2(0, h)]);
   const prism = new THREE.ExtrudeGeometry(shape, { depth: L, bevelEnabled: false }); prism.translate(0, 0, -L / 2);
-  const roof = new THREE.Mesh(prism, mat('#3d3a3e')); roof.position.y = y; if (long) roof.rotation.y = Math.PI / 2;
+  const roof = new THREE.Mesh(prism, mat(d.turf ? '#4d5a3f' : '#3d3a3e')); roof.position.y = y; if (long) roof.rotation.y = Math.PI / 2;
   const g = g_(roof);
   for (let i = 0; i < 6; i++) { const t = box(long ? L : 0.5, 0.25, long ? 0.5 : L, '#2b292d', long ? 0 : (-S / 2 + (i + 0.5) * (S / 6)), y + (i + 0.5) * (h / 6) + 0.2, long ? (-S / 2 + (i + 0.5) * (S / 6)) : 0); g.add(t); }
+  return g;
+}
+/** A Vistani vardo: a painted, barrel-topped caravan on spoked wheels, steps at the back and a stove pipe. */
+export function vardo(d: Dims): THREE.Group {
+  const COLS = [['#8e2b2b', '#d9a63a'], ['#245a3e', '#d9a63a'], ['#2c3f7a', '#c9483a'], ['#6b2b5a', '#e0c060']];
+  const [body, trim] = COLS[(d.v ?? 0) % COLS.length];
+  const g = g_(box(10, 4.2, 5.4, body, 0, 4.4, 0), box(10.4, 0.4, 5.8, trim, 0, 2.4, 0), box(10.4, 0.35, 5.8, trim, 0, 6.6, 0));
+  const top = new THREE.Mesh(new THREE.CylinderGeometry(3.1, 3.1, 10.6, 12, 1, false, 0, Math.PI), mat(body)); top.rotation.z = Math.PI / 2; top.position.y = 6.5; g.add(top);
+  for (const [x, r] of [[-3.4, 1.6], [3.4, 2.2]] as const) for (const z of [-3, 3]) { const w = cyl(r, r, 0.4, trim, x, r, z, 12); w.rotation.x = Math.PI / 2; g.add(w); }
+  g.add(box(1.6, 0.3, 2.4, PALETTE.woodDark, 5.8, 1.6, 0), box(1.2, 0.3, 2.4, PALETTE.woodDark, 6.6, 0.9, 0), cyl(0.25, 0.25, 2.4, '#2b2420', -3, 9.2, 1.2, 6));
+  g.add(box(0.2, 1.8, 1.4, '#ffd36b', 0, 4.8, 2.75), box(0.2, 1.8, 1.4, '#ffd36b', 2.6, 4.8, 2.75)); // lit windows
+  return g;
+}
+/** A campfire: a ring of stones, crossed logs, the flames, and a pot hung from a tripod. */
+export function campfire(): THREE.Group {
+  const g = g_();
+  for (let i = 0; i < 9; i++) { const a = (i / 9) * Math.PI * 2; g.add(box(0.8, 0.6, 0.8, '#6d6a66', Math.cos(a) * 2.2, 0.3, Math.sin(a) * 2.2)); }
+  g.add(boxr(3, 0.5, 0.5, PALETTE.woodDark, 0, 0.4, 0, 0.6), boxr(3, 0.5, 0.5, PALETTE.woodDark, 0, 0.5, 0, -0.6));
+  const fl = new THREE.Mesh(new THREE.ConeGeometry(1, 2.4, 6), new THREE.MeshBasicMaterial({ color: '#f2a03a' })); fl.position.y = 1.6; g.add(fl);
+  for (const a of [0, 2.1, 4.2]) { const leg = cyl(0.1, 0.1, 6, PALETTE.woodDark, Math.cos(a) * 1.6, 2.8, Math.sin(a) * 1.6, 5); leg.rotation.set(Math.sin(a) * 0.3, 0, -Math.cos(a) * 0.3); g.add(leg); }
+  g.add(cyl(0.7, 0.6, 1, '#2b2420', 0, 3.4, 0, 8));
+  return g;
+}
+/** The great tent: a tall round tent of striped canvas on its pole, smoke-hole at the peak. */
+export function bigTent(d: Dims): THREE.Group {
+  const r = d.r ?? 20, h = d.h ?? 18, g = g_();
+  const wall = new THREE.Mesh(new THREE.CylinderGeometry(r, r, h * 0.35, 16, 1, true), mat('#c9bfa6')); wall.position.y = h * 0.175; g.add(wall);
+  for (let i = 0; i < 16; i++) { const a0 = (i / 16) * Math.PI * 2; const seg = new THREE.Mesh(new THREE.ConeGeometry(r * 1.04, h * 0.7, 16, 1, true, a0, Math.PI / 8), mat(i % 2 ? '#a83a30' : '#d9a63a')); seg.position.y = h * 0.35 + h * 0.35; g.add(seg); }
+  g.add(cyl(0.4, 0.4, h + 3, PALETTE.woodDark, 0, (h + 3) / 2, 0, 6));
+  return g;
+}
+/** A hill: a low grassy mound with a flat top (the camp's hill, the dusk elves' rise). */
+export function mound(d: Dims): THREE.Group {
+  const r = d.r ?? 60, h = d.h ?? 12;
+  const geo = new THREE.CylinderGeometry(r * 0.72, r, h, 18, 2); geo.translate(0, h / 2 - 0.2, 0);
+  const pv = geo.attributes.position; for (let i = 0; i < pv.count; i++) { const k = 1 + (((i * 7919) % 11) / 11 - 0.5) * 0.12; pv.setX(i, pv.getX(i) * k); pv.setZ(i, pv.getZ(i) * k); }
+  geo.computeVertexNormals();
+  return g_(new THREE.Mesh(geo, mat('#4d5a3f')));
+}
+/** A line of washing between two poles. */
+export function washline(d: Dims): THREE.Group {
+  const w = d.w ?? 14, g = g_(cyl(0.15, 0.15, 7, PALETTE.woodDark, -w / 2, 3.5, 0, 5), cyl(0.15, 0.15, 7, PALETTE.woodDark, w / 2, 3.5, 0, 5), box(w, 0.08, 0.08, '#2b2420', 0, 6.6, 0));
+  const C = ['#a83a30', '#d9d2c2', '#2c3f7a', '#d9a63a', '#245a3e'];
+  for (let i = 0; i < Math.floor(w / 2.4); i++) g.add(box(1.6, 2 + (i % 3) * 0.4, 0.1, C[i % C.length], -w / 2 + 1.4 + i * 2.4, 5.4 - (i % 3) * 0.2, 0));
   return g;
 }
 /** A smith's anvil on its block. */
@@ -536,4 +580,4 @@ export function roofCone(d: Dims): THREE.Group {
 }
 /** A stone chimney stack rising `h` ft from `y`. */
 export function chimney(d: Dims): THREE.Group { const h = d.h ?? 8, y = d.y ?? 10; return g_(box(2.6, h, 2.6, '#6a6560', 0, y + h / 2, 0), box(3.2, 0.8, 3.2, '#4d4845', 0, y + h + 0.4, 0)); }
-Object.assign(PROPS_V1, { 'roof-gable': roofGable, 'roof-cone': roofCone, chimney, stump, anvil, pillory } as Record<string, (d: Dims) => THREE.Object3D>);
+Object.assign(PROPS_V1, { 'roof-gable': roofGable, 'roof-cone': roofCone, chimney, stump, anvil, pillory, vardo, campfire, 'big-tent': bigTent, mound, washline } as Record<string, (d: Dims) => THREE.Object3D>);

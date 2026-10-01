@@ -124,6 +124,8 @@ def settle(level, *, keyed=None, ground_margin=60, report=None):
         if (not ok or any(overlap(r, p[1], slack=0.5) for p in placed)) and not o.get('key'): rep['dropped-overlap'] += 1; continue
         placed.append((o, r))
     houses = [p[0] for p in placed]
+    # 3b. a last sweep: anything still touching a street after the nudging goes (keyed buildings stay)
+    before = len(houses); houses = [o for o in houses if o.get('key') or not any(overlap(rect(o), st, slack=0.5) for st in streets)]; rep['dropped-street'] += before - len(houses)
     # 4. every keyed site has its building: a house on the box, turned with the nearest street, the box its footprint
     rep['added'] = 0
     for rm in rooms:

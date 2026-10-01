@@ -24224,27 +24224,6 @@
     {
      "polygon": [
       [
-       2793.5,
-       2273.5
-      ],
-      [
-       2831.5,
-       2273.5
-      ],
-      [
-       2831.5,
-       2301.5
-      ],
-      [
-       2793.5,
-       2301.5
-      ]
-     ],
-     "floor": "dirt"
-    },
-    {
-     "polygon": [
-      [
        2871.0,
        2263.5
       ],
@@ -35417,27 +35396,6 @@
     {
      "polygon": [
       [
-       3024.0,
-       2378.5
-      ],
-      [
-       3024.0,
-       2416.5
-      ],
-      [
-       3001.0,
-       2416.5
-      ],
-      [
-       3001.0,
-       2378.5
-      ]
-     ],
-     "floor": "dirt"
-    },
-    {
-     "polygon": [
-      [
        3064.0,
        2411.0
       ],
@@ -38452,23 +38410,23 @@
      "page": 119,
      "polygon": [
       [
-       448.0,
-       3799.9
+       308.0,
+       3659.9
       ],
       [
-       508.0,
-       3799.9
+       648.0,
+       3659.9
       ],
       [
-       508.0,
-       3859.9
+       648.0,
+       3999.9
       ],
       [
-       448.0,
-       3859.9
+       308.0,
+       3999.9
       ]
      ],
-     "floor": "dirt",
+     "floor": "grass",
      "enter": "ch05/N9",
      "desc": "A Vistani camp in a hollow outside the west wall: wagons, horses, fires.",
      "dm": "Luvash and Arrigal; Arabelle missing; Kasimir's hovel among the dusk elves."
@@ -52449,40 +52407,323 @@
      }
     },
     {
-     "id": "vallaki-wagon-0",
-     "kind": "wagon",
-     "pos": [
-      465.0,
-      0,
-      3820.0
-     ],
-     "vis": "player",
-     "key": "N9",
-     "rotY": 0
-    },
-    {
-     "id": "vallaki-wagon-1",
-     "kind": "wagon",
-     "pos": [
-      492.5,
-      0,
-      3820.0
-     ],
-     "vis": "player",
-     "key": "N9",
-     "rotY": 45
-    },
-    {
-     "id": "vallaki-wagon-2",
-     "kind": "wagon",
+     "id": "vallaki-n9-hill",
+     "kind": "mound",
      "pos": [
       477.5,
       0,
-      3842.5
+      3830.0
      ],
      "vis": "player",
      "key": "N9",
-     "rotY": 90
+     "dims": {
+      "r": 130,
+      "h": 16
+     }
+    },
+    {
+     "id": "vallaki-n9-tent",
+     "kind": "big-tent",
+     "pos": [
+      477.5,
+      16,
+      3830.0
+     ],
+     "vis": "player",
+     "key": "N9",
+     "dims": {
+      "r": 40,
+      "h": 30
+     }
+    },
+    {
+     "id": "vallaki-wagon-0",
+     "kind": "vardo",
+     "pos": [
+      625.0,
+      0,
+      3860.0
+     ],
+     "vis": "player",
+     "key": "N9",
+     "rotY": 0,
+     "dims": {
+      "v": 0
+     }
+    },
+    {
+     "id": "vallaki-wagon-1",
+     "kind": "vardo",
+     "pos": [
+      580.0,
+      0,
+      3940.0
+     ],
+     "vis": "player",
+     "key": "N9",
+     "rotY": -45,
+     "dims": {
+      "v": 1
+     }
+    },
+    {
+     "id": "vallaki-wagon-2",
+     "kind": "vardo",
+     "pos": [
+      495.0,
+      0,
+      3980.0
+     ],
+     "vis": "player",
+     "key": "N9",
+     "rotY": -90,
+     "dims": {
+      "v": 2
+     }
+    },
+    {
+     "id": "vallaki-wagon-3",
+     "kind": "vardo",
+     "pos": [
+      405.0,
+      0,
+      3960.0
+     ],
+     "vis": "player",
+     "key": "N9",
+     "rotY": -135,
+     "dims": {
+      "v": 3
+     }
+    },
+    {
+     "id": "vallaki-wagon-4",
+     "kind": "vardo",
+     "pos": [
+      342.5,
+      0,
+      3892.5
+     ],
+     "vis": "player",
+     "key": "N9",
+     "rotY": -135,
+     "dims": {
+      "v": 4
+     }
+    },
+    {
+     "id": "vallaki-wagon-5",
+     "kind": "vardo",
+     "pos": [
+      330.0,
+      0,
+      3800.0
+     ],
+     "vis": "player",
+     "key": "N9",
+     "rotY": -180,
+     "dims": {
+      "v": 5
+     }
+    },
+    {
+     "id": "vallaki-wagon-6",
+     "kind": "vardo",
+     "pos": [
+      377.5,
+      0,
+      3720.0
+     ],
+     "vis": "player",
+     "key": "N9",
+     "rotY": -225,
+     "dims": {
+      "v": 6
+     }
+    },
+    {
+     "id": "vallaki-wagon-7",
+     "kind": "vardo",
+     "pos": [
+      460.0,
+      0,
+      3680.0
+     ],
+     "vis": "player",
+     "key": "N9",
+     "rotY": -270,
+     "dims": {
+      "v": 7
+     }
+    },
+    {
+     "id": "vallaki-wagon-8",
+     "kind": "vardo",
+     "pos": [
+      552.5,
+      0,
+      3700.0
+     ],
+     "vis": "player",
+     "key": "N9",
+     "rotY": -315,
+     "dims": {
+      "v": 8
+     }
+    },
+    {
+     "id": "vallaki-wagon-9",
+     "kind": "vardo",
+     "pos": [
+      615.0,
+      0,
+      3767.5
+     ],
+     "vis": "player",
+     "key": "N9",
+     "rotY": -315,
+     "dims": {
+      "v": 9
+     }
+    },
+    {
+     "id": "vallaki-n9-fire0",
+     "kind": "campfire",
+     "pos": [
+      570.0,
+      0,
+      3892.5
+     ],
+     "vis": "player",
+     "key": "N9"
+    },
+    {
+     "id": "vallaki-n9-fire1",
+     "kind": "campfire",
+     "pos": [
+      415.0,
+      0,
+      3922.5
+     ],
+     "vis": "player",
+     "key": "N9"
+    },
+    {
+     "id": "vallaki-n9-fire2",
+     "kind": "campfire",
+     "pos": [
+      385.0,
+      0,
+      3767.5
+     ],
+     "vis": "player",
+     "key": "N9"
+    },
+    {
+     "id": "vallaki-n9-fire3",
+     "kind": "campfire",
+     "pos": [
+      540.0,
+      0,
+      3737.5
+     ],
+     "vis": "player",
+     "key": "N9"
+    },
+    {
+     "id": "vallaki-n9-hovel0",
+     "kind": "roof-gable",
+     "pos": [
+      577.5,
+      0,
+      3985.0
+     ],
+     "vis": "player",
+     "key": "N9",
+     "rotY": -45,
+     "dims": {
+      "w": 20,
+      "d": 26,
+      "h": 8,
+      "y": 0.5,
+      "turf": 1
+     }
+    },
+    {
+     "id": "vallaki-n9-hovel1",
+     "kind": "roof-gable",
+     "pos": [
+      360.0,
+      0,
+      3972.5
+     ],
+     "vis": "player",
+     "key": "N9",
+     "rotY": -135,
+     "dims": {
+      "w": 20,
+      "d": 26,
+      "h": 8,
+      "y": 0.5,
+      "turf": 1
+     }
+    },
+    {
+     "id": "vallaki-n9-hovel2",
+     "kind": "roof-gable",
+     "pos": [
+      305.0,
+      0,
+      3762.5
+     ],
+     "vis": "player",
+     "key": "N9",
+     "rotY": -180,
+     "dims": {
+      "w": 20,
+      "d": 26,
+      "h": 8,
+      "y": 0.5,
+      "turf": 1
+     }
+    },
+    {
+     "id": "vallaki-n9-hovel3",
+     "kind": "roof-gable",
+     "pos": [
+      487.5,
+      0,
+      3645.0
+     ],
+     "vis": "player",
+     "key": "N9",
+     "rotY": -270,
+     "dims": {
+      "w": 20,
+      "d": 26,
+      "h": 8,
+      "y": 0.5,
+      "turf": 1
+     }
+    },
+    {
+     "id": "vallaki-n9-hovel4",
+     "kind": "roof-gable",
+     "pos": [
+      657.5,
+      0,
+      3782.5
+     ],
+     "vis": "player",
+     "key": "N9",
+     "rotY": -360,
+     "dims": {
+      "w": 20,
+      "d": 26,
+      "h": 8,
+      "y": 0.5,
+      "turf": 1
+     }
     },
     {
      "id": "vallaki-pen-0",
@@ -59011,23 +59252,6 @@
       "w": 30,
       "d": 20,
       "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "vallaki-s227",
-     "kind": "house",
-     "pos": [
-      2812.5,
-      0,
-      2287.5
-     ],
-     "vis": "player",
-     "rotY": 0,
-     "dims": {
-      "w": 30,
-      "d": 20,
-      "h": 13,
       "stories": 1
      }
     },
@@ -68072,23 +68296,6 @@
       "w": 30,
       "d": 15,
       "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "vallaki-s858",
-     "kind": "house",
-     "pos": [
-      3012.5,
-      0,
-      2397.5
-     ],
-     "vis": "player",
-     "rotY": -90,
-     "dims": {
-      "w": 30,
-      "d": 15,
-      "h": 13,
       "stories": 1
      }
     },

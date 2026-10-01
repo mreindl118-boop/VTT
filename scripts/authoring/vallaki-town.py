@@ -127,8 +127,16 @@ for _ in range(9000):
     if pines >= 1500: break
 # the church, the stockyard's pens, the camp's wagons
 objects.append(OrderedDict(id='vallaki-church', kind='church-building', pos=[marks['N1'][0], 0, marks['N1'][1]], vis='player', key='N1', label=NAMES['N1'], rotY=90))
-for j, (dx, dz) in enumerate([(-14, -10), (14, -10), (0, 12)]):
-    objects.append(OrderedDict(id=f'vallaki-wagon-{j}', kind='wagon', pos=[marks['N9'][0] + dx, 0, marks['N9'][1] + dz], vis='player', key='N9', rotY=j * 50))
+# the Vistani camp: the hill with the great tent on top, a ring of painted vardos round its foot, fires, the hovels
+N9x, N9z = marks['N9']
+objects.append(OrderedDict(id='vallaki-n9-hill', kind='mound', pos=[N9x, 0, N9z], vis='player', key='N9', dims=OrderedDict(r=130, h=16)))
+objects.append(OrderedDict(id='vallaki-n9-tent', kind='big-tent', pos=[N9x, 16, N9z], vis='player', key='N9', dims=OrderedDict(r=40, h=30)))
+for j in range(10):
+    a = j / 10 * 2 * math.pi + 0.2; objects.append(OrderedDict(id=f'vallaki-wagon-{j}', kind='vardo', pos=[round(N9x + math.cos(a) * 150, 1), 0, round(N9z + math.sin(a) * 150, 1)], vis='player', key='N9', rotY=round(-math.degrees(a)), dims=OrderedDict(v=j)))
+for j in range(4):
+    a = j / 4 * 2 * math.pi + 0.6; objects.append(OrderedDict(id=f'vallaki-n9-fire{j}', kind='campfire', pos=[round(N9x + math.cos(a) * 112, 1), 0, round(N9z + math.sin(a) * 112, 1)], vis='player', key='N9'))
+for j in range(5):
+    a = j / 5 * 2 * math.pi + 1.0; objects.append(OrderedDict(id=f'vallaki-n9-hovel{j}', kind='roof-gable', pos=[round(N9x + math.cos(a) * 185, 1), 0, round(N9z + math.sin(a) * 185, 1)], vis='player', key='N9', rotY=round(-math.degrees(a)), dims=OrderedDict(w=20, d=26, h=8, y=0.5, turf=1)))
 for j, (dx, dz) in enumerate([(-12, 0), (12, 0)]):
     objects.append(OrderedDict(id=f'vallaki-pen-{j}', kind='fence', pos=[marks['N5'][0] + dx, 0, marks['N5'][1] + 14], vis='player', key='N5', dims=OrderedDict(len=20)))
 objects.append(OrderedDict(id='vallaki-well', kind='well', pos=[marks['N8'][0] - 5, 0, marks['N8'][1] + 10], vis='player', key='N8'))
@@ -161,8 +169,10 @@ for i in range(len(wall)):
 rooms = []
 for k in ['N1', 'N2', 'N4', 'N7', 'N8', 'N3', 'N6', 'N5', 'N9', 'N8a', 'N8b', 'N8c', 'N8d']:
     x, z = marks[k]; s = 30 if k in ('N7', 'N6', 'N8b', 'N8c') else 40 if k not in ('N8', 'N9', 'N5') else 60
+    if k == 'N9': s = 340  # the whole camp, the hill and its ring of wagons (grass: the box is a key, not paving)
     r = OrderedDict(key=k, name=NAMES[k], page=PAGE.get(k), polygon=[[round(x - s / 2, 1), round(z - s / 2, 1)], [round(x + s / 2, 1), round(z - s / 2, 1)], [round(x + s / 2, 1), round(z + s / 2, 1)], [round(x - s / 2, 1), round(z + s / 2, 1)]], floor='cobble' if k != 'N9' else 'dirt')
     if k == 'N8': r['polygon'] = [[round(x - 75, 1), round(z - 55, 1)], [round(x + 75, 1), round(z - 55, 1)], [round(x + 75, 1), round(z + 55, 1)], [round(x - 75, 1), round(z + 55, 1)]]
+    if k == 'N9': r['floor'] = 'grass'
     if k in ENTER: r['enter'] = ENTER[k]
     rooms.append(r)
 DESC = {
@@ -242,6 +252,8 @@ for a, b in trails:
     mx, mz = (a[0] + b[0]) / 2, (a[1] + b[1]) / 2; dx, dz = b[0] - a[0], b[1] - a[1]; L = math.hypot(dx, dz) or 1; nx, nz = -dz / L, dx / L
     bend = (drng.random() - 0.5) * L * 0.18
     for poly in strip([a, (mx + nx * bend, mz + nz * bend), b], 3): terrain.append(OrderedDict(polygon=poly, floor='dirt'))
+_paths = [tp['polygon'] for tp in terrain[-len(trails) * 3:]] if trails else []
+objects = [o for o in objects if not (o['kind'] == 'house' and not o.get('key') and any(_overlap(_hrect(o), pp, slack=0.5) for pp in _paths))]
 print('desire paths:', len(trails))
 # Trodden soil: the ground under every house and round it is bare earth, not grass, and the keyed yards too.
 from settle import rect as _frect

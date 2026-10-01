@@ -498,12 +498,23 @@ WNAME = {'N9e': "Luvash's Wagon", 'N9f': 'Wagon of Sleeping Vistani', 'N9g': 'Wa
 for k, (x, z, r) in WAG.items():
     key = k.rstrip('2')
     if key != 'N9d': v.room(k if k == key else f'{key}-{"b" if k.endswith("2") else "a"}', WNAME[key], [(x - 2, z - 1.5), (x + 2, z - 1.5), (x + 2, z + 1.5), (x - 2, z + 1.5)], 'plank', page=pg(key), ceilingFt=8)
-    v.prop(f'{k}-wagon', 'wagon', (x, z), key, rotY=r)
+    v.prop(f'{k}-wagon', 'vardo', (x, z), key, rotY=r, dims={'v': len(k) + ord(k[-1])})
 v.room('N9d', 'Horses', rect(36, 45, 43, 52), 'dirt', page=pg('N9d'), ceilingFt=20)
 v.note('N9e-note', (33, 25), 'N9e', "Luvash's wagon: 'you are only alive because I let you be'."); v.note('N9f-note', (23, 32), 'N9f', 'Six Vistani asleep in each of these.'); v.note('N9g-note', (23, 43), 'N9g', 'Gambling Vistani: dice and knives.')
 v.note('N9h-note', (33, 50), 'N9h', 'A family wagon: a mother, four children, the baby.'); v.note('N9i-note', (26, 26), 'N9i', 'The treasure wagon, two padlocks: 2,000 cp, 1,000 sp, 500 ep, 200 gp, 20 pp, jewellery, the winery\'s stolen gem? no, Arabelle\'s ribbon.')
 for i, (x, z) in enumerate([(39, 46), (41, 50), (37, 50)]): v.creature(f'N9d-horse{i}', 'horse', (x, z), 'N9d', 'Vistani horses (riding horses, 12)', size='large')
-for i, (x, z, r) in enumerate([(12, 18, 40), (54, 18, -40), (8, 37, 0), (58, 37, 0), (12, 56, -40), (54, 56, 40)]): v.prop(f'N9-ring-wagon{i}', 'wagon', (x, z), 'N9b', rotY=r)
+for i, (x, z, r) in enumerate([(12, 18, 40), (54, 18, -40), (8, 37, 0), (58, 37, 0), (12, 56, -40), (54, 56, 40)]): v.prop(f'N9-ring-wagon{i}', 'vardo', (x, z), 'N9b', rotY=r, dims={'v': i})
+# the camp's life: the great tent over the gathering, fires among the wagons, washing, the horses' pickets
+v.prop('N9c-tent', 'big-tent', (33, 37.5), 'N9c', dims={'r': 36, 'h': 28})
+# the hilltop is open ground, not a stockade
+from authorlib import unit_edges as _ue, seg_key as _sk
+for _a, _b in _ue([(33, 12), (50, 20), (56, 37), (50, 54), (33, 62), (16, 54), (10, 37), (16, 20)]): v.overrides[_sk(_a, _b)] = dict(v.overrides.get(_sk(_a, _b), {}), open_wall=True)
+for i, (x, z) in enumerate([(28, 22), (18, 30), (48, 30), (28, 52), (44, 56)]): v.prop(f'N9-campfire{i}', 'campfire', (x, z), 'N9c-hill'); v.light(f'N9-campfire{i}', (x, z), 'torch', 15, 30, y=3)
+v.prop('N9-wash-a', 'washline', (20, 47), 'N9c-hill', rotY=60, dims={'w': 16}); v.prop('N9-wash-b', 'washline', (46, 22), 'N9c-hill', rotY=-30, dims={'w': 14})
+for i, x in enumerate([37, 39.5, 42]): v.prop(f'N9d-picket{i}', 'post-round', (x, 45.5), 'N9d', dims={'r': 0.3, 'h': 4})
+# the dusk elves' hill homes: sod-roofed hovels dug into the foot of the hill, and Kasimir's with its painted vestibule
+for i, (x, z) in enumerate([(6, 20), (6, 36), (6, 52), (60, 20), (60, 36), (60, 52)]): v.prop(f'N9b-roof{i}', 'roof-gable', (x + 2, z + 2.5), None, dims={'w': 22, 'd': 27, 'h': 7, 'y': 8, 'turf': 1})
+v.prop('N9a-roof', 'roof-gable', (33, 58.5), None, dims={'w': 22, 'd': 47, 'h': 8, 'y': 8, 'turf': 1})
 v.note('N9-ring', (10, 30), 'N9b', 'A ring of barrel-topped wagons round the hill; the camp is at the base of the hill, the tent above the fog on top.')
 for i in range(14): v.prop(f'N9-pine{i}', 'pine', (3 + (i * 37) % 62, 2 + (i * 23) % 66 if i % 3 else 66), None)
 v.prop('N9a-fire', 'fireplace', (34.6, 60), 'N9a', rotY=-90); v.prop('N9a-chair', 'chair', (32.5, 60), 'N9a'); v.prop('N9a-rug', 'rug', (33, 58), 'N9a', dims={'w': 6, 'd': 4}); v.prop('N9a-bed', 'bed', (32, 62), 'N9a')

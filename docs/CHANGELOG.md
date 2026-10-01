@@ -364,3 +364,7 @@
   courtyards stay open, the 90-ft curtain walls carry battlements, every stair tower is a round tower to its top
   with a conical cap, windows burn along the outer faces. It stands on the Pillarstone: a cluster of jagged rock
   shards, not a drum.
+- The Vistani camp (N9) has its look: painted barrel-topped vardos, the striped great tent, campfires with pots on
+  tripods, washing lines, horse pickets, and the dusk elves' sod-roofed hill homes (new `vardo`, `campfire`,
+  `big-tent`, `mound`, `washline` props; turf roofs). On the Vallaki map the camp shows outside the west wall: the
+  hill, the great tent on top, a ring of vardos, fires and the hovels round its foot.
