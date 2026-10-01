@@ -169,9 +169,9 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
     const looming = p.key === 'K' && p.type === 'castle';
     // Ravenloft is drawn for dread, not for the surveyor: pulled in to a few hundred yards and made half again
     // as big, on a cliff that overhangs the water below as if about to let go.
-    if (looming) { const k = Math.min(1, 1500 / t.d); t = { x: cx + (t.x - cx) * k, z: cz + (t.z - cz) * k, d: t.d * k }; }
-    const lift = looming ? Math.max(p.heightFt ?? 0, 1100) : (p.heightFt ?? 0);
-    const S = looming ? 1.25 : 1; // the looming castle is drawn larger; its cliff still stands on the valley floor
+    if (looming) { const k = Math.min(1, 3200 / t.d); t = { x: cx + (t.x - cx) * k, z: cz + (t.z - cz) * k, d: t.d * k }; }
+    const lift = looming ? Math.max(p.heightFt ?? 0, 1000) : (p.heightFt ?? 0);
+    const S = 1; // the looming castle is drawn larger; its cliff still stands on the valley floor
     const s = new THREE.Group(); s.position.set(t.x, y0 + lift * S, t.z); s.name = `site-${p.key}`; s.rotation.y = -Math.atan2(E[1], E[0]);
     if (looming) {
       const toward = Math.atan2(cz - t.z, cx - t.x); // the cliff leans out toward the viewer's side
