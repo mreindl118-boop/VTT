@@ -310,3 +310,10 @@
   trails, the three rivers, the lakes in their true shapes, and a land-cover grid at an eighth of a mile
   (forest, hills, mountains, water, mist) that the world map is painted from. Names lettered where the
   page letters them.
+- Vallaki opens in two seconds, not fourteen: the coverage map takes a coarser cell on a map that large and
+  caches which cells are floor.
+- Realism: `scripts/authoring/settle.py` settles every outdoor map (houses pushed off the streets, terraces the
+  roof extraction had run together split into houses, overlaps nudged apart or dropped, the palisade never
+  through a house, every keyed site with its building on it, the ground under everything), and
+  `audit-outdoor.py` checks it. Mist thins as the camera pulls back, so a map read from above never greys out.
+  Token markers and name tags no longer follow the party into the next map.

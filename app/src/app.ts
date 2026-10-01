@@ -157,6 +157,9 @@ export class App {
     if (this.cur) {
       // Labels are page elements: detach each one, or they linger over the next location.
       for (const lb of this.cur.labels) { lb.obj.removeFromParent(); lb.obj.element.remove(); }
+      // Token markers and their name tags are page elements too: they would follow the party into the next map.
+      for (const g of this.cur.tokens.values()) { g.traverse((c) => { const e = (c as CSS2DObject).element; if (e instanceof HTMLElement) e.remove(); }); g.removeFromParent(); }
+      this.cur.tokens.clear();
       this.select(null);
       this.onLeave?.();
       for (const b of this.cur.levels.values()) this.world.scene.remove(b.root);

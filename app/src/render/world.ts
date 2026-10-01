@@ -64,7 +64,7 @@ export class World {
     this.controls.touches = { ONE: THREE.TOUCH.PAN, TWO: THREE.TOUCH.DOLLY_ROTATE };
     this.controls.mouseButtons = { LEFT: THREE.MOUSE.PAN, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.ROTATE };
     this.renderer.domElement.addEventListener('contextmenu', (e) => e.preventDefault());
-    this.controls.addEventListener('change', () => { this.invalidate(); this.onCamera?.(); });
+    this.controls.addEventListener('change', () => { if (this.scene.fog instanceof THREE.FogExp2) this.scene.fog.density = this.fogDensity; this.invalidate(); this.onCamera?.(); });
 
     this.hemi = new THREE.HemisphereLight('#c8ccd8', '#3a3138', 1.6);
     this.scene.add(this.hemi);
@@ -94,7 +94,12 @@ export class World {
   fogScale = 1;
   /** The mist can be switched off for a clear view; the density stays whatever the map and theme want. */
   fogOn = true;
-  get fogDensity(): number { return this.fogOn ? (this.outdoor ? this.theme.fogOut : this.theme.fogIn) * this.fogScale : 0; }
+  /** Mist thins as the camera pulls back, so the map itself stays legible from any height and only the land beyond it fades. */
+  get fogDensity(): number {
+    const d = this.camera ? this.camera.position.distanceTo(this.controls.target) : 300;
+    const pullBack = THREE.MathUtils.clamp(260 / Math.max(1, d), 0.12, 1);
+    return this.fogOn ? (this.outdoor ? this.theme.fogOut : this.theme.fogIn) * this.fogScale * pullBack : 0;
+  }
   setFog(on: boolean): void { this.fogOn = on; if (this.scene.fog instanceof THREE.FogExp2) this.scene.fog.density = this.fogDensity; this.mistFloor.visible = on && this.mistFloor.visible; this.invalidate(); }
   /** A campaign's look: mist colour, page gradient, light colours and strengths. */
   setTheme(t: Theme): void {
@@ -184,6 +189,7 @@ export class World {
     this.camera.lookAt(this.controls.target);
     this.controls.update();
     this.dirty = true;
+    if (this.scene.fog instanceof THREE.FogExp2) this.scene.fog.density = this.fogDensity;
     if (k >= 1) { this.tween = null; this.onCamera?.(); }
   }
 

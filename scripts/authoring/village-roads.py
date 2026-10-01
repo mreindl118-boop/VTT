@@ -44,6 +44,9 @@ roads = []
 for name, w, pts in STREETS:
     for poly in strip([ft(*p) for p in pts], w): roads.append(OrderedDict(polygon=poly, floor='cobble'))
 lv['terrain'] = grass + roads
+import os, sys; sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from settle import settle
+print('settle:', settle(lv, keyed={'E1': (32, 24, 1), 'E2': (40, 30, 2), 'E3': (30, 26, 2), 'E4': (52, 40, 2), 'E7': (40, 30, 3)}, ground_margin=80))
 gl = grid['levels']['village']
 gl['floorPolygons'] = [t['polygon'] for t in grass]
 json.dump(scene, open('locations/ch03/E/scene.json', 'w'), indent=1)

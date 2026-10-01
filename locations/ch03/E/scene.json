@@ -18,20 +18,20 @@
     {
      "polygon": [
       [
-       -152.0,
-       -104.5
+       -232.0,
+       -184.5
       ],
       [
-       470.6,
-       -76.6
+       602.0,
+       -184.5
       ],
       [
-       477.3,
-       506.2
+       602.0,
+       803.2
       ],
       [
-       -145.4,
-       478.3
+       -232.0,
+       803.2
       ]
      ],
      "floor": "grass"
@@ -2774,20 +2774,20 @@
      "name": "Blood of the Vine Tavern",
      "polygon": [
       [
-       237,
-       352
+       274.2,
+       377.5
       ],
       [
-       277,
-       352
+       247.0,
+       375.5
       ],
       [
-       277,
-       392
+       249.0,
+       348.5
       ],
       [
-       237,
-       392
+       276.2,
+       350.5
       ]
      ],
      "floor": "cobble",
@@ -2798,20 +2798,20 @@
      "name": "Death House",
      "polygon": [
       [
-       463,
-       319
+       520.5,
+       341.8
       ],
       [
-       503,
-       319
+       508.7,
+       351.7
       ],
       [
-       503,
-       359
+       499.9,
+       341.2
       ],
       [
-       463,
-       359
+       511.7,
+       331.3
       ]
      ],
      "floor": "cobble",
@@ -2822,20 +2822,20 @@
      "name": "Bildrath's Mercantile",
      "polygon": [
       [
-       232,
-       449
+       256.1,
+       463.6
       ],
       [
-       272,
-       449
+       276.3,
+       486.7
       ],
       [
-       272,
-       489
+       257.9,
+       502.8
       ],
       [
-       232,
-       489
+       237.7,
+       479.7
       ]
      ],
      "floor": "cobble",
@@ -2846,20 +2846,20 @@
      "name": "Mad Mary's Townhouse",
      "polygon": [
       [
-       202,
-       493
+       242.4,
+       487.7
       ],
       [
-       242,
-       493
+       240.3,
+       503.6
       ],
       [
-       242,
-       533
+       229.4,
+       502.1
       ],
       [
-       202,
-       533
+       231.5,
+       486.2
       ]
      ],
      "floor": "cobble",
@@ -2870,20 +2870,20 @@
      "name": "Burgomaster's Mansion",
      "polygon": [
       [
-       197,
-       676
+       246.6,
+       719.8
       ],
       [
-       237,
-       676
+       205.4,
+       732.7
       ],
       [
-       237,
-       716
+       197.6,
+       707.8
       ],
       [
-       197,
-       716
+       238.8,
+       694.9
       ]
      ],
      "floor": "cobble",
@@ -2893,18 +2893,6 @@
    "walls": [],
    "lights": [],
    "objects": [
-    {
-     "id": "village-p58",
-     "kind": "church-building",
-     "pos": [
-      109.2,
-      0,
-      217.6
-     ],
-     "vis": "player",
-     "label": "Church",
-     "key": "E5"
-    },
     {
      "id": "village-p64",
      "kind": "fence",
@@ -3457,21 +3445,6 @@
      }
     },
     {
-     "id": "village-p112",
-     "kind": "pine",
-     "pos": [
-      349.4,
-      0,
-      459.0
-     ],
-     "vis": "player",
-     "dims": {
-      "h": 26,
-      "r": 6,
-      "scale": 1.4673673809942556
-     }
-    },
-    {
      "id": "village-p113",
      "kind": "pine",
      "pos": [
@@ -3634,36 +3607,6 @@
       "h": 26,
       "r": 6,
       "scale": 1.4593318351486233
-     }
-    },
-    {
-     "id": "village-p124",
-     "kind": "pine",
-     "pos": [
-      439.4,
-      0,
-      418.8
-     ],
-     "vis": "player",
-     "dims": {
-      "h": 26,
-      "r": 6,
-      "scale": 1.43812293883675
-     }
-    },
-    {
-     "id": "village-p125",
-     "kind": "pine",
-     "pos": [
-      244.2,
-      0,
-      479.2
-     ],
-     "vis": "player",
-     "dims": {
-      "h": 26,
-      "r": 6,
-      "scale": 1.1128371584203705
      }
     },
     {
@@ -3922,21 +3865,6 @@
      }
     },
     {
-     "id": "village-p143",
-     "kind": "pine",
-     "pos": [
-      244.4,
-      0,
-      479.9
-     ],
-     "vis": "player",
-     "dims": {
-      "h": 26,
-      "r": 6,
-      "scale": 1.436821655249514
-     }
-    },
-    {
      "id": "village-p144",
      "kind": "pine",
      "pos": [
@@ -3978,1308 +3906,35 @@
      "label": "March of the Dead rises here at midnight and walks the Old Svalich Road to Castle Ravenloft"
     },
     {
-     "id": "village-h0",
-     "kind": "house",
+     "id": "village-p58",
+     "kind": "church-building",
      "pos": [
-      499.3,
+      136.7,
       0,
-      102.3
+      198.9
      ],
      "vis": "player",
-     "rotY": 158.5,
-     "dims": {
-      "w": 22.6,
-      "d": 19.8,
-      "h": 11,
-      "stories": 1
-     }
+     "label": "Church",
+     "key": "E5"
     },
     {
-     "id": "village-h1",
+     "id": "village-h118",
      "kind": "house",
      "pos": [
-      490.9,
+      222.1,
       0,
-      118.3
+      713.8
      ],
      "vis": "player",
-     "rotY": -179.0,
+     "rotY": -162.7,
      "dims": {
-      "w": 28.3,
-      "d": 23.2,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h2",
-     "kind": "house",
-     "pos": [
-      379.3,
-      0,
-      201.9
-     ],
-     "vis": "player",
-     "rotY": -131.1,
-     "dims": {
-      "w": 31.2,
-      "d": 12.8,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h3",
-     "kind": "house",
-     "pos": [
-      440.5,
-      0,
-      196.6
-     ],
-     "vis": "player",
-     "rotY": -174.7,
-     "dims": {
-      "w": 16.0,
-      "d": 11.1,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h4",
-     "kind": "house",
-     "pos": [
-      244.8,
-      0,
-      213.1
-     ],
-     "vis": "player",
-     "rotY": -129.8,
-     "dims": {
-      "w": 38.5,
-      "d": 21.2,
-      "h": 13,
-      "stories": 2
-     }
-    },
-    {
-     "id": "village-h6",
-     "kind": "house",
-     "pos": [
-      352.0,
-      0,
-      205.6
-     ],
-     "vis": "player",
-     "rotY": -92.2,
-     "dims": {
-      "w": 19.8,
-      "d": 15.1,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h7",
-     "kind": "house",
-     "pos": [
-      434.3,
-      0,
-      210.0
-     ],
-     "vis": "player",
-     "rotY": 156.0,
-     "dims": {
-      "w": 27.4,
-      "d": 15.0,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h8",
-     "kind": "house",
-     "pos": [
-      450.6,
-      0,
-      207.1
-     ],
-     "vis": "player",
-     "rotY": 158.5,
-     "dims": {
-      "w": 17.6,
-      "d": 10.7,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h11",
-     "kind": "house",
-     "pos": [
-      283.4,
-      0,
-      224.8
-     ],
-     "vis": "player",
-     "rotY": -124.9,
-     "dims": {
-      "w": 28.4,
-      "d": 10.5,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h13",
-     "kind": "house",
-     "pos": [
-      397.4,
-      0,
-      221.8
-     ],
-     "vis": "player",
-     "rotY": -147.0,
-     "dims": {
-      "w": 18.4,
-      "d": 11.5,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h14",
-     "kind": "house",
-     "pos": [
-      292.2,
-      0,
-      231.3
-     ],
-     "vis": "player",
-     "rotY": -128.9,
-     "dims": {
-      "w": 26.4,
-      "d": 10.7,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h15",
-     "kind": "house",
-     "pos": [
-      474.7,
-      0,
-      233.4
-     ],
-     "vis": "player",
-     "rotY": -72.2,
-     "dims": {
-      "w": 32.0,
-      "d": 29.8,
-      "h": 13,
-      "stories": 2
-     }
-    },
-    {
-     "id": "village-h16",
-     "kind": "house",
-     "pos": [
-      248.1,
-      0,
-      230.9
-     ],
-     "vis": "player",
-     "rotY": -112.7,
-     "dims": {
-      "w": 15.1,
-      "d": 10.7,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h17",
-     "kind": "house",
-     "pos": [
-      380.2,
-      0,
-      246.0
-     ],
-     "vis": "player",
-     "rotY": -118.4,
-     "dims": {
-      "w": 20.3,
-      "d": 18.3,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h18",
-     "kind": "house",
-     "pos": [
-      408.5,
-      0,
-      248.4
-     ],
-     "vis": "player",
-     "rotY": -68.0,
-     "dims": {
-      "w": 31.4,
-      "d": 18.6,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h19",
-     "kind": "house",
-     "pos": [
-      434.4,
-      0,
-      247.9
-     ],
-     "vis": "player",
-     "rotY": -94.0,
-     "dims": {
-      "w": 13.0,
-      "d": 12.4,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h20",
-     "kind": "house",
-     "pos": [
-      397.0,
-      0,
-      256.4
-     ],
-     "vis": "player",
-     "rotY": -100.4,
-     "dims": {
-      "w": 19.4,
-      "d": 12.8,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h21",
-     "kind": "house",
-     "pos": [
-      180.6,
-      0,
-      265.5
-     ],
-     "vis": "player",
-     "rotY": 145.3,
-     "dims": {
-      "w": 22.6,
-      "d": 12.0,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h22",
-     "kind": "house",
-     "pos": [
-      332.8,
-      0,
-      269.7
-     ],
-     "vis": "player",
-     "rotY": -116.6,
-     "dims": {
-      "w": 26.5,
-      "d": 10.7,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h23",
-     "kind": "house",
-     "pos": [
-      428.0,
-      0,
-      275.1
-     ],
-     "vis": "player",
-     "rotY": -98.6,
-     "dims": {
-      "w": 27.0,
-      "d": 20.1,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h24",
-     "kind": "house",
-     "pos": [
-      153.6,
-      0,
-      275.6
-     ],
-     "vis": "player",
-     "rotY": -154.0,
-     "dims": {
-      "w": 21.9,
-      "d": 11.0,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h25",
-     "kind": "house",
-     "pos": [
-      257.3,
-      0,
-      274.3
-     ],
-     "vis": "player",
-     "rotY": -151.1,
-     "dims": {
-      "w": 22.0,
-      "d": 9.5,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h26",
-     "kind": "house",
-     "pos": [
-      407.1,
-      0,
-      279.6
-     ],
-     "vis": "player",
-     "rotY": -91.4,
-     "dims": {
-      "w": 18.0,
-      "d": 9.0,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h27",
-     "kind": "house",
-     "pos": [
-      348.7,
-      0,
-      287.6
-     ],
-     "vis": "player",
-     "rotY": -149.3,
-     "dims": {
-      "w": 17.7,
-      "d": 15.8,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h28",
-     "kind": "house",
-     "pos": [
-      287.9,
-      0,
-      292.1
-     ],
-     "vis": "player",
-     "rotY": -127.3,
-     "dims": {
-      "w": 12.5,
-      "d": 9.9,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h29",
-     "kind": "house",
-     "pos": [
-      205.9,
-      0,
-      299.5
-     ],
-     "vis": "player",
-     "rotY": -162.3,
-     "dims": {
-      "w": 24.5,
-      "d": 15.2,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h30",
-     "kind": "house",
-     "pos": [
-      430.5,
-      0,
-      306.0
-     ],
-     "vis": "player",
-     "rotY": -48.2,
-     "dims": {
-      "w": 31.8,
-      "d": 26.9,
-      "h": 13,
-      "stories": 2
-     }
-    },
-    {
-     "id": "village-h31",
-     "kind": "house",
-     "pos": [
-      288.4,
-      0,
-      303.8
-     ],
-     "vis": "player",
-     "rotY": -158.9,
-     "dims": {
-      "w": 29.3,
-      "d": 12.1,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h32",
-     "kind": "house",
-     "pos": [
-      510.0,
-      0,
-      301.3
-     ],
-     "vis": "player",
-     "rotY": -174.5,
-     "dims": {
-      "w": 23.3,
-      "d": 9.6,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h33",
-     "kind": "house",
-     "pos": [
-      476.9,
-      0,
-      312.5
-     ],
-     "vis": "player",
-     "rotY": -106.2,
-     "dims": {
-      "w": 25.0,
-      "d": 13.8,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h34",
-     "kind": "house",
-     "pos": [
-      75.8,
-      0,
-      325.5
-     ],
-     "vis": "player",
-     "rotY": -83.0,
-     "dims": {
-      "w": 28.5,
-      "d": 13.4,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h35",
-     "kind": "house",
-     "pos": [
-      377.4,
-      0,
-      314.3
-     ],
-     "vis": "player",
-     "rotY": -177.1,
-     "dims": {
-      "w": 27.3,
-      "d": 9.7,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h36",
-     "kind": "house",
-     "pos": [
-      239.4,
-      0,
-      320.9
-     ],
-     "vis": "player",
-     "rotY": -176.9,
-     "dims": {
-      "w": 25.0,
-      "d": 8.2,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h37",
-     "kind": "house",
-     "pos": [
-      144.4,
-      0,
-      338.7
-     ],
-     "vis": "player",
-     "rotY": -118.9,
-     "dims": {
-      "w": 26.9,
-      "d": 19.4,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h38",
-     "kind": "house",
-     "pos": [
-      493.4,
-      0,
-      334.9
-     ],
-     "vis": "player",
-     "rotY": -140.1,
-     "dims": {
-      "w": 15.4,
-      "d": 13.6,
-      "h": 11,
-      "stories": 2
-     },
-     "key": "E7",
-     "label": "Death House"
-    },
-    {
-     "id": "village-h39",
-     "kind": "house",
-     "pos": [
-      333.8,
-      0,
-      345.0
-     ],
-     "vis": "player",
-     "rotY": -91.0,
-     "dims": {
-      "w": 27.8,
-      "d": 16.1,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h40",
-     "kind": "house",
-     "pos": [
-      317.7,
-      0,
-      344.9
-     ],
-     "vis": "player",
-     "rotY": -106.1,
-     "dims": {
-      "w": 28.7,
-      "d": 15.3,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h41",
-     "kind": "house",
-     "pos": [
-      380.1,
-      0,
-      341.3
-     ],
-     "vis": "player",
-     "rotY": -46.6,
-     "dims": {
-      "w": 26.9,
-      "d": 14.2,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h42",
-     "kind": "house",
-     "pos": [
-      264.0,
-      0,
-      353.3
-     ],
-     "vis": "player",
-     "rotY": -91.9,
-     "dims": {
-      "w": 32.9,
-      "d": 15.4,
-      "h": 11,
-      "stories": 2
-     },
-     "key": "E2",
-     "label": "Blood of the Vine Tavern"
-    },
-    {
-     "id": "village-h43",
-     "kind": "house",
-     "pos": [
-      424.1,
-      0,
-      342.8
-     ],
-     "vis": "player",
-     "rotY": 177.6,
-     "dims": {
-      "w": 23.6,
-      "d": 9.0,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h44",
-     "kind": "house",
-     "pos": [
-      198.1,
-      0,
-      347.1
-     ],
-     "vis": "player",
-     "rotY": -140.1,
-     "dims": {
-      "w": 21.9,
-      "d": 9.4,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h45",
-     "kind": "house",
-     "pos": [
-      243.4,
-      0,
-      345.6
-     ],
-     "vis": "player",
-     "rotY": -151.7,
-     "dims": {
-      "w": 25.6,
-      "d": 11.1,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h46",
-     "kind": "house",
-     "pos": [
-      234.7,
-      0,
-      355.4
-     ],
-     "vis": "player",
-     "rotY": 149.8,
-     "dims": {
-      "w": 25.4,
-      "d": 14.6,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h47",
-     "kind": "house",
-     "pos": [
-      116.2,
-      0,
-      356.6
-     ],
-     "vis": "player",
-     "rotY": -66.3,
-     "dims": {
-      "w": 22.3,
-      "d": 11.1,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h48",
-     "kind": "house",
-     "pos": [
-      158.4,
-      0,
-      363.9
-     ],
-     "vis": "player",
-     "rotY": -156.3,
-     "dims": {
-      "w": 27.3,
-      "d": 25.0,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h49",
-     "kind": "house",
-     "pos": [
-      95.5,
-      0,
-      366.8
-     ],
-     "vis": "player",
-     "rotY": -63.5,
-     "dims": {
-      "w": 29.9,
-      "d": 26.3,
-      "h": 13,
-      "stories": 2
-     }
-    },
-    {
-     "id": "village-h50",
-     "kind": "house",
-     "pos": [
-      426.3,
-      0,
-      356.9
-     ],
-     "vis": "player",
-     "rotY": -173.6,
-     "dims": {
-      "w": 19.0,
-      "d": 9.4,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h51",
-     "kind": "house",
-     "pos": [
-      282.0,
-      0,
-      357.3
-     ],
-     "vis": "player",
-     "rotY": 171.1,
-     "dims": {
-      "w": 23.0,
-      "d": 8.3,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h52",
-     "kind": "house",
-     "pos": [
-      378.7,
-      0,
-      362.8
-     ],
-     "vis": "player",
-     "rotY": -176.4,
-     "dims": {
-      "w": 19.9,
-      "d": 8.1,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h53",
-     "kind": "house",
-     "pos": [
-      421.3,
-      0,
-      367.0
-     ],
-     "vis": "player",
-     "rotY": 173.9,
-     "dims": {
-      "w": 27.3,
-      "d": 9.7,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h54",
-     "kind": "house",
-     "pos": [
-      475.1,
-      0,
-      372.5
-     ],
-     "vis": "player",
-     "rotY": 162.2,
-     "dims": {
-      "w": 26.7,
-      "d": 21.9,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h55",
-     "kind": "house",
-     "pos": [
-      210.2,
-      0,
-      371.8
-     ],
-     "vis": "player",
-     "rotY": -66.7,
-     "dims": {
-      "w": 18.1,
-      "d": 9.3,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h56",
-     "kind": "house",
-     "pos": [
-      276.8,
-      0,
-      377.2
-     ],
-     "vis": "player",
-     "rotY": 175.8,
-     "dims": {
-      "w": 27.2,
-      "d": 27.0,
+      "w": 43.2,
+      "d": 26.1,
       "h": 13,
       "stories": 2
      },
-     "key": "E2",
-     "label": "Blood of the Vine Tavern"
-    },
-    {
-     "id": "village-h57",
-     "kind": "house",
-     "pos": [
-      323.6,
-      0,
-      376.3
-     ],
-     "vis": "player",
-     "rotY": 173.3,
-     "dims": {
-      "w": 29.0,
-      "d": 25.8,
-      "h": 13,
-      "stories": 2
-     }
-    },
-    {
-     "id": "village-h58",
-     "kind": "house",
-     "pos": [
-      241.6,
-      0,
-      378.2
-     ],
-     "vis": "player",
-     "rotY": -178.8,
-     "dims": {
-      "w": 28.2,
-      "d": 15.9,
-      "h": 11,
-      "stories": 2
-     },
-     "key": "E2",
-     "label": "Blood of the Vine Tavern"
-    },
-    {
-     "id": "village-h59",
-     "kind": "house",
-     "pos": [
-      161.5,
-      0,
-      378.7
-     ],
-     "vis": "player",
-     "rotY": 172.4,
-     "dims": {
-      "w": 25.4,
-      "d": 14.2,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h60",
-     "kind": "house",
-     "pos": [
-      64.7,
-      0,
-      384.9
-     ],
-     "vis": "player",
-     "rotY": -62.5,
-     "dims": {
-      "w": 21.1,
-      "d": 18.4,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h61",
-     "kind": "house",
-     "pos": [
-      125.6,
-      0,
-      389.9
-     ],
-     "vis": "player",
-     "rotY": -176.4,
-     "dims": {
-      "w": 32.1,
-      "d": 10.0,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h62",
-     "kind": "house",
-     "pos": [
-      372.5,
-      0,
-      398.8
-     ],
-     "vis": "player",
-     "rotY": -47.3,
-     "dims": {
-      "w": 34.4,
-      "d": 31.4,
-      "h": 13,
-      "stories": 2
-     }
-    },
-    {
-     "id": "village-h63",
-     "kind": "house",
-     "pos": [
-      419.6,
-      0,
-      398.4
-     ],
-     "vis": "player",
-     "rotY": -161.7,
-     "dims": {
-      "w": 39.3,
-      "d": 31.5,
-      "h": 13,
-      "stories": 2
-     }
-    },
-    {
-     "id": "village-h64",
-     "kind": "house",
-     "pos": [
-      470.2,
-      0,
-      401.1
-     ],
-     "vis": "player",
-     "rotY": -115.6,
-     "dims": {
-      "w": 32.3,
-      "d": 26.8,
-      "h": 13,
-      "stories": 2
-     }
-    },
-    {
-     "id": "village-h65",
-     "kind": "house",
-     "pos": [
-      77.6,
-      0,
-      406.2
-     ],
-     "vis": "player",
-     "rotY": -106.4,
-     "dims": {
-      "w": 24.9,
-      "d": 21.3,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h66",
-     "kind": "house",
-     "pos": [
-      279.1,
-      0,
-      398.8
-     ],
-     "vis": "player",
-     "rotY": 176.2,
-     "dims": {
-      "w": 25.1,
-      "d": 8.3,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h67",
-     "kind": "house",
-     "pos": [
-      167.2,
-      0,
-      404.6
-     ],
-     "vis": "player",
-     "rotY": -109.6,
-     "dims": {
-      "w": 16.5,
-      "d": 12.9,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h68",
-     "kind": "house",
-     "pos": [
-      494.8,
-      0,
-      407.8
-     ],
-     "vis": "player",
-     "rotY": -95.2,
-     "dims": {
-      "w": 18.5,
-      "d": 11.9,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h69",
-     "kind": "house",
-     "pos": [
-      34.6,
-      0,
-      419.1
-     ],
-     "vis": "player",
-     "rotY": -167.7,
-     "dims": {
-      "w": 14.0,
-      "d": 9.9,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h70",
-     "kind": "house",
-     "pos": [
-      24.5,
-      0,
-      425.5
-     ],
-     "vis": "player",
-     "rotY": 152.6,
-     "dims": {
-      "w": 22.4,
-      "d": 9.9,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h71",
-     "kind": "house",
-     "pos": [
-      130.5,
-      0,
-      452.6
-     ],
-     "vis": "player",
-     "rotY": -140.9,
-     "dims": {
-      "w": 43.7,
-      "d": 26.6,
-      "h": 13,
-      "stories": 2
-     }
-    },
-    {
-     "id": "village-h72",
-     "kind": "house",
-     "pos": [
-      100.6,
-      0,
-      450.5
-     ],
-     "vis": "player",
-     "rotY": -81.0,
-     "dims": {
-      "w": 28.6,
-      "d": 14.0,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h73",
-     "kind": "house",
-     "pos": [
-      75.0,
-      0,
-      451.2
-     ],
-     "vis": "player",
-     "rotY": -58.1,
-     "dims": {
-      "w": 32.6,
-      "d": 24.4,
-      "h": 13,
-      "stories": 2
-     }
-    },
-    {
-     "id": "village-h74",
-     "kind": "house",
-     "pos": [
-      351.7,
-      0,
-      452.6
-     ],
-     "vis": "player",
-     "rotY": -173.0,
-     "dims": {
-      "w": 39.4,
-      "d": 25.8,
-      "h": 13,
-      "stories": 2
-     }
-    },
-    {
-     "id": "village-h75",
-     "kind": "house",
-     "pos": [
-      472.5,
-      0,
-      447.9
-     ],
-     "vis": "player",
-     "rotY": 172.8,
-     "dims": {
-      "w": 26.9,
-      "d": 18.4,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h76",
-     "kind": "house",
-     "pos": [
-      309.0,
-      0,
-      454.9
-     ],
-     "vis": "player",
-     "rotY": -88.6,
-     "dims": {
-      "w": 26.8,
-      "d": 10.2,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h77",
-     "kind": "house",
-     "pos": [
-      259.9,
-      0,
-      453.5
-     ],
-     "vis": "player",
-     "rotY": -83.8,
-     "dims": {
-      "w": 22.2,
-      "d": 13.0,
-      "h": 11,
-      "stories": 2
-     },
-     "key": "E1",
-     "label": "Bildrath's Mercantile"
-    },
-    {
-     "id": "village-h78",
-     "kind": "house",
-     "pos": [
-      235.6,
-      0,
-      470.9
-     ],
-     "vis": "player",
-     "rotY": -149.8,
-     "dims": {
-      "w": 26.4,
-      "d": 16.1,
-      "h": 11,
-      "stories": 2
-     },
-     "key": "E1",
-     "label": "Bildrath's Mercantile"
-    },
-    {
-     "id": "village-h79",
-     "kind": "house",
-     "pos": [
-      425.0,
-      0,
-      477.8
-     ],
-     "vis": "player",
-     "rotY": -104.7,
-     "dims": {
-      "w": 26.1,
-      "d": 18.2,
-      "h": 11,
-      "stories": 1
-     }
+     "key": "E4",
+     "label": "Burgomaster's Mansion"
     },
     {
      "id": "village-h80",
@@ -5301,63 +3956,145 @@
      "label": "Bildrath's Mercantile"
     },
     {
-     "id": "village-h81",
+     "id": "village-h56",
      "kind": "house",
      "pos": [
-      472.4,
+      261.6,
       0,
-      482.3
+      363.0
      ],
      "vis": "player",
-     "rotY": -141.9,
+     "rotY": 175.8,
      "dims": {
-      "w": 19.6,
-      "d": 13.1,
-      "h": 11,
-      "stories": 1
-     }
+      "w": 27.2,
+      "d": 27.0,
+      "h": 13,
+      "stories": 2
+     },
+     "key": "E2",
+     "label": "Blood of the Vine Tavern"
     },
     {
-     "id": "village-h82",
+     "id": "village-h42",
      "kind": "house",
      "pos": [
-      398.0,
+      268.8,
       0,
-      482.5
+      334.1
      ],
      "vis": "player",
-     "rotY": -176.0,
+     "rotY": -91.9,
      "dims": {
-      "w": 25.8,
-      "d": 18.0,
+      "w": 32.9,
+      "d": 15.4,
       "h": 11,
-      "stories": 1
-     }
+      "stories": 2
+     },
+     "key": "E2",
+     "label": "Blood of the Vine Tavern"
     },
     {
-     "id": "village-h83",
+     "id": "village-h58",
      "kind": "house",
      "pos": [
-      339.5,
+      259.9,
       0,
-      483.8
+      371.2
      ],
      "vis": "player",
-     "rotY": 174.9,
+     "rotY": -178.8,
      "dims": {
-      "w": 25.4,
-      "d": 17.6,
+      "w": 28.2,
+      "d": 15.9,
       "h": 11,
-      "stories": 1
-     }
+      "stories": 2
+     },
+     "key": "E2",
+     "label": "Blood of the Vine Tavern"
+    },
+    {
+     "id": "village-h78",
+     "kind": "house",
+     "pos": [
+      235.3,
+      0,
+      472.1
+     ],
+     "vis": "player",
+     "rotY": -149.8,
+     "dims": {
+      "w": 26.4,
+      "d": 16.1,
+      "h": 11,
+      "stories": 2
+     },
+     "key": "E1",
+     "label": "Bildrath's Mercantile"
+    },
+    {
+     "id": "village-h116",
+     "kind": "house",
+     "pos": [
+      222.5,
+      0,
+      686.3
+     ],
+     "vis": "player",
+     "rotY": -83.1,
+     "dims": {
+      "w": 23.6,
+      "d": 15.6,
+      "h": 11,
+      "stories": 2
+     },
+     "key": "E4",
+     "label": "Burgomaster's Mansion"
+    },
+    {
+     "id": "village-h77",
+     "kind": "house",
+     "pos": [
+      260.1,
+      0,
+      451.0
+     ],
+     "vis": "player",
+     "rotY": -83.8,
+     "dims": {
+      "w": 22.2,
+      "d": 13.0,
+      "h": 11,
+      "stories": 2
+     },
+     "key": "E1",
+     "label": "Bildrath's Mercantile"
+    },
+    {
+     "id": "village-h38",
+     "kind": "house",
+     "pos": [
+      510.2,
+      0,
+      341.5
+     ],
+     "vis": "player",
+     "rotY": -140.1,
+     "dims": {
+      "w": 15.4,
+      "d": 13.6,
+      "h": 11,
+      "stories": 2
+     },
+     "key": "E7",
+     "label": "Death House"
     },
     {
      "id": "village-h84",
      "kind": "house",
      "pos": [
-      244.7,
+      235.9,
       0,
-      490.1
+      494.9
      ],
      "vis": "player",
      "rotY": -97.7,
@@ -5367,347 +4104,75 @@
       "h": 11,
       "stories": 2
      },
-     "key": "E1",
-     "label": "Bildrath's Mercantile"
+     "key": "E3",
+     "label": "Mad Mary's Townhouse"
     },
     {
-     "id": "village-h85",
+     "id": "village-h63",
      "kind": "house",
      "pos": [
-      310.2,
+      417.3,
       0,
-      497.5
+      384.5
      ],
      "vis": "player",
-     "rotY": -108.6,
+     "rotY": -161.7,
      "dims": {
-      "w": 26.6,
-      "d": 21.3,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h86",
-     "kind": "house",
-     "pos": [
-      49.2,
-      0,
-      500.2
-     ],
-     "vis": "player",
-     "rotY": -135.9,
-     "dims": {
-      "w": 21.8,
-      "d": 17.1,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h87",
-     "kind": "house",
-     "pos": [
-      471.6,
-      0,
-      510.2
-     ],
-     "vis": "player",
-     "rotY": -99.5,
-     "dims": {
-      "w": 30.2,
-      "d": 24.3,
+      "w": 39.3,
+      "d": 31.5,
       "h": 13,
       "stories": 2
      }
     },
     {
-     "id": "village-h88",
+     "id": "village-h71",
      "kind": "house",
      "pos": [
-      286.9,
+      130.5,
       0,
-      503.7
+      452.6
      ],
      "vis": "player",
-     "rotY": -149.5,
+     "rotY": -140.9,
      "dims": {
-      "w": 19.2,
-      "d": 16.2,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h89",
-     "kind": "house",
-     "pos": [
-      174.6,
-      0,
-      524.2
-     ],
-     "vis": "player",
-     "rotY": -125.7,
-     "dims": {
-      "w": 37.5,
-      "d": 21.6,
+      "w": 43.7,
+      "d": 26.6,
       "h": 13,
       "stories": 2
      }
     },
     {
-     "id": "village-h90",
-     "kind": "house",
-     "pos": [
-      352.1,
-      0,
-      523.5
-     ],
-     "vis": "player",
-     "rotY": -134.0,
-     "dims": {
-      "w": 12.7,
-      "d": 11.3,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h91",
-     "kind": "house",
-     "pos": [
-      311.2,
-      0,
-      524.7
-     ],
-     "vis": "player",
-     "rotY": -175.4,
-     "dims": {
-      "w": 25.8,
-      "d": 10.1,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h92",
-     "kind": "house",
-     "pos": [
-      418.4,
-      0,
-      529.9
-     ],
-     "vis": "player",
-     "rotY": -53.2,
-     "dims": {
-      "w": 19.0,
-      "d": 15.8,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h93",
-     "kind": "house",
-     "pos": [
-      394.4,
-      0,
-      527.5
-     ],
-     "vis": "player",
-     "rotY": 179.3,
-     "dims": {
-      "w": 19.7,
-      "d": 9.9,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h94",
+     "id": "village-h62",
      "kind": "house",
      "pos": [
       372.5,
       0,
-      536.1
+      383.8
      ],
      "vis": "player",
-     "rotY": -92.1,
+     "rotY": -47.3,
      "dims": {
-      "w": 17.0,
-      "d": 9.3,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h95",
-     "kind": "house",
-     "pos": [
-      356.3,
-      0,
-      539.9
-     ],
-     "vis": "player",
-     "rotY": -126.2,
-     "dims": {
-      "w": 19.1,
-      "d": 17.6,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h96",
-     "kind": "house",
-     "pos": [
-      222.6,
-      0,
-      550.5
-     ],
-     "vis": "player",
-     "rotY": 177.0,
-     "dims": {
-      "w": 27.9,
-      "d": 18.4,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h97",
-     "kind": "house",
-     "pos": [
-      313.3,
-      0,
-      550.0
-     ],
-     "vis": "player",
-     "rotY": -164.6,
-     "dims": {
-      "w": 28.5,
-      "d": 13.3,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h98",
-     "kind": "house",
-     "pos": [
-      175.4,
-      0,
-      554.1
-     ],
-     "vis": "player",
-     "rotY": 170.7,
-     "dims": {
-      "w": 27.1,
-      "d": 15.6,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h99",
-     "kind": "house",
-     "pos": [
-      357.7,
-      0,
-      569.9
-     ],
-     "vis": "player",
-     "rotY": -100.2,
-     "dims": {
-      "w": 24.2,
-      "d": 17.9,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h100",
-     "kind": "house",
-     "pos": [
-      372.6,
-      0,
-      572.0
-     ],
-     "vis": "player",
-     "rotY": -96.0,
-     "dims": {
-      "w": 23.5,
-      "d": 14.0,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h101",
-     "kind": "house",
-     "pos": [
-      224.0,
-      0,
-      574.5
-     ],
-     "vis": "player",
-     "rotY": -161.9,
-     "dims": {
-      "w": 29.9,
-      "d": 20.4,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h102",
-     "kind": "house",
-     "pos": [
-      166.1,
-      0,
-      576.6
-     ],
-     "vis": "player",
-     "rotY": 174.8,
-     "dims": {
-      "w": 36.1,
-      "d": 10.0,
-      "h": 11,
-      "stories": 1
-     }
-    },
-    {
-     "id": "village-h103",
-     "kind": "house",
-     "pos": [
-      310.5,
-      0,
-      585.2
-     ],
-     "vis": "player",
-     "rotY": -170.6,
-     "dims": {
-      "w": 29.7,
-      "d": 23.7,
+      "w": 34.4,
+      "d": 31.4,
       "h": 13,
       "stories": 2
      }
     },
     {
-     "id": "village-h104",
+     "id": "village-h74",
      "kind": "house",
      "pos": [
-      401.2,
+      351.7,
       0,
-      584.5
+      452.6
      ],
      "vis": "player",
-     "rotY": -126.8,
+     "rotY": -173.0,
      "dims": {
-      "w": 22.6,
-      "d": 17.8,
-      "h": 11,
-      "stories": 1
+      "w": 39.4,
+      "d": 25.8,
+      "h": 13,
+      "stories": 2
      }
     },
     {
@@ -5731,9 +4196,9 @@
      "id": "village-h106",
      "kind": "house",
      "pos": [
-      170.2,
+      158.2,
       0,
-      617.0
+      618.2
      ],
      "vis": "player",
      "rotY": -129.5,
@@ -5745,18 +4210,528 @@
      }
     },
     {
-     "id": "village-h107",
+     "id": "village-h30",
      "kind": "house",
      "pos": [
-      359.6,
+      430.5,
       0,
-      610.1
+      306.0
      ],
      "vis": "player",
-     "rotY": -73.1,
+     "rotY": -48.2,
      "dims": {
-      "w": 21.4,
-      "d": 18.0,
+      "w": 31.8,
+      "d": 26.9,
+      "h": 13,
+      "stories": 2
+     }
+    },
+    {
+     "id": "village-h4",
+     "kind": "house",
+     "pos": [
+      244.8,
+      0,
+      213.1
+     ],
+     "vis": "player",
+     "rotY": -129.8,
+     "dims": {
+      "w": 38.5,
+      "d": 21.2,
+      "h": 13,
+      "stories": 2
+     }
+    },
+    {
+     "id": "village-h89",
+     "kind": "house",
+     "pos": [
+      161.1,
+      0,
+      517.7
+     ],
+     "vis": "player",
+     "rotY": -125.7,
+     "dims": {
+      "w": 37.5,
+      "d": 21.6,
+      "h": 13,
+      "stories": 2
+     }
+    },
+    {
+     "id": "village-h73",
+     "kind": "house",
+     "pos": [
+      75.0,
+      0,
+      451.2
+     ],
+     "vis": "player",
+     "rotY": -58.1,
+     "dims": {
+      "w": 32.6,
+      "d": 24.4,
+      "h": 13,
+      "stories": 2
+     }
+    },
+    {
+     "id": "village-h49",
+     "kind": "house",
+     "pos": [
+      95.5,
+      0,
+      366.8
+     ],
+     "vis": "player",
+     "rotY": -63.5,
+     "dims": {
+      "w": 29.9,
+      "d": 26.3,
+      "h": 13,
+      "stories": 2
+     }
+    },
+    {
+     "id": "village-h57",
+     "kind": "house",
+     "pos": [
+      323.6,
+      0,
+      376.3
+     ],
+     "vis": "player",
+     "rotY": 173.3,
+     "dims": {
+      "w": 29.0,
+      "d": 25.8,
+      "h": 13,
+      "stories": 2
+     }
+    },
+    {
+     "id": "village-h87",
+     "kind": "house",
+     "pos": [
+      471.6,
+      0,
+      510.2
+     ],
+     "vis": "player",
+     "rotY": -99.5,
+     "dims": {
+      "w": 30.2,
+      "d": 24.3,
+      "h": 13,
+      "stories": 2
+     }
+    },
+    {
+     "id": "village-h103",
+     "kind": "house",
+     "pos": [
+      313.5,
+      0,
+      585.4
+     ],
+     "vis": "player",
+     "rotY": -170.6,
+     "dims": {
+      "w": 29.7,
+      "d": 23.7,
+      "h": 13,
+      "stories": 2
+     }
+    },
+    {
+     "id": "village-h48",
+     "kind": "house",
+     "pos": [
+      158.4,
+      0,
+      363.9
+     ],
+     "vis": "player",
+     "rotY": -156.3,
+     "dims": {
+      "w": 27.3,
+      "d": 25.0,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "village-h117",
+     "kind": "house",
+     "pos": [
+      181.5,
+      0,
+      698.8
+     ],
+     "vis": "player",
+     "rotY": -177.7,
+     "dims": {
+      "w": 39.4,
+      "d": 16.7,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "village-h1",
+     "kind": "house",
+     "pos": [
+      490.9,
+      0,
+      118.3
+     ],
+     "vis": "player",
+     "rotY": -179.0,
+     "dims": {
+      "w": 28.3,
+      "d": 23.2,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "village-h101",
+     "kind": "house",
+     "pos": [
+      224.0,
+      0,
+      574.5
+     ],
+     "vis": "player",
+     "rotY": -161.9,
+     "dims": {
+      "w": 29.9,
+      "d": 20.4,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "village-h111",
+     "kind": "house",
+     "pos": [
+      371.5,
+      0,
+      643.5
+     ],
+     "vis": "player",
+     "rotY": -174.5,
+     "dims": {
+      "w": 27.3,
+      "d": 21.8,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "village-h54",
+     "kind": "house",
+     "pos": [
+      491.2,
+      0,
+      385.8
+     ],
+     "vis": "player",
+     "rotY": 162.2,
+     "dims": {
+      "w": 26.7,
+      "d": 21.9,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "village-h18",
+     "kind": "house",
+     "pos": [
+      412.1,
+      0,
+      259.6
+     ],
+     "vis": "player",
+     "rotY": -68.0,
+     "dims": {
+      "w": 31.4,
+      "d": 18.6,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "village-h85",
+     "kind": "house",
+     "pos": [
+      310.2,
+      0,
+      497.5
+     ],
+     "vis": "player",
+     "rotY": -108.6,
+     "dims": {
+      "w": 26.6,
+      "d": 21.3,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "village-h23",
+     "kind": "house",
+     "pos": [
+      436.3,
+      0,
+      272.8
+     ],
+     "vis": "player",
+     "rotY": -98.6,
+     "dims": {
+      "w": 27.0,
+      "d": 20.1,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "village-h110",
+     "kind": "house",
+     "pos": [
+      305.5,
+      0,
+      627.0
+     ],
+     "vis": "player",
+     "rotY": -152.0,
+     "dims": {
+      "w": 31.2,
+      "d": 17.2,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "village-h37",
+     "kind": "house",
+     "pos": [
+      144.4,
+      0,
+      338.7
+     ],
+     "vis": "player",
+     "rotY": -118.9,
+     "dims": {
+      "w": 26.9,
+      "d": 19.4,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "village-h114",
+     "kind": "house",
+     "pos": [
+      287.1,
+      0,
+      660.6
+     ],
+     "vis": "player",
+     "rotY": -58.9,
+     "dims": {
+      "w": 25.1,
+      "d": 20.3,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "village-h75",
+     "kind": "house",
+     "pos": [
+      472.5,
+      0,
+      447.9
+     ],
+     "vis": "player",
+     "rotY": 172.8,
+     "dims": {
+      "w": 26.9,
+      "d": 18.4,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "village-h79",
+     "kind": "house",
+     "pos": [
+      404.0,
+      0,
+      479.9
+     ],
+     "vis": "player",
+     "rotY": -104.7,
+     "dims": {
+      "w": 26.1,
+      "d": 18.2,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "village-h39",
+     "kind": "house",
+     "pos": [
+      333.8,
+      0,
+      345.0
+     ],
+     "vis": "player",
+     "rotY": -91.0,
+     "dims": {
+      "w": 27.8,
+      "d": 16.1,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "village-h0",
+     "kind": "house",
+     "pos": [
+      504.1,
+      0,
+      93.5
+     ],
+     "vis": "player",
+     "rotY": 158.5,
+     "dims": {
+      "w": 22.6,
+      "d": 19.8,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "village-h83",
+     "kind": "house",
+     "pos": [
+      339.5,
+      0,
+      483.8
+     ],
+     "vis": "player",
+     "rotY": 174.9,
+     "dims": {
+      "w": 25.4,
+      "d": 17.6,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "village-h40",
+     "kind": "house",
+     "pos": [
+      312.7,
+      0,
+      344.9
+     ],
+     "vis": "player",
+     "rotY": -106.1,
+     "dims": {
+      "w": 28.7,
+      "d": 15.3,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "village-h99",
+     "kind": "house",
+     "pos": [
+      357.7,
+      0,
+      569.9
+     ],
+     "vis": "player",
+     "rotY": -100.2,
+     "dims": {
+      "w": 24.2,
+      "d": 17.9,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "village-h98",
+     "kind": "house",
+     "pos": [
+      160.4,
+      0,
+      552.6
+     ],
+     "vis": "player",
+     "rotY": 170.7,
+     "dims": {
+      "w": 27.1,
+      "d": 15.6,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "village-h7",
+     "kind": "house",
+     "pos": [
+      434.3,
+      0,
+      210.0
+     ],
+     "vis": "player",
+     "rotY": 156.0,
+     "dims": {
+      "w": 27.4,
+      "d": 15.0,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "village-h104",
+     "kind": "house",
+     "pos": [
+      411.6,
+      0,
+      590.5
+     ],
+     "vis": "player",
+     "rotY": -126.8,
+     "dims": {
+      "w": 22.6,
+      "d": 17.8,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "village-h2",
+     "kind": "house",
+     "pos": [
+      379.3,
+      0,
+      201.9
+     ],
+     "vis": "player",
+     "rotY": -131.1,
+     "dims": {
+      "w": 31.2,
+      "d": 12.8,
       "h": 11,
       "stories": 1
      }
@@ -5779,69 +4754,630 @@
      }
     },
     {
-     "id": "village-h109",
+     "id": "village-h60",
      "kind": "house",
      "pos": [
-      294.0,
+      64.7,
       0,
-      611.6
+      384.9
      ],
      "vis": "player",
-     "rotY": 156.8,
+     "rotY": -62.5,
      "dims": {
-      "w": 28.8,
+      "w": 21.1,
+      "d": 18.4,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "village-h107",
+     "kind": "house",
+     "pos": [
+      349.1,
+      0,
+      599.6
+     ],
+     "vis": "player",
+     "rotY": -73.1,
+     "dims": {
+      "w": 21.4,
+      "d": 18.0,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "village-h41",
+     "kind": "house",
+     "pos": [
+      380.1,
+      0,
+      341.3
+     ],
+     "vis": "player",
+     "rotY": -46.6,
+     "dims": {
+      "w": 26.9,
+      "d": 14.2,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "village-h34",
+     "kind": "house",
+     "pos": [
+      75.8,
+      0,
+      325.5
+     ],
+     "vis": "player",
+     "rotY": -83.0,
+     "dims": {
+      "w": 28.5,
+      "d": 13.4,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "village-h97",
+     "kind": "house",
+     "pos": [
+      313.7,
+      0,
+      562.0
+     ],
+     "vis": "player",
+     "rotY": -164.6,
+     "dims": {
+      "w": 28.5,
+      "d": 13.3,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "village-h86",
+     "kind": "house",
+     "pos": [
+      49.2,
+      0,
+      500.2
+     ],
+     "vis": "player",
+     "rotY": -135.9,
+     "dims": {
+      "w": 21.8,
+      "d": 17.1,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "village-h29",
+     "kind": "house",
+     "pos": [
+      207.8,
+      0,
+      297.2
+     ],
+     "vis": "player",
+     "rotY": -162.3,
+     "dims": {
+      "w": 24.5,
+      "d": 15.2,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "village-h17",
+     "kind": "house",
+     "pos": [
+      387.2,
+      0,
+      264.5
+     ],
+     "vis": "player",
+     "rotY": -118.4,
+     "dims": {
+      "w": 20.3,
+      "d": 18.3,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "village-h46",
+     "kind": "house",
+     "pos": [
+      241.7,
+      0,
+      334.8
+     ],
+     "vis": "player",
+     "rotY": 149.8,
+     "dims": {
+      "w": 25.4,
+      "d": 14.6,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "village-h102",
+     "kind": "house",
+     "pos": [
+      157.1,
+      0,
+      577.5
+     ],
+     "vis": "player",
+     "rotY": 174.8,
+     "dims": {
+      "w": 36.1,
+      "d": 10.0,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "village-h59",
+     "kind": "house",
+     "pos": [
+      164.0,
+      0,
+      390.7
+     ],
+     "vis": "player",
+     "rotY": 172.4,
+     "dims": {
+      "w": 25.4,
+      "d": 14.2,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "village-h31",
+     "kind": "house",
+     "pos": [
+      288.4,
+      0,
+      303.8
+     ],
+     "vis": "player",
+     "rotY": -158.9,
+     "dims": {
+      "w": 29.3,
+      "d": 12.1,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "village-h33",
+     "kind": "house",
+     "pos": [
+      476.9,
+      0,
+      312.5
+     ],
+     "vis": "player",
+     "rotY": -106.2,
+     "dims": {
+      "w": 25.0,
+      "d": 13.8,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "village-h95",
+     "kind": "house",
+     "pos": [
+      355.7,
+      0,
+      521.9
+     ],
+     "vis": "player",
+     "rotY": -126.2,
+     "dims": {
+      "w": 19.1,
       "d": 17.6,
       "h": 11,
       "stories": 1
      }
     },
     {
-     "id": "village-h110",
+     "id": "village-h100",
      "kind": "house",
      "pos": [
-      299.9,
+      375.1,
       0,
-      624.6
+      572.3
      ],
      "vis": "player",
-     "rotY": -152.0,
+     "rotY": -96.0,
      "dims": {
-      "w": 31.2,
-      "d": 17.2,
+      "w": 23.5,
+      "d": 14.0,
       "h": 11,
       "stories": 1
      }
     },
     {
-     "id": "village-h111",
+     "id": "village-h61",
      "kind": "house",
      "pos": [
-      366.9,
+      125.6,
       0,
-      639.7
+      389.9
+     ],
+     "vis": "player",
+     "rotY": -176.4,
+     "dims": {
+      "w": 32.1,
+      "d": 10.0,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "village-h92",
+     "kind": "house",
+     "pos": [
+      400.4,
+      0,
+      528.1
+     ],
+     "vis": "player",
+     "rotY": -53.2,
+     "dims": {
+      "w": 19.0,
+      "d": 15.8,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "village-h6",
+     "kind": "house",
+     "pos": [
+      352.0,
+      0,
+      205.6
+     ],
+     "vis": "player",
+     "rotY": -92.2,
+     "dims": {
+      "w": 19.8,
+      "d": 15.1,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "village-h11",
+     "kind": "house",
+     "pos": [
+      283.4,
+      0,
+      224.8
+     ],
+     "vis": "player",
+     "rotY": -124.9,
+     "dims": {
+      "w": 28.4,
+      "d": 10.5,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "village-h22",
+     "kind": "house",
+     "pos": [
+      323.2,
+      0,
+      262.5
+     ],
+     "vis": "player",
+     "rotY": -116.6,
+     "dims": {
+      "w": 26.5,
+      "d": 10.7,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "village-h14",
+     "kind": "house",
+     "pos": [
+      294.2,
+      0,
+      232.8
+     ],
+     "vis": "player",
+     "rotY": -128.9,
+     "dims": {
+      "w": 26.4,
+      "d": 10.7,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "village-h27",
+     "kind": "house",
+     "pos": [
+      351.1,
+      0,
+      289.4
+     ],
+     "vis": "player",
+     "rotY": -149.3,
+     "dims": {
+      "w": 17.7,
+      "d": 15.8,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "village-h76",
+     "kind": "house",
+     "pos": [
+      309.0,
+      0,
+      454.9
+     ],
+     "vis": "player",
+     "rotY": -88.6,
+     "dims": {
+      "w": 26.8,
+      "d": 10.2,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "village-h21",
+     "kind": "house",
+     "pos": [
+      180.6,
+      0,
+      265.5
+     ],
+     "vis": "player",
+     "rotY": 145.3,
+     "dims": {
+      "w": 22.6,
+      "d": 12.0,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "village-h35",
+     "kind": "house",
+     "pos": [
+      377.4,
+      0,
+      314.3
+     ],
+     "vis": "player",
+     "rotY": -177.1,
+     "dims": {
+      "w": 27.3,
+      "d": 9.7,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "village-h53",
+     "kind": "house",
+     "pos": [
+      423.7,
+      0,
+      357.4
+     ],
+     "vis": "player",
+     "rotY": 173.9,
+     "dims": {
+      "w": 27.3,
+      "d": 9.7,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "village-h91",
+     "kind": "house",
+     "pos": [
+      311.2,
+      0,
+      524.7
+     ],
+     "vis": "player",
+     "rotY": -175.4,
+     "dims": {
+      "w": 25.8,
+      "d": 10.1,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "village-h81",
+     "kind": "house",
+     "pos": [
+      472.4,
+      0,
+      482.3
+     ],
+     "vis": "player",
+     "rotY": -141.9,
+     "dims": {
+      "w": 19.6,
+      "d": 13.1,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "village-h47",
+     "kind": "house",
+     "pos": [
+      116.2,
+      0,
+      356.6
+     ],
+     "vis": "player",
+     "rotY": -66.3,
+     "dims": {
+      "w": 22.3,
+      "d": 11.1,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "village-h32",
+     "kind": "house",
+     "pos": [
+      522.0,
+      0,
+      299.7
      ],
      "vis": "player",
      "rotY": -174.5,
      "dims": {
-      "w": 27.3,
-      "d": 21.8,
+      "w": 23.3,
+      "d": 9.6,
       "h": 11,
       "stories": 1
      }
     },
     {
-     "id": "village-h112",
+     "id": "village-h70",
      "kind": "house",
      "pos": [
-      264.1,
+      25.4,
       0,
-      634.9
+      434.5
      ],
      "vis": "player",
-     "rotY": -172.3,
+     "rotY": 152.6,
      "dims": {
-      "w": 20.1,
-      "d": 8.9,
+      "w": 22.4,
+      "d": 9.9,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "village-h43",
+     "kind": "house",
+     "pos": [
+      424.1,
+      0,
+      342.8
+     ],
+     "vis": "player",
+     "rotY": 177.6,
+     "dims": {
+      "w": 23.6,
+      "d": 9.0,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "village-h13",
+     "kind": "house",
+     "pos": [
+      397.4,
+      0,
+      221.8
+     ],
+     "vis": "player",
+     "rotY": -147.0,
+     "dims": {
+      "w": 18.4,
+      "d": 11.5,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "village-h25",
+     "kind": "house",
+     "pos": [
+      257.3,
+      0,
+      274.3
+     ],
+     "vis": "player",
+     "rotY": -151.1,
+     "dims": {
+      "w": 22.0,
+      "d": 9.5,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "village-h66",
+     "kind": "house",
+     "pos": [
+      299.8,
+      0,
+      397.0
+     ],
+     "vis": "player",
+     "rotY": 176.2,
+     "dims": {
+      "w": 25.1,
+      "d": 8.3,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "village-h44",
+     "kind": "house",
+     "pos": [
+      198.1,
+      0,
+      347.1
+     ],
+     "vis": "player",
+     "rotY": -140.1,
+     "dims": {
+      "w": 21.9,
+      "d": 9.4,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "village-h36",
+     "kind": "house",
+     "pos": [
+      238.6,
+      0,
+      315.9
+     ],
+     "vis": "player",
+     "rotY": -176.9,
+     "dims": {
+      "w": 25.0,
+      "d": 8.2,
       "h": 11,
       "stories": 1
      }
@@ -5864,93 +5400,140 @@
      }
     },
     {
-     "id": "village-h114",
+     "id": "village-h93",
      "kind": "house",
      "pos": [
-      274.6,
+      376.9,
       0,
-      653.1
+      526.1
      ],
      "vis": "player",
-     "rotY": -58.9,
+     "rotY": 179.3,
      "dims": {
-      "w": 25.1,
-      "d": 20.3,
+      "w": 19.7,
+      "d": 9.9,
       "h": 11,
       "stories": 1
      }
     },
     {
-     "id": "village-h115",
+     "id": "village-h8",
      "kind": "house",
      "pos": [
-      331.0,
+      458.1,
       0,
-      651.3
+      205.9
      ],
      "vis": "player",
-     "rotY": -179.6,
+     "rotY": 158.5,
      "dims": {
-      "w": 19.8,
-      "d": 16.1,
+      "w": 17.6,
+      "d": 10.7,
       "h": 11,
       "stories": 1
      }
     },
     {
-     "id": "village-h116",
+     "id": "village-h112",
      "kind": "house",
      "pos": [
-      226.7,
+      255.7,
       0,
-      684.6
+      631.3
      ],
      "vis": "player",
-     "rotY": -83.1,
+     "rotY": -172.3,
      "dims": {
-      "w": 23.6,
-      "d": 15.6,
-      "h": 11,
-      "stories": 2
-     },
-     "key": "E4",
-     "label": "Burgomaster's Mansion"
-    },
-    {
-     "id": "village-h117",
-     "kind": "house",
-     "pos": [
-      190.7,
-      0,
-      702.4
-     ],
-     "vis": "player",
-     "rotY": -177.7,
-     "dims": {
-      "w": 39.4,
-      "d": 16.7,
+      "w": 20.1,
+      "d": 8.9,
       "h": 11,
       "stories": 1
      }
     },
     {
-     "id": "village-h118",
+     "id": "village-h3",
      "kind": "house",
      "pos": [
-      222.1,
+      441.5,
       0,
-      713.8
+      194.3
      ],
      "vis": "player",
-     "rotY": -162.7,
+     "rotY": -174.7,
      "dims": {
-      "w": 43.2,
-      "d": 26.1,
-      "h": 13,
-      "stories": 2
-     },
-     "key": "E4",
-     "label": "Burgomaster's Mansion"
+      "w": 16.0,
+      "d": 11.1,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "village-h55",
+     "kind": "house",
+     "pos": [
+      210.2,
+      0,
+      371.8
+     ],
+     "vis": "player",
+     "rotY": -66.7,
+     "dims": {
+      "w": 18.1,
+      "d": 9.3,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "village-h26",
+     "kind": "house",
+     "pos": [
+      405.3,
+      0,
+      286.8
+     ],
+     "vis": "player",
+     "rotY": -91.4,
+     "dims": {
+      "w": 18.0,
+      "d": 9.0,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "village-h16",
+     "kind": "house",
+     "pos": [
+      249.1,
+      0,
+      235.9
+     ],
+     "vis": "player",
+     "rotY": -112.7,
+     "dims": {
+      "w": 15.1,
+      "d": 10.7,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "village-h19",
+     "kind": "house",
+     "pos": [
+      434.4,
+      0,
+      247.9
+     ],
+     "vis": "player",
+     "rotY": -94.0,
+     "dims": {
+      "w": 13.0,
+      "d": 12.4,
+      "h": 11,
+      "stories": 1
+     }
     },
     {
      "id": "village-h119",
@@ -5965,6 +5548,23 @@
      "dims": {
       "w": 16.5,
       "d": 8.8,
+      "h": 11,
+      "stories": 1
+     }
+    },
+    {
+     "id": "village-h28",
+     "kind": "house",
+     "pos": [
+      287.8,
+      0,
+      289.6
+     ],
+     "vis": "player",
+     "rotY": -127.3,
+     "dims": {
+      "w": 12.5,
+      "d": 9.9,
       "h": 11,
       "stories": 1
      }

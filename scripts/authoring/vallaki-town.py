@@ -166,6 +166,12 @@ for r in rooms:
 terrain = [OrderedDict(polygon=[[0, 0], [7350, 0], [7350, 4580], [0, 4580]], floor='grass')]
 for name, w, pts in STREETS:
     for poly in strip([ft(*p) for p in pts], w): terrain.append(OrderedDict(polygon=poly, floor='cobble' if name == 'Old Svalich Road' else 'dirt'))
+# settle: nothing on a street, through the palisade or through another house; every keyed site has its building
+import sys; sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from settle import settle
+SITE_SIZES = {'N2': (62, 40, 2), 'N3': (52, 42, 2), 'N4': (46, 36, 2), 'N6': (30, 24, 1), 'N7': (30, 24, 1), 'N5': (44, 30, 1)}
+_level = OrderedDict(terrain=terrain, rooms=rooms, walls=walls, objects=objects)
+print('settle:', settle(_level, keyed=SITE_SIZES)); objects = _level['objects']
 level = OrderedDict(id='town', name='Vallaki', elevationFt=0, ceilingFt=15, ambient='barovian-overcast', north='-z', terrain=terrain, rooms=rooms, walls=walls, lights=[], objects=objects)
 scene = OrderedDict(schema=1, location='N', chapter='ch05', name='The Town of Vallaki', mapPage=97, bookScaleFt=5, ambient='barovian-overcast', placementFt=40, kind='placement', levels=[level], links=[], frame='measured-p97-400dpi')
 grid = OrderedDict(schema=1, levels=OrderedDict(town=OrderedDict(floorPolygons=[terrain[0]['polygon']], type='square', hexOrientation='pointy', origin=[0, 0], color='#1d1b22', opacity=0)))
