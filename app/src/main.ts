@@ -22,7 +22,7 @@ const app = new App(stage, mode);
 if (mode === 'dm') buildDmUi();
 if (q.get('hud') === '1') buildHud();
 
-const ready = app.init(builtPaths.has(path) ? path : 'dev/m0-test-room');
+const ready = app.init(builtPaths.has(path) ? path : 'appB/death-house');
 
 // Test/debug hook. Harmless in production: it only exposes what the DM UI can already do.
 (window as unknown as { __mistlab: unknown }).__mistlab = {

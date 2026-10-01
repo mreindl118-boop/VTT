@@ -91,9 +91,13 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
 
   // 1b. A site on a crag stands on its pillar of rock; the land below is the valley floor.
   if (crag > 0) {
-    const pillar = new THREE.CylinderGeometry(R * 1.25, R * 1.9, crag, 12, 1, true); pillar.translate(0, crag / 2, 0);
+    // the Pillarstone: wider at its brow than its foot, so the castle hangs over the black water below
+    const pillar = new THREE.CylinderGeometry(R * 1.25, R * 0.5, crag, 12, 3, true); pillar.translate(0, crag / 2, 0);
+    const pp = pillar.attributes.position; for (let i = 0; i < pp.count; i++) { const j = ((i * 7919) % 11) / 11 - 0.5; pp.setX(i, pp.getX(i) * (1 + 0.1 * j)); pp.setZ(i, pp.getZ(i) * (1 + 0.1 * j)); }
+    pillar.computeVertexNormals();
     const pm = new THREE.Mesh(pillar, lambert(blend('#4a4a52', 0.1))); pm.position.set(cx, y0, cz); g.add(pm);
-    const foot = new THREE.Mesh(new THREE.ConeGeometry(R * 2.6, crag * 0.35, 12), lambert(blend('#3f3f47', 0.2))); foot.position.set(cx, y0 + crag * 0.175, cz); g.add(foot);
+    for (let i = 0; i < 10; i++) { const a = (i / 10) * Math.PI * 2, b = new THREE.Mesh(new THREE.IcosahedronGeometry(R * 0.18, 0), lambert(blend('#44444c', 0.15))); b.position.set(cx + Math.cos(a) * R * (0.9 + (i % 3) * 0.15), y0 + crag * (0.2 + (i % 4) * 0.18), cz + Math.sin(a) * R * (0.9 + (i % 3) * 0.15)); g.add(b); }
+    const lake = new THREE.Mesh(new THREE.CircleGeometry(R * 4, 48), new THREE.MeshBasicMaterial({ color: blend('#1e2a33', 0.1), fog: false })); lake.rotation.x = -Math.PI / 2; lake.position.set(cx, y0 + 0.4, cz); g.add(lake);
   }
   // 2. Forest ring: instanced pines from just past the edge out to the tree line.
   const tree = new THREE.ConeGeometry(6, 28, 6); tree.translate(0, 14, 0);
@@ -114,6 +118,8 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
   // Bearings toward mapped places within a few miles stay open, so those places show in the distance.
   const openB = W.pins.filter((p) => p.scenes?.length && Math.hypot(p.pos[0] - o.pin[0], p.pos[1] - o.pin[1]) > 0.05 && Math.hypot(p.pos[0] - o.pin[0], p.pos[1] - o.pin[1]) < 6).map((p) => { const [dx, dz] = toPlan(p.pos); return Math.atan2(dz, dx); });
   openB.push(...roadBearings);
+  const loomK = W.pins.find((p) => p.key === 'K' && p.type === 'castle' && Math.hypot(p.pos[0] - o.pin[0], p.pos[1] - o.pin[1]) > 0.05);
+  const loomB = loomK ? (() => { const [dx, dz] = toPlan(loomK.pos); return Math.atan2(dz, dx); })() : undefined;
   const openness = (bearing: number) => openB.reduce((k, b) => { const db = Math.abs(Math.atan2(Math.sin(b - bearing), Math.cos(b - bearing))); return Math.min(k, 0.25 + 0.75 * Math.min(1, db / 0.35)); }, 1);
   const heightAt = (bearing: number) => openness(bearing) * highAll.reduce((h, w) => {
     const [dx, dz] = toPlan(w), b = Math.atan2(dz, dx), mi = Math.hypot(dx, dz) / FT;
@@ -126,6 +132,7 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
       const b = (i / count) * Math.PI * 2 + rnd() * 0.08, h = heightAt(b) * (ring ? 1.6 : 1) * (0.75 + rnd() * 0.5), d = dist + R + rnd() * 250;
       const rx = cx + Math.cos(b) * d, rz = cz + Math.sin(b) * d, base = h * (0.8 + rnd() * 0.4);
       if (nearRoad(rx, rz, base * 0.6)) continue; // the road passes through a gap in the ridge
+      if (loomB !== undefined && Math.abs(Math.atan2(Math.sin(b - loomB), Math.cos(b - loomB))) < 0.55) continue; // nothing stands between the valley and Ravenloft's cliff
       const geo = new THREE.ConeGeometry(base, h, 5); geo.translate(0, h / 2, 0);
       const m = new THREE.Mesh(geo, lambert(blend(col, ring ? 0.45 : 0.25)));
       m.position.set(rx, y0 - 10, rz); m.rotation.y = rnd() * Math.PI;
@@ -158,10 +165,28 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
 
   // 4. The other places on the world map, at true scale and distance: visual only, nothing to click.
   const site = (p: { key: string; name: string; type: string; pos: P; heightFt?: number }) => {
-    const t = toWorld(p.pos); if (t.d < 400 || t.d > 60000) return;
-    const lift = p.heightFt ?? 0;
-    const s = new THREE.Group(); s.position.set(t.x, y0 + lift, t.z); s.name = `site-${p.key}`; s.rotation.y = -Math.atan2(E[1], E[0]);
-    if (lift > 0) { // its own crag
+    let t = toWorld(p.pos); if (t.d < 400 || t.d > 60000) return;
+    const looming = p.key === 'K' && p.type === 'castle';
+    // Ravenloft is drawn for dread, not for the surveyor: pulled in to a few hundred yards and made half again
+    // as big, on a cliff that overhangs the water below as if about to let go.
+    if (looming) { const k = Math.min(1, 1500 / t.d); t = { x: cx + (t.x - cx) * k, z: cz + (t.z - cz) * k, d: t.d * k }; }
+    const lift = looming ? Math.max(p.heightFt ?? 0, 1100) : (p.heightFt ?? 0);
+    const S = looming ? 1.25 : 1; // the looming castle is drawn larger; its cliff still stands on the valley floor
+    const s = new THREE.Group(); s.position.set(t.x, y0 + lift * S, t.z); s.name = `site-${p.key}`; s.rotation.y = -Math.atan2(E[1], E[0]);
+    if (looming) {
+      const toward = Math.atan2(cz - t.z, cx - t.x); // the cliff leans out toward the viewer's side
+      s.rotation.z = 0.06 * Math.cos(toward - s.rotation.y); s.rotation.x = -0.06 * Math.sin(toward - s.rotation.y);
+      s.scale.setScalar(S);
+      // an overhanging face: wider at the top than the foot, split by ledges, with boulders breaking from it
+      const face = new THREE.CylinderGeometry(420, 150, lift, 10, 3, true); face.translate(0, -lift / 2, 0);
+      const pos = face.attributes.position; for (let i = 0; i < pos.count; i++) { const y = pos.getY(i); const j = ((i * 7919) % 13) / 13 - 0.5; pos.setX(i, pos.getX(i) * (1 + 0.12 * j)); pos.setZ(i, pos.getZ(i) * (1 + 0.12 * j)); if (y > -lift * 0.95 && y < -5) pos.setY(i, y + 40 * j); }
+      face.computeVertexNormals();
+      s.add(new THREE.Mesh(face, hazed('#3a3a42', t.d)));
+      for (let i = 0; i < 14; i++) { const a = (i / 14) * Math.PI * 2 + 0.3, r = 300 + (i % 3) * 60, h = -lift * (0.15 + (i % 5) * 0.16); const b = new THREE.Mesh(new THREE.IcosahedronGeometry(45 + (i % 4) * 25, 0), hazed('#44444c', t.d)); b.position.set(Math.cos(a) * r, h, Math.sin(a) * r); s.add(b); }
+      // black water at the foot of the cliff, and the river that feeds it
+      const lake = new THREE.Mesh(new THREE.CircleGeometry(900, 40), new THREE.MeshBasicMaterial({ color: blend('#1e2a33', haze(t.d) * 0.5), fog: false })); lake.rotation.x = -Math.PI / 2; lake.position.y = -lift + 0.4; s.add(lake);
+      const spray = new THREE.Mesh(new THREE.TorusGeometry(260, 60, 6, 24), new THREE.MeshBasicMaterial({ color: '#c9d2d8', transparent: true, opacity: 0.35, fog: false })); spray.rotation.x = -Math.PI / 2; spray.position.y = -lift + 30; s.add(spray);
+    } else if (lift > 0) { // its own crag
       const pr = p.type === 'castle' ? 330 : 120;
       const pillar = new THREE.CylinderGeometry(pr, pr * 1.6, lift, 12, 1, true); pillar.translate(0, -lift / 2, 0);
       const pm = new THREE.Mesh(pillar, hazed('#4a4a52', t.d)); s.add(pm);

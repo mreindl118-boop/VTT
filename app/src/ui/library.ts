@@ -9,7 +9,6 @@ export function openLibrary(built: Set<string>, active: Campaign, onOpen: (path:
   const render = () => {
     const m = manifestOf(camp);
     const locs = m.locations as ManifestLoc[];
-    const devBuilt = camp.id === 'cos' ? [...built].filter((p) => p.startsWith('dev/')) : [];
     const row = (l: ManifestLoc) => {
       const p = l.path.replace(/^locations\//, ''), ok = built.has(p);
       return `<button class="row${ok ? ' built' : ''}" ${ok ? `data-path="${p}"` : 'disabled'}><span class="k">${l.id}</span><span class="n">${l.name}</span><span class="meta">${l.areas.length} ${l.areas.length === 1 ? 'key' : 'keys'}${l.mapPages.length ? ` · p.${l.mapPages[0]}` : ''}</span><span class="chip ${l.status}">${ok ? 'open' : l.status}</span></button>`;
@@ -21,7 +20,6 @@ export function openLibrary(built: Set<string>, active: Campaign, onOpen: (path:
       `<div class="sheet library"><header><h2>Library</h2><button class="icon close" aria-label="Close">${ICON.close}</button></header>`,
       `<div class="campaigns" role="tablist" aria-label="Campaign">${CAMPAIGNS.map((c) => `<button role="tab" data-camp="${c.id}" aria-selected="${c.id === camp.id}"><b>${c.name}</b><span>${c.subtitle}</span></button>`).join('')}</div>`,
       '<div class="sheet-body">',
-      devBuilt.length ? `<section><h3>Development</h3>${devBuilt.map((p) => `<button class="row built" data-path="${p}"><span class="k">dev</span><span class="n">${p.split('/')[1]}</span><span class="chip">open</span></button>`).join('')}</section>` : '',
       ...groups,
       '</div></div>',
     ].join('');
