@@ -956,6 +956,24 @@ export class App {
     const px = Math.hypot((p1.x - p0.x) * r.width / 2, (p1.y - p0.y) * r.height / 2) / 10;
     return { north: -north, pxPerFt: px };
   }
+  /** The current level as flat outlines for the minimap: floor, terrain (with its surface), rooms, walls, the party. */
+  plan(): { floor: Vec2[][]; terrain: { poly: Vec2[]; floor?: string }[]; rooms: Vec2[][]; walls: [Vec2, Vec2][]; party?: Vec2; north: [number, number] } | null {
+    if (!this.cur) return null;
+    const l = this.level, g = this.cur.grid.levels[l.id];
+    const n = l.north ?? '-z', north: [number, number] = n === '+z' ? [0, 1] : n === '-x' ? [-1, 0] : n === '+x' ? [1, 0] : [0, -1];
+    const party = this.tokensHere().find((t) => t.role === 'party');
+    return { floor: g.floorPolygons as Vec2[][], terrain: (l.terrain ?? []).map((t) => ({ poly: t.polygon as Vec2[], floor: t.floor })), rooms: l.rooms.map((r) => r.polygon as Vec2[]), walls: l.walls.map((w) => [w.a as Vec2, w.b as Vec2]), party: party?.pos, north };
+  }
+  /** Where the camera looks on the ground: the four screen corners dropped onto the level's floor plane (null where a corner sees sky). */
+  cameraGround(): (Vec2 | null)[] {
+    const y = this.cur ? this.level.elevationFt : 0, plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -y), ray = new THREE.Raycaster();
+    return ([[-1, 1], [1, 1], [1, -1], [-1, -1]] as [number, number][]).map(([x, yy]) => {
+      ray.setFromCamera(new THREE.Vector2(x, yy), this.world.camera); const hit = new THREE.Vector3();
+      return ray.ray.intersectPlane(plane, hit) ? [hit.x, hit.z] as Vec2 : null;
+    });
+  }
+  /** Look at a plan point without changing height or heading. */
+  lookAt(p: Vec2): void { const t = this.world.controls.target; this.world.moveTo(new THREE.Vector3(p[0], t.y, p[1]), undefined, true); }
   /** Called before a location closes, so menus, cards and tooltips can go too. */
   onLeave?: () => void;
   private makeRing(color: string, opacity: number): THREE.Mesh {

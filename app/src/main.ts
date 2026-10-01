@@ -3,6 +3,7 @@ import './styles.css';
 import { App, type GridMode } from './app';
 import { builtPaths, loadLocation } from './data';
 import { openWorldMap } from './ui/worldmap';
+import { buildMinimap } from './ui/minimap';
 import { openBestiary } from './ui/bestiary';
 import { creatureById, statsOf, seenAs } from './bestiary';
 import { openEncounterSheet, turnBar } from './ui/encounter';
@@ -69,27 +70,25 @@ function buildDmUi(): void {
     </div>
     <div class="group center"><div class="seg levels" role="tablist"></div><label class="section" hidden title="Section: slide to cut the building at any height"><span class="sec-label">Section</span><input type="range" min="0" max="100" step="0.5" list="sec-detents" aria-label="Section height"><datalist id="sec-detents"></datalist><span class="sec-ft"></span><button class="icon" data-act="sec-follow" aria-label="Follow the floor">${ICON.walls}</button></label></div>
     <div class="group right dm-only">
-      <div class="seg tools" role="toolbar" aria-label="Reveal tools">
-        <button class="icon" data-tool="reveal" aria-label="Reveal / hide (tap a room, object or secret door)">${ICON.reveal}</button>
-        <button class="icon" data-tool="brush-reveal" aria-label="Paint reveal">${ICON.brush}</button>
-        <button class="icon" data-tool="brush-fog" aria-label="Paint fog">${ICON.fog}</button>
-        <button class="icon" data-tool="measure" aria-label="Measure (tap two points)" title="Measure: tap two points">${ICON.ruler}</button>
-        <button class="icon" data-act="undo" aria-label="Undo reveal">${ICON.undo}</button>
-      </div>
-      <span class="divider"></span>
+      <details class="menu" data-menu="tools"><summary class="icon" aria-label="Reveal and measure tools" title="Tools">${ICON.reveal}</summary><div class="menu-panel">
+        <button class="icon" data-tool="reveal" aria-label="Reveal / hide (tap a room, object or secret door)" title="Reveal / hide">${ICON.reveal}<span>Reveal / hide</span></button>
+        <button class="icon" data-tool="brush-reveal" aria-label="Paint reveal" title="Paint reveal">${ICON.brush}<span>Paint reveal</span></button>
+        <button class="icon" data-tool="brush-fog" aria-label="Paint fog" title="Paint fog">${ICON.fog}<span>Paint fog</span></button>
+        <button class="icon" data-tool="measure" aria-label="Measure (tap two points)" title="Measure: tap two points">${ICON.ruler}<span>Measure</span></button>
+        <button class="icon" data-act="undo" aria-label="Undo reveal" title="Undo reveal">${ICON.undo}<span>Undo reveal</span></button>
+      </div></details>
       <button class="icon" data-act="creatures" aria-label="Creatures" title="Creatures: people, monsters and beasts to place">${ICON.paw}</button>
       <button class="icon" data-act="encounter" aria-label="Initiative" title="Initiative (roll, ranges, turns)">${ICON.swords}</button>
-      <span class="divider"></span>
       <button class="icon" data-act="search" aria-label="Go to area (/)" title="Go to area (/)">${ICON.search}</button>
-      <button class="icon" data-act="rooms" aria-label="Rooms">${ICON.list}</button>
-      <button class="icon" data-act="grid" aria-label="Grid: square / hex / off"></button>
-      <button class="icon" data-act="walls" aria-label="Walls: low / full">${ICON.walls}</button>
-      <button class="icon" data-act="mist" aria-label="Mist on / off" aria-pressed="true" title="Mist on / off">${ICON.fog}</button>
-      <button class="clock" data-act="clock" aria-label="Time of day and calendar" title="Time of day and calendar">${ICON.sun}<span><span class="ck-time">14:00</span><span class="ck-day">Day 1 · 1 Mirtul</span></span></button>
-      <button class="icon" data-act="labels" aria-label="Labels: keys / all / none"></button>
-      <span class="divider"></span>
-      <button class="icon" data-act="lock" aria-label="Player camera follows DM"></button>
-      <button class="icon" data-act="display" aria-label="Open Player Display">${ICON.display}</button>
+      <button class="icon" data-act="rooms" aria-label="Rooms" title="Rooms">${ICON.list}</button>
+      <details class="menu" data-menu="view"><summary class="icon" aria-label="View options" title="View">${ICON.grid}</summary><div class="menu-panel">
+        <button class="icon" data-act="grid" aria-label="Grid: square / hex / off" title="Grid"><i></i><span>Grid</span></button>
+        <button class="icon" data-act="walls" aria-label="Walls: low / full" title="Walls">${ICON.walls}<span>Walls low / full</span></button>
+        <button class="icon" data-act="mist" aria-label="Mist on / off" aria-pressed="true" title="Mist on / off">${ICON.fog}<span>Mist</span></button>
+        <button class="icon" data-act="labels" aria-label="Labels: keys / all / none" title="Labels"><i></i><span>Labels</span></button>
+        <button class="icon" data-act="lock" aria-label="Player camera follows DM" title="Player camera follows DM"><i></i><span>Players follow my camera</span></button>
+        <button class="icon" data-act="display" aria-label="Open Player Display" title="Open Player Display">${ICON.display}<span>Player display</span></button>
+      </div></details>
     </div>`;
   ui.appendChild(top);
 
@@ -109,6 +108,7 @@ function buildDmUi(): void {
     <span class="divider"></span>
     <button class="icon" data-cam="help" aria-label="Help">${ICON.help}</button>`;
   ui.appendChild(cam);
+  const minimap = buildMinimap(app, ui, () => openClock());
   ui.insertAdjacentHTML('beforeend', `<div class="mapframe" aria-hidden="true"><div class="compass"><svg viewBox="0 0 40 40"><path d="M20 4 L26 22 L20 18 L14 22 Z" fill="#c0392b"/><path d="M20 36 L14 18 L20 22 L26 18 Z" fill="#e8e3d8" opacity=".55"/></svg><b>N</b></div><div class="scalebar"><i></i><span>50 ft</span></div></div>`);
   cam.addEventListener('click', (e) => {
     const b = (e.target as HTMLElement).closest<HTMLElement>('button');
@@ -165,7 +165,8 @@ function buildDmUi(): void {
   });
   // The clock popover: an hour dial, a day stepper, the date and the moon.
   let clockEl: HTMLElement | null = null;
-  const openClock = () => {
+  // openClock is defined below; the minimap's clock button calls it through this hook.
+  function openClock(): void {
     if (clockEl) { clockEl.remove(); clockEl = null; return; }
     const el = document.createElement('div'); el.className = 'clockpop'; clockEl = el;
     const render = () => {
@@ -186,7 +187,7 @@ function buildDmUi(): void {
       render(); refresh();
     });
     ui.appendChild(el);
-  };
+  }
   // The compass turns with the camera; the scale bar stretches to a round number of feet.
   const frameUi = () => {
     const f = app.cameraFrame(), c = document.querySelector<HTMLElement>('.mapframe .compass svg'), sb = document.querySelector<HTMLElement>('.mapframe .scalebar'); if (!c || !sb || !app.cur) return;
@@ -199,7 +200,7 @@ function buildDmUi(): void {
   app.onCameraUi = frameUi;
   const refresh = () => {
     frameUi();
-    { const c = app.clock, b = top.querySelector<HTMLElement>('[data-act="clock"]'); if (b) { b.querySelector('.ck-time')!.textContent = app.sky.label.split(' · ')[1]; b.querySelector('.ck-day')!.textContent = `Day ${c.day} · ${app.sky.label.split(' · ')[2]}`; b.querySelector('svg')?.replaceWith(Object.assign(document.createElement('i'), { innerHTML: app.sky.night ? ICON.moon : ICON.sun }).firstElementChild!); b.classList.toggle('night', app.sky.night); } }
+    { const c = app.clock, b = document.querySelector<HTMLElement>('[data-act="clock"]'); if (b) { b.querySelector('.ck-time')!.textContent = app.sky.label.split(' · ')[1]; b.querySelector('.ck-day')!.textContent = `Day ${c.day} · ${app.sky.label.split(' · ')[2]}`; b.querySelector('svg')?.replaceWith(Object.assign(document.createElement('i'), { innerHTML: app.sky.night ? ICON.moon : ICON.sun }).firstElementChild!); b.classList.toggle('night', app.sky.night); } }
     bar.update();
     const range = app.sectionRange;
     section.hidden = !range;
@@ -218,20 +219,28 @@ function buildDmUi(): void {
     lv.innerHTML = app.cur.scene.levels.map((l) => `<button role="tab" data-level="${l.id}" aria-selected="${l.id === app.levelId}">${l.name}${app.party?.level === l.id ? ' <i class="dot"></i>' : ''}</button>`).join('');
     (lv as HTMLElement).style.display = app.cur.scene.levels.length > 1 ? '' : 'none';
     top.querySelectorAll<HTMLElement>('[data-tool]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.tool === app.tool)));
-    top.querySelector('[data-act="grid"]')!.innerHTML = app.gridMode === 'hex' ? ICON.hex : app.gridMode === 'square' ? ICON.grid : ICON.gridOff;
-    top.querySelector('[data-act="labels"]')!.innerHTML = app.labelMode === 'all' ? ICON.label : app.labelMode === 'keys' ? ICON.labelKeys : ICON.labelOff;
+    const slot = (act: string, html: string) => { const b = top.querySelector(`[data-act="${act}"]`)!; (b.querySelector('i') ?? b).innerHTML = html; };
+    slot('grid', app.gridMode === 'hex' ? ICON.hex : app.gridMode === 'square' ? ICON.grid : ICON.gridOff);
+    slot('labels', app.labelMode === 'all' ? ICON.label : app.labelMode === 'keys' ? ICON.labelKeys : ICON.labelOff);
     top.querySelector('[data-act="walls"]')!.setAttribute('aria-pressed', String(!app.lowWalls));
-    top.querySelector('[data-act="lock"]')!.innerHTML = app.lockPlayerCamera ? ICON.lock : ICON.unlock;
+    slot('lock', app.lockPlayerCamera ? ICON.lock : ICON.unlock);
+    top.querySelector('[data-act="lock"]')!.setAttribute('aria-pressed', String(app.lockPlayerCamera));
+    top.querySelector('details[data-menu="tools"]')!.classList.toggle('active', app.tool !== 'none');
+    minimap.draw();
     cam.querySelector('[data-cam="follow"]')!.setAttribute('aria-pressed', String(app.follow));
     cam.querySelector('[data-cam="tilt"]')!.innerHTML = app.camPreset === 'top' ? ICON.camera : ICON.top;
+    app.onCameraUi = () => { frameUi(); minimap.draw(); };
     slider!.el.hidden = app.view === 'players';
     if (roomsSheet) renderRooms();
   };
   app.onChange = refresh;
 
+  top.addEventListener('toggle', (e) => { const d = e.target as HTMLDetailsElement; if (d.open) top.querySelectorAll<HTMLDetailsElement>('details.menu[open]').forEach((o) => { if (o !== d) o.open = false; }); }, true);
+  document.addEventListener('pointerdown', (e) => { if (!(e.target as Element).closest('details.menu')) top.querySelectorAll<HTMLDetailsElement>('details.menu[open]').forEach((o) => { o.open = false; }); });
   top.addEventListener('click', (e) => {
     const b = (e.target as HTMLElement).closest<HTMLElement>('button');
     if (!b) return;
+    if (b.dataset.tool) b.closest<HTMLDetailsElement>('details.menu')?.removeAttribute('open');
     if (b.dataset.level) app.setLevel(b.dataset.level, true);
     if (b.dataset.view) app.setView(b.dataset.view as 'dm' | 'players');
     if (b.dataset.tool) { app.tool = app.tool === b.dataset.tool ? 'none' : (b.dataset.tool as typeof app.tool); app.setStatus(app.tool === 'none' ? '' : b.getAttribute('aria-label')!); }

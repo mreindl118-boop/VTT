@@ -157,7 +157,7 @@ body[data-view='players'] .lbl.link { display: none; }
 
 /* Top bar: one row when it fits; otherwise title and tools on top, floor tabs centred below. Never overlaps. */
 .topbar { display: grid; grid-template-columns: auto 1fr auto; grid-template-areas: 'left center right'; align-items: start; }
-.topbar .group.left { grid-area: left; justify-self: start; } .topbar .group.right { grid-area: right; flex-wrap: nowrap; } .topbar .group.center { grid-area: center; justify-self: center; max-width: 100%; overflow-x: auto; scrollbar-width: none; }
+.topbar .group.left { grid-area: left; justify-self: start; flex-wrap: wrap; } .topbar .group.right { grid-area: right; flex-wrap: wrap; justify-content: flex-end; max-width: 46vw; } .topbar .group.center { grid-area: center; justify-self: center; max-width: 100%; overflow-x: auto; scrollbar-width: none; }
 .topbar .group.center::-webkit-scrollbar { display: none; }
 .topbar .seg.levels { flex-wrap: nowrap; } .topbar .seg.levels button { white-space: nowrap; }
 @media (max-width: 1400px) {
@@ -328,7 +328,7 @@ button.clock.night svg { color: #9fb0d8; }
 button.clock .ck-time { font-weight: 700; font-size: 12px; font-variant-numeric: tabular-nums; }
 button.clock .ck-day { font-size: 9.5px; color: var(--ink-2); }
 button.clock.night .ck-time { color: #9fb0d8; }
-.clockpop { position: absolute; top: 64px; right: 16px; z-index: 6; width: min(360px, calc(100% - 32px)); background: var(--bg); border-radius: 14px; box-shadow: 0 12px 40px rgba(0,0,0,.35); padding: 12px 14px; display: grid; gap: 10px; font-size: 13px; }
+.clockpop { position: absolute; bottom: calc(env(safe-area-inset-bottom) + 72px); left: 16px; z-index: 6; width: min(360px, calc(100% - 32px)); background: var(--bg); border-radius: 14px; box-shadow: 0 12px 40px rgba(0,0,0,.35); padding: 12px 14px; display: grid; gap: 10px; font-size: 13px; }
 .clockpop .ck-head { display: flex; align-items: center; gap: 8px; } .clockpop .ck-head b { flex: 1; font-size: 13px; }
 .clockpop label { display: flex; align-items: center; gap: 8px; color: var(--ink-2); } .clockpop label input { flex: 1; accent-color: var(--accent); } .clockpop .ck-val { min-width: 44px; text-align: right; font-variant-numeric: tabular-nums; color: var(--ink); }
 .clockpop .ck-row { display: flex; align-items: center; gap: 6px; } .clockpop .ck-row .spacer { flex: 1; } .clockpop .ck-row button { padding: 5px 9px; border-radius: 8px; font-size: 12px; }
@@ -346,3 +346,20 @@ body.world-open .mapframe { display: none; }
 .scalebar { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; min-width: 60px; } .scalebar i { display: block; height: 6px; border: 2px solid var(--ink); border-top: none; width: 70px; transition: width .15s; } .scalebar span { font-size: 10px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
 .lbl.ruler { font: 700 12px var(--font); color: #f2b35b; background: rgba(20,18,24,.78); padding: 2px 7px; border-radius: 6px; text-shadow: none; }
 button.icon[data-tool='measure'][aria-pressed='true'] { background: var(--accent); color: #fff; }
+
+/* menus: a summary button that opens a panel of labelled choices; one open at a time */
+details.menu { position: relative; }
+details.menu > summary { list-style: none; cursor: pointer; }
+details.menu > summary::-webkit-details-marker { display: none; }
+details.menu[open] > summary, details.menu.active > summary { background: var(--accent); color: #fff; }
+details.menu .menu-panel { position: absolute; top: calc(100% + 6px); right: 0; z-index: 7; min-width: 220px; display: grid; gap: 2px; padding: 6px; background: var(--bg); border: var(--hairline, 1px) solid var(--hair); border-radius: 12px; box-shadow: 0 12px 40px rgba(0,0,0,.3); }
+details.menu .menu-panel button.icon { width: auto; height: 36px; display: flex; flex-direction: row; align-items: center; justify-content: flex-start; gap: 10px; padding: 0 10px; border-radius: 8px; font-size: 13px; white-space: nowrap; }
+details.menu .menu-panel button.icon > i { display: inline-flex; width: 22px; height: 22px; } details.menu .menu-panel button.icon > i svg, details.menu .menu-panel button.icon > svg { width: 20px; height: 20px; }
+details.menu .menu-panel button[aria-pressed='true'] { background: var(--accent); color: #fff; }
+
+/* the minimap: bottom-left above the camera cluster, at most an eighth of the page, the clock on top of it */
+.minimap { position: absolute; left: 10px; bottom: calc(env(safe-area-inset-bottom) + 64px); width: min(300px, 32vw); aspect-ratio: 16 / 10; max-height: 25vh; display: flex; flex-direction: column; overflow: hidden; background: var(--panel); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); border: var(--hairline, 1px) solid var(--hair); border-radius: var(--radius); }
+.minimap .clock { position: absolute; top: 6px; left: 6px; right: 6px; z-index: 2; min-width: 0; background: var(--bg); box-shadow: 0 1px 3px rgba(0,0,0,.25); }
+.minimap canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: crosshair; }
+.minimap .mm-north { position: absolute; right: 8px; bottom: 6px; font-size: 10px; color: var(--ink-2); z-index: 2; }
+body[data-view='players'] .minimap { display: none; }

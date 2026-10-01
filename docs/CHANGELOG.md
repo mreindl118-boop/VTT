@@ -324,3 +324,7 @@
   Settled buildings sit on the 5-ft lattice, turned in 45° steps.
 - Camera presets: tabletop (free turn), isometric (true 35° pitch, snapped to the grid's diagonals) and
   overhead (north up, square to the grid); the tilt button cycles them.
+- The top-right bar folds into two menus (Tools: reveal, paint, measure, undo; View: grid, walls, mist, labels,
+  player camera, player display) beside the four everyday buttons, and every bar wraps instead of running off the
+  edge. The clock rides on a new bottom-left minimap: a north-up plan of the current level (ground, streets,
+  rooms, walls, a faint grid, the party, the wedge the camera looks at); tap it to look there.
