@@ -62,6 +62,7 @@ function buildDmUi(): void {
       <button class="icon" data-act="library" aria-label="Library">${ICON.library}</button>
       <button class="icon" data-act="world" aria-label="World map" title="World map of Barovia">${ICON.map}</button>
       <div class="title"><span class="loc"></span><span class="sub"></span></div>
+      <button class="icon back" data-act="back" hidden aria-label="Back to the town" title="Back to the town map">${ICON.rotateL}</button>
       <div class="seg mode" role="tablist" aria-label="Mode">
         <button role="tab" data-view="dm">DM</button><button role="tab" data-view="players">Players</button>
       </div>
@@ -170,6 +171,7 @@ function buildDmUi(): void {
     if (!app.cur) return;
     document.body.dataset.view = app.view;
     top.querySelector('.loc')!.textContent = app.cur.scene.name;
+    top.querySelector<HTMLElement>('.back')!.hidden = !app.cur.scene.parent || !builtPaths.has(app.cur.scene.parent);
     top.querySelector('.sub')!.textContent = `${app.cur.scene.mapPage ? `map p.${app.cur.scene.mapPage}` : app.campaign.name} · ${app.cur.scene.placementFt ? `${app.cur.scene.placementFt}-ft placement squares` : `${app.cur.scene.bookScaleFt}-ft squares`}`;
     top.querySelectorAll<HTMLElement>('[data-view]').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.view === app.view)));
     const lv = top.querySelector('.levels')!;
@@ -195,6 +197,7 @@ function buildDmUi(): void {
     if (b.dataset.tool) { app.tool = app.tool === b.dataset.tool ? 'none' : (b.dataset.tool as typeof app.tool); app.setStatus(app.tool === 'none' ? '' : b.getAttribute('aria-label')!); }
     switch (b.dataset.act) {
       case 'library': openLibrary(builtPaths, app.campaign, (p) => { localStorage.setItem('mistlab.scene', p); void app.open(p).then(() => app.layoutChanged()); }); break;
+      case 'back': { const par = app.cur?.scene.parent; if (par) { localStorage.setItem('mistlab.scene', par); void app.open(par).then(() => app.layoutChanged()); } break; }
       case 'world': openWorldMap({
         canMove: !app.restricted,
         dm: !app.restricted,
@@ -315,6 +318,7 @@ function buildDmUi(): void {
     if (hit.door) items.push({ label: hit.door.open ? 'Close door' : 'Open door', icon: ICON.walls, act: () => app.toggleDoor(hit.door!.wallId) });
     if (hit.secretDoor) items.push({ label: hit.secretDoor.revealed ? 'Hide secret door again' : 'Reveal secret door to players', icon: ICON.eye, act: () => app.revealSecretDoor(hit.secretDoor!.id) });
     if (hit.room) {
+      if (hit.room.enter && builtPaths.has(hit.room.enter)) { const to = hit.room.enter; items.push({ label: `Enter ${hit.room.name}`, icon: ICON.doorOpen, act: () => { localStorage.setItem('mistlab.scene', to); void app.open(to).then(() => app.layoutChanged()); } }); }
       items.push({ label: `${hit.room.revealed ? 'Hide' : 'Reveal'} ${hit.room.key} ${hit.room.name}`, icon: ICON.reveal, act: () => app.toggleRoom(hit.room!.key) });
       items.push({ label: 'Move party here', icon: ICON.token, act: () => { const t = app.party; if (t) { t.level = app.levelId; t.pos = app.snap(hit.pos); app.afterPartyMoveFromUi(); } } });
       items.push({ label: `Frame ${hit.room.key}`, icon: ICON.party, act: () => app.jumpTo(hit.room!.key) });

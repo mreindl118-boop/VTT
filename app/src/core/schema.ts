@@ -21,6 +21,8 @@ export type WallMaterial = (typeof WALL_MATERIALS)[number];
 export type Ambient = 'darkness' | 'interior-dim' | 'barovian-overcast' | 'night' | 'fog' | 'storm';
 
 export interface Room {
+  /** A keyed building with its own map: the scene path the town map opens (its blowout). */
+  enter?: string;
   /** Book area key, exactly as printed: "E5f", "K84", "12". */
   key: string;
   name: string;
@@ -152,6 +154,8 @@ export interface SceneFile {
   partial?: boolean;
   /** The level a visit starts on when the state has none (default: the first). */
   entry?: string;
+  /** The map this one is a blowout of (a town for a house): where "back" goes. */
+  parent?: string;
 }
 
 export interface GridLevel {

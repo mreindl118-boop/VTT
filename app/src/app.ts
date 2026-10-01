@@ -34,7 +34,7 @@ export type Mode = 'dm' | 'player';
 export type Tool = 'none' | 'reveal' | 'brush-reveal' | 'brush-fog';
 export type GridMode = 'off' | 'square' | 'hex';
 export interface TapHit {
-  room?: { key: string; name: string; revealed: boolean; desc?: string; dm?: string; page?: number };
+  room?: { key: string; name: string; revealed: boolean; desc?: string; dm?: string; page?: number; enter?: string };
   pos: Vec2;
   door?: { wallId: string; open: boolean };
   secretDoor?: { id: string; revealed: boolean };
@@ -218,6 +218,8 @@ export class App {
       this.backdrop = buildBackdrop({ center: [(bb.minX + bb.maxX) / 2, (bb.minZ + bb.maxZ) / 2], radius: Math.hypot(bb.maxX - bb.minX, bb.maxZ - bb.minZ) / 2, elevation: l0.elevationFt, pin: pin!.pos as Vec2, world: worldOf(this.campaign), theme: this.campaign.theme, valley: !!scene.valley, bounds: bb, north: l0.north, roads, crag: pin!.heightFt ?? 0 });
       this.world.scene.add(this.backdrop);
     }
+    const span = Math.hypot(bounds(l0.rooms.map((r) => r.polygon).concat((l0.terrain ?? []).map((t) => t.polygon))).maxX - bounds(l0.rooms.map((r) => r.polygon).concat((l0.terrain ?? []).map((t) => t.polygon))).minX, 1);
+    this.world.fogScale = outdoor ? Math.min(1, 900 / span) : 1;
     this.world.setOutdoor(outdoor);
     if (pin && this.state.world?.key !== pin.key) this.moveWorld([...pin.pos] as Vec2, pin.key, this.state.world ? Math.hypot(this.state.world.pos[0] - pin.pos[0], this.state.world.pos[1] - pin.pos[1]) : 0, false);
     this.ensureDefaultToken();
@@ -1016,7 +1018,7 @@ export class App {
       if (obj && this.onTap && this.playerCanSee(obj)) { this.onTap({ pos: [0, 0], object: { id: obj.id, label: playerLabel(obj), container: this.containerInfo(obj, true), vis: obj.vis, revealed: true, kind: obj.kind, desc: playerDesc(obj), visibleToPlayers: true } }, e.clientX, e.clientY); return; }
       // A revealed room: its name and what the party notices there.
       const fp = this.floorPoint(e), room = fp && this.roomAt(this.level, fp);
-      if (room && this.onTap && this.isRevealed(room.key)) this.onTap({ pos: fp!, room: { key: room.key, name: room.name, revealed: true, desc: room.desc } }, e.clientX, e.clientY);
+      if (room && this.onTap && this.isRevealed(room.key)) this.onTap({ pos: fp!, room: { key: room.key, name: room.name, revealed: true, desc: room.desc, enter: room.enter } }, e.clientX, e.clientY);
       return;
     }
     const sd = hit && (findUp(hit.object, 'secretDoor') ?? (hit.object.userData.role === 'door' ? this.built.secretDoors.find((s) => s.door === hit.object)?.objectId : undefined));
@@ -1028,7 +1030,7 @@ export class App {
       const obj = oid ? this.level.objects.find((o) => o.id === oid) : undefined;
       const pos = p ? ([p[0], p[1]] as Vec2) : ([0, 0] as Vec2);
       const rs = revealSets(this.state, this.cur!.scene.location);
-      const info: TapHit = { room: room ? { key: room.key, name: room.name, revealed: this.isRevealed(room.key), desc: room.desc, dm: room.dm, page: room.page } : undefined, pos,
+      const info: TapHit = { room: room ? { key: room.key, name: room.name, revealed: this.isRevealed(room.key), desc: room.desc, dm: room.dm, page: room.page, enter: room.enter } : undefined, pos,
         door: wallId ? { wallId, open: !!(this.state.doorsOpen[`${this.cur!.scene.location}/${wallId}`] ?? this.level.walls.find((w) => w.id === wallId)?.open) } : undefined,
         secretDoor: sd ? { id: sd, revealed: rs.secretDoors.has(sd) } : undefined,
         object: obj ? { id: obj.id, label: obj.label ?? kindName(obj.kind), playerLabel: playerLabel(obj), container: this.containerInfo(obj, false), vis: obj.vis, revealed: rs.objects.has(obj.id), kind: obj.kind, desc: playerDesc(obj), dm: obj.dm, page: this.level.rooms.find((r) => r.key === obj.key)?.page, visibleToPlayers: this.playerCanSee(obj) } : undefined };

@@ -36,7 +36,7 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
   for (let i = 0; i < pos.count; i++) { const d = Math.hypot(pos.getX(i), pos.getY(i)); const c = blend(T.apron, Math.min(0.9, (d - R) / 26000)); cols.push(c.r, c.g, c.b); }
   apron.setAttribute('color', new THREE.Float32BufferAttribute(cols, 3));
   const apronMesh = new THREE.Mesh(apron, new THREE.MeshBasicMaterial({ vertexColors: true, fog: false }));
-  apronMesh.rotation.x = -Math.PI / 2; apronMesh.position.set(cx, y0 - 0.35, cz);
+  apronMesh.rotation.x = -Math.PI / 2; apronMesh.position.set(cx, y0 - 3, cz); // well under the map's own ground: big maps have little depth precision to spare
   g.add(apronMesh);
 
   // World-map positions at TRUE scale: miles → feet, x east, z south. Distant things are hazed by distance
@@ -160,7 +160,7 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
   for (const l of W.lakes) {
     const t = toWorld(l.center); if (t.d > 80000) continue;
     const m = new THREE.Mesh(new THREE.CircleGeometry(1, 48), new THREE.MeshBasicMaterial({ color: blend('#5e7d94', haze(t.d)), fog: false }));
-    m.rotation.x = -Math.PI / 2; m.scale.set(l.r[0] * FT, l.r[1] * FT, 1); m.position.set(t.x, y0 - 0.2, t.z); g.add(m);
+    m.rotation.x = -Math.PI / 2; m.scale.set(l.r[0] * FT, l.r[1] * FT, 1); m.position.set(t.x, y0 - 2.6, t.z); g.add(m);
   }
 
   // 4. The other places on the world map, at true scale and distance: visual only, nothing to click.
@@ -260,8 +260,8 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
     geo.setAttribute('position', new THREE.Float32BufferAttribute(P3, 3)); geo.setAttribute('color', new THREE.Float32BufferAttribute(C, 3));
     g.add(new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ vertexColors: true, fog: false, side: THREE.DoubleSide })));
   };
-  for (const r of roadPaths) ribbon(r.pts, r.w, r.hex, y0 - 0.16);
-  for (const r of riverPaths) ribbon(r.pts, r.w, r.hex, y0 - 0.18);
+  for (const r of roadPaths) ribbon(r.pts, r.w, r.hex, y0 - 2.2);
+  for (const r of riverPaths) ribbon(r.pts, r.w, r.hex, y0 - 2.4);
   g.traverse((c) => { c.userData.role = 'backdrop'; });
   return g;
 }

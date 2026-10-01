@@ -99,7 +99,8 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
   }
   for (const t of level.terrain ?? []) {
     const arr = byFloor.get(t.floor) ?? [];
-    arr.push(slabGeometry(t.polygon, y0 - 0.05, 1));
+    // paths and cobbles ride a hair above the grass they cross, so they win the depth test on a big map
+    arr.push(slabGeometry(t.polygon, y0 - 0.05 + (t.floor === 'grass' || t.floor === 'snow' || t.floor === 'marsh' ? 0 : 0.12), 1));
     byFloor.set(t.floor, arr);
   }
   for (const [f, gs] of byFloor) {

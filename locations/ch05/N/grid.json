@@ -1,0 +1,35 @@
+{
+ "schema": 1,
+ "levels": {
+  "town": {
+   "floorPolygons": [
+    [
+     [
+      0,
+      0
+     ],
+     [
+      7350,
+      0
+     ],
+     [
+      7350,
+      4580
+     ],
+     [
+      0,
+      4580
+     ]
+    ]
+   ],
+   "type": "square",
+   "hexOrientation": "pointy",
+   "origin": [
+    0,
+    0
+   ],
+   "color": "#1d1b22",
+   "opacity": 0
+  }
+ }
+}

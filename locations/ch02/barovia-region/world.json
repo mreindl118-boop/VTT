@@ -183,6 +183,9 @@
     4.36
    ],
    "type": "settlement",
+   "scenes": [
+    "ch05/N"
+   ],
    "blurb": "A walled town that keeps the devil at bay with festivals and locked gates.",
    "dm": "Baron Vargas, the Wachters, Blinsky, St. Andral's church and the missing bones."
   },
