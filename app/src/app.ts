@@ -4,7 +4,7 @@ import type { CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js'
 import { bounds, pointInPolygon, type Vec2 } from './core/geometry';
 import { CoverageMap, Cov } from './core/coverage';
 import { squareCellAt, squareCellCenter, squareDistanceFt, worldToHex, hexToWorld, hexDistanceFt, hexSizeFromWidth, type DiagonalRule } from './core/grid';
-import { OPENABLE_KINDS, type Container, type GridFile, type Level, type LightSource, type SceneFile, type SceneObject, type Wall } from './core/schema';
+import { OPENABLE_KINDS, type Container, type GridFile, type Level, type LightSource, type SceneFile, type SceneObject, type Wall, type Ambient } from './core/schema';
 import { moveBlockers } from './core/light';
 import { canWalk } from './core/movement';
 import { classOpacity, fogCurve, hiddenCurve, labelCurve } from './core/slider';
@@ -27,6 +27,8 @@ import { newCampaign, revealSets, type CampaignState, type Combatant, type Encou
 import { tacticalRange, type RangeResult } from './core/range';
 import { buildRangeOverlay } from './render/rangeOverlay';
 import { SHELL_ROLES } from './render/materials';
+import { skyAt, type Sky } from './core/sky';
+const PARTY_RED = '#c0392b';
 import { creatureById, figureFor, aliasFor, seenAs, statsOf, speedFtOf, colorOf } from './bestiary';
 import { sightBlockers } from './core/light';
 import { idbGet, idbSet } from './state/idb';
@@ -222,6 +224,7 @@ export class App {
     const span = Math.hypot(bounds(l0.rooms.map((r) => r.polygon).concat((l0.terrain ?? []).map((t) => t.polygon))).maxX - bounds(l0.rooms.map((r) => r.polygon).concat((l0.terrain ?? []).map((t) => t.polygon))).minX, 1);
     this.world.fogScale = outdoor ? Math.min(1, 900 / span) : 1;
     this.world.setOutdoor(outdoor);
+    this.applySky();
     if (pin && this.state.world?.key !== pin.key) this.moveWorld([...pin.pos] as Vec2, pin.key, this.state.world ? Math.hypot(this.state.world.pos[0] - pin.pos[0], this.state.world.pos[1] - pin.pos[1]) : 0, false);
     this.ensureDefaultToken();
     this.setLevel(levelId && levels.has(levelId) ? levelId : scene.entry && levels.has(scene.entry) ? scene.entry : scene.levels[0].id, true);
@@ -294,7 +297,7 @@ export class App {
     }
     const c = squareCellCenter(squareCellAt(pos));
     // The party carries a torch (PHB 20/40) so unlit maps are playable out of the box.
-    this.state.tokens.push({ id: `pc-${loc}`, name: 'Party', location: loc, level: level.id, pos: c, size: 'medium', darkvisionFt: 0, color: PALETTE.amber, light: { bright: 20, dim: 40 }, role: 'party' });
+    this.state.tokens.push({ id: `pc-${loc}`, name: 'Party', location: loc, level: level.id, pos: c, size: 'medium', darkvisionFt: 0, color: PARTY_RED, light: { bright: 20, dim: 40 }, role: 'party' });
   }
 
   /** The party token for the loaded location. */
@@ -344,7 +347,7 @@ export class App {
     const loc = e.location, members = this.state.tokens.filter((t) => t.role === 'member' && t.location === loc);
     const lead = members[0];
     this.state.tokens = this.state.tokens.filter((t) => !(t.role === 'member' && t.location === loc));
-    if (!this.state.tokens.some((t) => t.location === loc)) this.state.tokens.push({ id: `pc-${loc}`, name: 'Party', location: loc, level: lead?.level ?? e.level, pos: lead?.pos ?? e.partyPos, size: 'medium', darkvisionFt: 0, color: PALETTE.amber, light: { bright: 20, dim: 40 }, role: 'party' });
+    if (!this.state.tokens.some((t) => t.location === loc)) this.state.tokens.push({ id: `pc-${loc}`, name: 'Party', location: loc, level: lead?.level ?? e.level, pos: lead?.pos ?? e.partyPos, size: 'medium', darkvisionFt: 0, color: PARTY_RED, light: { bright: 20, dim: 40 }, role: 'party' });
     this.state.encounter = undefined;
     this.select(null);
     if (this.cur?.scene.location === loc) this.syncTokens();
@@ -500,7 +503,8 @@ export class App {
       const g = new THREE.Group();
       const entry = t.creatureId ? creatureById(t.creatureId) : undefined;
       const fig = entry ? figureFor(entry) : adventurer(t.role === 'member' ? { cloth: t.color } : undefined); fig.position.y = 0.3;
-      g.add(baseRing(base, t.color), fig);
+      g.add(baseRing(base, t.role === 'party' ? PARTY_RED : t.color), fig);
+      if (t.role === 'party') { const amp = this.world.label('&', undefined, 'token party-amp'); amp.position.set(0, 7.6, 0); g.add(amp); }
       if (t.role === 'member' || t.role === 'creature') {
         const lb = this.world.label(this.restricted ? (t.playerName ?? t.name) : t.name, undefined, `token${t.role === 'creature' ? ' creature' : ''}${t.hidden ? ' hidden' : ''}`);
         lb.position.set(0, 7.2, 0); lb.element.style.setProperty('--tok', t.color); g.add(lb);
@@ -539,7 +543,7 @@ export class App {
       if (t.light) lights.push({ id: `tok:${t.id}`, pos: [t.pos[0], 4, t.pos[1]], bright: t.light.bright, dim: t.light.dim });
       return { pos: t.pos, darkvisionFt: t.darkvisionFt };
     });
-    cov.updateVision(viewers, this.cur.grid.levels[l.id].floorPolygons.concat(l.rooms.map((r) => r.polygon)), walls, lights, l.ambient ?? this.cur.scene.ambient, rs.secretWalls);
+    cov.updateVision(viewers, this.cur.grid.levels[l.id].floorPolygons.concat(l.rooms.map((r) => r.polygon)), walls, lights, this.ambientNow(l), rs.secretWalls);
     this.state.seen[`${loc}/${l.id}`] = cov.serialize().seen;
     const tex = this.cur.covTex.get(l.id)!;
     cov.toTexture(tex.image.data as Uint8Array);
@@ -731,6 +735,30 @@ export class App {
     if (save) this.commit();
   }
   undo(): void { if (this.state.reveals.pop()) this.commit(); }
+
+  // ------------------------------------------------------------------ the clock: day, hour, sun and moon
+  get clock(): { day: number; hour: number } { return this.state.clock ?? { day: 1, hour: 14 }; }
+  get sky(): Sky { return skyAt(this.clock, this.campaign.theme.id === 'pastoral' ? 'pastoral' : 'gothic', this.cur?.scene.ambient ?? 'barovian-overcast'); }
+  /** Is this level under the open sky? (It has terrain and is not a cave or cellar.) */
+  private openAir(l: Level): boolean { return !!l.terrain?.length && (l.ambient ?? this.cur!.scene.ambient) !== 'darkness'; }
+  /** The light the rules see on a level now: outdoors it follows the hour; indoors it is as authored. */
+  ambientNow(l: Level): Ambient {
+    const authored = l.ambient ?? this.cur!.scene.ambient;
+    if (!this.openAir(l)) return authored;
+    const s = skyAt(this.clock, this.campaign.theme.id === 'pastoral' ? 'pastoral' : 'gothic', authored);
+    return s.ambient;
+  }
+  setClock(day: number, hour: number): void {
+    const h = ((hour % 24) + 24) % 24;
+    this.state.clock = { day: Math.max(1, Math.round(day)), hour: Math.round(h * 4) / 4 };
+    this.applySky(); this.recompute(); this.commit(); this.onChange?.();
+  }
+  advance(hours: number): void { const c = this.clock; let h = c.hour + hours, d = c.day; while (h >= 24) { h -= 24; d++; } while (h < 0) { h += 24; d = Math.max(1, d - 1); } this.setClock(d, h); }
+  applySky(): void {
+    if (!this.cur) return;
+    const l0 = this.cur.scene.levels.find((l) => l.terrain?.length) ?? this.cur.scene.levels[0];
+    this.world.setSky(this.sky, this.openAir(l0) && !!this.backdrop);
+  }
 
   // ------------------------------------------------------------------ creatures: the repository on the map
   /** The creature being placed by taps, if any. */
@@ -1093,6 +1121,7 @@ export class App {
     if (m.kind === 'state') {
       if (!this.cur || this.cur.path !== m.location) await this.open(m.location, m.level);
       this.state = { ...newCampaign(this.campaign.id), ...m.state };
+      this.applySky();
       if (this.levelId !== m.level) this.setLevel(m.level);
       else { this.syncTokens(); this.recompute(); }
     } else if (m.kind === 'camera' && m.locked) {

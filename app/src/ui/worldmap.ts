@@ -230,7 +230,7 @@ export function openWorldMap(host: WorldHost): void {
   // party marker
   const party = el('g', { class: `wm-party${host.canMove ? ' movable' : ''}` }, svg);
   el('circle', { r: 0.42, class: 'halo' }, party); el('circle', { r: 0.3 }, party);
-  el('path', { d: 'M0,-0.16 a0.07,0.07 0 1 1 0.001,0 M-0.13,0.15 q0.13,-0.22 0.26,0', class: 'glyph' }, party);
+  const amp = el('text', { x: 0, y: 0.16, class: 'glyph amp' }, party); amp.textContent = '&';
   el('title', {}, party).textContent = host.canMove ? 'The party · drag to travel' : 'The party';
   const start = host.get() ?? { pos: (W.pins.find((p) => p.scenes?.length) ?? W.pins[0]).pos };
   let at: P = [...start.pos] as P;

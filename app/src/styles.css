@@ -316,3 +316,22 @@ body[data-zoom='mid'] .lbl.link { font-size: 10px; }
 .lbl.token.hidden { opacity: .55; font-style: italic; }
 .lbl.token.creature { color: #ffd6c8; }
 .sheet.encounter h3 { margin: 14px 0 6px; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-2); }
+
+/* the clock */
+button.clock { display: inline-flex; flex-direction: row; align-items: center; gap: 8px; padding: 3px 12px 3px 8px; border-radius: 10px; line-height: 1.15; min-width: 120px; background: var(--hair); }
+button.clock > span { display: flex; flex-direction: column; align-items: flex-start; }
+button.clock svg { width: 18px; height: 18px; color: #e6b84a; }
+button.clock.night svg { color: #9fb0d8; }
+button.clock .ck-time { font-weight: 700; font-size: 12px; font-variant-numeric: tabular-nums; }
+button.clock .ck-day { font-size: 9.5px; color: var(--ink-2); }
+button.clock.night .ck-time { color: #9fb0d8; }
+.clockpop { position: absolute; top: 64px; right: 16px; z-index: 6; width: min(360px, calc(100% - 32px)); background: var(--bg); border-radius: 14px; box-shadow: 0 12px 40px rgba(0,0,0,.35); padding: 12px 14px; display: grid; gap: 10px; font-size: 13px; }
+.clockpop .ck-head { display: flex; align-items: center; gap: 8px; } .clockpop .ck-head b { flex: 1; font-size: 13px; }
+.clockpop label { display: flex; align-items: center; gap: 8px; color: var(--ink-2); } .clockpop label input { flex: 1; accent-color: var(--accent); } .clockpop .ck-val { min-width: 44px; text-align: right; font-variant-numeric: tabular-nums; color: var(--ink); }
+.clockpop .ck-row { display: flex; align-items: center; gap: 6px; } .clockpop .ck-row .spacer { flex: 1; } .clockpop .ck-row button { padding: 5px 9px; border-radius: 8px; font-size: 12px; }
+.clockpop .moon { width: 18px; height: 18px; border-radius: 50%; background: radial-gradient(circle at 50% 50%, #ece8d6 calc(var(--lit) * 100%), #2a2d3d calc(var(--lit) * 100% + 2%)); border: 1px solid var(--hair); display: inline-block; }
+
+/* the party is a red ampersand everywhere */
+.wm-party .amp { font: 700 .5px Georgia, serif; fill: #c0392b; text-anchor: middle; pointer-events: none; }
+.wm-party circle:not(.halo) { fill: #f7f1e3; stroke: #c0392b; stroke-width: .07; }
+.lbl.token.party-amp { font: 700 22px Georgia, serif; color: #c0392b; text-shadow: 0 1px 2px rgba(0,0,0,.6), 0 0 6px rgba(255,255,255,.35); }

@@ -66,6 +66,54 @@ for i, h in enumerate(houses):
     o = OrderedDict(id=f'vallaki-h{i}', kind='house', pos=[p[0], 0, p[1]], vis='player', rotY=h['rotY'], dims=OrderedDict(w=h['w'], d=h['d'], h=13 if big else 11, stories=2 if big or near else 1))
     if near: o['key'] = near; o['label'] = NAMES[near]
     objects.append(o); kept += 1
+# The map shows the streets lined with houses almost wall to wall; the roof extraction catches only the clearest.
+# Fill the gaps: a house every thirty feet along both sides of every street inside the palisade, turned to the street,
+# unless one already stands there, a keyed site needs the room, or another street runs through.
+import random
+rng = random.Random(7)
+streets_ft = [(name, w, [ft(*p) for p in pts]) for name, w, pts in STREETS]
+def near_street(p, margin):
+    for name, w, pts in streets_ft:
+        for i in range(len(pts) - 1):
+            a, b = pts[i], pts[i + 1]; dx, dz = b[0] - a[0], b[1] - a[1]; L2 = dx * dx + dz * dz or 1
+            t = max(0, min(1, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dz) / L2))
+            if math.hypot(p[0] - a[0] - dx * t, p[1] - a[1] - dz * t) < w / 2 + margin: return True
+    return False
+placed = [h['pos'] for h in houses if inside(h['pos'], wall)]
+KEEP_CLEAR = {k: (60 if k in ('N8', 'N1', 'N5') else 34) for k in MARK}
+for name, w, pts in streets_ft:
+    for i in range(len(pts) - 1):
+        a, b = pts[i], pts[i + 1]; dx, dz = b[0] - a[0], b[1] - a[1]; L = math.hypot(dx, dz)
+        if L < 10: continue
+        ux, uz = dx / L, dz / L; nx, nz = -uz, ux; ang = math.degrees(math.atan2(-uz, ux))
+        d = 15.0
+        while d < L - 12:
+            for side in (-1, 1):
+                hw, hd = 22 + rng.random() * 10, 16 + rng.random() * 8
+                off = w / 2 + hd / 2 + 3 + rng.random() * 3
+                p = [round(a[0] + ux * d + nx * off * side, 1), round(a[1] + uz * d + nz * off * side, 1)]
+                if not inside(p, wall): continue
+                if any(math.hypot(p[0] - q[0], p[1] - q[1]) < 24 for q in placed): continue
+                if any(math.hypot(p[0] - marks[k][0], p[1] - marks[k][1]) < KEEP_CLEAR[k] for k in MARK): continue
+                if near_street(p, hd / 2 - 1): continue
+                placed.append(p); kept += 1
+                objects.append(OrderedDict(id=f'vallaki-s{len(placed)}', kind='house', pos=[p[0], 0, p[1]], vis='player', rotY=round(ang, 1), dims=OrderedDict(w=round(hw, 1), d=round(hd, 1), h=11 if rng.random() < 0.7 else 13, stories=1 if rng.random() < 0.7 else 2)))
+            d += 28 + rng.random() * 8
+# trees: oaks in the gaps inside the wall, a belt of pines outside it
+trees = 0
+for _ in range(900):
+    p = [rng.uniform(150, 5400), rng.uniform(-900, 2800)]
+    if not inside(p, wall) or near_street(p, 10) or any(math.hypot(p[0] - q[0], p[1] - q[1]) < 26 for q in placed) or any(math.hypot(p[0] - marks[k][0], p[1] - marks[k][1]) < 40 for k in MARK): continue
+    objects.append(OrderedDict(id=f'vallaki-oak{trees}', kind='oak', pos=[round(p[0], 1), 0, round(p[1], 1)], vis='player', dims=OrderedDict(r=1 + rng.random() * 0.4, h=20 + rng.random() * 10, canopy=7 + rng.random() * 4))); trees += 1
+    if trees >= 70: break
+pines = 0
+for _ in range(9000):
+    p = [rng.uniform(-600, 7300), rng.uniform(-1500, 4500)]
+    if inside(p, wall) or near_street(p, 25): continue
+    dw = min(math.hypot(p[0] - q[0], p[1] - q[1]) for q in wall)
+    if dw < 90 or (dw > 700 and rng.random() < 0.6): continue
+    objects.append(OrderedDict(id=f'vallaki-pine{pines}', kind='pine', pos=[round(p[0], 1), 0, round(p[1], 1)], vis='player', dims=OrderedDict(scale=0.9 + rng.random() * 0.7))); pines += 1
+    if pines >= 1500: break
 # the church, the stockyard's pens, the camp's wagons
 objects.append(OrderedDict(id='vallaki-church', kind='church-building', pos=[marks['N1'][0], 0, marks['N1'][1]], vis='player', key='N1', label=NAMES['N1'], rotY=90))
 for j, (dx, dz) in enumerate([(-14, -10), (14, -10), (0, 12)]):
@@ -117,11 +165,11 @@ for r in rooms:
     if d: r['desc'] = d[0]; r['dm'] = d[1]
 terrain = [OrderedDict(polygon=[[0, 0], [7350, 0], [7350, 4580], [0, 4580]], floor='grass')]
 for name, w, pts in STREETS:
-    for poly in strip([ft(*p) for p in pts], w): terrain.append(OrderedDict(polygon=poly, floor='cobble'))
+    for poly in strip([ft(*p) for p in pts], w): terrain.append(OrderedDict(polygon=poly, floor='cobble' if name == 'Old Svalich Road' else 'dirt'))
 level = OrderedDict(id='town', name='Vallaki', elevationFt=0, ceilingFt=15, ambient='barovian-overcast', north='-z', terrain=terrain, rooms=rooms, walls=walls, lights=[], objects=objects)
 scene = OrderedDict(schema=1, location='N', chapter='ch05', name='The Town of Vallaki', mapPage=97, bookScaleFt=5, ambient='barovian-overcast', placementFt=40, kind='placement', levels=[level], links=[], frame='measured-p97-400dpi')
 grid = OrderedDict(schema=1, levels=OrderedDict(town=OrderedDict(floorPolygons=[terrain[0]['polygon']], type='square', hexOrientation='pointy', origin=[0, 0], color='#1d1b22', opacity=0)))
 os.makedirs(OUT, exist_ok=True)
 json.dump(scene, open(os.path.join(OUT, 'scene.json'), 'w'), indent=1)
 json.dump(grid, open(os.path.join(OUT, 'grid.json'), 'w'), indent=1)
-print('vallaki:', kept, 'houses inside the palisade of', len(houses), ';', len(walls), 'wall pieces;', len(rooms), 'keyed sites')
+print('vallaki:', kept, 'houses (', len(houses), 'extracted ) ;', trees, 'oaks', pines, 'pines ;', len(walls), 'wall pieces;', len(rooms), 'keyed sites')

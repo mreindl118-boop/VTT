@@ -28,7 +28,8 @@ export class World {
   onCamera: (() => void) | null = null;
 
   constructor(private host: HTMLElement) {
-    this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance', preserveDrawingBuffer: true });
+    // A logarithmic depth buffer: a town a mile across and mountains ten miles off share one view without the ground fighting the apron.
+    this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance', preserveDrawingBuffer: true, logarithmicDepthBuffer: true });
     this.renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
     this.renderer.localClippingEnabled = true;
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -106,6 +107,20 @@ export class World {
     this.invalidate();
   }
   private baseHemi = 1.6; private baseKey = 1.1; private workK = 0;
+  /** The hour's sky: sun or moon direction, light colours and strengths, the mist and the page behind the map. */
+  setSky(s: { azimuth: number; elevation: number; key: number; keyColor: string; hemi: number; skyLight: string; groundLight: string; mist: string; page0: string; page1: string }, outdoor: boolean): void {
+    if (outdoor) {
+      const r = 120, e = s.elevation;
+      this.key.position.set(Math.cos(s.azimuth) * Math.cos(e) * r, Math.max(12, Math.sin(e) * r), Math.sin(s.azimuth) * Math.cos(e) * r);
+      this.key.color.set(s.keyColor); this.hemi.color.set(s.skyLight); this.hemi.groundColor.set(s.groundLight);
+      this.baseHemi = s.hemi; this.baseKey = s.key;
+    } else { this.key.position.set(-40, 90, 50); this.hemi.color.set(this.theme.skyLight); this.hemi.groundColor.set(this.theme.groundLight); this.key.color.set(this.theme.keyColor); this.baseHemi = this.theme.hemi; this.baseKey = this.theme.key; }
+    this.setWorkLight(this.workK);
+    if (this.scene.fog instanceof THREE.FogExp2) this.scene.fog.color.set(s.mist);
+    (this.mistFloor.material as THREE.MeshBasicMaterial).color.set(s.mist);
+    this.host.style.setProperty('--page0', s.page0); this.host.style.setProperty('--page1', s.page1);
+    this.invalidate();
+  }
   setOutdoor(on: boolean): void {
     this.outdoor = on; this.controls.maxPolarAngle = Math.PI * (on ? 0.46 : 0.4);
     if (this.scene.fog instanceof THREE.FogExp2) this.scene.fog.density = this.fogDensity;

@@ -1,6 +1,8 @@
 // SF-Symbols-style 1.5px line icons (original drawings).
 const svg = (body: string) => `<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${body}</svg>`;
 export const ICON = {
+  sun: svg('<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>'),
+  moon: svg('<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>'),
   paw: svg('<circle cx="12" cy="15" r="3.5"/><circle cx="6.5" cy="10" r="1.6"/><circle cx="17.5" cy="10" r="1.6"/><circle cx="9.5" cy="6" r="1.6"/><circle cx="14.5" cy="6" r="1.6"/>'),
   library: svg('<path d="M4 5h4v14H4zM10 5h4v14h-4zM16.5 5.5l3.5 1-3.4 13-3.6-1z"/>'),
   map: svg('<path d="M3 6.5l6-2.5 6 2.5 6-2.5v13.5l-6 2.5-6-2.5-6 2.5z"/><path d="M9 4v13.5M15 6.5V20"/>'),
@@ -28,7 +30,7 @@ export const ICON = {
   rotateR: svg('<path d="M20 10a8 8 0 0 0-14-3"/><path d="M6 3v4h4"/><path d="M4 14a8 8 0 0 0 14 3"/><path d="M18 21v-4h-4"/>'),
   zoomIn: svg('<circle cx="11" cy="11" r="7"/><path d="M11 8v6M8 11h6M20 20l-4-4"/>'),
   zoomOut: svg('<circle cx="11" cy="11" r="7"/><path d="M8 11h6M20 20l-4-4"/>'),
-  party: svg('<circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/><circle cx="12" cy="12" r="8"/>'),
+  party: svg('<text x="12" y="18" font-size="19" font-weight="700" font-family="Georgia, serif" text-anchor="middle" fill="#c0392b" stroke="none">&amp;</text>'),
   search: svg('<circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/>'),
   list: svg('<path d="M8 6h12M8 12h12M8 18h12"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/>'),
   help: svg('<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7M12 17h.01"/>'),

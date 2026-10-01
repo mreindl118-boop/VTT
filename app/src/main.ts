@@ -84,6 +84,7 @@ function buildDmUi(): void {
       <button class="icon" data-act="grid" aria-label="Grid: square / hex / off"></button>
       <button class="icon" data-act="walls" aria-label="Walls: low / full">${ICON.walls}</button>
       <button class="icon" data-act="mist" aria-label="Mist on / off" aria-pressed="true" title="Mist on / off">${ICON.fog}</button>
+      <button class="clock" data-act="clock" aria-label="Time of day and calendar" title="Time of day and calendar">${ICON.sun}<span><span class="ck-time">14:00</span><span class="ck-day">Day 1 · 1 Mirtul</span></span></button>
       <button class="icon" data-act="labels" aria-label="Labels: keys / all / none"></button>
       <span class="divider"></span>
       <button class="icon" data-act="lock" aria-label="Player camera follows DM"></button>
@@ -160,7 +161,32 @@ function buildDmUi(): void {
     else app.setCut(v);
     refresh();
   });
+  // The clock popover: an hour dial, a day stepper, the date and the moon.
+  let clockEl: HTMLElement | null = null;
+  const openClock = () => {
+    if (clockEl) { clockEl.remove(); clockEl = null; return; }
+    const el = document.createElement('div'); el.className = 'clockpop'; clockEl = el;
+    const render = () => {
+      const s = app.sky, c = app.clock;
+      el.innerHTML = `<div class="ck-head"><b>${s.label.split(' · ').slice(1).join(' · ')}</b><button class="icon close" aria-label="Close">${ICON.close}</button></div>
+        <label>Hour <input type="range" min="0" max="23.75" step="0.25" value="${c.hour}" data-f="hour"><span class="ck-val">${s.label.split(' · ')[1]}</span></label>
+        <div class="ck-row"><button data-a="day-">−1 day</button><span>Day ${c.day}</span><button data-a="day+">+1 day</button><span class="spacer"></span><button data-a="h-1">−1 h</button><button data-a="h+1">+1 h</button><button data-a="h+8">+8 h</button></div>
+        <div class="ck-row ck-moon"><span class="moon" style="--lit:${s.moonLit.toFixed(2)}"></span><span>${s.moonName}${s.night ? ' · night' : s.ambient === 'fog' ? ' · dusk light' : ' · daylight'}</span></div>`;
+    };
+    render();
+    el.addEventListener('input', (e) => { const t = e.target as HTMLInputElement; if (t.dataset.f === 'hour') { app.setClock(app.clock.day, Number(t.value)); el.querySelector('.ck-val')!.textContent = app.sky.label.split(' · ')[1]; el.querySelector('.ck-head b')!.textContent = app.sky.label.split(' · ').slice(1).join(' · '); refresh(); } });
+    el.addEventListener('click', (e) => {
+      const b = (e.target as HTMLElement).closest<HTMLElement>('button'); if (!b) return;
+      if (b.classList.contains('close')) { el.remove(); clockEl = null; return; }
+      const a = b.dataset.a; const c = app.clock;
+      if (a === 'day-') app.setClock(c.day - 1, c.hour); if (a === 'day+') app.setClock(c.day + 1, c.hour);
+      if (a === 'h-1') app.advance(-1); if (a === 'h+1') app.advance(1); if (a === 'h+8') app.advance(8);
+      render(); refresh();
+    });
+    ui.appendChild(el);
+  };
   const refresh = () => {
+    { const c = app.clock, b = top.querySelector<HTMLElement>('[data-act="clock"]'); if (b) { b.querySelector('.ck-time')!.textContent = app.sky.label.split(' · ')[1]; b.querySelector('.ck-day')!.textContent = `Day ${c.day} · ${app.sky.label.split(' · ')[2]}`; b.querySelector('svg')?.replaceWith(Object.assign(document.createElement('i'), { innerHTML: app.sky.night ? ICON.moon : ICON.sun }).firstElementChild!); b.classList.toggle('night', app.sky.night); } }
     bar.update();
     const range = app.sectionRange;
     section.hidden = !range;
@@ -198,6 +224,7 @@ function buildDmUi(): void {
     if (b.dataset.tool) { app.tool = app.tool === b.dataset.tool ? 'none' : (b.dataset.tool as typeof app.tool); app.setStatus(app.tool === 'none' ? '' : b.getAttribute('aria-label')!); }
     switch (b.dataset.act) {
       case 'library': openLibrary(builtPaths, app.campaign, (p) => { localStorage.setItem('mistlab.scene', p); void app.open(p).then(() => app.layoutChanged()); }); break;
+      case 'clock': openClock(); break;
       case 'back': { const par = app.cur?.scene.parent; if (par) { localStorage.setItem('mistlab.scene', par); void app.open(par).then(() => app.layoutChanged()); } break; }
       case 'world': openWorldMap({
         canMove: !app.restricted,
