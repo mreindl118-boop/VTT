@@ -804,7 +804,7 @@ export class App {
     if (!this.cur) return;
     const l0 = this.cur.scene.levels.find((l) => l.terrain?.length) ?? this.cur.scene.levels[0];
     this.world.setSky(this.sky, this.openAir(l0) && !!this.backdrop);
-    (this.backdrop?.userData.setMoon as ((p: number, n: boolean) => void) | undefined)?.(this.sky.phase, this.sky.night);
+    (this.backdrop?.userData.setMoon as ((p: number, n: boolean, h: number) => void) | undefined)?.(this.sky.phase, this.sky.night, this.clock.hour);
   }
 
   // ------------------------------------------------------------------ creatures: the repository on the map

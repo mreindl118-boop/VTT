@@ -374,4 +374,6 @@ body[data-view='players'] .minimap { display: none; }
 .clockpop button.primary { background: var(--accent); color: #fff; border-radius: 8px; padding: 6px 12px; font-weight: 600; }
 .menu-row.seg-row { padding-left: 10px; justify-content: space-between; } .menu-row .seg button[aria-checked='true'] { background: var(--bg); box-shadow: 0 1px 2px rgba(0,0,0,.12); }
 /* the floor tabs' panel has nothing to show on a single-level map: no empty pill */
-.topbar .group.center:not(:has(.seg.levels:not([style*="none"]))):not(:has(.section:not([hidden]))) { display: none; }
+.topbar .group.center:not(:has(.levels-pick:not([style*="none"]))):not(:has(.section:not([hidden]))) { display: none; }
+.levels-pick .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+select.levels { max-width: min(46vw, 320px); padding: 6px 28px 6px 10px; border-radius: 10px; border: var(--hairline, 1px) solid var(--hair); background: var(--bg); color: var(--ink); font: 600 13px var(--font); text-overflow: ellipsis; }

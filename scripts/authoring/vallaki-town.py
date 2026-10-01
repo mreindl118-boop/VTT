@@ -195,7 +195,7 @@ for r in rooms:
 # The town's ground: the palisade and a belt round it. Beyond, the land is the region's own (the lake shore to
 # the north, the slopes climbing south and east), so the map must not carry a flat plain out there.
 _wx = [p[0] for p in wall] + [m[0] for m in marks.values()]; _wz = [p[1] for p in wall] + [m[1] for m in marks.values()]; BELT = 420
-GX0, GX1, GZ0, GZ1 = round(min(_wx) - BELT, 1), round(max(_wx) + BELT, 1), round(min(_wz) - BELT, 1), round(max(_wz) + BELT, 1)
+GX0, GX1, GZ0, GZ1 = round(min(_wx) - BELT, 1), round(max(_wx) + BELT, 1), round(min(_wz) - 120, 1), round(max(_wz) + BELT, 1)  # north: the lake shore is close
 terrain = [OrderedDict(polygon=[[GX0, GZ0], [GX1, GZ0], [GX1, GZ1], [GX0, GZ1]], floor='grass')]
 objects = [o for o in objects if not (o['kind'] == 'pine' and not (GX0 < o['pos'][0] < GX1 and GZ0 < o['pos'][2] < GZ1))]
 # the approaches are felled: every tree within 200 yards of the palisade is a stump (the town burns a lot of wood)

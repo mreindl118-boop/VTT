@@ -78,6 +78,14 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
     if (crag > 0) { const cliff = yTop - crag * smooth(40, 320, d); return cliff + (h - (yTop - crag)) * smooth(320, 1400, d); }
     return yTop + (h - yTop) * smooth(120, 900, d);
   };
+  const lakeLevel = new Map<object, number>();
+  if (HF) for (const l of W.lakes) {
+    let lo = Infinity;
+    for (let k = 0; k < 32; k++) { const a = (k / 32) * Math.PI * 2, [px, pz] = toPlan([l.center[0] + Math.cos(a) * l.r[0], l.center[1] + Math.sin(a) * l.r[1]]); lo = Math.min(lo, yAt(cx + px, cz + pz)); }
+    // a lake whose shore reaches this map lies at the map's own ground (the town stands on its shore)
+    let touches = false; for (let k = 0; k < 64 && !touches; k++) { const a = (k / 64) * Math.PI * 2, [px, pz] = toPlan([l.center[0] + Math.cos(a) * l.r[0], l.center[1] + Math.sin(a) * l.r[1]]); touches = mapDist(cx + px, cz + pz) < 700; }
+    const [qx, qz] = toPlan(l.center); lakeLevel.set(l, touches ? yTop - 2.5 : Math.min(lo, yAt(cx + qx, cz + qz)) - 4);
+  }
   if (HF) {
     // a polar mesh: fine near the site, coarse toward the horizon
     const radii: number[] = [0]; for (let r = 90; r <= 3000; r += 130) radii.push(r); for (let r = 3400; r <= 16000; r += 450) radii.push(r); for (let r = 18500; r <= 90000; r += 2500) radii.push(r);
@@ -94,7 +102,7 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
     for (let ri = 0; ri < radii.length; ri++) for (let k = 0; k < SEG; k++) {
       const a = (k / SEG) * Math.PI * 2, r = radii[ri], x = cx + Math.cos(a) * r, z = cz + Math.sin(a) * r;
       let y = yAt(x, z) - (mapDist(x, z) < 150 ? 0.4 : 3); // flush where the land meets the map
-      for (const l of W.lakes) { const [mx, my] = toMiles(x, z); if (((mx - l.center[0]) / l.r[0]) ** 2 + ((my - l.center[1]) / l.r[1]) ** 2 < 1) y = Math.min(y, yTop + (terrain.heightAt(l.center[0], l.center[1]) - hPin) - 6); }
+      for (const l of W.lakes) { const [mx, my] = toMiles(x, z); if (((mx - l.center[0]) / l.r[0]) ** 2 + ((my - l.center[1]) / l.r[1]) ** 2 < 1) y = Math.min(y, (lakeLevel.get(l) ?? y) - 6); }
       P3.push(x, y, z); const c = colAt(x, z, y, r); C.push(c.r, c.g, c.b);
     }
     for (let ri = 0; ri + 1 < radii.length; ri++) for (let k = 0; k < SEG; k++) { const k1 = (k + 1) % SEG, a0 = ri * SEG + k, a1 = ri * SEG + k1, b0 = (ri + 1) * SEG + k, b1 = (ri + 1) * SEG + k1; idx.push(a0, b1, b0, a0, a1, b1); }
@@ -172,7 +180,7 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
   const tree = new THREE.ConeGeometry(6, 28, 6); tree.translate(0, 14, 0);
   // A thick wood presses up to the map's edge (most trees in the first third of a mile), thinning toward the horizon;
   // still one instanced draw for all of them.
-  const n = terrain.hasCover ? 7000 : o.valley ? 3000 : 2200, trees = new THREE.InstancedMesh(tree, new THREE.MeshLambertMaterial({ fog: false, flatShading: true }), n);
+  const n = terrain.hasCover ? 9500 : o.valley ? 4000 : 3000, trees = new THREE.InstancedMesh(tree, new THREE.MeshLambertMaterial({ fog: false, flatShading: true }), n);
   const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), s = new THREE.Vector3(), p = new THREE.Vector3();
   for (let i = 0; i < n; i++) {
     const near = rnd() < 0.62, a = rnd() * Math.PI * 2;
@@ -180,7 +188,7 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
     const off = near ? Math.max(0, o.clearing ?? 0) + 15 + Math.pow(rnd(), 1.6) * 1800 : 1500 + Math.sqrt(rnd()) * (terrain.hasCover ? 9000 : 2500);
     const ex = (bbm.maxX - bbm.minX) / 2, ez = (bbm.maxZ - bbm.minZ) / 2, ca = Math.cos(a), sa = Math.sin(a);
     const edge = Math.min(Math.abs(ca) > 1e-6 ? ex / Math.abs(ca) : Infinity, Math.abs(sa) > 1e-6 ? ez / Math.abs(sa) : Infinity);
-    const d = edge + off, k = (0.75 + rnd() * 0.7) * (1 + off / 6000);
+    const d = edge + off, k = 1.25 * (0.75 + rnd() * 0.7) * (1 + off / 6000); // old growth: a quarter taller
     const tx = (bbm.minX + bbm.maxX) / 2 + ca * d, tz = (bbm.minZ + bbm.maxZ) / 2 + sa * d;
     let drop = nearRoad(tx, tz, 14) || mapDist(tx, tz) < Math.max(30, o.clearing ?? 0); // a ride through the wood for the road; nothing on the map or its felled approaches
     if (terrain.hasCover && !drop) { const [mx, my] = toMiles(tx, tz); const f = terrain.cover('f', mx, my), w = terrain.cover('w', mx, my), m = terrain.cover('m', mx, my); drop = w > 0.3 || m > 0.6 || f + (near ? 0.35 : 0) < 0.4 + rnd() * 0.3; }
@@ -238,7 +246,23 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
   for (const l of W.lakes) {
     const t = toWorld(l.center); if (t.d > 80000) continue;
     const m = new THREE.Mesh(new THREE.CircleGeometry(1, 48), new THREE.MeshBasicMaterial({ color: blend('#5e7d94', haze(t.d)), fog: false }));
-    m.rotation.x = -Math.PI / 2; m.scale.set(l.r[0] * FT, l.r[1] * FT, 1); m.position.set(t.x, HF ? yTop + (terrain.heightAt(l.center[0], l.center[1]) - hPin) - 5 : y0 - 2.6, t.z); g.add(m);
+    m.rotation.x = -Math.PI / 2; m.scale.set(l.r[0] * FT, l.r[1] * FT, 1); m.position.set(t.x, HF ? lakeLevel.get(l)! : y0 - 2.6, t.z); g.add(m);
+    // Bluto Krogarov's rowboat on Lake Zarovich, a few hundred yards off the shore nearest this map: a man fishing,
+    // a sack at his feet (the module's encounter at Vallaki's lakeside)
+    if (/Zarovich/.test(l.name) && t.d < 30000) {
+      let best = { x: t.x, z: t.z, d: Infinity };
+      for (let k = 0; k < 48; k++) { const a = (k / 48) * Math.PI * 2, [px, pz] = toPlan([l.center[0] + Math.cos(a) * l.r[0] * 0.82, l.center[1] + Math.sin(a) * l.r[1] * 0.82]); const d = Math.hypot(cx + px - cx, cz + pz - cz); if (d < best.d) best = { x: cx + px, z: cz + pz, d }; }
+      const boat = new THREE.Group(); boat.name = 'blutos-boat';
+      const hull = new THREE.CylinderGeometry(2.4, 1.6, 13, 8, 1, false, 0, Math.PI); hull.rotateZ(Math.PI / 2); hull.rotateX(Math.PI); hull.scale(1, 0.75, 1);
+      const hm = new THREE.Mesh(hull, lambert(blend('#5a4632', haze(best.d) * 0.5))); hm.position.y = 1.4; boat.add(hm);
+      const seat = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.3, 4), lambert(blend('#6b5640', haze(best.d) * 0.5))); seat.position.set(1, 1.6, 0); boat.add(seat);
+      const body = new THREE.Mesh(new THREE.CylinderGeometry(0.7, 0.9, 3.2, 6), lambert(blend('#3f3a33', haze(best.d) * 0.5))); body.position.set(1, 3.2, 0); boat.add(body);
+      const head = new THREE.Mesh(new THREE.SphereGeometry(0.55, 8, 6), lambert(blend('#b08a6a', haze(best.d) * 0.5))); head.position.set(1, 5.2, 0); boat.add(head);
+      const rod = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.08, 10, 4), lambert(blend('#2b2420', haze(best.d) * 0.5))); rod.position.set(4.5, 6, 0); rod.rotation.z = -1.0; boat.add(rod);
+      const sack = new THREE.Mesh(new THREE.SphereGeometry(1.1, 8, 6), lambert(blend('#8a7a5a', haze(best.d) * 0.5))); sack.scale.set(1, 0.7, 0.8); sack.position.set(-2.5, 2.1, 0); boat.add(sack);
+      boat.scale.setScalar(3); // drawn large enough to read from the shore
+      boat.position.set(best.x, lakeLevel.get(l)! + 0.3, best.z); boat.rotation.y = 0.7; g.add(boat);
+    }
   }
 
   // 4. The other places on the world map, at true scale and distance: visual only, nothing to click.
@@ -367,14 +391,27 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
   //     castle is in view, lighting it from behind and above.
   {
     const mb = loomB ?? -Math.PI * 0.35, MD = 42000;
-    const mx = cx + Math.cos(mb) * MD, mz = cz + Math.sin(mb) * MD, my = y0 + 9000;
     const tex = moonTexture(0.5), mm = new THREE.SpriteMaterial({ map: tex, fog: false, transparent: true, depthWrite: false });
-    const moon = new THREE.Sprite(mm); moon.scale.set(9500, 9500, 1); moon.position.set(mx, my, mz); moon.name = 'moon'; moon.renderOrder = -1; g.add(moon);
-    const halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: haloTexture(), color: '#cfd6ea', fog: false, transparent: true, opacity: 0.55, depthWrite: false })); halo.scale.set(26000, 26000, 1); halo.position.copy(moon.position); halo.renderOrder = -2; g.add(halo);
-    g.userData.setMoon = (phase: number, night: boolean) => {
-      drawMoon(tex.image as HTMLCanvasElement, phase); tex.needsUpdate = true;
-      const lit = 1 - Math.abs(phase - 0.5) * 2; (halo.material as THREE.SpriteMaterial).opacity = (night ? 0.55 : 0.2) * (0.25 + lit * 0.75); mm.opacity = night ? 1 : 0.55;
+    const moon = new THREE.Sprite(mm); moon.scale.set(7100, 7100, 1); moon.name = 'moon'; moon.renderOrder = -1; g.add(moon);   // a quarter smaller than it was
+    const halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: haloTexture(), color: '#cfd6ea', fog: false, transparent: true, opacity: 0.55, depthWrite: false })); halo.scale.set(19500, 19500, 1); halo.renderOrder = -2; g.add(halo);
+    // Barovia's sun: small, pale, without warmth, a disc behind the overcast
+    const sun = new THREE.Sprite(new THREE.SpriteMaterial({ map: haloTexture(), color: '#e8e4d8', fog: false, transparent: true, opacity: 0.5, depthWrite: false })); sun.scale.set(2600, 2600, 1); sun.renderOrder = -2; g.add(sun);
+    // a body on its arc: up in the east, highest at the middle of its span, down in the west (always toward the south)
+    const arc = (h: number, rise: number, span: number, peak: number) => {
+      const f = (((h - rise) % 24) + 24) % 24 / span; if (f <= 0 || f >= 1) return null;
+      const a = f * Math.PI, el = Math.sin(a) * peak, dirx = E[0] * Math.cos(a) + S[0] * Math.sin(a) * 0.55, dirz = E[1] * Math.cos(a) + S[1] * Math.sin(a) * 0.55, L = Math.hypot(dirx, dirz) || 1;
+      return new THREE.Vector3(cx + (dirx / L) * MD * Math.cos(el), y0 + MD * Math.sin(el), cz + (dirz / L) * MD * Math.cos(el));
     };
+    g.userData.setMoon = (phase: number, night: boolean, hour = 0) => {
+      drawMoon(tex.image as HTMLCanvasElement, phase); tex.needsUpdate = true;
+      const lit = 1 - Math.abs(phase - 0.5) * 2;
+      const mp = arc(hour, 18, 12, 1.15);                 // moonrise at six in the evening, zenith at midnight, set at six
+      moon.visible = halo.visible = !!mp; if (mp) { moon.position.copy(mp); halo.position.copy(mp); }
+      (halo.material as THREE.SpriteMaterial).opacity = (night ? 0.55 : 0.2) * (0.25 + lit * 0.75); mm.opacity = night ? 1 : 0.55;
+      const sp = arc(hour, 6.5, 13, 0.75); sun.visible = !!sp; if (sp) sun.position.copy(sp);
+    };
+    g.userData.setMoon(0.5, false, 14);
+    const mx = cx + Math.cos(mb) * MD, mz = cz + Math.sin(mb) * MD, my = y0 + 9000;
     if (rl) { const light = new THREE.DirectionalLight('#c3cbe6', 0.85); light.position.set(mx - rl.position.x, my - rl.position.y, mz - rl.position.z).normalize().multiplyScalar(5000).add(rl.position); light.target = rl; g.add(light, rl); }
   }
 

@@ -397,3 +397,11 @@
   `millstone`, `gear-shaft`, `onion-dome`, `mill-sails`, `standing-stone` props.
 - The mountains per the module: Mount Baratok is one monolith climbing from the north shore of Lake Zarovich (the
   M markers are its base), Mount Ghakis the snowy height to the south; high ground stands clear of the haze.
+- Lake Zarovich lies level with its shore: a lake that reaches a map sits at the town's own ground, any other at
+  the lowest point of its shore; Vallaki's ground stops short of the water. Bluto's rowboat is out on the lake off
+  Vallaki, a man fishing and a sack at his feet.
+- Old-growth forest: denser, a quarter taller.
+- The moon rises at six in the evening in the east, stands highest at midnight and sets at six in the morning in
+  the west, a quarter smaller than before, in its phase; Barovia's sun is a small pale disc behind the overcast.
+- Floors are a dropdown (no more cut-off tabs) with a Whole building button that lifts the cut and frames every
+  floor at once.

@@ -70,7 +70,7 @@ function buildDmUi(): void {
         <button role="tab" data-view="dm">DM</button><button role="tab" data-view="players">Players</button>
       </div>
     </div>
-    <div class="group center"><div class="seg levels" role="tablist"></div><label class="section" hidden title="Section: slide to cut the building at any height"><span class="sec-label">Section</span><input type="range" min="0" max="100" step="0.5" list="sec-detents" aria-label="Section height"><datalist id="sec-detents"></datalist><span class="sec-ft"></span><button class="icon" data-act="sec-follow" aria-label="Follow the floor">${ICON.walls}</button></label></div>
+    <div class="group center"><label class="levels-pick"><span class="sr">Floor</span><select class="levels" aria-label="Floor"></select></label><button class="icon whole" data-act="whole" aria-label="Whole building" title="Whole building: lift the cut and see every floor">${ICON.zoomOut}</button><label class="section" hidden title="Section: slide to cut the building at any height"><span class="sec-label">Section</span><input type="range" min="0" max="100" step="0.5" list="sec-detents" aria-label="Section height"><datalist id="sec-detents"></datalist><span class="sec-ft"></span><button class="icon" data-act="sec-follow" aria-label="Follow the floor">${ICON.walls}</button></label></div>
     <div class="group right dm-only">
       <details class="menu" data-menu="tools"><summary class="icon" aria-label="Reveal and measure tools" title="Tools">${ICON.reveal}</summary><div class="menu-panel">
         <button class="icon" data-tool="reveal" aria-label="Reveal / hide (tap a room, object or secret door)" title="Reveal / hide">${ICON.reveal}<span>Reveal / hide</span></button>
@@ -242,9 +242,13 @@ function buildDmUi(): void {
     top.querySelector<HTMLElement>('.back')!.hidden = !app.cur.scene.parent || !builtPaths.has(app.cur.scene.parent);
     top.querySelector('.sub')!.textContent = `${app.cur.scene.mapPage ? `map p.${app.cur.scene.mapPage}` : app.campaign.name} · ${app.cur.scene.placementFt ? `${app.cur.scene.placementFt}-ft placement squares` : `${app.cur.scene.bookScaleFt}-ft squares`}`;
     top.querySelectorAll<HTMLElement>('[data-view]').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.view === app.view)));
-    const lv = top.querySelector('.levels')!;
-    lv.innerHTML = app.cur.scene.levels.map((l) => `<button role="tab" data-level="${l.id}" aria-selected="${l.id === app.levelId}">${l.name}${app.party?.level === l.id ? ' <i class="dot"></i>' : ''}</button>`).join('');
-    (lv as HTMLElement).style.display = app.cur.scene.levels.length > 1 ? '' : 'none';
+    const lv = top.querySelector<HTMLSelectElement>('select.levels')!;
+    const opts = app.cur.scene.levels.map((l) => `<option value="${l.id}"${l.id === app.levelId ? ' selected' : ''}>${l.name}${app.party?.level === l.id ? '  ·  party here' : ''}</option>`).join('');
+    if (lv.innerHTML !== opts) lv.innerHTML = opts;
+    lv.value = app.levelId;
+    const multi = app.cur.scene.levels.length > 1;
+    (lv.parentElement as HTMLElement).style.display = multi ? '' : 'none';
+    (top.querySelector('[data-act="whole"]') as HTMLElement).style.display = multi && app.sectionRange ? '' : 'none';
     top.querySelectorAll<HTMLElement>('[data-tool]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.tool === app.tool)));
     const slot = (act: string, html: string) => { const b = top.querySelector(`[data-act="${act}"]`)!; (b.querySelector('i') ?? b).innerHTML = html; };
     top.querySelectorAll<HTMLElement>('[data-grid]').forEach((b) => b.setAttribute('aria-checked', String(b.dataset.grid === app.gridMode)));
@@ -265,6 +269,7 @@ function buildDmUi(): void {
   };
   app.onChange = refresh;
 
+  top.querySelector<HTMLSelectElement>('select.levels')!.addEventListener('change', (e) => app.setLevel((e.target as HTMLSelectElement).value, true));
   top.addEventListener('input', (e) => { const r = e.target as HTMLInputElement; if (r.dataset.opt === 'gridOpacity') app.setGridOpacity(Number(r.value) / 100); });
   top.addEventListener('toggle', (e) => { const d = e.target as HTMLDetailsElement; if (d.open) top.querySelectorAll<HTMLDetailsElement>('details.menu[open]').forEach((o) => { if (o !== d) o.open = false; }); }, true);
   document.addEventListener('pointerdown', (e) => { if (!(e.target as Element).closest('details.menu')) top.querySelectorAll<HTMLDetailsElement>('details.menu[open]').forEach((o) => { o.open = false; }); });
@@ -294,6 +299,7 @@ function buildDmUi(): void {
       case 'creatures': openBestiary(app, refresh); break;
       case 'undo': app.undo(); break;
       case 'sec-follow': app.setCut(undefined); break;
+      case 'whole': if (app.sectionRange) { app.setCut(app.sectionRange.max); app.frameLevel(); } break;
       case 'search': finder.hidden ? openFinder() : closeFinder(); break;
       case 'rooms': toggleRooms(); break;
       case 'grid': app.gridMode = app.gridMode === 'square' ? 'hex' : app.gridMode === 'hex' ? 'off' : 'square'; app.layoutChanged(); break;
