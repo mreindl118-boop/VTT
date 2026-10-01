@@ -91,7 +91,10 @@ export class World {
   theme: Theme = { id: 'gothic', mist: '#2b2733', page0: '#3a3242', page1: '#1e1a24', skyLight: '#c8ccd8', groundLight: '#3a3138', hemi: 1.6, key: 1.1, keyColor: '#f0e2c8', fogOut: 0.0011, fogIn: 0.0032, apron: '#2e3a31', forest: ['#1d3325', '#243c2c'] };
   /** Big maps (a town a mile across) thin the fog, or the far side would vanish into mist from a framing camera. */
   fogScale = 1;
-  get fogDensity(): number { return (this.outdoor ? this.theme.fogOut : this.theme.fogIn) * this.fogScale; }
+  /** The mist can be switched off for a clear view; the density stays whatever the map and theme want. */
+  fogOn = true;
+  get fogDensity(): number { return this.fogOn ? (this.outdoor ? this.theme.fogOut : this.theme.fogIn) * this.fogScale : 0; }
+  setFog(on: boolean): void { this.fogOn = on; if (this.scene.fog instanceof THREE.FogExp2) this.scene.fog.density = this.fogDensity; this.mistFloor.visible = on && this.mistFloor.visible; this.invalidate(); }
   /** A campaign's look: mist colour, page gradient, light colours and strengths. */
   setTheme(t: Theme): void {
     this.theme = t;

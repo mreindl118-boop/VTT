@@ -91,6 +91,8 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
 
   // 1b. A site on a crag stands on its pillar of rock; the land below is the valley floor.
   if (crag > 0) {
+    const vil = W.pins.find((p) => p.key === 'E');
+    if (vil) { const [vx, vz] = toPlan(vil.pos); cradle(g, { x: cx, z: cz }, cx + vx, cz + vz, Math.hypot(vx, vz), y0, (hex) => lambert(blend(hex, 0.15)), 0); }
     // the Pillarstone: wider at its brow than its foot, so the castle hangs over the black water below
     const pillar = new THREE.CylinderGeometry(R * 1.25, R * 0.5, crag, 12, 3, true); pillar.translate(0, crag / 2, 0);
     const pp = pillar.attributes.position; for (let i = 0; i < pp.count; i++) { const j = ((i * 7919) % 11) / 11 - 0.5; pp.setX(i, pp.getX(i) * (1 + 0.1 * j)); pp.setZ(i, pp.getZ(i) * (1 + 0.1 * j)); }
@@ -208,6 +210,8 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
       for (let i = 0; i < 3; i++) box(12, 7, 6, -60 + i * 25, 55, 0, '#5a4632', 0.4);
     } else if (type === 'castle' && p.key === 'K') {
       ravenloft(s, mat);
+      const cr = new THREE.Group(); cr.position.set(t.x, 0, t.z); g.add(cr);
+      cradle(cr, { x: 0, z: 0 }, cx - t.x, cz - t.z, t.d, y0 - lift, (hex, d) => hazed(hex, d), t.d);
     } else if (type === 'castle') {
       cyl(150, 600, 0, 0, 0, '#34333a');
       box(130, 60, 100, 0, 0, 600, '#1e1c24'); box(32, 150, 32, -48, -32, 600, '#1e1c24'); box(28, 125, 28, 48, -28, 600, '#1e1c24'); box(26, 105, 26, -44, 36, 600, '#1e1c24'); box(22, 190, 22, 12, 8, 600, '#1e1c24');
@@ -264,6 +268,24 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
   for (const r of riverPaths) ribbon(r.pts, r.w, r.hex, y0 - 2.4);
   g.traverse((c) => { c.userData.role = 'backdrop'; });
   return g;
+}
+
+/** The mountains the castle is tucked into: a horseshoe of peaks behind and beside it, open only on the bearing of
+ *  the steep valley that runs down to the village, whose two walls are rows of ridges flanking that line. */
+function cradle(g: THREE.Group, at: { x: number; z: number }, towardX: number, towardZ: number, dist: number, y0: number, mat: (hex: string, d: number) => THREE.Material, d0: number, S = 1): void {
+  const b0 = Math.atan2(towardZ - at.z, towardX - at.x);
+  let seed = 11; const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+  const peak = (x: number, z: number, h: number, r: number) => { const c = new THREE.ConeGeometry(r, h, 7); c.translate(0, h / 2, 0); const m = new THREE.Mesh(c, mat('#4f5560', d0)); m.position.set(x, y0 - 40, z); m.rotation.y = rnd() * Math.PI; g.add(m); if (h > 1800) { const sn = new THREE.ConeGeometry(r * 0.28, h * 0.26, 7); sn.translate(0, h * 0.87, 0); const sm = new THREE.Mesh(sn, mat('#d9dde3', d0)); sm.position.copy(m.position); sm.rotation.y = m.rotation.y; g.add(sm); } };
+  for (let i = 0; i < 14; i++) { // the horseshoe
+    const a = b0 + Math.PI + (i / 13 - 0.5) * Math.PI * 1.45, r = (1500 + rnd() * 900) * S;
+    peak(at.x + Math.cos(a) * r, at.z + Math.sin(a) * r, (2200 + rnd() * 1400) * S, (900 + rnd() * 500) * S);
+  }
+  const L = Math.min(dist * 0.8, 9000 * S), n = Math.max(3, Math.round(L / (900 * S)));
+  for (let i = 0; i < n; i++) for (const side of [-1, 1]) { // the valley walls, stepping down toward the village
+    const t = (i + 0.5) / n, cx = at.x + Math.cos(b0) * (600 * S + t * L), cz = at.z + Math.sin(b0) * (600 * S + t * L), off = (650 + rnd() * 250) * S * side;
+    const h = (1600 - t * 1000 + rnd() * 300) * S;
+    peak(cx + Math.cos(b0 + Math.PI / 2) * off, cz + Math.sin(b0 + Math.PI / 2) * off, h, h * 0.55);
+  }
 }
 
 /** Castle Ravenloft as it stands on the Pillarstone: the plan of `scripts/authoring/castle-ravenloft.py` (x east,

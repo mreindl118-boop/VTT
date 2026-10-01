@@ -83,6 +83,7 @@ function buildDmUi(): void {
       <button class="icon" data-act="rooms" aria-label="Rooms">${ICON.list}</button>
       <button class="icon" data-act="grid" aria-label="Grid: square / hex / off"></button>
       <button class="icon" data-act="walls" aria-label="Walls: low / full">${ICON.walls}</button>
+      <button class="icon" data-act="mist" aria-label="Mist on / off" aria-pressed="true" title="Mist on / off">${ICON.fog}</button>
       <button class="icon" data-act="labels" aria-label="Labels: keys / all / none"></button>
       <span class="divider"></span>
       <button class="icon" data-act="lock" aria-label="Player camera follows DM"></button>
@@ -216,6 +217,7 @@ function buildDmUi(): void {
       case 'rooms': toggleRooms(); break;
       case 'grid': app.gridMode = app.gridMode === 'square' ? 'hex' : app.gridMode === 'hex' ? 'off' : 'square'; app.layoutChanged(); break;
       case 'walls': app.lowWalls = !app.lowWalls; app.layoutChanged(); break;
+      case 'mist': app.world.setFog(!app.world.fogOn); top.querySelector('[data-act="mist"]')!.setAttribute('aria-pressed', String(app.world.fogOn)); app.layoutChanged(); break;
       case 'labels': app.labelMode = app.labelMode === 'keys' ? 'all' : app.labelMode === 'all' ? 'none' : 'keys'; app.applySlider(); break;
       case 'lock': app.lockPlayerCamera = !app.lockPlayerCamera; app.layoutChanged(); break;
       case 'display': window.open(`${location.pathname}?display=player&scene=${encodeURIComponent(app.cur?.path ?? '')}`, 'mistlab-player', 'popup,width=1280,height=800'); break;

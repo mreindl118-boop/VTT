@@ -5,7 +5,7 @@ export type Msg =
   | { kind: 'hello' }
   | { kind: 'state'; state: CampaignState; location: string; level: string }
   | { kind: 'camera'; pos: [number, number, number]; target: [number, number, number]; locked: boolean }
-  | { kind: 'layout'; grid: 'square' | 'hex'; gridOn: boolean; lowWalls: boolean; cut?: number };
+  | { kind: 'layout'; grid: 'square' | 'hex'; gridOn: boolean; lowWalls: boolean; cut?: number; fog?: boolean };
 
 export class Channel {
   private bc: BroadcastChannel | null;

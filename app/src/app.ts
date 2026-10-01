@@ -242,7 +242,7 @@ export class App {
     fogUniforms.uCovOrigin.value.set(cov.originX, cov.originZ);
     fogUniforms.uCovSize.value.set(cov.width, cov.height);
     this.world.mistFloor.position.y = this.level.elevationFt - 1.2;
-    this.world.mistFloor.visible = !this.backdrop;
+    this.world.mistFloor.visible = !this.backdrop && this.world.fogOn;
     this.syncTokens();
     this.recompute();
     if (frame) this.frameLevel();
@@ -1072,7 +1072,7 @@ export class App {
   private broadcast(): void {
     if (this.mode !== 'dm' || !this.cur) return;
     this.channel.send({ kind: 'state', state: this.state, location: this.cur.path, level: this.levelId });
-    this.channel.send({ kind: 'layout', grid: this.gridMode === 'hex' ? 'hex' : 'square', gridOn: this.gridMode !== 'off', lowWalls: this.lowWalls, cut: this.cutFt ?? undefined });
+    this.channel.send({ kind: 'layout', grid: this.gridMode === 'hex' ? 'hex' : 'square', gridOn: this.gridMode !== 'off', lowWalls: this.lowWalls, cut: this.cutFt ?? undefined, fog: this.world.fogOn });
     this.sendCamera(true);
   }
   layoutChanged(): void { this.applySlider(); this.broadcast(); }
@@ -1102,7 +1102,7 @@ export class App {
       this.world.invalidate();
     } else if (m.kind === 'layout') {
       this.gridMode = m.gridOn ? m.grid : 'off';
-      this.lowWalls = m.lowWalls; this.cutFt = m.cut;
+      this.lowWalls = m.lowWalls; this.cutFt = m.cut; if (m.fog !== undefined) this.world.setFog(m.fog);
       this.applySlider();
     }
   }
