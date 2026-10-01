@@ -57,7 +57,8 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
   const yAt = (x: number, z: number): number => {
     if (!HF) return y0;
     const [mx, my] = toMiles(x, z);
-    const h = yTop + (terrain.heightAt(mx, my) - hPin), d = mapDist(x, z);
+    // relief beyond the map is drawn a quarter steeper than surveyed, as a mapmaker would, so the valley walls close in
+    const h = yTop + (terrain.heightAt(mx, my) - hPin) * 1.25, d = mapDist(x, z);
     if (crag > 0) { const cliff = yTop - crag * smooth(40, 320, d); return cliff + (h - (yTop - crag)) * smooth(320, 1400, d); }
     return yTop + (h - yTop) * smooth(120, 900, d);
   };
@@ -152,16 +153,23 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
   }
   // 2. Forest ring: instanced pines from just past the edge out to the tree line.
   const tree = new THREE.ConeGeometry(6, 28, 6); tree.translate(0, 14, 0);
-  const n = terrain.hasCover ? 2600 : o.valley ? 1500 : 900, trees = new THREE.InstancedMesh(tree, new THREE.MeshLambertMaterial({ fog: false, flatShading: true }), n);
+  // A thick wood presses up to the map's edge (most trees in the first third of a mile), thinning toward the horizon;
+  // still one instanced draw for all of them.
+  const n = terrain.hasCover ? 7000 : o.valley ? 3000 : 2200, trees = new THREE.InstancedMesh(tree, new THREE.MeshLambertMaterial({ fog: false, flatShading: true }), n);
   const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), s = new THREE.Vector3(), p = new THREE.Vector3();
   for (let i = 0; i < n; i++) {
-    const a = rnd() * Math.PI * 2, d = terrain.hasCover ? R + 40 + Math.sqrt(rnd()) * 9000 : R + 45 + Math.pow(rnd(), 1.3) * 1000, k = (0.6 + rnd() * 0.6) * (terrain.hasCover ? 1 + d / 9000 : 1);
-    const tx = cx + Math.cos(a) * d, tz = cz + Math.sin(a) * d;
+    const near = rnd() < 0.62, a = rnd() * Math.PI * 2;
+    // trees are placed out from the map's own edge (a rectangle), not its centre, so a long map is hemmed in all round
+    const off = near ? Math.max(0, o.clearing ?? 0) + 15 + Math.pow(rnd(), 1.6) * 1800 : 1500 + Math.sqrt(rnd()) * (terrain.hasCover ? 9000 : 2500);
+    const ex = (bbm.maxX - bbm.minX) / 2, ez = (bbm.maxZ - bbm.minZ) / 2, ca = Math.cos(a), sa = Math.sin(a);
+    const edge = Math.min(Math.abs(ca) > 1e-6 ? ex / Math.abs(ca) : Infinity, Math.abs(sa) > 1e-6 ? ez / Math.abs(sa) : Infinity);
+    const d = edge + off, k = (0.75 + rnd() * 0.7) * (1 + off / 6000);
+    const tx = (bbm.minX + bbm.maxX) / 2 + ca * d, tz = (bbm.minZ + bbm.maxZ) / 2 + sa * d;
     let drop = nearRoad(tx, tz, 14) || mapDist(tx, tz) < Math.max(30, o.clearing ?? 0); // a ride through the wood for the road; nothing on the map or its felled approaches
-    if (terrain.hasCover && !drop) { const [mx, my] = toMiles(tx, tz); drop = terrain.cover('f', mx, my) < 0.45 + rnd() * 0.3; }
+    if (terrain.hasCover && !drop) { const [mx, my] = toMiles(tx, tz); const f = terrain.cover('f', mx, my), w = terrain.cover('w', mx, my), m = terrain.cover('m', mx, my); drop = w > 0.3 || m > 0.6 || f + (near ? 0.35 : 0) < 0.4 + rnd() * 0.3; }
     if (drop) { s.set(0, 0, 0); p.set(tx, y0 - 50, tz); m4.compose(p, q, s); trees.setMatrixAt(i, m4); continue; }
     p.set(tx, yAt(tx, tz) - 1, tz); s.set(k, k * (0.9 + rnd() * 0.4), k); m4.compose(p, q, s);
-    trees.setMatrixAt(i, m4); trees.setColorAt(i, blend(i % 3 ? T.forest[0] : T.forest[1], terrain.hasCover ? haze(d) : (d - R) / 1100));
+    trees.setMatrixAt(i, m4); trees.setColorAt(i, blend(i % 3 ? T.forest[0] : T.forest[1], haze(off) * 0.9));
   }
   g.add(trees);
 
@@ -225,7 +233,9 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
     // Ravenloft keeps its true map position: a thousand feet up on the Pillarstone, the valley at its feet.
     const lift = p.heightFt ?? 0;
     const S = 1; // the looming castle is drawn larger; its cliff still stands on the valley floor
-    const s = new THREE.Group(); s.position.set(t.x, HF ? yAt(t.x, t.z) : y0 + lift * S, t.z); s.name = `site-${p.key}`; s.rotation.y = -Math.atan2(E[1], E[0]);
+    // on a heightfield the land carries the crag's shoulder; the sheer rock above it (ROCK) is drawn here
+    const ROCK = HF && lift > 0 ? lift * 0.55 : 0;
+    const s = new THREE.Group(); s.position.set(t.x, HF ? yAt(t.x, t.z) + ROCK : y0 + lift * S, t.z); s.name = `site-${p.key}`; s.rotation.y = -Math.atan2(E[1], E[0]);
     if (looming && !HF) {
       const toward = Math.atan2(cz - t.z, cx - t.x); // the cliff leans out toward the viewer's side
       s.rotation.z = 0.06 * Math.cos(toward - s.rotation.y); s.rotation.x = -0.06 * Math.sin(toward - s.rotation.y);
@@ -242,20 +252,40 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
     } else if (lift > 0) { // its own crag: the Pillarstone, sheer where the land's own hump is too soft to carry a castle
       // The Pillarstone: not a drum but a cluster of tall faceted rock shards, the central one carrying the castle's
       // floor, the others leaning off it and falling away down the slope, every vertex roughened.
-      const pr = p.type === 'castle' ? 240 : 90, ph = HF ? lift * 1.15 : lift;
+      const pr = p.type === 'castle' ? 250 : 90, ph = HF ? ROCK : lift, embed = HF ? lift * 0.4 : 0;
       let sd = 97; const r1 = () => ((sd = (sd * 16807) % 2147483647) / 2147483647);
-      const shard = (x: number, z: number, rBase: number, rTop: number, h: number, y: number, tilt: number, hex: string) => {
-        const g2 = new THREE.CylinderGeometry(rTop, rBase, h, 6, 4); g2.translate(0, -h / 2, 0);
-        const pv = g2.attributes.position; for (let i = 0; i < pv.count; i++) { const k = 1 + (r1() - 0.5) * 0.28; pv.setX(i, pv.getX(i) * k); pv.setZ(i, pv.getZ(i) * (1 + (r1() - 0.5) * 0.28)); if (pv.getY(i) < -2 && pv.getY(i) > -h + 2) pv.setY(i, pv.getY(i) + (r1() - 0.5) * h * 0.06); }
+      // a column of rock: near-vertical sides fluted into ribs (the same jitter all the way down a rib, so the face
+      // reads as jointed stone, not lumps), a little irregular ledge every so often
+      const column = (x: number, z: number, rBase: number, rTop: number, h: number, y: number, lean: number, hex: string, segs = 9) => {
+        const g2 = new THREE.CylinderGeometry(rTop, rBase, h, segs, 7); g2.translate(0, -h / 2, 0);
+        const rib = Array.from({ length: segs + 1 }, () => 1 + (r1() - 0.5) * 0.5); rib[segs] = rib[0];
+        const ledge = Array.from({ length: 8 }, () => 1 + (r1() - 0.5) * 0.12);
+        const pv = g2.attributes.position;
+        for (let i = 0; i < pv.count; i++) {
+          const ang = Math.atan2(pv.getZ(i), pv.getX(i)), si = Math.round(((ang + Math.PI) / (Math.PI * 2)) * segs) % (segs + 1), ri = Math.min(7, Math.round((-pv.getY(i) / h) * 7));
+          const k = rib[si] * ledge[ri]; pv.setX(i, pv.getX(i) * k); pv.setZ(i, pv.getZ(i) * k);
+        }
         g2.computeVertexNormals();
-        const m = new THREE.Mesh(g2, hazed(hex, t.d)); m.position.set(x, y, z); m.rotation.set(tilt * (r1() - 0.5), r1() * Math.PI, tilt * (r1() - 0.5)); s.add(m);
+        const m = new THREE.Mesh(g2, hazed(hex, t.d)); m.position.set(x, y, z); m.rotation.set(lean * (r1() - 0.5), r1() * Math.PI, lean * (r1() - 0.5)); s.add(m);
       };
-      shard(0, 0, pr * 1.25, pr * 1.02, ph, 0.5, 0, '#4a4a52');                                  // the castle's own rock, flat-topped
-      for (let i = 0; i < 9; i++) {                                                               // its neighbours, lower and leaning
-        const a = (i / 9) * Math.PI * 2 + r1() * 0.4, d = pr * (0.95 + r1() * 0.45), h = ph * (0.45 + r1() * 0.5);
-        shard(Math.cos(a) * d, Math.sin(a) * d, pr * (0.35 + r1() * 0.25), pr * (0.08 + r1() * 0.12), h, -ph * (0.05 + r1() * 0.2) + h * 0.15, 0.25, i % 2 ? '#44444c' : '#505058');
+      // the Pillarstone itself: sheer, a shade wider at the foot, its top the castle's floor
+      // the core, in two stacked drums offset a little (a jointed column, not a cylinder), flaring toward its foot
+      column(0, 0, pr * 1.5, pr * 1.18, ph * 0.55 + embed, -ph * 0.45, 0, '#3f3f47', 13);
+      column(pr * 0.05, -pr * 0.04, pr * 1.16, pr * 1.0, ph * 0.47, 0.5, 0, '#43434b', 13);
+      // spurs and buttresses crowding the core almost to its brow, so the outline is ragged from every side
+      for (let i = 0; i < 13; i++) {
+        const a = (i / 13) * Math.PI * 2 + r1() * 0.4, d = pr * (0.85 + r1() * 0.35), h = ph * (0.55 + r1() * 0.43);
+        column(Math.cos(a) * d, Math.sin(a) * d, pr * (0.32 + r1() * 0.22), pr * (0.06 + r1() * 0.12), h + embed, -ph + h + 0.5, 0.14, i % 3 === 0 ? '#3a3a42' : i % 3 === 1 ? '#4a4a52' : '#45454d', 7);
       }
-      for (let i = 0; i < 14; i++) { const a = r1() * Math.PI * 2, r = pr * (1.2 + r1() * 0.8), bh = -ph * (0.3 + r1() * 0.65); const bd = new THREE.Mesh(new THREE.IcosahedronGeometry(pr * (0.08 + r1() * 0.1), 0), hazed('#44444c', t.d)); bd.position.set(Math.cos(a) * r, bh, Math.sin(a) * r); s.add(bd); }
+      for (let i = 0; i < 4; i++) { const a = r1() * Math.PI * 2, d = pr * (1.5 + r1() * 0.6), h = ph * (0.25 + r1() * 0.3); column(Math.cos(a) * d, Math.sin(a) * d, pr * 0.16, pr * 0.05, h + embed, -ph + h, 0.2, '#47474f', 6); }
+      // talus at the foot
+      for (let i = 0; i < 18; i++) { const a = r1() * Math.PI * 2, r = pr * (1.15 + r1() * 1.1); const bd = new THREE.Mesh(new THREE.IcosahedronGeometry(pr * (0.05 + r1() * 0.09), 0), hazed('#44444c', t.d)); bd.position.set(Math.cos(a) * r, -ph + r1() * 12, Math.sin(a) * r); s.add(bd); }
+      // mist pooled round the foot of the rock: soft-edged layers (a radial fade, no rim to catch the eye)
+      if (HF) for (const [k, op, rr] of [[0.92, 0.5, 3.8], [0.72, 0.32, 3.0], [0.5, 0.18, 2.4]] as const) {
+        const ring = new THREE.Mesh(new THREE.CircleGeometry(pr * rr, 40), new THREE.MeshBasicMaterial({ color: '#c6ccd6', map: mistTexture(), transparent: true, opacity: op, fog: false, depthWrite: false }));
+        ring.rotation.x = -Math.PI / 2; ring.position.y = -ph * k; s.add(ring);
+      }
+
       if (!HF) { const foot = new THREE.Mesh(new THREE.ConeGeometry(pr * 2.4, lift * 0.35, 12), hazed('#3f3f47', t.d)); foot.position.y = -lift + lift * 0.175; s.add(foot); }
     }
     const mat = (hex: string) => hazed(hex, t.d);
@@ -346,6 +376,14 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
 /** Hundreds of ridges, peaks and distant buildings each carry a material of their own; nothing out there ever moves
  *  or is picked, so every opaque solid-coloured mesh folds into one mesh per material look. Instanced forest, the
  *  vertex-coloured apron and ribbons, and the translucent mists keep their own draw. */
+let MIST_TEX: THREE.CanvasTexture | null = null;
+/** A soft ring of mist: clear at the centre (the rock stands there), densest a third of the way out, fading to nothing at the rim. */
+function mistTexture(): THREE.CanvasTexture {
+  if (MIST_TEX) return MIST_TEX;
+  const c = document.createElement('canvas'); c.width = c.height = 128; const x = c.getContext('2d')!;
+  const g = x.createRadialGradient(64, 64, 0, 64, 64, 64); g.addColorStop(0, 'rgba(255,255,255,0)'); g.addColorStop(0.28, 'rgba(255,255,255,0.15)'); g.addColorStop(0.45, 'rgba(255,255,255,1)'); g.addColorStop(1, 'rgba(255,255,255,0)');
+  x.fillStyle = g; x.fillRect(0, 0, 128, 128); MIST_TEX = new THREE.CanvasTexture(c); return MIST_TEX;
+}
 function collapse(g: THREE.Group): void {
   const buckets = new Map<string, { material: THREE.Material; gs: THREE.BufferGeometry[] }>();
   const drop: THREE.Object3D[] = [];

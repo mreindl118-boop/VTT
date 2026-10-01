@@ -368,3 +368,7 @@
   tripods, washing lines, horse pickets, and the dusk elves' sod-roofed hill homes (new `vardo`, `campfire`,
   `big-tent`, `mound`, `washline` props; turf roofs). On the Vallaki map the camp shows outside the west wall: the
   hill, the great tent on top, a ring of vardos, fires and the hovels round its foot.
+- Ravenloft looms: the land carries a broad shoulder to under half the Pillarstone's height and the rest is a sheer,
+  jointed column of rock crowded with spurs, talus at its foot and soft mist pooled round it, so the castle stands
+  far above the village on a cliff a real crag could make. Relief beyond every map is drawn a quarter steeper and
+  a thick wood presses up to each map's edge wherever the land cover is forest (one instanced draw).

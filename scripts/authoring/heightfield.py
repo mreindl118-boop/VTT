@@ -72,7 +72,9 @@ def build(world):
         if p.get('heightFt'):
             d = np.hypot(gx - p['pos'][0], gy - p['pos'][1])
             base = H[np.unravel_index(np.argmin(d), d.shape)]
-            H = np.where(d < 0.26, np.maximum(H, base + p['heightFt'] * np.clip(1 - (d - 0.06) / 0.2, 0, 1)), H)
+            # the land carries a broad shoulder to just under half the height; the sheer pillar above it is drawn as rock
+            # (a cliff is far finer than this lattice can hold)
+            H = np.where(d < 0.5, np.maximum(H, base + 0.45 * p['heightFt'] * np.clip(1 - (d - 0.05) / 0.42, 0, 1) ** 0.8), H)
     # the lowest settlement is the datum
     sett = [p for p in world.get('pins', []) if p['type'] == 'settlement'] or world.get('pins', [])[:1]
     datum = min(float(H[min(rows - 1, max(0, int((p['pos'][1] - b['minY']) / cell))), min(cols - 1, max(0, int((p['pos'][0] - b['minX']) / cell)))]) for p in sett) if sett else float(H.min())
