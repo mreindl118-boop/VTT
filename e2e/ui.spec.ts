@@ -119,3 +119,32 @@ test('section slider: dragging near a floor\'s detent picks that floor with its 
   await page.locator('.section input').fill(String(attic.ft + 6));
   expect(await page.evaluate(() => [(window as any).__mistlab.app.levelId, (window as any).__mistlab.app.cutFt])).toEqual(['attic', attic.ft + 6]);
 });
+
+test('creatures: placed from the repository, hidden until revealed, moved freely by the DM, with the reach helper', async ({ page }) => {
+  await boot(page, '', SCENES[0]);
+  await page.click('[data-act="creatures"]');
+  await page.fill('.csearch', 'dire wolf');
+  await expect(page.locator('.crow')).toHaveCount(1);
+  await page.locator('.crow [data-a="here"]').click();
+  await page.locator('.crow [data-a="here"]').click();
+  const toks = await page.evaluate(() => (window as any).__mistlab.app.state.tokens.filter((t: any) => t.role === 'creature').map((t: any) => ({ name: t.name, hidden: t.hidden, hp: t.hp.max })));
+  expect(toks).toEqual([{ name: 'Dire wolf', hidden: true, hp: 37 }, { name: 'Dire wolf 2', hidden: true, hp: 37 }]);
+  await page.keyboard.press('Escape');
+  // the players' end does not render a hidden creature; the DM's end does
+  const rendered = (restricted: boolean) => page.evaluate((r) => { const a = (window as any).__mistlab.app; a.setView(r ? 'players' : 'dm'); return [...a.cur.tokens.keys()].filter((k: string) => k.startsWith('cr-')).length; }, restricted);
+  expect(await rendered(true)).toBe(0);
+  expect(await rendered(false)).toBe(2);
+  const id = toks && (await page.evaluate(() => (window as any).__mistlab.app.state.tokens.find((t: any) => t.role === 'creature').id));
+  await page.evaluate((id) => (window as any).__mistlab.app.setTokenHidden(id, false), id);
+  expect(await rendered(true)).toBe(1);
+  await page.evaluate(() => (window as any).__mistlab.app.setView('dm'));
+  // the DM moves it anywhere, walls or not; the reach helper draws its ranges while it is picked up
+  const far = await page.evaluate((id) => { const a = (window as any).__mistlab.app; const t = a.state.tokens.find((x: any) => x.id === id); const to = [t.pos[0] + 60, t.pos[1]]; return [a.moveTokenTo(id, to), a.state.tokens.find((x: any) => x.id === id).pos[0] - t.pos[0]]; }, id);
+  expect(far[0]).toBe(true);
+  await page.evaluate((id) => { const a = (window as any).__mistlab.app; a.setRangeHelper(true); a.select(id); }, id);
+  expect(await page.evaluate(() => !!(window as any).__mistlab.app.rangeFor)).toBe(true);
+  await expect(page.locator('.tokpanel')).toBeVisible();
+  await expect(page.locator('.tokpanel header b')).toHaveText('Dire wolf');
+  await page.locator('.tokpanel [data-a="remove"]').click();
+  expect(await page.evaluate(() => (window as any).__mistlab.app.state.tokens.filter((t: any) => t.role === 'creature').length)).toBe(1);
+});

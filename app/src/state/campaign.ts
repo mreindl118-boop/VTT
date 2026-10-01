@@ -19,9 +19,14 @@ export interface Token {
   color: string;
   /** Light carried by the token, if any. */
   light?: { bright: number; dim: number };
-  /** The party marker, or one combatant's own token during an encounter. */
-  role?: 'party' | 'member';
+  /** The party marker, one combatant's own token during an encounter, or a creature the DM placed. */
+  role?: 'party' | 'member' | 'creature';
   sheetId?: string;
+  /** A placed creature: its repository entry, whether players can see it yet, what they call it, its hit points. */
+  creatureId?: string;
+  hidden?: boolean;
+  playerName?: string;
+  hp?: { cur: number; max: number };
 }
 
 /** A character sheet's tactical essentials: what the range overlay needs. */

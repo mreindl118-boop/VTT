@@ -3,6 +3,8 @@ import './styles.css';
 import { App, type GridMode } from './app';
 import { builtPaths, loadLocation } from './data';
 import { openWorldMap } from './ui/worldmap';
+import { openBestiary } from './ui/bestiary';
+import { creatureById, statsOf, seenAs } from './bestiary';
 import { openEncounterSheet, turnBar } from './ui/encounter';
 import { ICON } from './ui/icons';
 import { openLibrary } from './ui/library';
@@ -73,6 +75,7 @@ function buildDmUi(): void {
         <button class="icon" data-act="undo" aria-label="Undo reveal">${ICON.undo}</button>
       </div>
       <span class="divider"></span>
+      <button class="icon" data-act="creatures" aria-label="Creatures" title="Creatures: people, monsters and beasts to place">${ICON.paw}</button>
       <button class="icon" data-act="encounter" aria-label="Initiative" title="Initiative (roll, ranges, turns)">${ICON.swords}</button>
       <span class="divider"></span>
       <button class="icon" data-act="search" aria-label="Go to area (/)" title="Go to area (/)">${ICON.search}</button>
@@ -203,6 +206,7 @@ function buildDmUi(): void {
         sceneName: async (path) => (await loadLocation(path)).scene.name,
       }); break;
       case 'encounter': app.encounter ? bar.update() : openEncounterSheet(app, refresh); break;
+      case 'creatures': openBestiary(app, refresh); break;
       case 'undo': app.undo(); break;
       case 'sec-follow': app.setCut(undefined); break;
       case 'search': finder.hidden ? openFinder() : closeFinder(); break;
@@ -258,6 +262,16 @@ function buildDmUi(): void {
   app.onTap = (hit, x, y) => {
     closeMenu();
     const items: { label: string; act: () => void; icon?: string }[] = [];
+    if (hit.token) { // the players' look at a creature
+      const card = document.createElement('div'); card.className = 'infocard';
+      card.innerHTML = `<header><div><h2></h2></div><button class="icon close" aria-label="Close">${ICON.close}</button></header>${hit.token.desc ? '<div class="body"><div class="desc"></div></div>' : ''}`;
+      card.querySelector('h2')!.textContent = hit.token.name; if (hit.token.desc) card.querySelector('.desc')!.textContent = hit.token.desc;
+      card.style.left = `${Math.min(x, innerWidth - 360)}px`; card.style.top = `${Math.min(y, innerHeight - 200)}px`;
+      card.addEventListener('click', (e) => { if ((e.target as HTMLElement).closest('.close')) closeMenu(); });
+      menu = card; ui.appendChild(card);
+      setTimeout(() => addEventListener('pointerdown', (e) => { if (menu && !menu.contains(e.target as Node)) closeMenu(); }, { once: true }), 0);
+      return;
+    }
     if (hit.object) {
       // Info card: what it is, where, what players see, DM notes, state, actions.
       const o = hit.object, players = app.restricted;
@@ -319,13 +333,45 @@ function buildDmUi(): void {
     setTimeout(() => addEventListener('pointerdown', (e) => { if (menu && !menu.contains(e.target as Node)) closeMenu(); }, { once: true }), 0);
   };
 
+  // The picked-up token's panel (DM): what players see, hit points, reveal, reach helper, initiative, remove.
+  const tokPanel = document.createElement('div'); tokPanel.className = 'tokpanel'; tokPanel.hidden = true; ui.appendChild(tokPanel);
+  const renderTokPanel = () => {
+    const t = app.selected ? app.state.tokens.find((x) => x.id === app.selected) : undefined;
+    tokPanel.hidden = !t || app.restricted || t.role === 'party';
+    if (tokPanel.hidden || !t) return;
+    const en = t.creatureId ? creatureById(t.creatureId) : undefined, st = en && statsOf(en);
+    tokPanel.innerHTML = `<header><b>${t.name}</b><span>${en ? `${en.size}${st ? ` · AC ${st.ac} · ${st.speed} · CR ${st.cr}` : ''}` : 'combatant'}</span><button class="icon close" aria-label="Close">${ICON.close}</button></header>
+      ${t.role === 'creature' ? `<label>Players see <input data-f="pname" value="${(t.playerName ?? t.name).replace(/"/g, '&quot;')}"></label>${en && seenAs(en) ? `<div class="seen">${seenAs(en)}</div>` : ''}` : ''}
+      ${t.hp ? `<div class="hp"><button data-a="hp-" aria-label="Damage">−</button><b>${t.hp.cur}</b> / ${t.hp.max} hp<button data-a="hp+" aria-label="Heal">+</button></div>` : ''}
+      <div class="acts">${t.role === 'creature' ? `<button class="${t.hidden ? 'primary' : ''}" data-a="reveal">${t.hidden ? ICON.eye + '<span>Reveal to players</span>' : ICON.eyeOff + '<span>Hide from players</span>'}</button>` : ''}
+        ${!app.encounter ? `<button data-a="range" aria-pressed="${app.rangeHelper}">${ICON.grid}<span>Reach</span></button>` : ''}
+        ${t.role === 'creature' && !app.encounter ? `<button data-a="init">${ICON.swords}<span>Initiative</span></button>` : ''}
+        ${t.role === 'creature' ? `<button data-a="remove">${ICON.close}<span>Remove</span></button>` : ''}</div>`;
+  };
+  tokPanel.addEventListener('click', (e) => {
+    const b = (e.target as HTMLElement).closest<HTMLElement>('button'); if (!b) return;
+    const id = app.selected; if (!id) return;
+    if (b.classList.contains('close')) { app.select(null); return; }
+    switch (b.dataset.a) {
+      case 'hp-': app.adjustHp(id, -1); break; case 'hp+': app.adjustHp(id, 1); break;
+      case 'reveal': { const t = app.state.tokens.find((x) => x.id === id)!; app.setTokenHidden(id, !t.hidden); break; }
+      case 'range': app.setRangeHelper(!app.rangeHelper); break;
+      case 'init': openEncounterSheet(app, refresh); break;
+      case 'remove': app.removeToken(id); break;
+    }
+    renderTokPanel(); refresh();
+  });
+  tokPanel.addEventListener('change', (e) => { const el = e.target as HTMLInputElement; if (el.dataset.f === 'pname' && app.selected) app.setPlayerName(app.selected, el.value); });
+  const prevOnSelect = app.onSelect; app.onSelect = (id) => { prevOnSelect?.(id); renderTokPanel(); };
+  app.onChange = ((prev) => () => { prev?.(); renderTokPanel(); })(app.onChange);
+
   // Keyboard: R rotate, F find party, / search, Esc clears the tool.
   addEventListener('keydown', (e) => {
     if ((e.target as HTMLElement).tagName === 'INPUT') return;
     if (e.key === 'r') app.world.rotate(1); if (e.key === 'R') app.world.rotate(-1);
     if (e.key === 'n' && app.encounter && !app.restricted) { app.nextTurn(1); refresh(); }
     if (e.key === 'f') app.findParty(); if (e.key === '/') { e.preventDefault(); openFinder(); }
-    if (e.key === 'Escape') { document.querySelectorAll('.sheet-backdrop').forEach((s) => s.remove()); app.select(null); app.tool = 'none'; app.setStatus(''); refresh(); }
+    if (e.key === 'Escape') { document.querySelectorAll('.sheet-backdrop').forEach((s) => s.remove()); app.stopPlacing(); app.select(null); app.tool = 'none'; app.setStatus(''); refresh(); }
   });
 
   function showHelp(): void {
@@ -337,6 +383,7 @@ function buildDmUi(): void {
         <dt>Look around</dt><dd>One finger / left-drag pans. Right-drag or a two-finger twist rotates; pinch or scroll zooms. The buttons bottom-left turn in 90° steps, tilt, zoom and find the party. Double-tap a room to frame it.</dd>
         <dt>World map</dt><dd>The map button beside the library opens the Lands of Barovia. Drag the party to a lettered pin or into the wilderness; the card shows the distance and travel time at your pace, and opens the battle map for that place when one is built. Opening a location moves the party marker there.</dd>
         <dt>Initiative</dt><dd>The crossed-swords button opens the roster: speed, reach, range and initiative from each character sheet. Start an encounter and each combatant gets a token. On a turn, green squares are where that combatant can still move and red squares are what it could strike from there; a paler red shows ranged reach with a clear line. Next turn (or N) advances; End folds everyone back into the party marker.</dd>
+        <dt>Creatures</dt><dd>The paw button opens the repository: every person, monster and beast the module names, searchable. Place one beside the party, or place by tap and keep tapping to put down as many as you like (Esc stops). Placed creatures start hidden from the players. Tap one to pick it up: the panel shows what players will see (rename it), hit points, Reveal or Hide, the Reach helper (green squares it can move to, red ones it can strike), Initiative, Remove. The DM moves anything anywhere; players move only the party, and only where it can walk.</dd>
         <dt>Section slicer</dt><dd>Buildings with several floors show all of them at once. The Section slider beside the floor tabs cuts the building at any height: slide it up to see the roof, down through the floors, below ground into a cellar. The floor tabs follow the cut; the arrow button snaps the cut back to the current floor.</dd>
         <dt>Find an area</dt><dd>Type a key or name in the search box (or press /). The Rooms list shows every key with its revealed state.</dd>
         <dt>Doors, stairs and choices</dt><dd>Door markers open and close doors; stair and trapdoor markers move the party between levels. Tap anything for a menu of what you can do with it (reveal, hide, move the party, frame). The slider previews what players see.</dd>

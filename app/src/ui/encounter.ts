@@ -11,7 +11,9 @@ export function openEncounterSheet(app: App, onStart: () => void): void {
   const back = document.createElement('div');
   back.className = 'sheet-backdrop';
   const inits = new Map<string, number>();
+  const cinits = new Map<string, number>(); // placed creatures, by token
   const render = () => {
+    const creatures = app.state.tokens.filter((t) => t.role === 'creature' && t.location === app.cur?.scene.location);
     const rows = app.state.roster.map((s) => `<tr data-id="${s.id}">
         <td><input type="color" value="${s.color}" data-f="color" aria-label="Colour"></td>
         <td><input value="${esc(s.name)}" data-f="name" aria-label="Name"></td>
@@ -27,6 +29,8 @@ export function openEncounterSheet(app: App, onStart: () => void): void {
       <div class="sheet-body">
         <p class="hint">Speed, reach and range come from each character sheet. Tick who is in, roll or type initiative, then start. Green squares show where a combatant can still move on its turn; red squares are what it could strike from there.</p>
         <table class="roster"><thead><tr><th></th><th>Name</th><th>Kind</th><th>Speed</th><th>Reach</th><th>Range</th><th>Darkvision</th><th>Init mod</th><th>Initiative</th><th></th></tr></thead><tbody>${rows}</tbody></table>
+        ${creatures.length ? `<h3>Creatures on this map</h3><table class="roster creatures"><thead><tr><th></th><th>Name</th><th>Players see</th><th>Hit points</th><th>Initiative</th></tr></thead><tbody>${creatures.map((t) => `<tr data-tok="${t.id}"><td><span class="chip" style="--tok:${t.color}"></span></td><td>${esc(t.name)}${t.hidden ? ' <i>(hidden)</i>' : ''}</td><td>${esc(t.playerName ?? t.name)}</td><td>${t.hp ? `${t.hp.cur}/${t.hp.max}` : '—'}</td>
+          <td><label class="init"><input type="checkbox" data-f="cin" ${cinits.has(t.id) ? 'checked' : ''} aria-label="In this encounter"><input type="number" value="${cinits.get(t.id) ?? ''}" data-f="cinit" placeholder="—" aria-label="Initiative"></label></td></tr>`).join('')}</tbody></table>` : ''}
         <div class="row"><button data-a="add">${ICON.party} Add character</button><button data-a="npc">Add foe</button><span class="spacer"></span><button data-a="roll">Roll initiative</button><button class="primary" data-a="start">Start encounter</button></div>
       </div></div>`;
   };
@@ -34,6 +38,12 @@ export function openEncounterSheet(app: App, onStart: () => void): void {
   const sheetOf = (el: HTMLElement) => app.state.roster.find((s) => s.id === el.closest<HTMLElement>('tr')!.dataset.id)!;
   back.addEventListener('input', (e) => {
     const el = e.target as HTMLInputElement, f = el.dataset.f; if (!f) return;
+    if (f === 'cin' || f === 'cinit') {
+      const tok = el.closest<HTMLElement>('tr')!.dataset.tok!, t = app.state.tokens.find((x) => x.id === tok)!, sh = app.creatureSheet(t);
+      if (f === 'cinit') { if (el.value === '') cinits.delete(tok); else { cinits.set(tok, Number(el.value)); (el.parentElement!.querySelector('[data-f="cin"]') as HTMLInputElement).checked = true; } return; }
+      if (el.checked) cinits.set(tok, cinits.get(tok) ?? d20() + (sh?.initMod ?? 0)); else cinits.delete(tok);
+      render(); return;
+    }
     const s = sheetOf(el);
     if (f === 'init') { const v = Number(el.value); if (el.value === '') inits.delete(s.id); else { inits.set(s.id, v); (el.parentElement!.querySelector('[data-f="in"]') as HTMLInputElement).checked = true; } return; }
     if (f === 'in') { if (el.checked) inits.set(s.id, inits.get(s.id) ?? d20() + s.initMod); else inits.delete(s.id); render(); return; }
@@ -52,9 +62,10 @@ export function openEncounterSheet(app: App, onStart: () => void): void {
       app.state.roster.push({ id: `${npc ? 'npc' : 'pc'}-${Date.now().toString(36)}`, name: npc ? `Foe ${n}` : `Character ${n}`, color: npc ? '#8a2b2b' : '#5b8ac9', speedFt: 30, reachFt: 5, rangeFt: 0, initMod: 0, size: 'medium', darkvisionFt: npc ? 60 : 0, kind: npc ? 'npc' : 'pc' });
       app.commit(); render();
     }
-    if (a === 'roll') { for (const s of app.state.roster) if (inits.has(s.id) || inits.size === 0) inits.set(s.id, d20() + s.initMod); render(); }
+    if (a === 'roll') { for (const s of app.state.roster) if (inits.has(s.id) || inits.size === 0) inits.set(s.id, d20() + s.initMod); for (const tok of cinits.keys()) { const t = app.state.tokens.find((x) => x.id === tok); cinits.set(tok, d20() + ((t && app.creatureSheet(t)?.initMod) ?? 0)); } render(); }
     if (a === 'start') {
-      const entries = [...inits].map(([sheetId, init]) => ({ sheetId, init }));
+      const entries: { sheetId: string; init: number; tokenId?: string }[] = [...inits].filter(([sheetId]) => !sheetId.startsWith('cr:')).map(([sheetId, init]) => ({ sheetId, init }));
+      for (const [tok, init] of cinits) { const t = app.state.tokens.find((x) => x.id === tok); const sh = t && app.creatureSheet(t); if (sh) entries.push({ sheetId: sh.id, init, tokenId: tok }); }
       if (!entries.length) return;
       app.startEncounter(entries); back.remove(); onStart();
     }

@@ -287,3 +287,32 @@ body[data-view='players'] .topbar { grid-template-columns: auto 1fr; grid-templa
 body[data-zoom='mid'] .lbl.key span, body[data-zoom='far'] .lbl.key span { display: none; }
 body[data-zoom='mid'] .lbl.tread, body[data-zoom='far'] .lbl.tread, body[data-zoom='far'] .lbl.note, body[data-zoom='far'] .lbl.object, body[data-zoom='far'] .lbl.door, body[data-zoom='far'] .lbl.link { display: none !important; }
 body[data-zoom='mid'] .lbl.link { font-size: 10px; }
+
+/* creatures: the repository sheet, the token panel, hidden tokens */
+.sheet.bestiary header input.csearch { flex: 1; margin: 0 10px; font: inherit; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--hair); background: var(--bg-2, #fff); color: var(--ink); }
+.clist { display: grid; gap: 4px; }
+.crow { display: flex; align-items: center; gap: 10px; padding: 6px 8px; border-radius: 10px; }
+.crow:hover { background: rgba(127,127,127,.08); }
+.crow .chip, .roster .chip { width: 12px; height: 12px; border-radius: 50%; background: var(--tok, #999); flex: none; display: inline-block; }
+.crow .cname { flex: 1; min-width: 0; display: grid; }
+.crow .cname span { font-size: 12px; color: var(--ink-2); }
+.crow button { display: inline-flex; align-items: center; gap: 6px; }
+.crow button svg { width: 16px; height: 16px; }
+.tokpanel { position: absolute; left: 16px; bottom: 76px; width: min(340px, calc(100% - 32px)); background: var(--bg); border-radius: 14px; box-shadow: 0 12px 40px rgba(0,0,0,.35); padding: 10px 12px; display: grid; gap: 8px; font-size: 13px; z-index: 3; }
+.tokpanel[hidden] { display: none; }
+.tokpanel header { display: flex; align-items: baseline; gap: 8px; }
+.tokpanel header b { font-size: 15px; }
+.tokpanel header span { color: var(--ink-2); font-size: 12px; flex: 1; }
+.tokpanel header .close { align-self: center; }
+.tokpanel label { display: flex; align-items: center; gap: 8px; color: var(--ink-2); }
+.tokpanel label input { flex: 1; font: inherit; padding: 5px 8px; border-radius: 8px; border: 1px solid var(--hair); background: transparent; color: var(--ink); }
+.tokpanel .seen { font-size: 12px; color: var(--ink-2); font-style: italic; }
+.tokpanel .hp { display: flex; align-items: center; gap: 8px; }
+.tokpanel .hp button { width: 30px; height: 30px; border-radius: 8px; }
+.tokpanel .acts { display: flex; flex-wrap: wrap; gap: 6px; }
+.tokpanel .acts button { display: inline-flex; align-items: center; gap: 5px; }
+.tokpanel .acts button svg { width: 15px; height: 15px; }
+.tokpanel .acts button[aria-pressed='true'] { background: var(--accent); color: #fff; }
+.lbl.token.hidden { opacity: .55; font-style: italic; }
+.lbl.token.creature { color: #ffd6c8; }
+.sheet.encounter h3 { margin: 14px 0 6px; font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-2); }

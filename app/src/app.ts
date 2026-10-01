@@ -26,6 +26,7 @@ import { Channel, type Msg } from './state/channel';
 import { newCampaign, revealSets, type CampaignState, type Combatant, type Encounter, type Reveal, type Sheet, type Token } from './state/campaign';
 import { tacticalRange, type RangeResult } from './core/range';
 import { buildRangeOverlay } from './render/rangeOverlay';
+import { creatureById, figureFor, aliasFor, seenAs, statsOf, speedFtOf, colorOf } from './bestiary';
 import { sightBlockers } from './core/light';
 import { idbGet, idbSet } from './state/idb';
 
@@ -38,6 +39,8 @@ export interface TapHit {
   door?: { wallId: string; open: boolean };
   secretDoor?: { id: string; revealed: boolean };
   object?: { id: string; label: string; playerLabel?: string; container?: { locked: boolean; open: boolean; contents?: string }; vis: string; revealed: boolean; kind: string; desc?: string; dm?: string; page?: number; visibleToPlayers: boolean };
+  /** A creature the players can see: what they call it and what they make of it. */
+  token?: { id: string; name: string; desc?: string };
 }
 
 interface Loaded {
@@ -303,7 +306,7 @@ export class App {
     return sheet && token ? { c, sheet, token } : undefined;
   }
   /** Roll initiative and put one token per combatant on the map around the party marker. */
-  startEncounter(entries: { sheetId: string; init: number }[]): void {
+  startEncounter(entries: { sheetId: string; init: number; tokenId?: string }[]): void {
     if (!this.cur || !entries.length) return;
     const loc = this.cur.scene.location, party = this.party;
     const level = party?.level ?? this.levelId, l = this.cur.scene.levels.find((x) => x.id === level)!;
@@ -320,6 +323,7 @@ export class App {
     const order: Combatant[] = [];
     entries.slice().sort((a, b) => b.init - a.init).forEach((en, i) => {
       const sh = this.state.roster.find((x) => x.id === en.sheetId); if (!sh) return;
+      if (en.tokenId) { const t = this.state.tokens.find((x) => x.id === en.tokenId); if (!t) return; t.sheetId = sh.id; order.push({ sheetId: sh.id, tokenId: t.id, init: en.init }); return; }
       const id = `tok-${loc}-${sh.id}`;
       this.state.tokens.push({ id, name: sh.name, location: loc, level, pos: free[i] ?? at, size: sh.size, darkvisionFt: sh.darkvisionFt, color: sh.color, role: 'member', sheetId: sh.id, light: sh.kind === 'pc' && i === 0 ? { bright: 20, dim: 40 } : undefined });
       order.push({ sheetId: sh.id, tokenId: id, init: en.init });
@@ -356,9 +360,12 @@ export class App {
   }
   /** Tactical range of a combatant token from where it stands, with the movement it has left. */
   rangeOf(tokenId: string): RangeResult | undefined {
-    const e = this.encounter, t = this.state.tokens.find((x) => x.id === tokenId), sheet = t?.sheetId ? this.state.roster.find((x) => x.id === t.sheetId) : undefined;
-    if (!e || !t || !sheet || t.level !== this.levelId) return undefined;
-    const spent = this.current?.token.id === tokenId ? e.movedFt : 0;
+    const e = this.encounter, t = this.state.tokens.find((x) => x.id === tokenId);
+    if (!t || t.level !== this.levelId) return undefined;
+    const sheet: Sheet | undefined = (t.sheetId ? this.state.roster.find((x) => x.id === t.sheetId) : undefined) ?? (t.role === 'creature' ? this.creatureSheet(t) : undefined)
+      ?? { id: 'party', name: 'Party', color: t.color, speedFt: 30, reachFt: 5, rangeFt: 0, initMod: 0, size: t.size, darkvisionFt: t.darkvisionFt, kind: 'pc' };
+    if (!sheet) return undefined;
+    const spent = e && this.current?.token.id === tokenId ? e.movedFt : 0;
     const walls = this.effectiveWalls(), g = this.cur!.grid.levels[this.levelId];
     return tacticalRange({ start: t.pos, speedFt: Math.max(0, sheet.speedFt - spent), reachFt: sheet.reachFt, rangeFt: sheet.rangeFt || undefined,
       floor: g.floorPolygons.concat(this.level.rooms.map((r) => r.polygon)), moveBlockers: moveBlockers(walls), sightBlockers: sightBlockers(walls, revealSets(this.state, this.cur!.scene.location).secretWalls),
@@ -371,8 +378,11 @@ export class App {
   refreshRange(): void {
     this.rangeMesh?.removeFromParent(); this.rangeMesh = undefined; this.rangeFor = undefined;
     const cur = this.current;
-    if (!cur || cur.token.level !== this.levelId || this.renderMode === 'floorMask' || this.gridMode === 'hex') { this.world.invalidate(); return; }
-    const r = this.rangeOf(cur.token.id); if (!r) return;
+    // In initiative the current combatant's ranges show every turn; outside it the helper shows the picked-up token's.
+    const tokenId = cur ? cur.token.id : this.rangeHelper && this.selected && !this.restricted ? this.selected : undefined;
+    const tok = tokenId ? this.state.tokens.find((x) => x.id === tokenId) : undefined;
+    if (!tok || tok.level !== this.levelId || this.renderMode === 'floorMask' || this.gridMode === 'hex') { this.world.invalidate(); return; }
+    const r = this.rangeOf(tok.id); if (!r) return;
     this.rangeFor = r;
     this.rangeMesh = buildRangeOverlay(r, this.level.elevationFt);
     this.built.root.add(this.rangeMesh);
@@ -482,16 +492,22 @@ export class App {
     const b = this.built;
     for (const [id, g] of this.cur!.tokens) { g.traverse((c) => { const e = (c as CSS2DObject).element; if (e instanceof HTMLElement) e.remove(); }); g.parent?.remove(g); this.cur!.tokens.delete(id); }
     for (const t of this.tokensHere()) {
+      if (t.role === 'creature' && t.hidden && this.restricted) continue; // not yet shown to the players
       const base = baseRingFt(t.size);
       const g = new THREE.Group();
-      const fig = adventurer(t.role === 'member' ? { cloth: t.color } : undefined); fig.position.y = 0.3;
+      const entry = t.creatureId ? creatureById(t.creatureId) : undefined;
+      const fig = entry ? figureFor(entry) : adventurer(t.role === 'member' ? { cloth: t.color } : undefined); fig.position.y = 0.3;
       g.add(baseRing(base, t.color), fig);
-      if (t.role === 'member') { const lb = this.world.label(t.name, undefined, 'token'); lb.position.set(0, 7.2, 0); lb.element.style.setProperty('--tok', t.color); g.add(lb); }
+      if (t.role === 'member' || t.role === 'creature') {
+        const lb = this.world.label(this.restricted ? (t.playerName ?? t.name) : t.name, undefined, `token${t.role === 'creature' ? ' creature' : ''}${t.hidden ? ' hidden' : ''}`);
+        lb.position.set(0, 7.2, 0); lb.element.style.setProperty('--tok', t.color); g.add(lb);
+      }
+      const ghostly = t.role === 'creature' && !!t.hidden; // the DM sees an unrevealed creature faintly
       g.traverse((c) => {
         const m = c as THREE.Mesh;
         if (!m.isMesh) return;
         const src = m.material as THREE.MeshLambertMaterial;
-        m.material = new THREE.MeshLambertMaterial({ color: src.color, flatShading: true }); // tokens are never fogged
+        m.material = new THREE.MeshLambertMaterial({ color: src.color, flatShading: true, transparent: ghostly, opacity: ghostly ? 0.45 : 1 }); // tokens are never fogged
         m.userData.role = 'token';
         m.userData.tokenId = t.id;
       });
@@ -515,7 +531,8 @@ export class App {
     for (const r of this.state.reveals) this.applyReveal(r, cov, l);
     const walls = this.effectiveWalls();
     const lights: LightSource[] = [...l.lights];
-    const viewers = this.tokensHere().map((t) => {
+    // The party and its members see for the players; placed creatures never do (what they see is the DM's business).
+    const viewers = this.tokensHere().filter((t) => t.role !== 'creature').map((t) => {
       if (t.light) lights.push({ id: `tok:${t.id}`, pos: [t.pos[0], 4, t.pos[1]], bright: t.light.bright, dim: t.light.dim });
       return { pos: t.pos, darkvisionFt: t.darkvisionFt };
     });
@@ -603,7 +620,7 @@ export class App {
     if (document.body.dataset.zoom !== z) document.body.dataset.zoom = z;
   }
   setT(t: number): void { this.t = t; this.applySlider(); }
-  setView(v: 'dm' | 'players'): void { this.view = v; this.tool = 'none'; this.applySlider(); this.onChange?.(); }
+  setView(v: 'dm' | 'players'): void { this.view = v; this.tool = 'none'; this.stopPlacing(); this.select(null); if (this.cur) { this.syncTokens(); this.recompute(); } this.applySlider(); this.onChange?.(); }
 
   // ------------------------------------------------------------------ reveals
 
@@ -703,6 +720,65 @@ export class App {
     if (save) this.commit();
   }
   undo(): void { if (this.state.reveals.pop()) this.commit(); }
+
+  // ------------------------------------------------------------------ creatures: the repository on the map
+  /** The creature being placed by taps, if any. */
+  placing: string | null = null;
+  placed = 0;
+  startPlacing(creatureId: string): void {
+    this.placing = creatureId; this.placed = 0; this.select(null);
+    const e = creatureById(creatureId);
+    this.setStatus(`Tap the map to place ${e?.name ?? 'it'} · Esc to stop`);
+    this.onChange?.();
+  }
+  stopPlacing(): void { if (!this.placing) return; this.placing = null; this.setStatus(''); this.onChange?.(); }
+  /** Put one creature on the current level at a cell. It starts hidden from the players. */
+  addCreature(creatureId: string, pos: Vec2, level = this.levelId): Token | undefined {
+    const e = creatureById(creatureId); if (!e || !this.cur) return undefined;
+    const loc = this.cur.scene.location, n = this.state.tokens.filter((t) => t.creatureId === creatureId && t.location === loc).length + 1;
+    const st = statsOf(e);
+    const t: Token = { id: `cr-${loc}-${creatureId}-${Date.now().toString(36)}-${n}`, name: n > 1 ? `${e.name} ${n}` : e.name, location: loc, level, pos: this.snap(pos), size: e.size, darkvisionFt: e.kind === 'npc' ? 0 : 60,
+      color: colorOf(e), role: 'creature', creatureId, hidden: true, playerName: aliasFor(e), hp: st ? { cur: st.hp, max: st.hp } : undefined };
+    this.state.tokens.push(t);
+    if (level === this.levelId) this.syncTokens();
+    this.commit();
+    return t;
+  }
+  /** Place one on a free cell next to the party marker (or the level's first room). */
+  addCreatureNearParty(creatureId: string): Token | undefined {
+    const p = this.party, l = this.level, at = p && p.level === this.levelId ? this.snap(p.pos) : this.snap([bounds([l.rooms[0].polygon]).minX + 2.5, bounds([l.rooms[0].polygon]).minZ + 2.5]);
+    const taken = new Set(this.tokensHere().map((t) => `${t.pos[0]},${t.pos[1]}`));
+    const floor = this.cur!.grid.levels[this.levelId].floorPolygons.concat(l.rooms.map((r) => r.polygon));
+    for (let ring = 1; ring < 8; ring++) for (let dj = -ring; dj <= ring; dj++) for (let di = -ring; di <= ring; di++) {
+      if (Math.max(Math.abs(di), Math.abs(dj)) !== ring) continue;
+      const c: Vec2 = [at[0] + di * 5, at[1] + dj * 5];
+      if (!taken.has(`${c[0]},${c[1]}`) && floor.some((poly) => pointInPolygon(c, poly))) return this.addCreature(creatureId, c);
+    }
+    return this.addCreature(creatureId, at);
+  }
+  removeToken(id: string): void {
+    const t = this.state.tokens.find((x) => x.id === id); if (!t || t.role === 'party') return;
+    this.state.tokens = this.state.tokens.filter((x) => x.id !== id);
+    const e = this.state.encounter; if (e) { e.order = e.order.filter((c) => c.tokenId !== id); if (e.turn >= e.order.length) e.turn = 0; if (!e.order.length) this.state.encounter = undefined; }
+    if (this.selected === id) this.select(null);
+    this.syncTokens(); this.recompute(); this.commit();
+  }
+  setTokenHidden(id: string, hidden: boolean): void { const t = this.state.tokens.find((x) => x.id === id); if (!t) return; t.hidden = hidden; this.syncTokens(); this.recompute(); this.commit(); this.onChange?.(); }
+  setPlayerName(id: string, name: string): void { const t = this.state.tokens.find((x) => x.id === id); if (!t) return; t.playerName = name.trim() || t.playerName; this.syncTokens(); this.commit(); }
+  adjustHp(id: string, delta: number): void { const t = this.state.tokens.find((x) => x.id === id); if (!t?.hp) return; t.hp.cur = Math.max(0, Math.min(t.hp.max, t.hp.cur + delta)); this.commit(); this.onChange?.(); }
+  /** The sheet an initiative needs for a placed creature: one per creature kind, shared by every copy. */
+  creatureSheet(t: Token): Sheet | undefined {
+    const e = t.creatureId ? creatureById(t.creatureId) : undefined; if (!e) return undefined;
+    const id = `cr:${e.id}`;
+    let sh = this.state.roster.find((x) => x.id === id);
+    if (!sh) { sh = { id, name: e.name, color: colorOf(e), speedFt: speedFtOf(e), reachFt: 5, rangeFt: 0, initMod: 0, size: e.size, darkvisionFt: e.kind === 'npc' ? 0 : 60, kind: 'npc' }; this.state.roster.push(sh); }
+    return sh;
+  }
+  /** What a token is for the players: only a revealed creature or the party. */
+  playerSees(t: Token): boolean { return t.role !== 'creature' || !t.hidden; }
+  /** The range helper outside initiative: green and red squares for whichever token is picked up. */
+  rangeHelper = false;
+  setRangeHelper(on: boolean): void { this.rangeHelper = on; this.refreshRange(); this.onChange?.(); }
   resetCampaign(): void { this.state = newCampaign(); this.ensureDefaultToken(); this.syncTokens(); this.commit(); }
 
   // ------------------------------------------------------------------ pointer: tokens, taps, brushes
@@ -799,6 +875,7 @@ export class App {
       obj.add(ring);
       this.setStatus(this.restricted ? 'Tap where the party goes' : 'Tap where it goes · tap the token again to cancel');
     } else this.setStatus('');
+    if (!this.encounter) this.refreshRange();
     this.onSelect?.(id);
     this.world.invalidate();
   }
@@ -830,7 +907,9 @@ export class App {
     const t = this.state.tokens.find((x) => x.id === id);
     if (!t) return false;
     const e = this.encounter, cur = this.current;
-    if (e && t.role === 'member') {
+    const inInitiative = !!e && e.order.some((c) => c.tokenId === id);
+    if (!inInitiative && t.role !== 'party' && !this.restricted) { /* the DM places people and monsters where the story needs them */ }
+    else if (e && inInitiative) {
       if (cur?.token.id !== id) { this.flashStatus(`Not ${t.name}'s turn`); return false; }
       const cell = this.rangeFor?.move.find((m) => m.cell[0] === to[0] && m.cell[1] === to[1]);
       if (cell) e.movedFt += cell.costFt;
@@ -841,6 +920,7 @@ export class App {
     this.cur!.tokens.get(id)?.position.set(to[0], this.level.elevationFt, to[1]);
     if (id === this.party?.id) this.afterPartyMove();
     else if (this.encounter) this.afterMemberMove(t);
+    else if (this.rangeHelper) this.refreshRange();
     this.commit();
     return true;
   }
@@ -859,7 +939,15 @@ export class App {
     const where = room ? `${room.key} · ${room.name}` : undefined;
     const players = this.restricted;
     const tokId = o && findUp(o, 'tokenId');
-    if (tokId) { const t = this.state.tokens.find((x) => x.id === tokId); return { title: t?.name ?? 'Token', sub: this.selected === tokId ? 'Tap where it goes' : 'Tap to pick up and move' }; }
+    if (tokId) {
+      const t = this.state.tokens.find((x) => x.id === tokId); if (!t) return null;
+      if (t.role === 'creature') {
+        const en = t.creatureId ? creatureById(t.creatureId) : undefined, st = en && statsOf(en);
+        if (players) return t.hidden ? null : { title: t.playerName ?? t.name, sub: en ? seenAs(en) : undefined };
+        return { title: t.name, sub: [t.hidden ? 'Hidden from players' : `Players see: ${t.playerName ?? t.name}`, st ? `AC ${st.ac}` : '', t.hp ? `${t.hp.cur}/${t.hp.max} hp` : '', 'tap to pick up'].filter(Boolean).join(' · ') };
+      }
+      return { title: t.name, sub: this.selected === tokId ? 'Tap where it goes' : 'Tap to pick up and move' };
+    }
     const oid = o && findUp(o, 'objectId');
     const obj = oid ? this.level.objects.find((x) => x.id === oid) : undefined;
     if (obj) {
@@ -898,9 +986,15 @@ export class App {
   private tap(e: PointerEvent): void {
     // Moving is two deliberate taps: the token, then where it goes. A swipe never moves anyone.
     const tokHit = this.pick(e), fp = this.floorPoint(e);
+    if (this.placing && !this.restricted) { if (fp) { this.addCreature(this.placing, fp); this.placed++; this.setStatus(`${this.placed} placed · tap for more · Esc to stop`); } return; }
     // The figure is small from above: a tap anywhere on its base ring picks it up too.
-    const tokId = (tokHit && findUp(tokHit.object, 'tokenId')) || (fp && this.tokensHere().find((t) => Math.hypot(t.pos[0] - fp[0], t.pos[1] - fp[1]) <= baseRingFt(t.size) / 2 + 1)?.id);
+    const tokId = (tokHit && findUp(tokHit.object, 'tokenId')) || (fp && this.tokensHere().filter((t) => this.playerSees(t) || !this.restricted).find((t) => Math.hypot(t.pos[0] - fp[0], t.pos[1] - fp[1]) <= baseRingFt(t.size) / 2 + 1)?.id);
     if (tokId) {
+      const tk = this.state.tokens.find((x) => x.id === tokId)!;
+      if (this.restricted && tk.role === 'creature') { // players may look, not move
+        const en = tk.creatureId ? creatureById(tk.creatureId) : undefined;
+        this.onTap?.({ pos: fp ?? tk.pos, token: { id: tk.id, name: tk.playerName ?? tk.name, desc: en ? seenAs(en) : undefined } }, e.clientX, e.clientY); return;
+      }
       const cur = this.current;
       if (this.encounter && this.restricted && cur && cur.token.id !== tokId) { this.flashStatus(`Not ${this.state.tokens.find((x) => x.id === tokId)?.name ?? 'their'}'s turn`); return; }
       this.select(this.selected === tokId ? null : tokId); return;

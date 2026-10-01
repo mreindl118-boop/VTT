@@ -265,3 +265,19 @@
 - Roads and rivers from the world map run in and out of every outdoor map at true scale, joined to the
   map's own road at its edge, with gaps in the forest and the ridges along them.
 - The section slider snaps to each floor's default cut.
+
+## M2.7 Creatures on the map, free movement — 2026-10-01
+
+- The creature repository (paw button): every person, monster and beast the module names, from the
+  characters manifest, searchable by name, kind and area. Place one beside the party or place by tap, as many
+  as you like. Each gets a figure (the characterised humanoid from the manifest, or the kit beast), a base
+  ring by size, a players' name (people appear as strangers until the DM names them), hit points for the
+  open-content monsters, and starts hidden from the players.
+- Tap a placed creature: the panel shows what players see (rename it), hit points, Reveal/Hide, the Reach
+  helper, Initiative and Remove. Players who tap a revealed creature get its name and what they make of it.
+- The DM moves any creature or combatant anywhere at any time; players move only the party and only where
+  it can walk. The Reach helper draws the picked-up token's move and strike squares outside initiative; in
+  initiative the current combatant's ranges show as before. Placed creatures join the initiative with their
+  own tokens from the roster sheet.
+- Castle Ravenloft stands on its crag in the valley views, in full, with lit windows; from the castle the
+  valley lies a thousand feet below.
