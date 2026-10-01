@@ -14,7 +14,7 @@ import { buildGridOverlay } from './gridOverlay';
 /** Kinds whose meshes carry a role of their own (stairs, raised ground, plates): built and placed one by one. */
 const UNMERGED = new Set(['stairs-straight', 'prism', 'pressure-plate']);
 /** Building shells: their roof, walls and chimney are cut by the section plane like a wall. */
-const ROOF_KINDS = new Set(['roof-gable', 'chimney', 'house', 'church-building', 'temple']);
+const ROOF_KINDS = new Set(['roof-gable', 'roof-cone', 'chimney', 'house', 'church-building', 'temple']);
 
 /** A face range of a merged mesh that belongs to one scene object (so a tap on a merged house still names it). */
 export interface MergedRange { start: number; end: number; id: string }
@@ -290,7 +290,7 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
     }
   }
 
-  const gridMesh = buildGridOverlay(grid, y0);
+  const gridMesh = buildGridOverlay(grid, y0, !!level.terrain?.length || level.elevationFt <= 0);
   root.add(gridMesh);
 
   return { level, root, grid: gridMesh, floors, targets, secretDoors, labels, lights, lightRings, secretAsWall, wallsGroup, doors, openables };

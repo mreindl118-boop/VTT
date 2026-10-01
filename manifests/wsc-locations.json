@@ -212,35 +212,35 @@
    "areas": [
     {
      "key": "L0-1",
-     "name": "Compound grounds (L0): Plank floor"
+     "name": "Compound grounds (L0): Ground hall"
     },
     {
      "key": "L0-2",
-     "name": "Compound grounds (L0): Plank floor"
+     "name": "Compound grounds (L0): Shepherd hut"
     },
     {
      "key": "L0-3",
-     "name": "Compound grounds (L0): Plank floor"
+     "name": "Compound grounds (L0): Outhouse"
     },
     {
      "key": "L0-4",
-     "name": "Compound grounds (L0): Grass"
+     "name": "Compound grounds (L0): Yard"
     },
     {
      "key": "L1-1",
-     "name": "Lower platform / deck (L1, 10 ft): Deck"
+     "name": "Lower floor (L1, 10 ft): Lower floor"
     },
     {
      "key": "L2-1",
-     "name": "Main hall / middle platform (L2, 20 ft): Deck"
+     "name": "Main hall (L2, 20 ft): Main hall"
     },
     {
      "key": "L3-1",
-     "name": "Bedroom platform (L3, 30 ft): Deck"
+     "name": "Bedroom (L3, 30 ft): Bedroom"
     }
    ],
    "path": "locations/wsc/03-compound",
-   "notes": "The grounds under the three oak platforms: two huts, the large outhouse (a brown bear is inside), the trunks that carry the platforms, the stair foot up to the deck. The open deck 10 ft up where the three apes idle. Stair down to the ground, stair-bridge up to the hall. The 60-ft hall 20 ft up: dining room and kitchen (north-west), sitting room (south-west), library and lab (east half). Ahmed Noke works here when not upstairs. The top platform, 30 ft up: the bedroom. Noke's last stand; the bed becomes the Bed Dragon Wyrmling; the modified wand of true polymorph is here."
+   "notes": "A round stone tower of three floors over its ground hall, a conical roof, the spiral stair up the inside of the wall; the huts and the outhouse (a brown bear inside) in the yard; the track climbs to the door from the valley."
   }
  ],
  "pointers": [

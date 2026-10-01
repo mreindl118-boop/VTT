@@ -345,3 +345,7 @@
   over it; the forest stands where the cover says; every other place sits at its own height. From the village
   the mountains close the valley and Ravenloft stands on its height; from Vallaki, Lake Zarovich and Baratok;
   from Noke's tower, Ramsback Fell. Nothing on stilts.
+- Noke's Tower rebuilt (`scripts/authoring/noke-tower.py`): a round stone tower of three floors over its ground
+  hall, a conical roof (new `roof-cone` prop), the spiral stair up the inside of the wall, windows on the
+  valley; the shepherd hut, the outhouse with the bear, the yard and the track climbing to the door; the oaks
+  round about. Same levels and area keys as before. An upper floor's grid stays within its own walls.

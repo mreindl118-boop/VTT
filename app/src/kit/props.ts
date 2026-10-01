@@ -516,6 +516,14 @@ export function roofGable(d: Dims): THREE.Group {
   for (let i = 0; i < 6; i++) { const t = box(long ? L : 0.5, 0.25, long ? 0.5 : L, '#2b292d', long ? 0 : (-S / 2 + (i + 0.5) * (S / 6)), y + (i + 0.5) * (h / 6) + 0.2, long ? (-S / 2 + (i + 0.5) * (S / 6)) : 0); g.add(t); }
   return g;
 }
+/** A conical roof (a tower's cap): radius `r` (a little past the walls), height `h`, sitting at `y`. */
+export function roofCone(d: Dims): THREE.Group {
+  const r = (d.r ?? 20) + 1.5, h = d.h ?? 14, y = d.y ?? 10;
+  const cone = new THREE.Mesh(new THREE.ConeGeometry(r, h, 8), mat('#3d3a3e')); cone.position.y = y + h / 2;
+  const g = g_(cone, cyl(r + 0.6, r + 0.6, 0.8, '#2b292d', 0, y + 0.4, 0, 8));
+  const finial = cyl(0.3, 0.3, 3, '#2b292d', 0, y + h + 1.4, 0, 6); g.add(finial);
+  return g;
+}
 /** A stone chimney stack rising `h` ft from `y`. */
 export function chimney(d: Dims): THREE.Group { const h = d.h ?? 8, y = d.y ?? 10; return g_(box(2.6, h, 2.6, '#6a6560', 0, y + h / 2, 0), box(3.2, 0.8, 3.2, '#4d4845', 0, y + h + 0.4, 0)); }
-Object.assign(PROPS_V1, { 'roof-gable': roofGable, chimney } as Record<string, (d: Dims) => THREE.Object3D>);
+Object.assign(PROPS_V1, { 'roof-gable': roofGable, 'roof-cone': roofCone, chimney } as Record<string, (d: Dims) => THREE.Object3D>);

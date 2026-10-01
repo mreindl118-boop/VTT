@@ -77,11 +77,12 @@ void main() {
 /** Height above the floor top. No polygon offset: at grazing angles it lets the grid bleed through thin props. */
 export const GRID_LIFT_FT = 0.04;
 
-export function buildGridOverlay(g: GridLevel, elevation: number): THREE.Mesh {
+export function buildGridOverlay(g: GridLevel, elevation: number, ground = true): THREE.Mesh {
   // One plane over the level's whole extent: the grid is a feature of the ground, not of any floor's texture.
   const xs = g.floorPolygons.flat().map((q) => q[0]), zs = g.floorPolygons.flat().map((q) => q[1]);
   const minX = Math.min(...xs), maxX = Math.max(...xs), minZ = Math.min(...zs), maxZ = Math.max(...zs);
-  const pad = Math.max(30, 0.12 * Math.max(maxX - minX, maxZ - minZ)), y = elevation + GRID_LIFT_FT;
+  // the ground level's grid runs well past the map; an upper floor's stays within its own walls
+  const pad = ground ? Math.max(30, 0.12 * Math.max(maxX - minX, maxZ - minZ)) : 1.5, y = elevation + GRID_LIFT_FT;
   const geo = planeGeometry([[minX - pad, minZ - pad], [maxX + pad, minZ - pad], [maxX + pad, maxZ + pad], [minX - pad, maxZ + pad]], y);
   const m = new THREE.ShaderMaterial({
     vertexShader: vert,
