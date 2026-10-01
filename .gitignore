@@ -13,3 +13,4 @@ reference/module/*
 .DS_Store
 preview/
 reference/imports/
+.claude/worktrees/
