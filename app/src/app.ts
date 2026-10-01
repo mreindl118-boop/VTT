@@ -34,7 +34,7 @@ import { sightBlockers } from './core/light';
 import { idbGet, idbSet } from './state/idb';
 
 export type Mode = 'dm' | 'player';
-export type Tool = 'none' | 'reveal' | 'brush-reveal' | 'brush-fog';
+export type Tool = 'none' | 'reveal' | 'brush-reveal' | 'brush-fog' | 'measure';
 export type GridMode = 'off' | 'square' | 'hex';
 export interface TapHit {
   room?: { key: string; name: string; revealed: boolean; desc?: string; dm?: string; page?: number; enter?: string };
@@ -122,7 +122,8 @@ export class App {
   constructor(host: HTMLElement, readonly mode: Mode) {
     this.world = new World(host);
     this.channel = new Channel((m) => this.onMsg(m));
-    this.world.onCamera = () => { this.sendCamera(); this.labelDensity(); };
+    this.world.onCamera = () => { this.sendCamera(); this.labelDensity(); this.onCameraUi?.(); };
+    this.onCameraUi = null;
     this.installPointer();
   }
 
@@ -635,7 +636,7 @@ export class App {
     if (document.body.dataset.zoom !== z) document.body.dataset.zoom = z;
   }
   setT(t: number): void { this.t = t; this.applySlider(); }
-  setView(v: 'dm' | 'players'): void { this.view = v; this.tool = 'none'; this.stopPlacing(); this.select(null); if (this.cur) { this.syncTokens(); this.recompute(); } this.applySlider(); this.onChange?.(); }
+  setView(v: 'dm' | 'players'): void { this.view = v; this.tool = 'none'; this.clearRuler(); this.stopPlacing(); this.select(null); if (this.cur) { this.syncTokens(); this.recompute(); } this.applySlider(); this.onChange?.(); }
 
   // ------------------------------------------------------------------ reveals
 
@@ -845,6 +846,22 @@ export class App {
     if (this.gridMode === 'hex') { const s = hexSizeFromWidth(CELL_FT); return hexToWorld(worldToHex(p, s, g.hexOrientation, g.origin), s, g.hexOrientation, g.origin); }
     return squareCellCenter(squareCellAt(p, g.origin), g.origin);
   }
+  // ------------------------------------------------------------------ the measure tool: tap two points, read the distance
+  private ruler?: { a: Vec2; b?: Vec2; line: THREE.Line; label: CSS2DObject };
+  measureTap(p: Vec2): void {
+    const at: Vec2 = [Math.round(p[0] * 2) / 2, Math.round(p[1] * 2) / 2];
+    if (!this.ruler || this.ruler.b) { this.clearRuler(); const geo = new THREE.BufferGeometry(); const line = new THREE.Line(geo, new THREE.LineBasicMaterial({ color: '#f2b35b', linewidth: 2 })); line.userData.role = 'marker'; line.renderOrder = 6; const label = this.world.label('', undefined, 'ruler'); this.world.scene.add(line, label); this.ruler = { a: at, line, label }; this.setStatus('Tap the other end'); this.rulerTo(at); return; }
+    this.ruler.b = at; this.rulerTo(at); this.setStatus(`${this.distanceFt(this.ruler.a, at)} ft · ${Math.round(this.distanceFt(this.ruler.a, at) / 5)} squares · tap to measure again`);
+  }
+  /** Stretch the ruler to a point (the preview end, or the fixed second end). */
+  rulerTo(p: Vec2): void {
+    const r = this.ruler; if (!r) return;
+    const y = this.level.elevationFt + 0.4, a = r.a;
+    r.line.geometry.setFromPoints([new THREE.Vector3(a[0], y, a[1]), new THREE.Vector3(p[0], y, p[1])]);
+    const ft = this.distanceFt(a, p); r.label.position.set((a[0] + p[0]) / 2, y + 1.5, (a[1] + p[1]) / 2); r.label.element.textContent = `${ft} ft`; r.label.visible = ft > 0;
+    this.world.invalidate();
+  }
+  clearRuler(): void { if (!this.ruler) return; this.ruler.line.removeFromParent(); this.ruler.line.geometry.dispose(); this.ruler.label.element.remove(); this.ruler.label.removeFromParent(); this.ruler = undefined; this.world.invalidate(); }
   distanceFt(a: Vec2, b: Vec2): number {
     const g = this.cur!.grid.levels[this.levelId];
     if (this.gridMode === 'hex') { const s = hexSizeFromWidth(CELL_FT); return hexDistanceFt(worldToHex(a, s, g.hexOrientation, g.origin), worldToHex(b, s, g.hexOrientation, g.origin)); }
@@ -869,6 +886,7 @@ export class App {
     });
     el.addEventListener('pointermove', (e) => {
       if (!drag && this.selected && e.pointerType === 'mouse') return this.previewMove(e);
+      if (!drag && this.tool === 'measure' && this.ruler && !this.ruler.b) { const fp2 = this.floorPoint(e); if (fp2) this.rulerTo([Math.round(fp2[0] * 2) / 2, Math.round(fp2[1] * 2) / 2]); }
       if (!drag && e.pointerType === 'mouse') { this.hoverEvt = e; if (!this.hoverRaf) this.hoverRaf = requestAnimationFrame(() => { this.hoverRaf = 0; if (this.hoverEvt) this.hover(this.hoverEvt); }); }
       if (!drag || drag.kind === 'tap') return;
       const p = this.floorPoint(e);
@@ -919,6 +937,21 @@ export class App {
     this.world.invalidate();
   }
   onSelect?: (id: string | null) => void;
+  /** The compass and scale bar follow the camera. */
+  onCameraUi: (() => void) | null = null;
+  /** Where north points on screen (radians, 0 = up, clockwise) and how many pixels a foot covers at the target. */
+  cameraFrame(): { north: number; pxPerFt: number } {
+    const l = this.cur ? this.level : undefined, n = l?.north ?? '-z';
+    const nv = n === '+z' ? [0, 1] : n === '-x' ? [-1, 0] : n === '+x' ? [1, 0] : [0, -1];
+    const az = this.world.controls.getAzimuthalAngle();
+    // screen up is the direction from camera to target in plan: (-sin az, -cos az); north's screen angle is measured from it
+    const upx = -Math.sin(az), upz = -Math.cos(az);
+    const north = Math.atan2(nv[0] * upz - nv[1] * upx, nv[0] * upx + nv[1] * upz);
+    const t = this.world.controls.target, r = this.world.renderer.domElement.getBoundingClientRect();
+    const p0 = new THREE.Vector3(t.x, t.y, t.z).project(this.world.camera), p1 = new THREE.Vector3(t.x + 10 * upz, t.y, t.z - 10 * upx).project(this.world.camera);
+    const px = Math.hypot((p1.x - p0.x) * r.width / 2, (p1.y - p0.y) * r.height / 2) / 10;
+    return { north: -north, pxPerFt: px };
+  }
   /** Called before a location closes, so menus, cards and tooltips can go too. */
   onLeave?: () => void;
   private makeRing(color: string, opacity: number): THREE.Mesh {
@@ -1060,6 +1093,7 @@ export class App {
     }
     const sd = hit && (findUp(hit.object, 'secretDoor') ?? (hit.object.userData.role === 'door' ? this.built.secretDoors.find((s) => s.door === hit.object)?.objectId : undefined));
     const wallId = hit && hit.object.userData.role === 'door' ? (hit.object.userData.wallId as string | undefined) : undefined;
+    if (this.tool === 'measure') { if (fp) this.measureTap(fp); return; }
     if (this.tool === 'none' && this.onTap) {
       const oid = hit && findUp(hit.object, 'objectId');
       const p = this.floorPoint(e);

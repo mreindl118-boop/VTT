@@ -210,8 +210,10 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
       for (let i = 0; i < 3; i++) box(12, 7, 6, -60 + i * 25, 55, 0, '#5a4632', 0.4);
     } else if (type === 'castle' && p.key === 'K') {
       ravenloft(s, mat);
+      // the valley always opens toward the Village of Barovia, whichever map we look from
+      const vil = W.pins.find((q) => q.key === 'E'), vp = vil ? toPlan(vil.pos) : [cx - t.x, cz - t.z];
       const cr = new THREE.Group(); cr.position.set(t.x, 0, t.z); g.add(cr);
-      cradle(cr, { x: 0, z: 0 }, cx - t.x, cz - t.z, t.d, y0 - lift, (hex, d) => hazed(hex, d), t.d);
+      cradle(cr, { x: 0, z: 0 }, (vil ? cx + vp[0] : cx) - t.x, (vil ? cz + vp[1] : cz) - t.z, Math.hypot((vil ? cx + vp[0] : cx) - t.x, (vil ? cz + vp[1] : cz) - t.z), y0 - lift, (hex, d) => hazed(hex, d), t.d);
     } else if (type === 'castle') {
       cyl(150, 600, 0, 0, 0, '#34333a');
       box(130, 60, 100, 0, 0, 600, '#1e1c24'); box(32, 150, 32, -48, -32, 600, '#1e1c24'); box(28, 125, 28, 48, -28, 600, '#1e1c24'); box(26, 105, 26, -44, 36, 600, '#1e1c24'); box(22, 190, 22, 12, 8, 600, '#1e1c24');

@@ -73,6 +73,7 @@ function buildDmUi(): void {
         <button class="icon" data-tool="reveal" aria-label="Reveal / hide (tap a room, object or secret door)">${ICON.reveal}</button>
         <button class="icon" data-tool="brush-reveal" aria-label="Paint reveal">${ICON.brush}</button>
         <button class="icon" data-tool="brush-fog" aria-label="Paint fog">${ICON.fog}</button>
+        <button class="icon" data-tool="measure" aria-label="Measure (tap two points)" title="Measure: tap two points">${ICON.ruler}</button>
         <button class="icon" data-act="undo" aria-label="Undo reveal">${ICON.undo}</button>
       </div>
       <span class="divider"></span>
@@ -108,6 +109,7 @@ function buildDmUi(): void {
     <span class="divider"></span>
     <button class="icon" data-cam="help" aria-label="Help">${ICON.help}</button>`;
   ui.appendChild(cam);
+  ui.insertAdjacentHTML('beforeend', `<div class="mapframe" aria-hidden="true"><div class="compass"><svg viewBox="0 0 40 40"><path d="M20 4 L26 22 L20 18 L14 22 Z" fill="#c0392b"/><path d="M20 36 L14 18 L20 22 L26 18 Z" fill="#e8e3d8" opacity=".55"/></svg><b>N</b></div><div class="scalebar"><i></i><span>50 ft</span></div></div>`);
   cam.addEventListener('click', (e) => {
     const b = (e.target as HTMLElement).closest<HTMLElement>('button');
     if (!b) return;
@@ -185,7 +187,18 @@ function buildDmUi(): void {
     });
     ui.appendChild(el);
   };
+  // The compass turns with the camera; the scale bar stretches to a round number of feet.
+  const frameUi = () => {
+    const f = app.cameraFrame(), c = document.querySelector<HTMLElement>('.mapframe .compass svg'), sb = document.querySelector<HTMLElement>('.mapframe .scalebar'); if (!c || !sb || !app.cur) return;
+    c.style.transform = `rotate(${(f.north * 180 / Math.PI).toFixed(1)}deg)`;
+    const steps = [5, 10, 25, 50, 100, 250, 500, 1000, 2500, 5280]; let ft = steps[0];
+    for (const s of steps) { ft = s; if (s * f.pxPerFt >= 70) break; }
+    const px = Math.max(8, Math.min(220, ft * f.pxPerFt));
+    (sb.querySelector('i') as HTMLElement).style.width = `${px.toFixed(0)}px`; sb.querySelector('span')!.textContent = ft === 5280 ? '1 mile' : `${ft} ft`;
+  };
+  app.onCameraUi = frameUi;
   const refresh = () => {
+    frameUi();
     { const c = app.clock, b = top.querySelector<HTMLElement>('[data-act="clock"]'); if (b) { b.querySelector('.ck-time')!.textContent = app.sky.label.split(' · ')[1]; b.querySelector('.ck-day')!.textContent = `Day ${c.day} · ${app.sky.label.split(' · ')[2]}`; b.querySelector('svg')?.replaceWith(Object.assign(document.createElement('i'), { innerHTML: app.sky.night ? ICON.moon : ICON.sun }).firstElementChild!); b.classList.toggle('night', app.sky.night); } }
     bar.update();
     const range = app.sectionRange;

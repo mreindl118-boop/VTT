@@ -66,7 +66,7 @@ export function skyAt(clock: Clock, style: SkyStyle, authored: Ambient = 'barovi
     ? { // Barovia: a sun that never gets through, grey-amber days, black nights with a wan moon
       keyDay: 0.85, keyNight: 0.12 + 0.18 * moonLit, keyColorDay: '#d9d0bd', keyColorDusk: '#b99470', keyColorNight: '#8e9ab8',
       hemiDay: 2.0, hemiNight: 0.35 + 0.25 * moonLit, skyDay: '#c3c6d2', skyNight: '#2a2d3d', groundDay: '#3a3138', groundNight: '#15121a',
-      mistDay: '#2b2733', mistDusk: '#352a33', mistNight: '#15131b', page0Day: '#3a3242', page0Night: '#1b1822', page1Day: '#1e1a24', page1Night: '#0b0a0f' }
+      mistDay: '#5e5c68', mistDusk: '#5a4a4e', mistNight: '#15131b', page0Day: '#4a4454', page0Night: '#1b1822', page1Day: '#262130', page1Night: '#0b0a0f' }
     : { // the Sheep Chase country: bright days, golden evenings, blue nights
       keyDay: 1.4, keyNight: 0.1 + 0.25 * moonLit, keyColorDay: '#fff4dc', keyColorDusk: '#ffb36b', keyColorNight: '#9fb0d8',
       hemiDay: 1.9, hemiNight: 0.3 + 0.3 * moonLit, skyDay: '#d8ecff', skyNight: '#1c2440', groundDay: '#6b7a55', groundNight: '#161a22',
