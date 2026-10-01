@@ -18,6 +18,8 @@ export interface WorldData {
   woods: { name: string; pos: [number, number]; angle?: number }[]; high: [number, number][];
   /** Land cover read off the printed map: rows of cells (`.` open, `h` hills, `m` mountains, `f` forest, `w` water, `x` mist), `cellMiles` across, from the bounds' top-left. */
   cover?: string[]; cellMiles?: number;
+  /** Ground height in feet on the same lattice, relative to the lowest settlement. */
+  height?: number[][];
   /** Other names lettered on the map (rivers, falls), with the angle they run at. */
   labels?: { name: string; pos: [number, number]; angle?: number }[];
 }

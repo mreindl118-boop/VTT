@@ -364,3 +364,6 @@ details.menu .menu-panel button[aria-pressed='true'] { background: var(--accent)
 .minimap .mm-north { position: absolute; right: 8px; bottom: 6px; font-size: 10px; color: var(--ink-2); z-index: 2; }
 body[data-view='players'] .minimap { display: none; }
 .menu-row { display: flex; align-items: center; gap: 10px; height: 32px; padding: 0 10px 0 42px; font-size: 12px; color: var(--ink-2); } .menu-row input[type='range'] { flex: 1; min-width: 100px; accent-color: var(--accent); }
+.clockpop .ck-field { display: inline-flex; align-items: center; gap: 6px; } .clockpop input[type='number'] { width: 58px; padding: 4px 6px; border-radius: 6px; border: 1px solid var(--hair); background: var(--bg); color: var(--ink); font: inherit; } .clockpop select { padding: 4px 6px; border-radius: 6px; border: 1px solid var(--hair); background: var(--bg); color: var(--ink); font: inherit; max-width: 100%; }
+.clockpop .ck-travel { display: grid; gap: 6px; padding-top: 8px; border-top: 1px solid var(--hair); } .clockpop .ck-check { display: inline-flex; align-items: center; gap: 6px; margin-right: 10px; } .clockpop .ck-out { flex: 1; color: var(--ink-2); font-size: 12px; } .clockpop .ck-row { flex-wrap: wrap; }
+.clockpop button.primary { background: var(--accent); color: #fff; border-radius: 8px; padding: 6px 12px; font-weight: 600; }

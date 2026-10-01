@@ -328,3 +328,6 @@
   player camera, player display, a grid opacity slider and a snap-to-grid toggle) beside the four everyday buttons, and every bar wraps instead of running off the
   edge. The clock rides on a new bottom-left minimap: a north-up plan of the current level (ground, streets,
   rooms, walls, a faint grid, the party, the wedge the camera looks at); tap it to look there.
+- The clock popover edits the calendar directly (day of the campaign, Harptos month and day, the festival
+  days) and carries a travel calculator from the pace table (slow, normal, fast; difficult terrain halves it; a
+  mount gallops its first hour) that advances the clock by the journey, eight travelling hours to a day.

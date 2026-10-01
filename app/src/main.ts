@@ -4,6 +4,8 @@ import { App, type GridMode } from './app';
 import { builtPaths, loadLocation } from './data';
 import { openWorldMap } from './ui/worldmap';
 import { buildMinimap } from './ui/minimap';
+import { dayFromHarptos, harptosParts, MONTH_NAMES, FESTIVALS } from './core/sky';
+import { PACES, type Pace } from './core/travel';
 import { openBestiary } from './ui/bestiary';
 import { creatureById, statsOf, seenAs } from './bestiary';
 import { openEncounterSheet, turnBar } from './ui/encounter';
@@ -171,14 +173,36 @@ function buildDmUi(): void {
   function openClock(): void {
     if (clockEl) { clockEl.remove(); clockEl = null; return; }
     const el = document.createElement('div'); el.className = 'clockpop'; clockEl = el;
+    const travel = { miles: 6, pace: 'normal' as Pace, difficult: false, mounted: false };
+    // The pace table; difficult terrain halves it; a mount can gallop for about an hour at twice the pace (the rules' mounted travel).
+    const travelHours = () => { let mph = PACES[travel.pace].mph; if (travel.difficult) mph /= 2; let miles = travel.miles, h = 0; if (travel.mounted) { const g = Math.min(miles, mph * 2); miles -= g; h += g / (mph * 2); } return h + miles / mph; };
+    const elapsed = (h: number) => Math.floor(h / 8) * 24 + (h % 8); // eight hours of travel a day; the rest is camp
     const render = () => {
-      const s = app.sky, c = app.clock;
+      const s = app.sky, c = app.clock, hp = harptosParts(c.day), th = travelHours();
+      const months = [...MONTH_NAMES.map((m, i) => `<option value="${i}"${hp.month === i ? ' selected' : ''}>${m}</option>`), ...FESTIVALS.map((f, i) => `<option value="${12 + i}"${hp.month === 12 + i ? ' selected' : ''}>${f.name}</option>`)].join('');
       el.innerHTML = `<div class="ck-head"><b>${s.label.split(' · ').slice(1).join(' · ')}</b><button class="icon close" aria-label="Close">${ICON.close}</button></div>
         <label>Hour <input type="range" min="0" max="23.75" step="0.25" value="${c.hour}" data-f="hour"><span class="ck-val">${s.label.split(' · ')[1]}</span></label>
-        <div class="ck-row"><button data-a="day-">−1 day</button><span>Day ${c.day}</span><button data-a="day+">+1 day</button><span class="spacer"></span><button data-a="h-1">−1 h</button><button data-a="h+1">+1 h</button><button data-a="h+8">+8 h</button></div>
-        <div class="ck-row ck-moon"><span class="moon" style="--lit:${s.moonLit.toFixed(2)}"></span><span>${s.moonName}${s.night ? ' · night' : s.ambient === 'fog' ? ' · dusk light' : ' · daylight'}</span></div>`;
+        <div class="ck-row"><button data-a="day-">−1 day</button><label class="ck-field">Day <input type="number" min="1" value="${c.day}" data-f="day" aria-label="Day of the campaign"></label><button data-a="day+">+1 day</button><span class="spacer"></span><button data-a="h-1">−1 h</button><button data-a="h+1">+1 h</button><button data-a="h+8">+8 h</button></div>
+        <div class="ck-row"><label class="ck-field">Date <select data-f="month" aria-label="Month">${months}</select><input type="number" min="1" max="30" value="${hp.dom}" data-f="dom" aria-label="Day of the month"${hp.month >= 12 ? ' disabled' : ''}></label></div>
+        <div class="ck-row ck-moon"><span class="moon" style="--lit:${s.moonLit.toFixed(2)}"></span><span>${s.moonName}${s.night ? ' · night' : s.ambient === 'fog' ? ' · dusk light' : ' · daylight'}</span></div>
+        <div class="ck-travel"><b>Travel</b>
+          <div class="ck-row"><label class="ck-field"><input type="number" min="0" step="0.5" value="${travel.miles}" data-t="miles" aria-label="Miles"> mi</label>
+            <select data-t="pace" aria-label="Pace">${(['slow', 'normal', 'fast'] as Pace[]).map((p) => `<option value="${p}"${travel.pace === p ? ' selected' : ''}>${p[0].toUpperCase() + p.slice(1)} · ${PACES[p].mph} mph · ${PACES[p].milesPerDay} mi/day</option>`).join('')}</select></div>
+          <div class="ck-row"><label class="ck-check"><input type="checkbox" data-t="difficult"${travel.difficult ? ' checked' : ''}> Difficult terrain (half speed)</label><label class="ck-check"><input type="checkbox" data-t="mounted"${travel.mounted ? ' checked' : ''}> Mounted (gallops the first hour)</label></div>
+          <div class="ck-row"><span class="ck-out">${th < 1 ? `${Math.round(th * 60)} min` : `${Math.floor(th)} h ${Math.round((th % 1) * 60)} min`}${th > 8 ? ` · ${Math.ceil(th / 8)} days of travel (8 h a day)` : ''}${PACES[travel.pace].note ? ` · ${PACES[travel.pace].note}` : ''}</span><button class="primary" data-a="travel">Travel: advance ${elapsed(th) >= 24 ? `${Math.floor(elapsed(th) / 24)} d ${Math.round(elapsed(th) % 24)} h` : `${Math.round(elapsed(th))} h`}</button></div>
+        </div>`;
     };
     render();
+    el.addEventListener('change', (e) => {
+      const t = e.target as HTMLInputElement | HTMLSelectElement, c = app.clock;
+      if (t.dataset.f === 'day') { app.setClock(Math.max(1, Math.round(Number(t.value)) || 1), c.hour); render(); refresh(); }
+      if (t.dataset.f === 'month' || t.dataset.f === 'dom') { const m = Number(el.querySelector<HTMLSelectElement>('[data-f="month"]')!.value), d = Number(el.querySelector<HTMLInputElement>('[data-f="dom"]')!.value) || 1; app.setClock(dayFromHarptos(m, d), c.hour); render(); refresh(); }
+      if (t.dataset.t === 'miles') travel.miles = Math.max(0, Number(t.value) || 0);
+      if (t.dataset.t === 'pace') travel.pace = t.value as Pace;
+      if (t.dataset.t === 'difficult') travel.difficult = (t as HTMLInputElement).checked;
+      if (t.dataset.t === 'mounted') travel.mounted = (t as HTMLInputElement).checked;
+      if (t.dataset.t) render();
+    });
     el.addEventListener('input', (e) => { const t = e.target as HTMLInputElement; if (t.dataset.f === 'hour') { app.setClock(app.clock.day, Number(t.value)); el.querySelector('.ck-val')!.textContent = app.sky.label.split(' · ')[1]; el.querySelector('.ck-head b')!.textContent = app.sky.label.split(' · ').slice(1).join(' · '); refresh(); } });
     el.addEventListener('click', (e) => {
       const b = (e.target as HTMLElement).closest<HTMLElement>('button'); if (!b) return;
@@ -186,6 +210,7 @@ function buildDmUi(): void {
       const a = b.dataset.a; const c = app.clock;
       if (a === 'day-') app.setClock(c.day - 1, c.hour); if (a === 'day+') app.setClock(c.day + 1, c.hour);
       if (a === 'h-1') app.advance(-1); if (a === 'h+1') app.advance(1); if (a === 'h+8') app.advance(8);
+      if (a === 'travel') app.advance(elapsed(travelHours()));
       render(); refresh();
     });
     ui.appendChild(el);

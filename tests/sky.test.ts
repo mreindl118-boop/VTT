@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { harptos, moonName, moonPhase, skyAt } from '../app/src/core/sky';
+import { dayFromHarptos, harptos, harptosParts, moonName, moonPhase, skyAt } from '../app/src/core/sky';
 
 describe('the sky', () => {
   it('counts the Calendar of Harptos with its festival days', () => {
@@ -23,4 +23,9 @@ describe('the sky', () => {
     expect(skyAt({ day: 1, hour: 19.9 }, 'gothic').ambient).toBe('fog');
     expect(skyAt({ day: 1, hour: 23 }, 'pastoral').key).toBeLessThan(0.4);
   });
+});
+
+it('the Harptos pickers round-trip every day of the year', () => {
+  for (let day = 1; day <= 365; day++) { const p = harptosParts(day); expect(dayFromHarptos(p.month, p.dom)).toBe(day); }
+  expect(harptosParts(1)).toEqual({ month: 4, dom: 1 }); // 1 Mirtul
 });

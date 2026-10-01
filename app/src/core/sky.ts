@@ -32,6 +32,26 @@ export function harptos(day: number, start = 122): string {
   }
   return 'Shieldmeet';
 }
+/** Month names for pickers (the five festival days sit after their months). */
+export const MONTH_NAMES = MONTHS.map((m) => m[0]);
+export const FESTIVALS: { name: string; after: number }[] = Object.entries(FEST_AFTER).map(([m, name]) => ({ name, after: Number(m) }));
+/** The campaign day that falls on a Harptos date: month 0..11 with a day 1..30, or a festival (`month` = 12 + its index). */
+export function dayFromHarptos(month: number, dom: number, start = 122): number {
+  let d = 0;
+  if (month < 12) { for (let m = 0; m < month; m++) { d += 30; if (FEST_AFTER[m] !== undefined) d += 1; } d += Math.min(30, Math.max(1, dom)) - 1; }
+  else { const f = FESTIVALS[month - 12]; for (let m = 0; m <= f.after; m++) { d += 30; if (FEST_AFTER[m] !== undefined && m < f.after) d += 1; } }
+  return ((d - start) % 365 + 365) % 365 + 1;
+}
+/** The Harptos date of a campaign day as (month, day) for the pickers. */
+export function harptosParts(day: number, start = 122): { month: number; dom: number } {
+  let d = ((start + day - 1) % 365 + 365) % 365;
+  for (let m = 0; m < 12; m++) {
+    if (d < 30) return { month: m, dom: d + 1 };
+    d -= 30;
+    if (FEST_AFTER[m] !== undefined) { if (d === 0) return { month: 12 + FESTIVALS.findIndex((f) => f.after === m), dom: 1 }; d -= 1; }
+  }
+  return { month: 0, dom: 1 };
+}
 export function monthMood(day: number, start = 122): string { const d = ((start + day - 1) % 365 + 365) % 365; return MONTHS[Math.min(11, Math.floor(d / 30.42))][1]; }
 
 /** Moon phase 0..1 (0 = new, 0.5 = full), full on `fullDay` of the campaign. */
