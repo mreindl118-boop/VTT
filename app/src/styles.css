@@ -197,6 +197,8 @@ body[data-view='players'] .topbar { grid-template-columns: auto 1fr; grid-templa
 .wm-names text { font: italic .42px Georgia, 'Times New Roman', serif; fill: #2a2420; opacity: .8; text-anchor: middle; pointer-events: none; paint-order: stroke; stroke: rgba(255,250,240,.7); stroke-width: .08; }
 .wm-names .wm-tract { font-size: .5px; letter-spacing: .04em; opacity: .7; }
 .wm-names .wm-lake { fill: #1f3a4f; }
+.wm-names .lettered { text-anchor: start; }
+.wm-names .wm-river { font-size: .34px; font-style: italic; fill: #1f3a4f; opacity: .85; }
 .wm-pin circle { fill: #f7f1e3; stroke: #7b2d26; stroke-width: .06; }
 .wm-pin.has-scene circle { fill: #ffe6b8; stroke: #b0652a; stroke-width: .09; }
 .wm-pin text { font: 700 .26px -apple-system, system-ui, sans-serif; fill: #7b2d26; text-anchor: middle; pointer-events: none; }

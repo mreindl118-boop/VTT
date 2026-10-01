@@ -299,3 +299,14 @@
   cut through: they show whole until the cut drops below their floor. The follow cut sits just under the floor
   above (the roof, on the top storey), so each room shows entire.
 - A blowout without a world pin of its own takes its parent's for the backdrop.
+
+## M2.9 The map, the frame and the measure — 2026-10-01
+
+- A measure tool: two taps lay a ruler with the distance in feet and squares.
+- Every map carries a north arrow that turns with the camera and a scale bar that follows the zoom, in the
+  bottom-right corner.
+- The Lands of Barovia read off the printed regional map at 400 dpi (`scripts/authoring/barovia-cover.py`):
+  every lettered site (the Mount Baratok markers and the Ivlis bridges included), the roads and dotted
+  trails, the three rivers, the lakes in their true shapes, and a land-cover grid at an eighth of a mile
+  (forest, hills, mountains, water, mist) that the world map is painted from. Names lettered where the
+  page letters them.

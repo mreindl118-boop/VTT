@@ -1,22 +1,129 @@
 {
- "schema": 1,
+ "schema": 2,
  "name": "The Lands of Barovia",
  "page": 35,
  "milesPerHex": 0.25,
- "note": "Positions measured from the regional map; art is original. Yester Hill approximate (off the printed crop).",
+ "note": "Positions and land cover read from the regional map at 400 dpi; the art is painted from this data.",
  "bounds": {
-  "minX": -1.14,
-  "minY": 0,
+  "minX": -1.51,
+  "minY": -0.14,
   "maxX": 18.47,
-  "maxY": 13.07
+  "maxY": 12.76
  },
+ "cellMiles": 0.125,
+ "cover": [
+  "...f.f............................hhhhhh..hh.fffhh.hhhhhh.hhhhffffffffffhhh.hfhhff.fff.ff..h.fhfhhfhhhhhfh...hffhhffhhfhhhhhhhhhhhhhhhhhhhffhhhhhhhhhhhhhhhhhfff",
+  "ffffff....xxxx...xxxxxxxxxxxxxxxxxxxhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhf...fffh",
+  "fffff...xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxhxxxxxxxxxxxxxxxxxxhxxhhxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxhxxxxxxxxxxxxxxxxxxxxxxxxxhxxxxxxxxxxxxhhhhff.ffh",
+  "ff...x...xxxxxxxxxxxx...xxxxxxxxxxxxxxxxhhhhhxxhxxxxxhhhxhh...fhhhhxxxxhhhxxxxxxhhxxxhxxxxxxxxhxxxxhxxmmmmmmxx..mxxxxxxxxxxxxxxhhxxhhhhhffhhhhhhhhhhhhhhhhhhh..h",
+  "ffx.xxx.xhxxxhhxxxhmm.....mmmhhxxhhhhxxhh...hhhhhhhxxhhhhhfffffffhhhxxxhhhxxxxxhhhhhhhxxxxhhhhhhhhhhhm.m...m....mmmhhhxxxxxxxxhhhhhhhhffhhfhh.hfhhfhfhhhhfxxxffh",
+  "fhxxxxxhhhxxhxxhxhmm..........hhhhhhhxhh......hhhhhxxxhhhhfffff..fhhhhhhhhxxxxhhhhhhhh....h...hhhhhh................h.hhxhxxxxhhhhhhhhhfhhfhhhhhhhhhfhhhhfhxxhfh",
+  "fxxxxxhhhhhhhxxhhmm...fff.....mmhhhhhxhh.....ff..hhhxxhhh.fffffff..hhhhh..hhhhhh.hh........ffffmm.h..ff.fffm....f..m..hhhhhhhhhhhhhhhhhfhhfhhhhhhhhhhhhhhhhxxxhh",
+  "hxxxxxhhhhhhhhhhhm.....fffff..mmmhhhhhh...ffffff.hhhhhhhhhfffffff...hh..fhhh..ffffhffffffffffffmf...ffffffmmmmm..fff.f.hhhhhhhhhhhhhhhhfhhffhxhhhhhhhhhhhhhhhhhh",
+  "hxxxxhhhhhhhhhhhmfff.fffffff..mmmhhhhm...fffffff.fhhhhhh.ffffffffffff.ff...f...fff.ffffffffffffmfffmfffffmmmmmmm..ffff.mhhhhhhhhhhhhhhhfhhffhhhhmmhhhhhhhhhhhhhh",
+  "hxxxxxhhhh.hhhhm.fffffffffffffmmmmhh.m..fffffffff.fhhhhh.ffffffffffffffffmfffffffff.fffffffffffmfff.mffffmmmmmmmm.ff...m.hhhhhhhhhhhhhhhfhfmmmmmmmmhhhhhhhhh.hhh",
+  "hxxxxhhhhhhhh.m.fffffffffffffffmmfhh....fffffffff...f.fffffffffhfffffffffffffffffffffffffffffffhmfff.ffff.ffhfff.ff.ffmmmhhhhhhhhhhhhhhhhmmmmmm.mmmm.hhhhhhhhhhh",
+  "hxxhhhhh.mmmm..ffffffffffmmffffffmh.ffffffffffffffffffffffffffhhffffffffffffffffffff.fffffffff.hffff.fffffhhhhhhffff.m.mmhhhhhhhhhhhhhhmmmmmmm.m.mmmmmmmmm.mmmhh",
+  "hxxxxhhhmm..ffffffffffffmmmf.fffm...ffffffffffffffffffffffffffffffffffff.fffffffffff.fffffffff.ffffff.ffffffffffffff..mmmhhhhhhhhhhhhmmmmmmm....m.mmmmmmmm..mmhh",
+  ".xxxxhhmmm..fffffffffffffmf...ffmm...fffffffffffffffffffffffffffffffffffffffhhffff.ffffhhfffffffffffffffffffffffffff....hhhhhhh..hhhmmmmmm..mm...m.mmmmm.ff..mhh",
+  ".xxxxhhmm...fffffffffffffmmmfff.mhhhh.ffffffffffffffffffffffffffffffffffffffhhfffhfffffhffffffffffffffffffffffffffffff.hhhhhhf.mm..mmmmm....m.fmm..mm....f..m..h",
+  "hxxhhh...fmmmfffffffffff....ffff.hhhhffffffffffffffhhfffffffffhfhfff.fffffffffff.ffffffffff.ffhhffffffffffffffffffffffhhhhhhffffmmmmmmm.....fffmmmm.mmff...m..mh",
+  "hxxhhhm.ff.f.f.ffffffffh.mmffffffhh.fffffffffffffffhffff.ffhhfhhhhffffffffffffff.ffffffffff.ffhfffffffffffffffffffffffhhhhh.fff.fm.mmm....fffffmmmmmmm...m.f.xmh",
+  "hxxmmmmfffff.ffffffff.h.hfhhfffffffffff.fffffffffffffff.ffhhhffffffffwwffffffffffffffffffff.fffffffffffffffffffffffffffhhhhfffffffmfmmmffffffffmmmmm.......f..mh",
+  "hxmm...ffffffffffffffhhhfhhfffffffffff.hhh.ffffffffffffffffffffffffw.hfffffffffffwwf..fffff.ffffffffffffffffffffffffffff.f.ffff..fmm.mm.fffffffffm.mmm...fff.xmh",
+  "hxx...fffffffffffffffh.hhhhfffffffffff..f.fffffffffffffwfffffffwwwwwwffffffffffffwwwwwwfffh.ffffffffffffffffffffffffffffffffffff.mfmmmmfffffffffff.mmm..ffff..mh",
+  "mx...fffffffffffff.ff.m.mh.ffffffffffffffmffffffffffwwwwwwfwwwwwwwwwwwwwwwwffffwwwwwwwwwhh.hffffffffffffffffffffff.ffffffffffffff.m.m.ffffffffffff...mffff...xmh",
+  "mxm.ffffffffffff.h.ff.m.mhhffffffffffffff.fffffffffwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww.hffffffffffffff.ffffffffmfffffffffffffff.m..ffffffffffff.m.fffff....mh",
+  "mx.ffffffffffffhhhfff.f.hhhff.wwwwwfffwm.m.fffffffwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww.fffffffffffffff.f.ff.ff.m...ffffffffffffhmfffffffffffff.ffffff.ff...mh",
+  "mx..fffffffffhhfhhfff..fffffffwwwwwwwwhh.fffffffffwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwfffffffhffffff...mf...mmmmm..fffffffffffh.fffffffffff..fffff...f...xxh",
+  "mx.ffffffff..hhhffff...fffffffwwwwhhwwhhffffffffffwwwwwwwwwwwwwwwhwwwwwwhhhhhwwwwwwwwwwwwwfffffff..ffff...mmm..mmmmmm...ffffffffffhfffffffffffffffffff.......xhh",
+  "...ffffff.hfhhfffff.f..fffffffwwhhwwwwhhffffffffffwwwwwwwwwwwwwwwhwwwwwwwwwwhwhhwwwwwwwwwfffffffm..ffff.mmmmmm..m.mmm.....ffffffffffffffffffffff.fffff......x.hh",
+  "hh..fffffhhhhfff...mmffffffffffwwwwwwhhhffffffffffwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwfffff.mm..fffffmm.mmmmmmmmmm.......fffffffffffffffffff...ffff......xxhh",
+  "hh.ffffffhffffff.mfffffffffffffffww..hhfffffffffffffffwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww..fffffmmmm.ffffff.m.mmmhhmmmf....m...ffffffffffffffffffffffffff...xxxxxhh",
+  "hhhhfffffffhhhf..ffffffffffffffffwwf..ffffffffffffffffffwwwwwwwwwwwwwwwwwwwwwwwwwww...ffff.mmmmm.f.ffff.mmmmhhhhhm.....m.f..fffffffffffffff.fffffff.....xxxxxxhh",
+  "hhhhhhhffffhhhfffffffffffffffffffwww.hffhffhhfffffffffff.hffffhwwwwwwwwwwwwww......h.ffff..mmmmm....f.mmmmhhhhhhmmm..mmmf...fffffffffffffffffffffff..x.xxxxxxxhh",
+  "hxhhhhhhhhfffffffhhffffffffffffffwwffhhhfffffhhhfhhffff.fffffffhffffffffffff...fffffffffffffmmmmmm.f...mmhhhhhhhmmm..mmmf.ffffffffffffffffffffffff...xxxxxxxxxhh",
+  "hxhh..hhhhh.hhfhhhhffhhhfffffffffwffffhffffffffffffhfffffffffffffffhhfffffffffffffffffff.ff..mmmmm....mmm.hhhhhhmmmm...ff..fffffffffffffffffffff...f...mmmxxxxhf",
+  "hxhhhh.ffffffffhhhfhhffffhhhhhff.ffffhfffffffffffffhfffhffffff.ffffhffffffffffffffhhhfhfffffmmmmmmffm..mmhhhhhmmmfff...f...fffffffffffffffffffffffff......xxxxhh",
+  "hxhhhhhfffffffffffhfffffffffffh.hhffhffffffffffffffffffhfffff...fffffffffffffhhhhhfffffffmf...mmmff.f.mmhhhhmmmff.fff.m....ffffffffffffffffffffffffff.f......xhh",
+  "hxhhh..hhfffffffffffff.fff.fff.hhhfhhfffffffffffffff.ff.fhhff....hffhhhhhhhhhhhffffffffffmf.mmmmmff..mmmmmmmm..fm......fff.fffffffffffffffffffffffffffff.....mhh",
+  "hxxhh..hhhhhhhh.fff..fffffff.hhf.h.ffhffffffffffffffhff..fffffhhfffffffhhhhhhffffffffffmmmmmmmmm.ff.mmmmmmmm...mmmmmmmffffmffffffffffffffffffffffffffffff....xh.",
+  "hxhh....hhhhhhff.fffffffffhfffffff.fffhfffffffffffff.hhh.fffffhhffffffffffffffffffffffm.mm.mmm.mffffmmmmmmmff....mmmm.fff..ffffffffffffffffffffffffffffff...xxmh",
+  "hxhh..ffffffffffffffffffffhfffffffhffffhffffffffffffhhhhhwffffffffffffffffffffffhhhffmmmm.mm....mf..mmmmm.....mfmmmmmfffff.fffffffffffffffffffffffffffffff..xxmf",
+  "hxxhh..fffffffffffffffffffffffffffhffffhfffffffffffhffh.fhfffffffffffffffffffffh.fhmmmmmm.......ff.ff.mmm...fmmf.mmfffff...ffffffffffffffffffffffffffffffff..xm.",
+  "hxxh...fffffffffffffffffffhfffffffhffffffffffffffffffffhhhfffffffffffffffffffffh....mmmff....fm...fmm.fmmmf.mmmmmmmffffffffffffffffffffffffffffffffffffffff..xm.",
+  "hxh....fffff..ff.ffffffffhfffffffhffffffhfffffffffhffffhh.fffffffffffffffffffffhmmmm.ffm....ff.fm.mfff..m..fmmmm......ffffffffffffffffffffffffffffffffff..f..xm.",
+  "hxx....ffff.....ffffffffhhfffffffhffffffhfhffffffffffffhf.ffffffffffffffffffhh.m.m.fffmmmffffff.mmf.mmmmmff.mmmm..ff..fffffffffffffffffhfhhhffffffffffff.ff..mmf",
+  "hxx....fffhhhff..ffffffhffffffffhfffffffhffhfffffhfffffhhfffffffffffffffffffh.f..m.fmmmmmfffffffmffmmf..ffffm...mff..ffffffffffffffffff.hhfhhhhffffffffff.ff.m.f",
+  "hx....ffffhhhfff.fffffhfffffffffhfffffff..ffhhhhhffffffh.ffffffffffffffffffff..mmmffmmm..mff.ff.m.fm.fffmf.mmmmmm...fffffffffffffffffffffhhhhfhh.ffffffff.ff..m.",
+  "hx....ffffhhhffffffffffffffffffhfffffffffhfffffffffffffhfhfffffffffffffffffff..f.mmm.mmfffffffh.mmff..mfffff.mmmff..ffffffffffffffffffffffff.hhhhhfffffffff...m.",
+  "hx....ff.fhhhhffhhhffffffffffhhhffffffffffh.fff..ffffffhfhhffff...fffffffffffm..f.mm.ff..fffffh..f.mmmff.fffmfmfff..fffffffffffffffffffffffffffhhfh.ffffff...xmf",
+  "hxh..fff..hhhhhhhhhhhhffffff.hhh.ffff.h.ffffff.hhhfffffh.hhhfffffhff.fffffff.m.f...ffffffffffffm.f.m.mmffmm.m.fff..ffffffffffffffffffffffffffffffhhhfffffff....f",
+  ".x....ffhhhhhhhf.hhhhhfffff.hhhmmmm..hhffffffffffhfffffhhwhhff.hffffffffff.hmm.mffffffffffffff.mm.m...mm.m...mffffff.fffffffffffffffffffffffffffff.hfffff.....m.",
+  "hh....ffhhhhhhhhhhhhhffffff.hhm.mmmm.mmfff..fffffhh..ffhhhwhh..fff..hh..hhhhhmmmm.ffffffffffmffmmmmmm.fmmfm..ffff.ff.fffffffffffffffffffffffffffffffffff.....x.f",
+  "hx....ffhhhhhhhhh.hhhfffffffhhmmmm.mmmfm..mmmff.hhh..ffhh.hhh...f.hhm.hhhhhhhmmmffffffffff.ffffmmm.mm.mf.f.m.f...mmmmfffffffffffffffffffffffffffffffffff.....xmf",
+  "hxx...fffhhhhhhh.ffhhfffffff.mmmmmffmm.mmmmm.fmmmmh.h..hhhhhhhh.fhmmmmmmmmmmhmmmff.fffffffhmffm..f.mm....ffmmfffmm..mffffffff.ffffffffffffffffffffffffff.....xmf",
+  "hxh..ff.ffhhhhhhhfffhfffhhff.hmmmmfm.m.hhmmmm.mmm.mmfffhhhfhff.f.mmmm.mmmmmhhhmm..f.ffffffmmffmf....m.mmffmfmmmf........ffffffffffffffffffffffffffffffffff....mf",
+  "hxx.ff.ffffhhhhhhffhfffhhhff.hmmmmmm.hhhhhhh.mmmm..ffhfhhhhfffff.mmmmmmmmmhhh.mm...fffffffffffmm..m.f.mmmfffmmmm........ffffffffffffffffffffffffffffffffff....mf",
+  "hxh...ffffffhhhhhffhffhfhfff.hhmmmmmhhhhhhhhh.mmmf..hhfhhfww.fff.mmmmmmmmmhh.f.fff.fffffffffff.mmmmm.ffmmfffmmfm.......ffffffffffffffffffffffffffffffffffff...mf",
+  "hxxhh..fffffffffffhffffffff.hhhhhhhhhhhhhhhhhhmmm.f..hfhhh.ffffffmmmmmmmmmm..fff..ffffffffff.....f.m...ff..fff..m..mm..fffffffffffffffffffffffffffffffhm.fff..mf",
+  "hh..h.ffffffffffffhf.hff.hhhhhhhhhhhhhhhhhhhhhhhm.fffhfhhhfffffff.mmmmmmm.f.fm.f.mffhffff..mf..mmm.....ffff.fff.mf..h..ffffffffffffffffffffffffffffffff.fffff.mf",
+  "hh....fffffffffffhffhff.hhhhhhhhhhhhhhhhhhhhhhhhffffffhhhffff.f..f.m.mmmmf.ff...ff.ffffffffm....mfm....ffffff.ffff.fffffffffffffffffffffffffffffffffffffffff.mmf",
+  "hxh.ff.fffffffffhffhhf.hhhhhhhhhhhhhhhhhhhhhhhhhfffffffhhfff....m...mmmmmmffmmff.f.ffffffhmmmff....ff..f.f.ffff.ffffffffffffffffffffffffffffffffffffhhhhmmmmmmmf",
+  "hhhf..f..fffffhffffhffhhhhhhhhhhhhhhhhhhhhhhhhhhffffffhh.wf....mm.mmmmmmm....f.fffffffffffmmffffmm.fff.....ffffffffffffff.ffffhhhfffffffffff.fffffffffffffmmf.mf",
+  "hh..hff.fffffhffffhhffhhhhhhhhhhhhhhhhhhhhhhhhhffffffhhh.mmm.m..mm.mmmm...ff.mffffffffffffmm.fffmmmfffffffffffffffffffffffffffhhhhfhffff.hhhhffffffhffffffmmf.mm",
+  "hxhh.fffffffhfffffhhffhhhhhhhhhhhhhhhhhhhhhhhhhffffffhhh.mmm.m.m..mmmmmmfmf.f.mfffffffffff.m.fffhfhhffffffffffffffffffff.ffffffhhhhhhffhhhhhhfffffhffffffffff.mf",
+  "hxhhhff..fhhffffffhhf.hhhhhhhhhhhhhhhhhhhhhhhhhff..h.hh.mmmm.mmmmmmmmmffmf.m..mmffffffffhh.f.f..hffhhhhh..ffffffffffff.fffffhhfhhfhhhhfhhhhhhfffffhfhhfffffff.mf",
+  "hxxhhhfhhhhfffffffffffhfhmh.hhhhhhhhhhhhhhhhhhffhfhhmmmwmm.f.mmmmmm.mfffm.m.fmhhh....f.f.f...ff.hfffffhhh.wwffh...ffffffffffhh.hhhhhhhhhhhhhhffffhffhhffffff...f",
+  "hxxhhhhmhh.fffffffffffhffm..mmm.hhmhhhhhhhhhffff.fffmmmmm..mmmmmmmmmmf.m.fm.mhhhhhhhf.ffffhffhhhffhfffhhh.hwwfhhhfffffffffff....hhhhhhhhhhhhh.ffhfffffffffff...f",
+  "hxhhhhmmm.ffffffffffffhffmh.mmmmmmmhhhhhhhhhf..ff.fmm.wmmmmmmmmmmmmmfm.m..mfhhhhhhhhf.fffhhhhffffhffhfffhf.wwhhhhfffffffffhhh..h...hhhhhhhhhhhhhhffffffffff....f",
+  "hxhhh.mmmhfffffffffff.hhfmmmmmmm...hh.hhhhhfffffff.m.wmmmfmmmmmmmfffffmm.fhhhhhhhhhhfffffhhhffffhfffhfffhfwwwwhhhfffffffffhhhh...hhhhhhhhhhhhhhhfffffffff....x..",
+  "hxhhh...hhfffffffffffhhffmmm.mm..mmhhhhhh.ffh.ffmmm.mwmmmm.mmmmmmfmffmff.hhhhhhhhhhhff.ffhhfffffhfffffffhhwwwwwfffffffffffhhhhfhhhhhhhhhhhhhhhhhfffffffff.m.mxmf",
+  "hhhhfm.ffffffffffffff.hfffmmmmm.mmmhhhhhhffffffmmm.mfwmmmmmmmmmmm.mf......hhhhhhhhhhffff.ffffffhffff.ffffh.wwwhfffffffffffhhhhhhhhhhhhhhhhhhhhhhfffffffff..mxxm.",
+  "hh.hff.ffffffffffffffffffhhm.m.mmmmhhhhhfffffh...mm.mmmmmmmmmmmmmfff.....hhhhhhhhh.fffffffhff.fffffffffffhfwff..ffffff..fhhhhhhhhhhhhhhhhhhhhhhh..ffffffff.fmxhf",
+  "hhhffffffffffffffffffffffhhm...mmmmmhh.fffffff.m.m.fmmmmmmmmmmmmmm.....hhhhhhhhhh.fffffffffhhffffffffffffffffff.ffff.ffhffhhhhhhhhhhhhhhhhhhh..hffwwwwwfffff.mmf",
+  "hhffffffffffffffffffff.ffhhmm..mm..mmhfffffff...mmmmmmmmmmmmmmmm.f..fmmhhhhhhhhhh.ffffffffffffffffffffffhffffff..ff.ffff...hhhfhhhhhhhf.ffffhhhfwwfffff.wwmmmmmf",
+  "hhhhm.fffffhhfffffffffff.hhmm.f.mmhh.f.ffff.ffffmmm.mmmmmmmmmmmm.mfmmmmhhhhhhhhhhff.fffffffffff.hhffhfffhfffffffh...ffff....h.fhhfffhffhhhhhfhhh.fhffffff.mf.mmf",
+  "hhhhhhhhhh.hhhffffffffff..hmmm..mhhhmmffffffffffmmmmmmmmmmmmmmmm.mm..m.hhhhhhhhfffffffffffffff..mf.f..fffhhfffhhhhffffffh.h..h.ff.fwwhhhhhhh..h.wfhfffffffff..mf",
+  "hh.ff.mh.hhhhhhffffffffffhhmmmfhfffhmm.fffmfff.mwmmmmmmmmmmmmmmmmmmf..hhhhhhhhhfffffffffffffff.mffffm.fhh.hhfhhfffhfffffhff.hh.fm...mm..wffww.hhwfhfffffffff..mf",
+  "hhh..fffffffhhhfffffffffffhhh.fhffffh..fff.ffmmmwmmmmmmmmmmmmmmmm.mm.hhhhhhhhhhfff.fffffffffff...fffmmm.hffhhhffffhffffhffffh.h.wwwmmmw.fww...h..hfffffffff..xmf",
+  "hxm...ffffff.hhfffffffffff.h...ffffffhm.f.m.hmmwwmmmmmmmmmmmmmm.h.hhhh.hhhhhhhhhffffmfffffffffff.fff.mffffhhhhfffffhhhhffffffhh.m.fmwwwwwww.h...hhffffffffff.xmf",
+  "hxx......fffhhffffffffffffffhffffffffh.f..mhhmhhmmmmmmmmmmmmhhhhfhhhhhhhhhhhhhhhhhhfmfffffffffffff.f.mm.hhhhhfffffffhfffffffffhhhmfmm..mfwfhf.hhffffffffffff...f",
+  "hx.......fffhhfffffffffffffffffffffffhh.m.mm.mhhmmmmmmmmmmhhhhhh.hhhhhhhhhhhhhhfffffffffffffff.fffffffmfh..fffffffffffffffffffff.h..fmmm..hffhhhhhffffffffff.xm.",
+  "hm...f...ffff.hffffffffffffffffffffffh....mhhhhh.mmmmmmmhhhhhh.hh..hhhhhhhhhhhhfffffffffffffff.hhffffffhhfffffffffffffffffffffffffffhhf..ffhhfhhhhffffffffff.xmf",
+  "hm......fffffffhffffffffffffffffffffhhh.wwhhhhhhh.mmmmmmhhhhhh.hf..hhhhhhhhh..ffffff.fffffffff..hfffffff..hfffffffffffffffffffffffffhhhffffhhhhhhhhfffffff.f.xmf",
+  "h....fffff...ffh.fffffffffffffffffwwwwwwww.hhhhhhhmmmmmmmmhhhhhf....hhhhhhh.h.ffffffffffffffffhhhffff.ff.h.ffffffffffffffffffffffffffhhhffffhhhhhhfffffff....xhf",
+  "h......ffff.fff.hfffffffffffffwwwwwwwwwwwwwhhhhhhhmmmmmmmmhhhhh....h..mmhmmh...fff.fff.f.fff.hhhhffff..f.h.fffffffffffffffffffffffffff..ffffffhfhfffffff....hxhf",
+  "h.m.....fffffffhh.ffffffffffwwwwhhhwwwwwww..hhhhhhmmmmmmmm.hhhhh...f..mmmmmm.mffffff.....ffff.hhhhffff.f..fffffffffffffffffffffffffffffffffffffffffff.......xxh.",
+  "hx..m....f.ffffff....ffff...wwwhwwwwwwwwww.hhhhhhhmmm.mm...h.hhhh.hhmmmmmmmm....fff.f.m..ffff.hhh..fff.ff.ffffffffffffffffffffffffffffffffffffffffff.fhhh...hxhf",
+  "hxhhhmmm...fffffffh..hh.fffffhwhww.fhhww.hhffhhhh.hhmh..f..hhhhhhhhhmmmmmmmmmm.ffff..m...ffff.hhhhh.ff.f.fhffffffffffffffffffffff.fffffffffffffffff.hhfhh....xhf",
+  "hxxh.mmfmm.fffffffffffffffffffhhhfhffhhhhfffffhhhhhhmhh..mmmhhhhhhhhh...mmm.mm.ffff.f..mhffff.hhhhhfff.f.fh.fffffffffffffffffff.hfhffffffffffffffff.hhhfh....xhf",
+  "hxxhhhmmmhh.fffffffffffffffffff.hhffffffffffffhhhhhmm.fmmmmmmmhhhhhhhhhmmmm..f..f.ff.f..fffff.hhhh.fff...f.fffffffffffffffffffhhff.ffffffffffffffff.hhhhxh..xxhf",
+  "hxhhh..mhfhhh.ffffffff.ffffffffff.fffffffffffffhhhhmmmmmmm.mmmhhhhhhhhhhmfm...ffffff....hffff.hhhm.f..hhhfhhhhffffffffffffffhffhh.fffffffffffffff..hhhhxxxxxxxhf",
+  ".xhhh....hhhhhhffffffffhfffffffff.ffffffffffff.hhhhm.mmmmmmmmmmhhhhhhhhhmfmm....mf.f.mm..ffff.hhm....hh.hhhhhhffffffffffh.hhhh.ffffffffffffffff...hhxhfxxxxxxxhf",
+  "hxxhh..fffhhhfhhfffffffff.fffffffhh...fff.ffffffhhhh.mmmmmmmmmmhhhhhhhhhh..f....mmff..mm.fffffhhmf......hhhhhhffffffffhhff..fffffffffffffffffff..hhhhhfhhhxxxxhf",
+  "hxxh...fffff.hffh.ffffffff..fffffffff..ffffffffffhhhhhhhmmmmmmhhhhhhhhhhhhmmf....mm.mmm.m.ffffmmmm......hhhhh.ffffffff.f...ffffffffffffffffffff.hxxffffhfhxxxxhf",
+  "hxx.....ffffffhhhhffffffff.fffffffffff.ffffffffffhhhhhhhhh..hh..hhhhhhhhhh.m....mmmm..fmmmffffmmmm....f.hhhhhhffffffffffffffffffffffffffffffff.hhxxhhhfhhhxxxxhf",
+  "hxxx.....fffffff.ffffffffffffffffffffffhfffffffffffffhh.mmmh..hhhhhhhhhhhhm.....m.mmmm..mmmmmmmmmm.m...hhhhhhhhffffffffffffffffff...ffffffffffhhhhhhh.h.hfhhhxhh",
+  "hxxx.....f.fffffffffff.ffff.ffffffffffffffffffffffffff.mmmmhhhhhhhhhhhhhhmm..mm.......mmm.mmmmmm.m.m..h.hhhhhfffffffffffffffffff....ffffffffffhhhhhhhhhfhfhhhxhh",
+  "..xx......ff..fffff..f..ff.hhhfffffffffffffffffffffffff.mmhhhhhhhhhhhhhhhhmmmmm.m.m.m.mfmmmmmmmf.fmmm..hh..hhffffffffff..fff.ff.....ffffffffff.hhxxhhhfhhhxxxxhh",
+  "hxxxxx...........ff.....fhhhhh.fff..ffffffff..fffff.hffffffhhhhhhhhhhhhhhhmm..mm.mmmf..mmmmmmm...fmmh....hhhhffffffff..ff..ff.fffhh.fffffffffff.hhxhfhhhfhxxxxhh",
+  ".xxxxxhhh.......fff....ffhhhhhh.hhhf.ffff.fff.f.f...ff.....hhhhhhhhhhhhhhhhhh.mm.mmm..mm.mmfmf...mm.hhhh...hh.f.fff........ffff.....ffffffffff..hhhhhhfhhhxxxxhh",
+  "fhxxxxxxxhh......fff.f.ffhhhhhhhhh....fffhfff.h....ff.hhhhhhhhhhhhhhhhhhhhhhh..m..mmm...mmmmmf.......hhhhhh.hhhffff........ff..f..h.ffffffffff...hhxxhhxxxxxxh.h",
+  "fhxxxxxxhxhxx.....f...hh.hhhhhhhhhh...fffhhff.....ff.hhhhhhhhhhhhhhhhhh.hhh.hh......hh.hhh..m......h.xhhxh.hhhhhhff....h.............ffffff.ff..hhxxxhhhxxxxxh.h",
+  "ffhxxxxxxxhhhhhhhhhhhhhhhhhhhhhhhhhhhhhfffhhff.h..ffhhhhhhhhhhhhhhhhhhhhhhhh..hh......h.hhhhf......h..xxxxhhhhh.hf..hhhhhhh.....................hxxxxhhhxxxxhf.h",
+  "fffhhxxhxxhhhhhhhhhh.hxxhhhhhhhhhxhhhhh..ffhhhxxxx.hxxhhhhhxxxxxxxxxxhhhhhhhhhxxh.xxh...xxxh....hhhhxxxxxxxxxxhhhh.xxxxhxxxxx...xxxx.h.hh.......hhxxxhhxxxxhhffh",
+  "fffffhh.hxhhhhhhhhhhhhxxhhhhhhhhhxxhhhhhhhhhhhxxxxhhxxhhxxxxxxxxxxxxxxxhxxxxxxxxxxxxxhhxxxxxhhhhxxxxxxxxxxxxxxhxhhhxxxxxxxxxxxxxxxxxxxxxxhxxh.xhxxxxxxxxhhf..ffh",
+  "f.....hhhhhhhhhhhhhhhhhhhhhhhhhhhhhh...hhhhhhhhhhfhhhhhhhhhhhhhhhhhhhhhhhhhhhh...hhhf........hhhhhhh.hh..hh.hhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh....fffh",
+  "ffffffhffhhhhhhfffffhffffffffffffffff.ffffffffffffffffffhfhhfhffffffffffffffff.ffffffff.ffffffffffffff.ffffffff.ffffffff..f...ffffffffffffffffffffffffffffhhhfff"
+ ],
  "pins": [
   {
    "key": "A",
    "name": "Old Svalich Road",
    "pos": [
-    17.87,
-    7.2
+    17.86,
+    7.21
    ],
    "type": "road",
    "blurb": "The old road through the Svalich Woods, the only way into the valley.",
@@ -38,7 +145,7 @@
    "name": "Svalich Woods",
    "pos": [
     17.09,
-    7.63
+    7.61
    ],
    "type": "woods",
    "scenes": [
@@ -51,7 +158,7 @@
    "key": "D",
    "name": "River Ivlis",
    "pos": [
-    14.09,
+    14.08,
     8.68
    ],
    "type": "river",
@@ -88,7 +195,7 @@
    "key": "G",
    "name": "Tser Pool Encampment",
    "pos": [
-    11.34,
+    11.36,
     7.76
    ],
    "type": "camp",
@@ -102,8 +209,8 @@
    "key": "H",
    "name": "Tser Falls",
    "pos": [
-    10.54,
-    6.79
+    10.55,
+    6.81
    ],
    "type": "falls",
    "blurb": "A thousand-foot waterfall spanned by a stone bridge on the road to the castle."
@@ -112,8 +219,8 @@
    "key": "I",
    "name": "Black Carriage",
    "pos": [
-    10.58,
-    6.02
+    10.61,
+    6.03
    ],
    "type": "landmark",
    "blurb": "A black carriage waits by the road, its horses standing silent.",
@@ -123,7 +230,7 @@
    "key": "B2",
    "name": "Gates of Barovia (west)",
    "pos": [
-    10.58,
+    10.6,
     5.4
    ],
    "type": "gate",
@@ -133,8 +240,8 @@
    "key": "J",
    "name": "Gates of Ravenloft",
    "pos": [
-    12.12,
-    6.43
+    12.15,
+    6.45
    ],
    "type": "gate",
    "blurb": "Iron gates and a gatehouse at the foot of the castle's crag."
@@ -143,7 +250,7 @@
    "key": "K",
    "name": "Castle Ravenloft",
    "pos": [
-    13.0,
+    12.99,
     6.68
    ],
    "type": "castle",
@@ -158,8 +265,8 @@
    "key": "L",
    "name": "Lake Zarovich",
    "pos": [
-    6.68,
-    2.98
+    6.66,
+    2.97
    ],
    "type": "lake",
    "blurb": "A wide mountain lake, cold and deep, fished by folk from Vallaki.",
@@ -180,7 +287,7 @@
    "name": "Town of Vallaki",
    "pos": [
     6.35,
-    4.36
+    4.37
    ],
    "type": "settlement",
    "scenes": [
@@ -193,8 +300,8 @@
    "key": "O",
    "name": "Old Bonegrinder",
    "pos": [
-    8.1,
-    5.04
+    8.08,
+    5.06
    ],
    "type": "landmark",
    "blurb": "A windmill on a hill, its sails turning even in still air.",
@@ -204,7 +311,7 @@
    "key": "P",
    "name": "Luna River Crossroads",
    "pos": [
-    5.44,
+    5.41,
     4.52
    ],
    "type": "crossroads",
@@ -226,7 +333,7 @@
    "name": "Raven River Crossroads",
    "pos": [
     2.63,
-    4.09
+    4.1
    ],
    "type": "crossroads",
    "blurb": "A crossroads on the Raven River, west of Vallaki."
@@ -235,8 +342,8 @@
    "key": "S",
    "name": "Village of Krezk",
    "pos": [
-    0.75,
-    3.71
+    0.76,
+    3.7
    ],
    "type": "settlement",
    "blurb": "A walled village high in the mountains with an abbey above it.",
@@ -246,8 +353,8 @@
    "key": "T",
    "name": "Tsolenka Pass",
    "pos": [
-    3.2,
-    9.8
+    3.19,
+    9.78
    ],
    "type": "pass",
    "blurb": "A high mountain pass guarded by a gate and a bridge over a gorge.",
@@ -269,7 +376,7 @@
    "name": "Van Richten's Tower",
    "pos": [
     3.27,
-    3.2
+    3.19
    ],
    "type": "tower",
    "blurb": "A lone tower on an island in a mountain lake, reached by a causeway.",
@@ -279,8 +386,8 @@
    "key": "W",
    "name": "The Wizard of Wines",
    "pos": [
-    0.51,
-    5.97
+    0.52,
+    5.96
    ],
    "type": "settlement",
    "blurb": "A winery in the hills that supplies the valley's wine.",
@@ -291,7 +398,7 @@
    "name": "The Amber Temple",
    "pos": [
     5.0,
-    10.82
+    10.8
    ],
    "type": "temple",
    "blurb": "A buried temple high in the peaks where dark powers sleep.",
@@ -301,8 +408,8 @@
    "key": "Y",
    "name": "Yester Hill",
    "pos": [
-    -0.57,
-    6.68
+    -0.53,
+    8.0
    ],
    "type": "hill",
    "blurb": "A hill topped by a circle of standing stones and a crude giant statue.",
@@ -318,328 +425,1233 @@
    "type": "den",
    "blurb": "A cave in the mountains where the wolves that walk as men lair.",
    "dm": "Kiril's pack; the captured children."
+  },
+  {
+   "key": "M2",
+   "name": "Mount Baratok",
+   "pos": [
+    4.91,
+    1.86
+   ],
+   "type": "peak"
+  },
+  {
+   "key": "M3",
+   "name": "Mount Baratok",
+   "pos": [
+    6.4,
+    1.28
+   ],
+   "type": "peak"
+  },
+  {
+   "key": "M4",
+   "name": "Mount Baratok",
+   "pos": [
+    8.1,
+    1.54
+   ],
+   "type": "peak"
+  },
+  {
+   "key": "M5",
+   "name": "Mount Baratok",
+   "pos": [
+    10.34,
+    1.75
+   ],
+   "type": "peak"
+  },
+  {
+   "key": "D2",
+   "name": "River Ivlis (east bridge)",
+   "pos": [
+    16.3,
+    9.04
+   ],
+   "type": "river"
   }
  ],
  "roads": [
   {
    "name": "Old Svalich Road",
+   "kind": "road",
    "pts": [
     [
-     18.32,
-     7.2
+     5.49,
+     4.27
     ],
     [
-     17.87,
-     7.2
-    ],
-    [
-     17.36,
-     6.96
-    ],
-    [
-     16.83,
-     7.6
-    ],
-    [
-     15.62,
-     7.93
-    ],
-    [
-     14.2,
-     8.0
-    ],
-    [
-     13.85,
-     8.49
-    ],
-    [
-     13.28,
-     9.09
-    ],
-    [
-     12.5,
-     9.3
-    ],
-    [
-     12.07,
-     9.35
-    ]
-   ]
-  },
-  {
-   "name": "Old Svalich Road",
-   "pts": [
-    [
-     12.07,
-     9.35
-    ],
-    [
-     11.58,
-     9.09
-    ],
-    [
-     11.25,
-     8.38
-    ],
-    [
-     11.34,
-     7.76
-    ],
-    [
-     10.87,
-     7.32
-    ],
-    [
-     10.54,
-     6.79
-    ],
-    [
-     10.58,
-     6.02
-    ],
-    [
-     10.58,
-     5.4
-    ],
-    [
-     9.94,
-     5.11
-    ],
-    [
-     9.38,
-     4.69
-    ],
-    [
-     9.09,
-     4.26
-    ],
-    [
-     7.95,
-     4.2
-    ],
-    [
-     6.35,
-     4.26
-    ],
-    [
-     5.44,
-     4.52
-    ]
-   ]
-  },
-  {
-   "name": "Road to Ravenloft",
-   "pts": [
-    [
-     10.58,
-     6.02
-    ],
-    [
-     11.22,
-     5.75
-    ],
-    [
-     11.79,
-     6.11
-    ],
-    [
-     12.12,
-     6.43
-    ],
-    [
-     12.86,
-     6.56
+     5.8,
+     4.13
     ]
    ]
   },
   {
    "name": "Ravenloft/Vallaki road",
+   "kind": "road",
    "pts": [
     [
-     12.07,
-     9.35
+     11.83,
+     9.31
     ],
     [
-     11.22,
-     9.23
-    ],
-    [
-     10.8,
-     8.52
-    ],
-    [
-     9.94,
-     8.17
-    ],
-    [
-     9.8,
-     8.38
-    ],
-    [
-     10.51,
-     8.81
-    ],
-    [
-     11.08,
-     9.09
+     11.69,
+     9.45
     ]
    ]
   },
   {
    "name": "Old Svalich Road",
+   "kind": "road",
    "pts": [
     [
-     5.44,
-     4.52
+     10.37,
+     6.08
     ],
     [
-     4.83,
-     4.26
+     10.27,
+     6.3
     ],
     [
-     3.55,
-     4.15
+     10.4,
+     6.44
+    ]
+   ]
+  },
+  {
+   "name": "Old Svalich Road",
+   "kind": "road",
+   "pts": [
+    [
+     17.0,
+     7.13
     ],
     [
-     2.63,
-     4.09
+     16.58,
+     7.8
     ],
     [
-     1.56,
-     3.84
+     16.47,
+     7.9
     ],
     [
-     0.75,
-     3.71
-    ],
-    [
-     0.0,
-     3.72
+     16.27,
+     7.95
     ]
    ]
   },
   {
    "name": "Tsolenka road",
+   "kind": "road",
    "pts": [
     [
-     2.63,
-     4.09
+     5.73,
+     12.13
     ],
     [
-     2.13,
-     4.97
+     5.57,
+     12.16
     ],
     [
-     1.78,
-     5.97
+     5.46,
+     12.25
+    ]
+   ]
+  },
+  {
+   "name": "Old Svalich Road",
+   "kind": "road",
+   "pts": [
+    [
+     7.9,
+     4.32
     ],
     [
-     1.42,
-     7.32
+     8.39,
+     4.06
+    ]
+   ]
+  },
+  {
+   "name": "Old Svalich Road",
+   "kind": "road",
+   "pts": [
+    [
+     6.99,
+     4.13
     ],
     [
-     2.41,
-     7.95
-    ],
-    [
-     2.91,
-     9.09
-    ],
-    [
-     3.2,
-     9.8
-    ],
-    [
-     4.26,
-     9.94
-    ],
-    [
-     4.69,
-     10.51
-    ],
-    [
-     5.0,
-     10.82
-    ],
+     7.34,
+     4.21
+    ]
+   ]
+  },
+  {
+   "name": "Tsolenka road",
+   "kind": "road",
+   "pts": [
     [
      5.97,
+     11.53
+    ],
+    [
+     5.84,
+     11.67
+    ],
+    [
+     5.95,
      11.79
     ]
    ]
   },
   {
-   "name": "Trail to Berez",
+   "name": "Old Svalich Road",
+   "kind": "road",
    "pts": [
     [
-     5.44,
-     4.52
+     10.47,
+     5.78
     ],
     [
-     5.37,
-     5.97
+     10.19,
+     5.35
     ],
     [
-     5.11,
-     6.82
+     10.02,
+     5.3
+    ]
+   ]
+  },
+  {
+   "name": "Old Svalich Road",
+   "kind": "road",
+   "pts": [
+    [
+     2.14,
+     3.88
     ],
     [
-     4.91,
-     7.64
+     2.38,
+     4.19
+    ],
+    [
+     1.87,
+     4.38
+    ],
+    [
+     1.75,
+     4.55
+    ]
+   ]
+  },
+  {
+   "name": "Old Svalich Road",
+   "kind": "road",
+   "pts": [
+    [
+     5.12,
+     4.51
+    ],
+    [
+     4.94,
+     4.69
+    ],
+    [
+     5.17,
+     4.46
+    ],
+    [
+     5.01,
+     4.17
     ]
    ]
   },
   {
    "name": "Road to Argynvostholt",
+   "kind": "road",
    "pts": [
     [
-     2.63,
-     4.09
+     2.93,
+     4.19
     ],
     [
-     3.55,
-     4.97
+     2.97,
+     4.14
     ],
     [
-     4.26,
-     5.68
+     3.28,
+     4.38
     ],
     [
-     4.87,
-     6.25
+     3.61,
+     4.94
     ]
    ]
   },
   {
-   "name": "Road to the tower",
+   "name": "Old Svalich Road",
+   "kind": "road",
    "pts": [
     [
-     2.63,
-     4.09
+     8.37,
+     5.22
     ],
     [
-     3.05,
-     3.55
+     8.61,
+     5.28
     ],
     [
-     3.27,
-     3.2
+     8.67,
+     5.43
+    ],
+    [
+     8.84,
+     5.47
+    ],
+    [
+     8.98,
+     5.38
+    ],
+    [
+     9.09,
+     5.16
+    ],
+    [
+     9.44,
+     4.97
+    ],
+    [
+     9.32,
+     5.05
+    ],
+    [
+     9.53,
+     4.98
+    ],
+    [
+     9.69,
+     5.28
+    ],
+    [
+     9.79,
+     5.33
+    ]
+   ]
+  },
+  {
+   "name": "Road to Ravenloft",
+   "kind": "road",
+   "pts": [
+    [
+     10.77,
+     5.79
+    ],
+    [
+     10.95,
+     5.53
+    ],
+    [
+     11.1,
+     5.52
+    ],
+    [
+     11.4,
+     5.82
+    ]
+   ]
+  },
+  {
+   "name": "Old Svalich Road",
+   "kind": "road",
+   "pts": [
+    [
+     15.61,
+     8.1
+    ],
+    [
+     15.78,
+     7.97
+    ],
+    [
+     16.04,
+     7.96
+    ],
+    [
+     16.09,
+     7.96
+    ],
+    [
+     16.07,
+     8.1
+    ],
+    [
+     15.86,
+     8.1
+    ]
+   ]
+  },
+  {
+   "name": "Tsolenka road",
+   "kind": "road",
+   "pts": [
+    [
+     5.72,
+     11.65
+    ],
+    [
+     5.5,
+     11.62
+    ],
+    [
+     5.38,
+     11.54
+    ],
+    [
+     5.16,
+     11.24
+    ],
+    [
+     4.85,
+     11.29
+    ],
+    [
+     4.63,
+     11.15
+    ],
+    [
+     4.49,
+     10.84
+    ],
+    [
+     4.27,
+     10.52
+    ],
+    [
+     4.32,
+     10.11
+    ],
+    [
+     4.25,
+     9.99
+    ],
+    [
+     4.01,
+     9.84
+    ],
+    [
+     3.79,
+     9.6
+    ],
+    [
+     3.48,
+     9.57
+    ]
+   ]
+  },
+  {
+   "name": "Old Svalich Road",
+   "kind": "road",
+   "pts": [
+    [
+     12.97,
+     9.27
+    ],
+    [
+     12.59,
+     8.91
+    ],
+    [
+     12.33,
+     8.93
+    ],
+    [
+     12.11,
+     9.09
+    ],
+    [
+     11.97,
+     9.1
+    ],
+    [
+     11.78,
+     8.89
+    ],
+    [
+     11.64,
+     8.85
+    ],
+    [
+     11.53,
+     8.74
+    ],
+    [
+     11.53,
+     8.64
+    ],
+    [
+     11.69,
+     8.41
+    ],
+    [
+     11.68,
+     8.25
+    ],
+    [
+     11.64,
+     8.5
+    ]
+   ]
+  },
+  {
+   "name": "Tsolenka road",
+   "kind": "road",
+   "pts": [
+    [
+     5.23,
+     10.89
+    ],
+    [
+     5.55,
+     11.1
+    ],
+    [
+     5.69,
+     11.41
+    ],
+    [
+     5.87,
+     11.46
+    ],
+    [
+     5.99,
+     11.56
+    ],
+    [
+     6.01,
+     11.69
+    ],
+    [
+     5.9,
+     11.93
+    ],
+    [
+     5.94,
+     11.97
+    ],
+    [
+     6.06,
+     11.95
+    ],
+    [
+     6.08,
+     12.02
+    ],
+    [
+     5.97,
+     12.1
+    ]
+   ]
+  },
+  {
+   "name": "Road to Ravenloft",
+   "kind": "road",
+   "pts": [
+    [
+     11.66,
+     5.77
+    ],
+    [
+     11.53,
+     5.84
+    ],
+    [
+     11.61,
+     5.82
+    ],
+    [
+     11.73,
+     5.64
+    ],
+    [
+     11.86,
+     5.65
+    ],
+    [
+     11.89,
+     5.77
+    ],
+    [
+     11.82,
+     5.97
+    ],
+    [
+     12.02,
+     6.21
+    ]
+   ]
+  },
+  {
+   "name": "Old Svalich Road",
+   "kind": "road",
+   "pts": [
+    [
+     15.26,
+     7.97
+    ],
+    [
+     14.15,
+     8.01
+    ],
+    [
+     13.94,
+     8.27
+    ],
+    [
+     13.46,
+     9.12
+    ],
+    [
+     13.25,
+     9.27
+    ]
+   ]
+  },
+  {
+   "name": "Tsolenka road",
+   "kind": "road",
+   "pts": [
+    [
+     2.92,
+     7.58
+    ],
+    [
+     2.97,
+     7.35
+    ],
+    [
+     2.76,
+     7.26
+    ],
+    [
+     2.58,
+     7.26
+    ],
+    [
+     2.34,
+     7.46
+    ]
+   ]
+  },
+  {
+   "name": "Tsolenka road",
+   "kind": "road",
+   "pts": [
+    [
+     2.97,
+     7.84
+    ],
+    [
+     2.94,
+     8.05
+    ],
+    [
+     2.53,
+     8.37
+    ],
+    [
+     2.46,
+     8.67
+    ],
+    [
+     2.54,
+     8.78
+    ],
+    [
+     2.78,
+     8.85
+    ],
+    [
+     2.95,
+     9.1
+    ],
+    [
+     3.12,
+     9.18
+    ],
+    [
+     3.12,
+     9.42
+    ],
+    [
+     3.22,
+     9.53
+    ]
+   ]
+  },
+  {
+   "name": "Tsolenka road",
+   "kind": "road",
+   "pts": [
+    [
+     1.89,
+     6.77
+    ],
+    [
+     2.09,
+     6.64
+    ],
+    [
+     2.21,
+     6.43
+    ],
+    [
+     2.18,
+     6.17
+    ],
+    [
+     2.04,
+     5.89
+    ],
+    [
+     2.05,
+     5.76
+    ],
+    [
+     2.4,
+     5.43
+    ],
+    [
+     2.71,
+     4.91
+    ],
+    [
+     2.78,
+     4.62
+    ],
+    [
+     2.76,
+     4.4
+    ]
+   ]
+  },
+  {
+   "name": "Tsolenka road",
+   "kind": "road",
+   "pts": [
+    [
+     1.65,
+     6.83
+    ],
+    [
+     1.52,
+     6.88
+    ],
+    [
+     1.4,
+     7.04
+    ],
+    [
+     1.28,
+     7.36
+    ],
+    [
+     1.31,
+     7.54
+    ],
+    [
+     1.41,
+     7.58
+    ],
+    [
+     1.48,
+     7.52
+    ],
+    [
+     1.56,
+     7.26
+    ],
+    [
+     1.68,
+     7.14
+    ],
+    [
+     1.77,
+     7.16
+    ],
+    [
+     1.97,
+     7.4
+    ],
+    [
+     2.11,
+     7.46
+    ],
+    [
+     1.97,
+     7.39
+    ]
+   ]
+  },
+  {
+   "name": "Old Svalich Road",
+   "kind": "road",
+   "pts": [
+    [
+     8.6,
+     5.28
+    ],
+    [
+     8.71,
+     4.97
+    ],
+    [
+     8.63,
+     4.88
+    ],
+    [
+     8.69,
+     4.93
+    ],
+    [
+     8.39,
+     4.95
+    ],
+    [
+     8.44,
+     4.6
+    ],
+    [
+     8.64,
+     4.51
+    ],
+    [
+     8.91,
+     4.65
+    ],
+    [
+     9.06,
+     4.65
+    ],
+    [
+     9.4,
+     4.29
+    ],
+    [
+     9.61,
+     4.17
+    ],
+    [
+     9.66,
+     4.0
+    ],
+    [
+     9.54,
+     3.85
+    ],
+    [
+     9.13,
+     3.97
+    ],
+    [
+     8.9,
+     3.86
+    ],
+    [
+     8.65,
+     4.03
+    ]
+   ]
+  },
+  {
+   "name": "Road to Argynvostholt",
+   "kind": "road",
+   "pts": [
+    [
+     4.66,
+     6.01
+    ],
+    [
+     4.68,
+     5.78
+    ],
+    [
+     4.58,
+     5.62
+    ],
+    [
+     4.24,
+     5.62
+    ],
+    [
+     3.79,
+     5.54
+    ],
+    [
+     3.61,
+     5.31
+    ],
+    [
+     3.56,
+     5.03
+    ],
+    [
+     3.65,
+     4.94
+    ],
+    [
+     4.04,
+     5.25
+    ],
+    [
+     4.41,
+     5.28
+    ],
+    [
+     4.65,
+     5.15
+    ],
+    [
+     4.92,
+     4.71
+    ]
+   ]
+  },
+  {
+   "name": "Old Svalich Road",
+   "kind": "road",
+   "pts": [
+    [
+     1.55,
+     3.85
+    ],
+    [
+     1.34,
+     3.77
+    ],
+    [
+     1.19,
+     3.78
+    ],
+    [
+     0.78,
+     4.0
+    ],
+    [
+     0.49,
+     3.85
+    ],
+    [
+     -0.21,
+     3.71
+    ],
+    [
+     -0.94,
+     3.47
+    ],
+    [
+     -0.99,
+     3.59
+    ],
+    [
+     -1.05,
+     3.59
+    ]
+   ]
+  },
+  {
+   "name": "Ravenloft/Vallaki road",
+   "kind": "road",
+   "pts": [
+    [
+     11.41,
+     9.46
+    ],
+    [
+     11.21,
+     9.37
+    ],
+    [
+     11.0,
+     8.97
+    ],
+    [
+     11.13,
+     8.63
+    ],
+    [
+     11.11,
+     8.17
+    ],
+    [
+     11.09,
+     8.03
+    ],
+    [
+     10.94,
+     7.83
+    ],
+    [
+     10.7,
+     7.9
+    ],
+    [
+     10.36,
+     8.34
+    ],
+    [
+     10.03,
+     8.53
+    ],
+    [
+     9.87,
+     8.49
+    ],
+    [
+     9.72,
+     8.27
+    ],
+    [
+     9.73,
+     8.17
+    ],
+    [
+     9.94,
+     8.05
+    ],
+    [
+     10.14,
+     7.83
+    ],
+    [
+     10.49,
+     7.75
+    ],
+    [
+     10.57,
+     7.68
+    ],
+    [
+     10.56,
+     7.28
+    ],
+    [
+     10.84,
+     6.89
+    ],
+    [
+     10.89,
+     6.62
+    ],
+    [
+     10.84,
+     6.48
+    ],
+    [
+     10.62,
+     6.43
+    ]
+   ]
+  },
+  {
+   "name": "Old Svalich Road",
+   "kind": "trail",
+   "pts": [
+    [
+     17.36,
+     6.98
+    ],
+    [
+     18.01,
+     6.99
+    ]
+   ]
+  },
+  {
+   "name": "Old Svalich Road",
+   "kind": "trail",
+   "pts": [
+    [
+     6.94,
+     4.11
+    ],
+    [
+     6.45,
+     4.11
+    ]
+   ]
+  },
+  {
+   "name": "Old Svalich Road",
+   "kind": "trail",
+   "pts": [
+    [
+     7.39,
+     4.15
+    ],
+    [
+     7.44,
+     4.2
+    ],
+    [
+     7.57,
+     4.17
+    ],
+    [
+     7.56,
+     4.21
+    ],
+    [
+     7.85,
+     4.33
+    ],
+    [
+     7.92,
+     4.26
+    ]
+   ]
+  },
+  {
+   "name": "Tsolenka road",
+   "kind": "trail",
+   "pts": [
+    [
+     5.82,
+     11.52
+    ],
+    [
+     5.92,
+     11.62
+    ],
+    [
+     6.03,
+     11.89
+    ],
+    [
+     5.96,
+     11.92
+    ],
+    [
+     6.0,
+     12.02
+    ],
+    [
+     5.89,
+     12.07
+    ],
+    [
+     5.91,
+     12.12
     ]
    ]
   },
   {
    "name": "Road to the vineyard",
+   "kind": "trail",
    "pts": [
     [
-     1.56,
-     3.84
+     1.16,
+     5.73
     ],
     [
-     0.85,
-     5.11
+     1.06,
+     5.79
     ],
     [
-     0.51,
-     5.97
+     0.74,
+     5.58
+    ],
+    [
+     0.52,
+     5.64
+    ],
+    [
+     0.57,
+     5.72
+    ]
+   ]
+  },
+  {
+   "name": "Trail",
+   "kind": "trail",
+   "pts": [
+    [
+     -1.26,
+     3.46
+    ],
+    [
+     -1.12,
+     3.46
+    ],
+    [
+     -1.15,
+     3.58
+    ],
+    [
+     -0.98,
+     3.53
+    ],
+    [
+     -0.66,
+     3.65
+    ],
+    [
+     -0.66,
+     3.71
+    ],
+    [
+     -0.48,
+     3.66
+    ],
+    [
+     -0.38,
+     3.75
+    ],
+    [
+     -0.46,
+     3.69
+    ],
+    [
+     -0.41,
+     3.78
+    ],
+    [
+     -0.24,
+     3.77
+    ]
+   ]
+  },
+  {
+   "name": "Old Svalich Road",
+   "kind": "trail",
+   "pts": [
+    [
+     15.15,
+     8.04
+    ],
+    [
+     15.2,
+     8.1
+    ],
+    [
+     15.23,
+     8.04
+    ],
+    [
+     15.43,
+     8.12
+    ],
+    [
+     15.42,
+     8.01
+    ],
+    [
+     15.35,
+     8.0
+    ],
+    [
+     16.06,
+     8.02
     ]
    ]
   }
@@ -739,6 +1751,279 @@
      5.68
     ]
    ]
+  },
+  {
+   "name": "Luna River",
+   "pts": [
+    [
+     6.04,
+     6.54
+    ],
+    [
+     5.81,
+     6.48
+    ],
+    [
+     5.79,
+     6.56
+    ],
+    [
+     5.83,
+     6.53
+    ],
+    [
+     5.71,
+     6.64
+    ]
+   ]
+  },
+  {
+   "name": "River Ivlis",
+   "pts": [
+    [
+     17.86,
+     8.69
+    ],
+    [
+     17.46,
+     8.62
+    ],
+    [
+     17.2,
+     8.49
+    ],
+    [
+     16.68,
+     8.61
+    ],
+    [
+     16.53,
+     8.74
+    ]
+   ]
+  },
+  {
+   "name": "River Ivlis",
+   "pts": [
+    [
+     11.71,
+     7.6
+    ],
+    [
+     11.95,
+     7.75
+    ],
+    [
+     11.99,
+     7.98
+    ],
+    [
+     12.0,
+     7.9
+    ],
+    [
+     12.13,
+     7.84
+    ],
+    [
+     12.29,
+     8.15
+    ],
+    [
+     11.98,
+     8.15
+    ],
+    [
+     11.78,
+     8.06
+    ],
+    [
+     11.86,
+     7.88
+    ],
+    [
+     11.99,
+     7.98
+    ],
+    [
+     11.95,
+     8.1
+    ],
+    [
+     12.08,
+     8.32
+    ],
+    [
+     11.98,
+     8.22
+    ],
+    [
+     11.95,
+     8.43
+    ]
+   ]
+  },
+  {
+   "name": "River Ivlis",
+   "pts": [
+    [
+     15.33,
+     9.12
+    ],
+    [
+     15.58,
+     9.07
+    ],
+    [
+     15.72,
+     9.13
+    ],
+    [
+     15.75,
+     9.25
+    ],
+    [
+     16.06,
+     9.05
+    ],
+    [
+     15.73,
+     9.13
+    ],
+    [
+     15.71,
+     9.24
+    ],
+    [
+     15.55,
+     9.32
+    ],
+    [
+     15.23,
+     9.25
+    ],
+    [
+     15.24,
+     9.17
+    ],
+    [
+     15.22,
+     9.24
+    ],
+    [
+     15.07,
+     9.27
+    ],
+    [
+     14.89,
+     9.13
+    ],
+    [
+     14.5,
+     9.2
+    ]
+   ]
+  },
+  {
+   "name": "Raven River",
+   "pts": [
+    [
+     2.36,
+     2.89
+    ],
+    [
+     2.52,
+     2.95
+    ],
+    [
+     2.73,
+     2.9
+    ],
+    [
+     2.58,
+     3.14
+    ],
+    [
+     2.41,
+     3.15
+    ],
+    [
+     2.73,
+     3.68
+    ],
+    [
+     2.68,
+     3.73
+    ],
+    [
+     2.81,
+     3.51
+    ],
+    [
+     2.98,
+     3.5
+    ],
+    [
+     2.8,
+     3.52
+    ],
+    [
+     2.7,
+     3.24
+    ],
+    [
+     2.75,
+     3.29
+    ],
+    [
+     2.85,
+     3.19
+    ],
+    [
+     3.06,
+     2.79
+    ],
+    [
+     3.07,
+     3.04
+    ],
+    [
+     2.74,
+     3.07
+    ],
+    [
+     2.7,
+     3.24
+    ],
+    [
+     2.46,
+     3.12
+    ],
+    [
+     2.36,
+     2.97
+    ],
+    [
+     2.39,
+     2.75
+    ],
+    [
+     2.51,
+     2.67
+    ],
+    [
+     3.04,
+     2.82
+    ],
+    [
+     3.27,
+     2.73
+    ],
+    [
+     3.39,
+     2.6
+    ]
+   ]
   }
  ],
  "lakes": [
@@ -791,22 +2076,22 @@
   {
    "name": "Mount Baratok",
    "pos": [
-    12.07,
-    0.99
+    11.83,
+    0.93
    ]
   },
   {
    "name": "Mount Ghakis",
    "pos": [
-    7.17,
-    11.08
+    7.14,
+    11.16
    ]
   },
   {
    "name": "Balinok Mountains",
    "pos": [
-    2.27,
-    6.68
+    2.38,
+    7.53
    ]
   }
  ],
@@ -892,37 +2177,84 @@
   {
    "name": "Svalich Woods",
    "pos": [
-    16.34,
-    5.4
-   ]
+    0.22,
+    2.88
+   ],
+   "angle": -38
   },
   {
    "name": "Svalich Woods",
    "pos": [
-    14.06,
-    10.8
-   ]
+    6.61,
+    1.75
+   ],
+   "angle": -8
   },
   {
    "name": "Svalich Woods",
    "pos": [
-    6.53,
-    1.85
-   ]
+    1.18,
+    6.68
+   ],
+   "angle": -62
   },
   {
    "name": "Svalich Woods",
    "pos": [
-    1.28,
-    6.39
-   ]
+    -0.1,
+    10.87
+   ],
+   "angle": -20
   },
   {
    "name": "Svalich Woods",
    "pos": [
-    0.43,
-    10.8
-   ]
+    16.38,
+    5.33
+   ],
+   "angle": 20
+  },
+  {
+   "name": "Svalich Woods",
+   "pos": [
+    13.96,
+    10.66
+   ],
+   "angle": -22
+  }
+ ],
+ "labels": [
+  {
+   "name": "Raven River",
+   "pos": [
+    -0.1,
+    4.34
+   ],
+   "angle": -2
+  },
+  {
+   "name": "Luna River",
+   "pos": [
+    0.11,
+    9.1
+   ],
+   "angle": 50
+  },
+  {
+   "name": "Ivlis River",
+   "pos": [
+    14.11,
+    9.38
+   ],
+   "angle": 12
+  },
+  {
+   "name": "Tser Falls",
+   "pos": [
+    9.77,
+    7.18
+   ],
+   "angle": 0
   }
  ]
 }

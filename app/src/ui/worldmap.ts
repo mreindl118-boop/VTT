@@ -27,13 +27,35 @@ const el = <K extends keyof SVGElementTagNameMap>(tag: K, attrs: Record<string, 
 };
 const path = (pts: P[]) => pts.map((p, i) => `${i ? 'L' : 'M'}${p[0]},${p[1]}`).join(' ');
 const fmtHours = (h: number) => { const hh = Math.floor(h), mm = Math.round((h - hh) * 60); return hh ? `${hh} h${mm ? ` ${mm} min` : ''}` : `${mm} min`; };
-const keyOf = (p: Pin) => p.key.replace('2', '');
+const keyOf = (p: Pin) => p.key.replace(/\d+$/, '');
 
 // ---------------------------------------------------------------- the painted base layer
 const PALETTES = {
-  gothic: { ground: ['#7f8a6c', '#6d7a5f'], moor: '#8a8f78', wood: ['#3f5d3f', '#2f4a33'], woodEdge: '#28392a', hill: '#8b8672', hillShade: '#6a655a', rock: '#8e8b86', snow: '#e4e6ea', water: '#5e7d94', waterEdge: '#3f5a70', road: '#b8a06a', roadCase: '#6b5a3a', ink: '#2a2420', town: '#5a4a3a', mistEdge: 'rgba(212,214,222,.55)' },
-  pastoral: { ground: ['#b9c98a', '#a7b97b'], moor: '#c7cf9c', wood: ['#5f8f4c', '#4d7a3f'], woodEdge: '#3f6633', hill: '#c2b98f', hillShade: '#9a9370', rock: '#a8a49a', snow: '#f2f3f5', water: '#7fa9c4', waterEdge: '#5a86a3', road: '#d6b980', roadCase: '#8a7248', ink: '#3a2f24', town: '#7a5e44', mistEdge: 'rgba(255,255,255,.35)' },
+  gothic: { ground: ['#7f8a6c', '#6d7a5f'], moor: '#8a8f78', wood: ['#3f5d3f', '#2f4a33'], woodEdge: '#28392a', hill: '#8b8672', hillShade: '#6a655a', rock: '#8e8b86', snow: '#e4e6ea', water: '#5e7d94', waterEdge: '#3f5a70', road: '#b8a06a', roadCase: '#6b5a3a', ink: '#2a2420', town: '#5a4a3a', mist: '#d6d8de', mistEdge: 'rgba(212,214,222,.55)' },
+  pastoral: { ground: ['#b9c98a', '#a7b97b'], moor: '#c7cf9c', wood: ['#5f8f4c', '#4d7a3f'], woodEdge: '#3f6633', hill: '#c2b98f', hillShade: '#9a9370', rock: '#a8a49a', snow: '#f2f3f5', water: '#7fa9c4', waterEdge: '#5a86a3', road: '#d6b980', roadCase: '#8a7248', ink: '#3a2f24', town: '#7a5e44', mist: '#f4f5f7', mistEdge: 'rgba(255,255,255,.35)' },
 } as const;
+
+/** The land-cover grid as smooth 0..1 fields per class, sampled at any point in miles (bilinear, lightly blurred). */
+function coverSampler(): { cell: number; at: (c: string, p: P) => number; cells: (c: string) => [P, number][] } | null {
+  if (!W.cover?.length) return null;
+  const rows = W.cover, cell = W.cellMiles ?? 0.125, nr = rows.length, nc = rows[0].length, x0 = W.bounds.minX, y0 = W.bounds.minY;
+  const fields = new Map<string, Float32Array>();
+  const field = (c: string) => {
+    let f = fields.get(c); if (f) return f;
+    const raw = new Float32Array(nr * nc); for (let r = 0; r < nr; r++) for (let k = 0; k < nc; k++) raw[r * nc + k] = rows[r][k] === c ? 1 : 0;
+    f = new Float32Array(nr * nc); // 3×3 blur softens the cell edges
+    for (let r = 0; r < nr; r++) for (let k = 0; k < nc; k++) { let s = 0, n = 0; for (let dr = -1; dr <= 1; dr++) for (let dk = -1; dk <= 1; dk++) { const rr = r + dr, kk = k + dk; if (rr >= 0 && rr < nr && kk >= 0 && kk < nc) { const w = dr || dk ? 0.5 : 2; s += raw[rr * nc + kk] * w; n += w; } } f[r * nc + k] = s / n; }
+    fields.set(c, f); return f;
+  };
+  const at = (c: string, p: P) => {
+    const f = field(c), gx = (p[0] - x0) / cell - 0.5, gy = (p[1] - y0) / cell - 0.5;
+    const k0 = Math.floor(gx), r0 = Math.floor(gy), tx = gx - k0, ty = gy - r0;
+    const g = (r: number, k: number) => (r < 0 || r >= nr || k < 0 || k >= nc ? (c === 'x' ? 1 : 0) : f[r * nc + k]);
+    return (g(r0, k0) * (1 - tx) + g(r0, k0 + 1) * tx) * (1 - ty) + (g(r0 + 1, k0) * (1 - tx) + g(r0 + 1, k0 + 1) * tx) * ty;
+  };
+  const cells = (c: string): [P, number][] => { const f = field(c), out: [P, number][] = []; for (let r = 0; r < nr; r++) for (let k = 0; k < nc; k++) if (f[r * nc + k] > 0) out.push([[x0 + (k + 0.5) * cell, y0 + (r + 0.5) * cell], f[r * nc + k]]); return out; };
+  return { cell, at, cells };
+}
 
 function paint(cv: HTMLCanvasElement, vb: { x: number; y: number; w: number; h: number }): void {
   const C = PALETTES[STYLE], ctx = cv.getContext('2d')!, S = cv.width / vb.w; // px per mile
@@ -42,9 +64,11 @@ function paint(cv: HTMLCanvasElement, vb: { x: number; y: number; w: number; h: 
   const near = (p: P, list: P[], r: number) => list.reduce((s, q) => s + Math.exp(-((p[0] - q[0]) ** 2 + (p[1] - q[1]) ** 2) / (2 * r * r)), 0);
   const span = Math.max(vb.w, vb.h), kw = Math.max(0.6, span * 0.16), kh = Math.max(0.5, span * 0.055);
   const highPts = [...W.high, ...W.peaks.map((p) => p.pos)], woodPts = W.woods.map((w) => w.pos);
-  const woodDensity = (p: P) => (near(p, woodPts, kw) / Math.max(1, W.woods.length / 5)) * 0.6;
-  const highDensity = (p: P) => near(p, highPts, kh) * (W.high.length > 40 ? 0.35 : 1);
-  const inWater = (p: P) => W.lakes.some((l) => ((p[0] - l.center[0]) / l.r[0]) ** 2 + ((p[1] - l.center[1]) / l.r[1]) ** 2 < 1);
+  const cover = coverSampler();
+  const woodDensity = cover ? (p: P) => cover.at('f', p) * 0.85 : (p: P) => (near(p, woodPts, kw) / Math.max(1, W.woods.length / 5)) * 0.6;
+  const highDensity = cover ? (p: P) => cover.at('h', p) * 0.75 + cover.at('m', p) * 1.5 + near(p, W.peaks.map((q) => q.pos), 0.9) * 0.6 : (p: P) => near(p, highPts, kh) * (W.high.length > 40 ? 0.35 : 1);
+  const inLake = (p: P) => W.lakes.some((l) => ((p[0] - l.center[0]) / l.r[0]) ** 2 + ((p[1] - l.center[1]) / l.r[1]) ** 2 < 1);
+  const inWater = cover ? (p: P) => cover.at('w', p) > 0.5 : inLake;
   // 1. ground: two-tone noise
   ctx.fillStyle = C.ground[0]; ctx.fillRect(0, 0, cv.width, cv.height);
   const cell = Math.max(4, Math.round(S * 0.08));
@@ -52,6 +76,10 @@ function paint(cv: HTMLCanvasElement, vb: { x: number; y: number; w: number; h: 
     const n = hash(px * 0.37, py * 0.53) * 0.5 + hash(px * 0.11, py * 0.17) * 0.5;
     ctx.fillStyle = n > 0.55 ? C.ground[1] : n < 0.2 ? C.moor : C.ground[0];
     ctx.globalAlpha = 0.5; ctx.fillRect(px, py, cell, cell);
+    if (cover) { // the high ground is paler and barer than the valley floor
+      const p: P = [vb.x + (px + cell / 2) / S, vb.y + (py + cell / 2) / S], hi = cover.at('h', p) + cover.at('m', p);
+      if (hi > 0.05) { ctx.fillStyle = C.hill; ctx.globalAlpha = Math.min(0.75, hi * 0.6); ctx.fillRect(px, py, cell, cell); }
+    }
   }
   ctx.globalAlpha = 1;
   // 2. woods: soft tracts, then tree symbols
@@ -88,17 +116,26 @@ function paint(cv: HTMLCanvasElement, vb: { x: number; y: number; w: number; h: 
     ctx.strokeStyle = C.ink; ctx.lineWidth = Math.max(0.6, s * 0.06); ctx.globalAlpha = 0.5; ctx.beginPath(); ctx.moveTo(x - s, y + s * 0.55); ctx.quadraticCurveTo(x - s * 0.3, y - s * (mountain ? 1.3 : 0.6), x, y - s * (mountain ? 1.3 : 0.6)); ctx.stroke(); ctx.globalAlpha = 1;
     if (h > 1.7) { ctx.fillStyle = C.snow; ctx.beginPath(); ctx.moveTo(x, y - s * 1.3); ctx.lineTo(x - s * 0.28, y - s * 0.75); ctx.lineTo(x - s * 0.1, y - s * 0.85); ctx.lineTo(x + 0.05 * s, y - s * 0.7); ctx.lineTo(x + s * 0.28, y - s * 0.75); ctx.closePath(); ctx.fill(); }
   }
-  // 4. water: lakes and rivers with a darker bank
-  for (const l of W.lakes) {
+  // 4. water: lakes and rivers with a darker bank. With a cover grid the lakes take their real shapes from it.
+  if (cover) {
+    const r0 = cover.cell * 0.78 * S;
+    for (const pass of [0, 1]) for (const [p, v] of cover.cells('w')) {
+      if (v < 0.5) continue;
+      ctx.fillStyle = pass ? C.water : C.waterEdge; ctx.beginPath(); ctx.arc(X(p[0]) + (pass ? 0 : S * 0.02), Y(p[1]) + (pass ? 0 : S * 0.03), pass ? r0 : r0 * 1.18, 0, Math.PI * 2); ctx.fill();
+    }
+    for (const l of W.lakes) if (l.r[0] > 0.5) { ctx.strokeStyle = 'rgba(255,255,255,.3)'; ctx.lineWidth = Math.max(0.8, S * 0.02);
+      for (let k = 0; k < 3; k++) { ctx.beginPath(); ctx.ellipse(X(l.center[0]), Y(l.center[1]), l.r[0] * S * (0.3 + k * 0.2), l.r[1] * S * (0.25 + k * 0.2), 0, Math.PI * 1.1, Math.PI * 1.9); ctx.stroke(); } }
+  }
+  for (const l of cover ? [] : W.lakes) {
     ctx.fillStyle = C.waterEdge; ctx.beginPath(); ctx.ellipse(X(l.center[0]) + S * 0.03, Y(l.center[1]) + S * 0.04, l.r[0] * S, l.r[1] * S, 0, 0, Math.PI * 2); ctx.fill();
     ctx.fillStyle = C.water; ctx.beginPath(); ctx.ellipse(X(l.center[0]), Y(l.center[1]), l.r[0] * S * 0.96, l.r[1] * S * 0.94, 0, 0, Math.PI * 2); ctx.fill();
     ctx.strokeStyle = 'rgba(255,255,255,.35)'; ctx.lineWidth = Math.max(0.8, S * 0.02);
     for (let k = 0; k < 3; k++) { ctx.beginPath(); ctx.ellipse(X(l.center[0]), Y(l.center[1]), l.r[0] * S * (0.3 + k * 0.2), l.r[1] * S * (0.25 + k * 0.2), 0, Math.PI * 1.1, Math.PI * 1.9); ctx.stroke(); }
   }
   const stroke = (pts: P[], color: string, w: number, dash?: number[]) => { ctx.strokeStyle = color; ctx.lineWidth = w; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.setLineDash(dash ?? []); ctx.beginPath(); pts.forEach((p, i) => (i ? ctx.lineTo(X(p[0]), Y(p[1])) : ctx.moveTo(X(p[0]), Y(p[1])))); ctx.stroke(); ctx.setLineDash([]); };
-  for (const r of W.rivers) { stroke(r.pts, C.waterEdge, Math.max(2, S * 0.16)); stroke(r.pts, C.water, Math.max(1.2, S * 0.1)); }
+  for (const r of W.rivers) { stroke(r.pts, C.waterEdge, Math.max(2, S * 0.2)); stroke(r.pts, C.water, Math.max(1.2, S * 0.12)); }
   // 5. roads: casing and fill; paths dashed
-  for (const r of W.roads) { const p = /path|trail/i.test(r.name); stroke(r.pts, C.roadCase, Math.max(2.4, S * 0.13)); stroke(r.pts, C.road, Math.max(1.4, S * 0.08), p ? [S * 0.2, S * 0.12] : undefined); }
+  for (const r of W.roads) { const p = r.kind === 'trail' || /path|trail/i.test(r.name); stroke(r.pts, C.roadCase, Math.max(2.4, S * 0.13)); stroke(r.pts, C.road, Math.max(1.4, S * 0.08), p ? [S * 0.2, S * 0.12] : undefined); }
   // 6. settlements and landmarks as symbols under the pins
   for (const p of W.pins) {
     const x = X(p.pos[0]), y = Y(p.pos[1]), u = Math.max(3, S * 0.09);
@@ -117,7 +154,8 @@ function paint(cv: HTMLCanvasElement, vb: { x: number; y: number; w: number; h: 
       ctx.fillStyle = C.rock; for (let i = -1; i <= 1; i++) ctx.fillRect(x + i * u * 0.9 - u * 0.25, y - u * (0.4 + (i ? 0.3 : 0.8)), u * 0.5, u * (0.8 + (i ? 0.3 : 0.8)));
     }
   }
-  // 7. mist / vignette at the edges
+  // 7. mist: the grid's mist cells, then a vignette at the edges
+  if (cover) { const r0 = cover.cell * 1.6 * S; for (const [p, v] of cover.cells('x')) if (v > 0.15) { const g2 = ctx.createRadialGradient(X(p[0]), Y(p[1]), 0, X(p[0]), Y(p[1]), r0); g2.addColorStop(0, C.mist); g2.addColorStop(1, 'rgba(255,255,255,0)'); ctx.fillStyle = g2; ctx.globalAlpha = Math.min(0.55, v * 0.55); ctx.beginPath(); ctx.arc(X(p[0]), Y(p[1]), r0, 0, Math.PI * 2); ctx.fill(); } ctx.globalAlpha = 1; }
   const g = ctx.createRadialGradient(cv.width / 2, cv.height / 2, Math.min(cv.width, cv.height) * 0.42, cv.width / 2, cv.height / 2, Math.max(cv.width, cv.height) * 0.72);
   g.addColorStop(0, 'rgba(255,255,255,0)'); g.addColorStop(1, C.mistEdge); ctx.fillStyle = g; ctx.fillRect(0, 0, cv.width, cv.height);
 }
@@ -189,8 +227,9 @@ export function openWorldMap(host: WorldHost): void {
   // names of tracts and peaks, one per name at the centroid
   const names = el('g', { class: 'wm-names' }, svg);
   const tracts = new Map<string, P[]>();
-  for (const w of W.woods) tracts.set(w.name, [...(tracts.get(w.name) ?? []), w.pos]);
+  for (const w of W.woods) if (w.angle === undefined) tracts.set(w.name, [...(tracts.get(w.name) ?? []), w.pos]); else el('text', { x: w.pos[0], y: w.pos[1], class: 'wm-tract lettered', transform: `rotate(${w.angle} ${w.pos[0]} ${w.pos[1]})` }, names).textContent = w.name;
   for (const [name, pts] of tracts) { const c: P = [pts.reduce((a, q) => a + q[0], 0) / pts.length, pts.reduce((a, q) => a + q[1], 0) / pts.length]; el('text', { x: c[0], y: c[1], class: 'wm-tract' }, names).textContent = name; }
+  for (const l of W.labels ?? []) el('text', { x: l.pos[0], y: l.pos[1], class: 'wm-river lettered', transform: `rotate(${l.angle ?? 0} ${l.pos[0]} ${l.pos[1]})` }, names).textContent = l.name;
   for (const p of W.peaks) el('text', { x: p.pos[0], y: p.pos[1] + 0.9, class: 'wm-peak' }, names).textContent = p.name;
   for (const l of W.lakes) if (l.r[0] > 0.5) el('text', { x: l.center[0], y: l.center[1] + 0.1, class: 'wm-lake' }, names).textContent = l.name;
   const trail = el('path', { class: 'wm-trail', d: '' }, svg);
@@ -207,7 +246,8 @@ export function openWorldMap(host: WorldHost): void {
     const n = el('text', { class: 'wm-pin-name', y: 0.62 }, g); n.textContent = p.name;
     const li = document.createElement('li'); li.dataset.key = p.key;
     li.innerHTML = `<b>${keyOf(p)}</b><span>${p.name}</span>${p.scenes ? '<i>map</i>' : ''}${host.dm ? `<button class="icon eye" data-reveal="${p.key}" aria-label="Reveal to players" title="Reveal to players">${ICON.eye ?? '◉'}</button>` : ''}`;
-    keyList.appendChild(li);
+    // a name lettered more than once on the map (the Mount Baratok markers) lists once
+    if (!W.pins.some((q) => q !== p && q.name === p.name && q.key < p.key)) keyList.appendChild(li);
     pinEls.set(p.key, { g, li });
   }
   const refreshKnown = () => { const r = host.revealed(); for (const p of W.pins) { const e = pinEls.get(p.key)!, on = known(p), rev = r.has(p.key); e.g.setAttribute('visibility', on ? 'visible' : 'hidden'); e.li.hidden = !on; e.li.classList.toggle('revealed', rev); e.li.querySelector('.eye')?.setAttribute('aria-pressed', String(rev)); } };

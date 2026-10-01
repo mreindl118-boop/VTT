@@ -13,9 +13,13 @@ export interface WorldData {
   /** blurb: what players read about the place; dm: the DM's own note. */
   /** heightFt: how far the site stands above the surrounding land (a castle on its crag). */
   pins: { key: string; name: string; pos: [number, number]; type: string; scenes?: string[]; blurb?: string; dm?: string; heightFt?: number }[];
-  roads: { name: string; pts: [number, number][] }[]; rivers: { name: string; pts: [number, number][] }[];
+  roads: { name: string; kind?: 'road' | 'trail'; pts: [number, number][] }[]; rivers: { name: string; pts: [number, number][] }[];
   lakes: { name: string; center: [number, number]; r: [number, number] }[]; peaks: { name: string; pos: [number, number] }[];
-  woods: { name: string; pos: [number, number] }[]; high: [number, number][];
+  woods: { name: string; pos: [number, number]; angle?: number }[]; high: [number, number][];
+  /** Land cover read off the printed map: rows of cells (`.` open, `h` hills, `m` mountains, `f` forest, `w` water, `x` mist), `cellMiles` across, from the bounds' top-left. */
+  cover?: string[]; cellMiles?: number;
+  /** Other names lettered on the map (rivers, falls), with the angle they run at. */
+  labels?: { name: string; pos: [number, number]; angle?: number }[];
 }
 export interface ManifestLoc { id: string; name: string; chapter: string; status: string; mapPages: number[]; areas: { key: string; name: string }[]; path: string; section?: string; notes?: string }
 export interface Manifest { chapters: { id: string; number: number | null; title: string }[]; locations: ManifestLoc[]; sections?: { id: string; title: string }[]; pointers?: { id: string; title: string; pointsTo: string[]; note: string }[] }
