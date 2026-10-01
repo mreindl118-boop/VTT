@@ -244,7 +244,7 @@ export class App {
     const cov = this.cur.coverage.get(id)!;
     fogUniforms.uCovTex.value = this.cur.covTex.get(id)!;
     fogUniforms.uCovOrigin.value.set(cov.originX, cov.originZ);
-    fogUniforms.uCovSize.value.set(cov.width, cov.height);
+    fogUniforms.uCovSize.value.set(cov.widthFt, cov.heightFt);
     this.world.mistFloor.position.y = this.level.elevationFt - 1.2;
     this.world.mistFloor.visible = !this.backdrop && this.world.fogOn;
     this.syncTokens();
