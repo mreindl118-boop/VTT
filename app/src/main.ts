@@ -83,6 +83,8 @@ function buildDmUi(): void {
       <button class="icon" data-act="rooms" aria-label="Rooms" title="Rooms">${ICON.list}</button>
       <details class="menu" data-menu="view"><summary class="icon" aria-label="View options" title="View">${ICON.grid}</summary><div class="menu-panel">
         <button class="icon" data-act="grid" aria-label="Grid: square / hex / off" title="Grid"><i></i><span>Grid</span></button>
+        <label class="menu-row" title="Grid opacity"><span>Opacity</span><input type="range" min="0" max="100" step="5" data-opt="gridOpacity" aria-label="Grid opacity"></label>
+        <button class="icon" data-act="snap" aria-label="Snap moves to the grid" aria-pressed="true" title="Snap to grid">${ICON.grid}<span>Snap to grid</span></button>
         <button class="icon" data-act="walls" aria-label="Walls: low / full" title="Walls">${ICON.walls}<span>Walls low / full</span></button>
         <button class="icon" data-act="mist" aria-label="Mist on / off" aria-pressed="true" title="Mist on / off">${ICON.fog}<span>Mist</span></button>
         <button class="icon" data-act="labels" aria-label="Labels: keys / all / none" title="Labels"><i></i><span>Labels</span></button>
@@ -223,6 +225,8 @@ function buildDmUi(): void {
     slot('grid', app.gridMode === 'hex' ? ICON.hex : app.gridMode === 'square' ? ICON.grid : ICON.gridOff);
     slot('labels', app.labelMode === 'all' ? ICON.label : app.labelMode === 'keys' ? ICON.labelKeys : ICON.labelOff);
     top.querySelector('[data-act="walls"]')!.setAttribute('aria-pressed', String(!app.lowWalls));
+    top.querySelector('[data-act="snap"]')!.setAttribute('aria-pressed', String(app.gridSnap));
+    { const r = top.querySelector<HTMLInputElement>('[data-opt="gridOpacity"]')!; if (document.activeElement !== r) r.value = String(Math.round(app.gridOpacity * 100)); }
     slot('lock', app.lockPlayerCamera ? ICON.lock : ICON.unlock);
     top.querySelector('[data-act="lock"]')!.setAttribute('aria-pressed', String(app.lockPlayerCamera));
     top.querySelector('details[data-menu="tools"]')!.classList.toggle('active', app.tool !== 'none');
@@ -235,6 +239,7 @@ function buildDmUi(): void {
   };
   app.onChange = refresh;
 
+  top.addEventListener('input', (e) => { const r = e.target as HTMLInputElement; if (r.dataset.opt === 'gridOpacity') app.setGridOpacity(Number(r.value) / 100); });
   top.addEventListener('toggle', (e) => { const d = e.target as HTMLDetailsElement; if (d.open) top.querySelectorAll<HTMLDetailsElement>('details.menu[open]').forEach((o) => { if (o !== d) o.open = false; }); }, true);
   document.addEventListener('pointerdown', (e) => { if (!(e.target as Element).closest('details.menu')) top.querySelectorAll<HTMLDetailsElement>('details.menu[open]').forEach((o) => { o.open = false; }); });
   top.addEventListener('click', (e) => {
@@ -265,6 +270,7 @@ function buildDmUi(): void {
       case 'search': finder.hidden ? openFinder() : closeFinder(); break;
       case 'rooms': toggleRooms(); break;
       case 'grid': app.gridMode = app.gridMode === 'square' ? 'hex' : app.gridMode === 'hex' ? 'off' : 'square'; app.layoutChanged(); break;
+      case 'snap': app.setGridSnap(!app.gridSnap); break;
       case 'walls': app.lowWalls = !app.lowWalls; app.layoutChanged(); break;
       case 'mist': app.world.setFog(!app.world.fogOn); top.querySelector('[data-act="mist"]')!.setAttribute('aria-pressed', String(app.world.fogOn)); app.layoutChanged(); break;
       case 'labels': app.labelMode = app.labelMode === 'keys' ? 'all' : app.labelMode === 'all' ? 'none' : 'keys'; app.applySlider(); break;

@@ -67,6 +67,11 @@ export class App {
   levelId = '';
   tool: Tool = 'none';
   gridMode: GridMode = 'square';
+  /** How strongly the grid draws (0..1) and whether moves land on cell centres; both remembered on this device. */
+  gridOpacity = Number(localStorage.getItem('mistlab.gridOpacity') ?? 0.6);
+  gridSnap = localStorage.getItem('mistlab.gridSnap') !== '0';
+  setGridOpacity(v: number): void { this.gridOpacity = Math.max(0, Math.min(1, v)); localStorage.setItem('mistlab.gridOpacity', String(this.gridOpacity)); this.applySlider(); }
+  setGridSnap(on: boolean): void { this.gridSnap = on; localStorage.setItem('mistlab.gridSnap', on ? '1' : '0'); this.onChange?.(); }
   /** DM label density: area keys only, everything, or none. */
   labelMode: 'keys' | 'all' | 'none' = 'keys';
   /** Camera follows the party token after it moves. */
@@ -615,7 +620,7 @@ export class App {
     this.world.setWorkLight(this.renderMode === 'floorMask' ? 0 : T);
     b.grid.visible = this.gridMode !== 'off' && this.renderMode === 'normal';
     for (const [lid, o] of this.cur.levels) if (lid !== this.levelId) o.grid.visible = false;
-    if (this.gridMode !== 'off') setGridType(b.grid, this.gridMode);
+    if (this.gridMode !== 'off') { setGridType(b.grid, this.gridMode); (b.grid.material as THREE.ShaderMaterial).uniforms.uOpacity.value = this.gridOpacity * 0.75; }
     // Cutaway: walls and doors keep their real height; the top is clipped at 5 ft above the floor.
     // The section cut: on stacked sites it is a slicer the DM can move; elsewhere it trims walls at 5 ft.
     // The follow cut sits just under the floor above (the roof, on the top storey): the whole room shows, nothing in it is cut.
@@ -846,6 +851,7 @@ export class App {
   }
 
   snap(p: Vec2): Vec2 {
+    if (!this.gridSnap) return p;
     const g = this.cur!.grid.levels[this.levelId];
     if (this.gridMode === 'hex') { const s = hexSizeFromWidth(CELL_FT); return hexToWorld(worldToHex(p, s, g.hexOrientation, g.origin), s, g.hexOrientation, g.origin); }
     return squareCellCenter(squareCellAt(p, g.origin), g.origin);
