@@ -53,7 +53,26 @@ def inside(p, poly):
         if (z0 > z) != (z1 > z) and x < (x1 - x0) * (z - z0) / (z1 - z0) + x0: c = not c
     return c
 
-wall = [ft(*p) for p in WALL]
+def _smooth(pts, passes=3, step=20.0):
+    """The traced outline is a polygon of hand-clicked corners; the palisade itself bends in long easy curves.
+    Chaikin corner cutting on the closed loop, then resampled to even pieces about `step` feet long."""
+    P = [tuple(p) for p in pts]
+    for _ in range(passes):
+        Q = []
+        for i in range(len(P)):
+            (x0, z0), (x1, z1) = P[i], P[(i + 1) % len(P)]
+            Q += [(0.75 * x0 + 0.25 * x1, 0.75 * z0 + 0.25 * z1), (0.25 * x0 + 0.75 * x1, 0.25 * z0 + 0.75 * z1)]
+        P = Q
+    seg = [math.hypot(P[(i + 1) % len(P)][0] - P[i][0], P[(i + 1) % len(P)][1] - P[i][1]) for i in range(len(P))]
+    n = max(8, round(sum(seg) / step)); d = sum(seg) / n; out, i, acc = [], 0, 0.0
+    for k in range(n):
+        t = k * d
+        while acc + seg[i] < t: acc += seg[i]; i += 1
+        u = (t - acc) / (seg[i] or 1); (x0, z0), (x1, z1) = P[i], P[(i + 1) % len(P)]
+        out.append([round(x0 + (x1 - x0) * u, 1), round(z0 + (z1 - z0) * u, 1)])
+    return out
+wall = _smooth([ft(*p) for p in WALL])
+WALL_H = 16.5   # the timbers stand about sixteen feet
 houses_src = os.path.join(ROOT, 'reference', 'imports', 'vallaki-houses.json')
 houses = json.load(open(houses_src)) if os.path.exists(houses_src) else []
 marks = {k: ft(*v) for k, v in MARK.items()}
@@ -145,7 +164,7 @@ objects.append(OrderedDict(id='vallaki-stage', kind='dais', pos=[marks['N8'][0],
 objects.append(OrderedDict(id='vallaki-stocks', kind='pillory', pos=[marks['N8'][0] + 32, 0, marks['N8'][1] + 8], vis='player', key='N8', rotY=20))
 objects.append(OrderedDict(id='vallaki-stocks-b', kind='pillory', pos=[marks['N8'][0] + 42, 0, marks['N8'][1] + 8], vis='player', key='N8', rotY=-15))
 for j, (dx, dz) in enumerate([(-65, -45), (65, -45), (-65, 45), (65, 45)]): objects.append(OrderedDict(id=f'vallaki-brazier-{j}', kind='brazier', pos=[marks['N8'][0] + dx, 0, marks['N8'][1] + dz], vis='player', key='N8'))
-# the palisade: 15-ft timber walls with a gate where the road crosses east and west
+# the palisade: 16-ft timber walls with a gate where the road crosses east and west
 walls = []
 def gate_cross(a, b, road_pts):
     """Does wall segment a-b cross the main road? (then it is a gate)"""
@@ -155,18 +174,16 @@ def gate_cross(a, b, road_pts):
         if ccw(a, p, q) != ccw(b, p, q) and ccw(a, b, p) != ccw(a, b, q): return True
     return False
 road_main = streets_ft[0][2]; road_lake = streets_ft[1][2]; road_camp = streets_ft[6][2]
+# the outline runs in even twenty-foot pieces; where a road crosses one, that piece is the gate (one per crossing:
+# a road that wanders back over the line within a few pieces still has a single gate)
+_gates = []
 for i in range(len(wall)):
     a, b = wall[i], wall[(i + 1) % len(wall)]
-    gate = gate_cross(a, b, road_main) or gate_cross(a, b, road_lake)
-    if gate:
-        # split the segment: wall - gate (20 ft) - wall
-        L = math.hypot(b[0] - a[0], b[1] - a[1]); ux, uz = (b[0] - a[0]) / L, (b[1] - a[1]) / L; m = [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2]
-        g0 = [round(m[0] - ux * 10, 1), round(m[1] - uz * 10, 1)]; g1 = [round(m[0] + ux * 10, 1), round(m[1] + uz * 10, 1)]
-        walls.append(OrderedDict(id=f'pal-{i}a', a=a, b=g0, flags=['normal'], material='log', heightFt=22))
-        walls.append(OrderedDict(id=f'gate-{i}', a=g0, b=g1, flags=['door'], material='log', heightFt=22, open=True))
-        walls.append(OrderedDict(id=f'pal-{i}b', a=g1, b=b, flags=['normal'], material='log', heightFt=22))
-    else:
-        walls.append(OrderedDict(id=f'pal-{i}', a=a, b=b, flags=['normal'], material='log', heightFt=22))
+    if (gate_cross(a, b, road_main) or gate_cross(a, b, road_lake)) and not any(min(abs(i - g), len(wall) - abs(i - g)) < 6 for g in _gates): _gates.append(i)
+for i in range(len(wall)):
+    a, b = wall[i], wall[(i + 1) % len(wall)]
+    if i in _gates: walls.append(OrderedDict(id=f'gate-{i}', a=a, b=b, flags=['door'], material='log', heightFt=WALL_H, open=True))
+    else: walls.append(OrderedDict(id=f'pal-{i}', a=a, b=b, flags=['normal'], material='log', heightFt=WALL_H))
 rooms = []
 for k in ['N1', 'N2', 'N4', 'N7', 'N8', 'N3', 'N6', 'N5', 'N9', 'N8a', 'N8b', 'N8c', 'N8d', 'N10']:
     x, z = marks[k]; s = 30 if k in ('N7', 'N6', 'N8b', 'N8c') else 40 if k not in ('N8', 'N9', 'N5') else 60
@@ -222,14 +239,14 @@ for wl in walls:
     flip = 0 if inside((mx + nx * 6, mz + nz * 6), wall) else 1
     if 'door' in wl['flags']:
         for s_ in (-1, 1):
-            objects.append(OrderedDict(id=f"{wl['id']}-gt{s_}", kind='watchtower', pos=[round(mx + dx / L * (L / 2 + 7) * s_, 1), 0, round(mz + dz / L * (L / 2 + 7) * s_, 1)], vis='player', rotY=round(math.degrees(th), 1), dims=OrderedDict(h=32, w=12)))
+            objects.append(OrderedDict(id=f"{wl['id']}-gt{s_}", kind='watchtower', pos=[round(mx + dx / L * (L / 2 + 7) * s_, 1), 0, round(mz + dz / L * (L / 2 + 7) * s_, 1)], vis='player', rotY=round(math.degrees(th), 1), dims=OrderedDict(h=24, w=10)))
         continue
-    objects.append(OrderedDict(id=f"{wl['id']}-pal", kind='palisade', pos=[round(mx, 1), 0, round(mz, 1)], vis='player', rotY=round(math.degrees(th), 1), dims=OrderedDict(len=round(L, 1), h=22, flip=flip)))
+    objects.append(OrderedDict(id=f"{wl['id']}-pal", kind='palisade', pos=[round(mx, 1), 0, round(mz, 1)], vis='player', rotY=round(math.degrees(th), 1), dims=OrderedDict(len=round(L + 1.6, 1), h=WALL_H, flip=flip)))
     _since += L
     if _since > 300:
         _since = 0
         sx = (1 if not flip else -1)
-        objects.append(OrderedDict(id=f"{wl['id']}-tower", kind='watchtower', pos=[round(mx + nx * 6 * sx, 1), 0, round(mz + nz * 6 * sx, 1)], vis='player', rotY=round(math.degrees(th), 1), dims=OrderedDict(h=30, w=12)))
+        objects.append(OrderedDict(id=f"{wl['id']}-tower", kind='watchtower', pos=[round(mx + nx * 6 * sx, 1), 0, round(mz + nz * 6 * sx, 1)], vis='player', rotY=round(math.degrees(th), 1), dims=OrderedDict(h=22.5, w=10)))
 # settle: nothing on a street, through the palisade or through another house; every keyed site has its building
 import sys; sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from settle import settle

@@ -564,9 +564,9 @@ export function washline(d: Dims): THREE.Group {
  *  fighting walk and its parapet on the inner side (local +z, or -z with flip). Built along local x, centred. */
 export function palisade(d: Dims): THREE.Group {
   const L = d.len ?? 20, H = d.h ?? 22, side = d.flip ? -1 : 1, g = g_();
-  const n = Math.max(1, Math.round(L / 1.9));
+  const n = Math.max(1, Math.ceil(L / 1.6));   // trunks touching: no daylight through the wall
   for (let i = 0; i < n; i++) {
-    const x = -L / 2 + (i + 0.5) * (L / n), h = H + (((i * 7919) % 7) / 7 - 0.5) * 1.6, r = 0.95 + (((i * 104729) % 5) / 5) * 0.15;
+    const x = -L / 2 + (i + 0.5) * (L / n), h = H + (((i * 7919) % 7) / 7 - 0.5) * 0.5, r = 0.95 + (((i * 104729) % 5) / 5) * 0.15;
     g.add(cyl(r * 0.92, r, h, i % 3 ? PALETTE.woodDark : '#4a3828', x, h / 2, 0, 6));
     const tip = new THREE.Mesh(new THREE.ConeGeometry(r * 0.92, 2.6, 6), mat('#5a4632')); tip.position.set(x, h + 1.3, 0); g.add(tip);
   }
