@@ -1,0 +1,2267 @@
+{
+ "schema": 1,
+ "location": "N5",
+ "chapter": "ch05",
+ "name": "Arasek Stockyard",
+ "mapPage": 115,
+ "bookScaleFt": 5,
+ "ambient": "barovian-overcast",
+ "parent": "ch05/N",
+ "entry": "yard",
+ "levels": [
+  {
+   "id": "yard",
+   "name": "The stockyard",
+   "elevationFt": 0,
+   "ceilingFt": 15,
+   "ambient": "barovian-overcast",
+   "north": "-z",
+   "rooms": [
+    {
+     "key": "N5a",
+     "name": "Stockyard",
+     "page": 115,
+     "polygon": [
+      [
+       0,
+       0
+      ],
+      [
+       120,
+       0
+      ],
+      [
+       120,
+       120
+      ],
+      [
+       0,
+       120
+      ]
+     ],
+     "floor": "dirt",
+     "ceilingFt": 15,
+     "desc": "A big yard of pens and locked sheds beside a warehouse; a painted carnival wagon stands at the south end, its paint peeling.",
+     "dm": "The Araseks watch Rictavio's wagon for gold, no questions."
+    },
+    {
+     "key": "N5b",
+     "name": "Warehouse",
+     "page": 115,
+     "polygon": [
+      [
+       120,
+       0
+      ],
+      [
+       160,
+       0
+      ],
+      [
+       160,
+       80
+      ],
+      [
+       120,
+       80
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 15,
+     "desc": "A roomy warehouse of crates and casks.",
+     "dm": "Adventuring gear under 25 gp at five times the price."
+    },
+    {
+     "key": "N5c",
+     "name": "Sheds",
+     "page": 115,
+     "polygon": [
+      [
+       0,
+       120
+      ],
+      [
+       120,
+       120
+      ],
+      [
+       120,
+       140
+      ],
+      [
+       0,
+       140
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 8,
+     "desc": "A row of locked sheds."
+    },
+    {
+     "key": "N5d",
+     "name": "Rictavio's Carnival Wagon",
+     "page": 115,
+     "polygon": [
+      [
+       40,
+       85
+      ],
+      [
+       70,
+       85
+      ],
+      [
+       70,
+       110
+      ],
+      [
+       40,
+       110
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 9,
+     "desc": "A sturdy carnival wagon: 'Rictavio's Carnival of Wonders' in faded letters; something big throws itself against the inside.",
+     "dm": "The tiger. The secret seat compartment holds Van Richten's kit."
+    }
+   ],
+   "walls": [
+    {
+     "id": "yard-w-0",
+     "a": [
+      0.0,
+      0.0
+     ],
+     "b": [
+      55.0,
+      0.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "N5-gate",
+     "a": [
+      55.0,
+      0.0
+     ],
+     "b": [
+      65.0,
+      0.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "log",
+     "open": true
+    },
+    {
+     "id": "yard-w-2",
+     "a": [
+      65.0,
+      0.0
+     ],
+     "b": [
+      160.0,
+      0.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-3",
+     "a": [
+      120.0,
+      0.0
+     ],
+     "b": [
+      120.0,
+      10.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "N5b-side",
+     "a": [
+      120.0,
+      10.0
+     ],
+     "b": [
+      120.0,
+      15.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "log",
+     "open": false
+    },
+    {
+     "id": "yard-w-5",
+     "a": [
+      120.0,
+      15.0
+     ],
+     "b": [
+      120.0,
+      30.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "N5b-doors",
+     "a": [
+      120.0,
+      30.0
+     ],
+     "b": [
+      120.0,
+      40.0
+     ],
+     "flags": [
+      "door",
+      "locked"
+     ],
+     "material": "log",
+     "open": false
+    },
+    {
+     "id": "yard-w-7",
+     "a": [
+      120.0,
+      40.0
+     ],
+     "b": [
+      120.0,
+      140.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-8",
+     "a": [
+      115.0,
+      120.0
+     ],
+     "b": [
+      120.0,
+      120.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "N5c-shed5",
+     "a": [
+      110.0,
+      120.0
+     ],
+     "b": [
+      115.0,
+      120.0
+     ],
+     "flags": [
+      "door",
+      "locked"
+     ],
+     "material": "log",
+     "open": false
+    },
+    {
+     "id": "yard-w-10",
+     "a": [
+      105.0,
+      120.0
+     ],
+     "b": [
+      110.0,
+      120.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-11",
+     "a": [
+      100.0,
+      120.0
+     ],
+     "b": [
+      105.0,
+      120.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-12",
+     "a": [
+      95.0,
+      120.0
+     ],
+     "b": [
+      100.0,
+      120.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "N5c-shed4",
+     "a": [
+      90.0,
+      120.0
+     ],
+     "b": [
+      95.0,
+      120.0
+     ],
+     "flags": [
+      "door",
+      "locked"
+     ],
+     "material": "log",
+     "open": false
+    },
+    {
+     "id": "yard-w-14",
+     "a": [
+      85.0,
+      120.0
+     ],
+     "b": [
+      90.0,
+      120.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-15",
+     "a": [
+      80.0,
+      120.0
+     ],
+     "b": [
+      85.0,
+      120.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-16",
+     "a": [
+      75.0,
+      120.0
+     ],
+     "b": [
+      80.0,
+      120.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "N5c-shed3",
+     "a": [
+      70.0,
+      120.0
+     ],
+     "b": [
+      75.0,
+      120.0
+     ],
+     "flags": [
+      "door",
+      "locked"
+     ],
+     "material": "log",
+     "open": false
+    },
+    {
+     "id": "yard-w-18",
+     "a": [
+      65.0,
+      120.0
+     ],
+     "b": [
+      70.0,
+      120.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-19",
+     "a": [
+      60.0,
+      120.0
+     ],
+     "b": [
+      65.0,
+      120.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-20",
+     "a": [
+      55.0,
+      120.0
+     ],
+     "b": [
+      60.0,
+      120.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "N5c-shed2",
+     "a": [
+      50.0,
+      120.0
+     ],
+     "b": [
+      55.0,
+      120.0
+     ],
+     "flags": [
+      "door",
+      "locked"
+     ],
+     "material": "log",
+     "open": false
+    },
+    {
+     "id": "yard-w-22",
+     "a": [
+      45.0,
+      120.0
+     ],
+     "b": [
+      50.0,
+      120.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-23",
+     "a": [
+      40.0,
+      120.0
+     ],
+     "b": [
+      45.0,
+      120.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-24",
+     "a": [
+      35.0,
+      120.0
+     ],
+     "b": [
+      40.0,
+      120.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "N5c-shed1",
+     "a": [
+      30.0,
+      120.0
+     ],
+     "b": [
+      35.0,
+      120.0
+     ],
+     "flags": [
+      "door",
+      "locked"
+     ],
+     "material": "log",
+     "open": false
+    },
+    {
+     "id": "yard-w-26",
+     "a": [
+      25.0,
+      120.0
+     ],
+     "b": [
+      30.0,
+      120.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-27",
+     "a": [
+      20.0,
+      120.0
+     ],
+     "b": [
+      25.0,
+      120.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-28",
+     "a": [
+      15.0,
+      120.0
+     ],
+     "b": [
+      20.0,
+      120.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "N5c-shed0",
+     "a": [
+      10.0,
+      120.0
+     ],
+     "b": [
+      15.0,
+      120.0
+     ],
+     "flags": [
+      "door",
+      "locked"
+     ],
+     "material": "log",
+     "open": false
+    },
+    {
+     "id": "yard-w-30",
+     "a": [
+      5.0,
+      120.0
+     ],
+     "b": [
+      10.0,
+      120.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-31",
+     "a": [
+      0.0,
+      120.0
+     ],
+     "b": [
+      5.0,
+      120.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-32",
+     "a": [
+      0.0,
+      115.0
+     ],
+     "b": [
+      0.0,
+      140.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-33",
+     "a": [
+      0.0,
+      110.0
+     ],
+     "b": [
+      0.0,
+      115.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-34",
+     "a": [
+      0.0,
+      105.0
+     ],
+     "b": [
+      0.0,
+      110.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-35",
+     "a": [
+      0.0,
+      100.0
+     ],
+     "b": [
+      0.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-36",
+     "a": [
+      0.0,
+      95.0
+     ],
+     "b": [
+      0.0,
+      100.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-37",
+     "a": [
+      0.0,
+      90.0
+     ],
+     "b": [
+      0.0,
+      95.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-38",
+     "a": [
+      0.0,
+      85.0
+     ],
+     "b": [
+      0.0,
+      90.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-39",
+     "a": [
+      0.0,
+      80.0
+     ],
+     "b": [
+      0.0,
+      85.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-40",
+     "a": [
+      0.0,
+      75.0
+     ],
+     "b": [
+      0.0,
+      80.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-41",
+     "a": [
+      0.0,
+      70.0
+     ],
+     "b": [
+      0.0,
+      75.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-42",
+     "a": [
+      0.0,
+      65.0
+     ],
+     "b": [
+      0.0,
+      70.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-43",
+     "a": [
+      0.0,
+      60.0
+     ],
+     "b": [
+      0.0,
+      65.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-44",
+     "a": [
+      0.0,
+      55.0
+     ],
+     "b": [
+      0.0,
+      60.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-45",
+     "a": [
+      0.0,
+      50.0
+     ],
+     "b": [
+      0.0,
+      55.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-46",
+     "a": [
+      0.0,
+      45.0
+     ],
+     "b": [
+      0.0,
+      50.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-47",
+     "a": [
+      0.0,
+      40.0
+     ],
+     "b": [
+      0.0,
+      45.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-48",
+     "a": [
+      0.0,
+      35.0
+     ],
+     "b": [
+      0.0,
+      40.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-49",
+     "a": [
+      0.0,
+      30.0
+     ],
+     "b": [
+      0.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-50",
+     "a": [
+      0.0,
+      25.0
+     ],
+     "b": [
+      0.0,
+      30.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-51",
+     "a": [
+      0.0,
+      20.0
+     ],
+     "b": [
+      0.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-52",
+     "a": [
+      0.0,
+      15.0
+     ],
+     "b": [
+      0.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-53",
+     "a": [
+      0.0,
+      10.0
+     ],
+     "b": [
+      0.0,
+      15.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-54",
+     "a": [
+      0.0,
+      5.0
+     ],
+     "b": [
+      0.0,
+      10.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-55",
+     "a": [
+      0.0,
+      0.0
+     ],
+     "b": [
+      0.0,
+      5.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-56",
+     "a": [
+      160.0,
+      0.0
+     ],
+     "b": [
+      160.0,
+      80.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-57",
+     "a": [
+      155.0,
+      80.0
+     ],
+     "b": [
+      160.0,
+      80.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-58",
+     "a": [
+      150.0,
+      80.0
+     ],
+     "b": [
+      155.0,
+      80.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-59",
+     "a": [
+      145.0,
+      80.0
+     ],
+     "b": [
+      150.0,
+      80.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-60",
+     "a": [
+      140.0,
+      80.0
+     ],
+     "b": [
+      145.0,
+      80.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-61",
+     "a": [
+      135.0,
+      80.0
+     ],
+     "b": [
+      140.0,
+      80.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-62",
+     "a": [
+      130.0,
+      80.0
+     ],
+     "b": [
+      135.0,
+      80.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-63",
+     "a": [
+      125.0,
+      80.0
+     ],
+     "b": [
+      130.0,
+      80.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-64",
+     "a": [
+      120.0,
+      80.0
+     ],
+     "b": [
+      125.0,
+      80.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-65",
+     "a": [
+      115.0,
+      140.0
+     ],
+     "b": [
+      120.0,
+      140.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-66",
+     "a": [
+      110.0,
+      140.0
+     ],
+     "b": [
+      115.0,
+      140.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-67",
+     "a": [
+      105.0,
+      140.0
+     ],
+     "b": [
+      110.0,
+      140.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-68",
+     "a": [
+      100.0,
+      140.0
+     ],
+     "b": [
+      105.0,
+      140.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-69",
+     "a": [
+      95.0,
+      140.0
+     ],
+     "b": [
+      100.0,
+      140.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-70",
+     "a": [
+      90.0,
+      140.0
+     ],
+     "b": [
+      95.0,
+      140.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-71",
+     "a": [
+      85.0,
+      140.0
+     ],
+     "b": [
+      90.0,
+      140.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-72",
+     "a": [
+      80.0,
+      140.0
+     ],
+     "b": [
+      85.0,
+      140.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-73",
+     "a": [
+      75.0,
+      140.0
+     ],
+     "b": [
+      80.0,
+      140.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-74",
+     "a": [
+      70.0,
+      140.0
+     ],
+     "b": [
+      75.0,
+      140.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-75",
+     "a": [
+      65.0,
+      140.0
+     ],
+     "b": [
+      70.0,
+      140.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-76",
+     "a": [
+      60.0,
+      140.0
+     ],
+     "b": [
+      65.0,
+      140.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-77",
+     "a": [
+      55.0,
+      140.0
+     ],
+     "b": [
+      60.0,
+      140.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-78",
+     "a": [
+      50.0,
+      140.0
+     ],
+     "b": [
+      55.0,
+      140.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-79",
+     "a": [
+      45.0,
+      140.0
+     ],
+     "b": [
+      50.0,
+      140.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-80",
+     "a": [
+      40.0,
+      140.0
+     ],
+     "b": [
+      45.0,
+      140.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-81",
+     "a": [
+      35.0,
+      140.0
+     ],
+     "b": [
+      40.0,
+      140.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-82",
+     "a": [
+      30.0,
+      140.0
+     ],
+     "b": [
+      35.0,
+      140.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-83",
+     "a": [
+      25.0,
+      140.0
+     ],
+     "b": [
+      30.0,
+      140.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-84",
+     "a": [
+      20.0,
+      140.0
+     ],
+     "b": [
+      25.0,
+      140.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-85",
+     "a": [
+      15.0,
+      140.0
+     ],
+     "b": [
+      20.0,
+      140.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-86",
+     "a": [
+      10.0,
+      140.0
+     ],
+     "b": [
+      15.0,
+      140.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-87",
+     "a": [
+      5.0,
+      140.0
+     ],
+     "b": [
+      10.0,
+      140.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-88",
+     "a": [
+      0.0,
+      140.0
+     ],
+     "b": [
+      5.0,
+      140.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-89",
+     "a": [
+      40.0,
+      85.0
+     ],
+     "b": [
+      70.0,
+      85.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-90",
+     "a": [
+      70.0,
+      85.0
+     ],
+     "b": [
+      70.0,
+      110.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-91",
+     "a": [
+      65.0,
+      110.0
+     ],
+     "b": [
+      70.0,
+      110.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-92",
+     "a": [
+      60.0,
+      110.0
+     ],
+     "b": [
+      65.0,
+      110.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-93",
+     "a": [
+      55.0,
+      110.0
+     ],
+     "b": [
+      60.0,
+      110.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-94",
+     "a": [
+      50.0,
+      110.0
+     ],
+     "b": [
+      55.0,
+      110.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-95",
+     "a": [
+      45.0,
+      110.0
+     ],
+     "b": [
+      50.0,
+      110.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-96",
+     "a": [
+      40.0,
+      110.0
+     ],
+     "b": [
+      45.0,
+      110.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-97",
+     "a": [
+      40.0,
+      105.0
+     ],
+     "b": [
+      40.0,
+      110.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-98",
+     "a": [
+      40.0,
+      100.0
+     ],
+     "b": [
+      40.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-99",
+     "a": [
+      40.0,
+      95.0
+     ],
+     "b": [
+      40.0,
+      100.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-100",
+     "a": [
+      40.0,
+      90.0
+     ],
+     "b": [
+      40.0,
+      95.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-w-101",
+     "a": [
+      40.0,
+      85.0
+     ],
+     "b": [
+      40.0,
+      90.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-x-0",
+     "a": [
+      20,
+      120
+     ],
+     "b": [
+      20,
+      140
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-x-1",
+     "a": [
+      40,
+      120
+     ],
+     "b": [
+      40,
+      140
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-x-2",
+     "a": [
+      60,
+      120
+     ],
+     "b": [
+      60,
+      140
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-x-3",
+     "a": [
+      80,
+      120
+     ],
+     "b": [
+      80,
+      140
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-x-4",
+     "a": [
+      100,
+      120
+     ],
+     "b": [
+      100,
+      140
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "yard-x-5",
+     "a": [
+      120,
+      120
+     ],
+     "b": [
+      120,
+      140
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    }
+   ],
+   "lights": [
+    {
+     "id": "yard-l-N5a-lantern",
+     "pos": [
+      60,
+      8,
+      10
+     ],
+     "preset": "lantern",
+     "bright": 15,
+     "dim": 30
+    }
+   ],
+   "objects": [
+    {
+     "id": "yard-N5-sign",
+     "kind": "niche",
+     "pos": [
+      60,
+      0,
+      -3.0
+     ],
+     "vis": "hidden-object",
+     "key": "N5a",
+     "label": "A sign over the gate: Arasek Stockyard"
+    },
+    {
+     "id": "yard-N5a-pen0",
+     "kind": "fence",
+     "pos": [
+      30,
+      0,
+      20
+     ],
+     "vis": "player",
+     "key": "N5a",
+     "dims": {
+      "w": 20
+     }
+    },
+    {
+     "id": "yard-N5a-penb0",
+     "kind": "fence",
+     "pos": [
+      5,
+      0,
+      35
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "N5a",
+     "dims": {
+      "w": 6
+     }
+    },
+    {
+     "id": "yard-N5a-pen1",
+     "kind": "fence",
+     "pos": [
+      30,
+      0,
+      50
+     ],
+     "vis": "player",
+     "key": "N5a",
+     "dims": {
+      "w": 20
+     }
+    },
+    {
+     "id": "yard-N5a-penb1",
+     "kind": "fence",
+     "pos": [
+      5,
+      0,
+      65
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "N5a",
+     "dims": {
+      "w": 6
+     }
+    },
+    {
+     "id": "yard-N5a-pen2",
+     "kind": "fence",
+     "pos": [
+      30,
+      0,
+      80
+     ],
+     "vis": "player",
+     "key": "N5a",
+     "dims": {
+      "w": 20
+     }
+    },
+    {
+     "id": "yard-N5a-penb2",
+     "kind": "fence",
+     "pos": [
+      5,
+      0,
+      95
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "N5a",
+     "dims": {
+      "w": 6
+     }
+    },
+    {
+     "id": "yard-N5a-horse0",
+     "kind": "horse",
+     "pos": [
+      20,
+      0,
+      30
+     ],
+     "vis": "hidden-creature",
+     "key": "N5a",
+     "label": "Stockyard horses",
+     "size": "large"
+    },
+    {
+     "id": "yard-N5a-horse1",
+     "kind": "horse",
+     "pos": [
+      40,
+      0,
+      60
+     ],
+     "vis": "hidden-creature",
+     "key": "N5a",
+     "label": "Stockyard horses",
+     "size": "large"
+    },
+    {
+     "id": "yard-N5a-horse2",
+     "kind": "horse",
+     "pos": [
+      30,
+      0,
+      90
+     ],
+     "vis": "hidden-creature",
+     "key": "N5a",
+     "label": "Stockyard horses",
+     "size": "large"
+    },
+    {
+     "id": "yard-N5a-trough",
+     "kind": "trough",
+     "pos": [
+      70,
+      0,
+      40
+     ],
+     "vis": "player",
+     "key": "N5a"
+    },
+    {
+     "id": "yard-N5a-hay",
+     "kind": "hay",
+     "pos": [
+      90,
+      0,
+      20
+     ],
+     "vis": "player",
+     "key": "N5a"
+    },
+    {
+     "id": "yard-N5a-cart",
+     "kind": "wagon",
+     "pos": [
+      95,
+      0,
+      70
+     ],
+     "vis": "player",
+     "rotY": 20,
+     "key": "N5a"
+    },
+    {
+     "id": "yard-gunther",
+     "kind": "commoner",
+     "pos": [
+      100,
+      0,
+      40
+     ],
+     "vis": "hidden-creature",
+     "key": "N5a",
+     "label": "Gunther and Yelena Arasek (commoners); goods at five times the price",
+     "size": "medium"
+    },
+    {
+     "id": "yard-N5d-wagon",
+     "kind": "wagon",
+     "pos": [
+      55,
+      0,
+      97.5
+     ],
+     "vis": "player",
+     "key": "N5d",
+     "dims": {
+      "s": 1.4
+     }
+    },
+    {
+     "id": "yard-N5d-blood",
+     "kind": "niche",
+     "pos": [
+      55,
+      0,
+      112.0
+     ],
+     "vis": "hidden-object",
+     "key": "N5d",
+     "label": "Dry blood spatters the sides; 'I bring you from Shadow into Light!' is carved over the door; a heavy padlock"
+    },
+    {
+     "id": "yard-tiger",
+     "kind": "bear",
+     "pos": [
+      55,
+      0,
+      97.5
+     ],
+     "vis": "hidden-creature",
+     "key": "N5d",
+     "label": "A saber-toothed tiger (84 hp) inside the wagon; it hates Vistani",
+     "size": "large"
+    },
+    {
+     "id": "yard-N5d-seat",
+     "kind": "chest",
+     "pos": [
+      55,
+      0,
+      88.0
+     ],
+     "vis": "hidden-object",
+     "key": "N5d",
+     "label": "Secret compartment under the front seat (DC 15 Perception): a coffer of 50 ep and gems, a prayer book, a healer's kit, three silver holy symbols, a silvered shortsword, a hand crossbow and bolts, a case of stakes, garlic, salt, holy water, a mirror, a scroll tube with two spell scrolls; the torn-up Vistana doll"
+    },
+    {
+     "id": "yard-N5d-note",
+     "kind": "note",
+     "pos": [
+      55,
+      0,
+      115
+     ],
+     "vis": "dm-note",
+     "key": "N5d",
+     "label": "The wagon lurches when approached. Rictavio feeds the tiger steaks; released, it hunts Vistani through the streets."
+    },
+    {
+     "id": "yard-N5b-crate0",
+     "kind": "trunk",
+     "pos": [
+      130,
+      0,
+      15.0
+     ],
+     "vis": "player",
+     "key": "N5b"
+    },
+    {
+     "id": "yard-N5b-crate1",
+     "kind": "trunk",
+     "pos": [
+      140,
+      0,
+      27.5
+     ],
+     "vis": "player",
+     "key": "N5b"
+    },
+    {
+     "id": "yard-N5b-crate2",
+     "kind": "trunk",
+     "pos": [
+      130,
+      0,
+      40.0
+     ],
+     "vis": "player",
+     "key": "N5b"
+    },
+    {
+     "id": "yard-N5b-crate3",
+     "kind": "trunk",
+     "pos": [
+      140,
+      0,
+      52.5
+     ],
+     "vis": "player",
+     "key": "N5b"
+    },
+    {
+     "id": "yard-N5b-crate4",
+     "kind": "trunk",
+     "pos": [
+      130,
+      0,
+      65.0
+     ],
+     "vis": "player",
+     "key": "N5b"
+    },
+    {
+     "id": "yard-N5b-cask0",
+     "kind": "wine-cask",
+     "pos": [
+      150,
+      0,
+      20.0
+     ],
+     "vis": "player",
+     "key": "N5b"
+    },
+    {
+     "id": "yard-N5b-cask1",
+     "kind": "wine-cask",
+     "pos": [
+      150,
+      0,
+      26.5
+     ],
+     "vis": "player",
+     "key": "N5b"
+    },
+    {
+     "id": "yard-N5b-cask2",
+     "kind": "wine-cask",
+     "pos": [
+      150,
+      0,
+      33.0
+     ],
+     "vis": "player",
+     "key": "N5b"
+    },
+    {
+     "id": "yard-N5b-sacks",
+     "kind": "sacks",
+     "pos": [
+      145,
+      0,
+      65
+     ],
+     "vis": "player",
+     "key": "N5b"
+    },
+    {
+     "id": "yard-N5b-roof",
+     "kind": "roof-gable",
+     "pos": [
+      140,
+      0,
+      40
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "N5b",
+     "dims": {
+      "w": 40,
+      "d": 80,
+      "h": 12
+     }
+    },
+    {
+     "id": "yard-N5c-roof0",
+     "kind": "roof-gable",
+     "pos": [
+      10,
+      0,
+      130
+     ],
+     "vis": "player",
+     "key": "N5c",
+     "dims": {
+      "w": 20,
+      "d": 20,
+      "h": 5
+     }
+    },
+    {
+     "id": "yard-N5c-roof1",
+     "kind": "roof-gable",
+     "pos": [
+      30,
+      0,
+      130
+     ],
+     "vis": "player",
+     "key": "N5c",
+     "dims": {
+      "w": 20,
+      "d": 20,
+      "h": 5
+     }
+    },
+    {
+     "id": "yard-N5c-roof2",
+     "kind": "roof-gable",
+     "pos": [
+      50,
+      0,
+      130
+     ],
+     "vis": "player",
+     "key": "N5c",
+     "dims": {
+      "w": 20,
+      "d": 20,
+      "h": 5
+     }
+    },
+    {
+     "id": "yard-N5c-roof3",
+     "kind": "roof-gable",
+     "pos": [
+      70,
+      0,
+      130
+     ],
+     "vis": "player",
+     "key": "N5c",
+     "dims": {
+      "w": 20,
+      "d": 20,
+      "h": 5
+     }
+    },
+    {
+     "id": "yard-N5c-roof4",
+     "kind": "roof-gable",
+     "pos": [
+      90,
+      0,
+      130
+     ],
+     "vis": "player",
+     "key": "N5c",
+     "dims": {
+      "w": 20,
+      "d": 20,
+      "h": 5
+     }
+    },
+    {
+     "id": "yard-N5c-roof5",
+     "kind": "roof-gable",
+     "pos": [
+      110,
+      0,
+      130
+     ],
+     "vis": "player",
+     "key": "N5c",
+     "dims": {
+      "w": 20,
+      "d": 20,
+      "h": 5
+     }
+    }
+   ],
+   "terrain": [
+    {
+     "polygon": [
+      [
+       -10,
+       -10
+      ],
+      [
+       170,
+       -10
+      ],
+      [
+       170,
+       150
+      ],
+      [
+       -10,
+       150
+      ]
+     ],
+     "floor": "dirt"
+    }
+   ]
+  }
+ ],
+ "links": []
+}

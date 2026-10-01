@@ -1,0 +1,7004 @@
+{
+ "schema": 1,
+ "location": "N3",
+ "chapter": "ch05",
+ "name": "Burgomaster's Mansion (Vallaki)",
+ "mapPage": 104,
+ "bookScaleFt": 5,
+ "ambient": "interior-dim",
+ "parent": "ch05/N",
+ "stacked": true,
+ "entry": "ground",
+ "levels": [
+  {
+   "id": "ground",
+   "name": "Ground floor",
+   "elevationFt": 0,
+   "ceilingFt": 18,
+   "ambient": "interior-dim",
+   "north": "-z",
+   "rooms": [
+    {
+     "key": "N3h",
+     "name": "Pantry",
+     "page": 106,
+     "polygon": [
+      [
+       15,
+       15
+      ],
+      [
+       42.5,
+       15
+      ],
+      [
+       42.5,
+       42.5
+      ],
+      [
+       15,
+       42.5
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 10,
+     "desc": "A pantry with two wine barrels against the east wall."
+    },
+    {
+     "key": "N3f",
+     "name": "Servants' Quarters",
+     "page": 106,
+     "polygon": [
+      [
+       42.5,
+       15
+      ],
+      [
+       90,
+       15
+      ],
+      [
+       90,
+       50
+      ],
+      [
+       42.5,
+       50
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 10,
+     "desc": "Four simple beds and four plain trunks.",
+     "dm": "Two beds belong to the missing butler and lady-in-waiting."
+    },
+    {
+     "key": "N3e",
+     "name": "Den",
+     "page": 106,
+     "polygon": [
+      [
+       90,
+       15
+      ],
+      [
+       137.5,
+       15
+      ],
+      [
+       137.5,
+       50
+      ],
+      [
+       90,
+       50
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 10,
+     "desc": "A den that reeks of pipe smoke; a bear's head glowers from the east wall.",
+     "dm": "The bear was a gift from the elder Szoldar, not the baron's father's kill."
+    },
+    {
+     "key": "N3a",
+     "name": "Entrance Hall and Vestibule",
+     "page": 105,
+     "polygon": [
+      [
+       137.5,
+       15
+      ],
+      [
+       175,
+       15
+      ],
+      [
+       175,
+       80
+      ],
+      [
+       137.5,
+       80
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 18,
+     "desc": "A grand foyer: portraits, a wide stair with a sculpted rail, twigs heaped for the festival, a cloakroom in the corner.",
+     "dm": "A maid answers; she brings callers to the den and fetches the baron."
+    },
+    {
+     "key": "N3a-hall",
+     "name": "Long Hall",
+     "page": 105,
+     "polygon": [
+      [
+       42.5,
+       50
+      ],
+      [
+       137.5,
+       50
+      ],
+      [
+       137.5,
+       70
+      ],
+      [
+       42.5,
+       70
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 10,
+     "desc": "A long carpeted hall with doors on both sides."
+    },
+    {
+     "key": "N3g",
+     "name": "Kitchen",
+     "page": 106,
+     "polygon": [
+      [
+       15,
+       42.5
+      ],
+      [
+       42.5,
+       42.5
+      ],
+      [
+       42.5,
+       107.5
+      ],
+      [
+       15,
+       107.5
+      ]
+     ],
+     "floor": "flagstone",
+     "ceilingFt": 10,
+     "desc": "A kitchen with a stair in the corner and a door to the garden.",
+     "dm": "The garden door is locked; the cook and the baron have keys."
+    },
+    {
+     "key": "N3d",
+     "name": "Preparation Room",
+     "page": null,
+     "polygon": [
+      [
+       42.5,
+       70
+      ],
+      [
+       82.5,
+       70
+      ],
+      [
+       82.5,
+       107.5
+      ],
+      [
+       42.5,
+       107.5
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 10,
+     "desc": "Two sheeted tables: polished silver on one, baskets of turnips and beets on the other."
+    },
+    {
+     "key": "N3c",
+     "name": "Dining Room",
+     "page": 106,
+     "polygon": [
+      [
+       82.5,
+       70
+      ],
+      [
+       137.5,
+       70
+      ],
+      [
+       137.5,
+       107.5
+      ],
+      [
+       82.5,
+       107.5
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 10,
+     "desc": "A chandelier of wrought iron over a polished table; eight women at tea and cake while a ninth talks of decorations.",
+     "dm": "Lydia Petrovna bribing peasant women with tea. She sends them to the den and calls the baron."
+    },
+    {
+     "key": "N3b",
+     "name": "Parlor",
+     "page": 106,
+     "polygon": [
+      [
+       137.5,
+       80
+      ],
+      [
+       175,
+       80
+      ],
+      [
+       175,
+       107.5
+      ],
+      [
+       137.5,
+       107.5
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 10,
+     "desc": "A parlor of couches and a low table by a bookcase."
+    },
+    {
+     "key": "N3a-porch",
+     "name": "Porch",
+     "page": 105,
+     "polygon": [
+      [
+       175,
+       35
+      ],
+      [
+       185,
+       35
+      ],
+      [
+       185,
+       55
+      ],
+      [
+       175,
+       55
+      ]
+     ],
+     "floor": "flagstone",
+     "ceilingFt": 10,
+     "desc": "The mansion's porch and double doors, festival banners on the posts."
+    }
+   ],
+   "walls": [
+    {
+     "id": "ground-w-0",
+     "a": [
+      15.0,
+      15.0
+     ],
+     "b": [
+      175.0,
+      15.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-1",
+     "a": [
+      42.5,
+      15.0
+     ],
+     "b": [
+      42.5,
+      107.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-2",
+     "a": [
+      37.916666666666664,
+      42.5
+     ],
+     "b": [
+      42.5,
+      42.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-3",
+     "a": [
+      33.333333333333336,
+      42.5
+     ],
+     "b": [
+      37.916666666666664,
+      42.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-4",
+     "a": [
+      28.75,
+      42.5
+     ],
+     "b": [
+      33.333333333333336,
+      42.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-5",
+     "a": [
+      24.16666666666667,
+      42.5
+     ],
+     "b": [
+      42.5,
+      42.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-6",
+     "a": [
+      19.58333333333333,
+      42.5
+     ],
+     "b": [
+      24.16666666666667,
+      42.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-7",
+     "a": [
+      15.0,
+      42.5
+     ],
+     "b": [
+      19.58333333333333,
+      42.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-8",
+     "a": [
+      15.0,
+      37.916666666666664
+     ],
+     "b": [
+      15.0,
+      107.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-9",
+     "a": [
+      15.0,
+      33.333333333333336
+     ],
+     "b": [
+      15.0,
+      37.916666666666664
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-10",
+     "a": [
+      15.0,
+      28.75
+     ],
+     "b": [
+      15.0,
+      33.333333333333336
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-11",
+     "a": [
+      15.0,
+      24.16666666666667
+     ],
+     "b": [
+      15.0,
+      28.75
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-12",
+     "a": [
+      15.0,
+      19.58333333333333
+     ],
+     "b": [
+      15.0,
+      24.16666666666667
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-13",
+     "a": [
+      15.0,
+      15.0
+     ],
+     "b": [
+      15.0,
+      19.58333333333333
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-14",
+     "a": [
+      90.0,
+      15.0
+     ],
+     "b": [
+      90.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "N3e-f",
+     "a": [
+      90.0,
+      35.0
+     ],
+     "b": [
+      90.0,
+      40.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "paneling",
+     "open": false
+    },
+    {
+     "id": "ground-w-16",
+     "a": [
+      90.0,
+      40.0
+     ],
+     "b": [
+      90.0,
+      50.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-17",
+     "a": [
+      85.25,
+      50.0
+     ],
+     "b": [
+      137.5,
+      50.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-18",
+     "a": [
+      80.5,
+      50.0
+     ],
+     "b": [
+      85.25,
+      50.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-19",
+     "a": [
+      75.75,
+      50.0
+     ],
+     "b": [
+      80.5,
+      50.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-20",
+     "a": [
+      71.0,
+      50.0
+     ],
+     "b": [
+      75.75,
+      50.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-21",
+     "a": [
+      66.25,
+      50.0
+     ],
+     "b": [
+      71.0,
+      50.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-22",
+     "a": [
+      61.5,
+      50.0
+     ],
+     "b": [
+      66.25,
+      50.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-23",
+     "a": [
+      56.75000000000001,
+      50.0
+     ],
+     "b": [
+      61.5,
+      50.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-24",
+     "a": [
+      51.99999999999999,
+      50.0
+     ],
+     "b": [
+      56.75000000000001,
+      50.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-25",
+     "a": [
+      47.25,
+      50.0
+     ],
+     "b": [
+      51.99999999999999,
+      50.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-26",
+     "a": [
+      42.5,
+      50.0
+     ],
+     "b": [
+      47.25,
+      50.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-27",
+     "a": [
+      42.5,
+      45.0
+     ],
+     "b": [
+      42.5,
+      55.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-28",
+     "a": [
+      42.5,
+      40.0
+     ],
+     "b": [
+      42.5,
+      45.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-29",
+     "a": [
+      42.5,
+      35.0
+     ],
+     "b": [
+      42.5,
+      40.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-30",
+     "a": [
+      42.5,
+      30.0
+     ],
+     "b": [
+      42.5,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "N3h-f",
+     "a": [
+      42.5,
+      25.0
+     ],
+     "b": [
+      42.5,
+      30.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "ashlar",
+     "open": false
+    },
+    {
+     "id": "ground-w-32",
+     "a": [
+      42.5,
+      20.0
+     ],
+     "b": [
+      42.5,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-33",
+     "a": [
+      42.5,
+      15.0
+     ],
+     "b": [
+      42.5,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-34",
+     "a": [
+      137.5,
+      15.0
+     ],
+     "b": [
+      137.5,
+      55.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-35",
+     "a": [
+      175.0,
+      15.0
+     ],
+     "b": [
+      175.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-36",
+     "a": [
+      175.0,
+      35.0
+     ],
+     "b": [
+      175.0,
+      55.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-37",
+     "a": [
+      175.0,
+      55.0
+     ],
+     "b": [
+      175.0,
+      65.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-38",
+     "a": [
+      175.0,
+      65.0
+     ],
+     "b": [
+      175.0,
+      70.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-39",
+     "a": [
+      175.0,
+      70.0
+     ],
+     "b": [
+      175.0,
+      107.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-40",
+     "a": [
+      170.3125,
+      80.0
+     ],
+     "b": [
+      175.0,
+      80.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-41",
+     "a": [
+      165.625,
+      80.0
+     ],
+     "b": [
+      170.3125,
+      80.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-42",
+     "a": [
+      160.9375,
+      80.0
+     ],
+     "b": [
+      165.625,
+      80.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-43",
+     "a": [
+      156.25,
+      80.0
+     ],
+     "b": [
+      160.9375,
+      80.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-44",
+     "a": [
+      151.5625,
+      80.0
+     ],
+     "b": [
+      156.25,
+      80.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-45",
+     "a": [
+      146.875,
+      80.0
+     ],
+     "b": [
+      151.5625,
+      80.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-46",
+     "a": [
+      142.1875,
+      80.0
+     ],
+     "b": [
+      146.875,
+      80.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-47",
+     "a": [
+      137.5,
+      80.0
+     ],
+     "b": [
+      142.1875,
+      80.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-48",
+     "a": [
+      137.5,
+      75.0
+     ],
+     "b": [
+      137.5,
+      107.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-49",
+     "a": [
+      137.5,
+      70.0
+     ],
+     "b": [
+      137.5,
+      75.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-50",
+     "a": [
+      137.5,
+      65.0
+     ],
+     "b": [
+      137.5,
+      70.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-51",
+     "a": [
+      137.5,
+      60.0
+     ],
+     "b": [
+      137.5,
+      65.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "N3a-hall-door",
+     "a": [
+      137.5,
+      55.0
+     ],
+     "b": [
+      137.5,
+      60.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "paneling",
+     "open": false
+    },
+    {
+     "id": "ground-w-53",
+     "a": [
+      42.5,
+      50.0
+     ],
+     "b": [
+      137.5,
+      50.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-54",
+     "a": [
+      132.5,
+      70.0
+     ],
+     "b": [
+      137.5,
+      70.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-55",
+     "a": [
+      127.5,
+      70.0
+     ],
+     "b": [
+      132.5,
+      70.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-56",
+     "a": [
+      122.5,
+      70.0
+     ],
+     "b": [
+      127.5,
+      70.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-57",
+     "a": [
+      117.5,
+      70.0
+     ],
+     "b": [
+      122.5,
+      70.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-58",
+     "a": [
+      112.5,
+      70.0
+     ],
+     "b": [
+      117.5,
+      70.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-59",
+     "a": [
+      107.5,
+      70.0
+     ],
+     "b": [
+      112.5,
+      70.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-60",
+     "a": [
+      102.5,
+      70.0
+     ],
+     "b": [
+      107.5,
+      70.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-61",
+     "a": [
+      97.5,
+      70.0
+     ],
+     "b": [
+      102.5,
+      70.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-62",
+     "a": [
+      92.5,
+      70.0
+     ],
+     "b": [
+      97.5,
+      70.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-63",
+     "a": [
+      87.5,
+      70.0
+     ],
+     "b": [
+      92.5,
+      70.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-64",
+     "a": [
+      82.5,
+      70.0
+     ],
+     "b": [
+      87.5,
+      70.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-65",
+     "a": [
+      77.5,
+      70.0
+     ],
+     "b": [
+      82.5,
+      70.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-66",
+     "a": [
+      72.5,
+      70.0
+     ],
+     "b": [
+      77.5,
+      70.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-67",
+     "a": [
+      67.5,
+      70.0
+     ],
+     "b": [
+      72.5,
+      70.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-68",
+     "a": [
+      62.5,
+      70.0
+     ],
+     "b": [
+      67.5,
+      70.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-69",
+     "a": [
+      57.5,
+      70.0
+     ],
+     "b": [
+      62.5,
+      70.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-70",
+     "a": [
+      52.5,
+      70.0
+     ],
+     "b": [
+      57.5,
+      70.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-71",
+     "a": [
+      47.5,
+      70.0
+     ],
+     "b": [
+      52.5,
+      70.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-72",
+     "a": [
+      42.5,
+      70.0
+     ],
+     "b": [
+      47.5,
+      70.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-73",
+     "a": [
+      42.5,
+      65.0
+     ],
+     "b": [
+      42.5,
+      107.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-74",
+     "a": [
+      42.5,
+      60.0
+     ],
+     "b": [
+      42.5,
+      65.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "N3g-hall",
+     "a": [
+      42.5,
+      55.0
+     ],
+     "b": [
+      42.5,
+      60.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "ashlar",
+     "open": false
+    },
+    {
+     "id": "ground-w-76",
+     "a": [
+      15.0,
+      42.5
+     ],
+     "b": [
+      28.75,
+      42.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-77",
+     "a": [
+      37.916666666666664,
+      107.5
+     ],
+     "b": [
+      175.0,
+      107.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-78",
+     "a": [
+      33.333333333333336,
+      107.5
+     ],
+     "b": [
+      37.916666666666664,
+      107.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-79",
+     "a": [
+      28.75,
+      107.5
+     ],
+     "b": [
+      33.333333333333336,
+      107.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-80",
+     "a": [
+      24.16666666666667,
+      107.5
+     ],
+     "b": [
+      28.75,
+      107.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-81",
+     "a": [
+      19.58333333333333,
+      107.5
+     ],
+     "b": [
+      24.16666666666667,
+      107.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-82",
+     "a": [
+      15.0,
+      107.5
+     ],
+     "b": [
+      19.58333333333333,
+      107.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-83",
+     "a": [
+      82.5,
+      70.0
+     ],
+     "b": [
+      82.5,
+      107.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-84",
+     "a": [
+      137.5,
+      70.0
+     ],
+     "b": [
+      137.5,
+      107.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-85",
+     "a": [
+      175.0,
+      35.0
+     ],
+     "b": [
+      185.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-86",
+     "a": [
+      185.0,
+      35.0
+     ],
+     "b": [
+      185.0,
+      55.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-87",
+     "a": [
+      180.0,
+      55.0
+     ],
+     "b": [
+      185.0,
+      55.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-88",
+     "a": [
+      175.0,
+      55.0
+     ],
+     "b": [
+      180.0,
+      55.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-x-0",
+     "a": [
+      155,
+      15
+     ],
+     "b": [
+      155,
+      32.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-x-1",
+     "a": [
+      155,
+      32.5
+     ],
+     "b": [
+      175,
+      32.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    }
+   ],
+   "lights": [
+    {
+     "id": "ground-l-N3e-lamp",
+     "pos": [
+      115,
+      7,
+      32.5
+     ],
+     "preset": "lantern",
+     "bright": 15,
+     "dim": 30
+    },
+    {
+     "id": "ground-l-N3c-chandelier",
+     "pos": [
+      110,
+      8,
+      87.5
+     ],
+     "preset": "candle",
+     "bright": 15,
+     "dim": 30
+    },
+    {
+     "id": "ground-l-N3b-lamp",
+     "pos": [
+      157.5,
+      7,
+      92.5
+     ],
+     "preset": "lantern",
+     "bright": 15,
+     "dim": 30
+    },
+    {
+     "id": "ground-l-N3a-chandelier",
+     "pos": [
+      155,
+      14,
+      50
+     ],
+     "preset": "candle",
+     "bright": 20,
+     "dim": 40
+    }
+   ],
+   "objects": [
+    {
+     "id": "ground-N3-garden4",
+     "kind": "bush",
+     "pos": [
+      -35,
+      0,
+      20
+     ],
+     "vis": "player"
+    },
+    {
+     "id": "ground-N3-garden4b",
+     "kind": "bush",
+     "pos": [
+      -15,
+      0,
+      20
+     ],
+     "vis": "player"
+    },
+    {
+     "id": "ground-N3-garden8",
+     "kind": "bush",
+     "pos": [
+      -35,
+      0,
+      40
+     ],
+     "vis": "player"
+    },
+    {
+     "id": "ground-N3-garden8b",
+     "kind": "bush",
+     "pos": [
+      -15,
+      0,
+      40
+     ],
+     "vis": "player"
+    },
+    {
+     "id": "ground-N3-garden12",
+     "kind": "bush",
+     "pos": [
+      -35,
+      0,
+      60
+     ],
+     "vis": "player"
+    },
+    {
+     "id": "ground-N3-garden12b",
+     "kind": "bush",
+     "pos": [
+      -15,
+      0,
+      60
+     ],
+     "vis": "player"
+    },
+    {
+     "id": "ground-N3-garden16",
+     "kind": "bush",
+     "pos": [
+      -35,
+      0,
+      80
+     ],
+     "vis": "player"
+    },
+    {
+     "id": "ground-N3-garden16b",
+     "kind": "bush",
+     "pos": [
+      -15,
+      0,
+      80
+     ],
+     "vis": "player"
+    },
+    {
+     "id": "ground-N3-garden20",
+     "kind": "bush",
+     "pos": [
+      -35,
+      0,
+      100
+     ],
+     "vis": "player"
+    },
+    {
+     "id": "ground-N3-garden20b",
+     "kind": "bush",
+     "pos": [
+      -15,
+      0,
+      100
+     ],
+     "vis": "player"
+    },
+    {
+     "id": "ground-N3a-stair",
+     "kind": "stairs-straight",
+     "pos": [
+      146.25,
+      0,
+      25
+     ],
+     "vis": "player",
+     "key": "N3a",
+     "dims": {
+      "w": 15,
+      "rise": 20,
+      "fromZ": 35,
+      "toZ": 15
+     }
+    },
+    {
+     "id": "ground-N3a-rug",
+     "kind": "rug",
+     "pos": [
+      155,
+      0,
+      60
+     ],
+     "vis": "player",
+     "key": "N3a",
+     "dims": {
+      "w": 10,
+      "d": 14
+     }
+    },
+    {
+     "id": "ground-N3a-hall-rug",
+     "kind": "rug",
+     "pos": [
+      90,
+      0,
+      60
+     ],
+     "vis": "player",
+     "key": "N3a-hall",
+     "dims": {
+      "w": 85,
+      "d": 6
+     }
+    },
+    {
+     "id": "ground-N3a-cloaks",
+     "kind": "niche",
+     "pos": [
+      165,
+      0,
+      25
+     ],
+     "vis": "hidden-object",
+     "key": "N3a",
+     "label": "A vestibule packed with fine cloaks, coats and boots"
+    },
+    {
+     "id": "ground-N3a-portraits",
+     "kind": "niche",
+     "pos": [
+      145,
+      0,
+      70
+     ],
+     "vis": "hidden-object",
+     "key": "N3a",
+     "label": "Framed portraits of past burgomasters"
+    },
+    {
+     "id": "ground-N3a-twigs",
+     "kind": "note",
+     "pos": [
+      150,
+      0,
+      50
+     ],
+     "vis": "dm-note",
+     "key": "N3a",
+     "label": "Bundles of twigs pile up here for the wicker sun of the festival. A maid answers the door and leads callers to the den."
+    },
+    {
+     "id": "ground-N3e-couch-a",
+     "kind": "bench",
+     "pos": [
+      97.5,
+      0,
+      45
+     ],
+     "vis": "player",
+     "key": "N3e"
+    },
+    {
+     "id": "ground-N3e-couch-b",
+     "kind": "bench",
+     "pos": [
+      127.5,
+      0,
+      45
+     ],
+     "vis": "player",
+     "key": "N3e"
+    },
+    {
+     "id": "ground-N3e-chair-a",
+     "kind": "chair",
+     "pos": [
+      97.5,
+      0,
+      25
+     ],
+     "vis": "player",
+     "key": "N3e"
+    },
+    {
+     "id": "ground-N3e-chair-b",
+     "kind": "chair",
+     "pos": [
+      102.5,
+      0,
+      32.5
+     ],
+     "vis": "player",
+     "key": "N3e"
+    },
+    {
+     "id": "ground-N3e-table",
+     "kind": "table-round",
+     "pos": [
+      115,
+      0,
+      32.5
+     ],
+     "vis": "player",
+     "key": "N3e"
+    },
+    {
+     "id": "ground-N3e-side",
+     "kind": "desk",
+     "pos": [
+      132.5,
+      0,
+      40
+     ],
+     "vis": "player",
+     "key": "N3e"
+    },
+    {
+     "id": "ground-N3e-bear",
+     "kind": "niche",
+     "pos": [
+      136.0,
+      0,
+      30
+     ],
+     "vis": "hidden-object",
+     "key": "N3e",
+     "label": "A brown bear's head mounted on the east wall (a Grygorovich gift, whatever the baron says)"
+    },
+    {
+     "id": "ground-N3f-table",
+     "kind": "table-round",
+     "pos": [
+      67.5,
+      0,
+      27.5
+     ],
+     "vis": "player",
+     "key": "N3f"
+    },
+    {
+     "id": "ground-N3f-bed0",
+     "kind": "bed",
+     "pos": [
+      47.5,
+      0,
+      20
+     ],
+     "vis": "player",
+     "key": "N3f"
+    },
+    {
+     "id": "ground-N3f-bed1",
+     "kind": "bed",
+     "pos": [
+      84.0,
+      0,
+      20
+     ],
+     "vis": "player",
+     "key": "N3f"
+    },
+    {
+     "id": "ground-N3f-bed2",
+     "kind": "bed",
+     "pos": [
+      47.5,
+      0,
+      44.0
+     ],
+     "vis": "player",
+     "key": "N3f"
+    },
+    {
+     "id": "ground-N3f-bed3",
+     "kind": "bed",
+     "pos": [
+      84.0,
+      0,
+      44.0
+     ],
+     "vis": "player",
+     "key": "N3f"
+    },
+    {
+     "id": "ground-N3f-trunk0",
+     "kind": "trunk",
+     "pos": [
+      55,
+      0,
+      18.0
+     ],
+     "vis": "player",
+     "key": "N3f"
+    },
+    {
+     "id": "ground-N3f-trunk1",
+     "kind": "trunk",
+     "pos": [
+      76.5,
+      0,
+      18.0
+     ],
+     "vis": "player",
+     "key": "N3f"
+    },
+    {
+     "id": "ground-N3f-trunk2",
+     "kind": "trunk",
+     "pos": [
+      55,
+      0,
+      46.5
+     ],
+     "vis": "player",
+     "key": "N3f"
+    },
+    {
+     "id": "ground-N3f-trunk3",
+     "kind": "trunk",
+     "pos": [
+      76.5,
+      0,
+      46.5
+     ],
+     "vis": "player",
+     "key": "N3f"
+    },
+    {
+     "id": "ground-N3f-note",
+     "kind": "note",
+     "pos": [
+      67.5,
+      0,
+      35
+     ],
+     "vis": "dm-note",
+     "key": "N3f",
+     "label": "Two beds are the butler's and the lady-in-waiting's: both missing (see the attic)."
+    },
+    {
+     "id": "ground-N3h-shelves",
+     "kind": "shelves",
+     "pos": [
+      18.0,
+      0,
+      25
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "N3h"
+    },
+    {
+     "id": "ground-N3h-cask-a",
+     "kind": "wine-cask",
+     "pos": [
+      40,
+      0,
+      20
+     ],
+     "vis": "player",
+     "key": "N3h"
+    },
+    {
+     "id": "ground-N3h-cask-b",
+     "kind": "wine-cask",
+     "pos": [
+      40,
+      0,
+      26.0
+     ],
+     "vis": "player",
+     "key": "N3h"
+    },
+    {
+     "id": "ground-N3g-table",
+     "kind": "table",
+     "pos": [
+      27.5,
+      0,
+      65
+     ],
+     "vis": "player",
+     "key": "N3g",
+     "dims": {
+      "w": 4,
+      "d": 8
+     }
+    },
+    {
+     "id": "ground-N3g-stove",
+     "kind": "stove",
+     "pos": [
+      18.5,
+      0,
+      50
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "N3g"
+    },
+    {
+     "id": "ground-N3g-cabinet",
+     "kind": "cabinet",
+     "pos": [
+      39.0,
+      0,
+      90
+     ],
+     "vis": "player",
+     "rotY": -90,
+     "key": "N3g"
+    },
+    {
+     "id": "ground-N3g-stair",
+     "kind": "stairs-straight",
+     "pos": [
+      27.5,
+      0,
+      100
+     ],
+     "vis": "player",
+     "key": "N3g",
+     "dims": {
+      "w": 5,
+      "rise": 20,
+      "fromX": 15,
+      "toX": 40
+     }
+    },
+    {
+     "id": "ground-cook",
+     "kind": "commoner",
+     "pos": [
+      25,
+      0,
+      77.5
+     ],
+     "vis": "hidden-creature",
+     "key": "N3g",
+     "label": "The cook (commoner); carries the garden-door key",
+     "size": "medium"
+    },
+    {
+     "id": "ground-N3d-table-a",
+     "kind": "table",
+     "pos": [
+      60,
+      0,
+      82.5
+     ],
+     "vis": "player",
+     "key": "N3d",
+     "dims": {
+      "w": 8,
+      "d": 3
+     }
+    },
+    {
+     "id": "ground-N3d-table-b",
+     "kind": "table",
+     "pos": [
+      60,
+      0,
+      97.5
+     ],
+     "vis": "player",
+     "key": "N3d",
+     "dims": {
+      "w": 8,
+      "d": 3
+     }
+    },
+    {
+     "id": "ground-N3d-silver",
+     "kind": "niche",
+     "pos": [
+      60,
+      0,
+      80
+     ],
+     "vis": "hidden-object",
+     "key": "N3d",
+     "label": "A complete set of polished silverware laid out under a sheet"
+    },
+    {
+     "id": "ground-N3d-baskets",
+     "kind": "niche",
+     "pos": [
+      60,
+      0,
+      100
+     ],
+     "vis": "hidden-object",
+     "key": "N3d",
+     "label": "Wicker baskets of turnips and beets"
+    },
+    {
+     "id": "ground-N3c-table",
+     "kind": "table",
+     "pos": [
+      110,
+      0,
+      87.5
+     ],
+     "vis": "player",
+     "key": "N3c",
+     "dims": {
+      "w": 14,
+      "d": 5
+     }
+    },
+    {
+     "id": "ground-N3c-chair0",
+     "kind": "chair",
+     "pos": [
+      92.5,
+      0,
+      81.0
+     ],
+     "vis": "player",
+     "key": "N3c"
+    },
+    {
+     "id": "ground-N3c-chair1",
+     "kind": "chair",
+     "pos": [
+      105,
+      0,
+      81.0
+     ],
+     "vis": "player",
+     "key": "N3c"
+    },
+    {
+     "id": "ground-N3c-chair2",
+     "kind": "chair",
+     "pos": [
+      117.5,
+      0,
+      81.0
+     ],
+     "vis": "player",
+     "key": "N3c"
+    },
+    {
+     "id": "ground-N3c-chair3",
+     "kind": "chair",
+     "pos": [
+      130,
+      0,
+      81.0
+     ],
+     "vis": "player",
+     "key": "N3c"
+    },
+    {
+     "id": "ground-N3c-chair4",
+     "kind": "chair",
+     "pos": [
+      92.5,
+      0,
+      94.0
+     ],
+     "vis": "player",
+     "key": "N3c"
+    },
+    {
+     "id": "ground-N3c-chair5",
+     "kind": "chair",
+     "pos": [
+      105,
+      0,
+      94.0
+     ],
+     "vis": "player",
+     "key": "N3c"
+    },
+    {
+     "id": "ground-N3c-chair6",
+     "kind": "chair",
+     "pos": [
+      117.5,
+      0,
+      94.0
+     ],
+     "vis": "player",
+     "key": "N3c"
+    },
+    {
+     "id": "ground-N3c-chair7",
+     "kind": "chair",
+     "pos": [
+      130,
+      0,
+      94.0
+     ],
+     "vis": "player",
+     "key": "N3c"
+    },
+    {
+     "id": "ground-N3c-serving",
+     "kind": "desk",
+     "pos": [
+      134.0,
+      0,
+      102.5
+     ],
+     "vis": "player",
+     "rotY": -90,
+     "key": "N3c"
+    },
+    {
+     "id": "ground-N3c-chandelier",
+     "kind": "lamp",
+     "pos": [
+      110,
+      8,
+      87.5
+     ],
+     "vis": "player",
+     "key": "N3c"
+    },
+    {
+     "id": "ground-lydia",
+     "kind": "adventurer",
+     "pos": [
+      110,
+      0,
+      77.5
+     ],
+     "vis": "hidden-creature",
+     "key": "N3c",
+     "label": "Baroness Lydia Petrovna and eight peasant women at tea",
+     "size": "medium"
+    },
+    {
+     "id": "ground-N3b-couch",
+     "kind": "bench",
+     "pos": [
+      160,
+      0,
+      105
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "key": "N3b"
+    },
+    {
+     "id": "ground-N3b-chair-a",
+     "kind": "chair",
+     "pos": [
+      145,
+      0,
+      90
+     ],
+     "vis": "player",
+     "key": "N3b"
+    },
+    {
+     "id": "ground-N3b-chair-b",
+     "kind": "chair",
+     "pos": [
+      167.5,
+      0,
+      90
+     ],
+     "vis": "player",
+     "key": "N3b"
+    },
+    {
+     "id": "ground-N3b-table",
+     "kind": "table-round",
+     "pos": [
+      157.5,
+      0,
+      92.5
+     ],
+     "vis": "player",
+     "key": "N3b"
+    },
+    {
+     "id": "ground-N3b-books",
+     "kind": "bookshelf",
+     "pos": [
+      141.5,
+      0,
+      100
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "N3b"
+    }
+   ],
+   "terrain": [
+    {
+     "polygon": [
+      [
+       -50,
+       -15
+      ],
+      [
+       200,
+       -15
+      ],
+      [
+       200,
+       125
+      ],
+      [
+       -50,
+       125
+      ]
+     ],
+     "floor": "grass"
+    }
+   ]
+  },
+  {
+   "id": "upper",
+   "name": "Upper floor",
+   "elevationFt": 20,
+   "ceilingFt": 10,
+   "ambient": "interior-dim",
+   "north": "-z",
+   "rooms": [
+    {
+     "key": "N3o",
+     "name": "Master Bedroom",
+     "page": 108,
+     "polygon": [
+      [
+       15,
+       10
+      ],
+      [
+       60,
+       10
+      ],
+      [
+       60,
+       45
+      ],
+      [
+       15,
+       45
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 10,
+     "desc": "A faded master bedroom; a pull-rope hangs from a trapdoor in the ceiling.",
+     "dm": "The folding ladder leads to the attic room."
+    },
+    {
+     "key": "N3n",
+     "name": "Master Bedroom Closet",
+     "page": 108,
+     "polygon": [
+      [
+       60,
+       10
+      ],
+      [
+       80,
+       10
+      ],
+      [
+       80,
+       27.5
+      ],
+      [
+       60,
+       27.5
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 10,
+     "desc": "A closet of fine clothes."
+    },
+    {
+     "key": "N3q",
+     "name": "Bathroom",
+     "page": 108,
+     "polygon": [
+      [
+       80,
+       10
+      ],
+      [
+       100,
+       10
+      ],
+      [
+       100,
+       27.5
+      ],
+      [
+       80,
+       27.5
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 10,
+     "desc": "An iron tub with clawed feet; folded towels on a table."
+    },
+    {
+     "key": "N3l",
+     "name": "Library",
+     "page": null,
+     "polygon": [
+      [
+       60,
+       27.5
+      ],
+      [
+       100,
+       27.5
+      ],
+      [
+       100,
+       85
+      ],
+      [
+       60,
+       85
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 10,
+     "desc": "A windowless library, shelves floor to ceiling, more books than any house in Barovia should hold.",
+     "dm": "The baron sits here in breastplate and rapier, paranoid. Random books as in the castle study."
+    },
+    {
+     "key": "N3k",
+     "name": "Victor's Bedroom",
+     "page": null,
+     "polygon": [
+      [
+       107.5,
+       10
+      ],
+      [
+       137.5,
+       10
+      ],
+      [
+       137.5,
+       47.5
+      ],
+      [
+       107.5,
+       47.5
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 10,
+     "desc": "A handsome room: a canopied bed, a low bookshelf, a full-length mirror, an arched window to the north.",
+     "dm": "Nothing here betrays Victor's studies."
+    },
+    {
+     "key": "N3j",
+     "name": "Izek's Bedroom",
+     "page": 107,
+     "polygon": [
+      [
+       107.5,
+       47.5
+      ],
+      [
+       137.5,
+       47.5
+      ],
+      [
+       137.5,
+       85
+      ],
+      [
+       107.5,
+       85
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 10,
+     "desc": "A bed and a heavy chest piled with dolls, every one with the same auburn hair.",
+     "dm": "Izek's room, locked. The dolls are Ireena. A shortsword in the chest; empty bottles under the bed."
+    },
+    {
+     "key": "N3p",
+     "name": "Bridal Gown and Spirit Mirror",
+     "page": 108,
+     "polygon": [
+      [
+       15,
+       45
+      ],
+      [
+       52.5,
+       45
+      ],
+      [
+       52.5,
+       75
+      ],
+      [
+       15,
+       75
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 10,
+     "desc": "A bridal gown on a stand and a tall mirror; a door in the corner to a garderobe.",
+     "dm": "The spirit mirror: the rhyme summons the Ba'al Verzi assassin's ghost, who charms and leads to the roof."
+    },
+    {
+     "key": "N3m",
+     "name": "Locked Closet",
+     "page": null,
+     "polygon": [
+      [
+       15,
+       75
+      ],
+      [
+       52.5,
+       75
+      ],
+      [
+       52.5,
+       95
+      ],
+      [
+       15,
+       95
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 10,
+     "desc": "A bare closet with manacles on the wall.",
+     "dm": "Udo Lukovich, chained for complaining; the baron holds the keys."
+    },
+    {
+     "key": "N3i",
+     "name": "Upstairs Gallery",
+     "page": 106,
+     "polygon": [
+      [
+       52.5,
+       85
+      ],
+      [
+       137.5,
+       85
+      ],
+      [
+       137.5,
+       10
+      ],
+      [
+       175,
+       10
+      ],
+      [
+       175,
+       105
+      ],
+      [
+       15,
+       105
+      ],
+      [
+       15,
+       95
+      ],
+      [
+       52.5,
+       95
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 10,
+     "desc": "A gallery twenty feet above the foyer, landscapes on the walls, red drapes over a tall arched window; narrow halls lead north."
+    },
+    {
+     "key": "N3i-hall",
+     "name": "Gallery (north passage)",
+     "page": 106,
+     "polygon": [
+      [
+       100,
+       27.5
+      ],
+      [
+       107.5,
+       27.5
+      ],
+      [
+       107.5,
+       85
+      ],
+      [
+       100,
+       85
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 10,
+     "desc": "A narrow hall between the library and the bedrooms."
+    }
+   ],
+   "walls": [
+    {
+     "id": "upper-w-0",
+     "a": [
+      15.0,
+      10.0
+     ],
+     "b": [
+      25.0,
+      10.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-1",
+     "a": [
+      25.0,
+      10.0
+     ],
+     "b": [
+      30.0,
+      10.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-2",
+     "a": [
+      30.0,
+      10.0
+     ],
+     "b": [
+      45.0,
+      10.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-3",
+     "a": [
+      45.0,
+      10.0
+     ],
+     "b": [
+      50.0,
+      10.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-4",
+     "a": [
+      50.0,
+      10.0
+     ],
+     "b": [
+      100.0,
+      10.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-5",
+     "a": [
+      60.0,
+      10.0
+     ],
+     "b": [
+      60.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "N3n-door",
+     "a": [
+      60.0,
+      20.0
+     ],
+     "b": [
+      60.0,
+      25.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "ashlar",
+     "open": false
+    },
+    {
+     "id": "upper-w-7",
+     "a": [
+      60.0,
+      25.0
+     ],
+     "b": [
+      60.0,
+      45.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-8",
+     "a": [
+      55.0,
+      45.0
+     ],
+     "b": [
+      60.0,
+      45.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-9",
+     "a": [
+      50.0,
+      45.0
+     ],
+     "b": [
+      55.0,
+      45.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-10",
+     "a": [
+      45.0,
+      45.0
+     ],
+     "b": [
+      50.0,
+      45.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-11",
+     "a": [
+      40.0,
+      45.0
+     ],
+     "b": [
+      45.0,
+      45.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "N3p-door",
+     "a": [
+      35.0,
+      45.0
+     ],
+     "b": [
+      40.0,
+      45.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "ashlar",
+     "open": false
+    },
+    {
+     "id": "upper-w-13",
+     "a": [
+      30.0,
+      45.0
+     ],
+     "b": [
+      35.0,
+      45.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-14",
+     "a": [
+      25.0,
+      45.0
+     ],
+     "b": [
+      30.0,
+      45.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-15",
+     "a": [
+      20.0,
+      45.0
+     ],
+     "b": [
+      25.0,
+      45.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-16",
+     "a": [
+      15.0,
+      45.0
+     ],
+     "b": [
+      20.0,
+      45.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-17",
+     "a": [
+      15.0,
+      40.0
+     ],
+     "b": [
+      15.0,
+      60.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-18",
+     "a": [
+      15.0,
+      35.0
+     ],
+     "b": [
+      15.0,
+      40.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-19",
+     "a": [
+      15.0,
+      30.0
+     ],
+     "b": [
+      15.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-20",
+     "a": [
+      15.0,
+      25.0
+     ],
+     "b": [
+      15.0,
+      30.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-21",
+     "a": [
+      15.0,
+      20.0
+     ],
+     "b": [
+      15.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-22",
+     "a": [
+      15.0,
+      15.0
+     ],
+     "b": [
+      15.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-23",
+     "a": [
+      15.0,
+      10.0
+     ],
+     "b": [
+      15.0,
+      15.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-24",
+     "a": [
+      80.0,
+      10.0
+     ],
+     "b": [
+      80.0,
+      27.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-25",
+     "a": [
+      75.0,
+      27.5
+     ],
+     "b": [
+      100.0,
+      27.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-26",
+     "a": [
+      70.0,
+      27.5
+     ],
+     "b": [
+      75.0,
+      27.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-27",
+     "a": [
+      65.0,
+      27.5
+     ],
+     "b": [
+      70.0,
+      27.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-28",
+     "a": [
+      60.0,
+      27.5
+     ],
+     "b": [
+      65.0,
+      27.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-29",
+     "a": [
+      60.0,
+      23.125
+     ],
+     "b": [
+      60.0,
+      85.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-30",
+     "a": [
+      60.0,
+      18.75
+     ],
+     "b": [
+      60.0,
+      23.125
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-31",
+     "a": [
+      60.0,
+      14.375
+     ],
+     "b": [
+      60.0,
+      18.75
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-32",
+     "a": [
+      60.0,
+      10.0
+     ],
+     "b": [
+      60.0,
+      14.375
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-33",
+     "a": [
+      100.0,
+      10.0
+     ],
+     "b": [
+      100.0,
+      37.08333333333333
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-34",
+     "a": [
+      100.0,
+      37.08333333333333
+     ],
+     "b": [
+      100.0,
+      41.875
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-35",
+     "a": [
+      100.0,
+      41.875
+     ],
+     "b": [
+      100.0,
+      70.625
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-36",
+     "a": [
+      100.0,
+      70.625
+     ],
+     "b": [
+      100.0,
+      75.41666666666667
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-37",
+     "a": [
+      100.0,
+      75.41666666666667
+     ],
+     "b": [
+      100.0,
+      85.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-38",
+     "a": [
+      95.0,
+      85.0
+     ],
+     "b": [
+      100.0,
+      85.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-39",
+     "a": [
+      90.0,
+      85.0
+     ],
+     "b": [
+      95.0,
+      85.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-40",
+     "a": [
+      85.0,
+      85.0
+     ],
+     "b": [
+      90.0,
+      85.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-41",
+     "a": [
+      80.0,
+      85.0
+     ],
+     "b": [
+      85.0,
+      85.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "N3l-south",
+     "a": [
+      75.0,
+      85.0
+     ],
+     "b": [
+      80.0,
+      85.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "ashlar",
+     "open": false
+    },
+    {
+     "id": "upper-w-43",
+     "a": [
+      70.0,
+      85.0
+     ],
+     "b": [
+      75.0,
+      85.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-44",
+     "a": [
+      65.0,
+      85.0
+     ],
+     "b": [
+      70.0,
+      85.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-45",
+     "a": [
+      60.0,
+      85.0
+     ],
+     "b": [
+      65.0,
+      85.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-46",
+     "a": [
+      107.5,
+      10.0
+     ],
+     "b": [
+      175.0,
+      10.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-47",
+     "a": [
+      137.5,
+      10.0
+     ],
+     "b": [
+      137.5,
+      85.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-48",
+     "a": [
+      132.5,
+      47.5
+     ],
+     "b": [
+      137.5,
+      47.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-49",
+     "a": [
+      127.5,
+      47.5
+     ],
+     "b": [
+      132.5,
+      47.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-50",
+     "a": [
+      122.5,
+      47.5
+     ],
+     "b": [
+      127.5,
+      47.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-51",
+     "a": [
+      117.5,
+      47.5
+     ],
+     "b": [
+      122.5,
+      47.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-52",
+     "a": [
+      112.5,
+      47.5
+     ],
+     "b": [
+      117.5,
+      47.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-53",
+     "a": [
+      107.5,
+      47.5
+     ],
+     "b": [
+      112.5,
+      47.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-54",
+     "a": [
+      107.5,
+      42.8125
+     ],
+     "b": [
+      107.5,
+      85.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-55",
+     "a": [
+      107.5,
+      38.125
+     ],
+     "b": [
+      107.5,
+      42.8125
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-56",
+     "a": [
+      107.5,
+      33.4375
+     ],
+     "b": [
+      107.5,
+      38.125
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-57",
+     "a": [
+      107.5,
+      28.75
+     ],
+     "b": [
+      107.5,
+      33.4375
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-58",
+     "a": [
+      107.5,
+      24.0625
+     ],
+     "b": [
+      107.5,
+      28.75
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-59",
+     "a": [
+      107.5,
+      19.375
+     ],
+     "b": [
+      107.5,
+      24.0625
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-60",
+     "a": [
+      107.5,
+      14.6875
+     ],
+     "b": [
+      107.5,
+      19.375
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-61",
+     "a": [
+      107.5,
+      10.0
+     ],
+     "b": [
+      107.5,
+      14.6875
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-62",
+     "a": [
+      132.5,
+      85.0
+     ],
+     "b": [
+      137.5,
+      85.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-63",
+     "a": [
+      127.5,
+      85.0
+     ],
+     "b": [
+      132.5,
+      85.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-64",
+     "a": [
+      122.5,
+      85.0
+     ],
+     "b": [
+      127.5,
+      85.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-65",
+     "a": [
+      117.5,
+      85.0
+     ],
+     "b": [
+      122.5,
+      85.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-66",
+     "a": [
+      112.5,
+      85.0
+     ],
+     "b": [
+      117.5,
+      85.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-67",
+     "a": [
+      107.5,
+      85.0
+     ],
+     "b": [
+      112.5,
+      85.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-68",
+     "a": [
+      15.0,
+      45.0
+     ],
+     "b": [
+      52.5,
+      45.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-69",
+     "a": [
+      52.5,
+      45.0
+     ],
+     "b": [
+      52.5,
+      55.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "N3p-east",
+     "a": [
+      52.5,
+      55.0
+     ],
+     "b": [
+      52.5,
+      60.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "ashlar",
+     "open": false
+    },
+    {
+     "id": "upper-w-71",
+     "a": [
+      52.5,
+      60.0
+     ],
+     "b": [
+      52.5,
+      85.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-72",
+     "a": [
+      47.8125,
+      75.0
+     ],
+     "b": [
+      52.5,
+      75.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-73",
+     "a": [
+      43.125,
+      75.0
+     ],
+     "b": [
+      47.8125,
+      75.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-74",
+     "a": [
+      38.4375,
+      75.0
+     ],
+     "b": [
+      43.125,
+      75.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-75",
+     "a": [
+      33.75,
+      75.0
+     ],
+     "b": [
+      38.4375,
+      75.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-76",
+     "a": [
+      29.0625,
+      75.0
+     ],
+     "b": [
+      33.75,
+      75.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-77",
+     "a": [
+      24.375,
+      75.0
+     ],
+     "b": [
+      29.0625,
+      75.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-78",
+     "a": [
+      19.6875,
+      75.0
+     ],
+     "b": [
+      24.375,
+      75.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-79",
+     "a": [
+      15.0,
+      75.0
+     ],
+     "b": [
+      19.6875,
+      75.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-80",
+     "a": [
+      15.0,
+      70.0
+     ],
+     "b": [
+      15.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-81",
+     "a": [
+      15.0,
+      65.0
+     ],
+     "b": [
+      15.0,
+      70.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-82",
+     "a": [
+      15.0,
+      60.0
+     ],
+     "b": [
+      15.0,
+      65.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-83",
+     "a": [
+      52.5,
+      85.0
+     ],
+     "b": [
+      52.5,
+      95.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-84",
+     "a": [
+      47.8125,
+      95.0
+     ],
+     "b": [
+      52.5,
+      95.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-85",
+     "a": [
+      43.125,
+      95.0
+     ],
+     "b": [
+      47.8125,
+      95.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-86",
+     "a": [
+      38.4375,
+      95.0
+     ],
+     "b": [
+      43.125,
+      95.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-87",
+     "a": [
+      33.75,
+      95.0
+     ],
+     "b": [
+      38.4375,
+      95.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-88",
+     "a": [
+      29.0625,
+      95.0
+     ],
+     "b": [
+      33.75,
+      95.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-89",
+     "a": [
+      24.375,
+      95.0
+     ],
+     "b": [
+      29.0625,
+      95.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-90",
+     "a": [
+      19.6875,
+      95.0
+     ],
+     "b": [
+      24.375,
+      95.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-91",
+     "a": [
+      15.0,
+      95.0
+     ],
+     "b": [
+      19.6875,
+      95.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-92",
+     "a": [
+      52.5,
+      85.0
+     ],
+     "b": [
+      107.5,
+      85.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-93",
+     "a": [
+      137.5,
+      80.0
+     ],
+     "b": [
+      137.5,
+      85.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-94",
+     "a": [
+      137.5,
+      75.0
+     ],
+     "b": [
+      137.5,
+      80.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-95",
+     "a": [
+      137.5,
+      70.0
+     ],
+     "b": [
+      137.5,
+      75.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-96",
+     "a": [
+      137.5,
+      65.0
+     ],
+     "b": [
+      137.5,
+      70.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-97",
+     "a": [
+      137.5,
+      60.0
+     ],
+     "b": [
+      137.5,
+      65.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-98",
+     "a": [
+      137.5,
+      55.0
+     ],
+     "b": [
+      137.5,
+      60.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-99",
+     "a": [
+      137.5,
+      50.0
+     ],
+     "b": [
+      137.5,
+      55.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-100",
+     "a": [
+      137.5,
+      45.0
+     ],
+     "b": [
+      137.5,
+      50.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-101",
+     "a": [
+      137.5,
+      40.0
+     ],
+     "b": [
+      137.5,
+      45.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-102",
+     "a": [
+      137.5,
+      35.0
+     ],
+     "b": [
+      137.5,
+      40.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-103",
+     "a": [
+      137.5,
+      30.0
+     ],
+     "b": [
+      137.5,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "N3k-gallery",
+     "a": [
+      137.5,
+      25.0
+     ],
+     "b": [
+      137.5,
+      30.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "ashlar",
+     "open": false
+    },
+    {
+     "id": "upper-w-105",
+     "a": [
+      137.5,
+      20.0
+     ],
+     "b": [
+      137.5,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-106",
+     "a": [
+      137.5,
+      15.0
+     ],
+     "b": [
+      137.5,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-107",
+     "a": [
+      137.5,
+      10.0
+     ],
+     "b": [
+      137.5,
+      15.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-108",
+     "a": [
+      175.0,
+      10.0
+     ],
+     "b": [
+      175.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-109",
+     "a": [
+      175.0,
+      35.0
+     ],
+     "b": [
+      175.0,
+      40.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-110",
+     "a": [
+      175.0,
+      40.0
+     ],
+     "b": [
+      175.0,
+      65.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-111",
+     "a": [
+      175.0,
+      65.0
+     ],
+     "b": [
+      175.0,
+      70.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-112",
+     "a": [
+      175.0,
+      70.0
+     ],
+     "b": [
+      175.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-113",
+     "a": [
+      170.0,
+      105.0
+     ],
+     "b": [
+      175.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-114",
+     "a": [
+      165.0,
+      105.0
+     ],
+     "b": [
+      170.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-115",
+     "a": [
+      160.0,
+      105.0
+     ],
+     "b": [
+      165.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-116",
+     "a": [
+      155.0,
+      105.0
+     ],
+     "b": [
+      160.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-117",
+     "a": [
+      150.0,
+      105.0
+     ],
+     "b": [
+      155.0,
+      105.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-118",
+     "a": [
+      145.0,
+      105.0
+     ],
+     "b": [
+      150.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-119",
+     "a": [
+      140.0,
+      105.0
+     ],
+     "b": [
+      145.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-120",
+     "a": [
+      135.0,
+      105.0
+     ],
+     "b": [
+      140.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-121",
+     "a": [
+      130.0,
+      105.0
+     ],
+     "b": [
+      135.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-122",
+     "a": [
+      125.0,
+      105.0
+     ],
+     "b": [
+      130.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-123",
+     "a": [
+      120.0,
+      105.0
+     ],
+     "b": [
+      125.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-124",
+     "a": [
+      115.0,
+      105.0
+     ],
+     "b": [
+      120.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-125",
+     "a": [
+      110.0,
+      105.0
+     ],
+     "b": [
+      115.0,
+      105.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-126",
+     "a": [
+      105.0,
+      105.0
+     ],
+     "b": [
+      110.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-127",
+     "a": [
+      100.0,
+      105.0
+     ],
+     "b": [
+      105.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-128",
+     "a": [
+      95.0,
+      105.0
+     ],
+     "b": [
+      100.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-129",
+     "a": [
+      90.0,
+      105.0
+     ],
+     "b": [
+      95.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-130",
+     "a": [
+      85.0,
+      105.0
+     ],
+     "b": [
+      90.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-131",
+     "a": [
+      80.0,
+      105.0
+     ],
+     "b": [
+      85.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-132",
+     "a": [
+      75.0,
+      105.0
+     ],
+     "b": [
+      80.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-133",
+     "a": [
+      70.0,
+      105.0
+     ],
+     "b": [
+      75.0,
+      105.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-134",
+     "a": [
+      65.0,
+      105.0
+     ],
+     "b": [
+      70.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-135",
+     "a": [
+      60.0,
+      105.0
+     ],
+     "b": [
+      65.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-136",
+     "a": [
+      55.0,
+      105.0
+     ],
+     "b": [
+      60.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-137",
+     "a": [
+      50.0,
+      105.0
+     ],
+     "b": [
+      55.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-138",
+     "a": [
+      45.0,
+      105.0
+     ],
+     "b": [
+      50.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-139",
+     "a": [
+      40.0,
+      105.0
+     ],
+     "b": [
+      45.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-140",
+     "a": [
+      35.0,
+      105.0
+     ],
+     "b": [
+      40.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-141",
+     "a": [
+      30.0,
+      105.0
+     ],
+     "b": [
+      35.0,
+      105.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-142",
+     "a": [
+      25.0,
+      105.0
+     ],
+     "b": [
+      30.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-143",
+     "a": [
+      20.0,
+      105.0
+     ],
+     "b": [
+      25.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-144",
+     "a": [
+      15.0,
+      105.0
+     ],
+     "b": [
+      20.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-145",
+     "a": [
+      100.0,
+      27.5
+     ],
+     "b": [
+      107.5,
+      27.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-146",
+     "a": [
+      107.5,
+      27.5
+     ],
+     "b": [
+      107.5,
+      85.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-147",
+     "a": [
+      100.0,
+      80.20833333333334
+     ],
+     "b": [
+      100.0,
+      85.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-148",
+     "a": [
+      100.0,
+      75.41666666666667
+     ],
+     "b": [
+      100.0,
+      80.20833333333334
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-149",
+     "a": [
+      100.0,
+      65.83333333333334
+     ],
+     "b": [
+      100.0,
+      70.625
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-150",
+     "a": [
+      100.0,
+      61.04166666666666
+     ],
+     "b": [
+      100.0,
+      65.83333333333334
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-151",
+     "a": [
+      100.0,
+      56.25
+     ],
+     "b": [
+      100.0,
+      61.04166666666666
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-152",
+     "a": [
+      100.0,
+      51.45833333333333
+     ],
+     "b": [
+      100.0,
+      56.25
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-153",
+     "a": [
+      100.0,
+      46.66666666666667
+     ],
+     "b": [
+      100.0,
+      51.45833333333333
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-154",
+     "a": [
+      100.0,
+      41.875
+     ],
+     "b": [
+      100.0,
+      46.66666666666667
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-155",
+     "a": [
+      100.0,
+      32.29166666666667
+     ],
+     "b": [
+      100.0,
+      37.08333333333333
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-156",
+     "a": [
+      100.0,
+      27.5
+     ],
+     "b": [
+      100.0,
+      32.29166666666667
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    }
+   ],
+   "lights": [
+    {
+     "id": "upper-l-N3l-lamp",
+     "pos": [
+      80,
+      7,
+      55
+     ],
+     "preset": "lantern",
+     "bright": 15,
+     "dim": 30
+    },
+    {
+     "id": "upper-l-N3i-window",
+     "pos": [
+      165,
+      6,
+      60
+     ],
+     "preset": "daylight",
+     "bright": 10,
+     "dim": 20
+    }
+   ],
+   "objects": [
+    {
+     "id": "upper-N3i-stair",
+     "kind": "stairs-straight",
+     "pos": [
+      146.25,
+      0,
+      25
+     ],
+     "vis": "player",
+     "key": "N3i",
+     "dims": {
+      "w": 15,
+      "rise": 0.1,
+      "fromZ": 35,
+      "toZ": 15
+     }
+    },
+    {
+     "id": "upper-N3i-kstair",
+     "kind": "stairs-straight",
+     "pos": [
+      27.5,
+      0,
+      100
+     ],
+     "vis": "player",
+     "key": "N3i",
+     "dims": {
+      "w": 5,
+      "rise": 0.1,
+      "fromX": 15,
+      "toX": 40
+     }
+    },
+    {
+     "id": "upper-N3i-paintings",
+     "kind": "niche",
+     "pos": [
+      90,
+      0,
+      102.5
+     ],
+     "vis": "hidden-object",
+     "key": "N3i",
+     "label": "Framed landscapes along the gallery; red silk drapes over a tall arched window"
+    },
+    {
+     "id": "upper-N3o-bed",
+     "kind": "bed",
+     "pos": [
+      32.5,
+      0,
+      19.0
+     ],
+     "vis": "player",
+     "key": "N3o",
+     "dims": {
+      "w": 7,
+      "d": 7
+     }
+    },
+    {
+     "id": "upper-N3o-chair",
+     "kind": "chair",
+     "pos": [
+      20,
+      0,
+      37.5
+     ],
+     "vis": "player",
+     "key": "N3o"
+    },
+    {
+     "id": "upper-N3o-desk",
+     "kind": "desk",
+     "pos": [
+      56.5,
+      0,
+      35
+     ],
+     "vis": "player",
+     "rotY": -90,
+     "key": "N3o"
+    },
+    {
+     "id": "upper-N3o-trap",
+     "kind": "trapdoor",
+     "pos": [
+      45,
+      0,
+      32.5
+     ],
+     "vis": "hidden-object",
+     "key": "N3o",
+     "label": "A pull-rope trapdoor in the ceiling: a folding ladder up to the attic room"
+    },
+    {
+     "id": "upper-baron-sleeps",
+     "kind": "adventurer",
+     "pos": [
+      32.5,
+      0,
+      19.0
+     ],
+     "vis": "hidden-creature",
+     "key": "N3o",
+     "label": "Baron Vargas and Lydia sleep here at night",
+     "size": "medium"
+    },
+    {
+     "id": "upper-N3q-tub",
+     "kind": "trough",
+     "pos": [
+      90,
+      0,
+      17.5
+     ],
+     "vis": "player",
+     "key": "N3q"
+    },
+    {
+     "id": "upper-N3q-towels",
+     "kind": "desk",
+     "pos": [
+      84.0,
+      0,
+      14.0
+     ],
+     "vis": "player",
+     "key": "N3q"
+    },
+    {
+     "id": "upper-N3n-wardrobe",
+     "kind": "wardrobe",
+     "pos": [
+      70,
+      0,
+      13.0
+     ],
+     "vis": "player",
+     "key": "N3n"
+    },
+    {
+     "id": "upper-N3n-chest",
+     "kind": "trunk",
+     "pos": [
+      64.0,
+      0,
+      22.5
+     ],
+     "vis": "player",
+     "key": "N3n"
+    },
+    {
+     "id": "upper-N3l-desk",
+     "kind": "desk",
+     "pos": [
+      80,
+      0,
+      55
+     ],
+     "vis": "player",
+     "key": "N3l"
+    },
+    {
+     "id": "upper-N3l-chair",
+     "kind": "chair",
+     "pos": [
+      75,
+      0,
+      55
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "N3l"
+    },
+    {
+     "id": "upper-N3l-shelf0",
+     "kind": "bookshelf",
+     "pos": [
+      62.0,
+      0,
+      40
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "N3l"
+    },
+    {
+     "id": "upper-N3l-shelf1",
+     "kind": "bookshelf",
+     "pos": [
+      62.0,
+      0,
+      55
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "N3l"
+    },
+    {
+     "id": "upper-N3l-shelf2",
+     "kind": "bookshelf",
+     "pos": [
+      62.0,
+      0,
+      70
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "N3l"
+    },
+    {
+     "id": "upper-N3l-shelf3",
+     "kind": "bookshelf",
+     "pos": [
+      98.0,
+      0,
+      40
+     ],
+     "vis": "player",
+     "rotY": -90,
+     "key": "N3l"
+    },
+    {
+     "id": "upper-N3l-shelf4",
+     "kind": "bookshelf",
+     "pos": [
+      98.0,
+      0,
+      70
+     ],
+     "vis": "player",
+     "rotY": -90,
+     "key": "N3l"
+    },
+    {
+     "id": "upper-N3l-shelf5",
+     "kind": "bookshelf",
+     "pos": [
+      70,
+      0,
+      30
+     ],
+     "vis": "player",
+     "key": "N3l"
+    },
+    {
+     "id": "upper-N3l-shelf6",
+     "kind": "bookshelf",
+     "pos": [
+      87.5,
+      0,
+      30
+     ],
+     "vis": "player",
+     "key": "N3l"
+    },
+    {
+     "id": "upper-N3l-shelf7",
+     "kind": "bookshelf",
+     "pos": [
+      70,
+      0,
+      83.0
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "key": "N3l"
+    },
+    {
+     "id": "upper-N3l-shelf8",
+     "kind": "bookshelf",
+     "pos": [
+      87.5,
+      0,
+      83.0
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "key": "N3l"
+    },
+    {
+     "id": "upper-baron",
+     "kind": "adventurer",
+     "pos": [
+      80,
+      0,
+      62.5
+     ],
+     "vis": "hidden-creature",
+     "key": "N3l",
+     "label": "Baron Vargas Vallakovich in breastplate and rapier, ring and three keys",
+     "size": "medium"
+    },
+    {
+     "id": "upper-N3l-note",
+     "kind": "note",
+     "pos": [
+      80,
+      0,
+      45
+     ],
+     "vis": "dm-note",
+     "key": "N3l",
+     "label": "Windowless, lined floor to ceiling with books (random books table). Keys: the garden door, the closet door, the manacles."
+    },
+    {
+     "id": "upper-N3k-bed",
+     "kind": "bed",
+     "pos": [
+      115,
+      0,
+      19.0
+     ],
+     "vis": "player",
+     "key": "N3k",
+     "dims": {
+      "w": 6,
+      "d": 7
+     }
+    },
+    {
+     "id": "upper-N3k-shelf",
+     "kind": "bookshelf",
+     "pos": [
+      132.5,
+      0,
+      43.0
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "key": "N3k"
+    },
+    {
+     "id": "upper-N3k-mirror",
+     "kind": "niche",
+     "pos": [
+      134.0,
+      0,
+      27.5
+     ],
+     "vis": "hidden-object",
+     "key": "N3k",
+     "label": "A full-length mirror in a wooden frame across from the door"
+    },
+    {
+     "id": "upper-N3j-bed",
+     "kind": "bed",
+     "pos": [
+      115,
+      0,
+      56.5
+     ],
+     "vis": "player",
+     "key": "N3j",
+     "dims": {
+      "w": 6,
+      "d": 7
+     }
+    },
+    {
+     "id": "upper-N3j-chest",
+     "kind": "chest",
+     "pos": [
+      132.5,
+      0,
+      77.5
+     ],
+     "vis": "player",
+     "key": "N3j"
+    },
+    {
+     "id": "upper-N3j-dolls",
+     "kind": "niche",
+     "pos": [
+      122.5,
+      0,
+      75
+     ],
+     "vis": "hidden-object",
+     "key": "N3j",
+     "label": "Dolls in Ireena's likeness everywhere: 'Is No Fun, Is No Blinsky!'"
+    },
+    {
+     "id": "upper-N3j-sword",
+     "kind": "niche",
+     "pos": [
+      132.5,
+      0,
+      80
+     ],
+     "vis": "hidden-object",
+     "key": "N3j",
+     "label": "A shortsword under wrinkled clothes in the unlocked chest; empty bottles under the bed"
+    },
+    {
+     "id": "upper-izek",
+     "kind": "adventurer",
+     "pos": [
+      122.5,
+      0,
+      65
+     ],
+     "vis": "hidden-creature",
+     "key": "N3j",
+     "label": "Izek Strazni (when at home)",
+     "size": "medium"
+    },
+    {
+     "id": "upper-N3p-mirror",
+     "kind": "niche",
+     "pos": [
+      51.0,
+      0,
+      60
+     ],
+     "vis": "hidden-object",
+     "key": "N3p",
+     "label": "The spirit mirror: speak the rhyme within 5 ft and the Ba'al Verzi assassin's ghost appears"
+    },
+    {
+     "id": "upper-N3p-gown",
+     "kind": "armor-suit",
+     "pos": [
+      20,
+      0,
+      50
+     ],
+     "vis": "player",
+     "key": "N3p"
+    },
+    {
+     "id": "upper-N3p-wardrobe",
+     "kind": "wardrobe",
+     "pos": [
+      20,
+      0,
+      71.5
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "key": "N3p"
+    },
+    {
+     "id": "upper-N3p-note",
+     "kind": "note",
+     "pos": [
+      32.5,
+      0,
+      60
+     ],
+     "vis": "dm-note",
+     "key": "N3p",
+     "label": "Lydia's bridal gown on a stand; a door in the corner to a garderobe."
+    },
+    {
+     "id": "upper-N3m-chains",
+     "kind": "chains",
+     "pos": [
+      32.5,
+      0,
+      82.5
+     ],
+     "vis": "player",
+     "key": "N3m",
+     "dims": {
+      "y": 6,
+      "len": 2
+     }
+    },
+    {
+     "id": "upper-udo",
+     "kind": "commoner",
+     "pos": [
+      32.5,
+      0,
+      85
+     ],
+     "vis": "hidden-creature",
+     "key": "N3m",
+     "label": "Udo Lukovich, the shoemaker, manacled for malicious unhappiness",
+     "size": "medium"
+    }
+   ]
+  },
+  {
+   "id": "attic",
+   "name": "Attic",
+   "elevationFt": 30,
+   "ceilingFt": 20,
+   "ambient": "darkness",
+   "north": "-z",
+   "rooms": [
+    {
+     "key": "N3r",
+     "name": "Attic Room",
+     "page": null,
+     "polygon": [
+      [
+       15,
+       7.5
+      ],
+      [
+       52.5,
+       7.5
+      ],
+      [
+       52.5,
+       35
+      ],
+      [
+       15,
+       35
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 20,
+     "desc": "A dusty room under a high peaked roof: an old table with a lantern."
+    },
+    {
+     "key": "N3s",
+     "name": "Attic Storage",
+     "page": 109,
+     "polygon": [
+      [
+       15,
+       35
+      ],
+      [
+       52.5,
+       35
+      ],
+      [
+       52.5,
+       7.5
+      ],
+      [
+       135,
+       7.5
+      ],
+      [
+       135,
+       65
+      ],
+      [
+       15,
+       65
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 20,
+     "desc": "Attic storage crammed with old furniture and crates under sheets.",
+     "dm": "A single trail of footprints leads to the workroom."
+    },
+    {
+     "key": "N3t",
+     "name": "Victor's Workroom",
+     "page": null,
+     "polygon": [
+      [
+       135,
+       7.5
+      ],
+      [
+       175,
+       7.5
+      ],
+      [
+       175,
+       65
+      ],
+      [
+       135,
+       65
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 20,
+     "desc": "A study of mismatched furniture, parchment diagrams on the tables, a shelf of bones, three small children standing with their backs to the door.",
+     "dm": "Victor practises teleportation; the children are his failures. Six cat skeletons. The circle is deadly."
+    }
+   ],
+   "walls": [
+    {
+     "id": "attic-w-0",
+     "a": [
+      15.0,
+      7.5
+     ],
+     "b": [
+      175.0,
+      7.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "attic-w-1",
+     "a": [
+      52.5,
+      7.5
+     ],
+     "b": [
+      52.5,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "attic-w-2",
+     "a": [
+      47.8125,
+      35.0
+     ],
+     "b": [
+      52.5,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling-dusty"
+    },
+    {
+     "id": "attic-w-3",
+     "a": [
+      43.125,
+      35.0
+     ],
+     "b": [
+      47.8125,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling-dusty"
+    },
+    {
+     "id": "attic-w-4",
+     "a": [
+      38.4375,
+      35.0
+     ],
+     "b": [
+      43.125,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling-dusty"
+    },
+    {
+     "id": "attic-w-5",
+     "a": [
+      33.75,
+      35.0
+     ],
+     "b": [
+      38.4375,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling-dusty"
+    },
+    {
+     "id": "attic-w-6",
+     "a": [
+      29.0625,
+      35.0
+     ],
+     "b": [
+      33.75,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling-dusty"
+    },
+    {
+     "id": "attic-w-7",
+     "a": [
+      24.375,
+      35.0
+     ],
+     "b": [
+      29.0625,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling-dusty"
+    },
+    {
+     "id": "attic-w-8",
+     "a": [
+      19.6875,
+      35.0
+     ],
+     "b": [
+      24.375,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling-dusty"
+    },
+    {
+     "id": "attic-w-9",
+     "a": [
+      15.0,
+      35.0
+     ],
+     "b": [
+      19.6875,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling-dusty"
+    },
+    {
+     "id": "attic-w-10",
+     "a": [
+      15.0,
+      30.416666666666664
+     ],
+     "b": [
+      15.0,
+      65.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "attic-w-11",
+     "a": [
+      15.0,
+      25.833333333333336
+     ],
+     "b": [
+      15.0,
+      30.416666666666664
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "attic-w-12",
+     "a": [
+      15.0,
+      21.25
+     ],
+     "b": [
+      15.0,
+      25.833333333333336
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "attic-w-13",
+     "a": [
+      15.0,
+      16.666666666666668
+     ],
+     "b": [
+      15.0,
+      21.25
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "attic-w-14",
+     "a": [
+      15.0,
+      12.08333333333333
+     ],
+     "b": [
+      15.0,
+      16.666666666666668
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "attic-w-15",
+     "a": [
+      15.0,
+      7.5
+     ],
+     "b": [
+      15.0,
+      12.08333333333333
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "attic-w-16",
+     "a": [
+      52.5,
+      30.416666666666664
+     ],
+     "b": [
+      52.5,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "attic-w-17",
+     "a": [
+      52.5,
+      25.833333333333336
+     ],
+     "b": [
+      52.5,
+      30.416666666666664
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "attic-w-18",
+     "a": [
+      52.5,
+      21.25
+     ],
+     "b": [
+      52.5,
+      25.833333333333336
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "attic-w-19",
+     "a": [
+      52.5,
+      16.666666666666668
+     ],
+     "b": [
+      52.5,
+      21.25
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "attic-w-20",
+     "a": [
+      52.5,
+      12.08333333333333
+     ],
+     "b": [
+      52.5,
+      16.666666666666668
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "attic-w-21",
+     "a": [
+      52.5,
+      7.5
+     ],
+     "b": [
+      52.5,
+      12.08333333333333
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "attic-w-22",
+     "a": [
+      135.0,
+      7.5
+     ],
+     "b": [
+      135.0,
+      50.625
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "attic-w-23",
+     "a": [
+      135.0,
+      50.625
+     ],
+     "b": [
+      135.0,
+      65.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling-dusty"
+    },
+    {
+     "id": "attic-w-24",
+     "a": [
+      130.0,
+      65.0
+     ],
+     "b": [
+      175.0,
+      65.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "attic-w-25",
+     "a": [
+      125.0,
+      65.0
+     ],
+     "b": [
+      130.0,
+      65.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "attic-w-26",
+     "a": [
+      120.0,
+      65.0
+     ],
+     "b": [
+      125.0,
+      65.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "attic-w-27",
+     "a": [
+      115.0,
+      65.0
+     ],
+     "b": [
+      120.0,
+      65.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "attic-w-28",
+     "a": [
+      110.0,
+      65.0
+     ],
+     "b": [
+      115.0,
+      65.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "attic-w-29",
+     "a": [
+      105.0,
+      65.0
+     ],
+     "b": [
+      110.0,
+      65.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "attic-w-30",
+     "a": [
+      100.0,
+      65.0
+     ],
+     "b": [
+      105.0,
+      65.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "attic-w-31",
+     "a": [
+      95.0,
+      65.0
+     ],
+     "b": [
+      100.0,
+      65.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "attic-w-32",
+     "a": [
+      90.0,
+      65.0
+     ],
+     "b": [
+      95.0,
+      65.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "attic-w-33",
+     "a": [
+      85.0,
+      65.0
+     ],
+     "b": [
+      90.0,
+      65.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "attic-w-34",
+     "a": [
+      80.0,
+      65.0
+     ],
+     "b": [
+      85.0,
+      65.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "attic-w-35",
+     "a": [
+      75.0,
+      65.0
+     ],
+     "b": [
+      80.0,
+      65.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "attic-w-36",
+     "a": [
+      70.0,
+      65.0
+     ],
+     "b": [
+      75.0,
+      65.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "attic-w-37",
+     "a": [
+      65.0,
+      65.0
+     ],
+     "b": [
+      70.0,
+      65.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "attic-w-38",
+     "a": [
+      60.0,
+      65.0
+     ],
+     "b": [
+      65.0,
+      65.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "attic-w-39",
+     "a": [
+      55.0,
+      65.0
+     ],
+     "b": [
+      60.0,
+      65.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "attic-w-40",
+     "a": [
+      50.0,
+      65.0
+     ],
+     "b": [
+      55.0,
+      65.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "attic-w-41",
+     "a": [
+      45.0,
+      65.0
+     ],
+     "b": [
+      50.0,
+      65.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "attic-w-42",
+     "a": [
+      40.0,
+      65.0
+     ],
+     "b": [
+      45.0,
+      65.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "attic-w-43",
+     "a": [
+      35.0,
+      65.0
+     ],
+     "b": [
+      40.0,
+      65.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "attic-w-44",
+     "a": [
+      30.0,
+      65.0
+     ],
+     "b": [
+      35.0,
+      65.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "attic-w-45",
+     "a": [
+      25.0,
+      65.0
+     ],
+     "b": [
+      30.0,
+      65.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "attic-w-46",
+     "a": [
+      20.0,
+      65.0
+     ],
+     "b": [
+      25.0,
+      65.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "attic-w-47",
+     "a": [
+      15.0,
+      65.0
+     ],
+     "b": [
+      20.0,
+      65.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "attic-w-48",
+     "a": [
+      175.0,
+      7.5
+     ],
+     "b": [
+      175.0,
+      65.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "attic-w-49",
+     "a": [
+      135.0,
+      45.83333333333334
+     ],
+     "b": [
+      135.0,
+      50.625
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "attic-w-50",
+     "a": [
+      135.0,
+      41.04166666666666
+     ],
+     "b": [
+      135.0,
+      45.83333333333334
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "attic-w-51",
+     "a": [
+      135.0,
+      36.25
+     ],
+     "b": [
+      135.0,
+      41.04166666666666
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "attic-w-52",
+     "a": [
+      135.0,
+      31.45833333333333
+     ],
+     "b": [
+      135.0,
+      36.25
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "attic-w-53",
+     "a": [
+      135.0,
+      26.66666666666667
+     ],
+     "b": [
+      135.0,
+      31.45833333333333
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "attic-w-54",
+     "a": [
+      135.0,
+      21.875
+     ],
+     "b": [
+      135.0,
+      26.66666666666667
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "attic-w-55",
+     "a": [
+      135.0,
+      17.08333333333333
+     ],
+     "b": [
+      135.0,
+      21.875
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "attic-w-56",
+     "a": [
+      135.0,
+      12.29166666666667
+     ],
+     "b": [
+      135.0,
+      17.08333333333333
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "attic-w-57",
+     "a": [
+      135.0,
+      7.5
+     ],
+     "b": [
+      135.0,
+      12.29166666666667
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    }
+   ],
+   "lights": [
+    {
+     "id": "attic-l-N3r-lamp",
+     "pos": [
+      25,
+      4,
+      20
+     ],
+     "preset": "lantern",
+     "bright": 10,
+     "dim": 20
+    },
+    {
+     "id": "attic-l-N3t-lamp",
+     "pos": [
+      150,
+      5,
+      20
+     ],
+     "preset": "lantern",
+     "bright": 15,
+     "dim": 30
+    }
+   ],
+   "objects": [
+    {
+     "id": "attic-N3t-glyph",
+     "kind": "pressure-plate",
+     "pos": [
+      137.5,
+      0,
+      37.5
+     ],
+     "vis": "hidden-object",
+     "key": "N3t",
+     "label": "Glyph of warding on the skull-carved door: 5d8 lightning for anyone but Victor"
+    },
+    {
+     "id": "attic-N3t-sign",
+     "kind": "note",
+     "pos": [
+      131.5,
+      0,
+      37.5
+     ],
+     "vis": "dm-note",
+     "key": "N3t",
+     "label": "'ALL IS NOT WELL!' hangs from the knob; a young voice practises a teleport spell beyond."
+    },
+    {
+     "id": "attic-N3r-table",
+     "kind": "table",
+     "pos": [
+      25,
+      0,
+      20
+     ],
+     "vis": "player",
+     "key": "N3r",
+     "dims": {
+      "w": 4,
+      "d": 3
+     }
+    },
+    {
+     "id": "attic-N3r-lamp",
+     "kind": "lamp",
+     "pos": [
+      25,
+      3,
+      20
+     ],
+     "vis": "player",
+     "key": "N3r"
+    },
+    {
+     "id": "attic-N3r-trap",
+     "kind": "trapdoor",
+     "pos": [
+      42.5,
+      0,
+      25
+     ],
+     "vis": "hidden-object",
+     "key": "N3r",
+     "label": "The folding ladder down to the master bedroom"
+    },
+    {
+     "id": "attic-N3s-junk0",
+     "kind": "trunk",
+     "pos": [
+      60,
+      0,
+      15
+     ],
+     "vis": "player",
+     "key": "N3s"
+    },
+    {
+     "id": "attic-N3s-junk1",
+     "kind": "sheeted",
+     "pos": [
+      75,
+      0,
+      45
+     ],
+     "vis": "player",
+     "rotY": 40,
+     "key": "N3s"
+    },
+    {
+     "id": "attic-N3s-junk2",
+     "kind": "chest",
+     "pos": [
+      95,
+      0,
+      20
+     ],
+     "vis": "player",
+     "rotY": 80,
+     "key": "N3s"
+    },
+    {
+     "id": "attic-N3s-junk3",
+     "kind": "trunk",
+     "pos": [
+      110,
+      0,
+      50
+     ],
+     "vis": "player",
+     "rotY": 120,
+     "key": "N3s"
+    },
+    {
+     "id": "attic-N3s-junk4",
+     "kind": "wardrobe",
+     "pos": [
+      70,
+      0,
+      57.5
+     ],
+     "vis": "player",
+     "rotY": 160,
+     "key": "N3s"
+    },
+    {
+     "id": "attic-N3s-junk5",
+     "kind": "sheeted",
+     "pos": [
+      120,
+      0,
+      17.5
+     ],
+     "vis": "player",
+     "rotY": 200,
+     "key": "N3s"
+    },
+    {
+     "id": "attic-N3s-junk6",
+     "kind": "refuse",
+     "pos": [
+      30,
+      0,
+      50
+     ],
+     "vis": "player",
+     "rotY": 240,
+     "key": "N3s"
+    },
+    {
+     "id": "attic-N3s-junk7",
+     "kind": "refuse",
+     "pos": [
+      90,
+      0,
+      35
+     ],
+     "vis": "player",
+     "rotY": 280,
+     "key": "N3s"
+    },
+    {
+     "id": "attic-N3s-junk8",
+     "kind": "cabinet",
+     "pos": [
+      125,
+      0,
+      35
+     ],
+     "vis": "player",
+     "rotY": 320,
+     "key": "N3s"
+    },
+    {
+     "id": "attic-N3s-prints",
+     "kind": "footprints",
+     "pos": [
+      100,
+      0,
+      37.5
+     ],
+     "vis": "player",
+     "key": "N3s",
+     "dims": {
+      "n": 10,
+      "len": 30,
+      "seed": 7
+     }
+    },
+    {
+     "id": "attic-N3s-note",
+     "kind": "note",
+     "pos": [
+      75,
+      0,
+      30
+     ],
+     "vis": "dm-note",
+     "key": "N3s",
+     "label": "One set of footprints in the dust leads east to the workroom."
+    },
+    {
+     "id": "attic-N3t-table-a",
+     "kind": "table",
+     "pos": [
+      150,
+      0,
+      17.5
+     ],
+     "vis": "player",
+     "key": "N3t",
+     "dims": {
+      "w": 6,
+      "d": 3
+     }
+    },
+    {
+     "id": "attic-N3t-table-b",
+     "kind": "table",
+     "pos": [
+      162.5,
+      0,
+      52.5
+     ],
+     "vis": "player",
+     "key": "N3t",
+     "dims": {
+      "w": 5,
+      "d": 3
+     }
+    },
+    {
+     "id": "attic-N3t-shelf",
+     "kind": "bookshelf",
+     "pos": [
+      173.0,
+      0,
+      30
+     ],
+     "vis": "player",
+     "rotY": -90,
+     "key": "N3t"
+    },
+    {
+     "id": "attic-N3t-circle",
+     "kind": "rug",
+     "pos": [
+      150,
+      0,
+      40
+     ],
+     "vis": "player",
+     "key": "N3t",
+     "dims": {
+      "w": 12,
+      "d": 12
+     }
+    },
+    {
+     "id": "attic-victor",
+     "kind": "adventurer",
+     "pos": [
+      150,
+      0,
+      35
+     ],
+     "vis": "hidden-creature",
+     "key": "N3t",
+     "label": "Victor Vallakovich (mage apprentice) at his flawed teleportation circle",
+     "size": "medium"
+    },
+    {
+     "id": "attic-N3t-children",
+     "kind": "skeleton",
+     "pos": [
+      167.5,
+      0,
+      12.5
+     ],
+     "vis": "hidden-creature",
+     "key": "N3t",
+     "label": "Three \"children\" with their backs turned: the dead butler and lady-in-waiting (Victor's mistake) and a dummy",
+     "size": "small"
+    },
+    {
+     "id": "attic-N3t-cats",
+     "kind": "swarm",
+     "pos": [
+      165,
+      0,
+      45
+     ],
+     "vis": "hidden-creature",
+     "key": "N3t",
+     "label": "Six cat skeletons (cat stats, darkvision, poison immunity)",
+     "size": "tiny"
+    },
+    {
+     "id": "attic-N3t-circle-note",
+     "kind": "niche",
+     "pos": [
+      150,
+      0,
+      43.0
+     ],
+     "vis": "hidden-object",
+     "key": "N3t",
+     "label": "Victor's circle: DC 15 Arcana shows it is flawed and deadly to use"
+    },
+    {
+     "id": "attic-N3t-spellbook",
+     "kind": "niche",
+     "pos": [
+      155,
+      0,
+      17.5
+     ],
+     "vis": "hidden-object",
+     "key": "N3t",
+     "label": "Victor's spellbook: an incomplete teleportation circle and three sigil sequences"
+    },
+    {
+     "id": "attic-N3-roof",
+     "kind": "roof-gable",
+     "pos": [
+      95,
+      0,
+      36.25
+     ],
+     "vis": "player",
+     "dims": {
+      "w": 58,
+      "d": 162,
+      "h": 18
+     }
+    }
+   ]
+  }
+ ],
+ "links": [
+  {
+   "id": "lk-n3-grand",
+   "kind": "stairs",
+   "from": {
+    "level": "ground",
+    "pos": [
+     146.25,
+     25
+    ]
+   },
+   "to": {
+    "level": "upper",
+    "pos": [
+     146.25,
+     25
+    ]
+   }
+  },
+  {
+   "id": "lk-n3-kitchen",
+   "kind": "stairs",
+   "from": {
+    "level": "ground",
+    "pos": [
+     27.5,
+     100
+    ]
+   },
+   "to": {
+    "level": "upper",
+    "pos": [
+     27.5,
+     100
+    ]
+   }
+  },
+  {
+   "id": "lk-n3-attic",
+   "kind": "ladder",
+   "from": {
+    "level": "upper",
+    "pos": [
+     45,
+     32.5
+    ]
+   },
+   "to": {
+    "level": "attic",
+    "pos": [
+     42.5,
+     25
+    ]
+   }
+  }
+ ]
+}

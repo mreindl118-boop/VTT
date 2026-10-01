@@ -2414,6 +2414,7 @@
       ]
      ],
      "floor": "cobble",
+     "enter": "ch05/N1",
      "desc": "A slouching stone church with a bulging steeple, stained glass of saints cracked in every window, an iron-fenced garden of graves beside it.",
      "dm": "Father Lucian, Yeska and Milivoj. The bones of St. Andral are gone from the crypt: Milivoj took them to the coffin maker. Same plan as the village church, no undercroft."
     },
@@ -2494,6 +2495,7 @@
       ]
      ],
      "floor": "cobble",
+     "enter": "ch05/N7",
      "desc": "A toymaker's shop with a cheerful, slightly wrong sign.",
      "dm": "Gadof Blinsky and his toys; the doll that looks like Ireena."
     },
@@ -2600,6 +2602,7 @@
       ]
      ],
      "floor": "cobble",
+     "enter": "ch05/N5",
      "desc": "Pens and a warehouse by the east gate where the stockyard's beasts are kept.",
      "dm": "Ernst Larnak's territory; Rictavio's tiger is penned here."
     },

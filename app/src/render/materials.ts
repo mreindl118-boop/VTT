@@ -103,9 +103,13 @@ export function wallMat(color: string, opts: { emissive?: string } = {}): THREE.
 }
 
 /** Clip every material under a root by the section plane (floors, props and walls alike), once. */
+/** Only the building's shell is sliced by the section plane: floors, walls, doors and roofs. Furniture, people and
+ *  things are never cut through; they vanish whole once the cut drops below their floor (see App.applySlider). */
+export const SHELL_ROLES = new Set(['floor', 'wall', 'door', 'roof']);
 export function sectionClip(root: THREE.Object3D, on: boolean): void {
   root.traverse((o) => {
     const m = o as THREE.Mesh; if (!m.isMesh) return;
+    if (on && !SHELL_ROLES.has(o.userData.role)) return;
     const mats = Array.isArray(m.material) ? m.material : [m.material];
     for (const mat of mats) { if (on) { if (!mat.clippingPlanes?.length) mat.clippingPlanes = [WALL_CLIP]; } else if (mat.clippingPlanes?.[0] === WALL_CLIP && o.userData.role !== 'wall' && o.userData.role !== 'door') mat.clippingPlanes = null; }
   });

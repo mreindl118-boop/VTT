@@ -26,6 +26,7 @@ import { Channel, type Msg } from './state/channel';
 import { newCampaign, revealSets, type CampaignState, type Combatant, type Encounter, type Reveal, type Sheet, type Token } from './state/campaign';
 import { tacticalRange, type RangeResult } from './core/range';
 import { buildRangeOverlay } from './render/rangeOverlay';
+import { SHELL_ROLES } from './render/materials';
 import { creatureById, figureFor, aliasFor, seenAs, statsOf, speedFtOf, colorOf } from './bestiary';
 import { sightBlockers } from './core/light';
 import { idbGet, idbSet } from './state/idb';
@@ -98,7 +99,7 @@ export class App {
     if (!this.cur?.scene.stacked) return [];
     const stack = this.stackOf(this.levelId);
     if (this.cur.scene.stacked === 'open') return this.cur.scene.levels.filter((l) => stack.has(l.id)).map((l) => ({ level: l.id, name: l.name, ft: l.elevationFt + (l.ceilingFt ?? 10) + 2 }));
-    return this.cur.scene.levels.filter((l) => stack.has(l.id)).map((l) => ({ level: l.id, name: l.name, ft: l.elevationFt + (this.lowWalls ? WALL_CUT_FT : (l.ceilingFt ?? 10) - 0.5) }));
+    return this.cur.scene.levels.filter((l) => stack.has(l.id)).map((l) => ({ level: l.id, name: l.name, ft: l.elevationFt + (l.ceilingFt ?? 10) - 0.5 }));
   }
   /** The span of floors on a stacked site, for the slicer. */
   get sectionRange(): { min: number; max: number } | undefined {
@@ -206,7 +207,7 @@ export class App {
     }
     this.cur = { path, scene, grid, levels, coverage, covTex, labels, tokens: new Map() };
     // The world-map marker follows the party into whichever pin this scene belongs to.
-    const pin = pinForScene(path);
+    const pin = pinForScene(path) ?? (scene.parent ? pinForScene(scene.parent) : undefined);
     // Outdoors: the land, forest, mountains and the castle continue to the horizon.
     this.backdrop?.removeFromParent(); this.backdrop = undefined;
     // The level that meets the open air (the one with terrain: a courtyard, a street) decides outdoor fog and the backdrop.
@@ -561,6 +562,8 @@ export class App {
 
   applySlider(): void {
     if (!this.cur) return;
+    // Restore what the section hid last pass before the visibility rules below run again.
+    if (this.cur.scene.stacked) for (const b of this.cur.levels.values()) b.root.traverse((o) => { if (o.userData.secHidden) { o.visible = true; delete o.userData.secHidden; } });
     const T = this.T;
     const rs = revealSets(this.state, this.cur.scene.location);
     fogUniforms.uFog.value = fogCurve(T);
@@ -607,11 +610,17 @@ export class App {
     if (this.gridMode !== 'off') setGridType(b.grid, this.gridMode);
     // Cutaway: walls and doors keep their real height; the top is clipped at 5 ft above the floor.
     // The section cut: on stacked sites it is a slicer the DM can move; elsewhere it trims walls at 5 ft.
-    const followCut = this.cur.scene.stacked === 'open' ? this.sectionRange!.max : this.level.elevationFt + (this.lowWalls ? WALL_CUT_FT : (this.level.ceilingFt ?? 10) - 0.5);
+    // The follow cut sits just under the floor above (the roof, on the top storey): the whole room shows, nothing in it is cut.
+    const followCut = this.cur.scene.stacked === 'open' ? this.sectionRange!.max : this.level.elevationFt + (this.level.ceilingFt ?? 10) - 0.5;
     const cut = this.cur.scene.stacked ? (this.cutFt ?? followCut) : this.lowWalls ? this.level.elevationFt + WALL_CUT_FT : null;
     this.followCutFt = followCut;
     setWallCut(cut);
-    if (this.cur.scene.stacked) for (const b of this.cur.levels.values()) sectionClip(b.root, true);
+    if (this.cur.scene.stacked) for (const [lid, b] of this.cur.levels) {
+      sectionClip(b.root, true);
+      // What stands on a floor is never sliced: it shows whole while the cut is above that floor and goes with the floor when the cut drops below it.
+      const lv = this.cur.scene.levels.find((x) => x.id === lid)!, show = cut === null || cut >= lv.elevationFt + 1;
+      b.root.traverse((o) => { if (SHELL_ROLES.has(o.userData.role) || o.userData.role === 'grid' || !(o as THREE.Mesh).isMesh) return; if (!show) { if (o.visible) { o.visible = false; o.userData.secHidden = true; } } });
+    }
     this.world.invalidate();
   }
 

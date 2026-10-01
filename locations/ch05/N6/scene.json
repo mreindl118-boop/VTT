@@ -1,0 +1,3133 @@
+{
+ "schema": 1,
+ "location": "N6",
+ "chapter": "ch05",
+ "name": "Coffin Maker's Shop",
+ "mapPage": 116,
+ "bookScaleFt": 5,
+ "ambient": "interior-dim",
+ "parent": "ch05/N",
+ "stacked": true,
+ "entry": "ground",
+ "levels": [
+  {
+   "id": "ground",
+   "name": "Ground level",
+   "elevationFt": 0,
+   "ceilingFt": 10,
+   "ambient": "interior-dim",
+   "north": "-z",
+   "rooms": [
+    {
+     "key": "N6a",
+     "name": "Coffin Storage",
+     "page": 117,
+     "polygon": [
+      [
+       5,
+       7.5
+      ],
+      [
+       95,
+       7.5
+      ],
+      [
+       95,
+       100
+      ],
+      [
+       45,
+       100
+      ],
+      [
+       45,
+       60
+      ],
+      [
+       5,
+       60
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 10,
+     "desc": "An L-shaped room, musty, thirteen coffins stood and laid about the floor."
+    },
+    {
+     "key": "N6c",
+     "name": "Workshop",
+     "page": 117,
+     "polygon": [
+      [
+       5,
+       60
+      ],
+      [
+       45,
+       60
+      ],
+      [
+       45,
+       152.5
+      ],
+      [
+       5,
+       152.5
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 10,
+     "desc": "A carpenter's workshop: three sturdy benches along the west wall, every tool in its place."
+    },
+    {
+     "key": "N6a-stair",
+     "name": "Stair",
+     "page": 117,
+     "polygon": [
+      [
+       45,
+       100
+      ],
+      [
+       57.5,
+       100
+      ],
+      [
+       57.5,
+       152.5
+      ],
+      [
+       45,
+       152.5
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 10,
+     "desc": "A narrow stair."
+    },
+    {
+     "key": "N6b",
+     "name": "Junk Room",
+     "page": null,
+     "polygon": [
+      [
+       57.5,
+       100
+      ],
+      [
+       95,
+       100
+      ],
+      [
+       95,
+       152.5
+      ],
+      [
+       57.5,
+       152.5
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 10,
+     "desc": "A table and four chairs under a lantern on a chain; two fine cabinets on the east wall."
+    }
+   ],
+   "walls": [
+    {
+     "id": "ground-w-0",
+     "a": [
+      5.0,
+      7.5
+     ],
+     "b": [
+      30.0,
+      7.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-1",
+     "a": [
+      30.0,
+      7.5
+     ],
+     "b": [
+      35.0,
+      7.5
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-2",
+     "a": [
+      35.0,
+      7.5
+     ],
+     "b": [
+      70.0,
+      7.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-3",
+     "a": [
+      70.0,
+      7.5
+     ],
+     "b": [
+      75.0,
+      7.5
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-4",
+     "a": [
+      75.0,
+      7.5
+     ],
+     "b": [
+      95.0,
+      7.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-5",
+     "a": [
+      95.0,
+      7.5
+     ],
+     "b": [
+      95.0,
+      152.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-6",
+     "a": [
+      90.0,
+      100.0
+     ],
+     "b": [
+      95.0,
+      100.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-7",
+     "a": [
+      85.0,
+      100.0
+     ],
+     "b": [
+      90.0,
+      100.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-8",
+     "a": [
+      80.0,
+      100.0
+     ],
+     "b": [
+      85.0,
+      100.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-9",
+     "a": [
+      75.0,
+      100.0
+     ],
+     "b": [
+      80.0,
+      100.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-10",
+     "a": [
+      70.0,
+      100.0
+     ],
+     "b": [
+      75.0,
+      100.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-11",
+     "a": [
+      65.0,
+      100.0
+     ],
+     "b": [
+      70.0,
+      100.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "N6b-a",
+     "a": [
+      60.0,
+      100.0
+     ],
+     "b": [
+      65.0,
+      100.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "half-timber",
+     "open": false
+    },
+    {
+     "id": "ground-w-13",
+     "a": [
+      55.0,
+      100.0
+     ],
+     "b": [
+      60.0,
+      100.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-14",
+     "a": [
+      50.0,
+      100.0
+     ],
+     "b": [
+      55.0,
+      100.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-15",
+     "a": [
+      45.0,
+      100.0
+     ],
+     "b": [
+      50.0,
+      100.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-16",
+     "a": [
+      45.0,
+      95.0
+     ],
+     "b": [
+      45.0,
+      152.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-17",
+     "a": [
+      45.0,
+      90.0
+     ],
+     "b": [
+      45.0,
+      95.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "N6c-a",
+     "a": [
+      45.0,
+      85.0
+     ],
+     "b": [
+      45.0,
+      90.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "half-timber",
+     "open": false
+    },
+    {
+     "id": "ground-w-19",
+     "a": [
+      45.0,
+      80.0
+     ],
+     "b": [
+      45.0,
+      85.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-20",
+     "a": [
+      45.0,
+      75.0
+     ],
+     "b": [
+      45.0,
+      80.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-21",
+     "a": [
+      45.0,
+      70.0
+     ],
+     "b": [
+      45.0,
+      75.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-22",
+     "a": [
+      45.0,
+      65.0
+     ],
+     "b": [
+      45.0,
+      70.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-23",
+     "a": [
+      45.0,
+      60.0
+     ],
+     "b": [
+      45.0,
+      65.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-24",
+     "a": [
+      40.0,
+      60.0
+     ],
+     "b": [
+      45.0,
+      60.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling-dusty"
+    },
+    {
+     "id": "ground-w-25",
+     "a": [
+      35.0,
+      60.0
+     ],
+     "b": [
+      40.0,
+      60.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling-dusty"
+    },
+    {
+     "id": "ground-w-26",
+     "a": [
+      30.0,
+      60.0
+     ],
+     "b": [
+      35.0,
+      60.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling-dusty"
+    },
+    {
+     "id": "ground-w-27",
+     "a": [
+      25.0,
+      60.0
+     ],
+     "b": [
+      30.0,
+      60.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling-dusty"
+    },
+    {
+     "id": "ground-w-28",
+     "a": [
+      20.0,
+      60.0
+     ],
+     "b": [
+      25.0,
+      60.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling-dusty"
+    },
+    {
+     "id": "ground-w-29",
+     "a": [
+      15.0,
+      60.0
+     ],
+     "b": [
+      20.0,
+      60.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling-dusty"
+    },
+    {
+     "id": "ground-w-30",
+     "a": [
+      10.0,
+      60.0
+     ],
+     "b": [
+      15.0,
+      60.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling-dusty"
+    },
+    {
+     "id": "ground-w-31",
+     "a": [
+      5.0,
+      60.0
+     ],
+     "b": [
+      10.0,
+      60.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling-dusty"
+    },
+    {
+     "id": "ground-w-32",
+     "a": [
+      5.0,
+      54.75
+     ],
+     "b": [
+      5.0,
+      152.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-33",
+     "a": [
+      5.0,
+      49.5
+     ],
+     "b": [
+      5.0,
+      54.75
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-34",
+     "a": [
+      5.0,
+      44.25
+     ],
+     "b": [
+      5.0,
+      49.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-35",
+     "a": [
+      5.0,
+      39.0
+     ],
+     "b": [
+      5.0,
+      44.25
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-36",
+     "a": [
+      5.0,
+      33.75
+     ],
+     "b": [
+      5.0,
+      39.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-37",
+     "a": [
+      5.0,
+      28.5
+     ],
+     "b": [
+      5.0,
+      33.75
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-38",
+     "a": [
+      5.0,
+      23.25
+     ],
+     "b": [
+      5.0,
+      28.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-39",
+     "a": [
+      5.0,
+      18.0
+     ],
+     "b": [
+      5.0,
+      23.25
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-40",
+     "a": [
+      5.0,
+      12.749999999999995
+     ],
+     "b": [
+      5.0,
+      18.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-41",
+     "a": [
+      5.0,
+      7.5
+     ],
+     "b": [
+      5.0,
+      12.749999999999995
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-42",
+     "a": [
+      45.0,
+      60.0
+     ],
+     "b": [
+      45.0,
+      152.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-43",
+     "a": [
+      40.0,
+      152.5
+     ],
+     "b": [
+      95.0,
+      152.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-44",
+     "a": [
+      35.0,
+      152.5
+     ],
+     "b": [
+      40.0,
+      152.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-45",
+     "a": [
+      30.0,
+      152.5
+     ],
+     "b": [
+      35.0,
+      152.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-46",
+     "a": [
+      25.0,
+      152.5
+     ],
+     "b": [
+      30.0,
+      152.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "N6-front",
+     "a": [
+      20.0,
+      152.5
+     ],
+     "b": [
+      25.0,
+      152.5
+     ],
+     "flags": [
+      "door",
+      "locked"
+     ],
+     "material": "half-timber",
+     "open": false
+    },
+    {
+     "id": "ground-w-48",
+     "a": [
+      15.0,
+      152.5
+     ],
+     "b": [
+      20.0,
+      152.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-49",
+     "a": [
+      10.0,
+      152.5
+     ],
+     "b": [
+      15.0,
+      152.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-50",
+     "a": [
+      5.0,
+      152.5
+     ],
+     "b": [
+      10.0,
+      152.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-51",
+     "a": [
+      45.0,
+      100.0
+     ],
+     "b": [
+      95.0,
+      100.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-52",
+     "a": [
+      57.5,
+      100.0
+     ],
+     "b": [
+      57.5,
+      110.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-53",
+     "a": [
+      57.5,
+      110.5
+     ],
+     "b": [
+      57.5,
+      142.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling-dusty"
+    },
+    {
+     "id": "ground-w-54",
+     "a": [
+      57.5,
+      142.0
+     ],
+     "b": [
+      57.5,
+      152.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-55",
+     "a": [
+      57.5,
+      147.25
+     ],
+     "b": [
+      57.5,
+      152.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-56",
+     "a": [
+      57.5,
+      142.0
+     ],
+     "b": [
+      57.5,
+      147.25
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-57",
+     "a": [
+      57.5,
+      105.24999999999999
+     ],
+     "b": [
+      57.5,
+      110.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-58",
+     "a": [
+      57.5,
+      100.0
+     ],
+     "b": [
+      57.5,
+      105.24999999999999
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    }
+   ],
+   "lights": [
+    {
+     "id": "ground-l-N6b-lamp",
+     "pos": [
+      80,
+      6,
+      137.5
+     ],
+     "preset": "lantern",
+     "bright": 10,
+     "dim": 20
+    }
+   ],
+   "objects": [
+    {
+     "id": "ground-N6-shutters",
+     "kind": "note",
+     "pos": [
+      50,
+      0,
+      2.5
+     ],
+     "vis": "dm-note",
+     "label": "Every shutter is closed tight; a coffin-shaped sign hangs over the door."
+    },
+    {
+     "id": "ground-N6a-coffin0",
+     "kind": "coffin",
+     "pos": [
+      15,
+      0,
+      15
+     ],
+     "vis": "player",
+     "rotY": 20,
+     "key": "N6a"
+    },
+    {
+     "id": "ground-N6a-coffin1",
+     "kind": "coffin",
+     "pos": [
+      15,
+      0,
+      30
+     ],
+     "vis": "player",
+     "rotY": -15,
+     "key": "N6a"
+    },
+    {
+     "id": "ground-N6a-coffin2",
+     "kind": "coffin",
+     "pos": [
+      15,
+      0,
+      45
+     ],
+     "vis": "player",
+     "rotY": 10,
+     "key": "N6a"
+    },
+    {
+     "id": "ground-N6a-coffin3",
+     "kind": "coffin",
+     "pos": [
+      40,
+      0,
+      15
+     ],
+     "vis": "player",
+     "rotY": 80,
+     "key": "N6a"
+    },
+    {
+     "id": "ground-N6a-coffin4",
+     "kind": "coffin",
+     "pos": [
+      47.5,
+      0,
+      30
+     ],
+     "vis": "player",
+     "rotY": -70,
+     "key": "N6a"
+    },
+    {
+     "id": "ground-N6a-coffin5",
+     "kind": "coffin",
+     "pos": [
+      50,
+      0,
+      45
+     ],
+     "vis": "player",
+     "rotY": 60,
+     "key": "N6a"
+    },
+    {
+     "id": "ground-N6a-coffin6",
+     "kind": "coffin",
+     "pos": [
+      77.5,
+      0,
+      15
+     ],
+     "vis": "player",
+     "rotY": 15,
+     "key": "N6a"
+    },
+    {
+     "id": "ground-N6a-coffin7",
+     "kind": "coffin",
+     "pos": [
+      87.5,
+      0,
+      30
+     ],
+     "vis": "player",
+     "rotY": 85,
+     "key": "N6a"
+    },
+    {
+     "id": "ground-N6a-coffin8",
+     "kind": "coffin",
+     "pos": [
+      87.5,
+      0,
+      50
+     ],
+     "vis": "player",
+     "rotY": 80,
+     "key": "N6a"
+    },
+    {
+     "id": "ground-N6a-coffin9",
+     "kind": "coffin",
+     "pos": [
+      50,
+      0,
+      65
+     ],
+     "vis": "player",
+     "rotY": 85,
+     "key": "N6a"
+    },
+    {
+     "id": "ground-N6a-coffin10",
+     "kind": "coffin",
+     "pos": [
+      87.5,
+      0,
+      70
+     ],
+     "vis": "player",
+     "rotY": 75,
+     "key": "N6a"
+    },
+    {
+     "id": "ground-N6a-coffin11",
+     "kind": "coffin",
+     "pos": [
+      75,
+      0,
+      85
+     ],
+     "vis": "player",
+     "rotY": -20,
+     "key": "N6a"
+    },
+    {
+     "id": "ground-N6a-coffin12",
+     "kind": "coffin",
+     "pos": [
+      87.5,
+      0,
+      90
+     ],
+     "vis": "player",
+     "rotY": 70,
+     "key": "N6a"
+    },
+    {
+     "id": "ground-N6a-note",
+     "kind": "note",
+     "pos": [
+      60,
+      0,
+      40
+     ],
+     "vis": "dm-note",
+     "key": "N6a",
+     "label": "Thirteen coffins stand about the floor, Henrik's stock and display."
+    },
+    {
+     "id": "ground-N6c-bench0",
+     "kind": "table",
+     "pos": [
+      12.5,
+      0,
+      70
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "N6c",
+     "dims": {
+      "w": 10,
+      "d": 3
+     }
+    },
+    {
+     "id": "ground-N6c-bench1",
+     "kind": "table",
+     "pos": [
+      12.5,
+      0,
+      100
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "N6c",
+     "dims": {
+      "w": 10,
+      "d": 3
+     }
+    },
+    {
+     "id": "ground-N6c-bench2",
+     "kind": "table",
+     "pos": [
+      12.5,
+      0,
+      130
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "N6c",
+     "dims": {
+      "w": 10,
+      "d": 3
+     }
+    },
+    {
+     "id": "ground-N6c-tools",
+     "kind": "shelves",
+     "pos": [
+      7.0,
+      0,
+      145
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "N6c"
+    },
+    {
+     "id": "ground-N6c-tools-note",
+     "kind": "niche",
+     "pos": [
+      12.5,
+      0,
+      85
+     ],
+     "vis": "hidden-object",
+     "key": "N6c",
+     "label": "Henrik's carpentry tools along the benches"
+    },
+    {
+     "id": "ground-N6-stair-run",
+     "kind": "stairs-straight",
+     "pos": [
+      51.25,
+      0,
+      120
+     ],
+     "vis": "player",
+     "key": "N6a-stair",
+     "dims": {
+      "w": 4,
+      "rise": 10,
+      "fromZ": 140,
+      "toZ": 105
+     }
+    },
+    {
+     "id": "ground-N6b-table",
+     "kind": "table-round",
+     "pos": [
+      80,
+      0,
+      137.5
+     ],
+     "vis": "player",
+     "key": "N6b"
+    },
+    {
+     "id": "ground-N6b-chair0",
+     "kind": "chair",
+     "pos": [
+      72.5,
+      0,
+      132.5
+     ],
+     "vis": "player",
+     "key": "N6b"
+    },
+    {
+     "id": "ground-N6b-chair1",
+     "kind": "chair",
+     "pos": [
+      87.5,
+      0,
+      132.5
+     ],
+     "vis": "player",
+     "key": "N6b"
+    },
+    {
+     "id": "ground-N6b-chair2",
+     "kind": "chair",
+     "pos": [
+      72.5,
+      0,
+      142.5
+     ],
+     "vis": "player",
+     "key": "N6b"
+    },
+    {
+     "id": "ground-N6b-chair3",
+     "kind": "chair",
+     "pos": [
+      87.5,
+      0,
+      142.5
+     ],
+     "vis": "player",
+     "key": "N6b"
+    },
+    {
+     "id": "ground-N6b-lamp",
+     "kind": "lamp",
+     "pos": [
+      80,
+      6,
+      137.5
+     ],
+     "vis": "player",
+     "key": "N6b"
+    },
+    {
+     "id": "ground-N6b-cabinet-a",
+     "kind": "cabinet",
+     "pos": [
+      92.0,
+      0,
+      107.5
+     ],
+     "vis": "player",
+     "rotY": -90,
+     "key": "N6b"
+    },
+    {
+     "id": "ground-N6b-cabinet-b",
+     "kind": "cabinet",
+     "pos": [
+      92.0,
+      0,
+      120
+     ],
+     "vis": "player",
+     "rotY": -90,
+     "key": "N6b"
+    },
+    {
+     "id": "ground-henrik",
+     "kind": "commoner",
+     "pos": [
+      25,
+      0,
+      100
+     ],
+     "vis": "hidden-creature",
+     "key": "N6c",
+     "label": "Henrik van der Voort, the coffin maker, troubled and alone",
+     "size": "medium"
+    }
+   ]
+  },
+  {
+   "id": "upper",
+   "name": "Upper level",
+   "elevationFt": 10,
+   "ceilingFt": 10,
+   "ambient": "darkness",
+   "north": "-z",
+   "rooms": [
+    {
+     "key": "N6f",
+     "name": "Vampire Nest",
+     "page": 118,
+     "polygon": [
+      [
+       5,
+       7.5
+      ],
+      [
+       95,
+       7.5
+      ],
+      [
+       95,
+       150
+      ],
+      [
+       57.5,
+       150
+      ],
+      [
+       57.5,
+       100
+      ],
+      [
+       45,
+       100
+      ],
+      [
+       45,
+       60
+      ],
+      [
+       5,
+       60
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 10,
+     "desc": "Stacks of planks among crates marked JUNK.",
+     "dm": "Six vampire spawn in the northern crates; the bones of St. Andral are here."
+    },
+    {
+     "key": "N6e",
+     "name": "Henrik's Bedroom",
+     "page": 117,
+     "polygon": [
+      [
+       5,
+       60
+      ],
+      [
+       45,
+       60
+      ],
+      [
+       45,
+       110
+      ],
+      [
+       5,
+       110
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 10,
+     "desc": "A modest bedchamber: a cot, a table, a padded chair, a bookshelf, a wardrobe.",
+     "dm": "Secret compartment in the wardrobe base."
+    },
+    {
+     "key": "N6d",
+     "name": "Kitchen",
+     "page": 117,
+     "polygon": [
+      [
+       5,
+       110
+      ],
+      [
+       45,
+       110
+      ],
+      [
+       45,
+       150
+      ],
+      [
+       5,
+       150
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 10,
+     "desc": "A square table and chairs; shelves of provisions."
+    },
+    {
+     "key": "N6a-top",
+     "name": "Stair (head)",
+     "page": 117,
+     "polygon": [
+      [
+       45,
+       100
+      ],
+      [
+       57.5,
+       100
+      ],
+      [
+       57.5,
+       150
+      ],
+      [
+       45,
+       150
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 10,
+     "desc": "The head of the stair."
+    }
+   ],
+   "walls": [
+    {
+     "id": "upper-w-0",
+     "a": [
+      5.0,
+      7.5
+     ],
+     "b": [
+      95.0,
+      7.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "upper-w-1",
+     "a": [
+      95.0,
+      7.5
+     ],
+     "b": [
+      95.0,
+      150.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "upper-w-2",
+     "a": [
+      90.3125,
+      150.0
+     ],
+     "b": [
+      95.0,
+      150.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "upper-w-3",
+     "a": [
+      85.625,
+      150.0
+     ],
+     "b": [
+      90.3125,
+      150.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "upper-w-4",
+     "a": [
+      80.9375,
+      150.0
+     ],
+     "b": [
+      85.625,
+      150.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "upper-w-5",
+     "a": [
+      76.25,
+      150.0
+     ],
+     "b": [
+      80.9375,
+      150.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "upper-w-6",
+     "a": [
+      71.5625,
+      150.0
+     ],
+     "b": [
+      76.25,
+      150.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "upper-w-7",
+     "a": [
+      66.875,
+      150.0
+     ],
+     "b": [
+      71.5625,
+      150.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "upper-w-8",
+     "a": [
+      62.1875,
+      150.0
+     ],
+     "b": [
+      66.875,
+      150.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "upper-w-9",
+     "a": [
+      57.5,
+      150.0
+     ],
+     "b": [
+      62.1875,
+      150.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "upper-w-10",
+     "a": [
+      57.5,
+      145.0
+     ],
+     "b": [
+      57.5,
+      150.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling-dusty"
+    },
+    {
+     "id": "upper-w-11",
+     "a": [
+      57.5,
+      140.0
+     ],
+     "b": [
+      57.5,
+      145.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling-dusty"
+    },
+    {
+     "id": "upper-w-12",
+     "a": [
+      57.5,
+      135.0
+     ],
+     "b": [
+      57.5,
+      140.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling-dusty"
+    },
+    {
+     "id": "upper-w-13",
+     "a": [
+      57.5,
+      130.0
+     ],
+     "b": [
+      57.5,
+      135.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling-dusty"
+    },
+    {
+     "id": "upper-w-14",
+     "a": [
+      57.5,
+      125.0
+     ],
+     "b": [
+      57.5,
+      130.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling-dusty"
+    },
+    {
+     "id": "upper-w-15",
+     "a": [
+      57.5,
+      120.0
+     ],
+     "b": [
+      57.5,
+      125.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling-dusty"
+    },
+    {
+     "id": "upper-w-16",
+     "a": [
+      57.5,
+      115.0
+     ],
+     "b": [
+      57.5,
+      120.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling-dusty"
+    },
+    {
+     "id": "upper-w-17",
+     "a": [
+      57.5,
+      110.0
+     ],
+     "b": [
+      57.5,
+      115.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling-dusty"
+    },
+    {
+     "id": "upper-w-18",
+     "a": [
+      57.5,
+      105.0
+     ],
+     "b": [
+      57.5,
+      110.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling-dusty"
+    },
+    {
+     "id": "upper-w-19",
+     "a": [
+      57.5,
+      100.0
+     ],
+     "b": [
+      57.5,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling-dusty"
+    },
+    {
+     "id": "upper-w-20",
+     "a": [
+      51.25,
+      100.0
+     ],
+     "b": [
+      57.5,
+      100.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling-dusty"
+    },
+    {
+     "id": "upper-w-21",
+     "a": [
+      45.0,
+      100.0
+     ],
+     "b": [
+      51.25,
+      100.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling-dusty"
+    },
+    {
+     "id": "upper-w-22",
+     "a": [
+      45.0,
+      95.0
+     ],
+     "b": [
+      45.0,
+      150.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling-dusty"
+    },
+    {
+     "id": "upper-w-23",
+     "a": [
+      45.0,
+      90.0
+     ],
+     "b": [
+      45.0,
+      95.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling-dusty"
+    },
+    {
+     "id": "upper-w-24",
+     "a": [
+      45.0,
+      85.0
+     ],
+     "b": [
+      45.0,
+      90.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling-dusty"
+    },
+    {
+     "id": "upper-w-25",
+     "a": [
+      45.0,
+      80.0
+     ],
+     "b": [
+      45.0,
+      85.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling-dusty"
+    },
+    {
+     "id": "N6e-f",
+     "a": [
+      45.0,
+      75.0
+     ],
+     "b": [
+      45.0,
+      80.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "paneling-dusty",
+     "open": false
+    },
+    {
+     "id": "upper-w-27",
+     "a": [
+      45.0,
+      70.0
+     ],
+     "b": [
+      45.0,
+      75.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling-dusty"
+    },
+    {
+     "id": "upper-w-28",
+     "a": [
+      45.0,
+      65.0
+     ],
+     "b": [
+      45.0,
+      70.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling-dusty"
+    },
+    {
+     "id": "upper-w-29",
+     "a": [
+      45.0,
+      60.0
+     ],
+     "b": [
+      45.0,
+      65.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling-dusty"
+    },
+    {
+     "id": "upper-w-30",
+     "a": [
+      40.0,
+      60.0
+     ],
+     "b": [
+      45.0,
+      60.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling-dusty"
+    },
+    {
+     "id": "upper-w-31",
+     "a": [
+      35.0,
+      60.0
+     ],
+     "b": [
+      40.0,
+      60.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling-dusty"
+    },
+    {
+     "id": "upper-w-32",
+     "a": [
+      30.0,
+      60.0
+     ],
+     "b": [
+      35.0,
+      60.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling-dusty"
+    },
+    {
+     "id": "upper-w-33",
+     "a": [
+      25.0,
+      60.0
+     ],
+     "b": [
+      30.0,
+      60.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling-dusty"
+    },
+    {
+     "id": "upper-w-34",
+     "a": [
+      20.0,
+      60.0
+     ],
+     "b": [
+      25.0,
+      60.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling-dusty"
+    },
+    {
+     "id": "upper-w-35",
+     "a": [
+      15.0,
+      60.0
+     ],
+     "b": [
+      20.0,
+      60.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling-dusty"
+    },
+    {
+     "id": "upper-w-36",
+     "a": [
+      10.0,
+      60.0
+     ],
+     "b": [
+      15.0,
+      60.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling-dusty"
+    },
+    {
+     "id": "upper-w-37",
+     "a": [
+      5.0,
+      60.0
+     ],
+     "b": [
+      10.0,
+      60.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling-dusty"
+    },
+    {
+     "id": "upper-w-38",
+     "a": [
+      5.0,
+      54.75
+     ],
+     "b": [
+      5.0,
+      80.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "upper-w-39",
+     "a": [
+      5.0,
+      49.5
+     ],
+     "b": [
+      5.0,
+      54.75
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "upper-w-40",
+     "a": [
+      5.0,
+      44.25
+     ],
+     "b": [
+      5.0,
+      49.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "upper-w-41",
+     "a": [
+      5.0,
+      39.0
+     ],
+     "b": [
+      5.0,
+      44.25
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "upper-w-42",
+     "a": [
+      5.0,
+      33.75
+     ],
+     "b": [
+      5.0,
+      39.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "upper-w-43",
+     "a": [
+      5.0,
+      28.5
+     ],
+     "b": [
+      5.0,
+      33.75
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "upper-w-44",
+     "a": [
+      5.0,
+      23.25
+     ],
+     "b": [
+      5.0,
+      28.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "upper-w-45",
+     "a": [
+      5.0,
+      18.0
+     ],
+     "b": [
+      5.0,
+      23.25
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "upper-w-46",
+     "a": [
+      5.0,
+      12.749999999999995
+     ],
+     "b": [
+      5.0,
+      18.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "upper-w-47",
+     "a": [
+      5.0,
+      7.5
+     ],
+     "b": [
+      5.0,
+      12.749999999999995
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "upper-w-48",
+     "a": [
+      40.0,
+      110.0
+     ],
+     "b": [
+      45.0,
+      110.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling-dusty"
+    },
+    {
+     "id": "upper-w-49",
+     "a": [
+      35.0,
+      110.0
+     ],
+     "b": [
+      40.0,
+      110.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling-dusty"
+    },
+    {
+     "id": "upper-w-50",
+     "a": [
+      30.0,
+      110.0
+     ],
+     "b": [
+      35.0,
+      110.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling-dusty"
+    },
+    {
+     "id": "upper-w-51",
+     "a": [
+      25.0,
+      110.0
+     ],
+     "b": [
+      30.0,
+      110.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling-dusty"
+    },
+    {
+     "id": "upper-w-52",
+     "a": [
+      20.0,
+      110.0
+     ],
+     "b": [
+      25.0,
+      110.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling-dusty"
+    },
+    {
+     "id": "N6d-e",
+     "a": [
+      15.0,
+      110.0
+     ],
+     "b": [
+      20.0,
+      110.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "paneling-dusty",
+     "open": false
+    },
+    {
+     "id": "upper-w-54",
+     "a": [
+      10.0,
+      110.0
+     ],
+     "b": [
+      15.0,
+      110.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling-dusty"
+    },
+    {
+     "id": "upper-w-55",
+     "a": [
+      5.0,
+      110.0
+     ],
+     "b": [
+      10.0,
+      110.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling-dusty"
+    },
+    {
+     "id": "upper-w-56",
+     "a": [
+      5.0,
+      105.0
+     ],
+     "b": [
+      5.0,
+      130.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "upper-w-57",
+     "a": [
+      5.0,
+      100.0
+     ],
+     "b": [
+      5.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "upper-w-58",
+     "a": [
+      5.0,
+      95.0
+     ],
+     "b": [
+      5.0,
+      100.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "upper-w-59",
+     "a": [
+      5.0,
+      90.0
+     ],
+     "b": [
+      5.0,
+      95.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "upper-w-60",
+     "a": [
+      5.0,
+      85.0
+     ],
+     "b": [
+      5.0,
+      90.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "upper-w-61",
+     "a": [
+      5.0,
+      80.0
+     ],
+     "b": [
+      5.0,
+      85.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "upper-w-62",
+     "a": [
+      40.0,
+      150.0
+     ],
+     "b": [
+      57.5,
+      150.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "upper-w-63",
+     "a": [
+      35.0,
+      150.0
+     ],
+     "b": [
+      40.0,
+      150.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "upper-w-64",
+     "a": [
+      30.0,
+      150.0
+     ],
+     "b": [
+      35.0,
+      150.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "upper-w-65",
+     "a": [
+      25.0,
+      150.0
+     ],
+     "b": [
+      30.0,
+      150.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "upper-w-66",
+     "a": [
+      20.0,
+      150.0
+     ],
+     "b": [
+      25.0,
+      150.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "upper-w-67",
+     "a": [
+      15.0,
+      150.0
+     ],
+     "b": [
+      20.0,
+      150.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "upper-w-68",
+     "a": [
+      10.0,
+      150.0
+     ],
+     "b": [
+      15.0,
+      150.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "upper-w-69",
+     "a": [
+      5.0,
+      150.0
+     ],
+     "b": [
+      10.0,
+      150.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "upper-w-70",
+     "a": [
+      5.0,
+      145.0
+     ],
+     "b": [
+      5.0,
+      150.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "upper-w-71",
+     "a": [
+      5.0,
+      140.0
+     ],
+     "b": [
+      5.0,
+      145.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "upper-w-72",
+     "a": [
+      5.0,
+      135.0
+     ],
+     "b": [
+      5.0,
+      140.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "upper-w-73",
+     "a": [
+      5.0,
+      130.0
+     ],
+     "b": [
+      5.0,
+      135.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "half-timber"
+    }
+   ],
+   "lights": [],
+   "objects": [
+    {
+     "id": "upper-N6-stair-top-run",
+     "kind": "stairs-straight",
+     "pos": [
+      51.25,
+      0,
+      120
+     ],
+     "vis": "player",
+     "key": "N6a-top",
+     "dims": {
+      "w": 4,
+      "rise": 0.1,
+      "fromZ": 140,
+      "toZ": 105
+     }
+    },
+    {
+     "id": "upper-N6f-planks0",
+     "kind": "ledge",
+     "pos": [
+      20,
+      0,
+      15
+     ],
+     "vis": "player",
+     "key": "N6f",
+     "dims": {
+      "w": 6,
+      "d": 2,
+      "h": 1.5
+     }
+    },
+    {
+     "id": "upper-N6f-planks1",
+     "kind": "ledge",
+     "pos": [
+      35,
+      0,
+      15
+     ],
+     "vis": "player",
+     "key": "N6f",
+     "dims": {
+      "w": 6,
+      "d": 2,
+      "h": 1.5
+     }
+    },
+    {
+     "id": "upper-N6f-planks2",
+     "kind": "ledge",
+     "pos": [
+      15,
+      0,
+      35
+     ],
+     "vis": "player",
+     "key": "N6f",
+     "dims": {
+      "w": 6,
+      "d": 2,
+      "h": 1.5
+     }
+    },
+    {
+     "id": "upper-N6f-planks3",
+     "kind": "ledge",
+     "pos": [
+      30,
+      0,
+      37.5
+     ],
+     "vis": "player",
+     "key": "N6f",
+     "dims": {
+      "w": 6,
+      "d": 2,
+      "h": 1.5
+     }
+    },
+    {
+     "id": "upper-N6f-planks4",
+     "kind": "ledge",
+     "pos": [
+      80,
+      0,
+      100
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "N6f",
+     "dims": {
+      "w": 6,
+      "d": 2,
+      "h": 1.5
+     }
+    },
+    {
+     "id": "upper-N6f-planks5",
+     "kind": "ledge",
+     "pos": [
+      80,
+      0,
+      120
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "N6f",
+     "dims": {
+      "w": 6,
+      "d": 2,
+      "h": 1.5
+     }
+    },
+    {
+     "id": "upper-N6f-planks6",
+     "kind": "ledge",
+     "pos": [
+      75,
+      0,
+      85
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "N6f",
+     "dims": {
+      "w": 6,
+      "d": 2,
+      "h": 1.5
+     }
+    },
+    {
+     "id": "upper-N6f-planks7",
+     "kind": "ledge",
+     "pos": [
+      65,
+      0,
+      65
+     ],
+     "vis": "player",
+     "key": "N6f",
+     "dims": {
+      "w": 6,
+      "d": 2,
+      "h": 1.5
+     }
+    },
+    {
+     "id": "upper-N6f-crate0",
+     "kind": "trunk",
+     "pos": [
+      55,
+      0,
+      15
+     ],
+     "vis": "player",
+     "key": "N6f"
+    },
+    {
+     "id": "upper-N6f-crate1",
+     "kind": "trunk",
+     "pos": [
+      72.5,
+      0,
+      17.5
+     ],
+     "vis": "player",
+     "rotY": 25,
+     "key": "N6f"
+    },
+    {
+     "id": "upper-N6f-crate2",
+     "kind": "trunk",
+     "pos": [
+      87.5,
+      0,
+      17.5
+     ],
+     "vis": "player",
+     "rotY": 50,
+     "key": "N6f"
+    },
+    {
+     "id": "upper-N6f-crate3",
+     "kind": "trunk",
+     "pos": [
+      57.5,
+      0,
+      35
+     ],
+     "vis": "player",
+     "rotY": 75,
+     "key": "N6f"
+    },
+    {
+     "id": "upper-N6f-crate4",
+     "kind": "trunk",
+     "pos": [
+      75,
+      0,
+      37.5
+     ],
+     "vis": "player",
+     "rotY": 100,
+     "key": "N6f"
+    },
+    {
+     "id": "upper-N6f-crate5",
+     "kind": "trunk",
+     "pos": [
+      87.5,
+      0,
+      50
+     ],
+     "vis": "player",
+     "rotY": 125,
+     "key": "N6f"
+    },
+    {
+     "id": "upper-N6f-junk0",
+     "kind": "trunk",
+     "pos": [
+      65,
+      0,
+      142.5
+     ],
+     "vis": "player",
+     "key": "N6f"
+    },
+    {
+     "id": "upper-N6f-junk1",
+     "kind": "trunk",
+     "pos": [
+      87.5,
+      0,
+      142.5
+     ],
+     "vis": "player",
+     "key": "N6f"
+    },
+    {
+     "id": "upper-N6f-spawn",
+     "kind": "vampire-spawn",
+     "pos": [
+      72.5,
+      0,
+      30
+     ],
+     "vis": "hidden-creature",
+     "key": "N6f",
+     "label": "Six vampire spawn resting in the six northern crates (packed with earth)",
+     "size": "medium"
+    },
+    {
+     "id": "upper-N6f-bones",
+     "kind": "chest",
+     "pos": [
+      80,
+      0,
+      70
+     ],
+     "vis": "hidden-object",
+     "key": "N6f",
+     "label": "A crate holding the bones of St. Andral"
+    },
+    {
+     "id": "upper-N6f-note",
+     "kind": "note",
+     "pos": [
+      60,
+      0,
+      50
+     ],
+     "vis": "dm-note",
+     "key": "N6f",
+     "label": "Six crates marked JUNK in the north are earth beds; the two southern ones are junk. The saint's bones are among the stacks."
+    },
+    {
+     "id": "upper-N6e-cot",
+     "kind": "bed",
+     "pos": [
+      12.5,
+      0,
+      70
+     ],
+     "vis": "player",
+     "key": "N6e"
+    },
+    {
+     "id": "upper-N6e-table",
+     "kind": "table",
+     "pos": [
+      30,
+      0,
+      80
+     ],
+     "vis": "player",
+     "key": "N6e",
+     "dims": {
+      "w": 3,
+      "d": 3
+     }
+    },
+    {
+     "id": "upper-N6e-chair",
+     "kind": "chair",
+     "pos": [
+      37.5,
+      0,
+      80
+     ],
+     "vis": "player",
+     "rotY": -90,
+     "key": "N6e"
+    },
+    {
+     "id": "upper-N6e-shelf",
+     "kind": "bookshelf",
+     "pos": [
+      43.0,
+      0,
+      67.5
+     ],
+     "vis": "player",
+     "rotY": -90,
+     "key": "N6e"
+    },
+    {
+     "id": "upper-N6e-wardrobe",
+     "kind": "wardrobe",
+     "pos": [
+      40,
+      0,
+      107.0
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "key": "N6e"
+    },
+    {
+     "id": "upper-N6e-compartment",
+     "kind": "niche",
+     "pos": [
+      40,
+      0,
+      103.0
+     ],
+     "vis": "hidden-object",
+     "key": "N6e",
+     "label": "A secret compartment in the wardrobe's base (DC 15 Perception)"
+    },
+    {
+     "id": "upper-N6d-table",
+     "kind": "table",
+     "pos": [
+      20,
+      0,
+      127.5
+     ],
+     "vis": "player",
+     "key": "N6d",
+     "dims": {
+      "w": 4,
+      "d": 4
+     }
+    },
+    {
+     "id": "upper-N6d-chair0",
+     "kind": "chair",
+     "pos": [
+      12.5,
+      0,
+      127.5
+     ],
+     "vis": "player",
+     "key": "N6d"
+    },
+    {
+     "id": "upper-N6d-chair1",
+     "kind": "chair",
+     "pos": [
+      27.5,
+      0,
+      127.5
+     ],
+     "vis": "player",
+     "key": "N6d"
+    },
+    {
+     "id": "upper-N6d-chair2",
+     "kind": "chair",
+     "pos": [
+      20,
+      0,
+      120
+     ],
+     "vis": "player",
+     "key": "N6d"
+    },
+    {
+     "id": "upper-N6d-chair3",
+     "kind": "chair",
+     "pos": [
+      20,
+      0,
+      135
+     ],
+     "vis": "player",
+     "key": "N6d"
+    },
+    {
+     "id": "upper-N6d-shelves",
+     "kind": "shelves",
+     "pos": [
+      7.0,
+      0,
+      142.5
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "N6d"
+    },
+    {
+     "id": "upper-N6d-stove",
+     "kind": "stove",
+     "pos": [
+      37.5,
+      0,
+      146.5
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "key": "N6d"
+    },
+    {
+     "id": "upper-N6-roof",
+     "kind": "roof-gable",
+     "pos": [
+      50,
+      0,
+      80
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "dims": {
+      "w": 36,
+      "d": 58,
+      "h": 12
+     }
+    }
+   ]
+  }
+ ],
+ "links": [
+  {
+   "id": "lk-n6-stair",
+   "kind": "stairs",
+   "from": {
+    "level": "ground",
+    "pos": [
+     51.25,
+     120
+    ]
+   },
+   "to": {
+    "level": "upper",
+    "pos": [
+     51.25,
+     120
+    ]
+   }
+  }
+ ]
+}

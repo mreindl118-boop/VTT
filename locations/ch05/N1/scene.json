@@ -1,0 +1,1158 @@
+{
+ "schema": 1,
+ "location": "N1",
+ "chapter": "ch05",
+ "name": "St. Andral's Church",
+ "mapPage": 97,
+ "bookScaleFt": 5,
+ "ambient": "interior-dim",
+ "parent": "ch05/N",
+ "entry": "ground",
+ "levels": [
+  {
+   "id": "ground",
+   "name": "Church",
+   "elevationFt": 0,
+   "ceilingFt": 14,
+   "ambient": "interior-dim",
+   "north": "-z",
+   "rooms": [
+    {
+     "key": "N1f",
+     "name": "Chapel",
+     "page": null,
+     "polygon": [
+      [
+       5.0,
+       0.0
+      ],
+      [
+       40.0,
+       0.0
+      ],
+      [
+       40.0,
+       25.0
+      ],
+      [
+       5.0,
+       25.0
+      ]
+     ],
+     "floor": "flagstone",
+     "desc": "A slouching stone chapel: cracked stained glass of saints, a bulging steeple at the back, an altar on a dais.",
+     "dm": "The bones beneath the altar are gone. Lucian confides in a good cleric or paladin."
+    },
+    {
+     "key": "N1a",
+     "name": "Hall",
+     "page": null,
+     "polygon": [
+      [
+       15.0,
+       25.0
+      ],
+      [
+       30.0,
+       25.0
+      ],
+      [
+       30.0,
+       42.5
+      ],
+      [
+       15.0,
+       42.5
+      ]
+     ],
+     "floor": "flagstone",
+     "desc": "A plain hall behind the chapel."
+    },
+    {
+     "key": "N1c",
+     "name": "Father Lucian's Room",
+     "page": null,
+     "polygon": [
+      [
+       5.0,
+       25.0
+      ],
+      [
+       15.0,
+       25.0
+      ],
+      [
+       15.0,
+       33.75
+      ],
+      [
+       5.0,
+       33.75
+      ]
+     ],
+     "floor": "flagstone",
+     "desc": "Father Lucian's room."
+    },
+    {
+     "key": "N1b",
+     "name": "Yeska's Room",
+     "page": null,
+     "polygon": [
+      [
+       5.0,
+       33.75
+      ],
+      [
+       15.0,
+       33.75
+      ],
+      [
+       15.0,
+       42.5
+      ],
+      [
+       5.0,
+       42.5
+      ]
+     ],
+     "floor": "flagstone",
+     "desc": "Yeska's room."
+    },
+    {
+     "key": "N1e",
+     "name": "Office",
+     "page": null,
+     "polygon": [
+      [
+       30.0,
+       25.0
+      ],
+      [
+       40.0,
+       25.0
+      ],
+      [
+       40.0,
+       33.75
+      ],
+      [
+       30.0,
+       33.75
+      ]
+     ],
+     "floor": "flagstone",
+     "desc": "The office."
+    },
+    {
+     "key": "N1d",
+     "name": "Vestry",
+     "page": null,
+     "polygon": [
+      [
+       30.0,
+       33.75
+      ],
+      [
+       40.0,
+       33.75
+      ],
+      [
+       40.0,
+       42.5
+      ],
+      [
+       30.0,
+       42.5
+      ]
+     ],
+     "floor": "flagstone",
+     "desc": "A vestry.",
+     "dm": "No undercroft here, unlike the village church."
+    }
+   ],
+   "walls": [
+    {
+     "id": "ground-w-0",
+     "a": [
+      5.0,
+      0.0
+     ],
+     "b": [
+      40.0,
+      0.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "ground-w-1",
+     "a": [
+      40.0,
+      0.0
+     ],
+     "b": [
+      40.0,
+      42.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "ground-w-2",
+     "a": [
+      35.0,
+      25.0
+     ],
+     "b": [
+      40.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "ground-w-3",
+     "a": [
+      30.0,
+      25.0
+     ],
+     "b": [
+      35.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "ground-w-4",
+     "a": [
+      25.0,
+      25.0
+     ],
+     "b": [
+      30.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "ground-w-5",
+     "a": [
+      20.0,
+      25.0
+     ],
+     "b": [
+      25.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "ground-w-6",
+     "a": [
+      15.0,
+      25.0
+     ],
+     "b": [
+      20.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "ground-w-7",
+     "a": [
+      10.0,
+      25.0
+     ],
+     "b": [
+      15.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "ground-w-8",
+     "a": [
+      5.0,
+      25.0
+     ],
+     "b": [
+      10.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "ground-w-9",
+     "a": [
+      5.0,
+      20.0
+     ],
+     "b": [
+      5.0,
+      42.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "ground-w-10",
+     "a": [
+      5.0,
+      15.0
+     ],
+     "b": [
+      5.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "ground-w-11",
+     "a": [
+      5.0,
+      10.0
+     ],
+     "b": [
+      5.0,
+      15.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "ground-w-12",
+     "a": [
+      5.0,
+      5.0
+     ],
+     "b": [
+      5.0,
+      10.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "ground-w-13",
+     "a": [
+      5.0,
+      0.0
+     ],
+     "b": [
+      5.0,
+      5.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "ground-w-14",
+     "a": [
+      30.0,
+      25.0
+     ],
+     "b": [
+      30.0,
+      42.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "ground-w-15",
+     "a": [
+      25.0,
+      42.5
+     ],
+     "b": [
+      40.0,
+      42.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "ground-w-16",
+     "a": [
+      20.0,
+      42.5
+     ],
+     "b": [
+      25.0,
+      42.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "ground-w-17",
+     "a": [
+      15.0,
+      42.5
+     ],
+     "b": [
+      20.0,
+      42.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "ground-w-18",
+     "a": [
+      15.0,
+      38.125
+     ],
+     "b": [
+      15.0,
+      42.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "ground-w-19",
+     "a": [
+      15.0,
+      33.75
+     ],
+     "b": [
+      15.0,
+      38.125
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "ground-w-20",
+     "a": [
+      15.0,
+      29.375
+     ],
+     "b": [
+      15.0,
+      33.75
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "ground-w-21",
+     "a": [
+      15.0,
+      25.0
+     ],
+     "b": [
+      15.0,
+      29.375
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "ground-w-22",
+     "a": [
+      10.0,
+      33.75
+     ],
+     "b": [
+      15.0,
+      33.75
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "ground-w-23",
+     "a": [
+      5.0,
+      33.75
+     ],
+     "b": [
+      10.0,
+      33.75
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "ground-w-24",
+     "a": [
+      10.0,
+      42.5
+     ],
+     "b": [
+      15.0,
+      42.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "ground-w-25",
+     "a": [
+      5.0,
+      42.5
+     ],
+     "b": [
+      10.0,
+      42.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "ground-w-26",
+     "a": [
+      35.0,
+      33.75
+     ],
+     "b": [
+      40.0,
+      33.75
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "ground-w-27",
+     "a": [
+      30.0,
+      33.75
+     ],
+     "b": [
+      35.0,
+      33.75
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    }
+   ],
+   "lights": [
+    {
+     "id": "ground-l-N1-l10",
+     "pos": [
+      15.0,
+      5,
+      5.0
+     ],
+     "preset": "candle",
+     "bright": 10,
+     "dim": 20
+    },
+    {
+     "id": "ground-l-N1-l11",
+     "pos": [
+      30.0,
+      5,
+      5.0
+     ],
+     "preset": "candle",
+     "bright": 10,
+     "dim": 20
+    },
+    {
+     "id": "ground-l-N1-l12",
+     "pos": [
+      22.5,
+      1.5,
+      23.0
+     ],
+     "preset": "candle",
+     "bright": 5,
+     "dim": 10
+    },
+    {
+     "id": "ground-l-N1-l13",
+     "pos": [
+      7.0,
+      1.5,
+      23.0
+     ],
+     "preset": "candle",
+     "bright": 5,
+     "dim": 10
+    },
+    {
+     "id": "ground-l-N1-l14",
+     "pos": [
+      38.0,
+      1.5,
+      23.0
+     ],
+     "preset": "candle",
+     "bright": 5,
+     "dim": 10
+    }
+   ],
+   "objects": [
+    {
+     "id": "ground-N1-ground-p1",
+     "kind": "altar",
+     "pos": [
+      22.5,
+      0,
+      3.5
+     ],
+     "vis": "player"
+    },
+    {
+     "id": "ground-N1-ground-p2",
+     "kind": "bench",
+     "pos": [
+      12.0,
+      0,
+      9.0
+     ],
+     "vis": "player"
+    },
+    {
+     "id": "ground-N1-ground-p3",
+     "kind": "bench",
+     "pos": [
+      12.0,
+      0,
+      13.0
+     ],
+     "vis": "player"
+    },
+    {
+     "id": "ground-N1-ground-p4",
+     "kind": "bench",
+     "pos": [
+      12.0,
+      0,
+      17.0
+     ],
+     "vis": "player"
+    },
+    {
+     "id": "ground-N1-ground-p5",
+     "kind": "bench",
+     "pos": [
+      12.0,
+      0,
+      21.0
+     ],
+     "vis": "player",
+     "rotY": 8
+    },
+    {
+     "id": "ground-N1-ground-p6",
+     "kind": "bench",
+     "pos": [
+      33.0,
+      0,
+      9.0
+     ],
+     "vis": "player"
+    },
+    {
+     "id": "ground-N1-ground-p7",
+     "kind": "bench",
+     "pos": [
+      33.0,
+      0,
+      13.0
+     ],
+     "vis": "player",
+     "rotY": -12
+    },
+    {
+     "id": "ground-N1-ground-p8",
+     "kind": "bench",
+     "pos": [
+      33.0,
+      0,
+      17.0
+     ],
+     "vis": "player"
+    },
+    {
+     "id": "ground-N1-ground-p9",
+     "kind": "bench",
+     "pos": [
+      33.0,
+      0,
+      21.0
+     ],
+     "vis": "player"
+    },
+    {
+     "id": "ground-N1-ground-p10",
+     "kind": "candlestick",
+     "pos": [
+      15.0,
+      0,
+      5.0
+     ],
+     "vis": "player"
+    },
+    {
+     "id": "ground-N1-ground-p11",
+     "kind": "candlestick",
+     "pos": [
+      30.0,
+      0,
+      5.0
+     ],
+     "vis": "player"
+    },
+    {
+     "id": "ground-N1-ground-p12",
+     "kind": "candlestick",
+     "pos": [
+      22.5,
+      0,
+      23.0
+     ],
+     "vis": "player"
+    },
+    {
+     "id": "ground-N1-ground-p13",
+     "kind": "candlestick",
+     "pos": [
+      7.0,
+      0,
+      23.0
+     ],
+     "vis": "player"
+    },
+    {
+     "id": "ground-N1-ground-p14",
+     "kind": "candlestick",
+     "pos": [
+      38.0,
+      0,
+      23.0
+     ],
+     "vis": "player"
+    },
+    {
+     "id": "ground-N1-ground-p15",
+     "kind": "bed-plain",
+     "pos": [
+      10.0,
+      0,
+      29.0
+     ],
+     "vis": "player",
+     "rotY": 90
+    },
+    {
+     "id": "ground-N1-ground-p16",
+     "kind": "bed-plain",
+     "pos": [
+      10.0,
+      0,
+      38.0
+     ],
+     "vis": "player",
+     "rotY": 90
+    },
+    {
+     "id": "ground-N1-ground-p17",
+     "kind": "desk",
+     "pos": [
+      35.0,
+      0,
+      29.0
+     ],
+     "vis": "player"
+    },
+    {
+     "id": "ground-N1-ground-p18",
+     "kind": "chair",
+     "pos": [
+      35.0,
+      0,
+      32.5
+     ],
+     "vis": "player",
+     "rotY": 180
+    },
+    {
+     "id": "ground-N1-ground-p19",
+     "kind": "bookshelf",
+     "pos": [
+      37.5,
+      0,
+      26.5
+     ],
+     "vis": "player"
+    },
+    {
+     "id": "ground-N1-ground-p21",
+     "kind": "rug",
+     "pos": [
+      22.5,
+      0,
+      33.5
+     ],
+     "vis": "player"
+    },
+    {
+     "id": "ground-N1-ground-p22",
+     "kind": "pine",
+     "pos": [
+      -10.0,
+      0,
+      0.0
+     ],
+     "vis": "player"
+    },
+    {
+     "id": "ground-N1-ground-p23",
+     "kind": "pine",
+     "pos": [
+      55.0,
+      0,
+      10.0
+     ],
+     "vis": "player"
+    },
+    {
+     "id": "ground-N1-ground-p24",
+     "kind": "pine",
+     "pos": [
+      52.5,
+      0,
+      45.0
+     ],
+     "vis": "player"
+    },
+    {
+     "id": "ground-N1-ground-p25",
+     "kind": "gravestone",
+     "pos": [
+      -7.5,
+      0,
+      30.0
+     ],
+     "vis": "player"
+    },
+    {
+     "id": "ground-N1-ground-p26",
+     "kind": "gravestone",
+     "pos": [
+      -12.5,
+      0,
+      37.5
+     ],
+     "vis": "player"
+    },
+    {
+     "id": "ground-N1-ground-p27",
+     "kind": "gravestone",
+     "pos": [
+      -6.0,
+      0,
+      45.0
+     ],
+     "vis": "player"
+    },
+    {
+     "id": "ground-N1-ground-p28",
+     "kind": "fence",
+     "pos": [
+      -10.0,
+      0,
+      22.5
+     ],
+     "vis": "player",
+     "rotY": 90
+    },
+    {
+     "id": "ground-N1-grave0",
+     "kind": "gravestone",
+     "pos": [
+      -45,
+      0,
+      30
+     ],
+     "vis": "player",
+     "rotY": -30
+    },
+    {
+     "id": "ground-N1-grave1",
+     "kind": "gravestone",
+     "pos": [
+      -65,
+      0,
+      50
+     ],
+     "vis": "player"
+    },
+    {
+     "id": "ground-N1-grave2",
+     "kind": "gravestone",
+     "pos": [
+      -35,
+      0,
+      70
+     ],
+     "vis": "player",
+     "rotY": -30
+    },
+    {
+     "id": "ground-N1-grave3",
+     "kind": "gravestone",
+     "pos": [
+      -55,
+      0,
+      90
+     ],
+     "vis": "player"
+    },
+    {
+     "id": "ground-N1-grave4",
+     "kind": "gravestone",
+     "pos": [
+      -45,
+      0,
+      135
+     ],
+     "vis": "player",
+     "rotY": -30
+    },
+    {
+     "id": "ground-N1-grave5",
+     "kind": "gravestone",
+     "pos": [
+      -65,
+      0,
+      165
+     ],
+     "vis": "player"
+    },
+    {
+     "id": "ground-N1-grave6",
+     "kind": "gravestone",
+     "pos": [
+      -35,
+      0,
+      190
+     ],
+     "vis": "player",
+     "rotY": -30
+    },
+    {
+     "id": "ground-N1-grave7",
+     "kind": "gravestone",
+     "pos": [
+      -55,
+      0,
+      210
+     ],
+     "vis": "player"
+    },
+    {
+     "id": "ground-N1-fence0",
+     "kind": "fence",
+     "pos": [
+      -77.5,
+      0,
+      30
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "dims": {
+      "w": 12
+     }
+    },
+    {
+     "id": "ground-N1-fence1",
+     "kind": "fence",
+     "pos": [
+      -77.5,
+      0,
+      90
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "dims": {
+      "w": 12
+     }
+    },
+    {
+     "id": "ground-N1-fence2",
+     "kind": "fence",
+     "pos": [
+      -77.5,
+      0,
+      150
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "dims": {
+      "w": 12
+     }
+    },
+    {
+     "id": "ground-N1-fence3",
+     "kind": "fence",
+     "pos": [
+      -77.5,
+      0,
+      210
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "dims": {
+      "w": 12
+     }
+    },
+    {
+     "id": "ground-N1-crypt",
+     "kind": "niche",
+     "pos": [
+      22.5,
+      0,
+      3.5
+     ],
+     "vis": "hidden-object",
+     "key": "N1f",
+     "label": "A broken crypt under the altar: the bones of St. Andral were sealed here, and someone took them a few nights ago"
+    },
+    {
+     "id": "ground-N1-note",
+     "kind": "note",
+     "pos": [
+      22.5,
+      0,
+      11.0
+     ],
+     "vis": "dm-note",
+     "key": "N1f",
+     "label": "Father Lucian, Yeska and Milivoj; at night 2d6+6 frightened adults and 2d6 children. Milivoj stole the bones for the coffin maker."
+    },
+    {
+     "id": "ground-lucian",
+     "kind": "adventurer",
+     "pos": [
+      22.5,
+      0,
+      17.5
+     ],
+     "vis": "hidden-creature",
+     "key": "N1f",
+     "label": "Father Lucian Petrovich (priest)",
+     "size": "medium"
+    },
+    {
+     "id": "ground-milivoj",
+     "kind": "commoner",
+     "pos": [
+      -50,
+      0,
+      110
+     ],
+     "vis": "hidden-creature",
+     "label": "Milivoj with his shovel (commoner, Str 15, shovel 1d4+2)",
+     "size": "medium"
+    },
+    {
+     "id": "ground-yeska",
+     "kind": "commoner",
+     "pos": [
+      10,
+      0,
+      37.5
+     ],
+     "vis": "hidden-creature",
+     "key": "N1b",
+     "label": "Yeska the altar boy (noncombatant)",
+     "size": "small"
+    }
+   ],
+   "terrain": [
+    {
+     "polygon": [
+      [
+       -90,
+       -20
+      ],
+      [
+       290,
+       -20
+      ],
+      [
+       290,
+       250
+      ],
+      [
+       -90,
+       250
+      ]
+     ],
+     "floor": "grass"
+    }
+   ]
+  }
+ ],
+ "links": []
+}

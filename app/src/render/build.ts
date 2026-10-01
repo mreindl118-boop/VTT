@@ -187,9 +187,11 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
       continue;
     }
     const obj = buildObject(o, y0, labels);
+    const ROOF = o.kind === 'roof-gable' || o.kind === 'chimney' || o.kind === 'house' || o.kind === 'church-building' || o.kind === 'temple';
+    if (ROOF) obj.traverse((c) => { c.userData.role = 'roof'; });
     const openMode = OPENABLE_KINDS[o.kind];
     if (openMode && o.kind !== 'claw-chest-skeleton' && !(SCATTER.has(o.kind) && o.vis === 'player')) openables.set(o.id, makeOpenable(obj, openMode, !!o.container?.open));
-    if (SCATTER.has(o.kind) && o.vis === 'player') { scatter.push({ obj, o, p }); continue; }
+    if (SCATTER.has(o.kind) && o.vis === 'player' && !ROOF) { scatter.push({ obj, o, p }); continue; }
     obj.position.copy(p);
     if (o.kind === 'stairs-straight' || (o.kind === 'prism' && o.polygon)) obj.position.set(0, y0, 0);
     obj.rotation.y = ((o.rotY ?? 0) * Math.PI) / 180;

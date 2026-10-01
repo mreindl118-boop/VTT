@@ -1,0 +1,885 @@
+{
+ "schema": 1,
+ "location": "N7",
+ "chapter": "ch05",
+ "name": "Blinsky Toys",
+ "mapPage": 119,
+ "bookScaleFt": 5,
+ "ambient": "interior-dim",
+ "parent": "ch05/N",
+ "entry": "ground",
+ "levels": [
+  {
+   "id": "ground",
+   "name": "Shop",
+   "elevationFt": 0,
+   "ceilingFt": 10,
+   "ambient": "interior-dim",
+   "north": "-z",
+   "rooms": [
+    {
+     "key": "N7a",
+     "name": "Shop Floor",
+     "page": 118,
+     "polygon": [
+      [
+       5,
+       5
+      ],
+      [
+       45,
+       5
+      ],
+      [
+       45,
+       45
+      ],
+      [
+       5,
+       45
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 10,
+     "desc": "A toyshop with two arched, lead-framed windows and shelves of unsettling toys; a sign promises no fun without Blinsky.",
+     "dm": "Only Rictavio has bought anything in six months (a Vistana doll). The Ireena dolls are for Izek."
+    },
+    {
+     "key": "N7b",
+     "name": "Workshop",
+     "page": 118,
+     "polygon": [
+      [
+       45,
+       5
+      ],
+      [
+       75,
+       5
+      ],
+      [
+       75,
+       45
+      ],
+      [
+       45,
+       45
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 10,
+     "desc": "A workbench strewn with limbs, heads and springs."
+    },
+    {
+     "key": "N7c",
+     "name": "Monkey's Corner",
+     "page": 118,
+     "polygon": [
+      [
+       5,
+       45
+      ],
+      [
+       25,
+       45
+      ],
+      [
+       25,
+       60
+      ],
+      [
+       5,
+       60
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 10,
+     "desc": "A corner for a small monkey in a fez.",
+     "dm": "Piccolo, Rictavio's gift."
+    }
+   ],
+   "walls": [
+    {
+     "id": "ground-w-0",
+     "a": [
+      5.0,
+      5.0
+     ],
+     "b": [
+      10.0,
+      5.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-1",
+     "a": [
+      10.0,
+      5.0
+     ],
+     "b": [
+      15.0,
+      5.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-2",
+     "a": [
+      15.0,
+      5.0
+     ],
+     "b": [
+      20.0,
+      5.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "N7-front",
+     "a": [
+      20.0,
+      5.0
+     ],
+     "b": [
+      25.0,
+      5.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "half-timber",
+     "open": true
+    },
+    {
+     "id": "ground-w-4",
+     "a": [
+      25.0,
+      5.0
+     ],
+     "b": [
+      30.0,
+      5.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-5",
+     "a": [
+      30.0,
+      5.0
+     ],
+     "b": [
+      35.0,
+      5.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-6",
+     "a": [
+      35.0,
+      5.0
+     ],
+     "b": [
+      75.0,
+      5.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-7",
+     "a": [
+      45.0,
+      5.0
+     ],
+     "b": [
+      45.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "N7a-b",
+     "a": [
+      45.0,
+      20.0
+     ],
+     "b": [
+      45.0,
+      25.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "paneling",
+     "open": false
+    },
+    {
+     "id": "ground-w-9",
+     "a": [
+      45.0,
+      25.0
+     ],
+     "b": [
+      45.0,
+      45.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-10",
+     "a": [
+      40.0,
+      45.0
+     ],
+     "b": [
+      75.0,
+      45.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-11",
+     "a": [
+      35.0,
+      45.0
+     ],
+     "b": [
+      40.0,
+      45.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-12",
+     "a": [
+      30.0,
+      45.0
+     ],
+     "b": [
+      35.0,
+      45.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-13",
+     "a": [
+      25.0,
+      45.0
+     ],
+     "b": [
+      30.0,
+      45.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-14",
+     "a": [
+      20.0,
+      45.0
+     ],
+     "b": [
+      25.0,
+      45.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-15",
+     "a": [
+      15.0,
+      45.0
+     ],
+     "b": [
+      20.0,
+      45.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "N7c-door",
+     "a": [
+      10.0,
+      45.0
+     ],
+     "b": [
+      15.0,
+      45.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "paneling",
+     "open": false
+    },
+    {
+     "id": "ground-w-17",
+     "a": [
+      5.0,
+      45.0
+     ],
+     "b": [
+      10.0,
+      45.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-18",
+     "a": [
+      5.0,
+      40.0
+     ],
+     "b": [
+      5.0,
+      60.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-19",
+     "a": [
+      5.0,
+      35.0
+     ],
+     "b": [
+      5.0,
+      40.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-20",
+     "a": [
+      5.0,
+      30.0
+     ],
+     "b": [
+      5.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-21",
+     "a": [
+      5.0,
+      25.0
+     ],
+     "b": [
+      5.0,
+      30.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-22",
+     "a": [
+      5.0,
+      20.0
+     ],
+     "b": [
+      5.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-23",
+     "a": [
+      5.0,
+      15.0
+     ],
+     "b": [
+      5.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-24",
+     "a": [
+      5.0,
+      10.0
+     ],
+     "b": [
+      5.0,
+      15.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-25",
+     "a": [
+      5.0,
+      5.0
+     ],
+     "b": [
+      5.0,
+      10.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-26",
+     "a": [
+      75.0,
+      5.0
+     ],
+     "b": [
+      75.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-27",
+     "a": [
+      75.0,
+      20.0
+     ],
+     "b": [
+      75.0,
+      25.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-28",
+     "a": [
+      75.0,
+      25.0
+     ],
+     "b": [
+      75.0,
+      45.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-29",
+     "a": [
+      25.0,
+      45.0
+     ],
+     "b": [
+      25.0,
+      60.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-30",
+     "a": [
+      20.0,
+      60.0
+     ],
+     "b": [
+      25.0,
+      60.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-31",
+     "a": [
+      15.0,
+      60.0
+     ],
+     "b": [
+      20.0,
+      60.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-32",
+     "a": [
+      10.0,
+      60.0
+     ],
+     "b": [
+      15.0,
+      60.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-33",
+     "a": [
+      5.0,
+      60.0
+     ],
+     "b": [
+      10.0,
+      60.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    }
+   ],
+   "lights": [
+    {
+     "id": "ground-l-N7a-lamp",
+     "pos": [
+      25,
+      7,
+      25
+     ],
+     "preset": "lantern",
+     "bright": 15,
+     "dim": 30
+    },
+    {
+     "id": "ground-l-N7b-lamp",
+     "pos": [
+      60,
+      7,
+      25
+     ],
+     "preset": "lantern",
+     "bright": 15,
+     "dim": 30
+    }
+   ],
+   "objects": [
+    {
+     "id": "ground-N7-sign",
+     "kind": "niche",
+     "pos": [
+      22.5,
+      0,
+      2.0
+     ],
+     "vis": "hidden-object",
+     "key": "N7a",
+     "label": "A sign over the door: 'Is No Fun, Is No Blinsky!'"
+    },
+    {
+     "id": "ground-N7a-0",
+     "kind": "shelves",
+     "pos": [
+      7.5,
+      0,
+      15
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "N7a"
+    },
+    {
+     "id": "ground-N7a-1",
+     "kind": "shelves",
+     "pos": [
+      7.5,
+      0,
+      30
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "N7a"
+    },
+    {
+     "id": "ground-N7a-2",
+     "kind": "shelves",
+     "pos": [
+      42.5,
+      0,
+      15
+     ],
+     "vis": "player",
+     "rotY": -90,
+     "key": "N7a"
+    },
+    {
+     "id": "ground-N7a-3",
+     "kind": "shelves",
+     "pos": [
+      42.5,
+      0,
+      35
+     ],
+     "vis": "player",
+     "rotY": -90,
+     "key": "N7a"
+    },
+    {
+     "id": "ground-N7a-4",
+     "kind": "table",
+     "pos": [
+      25,
+      0,
+      25
+     ],
+     "vis": "player",
+     "key": "N7a",
+     "dims": {
+      "w": 4,
+      "d": 3
+     }
+    },
+    {
+     "id": "ground-N7a-dollhouse",
+     "kind": "dollhouse",
+     "pos": [
+      25,
+      3,
+      25
+     ],
+     "vis": "player",
+     "key": "N7a"
+    },
+    {
+     "id": "ground-N7a-toys",
+     "kind": "niche",
+     "pos": [
+      25,
+      0,
+      30
+     ],
+     "vis": "hidden-object",
+     "key": "N7a",
+     "label": "A headless doll with a sack of heads, a toy gallows, nesting dolls that end in a mummy, a bat mobile, a wolf merry-go-round, a Strahd dummy"
+    },
+    {
+     "id": "ground-N7a-ireena",
+     "kind": "niche",
+     "pos": [
+      40,
+      0,
+      12.5
+     ],
+     "vis": "hidden-object",
+     "key": "N7a",
+     "label": "A doll remarkably like Ireena Kolyana: not for sale, made for Izek"
+    },
+    {
+     "id": "ground-blinsky",
+     "kind": "commoner",
+     "pos": [
+      30,
+      0,
+      37.5
+     ],
+     "vis": "hidden-creature",
+     "key": "N7a",
+     "label": "Gadof Blinsky, the toymaker: portly, cheerful, lonely",
+     "size": "medium"
+    },
+    {
+     "id": "ground-piccolo",
+     "kind": "wolf",
+     "pos": [
+      15,
+      0,
+      52.5
+     ],
+     "vis": "hidden-creature",
+     "key": "N7c",
+     "label": "Piccolo, the monkey in a tiny fez (use the cat stats)",
+     "size": "tiny"
+    },
+    {
+     "id": "ground-N7b-bench",
+     "kind": "table",
+     "pos": [
+      60,
+      0,
+      15
+     ],
+     "vis": "player",
+     "key": "N7b",
+     "dims": {
+      "w": 8,
+      "d": 3
+     }
+    },
+    {
+     "id": "ground-N7b-bench2",
+     "kind": "table",
+     "pos": [
+      60,
+      0,
+      35
+     ],
+     "vis": "player",
+     "key": "N7b",
+     "dims": {
+      "w": 8,
+      "d": 3
+     }
+    },
+    {
+     "id": "ground-N7b-shelf",
+     "kind": "bookshelf",
+     "pos": [
+      73.0,
+      0,
+      25
+     ],
+     "vis": "player",
+     "rotY": -90,
+     "key": "N7b"
+    },
+    {
+     "id": "ground-N7b-stove",
+     "kind": "stove",
+     "pos": [
+      48.0,
+      0,
+      41.5
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "N7b"
+    },
+    {
+     "id": "ground-N7b-note",
+     "kind": "note",
+     "pos": [
+      60,
+      0,
+      25
+     ],
+     "vis": "dm-note",
+     "key": "N7b",
+     "label": "Blinsky's bench: he wants his clockwork 'myasterpiece' back from the wagon in the stockyard and will make any toy for it."
+    },
+    {
+     "id": "ground-N7-roof",
+     "kind": "roof-gable",
+     "pos": [
+      40,
+      0,
+      25
+     ],
+     "vis": "player",
+     "dims": {
+      "w": 72,
+      "d": 42,
+      "h": 10
+     }
+    }
+   ],
+   "terrain": [
+    {
+     "polygon": [
+      [
+       -15,
+       -10
+      ],
+      [
+       90,
+       -10
+      ],
+      [
+       90,
+       70
+      ],
+      [
+       -15,
+       70
+      ]
+     ],
+     "floor": "cobble"
+    }
+   ]
+  }
+ ],
+ "links": []
+}

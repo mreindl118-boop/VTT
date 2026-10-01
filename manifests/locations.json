@@ -352,7 +352,7 @@
      }
     }
    ],
-   "notes": "50-ft-wide river, two arching stone bridges, 5–10 ft deep"
+   "notes": "50-ft-wide river, two arching stone bridges, 5\u201310 ft deep"
   },
   {
    "id": "F",
@@ -1039,105 +1039,105 @@
      "key": "K47",
      "name": "Portrait of Strahd",
      "page": 69,
-     "map": "Maps 6–10",
+     "map": "Maps 6\u201310",
      "mapPage": 71
     },
     {
      "key": "K48",
      "name": "Offstair",
      "page": 70,
-     "map": "Maps 6–10",
+     "map": "Maps 6\u201310",
      "mapPage": 71
     },
     {
      "key": "K49",
      "name": "Lounge",
      "page": 70,
-     "map": "Maps 6–10",
+     "map": "Maps 6\u201310",
      "mapPage": 71
     },
     {
      "key": "K50",
      "name": "Guest Room",
      "page": 70,
-     "map": "Maps 6–10",
+     "map": "Maps 6\u201310",
      "mapPage": 71
     },
     {
      "key": "K51",
      "name": "Closet",
      "page": 70,
-     "map": "Maps 6–10",
+     "map": "Maps 6\u201310",
      "mapPage": 71
     },
     {
      "key": "K52",
      "name": "Smokestack",
      "page": 71,
-     "map": "Maps 6–10",
+     "map": "Maps 6\u201310",
      "mapPage": 71
     },
     {
      "key": "K53",
      "name": "Rooftop",
      "page": 71,
-     "map": "Maps 6–10",
+     "map": "Maps 6\u201310",
      "mapPage": 71
     },
     {
      "key": "K54",
      "name": "Familiar Room",
      "page": 71,
-     "map": "Maps 6–10",
+     "map": "Maps 6\u201310",
      "mapPage": 71
     },
     {
      "key": "K55",
      "name": "Element Room",
      "page": 72,
-     "map": "Maps 6–10",
+     "map": "Maps 6\u201310",
      "mapPage": 71
     },
     {
      "key": "K56",
      "name": "Cauldron",
      "page": 72,
-     "map": "Maps 6–10",
+     "map": "Maps 6\u201310",
      "mapPage": 71
     },
     {
      "key": "K57",
      "name": "Tower Roof",
      "page": 72,
-     "map": "Maps 6–10",
+     "map": "Maps 6\u201310",
      "mapPage": 71
     },
     {
      "key": "K58",
      "name": "Bridge",
      "page": 73,
-     "map": "Maps 6–10",
+     "map": "Maps 6\u201310",
      "mapPage": 71
     },
     {
      "key": "K59",
      "name": "High Tower Peak",
      "page": 73,
-     "map": "Maps 6–10",
+     "map": "Maps 6\u201310",
      "mapPage": 71
     },
     {
      "key": "K60",
      "name": "North Tower Peak",
      "page": 74,
-     "map": "Maps 6–10",
+     "map": "Maps 6\u201310",
      "mapPage": 71
     },
     {
      "key": "K60a",
      "name": "North Tower Rooftop",
      "page": 74,
-     "map": "Maps 6–10",
+     "map": "Maps 6\u201310",
      "mapPage": 71
     },
     {
@@ -1820,7 +1820,7 @@
     },
     {
      "id": "map6-10",
-     "name": "Maps 6–10 Spires of Ravenloft",
+     "name": "Maps 6\u201310 Spires of Ravenloft",
      "page": 71
     },
     {
@@ -2419,6 +2419,113 @@
     {
      "key": "N9i",
      "name": "Vistani Treasure Wagon",
+     "page": 119
+    }
+   ]
+  },
+  {
+   "id": "N1",
+   "name": "St. Andral's Church",
+   "chapter": "ch05",
+   "status": "built",
+   "mapPages": [
+    97
+   ],
+   "bookScaleFt": 5,
+   "poster": false,
+   "path": "locations/ch05/N1",
+   "areas": [
+    {
+     "key": "N1a",
+     "name": "Hall",
+     "page": 97
+    },
+    {
+     "key": "N1b",
+     "name": "Yeska's Room",
+     "page": 97
+    },
+    {
+     "key": "N1c",
+     "name": "Father Lucian's Room",
+     "page": 97
+    },
+    {
+     "key": "N1d",
+     "name": "Vestry",
+     "page": 97
+    },
+    {
+     "key": "N1e",
+     "name": "Office",
+     "page": 97
+    },
+    {
+     "key": "N1f",
+     "name": "Chapel",
+     "page": 97
+    }
+   ]
+  },
+  {
+   "id": "N5",
+   "name": "Arasek Stockyard",
+   "chapter": "ch05",
+   "status": "built",
+   "mapPages": [
+    115
+   ],
+   "bookScaleFt": 5,
+   "poster": false,
+   "path": "locations/ch05/N5",
+   "areas": [
+    {
+     "key": "N5a",
+     "name": "Stockyard",
+     "page": 115
+    },
+    {
+     "key": "N5b",
+     "name": "Warehouse",
+     "page": 115
+    },
+    {
+     "key": "N5c",
+     "name": "Sheds",
+     "page": 115
+    },
+    {
+     "key": "N5d",
+     "name": "Rictavio's Carnival Wagon",
+     "page": 115
+    }
+   ]
+  },
+  {
+   "id": "N7",
+   "name": "Blinsky Toys",
+   "chapter": "ch05",
+   "status": "built",
+   "mapPages": [
+    119
+   ],
+   "bookScaleFt": 5,
+   "poster": false,
+   "path": "locations/ch05/N7",
+   "areas": [
+    {
+     "key": "N7a",
+     "name": "Shop Floor",
+     "page": 119
+    },
+    {
+     "key": "N7b",
+     "name": "Workshop",
+     "page": 119
+    },
+    {
+     "key": "N7c",
+     "name": "Monkey's Corner",
      "page": 119
     }
    ]

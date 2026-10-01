@@ -281,3 +281,21 @@
   own tokens from the roster sheet.
 - Castle Ravenloft stands on its crag in the valley views, in full, with lit windows; from the castle the
   valley lies a thousand feet below.
+
+## M2.8 Vallaki — 2026-10-01
+
+- The Town of Vallaki (`locations/ch05/N`): a placement map from the book's town plan (scale bar), the palisade with
+  gates where the roads cross it, the streets, 186 houses from the map's roof blobs, and the keyed sites N1–N9.
+  Tap a keyed building for "Enter …"; the back button returns to the town.
+- Every site as its own map (`scripts/authoring/vallaki-sites.py`): the Blue Water Inn (three floors: stable and
+  loft, taproom under its balconies, kitchen, the hidden hall, guest rooms, the wereravens' attic), the
+  Burgomaster's Mansion (foyer and gallery, library, the locked closet, the spirit mirror, Victor's attic
+  workroom), Wachterhaus (the bay den and library, Stella's room, Nikolai in his bed, the cellar and the cult's
+  pentagram), the Coffin Maker's Shop (thirteen coffins, the nest of crates upstairs), the Vistani Camp (the
+  hill, the tent, the ring of wagons, the dusk elf hovels), and, from their text alone, St. Andral's Church
+  (the village church's plan without the undercroft), Blinsky Toys and the Arasek Stockyard with Rictavio's wagon.
+  Every keyed area with furniture, people, secret doors, lights, descriptions and DM notes.
+- The section cut only slices the shell (floors, walls, doors, roofs). Furniture, people and things are never
+  cut through: they show whole until the cut drops below their floor. The follow cut sits just under the floor
+  above (the roof, on the top storey), so each room shows entire.
+- A blowout without a world pin of its own takes its parent's for the backdrop.

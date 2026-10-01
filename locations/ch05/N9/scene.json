@@ -1,0 +1,4070 @@
+{
+ "schema": 1,
+ "location": "N9",
+ "chapter": "ch05",
+ "name": "Vistani Camp",
+ "mapPage": 120,
+ "bookScaleFt": 5,
+ "ambient": "night",
+ "parent": "ch05/N",
+ "entry": "camp",
+ "levels": [
+  {
+   "id": "camp",
+   "name": "The camp",
+   "elevationFt": 0,
+   "ceilingFt": 20,
+   "ambient": "night",
+   "north": "+x",
+   "rooms": [
+    {
+     "key": "N9c",
+     "name": "Vistani Tent",
+     "page": 121,
+     "polygon": [
+      [
+       145,
+       155
+      ],
+      [
+       185,
+       155
+      ],
+      [
+       205,
+       175
+      ],
+      [
+       205,
+       200
+      ],
+      [
+       185,
+       220
+      ],
+      [
+       145,
+       220
+      ],
+      [
+       125,
+       200
+      ],
+      [
+       125,
+       175
+      ]
+     ],
+     "floor": "dirt",
+     "ceilingFt": 20,
+     "desc": "A great tent lit from within, smoke pouring from its peak; three sputtering fires, Vistani sprawled drunk, a bound boy at the pole and a man with a whip.",
+     "dm": "Arrigal whips the sentry who lost Arabelle; Luvash is drunk and dangerous."
+    },
+    {
+     "key": "N9c-hill",
+     "name": "The Hilltop",
+     "page": 119,
+     "polygon": [
+      [
+       165,
+       60
+      ],
+      [
+       250,
+       100
+      ],
+      [
+       280,
+       185
+      ],
+      [
+       250,
+       270
+      ],
+      [
+       165,
+       310
+      ],
+      [
+       80,
+       270
+      ],
+      [
+       50,
+       185
+      ],
+      [
+       80,
+       100
+      ]
+     ],
+     "floor": "grass",
+     "ceilingFt": 20,
+     "desc": "A hill above the fog ringed by barrel-topped wagons."
+    },
+    {
+     "key": "N9a",
+     "name": "Kasimir's Hovel",
+     "page": 121,
+     "polygon": [
+      [
+       155,
+       280
+      ],
+      [
+       175,
+       280
+      ],
+      [
+       175,
+       315
+      ],
+      [
+       155,
+       315
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 8,
+     "desc": "A hovel with a decorated vestibule and a snug room with a fire.",
+     "dm": "Kasimir tells of the Amber Temple to anyone bent on destroying Strahd."
+    },
+    {
+     "key": "N9a-vestibule",
+     "name": "Vestibule",
+     "page": 121,
+     "polygon": [
+      [
+       155,
+       270
+      ],
+      [
+       175,
+       270
+      ],
+      [
+       175,
+       280
+      ],
+      [
+       155,
+       280
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 8,
+     "desc": "A painted vestibule; three cowled, angular figures stand before it.",
+     "dm": "Dusk elf guards (scouts)."
+    },
+    {
+     "key": "N9b-a",
+     "name": "Dusk Elf Hovel",
+     "page": 121,
+     "polygon": [
+      [
+       30,
+       100
+      ],
+      [
+       50,
+       100
+      ],
+      [
+       50,
+       125
+      ],
+      [
+       30,
+       125
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 8,
+     "desc": "A simple house at the base of the hill; a grey-cloaked figure at its door.",
+     "dm": "Dusk elves; they send visitors to Kasimir."
+    },
+    {
+     "key": "N9b-b",
+     "name": "Dusk Elf Hovel",
+     "page": 121,
+     "polygon": [
+      [
+       30,
+       180
+      ],
+      [
+       50,
+       180
+      ],
+      [
+       50,
+       205
+      ],
+      [
+       30,
+       205
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 8,
+     "desc": "A simple house at the base of the hill; a grey-cloaked figure at its door.",
+     "dm": "Dusk elves; they send visitors to Kasimir."
+    },
+    {
+     "key": "N9b-c",
+     "name": "Dusk Elf Hovel",
+     "page": 121,
+     "polygon": [
+      [
+       30,
+       260
+      ],
+      [
+       50,
+       260
+      ],
+      [
+       50,
+       285
+      ],
+      [
+       30,
+       285
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 8,
+     "desc": "A simple house at the base of the hill; a grey-cloaked figure at its door.",
+     "dm": "Dusk elves; they send visitors to Kasimir."
+    },
+    {
+     "key": "N9b-d",
+     "name": "Dusk Elf Hovel",
+     "page": 121,
+     "polygon": [
+      [
+       300,
+       100
+      ],
+      [
+       320,
+       100
+      ],
+      [
+       320,
+       125
+      ],
+      [
+       300,
+       125
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 8,
+     "desc": "A simple house at the base of the hill; a grey-cloaked figure at its door.",
+     "dm": "Dusk elves; they send visitors to Kasimir."
+    },
+    {
+     "key": "N9b-e",
+     "name": "Dusk Elf Hovel",
+     "page": 121,
+     "polygon": [
+      [
+       300,
+       180
+      ],
+      [
+       320,
+       180
+      ],
+      [
+       320,
+       205
+      ],
+      [
+       300,
+       205
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 8,
+     "desc": "A simple house at the base of the hill; a grey-cloaked figure at its door.",
+     "dm": "Dusk elves; they send visitors to Kasimir."
+    },
+    {
+     "key": "N9b-f",
+     "name": "Dusk Elf Hovel",
+     "page": 121,
+     "polygon": [
+      [
+       300,
+       260
+      ],
+      [
+       320,
+       260
+      ],
+      [
+       320,
+       285
+      ],
+      [
+       300,
+       285
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 8,
+     "desc": "A simple house at the base of the hill; a grey-cloaked figure at its door.",
+     "dm": "Dusk elves; they send visitors to Kasimir."
+    },
+    {
+     "key": "N9e",
+     "name": "Luvash's Wagon",
+     "page": 122,
+     "polygon": [
+      [
+       155,
+       122.5
+      ],
+      [
+       175,
+       122.5
+      ],
+      [
+       175,
+       137.5
+      ],
+      [
+       155,
+       137.5
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 8,
+     "desc": "Luvash's wagon.",
+     "dm": "Luvash: 'you are only alive because I let you be'."
+    },
+    {
+     "key": "N9f",
+     "name": "Wagon of Sleeping Vistani",
+     "page": 122,
+     "polygon": [
+      [
+       105,
+       157.5
+      ],
+      [
+       125,
+       157.5
+      ],
+      [
+       125,
+       172.5
+      ],
+      [
+       105,
+       172.5
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 8,
+     "desc": "A wagon of sleeping Vistani."
+    },
+    {
+     "key": "N9f-b",
+     "name": "Wagon of Sleeping Vistani",
+     "page": 122,
+     "polygon": [
+      [
+       205,
+       157.5
+      ],
+      [
+       225,
+       157.5
+      ],
+      [
+       225,
+       172.5
+      ],
+      [
+       205,
+       172.5
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 8,
+     "desc": "A wagon of sleeping Vistani."
+    },
+    {
+     "key": "N9g",
+     "name": "Wagon of Gambling Vistani",
+     "page": 122,
+     "polygon": [
+      [
+       105,
+       202.5
+      ],
+      [
+       125,
+       202.5
+      ],
+      [
+       125,
+       217.5
+      ],
+      [
+       105,
+       217.5
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 8,
+     "desc": "Dice and knives: gambling Vistani."
+    },
+    {
+     "key": "N9g-b",
+     "name": "Wagon of Gambling Vistani",
+     "page": 122,
+     "polygon": [
+      [
+       205,
+       202.5
+      ],
+      [
+       225,
+       202.5
+      ],
+      [
+       225,
+       217.5
+      ],
+      [
+       205,
+       217.5
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 8,
+     "desc": "Dice and knives: gambling Vistani."
+    },
+    {
+     "key": "N9h",
+     "name": "Vistani Family Wagon",
+     "page": 119,
+     "polygon": [
+      [
+       155,
+       237.5
+      ],
+      [
+       175,
+       237.5
+      ],
+      [
+       175,
+       252.5
+      ],
+      [
+       155,
+       252.5
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 8,
+     "desc": "A family wagon: a mother and children."
+    },
+    {
+     "key": "N9i",
+     "name": "Vistani Treasure Wagon",
+     "page": 119,
+     "polygon": [
+      [
+       120,
+       127.5
+      ],
+      [
+       140,
+       127.5
+      ],
+      [
+       140,
+       142.5
+      ],
+      [
+       120,
+       142.5
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 8,
+     "desc": "The treasure wagon, two padlocks.",
+     "dm": "Coins, jewellery; the brothers hold the keys."
+    },
+    {
+     "key": "N9d",
+     "name": "Horses",
+     "page": 122,
+     "polygon": [
+      [
+       180,
+       225
+      ],
+      [
+       215,
+       225
+      ],
+      [
+       215,
+       260
+      ],
+      [
+       180,
+       260
+      ]
+     ],
+     "floor": "dirt",
+     "ceilingFt": 20,
+     "desc": "A dozen horses tethered below the hill."
+    }
+   ],
+   "walls": [
+    {
+     "id": "camp-w-0",
+     "a": [
+      145.0,
+      155.0
+     ],
+     "b": [
+      185.0,
+      155.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-1",
+     "a": [
+      185,
+      155
+     ],
+     "b": [
+      205,
+      175
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-2",
+     "a": [
+      205.0,
+      175.0
+     ],
+     "b": [
+      205.0,
+      180.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-3",
+     "a": [
+      205.0,
+      195.0
+     ],
+     "b": [
+      205.0,
+      200.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-4",
+     "a": [
+      185,
+      220
+     ],
+     "b": [
+      205,
+      200
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-5",
+     "a": [
+      180.0,
+      220.0
+     ],
+     "b": [
+      185.0,
+      220.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-6",
+     "a": [
+      175.0,
+      220.0
+     ],
+     "b": [
+      180.0,
+      220.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-7",
+     "a": [
+      170.0,
+      220.0
+     ],
+     "b": [
+      175.0,
+      220.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-8",
+     "a": [
+      165.0,
+      220.0
+     ],
+     "b": [
+      170.0,
+      220.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-9",
+     "a": [
+      160.0,
+      220.0
+     ],
+     "b": [
+      165.0,
+      220.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-10",
+     "a": [
+      155.0,
+      220.0
+     ],
+     "b": [
+      160.0,
+      220.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-11",
+     "a": [
+      150.0,
+      220.0
+     ],
+     "b": [
+      155.0,
+      220.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-12",
+     "a": [
+      145.0,
+      220.0
+     ],
+     "b": [
+      150.0,
+      220.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-13",
+     "a": [
+      125,
+      200
+     ],
+     "b": [
+      145,
+      220
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-14",
+     "a": [
+      125.0,
+      195.0
+     ],
+     "b": [
+      125.0,
+      200.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-15",
+     "a": [
+      125.0,
+      175.0
+     ],
+     "b": [
+      125.0,
+      180.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-16",
+     "a": [
+      125,
+      175
+     ],
+     "b": [
+      145,
+      155
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-17",
+     "a": [
+      165,
+      60
+     ],
+     "b": [
+      250,
+      100
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-18",
+     "a": [
+      250,
+      100
+     ],
+     "b": [
+      280,
+      185
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-19",
+     "a": [
+      250,
+      270
+     ],
+     "b": [
+      280,
+      185
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-20",
+     "a": [
+      165,
+      310
+     ],
+     "b": [
+      250,
+      270
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-21",
+     "a": [
+      80,
+      270
+     ],
+     "b": [
+      165,
+      310
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-22",
+     "a": [
+      50,
+      185
+     ],
+     "b": [
+      80,
+      270
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-23",
+     "a": [
+      50,
+      185
+     ],
+     "b": [
+      80,
+      100
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-24",
+     "a": [
+      80,
+      100
+     ],
+     "b": [
+      165,
+      60
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-25",
+     "a": [
+      175.0,
+      280.0
+     ],
+     "b": [
+      175.0,
+      315.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-26",
+     "a": [
+      170.0,
+      315.0
+     ],
+     "b": [
+      175.0,
+      315.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-27",
+     "a": [
+      165.0,
+      315.0
+     ],
+     "b": [
+      170.0,
+      315.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-28",
+     "a": [
+      160.0,
+      315.0
+     ],
+     "b": [
+      165.0,
+      315.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-29",
+     "a": [
+      155.0,
+      315.0
+     ],
+     "b": [
+      160.0,
+      315.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-30",
+     "a": [
+      155.0,
+      310.0
+     ],
+     "b": [
+      155.0,
+      315.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-31",
+     "a": [
+      155.0,
+      305.0
+     ],
+     "b": [
+      155.0,
+      310.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-32",
+     "a": [
+      155.0,
+      300.0
+     ],
+     "b": [
+      155.0,
+      305.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-33",
+     "a": [
+      155.0,
+      295.0
+     ],
+     "b": [
+      155.0,
+      300.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-34",
+     "a": [
+      155.0,
+      290.0
+     ],
+     "b": [
+      155.0,
+      295.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-35",
+     "a": [
+      155.0,
+      285.0
+     ],
+     "b": [
+      155.0,
+      290.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-36",
+     "a": [
+      155.0,
+      280.0
+     ],
+     "b": [
+      155.0,
+      285.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-37",
+     "a": [
+      155.0,
+      270.0
+     ],
+     "b": [
+      175.0,
+      270.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-38",
+     "a": [
+      175.0,
+      270.0
+     ],
+     "b": [
+      175.0,
+      280.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-39",
+     "a": [
+      155.0,
+      275.0
+     ],
+     "b": [
+      155.0,
+      280.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "N9a-door",
+     "a": [
+      155.0,
+      270.0
+     ],
+     "b": [
+      155.0,
+      275.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "log",
+     "open": false
+    },
+    {
+     "id": "camp-w-41",
+     "a": [
+      30.0,
+      100.0
+     ],
+     "b": [
+      50.0,
+      100.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-42",
+     "a": [
+      50.0,
+      100.0
+     ],
+     "b": [
+      50.0,
+      110.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "N9b-a-door",
+     "a": [
+      50.0,
+      110.0
+     ],
+     "b": [
+      50.0,
+      115.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "log",
+     "open": false
+    },
+    {
+     "id": "camp-w-44",
+     "a": [
+      50.0,
+      115.0
+     ],
+     "b": [
+      50.0,
+      125.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-45",
+     "a": [
+      45.0,
+      125.0
+     ],
+     "b": [
+      50.0,
+      125.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-46",
+     "a": [
+      40.0,
+      125.0
+     ],
+     "b": [
+      45.0,
+      125.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-47",
+     "a": [
+      35.0,
+      125.0
+     ],
+     "b": [
+      40.0,
+      125.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-48",
+     "a": [
+      30.0,
+      125.0
+     ],
+     "b": [
+      35.0,
+      125.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-49",
+     "a": [
+      30.0,
+      120.0
+     ],
+     "b": [
+      30.0,
+      125.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-50",
+     "a": [
+      30.0,
+      115.0
+     ],
+     "b": [
+      30.0,
+      120.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-51",
+     "a": [
+      30.0,
+      110.0
+     ],
+     "b": [
+      30.0,
+      115.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-52",
+     "a": [
+      30.0,
+      105.0
+     ],
+     "b": [
+      30.0,
+      110.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-53",
+     "a": [
+      30.0,
+      100.0
+     ],
+     "b": [
+      30.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-54",
+     "a": [
+      30.0,
+      180.0
+     ],
+     "b": [
+      50.0,
+      180.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-55",
+     "a": [
+      50.0,
+      180.0
+     ],
+     "b": [
+      50.0,
+      190.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "N9b-b-door",
+     "a": [
+      50.0,
+      190.0
+     ],
+     "b": [
+      50.0,
+      195.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "log",
+     "open": false
+    },
+    {
+     "id": "camp-w-57",
+     "a": [
+      50.0,
+      195.0
+     ],
+     "b": [
+      50.0,
+      205.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-58",
+     "a": [
+      45.0,
+      205.0
+     ],
+     "b": [
+      50.0,
+      205.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-59",
+     "a": [
+      40.0,
+      205.0
+     ],
+     "b": [
+      45.0,
+      205.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-60",
+     "a": [
+      35.0,
+      205.0
+     ],
+     "b": [
+      40.0,
+      205.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-61",
+     "a": [
+      30.0,
+      205.0
+     ],
+     "b": [
+      35.0,
+      205.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-62",
+     "a": [
+      30.0,
+      200.0
+     ],
+     "b": [
+      30.0,
+      205.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-63",
+     "a": [
+      30.0,
+      195.0
+     ],
+     "b": [
+      30.0,
+      200.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-64",
+     "a": [
+      30.0,
+      190.0
+     ],
+     "b": [
+      30.0,
+      195.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-65",
+     "a": [
+      30.0,
+      185.0
+     ],
+     "b": [
+      30.0,
+      190.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-66",
+     "a": [
+      30.0,
+      180.0
+     ],
+     "b": [
+      30.0,
+      185.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-67",
+     "a": [
+      30.0,
+      260.0
+     ],
+     "b": [
+      50.0,
+      260.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-68",
+     "a": [
+      50.0,
+      260.0
+     ],
+     "b": [
+      50.0,
+      270.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "N9b-c-door",
+     "a": [
+      50.0,
+      270.0
+     ],
+     "b": [
+      50.0,
+      275.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "log",
+     "open": false
+    },
+    {
+     "id": "camp-w-70",
+     "a": [
+      50.0,
+      275.0
+     ],
+     "b": [
+      50.0,
+      285.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-71",
+     "a": [
+      45.0,
+      285.0
+     ],
+     "b": [
+      50.0,
+      285.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-72",
+     "a": [
+      40.0,
+      285.0
+     ],
+     "b": [
+      45.0,
+      285.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-73",
+     "a": [
+      35.0,
+      285.0
+     ],
+     "b": [
+      40.0,
+      285.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-74",
+     "a": [
+      30.0,
+      285.0
+     ],
+     "b": [
+      35.0,
+      285.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-75",
+     "a": [
+      30.0,
+      280.0
+     ],
+     "b": [
+      30.0,
+      285.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-76",
+     "a": [
+      30.0,
+      275.0
+     ],
+     "b": [
+      30.0,
+      280.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-77",
+     "a": [
+      30.0,
+      270.0
+     ],
+     "b": [
+      30.0,
+      275.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-78",
+     "a": [
+      30.0,
+      265.0
+     ],
+     "b": [
+      30.0,
+      270.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-79",
+     "a": [
+      30.0,
+      260.0
+     ],
+     "b": [
+      30.0,
+      265.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-80",
+     "a": [
+      300.0,
+      100.0
+     ],
+     "b": [
+      320.0,
+      100.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-81",
+     "a": [
+      320.0,
+      100.0
+     ],
+     "b": [
+      320.0,
+      125.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-82",
+     "a": [
+      315.0,
+      125.0
+     ],
+     "b": [
+      320.0,
+      125.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-83",
+     "a": [
+      310.0,
+      125.0
+     ],
+     "b": [
+      315.0,
+      125.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-84",
+     "a": [
+      305.0,
+      125.0
+     ],
+     "b": [
+      310.0,
+      125.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-85",
+     "a": [
+      300.0,
+      125.0
+     ],
+     "b": [
+      305.0,
+      125.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-86",
+     "a": [
+      300.0,
+      120.0
+     ],
+     "b": [
+      300.0,
+      125.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-87",
+     "a": [
+      300.0,
+      115.0
+     ],
+     "b": [
+      300.0,
+      120.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "N9b-d-door",
+     "a": [
+      300.0,
+      110.0
+     ],
+     "b": [
+      300.0,
+      115.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "log",
+     "open": false
+    },
+    {
+     "id": "camp-w-89",
+     "a": [
+      300.0,
+      105.0
+     ],
+     "b": [
+      300.0,
+      110.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-90",
+     "a": [
+      300.0,
+      100.0
+     ],
+     "b": [
+      300.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-91",
+     "a": [
+      300.0,
+      180.0
+     ],
+     "b": [
+      320.0,
+      180.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-92",
+     "a": [
+      320.0,
+      180.0
+     ],
+     "b": [
+      320.0,
+      205.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-93",
+     "a": [
+      315.0,
+      205.0
+     ],
+     "b": [
+      320.0,
+      205.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-94",
+     "a": [
+      310.0,
+      205.0
+     ],
+     "b": [
+      315.0,
+      205.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-95",
+     "a": [
+      305.0,
+      205.0
+     ],
+     "b": [
+      310.0,
+      205.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-96",
+     "a": [
+      300.0,
+      205.0
+     ],
+     "b": [
+      305.0,
+      205.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-97",
+     "a": [
+      300.0,
+      200.0
+     ],
+     "b": [
+      300.0,
+      205.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-98",
+     "a": [
+      300.0,
+      195.0
+     ],
+     "b": [
+      300.0,
+      200.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "N9b-e-door",
+     "a": [
+      300.0,
+      190.0
+     ],
+     "b": [
+      300.0,
+      195.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "log",
+     "open": false
+    },
+    {
+     "id": "camp-w-100",
+     "a": [
+      300.0,
+      185.0
+     ],
+     "b": [
+      300.0,
+      190.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-101",
+     "a": [
+      300.0,
+      180.0
+     ],
+     "b": [
+      300.0,
+      185.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-102",
+     "a": [
+      300.0,
+      260.0
+     ],
+     "b": [
+      320.0,
+      260.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-103",
+     "a": [
+      320.0,
+      260.0
+     ],
+     "b": [
+      320.0,
+      285.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-104",
+     "a": [
+      315.0,
+      285.0
+     ],
+     "b": [
+      320.0,
+      285.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-105",
+     "a": [
+      310.0,
+      285.0
+     ],
+     "b": [
+      315.0,
+      285.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-106",
+     "a": [
+      305.0,
+      285.0
+     ],
+     "b": [
+      310.0,
+      285.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-107",
+     "a": [
+      300.0,
+      285.0
+     ],
+     "b": [
+      305.0,
+      285.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-108",
+     "a": [
+      300.0,
+      280.0
+     ],
+     "b": [
+      300.0,
+      285.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-109",
+     "a": [
+      300.0,
+      275.0
+     ],
+     "b": [
+      300.0,
+      280.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "N9b-f-door",
+     "a": [
+      300.0,
+      270.0
+     ],
+     "b": [
+      300.0,
+      275.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "log",
+     "open": false
+    },
+    {
+     "id": "camp-w-111",
+     "a": [
+      300.0,
+      265.0
+     ],
+     "b": [
+      300.0,
+      270.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-112",
+     "a": [
+      300.0,
+      260.0
+     ],
+     "b": [
+      300.0,
+      265.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-113",
+     "a": [
+      155.0,
+      122.5
+     ],
+     "b": [
+      175.0,
+      122.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-114",
+     "a": [
+      175.0,
+      122.5
+     ],
+     "b": [
+      175.0,
+      137.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-115",
+     "a": [
+      170.0,
+      137.5
+     ],
+     "b": [
+      175.0,
+      137.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-116",
+     "a": [
+      165.0,
+      137.5
+     ],
+     "b": [
+      170.0,
+      137.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-117",
+     "a": [
+      160.0,
+      137.5
+     ],
+     "b": [
+      165.0,
+      137.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-118",
+     "a": [
+      155.0,
+      137.5
+     ],
+     "b": [
+      160.0,
+      137.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-119",
+     "a": [
+      155.0,
+      132.5
+     ],
+     "b": [
+      155.0,
+      137.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-120",
+     "a": [
+      155.0,
+      127.5
+     ],
+     "b": [
+      155.0,
+      132.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-121",
+     "a": [
+      155.0,
+      122.5
+     ],
+     "b": [
+      155.0,
+      127.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-122",
+     "a": [
+      105.0,
+      157.5
+     ],
+     "b": [
+      125.0,
+      157.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-123",
+     "a": [
+      125.0,
+      157.5
+     ],
+     "b": [
+      125.0,
+      172.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-124",
+     "a": [
+      120.0,
+      172.5
+     ],
+     "b": [
+      125.0,
+      172.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-125",
+     "a": [
+      115.0,
+      172.5
+     ],
+     "b": [
+      120.0,
+      172.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-126",
+     "a": [
+      110.0,
+      172.5
+     ],
+     "b": [
+      115.0,
+      172.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-127",
+     "a": [
+      105.0,
+      172.5
+     ],
+     "b": [
+      110.0,
+      172.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-128",
+     "a": [
+      105.0,
+      167.5
+     ],
+     "b": [
+      105.0,
+      172.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-129",
+     "a": [
+      105.0,
+      162.5
+     ],
+     "b": [
+      105.0,
+      167.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-130",
+     "a": [
+      105.0,
+      157.5
+     ],
+     "b": [
+      105.0,
+      162.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-131",
+     "a": [
+      205.0,
+      157.5
+     ],
+     "b": [
+      225.0,
+      157.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-132",
+     "a": [
+      225.0,
+      157.5
+     ],
+     "b": [
+      225.0,
+      172.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-133",
+     "a": [
+      220.0,
+      172.5
+     ],
+     "b": [
+      225.0,
+      172.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-134",
+     "a": [
+      215.0,
+      172.5
+     ],
+     "b": [
+      220.0,
+      172.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-135",
+     "a": [
+      210.0,
+      172.5
+     ],
+     "b": [
+      215.0,
+      172.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-136",
+     "a": [
+      205.0,
+      172.5
+     ],
+     "b": [
+      210.0,
+      172.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-137",
+     "a": [
+      205.0,
+      167.5
+     ],
+     "b": [
+      205.0,
+      172.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-138",
+     "a": [
+      205.0,
+      162.5
+     ],
+     "b": [
+      205.0,
+      167.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-139",
+     "a": [
+      205.0,
+      157.5
+     ],
+     "b": [
+      205.0,
+      162.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-140",
+     "a": [
+      105.0,
+      202.5
+     ],
+     "b": [
+      125.0,
+      202.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-141",
+     "a": [
+      125.0,
+      202.5
+     ],
+     "b": [
+      125.0,
+      217.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-142",
+     "a": [
+      120.0,
+      217.5
+     ],
+     "b": [
+      125.0,
+      217.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-143",
+     "a": [
+      115.0,
+      217.5
+     ],
+     "b": [
+      120.0,
+      217.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-144",
+     "a": [
+      110.0,
+      217.5
+     ],
+     "b": [
+      115.0,
+      217.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-145",
+     "a": [
+      105.0,
+      217.5
+     ],
+     "b": [
+      110.0,
+      217.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-146",
+     "a": [
+      105.0,
+      212.5
+     ],
+     "b": [
+      105.0,
+      217.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-147",
+     "a": [
+      105.0,
+      207.5
+     ],
+     "b": [
+      105.0,
+      212.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-148",
+     "a": [
+      105.0,
+      202.5
+     ],
+     "b": [
+      105.0,
+      207.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-149",
+     "a": [
+      205.0,
+      202.5
+     ],
+     "b": [
+      225.0,
+      202.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-150",
+     "a": [
+      225.0,
+      202.5
+     ],
+     "b": [
+      225.0,
+      217.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-151",
+     "a": [
+      220.0,
+      217.5
+     ],
+     "b": [
+      225.0,
+      217.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-152",
+     "a": [
+      215.0,
+      217.5
+     ],
+     "b": [
+      220.0,
+      217.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-153",
+     "a": [
+      210.0,
+      217.5
+     ],
+     "b": [
+      215.0,
+      217.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-154",
+     "a": [
+      205.0,
+      217.5
+     ],
+     "b": [
+      210.0,
+      217.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-155",
+     "a": [
+      205.0,
+      212.5
+     ],
+     "b": [
+      205.0,
+      217.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-156",
+     "a": [
+      205.0,
+      207.5
+     ],
+     "b": [
+      205.0,
+      212.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-157",
+     "a": [
+      205.0,
+      202.5
+     ],
+     "b": [
+      205.0,
+      207.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-158",
+     "a": [
+      155.0,
+      237.5
+     ],
+     "b": [
+      175.0,
+      237.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-159",
+     "a": [
+      175.0,
+      237.5
+     ],
+     "b": [
+      175.0,
+      252.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-160",
+     "a": [
+      170.0,
+      252.5
+     ],
+     "b": [
+      175.0,
+      252.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-161",
+     "a": [
+      165.0,
+      252.5
+     ],
+     "b": [
+      170.0,
+      252.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-162",
+     "a": [
+      160.0,
+      252.5
+     ],
+     "b": [
+      165.0,
+      252.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-163",
+     "a": [
+      155.0,
+      252.5
+     ],
+     "b": [
+      160.0,
+      252.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-164",
+     "a": [
+      155.0,
+      247.5
+     ],
+     "b": [
+      155.0,
+      252.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-165",
+     "a": [
+      155.0,
+      242.5
+     ],
+     "b": [
+      155.0,
+      247.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-166",
+     "a": [
+      155.0,
+      237.5
+     ],
+     "b": [
+      155.0,
+      242.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-167",
+     "a": [
+      120.0,
+      127.5
+     ],
+     "b": [
+      140.0,
+      127.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-168",
+     "a": [
+      140.0,
+      127.5
+     ],
+     "b": [
+      140.0,
+      142.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-169",
+     "a": [
+      135.0,
+      142.5
+     ],
+     "b": [
+      140.0,
+      142.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-170",
+     "a": [
+      130.0,
+      142.5
+     ],
+     "b": [
+      135.0,
+      142.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-171",
+     "a": [
+      125.0,
+      142.5
+     ],
+     "b": [
+      130.0,
+      142.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-172",
+     "a": [
+      120.0,
+      142.5
+     ],
+     "b": [
+      125.0,
+      142.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-173",
+     "a": [
+      120.0,
+      137.5
+     ],
+     "b": [
+      120.0,
+      142.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-174",
+     "a": [
+      120.0,
+      132.5
+     ],
+     "b": [
+      120.0,
+      137.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-175",
+     "a": [
+      120.0,
+      127.5
+     ],
+     "b": [
+      120.0,
+      132.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-176",
+     "a": [
+      180.0,
+      225.0
+     ],
+     "b": [
+      215.0,
+      225.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-177",
+     "a": [
+      215.0,
+      225.0
+     ],
+     "b": [
+      215.0,
+      260.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-178",
+     "a": [
+      210.0,
+      260.0
+     ],
+     "b": [
+      215.0,
+      260.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-179",
+     "a": [
+      205.0,
+      260.0
+     ],
+     "b": [
+      210.0,
+      260.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-180",
+     "a": [
+      200.0,
+      260.0
+     ],
+     "b": [
+      205.0,
+      260.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-181",
+     "a": [
+      195.0,
+      260.0
+     ],
+     "b": [
+      200.0,
+      260.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-182",
+     "a": [
+      190.0,
+      260.0
+     ],
+     "b": [
+      195.0,
+      260.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-183",
+     "a": [
+      185.0,
+      260.0
+     ],
+     "b": [
+      190.0,
+      260.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-184",
+     "a": [
+      180.0,
+      260.0
+     ],
+     "b": [
+      185.0,
+      260.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-185",
+     "a": [
+      180.0,
+      255.0
+     ],
+     "b": [
+      180.0,
+      260.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-186",
+     "a": [
+      180.0,
+      250.0
+     ],
+     "b": [
+      180.0,
+      255.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-187",
+     "a": [
+      180.0,
+      245.0
+     ],
+     "b": [
+      180.0,
+      250.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-188",
+     "a": [
+      180.0,
+      240.0
+     ],
+     "b": [
+      180.0,
+      245.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-189",
+     "a": [
+      180.0,
+      235.0
+     ],
+     "b": [
+      180.0,
+      240.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-190",
+     "a": [
+      180.0,
+      230.0
+     ],
+     "b": [
+      180.0,
+      235.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "camp-w-191",
+     "a": [
+      180.0,
+      225.0
+     ],
+     "b": [
+      180.0,
+      230.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    }
+   ],
+   "lights": [
+    {
+     "id": "camp-l-N9c-fire0",
+     "pos": [
+      150,
+      3,
+      170
+     ],
+     "preset": "torch",
+     "bright": 15,
+     "dim": 30
+    },
+    {
+     "id": "camp-l-N9c-fire1",
+     "pos": [
+      180,
+      3,
+      170
+     ],
+     "preset": "torch",
+     "bright": 15,
+     "dim": 30
+    },
+    {
+     "id": "camp-l-N9c-fire2",
+     "pos": [
+      165,
+      3,
+      210
+     ],
+     "preset": "torch",
+     "bright": 15,
+     "dim": 30
+    },
+    {
+     "id": "camp-l-N9a-lantern",
+     "pos": [
+      165,
+      6,
+      275
+     ],
+     "preset": "lantern",
+     "bright": 15,
+     "dim": 30
+    }
+   ],
+   "objects": [
+    {
+     "id": "camp-N9c-pole",
+     "kind": "post-round",
+     "pos": [
+      165,
+      0,
+      187.5
+     ],
+     "vis": "player",
+     "key": "N9c",
+     "dims": {
+      "h": 20
+     }
+    },
+    {
+     "id": "camp-N9c-arrigal",
+     "kind": "adventurer",
+     "pos": [
+      170,
+      0,
+      192.5
+     ],
+     "vis": "hidden-creature",
+     "key": "N9c",
+     "label": "Arrigal with the whip; six Vistani passed out; Luvash drunk",
+     "size": "medium"
+    },
+    {
+     "id": "camp-N9c-boy",
+     "kind": "commoner",
+     "pos": [
+      165,
+      0,
+      185
+     ],
+     "vis": "hidden-creature",
+     "key": "N9c",
+     "label": "A shirtless teenager bound to the tent pole, his back whipped",
+     "size": "medium"
+    },
+    {
+     "id": "camp-N9c-fire0",
+     "kind": "brazier",
+     "pos": [
+      150,
+      0,
+      170
+     ],
+     "vis": "player",
+     "key": "N9c"
+    },
+    {
+     "id": "camp-N9c-fire1",
+     "kind": "brazier",
+     "pos": [
+      180,
+      0,
+      170
+     ],
+     "vis": "player",
+     "key": "N9c"
+    },
+    {
+     "id": "camp-N9c-fire2",
+     "kind": "brazier",
+     "pos": [
+      165,
+      0,
+      210
+     ],
+     "vis": "player",
+     "key": "N9c"
+    },
+    {
+     "id": "camp-N9c-note",
+     "kind": "note",
+     "pos": [
+      165,
+      0,
+      165
+     ],
+     "vis": "dm-note",
+     "key": "N9c",
+     "label": "Luvash and Arrigal; Arabelle missing seven days; the brothers each carry a key to one padlock of the treasure wagon."
+    },
+    {
+     "id": "camp-N9e-wagon",
+     "kind": "wagon",
+     "pos": [
+      165,
+      0,
+      130
+     ],
+     "vis": "player",
+     "key": "N9e"
+    },
+    {
+     "id": "camp-N9f-wagon",
+     "kind": "wagon",
+     "pos": [
+      115,
+      0,
+      165
+     ],
+     "vis": "player",
+     "rotY": 60,
+     "key": "N9f"
+    },
+    {
+     "id": "camp-N9f2-wagon",
+     "kind": "wagon",
+     "pos": [
+      215,
+      0,
+      165
+     ],
+     "vis": "player",
+     "rotY": -60,
+     "key": "N9f"
+    },
+    {
+     "id": "camp-N9g-wagon",
+     "kind": "wagon",
+     "pos": [
+      115,
+      0,
+      210
+     ],
+     "vis": "player",
+     "rotY": -60,
+     "key": "N9g"
+    },
+    {
+     "id": "camp-N9g2-wagon",
+     "kind": "wagon",
+     "pos": [
+      215,
+      0,
+      210
+     ],
+     "vis": "player",
+     "rotY": 60,
+     "key": "N9g"
+    },
+    {
+     "id": "camp-N9h-wagon",
+     "kind": "wagon",
+     "pos": [
+      165,
+      0,
+      245
+     ],
+     "vis": "player",
+     "key": "N9h"
+    },
+    {
+     "id": "camp-N9i-wagon",
+     "kind": "wagon",
+     "pos": [
+      130,
+      0,
+      135
+     ],
+     "vis": "player",
+     "rotY": 30,
+     "key": "N9i"
+    },
+    {
+     "id": "camp-N9d-wagon",
+     "kind": "wagon",
+     "pos": [
+      200,
+      0,
+      240
+     ],
+     "vis": "player",
+     "rotY": -30,
+     "key": "N9d"
+    },
+    {
+     "id": "camp-N9e-note",
+     "kind": "note",
+     "pos": [
+      165,
+      0,
+      125
+     ],
+     "vis": "dm-note",
+     "key": "N9e",
+     "label": "Luvash's wagon: 'you are only alive because I let you be'."
+    },
+    {
+     "id": "camp-N9f-note",
+     "kind": "note",
+     "pos": [
+      115,
+      0,
+      160
+     ],
+     "vis": "dm-note",
+     "key": "N9f",
+     "label": "Six Vistani asleep in each of these."
+    },
+    {
+     "id": "camp-N9g-note",
+     "kind": "note",
+     "pos": [
+      115,
+      0,
+      215
+     ],
+     "vis": "dm-note",
+     "key": "N9g",
+     "label": "Gambling Vistani: dice and knives."
+    },
+    {
+     "id": "camp-N9h-note",
+     "kind": "note",
+     "pos": [
+      165,
+      0,
+      250
+     ],
+     "vis": "dm-note",
+     "key": "N9h",
+     "label": "A family wagon: a mother, four children, the baby."
+    },
+    {
+     "id": "camp-N9i-note",
+     "kind": "note",
+     "pos": [
+      130,
+      0,
+      130
+     ],
+     "vis": "dm-note",
+     "key": "N9i",
+     "label": "The treasure wagon, two padlocks: 2,000 cp, 1,000 sp, 500 ep, 200 gp, 20 pp, jewellery, the winery's stolen gem? no, Arabelle's ribbon."
+    },
+    {
+     "id": "camp-N9d-horse0",
+     "kind": "horse",
+     "pos": [
+      195,
+      0,
+      230
+     ],
+     "vis": "hidden-creature",
+     "key": "N9d",
+     "label": "Vistani horses (riding horses, 12)",
+     "size": "large"
+    },
+    {
+     "id": "camp-N9d-horse1",
+     "kind": "horse",
+     "pos": [
+      205,
+      0,
+      250
+     ],
+     "vis": "hidden-creature",
+     "key": "N9d",
+     "label": "Vistani horses (riding horses, 12)",
+     "size": "large"
+    },
+    {
+     "id": "camp-N9d-horse2",
+     "kind": "horse",
+     "pos": [
+      185,
+      0,
+      250
+     ],
+     "vis": "hidden-creature",
+     "key": "N9d",
+     "label": "Vistani horses (riding horses, 12)",
+     "size": "large"
+    },
+    {
+     "id": "camp-N9-ring-wagon0",
+     "kind": "wagon",
+     "pos": [
+      60,
+      0,
+      90
+     ],
+     "vis": "player",
+     "rotY": 40,
+     "key": "N9b"
+    },
+    {
+     "id": "camp-N9-ring-wagon1",
+     "kind": "wagon",
+     "pos": [
+      270,
+      0,
+      90
+     ],
+     "vis": "player",
+     "rotY": -40,
+     "key": "N9b"
+    },
+    {
+     "id": "camp-N9-ring-wagon2",
+     "kind": "wagon",
+     "pos": [
+      40,
+      0,
+      185
+     ],
+     "vis": "player",
+     "key": "N9b"
+    },
+    {
+     "id": "camp-N9-ring-wagon3",
+     "kind": "wagon",
+     "pos": [
+      290,
+      0,
+      185
+     ],
+     "vis": "player",
+     "key": "N9b"
+    },
+    {
+     "id": "camp-N9-ring-wagon4",
+     "kind": "wagon",
+     "pos": [
+      60,
+      0,
+      280
+     ],
+     "vis": "player",
+     "rotY": -40,
+     "key": "N9b"
+    },
+    {
+     "id": "camp-N9-ring-wagon5",
+     "kind": "wagon",
+     "pos": [
+      270,
+      0,
+      280
+     ],
+     "vis": "player",
+     "rotY": 40,
+     "key": "N9b"
+    },
+    {
+     "id": "camp-N9-ring",
+     "kind": "note",
+     "pos": [
+      50,
+      0,
+      150
+     ],
+     "vis": "dm-note",
+     "key": "N9b",
+     "label": "A ring of barrel-topped wagons round the hill; the camp is at the base of the hill, the tent above the fog on top."
+    },
+    {
+     "id": "camp-N9-pine0",
+     "kind": "pine",
+     "pos": [
+      15,
+      0,
+      330
+     ],
+     "vis": "player"
+    },
+    {
+     "id": "camp-N9-pine1",
+     "kind": "pine",
+     "pos": [
+      200,
+      0,
+      125
+     ],
+     "vis": "player"
+    },
+    {
+     "id": "camp-N9-pine2",
+     "kind": "pine",
+     "pos": [
+      75,
+      0,
+      240
+     ],
+     "vis": "player"
+    },
+    {
+     "id": "camp-N9-pine3",
+     "kind": "pine",
+     "pos": [
+      260,
+      0,
+      330
+     ],
+     "vis": "player"
+    },
+    {
+     "id": "camp-N9-pine4",
+     "kind": "pine",
+     "pos": [
+      135,
+      0,
+      140
+     ],
+     "vis": "player"
+    },
+    {
+     "id": "camp-N9-pine5",
+     "kind": "pine",
+     "pos": [
+      320,
+      0,
+      255
+     ],
+     "vis": "player"
+    },
+    {
+     "id": "camp-N9-pine6",
+     "kind": "pine",
+     "pos": [
+      195,
+      0,
+      330
+     ],
+     "vis": "player"
+    },
+    {
+     "id": "camp-N9-pine7",
+     "kind": "pine",
+     "pos": [
+      70,
+      0,
+      155
+     ],
+     "vis": "player"
+    },
+    {
+     "id": "camp-N9-pine8",
+     "kind": "pine",
+     "pos": [
+      255,
+      0,
+      270
+     ],
+     "vis": "player"
+    },
+    {
+     "id": "camp-N9-pine9",
+     "kind": "pine",
+     "pos": [
+      130,
+      0,
+      330
+     ],
+     "vis": "player"
+    },
+    {
+     "id": "camp-N9-pine10",
+     "kind": "pine",
+     "pos": [
+      315,
+      0,
+      170
+     ],
+     "vis": "player"
+    },
+    {
+     "id": "camp-N9-pine11",
+     "kind": "pine",
+     "pos": [
+      190,
+      0,
+      285
+     ],
+     "vis": "player"
+    },
+    {
+     "id": "camp-N9-pine12",
+     "kind": "pine",
+     "pos": [
+      65,
+      0,
+      330
+     ],
+     "vis": "player"
+    },
+    {
+     "id": "camp-N9-pine13",
+     "kind": "pine",
+     "pos": [
+      250,
+      0,
+      185
+     ],
+     "vis": "player"
+    },
+    {
+     "id": "camp-N9a-fire",
+     "kind": "fireplace",
+     "pos": [
+      173.0,
+      0,
+      300
+     ],
+     "vis": "player",
+     "rotY": -90,
+     "key": "N9a"
+    },
+    {
+     "id": "camp-N9a-chair",
+     "kind": "chair",
+     "pos": [
+      162.5,
+      0,
+      300
+     ],
+     "vis": "player",
+     "key": "N9a"
+    },
+    {
+     "id": "camp-N9a-rug",
+     "kind": "rug",
+     "pos": [
+      165,
+      0,
+      290
+     ],
+     "vis": "player",
+     "key": "N9a",
+     "dims": {
+      "w": 6,
+      "d": 4
+     }
+    },
+    {
+     "id": "camp-N9a-bed",
+     "kind": "bed",
+     "pos": [
+      160,
+      0,
+      310
+     ],
+     "vis": "player",
+     "key": "N9a"
+    },
+    {
+     "id": "camp-kasimir",
+     "kind": "adventurer",
+     "pos": [
+      165,
+      0,
+      295
+     ],
+     "vis": "hidden-creature",
+     "key": "N9a",
+     "label": "Kasimir Velikov, dusk elf wizard; dreams of Patrina and the Amber Temple",
+     "size": "medium"
+    },
+    {
+     "id": "camp-N9a-guards",
+     "kind": "adventurer",
+     "pos": [
+      165,
+      0,
+      262.5
+     ],
+     "vis": "hidden-creature",
+     "key": "N9a-vestibule",
+     "label": "Three grey-cloaked dusk elves before the door",
+     "size": "medium"
+    }
+   ],
+   "terrain": [
+    {
+     "polygon": [
+      [
+       0,
+       0
+      ],
+      [
+       335,
+       0
+      ],
+      [
+       335,
+       350
+      ],
+      [
+       0,
+       350
+      ]
+     ],
+     "floor": "grass"
+    }
+   ]
+  }
+ ],
+ "links": []
+}

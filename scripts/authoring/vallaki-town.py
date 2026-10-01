@@ -29,7 +29,7 @@ STREETS = [
 ]
 MARK = {'N1': (325, 420), 'N2': (893, 383), 'N3': (820, 640), 'N4': (1100, 257), 'N5': (1590, 640), 'N6': (1322, 672), 'N7': (980, 555), 'N8': (1113, 572), 'N9': (-437, 956)}
 NAMES = {'N1': "St. Andral's Church", 'N2': 'Blue Water Inn', 'N3': "Burgomaster's Mansion", 'N4': 'Wachterhaus', 'N5': 'Arasek Stockyard', 'N6': "Coffin Maker's Shop", 'N7': 'Blinsky Toys', 'N8': 'Town Square', 'N9': 'Vistani Camp'}
-ENTER = {'N2': 'ch05/N2', 'N3': 'ch05/N3', 'N4': 'ch05/N4', 'N6': 'ch05/N6', 'N9': 'ch05/N9'}
+ENTER = {'N1': 'ch05/N1', 'N2': 'ch05/N2', 'N3': 'ch05/N3', 'N4': 'ch05/N4', 'N5': 'ch05/N5', 'N6': 'ch05/N6', 'N7': 'ch05/N7', 'N9': 'ch05/N9'}
 _M = json.load(open(os.path.join(ROOT, 'manifests', 'locations.json')))
 PAGE = {a['key']: a['page'] for l in _M['locations'] if l['id'] == 'N' for a in l['areas']}
 

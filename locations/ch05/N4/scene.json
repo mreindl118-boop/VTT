@@ -1,0 +1,6532 @@
+{
+ "schema": 1,
+ "location": "N4",
+ "chapter": "ch05",
+ "name": "Wachterhaus",
+ "mapPage": 111,
+ "bookScaleFt": 5,
+ "ambient": "interior-dim",
+ "parent": "ch05/N",
+ "stacked": true,
+ "entry": "ground",
+ "levels": [
+  {
+   "id": "cellar",
+   "name": "Cellar",
+   "elevationFt": -12,
+   "ceilingFt": 10,
+   "ambient": "darkness",
+   "north": "-z",
+   "rooms": [
+    {
+     "key": "N4t",
+     "name": "Cult Headquarters",
+     "page": 114,
+     "polygon": [
+      [
+       12.5,
+       45
+      ],
+      [
+       65,
+       45
+      ],
+      [
+       65,
+       95
+      ],
+      [
+       12.5,
+       95
+      ]
+     ],
+     "floor": "flagstone",
+     "ceilingFt": 10,
+     "desc": "A ten-foot-high room with a black pentagram on the floor, candles at its corners.",
+     "dm": "Fiona's book club: cult fanatics and cultists. They attack to keep their secret."
+    },
+    {
+     "key": "N4s",
+     "name": "Cellar",
+     "page": 114,
+     "polygon": [
+      [
+       65,
+       10
+      ],
+      [
+       120,
+       10
+      ],
+      [
+       120,
+       95
+      ],
+      [
+       65,
+       95
+      ],
+      [
+       65,
+       55
+      ],
+      [
+       77.5,
+       55
+      ],
+      [
+       77.5,
+       30
+      ],
+      [
+       65,
+       30
+      ]
+     ],
+     "floor": "dirt",
+     "ceilingFt": 8,
+     "desc": "A root cellar with a dirt floor; four cots along the south wall; tracks in the earth lead to a bare wall.",
+     "dm": "Eight skeletons under the floor; the pivot door in the west wall."
+    },
+    {
+     "key": "N4g",
+     "name": "Secret Staircase",
+     "page": 112,
+     "polygon": [
+      [
+       65,
+       30
+      ],
+      [
+       77.5,
+       30
+      ],
+      [
+       77.5,
+       55
+      ],
+      [
+       65,
+       55
+      ]
+     ],
+     "floor": "flagstone",
+     "ceilingFt": 10,
+     "desc": "A stone stair with iron sconces cutting down through the house.",
+     "dm": "Fiona's way to her cult."
+    },
+    {
+     "key": "N4r-foot",
+     "name": "Cellar Entrance (foot)",
+     "page": 114,
+     "polygon": [
+      [
+       120,
+       20
+      ],
+      [
+       132.5,
+       20
+      ],
+      [
+       132.5,
+       30
+      ],
+      [
+       120,
+       30
+      ]
+     ],
+     "floor": "flagstone",
+     "ceilingFt": 8,
+     "desc": "The foot of the cellar steps."
+    }
+   ],
+   "walls": [
+    {
+     "id": "cellar-w-0",
+     "a": [
+      12.5,
+      45.0
+     ],
+     "b": [
+      65.0,
+      45.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "earth"
+    },
+    {
+     "id": "cellar-w-1",
+     "a": [
+      65.0,
+      45.0
+     ],
+     "b": [
+      65.0,
+      65.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "cellar-sd-pivot",
+     "a": [
+      65.0,
+      65.0
+     ],
+     "b": [
+      65.0,
+      70.0
+     ],
+     "flags": [
+      "secret-door"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "cellar-w-3",
+     "a": [
+      65.0,
+      70.0
+     ],
+     "b": [
+      65.0,
+      95.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "cellar-w-4",
+     "a": [
+      59.75,
+      95.0
+     ],
+     "b": [
+      120.0,
+      95.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "earth"
+    },
+    {
+     "id": "cellar-w-5",
+     "a": [
+      54.5,
+      95.0
+     ],
+     "b": [
+      59.75,
+      95.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "earth"
+    },
+    {
+     "id": "cellar-w-6",
+     "a": [
+      49.25,
+      95.0
+     ],
+     "b": [
+      54.5,
+      95.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "earth"
+    },
+    {
+     "id": "cellar-w-7",
+     "a": [
+      44.0,
+      95.0
+     ],
+     "b": [
+      49.25,
+      95.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "earth"
+    },
+    {
+     "id": "cellar-w-8",
+     "a": [
+      38.75,
+      95.0
+     ],
+     "b": [
+      44.0,
+      95.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "earth"
+    },
+    {
+     "id": "cellar-w-9",
+     "a": [
+      33.5,
+      95.0
+     ],
+     "b": [
+      38.75,
+      95.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "earth"
+    },
+    {
+     "id": "cellar-w-10",
+     "a": [
+      28.25,
+      95.0
+     ],
+     "b": [
+      33.5,
+      95.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "earth"
+    },
+    {
+     "id": "cellar-w-11",
+     "a": [
+      23.0,
+      95.0
+     ],
+     "b": [
+      28.25,
+      95.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "earth"
+    },
+    {
+     "id": "cellar-w-12",
+     "a": [
+      17.749999999999993,
+      95.0
+     ],
+     "b": [
+      23.0,
+      95.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "earth"
+    },
+    {
+     "id": "cellar-w-13",
+     "a": [
+      12.5,
+      95.0
+     ],
+     "b": [
+      17.749999999999993,
+      95.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "earth"
+    },
+    {
+     "id": "cellar-w-14",
+     "a": [
+      12.5,
+      90.0
+     ],
+     "b": [
+      12.5,
+      95.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "earth"
+    },
+    {
+     "id": "cellar-w-15",
+     "a": [
+      12.5,
+      85.0
+     ],
+     "b": [
+      12.5,
+      90.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "earth"
+    },
+    {
+     "id": "cellar-w-16",
+     "a": [
+      12.5,
+      80.0
+     ],
+     "b": [
+      12.5,
+      85.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "earth"
+    },
+    {
+     "id": "cellar-w-17",
+     "a": [
+      12.5,
+      75.0
+     ],
+     "b": [
+      12.5,
+      80.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "earth"
+    },
+    {
+     "id": "cellar-w-18",
+     "a": [
+      12.5,
+      70.0
+     ],
+     "b": [
+      12.5,
+      75.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "earth"
+    },
+    {
+     "id": "cellar-w-19",
+     "a": [
+      12.5,
+      65.0
+     ],
+     "b": [
+      12.5,
+      70.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "earth"
+    },
+    {
+     "id": "cellar-w-20",
+     "a": [
+      12.5,
+      60.0
+     ],
+     "b": [
+      12.5,
+      65.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "earth"
+    },
+    {
+     "id": "cellar-w-21",
+     "a": [
+      12.5,
+      55.0
+     ],
+     "b": [
+      12.5,
+      60.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "earth"
+    },
+    {
+     "id": "cellar-w-22",
+     "a": [
+      12.5,
+      50.0
+     ],
+     "b": [
+      12.5,
+      55.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "earth"
+    },
+    {
+     "id": "cellar-w-23",
+     "a": [
+      12.5,
+      45.0
+     ],
+     "b": [
+      12.5,
+      50.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "earth"
+    },
+    {
+     "id": "cellar-w-24",
+     "a": [
+      65.0,
+      10.0
+     ],
+     "b": [
+      120.0,
+      10.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "earth"
+    },
+    {
+     "id": "cellar-w-25",
+     "a": [
+      120.0,
+      10.0
+     ],
+     "b": [
+      120.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "earth"
+    },
+    {
+     "id": "cellar-w-26",
+     "a": [
+      120.0,
+      30.0
+     ],
+     "b": [
+      120.0,
+      95.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "earth"
+    },
+    {
+     "id": "cellar-w-27",
+     "a": [
+      65.0,
+      55.0
+     ],
+     "b": [
+      77.5,
+      55.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "cellar-w-28",
+     "a": [
+      77.5,
+      40.0
+     ],
+     "b": [
+      77.5,
+      45.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "cellar-w-29",
+     "a": [
+      77.5,
+      35.0
+     ],
+     "b": [
+      77.5,
+      40.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "cellar-w-30",
+     "a": [
+      77.5,
+      30.0
+     ],
+     "b": [
+      77.5,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "cellar-w-31",
+     "a": [
+      71.25,
+      30.0
+     ],
+     "b": [
+      77.5,
+      30.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "cellar-w-32",
+     "a": [
+      65.0,
+      30.0
+     ],
+     "b": [
+      71.25,
+      30.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "cellar-w-33",
+     "a": [
+      65.0,
+      25.0
+     ],
+     "b": [
+      65.0,
+      45.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "earth"
+    },
+    {
+     "id": "cellar-w-34",
+     "a": [
+      65.0,
+      20.0
+     ],
+     "b": [
+      65.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "earth"
+    },
+    {
+     "id": "cellar-w-35",
+     "a": [
+      65.0,
+      15.0
+     ],
+     "b": [
+      65.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "earth"
+    },
+    {
+     "id": "cellar-w-36",
+     "a": [
+      65.0,
+      10.0
+     ],
+     "b": [
+      65.0,
+      15.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "earth"
+    },
+    {
+     "id": "cellar-w-37",
+     "a": [
+      120.0,
+      20.0
+     ],
+     "b": [
+      132.5,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "earth"
+    },
+    {
+     "id": "cellar-w-38",
+     "a": [
+      132.5,
+      20.0
+     ],
+     "b": [
+      132.5,
+      30.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "earth"
+    },
+    {
+     "id": "cellar-w-39",
+     "a": [
+      126.25,
+      30.0
+     ],
+     "b": [
+      132.5,
+      30.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "earth"
+    },
+    {
+     "id": "cellar-w-40",
+     "a": [
+      120.0,
+      30.0
+     ],
+     "b": [
+      126.25,
+      30.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "earth"
+    }
+   ],
+   "lights": [
+    {
+     "id": "cellar-l-N4t-candle0",
+     "pos": [
+      15,
+      2,
+      47.5
+     ],
+     "preset": "candle",
+     "bright": 5,
+     "dim": 10
+    },
+    {
+     "id": "cellar-l-N4t-candle1",
+     "pos": [
+      57.5,
+      2,
+      47.5
+     ],
+     "preset": "candle",
+     "bright": 5,
+     "dim": 10
+    },
+    {
+     "id": "cellar-l-N4t-candle2",
+     "pos": [
+      15,
+      2,
+      92.5
+     ],
+     "preset": "candle",
+     "bright": 5,
+     "dim": 10
+    },
+    {
+     "id": "cellar-l-N4t-candle3",
+     "pos": [
+      57.5,
+      2,
+      92.5
+     ],
+     "preset": "candle",
+     "bright": 5,
+     "dim": 10
+    }
+   ],
+   "objects": [
+    {
+     "id": "cellar-sdo-pivot",
+     "kind": "secret-panel",
+     "pos": [
+      65.0,
+      0,
+      67.5
+     ],
+     "vis": "secret-door",
+     "key": "N4s",
+     "label": "A soundproof door that pivots on a central axis in the bare west wall; the footprints give it away",
+     "wall": "cellar-sd-pivot"
+    },
+    {
+     "id": "cellar-N4g-stair",
+     "kind": "stairs-straight",
+     "pos": [
+      71.25,
+      0,
+      42.5
+     ],
+     "vis": "player",
+     "key": "N4g",
+     "dims": {
+      "w": 5,
+      "rise": 12,
+      "fromZ": 55,
+      "toZ": 30
+     }
+    },
+    {
+     "id": "cellar-N4s-stair",
+     "kind": "stairs-straight",
+     "pos": [
+      115,
+      0,
+      25
+     ],
+     "vis": "player",
+     "key": "N4s",
+     "dims": {
+      "w": 4,
+      "rise": 12,
+      "fromX": 125,
+      "toX": 110
+     }
+    },
+    {
+     "id": "cellar-N4s-prints",
+     "kind": "footprints",
+     "pos": [
+      90,
+      0,
+      50
+     ],
+     "vis": "player",
+     "key": "N4s",
+     "dims": {
+      "n": 12,
+      "len": 40,
+      "seed": 11
+     }
+    },
+    {
+     "id": "cellar-N4s-bed0",
+     "kind": "pallet",
+     "pos": [
+      77.5,
+      0,
+      91.0
+     ],
+     "vis": "player",
+     "key": "N4s"
+    },
+    {
+     "id": "cellar-N4s-bed1",
+     "kind": "pallet",
+     "pos": [
+      90,
+      0,
+      91.0
+     ],
+     "vis": "player",
+     "key": "N4s"
+    },
+    {
+     "id": "cellar-N4s-bed2",
+     "kind": "pallet",
+     "pos": [
+      102.5,
+      0,
+      91.0
+     ],
+     "vis": "player",
+     "key": "N4s"
+    },
+    {
+     "id": "cellar-N4s-bed3",
+     "kind": "pallet",
+     "pos": [
+      115,
+      0,
+      91.0
+     ],
+     "vis": "player",
+     "key": "N4s"
+    },
+    {
+     "id": "cellar-N4s-skeletons",
+     "kind": "skeleton",
+     "pos": [
+      90,
+      0,
+      70
+     ],
+     "vis": "hidden-creature",
+     "key": "N4s",
+     "label": "Eight skeletons buried under the dirt floor, stolen from the church cemetery",
+     "size": "medium"
+    },
+    {
+     "id": "cellar-N4t-pentagram",
+     "kind": "rug",
+     "pos": [
+      38.75,
+      0,
+      70
+     ],
+     "vis": "player",
+     "key": "N4t",
+     "dims": {
+      "w": 40,
+      "d": 40
+     }
+    },
+    {
+     "id": "cellar-N4t-note",
+     "kind": "note",
+     "pos": [
+      38.75,
+      0,
+      55
+     ],
+     "vis": "dm-note",
+     "key": "N4t",
+     "label": "A black pentagram on the stone; the 'book club' waits for Lady Wachter with candles lit."
+    },
+    {
+     "id": "cellar-N4t-candle0",
+     "kind": "brazier",
+     "pos": [
+      15,
+      0,
+      47.5
+     ],
+     "vis": "player",
+     "key": "N4t"
+    },
+    {
+     "id": "cellar-N4t-candle1",
+     "kind": "brazier",
+     "pos": [
+      57.5,
+      0,
+      47.5
+     ],
+     "vis": "player",
+     "key": "N4t"
+    },
+    {
+     "id": "cellar-N4t-candle2",
+     "kind": "brazier",
+     "pos": [
+      15,
+      0,
+      92.5
+     ],
+     "vis": "player",
+     "key": "N4t"
+    },
+    {
+     "id": "cellar-N4t-candle3",
+     "kind": "brazier",
+     "pos": [
+      57.5,
+      0,
+      92.5
+     ],
+     "vis": "player",
+     "key": "N4t"
+    },
+    {
+     "id": "cellar-N4t-chair0",
+     "kind": "chair",
+     "pos": [
+      27.5,
+      0,
+      52.5
+     ],
+     "vis": "player",
+     "key": "N4t"
+    },
+    {
+     "id": "cellar-N4t-chair1",
+     "kind": "chair",
+     "pos": [
+      45,
+      0,
+      52.5
+     ],
+     "vis": "player",
+     "rotY": 72,
+     "key": "N4t"
+    },
+    {
+     "id": "cellar-N4t-chair2",
+     "kind": "chair",
+     "pos": [
+      22.5,
+      0,
+      77.5
+     ],
+     "vis": "player",
+     "rotY": 144,
+     "key": "N4t"
+    },
+    {
+     "id": "cellar-N4t-chair3",
+     "kind": "chair",
+     "pos": [
+      50,
+      0,
+      77.5
+     ],
+     "vis": "player",
+     "rotY": 216,
+     "key": "N4t"
+    },
+    {
+     "id": "cellar-N4t-chair4",
+     "kind": "chair",
+     "pos": [
+      36.25,
+      0,
+      87.5
+     ],
+     "vis": "player",
+     "rotY": 288,
+     "key": "N4t"
+    },
+    {
+     "id": "cellar-N4t-cultists",
+     "kind": "cultist",
+     "pos": [
+      36.25,
+      0,
+      65
+     ],
+     "vis": "hidden-creature",
+     "key": "N4t",
+     "label": "Cult fanatics (3) and cultists (6) in black robes",
+     "size": "medium"
+    },
+    {
+     "id": "cellar-web-N4s-0",
+     "kind": "cobweb",
+     "pos": [
+      66.75,
+      0,
+      11.75
+     ],
+     "vis": "player",
+     "key": "N4s",
+     "dims": {
+      "s": 2.5,
+      "y": 7
+     }
+    },
+    {
+     "id": "cellar-web-N4s-1",
+     "kind": "cobweb",
+     "pos": [
+      118.25,
+      0,
+      11.75
+     ],
+     "vis": "player",
+     "key": "N4s",
+     "dims": {
+      "s": 2.5,
+      "y": 7
+     }
+    }
+   ]
+  },
+  {
+   "id": "ground",
+   "name": "Ground floor",
+   "elevationFt": 0,
+   "ceilingFt": 15,
+   "ambient": "interior-dim",
+   "north": "-z",
+   "rooms": [
+    {
+     "key": "N4k",
+     "name": "Den",
+     "page": 112,
+     "polygon": [
+      [
+       7.5,
+       45
+      ],
+      [
+       15,
+       35
+      ],
+      [
+       30,
+       35
+      ],
+      [
+       30,
+       70
+      ],
+      [
+       15,
+       70
+      ],
+      [
+       7.5,
+       60
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 12,
+     "desc": "A bay den of couches by the hearth, windows over dead gardens."
+    },
+    {
+     "key": "N4h",
+     "name": "Servants' Quarters",
+     "page": 112,
+     "polygon": [
+      [
+       30,
+       15
+      ],
+      [
+       85,
+       15
+      ],
+      [
+       85,
+       35
+      ],
+      [
+       30,
+       35
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 10,
+     "desc": "Four austere beds and chests.",
+     "dm": "The servants know everything and say nothing."
+    },
+    {
+     "key": "N4e",
+     "name": "Back Vestibule",
+     "page": null,
+     "polygon": [
+      [
+       85,
+       15
+      ],
+      [
+       105,
+       15
+      ],
+      [
+       105,
+       25
+      ],
+      [
+       85,
+       25
+      ]
+     ],
+     "floor": "flagstone",
+     "ceilingFt": 10,
+     "desc": "The back vestibule: a locked, banded door and three plain doors."
+    },
+    {
+     "key": "N4f",
+     "name": "Servants' Closet",
+     "page": 112,
+     "polygon": [
+      [
+       85,
+       25
+      ],
+      [
+       105,
+       25
+      ],
+      [
+       105,
+       35
+      ],
+      [
+       85,
+       35
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 10,
+     "desc": "A closet of brooms and aprons.",
+     "dm": "Secret door in the south wall (DC 10 Perception): the stone stair to the cellar."
+    },
+    {
+     "key": "N4d",
+     "name": "Storage Room",
+     "page": 112,
+     "polygon": [
+      [
+       105,
+       15
+      ],
+      [
+       140,
+       15
+      ],
+      [
+       140,
+       47.5
+      ],
+      [
+       105,
+       47.5
+      ]
+     ],
+     "floor": "flagstone",
+     "ceilingFt": 10,
+     "desc": "Barrels and crates."
+    },
+    {
+     "key": "N4i",
+     "name": "Parlor",
+     "page": 112,
+     "polygon": [
+      [
+       30,
+       35
+      ],
+      [
+       85,
+       35
+      ],
+      [
+       85,
+       70
+      ],
+      [
+       30,
+       70
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 12,
+     "desc": "Three elegant couches round a black-glass table; portraits on the north wall; a hearth shared with the den."
+    },
+    {
+     "key": "N4b",
+     "name": "Staircase",
+     "page": 110,
+     "polygon": [
+      [
+       85,
+       35
+      ],
+      [
+       105,
+       35
+      ],
+      [
+       105,
+       80
+      ],
+      [
+       85,
+       80
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 15,
+     "desc": "A wooden stair up to a balcony; three stained-glass doors at its foot.",
+     "dm": "Climbs 15 ft to the upstairs hall."
+    },
+    {
+     "key": "N4c",
+     "name": "Kitchen",
+     "page": 112,
+     "polygon": [
+      [
+       105,
+       47.5
+      ],
+      [
+       140,
+       47.5
+      ],
+      [
+       140,
+       75
+      ],
+      [
+       105,
+       75
+      ]
+     ],
+     "floor": "flagstone",
+     "ceilingFt": 10,
+     "desc": "A spotless kitchen; a washbasin in the corner, a slender door to a pantry."
+    },
+    {
+     "key": "N4c-pantry",
+     "name": "Pantry",
+     "page": 112,
+     "polygon": [
+      [
+       105,
+       75
+      ],
+      [
+       117.5,
+       75
+      ],
+      [
+       117.5,
+       90
+      ],
+      [
+       105,
+       90
+      ]
+     ],
+     "floor": "flagstone",
+     "ceilingFt": 10,
+     "desc": "A small pantry."
+    },
+    {
+     "key": "N4j",
+     "name": "Dining Room",
+     "page": 112,
+     "polygon": [
+      [
+       30,
+       70
+      ],
+      [
+       85,
+       70
+      ],
+      [
+       85,
+       105
+      ],
+      [
+       30,
+       105
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 12,
+     "desc": "A long table under a crystal chandelier; eight chairs with elk-horn backs; iron-and-glass windows over the fog-swept grounds."
+    },
+    {
+     "key": "N4a",
+     "name": "Front Door and Vestibule",
+     "page": 110,
+     "polygon": [
+      [
+       85,
+       80
+      ],
+      [
+       105,
+       80
+      ],
+      [
+       105,
+       105
+      ],
+      [
+       85,
+       105
+      ]
+     ],
+     "floor": "flagstone",
+     "ceilingFt": 10,
+     "desc": "A narrow vestibule behind a bronze-banded door; three stained-glass doors lead on; closets flank the entrance.",
+     "dm": "Locked, DC 20 Strength; a servant speaks through the eye-window."
+    },
+    {
+     "key": "N4a-west",
+     "name": "West Closet",
+     "page": 110,
+     "polygon": [
+      [
+       75,
+       90
+      ],
+      [
+       85,
+       90
+      ],
+      [
+       85,
+       105
+      ],
+      [
+       75,
+       105
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 10,
+     "desc": "Lady Wachter's outdoor clothes."
+    },
+    {
+     "key": "N4a-east",
+     "name": "East Closet",
+     "page": 110,
+     "polygon": [
+      [
+       105,
+       90
+      ],
+      [
+       117.5,
+       90
+      ],
+      [
+       117.5,
+       105
+      ],
+      [
+       105,
+       105
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 10,
+     "desc": "Coats and boots of the children."
+    },
+    {
+     "key": "N4k-east",
+     "name": "Den (east)",
+     "page": 112,
+     "polygon": [
+      [
+       117.5,
+       75
+      ],
+      [
+       140,
+       75
+      ],
+      [
+       140,
+       105
+      ],
+      [
+       117.5,
+       105
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 12,
+     "desc": "A study by a hearth, tall windows over the dead gardens."
+    },
+    {
+     "key": "N4r",
+     "name": "Cellar Entrance",
+     "page": 114,
+     "polygon": [
+      [
+       140,
+       25
+      ],
+      [
+       152.5,
+       25
+      ],
+      [
+       152.5,
+       35
+      ],
+      [
+       140,
+       35
+      ]
+     ],
+     "floor": "flagstone",
+     "ceilingFt": 6,
+     "desc": "A slanted cellar door with an iron ring against the foundation.",
+     "dm": "Unlocked; stone steps to a landing, then down to the cellar."
+    }
+   ],
+   "walls": [
+    {
+     "id": "ground-w-0",
+     "a": [
+      7.5,
+      45
+     ],
+     "b": [
+      15,
+      35
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-1",
+     "a": [
+      15.0,
+      35.0
+     ],
+     "b": [
+      30.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-2",
+     "a": [
+      30.0,
+      35.0
+     ],
+     "b": [
+      30.0,
+      50.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "N4k-door",
+     "a": [
+      30.0,
+      50.0
+     ],
+     "b": [
+      30.0,
+      55.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "paneling",
+     "open": false
+    },
+    {
+     "id": "ground-w-4",
+     "a": [
+      30.0,
+      55.0
+     ],
+     "b": [
+      30.0,
+      70.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-5",
+     "a": [
+      25.0,
+      70.0
+     ],
+     "b": [
+      30.0,
+      70.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-6",
+     "a": [
+      20.0,
+      70.0
+     ],
+     "b": [
+      25.0,
+      70.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-7",
+     "a": [
+      15.0,
+      70.0
+     ],
+     "b": [
+      20.0,
+      70.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-8",
+     "a": [
+      7.5,
+      60
+     ],
+     "b": [
+      15,
+      70
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-9",
+     "a": [
+      7.5,
+      55.0
+     ],
+     "b": [
+      7.5,
+      60.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-10",
+     "a": [
+      7.5,
+      50.0
+     ],
+     "b": [
+      7.5,
+      55.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-11",
+     "a": [
+      7.5,
+      45.0
+     ],
+     "b": [
+      7.5,
+      50.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-12",
+     "a": [
+      30.0,
+      15.0
+     ],
+     "b": [
+      40.0,
+      15.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-13",
+     "a": [
+      40.0,
+      15.0
+     ],
+     "b": [
+      45.0,
+      15.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-14",
+     "a": [
+      45.0,
+      15.0
+     ],
+     "b": [
+      65.0,
+      15.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-15",
+     "a": [
+      65.0,
+      15.0
+     ],
+     "b": [
+      70.0,
+      15.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-16",
+     "a": [
+      70.0,
+      15.0
+     ],
+     "b": [
+      115.0,
+      15.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-17",
+     "a": [
+      85.0,
+      15.0
+     ],
+     "b": [
+      85.0,
+      50.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-18",
+     "a": [
+      80.0,
+      35.0
+     ],
+     "b": [
+      105.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-19",
+     "a": [
+      75.0,
+      35.0
+     ],
+     "b": [
+      80.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-20",
+     "a": [
+      70.0,
+      35.0
+     ],
+     "b": [
+      75.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-21",
+     "a": [
+      65.0,
+      35.0
+     ],
+     "b": [
+      70.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-22",
+     "a": [
+      60.0,
+      35.0
+     ],
+     "b": [
+      65.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "N4h-i",
+     "a": [
+      55.0,
+      35.0
+     ],
+     "b": [
+      60.0,
+      35.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "paneling",
+     "open": false
+    },
+    {
+     "id": "ground-w-24",
+     "a": [
+      50.0,
+      35.0
+     ],
+     "b": [
+      55.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-25",
+     "a": [
+      45.0,
+      35.0
+     ],
+     "b": [
+      50.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-26",
+     "a": [
+      40.0,
+      35.0
+     ],
+     "b": [
+      45.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-27",
+     "a": [
+      35.0,
+      35.0
+     ],
+     "b": [
+      40.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-28",
+     "a": [
+      30.0,
+      35.0
+     ],
+     "b": [
+      35.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-29",
+     "a": [
+      30.0,
+      30.0
+     ],
+     "b": [
+      30.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-30",
+     "a": [
+      30.0,
+      25.0
+     ],
+     "b": [
+      30.0,
+      30.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-31",
+     "a": [
+      30.0,
+      20.0
+     ],
+     "b": [
+      30.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-32",
+     "a": [
+      30.0,
+      15.0
+     ],
+     "b": [
+      30.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-33",
+     "a": [
+      105.0,
+      15.0
+     ],
+     "b": [
+      105.0,
+      75.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-34",
+     "a": [
+      100.0,
+      25.0
+     ],
+     "b": [
+      105.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-35",
+     "a": [
+      95.0,
+      25.0
+     ],
+     "b": [
+      100.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-36",
+     "a": [
+      90.0,
+      25.0
+     ],
+     "b": [
+      95.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-37",
+     "a": [
+      85.0,
+      25.0
+     ],
+     "b": [
+      90.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-38",
+     "a": [
+      115.0,
+      15.0
+     ],
+     "b": [
+      120.0,
+      15.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-39",
+     "a": [
+      120.0,
+      15.0
+     ],
+     "b": [
+      130.0,
+      15.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-40",
+     "a": [
+      130.0,
+      15.0
+     ],
+     "b": [
+      135.0,
+      15.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-41",
+     "a": [
+      135.0,
+      15.0
+     ],
+     "b": [
+      140.0,
+      15.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-42",
+     "a": [
+      140.0,
+      15.0
+     ],
+     "b": [
+      140.0,
+      85.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-43",
+     "a": [
+      135.0,
+      47.5
+     ],
+     "b": [
+      140.0,
+      47.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-44",
+     "a": [
+      130.0,
+      47.5
+     ],
+     "b": [
+      135.0,
+      47.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-45",
+     "a": [
+      125.0,
+      47.5
+     ],
+     "b": [
+      130.0,
+      47.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-46",
+     "a": [
+      120.0,
+      47.5
+     ],
+     "b": [
+      125.0,
+      47.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-47",
+     "a": [
+      115.0,
+      47.5
+     ],
+     "b": [
+      120.0,
+      47.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-48",
+     "a": [
+      110.0,
+      47.5
+     ],
+     "b": [
+      115.0,
+      47.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-49",
+     "a": [
+      105.0,
+      47.5
+     ],
+     "b": [
+      110.0,
+      47.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-50",
+     "a": [
+      105.0,
+      42.08333333333333
+     ],
+     "b": [
+      105.0,
+      75.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-51",
+     "a": [
+      105.0,
+      36.66666666666667
+     ],
+     "b": [
+      105.0,
+      42.08333333333333
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-52",
+     "a": [
+      105.0,
+      31.25
+     ],
+     "b": [
+      105.0,
+      36.66666666666667
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-53",
+     "a": [
+      105.0,
+      25.833333333333336
+     ],
+     "b": [
+      105.0,
+      31.25
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-54",
+     "a": [
+      105.0,
+      20.416666666666664
+     ],
+     "b": [
+      105.0,
+      25.833333333333336
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-55",
+     "a": [
+      105.0,
+      15.0
+     ],
+     "b": [
+      105.0,
+      20.416666666666664
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "N4i-door",
+     "a": [
+      85.0,
+      50.0
+     ],
+     "b": [
+      85.0,
+      55.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "paneling",
+     "open": false
+    },
+    {
+     "id": "ground-w-57",
+     "a": [
+      85.0,
+      55.0
+     ],
+     "b": [
+      85.0,
+      85.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-58",
+     "a": [
+      80.0,
+      70.0
+     ],
+     "b": [
+      85.0,
+      70.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-59",
+     "a": [
+      75.0,
+      70.0
+     ],
+     "b": [
+      80.0,
+      70.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-60",
+     "a": [
+      70.0,
+      70.0
+     ],
+     "b": [
+      75.0,
+      70.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-61",
+     "a": [
+      65.0,
+      70.0
+     ],
+     "b": [
+      70.0,
+      70.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-62",
+     "a": [
+      60.0,
+      70.0
+     ],
+     "b": [
+      65.0,
+      70.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "N4i-j",
+     "a": [
+      55.0,
+      70.0
+     ],
+     "b": [
+      60.0,
+      70.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "paneling",
+     "open": false
+    },
+    {
+     "id": "ground-w-64",
+     "a": [
+      50.0,
+      70.0
+     ],
+     "b": [
+      55.0,
+      70.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-65",
+     "a": [
+      45.0,
+      70.0
+     ],
+     "b": [
+      50.0,
+      70.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-66",
+     "a": [
+      40.0,
+      70.0
+     ],
+     "b": [
+      45.0,
+      70.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-67",
+     "a": [
+      35.0,
+      70.0
+     ],
+     "b": [
+      40.0,
+      70.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-68",
+     "a": [
+      30.0,
+      70.0
+     ],
+     "b": [
+      35.0,
+      70.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-69",
+     "a": [
+      105.0,
+      75.0
+     ],
+     "b": [
+      105.0,
+      95.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-70",
+     "a": [
+      100.0,
+      80.0
+     ],
+     "b": [
+      105.0,
+      80.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-71",
+     "a": [
+      95.0,
+      80.0
+     ],
+     "b": [
+      100.0,
+      80.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-72",
+     "a": [
+      90.0,
+      80.0
+     ],
+     "b": [
+      95.0,
+      80.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-73",
+     "a": [
+      85.0,
+      80.0
+     ],
+     "b": [
+      90.0,
+      80.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-74",
+     "a": [
+      135.0,
+      75.0
+     ],
+     "b": [
+      140.0,
+      75.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-75",
+     "a": [
+      130.0,
+      75.0
+     ],
+     "b": [
+      135.0,
+      75.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-76",
+     "a": [
+      125.0,
+      75.0
+     ],
+     "b": [
+      130.0,
+      75.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-77",
+     "a": [
+      120.0,
+      75.0
+     ],
+     "b": [
+      125.0,
+      75.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-78",
+     "a": [
+      115.0,
+      75.0
+     ],
+     "b": [
+      120.0,
+      75.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "N4c-pantry-door",
+     "a": [
+      110.0,
+      75.0
+     ],
+     "b": [
+      115.0,
+      75.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "ashlar",
+     "open": false
+    },
+    {
+     "id": "ground-w-80",
+     "a": [
+      105.0,
+      75.0
+     ],
+     "b": [
+      110.0,
+      75.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-81",
+     "a": [
+      105.0,
+      75.0
+     ],
+     "b": [
+      140.0,
+      75.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-82",
+     "a": [
+      117.5,
+      75.0
+     ],
+     "b": [
+      117.5,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-83",
+     "a": [
+      111.25,
+      90.0
+     ],
+     "b": [
+      117.5,
+      90.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-84",
+     "a": [
+      105.0,
+      90.0
+     ],
+     "b": [
+      111.25,
+      90.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "N4j-door",
+     "a": [
+      85.0,
+      85.0
+     ],
+     "b": [
+      85.0,
+      90.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "paneling",
+     "open": false
+    },
+    {
+     "id": "ground-w-86",
+     "a": [
+      85.0,
+      90.0
+     ],
+     "b": [
+      85.0,
+      95.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "N4a-closet-w-door",
+     "a": [
+      85.0,
+      95.0
+     ],
+     "b": [
+      85.0,
+      100.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "paneling",
+     "open": false
+    },
+    {
+     "id": "ground-w-88",
+     "a": [
+      85.0,
+      100.0
+     ],
+     "b": [
+      85.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-89",
+     "a": [
+      80.0,
+      105.0
+     ],
+     "b": [
+      85.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-90",
+     "a": [
+      75.0,
+      105.0
+     ],
+     "b": [
+      80.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-91",
+     "a": [
+      70.0,
+      105.0
+     ],
+     "b": [
+      75.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-92",
+     "a": [
+      65.0,
+      105.0
+     ],
+     "b": [
+      70.0,
+      105.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-93",
+     "a": [
+      60.0,
+      105.0
+     ],
+     "b": [
+      65.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-94",
+     "a": [
+      55.0,
+      105.0
+     ],
+     "b": [
+      60.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-95",
+     "a": [
+      50.0,
+      105.0
+     ],
+     "b": [
+      55.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-96",
+     "a": [
+      45.0,
+      105.0
+     ],
+     "b": [
+      50.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-97",
+     "a": [
+      40.0,
+      105.0
+     ],
+     "b": [
+      45.0,
+      105.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-98",
+     "a": [
+      35.0,
+      105.0
+     ],
+     "b": [
+      40.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-99",
+     "a": [
+      30.0,
+      105.0
+     ],
+     "b": [
+      35.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-100",
+     "a": [
+      30.0,
+      100.0
+     ],
+     "b": [
+      30.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-101",
+     "a": [
+      30.0,
+      95.0
+     ],
+     "b": [
+      30.0,
+      100.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-102",
+     "a": [
+      30.0,
+      90.0
+     ],
+     "b": [
+      30.0,
+      95.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-103",
+     "a": [
+      30.0,
+      85.0
+     ],
+     "b": [
+      30.0,
+      90.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-104",
+     "a": [
+      30.0,
+      80.0
+     ],
+     "b": [
+      30.0,
+      85.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-105",
+     "a": [
+      30.0,
+      75.0
+     ],
+     "b": [
+      30.0,
+      80.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-106",
+     "a": [
+      30.0,
+      70.0
+     ],
+     "b": [
+      30.0,
+      75.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "N4a-closet-e-door",
+     "a": [
+      105.0,
+      95.0
+     ],
+     "b": [
+      105.0,
+      100.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "paneling",
+     "open": false
+    },
+    {
+     "id": "ground-w-108",
+     "a": [
+      105.0,
+      100.0
+     ],
+     "b": [
+      105.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-109",
+     "a": [
+      100.0,
+      105.0
+     ],
+     "b": [
+      140.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-110",
+     "a": [
+      95.0,
+      105.0
+     ],
+     "b": [
+      100.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-111",
+     "a": [
+      90.0,
+      105.0
+     ],
+     "b": [
+      95.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-112",
+     "a": [
+      85.0,
+      105.0
+     ],
+     "b": [
+      90.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-113",
+     "a": [
+      75.0,
+      90.0
+     ],
+     "b": [
+      85.0,
+      90.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-114",
+     "a": [
+      75.0,
+      100.0
+     ],
+     "b": [
+      75.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-115",
+     "a": [
+      75.0,
+      95.0
+     ],
+     "b": [
+      75.0,
+      100.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-116",
+     "a": [
+      75.0,
+      90.0
+     ],
+     "b": [
+      75.0,
+      95.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-117",
+     "a": [
+      140.0,
+      85.0
+     ],
+     "b": [
+      140.0,
+      90.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-118",
+     "a": [
+      140.0,
+      90.0
+     ],
+     "b": [
+      140.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-119",
+     "a": [
+      140.0,
+      25.0
+     ],
+     "b": [
+      152.5,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-120",
+     "a": [
+      152.5,
+      25.0
+     ],
+     "b": [
+      152.5,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-121",
+     "a": [
+      146.25,
+      35.0
+     ],
+     "b": [
+      152.5,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-122",
+     "a": [
+      140.0,
+      35.0
+     ],
+     "b": [
+      146.25,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-123",
+     "a": [
+      140.0,
+      30.0
+     ],
+     "b": [
+      140.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-124",
+     "a": [
+      140.0,
+      25.0
+     ],
+     "b": [
+      140.0,
+      30.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-sd-closet-stair",
+     "a": [
+      85,
+      27.5
+     ],
+     "b": [
+      85,
+      32.5
+     ],
+     "flags": [
+      "secret-door"
+     ],
+     "material": "paneling"
+    }
+   ],
+   "lights": [
+    {
+     "id": "ground-l-N4i-fire",
+     "pos": [
+      35,
+      3,
+      52.5
+     ],
+     "preset": "torch",
+     "bright": 10,
+     "dim": 20
+    },
+    {
+     "id": "ground-l-N4j-chandelier",
+     "pos": [
+      57.5,
+      9,
+      87.5
+     ],
+     "preset": "candle",
+     "bright": 15,
+     "dim": 30
+    },
+    {
+     "id": "ground-l-N4a-lamp",
+     "pos": [
+      95,
+      7,
+      92.5
+     ],
+     "preset": "lantern",
+     "bright": 10,
+     "dim": 20
+    }
+   ],
+   "objects": [
+    {
+     "id": "ground-N4-garden0",
+     "kind": "bush",
+     "pos": [
+      -30,
+      0,
+      10
+     ],
+     "vis": "player"
+    },
+    {
+     "id": "ground-N4-gardenb0",
+     "kind": "bush",
+     "pos": [
+      -15,
+      0,
+      15
+     ],
+     "vis": "player"
+    },
+    {
+     "id": "ground-N4-garden1",
+     "kind": "bush",
+     "pos": [
+      -20,
+      0,
+      30
+     ],
+     "vis": "player"
+    },
+    {
+     "id": "ground-N4-gardenb1",
+     "kind": "bush",
+     "pos": [
+      -15,
+      0,
+      35
+     ],
+     "vis": "player"
+    },
+    {
+     "id": "ground-N4-garden2",
+     "kind": "bush",
+     "pos": [
+      -30,
+      0,
+      50
+     ],
+     "vis": "player"
+    },
+    {
+     "id": "ground-N4-gardenb2",
+     "kind": "bush",
+     "pos": [
+      -15,
+      0,
+      55
+     ],
+     "vis": "player"
+    },
+    {
+     "id": "ground-N4-garden3",
+     "kind": "bush",
+     "pos": [
+      -20,
+      0,
+      70
+     ],
+     "vis": "player"
+    },
+    {
+     "id": "ground-N4-gardenb3",
+     "kind": "bush",
+     "pos": [
+      -15,
+      0,
+      75
+     ],
+     "vis": "player"
+    },
+    {
+     "id": "ground-N4-garden4",
+     "kind": "bush",
+     "pos": [
+      -30,
+      0,
+      90
+     ],
+     "vis": "player"
+    },
+    {
+     "id": "ground-N4-gardenb4",
+     "kind": "bush",
+     "pos": [
+      -15,
+      0,
+      95
+     ],
+     "vis": "player"
+    },
+    {
+     "id": "ground-sdo-closet-stair",
+     "kind": "secret-panel",
+     "pos": [
+      85.0,
+      0,
+      30.0
+     ],
+     "vis": "secret-door",
+     "key": "N4f",
+     "label": "A secret door in the south wall of the servants' closet: a stone stair to the cellar (DC 10 Perception)",
+     "wall": "ground-sd-closet-stair"
+    },
+    {
+     "id": "ground-N4b-stair",
+     "kind": "stairs-straight",
+     "pos": [
+      95,
+      0,
+      55
+     ],
+     "vis": "player",
+     "key": "N4b",
+     "dims": {
+      "w": 5,
+      "rise": 15,
+      "fromZ": 75,
+      "toZ": 35
+     }
+    },
+    {
+     "id": "ground-N4b-glass",
+     "kind": "niche",
+     "pos": [
+      95,
+      0,
+      77.5
+     ],
+     "vis": "hidden-object",
+     "key": "N4b",
+     "label": "Three stained-glass doors in wooden frames at the foot of the stair"
+    },
+    {
+     "id": "ground-N4a-note",
+     "kind": "note",
+     "pos": [
+      95,
+      0,
+      92.5
+     ],
+     "vis": "dm-note",
+     "key": "N4a",
+     "label": "Bronze-banded door, locked (DC 20 Strength); a servant asks your business through a small window in it."
+    },
+    {
+     "id": "ground-N4k-couch-a",
+     "kind": "bench",
+     "pos": [
+      22.5,
+      0,
+      42.5
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "key": "N4k"
+    },
+    {
+     "id": "ground-N4k-couch-b",
+     "kind": "bench",
+     "pos": [
+      22.5,
+      0,
+      62.5
+     ],
+     "vis": "player",
+     "key": "N4k"
+    },
+    {
+     "id": "ground-N4k-table",
+     "kind": "table-round",
+     "pos": [
+      17.5,
+      0,
+      52.5
+     ],
+     "vis": "player",
+     "key": "N4k"
+    },
+    {
+     "id": "ground-N4k-fire",
+     "kind": "fireplace",
+     "pos": [
+      28.5,
+      0,
+      52.5
+     ],
+     "vis": "player",
+     "rotY": -90,
+     "key": "N4k"
+    },
+    {
+     "id": "ground-N4i-couch-a",
+     "kind": "bench",
+     "pos": [
+      40,
+      0,
+      42.5
+     ],
+     "vis": "player",
+     "key": "N4i"
+    },
+    {
+     "id": "ground-N4i-couch-b",
+     "kind": "bench",
+     "pos": [
+      40,
+      0,
+      62.5
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "key": "N4i"
+    },
+    {
+     "id": "ground-N4i-couch-c",
+     "kind": "bench",
+     "pos": [
+      72.5,
+      0,
+      52.5
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "N4i"
+    },
+    {
+     "id": "ground-N4i-table",
+     "kind": "table-round",
+     "pos": [
+      55,
+      0,
+      52.5
+     ],
+     "vis": "player",
+     "key": "N4i"
+    },
+    {
+     "id": "ground-N4i-fire",
+     "kind": "fireplace",
+     "pos": [
+      31.5,
+      0,
+      52.5
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "N4i"
+    },
+    {
+     "id": "ground-N4i-portraits",
+     "kind": "niche",
+     "pos": [
+      55,
+      0,
+      37.0
+     ],
+     "vis": "hidden-object",
+     "key": "N4i",
+     "label": "Portraits of the Wachter line along the north wall"
+    },
+    {
+     "id": "ground-N4j-table",
+     "kind": "table",
+     "pos": [
+      57.5,
+      0,
+      87.5
+     ],
+     "vis": "player",
+     "key": "N4j",
+     "dims": {
+      "w": 16,
+      "d": 5
+     }
+    },
+    {
+     "id": "ground-N4j-chair0",
+     "kind": "chair",
+     "pos": [
+      37.5,
+      0,
+      81.0
+     ],
+     "vis": "player",
+     "key": "N4j"
+    },
+    {
+     "id": "ground-N4j-chair1",
+     "kind": "chair",
+     "pos": [
+      50,
+      0,
+      81.0
+     ],
+     "vis": "player",
+     "key": "N4j"
+    },
+    {
+     "id": "ground-N4j-chair2",
+     "kind": "chair",
+     "pos": [
+      62.5,
+      0,
+      81.0
+     ],
+     "vis": "player",
+     "key": "N4j"
+    },
+    {
+     "id": "ground-N4j-chair3",
+     "kind": "chair",
+     "pos": [
+      75,
+      0,
+      81.0
+     ],
+     "vis": "player",
+     "key": "N4j"
+    },
+    {
+     "id": "ground-N4j-chair4",
+     "kind": "chair",
+     "pos": [
+      37.5,
+      0,
+      94.0
+     ],
+     "vis": "player",
+     "key": "N4j"
+    },
+    {
+     "id": "ground-N4j-chair5",
+     "kind": "chair",
+     "pos": [
+      50,
+      0,
+      94.0
+     ],
+     "vis": "player",
+     "key": "N4j"
+    },
+    {
+     "id": "ground-N4j-chair6",
+     "kind": "chair",
+     "pos": [
+      62.5,
+      0,
+      94.0
+     ],
+     "vis": "player",
+     "key": "N4j"
+    },
+    {
+     "id": "ground-N4j-chair7",
+     "kind": "chair",
+     "pos": [
+      75,
+      0,
+      94.0
+     ],
+     "vis": "player",
+     "key": "N4j"
+    },
+    {
+     "id": "ground-N4j-chandelier",
+     "kind": "lamp",
+     "pos": [
+      57.5,
+      9,
+      87.5
+     ],
+     "vis": "player",
+     "key": "N4j"
+    },
+    {
+     "id": "ground-N4h-bed0",
+     "kind": "bed",
+     "pos": [
+      35,
+      0,
+      20
+     ],
+     "vis": "player",
+     "key": "N4h"
+    },
+    {
+     "id": "ground-N4h-bed1",
+     "kind": "bed",
+     "pos": [
+      47.5,
+      0,
+      20
+     ],
+     "vis": "player",
+     "key": "N4h"
+    },
+    {
+     "id": "ground-N4h-bed2",
+     "kind": "bed",
+     "pos": [
+      60,
+      0,
+      20
+     ],
+     "vis": "player",
+     "key": "N4h"
+    },
+    {
+     "id": "ground-N4h-bed3",
+     "kind": "bed",
+     "pos": [
+      72.5,
+      0,
+      20
+     ],
+     "vis": "player",
+     "key": "N4h"
+    },
+    {
+     "id": "ground-N4h-chest0",
+     "kind": "trunk",
+     "pos": [
+      35.0,
+      0,
+      31.5
+     ],
+     "vis": "player",
+     "key": "N4h"
+    },
+    {
+     "id": "ground-N4h-chest1",
+     "kind": "trunk",
+     "pos": [
+      47.5,
+      0,
+      31.5
+     ],
+     "vis": "player",
+     "key": "N4h"
+    },
+    {
+     "id": "ground-N4h-chest2",
+     "kind": "trunk",
+     "pos": [
+      60.0,
+      0,
+      31.5
+     ],
+     "vis": "player",
+     "key": "N4h"
+    },
+    {
+     "id": "ground-N4h-chest3",
+     "kind": "trunk",
+     "pos": [
+      72.5,
+      0,
+      31.5
+     ],
+     "vis": "player",
+     "key": "N4h"
+    },
+    {
+     "id": "ground-N4-servants",
+     "kind": "commoner",
+     "pos": [
+      50,
+      0,
+      27.5
+     ],
+     "vis": "hidden-creature",
+     "key": "N4h",
+     "label": "Three servants and the cook (commoners), loyal to the death",
+     "size": "medium"
+    },
+    {
+     "id": "ground-N4d-cask0",
+     "kind": "wine-cask",
+     "pos": [
+      110.0,
+      0,
+      20.0
+     ],
+     "vis": "player",
+     "key": "N4d"
+    },
+    {
+     "id": "ground-N4d-cask1",
+     "kind": "wine-cask",
+     "pos": [
+      116.0,
+      0,
+      20.0
+     ],
+     "vis": "player",
+     "key": "N4d"
+    },
+    {
+     "id": "ground-N4d-cask2",
+     "kind": "wine-cask",
+     "pos": [
+      122.0,
+      0,
+      20.0
+     ],
+     "vis": "player",
+     "key": "N4d"
+    },
+    {
+     "id": "ground-N4d-cask3",
+     "kind": "wine-cask",
+     "pos": [
+      110.0,
+      0,
+      26.5
+     ],
+     "vis": "player",
+     "key": "N4d"
+    },
+    {
+     "id": "ground-N4d-cask4",
+     "kind": "wine-cask",
+     "pos": [
+      116.0,
+      0,
+      26.5
+     ],
+     "vis": "player",
+     "key": "N4d"
+    },
+    {
+     "id": "ground-N4d-crate0",
+     "kind": "trunk",
+     "pos": [
+      132.5,
+      0,
+      20.0
+     ],
+     "vis": "player",
+     "key": "N4d"
+    },
+    {
+     "id": "ground-N4d-crate1",
+     "kind": "trunk",
+     "pos": [
+      132.5,
+      0,
+      26.5
+     ],
+     "vis": "player",
+     "key": "N4d"
+    },
+    {
+     "id": "ground-N4d-crate2",
+     "kind": "trunk",
+     "pos": [
+      132.5,
+      0,
+      33.0
+     ],
+     "vis": "player",
+     "key": "N4d"
+    },
+    {
+     "id": "ground-N4d-crate3",
+     "kind": "trunk",
+     "pos": [
+      132.5,
+      0,
+      39.5
+     ],
+     "vis": "player",
+     "key": "N4d"
+    },
+    {
+     "id": "ground-N4c-table",
+     "kind": "table",
+     "pos": [
+      122.5,
+      0,
+      60
+     ],
+     "vis": "player",
+     "key": "N4c",
+     "dims": {
+      "w": 8,
+      "d": 3
+     }
+    },
+    {
+     "id": "ground-N4c-stove",
+     "kind": "stove",
+     "pos": [
+      136.5,
+      0,
+      52.5
+     ],
+     "vis": "player",
+     "rotY": -90,
+     "key": "N4c"
+    },
+    {
+     "id": "ground-N4c-basin",
+     "kind": "trough",
+     "pos": [
+      135,
+      0,
+      70
+     ],
+     "vis": "player",
+     "key": "N4c"
+    },
+    {
+     "id": "ground-N4-cook",
+     "kind": "commoner",
+     "pos": [
+      115,
+      0,
+      55
+     ],
+     "vis": "hidden-creature",
+     "key": "N4c",
+     "label": "The house cook",
+     "size": "medium"
+    },
+    {
+     "id": "ground-N4k-east-desk",
+     "kind": "desk",
+     "pos": [
+      136.5,
+      0,
+      82.5
+     ],
+     "vis": "player",
+     "rotY": -90,
+     "key": "N4k-east"
+    },
+    {
+     "id": "ground-N4k-east-chair",
+     "kind": "chair",
+     "pos": [
+      130,
+      0,
+      82.5
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "N4k-east"
+    },
+    {
+     "id": "ground-N4k-east-fire",
+     "kind": "fireplace",
+     "pos": [
+      119.0,
+      0,
+      92.5
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "N4k-east"
+    },
+    {
+     "id": "ground-N4k-east-note",
+     "kind": "niche",
+     "pos": [
+      130,
+      0,
+      97.5
+     ],
+     "vis": "hidden-object",
+     "key": "N4k-east",
+     "label": "Tall windows over dead gardens; the hearth is shared with the parlor"
+    },
+    {
+     "id": "ground-N4r-stair",
+     "kind": "stairs-straight",
+     "pos": [
+      146.25,
+      0,
+      30
+     ],
+     "vis": "player",
+     "key": "N4r",
+     "dims": {
+      "w": 5,
+      "rise": 12,
+      "fromX": 152,
+      "toX": 142
+     }
+    }
+   ],
+   "terrain": [
+    {
+     "polygon": [
+      [
+       -40,
+       -10
+      ],
+      [
+       170,
+       -10
+      ],
+      [
+       170,
+       125
+      ],
+      [
+       -40,
+       125
+      ]
+     ],
+     "floor": "grass"
+    }
+   ]
+  },
+  {
+   "id": "upper",
+   "name": "Upper floor",
+   "elevationFt": 15,
+   "ceilingFt": 10,
+   "ambient": "interior-dim",
+   "north": "-z",
+   "rooms": [
+    {
+     "key": "N4p",
+     "name": "Library",
+     "page": null,
+     "polygon": [
+      [
+       7.5,
+       40
+      ],
+      [
+       15,
+       30
+      ],
+      [
+       30,
+       30
+      ],
+      [
+       30,
+       10
+      ],
+      [
+       85,
+       10
+      ],
+      [
+       85,
+       45
+      ],
+      [
+       52.5,
+       45
+      ],
+      [
+       52.5,
+       65
+      ],
+      [
+       30,
+       65
+      ],
+      [
+       15,
+       65
+      ],
+      [
+       7.5,
+       55
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 10,
+     "desc": "A library in the bay, shelves on every wall, a desk by the window.",
+     "dm": "Fiona works here with Majesto. Hinged bookcase panel to the storage room; the chest key in the desk."
+    },
+    {
+     "key": "N4q",
+     "name": "Storage Room",
+     "page": 114,
+     "polygon": [
+      [
+       52.5,
+       45
+      ],
+      [
+       85,
+       45
+      ],
+      [
+       85,
+       65
+      ],
+      [
+       52.5,
+       65
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 10,
+     "desc": "A dusty ten-foot room of shelves with a curtained window; an iron chest on the bottom shelf.",
+     "dm": "180 ep, 110 gp, the Wachter pipe, five deeds from Strahd."
+    },
+    {
+     "key": "N4n",
+     "name": "Stella's Room",
+     "page": null,
+     "polygon": [
+      [
+       30,
+       65
+      ],
+      [
+       52.5,
+       65
+      ],
+      [
+       52.5,
+       85
+      ],
+      [
+       30,
+       85
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 10,
+     "desc": "An iron-framed bed with leather straps.",
+     "dm": "Stella, mad as a cat; locked both sides, Fiona's key only."
+    },
+    {
+     "key": "N4m",
+     "name": "Brothers' Room (south)",
+     "page": 113,
+     "polygon": [
+      [
+       52.5,
+       65
+      ],
+      [
+       85,
+       65
+      ],
+      [
+       85,
+       85
+      ],
+      [
+       52.5,
+       85
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 10,
+     "desc": "A neat bed, a table with a lamp, a handsome chest, a slender wardrobe.",
+     "dm": "25% a maid is tidying."
+    },
+    {
+     "key": "N4m-n",
+     "name": "Brothers' Room (north)",
+     "page": 113,
+     "polygon": [
+      [
+       105,
+       10
+      ],
+      [
+       140,
+       10
+      ],
+      [
+       140,
+       42.5
+      ],
+      [
+       105,
+       42.5
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 10,
+     "desc": "Two beds; bottles under them.",
+     "dm": "Nikolai and Karl sleep off their drink."
+    },
+    {
+     "key": "N4l",
+     "name": "Upstairs Hall",
+     "page": 113,
+     "polygon": [
+      [
+       85,
+       10
+      ],
+      [
+       105,
+       10
+      ],
+      [
+       105,
+       85
+      ],
+      [
+       85,
+       85
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 10,
+     "desc": "A hall wrapping the stair rail, a window at each end; something scratches at one of the doors.",
+     "dm": "Stella's door. A linen closet at the south end."
+    },
+    {
+     "key": "N4l-closet",
+     "name": "Linen Closet",
+     "page": 113,
+     "polygon": [
+      [
+       85,
+       85
+      ],
+      [
+       105,
+       85
+      ],
+      [
+       105,
+       95
+      ],
+      [
+       85,
+       95
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 10,
+     "desc": "Blankets and linens."
+    },
+    {
+     "key": "N4o",
+     "name": "Master Bedroom",
+     "page": 113,
+     "polygon": [
+      [
+       105,
+       42.5
+      ],
+      [
+       140,
+       42.5
+      ],
+      [
+       140,
+       85
+      ],
+      [
+       105,
+       85
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 10,
+     "desc": "A fire struggles in the hearth under a family portrait; a canopied bed between lamp-lit tables; a man in black lies on it with coins on his eyes.",
+     "dm": "Nikolai, dead three years, under gentle repose. A hooded robe in the closet."
+    },
+    {
+     "key": "N4o-closet",
+     "name": "Closet",
+     "page": 113,
+     "polygon": [
+      [
+       125,
+       85
+      ],
+      [
+       140,
+       85
+      ],
+      [
+       140,
+       95
+      ],
+      [
+       125,
+       95
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 10
+    }
+   ],
+   "walls": [
+    {
+     "id": "upper-w-0",
+     "a": [
+      7.5,
+      40
+     ],
+     "b": [
+      15,
+      30
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-1",
+     "a": [
+      15.0,
+      30.0
+     ],
+     "b": [
+      30.0,
+      30.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-2",
+     "a": [
+      30.0,
+      25.0
+     ],
+     "b": [
+      30.0,
+      30.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-3",
+     "a": [
+      30.0,
+      20.0
+     ],
+     "b": [
+      30.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-4",
+     "a": [
+      30.0,
+      15.0
+     ],
+     "b": [
+      30.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-5",
+     "a": [
+      30.0,
+      10.0
+     ],
+     "b": [
+      30.0,
+      15.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-6",
+     "a": [
+      30.0,
+      10.0
+     ],
+     "b": [
+      40.0,
+      10.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-7",
+     "a": [
+      40.0,
+      10.0
+     ],
+     "b": [
+      45.0,
+      10.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-8",
+     "a": [
+      45.0,
+      10.0
+     ],
+     "b": [
+      65.0,
+      10.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-9",
+     "a": [
+      65.0,
+      10.0
+     ],
+     "b": [
+      70.0,
+      10.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-10",
+     "a": [
+      70.0,
+      10.0
+     ],
+     "b": [
+      115.0,
+      10.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-11",
+     "a": [
+      85.0,
+      10.0
+     ],
+     "b": [
+      85.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "N4p-door",
+     "a": [
+      85.0,
+      25.0
+     ],
+     "b": [
+      85.0,
+      30.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "paneling",
+     "open": false
+    },
+    {
+     "id": "upper-w-13",
+     "a": [
+      85.0,
+      30.0
+     ],
+     "b": [
+      85.0,
+      85.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-14",
+     "a": [
+      79.58333333333333,
+      45.0
+     ],
+     "b": [
+      85.0,
+      45.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-15",
+     "a": [
+      74.16666666666667,
+      45.0
+     ],
+     "b": [
+      79.58333333333333,
+      45.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-16",
+     "a": [
+      68.75,
+      45.0
+     ],
+     "b": [
+      74.16666666666667,
+      45.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-17",
+     "a": [
+      63.33333333333334,
+      45.0
+     ],
+     "b": [
+      85.0,
+      45.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-18",
+     "a": [
+      57.91666666666666,
+      45.0
+     ],
+     "b": [
+      63.33333333333334,
+      45.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-19",
+     "a": [
+      52.5,
+      45.0
+     ],
+     "b": [
+      57.91666666666666,
+      45.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-20",
+     "a": [
+      52.5,
+      45.0
+     ],
+     "b": [
+      52.5,
+      55.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-sd-bookcase",
+     "a": [
+      52.5,
+      55.0
+     ],
+     "b": [
+      52.5,
+      60.0
+     ],
+     "flags": [
+      "secret-door"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-22",
+     "a": [
+      52.5,
+      60.0
+     ],
+     "b": [
+      52.5,
+      85.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-23",
+     "a": [
+      46.875,
+      65.0
+     ],
+     "b": [
+      52.5,
+      65.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-24",
+     "a": [
+      41.25,
+      65.0
+     ],
+     "b": [
+      46.875,
+      65.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-25",
+     "a": [
+      35.625,
+      65.0
+     ],
+     "b": [
+      41.25,
+      65.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-26",
+     "a": [
+      30.0,
+      65.0
+     ],
+     "b": [
+      35.625,
+      65.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-27",
+     "a": [
+      25.0,
+      65.0
+     ],
+     "b": [
+      30.0,
+      65.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-28",
+     "a": [
+      20.0,
+      65.0
+     ],
+     "b": [
+      25.0,
+      65.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-29",
+     "a": [
+      15.0,
+      65.0
+     ],
+     "b": [
+      20.0,
+      65.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-30",
+     "a": [
+      7.5,
+      55
+     ],
+     "b": [
+      15,
+      65
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-31",
+     "a": [
+      7.5,
+      50.0
+     ],
+     "b": [
+      7.5,
+      55.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-32",
+     "a": [
+      7.5,
+      45.0
+     ],
+     "b": [
+      7.5,
+      50.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-33",
+     "a": [
+      7.5,
+      40.0
+     ],
+     "b": [
+      7.5,
+      45.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-34",
+     "a": [
+      52.5,
+      45.0
+     ],
+     "b": [
+      68.75,
+      45.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-35",
+     "a": [
+      79.58333333333333,
+      65.0
+     ],
+     "b": [
+      85.0,
+      65.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-36",
+     "a": [
+      74.16666666666667,
+      65.0
+     ],
+     "b": [
+      79.58333333333333,
+      65.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-37",
+     "a": [
+      68.75,
+      65.0
+     ],
+     "b": [
+      74.16666666666667,
+      65.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-38",
+     "a": [
+      63.33333333333334,
+      65.0
+     ],
+     "b": [
+      85.0,
+      65.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-39",
+     "a": [
+      57.91666666666666,
+      65.0
+     ],
+     "b": [
+      63.33333333333334,
+      65.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-40",
+     "a": [
+      52.5,
+      65.0
+     ],
+     "b": [
+      57.91666666666666,
+      65.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-41",
+     "a": [
+      46.875,
+      85.0
+     ],
+     "b": [
+      85.0,
+      85.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-42",
+     "a": [
+      41.25,
+      85.0
+     ],
+     "b": [
+      46.875,
+      85.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-43",
+     "a": [
+      35.625,
+      85.0
+     ],
+     "b": [
+      41.25,
+      85.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-44",
+     "a": [
+      30.0,
+      85.0
+     ],
+     "b": [
+      35.625,
+      85.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-45",
+     "a": [
+      30.0,
+      80.0
+     ],
+     "b": [
+      30.0,
+      85.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-46",
+     "a": [
+      30.0,
+      75.0
+     ],
+     "b": [
+      30.0,
+      80.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-47",
+     "a": [
+      30.0,
+      70.0
+     ],
+     "b": [
+      30.0,
+      75.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-48",
+     "a": [
+      30.0,
+      65.0
+     ],
+     "b": [
+      30.0,
+      70.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-49",
+     "a": [
+      52.5,
+      65.0
+     ],
+     "b": [
+      68.75,
+      65.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-50",
+     "a": [
+      115.0,
+      10.0
+     ],
+     "b": [
+      120.0,
+      10.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-51",
+     "a": [
+      120.0,
+      10.0
+     ],
+     "b": [
+      130.0,
+      10.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-52",
+     "a": [
+      130.0,
+      10.0
+     ],
+     "b": [
+      135.0,
+      10.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-53",
+     "a": [
+      135.0,
+      10.0
+     ],
+     "b": [
+      140.0,
+      10.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-54",
+     "a": [
+      140.0,
+      10.0
+     ],
+     "b": [
+      140.0,
+      95.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-55",
+     "a": [
+      135.0,
+      42.5
+     ],
+     "b": [
+      140.0,
+      42.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-56",
+     "a": [
+      130.0,
+      42.5
+     ],
+     "b": [
+      135.0,
+      42.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-57",
+     "a": [
+      125.0,
+      42.5
+     ],
+     "b": [
+      130.0,
+      42.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-58",
+     "a": [
+      120.0,
+      42.5
+     ],
+     "b": [
+      125.0,
+      42.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-59",
+     "a": [
+      115.0,
+      42.5
+     ],
+     "b": [
+      120.0,
+      42.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-60",
+     "a": [
+      110.0,
+      42.5
+     ],
+     "b": [
+      115.0,
+      42.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-61",
+     "a": [
+      105.0,
+      42.5
+     ],
+     "b": [
+      110.0,
+      42.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-62",
+     "a": [
+      105.0,
+      37.083333333333336
+     ],
+     "b": [
+      105.0,
+      95.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-63",
+     "a": [
+      105.0,
+      31.66666666666667
+     ],
+     "b": [
+      105.0,
+      37.083333333333336
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-64",
+     "a": [
+      105.0,
+      26.25
+     ],
+     "b": [
+      105.0,
+      31.66666666666667
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-65",
+     "a": [
+      105.0,
+      20.833333333333336
+     ],
+     "b": [
+      105.0,
+      26.25
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-66",
+     "a": [
+      105.0,
+      15.416666666666664
+     ],
+     "b": [
+      105.0,
+      20.833333333333336
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-67",
+     "a": [
+      105.0,
+      10.0
+     ],
+     "b": [
+      105.0,
+      15.416666666666664
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-68",
+     "a": [
+      105.0,
+      10.0
+     ],
+     "b": [
+      105.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "N4m-n-door",
+     "a": [
+      105.0,
+      25.0
+     ],
+     "b": [
+      105.0,
+      30.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "ashlar",
+     "open": false
+    },
+    {
+     "id": "upper-w-70",
+     "a": [
+      105.0,
+      30.0
+     ],
+     "b": [
+      105.0,
+      60.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "N4o-door",
+     "a": [
+      105.0,
+      60.0
+     ],
+     "b": [
+      105.0,
+      65.0
+     ],
+     "flags": [
+      "door",
+      "locked"
+     ],
+     "material": "ashlar",
+     "open": false
+    },
+    {
+     "id": "upper-w-72",
+     "a": [
+      105.0,
+      65.0
+     ],
+     "b": [
+      105.0,
+      85.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-73",
+     "a": [
+      100.0,
+      85.0
+     ],
+     "b": [
+      105.0,
+      85.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-74",
+     "a": [
+      95.0,
+      85.0
+     ],
+     "b": [
+      100.0,
+      85.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-75",
+     "a": [
+      90.0,
+      85.0
+     ],
+     "b": [
+      95.0,
+      85.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-76",
+     "a": [
+      85.0,
+      85.0
+     ],
+     "b": [
+      90.0,
+      85.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-77",
+     "a": [
+      100.0,
+      95.0
+     ],
+     "b": [
+      105.0,
+      95.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-78",
+     "a": [
+      95.0,
+      95.0
+     ],
+     "b": [
+      100.0,
+      95.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-79",
+     "a": [
+      90.0,
+      95.0
+     ],
+     "b": [
+      95.0,
+      95.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-80",
+     "a": [
+      85.0,
+      95.0
+     ],
+     "b": [
+      90.0,
+      95.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-81",
+     "a": [
+      85.0,
+      90.0
+     ],
+     "b": [
+      85.0,
+      95.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-82",
+     "a": [
+      85.0,
+      85.0
+     ],
+     "b": [
+      85.0,
+      90.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-83",
+     "a": [
+      135.0,
+      85.0
+     ],
+     "b": [
+      140.0,
+      85.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "N4o-closet-door",
+     "a": [
+      130.0,
+      85.0
+     ],
+     "b": [
+      135.0,
+      85.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "paneling",
+     "open": false
+    },
+    {
+     "id": "upper-w-85",
+     "a": [
+      125.0,
+      85.0
+     ],
+     "b": [
+      130.0,
+      85.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-86",
+     "a": [
+      120.0,
+      85.0
+     ],
+     "b": [
+      125.0,
+      85.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-87",
+     "a": [
+      115.0,
+      85.0
+     ],
+     "b": [
+      120.0,
+      85.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-88",
+     "a": [
+      110.0,
+      85.0
+     ],
+     "b": [
+      115.0,
+      85.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-89",
+     "a": [
+      105.0,
+      85.0
+     ],
+     "b": [
+      110.0,
+      85.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-90",
+     "a": [
+      135.0,
+      95.0
+     ],
+     "b": [
+      140.0,
+      95.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-91",
+     "a": [
+      130.0,
+      95.0
+     ],
+     "b": [
+      135.0,
+      95.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-92",
+     "a": [
+      125.0,
+      95.0
+     ],
+     "b": [
+      130.0,
+      95.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-93",
+     "a": [
+      125.0,
+      90.0
+     ],
+     "b": [
+      125.0,
+      95.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-94",
+     "a": [
+      125.0,
+      85.0
+     ],
+     "b": [
+      125.0,
+      90.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    }
+   ],
+   "lights": [
+    {
+     "id": "upper-l-N4p-lamp",
+     "pos": [
+      40,
+      6,
+      50
+     ],
+     "preset": "lantern",
+     "bright": 15,
+     "dim": 30
+    },
+    {
+     "id": "upper-l-N4o-fire",
+     "pos": [
+      122.5,
+      3,
+      80
+     ],
+     "preset": "torch",
+     "bright": 10,
+     "dim": 20
+    },
+    {
+     "id": "upper-l-N4l-window",
+     "pos": [
+      95,
+      6,
+      15
+     ],
+     "preset": "daylight",
+     "bright": 5,
+     "dim": 10
+    }
+   ],
+   "objects": [
+    {
+     "id": "upper-sdo-bookcase",
+     "kind": "secret-panel",
+     "pos": [
+      52.5,
+      0,
+      57.5
+     ],
+     "vis": "secret-door",
+     "key": "N4p",
+     "label": "A hinged panel in the bookcase opens on the storage room",
+     "wall": "upper-sd-bookcase"
+    },
+    {
+     "id": "upper-N4l-stair",
+     "kind": "stairs-straight",
+     "pos": [
+      95,
+      0,
+      55
+     ],
+     "vis": "player",
+     "key": "N4l",
+     "dims": {
+      "w": 5,
+      "rise": 0.1,
+      "fromZ": 75,
+      "toZ": 35
+     }
+    },
+    {
+     "id": "upper-N4l-note",
+     "kind": "note",
+     "pos": [
+      95,
+      0,
+      20
+     ],
+     "vis": "dm-note",
+     "key": "N4l",
+     "label": "Scratching at Stella's locked door: 'little kitty is sad and lonely'."
+    },
+    {
+     "id": "upper-N4p-shelf0",
+     "kind": "bookshelf",
+     "pos": [
+      32.0,
+      0,
+      17.5
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "N4p"
+    },
+    {
+     "id": "upper-N4p-shelf1",
+     "kind": "bookshelf",
+     "pos": [
+      32.0,
+      0,
+      30
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "N4p"
+    },
+    {
+     "id": "upper-N4p-shelf2",
+     "kind": "bookshelf",
+     "pos": [
+      50,
+      0,
+      12.0
+     ],
+     "vis": "player",
+     "key": "N4p"
+    },
+    {
+     "id": "upper-N4p-shelf3",
+     "kind": "bookshelf",
+     "pos": [
+      70,
+      0,
+      12.0
+     ],
+     "vis": "player",
+     "key": "N4p"
+    },
+    {
+     "id": "upper-N4p-shelf4",
+     "kind": "bookshelf",
+     "pos": [
+      83.0,
+      0,
+      20
+     ],
+     "vis": "player",
+     "rotY": -90,
+     "key": "N4p"
+    },
+    {
+     "id": "upper-N4p-shelf5",
+     "kind": "bookshelf",
+     "pos": [
+      83.0,
+      0,
+      35
+     ],
+     "vis": "player",
+     "rotY": -90,
+     "key": "N4p"
+    },
+    {
+     "id": "upper-N4p-shelf6",
+     "kind": "bookshelf",
+     "pos": [
+      60,
+      0,
+      40.5
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "key": "N4p"
+    },
+    {
+     "id": "upper-N4p-shelf7",
+     "kind": "bookshelf",
+     "pos": [
+      75,
+      0,
+      40.5
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "key": "N4p"
+    },
+    {
+     "id": "upper-N4p-shelf8",
+     "kind": "bookshelf",
+     "pos": [
+      17.0,
+      0,
+      45
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "N4p"
+    },
+    {
+     "id": "upper-N4p-desk",
+     "kind": "desk",
+     "pos": [
+      40,
+      0,
+      50
+     ],
+     "vis": "player",
+     "key": "N4p"
+    },
+    {
+     "id": "upper-N4p-chair",
+     "kind": "chair",
+     "pos": [
+      40,
+      0,
+      56.0
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "key": "N4p"
+    },
+    {
+     "id": "upper-N4p-table",
+     "kind": "table",
+     "pos": [
+      55,
+      0,
+      25
+     ],
+     "vis": "player",
+     "key": "N4p",
+     "dims": {
+      "w": 10,
+      "d": 3
+     }
+    },
+    {
+     "id": "upper-fiona",
+     "kind": "adventurer",
+     "pos": [
+      40,
+      0,
+      57.5
+     ],
+     "vis": "hidden-creature",
+     "key": "N4p",
+     "label": "Lady Fiona Wachter (priest, AC 10) with Majesto her imp familiar",
+     "size": "medium"
+    },
+    {
+     "id": "upper-N4p-key",
+     "kind": "niche",
+     "pos": [
+      42.5,
+      0,
+      47.5
+     ],
+     "vis": "hidden-object",
+     "key": "N4p",
+     "label": "The key to the storage room's iron chest, in the desk"
+    },
+    {
+     "id": "upper-N4p-manifesto",
+     "kind": "niche",
+     "pos": [
+      55,
+      0,
+      22.5
+     ],
+     "vis": "hidden-object",
+     "key": "N4p",
+     "label": "Fiona's manifesto and the book club's reading"
+    },
+    {
+     "id": "upper-N4q-chest",
+     "kind": "chest",
+     "pos": [
+      67.5,
+      0,
+      59.0
+     ],
+     "vis": "player",
+     "key": "N4q"
+    },
+    {
+     "id": "upper-N4q-contents",
+     "kind": "niche",
+     "pos": [
+      67.5,
+      0,
+      56.0
+     ],
+     "vis": "hidden-object",
+     "key": "N4q",
+     "label": "180 ep with Strahd's profile, 110 gp, the Wachter pipe, five deeds from Strahd"
+    },
+    {
+     "id": "upper-N4q-shelf0",
+     "kind": "shelves",
+     "pos": [
+      55,
+      0,
+      45
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "N4q"
+    },
+    {
+     "id": "upper-N4q-shelf1",
+     "kind": "shelves",
+     "pos": [
+      83.0,
+      0,
+      52.5
+     ],
+     "vis": "player",
+     "rotY": -90,
+     "key": "N4q"
+    },
+    {
+     "id": "upper-N4q-shelf2",
+     "kind": "shelves",
+     "pos": [
+      67.5,
+      0,
+      44.0
+     ],
+     "vis": "player",
+     "key": "N4q"
+    },
+    {
+     "id": "upper-N4n-bed",
+     "kind": "bed",
+     "pos": [
+      37.5,
+      0,
+      71.5
+     ],
+     "vis": "player",
+     "key": "N4n"
+    },
+    {
+     "id": "upper-stella",
+     "kind": "commoner",
+     "pos": [
+      37.5,
+      0,
+      71.5
+     ],
+     "vis": "hidden-creature",
+     "key": "N4n",
+     "label": "Stella Wachter, mad, strapped to an iron bed; thinks she is a cat",
+     "size": "medium"
+    },
+    {
+     "id": "upper-N4n-note",
+     "kind": "note",
+     "pos": [
+      42.5,
+      0,
+      80
+     ],
+     "vis": "dm-note",
+     "key": "N4n",
+     "label": "Locked both sides; Fiona has the only key."
+    },
+    {
+     "id": "upper-N4m-bed",
+     "kind": "bed",
+     "pos": [
+      60,
+      0,
+      71.5
+     ],
+     "vis": "player",
+     "key": "N4m"
+    },
+    {
+     "id": "upper-N4m-table",
+     "kind": "table",
+     "pos": [
+      77.5,
+      0,
+      70
+     ],
+     "vis": "player",
+     "key": "N4m",
+     "dims": {
+      "w": 3,
+      "d": 3
+     }
+    },
+    {
+     "id": "upper-N4m-lamp",
+     "kind": "lamp",
+     "pos": [
+      77.5,
+      3,
+      70
+     ],
+     "vis": "player",
+     "key": "N4m"
+    },
+    {
+     "id": "upper-N4m-chest",
+     "kind": "chest",
+     "pos": [
+      70,
+      0,
+      82.0
+     ],
+     "vis": "player",
+     "key": "N4m"
+    },
+    {
+     "id": "upper-N4m-wardrobe",
+     "kind": "wardrobe",
+     "pos": [
+      82.5,
+      0,
+      81.5
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "key": "N4m"
+    },
+    {
+     "id": "upper-N4m-n-bed-a",
+     "kind": "bed",
+     "pos": [
+      132.5,
+      0,
+      17.5
+     ],
+     "vis": "player",
+     "key": "N4m-n"
+    },
+    {
+     "id": "upper-N4m-n-bed-b",
+     "kind": "bed",
+     "pos": [
+      132.5,
+      0,
+      36.5
+     ],
+     "vis": "player",
+     "key": "N4m-n"
+    },
+    {
+     "id": "upper-N4m-n-table",
+     "kind": "table",
+     "pos": [
+      112.5,
+      0,
+      25
+     ],
+     "vis": "player",
+     "key": "N4m-n",
+     "dims": {
+      "w": 3,
+      "d": 3
+     }
+    },
+    {
+     "id": "upper-N4m-n-chest",
+     "kind": "chest",
+     "pos": [
+      110,
+      0,
+      13.0
+     ],
+     "vis": "player",
+     "key": "N4m-n"
+    },
+    {
+     "id": "upper-brothers",
+     "kind": "adventurer",
+     "pos": [
+      122.5,
+      0,
+      27.5
+     ],
+     "vis": "hidden-creature",
+     "key": "N4m-n",
+     "label": "Nikolai and Karl Wachter, passed out drunk most nights",
+     "size": "medium"
+    },
+    {
+     "id": "upper-N4o-bed",
+     "kind": "bed",
+     "pos": [
+      115,
+      0,
+      48.0
+     ],
+     "vis": "player",
+     "key": "N4o",
+     "dims": {
+      "w": 7,
+      "d": 7
+     }
+    },
+    {
+     "id": "upper-N4o-side-a",
+     "kind": "desk",
+     "pos": [
+      107.0,
+      0,
+      46.5
+     ],
+     "vis": "player",
+     "key": "N4o"
+    },
+    {
+     "id": "upper-N4o-side-b",
+     "kind": "desk",
+     "pos": [
+      124.0,
+      0,
+      46.5
+     ],
+     "vis": "player",
+     "key": "N4o"
+    },
+    {
+     "id": "upper-N4o-fire",
+     "kind": "fireplace",
+     "pos": [
+      122.5,
+      0,
+      83.0
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "key": "N4o"
+    },
+    {
+     "id": "upper-N4o-mirror",
+     "kind": "niche",
+     "pos": [
+      137.5,
+      0,
+      77.5
+     ],
+     "vis": "hidden-object",
+     "key": "N4o",
+     "label": "A framed mirror beside a curtained window"
+    },
+    {
+     "id": "upper-nikolai",
+     "kind": "skeleton",
+     "pos": [
+      115,
+      0,
+      48.0
+     ],
+     "vis": "hidden-creature",
+     "key": "N4o",
+     "label": "Nikolai Wachter's corpse in the bed, a copper on each eye, under gentle repose",
+     "size": "medium"
+    },
+    {
+     "id": "upper-N4o-portrait",
+     "kind": "niche",
+     "pos": [
+      122.5,
+      0,
+      80
+     ],
+     "vis": "hidden-object",
+     "key": "N4o",
+     "label": "A family portrait above the hearth: father, mother, two sons, a baby girl"
+    },
+    {
+     "id": "upper-N4o-robe",
+     "kind": "niche",
+     "pos": [
+      132.5,
+      0,
+      92.5
+     ],
+     "vis": "hidden-object",
+     "key": "N4o",
+     "label": "In the closet: fine garments and a hooded black ceremonial robe"
+    },
+    {
+     "id": "upper-N4-roof",
+     "kind": "roof-gable",
+     "pos": [
+      85,
+      0,
+      47.5
+     ],
+     "vis": "player",
+     "dims": {
+      "w": 110,
+      "d": 70,
+      "h": 14
+     }
+    }
+   ]
+  }
+ ],
+ "links": [
+  {
+   "id": "lk-n4-main",
+   "kind": "stairs",
+   "from": {
+    "level": "ground",
+    "pos": [
+     95,
+     55
+    ]
+   },
+   "to": {
+    "level": "upper",
+    "pos": [
+     95,
+     55
+    ]
+   }
+  },
+  {
+   "id": "lk-n4-secret",
+   "kind": "stairs",
+   "from": {
+    "level": "ground",
+    "pos": [
+     87.5,
+     30
+    ]
+   },
+   "to": {
+    "level": "cellar",
+    "pos": [
+     71.25,
+     42.5
+    ]
+   }
+  },
+  {
+   "id": "lk-n4-cellar",
+   "kind": "stairs",
+   "from": {
+    "level": "ground",
+    "pos": [
+     146.25,
+     30
+    ]
+   },
+   "to": {
+    "level": "cellar",
+    "pos": [
+     115,
+     25
+    ]
+   }
+  }
+ ]
+}
