@@ -153,6 +153,19 @@ def settle(level, *, keyed=None, ground_margin=60, report=None):
             houses = [o for o in houses if not overlap(rect(o), r, slack=0.5)]
             rep['added'] += 1; rep['dropped-overlap'] += before - len(houses)
             houses.append(has)
+        if 'dims' in has and any(overlap(rect(has), st, slack=1.0) for st in streets):
+            # a keyed building on a street slides (and turns, if it must) the least distance that clears it
+            x0, z0, a0 = has['pos'][0], has['pos'][2], has.get('rotY', 0); done = False
+            others_k = [rect(o) for o in houses + fixed if o is not has and o.get('key') and 'dims' in o]
+            for r_ in (2.5, 5, 7.5, 10, 12.5, 15, 20, 25, 30, 35, 40):
+                for rot in (a0, a0 + 45, a0 - 45, a0 + 90):
+                    for a_ in range(0, 360, 45):
+                        has['rotY'] = rot % 360; has['pos'][0] = x0 + round(math.cos(math.radians(a_)) * r_ / 2.5) * 2.5; has['pos'][2] = z0 + round(math.sin(math.radians(a_)) * r_ / 2.5) * 2.5
+                        R = rect(has)
+                        if not any(overlap(R, st, slack=1.0) for st in streets) and not any(overlap(R, o, slack=0.5) for o in others_k): done = True; break
+                    if done: break
+                if done: break
+            if not done: has['pos'][0], has['pos'][2], has['rotY'] = x0, z0, a0
         if 'dims' in has:
             rm['polygon'] = [[round(p[0], 1), round(p[1], 1)] for p in rect(has)]
             before = len(houses); houses = [o for o in houses if o is has or o.get('key') or not overlap(rect(o), rect(has), slack=0.5)]; rep['dropped-overlap'] += before - len(houses)

@@ -103,6 +103,24 @@ def chaikin(pts, passes=2):
     return pts
 STREETS = [(name, w, pts) for name, w, pts in STREETS]
 streets_ft = [(name, w, chaikin([ft(*p) for p in pts])) for name, w, pts in STREETS]
+# Only the three roads through the gates leave town; every other street stays inside the palisade, clear of the
+# scaffold (a street traced too close to the wall is drawn in toward the middle of town until it is 14 ft inside)
+_WC = (sum(p[0] for p in wall) / len(wall), sum(p[1] for p in wall) / len(wall))
+def _wd(p):
+    best = 1e9
+    for i in range(len(wall)):
+        a, b = wall[i], wall[(i + 1) % len(wall)]; dx, dz = b[0] - a[0], b[1] - a[1]; L2 = dx * dx + dz * dz or 1
+        t = max(0, min(1, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dz) / L2)); best = min(best, math.hypot(p[0] - a[0] - dx * t, p[1] - a[1] - dz * t))
+    return best
+def _keep_in(pts, w):
+    out = []
+    for x, z in pts:
+        k = 0
+        while (not inside((x, z), wall) or _wd((x, z)) < w / 2 + 14) and k < 200:
+            dx, dz = _WC[0] - x, _WC[1] - z; L = math.hypot(dx, dz) or 1; x += dx / L * 2; z += dz / L * 2; k += 1
+        out.append([round(x, 1), round(z, 1)])
+    return out
+streets_ft = [(n, w, pts if n in ('Old Svalich Road', 'Lake road', 'Camp track') else _keep_in(pts, w)) for n, w, pts in streets_ft]
 def near_street(p, margin):
     for name, w, pts in streets_ft:
         for i in range(len(pts) - 1):
@@ -173,7 +191,7 @@ def gate_cross(a, b, road_pts):
         def ccw(A, B, C): return (C[1] - A[1]) * (B[0] - A[0]) > (B[1] - A[1]) * (C[0] - A[0])
         if ccw(a, p, q) != ccw(b, p, q) and ccw(a, b, p) != ccw(a, b, q): return True
     return False
-road_main = streets_ft[0][2]; road_lake = streets_ft[1][2]; road_camp = streets_ft[6][2]
+road_main = streets_ft[0][2]; road_lake = streets_ft[2][2]; road_camp = streets_ft[7][2]   # Old Svalich Road, Lake road, Camp track
 # the outline runs in even twenty-foot pieces; where a road crosses one, that piece is the gate (one per crossing:
 # a road that wanders back over the line within a few pieces still has a single gate)
 _gates = []
@@ -276,6 +294,9 @@ def _blocked(a, b):
     for k in range(2, 9):
         t = k / 10; q = (a[0] + dx * t, a[1] + dz * t)
         if near_street(q, 3): return True
+    for k in range(0, 11):   # a footpath never runs through the palisade
+        q = (a[0] + dx * k / 10, a[1] + dz * k / 10)
+        if not inside(q, wall) or _wd(q) < 12: return True
     return False
 trails = []; drng = random.Random(11)
 for si, a in street_pts:
@@ -318,6 +339,13 @@ for d, q, name in _ends[:3]:
     for poly in strip(pts_, 4): terrain.append(OrderedDict(polygon=poly, floor='dirt')); _bl.append(poly)
 objects = [o for o in objects if not (o['kind'] == 'house' and not o.get('key') and any(_overlap(_hrect(o), pp, slack=0.5) for pp in _bl))]
 print('trails to Blinsky Toys:', len(_bl) // 3)
+# Nothing leans on the palisade: a house astride the wall, or inside it within the scaffold's reach, is not built
+def _hits_wall(o):
+    r = _hrect(o); pts = [(r[i][0] + (r[(i + 1) % 4][0] - r[i][0]) * t / 4, r[i][1] + (r[(i + 1) % 4][1] - r[i][1]) * t / 4) for i in range(4) for t in range(4)]
+    ins = [inside(q, wall) for q in pts]
+    return (any(ins) and not all(ins)) or min(_wd(q) for q in pts) < (9 if all(ins) else 4)
+_n0 = len(objects); objects = [o for o in objects if not (o['kind'] == 'house' and not o.get('key') and _hits_wall(o))]
+print('clear of the palisade:', _n0 - len(objects), 'houses dropped')
 # Trodden soil: the ground under every house and round it is bare earth, not grass, and the keyed yards too.
 from settle import rect as _frect
 for o in objects:

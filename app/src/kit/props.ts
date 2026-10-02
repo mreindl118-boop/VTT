@@ -571,7 +571,7 @@ export function palisade(d: Dims): THREE.Group {
     const tip = new THREE.Mesh(new THREE.ConeGeometry(r * 0.92, 2.6, 6), mat('#5a4632')); tip.position.set(x, h + 1.3, 0); g.add(tip);
   }
   g.add(box(L, 0.6, 0.5, '#3b2d22', 0, H * 0.72, side * 1.1), box(L, 0.6, 0.5, '#3b2d22', 0, H * 0.25, side * 1.1));   // binding rails
-  const wy = H - 6.5;                                                                                                  // the fighting walk
+  const wy = Math.min(12, H - 4.5);                                                                                                // the fighting walk
   g.add(box(L, 0.5, 4, PALETTE.wood, 0, wy, side * 3.2));
   for (let x = -L / 2 + 2; x < L / 2; x += 8) g.add(box(0.5, wy, 0.5, PALETTE.woodDark, x, wy / 2, side * 5));
   return g;
