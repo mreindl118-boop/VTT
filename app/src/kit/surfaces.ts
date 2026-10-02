@@ -32,9 +32,14 @@ surfaceFor([PALETTE.pine, PALETTE.pineDeep, '#2f5a35', '#3a6b3d'], 'foliage');
 surfaceFor(['#4a3524', '#3b3230', '#4a3828', '#5a4632'], 'bark');
 // house walls (plaster over timber), roofs (shingle and slate), turf and the church's slate
 surfaceFor(['#8f8676', '#7d7466', '#9a917f', '#6f675b'], 'plaster');
-surfaceFor(['#3d3a3e', '#4a3a33', '#35393a', '#51463c', '#4a4550', PALETTE.violetDeep, '#2b292d'], 'shingle');
+surfaceFor(['#3d3a44', '#3d3a3e', '#4a3a33', '#35393a', '#51463c', '#4a4550', PALETTE.violetDeep, '#2b292d'], 'shingle');
 surfaceFor(['#4d5a3f'], 'grass');
 surfaceFor(['#9a948a', '#8f8980'], 'ashlar');
 surfaceFor([PALETTE.wine, PALETTE.blood, '#5a2a30', '#7a3a40', '#c9bfa6', '#a83a30', '#d9a63a', '#d9d2c2', PALETTE.bone, '#d9cfb5', '#8fa3b8'], 'cloth');
 surfaceFor(['#c9b25a', '#8a7a4a', '#b89b52'], 'thatch');
 surfaceFor(['#3e5566', '#1e2a33'], 'water');
+// the backdrop: the Pillarstone and the mountains, Castle Ravenloft's stone and slate, snow on the high peaks
+surfaceFor(['#45454d', '#47474f', '#4a4a52', '#44444c', '#3f3f47', '#4f5560'], 'rock');
+surfaceFor(['#7a828b', '#6c737c', '#4b4f58'], 'ashlar');
+surfaceFor(['#3a3340'], 'shingle');
+surfaceFor(['#d9dde3'], 'snow');

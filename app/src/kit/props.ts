@@ -301,35 +301,82 @@ export function rug(d: Dims): THREE.Group { return g_(box(d.w ?? 8, 0.08, d.d ??
 /** A Barovian house: timber frame over plaster, a steep gabled roof along the long side, shuttered windows,
  * a chimney. Tones vary per house (deterministically from its size) so a street never looks cloned. */
 export function house(d: Dims): THREE.Group {
-  const w = d.w ?? 20, dd = d.d ?? 20, h = (d.h ?? 10) * (d.stories ?? 1);
-  const v = Math.abs(Math.sin(w * 12.9898 + dd * 78.233)) % 1;
-  const plaster = ['#8f8676', '#7d7466', '#9a917f', '#6f675b'][Math.floor(v * 4)], beam = '#3a2c22';
+  const w = d.w ?? 20, dd = d.d ?? 20, sh = d.h ?? 10, stories = d.stories ?? 1, h = sh * stories;
+  const v = Math.abs(Math.sin(w * 12.9898 + dd * 78.233)) % 1, v2 = Math.abs(Math.sin(w * 4.1414 + dd * 9.31 + stories)) % 1;
+  const plaster = ['#8f8676', '#7d7466', '#9a917f', '#6f675b'][Math.floor(v * 4)], beam = '#3a2c22', shut = '#4b3a2c', STONE = '#6d6860';
   const roofC = ['#3d3a3e', '#4a3a33', '#35393a', '#51463c'][Math.floor(v * 7) % 4];
-  const g = g_(box(w, h, dd, plaster, 0, h / 2, 0));
-  // Timber frame: corner posts, sill and eave beams, a mid rail.
-  for (const [x, z] of [[-w / 2, -dd / 2], [w / 2, -dd / 2], [-w / 2, dd / 2], [w / 2, dd / 2]]) g.add(box(0.8, h, 0.8, beam, x, h / 2, z));
-  for (const y of [0.4, h * 0.55, h - 0.3]) { g.add(box(w + 0.2, 0.5, 0.3, beam, 0, y, dd / 2 + 0.05), box(w + 0.2, 0.5, 0.3, beam, 0, y, -dd / 2 - 0.05), box(0.3, 0.5, dd + 0.2, beam, w / 2 + 0.05, y, 0), box(0.3, 0.5, dd + 0.2, beam, -w / 2 - 0.05, y, 0)); }
-  // Gabled roof along the long axis (prism), overhanging the walls.
-  const long = w >= dd, L = (long ? w : dd) + 2, S = (long ? dd : w) + 2.4, rise = S * 0.62;
+  const long = w >= dd;
+  // a rubble plinth the frame stands on; a two-storey house often has a stone ground floor and a jettied upper floor
+  const stoneBase = stories >= 2 && v2 < 0.45, jet = stoneBase ? 1.2 : 0;
+  const g = g_(box(w + 0.8, 1.4, dd + 0.8, STONE, 0, 0.7, 0));
+  const bodies: [number, number, number, number, string][] = stoneBase   // [w, d, y0, y1, colour] per storey block
+    ? [[w, dd, 0, sh, STONE], [w + jet * 2, dd + jet * 2, sh, h, plaster]]
+    : [[w, dd, 0, h, plaster]];
+  for (const [bw, bd, y0, y1, c] of bodies) g.add(box(bw, y1 - y0, bd, c, 0, (y0 + y1) / 2, 0));
+  if (stoneBase) g.add(box(w + jet * 2 + 0.4, 0.7, dd + jet * 2 + 0.4, beam, 0, sh, 0));   // the jetty's bressumer
+  // the timber frame on every plastered storey: posts, sill and head rails, and a brace at each corner of the long faces
+  for (let s_ = 0; s_ < stories; s_++) {
+    const b = bodies.length > 1 ? (s_ === 0 ? null : bodies[1]) : bodies[0]; if (!b) continue;
+    const [bw, bd] = b, y0 = s_ * sh, y1 = y0 + sh;
+    for (const [x, z] of [[-bw / 2, -bd / 2], [bw / 2, -bd / 2], [-bw / 2, bd / 2], [bw / 2, bd / 2]]) g.add(box(0.8, sh, 0.8, beam, x, y0 + sh / 2, z));
+    for (const y of [y0 + 0.4, y1 - 0.3]) { if (long) g.add(box(bw + 0.2, 0.5, 0.3, beam, 0, y, bd / 2 + 0.05), box(bw + 0.2, 0.5, 0.3, beam, 0, y, -bd / 2 - 0.05)); else g.add(box(0.3, 0.5, bd + 0.2, beam, bw / 2 + 0.05, y, 0), box(0.3, 0.5, bd + 0.2, beam, -bw / 2 - 0.05, y, 0)); }   // rails on the long faces
+    const bl = Math.hypot(3.2, sh * 0.8), ang = Math.atan2(sh * 0.8, 3.2);
+    for (const sx of [-1, 1]) for (const sz of [-1, 1]) {
+      const br = box(bl, 0.45, 0.3, beam, 0, 0, 0);
+      if (long) { br.position.set(sx * (bw / 2 - 1.6), y0 + sh * 0.5, sz * (bd / 2 + 0.06)); br.rotation.z = sx * ang; }
+      else { br.position.set(sx * (bw / 2 + 0.06), y0 + sh * 0.5, sz * (bd / 2 - 1.6)); br.rotation.set(0, Math.PI / 2, sz * ang); }
+      g.add(br);
+    }
+  }
+  // the roof: a steep gable along the long side over the eaves, with a ridge beam
+  const tw = w + jet * 2, td = dd + jet * 2, L = (long ? tw : td) + 2, S = (long ? td : tw) + 2.4, rise = S * 0.62;
   const shape = new THREE.Shape([new THREE.Vector2(-S / 2, 0), new THREE.Vector2(S / 2, 0), new THREE.Vector2(0, rise)]);
   const prism = new THREE.ExtrudeGeometry(shape, { depth: L, bevelEnabled: false }); prism.translate(0, 0, -L / 2);
   const roof = new THREE.Mesh(prism, mat(roofC)); roof.position.y = h; if (long) roof.rotation.y = Math.PI / 2; g.add(roof);
-  // Shuttered windows on the long faces, a door on the front.
-  const faces = long ? [[0, dd / 2 + 0.2, 0], [0, -dd / 2 - 0.2, Math.PI]] : [[w / 2 + 0.2, 0, Math.PI / 2], [-w / 2 - 0.2, 0, -Math.PI / 2]];
+  g.add(box(long ? L + 0.4 : 0.7, 0.6, long ? 0.7 : L + 0.4, beam, 0, h + rise + 0.05, 0));
+  // windows on the long faces, two a storey: a frame, a dark pane, shutters (shut on some, open on others)
   const span = long ? w : dd;
-  for (const [fx, fz, ry] of faces) for (let i = -1; i <= 1; i += 2) {
-    const win = box(2.6, 3, 0.25, '#2a2320', 0, h * 0.62, 0); const sh = box(1.2, 3.1, 0.3, '#4b3a2c', 1.35, h * 0.62, 0.05);
-    const grp = g_(win, sh); grp.position.set(fx + (long ? i * span * 0.28 : 0), 0, fz + (long ? 0 : i * span * 0.28)); grp.rotation.y = ry as number; g.add(grp);
+  for (let s_ = 0; s_ < stories; s_++) {
+    const out = s_ > 0 ? jet : 0, wy = s_ * sh + sh * 0.55;
+    const faces = long ? [[0, dd / 2 + out + 0.2, 0], [0, -dd / 2 - out - 0.2, Math.PI]] : [[w / 2 + out + 0.2, 0, Math.PI / 2], [-w / 2 - out - 0.2, 0, -Math.PI / 2]];
+    for (const [fx, fz, ry] of faces) for (let i = -1; i <= 1; i += 2) {
+      if (s_ === 0 && fz as number > 0 && long && i === -1 && span < 26) continue;   // the door takes this bay on a small house
+      const open = Math.abs(Math.sin((fx as number) * 3.1 + (fz as number) * 1.7 + i * 5.3 + s_ * 2.9 + w)) > 0.45;
+      const grp = g_(box(3.2, 3.6, 0.3, beam, 0, wy, 0));
+      if (open) grp.add(box(2.4, 2.8, 0.34, '#1d1916', 0, wy, 0), box(1.2, 3.2, 0.2, shut, -2.25, wy, 0.1), box(1.2, 3.2, 0.2, shut, 2.25, wy, 0.1));
+      else grp.add(box(2.6, 3.1, 0.4, shut, 0, wy, 0.05));
+      grp.position.set((fx as number) + (long ? i * span * 0.28 : 0), 0, (fz as number) + (long ? 0 : i * span * 0.28)); grp.rotation.y = ry as number; g.add(grp);
+    }
   }
-  g.add(box(3, 6.5, 0.4, '#3b2a1e', 0, 3.25, dd / 2 + 0.25));
-  // Chimney on the roof ridge.
-  g.add(box(2.4, rise + 5, 2.4, '#4d4845', (long ? w * 0.28 : 0), h + (rise + 5) / 2, (long ? 0 : dd * 0.28)));
+  // the door: a frame and lintel, the boarded leaf, a stone step
+  const dz = dd / 2, dx = long && span < 26 ? -span * 0.28 : 0;
+  g.add(box(4, 7.2, 0.5, beam, dx, 3.6, dz + 0.2), box(3, 6.5, 0.6, '#3b2a1e', dx, 3.25, dz + 0.25), box(4.4, 0.6, 1.6, STONE, dx, 0.3, dz + 0.9));
+  // the chimney: a stone stack through the roof with a capping slab
+  const cx = long ? w * 0.28 : 0, cz = long ? 0 : dd * 0.28;
+  g.add(box(2.4, rise + 5, 2.4, '#4d4845', cx, h + (rise + 5) / 2, cz), box(3, 0.5, 3, '#4d4845', cx, h + rise + 5.2, cz));
   return g;
 }
 export function churchBuilding(): THREE.Group {
-  const g = g_(box(40, 16, 50, PALETTE.mist3, 0, 8, 0));
-  const roof = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 30, 8, 4), mat('#3b2f47')); roof.rotation.y = Math.PI / 4; roof.position.y = 20; roof.scale.set(1.2, 1, 1.5); g.add(roof);
-  g.add(box(8, 30, 8, PALETTE.mist3, 0, 15, -18), box(0.6, 4, 0.6, PALETTE.iron, 0, 32, -18), box(2.4, 0.6, 0.6, PALETTE.iron, 0, 33, -18));
+  // A stone church, nave east-west along z: buttressed walls with lancet windows, a steep slate roof, a rounded apse
+  // behind the altar, and the bell tower over the west door rising into a spire with an iron cross.
+  const W = 40, D = 50, H = 16, ST = PALETTE.mist3, SL = '#3d3a44', g = g_(box(W + 1, 1.2, D + 1, PALETTE.stoneDeep, 0, 0.6, 0), box(W, H, D, ST, 0, H / 2, 0));
+  const shape = new THREE.Shape([new THREE.Vector2(-W / 2 - 1.5, 0), new THREE.Vector2(W / 2 + 1.5, 0), new THREE.Vector2(0, W * 0.5)]);
+  const prism = new THREE.ExtrudeGeometry(shape, { depth: D + 2, bevelEnabled: false }); prism.translate(0, 0, -(D + 2) / 2);
+  const roof = new THREE.Mesh(prism, mat(SL)); roof.position.y = H; g.add(roof);
+  for (const sx of [-1, 1]) for (let i = 0; i < 5; i++) {
+    const z = -D / 2 + 7 + i * ((D - 10) / 4);
+    g.add(box(2.2, H * 0.85, 3, PALETTE.stoneDeep, sx * (W / 2 + 1.1), H * 0.425, z));                 // buttress
+    if (i < 4) { const zw = z + (D - 10) / 8; g.add(box(0.5, 7, 2.2, '#1d1b22', sx * (W / 2 + 0.1), 8, zw)); const tip = new THREE.Mesh(new THREE.ConeGeometry(1.1, 2, 4), mat('#1d1b22')); tip.position.set(sx * (W / 2 + 0.1), 12.5, zw); tip.rotation.y = Math.PI / 4; tip.scale.set(0.35, 1, 1); g.add(tip); }
+  }
+  const apse = new THREE.Mesh(new THREE.CylinderGeometry(W * 0.27, W * 0.27, H * 0.9, 10, 1, false, -Math.PI / 2, Math.PI), mat(ST)); apse.position.set(0, H * 0.45, D / 2 - 1); g.add(apse);
+  const aroof = new THREE.Mesh(new THREE.ConeGeometry(W * 0.3, 8, 10, 1, false, -Math.PI / 2, Math.PI), mat(SL)); aroof.position.set(0, H * 0.9 + 4, D / 2 - 1); g.add(aroof);
+  // the tower: a square shaft, belfry openings, a corbel course, the spire
+  const tw = 11, th = 46, tz = -D / 2 + tw / 2 - 0.5;
+  g.add(box(tw, th, tw, ST, 0, th / 2, tz), box(tw + 1.2, 1, tw + 1.2, PALETTE.stoneDeep, 0, th - 9, tz), box(tw + 1.4, 1.2, tw + 1.4, PALETTE.stoneDeep, 0, th + 0.6, tz));
+  for (const [x, z, ry] of [[0, tz - tw / 2 - 0.1, 0], [0, tz + tw / 2 + 0.1, 0], [tw / 2 + 0.1, tz, Math.PI / 2], [-tw / 2 - 0.1, tz, Math.PI / 2]] as const) { const o = box(3, 5, 0.4, '#141218', 0, th - 4.5, 0); o.position.x = x; o.position.z = z; o.rotation.y = ry; g.add(o); }
+  const spire = new THREE.Mesh(new THREE.ConeGeometry(tw * 0.78, 24, 4), mat(SL)); spire.rotation.y = Math.PI / 4; spire.position.set(0, th + 1.2 + 12, tz); g.add(spire);
+  g.add(box(0.5, 5, 0.5, PALETTE.iron, 0, th + 27, tz), box(2.6, 0.5, 0.5, PALETTE.iron, 0, th + 28, tz));
+  g.add(box(5, 9, 0.6, '#3b2a1e', 0, 4.5, tz - tw / 2 - 0.2), box(6.4, 0.8, 0.9, PALETTE.stoneDeep, 0, 9.2, tz - tw / 2 - 0.2));   // the west door under its lintel
   return g;
 }
 export function gateArch(): THREE.Group { return g_(box(3, 14, 3, PALETTE.stoneDeep, -7, 7, 0), box(3, 14, 3, PALETTE.stoneDeep, 7, 7, 0), box(17, 2.5, 3, PALETTE.stoneDeep, 0, 14.5, 0)); }

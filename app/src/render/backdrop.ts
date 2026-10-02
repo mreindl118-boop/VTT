@@ -4,6 +4,8 @@
 import * as THREE from 'three';
 import type { Theme, WorldData } from '../campaigns';
 import { merge } from '../kit/pieces';
+import { patchFog, setSurface } from './materials';
+import { surfaceOf, type Surface } from '../kit/surfaces';
 import { terrainOf } from '../core/terrain';
 import RAVENLOFT from '../../../locations/ch04/K/exterior.json';
 
@@ -11,7 +13,8 @@ type P = [number, number];
 let MIST = new THREE.Color('#2b2733');
 
 const blend = (hex: string, t: number) => new THREE.Color(hex).lerp(MIST, Math.min(1, Math.max(0, t)));
-const lambert = (c: THREE.Color) => new THREE.MeshLambertMaterial({ color: c, fog: false, flatShading: true });
+/** A landmark's material: lit, its colour hazed toward the mist, its grain the surface its own colour is made of. */
+const lambert = (c: THREE.Color, surf: Surface = 'generic') => { const m = new THREE.MeshLambertMaterial({ color: c, fog: false, flatShading: true }); setSurface(m, surf); return patchFog(m, true); };
 
 export interface BackdropOpts {
   center: P; radius: number; elevation: number; pin: P; world: WorldData; theme: Theme; valley?: boolean;
@@ -47,7 +50,7 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
   const toPlan = (w: P) => { const dx = (w[0] - o.pin[0]) * FT, dy = (w[1] - o.pin[1]) * FT; return [E[0] * dx + S[0] * dy, E[1] * dx + S[1] * dy] as P; };
   const toWorld = (w: P) => { const [dx, dz] = toPlan(w); return { x: cx + dx, z: cz + dz, d: Math.hypot(dx, dz) }; };
   const haze = (d: number) => Math.min(0.85, 1 - Math.exp(-d / 32000));
-  const hazed = (hex: string, d: number) => lambert(blend(hex, haze(d)));
+  const hazed = (hex: string, d: number) => lambert(blend(hex, haze(d)), surfaceOf(hex));
   // plan feet → world miles (the inverse of toPlan) and the ground's height there, flattened to the map near it
   const toMiles = (x: number, z: number): P => { const dx = x - cx, dz = z - cz; return [o.pin[0] + (E[0] * dx + E[1] * dz) / FT, o.pin[1] + (S[0] * dx + S[1] * dz) / FT]; };
   const hPin = HF ? terrain.heightAt(o.pin[0], o.pin[1]) : 0;
@@ -169,13 +172,13 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
   // 1b. A site on a crag stands on its pillar of rock; the land below is the valley floor.
   if (crag > 0 && !HF) {
     const vil = W.pins.find((p) => p.key === 'E');
-    if (vil) { const [vx, vz] = toPlan(vil.pos); cradle(g, { x: cx, z: cz }, cx + vx, cz + vz, Math.hypot(vx, vz), y0, (hex) => lambert(blend(hex, 0.15)), 0); }
+    if (vil) { const [vx, vz] = toPlan(vil.pos); cradle(g, { x: cx, z: cz }, cx + vx, cz + vz, Math.hypot(vx, vz), y0, (hex) => lambert(blend(hex, 0.15), surfaceOf(hex)), 0); }
     // the Pillarstone: wider at its brow than its foot, so the castle hangs over the black water below
     const pillar = new THREE.CylinderGeometry(R * 1.25, R * 0.5, crag, 12, 3, true); pillar.translate(0, crag / 2, 0);
     const pp = pillar.attributes.position; for (let i = 0; i < pp.count; i++) { const j = ((i * 7919) % 11) / 11 - 0.5; pp.setX(i, pp.getX(i) * (1 + 0.1 * j)); pp.setZ(i, pp.getZ(i) * (1 + 0.1 * j)); }
     pillar.computeVertexNormals();
-    const pm = new THREE.Mesh(pillar, lambert(blend('#4a4a52', 0.1))); pm.position.set(cx, y0, cz); g.add(pm);
-    for (let i = 0; i < 10; i++) { const a = (i / 10) * Math.PI * 2, b = new THREE.Mesh(new THREE.IcosahedronGeometry(R * 0.18, 0), lambert(blend('#44444c', 0.15))); b.position.set(cx + Math.cos(a) * R * (0.9 + (i % 3) * 0.15), y0 + crag * (0.2 + (i % 4) * 0.18), cz + Math.sin(a) * R * (0.9 + (i % 3) * 0.15)); g.add(b); }
+    const pm = new THREE.Mesh(pillar, lambert(blend('#4a4a52', 0.1), 'rock')); pm.position.set(cx, y0, cz); g.add(pm);
+    for (let i = 0; i < 10; i++) { const a = (i / 10) * Math.PI * 2, b = new THREE.Mesh(new THREE.IcosahedronGeometry(R * 0.18, 0), lambert(blend('#44444c', 0.15), 'rock')); b.position.set(cx + Math.cos(a) * R * (0.9 + (i % 3) * 0.15), y0 + crag * (0.2 + (i % 4) * 0.18), cz + Math.sin(a) * R * (0.9 + (i % 3) * 0.15)); g.add(b); }
     const lake = new THREE.Mesh(new THREE.CircleGeometry(R * 4, 48), new THREE.MeshBasicMaterial({ color: blend('#1e2a33', 0.1), fog: false })); lake.rotation.x = -Math.PI / 2; lake.position.set(cx, y0 + 0.4, cz); g.add(lake);
   }
   // 2. Forest ring: instanced pines from just past the edge out to the tree line.
@@ -498,7 +501,7 @@ function collapse(g: THREE.Group): void {
     const mat = m.material as THREE.MeshLambertMaterial | THREE.MeshBasicMaterial;
     if (mat.transparent || mat.vertexColors || !mat.color) return;
     if (!m.visible) { drop.push(m); return; }
-    const key = [mat.type, mat.color.getHexString(), mat.fog, (mat as THREE.MeshLambertMaterial).flatShading, mat.side, mat.depthWrite].join('|');
+    const key = [mat.type, (mat.userData.surf as { value: number } | undefined)?.value ?? 0, mat.color.getHexString(), mat.fog, (mat as THREE.MeshLambertMaterial).flatShading, mat.side, mat.depthWrite].join('|');
     let b = buckets.get(key);
     if (!b) { b = { material: mat, gs: [] }; buckets.set(key, b); }
     b.gs.push(m.geometry.clone().applyMatrix4(m.matrixWorld));
@@ -551,7 +554,8 @@ function ravenloft(s: THREE.Group, mat: (hex: string) => THREE.Material): void {
   // the round towers and their caps
   for (const [x, z, r, top] of E.towers) {
     const c = new THREE.CylinderGeometry(r * 0.94, r, top, 14); c.translate(0, top / 2, 0); add(c, mat(DARK), x, 0, z);
-    const cap = new THREE.ConeGeometry(r + 2.5, r * 2.4, 14); cap.translate(0, r * 1.2, 0); add(cap, mat(SLATE), x, top, z);
+    const cap = new THREE.ConeGeometry(r + 2, r * 3.6, 14); cap.translate(0, r * 1.8, 0); add(cap, mat(SLATE), x, top, z);
+    const fin = new THREE.CylinderGeometry(0.4, 0.6, 9, 5); fin.translate(0, 4.5, 0); add(fin, mat(DARK), x, top + r * 3.6 - 1, z);
     const ring = new THREE.CylinderGeometry(r + 1.5, r + 1.5, 3, 14); ring.translate(0, 1.5, 0); add(ring, mat(STONE2), x, top - 3, z);
   }
   // lit windows (unlit material: they glow through the night and the mist)
@@ -560,7 +564,7 @@ function ravenloft(s: THREE.Group, mat: (hex: string) => THREE.Material): void {
   // the gate towers either side of the entry tunnel, and the drawbridge across the chasm to the west
   const A = (RAVENLOFT as { approach?: { gate: number[]; chasm: number; bridgeW: number; towers: number[][] } }).approach;
   if (A) {
-    for (const [x, z] of A.towers) { const c = new THREE.CylinderGeometry(7, 7.5, 100, 12); c.translate(0, 50, 0); add(c, mat(DARK), x, 0, z); const cap = new THREE.ConeGeometry(9, 18, 12); cap.translate(0, 9, 0); add(cap, mat(SLATE), x, 100, z); }
+    for (const [x, z] of A.towers) { const c = new THREE.CylinderGeometry(7, 7.5, 100, 12); c.translate(0, 50, 0); add(c, mat(DARK), x, 0, z); const cap = new THREE.ConeGeometry(9, 30, 12); cap.translate(0, 15, 0); add(cap, mat(SLATE), x, 100, z); }
     box(A.chasm + 6, 1.2, A.bridgeW, A.gate[0] - A.chasm / 2 - 3, A.gate[1], -1.2, '#5a4632');
     for (const s2 of [-1, 1]) { const ch = new THREE.BoxGeometry(0.6, 0.6, Math.hypot(A.chasm, 24)); ch.rotateX(-Math.atan2(24, A.chasm)); ch.rotateY(Math.PI / 2); add(ch, mat('#2b2b30'), A.gate[0] - A.chasm / 2, 12, A.gate[1] + s2 * (A.bridgeW / 2)); }
   }

@@ -145,6 +145,8 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
   const pushWall = (color: string, g: THREE.BufferGeometry) => { const a = byWallMat.get(color) ?? []; a.push(g); byWallMat.set(color, a); };
   const wallColor = (w: Wall) => WALL_COLOR[w.material ?? 'ashlar'];
   const doorTop = Math.min(7, ceiling);
+  const FRAME = '#3a2c22';
+  const COPING: Record<string, string> = { ashlar: PALETTE.stoneDeep, rubble: PALETTE.stoneDeep, brick: PALETTE.stoneDeep, plaster: '#5d5852', 'half-timber': FRAME, earth: '#4d5a3f' };
 
   for (const w of level.walls) {
     const f = new Set(w.flags);
@@ -157,12 +159,23 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
       const pane = new THREE.Mesh(segmentBox(w.a, w.b, y0 + 3, y0 + 7, 0.2, false), wallMat(PALETTE.stone, { emissive: '#1b2530' }));
       pane.userData.role = 'wall'; pane.userData.window = true;
       wallsGroup.add(pane);
+      // the window's frame: a sill proud of the wall, a head, and leaded mullions across the glass
+      pushWall(FRAME, segmentBox(w.a, w.b, y0 + 2.7, y0 + 3.05, WALL_T + 0.5, false));
+      pushWall(FRAME, segmentBox(w.a, w.b, y0 + 6.95, y0 + 7.25, WALL_T + 0.3, false));
+      pushWall(FRAME, segmentBox(w.a, w.b, y0 + 4.9, y0 + 5.1, 0.32, false));
+      { const mx = (w.a[0] + w.b[0]) / 2, mz = (w.a[1] + w.b[1]) / 2, L = Math.hypot(w.b[0] - w.a[0], w.b[1] - w.a[1]) || 1, ux = (w.b[0] - w.a[0]) / L * 0.12, uz = (w.b[1] - w.a[1]) / L * 0.12;
+        pushWall(FRAME, segmentBox([mx - ux, mz - uz], [mx + ux, mz + uz], y0 + 3, y0 + 7, 0.32, false)); }
       continue;
     }
     if (f.has('door')) {
       pushWall(color, segmentBox(w.a, w.b, y0 + doorTop, y0 + h));
       const slab = new THREE.Mesh(segmentBox(w.a, w.b, y0, y0 + doorTop, 0.5, false), wallMat(f.has('locked') ? PALETTE.iron : '#9a6a3a'));
       if (f.has('locked')) { const band = new THREE.Mesh(segmentBox(w.a, w.b, y0 + 3, y0 + 3.6, 0.6, false), wallMat(PALETTE.wine)); band.userData.role = 'door'; band.userData.wallId = w.id; wallsGroup.add(band); }
+      // the door's frame (jambs and lintel) stays with the wall; iron straps and a ring ride on the leaf
+      { const L = Math.hypot(w.b[0] - w.a[0], w.b[1] - w.a[1]) || 1, ux = (w.b[0] - w.a[0]) / L, uz = (w.b[1] - w.a[1]) / L;
+        if (L > 1.5) for (const [p, q] of [[w.a, [w.a[0] + ux * 0.45, w.a[1] + uz * 0.45]], [[w.b[0] - ux * 0.45, w.b[1] - uz * 0.45], w.b]] as const) pushWall(FRAME, segmentBox(p as [number, number], q as [number, number], y0, y0 + doorTop, WALL_T + 0.35, false));
+        pushWall(FRAME, segmentBox(w.a, w.b, y0 + doorTop - 0.05, y0 + doorTop + 0.55, WALL_T + 0.35, false));
+        if (!f.has('locked')) for (const y of [1.4, doorTop - 1.4]) { const strap = new THREE.Mesh(segmentBox(w.a, w.b, y0 + y, y0 + y + 0.3, 0.62, false), wallMat(PALETTE.iron)); strap.userData.role = 'door'; slab.add(strap); } }
       slab.userData.role = 'door';
       slab.userData.wallId = w.id;
       slab.visible = !w.open;
@@ -173,6 +186,8 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
     }
     if (f.has('invisible') || f.has('ethereal')) continue;
     pushWall(color, segmentBox(w.a, w.b, y0, y0 + h));
+    // a free-standing wall (garden, yard, parapet) is capped with a coping a little proud of its faces
+    if (h < ceiling - 1 && h <= 12 && (w.material ?? 'ashlar') !== 'log') pushWall(COPING[w.material ?? 'ashlar'] ?? color, segmentBox(w.a, w.b, y0 + h, y0 + h + 0.35, WALL_T + 0.35));
   }
   for (const [color, gs] of byWallMat) {
     const m = new THREE.Mesh(merge(gs), wallMat(color));
