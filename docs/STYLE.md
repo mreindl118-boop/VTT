@@ -2,6 +2,12 @@
 
 - **Geometry**: chunky silhouettes, flat/faceted shading (`flatShading: true`), no normal maps, no photo
   textures, no AI imagery. Bevel only where it reads at 45°.
+- **Surfaces**: no image textures. Every palette colour is declared as a material in `app/src/kit/surfaces.ts`
+  (dressed stone, rubble, living rock, boards, timber, bark, log, plaster, cobble, flagstone, earth, grass, shingle,
+  brick, thatch, cloth, iron, water, foliage) and the shared shader draws its grain in world space from one small
+  tiling noise texture: stone courses 2.6 × 1.3 ft, boards 0.75 ft, setts about 1 ft, shingle courses 0.75 ft. The
+  grain only modulates the colour's own tone (never a new hue), fades out with distance, and is the same everywhere,
+  so a wall of dressed stone reads alike in Death House, the village and the castle.
 - **Colour**: vertex/material colours drawn from one palette (`app/src/kit/palette.ts`), baked to a 256×256
   atlas for GLB export. Palette families:
   - mist grays `#d9dadc … #5a5d63`
