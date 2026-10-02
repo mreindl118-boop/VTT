@@ -270,19 +270,46 @@ Object.assign(PROPS_V1, {
 } as Record<string, (d: Dims) => THREE.Object3D>);
 
 // ---------------------------------------------------------------- outdoor kit (M2)
+/** One tier of a conifer: a cone whose skirt is ragged (every other rim vertex dropped and pushed out) so the
+ *  boughs droop like old spruce. Shared by the map's pines and the backdrop's forest. */
+export function pineTier(r: number, h: number, seg = 7, seed = 0): THREE.BufferGeometry {
+  const c = new THREE.ConeGeometry(r, h, seg, 1, true); const pv = c.attributes.position;
+  for (let i = 0; i < pv.count; i++) if (pv.getY(i) < -h / 2 + 1e-3) { const k = (Math.round(Math.atan2(pv.getZ(i), pv.getX(i)) / (Math.PI * 2 / seg)) + seed) % 2 === 0; if (k) { pv.setY(i, pv.getY(i) - h * 0.14); pv.setX(i, pv.getX(i) * 1.12); pv.setZ(i, pv.getZ(i) * 1.12); } }
+  c.computeVertexNormals(); return c;
+}
 export function pine(d: Dims): THREE.Group {
-  const h = (d.h ?? 24) * (d.scale ?? 1), r = (d.r ?? 6) * (d.scale ?? 1);
-  const g = g_(cyl(0.5, 0.7, h * 0.3, PALETTE.woodDark, 0, h * 0.15, 0, 6));
-  for (let i = 0; i < 3; i++) { const c = new THREE.Mesh(new THREE.ConeGeometry(r * (1 - i * 0.28), h * 0.42, 7), mat(i % 2 ? PALETTE.pineDeep : PALETTE.pine)); c.position.y = h * 0.3 + i * h * 0.22 + h * 0.2; g.add(c); }
+  const sc = d.scale ?? 1, h = (d.h ?? 24) * sc, r = (d.r ?? 6) * sc, seed = Math.floor(Math.abs(Math.sin(h * 91.7 + r * 13.1)) * 1000);
+  const g = g_(cyl(0.45 * sc, 0.8 * sc, h * 0.34, '#3b2d24', 0, h * 0.17, 0, 6));
+  const tiers = 4;
+  for (let i = 0; i < tiers; i++) {
+    const tr = r * (1.05 - i * 0.24), th = h * (0.36 - i * 0.03);
+    const c = new THREE.Mesh(pineTier(tr, th, 7, i + seed), mat(i % 2 ? PALETTE.pineDeep : PALETTE.pine));
+    c.position.y = h * 0.24 + i * h * 0.19 + th / 2; c.rotation.y = i * 0.7 + seed; g.add(c);
+  }
+  const tip = new THREE.Mesh(new THREE.ConeGeometry(r * 0.16, h * 0.16, 5), mat(PALETTE.pineDeep)); tip.position.y = h * 0.24 + tiers * h * 0.19 + h * 0.02; g.add(tip);
+  g.rotation.z = ((seed % 7) - 3) * 0.012; g.rotation.x = (((seed >> 3) % 7) - 3) * 0.012;   // old trees lean a little
   return g;
 }
-export function bush(d: Dims): THREE.Group { const s = d.scale ?? 1; return g_(ico(2 * s, PALETTE.pineDeep, 0, 1.4 * s, 0), ico(1.4 * s, PALETTE.pine, 1.2 * s, 1 * s, 0.6 * s)); }
+export function bush(d: Dims): THREE.Group { const s = d.scale ?? 1; return g_(ico(2 * s, PALETTE.pineDeep, 0, 1.4 * s, 0), ico(1.4 * s, PALETTE.pine, 1.2 * s, 1 * s, 0.6 * s), ico(1.2 * s, PALETTE.pine, -1.1 * s, 0.9 * s, -0.5 * s)); }
+/** A dead tree: a split, leaning trunk, crooked limbs forking into twigs. */
 export function deadTree(d: Dims): THREE.Group {
-  const s = d.scale ?? 1, g = g_(cyl(0.5 * s, 0.9 * s, 14 * s, '#3b3230', 0, 7 * s, 0, 6));
-  for (let i = 0; i < 4; i++) { const b = box(0.35 * s, 6 * s, 0.35 * s, '#3b3230', 0, 12 * s, 0); b.rotation.z = (i - 1.5) * 0.7; b.rotation.y = i * 1.3; b.position.x = Math.cos(i * 1.3) * 2 * s; b.position.z = Math.sin(i * 1.3) * 2 * s; g.add(b); }
+  const s = d.scale ?? 1, C = '#3b3230', g = g_(cyl(0.45 * s, 0.95 * s, 14 * s, C, 0, 7 * s, 0, 6));
+  for (let i = 0; i < 5; i++) {
+    const a = i * 1.37 + 0.4, y = (8 + i * 1.4) * s, L = (6 - i * 0.5) * s, tilt = 0.55 + (i % 3) * 0.2;
+    const limb = g_(); limb.position.set(0, y, 0); limb.rotation.set(0, a, -tilt);
+    const b = box(0.3 * s, L, 0.3 * s, C, 0, L / 2, 0); limb.add(b);
+    for (const k of [-1, 1]) { const tw = box(0.16 * s, L * 0.45, 0.16 * s, C, 0, 0, 0); tw.position.set(k * 0.6 * s, L * 0.85, 0); tw.rotation.z = k * 0.6; limb.add(tw); }
+    g.add(limb);
+  }
+  const top = box(0.3 * s, 4 * s, 0.3 * s, C, 0.3 * s, 15.5 * s, 0); top.rotation.z = 0.25; g.add(top);
   return g;
 }
-export function boulder(d: Dims): THREE.Group { const r = d.r ?? 2.5; const m = new THREE.Mesh(new THREE.IcosahedronGeometry(r, 0), mat(PALETTE.stoneDeep)); m.scale.y = 0.7; m.position.y = r * 0.5; return g_(m); }
+export function boulder(d: Dims): THREE.Group {
+  const r = d.r ?? 2.5, geo = new THREE.IcosahedronGeometry(r, 1), pv = geo.attributes.position;
+  for (let i = 0; i < pv.count; i++) { const x = pv.getX(i), y = pv.getY(i), z = pv.getZ(i), k = 0.8 + 0.35 * Math.abs(Math.sin(x * 3.1 + y * 1.7 + z * 2.3 + r)); pv.setXYZ(i, x * k, y * k * (y < 0 ? 0.5 : 0.85), z * k); }
+  geo.computeVertexNormals();
+  const m = new THREE.Mesh(geo, mat(PALETTE.stoneDeep, { surface: 'rock' })); m.position.y = r * 0.35; return g_(m);
+}
 export function gravestone(): THREE.Group { return g_(box(1.6, 2.6, 0.4, PALETTE.mist3, 0, 1.3, 0), box(0.6, 0.6, 0.42, PALETTE.mist3, 0, 2.8, 0)); }
 export function fence(d: Dims): THREE.Group { const w = d.w ?? 10, g = g_(); for (let x = -w / 2; x <= w / 2; x += 4) g.add(box(0.4, 3.5, 0.4, PALETTE.woodDark, x, 1.75, 0)); g.add(box(w, 0.3, 0.2, PALETTE.wood, 0, 1.4, 0), box(w, 0.3, 0.2, PALETTE.wood, 0, 2.8, 0)); return g; }
 export function water(d: Dims): THREE.Group { const m = box(d.w ?? 20, 0.2, d.d ?? 20, '#3e5566', 0, 0.05, 0); m.userData.role = 'floor'; return g_(m); }
@@ -509,10 +536,18 @@ export function stairsRun(d: Dims): THREE.Group {
 export function postRound(d: Dims): THREE.Group { const r = d.r ?? 1, h = d.h ?? 10; return g_(cyl(r * 0.9, r, h, PALETTE.woodDark, 0, h / 2, 0, 10)); }
 /** An oak: trunk of radius `r` and height `h`, a canopy when `canopy` > 0 (free-standing trees), a stub otherwise. */
 export function oak(d: Dims): THREE.Group {
-  const r = d.r ?? 1.25, h = d.h ?? 20, c = d.canopy ?? 0;
-  const g = g_(cyl(r * 0.8, r * 1.15, h, '#4a3524', 0, h / 2, 0, 9));
+  const r = d.r ?? 1.25, h = d.h ?? 20, c = d.canopy ?? 0, B = '#4a3524';
+  const g = g_(cyl(r * 0.75, r * 1.15, h, B, 0, h / 2, 0, 9), cyl(r * 1.15, r * 1.6, 1.4, B, 0, 0.7, 0, 9));   // trunk and root flare
   if (c > 0) {
-    for (let i = 0; i < 4; i++) { const m = new THREE.Mesh(new THREE.IcosahedronGeometry(c * (0.55 + (i % 2) * 0.2), 1), mat(i % 2 ? '#2f5a35' : '#3a6b3d')); m.position.set(Math.cos(i * 1.7) * c * 0.35, h * 0.92 + (i % 3) * c * 0.2, Math.sin(i * 1.7) * c * 0.35); g.add(m); }
+    for (let i = 0; i < 3; i++) {   // the great limbs the crown hangs on
+      const limb = g_(); limb.position.set(0, h * 0.72, 0); limb.rotation.set(0, i * 2.1 + 0.3, -0.7);
+      limb.add(cyl(r * 0.3, r * 0.5, c * 0.9, B, 0, c * 0.45, 0, 6)); g.add(limb);
+    }
+    const cols = ['#2f5a35', '#3a6b3d', '#34603a'];
+    for (let i = 0; i < 6; i++) {
+      const a = i * 1.05 + 0.2, rr = c * (0.42 + (i % 3) * 0.1), m = new THREE.Mesh(new THREE.IcosahedronGeometry(rr, 1), mat(cols[i % 3]));
+      m.position.set(Math.cos(a) * c * (i < 5 ? 0.48 : 0), h * 0.9 + (i < 5 ? (i % 2) * c * 0.18 : c * 0.4), Math.sin(a) * c * (i < 5 ? 0.48 : 0)); m.scale.y = 0.82; g.add(m);
+    }
   }
   return g;
 }
@@ -714,7 +749,11 @@ export function pillory(): THREE.Group {
   return g;
 }
 /** A felled tree's stump, cut a couple of feet up, the top pale where the axe went through. */
-export function stump(d: Dims): THREE.Group { const r = d.r ?? 1.1, h = d.h ?? 2; return g_(cyl(r * 0.92, r * 1.15, h, PALETTE.woodDark, 0, h / 2, 0, 8), cyl(r * 0.9, r * 0.9, 0.12, '#c9b893', 0, h + 0.06, 0, 8)); }
+export function stump(d: Dims): THREE.Group {
+  const r = d.r ?? 1.1, h = d.h ?? 2, g = g_(cyl(r * 0.92, r * 1.2, h, '#4a3524', 0, h / 2, 0, 8), cyl(r * 0.88, r * 0.88, 0.12, '#a8956f', 0, h + 0.06, 0, 8));
+  for (let i = 0; i < 3; i++) { const a = i * 2.1 + r, root = box(r * 1.3, 0.5, r * 0.45, '#4a3524', Math.cos(a) * r * 1.1, 0.2, Math.sin(a) * r * 1.1); root.rotation.y = -a; root.rotation.z = 0.25; g.add(root); }   // the felled tree's roots
+  return g;
+}
 /** A conical roof (a tower's cap): radius `r` (a little past the walls), height `h`, sitting at `y`. */
 export function roofCone(d: Dims): THREE.Group {
   const r = (d.r ?? 20) + 1.5, h = d.h ?? 14, y = d.y ?? 10;

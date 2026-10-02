@@ -29,7 +29,9 @@ surfaceFor([PALETTE.wood, PALETTE.woodDark, '#3a2c22', '#3b2a1e', '#4b3a2c', '#6
 surfaceFor([PALETTE.stone, PALETTE.stoneDeep, PALETTE.mist3, PALETTE.mist2, '#6d6a66', '#7a766f', '#8a857c', '#4d4845'], 'stone');
 surfaceFor([PALETTE.iron, '#2b2420'], 'metal');
 surfaceFor([PALETTE.pine, PALETTE.pineDeep, '#2f5a35', '#3a6b3d'], 'foliage');
-surfaceFor(['#4a3524', '#3b3230', '#4a3828', '#5a4632'], 'bark');
+surfaceFor(['#4a3524', '#3b3230', '#4a3828', '#5a4632', '#3b2d24'], 'bark');
+surfaceFor(['#a8956f', '#c9b893'], 'wood');
+surfaceFor(['#34603a'], 'foliage');
 // house walls (plaster over timber), roofs (shingle and slate), turf and the church's slate
 surfaceFor(['#8f8676', '#7d7466', '#9a917f', '#6f675b'], 'plaster');
 surfaceFor(['#3d3a44', '#3d3a3e', '#4a3a33', '#35393a', '#51463c', '#4a4550', PALETTE.violetDeep, '#2b292d'], 'shingle');

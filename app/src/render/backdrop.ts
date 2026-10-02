@@ -4,6 +4,7 @@
 import * as THREE from 'three';
 import type { Theme, WorldData } from '../campaigns';
 import { merge } from '../kit/pieces';
+import { pineTier } from '../kit/props';
 import { patchFog, setSurface } from './materials';
 import { surfaceOf, type Surface } from '../kit/surfaces';
 import { terrainOf } from '../core/terrain';
@@ -50,6 +51,8 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
   const toPlan = (w: P) => { const dx = (w[0] - o.pin[0]) * FT, dy = (w[1] - o.pin[1]) * FT; return [E[0] * dx + S[0] * dy, E[1] * dx + S[1] * dy] as P; };
   const toWorld = (w: P) => { const [dx, dz] = toPlan(w); return { x: cx + dx, z: cz + dz, d: Math.hypot(dx, dz) }; };
   const haze = (d: number) => Math.min(0.85, 1 - Math.exp(-d / 32000));
+  // the land beyond the map: its baked colours carry the same drifting grass grain as the map's own ground
+  const landMat = () => { const m = new THREE.MeshBasicMaterial({ vertexColors: true, fog: false }); setSurface(m, 'grass'); return patchFog(m, true); };
   const hazed = (hex: string, d: number) => lambert(blend(hex, haze(d)), surfaceOf(hex));
   // plan feet → world miles (the inverse of toPlan) and the ground's height there, flattened to the map near it
   const toMiles = (x: number, z: number): P => { const dx = x - cx, dz = z - cz; return [o.pin[0] + (E[0] * dx + E[1] * dz) / FT, o.pin[1] + (S[0] * dx + S[1] * dz) / FT]; };
@@ -119,13 +122,13 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
       nv.set(fn.getX(i), fn.getY(i), fn.getZ(i)); const k = 0.55 + 0.6 * Math.max(0, nv.dot(L));
       for (let j = i; j < i + 3; j++) fc.setXYZ(j, Math.min(1, fc.getX(j) * k), Math.min(1, fc.getY(j) * k), Math.min(1, fc.getZ(j) * k));
     }
-    const landMesh = new THREE.Mesh(flat, new THREE.MeshBasicMaterial({ vertexColors: true, fog: false })); landMesh.name = 'land'; g.add(landMesh);
+    const landMesh = new THREE.Mesh(flat, landMat()); landMesh.name = 'land'; g.add(landMesh);
   } else {
     const apron = new THREE.RingGeometry(0.5, 90000, 96, 16); // a full disc: the map's own floors sit above it
     const pos = apron.attributes.position, cols: number[] = [];
     for (let i = 0; i < pos.count; i++) { const d = Math.hypot(pos.getX(i), pos.getY(i)); const c = blend(T.apron, Math.min(0.9, (d - R) / 26000)); cols.push(c.r, c.g, c.b); }
     apron.setAttribute('color', new THREE.Float32BufferAttribute(cols, 3));
-    const apronMesh = new THREE.Mesh(apron, new THREE.MeshBasicMaterial({ vertexColors: true, fog: false }));
+    const apronMesh = new THREE.Mesh(apron, landMat());
     apronMesh.rotation.x = -Math.PI / 2; apronMesh.position.set(cx, y0 - 3, cz); // well under the map's own ground: big maps have little depth precision to spare
     g.add(apronMesh);
   }
@@ -182,10 +185,11 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
     const lake = new THREE.Mesh(new THREE.CircleGeometry(R * 4, 48), new THREE.MeshBasicMaterial({ color: blend('#1e2a33', 0.1), fog: false })); lake.rotation.x = -Math.PI / 2; lake.position.set(cx, y0 + 0.4, cz); g.add(lake);
   }
   // 2. Forest ring: instanced pines from just past the edge out to the tree line.
-  const tree = new THREE.ConeGeometry(6, 28, 6); tree.translate(0, 14, 0);
+  // the same old spruce as on the maps (ragged, drooping tiers), at the backdrop's coarser grain
+  const tree = merge([pineTier(6.2, 14, 6, 0).translate(0, 11, 0), pineTier(4.6, 12, 6, 1).translate(0, 17.5, 0), pineTier(2.8, 10, 6, 0).translate(0, 24, 0)]);
   // A thick wood presses up to the map's edge (most trees in the first third of a mile), thinning toward the horizon;
   // still one instanced draw for all of them.
-  const n = terrain.hasCover ? 9500 : o.valley ? 4000 : 3000, trees = new THREE.InstancedMesh(tree, new THREE.MeshLambertMaterial({ fog: false, flatShading: true }), n);
+  const n = terrain.hasCover ? 9500 : o.valley ? 4000 : 3000, trees = new THREE.InstancedMesh(tree, lambert(new THREE.Color('#ffffff'), 'foliage'), n);
   const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), s = new THREE.Vector3(), p = new THREE.Vector3();
   for (let i = 0; i < n; i++) {
     const near = rnd() < 0.62, a = rnd() * Math.PI * 2;
