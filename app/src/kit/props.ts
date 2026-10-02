@@ -38,15 +38,27 @@ export function spiralStair(d: Dims): THREE.Group {
 }
 
 export function fireplace(): THREE.Group {
-  return g(box(6, 6, 1.5, PALETTE.stoneDeep, 0, 3, 0), box(6.5, 0.5, 2, PALETTE.stone, 0, 6, 0.2), box(3, 3, 0.6, '#0e0c10', 0, 1.5, 0.6));
+  // a stone hearth: raised hearthstone, jambs and a lintel round a sooty firebox with embers, a mantel shelf, the breast above
+  return g(box(7, 0.5, 3, PALETTE.stoneDeep, 0, 0.25, 0.6), box(1.4, 4.2, 1.6, PALETTE.stone, -2.3, 2.6, 0.2), box(1.4, 4.2, 1.6, PALETTE.stone, 2.3, 2.6, 0.2),
+    box(6.2, 1, 1.7, PALETTE.stone, 0, 5.1, 0.2), box(7, 0.35, 2.1, PALETTE.wood, 0, 5.8, 0.3), box(5.6, 3, 1.2, PALETTE.stoneDeep, 0, 7.4, -0.05), box(3.4, 3.8, 0.6, '#0e0c10', 0, 2.4, -0.3),
+    embers(2.2, 0.9, 0, 0.65, 0.3), box(2.4, 0.35, 0.35, PALETTE.woodDark, 0, 0.85, 0.5));
 }
 export function chair(): THREE.Group {
-  return g(box(1.6, 0.3, 1.6, PALETTE.wood, 0, 1.5, 0), box(1.6, 2, 0.3, PALETTE.woodDark, 0, 2.5, -0.65), box(0.25, 1.5, 0.25, PALETTE.woodDark, -0.6, 0.75, 0.6), box(0.25, 1.5, 0.25, PALETTE.woodDark, 0.6, 0.75, 0.6));
+  // a joined chair: four legs, a seat, two back stiles with a top rail and a splat
+  const c = g(box(1.7, 0.25, 1.6, PALETTE.wood, 0, 1.55, 0), box(1.7, 0.35, 0.25, PALETTE.woodDark, 0, 3.6, -0.7), box(0.7, 1.4, 0.15, PALETTE.wood, 0, 2.6, -0.7));
+  for (const [x, z] of [[-0.7, 0.62], [0.7, 0.62]]) c.add(box(0.22, 1.5, 0.22, PALETTE.woodDark, x, 0.75, z));
+  for (const x of [-0.7, 0.7]) c.add(box(0.24, 3.75, 0.24, PALETTE.woodDark, x, 1.88, -0.7));
+  return c;
 }
 export function bookshelf(d: Dims): THREE.Group {
-  const w = d.w ?? 5;
-  const grp = g(box(w, 8, 1.2, PALETTE.woodDark, 0, 4, 0));
-  for (let i = 0; i < 4; i++) grp.add(box(w - 0.4, 0.15, 1.3, PALETTE.wood, 0, 1.5 + i * 1.8, 0), box(w - 0.6, 1.2, 0.9, i % 2 ? PALETTE.wine : PALETTE.pineDeep, 0, 2.2 + i * 1.8, 0.05));
+  // a case of five shelves, the books standing in runs of differing heights and bindings, a few leaning
+  const w = d.w ?? 5, BIND = [PALETTE.wine, PALETTE.pineDeep, '#5a4632', PALETTE.violetDeep, '#6b5d4a', PALETTE.blood];
+  const grp = g(box(w, 8, 0.25, PALETTE.woodDark, 0, 4, -0.5), box(0.25, 8, 1.2, PALETTE.woodDark, -w / 2 + 0.12, 4, 0), box(0.25, 8, 1.2, PALETTE.woodDark, w / 2 - 0.12, 4, 0), box(w, 0.3, 1.3, PALETTE.woodDark, 0, 8, 0));
+  for (let i = 0; i < 4; i++) {
+    const y = 0.4 + i * 1.85; grp.add(box(w - 0.4, 0.15, 1.2, PALETTE.wood, 0, y, 0));
+    let x = -w / 2 + 0.35, k = i * 7;
+    while (x < w / 2 - 0.6) { const bw = 0.22 + ((k * 37) % 5) * 0.06, bh = 1.0 + ((k * 53) % 4) * 0.13; const b = box(bw, bh, 0.85, BIND[k % BIND.length], x + bw / 2, y + 0.08 + bh / 2, 0.05); if (k % 11 === 5) b.rotation.z = 0.25; grp.add(b); x += bw + 0.02; k++; if (k % 9 === 0) x += 0.4; }
+  }
   return grp;
 }
 export function desk(): THREE.Group { return g(box(5, 0.3, 2.5, PALETTE.wood, 0, 2.6, 0), box(4.6, 2.4, 2.2, PALETTE.woodDark, 0, 1.2, 0)); }
@@ -74,16 +86,30 @@ export function armorSuit(): THREE.Group {
   return g(box(2, 0.4, 2, PALETTE.stoneDeep, 0, 0.2, 0), box(1.6, 3, 1, PALETTE.iron, 0, 2.2, 0), box(1.1, 1.1, 1.1, PALETTE.iron, 0, 4.4, 0), box(0.25, 6.5, 0.25, PALETTE.woodDark, 1.1, 3.25, 0));
 }
 export function statue(): THREE.Group {
-  return g(box(4, 1, 4, PALETTE.stoneDeep, 0, 0.5, 0), box(1.6, 5, 1.2, '#1a171d', 0, 3.5, 0), new THREE.Mesh(new THREE.IcosahedronGeometry(0.6, 0), mat(PALETTE.bone)).translateY(6.4),
-    box(2.2, 1.6, 1, PALETTE.mist3, 1.8, 1.8, 0.6));
+  // a robed figure carved in grey stone on a moulded plinth
+  const fig = robedStone();
+  return g(box(4, 0.5, 4, PALETTE.stoneDeep, 0, 0.25, 0), box(3.4, 1.4, 3.4, PALETTE.stone, 0, 1.2, 0), box(3.8, 0.35, 3.8, PALETTE.stoneDeep, 0, 2.05, 0), fig);
+}
+/** A bed of glowing coals (it lights itself: emissive, no grain). */
+function embers(w: number, d: number, x: number, y: number, z: number): THREE.Mesh { const m = new THREE.Mesh(new THREE.BoxGeometry(w, 0.3, d), mat('#c9632e', { emissive: '#8a3a12' })); m.position.set(x, y, z); return m; }
+function robedStone(): THREE.Group {
+  const S = PALETTE.mist3, f = g(cyl(0.75, 1.2, 4.6, S, 0, 4.5, 0, 8), cyl(0.5, 0.75, 1.4, S, 0, 7.4, 0, 8), new THREE.Mesh(new THREE.IcosahedronGeometry(0.5, 1), mat(S)).translateY(8.6));
+  const hood = new THREE.Mesh(new THREE.ConeGeometry(0.75, 1.4, 8), mat(S)); hood.position.y = 8.9; f.add(hood);
+  for (const sx of [-1, 1]) { const a = cyl(0.22, 0.28, 2.4, S, sx * 0.6, 6.6, 0.4, 6); a.rotation.x = -0.9; a.rotation.z = sx * -0.25; f.add(a); }
+  return f;
 }
 export function altar(): THREE.Group { return g(box(6, 3, 3, PALETTE.stoneDeep, 0, 1.5, 0), box(6.4, 0.4, 3.4, PALETTE.blood, 0, 3.2, 0)); }
 export function well(): THREE.Group {
-  const ring = new THREE.Mesh(new THREE.CylinderGeometry(2.2, 2.4, 3, 10, 1, true), mat(PALETTE.stone));
+  // a stone well-head with a coping, a windlass on two posts under a little shingled roof, rope and bucket
+  const ring = new THREE.Mesh(new THREE.CylinderGeometry(2.2, 2.4, 3, 12, 1, true), mat(PALETTE.stone, { surface: 'rubble' }));
   ring.position.y = 1.5;
-  const hole = new THREE.Mesh(new THREE.CylinderGeometry(2, 2, 0.2, 10), mat('#07070a'));
+  const hole = new THREE.Mesh(new THREE.CylinderGeometry(2, 2, 0.2, 12), mat('#07070a'));
   hole.position.y = 2.95;
-  return g(ring, hole, box(0.4, 7, 0.4, PALETTE.woodDark, -2.6, 3.5, 0), box(0.4, 7, 0.4, PALETTE.woodDark, 2.6, 3.5, 0), box(6, 0.4, 0.4, PALETTE.woodDark, 0, 7, 0));
+  const cope = new THREE.Mesh(new THREE.TorusGeometry(2.3, 0.28, 5, 14), mat(PALETTE.stoneDeep)); cope.rotation.x = Math.PI / 2; cope.position.y = 3.05;
+  const w = g(ring, hole, cope, box(0.4, 7, 0.4, PALETTE.woodDark, -2.6, 3.5, 0), box(0.4, 7, 0.4, PALETTE.woodDark, 2.6, 3.5, 0), cyl(0.3, 0.3, 5.4, PALETTE.wood, 0, 5.6, 0, 8).rotateZ(Math.PI / 2),
+    box(0.06, 2.4, 0.06, '#8a7a5a', 0, 4.3, 0), cyl(0.45, 0.35, 0.8, PALETTE.wood, 0, 2.9, 0, 8));
+  for (const sz of [-1, 1]) { const r = box(6.4, 0.25, 2.6, '#3d3a3e', 0, 7.7, sz * 1.0); r.rotation.x = sz * 0.6; w.add(r); }
+  return w;
 }
 export function portcullis(d: Dims): THREE.Group {
   const w = d.w ?? 5, h = d.h ?? 7;
@@ -250,7 +276,7 @@ export function pitOpen(): THREE.Group { const g = g_(box(4.6, 0.1, 4.6, '#0a090
 export function beds(): THREE.Group { return g_(box(3.5, 1.4, 6.5, PALETTE.woodDark, 0, 0.7, 0), box(3.1, 0.5, 6, '#d9cfb5', 0, 1.6, 0.2), box(3.5, 2.6, 0.4, PALETTE.woodDark, 0, 1.3, -3.2)); }
 export function childBed(): THREE.Group { return g_(box(2.6, 1.2, 4.6, PALETTE.woodDark, 0, 0.6, 0), box(2.2, 0.4, 4.2, '#8fa3b8', 0, 1.4, 0.1)); }
 export function smallSkeletons(): THREE.Group { const g = g_(); for (const [x, z, r] of [[-0.8, 0, 0.3], [0.8, 0.4, -0.5]]) { const s = box(0.8, 0.4, 2.6, PALETTE.bone, x, 0.2, z); s.rotation.y = r; g.add(s, ico(0.3, PALETTE.bone, x, 0.4, z - 1.4)); } g.add(box(0.5, 0.7, 0.4, '#b89a7a', 1.3, 0.35, 1.3)); return g; }
-export function wineCask(): THREE.Group { return g_(cyl(0.6, 0.7, 1.4, PALETTE.wood, 0, 0.7, 0, 10), cyl(0.25, 0.25, 0.4, PALETTE.iron, 0, 1.2, 0.6, 6)); }
+export function wineCask(): THREE.Group { const c = g_(cyl(0.6, 0.7, 1.4, PALETTE.wood, 0, 0.7, 0, 10), cyl(0.25, 0.25, 0.4, PALETTE.iron, 0, 1.2, 0.6, 6)); for (const y of [0.2, 1.2]) c.add(cyl(0.66, 0.66, 0.1, PALETTE.iron, 0, y, 0, 10)); return c; }
 export function oilLamp(d: Dims): THREE.Group { const y = d.y ?? 6.5; return g_(box(0.3, 0.9, 0.3, PALETTE.iron, 0, y - 0.6, 0), box(0.6, 0.7, 0.6, PALETTE.amber, 0, y, 0), box(0.25, 0.8, 0.25, PALETTE.iron, 0, y + 0.7, 0)); }
 export function dumbwaiterShaft(): THREE.Group { return g_(box(2, 6, 2, PALETTE.stoneDeep, 0, 3, 0), box(1.4, 1.2, 0.2, PALETTE.woodDark, 0, 3, 1.05), ico(0.15, PALETTE.amberDeep, 1.3, 4.5, 1.05)); }
 export function crateChest(): THREE.Group { return g_(box(3.5, 1.6, 2, PALETTE.woodDark, 0, 0.8, 0), box(3.7, 0.3, 2.2, PALETTE.iron, 0, 1.7, 0), box(0.5, 0.6, 0.2, PALETTE.iron, 0, 1, 1.05)); }
@@ -310,7 +336,12 @@ export function boulder(d: Dims): THREE.Group {
   geo.computeVertexNormals();
   const m = new THREE.Mesh(geo, mat(PALETTE.stoneDeep, { surface: 'rock' })); m.position.y = r * 0.35; return g_(m);
 }
-export function gravestone(): THREE.Group { return g_(box(1.6, 2.6, 0.4, PALETTE.mist3, 0, 1.3, 0), box(0.6, 0.6, 0.42, PALETTE.mist3, 0, 2.8, 0)); }
+export function gravestone(): THREE.Group {
+  // a weathered headstone with a rounded head, sunk a little and leaning, a low mound of earth before it
+  const head = new THREE.Mesh(new THREE.CylinderGeometry(0.8, 0.8, 0.4, 10, 1, false, -Math.PI / 2, Math.PI), mat(PALETTE.mist3)); head.rotation.x = Math.PI / 2; head.rotation.z = Math.PI / 2; head.position.y = 2.2;
+  const st = g_(box(1.6, 2.2, 0.4, PALETTE.mist3, 0, 1.1, 0), head); st.rotation.x = -0.08; st.rotation.z = 0.05;
+  const mound = new THREE.Mesh(new THREE.IcosahedronGeometry(1, 1), mat('#4d5a3f')); mound.scale.set(1.1, 0.25, 2.6); mound.position.set(0, 0, 3); return g_(st, mound);
+}
 export function fence(d: Dims): THREE.Group { const w = d.w ?? 10, g = g_(); for (let x = -w / 2; x <= w / 2; x += 4) g.add(box(0.4, 3.5, 0.4, PALETTE.woodDark, x, 1.75, 0)); g.add(box(w, 0.3, 0.2, PALETTE.wood, 0, 1.4, 0), box(w, 0.3, 0.2, PALETTE.wood, 0, 2.8, 0)); return g; }
 export function water(d: Dims): THREE.Group { const m = box(d.w ?? 20, 0.2, d.d ?? 20, '#3e5566', 0, 0.05, 0); m.userData.role = 'floor'; return g_(m); }
 export function tent(d: Dims): THREE.Group { const r = d.r ?? 5, h = d.h ?? 8; const c = new THREE.Mesh(new THREE.ConeGeometry(r, h, 8), mat(PALETTE.wine)); c.position.y = h / 2; return g_(c, cyl(0.15, 0.15, h + 1, PALETTE.woodDark, 0, (h + 1) / 2, 0)); }
@@ -321,7 +352,11 @@ export function wagon(d: Dims): THREE.Group {
   return g;
 }
 export function signpost(): THREE.Group { return g_(box(0.3, 8, 0.3, PALETTE.woodDark, 0, 4, 0), box(3, 0.8, 0.2, PALETTE.wood, 1.2, 6.5, 0), box(3, 0.8, 0.2, PALETTE.wood, -1.2, 5.4, 0)); }
-export function brazier(): THREE.Group { return g_(cyl(1.2, 0.8, 0.5, PALETTE.iron, 0, 2.6, 0, 8), cyl(0.15, 0.15, 2.4, PALETTE.iron, 0, 1.2, 0), ico(0.6, PALETTE.amber, 0, 3.2, 0)); }
+export function brazier(): THREE.Group {
+  const b = g_(cyl(1.2, 0.8, 0.5, PALETTE.iron, 0, 2.6, 0, 8), embers(1.8, 1.8, 0, 2.82, 0), ico(0.6, PALETTE.amber, 0, 3.2, 0));
+  for (let i = 0; i < 3; i++) { const a = (i / 3) * Math.PI * 2, l = cyl(0.1, 0.1, 2.7, PALETTE.iron, Math.cos(a) * 0.55, 1.25, Math.sin(a) * 0.55, 5); l.rotation.set(Math.sin(a) * 0.25, 0, -Math.cos(a) * 0.25); b.add(l); }
+  return b;
+}
 export function rubble(d: Dims): THREE.Group { const g = g_(); for (let i = 0; i < (d.n ?? 6); i++) g.add(ico(0.5 + (i % 3) * 0.3, PALETTE.stoneDeep, Math.cos(i * 2.1) * 1.6, 0.4, Math.sin(i * 2.1) * 1.6)); return g; }
 export function rug(d: Dims): THREE.Group { return g_(box(d.w ?? 8, 0.08, d.d ?? 6, '#5a2a30', 0, 0.04, 0), box((d.w ?? 8) - 1, 0.09, (d.d ?? 6) - 1, '#7a3a40', 0, 0.045, 0)); }
 /** Village house: plain block with a pitched roof; stories from dims. */

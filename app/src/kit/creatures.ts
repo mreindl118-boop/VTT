@@ -19,49 +19,57 @@ export interface HumanoidOpts {
   claws?: boolean; helm?: 'none' | 'wolf' | 'cap'; weapon?: 'none' | 'sword' | 'spear' | 'staff' | 'torch'; hair?: string; skirt?: boolean;
 }
 
-/** Modular humanoid: head, torso, arms, legs; ~5.5 ft tall at scale 1. */
+const cyl = (rt: number, rb: number, h: number, color: string, x = 0, y = 0, z = 0, seg = 6) => { const m = new THREE.Mesh(new THREE.CylinderGeometry(rt, rb, h, seg), mat(color)); m.position.set(x, y, z); return m; };
+
+/** Modular humanoid, ~5.5 ft tall at scale 1: boots, tapered legs, a belted tunic with a hem, rounded shoulders, two-part
+ *  arms with hands, a neck and a rounded head. A hunch bends the whole upper body at the hips. */
 export function humanoid(o: HumanoidOpts = {}): THREE.Group {
-  const s = o.scale ?? 1, skin = o.skin ?? '#d9b899', cloth = o.cloth ?? PALETTE.pineDeep, trim = o.trim ?? PALETTE.woodDark;
-  const g = grp();
-  const hunch = o.hunch ?? 0;
-  // legs
-  g.add(box(0.42 * s, 2.8 * s, 0.48 * s, trim, -0.3 * s, 1.4 * s, 0), box(0.42 * s, 2.8 * s, 0.48 * s, trim, 0.3 * s, 1.4 * s, 0));
-  if (o.robe || o.skirt) g.add(cone(0.95 * s, 3.0 * s, cloth, 0, 1.5 * s, 0));
-  // torso
-  const torso = box(1.35 * s, 2.3 * s, 0.75 * s, cloth, 0, 3.95 * s, hunch * 0.5 * s);
-  torso.rotation.x = hunch * 0.6;
-  g.add(torso);
-  // arms
-  const armL = box(0.34 * s, 2.3 * s, 0.34 * s, o.claws ? skin : cloth, -0.88 * s, 3.8 * s, hunch * 0.9 * s);
-  const armR = box(0.34 * s, 2.3 * s, 0.34 * s, o.claws ? skin : cloth, 0.88 * s, 3.8 * s, hunch * 0.9 * s);
-  armL.rotation.x = hunch * 1.4 - 0.2; armR.rotation.x = hunch * 1.4 - 0.2;
-  g.add(armL, armR);
-  if (o.claws) for (const x of [-0.88, 0.88]) for (let i = -1; i <= 1; i++) g.add(box(0.08 * s, 0.5 * s, 0.08 * s, PALETTE.bone, x * s + i * 0.1 * s, 2.5 * s, (hunch * 1.4 + 0.5) * s));
-  // head
-  const headY = (5.55 - hunch * 0.9) * s, headZ = hunch * 1.2 * s;
-  g.add(sphere(0.42 * s, skin, 0, headY, headZ));
-  if (o.hair) g.add(sphere(0.39 * s, o.hair, 0, headY + 0.18 * s, headZ - 0.08 * s));
-  if (o.helm === 'wolf') { g.add(box(0.9 * s, 0.7 * s, 1.1 * s, PALETTE.iron, 0, headY + 0.15 * s, headZ + 0.1 * s), cone(0.18 * s, 0.5 * s, PALETTE.iron, -0.35 * s, headY + 0.75 * s, headZ), cone(0.18 * s, 0.5 * s, PALETTE.iron, 0.35 * s, headY + 0.75 * s, headZ)); }
-  if (o.helm === 'cap') g.add(sphere(0.46 * s, trim, 0, headY + 0.15 * s, headZ));
-  if (o.cloak) { const c = cone(1.05 * s, 5.0 * s, o.cloth ?? '#1a171d', 0, 2.6 * s, -0.3 * s); c.scale.z = 0.5; g.add(c); }
-  // weapon in the right hand
-  const hx = 0.88 * s, hy = 2.7 * s;
-  if (o.weapon === 'sword') g.add(box(0.12 * s, 2.6 * s, 0.35 * s, PALETTE.mist1, hx + 0.3 * s, hy + 1.2 * s, 0.4 * s), box(0.7 * s, 0.12 * s, 0.12 * s, PALETTE.amberDeep, hx + 0.3 * s, hy, 0.4 * s));
-  if (o.weapon === 'spear') g.add(box(0.12 * s, 7 * s, 0.12 * s, PALETTE.woodDark, hx + 0.3 * s, 3.5 * s, 0.4 * s), cone(0.2 * s, 0.8 * s, PALETTE.mist1, hx + 0.3 * s, 7.3 * s, 0.4 * s));
-  if (o.weapon === 'staff') g.add(box(0.14 * s, 6 * s, 0.14 * s, PALETTE.woodDark, hx + 0.3 * s, 3 * s, 0.4 * s));
-  if (o.weapon === 'torch') g.add(box(0.14 * s, 1.6 * s, 0.14 * s, PALETTE.woodDark, hx + 0.3 * s, hy + 0.5 * s, 0.4 * s), sphere(0.32 * s, PALETTE.amber, hx + 0.3 * s, hy + 1.5 * s, 0.4 * s));
+  const s = o.scale ?? 1, skin = o.skin ?? '#d9b899', cloth = o.cloth ?? PALETTE.pineDeep, trim = o.trim ?? PALETTE.woodDark, boot = o.claws ? skin : '#2b2420';
+  const hunch = o.hunch ?? 0, g = grp();
+  // legs and boots
+  for (const x of [-0.3, 0.3]) g.add(cyl(0.24 * s, 0.19 * s, 2.4 * s, trim, x * s, 1.65 * s, 0), box(0.46 * s, 0.55 * s, 0.78 * s, boot, x * s, 0.28 * s, 0.1 * s));
+  if (o.robe || o.skirt) g.add(cyl(0.72 * s, 1.08 * s, (o.robe ? 4.6 : 2.6) * s, cloth, 0, (o.robe ? 2.3 : 1.7) * s, 0, 7));
+  // the upper body hangs from the hips
+  const up = grp(); up.position.y = 2.85 * s; up.rotation.x = hunch * 0.6; g.add(up);
+  up.add(box(1.2 * s, 0.55 * s, 0.72 * s, trim, 0, 0.05 * s, 0));                                       // hips
+  const torso = cyl(0.72 * s, 0.6 * s, 2.15 * s, cloth, 0, 1.15 * s, 0, 7); torso.scale.z = 0.62; up.add(torso);
+  if (!o.robe) { const hem = cyl(0.64 * s, 0.82 * s, 0.75 * s, cloth, 0, 0.0, 0, 7); hem.scale.z = 0.7; up.add(hem); }
+  up.add(cyl(0.64 * s, 0.64 * s, 0.22 * s, trim, 0, 0.42 * s, 0, 7));                                   // belt
+  for (const sx of [-1, 1]) {
+    up.add(sphere(0.33 * s, cloth, sx * 0.76 * s, 2.05 * s, 0));                                          // shoulder
+    const arm = grp(); arm.position.set(sx * 0.86 * s, 2.0 * s, 0); arm.rotation.x = hunch * 0.9 - 0.12; arm.rotation.z = sx * 0.08; up.add(arm);
+    arm.add(cyl(0.2 * s, 0.17 * s, 1.15 * s, o.claws ? skin : cloth, 0, -0.6 * s, 0), cyl(0.17 * s, 0.14 * s, 1.05 * s, o.claws ? skin : cloth, 0, -1.65 * s, 0.08 * s), sphere(0.17 * s, skin, 0, -2.25 * s, 0.1 * s));
+    if (o.claws) for (let i = -1; i <= 1; i++) arm.add(box(0.07 * s, 0.5 * s, 0.07 * s, PALETTE.bone, i * 0.09 * s, -2.55 * s, 0.15 * s));
+  }
+  // neck and head
+  up.add(cyl(0.17 * s, 0.2 * s, 0.38 * s, skin, 0, 2.38 * s, 0));
+  const hy = 2.82 * s, head = new THREE.Mesh(new THREE.IcosahedronGeometry(0.42 * s, 1), mat(skin)); head.position.set(0, hy, 0.02 * s); head.scale.set(0.92, 1.05, 0.95); up.add(head);
+  up.add(box(0.12 * s, 0.18 * s, 0.14 * s, skin, 0, hy - 0.05 * s, 0.42 * s));                         // nose
+  if (o.hair) { const h = new THREE.Mesh(new THREE.IcosahedronGeometry(0.43 * s, 1), mat(o.hair)); h.position.set(0, hy + 0.12 * s, -0.08 * s); h.scale.set(1, 0.85, 1); up.add(h); }
+  if (o.helm === 'wolf') up.add(box(0.9 * s, 0.7 * s, 1.1 * s, PALETTE.iron, 0, hy + 0.15 * s, 0.1 * s), cone(0.18 * s, 0.5 * s, PALETTE.iron, -0.35 * s, hy + 0.75 * s, 0), cone(0.18 * s, 0.5 * s, PALETTE.iron, 0.35 * s, hy + 0.75 * s, 0));
+  if (o.helm === 'cap') { const c = sphere(0.46 * s, trim, 0, hy + 0.15 * s, 0); c.scale.y = 0.6; up.add(c); }
+  if (o.cloak) { const c = cyl(0.78 * s, 1.15 * s, 4.9 * s, o.cloth ?? '#1a171d', 0, -0.2 * s, -0.32 * s, 8); c.scale.z = 0.45; up.add(c); up.add(cyl(0.8 * s, 0.8 * s, 0.3 * s, o.cloth ?? '#1a171d', 0, 2.2 * s, -0.05 * s, 8)); }
+  // a weapon in the right hand
+  const hx = 0.9 * s, hyH = -0.05 * s, hz = 0.35 * s;
+  if (o.weapon === 'sword') up.add(box(0.12 * s, 2.6 * s, 0.32 * s, PALETTE.mist1, hx, hyH + 1.4 * s, hz), box(0.7 * s, 0.12 * s, 0.14 * s, PALETTE.amberDeep, hx, hyH + 0.1 * s, hz), box(0.12 * s, 0.5 * s, 0.12 * s, PALETTE.woodDark, hx, hyH - 0.2 * s, hz));
+  if (o.weapon === 'spear') up.add(box(0.12 * s, 7 * s, 0.12 * s, PALETTE.woodDark, hx, 0.8 * s, hz), cone(0.2 * s, 0.8 * s, PALETTE.mist1, hx, 4.7 * s, hz));
+  if (o.weapon === 'staff') up.add(box(0.14 * s, 6 * s, 0.14 * s, PALETTE.woodDark, hx, 0.4 * s, hz));
+  if (o.weapon === 'torch') up.add(box(0.14 * s, 1.6 * s, 0.14 * s, PALETTE.woodDark, hx, hyH + 0.5 * s, hz), sphere(0.32 * s, PALETTE.amber, hx, hyH + 1.5 * s, hz));
   return g;
 }
 
 /** Quadruped: wolf / dog / dire wolf (scale). */
 export function wolf(d: Dims = {}): THREE.Group {
-  const s = d.scale ?? 1, color = d.stuffed ? '#6b5d4a' : '#5b5a5e';
-  const g = grp(box(3.2 * s, 1.3 * s, 1.1 * s, color, 0, 1.9 * s, 0));
-  for (const [x, z] of [[-1.1, -0.35], [1.1, -0.35], [-1.1, 0.35], [1.1, 0.35]]) g.add(box(0.35 * s, 1.4 * s, 0.35 * s, color, x * s, 0.7 * s, z * s));
-  const head = box(1.1 * s, 0.9 * s, 0.9 * s, color, 2.1 * s, 2.5 * s, 0); head.rotation.z = -0.25;
-  g.add(head, box(0.7 * s, 0.5 * s, 0.6 * s, color, 2.75 * s, 2.3 * s, 0), cone(0.15 * s, 0.4 * s, color, 1.9 * s, 3.1 * s, -0.25 * s), cone(0.15 * s, 0.4 * s, color, 1.9 * s, 3.1 * s, 0.25 * s));
-  const tail = box(1.3 * s, 0.3 * s, 0.3 * s, color, -2.1 * s, 2.2 * s, 0); tail.rotation.z = 0.5; g.add(tail);
-  if (!d.stuffed) g.add(sphere(0.09 * s, PALETTE.amber, 2.6 * s, 2.7 * s, -0.22 * s), sphere(0.09 * s, PALETTE.amber, 2.6 * s, 2.7 * s, 0.22 * s));
+  const s = d.scale ?? 1, color = d.stuffed ? '#6b5d4a' : '#5b5a5e', dark = d.stuffed ? '#4f4436' : '#3f3e44';
+  const body = new THREE.Mesh(new THREE.IcosahedronGeometry(0.8 * s, 1), mat(color)); body.scale.set(2.1, 0.9, 0.75); body.position.set(0, 2 * s, 0);
+  const g = grp(body);
+  const ruff = new THREE.Mesh(new THREE.IcosahedronGeometry(0.75 * s, 1), mat(dark)); ruff.position.set(1.1 * s, 2.25 * s, 0); ruff.scale.set(0.9, 1.05, 0.95); g.add(ruff);
+  for (const [x, z] of [[-1.15, -0.32], [1.05, -0.32], [-1.15, 0.32], [1.05, 0.32]]) g.add(cyl(0.17 * s, 0.11 * s, 1.75 * s, color, x * s, 0.9 * s, z * s), box(0.26 * s, 0.14 * s, 0.32 * s, dark, x * s + 0.06 * s, 0.07 * s, z * s));
+  const head = box(0.9 * s, 0.75 * s, 0.75 * s, color, 1.95 * s, 2.55 * s, 0); head.rotation.z = -0.15;
+  const snout = box(0.75 * s, 0.38 * s, 0.42 * s, color, 2.65 * s, 2.38 * s, 0); snout.rotation.z = -0.1;
+  g.add(head, snout, box(0.14 * s, 0.14 * s, 0.16 * s, '#141218', 3.03 * s, 2.45 * s, 0), cone(0.15 * s, 0.42 * s, color, 1.8 * s, 3.1 * s, -0.22 * s), cone(0.15 * s, 0.42 * s, color, 1.8 * s, 3.1 * s, 0.22 * s));
+  const tail = cone(0.24 * s, 1.5 * s, dark, -2.15 * s, 1.75 * s, 0); tail.rotation.z = 2.3; g.add(tail);
+  if (!d.stuffed) g.add(sphere(0.08 * s, PALETTE.amber, 2.35 * s, 2.7 * s, -0.24 * s), sphere(0.08 * s, PALETTE.amber, 2.35 * s, 2.7 * s, 0.24 * s));
   return g;
 }
 
@@ -143,20 +151,31 @@ export function broom(): THREE.Group {
 
 export function skeletonStanding(): THREE.Group { return humanoid({ skin: PALETTE.bone, cloth: '#1a171d', trim: PALETTE.bone, robe: true, scale: 0.95 }); }
 
+// Villagers differ: hair and homespun cycle through a few muted tones in the order they are built (stable per map).
+let folk = 0;
+export function commoner(): THREE.Group {
+  const HAIR = ['#3a2a1a', '#5a4632', '#2a2420', '#7a6a5a', '#8a6a3a', '#4a3a30'], CLOTH = ['#5b4a3a', '#4a5248', '#5a4a52', '#6b5d4a', '#4f4636'], i = folk++;
+  return humanoid({ cloth: CLOTH[i % CLOTH.length], trim: i % 3 ? PALETTE.woodDark : '#3b352c', hair: HAIR[(i * 7) % HAIR.length], skirt: i % 4 === 1 });
+}
+
 export const CREATURES: Record<string, (d: Dims) => THREE.Group> = {
   ghoul: () => ghoul(), ghast: () => ghast(), shadow: () => shadow(), ghost: (d) => ghost(d), specter: () => specter(),
   'animated-armor': () => animatedArmor(), mimic: () => mimic(), 'shambling-mound': () => shamblingMound(), grick: () => grick(),
   'swarm-of-insects': (d) => swarm(d), 'broom-of-animated-attack': () => broom(), wolf: (d) => wolf(d), 'dire-wolf': () => wolf({ scale: 1.6 }),
-  cultist: () => cultist(), adventurer: () => adventurer(), skeleton: () => skeletonStanding(), commoner: () => humanoid({ cloth: '#5b4a3a' }),
+  cultist: () => cultist(), adventurer: () => adventurer(), skeleton: () => skeletonStanding(), commoner: () => commoner(),
 };
 
 // ---- outdoor / village creatures (M2)
 export function horse(d: Dims = {}): THREE.Group {
-  const s = (d.scale ?? 1) * 1.75, color = d.bone ? PALETTE.bone : '#4a3a2e'; // ~8 ft long, 5 ft at the withers
-  const g = grp(box(4.4 * s, 1.8 * s, 1.5 * s, color, 0, 3.2 * s, 0));
-  for (const [x, z] of [[-1.6, -0.5], [1.6, -0.5], [-1.6, 0.5], [1.6, 0.5]]) g.add(box(0.4 * s, 2.6 * s, 0.4 * s, color, x * s, 1.3 * s, z * s));
-  const neck = box(0.9 * s, 2.2 * s, 0.9 * s, color, 2.4 * s, 4.6 * s, 0); neck.rotation.z = -0.6; g.add(neck, box(1.4 * s, 0.8 * s, 0.8 * s, color, 3.4 * s, 5.4 * s, 0));
-  const tail = box(0.3 * s, 2 * s, 0.3 * s, '#2a2020', -2.3 * s, 2.6 * s, 0); tail.rotation.z = 0.4; g.add(tail);
+  const s = (d.scale ?? 1) * 1.75, color = d.bone ? PALETTE.bone : '#4a3a2e', mane = d.bone ? '#b9b09a' : '#2a2020'; // ~8 ft long, 5 ft at the withers
+  const body = new THREE.Mesh(new THREE.IcosahedronGeometry(1 * s, 1), mat(color)); body.scale.set(2.25, 0.95, 0.8); body.position.set(0, 3.25 * s, 0);
+  const g = grp(body);
+  for (const [x, z] of [[-1.55, -0.45], [1.6, -0.45], [-1.55, 0.45], [1.6, 0.45]]) g.add(cyl(0.22 * s, 0.15 * s, 2.6 * s, color, x * s, 1.4 * s, z * s), cyl(0.2 * s, 0.22 * s, 0.3 * s, '#1d1916', x * s, 0.15 * s, z * s));
+  const neck = cyl(0.42 * s, 0.6 * s, 2.3 * s, color, 2.25 * s, 4.45 * s, 0, 7); neck.rotation.z = -0.65; neck.scale.z = 0.75;
+  const head = box(1.5 * s, 0.62 * s, 0.6 * s, color, 3.25 * s, 5.15 * s, 0); head.rotation.z = -0.55;
+  g.add(neck, head, cone(0.12 * s, 0.4 * s, color, 2.95 * s, 5.85 * s, -0.18 * s), cone(0.12 * s, 0.4 * s, color, 2.95 * s, 5.85 * s, 0.18 * s));
+  const mn = box(0.25 * s, 2.4 * s, 0.3 * s, mane, 2.0 * s, 4.75 * s, 0); mn.rotation.z = -0.65; g.add(mn);
+  const tail = cone(0.32 * s, 2.2 * s, mane, -2.35 * s, 2.55 * s, 0); tail.rotation.z = -0.35; tail.rotation.x = Math.PI; g.add(tail);
   return g;
 }
 export const scarecrow = () => { const g = humanoid({ skin: '#a08a5a', cloth: '#6a5a3a', trim: '#5a4a3a', helm: 'cap', weapon: 'none' }); g.add(box(0.2, 7, 0.2, PALETTE.woodDark, 0, 3.5, -0.6), box(4, 0.2, 0.2, PALETTE.woodDark, 0, 3.4, -0.6)); return g; };

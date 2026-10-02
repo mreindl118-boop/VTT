@@ -67,8 +67,10 @@ export function table(d: Record<string, number> = {}): THREE.Group {
   const w = d.w ?? 6, dp = d.d ?? 3, h = d.h ?? 2.5;
   const top = at(mesh(new THREE.BoxGeometry(w, 0.25, dp), PALETTE.wood), 0, h - 0.125, 0);
   const lx = w / 2 - 0.35, lz = dp / 2 - 0.35;
-  const legs = [[-lx, -lz], [lx, -lz], [-lx, lz], [lx, lz]].map(([x, z]) => at(mesh(new THREE.BoxGeometry(0.28, h - 0.25, 0.28), PALETTE.woodDark), x, (h - 0.25) / 2, z));
-  return group(top, ...legs);
+  const legs = [[-lx, -lz], [lx, -lz], [-lx, lz], [lx, lz]].map(([x, z]) => at(mesh(new THREE.BoxGeometry(0.3, h - 0.25, 0.3), PALETTE.woodDark), x, (h - 0.25) / 2, z));
+  // the apron rails under the top, and a stretcher low between the legs
+  const apron = [at(mesh(new THREE.BoxGeometry(w - 0.7, 0.45, 0.12), PALETTE.woodDark), 0, h - 0.48, lz), at(mesh(new THREE.BoxGeometry(w - 0.7, 0.45, 0.12), PALETTE.woodDark), 0, h - 0.48, -lz), at(mesh(new THREE.BoxGeometry(w - 0.7, 0.18, 0.18), PALETTE.woodDark), 0, 0.5, 0)];
+  return group(top, ...legs, ...apron);
 }
 export function column(): THREE.Group {
   return group(
@@ -81,7 +83,10 @@ export function chest(): THREE.Group {
   return group(at(mesh(new THREE.BoxGeometry(3, 1.8, 2), PALETTE.woodDark), 0, 0.9, 0), at(mesh(new THREE.CylinderGeometry(1, 1, 3, 6, 1, false, 0, Math.PI), PALETTE.wood).rotateZ(Math.PI / 2), 0, 1.8, 0));
 }
 export function bed(): THREE.Group {
-  return group(at(mesh(new THREE.BoxGeometry(4, 1.6, 7), PALETTE.woodDark), 0, 0.8, 0), at(mesh(new THREE.BoxGeometry(3.6, 0.6, 6.4), PALETTE.bone), 0, 1.9, 0.2), at(mesh(new THREE.BoxGeometry(4, 3.5, 0.5), PALETTE.woodDark), 0, 1.75, -3.4));
+  // a box bed: frame, mattress, a pillow at the head, a blanket turned down over the foot, head and foot boards
+  return group(at(mesh(new THREE.BoxGeometry(4, 1.4, 7), PALETTE.woodDark), 0, 0.7, 0), at(mesh(new THREE.BoxGeometry(3.6, 0.6, 6.4), PALETTE.bone), 0, 1.7, 0.2),
+    at(mesh(new THREE.BoxGeometry(2.6, 0.45, 1.1), '#d9cfb5'), 0, 2.2, -2.3), at(mesh(new THREE.BoxGeometry(3.75, 0.25, 4.1), '#5a2a30'), 0, 2.08, 1.15),
+    at(mesh(new THREE.BoxGeometry(4, 3.8, 0.4), PALETTE.woodDark), 0, 1.9, -3.4), at(mesh(new THREE.BoxGeometry(4, 2.2, 0.35), PALETTE.woodDark), 0, 1.1, 3.4));
 }
 export function coffin(): THREE.Group {
   const shape = new THREE.Shape([new THREE.Vector2(-0.8, -3), new THREE.Vector2(0.8, -3), new THREE.Vector2(1.2, 1.4), new THREE.Vector2(0.9, 3), new THREE.Vector2(-0.9, 3), new THREE.Vector2(-1.2, 1.4)]);

@@ -45,3 +45,4 @@ surfaceFor(['#45454d', '#47474f', '#4a4a52', '#44444c', '#3f3f47', '#4f5560'], '
 surfaceFor(['#7a828b', '#6c737c', '#4b4f58'], 'ashlar');
 surfaceFor(['#3a3340'], 'shingle');
 surfaceFor(['#d9dde3'], 'snow');
+surfaceFor(['#c9632e'], 'none');

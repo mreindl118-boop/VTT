@@ -103,6 +103,6 @@ export function figureFor(e: CreatureEntry): THREE.Group {
   };
   if (f.kind && byKind[f.kind]) return byKind[f.kind]();
   if (/ape/.test(e.id)) return ape({}); if (/bear/.test(e.id)) return bear({}); if (/sheep/.test(e.id)) return sheep({});
-  const opts: HumanoidOpts = { skin: f.skin, cloth: f.cloth, trim: f.accent, hair: f.hair, cloak: f.cloak, robe: f.robe, hunch: f.hunch, scale, weapon: f.weapon === 'axe' || f.weapon === 'sword' ? 'sword' : f.weapon === 'staff' ? 'staff' : f.weapon === 'lantern' ? 'torch' : 'none' };
+  const opts: HumanoidOpts = { skin: f.skin, cloth: f.cloth, trim: f.accent, hair: f.hair ?? (f.hunch ? undefined : ['#3a2a1a', '#5a4632', '#2a2420', '#7a6a5a', '#8a6a3a'][[...e.id].reduce((a, c) => a + c.charCodeAt(0), 0) % 5]), cloak: f.cloak, robe: f.robe, hunch: f.hunch, scale, weapon: f.weapon === 'axe' || f.weapon === 'sword' ? 'sword' : f.weapon === 'staff' ? 'staff' : f.weapon === 'lantern' ? 'torch' : 'none' };
   return humanoid(opts);
 }
