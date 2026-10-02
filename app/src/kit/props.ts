@@ -610,15 +610,23 @@ export function tableRound(d: Dims): THREE.Group { const r = d.r ?? 3.5; return 
 export function barTop(d: Dims): THREE.Group { const w = d.w ?? 20, y = d.y ?? 3.5, g = g_(); for (let i = 0; i < Math.floor(w / 4); i++) g.add(cyl(0.22, 0.18, 0.5, '#8a5a3a', -w / 2 + 2 + i * 4, y + 0.25, 0, 8)); g.add(cyl(0.35, 0.45, 0.9, '#8a5a3a', w / 2 - 2, y + 0.45, 0, 10)); return g; }
 /** A small country temple: stone hall, gabled roof, a squat bell tower with a bell. */
 export function temple(d: Dims): THREE.Group {
-  const w = d.w ?? 30, dd = d.d ?? 45, h = d.h ?? 14;
-  const g = g_(box(w, h, dd, '#9a948a', 0, h / 2, 0));
+  // A small country temple, built like the valley's other stone buildings: a plinth, pilasters between tall windows
+  // with stone sills, a slate gable with its ridge beam, and a squat bell tower with a bell under its cap.
+  const w = d.w ?? 30, dd = d.d ?? 45, h = d.h ?? 14, ST = '#9a948a', DK = '#7a756c', SL = '#4a4550';
+  const g = g_(box(w + 1, 1.2, dd + 1, DK, 0, 0.6, 0), box(w, h, dd, ST, 0, h / 2, 0));
   const shape = new THREE.Shape([new THREE.Vector2(-w / 2 - 1, 0), new THREE.Vector2(w / 2 + 1, 0), new THREE.Vector2(0, w * 0.5)]);
   const prism = new THREE.ExtrudeGeometry(shape, { depth: dd + 2, bevelEnabled: false }); prism.translate(0, 0, -(dd + 2) / 2);
-  const roof = new THREE.Mesh(prism, mat('#4a4550')); roof.position.y = h; g.add(roof);
-  g.add(box(9, h + 12, 9, '#8f8980', 0, (h + 12) / 2, -dd / 2 + 6), box(11, 1.2, 11, '#4a4550', 0, h + 12.5, -dd / 2 + 6));
+  const roof = new THREE.Mesh(prism, mat(SL)); roof.position.y = h; g.add(roof);
+  g.add(box(0.7, 0.6, dd + 2.4, '#3a2c22', 0, h + w * 0.5 + 0.05, 0));
+  g.add(box(9, h + 12, 9, '#8f8980', 0, (h + 12) / 2, -dd / 2 + 6), box(10.4, 1, 10.4, DK, 0, h + 11.6, -dd / 2 + 6), box(11, 1.2, 11, SL, 0, h + 12.5, -dd / 2 + 6));
+  const cap = new THREE.Mesh(new THREE.ConeGeometry(7.6, 7, 4), mat(SL)); cap.rotation.y = Math.PI / 4; cap.position.set(0, h + 16.6, -dd / 2 + 6); g.add(cap);
   const bell = new THREE.Mesh(new THREE.ConeGeometry(1.2, 2, 10), mat(PALETTE.amberDeep)); bell.position.set(0, h + 9, -dd / 2 + 6); g.add(bell);
-  for (const x of [-w / 2 - 0.2, w / 2 + 0.2]) for (let i = 0; i < 3; i++) g.add(box(0.3, 6, 2.2, '#2a2a3a', x, h * 0.55, -dd / 4 + i * dd / 4));
-  g.add(box(6, 9, 0.6, '#3b2a1e', 0, 4.5, dd / 2 + 0.3));
+  for (const x of [-w / 2 - 0.2, w / 2 + 0.2]) for (let i = 0; i < 3; i++) {
+    const z = -dd / 4 + i * dd / 4;
+    g.add(box(0.3, 6, 2.2, '#2a2a3a', x, h * 0.55, z), box(0.7, 0.4, 3, DK, x, h * 0.55 - 3.2, z));
+    if (i < 2) g.add(box(1.2, h * 0.9, 2, DK, x + Math.sign(x) * 0.4, h * 0.45, z + dd / 8));
+  }
+  g.add(box(6, 9, 0.6, '#3b2a1e', 0, 4.5, dd / 2 + 0.3), box(7.4, 1, 1, DK, 0, 9.5, dd / 2 + 0.3));
   return g;
 }
 Object.assign(PROPS_V1, { 'cask-rack': caskRack, hay, trough, 'table-round': tableRound, 'bar-top': barTop, temple } as Record<string, (d: Dims) => THREE.Object3D>);
@@ -630,12 +638,13 @@ export function roofGable(d: Dims): THREE.Group {
   const prism = new THREE.ExtrudeGeometry(shape, { depth: L, bevelEnabled: false }); prism.translate(0, 0, -L / 2);
   const roof = new THREE.Mesh(prism, mat(d.turf ? '#4d5a3f' : '#3d3a3e')); roof.position.y = y; if (long) roof.rotation.y = Math.PI / 2;
   const g = g_(roof);
-  for (let i = 0; i < 6; i++) { const t = box(long ? L : 0.5, 0.25, long ? 0.5 : L, '#2b292d', long ? 0 : (-S / 2 + (i + 0.5) * (S / 6)), y + (i + 0.5) * (h / 6) + 0.2, long ? (-S / 2 + (i + 0.5) * (S / 6)) : 0); g.add(t); }
+  // the same ridge beam as every house (the shingle courses are in the surface grain)
+  g.add(box(long ? L + 0.4 : 0.7, 0.6, long ? 0.7 : L + 0.4, '#3a2c22', 0, y + h + 0.05, 0));
   return g;
 }
 /** A Vistani vardo: a painted, barrel-topped caravan on spoked wheels, steps at the back and a stove pipe. */
 export function vardo(d: Dims): THREE.Group {
-  const COLS = [['#8e2b2b', '#d9a63a'], ['#245a3e', '#d9a63a'], ['#2c3f7a', '#c9483a'], ['#6b2b5a', '#e0c060']];
+  const COLS = [['#7a3030', '#b08a44'], ['#2f4d3c', '#b08a44'], ['#34405f', '#a04a3e'], ['#5a3352', '#b89a54']];   // weathered paint: the Vistani colours, faded by Barovian weather
   const [body, trim] = COLS[(d.v ?? 0) % COLS.length];
   const g = g_(box(10, 4.2, 5.4, body, 0, 4.4, 0), box(10.4, 0.4, 5.8, trim, 0, 2.4, 0), box(10.4, 0.35, 5.8, trim, 0, 6.6, 0));
   const top = new THREE.Mesh(new THREE.CylinderGeometry(3.1, 3.1, 10.6, 12, 1, false, 0, Math.PI), mat(body)); top.rotation.z = Math.PI / 2; top.position.y = 6.5; g.add(top);
@@ -658,7 +667,7 @@ export function campfire(): THREE.Group {
 export function bigTent(d: Dims): THREE.Group {
   const r = d.r ?? 20, h = d.h ?? 18, g = g_();
   const wall = new THREE.Mesh(new THREE.CylinderGeometry(r, r, h * 0.35, 16, 1, true), mat('#c9bfa6')); wall.position.y = h * 0.175; g.add(wall);
-  for (let i = 0; i < 16; i++) { const a0 = (i / 16) * Math.PI * 2; const seg = new THREE.Mesh(new THREE.ConeGeometry(r * 1.04, h * 0.7, 16, 1, true, a0, Math.PI / 8), mat(i % 2 ? '#a83a30' : '#d9a63a')); seg.position.y = h * 0.35 + h * 0.35; g.add(seg); }
+  for (let i = 0; i < 16; i++) { const a0 = (i / 16) * Math.PI * 2; const seg = new THREE.Mesh(new THREE.ConeGeometry(r * 1.04, h * 0.7, 16, 1, true, a0, Math.PI / 8), mat(i % 2 ? '#8a3a32' : '#b08a44')); seg.position.y = h * 0.35 + h * 0.35; g.add(seg); }
   g.add(cyl(0.4, 0.4, h + 3, PALETTE.woodDark, 0, (h + 3) / 2, 0, 6));
   return g;
 }
@@ -673,7 +682,7 @@ export function mound(d: Dims): THREE.Group {
 /** A line of washing between two poles. */
 export function washline(d: Dims): THREE.Group {
   const w = d.w ?? 14, g = g_(cyl(0.15, 0.15, 7, PALETTE.woodDark, -w / 2, 3.5, 0, 5), cyl(0.15, 0.15, 7, PALETTE.woodDark, w / 2, 3.5, 0, 5), box(w, 0.08, 0.08, '#2b2420', 0, 6.6, 0));
-  const C = ['#a83a30', '#d9d2c2', '#2c3f7a', '#d9a63a', '#245a3e'];
+  const C = ['#8a3a32', '#c9c2b2', '#34405f', '#b08a44', '#2f4d3c'];
   for (let i = 0; i < Math.floor(w / 2.4); i++) g.add(box(1.6, 2 + (i % 3) * 0.4, 0.1, C[i % C.length], -w / 2 + 1.4 + i * 2.4, 5.4 - (i % 3) * 0.2, 0));
   return g;
 }

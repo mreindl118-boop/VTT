@@ -46,3 +46,11 @@ surfaceFor(['#7a828b', '#6c737c', '#4b4f58'], 'ashlar');
 surfaceFor(['#3a3340'], 'shingle');
 surfaceFor(['#d9dde3'], 'snow');
 surfaceFor(['#c9632e'], 'none');
+surfaceFor(['#7a3030', '#2f4d3c', '#34405f', '#5a3352', '#b08a44', '#a04a3e', '#b89a54'], 'wood');   // the vardos' painted boards
+surfaceFor(['#8a3a32', '#c9c2b2'], 'cloth');
+surfaceFor(['#7a756c'], 'ashlar');
+
+/** The campaign's grass: Barovia's damp, dark turf or the Sheep Chase's bright pasture. Map floors and the land beyond
+ *  the map both read FLOOR_COLOR.grass, so they always agree. Call before a level is built. */
+export const BAROVIAN_GRASS = FLOOR_COLOR.grass;
+export function setGrass(color: string): void { FLOOR_COLOR.grass = color; surfaceFor(color, 'grass'); }

@@ -6,7 +6,7 @@ import wsc from '../../manifests/wsc-locations.json';
 import barovia from '../../locations/ch02/barovia-region/world.json';
 import sheep from '../../locations/wsc/00-region/world.json';
 
-export interface Theme { id: string; mist: string; page0: string; page1: string; skyLight: string; groundLight: string; hemi: number; key: number; keyColor: string; fogOut: number; fogIn: number; apron: string; forest: [string, string] }
+export interface Theme { id: string; mist: string; page0: string; page1: string; skyLight: string; groundLight: string; hemi: number; key: number; keyColor: string; fogOut: number; fogIn: number; apron: string; forest: [string, string]; grass?: string }
 export interface Campaign { id: string; name: string; subtitle: string; manifest: string; prefixes: string[]; world: string; home: string; theme: Theme }
 export interface WorldData {
   name: string; bounds: { minX: number; minY: number; maxX: number; maxY: number };

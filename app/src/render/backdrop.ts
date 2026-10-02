@@ -5,6 +5,7 @@ import * as THREE from 'three';
 import type { Theme, WorldData } from '../campaigns';
 import { merge } from '../kit/pieces';
 import { pineTier } from '../kit/props';
+import { FLOOR_COLOR } from '../kit/palette';
 import { patchFog, setSurface } from './materials';
 import { surfaceOf, type Surface } from '../kit/surfaces';
 import { terrainOf } from '../core/terrain';
@@ -52,7 +53,7 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
   const toWorld = (w: P) => { const [dx, dz] = toPlan(w); return { x: cx + dx, z: cz + dz, d: Math.hypot(dx, dz) }; };
   const haze = (d: number) => Math.min(0.85, 1 - Math.exp(-d / 32000));
   // the land beyond the map: its baked colours carry the same drifting grass grain as the map's own ground
-  const landMat = () => { const m = new THREE.MeshBasicMaterial({ vertexColors: true, fog: false }); setSurface(m, 'grass'); return patchFog(m, true); };
+  const landMat = () => { const m = new THREE.MeshLambertMaterial({ vertexColors: true, fog: false, flatShading: true }); setSurface(m, 'grass'); return patchFog(m, true); };
   const hazed = (hex: string, d: number) => lambert(blend(hex, haze(d)), surfaceOf(hex));
   // plan feet → world miles (the inverse of toPlan) and the ground's height there, flattened to the map near it
   const toMiles = (x: number, z: number): P => { const dx = x - cx, dz = z - cz; return [o.pin[0] + (E[0] * dx + E[1] * dz) / FT, o.pin[1] + (S[0] * dx + S[1] * dz) / FT]; };
@@ -98,11 +99,13 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
     // a polar mesh: fine near the site, coarse toward the horizon
     const radii: number[] = [0]; for (let r = 90; r <= 3000; r += 130) radii.push(r); for (let r = 3400; r <= 16000; r += 450) radii.push(r); for (let r = 18500; r <= 90000; r += 2500) radii.push(r);
     const SEG = 96, P3: number[] = [], C: number[] = [], idx: number[] = [];
-    const snowLine = 4200, rock = new THREE.Color('#6a6d74'), hillC = new THREE.Color('#66705f'), forestC = new THREE.Color(T.forest[0]), waterC = new THREE.Color('#5e7d94'), snowC = new THREE.Color('#e4e6ea'), apronC = new THREE.Color(T.forest[1]).lerp(new THREE.Color(T.apron), 0.35);
+    const snowLine = 4200, GRASS = new THREE.Color(FLOOR_COLOR.grass), rock = new THREE.Color('#6a6d74'), hillC = new THREE.Color('#66705f'), forestC = new THREE.Color(T.forest[0]), waterC = new THREE.Color('#5e7d94'), snowC = new THREE.Color('#e4e6ea'), apronC = new THREE.Color(T.forest[1]).lerp(new THREE.Color(T.apron), 0.35);
     const colAt = (x: number, z: number, y: number, d: number) => {
       const [mx, my] = toMiles(x, z), f = terrain.cover('f', mx, my), m = terrain.cover('m', mx, my), hl = terrain.cover('h', mx, my), w = terrain.cover('w', mx, my), mist = terrain.cover('x', mx, my);
       const c = apronC.clone(); if (terrain.hasCover) { c.lerp(forestC, Math.min(1, f * 1.2)); c.lerp(hillC, hl); c.lerp(rock, Math.min(1, m * 1.1 + mist * 0.8)); c.lerp(waterC, Math.min(1, w * 1.5)); }
       for (const q of W.pins) if (q.heightFt) { const [qx, qz] = toPlan(q.pos); const dd = Math.hypot(x - cx - qx, z - cz - qz) / FT; if (dd < 0.3) c.lerp(rock, 1 - dd / 0.3); }
+      // the first few hundred feet past the map are the map's own ground, fading into the land's cover beyond
+      c.lerp(GRASS, 1 - smooth(120, 1400, mapDist(x, z)));
       const above = y - yTop + hPin; if (above > snowLine) c.lerp(snowC, Math.min(1, (above - snowLine) / 1200));
       // the high peaks stand clear of the haze: the higher the ground, the less mist between it and the eye
       return c.lerp(MIST, haze(d) * Math.max(0.35, 1 - Math.max(0, above - 1500) / 5000));
@@ -115,13 +118,8 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
     }
     for (let ri = 0; ri + 1 < radii.length; ri++) for (let k = 0; k < SEG; k++) { const k1 = (k + 1) % SEG, a0 = ri * SEG + k, a1 = ri * SEG + k1, b0 = (ri + 1) * SEG + k, b1 = (ri + 1) * SEG + k1; idx.push(a0, b1, b0, a0, a1, b1); }
     const land = new THREE.BufferGeometry(); land.setAttribute('position', new THREE.Float32BufferAttribute(P3, 3)); land.setAttribute('color', new THREE.Float32BufferAttribute(C, 3)); land.setIndex(idx);
-    // light baked into the colours (one sun low in the south-west), so the land reads the same under every sky
+    // lit like the map itself (same lights, same Lambert model), so map and land agree at the seam and through the day and night
     const flat = land.toNonIndexed(); flat.computeVertexNormals();
-    const fp = flat.attributes.position, fn = flat.attributes.normal, fc = flat.attributes.color, L = new THREE.Vector3(-0.5, 0.75, 0.45).normalize(), nv = new THREE.Vector3();
-    for (let i = 0; i < fp.count; i += 3) {
-      nv.set(fn.getX(i), fn.getY(i), fn.getZ(i)); const k = 0.55 + 0.6 * Math.max(0, nv.dot(L));
-      for (let j = i; j < i + 3; j++) fc.setXYZ(j, Math.min(1, fc.getX(j) * k), Math.min(1, fc.getY(j) * k), Math.min(1, fc.getZ(j) * k));
-    }
     const landMesh = new THREE.Mesh(flat, landMat()); landMesh.name = 'land'; g.add(landMesh);
   } else {
     const apron = new THREE.RingGeometry(0.5, 90000, 96, 16); // a full disc: the map's own floors sit above it
@@ -186,7 +184,7 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
   }
   // 2. Forest ring: instanced pines from just past the edge out to the tree line.
   // the same old spruce as on the maps (ragged, drooping tiers), at the backdrop's coarser grain
-  const tree = merge([pineTier(6.2, 14, 6, 0).translate(0, 11, 0), pineTier(4.6, 12, 6, 1).translate(0, 17.5, 0), pineTier(2.8, 10, 6, 0).translate(0, 24, 0)]);
+  const tree = merge([pineTier(6.2, 16, 6, 0).translate(0, 12, 0), pineTier(3.8, 14, 6, 1).translate(0, 21, 0)]);
   // A thick wood presses up to the map's edge (most trees in the first third of a mile), thinning toward the horizon;
   // still one instanced draw for all of them.
   const n = terrain.hasCover ? 9500 : o.valley ? 4000 : 3000, trees = new THREE.InstancedMesh(tree, lambert(new THREE.Color('#ffffff'), 'foliage'), n);
@@ -364,7 +362,7 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
       box(14, 30, 14, 0, 0, 0, '#9a948a'); cone(11, 18, 0, 0, 30, '#4a4550', 4);
       if (town) for (let i = 0; i < 12; i++) { const a = (i / 12) * Math.PI * 2; box(120, 18, 6, Math.cos(a) * 760, Math.sin(a) * 760, 0, '#6d6a66', -a); }
     } else if (type === 'camp') {
-      for (let i = 0; i < 5; i++) { const a = (i / 5) * Math.PI * 2; cone(9, 11, Math.cos(a) * 30, Math.sin(a) * 30, 0, i === 2 ? '#a83a30' : '#c9bfa6', 5); }
+      for (let i = 0; i < 5; i++) { const a = (i / 5) * Math.PI * 2; cone(9, 11, Math.cos(a) * 30, Math.sin(a) * 30, 0, i === 2 ? '#8a3a32' : '#c9bfa6', 5); }
       for (let i = 0; i < 3; i++) box(12, 7, 6, -60 + i * 25, 55, 0, '#5a4632', 0.4);
     } else if (type === 'castle' && p.key === 'K') {
       ravenloft(s, mat);

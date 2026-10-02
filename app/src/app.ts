@@ -23,6 +23,7 @@ import { ICON } from './ui/icons';
 import { pinForScene, useWorld } from './ui/worldmap';
 import { campaignOf, worldOf, type Campaign } from './campaigns';
 import { buildBackdrop } from './render/backdrop';
+import { BAROVIAN_GRASS, setGrass } from './kit/surfaces';
 import { Channel, type Msg } from './state/channel';
 import { newCampaign, revealSets, type CampaignState, type Combatant, type Encounter, type Reveal, type Sheet, type Token } from './state/campaign';
 import { tacticalRange, type RangeResult } from './core/range';
@@ -179,6 +180,7 @@ export class App {
     const covTex = new Map<string, THREE.DataTexture>();
     const labels: Loaded['labels'] = [];
     for (const l of scene.levels) {
+      setGrass(this.campaign.theme.grass ?? BAROVIAN_GRASS);
       const b = buildLevel(l, grid.levels[l.id]);
       levels.set(l.id, b);
       this.world.scene.add(b.root);
