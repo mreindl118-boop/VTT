@@ -1,0 +1,5421 @@
+{
+ "schema": 1,
+ "location": "T",
+ "chapter": "ch09",
+ "name": "Tsolenka Pass",
+ "mapPage": 158,
+ "bookScaleFt": 10,
+ "ambient": "barovian-overcast",
+ "stacked": true,
+ "entry": "pass",
+ "levels": [
+  {
+   "id": "pass",
+   "name": "The pass",
+   "elevationFt": 0,
+   "ceilingFt": 20,
+   "north": "-x",
+   "rooms": [
+    {
+     "key": "T1",
+     "name": "Gatehouse Portcullis",
+     "page": 157,
+     "polygon": [
+      [
+       230,
+       390
+      ],
+      [
+       240,
+       390
+      ],
+      [
+       240,
+       395
+      ],
+      [
+       230,
+       395
+      ]
+     ],
+     "floor": "flagstone",
+     "ceilingFt": 20,
+     "desc": "A black stone wall studded with spikes closes the road, horned vulture-demons squatting along its top; green fire burns behind the shut iron portcullis in its centre.",
+     "dm": "Gatehouse 30 ft high, walls 20 ft. The portcullis rises by itself when anyone comes within 10 ft and drops again after a minute."
+    },
+    {
+     "key": "T3",
+     "name": "Curtain of Green Flame",
+     "page": 157,
+     "polygon": [
+      [
+       230,
+       385
+      ],
+      [
+       240,
+       385
+      ],
+      [
+       240,
+       390
+      ],
+      [
+       230,
+       390
+      ]
+     ],
+     "floor": "flagstone",
+     "ceilingFt": 20,
+     "desc": "Silent green fire hangs like a curtain across the gate's inner arch.",
+     "dm": "6d10 (33) fire on entering it for the first time on a turn or starting a turn in it. Dispel magic DC 16 suppresses it 1 minute; antimagic suppresses it."
+    },
+    {
+     "key": "T4",
+     "name": "Guard Tower, Ground Floor",
+     "page": 157,
+     "polygon": [
+      [
+       258.75,
+       340
+      ],
+      [
+       262.5,
+       340
+      ],
+      [
+       267.5,
+       340
+      ],
+      [
+       271.25,
+       340
+      ],
+      [
+       273.875,
+       342.625
+      ],
+      [
+       277.375,
+       346.125
+      ],
+      [
+       280,
+       348.75
+      ],
+      [
+       280,
+       361.25
+      ],
+      [
+       277.375,
+       363.875
+      ],
+      [
+       273.875,
+       367.375
+      ],
+      [
+       271.25,
+       370
+      ],
+      [
+       258.75,
+       370
+      ],
+      [
+       250,
+       361.25
+      ],
+      [
+       250,
+       357.5
+      ],
+      [
+       250,
+       352.5
+      ],
+      [
+       250,
+       348.75
+      ]
+     ],
+     "floor": "flagstone",
+     "ceilingFt": 20,
+     "desc": "An eight-sided room of pale stone. The fireplace opposite the door is dead and the wind whistles in its flue; steps climb along one wall, and three windows show nothing but fog below.",
+     "dm": "The ironbound door is barred inside (DC 22 Strength to force). The stair climbs 20 ft to T5. X marks the arrival point for teleports from K78."
+    },
+    {
+     "key": "T9",
+     "name": "Eastern Arch",
+     "page": 159,
+     "polygon": [
+      [
+       150,
+       125
+      ],
+      [
+       160,
+       125
+      ],
+      [
+       160,
+       127.5
+      ],
+      [
+       160,
+       132.5
+      ],
+      [
+       160,
+       135
+      ],
+      [
+       150,
+       135
+      ],
+      [
+       150,
+       132.5
+      ],
+      [
+       150,
+       127.5
+      ]
+     ],
+     "floor": "flagstone",
+     "ceilingFt": 20,
+     "desc": "The east arch, twin of the west, but one horseman has fallen to pieces and only the back half of his mount remains. Beyond, the road climbs on.",
+     "dm": "Two empty 10-ft guard posts. Three miles on the pass forks: north to the Amber Temple, south round Mount Ghakis to the mists."
+    },
+    {
+     "key": "T9-north",
+     "name": "Eastern Arch, North Guard Post",
+     "page": 159,
+     "polygon": [
+      [
+       140,
+       125
+      ],
+      [
+       150,
+       125
+      ],
+      [
+       150,
+       127.5
+      ],
+      [
+       150,
+       132.5
+      ],
+      [
+       150,
+       135
+      ],
+      [
+       140,
+       135
+      ]
+     ],
+     "floor": "flagstone",
+     "ceilingFt": 20,
+     "desc": "An empty guard post under the broken statue, chunks of the fallen knight outside.",
+     "dm": "Empty 10-ft-square post; shelter from the roc."
+    },
+    {
+     "key": "T9-south",
+     "name": "Eastern Arch, South Guard Post",
+     "page": 159,
+     "polygon": [
+      [
+       160,
+       125
+      ],
+      [
+       170,
+       125
+      ],
+      [
+       170,
+       135
+      ],
+      [
+       160,
+       135
+      ],
+      [
+       160,
+       132.5
+      ],
+      [
+       160,
+       127.5
+      ]
+     ],
+     "floor": "flagstone",
+     "ceilingFt": 20,
+     "desc": "An empty guard post inside the arch.",
+     "dm": "Empty 10-ft-square post; shelter from the roc."
+    },
+    {
+     "key": "T7",
+     "name": "Western Arch",
+     "page": 159,
+     "polygon": [
+      [
+       150,
+       205
+      ],
+      [
+       160,
+       205
+      ],
+      [
+       160,
+       207.5
+      ],
+      [
+       160,
+       212.5
+      ],
+      [
+       160,
+       215
+      ],
+      [
+       150,
+       215
+      ],
+      [
+       150,
+       212.5
+      ],
+      [
+       150,
+       207.5
+      ]
+     ],
+     "floor": "flagstone",
+     "ceilingFt": 20,
+     "desc": "A tall stone arch marks the bridge's west end; on top, two stone horsemen level their lances at each other. Wind moans through the gorge below.",
+     "dm": "Empty guard posts on each side of the road give some shelter from the wind, and from the roc."
+    },
+    {
+     "key": "T7-north",
+     "name": "Western Arch, North Guard Post",
+     "page": 159,
+     "polygon": [
+      [
+       140,
+       205
+      ],
+      [
+       150,
+       205
+      ],
+      [
+       150,
+       207.5
+      ],
+      [
+       150,
+       212.5
+      ],
+      [
+       150,
+       215
+      ],
+      [
+       140,
+       215
+      ]
+     ],
+     "floor": "flagstone",
+     "ceilingFt": 20,
+     "desc": "A cramped stone guard post inside the arch, out of the wind.",
+     "dm": "Empty. 10 ft wide; the roc can't reach anyone sheltering here."
+    },
+    {
+     "key": "T7-south",
+     "name": "Western Arch, South Guard Post",
+     "page": 159,
+     "polygon": [
+      [
+       160,
+       205
+      ],
+      [
+       170,
+       205
+      ],
+      [
+       170,
+       215
+      ],
+      [
+       160,
+       215
+      ],
+      [
+       160,
+       212.5
+      ],
+      [
+       160,
+       207.5
+      ]
+     ],
+     "floor": "flagstone",
+     "ceilingFt": 20,
+     "desc": "A cramped stone guard post inside the arch, out of the wind.",
+     "dm": "Empty. 10 ft wide; the roc can't reach anyone sheltering here."
+    },
+    {
+     "key": "T8",
+     "name": "Stone Bridge",
+     "page": 159,
+     "polygon": [
+      [
+       150,
+       135
+      ],
+      [
+       160,
+       135
+      ],
+      [
+       160,
+       205
+      ],
+      [
+       150,
+       205
+      ]
+     ],
+     "floor": "flagstone",
+     "desc": "The bridge runs narrow and high over the gorge, gaps where its parapets have fallen. Halfway across, a dark rider on a dark horse sits waiting.",
+     "dm": "10 ft wide, 90 ft long, 500 ft above the Luna River; slippery but safe. The rider is Strahd's manifestation: any interaction and it scatters like ash."
+    }
+   ],
+   "walls": [
+    {
+     "id": "pass-w-0",
+     "a": [
+      240.0,
+      390.0
+     ],
+     "b": [
+      240.0,
+      395.0
+     ],
+     "flags": [
+      "invisible"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "pass-w-1",
+     "a": [
+      230.0,
+      390.0
+     ],
+     "b": [
+      230.0,
+      395.0
+     ],
+     "flags": [
+      "invisible"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "pass-w-2",
+     "a": [
+      240.0,
+      385.0
+     ],
+     "b": [
+      240.0,
+      390.0
+     ],
+     "flags": [
+      "invisible"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "pass-w-3",
+     "a": [
+      230.0,
+      385.0
+     ],
+     "b": [
+      230.0,
+      390.0
+     ],
+     "flags": [
+      "invisible"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "pass-w-4",
+     "a": [
+      258.75,
+      340.0
+     ],
+     "b": [
+      262.5,
+      340.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "pass-w-5",
+     "a": [
+      262.5,
+      340.0
+     ],
+     "b": [
+      267.5,
+      340.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "pass-w-6",
+     "a": [
+      267.5,
+      340.0
+     ],
+     "b": [
+      271.25,
+      340.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "pass-w-7",
+     "a": [
+      271.25,
+      340
+     ],
+     "b": [
+      273.875,
+      342.625
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "pass-w-8",
+     "a": [
+      273.875,
+      342.625
+     ],
+     "b": [
+      277.375,
+      346.125
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "pass-w-9",
+     "a": [
+      277.375,
+      346.125
+     ],
+     "b": [
+      280,
+      348.75
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "pass-w-10",
+     "a": [
+      280.0,
+      348.75
+     ],
+     "b": [
+      280.0,
+      361.25
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "pass-w-11",
+     "a": [
+      277.375,
+      363.875
+     ],
+     "b": [
+      280,
+      361.25
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "pass-w-12",
+     "a": [
+      273.875,
+      367.375
+     ],
+     "b": [
+      277.375,
+      363.875
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "pass-w-13",
+     "a": [
+      271.25,
+      370
+     ],
+     "b": [
+      273.875,
+      367.375
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "pass-w-14",
+     "a": [
+      265.0,
+      370.0
+     ],
+     "b": [
+      271.25,
+      370.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "pass-w-15",
+     "a": [
+      258.75,
+      370.0
+     ],
+     "b": [
+      265.0,
+      370.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "pass-w-16",
+     "a": [
+      250,
+      361.25
+     ],
+     "b": [
+      258.75,
+      370
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "pass-w-17",
+     "a": [
+      250.0,
+      357.5
+     ],
+     "b": [
+      250.0,
+      361.25
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "T4-door",
+     "a": [
+      250.0,
+      352.5
+     ],
+     "b": [
+      250.0,
+      357.5
+     ],
+     "flags": [
+      "door",
+      "locked"
+     ],
+     "material": "ashlar",
+     "open": false
+    },
+    {
+     "id": "pass-w-19",
+     "a": [
+      250.0,
+      348.75
+     ],
+     "b": [
+      250.0,
+      352.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "pass-w-20",
+     "a": [
+      250,
+      348.75
+     ],
+     "b": [
+      258.75,
+      340
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "pass-w-21",
+     "a": [
+      160.0,
+      125.0
+     ],
+     "b": [
+      160.0,
+      127.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "pass-w-22",
+     "a": [
+      160.0,
+      132.5
+     ],
+     "b": [
+      160.0,
+      135.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "pass-w-23",
+     "a": [
+      150.0,
+      132.5
+     ],
+     "b": [
+      150.0,
+      135.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "pass-w-24",
+     "a": [
+      150.0,
+      125.0
+     ],
+     "b": [
+      150.0,
+      127.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "pass-w-25",
+     "a": [
+      140.0,
+      125.0
+     ],
+     "b": [
+      150.0,
+      125.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "pass-w-26",
+     "a": [
+      145.0,
+      135.0
+     ],
+     "b": [
+      150.0,
+      135.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "pass-w-27",
+     "a": [
+      140.0,
+      135.0
+     ],
+     "b": [
+      145.0,
+      135.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "pass-w-28",
+     "a": [
+      140.0,
+      130.0
+     ],
+     "b": [
+      140.0,
+      135.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "pass-w-29",
+     "a": [
+      140.0,
+      125.0
+     ],
+     "b": [
+      140.0,
+      130.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "pass-w-30",
+     "a": [
+      160.0,
+      125.0
+     ],
+     "b": [
+      170.0,
+      125.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "pass-w-31",
+     "a": [
+      170.0,
+      125.0
+     ],
+     "b": [
+      170.0,
+      135.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "pass-w-32",
+     "a": [
+      165.0,
+      135.0
+     ],
+     "b": [
+      170.0,
+      135.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "pass-w-33",
+     "a": [
+      160.0,
+      135.0
+     ],
+     "b": [
+      165.0,
+      135.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "pass-w-34",
+     "a": [
+      160.0,
+      205.0
+     ],
+     "b": [
+      160.0,
+      207.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "pass-w-35",
+     "a": [
+      160.0,
+      212.5
+     ],
+     "b": [
+      160.0,
+      215.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "pass-w-36",
+     "a": [
+      150.0,
+      212.5
+     ],
+     "b": [
+      150.0,
+      215.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "pass-w-37",
+     "a": [
+      150.0,
+      205.0
+     ],
+     "b": [
+      150.0,
+      207.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "pass-w-38",
+     "a": [
+      140.0,
+      205.0
+     ],
+     "b": [
+      150.0,
+      205.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "pass-w-39",
+     "a": [
+      145.0,
+      215.0
+     ],
+     "b": [
+      150.0,
+      215.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "pass-w-40",
+     "a": [
+      140.0,
+      215.0
+     ],
+     "b": [
+      145.0,
+      215.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "pass-w-41",
+     "a": [
+      140.0,
+      210.0
+     ],
+     "b": [
+      140.0,
+      215.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "pass-w-42",
+     "a": [
+      140.0,
+      205.0
+     ],
+     "b": [
+      140.0,
+      210.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "pass-w-43",
+     "a": [
+      160.0,
+      205.0
+     ],
+     "b": [
+      170.0,
+      205.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "pass-w-44",
+     "a": [
+      170.0,
+      205.0
+     ],
+     "b": [
+      170.0,
+      215.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "pass-w-45",
+     "a": [
+      165.0,
+      215.0
+     ],
+     "b": [
+      170.0,
+      215.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "pass-w-46",
+     "a": [
+      160.0,
+      215.0
+     ],
+     "b": [
+      165.0,
+      215.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "pass-w-47",
+     "a": [
+      160.0,
+      135.0
+     ],
+     "b": [
+      160.0,
+      140.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 3.5
+    },
+    {
+     "id": "pass-w-48",
+     "a": [
+      160.0,
+      140.0
+     ],
+     "b": [
+      160.0,
+      145.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 3.5
+    },
+    {
+     "id": "pass-w-49",
+     "a": [
+      160.0,
+      145.0
+     ],
+     "b": [
+      160.0,
+      150.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 3.5
+    },
+    {
+     "id": "pass-w-50",
+     "a": [
+      160.0,
+      150.0
+     ],
+     "b": [
+      160.0,
+      155.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 3.5
+    },
+    {
+     "id": "pass-w-51",
+     "a": [
+      160.0,
+      155.0
+     ],
+     "b": [
+      160.0,
+      160.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 3.5
+    },
+    {
+     "id": "pass-w-52",
+     "a": [
+      160.0,
+      160.0
+     ],
+     "b": [
+      160.0,
+      165.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 3.5
+    },
+    {
+     "id": "pass-w-53",
+     "a": [
+      160.0,
+      175.0
+     ],
+     "b": [
+      160.0,
+      180.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 3.5
+    },
+    {
+     "id": "pass-w-54",
+     "a": [
+      160.0,
+      180.0
+     ],
+     "b": [
+      160.0,
+      185.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 3.5
+    },
+    {
+     "id": "pass-w-55",
+     "a": [
+      160.0,
+      185.0
+     ],
+     "b": [
+      160.0,
+      190.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 3.5
+    },
+    {
+     "id": "pass-w-56",
+     "a": [
+      160.0,
+      190.0
+     ],
+     "b": [
+      160.0,
+      195.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 3.5
+    },
+    {
+     "id": "pass-w-57",
+     "a": [
+      160.0,
+      195.0
+     ],
+     "b": [
+      160.0,
+      200.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 3.5
+    },
+    {
+     "id": "pass-w-58",
+     "a": [
+      160.0,
+      200.0
+     ],
+     "b": [
+      160.0,
+      205.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 3.5
+    },
+    {
+     "id": "pass-w-59",
+     "a": [
+      150.0,
+      200.0
+     ],
+     "b": [
+      150.0,
+      205.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 3.5
+    },
+    {
+     "id": "pass-w-60",
+     "a": [
+      150.0,
+      195.0
+     ],
+     "b": [
+      150.0,
+      200.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 3.5
+    },
+    {
+     "id": "pass-w-61",
+     "a": [
+      150.0,
+      190.0
+     ],
+     "b": [
+      150.0,
+      195.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 3.5
+    },
+    {
+     "id": "pass-w-62",
+     "a": [
+      150.0,
+      185.0
+     ],
+     "b": [
+      150.0,
+      190.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 3.5
+    },
+    {
+     "id": "pass-w-63",
+     "a": [
+      150.0,
+      180.0
+     ],
+     "b": [
+      150.0,
+      185.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 3.5
+    },
+    {
+     "id": "pass-w-64",
+     "a": [
+      150.0,
+      175.0
+     ],
+     "b": [
+      150.0,
+      180.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 3.5
+    },
+    {
+     "id": "pass-w-65",
+     "a": [
+      150.0,
+      170.0
+     ],
+     "b": [
+      150.0,
+      175.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 3.5
+    },
+    {
+     "id": "pass-w-66",
+     "a": [
+      150.0,
+      165.0
+     ],
+     "b": [
+      150.0,
+      170.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 3.5
+    },
+    {
+     "id": "pass-w-67",
+     "a": [
+      150.0,
+      160.0
+     ],
+     "b": [
+      150.0,
+      165.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 3.5
+    },
+    {
+     "id": "pass-w-68",
+     "a": [
+      150.0,
+      155.0
+     ],
+     "b": [
+      150.0,
+      160.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 3.5
+    },
+    {
+     "id": "pass-w-69",
+     "a": [
+      150.0,
+      135.0
+     ],
+     "b": [
+      150.0,
+      140.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 3.5
+    },
+    {
+     "id": "pass-x-0",
+     "a": [
+      210,
+      390
+     ],
+     "b": [
+      230,
+      390
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 0.2
+    },
+    {
+     "id": "pass-x-1",
+     "a": [
+      240,
+      390
+     ],
+     "b": [
+      260,
+      390
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 0.2
+    }
+   ],
+   "lights": [],
+   "objects": [
+    {
+     "id": "pass-gatehouse",
+     "kind": "gatehouse",
+     "pos": [
+      235,
+      0,
+      390
+     ],
+     "vis": "player",
+     "key": "T1",
+     "dims": {
+      "pw": 10,
+      "pd": 10,
+      "pier": 10,
+      "wl": 10,
+      "wt": 5,
+      "h": 30,
+      "wh": 20,
+      "ly": 20
+     }
+    },
+    {
+     "id": "pass-portcullis",
+     "kind": "portcullis",
+     "pos": [
+      235,
+      0,
+      395.75
+     ],
+     "vis": "player",
+     "key": "T1",
+     "dims": {
+      "w": 10,
+      "h": 19
+     }
+    },
+    {
+     "id": "pass-flame",
+     "kind": "flame-curtain",
+     "pos": [
+      235,
+      0,
+      385.75
+     ],
+     "vis": "player",
+     "key": "T3",
+     "dims": {
+      "w": 10,
+      "h": 19
+     }
+    },
+    {
+     "id": "pass-T1-note",
+     "kind": "note",
+     "pos": [
+      235,
+      0,
+      401.0
+     ],
+     "vis": "dm-note",
+     "key": "T1",
+     "label": "The portcullis shrieks up on its own when anyone comes within 10 ft, stays up 1 minute, then drops. Flying or climbing over the gate wakes the vrocks on the roof (T2)."
+    },
+    {
+     "id": "pass-T3-note",
+     "kind": "note",
+     "pos": [
+      235,
+      0,
+      382.0
+     ],
+     "vis": "dm-note",
+     "key": "T3",
+     "label": "Curtain of green flame: entering it or starting a turn in it deals 33 (6d10) fire. Dispel magic (DC 16) suppresses it for 1 minute; an antimagic field suppresses it too."
+    },
+    {
+     "id": "pass-drift0",
+     "kind": "snow-drift",
+     "pos": [
+      213.0,
+      0,
+      396.0
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 3,
+      "h": 1.3
+     }
+    },
+    {
+     "id": "pass-drift1",
+     "kind": "snow-drift",
+     "pos": [
+      257.0,
+      0,
+      397.0
+     ],
+     "vis": "player",
+     "rotY": 37,
+     "dims": {
+      "r": 3.4,
+      "h": 1.3
+     }
+    },
+    {
+     "id": "pass-drift2",
+     "kind": "snow-drift",
+     "pos": [
+      221.0,
+      0,
+      382.0
+     ],
+     "vis": "player",
+     "rotY": 74,
+     "dims": {
+      "r": 2.6,
+      "h": 1.3
+     }
+    },
+    {
+     "id": "pass-drift3",
+     "kind": "snow-drift",
+     "pos": [
+      249.5,
+      0,
+      381.0
+     ],
+     "vis": "player",
+     "rotY": 111,
+     "dims": {
+      "r": 2.4,
+      "h": 1.3
+     }
+    },
+    {
+     "id": "pass-drift4",
+     "kind": "snow-drift",
+     "pos": [
+      219.0,
+      0,
+      440
+     ],
+     "vis": "player",
+     "rotY": 148,
+     "dims": {
+      "r": 3,
+      "h": 1.3
+     }
+    },
+    {
+     "id": "pass-drift5",
+     "kind": "snow-drift",
+     "pos": [
+      239.0,
+      0,
+      425
+     ],
+     "vis": "player",
+     "rotY": 185,
+     "dims": {
+      "r": 2.5,
+      "h": 1.3
+     }
+    },
+    {
+     "id": "pass-T4-hearth",
+     "kind": "fireplace",
+     "pos": [
+      277.75,
+      0,
+      355
+     ],
+     "vis": "player",
+     "rotY": -90,
+     "key": "T4"
+    },
+    {
+     "id": "pass-T4-ribs",
+     "kind": "tower-ribs",
+     "pos": [
+      265,
+      0,
+      355
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 15.4,
+      "h": 40
+     }
+    },
+    {
+     "id": "pass-T4-stair-a",
+     "kind": "stairs-run",
+     "pos": [
+      270.5,
+      0,
+      367.5
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "key": "T4",
+     "dims": {
+      "len": 10,
+      "w": 3.6,
+      "rise": 9
+     }
+    },
+    {
+     "id": "pass-T4-stair-base",
+     "kind": "prism",
+     "pos": [
+      0,
+      0,
+      0
+     ],
+     "vis": "player",
+     "key": "T4",
+     "polygon": [
+      [
+       261.775,
+       366.225
+      ],
+      [
+       254.275,
+       358.725
+      ],
+      [
+       251.725,
+       361.275
+      ],
+      [
+       259.225,
+       368.775
+      ]
+     ],
+     "dims": {
+      "h": 9,
+      "color": 7107451
+     }
+    },
+    {
+     "id": "pass-T4-stair-b",
+     "kind": "stairs-run",
+     "pos": [
+      260.5,
+      9,
+      367.5
+     ],
+     "vis": "player",
+     "rotY": 135,
+     "key": "T4",
+     "dims": {
+      "len": 10.6,
+      "w": 3.6,
+      "rise": 11
+     }
+    },
+    {
+     "id": "pass-T4-X",
+     "kind": "note",
+     "pos": [
+      265,
+      0,
+      344.5
+     ],
+     "vis": "dm-note",
+     "key": "T4",
+     "label": "X: where characters teleporting from K78 in Castle Ravenloft arrive."
+    },
+    {
+     "id": "pass-T4-door-note",
+     "kind": "note",
+     "pos": [
+      246.0,
+      0,
+      355
+     ],
+     "vis": "dm-note",
+     "key": "T4",
+     "label": "Ironbound door, barred from within: DC 22 Strength (Athletics) to force."
+    },
+    {
+     "id": "pass-T9-crown",
+     "kind": "arch-crown",
+     "pos": [
+      155,
+      0,
+      130
+     ],
+     "vis": "player",
+     "key": "T9",
+     "dims": {
+      "w": 30,
+      "d": 10,
+      "y0": 20,
+      "y1": 30
+     }
+    },
+    {
+     "id": "pass-T9-knight0",
+     "kind": "knight-rider",
+     "pos": [
+      145,
+      0,
+      130
+     ],
+     "vis": "player",
+     "key": "T9",
+     "dims": {
+      "y": 31.2,
+      "broken": 1
+     }
+    },
+    {
+     "id": "pass-T9-knight1",
+     "kind": "knight-rider",
+     "pos": [
+      165,
+      0,
+      130
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "key": "T9",
+     "dims": {
+      "y": 31.2,
+      "broken": 0
+     }
+    },
+    {
+     "id": "pass-T7-crown",
+     "kind": "arch-crown",
+     "pos": [
+      155,
+      0,
+      210
+     ],
+     "vis": "player",
+     "key": "T7",
+     "dims": {
+      "w": 30,
+      "d": 10,
+      "y0": 20,
+      "y1": 30
+     }
+    },
+    {
+     "id": "pass-T7-knight0",
+     "kind": "knight-rider",
+     "pos": [
+      145,
+      0,
+      210
+     ],
+     "vis": "player",
+     "key": "T7",
+     "dims": {
+      "y": 31.2,
+      "broken": 0
+     }
+    },
+    {
+     "id": "pass-T7-knight1",
+     "kind": "knight-rider",
+     "pos": [
+      165,
+      0,
+      210
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "key": "T7",
+     "dims": {
+      "y": 31.2,
+      "broken": 0
+     }
+    },
+    {
+     "id": "pass-T8-rubble-n",
+     "kind": "rubble",
+     "pos": [
+      150.5,
+      0,
+      147.5
+     ],
+     "vis": "player",
+     "key": "T8",
+     "dims": {
+      "n": 4
+     }
+    },
+    {
+     "id": "pass-T8-rubble-s",
+     "kind": "rubble",
+     "pos": [
+      159.5,
+      0,
+      170
+     ],
+     "vis": "player",
+     "key": "T8",
+     "dims": {
+      "n": 3
+     }
+    },
+    {
+     "id": "pass-T9-fallen",
+     "kind": "rubble",
+     "pos": [
+      143.0,
+      0,
+      120
+     ],
+     "vis": "player",
+     "key": "T9",
+     "dims": {
+      "n": 7
+     }
+    },
+    {
+     "id": "pass-T8-note",
+     "kind": "note",
+     "pos": [
+      155,
+      0,
+      187.5
+     ],
+     "vis": "dm-note",
+     "key": "T8",
+     "label": "Slippery in a few places but safe. 500 ft down to the Luna River, barely seen through the fog. Bloodhorn's Charge and the Roc of Mount Ghakis can strike here."
+    },
+    {
+     "id": "pass-T7-note",
+     "kind": "note",
+     "pos": [
+      155,
+      0,
+      220
+     ],
+     "vis": "dm-note",
+     "key": "T7",
+     "label": "Empty guard posts; anyone in them is out of the roc's reach."
+    },
+    {
+     "id": "pass-flank-w-0",
+     "kind": "rock-flank",
+     "pos": [
+      211.25,
+      0,
+      486.25
+     ],
+     "vis": "player",
+     "rotY": 83.7,
+     "dims": {
+      "h": 110,
+      "d": 160,
+      "len": 30.3,
+      "seed": 1
+     }
+    },
+    {
+     "id": "pass-flank-w-1",
+     "kind": "rock-flank",
+     "pos": [
+      213.75,
+      0,
+      462.5
+     ],
+     "vis": "player",
+     "rotY": 84.3,
+     "dims": {
+      "h": 110,
+      "d": 160,
+      "len": 33.4,
+      "seed": 2
+     }
+    },
+    {
+     "id": "pass-flank-w-2",
+     "kind": "rock-flank",
+     "pos": [
+      216.25,
+      0,
+      440.0
+     ],
+     "vis": "player",
+     "rotY": 82.9,
+     "dims": {
+      "h": 110,
+      "d": 160,
+      "len": 27.2,
+      "seed": 3
+     }
+    },
+    {
+     "id": "pass-flank-w-3",
+     "kind": "rock-flank",
+     "pos": [
+      217.5,
+      0,
+      420.0
+     ],
+     "vis": "player",
+     "rotY": 90.0,
+     "dims": {
+      "h": 110,
+      "d": 160,
+      "len": 27.0,
+      "seed": 4
+     }
+    },
+    {
+     "id": "pass-flank-w-4",
+     "kind": "rock-flank",
+     "pos": [
+      213.75,
+      0,
+      403.75
+     ],
+     "vis": "player",
+     "rotY": 121.0,
+     "dims": {
+      "h": 110,
+      "d": 160,
+      "len": 20.2,
+      "seed": 5
+     }
+    },
+    {
+     "id": "pass-flank-w-5",
+     "kind": "rock-flank",
+     "pos": [
+      210.0,
+      0,
+      390.0
+     ],
+     "vis": "player",
+     "rotY": 90.0,
+     "dims": {
+      "h": 110,
+      "d": 160,
+      "len": 20.8,
+      "seed": 6
+     }
+    },
+    {
+     "id": "pass-flank-w-6",
+     "kind": "rock-flank",
+     "pos": [
+      212.5,
+      0,
+      376.25
+     ],
+     "vis": "player",
+     "rotY": 68.2,
+     "dims": {
+      "h": 110,
+      "d": 160,
+      "len": 18.8,
+      "seed": 7
+     }
+    },
+    {
+     "id": "pass-flank-w-7",
+     "kind": "rock-flank",
+     "pos": [
+      216.25,
+      0,
+      360.0
+     ],
+     "vis": "player",
+     "rotY": 82.9,
+     "dims": {
+      "h": 110,
+      "d": 160,
+      "len": 27.2,
+      "seed": 8
+     }
+    },
+    {
+     "id": "pass-flank-w-8",
+     "kind": "rock-flank",
+     "pos": [
+      217.5,
+      0,
+      340.0
+     ],
+     "vis": "player",
+     "rotY": 90.0,
+     "dims": {
+      "h": 110,
+      "d": 160,
+      "len": 27.0,
+      "seed": 9
+     }
+    },
+    {
+     "id": "pass-flank-w-9",
+     "kind": "rock-flank",
+     "pos": [
+      215.0,
+      0,
+      322.5
+     ],
+     "vis": "player",
+     "rotY": 108.4,
+     "dims": {
+      "h": 110,
+      "d": 160,
+      "len": 21.8,
+      "seed": 10
+     }
+    },
+    {
+     "id": "pass-flank-w-10",
+     "kind": "rock-flank",
+     "pos": [
+      208.75,
+      0,
+      308.75
+     ],
+     "vis": "player",
+     "rotY": 121.0,
+     "dims": {
+      "h": 110,
+      "d": 160,
+      "len": 20.2,
+      "seed": 11
+     }
+    },
+    {
+     "id": "pass-flank-w-11",
+     "kind": "rock-flank",
+     "pos": [
+      200.0,
+      0,
+      296.25
+     ],
+     "vis": "player",
+     "rotY": 128.7,
+     "dims": {
+      "h": 110,
+      "d": 160,
+      "len": 22.0,
+      "seed": 12
+     }
+    },
+    {
+     "id": "pass-flank-w-12",
+     "kind": "rock-flank",
+     "pos": [
+      190.0,
+      0,
+      283.75
+     ],
+     "vis": "player",
+     "rotY": 128.7,
+     "dims": {
+      "h": 110,
+      "d": 160,
+      "len": 22.0,
+      "seed": 13
+     }
+    },
+    {
+     "id": "pass-flank-w-13",
+     "kind": "rock-flank",
+     "pos": [
+      180.0,
+      0,
+      271.25
+     ],
+     "vis": "player",
+     "rotY": 128.7,
+     "dims": {
+      "h": 110,
+      "d": 160,
+      "len": 22.0,
+      "seed": 14
+     }
+    },
+    {
+     "id": "pass-flank-w-14",
+     "kind": "rock-flank",
+     "pos": [
+      168.75,
+      0,
+      258.75
+     ],
+     "vis": "player",
+     "rotY": 135.0,
+     "dims": {
+      "h": 110,
+      "d": 160,
+      "len": 24.1,
+      "seed": 15
+     }
+    },
+    {
+     "id": "pass-flank-w-15",
+     "kind": "rock-flank",
+     "pos": [
+      153.75,
+      0,
+      250.0
+     ],
+     "vis": "player",
+     "rotY": 164.1,
+     "dims": {
+      "h": 110,
+      "d": 160,
+      "len": 24.8,
+      "seed": 16
+     }
+    },
+    {
+     "id": "pass-flank-w-16",
+     "kind": "rock-flank",
+     "pos": [
+      135.0,
+      0,
+      247.5
+     ],
+     "vis": "player",
+     "rotY": -180.0,
+     "dims": {
+      "h": 110,
+      "d": 160,
+      "len": 27.0,
+      "seed": 17
+     }
+    },
+    {
+     "id": "pass-flank-w-17",
+     "kind": "rock-flank",
+     "pos": [
+      113.75,
+      0,
+      245.0
+     ],
+     "vis": "player",
+     "rotY": 167.5,
+     "dims": {
+      "h": 110,
+      "d": 160,
+      "len": 30.8,
+      "seed": 18
+     }
+    },
+    {
+     "id": "pass-flank-w-18",
+     "kind": "rock-flank",
+     "pos": [
+      96.25,
+      0,
+      236.25
+     ],
+     "vis": "player",
+     "rotY": 135.0,
+     "dims": {
+      "h": 110,
+      "d": 160,
+      "len": 24.1,
+      "seed": 19
+     }
+    },
+    {
+     "id": "pass-flank-w-19",
+     "kind": "rock-flank",
+     "pos": [
+      91.25,
+      0,
+      217.5
+     ],
+     "vis": "player",
+     "rotY": 84.3,
+     "dims": {
+      "h": 110,
+      "d": 160,
+      "len": 33.4,
+      "seed": 20
+     }
+    },
+    {
+     "id": "pass-flank-rim-0",
+     "kind": "rock-flank",
+     "pos": [
+      76.875,
+      0,
+      205.0
+     ],
+     "vis": "player",
+     "rotY": 180.0,
+     "dims": {
+      "h": 100,
+      "d": 120,
+      "len": 41.1,
+      "seed": 1
+     }
+    },
+    {
+     "id": "pass-flank-rim-1",
+     "kind": "rock-flank",
+     "pos": [
+      45.625,
+      0,
+      205.0
+     ],
+     "vis": "player",
+     "rotY": 180.0,
+     "dims": {
+      "h": 100,
+      "d": 120,
+      "len": 41.1,
+      "seed": 2
+     }
+    },
+    {
+     "id": "pass-flank-e-0",
+     "kind": "rock-flank",
+     "pos": [
+      132.5,
+      0,
+      128.75
+     ],
+     "vis": "player",
+     "rotY": 90.0,
+     "dims": {
+      "h": 120,
+      "d": 160,
+      "len": 17.6,
+      "seed": 1
+     }
+    },
+    {
+     "id": "pass-flank-e-1",
+     "kind": "rock-flank",
+     "pos": [
+      138.75,
+      0,
+      118.75
+     ],
+     "vis": "player",
+     "rotY": 31.0,
+     "dims": {
+      "h": 120,
+      "d": 160,
+      "len": 20.2,
+      "seed": 2
+     }
+    },
+    {
+     "id": "pass-flank-e-2",
+     "kind": "rock-flank",
+     "pos": [
+      151.25,
+      0,
+      111.25
+     ],
+     "vis": "player",
+     "rotY": 31.0,
+     "dims": {
+      "h": 120,
+      "d": 160,
+      "len": 20.2,
+      "seed": 3
+     }
+    },
+    {
+     "id": "pass-flank-e-3",
+     "kind": "rock-flank",
+     "pos": [
+      166.25,
+      0,
+      102.5
+     ],
+     "vis": "player",
+     "rotY": 29.7,
+     "dims": {
+      "h": 120,
+      "d": 160,
+      "len": 27.2,
+      "seed": 4
+     }
+    },
+    {
+     "id": "pass-flank-e-4",
+     "kind": "rock-flank",
+     "pos": [
+      181.25,
+      0,
+      91.25
+     ],
+     "vis": "player",
+     "rotY": 45.0,
+     "dims": {
+      "h": 120,
+      "d": 160,
+      "len": 24.1,
+      "seed": 5
+     }
+    },
+    {
+     "id": "pass-flank-e-5",
+     "kind": "rock-flank",
+     "pos": [
+      193.75,
+      0,
+      78.75
+     ],
+     "vis": "player",
+     "rotY": 45.0,
+     "dims": {
+      "h": 120,
+      "d": 160,
+      "len": 24.1,
+      "seed": 6
+     }
+    },
+    {
+     "id": "pass-flank-e-6",
+     "kind": "rock-flank",
+     "pos": [
+      206.25,
+      0,
+      66.25
+     ],
+     "vis": "player",
+     "rotY": 45.0,
+     "dims": {
+      "h": 120,
+      "d": 160,
+      "len": 24.1,
+      "seed": 7
+     }
+    },
+    {
+     "id": "pass-flank-e-7",
+     "kind": "rock-flank",
+     "pos": [
+      215.0,
+      0,
+      53.75
+     ],
+     "vis": "player",
+     "rotY": 68.2,
+     "dims": {
+      "h": 120,
+      "d": 160,
+      "len": 18.8,
+      "seed": 8
+     }
+    },
+    {
+     "id": "pass-flank-er-0",
+     "kind": "rock-flank",
+     "pos": [
+      78.125,
+      0,
+      135.0
+     ],
+     "vis": "player",
+     "dims": {
+      "h": 100,
+      "d": 120,
+      "len": 47.3,
+      "seed": 1
+     }
+    },
+    {
+     "id": "pass-flank-er-1",
+     "kind": "rock-flank",
+     "pos": [
+      114.375,
+      0,
+      135.0
+     ],
+     "vis": "player",
+     "dims": {
+      "h": 100,
+      "d": 120,
+      "len": 47.3,
+      "seed": 2
+     }
+    },
+    {
+     "id": "pass-drop-w-0",
+     "kind": "precipice",
+     "pos": [
+      231.25,
+      0,
+      488.75
+     ],
+     "vis": "player",
+     "rotY": 81.9,
+     "dims": {
+      "depth": 320,
+      "d": 60,
+      "len": 24.1,
+      "seed": 1
+     }
+    },
+    {
+     "id": "pass-drop-w-1",
+     "kind": "precipice",
+     "pos": [
+      235.0,
+      0,
+      470.0
+     ],
+     "vis": "player",
+     "rotY": 76.0,
+     "dims": {
+      "depth": 320,
+      "d": 60,
+      "len": 27.8,
+      "seed": 2
+     }
+    },
+    {
+     "id": "pass-drop-w-2",
+     "kind": "precipice",
+     "pos": [
+      238.75,
+      0,
+      450.0
+     ],
+     "vis": "player",
+     "rotY": 82.9,
+     "dims": {
+      "depth": 320,
+      "d": 60,
+      "len": 27.2,
+      "seed": 3
+     }
+    },
+    {
+     "id": "pass-drop-w-3",
+     "kind": "precipice",
+     "pos": [
+      241.25,
+      0,
+      430.0
+     ],
+     "vis": "player",
+     "rotY": 82.9,
+     "dims": {
+      "depth": 320,
+      "d": 60,
+      "len": 27.2,
+      "seed": 4
+     }
+    },
+    {
+     "id": "pass-drop-w-4",
+     "kind": "precipice",
+     "pos": [
+      245.0,
+      0,
+      413.75
+     ],
+     "vis": "player",
+     "rotY": 68.2,
+     "dims": {
+      "depth": 320,
+      "d": 60,
+      "len": 18.8,
+      "seed": 5
+     }
+    },
+    {
+     "id": "pass-drop-w-5",
+     "kind": "precipice",
+     "pos": [
+      253.75,
+      0,
+      402.5
+     ],
+     "vis": "player",
+     "rotY": 38.7,
+     "dims": {
+      "depth": 320,
+      "d": 60,
+      "len": 22.0,
+      "seed": 6
+     }
+    },
+    {
+     "id": "pass-drop-w-6",
+     "kind": "precipice",
+     "pos": [
+      261.25,
+      0,
+      390.0
+     ],
+     "vis": "player",
+     "rotY": 80.5,
+     "dims": {
+      "depth": 320,
+      "d": 60,
+      "len": 21.0,
+      "seed": 7
+     }
+    },
+    {
+     "id": "pass-drop-w-7",
+     "kind": "precipice",
+     "pos": [
+      265.0,
+      0,
+      382.0
+     ],
+     "vis": "player",
+     "rotY": 11.3,
+     "dims": {
+      "depth": 320,
+      "d": 60,
+      "len": 8.4,
+      "seed": 8
+     }
+    },
+    {
+     "id": "pass-drop-w-8",
+     "kind": "precipice",
+     "pos": [
+      273.25,
+      0,
+      379.25
+     ],
+     "vis": "player",
+     "rotY": 21.4,
+     "dims": {
+      "depth": 320,
+      "d": 60,
+      "len": 17.4,
+      "seed": 9
+     }
+    },
+    {
+     "id": "pass-drop-w-9",
+     "kind": "precipice",
+     "pos": [
+      283.0,
+      0,
+      372.0
+     ],
+     "vis": "player",
+     "rotY": 51.3,
+     "dims": {
+      "depth": 320,
+      "d": 60,
+      "len": 18.0,
+      "seed": 10
+     }
+    },
+    {
+     "id": "pass-drop-w-10",
+     "kind": "precipice",
+     "pos": [
+      287.5,
+      0,
+      359.75
+     ],
+     "vis": "player",
+     "rotY": 86.1,
+     "dims": {
+      "depth": 320,
+      "d": 60,
+      "len": 20.2,
+      "seed": 11
+     }
+    },
+    {
+     "id": "pass-drop-w-11",
+     "kind": "precipice",
+     "pos": [
+      285.5,
+      0,
+      346.0
+     ],
+     "vis": "player",
+     "rotY": 111.0,
+     "dims": {
+      "depth": 320,
+      "d": 60,
+      "len": 19.4,
+      "seed": 12
+     }
+    },
+    {
+     "id": "pass-drop-w-12",
+     "kind": "precipice",
+     "pos": [
+      277.75,
+      0,
+      336.25
+     ],
+     "vis": "player",
+     "rotY": 148.2,
+     "dims": {
+      "depth": 320,
+      "d": 60,
+      "len": 17.4,
+      "seed": 13
+     }
+    },
+    {
+     "id": "pass-drop-w-13",
+     "kind": "precipice",
+     "pos": [
+      265.25,
+      0,
+      333.0
+     ],
+     "vis": "player",
+     "rotY": -180.0,
+     "dims": {
+      "depth": 320,
+      "d": 60,
+      "len": 20.1,
+      "seed": 14
+     }
+    },
+    {
+     "id": "pass-drop-w-14",
+     "kind": "precipice",
+     "pos": [
+      252.75,
+      0,
+      330.25
+     ],
+     "vis": "player",
+     "rotY": 152.4,
+     "dims": {
+      "depth": 320,
+      "d": 60,
+      "len": 16.8,
+      "seed": 15
+     }
+    },
+    {
+     "id": "pass-drop-w-15",
+     "kind": "precipice",
+     "pos": [
+      242.5,
+      0,
+      320.0
+     ],
+     "vis": "player",
+     "rotY": 123.7,
+     "dims": {
+      "depth": 320,
+      "d": 60,
+      "len": 24.5,
+      "seed": 16
+     }
+    },
+    {
+     "id": "pass-drop-w-16",
+     "kind": "precipice",
+     "pos": [
+      232.5,
+      0,
+      305.0
+     ],
+     "vis": "player",
+     "rotY": 123.7,
+     "dims": {
+      "depth": 320,
+      "d": 60,
+      "len": 24.5,
+      "seed": 17
+     }
+    },
+    {
+     "id": "pass-drop-w-17",
+     "kind": "precipice",
+     "pos": [
+      222.5,
+      0,
+      288.75
+     ],
+     "vis": "player",
+     "rotY": 119.7,
+     "dims": {
+      "depth": 320,
+      "d": 60,
+      "len": 27.2,
+      "seed": 18
+     }
+    },
+    {
+     "id": "pass-drop-w-18",
+     "kind": "precipice",
+     "pos": [
+      212.5,
+      0,
+      271.25
+     ],
+     "vis": "player",
+     "rotY": 119.7,
+     "dims": {
+      "depth": 320,
+      "d": 60,
+      "len": 27.2,
+      "seed": 19
+     }
+    },
+    {
+     "id": "pass-drop-w-19",
+     "kind": "precipice",
+     "pos": [
+      202.5,
+      0,
+      253.75
+     ],
+     "vis": "player",
+     "rotY": 119.7,
+     "dims": {
+      "depth": 320,
+      "d": 60,
+      "len": 27.2,
+      "seed": 20
+     }
+    },
+    {
+     "id": "pass-drop-w-20",
+     "kind": "precipice",
+     "pos": [
+      193.75,
+      0,
+      237.5
+     ],
+     "vis": "player",
+     "rotY": 116.6,
+     "dims": {
+      "depth": 320,
+      "d": 60,
+      "len": 23.0,
+      "seed": 21
+     }
+    },
+    {
+     "id": "pass-drop-w-21",
+     "kind": "precipice",
+     "pos": [
+      186.25,
+      0,
+      223.75
+     ],
+     "vis": "player",
+     "rotY": 121.0,
+     "dims": {
+      "depth": 320,
+      "d": 60,
+      "len": 20.2,
+      "seed": 22
+     }
+    },
+    {
+     "id": "pass-drop-w-22",
+     "kind": "precipice",
+     "pos": [
+      181.25,
+      0,
+      211.25
+     ],
+     "vis": "player",
+     "rotY": 101.3,
+     "dims": {
+      "depth": 320,
+      "d": 60,
+      "len": 17.9,
+      "seed": 23
+     }
+    },
+    {
+     "id": "pass-drop-e-0",
+     "kind": "precipice",
+     "pos": [
+      230.0,
+      0,
+      55.0
+     ],
+     "vis": "player",
+     "rotY": -108.4,
+     "dims": {
+      "depth": 320,
+      "d": 60,
+      "len": 21.8,
+      "seed": 1
+     }
+    },
+    {
+     "id": "pass-drop-e-1",
+     "kind": "precipice",
+     "pos": [
+      223.75,
+      0,
+      68.75
+     ],
+     "vis": "player",
+     "rotY": -121.0,
+     "dims": {
+      "depth": 320,
+      "d": 60,
+      "len": 20.2,
+      "seed": 2
+     }
+    },
+    {
+     "id": "pass-drop-e-2",
+     "kind": "precipice",
+     "pos": [
+      215.0,
+      0,
+      81.25
+     ],
+     "vis": "player",
+     "rotY": -128.7,
+     "dims": {
+      "depth": 320,
+      "d": 60,
+      "len": 22.0,
+      "seed": 3
+     }
+    },
+    {
+     "id": "pass-drop-e-3",
+     "kind": "precipice",
+     "pos": [
+      205.0,
+      0,
+      93.75
+     ],
+     "vis": "player",
+     "rotY": -128.7,
+     "dims": {
+      "depth": 320,
+      "d": 60,
+      "len": 22.0,
+      "seed": 4
+     }
+    },
+    {
+     "id": "pass-drop-e-4",
+     "kind": "precipice",
+     "pos": [
+      195.0,
+      0,
+      106.25
+     ],
+     "vis": "player",
+     "rotY": -128.7,
+     "dims": {
+      "depth": 320,
+      "d": 60,
+      "len": 22.0,
+      "seed": 5
+     }
+    },
+    {
+     "id": "pass-drop-e-5",
+     "kind": "precipice",
+     "pos": [
+      185.0,
+      0,
+      117.5
+     ],
+     "vis": "player",
+     "rotY": -135.0,
+     "dims": {
+      "depth": 320,
+      "d": 60,
+      "len": 19.7,
+      "seed": 6
+     }
+    },
+    {
+     "id": "pass-drop-e-6",
+     "kind": "precipice",
+     "pos": [
+      178.75,
+      0,
+      128.75
+     ],
+     "vis": "player",
+     "rotY": -101.3,
+     "dims": {
+      "depth": 320,
+      "d": 60,
+      "len": 17.9,
+      "seed": 7
+     }
+    },
+    {
+     "id": "pass-gorge-w-0",
+     "kind": "precipice",
+     "pos": [
+      169.062,
+      0,
+      205.0
+     ],
+     "vis": "player",
+     "rotY": 180.0,
+     "dims": {
+      "depth": 420,
+      "d": 14,
+      "len": 29.3,
+      "seed": 1
+     }
+    },
+    {
+     "id": "pass-gorge-w-1",
+     "kind": "precipice",
+     "pos": [
+      147.188,
+      0,
+      205.0
+     ],
+     "vis": "player",
+     "rotY": 180.0,
+     "dims": {
+      "depth": 420,
+      "d": 14,
+      "len": 29.3,
+      "seed": 2
+     }
+    },
+    {
+     "id": "pass-gorge-w-2",
+     "kind": "precipice",
+     "pos": [
+      125.312,
+      0,
+      205.0
+     ],
+     "vis": "player",
+     "rotY": 180.0,
+     "dims": {
+      "depth": 420,
+      "d": 14,
+      "len": 29.3,
+      "seed": 3
+     }
+    },
+    {
+     "id": "pass-gorge-w-3",
+     "kind": "precipice",
+     "pos": [
+      103.438,
+      0,
+      205.0
+     ],
+     "vis": "player",
+     "rotY": 180.0,
+     "dims": {
+      "depth": 420,
+      "d": 14,
+      "len": 29.3,
+      "seed": 4
+     }
+    },
+    {
+     "id": "pass-gorge-w2-0",
+     "kind": "precipice",
+     "pos": [
+      76.875,
+      0,
+      205.0
+     ],
+     "vis": "player",
+     "rotY": 180.0,
+     "dims": {
+      "depth": 420,
+      "d": 14,
+      "len": 41.1,
+      "seed": 1
+     }
+    },
+    {
+     "id": "pass-gorge-w2-1",
+     "kind": "precipice",
+     "pos": [
+      45.625,
+      0,
+      205.0
+     ],
+     "vis": "player",
+     "rotY": 180.0,
+     "dims": {
+      "depth": 420,
+      "d": 14,
+      "len": 41.1,
+      "seed": 2
+     }
+    },
+    {
+     "id": "pass-gorge-e2-0",
+     "kind": "precipice",
+     "pos": [
+      72.083,
+      0,
+      135.0
+     ],
+     "vis": "player",
+     "dims": {
+      "depth": 420,
+      "d": 14,
+      "len": 32.2,
+      "seed": 1
+     }
+    },
+    {
+     "id": "pass-gorge-e2-1",
+     "kind": "precipice",
+     "pos": [
+      96.25,
+      0,
+      135.0
+     ],
+     "vis": "player",
+     "dims": {
+      "depth": 420,
+      "d": 14,
+      "len": 32.2,
+      "seed": 2
+     }
+    },
+    {
+     "id": "pass-gorge-e2-2",
+     "kind": "precipice",
+     "pos": [
+      120.417,
+      0,
+      135.0
+     ],
+     "vis": "player",
+     "dims": {
+      "depth": 420,
+      "d": 14,
+      "len": 32.2,
+      "seed": 3
+     }
+    },
+    {
+     "id": "pass-gorge-e-0",
+     "kind": "precipice",
+     "pos": [
+      141.875,
+      0,
+      135.0
+     ],
+     "vis": "player",
+     "dims": {
+      "depth": 420,
+      "d": 14,
+      "len": 25.4,
+      "seed": 1
+     }
+    },
+    {
+     "id": "pass-gorge-e-1",
+     "kind": "precipice",
+     "pos": [
+      160.625,
+      0,
+      135.0
+     ],
+     "vis": "player",
+     "dims": {
+      "depth": 420,
+      "d": 14,
+      "len": 25.4,
+      "seed": 2
+     }
+    },
+    {
+     "id": "pass-gorge-e-2",
+     "kind": "precipice",
+     "pos": [
+      173.75,
+      0,
+      135.0
+     ],
+     "vis": "player",
+     "dims": {
+      "depth": 420,
+      "d": 14,
+      "len": 11.4,
+      "seed": 3
+     }
+    },
+    {
+     "id": "pass-fog",
+     "kind": "fog-sea",
+     "pos": [
+      155,
+      0,
+      250
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 1500,
+      "y": -70
+     }
+    },
+    {
+     "id": "pass-T8-span",
+     "kind": "bridge-span",
+     "pos": [
+      155,
+      0,
+      170
+     ],
+     "vis": "player",
+     "key": "T8",
+     "dims": {
+      "len": 70,
+      "w": 10,
+      "drop": 80
+     }
+    },
+    {
+     "id": "pass-spruce0",
+     "kind": "pine",
+     "pos": [
+      120,
+      0,
+      232.5
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.0,
+      "h": 26
+     }
+    },
+    {
+     "id": "pass-spruce1",
+     "kind": "pine",
+     "pos": [
+      107.5,
+      0,
+      221.0
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 0.85,
+      "h": 26
+     }
+    },
+    {
+     "id": "pass-spruce2",
+     "kind": "pine",
+     "pos": [
+      137.5,
+      0,
+      238.0
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 0.7,
+      "h": 26
+     }
+    },
+    {
+     "id": "pass-boulder0",
+     "kind": "boulder",
+     "pos": [
+      223.0,
+      0,
+      470
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 1.6
+     }
+    },
+    {
+     "id": "pass-boulder1",
+     "kind": "boulder",
+     "pos": [
+      219.5,
+      0,
+      415
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 2.1
+     }
+    },
+    {
+     "id": "pass-boulder2",
+     "kind": "boulder",
+     "pos": [
+      221.0,
+      0,
+      320
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 2.6
+     }
+    },
+    {
+     "id": "pass-boulder3",
+     "kind": "boulder",
+     "pos": [
+      193.0,
+      0,
+      278.0
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 1.6
+     }
+    },
+    {
+     "id": "pass-boulder4",
+     "kind": "boulder",
+     "pos": [
+      170,
+      0,
+      244.0
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 2.1
+     }
+    },
+    {
+     "id": "pass-boulder5",
+     "kind": "boulder",
+     "pos": [
+      183.0,
+      0,
+      106.5
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 2.6
+     }
+    },
+    {
+     "id": "pass-boulder6",
+     "kind": "boulder",
+     "pos": [
+      212.0,
+      0,
+      68.0
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 1.6
+     }
+    },
+    {
+     "id": "pass-spawn",
+     "kind": "spawn",
+     "pos": [
+      227.5,
+      0,
+      467.5
+     ],
+     "vis": "dm-note",
+     "label": "The road from the Raven River crossroads"
+    },
+    {
+     "id": "pass-contours",
+     "kind": "note",
+     "pos": [
+      182.5,
+      0,
+      312.5
+     ],
+     "vis": "dm-note",
+     "label": "The map's contours (+100 to +1,000 ft) measure the mountain from the river; the road runs about level at +500, the tower roof 540 ft above the valley. The road is snowbound: extreme cold at night without cold-weather gear."
+    },
+    {
+     "id": "pass-rider",
+     "kind": "phantom-rider",
+     "pos": [
+      155,
+      0,
+      170
+     ],
+     "vis": "hidden-creature",
+     "key": "T8",
+     "label": "Strahd's phantom rider: a grim warning; touched or spoken to, horse and rider scatter like ash",
+     "size": "large",
+     "playerLabel": "A black-cloaked rider on a charcoal horse"
+    },
+    {
+     "id": "pass-roc",
+     "kind": "roc",
+     "pos": [
+      110,
+      0,
+      170
+     ],
+     "vis": "hidden-creature",
+     "key": "T8",
+     "label": "Roc of Mount Ghakis (event): dives on parties crossing east to west, snatches a horse or mule if it can, can't reach the guard posts",
+     "size": "gargantuan",
+     "playerLabel": "A gigantic bird"
+    },
+    {
+     "id": "pass-sangzor",
+     "kind": "giant-goat",
+     "pos": [
+      206.0,
+      0,
+      292.0
+     ],
+     "vis": "hidden-creature",
+     "label": "Sangzor, the Bloodhorn (event): giant goat, 33 hp, resists nonmagical weapons; charges down the slope, a failed save sends the target 100 ft down onto a ledge; flees at 10 damage",
+     "size": "large",
+     "playerLabel": "A huge grey goat with great horns"
+    }
+   ],
+   "terrain": [
+    {
+     "polygon": [
+      [
+       210,
+       497.5
+      ],
+      [
+       212.5,
+       475
+      ],
+      [
+       215,
+       450
+      ],
+      [
+       217.5,
+       430
+      ],
+      [
+       217.5,
+       410
+      ],
+      [
+       210,
+       397.5
+      ],
+      [
+       210,
+       382.5
+      ],
+      [
+       215,
+       370
+      ],
+      [
+       217.5,
+       350
+      ],
+      [
+       217.5,
+       330
+      ],
+      [
+       212.5,
+       315
+      ],
+      [
+       205,
+       302.5
+      ],
+      [
+       195,
+       290
+      ],
+      [
+       185,
+       277.5
+      ],
+      [
+       175,
+       265
+      ],
+      [
+       162.5,
+       252.5
+      ],
+      [
+       145,
+       247.5
+      ],
+      [
+       125,
+       247.5
+      ],
+      [
+       102.5,
+       242.5
+      ],
+      [
+       90,
+       230
+      ],
+      [
+       92.5,
+       205
+      ],
+      [
+       180,
+       205
+      ],
+      [
+       182.5,
+       217.5
+      ],
+      [
+       190,
+       230
+      ],
+      [
+       197.5,
+       245
+      ],
+      [
+       207.5,
+       262.5
+      ],
+      [
+       217.5,
+       280
+      ],
+      [
+       227.5,
+       297.5
+      ],
+      [
+       237.5,
+       312.5
+      ],
+      [
+       247.5,
+       327.5
+      ],
+      [
+       252.5,
+       337.5
+      ],
+      [
+       248.0,
+       350
+      ],
+      [
+       248.0,
+       362.5
+      ],
+      [
+       255,
+       373.0
+      ],
+      [
+       262.5,
+       382.5
+      ],
+      [
+       260,
+       397.5
+      ],
+      [
+       247.5,
+       407.5
+      ],
+      [
+       242.5,
+       420
+      ],
+      [
+       240,
+       440
+      ],
+      [
+       237.5,
+       460
+      ],
+      [
+       232.5,
+       480
+      ],
+      [
+       230,
+       497.5
+      ]
+     ],
+     "floor": "snow"
+    },
+    {
+     "polygon": [
+      [
+       132.5,
+       135
+      ],
+      [
+       132.5,
+       122.5
+      ],
+      [
+       145,
+       115
+      ],
+      [
+       157.5,
+       107.5
+      ],
+      [
+       175,
+       97.5
+      ],
+      [
+       187.5,
+       85
+      ],
+      [
+       200,
+       72.5
+      ],
+      [
+       212.5,
+       60
+      ],
+      [
+       217.5,
+       47.5
+      ],
+      [
+       232.5,
+       47.5
+      ],
+      [
+       227.5,
+       62.5
+      ],
+      [
+       220,
+       75
+      ],
+      [
+       210,
+       87.5
+      ],
+      [
+       200,
+       100
+      ],
+      [
+       190,
+       112.5
+      ],
+      [
+       180,
+       122.5
+      ],
+      [
+       177.5,
+       135
+      ]
+     ],
+     "floor": "snow"
+    },
+    {
+     "polygon": [
+      [
+       285.5,
+       355.0
+      ],
+      [
+       283.94,
+       362.845
+      ],
+      [
+       279.496,
+       369.496
+      ],
+      [
+       272.845,
+       373.94
+      ],
+      [
+       265.0,
+       375.5
+      ],
+      [
+       257.155,
+       373.94
+      ],
+      [
+       250.504,
+       369.496
+      ],
+      [
+       246.06,
+       362.845
+      ],
+      [
+       244.5,
+       355.0
+      ],
+      [
+       246.06,
+       347.155
+      ],
+      [
+       250.504,
+       340.504
+      ],
+      [
+       257.155,
+       336.06
+      ],
+      [
+       265.0,
+       334.5
+      ],
+      [
+       272.845,
+       336.06
+      ],
+      [
+       279.496,
+       340.504
+      ],
+      [
+       283.94,
+       347.155
+      ]
+     ],
+     "floor": "snow"
+    },
+    {
+     "polygon": [
+      [
+       232.47,
+       496.95
+      ],
+      [
+       229.995,
+       474.735
+      ],
+      [
+       229.99,
+       450.275
+      ],
+      [
+       232.415,
+       430.92
+      ],
+      [
+       237.39,
+       411.05
+      ],
+      [
+       239.93,
+       395.82
+      ],
+      [
+       230.07,
+       394.18
+      ],
+      [
+       227.61,
+       408.95
+      ],
+      [
+       222.585,
+       429.08
+      ],
+      [
+       220.01,
+       449.725
+      ],
+      [
+       220.005,
+       475.265
+      ],
+      [
+       222.53,
+       498.05
+      ]
+     ],
+     "floor": "dirt"
+    },
+    {
+     "polygon": [
+      [
+       240.0,
+       385.0
+      ],
+      [
+       239.99,
+       369.715
+      ],
+      [
+       237.96,
+       349.38
+      ],
+      [
+       234.83,
+       328.71
+      ],
+      [
+       227.43,
+       310.185
+      ],
+      [
+       217.14,
+       294.695
+      ],
+      [
+       204.965,
+       276.95
+      ],
+      [
+       191.84,
+       261.8
+      ],
+      [
+       179.93,
+       246.91
+      ],
+      [
+       170.095,
+       234.135
+      ],
+      [
+       162.97,
+       222.765
+      ],
+      [
+       159.72,
+       213.35
+      ],
+      [
+       150.28,
+       216.65
+      ],
+      [
+       154.03,
+       227.235
+      ],
+      [
+       161.905,
+       239.865
+      ],
+      [
+       172.07,
+       253.09
+      ],
+      [
+       184.16,
+       268.2
+      ],
+      [
+       197.035,
+       283.05
+      ],
+      [
+       208.86,
+       300.305
+      ],
+      [
+       218.57,
+       314.815
+      ],
+      [
+       225.17,
+       331.29
+      ],
+      [
+       228.04,
+       350.62
+      ],
+      [
+       230.01,
+       370.285
+      ],
+      [
+       230.0,
+       385.0
+      ]
+     ],
+     "floor": "dirt"
+    },
+    {
+     "polygon": [
+      [
+       159.68,
+       126.755
+      ],
+      [
+       161.88,
+       120.155
+      ],
+      [
+       171.0,
+       113.0
+      ],
+      [
+       185.16,
+       102.875
+      ],
+      [
+       198.425,
+       90.64
+      ],
+      [
+       211.185,
+       78.38
+      ],
+      [
+       221.72,
+       65.185
+      ],
+      [
+       229.47,
+       49.735
+      ],
+      [
+       220.53,
+       45.265
+      ],
+      [
+       213.28,
+       59.815
+      ],
+      [
+       203.815,
+       71.62
+      ],
+      [
+       191.575,
+       83.36
+      ],
+      [
+       178.84,
+       95.125
+      ],
+      [
+       165.0,
+       105.0
+      ],
+      [
+       154.12,
+       113.845
+      ],
+      [
+       150.32,
+       123.245
+      ]
+     ],
+     "floor": "dirt"
+    },
+    {
+     "polygon": [
+      [
+       248.0,
+       353.0
+      ],
+      [
+       248.0,
+       357.0
+      ],
+      [
+       237.0,
+       357.0
+      ],
+      [
+       237.0,
+       353.0
+      ]
+     ],
+     "floor": "dirt"
+    }
+   ]
+  },
+  {
+   "id": "tower-upper",
+   "name": "Guard tower, upper floor (T5)",
+   "elevationFt": 20,
+   "ceilingFt": 20,
+   "north": "-x",
+   "rooms": [
+    {
+     "key": "T5",
+     "name": "Guard Tower, Upper Floor",
+     "page": 159,
+     "polygon": [
+      [
+       258.75,
+       340
+      ],
+      [
+       262.5,
+       340
+      ],
+      [
+       267.5,
+       340
+      ],
+      [
+       271.25,
+       340
+      ],
+      [
+       273.875,
+       342.625
+      ],
+      [
+       277.375,
+       346.125
+      ],
+      [
+       280,
+       348.75
+      ],
+      [
+       280,
+       361.25
+      ],
+      [
+       277.375,
+       363.875
+      ],
+      [
+       273.875,
+       367.375
+      ],
+      [
+       271.25,
+       370
+      ],
+      [
+       265.465,
+       370
+      ],
+      [
+       250,
+       354.535
+      ],
+      [
+       250,
+       348.75
+      ],
+      [
+       252.625,
+       346.125
+      ],
+      [
+       256.125,
+       342.625
+      ]
+     ],
+     "floor": "flagstone",
+     "ceilingFt": 20,
+     "desc": "Bitter cold up here, and nearly every wall has a window. A rusted ladder climbs to a trapdoor in the ceiling; a dire wolf's head glares down from above the hearth.",
+     "dm": "The rusted ladder is bolted to floor and ceiling; the trapdoor squeals open onto the roof."
+    }
+   ],
+   "walls": [
+    {
+     "id": "tower-upper-w-0",
+     "a": [
+      258.75,
+      340.0
+     ],
+     "b": [
+      262.5,
+      340.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "tower-upper-w-1",
+     "a": [
+      262.5,
+      340.0
+     ],
+     "b": [
+      267.5,
+      340.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "tower-upper-w-2",
+     "a": [
+      267.5,
+      340.0
+     ],
+     "b": [
+      271.25,
+      340.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "tower-upper-w-3",
+     "a": [
+      271.25,
+      340
+     ],
+     "b": [
+      273.875,
+      342.625
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "tower-upper-w-4",
+     "a": [
+      273.875,
+      342.625
+     ],
+     "b": [
+      277.375,
+      346.125
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "tower-upper-w-5",
+     "a": [
+      277.375,
+      346.125
+     ],
+     "b": [
+      280,
+      348.75
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "tower-upper-w-6",
+     "a": [
+      280.0,
+      348.75
+     ],
+     "b": [
+      280.0,
+      361.25
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "tower-upper-w-7",
+     "a": [
+      277.375,
+      363.875
+     ],
+     "b": [
+      280,
+      361.25
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "tower-upper-w-8",
+     "a": [
+      273.875,
+      367.375
+     ],
+     "b": [
+      277.375,
+      363.875
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "tower-upper-w-9",
+     "a": [
+      271.25,
+      370
+     ],
+     "b": [
+      273.875,
+      367.375
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "tower-upper-w-10",
+     "a": [
+      265.46500000000003,
+      370.0
+     ],
+     "b": [
+      271.25,
+      370.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "tower-upper-w-11",
+     "a": [
+      250,
+      354.53499999999997
+     ],
+     "b": [
+      265.46500000000003,
+      370
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 3.5
+    },
+    {
+     "id": "tower-upper-w-12",
+     "a": [
+      250.0,
+      348.75
+     ],
+     "b": [
+      250.0,
+      354.53499999999997
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "tower-upper-w-13",
+     "a": [
+      250,
+      348.75
+     ],
+     "b": [
+      252.625,
+      346.125
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "tower-upper-w-14",
+     "a": [
+      252.625,
+      346.125
+     ],
+     "b": [
+      256.125,
+      342.625
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "tower-upper-w-15",
+     "a": [
+      256.125,
+      342.625
+     ],
+     "b": [
+      258.75,
+      340
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "tower-upper-x-0",
+     "a": [
+      265.46500000000003,
+      370
+     ],
+     "b": [
+      258.75,
+      370
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "tower-upper-x-1",
+     "a": [
+      258.75,
+      370
+     ],
+     "b": [
+      250,
+      361.25
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "tower-upper-x-2",
+     "a": [
+      250,
+      361.25
+     ],
+     "b": [
+      250,
+      354.53499999999997
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    }
+   ],
+   "lights": [],
+   "objects": [
+    {
+     "id": "tower-upper-T5-hearth",
+     "kind": "fireplace",
+     "pos": [
+      277.75,
+      0,
+      355
+     ],
+     "vis": "player",
+     "rotY": -90,
+     "key": "T5"
+    },
+    {
+     "id": "tower-upper-T5-wolfhead",
+     "kind": "dire-wolf-head",
+     "pos": [
+      279.25,
+      0,
+      355
+     ],
+     "vis": "player",
+     "rotY": -90,
+     "key": "T5",
+     "dims": {
+      "y": 9.5
+     }
+    },
+    {
+     "id": "tower-upper-T5-ladder",
+     "kind": "iron-ladder",
+     "pos": [
+      265,
+      0,
+      359.5
+     ],
+     "vis": "player",
+     "key": "T5",
+     "dims": {
+      "h": 20
+     }
+    },
+    {
+     "id": "tower-upper-T5-note",
+     "kind": "note",
+     "pos": [
+      265,
+      0,
+      347.5
+     ],
+     "vis": "dm-note",
+     "key": "T5",
+     "label": "An icebox: wind howls down the chimney. The trapdoor overhead squeals as it opens onto the roof (T6)."
+    }
+   ]
+  },
+  {
+   "id": "gate-top",
+   "name": "Gatehouse top (T2)",
+   "elevationFt": 30,
+   "ceilingFt": 10,
+   "north": "-x",
+   "rooms": [
+    {
+     "key": "T2",
+     "name": "Demon Statues",
+     "page": 157,
+     "polygon": [
+      [
+       220,
+       385
+      ],
+      [
+       250,
+       385
+      ],
+      [
+       250,
+       395
+      ],
+      [
+       220,
+       395
+      ]
+     ],
+     "floor": "flagstone",
+     "desc": "Two horned, vulture-headed demons carved in stone squat on the gatehouse roof.",
+     "dm": "Petrified vrocks: they turn to flesh if attacked or if anyone flies or climbs past the gate, pursue fleeing prey and fight to the death."
+    }
+   ],
+   "walls": [
+    {
+     "id": "gate-top-w-0",
+     "a": [
+      220.0,
+      385.0
+     ],
+     "b": [
+      225.0,
+      385.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 2.5
+    },
+    {
+     "id": "gate-top-w-1",
+     "a": [
+      225.0,
+      385.0
+     ],
+     "b": [
+      230.0,
+      385.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 2.5
+    },
+    {
+     "id": "gate-top-w-2",
+     "a": [
+      230.0,
+      385.0
+     ],
+     "b": [
+      235.0,
+      385.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 2.5
+    },
+    {
+     "id": "gate-top-w-3",
+     "a": [
+      235.0,
+      385.0
+     ],
+     "b": [
+      240.0,
+      385.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 2.5
+    },
+    {
+     "id": "gate-top-w-4",
+     "a": [
+      240.0,
+      385.0
+     ],
+     "b": [
+      245.0,
+      385.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 2.5
+    },
+    {
+     "id": "gate-top-w-5",
+     "a": [
+      245.0,
+      385.0
+     ],
+     "b": [
+      250.0,
+      385.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 2.5
+    },
+    {
+     "id": "gate-top-w-6",
+     "a": [
+      250.0,
+      385.0
+     ],
+     "b": [
+      250.0,
+      390.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 2.5
+    },
+    {
+     "id": "gate-top-w-7",
+     "a": [
+      250.0,
+      390.0
+     ],
+     "b": [
+      250.0,
+      395.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 2.5
+    },
+    {
+     "id": "gate-top-w-8",
+     "a": [
+      245.0,
+      395.0
+     ],
+     "b": [
+      250.0,
+      395.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 2.5
+    },
+    {
+     "id": "gate-top-w-9",
+     "a": [
+      240.0,
+      395.0
+     ],
+     "b": [
+      245.0,
+      395.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 2.5
+    },
+    {
+     "id": "gate-top-w-10",
+     "a": [
+      235.0,
+      395.0
+     ],
+     "b": [
+      240.0,
+      395.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 2.5
+    },
+    {
+     "id": "gate-top-w-11",
+     "a": [
+      230.0,
+      395.0
+     ],
+     "b": [
+      235.0,
+      395.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 2.5
+    },
+    {
+     "id": "gate-top-w-12",
+     "a": [
+      225.0,
+      395.0
+     ],
+     "b": [
+      230.0,
+      395.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 2.5
+    },
+    {
+     "id": "gate-top-w-13",
+     "a": [
+      220.0,
+      395.0
+     ],
+     "b": [
+      225.0,
+      395.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 2.5
+    },
+    {
+     "id": "gate-top-w-14",
+     "a": [
+      220.0,
+      390.0
+     ],
+     "b": [
+      220.0,
+      395.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 2.5
+    },
+    {
+     "id": "gate-top-w-15",
+     "a": [
+      220.0,
+      385.0
+     ],
+     "b": [
+      220.0,
+      390.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 2.5
+    }
+   ],
+   "lights": [],
+   "objects": [
+    {
+     "id": "gate-top-vrock-statue0",
+     "kind": "vrock-statue",
+     "pos": [
+      225,
+      0,
+      390
+     ],
+     "vis": "player",
+     "key": "T2"
+    },
+    {
+     "id": "gate-top-vrock-statue1",
+     "kind": "vrock-statue",
+     "pos": [
+      245,
+      0,
+      390
+     ],
+     "vis": "player",
+     "key": "T2"
+    },
+    {
+     "id": "gate-top-T2-note",
+     "kind": "note",
+     "pos": [
+      235,
+      0,
+      381.0
+     ],
+     "vis": "dm-note",
+     "key": "T2",
+     "label": "The two statues are petrified vrocks: they turn to flesh (vrock statistics) if attacked or if anyone flies or climbs past the gate, pursue fleeing prey and fight to the death."
+    }
+   ]
+  },
+  {
+   "id": "tower-roof",
+   "name": "Guard tower rooftop (T6)",
+   "elevationFt": 40,
+   "ceilingFt": 10,
+   "north": "-x",
+   "rooms": [
+    {
+     "key": "T6",
+     "name": "Guard Tower Rooftop",
+     "page": 159,
+     "polygon": [
+      [
+       258.75,
+       340
+      ],
+      [
+       271.25,
+       340
+      ],
+      [
+       280,
+       348.75
+      ],
+      [
+       280,
+       361.25
+      ],
+      [
+       271.25,
+       370
+      ],
+      [
+       258.75,
+       370
+      ],
+      [
+       250,
+       361.25
+      ],
+      [
+       250,
+       348.75
+      ]
+     ],
+     "floor": "snow",
+     "desc": "Snow drifts across a battlemented roof under a grey sky; gilded statues of women knights with lances stand on the merlons, staring outward. Bones in rusted mail lie under the snow.",
+     "dm": "40 ft up, 540 ft above the valley. Four old guards' remains: rags, broken bows and arrows, rusted swords, rusty mail. Card-reading treasure: six snow maidens rise from the snow."
+    }
+   ],
+   "walls": [
+    {
+     "id": "tower-roof-w-0",
+     "a": [
+      258.75,
+      340.0
+     ],
+     "b": [
+      265.0,
+      340.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 3.5
+    },
+    {
+     "id": "tower-roof-w-1",
+     "a": [
+      265.0,
+      340.0
+     ],
+     "b": [
+      271.25,
+      340.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 3.5
+    },
+    {
+     "id": "tower-roof-w-2",
+     "a": [
+      271.25,
+      340
+     ],
+     "b": [
+      280,
+      348.75
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 3.5
+    },
+    {
+     "id": "tower-roof-w-3",
+     "a": [
+      280.0,
+      348.75
+     ],
+     "b": [
+      280.0,
+      355.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 3.5
+    },
+    {
+     "id": "tower-roof-w-4",
+     "a": [
+      280.0,
+      355.0
+     ],
+     "b": [
+      280.0,
+      361.25
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 3.5
+    },
+    {
+     "id": "tower-roof-w-5",
+     "a": [
+      271.25,
+      370
+     ],
+     "b": [
+      280,
+      361.25
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 3.5
+    },
+    {
+     "id": "tower-roof-w-6",
+     "a": [
+      265.0,
+      370.0
+     ],
+     "b": [
+      271.25,
+      370.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 3.5
+    },
+    {
+     "id": "tower-roof-w-7",
+     "a": [
+      258.75,
+      370.0
+     ],
+     "b": [
+      265.0,
+      370.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 3.5
+    },
+    {
+     "id": "tower-roof-w-8",
+     "a": [
+      250,
+      361.25
+     ],
+     "b": [
+      258.75,
+      370
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 3.5
+    },
+    {
+     "id": "tower-roof-w-9",
+     "a": [
+      250.0,
+      355.0
+     ],
+     "b": [
+      250.0,
+      361.25
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 3.5
+    },
+    {
+     "id": "tower-roof-w-10",
+     "a": [
+      250.0,
+      348.75
+     ],
+     "b": [
+      250.0,
+      355.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 3.5
+    },
+    {
+     "id": "tower-roof-w-11",
+     "a": [
+      250,
+      348.75
+     ],
+     "b": [
+      258.75,
+      340
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 3.5
+    }
+   ],
+   "lights": [],
+   "objects": [
+    {
+     "id": "tower-roof-T6-merlons",
+     "kind": "octa-merlons",
+     "pos": [
+      265,
+      0,
+      355
+     ],
+     "vis": "player",
+     "key": "T6",
+     "dims": {
+      "r": 15,
+      "y": 3.5
+     }
+    },
+    {
+     "id": "tower-roof-T6-trapdoor",
+     "kind": "trapdoor",
+     "pos": [
+      265,
+      0,
+      359.5
+     ],
+     "vis": "player",
+     "key": "T6"
+    },
+    {
+     "id": "tower-roof-T6-chimney",
+     "kind": "chimney",
+     "pos": [
+      278.0,
+      0,
+      355
+     ],
+     "vis": "player",
+     "key": "T6",
+     "dims": {
+      "y": 0,
+      "h": 5
+     }
+    },
+    {
+     "id": "tower-roof-T6-knight0",
+     "kind": "gold-knight",
+     "pos": [
+      259.375,
+      3.5,
+      341.5
+     ],
+     "vis": "player",
+     "rotY": -157.4,
+     "key": "T6",
+     "dims": {
+      "h": 10
+     }
+    },
+    {
+     "id": "tower-roof-T6-knight1",
+     "kind": "gold-knight",
+     "pos": [
+      270.625,
+      3.5,
+      341.5
+     ],
+     "vis": "player",
+     "rotY": 157.4,
+     "key": "T6",
+     "dims": {
+      "h": 10
+     }
+    },
+    {
+     "id": "tower-roof-T6-knight2",
+     "kind": "gold-knight",
+     "pos": [
+      278.5,
+      3.5,
+      349.375
+     ],
+     "vis": "player",
+     "rotY": 112.6,
+     "key": "T6",
+     "dims": {
+      "h": 10
+     }
+    },
+    {
+     "id": "tower-roof-T6-knight3",
+     "kind": "gold-knight",
+     "pos": [
+      278.5,
+      3.5,
+      360.625
+     ],
+     "vis": "player",
+     "rotY": 67.4,
+     "key": "T6",
+     "dims": {
+      "h": 10
+     }
+    },
+    {
+     "id": "tower-roof-T6-knight4",
+     "kind": "gold-knight",
+     "pos": [
+      270.625,
+      3.5,
+      368.5
+     ],
+     "vis": "player",
+     "rotY": 22.6,
+     "key": "T6",
+     "dims": {
+      "h": 10
+     }
+    },
+    {
+     "id": "tower-roof-T6-knight5",
+     "kind": "gold-knight",
+     "pos": [
+      259.375,
+      3.5,
+      368.5
+     ],
+     "vis": "player",
+     "rotY": -22.6,
+     "key": "T6",
+     "dims": {
+      "h": 10
+     }
+    },
+    {
+     "id": "tower-roof-T6-knight6",
+     "kind": "gold-knight",
+     "pos": [
+      251.5,
+      3.5,
+      360.625
+     ],
+     "vis": "player",
+     "rotY": -67.4,
+     "key": "T6",
+     "dims": {
+      "h": 10
+     }
+    },
+    {
+     "id": "tower-roof-T6-knight7",
+     "kind": "gold-knight",
+     "pos": [
+      251.5,
+      3.5,
+      349.375
+     ],
+     "vis": "player",
+     "rotY": -112.6,
+     "key": "T6",
+     "dims": {
+      "h": 10
+     }
+    },
+    {
+     "id": "tower-roof-T6-skel0",
+     "kind": "skeleton",
+     "pos": [
+      257.0,
+      0,
+      347.0
+     ],
+     "vis": "player",
+     "rotY": 30,
+     "key": "T6"
+    },
+    {
+     "id": "tower-roof-T6-drift0",
+     "kind": "snow-drift",
+     "pos": [
+      258.5,
+      0,
+      348.0
+     ],
+     "vis": "player",
+     "rotY": 30,
+     "key": "T6",
+     "dims": {
+      "r": 2.6,
+      "h": 0.9
+     }
+    },
+    {
+     "id": "tower-roof-T6-skel1",
+     "kind": "skeleton",
+     "pos": [
+      274.0,
+      0,
+      350
+     ],
+     "vis": "player",
+     "rotY": 110,
+     "key": "T6"
+    },
+    {
+     "id": "tower-roof-T6-drift1",
+     "kind": "snow-drift",
+     "pos": [
+      275.5,
+      0,
+      351.0
+     ],
+     "vis": "player",
+     "rotY": 110,
+     "key": "T6",
+     "dims": {
+      "r": 2.6,
+      "h": 0.9
+     }
+    },
+    {
+     "id": "tower-roof-T6-skel2",
+     "kind": "skeleton",
+     "pos": [
+      260,
+      0,
+      365
+     ],
+     "vis": "player",
+     "rotY": 200,
+     "key": "T6"
+    },
+    {
+     "id": "tower-roof-T6-drift2",
+     "kind": "snow-drift",
+     "pos": [
+      261.5,
+      0,
+      366.0
+     ],
+     "vis": "player",
+     "rotY": 200,
+     "key": "T6",
+     "dims": {
+      "r": 2.6,
+      "h": 0.9
+     }
+    },
+    {
+     "id": "tower-roof-T6-skel3",
+     "kind": "skeleton",
+     "pos": [
+      272.0,
+      0,
+      366.0
+     ],
+     "vis": "player",
+     "rotY": 300,
+     "key": "T6"
+    },
+    {
+     "id": "tower-roof-T6-drift3",
+     "kind": "snow-drift",
+     "pos": [
+      273.5,
+      0,
+      367.0
+     ],
+     "vis": "player",
+     "rotY": 300,
+     "key": "T6",
+     "dims": {
+      "r": 2.6,
+      "h": 0.9
+     }
+    },
+    {
+     "id": "tower-roof-T6-gear",
+     "kind": "gear-pile",
+     "pos": [
+      260,
+      0,
+      365
+     ],
+     "vis": "hidden-object",
+     "key": "T6",
+     "label": "Under the snow, four guards' remains: tattered cloth, broken longbows and arrows, rusted blades in ruined sheaths, rusty chain mail",
+     "playerLabel": "Old gear under the snow"
+    },
+    {
+     "id": "tower-roof-maiden0",
+     "kind": "snow-maiden",
+     "pos": [
+      274.5,
+      0,
+      355.0
+     ],
+     "vis": "hidden-creature",
+     "key": "T6",
+     "label": "Snow maiden (specter; cold immune, cold Life Drain): only if the card reading puts a treasure here; it appears in the snow when the last falls",
+     "size": "medium",
+     "playerLabel": "Swirling snow, shaped like a woman"
+    },
+    {
+     "id": "tower-roof-maiden1",
+     "kind": "snow-maiden",
+     "pos": [
+      269.75,
+      0,
+      363.227
+     ],
+     "vis": "hidden-creature",
+     "key": "T6",
+     "label": "Snow maiden (specter; cold immune, cold Life Drain): only if the card reading puts a treasure here; it appears in the snow when the last falls",
+     "size": "medium",
+     "playerLabel": "Swirling snow, shaped like a woman"
+    },
+    {
+     "id": "tower-roof-maiden2",
+     "kind": "snow-maiden",
+     "pos": [
+      260.25,
+      0,
+      363.227
+     ],
+     "vis": "hidden-creature",
+     "key": "T6",
+     "label": "Snow maiden (specter; cold immune, cold Life Drain): only if the card reading puts a treasure here; it appears in the snow when the last falls",
+     "size": "medium",
+     "playerLabel": "Swirling snow, shaped like a woman"
+    },
+    {
+     "id": "tower-roof-maiden3",
+     "kind": "snow-maiden",
+     "pos": [
+      255.5,
+      0,
+      355.0
+     ],
+     "vis": "hidden-creature",
+     "key": "T6",
+     "label": "Snow maiden (specter; cold immune, cold Life Drain): only if the card reading puts a treasure here; it appears in the snow when the last falls",
+     "size": "medium",
+     "playerLabel": "Swirling snow, shaped like a woman"
+    },
+    {
+     "id": "tower-roof-maiden4",
+     "kind": "snow-maiden",
+     "pos": [
+      260.25,
+      0,
+      346.773
+     ],
+     "vis": "hidden-creature",
+     "key": "T6",
+     "label": "Snow maiden (specter; cold immune, cold Life Drain): only if the card reading puts a treasure here; it appears in the snow when the last falls",
+     "size": "medium",
+     "playerLabel": "Swirling snow, shaped like a woman"
+    },
+    {
+     "id": "tower-roof-maiden5",
+     "kind": "snow-maiden",
+     "pos": [
+      269.75,
+      0,
+      346.773
+     ],
+     "vis": "hidden-creature",
+     "key": "T6",
+     "label": "Snow maiden (specter; cold immune, cold Life Drain): only if the card reading puts a treasure here; it appears in the snow when the last falls",
+     "size": "medium",
+     "playerLabel": "Swirling snow, shaped like a woman"
+    },
+    {
+     "id": "tower-roof-T6-note",
+     "kind": "note",
+     "pos": [
+      265,
+      0,
+      346.0
+     ],
+     "vis": "dm-note",
+     "key": "T6",
+     "label": "The roof is 40 ft up and 540 ft above the misty valley. Eight 10-ft gold-plated statues of women knights with lances stand on the battlements, facing out."
+    }
+   ]
+  }
+ ],
+ "links": [
+  {
+   "id": "T-stair",
+   "kind": "stairs",
+   "from": {
+    "level": "pass",
+    "pos": [
+     270.5,
+     367.5
+    ]
+   },
+   "to": {
+    "level": "tower-upper",
+    "pos": [
+     253.0,
+     360.0
+    ]
+   }
+  },
+  {
+   "id": "T-ladder",
+   "kind": "trapdoor",
+   "from": {
+    "level": "tower-upper",
+    "pos": [
+     265,
+     359.5
+    ]
+   },
+   "to": {
+    "level": "tower-roof",
+    "pos": [
+     265,
+     359.5
+    ]
+   }
+  }
+ ]
+}
