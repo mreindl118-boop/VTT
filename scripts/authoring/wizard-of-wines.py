@@ -350,8 +350,8 @@ u.objects[-1]['dims'] = {'v': 3}
 for i, (x, z) in enumerate([(4.5, 16.3), (4.6, 17.0)]): u.creature(f'W20-vine{i}', 'vine-blight', (x, z), 'W20', 'Vine blight (2): a shape of dead vines behind the druid; fights to the death')
 # W19 sleeping quarters (west: Davian, Adrian, Elvir; east: the boys, toys about)
 for k, x0 in (('W19-west', 5), ('W19-east', 7)):
-    u.prop(f'{k}-bunk1', 'bunk-bed', (x0 + 1.2, 15.42), k, rotY=90)
-    u.prop(f'{k}-bunk2', 'bunk-bed', (x0 + 1.62, 16.95), k)
+    u.prop(f'{k}-bunk1', 'winery-bunk-bed', (x0 + 1.2, 15.42), k, rotY=90)
+    u.prop(f'{k}-bunk2', 'winery-bunk-bed', (x0 + 1.62, 16.95), k)
     for i in range(4): u.prop(f'{k}-locker{i}', 'trunk', (x0 + 0.24, 16.0 + i * 0.62), k, rotY=90)
     u.objects[-1]['container'] = {'contents': 'Clothing and personal belongings; nothing of value.'}
 u.prop('W19-horse', 'rocking-horse', (7.9, 17.4), 'W19-east', rotY=30)

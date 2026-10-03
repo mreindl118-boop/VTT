@@ -435,7 +435,7 @@ export function fogWall(d: Dims): THREE.Group {
 Object.assign(PROPS_V1, {
   'vine-row': vineRow, 'grape-tub': grapeTub, 'treading-tub': treadingTub, 'fermentation-vat': fermentationVat, barrel, 'sand-barrel': sandBarrel,
   'glass-hearth': glassHearth, 'bottle-rack': bottleRack, 'barrel-wagon': barrelWagon, 'loading-winch': loadingWinch, 'printing-press': printingPress,
-  'bunk-bed': bunkBed, 'rocking-horse': rockingHorse, cradle, 'stave-pile': stavePile, 'tool-rack': toolRack, arcade, pier, 'winery-roof': wineryRoof,
+  'winery-bunk-bed': bunkBed, 'rocking-horse': rockingHorse, cradle, 'stave-pile': stavePile, 'tool-rack': toolRack, arcade, pier, 'winery-roof': wineryRoof,
   'shed-roof': shedRoof, ivy, 'brown-mold': brownMold, 'strahd-effigy': strahdEffigy, cairn, 'black-boulder': blackBoulder, 'gulthias-tree': gulthiasTree,
   'sod-grave': sodGrave, 'fog-wall': fogWall, 'dead-shrub': deadShrub,
 } as Record<string, (d: Dims) => THREE.Object3D>);

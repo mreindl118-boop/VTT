@@ -13609,7 +13609,7 @@
     },
     {
      "id": "upper-W19-west-bunk1",
-     "kind": "bunk-bed",
+     "kind": "winery-bunk-bed",
      "pos": [
       31.0,
       0,
@@ -13621,7 +13621,7 @@
     },
     {
      "id": "upper-W19-west-bunk2",
-     "kind": "bunk-bed",
+     "kind": "winery-bunk-bed",
      "pos": [
       33.1,
       0,
@@ -13683,7 +13683,7 @@
     },
     {
      "id": "upper-W19-east-bunk1",
-     "kind": "bunk-bed",
+     "kind": "winery-bunk-bed",
      "pos": [
       41.0,
       0,
@@ -13695,7 +13695,7 @@
     },
     {
      "id": "upper-W19-east-bunk2",
-     "kind": "bunk-bed",
+     "kind": "winery-bunk-bed",
      "pos": [
       43.1,
       0,

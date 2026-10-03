@@ -390,7 +390,7 @@ for k, (i, j, w, d) in enumerate([(7.4, -22.4, 10, 7), (9.9, -22.4, 9, 7)]): u.P
 for k, (i, j, r) in enumerate([(6.9, -22.9, 120), (7.9, -22.0, 200), (9.4, -22.9, 30), (10.4, -21.9, 250), (7.0, -21.7, 160)]): u.P(f'X30-chair{k}', 'chair', i, j, 'X30', rotY=r)
 for k, (i, j) in enumerate([(7.3, -23.6), (9.9, -23.6), (8.6, -21.5)]): u.P(f'X30-cand{k}', 'candlestick', i, j, 'X30', dims={'h': 5}); u.L(f'X30-{k}', i, j, 'candle', 5, 10, y=5.5)
 u.N('X30-fresco', 8.5, -22.6, 'X30', 'Vaulted ceiling 30 ft up: a fresco of angels set ablaze in a hell.')
-u.P('X5a-head', 'statue-head', 8.5, -16.5, 'X5a', dims={'r': 8.5, 'h': 10}, desc='The great statue\'s cowled head, its face a void of utter blackness pierced by two eyeholes.')
+u.P('X5a-head', 'god-statue-head', 8.5, -16.5, 'X5a', dims={'r': 8.5, 'h': 10}, desc='The great statue\'s cowled head, its face a void of utter blackness pierced by two eyeholes.')
 u.P('X5a-trap', 'trapdoor', 8.5, -16.3, 'X5a', desc='A stone trapdoor in the floor of the head.')
 u.C('X5a-neferon', 'arcanaloth', 8.5, -16.8, 'X5a', "Neferon the arcanaloth in magical darkness (DC 17); truesight. Disguises as 'Heinrich Stolt'. Flees invisibly below half hp; never leaves the temple.", playerLabel='Something in the dark')
 u.H('X5a-loot', 'niche', 8.2, -17.0, 'X5a', "Neferon's spellbook, gold spectacles with pink lenses (250 gp), robe of useful items (8 patches). A card-reading treasure lies on this floor.")

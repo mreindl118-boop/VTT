@@ -363,7 +363,10 @@
    ],
    "type": "castle",
    "blurb": "A ruined mansion of a fallen knightly order.",
-   "dm": "Revenants of the order; the dragon's skull; the beacon."
+   "dm": "Revenants of the order; the dragon's skull; the beacon.",
+   "scenes": [
+    "ch07/Q"
+   ]
   },
   {
    "key": "R",
@@ -431,7 +434,10 @@
    ],
    "type": "settlement",
    "blurb": "A winery in the hills that supplies the valley's wine.",
-   "dm": "Druids and blights hold the winery; the missing gems."
+   "dm": "Druids and blights hold the winery; the missing gems.",
+   "scenes": [
+    "ch12/W"
+   ]
   },
   {
    "key": "X",
@@ -442,7 +448,10 @@
    ],
    "type": "temple",
    "blurb": "A buried temple high in the peaks where dark powers sleep.",
-   "dm": "Amber sarcophagi and their vestiges; the arcanaloth."
+   "dm": "Amber sarcophagi and their vestiges; the arcanaloth.",
+   "scenes": [
+    "ch13/X"
+   ]
   },
   {
    "key": "Y",
@@ -453,7 +462,10 @@
    ],
    "type": "hill",
    "blurb": "A hill topped by a circle of standing stones and a crude giant statue.",
-   "dm": "The druids' ritual; the tree blight."
+   "dm": "The druids' ritual; the tree blight.",
+   "scenes": [
+    "ch14/Y"
+   ]
   },
   {
    "key": "Z",
