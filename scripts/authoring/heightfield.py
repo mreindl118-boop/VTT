@@ -68,6 +68,12 @@ def build(world):
         # Mount Baratok is a single monolith (the module: its presence oppressive, the slopes climbing from the lake); broad
         h = peak_height(pk['name']); d = np.hypot(gx - pk['pos'][0], gy - pk['pos'][1]); sig = pk.get('spread', 1.25 if 'Baratok' in pk['name'] else 0.7 if h > 4000 else 0.5)
         H = np.maximum(H, H * 0.3 + h * np.exp(-(d * d) / (2 * sig ** 2)))
+    # Mount Ghakis is a massif, not a cone: the Tsolenka road 'hugs Mount Ghakis, climbing to great heights' (p.157) and the
+    # Amber Temple is carved into its snowy slope (p.182), so its shoulders run west from the summit along the pass
+    # road, falling toward the Raven River (miles, peak feet, spread in miles)
+    if any(pk['name'] == 'Mount Ghakis' for pk in world.get('peaks', [])):
+        for sx, sy, h, sig in [(6.2, 11.2, 6600, 0.9), (5.2, 11.2, 5800, 0.8), (4.2, 10.6, 4300, 0.65), (3.3, 10.0, 3400, 0.5)]:
+            d = np.hypot(gx - sx, gy - sy); H = np.maximum(H, H * 0.3 + h * np.exp(-(d * d) / (2 * sig ** 2)))
     # a site on its crag: a pillar of rock rising out of whatever stands there
     for p in world.get('pins', []):
         if p.get('heightFt'):

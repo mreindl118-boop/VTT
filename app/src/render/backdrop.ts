@@ -26,6 +26,8 @@ export interface BackdropOpts {
   roads?: P[][];
   /** How far this site stands above the surrounding land: the land, forest and other places sit that far below. */
   crag?: number;
+  /** The map's own ground ('grass', 'snow', 'marsh'): the land beside the map blends into it. Default grass. */
+  ground?: string;
   /** Felled ground: no forest within this many feet of the map (a walled town keeps its approaches clear). */
   clearing?: number;
 }
@@ -53,7 +55,7 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
   const toWorld = (w: P) => { const [dx, dz] = toPlan(w); return { x: cx + dx, z: cz + dz, d: Math.hypot(dx, dz) }; };
   const haze = (d: number) => Math.min(0.85, 1 - Math.exp(-d / 32000));
   // the land beyond the map: its baked colours carry the same drifting grass grain as the map's own ground
-  const landMat = () => { const m = new THREE.MeshLambertMaterial({ vertexColors: true, fog: false, flatShading: true }); setSurface(m, 'grass'); return patchFog(m, true); };
+  const landMat = () => { const m = new THREE.MeshLambertMaterial({ vertexColors: true, fog: false, flatShading: true }); setSurface(m, o.ground === 'snow' ? 'snow' : 'grass'); return patchFog(m, true); };
   const hazed = (hex: string, d: number) => lambert(blend(hex, haze(d)), surfaceOf(hex));
   // plan feet → world miles (the inverse of toPlan) and the ground's height there, flattened to the map near it
   const toMiles = (x: number, z: number): P => { const dx = x - cx, dz = z - cz; return [o.pin[0] + (E[0] * dx + E[1] * dz) / FT, o.pin[1] + (S[0] * dx + S[1] * dz) / FT]; };
@@ -99,7 +101,7 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
     // a polar mesh: fine near the site, coarse toward the horizon
     const radii: number[] = [0]; for (let r = 90; r <= 3000; r += 130) radii.push(r); for (let r = 3400; r <= 16000; r += 450) radii.push(r); for (let r = 18500; r <= 90000; r += 2500) radii.push(r);
     const SEG = 96, P3: number[] = [], C: number[] = [], idx: number[] = [];
-    const snowLine = 4200, GRASS = new THREE.Color(FLOOR_COLOR.grass), rock = new THREE.Color('#6a6d74'), hillC = new THREE.Color('#66705f'), forestC = new THREE.Color(T.forest[0]), waterC = new THREE.Color('#5e7d94'), snowC = new THREE.Color('#e4e6ea'), apronC = new THREE.Color(T.forest[1]).lerp(new THREE.Color(T.apron), 0.35);
+    const snowLine = 4200, GRASS = new THREE.Color(FLOOR_COLOR[(o.ground ?? 'grass') as keyof typeof FLOOR_COLOR] ?? FLOOR_COLOR.grass), rock = new THREE.Color('#6a6d74'), hillC = new THREE.Color('#66705f'), forestC = new THREE.Color(T.forest[0]), waterC = new THREE.Color('#5e7d94'), snowC = new THREE.Color('#e4e6ea'), apronC = new THREE.Color(T.forest[1]).lerp(new THREE.Color(T.apron), 0.35);
     const colAt = (x: number, z: number, y: number, d: number) => {
       const [mx, my] = toMiles(x, z), f = terrain.cover('f', mx, my), m = terrain.cover('m', mx, my), hl = terrain.cover('h', mx, my), w = terrain.cover('w', mx, my), mist = terrain.cover('x', mx, my);
       const c = apronC.clone(); if (terrain.hasCover) { c.lerp(forestC, Math.min(1, f * 1.2)); c.lerp(hillC, hl); c.lerp(rock, Math.min(1, m * 1.1 + mist * 0.8)); c.lerp(waterC, Math.min(1, w * 1.5)); }
