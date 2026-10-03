@@ -390,7 +390,11 @@
    ],
    "type": "settlement",
    "blurb": "A walled village high in the mountains with an abbey above it.",
-   "dm": "Burgomaster Krezkov, the Abbot and the abbey's residents."
+   "dm": "Burgomaster Krezkov, the Abbot and the abbey's residents.",
+   "scenes": [
+    "ch08/S",
+    "ch08/S10"
+   ]
   },
   {
    "key": "T",

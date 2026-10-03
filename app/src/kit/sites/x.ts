@@ -448,7 +448,7 @@ export function stoneFlight(d: Dims): THREE.Group {
 
 Object.assign(PROPS_V1, {
   'amber-sarcophagus': amberSarcophagus, 'amber-statue': amberStatue, 'amber-shards': amberShards, 'god-of-secrets': godOfSecrets, 'god-statue-head': statueHead,
-  'wizard-statue': wizardStatue, 'black-column': blackColumn, 'balcony-debris': balconyDebris, 'arrow-slit': arrowSlit, 'facade-arch': facadeArch, 'snow-drift': snowDrift,
+  'wizard-statue': wizardStatue, 'black-column': blackColumn, 'balcony-debris': balconyDebris, 'arrow-slit': arrowSlit, 'facade-arch': facadeArch, 'ledge-snow-drift': snowDrift,
   'shaft-hole': shaftHole, 'ceiling-hole': ceilingHole, 'scroll-niches': scrollNiches, 'bottle-niches': bottleNiches, 'stone-table': stoneTable, 'leaning-ladder': leaningLadder,
   'wall-sconce': wallSconce, 'candlestick-fallen': candlestickFallen, 'wood-debris': woodDebris, 'fur-bedroll': furBedroll, scorch, 'floor-cracks': floorCracks,
   'charred-corpse': charredCorpse, lectern, 'slate-board': slateBoard, 'marble-bench': marbleBench, lanthorn, 'marble-bookcase': marbleBookcase, 'gold-spiral': goldSpiral,

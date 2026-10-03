@@ -1266,7 +1266,7 @@
     },
     {
      "id": "facade-drift0",
-     "kind": "snow-drift",
+     "kind": "ledge-snow-drift",
      "pos": [
       55.0,
       0,
@@ -1281,7 +1281,7 @@
     },
     {
      "id": "facade-drift1",
-     "kind": "snow-drift",
+     "kind": "ledge-snow-drift",
      "pos": [
       185.0,
       0,
@@ -1297,7 +1297,7 @@
     },
     {
      "id": "facade-drift2",
-     "kind": "snow-drift",
+     "kind": "ledge-snow-drift",
      "pos": [
       15.0,
       0,
@@ -1313,7 +1313,7 @@
     },
     {
      "id": "facade-drift3",
-     "kind": "snow-drift",
+     "kind": "ledge-snow-drift",
      "pos": [
       225.0,
       0,
@@ -1329,7 +1329,7 @@
     },
     {
      "id": "facade-drift4",
-     "kind": "snow-drift",
+     "kind": "ledge-snow-drift",
      "pos": [
       135.0,
       0,

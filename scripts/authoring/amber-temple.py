@@ -186,7 +186,7 @@ for k, (i, j, r) in enumerate([(-0.6, -1.4, 2.2), (2.2, -1.0, 1.6), (5.1, -1.5, 
                                (19.8, -0.4, 3.2), (-3.6, 0.6, 3.0), (11.3, 0.4, 1.2), (4.0, 0.2, 1.1), (-2.6, -1.4, 1.8), (20.4, 2.6, 2.6)]):
     f.P(f'rock{k}', 'boulder', i, j, None, rotY=k * 47, dims={'r': r})
 for k, (i, j, w, d) in enumerate([(1.5, 1.5, 22, 12), (14.5, 1.8, 26, 14), (-2.5, 3.5, 18, 16), (18.5, 4.2, 20, 16), (9.5, 4.5, 16, 10)]):
-    f.P(f'drift{k}', 'snow-drift', i, j, None, rotY=k * 31, dims={'w': w, 'd': d, 'h': 1.6 + (k % 2) * 0.8})
+    f.P(f'drift{k}', 'ledge-snow-drift', i, j, None, rotY=k * 31, dims={'w': w, 'd': d, 'h': 1.6 + (k % 2) * 0.8})
 f.P('X1a-rubble', 'rubble', -2.3, -3.2, 'X1a', dims={'n': 9}); f.P('X1a-rock', 'boulder', -2.6, -2.5, 'X1a', dims={'r': 1.6})
 f.N('X1-road', 8.0, 3.0, 'X1', 'The gravel road climbs north from Tsolenka Pass and fades under the snow short of the facade.')
 f.N('X1a-note', -2.2, -3.6, 'X1a', 'Fissure 2 ft wide, 10 ft tall, 15 ft deep, down into X15; light and voices beyond. Loud noise outside draws one of the mountain folk to look.')

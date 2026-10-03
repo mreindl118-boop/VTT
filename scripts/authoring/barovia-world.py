@@ -30,7 +30,7 @@ PINS = [  # key, name, px, type, scenes (built scene paths reachable from here)
   ('P', 'Luna River Crossroads', (383, 318), 'crossroads', ['ch02/P']),
   ('Q', 'Argynvostholt', (343, 440), 'castle', ['ch07/Q']),
   ('R', 'Raven River Crossroads', (185, 288), 'crossroads', ['ch02/R']),
-  ('S', 'Village of Krezk', (53, 261), 'settlement', []),
+  ('S', 'Village of Krezk', (53, 261), 'settlement', ['ch08/S', 'ch08/S10']),
   ('T', 'Tsolenka Pass', (225, 690), 'pass', ['ch09/T']),
   ('U', 'Ruins of Berez', (346, 538), 'ruin', []),
   ('V', "Van Richten's Tower", (230, 225), 'tower', []),
