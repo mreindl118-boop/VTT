@@ -1,0 +1,9763 @@
+{
+ "schema": 1,
+ "location": "Z",
+ "chapter": "ch15",
+ "name": "Werewolf Den",
+ "mapPage": 202,
+ "bookScaleFt": 10,
+ "ambient": "barovian-overcast",
+ "entry": "den",
+ "levels": [
+  {
+   "id": "den",
+   "name": "The den",
+   "elevationFt": 0,
+   "ceilingFt": 20,
+   "north": "-z",
+   "rooms": [
+    {
+     "key": "Z6-tunnel",
+     "name": "Kiril's Cave, Stair Tunnel",
+     "page": 204,
+     "polygon": [
+      [
+       147.0,
+       156.5
+      ],
+      [
+       154.0,
+       162.0
+      ],
+      [
+       158.0,
+       156.5
+      ],
+      [
+       160.0,
+       151.5
+      ],
+      [
+       160.0,
+       135.0
+      ],
+      [
+       155.0,
+       126.5
+      ],
+      [
+       147.5,
+       120.0
+      ],
+      [
+       112.5,
+       120.0
+      ],
+      [
+       104.5,
+       123.0
+      ],
+      [
+       100.5,
+       131.0
+      ],
+      [
+       100.5,
+       147.0
+      ],
+      [
+       105.0,
+       154.0
+      ],
+      [
+       110.25,
+       158.0
+      ],
+      [
+       115.0,
+       154.0
+      ],
+      [
+       116.0,
+       147.5
+      ],
+      [
+       110.25,
+       146.0
+      ],
+      [
+       110.25,
+       133.0
+      ],
+      [
+       113.0,
+       129.5
+      ],
+      [
+       142.5,
+       129.5
+      ],
+      [
+       147.0,
+       132.0
+      ],
+      [
+       150.0,
+       140.0
+      ],
+      [
+       150.0,
+       153.0
+      ]
+     ],
+     "floor": "dirt",
+     "ceilingFt": 10,
+     "desc": "A ten-foot tunnel of rough-hewn steps and landings, climbing.",
+     "dm": "Ends at a secret door onto the ledge of Z8; the door is obvious from this side."
+    },
+    {
+     "key": "Z6",
+     "name": "Kiril's Cave",
+     "page": 204,
+     "polygon": [
+      [
+       147.0,
+       156.5
+      ],
+      [
+       154.0,
+       162.0
+      ],
+      [
+       150.5,
+       166.0
+      ],
+      [
+       150.0,
+       189.0
+      ],
+      [
+       150.0,
+       191.5
+      ],
+      [
+       130.0,
+       191.5
+      ],
+      [
+       130.0,
+       182.5
+      ],
+      [
+       129.0,
+       175.0
+      ],
+      [
+       128.0,
+       167.0
+      ],
+      [
+       129.5,
+       161.5
+      ],
+      [
+       134.5,
+       158.0
+      ],
+      [
+       140.0,
+       156.5
+      ]
+     ],
+     "floor": "dirt",
+     "ceilingFt": 20,
+     "desc": "A bare cave; across its far end hangs a drape of stitched-together hides that are unmistakably human.",
+     "dm": "Kiril sleeps here in wolf form when he is home. Behind the curtain a 10-ft tunnel of rough stairs and landings climbs to a secret door onto Z8."
+    },
+    {
+     "key": "Z5b",
+     "name": "North Cave",
+     "page": 203,
+     "polygon": [
+      [
+       122.5,
+       192.0
+      ],
+      [
+       121.75,
+       185.0
+      ],
+      [
+       118.5,
+       180.5
+      ],
+      [
+       112.0,
+       177.0
+      ],
+      [
+       101.5,
+       178.75
+      ],
+      [
+       100.0,
+       185.0
+      ],
+      [
+       100.5,
+       199.5
+      ],
+      [
+       103.0,
+       206.0
+      ],
+      [
+       109.0,
+       208.0
+      ],
+      [
+       115.0,
+       211.0
+      ],
+      [
+       119.5,
+       215.0
+      ]
+     ],
+     "floor": "dirt",
+     "ceilingFt": 10,
+     "desc": "A side cave off the maze.",
+     "dm": "Wensencia sleeps here in wolf form with Kellen (10), a werewolf child clutching a zombie-painted doll. At an alarm she cages him in Z7 and joins the fight."
+    },
+    {
+     "key": "Z5a",
+     "name": "South Cave",
+     "page": 203,
+     "polygon": [
+      [
+       119.5,
+       215.0
+      ],
+      [
+       110.5,
+       218.75
+      ],
+      [
+       101.0,
+       217.5
+      ],
+      [
+       92.75,
+       218.75
+      ],
+      [
+       88.0,
+       224.5
+      ],
+      [
+       88.5,
+       234.0
+      ],
+      [
+       92.75,
+       240.0
+      ],
+      [
+       101.0,
+       240.5
+      ],
+      [
+       110.5,
+       240.0
+      ],
+      [
+       117.5,
+       243.5
+      ]
+     ],
+     "floor": "dirt",
+     "ceilingFt": 10,
+     "desc": "A side cave off the maze.",
+     "dm": "Bianca, Kiril's white-haired mate, sleeps here in wolf form; she wakes fast at an alarm."
+    },
+    {
+     "key": "Z7",
+     "name": "Shrine of Mother Night",
+     "page": 204,
+     "polygon": [
+      [
+       159.5,
+       188.0
+      ],
+      [
+       162.0,
+       178.75
+      ],
+      [
+       170.0,
+       178.75
+      ],
+      [
+       171.5,
+       170.5
+      ],
+      [
+       170.5,
+       162.5
+      ],
+      [
+       178.5,
+       157.5
+      ],
+      [
+       185.5,
+       156.5
+      ],
+      [
+       190.25,
+       149.5
+      ],
+      [
+       201.0,
+       148.0
+      ],
+      [
+       216.5,
+       150.0
+      ],
+      [
+       221.0,
+       155.25
+      ],
+      [
+       227.0,
+       159.5
+      ],
+      [
+       230.5,
+       167.0
+      ],
+      [
+       231.75,
+       175.0
+      ],
+      [
+       230.5,
+       184.5
+      ],
+      [
+       231.75,
+       189.5
+      ],
+      [
+       227.0,
+       196.5
+      ],
+      [
+       221.0,
+       200.0
+      ],
+      [
+       221.0,
+       211.5
+      ],
+      [
+       217.5,
+       217.5
+      ],
+      [
+       211.5,
+       220.0
+      ],
+      [
+       202.0,
+       218.5
+      ],
+      [
+       193.0,
+       219.0
+      ],
+      [
+       180.0,
+       219.0
+      ],
+      [
+       180.0,
+       199.5
+      ],
+      [
+       188.0,
+       198.5
+      ],
+      [
+       191.0,
+       196.5
+      ],
+      [
+       191.0,
+       192.0
+      ],
+      [
+       188.0,
+       188.75
+      ],
+      [
+       181.0,
+       188.0
+      ],
+      [
+       173.0,
+       188.75
+      ],
+      [
+       169.5,
+       193.0
+      ]
+     ],
+     "floor": "dirt",
+     "ceilingFt": 20,
+     "desc": "Below the steps, children peer silently out of wooden cages held shut by boulders. Among the cages a rough-carved idol, a woman with a wolf's head hung with vines and pale blossoms, rises from a glittering heap; a ragged woman prays at its feet, and two dead captives hang in chains on the wall behind.",
+     "dm": "Zuleika Toranescu prays to Mother Night for Emil. Eight children (AC 10, 1 hp) two to a cage, two cages empty. Taking from the hoard brings a curse of sleepless nights."
+    },
+    {
+     "key": "Z5",
+     "name": "Deep Caves",
+     "page": 203,
+     "polygon": [
+      [
+       122.5,
+       192.0
+      ],
+      [
+       130.0,
+       191.5
+      ],
+      [
+       150.0,
+       191.5
+      ],
+      [
+       155.0,
+       189.75
+      ],
+      [
+       159.5,
+       188.0
+      ],
+      [
+       169.5,
+       193.0
+      ],
+      [
+       173.0,
+       198.5
+      ],
+      [
+       180.0,
+       199.5
+      ],
+      [
+       180.0,
+       219.0
+      ],
+      [
+       179.5,
+       227.5
+      ],
+      [
+       177.0,
+       233.0
+      ],
+      [
+       173.0,
+       236.0
+      ],
+      [
+       171.0,
+       240.0
+      ],
+      [
+       170.5,
+       247.5
+      ],
+      [
+       171.5,
+       251.5
+      ],
+      [
+       169.0,
+       260.5
+      ],
+      [
+       161.25,
+       260.0
+      ],
+      [
+       160.0,
+       264.0
+      ],
+      [
+       160.5,
+       271.0
+      ],
+      [
+       129.5,
+       270.0
+      ],
+      [
+       127.0,
+       262.0
+      ],
+      [
+       123.0,
+       254.0
+      ],
+      [
+       120.0,
+       250.5
+      ],
+      [
+       117.5,
+       243.5
+      ],
+      [
+       119.5,
+       215.0
+      ]
+     ],
+     "floor": "dirt",
+     "ceilingFt": 10,
+     "desc": "Low passages wind between columns of rock, lit by torches; old bones litter the ground everywhere.",
+     "dm": "Ceiling 10 ft. The bones are an alarm: disadvantage on Stealth checks to move silently."
+    },
+    {
+     "key": "Z3-ledge",
+     "name": "Wolf Den, Ledge",
+     "page": 203,
+     "polygon": [
+      [
+       99.0,
+       278.75
+      ],
+      [
+       105.25,
+       278.0
+      ],
+      [
+       111.5,
+       270.5
+      ],
+      [
+       119.75,
+       269.0
+      ],
+      [
+       129.5,
+       270.0
+      ],
+      [
+       160.5,
+       271.0
+      ],
+      [
+       161.0,
+       281.5
+      ],
+      [
+       157.0,
+       281.5
+      ],
+      [
+       102.0,
+       281.5
+      ]
+     ],
+     "floor": "flagstone",
+     "ceilingFt": 20,
+     "desc": "A ledge of rock five feet above the wolf den, overlooking it.",
+     "dm": "Steps at its east end lead down to the den floor."
+    },
+    {
+     "key": "Z3",
+     "name": "Wolf Den",
+     "page": 203,
+     "polygon": [
+      [
+       102.0,
+       281.5
+      ],
+      [
+       157.0,
+       281.5
+      ],
+      [
+       161.0,
+       281.5
+      ],
+      [
+       160.5,
+       289.5
+      ],
+      [
+       161.5,
+       299.0
+      ],
+      [
+       165.0,
+       303.0
+      ],
+      [
+       169.0,
+       307.5
+      ],
+      [
+       171.0,
+       310.5
+      ],
+      [
+       136.5,
+       310.5
+      ],
+      [
+       130.0,
+       309.5
+      ],
+      [
+       128.0,
+       309.0
+      ],
+      [
+       118.5,
+       309.0
+      ],
+      [
+       111.5,
+       310.25
+      ],
+      [
+       106.0,
+       317.0
+      ],
+      [
+       97.5,
+       318.5
+      ],
+      [
+       88.0,
+       319.0
+      ],
+      [
+       81.0,
+       317.0
+      ],
+      [
+       80.5,
+       305.0
+      ],
+      [
+       79.0,
+       291.0
+      ],
+      [
+       79.5,
+       279.5
+      ],
+      [
+       88.0,
+       278.0
+      ],
+      [
+       99.0,
+       278.75
+      ]
+     ],
+     "floor": "dirt",
+     "ceilingFt": 20,
+     "desc": "A long cave under a stone ledge, a fire smouldering at its far end, the floor littered with gnawed bones. An old man piping on a flute sits with a pack of wolves at his back.",
+     "dm": "Skennis (werewolf, 36 hp, too old to hunt) and nine wolves. Treasure: electrum flute (250 gp), four 50 gp gems. Dying, he promises Kiril will skin them alive."
+    },
+    {
+     "key": "Z4",
+     "name": "Underground Spring",
+     "page": 203,
+     "polygon": [
+      [
+       160.5,
+       271.0
+      ],
+      [
+       164.0,
+       275.75
+      ],
+      [
+       169.0,
+       273.5
+      ],
+      [
+       170.0,
+       266.5
+      ],
+      [
+       169.0,
+       260.5
+      ],
+      [
+       171.5,
+       251.5
+      ],
+      [
+       177.0,
+       250.0
+      ],
+      [
+       180.5,
+       240.0
+      ],
+      [
+       190.0,
+       238.0
+      ],
+      [
+       200.5,
+       238.5
+      ],
+      [
+       206.5,
+       235.0
+      ],
+      [
+       210.0,
+       234.5
+      ],
+      [
+       215.0,
+       230.0
+      ],
+      [
+       216.5,
+       240.0
+      ],
+      [
+       218.0,
+       255.0
+      ],
+      [
+       220.0,
+       271.5
+      ],
+      [
+       221.5,
+       280.0
+      ],
+      [
+       221.0,
+       289.0
+      ],
+      [
+       220.3,
+       300.5
+      ],
+      [
+       220.3,
+       307.0
+      ],
+      [
+       219.5,
+       317.0
+      ],
+      [
+       215.0,
+       319.5
+      ],
+      [
+       211.0,
+       325.5
+      ],
+      [
+       204.0,
+       328.5
+      ],
+      [
+       191.5,
+       310.5
+      ],
+      [
+       179.25,
+       310.5
+      ],
+      [
+       181.75,
+       300.0
+      ],
+      [
+       189.0,
+       289.5
+      ],
+      [
+       160.5,
+       289.5
+      ],
+      [
+       161.0,
+       281.5
+      ]
+     ],
+     "floor": "dirt",
+     "ceilingFt": 20,
+     "desc": "Cold water wells up into a broad pool, and a crack high overhead lets in a little daylight and a steady drip of rain. Rock shelves look down on the water from two sides.",
+     "dm": "Fresh water 10 ft deep; ceiling 20 ft above it; the fissure is 3 ft wide at most. The 5-ft ledges: north, and east with rough stairs and crates."
+    },
+    {
+     "key": "Z4-ledge",
+     "name": "Underground Spring, East Ledge",
+     "page": 203,
+     "polygon": [
+      [
+       215.0,
+       230.0
+      ],
+      [
+       223.0,
+       227.5
+      ],
+      [
+       228.0,
+       229.5
+      ],
+      [
+       233.0,
+       236.0
+      ],
+      [
+       238.0,
+       243.5
+      ],
+      [
+       239.5,
+       250.0
+      ],
+      [
+       238.0,
+       256.0
+      ],
+      [
+       235.5,
+       260.0
+      ],
+      [
+       230.5,
+       262.5
+      ],
+      [
+       230.0,
+       269.0
+      ],
+      [
+       229.25,
+       274.0
+      ],
+      [
+       224.0,
+       277.5
+      ],
+      [
+       221.5,
+       280.0
+      ],
+      [
+       220.0,
+       271.5
+      ],
+      [
+       218.0,
+       255.0
+      ],
+      [
+       216.5,
+       240.0
+      ]
+     ],
+     "floor": "flagstone",
+     "ceilingFt": 20,
+     "desc": "A raised shelf along the east wall, reached by rough steps; a few crates stand on it.",
+     "dm": "The crates are full of adult-sized clothing."
+    },
+    {
+     "key": "Z2",
+     "name": "Guard Post",
+     "page": 203,
+     "polygon": [
+      [
+       136.5,
+       310.5
+      ],
+      [
+       171.0,
+       310.5
+      ],
+      [
+       175.5,
+       320.5
+      ],
+      [
+       179.25,
+       310.5
+      ],
+      [
+       191.5,
+       310.5
+      ],
+      [
+       204.0,
+       328.5
+      ],
+      [
+       200.25,
+       331.5
+      ],
+      [
+       199.5,
+       336.5
+      ],
+      [
+       200.25,
+       348.0
+      ],
+      [
+       204.0,
+       353.5
+      ],
+      [
+       169.0,
+       351.5
+      ],
+      [
+       165.0,
+       348.5
+      ],
+      [
+       158.5,
+       349.5
+      ],
+      [
+       154.5,
+       346.0
+      ],
+      [
+       151.0,
+       340.0
+      ],
+      [
+       150.5,
+       333.5
+      ],
+      [
+       150.0,
+       329.5
+      ],
+      [
+       146.0,
+       325.0
+      ],
+      [
+       142.5,
+       321.0
+      ],
+      [
+       140.5,
+       316.0
+      ]
+     ],
+     "floor": "dirt",
+     "ceilingFt": 20,
+     "desc": "The passage forks around a spur of rock. Up on a shelf where the ways part, two ragged, wild-eyed women watch with spears in hand.",
+     "dm": "Aziana and Davanka, werewolves in human form, on a 5-ft ledge. They raise the alarm; noise here brings help from Z3 and Z5. They fight to the death."
+    },
+    {
+     "key": "Z1",
+     "name": "Cave Mouth",
+     "page": 203,
+     "polygon": [
+      [
+       169.0,
+       351.5
+      ],
+      [
+       204.0,
+       353.5
+      ],
+      [
+       208.0,
+       361.5
+      ],
+      [
+       209.25,
+       369.0
+      ],
+      [
+       210.5,
+       374.5
+      ],
+      [
+       216.0,
+       381.0
+      ],
+      [
+       221.0,
+       387.5
+      ],
+      [
+       222.5,
+       398.0
+      ],
+      [
+       218.5,
+       408.5
+      ],
+      [
+       209.25,
+       415.0
+      ],
+      [
+       200.0,
+       417.0
+      ],
+      [
+       192.0,
+       413.5
+      ],
+      [
+       185.5,
+       403.0
+      ],
+      [
+       180.25,
+       391.5
+      ],
+      [
+       178.25,
+       382.0
+      ],
+      [
+       176.5,
+       377.0
+      ],
+      [
+       171.0,
+       373.0
+      ],
+      [
+       171.0,
+       352.0
+      ]
+     ],
+     "floor": "dirt",
+     "ceilingFt": 20,
+     "desc": "The cave gapes like a wolf's head: its upper jaw juts out overhead on pillars of raw stone, and torchlight flickers within. Off-key piping echoes from somewhere deeper.",
+     "dm": "Canopy 15 ft high, the ceiling 20 ft inside. Guards at Z2 see anyone in the mouth who isn't hidden. With Emil in tow, he can order the pack to let the party pass."
+    }
+   ],
+   "walls": [
+    {
+     "id": "den-w-0",
+     "a": [
+      154.0,
+      162.0
+     ],
+     "b": [
+      158.0,
+      156.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-1",
+     "a": [
+      158.0,
+      156.5
+     ],
+     "b": [
+      160.0,
+      151.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-2",
+     "a": [
+      160.0,
+      146.0
+     ],
+     "b": [
+      160.0,
+      151.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-3",
+     "a": [
+      160.0,
+      140.5
+     ],
+     "b": [
+      160.0,
+      146.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-4",
+     "a": [
+      160.0,
+      135.0
+     ],
+     "b": [
+      160.0,
+      140.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-5",
+     "a": [
+      155.0,
+      126.5
+     ],
+     "b": [
+      160.0,
+      135.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-6",
+     "a": [
+      147.5,
+      120.0
+     ],
+     "b": [
+      155.0,
+      126.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-7",
+     "a": [
+      142.5,
+      120.0
+     ],
+     "b": [
+      147.5,
+      120.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-8",
+     "a": [
+      137.5,
+      120.0
+     ],
+     "b": [
+      142.5,
+      120.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-9",
+     "a": [
+      132.5,
+      120.0
+     ],
+     "b": [
+      137.5,
+      120.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-10",
+     "a": [
+      127.5,
+      120.0
+     ],
+     "b": [
+      132.5,
+      120.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-11",
+     "a": [
+      122.5,
+      120.0
+     ],
+     "b": [
+      127.5,
+      120.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-12",
+     "a": [
+      117.5,
+      120.0
+     ],
+     "b": [
+      122.5,
+      120.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-13",
+     "a": [
+      112.5,
+      120.0
+     ],
+     "b": [
+      117.5,
+      120.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-14",
+     "a": [
+      104.5,
+      123.0
+     ],
+     "b": [
+      112.5,
+      120.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-15",
+     "a": [
+      100.5,
+      131.0
+     ],
+     "b": [
+      104.5,
+      123.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-16",
+     "a": [
+      100.5,
+      131.0
+     ],
+     "b": [
+      100.5,
+      147.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-17",
+     "a": [
+      100.5,
+      147.0
+     ],
+     "b": [
+      105.0,
+      154.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-18",
+     "a": [
+      105.0,
+      154.0
+     ],
+     "b": [
+      110.25,
+      158.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-19",
+     "a": [
+      110.25,
+      158.0
+     ],
+     "b": [
+      115.0,
+      154.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-20",
+     "a": [
+      115.0,
+      154.0
+     ],
+     "b": [
+      116.0,
+      147.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-21",
+     "a": [
+      110.25,
+      146.0
+     ],
+     "b": [
+      116.0,
+      147.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-22",
+     "a": [
+      110.25,
+      141.66666666666666
+     ],
+     "b": [
+      110.25,
+      146.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-23",
+     "a": [
+      110.25,
+      137.33333333333334
+     ],
+     "b": [
+      110.25,
+      141.66666666666666
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-24",
+     "a": [
+      110.25,
+      133.0
+     ],
+     "b": [
+      110.25,
+      137.33333333333334
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-25",
+     "a": [
+      110.25,
+      133.0
+     ],
+     "b": [
+      113.0,
+      129.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-26",
+     "a": [
+      113.0,
+      129.5
+     ],
+     "b": [
+      142.5,
+      129.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-27",
+     "a": [
+      142.5,
+      129.5
+     ],
+     "b": [
+      147.0,
+      132.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-28",
+     "a": [
+      147.0,
+      132.0
+     ],
+     "b": [
+      150.0,
+      140.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-29",
+     "a": [
+      150.0,
+      140.0
+     ],
+     "b": [
+      150.0,
+      153.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-30",
+     "a": [
+      147.0,
+      156.5
+     ],
+     "b": [
+      150.0,
+      153.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-31",
+     "a": [
+      150.5,
+      166.0
+     ],
+     "b": [
+      154.0,
+      162.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-32",
+     "a": [
+      150.0,
+      189.0
+     ],
+     "b": [
+      150.5,
+      166.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-33",
+     "a": [
+      150.0,
+      189.0
+     ],
+     "b": [
+      150.0,
+      191.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-34",
+     "a": [
+      130.0,
+      187.0
+     ],
+     "b": [
+      130.0,
+      191.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-35",
+     "a": [
+      130.0,
+      182.5
+     ],
+     "b": [
+      130.0,
+      187.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-36",
+     "a": [
+      129.0,
+      175.0
+     ],
+     "b": [
+      130.0,
+      182.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-37",
+     "a": [
+      128.0,
+      167.0
+     ],
+     "b": [
+      129.0,
+      175.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-38",
+     "a": [
+      128.0,
+      167.0
+     ],
+     "b": [
+      129.5,
+      161.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-39",
+     "a": [
+      129.5,
+      161.5
+     ],
+     "b": [
+      134.5,
+      158.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-40",
+     "a": [
+      134.5,
+      158.0
+     ],
+     "b": [
+      140.0,
+      156.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-41",
+     "a": [
+      140.0,
+      156.5
+     ],
+     "b": [
+      147.0,
+      156.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-42",
+     "a": [
+      121.75,
+      185.0
+     ],
+     "b": [
+      122.5,
+      192.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-43",
+     "a": [
+      118.5,
+      180.5
+     ],
+     "b": [
+      121.75,
+      185.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-44",
+     "a": [
+      112.0,
+      177.0
+     ],
+     "b": [
+      118.5,
+      180.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-45",
+     "a": [
+      101.5,
+      178.75
+     ],
+     "b": [
+      112.0,
+      177.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-46",
+     "a": [
+      100.0,
+      185.0
+     ],
+     "b": [
+      101.5,
+      178.75
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-47",
+     "a": [
+      100.0,
+      185.0
+     ],
+     "b": [
+      100.5,
+      199.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-48",
+     "a": [
+      100.5,
+      199.5
+     ],
+     "b": [
+      103.0,
+      206.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-49",
+     "a": [
+      103.0,
+      206.0
+     ],
+     "b": [
+      109.0,
+      208.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-50",
+     "a": [
+      109.0,
+      208.0
+     ],
+     "b": [
+      115.0,
+      211.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-51",
+     "a": [
+      115.0,
+      211.0
+     ],
+     "b": [
+      119.5,
+      215.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-52",
+     "a": [
+      110.5,
+      218.75
+     ],
+     "b": [
+      119.5,
+      215.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-53",
+     "a": [
+      101.0,
+      217.5
+     ],
+     "b": [
+      110.5,
+      218.75
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-54",
+     "a": [
+      92.75,
+      218.75
+     ],
+     "b": [
+      101.0,
+      217.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-55",
+     "a": [
+      88.0,
+      224.5
+     ],
+     "b": [
+      92.75,
+      218.75
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-56",
+     "a": [
+      88.0,
+      224.5
+     ],
+     "b": [
+      88.5,
+      234.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-57",
+     "a": [
+      88.5,
+      234.0
+     ],
+     "b": [
+      92.75,
+      240.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-58",
+     "a": [
+      92.75,
+      240.0
+     ],
+     "b": [
+      101.0,
+      240.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-59",
+     "a": [
+      101.0,
+      240.5
+     ],
+     "b": [
+      110.5,
+      240.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-60",
+     "a": [
+      110.5,
+      240.0
+     ],
+     "b": [
+      117.5,
+      243.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-61",
+     "a": [
+      159.5,
+      188.0
+     ],
+     "b": [
+      162.0,
+      178.75
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-62",
+     "a": [
+      162.0,
+      178.75
+     ],
+     "b": [
+      170.0,
+      178.75
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-63",
+     "a": [
+      170.0,
+      178.75
+     ],
+     "b": [
+      171.5,
+      170.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-64",
+     "a": [
+      170.5,
+      162.5
+     ],
+     "b": [
+      171.5,
+      170.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-65",
+     "a": [
+      170.5,
+      162.5
+     ],
+     "b": [
+      178.5,
+      157.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-66",
+     "a": [
+      178.5,
+      157.5
+     ],
+     "b": [
+      185.5,
+      156.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-67",
+     "a": [
+      185.5,
+      156.5
+     ],
+     "b": [
+      190.25,
+      149.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-68",
+     "a": [
+      190.25,
+      149.5
+     ],
+     "b": [
+      201.0,
+      148.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-69",
+     "a": [
+      201.0,
+      148.0
+     ],
+     "b": [
+      216.5,
+      150.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-70",
+     "a": [
+      216.5,
+      150.0
+     ],
+     "b": [
+      221.0,
+      155.25
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-71",
+     "a": [
+      221.0,
+      155.25
+     ],
+     "b": [
+      227.0,
+      159.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-72",
+     "a": [
+      227.0,
+      159.5
+     ],
+     "b": [
+      230.5,
+      167.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-73",
+     "a": [
+      230.5,
+      167.0
+     ],
+     "b": [
+      231.75,
+      175.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-74",
+     "a": [
+      230.5,
+      184.5
+     ],
+     "b": [
+      231.75,
+      175.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-75",
+     "a": [
+      230.5,
+      184.5
+     ],
+     "b": [
+      231.75,
+      189.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-76",
+     "a": [
+      227.0,
+      196.5
+     ],
+     "b": [
+      231.75,
+      189.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-77",
+     "a": [
+      221.0,
+      200.0
+     ],
+     "b": [
+      227.0,
+      196.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-78",
+     "a": [
+      221.0,
+      200.0
+     ],
+     "b": [
+      221.0,
+      211.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-79",
+     "a": [
+      217.5,
+      217.5
+     ],
+     "b": [
+      221.0,
+      211.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-80",
+     "a": [
+      211.5,
+      220.0
+     ],
+     "b": [
+      217.5,
+      217.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-81",
+     "a": [
+      202.0,
+      218.5
+     ],
+     "b": [
+      211.5,
+      220.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-82",
+     "a": [
+      193.0,
+      219.0
+     ],
+     "b": [
+      202.0,
+      218.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-83",
+     "a": [
+      188.66666666666669,
+      219.0
+     ],
+     "b": [
+      193.0,
+      219.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-84",
+     "a": [
+      184.33333333333334,
+      219.0
+     ],
+     "b": [
+      188.66666666666669,
+      219.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-85",
+     "a": [
+      180.0,
+      219.0
+     ],
+     "b": [
+      184.33333333333334,
+      219.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-86",
+     "a": [
+      180.0,
+      199.5
+     ],
+     "b": [
+      188.0,
+      198.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-87",
+     "a": [
+      188.0,
+      198.5
+     ],
+     "b": [
+      191.0,
+      196.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-88",
+     "a": [
+      191.0,
+      192.0
+     ],
+     "b": [
+      191.0,
+      196.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-89",
+     "a": [
+      188.0,
+      188.75
+     ],
+     "b": [
+      191.0,
+      192.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-90",
+     "a": [
+      181.0,
+      188.0
+     ],
+     "b": [
+      188.0,
+      188.75
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-91",
+     "a": [
+      173.0,
+      188.75
+     ],
+     "b": [
+      181.0,
+      188.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-92",
+     "a": [
+      169.5,
+      193.0
+     ],
+     "b": [
+      173.0,
+      188.75
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-93",
+     "a": [
+      122.5,
+      192.0
+     ],
+     "b": [
+      130.0,
+      191.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-94",
+     "a": [
+      150.0,
+      191.5
+     ],
+     "b": [
+      155.0,
+      189.75
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-95",
+     "a": [
+      155.0,
+      189.75
+     ],
+     "b": [
+      159.5,
+      188.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-96",
+     "a": [
+      169.5,
+      193.0
+     ],
+     "b": [
+      173.0,
+      198.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-97",
+     "a": [
+      173.0,
+      198.5
+     ],
+     "b": [
+      180.0,
+      199.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-98",
+     "a": [
+      179.5,
+      227.5
+     ],
+     "b": [
+      180.0,
+      219.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-99",
+     "a": [
+      177.0,
+      233.0
+     ],
+     "b": [
+      179.5,
+      227.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-100",
+     "a": [
+      173.0,
+      236.0
+     ],
+     "b": [
+      177.0,
+      233.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-101",
+     "a": [
+      171.0,
+      240.0
+     ],
+     "b": [
+      173.0,
+      236.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-102",
+     "a": [
+      170.5,
+      247.5
+     ],
+     "b": [
+      171.0,
+      240.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-103",
+     "a": [
+      170.5,
+      247.5
+     ],
+     "b": [
+      171.5,
+      251.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-104",
+     "a": [
+      161.25,
+      260.0
+     ],
+     "b": [
+      169.0,
+      260.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-105",
+     "a": [
+      160.0,
+      264.0
+     ],
+     "b": [
+      161.25,
+      260.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-106",
+     "a": [
+      160.0,
+      264.0
+     ],
+     "b": [
+      160.5,
+      271.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-107",
+     "a": [
+      127.0,
+      262.0
+     ],
+     "b": [
+      129.5,
+      270.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-108",
+     "a": [
+      123.0,
+      254.0
+     ],
+     "b": [
+      127.0,
+      262.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-109",
+     "a": [
+      120.0,
+      250.5
+     ],
+     "b": [
+      123.0,
+      254.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-110",
+     "a": [
+      117.5,
+      243.5
+     ],
+     "b": [
+      120.0,
+      250.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-111",
+     "a": [
+      99.0,
+      278.75
+     ],
+     "b": [
+      105.25,
+      278.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-112",
+     "a": [
+      105.25,
+      278.0
+     ],
+     "b": [
+      111.5,
+      270.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-113",
+     "a": [
+      111.5,
+      270.5
+     ],
+     "b": [
+      119.75,
+      269.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-114",
+     "a": [
+      119.75,
+      269.0
+     ],
+     "b": [
+      129.5,
+      270.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-115",
+     "a": [
+      160.5,
+      289.5
+     ],
+     "b": [
+      161.5,
+      299.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-116",
+     "a": [
+      161.5,
+      299.0
+     ],
+     "b": [
+      165.0,
+      303.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-117",
+     "a": [
+      165.0,
+      303.0
+     ],
+     "b": [
+      169.0,
+      307.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-118",
+     "a": [
+      169.0,
+      307.5
+     ],
+     "b": [
+      171.0,
+      310.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-119",
+     "a": [
+      130.0,
+      309.5
+     ],
+     "b": [
+      136.5,
+      310.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-120",
+     "a": [
+      128.0,
+      309.0
+     ],
+     "b": [
+      130.0,
+      309.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-121",
+     "a": [
+      123.25,
+      309.0
+     ],
+     "b": [
+      128.0,
+      309.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-122",
+     "a": [
+      118.5,
+      309.0
+     ],
+     "b": [
+      123.25,
+      309.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-123",
+     "a": [
+      111.5,
+      310.25
+     ],
+     "b": [
+      118.5,
+      309.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-124",
+     "a": [
+      106.0,
+      317.0
+     ],
+     "b": [
+      111.5,
+      310.25
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-125",
+     "a": [
+      97.5,
+      318.5
+     ],
+     "b": [
+      106.0,
+      317.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-126",
+     "a": [
+      88.0,
+      319.0
+     ],
+     "b": [
+      97.5,
+      318.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-127",
+     "a": [
+      81.0,
+      317.0
+     ],
+     "b": [
+      88.0,
+      319.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-128",
+     "a": [
+      80.5,
+      305.0
+     ],
+     "b": [
+      81.0,
+      317.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-129",
+     "a": [
+      79.0,
+      291.0
+     ],
+     "b": [
+      80.5,
+      305.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-130",
+     "a": [
+      79.0,
+      291.0
+     ],
+     "b": [
+      79.5,
+      279.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-131",
+     "a": [
+      79.5,
+      279.5
+     ],
+     "b": [
+      88.0,
+      278.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-132",
+     "a": [
+      88.0,
+      278.0
+     ],
+     "b": [
+      99.0,
+      278.75
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-133",
+     "a": [
+      160.5,
+      271.0
+     ],
+     "b": [
+      164.0,
+      275.75
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-134",
+     "a": [
+      164.0,
+      275.75
+     ],
+     "b": [
+      169.0,
+      273.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-135",
+     "a": [
+      169.0,
+      273.5
+     ],
+     "b": [
+      170.0,
+      266.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-136",
+     "a": [
+      169.0,
+      260.5
+     ],
+     "b": [
+      170.0,
+      266.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-137",
+     "a": [
+      171.5,
+      251.5
+     ],
+     "b": [
+      177.0,
+      250.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-138",
+     "a": [
+      177.0,
+      250.0
+     ],
+     "b": [
+      180.5,
+      240.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-139",
+     "a": [
+      180.5,
+      240.0
+     ],
+     "b": [
+      190.0,
+      238.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-140",
+     "a": [
+      190.0,
+      238.0
+     ],
+     "b": [
+      200.5,
+      238.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-141",
+     "a": [
+      200.5,
+      238.5
+     ],
+     "b": [
+      206.5,
+      235.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-142",
+     "a": [
+      206.5,
+      235.0
+     ],
+     "b": [
+      210.0,
+      234.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-143",
+     "a": [
+      210.0,
+      234.5
+     ],
+     "b": [
+      215.0,
+      230.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-144",
+     "a": [
+      221.0,
+      289.0
+     ],
+     "b": [
+      221.5,
+      280.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-145",
+     "a": [
+      220.3,
+      300.5
+     ],
+     "b": [
+      221.0,
+      289.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-146",
+     "a": [
+      220.3,
+      300.5
+     ],
+     "b": [
+      220.3,
+      307.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-147",
+     "a": [
+      219.5,
+      317.0
+     ],
+     "b": [
+      220.3,
+      307.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-148",
+     "a": [
+      215.0,
+      319.5
+     ],
+     "b": [
+      219.5,
+      317.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-149",
+     "a": [
+      211.0,
+      325.5
+     ],
+     "b": [
+      215.0,
+      319.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-150",
+     "a": [
+      204.0,
+      328.5
+     ],
+     "b": [
+      211.0,
+      325.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-151",
+     "a": [
+      179.25,
+      310.5
+     ],
+     "b": [
+      181.75,
+      300.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-152",
+     "a": [
+      181.75,
+      300.0
+     ],
+     "b": [
+      189.0,
+      289.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-153",
+     "a": [
+      184.24999999999997,
+      289.5
+     ],
+     "b": [
+      189.0,
+      289.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-154",
+     "a": [
+      179.5,
+      289.5
+     ],
+     "b": [
+      184.24999999999997,
+      289.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-155",
+     "a": [
+      174.75,
+      289.5
+     ],
+     "b": [
+      179.5,
+      289.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-156",
+     "a": [
+      170.0,
+      289.5
+     ],
+     "b": [
+      174.75,
+      289.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-157",
+     "a": [
+      165.25,
+      289.5
+     ],
+     "b": [
+      170.0,
+      289.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-158",
+     "a": [
+      160.5,
+      289.5
+     ],
+     "b": [
+      165.25,
+      289.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-159",
+     "a": [
+      215.0,
+      230.0
+     ],
+     "b": [
+      223.0,
+      227.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-160",
+     "a": [
+      223.0,
+      227.5
+     ],
+     "b": [
+      228.0,
+      229.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-161",
+     "a": [
+      228.0,
+      229.5
+     ],
+     "b": [
+      233.0,
+      236.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-162",
+     "a": [
+      233.0,
+      236.0
+     ],
+     "b": [
+      238.0,
+      243.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-163",
+     "a": [
+      238.0,
+      243.5
+     ],
+     "b": [
+      239.5,
+      250.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-164",
+     "a": [
+      238.0,
+      256.0
+     ],
+     "b": [
+      239.5,
+      250.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-165",
+     "a": [
+      235.5,
+      260.0
+     ],
+     "b": [
+      238.0,
+      256.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-166",
+     "a": [
+      230.5,
+      262.5
+     ],
+     "b": [
+      235.5,
+      260.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-167",
+     "a": [
+      230.0,
+      269.0
+     ],
+     "b": [
+      230.5,
+      262.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-168",
+     "a": [
+      229.25,
+      274.0
+     ],
+     "b": [
+      230.0,
+      269.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-169",
+     "a": [
+      224.0,
+      277.5
+     ],
+     "b": [
+      229.25,
+      274.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-170",
+     "a": [
+      221.5,
+      280.0
+     ],
+     "b": [
+      224.0,
+      277.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-171",
+     "a": [
+      171.0,
+      310.5
+     ],
+     "b": [
+      175.5,
+      320.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-172",
+     "a": [
+      175.5,
+      320.5
+     ],
+     "b": [
+      179.25,
+      310.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-173",
+     "a": [
+      200.25,
+      331.5
+     ],
+     "b": [
+      204.0,
+      328.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-174",
+     "a": [
+      199.5,
+      336.5
+     ],
+     "b": [
+      200.25,
+      331.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-175",
+     "a": [
+      199.5,
+      336.5
+     ],
+     "b": [
+      200.25,
+      348.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-176",
+     "a": [
+      200.25,
+      348.0
+     ],
+     "b": [
+      204.0,
+      353.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-177",
+     "a": [
+      165.0,
+      348.5
+     ],
+     "b": [
+      169.0,
+      351.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-178",
+     "a": [
+      158.5,
+      349.5
+     ],
+     "b": [
+      165.0,
+      348.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-179",
+     "a": [
+      154.5,
+      346.0
+     ],
+     "b": [
+      158.5,
+      349.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-180",
+     "a": [
+      151.0,
+      340.0
+     ],
+     "b": [
+      154.5,
+      346.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-181",
+     "a": [
+      150.5,
+      333.5
+     ],
+     "b": [
+      151.0,
+      340.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-182",
+     "a": [
+      150.0,
+      329.5
+     ],
+     "b": [
+      150.5,
+      333.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-183",
+     "a": [
+      146.0,
+      325.0
+     ],
+     "b": [
+      150.0,
+      329.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-184",
+     "a": [
+      142.5,
+      321.0
+     ],
+     "b": [
+      146.0,
+      325.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-185",
+     "a": [
+      140.5,
+      316.0
+     ],
+     "b": [
+      142.5,
+      321.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-186",
+     "a": [
+      136.5,
+      310.5
+     ],
+     "b": [
+      140.5,
+      316.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-187",
+     "a": [
+      204.0,
+      353.5
+     ],
+     "b": [
+      208.0,
+      361.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-188",
+     "a": [
+      208.0,
+      361.5
+     ],
+     "b": [
+      209.25,
+      369.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-189",
+     "a": [
+      209.25,
+      369.0
+     ],
+     "b": [
+      210.5,
+      374.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-190",
+     "a": [
+      176.5,
+      377.0
+     ],
+     "b": [
+      178.25,
+      382.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-191",
+     "a": [
+      171.0,
+      373.0
+     ],
+     "b": [
+      176.5,
+      377.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-192",
+     "a": [
+      171.0,
+      367.75
+     ],
+     "b": [
+      171.0,
+      373.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-193",
+     "a": [
+      171.0,
+      362.5
+     ],
+     "b": [
+      171.0,
+      367.75
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-194",
+     "a": [
+      171.0,
+      357.25
+     ],
+     "b": [
+      171.0,
+      362.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-195",
+     "a": [
+      171.0,
+      352.0
+     ],
+     "b": [
+      171.0,
+      357.25
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-w-196",
+     "a": [
+      169.0,
+      351.5
+     ],
+     "b": [
+      171.0,
+      352.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-x-0",
+     "a": [
+      140.0,
+      200.5
+     ],
+     "b": [
+      145.5,
+      199.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-x-1",
+     "a": [
+      145.5,
+      199.5
+     ],
+     "b": [
+      149.5,
+      200.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-x-2",
+     "a": [
+      149.5,
+      200.0
+     ],
+     "b": [
+      150.5,
+      207.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-x-3",
+     "a": [
+      150.5,
+      207.0
+     ],
+     "b": [
+      157.0,
+      210.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-x-4",
+     "a": [
+      157.0,
+      210.0
+     ],
+     "b": [
+      159.5,
+      215.25
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-x-5",
+     "a": [
+      159.5,
+      215.25
+     ],
+     "b": [
+      159.0,
+      223.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-x-6",
+     "a": [
+      159.0,
+      223.5
+     ],
+     "b": [
+      155.0,
+      228.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-x-7",
+     "a": [
+      155.0,
+      228.0
+     ],
+     "b": [
+      150.5,
+      225.75
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-x-8",
+     "a": [
+      150.5,
+      225.75
+     ],
+     "b": [
+      148.5,
+      219.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-x-9",
+     "a": [
+      148.5,
+      219.5
+     ],
+     "b": [
+      142.5,
+      219.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-x-10",
+     "a": [
+      142.5,
+      219.5
+     ],
+     "b": [
+      140.0,
+      212.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-x-11",
+     "a": [
+      140.0,
+      212.0
+     ],
+     "b": [
+      140.0,
+      200.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-x-12",
+     "a": [
+      139.655,
+      235.895
+     ],
+     "b": [
+      137.625,
+      238.76000000000002
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-x-13",
+     "a": [
+      137.625,
+      238.76000000000002
+     ],
+     "b": [
+      134.055,
+      239.42499999999998
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-x-14",
+     "a": [
+      134.055,
+      239.42499999999998
+     ],
+     "b": [
+      131.04,
+      237.495
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-x-15",
+     "a": [
+      131.04,
+      237.495
+     ],
+     "b": [
+      130.345,
+      234.105
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-x-16",
+     "a": [
+      130.345,
+      234.105
+     ],
+     "b": [
+      132.375,
+      231.23999999999998
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-x-17",
+     "a": [
+      132.375,
+      231.23999999999998
+     ],
+     "b": [
+      135.945,
+      230.57500000000002
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-x-18",
+     "a": [
+      135.945,
+      230.57500000000002
+     ],
+     "b": [
+      138.96,
+      232.505
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-x-19",
+     "a": [
+      138.96,
+      232.505
+     ],
+     "b": [
+      139.655,
+      235.895
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-x-20",
+     "a": [
+      159.905,
+      245.895
+     ],
+     "b": [
+      157.875,
+      248.76000000000002
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-x-21",
+     "a": [
+      157.875,
+      248.76000000000002
+     ],
+     "b": [
+      154.305,
+      249.42499999999998
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-x-22",
+     "a": [
+      154.305,
+      249.42499999999998
+     ],
+     "b": [
+      151.29,
+      247.495
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-x-23",
+     "a": [
+      151.29,
+      247.495
+     ],
+     "b": [
+      150.595,
+      244.105
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-x-24",
+     "a": [
+      150.595,
+      244.105
+     ],
+     "b": [
+      152.625,
+      241.23999999999998
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-x-25",
+     "a": [
+      152.625,
+      241.23999999999998
+     ],
+     "b": [
+      156.195,
+      240.57500000000002
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-x-26",
+     "a": [
+      156.195,
+      240.57500000000002
+     ],
+     "b": [
+      159.20999999999998,
+      242.505
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-x-27",
+     "a": [
+      159.20999999999998,
+      242.505
+     ],
+     "b": [
+      159.905,
+      245.895
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-x-28",
+     "a": [
+      150.145,
+      264.99
+     ],
+     "b": [
+      147.89999999999998,
+      268.155
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-x-29",
+     "a": [
+      147.89999999999998,
+      268.155
+     ],
+     "b": [
+      143.955,
+      268.89
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-x-30",
+     "a": [
+      143.955,
+      268.89
+     ],
+     "b": [
+      140.625,
+      266.755
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-x-31",
+     "a": [
+      140.625,
+      266.755
+     ],
+     "b": [
+      139.855,
+      263.01
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-x-32",
+     "a": [
+      139.855,
+      263.01
+     ],
+     "b": [
+      142.10000000000002,
+      259.845
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-x-33",
+     "a": [
+      142.10000000000002,
+      259.845
+     ],
+     "b": [
+      146.045,
+      259.11
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-x-34",
+     "a": [
+      146.045,
+      259.11
+     ],
+     "b": [
+      149.375,
+      261.245
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    },
+    {
+     "id": "den-x-35",
+     "a": [
+      149.375,
+      261.245
+     ],
+     "b": [
+      150.145,
+      264.99
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock",
+     "heightFt": 6
+    }
+   ],
+   "lights": [
+    {
+     "id": "den-l-t1",
+     "pos": [
+      141.0,
+      7,
+      121.5
+     ],
+     "preset": "torch",
+     "bright": 20,
+     "dim": 40
+    },
+    {
+     "id": "den-l-t4",
+     "pos": [
+      141.0,
+      7,
+      157.5
+     ],
+     "preset": "torch",
+     "bright": 20,
+     "dim": 40
+    },
+    {
+     "id": "den-l-t6",
+     "pos": [
+      172.0,
+      7,
+      169.5
+     ],
+     "preset": "torch",
+     "bright": 20,
+     "dim": 40
+    },
+    {
+     "id": "den-l-t9",
+     "pos": [
+      113.75,
+      7,
+      207.25
+     ],
+     "preset": "torch",
+     "bright": 20,
+     "dim": 40
+    },
+    {
+     "id": "den-l-t12",
+     "pos": [
+      171.75,
+      7,
+      236.5
+     ],
+     "preset": "torch",
+     "bright": 20,
+     "dim": 40
+    },
+    {
+     "id": "den-l-t14",
+     "pos": [
+      126.5,
+      7,
+      270.75
+     ],
+     "preset": "torch",
+     "bright": 20,
+     "dim": 40
+    },
+    {
+     "id": "den-l-t16",
+     "pos": [
+      141.75,
+      7,
+      314.5
+     ],
+     "preset": "torch",
+     "bright": 20,
+     "dim": 40
+    },
+    {
+     "id": "den-l-t18",
+     "pos": [
+      220.0,
+      7,
+      280.0
+     ],
+     "preset": "torch",
+     "bright": 20,
+     "dim": 40
+    },
+    {
+     "id": "den-l-t20",
+     "pos": [
+      205.0,
+      7,
+      329.0
+     ],
+     "preset": "torch",
+     "bright": 20,
+     "dim": 40
+    },
+    {
+     "id": "den-l-t22",
+     "pos": [
+      159.0,
+      7,
+      347.5
+     ],
+     "preset": "torch",
+     "bright": 20,
+     "dim": 40
+    },
+    {
+     "id": "den-l-t24",
+     "pos": [
+      178.5,
+      7,
+      376.5
+     ],
+     "preset": "torch",
+     "bright": 20,
+     "dim": 40
+    },
+    {
+     "id": "den-l-t26",
+     "pos": [
+      208.75,
+      7,
+      370.5
+     ],
+     "preset": "torch",
+     "bright": 20,
+     "dim": 40
+    },
+    {
+     "id": "den-l-t8",
+     "pos": [
+      202.0,
+      7,
+      217.75
+     ],
+     "preset": "torch",
+     "bright": 20,
+     "dim": 40
+    },
+    {
+     "id": "den-l-t2",
+     "pos": [
+      159.25,
+      7,
+      140.5
+     ],
+     "preset": "torch",
+     "bright": 20,
+     "dim": 40
+    },
+    {
+     "id": "den-l-fire",
+     "pos": [
+      94.0,
+      2,
+      294.0
+     ],
+     "preset": "candle",
+     "bright": 5,
+     "dim": 10
+    }
+   ],
+   "objects": [
+    {
+     "id": "den-rock",
+     "kind": "rock-mass",
+     "pos": [
+      0,
+      0,
+      0
+     ],
+     "vis": "player",
+     "dims": {
+      "n": 5,
+      "h": 5.6,
+      "0n": 168,
+      "0x0": 40.0,
+      "0z0": 90.0,
+      "0x1": 300.0,
+      "0z1": 90.0,
+      "0x2": 310.0,
+      "0z2": 310.0,
+      "0x3": 310.0,
+      "0z3": 310.0,
+      "0x4": 290.0,
+      "0z4": 315.0,
+      "0x5": 267.5,
+      "0z5": 323.0,
+      "0x6": 250.0,
+      "0z6": 334.0,
+      "0x7": 242.0,
+      "0z7": 342.0,
+      "0x8": 229.0,
+      "0z8": 348.5,
+      "0x9": 221.0,
+      "0z9": 356.0,
+      "0x10": 210.5,
+      "0z10": 374.5,
+      "0x11": 209.25,
+      "0z11": 369.0,
+      "0x12": 208.0,
+      "0z12": 361.5,
+      "0x13": 204.0,
+      "0z13": 353.5,
+      "0x14": 200.25,
+      "0z14": 348.0,
+      "0x15": 199.5,
+      "0z15": 336.5,
+      "0x16": 200.25,
+      "0z16": 331.5,
+      "0x17": 204.0,
+      "0z17": 328.5,
+      "0x18": 211.0,
+      "0z18": 325.5,
+      "0x19": 215.0,
+      "0z19": 319.5,
+      "0x20": 219.5,
+      "0z20": 317.0,
+      "0x21": 220.3,
+      "0z21": 307.0,
+      "0x22": 220.3,
+      "0z22": 300.5,
+      "0x23": 221.0,
+      "0z23": 289.0,
+      "0x24": 221.5,
+      "0z24": 280.0,
+      "0x25": 224.0,
+      "0z25": 277.5,
+      "0x26": 229.25,
+      "0z26": 274.0,
+      "0x27": 230.0,
+      "0z27": 269.0,
+      "0x28": 230.5,
+      "0z28": 262.5,
+      "0x29": 235.5,
+      "0z29": 260.0,
+      "0x30": 238.0,
+      "0z30": 256.0,
+      "0x31": 239.5,
+      "0z31": 250.0,
+      "0x32": 238.0,
+      "0z32": 243.5,
+      "0x33": 233.0,
+      "0z33": 236.0,
+      "0x34": 228.0,
+      "0z34": 229.5,
+      "0x35": 223.0,
+      "0z35": 227.5,
+      "0x36": 215.0,
+      "0z36": 230.0,
+      "0x37": 210.0,
+      "0z37": 234.5,
+      "0x38": 206.5,
+      "0z38": 235.0,
+      "0x39": 200.5,
+      "0z39": 238.5,
+      "0x40": 190.0,
+      "0z40": 238.0,
+      "0x41": 180.5,
+      "0z41": 240.0,
+      "0x42": 177.0,
+      "0z42": 250.0,
+      "0x43": 171.5,
+      "0z43": 251.5,
+      "0x44": 170.5,
+      "0z44": 247.5,
+      "0x45": 171.0,
+      "0z45": 240.0,
+      "0x46": 173.0,
+      "0z46": 236.0,
+      "0x47": 177.0,
+      "0z47": 233.0,
+      "0x48": 179.5,
+      "0z48": 227.5,
+      "0x49": 180.0,
+      "0z49": 219.0,
+      "0x50": 193.0,
+      "0z50": 219.0,
+      "0x51": 202.0,
+      "0z51": 218.5,
+      "0x52": 211.5,
+      "0z52": 220.0,
+      "0x53": 217.5,
+      "0z53": 217.5,
+      "0x54": 221.0,
+      "0z54": 211.5,
+      "0x55": 221.0,
+      "0z55": 200.0,
+      "0x56": 227.0,
+      "0z56": 196.5,
+      "0x57": 231.75,
+      "0z57": 189.5,
+      "0x58": 230.5,
+      "0z58": 184.5,
+      "0x59": 231.75,
+      "0z59": 175.0,
+      "0x60": 230.5,
+      "0z60": 167.0,
+      "0x61": 227.0,
+      "0z61": 159.5,
+      "0x62": 221.0,
+      "0z62": 155.25,
+      "0x63": 216.5,
+      "0z63": 150.0,
+      "0x64": 201.0,
+      "0z64": 148.0,
+      "0x65": 190.25,
+      "0z65": 149.5,
+      "0x66": 185.5,
+      "0z66": 156.5,
+      "0x67": 178.5,
+      "0z67": 157.5,
+      "0x68": 170.5,
+      "0z68": 162.5,
+      "0x69": 171.5,
+      "0z69": 170.5,
+      "0x70": 170.0,
+      "0z70": 178.75,
+      "0x71": 162.0,
+      "0z71": 178.75,
+      "0x72": 159.5,
+      "0z72": 188.0,
+      "0x73": 155.0,
+      "0z73": 189.75,
+      "0x74": 150.0,
+      "0z74": 191.5,
+      "0x75": 150.0,
+      "0z75": 189.0,
+      "0x76": 150.5,
+      "0z76": 166.0,
+      "0x77": 154.0,
+      "0z77": 162.0,
+      "0x78": 158.0,
+      "0z78": 156.5,
+      "0x79": 160.0,
+      "0z79": 151.5,
+      "0x80": 160.0,
+      "0z80": 135.0,
+      "0x81": 155.0,
+      "0z81": 126.5,
+      "0x82": 147.5,
+      "0z82": 120.0,
+      "0x83": 112.5,
+      "0z83": 120.0,
+      "0x84": 104.5,
+      "0z84": 123.0,
+      "0x85": 100.5,
+      "0z85": 131.0,
+      "0x86": 100.5,
+      "0z86": 147.0,
+      "0x87": 105.0,
+      "0z87": 154.0,
+      "0x88": 110.25,
+      "0z88": 158.0,
+      "0x89": 115.0,
+      "0z89": 154.0,
+      "0x90": 116.0,
+      "0z90": 147.5,
+      "0x91": 110.25,
+      "0z91": 146.0,
+      "0x92": 110.25,
+      "0z92": 133.0,
+      "0x93": 113.0,
+      "0z93": 129.5,
+      "0x94": 142.5,
+      "0z94": 129.5,
+      "0x95": 147.0,
+      "0z95": 132.0,
+      "0x96": 150.0,
+      "0z96": 140.0,
+      "0x97": 150.0,
+      "0z97": 153.0,
+      "0x98": 147.0,
+      "0z98": 156.5,
+      "0x99": 140.0,
+      "0z99": 156.5,
+      "0x100": 134.5,
+      "0z100": 158.0,
+      "0x101": 129.5,
+      "0z101": 161.5,
+      "0x102": 128.0,
+      "0z102": 167.0,
+      "0x103": 129.0,
+      "0z103": 175.0,
+      "0x104": 130.0,
+      "0z104": 182.5,
+      "0x105": 130.0,
+      "0z105": 191.5,
+      "0x106": 122.5,
+      "0z106": 192.0,
+      "0x107": 121.75,
+      "0z107": 185.0,
+      "0x108": 118.5,
+      "0z108": 180.5,
+      "0x109": 112.0,
+      "0z109": 177.0,
+      "0x110": 101.5,
+      "0z110": 178.75,
+      "0x111": 100.0,
+      "0z111": 185.0,
+      "0x112": 100.5,
+      "0z112": 199.5,
+      "0x113": 103.0,
+      "0z113": 206.0,
+      "0x114": 109.0,
+      "0z114": 208.0,
+      "0x115": 115.0,
+      "0z115": 211.0,
+      "0x116": 119.5,
+      "0z116": 215.0,
+      "0x117": 110.5,
+      "0z117": 218.75,
+      "0x118": 101.0,
+      "0z118": 217.5,
+      "0x119": 92.75,
+      "0z119": 218.75,
+      "0x120": 88.0,
+      "0z120": 224.5,
+      "0x121": 88.5,
+      "0z121": 234.0,
+      "0x122": 92.75,
+      "0z122": 240.0,
+      "0x123": 101.0,
+      "0z123": 240.5,
+      "0x124": 110.5,
+      "0z124": 240.0,
+      "0x125": 117.5,
+      "0z125": 243.5,
+      "0x126": 120.0,
+      "0z126": 250.5,
+      "0x127": 123.0,
+      "0z127": 254.0,
+      "0x128": 127.0,
+      "0z128": 262.0,
+      "0x129": 129.5,
+      "0z129": 270.0,
+      "0x130": 119.75,
+      "0z130": 269.0,
+      "0x131": 111.5,
+      "0z131": 270.5,
+      "0x132": 105.25,
+      "0z132": 278.0,
+      "0x133": 99.0,
+      "0z133": 278.75,
+      "0x134": 88.0,
+      "0z134": 278.0,
+      "0x135": 79.5,
+      "0z135": 279.5,
+      "0x136": 79.0,
+      "0z136": 291.0,
+      "0x137": 80.5,
+      "0z137": 305.0,
+      "0x138": 81.0,
+      "0z138": 317.0,
+      "0x139": 88.0,
+      "0z139": 319.0,
+      "0x140": 97.5,
+      "0z140": 318.5,
+      "0x141": 106.0,
+      "0z141": 317.0,
+      "0x142": 111.5,
+      "0z142": 310.25,
+      "0x143": 118.5,
+      "0z143": 309.0,
+      "0x144": 128.0,
+      "0z144": 309.0,
+      "0x145": 130.0,
+      "0z145": 309.5,
+      "0x146": 136.5,
+      "0z146": 310.5,
+      "0x147": 140.5,
+      "0z147": 316.0,
+      "0x148": 142.5,
+      "0z148": 321.0,
+      "0x149": 146.0,
+      "0z149": 325.0,
+      "0x150": 150.0,
+      "0z150": 329.5,
+      "0x151": 150.5,
+      "0z151": 333.5,
+      "0x152": 151.0,
+      "0z152": 340.0,
+      "0x153": 154.5,
+      "0z153": 346.0,
+      "0x154": 158.5,
+      "0z154": 349.5,
+      "0x155": 165.0,
+      "0z155": 348.5,
+      "0x156": 169.0,
+      "0z156": 351.5,
+      "0x157": 171.0,
+      "0z157": 352.0,
+      "0x158": 171.0,
+      "0z158": 373.0,
+      "0x159": 176.5,
+      "0z159": 377.0,
+      "0x160": 178.25,
+      "0z160": 382.0,
+      "0x161": 170.0,
+      "0z161": 385.0,
+      "0x162": 163.0,
+      "0z162": 382.0,
+      "0x163": 150.0,
+      "0z163": 378.5,
+      "0x164": 130.0,
+      "0z164": 383.0,
+      "0x165": 100.0,
+      "0z165": 387.5,
+      "0x166": 70.0,
+      "0z166": 393.0,
+      "0x167": 40.0,
+      "0z167": 395.0,
+      "1n": 12,
+      "1x0": 140.0,
+      "1z0": 200.5,
+      "1x1": 145.5,
+      "1z1": 199.5,
+      "1x2": 149.5,
+      "1z2": 200.0,
+      "1x3": 150.5,
+      "1z3": 207.0,
+      "1x4": 157.0,
+      "1z4": 210.0,
+      "1x5": 159.5,
+      "1z5": 215.25,
+      "1x6": 159.0,
+      "1z6": 223.5,
+      "1x7": 155.0,
+      "1z7": 228.0,
+      "1x8": 150.5,
+      "1z8": 225.75,
+      "1x9": 148.5,
+      "1z9": 219.5,
+      "1x10": 142.5,
+      "1z10": 219.5,
+      "1x11": 140.0,
+      "1z11": 212.0,
+      "2n": 9,
+      "2x0": 160.5,
+      "2z0": 289.5,
+      "2x1": 161.5,
+      "2z1": 299.0,
+      "2x2": 165.0,
+      "2z2": 303.0,
+      "2x3": 169.0,
+      "2z3": 307.5,
+      "2x4": 171.0,
+      "2z4": 310.5,
+      "2x5": 175.5,
+      "2z5": 320.5,
+      "2x6": 179.25,
+      "2z6": 310.5,
+      "2x7": 181.75,
+      "2z7": 300.0,
+      "2x8": 189.0,
+      "2z8": 289.5,
+      "3n": 9,
+      "3x0": 180.0,
+      "3z0": 199.5,
+      "3x1": 188.0,
+      "3z1": 198.5,
+      "3x2": 191.0,
+      "3z2": 196.5,
+      "3x3": 191.0,
+      "3z3": 192.0,
+      "3x4": 188.0,
+      "3z4": 188.75,
+      "3x5": 181.0,
+      "3z5": 188.0,
+      "3x6": 173.0,
+      "3z6": 188.75,
+      "3x7": 169.5,
+      "3z7": 193.0,
+      "3x8": 173.0,
+      "3z8": 198.5,
+      "4n": 7,
+      "4x0": 161.25,
+      "4z0": 260.0,
+      "4x1": 169.0,
+      "4z1": 260.5,
+      "4x2": 170.0,
+      "4z2": 266.5,
+      "4x3": 169.0,
+      "4z3": 273.5,
+      "4x4": 164.0,
+      "4z4": 275.75,
+      "4x5": 160.5,
+      "4z5": 271.0,
+      "4x6": 160.0,
+      "4z6": 264.0
+     }
+    },
+    {
+     "id": "den-cliff-w-0",
+     "kind": "rock-flank",
+     "pos": [
+      55.0,
+      0,
+      394.0
+     ],
+     "vis": "player",
+     "rotY": 3.8,
+     "dims": {
+      "h": 11,
+      "d": 9,
+      "snow": 0,
+      "len": 38.1,
+      "seed": 3
+     }
+    },
+    {
+     "id": "den-cliff-w-1",
+     "kind": "rock-flank",
+     "pos": [
+      85.0,
+      0,
+      390.25
+     ],
+     "vis": "player",
+     "rotY": 10.4,
+     "dims": {
+      "h": 11,
+      "d": 9,
+      "snow": 0,
+      "len": 38.6,
+      "seed": 4
+     }
+    },
+    {
+     "id": "den-cliff-w-2",
+     "kind": "rock-flank",
+     "pos": [
+      115.0,
+      0,
+      385.25
+     ],
+     "vis": "player",
+     "rotY": 8.5,
+     "dims": {
+      "h": 11,
+      "d": 9,
+      "snow": 0,
+      "len": 38.4,
+      "seed": 5
+     }
+    },
+    {
+     "id": "den-cliff-w-3",
+     "kind": "rock-flank",
+     "pos": [
+      140.0,
+      0,
+      380.75
+     ],
+     "vis": "player",
+     "rotY": 12.7,
+     "dims": {
+      "h": 11,
+      "d": 9,
+      "snow": 0,
+      "len": 26.6,
+      "seed": 6
+     }
+    },
+    {
+     "id": "den-cliff-w-4",
+     "kind": "rock-flank",
+     "pos": [
+      156.5,
+      0,
+      380.25
+     ],
+     "vis": "player",
+     "rotY": -15.1,
+     "dims": {
+      "h": 11,
+      "d": 9,
+      "snow": 0,
+      "len": 18.2,
+      "seed": 7
+     }
+    },
+    {
+     "id": "den-cliff-w-5",
+     "kind": "rock-flank",
+     "pos": [
+      166.5,
+      0,
+      383.5
+     ],
+     "vis": "player",
+     "rotY": -23.2,
+     "dims": {
+      "h": 11,
+      "d": 9,
+      "snow": 0,
+      "len": 11.1,
+      "seed": 8
+     }
+    },
+    {
+     "id": "den-cliff-w-6",
+     "kind": "rock-flank",
+     "pos": [
+      168.5,
+      0,
+      384.5
+     ],
+     "vis": "player",
+     "rotY": 161.6,
+     "dims": {
+      "h": 11,
+      "d": 9,
+      "snow": 0,
+      "len": 5.8,
+      "seed": 9
+     }
+    },
+    {
+     "id": "den-cliff-e-0",
+     "kind": "rock-flank",
+     "pos": [
+      219.5,
+      0,
+      359.5
+     ],
+     "vis": "player",
+     "rotY": 66.8,
+     "dims": {
+      "h": 11,
+      "d": 9,
+      "snow": 0,
+      "len": 11.1,
+      "seed": 3
+     }
+    },
+    {
+     "id": "den-cliff-e-1",
+     "kind": "rock-flank",
+     "pos": [
+      225.0,
+      0,
+      352.25
+     ],
+     "vis": "player",
+     "rotY": 43.2,
+     "dims": {
+      "h": 11,
+      "d": 9,
+      "snow": 0,
+      "len": 15.2,
+      "seed": 4
+     }
+    },
+    {
+     "id": "den-cliff-e-2",
+     "kind": "rock-flank",
+     "pos": [
+      235.5,
+      0,
+      345.25
+     ],
+     "vis": "player",
+     "rotY": 26.6,
+     "dims": {
+      "h": 11,
+      "d": 9,
+      "snow": 0,
+      "len": 19.4,
+      "seed": 5
+     }
+    },
+    {
+     "id": "den-cliff-e-3",
+     "kind": "rock-flank",
+     "pos": [
+      246.0,
+      0,
+      338.0
+     ],
+     "vis": "player",
+     "rotY": 45.0,
+     "dims": {
+      "h": 11,
+      "d": 9,
+      "snow": 0,
+      "len": 15.6,
+      "seed": 6
+     }
+    },
+    {
+     "id": "den-cliff-e-4",
+     "kind": "rock-flank",
+     "pos": [
+      258.75,
+      0,
+      328.5
+     ],
+     "vis": "player",
+     "rotY": 32.2,
+     "dims": {
+      "h": 11,
+      "d": 9,
+      "snow": 0,
+      "len": 26.8,
+      "seed": 7
+     }
+    },
+    {
+     "id": "den-cliff-e-5",
+     "kind": "rock-flank",
+     "pos": [
+      278.75,
+      0,
+      319.0
+     ],
+     "vis": "player",
+     "rotY": 19.6,
+     "dims": {
+      "h": 11,
+      "d": 9,
+      "snow": 0,
+      "len": 30.7,
+      "seed": 8
+     }
+    },
+    {
+     "id": "den-cliff-e-6",
+     "kind": "rock-flank",
+     "pos": [
+      300.0,
+      0,
+      312.5
+     ],
+     "vis": "player",
+     "rotY": 14.0,
+     "dims": {
+      "h": 11,
+      "d": 9,
+      "snow": 0,
+      "len": 26.7,
+      "seed": 9
+     }
+    },
+    {
+     "id": "den-Z1-maw",
+     "kind": "wolf-maw",
+     "pos": [
+      201.0,
+      0,
+      378.5
+     ],
+     "vis": "player",
+     "rotY": 13,
+     "key": "Z1",
+     "dims": {
+      "w": 42,
+      "d": 38,
+      "h": 15
+     }
+    },
+    {
+     "id": "den-Z1-pillar0",
+     "kind": "rock-pillar",
+     "pos": [
+      213.0,
+      0,
+      386.0
+     ],
+     "vis": "player",
+     "key": "Z1",
+     "dims": {
+      "r": 1.6,
+      "h": 15.5,
+      "seed": 1,
+      "light": 1
+     }
+    },
+    {
+     "id": "den-Z1-pillar1",
+     "kind": "rock-pillar",
+     "pos": [
+      186.0,
+      0,
+      398.0
+     ],
+     "vis": "player",
+     "key": "Z1",
+     "dims": {
+      "r": 1.6,
+      "h": 15.5,
+      "seed": 2,
+      "light": 1
+     }
+    },
+    {
+     "id": "den-Z1-pillar2",
+     "kind": "rock-pillar",
+     "pos": [
+      217.0,
+      0,
+      398.5
+     ],
+     "vis": "player",
+     "key": "Z1",
+     "dims": {
+      "r": 1.6,
+      "h": 15.5,
+      "seed": 3,
+      "light": 1
+     }
+    },
+    {
+     "id": "den-Z1-pillar3",
+     "kind": "rock-pillar",
+     "pos": [
+      213.0,
+      0,
+      406.5
+     ],
+     "vis": "player",
+     "key": "Z1",
+     "dims": {
+      "r": 1.6,
+      "h": 15.5,
+      "seed": 4,
+      "light": 1
+     }
+    },
+    {
+     "id": "den-Z1-pillar4",
+     "kind": "rock-pillar",
+     "pos": [
+      194.5,
+      0,
+      411.0
+     ],
+     "vis": "player",
+     "key": "Z1",
+     "dims": {
+      "r": 1.6,
+      "h": 15.5,
+      "seed": 5,
+      "light": 1
+     }
+    },
+    {
+     "id": "den-Z1-pillar5",
+     "kind": "rock-pillar",
+     "pos": [
+      202.0,
+      0,
+      411.5
+     ],
+     "vis": "player",
+     "key": "Z1",
+     "dims": {
+      "r": 1.6,
+      "h": 15.5,
+      "seed": 6,
+      "light": 1
+     }
+    },
+    {
+     "id": "den-Z1-note",
+     "kind": "note",
+     "pos": [
+      192.0,
+      0,
+      365.0
+     ],
+     "vis": "dm-note",
+     "key": "Z1",
+     "label": "The guards on their ledge (Z2) see anyone in the mouth who is not hidden. A discordant flute echoes from Z3."
+    },
+    {
+     "id": "den-Z2-lip0-0",
+     "kind": "ledge-lip",
+     "pos": [
+      161.25,
+      0,
+      327.25
+     ],
+     "vis": "player",
+     "rotY": -90.0,
+     "dims": {
+      "len": 14.1,
+      "seed": 3
+     }
+    },
+    {
+     "id": "den-Z2-lip1-0",
+     "kind": "ledge-lip",
+     "pos": [
+      167.25,
+      0,
+      340.875
+     ],
+     "vis": "player",
+     "rotY": -26.6,
+     "dims": {
+      "len": 8.5,
+      "seed": 3
+     }
+    },
+    {
+     "id": "den-Z2-lip2-0",
+     "kind": "ledge-lip",
+     "pos": [
+      178.25,
+      0,
+      342.5
+     ],
+     "vis": "player",
+     "rotY": -1.7,
+     "dims": {
+      "len": 19.3,
+      "seed": 3
+     }
+    },
+    {
+     "id": "den-Z2-lip3-0",
+     "kind": "ledge-lip",
+     "pos": [
+      188.625,
+      0,
+      340.375
+     ],
+     "vis": "player",
+     "rotY": 48.2,
+     "dims": {
+      "len": 8.7,
+      "seed": 3
+     }
+    },
+    {
+     "id": "den-Z2-lip4-0",
+     "kind": "ledge-lip",
+     "pos": [
+      190.75,
+      0,
+      330.0
+     ],
+     "vis": "player",
+     "rotY": 90.0,
+     "dims": {
+      "len": 18.8,
+      "seed": 3
+     }
+    },
+    {
+     "id": "den-Z2-steps-w",
+     "kind": "rough-steps",
+     "pos": [
+      165.5,
+      0,
+      310.5
+     ],
+     "vis": "player",
+     "rotY": -90,
+     "key": "Z2",
+     "dims": {
+      "len": 9,
+      "w": 7.5,
+      "n": 5,
+      "step": 0.32
+     }
+    },
+    {
+     "id": "den-Z2-steps-e",
+     "kind": "rough-steps",
+     "pos": [
+      186.5,
+      0,
+      310.5
+     ],
+     "vis": "player",
+     "rotY": -90,
+     "key": "Z2",
+     "dims": {
+      "len": 9,
+      "w": 6.5,
+      "n": 5,
+      "step": 0.32
+     }
+    },
+    {
+     "id": "den-aziana",
+     "kind": "werewolf-human",
+     "pos": [
+      172.0,
+      0,
+      331.5
+     ],
+     "vis": "hidden-creature",
+     "key": "Z2",
+     "label": "Aziana, werewolf in human form, spear; raises the alarm, fights to the death",
+     "size": "medium",
+     "dims": {
+      "skirt": 1,
+      "hair": 2,
+      "cloth": 5917244
+     },
+     "playerLabel": "A feral figure in rags with a spear"
+    },
+    {
+     "id": "den-davanka",
+     "kind": "werewolf-human",
+     "pos": [
+      183.0,
+      0,
+      333.0
+     ],
+     "vis": "hidden-creature",
+     "key": "Z2",
+     "label": "Davanka, werewolf in human form, spear; raises the alarm, fights to the death",
+     "size": "medium",
+     "dims": {
+      "skirt": 1,
+      "hair": 0,
+      "cloth": 5195318
+     },
+     "playerLabel": "A feral figure in rags with a spear"
+    },
+    {
+     "id": "den-Z2-note",
+     "kind": "note",
+     "pos": [
+      176.0,
+      0,
+      346.0
+     ],
+     "vis": "dm-note",
+     "key": "Z2",
+     "label": "Loud noise here carries through the den: reinforcements from Z3 and Z5."
+    },
+    {
+     "id": "den-Z3-lip0-0",
+     "kind": "ledge-lip",
+     "pos": [
+      108.875,
+      0,
+      281.5
+     ],
+     "vis": "player",
+     "dims": {
+      "len": 16.4,
+      "seed": 3
+     }
+    },
+    {
+     "id": "den-Z3-lip0-1",
+     "kind": "ledge-lip",
+     "pos": [
+      122.625,
+      0,
+      281.5
+     ],
+     "vis": "player",
+     "dims": {
+      "len": 16.4,
+      "seed": 4
+     }
+    },
+    {
+     "id": "den-Z3-lip1-0",
+     "kind": "ledge-lip",
+     "pos": [
+      136.375,
+      0,
+      281.5
+     ],
+     "vis": "player",
+     "dims": {
+      "len": 16.4,
+      "seed": 3
+     }
+    },
+    {
+     "id": "den-Z3-lip1-1",
+     "kind": "ledge-lip",
+     "pos": [
+      150.125,
+      0,
+      281.5
+     ],
+     "vis": "player",
+     "dims": {
+      "len": 16.4,
+      "seed": 4
+     }
+    },
+    {
+     "id": "den-Z3-steps",
+     "kind": "rough-steps",
+     "pos": [
+      158.0,
+      0,
+      292.0
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "Z3",
+     "dims": {
+      "len": 10,
+      "w": 4.6,
+      "n": 5,
+      "step": 0.32
+     }
+    },
+    {
+     "id": "den-Z3-fire",
+     "kind": "campfire",
+     "pos": [
+      94.0,
+      0,
+      294.0
+     ],
+     "vis": "player",
+     "key": "Z3"
+    },
+    {
+     "id": "den-Z3-bones0",
+     "kind": "bones",
+     "pos": [
+      107.5,
+      0,
+      288.0
+     ],
+     "vis": "player",
+     "key": "Z3"
+    },
+    {
+     "id": "den-Z3-bones1",
+     "kind": "bones",
+     "pos": [
+      123.0,
+      0,
+      299.0
+     ],
+     "vis": "player",
+     "rotY": 53,
+     "key": "Z3"
+    },
+    {
+     "id": "den-Z3-bones2",
+     "kind": "bones",
+     "pos": [
+      139.0,
+      0,
+      290.0
+     ],
+     "vis": "player",
+     "rotY": 106,
+     "key": "Z3"
+    },
+    {
+     "id": "den-Z3-bones3",
+     "kind": "bones",
+     "pos": [
+      101.0,
+      0,
+      308.0
+     ],
+     "vis": "player",
+     "rotY": 159,
+     "key": "Z3"
+    },
+    {
+     "id": "den-Z3-bones4",
+     "kind": "bones",
+     "pos": [
+      148.0,
+      0,
+      303.0
+     ],
+     "vis": "player",
+     "rotY": 212,
+     "key": "Z3"
+    },
+    {
+     "id": "den-Z3-bones5",
+     "kind": "bones",
+     "pos": [
+      87.0,
+      0,
+      312.0
+     ],
+     "vis": "player",
+     "rotY": 265,
+     "key": "Z3"
+    },
+    {
+     "id": "den-skennis",
+     "kind": "werewolf-human",
+     "pos": [
+      99.5,
+      0,
+      291.0
+     ],
+     "vis": "hidden-creature",
+     "key": "Z3",
+     "label": "Skennis, old werewolf in human form (36 hp): plays an electrum flute badly; fights to the death for the den",
+     "size": "medium",
+     "dims": {
+      "old": 1,
+      "spear": 0,
+      "hair": 4
+     },
+     "playerLabel": "An old man with a flute"
+    },
+    {
+     "id": "den-Z3-wolf0",
+     "kind": "wolf",
+     "pos": [
+      93.25,
+      0,
+      296.05
+     ],
+     "vis": "hidden-creature",
+     "key": "Z3",
+     "label": "Wolves (nine in all, four placed): huddled behind Skennis, they go where he goes",
+     "size": "medium",
+     "playerLabel": "A wolf"
+    },
+    {
+     "id": "den-Z3-wolf1",
+     "kind": "wolf",
+     "pos": [
+      87.0,
+      0,
+      290.9
+     ],
+     "vis": "hidden-creature",
+     "key": "Z3",
+     "label": "Wolves (nine in all, four placed): huddled behind Skennis, they go where he goes",
+     "size": "medium",
+     "playerLabel": "A wolf"
+    },
+    {
+     "id": "den-Z3-wolf2",
+     "kind": "wolf",
+     "pos": [
+      93.35,
+      0,
+      285.85
+     ],
+     "vis": "hidden-creature",
+     "key": "Z3",
+     "label": "Wolves (nine in all, four placed): huddled behind Skennis, they go where he goes",
+     "size": "medium",
+     "playerLabel": "A wolf"
+    },
+    {
+     "id": "den-Z3-wolf3",
+     "kind": "wolf",
+     "pos": [
+      98.7,
+      0,
+      280.0
+     ],
+     "vis": "hidden-creature",
+     "key": "Z3",
+     "label": "Wolves (nine in all, four placed): huddled behind Skennis, they go where he goes",
+     "size": "medium",
+     "playerLabel": "A wolf"
+    },
+    {
+     "id": "den-Z3-flute",
+     "kind": "pouch",
+     "pos": [
+      98.0,
+      0,
+      292.0
+     ],
+     "vis": "hidden-object",
+     "key": "Z3",
+     "label": "Skennis's electrum flute (250 gp) and a pouch of four 50 gp gemstones",
+     "playerLabel": "A small pouch"
+    },
+    {
+     "id": "den-Z4-lipn-0",
+     "kind": "ledge-lip",
+     "pos": [
+      185.25,
+      0,
+      250.75
+     ],
+     "vis": "player",
+     "rotY": 2.0,
+     "dims": {
+      "len": 17.2,
+      "seed": 3
+     }
+    },
+    {
+     "id": "den-Z4-lipn-1",
+     "kind": "ledge-lip",
+     "pos": [
+      197.5,
+      0,
+      250.25
+     ],
+     "vis": "player",
+     "rotY": 2.9,
+     "dims": {
+      "len": 12.5,
+      "seed": 4
+     }
+    },
+    {
+     "id": "den-Z4-lipn-2",
+     "kind": "ledge-lip",
+     "pos": [
+      206.5,
+      0,
+      251.125
+     ],
+     "vis": "player",
+     "rotY": -15.7,
+     "dims": {
+      "len": 10.7,
+      "seed": 5
+     }
+    },
+    {
+     "id": "den-Z4-lipe-0",
+     "kind": "ledge-lip",
+     "pos": [
+      217.25,
+      0,
+      247.75
+     ],
+     "vis": "player",
+     "rotY": -84.1,
+     "dims": {
+      "len": 17.3,
+      "seed": 3
+     }
+    },
+    {
+     "id": "den-Z4-lipe-1",
+     "kind": "ledge-lip",
+     "pos": [
+      219.0,
+      0,
+      263.25
+     ],
+     "vis": "player",
+     "rotY": -83.1,
+     "dims": {
+      "len": 19.5,
+      "seed": 4
+     }
+    },
+    {
+     "id": "den-Z4-steps",
+     "kind": "rough-steps",
+     "pos": [
+      219.5,
+      0,
+      265.5
+     ],
+     "vis": "player",
+     "key": "Z4-ledge",
+     "dims": {
+      "len": 8,
+      "w": 8,
+      "n": 4,
+      "step": 0.32
+     }
+    },
+    {
+     "id": "den-Z4-crate0",
+     "kind": "crate-chest",
+     "pos": [
+      218.0,
+      0,
+      234.5
+     ],
+     "vis": "player",
+     "rotY": 20,
+     "key": "Z4-ledge",
+     "container": {
+      "contents": "Heaps of adult-sized clothing, stiff with old mud."
+     }
+    },
+    {
+     "id": "den-Z4-crate1",
+     "kind": "crate-chest",
+     "pos": [
+      226.5,
+      0,
+      235.5
+     ],
+     "vis": "player",
+     "rotY": 50,
+     "key": "Z4-ledge",
+     "container": {
+      "contents": "Heaps of adult-sized clothing, stiff with old mud."
+     }
+    },
+    {
+     "id": "den-Z4-crate2",
+     "kind": "crate-chest",
+     "pos": [
+      233.0,
+      0,
+      243.0
+     ],
+     "vis": "player",
+     "rotY": 70,
+     "key": "Z4-ledge",
+     "container": {
+      "contents": "Heaps of adult-sized clothing, stiff with old mud."
+     }
+    },
+    {
+     "id": "den-Z4-crate3",
+     "kind": "crate-chest",
+     "pos": [
+      235.0,
+      0,
+      250.0
+     ],
+     "vis": "player",
+     "rotY": 95,
+     "key": "Z4-ledge",
+     "container": {
+      "contents": "Heaps of adult-sized clothing, stiff with old mud."
+     }
+    },
+    {
+     "id": "den-Z4-crate4",
+     "kind": "crate-chest",
+     "pos": [
+      234.0,
+      0,
+      256.5
+     ],
+     "vis": "player",
+     "rotY": 85,
+     "key": "Z4-ledge",
+     "container": {
+      "contents": "Heaps of adult-sized clothing, stiff with old mud."
+     }
+    },
+    {
+     "id": "den-Z4-clothes",
+     "kind": "note",
+     "pos": [
+      230.0,
+      0,
+      248.0
+     ],
+     "vis": "dm-note",
+     "key": "Z4-ledge",
+     "label": "The crates hold the pack's human clothes."
+    },
+    {
+     "id": "den-Z4-note",
+     "kind": "note",
+     "pos": [
+      196.0,
+      0,
+      270.0
+     ],
+     "vis": "dm-note",
+     "key": "Z4",
+     "label": "Fresh water, 10 ft deep, about 40 ft across; the ceiling 20 ft above the pool. The fissure overhead is 3 ft wide at most (6 in. at its narrowest)."
+    },
+    {
+     "id": "den-Z5-pillar0",
+     "kind": "rock-pillar",
+     "pos": [
+      135.0,
+      0,
+      235.0
+     ],
+     "vis": "player",
+     "key": "Z5",
+     "dims": {
+      "r": 5.130000000000001,
+      "h": 7.0,
+      "seed": 11
+     }
+    },
+    {
+     "id": "den-Z5-pillar1",
+     "kind": "rock-pillar",
+     "pos": [
+      155.25,
+      0,
+      245.0
+     ],
+     "vis": "player",
+     "key": "Z5",
+     "dims": {
+      "r": 5.130000000000001,
+      "h": 7.0,
+      "seed": 12
+     }
+    },
+    {
+     "id": "den-Z5-pillar2",
+     "kind": "rock-pillar",
+     "pos": [
+      145.0,
+      0,
+      264.0
+     ],
+     "vis": "player",
+     "key": "Z5",
+     "dims": {
+      "r": 5.67,
+      "h": 7.0,
+      "seed": 13
+     }
+    },
+    {
+     "id": "den-Z5-bones0",
+     "kind": "bones",
+     "pos": [
+      126.0,
+      0,
+      201.5
+     ],
+     "vis": "player",
+     "key": "Z5"
+    },
+    {
+     "id": "den-Z5-bones1",
+     "kind": "bones",
+     "pos": [
+      135.0,
+      0,
+      226.0
+     ],
+     "vis": "player",
+     "rotY": 61,
+     "key": "Z5"
+    },
+    {
+     "id": "den-Z5-bones2",
+     "kind": "bones",
+     "pos": [
+      165.0,
+      0,
+      209.0
+     ],
+     "vis": "player",
+     "rotY": 122,
+     "key": "Z5"
+    },
+    {
+     "id": "den-Z5-bones3",
+     "kind": "bones",
+     "pos": [
+      163.0,
+      0,
+      234.0
+     ],
+     "vis": "player",
+     "rotY": 183,
+     "key": "Z5"
+    },
+    {
+     "id": "den-Z5-bones4",
+     "kind": "bones",
+     "pos": [
+      132.0,
+      0,
+      248.0
+     ],
+     "vis": "player",
+     "rotY": 244,
+     "key": "Z5"
+    },
+    {
+     "id": "den-Z5-bones5",
+     "kind": "bones",
+     "pos": [
+      152.0,
+      0,
+      267.0
+     ],
+     "vis": "player",
+     "rotY": 305,
+     "key": "Z5"
+    },
+    {
+     "id": "den-Z5-bones6",
+     "kind": "bones",
+     "pos": [
+      124.0,
+      0,
+      223.0
+     ],
+     "vis": "player",
+     "rotY": 366,
+     "key": "Z5"
+    },
+    {
+     "id": "den-Z5-bones7",
+     "kind": "bones",
+     "pos": [
+      167.0,
+      0,
+      253.0
+     ],
+     "vis": "player",
+     "rotY": 427,
+     "key": "Z5"
+    },
+    {
+     "id": "den-Z5-bones8",
+     "kind": "bones",
+     "pos": [
+      145.0,
+      0,
+      236.0
+     ],
+     "vis": "player",
+     "rotY": 488,
+     "key": "Z5"
+    },
+    {
+     "id": "den-Z5-bones9",
+     "kind": "bones",
+     "pos": [
+      158.0,
+      0,
+      195.0
+     ],
+     "vis": "player",
+     "rotY": 549,
+     "key": "Z5"
+    },
+    {
+     "id": "den-Z5-note",
+     "kind": "note",
+     "pos": [
+      138.0,
+      0,
+      243.0
+     ],
+     "vis": "dm-note",
+     "key": "Z5",
+     "label": "Bones crunch underfoot: disadvantage on Dexterity (Stealth) to move quietly anywhere in the deep caves."
+    },
+    {
+     "id": "den-bianca",
+     "kind": "werewolf-wolf",
+     "pos": [
+      99.0,
+      0,
+      230.0
+     ],
+     "vis": "hidden-creature",
+     "key": "Z5a",
+     "label": "Bianca, Kiril's white-haired mate, werewolf in wolf form, asleep; quick to wake at an alarm",
+     "size": "medium",
+     "dims": {
+      "fur": 14078664
+     },
+     "playerLabel": "A white wolf, asleep"
+    },
+    {
+     "id": "den-wensencia",
+     "kind": "werewolf-wolf",
+     "pos": [
+      109.0,
+      0,
+      194.0
+     ],
+     "vis": "hidden-creature",
+     "key": "Z5b",
+     "label": "Wensencia, werewolf in wolf form, asleep with Kellen; at an alarm she cages him in Z7 and joins the fight",
+     "size": "medium",
+     "playerLabel": "A wolf, asleep"
+    },
+    {
+     "id": "den-kellen",
+     "kind": "werewolf-wolf",
+     "pos": [
+      113.0,
+      0,
+      200.0
+     ],
+     "vis": "hidden-creature",
+     "key": "Z5b",
+     "label": "Kellen, ten, a werewolf in wolf form (AC 10, 2 hp, werewolf immunities, noncombatant); hugs a doll; greater restoration or remove curse cures him",
+     "size": "small",
+     "dims": {
+      "scale": 0.8,
+      "fur": 9075300
+     },
+     "playerLabel": "A wolf cub, asleep"
+    },
+    {
+     "id": "den-Z5b-doll",
+     "kind": "doll",
+     "pos": [
+      114.5,
+      0,
+      202.0
+     ],
+     "vis": "hidden-object",
+     "key": "Z5b",
+     "label": "A wooden doll painted like a zombie, eerily like one of the characters; etched with a tiny slogan",
+     "playerLabel": "A wooden doll"
+    },
+    {
+     "id": "den-Z6-curtain",
+     "kind": "skin-curtain",
+     "pos": [
+      150.5,
+      0,
+      159.25
+     ],
+     "vis": "player",
+     "rotY": -38.2,
+     "key": "Z6",
+     "dims": {
+      "w": 8.5,
+      "h": 9
+     }
+    },
+    {
+     "id": "den-Z6-bed",
+     "kind": "pallet",
+     "pos": [
+      138.0,
+      0,
+      177.0
+     ],
+     "vis": "player",
+     "rotY": 20,
+     "key": "Z6"
+    },
+    {
+     "id": "den-Z6-bones",
+     "kind": "bones",
+     "pos": [
+      143.0,
+      0,
+      185.0
+     ],
+     "vis": "player",
+     "rotY": 40,
+     "key": "Z6"
+    },
+    {
+     "id": "den-Z6-note",
+     "kind": "note",
+     "pos": [
+      140.0,
+      0,
+      170.0
+     ],
+     "vis": "dm-note",
+     "key": "Z6",
+     "label": "Kiril sleeps here in wolf form when he is home. Behind the curtain: a 10-ft tunnel of rough stairs and landings up to a secret door (easy to see from inside) onto the ledge Z8."
+    },
+    {
+     "id": "den-Z6-stair0",
+     "kind": "rough-steps",
+     "pos": [
+      154.5,
+      0,
+      145.0
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "Z6-tunnel",
+     "dims": {
+      "len": 9,
+      "w": 9,
+      "n": 6,
+      "step": 0.22
+     }
+    },
+    {
+     "id": "den-Z6-stair1",
+     "kind": "rough-steps",
+     "pos": [
+      126.0,
+      0,
+      124.75
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "key": "Z6-tunnel",
+     "dims": {
+      "len": 9,
+      "w": 9,
+      "n": 6,
+      "step": 0.22
+     }
+    },
+    {
+     "id": "den-Z6-stair2",
+     "kind": "rough-steps",
+     "pos": [
+      105.25,
+      0,
+      135.0
+     ],
+     "vis": "player",
+     "rotY": -90,
+     "key": "Z6-tunnel",
+     "dims": {
+      "len": 9,
+      "w": 9,
+      "n": 6,
+      "step": 0.22
+     }
+    },
+    {
+     "id": "den-Z6-stair3",
+     "kind": "rough-steps",
+     "pos": [
+      106.0,
+      0,
+      149.5
+     ],
+     "vis": "player",
+     "rotY": -90,
+     "key": "Z6-tunnel",
+     "dims": {
+      "len": 9,
+      "w": 9,
+      "n": 6,
+      "step": 0.22
+     }
+    },
+    {
+     "id": "den-Z7-steps-nw",
+     "kind": "rough-steps",
+     "pos": [
+      172.0,
+      0,
+      183.5
+     ],
+     "vis": "player",
+     "rotY": -140,
+     "key": "Z7",
+     "dims": {
+      "len": 13,
+      "w": 9,
+      "n": 6,
+      "step": 0.3
+     }
+    },
+    {
+     "id": "den-Z7-steps-sw",
+     "kind": "rough-steps",
+     "pos": [
+      193.0,
+      0,
+      209.5
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "key": "Z7",
+     "dims": {
+      "len": 12,
+      "w": 17,
+      "n": 6,
+      "step": 0.3
+     }
+    },
+    {
+     "id": "den-Z7-cage0",
+     "kind": "wolf-cage",
+     "pos": [
+      195.25,
+      0,
+      155.0
+     ],
+     "vis": "player",
+     "key": "Z7",
+     "dims": {
+      "w": 7,
+      "h": 5,
+      "open": 0
+     }
+    },
+    {
+     "id": "den-child1",
+     "kind": "child",
+     "pos": [
+      194.0,
+      0,
+      155.5
+     ],
+     "vis": "hidden-creature",
+     "key": "Z7",
+     "label": "Prisoner, a child of 12 (AC 10, 1 hp): in shock; freed children stay close to the characters",
+     "size": "small",
+     "dims": {
+      "v": 1
+     },
+     "playerLabel": "A frightened child"
+    },
+    {
+     "id": "den-child2",
+     "kind": "child",
+     "pos": [
+      196.5,
+      0,
+      155.5
+     ],
+     "vis": "hidden-creature",
+     "key": "Z7",
+     "label": "Prisoner, a child of 11 (AC 10, 1 hp): in shock; freed children stay close to the characters",
+     "size": "small",
+     "dims": {
+      "v": 2
+     },
+     "playerLabel": "A frightened child"
+    },
+    {
+     "id": "den-Z7-cage1",
+     "kind": "wolf-cage",
+     "pos": [
+      205.5,
+      0,
+      155.0
+     ],
+     "vis": "player",
+     "rotY": 7,
+     "key": "Z7",
+     "dims": {
+      "w": 7,
+      "h": 5,
+      "open": 0
+     }
+    },
+    {
+     "id": "den-child3",
+     "kind": "child",
+     "pos": [
+      204.25,
+      0,
+      155.5
+     ],
+     "vis": "hidden-creature",
+     "key": "Z7",
+     "label": "Prisoner, a child of 10 (AC 10, 1 hp): in shock; freed children stay close to the characters",
+     "size": "small",
+     "dims": {
+      "v": 3
+     },
+     "playerLabel": "A frightened child"
+    },
+    {
+     "id": "den-child4",
+     "kind": "child",
+     "pos": [
+      206.75,
+      0,
+      155.5
+     ],
+     "vis": "hidden-creature",
+     "key": "Z7",
+     "label": "Prisoner, a child of 9 (AC 10, 1 hp): in shock; freed children stay close to the characters",
+     "size": "small",
+     "dims": {
+      "v": 4
+     },
+     "playerLabel": "A frightened child"
+    },
+    {
+     "id": "den-Z7-cage2",
+     "kind": "wolf-cage",
+     "pos": [
+      185.25,
+      0,
+      165.0
+     ],
+     "vis": "player",
+     "rotY": 14,
+     "key": "Z7",
+     "dims": {
+      "w": 7,
+      "h": 5,
+      "open": 1
+     }
+    },
+    {
+     "id": "den-Z7-cage3",
+     "kind": "wolf-cage",
+     "pos": [
+      225.0,
+      0,
+      175.0
+     ],
+     "vis": "player",
+     "key": "Z7",
+     "dims": {
+      "w": 7,
+      "h": 5,
+      "open": 0
+     }
+    },
+    {
+     "id": "den-child5",
+     "kind": "child",
+     "pos": [
+      223.75,
+      0,
+      175.5
+     ],
+     "vis": "hidden-creature",
+     "key": "Z7",
+     "label": "Prisoner, a child of 8 (AC 10, 1 hp): in shock; freed children stay close to the characters",
+     "size": "small",
+     "dims": {
+      "v": 5
+     },
+     "playerLabel": "A frightened child"
+    },
+    {
+     "id": "den-child6",
+     "kind": "child",
+     "pos": [
+      226.25,
+      0,
+      175.5
+     ],
+     "vis": "hidden-creature",
+     "key": "Z7",
+     "label": "Prisoner, a child of 7 (AC 10, 1 hp): in shock; freed children stay close to the characters",
+     "size": "small",
+     "dims": {
+      "v": 6
+     },
+     "playerLabel": "A frightened child"
+    },
+    {
+     "id": "den-Z7-cage4",
+     "kind": "wolf-cage",
+     "pos": [
+      225.0,
+      0,
+      185.0
+     ],
+     "vis": "player",
+     "rotY": 7,
+     "key": "Z7",
+     "dims": {
+      "w": 7,
+      "h": 5,
+      "open": 0
+     }
+    },
+    {
+     "id": "den-child7",
+     "kind": "child",
+     "pos": [
+      223.75,
+      0,
+      185.5
+     ],
+     "vis": "hidden-creature",
+     "key": "Z7",
+     "label": "Prisoner, a child of 12 (AC 10, 1 hp): in shock; freed children stay close to the characters",
+     "size": "small",
+     "dims": {
+      "v": 7
+     },
+     "playerLabel": "A frightened child"
+    },
+    {
+     "id": "den-child8",
+     "kind": "child",
+     "pos": [
+      226.25,
+      0,
+      185.5
+     ],
+     "vis": "hidden-creature",
+     "key": "Z7",
+     "label": "Prisoner, a child of 11 (AC 10, 1 hp): in shock; freed children stay close to the characters",
+     "size": "small",
+     "dims": {
+      "v": 8
+     },
+     "playerLabel": "A frightened child"
+    },
+    {
+     "id": "den-Z7-cage5",
+     "kind": "wolf-cage",
+     "pos": [
+      215.0,
+      0,
+      195.0
+     ],
+     "vis": "player",
+     "rotY": 14,
+     "key": "Z7",
+     "dims": {
+      "w": 7,
+      "h": 5,
+      "open": 1
+     }
+    },
+    {
+     "id": "den-Z7-statue",
+     "kind": "mother-night",
+     "pos": [
+      214.5,
+      0,
+      164.5
+     ],
+     "vis": "player",
+     "rotY": -135,
+     "key": "Z7",
+     "dims": {
+      "h": 9
+     }
+    },
+    {
+     "id": "den-Z7-hoard",
+     "kind": "hoard",
+     "pos": [
+      214.5,
+      0,
+      164.5
+     ],
+     "vis": "player",
+     "key": "Z7",
+     "dims": {
+      "r": 4.5
+     }
+    },
+    {
+     "id": "den-Z7-corpse0",
+     "kind": "hanging-corpse",
+     "pos": [
+      221.5,
+      0,
+      157.25
+     ],
+     "vis": "player",
+     "rotY": -130,
+     "key": "Z7",
+     "dims": {
+      "v": 0
+     }
+    },
+    {
+     "id": "den-Z7-corpse1",
+     "kind": "hanging-corpse",
+     "pos": [
+      226.75,
+      0,
+      162.0
+     ],
+     "vis": "player",
+     "rotY": -130,
+     "key": "Z7",
+     "dims": {
+      "v": 1
+     }
+    },
+    {
+     "id": "den-Z7-treasure",
+     "kind": "pouch",
+     "pos": [
+      211.0,
+      0,
+      168.0
+     ],
+     "vis": "hidden-object",
+     "key": "Z7",
+     "label": "Hoard (cursed: whoever takes from it gets no rest at night): 4,500 cp, 900 sp, 250 gp in foreign coin; thirty 50 gp and seven 100 gp gems; twelve gold jewellery pieces (25 gp), a jet-inlaid gold cloak pin (250 gp); an ivory drinking horn (250 gp); an electrum censer with platinum filigree (750 gp)",
+     "playerLabel": "Coins, gems and gold piled at the statue's feet"
+    },
+    {
+     "id": "den-zuleika",
+     "kind": "werewolf-human",
+     "pos": [
+      208.0,
+      0,
+      171.0
+     ],
+     "vis": "hidden-creature",
+     "key": "Z7",
+     "label": "Zuleika Toranescu, werewolf in human form, kneeling in prayer; guards the prisoners; frees them if Emil comes back to her, may if the characters help her against Kiril",
+     "size": "medium",
+     "dims": {
+      "spear": 0,
+      "hair": 0,
+      "cloth": 5917266,
+      "skirt": 1
+     },
+     "playerLabel": "A woman in rags, kneeling"
+    },
+    {
+     "id": "den-Z7-note",
+     "kind": "note",
+     "pos": [
+      200.0,
+      0,
+      184.0
+     ],
+     "vis": "dm-note",
+     "key": "Z7",
+     "label": "Ceiling 20 ft. Two cages empty (Wensencia locks Kellen in one at an alarm); the rocks on the lids can be knocked or lifted off."
+    },
+    {
+     "id": "den-kiril",
+     "kind": "werewolf-wolf",
+     "pos": [
+      200.0,
+      0,
+      445.0
+     ],
+     "vis": "hidden-creature",
+     "label": "Kiril Stoyanovich (werewolf, 90 hp) leading the hunt home: with him six werewolves and nine wolves (two of each placed)",
+     "size": "medium",
+     "dims": {
+      "fur": 4012600,
+      "scale": 1.4
+     },
+     "playerLabel": "A great dark wolf"
+    },
+    {
+     "id": "den-pack0",
+     "kind": "werewolf-wolf",
+     "pos": [
+      191.0,
+      0,
+      453.0
+     ],
+     "vis": "hidden-creature",
+     "label": "Werewolf of the hunting party, wolf form; hybrid form if the den was attacked",
+     "size": "medium",
+     "playerLabel": "A big shaggy wolf"
+    },
+    {
+     "id": "den-pack1",
+     "kind": "werewolf-wolf",
+     "pos": [
+      209.0,
+      0,
+      454.0
+     ],
+     "vis": "hidden-creature",
+     "label": "Werewolf of the hunting party, wolf form; hybrid form if the den was attacked",
+     "size": "medium",
+     "playerLabel": "A big shaggy wolf"
+    },
+    {
+     "id": "den-packwolf0",
+     "kind": "wolf",
+     "pos": [
+      185.0,
+      0,
+      462.0
+     ],
+     "vis": "hidden-creature",
+     "label": "Wolf of the hunting party",
+     "size": "medium",
+     "playerLabel": "A wolf"
+    },
+    {
+     "id": "den-packwolf1",
+     "kind": "wolf",
+     "pos": [
+      215.0,
+      0,
+      463.0
+     ],
+     "vis": "hidden-creature",
+     "label": "Wolf of the hunting party",
+     "size": "medium",
+     "playerLabel": "A wolf"
+    },
+    {
+     "id": "den-pack-note",
+     "kind": "note",
+     "pos": [
+      200.0,
+      0,
+      432.0
+     ],
+     "vis": "dm-note",
+     "label": "Leader of the Pack: roll each hour in the den, 18+ the hunters return. Seeing signs of an assault they take hybrid form; Kiril sends three up the slope to Z8 to come in from above."
+    },
+    {
+     "id": "den-boulder0",
+     "kind": "boulder",
+     "pos": [
+      150.0,
+      0,
+      410.0
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 2.6
+     }
+    },
+    {
+     "id": "den-boulder1",
+     "kind": "boulder",
+     "pos": [
+      235.0,
+      0,
+      400.0
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 2.2
+     }
+    },
+    {
+     "id": "den-boulder2",
+     "kind": "boulder",
+     "pos": [
+      125.0,
+      0,
+      422.5
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 1.8
+     }
+    },
+    {
+     "id": "den-boulder3",
+     "kind": "boulder",
+     "pos": [
+      252.5,
+      0,
+      370.0
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 2.4
+     }
+    },
+    {
+     "id": "den-boulder4",
+     "kind": "boulder",
+     "pos": [
+      167.5,
+      0,
+      450.0
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 2.0
+     }
+    },
+    {
+     "id": "den-boulder5",
+     "kind": "boulder",
+     "pos": [
+      232.5,
+      0,
+      452.5
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 2.8
+     }
+    },
+    {
+     "id": "den-boulder6",
+     "kind": "boulder",
+     "pos": [
+      100.0,
+      0,
+      402.5
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 2.0
+     }
+    },
+    {
+     "id": "den-scree0",
+     "kind": "rubble",
+     "pos": [
+      137.5,
+      0,
+      432.5
+     ],
+     "vis": "player",
+     "dims": {
+      "n": 7
+     }
+    },
+    {
+     "id": "den-scree1",
+     "kind": "rubble",
+     "pos": [
+      260.0,
+      0,
+      420.0
+     ],
+     "vis": "player",
+     "dims": {
+      "n": 7
+     }
+    },
+    {
+     "id": "den-scree2",
+     "kind": "rubble",
+     "pos": [
+      225.0,
+      0,
+      430.0
+     ],
+     "vis": "player",
+     "dims": {
+      "n": 7
+     }
+    },
+    {
+     "id": "den-scree3",
+     "kind": "rubble",
+     "pos": [
+      157.5,
+      0,
+      397.5
+     ],
+     "vis": "player",
+     "dims": {
+      "n": 7
+     }
+    },
+    {
+     "id": "den-spawn",
+     "kind": "spawn",
+     "pos": [
+      202.0,
+      0,
+      457.5
+     ],
+     "vis": "dm-note",
+     "label": "The approach up the mountainside"
+    },
+    {
+     "id": "den-scree-top0",
+     "kind": "rubble",
+     "pos": [
+      50.0,
+      5.6,
+      100.0
+     ],
+     "vis": "player",
+     "dims": {
+      "n": 5
+     }
+    },
+    {
+     "id": "den-scree-top1",
+     "kind": "boulder",
+     "pos": [
+      61.2,
+      5.6,
+      315.4
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 0.9
+     }
+    },
+    {
+     "id": "den-scree-top2",
+     "kind": "boulder",
+     "pos": [
+      247.75,
+      5.6,
+      174.25
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 1.35
+     }
+    },
+    {
+     "id": "den-scree-top3",
+     "kind": "boulder",
+     "pos": [
+      72.4,
+      5.6,
+      245.8
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 0.9
+     }
+    },
+    {
+     "id": "den-scree-top4",
+     "kind": "rubble",
+     "pos": [
+      258.95,
+      5.6,
+      109.65
+     ],
+     "vis": "player",
+     "dims": {
+      "n": 5
+     }
+    },
+    {
+     "id": "den-scree-top5",
+     "kind": "rubble",
+     "pos": [
+      83.6,
+      5.6,
+      196.2
+     ],
+     "vis": "player",
+     "dims": {
+      "n": 5
+     }
+    },
+    {
+     "id": "den-scree-top6",
+     "kind": "boulder",
+     "pos": [
+      270.15,
+      5.6,
+      300.05
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 1.35
+     }
+    },
+    {
+     "id": "den-scree-top7",
+     "kind": "boulder",
+     "pos": [
+      281.35,
+      5.6,
+      240.45
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 1.35
+     }
+    },
+    {
+     "id": "den-scree-top8",
+     "kind": "rubble",
+     "pos": [
+      292.55,
+      5.6,
+      165.85
+     ],
+     "vis": "player",
+     "dims": {
+      "n": 5
+     }
+    },
+    {
+     "id": "den-scree-top9",
+     "kind": "boulder",
+     "pos": [
+      234.1,
+      5.6,
+      289.7
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 1.8
+     }
+    },
+    {
+     "id": "den-scree-top10",
+     "kind": "boulder",
+     "pos": [
+      58.75,
+      5.6,
+      111.25
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 1.35
+     }
+    },
+    {
+     "id": "den-scree-top11",
+     "kind": "boulder",
+     "pos": [
+      69.95,
+      5.6,
+      311.65
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 1.35
+     }
+    },
+    {
+     "id": "den-scree-top12",
+     "kind": "rubble",
+     "pos": [
+      256.5,
+      5.6,
+      175.5
+     ],
+     "vis": "player",
+     "dims": {
+      "n": 5
+     }
+    },
+    {
+     "id": "den-scree-top13",
+     "kind": "rubble",
+     "pos": [
+      81.15,
+      5.6,
+      262.05
+     ],
+     "vis": "player",
+     "dims": {
+      "n": 5
+     }
+    },
+    {
+     "id": "den-scree-top14",
+     "kind": "boulder",
+     "pos": [
+      278.9,
+      5.6,
+      306.3
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 1.8
+     }
+    },
+    {
+     "id": "den-scree-top15",
+     "kind": "rubble",
+     "pos": [
+      290.1,
+      5.6,
+      231.7
+     ],
+     "vis": "player",
+     "dims": {
+      "n": 5
+     }
+    },
+    {
+     "id": "den-scree-top16",
+     "kind": "rubble",
+     "pos": [
+      114.75,
+      5.6,
+      328.25
+     ],
+     "vis": "player",
+     "dims": {
+      "n": 5
+     }
+    },
+    {
+     "id": "den-scree-top17",
+     "kind": "boulder",
+     "pos": [
+      56.3,
+      5.6,
+      177.1
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 1.8
+     }
+    },
+    {
+     "id": "den-scree-top18",
+     "kind": "boulder",
+     "pos": [
+      242.85,
+      5.6,
+      305.95
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 2.25
+     }
+    },
+    {
+     "id": "den-scree-top19",
+     "kind": "rubble",
+     "pos": [
+      184.4,
+      5.6,
+      139.8
+     ],
+     "vis": "player",
+     "dims": {
+      "n": 5
+     }
+    },
+    {
+     "id": "den-scree-top20",
+     "kind": "boulder",
+     "pos": [
+      67.5,
+      5.6,
+      107.5
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 1.8
+     }
+    },
+    {
+     "id": "den-scree-top21",
+     "kind": "rubble",
+     "pos": [
+      254.05,
+      5.6,
+      241.35
+     ],
+     "vis": "player",
+     "dims": {
+      "n": 5
+     }
+    },
+    {
+     "id": "den-scree-top22",
+     "kind": "rubble",
+     "pos": [
+      78.7,
+      5.6,
+      327.9
+     ],
+     "vis": "player",
+     "dims": {
+      "n": 5
+     }
+    },
+    {
+     "id": "den-scree-top23",
+     "kind": "boulder",
+     "pos": [
+      265.25,
+      5.6,
+      161.75
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 2.25
+     }
+    },
+    {
+     "id": "den-scree-top24",
+     "kind": "boulder",
+     "pos": [
+      89.9,
+      5.6,
+      263.3
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 1.8
+     }
+    },
+    {
+     "id": "den-scree-top25",
+     "kind": "boulder",
+     "pos": [
+      276.45,
+      5.6,
+      102.15
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 2.25
+     }
+    },
+    {
+     "id": "den-scree-top26",
+     "kind": "rubble",
+     "pos": [
+      287.65,
+      5.6,
+      297.55
+     ],
+     "vis": "player",
+     "dims": {
+      "n": 5
+     }
+    },
+    {
+     "id": "den-scree-top27",
+     "kind": "boulder",
+     "pos": [
+      53.85,
+      5.6,
+      242.95
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 2.25
+     }
+    },
+    {
+     "id": "den-scree-top28",
+     "kind": "boulder",
+     "pos": [
+      240.4,
+      5.6,
+      101.8
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 0.9
+     }
+    },
+    {
+     "id": "den-scree-top29",
+     "kind": "boulder",
+     "pos": [
+      123.5,
+      5.6,
+      319.5
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 1.8
+     }
+    },
+    {
+     "id": "den-scree-top30",
+     "kind": "boulder",
+     "pos": [
+      65.05,
+      5.6,
+      173.35
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 2.25
+     }
+    },
+    {
+     "id": "den-scree-top31",
+     "kind": "rubble",
+     "pos": [
+      251.6,
+      5.6,
+      307.2
+     ],
+     "vis": "player",
+     "dims": {
+      "n": 5
+     }
+    },
+    {
+     "id": "den-scree-top32",
+     "kind": "rubble",
+     "pos": [
+      76.25,
+      5.6,
+      123.75
+     ],
+     "vis": "player",
+     "dims": {
+      "n": 5
+     }
+    },
+    {
+     "id": "den-scree-top33",
+     "kind": "boulder",
+     "pos": [
+      262.8,
+      5.6,
+      227.6
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 0.9
+     }
+    },
+    {
+     "id": "den-scree-top34",
+     "kind": "boulder",
+     "pos": [
+      87.45,
+      5.6,
+      329.15
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 2.25
+     }
+    },
+    {
+     "id": "den-scree-top35",
+     "kind": "boulder",
+     "pos": [
+      274.0,
+      5.6,
+      168.0
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 0.9
+     }
+    },
+    {
+     "id": "den-scree-top36",
+     "kind": "boulder",
+     "pos": [
+      98.65,
+      5.6,
+      249.55
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 2.25
+     }
+    },
+    {
+     "id": "den-scree-top37",
+     "kind": "boulder",
+     "pos": [
+      51.4,
+      5.6,
+      308.8
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 0.9
+     }
+    },
+    {
+     "id": "den-scree-top38",
+     "kind": "boulder",
+     "pos": [
+      62.6,
+      5.6,
+      239.2
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 0.9
+     }
+    },
+    {
+     "id": "den-scree-top39",
+     "kind": "rubble",
+     "pos": [
+      249.15,
+      5.6,
+      103.05
+     ],
+     "vis": "player",
+     "dims": {
+      "n": 5
+     }
+    },
+    {
+     "id": "den-scree-top40",
+     "kind": "boulder",
+     "pos": [
+      132.25,
+      5.6,
+      330.75
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 2.25
+     }
+    },
+    {
+     "id": "den-scree-top41",
+     "kind": "rubble",
+     "pos": [
+      73.8,
+      5.6,
+      189.6
+     ],
+     "vis": "player",
+     "dims": {
+      "n": 5
+     }
+    },
+    {
+     "id": "den-scree-top42",
+     "kind": "boulder",
+     "pos": [
+      260.35,
+      5.6,
+      293.45
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 1.35
+     }
+    },
+    {
+     "id": "den-scree-top43",
+     "kind": "boulder",
+     "pos": [
+      201.9,
+      5.6,
+      137.3
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 1.8
+     }
+    },
+    {
+     "id": "den-scree-top44",
+     "kind": "boulder",
+     "pos": [
+      85.0,
+      5.6,
+      125.0
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 0.9
+     }
+    },
+    {
+     "id": "den-scree-top45",
+     "kind": "boulder",
+     "pos": [
+      271.55,
+      5.6,
+      233.85
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 1.35
+     }
+    },
+    {
+     "id": "den-scree-top46",
+     "kind": "rubble",
+     "pos": [
+      282.75,
+      5.6,
+      159.25
+     ],
+     "vis": "player",
+     "dims": {
+      "n": 5
+     }
+    },
+    {
+     "id": "den-scree-top47",
+     "kind": "rubble",
+     "pos": [
+      107.4,
+      5.6,
+      255.8
+     ],
+     "vis": "player",
+     "dims": {
+      "n": 5
+     }
+    },
+    {
+     "id": "den-scree-top48",
+     "kind": "boulder",
+     "pos": [
+      293.95,
+      5.6,
+      104.65
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 1.35
+     }
+    },
+    {
+     "id": "den-scree-top49",
+     "kind": "boulder",
+     "pos": [
+      60.15,
+      5.6,
+      305.05
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 1.35
+     }
+    },
+    {
+     "id": "den-scree-top50",
+     "kind": "rubble",
+     "pos": [
+      246.7,
+      5.6,
+      168.9
+     ],
+     "vis": "player",
+     "dims": {
+      "n": 5
+     }
+    },
+    {
+     "id": "den-scree-top51",
+     "kind": "rubble",
+     "pos": [
+      71.35,
+      5.6,
+      255.45
+     ],
+     "vis": "player",
+     "dims": {
+      "n": 5
+     }
+    },
+    {
+     "id": "den-scree-top52",
+     "kind": "boulder",
+     "pos": [
+      82.55,
+      5.6,
+      190.85
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 1.35
+     }
+    },
+    {
+     "id": "den-scree-top53",
+     "kind": "boulder",
+     "pos": [
+      269.1,
+      5.6,
+      299.7
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 1.8
+     }
+    },
+    {
+     "id": "den-scree-top54",
+     "kind": "boulder",
+     "pos": [
+      93.75,
+      5.6,
+      111.25
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 1.35
+     }
+    },
+    {
+     "id": "den-scree-top55",
+     "kind": "rubble",
+     "pos": [
+      280.3,
+      5.6,
+      225.1
+     ],
+     "vis": "player",
+     "dims": {
+      "n": 5
+     }
+    },
+    {
+     "id": "den-scree-top56",
+     "kind": "boulder",
+     "pos": [
+      221.85,
+      5.6,
+      348.95
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 2.25
+     }
+    },
+    {
+     "id": "den-scree-top57",
+     "kind": "boulder",
+     "pos": [
+      291.5,
+      5.6,
+      170.5
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 1.8
+     }
+    },
+    {
+     "id": "den-scree-top58",
+     "kind": "boulder",
+     "pos": [
+      233.05,
+      5.6,
+      299.35
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 2.25
+     }
+    },
+    {
+     "id": "den-scree-top59",
+     "kind": "rubble",
+     "pos": [
+      174.6,
+      5.6,
+      133.2
+     ],
+     "vis": "player",
+     "dims": {
+      "n": 5
+     }
+    },
+    {
+     "id": "den-scree-top60",
+     "kind": "boulder",
+     "pos": [
+      57.7,
+      5.6,
+      100.9
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 1.8
+     }
+    },
+    {
+     "id": "den-scree-top61",
+     "kind": "rubble",
+     "pos": [
+      68.9,
+      5.6,
+      321.3
+     ],
+     "vis": "player",
+     "dims": {
+      "n": 5
+     }
+    },
+    {
+     "id": "den-scree-top62",
+     "kind": "boulder",
+     "pos": [
+      255.45,
+      5.6,
+      155.15
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 2.25
+     }
+    },
+    {
+     "id": "den-scree-top63",
+     "kind": "boulder",
+     "pos": [
+      80.1,
+      5.6,
+      256.7
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 1.8
+     }
+    },
+    {
+     "id": "den-scree-top64",
+     "kind": "boulder",
+     "pos": [
+      91.3,
+      5.6,
+      177.1
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 1.8
+     }
+    },
+    {
+     "id": "den-scree-top65",
+     "kind": "rubble",
+     "pos": [
+      277.85,
+      5.6,
+      290.95
+     ],
+     "vis": "player",
+     "dims": {
+      "n": 5
+     }
+    },
+    {
+     "id": "den-scree-top66",
+     "kind": "boulder",
+     "pos": [
+      289.05,
+      5.6,
+      236.35
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 2.25
+     }
+    },
+    {
+     "id": "den-scree-top67",
+     "kind": "boulder",
+     "pos": [
+      55.25,
+      5.6,
+      166.75
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 2.25
+     }
+    },
+    {
+     "id": "den-scree-top68",
+     "kind": "rubble",
+     "pos": [
+      241.8,
+      5.6,
+      300.6
+     ],
+     "vis": "player",
+     "dims": {
+      "n": 5
+     }
+    },
+    {
+     "id": "den-scree-top69",
+     "kind": "boulder",
+     "pos": [
+      183.35,
+      5.6,
+      139.45
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 1.35
+     }
+    },
+    {
+     "id": "den-scree-top70",
+     "kind": "rubble",
+     "pos": [
+      66.45,
+      5.6,
+      117.15
+     ],
+     "vis": "player",
+     "dims": {
+      "n": 5
+     }
+    },
+    {
+     "id": "den-torch0",
+     "kind": "wall-torch",
+     "pos": [
+      117.0,
+      0,
+      120.6
+     ],
+     "vis": "player",
+     "dims": {
+      "y": 6.5
+     }
+    },
+    {
+     "id": "den-torch1",
+     "kind": "wall-torch",
+     "pos": [
+      141.0,
+      0,
+      120.6
+     ],
+     "vis": "player",
+     "dims": {
+      "y": 6.5
+     }
+    },
+    {
+     "id": "den-torch2",
+     "kind": "wall-torch",
+     "pos": [
+      159.4,
+      0,
+      140.5
+     ],
+     "vis": "player",
+     "rotY": -90.0,
+     "dims": {
+      "y": 6.5
+     }
+    },
+    {
+     "id": "den-torch3",
+     "kind": "wall-torch",
+     "pos": [
+      101.1,
+      0,
+      144.0
+     ],
+     "vis": "player",
+     "rotY": 90.0,
+     "dims": {
+      "y": 6.5
+     }
+    },
+    {
+     "id": "den-torch4",
+     "kind": "wall-torch",
+     "pos": [
+      141.0,
+      0,
+      157.1
+     ],
+     "vis": "player",
+     "dims": {
+      "y": 6.5
+     }
+    },
+    {
+     "id": "den-torch5",
+     "kind": "wall-torch",
+     "pos": [
+      186.09,
+      0,
+      156.7
+     ],
+     "vis": "player",
+     "rotY": 55.8,
+     "dims": {
+      "y": 6.5
+     }
+    },
+    {
+     "id": "den-torch6",
+     "kind": "wall-torch",
+     "pos": [
+      171.98,
+      0,
+      169.505
+     ],
+     "vis": "player",
+     "rotY": 97.1,
+     "dims": {
+      "y": 6.5
+     }
+    },
+    {
+     "id": "den-torch7",
+     "kind": "wall-torch",
+     "pos": [
+      220.4,
+      0,
+      205.0
+     ],
+     "vis": "player",
+     "rotY": -90.0,
+     "dims": {
+      "y": 6.5
+     }
+    },
+    {
+     "id": "den-torch8",
+     "kind": "wall-torch",
+     "pos": [
+      202.0,
+      0,
+      217.9
+     ],
+     "vis": "player",
+     "rotY": 180.0,
+     "dims": {
+      "y": 6.5
+     }
+    },
+    {
+     "id": "den-torch9",
+     "kind": "wall-torch",
+     "pos": [
+      112.77,
+      0,
+      209.215
+     ],
+     "vis": "player",
+     "rotY": 153.4,
+     "dims": {
+      "y": 6.5
+     }
+    },
+    {
+     "id": "den-torch10",
+     "kind": "wall-torch",
+     "pos": [
+      113.875,
+      0,
+      217.995
+     ],
+     "vis": "player",
+     "rotY": 22.6,
+     "dims": {
+      "y": 6.5
+     }
+    },
+    {
+     "id": "den-torch11",
+     "kind": "wall-torch",
+     "pos": [
+      150.09,
+      0,
+      192.095
+     ],
+     "vis": "player",
+     "rotY": 8.6,
+     "dims": {
+      "y": 6.5
+     }
+    },
+    {
+     "id": "den-torch12",
+     "kind": "wall-torch",
+     "pos": [
+      172.015,
+      0,
+      236.63
+     ],
+     "vis": "player",
+     "rotY": -116.6,
+     "dims": {
+      "y": 6.5
+     }
+    },
+    {
+     "id": "den-torch13",
+     "kind": "wall-torch",
+     "pos": [
+      167.105,
+      0,
+      275.01
+     ],
+     "vis": "player",
+     "rotY": 24.2,
+     "dims": {
+      "y": 6.5
+     }
+    },
+    {
+     "id": "den-torch14",
+     "kind": "wall-torch",
+     "pos": [
+      126.545,
+      0,
+      270.3
+     ],
+     "vis": "player",
+     "rotY": -5.9,
+     "dims": {
+      "y": 6.5
+     }
+    },
+    {
+     "id": "den-torch15",
+     "kind": "wall-torch",
+     "pos": [
+      124.0,
+      0,
+      308.4
+     ],
+     "vis": "player",
+     "rotY": 180.0,
+     "dims": {
+      "y": 6.5
+     }
+    },
+    {
+     "id": "den-torch16",
+     "kind": "wall-torch",
+     "pos": [
+      140.705,
+      0,
+      315.26
+     ],
+     "vis": "player",
+     "rotY": 126.0,
+     "dims": {
+      "y": 6.5
+     }
+    },
+    {
+     "id": "den-torch17",
+     "kind": "wall-torch",
+     "pos": [
+      231.73,
+      0,
+      261.215
+     ],
+     "vis": "player",
+     "rotY": -153.4,
+     "dims": {
+      "y": 6.5
+     }
+    },
+    {
+     "id": "den-torch18",
+     "kind": "wall-torch",
+     "pos": [
+      220.865,
+      0,
+      279.85
+     ],
+     "vis": "player",
+     "rotY": -80.0,
+     "dims": {
+      "y": 6.5
+     }
+    },
+    {
+     "id": "den-torch19",
+     "kind": "wall-torch",
+     "pos": [
+      219.7,
+      0,
+      302.0
+     ],
+     "vis": "player",
+     "rotY": -90.0,
+     "dims": {
+      "y": 6.5
+     }
+    },
+    {
+     "id": "den-torch20",
+     "kind": "wall-torch",
+     "pos": [
+      204.425,
+      0,
+      327.665
+     ],
+     "vis": "player",
+     "rotY": -156.8,
+     "dims": {
+      "y": 6.5
+     }
+    },
+    {
+     "id": "den-torch21",
+     "kind": "wall-torch",
+     "pos": [
+      150.555,
+      0,
+      329.275
+     ],
+     "vis": "player",
+     "rotY": 111.8,
+     "dims": {
+      "y": 6.5
+     }
+    },
+    {
+     "id": "den-torch22",
+     "kind": "wall-torch",
+     "pos": [
+      158.185,
+      0,
+      348.43
+     ],
+     "vis": "player",
+     "rotY": 138.8,
+     "dims": {
+      "y": 6.5
+     }
+    },
+    {
+     "id": "den-torch23",
+     "kind": "wall-torch",
+     "pos": [
+      171.6,
+      0,
+      362.5
+     ],
+     "vis": "player",
+     "rotY": 90.0,
+     "dims": {
+      "y": 6.5
+     }
+    },
+    {
+     "id": "den-torch24",
+     "kind": "wall-torch",
+     "pos": [
+      177.13,
+      0,
+      376.98
+     ],
+     "vis": "player",
+     "rotY": 109.3,
+     "dims": {
+      "y": 6.5
+     }
+    },
+    {
+     "id": "den-torch25",
+     "kind": "wall-torch",
+     "pos": [
+      203.01,
+      0,
+      354.045
+     ],
+     "vis": "player",
+     "rotY": -3.3,
+     "dims": {
+      "y": 6.5
+     }
+    },
+    {
+     "id": "den-torch26",
+     "kind": "wall-torch",
+     "pos": [
+      208.965,
+      0,
+      370.45
+     ],
+     "vis": "player",
+     "rotY": -77.2,
+     "dims": {
+      "y": 6.5
+     }
+    }
+   ],
+   "terrain": [
+    {
+     "polygon": [
+      [
+       40.0,
+       395.0
+      ],
+      [
+       70.0,
+       393.0
+      ],
+      [
+       100.0,
+       387.5
+      ],
+      [
+       130.0,
+       383.0
+      ],
+      [
+       150.0,
+       378.5
+      ],
+      [
+       163.0,
+       382.0
+      ],
+      [
+       170.0,
+       385.0
+      ],
+      [
+       178.25,
+       382.0
+      ],
+      [
+       180.25,
+       391.5
+      ],
+      [
+       185.5,
+       403.0
+      ],
+      [
+       192.0,
+       413.5
+      ],
+      [
+       200.0,
+       417.0
+      ],
+      [
+       209.25,
+       415.0
+      ],
+      [
+       218.5,
+       408.5
+      ],
+      [
+       222.5,
+       398.0
+      ],
+      [
+       221.0,
+       387.5
+      ],
+      [
+       216.0,
+       381.0
+      ],
+      [
+       210.5,
+       374.5
+      ],
+      [
+       221.0,
+       356.0
+      ],
+      [
+       229.0,
+       348.5
+      ],
+      [
+       242.0,
+       342.0
+      ],
+      [
+       250.0,
+       334.0
+      ],
+      [
+       267.5,
+       323.0
+      ],
+      [
+       290.0,
+       315.0
+      ],
+      [
+       310.0,
+       310.0
+      ],
+      [
+       310.0,
+       480.0
+      ],
+      [
+       40.0,
+       480.0
+      ]
+     ],
+     "floor": "grass"
+    },
+    {
+     "polygon": [
+      [
+       193.0,
+       416.0
+      ],
+      [
+       206.0,
+       416.0
+      ],
+      [
+       213.0,
+       440
+      ],
+      [
+       218.0,
+       480
+      ],
+      [
+       198.0,
+       480
+      ],
+      [
+       194.0,
+       440
+      ]
+     ],
+     "floor": "dirt"
+    },
+    {
+     "polygon": [
+      [
+       161.5,
+       320.0
+      ],
+      [
+       171.0,
+       320.0
+      ],
+      [
+       175.5,
+       320.5
+      ],
+      [
+       180.0,
+       320.0
+      ],
+      [
+       190.25,
+       321.0
+      ],
+      [
+       190.25,
+       338.0
+      ],
+      [
+       186.0,
+       342.0
+      ],
+      [
+       170.0,
+       341.5
+      ],
+      [
+       165.0,
+       339.0
+      ],
+      [
+       161.0,
+       333.5
+      ]
+     ],
+     "floor": "flagstone"
+    },
+    {
+     "polygon": [
+      [
+       170.0,
+       261.5
+      ],
+      [
+       172.0,
+       256.0
+      ],
+      [
+       177.0,
+       253.0
+      ],
+      [
+       182.5,
+       251.5
+      ],
+      [
+       192.5,
+       250.5
+      ],
+      [
+       202.5,
+       250.0
+      ],
+      [
+       208.0,
+       253.0
+      ],
+      [
+       212.0,
+       260.0
+      ],
+      [
+       213.0,
+       269.0
+      ],
+      [
+       211.0,
+       277.5
+      ],
+      [
+       206.0,
+       283.0
+      ],
+      [
+       200.0,
+       287.0
+      ],
+      [
+       193.0,
+       290.0
+      ],
+      [
+       187.0,
+       287.5
+      ],
+      [
+       181.5,
+       281.0
+      ],
+      [
+       177.5,
+       273.5
+      ],
+      [
+       172.5,
+       268.5
+      ]
+     ],
+     "floor": "shallow-water"
+    },
+    {
+     "polygon": [
+      [
+       177.0,
+       250.0
+      ],
+      [
+       180.5,
+       240.0
+      ],
+      [
+       190.0,
+       238.0
+      ],
+      [
+       200.5,
+       238.5
+      ],
+      [
+       206.5,
+       235.0
+      ],
+      [
+       210.0,
+       234.5
+      ],
+      [
+       215.0,
+       230.0
+      ],
+      [
+       216.5,
+       240.0
+      ],
+      [
+       210.0,
+       251.5
+      ],
+      [
+       202.5,
+       249.25
+      ],
+      [
+       192.5,
+       249.75
+      ],
+      [
+       182.5,
+       250.75
+      ]
+     ],
+     "floor": "flagstone"
+    }
+   ]
+  },
+  {
+   "id": "ring",
+   "name": "Ring of stone (Z8), +100 ft",
+   "elevationFt": 100,
+   "ceilingFt": 10,
+   "north": "-z",
+   "rooms": [
+    {
+     "key": "Z8",
+     "name": "Ring of Stone",
+     "page": 205,
+     "polygon": [
+      [
+       220.0,
+       59.0
+      ],
+      [
+       223.0,
+       50.0
+      ],
+      [
+       228.0,
+       46.0
+      ],
+      [
+       234.0,
+       46.0
+      ],
+      [
+       238.0,
+       47.0
+      ],
+      [
+       250.5,
+       45.25
+      ],
+      [
+       261.0,
+       47.0
+      ],
+      [
+       272.0,
+       54.0
+      ],
+      [
+       279.0,
+       51.5
+      ],
+      [
+       293.0,
+       45.25
+      ],
+      [
+       307.5,
+       37.5
+      ],
+      [
+       316.5,
+       33.0
+      ],
+      [
+       329.0,
+       26.5
+      ],
+      [
+       333.0,
+       47.0
+      ],
+      [
+       270.0,
+       77.0
+      ],
+      [
+       203.5,
+       107.0
+      ],
+      [
+       200.5,
+       90.5
+      ],
+      [
+       204.0,
+       78.0
+      ],
+      [
+       211.0,
+       69.5
+      ]
+     ],
+     "floor": "dirt",
+     "desc": "High on the slope, a shelf of rock holds a circle of stones about twenty feet across. Inside it the ground is stained dark and scattered with small chewed bones; old spears lie dropped around the outside.",
+     "dm": "The pack watches child prisoners fight here; a secret door in the rock face opens on the stairs down to Z6. Reached from the mouth by scaling the slope, no check needed."
+    },
+    {
+     "key": "Z6-head",
+     "name": "Kiril's Cave, Stair Tunnel Head",
+     "page": 204,
+     "polygon": [
+      [
+       228.0,
+       46.0
+      ],
+      [
+       224.5,
+       42.0
+      ],
+      [
+       225.0,
+       36.0
+      ],
+      [
+       229.0,
+       33.0
+      ],
+      [
+       234.5,
+       33.5
+      ],
+      [
+       237.0,
+       38.0
+      ],
+      [
+       236.0,
+       43.0
+      ],
+      [
+       234.0,
+       46.0
+      ]
+     ],
+     "floor": "dirt",
+     "ceilingFt": 10,
+     "desc": "The top of a stair tunnel, ending at a door of rock.",
+     "dm": "The secret door opens onto Z8; from inside it is easy to find."
+    }
+   ],
+   "walls": [
+    {
+     "id": "ring-sd-z8",
+     "a": [
+      228.0,
+      46.0
+     ],
+     "b": [
+      234.0,
+      46.0
+     ],
+     "flags": [
+      "secret-door"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "ring-w-1",
+     "a": [
+      224.5,
+      42.0
+     ],
+     "b": [
+      228.0,
+      46.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "ring-w-2",
+     "a": [
+      224.5,
+      42.0
+     ],
+     "b": [
+      225.0,
+      36.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "ring-w-3",
+     "a": [
+      225.0,
+      36.0
+     ],
+     "b": [
+      229.0,
+      33.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "ring-w-4",
+     "a": [
+      229.0,
+      33.0
+     ],
+     "b": [
+      234.5,
+      33.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "ring-w-5",
+     "a": [
+      234.5,
+      33.5
+     ],
+     "b": [
+      237.0,
+      38.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "ring-w-6",
+     "a": [
+      236.0,
+      43.0
+     ],
+     "b": [
+      237.0,
+      38.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    },
+    {
+     "id": "ring-w-7",
+     "a": [
+      234.0,
+      46.0
+     ],
+     "b": [
+      236.0,
+      43.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "cave-rock"
+    }
+   ],
+   "lights": [],
+   "objects": [
+    {
+     "id": "ring-sdo-z8",
+     "kind": "secret-panel",
+     "pos": [
+      231.0,
+      0,
+      46.0
+     ],
+     "vis": "secret-door",
+     "key": "Z8",
+     "label": "Secret door into the mountainside: pushes open onto the stair tunnel down to Z6 (easy to spot from inside)",
+     "wall": "ring-sd-z8",
+     "playerLabel": "Rock face"
+    },
+    {
+     "id": "ring-mtn-w-0",
+     "kind": "rock-flank",
+     "pos": [
+      202.25,
+      0,
+      84.25
+     ],
+     "vis": "player",
+     "rotY": 74.4,
+     "dims": {
+      "h": 70,
+      "d": 50,
+      "snow": 0,
+      "len": 17.6,
+      "seed": 3
+     }
+    },
+    {
+     "id": "ring-mtn-w-1",
+     "kind": "rock-flank",
+     "pos": [
+      207.5,
+      0,
+      73.75
+     ],
+     "vis": "player",
+     "rotY": 50.5,
+     "dims": {
+      "h": 70,
+      "d": 50,
+      "snow": 0,
+      "len": 15.2,
+      "seed": 4
+     }
+    },
+    {
+     "id": "ring-mtn-w-2",
+     "kind": "rock-flank",
+     "pos": [
+      215.5,
+      0,
+      64.25
+     ],
+     "vis": "player",
+     "rotY": 49.4,
+     "dims": {
+      "h": 70,
+      "d": 50,
+      "snow": 0,
+      "len": 18.6,
+      "seed": 5
+     }
+    },
+    {
+     "id": "ring-mtn-w-3",
+     "kind": "rock-flank",
+     "pos": [
+      221.5,
+      0,
+      54.5
+     ],
+     "vis": "player",
+     "rotY": 71.6,
+     "dims": {
+      "h": 70,
+      "d": 50,
+      "snow": 0,
+      "len": 13.4,
+      "seed": 6
+     }
+    },
+    {
+     "id": "ring-mtn-head-0",
+     "kind": "rock-flank",
+     "pos": [
+      225.0,
+      0,
+      30.5
+     ],
+     "vis": "player",
+     "rotY": 20.6,
+     "dims": {
+      "h": 60,
+      "d": 40,
+      "snow": 0,
+      "len": 12.3,
+      "seed": 3
+     }
+    },
+    {
+     "id": "ring-mtn-head-1",
+     "kind": "rock-flank",
+     "pos": [
+      233.0,
+      0,
+      30.5
+     ],
+     "vis": "player",
+     "rotY": -20.6,
+     "dims": {
+      "h": 60,
+      "d": 40,
+      "snow": 0,
+      "len": 12.3,
+      "seed": 4
+     }
+    },
+    {
+     "id": "ring-mtn-n-0",
+     "kind": "rock-flank",
+     "pos": [
+      244.25,
+      0,
+      46.125
+     ],
+     "vis": "player",
+     "rotY": 8.0,
+     "dims": {
+      "h": 80,
+      "d": 60,
+      "snow": 0,
+      "len": 17.1,
+      "seed": 3
+     }
+    },
+    {
+     "id": "ring-mtn-n-1",
+     "kind": "rock-flank",
+     "pos": [
+      255.75,
+      0,
+      46.125
+     ],
+     "vis": "player",
+     "rotY": -9.5,
+     "dims": {
+      "h": 80,
+      "d": 60,
+      "snow": 0,
+      "len": 14.8,
+      "seed": 4
+     }
+    },
+    {
+     "id": "ring-mtn-n-2",
+     "kind": "rock-flank",
+     "pos": [
+      266.5,
+      0,
+      50.5
+     ],
+     "vis": "player",
+     "rotY": -32.5,
+     "dims": {
+      "h": 80,
+      "d": 60,
+      "snow": 0,
+      "len": 17.6,
+      "seed": 5
+     }
+    },
+    {
+     "id": "ring-mtn-n-3",
+     "kind": "rock-flank",
+     "pos": [
+      275.5,
+      0,
+      52.75
+     ],
+     "vis": "player",
+     "rotY": 19.7,
+     "dims": {
+      "h": 80,
+      "d": 60,
+      "snow": 0,
+      "len": 10.9,
+      "seed": 6
+     }
+    },
+    {
+     "id": "ring-mtn-n-4",
+     "kind": "rock-flank",
+     "pos": [
+      286.0,
+      0,
+      48.375
+     ],
+     "vis": "player",
+     "rotY": 24.1,
+     "dims": {
+      "h": 80,
+      "d": 60,
+      "snow": 0,
+      "len": 20.4,
+      "seed": 7
+     }
+    },
+    {
+     "id": "ring-mtn-n-5",
+     "kind": "rock-flank",
+     "pos": [
+      300.25,
+      0,
+      41.375
+     ],
+     "vis": "player",
+     "rotY": 28.1,
+     "dims": {
+      "h": 80,
+      "d": 60,
+      "snow": 0,
+      "len": 21.7,
+      "seed": 8
+     }
+    },
+    {
+     "id": "ring-mtn-n-6",
+     "kind": "rock-flank",
+     "pos": [
+      312.0,
+      0,
+      35.25
+     ],
+     "vis": "player",
+     "rotY": 26.6,
+     "dims": {
+      "h": 80,
+      "d": 60,
+      "snow": 0,
+      "len": 14.1,
+      "seed": 9
+     }
+    },
+    {
+     "id": "ring-mtn-n-7",
+     "kind": "rock-flank",
+     "pos": [
+      322.75,
+      0,
+      29.75
+     ],
+     "vis": "player",
+     "rotY": 27.5,
+     "dims": {
+      "h": 80,
+      "d": 60,
+      "snow": 0,
+      "len": 18.9,
+      "seed": 10
+     }
+    },
+    {
+     "id": "ring-scarp-0",
+     "kind": "precipice",
+     "pos": [
+      214.583,
+      0,
+      102.0
+     ],
+     "vis": "player",
+     "rotY": 24.3,
+     "dims": {
+      "depth": 70,
+      "d": 120,
+      "len": 31.2,
+      "seed": 3
+     }
+    },
+    {
+     "id": "ring-scarp-1",
+     "kind": "precipice",
+     "pos": [
+      236.75,
+      0,
+      92.0
+     ],
+     "vis": "player",
+     "rotY": 24.3,
+     "dims": {
+      "depth": 70,
+      "d": 120,
+      "len": 31.2,
+      "seed": 4
+     }
+    },
+    {
+     "id": "ring-scarp-2",
+     "kind": "precipice",
+     "pos": [
+      258.917,
+      0,
+      82.0
+     ],
+     "vis": "player",
+     "rotY": 24.3,
+     "dims": {
+      "depth": 70,
+      "d": 120,
+      "len": 31.2,
+      "seed": 5
+     }
+    },
+    {
+     "id": "ring-scarp-3",
+     "kind": "precipice",
+     "pos": [
+      280.5,
+      0,
+      72.0
+     ],
+     "vis": "player",
+     "rotY": 25.5,
+     "dims": {
+      "depth": 70,
+      "d": 120,
+      "len": 29.9,
+      "seed": 6
+     }
+    },
+    {
+     "id": "ring-scarp-4",
+     "kind": "precipice",
+     "pos": [
+      301.5,
+      0,
+      62.0
+     ],
+     "vis": "player",
+     "rotY": 25.5,
+     "dims": {
+      "depth": 70,
+      "d": 120,
+      "len": 29.9,
+      "seed": 7
+     }
+    },
+    {
+     "id": "ring-scarp-5",
+     "kind": "precipice",
+     "pos": [
+      322.5,
+      0,
+      52.0
+     ],
+     "vis": "player",
+     "rotY": 25.5,
+     "dims": {
+      "depth": 70,
+      "d": 120,
+      "len": 29.9,
+      "seed": 8
+     }
+    },
+    {
+     "id": "ring-Z8-ring",
+     "kind": "stone-ring",
+     "pos": [
+      260.0,
+      0,
+      68.5
+     ],
+     "vis": "player",
+     "key": "Z8",
+     "dims": {
+      "r": 10,
+      "n": 24
+     }
+    },
+    {
+     "id": "ring-Z8-spears0",
+     "kind": "spears",
+     "pos": [
+      243.5,
+      0,
+      64.0
+     ],
+     "vis": "player",
+     "rotY": 80,
+     "key": "Z8",
+     "dims": {
+      "n": 2
+     }
+    },
+    {
+     "id": "ring-Z8-spears1",
+     "kind": "spears",
+     "pos": [
+      246.0,
+      0,
+      78.0
+     ],
+     "vis": "player",
+     "rotY": 120,
+     "key": "Z8",
+     "dims": {
+      "n": 3
+     }
+    },
+    {
+     "id": "ring-Z8-spears2",
+     "kind": "spears",
+     "pos": [
+      274.0,
+      0,
+      58.0
+     ],
+     "vis": "player",
+     "rotY": -10,
+     "key": "Z8",
+     "dims": {
+      "n": 2
+     }
+    },
+    {
+     "id": "ring-Z8-spears3",
+     "kind": "spears",
+     "pos": [
+      278.0,
+      0,
+      65.0
+     ],
+     "vis": "player",
+     "rotY": 60,
+     "key": "Z8",
+     "dims": {
+      "n": 3
+     }
+    },
+    {
+     "id": "ring-Z8-spears4",
+     "kind": "spears",
+     "pos": [
+      255.0,
+      0,
+      55.0
+     ],
+     "vis": "player",
+     "rotY": 170,
+     "key": "Z8",
+     "dims": {
+      "n": 2
+     }
+    },
+    {
+     "id": "ring-Z8-bones",
+     "kind": "bones",
+     "pos": [
+      261.0,
+      0,
+      69.5
+     ],
+     "vis": "player",
+     "rotY": 30,
+     "key": "Z8"
+    },
+    {
+     "id": "ring-Z8-flank0",
+     "kind": "werewolf",
+     "pos": [
+      230.0,
+      0,
+      93.0
+     ],
+     "vis": "hidden-creature",
+     "key": "Z8",
+     "label": "Leader of the Pack: one of the three hybrid werewolves Kiril sends up here to come into the den from above",
+     "size": "medium",
+     "playerLabel": "A wolf-headed brute"
+    },
+    {
+     "id": "ring-Z8-flank1",
+     "kind": "werewolf",
+     "pos": [
+      241.0,
+      0,
+      90.0
+     ],
+     "vis": "hidden-creature",
+     "key": "Z8",
+     "label": "Leader of the Pack: one of the three hybrid werewolves Kiril sends up here to come into the den from above",
+     "size": "medium",
+     "playerLabel": "A wolf-headed brute"
+    },
+    {
+     "id": "ring-Z8-flank2",
+     "kind": "werewolf",
+     "pos": [
+      252.0,
+      0,
+      86.0
+     ],
+     "vis": "hidden-creature",
+     "key": "Z8",
+     "label": "Leader of the Pack: one of the three hybrid werewolves Kiril sends up here to come into the den from above",
+     "size": "medium",
+     "playerLabel": "A wolf-headed brute"
+    },
+    {
+     "id": "ring-Z8-note",
+     "kind": "note",
+     "pos": [
+      260.0,
+      0,
+      85.0
+     ],
+     "vis": "dm-note",
+     "key": "Z8",
+     "label": "The pack watches its young prisoners fight here with spears; the last child standing is bitten and turned, the dead eaten. Scaling the slope from the mouth needs no kit or check."
+    }
+   ]
+  }
+ ],
+ "links": [
+  {
+   "id": "Z-tunnel",
+   "kind": "stairs",
+   "from": {
+    "level": "den",
+    "pos": [
+     107.75,
+     152.0
+    ]
+   },
+   "to": {
+    "level": "ring",
+    "pos": [
+     231.0,
+     39.5
+    ]
+   }
+  }
+ ]
+}
