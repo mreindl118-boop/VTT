@@ -661,6 +661,7 @@ export class App {
     // By what a foot is worth on screen, not by distance: a 5-ft square under 14 px is 'far', under 32 px is 'mid'.
     const px = this.cameraFrame().pxPerFt;
     gridUniforms.uPxPerFt.value = px;
+    (this.backdrop?.userData.setZoom as ((px: number, t: THREE.Vector3, c: THREE.Vector3, inv: () => void) => void) | undefined)?.(px, this.world.controls.target, this.world.camera.position, () => this.world.invalidate()); // the land refines where the camera looks; far woods go when they would be specks
     const z = px < 2.8 ? 'far' : px < 6.4 ? 'mid' : 'near';
     if (document.body.dataset.zoom !== z) document.body.dataset.zoom = z;
     this.declutter();

@@ -39,6 +39,36 @@ export class Terrain {
     const cx = Math.min(this.x0 + (this.cols - 0.5) * this.cell, Math.max(this.x0 + 0.5 * this.cell, mx)), cy = Math.min(this.y0 + (this.rows - 0.5) * this.cell, Math.max(this.y0 + 0.5 * this.cell, my));
     return this.sample(this.height, cx, cy, 0);
   }
+  private mips: Float32Array[] | null = null;
+  /** The heightfield box-filtered to half, quarter... resolution: a surface drawn with coarse quads samples a grid no
+   *  finer than its quads, so far ridges smooth out instead of aliasing into random spikes and facets. */
+  private mip(level: number): { f: Float32Array; rows: number; cols: number; cell: number } {
+    if (!this.height) return { f: new Float32Array(0), rows: 0, cols: 0, cell: this.cell };
+    this.mips ??= [this.height];
+    while (this.mips.length <= level) {
+      const prev = this.mips[this.mips.length - 1], k = this.mips.length, pr = Math.ceil(this.rows / 2 ** (k - 1)), pc = Math.ceil(this.cols / 2 ** (k - 1));
+      const nr = Math.ceil(pr / 2), nc = Math.ceil(pc / 2), f = new Float32Array(nr * nc);
+      for (let r = 0; r < nr; r++) for (let c = 0; c < nc; c++) { let s = 0, n = 0; for (let dr = 0; dr < 2; dr++) for (let dc = 0; dc < 2; dc++) { const rr = r * 2 + dr, cc = c * 2 + dc; if (rr < pr && cc < pc) { s += prev[rr * pc + cc]; n++; } } f[r * nc + c] = n ? s / n : 0; }
+      this.mips.push(f);
+    }
+    const k = level, rows = Math.ceil(this.rows / 2 ** k), cols = Math.ceil(this.cols / 2 ** k);
+    return { f: this.mips[k], rows, cols, cell: this.cell * 2 ** k };
+  }
+  /** Ground height in feet at (mx, my) as a C1 surface: Catmull-Rom over the 4×4 cells round the point, so slopes have
+   *  no creases at cell borders. `footprint` (miles) is the width of the quad being drawn: a quad wider than a cell
+   *  reads a filtered copy of the grid instead (see mip). Beyond the grid the land keeps the edge's height. */
+  heightSmoothAt(mx: number, my: number, footprint = 0): number {
+    if (!this.height) return 0;
+    const level = Math.max(0, Math.min(5, Math.floor(Math.log2(Math.max(1, footprint / this.cell)))));
+    const { f, rows, cols, cell } = this.mip(level);
+    const gx = Math.min(cols - 1, Math.max(0, (mx - this.x0) / cell - 0.5)), gy = Math.min(rows - 1, Math.max(0, (my - this.y0) / cell - 0.5));
+    const k0 = Math.floor(gx), r0 = Math.floor(gy), tx = gx - k0, ty = gy - r0;
+    const ka = Math.max(0, k0 - 1), kb = Math.max(0, Math.min(cols - 1, k0)), kc = Math.min(cols - 1, k0 + 1), kd = Math.min(cols - 1, k0 + 2);
+    const rr = [r0 - 1, r0, r0 + 1, r0 + 2], v = [0, 0, 0, 0];
+    for (let i = 0; i < 4; i++) { const base = Math.min(rows - 1, Math.max(0, rr[i])) * cols, a = f[base + ka], b = f[base + kb], c = f[base + kc], d = f[base + kd]; v[i] = b + 0.5 * tx * (c - a + tx * (2 * a - 5 * b + 4 * c - d + tx * (3 * (b - c) + d - a))); }
+    const a = v[0], b = v[1], c = v[2], d = v[3];
+    return b + 0.5 * ty * (c - a + ty * (2 * a - 5 * b + 4 * c - d + ty * (3 * (b - c) + d - a)));
+  }
   /** Every cell of class `c` with its weight, for painting. */
   cells(c: Cover): [[number, number], number][] { const f = this.field(c), out: [[number, number], number][] = []; for (let r = 0; r < this.rows; r++) for (let k = 0; k < this.cols; k++) if (f[r * this.cols + k] > 0) out.push([[this.x0 + (k + 0.5) * this.cell, this.y0 + (r + 0.5) * this.cell], f[r * this.cols + k]]); return out; }
 }

@@ -13,8 +13,18 @@
   straps, windows a sill, head and mullions or shutters), free walls a coping. Trees share one spruce tier on and off
   the map; figures share one humanoid (boots, belted tunic, two-part arms, hands, neck, head with hair).
 - **Ground**: the map's ground and the land beyond it are one surface: same grass colour (the campaign's `grass`:
-  Barovia's dark turf, the Sheep Chase's pasture), same Lambert lighting through day and night, blended over the first
-  quarter mile. No seam, no lighter rectangle.
+  Barovia's dark turf, the Sheep Chase's pasture), same Lambert lighting through day and night, blended into the
+  land's cover along a ragged line a third of a mile wide. No seam, no lighter rectangle.
+- **Land and water read as one smooth, natural place at every zoom** (`render/land.ts`). The land is the one
+  exception to flat shading: a C1 surface with smooth normals, tessellated fine where it matters (round the map,
+  along shores and river banks, under the camera) and coarse toward the horizon, never showing a triangle fan, a
+  facet or a crack; the low-poly look stays on rocks, trees and models. Every lake lies in a basin the land is
+  carved for, its shore a soft water line on a gentle bank, never a plane slicing through terrain; every river runs
+  in a shallow cut, lying on the mesh that is drawn. Water is lit and fogged like the ground, so it darkens with the
+  night and recedes into the mist. One atmosphere for everything: the map, the land, the water, the wood and the
+  castle take the hour's mist by one law, with no baked haze and no hard rim at the horizon. The grid is the table's
+  grid up close and a faint plan from far up; it never falls on the land. From far up the wood is the land's canopy
+  colour, not specks: instanced trees are put away as they would become dots.
 - **Paint and cloth** are weathered: even the Vistani's bright vardos and tents are faded by Barovian weather; full
   saturation is kept for light sources (flames, lit windows, embers) only.
 - **Colour**: vertex/material colours drawn from one palette (`app/src/kit/palette.ts`), baked to a 256×256

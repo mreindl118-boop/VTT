@@ -37,6 +37,7 @@ uniform vec2 uCovSize;
 uniform float uFog;
 uniform float uCovEnabled;
 uniform float uPxPerFt;   // what a foot is worth on screen: decides which grid orders show
+uniform vec4 uBounds;     // the floor extent (minX, minZ, maxX, maxZ): the grid feathers out just past it, never onto the land
 
 // A line of a given spacing (feet): 1 on the line, 0 off it; bold widens it.
 float lineAt(vec2 p, float spacing, float bold) {
@@ -48,15 +49,19 @@ float lineAt(vec2 p, float spacing, float bold) {
 // How much an order of lines shows at this zoom: fading in once its spacing spans ~10 px, full by ~40 px.
 float orderWeight(float spacing) { return smoothstep(10.0, 40.0, spacing * uPxPerFt); }
 // Drafting-style regridding: the cell lines, then every 10, 50, 100 and 500 ft stronger, each order fading as the
-// camera pulls back past it and the next order taking over.
+// camera pulls back past it and the next order taking over; the far orders are lighter, so from high up the grid is
+// a faint plan under the town, not a black net over it.
 float squareLine(vec2 p) {
   float a = lineAt(p, uCell, 1.0) * orderWeight(uCell) * 0.55;
   a = max(a, lineAt(p, 10.0, 1.3) * orderWeight(10.0) * 0.7);
   a = max(a, lineAt(p, 50.0, 1.7) * orderWeight(50.0) * 0.85);
-  a = max(a, lineAt(p, 100.0, 2.1) * orderWeight(100.0) * 1.0);
-  a = max(a, lineAt(p, 500.0, 2.6) * orderWeight(500.0) * 1.1);
+  a = max(a, lineAt(p, 100.0, 2.1) * orderWeight(100.0) * 0.8);
+  a = max(a, lineAt(p, 500.0, 2.6) * orderWeight(500.0) * 0.7);
   return min(1.0, a);
 }
+// The whole grid fades with the pull-back: full at the table (a foot worth 1.5 px or more), a sixth of itself from far
+// up, so the land, the map and the grid read as one place from any height.
+float zoomFade() { return mix(0.15, 1.0, smoothstep(0.3, 1.5, uPxPerFt)); }
 
 // Distance (feet) to the nearest hex edge.
 float hexLine(vec2 p) {
@@ -78,7 +83,9 @@ void main() {
   #include <logdepthbuf_fragment>
   vec2 p = vW.xz - uOrigin;
   float line = uHex > 0.5 ? hexLine(p) : squareLine(p);
-  float a = line * uOpacity;
+  float a = line * uOpacity * zoomFade();
+  float outside = max(max(uBounds.x - vW.x, vW.x - uBounds.z), max(uBounds.y - vW.z, vW.z - uBounds.w));
+  a *= 1.0 - smoothstep(0.0, 40.0, outside);
   if (uCovEnabled > 0.5) {
     vec2 uv = (vW.xz - uCovOrigin) / uCovSize;
     float cov = (uv.x < 0.0 || uv.y < 0.0 || uv.x > 1.0 || uv.y > 1.0) ? 0.0 : texture2D(uCovTex, uv).r;
@@ -98,8 +105,8 @@ export function buildGridOverlay(g: GridLevel, elevation: number, ground = true)
   // One plane over the level's whole extent: the grid is a feature of the ground, not of any floor's texture.
   const xs = g.floorPolygons.flat().map((q) => q[0]), zs = g.floorPolygons.flat().map((q) => q[1]);
   const minX = Math.min(...xs), maxX = Math.max(...xs), minZ = Math.min(...zs), maxZ = Math.max(...zs);
-  // the ground level's grid runs well past the map; an upper floor's stays within its own walls
-  const pad = ground ? Math.max(30, 0.12 * Math.max(maxX - minX, maxZ - minZ)) : 1.5, y = elevation + GRID_LIFT_FT;
+  // the ground level's grid feathers out a few yards past the map (never onto the land beyond); an upper floor's stays within its own walls
+  const pad = ground ? 45 : 1.5, y = elevation + GRID_LIFT_FT;
   const geo = planeGeometry([[minX - pad, minZ - pad], [maxX + pad, minZ - pad], [maxX + pad, maxZ + pad], [minX - pad, maxZ + pad]], y);
   const m = new THREE.ShaderMaterial({
     vertexShader: vert,
@@ -120,6 +127,7 @@ export function buildGridOverlay(g: GridLevel, elevation: number, ground = true)
       uFog: fogUniforms.uFog,
       uCovEnabled: fogUniforms.uCovEnabled,
       uPxPerFt: gridUniforms.uPxPerFt,
+      uBounds: { value: new THREE.Vector4(minX, minZ, maxX, maxZ) },
     },
   });
   const mesh = new THREE.Mesh(geo, m);

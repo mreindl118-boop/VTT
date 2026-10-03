@@ -96,10 +96,12 @@ export class World {
   fogScale = 1;
   /** The mist can be switched off for a clear view; the density stays whatever the map and theme want. */
   fogOn = true;
-  /** Mist thins as the camera pulls back, so the map itself stays legible from any height and only the land beyond it fades. */
+  /** Mist thins as the camera pulls back, so the map itself stays legible from any height: the fog at the camera's
+   *  target is the same few per cent at every zoom (no floor: from high up the map and the land beyond it, which
+   *  takes the same mist near the eye, fade alike and no seam shows; the land's own haze takes over in the distance). */
   get fogDensity(): number {
     const d = this.camera ? this.camera.position.distanceTo(this.controls.target) : 300;
-    const pullBack = THREE.MathUtils.clamp(260 / Math.max(1, d), 0.12, 1);
+    const pullBack = Math.min(1, 260 / Math.max(1, d));
     return this.fogOn ? (this.outdoor ? this.theme.fogOut : this.theme.fogIn) * this.fogScale * pullBack : 0;
   }
   setFog(on: boolean): void { this.fogOn = on; if (this.scene.fog instanceof THREE.FogExp2) this.scene.fog.density = this.fogDensity; this.mistFloor.visible = on && this.mistFloor.visible; this.invalidate(); }
