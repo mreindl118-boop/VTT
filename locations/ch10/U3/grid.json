@@ -1,0 +1,65 @@
+{
+ "schema": 1,
+ "levels": {
+  "mire": {
+   "floorPolygons": [
+    [
+     [
+      0,
+      0
+     ],
+     [
+      55,
+      0
+     ],
+     [
+      55,
+      55
+     ],
+     [
+      0,
+      55
+     ]
+    ]
+   ],
+   "type": "square",
+   "hexOrientation": "pointy",
+   "origin": [
+    0,
+    0
+   ],
+   "color": "#1d1b22",
+   "opacity": 0.55
+  },
+  "hut": {
+   "floorPolygons": [
+    [
+     [
+      20,
+      20
+     ],
+     [
+      35,
+      20
+     ],
+     [
+      35,
+      35
+     ],
+     [
+      20,
+      35
+     ]
+    ]
+   ],
+   "type": "square",
+   "hexOrientation": "pointy",
+   "origin": [
+    0,
+    0
+   ],
+   "color": "#1d1b22",
+   "opacity": 0.55
+  }
+ }
+}

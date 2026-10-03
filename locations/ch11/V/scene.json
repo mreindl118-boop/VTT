@@ -1,0 +1,8016 @@
+{
+ "schema": 1,
+ "location": "V",
+ "chapter": "ch11",
+ "name": "Van Richten's Tower",
+ "mapPage": 170,
+ "bookScaleFt": 5,
+ "ambient": "barovian-overcast",
+ "stacked": true,
+ "entry": "grounds",
+ "levels": [
+  {
+   "id": "grounds",
+   "name": "Grounds and first floor (V1-V4)",
+   "elevationFt": 0,
+   "ceilingFt": 20,
+   "ambient": "interior-dim",
+   "north": "-z",
+   "rooms": [
+    {
+     "key": "V4",
+     "name": "Tower, First Floor",
+     "page": 170,
+     "polygon": [
+      [
+       247.5,
+       212.5
+      ],
+      [
+       257.5,
+       212.5
+      ],
+      [
+       262.5,
+       217.5
+      ],
+      [
+       262.5,
+       227.5
+      ],
+      [
+       257.5,
+       232.5
+      ],
+      [
+       255.0,
+       232.5
+      ],
+      [
+       250.0,
+       232.5
+      ],
+      [
+       247.5,
+       232.5
+      ],
+      [
+       242.5,
+       227.5
+      ],
+      [
+       242.5,
+       217.5
+      ]
+     ],
+     "floor": "flagstone",
+     "ceilingFt": 20,
+     "desc": "A flagstone floor strewn with debris, a few old crates by the east wall, a torn curtain to the south. In the middle, a 5-ft square pit holds four pulleys whose taut iron chains rise through a hole in the rotted ceiling; four tall clay statues stand by them.",
+     "dm": "The statues are clay golems that work the lift: they lower the 5-ft platform from the fourth floor and raise it wherever asked, 5 ft a round. The crates are empty."
+    },
+    {
+     "key": "V2",
+     "name": "Tower Door",
+     "page": 169,
+     "polygon": [
+      [
+       250.0,
+       232.5
+      ],
+      [
+       255.0,
+       232.5
+      ],
+      [
+       255.0,
+       237.5
+      ],
+      [
+       250.0,
+       237.5
+      ]
+     ],
+     "floor": "flagstone",
+     "ceilingFt": 10,
+     "desc": "An iron door without handle or hinges, a great embossed symbol of lines and eight stick figures on it, KHAZAN carved in the lintel above. Behind it a tiny vestibule and a tattered curtain.",
+     "dm": "Magically locked and trapped; Khazan's spell drain (an antimagic field to 5 ft round the tower) stops magic opening it. The dance along the symbol's lines opens it; touching it unbidden calls the lightning."
+    },
+    {
+     "key": "V1",
+     "name": "Ezmerelda's Magic Wagon",
+     "page": 168,
+     "polygon": [
+      [
+       257.0,
+       241.5
+      ],
+      [
+       275.5,
+       241.5
+      ],
+      [
+       275.5,
+       254.0
+      ],
+      [
+       257.0,
+       254.0
+      ]
+     ],
+     "floor": "marsh",
+     "desc": "A barrel-topped wagon parked within sight of the tower door, mud-caked over fresh purple paint and gold-trimmed wheels; brass lanterns hang at its corners and a padlocked back door bears a sign: \"Keep out!\"",
+     "dm": "Ezmerelda's magic wagon (command words Drovash / Arvesh). Only the hidden hatch underneath is safe: the back door is wired to a hundred flasks of alchemist's fire."
+    },
+    {
+     "key": "V3",
+     "name": "Rickety Scaffolding",
+     "page": 170,
+     "polygon": [
+      [
+       232.0,
+       232.0
+      ],
+      [
+       232.0,
+       210.5
+      ],
+      [
+       237.0,
+       205.5
+      ],
+      [
+       240.0,
+       209.5
+      ],
+      [
+       239.75,
+       232.0
+      ]
+     ],
+     "floor": "marsh",
+     "desc": "Rotting scaffolding of beams, ladders and platforms clings to the west face, climbing to a hole in the north-west wall two floors up. It groans in every breeze.",
+     "dm": "Holds 200 lb at most. Collapse: 20-ft fall (1d6 per 10 ft + 2d6 piercing); anyone under it DC 13 Dex or 4d6."
+    }
+   ],
+   "walls": [
+    {
+     "id": "grounds-w-0",
+     "a": [
+      247.5,
+      212.5
+     ],
+     "b": [
+      257.5,
+      212.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "grounds-w-1",
+     "a": [
+      257.5,
+      212.5
+     ],
+     "b": [
+      262.5,
+      217.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "grounds-w-2",
+     "a": [
+      262.5,
+      217.5
+     ],
+     "b": [
+      262.5,
+      227.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "grounds-w-3",
+     "a": [
+      257.5,
+      232.5
+     ],
+     "b": [
+      262.5,
+      227.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "grounds-w-4",
+     "a": [
+      255.0,
+      232.5
+     ],
+     "b": [
+      257.5,
+      232.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "grounds-w-5",
+     "a": [
+      247.5,
+      232.5
+     ],
+     "b": [
+      250.0,
+      232.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "grounds-w-6",
+     "a": [
+      242.5,
+      227.5
+     ],
+     "b": [
+      247.5,
+      232.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "grounds-w-7",
+     "a": [
+      242.5,
+      222.5
+     ],
+     "b": [
+      242.5,
+      227.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "grounds-w-8",
+     "a": [
+      242.5,
+      217.5
+     ],
+     "b": [
+      242.5,
+      222.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "grounds-w-9",
+     "a": [
+      242.5,
+      217.5
+     ],
+     "b": [
+      247.5,
+      212.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "grounds-w-10",
+     "a": [
+      255.0,
+      232.5
+     ],
+     "b": [
+      255.0,
+      237.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "V2-door",
+     "a": [
+      250.0,
+      237.5
+     ],
+     "b": [
+      255.0,
+      237.5
+     ],
+     "flags": [
+      "door",
+      "locked"
+     ],
+     "material": "ashlar",
+     "open": false
+    },
+    {
+     "id": "grounds-w-12",
+     "a": [
+      250.0,
+      232.5
+     ],
+     "b": [
+      250.0,
+      237.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    }
+   ],
+   "lights": [],
+   "objects": [
+    {
+     "id": "grounds-plinth",
+     "kind": "tower-plinth",
+     "pos": [
+      252.5,
+      0,
+      222.5
+     ],
+     "vis": "player",
+     "key": "V4",
+     "dims": {
+      "r": 12.6,
+      "h": 1.6
+     }
+    },
+    {
+     "id": "grounds-buttress0",
+     "kind": "tower-buttress",
+     "pos": [
+      261.516,
+      0,
+      213.484
+     ],
+     "vis": "player",
+     "rotY": 45.0,
+     "key": "V4",
+     "dims": {
+      "h": 36,
+      "len": 5.5,
+      "w": 3.2,
+      "v": 0
+     }
+    },
+    {
+     "id": "grounds-buttress1",
+     "kind": "tower-buttress",
+     "pos": [
+      243.484,
+      0,
+      213.484
+     ],
+     "vis": "player",
+     "rotY": 135.0,
+     "key": "V4",
+     "dims": {
+      "h": 36,
+      "len": 5.5,
+      "w": 3.2,
+      "v": 1
+     }
+    },
+    {
+     "id": "grounds-buttress2",
+     "kind": "tower-buttress",
+     "pos": [
+      243.484,
+      0,
+      231.516
+     ],
+     "vis": "player",
+     "rotY": -135.0,
+     "key": "V4",
+     "dims": {
+      "h": 36,
+      "len": 5.5,
+      "w": 3.2,
+      "v": 2
+     }
+    },
+    {
+     "id": "grounds-buttress3",
+     "kind": "tower-buttress",
+     "pos": [
+      261.516,
+      0,
+      231.516
+     ],
+     "vis": "player",
+     "rotY": -45.0,
+     "key": "V4",
+     "dims": {
+      "h": 36,
+      "len": 5.5,
+      "w": 3.2,
+      "v": 3
+     }
+    },
+    {
+     "id": "grounds-steps",
+     "kind": "stone-step",
+     "pos": [
+      252.5,
+      0,
+      239.25
+     ],
+     "vis": "player",
+     "key": "V2",
+     "dims": {
+      "w": 6.5,
+      "d": 3
+     }
+    },
+    {
+     "id": "grounds-curtain",
+     "kind": "drapes",
+     "pos": [
+      252.5,
+      0,
+      232.75
+     ],
+     "vis": "player",
+     "key": "V2",
+     "dims": {
+      "w": 4.6,
+      "color": 5917252
+     }
+    },
+    {
+     "id": "grounds-lintel",
+     "kind": "khazan-lintel",
+     "pos": [
+      252.5,
+      0,
+      237.75
+     ],
+     "vis": "player",
+     "key": "V2",
+     "dims": {
+      "w": 6.4,
+      "y": 7.2
+     }
+    },
+    {
+     "id": "grounds-door-trap",
+     "kind": "note",
+     "pos": [
+      258.0,
+      0,
+      240.5
+     ],
+     "vis": "dm-note",
+     "key": "V2",
+     "label": "Iron door, no handle or hinges; KHAZAN on the lintel; the eight-figure symbol (show the players). Touching it before the dance: lightning sheath, 10 ft round the tower, DC 15 Dex (disadv. in metal armour), 4d10, lasts 10 min; third time, the tower collapses (24d10 inside, 8d10 within 20 ft). Wrong dance: a young blue dragon appears."
+    },
+    {
+     "id": "grounds-door-dance",
+     "kind": "note",
+     "pos": [
+      246.5,
+      0,
+      240.5
+     ],
+     "vis": "dm-note",
+     "key": "V2",
+     "label": "Open it by miming the eight figures' arm positions in order along the lines, from either end, within 5 ft: it swings open for 10 minutes. From inside it opens safely and shuts itself after a minute."
+    },
+    {
+     "id": "grounds-lift",
+     "kind": "lift-chains",
+     "pos": [
+      252.5,
+      0,
+      222.5
+     ],
+     "vis": "player",
+     "key": "V4",
+     "dims": {
+      "h": 20,
+      "pit": 1
+     }
+    },
+    {
+     "id": "grounds-golem0",
+     "kind": "clay-golem",
+     "pos": [
+      248.75,
+      0,
+      218.6
+     ],
+     "vis": "player",
+     "rotY": -46.1,
+     "key": "V4",
+     "label": "Clay golem",
+     "playerLabel": "A tall clay statue",
+     "dm": "Clay golem (one of four). Raises and lowers the lift on request, 5 ft a round, jerky; if one is destroyed the others stop until attacked."
+    },
+    {
+     "id": "grounds-golem1",
+     "kind": "clay-golem",
+     "pos": [
+      256.1,
+      0,
+      218.75
+     ],
+     "vis": "player",
+     "rotY": -133.8,
+     "key": "V4",
+     "label": "Clay golem",
+     "playerLabel": "A tall clay statue",
+     "dm": "Clay golem (one of four). Raises and lowers the lift on request, 5 ft a round, jerky; if one is destroyed the others stop until attacked."
+    },
+    {
+     "id": "grounds-golem2",
+     "kind": "clay-golem",
+     "pos": [
+      248.9,
+      0,
+      226.2
+     ],
+     "vis": "player",
+     "rotY": 45.8,
+     "key": "V4",
+     "label": "Clay golem",
+     "playerLabel": "A tall clay statue",
+     "dm": "Clay golem (one of four). Raises and lowers the lift on request, 5 ft a round, jerky; if one is destroyed the others stop until attacked."
+    },
+    {
+     "id": "grounds-golem3",
+     "kind": "clay-golem",
+     "pos": [
+      256.2,
+      0,
+      226.1
+     ],
+     "vis": "player",
+     "rotY": 135.8,
+     "key": "V4",
+     "label": "Clay golem",
+     "playerLabel": "A tall clay statue",
+     "dm": "Clay golem (one of four). Raises and lowers the lift on request, 5 ft a round, jerky; if one is destroyed the others stop until attacked."
+    },
+    {
+     "id": "grounds-crate0",
+     "kind": "crate-chest",
+     "pos": [
+      260.25,
+      0,
+      218.75
+     ],
+     "vis": "player",
+     "rotY": 5,
+     "key": "V4",
+     "container": {
+      "contents": "Empty."
+     }
+    },
+    {
+     "id": "grounds-crate1",
+     "kind": "crate-chest",
+     "pos": [
+      260.55,
+      0,
+      221.4
+     ],
+     "vis": "player",
+     "rotY": 32,
+     "key": "V4",
+     "container": {
+      "contents": "Empty."
+     }
+    },
+    {
+     "id": "grounds-crate2",
+     "kind": "crate-chest",
+     "pos": [
+      259.7,
+      0,
+      224.4
+     ],
+     "vis": "player",
+     "rotY": 48,
+     "key": "V4",
+     "container": {
+      "contents": "Empty."
+     }
+    },
+    {
+     "id": "grounds-crate3",
+     "kind": "crate-chest",
+     "pos": [
+      258.1,
+      0,
+      228.25
+     ],
+     "vis": "player",
+     "rotY": 10,
+     "key": "V4",
+     "container": {
+      "contents": "Empty."
+     }
+    },
+    {
+     "id": "grounds-debris0",
+     "kind": "vr-debris",
+     "pos": [
+      246.0,
+      0,
+      220.5
+     ],
+     "vis": "player",
+     "rotY": 20,
+     "key": "V4",
+     "dims": {
+      "s": 1.0
+     }
+    },
+    {
+     "id": "grounds-debris1",
+     "kind": "vr-debris",
+     "pos": [
+      247.5,
+      0,
+      226.0
+     ],
+     "vis": "player",
+     "rotY": 75,
+     "key": "V4",
+     "dims": {
+      "s": 1.3
+     }
+    },
+    {
+     "id": "grounds-debris2",
+     "kind": "vr-debris",
+     "pos": [
+      245.0,
+      0,
+      227.0
+     ],
+     "vis": "player",
+     "rotY": 140,
+     "key": "V4",
+     "dims": {
+      "s": 1.0
+     }
+    },
+    {
+     "id": "grounds-debris3",
+     "kind": "vr-debris",
+     "pos": [
+      249.5,
+      0,
+      229.5
+     ],
+     "vis": "player",
+     "rotY": 30,
+     "key": "V4",
+     "dims": {
+      "s": 1.3
+     }
+    },
+    {
+     "id": "grounds-debris4",
+     "kind": "vr-debris",
+     "pos": [
+      246.5,
+      0,
+      217.0
+     ],
+     "vis": "player",
+     "rotY": 110,
+     "key": "V4",
+     "dims": {
+      "s": 1.0
+     }
+    },
+    {
+     "id": "grounds-wagon",
+     "kind": "ezmerelda-wagon",
+     "pos": [
+      266.0,
+      0,
+      247.5
+     ],
+     "vis": "player",
+     "key": "V1",
+     "desc": "A mud-spattered, barrel-topped wagon in fresh purple paint with gold-trimmed wheels; brass lanterns at its corners, red drapes in tombstone-shaped windows, a padlocked back door with a cheap wooden \"Keep out!\" sign.",
+     "dm": "Conjuration aura. Sit in the driver's seat and say \"Drovash\" for two quasi-real draft horses (speed 30), \"Arvesh\" to dismiss. Treasure: claw-marked trunk of weapons (battleaxe, flail, morningstar, light crossbow, 10 silvered bolts); wardrobe of clothes, mask and wigs; climber's, disguise, healer's and poisoner's kits; a golden-stringed lyre (50 gp); a caged chicken and a silver ewer (100 gp) of eggs; a tarokka deck in silk; copper pots (50 gp); three manacles; a shovel; a chest with a gold Morninglord symbol (100 gp), holy water, perfume, antitoxin, rope, tinderbox, mirror, stake and spyglass; scrolls of major image and remove curse; a map of Barovia; a charred page of van Richten's journal."
+    },
+    {
+     "id": "grounds-wagon-hatch",
+     "kind": "trapdoor",
+     "pos": [
+      264.5,
+      0.05,
+      248.75
+     ],
+     "vis": "hidden-object",
+     "key": "V1",
+     "label": "Hidden trapdoor in the underbelly (DC 13 Wisdom (Perception) from underneath): the only safe way in",
+     "playerLabel": "A hatch under the wagon"
+    },
+    {
+     "id": "grounds-wagon-trap",
+     "kind": "niche",
+     "pos": [
+      261.5,
+      0,
+      247.5
+     ],
+     "vis": "trap",
+     "key": "V1",
+     "label": "Booby trap: the back door's wire drops a flask of alchemist's fire into a hundred more; 10d10 fire within 30 ft (DC 12 Con, half; disadvantage inside or within 5 ft); wagon and contents destroyed. Seen at once from inside; DC 10 Dex to disarm.",
+     "playerLabel": "A wire on the door handle"
+    },
+    {
+     "id": "grounds-reeds0",
+     "kind": "marsh-reeds",
+     "pos": [
+      336.358,
+      0,
+      234.848
+     ],
+     "vis": "player",
+     "rotY": 182.82285830241761,
+     "dims": {
+      "s": 1.211169380194928
+     }
+    },
+    {
+     "id": "grounds-reeds1",
+     "kind": "marsh-reeds",
+     "pos": [
+      280.801,
+      0,
+      188.624
+     ],
+     "vis": "player",
+     "rotY": 5.400265301857767,
+     "dims": {
+      "s": 1.169866886319335
+     }
+    },
+    {
+     "id": "grounds-reeds2",
+     "kind": "marsh-reeds",
+     "pos": [
+      226.75,
+      0,
+      199.45
+     ],
+     "vis": "player",
+     "rotY": 104.05438103311276,
+     "dims": {
+      "s": 0.8491564496919481
+     }
+    },
+    {
+     "id": "grounds-reeds3",
+     "kind": "marsh-reeds",
+     "pos": [
+      307.932,
+      0,
+      225.06
+     ],
+     "vis": "player",
+     "rotY": 139.14487141413642,
+     "dims": {
+      "s": 1.4706296683238693
+     }
+    },
+    {
+     "id": "grounds-reeds4",
+     "kind": "marsh-reeds",
+     "pos": [
+      283.302,
+      0,
+      281.777
+     ],
+     "vis": "player",
+     "rotY": 97.11921126605137,
+     "dims": {
+      "s": 0.8610009388465192
+     }
+    },
+    {
+     "id": "grounds-reeds5",
+     "kind": "marsh-reeds",
+     "pos": [
+      204.323,
+      0,
+      274.784
+     ],
+     "vis": "player",
+     "rotY": 47.14815013798309,
+     "dims": {
+      "s": 1.250600586597817
+     }
+    },
+    {
+     "id": "grounds-reeds6",
+     "kind": "marsh-reeds",
+     "pos": [
+      208.316,
+      0,
+      205.469
+     ],
+     "vis": "player",
+     "rotY": 289.22814110954573,
+     "dims": {
+      "s": 1.0129016049096926
+     }
+    },
+    {
+     "id": "grounds-reeds7",
+     "kind": "marsh-reeds",
+     "pos": [
+      240.969,
+      0,
+      293.157
+     ],
+     "vis": "player",
+     "rotY": 231.06083637256577,
+     "dims": {
+      "s": 0.8702329265287181
+     }
+    },
+    {
+     "id": "grounds-reeds8",
+     "kind": "marsh-reeds",
+     "pos": [
+      216.49,
+      0,
+      280.903
+     ],
+     "vis": "player",
+     "rotY": 118.42395319718278,
+     "dims": {
+      "s": 1.0074273338192625
+     }
+    },
+    {
+     "id": "grounds-reeds9",
+     "kind": "marsh-reeds",
+     "pos": [
+      342.644,
+      0,
+      237.559
+     ],
+     "vis": "player",
+     "rotY": 206.8456483547811,
+     "dims": {
+      "s": 1.4065679674615557
+     }
+    },
+    {
+     "id": "grounds-reeds10",
+     "kind": "marsh-reeds",
+     "pos": [
+      214.91,
+      0,
+      193.47
+     ],
+     "vis": "player",
+     "rotY": 266.19278033399445,
+     "dims": {
+      "s": 1.4582834272664176
+     }
+    },
+    {
+     "id": "grounds-reeds11",
+     "kind": "marsh-reeds",
+     "pos": [
+      328.794,
+      0,
+      255.53
+     ],
+     "vis": "player",
+     "rotY": 151.72460062104884,
+     "dims": {
+      "s": 0.8726877769554636
+     }
+    },
+    {
+     "id": "grounds-reeds12",
+     "kind": "marsh-reeds",
+     "pos": [
+      201.578,
+      0,
+      273.053
+     ],
+     "vis": "player",
+     "rotY": 24.7594047002797,
+     "dims": {
+      "s": 0.9598774361275877
+     }
+    },
+    {
+     "id": "grounds-reeds13",
+     "kind": "marsh-reeds",
+     "pos": [
+      280.575,
+      0,
+      207.033
+     ],
+     "vis": "player",
+     "rotY": 73.43239657308638,
+     "dims": {
+      "s": 0.8116023551554086
+     }
+    },
+    {
+     "id": "grounds-reeds14",
+     "kind": "marsh-reeds",
+     "pos": [
+      201.726,
+      0,
+      220.318
+     ],
+     "vis": "player",
+     "rotY": 205.9809922449547,
+     "dims": {
+      "s": 0.8921049644390828
+     }
+    },
+    {
+     "id": "grounds-reeds15",
+     "kind": "marsh-reeds",
+     "pos": [
+      233.33,
+      0,
+      267.772
+     ],
+     "vis": "player",
+     "rotY": 313.5964532839239,
+     "dims": {
+      "s": 1.0920071993840303
+     }
+    },
+    {
+     "id": "grounds-reeds16",
+     "kind": "marsh-reeds",
+     "pos": [
+      292.065,
+      0,
+      195.386
+     ],
+     "vis": "player",
+     "rotY": 61.05857514856502,
+     "dims": {
+      "s": 1.4340051199478432
+     }
+    },
+    {
+     "id": "grounds-reeds17",
+     "kind": "marsh-reeds",
+     "pos": [
+      288.798,
+      0,
+      231.29
+     ],
+     "vis": "player",
+     "rotY": 117.70582277858686,
+     "dims": {
+      "s": 1.26612934377357
+     }
+    },
+    {
+     "id": "grounds-reeds18",
+     "kind": "marsh-reeds",
+     "pos": [
+      205.731,
+      0,
+      229.634
+     ],
+     "vis": "player",
+     "rotY": 329.11963158924186,
+     "dims": {
+      "s": 1.4161882426584698
+     }
+    },
+    {
+     "id": "grounds-reeds19",
+     "kind": "marsh-reeds",
+     "pos": [
+      194.512,
+      0,
+      239.47
+     ],
+     "vis": "player",
+     "rotY": 301.35442228939417,
+     "dims": {
+      "s": 1.3941042134791664
+     }
+    },
+    {
+     "id": "grounds-reeds20",
+     "kind": "marsh-reeds",
+     "pos": [
+      219.823,
+      0,
+      190.369
+     ],
+     "vis": "player",
+     "rotY": 162.2338024503485,
+     "dims": {
+      "s": 0.9926139760614359
+     }
+    },
+    {
+     "id": "grounds-reeds21",
+     "kind": "marsh-reeds",
+     "pos": [
+      194.459,
+      0,
+      233.225
+     ],
+     "vis": "player",
+     "rotY": 8.9015429982299,
+     "dims": {
+      "s": 1.380767904121345
+     }
+    },
+    {
+     "id": "grounds-reeds22",
+     "kind": "marsh-reeds",
+     "pos": [
+      287.908,
+      0,
+      286.108
+     ],
+     "vis": "player",
+     "rotY": 345.04583469084366,
+     "dims": {
+      "s": 1.2791449221866968
+     }
+    },
+    {
+     "id": "grounds-reeds23",
+     "kind": "marsh-reeds",
+     "pos": [
+      298.551,
+      0,
+      191.865
+     ],
+     "vis": "player",
+     "rotY": 98.04777711846074,
+     "dims": {
+      "s": 1.0420176727904558
+     }
+    },
+    {
+     "id": "grounds-reeds24",
+     "kind": "marsh-reeds",
+     "pos": [
+      193.384,
+      0,
+      233.03
+     ],
+     "vis": "player",
+     "rotY": 225.19734322605507,
+     "dims": {
+      "s": 1.43697575110725
+     }
+    },
+    {
+     "id": "grounds-reeds25",
+     "kind": "marsh-reeds",
+     "pos": [
+      237.824,
+      0,
+      250.322
+     ],
+     "vis": "player",
+     "rotY": 286.83620672674465,
+     "dims": {
+      "s": 1.4609806048882628
+     }
+    },
+    {
+     "id": "grounds-reeds26",
+     "kind": "marsh-reeds",
+     "pos": [
+      206.881,
+      0,
+      273.29
+     ],
+     "vis": "player",
+     "rotY": 230.98187038841067,
+     "dims": {
+      "s": 1.3023633687677894
+     }
+    },
+    {
+     "id": "grounds-reeds27",
+     "kind": "marsh-reeds",
+     "pos": [
+      266.652,
+      0,
+      283.618
+     ],
+     "vis": "player",
+     "rotY": 115.34210156111368,
+     "dims": {
+      "s": 1.436992803981809
+     }
+    },
+    {
+     "id": "grounds-reeds28",
+     "kind": "marsh-reeds",
+     "pos": [
+      324.041,
+      0,
+      217.276
+     ],
+     "vis": "player",
+     "rotY": 29.79812989658526,
+     "dims": {
+      "s": 1.1086308348136982
+     }
+    },
+    {
+     "id": "grounds-reeds29",
+     "kind": "marsh-reeds",
+     "pos": [
+      269.054,
+      0,
+      280.235
+     ],
+     "vis": "player",
+     "rotY": 175.48109718496283,
+     "dims": {
+      "s": 0.8198872532904607
+     }
+    },
+    {
+     "id": "grounds-reeds30",
+     "kind": "marsh-reeds",
+     "pos": [
+      196.762,
+      0,
+      242.479
+     ],
+     "vis": "player",
+     "rotY": 260.48389931437725,
+     "dims": {
+      "s": 1.3879835097083477
+     }
+    },
+    {
+     "id": "grounds-reeds31",
+     "kind": "marsh-reeds",
+     "pos": [
+      264.101,
+      0,
+      291.544
+     ],
+     "vis": "player",
+     "rotY": 201.5895918931426,
+     "dims": {
+      "s": 1.0181882937990805
+     }
+    },
+    {
+     "id": "grounds-reeds32",
+     "kind": "marsh-reeds",
+     "pos": [
+      238.619,
+      0,
+      291.789
+     ],
+     "vis": "player",
+     "rotY": 324.1890136852595,
+     "dims": {
+      "s": 0.9457677007698955
+     }
+    },
+    {
+     "id": "grounds-reeds33",
+     "kind": "marsh-reeds",
+     "pos": [
+      344.493,
+      0,
+      242.403
+     ],
+     "vis": "player",
+     "rotY": 144.21021637200434,
+     "dims": {
+      "s": 1.3607479966624165
+     }
+    },
+    {
+     "id": "grounds-reeds34",
+     "kind": "marsh-reeds",
+     "pos": [
+      248.062,
+      0,
+      287.358
+     ],
+     "vis": "player",
+     "rotY": 324.1999686599264,
+     "dims": {
+      "s": 1.1335729015431348
+     }
+    },
+    {
+     "id": "grounds-reeds35",
+     "kind": "marsh-reeds",
+     "pos": [
+      227.099,
+      0,
+      193.718
+     ],
+     "vis": "player",
+     "rotY": 222.4421570493963,
+     "dims": {
+      "s": 1.447689474986165
+     }
+    },
+    {
+     "id": "grounds-reeds36",
+     "kind": "marsh-reeds",
+     "pos": [
+      265.283,
+      0,
+      188.959
+     ],
+     "vis": "player",
+     "rotY": 73.53584700064403,
+     "dims": {
+      "s": 1.241920497818316
+     }
+    },
+    {
+     "id": "grounds-reeds37",
+     "kind": "marsh-reeds",
+     "pos": [
+      284.924,
+      0,
+      244.443
+     ],
+     "vis": "player",
+     "rotY": 220.21601089233215,
+     "dims": {
+      "s": 1.3997349492872209
+     }
+    },
+    {
+     "id": "grounds-reeds38",
+     "kind": "marsh-reeds",
+     "pos": [
+      211.879,
+      0,
+      276.116
+     ],
+     "vis": "player",
+     "rotY": 324.96391076750007,
+     "dims": {
+      "s": 1.0211116591259035
+     }
+    },
+    {
+     "id": "grounds-reeds39",
+     "kind": "marsh-reeds",
+     "pos": [
+      245.894,
+      0,
+      283.49
+     ],
+     "vis": "player",
+     "rotY": 45.36117875749242,
+     "dims": {
+      "s": 1.0819451610713817
+     }
+    },
+    {
+     "id": "grounds-reeds40",
+     "kind": "marsh-reeds",
+     "pos": [
+      206.168,
+      0,
+      267.357
+     ],
+     "vis": "player",
+     "rotY": 348.6161748325557,
+     "dims": {
+      "s": 0.8807871706284445
+     }
+    },
+    {
+     "id": "grounds-reeds41",
+     "kind": "marsh-reeds",
+     "pos": [
+      293.423,
+      0,
+      193.351
+     ],
+     "vis": "player",
+     "rotY": 25.398766499359105,
+     "dims": {
+      "s": 0.874321325250069
+     }
+    },
+    {
+     "id": "grounds-reeds42",
+     "kind": "marsh-reeds",
+     "pos": [
+      341.269,
+      0,
+      234.311
+     ],
+     "vis": "player",
+     "rotY": 275.299372038372,
+     "dims": {
+      "s": 1.0287790877641667
+     }
+    },
+    {
+     "id": "grounds-reeds43",
+     "kind": "marsh-reeds",
+     "pos": [
+      314.868,
+      0,
+      203.74
+     ],
+     "vis": "player",
+     "rotY": 328.06765021278443,
+     "dims": {
+      "s": 1.3211044342822142
+     }
+    },
+    {
+     "id": "grounds-reeds44",
+     "kind": "marsh-reeds",
+     "pos": [
+      296.225,
+      0,
+      279.261
+     ],
+     "vis": "player",
+     "rotY": 352.8312159103806,
+     "dims": {
+      "s": 0.8159743575776969
+     }
+    },
+    {
+     "id": "grounds-reeds45",
+     "kind": "marsh-reeds",
+     "pos": [
+      198.788,
+      0,
+      235.764
+     ],
+     "vis": "player",
+     "rotY": 60.88415405185562,
+     "dims": {
+      "s": 1.1468646308732597
+     }
+    },
+    {
+     "id": "grounds-reeds46",
+     "kind": "marsh-reeds",
+     "pos": [
+      340.149,
+      0,
+      228.106
+     ],
+     "vis": "player",
+     "rotY": 189.63296699139755,
+     "dims": {
+      "s": 1.2184824080666616
+     }
+    },
+    {
+     "id": "grounds-reeds47",
+     "kind": "marsh-reeds",
+     "pos": [
+      198.186,
+      0,
+      278.197
+     ],
+     "vis": "player",
+     "rotY": 140.38400097940058,
+     "dims": {
+      "s": 1.4282794797465268
+     }
+    },
+    {
+     "id": "grounds-reeds48",
+     "kind": "marsh-reeds",
+     "pos": [
+      300.093,
+      0,
+      235.253
+     ],
+     "vis": "player",
+     "rotY": 294.01057517726895,
+     "dims": {
+      "s": 1.2225363038069326
+     }
+    },
+    {
+     "id": "grounds-reeds49",
+     "kind": "marsh-reeds",
+     "pos": [
+      190.717,
+      0,
+      258.637
+     ],
+     "vis": "player",
+     "rotY": 164.04792698075892,
+     "dims": {
+      "s": 0.9425598584323405
+     }
+    },
+    {
+     "id": "grounds-reeds50",
+     "kind": "marsh-reeds",
+     "pos": [
+      192.379,
+      0,
+      231.43
+     ],
+     "vis": "player",
+     "rotY": 240.44085346244552,
+     "dims": {
+      "s": 1.1188874022717452
+     }
+    },
+    {
+     "id": "grounds-reeds51",
+     "kind": "marsh-reeds",
+     "pos": [
+      310.034,
+      0,
+      244.615
+     ],
+     "vis": "player",
+     "rotY": 342.94859725569535,
+     "dims": {
+      "s": 1.3139992951617399
+     }
+    },
+    {
+     "id": "grounds-reeds52",
+     "kind": "marsh-reeds",
+     "pos": [
+      204.167,
+      0,
+      202.344
+     ],
+     "vis": "player",
+     "rotY": 352.6995089281928,
+     "dims": {
+      "s": 1.4410054097859892
+     }
+    },
+    {
+     "id": "grounds-reeds53",
+     "kind": "marsh-reeds",
+     "pos": [
+      282.272,
+      0,
+      280.313
+     ],
+     "vis": "player",
+     "rotY": 76.73927515716778,
+     "dims": {
+      "s": 1.097052233093415
+     }
+    },
+    {
+     "id": "grounds-reeds54",
+     "kind": "marsh-reeds",
+     "pos": [
+      216.453,
+      0,
+      286.482
+     ],
+     "vis": "player",
+     "rotY": 132.82199841177433,
+     "dims": {
+      "s": 1.2575603871452865
+     }
+    },
+    {
+     "id": "grounds-reeds55",
+     "kind": "marsh-reeds",
+     "pos": [
+      335.749,
+      0,
+      229.148
+     ],
+     "vis": "player",
+     "rotY": 132.93378330031226,
+     "dims": {
+      "s": 0.8679118590311063
+     }
+    },
+    {
+     "id": "grounds-reeds56",
+     "kind": "marsh-reeds",
+     "pos": [
+      191.129,
+      0,
+      271.391
+     ],
+     "vis": "player",
+     "rotY": 204.93884037521943,
+     "dims": {
+      "s": 1.4429896357035092
+     }
+    },
+    {
+     "id": "grounds-reeds57",
+     "kind": "marsh-reeds",
+     "pos": [
+      248.839,
+      0,
+      285.457
+     ],
+     "vis": "player",
+     "rotY": 109.71523527040561,
+     "dims": {
+      "s": 1.0223334703955753
+     }
+    },
+    {
+     "id": "grounds-reeds58",
+     "kind": "marsh-reeds",
+     "pos": [
+      239.764,
+      0,
+      194.244
+     ],
+     "vis": "player",
+     "rotY": 202.96968797273246,
+     "dims": {
+      "s": 1.357957975366504
+     }
+    },
+    {
+     "id": "grounds-reeds59",
+     "kind": "marsh-reeds",
+     "pos": [
+      267.301,
+      0,
+      290.456
+     ],
+     "vis": "player",
+     "rotY": 202.60051357614842,
+     "dims": {
+      "s": 0.9236145359487664
+     }
+    },
+    {
+     "id": "grounds-reeds60",
+     "kind": "marsh-reeds",
+     "pos": [
+      287.217,
+      0,
+      285.648
+     ],
+     "vis": "player",
+     "rotY": 23.060331117403926,
+     "dims": {
+      "s": 1.1827712633746286
+     }
+    },
+    {
+     "id": "grounds-reeds61",
+     "kind": "marsh-reeds",
+     "pos": [
+      284.143,
+      0,
+      186.582
+     ],
+     "vis": "player",
+     "rotY": 268.48495374508707,
+     "dims": {
+      "s": 1.2543023727494207
+     }
+    },
+    {
+     "id": "grounds-reeds62",
+     "kind": "marsh-reeds",
+     "pos": [
+      214.181,
+      0,
+      198.067
+     ],
+     "vis": "player",
+     "rotY": 275.52709107686104,
+     "dims": {
+      "s": 1.16508793262182
+     }
+    },
+    {
+     "id": "grounds-reeds63",
+     "kind": "marsh-reeds",
+     "pos": [
+      334.696,
+      0,
+      226.591
+     ],
+     "vis": "player",
+     "rotY": 297.4435820791942,
+     "dims": {
+      "s": 1.2667154985995273
+     }
+    },
+    {
+     "id": "grounds-reeds64",
+     "kind": "marsh-reeds",
+     "pos": [
+      196.314,
+      0,
+      276.185
+     ],
+     "vis": "player",
+     "rotY": 356.7637368192255,
+     "dims": {
+      "s": 1.0628656087729917
+     }
+    },
+    {
+     "id": "grounds-reeds65",
+     "kind": "marsh-reeds",
+     "pos": [
+      200.178,
+      0,
+      195.655
+     ],
+     "vis": "player",
+     "rotY": 152.9802619700558,
+     "dims": {
+      "s": 1.0044170632349556
+     }
+    },
+    {
+     "id": "grounds-reeds66",
+     "kind": "marsh-reeds",
+     "pos": [
+      286.636,
+      0,
+      281.39
+     ],
+     "vis": "player",
+     "rotY": 64.59583258919722,
+     "dims": {
+      "s": 0.8436411583959653
+     }
+    },
+    {
+     "id": "grounds-reeds67",
+     "kind": "marsh-reeds",
+     "pos": [
+      209.126,
+      0,
+      200.311
+     ],
+     "vis": "player",
+     "rotY": 258.2077444336451,
+     "dims": {
+      "s": 1.2163502362074483
+     }
+    },
+    {
+     "id": "grounds-reeds68",
+     "kind": "marsh-reeds",
+     "pos": [
+      210.313,
+      0,
+      192.748
+     ],
+     "vis": "player",
+     "rotY": 101.18229139518142,
+     "dims": {
+      "s": 0.9207593555560316
+     }
+    },
+    {
+     "id": "grounds-reeds69",
+     "kind": "marsh-reeds",
+     "pos": [
+      231.573,
+      0,
+      247.102
+     ],
+     "vis": "player",
+     "rotY": 173.74085568284875,
+     "dims": {
+      "s": 0.9547036690980035
+     }
+    },
+    {
+     "id": "grounds-reedw0",
+     "kind": "marsh-reeds",
+     "pos": [
+      349.534,
+      0,
+      262.434
+     ],
+     "vis": "player",
+     "rotY": 138.59155827291573,
+     "dims": {
+      "s": 1.0165517231585446
+     }
+    },
+    {
+     "id": "grounds-reedw1",
+     "kind": "marsh-reeds",
+     "pos": [
+      171.309,
+      0,
+      229.828
+     ],
+     "vis": "player",
+     "rotY": 236.7191717977264,
+     "dims": {
+      "s": 0.8425683940598159
+     }
+    },
+    {
+     "id": "grounds-reedw2",
+     "kind": "marsh-reeds",
+     "pos": [
+      346.881,
+      0,
+      242.99
+     ],
+     "vis": "player",
+     "rotY": 286.8382892665204,
+     "dims": {
+      "s": 1.1279724944596219
+     }
+    },
+    {
+     "id": "grounds-reedw3",
+     "kind": "marsh-reeds",
+     "pos": [
+      190.8,
+      0,
+      194.815
+     ],
+     "vis": "player",
+     "rotY": 115.84934988696895,
+     "dims": {
+      "s": 0.8556540023152771
+     }
+    },
+    {
+     "id": "grounds-reedw4",
+     "kind": "marsh-reeds",
+     "pos": [
+      318.962,
+      0,
+      181.58
+     ],
+     "vis": "player",
+     "rotY": 357.52279119952766,
+     "dims": {
+      "s": 0.8599055164274715
+     }
+    },
+    {
+     "id": "grounds-reedw5",
+     "kind": "marsh-reeds",
+     "pos": [
+      174.733,
+      0,
+      220.96
+     ],
+     "vis": "player",
+     "rotY": 0.49151534996092483,
+     "dims": {
+      "s": 1.1928508412073273
+     }
+    },
+    {
+     "id": "grounds-reedw6",
+     "kind": "marsh-reeds",
+     "pos": [
+      311.385,
+      0,
+      181.438
+     ],
+     "vis": "player",
+     "rotY": 97.17146144323608,
+     "dims": {
+      "s": 1.12991373029924
+     }
+    },
+    {
+     "id": "grounds-reedw8",
+     "kind": "marsh-reeds",
+     "pos": [
+      345.253,
+      0,
+      215.82
+     ],
+     "vis": "player",
+     "rotY": 109.29388051369253,
+     "dims": {
+      "s": 1.173592992966306
+     }
+    },
+    {
+     "id": "grounds-reedw9",
+     "kind": "marsh-reeds",
+     "pos": [
+      174.052,
+      0,
+      272.318
+     ],
+     "vis": "player",
+     "rotY": 297.47740863612773,
+     "dims": {
+      "s": 0.8250449823016908
+     }
+    },
+    {
+     "id": "grounds-reedw10",
+     "kind": "marsh-reeds",
+     "pos": [
+      170.45,
+      0,
+      219.196
+     ],
+     "vis": "player",
+     "rotY": 299.52328374249004,
+     "dims": {
+      "s": 0.8868449120943172
+     }
+    },
+    {
+     "id": "grounds-reedw11",
+     "kind": "marsh-reeds",
+     "pos": [
+      226.345,
+      0,
+      304.898
+     ],
+     "vis": "player",
+     "rotY": 168.20147395262754,
+     "dims": {
+      "s": 1.1290874379889981
+     }
+    },
+    {
+     "id": "grounds-reedw12",
+     "kind": "marsh-reeds",
+     "pos": [
+      198.474,
+      0,
+      291.312
+     ],
+     "vis": "player",
+     "rotY": 141.92507388673062,
+     "dims": {
+      "s": 0.977055296659334
+     }
+    },
+    {
+     "id": "grounds-reedw13",
+     "kind": "marsh-reeds",
+     "pos": [
+      350.401,
+      0,
+      222.041
+     ],
+     "vis": "player",
+     "rotY": 4.445348016354638,
+     "dims": {
+      "s": 0.9262760507096026
+     }
+    },
+    {
+     "id": "grounds-reedw14",
+     "kind": "marsh-reeds",
+     "pos": [
+      236.1,
+      0,
+      164.424
+     ],
+     "vis": "player",
+     "rotY": 164.91161881279544,
+     "dims": {
+      "s": 0.7062826984646873
+     }
+    },
+    {
+     "id": "grounds-reedw15",
+     "kind": "marsh-reeds",
+     "pos": [
+      351.861,
+      0,
+      234.286
+     ],
+     "vis": "player",
+     "rotY": 221.7840371636117,
+     "dims": {
+      "s": 0.8742362020661169
+     }
+    },
+    {
+     "id": "grounds-reedw16",
+     "kind": "marsh-reeds",
+     "pos": [
+      193.042,
+      0,
+      288.576
+     ],
+     "vis": "player",
+     "rotY": 121.46026992627927,
+     "dims": {
+      "s": 0.935320105652139
+     }
+    },
+    {
+     "id": "grounds-reedw17",
+     "kind": "marsh-reeds",
+     "pos": [
+      214.337,
+      0,
+      176.941
+     ],
+     "vis": "player",
+     "rotY": 263.31972807236167,
+     "dims": {
+      "s": 0.8976388140457036
+     }
+    },
+    {
+     "id": "grounds-reedw18",
+     "kind": "marsh-reeds",
+     "pos": [
+      343.073,
+      0,
+      211.475
+     ],
+     "vis": "player",
+     "rotY": 119.39704687050238,
+     "dims": {
+      "s": 1.196131015043429
+     }
+    },
+    {
+     "id": "grounds-reedw20",
+     "kind": "marsh-reeds",
+     "pos": [
+      216.634,
+      0,
+      174.922
+     ],
+     "vis": "player",
+     "rotY": 144.820447065916,
+     "dims": {
+      "s": 1.202151841505609
+     }
+    },
+    {
+     "id": "grounds-reedw21",
+     "kind": "marsh-reeds",
+     "pos": [
+      187.486,
+      0,
+      198.986
+     ],
+     "vis": "player",
+     "rotY": 56.550841893770624,
+     "dims": {
+      "s": 0.7744649012408321
+     }
+    },
+    {
+     "id": "grounds-reedw22",
+     "kind": "marsh-reeds",
+     "pos": [
+      187.825,
+      0,
+      282.922
+     ],
+     "vis": "player",
+     "rotY": 153.72457335653039,
+     "dims": {
+      "s": 1.0069392463820601
+     }
+    },
+    {
+     "id": "grounds-reedw23",
+     "kind": "marsh-reeds",
+     "pos": [
+      200.94,
+      0,
+      174.248
+     ],
+     "vis": "player",
+     "rotY": 138.94037555000122,
+     "dims": {
+      "s": 0.8988463070451823
+     }
+    },
+    {
+     "id": "grounds-reedw24",
+     "kind": "marsh-reeds",
+     "pos": [
+      187.058,
+      0,
+      276.551
+     ],
+     "vis": "player",
+     "rotY": 251.9570463476553,
+     "dims": {
+      "s": 1.289170651683608
+     }
+    },
+    {
+     "id": "grounds-reedw25",
+     "kind": "marsh-reeds",
+     "pos": [
+      280.295,
+      0,
+      163.739
+     ],
+     "vis": "player",
+     "rotY": 6.674943371543081,
+     "dims": {
+      "s": 0.8986092680190202
+     }
+    },
+    {
+     "id": "grounds-reedw26",
+     "kind": "marsh-reeds",
+     "pos": [
+      206.974,
+      0,
+      295.812
+     ],
+     "vis": "player",
+     "rotY": 135.94046081422127,
+     "dims": {
+      "s": 1.0056173250053306
+     }
+    },
+    {
+     "id": "grounds-reedw27",
+     "kind": "marsh-reeds",
+     "pos": [
+      280.259,
+      0,
+      163.567
+     ],
+     "vis": "player",
+     "rotY": 57.003119374784795,
+     "dims": {
+      "s": 1.1599076220639262
+     }
+    },
+    {
+     "id": "grounds-reedw28",
+     "kind": "marsh-reeds",
+     "pos": [
+      331.888,
+      0,
+      196.332
+     ],
+     "vis": "player",
+     "rotY": 180.1496203604372,
+     "dims": {
+      "s": 0.7850526179708054
+     }
+    },
+    {
+     "id": "grounds-reedw29",
+     "kind": "marsh-reeds",
+     "pos": [
+      235.333,
+      0,
+      164.738
+     ],
+     "vis": "player",
+     "rotY": 257.5389952544579,
+     "dims": {
+      "s": 1.2013136711831813
+     }
+    },
+    {
+     "id": "grounds-reedw30",
+     "kind": "marsh-reeds",
+     "pos": [
+      288.985,
+      0,
+      310.714
+     ],
+     "vis": "player",
+     "rotY": 71.2437033622053,
+     "dims": {
+      "s": 0.7499429962170517
+     }
+    },
+    {
+     "id": "grounds-reedw31",
+     "kind": "marsh-reeds",
+     "pos": [
+      260.592,
+      0,
+      315.912
+     ],
+     "vis": "player",
+     "rotY": 118.50646133000117,
+     "dims": {
+      "s": 1.2574360290430966
+     }
+    },
+    {
+     "id": "grounds-reedw32",
+     "kind": "marsh-reeds",
+     "pos": [
+      199.968,
+      0,
+      291.109
+     ],
+     "vis": "player",
+     "rotY": 350.48819678069236,
+     "dims": {
+      "s": 0.781362781995373
+     }
+    },
+    {
+     "id": "grounds-reedw33",
+     "kind": "marsh-reeds",
+     "pos": [
+      332.173,
+      0,
+      194.961
+     ],
+     "vis": "player",
+     "rotY": 201.72541804189143,
+     "dims": {
+      "s": 0.8586208127522527
+     }
+    },
+    {
+     "id": "grounds-reedw34",
+     "kind": "marsh-reeds",
+     "pos": [
+      339.502,
+      0,
+      194.978
+     ],
+     "vis": "player",
+     "rotY": 216.54216388188408,
+     "dims": {
+      "s": 0.7735917729168671
+     }
+    },
+    {
+     "id": "grounds-reedw35",
+     "kind": "marsh-reeds",
+     "pos": [
+      296.75,
+      0,
+      165.788
+     ],
+     "vis": "player",
+     "rotY": 86.71014124898007,
+     "dims": {
+      "s": 1.0441506372232714
+     }
+    },
+    {
+     "id": "grounds-reedw36",
+     "kind": "marsh-reeds",
+     "pos": [
+      298.94,
+      0,
+      171.822
+     ],
+     "vis": "player",
+     "rotY": 27.45768639122288,
+     "dims": {
+      "s": 0.7192125398072164
+     }
+    },
+    {
+     "id": "grounds-reedw37",
+     "kind": "marsh-reeds",
+     "pos": [
+      298.893,
+      0,
+      311.841
+     ],
+     "vis": "player",
+     "rotY": 237.01427168973103,
+     "dims": {
+      "s": 0.8845897797768058
+     }
+    },
+    {
+     "id": "grounds-reedw38",
+     "kind": "marsh-reeds",
+     "pos": [
+      213.062,
+      0,
+      173.561
+     ],
+     "vis": "player",
+     "rotY": 213.08329843369702,
+     "dims": {
+      "s": 1.1822902951985266
+     }
+    },
+    {
+     "id": "grounds-reedw40",
+     "kind": "marsh-reeds",
+     "pos": [
+      312.495,
+      0,
+      297.491
+     ],
+     "vis": "player",
+     "rotY": 62.527807660752515,
+     "dims": {
+      "s": 1.0118623873508283
+     }
+    },
+    {
+     "id": "grounds-reedw41",
+     "kind": "marsh-reeds",
+     "pos": [
+      249.698,
+      0,
+      310.215
+     ],
+     "vis": "player",
+     "rotY": 231.01403506272783,
+     "dims": {
+      "s": 0.7227179112507208
+     }
+    },
+    {
+     "id": "grounds-reedw42",
+     "kind": "marsh-reeds",
+     "pos": [
+      217.174,
+      0,
+      165.994
+     ],
+     "vis": "player",
+     "rotY": 216.03359011491455,
+     "dims": {
+      "s": 0.9819458827917811
+     }
+    },
+    {
+     "id": "grounds-reedw43",
+     "kind": "marsh-reeds",
+     "pos": [
+      179.505,
+      0,
+      279.118
+     ],
+     "vis": "player",
+     "rotY": 272.89244164903147,
+     "dims": {
+      "s": 1.1510294822524503
+     }
+    },
+    {
+     "id": "grounds-reedw44",
+     "kind": "marsh-reeds",
+     "pos": [
+      160.469,
+      0,
+      245.14
+     ],
+     "vis": "player",
+     "rotY": 307.8170005120468,
+     "dims": {
+      "s": 0.9454122714330939
+     }
+    },
+    {
+     "id": "grounds-reedw45",
+     "kind": "marsh-reeds",
+     "pos": [
+      174.233,
+      0,
+      270.687
+     ],
+     "vis": "player",
+     "rotY": 189.34909789957982,
+     "dims": {
+      "s": 1.0150006943375318
+     }
+    },
+    {
+     "id": "grounds-reedw46",
+     "kind": "marsh-reeds",
+     "pos": [
+      170.015,
+      0,
+      267.871
+     ],
+     "vis": "player",
+     "rotY": 19.685078759316212,
+     "dims": {
+      "s": 1.135349727941494
+     }
+    },
+    {
+     "id": "grounds-reedw47",
+     "kind": "marsh-reeds",
+     "pos": [
+      333.175,
+      0,
+      193.11
+     ],
+     "vis": "player",
+     "rotY": 270.67877534213847,
+     "dims": {
+      "s": 0.8828514987942448
+     }
+    },
+    {
+     "id": "grounds-reedw48",
+     "kind": "marsh-reeds",
+     "pos": [
+      187.942,
+      0,
+      199.575
+     ],
+     "vis": "player",
+     "rotY": 160.90505694780416,
+     "dims": {
+      "s": 1.0015807056712394
+     }
+    },
+    {
+     "id": "grounds-reedw49",
+     "kind": "marsh-reeds",
+     "pos": [
+      191.147,
+      0,
+      285.09
+     ],
+     "vis": "player",
+     "rotY": 189.43903660461905,
+     "dims": {
+      "s": 0.8434885779543841
+     }
+    },
+    {
+     "id": "grounds-reedw50",
+     "kind": "marsh-reeds",
+     "pos": [
+      226.866,
+      0,
+      304.64
+     ],
+     "vis": "player",
+     "rotY": 24.638278482404594,
+     "dims": {
+      "s": 1.2467767062669872
+     }
+    },
+    {
+     "id": "grounds-reedw51",
+     "kind": "marsh-reeds",
+     "pos": [
+      347.941,
+      0,
+      221.168
+     ],
+     "vis": "player",
+     "rotY": 151.7049467789102,
+     "dims": {
+      "s": 1.1831545852011054
+     }
+    },
+    {
+     "id": "grounds-reedw52",
+     "kind": "marsh-reeds",
+     "pos": [
+      274.027,
+      0,
+      312.81
+     ],
+     "vis": "player",
+     "rotY": 325.2292131321636,
+     "dims": {
+      "s": 0.7591378428920025
+     }
+    },
+    {
+     "id": "grounds-reedw53",
+     "kind": "marsh-reeds",
+     "pos": [
+      279.687,
+      0,
+      165.096
+     ],
+     "vis": "player",
+     "rotY": 342.3509693380216,
+     "dims": {
+      "s": 0.7003459481720905
+     }
+    },
+    {
+     "id": "grounds-reedw54",
+     "kind": "marsh-reeds",
+     "pos": [
+      260.817,
+      0,
+      310.319
+     ],
+     "vis": "player",
+     "rotY": 22.54832922426932,
+     "dims": {
+      "s": 1.2370752444119963
+     }
+    },
+    {
+     "id": "grounds-reedw55",
+     "kind": "marsh-reeds",
+     "pos": [
+      292.859,
+      0,
+      171.225
+     ],
+     "vis": "player",
+     "rotY": 210.78321459208414,
+     "dims": {
+      "s": 0.7275337754468192
+     }
+    },
+    {
+     "id": "grounds-reedw56",
+     "kind": "marsh-reeds",
+     "pos": [
+      351.647,
+      0,
+      252.017
+     ],
+     "vis": "player",
+     "rotY": 179.43046280415078,
+     "dims": {
+      "s": 1.2603617464452803
+     }
+    },
+    {
+     "id": "grounds-reedw57",
+     "kind": "marsh-reeds",
+     "pos": [
+      346.178,
+      0,
+      227.956
+     ],
+     "vis": "player",
+     "rotY": 106.32540694804749,
+     "dims": {
+      "s": 1.253589414175698
+     }
+    },
+    {
+     "id": "grounds-reedw58",
+     "kind": "marsh-reeds",
+     "pos": [
+      325.592,
+      0,
+      189.643
+     ],
+     "vis": "player",
+     "rotY": 127.49544444500384,
+     "dims": {
+      "s": 0.9834938288451875
+     }
+    },
+    {
+     "id": "grounds-reedw59",
+     "kind": "marsh-reeds",
+     "pos": [
+      302.605,
+      0,
+      310.7
+     ],
+     "vis": "player",
+     "rotY": 72.72372418578614,
+     "dims": {
+      "s": 1.0794365178177525
+     }
+    },
+    {
+     "id": "grounds-deadtree0",
+     "kind": "dead-tree",
+     "pos": [
+      205,
+      0,
+      205
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 0.9
+     }
+    },
+    {
+     "id": "grounds-deadtree1",
+     "kind": "dead-tree",
+     "pos": [
+      300,
+      0,
+      195
+     ],
+     "vis": "player",
+     "rotY": 80,
+     "dims": {
+      "scale": 1.1
+     }
+    },
+    {
+     "id": "grounds-deadtree2",
+     "kind": "dead-tree",
+     "pos": [
+      197.5,
+      0,
+      260
+     ],
+     "vis": "player",
+     "rotY": 160,
+     "dims": {
+      "scale": 1.0
+     }
+    },
+    {
+     "id": "grounds-bush0",
+     "kind": "bush",
+     "pos": [
+      220,
+      0,
+      192.5
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 0.9
+     }
+    },
+    {
+     "id": "grounds-bush1",
+     "kind": "bush",
+     "pos": [
+      290,
+      0,
+      207.5
+     ],
+     "vis": "player",
+     "rotY": 50,
+     "dims": {
+      "scale": 1.1
+     }
+    },
+    {
+     "id": "grounds-bush2",
+     "kind": "bush",
+     "pos": [
+      212.5,
+      0,
+      280
+     ],
+     "vis": "player",
+     "rotY": 100,
+     "dims": {
+      "scale": 1.3
+     }
+    },
+    {
+     "id": "grounds-bush3",
+     "kind": "bush",
+     "pos": [
+      280,
+      0,
+      287.5
+     ],
+     "vis": "player",
+     "rotY": 150,
+     "dims": {
+      "scale": 0.9
+     }
+    },
+    {
+     "id": "grounds-bush4",
+     "kind": "bush",
+     "pos": [
+      312.5,
+      0,
+      237.5
+     ],
+     "vis": "player",
+     "rotY": 200,
+     "dims": {
+      "scale": 1.1
+     }
+    },
+    {
+     "id": "grounds-pine0",
+     "kind": "pine",
+     "pos": [
+      537.344,
+      0,
+      541.903
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 0.9400017717487469
+     }
+    },
+    {
+     "id": "grounds-pine1",
+     "kind": "pine",
+     "pos": [
+      561.033,
+      0,
+      554.187
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.5956691290161542
+     }
+    },
+    {
+     "id": "grounds-pine2",
+     "kind": "pine",
+     "pos": [
+      635.71,
+      0,
+      577.062
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.2561243797252821
+     }
+    },
+    {
+     "id": "grounds-pine3",
+     "kind": "pine",
+     "pos": [
+      654.146,
+      0,
+      232.235
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.4296070189738765
+     }
+    },
+    {
+     "id": "grounds-pine4",
+     "kind": "pine",
+     "pos": [
+      672.466,
+      0,
+      364.839
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.083196031910982
+     }
+    },
+    {
+     "id": "grounds-pine5",
+     "kind": "pine",
+     "pos": [
+      558.682,
+      0,
+      570.317
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.4336267842409116
+     }
+    },
+    {
+     "id": "grounds-pine6",
+     "kind": "pine",
+     "pos": [
+      517.547,
+      0,
+      604.647
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.252274804813645
+     }
+    },
+    {
+     "id": "grounds-pine7",
+     "kind": "pine",
+     "pos": [
+      656.628,
+      0,
+      58.171
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.1281229733726152
+     }
+    },
+    {
+     "id": "grounds-pine8",
+     "kind": "pine",
+     "pos": [
+      647.358,
+      0,
+      154.998
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.1232816203486162
+     }
+    },
+    {
+     "id": "grounds-pine9",
+     "kind": "pine",
+     "pos": [
+      646.365,
+      0,
+      239.673
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.6434109860155486
+     }
+    },
+    {
+     "id": "grounds-pine10",
+     "kind": "pine",
+     "pos": [
+      652.684,
+      0,
+      320.208
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.3045035113517547
+     }
+    },
+    {
+     "id": "grounds-pine11",
+     "kind": "pine",
+     "pos": [
+      601.502,
+      0,
+      585.433
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.0391379868619022
+     }
+    },
+    {
+     "id": "grounds-pine12",
+     "kind": "pine",
+     "pos": [
+      652.033,
+      0,
+      105.757
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.3864632453654342
+     }
+    },
+    {
+     "id": "grounds-pine13",
+     "kind": "pine",
+     "pos": [
+      650.741,
+      0,
+      484.804
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.5329054696653623
+     }
+    },
+    {
+     "id": "grounds-pine14",
+     "kind": "pine",
+     "pos": [
+      616.382,
+      0,
+      440.979
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.3581122544311264
+     }
+    },
+    {
+     "id": "grounds-pine15",
+     "kind": "pine",
+     "pos": [
+      670.212,
+      0,
+      114.823
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.0214485204714583
+     }
+    },
+    {
+     "id": "grounds-pine16",
+     "kind": "pine",
+     "pos": [
+      551.274,
+      0,
+      492.097
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 0.9580286807673499
+     }
+    },
+    {
+     "id": "grounds-pine17",
+     "kind": "pine",
+     "pos": [
+      676.925,
+      0,
+      352.027
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.3345904921262863
+     }
+    },
+    {
+     "id": "grounds-pine18",
+     "kind": "pine",
+     "pos": [
+      654.363,
+      0,
+      150.165
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.0169850531457607
+     }
+    },
+    {
+     "id": "grounds-pine19",
+     "kind": "pine",
+     "pos": [
+      660.01,
+      0,
+      109.676
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.1038680985459082
+     }
+    },
+    {
+     "id": "grounds-pine20",
+     "kind": "pine",
+     "pos": [
+      662.03,
+      0,
+      484.89
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 0.9489136655080109
+     }
+    },
+    {
+     "id": "grounds-pine21",
+     "kind": "pine",
+     "pos": [
+      542.187,
+      0,
+      597.027
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 0.9336935110593881
+     }
+    },
+    {
+     "id": "grounds-pine22",
+     "kind": "pine",
+     "pos": [
+      595.46,
+      0,
+      469.371
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.6889490314396665
+     }
+    },
+    {
+     "id": "grounds-pine23",
+     "kind": "pine",
+     "pos": [
+      546.921,
+      0,
+      547.953
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.0132381504262977
+     }
+    },
+    {
+     "id": "grounds-pine24",
+     "kind": "pine",
+     "pos": [
+      648.839,
+      0,
+      452.778
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.0838994401437125
+     }
+    },
+    {
+     "id": "grounds-pine25",
+     "kind": "pine",
+     "pos": [
+      681.828,
+      0,
+      227.039
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.1696367320204557
+     }
+    },
+    {
+     "id": "grounds-pine26",
+     "kind": "pine",
+     "pos": [
+      668.563,
+      0,
+      365.302
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.6090985487537353
+     }
+    },
+    {
+     "id": "grounds-pine27",
+     "kind": "pine",
+     "pos": [
+      664.394,
+      0,
+      237.49
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.5250761452272523
+     }
+    },
+    {
+     "id": "grounds-pine28",
+     "kind": "pine",
+     "pos": [
+      668.231,
+      0,
+      129.796
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.206368550176491
+     }
+    },
+    {
+     "id": "grounds-pine29",
+     "kind": "pine",
+     "pos": [
+      680.095,
+      0,
+      441.267
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.1148976451361723
+     }
+    },
+    {
+     "id": "grounds-pine30",
+     "kind": "pine",
+     "pos": [
+      682.643,
+      0,
+      224.44
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.5125499978117798
+     }
+    },
+    {
+     "id": "grounds-pine31",
+     "kind": "pine",
+     "pos": [
+      641.073,
+      0,
+      558.313
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 0.916317850339336
+     }
+    },
+    {
+     "id": "grounds-pine32",
+     "kind": "pine",
+     "pos": [
+      516.218,
+      0,
+      543.256
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.160199786760062
+     }
+    },
+    {
+     "id": "grounds-pine33",
+     "kind": "pine",
+     "pos": [
+      650.289,
+      0,
+      321.773
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 0.9439252811803698
+     }
+    },
+    {
+     "id": "grounds-pine34",
+     "kind": "pine",
+     "pos": [
+      668.864,
+      0,
+      142.887
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.1336593053964583
+     }
+    },
+    {
+     "id": "grounds-pine35",
+     "kind": "pine",
+     "pos": [
+      622.927,
+      0,
+      350.223
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.547014133701542
+     }
+    },
+    {
+     "id": "grounds-pine36",
+     "kind": "pine",
+     "pos": [
+      630.746,
+      0,
+      565.634
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.072964343775037
+     }
+    },
+    {
+     "id": "grounds-pine37",
+     "kind": "pine",
+     "pos": [
+      686.253,
+      0,
+      534.709
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.0876803146797918
+     }
+    },
+    {
+     "id": "grounds-pine38",
+     "kind": "pine",
+     "pos": [
+      636.768,
+      0,
+      342.446
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.460147159782415
+     }
+    },
+    {
+     "id": "grounds-pine39",
+     "kind": "pine",
+     "pos": [
+      567.682,
+      0,
+      548.975
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.352572979314992
+     }
+    },
+    {
+     "id": "grounds-pine40",
+     "kind": "pine",
+     "pos": [
+      619.975,
+      0,
+      587.341
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.1901005448760313
+     }
+    },
+    {
+     "id": "grounds-pine41",
+     "kind": "pine",
+     "pos": [
+      612.353,
+      0,
+      579.853
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.5171783153744554
+     }
+    },
+    {
+     "id": "grounds-pine42",
+     "kind": "pine",
+     "pos": [
+      622.331,
+      0,
+      383.696
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.2287646687794547
+     }
+    },
+    {
+     "id": "grounds-pine43",
+     "kind": "pine",
+     "pos": [
+      661.773,
+      0,
+      541.632
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.20550135354001
+     }
+    },
+    {
+     "id": "grounds-pine44",
+     "kind": "pine",
+     "pos": [
+      677.374,
+      0,
+      28.263
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.0086792092527488
+     }
+    },
+    {
+     "id": "grounds-pine45",
+     "kind": "pine",
+     "pos": [
+      570.278,
+      0,
+      600.957
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.0198850310171492
+     }
+    },
+    {
+     "id": "grounds-pine46",
+     "kind": "pine",
+     "pos": [
+      609.349,
+      0,
+      511.97
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.6750596689974397
+     }
+    },
+    {
+     "id": "grounds-pine47",
+     "kind": "pine",
+     "pos": [
+      672.835,
+      0,
+      196.148
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.4727557492730998
+     }
+    },
+    {
+     "id": "grounds-pine48",
+     "kind": "pine",
+     "pos": [
+      646.048,
+      0,
+      330.731
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.0896237233057844
+     }
+    },
+    {
+     "id": "grounds-pine49",
+     "kind": "pine",
+     "pos": [
+      588.058,
+      0,
+      475.986
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.2845588507674508
+     }
+    },
+    {
+     "id": "grounds-pine50",
+     "kind": "pine",
+     "pos": [
+      531.701,
+      0,
+      533.437
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.5958627312300877
+     }
+    },
+    {
+     "id": "grounds-pine51",
+     "kind": "pine",
+     "pos": [
+      598.953,
+      0,
+      490.837
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.2138202920731525
+     }
+    },
+    {
+     "id": "grounds-pine52",
+     "kind": "pine",
+     "pos": [
+      639.567,
+      0,
+      204.386
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.1670716634752092
+     }
+    },
+    {
+     "id": "grounds-pine53",
+     "kind": "pine",
+     "pos": [
+      648.056,
+      0,
+      519.054
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.5628321178517879
+     }
+    },
+    {
+     "id": "grounds-pine54",
+     "kind": "pine",
+     "pos": [
+      637.85,
+      0,
+      385.025
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.5648016707237922
+     }
+    },
+    {
+     "id": "grounds-pine55",
+     "kind": "pine",
+     "pos": [
+      656.242,
+      0,
+      81.384
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.2015606678794946
+     }
+    },
+    {
+     "id": "grounds-pine56",
+     "kind": "pine",
+     "pos": [
+      614.178,
+      0,
+      579.013
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.6763458426446793
+     }
+    },
+    {
+     "id": "grounds-pine57",
+     "kind": "pine",
+     "pos": [
+      577.36,
+      0,
+      574.36
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.6910457023308396
+     }
+    },
+    {
+     "id": "grounds-pine58",
+     "kind": "pine",
+     "pos": [
+      656.093,
+      0,
+      516.6
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.1269866301040163
+     }
+    },
+    {
+     "id": "grounds-pine59",
+     "kind": "pine",
+     "pos": [
+      649.248,
+      0,
+      603.394
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.2114779929814201
+     }
+    },
+    {
+     "id": "grounds-pine60",
+     "kind": "pine",
+     "pos": [
+      635.339,
+      0,
+      338.028
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.5401342503229527
+     }
+    },
+    {
+     "id": "grounds-pine61",
+     "kind": "pine",
+     "pos": [
+      520.888,
+      0,
+      574.463
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.1010979704888268
+     }
+    },
+    {
+     "id": "grounds-pine62",
+     "kind": "pine",
+     "pos": [
+      674.066,
+      0,
+      193.697
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 0.9627357781172912
+     }
+    },
+    {
+     "id": "grounds-pine63",
+     "kind": "pine",
+     "pos": [
+      669.114,
+      0,
+      300.395
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.2316591879808971
+     }
+    },
+    {
+     "id": "grounds-pine64",
+     "kind": "pine",
+     "pos": [
+      657.366,
+      0,
+      246.522
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 0.946115363925379
+     }
+    },
+    {
+     "id": "grounds-pine65",
+     "kind": "pine",
+     "pos": [
+      683.082,
+      0,
+      532.404
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.6954345333883385
+     }
+    },
+    {
+     "id": "grounds-pine66",
+     "kind": "pine",
+     "pos": [
+      586.424,
+      0,
+      513.568
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.4799735489308254
+     }
+    },
+    {
+     "id": "grounds-pine67",
+     "kind": "pine",
+     "pos": [
+      646.945,
+      0,
+      194.105
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.3113964525809305
+     }
+    },
+    {
+     "id": "grounds-pine68",
+     "kind": "pine",
+     "pos": [
+      602.814,
+      0,
+      499.169
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.5338314707548912
+     }
+    },
+    {
+     "id": "grounds-pine69",
+     "kind": "pine",
+     "pos": [
+      643.404,
+      0,
+      248.555
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.5424635799608968
+     }
+    },
+    {
+     "id": "grounds-pine70",
+     "kind": "pine",
+     "pos": [
+      661.394,
+      0,
+      473.301
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.6887530432222568
+     }
+    },
+    {
+     "id": "grounds-pine71",
+     "kind": "pine",
+     "pos": [
+      519.663,
+      0,
+      584.731
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.2218122413153887
+     }
+    },
+    {
+     "id": "grounds-pine72",
+     "kind": "pine",
+     "pos": [
+      677.38,
+      0,
+      19.332
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.3614491113470901
+     }
+    },
+    {
+     "id": "grounds-pine73",
+     "kind": "pine",
+     "pos": [
+      658.098,
+      0,
+      227.456
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.4104224887478072
+     }
+    },
+    {
+     "id": "grounds-pine74",
+     "kind": "pine",
+     "pos": [
+      676.504,
+      0,
+      201.192
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 0.9753205076731922
+     }
+    },
+    {
+     "id": "grounds-pine75",
+     "kind": "pine",
+     "pos": [
+      685.697,
+      0,
+      129.859
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.6043847690496602
+     }
+    },
+    {
+     "id": "grounds-pine76",
+     "kind": "pine",
+     "pos": [
+      521.13,
+      0,
+      607.375
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.2440864948829746
+     }
+    },
+    {
+     "id": "grounds-pine77",
+     "kind": "pine",
+     "pos": [
+      632.057,
+      0,
+      583.089
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.1577804319945855
+     }
+    },
+    {
+     "id": "grounds-pine78",
+     "kind": "pine",
+     "pos": [
+      620.173,
+      0,
+      546.455
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.585086075750053
+     }
+    },
+    {
+     "id": "grounds-pine79",
+     "kind": "pine",
+     "pos": [
+      615.941,
+      0,
+      573.282
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.021543345075676
+     }
+    },
+    {
+     "id": "grounds-pine80",
+     "kind": "pine",
+     "pos": [
+      643.909,
+      0,
+      195.908
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.4894003121193737
+     }
+    },
+    {
+     "id": "grounds-pine81",
+     "kind": "pine",
+     "pos": [
+      669.157,
+      0,
+      82.281
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.692056869848674
+     }
+    },
+    {
+     "id": "grounds-pine82",
+     "kind": "pine",
+     "pos": [
+      663.842,
+      0,
+      401.029
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.6501566358944881
+     }
+    },
+    {
+     "id": "grounds-pine83",
+     "kind": "pine",
+     "pos": [
+      661.71,
+      0,
+      491.581
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.309281863282775
+     }
+    },
+    {
+     "id": "grounds-pine84",
+     "kind": "pine",
+     "pos": [
+      669.669,
+      0,
+      439.099
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.1005685777524765
+     }
+    },
+    {
+     "id": "grounds-pine85",
+     "kind": "pine",
+     "pos": [
+      657.398,
+      0,
+      281.98
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.3290557683369966
+     }
+    },
+    {
+     "id": "grounds-pine86",
+     "kind": "pine",
+     "pos": [
+      668.782,
+      0,
+      124.554
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.1236964521511417
+     }
+    },
+    {
+     "id": "grounds-pine87",
+     "kind": "pine",
+     "pos": [
+      608.224,
+      0,
+      485.148
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.292602329711869
+     }
+    },
+    {
+     "id": "grounds-pine88",
+     "kind": "pine",
+     "pos": [
+      547.152,
+      0,
+      492.981
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.58403877053227
+     }
+    },
+    {
+     "id": "grounds-pine89",
+     "kind": "pine",
+     "pos": [
+      650.307,
+      0,
+      340.062
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.6245516423328086
+     }
+    },
+    {
+     "id": "grounds-pine90",
+     "kind": "pine",
+     "pos": [
+      655.368,
+      0,
+      97.579
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.1926804970415479
+     }
+    },
+    {
+     "id": "grounds-pine91",
+     "kind": "pine",
+     "pos": [
+      567.429,
+      0,
+      532.559
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.5671022134334471
+     }
+    },
+    {
+     "id": "grounds-pine92",
+     "kind": "pine",
+     "pos": [
+      575.783,
+      0,
+      523.012
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.3936444131474484
+     }
+    },
+    {
+     "id": "grounds-pine93",
+     "kind": "pine",
+     "pos": [
+      675.85,
+      0,
+      48.85
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.6902901151715055
+     }
+    },
+    {
+     "id": "grounds-pine94",
+     "kind": "pine",
+     "pos": [
+      670.93,
+      0,
+      448.87
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.0576513085363484
+     }
+    },
+    {
+     "id": "grounds-pine95",
+     "kind": "pine",
+     "pos": [
+      630.338,
+      0,
+      267.768
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 0.9122947562726899
+     }
+    },
+    {
+     "id": "grounds-pine96",
+     "kind": "pine",
+     "pos": [
+      617.599,
+      0,
+      428.861
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.0445387647532332
+     }
+    },
+    {
+     "id": "grounds-pine97",
+     "kind": "pine",
+     "pos": [
+      522.625,
+      0,
+      579.028
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.3880185283592281
+     }
+    },
+    {
+     "id": "grounds-pine98",
+     "kind": "pine",
+     "pos": [
+      643.57,
+      0,
+      224.798
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.1482147799122056
+     }
+    },
+    {
+     "id": "grounds-pine99",
+     "kind": "pine",
+     "pos": [
+      659.929,
+      0,
+      254.485
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.2654340453968937
+     }
+    },
+    {
+     "id": "grounds-pine100",
+     "kind": "pine",
+     "pos": [
+      598.765,
+      0,
+      579.409
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.1770825297464989
+     }
+    },
+    {
+     "id": "grounds-pine101",
+     "kind": "pine",
+     "pos": [
+      670.165,
+      0,
+      179.759
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.5835777525792354
+     }
+    },
+    {
+     "id": "grounds-pine102",
+     "kind": "pine",
+     "pos": [
+      631.953,
+      0,
+      282.507
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.64694976495193
+     }
+    },
+    {
+     "id": "grounds-pine103",
+     "kind": "pine",
+     "pos": [
+      686.13,
+      0,
+      183.703
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.4559260011475614
+     }
+    },
+    {
+     "id": "grounds-pine104",
+     "kind": "pine",
+     "pos": [
+      674.597,
+      0,
+      158.511
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.2365151004691208
+     }
+    },
+    {
+     "id": "grounds-pine105",
+     "kind": "pine",
+     "pos": [
+      566.606,
+      0,
+      505.515
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.580218766743132
+     }
+    },
+    {
+     "id": "grounds-pine106",
+     "kind": "pine",
+     "pos": [
+      519.389,
+      0,
+      551.876
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 0.970708321273877
+     }
+    },
+    {
+     "id": "grounds-pine107",
+     "kind": "pine",
+     "pos": [
+      567.055,
+      0,
+      552.725
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.6597300641126913
+     }
+    },
+    {
+     "id": "grounds-pine108",
+     "kind": "pine",
+     "pos": [
+      630.819,
+      0,
+      374.38
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.676325513257067
+     }
+    },
+    {
+     "id": "grounds-pine109",
+     "kind": "pine",
+     "pos": [
+      577.052,
+      0,
+      510.488
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.419967803605563
+     }
+    },
+    {
+     "id": "grounds-pine110",
+     "kind": "pine",
+     "pos": [
+      621.485,
+      0,
+      457.639
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.102725390573505
+     }
+    },
+    {
+     "id": "grounds-pine111",
+     "kind": "pine",
+     "pos": [
+      658.191,
+      0,
+      450.833
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.5208060555697516
+     }
+    },
+    {
+     "id": "grounds-pine112",
+     "kind": "pine",
+     "pos": [
+      503.081,
+      0,
+      529.409
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.6556284119622786
+     }
+    },
+    {
+     "id": "grounds-pine113",
+     "kind": "pine",
+     "pos": [
+      674.684,
+      0,
+      19.752
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.1808840359028814
+     }
+    },
+    {
+     "id": "grounds-pine114",
+     "kind": "pine",
+     "pos": [
+      651.608,
+      0,
+      155.533
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.231138130821997
+     }
+    },
+    {
+     "id": "grounds-pine115",
+     "kind": "pine",
+     "pos": [
+      589.579,
+      0,
+      523.951
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 0.9834758985619212
+     }
+    },
+    {
+     "id": "grounds-pine116",
+     "kind": "pine",
+     "pos": [
+      665.771,
+      0,
+      99.456
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.6762532744666099
+     }
+    },
+    {
+     "id": "grounds-pine117",
+     "kind": "pine",
+     "pos": [
+      619.38,
+      0,
+      531.947
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.6710144824918363
+     }
+    },
+    {
+     "id": "grounds-pine118",
+     "kind": "pine",
+     "pos": [
+      529.981,
+      0,
+      504.245
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.487549762351985
+     }
+    },
+    {
+     "id": "grounds-pine119",
+     "kind": "pine",
+     "pos": [
+      665.296,
+      0,
+      33.107
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.2329104977815362
+     }
+    },
+    {
+     "id": "grounds-pine120",
+     "kind": "pine",
+     "pos": [
+      521.791,
+      0,
+      565.482
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.1630294912794104
+     }
+    },
+    {
+     "id": "grounds-pine121",
+     "kind": "pine",
+     "pos": [
+      672.903,
+      0,
+      582.333
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.3543298243376967
+     }
+    },
+    {
+     "id": "grounds-pine122",
+     "kind": "pine",
+     "pos": [
+      597.684,
+      0,
+      556.356
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.215557763729454
+     }
+    },
+    {
+     "id": "grounds-pine123",
+     "kind": "pine",
+     "pos": [
+      662.952,
+      0,
+      42.659
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.322298266781393
+     }
+    },
+    {
+     "id": "grounds-pine124",
+     "kind": "pine",
+     "pos": [
+      646.144,
+      0,
+      302.317
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 0.9071673475112022
+     }
+    },
+    {
+     "id": "grounds-pine125",
+     "kind": "pine",
+     "pos": [
+      579.288,
+      0,
+      594.444
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 0.905662189051958
+     }
+    },
+    {
+     "id": "grounds-pine126",
+     "kind": "pine",
+     "pos": [
+      615.706,
+      0,
+      591.088
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.1925091741283766
+     }
+    },
+    {
+     "id": "grounds-pine127",
+     "kind": "pine",
+     "pos": [
+      552.673,
+      0,
+      490.346
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.240415159745278
+     }
+    },
+    {
+     "id": "grounds-pine128",
+     "kind": "pine",
+     "pos": [
+      667.71,
+      0,
+      250.398
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.128617039753235
+     }
+    },
+    {
+     "id": "grounds-pine129",
+     "kind": "pine",
+     "pos": [
+      659.775,
+      0,
+      485.864
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.4138162808560226
+     }
+    },
+    {
+     "id": "grounds-pine130",
+     "kind": "pine",
+     "pos": [
+      607.658,
+      0,
+      570.663
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.4109502775531322
+     }
+    },
+    {
+     "id": "grounds-pine131",
+     "kind": "pine",
+     "pos": [
+      504.357,
+      0,
+      574.94
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.5021864546031534
+     }
+    },
+    {
+     "id": "grounds-pine132",
+     "kind": "pine",
+     "pos": [
+      643.698,
+      0,
+      260.19
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.4437152959431305
+     }
+    },
+    {
+     "id": "grounds-pine133",
+     "kind": "pine",
+     "pos": [
+      585.901,
+      0,
+      463.452
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.2022698209102214
+     }
+    },
+    {
+     "id": "grounds-pine134",
+     "kind": "pine",
+     "pos": [
+      522.593,
+      0,
+      513.75
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.4329971422651184
+     }
+    },
+    {
+     "id": "grounds-pine135",
+     "kind": "pine",
+     "pos": [
+      686.003,
+      0,
+      346.724
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.637813609051352
+     }
+    },
+    {
+     "id": "grounds-pine136",
+     "kind": "pine",
+     "pos": [
+      604.584,
+      0,
+      516.948
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 0.9986882576648831
+     }
+    },
+    {
+     "id": "grounds-pine137",
+     "kind": "pine",
+     "pos": [
+      670.373,
+      0,
+      293.161
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 0.925101839879756
+     }
+    },
+    {
+     "id": "grounds-pine138",
+     "kind": "pine",
+     "pos": [
+      631.501,
+      0,
+      571.184
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.2948983993336163
+     }
+    },
+    {
+     "id": "grounds-pine139",
+     "kind": "pine",
+     "pos": [
+      634.465,
+      0,
+      241.68
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.5228697388274597
+     }
+    },
+    {
+     "id": "grounds-pine140",
+     "kind": "pine",
+     "pos": [
+      664.248,
+      0,
+      223.541
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.3670583256950022
+     }
+    },
+    {
+     "id": "grounds-pine141",
+     "kind": "pine",
+     "pos": [
+      593.693,
+      0,
+      603.172
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.1624175792360805
+     }
+    },
+    {
+     "id": "grounds-pine142",
+     "kind": "pine",
+     "pos": [
+      609.108,
+      0,
+      600.204
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.627706119603006
+     }
+    },
+    {
+     "id": "grounds-pine143",
+     "kind": "pine",
+     "pos": [
+      665.249,
+      0,
+      26.394
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.4587785980221262
+     }
+    },
+    {
+     "id": "grounds-pine144",
+     "kind": "pine",
+     "pos": [
+      685.411,
+      0,
+      471.485
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.5446009951963806
+     }
+    },
+    {
+     "id": "grounds-pine145",
+     "kind": "pine",
+     "pos": [
+      613.577,
+      0,
+      553.624
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.6391485951465212
+     }
+    },
+    {
+     "id": "grounds-pine146",
+     "kind": "pine",
+     "pos": [
+      685.45,
+      0,
+      443.325
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.132706461001717
+     }
+    },
+    {
+     "id": "grounds-pine147",
+     "kind": "pine",
+     "pos": [
+      667.235,
+      0,
+      448.396
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.1117763823892297
+     }
+    },
+    {
+     "id": "grounds-pine148",
+     "kind": "pine",
+     "pos": [
+      670.394,
+      0,
+      102.664
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.587690207626999
+     }
+    },
+    {
+     "id": "grounds-pine149",
+     "kind": "pine",
+     "pos": [
+      666.674,
+      0,
+      376.731
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.335030620099451
+     }
+    },
+    {
+     "id": "grounds-pine150",
+     "kind": "pine",
+     "pos": [
+      643.114,
+      0,
+      331.078
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.427962140457221
+     }
+    },
+    {
+     "id": "grounds-pine151",
+     "kind": "pine",
+     "pos": [
+      679.257,
+      0,
+      477.878
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.1078828114655104
+     }
+    },
+    {
+     "id": "grounds-pine152",
+     "kind": "pine",
+     "pos": [
+      510.595,
+      0,
+      576.356
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.1901449659575394
+     }
+    },
+    {
+     "id": "grounds-pine153",
+     "kind": "pine",
+     "pos": [
+      653.52,
+      0,
+      147.391
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.2622661035430687
+     }
+    },
+    {
+     "id": "grounds-pine154",
+     "kind": "pine",
+     "pos": [
+      684.008,
+      0,
+      313.444
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.3528155608572447
+     }
+    },
+    {
+     "id": "grounds-pine155",
+     "kind": "pine",
+     "pos": [
+      685.225,
+      0,
+      72.257
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.6523933525479926
+     }
+    },
+    {
+     "id": "grounds-pine156",
+     "kind": "pine",
+     "pos": [
+      675.837,
+      0,
+      67.223
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.3523453471727005
+     }
+    },
+    {
+     "id": "grounds-pine157",
+     "kind": "pine",
+     "pos": [
+      560.317,
+      0,
+      536.99
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 0.9491464075398451
+     }
+    },
+    {
+     "id": "grounds-pine158",
+     "kind": "pine",
+     "pos": [
+      666.787,
+      0,
+      483.741
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.3169499846836208
+     }
+    },
+    {
+     "id": "grounds-pine159",
+     "kind": "pine",
+     "pos": [
+      608.727,
+      0,
+      598.25
+     ],
+     "vis": "player",
+     "dims": {
+      "scale": 1.3491618936601126
+     }
+    },
+    {
+     "id": "grounds-boulder1",
+     "kind": "boulder",
+     "pos": [
+      645,
+      0,
+      290
+     ],
+     "vis": "player",
+     "rotY": 40,
+     "dims": {
+      "r": 5
+     }
+    },
+    {
+     "id": "grounds-boulder2",
+     "kind": "boulder",
+     "pos": [
+      580,
+      0,
+      480
+     ],
+     "vis": "player",
+     "rotY": 80,
+     "dims": {
+      "r": 3.5
+     }
+    },
+    {
+     "id": "grounds-boulder3",
+     "kind": "boulder",
+     "pos": [
+      460,
+      0,
+      540
+     ],
+     "vis": "player",
+     "rotY": 120,
+     "dims": {
+      "r": 4
+     }
+    },
+    {
+     "id": "grounds-boulder4",
+     "kind": "boulder",
+     "pos": [
+      670,
+      0,
+      60
+     ],
+     "vis": "player",
+     "rotY": 160,
+     "dims": {
+      "r": 5
+     }
+    },
+    {
+     "id": "grounds-boulder5",
+     "kind": "boulder",
+     "pos": [
+      350,
+      0,
+      570
+     ],
+     "vis": "player",
+     "rotY": 200,
+     "dims": {
+      "r": 3
+     }
+    },
+    {
+     "id": "grounds-reeds-shore0",
+     "kind": "marsh-reeds",
+     "pos": [
+      587.5,
+      0,
+      382.5
+     ],
+     "vis": "player",
+     "dims": {
+      "s": 1.2
+     }
+    },
+    {
+     "id": "grounds-reeds-shore1",
+     "kind": "marsh-reeds",
+     "pos": [
+      602.0,
+      0,
+      420.0
+     ],
+     "vis": "player",
+     "dims": {
+      "s": 1.1
+     }
+    }
+   ],
+   "terrain": [
+    {
+     "polygon": [
+      [
+       650.0,
+       0.0
+      ],
+      [
+       640.0,
+       75.0
+      ],
+      [
+       630.0,
+       160.0
+      ],
+      [
+       620.0,
+       250.0
+      ],
+      [
+       607.5,
+       330.0
+      ],
+      [
+       595.0,
+       395.0
+      ],
+      [
+       565.0,
+       455.0
+      ],
+      [
+       505.0,
+       502.5
+      ],
+      [
+       415.0,
+       530.0
+      ],
+      [
+       290.0,
+       550.0
+      ],
+      [
+       150.0,
+       565.0
+      ],
+      [
+       0.0,
+       580.0
+      ],
+      [
+       0.0,
+       620.0
+      ],
+      [
+       700.0,
+       620.0
+      ],
+      [
+       700.0,
+       0.0
+      ]
+     ],
+     "floor": "grass"
+    },
+    {
+     "polygon": [
+      [
+       346.15,
+       238.0
+      ],
+      [
+       342.55,
+       253.4
+      ],
+      [
+       329.7,
+       265.6
+      ],
+      [
+       315.3,
+       273.95
+      ],
+      [
+       302.65,
+       283.65
+      ],
+      [
+       289.55,
+       291.95
+      ],
+      [
+       274.05,
+       292.85
+      ],
+      [
+       257.5,
+       291.9
+      ],
+      [
+       241.0,
+       295.4
+      ],
+      [
+       223.1,
+       296.15
+      ],
+      [
+       203.75,
+       288.2
+      ],
+      [
+       188.2,
+       277.6
+      ],
+      [
+       182.7,
+       267.6
+      ],
+      [
+       186.35,
+       254.0
+      ],
+      [
+       191.15,
+       238.0
+      ],
+      [
+       191.45,
+       224.0
+      ],
+      [
+       190.05,
+       210.4
+      ],
+      [
+       194.1,
+       198.15
+      ],
+      [
+       206.0,
+       192.35
+      ],
+      [
+       222.3,
+       189.7
+      ],
+      [
+       239.55,
+       183.15
+      ],
+      [
+       257.5,
+       177.85
+      ],
+      [
+       275.5,
+       180.6
+      ],
+      [
+       290.35,
+       185.5
+      ],
+      [
+       300.4,
+       187.8
+      ],
+      [
+       309.4,
+       194.5
+      ],
+      [
+       322.35,
+       208.4
+      ],
+      [
+       337.45,
+       223.4
+      ]
+     ],
+     "floor": "marsh"
+    },
+    {
+     "polygon": [
+      [
+       330.4,
+       264.9
+      ],
+      [
+       329.7,
+       265.6
+      ],
+      [
+       315.3,
+       273.95
+      ],
+      [
+       314.25,
+       274.75
+      ],
+      [
+       587.9,
+       409.2
+      ],
+      [
+       595.0,
+       395.0
+      ],
+      [
+       595.05,
+       394.85
+      ]
+     ],
+     "floor": "grass"
+    },
+    {
+     "polygon": [
+      [
+       0.0,
+       0.0
+      ],
+      [
+       0.0,
+       580.0
+      ],
+      [
+       150.0,
+       565.0
+      ],
+      [
+       290.0,
+       550.0
+      ],
+      [
+       415.0,
+       530.0
+      ],
+      [
+       505.0,
+       502.5
+      ],
+      [
+       565.0,
+       455.0
+      ],
+      [
+       587.9,
+       409.2
+      ],
+      [
+       314.25,
+       274.75
+      ],
+      [
+       302.65,
+       283.65
+      ],
+      [
+       289.55,
+       291.95
+      ],
+      [
+       274.05,
+       292.85
+      ],
+      [
+       257.5,
+       291.9
+      ],
+      [
+       241.0,
+       295.4
+      ],
+      [
+       223.1,
+       296.15
+      ],
+      [
+       203.75,
+       288.2
+      ],
+      [
+       188.2,
+       277.6
+      ],
+      [
+       182.7,
+       267.6
+      ],
+      [
+       186.35,
+       254.0
+      ],
+      [
+       191.15,
+       238.0
+      ],
+      [
+       191.45,
+       224.0
+      ],
+      [
+       190.05,
+       210.4
+      ],
+      [
+       194.1,
+       198.15
+      ],
+      [
+       206.0,
+       192.35
+      ],
+      [
+       222.3,
+       189.7
+      ],
+      [
+       239.55,
+       183.15
+      ],
+      [
+       257.5,
+       177.85
+      ],
+      [
+       275.5,
+       180.6
+      ],
+      [
+       290.35,
+       185.5
+      ],
+      [
+       300.4,
+       187.8
+      ],
+      [
+       309.4,
+       194.5
+      ],
+      [
+       322.35,
+       208.4
+      ],
+      [
+       337.45,
+       223.4
+      ],
+      [
+       346.15,
+       238.0
+      ],
+      [
+       342.55,
+       253.4
+      ],
+      [
+       330.4,
+       264.9
+      ],
+      [
+       595.05,
+       394.85
+      ],
+      [
+       607.5,
+       330.0
+      ],
+      [
+       620.0,
+       250.0
+      ],
+      [
+       630.0,
+       160.0
+      ],
+      [
+       640.0,
+       75.0
+      ],
+      [
+       650.0,
+       0.0
+      ]
+     ],
+     "floor": "shallow-water"
+    },
+    {
+     "polygon": [
+      [
+       246.5,
+       252.5
+      ],
+      [
+       246.9,
+       254.5
+      ],
+      [
+       253.0,
+       265.85
+      ],
+      [
+       253.75,
+       268.3
+      ],
+      [
+       256.1,
+       270.45
+      ],
+      [
+       273.1,
+       276.65
+      ],
+      [
+       275.0,
+       277.0
+      ],
+      [
+       312.75,
+       269.7
+      ],
+      [
+       601.65,
+       412.0
+      ],
+      [
+       632.65,
+       418.25
+      ],
+      [
+       699.4,
+       427.25
+      ],
+      [
+       700.7,
+       427.25
+      ],
+      [
+       702.35,
+       426.6
+      ],
+      [
+       703.35,
+       425.75
+      ],
+      [
+       704.25,
+       424.25
+      ],
+      [
+       704.5,
+       422.5
+      ],
+      [
+       704.05,
+       420.8
+      ],
+      [
+       702.65,
+       419.15
+      ],
+      [
+       701.05,
+       418.4
+      ],
+      [
+       633.95,
+       409.35
+      ],
+      [
+       604.7,
+       403.5
+      ],
+      [
+       316.7,
+       261.6
+      ],
+      [
+       315.4,
+       260.0
+      ],
+      [
+       314.0,
+       259.2
+      ],
+      [
+       310.85,
+       258.85
+      ],
+      [
+       275.45,
+       265.8
+      ],
+      [
+       261.65,
+       260.8
+      ],
+      [
+       256.6,
+       251.45
+      ],
+      [
+       257.45,
+       239.95
+      ],
+      [
+       256.3,
+       237.25
+      ],
+      [
+       254.35,
+       235.85
+      ],
+      [
+       252.4,
+       235.5
+      ],
+      [
+       250.5,
+       235.9
+      ],
+      [
+       249.25,
+       236.7
+      ],
+      [
+       248.05,
+       238.2
+      ],
+      [
+       247.5,
+       240.1
+      ]
+     ],
+     "floor": "dirt"
+    }
+   ]
+  },
+  {
+   "id": "f2",
+   "name": "Second floor (V5)",
+   "elevationFt": 20,
+   "ceilingFt": 20,
+   "ambient": "interior-dim",
+   "north": "-z",
+   "rooms": [
+    {
+     "key": "V5",
+     "name": "Tower, Second Floor",
+     "page": 170,
+     "polygon": [
+      [
+       252.5,
+       232.5
+      ],
+      [
+       250.5,
+       232.5
+      ],
+      [
+       249.5,
+       232.5
+      ],
+      [
+       247.5,
+       232.5
+      ],
+      [
+       242.5,
+       227.5
+      ],
+      [
+       242.5,
+       225.5
+      ],
+      [
+       242.5,
+       224.5
+      ],
+      [
+       242.5,
+       220.5
+      ],
+      [
+       242.5,
+       219.5
+      ],
+      [
+       242.5,
+       217.5
+      ],
+      [
+       247.5,
+       212.5
+      ],
+      [
+       249.5,
+       212.5
+      ],
+      [
+       250.5,
+       212.5
+      ],
+      [
+       254.5,
+       212.5
+      ],
+      [
+       255.5,
+       212.5
+      ],
+      [
+       257.5,
+       212.5
+      ],
+      [
+       262.5,
+       217.5
+      ],
+      [
+       262.5,
+       219.5
+      ],
+      [
+       262.5,
+       220.5
+      ],
+      [
+       262.5,
+       224.5
+      ],
+      [
+       262.5,
+       225.5
+      ],
+      [
+       262.5,
+       227.5
+      ],
+      [
+       257.5,
+       232.5
+      ],
+      [
+       255.5,
+       232.5
+      ],
+      [
+       254.5,
+       232.5
+      ],
+      [
+       252.5,
+       232.5
+      ],
+      [
+       251.5,
+       226.2
+      ],
+      [
+       252.5,
+       226.0
+      ],
+      [
+       253.5,
+       225.6
+      ],
+      [
+       254.85,
+       226.2
+      ],
+      [
+       256.5,
+       226.1
+      ],
+      [
+       258.25,
+       225.25
+      ],
+      [
+       259.6,
+       224.0
+      ],
+      [
+       259.0,
+       222.25
+      ],
+      [
+       259.75,
+       220.75
+      ],
+      [
+       258.5,
+       219.4
+      ],
+      [
+       257.25,
+       219.75
+      ],
+      [
+       255.6,
+       219.4
+      ],
+      [
+       255.0,
+       220.0
+      ],
+      [
+       250.0,
+       220.0
+      ],
+      [
+       249.0,
+       219.75
+      ],
+      [
+       247.0,
+       219.5
+      ],
+      [
+       245.05,
+       220.25
+      ],
+      [
+       246.0,
+       222.0
+      ],
+      [
+       245.25,
+       223.75
+      ],
+      [
+       247.5,
+       224.1
+      ],
+      [
+       249.4,
+       224.4
+      ],
+      [
+       250.0,
+       225.0
+      ],
+      [
+       250.25,
+       225.5
+      ],
+      [
+       251.5,
+       226.2
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 20,
+     "desc": "Dust and cobwebs; an empty room whose rotted boards have partly fallen through. A 5-ft hole in the middle of floor and ceiling, a rusty chain at each corner.",
+     "dm": "Weak floor round the shaft (150 lb a square)."
+    },
+    {
+     "key": "V3-mid",
+     "name": "Rickety Scaffolding (second-floor platform)",
+     "page": 170,
+     "polygon": [
+      [
+       236.0,
+       213.0
+      ],
+      [
+       241.0,
+       213.0
+      ],
+      [
+       241.0,
+       230.0
+      ],
+      [
+       236.0,
+       230.0
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 20,
+     "desc": "A sagging plank platform on the scaffolding outside the west wall, twenty feet up; a ladder climbs on toward the north-west.",
+     "dm": "Part of V3: 200 lb limit."
+    }
+   ],
+   "walls": [
+    {
+     "id": "f2-w-0",
+     "a": [
+      250.5,
+      232.5
+     ],
+     "b": [
+      254.5,
+      232.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f2-w-1",
+     "a": [
+      249.5,
+      232.5
+     ],
+     "b": [
+      250.5,
+      232.5
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f2-w-2",
+     "a": [
+      247.5,
+      232.5
+     ],
+     "b": [
+      249.5,
+      232.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f2-w-3",
+     "a": [
+      242.5,
+      227.5
+     ],
+     "b": [
+      247.5,
+      232.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f2-w-4",
+     "a": [
+      242.5,
+      225.5
+     ],
+     "b": [
+      242.5,
+      227.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f2-w-5",
+     "a": [
+      242.5,
+      224.5
+     ],
+     "b": [
+      242.5,
+      225.5
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f2-w-6",
+     "a": [
+      242.5,
+      220.5
+     ],
+     "b": [
+      242.5,
+      224.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f2-w-7",
+     "a": [
+      242.5,
+      219.5
+     ],
+     "b": [
+      242.5,
+      220.5
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f2-w-8",
+     "a": [
+      242.5,
+      217.5
+     ],
+     "b": [
+      242.5,
+      219.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f2-w-9",
+     "a": [
+      242.5,
+      217.5
+     ],
+     "b": [
+      247.5,
+      212.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f2-w-10",
+     "a": [
+      247.5,
+      212.5
+     ],
+     "b": [
+      249.5,
+      212.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f2-w-11",
+     "a": [
+      249.5,
+      212.5
+     ],
+     "b": [
+      250.5,
+      212.5
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f2-w-12",
+     "a": [
+      250.5,
+      212.5
+     ],
+     "b": [
+      254.5,
+      212.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f2-w-13",
+     "a": [
+      254.5,
+      212.5
+     ],
+     "b": [
+      255.5,
+      212.5
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f2-w-14",
+     "a": [
+      255.5,
+      212.5
+     ],
+     "b": [
+      257.5,
+      212.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f2-w-15",
+     "a": [
+      257.5,
+      212.5
+     ],
+     "b": [
+      262.5,
+      217.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f2-w-16",
+     "a": [
+      262.5,
+      217.5
+     ],
+     "b": [
+      262.5,
+      219.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f2-w-17",
+     "a": [
+      262.5,
+      219.5
+     ],
+     "b": [
+      262.5,
+      220.5
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f2-w-18",
+     "a": [
+      262.5,
+      220.5
+     ],
+     "b": [
+      262.5,
+      224.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f2-w-19",
+     "a": [
+      262.5,
+      224.5
+     ],
+     "b": [
+      262.5,
+      225.5
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f2-w-20",
+     "a": [
+      262.5,
+      225.5
+     ],
+     "b": [
+      262.5,
+      227.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f2-w-21",
+     "a": [
+      257.5,
+      232.5
+     ],
+     "b": [
+      262.5,
+      227.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f2-w-22",
+     "a": [
+      255.5,
+      232.5
+     ],
+     "b": [
+      257.5,
+      232.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f2-w-23",
+     "a": [
+      254.5,
+      232.5
+     ],
+     "b": [
+      255.5,
+      232.5
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    }
+   ],
+   "lights": [],
+   "objects": [
+    {
+     "id": "f2-scaffold",
+     "kind": "scaffold",
+     "pos": [
+      238.5,
+      0,
+      221.5
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "V3-mid",
+     "dims": {
+      "len": 17,
+      "w": 4.6,
+      "down": 20,
+      "up": 3.6,
+      "ladder": 1,
+      "ladderUp": 20
+     }
+    },
+    {
+     "id": "f2-lift",
+     "kind": "lift-chains",
+     "pos": [
+      252.5,
+      0,
+      222.5
+     ],
+     "vis": "player",
+     "key": "V5",
+     "dims": {
+      "h": 20
+     }
+    },
+    {
+     "id": "f2-web0",
+     "kind": "cobweb",
+     "pos": [
+      244.5,
+      0,
+      214.5
+     ],
+     "vis": "player",
+     "rotY": 315,
+     "key": "V5",
+     "dims": {
+      "s": 3.5,
+      "y": 15
+     }
+    },
+    {
+     "id": "f2-web1",
+     "kind": "cobweb",
+     "pos": [
+      260.5,
+      0,
+      214.5
+     ],
+     "vis": "player",
+     "rotY": 45,
+     "key": "V5",
+     "dims": {
+      "s": 3.5,
+      "y": 15
+     }
+    },
+    {
+     "id": "f2-web2",
+     "kind": "cobweb",
+     "pos": [
+      260.5,
+      0,
+      230.5
+     ],
+     "vis": "player",
+     "rotY": 135,
+     "key": "V5",
+     "dims": {
+      "s": 3.5,
+      "y": 15
+     }
+    },
+    {
+     "id": "f2-web3",
+     "kind": "cobweb",
+     "pos": [
+      244.5,
+      0,
+      230.5
+     ],
+     "vis": "player",
+     "rotY": 225,
+     "key": "V5",
+     "dims": {
+      "s": 3.5,
+      "y": 15
+     }
+    },
+    {
+     "id": "f2-dust",
+     "kind": "vr-debris",
+     "pos": [
+      246.5,
+      0,
+      229.0
+     ],
+     "vis": "player",
+     "rotY": 40,
+     "key": "V5",
+     "dims": {
+      "s": 0.8
+     }
+    },
+    {
+     "id": "f2-weak",
+     "kind": "note",
+     "pos": [
+      258.5,
+      0,
+      229.5
+     ],
+     "vis": "dm-note",
+     "key": "V5",
+     "label": "The eight 5-ft squares round the shaft hold 150 lb each; more and the section gives way: a 20-ft fall to the first floor."
+    }
+   ]
+  },
+  {
+   "id": "f3",
+   "name": "Third floor (V6)",
+   "elevationFt": 40,
+   "ceilingFt": 20,
+   "ambient": "interior-dim",
+   "north": "-z",
+   "rooms": [
+    {
+     "key": "V6",
+     "name": "Tower, Third Floor",
+     "page": 171,
+     "polygon": [
+      [
+       252.5,
+       232.5
+      ],
+      [
+       247.5,
+       232.5
+      ],
+      [
+       246.0,
+       231.0
+      ],
+      [
+       245.5,
+       230.5
+      ],
+      [
+       244.5,
+       229.5
+      ],
+      [
+       244.0,
+       229.0
+      ],
+      [
+       242.5,
+       227.5
+      ],
+      [
+       242.5,
+       217.5
+      ],
+      [
+       243.1,
+       216.9
+      ],
+      [
+       246.9,
+       213.1
+      ],
+      [
+       247.5,
+       212.5
+      ],
+      [
+       257.5,
+       212.5
+      ],
+      [
+       259.0,
+       214.0
+      ],
+      [
+       259.5,
+       214.5
+      ],
+      [
+       260.5,
+       215.5
+      ],
+      [
+       261.0,
+       216.0
+      ],
+      [
+       262.5,
+       217.5
+      ],
+      [
+       262.5,
+       227.5
+      ],
+      [
+       261.0,
+       229.0
+      ],
+      [
+       260.5,
+       229.5
+      ],
+      [
+       259.5,
+       230.5
+      ],
+      [
+       259.0,
+       231.0
+      ],
+      [
+       257.5,
+       232.5
+      ],
+      [
+       252.5,
+       232.5
+      ],
+      [
+       252.5,
+       225.0
+      ],
+      [
+       255.0,
+       225.0
+      ],
+      [
+       255.0,
+       223.75
+      ],
+      [
+       256.5,
+       223.6
+      ],
+      [
+       258.5,
+       223.9
+      ],
+      [
+       258.0,
+       222.75
+      ],
+      [
+       258.8,
+       221.5
+      ],
+      [
+       256.75,
+       221.0
+      ],
+      [
+       255.0,
+       220.8
+      ],
+      [
+       255.0,
+       220.0
+      ],
+      [
+       250.0,
+       220.0
+      ],
+      [
+       249.5,
+       218.75
+      ],
+      [
+       248.0,
+       217.75
+      ],
+      [
+       246.25,
+       218.25
+      ],
+      [
+       245.35,
+       219.5
+      ],
+      [
+       246.5,
+       220.5
+      ],
+      [
+       245.75,
+       221.75
+      ],
+      [
+       248.0,
+       222.2
+      ],
+      [
+       250.0,
+       222.2
+      ],
+      [
+       250.0,
+       225.0
+      ],
+      [
+       252.5,
+       225.0
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 20,
+     "desc": "Slimy black mildew on the walls, a gash torn in the north-west wall, the floor rotted through and falling away round a 5-ft hole with a rusty chain at each corner.",
+     "dm": "Weak floor round the shaft (50 lb a square); the gash opens onto the scaffolding."
+    },
+    {
+     "key": "V3-top",
+     "name": "Rickety Scaffolding (platform at the gash)",
+     "page": 170,
+     "polygon": [
+      [
+       243.1,
+       216.9
+      ],
+      [
+       246.9,
+       213.1
+      ],
+      [
+       242.835,
+       209.035
+      ],
+      [
+       239.035,
+       212.835
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 20,
+     "desc": "A narrow platform of rotten planks against the gash in the north-west wall, forty feet above the island.",
+     "dm": "Part of V3: 200 lb limit. The gash opens into V6."
+    }
+   ],
+   "walls": [
+    {
+     "id": "f3-w-0",
+     "a": [
+      247.5,
+      232.5
+     ],
+     "b": [
+      257.5,
+      232.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f3-w-1",
+     "a": [
+      246.0,
+      231.0
+     ],
+     "b": [
+      247.5,
+      232.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f3-w-2",
+     "a": [
+      245.5,
+      230.5
+     ],
+     "b": [
+      246.0,
+      231.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f3-w-3",
+     "a": [
+      244.5,
+      229.5
+     ],
+     "b": [
+      245.5,
+      230.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f3-w-4",
+     "a": [
+      244.0,
+      229.0
+     ],
+     "b": [
+      244.5,
+      229.5
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f3-w-5",
+     "a": [
+      242.5,
+      227.5
+     ],
+     "b": [
+      244.0,
+      229.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f3-w-6",
+     "a": [
+      242.5,
+      222.5
+     ],
+     "b": [
+      242.5,
+      227.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f3-w-7",
+     "a": [
+      242.5,
+      217.5
+     ],
+     "b": [
+      242.5,
+      222.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f3-w-8",
+     "a": [
+      242.5,
+      217.5
+     ],
+     "b": [
+      243.1,
+      216.9
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f3-w-9",
+     "a": [
+      246.9,
+      213.1
+     ],
+     "b": [
+      247.5,
+      212.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f3-w-10",
+     "a": [
+      247.5,
+      212.5
+     ],
+     "b": [
+      257.5,
+      212.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f3-w-11",
+     "a": [
+      257.5,
+      212.5
+     ],
+     "b": [
+      259.0,
+      214.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f3-w-12",
+     "a": [
+      259.0,
+      214.0
+     ],
+     "b": [
+      259.5,
+      214.5
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f3-w-13",
+     "a": [
+      259.5,
+      214.5
+     ],
+     "b": [
+      260.5,
+      215.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f3-w-14",
+     "a": [
+      260.5,
+      215.5
+     ],
+     "b": [
+      261.0,
+      216.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f3-w-15",
+     "a": [
+      261.0,
+      216.0
+     ],
+     "b": [
+      262.5,
+      217.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f3-w-16",
+     "a": [
+      262.5,
+      217.5
+     ],
+     "b": [
+      262.5,
+      227.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f3-w-17",
+     "a": [
+      261.0,
+      229.0
+     ],
+     "b": [
+      262.5,
+      227.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f3-w-18",
+     "a": [
+      260.5,
+      229.5
+     ],
+     "b": [
+      261.0,
+      229.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f3-w-19",
+     "a": [
+      259.5,
+      230.5
+     ],
+     "b": [
+      260.5,
+      229.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f3-w-20",
+     "a": [
+      259.0,
+      231.0
+     ],
+     "b": [
+      259.5,
+      230.5
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f3-w-21",
+     "a": [
+      257.5,
+      232.5
+     ],
+     "b": [
+      259.0,
+      231.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    }
+   ],
+   "lights": [],
+   "objects": [
+    {
+     "id": "f3-scaffold",
+     "kind": "scaffold",
+     "pos": [
+      242.968,
+      0,
+      212.968
+     ],
+     "vis": "player",
+     "rotY": 45,
+     "key": "V3-top",
+     "dims": {
+      "len": 8,
+      "w": 4.2,
+      "down": 20,
+      "up": 3.6,
+      "ladder": 0
+     }
+    },
+    {
+     "id": "f3-gash-rubble",
+     "kind": "vr-debris",
+     "pos": [
+      246.25,
+      0,
+      216.25
+     ],
+     "vis": "player",
+     "rotY": 45,
+     "key": "V6",
+     "dims": {
+      "s": 1.2,
+      "stone": 1
+     }
+    },
+    {
+     "id": "f3-lift",
+     "kind": "lift-chains",
+     "pos": [
+      252.5,
+      0,
+      222.5
+     ],
+     "vis": "player",
+     "key": "V6",
+     "dims": {
+      "h": 20
+     }
+    },
+    {
+     "id": "f3-mildew0",
+     "kind": "mildew",
+     "pos": [
+      262.0,
+      0,
+      224.0
+     ],
+     "vis": "player",
+     "rotY": -90,
+     "key": "V6",
+     "dims": {
+      "w": 5,
+      "h": 9
+     }
+    },
+    {
+     "id": "f3-mildew1",
+     "kind": "mildew",
+     "pos": [
+      243.0,
+      0,
+      225.5
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "V6",
+     "dims": {
+      "w": 7,
+      "h": 12
+     }
+    },
+    {
+     "id": "f3-mildew2",
+     "kind": "mildew",
+     "pos": [
+      254.5,
+      0,
+      212.75
+     ],
+     "vis": "player",
+     "key": "V6",
+     "dims": {
+      "w": 5,
+      "h": 15
+     }
+    },
+    {
+     "id": "f3-mildew3",
+     "kind": "mildew",
+     "pos": [
+      251.0,
+      0,
+      232.25
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "key": "V6",
+     "dims": {
+      "w": 7,
+      "h": 9
+     }
+    },
+    {
+     "id": "f3-mildew4",
+     "kind": "mildew",
+     "pos": [
+      259.0,
+      0,
+      229.0
+     ],
+     "vis": "player",
+     "rotY": -135,
+     "key": "V6",
+     "dims": {
+      "w": 5,
+      "h": 12
+     }
+    },
+    {
+     "id": "f3-weak",
+     "kind": "note",
+     "pos": [
+      258.5,
+      0,
+      229.5
+     ],
+     "vis": "dm-note",
+     "key": "V6",
+     "label": "The squares round the shaft hold only 50 lb each; a section that gives way drops its load 40 ft to the first floor, through the second."
+    }
+   ]
+  },
+  {
+   "id": "f4",
+   "name": "Fourth floor (V7)",
+   "elevationFt": 60,
+   "ceilingFt": 20,
+   "ambient": "interior-dim",
+   "north": "-z",
+   "rooms": [
+    {
+     "key": "V7",
+     "name": "Tower, Fourth Floor",
+     "page": 171,
+     "polygon": [
+      [
+       245.0,
+       210.0
+      ],
+      [
+       250.0,
+       210.0
+      ],
+      [
+       250.0,
+       207.5
+      ],
+      [
+       255.0,
+       207.5
+      ],
+      [
+       255.0,
+       210.0
+      ],
+      [
+       260.0,
+       210.0
+      ],
+      [
+       261.5,
+       211.5
+      ],
+      [
+       262.0,
+       212.0
+      ],
+      [
+       263.0,
+       213.0
+      ],
+      [
+       263.5,
+       213.5
+      ],
+      [
+       265.0,
+       215.0
+      ],
+      [
+       265.0,
+       220.0
+      ],
+      [
+       267.5,
+       220.0
+      ],
+      [
+       267.5,
+       225.0
+      ],
+      [
+       265.0,
+       225.0
+      ],
+      [
+       265.0,
+       230.0
+      ],
+      [
+       263.5,
+       231.5
+      ],
+      [
+       263.0,
+       232.0
+      ],
+      [
+       262.0,
+       233.0
+      ],
+      [
+       261.5,
+       233.5
+      ],
+      [
+       260.0,
+       235.0
+      ],
+      [
+       255.0,
+       235.0
+      ],
+      [
+       255.0,
+       237.5
+      ],
+      [
+       250.0,
+       237.5
+      ],
+      [
+       250.0,
+       235.0
+      ],
+      [
+       245.0,
+       235.0
+      ],
+      [
+       243.5,
+       233.5
+      ],
+      [
+       243.0,
+       233.0
+      ],
+      [
+       242.0,
+       232.0
+      ],
+      [
+       241.5,
+       231.5
+      ],
+      [
+       240.0,
+       230.0
+      ],
+      [
+       240.0,
+       225.0
+      ],
+      [
+       237.5,
+       225.0
+      ],
+      [
+       237.5,
+       220.0
+      ],
+      [
+       240.0,
+       220.0
+      ],
+      [
+       240.0,
+       215.0
+      ],
+      [
+       241.5,
+       213.5
+      ],
+      [
+       242.0,
+       213.0
+      ],
+      [
+       243.0,
+       212.0
+      ],
+      [
+       243.5,
+       211.5
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 20,
+     "desc": "Lived in, though it reeks of mould: a cosy bed, a desk and chair, bright tapestries, a big iron stove with wood beside it, a standing suit of armour and a wooden chest. Light comes through arrow slits and dirty windows with broken shutters; old rafters bow under the roof, chains hanging from their pulleys.",
+     "dm": "Van Richten's study for months. The armour is animated (\"Khazan\"); the chest holds Yan's head; the lift platform rests here."
+    }
+   ],
+   "walls": [
+    {
+     "id": "f4-w-0",
+     "a": [
+      245.0,
+      210.0
+     ],
+     "b": [
+      250.0,
+      210.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f4-w-1",
+     "a": [
+      250.0,
+      207.5
+     ],
+     "b": [
+      250.0,
+      210.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f4-w-2",
+     "a": [
+      250.0,
+      207.5
+     ],
+     "b": [
+      255.0,
+      207.5
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f4-w-3",
+     "a": [
+      255.0,
+      207.5
+     ],
+     "b": [
+      255.0,
+      210.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f4-w-4",
+     "a": [
+      255.0,
+      210.0
+     ],
+     "b": [
+      260.0,
+      210.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f4-w-5",
+     "a": [
+      260.0,
+      210.0
+     ],
+     "b": [
+      261.5,
+      211.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f4-w-6",
+     "a": [
+      261.5,
+      211.5
+     ],
+     "b": [
+      262.0,
+      212.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f4-w-7",
+     "a": [
+      262.0,
+      212.0
+     ],
+     "b": [
+      263.0,
+      213.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f4-w-8",
+     "a": [
+      263.0,
+      213.0
+     ],
+     "b": [
+      263.5,
+      213.5
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f4-w-9",
+     "a": [
+      263.5,
+      213.5
+     ],
+     "b": [
+      265.0,
+      215.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f4-w-10",
+     "a": [
+      265.0,
+      215.0
+     ],
+     "b": [
+      265.0,
+      220.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f4-w-11",
+     "a": [
+      265.0,
+      220.0
+     ],
+     "b": [
+      267.5,
+      220.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f4-w-12",
+     "a": [
+      267.5,
+      220.0
+     ],
+     "b": [
+      267.5,
+      225.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f4-w-13",
+     "a": [
+      265.0,
+      225.0
+     ],
+     "b": [
+      267.5,
+      225.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f4-w-14",
+     "a": [
+      265.0,
+      225.0
+     ],
+     "b": [
+      265.0,
+      230.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f4-w-15",
+     "a": [
+      263.5,
+      231.5
+     ],
+     "b": [
+      265.0,
+      230.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f4-w-16",
+     "a": [
+      263.0,
+      232.0
+     ],
+     "b": [
+      263.5,
+      231.5
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f4-w-17",
+     "a": [
+      262.0,
+      233.0
+     ],
+     "b": [
+      263.0,
+      232.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f4-w-18",
+     "a": [
+      261.5,
+      233.5
+     ],
+     "b": [
+      262.0,
+      233.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f4-w-19",
+     "a": [
+      260.0,
+      235.0
+     ],
+     "b": [
+      261.5,
+      233.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f4-w-20",
+     "a": [
+      255.0,
+      235.0
+     ],
+     "b": [
+      260.0,
+      235.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f4-w-21",
+     "a": [
+      255.0,
+      235.0
+     ],
+     "b": [
+      255.0,
+      237.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f4-w-22",
+     "a": [
+      250.0,
+      237.5
+     ],
+     "b": [
+      255.0,
+      237.5
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f4-w-23",
+     "a": [
+      250.0,
+      235.0
+     ],
+     "b": [
+      250.0,
+      237.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f4-w-24",
+     "a": [
+      245.0,
+      235.0
+     ],
+     "b": [
+      250.0,
+      235.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f4-w-25",
+     "a": [
+      243.5,
+      233.5
+     ],
+     "b": [
+      245.0,
+      235.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f4-w-26",
+     "a": [
+      243.0,
+      233.0
+     ],
+     "b": [
+      243.5,
+      233.5
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f4-w-27",
+     "a": [
+      242.0,
+      232.0
+     ],
+     "b": [
+      243.0,
+      233.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f4-w-28",
+     "a": [
+      241.5,
+      231.5
+     ],
+     "b": [
+      242.0,
+      232.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f4-w-29",
+     "a": [
+      240.0,
+      230.0
+     ],
+     "b": [
+      241.5,
+      231.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f4-w-30",
+     "a": [
+      240.0,
+      225.0
+     ],
+     "b": [
+      240.0,
+      230.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f4-w-31",
+     "a": [
+      237.5,
+      225.0
+     ],
+     "b": [
+      240.0,
+      225.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f4-w-32",
+     "a": [
+      237.5,
+      220.0
+     ],
+     "b": [
+      237.5,
+      225.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f4-w-33",
+     "a": [
+      237.5,
+      220.0
+     ],
+     "b": [
+      240.0,
+      220.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f4-w-34",
+     "a": [
+      240.0,
+      215.0
+     ],
+     "b": [
+      240.0,
+      220.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f4-w-35",
+     "a": [
+      240.0,
+      215.0
+     ],
+     "b": [
+      241.5,
+      213.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f4-w-36",
+     "a": [
+      241.5,
+      213.5
+     ],
+     "b": [
+      242.0,
+      213.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f4-w-37",
+     "a": [
+      242.0,
+      213.0
+     ],
+     "b": [
+      243.0,
+      212.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f4-w-38",
+     "a": [
+      243.0,
+      212.0
+     ],
+     "b": [
+      243.5,
+      211.5
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "f4-w-39",
+     "a": [
+      243.5,
+      211.5
+     ],
+     "b": [
+      245.0,
+      210.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    }
+   ],
+   "lights": [],
+   "objects": [
+    {
+     "id": "f4-corbels",
+     "kind": "corbel-ring",
+     "pos": [
+      252.5,
+      0,
+      222.5
+     ],
+     "vis": "player",
+     "key": "V7",
+     "dims": {
+      "r": 12.9,
+      "n": 28,
+      "y": -2.2
+     }
+    },
+    {
+     "id": "f4-roof",
+     "kind": "roof-cone",
+     "pos": [
+      252.5,
+      0,
+      222.5
+     ],
+     "vis": "player",
+     "rotY": 22.5,
+     "key": "V7",
+     "dims": {
+      "r": 15.2,
+      "h": 21,
+      "y": 20
+     }
+    },
+    {
+     "id": "f4-rafters",
+     "kind": "rafters",
+     "pos": [
+      252.5,
+      0,
+      222.5
+     ],
+     "vis": "player",
+     "key": "V7",
+     "dims": {
+      "r": 13,
+      "y": 18
+     }
+    },
+    {
+     "id": "f4-windowbox0",
+     "kind": "window-box",
+     "pos": [
+      252.5,
+      0,
+      206.9
+     ],
+     "vis": "player",
+     "key": "V7",
+     "dims": {
+      "w": 4.6,
+      "y": 2.4
+     }
+    },
+    {
+     "id": "f4-windowbox1",
+     "kind": "window-box",
+     "pos": [
+      268.1,
+      0,
+      222.5
+     ],
+     "vis": "player",
+     "rotY": -90,
+     "key": "V7",
+     "dims": {
+      "w": 4.6,
+      "y": 2.4
+     }
+    },
+    {
+     "id": "f4-windowbox2",
+     "kind": "window-box",
+     "pos": [
+      252.5,
+      0,
+      238.1
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "key": "V7",
+     "dims": {
+      "w": 4.6,
+      "y": 2.4
+     }
+    },
+    {
+     "id": "f4-windowbox3",
+     "kind": "window-box",
+     "pos": [
+      236.9,
+      0,
+      222.5
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "V7",
+     "dims": {
+      "w": 4.6,
+      "y": 2.4
+     }
+    },
+    {
+     "id": "f4-platform",
+     "kind": "lift-platform",
+     "pos": [
+      252.5,
+      0,
+      222.5
+     ],
+     "vis": "player",
+     "key": "V7"
+    },
+    {
+     "id": "f4-lift",
+     "kind": "lift-chains",
+     "pos": [
+      252.5,
+      0,
+      222.5
+     ],
+     "vis": "player",
+     "key": "V7",
+     "dims": {
+      "h": 18,
+      "top": 1
+     }
+    },
+    {
+     "id": "f4-desk",
+     "kind": "desk",
+     "pos": [
+      245.35,
+      0,
+      215.75
+     ],
+     "vis": "player",
+     "rotY": -30,
+     "key": "V7",
+     "container": {
+      "contents": "Dry quills, an empty inkwell, ash."
+     },
+     "desc": "A desk with a matching chair.",
+     "dm": "Van Richten burned his notes and journals in the stove; Ezmerelda took the surviving map and journal page to her wagon."
+    },
+    {
+     "id": "f4-chair",
+     "kind": "chair",
+     "pos": [
+      246.9,
+      0,
+      217.9
+     ],
+     "vis": "player",
+     "rotY": 150,
+     "key": "V7"
+    },
+    {
+     "id": "f4-stove",
+     "kind": "stove",
+     "pos": [
+      259.0,
+      0,
+      222.25
+     ],
+     "vis": "player",
+     "rotY": -90,
+     "key": "V7",
+     "desc": "A large iron stove with plenty of wood stacked beside it; old ash in its belly."
+    },
+    {
+     "id": "f4-woodpile",
+     "kind": "vr-woodpile",
+     "pos": [
+      261.75,
+      0,
+      222.25
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "V7"
+    },
+    {
+     "id": "f4-bed",
+     "kind": "bed",
+     "pos": [
+      246.25,
+      0,
+      229.25
+     ],
+     "vis": "player",
+     "rotY": -55,
+     "key": "V7"
+    },
+    {
+     "id": "f4-chest",
+     "kind": "chest",
+     "pos": [
+      258.4,
+      0,
+      228.9
+     ],
+     "vis": "player",
+     "rotY": -35,
+     "key": "V7",
+     "container": {
+      "contents": "A man's severed head, waxy and embalmed in lavender-scented oils."
+     },
+     "desc": "A wooden chest; a smell of lavender comes from it.",
+     "dm": "Unlocked, safe. The head of Yan, a Vistana banished for theft; Rictavio killed him and has questioned the head twice with speak with dead. Taken out of the spell drain and asked, Yan begs the party to warn the Vistani."
+    },
+    {
+     "id": "f4-rug",
+     "kind": "rug",
+     "pos": [
+      250.5,
+      0,
+      227.0
+     ],
+     "vis": "player",
+     "rotY": -20,
+     "key": "V7",
+     "dims": {
+      "w": 7,
+      "d": 5
+     }
+    },
+    {
+     "id": "f4-tapestry0",
+     "kind": "bright-tapestry",
+     "pos": [
+      257.25,
+      0,
+      210.4
+     ],
+     "vis": "player",
+     "key": "V7",
+     "dims": {
+      "w": 4.5,
+      "bright": 1,
+      "v": 0
+     }
+    },
+    {
+     "id": "f4-tapestry1",
+     "kind": "bright-tapestry",
+     "pos": [
+      247.75,
+      0,
+      210.4
+     ],
+     "vis": "player",
+     "key": "V7",
+     "dims": {
+      "w": 4.5,
+      "bright": 1,
+      "v": 1
+     }
+    },
+    {
+     "id": "f4-tapestry2",
+     "kind": "bright-tapestry",
+     "pos": [
+      240.4,
+      0,
+      227.5
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "V7",
+     "dims": {
+      "w": 4.5,
+      "bright": 1,
+      "v": 2
+     }
+    },
+    {
+     "id": "f4-tapestry3",
+     "kind": "bright-tapestry",
+     "pos": [
+      247.75,
+      0,
+      234.6
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "key": "V7",
+     "dims": {
+      "w": 4.5,
+      "bright": 1,
+      "v": 3
+     }
+    },
+    {
+     "id": "f4-armor",
+     "kind": "standing-armor",
+     "pos": [
+      260.6,
+      0,
+      214.75
+     ],
+     "vis": "player",
+     "rotY": -135,
+     "key": "V7",
+     "label": "Animated armor",
+     "playerLabel": "A standing suit of armour",
+     "dm": "Animated armor (CR 1). Command word \"Khazan\"; idle 24 hours without orders and it stops. Commanded, it can pull the stones from the wall behind it."
+    },
+    {
+     "id": "f4-compartment",
+     "kind": "niche",
+     "pos": [
+      261.75,
+      0,
+      213.25
+     ],
+     "vis": "hidden-object",
+     "key": "V7",
+     "label": "Narrow compartment in the wall behind the armour: a card-reading treasure, if one is here",
+     "playerLabel": "Loose stones in the wall"
+    }
+   ]
+  }
+ ],
+ "links": [
+  {
+   "id": "V-lift-1",
+   "kind": "elevator",
+   "from": {
+    "level": "grounds",
+    "pos": [
+     252.5,
+     222.5
+    ]
+   },
+   "to": {
+    "level": "f2",
+    "pos": [
+     252.5,
+     222.5
+    ]
+   }
+  },
+  {
+   "id": "V-lift-2",
+   "kind": "elevator",
+   "from": {
+    "level": "f2",
+    "pos": [
+     252.5,
+     222.5
+    ]
+   },
+   "to": {
+    "level": "f3",
+    "pos": [
+     252.5,
+     222.5
+    ]
+   }
+  },
+  {
+   "id": "V-lift-3",
+   "kind": "elevator",
+   "from": {
+    "level": "f3",
+    "pos": [
+     252.5,
+     222.5
+    ]
+   },
+   "to": {
+    "level": "f4",
+    "pos": [
+     252.5,
+     222.5
+    ]
+   }
+  },
+  {
+   "id": "V-scaffold-1",
+   "kind": "ladder",
+   "from": {
+    "level": "grounds",
+    "pos": [
+     236.5,
+     229.5
+    ]
+   },
+   "to": {
+    "level": "f2",
+    "pos": [
+     238.5,
+     228.0
+    ]
+   }
+  },
+  {
+   "id": "V-scaffold-2",
+   "kind": "ladder",
+   "from": {
+    "level": "f2",
+    "pos": [
+     238.5,
+     214.5
+    ]
+   },
+   "to": {
+    "level": "f3",
+    "pos": [
+     242.97,
+     212.97
+    ]
+   }
+  }
+ ]
+}

@@ -1,0 +1,65 @@
+{
+ "schema": 1,
+ "levels": {
+  "berez": {
+   "floorPolygons": [
+    [
+     [
+      0,
+      0
+     ],
+     [
+      3520,
+      0
+     ],
+     [
+      3520,
+      3600
+     ],
+     [
+      0,
+      3600
+     ]
+    ]
+   ],
+   "type": "square",
+   "hexOrientation": "pointy",
+   "origin": [
+    0,
+    0
+   ],
+   "color": "#1d1b22",
+   "opacity": 0
+  },
+  "cellar": {
+   "floorPolygons": [
+    [
+     [
+      915,
+      1772
+     ],
+     [
+      945,
+      1772
+     ],
+     [
+      945,
+      1802
+     ],
+     [
+      915,
+      1802
+     ]
+    ]
+   ],
+   "type": "square",
+   "hexOrientation": "pointy",
+   "origin": [
+    915,
+    1772
+   ],
+   "color": "#1d1b22",
+   "opacity": 0.55
+  }
+ }
+}
