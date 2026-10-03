@@ -5,7 +5,8 @@
 import * as THREE from 'three';
 import { PROPS_V1 } from '../props';
 import { CREATURES, humanoid, type HumanoidOpts } from '../creatures';
-import { mat } from '../../render/materials';
+import { mat, matClone, patchFog } from '../../render/materials';
+import { merge } from '../pieces';
 import { surfaceFor } from '../surfaces';
 import { FLOOR_COLOR, PALETTE } from '../palette';
 
@@ -15,19 +16,19 @@ type Dims = Record<string, number>;
 const RUBBLE = '#6d6860', RUBBLE_DK = '#5a5550', ASHLAR = '#7c858e', ASHLAR_DK = '#5f6770', SLATE = '#3d3a44';
 const LOG = '#5d4636', LOG_DK = '#4f3b2d', LOG_END = '#8a6b4a', THATCH = '#8a7a4a', THATCH_DK = '#6e6140', THATCH_LT = '#9a8a58';
 const STONE = '#6d6a66', BEAM = '#3a2c22', DOOR = '#3b2a1e', SHUTTER = '#4b3a2c', GLASS = '#1d1916';
-const ROCK = '#5b5752', ROCK_DK = '#4a4a52', ROCK_MID = '#55535a', SCREE = '#6b6760', FROST = '#7f8a80', GRAVEL = '#6d6150';
-const GOLD = '#b8952e', BRONZE = '#8a6a3a', COPPER = '#4f7a6a', RUST = '#7a4a2e', CHAIN = '#5a5d63';
-const STRAW = '#b89b52', SACK = '#a8956f', SOIL = '#4a3b2e', LEAF = '#4f6b3a', LEAF_DK = '#3d5530', SQUASH = '#9a5a2a';
+const ROCK = '#5c5853', ROCK_DK = '#4a4951', ROCK_MID = '#55535a', SCREE = '#6b6760', FROST = '#7f8a80', GRAVEL = '#6d6150';
+const GOLD = '#b8952e', BRONZE = '#8a6a3a', COPPER = '#4f7a6a', RUST = '#7a4a2e', CHAIN = '#55585e';
+const STRAW = '#b89b52', SACK = '#aa9670', SOIL = '#4a3b2e', LEAF = '#4f6b3a', LEAF_DK = '#3d5530', SQUASH = '#9a5a2a';
 const FUR = '#5a4a3a', FUR_LT = '#7a6a58', SHROUD = '#141218', BLOODSTAIN = '#4d1119', HEMP = '#8a7a5a', BOTTLE = '#2f3d2a';
-surfaceFor([RUBBLE, RUBBLE_DK], 'rubble');
+surfaceFor([RUBBLE, RUBBLE_DK, SCREE], 'rubble');
 surfaceFor([ASHLAR, ASHLAR_DK], 'ashlar');
 surfaceFor([SLATE], 'shingle');
 surfaceFor([LOG, LOG_DK], 'log');
 surfaceFor([LOG_END, BEAM, DOOR, SHUTTER], 'wood');
 surfaceFor([THATCH, THATCH_DK, THATCH_LT, STRAW], 'thatch');
 surfaceFor([STONE], 'stone');
-surfaceFor([ROCK, ROCK_DK, ROCK_MID, SCREE], 'rock');
-surfaceFor([FROST], 'grass');
+surfaceFor([ROCK, ROCK_DK, ROCK_MID], 'rock');
+surfaceFor([FROST], 'snow');
 surfaceFor([GRAVEL, SOIL], 'dirt');
 surfaceFor([GOLD, BRONZE, COPPER, RUST, CHAIN], 'metal');
 surfaceFor([SACK, HEMP, FUR, FUR_LT, SHROUD], 'cloth');
@@ -62,10 +63,23 @@ function pitched(L: number, S: number, R: number, y0: number, color: string, rid
 }
 
 // ================================================================== the land: a heightfield and the road on it
+/** Plan-space value noise in 0..1 (one cell = 1 unit): the same idea as the authoring scripts' rugged(), so the
+ *  colouring of a face follows the buttresses and gullies cut into it. */
+const hash2 = (i: number, j: number) => { const x = Math.sin(i * 127.1 + j * 311.7) * 43758.5453; return x - Math.floor(x); };
+function vnoise(x: number, z: number): number {
+  const i = Math.floor(x), j = Math.floor(z), fx = x - i, fz = z - j, ux = fx * fx * (3 - 2 * fx), uz = fz * fz * (3 - 2 * fz);
+  const a = hash2(i, j), b = hash2(i + 1, j), c = hash2(i, j + 1), d = hash2(i + 1, j + 1);
+  return a + (b - a) * ux + (c - a) * uz + (a - b - c + d) * ux * uz;
+}
+// the key light's bearing in plan (render/world.ts sets it at (-40, 90, 50): from the south-west), for shading rock faces
+const KEY_LX = -40 / Math.hypot(40, 50), KEY_LZ = 50 / Math.hypot(40, 50);
+
 /** Ground sampled on a lattice: `nx` × `nz` cells of `cell` ft from the origin, heights packed four to a number
  *  (12 bits each, `q` ft per step; 4095 is a hole: no cell touching it is drawn). Faces are coloured by how steep they
- *  are (rock faces, scree, turf) and frosted above `frost` ft; a rock skirt closes the lattice's outer edge (`skirt` 0:
- *  none; `drop`: a short skirt that far down). */
+ *  are: rock faces by the buttresses and gullies running down them (plan-space noise) and which way they face against
+ *  the key light (ribs lit, flanks shaded, gully floors in the middle tone), a thin band of scree at a face's foot;
+ *  mid slopes scree; the rest turf, frosted above `frost` ft. A rock skirt closes the lattice's outer edge (`skirt` 0:
+ *  none; `drop`: a short skirt that far down). Double-sided, so the land never vanishes from a camera inside it. */
 export function heightfield(d: Dims): THREE.Group {
   const nx = Math.max(1, d.nx | 0), nz = Math.max(1, d.nz | 0), cell = d.cell ?? 10, q = d.q ?? 0.5, HOLE = 4095, W = nx + 1, n = W * (nz + 1);
   const H = new Float32Array(n), ok = new Uint8Array(n);
@@ -74,26 +88,44 @@ export function heightfield(d: Dims): THREE.Group {
     const c = v === undefined ? HOLE : Math.floor(v / Math.pow(4096, k % 4)) % 4096;
     ok[k] = c === HOLE ? 0 : 1; H[k] = c === HOLE ? 0 : c * q;
   }
+  // each vertex's steepness (the biggest rise to a neighbour), to find the foot of a face: gentle ground below it
+  const slopeV = new Float32Array(n);
+  for (let j = 0; j <= nz; j++) for (let i = 0; i <= nx; i++) {
+    const k = j * W + i; if (!ok[k]) continue;
+    let s = 0;
+    for (const [di, dj] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const ii = i + di, jj = j + dj; if (ii < 0 || ii > nx || jj < 0 || jj > nz) continue; const kk = jj * W + ii; if (ok[kk]) s = Math.max(s, Math.abs(H[kk] - H[k]) / cell); }
+    slopeV[k] = s;
+  }
+  const footBelow = (i: number, j: number, y: number) => {
+    let lo = Infinity;
+    for (let dj = -2; dj <= 2; dj++) for (let di = -2; di <= 2; di++) { const ii = i + di, jj = j + dj; if (ii < 0 || ii > nx || jj < 0 || jj > nz) continue; const kk = jj * W + ii; if (ok[kk] && slopeV[kk] < 0.9 && H[kk] <= y) lo = Math.min(lo, H[kk]); }
+    return lo;
+  };
   const frost = d.frost ?? 1e9;
   const turf = FLOOR_COLOR.grass;
   const bins = new Map<string, number[]>();
   const push = (color: string, ...v: number[]) => { let a = bins.get(color); if (!a) { a = []; bins.set(color, a); } a.push(...v); };
   const P = (k: number): [number, number, number] => [(k % W) * cell, H[k], Math.floor(k / W) * cell];
-  const tri = (a: number, b: number, c: number) => {
+  const tri = (a: number, b: number, c: number, i: number, j: number) => {
     let A = P(a), B = P(b), C = P(c);
     const ux = B[0] - A[0], uy = B[1] - A[1], uz = B[2] - A[2], vx = C[0] - A[0], vy = C[1] - A[1], vz = C[2] - A[2];
-    let ny = uz * vx - ux * vz; const nxv = uy * vz - uz * vy, nzv = ux * vy - uy * vx;
-    if (ny < 0) { const t = B; B = C; C = t; ny = -ny; }
+    let ny = uz * vx - ux * vz, nxv = uy * vz - uz * vy, nzv = ux * vy - uy * vx;
+    if (ny < 0) { const t = B; B = C; C = t; ny = -ny; nxv = -nxv; nzv = -nzv; }
     const len = Math.hypot(nxv, ny, nzv) || 1, k = ny / len, y = (A[1] + B[1] + C[1]) / 3, x = (A[0] + B[0] + C[0]) / 3, z = (A[2] + B[2] + C[2]) / 3;
-    // steep faces are banded like bedded rock (the beds wander a little), mid slopes are scree, the rest turf or frost
-    const band = Math.floor((y + 6 * Math.sin(x * 0.045) + 5 * Math.cos(z * 0.06)) / 18) % 3;
-    const color = k < 0.62 ? (band === 0 ? ROCK_DK : band === 1 ? ROCK : ROCK_MID) : k < 0.8 ? SCREE : y >= frost ? FROST : turf;
+    let color: string;
+    if (k < 0.62) {
+      const rib = vnoise(x / 22, z / 22) * 0.7 + vnoise(x / 9 + 3.1, z / 9 - 1.7) * 0.3;        // buttresses high, gullies low
+      const lit = (nxv * KEY_LX + nzv * KEY_LZ) / (Math.hypot(nxv, nzv) || 1);                  // the face's azimuth against the key light
+      if (y - footBelow(i, j, y) < 12) color = SCREE;
+      else if (rib < 0.36) color = ROCK_MID;
+      else color = lit + (rib - 0.5) * 0.8 < -0.15 ? ROCK_DK : ROCK;
+    } else color = k < 0.8 ? SCREE : y >= frost ? FROST : turf;
     push(color, ...A, ...B, ...C);
   };
   for (let j = 0; j < nz; j++) for (let i = 0; i < nx; i++) {
     const a = j * W + i, b = a + 1, c = a + W + 1, e = a + W;
     if (!ok[a] || !ok[b] || !ok[c] || !ok[e]) continue;
-    if (Math.abs(H[a] - H[c]) < Math.abs(H[b] - H[e])) { tri(a, b, c); tri(a, c, e); } else { tri(a, b, e); tri(b, c, e); }
+    if (Math.abs(H[a] - H[c]) < Math.abs(H[b] - H[e])) { tri(a, b, c, i, j); tri(a, c, e, i, j); } else { tri(a, b, e, i, j); tri(b, c, e, i, j); }
   }
   // the skirt: the lattice's outer edge drops to the origin's level as a rock face (or `drop` ft, for a patch of finer
   // lattice laid into a coarser one, so the seam between them never shows a crack)
@@ -110,7 +142,8 @@ export function heightfield(d: Dims): THREE.Group {
   const g = grp();
   for (const [color, v] of bins) {
     const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(v, 3)); geo.computeVertexNormals();
-    g.add(new THREE.Mesh(geo, mat(color)));
+    const m = matClone(color); m.side = THREE.DoubleSide;
+    g.add(new THREE.Mesh(geo, m));
   }
   return g;
 }
@@ -142,9 +175,16 @@ export function roadRibbon(d: Dims): THREE.Group {
   return g;
 }
 
+/** The mist banks' material: one per opacity, shared by every bank in the scene, patched for the map's own fog. */
+const MIST_MATS = new Map<number, THREE.MeshBasicMaterial>();
+function mistMat(o: number): THREE.MeshBasicMaterial {
+  let m = MIST_MATS.get(o);
+  if (!m) { m = patchFog(new THREE.MeshBasicMaterial({ color: '#c6ccd4', transparent: true, opacity: o, depthWrite: false })); MIST_MATS.set(o, m); }
+  return m;
+}
 /** Low translucent fog lying in a hollow or a courtyard: a few flattened banks of mist within radius `r`. */
 export function mistBank(d: Dims): THREE.Group {
-  const r = d.r ?? 20, h = d.h ?? 4, n = d.n ?? 6, g = grp(), m = new THREE.MeshBasicMaterial({ color: '#c6ccd4', transparent: true, opacity: d.o ?? 0.22, depthWrite: false });
+  const r = d.r ?? 20, h = d.h ?? 4, n = d.n ?? 6, g = grp(), m = mistMat(d.o ?? 0.22);
   for (let i = 0; i < n; i++) {
     const a = rnd(i + r) * Math.PI * 2, rr = r * (0.2 + 0.6 * rnd(i * 3 + r)), s = r * (0.35 + 0.25 * rnd(i * 5));
     const b = new THREE.Mesh(new THREE.IcosahedronGeometry(1, 1), m); b.scale.set(s, h, s * (0.7 + 0.4 * rnd(i * 9))); b.position.set(Math.cos(a) * rr, h * 0.4, Math.sin(a) * rr); g.add(b);
@@ -202,10 +242,16 @@ export function thatchRoof(d: Dims): THREE.Group {
   return asCap(out);
 }
 
-/** A stack of split firewood against a cottage wall. */
+/** A stack of split firewood against a cottage wall: one bark-coloured body on a plank, the sawn log ends on both
+ *  faces as one merged piece (close-range detail), a thatch board over it. */
 export function woodpile(d: Dims): THREE.Group {
-  const L = d.len ?? 6, g = grp(box(L, 0.3, 2.2, BEAM, 0, 0.15, 0));
-  for (let r = 0; r < 4; r++) for (let i = 0; i < Math.floor(L / 0.7); i++) { const m = cyl(0.32, 0.32, 2, i % 3 ? LOG_END : LOG, -L / 2 + 0.4 + i * 0.7 + (r % 2) * 0.3, 0.6 + r * 0.6, 0, 6); m.rotation.x = Math.PI / 2; g.add(m); }
+  const L = d.len ?? 6, g = grp(box(L, 0.3, 2.2, BEAM, 0, 0.15, 0), box(L - 0.2, 2.4, 2.0, LOG, 0, 1.5, 0));
+  const ends: THREE.BufferGeometry[] = [];
+  for (let r = 0; r < 4; r++) for (let i = 0; i < Math.floor(L / 0.7); i++) for (const sz of [-1, 1]) {
+    const c = new THREE.CircleGeometry(0.33, 6); if (sz < 0) c.rotateY(Math.PI);
+    c.translate(-L / 2 + 0.4 + i * 0.7 + (r % 2) * 0.3, 0.6 + r * 0.6, sz * 1.02); ends.push(c);
+  }
+  const em = new THREE.Mesh(merge(ends), mat(LOG_END)); em.userData.tier = 'near'; g.add(em);
   g.add(box(L + 0.6, 0.4, 2.6, THATCH_DK, 0, 3.2, 0));
   return g;
 }

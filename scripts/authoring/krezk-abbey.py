@@ -12,7 +12,8 @@ feet down the stone ones, the walls fifteen feet; the ledge stands 400 ft above 
 The ledge's grounds (the north gate S6, graveyard S7, garden gatehouse S8 and gardens S9: keyed on the Krezk map) are
 drawn as unkeyed ground with their gates, walls, graves and plots; the cliffs and the mountain round the ledge and the
 switchback road come from the topography the Krezk map shares (krezk_land.py). Levels use absolute heights above the
-village floor: the land (and the foot of the cliff) at 0, the abbey from 380 to 432 ft.
+village floor: the land (and the foot of the cliff) at 0, the abbey from LEDGE - 20 (the cellar) to LEDGE + 35 (the
+loft's ridge); the loft rides at the upper floor's ceiling so the storeys stack.
 -> locations/ch08/S10/{scene,grid}.json (a blowout of the Krezk map: `parent` ch08/S)."""
 import json, math, os, sys
 from collections import OrderedDict
@@ -24,8 +25,8 @@ _M = json.load(open(os.path.join(ROOT, 'manifests', 'locations.json')))
 PAGE = {a['key']: a['page'] for l in _M['locations'] if l['id'] == 'S10' for a in l['areas']}
 def pg(k): return PAGE.get(k.split('-')[0]) if k.split('-')[0] in PAGE else PAGE.get(k)
 
-LEDGE = 400
-G_EL, U_EL, L_EL, C_EL = LEDGE, LEDGE + 15, LEDGE + 20, LEDGE - 20
+LEDGE = KL.LEDGE                          # the ledge above the village floor (the text's 400 ft stays in the DM notes)
+G_EL, U_EL, L_EL, C_EL = (LEDGE + KL.ABBEY_LEVELS[k] for k in ('ground', 'upper', 'loft', 'cellar'))
 
 # ------------------------------------------------------------------ helpers for diagonal walls (authorlib stamps whole cells)
 def ov(lv, a, b, **kw):
@@ -64,7 +65,7 @@ def strip(pts, w):
         out.append([(x + math.cos(a) * h, z + math.sin(a) * h) for a in [k * math.pi / 4 for k in range(8)]])
     return out
 
-# ================================================================== ground floor (400 ft)
+# ================================================================== ground floor (LEDGE)
 g = Level('ground', 'Ground floor', G_EL, 15, ambient='interior-dim', interior='ashlar', exterior='ashlar', north='-z')
 HALL = [(16, 12), (26, 12), (26, 22), (22, 22), (22, 24), (20, 24), (20, 22), (16, 22)]
 g.room('S13', 'Main Hall', HALL, 'flagstone', page=pg('S13'), ceilingFt=20)
@@ -163,7 +164,7 @@ for i, x in enumerate((17.8, 19.2, 20.7, 22.2, 23.6)): g.prop(f'S13-dishes{i}', 
 # the wooden stair up (west), the stone stair down (east), the passage between them to the door
 g.prop('S13-stair-a', 'stairs-run', (20, 21), 'S13', rotY=180, dims={'len': 10, 'w': 9, 'rise': 7})
 g.prop('S13-landing', 'ledge', (17, 21), 'S13', dims={'w': 10, 'd': 10, 'h': 7})
-g.prop('S13-stair-b', 'stairs-run', (17, 20), 'S13', rotY=90, dims={'len': 10, 'w': 9, 'rise': 13}, y=7)
+g.prop('S13-stair-b', 'stairs-run', (17, 20), 'S13', rotY=90, dims={'len': 10, 'w': 9, 'rise': L_EL - G_EL - 7}, y=7)
 g.prop('S13-cellar-well', 'prism', (0, 0), 'S13', dims={'h': 0.05, 'y': 0.02, 'color': 0x0e0c10})
 g.objects[-1]['pos'] = [120, 0, 100]; g.objects[-1]['polygon'] = [[110, 90], [130, 90], [130, 110], [110, 110]]
 g.railing((22, 18), (26, 18)); g.railing((22, 18), (22, 20))
@@ -221,7 +222,7 @@ g.prop('S15h-fort', 'furniture-fort', (54, 40), 'S15h')
 g.hidden('S15a-candlestick', 'candlestick', (40.9, 33.1), 'S15a', 'A polished brass candlestick cradled like a doll; trying to take it makes them attack')
 g.hidden('S15f-statuette', 'niche', (46.2, 39.2), 'S15f', 'A gold statuette of Saint Markovia (250 gp; +1 to saving throws for a good-aligned bearer); they weep if it is taken')
 
-# ================================================================== cellar (380 ft)
+# ================================================================== cellar (LEDGE - 20)
 c = Level('cellar', 'Wine cellar', C_EL, 19.5, ambient='darkness', interior='ashlar', exterior='ashlar', north='-z')
 c.room('S16', 'Wine Cellar', rect(16, 12, 26, 22), 'flagstone', page=pg('S16'), ceilingFt=10)
 c.prop('S16-rack-n', 'wine-rack', (19.4, 13.2), 'S16', dims={'len': 20})
@@ -236,7 +237,7 @@ c.hidden('S16-scroll', 'niche', (17.0, 16.0), 'S16', 'On the rack: an unstoppere
 c.note('S16-note', (21, 18.8), 'S16', 'Centre barrels empty; east wall: Purple Grapemash No. 3 (cheap); south wall: Red Dragon Crush (fine). The racks hold 33 Grapemash and 24 Red Dragon Crush.')
 cobwebs(c, rect(16, 12, 26, 22), 'S16', y=8, n=4)
 
-# ================================================================== upper floor (415 ft): the wall-walks and the east wing
+# ================================================================== upper floor (LEDGE + 15): the wall-walks and the east wing
 u = Level('upper', 'Upper floor', U_EL, 8, ambient='interior-dim', interior='ashlar', exterior='ashlar', north='-z')
 WALK = {'S18': [(18, 22), (26, 22), (26, 24), (18, 24)], 'S18-w': [(16, 22), (18, 22), (18, 28), (16, 28)],
         'S18-sw': [(16, 28), (18, 28), (30, 40), (26, 40), (26, 38), (20, 32), (16, 32)], 'S18-s': [(26, 40), (34, 40), (34, 42), (26, 42)],
@@ -290,7 +291,7 @@ def walk_of(p): return next((k for k, poly in WALK.items() if KL.inside(p, poly)
 for i, ((x, z), r) in enumerate(SC): u.prop(f'S18-scarecrow{i}', 'scarecrow-stand', (x, z), walk_of((x, z)), rotY=r + 180)
 u.prop('S1x-roof-east', 'roof-gable', (46, 37), None, dims={'w': 104, 'd': 54, 'h': 16, 'y': 8})
 
-# ================================================================== the loft and belfry (420 ft)
+# ================================================================== the loft and belfry (at the upper floor's ceiling)
 lo = Level('loft', 'Loft and belfry', L_EL, 12, ambient='interior-dim', interior='ashlar', exterior='ashlar', north='-z')
 lo.room('S17', 'Loft and Belfry', rect(16, 12, 26, 22), 'plank', page=pg('S17'), ceilingFt=12)
 lo.door((20, 22), (21, 22), id='S17-door')
@@ -323,28 +324,20 @@ g.creature('S13-abbot', 'abbot', (21.4, 13.6), 'S13', 'The Abbot: a deva in a ha
 g.creature('S13-vasilka', 'vasilka', (20.5, 13.6), 'S13', 'Vasilka, a flesh golem made to be Strahd\'s bride; within 5 ft the seams show. Obeys the Abbot, screams if harmed.')
 
 # ================================================================== the land round the ledge (0 ft: the village floor)
-v = Level('valley', 'Below the ledge', 0, 398, ambient='barovian-overcast', interior='rubble', exterior='rubble', north='-z')
+v = Level('valley', 'Below the ledge', 0, LEDGE - 2, ambient='barovian-overcast', interior='rubble', exterior='rubble', north='-z')
 # the foot of the cliff under the south-west curtain wall, where the switchback road (Krezk area S5) starts; the square
 # is centred on the Krezk map's S5 box, so the village drawn round this map from Krezk's falls where it should
 S5C = KL.k2a(*KL.S5_CENTRE)
 FOOT = [((S5C[0] - 20) / 5, (S5C[1] - 20) / 5), ((S5C[0] + 20) / 5, (S5C[1] - 20) / 5), ((S5C[0] + 20) / 5, (S5C[1] + 20) / 5), ((S5C[0] - 20) / 5, (S5C[1] + 20) / 5)]
-v.room('S18-foot', 'Foot of the cliff', FOOT, 'grass', page=pg('S18'), ceilingFt=398)
+v.room('S18-foot', 'Foot of the cliff', FOOT, 'grass', page=pg('S18'), ceilingFt=LEDGE - 2)
 open_edges(v, FOOT)
 v.terrain.append((FOOT, 'dirt'))      # rocky earth at the cliff's foot
 v.note('foot-note', ((S5C[0]) / 5, (S5C[1]) / 5), 'S18-foot', 'The village floor, 400 ft below the abbey: anything that falls over the south-west wall lands on these slopes. The switchback road (S5) starts here.')
-# the ground: the abbey's rock, its cliffs and the mountain behind, sampled from the shared topography (5-ft lattice)
-X0, Z0, NX, NZ, CELL = -90, -200, 138, 100, 5
-RIM_A = [(x * 5, z * 5) for x, z in KL.RIM_CELLS]
-def _abbey_h(x, z):
-    if KL.inside((x, z), RIM_A): return LEDGE - 1.0          # under the ledge's own ground
-    return KL.height(KL.a2k(x, z))
-def _hole(x, z):
-    if KL.inside((x, z), RIM_A) and KL.poly_dist((x, z), RIM_A) > 6: return True
-    return KL.height(KL.a2k(x, z)) <= 0.6
-hf = KL.heightfield_dims(X0, Z0, NX, NZ, CELL, _abbey_h, hole=_hole)
-hf['frost'] = 420
-v.prop('land', 'heightfield', (X0 / 5, Z0 / 5), None, dims=hf)
-v.prop('switchback', 'road-ribbon', (0, 0), None, dims=KL.ribbon_dims([(x - KL.OFF[0], z - KL.OFF[1], h) for x, z, h in KL.ROAD if h < LEDGE - 0.5], KL.ROAD_W))
+# the ground: the abbey's rock, its cliffs and the mountain behind, sampled from the shared topography: the same two
+# lattices as the Krezk map (a 10-ft one over the whole Krezk frame, a 5-ft patch round the ledge), in this frame
+for lid, lx, lz, dims in KL.land_lattices(off=KL.OFF, frost=LEDGE + 110):
+    v.prop(lid, 'heightfield', (lx / 5, lz / 5), None, dims=dims)
+v.prop('switchback', 'road-ribbon', (0, 0), None, dims=KL.ribbon_dims([(x - KL.OFF[0], z - KL.OFF[1], h) for x, z, h in KL.ROAD_CLIMB], KL.ROAD_W))
 v.objects[-1]['pos'] = [0, 0, 0]
 for i, (x, z, r) in enumerate([(10, 230, 60), (90, 260, 70), (200, 270, 80), (-40, 150, 60), (300, 280, 70)]):
     v.prop(f'valley-mist{i}', 'mist-bank', (x / 5, z / 5), None, dims={'r': r, 'h': 8, 'n': 8, 'o': 0.07}, y=22)
@@ -428,7 +421,7 @@ links = [lk('lk-road', 'stairs', 'valley', (S5C[0] / 5, S5C[1] / 5), 'ground', (
          lk('lk-loft-walk', 'stairs', 'loft', (20.5, 21.4), 'upper', (20.5, 23))]
 scene = OrderedDict(schema=1, location='S10', chapter='ch08', name='Abbey of Saint Markovia', mapPage=149, bookScaleFt=10, ambient='barovian-overcast', parent='ch08/S', stacked=True, entry='ground', clearingFt=1100,
                     levels=[lv.to_json() for lv in levels], links=links)
-# walls: the hall's own walls stand twenty feet, up to the loft floor; everything else keeps its level's height
+# walls: the hall's own walls stand up to the loft floor; everything else keeps its level's height
 HALL_SQ = rect(16, 12, 26, 22)
 def on_edge(p, poly):
     for i in range(len(poly)):
@@ -438,7 +431,7 @@ def on_edge(p, poly):
 for lv in scene['levels']:
     if lv['id'] == 'ground':
         for w in lv['walls']:
-            if on_edge(w['a'], HALL_SQ) and on_edge(w['b'], HALL_SQ) and 'heightFt' not in w: w['heightFt'] = 20
+            if on_edge(w['a'], HALL_SQ) and on_edge(w['b'], HALL_SQ) and 'heightFt' not in w: w['heightFt'] = L_EL - G_EL
     for r in lv['rooms']:
         d = DESC.get(r['key'])
         if d:
