@@ -31,13 +31,13 @@ PINS = [  # key, name, px, type, scenes (built scene paths reachable from here)
   ('Q', 'Argynvostholt', (343, 440), 'castle', ['ch07/Q']),
   ('R', 'Raven River Crossroads', (185, 288), 'crossroads', ['ch02/R']),
   ('S', 'Village of Krezk', (53, 261), 'settlement', []),
-  ('T', 'Tsolenka Pass', (225, 690), 'pass', []),
+  ('T', 'Tsolenka Pass', (225, 690), 'pass', ['ch09/T']),
   ('U', 'Ruins of Berez', (346, 538), 'ruin', []),
   ('V', "Van Richten's Tower", (230, 225), 'tower', []),
   ('W', 'The Wizard of Wines', (36, 420), 'settlement', ['ch12/W']),
   ('X', 'The Amber Temple', (352, 762), 'temple', ['ch13/X']),
   ('Y', 'Yester Hill', (-40, 470), 'hill', ['ch14/Y']),
-  ('Z', 'Werewolf Den', (126, 185), 'den', []),
+  ('Z', 'Werewolf Den', (126, 185), 'den', ['ch15/Z']),
 ]
 ROADS = [
   ('Old Svalich Road', [(1290, 507), (1258, 507), (1222, 490), (1185, 535), (1100, 558), (1000, 563), (975, 598), (935, 640), (880, 655), (850, 658)]),

@@ -401,7 +401,10 @@
    ],
    "type": "pass",
    "blurb": "A high mountain pass guarded by a gate and a bridge over a gorge.",
-   "dm": "The bridge over the gorge; the roc's nest."
+   "dm": "The bridge over the gorge; the roc's nest.",
+   "scenes": [
+    "ch09/T"
+   ]
   },
   {
    "key": "U",
@@ -476,7 +479,10 @@
    ],
    "type": "den",
    "blurb": "A cave in the mountains where the wolves that walk as men lair.",
-   "dm": "Kiril's pack; the captured children."
+   "dm": "Kiril's pack; the captured children.",
+   "scenes": [
+    "ch15/Z"
+   ]
   },
   {
    "key": "M2",
