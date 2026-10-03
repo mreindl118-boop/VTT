@@ -143,6 +143,7 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
   const wallsGroup = new THREE.Group();
   wallsGroup.name = 'walls';
   const byWallMat = new Map<string, THREE.BufferGeometry[]>();
+  const panes: THREE.BufferGeometry[] = [];
   const pushWall = (color: string, g: THREE.BufferGeometry) => { const a = byWallMat.get(color) ?? []; a.push(g); byWallMat.set(color, a); };
   const wallColor = (w: Wall) => WALL_COLOR[w.material ?? 'ashlar'];
   const doorTop = Math.min(7, ceiling);
@@ -157,9 +158,7 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
     if (f.has('window')) {
       pushWall(color, segmentBox(w.a, w.b, y0, y0 + 3));
       pushWall(color, segmentBox(w.a, w.b, y0 + 7, y0 + h));
-      const pane = new THREE.Mesh(segmentBox(w.a, w.b, y0 + 3, y0 + 7, 0.2, false), wallMat(PALETTE.stone, { emissive: '#1b2530' }));
-      pane.userData.role = 'wall'; pane.userData.window = true;
-      wallsGroup.add(pane);
+      panes.push(segmentBox(w.a, w.b, y0 + 3, y0 + 7, 0.2, false));   // the glass: one mesh for every window of the level
       // the window's frame: a sill proud of the wall, a head, and leaded mullions across the glass
       pushWall(FRAME, segmentBox(w.a, w.b, y0 + 2.7, y0 + 3.05, WALL_T + 0.5, false));
       pushWall(FRAME, segmentBox(w.a, w.b, y0 + 6.95, y0 + 7.25, WALL_T + 0.3, false));
@@ -176,7 +175,7 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
       { const L = Math.hypot(w.b[0] - w.a[0], w.b[1] - w.a[1]) || 1, ux = (w.b[0] - w.a[0]) / L, uz = (w.b[1] - w.a[1]) / L;
         if (L > 1.5) for (const [p, q] of [[w.a, [w.a[0] + ux * 0.45, w.a[1] + uz * 0.45]], [[w.b[0] - ux * 0.45, w.b[1] - uz * 0.45], w.b]] as const) pushWall(FRAME, segmentBox(p as [number, number], q as [number, number], y0, y0 + doorTop, WALL_T + 0.35, false));
         pushWall(FRAME, segmentBox(w.a, w.b, y0 + doorTop - 0.05, y0 + doorTop + 0.55, WALL_T + 0.35, false));
-        if (!f.has('locked')) for (const y of [1.4, doorTop - 1.4]) { const strap = new THREE.Mesh(segmentBox(w.a, w.b, y0 + y, y0 + y + 0.3, 0.62, false), wallMat(PALETTE.iron)); strap.userData.role = 'door'; slab.add(strap); } }
+        if (!f.has('locked')) { const strap = new THREE.Mesh(merge([1.4, doorTop - 1.4].map((y) => segmentBox(w.a, w.b, y0 + y, y0 + y + 0.3, 0.62, false))), wallMat(PALETTE.iron)); strap.userData.role = 'door'; slab.add(strap); } }
       slab.userData.role = 'door';
       slab.userData.wallId = w.id;
       slab.visible = !w.open;
@@ -189,6 +188,11 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
     pushWall(color, segmentBox(w.a, w.b, y0, y0 + h));
     // a free-standing wall (garden, yard, parapet) is capped with a coping a little proud of its faces
     if (h < ceiling - 1 && h <= 12 && (w.material ?? 'ashlar') !== 'log') pushWall(COPING[w.material ?? 'ashlar'] ?? color, segmentBox(w.a, w.b, y0 + h, y0 + h + 0.35, WALL_T + 0.35));
+  }
+  if (panes.length) {
+    const pane = new THREE.Mesh(merge(panes), wallMat(PALETTE.stone, { emissive: '#1b2530' }));
+    pane.userData.role = 'wall'; pane.userData.window = true;
+    wallsGroup.add(pane);
   }
   for (const [color, gs] of byWallMat) {
     const m = new THREE.Mesh(merge(gs), wallMat(color));
@@ -352,5 +356,27 @@ function buildObject(o: SceneObject, y0: number, labels: LabelSpec[]): THREE.Obj
   const body = fig ? fig({ ...(o.dims ?? {}), scale: (o.dims?.scale ?? 1) * scale }) : pawn(PALETTE.mist2, base);
   body.position.y = 0.3;
   g.add(baseRing(base, PALETTE.blood), body);
-  return g;
+  return mergeByMaterial(g);
+}
+
+/** Collapse a figure's many small meshes into one mesh per material: the same figure for a fraction of the draw calls
+ *  (a figure is twenty-odd boxes and cylinders, but only five or six colours). Labels and other non-mesh children stay. */
+export function mergeByMaterial<T extends THREE.Object3D>(root: T): T {
+  root.updateMatrixWorld(true);
+  const inv = root.matrixWorld.clone().invert(), local = new THREE.Matrix4();
+  const buckets = new Map<string, { material: THREE.Material; gs: THREE.BufferGeometry[] }>();
+  const drop: THREE.Object3D[] = [];
+  root.traverse((c) => {
+    const m = c as THREE.Mesh;
+    if (!m.isMesh || Array.isArray(m.material) || (m as THREE.InstancedMesh).isInstancedMesh || m.geometry.attributes.color) return;
+    const mt = m.material as THREE.MeshLambertMaterial;
+    const key = [mt.type, mt.color?.getHexString(), mt.emissive?.getHexString(), mt.transparent, mt.opacity, mt.side, (mt.userData.surf as { value: number } | undefined)?.value].join('|');
+    let b = buckets.get(key); if (!b) { b = { material: mt, gs: [] }; buckets.set(key, b); }
+    b.gs.push(m.geometry.clone().applyMatrix4(local.multiplyMatrices(inv, m.matrixWorld)));
+    drop.push(m);
+  });
+  if (drop.length < 3) return root;
+  for (const o of drop) o.removeFromParent();
+  for (const { material, gs } of buckets.values()) root.add(new THREE.Mesh(merge(gs), material));
+  return root;
 }

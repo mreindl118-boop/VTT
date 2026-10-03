@@ -12,7 +12,7 @@ import { baseRingFt, CELL_FT } from './core/units';
 import { baseRing } from './kit/pieces';
 import { adventurer } from './kit/creatures';
 import { PALETTE } from './kit/palette';
-import { buildLevel, hitObjectId, type BuiltLevel, type LabelSpec } from './render/build';
+import { buildLevel, hitObjectId, mergeByMaterial, type BuiltLevel, type LabelSpec } from './render/build';
 import { gridUniforms } from './render/gridOverlay';
 import { fogUniforms, sectionClip, setOpacity, setWallCut, WALL_CLIP } from './render/materials';
 const WALL_CUT_FT = 5;
@@ -522,7 +522,7 @@ export class App {
       const base = baseRingFt(t.size);
       const g = new THREE.Group();
       const entry = t.creatureId ? creatureById(t.creatureId) : undefined;
-      const fig = entry ? figureFor(entry) : adventurer(t.role === 'member' ? { cloth: t.color } : undefined); fig.position.y = 0.3;
+      const fig = mergeByMaterial(entry ? figureFor(entry) : adventurer(t.role === 'member' ? { cloth: t.color } : undefined)); fig.position.y = 0.3;
       g.add(baseRing(base, t.role === 'party' ? PARTY_RED : t.color), fig);
       if (t.role === 'party') { const amp = this.world.label('&', undefined, 'token party-amp'); amp.position.set(0, 7.6, 0); g.add(amp); }
       if (t.role === 'member' || t.role === 'creature') {
