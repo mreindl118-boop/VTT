@@ -6,7 +6,7 @@
 // nothics, the death slaad, the shield guardian). All in feet, origin at the floor centre, +z = the piece's front.
 import * as THREE from 'three';
 import { mat } from '../../render/materials';
-import { PALETTE } from '../palette';
+import { PALETTE, WALL_COLOR } from '../palette';
 import { surfaceFor } from '../surfaces';
 import { PROPS_V1 } from '../props';
 import { CREATURES, humanoid } from '../creatures';
@@ -14,10 +14,12 @@ import { CREATURES, humanoid } from '../creatures';
 type Dims = Record<string, number>;
 
 // ---------------------------------------------------------------- the temple's stones and metals
-const AMBER = PALETTE.amberDeep, AMBER_DK = '#a3652a', AMBER_LT = '#d99a4a';
+// The temple's amber is its own stone (the walls' amber and two shades of it), drawn with the amber grain: cloudy,
+// streaked, flecked with dark inclusions. PALETTE.amber / amberDeep stay the brass, harp and flame colours.
+const AMBER = WALL_COLOR.amber, AMBER_DK = '#a3652a', AMBER_LT = '#d99a4a';
 const BLACK = '#2a282c', BLACK_LT = '#3a383d', WHITE = '#d9d4c8', RED = '#7a3a3a', OBSIDIAN = '#1c1a20', GRANITE = '#6d6a66', GRANITE_DK = '#5d5a57';
 const GOLD = '#b8913a', COPPER = '#8a4a32', VERDIGRIS = '#4f7a68', SLATE = '#1f1f24', SNOW = '#e4e6ea', FUR = '#6b5a48', PALEWOOD = '#a39a88', SOOT = '#1f1a18', VOID = '#09080b';
-surfaceFor([AMBER_DK, AMBER_LT], 'generic');
+surfaceFor([AMBER, AMBER_DK, AMBER_LT], 'amber');
 surfaceFor([BLACK, BLACK_LT, WHITE, RED, OBSIDIAN, GRANITE_DK, SLATE], 'stone');
 surfaceFor([GOLD, COPPER, VERDIGRIS], 'metal');
 surfaceFor([SNOW], 'snow');

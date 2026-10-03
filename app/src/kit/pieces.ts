@@ -50,8 +50,12 @@ export function regularPolygonGeometry(sides: number, width: number, top: number
   return g;
 }
 
+/** Merge geometries into one, keeping only position and normal. Indexed inputs stay indexed (a box keeps its 24 vertices
+ *  instead of 36: a third of the vertex memory on a big map); flat shading takes its normals from screen derivatives, so
+ *  the shared vertices change nothing on screen. A mix of indexed and non-indexed inputs is flattened to non-indexed. */
 export function merge(geoms: THREE.BufferGeometry[]): THREE.BufferGeometry {
-  const ni = geoms.map((g) => (g.index ? g.toNonIndexed() : g));
+  const allIndexed = geoms.every((g) => !!g.index);
+  const ni = allIndexed ? geoms.map((g) => (g.attributes.uv || g.attributes.color ? g.clone() : g)) : geoms.map((g) => (g.index ? g.toNonIndexed() : g));
   for (const g of ni) { for (const k of Object.keys(g.attributes)) if (k !== 'position' && k !== 'normal') g.deleteAttribute(k); if (!g.attributes.normal) g.computeVertexNormals(); }
   return mergeGeometries(ni)!;
 }
@@ -94,7 +98,8 @@ export function coffin(): THREE.Group {
   return group(mesh(g, PALETTE.woodDark));
 }
 export function pressurePlate(w = 5, d = 5): THREE.Group {
-  return group(at(mesh(new THREE.BoxGeometry(w - 0.6, 0.15, d - 0.6), PALETTE.wine), 0, 0.08, 0));
+  // a stone slab a shade off the floor, not a cloth (wine is the banners' colour)
+  return group(at(new THREE.Mesh(new THREE.BoxGeometry(w - 0.6, 0.15, d - 0.6), mat(PALETTE.wine, { surface: 'stone' })), 0, 0.08, 0));
 }
 /** Straight stair, `dims.w` wide, rising `rise` ft. Runs along z from fromZ→toZ at origin.x, or along x from
  *  fromX→toX at origin.z when `fromX` is given. Treads are marked every 5 ft of rise as elevation labels. */
@@ -132,7 +137,7 @@ export function baseRing(baseFt: number, color: string): THREE.Mesh {
   const r = (baseFt * 0.62) / 2;
   const g = new THREE.CylinderGeometry(r * 0.95, r, 0.3, 24);
   g.translate(0, 0.15, 0);
-  return mesh(g, color);
+  return new THREE.Mesh(g, mat(color, { surface: 'none' }));   // a plain painted base: no grain
 }
 
 export const PROP_BUILDERS: Record<string, (d: Record<string, number>) => THREE.Object3D> = { table, column, chest, bed, coffin, 'pressure-plate': () => pressurePlate() };

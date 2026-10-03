@@ -5,22 +5,30 @@ import { FLOOR_COLOR, PALETTE, WALL_COLOR } from './palette';
 
 export const SURF = {
   generic: 1, ashlar: 2, rubble: 3, plank: 4, wood: 5, plaster: 6, cobble: 7, flag: 8, dirt: 9, grass: 10, shingle: 11, brick: 12,
-  thatch: 13, cloth: 14, metal: 15, rock: 16, water: 17, snow: 18, foliage: 19, bark: 20, log: 21, stone: 22, none: 0,
+  thatch: 13, cloth: 14, metal: 15, rock: 16, water: 17, snow: 18, foliage: 19, bark: 20, log: 21, stone: 22, amber: 23, marsh: 24, none: 0,
 } as const;
 export type Surface = keyof typeof SURF;
 
 const BY_COLOR = new Map<string, Surface>();
 const norm = (c: string) => c.toLowerCase();
-/** Declare what a colour is made of (later declarations win). */
-export function surfaceFor(colors: string | string[], s: Surface): void { for (const c of Array.isArray(colors) ? colors : [colors]) BY_COLOR.set(norm(c), s); }
+const DEV = (import.meta as unknown as { env?: { DEV?: boolean } }).env?.DEV ?? true;
+/** Declare what a colour is made of. Later declarations win, but a colour that two files declare as different things is
+ *  a collision (the loser's pieces take the wrong grain), so the development build says so: give the piece its own hex. */
+export function surfaceFor(colors: string | string[], s: Surface): void {
+  for (const c of Array.isArray(colors) ? colors : [colors]) {
+    const k = norm(c), prev = BY_COLOR.get(k);
+    if (DEV && prev !== undefined && prev !== s) console.warn(`surfaceFor: ${k} was '${prev}', now '${s}' (a later declaration overwrote it; give the piece its own hex)`);
+    BY_COLOR.set(k, s);
+  }
+}
 /** The surface a colour is made of; anything undeclared gets a quiet generic grain. */
 export function surfaceOf(color: string): Surface { return BY_COLOR.get(norm(color)) ?? 'generic'; }
 
 const FLOOR_SURF: Record<keyof typeof FLOOR_COLOR, Surface> = {
-  flagstone: 'flag', plank: 'plank', dirt: 'dirt', cobble: 'cobble', grass: 'grass', snow: 'snow', ice: 'water', 'shallow-water': 'water', marsh: 'grass',
+  flagstone: 'flag', plank: 'plank', dirt: 'dirt', cobble: 'cobble', grass: 'grass', snow: 'snow', ice: 'water', 'shallow-water': 'water', marsh: 'marsh',
 };
 const WALL_SURF: Record<keyof typeof WALL_COLOR, Surface> = {
-  ashlar: 'ashlar', rubble: 'rubble', 'half-timber': 'plaster', log: 'log', 'cave-rock': 'rock', amber: 'generic', plaster: 'plaster',
+  ashlar: 'ashlar', rubble: 'rubble', 'half-timber': 'plaster', log: 'log', 'cave-rock': 'rock', amber: 'amber', plaster: 'plaster',
   paneling: 'plank', 'paneling-dusty': 'plank', earth: 'dirt', brick: 'brick',
 };
 for (const [k, s] of Object.entries(WALL_SURF)) surfaceFor(WALL_COLOR[k as keyof typeof WALL_COLOR], s);
@@ -49,6 +57,14 @@ surfaceFor(['#c9632e'], 'none');
 surfaceFor(['#7a3030', '#2f4d3c', '#34405f', '#5a3352', '#b08a44', '#a04a3e', '#b89a54'], 'wood');   // the vardos' painted boards
 surfaceFor(['#8a3a32', '#c9c2b2'], 'cloth');
 surfaceFor(['#7a756c'], 'ashlar');
+// the shared kit's own colours (kit/props, kit/pieces, render/build): chimneys and copings, stone flights and daises, the
+// ledge, the menhir, the onion dome's shingles, the mill's sailcloth, the small temple's slate; glass, well shafts and the
+// chasm's fog floor take no grain at all
+surfaceFor(['#6a6560', '#5d5852', '#565b64', '#6a6f78', '#5a606a'], 'stone');
+surfaceFor(['#6f6e66'], 'rock');
+surfaceFor(['#7d6a55', '#2a2a3a'], 'shingle');
+surfaceFor(['#bfb49c'], 'cloth');
+surfaceFor(['#1d1916', '#1d1b22', '#07070a', '#5e6270'], 'none');
 
 /** The campaign's grass: Barovia's damp, dark turf or the Sheep Chase's bright pasture. Map floors and the land beyond
  *  the map both read FLOOR_COLOR.grass, so they always agree. Call before a level is built. */

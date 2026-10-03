@@ -19,6 +19,7 @@ export const FLOOR_COLOR: Record<FloorMaterial, string> = {
   snow: '#c9ccd2', ice: '#9fb3c2', 'shallow-water': '#3e5566', marsh: '#3f4636',
 };
 export const WALL_COLOR: Record<WallMaterial, string> = {
-  ashlar: '#7c858e', rubble: '#6d6860', 'half-timber': '#8a7f6e', log: '#5d4636', 'cave-rock': '#5b5752', amber: '#c9822e', plaster: '#8f8a84',
+  // the Amber Temple's amber has its own hex (a hair off PALETTE.amberDeep, which stays the brass/harp colour) so only the stone gets the amber veining
+  ashlar: '#7c858e', rubble: '#6d6860', 'half-timber': '#8a7f6e', log: '#5d4636', 'cave-rock': '#5b5752', amber: '#c4802f', plaster: '#8f8a84',
   paneling: '#6e5140', 'paneling-dusty': '#75665a', earth: '#665646', brick: '#7a5648',
 };

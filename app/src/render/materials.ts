@@ -67,11 +67,26 @@ vec3 mistSurface(vec3 P, vec3 N) {
     vec2 sz = k == 2 ? (top ? vec2(3.0, 2.5) : vec2(2.6, 1.3)) : vec2(0.8, 0.32);
     vec2 b = sbond(uv, sz);
     m = mix(1.0, 0.9 + 0.16 * b.y, mid) * (1.0 - 0.32 * sjoint(b.x, 0.05, px) * mid) + grime * 0.14 * broad;
-#elif SURF == 3 || SURF == 16
-    // rubble and living rock: irregular stones
-    vec3 c = scell(uv * (k == 3 ? 0.9 : 0.45));
+#elif SURF == 3
+    // rubble: irregular stones
+    vec3 c = scell(uv * 0.9);
     m = mix(1.0, 0.86 + 0.24 * c.z, mid) * (1.0 - 0.38 * (1.0 - smoothstep(0.02, 0.09 + px, c.y)) * mid) + grime * 0.18 * broad;
-    if (k == 16) m += (snoise(vec2(uv.x * 0.2, uv.y * 2.2)) - 0.5) * 0.14 * broad;   // strata
+#elif SURF == 16
+    // living rock: bedding planes that wobble slowly along the face, broad tonal patches 8-12 ft across, big blocks parted
+    // by faint, mostly vertical cracks (no masonry: the joints only show close up)
+    float wob = sfbm(uv * 0.1);
+    float strata = snoise(vec2(uv.x * 0.2 + wob * 2.0, uv.y * 2.2)) - 0.5;
+    vec3 c = scell(vec2(uv.x * 0.3, uv.y * 0.13));
+    m = mix(1.0, 0.92 + 0.14 * c.z, mid) * (1.0 - 0.18 * (1.0 - smoothstep(0.02, 0.08 + px, c.y)) * fine) + strata * 0.26 * broad + (wob - 0.5) * 0.2 * broad + grime * 0.1 * broad;
+#elif SURF == 23
+    // amber: broad cloudy variation, fine flow streaks along the grain, sparse dark inclusions; the dark clouds lean
+    // toward deep amber (the same hue, less light in it)
+    float cloud = sfbm(uv * 0.5) - 0.5;
+    float flow = snoise(vec2(uv.x * 0.9, uv.y * 6.0)) - 0.5;
+    vec3 c = scell(uv * 1.6);
+    float incl = (1.0 - smoothstep(0.0, 0.14, c.x)) * step(0.9, c.z);
+    m = 1.0 + cloud * 0.44 * broad + flow * 0.16 * mid - incl * 0.3 * fine + grime * 0.06 * broad;
+    tint = mix(vec3(1.0), vec3(1.0, 0.9, 0.78), clamp(-cloud * 3.0, 0.0, 1.0) * broad);
 #elif SURF == 4
     // boards: planks along x, seams and grain
     vec2 q = top ? P.xz : uv; vec2 b = sbond(q, vec2(7.0, 0.75));
@@ -101,14 +116,23 @@ vec3 mistSurface(vec3 P, vec3 N) {
     vec2 b = sbond(P.xz, vec2(3.0, 2.5));
     m = mix(1.0, 0.88 + 0.2 * b.y, mid) * (1.0 - 0.35 * sjoint(b.x, 0.06, px) * mid) + (sfbm(P.xz * 0.5) - 0.5) * 0.14 * broad;
 #elif SURF == 9
-    // trodden earth: patches, pebbles, wheel-worn
+    // trodden earth: broad patches, a 2-3 ft mottle of wet and dry, pebbles, wheel-worn
     vec3 c = scell(P.xz * 2.2);
-    m = 1.0 + (sfbm(P.xz * 0.12) - 0.5) * 0.26 * broad + (snoise(P.xz * 3.0) - 0.5) * 0.1 * mid + (1.0 - smoothstep(0.05, 0.16, c.x)) * step(0.7, c.z) * 0.18 * fine;
+    m = 1.0 + (sfbm(P.xz * 0.12) - 0.5) * 0.26 * broad + (sfbm(P.xz * 0.5) - 0.5) * 0.16 * mid + (snoise(P.xz * 3.0) - 0.5) * 0.1 * mid
+      + (1.0 - smoothstep(0.05, 0.2, c.x)) * step(0.68, c.z) * 0.26 * fine;
 #elif SURF == 10
-    // grass: drifts of lighter and darker growth, tussocks
+    // grass: drifts of lighter and darker growth, a 1-ft tussock cell, blades
     float pa = sfbm(P.xz * 0.045), pb = snoise(P.xz * 0.6), pc = snoise(P.xz * 7.0);
-    m = 1.0 + (pa - 0.5) * 0.3 + (pb - 0.5) * 0.12 * mid + (pc - 0.5) * 0.1 * fine;
+    vec3 tc = scell(P.xz * 1.1);
+    m = 1.0 + (pa - 0.5) * 0.3 + (pb - 0.5) * 0.2 * mid + (pc - 0.5) * 0.1 * fine + (0.5 - smoothstep(0.0, 0.9, tc.x)) * step(0.55, tc.z) * 0.09 * mid;
     tint = mix(vec3(0.96, 1.0, 1.02), vec3(1.06, 1.04, 0.9), smoothstep(0.35, 0.7, pa));
+#elif SURF == 24
+    // marsh: grass drifts sinking into standing water (darker, a faint sheen on the pools); tonal only
+    float pa = sfbm(P.xz * 0.06), pb = snoise(P.xz * 0.6);
+    float wet = smoothstep(0.52, 0.68, sfbm(P.xz * 0.14 + 3.1));
+    float sheen = sin((P.x - P.z) * 0.9 + sfbm(P.xz * 0.2) * 6.0) * 0.03 * mid;
+    m = 1.0 + (pa - 0.5) * 0.28 + (pb - 0.5) * 0.16 * mid * (1.0 - wet) - wet * 0.12 + sheen * wet;
+    tint = mix(vec3(1.0), vec3(0.95, 0.99, 1.05), wet);
 #elif SURF == 11
     // shingle and slate: courses up the slope, staggered
     float along = an.x > an.z ? P.z : P.x;
@@ -128,7 +152,8 @@ vec3 mistSurface(vec3 P, vec3 N) {
     // still water: slow ripples
     m = 1.0 + (sin((P.x + P.z) * 0.7 + sfbm(P.xz * 0.2) * 6.0) * 0.5) * 0.08 * mid;
 #elif SURF == 18
-    m = 1.0 + (sfbm(P.xz * 0.3) - 0.5) * 0.08;
+    // snow: drifts shade the surface, a faint wind ripple runs across it
+    m = 1.0 + (sfbm(uv * 0.3) - 0.5) * 0.08 + (sfbm(uv * 0.08) - 0.5) * 0.16 * broad + (snoise(vec2(uv.x * 0.25 + uv.y * 0.08, uv.y * 1.6)) - 0.5) * 0.06 * mid;
 #elif SURF == 19
     // foliage: clumps of needles and leaves
     vec3 c = scell(uv * 1.3);
@@ -206,7 +231,8 @@ export function patchFog<T extends THREE.Material>(m: T, exempt = false): T {
   const surfU = (m.userData.surf ??= { value: lit ? SURF.generic : 0 }) as { value: number };
   m.onBeforeCompile = (sh) => {
     Object.assign(sh.uniforms, fogUniforms, { uFogExempt: exemptU, uSurfAmt: surfaceUniforms.uSurfAmt, uNoise: surfaceUniforms.uNoise });
-    if (sh.fragmentShader.includes('#include <color_fragment>')) sh.fragmentShader = sh.fragmentShader.replace('#include <color_fragment>', '#include <color_fragment>\n diffuseColor.rgb *= mistSurface(vMistWorld, normalize(vMistN));');
+    // the grain scales the colour and adds a sliver of itself, so near-black stone still shows its courses and cracks
+    if (sh.fragmentShader.includes('#include <color_fragment>')) sh.fragmentShader = sh.fragmentShader.replace('#include <color_fragment>', '#include <color_fragment>\n { vec3 s = mistSurface(vMistWorld, normalize(vMistN)); diffuseColor.rgb = clamp(diffuseColor.rgb * s + (s - 1.0) * 0.035, 0.0, 1.0); }');
     sh.vertexShader = VERT_DECL + sh.vertexShader.replace('#include <project_vertex>', '#include <project_vertex>\n' + VERT_BODY.replace('MIST_NORMAL', lit ? 'objectNormal' : 'vec3(0.0, 1.0, 0.0)'));
     sh.fragmentShader = `#define SURF ${surfU.value}\n` + FRAG_DECL + sh.fragmentShader.replace('#include <opaque_fragment>', '#include <opaque_fragment>\n gl_FragColor.rgb = mistApply(gl_FragColor.rgb);');
   };
@@ -236,6 +262,13 @@ export function matClone(color: string, exempt = false): THREE.MeshLambertMateri
   setSurface(m, surfaceOf(color));
   return patchFog(m, exempt);
 }
+/** A private copy of a built material, keeping its emissive and its surface (a flame stays a flame, a window stays glass). */
+export function matCloneOf(src: THREE.MeshLambertMaterial, exempt = false): THREE.MeshLambertMaterial {
+  const m = new THREE.MeshLambertMaterial({ color: src.color, flatShading: true, emissive: src.emissive ?? '#000000', transparent: src.transparent, opacity: src.opacity, side: src.side, depthWrite: src.depthWrite });
+  const surf = (src.userData.surf as { value: number } | undefined)?.value ?? SURF.generic;
+  m.userData.surf = { value: surf };
+  return patchFog(m, exempt);
+}
 
 /** Set slider opacity on a private material without changing pixels when fully opaque. */
 export function setOpacity(m: THREE.Material, o: number): void {
@@ -251,7 +284,7 @@ export function setWallCut(y: number | null): void { WALL_CLIP.constant = y === 
 /** Private wall material that honours the cutaway plane. */
 export function wallMat(color: string, opts: { emissive?: string } = {}): THREE.MeshLambertMaterial {
   const m = matClone(color);
-  if (opts.emissive) m.emissive.set(opts.emissive);
+  if (opts.emissive) { m.emissive.set(opts.emissive); setSurface(m, 'none'); }   // lit glass carries no stone courses
   m.clippingPlanes = [WALL_CLIP];
   return m;
 }

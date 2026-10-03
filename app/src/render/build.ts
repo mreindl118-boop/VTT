@@ -6,7 +6,7 @@ import type { Polygon } from '../core/geometry';
 import { baseRingFt, DEFAULT_CEILING_FT } from '../core/units';
 import { FLOOR_COLOR, PALETTE, WALL_COLOR } from '../kit/palette';
 import { baseRing, merge, pawn, PROP_BUILDERS, segmentBox, slabGeometry, stairsStraight, WALL_T } from '../kit/pieces';
-import { mat, matClone, patchFog, wallMat } from './materials';
+import { mat, matCloneOf, patchFog, wallMat } from './materials';
 import { PROPS_V1 } from '../kit/props';
 import { CREATURES } from '../kit/creatures';
 import '../kit/sites';
@@ -16,6 +16,9 @@ import { buildGridOverlay } from './gridOverlay';
 const UNMERGED = new Set(['stairs-straight', 'prism', 'pressure-plate']);
 /** Building shells: their roof, walls and chimney are cut by the section plane like a wall. */
 const ROOF_KINDS = new Set(['roof-gable', 'roof-cone', 'onion-dome', 'mill-sails', 'chimney', 'house', 'church-building', 'temple', 'big-tent']);
+
+/** The flames over a level's light sources: one unlit amber material for all of them. */
+const FLAME_MAT = patchFog(new THREE.MeshBasicMaterial({ color: PALETTE.amber }));
 
 /** A face range of a merged mesh that belongs to one scene object (so a tap on a merged house still names it). */
 export interface MergedRange { start: number; end: number; id: string }
@@ -35,10 +38,35 @@ export function hitObjectId(h: THREE.Intersection | undefined): string | undefin
 }
 
 /** Static things a player can always see and never operate (houses, trees, fences, furniture that does not open):
- *  one mesh per material per level instead of thousands of small ones. Anything interactive stays its own object. */
+ *  one mesh per material per level instead of thousands of small ones. Anything interactive stays its own object.
+ *  A scene creature the players can see is scenery too (a horse in its stall, villagers in the square): the draggable,
+ *  initiative-taking figures are the campaign's tokens, built separately. Hidden ones keep their own object so the
+ *  DM can reveal them one at a time. */
 function isStatic(o: SceneObject): boolean {
-  if (o.vis !== 'player' || o.size || UNMERGED.has(o.kind) || OPENABLE_KINDS[o.kind] || CREATURES[o.kind]) return false;
+  if (o.vis !== 'player' || UNMERGED.has(o.kind) || OPENABLE_KINDS[o.kind]) return false;
+  if (CREATURES[o.kind]) return true;
+  if (o.size) return false;
   return !!(PROP_BUILDERS[o.kind] || PROPS_V1[o.kind]);
+}
+
+/** Static scatter detail tiers: 'near' pieces (rails, mullions, stalks, twigs) draw only while a foot is a pixel or more
+ *  wide; 'far' pieces are their coarse stand-ins beyond that; everything else is always drawn. A builder tags a piece or
+ *  a group with userData.tier; untagged pieces whose two smallest extents are under 0.7 ft are 'near'. */
+type Tier = 'near' | 'far' | 'both';
+const NEAR_FT = 0.7;
+const TILE_FT = 1000;
+function tierOf(m: THREE.Mesh, root: THREE.Object3D): Tier {
+  for (let o: THREE.Object3D | null = m; o && o !== root; o = o.parent) { const t = o.userData.tier; if (t === 'near' || t === 'far') return t; }
+  const g = m.geometry; if (!g.boundingBox) g.computeBoundingBox();
+  const bb = g.boundingBox!, e = m.matrixWorld.elements;
+  const ext = [(bb.max.x - bb.min.x) * Math.hypot(e[0], e[1], e[2]), (bb.max.y - bb.min.y) * Math.hypot(e[4], e[5], e[6]), (bb.max.z - bb.min.z) * Math.hypot(e[8], e[9], e[10])].sort((a, b) => a - b);
+  return ext[1] < NEAR_FT ? 'near' : 'both';
+}
+/** The distance at which a foot is about 1.5 px for this screen (fov 40°, pixel ratio capped like the renderer's). */
+function lodDistance(): number {
+  const h = typeof window !== 'undefined' ? window.innerHeight || 1000 : 1000;
+  const dpr = typeof devicePixelRatio === 'number' ? Math.min(devicePixelRatio, 1.5) : 1;
+  return (h * dpr) / (3 * Math.tan((20 * Math.PI) / 180));
 }
 
 export interface LabelSpec { id: string; text: string; sub?: string; page?: number; pos: THREE.Vector3; vis: VisClass; kind: 'key' | 'object' | 'tread' | 'note' | 'door' | 'link'; objectId?: string; wallId?: string; linkId?: string }
@@ -86,17 +114,25 @@ function centroid(p: Polygon): [number, number] {
   return [x / p.length, z / p.length];
 }
 
-/** Replace every mesh material under `o` with a private copy (so opacity can change per object). */
+/** Replace every mesh material under `o` with a private copy (so opacity can change per object): one copy per material
+ *  of the object, not per mesh (a bookshelf of sixty books takes six, not sixty), keeping emissive and surface. */
 function privatize(o: THREE.Object3D, tint?: THREE.Color): THREE.Material[] {
   const out: THREE.Material[] = [];
+  const copies = new Map<string, THREE.MeshLambertMaterial>();
   o.traverse((c) => {
     const m = c as THREE.Mesh;
-    if (!m.isMesh) return;
+    if (!m.isMesh || Array.isArray(m.material)) return;
     const src = m.material as THREE.MeshLambertMaterial;
-    const nm = matClone('#' + src.color.getHexString());
-    if (tint) nm.color.lerp(tint, 0.25);
+    if (!src.color) return;
+    const key = src.uuid;
+    let nm = copies.get(key);
+    if (!nm) {
+      nm = matCloneOf(src);
+      if (tint) nm.color.lerp(tint, 0.25);
+      copies.set(key, nm);
+      out.push(nm);
+    }
     m.material = nm;
-    out.push(nm);
   });
   return out;
 }
@@ -123,7 +159,8 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
     arr.push(slabGeometry(r.polygon, y0, 1));
     byFloor.set(r.floor, arr);
     const [cx, cz] = centroid(r.polygon);
-    labels.push({ id: `key:${r.key}`, text: r.key, sub: r.name, page: r.page, pos: new THREE.Vector3(cx, y0 + 0.5, cz), vis: 'dm-note', kind: 'key' });
+    // a room split into parts (K12-n, N4a-west) is labelled with the area key alone
+    labels.push({ id: `key:${r.key}`, text: r.key.replace(/-[a-z]+$/, ''), sub: r.name, page: r.page, pos: new THREE.Vector3(cx, y0 + 0.5, cz), vis: 'dm-note', kind: 'key' });
   }
   for (const t of level.terrain ?? []) {
     const arr = byFloor.get(t.floor) ?? [];
@@ -257,50 +294,72 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
   // Static props (houses, trees, fences, furniture that never opens) merge into one mesh per material and role:
   // a town of a thousand houses draws in a dozen calls. Each mesh keeps face ranges back to its objects for picking.
   // Roofs (building shells) keep their role so the section plane slices them like walls; the rest stays a prop.
+  // Two tiers: pieces that are always drawn merge per material for the whole level; 'near' detail and its 'far'
+  // stand-ins merge per 1000-ft tile and sit in a THREE.LOD per tile, which the renderer switches by camera distance
+  // on its own (no per-frame hook), and whose offscreen tiles frustum-cull. Close up nothing is missing; from the table
+  // view the sub-pixel rails, stalks and twigs stop costing.
   if (scatter.length) {
-    type Bucket = { gs: THREE.BufferGeometry[]; ranges: MergedRange[]; faces: number };
-    const byMat = new Map<string, { material: THREE.Material; role: string; cap: boolean; b: Bucket }>();
+    type Bucket = { material: THREE.Material; role: string; cap: boolean; tier: Tier; tile: string; gs: THREE.BufferGeometry[]; ranges: MergedRange[]; faces: number };
+    const byKey = new Map<string, Bucket>();
+    // Tiers only pay on a level wide enough that the camera can stand beyond the switch distance (a town, a hillside,
+    // a pass); inside a house or a castle every piece is always near, so there one bucket per material is cheaper.
+    const far = lodDistance();
+    let bx0 = Infinity, bz0 = Infinity, bx1 = -Infinity, bz1 = -Infinity;
+    for (const r of level.rooms) for (const [x, z] of r.polygon) { bx0 = Math.min(bx0, x); bz0 = Math.min(bz0, z); bx1 = Math.max(bx1, x); bz1 = Math.max(bz1, z); }
+    const tiered = Math.hypot(bx1 - bx0, bz1 - bz0) > far;
     for (const { obj, o, p } of scatter) {
       obj.position.copy(p);
       obj.rotation.y = ((o.rotY ?? 0) * Math.PI) / 180;
       obj.updateMatrixWorld(true);
+      const tile = `${Math.floor(p.x / TILE_FT)},${Math.floor(p.z / TILE_FT)}`;
       obj.traverse((c) => {
         const m = c as THREE.Mesh;
         if (!m.isMesh) return;
         const role = c.userData.role === 'roof' ? 'roof' : 'prop', cap = !!c.userData.cap;
         const material = m.material as THREE.Material;
-        const key = `${role}:${cap}:${material.uuid}`;
-        let e = byMat.get(key);
-        if (!e) { e = { material, role, cap, b: { gs: [], ranges: [], faces: 0 } }; byMat.set(key, e); }
+        let tier = tierOf(m, obj);
+        if (!tiered) { if (tier === 'far') return; tier = 'both'; }   // a small level: the stand-ins are never needed
+        const key = `${role}:${cap}:${tier}:${tier === 'both' ? '' : tile}:${material.uuid}`;
+        let e = byKey.get(key);
+        if (!e) { e = { material, role, cap, tier, tile, gs: [], ranges: [], faces: 0 }; byKey.set(key, e); }
         const g = m.geometry.clone().applyMatrix4(m.matrixWorld);
         const n = (g.index ? g.index.count : g.attributes.position.count) / 3;
-        const last = e.b.ranges[e.b.ranges.length - 1];
-        if (last && last.id === o.id && last.end === e.b.faces) last.end += n; else e.b.ranges.push({ start: e.b.faces, end: e.b.faces + n, id: o.id });
-        e.b.faces += n;
-        e.b.gs.push(g);
+        const last = e.ranges[e.ranges.length - 1];
+        if (last && last.id === o.id && last.end === e.faces) last.end += n; else e.ranges.push({ start: e.faces, end: e.faces + n, id: o.id });
+        e.faces += n;
+        e.gs.push(g);
       });
     }
-    for (const { material, role, cap, b } of byMat.values()) {
-      const m = new THREE.Mesh(merge(b.gs), material);
-      m.userData.role = role; if (cap) m.userData.cap = true;
+    const tiles = new Map<string, { near: THREE.Group; far: THREE.Group }>();
+    for (const b of byKey.values()) {
+      const m = new THREE.Mesh(merge(b.gs), b.material);
+      m.userData.role = b.role; if (b.cap) m.userData.cap = true;
       m.userData.ranges = b.ranges;
-      m.name = role === 'roof' ? 'merged-roofs' : 'scatter';
-      root.add(m);
+      m.name = b.role === 'roof' ? 'merged-roofs' : 'scatter';
+      if (b.tier === 'both') { root.add(m); continue; }
+      let t = tiles.get(b.tile);
+      if (!t) {
+        const [tx, tz] = b.tile.split(',').map(Number), cx = (tx + 0.5) * TILE_FT, cz = (tz + 0.5) * TILE_FT;
+        const lod = new THREE.LOD(); lod.name = `scatter-tile:${b.tile}`; lod.position.set(cx, y0, cz);
+        t = { near: new THREE.Group(), far: new THREE.Group() };
+        for (const g of [t.near, t.far]) g.position.set(-cx, -y0, -cz);   // the merged geometry is in world space
+        lod.addLevel(t.near, 0); lod.addLevel(t.far, far + TILE_FT * 0.71);   // switch by the tile's farthest corner
+        tiles.set(b.tile, t); root.add(lod);
+      }
+      (b.tier === 'near' ? t.near : t.far).add(m);
     }
   }
 
   // Lights: warm point lights; radii rings are dm-notes.
   const lights: THREE.PointLight[] = [];
   const lightRings: THREE.LineLoop[] = [];
+  const flames: THREE.BufferGeometry[] = [];
   for (const l of level.lights) {
     const pl = new THREE.PointLight(PALETTE.amber, Math.max(40, l.bright * l.bright * 0.9), l.dim * 1.1, 1.6);
     pl.position.set(l.pos[0], y0 + l.pos[1], l.pos[2]);
     root.add(pl);
     lights.push(pl);
-    const flame = new THREE.Mesh(new THREE.OctahedronGeometry(0.35, 0), patchFog(new THREE.MeshBasicMaterial({ color: PALETTE.amber })));
-    flame.position.copy(pl.position);
-    flame.userData.role = 'prop';
-    root.add(flame);
+    flames.push(new THREE.OctahedronGeometry(0.35, 0).translate(pl.position.x, pl.position.y, pl.position.z));
     for (const [r, op] of [[l.bright, 0.9], [l.dim, 0.5]] as const) {
       const pts = Array.from({ length: 64 }, (_, i) => new THREE.Vector3(Math.cos((i / 64) * Math.PI * 2) * r, 0, Math.sin((i / 64) * Math.PI * 2) * r));
       const ring = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({ color: PALETTE.amber, transparent: true, opacity: 0, depthWrite: false }));
@@ -310,6 +369,11 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
       root.add(ring);
       lightRings.push(ring);
     }
+  }
+  if (flames.length) {   // every light's flame in one mesh
+    const flame = new THREE.Mesh(merge(flames), FLAME_MAT);
+    flame.userData.role = 'prop';
+    root.add(flame);
   }
 
   const gridMesh = buildGridOverlay(grid, y0, !!level.terrain?.length || level.elevationFt <= 0);
@@ -337,7 +401,7 @@ function buildObject(o: SceneObject, y0: number, labels: LabelSpec[]): THREE.Obj
   if (o.kind === 'pressure-plate') {
     const g = new THREE.Group();
     const w = o.dims?.w ?? 5, d = o.dims?.d ?? 5;
-    const plate = new THREE.Mesh(new THREE.BoxGeometry(w - 0.6, 0.15, d - 0.6), mat(PALETTE.wine));
+    const plate = new THREE.Mesh(new THREE.BoxGeometry(w - 0.6, 0.15, d - 0.6), mat(PALETTE.wine, { surface: 'stone' }));
     plate.position.y = 0.08;
     g.add(plate);
     return g;

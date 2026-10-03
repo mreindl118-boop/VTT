@@ -1,6 +1,6 @@
 // Kit v1 props for Death House and the general interiors. All in feet, origin at floor centre, +Z = plan south.
 import * as THREE from 'three';
-import { mat } from '../render/materials';
+import { mat, patchFog, setSurface } from '../render/materials';
 import { PALETTE } from './palette';
 import { merge, regularPolygonGeometry } from './pieces';
 
@@ -11,28 +11,50 @@ const box = (w: number, h: number, d: number, color: string, x = 0, y = 0, z = 0
   return m;
 };
 const g = (...m: THREE.Object3D[]) => { const grp = new THREE.Group(); if (m.length) grp.add(...m); return grp; };
+/** Detail tiers for the static merge (render/build): a 'near' piece is drawn only while a foot is more than a pixel or
+ *  two wide, a 'far' piece is its coarse stand-in beyond that. Untagged pieces are always drawn. Harmless when ignored. */
+const tier = <T extends THREE.Object3D>(o: T, t: 'near' | 'far'): T => { o.userData.tier = t; return o; };
+/** A small flame: lit amber that also glows, so a candle reads in a dark room without taking the stone's grain. */
+const flame = (r: number, x = 0, y = 0, z = 0) => { const m = new THREE.Mesh(new THREE.IcosahedronGeometry(r, 0), mat(PALETTE.amber, { emissive: '#b8661c' })); m.position.set(x, y, z); return m; };
+const FIRE = () => mat('#f2a03a', { emissive: '#c9822e' });
 
-/** Spiral stair: `dims.rise` ft over `dims.turns` turns, radius `dims.r` (default 6). */
+/** Spiral stair: `dims.rise` ft over `dims.turns` turns, outer radius `dims.r` (default 6) and inner radius `dims.r0`
+ *  (default 1.2: the treads run in to a newel post). A wide stair tower sets r0 so its treads are annular wedges round a
+ *  central pier, with a railing along the open edge, instead of fans from the axis. The pier stops at the rise, so the
+ *  section cut never shows it poking through the floor above. */
 export function spiralStair(d: Dims): THREE.Group {
-  const rise = d.rise ?? 10, r = d.r ?? 6, turns = d.turns ?? 0.9;
+  const rise = d.rise ?? 10, r = d.r ?? 6, r0 = Math.max(0.6, Math.min(d.r0 ?? 1.2, r - 2)), turns = d.turns ?? 0.9, wide = r0 > 1.3;
   const steps = Math.max(6, Math.round(rise / 0.7));
   const gs: THREE.BufferGeometry[] = [];
   for (let i = 0; i < steps; i++) {
     const a0 = (i / steps) * turns * Math.PI * 2, a1 = ((i + 1) / steps) * turns * Math.PI * 2;
     const y = ((i + 1) / steps) * rise;
     const shape = new THREE.Shape();
-    shape.moveTo(Math.cos(a0) * 1.2, Math.sin(a0) * 1.2);
+    shape.moveTo(Math.cos(a0) * r0, Math.sin(a0) * r0);
     shape.lineTo(Math.cos(a0) * r, Math.sin(a0) * r);
-    shape.lineTo(Math.cos(a1) * r, Math.sin(a1) * r);
-    shape.lineTo(Math.cos(a1) * 1.2, Math.sin(a1) * 1.2);
+    const segs = Math.max(1, Math.ceil(((a1 - a0) * r) / 2.5));   // a wide tread's outer edge follows the arc
+    for (let k = 1; k <= segs; k++) { const a = a0 + ((a1 - a0) * k) / segs; shape.lineTo(Math.cos(a) * r, Math.sin(a) * r); }
+    shape.lineTo(Math.cos(a1) * r0, Math.sin(a1) * r0);
     const geo = new THREE.ExtrudeGeometry(shape, { depth: 0.35, bevelEnabled: false });
     geo.rotateX(Math.PI / 2);
     geo.translate(0, y, 0);
     gs.push(geo);
   }
-  const treads = new THREE.Mesh(merge(gs), mat(PALETTE.wine));
-  const newel = box(1.6, rise + 3, 1.6, PALETTE.stoneDeep, 0, (rise + 3) / 2, 0);
+  const treads = new THREE.Mesh(merge(gs), mat(PALETTE.wine, { surface: 'wood' }));
+  const newel = wide
+    ? new THREE.Mesh(new THREE.CylinderGeometry(r0 - 0.1, r0 - 0.1, rise, 16).translate(0, rise / 2, 0), mat(PALETTE.stoneDeep))
+    : box(1.6, rise, 1.6, PALETTE.stoneDeep, 0, rise / 2, 0);
   const grp = g(treads, newel);
+  if (wide) {
+    // a railing on the open edge: a post every other tread, a handrail between them
+    const RAIL = PALETTE.woodDark, posts: THREE.Vector3[] = [];
+    for (let i = 0; i < steps; i += 2) { const am = ((i + 0.5) / steps) * turns * Math.PI * 2, y = ((i + 1) / steps) * rise; posts.push(new THREE.Vector3(Math.cos(am) * (r - 0.35), y, Math.sin(am) * (r - 0.35))); }
+    for (const p of posts) grp.add(box(0.25, 3, 0.25, RAIL, p.x, p.y + 1.5, p.z));
+    for (let k = 1; k < posts.length; k++) {
+      const a = posts[k - 1].clone().setY(posts[k - 1].y + 3), b = posts[k].clone().setY(posts[k].y + 3);
+      const m = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.22, a.distanceTo(b) + 0.25), mat(RAIL)); m.position.copy(a).lerp(b, 0.5); m.lookAt(b); grp.add(m);
+    }
+  }
   grp.userData.role = 'stairs';
   return grp;
 }
@@ -160,7 +182,7 @@ export function skeleton(): THREE.Group { return g(box(1.2, 0.5, 4, PALETTE.bone
 export function pitCover(): THREE.Group { return g(box(4.6, 0.12, 4.6, '#4a3f33', 0, 0.06, 0)); }
 export function dollhouse(): THREE.Group { return g(box(2.2, 2.6, 1.4, PALETTE.mist2, 0, 1.3, 0), box(2.4, 0.9, 1.6, PALETTE.wine, 0, 3, 0)); }
 export function toyChest(): THREE.Group { return g(box(2.6, 1.4, 1.6, PALETTE.wood, 0, 0.7, 0)); }
-export function lamp(): THREE.Group { return g(box(0.5, 0.5, 0.5, PALETTE.amber, 0, 6.5, 0), box(0.15, 1.5, 0.15, PALETTE.iron, 0, 7.4, 0)); }
+export function lamp(): THREE.Group { const l = box(0.5, 0.5, 0.5, PALETTE.amber, 0, 6.5, 0); l.material = mat(PALETTE.amber, { emissive: '#b8661c' }); return g(l, box(0.15, 1.5, 0.15, PALETTE.iron, 0, 7.4, 0)); }
 export function dumbwaiter(): THREE.Group { return g(box(2, 6, 2, PALETTE.stoneDeep, 0, 3, 0), box(1.4, 1.2, 0.2, PALETTE.woodDark, 0, 3, 1.05)); }
 
 export const PROPS_V1: Record<string, (d: Dims) => THREE.Object3D> = {
@@ -178,7 +200,7 @@ const ico = (r: number, color: string, x = 0, y = 0, z = 0) => { const m = new T
 export function chandelier(d: Dims): THREE.Group {
   const y = d.y ?? 8, brass = d.brass ? PALETTE.amberDeep : PALETTE.iron;
   const g = g_(cyl(0.08, 0.08, 3, brass, 0, y + 1.5, 0), cyl(1.6, 1.6, 0.18, brass, 0, y, 0, 10));
-  for (let i = 0; i < 8; i++) { const a = (i / 8) * Math.PI * 2; g.add(box(0.14, 0.5, 0.14, PALETTE.bone, Math.cos(a) * 1.4, y + 0.35, Math.sin(a) * 1.4), ico(0.1, PALETTE.amber, Math.cos(a) * 1.4, y + 0.7, Math.sin(a) * 1.4)); }
+  for (let i = 0; i < 8; i++) { const a = (i / 8) * Math.PI * 2; g.add(box(0.14, 0.5, 0.14, PALETTE.bone, Math.cos(a) * 1.4, y + 0.35, Math.sin(a) * 1.4), flame(0.1, Math.cos(a) * 1.4, y + 0.7, Math.sin(a) * 1.4)); }
   if (d.crystal) for (let i = 0; i < 8; i++) { const a = (i / 8 + 0.06) * Math.PI * 2; g.add(ico(0.12, PALETTE.mist0, Math.cos(a) * 1.1, y - 0.4, Math.sin(a) * 1.1)); }
   return g;
 }
@@ -233,20 +255,23 @@ export function fourPosterBed(): THREE.Group {
   g.add(box(6.2, 0.2, 7.7, PALETTE.woodDark, 0, 8, 0), box(0.25, 5.2, 7.2, '#5b1f2b', -2.85, 5.1, 0), box(0.25, 5.2, 7.2, '#5b1f2b', 2.85, 5.1, 0));
   return g;
 }
-export function nightstand(): THREE.Group { return g_(box(1.6, 2.4, 1.6, PALETTE.woodDark, 0, 1.2, 0), ico(0.2, PALETTE.amber, 0, 2.7, 0)); }
+export function nightstand(): THREE.Group { return g_(box(1.6, 2.4, 1.6, PALETTE.woodDark, 0, 1.2, 0), flame(0.2, 0, 2.7, 0)); }
 export function rockingChair(): THREE.Group { return g_(box(1.8, 0.25, 1.8, PALETTE.wood, 0, 1.4, 0), box(1.8, 2.6, 0.25, PALETTE.wood, 0, 2.6, -0.8), cyl(0.12, 0.12, 2.8, PALETTE.woodDark, -0.8, 0.35, 0), cyl(0.12, 0.12, 2.8, PALETTE.woodDark, 0.8, 0.35, 0)); }
-export function candlestick(d: Dims): THREE.Group { const h = d.h ?? 3.5; return g_(cyl(0.35, 0.5, 0.2, PALETTE.iron, 0, 0.1, 0), cyl(0.08, 0.08, h, PALETTE.iron, 0, h / 2, 0), box(0.3, 0.6, 0.3, PALETTE.bone, 0, h + 0.3, 0), ico(0.12, PALETTE.amber, 0, h + 0.75, 0)); }
+export function candlestick(d: Dims): THREE.Group { const h = d.h ?? 3.5; return g_(cyl(0.35, 0.5, 0.2, PALETTE.iron, 0, 0.1, 0), cyl(0.08, 0.08, h, PALETTE.iron, 0, h / 2, 0), box(0.3, 0.6, 0.3, PALETTE.bone, 0, h + 0.3, 0), flame(0.12, 0, h + 0.75, 0)); }
 export function bierCoffin(): THREE.Group { return g_(box(7, 2.2, 3, PALETTE.stoneDeep, 0, 1.1, 0), box(6.2, 1.4, 2.2, PALETTE.woodDark, 0, 2.9, 0)); }
 export function stoneSlab(d: Dims): THREE.Group { const s = box(4.6, 6.4, 0.5, PALETTE.stone, 0, 3.2, 0); if (d.leaning) { s.rotation.x = -0.18; s.position.z = 0.6; } return g_(s); }
 /** Timber brace across a 4-ft tunnel: two posts and a lintel. */
 export function timberBrace(d: Dims): THREE.Group { const w = d.w ?? 4.6, h = d.h ?? 7; return g_(box(0.5, h, 0.5, PALETTE.woodDark, -w / 2, h / 2, 0), box(0.5, h, 0.5, PALETTE.woodDark, w / 2, h / 2, 0), box(w + 0.5, 0.5, 0.6, PALETTE.woodDark, 0, h, 0)); }
 export function post(d: Dims): THREE.Group { const h = d.h ?? 8; return g_(box(0.8, h, 0.8, PALETTE.woodDark, 0, h / 2, 0), box(5, 0.6, 0.8, PALETTE.woodDark, 0, h - 0.3, 0)); }
+/** One material for every cobweb: lit (so they dim with the room instead of glowing), fogged, and shared so a level's
+ *  cobwebs merge into one mesh. */
+const COBWEB = patchFog(new THREE.MeshLambertMaterial({ color: '#e8e4dc', transparent: true, opacity: 0.35, side: THREE.DoubleSide, depthWrite: false }));
+setSurface(COBWEB, 'none');
 /** Corner cobweb: a translucent pale triangle. */
 export function cobweb(d: Dims): THREE.Group {
   const s = d.s ?? 3, y = d.y ?? 7;
   const shape = new THREE.Shape([new THREE.Vector2(0, 0), new THREE.Vector2(s, 0), new THREE.Vector2(0, -s)]);
-  const geo = new THREE.ShapeGeometry(shape); const m = new THREE.MeshBasicMaterial({ color: '#e8e4dc', transparent: true, opacity: 0.35, side: THREE.DoubleSide, depthWrite: false });
-  const mesh = new THREE.Mesh(geo, m); mesh.position.y = y; mesh.rotation.y = Math.PI / 4;
+  const mesh = new THREE.Mesh(new THREE.ShapeGeometry(shape), COBWEB); mesh.position.y = y; mesh.rotation.y = Math.PI / 4;
   const g = g_(mesh); g.userData.role = 'marker';
   return g;
 }
@@ -277,7 +302,7 @@ export function beds(): THREE.Group { return g_(box(3.5, 1.4, 6.5, PALETTE.woodD
 export function childBed(): THREE.Group { return g_(box(2.6, 1.2, 4.6, PALETTE.woodDark, 0, 0.6, 0), box(2.2, 0.4, 4.2, '#8fa3b8', 0, 1.4, 0.1)); }
 export function smallSkeletons(): THREE.Group { const g = g_(); for (const [x, z, r] of [[-0.8, 0, 0.3], [0.8, 0.4, -0.5]]) { const s = box(0.8, 0.4, 2.6, PALETTE.bone, x, 0.2, z); s.rotation.y = r; g.add(s, ico(0.3, PALETTE.bone, x, 0.4, z - 1.4)); } g.add(box(0.5, 0.7, 0.4, '#b89a7a', 1.3, 0.35, 1.3)); return g; }
 export function wineCask(): THREE.Group { const c = g_(cyl(0.6, 0.7, 1.4, PALETTE.wood, 0, 0.7, 0, 10), cyl(0.25, 0.25, 0.4, PALETTE.iron, 0, 1.2, 0.6, 6)); for (const y of [0.2, 1.2]) c.add(cyl(0.66, 0.66, 0.1, PALETTE.iron, 0, y, 0, 10)); return c; }
-export function oilLamp(d: Dims): THREE.Group { const y = d.y ?? 6.5; return g_(box(0.3, 0.9, 0.3, PALETTE.iron, 0, y - 0.6, 0), box(0.6, 0.7, 0.6, PALETTE.amber, 0, y, 0), box(0.25, 0.8, 0.25, PALETTE.iron, 0, y + 0.7, 0)); }
+export function oilLamp(d: Dims): THREE.Group { const y = d.y ?? 6.5; const l = box(0.6, 0.7, 0.6, PALETTE.amber, 0, y, 0); l.material = mat(PALETTE.amber, { emissive: '#b8661c' }); return g_(box(0.3, 0.9, 0.3, PALETTE.iron, 0, y - 0.6, 0), l, box(0.25, 0.8, 0.25, PALETTE.iron, 0, y + 0.7, 0)); }
 export function dumbwaiterShaft(): THREE.Group { return g_(box(2, 6, 2, PALETTE.stoneDeep, 0, 3, 0), box(1.4, 1.2, 0.2, PALETTE.woodDark, 0, 3, 1.05), ico(0.15, PALETTE.amberDeep, 1.3, 4.5, 1.05)); }
 export function crateChest(): THREE.Group { return g_(box(3.5, 1.6, 2, PALETTE.woodDark, 0, 0.8, 0), box(3.7, 0.3, 2.2, PALETTE.iron, 0, 1.7, 0), box(0.5, 0.6, 0.2, PALETTE.iron, 0, 1, 1.05)); }
 export function clawChestSkeleton(): THREE.Group { const g = crateChest(); const lid = box(3.7, 0.3, 2.2, PALETTE.iron, 0, 2.4, -0.8); lid.rotation.x = -0.9; g.add(lid); for (const [x, z] of [[-1.5, -0.8], [1.5, -0.8], [-1.5, 0.8], [1.5, 0.8]]) g.add(ico(0.22, PALETTE.iron, x, 0.15, z)); g.add(box(0.9, 2.4, 0.6, PALETTE.bone, 0.6, 1.9, 0.2), ico(0.42, PALETTE.bone, 0.6, 3.3, 0.3), box(0.25, 1.8, 0.25, PALETTE.bone, -0.4, 2.6, 0.9)); return g; }
@@ -353,7 +378,7 @@ export function wagon(d: Dims): THREE.Group {
 }
 export function signpost(): THREE.Group { return g_(box(0.3, 8, 0.3, PALETTE.woodDark, 0, 4, 0), box(3, 0.8, 0.2, PALETTE.wood, 1.2, 6.5, 0), box(3, 0.8, 0.2, PALETTE.wood, -1.2, 5.4, 0)); }
 export function brazier(): THREE.Group {
-  const b = g_(cyl(1.2, 0.8, 0.5, PALETTE.iron, 0, 2.6, 0, 8), embers(1.8, 1.8, 0, 2.82, 0), ico(0.6, PALETTE.amber, 0, 3.2, 0));
+  const b = g_(cyl(1.2, 0.8, 0.5, PALETTE.iron, 0, 2.6, 0, 8), embers(1.8, 1.8, 0, 2.82, 0), flame(0.6, 0, 3.2, 0));
   for (let i = 0; i < 3; i++) { const a = (i / 3) * Math.PI * 2, l = cyl(0.1, 0.1, 2.7, PALETTE.iron, Math.cos(a) * 0.55, 1.25, Math.sin(a) * 0.55, 5); l.rotation.set(Math.sin(a) * 0.25, 0, -Math.cos(a) * 0.25); b.add(l); }
   return b;
 }
@@ -380,7 +405,7 @@ export function house(d: Dims): THREE.Group {
   for (let s_ = 0; s_ < stories; s_++) {
     const b = bodies.length > 1 ? (s_ === 0 ? null : bodies[1]) : bodies[0]; if (!b) continue;
     const [bw, bd] = b, y0 = s_ * sh, y1 = y0 + sh;
-    for (const [x, z] of [[-bw / 2, -bd / 2], [bw / 2, -bd / 2], [-bw / 2, bd / 2], [bw / 2, bd / 2]]) g.add(box(0.8, sh, 0.8, beam, x, y0 + sh / 2, z));
+    for (const [x, z] of [[-bw / 2, -bd / 2], [bw / 2, -bd / 2], [-bw / 2, bd / 2], [bw / 2, bd / 2]]) g.add(tier(box(0.8, sh, 0.8, beam, x, y0 + sh / 2, z), 'near'));
     for (const y of [y0 + 0.4, y1 - 0.3]) { if (long) g.add(box(bw + 0.2, 0.5, 0.3, beam, 0, y, bd / 2 + 0.05), box(bw + 0.2, 0.5, 0.3, beam, 0, y, -bd / 2 - 0.05)); else g.add(box(0.3, 0.5, bd + 0.2, beam, bw / 2 + 0.05, y, 0), box(0.3, 0.5, bd + 0.2, beam, -bw / 2 - 0.05, y, 0)); }   // rails on the long faces
     const bl = Math.hypot(3.2, sh * 0.8), ang = Math.atan2(sh * 0.8, 3.2);
     for (const sx of [-1, 1]) for (const sz of [-1, 1]) {
@@ -404,8 +429,9 @@ export function house(d: Dims): THREE.Group {
     for (const [fx, fz, ry] of faces) for (let i = -1; i <= 1; i += 2) {
       if (s_ === 0 && fz as number > 0 && long && i === -1 && span < 26) continue;   // the door takes this bay on a small house
       const open = Math.abs(Math.sin((fx as number) * 3.1 + (fz as number) * 1.7 + i * 5.3 + s_ * 2.9 + w)) > 0.45;
-      const grp = g_(box(3.2, 3.6, 0.3, beam, 0, wy, 0));
-      if (open) grp.add(box(2.4, 2.8, 0.34, '#1d1916', 0, wy, 0), box(1.2, 3.2, 0.2, shut, -2.25, wy, 0.1), box(1.2, 3.2, 0.2, shut, 2.25, wy, 0.1));
+      // the frame and the shutters are detail for the near view; the dark pane (or the shut shutters) reads from the table
+      const grp = g_(tier(box(3.2, 3.6, 0.3, beam, 0, wy, 0), 'near'));
+      if (open) grp.add(box(2.4, 2.8, 0.34, '#1d1916', 0, wy, 0), tier(box(1.2, 3.2, 0.2, shut, -2.25, wy, 0.1), 'near'), tier(box(1.2, 3.2, 0.2, shut, 2.25, wy, 0.1), 'near'));
       else grp.add(box(2.6, 3.1, 0.4, shut, 0, wy, 0.05));
       grp.position.set((fx as number) + (long ? i * span * 0.28 : 0), 0, (fz as number) + (long ? 0 : i * span * 0.28)); grp.rotation.y = ry as number; g.add(grp);
     }
@@ -578,11 +604,16 @@ export function oak(d: Dims): THREE.Group {
       const limb = g_(); limb.position.set(0, h * 0.72, 0); limb.rotation.set(0, i * 2.1 + 0.3, -0.7);
       limb.add(cyl(r * 0.3, r * 0.5, c * 0.9, B, 0, c * 0.45, 0, 6)); g.add(limb);
     }
-    const cols = ['#2f5a35', '#3a6b3d', '#34603a'];
+    // the crown: six blobs, faceted close up (ico 1) and a coarse stand-in of the same blobs (ico 0) for the table view
+    const cols = ['#2f5a35', '#3a6b3d', '#34603a'], near = tier(g_(), 'near'), far = tier(g_(), 'far');
     for (let i = 0; i < 6; i++) {
-      const a = i * 1.05 + 0.2, rr = c * (0.42 + (i % 3) * 0.1), m = new THREE.Mesh(new THREE.IcosahedronGeometry(rr, 1), mat(cols[i % 3]));
-      m.position.set(Math.cos(a) * c * (i < 5 ? 0.48 : 0), h * 0.9 + (i < 5 ? (i % 2) * c * 0.18 : c * 0.4), Math.sin(a) * c * (i < 5 ? 0.48 : 0)); m.scale.y = 0.82; g.add(m);
+      const a = i * 1.05 + 0.2, rr = c * (0.42 + (i % 3) * 0.1);
+      for (const [grp, det] of [[near, 1], [far, 0]] as const) {
+        const m = new THREE.Mesh(new THREE.IcosahedronGeometry(rr, det), mat(cols[i % 3]));
+        m.position.set(Math.cos(a) * c * (i < 5 ? 0.48 : 0), h * 0.9 + (i < 5 ? (i % 2) * c * 0.18 : c * 0.4), Math.sin(a) * c * (i < 5 ? 0.48 : 0)); m.scale.y = 0.82; grp.add(m);
+      }
     }
+    g.add(near, far);
   }
   return g;
 }
@@ -658,7 +689,7 @@ export function campfire(): THREE.Group {
   const g = g_();
   for (let i = 0; i < 9; i++) { const a = (i / 9) * Math.PI * 2; g.add(box(0.8, 0.6, 0.8, '#6d6a66', Math.cos(a) * 2.2, 0.3, Math.sin(a) * 2.2)); }
   g.add(boxr(3, 0.5, 0.5, PALETTE.woodDark, 0, 0.4, 0, 0.6), boxr(3, 0.5, 0.5, PALETTE.woodDark, 0, 0.5, 0, -0.6));
-  const fl = new THREE.Mesh(new THREE.ConeGeometry(1, 2.4, 6), new THREE.MeshBasicMaterial({ color: '#f2a03a' })); fl.position.y = 1.6; g.add(fl);
+  const fl = new THREE.Mesh(new THREE.ConeGeometry(1, 2.4, 6), FIRE()); fl.position.y = 1.6; g.add(fl);
   for (const a of [0, 2.1, 4.2]) { const leg = cyl(0.1, 0.1, 6, PALETTE.woodDark, Math.cos(a) * 1.6, 2.8, Math.sin(a) * 1.6, 5); leg.rotation.set(Math.sin(a) * 0.3, 0, -Math.cos(a) * 0.3); g.add(leg); }
   g.add(cyl(0.7, 0.6, 1, '#2b2420', 0, 3.4, 0, 8));
   return g;
@@ -691,11 +722,13 @@ export function washline(d: Dims): THREE.Group {
 export function palisade(d: Dims): THREE.Group {
   const L = d.len ?? 20, H = d.h ?? 22, side = d.flip ? -1 : 1, g = g_();
   const n = Math.max(1, Math.ceil(L / 1.6));   // trunks touching: no daylight through the wall
+  const trunks = tier(g_(), 'near');            // the trunks close up; one solid timber wall from the table view
   for (let i = 0; i < n; i++) {
     const x = -L / 2 + (i + 0.5) * (L / n), h = H + (((i * 7919) % 7) / 7 - 0.5) * 0.5, r = 0.95 + (((i * 104729) % 5) / 5) * 0.15;
-    g.add(cyl(r * 0.92, r, h, i % 3 ? PALETTE.woodDark : '#4a3828', x, h / 2, 0, 6));
-    const tip = new THREE.Mesh(new THREE.ConeGeometry(r * 0.92, 2.6, 6), mat('#5a4632')); tip.position.set(x, h + 1.3, 0); g.add(tip);
+    trunks.add(cyl(r * 0.92, r, h, i % 3 ? PALETTE.woodDark : '#4a3828', x, h / 2, 0, 6));
+    const tip = new THREE.Mesh(new THREE.ConeGeometry(r * 0.92, 2.6, 6), mat('#5a4632')); tip.position.set(x, h + 1.3, 0); trunks.add(tip);
   }
+  g.add(trunks, tier(box(L, H + 1.4, 1.9, PALETTE.woodDark, 0, (H + 1.4) / 2, 0), 'far'));
   g.add(box(L, 0.6, 0.5, '#3b2d22', 0, H * 0.72, side * 1.1), box(L, 0.6, 0.5, '#3b2d22', 0, H * 0.25, side * 1.1));   // binding rails
   const wy = Math.min(12, H - 4.5);                                                                                                // the fighting walk
   g.add(box(L, 0.5, 4, PALETTE.wood, 0, wy, side * 3.2));
@@ -711,7 +744,7 @@ export function watchtower(d: Dims): THREE.Group {
   for (const [x, z] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) g.add(box(0.6, 7, 0.6, PALETTE.woodDark, x * w / 2, H + 4, z * w / 2));
   const roof = new THREE.Mesh(new THREE.ConeGeometry(w * 0.95, 6, 4), mat('#3d3a3e')); roof.rotation.y = Math.PI / 4; roof.position.y = H + 10.5; g.add(roof);
   g.add(cyl(0.9, 0.6, 1.2, PALETTE.iron, 0, H + 1.4, 0, 8));
-  const fl = new THREE.Mesh(new THREE.ConeGeometry(0.7, 1.6, 6), new THREE.MeshBasicMaterial({ color: '#f2a03a' })); fl.position.y = H + 2.6; g.add(fl);
+  const fl = new THREE.Mesh(new THREE.ConeGeometry(0.7, 1.6, 6), FIRE()); fl.position.y = H + 2.6; g.add(fl);
   g.add(box(0.4, H * 0.9, 1.8, '#3b2d22', w / 2 + 0.6, H * 0.45, 0));   // the ladder side
   return g;
 }
@@ -766,7 +799,7 @@ export function chasm(d: Dims): THREE.Group {
     face.computeVertexNormals(); g.add(new THREE.Mesh(face, mat('#3d3d45')));
   }
   const fog = new THREE.Mesh(new THREE.PlaneGeometry(w + 6, L), new THREE.MeshBasicMaterial({ color: '#8a90a0', transparent: true, opacity: 0.85 })); fog.rotation.x = -Math.PI / 2; fog.position.y = -60; g.add(fog);
-  const fog2 = new THREE.Mesh(new THREE.PlaneGeometry(w + 6, L), new THREE.MeshBasicMaterial({ color: '#5e6270' })); fog2.rotation.x = -Math.PI / 2; fog2.position.y = -140; g.add(fog2);
+  const fog2 = new THREE.Mesh(new THREE.PlaneGeometry(w + 6, L), mat('#5e6270')); fog2.rotation.x = -Math.PI / 2; fog2.position.y = -140; g.add(fog2);   // the fog floor: lit and fogged like the rest of the level
   return g;
 }
 /** The drawbridge: old shored-up beams across `len` ft (local x), `w` wide, a few boards missing, chains up to the gate. */
