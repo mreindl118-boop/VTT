@@ -1,0 +1,1184 @@
+{
+ "schema": 1,
+ "location": "U3",
+ "chapter": "ch10",
+ "name": "Baba Lysaga's Creeping Hut",
+ "mapPage": 163,
+ "bookScaleFt": 5,
+ "ambient": "fog",
+ "parent": "ch10/U",
+ "stacked": true,
+ "entry": "mire",
+ "levels": [
+  {
+   "id": "mire",
+   "name": "The mire (U3)",
+   "elevationFt": 0,
+   "ceilingFt": 13,
+   "ambient": "fog",
+   "north": "-z",
+   "rooms": [
+    {
+     "key": "U3-mire",
+     "name": "Baba Lysaga's Hut: the mire round the stump",
+     "page": 163,
+     "polygon": [
+      [
+       0,
+       0
+      ],
+      [
+       55,
+       0
+      ],
+      [
+       55,
+       55
+      ],
+      [
+       0,
+       55
+      ]
+     ],
+     "floor": "marsh",
+     "ceilingFt": 13,
+     "desc": "Spongy mire round the rotting stump of a giant tree; the hut squats on top, its roots thrust out of the mud like a spider's legs. A hollowed giant's skull floats upside down under the doorway, and two cages of squawking ravens hang from the eaves.",
+     "dm": "The ravens' racket hides any approach; only the howling skulls (U2) or nearby combat carry over it. If the party overstays, Baba Lysaga wakes the hut: the roots tear free and it walks (creeping hut, CR 11)."
+    }
+   ],
+   "walls": [],
+   "lights": [],
+   "objects": [
+    {
+     "id": "mire-stump",
+     "kind": "hut-stump",
+     "pos": [
+      27.5,
+      0,
+      27.5
+     ],
+     "vis": "player",
+     "key": "U3-mire",
+     "dims": {
+      "r": 9,
+      "h": 10
+     }
+    },
+    {
+     "id": "mire-root0",
+     "kind": "giant-root",
+     "pos": [
+      28.25,
+      0,
+      21.875
+     ],
+     "vis": "player",
+     "rotY": 85.0,
+     "key": "U3-mire",
+     "dims": {
+      "len": 16.5,
+      "rise": 8.5,
+      "r": 2.0,
+      "seed": 0,
+      "band": 0
+     }
+    },
+    {
+     "id": "mire-root1",
+     "kind": "giant-root",
+     "pos": [
+      24.125,
+      0,
+      21.875
+     ],
+     "vis": "player",
+     "rotY": 127.7,
+     "key": "U3-mire",
+     "dims": {
+      "len": 17.7,
+      "rise": 8.5,
+      "r": 1.7,
+      "seed": 1,
+      "band": 0
+     }
+    },
+    {
+     "id": "mire-root2",
+     "kind": "giant-root",
+     "pos": [
+      33.125,
+      0,
+      21.875
+     ],
+     "vis": "player",
+     "rotY": 46.4,
+     "key": "U3-mire",
+     "dims": {
+      "len": 18.7,
+      "rise": 8.5,
+      "r": 1.7,
+      "seed": 2,
+      "band": 1
+     }
+    },
+    {
+     "id": "mire-root3",
+     "kind": "giant-root",
+     "pos": [
+      21.875,
+      0,
+      25.25
+     ],
+     "vis": "player",
+     "rotY": 165.2,
+     "key": "U3-mire",
+     "dims": {
+      "len": 18.0,
+      "rise": 8.5,
+      "r": 2.0,
+      "seed": 3,
+      "band": 0
+     }
+    },
+    {
+     "id": "mire-root4",
+     "kind": "giant-root",
+     "pos": [
+      21.875,
+      0,
+      29.375
+     ],
+     "vis": "player",
+     "rotY": -175.4,
+     "key": "U3-mire",
+     "dims": {
+      "len": 17.1,
+      "rise": 8.5,
+      "r": 1.7,
+      "seed": 4,
+      "band": 0
+     }
+    },
+    {
+     "id": "mire-root5",
+     "kind": "giant-root",
+     "pos": [
+      22.625,
+      0,
+      33.125
+     ],
+     "vis": "player",
+     "rotY": -135.3,
+     "key": "U3-mire",
+     "dims": {
+      "len": 18.0,
+      "rise": 8.5,
+      "r": 1.7,
+      "seed": 5,
+      "band": 0
+     }
+    },
+    {
+     "id": "mire-root6",
+     "kind": "giant-root",
+     "pos": [
+      27.875,
+      0,
+      33.125
+     ],
+     "vis": "player",
+     "rotY": -97.5,
+     "key": "U3-mire",
+     "dims": {
+      "len": 16.2,
+      "rise": 8.5,
+      "r": 2.0,
+      "seed": 6,
+      "band": 0
+     }
+    },
+    {
+     "id": "mire-root7",
+     "kind": "giant-root",
+     "pos": [
+      33.125,
+      0,
+      33.125
+     ],
+     "vis": "player",
+     "rotY": -48.6,
+     "key": "U3-mire",
+     "dims": {
+      "len": 19.5,
+      "rise": 8.5,
+      "r": 1.7,
+      "seed": 7,
+      "band": 0
+     }
+    },
+    {
+     "id": "mire-skull",
+     "kind": "giant-skull",
+     "pos": [
+      41.5,
+      0,
+      27.5
+     ],
+     "vis": "player",
+     "key": "U3-mire",
+     "dims": {
+      "y": 6.2
+     }
+    },
+    {
+     "id": "mire-skull-note",
+     "kind": "note",
+     "pos": [
+      41.5,
+      0,
+      32.0
+     ],
+     "vis": "dm-note",
+     "key": "U3-mire",
+     "label": "Hill giant's skull: hovers until Baba Lysaga, inside it, bids it fly (40 ft); holds one Medium creature, three-quarters cover; AC 15, 50 hp, immune to poison and psychic."
+    },
+    {
+     "id": "mire-climb",
+     "kind": "note",
+     "pos": [
+      39.5,
+      0,
+      23.0
+     ],
+     "vis": "dm-note",
+     "key": "U3-mire",
+     "label": "No stair: climb a root or the stump (Athletics) to the doorway, ten feet up, or step across from the floating skull."
+    },
+    {
+     "id": "mire-reeds0",
+     "kind": "reeds",
+     "pos": [
+      5.0,
+      0,
+      4.0
+     ],
+     "vis": "player",
+     "dims": {
+      "s": 1.2
+     }
+    },
+    {
+     "id": "mire-reeds1",
+     "kind": "reeds",
+     "pos": [
+      16.0,
+      0,
+      2.5
+     ],
+     "vis": "player",
+     "rotY": 53,
+     "dims": {
+      "s": 1
+     }
+    },
+    {
+     "id": "mire-reeds2",
+     "kind": "reeds",
+     "pos": [
+      44.0,
+      0,
+      4.5
+     ],
+     "vis": "player",
+     "rotY": 106,
+     "dims": {
+      "s": 1.3
+     }
+    },
+    {
+     "id": "mire-reeds3",
+     "kind": "reeds",
+     "pos": [
+      51.0,
+      0,
+      11.0
+     ],
+     "vis": "player",
+     "rotY": 159,
+     "dims": {
+      "s": 1.1
+     }
+    },
+    {
+     "id": "mire-reeds4",
+     "kind": "reeds",
+     "pos": [
+      3.0,
+      0,
+      38.0
+     ],
+     "vis": "player",
+     "rotY": 212,
+     "dims": {
+      "s": 1.2
+     }
+    },
+    {
+     "id": "mire-reeds5",
+     "kind": "reeds",
+     "pos": [
+      8.0,
+      0,
+      51.0
+     ],
+     "vis": "player",
+     "rotY": 265,
+     "dims": {
+      "s": 1
+     }
+    },
+    {
+     "id": "mire-reeds6",
+     "kind": "reeds",
+     "pos": [
+      33.0,
+      0,
+      52.0
+     ],
+     "vis": "player",
+     "rotY": 318,
+     "dims": {
+      "s": 1.3
+     }
+    },
+    {
+     "id": "mire-reeds7",
+     "kind": "reeds",
+     "pos": [
+      41.0,
+      0,
+      50.5
+     ],
+     "vis": "player",
+     "rotY": 371,
+     "dims": {
+      "s": 1
+     }
+    },
+    {
+     "id": "mire-reeds8",
+     "kind": "reeds",
+     "pos": [
+      52.0,
+      0,
+      31.0
+     ],
+     "vis": "player",
+     "rotY": 424,
+     "dims": {
+      "s": 1.2
+     }
+    },
+    {
+     "id": "mire-reeds9",
+     "kind": "reeds",
+     "pos": [
+      50.5,
+      0,
+      25.0
+     ],
+     "vis": "player",
+     "rotY": 477,
+     "dims": {
+      "s": 0.9
+     }
+    },
+    {
+     "id": "mire-reeds10",
+     "kind": "reeds",
+     "pos": [
+      11.0,
+      0,
+      34.5
+     ],
+     "vis": "player",
+     "rotY": 530,
+     "dims": {
+      "s": 0.9
+     }
+    },
+    {
+     "id": "mire-reeds11",
+     "kind": "reeds",
+     "pos": [
+      14.5,
+      0,
+      17.0
+     ],
+     "vis": "player",
+     "rotY": 583,
+     "dims": {
+      "s": 1
+     }
+    },
+    {
+     "id": "mire-reeds12",
+     "kind": "reeds",
+     "pos": [
+      39.5,
+      0,
+      13.0
+     ],
+     "vis": "player",
+     "rotY": 636,
+     "dims": {
+      "s": 1.1
+     }
+    },
+    {
+     "id": "mire-reeds13",
+     "kind": "reeds",
+     "pos": [
+      17.0,
+      0,
+      41.0
+     ],
+     "vis": "player",
+     "rotY": 689,
+     "dims": {
+      "s": 0.8
+     }
+    },
+    {
+     "id": "mire-reeds14",
+     "kind": "reeds",
+     "pos": [
+      44.5,
+      0,
+      40.0
+     ],
+     "vis": "player",
+     "rotY": 742,
+     "dims": {
+      "s": 1
+     }
+    },
+    {
+     "id": "mire-reeds15",
+     "kind": "reeds",
+     "pos": [
+      2.5,
+      0,
+      25.5
+     ],
+     "vis": "player",
+     "rotY": 795,
+     "dims": {
+      "s": 0.9
+     }
+    },
+    {
+     "id": "mire-bush0",
+     "kind": "thorn-thicket",
+     "pos": [
+      10.0,
+      0,
+      11.5
+     ],
+     "vis": "player",
+     "dims": {
+      "s": 1.1
+     }
+    },
+    {
+     "id": "mire-bush1",
+     "kind": "thorn-thicket",
+     "pos": [
+      48.0,
+      0,
+      41.5
+     ],
+     "vis": "player",
+     "rotY": 70,
+     "dims": {
+      "s": 1.1
+     }
+    },
+    {
+     "id": "mire-bush2",
+     "kind": "thorn-thicket",
+     "pos": [
+      18.0,
+      0,
+      50.0
+     ],
+     "vis": "player",
+     "rotY": 140,
+     "dims": {
+      "s": 1.1
+     }
+    }
+   ],
+   "terrain": [
+    {
+     "polygon": [
+      [
+       0,
+       0
+      ],
+      [
+       55,
+       0
+      ],
+      [
+       55,
+       55
+      ],
+      [
+       0,
+       55
+      ]
+     ],
+     "floor": "marsh"
+    },
+    {
+     "polygon": [
+      [
+       1.5,
+       11.0
+      ],
+      [
+       8.0,
+       9.0
+      ],
+      [
+       11.0,
+       14.5
+      ],
+      [
+       7.0,
+       18.0
+      ],
+      [
+       2.0,
+       16.5
+      ]
+     ],
+     "floor": "shallow-water"
+    },
+    {
+     "polygon": [
+      [
+       42.0,
+       37.0
+      ],
+      [
+       49.0,
+       35.5
+      ],
+      [
+       53.0,
+       41.0
+      ],
+      [
+       49.5,
+       45.5
+      ],
+      [
+       43.0,
+       43.5
+      ]
+     ],
+     "floor": "shallow-water"
+    },
+    {
+     "polygon": [
+      [
+       13.0,
+       48.0
+      ],
+      [
+       19.5,
+       46.5
+      ],
+      [
+       22.5,
+       52.0
+      ],
+      [
+       16.0,
+       54.0
+      ],
+      [
+       12.0,
+       51.5
+      ]
+     ],
+     "floor": "shallow-water"
+    },
+    {
+     "polygon": [
+      [
+       46.0,
+       16.0
+      ],
+      [
+       52.5,
+       15.0
+      ],
+      [
+       54.0,
+       20.5
+      ],
+      [
+       48.5,
+       22.0
+      ]
+     ],
+     "floor": "shallow-water"
+    },
+    {
+     "polygon": [
+      [
+       33.0,
+       2.0
+      ],
+      [
+       40.0,
+       1.5
+      ],
+      [
+       41.5,
+       6.0
+      ],
+      [
+       35.0,
+       7.5
+      ]
+     ],
+     "floor": "shallow-water"
+    }
+   ]
+  },
+  {
+   "id": "hut",
+   "name": "Baba Lysaga's hut (U3)",
+   "elevationFt": 10,
+   "ceilingFt": 8,
+   "ambient": "darkness",
+   "north": "-z",
+   "rooms": [
+    {
+     "key": "U3",
+     "name": "Baba Lysaga's Hut (interior)",
+     "page": 163,
+     "polygon": [
+      [
+       20,
+       20
+      ],
+      [
+       35,
+       20
+      ],
+      [
+       35,
+       35
+      ],
+      [
+       20,
+       35
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 8,
+     "desc": "A cramped, reeking room fifteen feet square, crammed with old furniture: a cot, a wicker cabinet, a slender wardrobe, a table and stool, a brass-bound chest, an iron tub stained with blood, and in the middle a ghastly crib with a small angelic child sitting in it. Green light seeps up through the floorboards.",
+     "dm": "All bolted down except the crib. Crib and child are an illusion; the gem lies in a cavity under the boards. Robes in the wardrobe, spell components in the cabinet, treasure in the trapped chest."
+    }
+   ],
+   "walls": [
+    {
+     "id": "hut-w-0",
+     "a": [
+      20.0,
+      20.0
+     ],
+     "b": [
+      35.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "hut-w-1",
+     "a": [
+      35.0,
+      20.0
+     ],
+     "b": [
+      35.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "hut-w-2",
+     "a": [
+      35.0,
+      30.0
+     ],
+     "b": [
+      35.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "hut-w-3",
+     "a": [
+      30.0,
+      35.0
+     ],
+     "b": [
+      35.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "hut-w-4",
+     "a": [
+      25.0,
+      35.0
+     ],
+     "b": [
+      30.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "hut-w-5",
+     "a": [
+      20.0,
+      35.0
+     ],
+     "b": [
+      25.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "hut-w-6",
+     "a": [
+      20.0,
+      30.0
+     ],
+     "b": [
+      20.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "hut-w-7",
+     "a": [
+      20.0,
+      25.0
+     ],
+     "b": [
+      20.0,
+      30.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    },
+    {
+     "id": "hut-w-8",
+     "a": [
+      20.0,
+      20.0
+     ],
+     "b": [
+      20.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "log"
+    }
+   ],
+   "lights": [
+    {
+     "id": "hut-l-candle",
+     "pos": [
+      25.0,
+      3.6,
+      22.1
+     ],
+     "preset": "candle",
+     "bright": 5,
+     "dim": 10
+    },
+    {
+     "id": "hut-l-gem",
+     "pos": [
+      27.25,
+      0.4,
+      27.5
+     ],
+     "preset": "candle",
+     "bright": 0,
+     "dim": 5
+    }
+   ],
+   "objects": [
+    {
+     "id": "hut-landing",
+     "kind": "plank-landing",
+     "pos": [
+      36.1,
+      0,
+      27.5
+     ],
+     "vis": "player",
+     "key": "U3",
+     "dims": {
+      "w": 6.5,
+      "d": 2.2
+     }
+    },
+    {
+     "id": "hut-roof",
+     "kind": "thatch-roof",
+     "pos": [
+      27.5,
+      0,
+      27.5
+     ],
+     "vis": "player",
+     "key": "U3",
+     "dims": {
+      "w": 16,
+      "d": 16,
+      "y": 8,
+      "rise": 3.5
+     }
+    },
+    {
+     "id": "hut-cage0",
+     "kind": "raven-cage",
+     "pos": [
+      37.1,
+      0,
+      23.1
+     ],
+     "vis": "player",
+     "key": "U3",
+     "dims": {
+      "drop": 2.6,
+      "y": 8
+     }
+    },
+    {
+     "id": "hut-ravens0",
+     "kind": "swarm-of-ravens",
+     "pos": [
+      37.1,
+      3.2,
+      23.1
+     ],
+     "vis": "hidden-creature",
+     "key": "U3",
+     "label": "Swarm of ravens in an iron cage (arcane lock: knock, DC 20 Strength or DC 20 thieves' tools); attacks Baba Lysaga and her scarecrows if freed",
+     "size": "medium",
+     "playerLabel": "Caged ravens"
+    },
+    {
+     "id": "hut-cage1",
+     "kind": "raven-cage",
+     "pos": [
+      37.1,
+      0,
+      31.9
+     ],
+     "vis": "player",
+     "key": "U3",
+     "dims": {
+      "drop": 2.6,
+      "y": 8
+     }
+    },
+    {
+     "id": "hut-ravens1",
+     "kind": "swarm-of-ravens",
+     "pos": [
+      37.1,
+      3.2,
+      31.9
+     ],
+     "vis": "hidden-creature",
+     "key": "U3",
+     "label": "Swarm of ravens in an iron cage (arcane lock: knock, DC 20 Strength or DC 20 thieves' tools); attacks Baba Lysaga and her scarecrows if freed",
+     "size": "medium",
+     "playerLabel": "Caged ravens"
+    },
+    {
+     "id": "hut-cot",
+     "kind": "cot",
+     "pos": [
+      22.25,
+      0,
+      23.75
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "U3"
+    },
+    {
+     "id": "hut-table",
+     "kind": "table",
+     "pos": [
+      26.5,
+      0,
+      22.1
+     ],
+     "vis": "player",
+     "key": "U3",
+     "dims": {
+      "w": 4.4,
+      "d": 2.2,
+      "h": 2.5
+     }
+    },
+    {
+     "id": "hut-stool",
+     "kind": "stool",
+     "pos": [
+      24.75,
+      0,
+      24.75
+     ],
+     "vis": "player",
+     "rotY": 30,
+     "key": "U3"
+    },
+    {
+     "id": "hut-cabinet",
+     "kind": "cabinet",
+     "pos": [
+      32.75,
+      0,
+      22.1
+     ],
+     "vis": "player",
+     "rotY": -160,
+     "key": "U3",
+     "container": {
+      "contents": "Jars and pouches of spell components: dried things, powders, bones and herbs."
+     },
+     "desc": "A wicker cabinet, bolted down."
+    },
+    {
+     "id": "hut-chest",
+     "kind": "chest",
+     "pos": [
+      22.1,
+      0,
+      28.75
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "U3",
+     "container": {
+      "contents": "1,300 gp, five 500-gp gemstones, a vial of oil of sharpness, spell scrolls of mass cure wounds and revivify, a pouch of ten +1 sling bullets, a set of pipes of haunting and a stone of good luck.",
+      "reveals": [
+       "hut-claws"
+      ]
+     },
+     "desc": "A barrel-topped wooden chest bound in brass, bolted to the floor.",
+     "dm": "Glyph of warding (5d8 thunder); four crawling claws inside. A card-reading treasure here would be in it too."
+    },
+    {
+     "id": "hut-crib",
+     "kind": "ghastly-crib",
+     "pos": [
+      27.25,
+      0,
+      27.5
+     ],
+     "vis": "player",
+     "key": "U3",
+     "desc": "A ghastly wooden crib; an angelic little child sits in it, quite still.",
+     "dm": "Programmed illusion. The gem's green light seeps up between the boards beneath it."
+    },
+    {
+     "id": "hut-tub",
+     "kind": "blood-tub",
+     "pos": [
+      24.25,
+      0,
+      32.4
+     ],
+     "vis": "player",
+     "key": "U3",
+     "desc": "An iron tub crusted dark with blood.",
+     "dm": "Where Baba Lysaga bathes in beasts' blood to stave off old age (new moon)."
+    },
+    {
+     "id": "hut-wardrobe",
+     "kind": "wardrobe",
+     "pos": [
+      32.25,
+      0,
+      32.1
+     ],
+     "vis": "player",
+     "rotY": -148,
+     "key": "U3",
+     "container": {
+      "contents": "Soiled robes, stiff with old blood."
+     },
+     "desc": "A slender wardrobe, leaning, bolted to the floor."
+    },
+    {
+     "id": "hut-stool2",
+     "kind": "stool",
+     "pos": [
+      30.25,
+      0,
+      30.0
+     ],
+     "vis": "player",
+     "rotY": 10,
+     "key": "U3"
+    },
+    {
+     "id": "hut-candle",
+     "kind": "candlestick",
+     "pos": [
+      25.0,
+      2.5,
+      22.1
+     ],
+     "vis": "player",
+     "key": "U3",
+     "dims": {
+      "h": 0.9
+     }
+    },
+    {
+     "id": "hut-gem",
+     "kind": "niche",
+     "pos": [
+      27.25,
+      0,
+      27.5
+     ],
+     "vis": "hidden-object",
+     "key": "U3",
+     "label": "Under the crib: a 3-ft cavity holding the green-glowing gem that animates the hut (floor: DC 14 Strength or 10 damage; the cavity bites, DC 20 Dexterity, 3d6). Without it the hut is incapacitated.",
+     "playerLabel": "Green light between the boards"
+    },
+    {
+     "id": "hut-glyph",
+     "kind": "niche",
+     "pos": [
+      22.1,
+      0,
+      28.75
+     ],
+     "vis": "trap",
+     "key": "U3",
+     "label": "Glyph of warding on the chest (DC 17 Investigation): 5d8 thunder. Inside, four crawling claws and the hag's plunder.",
+     "playerLabel": "A brass-bound chest"
+    },
+    {
+     "id": "hut-claws",
+     "kind": "crawling-claw",
+     "pos": [
+      22.1,
+      0,
+      27.5
+     ],
+     "vis": "hidden-creature",
+     "key": "U3",
+     "label": "Four crawling claws in the chest, released when it opens",
+     "size": "tiny",
+     "playerLabel": "Crawling hands"
+    },
+    {
+     "id": "hut-lysaga",
+     "kind": "baba-lysaga",
+     "pos": [
+      24.25,
+      0,
+      31.0
+     ],
+     "vis": "hidden-creature",
+     "key": "U3",
+     "label": "Baba Lysaga, bathing in blood or at her work (she cannot hear over the ravens)",
+     "size": "medium",
+     "playerLabel": "An ancient crone"
+    },
+    {
+     "id": "hut-child",
+     "kind": "note",
+     "pos": [
+      27.25,
+      0,
+      26.0
+     ],
+     "vis": "dm-note",
+     "key": "U3",
+     "label": "The child in the crib, whom she calls \"Strahd\", and the crib itself are a programmed illusion."
+    }
+   ]
+  }
+ ],
+ "links": [
+  {
+   "id": "U3-climb",
+   "kind": "ladder",
+   "from": {
+    "level": "mire",
+    "pos": [
+     38.0,
+     27.5
+    ]
+   },
+   "to": {
+    "level": "hut",
+    "pos": [
+     32.5,
+     27.5
+    ]
+   }
+  }
+ ]
+}
