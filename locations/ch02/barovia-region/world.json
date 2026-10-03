@@ -127,7 +127,10 @@
    ],
    "type": "road",
    "blurb": "The old road through the Svalich Woods, the only way into the valley.",
-   "dm": "The mists close behind travellers; the road brings the party to the gates."
+   "dm": "The mists close behind travellers; the road brings the party to the gates.",
+   "scenes": [
+    "ch02/A"
+   ]
   },
   {
    "key": "B",
@@ -138,7 +141,10 @@
    ],
    "type": "gate",
    "blurb": "Two crumbling stone pillars and a rusted iron gate, headless statues to either side.",
-   "dm": "The gate swings open on its own; the mists keep anyone from turning back."
+   "dm": "The gate swings open on its own; the mists keep anyone from turning back.",
+   "scenes": [
+    "ch02/B"
+   ]
   },
   {
    "key": "C",
@@ -162,7 +168,10 @@
     8.68
    ],
    "type": "river",
-   "blurb": "A cold, fast river running down from the falls to the village."
+   "blurb": "A cold, fast river running down from the falls to the village.",
+   "scenes": [
+    "ch02/D"
+   ]
   },
   {
    "key": "E",
@@ -189,7 +198,10 @@
    ],
    "type": "crossroads",
    "blurb": "A crossroads by the river with an old gallows.",
-   "dm": "The gallows sometimes shows a hanged figure that looks like one of the party."
+   "dm": "The gallows sometimes shows a hanged figure that looks like one of the party.",
+   "scenes": [
+    "ch02/F"
+   ]
   },
   {
    "key": "G",
@@ -214,7 +226,10 @@
     6.81
    ],
    "type": "falls",
-   "blurb": "A thousand-foot waterfall spanned by a stone bridge on the road to the castle."
+   "blurb": "A thousand-foot waterfall spanned by a stone bridge on the road to the castle.",
+   "scenes": [
+    "ch02/H"
+   ]
   },
   {
    "key": "I",
@@ -225,7 +240,10 @@
    ],
    "type": "landmark",
    "blurb": "A black carriage waits by the road, its horses standing silent.",
-   "dm": "Strahd's carriage; it carries invited guests up to the castle."
+   "dm": "Strahd's carriage; it carries invited guests up to the castle.",
+   "scenes": [
+    "ch02/I"
+   ]
   },
   {
    "key": "B2",
@@ -235,7 +253,10 @@
     5.4
    ],
    "type": "gate",
-   "blurb": "The western gate of the same kind: pillars, iron and mist."
+   "blurb": "The western gate of the same kind: pillars, iron and mist.",
+   "scenes": [
+    "ch02/B"
+   ]
   },
   {
    "key": "J",
@@ -245,7 +266,10 @@
     6.45
    ],
    "type": "gate",
-   "blurb": "Iron gates and a gatehouse at the foot of the castle's crag."
+   "blurb": "Iron gates and a gatehouse at the foot of the castle's crag.",
+   "scenes": [
+    "ch02/J"
+   ]
   },
   {
    "key": "K",
@@ -271,7 +295,10 @@
    ],
    "type": "lake",
    "blurb": "A wide mountain lake, cold and deep, fished by folk from Vallaki.",
-   "dm": "Bluto and his rowboat; Arabelle."
+   "dm": "Bluto and his rowboat; Arabelle.",
+   "scenes": [
+    "ch02/L"
+   ]
   },
   {
    "key": "M",
@@ -281,7 +308,10 @@
     1.51
    ],
    "type": "peak",
-   "blurb": "A snow-capped peak north of Vallaki."
+   "blurb": "A snow-capped peak north of Vallaki.",
+   "scenes": [
+    "ch02/M"
+   ]
   },
   {
    "key": "N",
@@ -319,7 +349,10 @@
     4.52
    ],
    "type": "crossroads",
-   "blurb": "Where the road to Krezk meets the Luna River."
+   "blurb": "Where the road to Krezk meets the Luna River.",
+   "scenes": [
+    "ch02/P"
+   ]
   },
   {
    "key": "Q",
@@ -340,7 +373,10 @@
     4.1
    ],
    "type": "crossroads",
-   "blurb": "A crossroads on the Raven River, west of Vallaki."
+   "blurb": "A crossroads on the Raven River, west of Vallaki.",
+   "scenes": [
+    "ch02/R"
+   ]
   },
   {
    "key": "S",
@@ -473,7 +509,10 @@
     16.3,
     9.04
    ],
-   "type": "river"
+   "type": "river",
+   "scenes": [
+    "ch02/D"
+   ]
   }
  ],
  "roads": [
