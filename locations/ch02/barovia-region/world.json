@@ -419,7 +419,11 @@
    ],
    "type": "ruin",
    "blurb": "A drowned village in the marsh.",
-   "dm": "Baba Lysaga's walking hut; the ruined mansion."
+   "dm": "Baba Lysaga's walking hut; the ruined mansion.",
+   "scenes": [
+    "ch10/U",
+    "ch10/U3"
+   ]
   },
   {
    "key": "V",
@@ -430,7 +434,10 @@
    ],
    "type": "tower",
    "blurb": "A lone tower on an island in a mountain lake, reached by a causeway.",
-   "dm": "The monster hunter's tower; Ezmerelda's wagon."
+   "dm": "The monster hunter's tower; Ezmerelda's wagon.",
+   "scenes": [
+    "ch11/V"
+   ]
   },
   {
    "key": "W",

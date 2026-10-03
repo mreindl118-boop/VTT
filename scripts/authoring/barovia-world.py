@@ -32,7 +32,7 @@ PINS = [  # key, name, px, type, scenes (built scene paths reachable from here)
   ('R', 'Raven River Crossroads', (185, 288), 'crossroads', ['ch02/R']),
   ('S', 'Village of Krezk', (53, 261), 'settlement', ['ch08/S', 'ch08/S10']),
   ('T', 'Tsolenka Pass', (225, 690), 'pass', ['ch09/T']),
-  ('U', 'Ruins of Berez', (346, 538), 'ruin', []),
+  ('U', 'Ruins of Berez', (346, 538), 'ruin', ['ch10/U', 'ch10/U3']),
   ('V', "Van Richten's Tower", (230, 225), 'tower', []),
   ('W', 'The Wizard of Wines', (36, 420), 'settlement', ['ch12/W']),
   ('X', 'The Amber Temple', (352, 762), 'temple', ['ch13/X']),

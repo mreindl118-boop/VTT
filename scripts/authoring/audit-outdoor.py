@@ -58,7 +58,7 @@ def audit(path):
     for lv in s['levels']:
         terrain = lv.get('terrain') or []
         if not terrain: continue
-        ground = [t['polygon'] for t in terrain if t.get('floor') in ('grass', 'ground', 'moor', 'snow', 'sand', 'rock')]
+        ground = [t['polygon'] for t in terrain if t.get('floor') in ('grass', 'ground', 'moor', 'snow', 'sand', 'rock', 'marsh')]
         streets = [t['polygon'] for t in terrain if t.get('floor') in ('cobble', 'dirt', 'road', 'gravel', 'flagstone') and len(t['polygon']) <= 8]
         rooms = lv.get('rooms') or []; walls = lv.get('walls') or []
         objs = lv.get('objects') or []
