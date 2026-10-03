@@ -9,6 +9,7 @@ import { baseRing, merge, pawn, PROP_BUILDERS, segmentBox, slabGeometry, stairsS
 import { mat, matClone, patchFog, wallMat } from './materials';
 import { PROPS_V1 } from '../kit/props';
 import { CREATURES } from '../kit/creatures';
+import '../kit/sites';
 import { buildGridOverlay } from './gridOverlay';
 
 /** Kinds whose meshes carry a role of their own (stairs, raised ground, plates): built and placed one by one. */
