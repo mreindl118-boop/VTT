@@ -410,3 +410,26 @@
   boards missing and its chains, the two gate towers either side of the entry tunnel, the portcullis; the board-
   breaking rule as a DM note. Under a crag site's map the land falls away at once, so the chasm shows its depth.
   From afar: the gate towers, the drawbridge and the far rock spur carrying the road down the ridge.
+
+## M3.1 Movable panels — 2026-10-03
+
+- Every floating piece of the DM UI (the title and mode group, the floors bar, the tools, the DM / Players
+  slider, the camera toolbar, the minimap with its clock, the compass and scale frame) is a panel
+  (`app/src/ui/panels.ts`): a dotted grip at its edge drags it anywhere with a mouse or a finger (pointer
+  events with capture, a 4 px threshold so a tap is never a drag, clamped to the viewport), the grip is
+  focusable and the arrow keys nudge it (Shift for bigger steps), and the chevron beside it folds the panel
+  to a pill showing only its icon; a tap on the pill unfolds it. The grips sit beside the panels' own
+  controls, so the minimap's tap-to-look, the sliders and the menus never fight a drag.
+- Hide the UI: a sliver of a tab on the left edge, the H key, or Hide panels in the View menu puts every
+  panel away and brings them back; the tab is the one thing that always stays.
+- The layout (where each panel stands, which are folded, whether they are hidden) is kept in
+  `localStorage` per viewport class (phone under 700 px wide, desktop otherwise) and survives a reload; a
+  position is stored as an offset from the nearest edges, so a panel parked in a corner stays in that
+  corner when the window changes, and everything is re-clamped on resize and rotation. Reset layout in the
+  View menu restores the defaults.
+- Phone defaults keep the picture clear: the floors bar, the minimap and the frame start folded, the
+  toolbar open and fitting one row; the frame rides above the toolbar and the minimap above that.
+- Help describes the panels; `e2e/panels.spec.ts` covers drag and persistence, keyboard nudges, fold and
+  unfold, hide and show, Reset layout, re-clamping on resize, and the phone (touch drag, defaults, its own
+  layout). Stable `data-panel`, `data-collapsed`, `data-placed` and `data-ui-hidden` attributes; no class
+  was renamed.

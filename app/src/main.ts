@@ -12,6 +12,7 @@ import { openEncounterSheet, turnBar } from './ui/encounter';
 import { ICON } from './ui/icons';
 import { openLibrary } from './ui/library';
 import { ViewSlider } from './ui/viewSlider';
+import { Panels } from './ui/panels';
 
 const q = new URLSearchParams(location.search);
 const mode = q.get('display') === 'player' ? 'player' : 'dm';
@@ -44,7 +45,8 @@ const ready = app.init(builtPaths.has(path) ? path : 'appB/death-house');
   flush: () => app.flush(),
   screenOf: (x: number, z: number, y = 0) => { const v = new THREE.Vector3(x, app.level.elevationFt + y, z).project(app.world.camera); const r = app.world.renderer.domElement.getBoundingClientRect(); return [r.left + (v.x + 1) / 2 * r.width, r.top + (1 - v.y) / 2 * r.height]; },
   partyPos: () => app.party?.pos,
-    moveParty: (level: string, x: number, z: number) => { const t = app.party; if (t) { t.level = level; t.pos = [x, z]; } app.setLevel(level); app.world.renderNow(); },
+    panels: () => panels,
+  moveParty: (level: string, x: number, z: number) => { const t = app.party; if (t) { t.level = level; t.pos = [x, z]; } app.setLevel(level); app.world.renderNow(); },
 };
 
 if ('serviceWorker' in navigator && import.meta.env.PROD && !q.has('nosw')) {
@@ -52,6 +54,7 @@ if ('serviceWorker' in navigator && import.meta.env.PROD && !q.has('nosw')) {
 }
 
 let slider: ViewSlider | undefined;
+let panels: Panels | undefined;
 
 function buildDmUi(): void {
   const ui = document.getElementById('ui')!;
@@ -92,6 +95,8 @@ function buildDmUi(): void {
         <button class="icon" data-act="labels" aria-label="Labels: keys / all / none" title="Labels"><i></i><span>Labels</span></button>
         <button class="icon" data-act="lock" aria-label="Player camera follows DM" title="Player camera follows DM"><i></i><span>Players follow my camera</span></button>
         <button class="icon" data-act="display" aria-label="Open Player Display" title="Open Player Display">${ICON.display}<span>Player display</span></button>
+        <button class="icon" data-act="ui-hide" aria-label="Hide the panels (H)" title="Hide the panels (H)">${ICON.panels}<span>Hide panels <i class="key">H</i></span></button>
+        <button class="icon" data-act="layout-reset" aria-label="Reset the panel layout" title="Reset layout: every panel back to its place, unfolded">${ICON.layout}<span>Reset layout</span></button>
       </div></details>
     </div>`;
   ui.appendChild(top);
@@ -114,9 +119,19 @@ function buildDmUi(): void {
   ui.appendChild(cam);
   const minimap = buildMinimap(app, ui, () => openClock());
   ui.insertAdjacentHTML('beforeend', `<div class="mapframe" aria-hidden="true"><div class="compass"><svg viewBox="0 0 40 40"><path d="M20 4 L26 22 L20 18 L14 22 Z" fill="#c0392b"/><path d="M20 36 L14 18 L20 22 L26 18 Z" fill="#e8e3d8" opacity=".55"/></svg><b>N</b></div><div class="scalebar"><i></i><span>50 ft</span></div></div>`);
+  // Every floating piece is a panel: drag it by its grip, fold it to its icon, hide them all with the tab or H.
+  // Phones start with the floors bar, the minimap and the frame folded so the picture stays clear; the toolbar stays open.
+  panels = new Panels(ui);
+  panels.makePanel(top.querySelector<HTMLElement>('.group.left')!, { id: 'title', name: 'title and mode', icon: ICON.library });
+  panels.makePanel(top.querySelector<HTMLElement>('.group.center')!, { id: 'floors', name: 'floors', icon: ICON.layers, collapsed: { phone: true } });
+  panels.makePanel(top.querySelector<HTMLElement>('.group.right')!, { id: 'tools', name: 'tools', icon: ICON.reveal });
+  panels.makePanel(slider!.el, { id: 'view', name: 'DM / Player view', icon: ICON.eye });
+  panels.makePanel(cam, { id: 'camera', name: 'camera', icon: ICON.camera });
+  panels.makePanel(minimap.el, { id: 'minimap', name: 'minimap', icon: ICON.map, collapsed: { phone: true } });
+  panels.makePanel(ui.querySelector<HTMLElement>('.mapframe')!, { id: 'compass', name: 'compass and scale', icon: ICON.compass, collapsed: { phone: true } });
   cam.addEventListener('click', (e) => {
     const b = (e.target as HTMLElement).closest<HTMLElement>('button');
-    if (!b) return;
+    if (!b || !b.dataset.cam) return;
     switch (b.dataset.cam) {
       case 'rotL': app.world.rotate(1); break;
       case 'rotR': app.world.rotate(-1); break;
@@ -310,6 +325,8 @@ function buildDmUi(): void {
       case 'lock': app.lockPlayerCamera = !app.lockPlayerCamera; app.layoutChanged(); break;
       case 'display': window.open(`${location.pathname}?display=player&scene=${encodeURIComponent(app.cur?.path ?? '')}`, 'mistlab-player', 'popup,width=1280,height=800'); break;
       case 'help': showHelp(); break;
+      case 'ui-hide': panels!.toggleHidden(); break;
+      case 'layout-reset': panels!.reset(); break;
     }
     refresh();
   });
@@ -461,10 +478,11 @@ function buildDmUi(): void {
 
   // Keyboard: R rotate, F find party, / search, Esc clears the tool.
   addEventListener('keydown', (e) => {
-    if ((e.target as HTMLElement).tagName === 'INPUT') return;
+    if (/^(INPUT|SELECT|TEXTAREA)$/.test((e.target as HTMLElement).tagName)) return;
     if (e.key === 'r') app.world.rotate(1); if (e.key === 'R') app.world.rotate(-1);
     if (e.key === 'n' && app.encounter && !app.restricted) { app.nextTurn(1); refresh(); }
     if (e.key === 'f') app.findParty(); if (e.key === '/') { e.preventDefault(); openFinder(); }
+    if ((e.key === 'h' || e.key === 'H') && !e.metaKey && !e.ctrlKey && !e.altKey) panels?.toggleHidden();
     if (e.key === 'Escape') { document.querySelectorAll('.sheet-backdrop').forEach((s) => s.remove()); app.stopPlacing(); app.select(null); app.tool = 'none'; app.setStatus(''); refresh(); }
   });
 
@@ -482,6 +500,7 @@ function buildDmUi(): void {
         <dt>Find an area</dt><dd>Type a key or name in the search box (or press /). The Rooms list shows every key with its revealed state.</dd>
         <dt>Doors, stairs and choices</dt><dd>Door markers open and close doors; stair and trapdoor markers move the party between levels. Tap anything for a menu of what you can do with it (reveal, hide, move the party, frame). The slider previews what players see.</dd>
         <dt>Players mode</dt><dd>Turn the iPad to the table: only revealed rooms, no DM chrome. DM mode brings everything back.</dd>
+        <dt>Panels</dt><dd>Every panel has a dotted grip at its edge: drag it anywhere (or focus it and use the arrow keys). The chevron beside the grip folds the panel to its icon; tap the icon to unfold it. The small tab on the left edge, or H, hides every panel and brings them back. The arrangement is kept per device; Reset layout in the View menu restores it.</dd>
       </dl></div></div>`;
     h.addEventListener('click', (e) => { const t = e.target as HTMLElement; if (t === h || t.closest('.close')) h.remove(); });
     document.body.appendChild(h);

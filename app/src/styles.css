@@ -377,3 +377,50 @@ body[data-view='players'] .minimap { display: none; }
 .topbar .group.center:not(:has(.levels-pick:not([style*="none"]))):not(:has(.section:not([hidden]))) { display: none; }
 .levels-pick .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
 select.levels { max-width: min(46vw, 320px); padding: 6px 28px 6px 10px; border-radius: 10px; border: var(--hairline, 1px) solid var(--hair); background: var(--bg); color: var(--ink); font: 600 13px var(--font); text-overflow: ellipsis; }
+
+/* ---- movable panels: a grip and a chevron at each panel's edge; folded = a pill with the panel's icon */
+.pn-handle { display: flex; flex-direction: column; align-self: stretch; flex: none; width: 28px; margin: -4px 2px -4px -4px; border-radius: inherit; }
+.pn-grip, .pn-fold { display: grid; place-items: center; width: 100%; padding: 0; color: var(--ink-2); opacity: .55; border-radius: 8px; touch-action: none; -webkit-user-select: none; user-select: none; }
+.pn-grip { flex: 1; min-height: 28px; cursor: grab; }
+.pn-grip:active, .panel[data-dragging] .pn-grip { cursor: grabbing; }
+.pn-fold { height: 22px; }
+.pn-grip svg, .pn-fold svg { width: 14px; height: 14px; }
+.pn-grip:hover, .pn-fold:hover { opacity: 1; background: var(--hair); }
+.pn-grip:focus-visible, .pn-fold:focus-visible, .pn-icon:focus-visible, .pn-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; opacity: 1; }
+.pn-icon { display: none; width: 36px; height: 36px; border-radius: 9px; place-items: center; color: var(--ink); }
+.pn-icon svg { width: 20px; height: 20px; }
+.pn-icon:hover { background: var(--hair); }
+.panel[data-dragging] { user-select: none; -webkit-user-select: none; }
+.panel[data-dragging] * { pointer-events: none; }
+.panel[data-dragging] .pn-grip { pointer-events: auto; }
+/* a panel that was moved: fixed where it was put, free of its CSS anchors */
+.panel[data-placed] { position: fixed !important; right: auto !important; bottom: auto !important; transform: none !important; margin: 0 !important; z-index: 5; }
+.panel[data-dragging] { z-index: 8; transition: none !important; }
+/* folded: a pill of the handle and the icon */
+.panel[data-collapsed] { display: inline-flex; flex-direction: row; align-items: center; gap: 2px; padding: 4px; width: auto; height: auto; min-width: 0; max-height: none; aspect-ratio: auto; }
+.panel[data-collapsed] > :not(.pn-handle):not(.pn-icon) { display: none !important; }
+.panel[data-collapsed] > .pn-handle { position: static; flex-direction: column; width: 28px; height: auto; margin: -4px 2px -4px -4px; background: none; }
+.panel[data-collapsed] > .pn-icon { display: inline-grid; }
+.panel[data-collapsed] .pn-fold svg { transform: rotate(180deg); }
+/* per panel: the slider's handle lies across its top, the minimap's floats over the plan, the frame's takes taps */
+.vslider > .pn-handle { flex-direction: row; align-self: stretch; width: auto; height: 24px; margin: -6px 0 -2px; }
+.vslider > .pn-handle .pn-grip { min-height: 24px; min-width: 28px; }
+.vslider > .pn-handle .pn-fold { width: 24px; height: 24px; }
+.minimap > .pn-handle { position: absolute; left: 4px; bottom: 4px; z-index: 3; margin: 0; height: 52px; background: var(--panel); border-radius: 8px; }
+.mapframe > .pn-handle, .mapframe > .pn-icon { pointer-events: auto; }
+.mapframe > .pn-handle { margin: -6px 0 -6px -8px; }
+.topbar .group.center > .pn-handle { margin-left: -4px; }
+/* phones: the toolbar fits one row, the frame rides above it (beside the minimap), pills park at the left edge */
+@media (max-width: 760px) { .topbar .group.center { justify-self: start; } .topbar .group.right { max-width: 100%; } }
+@media (max-width: 480px) {
+  .camcluster { gap: 0; } .camcluster button.icon { width: 34px; } .camcluster .divider { margin: 6px 2px; }
+  .topbar .group.left button.icon { width: 34px; } .seg.mode button[role='tab'] { padding: 6px 10px; } .topbar .title .loc { max-width: 84px; } .title { padding: 0 4px; }
+  .mapframe { bottom: calc(env(safe-area-inset-bottom) + 64px); }
+  .minimap { width: min(300px, 60vw); bottom: calc(env(safe-area-inset-bottom) + 122px); }
+}
+/* the hide-panels tab: a sliver on the left edge that always stays; H does the same */
+.pn-toggle { position: fixed; left: 0; top: 50%; transform: translateY(-50%); width: 22px; height: 44px; display: grid; place-items: center; border-radius: 0 10px 10px 0; background: var(--panel); border: var(--hairline, 1px) solid var(--hair); border-left: 0; color: var(--ink-2); opacity: .45; z-index: 8; transition: opacity .15s; }
+.pn-toggle svg { width: 14px; height: 14px; }
+.pn-toggle:hover, body[data-ui-hidden] .pn-toggle { opacity: .9; }
+body[data-ui-hidden] .pn-toggle { color: var(--accent); }
+body[data-ui-hidden] .panel { display: none !important; }

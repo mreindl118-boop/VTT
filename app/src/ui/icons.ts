@@ -42,4 +42,11 @@ export const ICON = {
   stairsUp: svg('<path d="M3 21h4v-4h4v-4h4V9h4V5"/><path d="M15 5h4v4"/>'),
   stairsDown: svg('<path d="M3 5h4v4h4v4h4v4h4v4"/><path d="M19 17v4h-4"/>'),
   token: svg('<circle cx="12" cy="8" r="3.5"/><path d="M5 20c1-4 4-6 7-6s6 2 7 6"/>'),
+  // panels: the drag grip (six dots), the fold chevron, the floors (layers), the compass, the hide-panels tab
+  grip: svg('<circle cx="9" cy="6" r="1.2" fill="currentColor" stroke="none"/><circle cx="15" cy="6" r="1.2" fill="currentColor" stroke="none"/><circle cx="9" cy="12" r="1.2" fill="currentColor" stroke="none"/><circle cx="15" cy="12" r="1.2" fill="currentColor" stroke="none"/><circle cx="9" cy="18" r="1.2" fill="currentColor" stroke="none"/><circle cx="15" cy="18" r="1.2" fill="currentColor" stroke="none"/>'),
+  chevron: svg('<path d="M14.5 6l-6 6 6 6"/>'),
+  layers: svg('<path d="M12 4l8 4-8 4-8-4z"/><path d="M4 12l8 4 8-4M4 16l8 4 8-4"/>'),
+  compass: svg('<circle cx="12" cy="12" r="9"/><path d="M12 5l2.5 6.5L12 10l-2.5 1.5z" fill="currentColor" stroke="none"/><path d="M12 19l-2.5-6.5L12 14l2.5-1.5z" opacity=".4"/>'),
+  panels: svg('<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 9v11"/>'),
+  layout: svg('<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M8 4v16M3 14h5M8 9h13"/>'),
 };
