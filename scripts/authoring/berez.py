@@ -225,7 +225,7 @@ for i, (a, b, h) in enumerate(MW): wall(f'mansion-{i}', a, b, h, 'ashlar')
 for i, (x, z, L, rot, h) in enumerate([(mx0 + 37, mz0, 28, 0, 18), (mx1 - 21, mz0, 18, 0, 16), (mx0, mz0 + 22, 20, 90, 15)]):
     obj(f'arches{i}', 'ruin-arches', x, z, key='U2', rot=rot, dims=OrderedDict(len=L, h=h, n=2 if L < 24 else 3))
 for i, (x, z, r, h) in enumerate([(930, 1738, 14, 7), (895, 1745, 9, 5), (975, 1742, 10, 6), (930, 1800, 12, 6), (940, 1822, 7, 4), (872, 1770, 8, 4), (985, 1785, 9, 5)]):
-    obj(f'rubble{i}', 'rubble-heap', x, z, key='U2', rot=i * 47, dims=OrderedDict(r=r, h=h))
+    obj(f'rubble{i}', 'berez-rubble', x, z, key='U2', rot=i * 47, dims=OrderedDict(r=r, h=h))
 GW = [((GARDEN[0], GARDEN[1]), (GARDEN[0], GARDEN[1] + 70), 6), ((GARDEN[0], GARDEN[1] + 95), (GARDEN[0], GARDEN[3]), 5),
       ((GARDEN[0], GARDEN[3]), (GARDEN[0] + 80, GARDEN[3]), 6), ((GARDEN[0] + 110, GARDEN[3]), (GARDEN[2], GARDEN[3]), 4),
       ((GARDEN[2], GARDEN[3]), (GARDEN[2], GARDEN[3] - 60), 5), ((GARDEN[2], GARDEN[3] - 120), (GARDEN[2], GARDEN[1] + 20), 6)]
@@ -265,12 +265,12 @@ for (a, b) in FENCE:
     for k in range(n):
         if rng.random() < 0.28: continue   # rusted through and fallen
         t = (k + 0.5) / n; x, z = a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t
-        obj(f'fence{fi}', 'iron-fence', x, z, key='U4', rot=rot_to(b[0] - a[0], b[1] - a[1]), dims=OrderedDict(len=L / n - 1, lean=round((rng.random() - 0.5) * 16, 1)), y=-0.3); fi += 1
+        obj(f'fence{fi}', 'berez-iron-fence', x, z, key='U4', rot=rot_to(b[0] - a[0], b[1] - a[1]), dims=OrderedDict(len=L / n - 1, lean=round((rng.random() - 0.5) * 16, 1)), y=-0.3); fi += 1
 chx0, chz0, chx1, chz1 = CHURCH
 CW = [((chx0 + 14, chz0), (chx1 - 18, chz0), 14), ((chx1 - 8, chz0), (chx1, chz0), 9), ((chx1, chz0), (chx1, chz1), 16), ((chx1, chz1), (chx1 - 22, chz1), 12),
       ((chx1 - 36, chz1), (chx0 + 12, chz1), 10), ((chx0, chz1 - 10), (chx0, chz0 + 8), 7)]
 for i, (a, b, h) in enumerate(CW): wall(f'church-{i}', a, b, h, 'ashlar')
-obj('steeple', 'rubble-heap', chx0 + 4, (chz0 + chz1) / 2, key='U4-church', rot=20, dims=OrderedDict(r=13, h=7, spire=1))
+obj('steeple', 'berez-rubble', chx0 + 4, (chz0 + chz1) / 2, key='U4-church', rot=20, dims=OrderedDict(r=13, h=7, spire=1))
 obj('bell', 'sunken-bell', chx0 + 16, chz1 - 7, key='U4-church', rot=35, y=-1.2, desc='An iron bell lies tilted in the black water.')
 obj('pulpit', 'rotten-pulpit', chx1 - 9, (chz0 + chz1) / 2, key='U4-church', rot=90)
 obj('graves-note', 'note', (cx0 + cx1) / 2, (cz0 + cz1) / 2, 'dm-note', 'U4', label='Rotted coffins and mouldy bones; nothing of value.')
@@ -282,7 +282,7 @@ obj('statue', 'marina-statue', mcx, mcz, key='U5', rot=200, y=2.5,
     desc='A life-sized stone girl kneels clutching a rose; her worn face looks a great deal like Ireena.', dm='Epitaph: "Marina, Taken by the Mists". Tip it (DC 15 Strength) for the cavity beneath.')
 for i, (dx, dz, r) in enumerate([(0, -6, 0), (6, 0, 90), (0, 6, 180), (-6, 0, 270)]):
     if i == 2: continue   # one side has rusted away
-    obj(f'mon-fence{i}', 'iron-fence', mcx + dx, mcz + dz, key='U5', rot=r, dims=OrderedDict(len=11, lean=(i - 1) * 7), y=1.8)
+    obj(f'mon-fence{i}', 'berez-iron-fence', mcx + dx, mcz + dz, key='U5', rot=r, dims=OrderedDict(len=11, lean=(i - 1) * 7), y=1.8)
 obj('cavity', 'niche', mcx, mcz, 'hidden-object', 'U5', label='Cavity under the statue: the card-reading treasure, if it is here', player='A hollow under the statue')
 for i in range(7):
     obj(f'corpse{i}', 'bloated-corpse', mcx - 60 - (i % 3) * 9, mcz - 27 + i * 9, 'hidden-creature', 'U5', rot=90, size='medium',
@@ -353,7 +353,7 @@ for i in range(30000):
     if rng.random() > (0.5 if near_water else 0.07): continue
     if not clear(p, 6) or in_pool(p): continue
     if any(inside(p, d) for d in (DRY_N, DRY_E)) and rng.random() < 0.7: continue
-    obj(f'reed{n_reed}', 'reeds', p[0], p[1], rot=rng.random() * 360, dims=OrderedDict(s=0.8 + rng.random() * 0.9)); n_reed += 1
+    obj(f'reed{n_reed}', 'marsh-reeds', p[0], p[1], rot=rng.random() * 360, dims=OrderedDict(s=0.8 + rng.random() * 0.9)); n_reed += 1
     if n_reed >= 900: break
 for i in range(6000):
     p = (rng.uniform(20, W - 20), rng.uniform(20, H - 20))
@@ -408,7 +408,7 @@ for i in range(len(FOOTS)):
         if any(inside(q, FOOTS[j][1]) for q in FOOTS[i][1]): problems.append(('cottage-overlap', FOOTS[i][0], FOOTS[j][0]))
 for o in objects:
     p = (o['pos'][0], o['pos'][2])
-    if o['kind'] in ('dead-tree', 'bush', 'reeds', 'boulder') and (in_water(p) or near_road(p, 0)): problems.append(('dressing-misplaced', o['id']))
+    if o['kind'] in ('dead-tree', 'bush', 'marsh-reeds', 'boulder') and (in_water(p) or near_road(p, 0)): problems.append(('dressing-misplaced', o['id']))
     if not (0 <= p[0] <= W and 0 <= p[1] <= H): problems.append(('off-map', o['id']))
 for k, (x, z) in MARK.items():
     if in_water((x, z)): problems.append(('site-in-water', k))

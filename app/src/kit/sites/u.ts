@@ -633,15 +633,15 @@ function crawlingClaw(d: Dims = {}): THREE.Group {
 }
 
 Object.assign(PROPS_V1, {
-  'ruined-cottage': ruinedCottage, 'ruin-arches': ruinArches, 'rubble-heap': rubbleHeap, 'skull-fence': skullFence, 'thorn-thicket': thornThicket,
-  'garden-statue': gardenStatue, 'stone-bench': stoneBench, 'iron-fence': ironFence, 'sunken-bell': sunkenBell, 'rotten-pulpit': rottenPulpit,
-  'marina-statue': marinaStatue, menhir, reeds, 'creeping-hut': creepingHut, 'hut-stump': hutStump, 'giant-root': giantRoot, 'giant-skull': giantSkull,
-  'plank-landing': plankLanding, 'thatch-roof': thatchRoof, 'raven-cage': ravenCage, cot, stool, 'ghastly-crib': ghastlyCrib, 'blood-tub': bloodTub,
+  'ruined-cottage': ruinedCottage, 'ruin-arches': ruinArches, 'berez-rubble': rubbleHeap, 'skull-fence': skullFence, 'thorn-thicket': thornThicket,
+  'garden-statue': gardenStatue, 'stone-bench': stoneBench, 'berez-iron-fence': ironFence, 'sunken-bell': sunkenBell, 'rotten-pulpit': rottenPulpit,
+  'marina-statue': marinaStatue, menhir, 'marsh-reeds': reeds, 'creeping-hut': creepingHut, 'hut-stump': hutStump, 'giant-root': giantRoot, 'giant-skull': giantSkull,
+  'plank-landing': plankLanding, 'hut-thatch-roof': thatchRoof, 'raven-cage': ravenCage, cot, stool, 'ghastly-crib': ghastlyCrib, 'blood-tub': bloodTub,
   'tower-plinth': towerPlinth, 'tower-buttress': towerButtress, griffon, 'stone-step': stoneStep, 'khazan-lintel': khazanLintel, 'lift-chains': liftChains,
-  'lift-platform': liftPlatform, debris, 'ezmerelda-wagon': ezmereldaWagon, scaffold, mildew, 'corbel-ring': corbelRing, rafters, 'window-box': windowBox,
-  woodpile, 'bright-tapestry': brightTapestry, 'clay-golem': clayGolem, 'standing-armor': standingArmor, 'marsh-scarecrow': marshScarecrow,
+  'lift-platform': liftPlatform, 'vr-debris': debris, 'ezmerelda-wagon': ezmereldaWagon, scaffold, mildew, 'corbel-ring': corbelRing, rafters, 'window-box': windowBox,
+  'vr-woodpile': woodpile, 'bright-tapestry': brightTapestry, 'clay-golem': clayGolem, 'standing-armor': standingArmor, 'marsh-scarecrow': marshScarecrow,
 } as Record<string, (d: Dims) => THREE.Object3D>);
 Object.assign(CREATURES, {
   goat: (d) => goat(d), 'baba-lysaga': (d) => babaLysaga(d), 'muriel-vinshaw': (d) => murielVinshaw(d), 'giant-poisonous-snake': (d) => giantSnake(d),
-  'bloated-corpse': (d) => bloatedCorpse(d), 'swarm-of-ravens': (d) => swarmOfRavens(d), 'crawling-claw': (d) => crawlingClaw(d),
+  'bloated-corpse': (d) => bloatedCorpse(d), 'hut-raven-swarm': (d) => swarmOfRavens(d), 'crawling-claw': (d) => crawlingClaw(d),
 } as Record<string, (d: Dims) => THREE.Group>);

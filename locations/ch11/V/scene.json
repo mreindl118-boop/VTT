@@ -646,7 +646,7 @@
     },
     {
      "id": "grounds-debris0",
-     "kind": "debris",
+     "kind": "vr-debris",
      "pos": [
       246.0,
       0,
@@ -661,7 +661,7 @@
     },
     {
      "id": "grounds-debris1",
-     "kind": "debris",
+     "kind": "vr-debris",
      "pos": [
       247.5,
       0,
@@ -676,7 +676,7 @@
     },
     {
      "id": "grounds-debris2",
-     "kind": "debris",
+     "kind": "vr-debris",
      "pos": [
       245.0,
       0,
@@ -691,7 +691,7 @@
     },
     {
      "id": "grounds-debris3",
-     "kind": "debris",
+     "kind": "vr-debris",
      "pos": [
       249.5,
       0,
@@ -706,7 +706,7 @@
     },
     {
      "id": "grounds-debris4",
-     "kind": "debris",
+     "kind": "vr-debris",
      "pos": [
       246.5,
       0,
@@ -760,7 +760,7 @@
     },
     {
      "id": "grounds-reeds0",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       336.358,
       0,
@@ -774,7 +774,7 @@
     },
     {
      "id": "grounds-reeds1",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       280.801,
       0,
@@ -788,7 +788,7 @@
     },
     {
      "id": "grounds-reeds2",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       226.75,
       0,
@@ -802,7 +802,7 @@
     },
     {
      "id": "grounds-reeds3",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       307.932,
       0,
@@ -816,7 +816,7 @@
     },
     {
      "id": "grounds-reeds4",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       283.302,
       0,
@@ -830,7 +830,7 @@
     },
     {
      "id": "grounds-reeds5",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       204.323,
       0,
@@ -844,7 +844,7 @@
     },
     {
      "id": "grounds-reeds6",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       208.316,
       0,
@@ -858,7 +858,7 @@
     },
     {
      "id": "grounds-reeds7",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       240.969,
       0,
@@ -872,7 +872,7 @@
     },
     {
      "id": "grounds-reeds8",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       216.49,
       0,
@@ -886,7 +886,7 @@
     },
     {
      "id": "grounds-reeds9",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       342.644,
       0,
@@ -900,7 +900,7 @@
     },
     {
      "id": "grounds-reeds10",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       214.91,
       0,
@@ -914,7 +914,7 @@
     },
     {
      "id": "grounds-reeds11",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       328.794,
       0,
@@ -928,7 +928,7 @@
     },
     {
      "id": "grounds-reeds12",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       201.578,
       0,
@@ -942,7 +942,7 @@
     },
     {
      "id": "grounds-reeds13",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       280.575,
       0,
@@ -956,7 +956,7 @@
     },
     {
      "id": "grounds-reeds14",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       201.726,
       0,
@@ -970,7 +970,7 @@
     },
     {
      "id": "grounds-reeds15",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       233.33,
       0,
@@ -984,7 +984,7 @@
     },
     {
      "id": "grounds-reeds16",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       292.065,
       0,
@@ -998,7 +998,7 @@
     },
     {
      "id": "grounds-reeds17",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       288.798,
       0,
@@ -1012,7 +1012,7 @@
     },
     {
      "id": "grounds-reeds18",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       205.731,
       0,
@@ -1026,7 +1026,7 @@
     },
     {
      "id": "grounds-reeds19",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       194.512,
       0,
@@ -1040,7 +1040,7 @@
     },
     {
      "id": "grounds-reeds20",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       219.823,
       0,
@@ -1054,7 +1054,7 @@
     },
     {
      "id": "grounds-reeds21",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       194.459,
       0,
@@ -1068,7 +1068,7 @@
     },
     {
      "id": "grounds-reeds22",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       287.908,
       0,
@@ -1082,7 +1082,7 @@
     },
     {
      "id": "grounds-reeds23",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       298.551,
       0,
@@ -1096,7 +1096,7 @@
     },
     {
      "id": "grounds-reeds24",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       193.384,
       0,
@@ -1110,7 +1110,7 @@
     },
     {
      "id": "grounds-reeds25",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       237.824,
       0,
@@ -1124,7 +1124,7 @@
     },
     {
      "id": "grounds-reeds26",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       206.881,
       0,
@@ -1138,7 +1138,7 @@
     },
     {
      "id": "grounds-reeds27",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       266.652,
       0,
@@ -1152,7 +1152,7 @@
     },
     {
      "id": "grounds-reeds28",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       324.041,
       0,
@@ -1166,7 +1166,7 @@
     },
     {
      "id": "grounds-reeds29",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       269.054,
       0,
@@ -1180,7 +1180,7 @@
     },
     {
      "id": "grounds-reeds30",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       196.762,
       0,
@@ -1194,7 +1194,7 @@
     },
     {
      "id": "grounds-reeds31",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       264.101,
       0,
@@ -1208,7 +1208,7 @@
     },
     {
      "id": "grounds-reeds32",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       238.619,
       0,
@@ -1222,7 +1222,7 @@
     },
     {
      "id": "grounds-reeds33",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       344.493,
       0,
@@ -1236,7 +1236,7 @@
     },
     {
      "id": "grounds-reeds34",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       248.062,
       0,
@@ -1250,7 +1250,7 @@
     },
     {
      "id": "grounds-reeds35",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       227.099,
       0,
@@ -1264,7 +1264,7 @@
     },
     {
      "id": "grounds-reeds36",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       265.283,
       0,
@@ -1278,7 +1278,7 @@
     },
     {
      "id": "grounds-reeds37",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       284.924,
       0,
@@ -1292,7 +1292,7 @@
     },
     {
      "id": "grounds-reeds38",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       211.879,
       0,
@@ -1306,7 +1306,7 @@
     },
     {
      "id": "grounds-reeds39",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       245.894,
       0,
@@ -1320,7 +1320,7 @@
     },
     {
      "id": "grounds-reeds40",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       206.168,
       0,
@@ -1334,7 +1334,7 @@
     },
     {
      "id": "grounds-reeds41",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       293.423,
       0,
@@ -1348,7 +1348,7 @@
     },
     {
      "id": "grounds-reeds42",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       341.269,
       0,
@@ -1362,7 +1362,7 @@
     },
     {
      "id": "grounds-reeds43",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       314.868,
       0,
@@ -1376,7 +1376,7 @@
     },
     {
      "id": "grounds-reeds44",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       296.225,
       0,
@@ -1390,7 +1390,7 @@
     },
     {
      "id": "grounds-reeds45",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       198.788,
       0,
@@ -1404,7 +1404,7 @@
     },
     {
      "id": "grounds-reeds46",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       340.149,
       0,
@@ -1418,7 +1418,7 @@
     },
     {
      "id": "grounds-reeds47",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       198.186,
       0,
@@ -1432,7 +1432,7 @@
     },
     {
      "id": "grounds-reeds48",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       300.093,
       0,
@@ -1446,7 +1446,7 @@
     },
     {
      "id": "grounds-reeds49",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       190.717,
       0,
@@ -1460,7 +1460,7 @@
     },
     {
      "id": "grounds-reeds50",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       192.379,
       0,
@@ -1474,7 +1474,7 @@
     },
     {
      "id": "grounds-reeds51",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       310.034,
       0,
@@ -1488,7 +1488,7 @@
     },
     {
      "id": "grounds-reeds52",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       204.167,
       0,
@@ -1502,7 +1502,7 @@
     },
     {
      "id": "grounds-reeds53",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       282.272,
       0,
@@ -1516,7 +1516,7 @@
     },
     {
      "id": "grounds-reeds54",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       216.453,
       0,
@@ -1530,7 +1530,7 @@
     },
     {
      "id": "grounds-reeds55",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       335.749,
       0,
@@ -1544,7 +1544,7 @@
     },
     {
      "id": "grounds-reeds56",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       191.129,
       0,
@@ -1558,7 +1558,7 @@
     },
     {
      "id": "grounds-reeds57",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       248.839,
       0,
@@ -1572,7 +1572,7 @@
     },
     {
      "id": "grounds-reeds58",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       239.764,
       0,
@@ -1586,7 +1586,7 @@
     },
     {
      "id": "grounds-reeds59",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       267.301,
       0,
@@ -1600,7 +1600,7 @@
     },
     {
      "id": "grounds-reeds60",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       287.217,
       0,
@@ -1614,7 +1614,7 @@
     },
     {
      "id": "grounds-reeds61",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       284.143,
       0,
@@ -1628,7 +1628,7 @@
     },
     {
      "id": "grounds-reeds62",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       214.181,
       0,
@@ -1642,7 +1642,7 @@
     },
     {
      "id": "grounds-reeds63",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       334.696,
       0,
@@ -1656,7 +1656,7 @@
     },
     {
      "id": "grounds-reeds64",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       196.314,
       0,
@@ -1670,7 +1670,7 @@
     },
     {
      "id": "grounds-reeds65",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       200.178,
       0,
@@ -1684,7 +1684,7 @@
     },
     {
      "id": "grounds-reeds66",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       286.636,
       0,
@@ -1698,7 +1698,7 @@
     },
     {
      "id": "grounds-reeds67",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       209.126,
       0,
@@ -1712,7 +1712,7 @@
     },
     {
      "id": "grounds-reeds68",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       210.313,
       0,
@@ -1726,7 +1726,7 @@
     },
     {
      "id": "grounds-reeds69",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       231.573,
       0,
@@ -1740,7 +1740,7 @@
     },
     {
      "id": "grounds-reedw0",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       349.534,
       0,
@@ -1754,7 +1754,7 @@
     },
     {
      "id": "grounds-reedw1",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       171.309,
       0,
@@ -1768,7 +1768,7 @@
     },
     {
      "id": "grounds-reedw2",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       346.881,
       0,
@@ -1782,7 +1782,7 @@
     },
     {
      "id": "grounds-reedw3",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       190.8,
       0,
@@ -1796,7 +1796,7 @@
     },
     {
      "id": "grounds-reedw4",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       318.962,
       0,
@@ -1810,7 +1810,7 @@
     },
     {
      "id": "grounds-reedw5",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       174.733,
       0,
@@ -1824,7 +1824,7 @@
     },
     {
      "id": "grounds-reedw6",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       311.385,
       0,
@@ -1838,7 +1838,7 @@
     },
     {
      "id": "grounds-reedw8",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       345.253,
       0,
@@ -1852,7 +1852,7 @@
     },
     {
      "id": "grounds-reedw9",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       174.052,
       0,
@@ -1866,7 +1866,7 @@
     },
     {
      "id": "grounds-reedw10",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       170.45,
       0,
@@ -1880,7 +1880,7 @@
     },
     {
      "id": "grounds-reedw11",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       226.345,
       0,
@@ -1894,7 +1894,7 @@
     },
     {
      "id": "grounds-reedw12",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       198.474,
       0,
@@ -1908,7 +1908,7 @@
     },
     {
      "id": "grounds-reedw13",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       350.401,
       0,
@@ -1922,7 +1922,7 @@
     },
     {
      "id": "grounds-reedw14",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       236.1,
       0,
@@ -1936,7 +1936,7 @@
     },
     {
      "id": "grounds-reedw15",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       351.861,
       0,
@@ -1950,7 +1950,7 @@
     },
     {
      "id": "grounds-reedw16",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       193.042,
       0,
@@ -1964,7 +1964,7 @@
     },
     {
      "id": "grounds-reedw17",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       214.337,
       0,
@@ -1978,7 +1978,7 @@
     },
     {
      "id": "grounds-reedw18",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       343.073,
       0,
@@ -1992,7 +1992,7 @@
     },
     {
      "id": "grounds-reedw20",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       216.634,
       0,
@@ -2006,7 +2006,7 @@
     },
     {
      "id": "grounds-reedw21",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       187.486,
       0,
@@ -2020,7 +2020,7 @@
     },
     {
      "id": "grounds-reedw22",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       187.825,
       0,
@@ -2034,7 +2034,7 @@
     },
     {
      "id": "grounds-reedw23",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       200.94,
       0,
@@ -2048,7 +2048,7 @@
     },
     {
      "id": "grounds-reedw24",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       187.058,
       0,
@@ -2062,7 +2062,7 @@
     },
     {
      "id": "grounds-reedw25",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       280.295,
       0,
@@ -2076,7 +2076,7 @@
     },
     {
      "id": "grounds-reedw26",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       206.974,
       0,
@@ -2090,7 +2090,7 @@
     },
     {
      "id": "grounds-reedw27",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       280.259,
       0,
@@ -2104,7 +2104,7 @@
     },
     {
      "id": "grounds-reedw28",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       331.888,
       0,
@@ -2118,7 +2118,7 @@
     },
     {
      "id": "grounds-reedw29",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       235.333,
       0,
@@ -2132,7 +2132,7 @@
     },
     {
      "id": "grounds-reedw30",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       288.985,
       0,
@@ -2146,7 +2146,7 @@
     },
     {
      "id": "grounds-reedw31",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       260.592,
       0,
@@ -2160,7 +2160,7 @@
     },
     {
      "id": "grounds-reedw32",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       199.968,
       0,
@@ -2174,7 +2174,7 @@
     },
     {
      "id": "grounds-reedw33",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       332.173,
       0,
@@ -2188,7 +2188,7 @@
     },
     {
      "id": "grounds-reedw34",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       339.502,
       0,
@@ -2202,7 +2202,7 @@
     },
     {
      "id": "grounds-reedw35",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       296.75,
       0,
@@ -2216,7 +2216,7 @@
     },
     {
      "id": "grounds-reedw36",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       298.94,
       0,
@@ -2230,7 +2230,7 @@
     },
     {
      "id": "grounds-reedw37",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       298.893,
       0,
@@ -2244,7 +2244,7 @@
     },
     {
      "id": "grounds-reedw38",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       213.062,
       0,
@@ -2258,7 +2258,7 @@
     },
     {
      "id": "grounds-reedw40",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       312.495,
       0,
@@ -2272,7 +2272,7 @@
     },
     {
      "id": "grounds-reedw41",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       249.698,
       0,
@@ -2286,7 +2286,7 @@
     },
     {
      "id": "grounds-reedw42",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       217.174,
       0,
@@ -2300,7 +2300,7 @@
     },
     {
      "id": "grounds-reedw43",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       179.505,
       0,
@@ -2314,7 +2314,7 @@
     },
     {
      "id": "grounds-reedw44",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       160.469,
       0,
@@ -2328,7 +2328,7 @@
     },
     {
      "id": "grounds-reedw45",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       174.233,
       0,
@@ -2342,7 +2342,7 @@
     },
     {
      "id": "grounds-reedw46",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       170.015,
       0,
@@ -2356,7 +2356,7 @@
     },
     {
      "id": "grounds-reedw47",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       333.175,
       0,
@@ -2370,7 +2370,7 @@
     },
     {
      "id": "grounds-reedw48",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       187.942,
       0,
@@ -2384,7 +2384,7 @@
     },
     {
      "id": "grounds-reedw49",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       191.147,
       0,
@@ -2398,7 +2398,7 @@
     },
     {
      "id": "grounds-reedw50",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       226.866,
       0,
@@ -2412,7 +2412,7 @@
     },
     {
      "id": "grounds-reedw51",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       347.941,
       0,
@@ -2426,7 +2426,7 @@
     },
     {
      "id": "grounds-reedw52",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       274.027,
       0,
@@ -2440,7 +2440,7 @@
     },
     {
      "id": "grounds-reedw53",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       279.687,
       0,
@@ -2454,7 +2454,7 @@
     },
     {
      "id": "grounds-reedw54",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       260.817,
       0,
@@ -2468,7 +2468,7 @@
     },
     {
      "id": "grounds-reedw55",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       292.859,
       0,
@@ -2482,7 +2482,7 @@
     },
     {
      "id": "grounds-reedw56",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       351.647,
       0,
@@ -2496,7 +2496,7 @@
     },
     {
      "id": "grounds-reedw57",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       346.178,
       0,
@@ -2510,7 +2510,7 @@
     },
     {
      "id": "grounds-reedw58",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       325.592,
       0,
@@ -2524,7 +2524,7 @@
     },
     {
      "id": "grounds-reedw59",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       302.605,
       0,
@@ -4798,7 +4798,7 @@
     },
     {
      "id": "grounds-reeds-shore0",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       587.5,
       0,
@@ -4811,7 +4811,7 @@
     },
     {
      "id": "grounds-reeds-shore1",
-     "kind": "reeds",
+     "kind": "marsh-reeds",
      "pos": [
       602.0,
       0,
@@ -6074,7 +6074,7 @@
     },
     {
      "id": "f2-dust",
-     "kind": "debris",
+     "kind": "vr-debris",
      "pos": [
       246.5,
       0,
@@ -6683,7 +6683,7 @@
     },
     {
      "id": "f3-gash-rubble",
-     "kind": "debris",
+     "kind": "vr-debris",
      "pos": [
       246.25,
       0,
@@ -7769,7 +7769,7 @@
     },
     {
      "id": "f4-woodpile",
-     "kind": "woodpile",
+     "kind": "vr-woodpile",
      "pos": [
       261.75,
       0,

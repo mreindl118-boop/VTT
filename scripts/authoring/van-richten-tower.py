@@ -143,7 +143,7 @@ for i, (dx, dz, r) in enumerate([(1.55, -0.75, 5), (1.61, -0.22, 32), (1.44, 0.3
     g.prop(f'crate{i}', 'crate-chest', (CX + dx, CZ + dz), 'V4', rotY=r)
     tag(g, f'crate{i}', container=OrderedDict(contents='Empty.'))
 for i, (dx, dz, r) in enumerate([(-1.3, -0.4, 20), (-1.0, 0.7, 75), (-1.5, 0.9, 140), (-0.6, 1.4, 30), (-1.2, -1.1, 110)]):
-    g.prop(f'debris{i}', 'debris', (CX + dx, CZ + dz), 'V4', rotY=r, dims={'s': 1 + (i % 2) * 0.3})
+    g.prop(f'debris{i}', 'vr-debris', (CX + dx, CZ + dz), 'V4', rotY=r, dims={'s': 1 + (i % 2) * 0.3})
 # V1: the wagon, its secrets
 g.prop('wagon', 'ezmerelda-wagon', WAG, 'V1', rotY=0)
 tag(g, 'wagon', desc='A mud-spattered, barrel-topped wagon in fresh purple paint with gold-trimmed wheels; brass lanterns at its corners, red drapes in tombstone-shaped windows, a padlocked back door with a cheap wooden "Keep out!" sign.',
@@ -165,11 +165,11 @@ for k in range(4000):
     edge = island.exterior.distance(q)
     if not island.contains(q) or keep_out.contains(q): continue
     if edge > 2.5 and rng.random() < 0.8: continue
-    g.prop(f'reeds{n}', 'reeds', p, None, rotY=rng.random() * 360, dims={'s': 0.8 + rng.random() * 0.7}); n += 1
+    g.prop(f'reeds{n}', 'marsh-reeds', p, None, rotY=rng.random() * 360, dims={'s': 0.8 + rng.random() * 0.7}); n += 1
     if n >= 70: break
 for k in range(60):   # reeds standing in the shallows off the island and along the causeway
     a = rng.random() * 2 * math.pi; p = (ISLAND_C[0] + math.cos(a) * (16.5 + rng.random() * 3), ISLAND_C[1] + math.sin(a) * (13.5 + rng.random() * 3))
-    if lake.contains(Point(p)) and causeway.distance(Point(p)) > 1: g.prop(f'reedw{k}', 'reeds', p, None, rotY=rng.random() * 360, dims={'s': 0.7 + rng.random() * 0.6})
+    if lake.contains(Point(p)) and causeway.distance(Point(p)) > 1: g.prop(f'reedw{k}', 'marsh-reeds', p, None, rotY=rng.random() * 360, dims={'s': 0.7 + rng.random() * 0.6})
 for i, (x, z, s) in enumerate([(41, 41, 0.9), (60, 39, 1.1), (39.5, 52, 1.0), (59, 59.5, 0.8)]):
     if not keep_out.contains(Point(x, z)) and island.contains(Point(x, z)): g.prop(f'deadtree{i}', 'dead-tree', (x, z), None, rotY=i * 80, dims={'scale': s})
 for i, (x, z) in enumerate([(44, 38.5), (58, 41.5), (42.5, 56), (56, 57.5), (62.5, 47.5), (37.5, 46)]):
@@ -182,7 +182,7 @@ for k in range(6000):
     if n >= 160: break
 for i, (x, z, r) in enumerate([(125, 30, 4), (129, 58, 5), (116, 96, 3.5), (92, 108, 4), (134, 12, 5), (70, 114, 3)]):
     if shore.buffer(-1).contains(Point(x, z)): g.prop(f'boulder{i}', 'boulder', (x, z), None, rotY=i * 40, dims={'r': r})
-g.prop('reeds-shore0', 'reeds', (117.5, 76.5), None, dims={'s': 1.2}); g.prop('reeds-shore1', 'reeds', (120.4, 84.0), None, dims={'s': 1.1})
+g.prop('reeds-shore0', 'marsh-reeds', (117.5, 76.5), None, dims={'s': 1.2}); g.prop('reeds-shore1', 'marsh-reeds', (120.4, 84.0), None, dims={'s': 1.1})
 
 # ---------------------------------------------------------------- V5, the second floor: rotted boards fallen in round the shaft
 f2_pts, f2_pc = octagon(2, 1, {'N': SLITS, 'E': SLITS, 'S': sorted(SLITS + [0.5]), 'W': SLITS})
@@ -204,7 +204,7 @@ s2.prop('scaffold', 'scaffold', (CX - 2.8, CZ - 0.2), 'V3-mid', rotY=90, dims={'
 s2.prop('lift', 'lift-chains', (CX, CZ), 'V5', dims={'h': 20})
 for i, (dx, dz) in enumerate([(-1.6, -1.6), (1.6, -1.6), (1.6, 1.6), (-1.6, 1.6)]):
     s2.prop(f'web{i}', 'cobweb', (CX + dx, CZ + dz), 'V5', rotY=[315, 45, 135, 225][i], dims={'s': 3.5, 'y': 15})
-s2.prop('dust', 'debris', (CX - 1.2, CZ + 1.3), 'V5', rotY=40, dims={'s': 0.8})
+s2.prop('dust', 'vr-debris', (CX - 1.2, CZ + 1.3), 'V5', rotY=40, dims={'s': 0.8})
 s2.note('weak', (CX + 1.2, CZ + 1.4), 'V5', 'The eight 5-ft squares round the shaft hold 150 lb each; more and the section gives way: a 20-ft fall to the first floor.')
 
 # ---------------------------------------------------------------- V6, the third floor: the gash in the north-west wall, the floor falling away
@@ -229,7 +229,7 @@ for a, b in unit_edges(V3T):
     if seg_key(a, b) != seg_key(*gash): open_seg(s3, a, b)
 TOPC = ((V3T[0][0] + V3T[2][0]) / 2, (V3T[0][1] + V3T[2][1]) / 2)
 s3.prop('scaffold', 'scaffold', TOPC, 'V3-top', rotY=45, dims={'len': 8, 'w': 4.2, 'down': 20, 'up': 3.6, 'ladder': 0})
-s3.prop('gash-rubble', 'debris', (CX - 1.25, CZ - 1.25), 'V6', rotY=45, dims={'s': 1.2, 'stone': 1})
+s3.prop('gash-rubble', 'vr-debris', (CX - 1.25, CZ - 1.25), 'V6', rotY=45, dims={'s': 1.2, 'stone': 1})
 s3.prop('lift', 'lift-chains', (CX, CZ), 'V6', dims={'h': 20})
 for i, (dx, dz, r) in enumerate([(1.9, 0.3, -90), (-1.9, 0.6, 90), (0.4, -1.95, 0), (-0.3, 1.95, 180), (1.3, 1.3, -135)]):
     s3.prop(f'mildew{i}', 'mildew', (CX + dx, CZ + dz), 'V6', rotY=r, dims={'w': 5 + i % 2 * 2, 'h': 9 + i % 3 * 3})
@@ -266,7 +266,7 @@ s4.prop('lift', 'lift-chains', (CX, CZ), 'V7', dims={'h': 18, 'top': 1})
 s4.prop('desk', 'desk', (CX - 1.43, CZ - 1.35), 'V7', rotY=-30)
 s4.prop('chair', 'chair', (CX - 1.12, CZ - 0.92), 'V7', rotY=150)
 s4.prop('stove', 'stove', (CX + 1.3, CZ - 0.05), 'V7', rotY=-90)
-s4.prop('woodpile', 'woodpile', (CX + 1.85, CZ - 0.05), 'V7', rotY=90)
+s4.prop('woodpile', 'vr-woodpile', (CX + 1.85, CZ - 0.05), 'V7', rotY=90)
 s4.prop('bed', 'bed', (CX - 1.25, CZ + 1.35), 'V7', rotY=-55)
 s4.prop('chest', 'chest', (CX + 1.18, CZ + 1.28), 'V7', rotY=-35)
 s4.prop('rug', 'rug', (CX - 0.4, CZ + 0.9), 'V7', rotY=-20, dims={'w': 7, 'd': 5})

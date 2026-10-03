@@ -55,7 +55,7 @@ m.note('skull-note', (8.3, 6.4), 'U3-mire', "Hill giant's skull: hovers until Ba
 m.note('climb', (7.9, 4.6), 'U3-mire', 'No stair: climb a root or the stump (Athletics) to the doorway, ten feet up, or step across from the floating skull.')
 for i, (x, z, s) in enumerate([(1.0, 0.8, 1.2), (3.2, 0.5, 1), (8.8, 0.9, 1.3), (10.2, 2.2, 1.1), (0.6, 7.6, 1.2), (1.6, 10.2, 1), (6.6, 10.4, 1.3), (8.2, 10.1, 1),
                                (10.4, 6.2, 1.2), (10.1, 5.0, 0.9), (2.2, 6.9, 0.9), (2.9, 3.4, 1), (7.9, 2.6, 1.1), (3.4, 8.2, 0.8), (8.9, 8.0, 1), (0.5, 5.1, 0.9)]):
-    m.prop(f'reeds{i}', 'reeds', (x, z), None, rotY=i * 53, dims={'s': s})
+    m.prop(f'reeds{i}', 'marsh-reeds', (x, z), None, rotY=i * 53, dims={'s': s})
 for i, (x, z) in enumerate([(2.0, 2.3), (9.6, 8.3), (3.6, 10.0)]): m.prop(f'bush{i}', 'thorn-thicket', (x, z), None, rotY=i * 70, dims={'s': 1.1})
 
 # ---------------------------------------------------------------- the hut, ten feet up on the stump
@@ -63,10 +63,10 @@ h = Level('hut', "Baba Lysaga's hut (U3)", FLOOR, 8, ambient='darkness', interio
 h.room('U3', "Baba Lysaga's Hut (interior)", rect(HX0, HZ0, HX1, HZ1), 'plank', page=PAGE.get('U3'), ceilingFt=8)
 h.opening((HX1, 5), (HX1, 6))    # the open doorway in the middle of the east wall
 h.prop('landing', 'plank-landing', (HX1 + 0.22, 5.5), 'U3', rotY=0, dims={'w': 6.5, 'd': 2.2})
-h.prop('roof', 'thatch-roof', HC, 'U3', dims={'w': 16, 'd': 16, 'y': 8, 'rise': 3.5})
+h.prop('roof', 'hut-thatch-roof', HC, 'U3', dims={'w': 16, 'd': 16, 'y': 8, 'rise': 3.5})
 for i, z in enumerate((4.62, 6.38)):
     h.prop(f'cage{i}', 'raven-cage', (HX1 + 0.42, z), 'U3', dims={'drop': 2.6, 'y': 8})
-    h.creature(f'ravens{i}', 'swarm-of-ravens', (HX1 + 0.42, z), 'U3', 'Swarm of ravens in an iron cage (arcane lock: knock, DC 20 Strength or DC 20 thieves\' tools); attacks Baba Lysaga and her scarecrows if freed')
+    h.creature(f'ravens{i}', 'hut-raven-swarm', (HX1 + 0.42, z), 'U3', 'Swarm of ravens in an iron cage (arcane lock: knock, DC 20 Strength or DC 20 thieves\' tools); attacks Baba Lysaga and her scarecrows if freed')
     tag(h, f'ravens{i}', playerLabel='Caged ravens', pos=[round((HX1 + 0.42) * 5, 2), 3.2, round(z * 5, 2)])
 # the furniture as the plan shows it, all bolted down (the hut lurches when it walks)
 h.prop('cot', 'cot', (4.45, 4.75), 'U3', rotY=90)
@@ -81,7 +81,7 @@ h.prop('stool2', 'stool', (6.05, 6.0), 'U3', rotY=10)
 h.prop('candle', 'candlestick', (5.0, 4.42), 'U3', dims={'h': 0.9}, y=2.5)
 h.light('candle', (5.0, 4.42), 'candle', 5, 10, y=3.6)
 h.light('gem', (5.45, 5.5), 'candle', 0, 5, y=0.4)
-h.hidden('gem', 'niche', (5.45, 5.5), 'U3', 'Under the crib: a 3-ft cavity holding the green-glowing gem that animates the hut (floor: DC 14 Strength or 10 damage; the cavity bites, DC 20 Dexterity, 3d6). Without it the hut is incapacitated.')
+h.hidden('gem', 'trapdoor', (5.45, 5.5), 'U3', 'Under the crib: a 3-ft cavity holding the green-glowing gem that animates the hut (floor: DC 14 Strength or 10 damage; the cavity bites, DC 20 Dexterity, 3d6). Without it the hut is incapacitated.')
 h.hidden('glyph', 'niche', (4.42, 5.75), 'U3', 'Glyph of warding on the chest (DC 17 Investigation): 5d8 thunder. Inside, four crawling claws and the hag\'s plunder.')
 h.creature('claws', 'crawling-claw', (4.42, 5.5), 'U3', 'Four crawling claws in the chest, released when it opens', size='tiny')
 h.creature('lysaga', 'baba-lysaga', (4.85, 6.2), 'U3', 'Baba Lysaga, bathing in blood or at her work (she cannot hear over the ravens)')
