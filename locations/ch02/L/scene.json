@@ -1,0 +1,3966 @@
+{
+ "schema": 1,
+ "location": "L",
+ "chapter": "ch02",
+ "name": "Lake Zarovich",
+ "mapPage": null,
+ "bookScaleFt": 5,
+ "ambient": "barovian-overcast",
+ "levels": [
+  {
+   "id": "day",
+   "name": "Day (overcast)",
+   "elevationFt": 0,
+   "ceilingFt": 8,
+   "terrain": [
+    {
+     "polygon": [
+      [
+       0,
+       0
+      ],
+      [
+       550,
+       0
+      ],
+      [
+       550,
+       600
+      ],
+      [
+       0,
+       600
+      ]
+     ],
+     "floor": "grass"
+    },
+    {
+     "polygon": [
+      [
+       0.0,
+       460.0
+      ],
+      [
+       9.5,
+       461.95
+      ],
+      [
+       22.95,
+       464.7
+      ],
+      [
+       38.65,
+       467.9
+      ],
+      [
+       54.9,
+       471.45
+      ],
+      [
+       70.0,
+       475.0
+      ],
+      [
+       84.15,
+       478.9
+      ],
+      [
+       98.5,
+       483.3
+      ],
+      [
+       112.7,
+       487.75
+      ],
+      [
+       126.65,
+       491.8
+      ],
+      [
+       140.0,
+       495.0
+      ],
+      [
+       152.65,
+       497.25
+      ],
+      [
+       164.7,
+       498.85
+      ],
+      [
+       176.5,
+       499.9
+      ],
+      [
+       188.15,
+       500.6
+      ],
+      [
+       200.0,
+       501.0
+      ],
+      [
+       212.0,
+       500.85
+      ],
+      [
+       224.0,
+       500.05
+      ],
+      [
+       236.0,
+       499.05
+      ],
+      [
+       248.0,
+       498.25
+      ],
+      [
+       260.0,
+       498.0
+      ],
+      [
+       271.85,
+       498.85
+      ],
+      [
+       283.5,
+       500.55
+      ],
+      [
+       295.3,
+       502.25
+      ],
+      [
+       307.35,
+       503.35
+      ],
+      [
+       320.0,
+       503.0
+      ],
+      [
+       333.2,
+       500.9
+      ],
+      [
+       346.8,
+       497.55
+      ],
+      [
+       360.8,
+       493.45
+      ],
+      [
+       375.2,
+       489.1
+      ],
+      [
+       390.0,
+       485.0
+      ],
+      [
+       405.35,
+       480.65
+      ],
+      [
+       421.3,
+       475.7
+      ],
+      [
+       437.5,
+       470.95
+      ],
+      [
+       453.85,
+       467.1
+      ],
+      [
+       470.0,
+       465.0
+      ],
+      [
+       487.3,
+       465.25
+      ],
+      [
+       505.85,
+       467.3
+      ],
+      [
+       523.75,
+       470.3
+      ],
+      [
+       539.1,
+       473.15
+      ],
+      [
+       550,
+       475
+      ],
+      [
+       550,
+       487.0
+      ],
+      [
+       539.1,
+       485.15
+      ],
+      [
+       523.75,
+       482.3
+      ],
+      [
+       505.85,
+       479.3
+      ],
+      [
+       487.3,
+       477.25
+      ],
+      [
+       470.0,
+       477.0
+      ],
+      [
+       453.85,
+       479.1
+      ],
+      [
+       437.5,
+       482.95
+      ],
+      [
+       421.3,
+       487.7
+      ],
+      [
+       405.35,
+       492.65
+      ],
+      [
+       390.0,
+       497.0
+      ],
+      [
+       375.2,
+       501.1
+      ],
+      [
+       360.8,
+       505.45
+      ],
+      [
+       346.8,
+       509.55
+      ],
+      [
+       333.2,
+       512.9
+      ],
+      [
+       320.0,
+       528.0
+      ],
+      [
+       307.35,
+       528.35
+      ],
+      [
+       295.3,
+       527.25
+      ],
+      [
+       283.5,
+       525.55
+      ],
+      [
+       271.85,
+       523.85
+      ],
+      [
+       260.0,
+       523.0
+      ],
+      [
+       248.0,
+       523.25
+      ],
+      [
+       236.0,
+       524.05
+      ],
+      [
+       224.0,
+       525.05
+      ],
+      [
+       212.0,
+       525.85
+      ],
+      [
+       200.0,
+       513.0
+      ],
+      [
+       188.15,
+       512.6
+      ],
+      [
+       176.5,
+       511.9
+      ],
+      [
+       164.7,
+       510.85
+      ],
+      [
+       152.65,
+       509.25
+      ],
+      [
+       140.0,
+       507.0
+      ],
+      [
+       126.65,
+       503.8
+      ],
+      [
+       112.7,
+       499.75
+      ],
+      [
+       98.5,
+       495.3
+      ],
+      [
+       84.15,
+       490.9
+      ],
+      [
+       70.0,
+       487.0
+      ],
+      [
+       54.9,
+       483.45
+      ],
+      [
+       38.65,
+       479.9
+      ],
+      [
+       22.95,
+       476.7
+      ],
+      [
+       9.5,
+       473.95
+      ],
+      [
+       0.0,
+       472.0
+      ]
+     ],
+     "floor": "dirt"
+    },
+    {
+     "polygon": [
+      [
+       287.45,
+       599.35
+      ],
+      [
+       287.1,
+       594.9
+      ],
+      [
+       286.6,
+       588.65
+      ],
+      [
+       285.95,
+       581.2
+      ],
+      [
+       285.25,
+       573.3
+      ],
+      [
+       284.4,
+       565.6
+      ],
+      [
+       283.4,
+       558.75
+      ],
+      [
+       282.2,
+       552.65
+      ],
+      [
+       280.8,
+       546.8
+      ],
+      [
+       279.25,
+       541.35
+      ],
+      [
+       277.75,
+       536.35
+      ],
+      [
+       276.4,
+       531.85
+      ],
+      [
+       275.2,
+       527.85
+      ],
+      [
+       274.1,
+       524.25
+      ],
+      [
+       273.05,
+       520.95
+      ],
+      [
+       272.1,
+       518.15
+      ],
+      [
+       271.25,
+       515.8
+      ],
+      [
+       270.6,
+       513.95
+      ],
+      [
+       270.1,
+       512.55
+      ],
+      [
+       255.9,
+       517.45
+      ],
+      [
+       256.45,
+       518.95
+      ],
+      [
+       257.1,
+       520.85
+      ],
+      [
+       257.9,
+       523.1
+      ],
+      [
+       258.8,
+       525.7
+      ],
+      [
+       259.75,
+       528.7
+      ],
+      [
+       260.8,
+       532.15
+      ],
+      [
+       262.05,
+       536.2
+      ],
+      [
+       263.4,
+       540.7
+      ],
+      [
+       264.85,
+       545.5
+      ],
+      [
+       266.25,
+       550.6
+      ],
+      [
+       267.55,
+       555.85
+      ],
+      [
+       268.6,
+       561.25
+      ],
+      [
+       269.5,
+       567.5
+      ],
+      [
+       270.3,
+       574.85
+      ],
+      [
+       271.05,
+       582.55
+      ],
+      [
+       271.65,
+       589.85
+      ],
+      [
+       272.15,
+       596.15
+      ],
+      [
+       272.55,
+       600
+      ]
+     ],
+     "floor": "dirt"
+    }
+   ],
+   "ambient": "barovian-overcast",
+   "north": "-z",
+   "rooms": [
+    {
+     "key": "L",
+     "name": "Lake Zarovich",
+     "page": 38,
+     "polygon": [
+      [
+       0,
+       0
+      ],
+      [
+       550,
+       0
+      ],
+      [
+       550,
+       475
+      ],
+      [
+       539.1,
+       473.15
+      ],
+      [
+       523.75,
+       470.3
+      ],
+      [
+       505.85,
+       467.3
+      ],
+      [
+       487.3,
+       465.25
+      ],
+      [
+       470.0,
+       465.0
+      ],
+      [
+       453.85,
+       467.1
+      ],
+      [
+       437.5,
+       470.95
+      ],
+      [
+       421.3,
+       475.7
+      ],
+      [
+       405.35,
+       480.65
+      ],
+      [
+       390.0,
+       485.0
+      ],
+      [
+       375.2,
+       489.1
+      ],
+      [
+       360.8,
+       493.45
+      ],
+      [
+       346.8,
+       497.55
+      ],
+      [
+       333.2,
+       500.9
+      ],
+      [
+       320.0,
+       503.0
+      ],
+      [
+       307.35,
+       503.35
+      ],
+      [
+       295.3,
+       502.25
+      ],
+      [
+       283.5,
+       500.55
+      ],
+      [
+       271.85,
+       498.85
+      ],
+      [
+       260.0,
+       498.0
+      ],
+      [
+       248.0,
+       498.25
+      ],
+      [
+       236.0,
+       499.05
+      ],
+      [
+       224.0,
+       500.05
+      ],
+      [
+       212.0,
+       500.85
+      ],
+      [
+       200.0,
+       501.0
+      ],
+      [
+       188.15,
+       500.6
+      ],
+      [
+       176.5,
+       499.9
+      ],
+      [
+       164.7,
+       498.85
+      ],
+      [
+       152.65,
+       497.25
+      ],
+      [
+       140.0,
+       495.0
+      ],
+      [
+       126.65,
+       491.8
+      ],
+      [
+       112.7,
+       487.75
+      ],
+      [
+       98.5,
+       483.3
+      ],
+      [
+       84.15,
+       478.9
+      ],
+      [
+       70.0,
+       475.0
+      ],
+      [
+       54.9,
+       471.45
+      ],
+      [
+       38.65,
+       467.9
+      ],
+      [
+       22.95,
+       464.7
+      ],
+      [
+       9.5,
+       461.95
+      ],
+      [
+       0.0,
+       460.0
+      ]
+     ],
+     "floor": "shallow-water",
+     "desc": "A great lake lies under the mountain, ringed by misty forest. The water is black and dead calm, a mirror for the clouds.",
+     "dm": "Daytime from the shore north of Vallaki: three rowboats are pulled up on the south shore and a fourth sits out on the lake with a lone figure fishing. Each rowboat safely holds five."
+    },
+    {
+     "key": "L-shore",
+     "name": "South shore landing",
+     "page": 38,
+     "polygon": [
+      [
+       210,
+       500
+      ],
+      [
+       340,
+       500
+      ],
+      [
+       340,
+       537.5
+      ],
+      [
+       210,
+       537.5
+      ]
+     ],
+     "floor": "grass",
+     "desc": "A strip of muddy shingle where the Vallaki fishers pull up their boats.",
+     "dm": "The three rowboats here are free for the taking; each holds five."
+    }
+   ],
+   "walls": [],
+   "lights": [],
+   "objects": [
+    {
+     "id": "day-rowboat1",
+     "kind": "rowboat",
+     "pos": [
+      233.0,
+      0,
+      509.5
+     ],
+     "vis": "player",
+     "rotY": 86,
+     "dims": {
+      "hauled": 1,
+      "oars": 1
+     },
+     "label": "Rowboat",
+     "desc": "A small rowboat pulled up on the shore, oars shipped. It holds five."
+    },
+    {
+     "id": "day-rowboat2",
+     "kind": "rowboat",
+     "pos": [
+      251.0,
+      0,
+      512.0
+     ],
+     "vis": "player",
+     "rotY": 96,
+     "dims": {
+      "hauled": 1,
+      "oars": 1
+     },
+     "label": "Rowboat",
+     "desc": "A small rowboat pulled up on the shore, oars shipped. It holds five."
+    },
+    {
+     "id": "day-rowboat3",
+     "kind": "rowboat",
+     "pos": [
+      298.0,
+      0,
+      511.0
+     ],
+     "vis": "player",
+     "rotY": 101,
+     "dims": {
+      "hauled": 1,
+      "oars": 1
+     },
+     "label": "Rowboat",
+     "desc": "A small rowboat pulled up on the shore, oars shipped. It holds five."
+    },
+    {
+     "id": "day-net-shed4",
+     "kind": "net-shed",
+     "pos": [
+      322.5,
+      0,
+      532.0
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "label": "Net shed",
+     "desc": "A fisherman's lean-to of weathered boards, nets drying on a rack beside it."
+    },
+    {
+     "id": "day-rowboat5",
+     "kind": "rowboat",
+     "pos": [
+      270,
+      0,
+      98.0
+     ],
+     "vis": "player",
+     "rotY": 15,
+     "dims": {
+      "oars": 1,
+      "pole": 1
+     },
+     "label": "Bluto's rowboat",
+     "desc": "Far out on the water a single rowboat sits motionless, someone in it holding a fishing pole."
+    },
+    {
+     "id": "day-commoner6",
+     "kind": "commoner",
+     "pos": [
+      268.5,
+      0,
+      98.5
+     ],
+     "vis": "hidden-creature",
+     "rotY": 105,
+     "key": "L",
+     "label": "Bluto Krogarov (commoner)",
+     "size": "medium",
+     "playerLabel": "A lone fisherman",
+     "dm": "A destitute Vallaki drunkard in a trance; he answers nothing unless attacked, is unarmed and neither helps nor hinders. If watched from shore for several minutes, or approached by boat, he tosses the sack overboard and waits for his fish."
+    },
+    {
+     "id": "day-sacked-child7",
+     "kind": "sacked-child",
+     "pos": [
+      272.25,
+      0,
+      97.75
+     ],
+     "vis": "hidden-creature",
+     "rotY": 15,
+     "key": "L",
+     "label": "Arabelle, bound in a burlap sack (commoner, 2 hp)",
+     "size": "small",
+     "playerLabel": "A burlap sack",
+     "dm": "Seven-year-old Vistana, bound with rope in the sack, lying prone so she cannot be seen or heard from shore. Once the sack goes in: DC 15 Strength (Athletics) from shore to reach her in time, DC 10 for anyone in a rowboat. Rescued, she asks to be taken to her father Luvash at the Vistani camp outside Vallaki (N9), promising a reward."
+    },
+    {
+     "id": "day-note8",
+     "kind": "note",
+     "pos": [
+      290,
+      0,
+      118.0
+     ],
+     "vis": "dm-note",
+     "key": "L",
+     "label": "Bluto's boat lies 400 ft from the nearest shore."
+    },
+    {
+     "id": "day-reeds9",
+     "kind": "reeds",
+     "pos": [
+      10.6,
+      0,
+      461.2
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 1.98,
+      "n": 10
+     }
+    },
+    {
+     "id": "day-reeds10",
+     "kind": "reeds",
+     "pos": [
+      38.05,
+      0,
+      466.85
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 2.44,
+      "n": 10
+     }
+    },
+    {
+     "id": "day-reeds11",
+     "kind": "reeds",
+     "pos": [
+      65.4,
+      0,
+      472.95
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 2.55,
+      "n": 10
+     }
+    },
+    {
+     "id": "day-reeds12",
+     "kind": "reeds",
+     "pos": [
+      92.25,
+      0,
+      480.5
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 2.1,
+      "n": 10
+     }
+    },
+    {
+     "id": "day-reeds13",
+     "kind": "reeds",
+     "pos": [
+      119.1,
+      0,
+      488.7
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 2.9,
+      "n": 10
+     }
+    },
+    {
+     "id": "day-reeds14",
+     "kind": "reeds",
+     "pos": [
+      146.6,
+      0,
+      495.2
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 1.78,
+      "n": 10
+     }
+    },
+    {
+     "id": "day-reeds15",
+     "kind": "reeds",
+     "pos": [
+      174.55,
+      0,
+      498.75
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 1.96,
+      "n": 10
+     }
+    },
+    {
+     "id": "day-reeds16",
+     "kind": "reeds",
+     "pos": [
+      369.7,
+      0,
+      489.85
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 2.18,
+      "n": 10
+     }
+    },
+    {
+     "id": "day-reeds17",
+     "kind": "reeds",
+     "pos": [
+      396.65,
+      0,
+      482.2
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 1.79,
+      "n": 10
+     }
+    },
+    {
+     "id": "day-reeds18",
+     "kind": "reeds",
+     "pos": [
+      423.5,
+      0,
+      474.15
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 2.25,
+      "n": 10
+     }
+    },
+    {
+     "id": "day-reeds19",
+     "kind": "reeds",
+     "pos": [
+      450.5,
+      0,
+      466.95
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 2.65,
+      "n": 10
+     }
+    },
+    {
+     "id": "day-reeds20",
+     "kind": "reeds",
+     "pos": [
+      477.85,
+      0,
+      464.1
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 1.42,
+      "n": 10
+     }
+    },
+    {
+     "id": "day-reeds21",
+     "kind": "reeds",
+     "pos": [
+      505.55,
+      0,
+      466.3
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 1.51,
+      "n": 10
+     }
+    },
+    {
+     "id": "day-reeds22",
+     "kind": "reeds",
+     "pos": [
+      533.05,
+      0,
+      471.05
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 2.62,
+      "n": 10
+     }
+    },
+    {
+     "id": "day-boulder23",
+     "kind": "boulder",
+     "pos": [
+      22.8,
+      0,
+      471.5
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 2.42
+     }
+    },
+    {
+     "id": "day-boulder24",
+     "kind": "boulder",
+     "pos": [
+      114.3,
+      0,
+      496.4
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 1.85
+     }
+    },
+    {
+     "id": "day-boulder25",
+     "kind": "boulder",
+     "pos": [
+      41.95,
+      0,
+      479.35
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 2.45
+     }
+    },
+    {
+     "id": "day-boulder26",
+     "kind": "boulder",
+     "pos": [
+      20.4,
+      0,
+      476.0
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 2.25
+     }
+    },
+    {
+     "id": "day-boulder27",
+     "kind": "boulder",
+     "pos": [
+      392.55,
+      0,
+      494.85
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 1.76
+     }
+    },
+    {
+     "id": "day-boulder28",
+     "kind": "boulder",
+     "pos": [
+      513.8,
+      0,
+      480.8
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 2.19
+     }
+    },
+    {
+     "id": "day-boulder29",
+     "kind": "boulder",
+     "pos": [
+      267.3,
+      0,
+      504.6
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 1.35
+     }
+    },
+    {
+     "id": "day-boulder30",
+     "kind": "boulder",
+     "pos": [
+      501.15,
+      0,
+      478.9
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 1.93
+     }
+    },
+    {
+     "id": "day-boulder31",
+     "kind": "boulder",
+     "pos": [
+      499.5,
+      0,
+      480.2
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 1.77
+     }
+    },
+    {
+     "id": "day-boulder32",
+     "kind": "boulder",
+     "pos": [
+      513.75,
+      0,
+      475.5
+     ],
+     "vis": "player",
+     "dims": {
+      "r": 1.77
+     }
+    },
+    {
+     "id": "day-pine33",
+     "kind": "pine",
+     "pos": [
+      120.0,
+      0,
+      591.05
+     ],
+     "vis": "player",
+     "rotY": 291,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.5
+     }
+    },
+    {
+     "id": "day-pine34",
+     "kind": "pine",
+     "pos": [
+      19.3,
+      0,
+      498.8
+     ],
+     "vis": "player",
+     "rotY": 142,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.1
+     }
+    },
+    {
+     "id": "day-pine35",
+     "kind": "pine",
+     "pos": [
+      138.45,
+      0,
+      517.35
+     ],
+     "vis": "player",
+     "rotY": 95,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.01
+     }
+    },
+    {
+     "id": "day-pine36",
+     "kind": "pine",
+     "pos": [
+      408.45,
+      0,
+      562.0
+     ],
+     "vis": "player",
+     "rotY": 358,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.36
+     }
+    },
+    {
+     "id": "day-pine37",
+     "kind": "pine",
+     "pos": [
+      462.4,
+      0,
+      494.25
+     ],
+     "vis": "player",
+     "rotY": 15,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.04
+     }
+    },
+    {
+     "id": "day-pine38",
+     "kind": "pine",
+     "pos": [
+      390.75,
+      0,
+      562.9
+     ],
+     "vis": "player",
+     "rotY": 82,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.02
+     }
+    },
+    {
+     "id": "day-pine39",
+     "kind": "pine",
+     "pos": [
+      90.9,
+      0,
+      554.15
+     ],
+     "vis": "player",
+     "rotY": 43,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.25
+     }
+    },
+    {
+     "id": "day-pine40",
+     "kind": "pine",
+     "pos": [
+      20.0,
+      0,
+      531.0
+     ],
+     "vis": "player",
+     "rotY": 80,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.15
+     }
+    },
+    {
+     "id": "day-pine41",
+     "kind": "pine",
+     "pos": [
+      491.65,
+      0,
+      590.45
+     ],
+     "vis": "player",
+     "rotY": 256,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.06
+     }
+    },
+    {
+     "id": "day-pine42",
+     "kind": "pine",
+     "pos": [
+      334.65,
+      0,
+      558.6
+     ],
+     "vis": "player",
+     "rotY": 276,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.28
+     }
+    },
+    {
+     "id": "day-pine43",
+     "kind": "pine",
+     "pos": [
+      138.6,
+      0,
+      590.45
+     ],
+     "vis": "player",
+     "rotY": 72,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.47
+     }
+    },
+    {
+     "id": "day-pine44",
+     "kind": "pine",
+     "pos": [
+      197.55,
+      0,
+      587.9
+     ],
+     "vis": "player",
+     "rotY": 131,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.19
+     }
+    },
+    {
+     "id": "day-pine45",
+     "kind": "pine",
+     "pos": [
+      96.45,
+      0,
+      589.75
+     ],
+     "vis": "player",
+     "rotY": 241,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.09
+     }
+    },
+    {
+     "id": "day-pine46",
+     "kind": "pine",
+     "pos": [
+      487.9,
+      0,
+      515.95
+     ],
+     "vis": "player",
+     "rotY": 313,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.1
+     }
+    },
+    {
+     "id": "day-pine47",
+     "kind": "pine",
+     "pos": [
+      49.95,
+      0,
+      509.95
+     ],
+     "vis": "player",
+     "rotY": 309,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.3
+     }
+    },
+    {
+     "id": "day-pine48",
+     "kind": "pine",
+     "pos": [
+      84.85,
+      0,
+      592.2
+     ],
+     "vis": "player",
+     "rotY": 88,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.26
+     }
+    },
+    {
+     "id": "day-pine49",
+     "kind": "pine",
+     "pos": [
+      494.3,
+      0,
+      555.9
+     ],
+     "vis": "player",
+     "rotY": 146,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.39
+     }
+    },
+    {
+     "id": "day-pine50",
+     "kind": "pine",
+     "pos": [
+      226.4,
+      0,
+      580.65
+     ],
+     "vis": "player",
+     "rotY": 300,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.24
+     }
+    },
+    {
+     "id": "day-pine51",
+     "kind": "pine",
+     "pos": [
+      429.95,
+      0,
+      504.55
+     ],
+     "vis": "player",
+     "rotY": 304,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.31
+     }
+    },
+    {
+     "id": "day-pine52",
+     "kind": "pine",
+     "pos": [
+      197.5,
+      0,
+      539.9
+     ],
+     "vis": "player",
+     "rotY": 321,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.12
+     }
+    },
+    {
+     "id": "day-pine53",
+     "kind": "pine",
+     "pos": [
+      474.2,
+      0,
+      537.95
+     ],
+     "vis": "player",
+     "rotY": 196,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.33
+     }
+    },
+    {
+     "id": "day-pine54",
+     "kind": "pine",
+     "pos": [
+      535.45,
+      0,
+      584.15
+     ],
+     "vis": "player",
+     "rotY": 9,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.16
+     }
+    },
+    {
+     "id": "day-pine55",
+     "kind": "pine",
+     "pos": [
+      173.7,
+      0,
+      533.1
+     ],
+     "vis": "player",
+     "rotY": 191,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.03
+     }
+    },
+    {
+     "id": "day-pine56",
+     "kind": "pine",
+     "pos": [
+      461.45,
+      0,
+      526.05
+     ],
+     "vis": "player",
+     "rotY": 316,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.53
+     }
+    },
+    {
+     "id": "day-pine57",
+     "kind": "pine",
+     "pos": [
+      406.9,
+      0,
+      535.3
+     ],
+     "vis": "player",
+     "rotY": 117,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.14
+     }
+    },
+    {
+     "id": "day-pine58",
+     "kind": "pine",
+     "pos": [
+      510.9,
+      0,
+      521.3
+     ],
+     "vis": "player",
+     "rotY": 242,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.46
+     }
+    },
+    {
+     "id": "day-pine59",
+     "kind": "pine",
+     "pos": [
+      302.4,
+      0,
+      567.35
+     ],
+     "vis": "player",
+     "rotY": 264,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.4
+     }
+    },
+    {
+     "id": "day-pine60",
+     "kind": "pine",
+     "pos": [
+      84.4,
+      0,
+      511.55
+     ],
+     "vis": "player",
+     "rotY": 91,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.25
+     }
+    },
+    {
+     "id": "day-pine61",
+     "kind": "pine",
+     "pos": [
+      129.7,
+      0,
+      533.1
+     ],
+     "vis": "player",
+     "rotY": 41,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.14
+     }
+    },
+    {
+     "id": "day-pine62",
+     "kind": "pine",
+     "pos": [
+      440.35,
+      0,
+      558.3
+     ],
+     "vis": "player",
+     "rotY": 70,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.36
+     }
+    },
+    {
+     "id": "day-pine63",
+     "kind": "pine",
+     "pos": [
+      547.85,
+      0,
+      583.1
+     ],
+     "vis": "player",
+     "rotY": 278,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.2
+     }
+    },
+    {
+     "id": "day-pine64",
+     "kind": "pine",
+     "pos": [
+      22.75,
+      0,
+      583.65
+     ],
+     "vis": "player",
+     "rotY": 69,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.4
+     }
+    },
+    {
+     "id": "day-pine65",
+     "kind": "pine",
+     "pos": [
+      449.95,
+      0,
+      535.1
+     ],
+     "vis": "player",
+     "rotY": 356,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.07
+     }
+    },
+    {
+     "id": "day-pine66",
+     "kind": "pine",
+     "pos": [
+      144.9,
+      0,
+      561.95
+     ],
+     "vis": "player",
+     "rotY": 18,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.1
+     }
+    },
+    {
+     "id": "day-pine67",
+     "kind": "pine",
+     "pos": [
+      182.95,
+      0,
+      541.45
+     ],
+     "vis": "player",
+     "rotY": 158,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.34
+     }
+    },
+    {
+     "id": "day-pine68",
+     "kind": "pine",
+     "pos": [
+      452.75,
+      0,
+      517.3
+     ],
+     "vis": "player",
+     "rotY": 327,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.47
+     }
+    },
+    {
+     "id": "day-pine69",
+     "kind": "pine",
+     "pos": [
+      514.5,
+      0,
+      497.6
+     ],
+     "vis": "player",
+     "rotY": 270,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.43
+     }
+    },
+    {
+     "id": "day-pine70",
+     "kind": "pine",
+     "pos": [
+      225.6,
+      0,
+      542.3
+     ],
+     "vis": "player",
+     "rotY": 321,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.05
+     }
+    },
+    {
+     "id": "day-pine71",
+     "kind": "pine",
+     "pos": [
+      196.95,
+      0,
+      528.1
+     ],
+     "vis": "player",
+     "rotY": 75,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.29
+     }
+    },
+    {
+     "id": "day-pine72",
+     "kind": "pine",
+     "pos": [
+      25.65,
+      0,
+      513.75
+     ],
+     "vis": "player",
+     "rotY": 348,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.35
+     }
+    },
+    {
+     "id": "day-pine73",
+     "kind": "pine",
+     "pos": [
+      54.85,
+      0,
+      574.65
+     ],
+     "vis": "player",
+     "rotY": 351,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.16
+     }
+    },
+    {
+     "id": "day-pine74",
+     "kind": "pine",
+     "pos": [
+      250.8,
+      0,
+      593.85
+     ],
+     "vis": "player",
+     "rotY": 102,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.14
+     }
+    },
+    {
+     "id": "day-pine75",
+     "kind": "pine",
+     "pos": [
+      348.75,
+      0,
+      514.3
+     ],
+     "vis": "player",
+     "rotY": 326,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.17
+     }
+    },
+    {
+     "id": "day-pine76",
+     "kind": "pine",
+     "pos": [
+      357.0,
+      0,
+      570.45
+     ],
+     "vis": "player",
+     "rotY": 239,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.31
+     }
+    },
+    {
+     "id": "day-pine77",
+     "kind": "pine",
+     "pos": [
+      174.65,
+      0,
+      597.25
+     ],
+     "vis": "player",
+     "rotY": 236,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.19
+     }
+    },
+    {
+     "id": "day-pine78",
+     "kind": "pine",
+     "pos": [
+      101.25,
+      0,
+      576.15
+     ],
+     "vis": "player",
+     "rotY": 26,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.05
+     }
+    },
+    {
+     "id": "day-pine79",
+     "kind": "pine",
+     "pos": [
+      289.25,
+      0,
+      559.2
+     ],
+     "vis": "player",
+     "rotY": 211,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.34
+     }
+    },
+    {
+     "id": "day-pine80",
+     "kind": "pine",
+     "pos": [
+      538.5,
+      0,
+      597.95
+     ],
+     "vis": "player",
+     "rotY": 94,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.5
+     }
+    },
+    {
+     "id": "day-pine81",
+     "kind": "pine",
+     "pos": [
+      502.85,
+      0,
+      579.6
+     ],
+     "vis": "player",
+     "rotY": 68,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.33
+     }
+    },
+    {
+     "id": "day-pine82",
+     "kind": "pine",
+     "pos": [
+      227.6,
+      0,
+      565.7
+     ],
+     "vis": "player",
+     "rotY": 319,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.23
+     }
+    },
+    {
+     "id": "day-pine83",
+     "kind": "pine",
+     "pos": [
+      346.3,
+      0,
+      556.0
+     ],
+     "vis": "player",
+     "rotY": 303,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.0
+     }
+    },
+    {
+     "id": "day-pine84",
+     "kind": "pine",
+     "pos": [
+      373.0,
+      0,
+      582.8
+     ],
+     "vis": "player",
+     "rotY": 76,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.02
+     }
+    },
+    {
+     "id": "day-pine85",
+     "kind": "pine",
+     "pos": [
+      187.7,
+      0,
+      563.55
+     ],
+     "vis": "player",
+     "rotY": 45,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.5
+     }
+    },
+    {
+     "id": "day-pine86",
+     "kind": "pine",
+     "pos": [
+      357.0,
+      0,
+      533.2
+     ],
+     "vis": "player",
+     "rotY": 116,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.54
+     }
+    },
+    {
+     "id": "day-pine87",
+     "kind": "pine",
+     "pos": [
+      88.95,
+      0,
+      536.45
+     ],
+     "vis": "player",
+     "rotY": 35,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.39
+     }
+    },
+    {
+     "id": "day-pine88",
+     "kind": "pine",
+     "pos": [
+      518.35,
+      0,
+      533.1
+     ],
+     "vis": "player",
+     "rotY": 321,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.46
+     }
+    },
+    {
+     "id": "day-pine89",
+     "kind": "pine",
+     "pos": [
+      22.65,
+      0,
+      556.6
+     ],
+     "vis": "player",
+     "rotY": 208,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.21
+     }
+    },
+    {
+     "id": "day-pine90",
+     "kind": "pine",
+     "pos": [
+      477.5,
+      0,
+      573.55
+     ],
+     "vis": "player",
+     "rotY": 188,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.22
+     }
+    },
+    {
+     "id": "day-pine91",
+     "kind": "pine",
+     "pos": [
+      374.85,
+      0,
+      519.95
+     ],
+     "vis": "player",
+     "rotY": 326,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.07
+     }
+    },
+    {
+     "id": "day-pine92",
+     "kind": "pine",
+     "pos": [
+      352.4,
+      0,
+      587.2
+     ],
+     "vis": "player",
+     "rotY": 133,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.17
+     }
+    },
+    {
+     "id": "day-pine93",
+     "kind": "pine",
+     "pos": [
+      209.7,
+      0,
+      543.0
+     ],
+     "vis": "player",
+     "rotY": 15,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.54
+     }
+    },
+    {
+     "id": "day-pine94",
+     "kind": "pine",
+     "pos": [
+      394.0,
+      0,
+      535.05
+     ],
+     "vis": "player",
+     "rotY": 96,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.46
+     }
+    },
+    {
+     "id": "day-pine95",
+     "kind": "pine",
+     "pos": [
+      77.7,
+      0,
+      578.5
+     ],
+     "vis": "player",
+     "rotY": 54,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.47
+     }
+    },
+    {
+     "id": "day-pine96",
+     "kind": "pine",
+     "pos": [
+      374.2,
+      0,
+      562.7
+     ],
+     "vis": "player",
+     "rotY": 262,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.02
+     }
+    },
+    {
+     "id": "day-pine97",
+     "kind": "pine",
+     "pos": [
+      53.75,
+      0,
+      542.4
+     ],
+     "vis": "player",
+     "rotY": 19,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.44
+     }
+    },
+    {
+     "id": "day-pine98",
+     "kind": "pine",
+     "pos": [
+      246.8,
+      0,
+      572.8
+     ],
+     "vis": "player",
+     "rotY": 124,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.01
+     }
+    },
+    {
+     "id": "day-pine99",
+     "kind": "pine",
+     "pos": [
+      47.25,
+      0,
+      596.1
+     ],
+     "vis": "player",
+     "rotY": 97,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.47
+     }
+    },
+    {
+     "id": "day-pine100",
+     "kind": "pine",
+     "pos": [
+      430.5,
+      0,
+      580.65
+     ],
+     "vis": "player",
+     "rotY": 240,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.31
+     }
+    },
+    {
+     "id": "day-pine101",
+     "kind": "pine",
+     "pos": [
+      516.5,
+      0,
+      569.8
+     ],
+     "vis": "player",
+     "rotY": 342,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.25
+     }
+    },
+    {
+     "id": "day-pine102",
+     "kind": "pine",
+     "pos": [
+      206.9,
+      0,
+      557.7
+     ],
+     "vis": "player",
+     "rotY": 354,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.49
+     }
+    },
+    {
+     "id": "day-pine103",
+     "kind": "pine",
+     "pos": [
+      109.3,
+      0,
+      542.7
+     ],
+     "vis": "player",
+     "rotY": 169,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.02
+     }
+    },
+    {
+     "id": "day-pine104",
+     "kind": "pine",
+     "pos": [
+      401.5,
+      0,
+      521.6
+     ],
+     "vis": "player",
+     "rotY": 114,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.3
+     }
+    },
+    {
+     "id": "day-pine105",
+     "kind": "pine",
+     "pos": [
+      529.25,
+      0,
+      515.55
+     ],
+     "vis": "player",
+     "rotY": 143,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.14
+     }
+    },
+    {
+     "id": "day-pine106",
+     "kind": "pine",
+     "pos": [
+      2.5,
+      0,
+      555.2
+     ],
+     "vis": "player",
+     "rotY": 273,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.28
+     }
+    },
+    {
+     "id": "day-pine107",
+     "kind": "pine",
+     "pos": [
+      36.6,
+      0,
+      492.15
+     ],
+     "vis": "player",
+     "rotY": 135,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.2
+     }
+    },
+    {
+     "id": "day-pine108",
+     "kind": "pine",
+     "pos": [
+      118.05,
+      0,
+      573.9
+     ],
+     "vis": "player",
+     "rotY": 174,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.07
+     }
+    },
+    {
+     "id": "day-pine109",
+     "kind": "pine",
+     "pos": [
+      406.75,
+      0,
+      494.95
+     ],
+     "vis": "player",
+     "rotY": 51,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.25
+     }
+    },
+    {
+     "id": "day-pine110",
+     "kind": "pine",
+     "pos": [
+      114.2,
+      0,
+      527.3
+     ],
+     "vis": "player",
+     "rotY": 13,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.07
+     }
+    },
+    {
+     "id": "day-pine111",
+     "kind": "pine",
+     "pos": [
+      10.4,
+      0,
+      573.65
+     ],
+     "vis": "player",
+     "rotY": 12,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.15
+     }
+    },
+    {
+     "id": "day-pine112",
+     "kind": "pine",
+     "pos": [
+      325.45,
+      0,
+      585.4
+     ],
+     "vis": "player",
+     "rotY": 263,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.25
+     }
+    },
+    {
+     "id": "day-pine113",
+     "kind": "pine",
+     "pos": [
+      311.8,
+      0,
+      560.15
+     ],
+     "vis": "player",
+     "rotY": 191,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.4
+     }
+    },
+    {
+     "id": "day-pine114",
+     "kind": "pine",
+     "pos": [
+      542.85,
+      0,
+      513.7
+     ],
+     "vis": "player",
+     "rotY": 253,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.41
+     }
+    },
+    {
+     "id": "day-pine115",
+     "kind": "pine",
+     "pos": [
+      56.75,
+      0,
+      496.35
+     ],
+     "vis": "player",
+     "rotY": 51,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.31
+     }
+    },
+    {
+     "id": "day-pine116",
+     "kind": "pine",
+     "pos": [
+      392.55,
+      0,
+      551.25
+     ],
+     "vis": "player",
+     "rotY": 29,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.47
+     }
+    },
+    {
+     "id": "day-pine117",
+     "kind": "pine",
+     "pos": [
+      102.2,
+      0,
+      532.7
+     ],
+     "vis": "player",
+     "rotY": 214,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.25
+     }
+    },
+    {
+     "id": "day-pine118",
+     "kind": "pine",
+     "pos": [
+      244.45,
+      0,
+      551.0
+     ],
+     "vis": "player",
+     "rotY": 294,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.28
+     }
+    },
+    {
+     "id": "day-pine119",
+     "kind": "pine",
+     "pos": [
+      314.15,
+      0,
+      576.25
+     ],
+     "vis": "player",
+     "rotY": 255,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.29
+     }
+    },
+    {
+     "id": "day-pine120",
+     "kind": "pine",
+     "pos": [
+      125.35,
+      0,
+      564.85
+     ],
+     "vis": "player",
+     "rotY": 66,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.39
+     }
+    },
+    {
+     "id": "day-pine121",
+     "kind": "pine",
+     "pos": [
+      168.25,
+      0,
+      568.8
+     ],
+     "vis": "player",
+     "rotY": 293,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.23
+     }
+    },
+    {
+     "id": "day-pine122",
+     "kind": "pine",
+     "pos": [
+      331.35,
+      0,
+      571.05
+     ],
+     "vis": "player",
+     "rotY": 83,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.42
+     }
+    },
+    {
+     "id": "day-pine123",
+     "kind": "pine",
+     "pos": [
+      94.15,
+      0,
+      496.15
+     ],
+     "vis": "player",
+     "rotY": 77,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.05
+     }
+    },
+    {
+     "id": "day-pine124",
+     "kind": "pine",
+     "pos": [
+      489.75,
+      0,
+      577.3
+     ],
+     "vis": "player",
+     "rotY": 140,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.18
+     }
+    },
+    {
+     "id": "day-pine125",
+     "kind": "pine",
+     "pos": [
+      479.4,
+      0,
+      556.75
+     ],
+     "vis": "player",
+     "rotY": 21,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.51
+     }
+    },
+    {
+     "id": "day-pine126",
+     "kind": "pine",
+     "pos": [
+      508.05,
+      0,
+      595.3
+     ],
+     "vis": "player",
+     "rotY": 29,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.03
+     }
+    },
+    {
+     "id": "day-pine127",
+     "kind": "pine",
+     "pos": [
+      454.1,
+      0,
+      569.95
+     ],
+     "vis": "player",
+     "rotY": 283,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.52
+     }
+    },
+    {
+     "id": "day-pine128",
+     "kind": "pine",
+     "pos": [
+      454.3,
+      0,
+      596.55
+     ],
+     "vis": "player",
+     "rotY": 132,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.36
+     }
+    },
+    {
+     "id": "day-pine129",
+     "kind": "pine",
+     "pos": [
+      62.9,
+      0,
+      591.9
+     ],
+     "vis": "player",
+     "rotY": 62,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.24
+     }
+    },
+    {
+     "id": "day-pine130",
+     "kind": "pine",
+     "pos": [
+      404.1,
+      0,
+      596.5
+     ],
+     "vis": "player",
+     "rotY": 230,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.47
+     }
+    },
+    {
+     "id": "day-pine131",
+     "kind": "pine",
+     "pos": [
+      68.75,
+      0,
+      500.0
+     ],
+     "vis": "player",
+     "rotY": 317,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.29
+     }
+    },
+    {
+     "id": "day-pine132",
+     "kind": "pine",
+     "pos": [
+      451.75,
+      0,
+      550.85
+     ],
+     "vis": "player",
+     "rotY": 163,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.31
+     }
+    },
+    {
+     "id": "day-pine133",
+     "kind": "pine",
+     "pos": [
+      542.6,
+      0,
+      534.85
+     ],
+     "vis": "player",
+     "rotY": 291,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.1
+     }
+    },
+    {
+     "id": "day-pine134",
+     "kind": "pine",
+     "pos": [
+      531.25,
+      0,
+      550.8
+     ],
+     "vis": "player",
+     "rotY": 10,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.24
+     }
+    },
+    {
+     "id": "day-pine135",
+     "kind": "pine",
+     "pos": [
+      442.4,
+      0,
+      589.7
+     ],
+     "vis": "player",
+     "rotY": 320,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.34
+     }
+    },
+    {
+     "id": "day-pine136",
+     "kind": "pine",
+     "pos": [
+      162.85,
+      0,
+      596.8
+     ],
+     "vis": "player",
+     "rotY": 302,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.18
+     }
+    },
+    {
+     "id": "day-pine137",
+     "kind": "pine",
+     "pos": [
+      369.65,
+      0,
+      537.7
+     ],
+     "vis": "player",
+     "rotY": 250,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.47
+     }
+    },
+    {
+     "id": "day-pine138",
+     "kind": "pine",
+     "pos": [
+      199.55,
+      0,
+      576.5
+     ],
+     "vis": "player",
+     "rotY": 187,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.36
+     }
+    },
+    {
+     "id": "day-pine139",
+     "kind": "pine",
+     "pos": [
+      335.95,
+      0,
+      592.0
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.44
+     }
+    },
+    {
+     "id": "day-pine140",
+     "kind": "pine",
+     "pos": [
+      45.85,
+      0,
+      561.3
+     ],
+     "vis": "player",
+     "rotY": 154,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.05
+     }
+    },
+    {
+     "id": "day-pine141",
+     "kind": "pine",
+     "pos": [
+      98.85,
+      0,
+      520.5
+     ],
+     "vis": "player",
+     "rotY": 154,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.55
+     }
+    },
+    {
+     "id": "day-pine142",
+     "kind": "pine",
+     "pos": [
+      409.45,
+      0,
+      581.9
+     ],
+     "vis": "player",
+     "rotY": 341,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.48
+     }
+    },
+    {
+     "id": "day-pine143",
+     "kind": "pine",
+     "pos": [
+      528.9,
+      0,
+      491.75
+     ],
+     "vis": "player",
+     "rotY": 307,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.42
+     }
+    },
+    {
+     "id": "day-pine144",
+     "kind": "pine",
+     "pos": [
+      129.05,
+      0,
+      507.8
+     ],
+     "vis": "player",
+     "rotY": 85,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.39
+     }
+    },
+    {
+     "id": "day-pine145",
+     "kind": "pine",
+     "pos": [
+      503.4,
+      0,
+      563.3
+     ],
+     "vis": "player",
+     "rotY": 312,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.52
+     }
+    },
+    {
+     "id": "day-pine146",
+     "kind": "pine",
+     "pos": [
+      216.25,
+      0,
+      592.75
+     ],
+     "vis": "player",
+     "rotY": 138,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.3
+     }
+    },
+    {
+     "id": "day-pine147",
+     "kind": "pine",
+     "pos": [
+      40.05,
+      0,
+      520.55
+     ],
+     "vis": "player",
+     "rotY": 291,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.21
+     }
+    },
+    {
+     "id": "day-pine148",
+     "kind": "pine",
+     "pos": [
+      501.85,
+      0,
+      545.35
+     ],
+     "vis": "player",
+     "rotY": 23,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.0
+     }
+    },
+    {
+     "id": "day-pine149",
+     "kind": "pine",
+     "pos": [
+      216.9,
+      0,
+      532.35
+     ],
+     "vis": "player",
+     "rotY": 244,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.05
+     }
+    },
+    {
+     "id": "day-pine150",
+     "kind": "pine",
+     "pos": [
+      121.85,
+      0,
+      552.1
+     ],
+     "vis": "player",
+     "rotY": 118,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.18
+     }
+    },
+    {
+     "id": "day-pine151",
+     "kind": "pine",
+     "pos": [
+      179.3,
+      0,
+      581.3
+     ],
+     "vis": "player",
+     "rotY": 222,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.47
+     }
+    },
+    {
+     "id": "day-pine152",
+     "kind": "pine",
+     "pos": [
+      543.75,
+      0,
+      568.9
+     ],
+     "vis": "player",
+     "rotY": 174,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.24
+     }
+    },
+    {
+     "id": "day-pine153",
+     "kind": "pine",
+     "pos": [
+      417.35,
+      0,
+      514.8
+     ],
+     "vis": "player",
+     "rotY": 234,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.5
+     }
+    },
+    {
+     "id": "day-pine154",
+     "kind": "pine",
+     "pos": [
+      64.95,
+      0,
+      525.1
+     ],
+     "vis": "player",
+     "rotY": 54,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.25
+     }
+    },
+    {
+     "id": "day-pine155",
+     "kind": "pine",
+     "pos": [
+      521.6,
+      0,
+      589.7
+     ],
+     "vis": "player",
+     "rotY": 258,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.42
+     }
+    },
+    {
+     "id": "day-pine156",
+     "kind": "pine",
+     "pos": [
+      6.8,
+      0,
+      595.35
+     ],
+     "vis": "player",
+     "rotY": 302,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.2
+     }
+    },
+    {
+     "id": "day-pine157",
+     "kind": "pine",
+     "pos": [
+      380.95,
+      0,
+      509.8
+     ],
+     "vis": "player",
+     "rotY": 204,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.52
+     }
+    },
+    {
+     "id": "day-pine158",
+     "kind": "pine",
+     "pos": [
+      16.45,
+      0,
+      543.6
+     ],
+     "vis": "player",
+     "rotY": 298,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.14
+     }
+    },
+    {
+     "id": "day-pine159",
+     "kind": "pine",
+     "pos": [
+      65.85,
+      0,
+      537.95
+     ],
+     "vis": "player",
+     "rotY": 195,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.05
+     }
+    },
+    {
+     "id": "day-pine160",
+     "kind": "pine",
+     "pos": [
+      394.2,
+      0,
+      506.35
+     ],
+     "vis": "player",
+     "rotY": 99,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.34
+     }
+    },
+    {
+     "id": "day-pine161",
+     "kind": "pine",
+     "pos": [
+      164.15,
+      0,
+      541.7
+     ],
+     "vis": "player",
+     "rotY": 205,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.32
+     }
+    },
+    {
+     "id": "day-pine162",
+     "kind": "pine",
+     "pos": [
+      380.75,
+      0,
+      544.6
+     ],
+     "vis": "player",
+     "rotY": 103,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.27
+     }
+    },
+    {
+     "id": "day-pine163",
+     "kind": "pine",
+     "pos": [
+      164.55,
+      0,
+      516.75
+     ],
+     "vis": "player",
+     "rotY": 148,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.09
+     }
+    },
+    {
+     "id": "day-pine164",
+     "kind": "pine",
+     "pos": [
+      51.6,
+      0,
+      527.55
+     ],
+     "vis": "player",
+     "rotY": 262,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.1
+     }
+    },
+    {
+     "id": "day-pine165",
+     "kind": "pine",
+     "pos": [
+      324.7,
+      0,
+      597.2
+     ],
+     "vis": "player",
+     "rotY": 112,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.13
+     }
+    },
+    {
+     "id": "day-pine166",
+     "kind": "pine",
+     "pos": [
+      301.15,
+      0,
+      551.85
+     ],
+     "vis": "player",
+     "rotY": 321,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.41
+     }
+    },
+    {
+     "id": "day-pine167",
+     "kind": "pine",
+     "pos": [
+      212.45,
+      0,
+      573.3
+     ],
+     "vis": "player",
+     "rotY": 126,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.4
+     }
+    },
+    {
+     "id": "day-pine168",
+     "kind": "pine",
+     "pos": [
+      304.6,
+      0,
+      596.9
+     ],
+     "vis": "player",
+     "rotY": 47,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.0
+     }
+    },
+    {
+     "id": "day-pine169",
+     "kind": "pine",
+     "pos": [
+      30.35,
+      0,
+      566.2
+     ],
+     "vis": "player",
+     "rotY": 315,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.42
+     }
+    },
+    {
+     "id": "day-pine170",
+     "kind": "pine",
+     "pos": [
+      409.35,
+      0,
+      547.3
+     ],
+     "vis": "player",
+     "rotY": 154,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.1
+     }
+    },
+    {
+     "id": "day-pine171",
+     "kind": "pine",
+     "pos": [
+      528.75,
+      0,
+      527.15
+     ],
+     "vis": "player",
+     "rotY": 327,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.13
+     }
+    },
+    {
+     "id": "day-pine172",
+     "kind": "pine",
+     "pos": [
+      381.3,
+      0,
+      593.7
+     ],
+     "vis": "player",
+     "rotY": 107,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.43
+     }
+    },
+    {
+     "id": "day-pine173",
+     "kind": "pine",
+     "pos": [
+      35.0,
+      0,
+      505.45
+     ],
+     "vis": "player",
+     "rotY": 278,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.13
+     }
+    },
+    {
+     "id": "day-pine174",
+     "kind": "pine",
+     "pos": [
+      504.45,
+      0,
+      509.25
+     ],
+     "vis": "player",
+     "rotY": 96,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.14
+     }
+    },
+    {
+     "id": "day-pine175",
+     "kind": "pine",
+     "pos": [
+      234.25,
+      0,
+      594.8
+     ],
+     "vis": "player",
+     "rotY": 185,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.34
+     }
+    },
+    {
+     "id": "day-pine176",
+     "kind": "pine",
+     "pos": [
+      145.7,
+      0,
+      535.9
+     ],
+     "vis": "player",
+     "rotY": 274,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.54
+     }
+    },
+    {
+     "id": "day-pine177",
+     "kind": "pine",
+     "pos": [
+      179.3,
+      0,
+      514.35
+     ],
+     "vis": "player",
+     "rotY": 21,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.29
+     }
+    },
+    {
+     "id": "day-pine178",
+     "kind": "pine",
+     "pos": [
+      222.05,
+      0,
+      554.6
+     ],
+     "vis": "player",
+     "rotY": 234,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.09
+     }
+    },
+    {
+     "id": "day-pine179",
+     "kind": "pine",
+     "pos": [
+      138.6,
+      0,
+      578.1
+     ],
+     "vis": "player",
+     "rotY": 211,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.14
+     }
+    },
+    {
+     "id": "day-pine180",
+     "kind": "pine",
+     "pos": [
+      423.3,
+      0,
+      526.65
+     ],
+     "vis": "player",
+     "rotY": 272,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.37
+     }
+    },
+    {
+     "id": "day-pine181",
+     "kind": "pine",
+     "pos": [
+      253.8,
+      0,
+      562.8
+     ],
+     "vis": "player",
+     "rotY": 278,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.18
+     }
+    },
+    {
+     "id": "day-pine182",
+     "kind": "pine",
+     "pos": [
+      533.55,
+      0,
+      562.25
+     ],
+     "vis": "player",
+     "rotY": 133,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.3
+     }
+    },
+    {
+     "id": "day-pine183",
+     "kind": "pine",
+     "pos": [
+      468.35,
+      0,
+      565.35
+     ],
+     "vis": "player",
+     "rotY": 14,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.13
+     }
+    },
+    {
+     "id": "day-pine184",
+     "kind": "pine",
+     "pos": [
+      170.75,
+      0,
+      554.85
+     ],
+     "vis": "player",
+     "rotY": 74,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.43
+     }
+    },
+    {
+     "id": "day-pine185",
+     "kind": "pine",
+     "pos": [
+      420.3,
+      0,
+      496.25
+     ],
+     "vis": "player",
+     "rotY": 81,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.55
+     }
+    },
+    {
+     "id": "day-pine186",
+     "kind": "pine",
+     "pos": [
+      358.65,
+      0,
+      507.65
+     ],
+     "vis": "player",
+     "rotY": 264,
+     "dims": {
+      "h": 26,
+      "r": 6,
+      "scale": 1.22
+     }
+    },
+    {
+     "id": "day-bush187",
+     "kind": "bush",
+     "pos": [
+      262.05,
+      0,
+      571.8
+     ],
+     "vis": "player",
+     "rotY": 346,
+     "dims": {
+      "scale": 0.93
+     }
+    },
+    {
+     "id": "day-bush188",
+     "kind": "bush",
+     "pos": [
+      40.5,
+      0,
+      573.1
+     ],
+     "vis": "player",
+     "rotY": 44,
+     "dims": {
+      "scale": 1.49
+     }
+    },
+    {
+     "id": "day-bush189",
+     "kind": "bush",
+     "pos": [
+      100.5,
+      0,
+      508.35
+     ],
+     "vis": "player",
+     "rotY": 89,
+     "dims": {
+      "scale": 1.14
+     }
+    },
+    {
+     "id": "day-bush190",
+     "kind": "bush",
+     "pos": [
+      334.6,
+      0,
+      517.6
+     ],
+     "vis": "player",
+     "rotY": 233,
+     "dims": {
+      "scale": 0.82
+     }
+    },
+    {
+     "id": "day-bush191",
+     "kind": "bush",
+     "pos": [
+      185.95,
+      0,
+      591.7
+     ],
+     "vis": "player",
+     "rotY": 191,
+     "dims": {
+      "scale": 1.4
+     }
+    },
+    {
+     "id": "day-bush192",
+     "kind": "bush",
+     "pos": [
+      151.45,
+      0,
+      587.25
+     ],
+     "vis": "player",
+     "rotY": 291,
+     "dims": {
+      "scale": 1.49
+     }
+    },
+    {
+     "id": "day-bush193",
+     "kind": "bush",
+     "pos": [
+      293.95,
+      0,
+      588.45
+     ],
+     "vis": "player",
+     "rotY": 179,
+     "dims": {
+      "scale": 1.33
+     }
+    },
+    {
+     "id": "day-bush194",
+     "kind": "bush",
+     "pos": [
+      407.0,
+      0,
+      507.45
+     ],
+     "vis": "player",
+     "rotY": 192,
+     "dims": {
+      "scale": 1.31
+     }
+    },
+    {
+     "id": "day-bush195",
+     "kind": "bush",
+     "pos": [
+      104.6,
+      0,
+      556.9
+     ],
+     "vis": "player",
+     "rotY": 293,
+     "dims": {
+      "scale": 0.94
+     }
+    },
+    {
+     "id": "day-bush196",
+     "kind": "bush",
+     "pos": [
+      426.6,
+      0,
+      551.8
+     ],
+     "vis": "player",
+     "rotY": 9,
+     "dims": {
+      "scale": 1.06
+     }
+    },
+    {
+     "id": "day-bush197",
+     "kind": "bush",
+     "pos": [
+      152.9,
+      0,
+      570.9
+     ],
+     "vis": "player",
+     "rotY": 210,
+     "dims": {
+      "scale": 1.28
+     }
+    },
+    {
+     "id": "day-bush198",
+     "kind": "bush",
+     "pos": [
+      66.45,
+      0,
+      554.4
+     ],
+     "vis": "player",
+     "rotY": 29,
+     "dims": {
+      "scale": 0.94
+     }
+    },
+    {
+     "id": "day-bush199",
+     "kind": "bush",
+     "pos": [
+      421.3,
+      0,
+      587.85
+     ],
+     "vis": "player",
+     "rotY": 295,
+     "dims": {
+      "scale": 1.23
+     }
+    },
+    {
+     "id": "day-bush200",
+     "kind": "bush",
+     "pos": [
+      153.25,
+      0,
+      526.2
+     ],
+     "vis": "player",
+     "rotY": 129,
+     "dims": {
+      "scale": 0.92
+     }
+    },
+    {
+     "id": "day-bush201",
+     "kind": "bush",
+     "pos": [
+      516.2,
+      0,
+      545.7
+     ],
+     "vis": "player",
+     "rotY": 44,
+     "dims": {
+      "scale": 0.87
+     }
+    },
+    {
+     "id": "day-bush202",
+     "kind": "bush",
+     "pos": [
+      262.3,
+      0,
+      595.55
+     ],
+     "vis": "player",
+     "rotY": 36,
+     "dims": {
+      "scale": 1.09
+     }
+    },
+    {
+     "id": "day-bush203",
+     "kind": "bush",
+     "pos": [
+      303.9,
+      0,
+      584.55
+     ],
+     "vis": "player",
+     "rotY": 209,
+     "dims": {
+      "scale": 1.18
+     }
+    },
+    {
+     "id": "day-boulder204",
+     "kind": "boulder",
+     "pos": [
+      434.0,
+      0,
+      521.45
+     ],
+     "vis": "player",
+     "rotY": 141,
+     "dims": {
+      "r": 2.39
+     }
+    },
+    {
+     "id": "day-stump205",
+     "kind": "stump",
+     "pos": [
+      326.15,
+      0,
+      550.05
+     ],
+     "vis": "player",
+     "rotY": 269,
+     "dims": {
+      "r": 1.0
+     }
+    },
+    {
+     "id": "day-log206",
+     "kind": "log",
+     "pos": [
+      34.2,
+      0,
+      546.25
+     ],
+     "vis": "player",
+     "rotY": 280,
+     "dims": {
+      "len": 12.77,
+      "r": 0.94
+     }
+    },
+    {
+     "id": "day-note207",
+     "kind": "note",
+     "pos": [
+      300,
+      0,
+      585
+     ],
+     "vis": "dm-note",
+     "key": "L",
+     "label": "South: the track back to Vallaki (N)."
+    },
+    {
+     "id": "day-spawn",
+     "kind": "spawn",
+     "pos": [
+      278.0,
+      0,
+      580
+     ],
+     "vis": "dm-note",
+     "label": "Party arrives"
+    }
+   ]
+  }
+ ],
+ "links": []
+}
