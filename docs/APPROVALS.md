@@ -43,8 +43,8 @@ Recommendation: yes to A12 and A26; A14, A15 and A25 after the performance basel
 | Item | Today | Proposed | Why | Decision |
 |---|---|---|---|---|
 | A12 Darkvision greyscale on the players' side | Computed but never rendered. | Darkvision-only cells are desaturated. | A clear 5e cue; a shader change. | pending |
-| A14 Authored scene lights feed players' vision, as secondary sources | Only the party torch is dynamic. | Lit and doused state; lights are secondary unless marked primary. | Changes fog and vision. | pending |
-| A15 Window wall role | Walls block sight and movement. | Windows pass sight and block movement. | Changes rules and scene data. | pending |
+| A14 Authored scene lights feed players' vision, as secondary sources | Only the party torch is dynamic. | Lit and doused state; lights are secondary unless marked primary. | Changes fog and vision. | pending (partly present: authored lights already light the players' view inside the party's line of sight; the proposal adds lit and doused state and primary sources) |
+| A15 Window wall role | Walls block sight and movement. | Windows pass sight and block movement. | Changes rules and scene data. | not needed: windows already pass sight and block movement (335 authored; checked 2026-10-04) |
 | A25 Outdoor vision limit in the mists | Outdoor daylight sees across the map. | A per-scene limit that caps outdoor coverage. | Barovian atmosphere; changes fog. | pending |
 | A26 Soft fog edges on the players' side | Hard cell edges. | Feathered edges in the shared fog shader. | Reads better on a TV; a shader change. | pending |
 
