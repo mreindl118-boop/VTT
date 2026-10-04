@@ -794,9 +794,10 @@
      "pos": [
       75,
       0,
-      167.5
+      177.5
      ],
      "vis": "player",
+     "rotY": 180,
      "key": "S4",
      "dims": {
       "w": 30,
@@ -808,9 +809,9 @@
      "id": "L0-temple-sign",
      "kind": "signpost",
      "pos": [
-      75,
+      67.0,
       0,
-      153.0
+      150
      ],
      "vis": "player",
      "key": "S4",

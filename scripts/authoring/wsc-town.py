@@ -154,7 +154,9 @@ S.obj('tavern-sign', 'signpost', (6 + OX, 12.6), 'player', 'S1', 'The tavern', d
 S.prop('tavern-facade', 'house', (6.5 + OX, 6.5), None, rotY=0, dims={'w': 55, 'd': 55, 'h': 10, 'stories': 2}); S.prop('tavern-chimney', 'chimney', (1.6 + OX, 8), None, dims={'h': 9, 'y': 20})
 # the well at the centre; the temple south across the ring; the town hall east; a few houses beyond
 S.prop('well', 'well', (CX, CZ), 'S1')
-S.prop('temple', 'temple', (15, 33.5), 'S4', dims={'w': 30, 'd': 45, 'h': 14}); S.obj('temple-sign', 'signpost', (15, 30.6), 'player', 'S4', 'The temple')
+# the temple turned so its door faces the square across the ring road, its front clear of the road; its signpost 5 ft
+# out from the door face and 8 ft to the side, where the path to the door leaves the ring road
+S.prop('temple', 'temple', (15, 35.5), 'S4', rotY=180, dims={'w': 30, 'd': 45, 'h': 14}); S.obj('temple-sign', 'signpost', (13.4, 30), 'player', 'S4', 'The temple')
 S.prop('hall', 'house', (31, 11), 'S3', dims={'w': 35, 'd': 28, 'h': 12, 'stories': 2}); S.obj('hall-sign', 'signpost', (31, 18.4), 'player', 'S3', 'Town hall')
 S.prop('trough-sq', 'trough', (12, 23), 'S1'); S.prop('notice', 'signpost', (10.5, 24.5), 'S1')
 [S.prop(f'bench{i}', 'bench', p, 'S1', rotY=r, dims={'l': 6}) for i, (p, r) in enumerate([((18, 24), 0), ((12, 18), 0)])]

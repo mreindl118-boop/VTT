@@ -35,7 +35,7 @@
      ],
      "floor": "grass",
      "desc": "The House in the Woods (approach)",
-     "dm": "About a mile of sparse woodland between the road and the compound; the cut segment for a stealthy approach or an ambush. The stream has a stepping-stone ford. The raised green patches are undergrowth: difficult terrain."
+     "dm": "About a mile of sparse woodland between the road and the compound; the cut segment for a stealthy approach or an ambush. The stream has a stepping-stone ford. The raised green patches are undergrowth: difficult terrain. The wooded banks stand 5 ft above the path (the export's figure), built as a 3-ft earth step and a set-back step above it; the trees on them stand on top."
     }
    ],
    "walls": [],
@@ -45,7 +45,7 @@
      "kind": "oak",
      "pos": [
       38.15,
-      0,
+      3.0,
       9.8
      ],
      "vis": "player",
@@ -77,7 +77,7 @@
      "kind": "oak",
      "pos": [
       55.7,
-      0,
+      5.0,
       7.4
      ],
      "vis": "player",
@@ -93,7 +93,7 @@
      "kind": "oak",
      "pos": [
       9.35,
-      0,
+      0.5,
       32.0
      ],
      "vis": "player",
@@ -109,7 +109,7 @@
      "kind": "oak",
      "pos": [
       13.15,
-      0,
+      5.0,
       12.15
      ],
      "vis": "player",
@@ -125,7 +125,7 @@
      "kind": "oak",
      "pos": [
       52.85,
-      0,
+      0.5,
       37.0
      ],
      "vis": "player",
@@ -157,7 +157,7 @@
      "kind": "oak",
      "pos": [
       6.95,
-      0,
+      0.5,
       51.1
      ],
      "vis": "player",
@@ -237,7 +237,7 @@
      "kind": "oak",
      "pos": [
       50.7,
-      0,
+      0.5,
       80.0
      ],
      "vis": "player",
@@ -269,7 +269,7 @@
      "kind": "oak",
      "pos": [
       5.85,
-      0,
+      5.0,
       3.0
      ],
      "vis": "player",
@@ -333,7 +333,7 @@
      "kind": "oak",
      "pos": [
       20.6,
-      0,
+      0.5,
       51.7
      ],
      "vis": "player",
@@ -349,7 +349,7 @@
      "kind": "oak",
      "pos": [
       55.25,
-      0,
+      5.0,
       23.65
      ],
      "vis": "player",
@@ -388,8 +388,42 @@
       ]
      ],
      "dims": {
-      "h": 5.0,
-      "color": 4873786
+      "h": 3.0,
+      "color": 6126922
+     },
+     "label": "Woodland"
+    },
+    {
+     "id": "03b-path-L0-patch1b",
+     "kind": "prism",
+     "pos": [
+      0,
+      0,
+      0
+     ],
+     "vis": "player",
+     "polygon": [
+      [
+       2.0,
+       2.0
+      ],
+      [
+       17.0,
+       2.0
+      ],
+      [
+       17.0,
+       28.0
+      ],
+      [
+       2.0,
+       28.0
+      ]
+     ],
+     "dims": {
+      "h": 2.0,
+      "y": 3.0,
+      "color": 6126922
      },
      "label": "Woodland"
     },
@@ -421,8 +455,42 @@
       ]
      ],
      "dims": {
-      "h": 5.0,
-      "color": 4873786
+      "h": 3.0,
+      "color": 6126922
+     },
+     "label": "Woodland"
+    },
+    {
+     "id": "03b-path-L0-patch2b",
+     "kind": "prism",
+     "pos": [
+      0,
+      0,
+      0
+     ],
+     "vis": "player",
+     "polygon": [
+      [
+       39.0,
+       2.0
+      ],
+      [
+       58.0,
+       2.0
+      ],
+      [
+       58.0,
+       28.0
+      ],
+      [
+       39.0,
+       28.0
+      ]
+     ],
+     "dims": {
+      "h": 2.0,
+      "y": 3.0,
+      "color": 6126922
      },
      "label": "Woodland"
     },
@@ -1627,7 +1695,7 @@
      ],
      "dims": {
       "h": 0.5,
-      "color": 4151860
+      "color": 5069375
      },
      "label": "Undergrowth"
     },
@@ -1740,7 +1808,7 @@
      ],
      "dims": {
       "h": 0.5,
-      "color": 4151860
+      "color": 5069375
      },
      "label": "Undergrowth"
     },
@@ -1853,7 +1921,7 @@
      ],
      "dims": {
       "h": 0.5,
-      "color": 4151860
+      "color": 5069375
      },
      "label": "Undergrowth"
     },
@@ -1966,7 +2034,7 @@
      ],
      "dims": {
       "h": 0.5,
-      "color": 4151860
+      "color": 5069375
      },
      "label": "Undergrowth"
     },
@@ -2079,7 +2147,7 @@
      ],
      "dims": {
       "h": 0.5,
-      "color": 4151860
+      "color": 5069375
      },
      "label": "Undergrowth"
     },
@@ -2192,7 +2260,7 @@
      ],
      "dims": {
       "h": 0.5,
-      "color": 4151860
+      "color": 5069375
      },
      "label": "Undergrowth"
     },
@@ -2305,7 +2373,7 @@
      ],
      "dims": {
       "h": 0.5,
-      "color": 4151860
+      "color": 5069375
      },
      "label": "Undergrowth"
     },
@@ -2418,7 +2486,7 @@
      ],
      "dims": {
       "h": 0.5,
-      "color": 4151860
+      "color": 5069375
      },
      "label": "Undergrowth"
     },
@@ -2531,7 +2599,7 @@
      ],
      "dims": {
       "h": 0.5,
-      "color": 4151860
+      "color": 5069375
      },
      "label": "Undergrowth"
     }

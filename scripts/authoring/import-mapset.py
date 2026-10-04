@@ -23,6 +23,39 @@ FLOOR = {'cobble': 'cobble', 'wood': 'plank', 'deck': 'plank', 'plaster': 'flags
 FLOOR_NAME = {'cobble': 'Cobbles', 'wood': 'Plank floor', 'deck': 'Deck', 'plaster': 'Interior', 'grass': 'Grass', 'pasture': 'Pasture', 'woodland': 'Woodland floor', 'dirt': 'Dirt', 'moor': 'Open ground'}
 r3 = lambda v: round(float(v), 3)
 pt = lambda p: [r3(p[0]), r3(p[1])]
+# Raised patches in colours the surface shader knows (app/src/kit/surfaces.ts), so they get earth and grass grain
+# rather than the generic whisper: the Sheep Chase grass (manifests/campaigns.json theme.grass, declared by setGrass)
+# for wooded banks, the darker turf '#4d5a3f' for undergrowth so the difficult ground reads, FLOOR_COLOR.dirt for a
+# road crown, the declared field-stone grey for rock.
+PATCH_COLOR = {'road': 0x66584a, 'undergrowth': 0x4d5a3f, 'woodland': 0x5d7d4a, 'rock': 0x6d6a66}
+BANK_STEP, BANK_INSET = 3.0, 2.0   # a bank taller than a step: a 3-ft tier, then the rest set back 2 ft
+
+
+def inside_poly(p, poly):
+    x, z = p; c = False; n = len(poly)
+    for i in range(n):
+        (x0, z0), (x1, z1) = poly[i], poly[(i + 1) % n]
+        if (z0 > z) != (z1 > z) and x < (x1 - x0) * (z - z0) / (z1 - z0) + x0: c = not c
+    return c
+
+
+def inset(poly, d):
+    """The polygon with every edge moved d ft inward (mitred corners; the patches are convex)."""
+    n = len(poly); s = sum(poly[i][0] * poly[(i + 1) % n][1] - poly[(i + 1) % n][0] * poly[i][1] for i in range(n))
+    sg = 1 if s > 0 else -1
+    lines = []
+    for i in range(n):
+        (x0, z0), (x1, z1) = poly[i], poly[(i + 1) % n]; L = math.hypot(x1 - x0, z1 - z0) or 1
+        nx, nz = -(z1 - z0) / L * sg, (x1 - x0) / L * sg   # inward normal
+        lines.append(((x0 + nx * d, z0 + nz * d), (x1 - x0, z1 - z0)))
+    out = []
+    for i in range(n):
+        (p, u), (q, v) = lines[i - 1], lines[i]
+        den = u[0] * v[1] - u[1] * v[0]
+        if abs(den) < 1e-9: out.append(pt(q)); continue
+        t = ((q[0] - p[0]) * v[1] - (q[1] - p[1]) * v[0]) / den
+        out.append(pt([p[0] + u[0] * t, p[1] + u[1] * t]))
+    return out
 
 
 def poly_of(shape):
@@ -89,6 +122,8 @@ def convert_level(mp, lid, prefix):
         note = d.get('notes', '')
         if d.get('creatures'): note += ' Creatures: ' + ', '.join(d['creatures']) + '.'
         if any(p['material'] == 'undergrowth' for p in mp['patches']): note += ' The raised green patches are undergrowth: difficult terrain.'
+        banks = sorted({p['dz_ft'] for p in mp['patches'] if p['dz_ft'] > BANK_STEP + 0.5})
+        if banks: note += f" The wooded banks stand {'/'.join(f'{b:g}' for b in banks)} ft above the path (the export's figure), built as a {BANK_STEP:g}-ft earth step and a set-back step above it; the trees on them stand on top."
         rooms[0]['dm'] = note.strip()
     # walls: only 'full' pieces; window sills/lintels are drawn by our window flag
     doors_w = [o for o in mp['openings']]
@@ -115,20 +150,35 @@ def convert_level(mp, lid, prefix):
     for b in mp.get('bridges', []):
         poly = poly_of(b['shape'])
         objects.append(OrderedDict(id=f'{prefix}-{lid}-bridge{len(objects)}', kind='prism', pos=[0, 0, 0], vis='player', polygon=poly, dims=OrderedDict(h=r3(b['thickness_ft']), y=r3(b['deck_top_ft'] - elev - b['thickness_ft']), color=0x6b4e33)))
-    for i, p in enumerate(mp['posts']):
-        h = p['z1_ft'] - max(p['z0_ft'], elev)
-        if h <= 0: continue
-        if p['role'] == 'tree':
-            objects.append(OrderedDict(id=f'{prefix}-{lid}-{p["id"]}', kind='oak', pos=[r3(p['center'][0]), 0, r3(p['center'][1])], vis='player', dims=OrderedDict(r=r3(p['radius_ft']), h=r3(h), canopy=r3(p.get('canopy_radius_ft') or 0), stub=1 if p['z0_ft'] < elev else 0)))
-        else:
-            objects.append(OrderedDict(id=f'{prefix}-{lid}-{p["id"]}', kind='post-round', pos=[r3(p['center'][0]), 0, r3(p['center'][1])], vis='player', dims=OrderedDict(r=r3(p['radius_ft']), h=r3(h))))
+    # Raised patches are worked out before the posts so a tree standing on one is lifted onto its top. A bank higher
+    # than a step (the side path's wooded banks stand 5 ft over it) is built as two tiers, BANK_STEP ft and then the
+    # rest inset by BANK_INSET ft, so it reads as a stepped earth bank rather than a sheer plinth; a low patch is one slab.
+    tiers, patch_objs = [], []   # tiers: (plan, top in ft) of every raised tier
     for i, p in enumerate(mp['patches']):
         poly = poly_of(p['shape'])
         if p['dz_ft'] < 0:
             terrain.append(OrderedDict(polygon=poly, floor='shallow-water'))
+            continue
+        color, dz, label = PATCH_COLOR.get(p['material'], 0x5c6650), p['dz_ft'], p['material'].title()
+        if dz > BANK_STEP + 0.5:
+            upper = inset(poly, BANK_INSET)
+            patch_objs.append(OrderedDict(id=f'{prefix}-{lid}-patch{i + 1}', kind='prism', pos=[0, 0, 0], vis='player', polygon=poly, dims=OrderedDict(h=r3(BANK_STEP), color=color), label=label))
+            patch_objs.append(OrderedDict(id=f'{prefix}-{lid}-patch{i + 1}b', kind='prism', pos=[0, 0, 0], vis='player', polygon=upper, dims=OrderedDict(h=r3(dz - BANK_STEP), y=r3(BANK_STEP), color=color), label=label))
+            tiers += [(upper, dz), (poly, BANK_STEP)]
         else:
-            color = {'road': 0x8f7a58, 'undergrowth': 0x3f5a34, 'woodland': 0x4a5e3a, 'rock': 0x6d6a66}.get(p['material'], 0x5c6650)
-            objects.append(OrderedDict(id=f'{prefix}-{lid}-patch{i + 1}', kind='prism', pos=[0, 0, 0], vis='player', polygon=poly, dims=OrderedDict(h=r3(p['dz_ft']), color=color), label=p['material'].title()))
+            patch_objs.append(OrderedDict(id=f'{prefix}-{lid}-patch{i + 1}', kind='prism', pos=[0, 0, 0], vis='player', polygon=poly, dims=OrderedDict(h=r3(dz), color=color), label=label))
+            tiers.append((poly, dz))
+    tiers.sort(key=lambda t: -t[1])
+    ground_at = lambda x, z: next((top for plan, top in tiers if inside_poly([x, z], plan)), 0)
+    for i, p in enumerate(mp['posts']):
+        h = p['z1_ft'] - max(p['z0_ft'], elev)
+        if h <= 0: continue
+        x, z = p['center']; y = ground_at(x, z); y = r3(y) if y else 0
+        if p['role'] == 'tree':
+            objects.append(OrderedDict(id=f'{prefix}-{lid}-{p["id"]}', kind='oak', pos=[r3(x), y, r3(z)], vis='player', dims=OrderedDict(r=r3(p['radius_ft']), h=r3(h), canopy=r3(p.get('canopy_radius_ft') or 0), stub=1 if p['z0_ft'] < elev else 0)))
+        else:
+            objects.append(OrderedDict(id=f'{prefix}-{lid}-{p["id"]}', kind='post-round', pos=[r3(x), y, r3(z)], vis='player', dims=OrderedDict(r=r3(p['radius_ft']), h=r3(h))))
+    objects += patch_objs
     for i, d in enumerate(mp['decals']):
         terrain.append(OrderedDict(polygon=poly_of(d['shape']), floor=FLOOR.get(d['material'], 'dirt')))
     return rooms, terrain, walls, objects, links
@@ -218,6 +268,22 @@ def keep_notes(world, path):
             if k in old.get(p['key'], {}) and k not in p: p[k] = old[p['key']][k]
 
 
+def keep_land(world, path):
+    # wsc-cover.py and heightfield.py add the land cover and the heightfield on the same lattice afterwards; keep them
+    # (in their places) so re-importing the maps does not wipe the region's land. Re-run those two to rebuild them.
+    if not os.path.exists(path): return world
+    old = json.load(open(path), object_pairs_hook=OrderedDict)
+    out = OrderedDict()
+    for k, v in world.items():
+        out[k] = v
+        if k == 'bounds' and old.get('bounds') == v:
+            for kk in ('cellMiles', 'cover'):
+                if kk in old: out[kk] = old[kk]
+    for kk in ('labels', 'height'):
+        if kk in old and kk not in out and old.get('bounds') == world['bounds']: out[kk] = old[kk]
+    return out
+
+
 def join_roads(roads):
     # The export's road runs stop one hex short of each other where a town hex sits between them: bridge the
     # gap so the road is continuous through the town (a gap under a hex and a half is a gap, not a fork).
@@ -235,11 +301,12 @@ world = OrderedDict(schema=1, name=R['poster_title'] if R.get('poster_title') el
     note='Hex codes from the export: T town, G pasture, R road, P path, W/F woodland and forest, H hills, S stream, C the compound clearing.',
     bounds=OrderedDict(minX=0, minY=0, maxX=r3(R['hex']['cols'] * f + f / 2), maxY=r3(h / 2 + (R['hex']['rows'] - 1) * 0.75 * h + h / 2)),
     pins=pins,
-    roads=join_roads([OrderedDict(name='Main road', pts=[hx(*c) for c in rd]) for rd in R['roads']]) + [OrderedDict(name='Side path', pts=[hx(*c) for c in rd]) for rd in R['paths']],
+    roads=(lambda mains: mains + [OrderedDict(name='Side path', pts=[hx(*c) for c in rd]) for rd in R['paths']] + join_roads(mains)[len(mains):])([OrderedDict(name='Main road', pts=[hx(*c) for c in rd]) for rd in R['roads']]),
     rivers=[OrderedDict(name='Stream', pts=[hx(*c) for c in st]) for st in R['streams']],
     lakes=[], peaks=[OrderedDict(name='Ramsback Fell', pos=hx(*k)) for k in list(k for k in cells if cells[k]['code'] == 'H')[:1]], high=high, woods=woods)
 os.makedirs(f'{out_root}/00-region', exist_ok=True)
 keep_notes(world, f'{out_root}/00-region/world.json')
+world = keep_land(world, f'{out_root}/00-region/world.json')
 json.dump(world, open(f'{out_root}/00-region/world.json', 'w'), indent=1)
 manifest = OrderedDict(schema=1, source=f'tabletop-mapset 1.0 export (reference/imports/{CAMP}); geometry only, notes in the export\'s own words',
     title=M['module']['title'], publisher=M['module']['publisher'],
