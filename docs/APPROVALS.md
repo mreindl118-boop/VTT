@@ -33,7 +33,7 @@ Recommendation: yes, except A10 and A31 (keep the tap menu's text; keep the sepa
 | A21 Display camera bounded to revealed extents | The display mirrors anywhere the DM looks. | Clamped to revealed extents plus a margin. | No map edges for players. | approved 2026-10-04; built in 0.4.0 |
 | A23 '/' Enter and key-label taps open the area panel | Enter jumps, switching level and framing; key labels keep their current behaviour. | Both open the panel as well as framing. | Increment 7 adds the panel with separate buttons only. | approved 2026-10-04; built in 0.6.0 |
 | A24 Two-tap measure gains waypoints | The second tap ends the measurement. | Taps add waypoints until a double-tap or Esc. | Increment 10 ships waypoints as a separate Path measure tool. | approved 2026-10-04; built in 0.7.0 |
-| A30 Downed combatants skipped and defeated foes hidden by default | Next includes 0 HP creatures. | The increment 9 options become the defaults. | Changes initiative behaviour. | approved 2026-10-04; built in 0.5.0 Downed creatures are skipped; a character at 0 HP keeps the turn for death saving throws. |
+| A30 Downed combatants skipped and defeated foes hidden by default | Next includes 0 HP creatures. | The increment 9 options become the defaults. | Changes initiative behaviour. | approved 2026-10-04; built in 0.5.0. Downed creatures are skipped; a character at 0 HP keeps the turn for death saving throws. |
 | A31 One undo stack replacing the reveal-log button | Undo reveal pops a persisted, campaign-wide log; increment 4 adds a separate session history. | A single persisted history. | Simpler, but changes shipped undo semantics. | declined 2026-10-04 |
 
 ## Vision and fog
