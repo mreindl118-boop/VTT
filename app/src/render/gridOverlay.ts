@@ -6,6 +6,7 @@ import { CELL_FT } from '../core/units';
 import { hexSizeFromWidth } from '../core/grid';
 import { planeGeometry } from '../kit/pieces';
 import { fogUniforms } from './materials';
+import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 
 // The renderer uses a logarithmic depth buffer: without its chunks this shader would write plain z and lose the depth
 // test against every floor, so the grid would never show.
@@ -95,12 +96,17 @@ export const gridUniforms = { uPxPerFt: { value: 6 } };
 export const GRID_LIFT_FT = 0.04;
 
 export function buildGridOverlay(g: GridLevel, elevation: number, ground = true): THREE.Mesh {
-  // One plane over the level's whole extent: the grid is a feature of the ground, not of any floor's texture.
-  const xs = g.floorPolygons.flat().map((q) => q[0]), zs = g.floorPolygons.flat().map((q) => q[1]);
-  const minX = Math.min(...xs), maxX = Math.max(...xs), minZ = Math.min(...zs), maxZ = Math.max(...zs);
-  // the ground level's grid runs well past the map; an upper floor's stays within its own walls
-  const pad = ground ? Math.max(30, 0.12 * Math.max(maxX - minX, maxZ - minZ)) : 1.5, y = elevation + GRID_LIFT_FT;
-  const geo = planeGeometry([[minX - pad, minZ - pad], [maxX + pad, minZ - pad], [maxX + pad, maxZ + pad], [minX - pad, maxZ + pad]], y);
+  // The ground level's grid is one plane over the level's whole extent, running well past the map: the grid is a
+  // feature of the ground, not of any floor's texture. A raised level (a tower room, a roof terrace, a wall-walk) has no
+  // ground beside it: its grid is drawn over its floor polygons alone, so no line hangs in the air past an octagon's side.
+  const y = elevation + GRID_LIFT_FT;
+  let geo: THREE.BufferGeometry;
+  if (ground || !g.floorPolygons.length) {
+    const xs = g.floorPolygons.flat().map((q) => q[0]), zs = g.floorPolygons.flat().map((q) => q[1]);
+    const minX = Math.min(...xs), maxX = Math.max(...xs), minZ = Math.min(...zs), maxZ = Math.max(...zs);
+    const pad = Math.max(30, 0.12 * Math.max(maxX - minX, maxZ - minZ));
+    geo = planeGeometry([[minX - pad, minZ - pad], [maxX + pad, minZ - pad], [maxX + pad, maxZ + pad], [minX - pad, maxZ + pad]], y);
+  } else geo = floorsGeometry(g, y);
   const m = new THREE.ShaderMaterial({
     vertexShader: vert,
     fragmentShader: frag,
@@ -127,6 +133,19 @@ export function buildGridOverlay(g: GridLevel, elevation: number, ground = true)
   mesh.userData.role = 'grid';
   mesh.renderOrder = 1;
   return mesh;
+}
+
+/** The grid over the level's floor polygons alone (one plane per polygon). */
+function floorsGeometry(g: GridLevel, y: number): THREE.BufferGeometry {
+  return mergeGeometries(g.floorPolygons.filter((p) => p.length >= 3).map((p) => planeGeometry(p, y)))!;
+}
+
+/** A ground level whose land does not stay at its own height past the map (a pass between precipices, a gorge, a
+ *  mountainside) keeps its grid on its floors: the padded plane would hang in the air over the drop. */
+export function fitGridToFloors(mesh: THREE.Mesh, g: GridLevel, elevation: number): void {
+  if (!g.floorPolygons.some((p) => p.length >= 3)) return;
+  mesh.geometry.dispose();
+  mesh.geometry = floorsGeometry(g, elevation + GRID_LIFT_FT);
 }
 
 export function setGridType(mesh: THREE.Mesh, type: 'square' | 'hex'): void {

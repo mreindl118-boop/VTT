@@ -11,19 +11,20 @@ import { classOpacity, fogCurve, hiddenCurve, labelCurve } from './core/slider';
 import { baseRingFt, CELL_FT } from './core/units';
 import { baseRing } from './kit/pieces';
 import { adventurer } from './kit/creatures';
-import { PALETTE } from './kit/palette';
+import { FLOOR_COLOR, PALETTE } from './kit/palette';
 import { buildLevel, hitObjectId, mergeByMaterial, type BuiltLevel, type LabelSpec } from './render/build';
-import { gridUniforms } from './render/gridOverlay';
-import { fogUniforms, sectionClip, setOpacity, setWallCut, WALL_CLIP } from './render/materials';
+import { fitGridToFloors, gridUniforms, setGridType } from './render/gridOverlay';
+import { fogUniforms, patchFog, sectionClip, setOpacity, setSurface, setWallCut, WALL_CLIP } from './render/materials';
 const WALL_CUT_FT = 5;
-import { setGridType } from './render/gridOverlay';
+/** Props that are the ground itself (a hillside lattice, a rock shelf, a mound): the land beyond the map continues from their height. */
+const LAND_KINDS = new Set(['heightfield', 'prism', 'crag', 'precipice', 'rock-flank', 'mound', 'road-ribbon', 'ledge-lip', 'rock-pillar', 'hut-stump', 'tower-plinth', 'stone-step', 'rough-steps', 'stairs-run', 'ledge', 'berez-rubble', 'shelf', 'scree', 'terrace']);
 import { World, type CameraPreset } from './render/world';
 import { loadLocation } from './data';
 import { ICON } from './ui/icons';
 import { pinForScene, useWorld } from './ui/worldmap';
 import { campaignOf, worldOf, type Campaign } from './campaigns';
 import { buildBackdrop } from './render/backdrop';
-import { BAROVIAN_GRASS, setGrass } from './kit/surfaces';
+import { BAROVIAN_GRASS, setGrass, surfaceOf } from './kit/surfaces';
 import { Channel, type Msg } from './state/channel';
 import { newCampaign, revealSets, type CampaignState, type Combatant, type Encounter, type Reveal, type Sheet, type Token } from './state/campaign';
 import { tacticalRange, type RangeResult } from './core/range';
@@ -233,14 +234,48 @@ export class App {
     // The level that meets the open air (the one with terrain: a courtyard, a street) decides outdoor fog and the backdrop.
     const l0 = scene.levels.find((l) => l.terrain?.length) ?? scene.levels[0], outdoor = !!pin && !!l0.terrain?.length && (l0.ambient ?? scene.ambient) !== 'darkness';
     if (outdoor) {
+      // The map's extent: its floor polygons, widened to whatever ground the built level itself lays down (a hillside
+      // lattice, a rock shelf) so the land beyond starts where the map's ground really ends.
       const bb = bounds([...l0.rooms.map((r) => r.polygon), ...(l0.terrain ?? []).map((t) => t.polygon)]);
+      const kindOf = new Map<string, string>(); for (const l of scene.levels) for (const ob of l.objects) kindOf.set(ob.id, ob.kind);
+      const isLand = (h: THREE.Intersection) => { const role = h.object.userData.role as string | undefined; if (role === 'floor') return true; if (role !== 'prop' && role !== 'stairs') return false; const id = hitObjectId(h); return !!id && LAND_KINDS.has(kindOf.get(id) ?? ''); };
+      const root0 = levels.get(l0.id)!.root; root0.updateMatrixWorld(true);
+      const built = new THREE.Box3(), tmp = new THREE.Box3(), landMeshes: THREE.Mesh[] = [];
+      root0.traverse((c) => { const m = c as THREE.Mesh; if (!m.isMesh || !m.geometry) return; const role = c.userData.role as string | undefined; if (role !== 'floor' && !((role === 'prop' || role === 'stairs') && (m.userData.ranges as { id: string }[] | undefined)?.some((r) => LAND_KINDS.has(kindOf.get(r.id) ?? '')))) return; landMeshes.push(m); if (!m.geometry.boundingBox) m.geometry.computeBoundingBox(); tmp.copy(m.geometry.boundingBox!).applyMatrix4(m.matrixWorld); built.union(tmp); });
+      if (!built.isEmpty()) { bb.minX = Math.min(bb.minX, built.min.x); bb.maxX = Math.max(bb.maxX, built.max.x); bb.minZ = Math.min(bb.minZ, built.min.z); bb.maxZ = Math.max(bb.maxZ, built.max.z); }
+      // The height of the map's own ground along its edge, read off the built level (floors and land props alike) at 64
+      // points a side, so the land beyond continues it; where nothing is hit the neighbours' heights carry across.
+      const ray = new THREE.Raycaster(), down = new THREE.Vector3(0, -1, 0); // only the ground's own meshes are cast against, not every prop
+      const samples: { x: number; z: number; y: number }[] = [];
+      const N = 64, IN = 2;
+      for (let i = 0; i < N; i++) { const t = i / N; samples.push({ x: bb.minX + IN + (bb.maxX - bb.minX - 2 * IN) * t, z: bb.minZ + IN, y: NaN }, { x: bb.maxX - IN, z: bb.minZ + IN + (bb.maxZ - bb.minZ - 2 * IN) * t, y: NaN }, { x: bb.maxX - IN - (bb.maxX - bb.minX - 2 * IN) * t, z: bb.maxZ - IN, y: NaN }, { x: bb.minX + IN, z: bb.maxZ - IN - (bb.maxZ - bb.minZ - 2 * IN) * t, y: NaN }); }
+      for (const s of samples) { ray.set(new THREE.Vector3(s.x, l0.elevationFt + 20000, s.z), down); const hit = ray.intersectObjects(landMeshes, false).find(isLand); if (hit) s.y = hit.point.y; }
+      // perimeter order for the gap fill: N side, E side, S side, W side as pushed (i*4 + side)
+      const ordered = [0, 1, 2, 3].flatMap((side) => Array.from({ length: N }, (_, i) => samples[i * 4 + side]));
+      const hitIdx = ordered.map((s, i) => (Number.isFinite(s.y) ? i : -1)).filter((i) => i >= 0);
+      if (hitIdx.length) for (let i = 0; i < ordered.length; i++) {
+        if (Number.isFinite(ordered[i].y)) continue;
+        let a = -1, b = -1; for (let k = 1; k < ordered.length && (a < 0 || b < 0); k++) { if (a < 0 && Number.isFinite(ordered[(i - k + ordered.length) % ordered.length].y)) a = k; if (b < 0 && Number.isFinite(ordered[(i + k) % ordered.length].y)) b = k; }
+        const ya = ordered[(i - a + ordered.length) % ordered.length].y, yb = ordered[(i + b) % ordered.length].y; ordered[i].y = ya + (yb - ya) * (a / (a + b));
+      } else for (const s of ordered) s.y = l0.elevationFt;
+      // where the map's edge leaves its own height (a pass between precipices, a mountainside) the land beyond falls or
+      // climbs with it, so the ground grid keeps to the map's floors instead of hanging over the drop
+      if (ordered.some((s) => Math.abs(s.y - l0.elevationFt) > 3)) fitGridToFloors(levels.get(l0.id)!.grid, grid.levels[l0.id], l0.elevationFt);
+      // The buried part of the site: cellars, a dungeon, the lower floors of a temple cut into the rock. On a crag the
+      // whole castle stands on its pillar, so the plinth takes the castle's full footprint.
+      const crag = pin!.heightFt ?? 0;
+      const buried = scene.levels.filter((l) => l.id !== l0.id && !l.terrain?.length && l.elevationFt < l0.elevationFt - 1);
+      const lowest = Math.min(...scene.levels.map((l) => l.elevationFt));
+      const pitLevels = crag > 0 && lowest < l0.elevationFt - 1 ? scene.levels : buried;
+      const pit = pitLevels.length ? (() => { const pb = bounds(pitLevels.flatMap((l) => [...l.rooms.map((r) => r.polygon), ...(l.terrain ?? []).map((t) => t.polygon)])); return { minX: pb.minX - 10, minZ: pb.minZ - 10, maxX: pb.maxX + 10, maxZ: pb.maxZ + 10, floor: Math.min(...pitLevels.map((l) => l.elevationFt)) }; })() : undefined;
       const roadLike = (f: string | undefined, name = '') => f === 'cobble' || f === 'dirt' || /road|street|lane|square|path|trail|track/i.test(name);
-      const roads = [...l0.rooms.filter((r) => roadLike(r.floor, r.name)).map((r) => r.polygon), ...(l0.terrain ?? []).filter((t) => roadLike(t.floor)).map((t) => t.polygon)];
+      const roadSrc = [...l0.rooms.filter((r) => roadLike(r.floor, r.name)).map((r) => ({ polygon: r.polygon, floor: r.floor })), ...(l0.terrain ?? []).filter((t) => roadLike(t.floor)).map((t) => ({ polygon: t.polygon, floor: t.floor }))];
+      const roads = roadSrc.map((r) => r.polygon), roadColors = roadSrc.map((r) => FLOOR_COLOR[r.floor as keyof typeof FLOOR_COLOR] ?? FLOOR_COLOR.dirt);
       // the map's own ground (by area: grass, snow, marsh, earth) is what the land beside it blends into
       const area = (poly: Vec2[]) => Math.abs(poly.reduce((a, [x, z], i) => { const [x2, z2] = poly[(i + 1) % poly.length]; return a + x * z2 - x2 * z; }, 0)) / 2;
       const byFloor = new Map<string, number>(); for (const t of l0.terrain ?? []) if (['grass', 'snow', 'marsh', 'dirt', 'shallow-water'].includes(t.floor)) byFloor.set(t.floor, (byFloor.get(t.floor) ?? 0) + area(t.polygon as Vec2[]));
       const ground = [...byFloor.entries()].sort((a, b) => b[1] - a[1])[0]?.[0];
-      this.backdrop = buildBackdrop({ ground: ground === 'shallow-water' || ground === 'dirt' ? undefined : ground, center: [(bb.minX + bb.maxX) / 2, (bb.minZ + bb.maxZ) / 2], radius: Math.hypot(bb.maxX - bb.minX, bb.maxZ - bb.minZ) / 2, elevation: l0.elevationFt, pin: pin!.pos as Vec2, world: worldOf(this.campaign), theme: this.campaign.theme, valley: !!scene.valley, bounds: bb, north: l0.north, roads, crag: pin!.heightFt ?? 0, clearing: scene.clearingFt ?? (scene.parent ? 1100 : undefined) }); // an area map inside a town keeps the town's ground clear
+      this.backdrop = buildBackdrop({ ground: ground === 'shallow-water' || ground === 'dirt' ? undefined : ground, center: [(bb.minX + bb.maxX) / 2, (bb.minZ + bb.maxZ) / 2], radius: Math.hypot(bb.maxX - bb.minX, bb.maxZ - bb.minZ) / 2, elevation: l0.elevationFt, pin: pin!.pos as Vec2, world: worldOf(this.campaign), theme: this.campaign.theme, valley: !!scene.valley, bounds: bb, north: l0.north, roads, roadColors, crag, clearing: scene.clearingFt ?? (scene.parent ? 1100 : undefined), edgeHeights: ordered, pit }); // an area map inside a town keeps the town's ground clear
       this.world.scene.add(this.backdrop);
     }
     // An area map stands in its surroundings: the parent map's streets, houses and trees round it, as scenery.
@@ -264,6 +299,11 @@ export class App {
     const stack = this.stackOf(id);
     for (const [lid, b] of this.cur.levels) b.root.visible = lid === id || (stacked && stack.has(lid));
     if (stacked && this.cutFt === null) this.cutFt = undefined; // follow the level
+    // A buried level (a cellar, a dungeon, the temple floors under the ledge) is viewed inside the rock: the lid of
+    // land over the pit goes, so the floors show in the plinth instead of under a sheet of ground.
+    const lid = this.backdrop?.getObjectByName('land-lid');
+    if (lid) { const l = this.level, l0 = this.openAirLevel; lid.visible = !(!l.terrain?.length && l.elevationFt < l0.elevationFt - 1); }
+    this.budgetLights(id, stacked ? stack : undefined);
     const cov = this.cur.coverage.get(id)!;
     fogUniforms.uCovTex.value = this.cur.covTex.get(id)!;
     fogUniforms.uCovOrigin.value.set(cov.originX, cov.originZ);
@@ -289,6 +329,23 @@ export class App {
 
   get level(): Level { return this.cur!.scene.levels.find((l) => l.id === this.levelId)!; }
   get built(): BuiltLevel { return this.cur!.levels.get(this.levelId)!; }
+  /** The level that meets the open air (the one with terrain: a courtyard, a street), which the backdrop stands on. */
+  get openAirLevel(): Level { return this.cur!.scene.levels.find((l) => l.terrain?.length) ?? this.cur!.scene.levels[0]; }
+
+  /** A stacked site shows every floor at once, but a Lambert renderer pays for every point light in view: only the
+   *  current floor's lights and those of the floors directly above and below stay lit, at most twelve in all (the
+   *  current floor's as authored, then the nearest of its neighbours'). Elsewhere every level's lights are as authored. */
+  private budgetLights(id: string, stack?: Set<string>): void {
+    if (!this.cur) return;
+    if (!stack) { for (const b of this.cur.levels.values()) for (const pl of b.lights) pl.visible = true; return; }
+    const order = [...stack].map((x) => this.cur!.scene.levels.find((l) => l.id === x)!).sort((a, b) => a.elevationFt - b.elevationFt);
+    const i = order.findIndex((l) => l.id === id), keep = new Set(order.slice(Math.max(0, i - 1), i + 2).map((l) => l.id));
+    for (const [lid, b] of this.cur.levels) for (const pl of b.lights) pl.visible = keep.has(lid);
+    const here = this.cur.levels.get(id)!, lb = bounds(this.level.rooms.map((r) => r.polygon)), cx = (lb.minX + lb.maxX) / 2, cz = (lb.minZ + lb.maxZ) / 2;
+    let n = here.lights.length;
+    const others = [...keep].filter((x) => x !== id).flatMap((x) => this.cur!.levels.get(x)!.lights).sort((a, b) => Math.hypot(a.position.x - cx, a.position.z - cz) - Math.hypot(b.position.x - cx, b.position.z - cz));
+    for (const pl of others) { if (n < 12) n++; else pl.visible = false; }
+  }
 
   frameLevel(preset = this.camPreset): void {
     this.camPreset = preset;
@@ -297,10 +354,29 @@ export class App {
     // a house), while a level that sits elsewhere in plan (the dungeon under the garden) stays out of frame.
     // With the cut lifted clear above the whole stack the building shows entire: frame every floor of the stack.
     const whole = this.cur!.scene.stacked && this.cutFt !== undefined && this.cutFt !== null && this.sectionRange && this.cutFt >= this.sectionRange.max - 1;
-    const polys = whole ? [...this.stackOf(l.id)].flatMap((id) => this.cur!.scene.levels.find((x) => x.id === id)!.rooms.map((r) => r.polygon)) : l.rooms.map((r) => r.polygon);
+    const polys = whole ? [...this.stackOf(l.id)].flatMap((id) => this.cur!.scene.levels.find((x) => x.id === id)!.rooms.map((r) => r.polygon)) : this.mainRooms(l).map((r) => r.polygon);
     const b = bounds(polys);
     this.world.controls.maxDistance = Math.max(400, Math.hypot(b.maxX - b.minX, b.maxZ - b.minZ) * 2.5);
     this.world.frame(b, l.elevationFt, preset);
+  }
+
+  /** The rooms a level's default framing shows: an outlier far from the rest (the Vistani camp half a mile outside
+   *  Vallaki) would squeeze the town to a sliver, so rooms more than ~1,000 ft from the others' extent are left out of
+   *  the frame; they stay reachable by their label and the search. */
+  private mainRooms(l: Level): Level['rooms'] {
+    if (l.rooms.length < 3) return l.rooms;
+    const cs = l.rooms.map((r) => { const b = bounds([r.polygon]); return { r, b, x: (b.minX + b.maxX) / 2, z: (b.minZ + b.maxZ) / 2 }; });
+    const med = (a: number[]) => a.slice().sort((p, q) => p - q)[a.length >> 1];
+    const mx = med(cs.map((c) => c.x)), mz = med(cs.map((c) => c.z)), FAR = 1000;
+    let core = cs.filter((c) => Math.hypot(c.x - mx, c.z - mz) < FAR);
+    if (!core.length) return l.rooms;
+    for (let pass = 0; pass < 4; pass++) {
+      const b = bounds(core.map((c) => c.r.polygon));
+      const grown = cs.filter((c) => c.b.maxX > b.minX - FAR && c.b.minX < b.maxX + FAR && c.b.maxZ > b.minZ - FAR && c.b.minZ < b.maxZ + FAR);
+      if (grown.length === core.length) break;
+      core = grown;
+    }
+    return core.map((c) => c.r);
   }
 
   // ------------------------------------------------------------------ tokens
@@ -538,7 +614,10 @@ export class App {
         const m = c as THREE.Mesh;
         if (!m.isMesh) return;
         const src = m.material as THREE.MeshLambertMaterial;
-        m.material = new THREE.MeshLambertMaterial({ color: src.color, flatShading: true, transparent: ghostly, opacity: ghostly ? 0.45 : 1 }); // tokens are never fogged
+        // a private material (its own opacity), with the figure's surface grain and exempt from the mist: tokens are never fogged
+        const pm = new THREE.MeshLambertMaterial({ color: src.color, flatShading: true, transparent: ghostly, opacity: ghostly ? 0.45 : 1 });
+        if (src.userData.surf) pm.userData.surf = { value: (src.userData.surf as { value: number }).value }; else setSurface(pm, surfaceOf('#' + src.color.getHexString()));
+        m.material = patchFog(pm, true);
         m.userData.role = 'token';
         m.userData.tokenId = t.id;
       });
@@ -643,9 +722,12 @@ export class App {
     const cut = this.cur.scene.stacked ? (this.cutFt ?? followCut) : this.lowWalls ? this.level.elevationFt + WALL_CUT_FT : null;
     this.followCutFt = followCut;
     setWallCut(cut);
-    // Roofs raised over authored walls (a shop's gable, a tower's cone) go whenever the walls are cut down to a cutaway,
-    // and come back with full walls; on stacked sites the section plane slices them instead.
-    if (!this.cur.scene.stacked) for (const b2 of this.cur.levels.values()) b2.root.traverse((o) => { if (o.userData.cap) o.visible = !this.lowWalls; });
+    // Roofs raised over authored walls (a shop's gable, a tower's cone) stay on: a street of roofless shops beside roofed
+    // houses reads wrong. Only the roof over the building the party stands in goes (with the cutaway on), so the room
+    // they are in shows; on stacked sites the section plane slices roofs instead.
+    // (a stacked site opened earlier leaves the section plane on the shared roof and floor materials: on a plain map
+    // only walls and doors are cut, so the plane comes off everything else first)
+    if (!this.cur.scene.stacked) { for (const b2 of this.cur.levels.values()) sectionClip(b2.root, false); this.applyCaps(); }
     this.declutter();
     if (this.cur.scene.stacked) for (const [lid, b] of this.cur.levels) {
       sectionClip(b.root, true);
@@ -654,6 +736,42 @@ export class App {
       b.root.traverse((o) => { if (SHELL_ROLES.has(o.userData.role) || o.userData.role === 'grid' || !(o as THREE.Mesh).isMesh) return; if (!show) { if (o.visible) { o.visible = false; o.userData.secHidden = true; } } });
     }
     this.world.invalidate();
+  }
+
+  /** Which roof caps hide: those over the building a party or member token stands in (the cap's footprint holds the
+   *  token, or the cap stands over the token's room). Nothing hides with full walls on. */
+  private capsToHide(l: Level): Set<string> {
+    const out = new Set<string>();
+    if (!this.lowWalls) return out;
+    const toks = this.tokensHere().filter((t) => t.role === 'party' || t.role === 'member');
+    if (!toks.length) return out;
+    const rooms = toks.map((t) => this.roomAt(l, t.pos)).filter((r): r is NonNullable<typeof r> => !!r);
+    for (const o of l.objects) {
+      if (!(o.kind === 'roof-gable' || o.kind === 'roof-cone' || o.kind === 'onion-dome' || o.kind === 'mill-sails' || o.kind === 'chimney') || (o.dims?.y ?? 10) < 6) continue;
+      const hw = (o.kind === 'roof-cone' ? (o.dims?.r ?? 20) : (o.dims?.w ?? 30) / 2) + 2, hd = (o.kind === 'roof-cone' ? (o.dims?.r ?? 20) : (o.dims?.d ?? 30) / 2) + 2, a = ((o.rotY ?? 0) * Math.PI) / 180, c = Math.cos(a), s = Math.sin(a);
+      const under = toks.some((t) => { const dx = t.pos[0] - o.pos[0], dz = t.pos[1] - o.pos[2]; const u = dx * c + dz * s, v = -dx * s + dz * c; return Math.abs(u) <= hw && Math.abs(v) <= hd; });
+      if (under || rooms.some((r) => pointInPolygon([o.pos[0], o.pos[2]], r.polygon))) out.add(o.id);
+    }
+    return out;
+  }
+  /** Show every cap but those over the party's building. Caps are merged into one mesh per material with face ranges
+   *  back to their objects, so a hidden one is drawn with an invisible material through a geometry group. */
+  private capHidden = new THREE.MeshBasicMaterial({ visible: false });
+  private applyCaps(): void {
+    for (const [lid, b2] of this.cur!.levels) {
+      const l = this.cur!.scene.levels.find((x) => x.id === lid)!, hide = lid === this.levelId ? this.capsToHide(l) : new Set<string>();
+      b2.root.traverse((o) => {
+        if (!o.userData.cap) return;
+        const m = o as THREE.Mesh, ranges = o.userData.ranges as { start: number; end: number; id: string }[] | undefined;
+        if (!m.isMesh || !ranges) { const id = findUp(o, 'objectId'); o.visible = !(id && hide.has(id)); return; }
+        o.visible = true;
+        const base = (o.userData.capMat ??= m.material) as THREE.Material;
+        if (!ranges.some((r) => hide.has(r.id))) { if (m.geometry.groups.length) m.geometry.clearGroups(); m.material = base; return; }
+        m.geometry.clearGroups();
+        for (const r of ranges) m.geometry.addGroup(r.start * 3, (r.end - r.start) * 3, hide.has(r.id) ? 1 : 0);
+        m.material = [base, this.capHidden];
+      });
+    }
   }
 
   /** Far out, a big map keeps only its area keys: notes, door and stair markers and sublabels wait until you come closer. */
@@ -678,8 +796,10 @@ export class App {
       const live = this.cur.labels.filter((l) => l.obj.visible && l.obj.element.style.display !== 'none' && Number(l.obj.element.style.opacity || 1) > 0.05);
       for (const l of live) l.obj.element.classList.remove('declutter');
       live.sort((a, b) => (PRI[a.spec.kind] ?? 9) - (PRI[b.spec.kind] ?? 9));
-      const placed: DOMRect[] = [];
+      const placed: DOMRect[] = [], keyAnchors: THREE.Vector3[] = [];
       for (const l of live) {
+        // area keys anchored within 8 ft of one another (a pile of small rooms) show one at a time, not as a heap
+        if (l.spec.kind === 'key') { if (keyAnchors.some((a) => a.distanceTo(l.spec.pos) < 8)) { l.obj.element.classList.add('declutter'); continue; } keyAnchors.push(l.spec.pos); }
         const r = l.obj.element.getBoundingClientRect(); if (!r.width) continue;
         if (placed.some((p) => r.left < p.right + 2 && r.right > p.left - 2 && r.top < p.bottom + 1 && r.bottom > p.top - 1)) { l.obj.element.classList.add('declutter'); continue; }
         placed.push(r);
@@ -891,7 +1011,9 @@ export class App {
   private async buildContext(path: string, scene: SceneFile, l0: Level): Promise<void> {
     const par = await loadLocation(scene.parent!).catch(() => undefined);
     if (!par || this.cur?.path !== path) return;
-    const KINDS = new Set(['house', 'church-building', 'temple', 'pine', 'oak', 'stump', 'well', 'fence', 'wagon', 'vardo', 'big-tent', 'mound', 'dais', 'pillory', 'brazier', 'campfire', 'trough', 'signpost', 'roof-gable', 'washline', 'bush', 'boulder', 'gravestone']);
+    const KINDS = new Set(['house', 'church-building', 'temple', 'cottage', 'ruin', 'ruined-cottage', 'ruin-arches', 'berez-rubble', 'berez-iron-fence', 'skull-fence', 'reeds', 'marsh-reeds', 'marsh-scarecrow', 'dead-tree', 'pine', 'oak', 'stump', 'well', 'fence', 'wagon', 'vardo', 'big-tent', 'mound', 'dais', 'pillory', 'brazier', 'campfire', 'trough', 'signpost', 'roof-gable', 'washline', 'bush', 'boulder', 'gravestone']);
+    const BUILDINGS = new Set(['house', 'church-building', 'temple', 'cottage', 'ruin', 'ruined-cottage', 'ruin-arches']), TREES = new Set(['pine', 'oak', 'stump', 'bush', 'dead-tree']);
+    const interior = !l0.terrain?.length; // a shop or a house: its own street is enough; an open-air area (a mire, a square) shows its whole surroundings
     const nvec = (n?: string): [number, number] => (n === '+z' ? [0, 1] : n === '-x' ? [-1, 0] : n === '+x' ? [1, 0] : [0, -1]);
     for (const pl of par.scene.levels) {
       const room = pl.rooms.find((r) => r.enter === path && r.key === scene.location) ?? pl.rooms.find((r) => r.enter === path);
@@ -902,19 +1024,27 @@ export class App {
       const np = nvec(pl.north), nb = nvec(l0.north), th = Math.atan2(nb[1], nb[0]) - Math.atan2(np[1], np[0]), c = Math.cos(th), sn = Math.sin(th);
       const tf = (p: number[]): [number, number] => { const x = p[0] - pc[0], z = p[1] - pc[1]; return [bc[0] + x * c - z * sn, bc[1] + x * sn + z * c]; };
       const inside = (p: [number, number]) => p[0] > bb.minX - pad && p[0] < bb.maxX + pad && p[1] > bb.minZ - pad && p[1] < bb.maxZ + pad;
-      const R = Math.max(bb.maxX - bb.minX, bb.maxZ - bb.minZ) / 2 + 450, near = (p: [number, number]) => Math.hypot(p[0] - bc[0], p[1] - bc[1]) < R;
+      // a neighbour is tested by its footprint, not its centre, so no house pokes through the shop's wall (a house is ~30 ft square)
+      const overlaps = (p: [number, number], half: number) => p[0] + half > bb.minX - pad && p[0] - half < bb.maxX + pad && p[1] + half > bb.minZ - pad && p[1] - half < bb.maxZ + pad;
+      // what stands within a few hundred feet: a town's placement map shows its whole quarter, a shop its own street
+      const R = Math.max(bb.maxX - bb.minX, bb.maxZ - bb.minZ) / 2 + (interior && !(scene.kind === 'placement' || scene.placementFt) ? 250 : 450), near = (p: [number, number], r = R) => Math.hypot(p[0] - bc[0], p[1] - bc[1]) < r;
       const objects = pl.objects.filter((o) => KINDS.has(o.kind)).map((o) => { const q = tf([o.pos[0], o.pos[2]]); return { ...o, id: `ctx-${o.id}`, key: undefined, label: undefined, vis: 'player' as const, pos: [q[0], o.pos[1], q[1]] as [number, number, number], rotY: (o.rotY ?? 0) - (th * 180) / Math.PI }; })
-        .filter((o) => { const q: [number, number] = [o.pos[0], o.pos[2]]; return near(q) && !inside(q); });
+        .filter((o) => { const q: [number, number] = [o.pos[0], o.pos[2]]; const half = BUILDINGS.has(o.kind) ? Math.max(15, ((o.dims?.w ?? 30) + (o.dims?.d ?? 30)) / 4) : 0; return (interior && TREES.has(o.kind) ? near(q, Math.max(bb.maxX - bb.minX, bb.maxZ - bb.minZ) / 2 + 150) : near(q)) && !inside(q) && !(half && overlaps(q, half)); });
       const terrain = (pl.terrain ?? []).filter((t) => t.floor !== 'grass').map((t) => ({ ...t, polygon: t.polygon.map(tf) }))
         .filter((t) => { const cx = t.polygon.reduce((a, p) => a + p[0], 0) / t.polygon.length, cz = t.polygon.reduce((a, p) => a + p[1], 0) / t.polygon.length; return near([cx, cz]) && !t.polygon.every((p) => inside(p as [number, number])); });
-      terrain.unshift({ polygon: [[bc[0] - R, bc[1] - R], [bc[0] + R, bc[1] - R], [bc[0] + R, bc[1] + R], [bc[0] - R, bc[1] + R]], floor: 'grass' } as (typeof terrain)[number]);
+      // the ground round the map, as four strips that leave the map's own extent open: a cellar or a dungeon under
+      // the map is viewed inside the backdrop's rock, not under a sheet of the parent's turf
+      const x0 = bc[0] - R, x1 = bc[0] + R, z0 = bc[1] - R, z1 = bc[1] + R, ix0 = bb.minX - pad, ix1 = bb.maxX + pad, iz0 = bb.minZ - pad, iz1 = bb.maxZ + pad;
+      for (const poly of [[[x0, z0], [x1, z0], [x1, iz0], [x0, iz0]], [[x0, iz1], [x1, iz1], [x1, z1], [x0, z1]], [[x0, iz0], [ix0, iz0], [ix0, iz1], [x0, iz1]], [[ix1, iz0], [x1, iz0], [x1, iz1], [ix1, iz1]]]) terrain.unshift({ polygon: poly, floor: 'grass' } as (typeof terrain)[number]);
       const lvl = { id: 'context', name: 'Surroundings', elevationFt: l0.elevationFt - 0.05, ceilingFt: 10, north: l0.north, rooms: [], walls: [], lights: [], objects, terrain } as unknown as Level;
       const built = buildLevel(lvl, { floorPolygons: [], type: 'square', hexOrientation: 'pointy', origin: [0, 0], color: '#000000', opacity: 0 });
       const mist = new THREE.Color(this.world.theme.mist);
       built.root.traverse((o) => {
         const m = o as THREE.Mesh; if (!m.isMesh) return;
         if (o.userData.role === 'grid') { o.visible = false; return; }
-        const mats = (Array.isArray(m.material) ? m.material : [m.material]).map((mm) => { const k = mm.clone() as THREE.MeshLambertMaterial; k.clippingPlanes = null; if (k.color) k.color.lerp(mist, 0.22); return k; });
+        // Material.copy carries userData (the grain's surface, and the 'already patched' flag) but not the shader patch
+        // itself: the flag is cleared and the clone patched afresh, exempt from the mist, so the surroundings keep their grain
+        const mats = (Array.isArray(m.material) ? m.material : [m.material]).map((mm) => { const k = mm.clone() as THREE.MeshLambertMaterial; delete k.userData.mist; delete k.userData.fogExempt; patchFog(k, true); k.clippingPlanes = null; if (k.color) k.color.lerp(mist, 0.22); return k; });
         m.material = Array.isArray(m.material) ? mats : mats[0];
         o.userData.role = 'context';
       });
