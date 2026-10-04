@@ -104,7 +104,23 @@ STONE = 0x6d6860
 # ================================================================== GROUND (0 ft)
 g = Level('ground', 'Ground floor (Q1-Q16)', 0, 20, interior='ashlar', exterior='ashlar', north='-z')
 g.terrain.append(([(-24, -18), (96, -18), (96, 72), (-24, 72)], 'grass'))
-g.terrain.append(([(-24, 20.6), (8.6, 20.6), (8.6, 25.4), (-24, 25.4)], 'dirt'))                     # the road in from the west
+# the road in: it leaves the drive westward, then bends north-west to leave the map at its north-west corner, the way
+# the region's Road to Argynvostholt comes up the promontory from the Old Svalich Road (17 ft wide)
+def bez(t, p0=(8.6, 23), p1=(-9, 21), p2=(-23.2, -17.2)):
+    u = 1 - t
+    return (u * u * p0[0] + 2 * u * t * p1[0] + t * t * p2[0], u * u * p0[1] + 2 * u * t * p1[1] + t * t * p2[1])
+ROAD = [bez(i / 14) for i in range(15)]
+def ribbon(pts, half, box=(-24, -18, 96, 72)):
+    left, right = [], []
+    for i, (x, z) in enumerate(pts):
+        (ax, az), (bx, bz) = pts[max(0, i - 1)], pts[min(len(pts) - 1, i + 1)]
+        dx, dz = bx - ax, bz - az; ln = math.hypot(dx, dz)
+        nx, nz = -dz / ln * half, dx / ln * half
+        clamp = lambda q: (round(min(box[2], max(box[0], q[0])), 2), round(min(box[3], max(box[1], q[1])), 2))
+        left.append(clamp((x + nx, z + nz))); right.append(clamp((x - nx, z - nz)))
+    return left + right[::-1]
+def near_road(x, z, d): return any(math.hypot(x - rx, z - rz) < d for rx, rz in (bez(i / 60) for i in range(61)))
+g.terrain.append((ribbon(ROAD, 1.7), 'dirt'))
 g.terrain.append(([(9.5, 28.5), (13.5, 28.5), (15.5, 40), (34, 40), (34, 46), (13, 46), (9.5, 41)], 'dirt'))   # the track down to the stable
 g.terrain.append(([(23, 33), (30, 33), (30, 35), (44, 35), (44, 33), (51, 33), (52, 39), (41, 39.6), (33, 39.6), (24, 39)], 'dirt'))  # the fallen south end
 g.terrain.append(([(51.4, 15.4), (52.6, 16.2), (57.9, 13.2), (57.1, 12.4)], 'dirt'))                 # the cemetery path
@@ -166,12 +182,14 @@ for a, b in [((48, 10), (56, 10)), ((60, 14), (60, 20)), ((55, 20), (60, 20))]: 
 # the stable's burned foundation: low rubble walls, open where the track comes in
 for a, b in [((34, 40), (40, 40)), ((40, 40), (40, 48)), ((40, 48), (34, 48)), ((34, 48), (34, 46)), ((34, 42), (34, 40))]: low(g, a, b, 2.5, 'rubble')
 g.opening((34, 42), (34, 46))
-# the ballroom's south side fell with the rooms above it: a stub of wall, then open rubble
-low(g, (30, 35), (34, 35), 9, 'rubble'); g.opening((34, 35), (44, 35)); g.opening((44, 34), (44, 35))
+# the ballroom's south side fell with the rooms above it: its ashlar front stands broken off at head height or so,
+# highest by the corners where the old towers braced it, the rubble of the upper floors heaped against it
+for x, h in zip(range(30, 44), (14, 10, 7, 6, 6, 5, 6, 4, 6, 7, 6, 5, 9, 15)): low(g, (x, 35), (x + 1, 35), h, 'ashlar')
+g.opening((44, 34), (44, 35))
 finish(g, outdoor=('Q1', 'Q2', 'Q5', 'Q15', 'Q15-steps'))
 
 # --- fixtures: the grounds
-g.obj('spawn', 'spawn', (6, 23), 'dm-note', 'Q1', 'Party spawn: the winding road up the promontory')
+g.obj('spawn', 'spawn', tuple(round(v, 2) for v in bez(0.12)), 'dm-note', 'Q1', 'Party spawn: the winding road up the promontory')
 g.prop('Q1-mound', 'mound', (15, 23), 'Q1', dims={'r': 15, 'h': 1.6})
 g.prop('Q1-statue', 'dragon-statue', (15, 23), 'Q1')
 g.note('Q1-note', (15, 19.4), 'Q1', 'The statue breathes a 60-ft cone of harmless cold air at anyone on the entrance steps, once per dawn (the trap is spent).')
@@ -180,7 +198,7 @@ g.prop('Q2-landing', 'ledge', (25, 23), 'Q2', dims={'w': 10, 'd': 29, 'h': 2})
 g.note('Q2-lintel', (25.6, 21.2), 'Q2', 'ARGYNVOSTHOLT is carved in the lintel; the knockers are small dragons.')
 g.hidden('event-cart', 'wagon', (19.5, 28.6), 'Q1', 'Special Delivery: a mad Vistana, Kolya, leaves a cart here with a plain coffin bearing a character\'s name; opening it frees a swarm of bats', rotY=20)
 g.hidden('event-coffin', 'coffin', (19.5, 31.2), 'Q1', 'The coffin from Vallaki (Henrik van der Voort\'s work): a swarm of bats inside attacks the named character', rotY=90)
-g.note('event-arrigal', (2, 23), 'Q1', "Arrigal's Hunt: Ezmerelda arrives on a stolen horse; Arrigal (assassin) and two Vistani bandits on dire wolves follow her up this road.")
+g.note('event-arrigal', tuple(round(v, 2) for v in bez(0.45)), 'Q1', "Arrigal's Hunt: Ezmerelda arrives on a stolen horse; Arrigal (assassin) and two Vistani bandits on dire wolves follow her up this road.")
 g.prop('Q5-beams', 'broken-rafters', (37, 44), 'Q5', dims={'n': 4, 'len': 22, 'h': 3, 'seed': 4})
 g.prop('Q5-ash', 'wreckage', (36, 42.5), 'Q5', dims={'n': 8, 's': 1.4, 'seed': 6})
 g.prop('Q5-post1', 'post-round', (34.6, 40.6), 'Q5', dims={'r': 0.7, 'h': 7}); g.prop('Q5-post2', 'post-round', (39.4, 47.4), 'Q5', dims={'r': 0.7, 'h': 4})
@@ -286,7 +304,7 @@ for i, p in enumerate(CHIMNEYS): prism(g, f'chimney{i}', p, 60, STONE)
 for i in range(46):
     a = i / 46 * 2 * math.pi + 0.05; r = 42 + (i * 7) % 9
     x, z = 37 + math.cos(a) * r * 1.15, 26 + math.sin(a) * r * 0.85
-    if x < 10 and 18 < z < 28: continue                      # the road in from the west
+    if near_road(x, z, 5): continue                         # the road in
     if 8 < x < 36 and z > 38: continue                       # the track to the stable
     g.prop(f'pine{i}', 'pine', (round(x, 2), round(z, 2)), None, dims={'scale': 1.0 + (i % 4) * 0.15})
 for i, (x, z) in enumerate([(4, 6), (66, 4), (72, 30), (68, 52), (4, 52), (-4, 34), (62, 46)]): g.prop(f'deadtree{i}', 'dead-tree', (x, z), None, dims={'scale': 1 + (i % 3) * 0.15})
@@ -339,10 +357,11 @@ win(s, (52, 27), (52, 28))
 # the open volumes: the foyer's west end over the main doors, the chapel's apse
 for a, b, f in [((28, 20), (26, 22), 'window'), ((26, 22), (26, 24), 'window'), ((26, 24), (28, 26), 'window')]: s.wall(a, b, flags=[f], material='ashlar')
 for a, b in APSE: s.wall(a, b, flags=['window'] if (a, b) in (((55, 20), (56, 21)), ((56, 21), (56, 25)), ((56, 25), (55, 26))) else ['normal'], material='ashlar')
-# Q19's south ends have fallen away: open to the weather, and the corridor between ends in air
-for poly in ([(36, 33), (34, 32), (32, 33), (30, 32)], [(44, 32), (42, 33), (40, 32), (38, 33)]):
-    for a, b in zip(poly, poly[1:]): ov(s, a, b, open_wall=True)
-s.opening((36, 33), (38, 33))
+# Q19's south ends have fallen away: the outer wall stands broken off along the ragged edge of the boards, highest by
+# the side walls and down to chest height in the middle (fog beyond, the ballroom 20 ft down); the corridor ends at a stub
+for poly, hs in (([(36, 33), (34, 32), (32, 33), (30, 32)], (6, 8, 14)), ([(44, 32), (42, 33), (40, 32), (38, 33)], (14, 7, 5))):
+    for (a, b), h in zip(zip(poly, poly[1:]), hs): ov(s, a, b, flags=['normal'], heightFt=h, material='ashlar', wall=True)
+low(s, (36, 33), (38, 33), 3.5, 'ashlar')
 finish(s)
 
 s.prop('Q17-stair', 'spiral-stair', (29, 19), 'Q17', dims={'r': 4, 'rise': 20}); s.prop('Q17s-stair', 'spiral-stair', (29, 27), 'Q17-south', dims={'r': 4, 'rise': 20})
@@ -384,6 +403,8 @@ s.prop('Q29-drapes1', 'drapes', (30.25, 13.5), 'Q29', rotY=90, dims={'w': 4, 'co
 cobwebs(s, [(30, 12), (36, 12), (36, 18), (30, 18)], 'Q29', y=12, n=4)
 for i, (k, x, z, sd) in enumerate([('Q19', 33, 30, 26), ('Q19-east', 41, 30, 28)]):
     s.prop(f'{k}-wreck', 'wreckage', (x, z), k, dims={'n': 9, 'seed': sd}); s.prop(f'{k}-rubble', 'rubble-heap', (x + 1, z + 1.6), k, dims={'r': 4, 'h': 2, 'seed': sd + 1})
+for i, (x, z, k) in enumerate([(31.2, 31.9, 'Q19'), (34.6, 32.1, 'Q19'), (39.4, 32.2, 'Q19-east'), (42.8, 32.3, 'Q19-east')]):
+    s.prop(f'Q19-stones{i}', 'rubble', (x, z), k, dims={'n': 4})                 # fallen courses at the foot of the broken wall
 s.prop('Q19-rafters', 'broken-rafters', (41, 31), 'Q19-east', dims={'n': 2, 'len': 14, 'h': 4, 'seed': 30})
 
 # ================================================================== THIRD (40 ft)
@@ -429,9 +450,10 @@ for a, b in [((33, 10), (34, 10)), ((36, 10), (37, 10)), ((39, 10), (40, 10)), (
 window_edge(t, (26.8, 6.8), (26, 8)); window_edge(t, (47.2, 6.8), (48, 8)); window_edge(t, (48, 10), (47.2, 11.2))
 window_edge(t, (28, 18.6), (28, 20)); window_edge(t, (28, 26), (28, 27.4)); window_edge(t, (44, 18), (45.4, 18)); window_edge(t, (45.4, 28), (44, 28))
 for a, b in [((46, 20), (50, 20)), ((50, 26), (46, 26))] + APSE: t.wall(a, b, flags=['window'] if a in ((55, 20), (56, 25)) else ['normal'], material='ashlar')
-for poly in ([(36, 33), (34, 32), (32, 32.5), (30, 31.5)], [(44, 31.5), (42, 32.5), (40, 32), (38, 33)]):
-    for a, b in zip(poly, poly[1:]): ov(t, a, b, open_wall=True)
-t.opening((36, 33), (38, 33))
+# Q32's ragged south ends likewise: the wall broken off low along the edge of the boards, the roof's lip 20 ft above
+for poly, hs in (([(36, 33), (34, 32), (32, 32.5), (30, 31.5)], (4, 6, 10)), ([(44, 31.5), (42, 32.5), (40, 32), (38, 33)], (10, 5, 4))):
+    for (a, b), h in zip(zip(poly, poly[1:]), hs): ov(t, a, b, flags=['normal'], heightFt=h, material='ashlar', wall=True)
+low(t, (36, 33), (38, 33), 3, 'ashlar')
 finish(t)
 
 t.prop('Q30-curtain', 'drapes', (30.15, 19), 'Q30', rotY=90, dims={'w': 9, 'color': 0x141216}); t.prop('Q30s-curtain', 'drapes', (30.15, 27), 'Q30-south', rotY=90, dims={'w': 9, 'color': 0x141216})
@@ -751,3 +773,47 @@ keys = sorted({rm['key'].split('-')[0] for lv in scene['levels'] for rm in lv['r
 want = [a['key'] for l in _M['locations'] if l['id'] == 'Q' for a in l['areas']]
 print('argynvostholt:', [(lv['id'], len(lv['rooms']), len(lv['walls']), len(lv['objects'])) for lv in scene['levels']])
 print('missing keys:', [k for k in want if k not in keys], 'extra:', [k for k in keys if k not in want])
+
+# ------------------------------------------------------------------ wall coverage
+# Every room edge on the building's outer boundary must carry a wall, door, window or parapet. The footprint a level is
+# judged against is its own indoor rooms plus any lower room tall enough to rise through it (the foyer and chapel
+# volumes), so balcony rails over a void are inside, and a floor's broken edge over open air is outside. Edges left
+# open on purpose (the roof's broken lip over the sixty-foot drop) are listed in OPEN_OK and reported, not hidden.
+OUTDOOR = {'Q1', 'Q2', 'Q5', 'Q15', 'Q15-steps'}
+OPEN_OK = {'Q48': 'the broken roof edge: a sheer drop, no parapet survives'}
+VOIDS = {'roof': [rect(36, 20, 40, 25), [(54, 20), (56, 22), (56, 24), (54, 26)]],              # the hole in the roof; the beacon stair's well
+         'beacon': [[(54, 20), (56, 22), (56, 24), (54, 26)]]}
+def _inside(pt, poly):
+    x, z = pt; c = False
+    for i in range(len(poly)):
+        (x1, z1), (x2, z2) = poly[i], poly[i - 1]
+        if (z1 > z) != (z2 > z) and x < (x2 - x1) * (z - z1) / (z2 - z1) + x1: c = not c
+    return c
+def _on(pt, a, b, eps=0.02):
+    dx, dz = b[0] - a[0], b[1] - a[1]; t = ((pt[0] - a[0]) * dx + (pt[1] - a[1]) * dz) / (dx * dx + dz * dz)
+    return -1e-6 <= t <= 1 + 1e-6 and math.hypot(a[0] + t * dx - pt[0], a[1] + t * dz - pt[1]) < eps
+def coverage(levels_json):
+    bad = 0
+    for L in levels_json:
+        cells = lambda poly: [(x / 5, z / 5) for x, z in poly]
+        rooms = [(rm['key'], cells(rm['polygon'])) for rm in L['rooms'] if rm['key'] not in OUTDOOR]
+        foot = [poly for _, poly in rooms] + VOIDS.get(L['id'], []) + [cells(rm['polygon']) for M in levels_json if M['elevationFt'] < L['elevationFt'] for rm in M['rooms']
+                                              if rm['key'] not in OUTDOOR and M['elevationFt'] + (rm.get('ceilingFt') or M['ceilingFt']) > L['elevationFt']]
+        walls = [((w['a'][0] / 5, w['a'][1] / 5), (w['b'][0] / 5, w['b'][1] / 5), w) for w in L['walls']]
+        tot = gap = low = ok = 0; gaps = []
+        for key, poly in rooms:
+            for a, b_ in unit_edges(poly):
+                m = ((a[0] + b_[0]) / 2, (a[1] + b_[1]) / 2); dx, dz = b_[0] - a[0], b_[1] - a[1]; ln = math.hypot(dx, dz)
+                nx, nz = -dz / ln * 0.05, dx / ln * 0.05
+                if all(any(_inside((m[0] + sg * nx, m[1] + sg * nz), f) for f in foot) for sg in (1, -1)): continue
+                tot += ln * 5
+                hit = [w for a2, b2, w in walls if _on(m, a2, b2)]
+                if hit:
+                    if all(w.get('heightFt', 99) < 10 for w in hit): low += ln * 5
+                elif key in OPEN_OK: ok += ln * 5
+                else: gap += ln * 5; gaps.append(f'{key} {a}-{b_}')
+        bad += len(gaps)
+        print(f"  wall coverage {L['id']:7s} outer {tot:6.1f} ft: open {gap:5.1f} ft, low (<10 ft) {low:5.1f} ft, open by design {ok:5.1f} ft" + (f"  GAPS: {gaps}" if gaps else ''))
+    for k, why in OPEN_OK.items(): print(f'  open by design: {k}: {why}')
+    return bad
+coverage(scene['levels'])

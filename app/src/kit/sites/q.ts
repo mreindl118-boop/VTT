@@ -27,7 +27,9 @@ surfaceFor([Q.tile], 'shingle');
 surfaceFor([Q.earth], 'dirt');
 surfaceFor(['#857170', '#94807d'], 'flag');
 surfaceFor(['#666b73', '#57535c', '#5e3a3c', '#6e6248', '#6f7680', '#5f646d', '#6a6f78', '#a8a49c', '#5f5d5a'], 'stone');
-surfaceFor(['#5a3a28', '#b8a888'], 'cloth');
+surfaceFor(['#5a3a28', '#b8a888', '#4a3a32'], 'cloth');
+surfaceFor(['#4f3c2c', '#1a1412', '#30282a'], 'wood');
+surfaceFor(['#5a4a3e', '#1a1c20'], 'metal');
 surfaceFor([Q.corpse, Q.corpseDeep, Q.phantom, Q.phantomDeep, Q.spider, Q.spiderDeep, Q.spiderRed, Q.soot, Q.smoke, Q.glass], 'generic');
 
 const box = (w: number, h: number, d: number, color: string, x = 0, y = 0, z = 0) => { const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat(color)); m.position.set(x, y, z); return m; };
@@ -206,13 +208,16 @@ export function fallenChandelier(d: Dims): THREE.Group {
   grp.add(beam([0, 0.3, 0], [3.5, 0.2, -2.5], 0.12, PALETTE.iron));
   return grp;
 }
+/** The web sheets' two materials, shared by every sheet so the static-prop merge draws them all in two calls
+ *  (translucent, unlit like the kit's cobwebs, fogged with the map). Never mutate them. */
+const WEB_SHEET = patchFog(new THREE.MeshBasicMaterial({ color: '#e8e4dc', transparent: true, opacity: 0.22, side: THREE.DoubleSide, depthWrite: false }));
+const WEB_STRAND = patchFog(new THREE.MeshBasicMaterial({ color: '#d8d4cc', transparent: true, opacity: 0.45, depthWrite: false }));
 /** Webs stretched wall to wall: a translucent sheet `w` × `h` hung `y` ft up, a few heavy strands across it. */
 export function webSheet(d: Dims): THREE.Group {
   const w = d.w ?? 14, h = d.h ?? 8, y = d.y ?? 8;
-  const m = patchFog(new THREE.MeshBasicMaterial({ color: '#e8e4dc', transparent: true, opacity: 0.22, side: THREE.DoubleSide, depthWrite: false }));
-  const sheet = new THREE.Mesh(new THREE.PlaneGeometry(w, h), m); sheet.position.y = y;
-  const grp = g(sheet); const ls = patchFog(new THREE.MeshBasicMaterial({ color: '#d8d4cc', transparent: true, opacity: 0.45, depthWrite: false }));
-  for (let i = 0; i < 5; i++) { const s = new THREE.Mesh(new THREE.BoxGeometry(w * 1.05, 0.06, 0.06), ls); s.position.y = y - h / 2 + (i + 0.5) * (h / 5); s.rotation.z = (i - 2) * 0.12; grp.add(s); }
+  const sheet = new THREE.Mesh(new THREE.PlaneGeometry(w, h), WEB_SHEET); sheet.position.y = y;
+  const grp = g(sheet);
+  for (let i = 0; i < 5; i++) { const s = new THREE.Mesh(new THREE.BoxGeometry(w * 1.05, 0.06, 0.06), WEB_STRAND); s.position.y = y - h / 2 + (i + 0.5) * (h / 5); s.rotation.z = (i - 2) * 0.12; grp.add(s); }
   grp.userData.role = 'marker';
   return grp;
 }

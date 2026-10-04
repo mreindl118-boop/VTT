@@ -2759,6 +2759,166 @@
     {
      "id": "ground-w-131",
      "a": [
+      215.0,
+      175.0
+     ],
+     "b": [
+      220.0,
+      175.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 15
+    },
+    {
+     "id": "ground-w-132",
+     "a": [
+      210.0,
+      175.0
+     ],
+     "b": [
+      215.0,
+      175.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 9
+    },
+    {
+     "id": "ground-w-133",
+     "a": [
+      205.0,
+      175.0
+     ],
+     "b": [
+      210.0,
+      175.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 5
+    },
+    {
+     "id": "ground-w-134",
+     "a": [
+      200.0,
+      175.0
+     ],
+     "b": [
+      205.0,
+      175.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 6
+    },
+    {
+     "id": "ground-w-135",
+     "a": [
+      195.0,
+      175.0
+     ],
+     "b": [
+      200.0,
+      175.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 7
+    },
+    {
+     "id": "ground-w-136",
+     "a": [
+      190.0,
+      175.0
+     ],
+     "b": [
+      195.0,
+      175.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 6
+    },
+    {
+     "id": "ground-w-137",
+     "a": [
+      185.0,
+      175.0
+     ],
+     "b": [
+      190.0,
+      175.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 4
+    },
+    {
+     "id": "ground-w-138",
+     "a": [
+      180.0,
+      175.0
+     ],
+     "b": [
+      185.0,
+      175.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 6
+    },
+    {
+     "id": "ground-w-139",
+     "a": [
+      175.0,
+      175.0
+     ],
+     "b": [
+      180.0,
+      175.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 5
+    },
+    {
+     "id": "ground-w-140",
+     "a": [
+      170.0,
+      175.0
+     ],
+     "b": [
+      175.0,
+      175.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 6
+    },
+    {
+     "id": "ground-w-141",
+     "a": [
       165.0,
       175.0
      ],
@@ -2769,11 +2929,11 @@
      "flags": [
       "normal"
      ],
-     "material": "rubble",
-     "heightFt": 9
+     "material": "ashlar",
+     "heightFt": 6
     },
     {
-     "id": "ground-w-132",
+     "id": "ground-w-142",
      "a": [
       160.0,
       175.0
@@ -2785,11 +2945,11 @@
      "flags": [
       "normal"
      ],
-     "material": "rubble",
-     "heightFt": 9
+     "material": "ashlar",
+     "heightFt": 7
     },
     {
-     "id": "ground-w-133",
+     "id": "ground-w-143",
      "a": [
       155.0,
       175.0
@@ -2801,11 +2961,11 @@
      "flags": [
       "normal"
      ],
-     "material": "rubble",
-     "heightFt": 9
+     "material": "ashlar",
+     "heightFt": 10
     },
     {
-     "id": "ground-w-134",
+     "id": "ground-w-144",
      "a": [
       150.0,
       175.0
@@ -2817,11 +2977,11 @@
      "flags": [
       "normal"
      ],
-     "material": "rubble",
-     "heightFt": 9
+     "material": "ashlar",
+     "heightFt": 14
     },
     {
-     "id": "ground-w-135",
+     "id": "ground-w-145",
      "a": [
       150.0,
       170.0
@@ -2836,7 +2996,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-136",
+     "id": "ground-w-146",
      "a": [
       150.0,
       165.0
@@ -2851,7 +3011,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-137",
+     "id": "ground-w-147",
      "a": [
       170.0,
       200.0
@@ -2859,166 +3019,6 @@
      "b": [
       175.0,
       200.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "rubble",
-     "heightFt": 2.5
-    },
-    {
-     "id": "ground-w-138",
-     "a": [
-      175.0,
-      200.0
-     ],
-     "b": [
-      180.0,
-      200.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "rubble",
-     "heightFt": 2.5
-    },
-    {
-     "id": "ground-w-139",
-     "a": [
-      180.0,
-      200.0
-     ],
-     "b": [
-      185.0,
-      200.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "rubble",
-     "heightFt": 2.5
-    },
-    {
-     "id": "ground-w-140",
-     "a": [
-      185.0,
-      200.0
-     ],
-     "b": [
-      190.0,
-      200.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "rubble",
-     "heightFt": 2.5
-    },
-    {
-     "id": "ground-w-141",
-     "a": [
-      190.0,
-      200.0
-     ],
-     "b": [
-      195.0,
-      200.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "rubble",
-     "heightFt": 2.5
-    },
-    {
-     "id": "ground-w-142",
-     "a": [
-      195.0,
-      200.0
-     ],
-     "b": [
-      200.0,
-      200.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "rubble",
-     "heightFt": 2.5
-    },
-    {
-     "id": "ground-w-143",
-     "a": [
-      200.0,
-      200.0
-     ],
-     "b": [
-      200.0,
-      205.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "rubble",
-     "heightFt": 2.5
-    },
-    {
-     "id": "ground-w-144",
-     "a": [
-      200.0,
-      205.0
-     ],
-     "b": [
-      200.0,
-      210.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "rubble",
-     "heightFt": 2.5
-    },
-    {
-     "id": "ground-w-145",
-     "a": [
-      200.0,
-      210.0
-     ],
-     "b": [
-      200.0,
-      215.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "rubble",
-     "heightFt": 2.5
-    },
-    {
-     "id": "ground-w-146",
-     "a": [
-      200.0,
-      215.0
-     ],
-     "b": [
-      200.0,
-      220.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "rubble",
-     "heightFt": 2.5
-    },
-    {
-     "id": "ground-w-147",
-     "a": [
-      200.0,
-      220.0
-     ],
-     "b": [
-      200.0,
-      225.0
      ],
      "flags": [
       "normal"
@@ -3029,6 +3029,166 @@
     {
      "id": "ground-w-148",
      "a": [
+      175.0,
+      200.0
+     ],
+     "b": [
+      180.0,
+      200.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble",
+     "heightFt": 2.5
+    },
+    {
+     "id": "ground-w-149",
+     "a": [
+      180.0,
+      200.0
+     ],
+     "b": [
+      185.0,
+      200.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble",
+     "heightFt": 2.5
+    },
+    {
+     "id": "ground-w-150",
+     "a": [
+      185.0,
+      200.0
+     ],
+     "b": [
+      190.0,
+      200.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble",
+     "heightFt": 2.5
+    },
+    {
+     "id": "ground-w-151",
+     "a": [
+      190.0,
+      200.0
+     ],
+     "b": [
+      195.0,
+      200.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble",
+     "heightFt": 2.5
+    },
+    {
+     "id": "ground-w-152",
+     "a": [
+      195.0,
+      200.0
+     ],
+     "b": [
+      200.0,
+      200.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble",
+     "heightFt": 2.5
+    },
+    {
+     "id": "ground-w-153",
+     "a": [
+      200.0,
+      200.0
+     ],
+     "b": [
+      200.0,
+      205.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble",
+     "heightFt": 2.5
+    },
+    {
+     "id": "ground-w-154",
+     "a": [
+      200.0,
+      205.0
+     ],
+     "b": [
+      200.0,
+      210.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble",
+     "heightFt": 2.5
+    },
+    {
+     "id": "ground-w-155",
+     "a": [
+      200.0,
+      210.0
+     ],
+     "b": [
+      200.0,
+      215.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble",
+     "heightFt": 2.5
+    },
+    {
+     "id": "ground-w-156",
+     "a": [
+      200.0,
+      215.0
+     ],
+     "b": [
+      200.0,
+      220.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble",
+     "heightFt": 2.5
+    },
+    {
+     "id": "ground-w-157",
+     "a": [
+      200.0,
+      220.0
+     ],
+     "b": [
+      200.0,
+      225.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble",
+     "heightFt": 2.5
+    },
+    {
+     "id": "ground-w-158",
+     "a": [
       200.0,
       225.0
      ],
@@ -3043,167 +3203,167 @@
      "heightFt": 2.5
     },
     {
-     "id": "ground-w-149",
-     "a": [
-      200.0,
-      230.0
-     ],
-     "b": [
-      200.0,
-      235.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "rubble",
-     "heightFt": 2.5
-    },
-    {
-     "id": "ground-w-150",
-     "a": [
-      200.0,
-      235.0
-     ],
-     "b": [
-      200.0,
-      240.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "rubble",
-     "heightFt": 2.5
-    },
-    {
-     "id": "ground-w-151",
-     "a": [
-      195.0,
-      240.0
-     ],
-     "b": [
-      200.0,
-      240.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "rubble",
-     "heightFt": 2.5
-    },
-    {
-     "id": "ground-w-152",
-     "a": [
-      190.0,
-      240.0
-     ],
-     "b": [
-      195.0,
-      240.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "rubble",
-     "heightFt": 2.5
-    },
-    {
-     "id": "ground-w-153",
-     "a": [
-      185.0,
-      240.0
-     ],
-     "b": [
-      190.0,
-      240.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "rubble",
-     "heightFt": 2.5
-    },
-    {
-     "id": "ground-w-154",
-     "a": [
-      180.0,
-      240.0
-     ],
-     "b": [
-      185.0,
-      240.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "rubble",
-     "heightFt": 2.5
-    },
-    {
-     "id": "ground-w-155",
-     "a": [
-      175.0,
-      240.0
-     ],
-     "b": [
-      180.0,
-      240.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "rubble",
-     "heightFt": 2.5
-    },
-    {
-     "id": "ground-w-156",
-     "a": [
-      170.0,
-      240.0
-     ],
-     "b": [
-      175.0,
-      240.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "rubble",
-     "heightFt": 2.5
-    },
-    {
-     "id": "ground-w-157",
-     "a": [
-      170.0,
-      235.0
-     ],
-     "b": [
-      170.0,
-      240.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "rubble",
-     "heightFt": 2.5
-    },
-    {
-     "id": "ground-w-158",
-     "a": [
-      170.0,
-      230.0
-     ],
-     "b": [
-      170.0,
-      235.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "rubble",
-     "heightFt": 2.5
-    },
-    {
      "id": "ground-w-159",
+     "a": [
+      200.0,
+      230.0
+     ],
+     "b": [
+      200.0,
+      235.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble",
+     "heightFt": 2.5
+    },
+    {
+     "id": "ground-w-160",
+     "a": [
+      200.0,
+      235.0
+     ],
+     "b": [
+      200.0,
+      240.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble",
+     "heightFt": 2.5
+    },
+    {
+     "id": "ground-w-161",
+     "a": [
+      195.0,
+      240.0
+     ],
+     "b": [
+      200.0,
+      240.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble",
+     "heightFt": 2.5
+    },
+    {
+     "id": "ground-w-162",
+     "a": [
+      190.0,
+      240.0
+     ],
+     "b": [
+      195.0,
+      240.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble",
+     "heightFt": 2.5
+    },
+    {
+     "id": "ground-w-163",
+     "a": [
+      185.0,
+      240.0
+     ],
+     "b": [
+      190.0,
+      240.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble",
+     "heightFt": 2.5
+    },
+    {
+     "id": "ground-w-164",
+     "a": [
+      180.0,
+      240.0
+     ],
+     "b": [
+      185.0,
+      240.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble",
+     "heightFt": 2.5
+    },
+    {
+     "id": "ground-w-165",
+     "a": [
+      175.0,
+      240.0
+     ],
+     "b": [
+      180.0,
+      240.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble",
+     "heightFt": 2.5
+    },
+    {
+     "id": "ground-w-166",
+     "a": [
+      170.0,
+      240.0
+     ],
+     "b": [
+      175.0,
+      240.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble",
+     "heightFt": 2.5
+    },
+    {
+     "id": "ground-w-167",
+     "a": [
+      170.0,
+      235.0
+     ],
+     "b": [
+      170.0,
+      240.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble",
+     "heightFt": 2.5
+    },
+    {
+     "id": "ground-w-168",
+     "a": [
+      170.0,
+      230.0
+     ],
+     "b": [
+      170.0,
+      235.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble",
+     "heightFt": 2.5
+    },
+    {
+     "id": "ground-w-169",
      "a": [
       170.0,
       205.0
@@ -3219,7 +3379,7 @@
      "heightFt": 2.5
     },
     {
-     "id": "ground-w-160",
+     "id": "ground-w-170",
      "a": [
       170.0,
       200.0
@@ -3235,7 +3395,7 @@
      "heightFt": 2.5
     },
     {
-     "id": "ground-w-161",
+     "id": "ground-w-171",
      "a": [
       240.0,
       50.0
@@ -3250,7 +3410,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-162",
+     "id": "ground-w-172",
      "a": [
       245.0,
       50.0
@@ -3265,7 +3425,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-163",
+     "id": "ground-w-173",
      "a": [
       250.0,
       50.0
@@ -3280,7 +3440,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-164",
+     "id": "ground-w-174",
      "a": [
       255.0,
       50.0
@@ -3295,7 +3455,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-165",
+     "id": "ground-w-175",
      "a": [
       260.0,
       50.0
@@ -3310,7 +3470,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-166",
+     "id": "ground-w-176",
      "a": [
       265.0,
       50.0
@@ -3325,7 +3485,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-167",
+     "id": "ground-w-177",
      "a": [
       270.0,
       50.0
@@ -3340,7 +3500,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-168",
+     "id": "ground-w-178",
      "a": [
       275.0,
       50.0
@@ -3355,7 +3515,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-169",
+     "id": "ground-w-179",
      "a": [
       280.0,
       50.0
@@ -3371,7 +3531,7 @@
      "heightFt": 12
     },
     {
-     "id": "ground-w-170",
+     "id": "ground-w-180",
      "a": [
       280.0,
       55.0
@@ -3387,7 +3547,7 @@
      "heightFt": 12
     },
     {
-     "id": "ground-w-171",
+     "id": "ground-w-181",
      "a": [
       280.0,
       60.0
@@ -3421,7 +3581,7 @@
      "open": false
     },
     {
-     "id": "ground-w-173",
+     "id": "ground-w-183",
      "a": [
       290.0,
       65.0
@@ -3437,159 +3597,159 @@
      "heightFt": 12
     },
     {
-     "id": "ground-w-174",
-     "a": [
-      290.0,
-      70.0
-     ],
-     "b": [
-      295.0,
-      70.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar",
-     "heightFt": 12
-    },
-    {
-     "id": "ground-w-175",
-     "a": [
-      295.0,
-      70.0
-     ],
-     "b": [
-      300.0,
-      70.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar",
-     "heightFt": 12
-    },
-    {
-     "id": "ground-w-176",
-     "a": [
-      300.0,
-      70.0
-     ],
-     "b": [
-      300.0,
-      75.0
-     ],
-     "flags": [
-      "invisible"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-177",
-     "a": [
-      300.0,
-      75.0
-     ],
-     "b": [
-      300.0,
-      80.0
-     ],
-     "flags": [
-      "invisible"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-178",
-     "a": [
-      300.0,
-      80.0
-     ],
-     "b": [
-      300.0,
-      85.0
-     ],
-     "flags": [
-      "invisible"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-179",
-     "a": [
-      300.0,
-      85.0
-     ],
-     "b": [
-      300.0,
-      90.0
-     ],
-     "flags": [
-      "invisible"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-180",
-     "a": [
-      300.0,
-      90.0
-     ],
-     "b": [
-      300.0,
-      95.0
-     ],
-     "flags": [
-      "invisible"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-181",
-     "a": [
-      300.0,
-      95.0
-     ],
-     "b": [
-      300.0,
-      100.0
-     ],
-     "flags": [
-      "invisible"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-182",
-     "a": [
-      295.0,
-      100.0
-     ],
-     "b": [
-      300.0,
-      100.0
-     ],
-     "flags": [
-      "invisible"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-183",
-     "a": [
-      290.0,
-      100.0
-     ],
-     "b": [
-      295.0,
-      100.0
-     ],
-     "flags": [
-      "invisible"
-     ],
-     "material": "ashlar"
-    },
-    {
      "id": "ground-w-184",
+     "a": [
+      290.0,
+      70.0
+     ],
+     "b": [
+      295.0,
+      70.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 12
+    },
+    {
+     "id": "ground-w-185",
+     "a": [
+      295.0,
+      70.0
+     ],
+     "b": [
+      300.0,
+      70.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 12
+    },
+    {
+     "id": "ground-w-186",
+     "a": [
+      300.0,
+      70.0
+     ],
+     "b": [
+      300.0,
+      75.0
+     ],
+     "flags": [
+      "invisible"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-187",
+     "a": [
+      300.0,
+      75.0
+     ],
+     "b": [
+      300.0,
+      80.0
+     ],
+     "flags": [
+      "invisible"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-188",
+     "a": [
+      300.0,
+      80.0
+     ],
+     "b": [
+      300.0,
+      85.0
+     ],
+     "flags": [
+      "invisible"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-189",
+     "a": [
+      300.0,
+      85.0
+     ],
+     "b": [
+      300.0,
+      90.0
+     ],
+     "flags": [
+      "invisible"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-190",
+     "a": [
+      300.0,
+      90.0
+     ],
+     "b": [
+      300.0,
+      95.0
+     ],
+     "flags": [
+      "invisible"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-191",
+     "a": [
+      300.0,
+      95.0
+     ],
+     "b": [
+      300.0,
+      100.0
+     ],
+     "flags": [
+      "invisible"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-192",
+     "a": [
+      295.0,
+      100.0
+     ],
+     "b": [
+      300.0,
+      100.0
+     ],
+     "flags": [
+      "invisible"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-193",
+     "a": [
+      290.0,
+      100.0
+     ],
+     "b": [
+      295.0,
+      100.0
+     ],
+     "flags": [
+      "invisible"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-194",
      "a": [
       285.0,
       100.0
@@ -3604,7 +3764,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-185",
+     "id": "ground-w-195",
      "a": [
       280.0,
       100.0
@@ -3619,7 +3779,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-186",
+     "id": "ground-w-196",
      "a": [
       275.0,
       100.0
@@ -3634,7 +3794,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-187",
+     "id": "ground-w-197",
      "a": [
       290.0,
       40.0
@@ -3650,7 +3810,7 @@
      "heightFt": 12
     },
     {
-     "id": "ground-w-188",
+     "id": "ground-w-198",
      "a": [
       295.0,
       40.0
@@ -3666,7 +3826,7 @@
      "heightFt": 12
     },
     {
-     "id": "ground-w-189",
+     "id": "ground-w-199",
      "a": [
       300.0,
       40.0
@@ -3682,7 +3842,7 @@
      "heightFt": 12
     },
     {
-     "id": "ground-w-190",
+     "id": "ground-w-200",
      "a": [
       300,
       45
@@ -3698,7 +3858,7 @@
      "heightFt": 12
     },
     {
-     "id": "ground-w-191",
+     "id": "ground-w-201",
      "a": [
       305.0,
       50.0
@@ -3714,7 +3874,7 @@
      "heightFt": 12
     },
     {
-     "id": "ground-w-192",
+     "id": "ground-w-202",
      "a": [
       310.0,
       50.0
@@ -3730,7 +3890,7 @@
      "heightFt": 12
     },
     {
-     "id": "ground-w-193",
+     "id": "ground-w-203",
      "a": [
       310.0,
       55.0
@@ -3746,7 +3906,7 @@
      "heightFt": 12
     },
     {
-     "id": "ground-w-194",
+     "id": "ground-w-204",
      "a": [
       305.0,
       60.0
@@ -3762,7 +3922,7 @@
      "heightFt": 12
     },
     {
-     "id": "ground-w-195",
+     "id": "ground-w-205",
      "a": [
       300,
       65
@@ -3778,7 +3938,7 @@
      "heightFt": 12
     },
     {
-     "id": "ground-w-196",
+     "id": "ground-w-206",
      "a": [
       300.0,
       65.0
@@ -3794,7 +3954,7 @@
      "heightFt": 12
     },
     {
-     "id": "ground-w-197",
+     "id": "ground-w-207",
      "a": [
       280.0,
       50.0
@@ -3810,7 +3970,7 @@
      "heightFt": 12
     },
     {
-     "id": "ground-w-198",
+     "id": "ground-w-208",
      "a": [
       285,
       50
@@ -3826,7 +3986,7 @@
      "heightFt": 12
     },
     {
-     "id": "ground-w-199",
+     "id": "ground-w-209",
      "a": [
       290.0,
       40.0
@@ -4183,9 +4343,9 @@
      "id": "ground-spawn",
      "kind": "spawn",
      "pos": [
-      30,
+      22.1,
       0,
-      115
+      110.0
      ],
      "vis": "dm-note",
      "key": "Q1",
@@ -4310,9 +4470,9 @@
      "id": "ground-event-arrigal",
      "kind": "note",
      "pos": [
-      10,
+      -32.75,
       0,
-      115
+      69.35
      ],
      "vis": "dm-note",
      "key": "Q1",
@@ -6924,29 +7084,29 @@
      }
     },
     {
-     "id": "ground-pine25",
+     "id": "ground-pine23",
      "kind": "pine",
      "pos": [
-      -65.8,
+      -102.15,
       0,
-      67.9
+      119.4
      ],
      "vis": "player",
      "dims": {
-      "scale": 1.15
+      "scale": 1.45
      }
     },
     {
-     "id": "ground-pine26",
+     "id": "ground-pine24",
      "kind": "pine",
      "pos": [
-      -41.75,
+      -86.2,
       0,
-      47.0
+      92.15
      ],
      "vis": "player",
      "dims": {
-      "scale": 1.3
+      "scale": 1.0
      }
     },
     {
@@ -7428,20 +7588,124 @@
     {
      "polygon": [
       [
+       44.55,
+       106.65
+      ],
+      [
+       32.7,
+       104.45
+      ],
+      [
+       21.5,
+       100.6
+      ],
+      [
+       10.3,
+       95.05
+      ],
+      [
+       -0.85,
+       87.7
+      ],
+      [
+       -11.95,
+       78.5
+      ],
+      [
+       -23.05,
+       67.4
+      ],
+      [
+       -34.1,
+       54.5
+      ],
+      [
+       -45.0,
+       39.65
+      ],
+      [
+       -55.85,
+       22.9
+      ],
+      [
+       -66.6,
+       4.3
+      ],
+      [
+       -77.15,
+       -16.2
+      ],
+      [
+       -87.6,
+       -38.6
+      ],
+      [
+       -97.9,
+       -62.85
+      ],
+      [
+       -108.1,
+       -89.05
+      ],
+      [
        -120,
-       103.0
+       -82.95
       ],
       [
-       43.0,
-       103.0
+       -113.65,
+       -56.45
       ],
       [
-       43.0,
-       127.0
+       -103.15,
+       -31.65
       ],
       [
-       -120,
-       127.0
+       -92.4,
+       -8.7
+      ],
+      [
+       -81.5,
+       12.45
+      ],
+      [
+       -70.35,
+       31.75
+      ],
+      [
+       -59.0,
+       49.3
+      ],
+      [
+       -47.4,
+       65.0
+      ],
+      [
+       -35.55,
+       78.95
+      ],
+      [
+       -23.4,
+       91.05
+      ],
+      [
+       -10.95,
+       101.35
+      ],
+      [
+       1.8,
+       109.75
+      ],
+      [
+       14.9,
+       116.3
+      ],
+      [
+       28.35,
+       120.85
+      ],
+      [
+       41.45,
+       123.35
       ]
      ],
      "floor": "dirt"
@@ -10718,57 +10982,60 @@
     {
      "id": "second-w-161",
      "a": [
+      170,
+      160
+     ],
+     "b": [
+      180,
+      165
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 6
+    },
+    {
+     "id": "second-w-162",
+     "a": [
+      160,
+      165
+     ],
+     "b": [
+      170,
+      160
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 8
+    },
+    {
+     "id": "second-w-163",
+     "a": [
+      150,
+      160
+     ],
+     "b": [
+      160,
+      165
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 14
+    },
+    {
+     "id": "second-w-164",
+     "a": [
       150.0,
       155.0
      ],
      "b": [
       150.0,
       160.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "second-w-162",
-     "a": [
-      150.0,
-      150.0
-     ],
-     "b": [
-      150.0,
-      155.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "second-w-163",
-     "a": [
-      150.0,
-      145.0
-     ],
-     "b": [
-      150.0,
-      150.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "second-w-164",
-     "a": [
-      150.0,
-      140.0
-     ],
-     "b": [
-      150.0,
-      145.0
      ],
      "flags": [
       "normal"
@@ -10778,6 +11045,51 @@
     {
      "id": "second-w-165",
      "a": [
+      150.0,
+      150.0
+     ],
+     "b": [
+      150.0,
+      155.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "second-w-166",
+     "a": [
+      150.0,
+      145.0
+     ],
+     "b": [
+      150.0,
+      150.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "second-w-167",
+     "a": [
+      150.0,
+      140.0
+     ],
+     "b": [
+      150.0,
+      145.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "second-w-168",
+     "a": [
       220.0,
       140.0
      ],
@@ -10791,7 +11103,55 @@
      "material": "ashlar"
     },
     {
-     "id": "second-w-166",
+     "id": "second-w-169",
+     "a": [
+      210,
+      165
+     ],
+     "b": [
+      220,
+      160
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 14
+    },
+    {
+     "id": "second-w-170",
+     "a": [
+      200,
+      160
+     ],
+     "b": [
+      210,
+      165
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 7
+    },
+    {
+     "id": "second-w-171",
+     "a": [
+      190,
+      165
+     ],
+     "b": [
+      200,
+      160
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 5
+    },
+    {
+     "id": "second-w-172",
      "a": [
       190.0,
       160.0
@@ -10806,7 +11166,7 @@
      "material": "plaster"
     },
     {
-     "id": "second-w-167",
+     "id": "second-w-173",
      "a": [
       190.0,
       155.0
@@ -10837,7 +11197,7 @@
      "open": false
     },
     {
-     "id": "second-w-169",
+     "id": "second-w-175",
      "a": [
       190.0,
       145.0
@@ -10852,7 +11212,7 @@
      "material": "plaster"
     },
     {
-     "id": "second-w-170",
+     "id": "second-w-176",
      "a": [
       190.0,
       140.0
@@ -10865,6 +11225,38 @@
       "normal"
      ],
      "material": "plaster"
+    },
+    {
+     "id": "second-w-177",
+     "a": [
+      185.0,
+      165.0
+     ],
+     "b": [
+      190.0,
+      165.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 3.5
+    },
+    {
+     "id": "second-w-178",
+     "a": [
+      180.0,
+      165.0
+     ],
+     "b": [
+      185.0,
+      165.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 3.5
     },
     {
      "id": "second-x-0",
@@ -11982,6 +12374,62 @@
       "r": 4,
       "h": 2,
       "seed": 29
+     }
+    },
+    {
+     "id": "second-Q19-stones0",
+     "kind": "rubble",
+     "pos": [
+      156.0,
+      0,
+      159.5
+     ],
+     "vis": "player",
+     "key": "Q19",
+     "dims": {
+      "n": 4
+     }
+    },
+    {
+     "id": "second-Q19-stones1",
+     "kind": "rubble",
+     "pos": [
+      173.0,
+      0,
+      160.5
+     ],
+     "vis": "player",
+     "key": "Q19",
+     "dims": {
+      "n": 4
+     }
+    },
+    {
+     "id": "second-Q19-stones2",
+     "kind": "rubble",
+     "pos": [
+      197.0,
+      0,
+      161.0
+     ],
+     "vis": "player",
+     "key": "Q19-east",
+     "dims": {
+      "n": 4
+     }
+    },
+    {
+     "id": "second-Q19-stones3",
+     "kind": "rubble",
+     "pos": [
+      214.0,
+      0,
+      161.5
+     ],
+     "vis": "player",
+     "key": "Q19-east",
+     "dims": {
+      "n": 4
      }
     },
     {
@@ -13728,6 +14176,38 @@
     {
      "id": "third-w-68",
      "a": [
+      185.0,
+      165.0
+     ],
+     "b": [
+      190.0,
+      165.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 3
+    },
+    {
+     "id": "third-w-69",
+     "a": [
+      180.0,
+      165.0
+     ],
+     "b": [
+      185.0,
+      165.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 3
+    },
+    {
+     "id": "third-w-70",
+     "a": [
       180.0,
       160.0
      ],
@@ -13741,7 +14221,7 @@
      "material": "plaster"
     },
     {
-     "id": "third-w-69",
+     "id": "third-w-71",
      "a": [
       180.0,
       155.0
@@ -13772,7 +14252,7 @@
      "open": false
     },
     {
-     "id": "third-w-71",
+     "id": "third-w-73",
      "a": [
       180.0,
       145.0
@@ -13787,7 +14267,7 @@
      "material": "plaster"
     },
     {
-     "id": "third-w-72",
+     "id": "third-w-74",
      "a": [
       180.0,
       140.0
@@ -13802,7 +14282,7 @@
      "material": "plaster"
     },
     {
-     "id": "third-w-73",
+     "id": "third-w-75",
      "a": [
       175.0,
       140.0
@@ -13817,7 +14297,7 @@
      "material": "plaster"
     },
     {
-     "id": "third-w-74",
+     "id": "third-w-76",
      "a": [
       170.0,
       140.0
@@ -13832,7 +14312,7 @@
      "material": "plaster"
     },
     {
-     "id": "third-w-75",
+     "id": "third-w-77",
      "a": [
       165.0,
       140.0
@@ -13847,43 +14327,13 @@
      "material": "plaster"
     },
     {
-     "id": "third-w-76",
+     "id": "third-w-78",
      "a": [
       160.0,
       140.0
      ],
      "b": [
       165.0,
-      140.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster"
-    },
-    {
-     "id": "third-w-77",
-     "a": [
-      155.0,
-      140.0
-     ],
-     "b": [
-      160.0,
-      140.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster"
-    },
-    {
-     "id": "third-w-78",
-     "a": [
-      150.0,
-      140.0
-     ],
-     "b": [
-      155.0,
       140.0
      ],
      "flags": [
@@ -13894,22 +14344,100 @@
     {
      "id": "third-w-79",
      "a": [
-      150.0,
-      153.125
+      155.0,
+      140.0
      ],
      "b": [
-      150.0,
-      157.5
+      160.0,
+      140.0
      ],
      "flags": [
       "normal"
      ],
-     "material": "ashlar"
+     "material": "plaster"
     },
     {
      "id": "third-w-80",
      "a": [
       150.0,
+      140.0
+     ],
+     "b": [
+      155.0,
+      140.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "third-w-81",
+     "a": [
+      170,
+      160
+     ],
+     "b": [
+      180,
+      165
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 4
+    },
+    {
+     "id": "third-w-82",
+     "a": [
+      160,
+      162.5
+     ],
+     "b": [
+      170,
+      160
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 6
+    },
+    {
+     "id": "third-w-83",
+     "a": [
+      150,
+      157.5
+     ],
+     "b": [
+      160,
+      162.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 10
+    },
+    {
+     "id": "third-w-84",
+     "a": [
+      150.0,
+      153.125
+     ],
+     "b": [
+      150.0,
+      157.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "third-w-85",
+     "a": [
+      150.0,
       148.75
      ],
      "b": [
@@ -13922,7 +14450,7 @@
      "material": "ashlar"
     },
     {
-     "id": "third-w-81",
+     "id": "third-w-86",
      "a": [
       150.0,
       144.375
@@ -13937,7 +14465,7 @@
      "material": "ashlar"
     },
     {
-     "id": "third-w-82",
+     "id": "third-w-87",
      "a": [
       150.0,
       140.0
@@ -13952,7 +14480,7 @@
      "material": "ashlar"
     },
     {
-     "id": "third-w-83",
+     "id": "third-w-88",
      "a": [
       220.0,
       140.0
@@ -13967,7 +14495,55 @@
      "material": "ashlar"
     },
     {
-     "id": "third-w-84",
+     "id": "third-w-89",
+     "a": [
+      210,
+      162.5
+     ],
+     "b": [
+      220,
+      157.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 10
+    },
+    {
+     "id": "third-w-90",
+     "a": [
+      200,
+      160
+     ],
+     "b": [
+      210,
+      162.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 5
+    },
+    {
+     "id": "third-w-91",
+     "a": [
+      190,
+      165
+     ],
+     "b": [
+      200,
+      160
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 4
+    },
+    {
+     "id": "third-w-92",
      "a": [
       160.0,
       50.0
@@ -13982,7 +14558,7 @@
      "material": "ashlar"
     },
     {
-     "id": "third-w-85",
+     "id": "third-w-93",
      "a": [
       165.0,
       50.0
@@ -13997,7 +14573,7 @@
      "material": "ashlar"
     },
     {
-     "id": "third-w-86",
+     "id": "third-w-94",
      "a": [
       170.0,
       50.0
@@ -14012,7 +14588,7 @@
      "material": "ashlar"
     },
     {
-     "id": "third-w-87",
+     "id": "third-w-95",
      "a": [
       180.0,
       50.0
@@ -14043,7 +14619,7 @@
      "open": false
     },
     {
-     "id": "third-w-89",
+     "id": "third-w-97",
      "a": [
       180.0,
       65.0
@@ -14058,7 +14634,7 @@
      "material": "plaster"
     },
     {
-     "id": "third-w-90",
+     "id": "third-w-98",
      "a": [
       150.0,
       85.0
@@ -14073,7 +14649,7 @@
      "material": "ashlar"
     },
     {
-     "id": "third-w-91",
+     "id": "third-w-99",
      "a": [
       150.0,
       80.0
@@ -14088,7 +14664,7 @@
      "material": "ashlar"
     },
     {
-     "id": "third-w-92",
+     "id": "third-w-100",
      "a": [
       150.0,
       75.0
@@ -14103,7 +14679,7 @@
      "material": "ashlar"
     },
     {
-     "id": "third-w-93",
+     "id": "third-w-101",
      "a": [
       150.0,
       70.0
@@ -14118,7 +14694,7 @@
      "material": "ashlar"
     },
     {
-     "id": "third-w-94",
+     "id": "third-w-102",
      "a": [
       150.0,
       65.0
@@ -14133,7 +14709,7 @@
      "material": "ashlar"
     },
     {
-     "id": "third-w-95",
+     "id": "third-w-103",
      "a": [
       150.0,
       60.0
@@ -14148,7 +14724,7 @@
      "material": "ashlar"
     },
     {
-     "id": "third-w-96",
+     "id": "third-w-104",
      "a": [
       150.0,
       60.0
@@ -14179,7 +14755,7 @@
      "open": false
     },
     {
-     "id": "third-w-98",
+     "id": "third-w-106",
      "a": [
       180.0,
       50.0
@@ -14194,7 +14770,7 @@
      "material": "ashlar"
     },
     {
-     "id": "third-w-99",
+     "id": "third-w-107",
      "a": [
       185.0,
       50.0
@@ -14209,7 +14785,7 @@
      "material": "ashlar"
     },
     {
-     "id": "third-w-100",
+     "id": "third-w-108",
      "a": [
       190.0,
       50.0
@@ -14224,7 +14800,7 @@
      "material": "plaster"
     },
     {
-     "id": "third-w-101",
+     "id": "third-w-109",
      "a": [
       185.0,
       70.0
@@ -14239,7 +14815,7 @@
      "material": "plaster"
     },
     {
-     "id": "third-w-102",
+     "id": "third-w-110",
      "a": [
       180.0,
       70.0
@@ -14270,7 +14846,7 @@
      "open": true
     },
     {
-     "id": "third-w-104",
+     "id": "third-w-112",
      "a": [
       190.0,
       85.0
@@ -14285,7 +14861,7 @@
      "material": "plaster"
     },
     {
-     "id": "third-w-105",
+     "id": "third-w-113",
      "a": [
       195.0,
       50.0
@@ -14300,7 +14876,7 @@
      "material": "ashlar"
     },
     {
-     "id": "third-w-106",
+     "id": "third-w-114",
      "a": [
       200.0,
       50.0
@@ -14331,7 +14907,7 @@
      "open": false
     },
     {
-     "id": "third-w-108",
+     "id": "third-w-116",
      "a": [
       210.0,
       60.0
@@ -14346,7 +14922,7 @@
      "material": "plaster"
     },
     {
-     "id": "third-w-109",
+     "id": "third-w-117",
      "a": [
       220.0,
       60.0
@@ -14361,7 +14937,7 @@
      "material": "ashlar"
     },
     {
-     "id": "third-w-110",
+     "id": "third-w-118",
      "a": [
       220.0,
       65.0
@@ -14376,7 +14952,7 @@
      "material": "ashlar"
     },
     {
-     "id": "third-w-111",
+     "id": "third-w-119",
      "a": [
       220.0,
       85.0
@@ -14391,7 +14967,7 @@
      "material": "ashlar"
     },
     {
-     "id": "third-w-112",
+     "id": "third-w-120",
      "a": [
       140.0,
       30.0
@@ -14406,7 +14982,7 @@
      "material": "ashlar"
     },
     {
-     "id": "third-w-113",
+     "id": "third-w-121",
      "a": [
       145.0,
       30.0
@@ -14421,7 +14997,7 @@
      "material": "ashlar"
     },
     {
-     "id": "third-w-114",
+     "id": "third-w-122",
      "a": [
       150,
       30
@@ -14436,7 +15012,7 @@
      "material": "ashlar"
     },
     {
-     "id": "third-w-115",
+     "id": "third-w-123",
      "a": [
       156.0,
       34.0
@@ -14451,7 +15027,7 @@
      "material": "ashlar"
     },
     {
-     "id": "third-w-116",
+     "id": "third-w-124",
      "a": [
       160.0,
       40.0
@@ -14466,7 +15042,7 @@
      "material": "ashlar"
     },
     {
-     "id": "third-w-117",
+     "id": "third-w-125",
      "a": [
       145.0,
       60.0
@@ -14481,7 +15057,7 @@
      "material": "ashlar"
     },
     {
-     "id": "third-w-118",
+     "id": "third-w-126",
      "a": [
       140.0,
       60.0
@@ -14496,7 +15072,7 @@
      "material": "ashlar"
     },
     {
-     "id": "third-w-119",
+     "id": "third-w-127",
      "a": [
       134.0,
       56.0
@@ -14511,7 +15087,7 @@
      "material": "ashlar"
     },
     {
-     "id": "third-w-120",
+     "id": "third-w-128",
      "a": [
       130,
       50
@@ -14526,7 +15102,7 @@
      "material": "ashlar"
     },
     {
-     "id": "third-w-121",
+     "id": "third-w-129",
      "a": [
       130.0,
       45.0
@@ -14541,7 +15117,7 @@
      "material": "ashlar"
     },
     {
-     "id": "third-w-122",
+     "id": "third-w-130",
      "a": [
       130.0,
       40.0
@@ -14556,7 +15132,7 @@
      "material": "ashlar"
     },
     {
-     "id": "third-w-123",
+     "id": "third-w-131",
      "a": [
       130,
       40
@@ -14571,7 +15147,7 @@
      "material": "ashlar"
     },
     {
-     "id": "third-w-124",
+     "id": "third-w-132",
      "a": [
       134.0,
       34.0
@@ -14586,7 +15162,7 @@
      "material": "ashlar"
     },
     {
-     "id": "third-w-125",
+     "id": "third-w-133",
      "a": [
       225.0,
       30.0
@@ -14601,7 +15177,7 @@
      "material": "ashlar"
     },
     {
-     "id": "third-w-126",
+     "id": "third-w-134",
      "a": [
       220.0,
       30.0
@@ -14616,7 +15192,7 @@
      "material": "ashlar"
     },
     {
-     "id": "third-w-127",
+     "id": "third-w-135",
      "a": [
       214.0,
       34.0
@@ -14631,7 +15207,7 @@
      "material": "ashlar"
     },
     {
-     "id": "third-w-128",
+     "id": "third-w-136",
      "a": [
       210,
       40
@@ -14646,7 +15222,7 @@
      "material": "ashlar"
     },
     {
-     "id": "third-w-129",
+     "id": "third-w-137",
      "a": [
       210.0,
       40.0
@@ -14661,7 +15237,7 @@
      "material": "ashlar"
     },
     {
-     "id": "third-w-130",
+     "id": "third-w-138",
      "a": [
       220.0,
       60.0
@@ -14676,7 +15252,7 @@
      "material": "ashlar"
     },
     {
-     "id": "third-w-131",
+     "id": "third-w-139",
      "a": [
       230,
       60
@@ -14691,7 +15267,7 @@
      "material": "ashlar"
     },
     {
-     "id": "third-w-132",
+     "id": "third-w-140",
      "a": [
       236.0,
       56.0
@@ -14706,7 +15282,7 @@
      "material": "ashlar"
     },
     {
-     "id": "third-w-133",
+     "id": "third-w-141",
      "a": [
       240.0,
       45.0
@@ -14721,7 +15297,7 @@
      "material": "ashlar"
     },
     {
-     "id": "third-w-134",
+     "id": "third-w-142",
      "a": [
       240.0,
       40.0
@@ -14736,7 +15312,7 @@
      "material": "ashlar"
     },
     {
-     "id": "third-w-135",
+     "id": "third-w-143",
      "a": [
       236.0,
       34.0
@@ -14751,7 +15327,7 @@
      "material": "ashlar"
     },
     {
-     "id": "third-w-136",
+     "id": "third-w-144",
      "a": [
       230,
       30
@@ -14766,7 +15342,7 @@
      "material": "ashlar"
     },
     {
-     "id": "third-w-137",
+     "id": "third-w-145",
      "a": [
       250,
       93.0
@@ -14781,7 +15357,7 @@
      "material": "ashlar"
     },
     {
-     "id": "third-w-138",
+     "id": "third-w-146",
      "a": [
       253.0,
       90.0
@@ -14796,7 +15372,7 @@
      "material": "ashlar"
     },
     {
-     "id": "third-w-139",
+     "id": "third-w-147",
      "a": [
       260.0,
       90.0
@@ -14826,7 +15402,7 @@
      "material": "ashlar"
     },
     {
-     "id": "third-w-141",
+     "id": "third-w-149",
      "a": [
       250.0,
       93.0
@@ -14856,7 +15432,7 @@
      "material": "ashlar"
     },
     {
-     "id": "third-w-143",
+     "id": "third-w-151",
      "a": [
       260.0,
       130.0
@@ -14871,7 +15447,7 @@
      "material": "ashlar"
     },
     {
-     "id": "third-w-144",
+     "id": "third-w-152",
      "a": [
       253.0,
       140.0
@@ -14886,7 +15462,7 @@
      "material": "ashlar"
     },
     {
-     "id": "third-w-145",
+     "id": "third-w-153",
      "a": [
       250,
       137.0
@@ -14901,7 +15477,7 @@
      "material": "ashlar"
     },
     {
-     "id": "third-w-146",
+     "id": "third-w-154",
      "a": [
       250.0,
       130.0
