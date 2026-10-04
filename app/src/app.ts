@@ -270,6 +270,7 @@ export class App {
     fogUniforms.uCovSize.value.set(cov.widthFt, cov.heightFt);
     this.world.mistFloor.position.y = this.level.elevationFt - 1.2;
     this.world.mistFloor.visible = !this.backdrop && this.world.fogOn;
+    this.syncContext();
     this.syncTokens();
     this.recompute();
     if (frame) this.frameLevel();
@@ -920,9 +921,17 @@ export class App {
       });
       built.root.name = 'context';
       if (this.cur?.path !== path) return;
-      this.context = built.root; this.world.scene.add(built.root); this.world.invalidate();
+      built.root.userData.groundFt = lvl.elevationFt;
+      this.context = built.root; this.world.scene.add(built.root); this.syncContext(); this.world.invalidate();
       return;
     }
+  }
+
+  /** The surroundings stand on the parent's ground: a floor below it (a cellar, a dungeon) would be buried under the
+   *  parent's grass and houses, so they hide while such a floor is shown, and in the floor-mask render like the backdrop. */
+  private syncContext(): void {
+    if (!this.context || !this.cur) return;
+    this.context.visible = this.renderMode === 'normal' && this.level.elevationFt >= (this.context.userData.groundFt as number) - 1;
   }
 
   private pick(e: PointerEvent): THREE.Intersection | undefined {
@@ -1314,13 +1323,13 @@ export class App {
         this.maskSwap.set(m, m.material);
         m.material = stacked ? (o.userData.role === 'floor' && here ? whiteCut : blackCut) : o.userData.role === 'floor' ? white : o.userData.role === 'wall' || o.userData.role === 'door' ? blackWall : black;
       }); }
-      this.world.scene.background = new THREE.Color('#000000'); this.world.mistFloor.visible = false; this.world.scene.fog = null; if (this.backdrop) this.backdrop.visible = false;
+      this.world.scene.background = new THREE.Color('#000000'); this.world.mistFloor.visible = false; this.world.scene.fog = null; if (this.backdrop) this.backdrop.visible = false; this.syncContext();
     } else {
       for (const [m, mat] of this.maskSwap) m.material = mat;
       this.maskSwap.clear();
       for (const o of this.maskHidden) o.visible = true;
       this.maskHidden = [];
-      this.world.scene.background = null; this.world.mistFloor.visible = !this.backdrop; this.world.scene.fog = new THREE.FogExp2(this.world.theme.mist, this.world.fogDensity); if (this.backdrop) this.backdrop.visible = true;
+      this.world.scene.background = null; this.world.mistFloor.visible = !this.backdrop; this.world.scene.fog = new THREE.FogExp2(this.world.theme.mist, this.world.fogDensity); if (this.backdrop) this.backdrop.visible = true; this.syncContext();
       this.applySlider();
     }
     this.world.invalidate();

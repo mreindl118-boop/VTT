@@ -2767,6 +2767,7 @@
       ]
      ],
      "floor": "cobble",
+     "enter": "ch03/E5",
      "page": 45
     },
     {
@@ -2815,6 +2816,7 @@
       ]
      ],
      "floor": "cobble",
+     "enter": "appB/death-house",
      "page": 43
     },
     {

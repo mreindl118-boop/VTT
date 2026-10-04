@@ -6,9 +6,10 @@
   "description": "Curse of Strahd 3D tabletop PWA (iPad-first)",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && vite build",
+    "build": "npm run atlas && tsc --noEmit && vite build",
     "preview": "vite preview --port 4173 --strictPort",
     "typecheck": "tsc --noEmit",
+    "atlas": "node --experimental-transform-types --disable-warning=ExperimentalWarning scripts/world-atlas.ts",
     "test": "vitest run",
     "test:e2e": "playwright test",
     "ocr": "bash scripts/ocr.sh",
