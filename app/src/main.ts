@@ -12,7 +12,7 @@ import { openEncounterSheet, turnBar } from './ui/encounter';
 import { ICON } from './ui/icons';
 import { openLibrary } from './ui/library';
 import { ViewSlider } from './ui/viewSlider';
-import { Panels } from './ui/panels';
+import { Panels, fitMenu } from './ui/panels';
 
 const q = new URLSearchParams(location.search);
 const mode = q.get('display') === 'player' ? 'player' : 'dm';
@@ -126,7 +126,7 @@ function buildDmUi(): void {
   panels.makePanel(top.querySelector<HTMLElement>('.group.center')!, { id: 'floors', name: 'floors', icon: ICON.layers, collapsed: { phone: true } });
   panels.makePanel(top.querySelector<HTMLElement>('.group.right')!, { id: 'tools', name: 'tools', icon: ICON.reveal });
   panels.makePanel(slider!.el, { id: 'view', name: 'DM / Player view', icon: ICON.eye });
-  panels.makePanel(cam, { id: 'camera', name: 'camera', icon: ICON.camera });
+  panels.makePanel(cam, { id: 'camera', name: 'camera', icon: ICON.movieCam });
   panels.makePanel(minimap.el, { id: 'minimap', name: 'minimap', icon: ICON.map, collapsed: { phone: true } });
   panels.makePanel(ui.querySelector<HTMLElement>('.mapframe')!, { id: 'compass', name: 'compass and scale', icon: ICON.compass, collapsed: { phone: true } });
   cam.addEventListener('click', (e) => {
@@ -286,7 +286,7 @@ function buildDmUi(): void {
 
   top.querySelector<HTMLSelectElement>('select.levels')!.addEventListener('change', (e) => app.setLevel((e.target as HTMLSelectElement).value, true));
   top.addEventListener('input', (e) => { const r = e.target as HTMLInputElement; if (r.dataset.opt === 'gridOpacity') app.setGridOpacity(Number(r.value) / 100); });
-  top.addEventListener('toggle', (e) => { const d = e.target as HTMLDetailsElement; if (d.open) top.querySelectorAll<HTMLDetailsElement>('details.menu[open]').forEach((o) => { if (o !== d) o.open = false; }); }, true);
+  top.addEventListener('toggle', (e) => { const d = e.target as HTMLDetailsElement; if (!d.matches('details.menu')) return; if (d.open) top.querySelectorAll<HTMLDetailsElement>('details.menu[open]').forEach((o) => { if (o !== d) o.open = false; }); fitMenu(d); }, true);
   document.addEventListener('pointerdown', (e) => { if (!(e.target as Element).closest('details.menu')) top.querySelectorAll<HTMLDetailsElement>('details.menu[open]').forEach((o) => { o.open = false; }); });
   top.addEventListener('click', (e) => {
     const b = (e.target as HTMLElement).closest<HTMLElement>('button');

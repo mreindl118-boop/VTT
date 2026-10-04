@@ -27,7 +27,7 @@ export interface PanelOptions {
 }
 
 interface PanelState { x?: number; y?: number; ax?: 'l' | 'r'; ay?: 't' | 'b'; collapsed?: boolean }
-interface Layout { v: 1; hidden?: boolean; panels: Record<string, PanelState> }
+interface Layout { v: 1; hidden?: boolean; front?: string; panels: Record<string, PanelState> }
 
 interface Panel { el: HTMLElement; opts: PanelOptions; state: PanelState; fold: HTMLButtonElement; grip: HTMLButtonElement }
 
@@ -127,6 +127,7 @@ export class Panels {
     p.fold.setAttribute('aria-expanded', String(!c));
     p.fold.setAttribute('aria-label', `${c ? 'Unfold' : 'Fold'} the ${p.opts.name} panel`);
     p.fold.title = c ? 'Unfold' : 'Fold';
+    p.el.toggleAttribute('data-front', this.layout.front === p.opts.id);
     this.place(p);
   }
 
@@ -141,10 +142,12 @@ export class Panels {
   private place(p: Panel): void {
     const s = p.state, st = p.el.style;
     if (s.x === undefined || s.y === undefined) {
-      delete p.el.dataset.placed; st.left = st.right = st.top = st.bottom = '';
+      delete p.el.dataset.placed; delete p.el.dataset.ax; delete p.el.dataset.ay; st.left = st.right = st.top = st.bottom = '';
       return;
     }
     p.el.dataset.placed = '1';
+    // the anchors also tell the panel's menus which way to open (CSS: upwards from the bottom, rightwards from the left)
+    p.el.dataset.ax = s.ax ?? 'l'; p.el.dataset.ay = s.ay ?? 't';
     const { width: w, height: h } = p.el.getBoundingClientRect();
     // display:none (hidden UI, Players mode): no size to clamp against; the offsets go on as saved and the
     // ResizeObserver places the panel again, clamped, as soon as it shows. Floored, so a clamp never leaves a
@@ -182,6 +185,9 @@ export class Panels {
     p.state.x = Math.max(0, Math.floor(p.state.ax === 'l' ? r.left : innerWidth - r.right));
     p.state.y = Math.max(0, Math.floor(p.state.ay === 't' ? r.top : innerHeight - r.bottom));
     this.layout.panels[p.opts.id] = p.state;
+    // the panel just moved comes to the front, over any panel it was parked on (and stays there after a reload)
+    this.layout.front = p.opts.id;
+    for (const q of this.panels) q.el.toggleAttribute('data-front', q === p);
     this.save();
     this.place(p); // from drag coordinates back to its edge anchors
   }
@@ -235,4 +241,31 @@ export class Panels {
   private save(): void {
     try { localStorage.setItem(KEY + this.cls, JSON.stringify(this.layout)); } catch { /* storage full or blocked: the layout just does not persist */ }
   }
+}
+
+const MARGIN = 8;
+
+/** Fit an opened dropdown into the viewport wherever its panel stands: open it upwards when there is no room below
+ *  (and more above), cap its height to the room it has (it scrolls), and slide it sideways onto the screen. The CSS
+ *  defaults (`data-ax` / `data-ay` on a placed panel) already point it away from the panel's edge; this catches the rest. */
+export function fitMenu(d: HTMLDetailsElement): void {
+  const m = d.querySelector<HTMLElement>(':scope > .menu-panel');
+  if (!m) return;
+  const st = m.style;
+  st.top = st.bottom = st.left = st.right = st.maxHeight = st.transform = '';
+  if (!d.open) return;
+  // the box it hangs off: its button's details, or in a parked panel the panel itself
+  const s = (m.offsetParent ?? d).getBoundingClientRect();
+  const below = innerHeight - s.bottom - 6 - MARGIN, above = s.top - 6 - MARGIN;
+  let r = m.getBoundingClientRect();
+  const up = r.top < s.top; // the CSS already opened it upwards
+  const need = m.scrollHeight;
+  let goUp = up;
+  if (!up && need > below && above > below) goUp = true;
+  else if (up && need > above && below > above) goUp = false;
+  if (goUp !== up) { st.top = goUp ? 'auto' : 'calc(100% + 6px)'; st.bottom = goUp ? 'calc(100% + 6px)' : 'auto'; }
+  st.maxHeight = `${Math.max(120, Math.floor(goUp ? above : below))}px`;
+  r = m.getBoundingClientRect();
+  const dx = r.left < MARGIN ? MARGIN - r.left : r.right > innerWidth - MARGIN ? innerWidth - MARGIN - r.right : 0;
+  if (dx) st.transform = `translateX(${Math.round(dx)}px)`;
 }

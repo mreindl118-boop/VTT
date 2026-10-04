@@ -23,6 +23,10 @@ html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); 
 #stage .labels { position: absolute; inset: 0; pointer-events: none; }
 #ui { position: fixed; inset: 0; pointer-events: none; }
 #ui > * { pointer-events: auto; }
+/* the top bar is only a layout box (on a phone it grows ~200 px tall to hold three rows): taps pass through it to
+   whatever lies beneath (the view rail, the picture); only its groups take them. The compass frame is decorative
+   and takes taps only on its handle and pill. The id selector above would otherwise win. */
+#ui > .topbar, #ui > .mapframe { pointer-events: none; }
 button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; -webkit-tap-highlight-color: transparent; }
 button.icon { display: inline-grid; place-items: center; width: 40px; height: 40px; border-radius: 10px; color: var(--ink); }
 button.icon:hover { background: var(--hair); }
@@ -170,6 +174,8 @@ body[data-view='players'] .lbl.link { display: none; }
   .topbar .title .loc { max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; }
   .topbar .group.right .divider { display: none; }
   .topbar .group.right button.icon { width: 34px; }
+  /* not the menu rows inside it: they keep their full width, so a pressed row is highlighted across its label */
+  .topbar .group.right details.menu .menu-panel button.icon { width: auto; }
 }
 @media (max-width: 760px) { .topbar { grid-template-columns: 1fr; grid-template-areas: 'left' 'right' 'center'; } .topbar .group.left, .topbar .group.right { justify-self: start; } }
 body[data-view='players'] .topbar { grid-template-columns: auto 1fr; grid-template-areas: 'left center'; }
@@ -357,7 +363,7 @@ details.menu { position: relative; }
 details.menu > summary { list-style: none; cursor: pointer; }
 details.menu > summary::-webkit-details-marker { display: none; }
 details.menu[open] > summary, details.menu.active > summary { background: var(--accent); color: #fff; }
-details.menu .menu-panel { position: absolute; top: calc(100% + 6px); right: 0; z-index: 7; min-width: 220px; display: grid; gap: 2px; padding: 6px; background: var(--bg); border: var(--hairline, 1px) solid var(--hair); border-radius: 12px; box-shadow: 0 12px 40px rgba(0,0,0,.3); }
+details.menu .menu-panel { position: absolute; top: calc(100% + 6px); right: 0; z-index: 7; min-width: 220px; max-height: calc(100vh - 20px); overflow: auto; overscroll-behavior: contain; display: grid; gap: 2px; padding: 6px; background: var(--bg); border: var(--hairline, 1px) solid var(--hair); border-radius: 12px; box-shadow: 0 12px 40px rgba(0,0,0,.3); }
 details.menu .menu-panel button.icon { width: auto; height: 36px; display: flex; flex-direction: row; align-items: center; justify-content: flex-start; gap: 10px; padding: 0 10px; border-radius: 8px; font-size: 13px; white-space: nowrap; }
 details.menu .menu-panel button.icon > i { display: inline-flex; width: 22px; height: 22px; } details.menu .menu-panel button.icon > i svg, details.menu .menu-panel button.icon > svg { width: 20px; height: 20px; }
 details.menu .menu-panel button[aria-pressed='true'] { background: var(--accent); color: #fff; }
@@ -397,6 +403,15 @@ select.levels { max-width: min(46vw, 320px); padding: 6px 28px 6px 10px; border-
    its nearest edges carry the offsets, the far ones are auto, so a wrapping panel keeps its width wherever it stands) */
 .panel[data-placed] { position: fixed !important; transform: none !important; margin: 0 !important; z-index: 5; }
 .panel[data-dragging] { z-index: 8; transition: none !important; }
+/* the panel moved last lies over any it was parked on; a panel with an open menu over everything else */
+.panel[data-front] { z-index: 6; }
+.panel:has(details.menu[open]) { z-index: 7; }
+/* a panel's menus open away from the edge it is parked on: upwards from a bottom-parked panel, rightwards from a
+   left-parked one. In a parked panel they hang off the panel's own box, not their button's, so they already lie
+   on screen before the script nudges them fully into the viewport and caps their height */
+.panel[data-placed] details.menu { position: static; }
+.panel[data-ay='b'] details.menu .menu-panel { top: auto; bottom: calc(100% + 6px); }
+.panel[data-ax='l'] details.menu .menu-panel { right: auto; left: 0; }
 /* folded: a pill of the handle and the icon */
 .panel[data-collapsed] { display: inline-flex; flex-direction: row; align-items: center; gap: 2px; padding: 4px; width: auto; height: auto; min-width: 0; max-height: none; aspect-ratio: auto; }
 .panel[data-collapsed] > :not(.pn-handle):not(.pn-icon) { display: none !important; }

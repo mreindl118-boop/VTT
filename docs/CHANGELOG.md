@@ -442,3 +442,20 @@
   its row and saves as touching the edge. The compass panel's grip, chevron and pill are exposed to
   assistive tech: `aria-hidden` moved from the frame to its decorative compass and scale bar.
   `e2e/panels.spec.ts` covers both.
+- Fix round 2: the top bar's box (about 200 px tall on a phone, where it stacks the title, tools and floors)
+  no longer swallows taps meant for what lies beneath it. An `#ui > *` rule outranked `.topbar
+  { pointer-events: none }`, so on a phone and on short desktop windows the view rail's grip and chevron could
+  not be reached. The compass frame had the same bug and now takes taps only on its handle and pill. The Tools
+  and View menus open away from the edge their panel is parked on: upwards from the bottom, rightwards from
+  the left. The panel carries `data-ax` / `data-ay`. In a parked panel a menu is aligned to the panel's
+  own box, not to its button. On opening, the menu is moved fully on screen and given a height cap, so it
+  scrolls if it does not fit. The panel you moved last sits in front of any panel
+  it was parked over, and that order survives a reload. A panel with an open menu sits in front of
+  everything. The camera panel's pill shows a movie camera, so it no longer looks like the floors pill. The
+  e2e cases check, at 390x844, 360x640 and 1024x600, that every grip and chevron receives a tap at its own
+  centre, that the menus stay on screen with the tools parked in each corner, and that no two pills share
+  an icon. On screens up to 820 px wide, a rule that narrows the toolbar's buttons to 34 px no longer
+  shrinks the menu rows inside it. Before this, a pressed row such as Snap to grid was highlighted only
+  as a small square and its icon was pushed out. The phone rotation test now waits up to 30 s for the
+  layout swap, because a busy software-GL renderer can hold back the frame that brings the resize
+  event.

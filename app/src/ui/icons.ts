@@ -45,6 +45,8 @@ export const ICON = {
   // panels: the drag grip (six dots), the fold chevron, the floors (layers), the compass, the hide-panels tab
   grip: svg('<circle cx="9" cy="6" r="1.2" fill="currentColor" stroke="none"/><circle cx="15" cy="6" r="1.2" fill="currentColor" stroke="none"/><circle cx="9" cy="12" r="1.2" fill="currentColor" stroke="none"/><circle cx="15" cy="12" r="1.2" fill="currentColor" stroke="none"/><circle cx="9" cy="18" r="1.2" fill="currentColor" stroke="none"/><circle cx="15" cy="18" r="1.2" fill="currentColor" stroke="none"/>'),
   chevron: svg('<path d="M14.5 6l-6 6 6 6"/>'),
+  // the camera panel's pill: a movie camera (the camera preset button keeps its stacked-planes glyph)
+  movieCam: svg('<rect x="2.5" y="7" width="13" height="10" rx="2"/><path d="M15.5 10.5l6-3.5v10l-6-3.5"/>'),
   layers: svg('<path d="M12 4l8 4-8 4-8-4z"/><path d="M4 12l8 4 8-4M4 16l8 4 8-4"/>'),
   compass: svg('<circle cx="12" cy="12" r="9"/><path d="M12 5l2.5 6.5L12 10l-2.5 1.5z" fill="currentColor" stroke="none"/><path d="M12 19l-2.5-6.5L12 14l2.5-1.5z" opacity=".4"/>'),
   panels: svg('<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 9v11"/>'),
