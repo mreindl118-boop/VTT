@@ -258,7 +258,9 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
     m.rotation.x = -Math.PI / 2; m.scale.set(l.r[0] * FT, l.r[1] * FT, 1); m.position.set(t.x, HF ? lakeLevel.get(l)! : y0 - 2.6, t.z); g.add(m);
     // Bluto Krogarov's rowboat on Lake Zarovich, a few hundred yards off the shore nearest this map: a man fishing,
     // a sack at his feet (the module's encounter at Vallaki's lakeside)
-    if (/Zarovich/.test(l.name) && t.d < 30000) {
+    // (a map of the lake itself carries its own boat, so it is left out there)
+    const lakeSite = W.pins.some((q) => q.type === 'lake' && Math.hypot(q.pos[0] - o.pin[0], q.pos[1] - o.pin[1]) < 1e-6);
+    if (/Zarovich/.test(l.name) && t.d < 30000 && !lakeSite) {
       let best = { x: t.x, z: t.z, d: Infinity };
       for (let k = 0; k < 48; k++) { const a = (k / 48) * Math.PI * 2, [px, pz] = toPlan([l.center[0] + Math.cos(a) * l.r[0] * 0.82, l.center[1] + Math.sin(a) * l.r[1] * 0.82]); const d = Math.hypot(cx + px - cx, cz + pz - cz); if (d < best.d) best = { x: cx + px, z: cz + pz, d }; }
       const boat = new THREE.Group(); boat.name = 'blutos-boat';
