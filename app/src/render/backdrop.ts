@@ -161,7 +161,7 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
   //     the land refines where the camera looks; the moon and sun only show from the tabletop angle.
   let skyOk = true, reSky: (() => void) | undefined;
   g.userData.setZoom = (pxPerFt: number, target?: { x: number; y: number; z: number }, cam?: { x: number; y: number; z: number }, invalidate?: () => void) => {
-    far.visible = pxPerFt >= 0.2; near.visible = pxPerFt >= 0.06; // by then they shade as the canopy (treeFade): putting them away shows nothing
+    far.visible = pxPerFt >= 0.2; near.visible = pxPerFt >= 0.1; // by then every tree has thinned away (treeFade): putting them away shows nothing
     if (target && cam) {
       const dh = Math.hypot(cam.x - target.x, cam.z - target.z), pitch = Math.atan2(cam.y - target.y, dh);
       const ok = pitch < Math.PI * 0.28 && cam.y - yTop < 2500; if (ok !== skyOk) { skyOk = ok; reSky?.(); }

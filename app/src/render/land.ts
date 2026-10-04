@@ -58,7 +58,8 @@ export interface Land {
 // distance beyond the camera's target (what is under the eye stays clear from any height, what lies beyond it recedes
 // into the mist as it does from the table), reaching the sky at the rim of the world.
 export const atmos = { uHazeDist: { value: 32000 }, uHazeCap: { value: 0.4 }, uRim: { value: 90000 }, uCamDist: { value: 400 }, uCentre: { value: new THREE.Vector2() } };
-const HAZE_FRAG = `
+// worked out per vertex (it varies slowly over the land, and the land is drawn fine where it is near), mixed per pixel
+const HAZE_VERT = `
 #ifdef USE_FOG
   #ifdef FOG_EXP2
     float mlFog = 1.0 - exp(-fogDensity * fogDensity * vFogDepth * vFogDepth);
@@ -68,7 +69,11 @@ const HAZE_FRAG = `
   // the aerial haze beyond the target, and the rim: by the eye's distance and by the distance from the map, so the edge of
   // the world is mist from any height
   float mlLaw = max(1.0 - exp(-max(0.0, vFogDepth - uCamDist) / uHazeDist), max(smoothstep(0.5 * uRim, uRim, vFogDepth), smoothstep(0.55 * uRim, uRim, length(vMistWorld.xz - uCentre))));
-  gl_FragColor.rgb = mix(gl_FragColor.rgb, fogColor, max(min(mlFog, uHazeCap), mlLaw));
+  vMlHaze = max(min(mlFog, uHazeCap), mlLaw);
+#endif`;
+const HAZE_FRAG = `
+#ifdef USE_FOG
+  gl_FragColor.rgb = mix(gl_FragColor.rgb, fogColor, vMlHaze);
 #endif`;
 /** Give a material the backdrop's atmosphere (after patchFog). Idempotent. */
 export function hazePatch<T extends THREE.Material>(m: T): T {
@@ -78,7 +83,8 @@ export function hazePatch<T extends THREE.Material>(m: T): T {
   m.onBeforeCompile = (sh, r) => {
     prev?.call(m, sh, r);
     Object.assign(sh.uniforms, atmos);
-    sh.fragmentShader = 'uniform float uHazeDist; uniform float uHazeCap; uniform float uRim; uniform float uCamDist; uniform vec2 uCentre;\n' + sh.fragmentShader.replace('#include <fog_fragment>', HAZE_FRAG);
+    sh.vertexShader = 'uniform float uHazeDist; uniform float uHazeCap; uniform float uRim; uniform float uCamDist; uniform vec2 uCentre; uniform float fogDensity; uniform float fogNear; uniform float fogFar; varying float vMlHaze;\n' + sh.vertexShader.replace('#include <fog_vertex>', '#include <fog_vertex>' + HAZE_VERT);
+    sh.fragmentShader = 'varying float vMlHaze;\n' + sh.fragmentShader.replace('#include <fog_fragment>', HAZE_FRAG);
   };
   m.customProgramCacheKey = () => (prevKey ? prevKey.call(m) : '') + '|haze';
   return m;
@@ -106,8 +112,8 @@ function softPatch<T extends THREE.Material>(m: T, ribbon?: { minPx: number; thi
   m.customProgramCacheKey = () => (prevKey ? prevKey.call(m) : '') + (ribbon ? `|ribbon${ribbon.minPx}:${ribbon.thin}` : '|soft');
   return m;
 }
-/** Trees that would be a few pixels tall shade like the ground they stand on (their normals bend up) and shrink a
- *  little, so a wood seen from high up is the land's canopy colour, not a field of dark specks. */
+/** Trees that would be a few pixels tall shade like the ground they stand on (their normals bend up), shrink a little
+ *  and thin out, so a wood seen from high up is the land's canopy colour, not a field of dark specks. */
 export function treeFade<T extends THREE.Material>(m: T): T {
   const prev = m.onBeforeCompile, prevKey = m.customProgramCacheKey;
   m.onBeforeCompile = (sh, r) => {
@@ -121,10 +127,27 @@ export function treeFade<T extends THREE.Material>(m: T): T {
 #endif
   float mlPx = 25.0 * uPxPerFt * uCamDist / max(1.0, -(viewMatrix * mlIp).z); // the tree's height on screen, px
   vTreeFade = 1.0 - smoothstep(3.0, 10.0, mlPx);
-  transformed *= 1.0 - 0.45 * vTreeFade;`);
+  // the wood thins out as its trees shrink on screen, each tree at its own size (by a hash of where it stands), so no
+  // field of specks is left and nothing pops: by 4 px tall every tree is gone and the canopy colour carries the wood
+  float mlKeep = step(4.0 + 8.0 * fract(sin(dot(floor(mlIp.xz), vec2(12.9898, 78.233))) * 43758.5453), mlPx);
+  transformed *= (1.0 - 0.45 * vTreeFade) * mlKeep;`);
     sh.fragmentShader = 'varying float vTreeFade;\n' + sh.fragmentShader.replace('#include <normal_fragment_begin>', '#include <normal_fragment_begin>\n normal = normalize(mix(normal, normalize((viewMatrix * vec4(0.0, 1.0, 0.0, 0.0)).xyz), vTreeFade));');
   };
   m.customProgramCacheKey = () => (prevKey ? prevKey.call(m) : '') + '|tree';
+  return m;
+}
+/** The land's depth is interpolated at the sample's centroid, inside the triangle: with the logarithmic depth buffer each
+ *  fragment writes its own depth, and a thin, steep triangle (a tile's skirt seen from above) read at a pixel centre
+ *  beyond its edge extrapolates that depth tens of feet nearer the eye, poking hairlines through the water. */
+function centroidDepth<T extends THREE.Material>(m: T): T {
+  const prev = m.onBeforeCompile, prevKey = m.customProgramCacheKey;
+  m.onBeforeCompile = (sh, r) => {
+    prev?.call(m, sh, r);
+    const c = (chunk: string) => chunk.replace('varying float vFragDepth', 'centroid varying float vFragDepth');
+    sh.vertexShader = sh.vertexShader.replace('#include <logdepthbuf_pars_vertex>', c(THREE.ShaderChunk.logdepthbuf_pars_vertex));
+    sh.fragmentShader = sh.fragmentShader.replace('#include <logdepthbuf_pars_fragment>', c(THREE.ShaderChunk.logdepthbuf_pars_fragment));
+  };
+  m.customProgramCacheKey = () => (prevKey ? prevKey.call(m) : '') + '|centroid';
   return m;
 }
 const lit = (color: THREE.ColorRepresentation, surf: Surface, extra: THREE.MeshLambertMaterialParameters = {}) => {
@@ -274,13 +297,13 @@ export function buildLand(o: LandOpts): Land {
   };
 
   // --- tiles -----------------------------------------------------------------------------------------------------
-  const landMat = lit('#ffffff', o.ground === 'snow' ? 'snow' : 'grass', { vertexColors: true });
+  const landMat = centroidDepth(lit('#ffffff', o.ground === 'snow' ? 'snow' : 'grass', { vertexColors: true }));
   const ox = cx - N * Q0 * 2 ** (LEVELS - 1), oz = cz - N * Q0 * 2 ** (LEVELS - 1);
   // every tile is one slot of a single batched mesh (one draw for the whole land); a tile put away keeps its slot in the
   // cache until the slot is wanted for a new one, so panning back costs nothing
   const NV = (N + 1) * (N + 1) + 4 * N, NI = N * N * 6 + 4 * N * 6, SLOTS = 640;
   const batch = new THREE.BatchedMesh(SLOTS, SLOTS * NV, SLOTS * NI, landMat);
-  batch.name = 'land-tiles'; batch.userData.role = 'backdrop'; batch.frustumCulled = false; batch.perObjectFrustumCulled = true; batch.sortObjects = false;
+  batch.name = 'land-tiles'; batch.userData.role = 'backdrop'; batch.frustumCulled = false; batch.perObjectFrustumCulled = false; // culling a few hundred tiles a frame costs more than drawing them batch.sortObjects = false;
   group.add(batch);
   const cache = new Map<number, Tile>(), shown = new Map<number, Tile>();
   const keyOf = (l: number, i: number, j: number) => (l << 20) | (i << 10) | j;
@@ -402,8 +425,8 @@ export function buildLand(o: LandOpts): Land {
   const waterHex = FLOOR_COLOR['shallow-water'];
   const lakeMat = softPatch(lit(new THREE.Color(waterHex).lerp(new THREE.Color('#5e7d94'), 0.55), 'water'));
   const riverMat = softPatch(lit(new THREE.Color(waterHex).lerp(new THREE.Color('#5e7d94'), 0.4), 'water'), { minPx: 1.5, thin: 0.35 });
-  const roadMats = new Map<string, THREE.MeshLambertMaterial>();
-  const roadMat = (hex: string) => { let m = roadMats.get(hex); if (!m) { m = softPatch(lit(hex, 'dirt'), { minPx: 0.9, thin: 0.8 }); roadMats.set(hex, m); } return m; };
+  // every road in one draw: its own colour per vertex
+  const roadMat = softPatch(lit('#ffffff', 'dirt', { vertexColors: true }), { minPx: 0.9, thin: 0.8 });
   {
     // each lake: a fan of rings at its level, opaque to within yards of the shore, fading out across the beach so the
     // water line is soft and the bed shows through the shallows
@@ -433,7 +456,7 @@ export function buildLand(o: LandOpts): Land {
     const t0 = performance.now();
     for (const c of [...ribbons.children]) { ribbons.remove(c); (c as THREE.Mesh).geometry.dispose(); }
     const build = (paths: Path[], mat: THREE.Material, lift: number, river: boolean, name: string) => {
-      const pos: number[] = [], side: number[] = [], half: number[] = [], al: number[] = [], idx: number[] = [];
+      const pos: number[] = [], side: number[] = [], half: number[] = [], al: number[] = [], col: number[] = [], idx: number[] = [], pc = new THREE.Color();
       for (const p of paths) {
         // resample along the polyline (the mesh under it bends every quad), then four rows across: the outer two fade out
         const pts: PathPt[] = [];
@@ -445,14 +468,14 @@ export function buildLand(o: LandOpts): Land {
           }
           pts.push(p.pts[i]);
         }
-        const h = p.w / 2, base = pos.length / 3;
+        const h = p.w / 2, base = pos.length / 3; pc.set(p.hex);
         for (let i = 0; i < pts.length; i++) {
           const a = pts[Math.max(0, i - 1)], b = pts[Math.min(pts.length - 1, i + 1)], dx = b.x - a.x, dz = b.z - a.z, L = Math.hypot(dx, dz) || 1, nx = -dz / L, nz = dx / L, q = pts[i];
           const [mx, my] = o.toMiles(q.x, q.z); let inLake = 0; for (const lk of lakes) inLake = Math.max(inLake, 1 - smooth(-80, 0, lakeS(lk, mx, my)));
           const fade = smooth(0, 90, mapDist(q.x, q.z)) * (river ? 1 - inLake : 1);
           for (const [f, a0] of [[-1, 0], [-0.62, 1], [0.62, 1], [1, 0]] as const) {
             const x = q.x + nx * h * f, z = q.z + nz * h * f;
-            pos.push(x, surfaceAt(x, z) + lift, z); side.push(nx * f, 0, nz * f); half.push(h); al.push(a0 * fade);
+            pos.push(x, surfaceAt(x, z) + lift, z); side.push(nx * f, 0, nz * f); half.push(h); al.push(a0 * fade); col.push(pc.r, pc.g, pc.b);
           }
           if (i) { const r0 = base + (i - 1) * 4, r1 = base + i * 4; for (let c = 0; c < 3; c++) idx.push(r0 + c, r0 + c + 1, r1 + c, r0 + c + 1, r1 + c + 1, r1 + c); }
         }
@@ -460,12 +483,12 @@ export function buildLand(o: LandOpts): Land {
       if (!pos.length) return;
       const geo = new THREE.BufferGeometry();
       geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); geo.setAttribute('aSide', new THREE.Float32BufferAttribute(side, 3)); geo.setAttribute('aHalf', new THREE.Float32BufferAttribute(half, 1)); geo.setAttribute('aAlpha', new THREE.Float32BufferAttribute(al, 1));
+      if (!river) geo.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
       const nor = new Float32Array(pos.length); for (let i = 1; i < nor.length; i += 3) nor[i] = 1; geo.setAttribute('normal', new THREE.BufferAttribute(nor, 3)); geo.setIndex(idx);
       const m = new THREE.Mesh(geo, mat); m.name = name; m.userData.role = 'backdrop'; m.renderOrder = river ? 3 : 2; m.frustumCulled = false; ribbons.add(m);
     };
     build(o.rivers, riverMat, 0.7, true, 'rivers');
-    const byHex = new Map<string, Path[]>(); for (const r of o.roads) { const a = byHex.get(r.hex) ?? []; a.push(r); byHex.set(r.hex, a); }
-    for (const [hex, paths] of byHex) build(paths, roadMat(hex), 0.5, false, 'roads');
+    build(o.roads, roadMat, 0.5, false, 'roads');
     ribbonMs = performance.now() - t0;
   };
 
