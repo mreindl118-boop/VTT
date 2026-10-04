@@ -55,11 +55,16 @@ export class Terrain {
     return { f: this.mips[k], rows, cols, cell: this.cell * 2 ** k };
   }
   /** Ground height in feet at (mx, my) as a C1 surface: Catmull-Rom over the 4×4 cells round the point, so slopes have
-   *  no creases at cell borders. `footprint` (miles) is the width of the quad being drawn: a quad wider than a cell
-   *  reads a filtered copy of the grid instead (see mip). Beyond the grid the land keeps the edge's height. */
+   *  no creases at cell borders. `footprint` (miles) is how coarsely the land is drawn there: wider than a cell, it reads
+   *  a filtered copy of the grid instead (see mip), blended continuously between the two nearest copies so the surface
+   *  is one function of position whatever resolution samples it. Beyond the grid the land keeps the edge's height. */
   heightSmoothAt(mx: number, my: number, footprint = 0): number {
     if (!this.height) return 0;
-    const level = Math.max(0, Math.min(5, Math.floor(Math.log2(Math.max(1, footprint / this.cell)))));
+    const lv = Math.max(0, Math.min(5, Math.log2(Math.max(1, footprint / this.cell)))), l0 = Math.floor(lv), t = lv - l0;
+    const a = this.bicubic(l0, mx, my);
+    return t > 1e-3 && l0 < 5 ? a + (this.bicubic(l0 + 1, mx, my) - a) * t : a;
+  }
+  private bicubic(level: number, mx: number, my: number): number {
     const { f, rows, cols, cell } = this.mip(level);
     const gx = Math.min(cols - 1, Math.max(0, (mx - this.x0) / cell - 0.5)), gy = Math.min(rows - 1, Math.max(0, (my - this.y0) / cell - 0.5));
     const k0 = Math.floor(gx), r0 = Math.floor(gy), tx = gx - k0, ty = gy - r0;

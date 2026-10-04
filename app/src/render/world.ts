@@ -127,7 +127,9 @@ export class World {
     this.setWorkLight(this.workK);
     if (this.scene.fog instanceof THREE.FogExp2) this.scene.fog.color.set(s.mist);
     (this.mistFloor.material as THREE.MeshBasicMaterial).color.set(s.mist);
-    this.host.style.setProperty('--page0', s.page0); this.host.style.setProperty('--page1', s.page1);
+    // outdoors the page behind the horizon is the hour's mist, so the far land dissolves into it with no rim
+    const page0 = outdoor ? '#' + new THREE.Color(s.page0).lerp(new THREE.Color(s.mist), 0.75).getHexString() : s.page0;
+    this.host.style.setProperty('--page0', page0); this.host.style.setProperty('--page1', s.page1);
     this.invalidate();
   }
   setOutdoor(on: boolean): void {

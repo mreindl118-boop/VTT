@@ -9,7 +9,7 @@ import { pineTier } from '../kit/props';
 import { patchFog, setSurface } from './materials';
 import { surfaceOf, type Surface } from '../kit/surfaces';
 import { terrainOf } from '../core/terrain';
-import { buildLand, hazePatch } from './land';
+import { buildLand, hazePatch, treeFade } from './land';
 import RAVENLOFT from '../../../locations/ch04/K/exterior.json';
 
 type P = [number, number];
@@ -62,7 +62,6 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
   const hPin = HF ? terrain.heightAt(o.pin[0], o.pin[1]) : 0;
   const bbm = o.bounds ?? { minX: cx - R, maxX: cx + R, minZ: cz - R, maxZ: cz + R };
   const mapDist = (x: number, z: number) => Math.max(0, bbm.minX - x, x - bbm.maxX, bbm.minZ - z, z - bbm.maxZ);
-  const smooth = (a: number, b: number, t: number) => { const k = Math.min(1, Math.max(0, (t - a) / (b - a))); return k * k * (3 - 2 * k); };
   // Distant landmarks are drawn nearer than surveyed (a painter's foreshortening): true distance up to 3,000 ft, then
   // under half of the rest, so the castle and the towns impose on the skyline at their true size.
   const pull = (d: number) => (d <= 3000 ? 1 : (3000 + (d - 3000) * 0.42) / d);
@@ -109,7 +108,7 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
     const pts = river.pts.map(toWorld).filter((t) => t.d < 70000); if (pts.length > 1) riverPaths.push({ pts, w: 40, hex: '#5e7d94' });
   }
   const nearRoad = (x: number, z: number, within: number) => roadPaths.some((r) => { for (let i = 0; i + 1 < r.pts.length; i++) { const a = r.pts[i], b = r.pts[i + 1]; const dx = b.x - a.x, dz = b.z - a.z, L2 = dx * dx + dz * dz || 1; const t = Math.max(0, Math.min(1, ((x - a.x) * dx + (z - a.z) * dz) / L2)); if (Math.hypot(x - a.x - dx * t, z - a.z - dz * t) < within + r.w / 2) return true; } return false; });
-  const land = buildLand({ center: [cx, cz], yTop, crag, bounds: bbm, terrain, world: W, theme: T, ground: o.ground, toMiles, toPlan, hPin, FT, sight, roads: roadPaths, rivers: riverPaths });
+  const land = buildLand({ center: [cx, cz], yTop, crag, bounds: bbm, terrain, world: W, theme: T, ground: o.ground, toMiles, toPlan, hPin, FT, sight, roads: roadPaths, rivers: riverPaths, clearing: o.clearing });
   g.add(land.group); g.userData.land = land;
   const { yAt, lakeLevel } = land;
 
@@ -123,7 +122,7 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
     pillar.computeVertexNormals();
     const pm = new THREE.Mesh(pillar, lambert(blend('#4a4a52', 0.1), 'rock')); pm.position.set(cx, y0, cz); g.add(pm);
     for (let i = 0; i < 10; i++) { const a = (i / 10) * Math.PI * 2, b = new THREE.Mesh(new THREE.IcosahedronGeometry(R * 0.18, 0), lambert(blend('#44444c', 0.15), 'rock')); b.position.set(cx + Math.cos(a) * R * (0.9 + (i % 3) * 0.15), y0 + crag * (0.2 + (i % 4) * 0.18), cz + Math.sin(a) * R * (0.9 + (i % 3) * 0.15)); g.add(b); }
-    const lake = new THREE.Mesh(new THREE.CircleGeometry(R * 4, 48), new THREE.MeshBasicMaterial({ color: blend('#1e2a33', 0.1), fog: false })); lake.rotation.x = -Math.PI / 2; lake.position.set(cx, y0 + 0.4, cz); g.add(lake);
+    const lake = new THREE.Mesh(new THREE.CircleGeometry(R * 4, 48), lambert(new THREE.Color('#26343e'), 'water')); lake.rotation.x = -Math.PI / 2; lake.position.set(cx, y0 + 0.4, cz); g.add(lake);
   }
   // 2. Forest: instanced pines from just past the edge out to the tree line, in two rings (near and far) so the far
   //    one can be put away as the camera pulls back and the wood becomes the land's own canopy colour (setZoom).
@@ -132,7 +131,7 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
   // A thick wood presses up to the map's edge (most trees in the first third of a mile), thinning toward the horizon;
   // one instanced draw per ring.
   const nAll = terrain.hasCover ? 9500 : o.valley ? 4000 : 3000, nNear = Math.round(nAll * 0.62), nFar = nAll - nNear;
-  const treeMat = lambert(new THREE.Color('#ffffff'), 'foliage');
+  const treeMat = treeFade(lambert(new THREE.Color('#ffffff'), 'foliage'));
   const near = new THREE.InstancedMesh(tree, treeMat, nNear), far = new THREE.InstancedMesh(tree, treeMat, nFar);
   near.name = 'forest-near'; far.name = 'forest-far';
   const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), s = new THREE.Vector3(), p = new THREE.Vector3();
@@ -142,14 +141,16 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
     const isNear = i < nNear, a = rnd() * Math.PI * 2, ring = isNear ? near : far, k0 = isNear ? i : i - nNear;
     // trees are placed out from the map's own edge (a rectangle), not its centre, so a long map is hemmed in all round;
     // the near ring starts a little out and thickens over the first hundred yards, so the wood never pops at the edge
-    const off = isNear ? Math.max(0, o.clearing ?? 0) + 60 + Math.pow(rnd(), 1.6) * 1800 : 1500 + Math.sqrt(rnd()) * (terrain.hasCover ? 9000 : 2500);
+    const off = isNear ? Math.max(0, o.clearing ?? 0) + 60 + Math.pow(rnd(), 1.6) * (1800 + 0.24 * Math.max(bbm.maxX - bbm.minX, bbm.maxZ - bbm.minZ)) : 1500 + Math.sqrt(rnd()) * (terrain.hasCover ? 9000 : 2500);
     const ex = (bbm.maxX - bbm.minX) / 2, ez = (bbm.maxZ - bbm.minZ) / 2, ca = Math.cos(a), sa = Math.sin(a);
     const edge = Math.min(Math.abs(ca) > 1e-6 ? ex / Math.abs(ca) : Infinity, Math.abs(sa) > 1e-6 ? ez / Math.abs(sa) : Infinity);
     const d = edge + off, k = 1.25 * (0.75 + rnd() * 0.7) * (1 + off / 6000); // old growth: a quarter taller
     const tx = (bbm.minX + bbm.maxX) / 2 + ca * d, tz = (bbm.minZ + bbm.maxZ) / 2 + sa * d;
     const md = mapDist(tx, tz);
-    let drop = nearRoad(tx, tz, 14) || md < Math.max(30, o.clearing ?? 0) || rnd() > smooth(40, 340, md - (o.clearing ?? 0)); // a ride through the wood for the road; nothing on the map or its felled approaches
-    if (terrain.hasCover && !drop) { const [mx, my] = toMiles(tx, tz); const f = terrain.cover('f', mx, my), w = terrain.cover('w', mx, my), m = terrain.cover('m', mx, my); drop = w > 0.3 || m > 0.6 || f + (isNear ? 0.35 : 0) < 0.4 + rnd() * 0.3; }
+    // a ride through the wood for the road; nothing on the map or its felled approaches; the near wood stands as thick as
+    // the land's own canopy colour says (land.wood), the far wood where the land is wooded
+    let drop = nearRoad(tx, tz, 14) || md < Math.max(30, o.clearing ?? 0) || (isNear && rnd() > land.wood(tx, tz));
+    if (terrain.hasCover && !drop && !isNear) { const [mx, my] = toMiles(tx, tz); const f = terrain.cover('f', mx, my), w = terrain.cover('w', mx, my), m = terrain.cover('m', mx, my); drop = w > 0.3 || m > 0.6 || f < 0.4 + rnd() * 0.3; }
     if (!drop && HF) { const [mx, my] = toMiles(tx, tz); for (const l of W.lakes) if (((mx - l.center[0]) / l.r[0]) ** 2 + ((my - l.center[1]) / l.r[1]) ** 2 < 1.05) drop = true; } // not in the water
     if (drop) { s.set(0, 0, 0); p.set(tx, y0 - 50, tz); m4.compose(p, q, s); ring.setMatrixAt(k0, m4); continue; }
     p.set(tx, land.surfaceAt(tx, tz) - 1.5, tz); s.set(k, k * (0.9 + rnd() * 0.4), k); m4.compose(p, q, s);
@@ -160,7 +161,7 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
   //     the land refines where the camera looks; the moon and sun only show from the tabletop angle.
   let skyOk = true, reSky: (() => void) | undefined;
   g.userData.setZoom = (pxPerFt: number, target?: { x: number; y: number; z: number }, cam?: { x: number; y: number; z: number }, invalidate?: () => void) => {
-    far.visible = pxPerFt >= 0.25; near.visible = pxPerFt >= 0.06;
+    far.visible = pxPerFt >= 0.2; near.visible = pxPerFt >= 0.06; // by then they shade as the canopy (treeFade): putting them away shows nothing
     if (target && cam) {
       const dh = Math.hypot(cam.x - target.x, cam.z - target.z), pitch = Math.atan2(cam.y - target.y, dh);
       const ok = pitch < Math.PI * 0.28 && cam.y - yTop < 2500; if (ok !== skyOk) { skyOk = ok; reSky?.(); }
@@ -255,8 +256,8 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
       s.add(new THREE.Mesh(face, hazed('#3a3a42', t.d)));
       for (let i = 0; i < 14; i++) { const a = (i / 14) * Math.PI * 2 + 0.3, r = 300 + (i % 3) * 60, h = -lift * (0.15 + (i % 5) * 0.16); const b = new THREE.Mesh(new THREE.IcosahedronGeometry(45 + (i % 4) * 25, 0), hazed('#44444c', t.d)); b.position.set(Math.cos(a) * r, h, Math.sin(a) * r); s.add(b); }
       // black water at the foot of the cliff, and the river that feeds it
-      const lake = new THREE.Mesh(new THREE.CircleGeometry(900, 40), new THREE.MeshBasicMaterial({ color: blend('#1e2a33', 0.2), fog: false })); lake.rotation.x = -Math.PI / 2; lake.position.y = -lift + 0.4; s.add(lake);
-      const spray = new THREE.Mesh(new THREE.TorusGeometry(260, 60, 6, 24), new THREE.MeshBasicMaterial({ color: '#c9d2d8', transparent: true, opacity: 0.35, fog: false })); spray.rotation.x = -Math.PI / 2; spray.position.y = -lift + 30; s.add(spray);
+      const lake = new THREE.Mesh(new THREE.CircleGeometry(900, 40), lambert(new THREE.Color('#26343e'), 'water')); lake.rotation.x = -Math.PI / 2; lake.position.y = -lift + 0.4; s.add(lake);
+      const spray = new THREE.Mesh(new THREE.TorusGeometry(260, 60, 6, 24), new THREE.MeshBasicMaterial({ color: '#c9d2d8', transparent: true, opacity: 0.35 })); spray.rotation.x = -Math.PI / 2; spray.position.y = -lift + 30; s.add(spray);
     } else if (lift > 0) { // its own crag: the Pillarstone, sheer where the land's own hump is too soft to carry a castle
       // The Pillarstone: not a drum but a cluster of tall faceted rock shards, the central one carrying the castle's
       // floor, the others leaning off it and falling away down the slope, every vertex roughened.
@@ -302,7 +303,7 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
       for (let i = 0; i < 18; i++) { const a = r1() * Math.PI * 2, r = pr * (1.15 + r1() * 1.1); const bd = new THREE.Mesh(new THREE.IcosahedronGeometry(pr * (0.05 + r1() * 0.09), 0), hazed('#44444c', t.d)); bd.position.set(Math.cos(a) * r, -ph + r1() * 12, Math.sin(a) * r); s.add(bd); }
       // mist pooled round the foot of the rock: soft-edged layers (a radial fade, no rim to catch the eye)
       if (HF) for (const [k, op, rr] of [[0.92, 0.5, 3.8], [0.72, 0.32, 3.0], [0.5, 0.18, 2.4]] as const) {
-        const ring = new THREE.Mesh(new THREE.CircleGeometry(pr * rr, 40), new THREE.MeshBasicMaterial({ color: '#c6ccd6', map: mistTexture(), transparent: true, opacity: op, fog: false, depthWrite: false }));
+        const ring = new THREE.Mesh(new THREE.CircleGeometry(pr * rr, 40), new THREE.MeshBasicMaterial({ color: '#c6ccd6', map: mistTexture(), transparent: true, opacity: op, depthWrite: false }));
         ring.rotation.x = -Math.PI / 2; ring.position.y = -ph * k; s.add(ring);
       }
 
@@ -354,7 +355,7 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
       box(60, 70, 300, -190, -150, cliffH, '#5c5c64'); box(60, 70, 300, 190, -150, cliffH, '#5c5c64');
       const arch = new THREE.Mesh(new THREE.TorusGeometry(160, 22, 8, 24, Math.PI), mat('#6b6660')); arch.position.set(0, cliffH + 10, -60); s.add(arch);
       box(380, 14, 24, 0, -60, cliffH + 168, '#6b6660'); box(380, 8, 3, 0, -48, cliffH + 182, '#7a756e'); box(380, 8, 3, 0, -72, cliffH + 182, '#7a756e');
-      for (const m of [[-90, 40, 90], [60, 60, 70], [0, 110, 40]]) { const mist = new THREE.Mesh(new THREE.IcosahedronGeometry(m[1], 1), new THREE.MeshBasicMaterial({ color: '#dfe6ea', transparent: true, opacity: 0.55, fog: false })); mist.position.set(m[0], m[2] * 0.6, 40 + m[0] * 0.2); s.add(mist); }
+      for (const m of [[-90, 40, 90], [60, 60, 70], [0, 110, 40]]) { const mist = new THREE.Mesh(new THREE.IcosahedronGeometry(m[1], 1), new THREE.MeshBasicMaterial({ color: '#dfe6ea', transparent: true, opacity: 0.55 })); mist.position.set(m[0], m[2] * 0.6, 40 + m[0] * 0.2); s.add(mist); }
       // the river below the falls, running toward the viewer's side of the canyon
       box(60, 0.6, 1400, 0, 750, 0.1, '#5e7d94');
     } else return;

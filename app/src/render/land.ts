@@ -31,6 +31,8 @@ export interface LandOpts {
   /** Ravenloft's brow as seen from this map: a notch is cut through whatever ridge stands between. */
   sight: { x: number; z: number; top: number } | null;
   roads: Path[]; rivers: Path[];
+  /** Felled ground round the map (ft): the wood starts beyond it. */
+  clearing?: number;
 }
 export interface Land {
   group: THREE.Group;
@@ -41,6 +43,9 @@ export interface Land {
   lakeLevel: Map<object, number>;
   /** The lit colour of the wood seen from above: trees match it. */
   canopy: THREE.Color;
+  /** How thick the wood that hems the map in stands at (x, z), 0..1: the trees are planted by it and the land under
+   *  them takes the canopy colour by it, so from high up the wood is a colour, not specks. */
+  wood: (x: number, z: number) => number;
   /** Called as the camera moves: refines the tiles round the target (a few ms at a time) and sets the haze for the zoom. */
   update: (target: { x: number; z: number }, pxPerFt: number, camDist: number, invalidate?: () => void) => void;
   /** What the land is doing (for the diagnostics): tiles shown, triangles drawn, the last selection and build times. */
@@ -52,7 +57,7 @@ export interface Land {
 // mist up to a cap, so the land next to the map fades exactly as the map's floors do, then an aerial haze by the
 // distance beyond the camera's target (what is under the eye stays clear from any height, what lies beyond it recedes
 // into the mist as it does from the table), reaching the sky at the rim of the world.
-export const atmos = { uHazeDist: { value: 32000 }, uHazeCap: { value: 0.4 }, uRim: { value: 90000 }, uCamDist: { value: 400 } };
+export const atmos = { uHazeDist: { value: 32000 }, uHazeCap: { value: 0.4 }, uRim: { value: 90000 }, uCamDist: { value: 400 }, uCentre: { value: new THREE.Vector2() } };
 const HAZE_FRAG = `
 #ifdef USE_FOG
   #ifdef FOG_EXP2
@@ -60,7 +65,9 @@ const HAZE_FRAG = `
   #else
     float mlFog = smoothstep(fogNear, fogFar, vFogDepth);
   #endif
-  float mlLaw = max(1.0 - exp(-max(0.0, vFogDepth - uCamDist) / uHazeDist), smoothstep(0.5 * uRim, uRim, vFogDepth));
+  // the aerial haze beyond the target, and the rim: by the eye's distance and by the distance from the map, so the edge of
+  // the world is mist from any height
+  float mlLaw = max(1.0 - exp(-max(0.0, vFogDepth - uCamDist) / uHazeDist), max(smoothstep(0.5 * uRim, uRim, vFogDepth), smoothstep(0.55 * uRim, uRim, length(vMistWorld.xz - uCentre))));
   gl_FragColor.rgb = mix(gl_FragColor.rgb, fogColor, max(min(mlFog, uHazeCap), mlLaw));
 #endif`;
 /** Give a material the backdrop's atmosphere (after patchFog). Idempotent. */
@@ -71,24 +78,53 @@ export function hazePatch<T extends THREE.Material>(m: T): T {
   m.onBeforeCompile = (sh, r) => {
     prev?.call(m, sh, r);
     Object.assign(sh.uniforms, atmos);
-    sh.fragmentShader = 'uniform float uHazeDist; uniform float uHazeCap; uniform float uRim; uniform float uCamDist;\n' + sh.fragmentShader.replace('#include <fog_fragment>', HAZE_FRAG);
+    sh.fragmentShader = 'uniform float uHazeDist; uniform float uHazeCap; uniform float uRim; uniform float uCamDist; uniform vec2 uCentre;\n' + sh.fragmentShader.replace('#include <fog_fragment>', HAZE_FRAG);
   };
   m.customProgramCacheKey = () => (prevKey ? prevKey.call(m) : '') + '|haze';
   return m;
 }
 /** Per-vertex alpha (`aAlpha`) and, for ribbons, a minimum on-screen half width: each vertex is pushed out along its
- *  stored side vector (`aSide`, scaled by its row) by what 1.5 px is worth beyond its half width (`aHalf`). */
-function softPatch<T extends THREE.Material>(m: T, push: boolean): T {
+ *  stored side vector (`aSide`, scaled by its row) until the half width (`aHalf`) is worth `minPx` px, and a widened
+ *  ribbon fades by `thin` of the widening (a road far off is a faint trace, a river stays water). */
+function softPatch<T extends THREE.Material>(m: T, ribbon?: { minPx: number; thin: number }): T {
+  const push = !!ribbon;
   m.transparent = true; m.depthWrite = false; m.side = THREE.DoubleSide;
   const prev = m.onBeforeCompile, prevKey = m.customProgramCacheKey;
   m.onBeforeCompile = (sh, r) => {
     prev?.call(m, sh, r);
     Object.assign(sh.uniforms, { uPxPerFt: gridUniforms.uPxPerFt });
     sh.vertexShader = 'attribute float aAlpha; varying float vAlpha;\n' + (push ? 'attribute vec3 aSide; attribute float aHalf; uniform float uPxPerFt;\n' : '') +
-      sh.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\n vAlpha = aAlpha;' + (push ? '\n transformed += aSide * max(0.0, 1.5 / max(uPxPerFt, 1e-4) - aHalf);' : ''));
+      sh.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\n vAlpha = aAlpha;' + (ribbon ? `
+ float mlHw = max(aHalf, ${ribbon.minPx.toFixed(2)} / max(uPxPerFt, 1e-4));
+ transformed += aSide * (mlHw - aHalf);
+ vAlpha *= mix(1.0, sqrt(aHalf / mlHw), ${ribbon.thin.toFixed(2)});` : ''))
+        // a ribbon is drawn a few thousandths of its distance nearer the eye along its own sight line: no parallax, but the
+        // creases of a coarse tile under it never poke through
+        .replace('#include <project_vertex>', push ? '#include <project_vertex>\n mvPosition.xyz *= 0.996; gl_Position = projectionMatrix * mvPosition;' : '#include <project_vertex>');
     sh.fragmentShader = 'varying float vAlpha;\n' + sh.fragmentShader.replace('#include <color_fragment>', '#include <color_fragment>\n diffuseColor.a *= vAlpha;');
   };
-  m.customProgramCacheKey = () => (prevKey ? prevKey.call(m) : '') + (push ? '|ribbon' : '|soft');
+  m.customProgramCacheKey = () => (prevKey ? prevKey.call(m) : '') + (ribbon ? `|ribbon${ribbon.minPx}:${ribbon.thin}` : '|soft');
+  return m;
+}
+/** Trees that would be a few pixels tall shade like the ground they stand on (their normals bend up) and shrink a
+ *  little, so a wood seen from high up is the land's canopy colour, not a field of dark specks. */
+export function treeFade<T extends THREE.Material>(m: T): T {
+  const prev = m.onBeforeCompile, prevKey = m.customProgramCacheKey;
+  m.onBeforeCompile = (sh, r) => {
+    prev?.call(m, sh, r);
+    Object.assign(sh.uniforms, { uPxPerFt: gridUniforms.uPxPerFt, uCamDist: atmos.uCamDist });
+    sh.vertexShader = 'uniform float uPxPerFt; uniform float uCamDist; varying float vTreeFade;\n' + sh.vertexShader.replace('#include <begin_vertex>', `#include <begin_vertex>
+#ifdef USE_INSTANCING
+  vec4 mlIp = modelMatrix * instanceMatrix * vec4(0.0, 0.0, 0.0, 1.0);
+#else
+  vec4 mlIp = modelMatrix * vec4(0.0, 0.0, 0.0, 1.0);
+#endif
+  float mlPx = 25.0 * uPxPerFt * uCamDist / max(1.0, -(viewMatrix * mlIp).z); // the tree's height on screen, px
+  vTreeFade = 1.0 - smoothstep(3.0, 10.0, mlPx);
+  transformed *= 1.0 - 0.45 * vTreeFade;`);
+    sh.fragmentShader = 'varying float vTreeFade;\n' + sh.fragmentShader.replace('#include <normal_fragment_begin>', '#include <normal_fragment_begin>\n normal = normalize(mix(normal, normalize((viewMatrix * vec4(0.0, 1.0, 0.0, 0.0)).xyz), vTreeFade));');
+  };
+  m.customProgramCacheKey = () => (prevKey ? prevKey.call(m) : '') + '|tree';
   return m;
 }
 const lit = (color: THREE.ColorRepresentation, surf: Surface, extra: THREE.MeshLambertMaterialParameters = {}) => {
@@ -116,14 +152,20 @@ export function buildLand(o: LandOpts): Land {
   const [cx, cz] = o.center, yTop = o.yTop, crag = o.crag, bbm = o.bounds, flatY = yTop - 0.4;
   const mapDist = (x: number, z: number) => Math.max(0, bbm.minX - x, x - bbm.maxX, bbm.minZ - z, z - bbm.maxZ);
   const group = new THREE.Group(); group.name = 'land';
+  atmos.uCentre.value.set(cx, cz);
+  const gx0 = terrain.x0, gy0 = terrain.y0, gx1 = terrain.x0 + terrain.cols * terrain.cell, gy1 = terrain.y0 + terrain.rows * terrain.cell;
 
   // --- the height model -----------------------------------------------------------------------------------------
   /** The surveyed land (relief a quarter steeper than surveyed, as a mapmaker would), notched for the castle's gaze,
-   *  on its crag if the site has one, flattened to the map's own ground near the map. `foot` is the quad width drawn. */
-  const baseAt = (x: number, z: number, foot = 0): number => {
+   *  on its crag if the site has one, flattened to the map's own ground near the map. The heightfield is read more
+   *  smoothly the further from the map (about what a quad there spans), as one function of position: every tile, coarse
+   *  or fine, and everything standing on the land sample the same surface, so neighbouring tiles meet. */
+  const baseAt = (x: number, z: number): number => {
     if (!HF) return flatY - crag;
-    const [mx, my] = o.toMiles(x, z);
-    let h = yTop + (terrain.heightSmoothAt(mx, my, foot / FT) - o.hPin) * 1.25; const d = mapDist(x, z);
+    const [mx, my] = o.toMiles(x, z), d = mapDist(x, z);
+    // beyond the surveyed grid the edge's heights would run on as straight ridges: read them ever more broadly instead
+    const outside = Math.max(0, gx0 - mx, mx - gx1, gy0 - my, my - gy1);
+    let h = yTop + (terrain.heightSmoothAt(mx, my, Math.max(d / 12 / FT, outside * 0.8)) - o.hPin) * 1.25;
     const sight = o.sight;
     if (sight) {
       const vx = sight.x - cx, vz = sight.z - cz, L2 = vx * vx + vz * vz, tt = ((x - cx) * vx + (z - cz) * vz) / L2;
@@ -165,8 +207,8 @@ export function buildLand(o: LandOpts): Land {
   };
   interface Sample { y: number; s: number; rd: number; rw: number }
   /** The land at (x, z): height, how far from the nearest shore, how far from the nearest river. */
-  const sampleAt = (x: number, z: number, foot = 0): Sample => {
-    const hT = baseAt(x, z, foot), [mx, my] = o.toMiles(x, z);
+  const sampleAt = (x: number, z: number): Sample => {
+    const hT = baseAt(x, z), [mx, my] = o.toMiles(x, z);
     let y = hT, s = Infinity, L = 0;
     for (const lk of lakes) { const v = lakeS(lk, mx, my); if (v < s) { s = v; L = lk.L; } }
     if (s < 6000) {
@@ -189,12 +231,29 @@ export function buildLand(o: LandOpts): Land {
 
   // --- colours ---------------------------------------------------------------------------------------------------
   const GRASS = new THREE.Color(FLOOR_COLOR[(o.ground ?? 'grass') as keyof typeof FLOOR_COLOR] ?? FLOOR_COLOR.grass);
-  const rock = new THREE.Color('#6a6d74'), hillC = new THREE.Color('#66705f'), forestC = new THREE.Color(T.forest[0]), snowC = new THREE.Color('#d6dae0'), wetC = new THREE.Color('#3f4a46');
+  const rock = new THREE.Color('#6a6d74'), hillC = new THREE.Color('#66705f'), forestC = new THREE.Color(T.forest[0]), snowC = new THREE.Color('#c9ced6'), wetC = new THREE.Color('#3f4a46');
   const apronC = new THREE.Color(T.forest[1]).lerp(new THREE.Color(T.apron), 0.35);
   const snowLine = 4200, pinsHigh = W.pins.filter((q) => q.heightFt).map((q) => { const [qx, qz] = o.toPlan(q.pos); return { x: cx + qx, z: cz + qz }; });
   /** The map's own ground gives way to the land's cover along a ragged line, not the map's rectangle. */
   const ragged = (x: number, z: number) => mapDist(x, z) + (noise(x / 1100, z / 1100) - 0.5) * 1100 + (noise(x / 330 + 7.3, z / 330) - 0.5) * 360 + (noise(x / 110 + 3.1, z / 110 + 5.7) - 0.5) * 90;
-  const colAt = (x: number, z: number, sm: Sample, out: THREE.Color): THREE.Color => {
+  /** The wood pressing up to the map: thickening over the first hundred yards past the clearing, thinning out along a
+   *  ragged line a third of a mile or so beyond, only where the land is wooded (not in water, on bare rock or open
+   *  ground), in clumps. */
+  const clearing = o.clearing ?? 0, spanK = 0.12 * Math.max(bbm.maxX - bbm.minX, bbm.maxZ - bbm.minZ); // a big town's wood stands further off, in a broader band
+  const wood = (x: number, z: number): number => {
+    const md = mapDist(x, z); if (md > 3200 + 2 * spanK || md < clearing + 40) return 0;
+    const edge = clearing + 60 + noise(x / 520 + 1.9, z / 520 + 6.1) * 380 + noise(x / 1700 + 4.4, z / 1700 + 0.7) * 900; // the felled ground runs out raggedly, not along the map's rectangle
+    let k = smooth(edge, edge + 260 + spanK, md) * (1 - smooth(1700 + spanK, 2800 + 2 * spanK, md + (noise(x / 700 + 3.7, z / 700 + 1.3) - 0.5) * 900));
+    if (k <= 0) return 0;
+    const [mx, my] = o.toMiles(x, z);
+    if (terrain.hasCover) {
+      const f = terrain.cover('f', mx, my), w = terrain.cover('w', mx, my), m = terrain.cover('m', mx, my);
+      k *= clamp((f - 0.05) / 0.3, 0, 1) * (1 - smooth(0.2, 0.35, w)) * (1 - smooth(0.5, 0.65, m));
+    }
+    for (const lk of lakes) { const v = lakeS(lk, mx, my); if (v < 120) k *= smooth(20, 120, v); }
+    return clamp(k * (0.55 + 0.7 * noise(x / 260 + 9.1, z / 260 + 4.2)), 0, 1);
+  };
+  const colAt = (x: number, z: number, sm: Sample, out: THREE.Color, slope = 0): THREE.Color => {
     const [mx, my] = o.toMiles(x, z);
     out.copy(apronC);
     if (terrain.hasCover) {
@@ -203,10 +262,14 @@ export function buildLand(o: LandOpts): Land {
     }
     for (const q of pinsHigh) { const dd = Math.hypot(x - q.x, z - q.z) / FT; if (dd < 0.3) out.lerp(rock, 1 - dd / 0.3); }
     out.lerp(GRASS, 1 - smooth(500, 2400, ragged(x, z)));
+    const wd = wood(x, z); if (wd > 0) out.lerp(forestC, 0.85 * wd); // the ground under the trees is the canopy seen from above
     // wet banks: the bed and the first yards of every shore and river are dark, damp ground
     if (sm.s < 60) out.lerp(wetC, 0.7 * (1 - smooth(0, 60, sm.s)));
     if (sm.rd < sm.rw * 1.8) out.lerp(wetC, 0.5 * (1 - smooth(sm.rw * 0.6, sm.rw * 1.8, sm.rd)));
-    const above = sm.y - yTop + o.hPin; if (above > snowLine) out.lerp(snowC, Math.min(1, (above - snowLine) / 1200));
+    // steep ground is bare rock, and snow lies on the gentler high ground, thinning in over a broad band, not a contour
+    if (slope > 0.45) out.lerp(rock, 0.55 * smooth(0.45, 1.1, slope));
+    const above = sm.y - yTop + o.hPin + (noise(x / 900 + 2.3, z / 900 + 8.1) - 0.5) * 900;
+    if (above > snowLine) out.lerp(snowC, 0.9 * smooth(snowLine, snowLine + 2600, above) * (1 - 0.7 * smooth(0.7, 1.4, slope)));
     return out;
   };
 
@@ -222,25 +285,32 @@ export function buildLand(o: LandOpts): Land {
   const cache = new Map<number, Tile>(), shown = new Map<number, Tile>();
   const keyOf = (l: number, i: number, j: number) => (l << 20) | (i << 10) | j;
   const tmpC = new THREE.Color(), tmpGeo = new THREE.BufferGeometry(), I4 = new THREE.Matrix4();
+  /** The ground's slope at a fixed scale (not the quad's), so a mountainside is the same colour at every tile level. */
+  const slopeAt = (x: number, z: number, q: number) => { if (!HF) return 0; const e = Math.max(150, q / 2); return Math.hypot(baseAt(x + e, z) - baseAt(x - e, z), baseAt(x, z + e) - baseAt(x, z - e)) / (2 * e); };
   const buildTile = (w: Want): Tile => {
     const q = Q0 * 2 ** w.l, M = N + 3, H = new Float32Array(M * M), S: Sample[] = [];
-    for (let jj = 0; jj < M; jj++) for (let ii = 0; ii < M; ii++) { const sm = sampleAt(w.x0 + (ii - 1) * q, w.z0 + (jj - 1) * q, q); H[jj * M + ii] = sm.y; S.push(sm); }
+    for (let jj = 0; jj < M; jj++) for (let ii = 0; ii < M; ii++) { const sm = sampleAt(w.x0 + (ii - 1) * q, w.z0 + (jj - 1) * q); H[jj * M + ii] = sm.y; S.push(sm); }
     const nv = (N + 1) * (N + 1), ring = 4 * N, pos = new Float32Array((nv + ring) * 3), nor = new Float32Array((nv + ring) * 3), col = new Float32Array((nv + ring) * 3), h = new Float32Array(nv);
     for (let jj = 0; jj <= N; jj++) for (let ii = 0; ii <= N; ii++) {
       const k = jj * (N + 1) + ii, x = w.x0 + ii * q, z = w.z0 + jj * q, hi = (jj + 1) * M + ii + 1, y = H[hi];
       h[k] = y; pos[k * 3] = x; pos[k * 3 + 1] = y; pos[k * 3 + 2] = z;
       const dx = (H[hi + 1] - H[hi - 1]) / (2 * q), dz = (H[hi + M] - H[hi - M]) / (2 * q), L = Math.hypot(dx, 1, dz);
       nor[k * 3] = -dx / L; nor[k * 3 + 1] = 1 / L; nor[k * 3 + 2] = -dz / L;
-      colAt(x, z, S[hi], tmpC); col[k * 3] = tmpC.r; col[k * 3 + 1] = tmpC.g; col[k * 3 + 2] = tmpC.b;
+      colAt(x, z, S[hi], tmpC, slopeAt(x, z, q)); col[k * 3] = tmpC.r; col[k * 3 + 1] = tmpC.g; col[k * 3 + 2] = tmpC.b;
     }
     const idx: number[] = [];
     for (let jj = 0; jj < N; jj++) for (let ii = 0; ii < N; ii++) { const a = jj * (N + 1) + ii, b = a + 1, c = a + N + 1, d = c + 1; idx.push(a, c, b, b, c, d); }
-    // the skirt: the border ring copied down, so a coarser neighbour never shows a crack
-    const drop = q * 0.6 + 3, border: number[] = [];
-    for (let ii = 0; ii < N; ii++) border.push(ii); for (let jj = 0; jj < N; jj++) border.push(jj * (N + 1) + N); for (let ii = N; ii > 0; ii--) border.push(N * (N + 1) + ii); for (let jj = N; jj > 0; jj--) border.push(jj * (N + 1));
+    // the skirt: the border ring copied down and a little outward (under the neighbour), so a coarser neighbour never
+    // shows a crack; slanted, not sheer, because a wall seen edge-on from above rasterises as a hairline whose depth,
+    // read at the pixel centre beyond the sliver, can land in front of the water
+    const drop = q * 1.2 + 3, border: number[] = [], out: [number, number][] = [];
+    for (let ii = 0; ii < N; ii++) { border.push(ii); out.push([ii ? 0 : -1, -1]); }
+    for (let jj = 0; jj < N; jj++) { border.push(jj * (N + 1) + N); out.push([1, jj ? 0 : -1]); }
+    for (let ii = N; ii > 0; ii--) { border.push(N * (N + 1) + ii); out.push([ii < N ? 0 : 1, 1]); }
+    for (let jj = N; jj > 0; jj--) { border.push(jj * (N + 1)); out.push([-1, jj < N ? 0 : 1]); }
     for (let k = 0; k < ring; k++) {
-      const b = border[k], t = nv + k;
-      pos[t * 3] = pos[b * 3]; pos[t * 3 + 1] = pos[b * 3 + 1] - drop; pos[t * 3 + 2] = pos[b * 3 + 2];
+      const b = border[k], t = nv + k, [dx, dz] = out[k];
+      pos[t * 3] = pos[b * 3] + dx * drop * 0.5; pos[t * 3 + 1] = pos[b * 3 + 1] - drop; pos[t * 3 + 2] = pos[b * 3 + 2] + dz * drop * 0.5;
       for (let c = 0; c < 3; c++) { nor[t * 3 + c] = nor[b * 3 + c]; col[t * 3 + c] = col[b * 3 + c]; }
       const k1 = (k + 1) % ring; idx.push(b, border[k1], t, border[k1], nv + k1, t);
     }
@@ -293,22 +363,47 @@ export function buildLand(o: LandOpts): Land {
       let want = Infinity;
       if (dRect < s * K) want = Math.min(want, qMap);
       if (dT < s * K) want = Math.min(want, qTarget);
-      if (q > 100 && (dRect < 24000 || dT < 24000) && shoreTile(x0, z0, s)) want = Math.min(want, 100);
-      if (q > 100 && (dRect < 6000 || dT < 6000) && riverTile(x0, z0, s)) want = Math.min(want, 100);
+      // shores and river banks are drawn finer than the land round them, the more so the nearer the map or the eye
+      const near = Math.min(dRect, dT), qWater = Math.max(100, 2 ** Math.ceil(Math.log2(Math.max(1, near / 50))));
+      if (q > qWater && near < 48000 && shoreTile(x0, z0, s)) want = Math.min(want, qWater);
+      if (q > qWater && near < 12000 && riverTile(x0, z0, s)) want = Math.min(want, qWater);
       if (inset > 250 && dT > s) want = Math.max(want, 200); // under the map's own floors: nothing to see
       if (l > 0 && q > want) { visit(l - 1, i * 2, j * 2); visit(l - 1, i * 2 + 1, j * 2); visit(l - 1, i * 2, j * 2 + 1); visit(l - 1, i * 2 + 1, j * 2 + 1); }
       else out.push({ key: keyOf(l, i, j), l, i, j, x0, z0, s });
     };
     for (const [i, j] of [[0, 0], [1, 0], [0, 1], [1, 1]]) visit(LEVELS - 1, i, j);
-    return out;
+    // balance: no tile borders one more than a level coarser, so a T-junction is never more than one coarse quad's
+    // chord and the skirts always cover it (on a steep mountainside a fine shore tile next to a much coarser one would
+    // otherwise open a crack)
+    const leaves = new Map<number, Want>(); for (const w of out) leaves.set(w.key, w);
+    const find = (x: number, z: number): Want | undefined => {
+      for (let l = 0; l < LEVELS; l++) { const s = N * Q0 * 2 ** l, w = leaves.get(keyOf(l, Math.floor((x - ox) / s), Math.floor((z - oz) / s))); if (w) return w; }
+      return undefined;
+    };
+    const split = (w: Want) => {
+      leaves.delete(w.key);
+      for (const [di, dj] of [[0, 0], [1, 0], [0, 1], [1, 1]]) { const l = w.l - 1, i = w.i * 2 + di, j = w.j * 2 + dj, s = w.s / 2; leaves.set(keyOf(l, i, j), { key: keyOf(l, i, j), l, i, j, x0: ox + i * s, z0: oz + j * s, s }); }
+    };
+    for (let pass = 0, changed = true; changed && pass < 10; pass++) {
+      changed = false;
+      for (const w of [...leaves.values()]) {
+        if (!leaves.has(w.key)) continue;
+        const x1 = w.x0 + w.s, z1 = w.z0 + w.s, xm = w.x0 + w.s / 2, zm = w.z0 + w.s / 2;
+        for (const [x, z] of [[w.x0 - 1, zm], [x1 + 1, zm], [xm, w.z0 - 1], [xm, z1 + 1], [w.x0 - 1, w.z0 + 1], [w.x0 - 1, z1 - 1], [x1 + 1, w.z0 + 1], [x1 + 1, z1 - 1], [w.x0 + 1, w.z0 - 1], [x1 - 1, w.z0 - 1], [w.x0 + 1, z1 + 1], [x1 - 1, z1 + 1]] as const) {
+          const n = find(x, z); if (n && n.l > w.l + 1) { split(n); changed = true; }
+        }
+      }
+    }
+    // the tiles nearest the eye are built first
+    return [...leaves.values()].sort((a, b) => Math.hypot(a.x0 + a.s / 2 - target.x, a.z0 + a.s / 2 - target.z) - Math.hypot(b.x0 + b.s / 2 - target.x, b.z0 + b.s / 2 - target.z));
   };
 
   // --- water and ribbons -----------------------------------------------------------------------------------------
   const waterHex = FLOOR_COLOR['shallow-water'];
-  const lakeMat = softPatch(lit(new THREE.Color(waterHex).lerp(new THREE.Color('#5e7d94'), 0.55), 'water'), false);
-  const riverMat = softPatch(lit(new THREE.Color(waterHex).lerp(new THREE.Color('#5e7d94'), 0.4), 'water'), true);
+  const lakeMat = softPatch(lit(new THREE.Color(waterHex).lerp(new THREE.Color('#5e7d94'), 0.55), 'water'));
+  const riverMat = softPatch(lit(new THREE.Color(waterHex).lerp(new THREE.Color('#5e7d94'), 0.4), 'water'), { minPx: 1.5, thin: 0.35 });
   const roadMats = new Map<string, THREE.MeshLambertMaterial>();
-  const roadMat = (hex: string) => { let m = roadMats.get(hex); if (!m) { m = softPatch(lit(hex, 'dirt'), true); roadMats.set(hex, m); } return m; };
+  const roadMat = (hex: string) => { let m = roadMats.get(hex); if (!m) { m = softPatch(lit(hex, 'dirt'), { minPx: 0.9, thin: 0.8 }); roadMats.set(hex, m); } return m; };
   {
     // each lake: a fan of rings at its level, opaque to within yards of the shore, fading out across the beach so the
     // water line is soft and the bed shows through the shallows
@@ -403,5 +498,5 @@ export function buildLand(o: LandOpts): Land {
   desired = select({ x: cx, z: cz }); lastKey = ''; step(Infinity); initMs = performance.now() - tInit;
 
   const stats = () => { let tris = 0; for (const t of shown.values()) tris += t.s > 0 ? NI / 3 : 0; return { tiles: shown.size, tris, selectMs, buildMs, built: builtN, ribbonMs, initMs, steps }; };
-  return { group, yAt, surfaceAt, lakeLevel, canopy: forestC.clone(), update, stats };
+  return { group, yAt, surfaceAt, lakeLevel, canopy: forestC.clone(), wood, update, stats };
 }
