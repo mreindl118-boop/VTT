@@ -9,57 +9,359 @@ import json, os, sys, math
 from collections import OrderedDict
 
 sys.path.insert(0, os.path.dirname(__file__))
-from authorlib import ROOT, Level, rect, cobwebs  # noqa: F401
+from authorlib import ROOT, Level, rect, cobwebs, seg_key  # noqa: F401
+from settle import overlap as _sat
 
 _M = json.load(open(os.path.join(ROOT, 'manifests', 'locations.json')))
 PAGE = {a['key']: a['page'] for l in _M['locations'] if l['chapter'] == 'ch05' for a in l['areas']}
 def pg(k): return PAGE.get(k)
 
+# ------------------------------------------------------------------ scale
+# The plans below were first read off gridded renders whose grid ran finer than the book's: one unit of these
+# coordinates is not a 5-ft square but about 0.57 of one (the inn's ground floor is 31 units across and 17.7 squares
+# on the plate, the mansion 32 and 18.4, Wachterhaus 29 and 16, the coffin shop 18 and 10.4). Each site keeps its
+# authored coordinates (every room, door and object stays in proportion) and is drawn at S squares per unit, so the
+# buildings come out at the book's size and fit the footprints the town map gives them. Furniture keeps its real
+# size; doors and windows keep a usable width.
+_S = [1.0]   # the current site's scale (squares per plan unit), for the links
+DOOR_MIN, DOUBLE_MIN, WINDOW_MIN, SECRET_MIN = 4.0, 6.0, 3.0, 3.5   # ft
+# furniture footprints (w along the piece's own x, d along its z), ft
+FOOT = {'bed': (4, 7), 'pallet': (3, 6), 'desk': (5, 2.5), 'wardrobe': (4, 2), 'cabinet': (3.5, 1.6), 'trunk': (3.7, 2.2), 'chest': (3, 2),
+        'stove': (2.2, 2.2), 'fireplace': (7, 3), 'chair': (1.7, 1.6), 'toy-chest': (2.6, 1.6), 'trough': (3.2, 1.2), 'wine-cask': (1.4, 1.4),
+        'coffin': (2.4, 6), 'armor-suit': (2, 2), 'dollhouse': (2.4, 1.6), 'sacks': (3.4, 2.2)}
+def foot(o):
+    k, d = o['kind'], o.get('dims') or {}
+    if k == 'table': return d.get('w', 6), d.get('d', 3)
+    if k == 'table-round': r = d.get('r', 3.5); return 2 * r, 2 * r
+    if k == 'bench': return d.get('l', 8), 1.1
+    if k in ('bookshelf', 'shelves'): return d.get('w', 5), 1.3
+    if k == 'hay': s = d.get('s', 1); return 4.2 * s, 3.2 * s
+    return FOOT.get(k)
+def foot_rect(o, pad=0.0):
+    wd = foot(o)
+    if not wd: return None
+    w, dd = wd[0] / 2 + pad, wd[1] / 2 + pad
+    a = math.radians(o.get('rotY', 0)); c, s = math.cos(a), math.sin(a); x, z = o['pos'][0], o['pos'][2]
+    return [[x + c * dx + s * dz, z - s * dx + c * dz] for dx, dz in ((-w, -dd), (w, -dd), (w, dd), (-w, dd))]
+def wall_rect(w, half=0.3):
+    (ax, az), (bx, bz) = w['a'], w['b']; L = math.hypot(bx - ax, bz - az) or 1; nx, nz = -(bz - az) / L * half, (bx - ax) / L * half
+    return [[ax + nx, az + nz], [bx + nx, bz + nz], [bx - nx, bz - nz], [ax - nx, az - nz]]
+
+class VLevel(Level):
+    """A level authored in plan units and drawn at S squares per unit (see above). Walls are built here rather than
+    by the shared cell builder: every room edge is split at every vertex and stamp end on its line, so edges two rooms
+    share come out as one wall, and a door, window or secret door always replaces the whole run of wall behind it."""
+    def __init__(self, *a, S=1.0, widen=True, off=(0, 0), **k):
+        super().__init__(*a, **k)
+        self.S, self.widen, self.off, self.stamps, self._fin = S, widen, off, [], False
+    def P(self, p): return ((p[0] + self.off[0]) * self.S, (p[1] + self.off[1]) * self.S)
+    def room(self, key, name, poly, floor='plank', **extra): super().room(key, name, [self.P(p) for p in poly], floor, **extra)
+    def _span(self, a, b, minft):
+        a, b = self.P(a), self.P(b)
+        L = math.hypot(b[0] - a[0], b[1] - a[1])
+        if not self.widen or L * 5 >= minft or L == 0: return a, b
+        m, u, h = ((a[0] + b[0]) / 2, (a[1] + b[1]) / 2), ((b[0] - a[0]) / L, (b[1] - a[1]) / L), minft / 10
+        return (m[0] - u[0] * h, m[1] - u[1] * h), (m[0] + u[0] * h, m[1] + u[1] * h)
+    def _stamp(self, a, b, **kw): self.stamps.append((a, b, kw))    # a, b already in cells
+    def wall(self, a, b, **kw): self.extra.append((self.P(a), self.P(b), kw))
+    def door(self, a, b, id=None, locked=False, open=False, double=False):
+        self.n += 1; a, b = self._span(a, b, DOUBLE_MIN if double else DOOR_MIN)
+        self._stamp(a, b, flags=['door'] + (['locked'] if locked else []), id=id or f'{self.id}-door-{self.n}', open=open)
+    def window(self, a, b): self._stamp(*self._span(a, b, WINDOW_MIN), flags=['window'])
+    def opening(self, a, b): self._stamp(self.P(a), self.P(b), open_wall=True)
+    def counter(self, a, b): self._stamp(self.P(a), self.P(b), flags=['normal'], heightFt=3.5, material='paneling')
+    def railing(self, a, b): self._stamp(self.P(a), self.P(b), flags=['normal'], heightFt=3.5, material='plaster')
+    def secret(self, a, b, id, label, key, kind='secret-panel', extra=False):
+        self.n += 1; wid = f'{self.id}-sd-{id}'; A, B = self._span(a, b, SECRET_MIN)
+        if extra: self.extra.append((A, B, dict(flags=['secret-door'], id=wid)))
+        else: self._stamp(A, B, flags=['secret-door'], id=wid)
+        Level.obj(self, f'sdo-{id}', kind, ((A[0] + B[0]) / 2, (A[1] + B[1]) / 2), 'secret-door', key, label, wall=wid)
+    def light(self, id, pos, preset, bright, dim, y=6): super().light(id, self.P(pos), preset, bright, dim, y=y)
+    def obj(self, id, kind, pos, vis='player', key=None, label=None, rotY=0, size=None, dims=None, wall=None, y=0):
+        S = self.S; d = OrderedDict(dims) if dims else None
+        if d is not None or kind in ('table-round', 'bench', 'bookshelf', 'shelves'):
+            d = d or OrderedDict()
+            if kind == 'table':
+                d['w'] = round(max(3, d.get('w', 6) * S), 1); d['d'] = round(max(2.5, d.get('d', 3) * S), 1)
+            elif kind == 'table-round': d['r'] = round(max(2, d.get('r', 3.5) * S), 1)
+            elif kind == 'bench': d['l'] = round(max(4, d.get('l', 8) * S), 1)
+            elif kind in ('bookshelf', 'shelves'): d['w'] = round(max(3, d.get('w', 5) * S), 1)
+            elif kind == 'rug': d['w'] = round(d['w'] * S, 1); d['d'] = round(d['d'] * S, 1)
+            elif kind == 'bar-top': d['w'] = round(d.pop('len', 20) * S, 1)
+            elif kind == 'fence': d['w'] = round(d.get('w', 10) * S, 1)
+            elif kind == 'footprints': d['len'] = round(d.get('len', 20) * S, 1)
+            elif kind == 'stairs-straight': d = self._stair(d, pos, key)
+            if not d: d = None
+        super().obj(id, kind, self.P(pos), vis, key, label, rotY, size, d, wall, y)
+    _runs = {}
+    def _stair(self, d, pos, key):
+        """Scale a straight stair's run (its ends are plan feet); a flight left steeper than about 40 degrees is
+        lengthened at its foot, as far as its room allows. Its twin on the floor above (rise 0.1) follows it."""
+        S, ax = self.S, ('X' if 'fromX' in d else 'Z')
+        i = 0 if ax == 'X' else 1
+        f, t = d[f'from{ax}'], d[f'to{ax}']
+        sig = (ax, f, t, round(pos[0], 2), round(pos[1], 2))
+        f2, t2 = (f + self.off[i] * 5) * S, (t + self.off[i] * 5) * S
+        rise = d.get('rise', 0)
+        if rise > 1:
+            need = rise * 1.2
+            if abs(t2 - f2) < need:
+                poly = next((p for k, _, p, _, _ in self.rooms if k == key), None)
+                lo, hi = (min(q[i] for q in poly) * 5 + 1, max(q[i] for q in poly) * 5 - 1) if poly else (-1e9, 1e9)
+                sgn = 1 if f2 > t2 else -1
+                f2 = max(lo, min(hi, t2 + sgn * need))
+                if abs(t2 - f2) < need: t2 = max(lo, min(hi, f2 - sgn * need))   # no room at the foot: the head moves on
+            VLevel._runs[sig] = (f2, t2)
+        elif sig in VLevel._runs: f2, t2 = VLevel._runs[sig]
+        d[f'from{ax}'], d[f'to{ax}'] = round(f2, 2), round(t2, 2)
+        if 'w' in d: d['w'] = round(max(3, d['w'] * S), 1)
+        return d
+    def finish(self):
+        """Scale the authored ground and centre it on the building, so the map's middle is the building's middle."""
+        if self._fin: return
+        self._fin = True
+        if not self.terrain: return
+        xs = [p[0] for poly in self.floor_polys for p in poly]; zs = [p[1] for poly in self.floor_polys for p in poly]
+        cx, cz = (min(xs) + max(xs)) / 2, (min(zs) + max(zs)) / 2
+        out = []
+        for poly, fl in self.terrain:
+            q = [self.P(p) for p in poly]
+            hx = max(abs(p[0] - cx) for p in q); hz = max(abs(p[1] - cz) for p in q)
+            out.append((rect(cx - hx, cz - hz, cx + hx, cz + hz), fl))
+        self.terrain = out
+    def build_walls(self):
+        E = 1e-6; C = 5
+        def line(a, b):
+            if abs(a[1] - b[1]) < E: return ('h', round(a[1], 5)), a[0], b[0]
+            if abs(a[0] - b[0]) < E: return ('v', round(a[0], 5)), a[1], b[1]
+            return None, None, None
+        lines, diag = {}, {}
+        for key, _, poly, _, ex in self.rooms:
+            for i in range(len(poly)):
+                a, b = poly[i], poly[(i + 1) % len(poly)]
+                k, t0, t1 = line(a, b)
+                if k is None:
+                    dk = seg_key((round(a[0], 5), round(a[1], 5)), (round(b[0], 5), round(b[1], 5))); diag.setdefault(dk, []).append(ex); continue
+                lines.setdefault(k, ([], []))[0].append((min(t0, t1), max(t0, t1), ex))
+        for order, (a, b, kw) in enumerate(self.stamps):
+            k, t0, t1 = line(a, b)
+            if k is None: raise ValueError(f'{self.id}: diagonal stamp {a}-{b}')
+            if k in lines and any(e[0] < (t0 + t1) / 2 < e[1] or e[0] < min(t0, t1) + 1e-3 < e[1] for e in lines[k][0]): lines[k][1].append((min(t0, t1), max(t0, t1), kw, order))
+            elif 'heightFt' in kw: self.extra.append((a, b, kw))   # a bar counter or a railing in the open: a free half wall
+            else: print(f'  ! {self.id}: {kw.get("flags", kw)} at {a}-{b} lies on no room edge')
+        def height(exs):
+            hs = [e.get('wallFt') for e in exs]
+            return max(hs) if hs and all(h is not None for h in hs) else None
+        out = []
+        for k, (edges, stamps) in sorted(lines.items(), key=lambda kv: (kv[0][0], kv[0][1])):
+            ts = sorted(set(round(t, 5) for e in edges for t in e[:2]) | set(round(t, 5) for s in stamps for t in s[:2]))
+            runs = []
+            for t0, t1 in zip(ts, ts[1:]):
+                if t1 - t0 < 1e-4: continue
+                m = (t0 + t1) / 2
+                cov = [e[2] for e in edges if e[0] < m < e[1]]
+                if not cov: continue
+                st = None
+                for s in stamps:
+                    if s[0] < m < s[1]: st = s
+                if st and st[2].get('open_wall'): continue
+                if not st and all(e.get('open') for e in cov): continue   # yards, porches, an outside stair: no wall of their own
+                runs.append([t0, t1, cov, st])
+            merged = []
+            for r in runs:
+                p = merged[-1] if merged else None
+                if p and abs(p[1] - r[0]) < E and p[3] is r[3] and (r[3] is not None or ((len(p[2]) > 1) == (len(r[2]) > 1) and height(p[2]) == height(r[2]) and bool(p[2][0].get('wallFlags')) == bool(r[2][0].get('wallFlags')))):
+                    p[1] = r[1]; p[2] = p[2] + r[2] if r[3] is not None else p[2]; continue
+                merged.append(list(r))
+            for t0, t1, cov, st in merged:
+                kw = st[2] if st else {}
+                a, b = ((t0, k[1]), (t1, k[1])) if k[0] == 'h' else ((k[1], t0), (k[1], t1))
+                w = OrderedDict(id=kw.get('id'), a=[round(a[0] * C, 3), round(a[1] * C, 3)], b=[round(b[0] * C, 3), round(b[1] * C, 3)],
+                                flags=list(kw.get('flags', ['normal'])), material=kw.get('material') or (self.interior if len(cov) > 1 else self.exterior))
+                hh = kw['heightFt'] if 'heightFt' in kw else (height(cov) if not st else None)
+                if hh is not None: w['heightFt'] = hh
+                if not st and all(e.get('wallFlags') for e in cov): w['flags'] = list(cov[0]['wallFlags'])
+                if 'door' in w['flags']: w['open'] = kw.get('open', False)
+                out.append(w)
+        for dk, exs in diag.items():
+            a, b = dk
+            w = OrderedDict(id=None, a=[round(a[0] * C, 3), round(a[1] * C, 3)], b=[round(b[0] * C, 3), round(b[1] * C, 3)], flags=['normal'], material=self.interior if len(exs) > 1 else self.exterior)
+            if height(exs) is not None: w['heightFt'] = height(exs)
+            out.append(w)
+        for j, (a, b, kw) in enumerate(self.extra):
+            w = OrderedDict(id=kw.get('id') or f'{self.id}-x-{j}', a=[round(a[0] * C, 3), round(a[1] * C, 3)], b=[round(b[0] * C, 3), round(b[1] * C, 3)], flags=kw.get('flags', ['normal']), material=kw.get('material', self.interior))
+            if 'heightFt' in kw: w['heightFt'] = kw['heightFt']
+            out.append(w)
+        out = cut_doorways(out)
+        seen, n = {}, 0
+        for w in out:
+            if w['id'] is None: w['id'] = f'{self.id}-w-{n}'; n += 1
+            elif w['id'] in seen: seen[w['id']] += 1; w['id'] = f"{w['id']}-{seen[w['id']]}"
+            else: seen[w['id']] = 0
+        return out
+
+def _along(w, v, tol=0.05):
+    """v's span along w's line (ft from w's start), or None when v does not lie on that line."""
+    (ax, az), (bx, bz) = w['a'], w['b']; L = math.hypot(bx - ax, bz - az) or 1
+    ux, uz = (bx - ax) / L, (bz - az) / L
+    for p in (v['a'], v['b']):
+        if abs((p[0] - ax) * uz - (p[1] - az) * ux) > tol: return None
+    return sorted(((p[0] - ax) * ux + (p[1] - az) * uz) for p in (v['a'], v['b']))
+def cut_doorways(walls, min_overlap=0.05):
+    """The guard: no plain wall runs through a doorway, window or secret door on its line. Whatever part of a plain
+    wall overlaps an opening by more than a hair is cut out of it (split in two if the opening lies in its middle)."""
+    gaps = [w for w in walls if set(w['flags']) & {'door', 'window', 'secret-door'}]
+    out = []
+    for w in walls:
+        L = math.hypot(w['b'][0] - w['a'][0], w['b'][1] - w['a'][1])
+        if w['flags'] != ['normal'] or not gaps or L == 0: out.append(w); continue
+        pieces, cut = [(0.0, L)], False
+        for g in gaps:
+            sp = _along(w, g)
+            if not sp: continue
+            g0, g1 = sp; nxt = []
+            for p0, p1 in pieces:
+                if min(p1, g1) - max(p0, g0) <= min_overlap: nxt.append((p0, p1)); continue
+                cut = True
+                if g0 - p0 > 0.05: nxt.append((p0, g0))
+                if p1 - g1 > 0.05: nxt.append((g1, p1))
+            pieces = nxt
+        if not cut: out.append(w); continue
+        (ax, az) = w['a']; ux, uz = (w['b'][0] - ax) / L, (w['b'][1] - az) / L
+        for i, (p0, p1) in enumerate(pieces):
+            q = OrderedDict(w); q['id'] = w['id'] if i == 0 or w['id'] is None else f"{w['id']}-{i}"
+            q['a'] = [round(ax + ux * p0, 3), round(az + uz * p0, 3)]; q['b'] = [round(ax + ux * p1, 3), round(az + uz * p1, 3)]
+            out.append(q)
+    return out
+
+def roofs(lv, prefix, wings, y=0.0, pitch=0.42, hmax=None):
+    """One gable per wing: the wing's plan rect (plan units) plus 4 ft of eaves, its ridge along the long side,
+    standing at `y` on `lv` (0 on an attic level: the eaves at the attic floor; the ceiling on a top storey).
+    `hmax` keeps the ridge inside the stack's section range (the top storey's ceiling + 12 ft), so the whole-house
+    view shows the roof entire rather than sliced."""
+    for i, (x0, z0, x1, z1) in enumerate(wings):
+        (X0, Z0), (X1, Z1) = lv.P((x0, z0)), lv.P((x1, z1))
+        W, D = round(abs(X1 - X0) * 5 + 4, 1), round(abs(Z1 - Z0) * 5 + 4, 1)
+        Level.obj(lv, f'{prefix}-roof{i}', 'roof-gable', ((X0 + X1) / 2, (Z0 + Z1) / 2), dims=OrderedDict(w=W, d=D, h=round(min((min(W, D) + 2.4) * pitch, hmax or 1e9), 1), y=y))
+
+def roof_height(roof_objs, x, z):
+    """Height of the roofs above their base at a plan point (ft); 0 outside them."""
+    best = 0.0
+    for o in roof_objs:
+        d = o['dims']; W, D, h = d['w'], d['d'], d['h']; long = W >= D; L, Sp = (W if long else D) + 2, (D if long else W) + 2.4
+        cx, cz = o['pos'][0], o['pos'][2]; along, across = (abs(x - cx), abs(z - cz)) if long else (abs(z - cz), abs(x - cx))
+        if along <= L / 2 and across <= Sp / 2: best = max(best, h * (1 - across / (Sp / 2)))
+    return best
+
+def fit_furniture(L, report):
+    """Nothing stands in a wall: a piece whose footprint crosses a wall (or a doorway) steps back into its room,
+    straight away from that wall, until it clears it."""
+    walls = [w for w in L['walls'] if not set(w['flags']) & {'invisible', 'ethereal'}]
+    rooms = {r['key']: r['polygon'] for r in L['rooms']}
+    for o in L['objects']:
+        if o.get('vis') not in ('player', 'hidden-object') or abs(o['pos'][1]) > 0.5 or not foot(o): continue
+        x0, z0 = o['pos'][0], o['pos'][2]
+        for _ in range(12):
+            r = foot_rect(o, -0.05); hit = next((w for w in walls if _sat(r, wall_rect(w), slack=0.0)), None)
+            if hit is None: break
+            (ax, az), (bx, bz) = hit['a'], hit['b']; Lw = math.hypot(bx - ax, bz - az) or 1; nx, nz = -(bz - az) / Lw, (bx - ax) / Lw
+            side = (o['pos'][0] - ax) * nx + (o['pos'][2] - az) * nz
+            if abs(side) < 0.05 and o.get('key') in rooms:
+                poly = rooms[o['key']]; cx, cz = sum(p[0] for p in poly) / len(poly), sum(p[1] for p in poly) / len(poly); side = (cx - ax) * nx + (cz - az) * nz
+            sg = 1 if side >= 0 else -1
+            need = 0.35 - min(((p[0] - ax) * nx + (p[1] - az) * nz) * sg for p in foot_rect(o))
+            if need <= 0: need = 0.1
+            o['pos'][0] = round(o['pos'][0] + nx * sg * need, 2); o['pos'][2] = round(o['pos'][2] + nz * sg * need, 2)
+        moved = math.hypot(o['pos'][0] - x0, o['pos'][2] - z0)
+        r = foot_rect(o, -0.05)
+        if any(_sat(r, wall_rect(w), slack=0.0) for w in walls): report.append(f"{L['id']} {o['id']} ({o['kind']}) still crosses a wall")
+        elif moved > 0.01: report.append(f"{L['id']} {o['id']} stepped {moved:.1f} ft off a wall")
+
+def stair_links(levels, links):
+    """A stair link runs from the foot of its flight to its head (not straight up from one point)."""
+    by = {L['id']: L for L in levels}
+    for k in links:
+        if k['kind'] != 'stairs' or math.dist(k['from']['pos'], k['to']['pos']) > 2: continue
+        L = by[k['from']['level']]; p = k['from']['pos']
+        st = [o for o in L['objects'] if o['kind'] == 'stairs-straight']
+        if not st: continue
+        o = min(st, key=lambda o: math.hypot(o['pos'][0] - p[0], o['pos'][2] - p[1])); d = o['dims']
+        if 'fromX' in d: a, b = [d['fromX'], o['pos'][2]], [d['toX'], o['pos'][2]]
+        else: a, b = [o['pos'][0], d['fromZ']], [o['pos'][0], d['toZ']]
+        lo, hi = (a, b) if by[k['from']['level']]['elevationFt'] < by[k['to']['level']]['elevationFt'] else (b, a)
+        k['from']['pos'] = [round(lo[0], 2), round(lo[1], 2)]; k['to']['pos'] = [round(hi[0], 2), round(hi[1], 2)]
+
+def knee_walls(L):
+    """Under a roof standing on this level's floor, no wall rises through the slope: each is cut to the roof above it."""
+    rf = [o for o in L['objects'] if o['kind'] == 'roof-gable' and (o.get('dims') or {}).get('y', 10) < 1]
+    if not rf: return
+    for w in L['walls']:
+        h = min(roof_height(rf, *w['a']), roof_height(rf, *w['b']), roof_height(rf, (w['a'][0] + w['b'][0]) / 2, (w['a'][1] + w['b'][1]) / 2)) - 0.4
+        if h < -0.3: continue   # a wall out from under every roof keeps its height
+        if h < w.get('heightFt', L['ceilingFt']): w['heightFt'] = round(max(2.5, h), 1)
+
+def chimney(lv, id, pos, above=4.0):
+    """A chimney stack from the level's floor up through the roof over it (plan units)."""
+    rf = [o for o in lv.objects if o['kind'] == 'roof-gable']
+    x, z = lv.P(pos); h = max((roof_height([o], x * 5, z * 5) + (o['dims'].get('y', 10)) for o in rf if roof_height([o], x * 5, z * 5) > 0), default=8)
+    Level.obj(lv, id, 'chimney', (x, z), dims=OrderedDict(h=round(h + above, 1), y=0))
+
 def write(loc_id, name, map_page, levels, links, desc, stacked=True, entry=None, ambient='interior-dim', valley=False):
+    for lv in levels:
+        if isinstance(lv, VLevel): lv.finish()
     scene = OrderedDict(schema=1, location=loc_id, chapter='ch05', name=name, mapPage=map_page, bookScaleFt=5, ambient=ambient, parent='ch05/N')
     if stacked: scene['stacked'] = True
     if entry: scene['entry'] = entry
     scene['levels'] = [lv.to_json() for lv in levels]
+    rep = []
     for lv in scene['levels']:
         for r in lv['rooms']:
             d = desc.get(r['key'])
             if d: r['desc'] = d[0]; r['dm'] = d[1] if len(d) > 1 and d[1] else None
             if r.get('dm') is None: r.pop('dm', None)
+        fit_furniture(lv, rep); knee_walls(lv)
+    stair_links(scene['levels'], links)
     scene['links'] = links
     grid = OrderedDict(schema=1, levels=OrderedDict())
     for lv in levels:
-        grid['levels'][lv.id] = OrderedDict(floorPolygons=[[[x * 5, z * 5] for x, z in p] for p in lv.floor_polys] + [[[x * 5, z * 5] for x, z in p] for p, _ in lv.terrain], type='square', hexOrientation='pointy', origin=[0, 0], color='#1d1b22', opacity=0.55)
+        grid['levels'][lv.id] = OrderedDict(floorPolygons=[[[round(x * 5, 3), round(z * 5, 3)] for x, z in p] for p in lv.floor_polys] + [[[round(x * 5, 3), round(z * 5, 3)] for x, z in p] for p, _ in lv.terrain], type='square', hexOrientation='pointy', origin=[0, 0], color='#1d1b22', opacity=0.55)
     out = os.path.join(ROOT, 'locations', 'ch05', loc_id)
     os.makedirs(out, exist_ok=True)
     json.dump(scene, open(os.path.join(out, 'scene.json'), 'w'), indent=1)
     json.dump(grid, open(os.path.join(out, 'grid.json'), 'w'), indent=1)
-    print(f"{loc_id}: {len(levels)} levels, {sum(len(l.rooms) for l in levels)} rooms, {sum(len(l.objects) for l in levels)} objects")
+    l0 = next((l for l in scene['levels'] if l.get('terrain')), scene['levels'][0])
+    xs = [p[0] for r in l0['rooms'] for p in r['polygon']]; zs = [p[1] for r in l0['rooms'] for p in r['polygon']]
+    print(f"{loc_id}: {len(levels)} levels, {sum(len(l.rooms) for l in levels)} rooms, {sum(len(l.objects) for l in levels)} objects; {l0['id']} {max(xs) - min(xs):.0f} x {max(zs) - min(zs):.0f} ft")
+    for m in rep:
+        if 'still' in m or os.environ.get('VERBOSE'): print('  ', m)
 
-def lk(id, kind, a_level, a, b_level, b): return OrderedDict(id=id, kind=kind, **{'from': {'level': a_level, 'pos': [a[0] * 5, a[1] * 5]}, 'to': {'level': b_level, 'pos': [b[0] * 5, b[1] * 5]}})
+def lk(id, kind, a_level, a, b_level, b):
+    s = _S[0] * 5
+    return OrderedDict(id=id, kind=kind, **{'from': {'level': a_level, 'pos': [round(a[0] * s, 2), round(a[1] * s, 2)]}, 'to': {'level': b_level, 'pos': [round(b[0] * s, 2), round(b[1] * s, 2)]}})
 def beds(lv, key, pts, kind='bed', rot=0):
     for i, p in enumerate(pts): lv.prop(f'{key}-bed{i}', kind, p, key, rotY=rot)
 def stools(lv, key, pts):
     for i, p in enumerate(pts): lv.prop(f'{key}-chair{i}', 'chair', p, key)
 
 # ================================================================== N2 Blue Water Inn
-g = Level('ground', 'Ground floor', 0, 15, ambient='interior-dim', interior='paneling', exterior='half-timber', north='-z')
+_S[0] = SN2 = 0.58   # 18 squares across the ground floor on p.99 (31 units)
+g = VLevel('ground', 'Ground floor', 0, 15, ambient='interior-dim', interior='paneling', exterior='half-timber', north='-z', S=SN2)
 g.room('N2f', 'Stable', rect(1, 6.5, 12, 20), 'dirt', page=pg('N2f'), ceilingFt=15)
 g.room('N2e', 'Kitchen', rect(12, 2, 21, 8.5), 'plank', page=pg('N2e'), ceilingFt=10)
 g.room('N2d', 'Wine Storage', rect(15.5, 8.5, 21, 20), 'plank', page=pg('N2d'), ceilingFt=10)
 g.room('N2g', 'Storage', rect(12, 12.5, 15.5, 17.5), 'plank', page=pg('N2g'), ceilingFt=7)
 g.room('N2c', 'Taproom', rect(21, 2, 29.5, 20), 'plank', page=pg('N2c'), ceilingFt=15)
-g.room('N2b', 'Outside Staircase', rect(29.5, 2, 32, 11), 'plank', page=pg('N2b'), ceilingFt=15)
-g.room('N2c-porch', 'Porch', rect(22.5, 20, 28, 22), 'plank', page=pg('N2c'), ceilingFt=10)
-g.room('N2a', 'Well', rect(30, 17, 38, 24), 'cobble', page=pg('N2a'), ceilingFt=10)
+g.room('N2b', 'Outside Staircase', rect(29.5, 2, 32, 11), 'plank', page=pg('N2b'), ceilingFt=15, open=True)
+g.room('N2c-porch', 'Porch', rect(22.5, 20, 28, 22), 'plank', page=pg('N2c'), ceilingFt=10, open=True)
+g.room('N2a', 'Well', rect(30, 17, 38, 24), 'cobble', page=pg('N2a'), ceilingFt=10, open=True)
 g.terrain.append(([(-2, -2), (42, -2), (42, 27), (-2, 27)], 'grass'))
-g.opening((29.5, 2), (29.5, 11)); g.opening((22.5, 20), (28, 20)); g.opening((32, 17), (32, 18)); g.opening((30, 17), (32, 17))
 g.door((21, 3), (21, 4), id='N2e-taproom', double=False); g.door((12, 4), (12, 5), id='N2e-west')
 g.door((17, 8.5), (18, 8.5), id='N2d-kitchen'); g.door((17.5, 20), (18.5, 20), id='N2d-outside', double=True)
 g.door((15.5, 14), (15.5, 15), id='N2g-door'); g.door((12, 8), (12, 9), id='N2f-small')
 g.door((1, 12), (1, 14), id='N2f-sliding', locked=True, double=True); g.door((6, 6.5), (7, 6.5), id='N2f-north'); g.door((6, 20), (7, 20), id='N2f-south')
 g.door((24.5, 20), (26, 20), id='N2c-front', double=True, open=True); g.door((29.5, 11), (29.5, 12), id='N2c-east')
 g.secret((12, 8.5), (13, 8.5), 'kitchen-stair', 'A secret door at the west end of the kitchen\'s south wall: a wooden stair up to the hidden hall', 'N2e', extra=True)
-for a, b in [((22.5, 2), (23.5, 2)), ((26.5, 2), (27.5, 2)), ((29.5, 14), (29.5, 15)), ((29.5, 18), (29.5, 19)), ((13, 2), (14, 2)), ((17, 2), (18, 2)), ((1, 8), (1, 9)), ((1, 17), (1, 18)), ((21, 12), (21, 13)), ((21, 17), (21, 18))]:
+for a, b in [((22.5, 2), (23.5, 2)), ((26.5, 2), (27.5, 2)), ((29.5, 14), (29.5, 15)), ((29.5, 18), (29.5, 19)), ((13, 2), (14, 2)), ((17, 2), (18, 2)), ((1, 8), (1, 9)), ((1, 17), (1, 18))]:
     g.window(a, b)
 g.wall((2.5, 6.5), (2.5, 11.5)); g.wall((5, 6.5), (5, 11.5)); g.wall((7.5, 6.5), (7.5, 11.5)); g.wall((2.5, 15), (2.5, 20)); g.wall((5, 15), (5, 20)); g.wall((7.5, 15), (7.5, 20))
 g.counter((21.3, 10), (21.3, 19))
@@ -80,14 +382,14 @@ for i in range(6): g.prop(f'N2d-cask{i}', 'wine-cask', (16.5 + (i % 3) * 1.1, 10
 for i in range(6): g.prop(f'N2d-caskb{i}', 'wine-cask', (16.5 + (i % 2) * 1.1, 14 + (i // 2) * 1.3), 'N2d')
 g.note('N2d-note', (18, 12), 'N2d', 'Twelve empty barrels piled two high; the double doors bar from within.')
 g.prop('N2g-chest', 'chest', (13.5, 15), 'N2g'); g.hidden('N2g-contents', 'niche', (13.5, 15.6), 'N2g', 'A dozen horseshoes, a mallet and nails in an unlocked chest')
-for i, (x, z) in enumerate([(1.75, 9), (3.75, 9), (6.25, 9), (1.75, 17.5), (3.75, 17.5), (6.25, 17.5)]): g.prop(f'N2f-hay{i}', 'hay', (x, z), 'N2f')
+for i, (x, z) in enumerate([(1.75, 9), (3.75, 9), (6.25, 9), (1.75, 17.5), (3.75, 17.5), (6.25, 17.5)]): g.prop(f'N2f-hay{i}', 'hay', (x, z), 'N2f', rotY=90)
 g.creature('drusilla', 'horse', (9.5, 9), 'N2f', "Drusilla, Rictavio's horse", size='large')
 g.prop('N2f-ladder', 'stairs-straight', (10.5, 15), 'N2f', dims={'w': 3, 'rise': 15, 'fromZ': 85, 'toZ': 70})
 g.creature('N2f-ravens', 'swarm', (5, 13), 'N2f', 'Ravens roosting in the rafters (four swarms if roused)')
 g.prop('well', 'well', (35, 21), 'N2a'); g.prop('N2a-trough', 'trough', (31.5, 19), 'N2a')
 g.light('N2b-sky', (30.7, 6), 'daylight', 5, 10, y=6)
 
-u = Level('upper', 'Upper floor', 15, 10, ambient='interior-dim', interior='paneling', exterior='half-timber', north='-z')
+u = VLevel('upper', 'Upper floor', 15, 10, ambient='interior-dim', interior='paneling', exterior='half-timber', north='-z', S=SN2)
 u.room('N2h', "Ravens' Loft", [(1, 8.5), (12, 8.5), (12, 17.5), (1, 17.5)], 'plank', page=pg('N2h'), ceilingFt=10)
 u.room('N2i', 'Secret Stairs and Hall', rect(12, 10, 14.5, 18), 'plank', page=pg('N2i'), ceilingFt=8)
 u.room('N2p', 'Master Bedroom', rect(12, 2, 18.5, 10), 'plank', page=pg('N2p'), ceilingFt=8)
@@ -99,8 +401,8 @@ u.room('N2l', 'Guest Rooms', rect(31.5, 11, 38, 17), 'plank', page=pg('N2l'), ce
 u.room('N2l-s', 'Guest Rooms (south)', rect(31.5, 17, 38, 23), 'plank', page=pg('N2l'), ceilingFt=8)
 u.room('N2m', 'Guest Room', rect(21, 19.5, 29.5, 24), 'plank', page=pg('N2m'), ceilingFt=8)
 u.room('N2n', 'Private Guest Room', rect(16.5, 19.5, 21, 24), 'plank', page=pg('N2n'), ceilingFt=8)
-u.opening((29.5, 2), (29.5, 4.5)); u.opening((21, 2), (21, 4.5)); u.opening((29.5, 11), (29.5, 12))
-u.railing((21, 4.5), (29.5, 4.5)); u.railing((21, 4.5), (21, 19.5)); u.railing((21, 19.5), (29.5, 19.5)); u.railing((29.5, 4.5), (29.5, 19.5))
+u.opening((29.5, 2), (29.5, 4.5))
+u.railing((21, 4.5), (29.5, 4.5)); u.railing((21, 4.5), (21, 19.5)); u.railing((29.5, 11), (29.5, 19.5))
 u.railing((1, 11), (1, 15)); u.railing((5, 11), (5, 15)); u.railing((1, 11), (5, 11)); u.railing((1, 15), (5, 15))
 u.door((18.5, 5), (18.5, 6), id='N2p-door'); u.door((18.5, 13), (18.5, 14), id='N2o-door'); u.door((20, 19.5), (21, 19.5), id='N2n-door', locked=True)
 u.door((24, 19.5), (25, 19.5), id='N2m-door'); u.door((31.5, 13), (31.5, 14), id='N2l-door'); u.door((31.5, 19), (31.5, 20), id='N2l-s-door'); u.door((30, 11), (31, 11), id='N2b-top-door', locked=False)
@@ -112,7 +414,7 @@ for a, b in [((13, 2), (14, 2)), ((17, 2), (18, 2)), ((33, 11), (34, 11)), ((36,
 u.prop('N2p-bed', 'bed', (13.5, 5), 'N2p', dims={'w': 6, 'd': 7}); u.prop('N2p-table-a', 'desk', (12.8, 2.8), 'N2p'); u.prop('N2p-table-b', 'desk', (12.8, 7.3), 'N2p')
 u.hidden('N2p-tapestry', 'niche', (18.2, 5), 'N2p', 'A tapestry of a mountain valley hangs across from the bed'); u.hidden('N2p-trap', 'trapdoor', (15, 8.5), 'N2p', 'A hidden trapdoor in the 8-ft ceiling opens into the secret attic')
 u.prop('N2o-bed-a', 'bed', (15.3, 11.5), 'N2o'); u.prop('N2o-bed-b', 'bed', (15.3, 15.5), 'N2o'); u.prop('N2o-toybox', 'toy-chest', (16.5, 13.5), 'N2o')
-u.hidden('N2o-trap', 'trapdoor', (17.5, 11), 'N2o', 'A hidden trapdoor in the ceiling opens into the secret attic')
+u.hidden('N2o-trap', 'trapdoor', (15.5, 16), 'N2o', 'A hidden trapdoor in the ceiling opens into the secret attic')
 u.note('N2o-note', (16.5, 14.5), 'N2o', 'Blinsky toys in the box: a puppet theatre, a toy Vistani wagon, clown masks, a scarecrow top, a stuffed bat on strings.')
 u.prop('N2i-stair', 'stairs-straight', (13.25, 11.5), 'N2i', dims={'w': 5, 'rise': 0.1, 'fromZ': 65, 'toZ': 50})
 u.prop('N2j-stair', 'stairs-straight', (24.5, 3.25), 'N2j', dims={'w': 12, 'rise': 0.1, 'fromX': 110, 'toX': 135})
@@ -132,22 +434,24 @@ u.prop('N2h-pitchfork', 'post', (9, 10), 'N2h'); u.light('N2h-windows', (3, 9), 
 u.light('N2m-lamp', (27, 23), 'lantern', 15, 30, y=4); u.light('N2l-lamp', (34.5, 12), 'lantern', 10, 20, y=4); u.light('N2l-s-lamp', (34.5, 18), 'lantern', 10, 20, y=4)
 cobwebs(u, rect(18.5, 2, 29.5, 4.5), 'N2j', y=9, n=2)
 
-a = Level('attic', 'Attic / roof', 23, 8, ambient='darkness', interior='paneling-dusty', exterior='half-timber', north='-z')
-a.room('N2q', 'Secret Attic', rect(14.5, 4, 16.5, 19), 'plank', page=pg('N2q'), ceilingFt=8)
-a.prop('N2q-roof-w', 'roof-gable', (6.5, 13), 'N2q', rotY=90, dims={'w': 45, 'd': 55, 'h': 10})
-a.prop('N2q-roof-main', 'roof-gable', (25.25, 11), 'N2q', dims={'w': 42, 'd': 48, 'h': 14})
-a.prop('N2q-roof-e', 'roof-gable', (34.75, 17), 'N2q', rotY=90, dims={'w': 30, 'd': 32, 'h': 10})
-a.prop('N2q-roof-s', 'roof-gable', (23, 21.75), 'N2q', dims={'w': 26, 'd': 32, 'h': 8})
+# the roof: the stable wing is one tall storey, its roof standing on the loft floor; the inn's main block, its south
+# range, the guest wing and the stair head carry theirs on the upper floor's ceiling, with the secret attic under the
+# main roof's west slope
+roofs(u, 'N2-stable', [(1, 6.5, 12, 20)])
+a = VLevel('attic', 'Attic / roof', 25, 8, ambient='darkness', interior='paneling-dusty', exterior='half-timber', north='-z', S=SN2)
+a.room('N2q', 'Secret Attic', rect(14, 5, 17.5, 17), 'plank', page=pg('N2q'), ceilingFt=8)
+roofs(a, 'N2', [(12, 2, 29.5, 20), (16.5, 19.5, 29.5, 24), (29.5, 11, 38, 23), (29.5, 2, 32, 11)], hmax=20)
+roofs(g, 'N2-porch', [(22.5, 20, 28, 22)], y=10, pitch=0.3)
 for i, z in enumerate((5.5, 8, 12, 15)): a.prop(f'N2q-nest{i}', 'hay', (15.5, z), 'N2q', dims={'s': 0.6})
-a.hidden('N2q-strongbox', 'chest', (15.5, 4.6), 'N2q', 'A locked iron strongbox against the north wall (Urwin has the key): the Keepers\' letters and 300 gp')
-a.prop('N2q-trap-a', 'trapdoor', (15, 8.5), 'N2q'); a.prop('N2q-trap-b', 'trapdoor', (15.5, 17.5), 'N2q')
-a.hidden('N2q-hole', 'niche', (15.5, 18.8), 'N2q', 'A small square opening in the south wall: raven-sized')
+a.hidden('N2q-strongbox', 'chest', (15.5, 5.6), 'N2q', 'A locked iron strongbox against the north wall (Urwin has the key): the Keepers\' letters and 300 gp')
+a.prop('N2q-trap-a', 'trapdoor', (15, 8.5), 'N2q'); a.prop('N2q-trap-b', 'trapdoor', (15.5, 16), 'N2q')
+a.hidden('N2q-hole', 'niche', (15.5, 16.6), 'N2q', 'A small square opening in the south wall: raven-sized')
 a.note('N2q-note', (15.5, 11), 'N2q', 'Ten by thirty-five feet, the ceiling slanting from 8 ft to 5 ft westward; the Martikovs sleep here as ravens.')
-a.prop('N2q-chimney', 'chimney', (15.5, 3), 'N2q', dims={'h': 8})
+chimney(a, 'N2q-chimney', (15.5, 3))
 write('N2', 'Blue Water Inn', 99, [g, u, a], [
     lk('lk-n2-main', 'stairs', 'ground', (24.5, 3), 'upper', (24.5, 3.25)), lk('lk-n2-outside', 'stairs', 'ground', (30.75, 6.5), 'upper', (30.75, 6.5)),
     lk('lk-n2-secret', 'stairs', 'ground', (12.5, 9), 'upper', (13.25, 11.5)), lk('lk-n2-loft', 'ladder', 'ground', (10.5, 15), 'upper', (10.5, 15)),
-    lk('lk-n2-attic-o', 'trapdoor', 'upper', (17.5, 11), 'attic', (15, 8.5)), lk('lk-n2-attic-p', 'trapdoor', 'upper', (15, 8.5), 'attic', (15.5, 17.5)),
+    lk('lk-n2-attic-o', 'trapdoor', 'upper', (15.5, 16), 'attic', (15.5, 16)), lk('lk-n2-attic-p', 'trapdoor', 'upper', (15, 8.5), 'attic', (15, 8.5)),
 ], {
     'N2c': ("A packed taproom under a balcony: lanterns in dull orange, wolf heads on plaques, a bar along the west wall, shutters and crossbars on every window.", "Danika tends bar; Urwin cooks; Rictavio, the wolf hunters, Ismark's friends. Everything bars from within."),
     'N2e': ("A cluttered kitchen round a pine worktable, two lanterns above it.", "The secret door at the west end of the south wall leads up to the hidden hall."),
@@ -171,7 +475,8 @@ write('N2', 'Blue Water Inn', 99, [g, u, a], [
 }, entry='ground')
 
 # ================================================================== N3 Burgomaster's Mansion
-g = Level('ground', 'Ground floor', 0, 18, ambient='interior-dim', interior='paneling', exterior='ashlar', north='-z')
+_S[0] = SN3 = 0.58   # 18.4 squares by 11 on p.104 (32 by 18.5 units)
+g = VLevel('ground', 'Ground floor', 0, 18, ambient='interior-dim', interior='paneling', exterior='ashlar', north='-z', S=SN3)
 g.room('N3h', 'Pantry', rect(3, 3, 8.5, 8.5), 'plank', page=pg('N3h'), ceilingFt=10)
 g.room('N3f', "Servants' Quarters", rect(8.5, 3, 18, 10), 'plank', page=pg('N3f'), ceilingFt=10)
 g.room('N3e', 'Den', rect(18, 3, 27.5, 10), 'plank', page=pg('N3e'), ceilingFt=10)
@@ -181,7 +486,8 @@ g.room('N3g', 'Kitchen', rect(3, 8.5, 8.5, 21.5), 'flagstone', page=pg('N3g'), c
 g.room('N3d', 'Preparation Room', rect(8.5, 14, 16.5, 21.5), 'plank', page=pg('N3d'), ceilingFt=10)
 g.room('N3c', 'Dining Room', rect(16.5, 14, 27.5, 21.5), 'plank', page=pg('N3c'), ceilingFt=10)
 g.room('N3b', 'Parlor', rect(27.5, 16, 35, 21.5), 'plank', page=pg('N3b'), ceilingFt=10)
-g.room('N3a-porch', 'Porch', rect(35, 7, 37, 11), 'flagstone', page=pg('N3a'), ceilingFt=10)
+g.room('N3a-porch', 'Porch', rect(35, 7, 37, 11), 'flagstone', page=pg('N3a'), ceilingFt=10, open=True)
+roofs(g, 'N3-porch', [(35, 7, 37.5, 11)], y=10, pitch=0.3)
 g.terrain.append(([(-10, -3), (40, -3), (40, 25), (-10, 25)], 'grass'))
 for x, z in [(-8, 4), (-8, 8), (-8, 12), (-8, 16), (-8, 20)]: g.prop(f'N3-garden{int(z)}', 'bush', (x + 1, z), None); g.prop(f'N3-garden{int(z)}b', 'bush', (x + 5, z), None)
 g.door((35, 8.5), (35, 9.5), id='N3a-front', double=True); g.opening((35, 7), (35, 11)) if False else None
@@ -213,7 +519,7 @@ g.creature('lydia', 'adventurer', (22, 15.5), 'N3c', 'Baroness Lydia Petrovna an
 g.prop('N3b-couch', 'bench', (32, 21), 'N3b', rotY=180); g.prop('N3b-chair-a', 'chair', (29, 18), 'N3b'); g.prop('N3b-chair-b', 'chair', (33.5, 18), 'N3b'); g.prop('N3b-table', 'table-round', (31.5, 18.5), 'N3b'); g.prop('N3b-books', 'bookshelf', (28.3, 20), 'N3b', rotY=90)
 g.light('N3b-lamp', (31.5, 18.5), 'lantern', 15, 30, y=7); g.light('N3a-chandelier', (31, 10), 'candle', 20, 40, y=14)
 
-u = Level('upper', 'Upper floor', 20, 10, ambient='interior-dim', interior='paneling', exterior='ashlar', north='-z')
+u = VLevel('upper', 'Upper floor', 20, 10, ambient='interior-dim', interior='paneling', exterior='ashlar', north='-z', S=SN3)
 u.room('N3o', 'Master Bedroom', rect(3, 2, 12, 9), 'plank', page=pg('N3o'), ceilingFt=10)
 u.room('N3n', 'Master Bedroom Closet', rect(12, 2, 16, 5.5), 'plank', page=pg('N3n'), ceilingFt=10)
 u.room('N3q', 'Bathroom', rect(16, 2, 20, 5.5), 'plank', page=pg('N3q'), ceilingFt=10)
@@ -232,7 +538,7 @@ u.door((12, 7), (12, 8), id='N3o-library') if False else None
 u.door((27.5, 5), (27.5, 6), id='N3k-gallery'); u.door((3, 10), (3, 11), id='N3p-garderobe') if False else None
 for a, b in [((5, 2), (6, 2)), ((9, 2), (10, 2)), ((24, 2), (25, 2)), ((30, 2), (31, 2)), ((35, 7), (35, 8)), ((35, 13), (35, 14)), ((30, 21), (31, 21)), ((22, 21), (23, 21)), ((14, 21), (15, 21)), ((6, 21), (7, 21)), ((3, 5), (3, 6)), ((3, 12), (3, 13))]:
     u.window(a, b)
-u.railing((27.5, 9.5), (31, 9.5)); u.railing((27.5, 9.5), (27.5, 15)); u.railing((27.5, 15), (31, 15)); u.railing((31, 9.5), (31, 15))
+u.railing((27.5, 9.5), (31, 9.5)); u.railing((27.5, 15), (31, 15)); u.railing((31, 9.5), (31, 15))
 u.prop('N3i-stair', 'stairs-straight', (29.25, 5), 'N3i', dims={'w': 15, 'rise': 0.1, 'fromZ': 35, 'toZ': 15})
 u.prop('N3i-kstair', 'stairs-straight', (5.5, 20), 'N3i', dims={'w': 5, 'rise': 0.1, 'fromX': 15, 'toX': 40})
 u.hidden('N3i-paintings', 'niche', (18, 20.5), 'N3i', 'Framed landscapes along the gallery; red silk drapes over a tall arched window')
@@ -255,13 +561,16 @@ u.note('N3p-note', (6.5, 12), 'N3p', "Lydia's bridal gown on a stand; a door in 
 u.prop('N3m-chains', 'chains', (6.5, 16.5), 'N3m', dims={'y': 6, 'len': 2}); u.creature('udo', 'commoner', (6.5, 17), 'N3m', 'Udo Lukovich, the shoemaker, manacled for malicious unhappiness')
 u.light('N3i-window', (33, 12), 'daylight', 10, 20, y=6)
 
-at = Level('attic', 'Attic', 30, 20, ambient='darkness', interior='paneling-dusty', exterior='ashlar', north='-z')
-at.room('N3r', 'Attic Room', rect(3, 1.5, 10.5, 7), 'plank', page=pg('N3r'), ceilingFt=20)
-at.room('N3s', 'Attic Storage', [(3, 7), (10.5, 7), (10.5, 1.5), (27, 1.5), (27, 13), (3, 13)], 'plank', page=pg('N3s'), ceilingFt=20)
-at.room('N3t', "Victor's Workroom", rect(27, 1.5, 35, 13), 'plank', page=pg('N3t'), ceilingFt=20)
+# the attic: rooms under the ridge of one roof over the whole house (the plate's roof bands lie either side of it),
+# low panelled walls, the slope above them
+at = VLevel('attic', 'Attic', 30, 7, ambient='darkness', interior='paneling-dusty', exterior='paneling', north='-z', S=SN3, off=(0, 4.5))
+at.room('N3r', 'Attic Room', rect(3, 1.5, 10.5, 7), 'plank', page=pg('N3r'), ceilingFt=7)
+at.room('N3s', 'Attic Storage', [(3, 7), (10.5, 7), (10.5, 1.5), (27, 1.5), (27, 13), (3, 13)], 'plank', page=pg('N3s'), ceilingFt=7)
+at.room('N3t', "Victor's Workroom", rect(27, 1.5, 35, 13), 'plank', page=pg('N3t'), ceilingFt=7)
+at.off = (0, 0); roofs(at, 'N3', [(3, 2, 35, 21.5)], hmax=19); at.off = (0, 4.5)
 at.door((6, 7), (7, 7), id='N3r-door'); at.door((27, 7), (27, 8), id='N3t-door', locked=False)
 at.hidden('N3t-glyph', 'pressure-plate', (27.5, 7.5), 'N3t', 'Glyph of warding on the skull-carved door: 5d8 lightning for anyone but Victor'); at.note('N3t-sign', (26.3, 7.5), 'N3t', "'ALL IS NOT WELL!' hangs from the knob; a young voice practises a teleport spell beyond.")
-at.prop('N3r-table', 'table', (5, 4), 'N3r', dims={'w': 4, 'd': 3}); at.prop('N3r-lamp', 'lamp', (5, 4), 'N3r', y=3); at.hidden('N3r-trap', 'trapdoor', (8.5, 5), 'N3r', 'The folding ladder down to the master bedroom')
+at.prop('N3r-table', 'table', (5, 4), 'N3r', dims={'w': 4, 'd': 3}); at.prop('N3r-lamp', 'lamp', (5, 4), 'N3r', y=3); at.hidden('N3r-trap', 'trapdoor', (9, 2), 'N3r', 'The folding ladder down to the master bedroom')
 at.light('N3r-lamp', (5, 4), 'lantern', 10, 20, y=4)
 for i, (x, z, k) in enumerate([(12, 3, 'trunk'), (15, 9, 'sheeted'), (19, 4, 'chest'), (22, 10, 'trunk'), (14, 11.5, 'wardrobe'), (24, 3.5, 'sheeted'), (6, 10, 'refuse'), (18, 7, 'refuse'), (25, 7, 'cabinet')]): at.prop(f'N3s-junk{i}', k, (x, z), 'N3s', rotY=(i * 40) % 360)
 at.prop('N3s-prints', 'footprints', (20, 7.5), 'N3s', dims={'n': 10, 'len': 30, 'seed': 7}); at.note('N3s-note', (15, 6), 'N3s', 'One set of footprints in the dust leads east to the workroom.')
@@ -271,10 +580,9 @@ at.creature('N3t-children', 'skeleton', (33.5, 2.5), 'N3t', 'Three "children" wi
 at.creature('N3t-cats', 'swarm', (33, 9), 'N3t', 'Six cat skeletons (cat stats, darkvision, poison immunity)', size='tiny')
 at.hidden('N3t-circle-note', 'niche', (30, 8.6), 'N3t', "Victor's circle: DC 15 Arcana shows it is flawed and deadly to use"); at.hidden('N3t-spellbook', 'niche', (31, 3.5), 'N3t', "Victor's spellbook: an incomplete teleportation circle and three sigil sequences")
 at.light('N3t-lamp', (30, 4), 'lantern', 15, 30, y=5)
-at.prop('N3-roof', 'roof-gable', (19, 7.25), None, dims={'w': 58, 'd': 162, 'h': 18})
 write('N3', "Burgomaster's Mansion (Vallaki)", 104, [g, u, at], [
     lk('lk-n3-grand', 'stairs', 'ground', (29.25, 5), 'upper', (29.25, 5)), lk('lk-n3-kitchen', 'stairs', 'ground', (5.5, 20), 'upper', (5.5, 20)),
-    lk('lk-n3-attic', 'ladder', 'upper', (9, 6.5), 'attic', (8.5, 5)),
+    lk('lk-n3-attic', 'ladder', 'upper', (9, 6.5), 'attic', (9, 6.5)),
 ], {
     'N3a': ("A grand foyer: portraits, a wide stair with a sculpted rail, twigs heaped for the festival, a cloakroom in the corner.", "A maid answers; she brings callers to the den and fetches the baron."),
     'N3a-hall': ("A long carpeted hall with doors on both sides.", None), 'N3a-porch': ("The mansion's porch and double doors, festival banners on the posts.", None),
@@ -301,7 +609,8 @@ write('N3', "Burgomaster's Mansion (Vallaki)", 104, [g, u, at], [
 }, entry='ground')
 
 # ================================================================== N4 Wachterhaus
-g = Level('ground', 'Ground floor', 0, 15, ambient='interior-dim', interior='paneling', exterior='ashlar', north='-z')
+_S[0] = SN4 = 0.56   # 16 squares by 10 on p.111 (29 by 18 units)
+g = VLevel('ground', 'Ground floor', 0, 15, ambient='interior-dim', interior='paneling', exterior='ashlar', north='-z', S=SN4)
 BAY = [(1.5, 9), (3, 7), (6, 7), (6, 14), (3, 14), (1.5, 12)]
 g.room('N4k', 'Den', BAY, 'plank', page=pg('N4k'), ceilingFt=12)
 g.room('N4h', "Servants' Quarters", rect(6, 3, 17, 7), 'plank', page=pg('N4h'), ceilingFt=10)
@@ -312,22 +621,22 @@ g.room('N4i', 'Parlor', rect(6, 7, 17, 14), 'plank', page=pg('N4i'), ceilingFt=1
 g.room('N4b', 'Staircase', rect(17, 7, 21, 16), 'plank', page=pg('N4b'), ceilingFt=15)
 g.room('N4c', 'Kitchen', rect(21, 9.5, 28, 15), 'flagstone', page=pg('N4c'), ceilingFt=10)
 g.room('N4c-pantry', 'Pantry', rect(21, 15, 23.5, 18), 'flagstone', page=pg('N4c'), ceilingFt=10)
-g.room('N4j', 'Dining Room', rect(6, 14, 17, 21), 'plank', page=pg('N4j'), ceilingFt=12)
+g.room('N4j', 'Dining Room', [(6, 14), (17, 14), (17, 18), (15, 18), (15, 21), (6, 21)], 'plank', page=pg('N4j'), ceilingFt=12)   # the vestibule's west closet takes its south-east corner
 g.room('N4a', 'Front Door and Vestibule', rect(17, 16, 21, 21), 'flagstone', page=pg('N4a'), ceilingFt=10)
 g.room('N4a-west', 'West Closet', rect(15, 18, 17, 21), 'plank', page=pg('N4a'), ceilingFt=10)
 g.room('N4a-east', 'East Closet', rect(21, 18, 23.5, 21), 'plank', page=pg('N4a'), ceilingFt=10)
 g.room('N4k-east', 'Den (east)', rect(23.5, 15, 28, 21), 'plank', page=pg('N4k'), ceilingFt=12)
-g.room('N4r', 'Cellar Entrance', rect(28, 5, 30.5, 7), 'flagstone', page=pg('N4r'), ceilingFt=6)
+g.room('N4r', 'Cellar Entrance', rect(28, 5, 30.5, 7), 'flagstone', page=pg('N4r'), ceilingFt=6, wallFt=3)   # a slanted cellar door against the foundation
 g.terrain.append(([(-8, -2), (34, -2), (34, 25), (-8, 25)], 'grass'))
 for i in range(5): g.prop(f'N4-garden{i}', 'bush', (-6 + (i % 2) * 2, 2 + i * 4), None); g.prop(f'N4-gardenb{i}', 'bush', (-3, 3 + i * 4), None)
 g.door((18.5, 21), (19.5, 21), id='N4a-front', locked=True); g.door((17, 19), (17, 20), id='N4a-closet-w-door'); g.door((21, 19), (21, 20), id='N4a-closet-e-door'); g.door((18.5, 16), (19.5, 16), id='N4a-inner')
 g.door((17, 17), (17, 18), id='N4j-door'); g.door((21, 16.5), (21, 17.5), id='N4k-east-door'); g.door((17, 10), (17, 11), id='N4i-door'); g.door((21, 11.5), (21, 12.5), id='N4c-door'); g.door((22, 15), (23, 15), id='N4c-pantry-door')
 g.door((18.5, 3), (19.5, 3), id='N4e-back', locked=True); g.door((17, 3.5), (17, 4.5), id='N4e-h'); g.door((21, 3.5), (21, 4.5), id='N4e-d'); g.door((18.5, 5), (19.5, 5), id='N4e-f'); g.door((18.5, 7), (19.5, 7), id='N4f-b')
 g.door((6, 10), (6, 11), id='N4k-door'); g.door((11, 7), (12, 7), id='N4h-i'); g.door((11, 14), (12, 14), id='N4i-j'); g.door((23.5, 17.5), (23.5, 18.5), id='N4k-east-closet') if False else None
-g.door((28, 5.5), (28, 6.5), id='N4r-door'); g.door((30.5, 5.5), (30.5, 6.5), id='N4r-outer')
+g.door((28, 5.5), (28, 6.5), id='N4r-door'); g.opening((30.5, 5), (30.5, 7))
 g.secret((19, 7), (20, 7), 'closet-stair', 'A secret door in the south wall of the servants\' closet: a stone stair to the cellar (DC 10 Perception)', 'N4f', extra=True) if False else None
 g.secret((17, 5.5), (17, 6.5), 'closet-stair', 'A secret door in the south wall of the servants\' closet: a stone stair to the cellar (DC 10 Perception)', 'N4f', extra=True)
-for a, b in [((1.5, 10), (1.5, 11)), ((3, 7.5), (4, 7.5)), ((3, 13.5), (4, 13.5)), ((8, 3), (9, 3)), ((13, 3), (14, 3)), ((23, 3), (24, 3)), ((26, 3), (27, 3)), ((28, 11), (28, 12)), ((28, 17), (28, 18)), ((25, 21), (26, 21)), ((13, 21), (14, 21)), ((8, 21), (9, 21)), ((6, 16), (6, 17)), ((6, 19), (6, 20))]:
+for a, b in [((1.5, 10), (1.5, 11)), ((3, 7), (4, 7)), ((3, 14), (4, 14)), ((8, 3), (9, 3)), ((13, 3), (14, 3)), ((23, 3), (24, 3)), ((26, 3), (27, 3)), ((28, 11), (28, 12)), ((28, 17), (28, 18)), ((25, 21), (26, 21)), ((13, 21), (14, 21)), ((8, 21), (9, 21)), ((6, 16), (6, 17)), ((6, 19), (6, 20))]:
     g.window(a, b)
 g.prop('N4b-stair', 'stairs-straight', (19, 11), 'N4b', dims={'w': 5, 'rise': 15, 'fromZ': 75, 'toZ': 35})
 g.hidden('N4b-glass', 'niche', (19, 15.5), 'N4b', 'Three stained-glass doors in wooden frames at the foot of the stair')
@@ -336,7 +645,7 @@ g.note('N4a-note', (19, 18.5), 'N4a', 'Bronze-banded door, locked (DC 20 Strengt
 g.prop('N4k-couch-a', 'bench', (4.5, 8.5), 'N4k', rotY=180); g.prop('N4k-couch-b', 'bench', (4.5, 12.5), 'N4k'); g.prop('N4k-table', 'table-round', (3.5, 10.5), 'N4k'); g.prop('N4k-fire', 'fireplace', (5.7, 10.5), 'N4k', rotY=-90)
 g.prop('N4i-couch-a', 'bench', (8, 8.5), 'N4i'); g.prop('N4i-couch-b', 'bench', (8, 12.5), 'N4i', rotY=180); g.prop('N4i-couch-c', 'bench', (14.5, 10.5), 'N4i', rotY=90); g.prop('N4i-table', 'table-round', (11, 10.5), 'N4i'); g.prop('N4i-fire', 'fireplace', (6.3, 10.5), 'N4i', rotY=90)
 g.hidden('N4i-portraits', 'niche', (11, 7.4), 'N4i', 'Portraits of the Wachter line along the north wall'); g.light('N4i-fire', (7, 10.5), 'torch', 10, 20, y=3)
-g.prop('N4j-table', 'table', (11.5, 17.5), 'N4j', dims={'w': 16, 'd': 5}); stools(g, 'N4j', [(7.5, 16.2), (10, 16.2), (12.5, 16.2), (15, 16.2), (7.5, 18.8), (10, 18.8), (12.5, 18.8), (15, 18.8)]); g.prop('N4j-chandelier', 'lamp', (11.5, 17.5), 'N4j', y=9); g.light('N4j-chandelier', (11.5, 17.5), 'candle', 15, 30, y=9)
+g.prop('N4j-table', 'table', (11.5, 17.5), 'N4j', dims={'w': 16, 'd': 5}); stools(g, 'N4j', [(7.5, 16.2), (10, 16.2), (12.5, 16.2), (15, 16.2), (7.5, 18.8), (10, 18.8), (12.5, 18.8), (14.4, 18.8)]); g.prop('N4j-chandelier', 'lamp', (11.5, 17.5), 'N4j', y=9); g.light('N4j-chandelier', (11.5, 17.5), 'candle', 15, 30, y=9)
 beds(g, 'N4h', [(7, 4), (9.5, 4), (12, 4), (14.5, 4)]);
 for i in range(4): g.prop(f'N4h-chest{i}', 'trunk', (7 + i * 2.5, 6.3), 'N4h')
 g.creature('N4-servants', 'commoner', (10, 5.5), 'N4h', 'Three servants and the cook (commoners), loyal to the death')
@@ -347,7 +656,7 @@ g.prop('N4k-east-desk', 'desk', (27.3, 16.5), 'N4k-east', rotY=-90); g.prop('N4k
 g.prop('N4r-stair', 'stairs-straight', (29.25, 6), 'N4r', dims={'w': 5, 'rise': 12, 'fromX': 152, 'toX': 142})
 g.light('N4a-lamp', (19, 18.5), 'lantern', 10, 20, y=7)
 
-u = Level('upper', 'Upper floor', 15, 10, ambient='interior-dim', interior='paneling', exterior='ashlar', north='-z')
+u = VLevel('upper', 'Upper floor', 15, 10, ambient='interior-dim', interior='paneling', exterior='ashlar', north='-z', S=SN4)
 u.room('N4p', 'Library', [(1.5, 8), (3, 6), (6, 6), (6, 2), (17, 2), (17, 9), (10.5, 9), (10.5, 13), (6, 13), (3, 13), (1.5, 11)], 'plank', page=pg('N4p'), ceilingFt=10)
 u.room('N4q', 'Storage Room', rect(10.5, 9, 17, 13), 'plank', page=pg('N4q'), ceilingFt=10)
 u.room('N4n', "Stella's Room", rect(6, 13, 10.5, 17), 'plank', page=pg('N4n'), ceilingFt=10)
@@ -380,9 +689,9 @@ u.prop('N4o-bed', 'bed', (23, 9.6), 'N4o', dims={'w': 7, 'd': 7}); u.prop('N4o-s
 u.creature('nikolai', 'skeleton', (23, 9.6), 'N4o', "Nikolai Wachter's corpse in the bed, a copper on each eye, under gentle repose")
 u.hidden('N4o-portrait', 'niche', (24.5, 16), 'N4o', 'A family portrait above the hearth: father, mother, two sons, a baby girl'); u.hidden('N4o-robe', 'niche', (26.5, 18.5), 'N4o', 'In the closet: fine garments and a hooded black ceremonial robe')
 u.light('N4o-fire', (24.5, 16), 'torch', 10, 20, y=3); u.light('N4l-window', (19, 3), 'daylight', 5, 10, y=6)
-u.prop('N4-roof', 'roof-gable', (17, 9.5), None, dims={'w': 110, 'd': 70, 'h': 14})
+roofs(u, 'N4', [(6, 2, 28, 19), (1.5, 6, 6, 14)], y=10, hmax=12); roofs(g, 'N4-front', [(6, 19, 28, 21)], y=15, pitch=0.3)
 
-c = Level('cellar', 'Cellar', -12, 10, ambient='darkness', interior='rubble', exterior='earth', north='-z')
+c = VLevel('cellar', 'Cellar', -12, 10, ambient='darkness', interior='rubble', exterior='earth', north='-z', S=SN4)
 c.room('N4t', 'Cult Headquarters', rect(2.5, 9, 13, 19), 'flagstone', page=pg('N4t'), ceilingFt=10)
 c.room('N4s', 'Cellar', [(13, 2), (24, 2), (24, 19), (13, 19), (13, 11), (15.5, 11), (15.5, 6), (13, 6)], 'dirt', page=pg('N4s'), ceilingFt=8)
 c.room('N4g', 'Secret Staircase', rect(13, 6, 15.5, 11), 'flagstone', page=pg('N4g'), ceilingFt=10)
@@ -428,7 +737,8 @@ write('N4', 'Wachterhaus', 111, [c, g, u], [
 }, entry='ground')
 
 # ================================================================== N6 Coffin Maker's Shop
-g = Level('ground', 'Ground level', 0, 10, ambient='interior-dim', interior='paneling-dusty', exterior='half-timber', north='-z')
+_S[0] = SN6 = 0.57   # 10.4 squares by 16.3 on p.116 (18 by 29 units)
+g = VLevel('ground', 'Ground level', 0, 10, ambient='interior-dim', interior='paneling-dusty', exterior='half-timber', north='-z', S=SN6)
 g.room('N6a', 'Coffin Storage', [(1, 1.5), (19, 1.5), (19, 20), (9, 20), (9, 12), (1, 12)], 'plank', page=pg('N6a'), ceilingFt=10)
 g.room('N6c', 'Workshop', rect(1, 12, 9, 30.5), 'plank', page=pg('N6c'), ceilingFt=10)
 g.room('N6a-stair', 'Stair', rect(9, 20, 11.5, 30.5), 'plank', page=pg('N6a'), ceilingFt=10)
@@ -448,7 +758,7 @@ g.prop('N6b-table', 'table-round', (16, 27.5), 'N6b'); stools(g, 'N6b', [(14.5, 
 g.prop('N6b-cabinet-a', 'cabinet', (18.4, 21.5), 'N6b', rotY=-90); g.prop('N6b-cabinet-b', 'cabinet', (18.4, 24), 'N6b', rotY=-90); g.light('N6b-lamp', (16, 27.5), 'lantern', 10, 20, y=6)
 g.creature('henrik', 'commoner', (5, 20), 'N6c', 'Henrik van der Voort, the coffin maker, troubled and alone')
 
-u = Level('upper', 'Upper level', 10, 10, ambient='darkness', interior='paneling-dusty', exterior='half-timber', north='-z')
+u = VLevel('upper', 'Upper level', 10, 10, ambient='darkness', interior='paneling-dusty', exterior='half-timber', north='-z', S=SN6)
 u.room('N6f', 'Vampire Nest', [(1, 1.5), (19, 1.5), (19, 30), (11.5, 30), (11.5, 20), (9, 20), (9, 12), (1, 12)], 'plank', page=pg('N6f'), ceilingFt=10)
 u.room('N6e', "Henrik's Bedroom", rect(1, 12, 9, 22), 'plank', page=pg('N6e'), ceilingFt=10)
 u.room('N6d', 'Kitchen', rect(1, 22, 9, 30), 'plank', page=pg('N6d'), ceilingFt=10)
@@ -466,7 +776,7 @@ u.hidden('N6f-bones', 'chest', (16, 14), 'N6f', "A crate holding the bones of St
 u.prop('N6e-cot', 'bed', (2.5, 14), 'N6e'); u.prop('N6e-table', 'table', (6, 16), 'N6e', dims={'w': 3, 'd': 3}); u.prop('N6e-chair', 'chair', (7.5, 16), 'N6e', rotY=-90); u.prop('N6e-shelf', 'bookshelf', (8.6, 13.5), 'N6e', rotY=-90); u.prop('N6e-wardrobe', 'wardrobe', (8, 21.4), 'N6e', rotY=180)
 u.hidden('N6e-compartment', 'niche', (8, 20.6), 'N6e', 'A secret compartment in the wardrobe\'s base (DC 15 Perception)')
 u.prop('N6d-table', 'table', (4, 25.5), 'N6d', dims={'w': 4, 'd': 4}); stools(u, 'N6d', [(2.5, 25.5), (5.5, 25.5), (4, 24), (4, 27)]); u.prop('N6d-shelves', 'shelves', (1.4, 28.5), 'N6d', rotY=90); u.prop('N6d-stove', 'stove', (7.5, 29.3), 'N6d', rotY=180)
-u.prop('N6-roof', 'roof-gable', (10, 16), None, rotY=90, dims={'w': 36, 'd': 58, 'h': 12})
+roofs(u, 'N6', [(1, 1.5, 19, 30.5)], y=10, hmax=12)
 write('N6', "Coffin Maker's Shop", 116, [g, u], [lk('lk-n6-stair', 'stairs', 'ground', (10.25, 24), 'upper', (10.25, 24))], {
     'N6a': ("An L-shaped room, musty, thirteen coffins stood and laid about the floor.", None),
     'N6b': ("A table and four chairs under a lantern on a chain; two fine cabinets on the east wall.", None),
@@ -478,6 +788,7 @@ write('N6', "Coffin Maker's Shop", 116, [g, u], [lk('lk-n6-stair', 'stairs', 'gr
 }, entry='ground')
 
 # ================================================================== N9 Vistani Camp (north is to the right on the plate)
+_S[0] = 1.0
 v = Level('camp', 'The camp', 0, 20, ambient='night', interior='log', exterior='log', north='+x')
 v.terrain.append(([(0, 0), (67, 0), (67, 70), (0, 70)], 'grass'))
 v.room('N9c', 'Vistani Tent', [(29, 31), (37, 31), (41, 35), (41, 40), (37, 44), (29, 44), (25, 40), (25, 35)], 'dirt', page=pg('N9c'), ceilingFt=20)
@@ -532,7 +843,8 @@ write('N9', 'Vistani Camp', 120, [v], [], {
 
 # ================================================================== N1 St. Andral's Church: the village church's plan, no undercroft
 E5 = json.load(open(os.path.join(ROOT, 'locations', 'ch03', 'E5', 'scene.json')))['levels'][0]
-ch = Level('ground', 'Church', 0, 14, ambient='interior-dim', interior='plaster', exterior='rubble', north='-z')
+_S[0] = 1.0
+ch = VLevel('ground', 'Church', 0, 14, ambient='interior-dim', interior='plaster', exterior='rubble', north='-z', S=1.0, widen=False)
 NAMES1 = {'E5f': ('N1f', 'Chapel'), 'E5a': ('N1a', 'Hall'), 'E5c': ('N1c', "Father Lucian's Room"), 'E5b': ('N1b', "Yeska's Room"), 'E5e': ('N1e', 'Office'), 'E5d': ('N1d', 'Vestry')}
 for r in E5['rooms']:
     k, n = NAMES1[r['key']]; ch.room(k, n, [(x / 5, z / 5) for x, z in r['polygon']], r['floor'], page=pg('N1'))
@@ -551,13 +863,15 @@ ch.hidden('N1-crypt', 'niche', (4.5, 0.7), 'N1f', 'A broken crypt under the alta
 ch.note('N1-note', (4.5, 2.2), 'N1f', 'Father Lucian, Yeska and Milivoj; at night 2d6+6 frightened adults and 2d6 children. Milivoj stole the bones for the coffin maker.')
 ch.creature('lucian', 'adventurer', (4.5, 3.5), 'N1f', 'Father Lucian Petrovich (priest)'); ch.creature('milivoj', 'commoner', (-10, 22), None, 'Milivoj with his shovel (commoner, Str 15, shovel 1d4+2)'); ch.creature('yeska', 'commoner', (2, 7.5), 'N1b', 'Yeska the altar boy (noncombatant)', size='small')
 ch.prop('N1-steeple', 'temple', (4.5, -2), None, dims={'w': 10, 'd': 10, 'h': 30}) if False else None
+roofs(ch, 'N1', [(1, 0, 8, 8.5)], y=14, pitch=0.5)   # one steep slate roof over the chapel and the rooms behind it
 write('N1', "St. Andral's Church", 97, [ch], [], {
     'N1f': ("A slouching stone chapel: cracked stained glass of saints, a bulging steeple at the back, an altar on a dais.", "The bones beneath the altar are gone. Lucian confides in a good cleric or paladin."),
     'N1a': ("A plain hall behind the chapel.", None), 'N1c': ("Father Lucian's room.", None), 'N1b': ("Yeska's room.", None), 'N1e': ("The office.", None), 'N1d': ("A vestry.", "No undercroft here, unlike the village church."),
 }, stacked=False, entry='ground')
 
 # ================================================================== N7 Blinsky Toys (no plan: a shop front with a workshop behind, a loft above)
-b = Level('ground', 'Shop', 0, 10, ambient='interior-dim', interior='paneling', exterior='half-timber', north='-z')
+_S[0] = SN7 = 0.45   # no plan: a narrow shop about 30 ft by 25 between its neighbours
+b = VLevel('ground', 'Shop', 0, 10, ambient='interior-dim', interior='paneling', exterior='half-timber', north='-z', S=SN7)
 b.room('N7a', 'Shop Floor', rect(1, 1, 9, 9), 'plank', page=pg('N7'), ceilingFt=10)
 b.room('N7b', 'Workshop', rect(9, 1, 15, 9), 'plank', page=pg('N7'), ceilingFt=10)
 b.room('N7c', 'Monkey\'s Corner', rect(1, 9, 5, 12), 'plank', page=pg('N7'), ceilingFt=10)
@@ -572,22 +886,22 @@ b.creature('blinsky', 'commoner', (6, 7.5), 'N7a', 'Gadof Blinsky, the toymaker:
 b.prop('N7b-bench', 'table', (12, 3), 'N7b', dims={'w': 8, 'd': 3}); b.prop('N7b-bench2', 'table', (12, 7), 'N7b', dims={'w': 8, 'd': 3}); b.prop('N7b-shelf', 'bookshelf', (14.6, 5), 'N7b', rotY=-90); b.prop('N7b-stove', 'stove', (9.6, 8.3), 'N7b', rotY=90)
 b.note('N7b-note', (12, 5), 'N7b', "Blinsky's bench: he wants his clockwork 'myasterpiece' back from the wagon in the stockyard and will make any toy for it.")
 b.light('N7a-lamp', (5, 5), 'lantern', 15, 30, y=7); b.light('N7b-lamp', (12, 5), 'lantern', 15, 30, y=7)
-b.prop('N7-roof', 'roof-gable', (8, 5), None, dims={'w': 72, 'd': 42, 'h': 10})
+roofs(b, 'N7', [(1, 1, 15, 9), (1, 9, 5, 12)], y=10)
 write('N7', 'Blinsky Toys', 119, [b], [], {
     'N7a': ("A toyshop with two arched, lead-framed windows and shelves of unsettling toys; a sign promises no fun without Blinsky.", "Only Rictavio has bought anything in six months (a Vistana doll). The Ireena dolls are for Izek."),
     'N7b': ("A workbench strewn with limbs, heads and springs.", None), 'N7c': ("A corner for a small monkey in a fez.", "Piccolo, Rictavio's gift."),
 }, stacked=False, entry='ground')
 
 # ================================================================== N5 Arasek Stockyard (no plan: pens, sheds, a warehouse, the carnival wagon)
-s = Level('yard', 'The stockyard', 0, 15, ambient='barovian-overcast', interior='log', exterior='log', north='-z')
+_S[0] = SN5 = 0.5   # no plan: a yard about 60 ft square, a 20-by-40-ft warehouse, a row of sheds
+s = VLevel('yard', 'The stockyard', 0, 15, ambient='barovian-overcast', interior='log', exterior='log', north='-z', S=SN5)
 s.terrain.append(([(-2, -2), (34, -2), (34, 30), (-2, 30)], 'dirt'))
-s.room('N5a', 'Stockyard', rect(0, 0, 24, 24), 'dirt', page=pg('N5'), ceilingFt=15)
+s.room('N5a', 'Stockyard', rect(0, 0, 24, 24), 'dirt', page=pg('N5'), ceilingFt=15, wallFt=6)   # a plank fence round the yard
 s.room('N5b', 'Warehouse', rect(24, 0, 32, 16), 'plank', page=pg('N5'), ceilingFt=15)
-s.room('N5c', 'Sheds', rect(0, 24, 24, 28), 'plank', page=pg('N5'), ceilingFt=8)
-s.room('N5d', "Rictavio's Carnival Wagon", rect(8, 17, 14, 22), 'plank', page=pg('N5'), ceilingFt=9)
+s.room('N5c', 'Sheds', rect(0, 24, 24, 28), 'plank', page=pg('N5'), ceilingFt=8, wallFt=8)
+s.room('N5d', "Rictavio's Carnival Wagon", rect(8, 17, 14, 22), 'plank', page=pg('N5'), ceilingFt=9, wallFlags=['invisible'])   # the wagon is the prop; its key box has no walls
 s.door((11, 0), (13, 0), id='N5-gate', double=True, open=True); s.door((24, 6), (24, 8), id='N5b-doors', double=True, locked=True); s.door((24, 2), (24, 3), id='N5b-side')
-for i in range(6): s.door((2 + i * 4, 24), (3 + i * 4, 24), id=f'N5c-shed{i}', locked=True); s.wall((4 + i * 4, 24), (4 + i * 4, 28))
-s.door((11, 17), (11, 18), id='N5d-door', locked=True)
+for i in range(6): s.door((2 + i * 4, 24), (3 + i * 4, 24), id=f'N5c-shed{i}', locked=True); s.wall((4 + i * 4, 24), (4 + i * 4, 28), heightFt=8)
 s.hidden('N5-sign', 'niche', (12, -0.6), 'N5a', 'A sign over the gate: Arasek Stockyard')
 for i, (x, z) in enumerate([(3, 4), (3, 10), (3, 16)]): s.prop(f'N5a-pen{i}', 'fence', (6, z), 'N5a', dims={'w': 20}); s.prop(f'N5a-penb{i}', 'fence', (1, z + 3), 'N5a', rotY=90, dims={'w': 6})
 for i, (x, z) in enumerate([(4, 6), (8, 12), (6, 18)]): s.creature(f'N5a-horse{i}', 'horse', (x, z), 'N5a', 'Stockyard horses', size='large')
@@ -599,8 +913,8 @@ s.hidden('N5d-seat', 'chest', (11, 17.6), 'N5d', 'Secret compartment under the f
 s.note('N5d-note', (11, 23), 'N5d', 'The wagon lurches when approached. Rictavio feeds the tiger steaks; released, it hunts Vistani through the streets.')
 for i in range(5): s.prop(f'N5b-crate{i}', 'trunk', (26 + (i % 2) * 2, 3 + i * 2.5), 'N5b');
 for i in range(3): s.prop(f'N5b-cask{i}', 'wine-cask', (30, 4 + i * 1.3), 'N5b')
-s.prop('N5b-sacks', 'sacks', (29, 13), 'N5b'); s.prop('N5b-roof', 'roof-gable', (28, 8), 'N5b', rotY=90, dims={'w': 40, 'd': 80, 'h': 12})
-for i in range(6): s.prop(f'N5c-roof{i}', 'roof-gable', (2 + i * 4, 26), 'N5c', dims={'w': 20, 'd': 20, 'h': 5})
+s.prop('N5b-sacks', 'sacks', (29, 13), 'N5b'); roofs(s, 'N5b', [(24, 0, 32, 16)], y=15)
+roofs(s, 'N5c', [(0, 24, 24, 28)], y=8, pitch=0.35)
 s.light('N5a-lantern', (12, 2), 'lantern', 15, 30, y=8)
 write('N5', 'Arasek Stockyard', 115, [s], [], {
     'N5a': ("A big yard of pens and locked sheds beside a warehouse; a painted carnival wagon stands at the south end, its paint peeling.", "The Araseks watch Rictavio's wagon for gold, no questions."),

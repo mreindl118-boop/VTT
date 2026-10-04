@@ -178,7 +178,7 @@
       0.0
      ],
      "b": [
-      40.0,
+      12.5,
       0.0
      ],
      "flags": [
@@ -189,12 +189,27 @@
     {
      "id": "ground-w-1",
      "a": [
-      40.0,
+      12.5,
       0.0
      ],
      "b": [
-      40.0,
-      42.5
+      17.5,
+      0.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "ground-w-2",
+     "a": [
+      17.5,
+      0.0
+     ],
+     "b": [
+      22.5,
+      0.0
      ],
      "flags": [
       "normal"
@@ -202,58 +217,43 @@
      "material": "rubble"
     },
     {
-     "id": "ground-w-2",
-     "a": [
-      35.0,
-      25.0
-     ],
-     "b": [
-      40.0,
-      25.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster"
-    },
-    {
      "id": "ground-w-3",
      "a": [
-      30.0,
-      25.0
+      22.5,
+      0.0
      ],
      "b": [
-      35.0,
-      25.0
+      27.5,
+      0.0
      ],
      "flags": [
-      "normal"
+      "window"
      ],
-     "material": "plaster"
+     "material": "rubble"
     },
     {
      "id": "ground-w-4",
      "a": [
-      25.0,
-      25.0
+      27.5,
+      0.0
      ],
      "b": [
-      30.0,
-      25.0
+      40.0,
+      0.0
      ],
      "flags": [
       "normal"
      ],
-     "material": "plaster"
+     "material": "rubble"
     },
     {
      "id": "ground-w-5",
      "a": [
-      20.0,
+      5.0,
       25.0
      ],
      "b": [
-      25.0,
+      40.0,
       25.0
      ],
      "flags": [
@@ -264,12 +264,12 @@
     {
      "id": "ground-w-6",
      "a": [
-      15.0,
-      25.0
+      5.0,
+      33.75
      ],
      "b": [
-      20.0,
-      25.0
+      15.0,
+      33.75
      ],
      "flags": [
       "normal"
@@ -279,12 +279,12 @@
     {
      "id": "ground-w-7",
      "a": [
-      10.0,
-      25.0
+      30.0,
+      33.75
      ],
      "b": [
-      15.0,
-      25.0
+      40.0,
+      33.75
      ],
      "flags": [
       "normal"
@@ -295,25 +295,41 @@
      "id": "ground-w-8",
      "a": [
       5.0,
-      25.0
+      42.5
      ],
      "b": [
-      10.0,
-      25.0
+      17.5,
+      42.5
      ],
      "flags": [
       "normal"
      ],
-     "material": "plaster"
+     "material": "rubble"
+    },
+    {
+     "id": "N1-ground-w-52",
+     "a": [
+      17.5,
+      42.5
+     ],
+     "b": [
+      22.5,
+      42.5
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "rubble",
+     "open": false
     },
     {
      "id": "ground-w-9",
      "a": [
-      5.0,
-      20.0
+      22.5,
+      42.5
      ],
      "b": [
-      5.0,
+      40.0,
       42.5
      ],
      "flags": [
@@ -325,11 +341,11 @@
      "id": "ground-w-10",
      "a": [
       5.0,
-      15.0
+      0.0
      ],
      "b": [
       5.0,
-      20.0
+      2.5
      ],
      "flags": [
       "normal"
@@ -340,14 +356,14 @@
      "id": "ground-w-11",
      "a": [
       5.0,
-      10.0
+      2.5
      ],
      "b": [
       5.0,
-      15.0
+      7.5
      ],
      "flags": [
-      "normal"
+      "window"
      ],
      "material": "rubble"
     },
@@ -355,11 +371,11 @@
      "id": "ground-w-12",
      "a": [
       5.0,
-      5.0
+      7.5
      ],
      "b": [
       5.0,
-      10.0
+      12.5
      ],
      "flags": [
       "normal"
@@ -370,11 +386,26 @@
      "id": "ground-w-13",
      "a": [
       5.0,
-      0.0
+      12.5
      ],
      "b": [
       5.0,
-      5.0
+      17.5
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "ground-w-14",
+     "a": [
+      5.0,
+      17.5
+     ],
+     "b": [
+      5.0,
+      42.5
      ],
      "flags": [
       "normal"
@@ -382,13 +413,60 @@
      "material": "rubble"
     },
     {
-     "id": "ground-w-14",
+     "id": "N1-ground-w-53",
      "a": [
-      30.0,
+      15.0,
       25.0
      ],
      "b": [
-      30.0,
+      15.0,
+      30.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "plaster",
+     "open": false
+    },
+    {
+     "id": "ground-w-15",
+     "a": [
+      15.0,
+      30.0
+     ],
+     "b": [
+      15.0,
+      33.75
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "N1-ground-w-54",
+     "a": [
+      15.0,
+      33.75
+     ],
+     "b": [
+      15.0,
+      38.75
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "plaster",
+     "open": false
+    },
+    {
+     "id": "ground-w-16",
+     "a": [
+      15.0,
+      38.75
+     ],
+     "b": [
+      15.0,
       42.5
      ],
      "flags": [
@@ -397,58 +475,61 @@
      "material": "plaster"
     },
     {
-     "id": "ground-w-15",
+     "id": "N1-ground-w-55",
      "a": [
-      25.0,
-      42.5
+      30.0,
+      25.0
      ],
      "b": [
-      40.0,
-      42.5
+      30.0,
+      30.0
      ],
      "flags": [
-      "normal"
+      "door"
      ],
-     "material": "rubble"
-    },
-    {
-     "id": "ground-w-16",
-     "a": [
-      20.0,
-      42.5
-     ],
-     "b": [
-      25.0,
-      42.5
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "rubble"
+     "material": "plaster",
+     "open": false
     },
     {
      "id": "ground-w-17",
      "a": [
-      15.0,
-      42.5
+      30.0,
+      30.0
      ],
      "b": [
-      20.0,
-      42.5
+      30.0,
+      33.75
      ],
      "flags": [
       "normal"
      ],
-     "material": "rubble"
+     "material": "plaster"
+    },
+    {
+     "id": "N1-ground-w-56",
+     "a": [
+      30.0,
+      33.75
+     ],
+     "b": [
+      30.0,
+      38.75
+     ],
+     "flags": [
+      "door",
+      "locked"
+     ],
+     "material": "plaster",
+     "open": false
     },
     {
      "id": "ground-w-18",
      "a": [
-      15.0,
-      38.125
+      30.0,
+      38.75
      ],
      "b": [
-      15.0,
+      30.0,
       42.5
      ],
      "flags": [
@@ -459,137 +540,77 @@
     {
      "id": "ground-w-19",
      "a": [
-      15.0,
-      33.75
+      40.0,
+      0.0
      ],
      "b": [
-      15.0,
-      38.125
+      40.0,
+      2.5
      ],
      "flags": [
       "normal"
      ],
-     "material": "plaster"
+     "material": "rubble"
     },
     {
      "id": "ground-w-20",
      "a": [
-      15.0,
-      29.375
+      40.0,
+      2.5
      ],
      "b": [
-      15.0,
-      33.75
+      40.0,
+      7.5
      ],
      "flags": [
-      "normal"
+      "window"
      ],
-     "material": "plaster"
+     "material": "rubble"
     },
     {
      "id": "ground-w-21",
      "a": [
-      15.0,
-      25.0
+      40.0,
+      7.5
      ],
      "b": [
-      15.0,
-      29.375
+      40.0,
+      12.5
      ],
      "flags": [
       "normal"
      ],
-     "material": "plaster"
+     "material": "rubble"
     },
     {
      "id": "ground-w-22",
      "a": [
-      10.0,
-      33.75
+      40.0,
+      12.5
      ],
      "b": [
-      15.0,
-      33.75
+      40.0,
+      17.5
      ],
      "flags": [
-      "normal"
+      "window"
      ],
-     "material": "plaster"
+     "material": "rubble"
     },
     {
      "id": "ground-w-23",
      "a": [
-      5.0,
-      33.75
-     ],
-     "b": [
-      10.0,
-      33.75
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster"
-    },
-    {
-     "id": "ground-w-24",
-     "a": [
-      10.0,
-      42.5
-     ],
-     "b": [
-      15.0,
-      42.5
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "rubble"
-    },
-    {
-     "id": "ground-w-25",
-     "a": [
-      5.0,
-      42.5
-     ],
-     "b": [
-      10.0,
-      42.5
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "rubble"
-    },
-    {
-     "id": "ground-w-26",
-     "a": [
-      35.0,
-      33.75
+      40.0,
+      17.5
      ],
      "b": [
       40.0,
-      33.75
+      42.5
      ],
      "flags": [
       "normal"
      ],
-     "material": "plaster"
-    },
-    {
-     "id": "ground-w-27",
-     "a": [
-      30.0,
-      33.75
-     ],
-     "b": [
-      35.0,
-      33.75
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster"
+     "material": "rubble"
     }
    ],
    "lights": [
@@ -668,7 +689,10 @@
       0,
       9.0
      ],
-     "vis": "player"
+     "vis": "player",
+     "dims": {
+      "l": 8.0
+     }
     },
     {
      "id": "ground-N1-ground-p3",
@@ -678,7 +702,10 @@
       0,
       13.0
      ],
-     "vis": "player"
+     "vis": "player",
+     "dims": {
+      "l": 8.0
+     }
     },
     {
      "id": "ground-N1-ground-p4",
@@ -688,7 +715,10 @@
       0,
       17.0
      ],
-     "vis": "player"
+     "vis": "player",
+     "dims": {
+      "l": 8.0
+     }
     },
     {
      "id": "ground-N1-ground-p5",
@@ -699,7 +729,10 @@
       21.0
      ],
      "vis": "player",
-     "rotY": 8
+     "rotY": 8,
+     "dims": {
+      "l": 8.0
+     }
     },
     {
      "id": "ground-N1-ground-p6",
@@ -709,7 +742,10 @@
       0,
       9.0
      ],
-     "vis": "player"
+     "vis": "player",
+     "dims": {
+      "l": 8.0
+     }
     },
     {
      "id": "ground-N1-ground-p7",
@@ -720,7 +756,10 @@
       13.0
      ],
      "vis": "player",
-     "rotY": -12
+     "rotY": -12,
+     "dims": {
+      "l": 8.0
+     }
     },
     {
      "id": "ground-N1-ground-p8",
@@ -730,7 +769,10 @@
       0,
       17.0
      ],
-     "vis": "player"
+     "vis": "player",
+     "dims": {
+      "l": 8.0
+     }
     },
     {
      "id": "ground-N1-ground-p9",
@@ -740,7 +782,10 @@
       0,
       21.0
      ],
-     "vis": "player"
+     "vis": "player",
+     "dims": {
+      "l": 8.0
+     }
     },
     {
      "id": "ground-N1-ground-p10",
@@ -839,11 +884,14 @@
      "id": "ground-N1-ground-p19",
      "kind": "bookshelf",
      "pos": [
-      37.5,
+      37.15,
       0,
       26.5
      ],
-     "vis": "player"
+     "vis": "player",
+     "dims": {
+      "w": 5.0
+     }
     },
     {
      "id": "ground-N1-ground-p21",
@@ -930,9 +978,9 @@
      "id": "ground-N1-grave0",
      "kind": "gravestone",
      "pos": [
-      -45,
+      -45.0,
       0,
-      30
+      30.0
      ],
      "vis": "player",
      "rotY": -30
@@ -941,9 +989,9 @@
      "id": "ground-N1-grave1",
      "kind": "gravestone",
      "pos": [
-      -65,
+      -65.0,
       0,
-      50
+      50.0
      ],
      "vis": "player"
     },
@@ -951,9 +999,9 @@
      "id": "ground-N1-grave2",
      "kind": "gravestone",
      "pos": [
-      -35,
+      -35.0,
       0,
-      70
+      70.0
      ],
      "vis": "player",
      "rotY": -30
@@ -962,9 +1010,9 @@
      "id": "ground-N1-grave3",
      "kind": "gravestone",
      "pos": [
-      -55,
+      -55.0,
       0,
-      90
+      90.0
      ],
      "vis": "player"
     },
@@ -972,9 +1020,9 @@
      "id": "ground-N1-grave4",
      "kind": "gravestone",
      "pos": [
-      -45,
+      -45.0,
       0,
-      135
+      135.0
      ],
      "vis": "player",
      "rotY": -30
@@ -983,9 +1031,9 @@
      "id": "ground-N1-grave5",
      "kind": "gravestone",
      "pos": [
-      -65,
+      -65.0,
       0,
-      165
+      165.0
      ],
      "vis": "player"
     },
@@ -993,9 +1041,9 @@
      "id": "ground-N1-grave6",
      "kind": "gravestone",
      "pos": [
-      -35,
+      -35.0,
       0,
-      190
+      190.0
      ],
      "vis": "player",
      "rotY": -30
@@ -1004,9 +1052,9 @@
      "id": "ground-N1-grave7",
      "kind": "gravestone",
      "pos": [
-      -55,
+      -55.0,
       0,
-      210
+      210.0
      ],
      "vis": "player"
     },
@@ -1016,12 +1064,12 @@
      "pos": [
       -77.5,
       0,
-      30
+      30.0
      ],
      "vis": "player",
      "rotY": 90,
      "dims": {
-      "w": 12
+      "w": 12.0
      }
     },
     {
@@ -1030,12 +1078,12 @@
      "pos": [
       -77.5,
       0,
-      90
+      90.0
      ],
      "vis": "player",
      "rotY": 90,
      "dims": {
-      "w": 12
+      "w": 12.0
      }
     },
     {
@@ -1044,12 +1092,12 @@
      "pos": [
       -77.5,
       0,
-      150
+      150.0
      ],
      "vis": "player",
      "rotY": 90,
      "dims": {
-      "w": 12
+      "w": 12.0
      }
     },
     {
@@ -1058,12 +1106,12 @@
      "pos": [
       -77.5,
       0,
-      210
+      210.0
      ],
      "vis": "player",
      "rotY": 90,
      "dims": {
-      "w": 12
+      "w": 12.0
      }
     },
     {
@@ -1107,9 +1155,9 @@
      "id": "ground-milivoj",
      "kind": "commoner",
      "pos": [
-      -50,
+      -50.0,
       0,
-      110
+      110.0
      ],
      "vis": "hidden-creature",
      "label": "Milivoj with his shovel (commoner, Str 15, shovel 1d4+2)",
@@ -1119,7 +1167,7 @@
      "id": "ground-yeska",
      "kind": "commoner",
      "pos": [
-      10,
+      10.0,
       0,
       37.5
      ],
@@ -1127,26 +1175,42 @@
      "key": "N1b",
      "label": "Yeska the altar boy (noncombatant)",
      "size": "small"
+    },
+    {
+     "id": "ground-N1-roof0",
+     "kind": "roof-gable",
+     "pos": [
+      22.5,
+      0,
+      21.25
+     ],
+     "vis": "player",
+     "dims": {
+      "w": 39.0,
+      "d": 46.5,
+      "h": 20.7,
+      "y": 14
+     }
     }
    ],
    "terrain": [
     {
      "polygon": [
       [
-       -90,
-       -20
+       -245.0,
+       -207.5
       ],
       [
-       290,
-       -20
+       290.0,
+       -207.5
       ],
       [
-       290,
-       250
+       290.0,
+       250.0
       ],
       [
-       -90,
-       250
+       -245.0,
+       250.0
       ]
      ],
      "floor": "grass"

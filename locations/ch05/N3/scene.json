@@ -24,20 +24,20 @@
      "page": 106,
      "polygon": [
       [
-       15,
-       15
+       8.7,
+       8.7
       ],
       [
-       42.5,
-       15
+       24.65,
+       8.7
       ],
       [
-       42.5,
-       42.5
+       24.65,
+       24.65
       ],
       [
-       15,
-       42.5
+       8.7,
+       24.65
       ]
      ],
      "floor": "plank",
@@ -50,20 +50,20 @@
      "page": 106,
      "polygon": [
       [
-       42.5,
-       15
+       24.65,
+       8.7
       ],
       [
-       90,
-       15
+       52.2,
+       8.7
       ],
       [
-       90,
-       50
+       52.2,
+       29.0
       ],
       [
-       42.5,
-       50
+       24.65,
+       29.0
       ]
      ],
      "floor": "plank",
@@ -77,20 +77,20 @@
      "page": 106,
      "polygon": [
       [
-       90,
-       15
+       52.2,
+       8.7
       ],
       [
-       137.5,
-       15
+       79.75,
+       8.7
       ],
       [
-       137.5,
-       50
+       79.75,
+       29.0
       ],
       [
-       90,
-       50
+       52.2,
+       29.0
       ]
      ],
      "floor": "plank",
@@ -104,20 +104,20 @@
      "page": 105,
      "polygon": [
       [
-       137.5,
-       15
+       79.75,
+       8.7
       ],
       [
-       175,
-       15
+       101.5,
+       8.7
       ],
       [
-       175,
-       80
+       101.5,
+       46.4
       ],
       [
-       137.5,
-       80
+       79.75,
+       46.4
       ]
      ],
      "floor": "plank",
@@ -131,20 +131,20 @@
      "page": 105,
      "polygon": [
       [
-       42.5,
-       50
+       24.65,
+       29.0
       ],
       [
-       137.5,
-       50
+       79.75,
+       29.0
       ],
       [
-       137.5,
-       70
+       79.75,
+       40.6
       ],
       [
-       42.5,
-       70
+       24.65,
+       40.6
       ]
      ],
      "floor": "plank",
@@ -157,20 +157,20 @@
      "page": 106,
      "polygon": [
       [
-       15,
-       42.5
+       8.7,
+       24.65
       ],
       [
-       42.5,
-       42.5
+       24.65,
+       24.65
       ],
       [
-       42.5,
-       107.5
+       24.65,
+       62.35
       ],
       [
-       15,
-       107.5
+       8.7,
+       62.35
       ]
      ],
      "floor": "flagstone",
@@ -184,20 +184,20 @@
      "page": null,
      "polygon": [
       [
-       42.5,
-       70
+       24.65,
+       40.6
       ],
       [
-       82.5,
-       70
+       47.85,
+       40.6
       ],
       [
-       82.5,
-       107.5
+       47.85,
+       62.35
       ],
       [
-       42.5,
-       107.5
+       24.65,
+       62.35
       ]
      ],
      "floor": "plank",
@@ -210,20 +210,20 @@
      "page": 106,
      "polygon": [
       [
-       82.5,
-       70
+       47.85,
+       40.6
       ],
       [
-       137.5,
-       70
+       79.75,
+       40.6
       ],
       [
-       137.5,
-       107.5
+       79.75,
+       62.35
       ],
       [
-       82.5,
-       107.5
+       47.85,
+       62.35
       ]
      ],
      "floor": "plank",
@@ -237,20 +237,20 @@
      "page": 106,
      "polygon": [
       [
-       137.5,
-       80
+       79.75,
+       46.4
       ],
       [
-       175,
-       80
+       101.5,
+       46.4
       ],
       [
-       175,
-       107.5
+       101.5,
+       62.35
       ],
       [
-       137.5,
-       107.5
+       79.75,
+       62.35
       ]
      ],
      "floor": "plank",
@@ -263,20 +263,20 @@
      "page": 105,
      "polygon": [
       [
-       175,
-       35
+       101.5,
+       20.3
       ],
       [
-       185,
-       35
+       107.3,
+       20.3
       ],
       [
-       185,
-       55
+       107.3,
+       31.9
       ],
       [
-       175,
-       55
+       101.5,
+       31.9
       ]
      ],
      "floor": "flagstone",
@@ -288,12 +288,12 @@
     {
      "id": "ground-w-0",
      "a": [
-      15.0,
-      15.0
+      8.7,
+      8.7
      ],
      "b": [
-      175.0,
-      15.0
+      31.85,
+      8.7
      ],
      "flags": [
       "normal"
@@ -303,27 +303,27 @@
     {
      "id": "ground-w-1",
      "a": [
-      42.5,
-      15.0
+      31.85,
+      8.7
      ],
      "b": [
-      42.5,
-      107.5
+      34.85,
+      8.7
      ],
      "flags": [
-      "normal"
+      "window"
      ],
      "material": "ashlar"
     },
     {
      "id": "ground-w-2",
      "a": [
-      37.916666666666664,
-      42.5
+      34.85,
+      8.7
      ],
      "b": [
-      42.5,
-      42.5
+      43.45,
+      8.7
      ],
      "flags": [
       "normal"
@@ -333,27 +333,27 @@
     {
      "id": "ground-w-3",
      "a": [
-      33.333333333333336,
-      42.5
+      43.45,
+      8.7
      ],
      "b": [
-      37.916666666666664,
-      42.5
+      46.45,
+      8.7
      ],
      "flags": [
-      "normal"
+      "window"
      ],
      "material": "ashlar"
     },
     {
      "id": "ground-w-4",
      "a": [
-      28.75,
-      42.5
+      46.45,
+      8.7
      ],
      "b": [
-      33.333333333333336,
-      42.5
+      60.85,
+      8.7
      ],
      "flags": [
       "normal"
@@ -363,27 +363,27 @@
     {
      "id": "ground-w-5",
      "a": [
-      24.16666666666667,
-      42.5
+      60.85,
+      8.7
      ],
      "b": [
-      42.5,
-      42.5
+      63.85,
+      8.7
      ],
      "flags": [
-      "normal"
+      "window"
      ],
      "material": "ashlar"
     },
     {
      "id": "ground-w-6",
      "a": [
-      19.58333333333333,
-      42.5
+      63.85,
+      8.7
      ],
      "b": [
-      24.16666666666667,
-      42.5
+      72.45,
+      8.7
      ],
      "flags": [
       "normal"
@@ -393,27 +393,27 @@
     {
      "id": "ground-w-7",
      "a": [
-      15.0,
-      42.5
+      72.45,
+      8.7
      ],
      "b": [
-      19.58333333333333,
-      42.5
+      75.45,
+      8.7
      ],
      "flags": [
-      "normal"
+      "window"
      ],
      "material": "ashlar"
     },
     {
      "id": "ground-w-8",
      "a": [
-      15.0,
-      37.916666666666664
+      75.45,
+      8.7
      ],
      "b": [
-      15.0,
-      107.5
+      86.95,
+      8.7
      ],
      "flags": [
       "normal"
@@ -423,27 +423,27 @@
     {
      "id": "ground-w-9",
      "a": [
-      15.0,
-      33.333333333333336
+      86.95,
+      8.7
      ],
      "b": [
-      15.0,
-      37.916666666666664
+      89.95,
+      8.7
      ],
      "flags": [
-      "normal"
+      "window"
      ],
      "material": "ashlar"
     },
     {
      "id": "ground-w-10",
      "a": [
-      15.0,
-      28.75
+      89.95,
+      8.7
      ],
      "b": [
-      15.0,
-      33.333333333333336
+      101.5,
+      8.7
      ],
      "flags": [
       "normal"
@@ -453,57 +453,12 @@
     {
      "id": "ground-w-11",
      "a": [
-      15.0,
-      24.16666666666667
+      8.7,
+      24.65
      ],
      "b": [
-      15.0,
-      28.75
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-12",
-     "a": [
-      15.0,
-      19.58333333333333
-     ],
-     "b": [
-      15.0,
-      24.16666666666667
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-13",
-     "a": [
-      15.0,
-      15.0
-     ],
-     "b": [
-      15.0,
-      19.58333333333333
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-14",
-     "a": [
-      90.0,
-      15.0
-     ],
-     "b": [
-      90.0,
-      35.0
+      24.65,
+      24.65
      ],
      "flags": [
       "normal"
@@ -511,14 +466,106 @@
      "material": "paneling"
     },
     {
-     "id": "N3e-f",
+     "id": "ground-w-12",
      "a": [
-      90.0,
-      35.0
+      24.65,
+      29.0
      ],
      "b": [
-      90.0,
-      40.0
+      37.15,
+      29.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "N3f-hall",
+     "a": [
+      37.15,
+      29.0
+     ],
+     "b": [
+      41.15,
+      29.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "paneling",
+     "open": false
+    },
+    {
+     "id": "ground-w-13",
+     "a": [
+      41.15,
+      29.0
+     ],
+     "b": [
+      63.25,
+      29.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "N3e-hall",
+     "a": [
+      63.25,
+      29.0
+     ],
+     "b": [
+      67.25,
+      29.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "paneling",
+     "open": false
+    },
+    {
+     "id": "ground-w-14",
+     "a": [
+      67.25,
+      29.0
+     ],
+     "b": [
+      79.75,
+      29.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-15",
+     "a": [
+      24.65,
+      40.6
+     ],
+     "b": [
+      34.25,
+      40.6
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "N3d-hall",
+     "a": [
+      34.25,
+      40.6
+     ],
+     "b": [
+      38.25,
+      40.6
      ],
      "flags": [
       "door"
@@ -529,12 +576,12 @@
     {
      "id": "ground-w-16",
      "a": [
-      90.0,
-      40.0
+      38.25,
+      40.6
      ],
      "b": [
-      90.0,
-      50.0
+      63.25,
+      40.6
      ],
      "flags": [
       "normal"
@@ -542,44 +589,60 @@
      "material": "paneling"
     },
     {
-     "id": "ground-w-17",
+     "id": "N3c-hall",
      "a": [
-      85.25,
-      50.0
+      63.25,
+      40.6
      ],
      "b": [
-      137.5,
-      50.0
+      67.25,
+      40.6
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "paneling",
+     "open": false
+    },
+    {
+     "id": "ground-w-17",
+     "a": [
+      67.25,
+      40.6
+     ],
+     "b": [
+      79.75,
+      40.6
      ],
      "flags": [
       "normal"
      ],
-     "material": "ashlar"
+     "material": "paneling"
     },
     {
      "id": "ground-w-18",
      "a": [
-      80.5,
-      50.0
+      79.75,
+      46.4
      ],
      "b": [
-      85.25,
-      50.0
+      101.5,
+      46.4
      ],
      "flags": [
       "normal"
      ],
-     "material": "ashlar"
+     "material": "paneling"
     },
     {
      "id": "ground-w-19",
      "a": [
-      75.75,
-      50.0
+      8.7,
+      62.35
      ],
      "b": [
-      80.5,
-      50.0
+      14.45,
+      62.35
      ],
      "flags": [
       "normal"
@@ -589,27 +652,27 @@
     {
      "id": "ground-w-20",
      "a": [
-      71.0,
-      50.0
+      14.45,
+      62.35
      ],
      "b": [
-      75.75,
-      50.0
+      17.45,
+      62.35
      ],
      "flags": [
-      "normal"
+      "window"
      ],
      "material": "ashlar"
     },
     {
      "id": "ground-w-21",
      "a": [
-      66.25,
-      50.0
+      17.45,
+      62.35
      ],
      "b": [
-      71.0,
-      50.0
+      31.85,
+      62.35
      ],
      "flags": [
       "normal"
@@ -619,27 +682,27 @@
     {
      "id": "ground-w-22",
      "a": [
-      61.5,
-      50.0
+      31.85,
+      62.35
      ],
      "b": [
-      66.25,
-      50.0
+      34.85,
+      62.35
      ],
      "flags": [
-      "normal"
+      "window"
      ],
      "material": "ashlar"
     },
     {
      "id": "ground-w-23",
      "a": [
-      56.75000000000001,
-      50.0
+      34.85,
+      62.35
      ],
      "b": [
-      61.5,
-      50.0
+      55.05,
+      62.35
      ],
      "flags": [
       "normal"
@@ -649,27 +712,27 @@
     {
      "id": "ground-w-24",
      "a": [
-      51.99999999999999,
-      50.0
+      55.05,
+      62.35
      ],
      "b": [
-      56.75000000000001,
-      50.0
+      58.05,
+      62.35
      ],
      "flags": [
-      "normal"
+      "window"
      ],
      "material": "ashlar"
     },
     {
      "id": "ground-w-25",
      "a": [
-      47.25,
-      50.0
+      58.05,
+      62.35
      ],
      "b": [
-      51.99999999999999,
-      50.0
+      69.55,
+      62.35
      ],
      "flags": [
       "normal"
@@ -679,27 +742,27 @@
     {
      "id": "ground-w-26",
      "a": [
-      42.5,
-      50.0
+      69.55,
+      62.35
      ],
      "b": [
-      47.25,
-      50.0
+      72.55,
+      62.35
      ],
      "flags": [
-      "normal"
+      "window"
      ],
      "material": "ashlar"
     },
     {
      "id": "ground-w-27",
      "a": [
-      42.5,
-      45.0
+      72.55,
+      62.35
      ],
      "b": [
-      42.5,
-      55.0
+      101.5,
+      62.35
      ],
      "flags": [
       "normal"
@@ -709,12 +772,12 @@
     {
      "id": "ground-w-28",
      "a": [
-      42.5,
-      40.0
+      8.7,
+      8.7
      ],
      "b": [
-      42.5,
-      45.0
+      8.7,
+      11.55
      ],
      "flags": [
       "normal"
@@ -724,27 +787,27 @@
     {
      "id": "ground-w-29",
      "a": [
-      42.5,
-      35.0
+      8.7,
+      11.55
      ],
      "b": [
-      42.5,
-      40.0
+      8.7,
+      14.55
      ],
      "flags": [
-      "normal"
+      "window"
      ],
      "material": "ashlar"
     },
     {
      "id": "ground-w-30",
      "a": [
-      42.5,
-      30.0
+      8.7,
+      14.55
      ],
      "b": [
-      42.5,
-      35.0
+      8.7,
+      31.85
      ],
      "flags": [
       "normal"
@@ -752,45 +815,61 @@
      "material": "ashlar"
     },
     {
-     "id": "N3h-f",
+     "id": "ground-w-31",
      "a": [
-      42.5,
-      25.0
+      8.7,
+      31.85
      ],
      "b": [
-      42.5,
-      30.0
+      8.7,
+      34.85
      ],
      "flags": [
-      "door"
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-32",
+     "a": [
+      8.7,
+      34.85
+     ],
+     "b": [
+      8.7,
+      42.95
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "N3g-garden",
+     "a": [
+      8.7,
+      42.95
+     ],
+     "b": [
+      8.7,
+      46.95
+     ],
+     "flags": [
+      "door",
+      "locked"
      ],
      "material": "ashlar",
      "open": false
     },
     {
-     "id": "ground-w-32",
-     "a": [
-      42.5,
-      20.0
-     ],
-     "b": [
-      42.5,
-      25.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
      "id": "ground-w-33",
      "a": [
-      42.5,
-      15.0
+      8.7,
+      46.95
      ],
      "b": [
-      42.5,
-      20.0
+      8.7,
+      62.35
      ],
      "flags": [
       "normal"
@@ -800,12 +879,12 @@
     {
      "id": "ground-w-34",
      "a": [
-      137.5,
-      15.0
+      24.65,
+      8.7
      ],
      "b": [
-      137.5,
-      55.0
+      24.65,
+      13.95
      ],
      "flags": [
       "normal"
@@ -813,29 +892,61 @@
      "material": "paneling"
     },
     {
-     "id": "ground-w-35",
+     "id": "N3h-f",
      "a": [
-      175.0,
-      15.0
+      24.65,
+      13.95
      ],
      "b": [
-      175.0,
-      35.0
+      24.65,
+      17.95
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "paneling",
+     "open": false
+    },
+    {
+     "id": "ground-w-35",
+     "a": [
+      24.65,
+      17.95
+     ],
+     "b": [
+      24.65,
+      31.35
      ],
      "flags": [
       "normal"
      ],
-     "material": "ashlar"
+     "material": "paneling"
+    },
+    {
+     "id": "N3g-hall",
+     "a": [
+      24.65,
+      31.35
+     ],
+     "b": [
+      24.65,
+      35.35
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "paneling",
+     "open": false
     },
     {
      "id": "ground-w-36",
      "a": [
-      175.0,
-      35.0
+      24.65,
+      35.35
      ],
      "b": [
-      175.0,
-      55.0
+      24.65,
+      62.35
      ],
      "flags": [
       "normal"
@@ -845,57 +956,89 @@
     {
      "id": "ground-w-37",
      "a": [
-      175.0,
-      55.0
+      47.85,
+      40.6
      ],
      "b": [
-      175.0,
-      65.0
+      47.85,
+      48.75
      ],
      "flags": [
       "normal"
      ],
-     "material": "ashlar"
+     "material": "paneling"
+    },
+    {
+     "id": "N3c-d",
+     "a": [
+      47.85,
+      48.75
+     ],
+     "b": [
+      47.85,
+      52.75
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "paneling",
+     "open": false
     },
     {
      "id": "ground-w-38",
      "a": [
-      175.0,
-      65.0
+      47.85,
+      52.75
      ],
      "b": [
-      175.0,
-      70.0
-     ],
-     "flags": [
-      "window"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-39",
-     "a": [
-      175.0,
-      70.0
-     ],
-     "b": [
-      175.0,
-      107.5
+      47.85,
+      62.35
      ],
      "flags": [
       "normal"
      ],
-     "material": "ashlar"
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-39",
+     "a": [
+      52.2,
+      8.7
+     ],
+     "b": [
+      52.2,
+      19.75
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "N3e-f",
+     "a": [
+      52.2,
+      19.75
+     ],
+     "b": [
+      52.2,
+      23.75
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "paneling",
+     "open": false
     },
     {
      "id": "ground-w-40",
      "a": [
-      170.3125,
-      80.0
+      52.2,
+      23.75
      ],
      "b": [
-      175.0,
-      80.0
+      52.2,
+      29.0
      ],
      "flags": [
       "normal"
@@ -905,162 +1048,12 @@
     {
      "id": "ground-w-41",
      "a": [
-      165.625,
-      80.0
+      79.75,
+      8.7
      ],
      "b": [
-      170.3125,
-      80.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "ground-w-42",
-     "a": [
-      160.9375,
-      80.0
-     ],
-     "b": [
-      165.625,
-      80.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "ground-w-43",
-     "a": [
-      156.25,
-      80.0
-     ],
-     "b": [
-      160.9375,
-      80.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "ground-w-44",
-     "a": [
-      151.5625,
-      80.0
-     ],
-     "b": [
-      156.25,
-      80.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "ground-w-45",
-     "a": [
-      146.875,
-      80.0
-     ],
-     "b": [
-      151.5625,
-      80.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "ground-w-46",
-     "a": [
-      142.1875,
-      80.0
-     ],
-     "b": [
-      146.875,
-      80.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "ground-w-47",
-     "a": [
-      137.5,
-      80.0
-     ],
-     "b": [
-      142.1875,
-      80.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "ground-w-48",
-     "a": [
-      137.5,
-      75.0
-     ],
-     "b": [
-      137.5,
-      107.5
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-49",
-     "a": [
-      137.5,
-      70.0
-     ],
-     "b": [
-      137.5,
-      75.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-50",
-     "a": [
-      137.5,
-      65.0
-     ],
-     "b": [
-      137.5,
-      70.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "ground-w-51",
-     "a": [
-      137.5,
-      60.0
-     ],
-     "b": [
-      137.5,
-      65.0
+      79.75,
+      31.35
      ],
      "flags": [
       "normal"
@@ -1070,12 +1063,12 @@
     {
      "id": "N3a-hall-door",
      "a": [
-      137.5,
-      55.0
+      79.75,
+      31.35
      ],
      "b": [
-      137.5,
-      60.0
+      79.75,
+      35.35
      ],
      "flags": [
       "door"
@@ -1084,29 +1077,14 @@
      "open": false
     },
     {
-     "id": "ground-w-53",
+     "id": "ground-w-42",
      "a": [
-      42.5,
-      50.0
+      79.75,
+      35.35
      ],
      "b": [
-      137.5,
-      50.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-54",
-     "a": [
-      132.5,
-      70.0
-     ],
-     "b": [
-      137.5,
-      70.0
+      79.75,
+      48.75
      ],
      "flags": [
       "normal"
@@ -1114,435 +1092,30 @@
      "material": "paneling"
     },
     {
-     "id": "ground-w-55",
+     "id": "N3b-door",
      "a": [
-      127.5,
-      70.0
+      79.75,
+      48.75
      ],
      "b": [
-      132.5,
-      70.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "ground-w-56",
-     "a": [
-      122.5,
-      70.0
-     ],
-     "b": [
-      127.5,
-      70.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "ground-w-57",
-     "a": [
-      117.5,
-      70.0
-     ],
-     "b": [
-      122.5,
-      70.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "ground-w-58",
-     "a": [
-      112.5,
-      70.0
-     ],
-     "b": [
-      117.5,
-      70.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "ground-w-59",
-     "a": [
-      107.5,
-      70.0
-     ],
-     "b": [
-      112.5,
-      70.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "ground-w-60",
-     "a": [
-      102.5,
-      70.0
-     ],
-     "b": [
-      107.5,
-      70.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "ground-w-61",
-     "a": [
-      97.5,
-      70.0
-     ],
-     "b": [
-      102.5,
-      70.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "ground-w-62",
-     "a": [
-      92.5,
-      70.0
-     ],
-     "b": [
-      97.5,
-      70.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "ground-w-63",
-     "a": [
-      87.5,
-      70.0
-     ],
-     "b": [
-      92.5,
-      70.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "ground-w-64",
-     "a": [
-      82.5,
-      70.0
-     ],
-     "b": [
-      87.5,
-      70.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "ground-w-65",
-     "a": [
-      77.5,
-      70.0
-     ],
-     "b": [
-      82.5,
-      70.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "ground-w-66",
-     "a": [
-      72.5,
-      70.0
-     ],
-     "b": [
-      77.5,
-      70.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "ground-w-67",
-     "a": [
-      67.5,
-      70.0
-     ],
-     "b": [
-      72.5,
-      70.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "ground-w-68",
-     "a": [
-      62.5,
-      70.0
-     ],
-     "b": [
-      67.5,
-      70.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "ground-w-69",
-     "a": [
-      57.5,
-      70.0
-     ],
-     "b": [
-      62.5,
-      70.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "ground-w-70",
-     "a": [
-      52.5,
-      70.0
-     ],
-     "b": [
-      57.5,
-      70.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "ground-w-71",
-     "a": [
-      47.5,
-      70.0
-     ],
-     "b": [
-      52.5,
-      70.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "ground-w-72",
-     "a": [
-      42.5,
-      70.0
-     ],
-     "b": [
-      47.5,
-      70.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "ground-w-73",
-     "a": [
-      42.5,
-      65.0
-     ],
-     "b": [
-      42.5,
-      107.5
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-74",
-     "a": [
-      42.5,
-      60.0
-     ],
-     "b": [
-      42.5,
-      65.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "N3g-hall",
-     "a": [
-      42.5,
-      55.0
-     ],
-     "b": [
-      42.5,
-      60.0
+      79.75,
+      52.75
      ],
      "flags": [
       "door"
      ],
-     "material": "ashlar",
+     "material": "paneling",
      "open": false
     },
     {
-     "id": "ground-w-76",
+     "id": "ground-w-43",
      "a": [
-      15.0,
-      42.5
+      79.75,
+      52.75
      ],
      "b": [
-      28.75,
-      42.5
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-77",
-     "a": [
-      37.916666666666664,
-      107.5
-     ],
-     "b": [
-      175.0,
-      107.5
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-78",
-     "a": [
-      33.333333333333336,
-      107.5
-     ],
-     "b": [
-      37.916666666666664,
-      107.5
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-79",
-     "a": [
-      28.75,
-      107.5
-     ],
-     "b": [
-      33.333333333333336,
-      107.5
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-80",
-     "a": [
-      24.16666666666667,
-      107.5
-     ],
-     "b": [
-      28.75,
-      107.5
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-81",
-     "a": [
-      19.58333333333333,
-      107.5
-     ],
-     "b": [
-      24.16666666666667,
-      107.5
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-82",
-     "a": [
-      15.0,
-      107.5
-     ],
-     "b": [
-      19.58333333333333,
-      107.5
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-83",
-     "a": [
-      82.5,
-      70.0
-     ],
-     "b": [
-      82.5,
-      107.5
+      79.75,
+      62.35
      ],
      "flags": [
       "normal"
@@ -1550,14 +1123,14 @@
      "material": "paneling"
     },
     {
-     "id": "ground-w-84",
+     "id": "ground-w-44",
      "a": [
-      137.5,
-      70.0
+      101.5,
+      8.7
      ],
      "b": [
-      137.5,
-      107.5
+      101.5,
+      20.3
      ],
      "flags": [
       "normal"
@@ -1565,14 +1138,60 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-85",
+     "id": "ground-w-45",
      "a": [
-      175.0,
-      35.0
+      101.5,
+      20.3
      ],
      "b": [
-      185.0,
-      35.0
+      101.5,
+      23.1
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "N3a-front",
+     "a": [
+      101.5,
+      23.1
+     ],
+     "b": [
+      101.5,
+      29.1
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "paneling",
+     "open": false
+    },
+    {
+     "id": "ground-w-46",
+     "a": [
+      101.5,
+      29.1
+     ],
+     "b": [
+      101.5,
+      31.9
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-47",
+     "a": [
+      101.5,
+      31.9
+     ],
+     "b": [
+      101.5,
+      37.65
      ],
      "flags": [
       "normal"
@@ -1580,14 +1199,29 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-86",
+     "id": "ground-w-48",
      "a": [
-      185.0,
-      35.0
+      101.5,
+      37.65
      ],
      "b": [
-      185.0,
-      55.0
+      101.5,
+      40.65
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-49",
+     "a": [
+      101.5,
+      40.65
+     ],
+     "b": [
+      101.5,
+      55.05
      ],
      "flags": [
       "normal"
@@ -1595,29 +1229,29 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-87",
+     "id": "ground-w-50",
      "a": [
-      180.0,
-      55.0
+      101.5,
+      55.05
      ],
      "b": [
-      185.0,
-      55.0
+      101.5,
+      58.05
      ],
      "flags": [
-      "normal"
+      "window"
      ],
      "material": "ashlar"
     },
     {
-     "id": "ground-w-88",
+     "id": "ground-w-51",
      "a": [
-      175.0,
-      55.0
+      101.5,
+      58.05
      ],
      "b": [
-      180.0,
-      55.0
+      101.5,
+      62.35
      ],
      "flags": [
       "normal"
@@ -1627,12 +1261,12 @@
     {
      "id": "ground-x-0",
      "a": [
-      155,
-      15
+      89.9,
+      8.7
      ],
      "b": [
-      155,
-      32.5
+      89.9,
+      18.85
      ],
      "flags": [
       "normal"
@@ -1642,12 +1276,12 @@
     {
      "id": "ground-x-1",
      "a": [
-      155,
-      32.5
+      89.9,
+      18.85
      ],
      "b": [
-      175,
-      32.5
+      101.5,
+      18.85
      ],
      "flags": [
       "normal"
@@ -1659,9 +1293,9 @@
     {
      "id": "ground-l-N3e-lamp",
      "pos": [
-      115,
+      66.7,
       7,
-      32.5
+      18.849999999999998
      ],
      "preset": "lantern",
      "bright": 15,
@@ -1670,9 +1304,9 @@
     {
      "id": "ground-l-N3c-chandelier",
      "pos": [
-      110,
+      63.8,
       8,
-      87.5
+      50.74999999999999
      ],
      "preset": "candle",
      "bright": 15,
@@ -1681,9 +1315,9 @@
     {
      "id": "ground-l-N3b-lamp",
      "pos": [
-      157.5,
+      91.35,
       7,
-      92.5
+      53.64999999999999
      ],
      "preset": "lantern",
      "bright": 15,
@@ -1692,9 +1326,9 @@
     {
      "id": "ground-l-N3a-chandelier",
      "pos": [
-      155,
+      89.9,
       14,
-      50
+      29.0
      ],
      "preset": "candle",
      "bright": 20,
@@ -1703,12 +1337,28 @@
    ],
    "objects": [
     {
+     "id": "ground-N3-porch-roof0",
+     "kind": "roof-gable",
+     "pos": [
+      105.125,
+      0,
+      26.1
+     ],
+     "vis": "player",
+     "dims": {
+      "w": 11.3,
+      "d": 15.6,
+      "h": 4.1,
+      "y": 10
+     }
+    },
+    {
      "id": "ground-N3-garden4",
      "kind": "bush",
      "pos": [
-      -35,
+      -20.3,
       0,
-      20
+      11.6
      ],
      "vis": "player"
     },
@@ -1716,9 +1366,9 @@
      "id": "ground-N3-garden4b",
      "kind": "bush",
      "pos": [
-      -15,
+      -8.7,
       0,
-      20
+      11.6
      ],
      "vis": "player"
     },
@@ -1726,9 +1376,9 @@
      "id": "ground-N3-garden8",
      "kind": "bush",
      "pos": [
-      -35,
+      -20.3,
       0,
-      40
+      23.2
      ],
      "vis": "player"
     },
@@ -1736,9 +1386,9 @@
      "id": "ground-N3-garden8b",
      "kind": "bush",
      "pos": [
-      -15,
+      -8.7,
       0,
-      40
+      23.2
      ],
      "vis": "player"
     },
@@ -1746,9 +1396,9 @@
      "id": "ground-N3-garden12",
      "kind": "bush",
      "pos": [
-      -35,
+      -20.3,
       0,
-      60
+      34.8
      ],
      "vis": "player"
     },
@@ -1756,9 +1406,9 @@
      "id": "ground-N3-garden12b",
      "kind": "bush",
      "pos": [
-      -15,
+      -8.7,
       0,
-      60
+      34.8
      ],
      "vis": "player"
     },
@@ -1766,9 +1416,9 @@
      "id": "ground-N3-garden16",
      "kind": "bush",
      "pos": [
-      -35,
+      -20.3,
       0,
-      80
+      46.4
      ],
      "vis": "player"
     },
@@ -1776,9 +1426,9 @@
      "id": "ground-N3-garden16b",
      "kind": "bush",
      "pos": [
-      -15,
+      -8.7,
       0,
-      80
+      46.4
      ],
      "vis": "player"
     },
@@ -1786,9 +1436,9 @@
      "id": "ground-N3-garden20",
      "kind": "bush",
      "pos": [
-      -35,
+      -20.3,
       0,
-      100
+      58.0
      ],
      "vis": "player"
     },
@@ -1796,9 +1446,9 @@
      "id": "ground-N3-garden20b",
      "kind": "bush",
      "pos": [
-      -15,
+      -8.7,
       0,
-      100
+      58.0
      ],
      "vis": "player"
     },
@@ -1806,56 +1456,56 @@
      "id": "ground-N3a-stair",
      "kind": "stairs-straight",
      "pos": [
-      146.25,
+      84.825,
       0,
-      25
+      14.5
      ],
      "vis": "player",
      "key": "N3a",
      "dims": {
-      "w": 15,
+      "w": 8.7,
       "rise": 20,
-      "fromZ": 35,
-      "toZ": 15
+      "fromZ": 32.7,
+      "toZ": 8.7
      }
     },
     {
      "id": "ground-N3a-rug",
      "kind": "rug",
      "pos": [
-      155,
+      89.9,
       0,
-      60
+      34.8
      ],
      "vis": "player",
      "key": "N3a",
      "dims": {
-      "w": 10,
-      "d": 14
+      "w": 5.8,
+      "d": 8.1
      }
     },
     {
      "id": "ground-N3a-hall-rug",
      "kind": "rug",
      "pos": [
-      90,
+      52.2,
       0,
-      60
+      34.8
      ],
      "vis": "player",
      "key": "N3a-hall",
      "dims": {
-      "w": 85,
-      "d": 6
+      "w": 49.3,
+      "d": 3.5
      }
     },
     {
      "id": "ground-N3a-cloaks",
      "kind": "niche",
      "pos": [
-      165,
+      95.7,
       0,
-      25
+      14.5
      ],
      "vis": "hidden-object",
      "key": "N3a",
@@ -1865,9 +1515,9 @@
      "id": "ground-N3a-portraits",
      "kind": "niche",
      "pos": [
-      145,
+      84.1,
       0,
-      70
+      40.6
      ],
      "vis": "hidden-object",
      "key": "N3a",
@@ -1877,9 +1527,9 @@
      "id": "ground-N3a-twigs",
      "kind": "note",
      "pos": [
-      150,
+      87.0,
       0,
-      50
+      29.0
      ],
      "vis": "dm-note",
      "key": "N3a",
@@ -1889,31 +1539,37 @@
      "id": "ground-N3e-couch-a",
      "kind": "bench",
      "pos": [
-      97.5,
+      56.55,
       0,
-      45
+      26.1
      ],
      "vis": "player",
-     "key": "N3e"
+     "key": "N3e",
+     "dims": {
+      "l": 4.6
+     }
     },
     {
      "id": "ground-N3e-couch-b",
      "kind": "bench",
      "pos": [
-      127.5,
+      73.95,
       0,
-      45
+      26.1
      ],
      "vis": "player",
-     "key": "N3e"
+     "key": "N3e",
+     "dims": {
+      "l": 4.6
+     }
     },
     {
      "id": "ground-N3e-chair-a",
      "kind": "chair",
      "pos": [
-      97.5,
+      56.55,
       0,
-      25
+      14.5
      ],
      "vis": "player",
      "key": "N3e"
@@ -1922,9 +1578,9 @@
      "id": "ground-N3e-chair-b",
      "kind": "chair",
      "pos": [
-      102.5,
+      59.45,
       0,
-      32.5
+      18.85
      ],
      "vis": "player",
      "key": "N3e"
@@ -1933,20 +1589,23 @@
      "id": "ground-N3e-table",
      "kind": "table-round",
      "pos": [
-      115,
+      66.7,
       0,
-      32.5
+      18.85
      ],
      "vis": "player",
-     "key": "N3e"
+     "key": "N3e",
+     "dims": {
+      "r": 2.0
+     }
     },
     {
      "id": "ground-N3e-side",
      "kind": "desk",
      "pos": [
-      132.5,
+      76.85,
       0,
-      40
+      23.2
      ],
      "vis": "player",
      "key": "N3e"
@@ -1955,9 +1614,9 @@
      "id": "ground-N3e-bear",
      "kind": "niche",
      "pos": [
-      136.0,
+      78.88,
       0,
-      30
+      17.4
      ],
      "vis": "hidden-object",
      "key": "N3e",
@@ -1967,20 +1626,23 @@
      "id": "ground-N3f-table",
      "kind": "table-round",
      "pos": [
-      67.5,
+      39.15,
       0,
-      27.5
+      15.95
      ],
      "vis": "player",
-     "key": "N3f"
+     "key": "N3f",
+     "dims": {
+      "r": 2.0
+     }
     },
     {
      "id": "ground-N3f-bed0",
      "kind": "bed",
      "pos": [
-      47.5,
+      27.55,
       0,
-      20
+      12.55
      ],
      "vis": "player",
      "key": "N3f"
@@ -1989,9 +1651,9 @@
      "id": "ground-N3f-bed1",
      "kind": "bed",
      "pos": [
-      84.0,
+      48.72,
       0,
-      20
+      12.55
      ],
      "vis": "player",
      "key": "N3f"
@@ -2000,9 +1662,9 @@
      "id": "ground-N3f-bed2",
      "kind": "bed",
      "pos": [
-      47.5,
+      27.55,
       0,
-      44.0
+      25.15
      ],
      "vis": "player",
      "key": "N3f"
@@ -2011,9 +1673,9 @@
      "id": "ground-N3f-bed3",
      "kind": "bed",
      "pos": [
-      84.0,
+      48.72,
       0,
-      44.0
+      25.15
      ],
      "vis": "player",
      "key": "N3f"
@@ -2022,9 +1684,9 @@
      "id": "ground-N3f-trunk0",
      "kind": "trunk",
      "pos": [
-      55,
+      31.9,
       0,
-      18.0
+      10.44
      ],
      "vis": "player",
      "key": "N3f"
@@ -2033,9 +1695,9 @@
      "id": "ground-N3f-trunk1",
      "kind": "trunk",
      "pos": [
-      76.5,
+      44.37,
       0,
-      18.0
+      10.44
      ],
      "vis": "player",
      "key": "N3f"
@@ -2044,9 +1706,9 @@
      "id": "ground-N3f-trunk2",
      "kind": "trunk",
      "pos": [
-      55,
+      31.9,
       0,
-      46.5
+      26.97
      ],
      "vis": "player",
      "key": "N3f"
@@ -2055,9 +1717,9 @@
      "id": "ground-N3f-trunk3",
      "kind": "trunk",
      "pos": [
-      76.5,
+      44.37,
       0,
-      46.5
+      26.97
      ],
      "vis": "player",
      "key": "N3f"
@@ -2066,9 +1728,9 @@
      "id": "ground-N3f-note",
      "kind": "note",
      "pos": [
-      67.5,
+      39.15,
       0,
-      35
+      20.3
      ],
      "vis": "dm-note",
      "key": "N3f",
@@ -2078,21 +1740,24 @@
      "id": "ground-N3h-shelves",
      "kind": "shelves",
      "pos": [
-      18.0,
+      10.44,
       0,
-      25
+      14.5
      ],
      "vis": "player",
      "rotY": 90,
-     "key": "N3h"
+     "key": "N3h",
+     "dims": {
+      "w": 3
+     }
     },
     {
      "id": "ground-N3h-cask-a",
      "kind": "wine-cask",
      "pos": [
-      40,
+      23.2,
       0,
-      20
+      11.6
      ],
      "vis": "player",
      "key": "N3h"
@@ -2101,9 +1766,9 @@
      "id": "ground-N3h-cask-b",
      "kind": "wine-cask",
      "pos": [
-      40,
+      23.2,
       0,
-      26.0
+      15.08
      ],
      "vis": "player",
      "key": "N3h"
@@ -2112,24 +1777,24 @@
      "id": "ground-N3g-table",
      "kind": "table",
      "pos": [
-      27.5,
+      15.95,
       0,
-      65
+      37.7
      ],
      "vis": "player",
      "key": "N3g",
      "dims": {
-      "w": 4,
-      "d": 8
+      "w": 3,
+      "d": 4.6
      }
     },
     {
      "id": "ground-N3g-stove",
      "kind": "stove",
      "pos": [
-      18.5,
+      10.73,
       0,
-      50
+      29.0
      ],
      "vis": "player",
      "rotY": 90,
@@ -2139,9 +1804,9 @@
      "id": "ground-N3g-cabinet",
      "kind": "cabinet",
      "pos": [
-      39.0,
+      22.62,
       0,
-      90
+      52.2
      ],
      "vis": "player",
      "rotY": -90,
@@ -2151,26 +1816,26 @@
      "id": "ground-N3g-stair",
      "kind": "stairs-straight",
      "pos": [
-      27.5,
+      15.95,
       0,
-      100
+      58.0
      ],
      "vis": "player",
      "key": "N3g",
      "dims": {
-      "w": 5,
+      "w": 3,
       "rise": 20,
-      "fromX": 15,
-      "toX": 40
+      "fromX": 9.7,
+      "toX": 23.65
      }
     },
     {
      "id": "ground-cook",
      "kind": "commoner",
      "pos": [
-      25,
+      14.5,
       0,
-      77.5
+      44.95
      ],
      "vis": "hidden-creature",
      "key": "N3g",
@@ -2181,39 +1846,39 @@
      "id": "ground-N3d-table-a",
      "kind": "table",
      "pos": [
-      60,
+      34.8,
       0,
-      82.5
+      47.85
      ],
      "vis": "player",
      "key": "N3d",
      "dims": {
-      "w": 8,
-      "d": 3
+      "w": 4.6,
+      "d": 2.5
      }
     },
     {
      "id": "ground-N3d-table-b",
      "kind": "table",
      "pos": [
-      60,
+      34.8,
       0,
-      97.5
+      56.55
      ],
      "vis": "player",
      "key": "N3d",
      "dims": {
-      "w": 8,
-      "d": 3
+      "w": 4.6,
+      "d": 2.5
      }
     },
     {
      "id": "ground-N3d-silver",
      "kind": "niche",
      "pos": [
-      60,
+      34.8,
       0,
-      80
+      46.4
      ],
      "vis": "hidden-object",
      "key": "N3d",
@@ -2223,9 +1888,9 @@
      "id": "ground-N3d-baskets",
      "kind": "niche",
      "pos": [
-      60,
+      34.8,
       0,
-      100
+      58.0
      ],
      "vis": "hidden-object",
      "key": "N3d",
@@ -2235,24 +1900,24 @@
      "id": "ground-N3c-table",
      "kind": "table",
      "pos": [
-      110,
+      63.8,
       0,
-      87.5
+      50.75
      ],
      "vis": "player",
      "key": "N3c",
      "dims": {
-      "w": 14,
-      "d": 5
+      "w": 8.1,
+      "d": 2.9
      }
     },
     {
      "id": "ground-N3c-chair0",
      "kind": "chair",
      "pos": [
-      92.5,
+      53.65,
       0,
-      81.0
+      46.98
      ],
      "vis": "player",
      "key": "N3c"
@@ -2261,9 +1926,9 @@
      "id": "ground-N3c-chair1",
      "kind": "chair",
      "pos": [
-      105,
+      60.9,
       0,
-      81.0
+      46.98
      ],
      "vis": "player",
      "key": "N3c"
@@ -2272,9 +1937,9 @@
      "id": "ground-N3c-chair2",
      "kind": "chair",
      "pos": [
-      117.5,
+      68.15,
       0,
-      81.0
+      46.98
      ],
      "vis": "player",
      "key": "N3c"
@@ -2283,9 +1948,9 @@
      "id": "ground-N3c-chair3",
      "kind": "chair",
      "pos": [
-      130,
+      75.4,
       0,
-      81.0
+      46.98
      ],
      "vis": "player",
      "key": "N3c"
@@ -2294,9 +1959,9 @@
      "id": "ground-N3c-chair4",
      "kind": "chair",
      "pos": [
-      92.5,
+      53.65,
       0,
-      94.0
+      54.52
      ],
      "vis": "player",
      "key": "N3c"
@@ -2305,9 +1970,9 @@
      "id": "ground-N3c-chair5",
      "kind": "chair",
      "pos": [
-      105,
+      60.9,
       0,
-      94.0
+      54.52
      ],
      "vis": "player",
      "key": "N3c"
@@ -2316,9 +1981,9 @@
      "id": "ground-N3c-chair6",
      "kind": "chair",
      "pos": [
-      117.5,
+      68.15,
       0,
-      94.0
+      54.52
      ],
      "vis": "player",
      "key": "N3c"
@@ -2327,9 +1992,9 @@
      "id": "ground-N3c-chair7",
      "kind": "chair",
      "pos": [
-      130,
+      75.4,
       0,
-      94.0
+      54.52
      ],
      "vis": "player",
      "key": "N3c"
@@ -2338,9 +2003,9 @@
      "id": "ground-N3c-serving",
      "kind": "desk",
      "pos": [
-      134.0,
+      77.72,
       0,
-      102.5
+      59.45
      ],
      "vis": "player",
      "rotY": -90,
@@ -2350,9 +2015,9 @@
      "id": "ground-N3c-chandelier",
      "kind": "lamp",
      "pos": [
-      110,
+      63.8,
       8,
-      87.5
+      50.75
      ],
      "vis": "player",
      "key": "N3c"
@@ -2361,9 +2026,9 @@
      "id": "ground-lydia",
      "kind": "adventurer",
      "pos": [
-      110,
+      63.8,
       0,
-      77.5
+      44.95
      ],
      "vis": "hidden-creature",
      "key": "N3c",
@@ -2374,21 +2039,24 @@
      "id": "ground-N3b-couch",
      "kind": "bench",
      "pos": [
-      160,
+      92.8,
       0,
-      105
+      60.9
      ],
      "vis": "player",
      "rotY": 180,
-     "key": "N3b"
+     "key": "N3b",
+     "dims": {
+      "l": 4.6
+     }
     },
     {
      "id": "ground-N3b-chair-a",
      "kind": "chair",
      "pos": [
-      145,
+      84.1,
       0,
-      90
+      52.2
      ],
      "vis": "player",
      "key": "N3b"
@@ -2397,9 +2065,9 @@
      "id": "ground-N3b-chair-b",
      "kind": "chair",
      "pos": [
-      167.5,
+      97.15,
       0,
-      90
+      52.2
      ],
      "vis": "player",
      "key": "N3b"
@@ -2408,44 +2076,50 @@
      "id": "ground-N3b-table",
      "kind": "table-round",
      "pos": [
-      157.5,
+      91.35,
       0,
-      92.5
+      53.65
      ],
      "vis": "player",
-     "key": "N3b"
+     "key": "N3b",
+     "dims": {
+      "r": 2.0
+     }
     },
     {
      "id": "ground-N3b-books",
      "kind": "bookshelf",
      "pos": [
-      141.5,
+      82.07,
       0,
-      100
+      58.0
      ],
      "vis": "player",
      "rotY": 90,
-     "key": "N3b"
+     "key": "N3b",
+     "dims": {
+      "w": 3
+     }
     }
    ],
    "terrain": [
     {
      "polygon": [
       [
-       -50,
-       -15
+       -29.0,
+       -8.7
       ],
       [
-       200,
-       -15
+       145.0,
+       -8.7
       ],
       [
-       200,
-       125
+       145.0,
+       79.75
       ],
       [
-       -50,
-       125
+       -29.0,
+       79.75
       ]
      ],
      "floor": "grass"
@@ -2466,20 +2140,20 @@
      "page": 108,
      "polygon": [
       [
-       15,
-       10
+       8.7,
+       5.8
       ],
       [
-       60,
-       10
+       34.8,
+       5.8
       ],
       [
-       60,
-       45
+       34.8,
+       26.1
       ],
       [
-       15,
-       45
+       8.7,
+       26.1
       ]
      ],
      "floor": "plank",
@@ -2493,20 +2167,20 @@
      "page": 108,
      "polygon": [
       [
-       60,
-       10
+       34.8,
+       5.8
       ],
       [
-       80,
-       10
+       46.4,
+       5.8
       ],
       [
-       80,
-       27.5
+       46.4,
+       15.95
       ],
       [
-       60,
-       27.5
+       34.8,
+       15.95
       ]
      ],
      "floor": "plank",
@@ -2519,20 +2193,20 @@
      "page": 108,
      "polygon": [
       [
-       80,
-       10
+       46.4,
+       5.8
       ],
       [
-       100,
-       10
+       58.0,
+       5.8
       ],
       [
-       100,
-       27.5
+       58.0,
+       15.95
       ],
       [
-       80,
-       27.5
+       46.4,
+       15.95
       ]
      ],
      "floor": "plank",
@@ -2545,20 +2219,20 @@
      "page": null,
      "polygon": [
       [
-       60,
-       27.5
+       34.8,
+       15.95
       ],
       [
-       100,
-       27.5
+       58.0,
+       15.95
       ],
       [
-       100,
-       85
+       58.0,
+       49.3
       ],
       [
-       60,
-       85
+       34.8,
+       49.3
       ]
      ],
      "floor": "plank",
@@ -2572,20 +2246,20 @@
      "page": null,
      "polygon": [
       [
-       107.5,
-       10
+       62.35,
+       5.8
       ],
       [
-       137.5,
-       10
+       79.75,
+       5.8
       ],
       [
-       137.5,
-       47.5
+       79.75,
+       27.55
       ],
       [
-       107.5,
-       47.5
+       62.35,
+       27.55
       ]
      ],
      "floor": "plank",
@@ -2599,20 +2273,20 @@
      "page": 107,
      "polygon": [
       [
-       107.5,
-       47.5
+       62.35,
+       27.55
       ],
       [
-       137.5,
-       47.5
+       79.75,
+       27.55
       ],
       [
-       137.5,
-       85
+       79.75,
+       49.3
       ],
       [
-       107.5,
-       85
+       62.35,
+       49.3
       ]
      ],
      "floor": "plank",
@@ -2626,20 +2300,20 @@
      "page": 108,
      "polygon": [
       [
-       15,
-       45
+       8.7,
+       26.1
       ],
       [
-       52.5,
-       45
+       30.45,
+       26.1
       ],
       [
-       52.5,
-       75
+       30.45,
+       43.5
       ],
       [
-       15,
-       75
+       8.7,
+       43.5
       ]
      ],
      "floor": "plank",
@@ -2653,20 +2327,20 @@
      "page": null,
      "polygon": [
       [
-       15,
-       75
+       8.7,
+       43.5
       ],
       [
-       52.5,
-       75
+       30.45,
+       43.5
       ],
       [
-       52.5,
-       95
+       30.45,
+       55.1
       ],
       [
-       15,
-       95
+       8.7,
+       55.1
       ]
      ],
      "floor": "plank",
@@ -2680,36 +2354,36 @@
      "page": 106,
      "polygon": [
       [
-       52.5,
-       85
+       30.45,
+       49.3
       ],
       [
-       137.5,
-       85
+       79.75,
+       49.3
       ],
       [
-       137.5,
-       10
+       79.75,
+       5.8
       ],
       [
-       175,
-       10
+       101.5,
+       5.8
       ],
       [
-       175,
-       105
+       101.5,
+       60.9
       ],
       [
-       15,
-       105
+       8.7,
+       60.9
       ],
       [
-       15,
-       95
+       8.7,
+       55.1
       ],
       [
-       52.5,
-       95
+       30.45,
+       55.1
       ]
      ],
      "floor": "plank",
@@ -2722,20 +2396,20 @@
      "page": 106,
      "polygon": [
       [
-       100,
-       27.5
+       58.0,
+       15.95
       ],
       [
-       107.5,
-       27.5
+       62.35,
+       15.95
       ],
       [
-       107.5,
-       85
+       62.35,
+       49.3
       ],
       [
-       100,
-       85
+       58.0,
+       49.3
       ]
      ],
      "floor": "plank",
@@ -2747,12 +2421,12 @@
     {
      "id": "upper-w-0",
      "a": [
-      15.0,
-      10.0
+      8.7,
+      5.8
      ],
      "b": [
-      25.0,
-      10.0
+      14.45,
+      5.8
      ],
      "flags": [
       "normal"
@@ -2762,12 +2436,12 @@
     {
      "id": "upper-w-1",
      "a": [
-      25.0,
-      10.0
+      14.45,
+      5.8
      ],
      "b": [
-      30.0,
-      10.0
+      17.45,
+      5.8
      ],
      "flags": [
       "window"
@@ -2777,12 +2451,12 @@
     {
      "id": "upper-w-2",
      "a": [
-      30.0,
-      10.0
+      17.45,
+      5.8
      ],
      "b": [
-      45.0,
-      10.0
+      26.05,
+      5.8
      ],
      "flags": [
       "normal"
@@ -2792,12 +2466,12 @@
     {
      "id": "upper-w-3",
      "a": [
-      45.0,
-      10.0
+      26.05,
+      5.8
      ],
      "b": [
-      50.0,
-      10.0
+      29.05,
+      5.8
      ],
      "flags": [
       "window"
@@ -2807,12 +2481,12 @@
     {
      "id": "upper-w-4",
      "a": [
-      50.0,
-      10.0
+      29.05,
+      5.8
      ],
      "b": [
-      100.0,
-      10.0
+      58.0,
+      5.8
      ],
      "flags": [
       "normal"
@@ -2822,12 +2496,12 @@
     {
      "id": "upper-w-5",
      "a": [
-      60.0,
-      10.0
+      62.35,
+      5.8
      ],
      "b": [
-      60.0,
-      20.0
+      69.55,
+      5.8
      ],
      "flags": [
       "normal"
@@ -2835,30 +2509,29 @@
      "material": "ashlar"
     },
     {
-     "id": "N3n-door",
+     "id": "upper-w-6",
      "a": [
-      60.0,
-      20.0
+      69.55,
+      5.8
      ],
      "b": [
-      60.0,
-      25.0
+      72.55,
+      5.8
      ],
      "flags": [
-      "door"
+      "window"
      ],
-     "material": "ashlar",
-     "open": false
+     "material": "ashlar"
     },
     {
      "id": "upper-w-7",
      "a": [
-      60.0,
-      25.0
+      72.55,
+      5.8
      ],
      "b": [
-      60.0,
-      45.0
+      86.95,
+      5.8
      ],
      "flags": [
       "normal"
@@ -2868,27 +2541,27 @@
     {
      "id": "upper-w-8",
      "a": [
-      55.0,
-      45.0
+      86.95,
+      5.8
      ],
      "b": [
-      60.0,
-      45.0
+      89.95,
+      5.8
      ],
      "flags": [
-      "normal"
+      "window"
      ],
      "material": "ashlar"
     },
     {
      "id": "upper-w-9",
      "a": [
-      50.0,
-      45.0
+      89.95,
+      5.8
      ],
      "b": [
-      55.0,
-      45.0
+      101.5,
+      5.8
      ],
      "flags": [
       "normal"
@@ -2898,27 +2571,27 @@
     {
      "id": "upper-w-10",
      "a": [
-      45.0,
-      45.0
+      34.8,
+      15.95
      ],
      "b": [
-      50.0,
-      45.0
+      58.0,
+      15.95
      ],
      "flags": [
       "normal"
      ],
-     "material": "ashlar"
+     "material": "paneling"
     },
     {
      "id": "upper-w-11",
      "a": [
-      40.0,
-      45.0
+      58.0,
+      15.95
      ],
      "b": [
-      45.0,
-      45.0
+      62.35,
+      15.95
      ],
      "flags": [
       "normal"
@@ -2926,45 +2599,60 @@
      "material": "ashlar"
     },
     {
-     "id": "N3p-door",
+     "id": "upper-w-12",
      "a": [
-      35.0,
-      45.0
+      8.7,
+      26.1
      ],
      "b": [
-      40.0,
-      45.0
+      19.75,
+      26.1
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "N3p-door",
+     "a": [
+      19.75,
+      26.1
+     ],
+     "b": [
+      23.75,
+      26.1
      ],
      "flags": [
       "door"
      ],
-     "material": "ashlar",
+     "material": "paneling",
      "open": false
     },
     {
      "id": "upper-w-13",
      "a": [
-      30.0,
-      45.0
+      23.75,
+      26.1
      ],
      "b": [
-      35.0,
-      45.0
+      30.45,
+      26.1
      ],
      "flags": [
       "normal"
      ],
-     "material": "ashlar"
+     "material": "paneling"
     },
     {
      "id": "upper-w-14",
      "a": [
-      25.0,
-      45.0
+      30.45,
+      26.1
      ],
      "b": [
-      30.0,
-      45.0
+      34.8,
+      26.1
      ],
      "flags": [
       "normal"
@@ -2974,42 +2662,42 @@
     {
      "id": "upper-w-15",
      "a": [
-      20.0,
-      45.0
+      62.35,
+      27.55
      ],
      "b": [
-      25.0,
-      45.0
+      79.75,
+      27.55
      ],
      "flags": [
       "normal"
      ],
-     "material": "ashlar"
+     "material": "paneling"
     },
     {
      "id": "upper-w-16",
      "a": [
-      15.0,
-      45.0
+      8.7,
+      43.5
      ],
      "b": [
-      20.0,
-      45.0
+      30.45,
+      43.5
      ],
      "flags": [
       "normal"
      ],
-     "material": "ashlar"
+     "material": "paneling"
     },
     {
      "id": "upper-w-17",
      "a": [
-      15.0,
-      40.0
+      30.45,
+      49.3
      ],
      "b": [
-      15.0,
-      60.0
+      34.8,
+      49.3
      ],
      "flags": [
       "normal"
@@ -3019,27 +2707,151 @@
     {
      "id": "upper-w-18",
      "a": [
-      15.0,
-      35.0
+      34.8,
+      49.3
      ],
      "b": [
-      15.0,
-      40.0
+      42.95,
+      49.3
      ],
      "flags": [
       "normal"
      ],
-     "material": "ashlar"
+     "material": "paneling"
+    },
+    {
+     "id": "N3l-south",
+     "a": [
+      42.95,
+      49.3
+     ],
+     "b": [
+      46.95,
+      49.3
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "paneling",
+     "open": false
     },
     {
      "id": "upper-w-19",
      "a": [
-      15.0,
-      30.0
+      46.95,
+      49.3
      ],
      "b": [
-      15.0,
-      35.0
+      58.0,
+      49.3
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-20",
+     "a": [
+      62.35,
+      49.3
+     ],
+     "b": [
+      69.05,
+      49.3
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "N3j-south",
+     "a": [
+      69.05,
+      49.3
+     ],
+     "b": [
+      73.05,
+      49.3
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "paneling",
+     "open": false
+    },
+    {
+     "id": "upper-w-21",
+     "a": [
+      73.05,
+      49.3
+     ],
+     "b": [
+      79.75,
+      49.3
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-22",
+     "a": [
+      8.7,
+      55.1
+     ],
+     "b": [
+      19.75,
+      55.1
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "N3m-door",
+     "a": [
+      19.75,
+      55.1
+     ],
+     "b": [
+      23.75,
+      55.1
+     ],
+     "flags": [
+      "door",
+      "locked"
+     ],
+     "material": "paneling",
+     "open": false
+    },
+    {
+     "id": "upper-w-23",
+     "a": [
+      23.75,
+      55.1
+     ],
+     "b": [
+      30.45,
+      55.1
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-24",
+     "a": [
+      8.7,
+      60.9
+     ],
+     "b": [
+      17.35,
+      60.9
      ],
      "flags": [
       "normal"
@@ -3047,14 +2859,14 @@
      "material": "ashlar"
     },
     {
-     "id": "upper-w-20",
+     "id": "upper-w-25",
      "a": [
-      15.0,
-      25.0
+      17.35,
+      60.9
      ],
      "b": [
-      15.0,
-      30.0
+      20.35,
+      60.9
      ],
      "flags": [
       "window"
@@ -3062,149 +2874,74 @@
      "material": "ashlar"
     },
     {
-     "id": "upper-w-21",
-     "a": [
-      15.0,
-      20.0
-     ],
-     "b": [
-      15.0,
-      25.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-22",
-     "a": [
-      15.0,
-      15.0
-     ],
-     "b": [
-      15.0,
-      20.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-23",
-     "a": [
-      15.0,
-      10.0
-     ],
-     "b": [
-      15.0,
-      15.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-24",
-     "a": [
-      80.0,
-      10.0
-     ],
-     "b": [
-      80.0,
-      27.5
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "upper-w-25",
-     "a": [
-      75.0,
-      27.5
-     ],
-     "b": [
-      100.0,
-      27.5
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
      "id": "upper-w-26",
      "a": [
-      70.0,
-      27.5
+      20.35,
+      60.9
      ],
      "b": [
-      75.0,
-      27.5
+      40.55,
+      60.9
      ],
      "flags": [
       "normal"
      ],
-     "material": "paneling"
+     "material": "ashlar"
     },
     {
      "id": "upper-w-27",
      "a": [
-      65.0,
-      27.5
+      40.55,
+      60.9
      ],
      "b": [
-      70.0,
-      27.5
+      43.55,
+      60.9
      ],
      "flags": [
-      "normal"
+      "window"
      ],
-     "material": "paneling"
+     "material": "ashlar"
     },
     {
      "id": "upper-w-28",
      "a": [
-      60.0,
-      27.5
+      43.55,
+      60.9
      ],
      "b": [
-      65.0,
-      27.5
+      63.75,
+      60.9
      ],
      "flags": [
       "normal"
      ],
-     "material": "paneling"
+     "material": "ashlar"
     },
     {
      "id": "upper-w-29",
      "a": [
-      60.0,
-      23.125
+      63.75,
+      60.9
      ],
      "b": [
-      60.0,
-      85.0
+      66.75,
+      60.9
      ],
      "flags": [
-      "normal"
+      "window"
      ],
      "material": "ashlar"
     },
     {
      "id": "upper-w-30",
      "a": [
-      60.0,
-      18.75
+      66.75,
+      60.9
      ],
      "b": [
-      60.0,
-      23.125
+      86.95,
+      60.9
      ],
      "flags": [
       "normal"
@@ -3214,27 +2951,27 @@
     {
      "id": "upper-w-31",
      "a": [
-      60.0,
-      14.375
+      86.95,
+      60.9
      ],
      "b": [
-      60.0,
-      18.75
+      89.95,
+      60.9
      ],
      "flags": [
-      "normal"
+      "window"
      ],
      "material": "ashlar"
     },
     {
      "id": "upper-w-32",
      "a": [
-      60.0,
-      10.0
+      89.95,
+      60.9
      ],
      "b": [
-      60.0,
-      14.375
+      101.5,
+      60.9
      ],
      "flags": [
       "normal"
@@ -3244,12 +2981,12 @@
     {
      "id": "upper-w-33",
      "a": [
-      100.0,
-      10.0
+      8.7,
+      5.8
      ],
      "b": [
-      100.0,
-      37.08333333333333
+      8.7,
+      14.45
      ],
      "flags": [
       "normal"
@@ -3259,27 +2996,27 @@
     {
      "id": "upper-w-34",
      "a": [
-      100.0,
-      37.08333333333333
+      8.7,
+      14.45
      ],
      "b": [
-      100.0,
-      41.875
+      8.7,
+      17.45
      ],
      "flags": [
-      "normal"
+      "window"
      ],
-     "material": "paneling"
+     "material": "ashlar"
     },
     {
      "id": "upper-w-35",
      "a": [
-      100.0,
-      41.875
+      8.7,
+      17.45
      ],
      "b": [
-      100.0,
-      70.625
+      8.7,
+      34.75
      ],
      "flags": [
       "normal"
@@ -3289,27 +3026,27 @@
     {
      "id": "upper-w-36",
      "a": [
-      100.0,
-      70.625
+      8.7,
+      34.75
      ],
      "b": [
-      100.0,
-      75.41666666666667
+      8.7,
+      37.75
      ],
      "flags": [
-      "normal"
+      "window"
      ],
-     "material": "paneling"
+     "material": "ashlar"
     },
     {
      "id": "upper-w-37",
      "a": [
-      100.0,
-      75.41666666666667
+      8.7,
+      37.75
      ],
      "b": [
-      100.0,
-      85.0
+      8.7,
+      60.9
      ],
      "flags": [
       "normal"
@@ -3319,478 +3056,12 @@
     {
      "id": "upper-w-38",
      "a": [
-      95.0,
-      85.0
+      30.45,
+      26.1
      ],
      "b": [
-      100.0,
-      85.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-39",
-     "a": [
-      90.0,
-      85.0
-     ],
-     "b": [
-      95.0,
-      85.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-40",
-     "a": [
-      85.0,
-      85.0
-     ],
-     "b": [
-      90.0,
-      85.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-41",
-     "a": [
-      80.0,
-      85.0
-     ],
-     "b": [
-      85.0,
-      85.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "N3l-south",
-     "a": [
-      75.0,
-      85.0
-     ],
-     "b": [
-      80.0,
-      85.0
-     ],
-     "flags": [
-      "door"
-     ],
-     "material": "ashlar",
-     "open": false
-    },
-    {
-     "id": "upper-w-43",
-     "a": [
-      70.0,
-      85.0
-     ],
-     "b": [
-      75.0,
-      85.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-44",
-     "a": [
-      65.0,
-      85.0
-     ],
-     "b": [
-      70.0,
-      85.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-45",
-     "a": [
-      60.0,
-      85.0
-     ],
-     "b": [
-      65.0,
-      85.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-46",
-     "a": [
-      107.5,
-      10.0
-     ],
-     "b": [
-      175.0,
-      10.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-47",
-     "a": [
-      137.5,
-      10.0
-     ],
-     "b": [
-      137.5,
-      85.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-48",
-     "a": [
-      132.5,
-      47.5
-     ],
-     "b": [
-      137.5,
-      47.5
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "upper-w-49",
-     "a": [
-      127.5,
-      47.5
-     ],
-     "b": [
-      132.5,
-      47.5
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "upper-w-50",
-     "a": [
-      122.5,
-      47.5
-     ],
-     "b": [
-      127.5,
-      47.5
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "upper-w-51",
-     "a": [
-      117.5,
-      47.5
-     ],
-     "b": [
-      122.5,
-      47.5
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "upper-w-52",
-     "a": [
-      112.5,
-      47.5
-     ],
-     "b": [
-      117.5,
-      47.5
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "upper-w-53",
-     "a": [
-      107.5,
-      47.5
-     ],
-     "b": [
-      112.5,
-      47.5
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "upper-w-54",
-     "a": [
-      107.5,
-      42.8125
-     ],
-     "b": [
-      107.5,
-      85.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-55",
-     "a": [
-      107.5,
-      38.125
-     ],
-     "b": [
-      107.5,
-      42.8125
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-56",
-     "a": [
-      107.5,
-      33.4375
-     ],
-     "b": [
-      107.5,
-      38.125
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-57",
-     "a": [
-      107.5,
-      28.75
-     ],
-     "b": [
-      107.5,
-      33.4375
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-58",
-     "a": [
-      107.5,
-      24.0625
-     ],
-     "b": [
-      107.5,
-      28.75
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-59",
-     "a": [
-      107.5,
-      19.375
-     ],
-     "b": [
-      107.5,
-      24.0625
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-60",
-     "a": [
-      107.5,
-      14.6875
-     ],
-     "b": [
-      107.5,
-      19.375
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-61",
-     "a": [
-      107.5,
-      10.0
-     ],
-     "b": [
-      107.5,
-      14.6875
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-62",
-     "a": [
-      132.5,
-      85.0
-     ],
-     "b": [
-      137.5,
-      85.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "upper-w-63",
-     "a": [
-      127.5,
-      85.0
-     ],
-     "b": [
-      132.5,
-      85.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "upper-w-64",
-     "a": [
-      122.5,
-      85.0
-     ],
-     "b": [
-      127.5,
-      85.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "upper-w-65",
-     "a": [
-      117.5,
-      85.0
-     ],
-     "b": [
-      122.5,
-      85.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "upper-w-66",
-     "a": [
-      112.5,
-      85.0
-     ],
-     "b": [
-      117.5,
-      85.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "upper-w-67",
-     "a": [
-      107.5,
-      85.0
-     ],
-     "b": [
-      112.5,
-      85.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "upper-w-68",
-     "a": [
-      15.0,
-      45.0
-     ],
-     "b": [
-      52.5,
-      45.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-69",
-     "a": [
-      52.5,
-      45.0
-     ],
-     "b": [
-      52.5,
-      55.0
+      30.45,
+      31.35
      ],
      "flags": [
       "normal"
@@ -3800,12 +3071,12 @@
     {
      "id": "N3p-east",
      "a": [
-      52.5,
-      55.0
+      30.45,
+      31.35
      ],
      "b": [
-      52.5,
-      60.0
+      30.45,
+      35.35
      ],
      "flags": [
       "door"
@@ -3814,14 +3085,14 @@
      "open": false
     },
     {
-     "id": "upper-w-71",
+     "id": "upper-w-39",
      "a": [
-      52.5,
-      60.0
+      30.45,
+      35.35
      ],
      "b": [
-      52.5,
-      85.0
+      30.45,
+      49.3
      ],
      "flags": [
       "normal"
@@ -3829,14 +3100,14 @@
      "material": "ashlar"
     },
     {
-     "id": "upper-w-72",
+     "id": "upper-w-40",
      "a": [
-      47.8125,
-      75.0
+      30.45,
+      49.3
      ],
      "b": [
-      52.5,
-      75.0
+      30.45,
+      55.1
      ],
      "flags": [
       "normal"
@@ -3844,14 +3115,14 @@
      "material": "paneling"
     },
     {
-     "id": "upper-w-73",
+     "id": "upper-w-41",
      "a": [
-      43.125,
-      75.0
+      34.8,
+      5.8
      ],
      "b": [
-      47.8125,
-      75.0
+      34.8,
+      11.05
      ],
      "flags": [
       "normal"
@@ -3859,14 +3130,30 @@
      "material": "paneling"
     },
     {
-     "id": "upper-w-74",
+     "id": "N3n-door",
      "a": [
-      38.4375,
-      75.0
+      34.8,
+      11.05
      ],
      "b": [
-      43.125,
-      75.0
+      34.8,
+      15.05
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "paneling",
+     "open": false
+    },
+    {
+     "id": "upper-w-42",
+     "a": [
+      34.8,
+      15.05
+     ],
+     "b": [
+      34.8,
+      26.1
      ],
      "flags": [
       "normal"
@@ -3874,89 +3161,14 @@
      "material": "paneling"
     },
     {
-     "id": "upper-w-75",
+     "id": "upper-w-43",
      "a": [
-      33.75,
-      75.0
+      34.8,
+      26.1
      ],
      "b": [
-      38.4375,
-      75.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "upper-w-76",
-     "a": [
-      29.0625,
-      75.0
-     ],
-     "b": [
-      33.75,
-      75.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "upper-w-77",
-     "a": [
-      24.375,
-      75.0
-     ],
-     "b": [
-      29.0625,
-      75.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "upper-w-78",
-     "a": [
-      19.6875,
-      75.0
-     ],
-     "b": [
-      24.375,
-      75.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "upper-w-79",
-     "a": [
-      15.0,
-      75.0
-     ],
-     "b": [
-      19.6875,
-      75.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "upper-w-80",
-     "a": [
-      15.0,
-      70.0
-     ],
-     "b": [
-      15.0,
-      105.0
+      34.8,
+      49.3
      ],
      "flags": [
       "normal"
@@ -3964,44 +3176,14 @@
      "material": "ashlar"
     },
     {
-     "id": "upper-w-81",
+     "id": "upper-w-44",
      "a": [
-      15.0,
-      65.0
+      46.4,
+      5.8
      ],
      "b": [
-      15.0,
-      70.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-82",
-     "a": [
-      15.0,
-      60.0
-     ],
-     "b": [
-      15.0,
-      65.0
-     ],
-     "flags": [
-      "window"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-83",
-     "a": [
-      52.5,
-      85.0
-     ],
-     "b": [
-      52.5,
-      95.0
+      46.4,
+      9.6
      ],
      "flags": [
       "normal"
@@ -4009,14 +3191,30 @@
      "material": "paneling"
     },
     {
-     "id": "upper-w-84",
+     "id": "N3q-door",
      "a": [
-      47.8125,
-      95.0
+      46.4,
+      9.6
      ],
      "b": [
-      52.5,
-      95.0
+      46.4,
+      13.6
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "paneling",
+     "open": false
+    },
+    {
+     "id": "upper-w-45",
+     "a": [
+      46.4,
+      13.6
+     ],
+     "b": [
+      46.4,
+      15.95
      ],
      "flags": [
       "normal"
@@ -4024,14 +3222,29 @@
      "material": "paneling"
     },
     {
-     "id": "upper-w-85",
+     "id": "upper-w-46",
      "a": [
-      43.125,
-      95.0
+      58.0,
+      5.8
      ],
      "b": [
-      47.8125,
-      95.0
+      58.0,
+      15.95
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-47",
+     "a": [
+      58.0,
+      15.95
+     ],
+     "b": [
+      58.0,
+      19.75
      ],
      "flags": [
       "normal"
@@ -4039,14 +3252,30 @@
      "material": "paneling"
     },
     {
-     "id": "upper-w-86",
+     "id": "N3l-door",
      "a": [
-      38.4375,
-      95.0
+      58.0,
+      19.75
      ],
      "b": [
-      43.125,
-      95.0
+      58.0,
+      23.75
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "paneling",
+     "open": false
+    },
+    {
+     "id": "upper-w-48",
+     "a": [
+      58.0,
+      23.75
+     ],
+     "b": [
+      58.0,
+      49.3
      ],
      "flags": [
       "normal"
@@ -4054,14 +3283,45 @@
      "material": "paneling"
     },
     {
-     "id": "upper-w-87",
+     "id": "upper-w-49",
      "a": [
-      33.75,
-      95.0
+      62.35,
+      5.8
      ],
      "b": [
-      38.4375,
-      95.0
+      62.35,
+      13.95
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "N3k-door",
+     "a": [
+      62.35,
+      13.95
+     ],
+     "b": [
+      62.35,
+      17.95
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "paneling",
+     "open": false
+    },
+    {
+     "id": "upper-w-50",
+     "a": [
+      62.35,
+      17.95
+     ],
+     "b": [
+      62.35,
+      34.25
      ],
      "flags": [
       "normal"
@@ -4069,14 +3329,31 @@
      "material": "paneling"
     },
     {
-     "id": "upper-w-88",
+     "id": "N3j-door",
      "a": [
-      29.0625,
-      95.0
+      62.35,
+      34.25
      ],
      "b": [
-      33.75,
-      95.0
+      62.35,
+      38.25
+     ],
+     "flags": [
+      "door",
+      "locked"
+     ],
+     "material": "paneling",
+     "open": false
+    },
+    {
+     "id": "upper-w-51",
+     "a": [
+      62.35,
+      38.25
+     ],
+     "b": [
+      62.35,
+      49.3
      ],
      "flags": [
       "normal"
@@ -4084,255 +3361,60 @@
      "material": "paneling"
     },
     {
-     "id": "upper-w-89",
+     "id": "upper-w-52",
      "a": [
-      24.375,
-      95.0
+      79.75,
+      5.8
      ],
      "b": [
-      29.0625,
-      95.0
+      79.75,
+      13.95
      ],
      "flags": [
       "normal"
      ],
      "material": "paneling"
-    },
-    {
-     "id": "upper-w-90",
-     "a": [
-      19.6875,
-      95.0
-     ],
-     "b": [
-      24.375,
-      95.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "upper-w-91",
-     "a": [
-      15.0,
-      95.0
-     ],
-     "b": [
-      19.6875,
-      95.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "upper-w-92",
-     "a": [
-      52.5,
-      85.0
-     ],
-     "b": [
-      107.5,
-      85.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-93",
-     "a": [
-      137.5,
-      80.0
-     ],
-     "b": [
-      137.5,
-      85.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-94",
-     "a": [
-      137.5,
-      75.0
-     ],
-     "b": [
-      137.5,
-      80.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-95",
-     "a": [
-      137.5,
-      70.0
-     ],
-     "b": [
-      137.5,
-      75.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-96",
-     "a": [
-      137.5,
-      65.0
-     ],
-     "b": [
-      137.5,
-      70.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-97",
-     "a": [
-      137.5,
-      60.0
-     ],
-     "b": [
-      137.5,
-      65.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-98",
-     "a": [
-      137.5,
-      55.0
-     ],
-     "b": [
-      137.5,
-      60.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-99",
-     "a": [
-      137.5,
-      50.0
-     ],
-     "b": [
-      137.5,
-      55.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-100",
-     "a": [
-      137.5,
-      45.0
-     ],
-     "b": [
-      137.5,
-      50.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-101",
-     "a": [
-      137.5,
-      40.0
-     ],
-     "b": [
-      137.5,
-      45.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-102",
-     "a": [
-      137.5,
-      35.0
-     ],
-     "b": [
-      137.5,
-      40.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-103",
-     "a": [
-      137.5,
-      30.0
-     ],
-     "b": [
-      137.5,
-      35.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
     },
     {
      "id": "N3k-gallery",
      "a": [
-      137.5,
-      25.0
+      79.75,
+      13.95
      ],
      "b": [
-      137.5,
-      30.0
+      79.75,
+      17.95
      ],
      "flags": [
       "door"
      ],
-     "material": "ashlar",
+     "material": "paneling",
      "open": false
     },
     {
-     "id": "upper-w-105",
+     "id": "upper-w-53",
      "a": [
-      137.5,
-      20.0
+      79.75,
+      17.95
      ],
      "b": [
-      137.5,
-      25.0
+      79.75,
+      49.3
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-54",
+     "a": [
+      101.5,
+      5.8
+     ],
+     "b": [
+      101.5,
+      20.25
      ],
      "flags": [
       "normal"
@@ -4340,59 +3422,14 @@
      "material": "ashlar"
     },
     {
-     "id": "upper-w-106",
+     "id": "upper-w-55",
      "a": [
-      137.5,
-      15.0
+      101.5,
+      20.25
      ],
      "b": [
-      137.5,
-      20.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-107",
-     "a": [
-      137.5,
-      10.0
-     ],
-     "b": [
-      137.5,
-      15.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-108",
-     "a": [
-      175.0,
-      10.0
-     ],
-     "b": [
-      175.0,
-      35.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-109",
-     "a": [
-      175.0,
-      35.0
-     ],
-     "b": [
-      175.0,
-      40.0
+      101.5,
+      23.25
      ],
      "flags": [
       "window"
@@ -4400,14 +3437,14 @@
      "material": "ashlar"
     },
     {
-     "id": "upper-w-110",
+     "id": "upper-w-56",
      "a": [
-      175.0,
-      40.0
+      101.5,
+      23.25
      ],
      "b": [
-      175.0,
-      65.0
+      101.5,
+      37.65
      ],
      "flags": [
       "normal"
@@ -4415,14 +3452,14 @@
      "material": "ashlar"
     },
     {
-     "id": "upper-w-111",
+     "id": "upper-w-57",
      "a": [
-      175.0,
-      65.0
+      101.5,
+      37.65
      ],
      "b": [
-      175.0,
-      70.0
+      101.5,
+      40.65
      ],
      "flags": [
       "window"
@@ -4430,14 +3467,14 @@
      "material": "ashlar"
     },
     {
-     "id": "upper-w-112",
+     "id": "upper-w-58",
      "a": [
-      175.0,
-      70.0
+      101.5,
+      40.65
      ],
      "b": [
-      175.0,
-      105.0
+      101.5,
+      60.9
      ],
      "flags": [
       "normal"
@@ -4445,673 +3482,61 @@
      "material": "ashlar"
     },
     {
-     "id": "upper-w-113",
+     "id": "upper-x-0",
      "a": [
-      170.0,
-      105.0
+      79.75,
+      27.55
      ],
      "b": [
-      175.0,
-      105.0
+      89.9,
+      27.55
      ],
      "flags": [
       "normal"
      ],
-     "material": "ashlar"
+     "material": "plaster",
+     "heightFt": 3.5
     },
     {
-     "id": "upper-w-114",
+     "id": "upper-x-1",
      "a": [
-      165.0,
-      105.0
+      79.75,
+      43.5
      ],
      "b": [
-      170.0,
-      105.0
+      89.9,
+      43.5
      ],
      "flags": [
       "normal"
      ],
-     "material": "ashlar"
+     "material": "plaster",
+     "heightFt": 3.5
     },
     {
-     "id": "upper-w-115",
+     "id": "upper-x-2",
      "a": [
-      160.0,
-      105.0
+      89.9,
+      27.55
      ],
      "b": [
-      165.0,
-      105.0
+      89.9,
+      43.5
      ],
      "flags": [
       "normal"
      ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-116",
-     "a": [
-      155.0,
-      105.0
-     ],
-     "b": [
-      160.0,
-      105.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-117",
-     "a": [
-      150.0,
-      105.0
-     ],
-     "b": [
-      155.0,
-      105.0
-     ],
-     "flags": [
-      "window"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-118",
-     "a": [
-      145.0,
-      105.0
-     ],
-     "b": [
-      150.0,
-      105.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-119",
-     "a": [
-      140.0,
-      105.0
-     ],
-     "b": [
-      145.0,
-      105.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-120",
-     "a": [
-      135.0,
-      105.0
-     ],
-     "b": [
-      140.0,
-      105.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-121",
-     "a": [
-      130.0,
-      105.0
-     ],
-     "b": [
-      135.0,
-      105.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-122",
-     "a": [
-      125.0,
-      105.0
-     ],
-     "b": [
-      130.0,
-      105.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-123",
-     "a": [
-      120.0,
-      105.0
-     ],
-     "b": [
-      125.0,
-      105.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-124",
-     "a": [
-      115.0,
-      105.0
-     ],
-     "b": [
-      120.0,
-      105.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-125",
-     "a": [
-      110.0,
-      105.0
-     ],
-     "b": [
-      115.0,
-      105.0
-     ],
-     "flags": [
-      "window"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-126",
-     "a": [
-      105.0,
-      105.0
-     ],
-     "b": [
-      110.0,
-      105.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-127",
-     "a": [
-      100.0,
-      105.0
-     ],
-     "b": [
-      105.0,
-      105.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-128",
-     "a": [
-      95.0,
-      105.0
-     ],
-     "b": [
-      100.0,
-      105.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-129",
-     "a": [
-      90.0,
-      105.0
-     ],
-     "b": [
-      95.0,
-      105.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-130",
-     "a": [
-      85.0,
-      105.0
-     ],
-     "b": [
-      90.0,
-      105.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-131",
-     "a": [
-      80.0,
-      105.0
-     ],
-     "b": [
-      85.0,
-      105.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-132",
-     "a": [
-      75.0,
-      105.0
-     ],
-     "b": [
-      80.0,
-      105.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-133",
-     "a": [
-      70.0,
-      105.0
-     ],
-     "b": [
-      75.0,
-      105.0
-     ],
-     "flags": [
-      "window"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-134",
-     "a": [
-      65.0,
-      105.0
-     ],
-     "b": [
-      70.0,
-      105.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-135",
-     "a": [
-      60.0,
-      105.0
-     ],
-     "b": [
-      65.0,
-      105.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-136",
-     "a": [
-      55.0,
-      105.0
-     ],
-     "b": [
-      60.0,
-      105.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-137",
-     "a": [
-      50.0,
-      105.0
-     ],
-     "b": [
-      55.0,
-      105.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-138",
-     "a": [
-      45.0,
-      105.0
-     ],
-     "b": [
-      50.0,
-      105.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-139",
-     "a": [
-      40.0,
-      105.0
-     ],
-     "b": [
-      45.0,
-      105.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-140",
-     "a": [
-      35.0,
-      105.0
-     ],
-     "b": [
-      40.0,
-      105.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-141",
-     "a": [
-      30.0,
-      105.0
-     ],
-     "b": [
-      35.0,
-      105.0
-     ],
-     "flags": [
-      "window"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-142",
-     "a": [
-      25.0,
-      105.0
-     ],
-     "b": [
-      30.0,
-      105.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-143",
-     "a": [
-      20.0,
-      105.0
-     ],
-     "b": [
-      25.0,
-      105.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-144",
-     "a": [
-      15.0,
-      105.0
-     ],
-     "b": [
-      20.0,
-      105.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-145",
-     "a": [
-      100.0,
-      27.5
-     ],
-     "b": [
-      107.5,
-      27.5
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-146",
-     "a": [
-      107.5,
-      27.5
-     ],
-     "b": [
-      107.5,
-      85.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-147",
-     "a": [
-      100.0,
-      80.20833333333334
-     ],
-     "b": [
-      100.0,
-      85.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-148",
-     "a": [
-      100.0,
-      75.41666666666667
-     ],
-     "b": [
-      100.0,
-      80.20833333333334
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-149",
-     "a": [
-      100.0,
-      65.83333333333334
-     ],
-     "b": [
-      100.0,
-      70.625
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-150",
-     "a": [
-      100.0,
-      61.04166666666666
-     ],
-     "b": [
-      100.0,
-      65.83333333333334
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-151",
-     "a": [
-      100.0,
-      56.25
-     ],
-     "b": [
-      100.0,
-      61.04166666666666
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-152",
-     "a": [
-      100.0,
-      51.45833333333333
-     ],
-     "b": [
-      100.0,
-      56.25
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-153",
-     "a": [
-      100.0,
-      46.66666666666667
-     ],
-     "b": [
-      100.0,
-      51.45833333333333
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-154",
-     "a": [
-      100.0,
-      41.875
-     ],
-     "b": [
-      100.0,
-      46.66666666666667
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-155",
-     "a": [
-      100.0,
-      32.29166666666667
-     ],
-     "b": [
-      100.0,
-      37.08333333333333
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-156",
-     "a": [
-      100.0,
-      27.5
-     ],
-     "b": [
-      100.0,
-      32.29166666666667
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
+     "material": "plaster",
+     "heightFt": 3.5
     }
    ],
    "lights": [
     {
      "id": "upper-l-N3l-lamp",
      "pos": [
-      80,
+      46.4,
       7,
-      55
+      31.9
      ],
      "preset": "lantern",
      "bright": 15,
@@ -5120,9 +3545,9 @@
     {
      "id": "upper-l-N3i-window",
      "pos": [
-      165,
+      95.69999999999999,
       6,
-      60
+      34.8
      ],
      "preset": "daylight",
      "bright": 10,
@@ -5134,43 +3559,43 @@
      "id": "upper-N3i-stair",
      "kind": "stairs-straight",
      "pos": [
-      146.25,
+      84.825,
       0,
-      25
+      14.5
      ],
      "vis": "player",
      "key": "N3i",
      "dims": {
-      "w": 15,
+      "w": 8.7,
       "rise": 0.1,
-      "fromZ": 35,
-      "toZ": 15
+      "fromZ": 32.7,
+      "toZ": 8.7
      }
     },
     {
      "id": "upper-N3i-kstair",
      "kind": "stairs-straight",
      "pos": [
-      27.5,
+      15.95,
       0,
-      100
+      58.0
      ],
      "vis": "player",
      "key": "N3i",
      "dims": {
-      "w": 5,
+      "w": 3,
       "rise": 0.1,
-      "fromX": 15,
-      "toX": 40
+      "fromX": 9.7,
+      "toX": 23.65
      }
     },
     {
      "id": "upper-N3i-paintings",
      "kind": "niche",
      "pos": [
-      90,
+      52.2,
       0,
-      102.5
+      59.45
      ],
      "vis": "hidden-object",
      "key": "N3i",
@@ -5180,9 +3605,9 @@
      "id": "upper-N3o-bed",
      "kind": "bed",
      "pos": [
-      32.5,
+      18.85,
       0,
-      19.0
+      11.02
      ],
      "vis": "player",
      "key": "N3o",
@@ -5195,9 +3620,9 @@
      "id": "upper-N3o-chair",
      "kind": "chair",
      "pos": [
-      20,
+      11.6,
       0,
-      37.5
+      21.75
      ],
      "vis": "player",
      "key": "N3o"
@@ -5206,9 +3631,9 @@
      "id": "upper-N3o-desk",
      "kind": "desk",
      "pos": [
-      56.5,
+      32.77,
       0,
-      35
+      20.3
      ],
      "vis": "player",
      "rotY": -90,
@@ -5218,9 +3643,9 @@
      "id": "upper-N3o-trap",
      "kind": "trapdoor",
      "pos": [
-      45,
+      26.1,
       0,
-      32.5
+      18.85
      ],
      "vis": "hidden-object",
      "key": "N3o",
@@ -5230,9 +3655,9 @@
      "id": "upper-baron-sleeps",
      "kind": "adventurer",
      "pos": [
-      32.5,
+      18.85,
       0,
-      19.0
+      11.02
      ],
      "vis": "hidden-creature",
      "key": "N3o",
@@ -5243,9 +3668,9 @@
      "id": "upper-N3q-tub",
      "kind": "trough",
      "pos": [
-      90,
+      52.2,
       0,
-      17.5
+      10.15
      ],
      "vis": "player",
      "key": "N3q"
@@ -5254,9 +3679,9 @@
      "id": "upper-N3q-towels",
      "kind": "desk",
      "pos": [
-      84.0,
+      49.25,
       0,
-      14.0
+      8.12
      ],
      "vis": "player",
      "key": "N3q"
@@ -5265,9 +3690,9 @@
      "id": "upper-N3n-wardrobe",
      "kind": "wardrobe",
      "pos": [
-      70,
+      40.6,
       0,
-      13.0
+      7.54
      ],
      "vis": "player",
      "key": "N3n"
@@ -5276,9 +3701,9 @@
      "id": "upper-N3n-chest",
      "kind": "trunk",
      "pos": [
-      64.0,
+      37.12,
       0,
-      22.5
+      13.05
      ],
      "vis": "player",
      "key": "N3n"
@@ -5287,9 +3712,9 @@
      "id": "upper-N3l-desk",
      "kind": "desk",
      "pos": [
-      80,
+      46.4,
       0,
-      55
+      31.9
      ],
      "vis": "player",
      "key": "N3l"
@@ -5298,9 +3723,9 @@
      "id": "upper-N3l-chair",
      "kind": "chair",
      "pos": [
-      75,
+      43.5,
       0,
-      55
+      31.9
      ],
      "vis": "player",
      "rotY": 90,
@@ -5310,115 +3735,142 @@
      "id": "upper-N3l-shelf0",
      "kind": "bookshelf",
      "pos": [
-      62.0,
+      35.96,
       0,
-      40
+      23.2
      ],
      "vis": "player",
      "rotY": 90,
-     "key": "N3l"
+     "key": "N3l",
+     "dims": {
+      "w": 3
+     }
     },
     {
      "id": "upper-N3l-shelf1",
      "kind": "bookshelf",
      "pos": [
-      62.0,
+      35.96,
       0,
-      55
+      31.9
      ],
      "vis": "player",
      "rotY": 90,
-     "key": "N3l"
+     "key": "N3l",
+     "dims": {
+      "w": 3
+     }
     },
     {
      "id": "upper-N3l-shelf2",
      "kind": "bookshelf",
      "pos": [
-      62.0,
+      35.96,
       0,
-      70
+      40.6
      ],
      "vis": "player",
      "rotY": 90,
-     "key": "N3l"
+     "key": "N3l",
+     "dims": {
+      "w": 3
+     }
     },
     {
      "id": "upper-N3l-shelf3",
      "kind": "bookshelf",
      "pos": [
-      98.0,
+      56.84,
       0,
-      40
+      23.2
      ],
      "vis": "player",
      "rotY": -90,
-     "key": "N3l"
+     "key": "N3l",
+     "dims": {
+      "w": 3
+     }
     },
     {
      "id": "upper-N3l-shelf4",
      "kind": "bookshelf",
      "pos": [
-      98.0,
+      56.84,
       0,
-      70
+      40.6
      ],
      "vis": "player",
      "rotY": -90,
-     "key": "N3l"
+     "key": "N3l",
+     "dims": {
+      "w": 3
+     }
     },
     {
      "id": "upper-N3l-shelf5",
      "kind": "bookshelf",
      "pos": [
-      70,
+      40.6,
       0,
-      30
+      17.4
      ],
      "vis": "player",
-     "key": "N3l"
+     "key": "N3l",
+     "dims": {
+      "w": 3
+     }
     },
     {
      "id": "upper-N3l-shelf6",
      "kind": "bookshelf",
      "pos": [
-      87.5,
+      50.75,
       0,
-      30
+      17.4
      ],
      "vis": "player",
-     "key": "N3l"
+     "key": "N3l",
+     "dims": {
+      "w": 3
+     }
     },
     {
      "id": "upper-N3l-shelf7",
      "kind": "bookshelf",
      "pos": [
-      70,
+      40.6,
       0,
-      83.0
+      48.14
      ],
      "vis": "player",
      "rotY": 180,
-     "key": "N3l"
+     "key": "N3l",
+     "dims": {
+      "w": 3
+     }
     },
     {
      "id": "upper-N3l-shelf8",
      "kind": "bookshelf",
      "pos": [
-      87.5,
+      50.75,
       0,
-      83.0
+      48.14
      ],
      "vis": "player",
      "rotY": 180,
-     "key": "N3l"
+     "key": "N3l",
+     "dims": {
+      "w": 3
+     }
     },
     {
      "id": "upper-baron",
      "kind": "adventurer",
      "pos": [
-      80,
+      46.4,
       0,
-      62.5
+      36.25
      ],
      "vis": "hidden-creature",
      "key": "N3l",
@@ -5429,9 +3881,9 @@
      "id": "upper-N3l-note",
      "kind": "note",
      "pos": [
-      80,
+      46.4,
       0,
-      45
+      26.1
      ],
      "vis": "dm-note",
      "key": "N3l",
@@ -5441,9 +3893,9 @@
      "id": "upper-N3k-bed",
      "kind": "bed",
      "pos": [
-      115,
+      66.7,
       0,
-      19.0
+      11.02
      ],
      "vis": "player",
      "key": "N3k",
@@ -5456,21 +3908,24 @@
      "id": "upper-N3k-shelf",
      "kind": "bookshelf",
      "pos": [
-      132.5,
+      76.85,
       0,
-      43.0
+      24.94
      ],
      "vis": "player",
      "rotY": 180,
-     "key": "N3k"
+     "key": "N3k",
+     "dims": {
+      "w": 3
+     }
     },
     {
      "id": "upper-N3k-mirror",
      "kind": "niche",
      "pos": [
-      134.0,
+      77.72,
       0,
-      27.5
+      15.95
      ],
      "vis": "hidden-object",
      "key": "N3k",
@@ -5480,9 +3935,9 @@
      "id": "upper-N3j-bed",
      "kind": "bed",
      "pos": [
-      115,
+      66.7,
       0,
-      56.5
+      32.77
      ],
      "vis": "player",
      "key": "N3j",
@@ -5495,9 +3950,9 @@
      "id": "upper-N3j-chest",
      "kind": "chest",
      "pos": [
-      132.5,
+      76.85,
       0,
-      77.5
+      44.95
      ],
      "vis": "player",
      "key": "N3j"
@@ -5506,9 +3961,9 @@
      "id": "upper-N3j-dolls",
      "kind": "niche",
      "pos": [
-      122.5,
+      71.05,
       0,
-      75
+      43.5
      ],
      "vis": "hidden-object",
      "key": "N3j",
@@ -5518,9 +3973,9 @@
      "id": "upper-N3j-sword",
      "kind": "niche",
      "pos": [
-      132.5,
+      76.85,
       0,
-      80
+      46.4
      ],
      "vis": "hidden-object",
      "key": "N3j",
@@ -5530,9 +3985,9 @@
      "id": "upper-izek",
      "kind": "adventurer",
      "pos": [
-      122.5,
+      71.05,
       0,
-      65
+      37.7
      ],
      "vis": "hidden-creature",
      "key": "N3j",
@@ -5543,9 +3998,9 @@
      "id": "upper-N3p-mirror",
      "kind": "niche",
      "pos": [
-      51.0,
+      29.58,
       0,
-      60
+      34.8
      ],
      "vis": "hidden-object",
      "key": "N3p",
@@ -5555,9 +4010,9 @@
      "id": "upper-N3p-gown",
      "kind": "armor-suit",
      "pos": [
-      20,
+      11.6,
       0,
-      50
+      29.0
      ],
      "vis": "player",
      "key": "N3p"
@@ -5566,9 +4021,9 @@
      "id": "upper-N3p-wardrobe",
      "kind": "wardrobe",
      "pos": [
-      20,
+      11.6,
       0,
-      71.5
+      41.47
      ],
      "vis": "player",
      "rotY": 180,
@@ -5578,9 +4033,9 @@
      "id": "upper-N3p-note",
      "kind": "note",
      "pos": [
-      32.5,
+      18.85,
       0,
-      60
+      34.8
      ],
      "vis": "dm-note",
      "key": "N3p",
@@ -5590,9 +4045,9 @@
      "id": "upper-N3m-chains",
      "kind": "chains",
      "pos": [
-      32.5,
+      18.85,
       0,
-      82.5
+      47.85
      ],
      "vis": "player",
      "key": "N3m",
@@ -5605,9 +4060,9 @@
      "id": "upper-udo",
      "kind": "commoner",
      "pos": [
-      32.5,
+      18.85,
       0,
-      85
+      49.3
      ],
      "vis": "hidden-creature",
      "key": "N3m",
@@ -5620,7 +4075,7 @@
    "id": "attic",
    "name": "Attic",
    "elevationFt": 30,
-   "ceilingFt": 20,
+   "ceilingFt": 7,
    "ambient": "darkness",
    "north": "-z",
    "rooms": [
@@ -5630,24 +4085,24 @@
      "page": null,
      "polygon": [
       [
-       15,
-       7.5
+       8.7,
+       17.4
       ],
       [
-       52.5,
-       7.5
+       30.45,
+       17.4
       ],
       [
-       52.5,
-       35
+       30.45,
+       33.35
       ],
       [
-       15,
-       35
+       8.7,
+       33.35
       ]
      ],
      "floor": "plank",
-     "ceilingFt": 20,
+     "ceilingFt": 7,
      "desc": "A dusty room under a high peaked roof: an old table with a lantern."
     },
     {
@@ -5656,32 +4111,32 @@
      "page": 109,
      "polygon": [
       [
-       15,
-       35
+       8.7,
+       33.35
       ],
       [
-       52.5,
-       35
+       30.45,
+       33.35
       ],
       [
-       52.5,
-       7.5
+       30.45,
+       17.4
       ],
       [
-       135,
-       7.5
+       78.3,
+       17.4
       ],
       [
-       135,
-       65
+       78.3,
+       50.75
       ],
       [
-       15,
-       65
+       8.7,
+       50.75
       ]
      ],
      "floor": "plank",
-     "ceilingFt": 20,
+     "ceilingFt": 7,
      "desc": "Attic storage crammed with old furniture and crates under sheets.",
      "dm": "A single trail of footprints leads to the workroom."
     },
@@ -5691,24 +4146,24 @@
      "page": null,
      "polygon": [
       [
-       135,
-       7.5
+       78.3,
+       17.4
       ],
       [
-       175,
-       7.5
+       101.5,
+       17.4
       ],
       [
-       175,
-       65
+       101.5,
+       50.75
       ],
       [
-       135,
-       65
+       78.3,
+       50.75
       ]
      ],
      "floor": "plank",
-     "ceilingFt": 20,
+     "ceilingFt": 7,
      "desc": "A study of mismatched furniture, parchment diagrams on the tables, a shelf of bones, three small children standing with their backs to the door.",
      "dm": "Victor practises teleportation; the children are his failures. Six cat skeletons. The circle is deadly."
     }
@@ -5717,42 +4172,58 @@
     {
      "id": "attic-w-0",
      "a": [
-      15.0,
-      7.5
+      8.7,
+      17.4
      ],
      "b": [
-      175.0,
-      7.5
+      101.5,
+      17.4
      ],
      "flags": [
       "normal"
      ],
-     "material": "ashlar"
+     "material": "paneling"
     },
     {
      "id": "attic-w-1",
      "a": [
-      52.5,
-      7.5
+      8.7,
+      33.35
      ],
      "b": [
-      52.5,
-      35.0
+      16.85,
+      33.35
      ],
      "flags": [
       "normal"
      ],
-     "material": "ashlar"
+     "material": "paneling-dusty"
+    },
+    {
+     "id": "N3r-door",
+     "a": [
+      16.85,
+      33.35
+     ],
+     "b": [
+      20.85,
+      33.35
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "paneling-dusty",
+     "open": false
     },
     {
      "id": "attic-w-2",
      "a": [
-      47.8125,
-      35.0
+      20.85,
+      33.35
      ],
      "b": [
-      52.5,
-      35.0
+      30.45,
+      33.35
      ],
      "flags": [
       "normal"
@@ -5762,42 +4233,42 @@
     {
      "id": "attic-w-3",
      "a": [
-      43.125,
-      35.0
+      8.7,
+      50.75
      ],
      "b": [
-      47.8125,
-      35.0
+      101.5,
+      50.75
      ],
      "flags": [
       "normal"
      ],
-     "material": "paneling-dusty"
+     "material": "paneling"
     },
     {
      "id": "attic-w-4",
      "a": [
-      38.4375,
-      35.0
+      8.7,
+      17.4
      ],
      "b": [
-      43.125,
-      35.0
+      8.7,
+      50.75
      ],
      "flags": [
       "normal"
      ],
-     "material": "paneling-dusty"
+     "material": "paneling"
     },
     {
      "id": "attic-w-5",
      "a": [
-      33.75,
-      35.0
+      30.45,
+      17.4
      ],
      "b": [
-      38.4375,
-      35.0
+      30.45,
+      33.35
      ],
      "flags": [
       "normal"
@@ -5807,12 +4278,12 @@
     {
      "id": "attic-w-6",
      "a": [
-      29.0625,
-      35.0
+      78.3,
+      17.4
      ],
      "b": [
-      33.75,
-      35.0
+      78.3,
+      32.8
      ],
      "flags": [
       "normal"
@@ -5820,14 +4291,30 @@
      "material": "paneling-dusty"
     },
     {
-     "id": "attic-w-7",
+     "id": "N3t-door",
      "a": [
-      24.375,
-      35.0
+      78.3,
+      32.8
      ],
      "b": [
-      29.0625,
-      35.0
+      78.3,
+      36.8
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "paneling-dusty",
+     "open": false
+    },
+    {
+     "id": "attic-w-7",
+     "a": [
+      78.3,
+      36.8
+     ],
+     "b": [
+      78.3,
+      50.75
      ],
      "flags": [
       "normal"
@@ -5837,761 +4324,26 @@
     {
      "id": "attic-w-8",
      "a": [
-      19.6875,
-      35.0
+      101.5,
+      17.4
      ],
      "b": [
-      24.375,
-      35.0
+      101.5,
+      50.75
      ],
      "flags": [
       "normal"
      ],
-     "material": "paneling-dusty"
-    },
-    {
-     "id": "attic-w-9",
-     "a": [
-      15.0,
-      35.0
-     ],
-     "b": [
-      19.6875,
-      35.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling-dusty"
-    },
-    {
-     "id": "attic-w-10",
-     "a": [
-      15.0,
-      30.416666666666664
-     ],
-     "b": [
-      15.0,
-      65.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "attic-w-11",
-     "a": [
-      15.0,
-      25.833333333333336
-     ],
-     "b": [
-      15.0,
-      30.416666666666664
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "attic-w-12",
-     "a": [
-      15.0,
-      21.25
-     ],
-     "b": [
-      15.0,
-      25.833333333333336
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "attic-w-13",
-     "a": [
-      15.0,
-      16.666666666666668
-     ],
-     "b": [
-      15.0,
-      21.25
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "attic-w-14",
-     "a": [
-      15.0,
-      12.08333333333333
-     ],
-     "b": [
-      15.0,
-      16.666666666666668
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "attic-w-15",
-     "a": [
-      15.0,
-      7.5
-     ],
-     "b": [
-      15.0,
-      12.08333333333333
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "attic-w-16",
-     "a": [
-      52.5,
-      30.416666666666664
-     ],
-     "b": [
-      52.5,
-      35.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "attic-w-17",
-     "a": [
-      52.5,
-      25.833333333333336
-     ],
-     "b": [
-      52.5,
-      30.416666666666664
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "attic-w-18",
-     "a": [
-      52.5,
-      21.25
-     ],
-     "b": [
-      52.5,
-      25.833333333333336
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "attic-w-19",
-     "a": [
-      52.5,
-      16.666666666666668
-     ],
-     "b": [
-      52.5,
-      21.25
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "attic-w-20",
-     "a": [
-      52.5,
-      12.08333333333333
-     ],
-     "b": [
-      52.5,
-      16.666666666666668
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "attic-w-21",
-     "a": [
-      52.5,
-      7.5
-     ],
-     "b": [
-      52.5,
-      12.08333333333333
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "attic-w-22",
-     "a": [
-      135.0,
-      7.5
-     ],
-     "b": [
-      135.0,
-      50.625
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "attic-w-23",
-     "a": [
-      135.0,
-      50.625
-     ],
-     "b": [
-      135.0,
-      65.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling-dusty"
-    },
-    {
-     "id": "attic-w-24",
-     "a": [
-      130.0,
-      65.0
-     ],
-     "b": [
-      175.0,
-      65.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "attic-w-25",
-     "a": [
-      125.0,
-      65.0
-     ],
-     "b": [
-      130.0,
-      65.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "attic-w-26",
-     "a": [
-      120.0,
-      65.0
-     ],
-     "b": [
-      125.0,
-      65.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "attic-w-27",
-     "a": [
-      115.0,
-      65.0
-     ],
-     "b": [
-      120.0,
-      65.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "attic-w-28",
-     "a": [
-      110.0,
-      65.0
-     ],
-     "b": [
-      115.0,
-      65.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "attic-w-29",
-     "a": [
-      105.0,
-      65.0
-     ],
-     "b": [
-      110.0,
-      65.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "attic-w-30",
-     "a": [
-      100.0,
-      65.0
-     ],
-     "b": [
-      105.0,
-      65.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "attic-w-31",
-     "a": [
-      95.0,
-      65.0
-     ],
-     "b": [
-      100.0,
-      65.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "attic-w-32",
-     "a": [
-      90.0,
-      65.0
-     ],
-     "b": [
-      95.0,
-      65.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "attic-w-33",
-     "a": [
-      85.0,
-      65.0
-     ],
-     "b": [
-      90.0,
-      65.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "attic-w-34",
-     "a": [
-      80.0,
-      65.0
-     ],
-     "b": [
-      85.0,
-      65.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "attic-w-35",
-     "a": [
-      75.0,
-      65.0
-     ],
-     "b": [
-      80.0,
-      65.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "attic-w-36",
-     "a": [
-      70.0,
-      65.0
-     ],
-     "b": [
-      75.0,
-      65.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "attic-w-37",
-     "a": [
-      65.0,
-      65.0
-     ],
-     "b": [
-      70.0,
-      65.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "attic-w-38",
-     "a": [
-      60.0,
-      65.0
-     ],
-     "b": [
-      65.0,
-      65.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "attic-w-39",
-     "a": [
-      55.0,
-      65.0
-     ],
-     "b": [
-      60.0,
-      65.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "attic-w-40",
-     "a": [
-      50.0,
-      65.0
-     ],
-     "b": [
-      55.0,
-      65.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "attic-w-41",
-     "a": [
-      45.0,
-      65.0
-     ],
-     "b": [
-      50.0,
-      65.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "attic-w-42",
-     "a": [
-      40.0,
-      65.0
-     ],
-     "b": [
-      45.0,
-      65.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "attic-w-43",
-     "a": [
-      35.0,
-      65.0
-     ],
-     "b": [
-      40.0,
-      65.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "attic-w-44",
-     "a": [
-      30.0,
-      65.0
-     ],
-     "b": [
-      35.0,
-      65.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "attic-w-45",
-     "a": [
-      25.0,
-      65.0
-     ],
-     "b": [
-      30.0,
-      65.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "attic-w-46",
-     "a": [
-      20.0,
-      65.0
-     ],
-     "b": [
-      25.0,
-      65.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "attic-w-47",
-     "a": [
-      15.0,
-      65.0
-     ],
-     "b": [
-      20.0,
-      65.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "attic-w-48",
-     "a": [
-      175.0,
-      7.5
-     ],
-     "b": [
-      175.0,
-      65.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "attic-w-49",
-     "a": [
-      135.0,
-      45.83333333333334
-     ],
-     "b": [
-      135.0,
-      50.625
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "attic-w-50",
-     "a": [
-      135.0,
-      41.04166666666666
-     ],
-     "b": [
-      135.0,
-      45.83333333333334
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "attic-w-51",
-     "a": [
-      135.0,
-      36.25
-     ],
-     "b": [
-      135.0,
-      41.04166666666666
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "attic-w-52",
-     "a": [
-      135.0,
-      31.45833333333333
-     ],
-     "b": [
-      135.0,
-      36.25
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "attic-w-53",
-     "a": [
-      135.0,
-      26.66666666666667
-     ],
-     "b": [
-      135.0,
-      31.45833333333333
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "attic-w-54",
-     "a": [
-      135.0,
-      21.875
-     ],
-     "b": [
-      135.0,
-      26.66666666666667
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "attic-w-55",
-     "a": [
-      135.0,
-      17.08333333333333
-     ],
-     "b": [
-      135.0,
-      21.875
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "attic-w-56",
-     "a": [
-      135.0,
-      12.29166666666667
-     ],
-     "b": [
-      135.0,
-      17.08333333333333
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "attic-w-57",
-     "a": [
-      135.0,
-      7.5
-     ],
-     "b": [
-      135.0,
-      12.29166666666667
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
+     "material": "paneling"
     }
    ],
    "lights": [
     {
      "id": "attic-l-N3r-lamp",
      "pos": [
-      25,
+      14.5,
       4,
-      20
+      24.65
      ],
      "preset": "lantern",
      "bright": 10,
@@ -6600,9 +4352,9 @@
     {
      "id": "attic-l-N3t-lamp",
      "pos": [
-      150,
+      87.0,
       5,
-      20
+      24.65
      ],
      "preset": "lantern",
      "bright": 15,
@@ -6611,12 +4363,28 @@
    ],
    "objects": [
     {
+     "id": "attic-N3-roof0",
+     "kind": "roof-gable",
+     "pos": [
+      55.1,
+      0,
+      34.075
+     ],
+     "vis": "player",
+     "dims": {
+      "w": 96.8,
+      "d": 60.5,
+      "h": 19,
+      "y": 0.0
+     }
+    },
+    {
      "id": "attic-N3t-glyph",
      "kind": "pressure-plate",
      "pos": [
-      137.5,
+      79.75,
       0,
-      37.5
+      34.8
      ],
      "vis": "hidden-object",
      "key": "N3t",
@@ -6626,9 +4394,9 @@
      "id": "attic-N3t-sign",
      "kind": "note",
      "pos": [
-      131.5,
+      76.27,
       0,
-      37.5
+      34.8
      ],
      "vis": "dm-note",
      "key": "N3t",
@@ -6638,24 +4406,24 @@
      "id": "attic-N3r-table",
      "kind": "table",
      "pos": [
-      25,
+      14.5,
       0,
-      20
+      24.65
      ],
      "vis": "player",
      "key": "N3r",
      "dims": {
-      "w": 4,
-      "d": 3
+      "w": 3,
+      "d": 2.5
      }
     },
     {
      "id": "attic-N3r-lamp",
      "kind": "lamp",
      "pos": [
-      25,
+      14.5,
       3,
-      20
+      24.65
      ],
      "vis": "player",
      "key": "N3r"
@@ -6664,9 +4432,9 @@
      "id": "attic-N3r-trap",
      "kind": "trapdoor",
      "pos": [
-      42.5,
+      26.1,
       0,
-      25
+      18.85
      ],
      "vis": "hidden-object",
      "key": "N3r",
@@ -6676,9 +4444,9 @@
      "id": "attic-N3s-junk0",
      "kind": "trunk",
      "pos": [
-      60,
+      34.8,
       0,
-      15
+      21.75
      ],
      "vis": "player",
      "key": "N3s"
@@ -6687,9 +4455,9 @@
      "id": "attic-N3s-junk1",
      "kind": "sheeted",
      "pos": [
-      75,
+      43.5,
       0,
-      45
+      39.15
      ],
      "vis": "player",
      "rotY": 40,
@@ -6699,9 +4467,9 @@
      "id": "attic-N3s-junk2",
      "kind": "chest",
      "pos": [
-      95,
+      55.1,
       0,
-      20
+      24.65
      ],
      "vis": "player",
      "rotY": 80,
@@ -6711,9 +4479,9 @@
      "id": "attic-N3s-junk3",
      "kind": "trunk",
      "pos": [
-      110,
+      63.8,
       0,
-      50
+      42.05
      ],
      "vis": "player",
      "rotY": 120,
@@ -6723,9 +4491,9 @@
      "id": "attic-N3s-junk4",
      "kind": "wardrobe",
      "pos": [
-      70,
+      40.6,
       0,
-      57.5
+      46.4
      ],
      "vis": "player",
      "rotY": 160,
@@ -6735,9 +4503,9 @@
      "id": "attic-N3s-junk5",
      "kind": "sheeted",
      "pos": [
-      120,
+      69.6,
       0,
-      17.5
+      23.2
      ],
      "vis": "player",
      "rotY": 200,
@@ -6747,9 +4515,9 @@
      "id": "attic-N3s-junk6",
      "kind": "refuse",
      "pos": [
-      30,
+      17.4,
       0,
-      50
+      42.05
      ],
      "vis": "player",
      "rotY": 240,
@@ -6759,9 +4527,9 @@
      "id": "attic-N3s-junk7",
      "kind": "refuse",
      "pos": [
-      90,
+      52.2,
       0,
-      35
+      33.35
      ],
      "vis": "player",
      "rotY": 280,
@@ -6771,9 +4539,9 @@
      "id": "attic-N3s-junk8",
      "kind": "cabinet",
      "pos": [
-      125,
+      72.5,
       0,
-      35
+      33.35
      ],
      "vis": "player",
      "rotY": 320,
@@ -6783,15 +4551,15 @@
      "id": "attic-N3s-prints",
      "kind": "footprints",
      "pos": [
-      100,
+      58.0,
       0,
-      37.5
+      34.8
      ],
      "vis": "player",
      "key": "N3s",
      "dims": {
       "n": 10,
-      "len": 30,
+      "len": 17.4,
       "seed": 7
      }
     },
@@ -6799,9 +4567,9 @@
      "id": "attic-N3s-note",
      "kind": "note",
      "pos": [
-      75,
+      43.5,
       0,
-      30
+      30.45
      ],
      "vis": "dm-note",
      "key": "N3s",
@@ -6811,66 +4579,69 @@
      "id": "attic-N3t-table-a",
      "kind": "table",
      "pos": [
-      150,
+      87.0,
       0,
-      17.5
+      23.2
      ],
      "vis": "player",
      "key": "N3t",
      "dims": {
-      "w": 6,
-      "d": 3
+      "w": 3.5,
+      "d": 2.5
      }
     },
     {
      "id": "attic-N3t-table-b",
      "kind": "table",
      "pos": [
-      162.5,
+      94.25,
       0,
-      52.5
+      43.5
      ],
      "vis": "player",
      "key": "N3t",
      "dims": {
-      "w": 5,
-      "d": 3
+      "w": 3,
+      "d": 2.5
      }
     },
     {
      "id": "attic-N3t-shelf",
      "kind": "bookshelf",
      "pos": [
-      173.0,
+      100.34,
       0,
-      30
+      30.45
      ],
      "vis": "player",
      "rotY": -90,
-     "key": "N3t"
+     "key": "N3t",
+     "dims": {
+      "w": 3
+     }
     },
     {
      "id": "attic-N3t-circle",
      "kind": "rug",
      "pos": [
-      150,
+      87.0,
       0,
-      40
+      36.25
      ],
      "vis": "player",
      "key": "N3t",
      "dims": {
-      "w": 12,
-      "d": 12
+      "w": 7.0,
+      "d": 7.0
      }
     },
     {
      "id": "attic-victor",
      "kind": "adventurer",
      "pos": [
-      150,
+      87.0,
       0,
-      35
+      33.35
      ],
      "vis": "hidden-creature",
      "key": "N3t",
@@ -6881,9 +4652,9 @@
      "id": "attic-N3t-children",
      "kind": "skeleton",
      "pos": [
-      167.5,
+      97.15,
       0,
-      12.5
+      20.3
      ],
      "vis": "hidden-creature",
      "key": "N3t",
@@ -6894,9 +4665,9 @@
      "id": "attic-N3t-cats",
      "kind": "swarm",
      "pos": [
-      165,
+      95.7,
       0,
-      45
+      39.15
      ],
      "vis": "hidden-creature",
      "key": "N3t",
@@ -6907,9 +4678,9 @@
      "id": "attic-N3t-circle-note",
      "kind": "niche",
      "pos": [
-      150,
+      87.0,
       0,
-      43.0
+      37.99
      ],
      "vis": "hidden-object",
      "key": "N3t",
@@ -6919,28 +4690,13 @@
      "id": "attic-N3t-spellbook",
      "kind": "niche",
      "pos": [
-      155,
+      89.9,
       0,
-      17.5
+      23.2
      ],
      "vis": "hidden-object",
      "key": "N3t",
      "label": "Victor's spellbook: an incomplete teleportation circle and three sigil sequences"
-    },
-    {
-     "id": "attic-N3-roof",
-     "kind": "roof-gable",
-     "pos": [
-      95,
-      0,
-      36.25
-     ],
-     "vis": "player",
-     "dims": {
-      "w": 58,
-      "d": 162,
-      "h": 18
-     }
     }
    ]
   }
@@ -6952,15 +4708,15 @@
    "from": {
     "level": "ground",
     "pos": [
-     146.25,
-     25
+     84.83,
+     32.7
     ]
    },
    "to": {
     "level": "upper",
     "pos": [
-     146.25,
-     25
+     84.83,
+     8.7
     ]
    }
   },
@@ -6970,15 +4726,15 @@
    "from": {
     "level": "ground",
     "pos": [
-     27.5,
-     100
+     9.7,
+     58.0
     ]
    },
    "to": {
     "level": "upper",
     "pos": [
-     27.5,
-     100
+     23.65,
+     58.0
     ]
    }
   },
@@ -6988,15 +4744,15 @@
    "from": {
     "level": "upper",
     "pos": [
-     45,
-     32.5
+     26.1,
+     18.85
     ]
    },
    "to": {
     "level": "attic",
     "pos": [
-     42.5,
-     25
+     26.1,
+     18.85
     ]
    }
   }

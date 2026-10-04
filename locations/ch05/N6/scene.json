@@ -24,28 +24,28 @@
      "page": 117,
      "polygon": [
       [
-       5,
-       7.5
+       2.85,
+       4.275
       ],
       [
-       95,
-       7.5
+       54.15,
+       4.275
       ],
       [
-       95,
-       100
+       54.15,
+       57.0
       ],
       [
-       45,
-       100
+       25.65,
+       57.0
       ],
       [
-       45,
-       60
+       25.65,
+       34.2
       ],
       [
-       5,
-       60
+       2.85,
+       34.2
       ]
      ],
      "floor": "plank",
@@ -58,20 +58,20 @@
      "page": 117,
      "polygon": [
       [
-       5,
-       60
+       2.85,
+       34.2
       ],
       [
-       45,
-       60
+       25.65,
+       34.2
       ],
       [
-       45,
-       152.5
+       25.65,
+       86.925
       ],
       [
-       5,
-       152.5
+       2.85,
+       86.925
       ]
      ],
      "floor": "plank",
@@ -84,20 +84,20 @@
      "page": 117,
      "polygon": [
       [
-       45,
-       100
+       25.65,
+       57.0
       ],
       [
-       57.5,
-       100
+       32.775,
+       57.0
       ],
       [
-       57.5,
-       152.5
+       32.775,
+       86.925
       ],
       [
-       45,
-       152.5
+       25.65,
+       86.925
       ]
      ],
      "floor": "plank",
@@ -110,20 +110,20 @@
      "page": null,
      "polygon": [
       [
-       57.5,
-       100
+       32.775,
+       57.0
       ],
       [
-       95,
-       100
+       54.15,
+       57.0
       ],
       [
-       95,
-       152.5
+       54.15,
+       86.925
       ],
       [
-       57.5,
-       152.5
+       32.775,
+       86.925
       ]
      ],
      "floor": "plank",
@@ -135,12 +135,12 @@
     {
      "id": "ground-w-0",
      "a": [
-      5.0,
-      7.5
+      2.85,
+      4.275
      ],
      "b": [
-      30.0,
-      7.5
+      17.025,
+      4.275
      ],
      "flags": [
       "normal"
@@ -150,12 +150,12 @@
     {
      "id": "ground-w-1",
      "a": [
-      30.0,
-      7.5
+      17.025,
+      4.275
      ],
      "b": [
-      35.0,
-      7.5
+      20.025,
+      4.275
      ],
      "flags": [
       "window"
@@ -165,12 +165,12 @@
     {
      "id": "ground-w-2",
      "a": [
-      35.0,
-      7.5
+      20.025,
+      4.275
      ],
      "b": [
-      70.0,
-      7.5
+      39.825,
+      4.275
      ],
      "flags": [
       "normal"
@@ -180,12 +180,12 @@
     {
      "id": "ground-w-3",
      "a": [
-      70.0,
-      7.5
+      39.825,
+      4.275
      ],
      "b": [
-      75.0,
-      7.5
+      42.825,
+      4.275
      ],
      "flags": [
       "window"
@@ -195,12 +195,12 @@
     {
      "id": "ground-w-4",
      "a": [
-      75.0,
-      7.5
+      42.825,
+      4.275
      ],
      "b": [
-      95.0,
-      7.5
+      54.15,
+      4.275
      ],
      "flags": [
       "normal"
@@ -210,299 +210,89 @@
     {
      "id": "ground-w-5",
      "a": [
-      95.0,
-      7.5
+      2.85,
+      34.2
      ],
      "b": [
-      95.0,
-      152.5
+      25.65,
+      34.2
      ],
      "flags": [
       "normal"
      ],
-     "material": "half-timber"
+     "material": "paneling-dusty"
     },
     {
      "id": "ground-w-6",
      "a": [
-      90.0,
-      100.0
+      25.65,
+      57.0
      ],
      "b": [
-      95.0,
-      100.0
+      26.5,
+      57.0
      ],
      "flags": [
       "normal"
      ],
-     "material": "half-timber"
+     "material": "paneling-dusty"
+    },
+    {
+     "id": "N6-stair-a",
+     "a": [
+      26.5,
+      57.0
+     ],
+     "b": [
+      30.5,
+      57.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "paneling-dusty",
+     "open": false
     },
     {
      "id": "ground-w-7",
      "a": [
-      85.0,
-      100.0
+      30.5,
+      57.0
      ],
      "b": [
-      90.0,
-      100.0
+      33.625,
+      57.0
      ],
      "flags": [
       "normal"
      ],
-     "material": "half-timber"
-    },
-    {
-     "id": "ground-w-8",
-     "a": [
-      80.0,
-      100.0
-     ],
-     "b": [
-      85.0,
-      100.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "half-timber"
-    },
-    {
-     "id": "ground-w-9",
-     "a": [
-      75.0,
-      100.0
-     ],
-     "b": [
-      80.0,
-      100.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "half-timber"
-    },
-    {
-     "id": "ground-w-10",
-     "a": [
-      70.0,
-      100.0
-     ],
-     "b": [
-      75.0,
-      100.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "half-timber"
-    },
-    {
-     "id": "ground-w-11",
-     "a": [
-      65.0,
-      100.0
-     ],
-     "b": [
-      70.0,
-      100.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "half-timber"
+     "material": "paneling-dusty"
     },
     {
      "id": "N6b-a",
      "a": [
-      60.0,
-      100.0
+      33.625,
+      57.0
      ],
      "b": [
-      65.0,
-      100.0
+      37.625,
+      57.0
      ],
      "flags": [
       "door"
      ],
-     "material": "half-timber",
+     "material": "paneling-dusty",
      "open": false
     },
     {
-     "id": "ground-w-13",
+     "id": "ground-w-8",
      "a": [
-      55.0,
-      100.0
+      37.625,
+      57.0
      ],
      "b": [
-      60.0,
-      100.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "half-timber"
-    },
-    {
-     "id": "ground-w-14",
-     "a": [
-      50.0,
-      100.0
-     ],
-     "b": [
-      55.0,
-      100.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "half-timber"
-    },
-    {
-     "id": "ground-w-15",
-     "a": [
-      45.0,
-      100.0
-     ],
-     "b": [
-      50.0,
-      100.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "half-timber"
-    },
-    {
-     "id": "ground-w-16",
-     "a": [
-      45.0,
-      95.0
-     ],
-     "b": [
-      45.0,
-      152.5
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "half-timber"
-    },
-    {
-     "id": "ground-w-17",
-     "a": [
-      45.0,
-      90.0
-     ],
-     "b": [
-      45.0,
-      95.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "half-timber"
-    },
-    {
-     "id": "N6c-a",
-     "a": [
-      45.0,
-      85.0
-     ],
-     "b": [
-      45.0,
-      90.0
-     ],
-     "flags": [
-      "door"
-     ],
-     "material": "half-timber",
-     "open": false
-    },
-    {
-     "id": "ground-w-19",
-     "a": [
-      45.0,
-      80.0
-     ],
-     "b": [
-      45.0,
-      85.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "half-timber"
-    },
-    {
-     "id": "ground-w-20",
-     "a": [
-      45.0,
-      75.0
-     ],
-     "b": [
-      45.0,
-      80.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "half-timber"
-    },
-    {
-     "id": "ground-w-21",
-     "a": [
-      45.0,
-      70.0
-     ],
-     "b": [
-      45.0,
-      75.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "half-timber"
-    },
-    {
-     "id": "ground-w-22",
-     "a": [
-      45.0,
-      65.0
-     ],
-     "b": [
-      45.0,
-      70.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "half-timber"
-    },
-    {
-     "id": "ground-w-23",
-     "a": [
-      45.0,
-      60.0
-     ],
-     "b": [
-      45.0,
-      65.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "half-timber"
-    },
-    {
-     "id": "ground-w-24",
-     "a": [
-      40.0,
-      60.0
-     ],
-     "b": [
-      45.0,
-      60.0
+      54.15,
+      57.0
      ],
      "flags": [
       "normal"
@@ -510,329 +300,14 @@
      "material": "paneling-dusty"
     },
     {
-     "id": "ground-w-25",
+     "id": "ground-w-9",
      "a": [
-      35.0,
-      60.0
+      2.85,
+      86.925
      ],
      "b": [
-      40.0,
-      60.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling-dusty"
-    },
-    {
-     "id": "ground-w-26",
-     "a": [
-      30.0,
-      60.0
-     ],
-     "b": [
-      35.0,
-      60.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling-dusty"
-    },
-    {
-     "id": "ground-w-27",
-     "a": [
-      25.0,
-      60.0
-     ],
-     "b": [
-      30.0,
-      60.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling-dusty"
-    },
-    {
-     "id": "ground-w-28",
-     "a": [
-      20.0,
-      60.0
-     ],
-     "b": [
-      25.0,
-      60.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling-dusty"
-    },
-    {
-     "id": "ground-w-29",
-     "a": [
-      15.0,
-      60.0
-     ],
-     "b": [
-      20.0,
-      60.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling-dusty"
-    },
-    {
-     "id": "ground-w-30",
-     "a": [
-      10.0,
-      60.0
-     ],
-     "b": [
-      15.0,
-      60.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling-dusty"
-    },
-    {
-     "id": "ground-w-31",
-     "a": [
-      5.0,
-      60.0
-     ],
-     "b": [
-      10.0,
-      60.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling-dusty"
-    },
-    {
-     "id": "ground-w-32",
-     "a": [
-      5.0,
-      54.75
-     ],
-     "b": [
-      5.0,
-      152.5
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "half-timber"
-    },
-    {
-     "id": "ground-w-33",
-     "a": [
-      5.0,
-      49.5
-     ],
-     "b": [
-      5.0,
-      54.75
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "half-timber"
-    },
-    {
-     "id": "ground-w-34",
-     "a": [
-      5.0,
-      44.25
-     ],
-     "b": [
-      5.0,
-      49.5
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "half-timber"
-    },
-    {
-     "id": "ground-w-35",
-     "a": [
-      5.0,
-      39.0
-     ],
-     "b": [
-      5.0,
-      44.25
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "half-timber"
-    },
-    {
-     "id": "ground-w-36",
-     "a": [
-      5.0,
-      33.75
-     ],
-     "b": [
-      5.0,
-      39.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "half-timber"
-    },
-    {
-     "id": "ground-w-37",
-     "a": [
-      5.0,
-      28.5
-     ],
-     "b": [
-      5.0,
-      33.75
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "half-timber"
-    },
-    {
-     "id": "ground-w-38",
-     "a": [
-      5.0,
-      23.25
-     ],
-     "b": [
-      5.0,
-      28.5
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "half-timber"
-    },
-    {
-     "id": "ground-w-39",
-     "a": [
-      5.0,
-      18.0
-     ],
-     "b": [
-      5.0,
-      23.25
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "half-timber"
-    },
-    {
-     "id": "ground-w-40",
-     "a": [
-      5.0,
-      12.749999999999995
-     ],
-     "b": [
-      5.0,
-      18.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "half-timber"
-    },
-    {
-     "id": "ground-w-41",
-     "a": [
-      5.0,
-      7.5
-     ],
-     "b": [
-      5.0,
-      12.749999999999995
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "half-timber"
-    },
-    {
-     "id": "ground-w-42",
-     "a": [
-      45.0,
-      60.0
-     ],
-     "b": [
-      45.0,
-      152.5
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "half-timber"
-    },
-    {
-     "id": "ground-w-43",
-     "a": [
-      40.0,
-      152.5
-     ],
-     "b": [
-      95.0,
-      152.5
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "half-timber"
-    },
-    {
-     "id": "ground-w-44",
-     "a": [
-      35.0,
-      152.5
-     ],
-     "b": [
-      40.0,
-      152.5
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "half-timber"
-    },
-    {
-     "id": "ground-w-45",
-     "a": [
-      30.0,
-      152.5
-     ],
-     "b": [
-      35.0,
-      152.5
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "half-timber"
-    },
-    {
-     "id": "ground-w-46",
-     "a": [
-      25.0,
-      152.5
-     ],
-     "b": [
-      30.0,
-      152.5
+      10.825,
+      86.925
      ],
      "flags": [
       "normal"
@@ -842,12 +317,12 @@
     {
      "id": "N6-front",
      "a": [
-      20.0,
-      152.5
+      10.825,
+      86.925
      ],
      "b": [
-      25.0,
-      152.5
+      14.825,
+      86.925
      ],
      "flags": [
       "door",
@@ -857,14 +332,14 @@
      "open": false
     },
     {
-     "id": "ground-w-48",
+     "id": "ground-w-10",
      "a": [
-      15.0,
-      152.5
+      14.825,
+      86.925
      ],
      "b": [
-      20.0,
-      152.5
+      54.15,
+      86.925
      ],
      "flags": [
       "normal"
@@ -872,14 +347,14 @@
      "material": "half-timber"
     },
     {
-     "id": "ground-w-49",
+     "id": "ground-w-11",
      "a": [
-      10.0,
-      152.5
+      2.85,
+      4.275
      ],
      "b": [
-      15.0,
-      152.5
+      2.85,
+      14.175
      ],
      "flags": [
       "normal"
@@ -887,14 +362,29 @@
      "material": "half-timber"
     },
     {
-     "id": "ground-w-50",
+     "id": "ground-w-12",
      "a": [
-      5.0,
-      152.5
+      2.85,
+      14.175
      ],
      "b": [
-      10.0,
-      152.5
+      2.85,
+      17.175
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-13",
+     "a": [
+      2.85,
+      17.175
+     ],
+     "b": [
+      2.85,
+      25.575
      ],
      "flags": [
       "normal"
@@ -902,14 +392,29 @@
      "material": "half-timber"
     },
     {
-     "id": "ground-w-51",
+     "id": "ground-w-14",
      "a": [
-      45.0,
-      100.0
+      2.85,
+      25.575
      ],
      "b": [
-      95.0,
-      100.0
+      2.85,
+      28.575
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-15",
+     "a": [
+      2.85,
+      28.575
+     ],
+     "b": [
+      2.85,
+      56.925
      ],
      "flags": [
       "normal"
@@ -917,14 +422,29 @@
      "material": "half-timber"
     },
     {
-     "id": "ground-w-52",
+     "id": "ground-w-16",
      "a": [
-      57.5,
-      100.0
+      2.85,
+      56.925
      ],
      "b": [
-      57.5,
-      110.5
+      2.85,
+      59.925
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-17",
+     "a": [
+      2.85,
+      59.925
+     ],
+     "b": [
+      2.85,
+      74.025
      ],
      "flags": [
       "normal"
@@ -932,14 +452,44 @@
      "material": "half-timber"
     },
     {
-     "id": "ground-w-53",
+     "id": "ground-w-18",
      "a": [
-      57.5,
-      110.5
+      2.85,
+      74.025
      ],
      "b": [
-      57.5,
-      142.0
+      2.85,
+      77.025
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-19",
+     "a": [
+      2.85,
+      77.025
+     ],
+     "b": [
+      2.85,
+      86.925
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-20",
+     "a": [
+      25.65,
+      34.2
+     ],
+     "b": [
+      25.65,
+      47.875
      ],
      "flags": [
       "normal"
@@ -947,14 +497,91 @@
      "material": "paneling-dusty"
     },
     {
-     "id": "ground-w-54",
+     "id": "N6c-a",
      "a": [
-      57.5,
-      142.0
+      25.65,
+      47.875
      ],
      "b": [
-      57.5,
-      152.5
+      25.65,
+      51.875
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "paneling-dusty",
+     "open": false
+    },
+    {
+     "id": "ground-w-21",
+     "a": [
+      25.65,
+      51.875
+     ],
+     "b": [
+      25.65,
+      79.225
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling-dusty"
+    },
+    {
+     "id": "N6c-stair",
+     "a": [
+      25.65,
+      79.225
+     ],
+     "b": [
+      25.65,
+      83.225
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "paneling-dusty",
+     "open": false
+    },
+    {
+     "id": "ground-w-22",
+     "a": [
+      25.65,
+      83.225
+     ],
+     "b": [
+      25.65,
+      86.925
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling-dusty"
+    },
+    {
+     "id": "ground-w-23",
+     "a": [
+      32.775,
+      57.0
+     ],
+     "b": [
+      32.775,
+      86.925
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling-dusty"
+    },
+    {
+     "id": "ground-w-24",
+     "a": [
+      54.15,
+      4.275
+     ],
+     "b": [
+      54.15,
+      13.675
      ],
      "flags": [
       "normal"
@@ -962,14 +589,31 @@
      "material": "half-timber"
     },
     {
-     "id": "ground-w-55",
+     "id": "N6-side",
      "a": [
-      57.5,
-      147.25
+      54.15,
+      13.675
      ],
      "b": [
-      57.5,
-      152.5
+      54.15,
+      17.675
+     ],
+     "flags": [
+      "door",
+      "locked"
+     ],
+     "material": "half-timber",
+     "open": false
+    },
+    {
+     "id": "ground-w-25",
+     "a": [
+      54.15,
+      17.675
+     ],
+     "b": [
+      54.15,
+      31.275
      ],
      "flags": [
       "normal"
@@ -977,14 +621,29 @@
      "material": "half-timber"
     },
     {
-     "id": "ground-w-56",
+     "id": "ground-w-26",
      "a": [
-      57.5,
-      142.0
+      54.15,
+      31.275
      ],
      "b": [
-      57.5,
-      147.25
+      54.15,
+      34.275
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "ground-w-27",
+     "a": [
+      54.15,
+      34.275
+     ],
+     "b": [
+      54.15,
+      71.175
      ],
      "flags": [
       "normal"
@@ -992,29 +651,29 @@
      "material": "half-timber"
     },
     {
-     "id": "ground-w-57",
+     "id": "ground-w-28",
      "a": [
-      57.5,
-      105.24999999999999
+      54.15,
+      71.175
      ],
      "b": [
-      57.5,
-      110.5
+      54.15,
+      74.175
      ],
      "flags": [
-      "normal"
+      "window"
      ],
      "material": "half-timber"
     },
     {
-     "id": "ground-w-58",
+     "id": "ground-w-29",
      "a": [
-      57.5,
-      100.0
+      54.15,
+      74.175
      ],
      "b": [
-      57.5,
-      105.24999999999999
+      54.15,
+      86.925
      ],
      "flags": [
       "normal"
@@ -1026,9 +685,9 @@
     {
      "id": "ground-l-N6b-lamp",
      "pos": [
-      80,
+      45.599999999999994,
       6,
-      137.5
+      78.375
      ],
      "preset": "lantern",
      "bright": 10,
@@ -1040,9 +699,9 @@
      "id": "ground-N6-shutters",
      "kind": "note",
      "pos": [
-      50,
+      28.5,
       0,
-      2.5
+      1.425
      ],
      "vis": "dm-note",
      "label": "Every shutter is closed tight; a coffin-shaped sign hangs over the door."
@@ -1051,9 +710,9 @@
      "id": "ground-N6a-coffin0",
      "kind": "coffin",
      "pos": [
-      15,
+      8.55,
       0,
-      15
+      8.55
      ],
      "vis": "player",
      "rotY": 20,
@@ -1063,9 +722,9 @@
      "id": "ground-N6a-coffin1",
      "kind": "coffin",
      "pos": [
-      15,
+      8.55,
       0,
-      30
+      17.1
      ],
      "vis": "player",
      "rotY": -15,
@@ -1075,9 +734,9 @@
      "id": "ground-N6a-coffin2",
      "kind": "coffin",
      "pos": [
-      15,
+      8.55,
       0,
-      45
+      25.65
      ],
      "vis": "player",
      "rotY": 10,
@@ -1087,9 +746,9 @@
      "id": "ground-N6a-coffin3",
      "kind": "coffin",
      "pos": [
-      40,
+      22.8,
       0,
-      15
+      8.55
      ],
      "vis": "player",
      "rotY": 80,
@@ -1099,9 +758,9 @@
      "id": "ground-N6a-coffin4",
      "kind": "coffin",
      "pos": [
-      47.5,
+      27.075,
       0,
-      30
+      17.1
      ],
      "vis": "player",
      "rotY": -70,
@@ -1111,9 +770,9 @@
      "id": "ground-N6a-coffin5",
      "kind": "coffin",
      "pos": [
-      50,
+      28.5,
       0,
-      45
+      25.65
      ],
      "vis": "player",
      "rotY": 60,
@@ -1123,9 +782,9 @@
      "id": "ground-N6a-coffin6",
      "kind": "coffin",
      "pos": [
-      77.5,
+      44.175,
       0,
-      15
+      8.55
      ],
      "vis": "player",
      "rotY": 15,
@@ -1135,9 +794,9 @@
      "id": "ground-N6a-coffin7",
      "kind": "coffin",
      "pos": [
-      87.5,
+      49.875,
       0,
-      30
+      17.1
      ],
      "vis": "player",
      "rotY": 85,
@@ -1147,9 +806,9 @@
      "id": "ground-N6a-coffin8",
      "kind": "coffin",
      "pos": [
-      87.5,
+      49.875,
       0,
-      50
+      28.5
      ],
      "vis": "player",
      "rotY": 80,
@@ -1159,9 +818,9 @@
      "id": "ground-N6a-coffin9",
      "kind": "coffin",
      "pos": [
-      50,
+      29.09,
       0,
-      65
+      37.05
      ],
      "vis": "player",
      "rotY": 85,
@@ -1171,9 +830,9 @@
      "id": "ground-N6a-coffin10",
      "kind": "coffin",
      "pos": [
-      87.5,
+      49.875,
       0,
-      70
+      39.9
      ],
      "vis": "player",
      "rotY": 75,
@@ -1183,9 +842,9 @@
      "id": "ground-N6a-coffin11",
      "kind": "coffin",
      "pos": [
-      75,
+      42.75,
       0,
-      85
+      48.45
      ],
      "vis": "player",
      "rotY": -20,
@@ -1195,9 +854,9 @@
      "id": "ground-N6a-coffin12",
      "kind": "coffin",
      "pos": [
-      87.5,
+      49.875,
       0,
-      90
+      51.3
      ],
      "vis": "player",
      "rotY": 70,
@@ -1207,9 +866,9 @@
      "id": "ground-N6a-note",
      "kind": "note",
      "pos": [
-      60,
+      34.2,
       0,
-      40
+      22.8
      ],
      "vis": "dm-note",
      "key": "N6a",
@@ -1219,69 +878,72 @@
      "id": "ground-N6c-bench0",
      "kind": "table",
      "pos": [
-      12.5,
+      7.125,
       0,
-      70
+      39.9
      ],
      "vis": "player",
      "rotY": 90,
      "key": "N6c",
      "dims": {
-      "w": 10,
-      "d": 3
+      "w": 5.7,
+      "d": 2.5
      }
     },
     {
      "id": "ground-N6c-bench1",
      "kind": "table",
      "pos": [
-      12.5,
+      7.125,
       0,
-      100
+      57.0
      ],
      "vis": "player",
      "rotY": 90,
      "key": "N6c",
      "dims": {
-      "w": 10,
-      "d": 3
+      "w": 5.7,
+      "d": 2.5
      }
     },
     {
      "id": "ground-N6c-bench2",
      "kind": "table",
      "pos": [
-      12.5,
+      7.125,
       0,
-      130
+      74.1
      ],
      "vis": "player",
      "rotY": 90,
      "key": "N6c",
      "dims": {
-      "w": 10,
-      "d": 3
+      "w": 5.7,
+      "d": 2.5
      }
     },
     {
      "id": "ground-N6c-tools",
      "kind": "shelves",
      "pos": [
-      7.0,
+      3.99,
       0,
-      145
+      82.65
      ],
      "vis": "player",
      "rotY": 90,
-     "key": "N6c"
+     "key": "N6c",
+     "dims": {
+      "w": 3
+     }
     },
     {
      "id": "ground-N6c-tools-note",
      "kind": "niche",
      "pos": [
-      12.5,
+      7.125,
       0,
-      85
+      48.45
      ],
      "vis": "hidden-object",
      "key": "N6c",
@@ -1291,37 +953,40 @@
      "id": "ground-N6-stair-run",
      "kind": "stairs-straight",
      "pos": [
-      51.25,
+      29.212,
       0,
-      120
+      68.4
      ],
      "vis": "player",
      "key": "N6a-stair",
      "dims": {
-      "w": 4,
+      "w": 3,
       "rise": 10,
-      "fromZ": 140,
-      "toZ": 105
+      "fromZ": 79.8,
+      "toZ": 59.85
      }
     },
     {
      "id": "ground-N6b-table",
      "kind": "table-round",
      "pos": [
-      80,
+      45.6,
       0,
-      137.5
+      78.375
      ],
      "vis": "player",
-     "key": "N6b"
+     "key": "N6b",
+     "dims": {
+      "r": 2
+     }
     },
     {
      "id": "ground-N6b-chair0",
      "kind": "chair",
      "pos": [
-      72.5,
+      41.325,
       0,
-      132.5
+      75.525
      ],
      "vis": "player",
      "key": "N6b"
@@ -1330,9 +995,9 @@
      "id": "ground-N6b-chair1",
      "kind": "chair",
      "pos": [
-      87.5,
+      49.875,
       0,
-      132.5
+      75.525
      ],
      "vis": "player",
      "key": "N6b"
@@ -1341,9 +1006,9 @@
      "id": "ground-N6b-chair2",
      "kind": "chair",
      "pos": [
-      72.5,
+      41.325,
       0,
-      142.5
+      81.225
      ],
      "vis": "player",
      "key": "N6b"
@@ -1352,9 +1017,9 @@
      "id": "ground-N6b-chair3",
      "kind": "chair",
      "pos": [
-      87.5,
+      49.875,
       0,
-      142.5
+      81.225
      ],
      "vis": "player",
      "key": "N6b"
@@ -1363,9 +1028,9 @@
      "id": "ground-N6b-lamp",
      "kind": "lamp",
      "pos": [
-      80,
+      45.6,
       6,
-      137.5
+      78.375
      ],
      "vis": "player",
      "key": "N6b"
@@ -1374,9 +1039,9 @@
      "id": "ground-N6b-cabinet-a",
      "kind": "cabinet",
      "pos": [
-      92.0,
+      52.44,
       0,
-      107.5
+      61.275
      ],
      "vis": "player",
      "rotY": -90,
@@ -1386,9 +1051,9 @@
      "id": "ground-N6b-cabinet-b",
      "kind": "cabinet",
      "pos": [
-      92.0,
+      52.44,
       0,
-      120
+      68.4
      ],
      "vis": "player",
      "rotY": -90,
@@ -1398,9 +1063,9 @@
      "id": "ground-henrik",
      "kind": "commoner",
      "pos": [
-      25,
+      14.25,
       0,
-      100
+      57.0
      ],
      "vis": "hidden-creature",
      "key": "N6c",
@@ -1423,36 +1088,36 @@
      "page": 118,
      "polygon": [
       [
-       5,
-       7.5
+       2.85,
+       4.275
       ],
       [
-       95,
-       7.5
+       54.15,
+       4.275
       ],
       [
-       95,
-       150
+       54.15,
+       85.5
       ],
       [
-       57.5,
-       150
+       32.775,
+       85.5
       ],
       [
-       57.5,
-       100
+       32.775,
+       57.0
       ],
       [
-       45,
-       100
+       25.65,
+       57.0
       ],
       [
-       45,
-       60
+       25.65,
+       34.2
       ],
       [
-       5,
-       60
+       2.85,
+       34.2
       ]
      ],
      "floor": "plank",
@@ -1466,20 +1131,20 @@
      "page": 117,
      "polygon": [
       [
-       5,
-       60
+       2.85,
+       34.2
       ],
       [
-       45,
-       60
+       25.65,
+       34.2
       ],
       [
-       45,
-       110
+       25.65,
+       62.7
       ],
       [
-       5,
-       110
+       2.85,
+       62.7
       ]
      ],
      "floor": "plank",
@@ -1493,20 +1158,20 @@
      "page": 117,
      "polygon": [
       [
-       5,
-       110
+       2.85,
+       62.7
       ],
       [
-       45,
-       110
+       25.65,
+       62.7
       ],
       [
-       45,
-       150
+       25.65,
+       85.5
       ],
       [
-       5,
-       150
+       2.85,
+       85.5
       ]
      ],
      "floor": "plank",
@@ -1519,20 +1184,20 @@
      "page": 117,
      "polygon": [
       [
-       45,
-       100
+       25.65,
+       57.0
       ],
       [
-       57.5,
-       100
+       32.775,
+       57.0
       ],
       [
-       57.5,
-       150
+       32.775,
+       85.5
       ],
       [
-       45,
-       150
+       25.65,
+       85.5
       ]
      ],
      "floor": "plank",
@@ -1544,12 +1209,12 @@
     {
      "id": "upper-w-0",
      "a": [
-      5.0,
-      7.5
+      2.85,
+      4.275
      ],
      "b": [
-      95.0,
-      7.5
+      54.15,
+      4.275
      ],
      "flags": [
       "normal"
@@ -1559,778 +1224,42 @@
     {
      "id": "upper-w-1",
      "a": [
-      95.0,
-      7.5
+      2.85,
+      34.2
      ],
      "b": [
-      95.0,
-      150.0
+      25.65,
+      34.2
      ],
      "flags": [
       "normal"
      ],
-     "material": "half-timber"
+     "material": "paneling-dusty"
     },
     {
      "id": "upper-w-2",
      "a": [
-      90.3125,
-      150.0
+      25.65,
+      57.0
      ],
      "b": [
-      95.0,
-      150.0
+      32.775,
+      57.0
      ],
      "flags": [
       "normal"
      ],
-     "material": "half-timber"
+     "material": "paneling-dusty"
     },
     {
      "id": "upper-w-3",
      "a": [
-      85.625,
-      150.0
+      2.85,
+      62.7
      ],
      "b": [
-      90.3125,
-      150.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "half-timber"
-    },
-    {
-     "id": "upper-w-4",
-     "a": [
-      80.9375,
-      150.0
-     ],
-     "b": [
-      85.625,
-      150.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "half-timber"
-    },
-    {
-     "id": "upper-w-5",
-     "a": [
-      76.25,
-      150.0
-     ],
-     "b": [
-      80.9375,
-      150.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "half-timber"
-    },
-    {
-     "id": "upper-w-6",
-     "a": [
-      71.5625,
-      150.0
-     ],
-     "b": [
-      76.25,
-      150.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "half-timber"
-    },
-    {
-     "id": "upper-w-7",
-     "a": [
-      66.875,
-      150.0
-     ],
-     "b": [
-      71.5625,
-      150.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "half-timber"
-    },
-    {
-     "id": "upper-w-8",
-     "a": [
-      62.1875,
-      150.0
-     ],
-     "b": [
-      66.875,
-      150.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "half-timber"
-    },
-    {
-     "id": "upper-w-9",
-     "a": [
-      57.5,
-      150.0
-     ],
-     "b": [
-      62.1875,
-      150.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "half-timber"
-    },
-    {
-     "id": "upper-w-10",
-     "a": [
-      57.5,
-      145.0
-     ],
-     "b": [
-      57.5,
-      150.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling-dusty"
-    },
-    {
-     "id": "upper-w-11",
-     "a": [
-      57.5,
-      140.0
-     ],
-     "b": [
-      57.5,
-      145.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling-dusty"
-    },
-    {
-     "id": "upper-w-12",
-     "a": [
-      57.5,
-      135.0
-     ],
-     "b": [
-      57.5,
-      140.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling-dusty"
-    },
-    {
-     "id": "upper-w-13",
-     "a": [
-      57.5,
-      130.0
-     ],
-     "b": [
-      57.5,
-      135.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling-dusty"
-    },
-    {
-     "id": "upper-w-14",
-     "a": [
-      57.5,
-      125.0
-     ],
-     "b": [
-      57.5,
-      130.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling-dusty"
-    },
-    {
-     "id": "upper-w-15",
-     "a": [
-      57.5,
-      120.0
-     ],
-     "b": [
-      57.5,
-      125.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling-dusty"
-    },
-    {
-     "id": "upper-w-16",
-     "a": [
-      57.5,
-      115.0
-     ],
-     "b": [
-      57.5,
-      120.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling-dusty"
-    },
-    {
-     "id": "upper-w-17",
-     "a": [
-      57.5,
-      110.0
-     ],
-     "b": [
-      57.5,
-      115.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling-dusty"
-    },
-    {
-     "id": "upper-w-18",
-     "a": [
-      57.5,
-      105.0
-     ],
-     "b": [
-      57.5,
-      110.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling-dusty"
-    },
-    {
-     "id": "upper-w-19",
-     "a": [
-      57.5,
-      100.0
-     ],
-     "b": [
-      57.5,
-      105.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling-dusty"
-    },
-    {
-     "id": "upper-w-20",
-     "a": [
-      51.25,
-      100.0
-     ],
-     "b": [
-      57.5,
-      100.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling-dusty"
-    },
-    {
-     "id": "upper-w-21",
-     "a": [
-      45.0,
-      100.0
-     ],
-     "b": [
-      51.25,
-      100.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling-dusty"
-    },
-    {
-     "id": "upper-w-22",
-     "a": [
-      45.0,
-      95.0
-     ],
-     "b": [
-      45.0,
-      150.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling-dusty"
-    },
-    {
-     "id": "upper-w-23",
-     "a": [
-      45.0,
-      90.0
-     ],
-     "b": [
-      45.0,
-      95.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling-dusty"
-    },
-    {
-     "id": "upper-w-24",
-     "a": [
-      45.0,
-      85.0
-     ],
-     "b": [
-      45.0,
-      90.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling-dusty"
-    },
-    {
-     "id": "upper-w-25",
-     "a": [
-      45.0,
-      80.0
-     ],
-     "b": [
-      45.0,
-      85.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling-dusty"
-    },
-    {
-     "id": "N6e-f",
-     "a": [
-      45.0,
-      75.0
-     ],
-     "b": [
-      45.0,
-      80.0
-     ],
-     "flags": [
-      "door"
-     ],
-     "material": "paneling-dusty",
-     "open": false
-    },
-    {
-     "id": "upper-w-27",
-     "a": [
-      45.0,
-      70.0
-     ],
-     "b": [
-      45.0,
-      75.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling-dusty"
-    },
-    {
-     "id": "upper-w-28",
-     "a": [
-      45.0,
-      65.0
-     ],
-     "b": [
-      45.0,
-      70.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling-dusty"
-    },
-    {
-     "id": "upper-w-29",
-     "a": [
-      45.0,
-      60.0
-     ],
-     "b": [
-      45.0,
-      65.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling-dusty"
-    },
-    {
-     "id": "upper-w-30",
-     "a": [
-      40.0,
-      60.0
-     ],
-     "b": [
-      45.0,
-      60.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling-dusty"
-    },
-    {
-     "id": "upper-w-31",
-     "a": [
-      35.0,
-      60.0
-     ],
-     "b": [
-      40.0,
-      60.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling-dusty"
-    },
-    {
-     "id": "upper-w-32",
-     "a": [
-      30.0,
-      60.0
-     ],
-     "b": [
-      35.0,
-      60.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling-dusty"
-    },
-    {
-     "id": "upper-w-33",
-     "a": [
-      25.0,
-      60.0
-     ],
-     "b": [
-      30.0,
-      60.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling-dusty"
-    },
-    {
-     "id": "upper-w-34",
-     "a": [
-      20.0,
-      60.0
-     ],
-     "b": [
-      25.0,
-      60.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling-dusty"
-    },
-    {
-     "id": "upper-w-35",
-     "a": [
-      15.0,
-      60.0
-     ],
-     "b": [
-      20.0,
-      60.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling-dusty"
-    },
-    {
-     "id": "upper-w-36",
-     "a": [
-      10.0,
-      60.0
-     ],
-     "b": [
-      15.0,
-      60.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling-dusty"
-    },
-    {
-     "id": "upper-w-37",
-     "a": [
-      5.0,
-      60.0
-     ],
-     "b": [
-      10.0,
-      60.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling-dusty"
-    },
-    {
-     "id": "upper-w-38",
-     "a": [
-      5.0,
-      54.75
-     ],
-     "b": [
-      5.0,
-      80.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "half-timber"
-    },
-    {
-     "id": "upper-w-39",
-     "a": [
-      5.0,
-      49.5
-     ],
-     "b": [
-      5.0,
-      54.75
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "half-timber"
-    },
-    {
-     "id": "upper-w-40",
-     "a": [
-      5.0,
-      44.25
-     ],
-     "b": [
-      5.0,
-      49.5
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "half-timber"
-    },
-    {
-     "id": "upper-w-41",
-     "a": [
-      5.0,
-      39.0
-     ],
-     "b": [
-      5.0,
-      44.25
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "half-timber"
-    },
-    {
-     "id": "upper-w-42",
-     "a": [
-      5.0,
-      33.75
-     ],
-     "b": [
-      5.0,
-      39.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "half-timber"
-    },
-    {
-     "id": "upper-w-43",
-     "a": [
-      5.0,
-      28.5
-     ],
-     "b": [
-      5.0,
-      33.75
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "half-timber"
-    },
-    {
-     "id": "upper-w-44",
-     "a": [
-      5.0,
-      23.25
-     ],
-     "b": [
-      5.0,
-      28.5
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "half-timber"
-    },
-    {
-     "id": "upper-w-45",
-     "a": [
-      5.0,
-      18.0
-     ],
-     "b": [
-      5.0,
-      23.25
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "half-timber"
-    },
-    {
-     "id": "upper-w-46",
-     "a": [
-      5.0,
-      12.749999999999995
-     ],
-     "b": [
-      5.0,
-      18.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "half-timber"
-    },
-    {
-     "id": "upper-w-47",
-     "a": [
-      5.0,
-      7.5
-     ],
-     "b": [
-      5.0,
-      12.749999999999995
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "half-timber"
-    },
-    {
-     "id": "upper-w-48",
-     "a": [
-      40.0,
-      110.0
-     ],
-     "b": [
-      45.0,
-      110.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling-dusty"
-    },
-    {
-     "id": "upper-w-49",
-     "a": [
-      35.0,
-      110.0
-     ],
-     "b": [
-      40.0,
-      110.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling-dusty"
-    },
-    {
-     "id": "upper-w-50",
-     "a": [
-      30.0,
-      110.0
-     ],
-     "b": [
-      35.0,
-      110.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling-dusty"
-    },
-    {
-     "id": "upper-w-51",
-     "a": [
-      25.0,
-      110.0
-     ],
-     "b": [
-      30.0,
-      110.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling-dusty"
-    },
-    {
-     "id": "upper-w-52",
-     "a": [
-      20.0,
-      110.0
-     ],
-     "b": [
-      25.0,
-      110.0
+      7.975,
+      62.7
      ],
      "flags": [
       "normal"
@@ -2340,12 +1269,12 @@
     {
      "id": "N6d-e",
      "a": [
-      15.0,
-      110.0
+      7.975,
+      62.7
      ],
      "b": [
-      20.0,
-      110.0
+      11.975,
+      62.7
      ],
      "flags": [
       "door"
@@ -2354,14 +1283,14 @@
      "open": false
     },
     {
-     "id": "upper-w-54",
+     "id": "upper-w-4",
      "a": [
-      10.0,
-      110.0
+      11.975,
+      62.7
      ],
      "b": [
-      15.0,
-      110.0
+      25.65,
+      62.7
      ],
      "flags": [
       "normal"
@@ -2369,14 +1298,164 @@
      "material": "paneling-dusty"
     },
     {
-     "id": "upper-w-55",
+     "id": "upper-w-5",
      "a": [
-      5.0,
-      110.0
+      2.85,
+      85.5
      ],
      "b": [
-      10.0,
-      110.0
+      39.825,
+      85.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "upper-w-6",
+     "a": [
+      39.825,
+      85.5
+     ],
+     "b": [
+      42.825,
+      85.5
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "upper-w-7",
+     "a": [
+      42.825,
+      85.5
+     ],
+     "b": [
+      54.15,
+      85.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "upper-w-8",
+     "a": [
+      2.85,
+      4.275
+     ],
+     "b": [
+      2.85,
+      14.175
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "upper-w-9",
+     "a": [
+      2.85,
+      14.175
+     ],
+     "b": [
+      2.85,
+      17.175
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "upper-w-10",
+     "a": [
+      2.85,
+      17.175
+     ],
+     "b": [
+      2.85,
+      45.525
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "upper-w-11",
+     "a": [
+      2.85,
+      45.525
+     ],
+     "b": [
+      2.85,
+      48.525
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "upper-w-12",
+     "a": [
+      2.85,
+      48.525
+     ],
+     "b": [
+      2.85,
+      74.025
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "upper-w-13",
+     "a": [
+      2.85,
+      74.025
+     ],
+     "b": [
+      2.85,
+      77.025
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "upper-w-14",
+     "a": [
+      2.85,
+      77.025
+     ],
+     "b": [
+      2.85,
+      85.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "upper-w-15",
+     "a": [
+      25.65,
+      34.2
+     ],
+     "b": [
+      25.65,
+      42.175
      ],
      "flags": [
       "normal"
@@ -2384,14 +1463,122 @@
      "material": "paneling-dusty"
     },
     {
-     "id": "upper-w-56",
+     "id": "N6e-f",
      "a": [
-      5.0,
-      105.0
+      25.65,
+      42.175
      ],
      "b": [
-      5.0,
-      130.0
+      25.65,
+      46.175
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "paneling-dusty",
+     "open": false
+    },
+    {
+     "id": "upper-w-16",
+     "a": [
+      25.65,
+      46.175
+     ],
+     "b": [
+      25.65,
+      80.65
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling-dusty"
+    },
+    {
+     "id": "N6d-stair",
+     "a": [
+      25.65,
+      80.65
+     ],
+     "b": [
+      25.65,
+      84.65
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "paneling-dusty",
+     "open": false
+    },
+    {
+     "id": "upper-w-17",
+     "a": [
+      25.65,
+      84.65
+     ],
+     "b": [
+      25.65,
+      85.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling-dusty"
+    },
+    {
+     "id": "upper-w-18",
+     "a": [
+      32.775,
+      57.0
+     ],
+     "b": [
+      32.775,
+      80.65
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling-dusty"
+    },
+    {
+     "id": "N6-stair-f",
+     "a": [
+      32.775,
+      80.65
+     ],
+     "b": [
+      32.775,
+      84.65
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "paneling-dusty",
+     "open": false
+    },
+    {
+     "id": "upper-w-19",
+     "a": [
+      32.775,
+      84.65
+     ],
+     "b": [
+      32.775,
+      85.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling-dusty"
+    },
+    {
+     "id": "upper-w-20",
+     "a": [
+      54.15,
+      4.275
+     ],
+     "b": [
+      54.15,
+      31.275
      ],
      "flags": [
       "normal"
@@ -2399,74 +1586,14 @@
      "material": "half-timber"
     },
     {
-     "id": "upper-w-57",
+     "id": "upper-w-21",
      "a": [
-      5.0,
-      100.0
+      54.15,
+      31.275
      ],
      "b": [
-      5.0,
-      105.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "half-timber"
-    },
-    {
-     "id": "upper-w-58",
-     "a": [
-      5.0,
-      95.0
-     ],
-     "b": [
-      5.0,
-      100.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "half-timber"
-    },
-    {
-     "id": "upper-w-59",
-     "a": [
-      5.0,
-      90.0
-     ],
-     "b": [
-      5.0,
-      95.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "half-timber"
-    },
-    {
-     "id": "upper-w-60",
-     "a": [
-      5.0,
-      85.0
-     ],
-     "b": [
-      5.0,
-      90.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "half-timber"
-    },
-    {
-     "id": "upper-w-61",
-     "a": [
-      5.0,
-      80.0
-     ],
-     "b": [
-      5.0,
-      85.0
+      54.15,
+      34.275
      ],
      "flags": [
       "window"
@@ -2474,14 +1601,14 @@
      "material": "half-timber"
     },
     {
-     "id": "upper-w-62",
+     "id": "upper-w-22",
      "a": [
-      40.0,
-      150.0
+      54.15,
+      34.275
      ],
      "b": [
-      57.5,
-      150.0
+      54.15,
+      71.175
      ],
      "flags": [
       "normal"
@@ -2489,167 +1616,32 @@
      "material": "half-timber"
     },
     {
-     "id": "upper-w-63",
+     "id": "upper-w-23",
      "a": [
-      35.0,
-      150.0
+      54.15,
+      71.175
      ],
      "b": [
-      40.0,
-      150.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "half-timber"
-    },
-    {
-     "id": "upper-w-64",
-     "a": [
-      30.0,
-      150.0
-     ],
-     "b": [
-      35.0,
-      150.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "half-timber"
-    },
-    {
-     "id": "upper-w-65",
-     "a": [
-      25.0,
-      150.0
-     ],
-     "b": [
-      30.0,
-      150.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "half-timber"
-    },
-    {
-     "id": "upper-w-66",
-     "a": [
-      20.0,
-      150.0
-     ],
-     "b": [
-      25.0,
-      150.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "half-timber"
-    },
-    {
-     "id": "upper-w-67",
-     "a": [
-      15.0,
-      150.0
-     ],
-     "b": [
-      20.0,
-      150.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "half-timber"
-    },
-    {
-     "id": "upper-w-68",
-     "a": [
-      10.0,
-      150.0
-     ],
-     "b": [
-      15.0,
-      150.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "half-timber"
-    },
-    {
-     "id": "upper-w-69",
-     "a": [
-      5.0,
-      150.0
-     ],
-     "b": [
-      10.0,
-      150.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "half-timber"
-    },
-    {
-     "id": "upper-w-70",
-     "a": [
-      5.0,
-      145.0
-     ],
-     "b": [
-      5.0,
-      150.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "half-timber"
-    },
-    {
-     "id": "upper-w-71",
-     "a": [
-      5.0,
-      140.0
-     ],
-     "b": [
-      5.0,
-      145.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "half-timber"
-    },
-    {
-     "id": "upper-w-72",
-     "a": [
-      5.0,
-      135.0
-     ],
-     "b": [
-      5.0,
-      140.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "half-timber"
-    },
-    {
-     "id": "upper-w-73",
-     "a": [
-      5.0,
-      130.0
-     ],
-     "b": [
-      5.0,
-      135.0
+      54.15,
+      74.175
      ],
      "flags": [
       "window"
+     ],
+     "material": "half-timber"
+    },
+    {
+     "id": "upper-w-24",
+     "a": [
+      54.15,
+      74.175
+     ],
+     "b": [
+      54.15,
+      85.5
+     ],
+     "flags": [
+      "normal"
      ],
      "material": "half-timber"
     }
@@ -2660,26 +1652,26 @@
      "id": "upper-N6-stair-top-run",
      "kind": "stairs-straight",
      "pos": [
-      51.25,
+      29.212,
       0,
-      120
+      68.4
      ],
      "vis": "player",
      "key": "N6a-top",
      "dims": {
-      "w": 4,
+      "w": 3,
       "rise": 0.1,
-      "fromZ": 140,
-      "toZ": 105
+      "fromZ": 79.8,
+      "toZ": 59.85
      }
     },
     {
      "id": "upper-N6f-planks0",
      "kind": "ledge",
      "pos": [
-      20,
+      11.4,
       0,
-      15
+      8.55
      ],
      "vis": "player",
      "key": "N6f",
@@ -2693,9 +1685,9 @@
      "id": "upper-N6f-planks1",
      "kind": "ledge",
      "pos": [
-      35,
+      19.95,
       0,
-      15
+      8.55
      ],
      "vis": "player",
      "key": "N6f",
@@ -2709,9 +1701,9 @@
      "id": "upper-N6f-planks2",
      "kind": "ledge",
      "pos": [
-      15,
+      8.55,
       0,
-      35
+      19.95
      ],
      "vis": "player",
      "key": "N6f",
@@ -2725,9 +1717,9 @@
      "id": "upper-N6f-planks3",
      "kind": "ledge",
      "pos": [
-      30,
+      17.1,
       0,
-      37.5
+      21.375
      ],
      "vis": "player",
      "key": "N6f",
@@ -2741,9 +1733,9 @@
      "id": "upper-N6f-planks4",
      "kind": "ledge",
      "pos": [
-      80,
+      45.6,
       0,
-      100
+      57.0
      ],
      "vis": "player",
      "rotY": 90,
@@ -2758,9 +1750,9 @@
      "id": "upper-N6f-planks5",
      "kind": "ledge",
      "pos": [
-      80,
+      45.6,
       0,
-      120
+      68.4
      ],
      "vis": "player",
      "rotY": 90,
@@ -2775,9 +1767,9 @@
      "id": "upper-N6f-planks6",
      "kind": "ledge",
      "pos": [
-      75,
+      42.75,
       0,
-      85
+      48.45
      ],
      "vis": "player",
      "rotY": 90,
@@ -2792,9 +1784,9 @@
      "id": "upper-N6f-planks7",
      "kind": "ledge",
      "pos": [
-      65,
+      37.05,
       0,
-      65
+      37.05
      ],
      "vis": "player",
      "key": "N6f",
@@ -2808,9 +1800,9 @@
      "id": "upper-N6f-crate0",
      "kind": "trunk",
      "pos": [
-      55,
+      31.35,
       0,
-      15
+      8.55
      ],
      "vis": "player",
      "key": "N6f"
@@ -2819,9 +1811,9 @@
      "id": "upper-N6f-crate1",
      "kind": "trunk",
      "pos": [
-      72.5,
+      41.325,
       0,
-      17.5
+      9.975
      ],
      "vis": "player",
      "rotY": 25,
@@ -2831,9 +1823,9 @@
      "id": "upper-N6f-crate2",
      "kind": "trunk",
      "pos": [
-      87.5,
+      49.875,
       0,
-      17.5
+      9.975
      ],
      "vis": "player",
      "rotY": 50,
@@ -2843,9 +1835,9 @@
      "id": "upper-N6f-crate3",
      "kind": "trunk",
      "pos": [
-      57.5,
+      32.775,
       0,
-      35
+      19.95
      ],
      "vis": "player",
      "rotY": 75,
@@ -2855,9 +1847,9 @@
      "id": "upper-N6f-crate4",
      "kind": "trunk",
      "pos": [
-      75,
+      42.75,
       0,
-      37.5
+      21.375
      ],
      "vis": "player",
      "rotY": 100,
@@ -2867,9 +1859,9 @@
      "id": "upper-N6f-crate5",
      "kind": "trunk",
      "pos": [
-      87.5,
+      49.875,
       0,
-      50
+      28.5
      ],
      "vis": "player",
      "rotY": 125,
@@ -2879,9 +1871,9 @@
      "id": "upper-N6f-junk0",
      "kind": "trunk",
      "pos": [
-      65,
+      37.05,
       0,
-      142.5
+      81.225
      ],
      "vis": "player",
      "key": "N6f"
@@ -2890,9 +1882,9 @@
      "id": "upper-N6f-junk1",
      "kind": "trunk",
      "pos": [
-      87.5,
+      49.875,
       0,
-      142.5
+      81.225
      ],
      "vis": "player",
      "key": "N6f"
@@ -2901,9 +1893,9 @@
      "id": "upper-N6f-spawn",
      "kind": "vampire-spawn",
      "pos": [
-      72.5,
+      41.325,
       0,
-      30
+      17.1
      ],
      "vis": "hidden-creature",
      "key": "N6f",
@@ -2914,9 +1906,9 @@
      "id": "upper-N6f-bones",
      "kind": "chest",
      "pos": [
-      80,
+      45.6,
       0,
-      70
+      39.9
      ],
      "vis": "hidden-object",
      "key": "N6f",
@@ -2926,9 +1918,9 @@
      "id": "upper-N6f-note",
      "kind": "note",
      "pos": [
-      60,
+      34.2,
       0,
-      50
+      28.5
      ],
      "vis": "dm-note",
      "key": "N6f",
@@ -2938,9 +1930,9 @@
      "id": "upper-N6e-cot",
      "kind": "bed",
      "pos": [
-      12.5,
+      7.125,
       0,
-      70
+      39.9
      ],
      "vis": "player",
      "key": "N6e"
@@ -2949,24 +1941,24 @@
      "id": "upper-N6e-table",
      "kind": "table",
      "pos": [
-      30,
+      17.1,
       0,
-      80
+      45.6
      ],
      "vis": "player",
      "key": "N6e",
      "dims": {
       "w": 3,
-      "d": 3
+      "d": 2.5
      }
     },
     {
      "id": "upper-N6e-chair",
      "kind": "chair",
      "pos": [
-      37.5,
+      21.375,
       0,
-      80
+      45.6
      ],
      "vis": "player",
      "rotY": -90,
@@ -2976,21 +1968,24 @@
      "id": "upper-N6e-shelf",
      "kind": "bookshelf",
      "pos": [
-      43.0,
+      24.51,
       0,
-      67.5
+      38.475
      ],
      "vis": "player",
      "rotY": -90,
-     "key": "N6e"
+     "key": "N6e",
+     "dims": {
+      "w": 3
+     }
     },
     {
      "id": "upper-N6e-wardrobe",
      "kind": "wardrobe",
      "pos": [
-      40,
+      22.8,
       0,
-      107.0
+      60.99
      ],
      "vis": "player",
      "rotY": 180,
@@ -3000,9 +1995,9 @@
      "id": "upper-N6e-compartment",
      "kind": "niche",
      "pos": [
-      40,
+      22.8,
       0,
-      103.0
+      58.71
      ],
      "vis": "hidden-object",
      "key": "N6e",
@@ -3012,24 +2007,24 @@
      "id": "upper-N6d-table",
      "kind": "table",
      "pos": [
-      20,
+      11.4,
       0,
-      127.5
+      72.675
      ],
      "vis": "player",
      "key": "N6d",
      "dims": {
-      "w": 4,
-      "d": 4
+      "w": 3,
+      "d": 2.5
      }
     },
     {
      "id": "upper-N6d-chair0",
      "kind": "chair",
      "pos": [
-      12.5,
+      7.125,
       0,
-      127.5
+      72.675
      ],
      "vis": "player",
      "key": "N6d"
@@ -3038,9 +2033,9 @@
      "id": "upper-N6d-chair1",
      "kind": "chair",
      "pos": [
-      27.5,
+      15.675,
       0,
-      127.5
+      72.675
      ],
      "vis": "player",
      "key": "N6d"
@@ -3049,9 +2044,9 @@
      "id": "upper-N6d-chair2",
      "kind": "chair",
      "pos": [
-      20,
+      11.4,
       0,
-      120
+      68.4
      ],
      "vis": "player",
      "key": "N6d"
@@ -3060,9 +2055,9 @@
      "id": "upper-N6d-chair3",
      "kind": "chair",
      "pos": [
-      20,
+      11.4,
       0,
-      135
+      76.95
      ],
      "vis": "player",
      "key": "N6d"
@@ -3071,40 +2066,43 @@
      "id": "upper-N6d-shelves",
      "kind": "shelves",
      "pos": [
-      7.0,
+      3.99,
       0,
-      142.5
+      81.225
      ],
      "vis": "player",
      "rotY": 90,
-     "key": "N6d"
+     "key": "N6d",
+     "dims": {
+      "w": 3
+     }
     },
     {
      "id": "upper-N6d-stove",
      "kind": "stove",
      "pos": [
-      37.5,
+      21.375,
       0,
-      146.5
+      83.505
      ],
      "vis": "player",
      "rotY": 180,
      "key": "N6d"
     },
     {
-     "id": "upper-N6-roof",
+     "id": "upper-N6-roof0",
      "kind": "roof-gable",
      "pos": [
-      50,
+      28.5,
       0,
-      80
+      45.6
      ],
      "vis": "player",
-     "rotY": 90,
      "dims": {
-      "w": 36,
-      "d": 58,
-      "h": 12
+      "w": 55.3,
+      "d": 86.6,
+      "h": 12,
+      "y": 10
      }
     }
    ]
@@ -3117,15 +2115,15 @@
    "from": {
     "level": "ground",
     "pos": [
-     51.25,
-     120
+     29.21,
+     79.8
     ]
    },
    "to": {
     "level": "upper",
     "pos": [
-     51.25,
-     120
+     29.21,
+     59.85
     ]
    }
   }
