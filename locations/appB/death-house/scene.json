@@ -71,7 +71,7 @@
     {
      "key": "3",
      "name": "Den of Wolves",
-     "page": 212,
+     "page": 213,
      "polygon": [
       [
        10,
@@ -3523,11 +3523,11 @@
        35
       ],
       [
-       25,
+       15,
        35
       ],
       [
-       25,
+       15,
        40
       ],
       [
@@ -3538,6 +3538,32 @@
      "floor": "plank",
      "desc": "A dusty balcony at the top of the red stair. A suit of black plate armor stands against the wall under cobwebs.",
      "dm": "The armor animates at 5 ft or when damaged. DC 12 Perception on the paneling: tiny corpses in the trees, worms from the soil. Secret door west (DC 15) to the attic stair."
+    },
+    {
+     "key": "11-stair",
+     "name": "Attic stair (hidden)",
+     "page": 214,
+     "polygon": [
+      [
+       15,
+       35
+      ],
+      [
+       30,
+       35
+      ],
+      [
+       30,
+       40
+      ],
+      [
+       15,
+       40
+      ]
+     ],
+     "floor": "plank",
+     "desc": "A narrow closet behind the paneling: a steep wooden stair climbs into the dark under the roof.",
+     "dm": "Reached only through the secret doors from 11 and from behind 15A's mirror (DC 15 each). Leads up to the attic hall (16)."
     },
     {
      "key": "15A",
@@ -3681,7 +3707,7 @@
      ],
      "b": [
       30.0,
-      35.0
+      40.0
      ],
      "flags": [
       "normal"
@@ -4254,32 +4280,17 @@
      "flags": [
       "normal"
      ],
-     "material": "brick"
+     "material": "paneling-dusty"
     },
     {
      "id": "f3-w-45",
      "a": [
-      25.0,
+      20.0,
       35.0
      ],
      "b": [
       25.0,
-      40.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "brick"
-    },
-    {
-     "id": "f3-w-46",
-     "a": [
-      20.0,
-      40.0
-     ],
-     "b": [
-      25.0,
-      40.0
+      35.0
      ],
      "flags": [
       "normal"
@@ -4287,17 +4298,32 @@
      "material": "paneling-dusty"
     },
     {
-     "id": "f3-sd-attic-b",
+     "id": "f3-sd-attic-a",
      "a": [
       15.0,
-      40.0
+      35.0
      ],
      "b": [
       20.0,
-      40.0
+      35.0
      ],
      "flags": [
       "secret-door"
+     ],
+     "material": "paneling-dusty"
+    },
+    {
+     "id": "f3-w-47",
+     "a": [
+      15.0,
+      35.0
+     ],
+     "b": [
+      15.0,
+      40.0
+     ],
+     "flags": [
+      "normal"
      ],
      "material": "paneling-dusty"
     },
@@ -4329,10 +4355,40 @@
      "flags": [
       "normal"
      ],
-     "material": "brick"
+     "material": "paneling-dusty"
     },
     {
      "id": "f3-w-50",
+     "a": [
+      20.0,
+      40.0
+     ],
+     "b": [
+      25.0,
+      40.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling-dusty"
+    },
+    {
+     "id": "f3-sd-attic-b",
+     "a": [
+      15.0,
+      40.0
+     ],
+     "b": [
+      20.0,
+      40.0
+     ],
+     "flags": [
+      "secret-door"
+     ],
+     "material": "paneling-dusty"
+    },
+    {
+     "id": "f3-w-52",
      "a": [
       30.0,
       40.0
@@ -4347,7 +4403,7 @@
      "material": "brick"
     },
     {
-     "id": "f3-w-51",
+     "id": "f3-w-53",
      "a": [
       30.0,
       45.0
@@ -4362,7 +4418,7 @@
      "material": "brick"
     },
     {
-     "id": "f3-w-52",
+     "id": "f3-w-54",
      "a": [
       25.0,
       55.0
@@ -4377,7 +4433,7 @@
      "material": "brick"
     },
     {
-     "id": "f3-w-53",
+     "id": "f3-w-55",
      "a": [
       20.0,
       55.0
@@ -4392,7 +4448,7 @@
      "material": "brick"
     },
     {
-     "id": "f3-w-54",
+     "id": "f3-w-56",
      "a": [
       15.0,
       55.0
@@ -4407,7 +4463,7 @@
      "material": "brick"
     },
     {
-     "id": "f3-w-55",
+     "id": "f3-w-57",
      "a": [
       10.0,
       55.0
@@ -4420,36 +4476,6 @@
       "normal"
      ],
      "material": "brick"
-    },
-    {
-     "id": "f3-sd-attic-a",
-     "a": [
-      15,
-      35
-     ],
-     "b": [
-      20,
-      35
-     ],
-     "flags": [
-      "secret-door"
-     ],
-     "material": "paneling-dusty"
-    },
-    {
-     "id": "f3-x-1",
-     "a": [
-      20,
-      35
-     ],
-     "b": [
-      25,
-      35
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling-dusty"
     }
    ],
    "lights": [],
@@ -4985,7 +5011,7 @@
       37.5
      ],
      "vis": "player",
-     "key": "11",
+     "key": "11-stair",
      "dims": {
       "w": 5,
       "rise": 8,
@@ -5212,6 +5238,52 @@
      "key": "21",
      "label": "Secret stair shaft (21) passes here",
      "playerLabel": "Stone shaft"
+    },
+    {
+     "id": "f3-roof-east-n",
+     "kind": "roof-gable",
+     "pos": [
+      27.5,
+      0,
+      17.5
+     ],
+     "vis": "player",
+     "dims": {
+      "w": 2.6,
+      "d": 13,
+      "h": 2.5,
+      "y": 8
+     }
+    },
+    {
+     "id": "f3-roof-east-s",
+     "kind": "roof-gable",
+     "pos": [
+      27.5,
+      0,
+      47.5
+     ],
+     "vis": "player",
+     "dims": {
+      "w": 2.6,
+      "d": 13,
+      "h": 2.5,
+      "y": 8
+     }
+    },
+    {
+     "id": "f3-chimney-den",
+     "kind": "chimney",
+     "pos": [
+      29.0,
+      0,
+      47.5
+     ],
+     "vis": "player",
+     "dims": {
+      "h": 11,
+      "y": 8
+     }
     }
    ]
   },
@@ -5219,7 +5291,7 @@
    "id": "attic",
    "name": "Attic",
    "elevationFt": 30,
-   "ceilingFt": 13,
+   "ceilingFt": 8,
    "ambient": "interior-dim",
    "north": "-x",
    "rooms": [
@@ -6744,6 +6816,94 @@
      "vis": "dm-note",
      "key": "16",
      "label": "Milestone: access to 21 = 2nd level"
+    },
+    {
+     "id": "attic-headroom",
+     "kind": "note",
+     "pos": [
+      20,
+      0,
+      32.5
+     ],
+     "vis": "dm-note",
+     "key": "16",
+     "label": "Book: attic ceilings 13 ft. Here 8-ft walls under a pitched roof (ridge 19 ft up)"
+    },
+    {
+     "id": "attic-roof-main",
+     "kind": "roof-gable",
+     "pos": [
+      12.5,
+      0,
+      22.5
+     ],
+     "vis": "player",
+     "dims": {
+      "w": 25,
+      "d": 45,
+      "h": 11,
+      "y": 8
+     }
+    },
+    {
+     "id": "attic-roof-wing",
+     "kind": "roof-gable",
+     "pos": [
+      17.5,
+      0,
+      47.0
+     ],
+     "vis": "player",
+     "dims": {
+      "w": 15,
+      "d": 16,
+      "h": 6,
+      "y": 8
+     }
+    },
+    {
+     "id": "attic-roof-bay",
+     "kind": "roof-gable",
+     "pos": [
+      22.0,
+      0,
+      32.5
+     ],
+     "vis": "player",
+     "dims": {
+      "w": 16,
+      "d": 15,
+      "h": 7,
+      "y": 8
+     }
+    },
+    {
+     "id": "attic-chimney-a",
+     "kind": "chimney",
+     "pos": [
+      1.75,
+      0,
+      10
+     ],
+     "vis": "player",
+     "dims": {
+      "h": 7,
+      "y": 8
+     }
+    },
+    {
+     "id": "attic-chimney-b",
+     "kind": "chimney",
+     "pos": [
+      1.75,
+      0,
+      27.5
+     ],
+     "vis": "player",
+     "dims": {
+      "h": 7,
+      "y": 8
+     }
     }
    ]
   },
@@ -7226,7 +7386,7 @@
     {
      "key": "27",
      "name": "Dining Hall",
-     "page": 218,
+     "page": 219,
      "polygon": [
       [
        60,
@@ -7252,7 +7412,7 @@
     {
      "key": "28",
      "name": "Larder",
-     "page": 218,
+     "page": 219,
      "polygon": [
       [
        85,
@@ -7328,7 +7488,7 @@
     {
      "key": "30",
      "name": "Stairs Down",
-     "page": 218,
+     "page": 219,
      "polygon": [
       [
        40,
@@ -7353,7 +7513,7 @@
     {
      "key": "29",
      "name": "Ghoulish Encounter",
-     "page": 218,
+     "page": 219,
      "polygon": [
       [
        65,
@@ -7445,7 +7605,7 @@
     {
      "key": "31",
      "name": "Darklord's Shrine",
-     "page": 218,
+     "page": 219,
      "polygon": [
       [
        80,
@@ -12583,7 +12743,7 @@
     {
      "key": "36",
      "name": "Prison",
-     "page": 219,
+     "page": 220,
      "polygon": [
       [
        20,
@@ -12660,7 +12820,7 @@
     {
      "key": "38",
      "name": "Ritual Chamber",
-     "page": 219,
+     "page": 220,
      "polygon": [
       [
        20,

@@ -121,7 +121,10 @@ f3.room('13', 'Bathroom', rect(0, 4, 2, 6), page=pg('13'))
 f3.room('14', 'Storage Room', rect(0, 6, 2, 7), page=pg('14'))
 f3.room('15B', 'Nursery', rect(0, 7, 2, 9), page=pg('15'))
 f3.room('15C', 'Balcony (front)', rect(0, 9, 2, 11), 'flagstone', page=pg('15'))
-f3.room('11', 'Balcony (landing)', [(2, 3), (3, 3), (3, 4), (6, 4), (6, 7), (5, 7), (5, 8), (2, 8)], page=pg('11'))
+f3.room('11', 'Balcony (landing)', [(2, 3), (3, 3), (3, 4), (6, 4), (6, 7), (3, 7), (3, 8), (2, 8)], page=pg('11'))
+# The attic stair runs in its own closet between 11 and 15A, shut by a secret door at each end; it fills the strip to the
+# east wall so the house front has no gap where the stair tops out under the attic floor.
+f3.room('11-stair', 'Attic stair (hidden)', rect(3, 7, 6, 8), page=pg('11'))
 f3.room('15A', "Nursemaid's Bedroom", rect(2, 8, 6, 11), page=pg('15'))
 f3.door((2, 3), (3, 3), id='f3-master-doors')   # stained-glass double doors 12A -> 11 (via the passage cell)
 f3.door((3, 3), (4, 3))                          # 12A -> 12B (mirror door)
@@ -131,8 +134,7 @@ f3.door((2, 6), (2, 7))                          # 11 -> 14
 f3.door((2, 8), (2, 9))                          # 15A -> 15B
 f3.door((2, 10), (2, 11), id='f3-balcony-doors') # 15A -> 15C
 f3.opening((2, 8), (3, 8))                       # landing passage into 15A
-f3.secret((3, 7), (4, 7), 'attic-a', 'Secret door to the attic stair (DC 15)', '11', extra=True)
-f3.wall((4, 7), (5, 7))
+f3.secret((3, 7), (4, 7), 'attic-a', 'Secret door to the attic stair (DC 15)', '11')
 f3.secret((3, 8), (4, 8), 'attic-b', 'Secret door behind the mirror (DC 15)', '15A')
 for a, b in [((0, 0), (1, 0)), ((3, 0), (4, 0)), ((5, 1), (5, 2)), ((0, 1), (0, 2)), ((0, 5), (0, 6)), ((6, 8), (6, 9))]:
     f3.window(a, b)
@@ -153,16 +155,23 @@ f3.prop('crib', 'crib', (1, 8), '15B'); f3.hidden('bundle', 'swaddled-bundle', (
 f3.creature('armor', 'animated-armor', (2.5, 4.5), '11', 'Animated armor (attacks within 5 ft)')
 [f3.prop(f'lamp11{i}', 'oil-lamp', p, '11') for i, p in enumerate([(3.5, 4.1), (2.1, 6.5)])]
 f3.prop('spiral', 'spiral-stair', (5.1, 5.5), '11', dims={'rise': 8, 'r': 6})
-f3.prop('attic-stair', 'stairs-straight', (3, 7.5), '11', dims={'w': 5, 'rise': 8, 'fromX': 15, 'toX': 25})
+f3.prop('attic-stair', 'stairs-straight', (3, 7.5), '11-stair', dims={'w': 5, 'rise': 8, 'fromX': 15, 'toX': 25})
 cobwebs(f3, [(2, 3), (6, 4), (6, 7), (2, 8)], '11', y=6.5, n=4)
 f3.prop('bed15', 'four-poster-bed', (4, 10), '15A'); f3.prop('end1', 'nightstand', (3.1, 10.6), '15A'); f3.prop('end2', 'nightstand', (4.9, 10.6), '15A'); f3.prop('wardrobe15', 'wardrobe', (5.6, 9), '15A', rotY=-90)
 f3.hidden('mirror', 'standing-mirror', (3.5, 8.2), '15A', 'Full-length mirror, ivy frame (eyeballs in the berries)', dims={'ivy': 1})
 f3.creature('specter', 'specter', (3.5, 9.2), '15A', 'Specter (nursemaid) — when the nursery door opens')
 cobwebs(f3, [(2, 8), (6, 8), (6, 11), (2, 11)], '15A', y=6.5, n=4)
 f3.hidden('shaft-f3', 'dumbwaiter', (0.5, 3.5), '21', 'Secret stair shaft (21) passes here')
+# Floor 3 runs 5 ft wider than the attic on the east (x 25-30) north and south of the attic bay: low slate roofs on the
+# 8-ft walls cover those strips (12A's parlour and 11's east end; 15A's east end). The balconies 12C and 15C stay open.
+f3.prop('roof-east-n', 'roof-gable', (5.5, 3.5), None, dims={'w': 2.6, 'd': 13, 'h': 2.5, 'y': 8})
+f3.prop('roof-east-s', 'roof-gable', (5.5, 9.5), None, dims={'w': 2.6, 'd': 13, 'h': 2.5, 'y': 8})
+f3.prop('chimney-den', 'chimney', (5.8, 9.5), None, dims={'h': 11, 'y': 8})
 
-# ================================================================== ATTIC (13-ft ceilings)
-at = Level('attic', 'Attic', 30, 13, ambient='interior-dim', interior='paneling-dusty', exterior='brick')
+# ================================================================== ATTIC (under the roof)
+# The book gives the attic 13-ft ceilings. A real attic is the space under the roof: 8-ft walls to the eaves, then the
+# slates pitch up to a ridge 19 ft over the floor, so mid-room headroom is about the book's 13 ft (kept in a DM note).
+at = Level('attic', 'Attic', 30, 8, ambient='interior-dim', interior='paneling-dusty', exterior='brick')
 at.room('19', 'Spare Bedroom', rect(0, 0, 2, 3), page=pg('19'))
 at.room('20', "Children's Room", rect(2, 0, 5, 3), page=pg('20'))
 at.room('21', 'Secret Stairs', rect(0, 3, 1, 4), 'flagstone', page=pg('21'))
@@ -193,6 +202,18 @@ cobwebs(at, [(3, 8), (5, 8), (5, 11), (2, 11)], '17', y=6, n=4)
 cobwebs(at, [(1, 3), (5, 3), (6, 8), (3, 8)], '16', y=7, n=4)
 at.prop('stair-head', 'stairs-straight', (5.5, 6.5), '16', dims={'w': 5, 'rise': 0.1, 'fromZ': 40, 'toZ': 25})
 at.note('milestone', (3, 3.5), '16', 'Milestone: access to 21 = 2nd level')
+at.note('headroom', (4, 6.5), '16', 'Book: attic ceilings 13 ft. Here 8-ft walls under a pitched roof (ridge 19 ft up)')
+# ---- the roof: slate gables sit on the 8-ft attic walls (y = the eaves) so the section cut slices them like walls.
+# Main block (19, 20, 21, 16, 18 and the head of 17: x 0-25, z 0-45), ridge along the house.
+at.prop('roof-main', 'roof-gable', (2.5, 4.5), None, dims={'w': 25, 'd': 45, 'h': 11, 'y': 8})
+# Front wing over 17 (x 10-25, z 45-55): a lower ridge along the house, run back under the main slope (a roof-gable's
+# ridge follows its longer side, so d is the run). East cross-gable over 16's landing bay (x 25-30, z 25-40): ridge
+# across the house, its inner end buried in the main roof, at the main pitch (11 ft over 13.7) so it dies into the slope.
+at.prop('roof-wing', 'roof-gable', (3.5, 9.4), None, dims={'w': 15, 'd': 16, 'h': 6, 'y': 8})
+at.prop('roof-bay', 'roof-gable', (4.4, 6.5), None, dims={'w': 16, 'd': 15, 'h': 7, 'y': 8})
+# Chimney stacks over the west-wall hearths (5/8/12A, 2A/6) and the den's east hearth (3); 19's and 18's stoves vent into them.
+at.prop('chimney-a', 'chimney', (0.35, 2), None, dims={'h': 7, 'y': 8})
+at.prop('chimney-b', 'chimney', (0.35, 5.5), None, dims={'h': 7, 'y': 8})
 
 # ================================================================== DUNGEON (upper) — earth & timber, 8-ft rooms
 du = Level('dungeon', 'Dungeon', -20, 8, ambient='darkness', interior='earth', exterior='earth')
@@ -439,6 +460,7 @@ ROOM_DESC = {
   '9': ("A hidden study lined with shelves of occult books. A skeleton in leather armor sprawls over a clawed chest.", "Books on fiend summoning and the Priests of Osybus, all bogus (1 hour + DC 12 Arcana). Dart trap is spent. The letter from Strahd is the trigger that opens the stair (21). Chest: blank books, three scrolls, deeds, the will."),
   '10': ("A conservatory: gossamer drapes, a brass chandelier, chairs along the walls, stained glass of singers and players, a harpsichord and a tall harp.", "Some mantel figurines are skeletons in fine clothes."),
   '11': ("A dusty balcony at the top of the red stair. A suit of black plate armor stands against the wall under cobwebs.", "The armor animates at 5 ft or when damaged. DC 12 Perception on the paneling: tiny corpses in the trees, worms from the soil. Secret door west (DC 15) to the attic stair."),
+  '11-stair': ("A narrow closet behind the paneling: a steep wooden stair climbs into the dark under the roof.", "Reached only through the secret doors from 11 and from behind 15A's mirror (DC 15 each). Leads up to the attic hall (16)."),
   '12A': ("A dusty master bedroom: a curtained four-poster, two wardrobes, a vanity, a rotting tiger-skin rug before the hearth, a small parlor with a bowl and jug.", "Jewelry box: three gold rings and a topaz necklace (750 gp). Mirror door to the closet (12B). Dumbwaiter button rings the kitchen."),
   '12B': ("An empty closet thick with dust.", None),
   '12C': ("A balcony over the back of the house, lost in mist.", None),
