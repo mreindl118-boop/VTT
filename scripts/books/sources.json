@@ -1,0 +1,77 @@
+{
+  "comment": "Pinned inputs for `npm run books`. Each URL names a fixed commit; sha256 is checked after download and the build stops on a mismatch. 'retrieved' is the date the hash was first recorded. Role 'text' feeds the shipped books; 'crosscheck' is compared against the parsed stat blocks and spells but never shipped; 'reference' is the official PDF, used only for the optional fidelity check and never shipped or committed.",
+  "sources": [
+    {
+      "id": "your5e-srd-5.2.1-md",
+      "name": "your5e/5e-srd-markdown, SRD_CC_v5.2.1.md (cleaned single-file Markdown of SRD 5.2.1) at commit f1f5060",
+      "url": "https://raw.githubusercontent.com/your5e/5e-srd-markdown/f1f5060fd975aa2ffc3e4b336560ded479934d80/dnd/521/SRD_CC_v5.2.1.md",
+      "sha256": "e4f4803e7cef3d33f42555616fae75abc72ec4f3d79ba1bf344afc906504bec2",
+      "retrieved": "2026-10-04",
+      "license": "CC-BY-4.0 (SRD 5.2.1 text)",
+      "role": "text"
+    },
+    {
+      "id": "your5e-srd-5.1-md",
+      "name": "your5e/5e-srd-markdown, SRD_CC_v5.1.md (cleaned single-file Markdown of SRD 5.1) at commit f1f5060",
+      "url": "https://raw.githubusercontent.com/your5e/5e-srd-markdown/f1f5060fd975aa2ffc3e4b336560ded479934d80/dnd/51/SRD_CC_v5.1.md",
+      "sha256": "f3ef56ef552afb8ed6b0fb36b9e74bcce5010b52e05cd730d3a32272bc36fcc8",
+      "retrieved": "2026-10-04",
+      "license": "CC-BY-4.0 (SRD 5.1 text)",
+      "role": "text"
+    },
+    {
+      "id": "5e-bits-2024-monsters",
+      "name": "5e-bits/5e-srd-api, packages/5e-database/src/2024/en/5e-SRD-Monsters.json at commit 05c109e (SRD 5.2 data)",
+      "url": "https://raw.githubusercontent.com/5e-bits/5e-srd-api/05c109ea1f6b5445960b645ded48ad9c6a8df7b0/packages/5e-database/src/2024/en/5e-SRD-Monsters.json",
+      "sha256": "4849d7a48cce1f688a7313e3569aa52e0de2ef64bc703534aede1d38dbd95e75",
+      "retrieved": "2026-10-04",
+      "license": "Data: SRD text under CC-BY-4.0 (code MIT, not used)",
+      "role": "crosscheck"
+    },
+    {
+      "id": "5e-bits-2024-spells",
+      "name": "5e-bits/5e-srd-api, packages/5e-database/src/2024/en/5e-SRD-Spells.json at commit 05c109e (SRD 5.2 data)",
+      "url": "https://raw.githubusercontent.com/5e-bits/5e-srd-api/05c109ea1f6b5445960b645ded48ad9c6a8df7b0/packages/5e-database/src/2024/en/5e-SRD-Spells.json",
+      "sha256": "16aa8e47a84c6b21ccc101c1ee7ab5b8a026da940985bc826b6b58aa1fe0b6bc",
+      "retrieved": "2026-10-04",
+      "license": "Data: SRD text under CC-BY-4.0 (code MIT, not used)",
+      "role": "crosscheck"
+    },
+    {
+      "id": "5e-bits-2014-monsters",
+      "name": "5e-bits/5e-srd-api, packages/5e-database/src/2014/en/5e-SRD-Monsters.json at commit 05c109e (SRD 5.1 data)",
+      "url": "https://raw.githubusercontent.com/5e-bits/5e-srd-api/05c109ea1f6b5445960b645ded48ad9c6a8df7b0/packages/5e-database/src/2014/en/5e-SRD-Monsters.json",
+      "sha256": "51edf634e1a9abefa259895b0799e22a788606df56f56e03fe24e130c76c2000",
+      "retrieved": "2026-10-04",
+      "license": "Data: SRD text under CC-BY-4.0 (code MIT, not used)",
+      "role": "crosscheck"
+    },
+    {
+      "id": "5e-bits-2014-spells",
+      "name": "5e-bits/5e-srd-api, packages/5e-database/src/2014/en/5e-SRD-Spells.json at commit 05c109e (SRD 5.1 data)",
+      "url": "https://raw.githubusercontent.com/5e-bits/5e-srd-api/05c109ea1f6b5445960b645ded48ad9c6a8df7b0/packages/5e-database/src/2014/en/5e-SRD-Spells.json",
+      "sha256": "abebe7d860ec32985b804e087ecd3986145b1b772fa0c2e43cce9964b382f2ae",
+      "retrieved": "2026-10-04",
+      "license": "Data: SRD text under CC-BY-4.0 (code MIT, not used)",
+      "role": "crosscheck"
+    },
+    {
+      "id": "wotc-srd-5.2.1-pdf",
+      "name": "Official SRD_CC_v5.2.1.pdf (Wizards of the Coast, https://media.dndbeyond.com/compendium-images/srd/5.2/SRD_CC_v5.2.1.pdf), fetched from the your5e mirror at commit f1f5060",
+      "url": "https://raw.githubusercontent.com/your5e/5e-srd-markdown/f1f5060fd975aa2ffc3e4b336560ded479934d80/dnd/521/SRD_CC_v5.2.1.pdf",
+      "sha256": "8974902d109d6e63672d7c490bde9ccf052410503d9cfa768237154fbc5e3d87",
+      "retrieved": "2026-10-04",
+      "license": "CC-BY-4.0",
+      "role": "reference"
+    },
+    {
+      "id": "wotc-srd-5.1-pdf",
+      "name": "Official SRD_CC_v5.1.pdf (Wizards of the Coast, https://media.wizards.com/2023/downloads/dnd/SRD_CC_v5.1.pdf), fetched from the your5e mirror at commit f1f5060",
+      "url": "https://raw.githubusercontent.com/your5e/5e-srd-markdown/f1f5060fd975aa2ffc3e4b336560ded479934d80/dnd/51/SRD_CC_v5.1.pdf",
+      "sha256": "2504d2a0abb0a4d491a939be4f17910a2dde0312570ab8d208080225ccf0a1f0",
+      "retrieved": "2026-10-04",
+      "license": "CC-BY-4.0",
+      "role": "reference"
+    }
+  ]
+}

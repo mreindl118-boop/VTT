@@ -1,5 +1,24 @@
 # Changelog
 
+## Books: the 2014 and 2024 rules — 2026-10-04
+
+- The Library has a new Books tab with the two open rules books: the 2024 rules (System Reference Document 5.2.1)
+  and the 2014 rules (System Reference Document 5.1). Each row shows the edition, the size and whether the book is
+  saved on this device. Save for offline stores every chapter, so a book still opens with no network.
+- A reader for the DM: contents down the side (a sheet on the phone), large type for an iPad at arm's length,
+  previous and next, and a Map button that goes back to the table in one tap. Search looks in one book or both,
+  groups the results by book and chapter, and can search the full text. Typing a condition, spell or monster
+  and pressing Enter jumps straight to it. Links like `#book/srd-5.2.1/condition-prone` open the right place and
+  survive a reload.
+- Spells, monsters with full stat blocks, equipment and magic items, conditions and glossary rules are also stored as
+  typed entries with stable ids, for the coming rules tooltips and stat blocks (`app/src/books/lookup.ts`). A Rules
+  edition setting picks which book answers: 2024 by default, 2014 if you prefer.
+- The players never see the books: not in Players mode and not on the Player Display.
+- The text is Creative Commons Attribution 4.0. Each book's first page, its files and Help carry the exact
+  attribution Wizards of the Coast asks for. `npm run books` rebuilds the data from pinned sources, and
+  docs/BOOKS.md says where it comes from. Curse of Strahd text stays out of the repo, as before.
+- Nothing loads until a book is opened, so starting the app is no slower.
+
 ## M0 Foundations — 2026-09-29
 
 - Vite + TypeScript + three.js PWA shell (manifest, service worker, offline cache-first), iPad-first touch.

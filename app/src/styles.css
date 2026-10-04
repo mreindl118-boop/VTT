@@ -263,6 +263,7 @@ body[data-view='players'] .topbar { grid-template-columns: auto 1fr; grid-templa
 .sheet.library .campaigns button { flex: 1; display: grid; gap: 2px; text-align: left; padding: 10px 12px; border-radius: 12px; border: var(--hairline, 1px) solid var(--hair); background: var(--bg); }
 .sheet.library .campaigns button[aria-selected='true'] { background: var(--ink); color: var(--bg); border-color: transparent; }
 .sheet.library .campaigns b { font-size: 14px; } .sheet.library .campaigns span { font-size: 11.5px; opacity: .75; }
+@media (max-width: 560px) { .sheet.library .campaigns { flex-wrap: wrap; } .sheet.library .campaigns button[data-books] { flex-basis: 100%; } }
 .sheet.library .pointer { display: flex; gap: 10px; align-items: baseline; padding: 6px 12px; font-size: 13px; color: var(--ink-2); }
 .sheet.library .pointer .k { min-width: 40px; font-weight: 600; } .sheet.library .pointer .meta { margin-left: auto; font-size: 11px; }
 
