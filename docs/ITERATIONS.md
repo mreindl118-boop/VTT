@@ -35,7 +35,8 @@ Round one of the "5 iteration VTT missing features check and implementation". Ch
 | 0.2.1, right after 0.2.0 and the movable panels merge | The night-one fixes: A1 Players mode sealed, A2 hidden combatants out of the players' turn bar and the broadcast, A3 no silhouette of unexplored walls, A4 unrevealed places off the players' world map, A5 stairs one floor per step, A6 new campaigns start at the map's entry, A7 taps reach secret doors behind furniture, A8 overhead preset north-up, A9 label declutter |
 | 0.3.0 | A20 app updates wait for the next launch |
 | 0.4.0 | A13 a DM teleport reveals only the destination, A21 the display camera stays inside revealed areas, A12 darkvision in grey, A26 soft fog edges |
-| 0.5.0 | A11 bloodied and down marks for players, A16 combat survives Enter and Back, A17 six seconds per round on the clock, A30 initiative skips the downed and hides defeated foes |
+| 0.5.0 The initiative strip (see docs/ENCOUNTERS.md) | A32 the Baldur's Gate 3-style strip replaces the turn bar, A11 bloodied and down marks for players, A16 combat survives Enter and Back, A17 six seconds per round on the clock, A30 initiative skips downed creatures (characters at 0 HP keep their death-save turn) and hides defeated foes |
+| 0.5.1 Encounter builder and tracker (see docs/ENCOUNTERS.md) | The D&D Beyond-style builder, tracker panel, XP maths, saved plans and placement |
 | 0.6.0 | A22 placed creatures wake into tokens, A23 search and key labels open the area panel |
 | 0.7.0 | A24 measuring takes waypoints |
 | 0.8.0 Barovian time and road travel | A18 the Barovian calendar by default, A19 world travel by road time |

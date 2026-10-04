@@ -476,6 +476,8 @@ Every gameplay feature the research found, judged against mistLAB today. "Increm
 
 ## Deliberately not built
 
+The owner asked on 2026-10-04 for a Baldur's Gate 3-style portrait initiative strip and a D&D Beyond-style encounter builder with saved encounters, so both now live in `docs/ENCOUNTERS.md` (portraits come from the existing renderer, so no second WebGL context).
+
 | Feature | Why not |
 |---|---|
 | Split the party (scout with its own vision) | Needs a cached multi-source coverage union and handling for encounter edge cases (ROADMAP V3); planned for after this plan. |
@@ -493,12 +495,10 @@ Every gameplay feature the research found, judged against mistLAB today. "Increm
 | Cross-level balcony vision | Waits for the castle authoring work (A27). |
 | Difficult terrain regions | Adds data across all 44 scenes for little value at the table. |
 | Cover check tool | The DM judges cover on the 3D view. |
-| Prefabs and saved encounters | Staging and the improvised maps cover the need. |
 | Detection senses | Would need a screen per player. |
 | Marching order and single-file movement | Outside initiative the party is one token, and inside initiative each member moves on their own turn. |
 | 3D dice, chat, voice, sheets, rules automation, animations, electronic dice | Physical dice and paper sheets stay at the table. |
 | Remote play, hosting, accounts, marketplace, plugin API | Contradicts the local-only PWA. |
-| Portrait initiative strip with rendered figures | A second WebGL context on iPad Safari risks context loss. |
 | Pop-out DM panels | Of no use on an iPad. |
 | Level-of-detail rebuild of Vallaki, Abbey and Amber Temple | Content work; increment 2 records these as named debt. |
 | Spoiler-stripped player companion and safety signal | Need player devices. |
