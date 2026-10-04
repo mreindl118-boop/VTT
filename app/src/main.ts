@@ -12,6 +12,7 @@ import { openEncounterSheet, turnBar } from './ui/encounter';
 import { ICON } from './ui/icons';
 import { openLibrary } from './ui/library';
 import { ViewSlider } from './ui/viewSlider';
+import { helpExtras, installBackups, wireHelpExtras } from './ui/backups';
 
 const q = new URLSearchParams(location.search);
 const mode = q.get('display') === 'player' ? 'player' : 'dm';
@@ -282,7 +283,7 @@ function buildDmUi(): void {
     if (b.dataset.view) app.setView(b.dataset.view as 'dm' | 'players');
     if (b.dataset.tool) { app.tool = app.tool === b.dataset.tool ? 'none' : (b.dataset.tool as typeof app.tool); app.setStatus(app.tool === 'none' ? '' : b.getAttribute('aria-label')!); }
     switch (b.dataset.act) {
-      case 'library': openLibrary(builtPaths, app.campaign, (p) => { localStorage.setItem('mistlab.scene', p); void app.open(p).then(() => app.layoutChanged()); }); break;
+      case 'library': openLibrary(builtPaths, app.campaign, (p) => { localStorage.setItem('mistlab.scene', p); void app.open(p).then(() => app.layoutChanged()); }, backups.section); break;
       case 'clock': openClock(); break;
       case 'back': { const par = app.cur?.scene.parent; if (par) { localStorage.setItem('mistlab.scene', par); void app.open(par).then(() => app.layoutChanged()); } break; }
       case 'world': openWorldMap({
@@ -458,6 +459,8 @@ function buildDmUi(): void {
   tokPanel.addEventListener('change', (e) => { const el = e.target as HTMLInputElement; if (el.dataset.f === 'pname' && app.selected) app.setPlayerName(app.selected, el.value); });
   const prevOnSelect = app.onSelect; app.onSelect = (id) => { prevOnSelect?.(id); renderTokPanel(); };
   app.onChange = ((prev) => () => { prev?.(); renderTokPanel(); })(app.onChange);
+  // Backups: persistent storage, snapshots, the export nudge chip and the Library's Campaign section.
+  const backups = installBackups(app, ui);
 
   // Keyboard: R rotate, F find party, / search, Esc clears the tool.
   addEventListener('keydown', (e) => {
@@ -471,7 +474,8 @@ function buildDmUi(): void {
   function showHelp(): void {
     const h = document.createElement('div');
     h.className = 'sheet-backdrop';
-    h.innerHTML = `<div class="sheet help"><header><h2>Running a session</h2><button class="icon close" aria-label="Close">${ICON.close}</button></header><div class="sheet-body">
+    const extras = helpExtras();
+    h.innerHTML = `<div class="sheet help"><header><h2>Running a session</h2><button class="icon close" aria-label="Close">${ICON.close}</button></header><div class="sheet-body">${extras.top}
       <dl>
         <dt>Move the party</dt><dd>Tap the amber token to pick it up, then tap where it goes (tap it again or press Esc to cancel). The room it enters is revealed and remembered; step onto stairs or a trapdoor to change level; the camera follows. In Players mode the party walks: walls and closed doors stop it, and locked doors stay shut until the DM opens them.</dd>
         <dt>Look around</dt><dd>One finger / left-drag pans. Right-drag or a two-finger twist rotates; pinch or scroll zooms. The buttons bottom-left turn in 90° steps, tilt, zoom and find the party. Double-tap a room to frame it.</dd>
@@ -482,7 +486,8 @@ function buildDmUi(): void {
         <dt>Find an area</dt><dd>Type a key or name in the search box (or press /). The Rooms list shows every key with its revealed state.</dd>
         <dt>Doors, stairs and choices</dt><dd>Door markers open and close doors; stair and trapdoor markers move the party between levels. Tap anything for a menu of what you can do with it (reveal, hide, move the party, frame). The slider previews what players see.</dd>
         <dt>Players mode</dt><dd>Turn the iPad to the table: only revealed rooms, no DM chrome. DM mode brings everything back.</dd>
-      </dl></div></div>`;
+      </dl>${extras.bottom}</div></div>`;
+    wireHelpExtras(h);
     h.addEventListener('click', (e) => { const t = e.target as HTMLElement; if (t === h || t.closest('.close')) h.remove(); });
     document.body.appendChild(h);
     localStorage.setItem('mistlab.helpSeen', '1');

@@ -1,0 +1,35 @@
+{
+  "app": "mistlab",
+  "schemaVersion": 1,
+  "campaign": "cos",
+  "scene": "appB/death-house",
+  "exportedAt": "2026-10-04T18:05:00.000Z",
+  "state": {
+    "id": "cos",
+    "name": "cos",
+    "reveals": [
+      { "type": "room", "location": "death-house", "key": "1A", "mode": "explored" },
+      { "type": "room", "location": "death-house", "key": "9", "mode": "reveal" },
+      { "type": "object", "location": "death-house", "id": "f2-chest9" },
+      { "type": "secret-door", "location": "death-house", "id": "f2-sdo-lib", "wallId": "f2-w-lib" },
+      { "type": "brush", "location": "death-house", "level": "f1", "mode": "reveal", "r": 5, "pts": [[12.5, 27.5], [17.5, 27.5]] }
+    ],
+    "tokens": [
+      { "id": "pc-death-house", "name": "Party", "location": "death-house", "level": "f2", "pos": [12.5, 27.5], "size": "medium", "darkvisionFt": 0, "color": "#c0392b", "light": { "bright": 20, "dim": 40 }, "role": "party" },
+      { "id": "cr-wolf-1", "name": "Wolf", "location": "death-house", "level": "f2", "pos": [22.5, 27.5], "size": "medium", "darkvisionFt": 60, "color": "#6f7b86", "role": "creature", "creatureId": "wolf", "hidden": true, "playerName": "A grey shape", "hp": { "cur": 7, "max": 11 } }
+    ],
+    "seen": { "death-house/f2": "0:40,1:12,0:200" },
+    "doorsOpen": { "death-house/f2-d-lib": true, "death-house/f1-d-front": false },
+    "opened": { "death-house/f2-desk": true },
+    "world": { "pos": [41.2, 18.6], "key": "E", "trail": [{ "pos": [30, 20], "key": "A", "miles": 0, "at": 1790000000000 }, { "pos": [41.2, 18.6], "key": "E", "miles": 11.36, "at": 1790003600000 }] },
+    "worldRevealed": ["A", "E"],
+    "clock": { "day": 3, "hour": 21.5 },
+    "roster": [
+      { "id": "pc-1", "name": "Fighter", "color": "#d9822b", "speedFt": 30, "reachFt": 5, "rangeFt": 0, "initMod": 1, "size": "medium", "darkvisionFt": 0, "kind": "pc" },
+      { "id": "pc-2", "name": "Rogue", "color": "#7b5ea7", "speedFt": 30, "reachFt": 5, "rangeFt": 80, "initMod": 3, "size": "medium", "darkvisionFt": 60, "kind": "pc" },
+      { "id": "npc-wolf", "name": "Wolf", "color": "#6f7b86", "speedFt": 40, "reachFt": 5, "rangeFt": 0, "initMod": 2, "size": "medium", "darkvisionFt": 60, "kind": "npc" }
+    ],
+    "encounter": { "location": "death-house", "level": "f2", "round": 2, "order": [{ "sheetId": "pc-2", "tokenId": "m-pc-2", "init": 18 }, { "sheetId": "npc-wolf", "tokenId": "cr-wolf-1", "init": 12 }], "turn": 1, "movedFt": 10, "partyPos": [12.5, 27.5] },
+    "updatedAt": 1790003700000
+  }
+}

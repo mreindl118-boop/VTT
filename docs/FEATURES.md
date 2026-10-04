@@ -30,6 +30,8 @@ Status: **works** = verified end to end; **partial** = works with a gap noted; *
 |---|---|---|---|
 | Campaign switching: Curse of Strahd / A Wild Sheep Chase with separate manifests, world maps, themes and saved state | works | library tab -> tavern opened in 2.6 s, campaign 'wsc', world 'The Country Round the Town' with 5 pins (1 hex = 1 mile), state.world key '1'; back to Vallaki restored campaign 'cos' with world key 'N' |  |
 | Persistence: reveals, doors, opened containers, tokens, clock, roster, world position saved in IndexedDB; last scene remembered in localStorage | works | after reload: reveals 6 -> 6, opened ['death-house/f2-desk'], party restored on f1; scene restored to appB/death-house |  |
+| Backups (0.2.0): Library Campaign section with Export (share sheet or download, schemaVersion 1), Import (validated, asks once, refuses other campaigns), Reset, the last five snapshots with Restore; 'Back up campaign' chip after 2 h without an export; persist() on the first commit with the result in Help | works | tests/campaign-io.test.ts (fake-indexeddb round trip, refused files leave state unchanged, fixture v1); e2e/backups.spec.ts (share mocked, download, 60 commits then Restore, Date.now + 2 h chip) | Explored memory (`seen`) is recomputed on every commit, so a restored or imported campaign's `seen` grows like any other (see bug 16). |
+| Player Display receives only the players' projection (core/playersView.ts projectState; every CampaignState key classified 'player' or 'dm') | works | tests/player-safety.test.ts; slider.spec listener on the display page: no 'dm' key in any state message | Hidden tokens still travel (their stripping is approval A2). |
 
 ### Clock, calendar & travel
 
@@ -200,6 +202,9 @@ Status: **works** = verified end to end; **partial** = works with a gap noted; *
 15. **Players' world map still paints town/castle/camp symbols for unrevealed places in the base layer, hinting at their positions.**
    - Steps: Players view > World map with only N and O revealed: symbols for Krezk, Ravenloft, Tser Pool etc. are still drawn (98_world_players.png).
    - Severity: nit
+16. **Explored memory grows by one cell in every direction on each recompute: calling recompute() five times on the M0 test room without moving widens the explored band row by row (`seen` RLE 0x960,1x44 -> 0x704,1x48), so explored areas creep outward over a session.**
+   - Steps: Open dev/m0-test-room, run `__mistlab.app.recompute()` repeatedly and read `app.state.seen['m0-test-room/ground']`. Reproduced on 3d8c751 (before 0.2.0).
+   - Severity: fix (core/coverage.ts; not changed in 0.2.0, which only adds features)
 
 ## Strengths
 

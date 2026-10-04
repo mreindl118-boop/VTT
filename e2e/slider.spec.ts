@@ -1,6 +1,7 @@
 // Acceptance: DM/Player slider (docs/SLIDER.md), on the test room and on Death House.
 import { expect, test } from '@playwright/test';
 import { boot, diff, snap, SCENES } from './helpers';
+import { DM_KEYS, KEY_CLASS } from '../app/src/core/playersView';
 
 for (const sc of SCENES) {
   test(`${sc.scene}/${sc.level}: t = 0 renders a secret door pixel-identical to plain wall`, async ({ page }) => {
@@ -89,3 +90,39 @@ for (const sc of SCENES) {
     expect(await dm.evaluate(() => (window as any).__mistlab.app.state.reveals.length)).toBe(2);
   });
 }
+
+// 0.2.0: the display receives only the players' projection of the campaign.
+test('Player Display: every state message it receives carries player keys only', async ({ context }) => {
+  const sc = SCENES[0];
+  const dm = await context.newPage();
+  await dm.addInitScript(() => localStorage.setItem('mistlab.helpSeen', '1'));
+  await boot(dm, '', sc);
+  const player = await context.newPage();
+  await player.addInitScript(() => {
+    const got: any[] = ((window as any).__stateMsgs = []);
+    new BroadcastChannel('mistlab').onmessage = (e) => { if (e.data?.kind === 'state') got.push(e.data); };
+  });
+  await boot(player, '&display=player', sc);
+  await dm.evaluate(({ hidden, room, secret }) => {
+    const a = (window as any).__mistlab.app;
+    a.toggleObject(hidden); a.toggleRoom(room); a.revealSecretDoor(secret); a.toggleDoor('d-t1-t2'); a.setClock(2, 22);
+    a.startEncounter([{ sheetId: 'pc-1', init: 12 }]); a.nextTurn(1); a.endEncounter();
+    a.layoutChanged();
+  }, sc);
+  await expect.poll(() => player.evaluate(() => (window as any).__stateMsgs.length)).toBeGreaterThanOrEqual(5);
+  const msgs = await player.evaluate(() => (window as any).__stateMsgs);
+  expect(DM_KEYS.length).toBeGreaterThan(0);
+  for (const m of msgs) {
+    for (const k of DM_KEYS) expect(k in m.state, `state message carries '${k}'`).toBe(false);
+    for (const k of Object.keys(m.state)) expect((KEY_CLASS as Record<string, string>)[k], k).toBe('player');
+  }
+  // the DM's own state does carry those keys: the projection removed them
+  const dmKeys = await dm.evaluate(() => Object.keys((window as any).__mistlab.app.state));
+  expect(DM_KEYS.every((k) => dmKeys.includes(k))).toBe(true);
+  // and the display still follows: the revealed object is visible there
+  expect(await player.evaluate((id) => (window as any).__mistlab.targets().find((t: any) => t.id === id).visible, sc.hidden)).toBe(true);
+  // a replaced campaign (import, restore, reset) is rebuilt on the display too
+  await dm.evaluate(() => { const a = (window as any).__mistlab.app; return a.replaceState({ ...a.state, reveals: [], seen: {} }); });
+  await expect.poll(() => player.evaluate((id) => (window as any).__mistlab.targets().find((t: any) => t.id === id).visible, sc.hidden)).toBe(false);
+  expect(await player.evaluate(() => (window as any).__mistlab.app.state.reveals.length)).toBe(0);
+});

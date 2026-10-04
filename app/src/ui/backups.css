@@ -1,0 +1,33 @@
+/* Backups: the Library's Campaign section, the backup chip, Help's version, storage and non-goals blocks. */
+.sheet.library .campaign-io { padding: 4px 16px 10px; border-bottom: var(--hairline, 1px) solid var(--hair); }
+.sheet.library .campaign-io h3 { margin: 12px 0 8px; }
+.sheet.library .campaign-io h4 { margin: 12px 0 4px; font-size: 12px; font-weight: 600; color: var(--ink-2); }
+.cio-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.cio-row button, .cio-confirm button, .cio-snap button { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 16px; border-radius: 999px; border: var(--hairline, 1px) solid var(--hair); font-size: 14px; }
+.cio-row button:hover, .cio-snap button:hover { background: var(--hair); }
+.cio-confirm button.primary { background: var(--ink); color: var(--bg); border-color: transparent; }
+.cio-note { margin: 8px 0 0; font-size: 12.5px; color: var(--ink-2); }
+.cio-msg { margin: 8px 0 0; padding: 8px 12px; border-radius: 10px; font-size: 13px; background: color-mix(in srgb, #7a1f2b 12%, transparent); color: var(--ink); }
+.cio-confirm { margin-top: 10px; padding: 10px 12px; border-radius: 12px; background: color-mix(in srgb, var(--amber) 14%, transparent); }
+.cio-confirm p { margin: 0 0 8px; font-size: 13.5px; }
+.cio-confirm div { display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
+.cio-snaps { list-style: none; margin: 0; padding: 0; }
+.cio-snap { display: flex; align-items: center; gap: 10px; padding: 4px 0; border-top: var(--hairline, 1px) solid var(--hair); font-size: 13px; }
+.cio-snap:first-child { border-top: 0; }
+.cio-snap span { flex: 1; min-width: 0; color: var(--ink-2); }
+.cio-snap span b { color: var(--ink); font-weight: 600; }
+.cio-snap button { flex: none; min-height: 44px; padding: 0 14px; }
+
+.backup-chip { position: absolute; right: calc(env(safe-area-inset-right) + 10px); bottom: calc(env(safe-area-inset-bottom) + 64px); z-index: 6; display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 14px 0 12px; border-radius: 999px; background: var(--panel); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); border: 1px solid color-mix(in srgb, var(--amber) 70%, transparent); color: var(--ink); font-size: 13.5px; font-weight: 600; box-shadow: 0 2px 10px rgba(0,0,0,.18); }
+.backup-chip svg { color: var(--amber); }
+.backup-chip[hidden] { display: none; }
+
+.sheet.help .help-meta { margin: 8px 16px 0; padding: 10px 12px; border-radius: 12px; background: var(--hair); display: grid; gap: 4px; }
+.sheet.help .help-version { font-size: 12px; font-weight: 600; color: var(--ink-2); letter-spacing: .02em; }
+.sheet.help .storage-status { margin: 0; font-size: 13.5px; }
+.sheet.help .storage-status.warn { border-left: 3px solid var(--amber); padding-left: 8px; }
+.sheet.help .nongoals { margin: 0 16px; padding-top: 4px; border-top: var(--hairline, 1px) solid var(--hair); }
+.sheet.help .nongoals h3 { margin: 14px 0 6px; }
+.sheet.help .nongoals ul { margin: 0; padding-left: 18px; color: var(--ink-2); font-size: 14px; }
+.sheet.help .nongoals li { margin: 4px 0; }
+.sheet.help .nongoals b { color: var(--ink); font-weight: 600; }

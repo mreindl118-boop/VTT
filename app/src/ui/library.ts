@@ -2,7 +2,8 @@
 import { CAMPAIGNS, manifestOf, type Campaign, type ManifestLoc } from '../campaigns';
 import { ICON } from './icons';
 
-export function openLibrary(built: Set<string>, active: Campaign, onOpen: (path: string) => void): void {
+/** `campaignSection`, when given, draws the active campaign's backup controls (export, import, snapshots) at the top. */
+export function openLibrary(built: Set<string>, active: Campaign, onOpen: (path: string) => void, campaignSection?: (host: HTMLElement, close: () => void) => void): void {
   const sheet = document.createElement('div');
   sheet.className = 'sheet-backdrop';
   let camp = active;
@@ -23,9 +24,14 @@ export function openLibrary(built: Set<string>, active: Campaign, onOpen: (path:
       ...groups,
       '</div></div>',
     ].join('');
+    if (campaignSection && camp.id === active.id) {
+      const host = document.createElement('section'); host.className = 'campaign-io';
+      sheet.querySelector('.sheet-body')!.prepend(host);
+      campaignSection(host, close);
+    }
   };
-  render();
   const close = () => sheet.remove();
+  render();
   sheet.addEventListener('click', (e) => {
     const t = e.target as HTMLElement;
     if (t === sheet || t.closest('.close')) return close();

@@ -1,6 +1,7 @@
 // UI hygiene: opening another location clears the previous one's labels; hover names things on the DM side.
 import { expect, test } from '@playwright/test';
 import { boot, SCENES } from './helpers';
+import { readFileSync } from 'node:fs';
 
 test.beforeEach(async ({ page }) => { await page.addInitScript(() => localStorage.setItem('mistlab.helpSeen', '1')); });
 
@@ -147,4 +148,16 @@ test('creatures: placed from the repository, hidden until revealed, moved freely
   await expect(page.locator('.tokpanel header b')).toHaveText('Dire wolf');
   await page.locator('.tokpanel [data-a="remove"]').click();
   expect(await page.evaluate(() => (window as any).__mistlab.app.state.tokens.filter((t: any) => t.role === 'creature').length)).toBe(1);
+});
+
+test('Help: the running version, and what mistLAB does not do', async ({ page }) => {
+  await boot(page, '', SCENES[0]);
+  await page.locator('[data-cam="help"]').click();
+  await expect(page.locator('.sheet.help .help-version')).toHaveText(`mistLAB ${JSON.parse(readFileSync('package.json', 'utf8')).version}`);
+  const section = page.locator('.sheet.help section.nongoals');
+  await expect(section.locator('h3')).toHaveText('What mistLAB does not do');
+  const text = (await section.textContent()) ?? '';
+  const after = text.slice(text.indexOf('What mistLAB does not do'));
+  expect(after).toContain('remote play');
+  expect(after).toContain('character sheets');
 });

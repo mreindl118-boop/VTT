@@ -34,6 +34,7 @@ const PARTY_RED = '#c0392b';
 import { creatureById, figureFor, aliasFor, seenAs, statsOf, speedFtOf, colorOf } from './bestiary';
 import { sightBlockers } from './core/light';
 import { idbGet, idbSet } from './state/idb';
+import { storeKey } from './state/backup';
 
 export type Mode = 'dm' | 'player';
 export type Tool = 'none' | 'reveal' | 'brush-reveal' | 'brush-fog' | 'measure';
@@ -58,8 +59,6 @@ interface Loaded {
   labels: { obj: CSS2DObject; spec: LabelSpec; level: string }[];
   tokens: Map<string, THREE.Group>;
 }
-
-const storeKey = (campaignId: string) => (campaignId === 'cos' ? 'campaign:default' : `campaign:${campaignId}`); // CoS keeps its original save
 
 export class App {
   readonly world: World;
@@ -696,12 +695,27 @@ export class App {
     this.recompute();
     this.broadcast();
     clearTimeout(this.saveTimer);
-    this.saveTimer = window.setTimeout(() => void idbSet(storeKey(this.campaign.id), this.state), 150);
+    if (this.mode === 'dm') this.saveTimer = window.setTimeout(() => void idbSet(storeKey(this.campaign.id), this.state), 150); // the display holds only the players' projection: it never saves
     this.onChange?.();
+    this.onCommit?.(this.state);
   }
+  /** Called after every commit (backups: persistent storage, snapshots, the backup nudge). */
+  onCommit: ((s: CampaignState) => void) | null = null;
 
   /** Awaitable save (tests, pagehide). */
-  async flush(): Promise<void> { clearTimeout(this.saveTimer); await idbSet(storeKey(this.campaign.id), this.state); }
+  async flush(): Promise<void> { clearTimeout(this.saveTimer); if (this.mode === 'dm') await idbSet(storeKey(this.campaign.id), this.state); }
+
+  /** Replace the whole campaign (import, snapshot restore, reset) and rebuild the open location from it. */
+  async replaceState(next: CampaignState, path = this.cur?.path): Promise<void> {
+    if (!path) return;
+    this.stopPlacing(); this.select(null);
+    const level = this.cur?.path === path ? this.levelId : undefined;
+    this.state = { ...newCampaign(this.campaign.id), ...structuredClone(next), id: this.campaign.id };
+    await this.open(path, level);
+    this.fresh = true; // the display rebuilds its explored memory from this state
+    this.commit();
+  }
+  private fresh = false;
 
   toggleRoom(key: string): void {
     const loc = this.cur!.scene.location;
@@ -1247,7 +1261,8 @@ export class App {
 
   private broadcast(): void {
     if (this.mode !== 'dm' || !this.cur) return;
-    this.channel.send({ kind: 'state', state: this.state, location: this.cur.path, level: this.levelId });
+    this.channel.send({ kind: 'state', state: this.state, location: this.cur.path, level: this.levelId, ...(this.fresh ? { fresh: true } : {}) });
+    this.fresh = false;
     this.channel.send({ kind: 'layout', grid: this.gridMode === 'hex' ? 'hex' : 'square', gridOn: this.gridMode !== 'off', lowWalls: this.lowWalls, cut: this.cutFt ?? undefined, fog: this.world.fogOn });
     this.sendCamera(true);
   }
@@ -1267,7 +1282,9 @@ export class App {
   private async onMsg(m: Msg): Promise<void> {
     if (this.mode === 'dm') { if (m.kind === 'hello') this.broadcast(); return; }
     if (m.kind === 'state') {
-      if (!this.cur || this.cur.path !== m.location) await this.open(m.location, m.level);
+      const fresh = !!m.fresh && this.cur?.path === m.location; // a replaced campaign: rebuild from its explored memory
+      if (fresh) this.state = { ...newCampaign(this.campaign.id), ...m.state };
+      if (!this.cur || this.cur.path !== m.location || fresh) await this.open(m.location, m.level);
       this.state = { ...newCampaign(this.campaign.id), ...m.state };
       this.applySky();
       if (this.levelId !== m.level) this.setLevel(m.level);
