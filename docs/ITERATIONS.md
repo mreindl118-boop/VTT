@@ -28,6 +28,21 @@ Round one of the "5 iteration VTT missing features check and implementation". Ch
   - Players'-side combat work gated on A2: roll all foes, the players' turn ring and banner, and Start encounter here.
   - A15 needs no decision: it asks for behaviour the app already has.
 
+## Approved behaviour changes and where they are built (decided 2026-10-04)
+
+| Version | Approved changes |
+|---|---|
+| 0.2.1, right after 0.2.0 and the movable panels merge | The night-one fixes: A1 Players mode sealed, A2 hidden combatants out of the players' turn bar and the broadcast, A3 no silhouette of unexplored walls, A4 unrevealed places off the players' world map, A5 stairs one floor per step, A6 new campaigns start at the map's entry, A7 taps reach secret doors behind furniture, A8 overhead preset north-up, A9 label declutter |
+| 0.3.0 | A20 app updates wait for the next launch |
+| 0.4.0 | A13 a DM teleport reveals only the destination, A21 the display camera stays inside revealed areas, A12 darkvision in grey, A26 soft fog edges |
+| 0.5.0 | A11 bloodied and down marks for players, A16 combat survives Enter and Back, A17 six seconds per round on the clock, A30 initiative skips the downed and hides defeated foes |
+| 0.6.0 | A22 placed creatures wake into tokens, A23 search and key labels open the area panel |
+| 0.7.0 | A24 measuring takes waypoints |
+| 0.8.0 Barovian time and road travel | A18 the Barovian calendar by default, A19 world travel by road time |
+| Its own version after the smoothing pass merges | A27 Castle Ravenloft finished and legible |
+
+Declined: A10 (room descriptions stay in the tap menu; the clarity pass moves long text into tooltips instead) and A31 (the reveal undo stays separate from the session history). Later: A14 and A25, after the performance guard ships. Not needed: A15.
+
 ## How the check was done
 
 - **Build.**
