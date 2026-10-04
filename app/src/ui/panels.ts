@@ -7,6 +7,10 @@
 //
 // Positions are stored as an offset from the nearest viewport edge (left or right, top or bottom), so a panel
 // parked in a corner stays in that corner when the window grows, and everything is re-clamped on resize.
+// A placed panel is positioned by that same edge (`right` for a right-parked panel, `bottom` for a bottom one),
+// never converted to left/top: a fixed box positioned by `left` can only be as wide as what is left of the
+// viewport, so a right-parked panel that wraps (the tools, the title) would fold into a column the moment it
+// was measured while hidden. Nothing is measured while a panel is display:none; it is placed when it shows.
 import { ICON } from './icons';
 
 export type ViewportClass = 'phone' | 'desktop';
@@ -135,24 +139,38 @@ export class Panels {
 
   /** Put a panel where its saved offsets say, clamped into the viewport; or back to its CSS place when it has none. */
   private place(p: Panel): void {
-    const s = p.state;
+    const s = p.state, st = p.el.style;
     if (s.x === undefined || s.y === undefined) {
-      delete p.el.dataset.placed; p.el.style.left = ''; p.el.style.top = '';
+      delete p.el.dataset.placed; st.left = st.right = st.top = st.bottom = '';
       return;
     }
     p.el.dataset.placed = '1';
-    const w = p.el.offsetWidth, h = p.el.offsetHeight;
-    const left = s.ax === 'r' ? innerWidth - w - s.x : s.x, top = s.ay === 'b' ? innerHeight - h - s.y : s.y;
-    this.moveTo(p, left, top);
+    const { width: w, height: h } = p.el.getBoundingClientRect();
+    // display:none (hidden UI, Players mode): no size to clamp against; the offsets go on as saved and the
+    // ResizeObserver places the panel again, clamped, as soon as it shows. Floored, so a clamp never leaves a
+    // left-anchored box a fraction of a pixel short of its width.
+    const shown = w > 0 || h > 0;
+    const x = shown ? Math.floor(Math.max(EDGE, Math.min(innerWidth - w - EDGE, s.x))) : s.x;
+    const y = shown ? Math.floor(Math.max(EDGE, Math.min(innerHeight - h - EDGE, s.y))) : s.y;
+    this.setPos(p, s.ax === 'r' ? { right: x } : { left: x }, s.ay === 'b' ? { bottom: y } : { top: y });
   }
 
   private placeAll(): void { for (const p of this.panels) this.place(p); }
 
+  /** Move a panel to viewport coordinates (dragging, the arrow keys), clamped; `commitPosition` re-anchors it. */
   private moveTo(p: Panel, left: number, top: number): void {
-    const w = p.el.offsetWidth, h = p.el.offsetHeight;
-    const x = Math.round(Math.max(EDGE, Math.min(innerWidth - w - EDGE, left))), y = Math.round(Math.max(EDGE, Math.min(innerHeight - h - EDGE, top)));
+    // the exact width (not offsetWidth, which rounds) and a floored left: pushed against the right edge, a box
+    // positioned by `left` must still have its whole width to the right of it, or a wrapping panel would wrap
+    const r = p.el.getBoundingClientRect();
+    const x = Math.floor(Math.max(EDGE, Math.min(innerWidth - r.width - EDGE, left))), y = Math.floor(Math.max(EDGE, Math.min(innerHeight - r.height - EDGE, top)));
     p.el.dataset.placed = '1';
-    p.el.style.left = `${x}px`; p.el.style.top = `${y}px`;
+    this.setPos(p, { left: x }, { top: y });
+  }
+
+  /** Write the four inset properties: the anchored side gets its offset, the opposite one `auto`. */
+  private setPos(p: Panel, h: { left?: number; right?: number }, v: { top?: number; bottom?: number }): void {
+    const st = p.el.style, px = (n: number | undefined) => (n === undefined ? 'auto' : `${Math.round(n)}px`);
+    st.left = px(h.left); st.right = px(h.right); st.top = px(v.top); st.bottom = px(v.bottom);
   }
 
   /** Read the panel's current place back into edge-anchored offsets and save. */
@@ -160,10 +178,12 @@ export class Panels {
     const r = p.el.getBoundingClientRect();
     const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
     p.state.ax = cx < innerWidth / 2 ? 'l' : 'r'; p.state.ay = cy < innerHeight / 2 ? 't' : 'b';
-    p.state.x = Math.round(p.state.ax === 'l' ? r.left : innerWidth - r.right);
-    p.state.y = Math.round(p.state.ay === 't' ? r.top : innerHeight - r.bottom);
+    // floored: a box pushed against an edge (its left floored by `moveTo`) reads as touching it, not 1 px off
+    p.state.x = Math.max(0, Math.floor(p.state.ax === 'l' ? r.left : innerWidth - r.right));
+    p.state.y = Math.max(0, Math.floor(p.state.ay === 't' ? r.top : innerHeight - r.bottom));
     this.layout.panels[p.opts.id] = p.state;
     this.save();
+    this.place(p); // from drag coordinates back to its edge anchors
   }
 
   private wireDrag(p: Panel): void {

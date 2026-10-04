@@ -433,3 +433,12 @@
   unfold, hide and show, Reset layout, re-clamping on resize, and the phone (touch drag, defaults, its own
   layout). Stable `data-panel`, `data-collapsed`, `data-placed` and `data-ui-hidden` attributes; no class
   was renamed.
+- Fix round 1: a placed panel is positioned by its nearest edges (`right` for a right-parked panel,
+  `bottom` for a bottom one) instead of being converted to `left`/`top`, and nothing is measured while a
+  panel is display:none, so a right-parked panel that wraps (the tools, the title) no longer folds into a
+  tall column after hide and show, a DM / Players round trip, a fold and unfold, or a reload; a folded
+  pill keeps the edge it was parked at. Drag and nudge positions are floored and clamped against the
+  panel's exact width, so a panel pushed against the right edge is never a fraction of a pixel short of
+  its row and saves as touching the edge. The compass panel's grip, chevron and pill are exposed to
+  assistive tech: `aria-hidden` moved from the frame to its decorative compass and scale bar.
+  `e2e/panels.spec.ts` covers both.

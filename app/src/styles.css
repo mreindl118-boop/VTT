@@ -393,8 +393,9 @@ select.levels { max-width: min(46vw, 320px); padding: 6px 28px 6px 10px; border-
 .panel[data-dragging] { user-select: none; -webkit-user-select: none; }
 .panel[data-dragging] * { pointer-events: none; }
 .panel[data-dragging] .pn-grip { pointer-events: auto; }
-/* a panel that was moved: fixed where it was put, free of its CSS anchors */
-.panel[data-placed] { position: fixed !important; right: auto !important; bottom: auto !important; transform: none !important; margin: 0 !important; z-index: 5; }
+/* a panel that was moved: fixed where it was put, free of its CSS anchors (the script writes all four insets inline:
+   its nearest edges carry the offsets, the far ones are auto, so a wrapping panel keeps its width wherever it stands) */
+.panel[data-placed] { position: fixed !important; transform: none !important; margin: 0 !important; z-index: 5; }
 .panel[data-dragging] { z-index: 8; transition: none !important; }
 /* folded: a pill of the handle and the icon */
 .panel[data-collapsed] { display: inline-flex; flex-direction: row; align-items: center; gap: 2px; padding: 4px; width: auto; height: auto; min-width: 0; max-height: none; aspect-ratio: auto; }

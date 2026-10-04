@@ -165,6 +165,53 @@ test('a panel parked at the edge stays on screen when the window shrinks', async
   expect(shrunk.x + shrunk.width).toBeCloseTo(800, 0); // it keeps its right-edge anchor
 });
 
+test('a wrapping panel parked at the right edge keeps its shape through hide and show, fold and unfold, and a Players round trip', async ({ page }) => {
+  await boot(page, '', SCENES[1]);
+  await dragByGrip(page, 'tools', 3000, 150);
+  await dragByGrip(page, 'title', 3000, 300);
+  const tools = await box(page, 'tools'), title = await box(page, 'title');
+  expect(tools.x + tools.width).toBeCloseTo(1024, 0); expect(title.x + title.width).toBeCloseTo(1024, 0);
+  expect(tools.height, 'the tools stay in a row').toBeLessThan(60); expect(title.height, 'the title stays in a row').toBeLessThan(60);
+  const same = async (what: string) => {
+    for (const [id, b] of [['tools', tools], ['title', title]] as const) {
+      const now = await box(page, id);
+      expect(now, `${id} ${what}`).toEqual(b);
+    }
+  };
+  await page.keyboard.press('h'); await page.keyboard.press('h');
+  await same('after hide and show');
+  await page.locator('.seg.mode [data-view="players"]').click();
+  await expect(page.locator('[data-panel="tools"]')).toBeHidden();
+  await page.locator('.seg.mode [data-view="dm"]').click();
+  await expect(page.locator('[data-panel="tools"]')).toBeVisible();
+  await same('after DM, Players, DM');
+  for (const id of ['tools', 'title']) {
+    await page.locator(`[data-panel="${id}"] .pn-fold`).click();
+    const pill = await box(page, id);
+    expect(pill.x + pill.width, `${id} pill keeps its right edge`).toBeCloseTo(1024, 0); expect(pill.height).toBeLessThan(60);
+    await page.locator(`[data-panel="${id}"] .pn-icon`).click();
+  }
+  await same('after fold and unfold');
+  // hidden while the window changes: it comes back whole and still on its right edge
+  await page.keyboard.press('h');
+  await page.setViewportSize({ width: 900, height: 700 });
+  await page.waitForTimeout(100);
+  await page.keyboard.press('h');
+  const narrow = await box(page, 'tools');
+  expect(narrow.x + narrow.width).toBeCloseTo(900, 0); expect(narrow.width).toBeCloseTo(tools.width, 0); expect(narrow.height).toBeCloseTo(tools.height, 0);
+  await reload(page);
+  const again = await box(page, 'tools');
+  expect(again.x + again.width).toBeCloseTo(900, 0); expect(again.width).toBeCloseTo(tools.width, 0);
+});
+
+test('the compass panel\'s controls are exposed to assistive tech: only the compass and scale bar are decorative', async ({ page }) => {
+  await boot(page, '', SCENES[1]);
+  const hiddenAncestor = await page.evaluate(() => [...document.querySelectorAll('[data-panel="compass"] button')].map((b) => !!b.closest('[aria-hidden="true"]')));
+  expect(hiddenAncestor).toEqual([false, false, false]);
+  await expect(page.locator('.mapframe .compass')).toHaveAttribute('aria-hidden', 'true');
+  await expect(page.locator('.mapframe .scalebar')).toHaveAttribute('aria-hidden', 'true');
+});
+
 test.describe('phone', () => {
   test.use({ viewport: { width: 390, height: 844 }, hasTouch: true });
 
@@ -190,7 +237,14 @@ test.describe('phone', () => {
     // a tap on the pill (touch) unfolds the minimap
     await page.locator('[data-panel="minimap"] .pn-icon').tap();
     await expect(page.locator('[data-panel="minimap"]')).not.toHaveAttribute('data-collapsed', '1');
+    // the title, parked at the right edge, keeps its full row across hide and show and a reload
+    await touchDragByGrip(page, 'title', 300, 200);
+    const title = await box(page, 'title');
+    expect(title.x + title.width).toBeCloseTo(390, 0); expect(title.height).toBeLessThan(60);
+    await page.keyboard.press('h'); await page.keyboard.press('h');
+    expect(await box(page, 'title')).toEqual(title);
     await reload(page);
+    expect(await box(page, 'title')).toEqual(title);
     expect((await box(page, 'camera')).y).toBeCloseTo(after.y, 0);
     expect(await page.evaluate(() => Object.keys(localStorage).filter((k) => k.startsWith('mistlab.layout.')))).toEqual(['mistlab.layout.phone']);
     // turning the phone (now wider than the phone class) switches to the desktop layout, which is untouched:
