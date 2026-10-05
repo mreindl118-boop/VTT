@@ -411,20 +411,26 @@
   breaking rule as a DM note. Under a crag site's map the land falls away at once, so the chasm shows its depth.
   From afar: the gate towers, the drawbridge and the far rock spur carrying the road down the ridge.
 
-## M3.1 Natural land and water at every zoom — 2026-10-03
+## M3.1 Natural land and water at every zoom — 2026-10-04
 
 - The land beyond the map is rebuilt as one smooth, natural place (`app/src/render/land.ts`, the STYLE "Ground"
-  rule): a quadtree of square tiles instead of a polar fan (25-100 ft quads round the map, 100 ft along every shore
-  and river bank, finer wherever the camera looks, coarser toward the horizon), each tile an indexed grid with
-  smooth per-vertex normals and a short skirt, all of it one batched draw. Heights come from a C1 (Catmull-Rom)
-  reading of the region heightfield (`Terrain.heightSmoothAt`) that reads a filtered copy of the grid under coarse
-  quads, so far ridges never alias into spikes or facets; the faceted low-poly look stays on rocks and models.
+  rule): a quadtree of square tiles instead of a polar fan (50-100 ft quads round the map, 100 ft along every shore
+  and river bank, finer wherever the camera looks, coarser toward the horizon, coarse under the map's own floors),
+  each tile an indexed grid with smooth per-vertex normals and a short skirt, all of it one batched draw. Heights come
+  from a C1 (Catmull-Rom) reading of the region heightfield (`Terrain.heightSmoothAt`) that reads a filtered copy of
+  the grid under coarse quads, so far ridges never alias into spikes or facets; the faceted low-poly look stays on
+  rocks and models. The land eases from the map's ground into the surveyed relief along a rounded, wavering line, no
+  steeper than 1 in 10, so the map never sits in a rectangular pit or on a plinth.
 - Lakes lie in real basins: the height model carves each ellipse with a 1:15 bank through the water line and a
   gentle blend to the surrounding land, so the shore is where the ellipse is at any mesh resolution (no sawtooth, no
-  cliff ring, no z-fighting); the water is a lit, fogged, feather-edged surface that darkens at night and shows the
-  wet bed through the shallows. Rivers run in a shallow channel as lit water ribbons lying on the mesh actually
-  drawn (never floating or diving), feathered at the banks and never thinner than a few pixels from afar; roads
-  the same in dirt.
+  cliff ring, no z-fighting); the water is a lit, fogged surface that darkens at night, dark over the deep basin and
+  lighter over the shelf, with a narrow feathered water line (no pale spray band) and drawn a hair nearer the eye so
+  a tile not yet refined never pokes through it. Where a map's own water reaches its edge (Van Richten's Tower on
+  Lake Baratok, the creeks of Berez) it runs on past the edge, carved into the land like a lake: a bay joining the
+  lake it faces, or a creek narrowing out, its shore leaving the map exactly where the map's own shore meets the edge,
+  in the map water's own colour. Rivers run in a shallow channel as lit water ribbons lying on the mesh actually
+  drawn (never floating or diving), feathered at the banks, never thinner than a few pixels from afar, ending in the
+  shallows where they meet a lake; roads the same in dirt.
 - One atmosphere: the map's floors, the land, the water, the forest and every landmark fade into the hour's mist by
   the same law, the scene's own fog near the eye (capped so the valley's walls and the castle still stand in it),
   an aerial haze beyond the camera's target, and the sky at the rim of the world; the fog's far-zoom floor is gone,
@@ -438,5 +444,8 @@
   the sun only show from the tabletop angle, not from a camera high over the map.
 - `Backdrop.userData.setZoom(pxPerFt, target, camera, invalidate)` is called as the camera moves: the land refines
   the tiles round the target a couple of milliseconds at a time, from a slot cache, which is the groundwork for the
-  nested world's miles. `Backdrop.userData.land` exposes the height model (`yAt`, `surfaceAt`) and its stats.
-
+  nested world's miles. `Backdrop.userData.land` exposes the height model (`yAt`, `surfaceAt`, `inWater`) and its
+  stats (tiles, triangles, tiles per level, build times). `buildBackdrop` takes the map's water polygons (`water`).
+- Cost: the land and water are about 160-230k triangles in one draw plus a few for water and ribbons (the old polar
+  fan was 16k, but faceted); building it on open takes a fraction of a second (river segments in a spatial hash,
+  slopes read off a cached lattice). PERF_PLACEHOLDER

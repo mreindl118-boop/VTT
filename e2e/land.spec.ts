@@ -77,3 +77,17 @@ test('the land refines round the camera target and settles within a few frames',
   expect(after.buildMs).toBeLessThan(40); // one step's worth of tiles, never a stall
   expect(after.tris).toBeLessThan(320000);
 });
+
+test("Van Richten's Tower: the map's own lake runs on past its edge into the land, its dry edge stays dry", async ({ page }) => {
+  await open(page, 'ch11/V');
+  const r = await page.evaluate(() => {
+    const app = (window as any).__mistlab.app, land = app.backdrop.userData.land, l = app.level;
+    const pts = [...l.rooms.map((r: any) => r.polygon), ...(l.terrain ?? []).map((t: any) => t.polygon)].flat();
+    const minX = Math.min(...pts.map((p: number[]) => p[0])), maxX = Math.max(...pts.map((p: number[]) => p[0])), minZ = Math.min(...pts.map((p: number[]) => p[1])), maxZ = Math.max(...pts.map((p: number[]) => p[1]));
+    // the map's water lies along its north (-z) and west (-x) edges; its south-east is grass and road
+    const wetOut = [[minX + 200, minZ - 40], [minX - 40, minZ + 200]], dryOut = [[maxX + 120, maxZ - 60], [maxX - 60, maxZ + 120]];
+    return { y: l.elevationFt, wet: wetOut.map(([x, z]) => ({ w: land.inWater(x, z), y: land.yAt(x, z) })), dry: dryOut.map(([x, z]) => ({ w: land.inWater(x, z), y: land.yAt(x, z) })) };
+  });
+  for (const p of r.wet) { expect(p.w).toBe(true); expect(p.y).toBeLessThan(r.y - 3); }
+  for (const p of r.dry) { expect(p.w).toBe(false); expect(p.y).toBeGreaterThan(r.y - 2); }
+});

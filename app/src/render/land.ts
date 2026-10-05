@@ -31,6 +31,8 @@ export interface LandOpts {
   /** Ravenloft's brow as seen from this map: a notch is cut through whatever ridge stands between. */
   sight: { x: number; z: number; top: number } | null;
   roads: Path[]; rivers: Path[];
+  /** The map's own water (plan polygons): where it reaches the map's edge it runs on past it into the land. */
+  water?: P[][];
   /** Felled ground round the map (ft): the wood starts beyond it. */
   clearing?: number;
 }
@@ -41,6 +43,8 @@ export interface Land {
   /** The height of the mesh actually drawn at (x, z) (the tile grid, interpolated): ribbons lie on this so they never cross it. */
   surfaceAt: (x: number, z: number) => number;
   lakeLevel: Map<object, number>;
+  /** Whether (x, z) lies in water (a lake, or the map's own water running on past its edge). */
+  inWater: (x: number, z: number) => boolean;
   /** The lit colour of the wood seen from above: trees match it. */
   canopy: THREE.Color;
   /** How thick the wood that hems the map in stands at (x, z), 0..1: the trees are planted by it and the land under
@@ -49,7 +53,7 @@ export interface Land {
   /** Called as the camera moves: refines the tiles round the target (a few ms at a time) and sets the haze for the zoom. */
   update: (target: { x: number; z: number }, pxPerFt: number, camDist: number, invalidate?: () => void) => void;
   /** What the land is doing (for the diagnostics): tiles shown, triangles drawn, the last selection and build times. */
-  stats: () => { tiles: number; tris: number; selectMs: number; buildMs: number; built: number; ribbonMs: number; initMs: number; steps: number };
+  stats: () => { tiles: number; tris: number; levels: number[]; selectMs: number; buildMs: number; built: number; ribbonMs: number; initMs: number; steps: number };
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -57,6 +61,8 @@ export interface Land {
 // mist up to a cap, so the land next to the map fades exactly as the map's floors do, then an aerial haze by the
 // distance beyond the camera's target (what is under the eye stays clear from any height, what lies beyond it recedes
 // into the mist as it does from the table), reaching the sky at the rim of the world.
+/** The map's own extent (minX, minZ, maxX, maxZ): backdrop water is never drawn over it. */
+const mapRect = { value: new THREE.Vector4(1, 1, -1, -1) };
 export const atmos = { uHazeDist: { value: 32000 }, uHazeCap: { value: 0.4 }, uRim: { value: 90000 }, uCamDist: { value: 400 }, uCentre: { value: new THREE.Vector2() } };
 // worked out per vertex (it varies slowly over the land, and the land is drawn fine where it is near), mixed per pixel
 const HAZE_VERT = `
@@ -92,24 +98,25 @@ export function hazePatch<T extends THREE.Material>(m: T): T {
 /** Per-vertex alpha (`aAlpha`) and, for ribbons, a minimum on-screen half width: each vertex is pushed out along its
  *  stored side vector (`aSide`, scaled by its row) until the half width (`aHalf`) is worth `minPx` px, and a widened
  *  ribbon fades by `thin` of the widening (a road far off is a faint trace, a river stays water). */
-function softPatch<T extends THREE.Material>(m: T, ribbon?: { minPx: number; thin: number }): T {
-  const push = !!ribbon;
-  m.transparent = true; m.depthWrite = false; m.side = THREE.DoubleSide;
+function softPatch<T extends THREE.Material>(m: T, ribbon?: { minPx: number; thin: number }, pull = ribbon ? 0.004 : 0): T {
+  m.transparent = true; m.depthWrite = false; m.side = THREE.DoubleSide; m.forceSinglePass = true; // seen from above only: one pass, not a back and a front
   const prev = m.onBeforeCompile, prevKey = m.customProgramCacheKey;
   m.onBeforeCompile = (sh, r) => {
     prev?.call(m, sh, r);
-    Object.assign(sh.uniforms, { uPxPerFt: gridUniforms.uPxPerFt });
-    sh.vertexShader = 'attribute float aAlpha; varying float vAlpha;\n' + (push ? 'attribute vec3 aSide; attribute float aHalf; uniform float uPxPerFt;\n' : '') +
+    Object.assign(sh.uniforms, { uPxPerFt: gridUniforms.uPxPerFt, uMapRect: mapRect });
+    sh.vertexShader = 'attribute float aAlpha; varying float vAlpha; varying vec2 vMlXZ;\n' + (ribbon ? 'attribute vec3 aSide; attribute float aHalf; uniform float uPxPerFt;\n' : '') +
       sh.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\n vAlpha = aAlpha;' + (ribbon ? `
  float mlHw = max(aHalf, ${ribbon.minPx.toFixed(2)} / max(uPxPerFt, 1e-4));
  transformed += aSide * (mlHw - aHalf);
- vAlpha *= mix(1.0, sqrt(aHalf / mlHw), ${ribbon.thin.toFixed(2)});` : ''))
-        // a ribbon is drawn a few thousandths of its distance nearer the eye along its own sight line: no parallax, but the
-        // creases of a coarse tile under it never poke through
-        .replace('#include <project_vertex>', push ? '#include <project_vertex>\n mvPosition.xyz *= 0.996; gl_Position = projectionMatrix * mvPosition;' : '#include <project_vertex>');
-    sh.fragmentShader = 'varying float vAlpha;\n' + sh.fragmentShader.replace('#include <color_fragment>', '#include <color_fragment>\n diffuseColor.a *= vAlpha;');
+ vAlpha *= mix(1.0, sqrt(aHalf / mlHw), ${ribbon.thin.toFixed(2)});` : '') + '\n vMlXZ = (modelMatrix * vec4(transformed, 1.0)).xz;')
+        // water is drawn a few thousandths of its distance nearer the eye along its own sight line: no parallax, but the
+        // creases of a coarse tile under it (a tile not yet refined along a shore) never poke through it; it is
+        // transparent beyond its shore, so this never shows water where the land stands above it
+        .replace('#include <project_vertex>', pull ? `#include <project_vertex>\n mvPosition.xyz *= ${(1 - pull).toFixed(4)}; gl_Position = projectionMatrix * mvPosition;` : '#include <project_vertex>');
+    // never over the map itself (its own floors carry its water): the pull above would otherwise lift the water over them
+    sh.fragmentShader = 'varying float vAlpha; varying vec2 vMlXZ; uniform vec4 uMapRect;\n' + sh.fragmentShader.replace('#include <color_fragment>', '#include <color_fragment>\n diffuseColor.a *= vAlpha;\n if (vMlXZ.x > uMapRect.x && vMlXZ.x < uMapRect.z && vMlXZ.y > uMapRect.y && vMlXZ.y < uMapRect.w) discard;');
   };
-  m.customProgramCacheKey = () => (prevKey ? prevKey.call(m) : '') + (ribbon ? `|ribbon${ribbon.minPx}:${ribbon.thin}` : '|soft');
+  m.customProgramCacheKey = () => (prevKey ? prevKey.call(m) : '') + (ribbon ? `|ribbon${ribbon.minPx}:${ribbon.thin}` : '|soft') + `:${pull}`;
   return m;
 }
 /** Trees that would be a few pixels tall shade like the ground they stand on (their normals bend up), shrink a little
@@ -174,8 +181,10 @@ export function buildLand(o: LandOpts): Land {
   const { terrain, world: W, theme: T, FT } = o, HF = terrain.hasHeight;
   const [cx, cz] = o.center, yTop = o.yTop, crag = o.crag, bbm = o.bounds, flatY = yTop - 0.4;
   const mapDist = (x: number, z: number) => Math.max(0, bbm.minX - x, x - bbm.maxX, bbm.minZ - z, z - bbm.maxZ);
+  /** The true distance from the map's rectangle: its lines of equal distance are round at the corners. */
+  const roundDist = (x: number, z: number) => Math.hypot(Math.max(0, bbm.minX - x, x - bbm.maxX), Math.max(0, bbm.minZ - z, z - bbm.maxZ));
   const group = new THREE.Group(); group.name = 'land';
-  atmos.uCentre.value.set(cx, cz);
+  atmos.uCentre.value.set(cx, cz); mapRect.value.set(bbm.minX, bbm.minZ, bbm.maxX, bbm.maxZ);
   const gx0 = terrain.x0, gy0 = terrain.y0, gx1 = terrain.x0 + terrain.cols * terrain.cell, gy1 = terrain.y0 + terrain.rows * terrain.cell;
 
   // --- the height model -----------------------------------------------------------------------------------------
@@ -194,11 +203,17 @@ export function buildLand(o: LandOpts): Land {
       const vx = sight.x - cx, vz = sight.z - cz, L2 = vx * vx + vz * vz, tt = ((x - cx) * vx + (z - cz) * vz) / L2;
       if (tt > 0.02 && tt < 0.94) {
         const lat = Math.abs((x - cx) * vz - (z - cz) * vx) / Math.sqrt(L2), wdt = 350 + tt * 2600;
-        if (lat < wdt * 1.6) { const los = yTop + 40 + (sight.top - yTop - 40) * tt - 60, k = smooth(wdt * 1.6, wdt * 0.7, lat); if (h > los) h = h + (los - h) * k; }
+        // (eased in and out along its length too: a notch that began or ended abruptly would leave a straight cliff)
+        if (lat < wdt * 1.6) { const los = yTop + 40 + (sight.top - yTop - 40) * tt - 60, k = smooth(wdt * 1.6, wdt * 0.7, lat) * smooth(0.02, 0.1, tt) * (1 - smooth(0.86, 0.94, tt)); if (h > los) h = h + (los - h) * k; }
       }
     }
     if (crag > 0) { const cliff = yTop - crag; return cliff + (h - cliff) * smooth(320, 1400, d); }
-    return flatY + (h - flatY) * smooth(120, 900, d);
+    // flattened to the map's ground round the map: flush for the first yards, then easing into the surveyed land over a
+    // band as wide as the climb needs to stay gentle (at most 1 in 10), along a rounded, wavering line, so the map never
+    // sits in a rectangular pit or on a rectangular plinth
+    const dE = roundDist(x, z);
+    const dn = dE + (noise(x / 1300 + 5.3, z / 1300 + 1.7) - 0.5) * 500 * smooth(150, 700, dE);
+    return flatY + (h - flatY) * smooth(120, 120 + clamp(Math.abs(h - flatY) * 10, 800, 3200), dn);
   };
   // Lakes: each ellipse's level, from the land round its rim (or the map's own ground when its shore reaches the map).
   const lakeLevel = new Map<object, number>();
@@ -215,13 +230,86 @@ export function buildLand(o: LandOpts): Land {
     const u = (mx - lk.c0) / lk.r0, v = (my - lk.c1) / lk.r1, e = Math.hypot(u, v), g = Math.hypot(u / lk.r0, v / lk.r1) / Math.max(e, 1e-6);
     return (e - 1) * FT / Math.max(g, 1 / lk.rmax);
   };
+  // Water the map shows at its own edge (a lake shore, a river crossing it) runs on past the edge, carved into the land
+  // like a lake, so the map's water never stops in a straight line against grass. Each stretch of wet edge carries on as
+  // a rounded arm whose shore leaves the map exactly where the map's own shore meets the edge: to the near shore of a lake
+  // it faces (joining it as a bay, at the map's water level), else narrowing out like a creek.
+  const edge = (() => {
+    const polys = crag > 0 ? [] : (o.water ?? []).filter((q) => q.length > 2);
+    if (!polys.length) return null;
+    const w = bbm.maxX - bbm.minX, h = bbm.maxZ - bbm.minZ, PER = 2 * (w + h), n = Math.max(8, Math.ceil(PER / 10)), st = PER / n;
+    const at = (t: number): P => { t = ((t % PER) + PER) % PER; return t < w ? [bbm.minX + t, bbm.minZ] : t < w + h ? [bbm.maxX, bbm.minZ + t - w] : t < 2 * w + h ? [bbm.maxX - (t - w - h), bbm.maxZ] : [bbm.minX, bbm.maxZ - (t - 2 * w - h)]; };
+    const inPoly = (x: number, z: number, q: P[]) => { let c = false; for (let i = 0, j = q.length - 1; i < q.length; j = i++) { const [xi, zi] = q[i], [xj, zj] = q[j]; if ((zi > z) !== (zj > z) && x < ((xj - xi) * (z - zi)) / (zj - zi) + xi) c = !c; } return c; };
+    const wet = new Uint8Array(n);
+    for (let i = 0; i < n; i++) { const [x, z] = at((i + 0.5) * st), xi = clamp(x, bbm.minX + 3, bbm.maxX - 3), zi = clamp(z, bbm.minZ + 3, bbm.maxZ - 3); wet[i] = polys.some((q) => inPoly(xi, zi, q)) ? 1 : 0; }
+    const runs: [number, number][] = [];
+    if (wet.every((v) => v)) runs.push([0, n]);
+    else for (let i = 0; i < n; i++) if (wet[i] && !wet[(i + n - 1) % n]) { let k = 0; while (k < n && wet[(i + k) % n]) k++; if (k * st >= 60) runs.push([i, k]); } // a trickle under 60 ft wide stays on the map
+    if (!runs.length) return null;
+    for (let i = 0; i < n; i++) wet[i] = 0;
+    for (const [i0, k] of runs) for (let j = 0; j < k; j++) wet[(i0 + j) % n] = 1;
+    // the distance along the edge to the nearest change of wet and dry: negative along the water, positive beside it, so
+    // the land just outside a dry stretch of edge stays dry however round the water's end is
+    const flips: number[] = []; for (let i = 0; i < n; i++) if (wet[i] !== wet[(i + 1) % n]) flips.push(i + 1);
+    const dI = new Float32Array(n);
+    for (let i = 0; i < n; i++) { let d = flips.length ? Infinity : n; for (const f of flips) { const a = Math.abs(i + 0.5 - f); d = Math.min(d, a, n - a); } dI[i] = (wet[i] ? -1 : 1) * d * st; }
+    const tOf = (x: number, z: number) => {
+      let bx = clamp(x, bbm.minX, bbm.maxX), bz = clamp(z, bbm.minZ, bbm.maxZ);
+      if (bx === x && bz === z) { const m = Math.min(x - bbm.minX, bbm.maxX - x, z - bbm.minZ, bbm.maxZ - z); if (m === z - bbm.minZ) bz = bbm.minZ; else if (m === bbm.maxX - x) bx = bbm.maxX; else if (m === bbm.maxZ - z) bz = bbm.maxZ; else bx = bbm.minX; }
+      return bz === bbm.minZ && bx < bbm.maxX ? bx - bbm.minX : bx === bbm.maxX && bz < bbm.maxZ ? w + bz - bbm.minZ : bz === bbm.maxZ && bx > bbm.minX ? w + h + bbm.maxX - bx : 2 * w + h + bbm.maxZ - bz;
+    };
+    const L = yTop - 1.5, mcx = (bbm.minX + bbm.maxX) / 2, mcz = (bbm.minZ + bbm.maxZ) / 2;
+    const arms: { ax: number; az: number; bx: number; bz: number; r0: number; r1: number }[] = [];
+    for (const [i0, k] of runs) {
+      const [ax, az] = at(i0 * st), [bx, bz] = at((i0 + k) * st);
+      let mx0 = (ax + bx) / 2, mz0 = (az + bz) / 2, r = Math.max(30, Math.hypot(bx - ax, bz - az) / 2);
+      if (k === n) { mx0 = mcx; mz0 = mcz; r = Math.hypot(w, h) / 2; }
+      for (let j = 0; j < k; j += 4) { const [x, z] = at((i0 + j + 0.5) * st); r = Math.max(r, Math.hypot(x - mx0, z - mz0)); } // the round end covers all of the wet edge
+      // outward: square to the edge for a stretch along one side, else away from the map's middle
+      const side = (t: number) => { t = ((t % PER) + PER) % PER; return t < w ? 0 : t < w + h ? 1 : t < 2 * w + h ? 2 : 3; }, sa = side(i0 * st + 1), sb = side((i0 + k) * st - 1);
+      let nx = mx0 - mcx, nz = mz0 - mcz; if (sa === sb && k < n) [nx, nz] = [[0, -1], [1, 0], [0, 1], [-1, 0]][sa];
+      const nl = Math.hypot(nx, nz) || 1; nx /= nl; nz /= nl;
+      // the lake it faces, if one is near: the arm runs into it
+      let best: { x: number; z: number; d: number; lk: Lake } | null = null;
+      for (const lk of lakes) for (let q = 0; q < 96; q++) {
+        const ang = (q / 96) * Math.PI * 2, [px, pz] = o.toPlan([lk.c0 + Math.cos(ang) * lk.r0, lk.c1 + Math.sin(ang) * lk.r1]), x = cx + px, z = cz + pz, d = Math.hypot(x - mx0, z - mz0);
+        if (mapDist(x, z) < 3500 && ((x - mx0) * nx + (z - mz0) * nz) > 0.3 * d && (!best || d < best.d)) best = { x, z, d, lk };
+      }
+      if (best) {
+        const ux = (best.x - mx0) / best.d, uz = (best.z - mz0) / best.d;
+        arms.push({ ax: mx0, az: mz0, bx: best.x + ux * 250, bz: best.z + uz * 250, r0: r, r1: Math.max(150, 0.6 * r) });
+        best.lk.L = L; lakeLevel.set(best.lk.l, L);
+      } else arms.push({ ax: mx0, az: mz0, bx: mx0 + nx * Math.max(300, 6 * r), bz: mz0 + nz * Math.max(300, 6 * r), r0: r, r1: 0.35 * r });
+    }
+    const reach = Math.max(...arms.map((g) => mapDist(g.bx, g.bz) + Math.max(g.r0, g.r1))) + 250;
+    /** Signed distance to the arms (a tapered capsule each), the shore a little wavy away from the map. */
+    const sAt = (x: number, z: number) => {
+      const md = mapDist(x, z); if (md > reach) return md - reach + 200;
+      let v = Infinity;
+      for (const g of arms) { const dx = g.bx - g.ax, dz = g.bz - g.az, L2 = dx * dx + dz * dz || 1, t = clamp(((x - g.ax) * dx + (z - g.az) * dz) / L2, 0, 1); v = Math.min(v, Math.hypot(x - g.ax - dx * t, z - g.az - dz * t) - (g.r0 + (g.r1 - g.r0) * t)); }
+      v = Math.max(v, dI[clamp(Math.floor(tOf(x, z) / st), 0, n - 1)] - 0.8 * md);
+      return v + (noise(x / 380 + 4.1, z / 380 + 9.7) - 0.5) * 90 * smooth(0, 250, md);
+    };
+    return { sAt, reach, L };
+  })();
+  /** The nearest water's signed distance (ft, negative in it) and level at (x, z): the lakes and the map's edge water,
+   *  the arm and a lake it joins blended into one rounded shore. */
+  const waterAt = (x: number, z: number, mx: number, my: number): { s: number; L: number } => {
+    let s = Infinity, L = 0;
+    for (const lk of lakes) { const v = lakeS(lk, mx, my); if (v < s) { s = v; L = lk.L; } }
+    if (edge) { const v = edge.sAt(x, z), k = 300, hh = Math.max(0, k - Math.abs(v - s)) / k; if (v < s) L = edge.L; s = Math.min(s, v) - (L === edge.L ? hh * hh * k / 4 : 0); }
+    return { s, L };
+  };
   // Rivers cut a channel, roads none; both are segments with a loose box for the distance test.
   const segs = (paths: Path[]): Seg[] => { const out: Seg[] = []; for (const p of paths) for (let i = 0; i + 1 < p.pts.length; i++) { const a = p.pts[i], b = p.pts[i + 1], m = p.w * 2.5 + 10; out.push({ ax: a.x, az: a.z, bx: b.x, bz: b.z, w: p.w, minX: Math.min(a.x, b.x) - m, maxX: Math.max(a.x, b.x) + m, minZ: Math.min(a.z, b.z) - m, maxZ: Math.max(a.z, b.z) + m }); } return out; };
   const riverSegs = segs(o.rivers);
+  // the segments by the 2000-ft cells their loose boxes touch, so a sample tests only the few near it
+  const RC = 2000, riverCells = new Map<number, Seg[]>(), cellKey = (i: number, j: number) => (i + 4096) * 8192 + (j + 4096), NONE: Seg[] = []; // small-integer keys: no number boxed per lookup
+  for (const g of riverSegs) for (let i = Math.floor(g.minX / RC); i <= Math.floor(g.maxX / RC); i++) for (let j = Math.floor(g.minZ / RC); j <= Math.floor(g.maxZ / RC); j++) { const k = cellKey(i, j); let a = riverCells.get(k); if (!a) riverCells.set(k, (a = [])); a.push(g); }
   /** Distance to the nearest river's centreline, and that river's width (Infinity when none is near). */
   const riverAt = (x: number, z: number): { d: number; w: number } => {
     let best = Infinity, w = 40;
-    for (const s of riverSegs) {
+    for (const s of riverCells.get(cellKey(Math.floor(x / RC), Math.floor(z / RC))) ?? NONE) {
       if (x < s.minX || x > s.maxX || z < s.minZ || z > s.maxZ) continue;
       const dx = s.bx - s.ax, dz = s.bz - s.az, L2 = dx * dx + dz * dz || 1, t = clamp(((x - s.ax) * dx + (z - s.az) * dz) / L2, 0, 1);
       const d = Math.hypot(x - s.ax - dx * t, z - s.az - dz * t); if (d < best) { best = d; w = s.w; }
@@ -232,8 +320,8 @@ export function buildLand(o: LandOpts): Land {
   /** The land at (x, z): height, how far from the nearest shore, how far from the nearest river. */
   const sampleAt = (x: number, z: number): Sample => {
     const hT = baseAt(x, z), [mx, my] = o.toMiles(x, z);
-    let y = hT, s = Infinity, L = 0;
-    for (const lk of lakes) { const v = lakeS(lk, mx, my); if (v < s) { s = v; L = lk.L; } }
+    const { s, L } = waterAt(x, z, mx, my);
+    let y = hT;
     if (s < 6000) {
       if (s >= 0) {
         // the bank: a 1:15 beach up from the water line to the land's own height (at most 13 ft of climb), then a blend to
@@ -247,7 +335,11 @@ export function buildLand(o: LandOpts): Land {
       }
     }
     const rv = riverAt(x, z);
-    if (rv.d < rv.w * 2.5) y -= 6 * smooth(rv.w * 2.5, rv.w * 0.5, rv.d) * smooth(60, 400, mapDist(x, z));
+    if (rv.d < rv.w * 2.5) {
+      const cut = y - 6 * smooth(rv.w * 2.5, rv.w * 0.5, rv.d) * smooth(60, 400, mapDist(x, z));
+      // a channel never sinks the bank below a lake's water line: the lake keeps its own shore where a river meets it
+      y = s >= 0 && s < 6000 ? Math.max(cut, Math.min(y, L + 0.6)) : cut;
+    }
     return { y, s, rd: rv.d, rw: rv.w };
   };
   const yAt = (x: number, z: number) => sampleAt(x, z).y;
@@ -258,7 +350,7 @@ export function buildLand(o: LandOpts): Land {
   const apronC = new THREE.Color(T.forest[1]).lerp(new THREE.Color(T.apron), 0.35);
   const snowLine = 4200, pinsHigh = W.pins.filter((q) => q.heightFt).map((q) => { const [qx, qz] = o.toPlan(q.pos); return { x: cx + qx, z: cz + qz }; });
   /** The map's own ground gives way to the land's cover along a ragged line, not the map's rectangle. */
-  const ragged = (x: number, z: number) => mapDist(x, z) + (noise(x / 1100, z / 1100) - 0.5) * 1100 + (noise(x / 330 + 7.3, z / 330) - 0.5) * 360 + (noise(x / 110 + 3.1, z / 110 + 5.7) - 0.5) * 90;
+  const ragged = (x: number, z: number) => roundDist(x, z) + (noise(x / 1100, z / 1100) - 0.5) * 1100 + (noise(x / 330 + 7.3, z / 330) - 0.5) * 360 + (noise(x / 110 + 3.1, z / 110 + 5.7) - 0.5) * 90;
   /** The wood pressing up to the map: thickening over the first hundred yards past the clearing, thinning out along a
    *  ragged line a third of a mile or so beyond, only where the land is wooded (not in water, on bare rock or open
    *  ground), in clumps. */
@@ -273,7 +365,7 @@ export function buildLand(o: LandOpts): Land {
       const f = terrain.cover('f', mx, my), w = terrain.cover('w', mx, my), m = terrain.cover('m', mx, my);
       k *= clamp((f - 0.05) / 0.3, 0, 1) * (1 - smooth(0.2, 0.35, w)) * (1 - smooth(0.5, 0.65, m));
     }
-    for (const lk of lakes) { const v = lakeS(lk, mx, my); if (v < 120) k *= smooth(20, 120, v); }
+    { const v = waterAt(x, z, mx, my).s; if (v < 120) k *= smooth(20, 120, v); }
     return clamp(k * (0.55 + 0.7 * noise(x / 260 + 9.1, z / 260 + 4.2)), 0, 1);
   };
   const colAt = (x: number, z: number, sm: Sample, out: THREE.Color, slope = 0): THREE.Color => {
@@ -287,7 +379,7 @@ export function buildLand(o: LandOpts): Land {
     out.lerp(GRASS, 1 - smooth(500, 2400, ragged(x, z)));
     const wd = wood(x, z); if (wd > 0) out.lerp(forestC, 0.85 * wd); // the ground under the trees is the canopy seen from above
     // wet banks: the bed and the first yards of every shore and river are dark, damp ground
-    if (sm.s < 60) out.lerp(wetC, 0.7 * (1 - smooth(0, 60, sm.s)));
+    if (sm.s < 35) out.lerp(wetC, 0.6 * (1 - smooth(0, 35, sm.s)));
     if (sm.rd < sm.rw * 1.8) out.lerp(wetC, 0.5 * (1 - smooth(sm.rw * 0.6, sm.rw * 1.8, sm.rd)));
     // steep ground is bare rock, and snow lies on the gentler high ground, thinning in over a broad band, not a contour
     if (slope > 0.45) out.lerp(rock, 0.55 * smooth(0.45, 1.1, slope));
@@ -303,13 +395,23 @@ export function buildLand(o: LandOpts): Land {
   // cache until the slot is wanted for a new one, so panning back costs nothing
   const NV = (N + 1) * (N + 1) + 4 * N, NI = N * N * 6 + 4 * N * 6, SLOTS = 640;
   const batch = new THREE.BatchedMesh(SLOTS, SLOTS * NV, SLOTS * NI, landMat);
-  batch.name = 'land-tiles'; batch.userData.role = 'backdrop'; batch.frustumCulled = false; batch.perObjectFrustumCulled = false; // culling a few hundred tiles a frame costs more than drawing them batch.sortObjects = false;
+  // culling or sorting a few hundred tiles every frame costs more than drawing them: the batch's per-frame work is nil
+  batch.name = 'land-tiles'; batch.userData.role = 'backdrop'; batch.frustumCulled = false; batch.perObjectFrustumCulled = false; batch.sortObjects = false;
   group.add(batch);
   const cache = new Map<number, Tile>(), shown = new Map<number, Tile>();
   const keyOf = (l: number, i: number, j: number) => (l << 20) | (i << 10) | j;
   const tmpC = new THREE.Color(), tmpGeo = new THREE.BufferGeometry(), I4 = new THREE.Matrix4();
   /** The ground's slope at a fixed scale (not the quad's), so a mountainside is the same colour at every tile level. */
-  const slopeAt = (x: number, z: number, q: number) => { if (!HF) return 0; const e = Math.max(150, q / 2); return Math.hypot(baseAt(x + e, z) - baseAt(x - e, z), baseAt(x, z + e) - baseAt(x, z - e)) / (2 * e); };
+  const slopeRaw = (x: number, z: number, e: number) => Math.hypot(baseAt(x + e, z) - baseAt(x - e, z), baseAt(x, z + e) - baseAt(x, z - e)) / (2 * e);
+  // under the finer quads the slope is read off a 150-ft lattice (cached, shared by neighbouring tiles), bilinearly
+  const SL = 150, slopeCache = new Map<number, number>();
+  const slopeNode = (i: number, j: number) => { const k = cellKey(i, j); let v = slopeCache.get(k); if (v === undefined) { v = slopeRaw(i * SL, j * SL, SL); slopeCache.set(k, v); } return v; };
+  const slopeAt = (x: number, z: number, q: number) => {
+    if (!HF) return 0;
+    if (q >= 400) return slopeRaw(x, z, q / 2);
+    const fx = x / SL, fz = z / SL, i = Math.floor(fx), j = Math.floor(fz), u = fx - i, v = fz - j;
+    return (slopeNode(i, j) * (1 - u) + slopeNode(i + 1, j) * u) * (1 - v) + (slopeNode(i, j + 1) * (1 - u) + slopeNode(i + 1, j + 1) * u) * v;
+  };
   const buildTile = (w: Want): Tile => {
     const q = Q0 * 2 ** w.l, M = N + 3, H = new Float32Array(M * M), S: Sample[] = [];
     for (let jj = 0; jj < M; jj++) for (let ii = 0; ii < M; ii++) { const sm = sampleAt(w.x0 + (ii - 1) * q, w.z0 + (jj - 1) * q); H[jj * M + ii] = sm.y; S.push(sm); }
@@ -361,7 +463,8 @@ export function buildLand(o: LandOpts): Land {
 
   // --- which tiles: a quadtree refined round the map, along shores and rivers, and round the camera's target ------
   const span = Math.max(bbm.maxX - bbm.minX, bbm.maxZ - bbm.minZ);
-  const qMap = Q0 * 2 ** Math.ceil(Math.log2(Math.max(1, span / 120 / Q0)));
+  // round the map: the land there is flattened to the map's ground, so 50-ft quads carry its colour; a crag's cliff wants 25
+  const qMap = Math.max(crag > 0 ? Q0 : 2 * Q0, Q0 * 2 ** Math.ceil(Math.log2(Math.max(1, span / 120 / Q0))));
   let qTarget = qMap;
   const rectDist = (x0: number, z0: number, x1: number, z1: number, r: Rect) => Math.hypot(Math.max(0, r.minX - x1, x0 - r.maxX), Math.max(0, r.minZ - z1, z0 - r.maxZ));
   const lakesPlan = lakes.map((lk) => { const [lx, lz] = o.toPlan([lk.c0, lk.c1]); const reach = lk.rmax * FT + 400; return { lk, x: cx + lx, z: cz + lz, reach }; });
@@ -371,6 +474,11 @@ export function buildLand(o: LandOpts): Land {
       if (Math.max(0, x0 - x, x - x0 - s) > reach || Math.max(0, z0 - z, z - z0 - s) > reach) continue; // the lake is nowhere near
       let lo = Infinity, hi = -Infinity;
       for (let jj = 0; jj <= 4; jj++) for (let ii = 0; ii <= 4; ii++) { const [mx, my] = o.toMiles(x0 + ii * s / 4, z0 + jj * s / 4); const v = lakeS(lk, mx, my); lo = Math.min(lo, v); hi = Math.max(hi, v); }
+      if (lo < 320 && hi > -260) return true;
+    }
+    if (edge && rectDist(x0, z0, x0 + s, z0 + s, bbm) < edge.reach) {
+      let lo = Infinity, hi = -Infinity;
+      for (let jj = 0; jj <= 4; jj++) for (let ii = 0; ii <= 4; ii++) { const v = edge.sAt(x0 + ii * s / 4, z0 + jj * s / 4); lo = Math.min(lo, v); hi = Math.max(hi, v); }
       if (lo < 320 && hi > -260) return true;
     }
     return false;
@@ -390,7 +498,9 @@ export function buildLand(o: LandOpts): Land {
       const near = Math.min(dRect, dT), qWater = Math.max(100, 2 ** Math.ceil(Math.log2(Math.max(1, near / 50))));
       if (q > qWater && near < 48000 && shoreTile(x0, z0, s)) want = Math.min(want, qWater);
       if (q > qWater && near < 12000 && riverTile(x0, z0, s)) want = Math.min(want, qWater);
-      if (inset > 250 && dT > s) want = Math.max(want, 200); // under the map's own floors: nothing to see
+      // under the map's own floors there is nothing to see (on a crag site, where the map's open chasm shows the land
+      // far below, only away from the eye)
+      if (inset > 250 && (crag <= 0 || dT > s)) want = Math.max(want, crag <= 0 ? 400 : 200);
       if (l > 0 && q > want) { visit(l - 1, i * 2, j * 2); visit(l - 1, i * 2 + 1, j * 2); visit(l - 1, i * 2, j * 2 + 1); visit(l - 1, i * 2 + 1, j * 2 + 1); }
       else out.push({ key: keyOf(l, i, j), l, i, j, x0, z0, s });
     };
@@ -423,29 +533,63 @@ export function buildLand(o: LandOpts): Land {
 
   // --- water and ribbons -----------------------------------------------------------------------------------------
   const waterHex = FLOOR_COLOR['shallow-water'];
-  const lakeMat = softPatch(lit(new THREE.Color(waterHex).lerp(new THREE.Color('#5e7d94'), 0.55), 'water'));
-  const riverMat = softPatch(lit(new THREE.Color(waterHex).lerp(new THREE.Color('#5e7d94'), 0.4), 'water'), { minPx: 1.5, thin: 0.35 });
+  // lake water: deep and dark over the basin, lighter over the shelf, the bed showing through at the water line
+  const lakeMat = softPatch(lit('#ffffff', 'water', { vertexColors: true }), undefined, 0.003);
+  // (the shelf is the map's own shallow water, so a lake the map shows runs on past its edge in the same colour)
+  const deepC = new THREE.Color(waterHex).multiplyScalar(0.87), shelfC = new THREE.Color(waterHex), shoreC = new THREE.Color(waterHex).lerp(new THREE.Color('#5e7d94'), 0.2);
+  const riverMat = softPatch(lit(new THREE.Color(waterHex).lerp(new THREE.Color('#5e7d94'), 0.3), 'water'), { minPx: 1.5, thin: 0.35 });
   // every road in one draw: its own colour per vertex
   const roadMat = softPatch(lit('#ffffff', 'dirt', { vertexColors: true }), { minPx: 0.9, thin: 0.8 });
   {
-    // each lake: a fan of rings at its level, opaque to within yards of the shore, fading out across the beach so the
-    // water line is soft and the bed shows through the shallows
-    const pos: number[] = [], al: number[] = [], idx: number[] = [], SEG = 128;
+    // the water's look by its signed distance from the shore: opaque to within yards of it, fading out across the beach so
+    // the water line is soft and the bed shows through the shallows; dark over the deep basin, lighter over the shelf
+    const alphaOf = (v: number) => v <= -30 ? 1 : v <= 0 ? 1 - 0.25 * (v + 30) / 30 : Math.max(0, 0.75 * (1 - v / 15));
+    const colOf = (v: number, out: THREE.Color) => v <= -160 ? out.copy(shelfC).lerp(deepC, smooth(-160, -1400, v)) : out.copy(shoreC).lerp(shelfC, smooth(-30, -160, v));
+    const pos: number[] = [], al: number[] = [], col: number[] = [], idx: number[] = [], SEG = 128, c = new THREE.Color();
+    const vert = (x: number, y: number, z: number, v: number, a = alphaOf(v)) => { pos.push(x, y, z); al.push(a); colOf(v, c); col.push(c.r, c.g, c.b); };
+    // each lake: a fan of rings at its level (the edge water, where it joins one, decides the look where it is nearer)
     for (const lk of lakes) {
-      const base = pos.length / 3, [lx, lz] = o.toPlan([lk.c0, lk.c1]), x = cx + lx, z = cz + lz;
-      pos.push(x, lk.L, z); al.push(1);
-      const rings: [number, number, boolean][] = [[0.5, 1, false], [-45, 1, true], [0, 0.72, true], [70, 0, true]]; // [e or s, alpha, by s]
-      for (const [v, a, byS] of rings) for (let k = 0; k < SEG; k++) {
-        const ang = (k / SEG) * Math.PI * 2, u = Math.cos(ang), w = Math.sin(ang);
-        const e = byS ? 1 + (v / FT) * Math.hypot(u / lk.r0, w / lk.r1) : v; // s ft out along the gradient
-        const [px, pz] = o.toPlan([lk.c0 + u * lk.r0 * e, lk.c1 + w * lk.r1 * e]); pos.push(cx + px, lk.L, cz + pz); al.push(a);
+      const base = pos.length / 3, [lx, lz] = o.toPlan([lk.c0, lk.c1]);
+      vert(cx + lx, lk.L, cz + lz, -Infinity);
+      const rings: [number, boolean][] = [[0.55, false], [-160, true], [-30, true], [0, true], [15, true]]; // [e, or s ft from the shore]
+      // each ring's e by angle (s ft out along the gradient), kept inside the next ring out: a small lake's deep ring would
+      // otherwise fold over its shelf
+      const es: Float32Array[] = [];
+      for (let r = rings.length - 1; r >= 0; r--) {
+        const [v, byS] = rings[r], e = new Float32Array(SEG);
+        for (let k = 0; k < SEG; k++) { const ang = (k / SEG) * Math.PI * 2, u = Math.cos(ang), w = Math.sin(ang); e[k] = byS ? 1 + (v / FT) * Math.hypot(u / lk.r0, w / lk.r1) : v; if (es[r + 1]) e[k] = Math.min(e[k], es[r + 1][k] * 0.85); e[k] = Math.max(e[k], 0.15 * (r + 1)); }
+        es[r] = e;
+      }
+      for (let r = 0; r < rings.length; r++) for (let k = 0; k < SEG; k++) {
+        const [v, byS] = rings[r], ang = (k / SEG) * Math.PI * 2, e = es[r][k];
+        const [px, pz] = o.toPlan([lk.c0 + Math.cos(ang) * lk.r0 * e, lk.c1 + Math.sin(ang) * lk.r1 * e]), x = cx + px, z = cz + pz;
+        vert(x, lk.L, z, byS ? (edge ? waterAt(x, z, ...o.toMiles(x, z)).s : v) : -Infinity);
       }
       // (plan +z is south: a loop that runs with the angle is clockwise seen from above, so the triangles run against it)
       for (let k = 0; k < SEG; k++) idx.push(base, base + 1 + ((k + 1) % SEG), base + 1 + k);
       for (let r = 0; r + 1 < rings.length; r++) for (let k = 0; k < SEG; k++) { const a0 = base + 1 + r * SEG + k, a1 = base + 1 + r * SEG + ((k + 1) % SEG), b0 = a0 + SEG, b1 = a1 + SEG; idx.push(a0, a1, b0, a1, b1, b0); }
     }
-    if (pos.length) {
-      const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); geo.setAttribute('aAlpha', new THREE.Float32BufferAttribute(al, 1));
+    // the map's edge water: a grid over the band round the map, kept where it is wet (and left to a lake's own disc deep
+    // inside the lake, so the two never lie doubled)
+    if (edge) {
+      const R = edge.reach, st = clamp(Math.max(bbm.maxX - bbm.minX, bbm.maxZ - bbm.minZ, 2 * R) / 200, 10, 30);
+      const x0 = bbm.minX - R, z0 = bbm.minZ - R, nx = Math.ceil((bbm.maxX - bbm.minX + 2 * R) / st), nz = Math.ceil((bbm.maxZ - bbm.minZ + 2 * R) / st), base = pos.length / 3;
+      const A = new Float32Array((nx + 1) * (nz + 1));
+      for (let j = 0; j <= nz; j++) for (let i = 0; i <= nx; i++) {
+        const x = x0 + i * st, z = z0 + j * st, [mx, my] = o.toMiles(x, z);
+        let sl = Infinity; for (const lk of lakes) sl = Math.min(sl, lakeS(lk, mx, my));
+        const v = waterAt(x, z, mx, my).s, a = alphaOf(v) * smooth(-200, -120, sl);
+        A[j * (nx + 1) + i] = a; vert(x, edge.L, z, v, a);
+      }
+      const inset = (x: number, z: number) => Math.min(x - bbm.minX, bbm.maxX - x, z - bbm.minZ, bbm.maxZ - z);
+      for (let j = 0; j < nz; j++) for (let i = 0; i < nx; i++) {
+        const a = j * (nx + 1) + i, b = a + 1, d = a + nx + 1, e = d + 1;
+        if (A[a] + A[b] + A[d] + A[e] <= 0 || inset(x0 + (i + 1) * st, z0 + (j + 1) * st) > st + 30 && inset(x0 + i * st, z0 + j * st) > st + 30) continue;
+        idx.push(base + a, base + d, base + b, base + b, base + d, base + e);
+      }
+    }
+    if (idx.length) {
+      const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); geo.setAttribute('aAlpha', new THREE.Float32BufferAttribute(al, 1)); geo.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
       const nor = new Float32Array(pos.length); for (let i = 1; i < nor.length; i += 3) nor[i] = 1; geo.setAttribute('normal', new THREE.BufferAttribute(nor, 3)); geo.setIndex(idx);
       const m = new THREE.Mesh(geo, lakeMat); m.name = 'lakes'; m.userData.role = 'backdrop'; m.renderOrder = 2; group.add(m);
     }
@@ -471,7 +615,8 @@ export function buildLand(o: LandOpts): Land {
         const h = p.w / 2, base = pos.length / 3; pc.set(p.hex);
         for (let i = 0; i < pts.length; i++) {
           const a = pts[Math.max(0, i - 1)], b = pts[Math.min(pts.length - 1, i + 1)], dx = b.x - a.x, dz = b.z - a.z, L = Math.hypot(dx, dz) || 1, nx = -dz / L, nz = dx / L, q = pts[i];
-          const [mx, my] = o.toMiles(q.x, q.z); let inLake = 0; for (const lk of lakes) inLake = Math.max(inLake, 1 - smooth(-80, 0, lakeS(lk, mx, my)));
+          // a river ends at a lake's shore (and is not drawn where its course runs along one)
+          const [mx, my] = o.toMiles(q.x, q.z), inLake = 1 - smooth(10, 140, waterAt(q.x, q.z, mx, my).s);
           const fade = smooth(0, 90, mapDist(q.x, q.z)) * (river ? 1 - inLake : 1);
           for (const [f, a0] of [[-1, 0], [-0.62, 1], [0.62, 1], [1, 0]] as const) {
             const x = q.x + nx * h * f, z = q.z + nz * h * f;
@@ -511,15 +656,17 @@ export function buildLand(o: LandOpts): Land {
   };
   const update = (target: { x: number; z: number }, pxPerFt: number, camDist: number, invalidate?: () => void) => {
     atmos.uCamDist.value = camDist;
-    // the quads under the camera's target are worth a few pixels at least; nothing finer than the finest level
-    qTarget = Q0 * 2 ** clamp(Math.round(Math.log2(Math.max(1, 6 / Math.max(pxPerFt, 1e-3) / Q0))), 0, LEVELS - 1);
-    const key = `${Math.round(target.x / 100)}:${Math.round(target.z / 100)}:${qTarget}`;
+    // the quads under the camera's target are worth a dozen pixels or so; nothing finer than the finest level
+    qTarget = Q0 * 2 ** clamp(Math.round(Math.log2(Math.max(1, 12 / Math.max(pxPerFt, 1e-3) / Q0))), 0, LEVELS - 1);
+    // a new selection when the target has moved a quarter of a fine tile (not every frame of a pan)
+    const g = N * qTarget / 4, key = `${Math.round(target.x / g)}:${Math.round(target.z / g)}:${qTarget}`;
     if (key !== lastKey) { lastKey = key; focus = { x: target.x, z: target.z }; const t0 = performance.now(); desired = select(target); selectMs = performance.now() - t0; pending = true; }
     if (pending) step(2, invalidate);
   };
   // the first build: everything round the map, at once
   desired = select({ x: cx, z: cz }); lastKey = ''; step(Infinity); initMs = performance.now() - tInit;
 
-  const stats = () => { let tris = 0; for (const t of shown.values()) tris += t.s > 0 ? NI / 3 : 0; return { tiles: shown.size, tris, selectMs, buildMs, built: builtN, ribbonMs, initMs, steps }; };
-  return { group, yAt, surfaceAt, lakeLevel, canopy: forestC.clone(), wood, update, stats };
+  const stats = () => { const levels = new Array(LEVELS).fill(0); for (const t of shown.values()) levels[t.l]++; return { tiles: shown.size, tris: shown.size * NI / 3, levels, selectMs, buildMs, built: builtN, ribbonMs, initMs, steps }; };
+  const inWater = (x: number, z: number) => { const [mx, my] = o.toMiles(x, z); return waterAt(x, z, mx, my).s < 20; };
+  return { group, yAt, surfaceAt, lakeLevel, inWater, canopy: forestC.clone(), wood, update, stats };
 }

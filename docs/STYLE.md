@@ -18,9 +18,11 @@
 - **Land and water read as one smooth, natural place at every zoom** (`render/land.ts`). The land is the one
   exception to flat shading: a C1 surface with smooth normals, tessellated fine where it matters (round the map,
   along shores and river banks, under the camera) and coarse toward the horizon, never showing a triangle fan, a
-  facet or a crack; the low-poly look stays on rocks, trees and models. Every lake lies in a basin the land is
-  carved for, its shore a soft water line on a gentle bank, never a plane slicing through terrain; every river runs
-  in a shallow cut, lying on the mesh that is drawn. Water is lit and fogged like the ground, so it darkens with the
+  facet or a crack; the low-poly look stays on rocks, trees and models. The land eases from the map's ground into the
+  relief along a rounded line, never a rectangular pit or plinth. Every lake lies in a basin the land is carved for,
+  its shore a soft water line on a gentle bank, never a plane slicing through terrain and never a pale halo; water the
+  map shows at its edge runs on past it into the land in the same colour; every river runs in a shallow cut, lying on
+  the mesh that is drawn. Water is lit and fogged like the ground, so it darkens with the
   night and recedes into the mist. One atmosphere for everything: the map, the land, the water, the wood and the
   castle take the hour's mist by one law, with no baked haze and no hard rim at the horizon. The grid is the table's
   grid up close and a faint plan from far up; it never falls on the land. From far up the wood is the land's canopy

@@ -30,6 +30,8 @@ export interface BackdropOpts {
   crag?: number;
   /** The map's own ground ('grass', 'snow', 'marsh'): the land beside the map blends into it. Default grass. */
   ground?: string;
+  /** The map's own water (plan polygons): where it reaches the map's edge, the land carries it on. */
+  water?: P[][];
   /** Felled ground: no forest within this many feet of the map (a walled town keeps its approaches clear). */
   clearing?: number;
 }
@@ -108,7 +110,7 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
     const pts = river.pts.map(toWorld).filter((t) => t.d < 70000); if (pts.length > 1) riverPaths.push({ pts, w: 40, hex: '#5e7d94' });
   }
   const nearRoad = (x: number, z: number, within: number) => roadPaths.some((r) => { for (let i = 0; i + 1 < r.pts.length; i++) { const a = r.pts[i], b = r.pts[i + 1]; const dx = b.x - a.x, dz = b.z - a.z, L2 = dx * dx + dz * dz || 1; const t = Math.max(0, Math.min(1, ((x - a.x) * dx + (z - a.z) * dz) / L2)); if (Math.hypot(x - a.x - dx * t, z - a.z - dz * t) < within + r.w / 2) return true; } return false; });
-  const land = buildLand({ center: [cx, cz], yTop, crag, bounds: bbm, terrain, world: W, theme: T, ground: o.ground, toMiles, toPlan, hPin, FT, sight, roads: roadPaths, rivers: riverPaths, clearing: o.clearing });
+  const land = buildLand({ center: [cx, cz], yTop, crag, bounds: bbm, terrain, world: W, theme: T, ground: o.ground, toMiles, toPlan, hPin, FT, sight, roads: roadPaths, rivers: riverPaths, water: o.water, clearing: o.clearing });
   g.add(land.group); g.userData.land = land;
   const { yAt, lakeLevel } = land;
 
@@ -151,7 +153,7 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
     // the land's own canopy colour says (land.wood), the far wood where the land is wooded
     let drop = nearRoad(tx, tz, 14) || md < Math.max(30, o.clearing ?? 0) || (isNear && rnd() > land.wood(tx, tz));
     if (terrain.hasCover && !drop && !isNear) { const [mx, my] = toMiles(tx, tz); const f = terrain.cover('f', mx, my), w = terrain.cover('w', mx, my), m = terrain.cover('m', mx, my); drop = w > 0.3 || m > 0.6 || f < 0.4 + rnd() * 0.3; }
-    if (!drop && HF) { const [mx, my] = toMiles(tx, tz); for (const l of W.lakes) if (((mx - l.center[0]) / l.r[0]) ** 2 + ((my - l.center[1]) / l.r[1]) ** 2 < 1.05) drop = true; } // not in the water
+    if (!drop && land.inWater(tx, tz)) drop = true; // not in the water
     if (drop) { s.set(0, 0, 0); p.set(tx, y0 - 50, tz); m4.compose(p, q, s); ring.setMatrixAt(k0, m4); continue; }
     p.set(tx, land.surfaceAt(tx, tz) - 1.5, tz); s.set(k, k * (0.9 + rnd() * 0.4), k); m4.compose(p, q, s);
     ring.setMatrixAt(k0, m4); ring.setColorAt(k0, treeC[i % 3]);
