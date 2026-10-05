@@ -15,3 +15,8 @@ All outstanding work, in one ordered list. One lane builds at a time. Design and
 - One build at a time per lane, with one verifier and at most one fix round.
 - Each merge bumps the version, adds a CHANGELOG entry and publishes.
 - No major feature is replaced without the owner's approval.
+
+## Owner decisions (2026-10-05)
+
+- Bestiary models: the owner will allow the open-model hosts (quaternius.com, poly.pizza, quaternius.itch.io, opengameart.org, creativecommons.org). Check each licence on its own page before use. Creatures without an open model are built in-house.
+- Encounter builder: 2024 SRD 5.2.1 budgets only. No 2014 table.
