@@ -330,6 +330,10 @@ test.describe('phone', () => {
     await page.setViewportSize({ width: 360, height: 640 });
     await page.waitForTimeout(100);
     await expectHandlesReachable(page);
+    for (const [width, height] of [[844, 390], [667, 375]]) {          // a phone turned sideways
+      await page.setViewportSize({ width, height });
+      await expect(async () => expectHandlesReachable(page)).toPass({ timeout: 30_000 });
+    }
     await page.setViewportSize({ width: 390, height: 844 });
     await page.waitForTimeout(100);
     const v0 = await box(page, 'view');

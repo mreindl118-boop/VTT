@@ -50,5 +50,6 @@ export const ICON = {
   layers: svg('<path d="M12 4l8 4-8 4-8-4z"/><path d="M4 12l8 4 8-4M4 16l8 4 8-4"/>'),
   compass: svg('<circle cx="12" cy="12" r="9"/><path d="M12 5l2.5 6.5L12 10l-2.5 1.5z" fill="currentColor" stroke="none"/><path d="M12 19l-2.5-6.5L12 14l2.5-1.5z" opacity=".4"/>'),
   panels: svg('<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 9v11"/>'),
+  minimap: svg('<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 12l-5-6h10z" fill="currentColor" stroke="none" opacity=".35"/><circle cx="12" cy="12" r="1.6" fill="currentColor" stroke="none"/>'),
   layout: svg('<rect x="3" y="4" width="18" height="16" rx="2"/><path d="M8 4v16M3 14h5M8 9h13"/>'),
 };

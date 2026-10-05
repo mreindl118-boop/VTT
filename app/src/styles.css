@@ -440,3 +440,7 @@ select.levels { max-width: min(46vw, 320px); padding: 6px 28px 6px 10px; border-
 .pn-toggle:hover, body[data-ui-hidden] .pn-toggle { opacity: .9; }
 body[data-ui-hidden] .pn-toggle { color: var(--accent); }
 body[data-ui-hidden] .panel { display: none !important; }
+/* Fix round 3: the view rail and its peek button stay above the top bar groups and the frame; the hide tab sits below the panels; the floors bar wraps on phones */
+.vslider, .vslider.panel[data-placed] { z-index: 6; }
+.pn-toggle { z-index: 4; }
+@media (max-width: 760px) { .topbar .group.center { flex-wrap: wrap; overflow-x: visible; max-width: calc(100vw - 20px); row-gap: 6px; } }

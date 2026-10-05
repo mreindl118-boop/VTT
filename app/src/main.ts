@@ -127,7 +127,7 @@ function buildDmUi(): void {
   panels.makePanel(top.querySelector<HTMLElement>('.group.right')!, { id: 'tools', name: 'tools', icon: ICON.reveal });
   panels.makePanel(slider!.el, { id: 'view', name: 'DM / Player view', icon: ICON.eye });
   panels.makePanel(cam, { id: 'camera', name: 'camera', icon: ICON.movieCam });
-  panels.makePanel(minimap.el, { id: 'minimap', name: 'minimap', icon: ICON.map, collapsed: { phone: true } });
+  panels.makePanel(minimap.el, { id: 'minimap', name: 'minimap', icon: ICON.minimap, collapsed: { phone: true } });
   panels.makePanel(ui.querySelector<HTMLElement>('.mapframe')!, { id: 'compass', name: 'compass and scale', icon: ICON.compass, collapsed: { phone: true } });
   cam.addEventListener('click', (e) => {
     const b = (e.target as HTMLElement).closest<HTMLElement>('button');
@@ -154,6 +154,7 @@ function buildDmUi(): void {
   const input = finder.querySelector('input')!, results = finder.querySelector<HTMLElement>('.results')!;
   const openFinder = () => { finder.style.top = `${top.getBoundingClientRect().bottom + 8}px`; finder.hidden = false; input.focus(); };
   const closeFinder = () => { input.value = ''; results.hidden = true; finder.hidden = true; input.blur(); };
+  const closeMenus = () => { for (const d of document.querySelectorAll<HTMLDetailsElement>('details.menu[open]')) d.open = false; };
   input.addEventListener('blur', () => setTimeout(() => { if (!finder.contains(document.activeElement) && !input.value) closeFinder(); }, 150));
   const renderResults = () => {
     const hits = app.findRooms(input.value).slice(0, 8);
@@ -325,8 +326,8 @@ function buildDmUi(): void {
       case 'lock': app.lockPlayerCamera = !app.lockPlayerCamera; app.layoutChanged(); break;
       case 'display': window.open(`${location.pathname}?display=player&scene=${encodeURIComponent(app.cur?.path ?? '')}`, 'mistlab-player', 'popup,width=1280,height=800'); break;
       case 'help': showHelp(); break;
-      case 'ui-hide': panels!.toggleHidden(); break;
-      case 'layout-reset': panels!.reset(); break;
+      case 'ui-hide': panels!.toggleHidden(); closeMenus(); break;
+      case 'layout-reset': panels!.reset(); closeMenus(); break;
     }
     refresh();
   });
