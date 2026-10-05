@@ -9,6 +9,7 @@ import { FLOOR_COLOR } from '../kit/palette';
 import { patchFog, setSurface } from './materials';
 import { surfaceOf, type Surface } from '../kit/surfaces';
 import { terrainOf } from '../core/terrain';
+import type { Relief } from '../core/relief';
 import RAVENLOFT from '../../../locations/ch04/K/exterior.json';
 
 type P = [number, number];
@@ -30,6 +31,11 @@ export interface BackdropOpts {
   ground?: string;
   /** Felled ground: no forest within this many feet of the map (a walled town keeps its approaches clear). */
   clearing?: number;
+  /** The map's relief (plan feet → feet above `elevation`, the edge's height carried on beyond the map) and the extent of
+   *  its own ground: the land beyond blends from the map's edge heights, and lies well under the map's ground. `grid`:
+   *  the map's draped grid, carried on over the land; `solid`: a rectangle the map's ground covers without a gap (the
+   *  land under it is left out). */
+  relief?: { relief: Relief; floor: { minX: number; minZ: number; maxX: number; maxZ: number }; grid?: Record<string, { value: unknown }>; solid?: { minX: number; minZ: number; maxX: number; maxZ: number } };
 }
 
 export function buildBackdrop(o: BackdropOpts): THREE.Group {
@@ -55,13 +61,21 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
   const toWorld = (w: P) => { const [dx, dz] = toPlan(w); return { x: cx + dx, z: cz + dz, d: Math.hypot(dx, dz) }; };
   const haze = (d: number) => Math.min(0.85, 1 - Math.exp(-d / 32000));
   // the land beyond the map: its baked colours carry the same drifting grass grain as the map's own ground
-  const landMat = () => { const m = new THREE.MeshLambertMaterial({ vertexColors: true, fog: false, flatShading: true }); setSurface(m, o.ground === 'snow' ? 'snow' : 'grass'); return patchFog(m, true); };
+  // (beside a map with relief the land is shaded as the map's ground is, so the two read as one slope at the seam)
+  // (and carries the map's draped grid on out over itself, as far as the flat overlay runs past a flat map; its
+  //  vertices are plan feet, as the map's ground's are; under the map's own ground, which draws it itself, it skips it)
+  const gridHole = o.relief ? new THREE.Vector4(o.relief.floor.minX + 1, o.relief.floor.minZ + 1, o.relief.floor.maxX - 1, o.relief.floor.maxZ - 1) : undefined;
+  const landMat = (smooth = false, grid = false) => { const m = new THREE.MeshLambertMaterial({ vertexColors: true, fog: false, flatShading: !smooth }); setSurface(m, o.ground === 'snow' ? 'snow' : 'grass'); if (o.relief) m.userData.shade = true; if (grid && o.relief?.grid) m.userData.grid = { ...o.relief.grid, uGridHole: { value: gridHole } }; return patchFog(m, true); };
   const hazed = (hex: string, d: number) => lambert(blend(hex, haze(d)), surfaceOf(hex));
   // plan feet → world miles (the inverse of toPlan) and the ground's height there, flattened to the map near it
   const toMiles = (x: number, z: number): P => { const dx = x - cx, dz = z - cz; return [o.pin[0] + (E[0] * dx + E[1] * dz) / FT, o.pin[1] + (S[0] * dx + S[1] * dz) / FT]; };
   const hPin = HF ? terrain.heightAt(o.pin[0], o.pin[1]) : 0;
   const bbm = o.bounds ?? { minX: cx - R, maxX: cx + R, minZ: cz - R, maxZ: cz + R };
   const mapDist = (x: number, z: number) => Math.max(0, bbm.minX - x, x - bbm.maxX, bbm.minZ - z, z - bbm.maxZ);
+  // the map's own ground height (0 on a flat map), and how deep inside the map's own ground a point lies
+  const RL = o.relief?.relief, fl = o.relief?.floor, mapY = (x: number, z: number) => (RL ? RL.natural(x, z) : 0);
+  // inside the relief's own extent the map's lattice is the land (the apron below): the coarse land lies well under it
+  const rx = RL?.extent, inRelief = (x: number, z: number) => (rx ? Math.min(x - rx.minX, rx.maxX - x, z - rx.minZ, rx.maxZ - z) : -1);
   const smooth = (a: number, b: number, t: number) => { const k = Math.min(1, Math.max(0, (t - a) / (b - a))); return k * k * (3 - 2 * k); };
   // Distant landmarks are drawn nearer than surveyed (a painter's foreshortening): true distance up to 3,000 ft, then
   // under half of the rest, so the castle and the towns impose on the skyline at their true size.
@@ -87,7 +101,9 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
     // a site on its crag: the map's own floors are its rock top; under and past them the land falls away at once (so a
     // chasm left open in the map shows its depth), then the valley carries on from the foot of the cliff
     if (crag > 0) { const cliff = yTop - crag; return cliff + (h - cliff) * smooth(320, 1400, d); }
-    return yTop + (h - yTop) * smooth(120, 900, d);
+    // the map's own edge heights carry on, then the land takes over
+    const base = yTop + mapY(x, z);
+    return base + (h - base) * smooth(120, 900, d);
   };
   const lakeLevel = new Map<object, number>();
   if (HF) for (const l of W.lakes) {
@@ -95,12 +111,21 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
     for (let k = 0; k < 32; k++) { const a = (k / 32) * Math.PI * 2, [px, pz] = toPlan([l.center[0] + Math.cos(a) * l.r[0], l.center[1] + Math.sin(a) * l.r[1]]); lo = Math.min(lo, yAt(cx + px, cz + pz)); }
     // a lake whose shore reaches this map lies at the map's own ground (the town stands on its shore)
     let touches = false; for (let k = 0; k < 64 && !touches; k++) { const a = (k / 64) * Math.PI * 2, [px, pz] = toPlan([l.center[0] + Math.cos(a) * l.r[0], l.center[1] + Math.sin(a) * l.r[1]]); touches = mapDist(cx + px, cz + pz) < 700; }
-    const [qx, qz] = toPlan(l.center); lakeLevel.set(l, touches ? yTop - 2.5 : Math.min(lo, yAt(cx + qx, cz + qz)) - 4);
+    // (with relief: a little under the lowest of the map's ground along the shore that reaches it)
+    let shore = Infinity; if (touches) for (let k = 0; k < 64; k++) { const a = (k / 64) * Math.PI * 2, [px, pz] = toPlan([l.center[0] + Math.cos(a) * l.r[0], l.center[1] + Math.sin(a) * l.r[1]]); if (mapDist(cx + px, cz + pz) < 700) shore = Math.min(shore, yTop + mapY(cx + px, cz + pz)); }
+    const [qx, qz] = toPlan(l.center); lakeLevel.set(l, touches ? (o.relief ? shore : yTop) - 2.5 : Math.min(lo, yAt(cx + qx, cz + qz)) - 4);
   }
   if (HF) {
     // a polar mesh: fine near the site, coarse toward the horizon
-    const radii: number[] = [0]; for (let r = 90; r <= 3000; r += 130) radii.push(r); for (let r = 3400; r <= 16000; r += 450) radii.push(r); for (let r = 18500; r <= 90000; r += 2500) radii.push(r);
-    const SEG = 96, P3: number[] = [], C: number[] = [], idx: number[] = [];
+    // (beside a map with relief the fine rings run on past its far corners and twice as many spokes: the land meets the
+    //  map's sloping edge within a foot or so, so it can lie just under it instead of far below)
+    const fine = RL ? Math.max(3000, Math.hypot(bbm.maxX - bbm.minX, bbm.maxZ - bbm.minZ) / 2 + 1600) : 3000;
+    const radii: number[] = [0]; for (let r = 90; r <= fine; r += 130) radii.push(r); for (let r = Math.max(3400, radii[radii.length - 1] + 400); r <= 16000; r += 450) radii.push(r); for (let r = 18500; r <= 90000; r += 2500) radii.push(r);
+    // (the doubled spokes stop at the fine rings: past them the land is far and coarse, and twice the slivers there only
+    //  cost rasteriser time; one stitched ring joins 192 spokes to 96)
+    const SEG = 96, segOf = (ri: number) => (RL && radii[ri] <= fine ? 192 : SEG), base: number[] = [];
+    { let n = 0; for (let ri = 0; ri < radii.length; ri++) { base.push(n); n += segOf(ri); } }
+    const P3: number[] = [], C: number[] = [], idx: number[] = [];
     const snowLine = 4200, GRASS = new THREE.Color(FLOOR_COLOR[(o.ground ?? 'grass') as keyof typeof FLOOR_COLOR] ?? FLOOR_COLOR.grass), rock = new THREE.Color('#6a6d74'), hillC = new THREE.Color('#66705f'), forestC = new THREE.Color(T.forest[0]), waterC = new THREE.Color('#5e7d94'), snowC = new THREE.Color('#e4e6ea'), apronC = new THREE.Color(T.forest[1]).lerp(new THREE.Color(T.apron), 0.35);
     const colAt = (x: number, z: number, y: number, d: number) => {
       const [mx, my] = toMiles(x, z), f = terrain.cover('f', mx, my), m = terrain.cover('m', mx, my), hl = terrain.cover('h', mx, my), w = terrain.cover('w', mx, my), mist = terrain.cover('x', mx, my);
@@ -112,17 +137,61 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
       // the high peaks stand clear of the haze: the higher the ground, the less mist between it and the eye
       return c.lerp(MIST, haze(d) * Math.max(0.35, 1 - Math.max(0, above - 1500) / 5000));
     };
-    for (let ri = 0; ri < radii.length; ri++) for (let k = 0; k < SEG; k++) {
-      const a = (k / SEG) * Math.PI * 2, r = radii[ri], x = cx + Math.cos(a) * r, z = cz + Math.sin(a) * r;
+    for (let ri = 0; ri < radii.length; ri++) for (let k = 0, S = segOf(ri); k < S; k++) {
+      const a = (k / S) * Math.PI * 2, r = radii[ri], x = cx + Math.cos(a) * r, z = cz + Math.sin(a) * r;
       let y = yAt(x, z) - (mapDist(x, z) < 150 ? 0.4 : 3); // flush where the land meets the map
+      if (inRelief(x, z) > 0) y -= 2.5;                           // under the map's own (sloping) ground and its apron: out of their way
       for (const l of W.lakes) { const [mx, my] = toMiles(x, z); if (((mx - l.center[0]) / l.r[0]) ** 2 + ((my - l.center[1]) / l.r[1]) ** 2 < 1) y = Math.min(y, (lakeLevel.get(l) ?? y) - 6); }
       P3.push(x, y, z); const c = colAt(x, z, y, r); C.push(c.r, c.g, c.b);
     }
-    for (let ri = 0; ri + 1 < radii.length; ri++) for (let k = 0; k < SEG; k++) { const k1 = (k + 1) % SEG, a0 = ri * SEG + k, a1 = ri * SEG + k1, b0 = (ri + 1) * SEG + k, b1 = (ri + 1) * SEG + k1; idx.push(a0, b1, b0, a0, a1, b1); }
+    for (let ri = 0; ri + 1 < radii.length; ri++) {
+      const SA = segOf(ri), SB = segOf(ri + 1), A0 = base[ri], B0 = base[ri + 1];
+      if (SA === SB) for (let k = 0; k < SA; k++) { const k1 = (k + 1) % SA, a0 = A0 + k, a1 = A0 + k1, b0 = B0 + k, b1 = B0 + k1; idx.push(a0, b1, b0, a0, a1, b1); }
+      else for (let k = 0; k < SB; k++) { // 2 spokes inside to 1 outside
+        const a0 = A0 + 2 * k, a1 = A0 + 2 * k + 1, a2 = A0 + ((2 * k + 2) % SA), b0 = B0 + k, b1 = B0 + ((k + 1) % SB);
+        idx.push(a0, b1, b0, a0, a1, b1, a1, a2, b1);
+      }
+    }
     const land = new THREE.BufferGeometry(); land.setAttribute('position', new THREE.Float32BufferAttribute(P3, 3)); land.setAttribute('color', new THREE.Float32BufferAttribute(C, 3)); land.setIndex(idx);
     // lit like the map itself (same lights, same Lambert model), so map and land agree at the seam and through the day and night
-    const flat = land.toNonIndexed(); flat.computeVertexNormals();
-    const landMesh = new THREE.Mesh(flat, landMat()); landMesh.name = 'land'; g.add(landMesh);
+    // (beside a map with relief the land is a smooth surface, as the map's ground is; otherwise faceted as before)
+    const flat = RL ? land : land.toNonIndexed(); flat.computeVertexNormals();
+    // (beside a map with relief, the land wholly under the map's own unbroken ground is then left out: it could never
+    //  show, and every pixel of it would be shaded and then hidden; the normals were taken with it, so the seam is unchanged.
+    //  The apron below covers the rest of the relief's extent, so when that ground fills the map's floor box the land
+    //  under the whole extent goes)
+    const sol = RL ? o.relief?.solid : undefined;
+    if (sol && RL) {
+      const full = !!fl && sol.minX <= fl.minX + 1 && sol.maxX >= fl.maxX - 1 && sol.minZ <= fl.minZ + 1 && sol.maxZ >= fl.maxZ - 1, box = full ? RL.extent : sol;
+      const hid = (i: number) => P3[i * 3] > box.minX + 20 && P3[i * 3] < box.maxX - 20 && P3[i * 3 + 2] > box.minZ + 20 && P3[i * 3 + 2] < box.maxZ - 20;
+      const keep: number[] = []; for (let t = 0; t < idx.length; t += 3) if (!(hid(idx[t]) && hid(idx[t + 1]) && hid(idx[t + 2]))) keep.push(idx[t], idx[t + 1], idx[t + 2]);
+      flat.setIndex(keep);
+    }
+    const landMesh = new THREE.Mesh(flat, landMat(!!RL, true)); landMesh.name = 'land'; g.add(landMesh);
+    // 1a. A map with relief: its own lattice carries on past its ground (out to where its roads end) as land, exactly the
+    //     surface its roads lie on, a hair under its own ground where they overlap, with a deep skirt round its rim
+    if (RL && fl) {
+      const { cols, rows, cell, x0, z0 } = RL, P: number[] = [], Nn: number[] = [], Cc: number[] = [], I: number[] = [];
+      const vert = (x: number, z: number, y: number, n: [number, number, number]) => { const c = colAt(x, z, y, Math.hypot(x - cx, z - cz)); P.push(x, y, z); Nn.push(...n); Cc.push(c.r, c.g, c.b); return P.length / 3 - 1; };
+      const node = new Map<number, number>(), at = (c: number, r: number) => { const k = r * cols + c; let i = node.get(k); if (i === undefined) { const x = x0 + c * cell, z = z0 + r * cell; i = vert(x, z, yTop + RL.natural(x, z) - 0.12, RL.normal(x, z)); node.set(k, i); } return i; };
+      for (let r = 0; r + 1 < rows; r++) for (let c = 0; c + 1 < cols; c++) {
+        const ax = x0 + c * cell, az = z0 + r * cell;
+        if (ax >= fl.minX + 1 && ax + cell <= fl.maxX - 1 && az >= fl.minZ + 1 && az + cell <= fl.maxZ - 1) continue; // under the map's own ground
+        const a = at(c, r), b = at(c + 1, r), d = at(c, r + 1), e = at(c + 1, r + 1);
+        I.push(a, e, b, a, d, e); // the same diagonal as the map's ground (north-west to south-east), facing up
+      }
+      // the rim: hung eight feet, facing out
+      const rim = (pts: [number, number][], nx: number, nz: number) => { for (let k = 0; k + 1 < pts.length; k++) {
+        const [xa, za] = pts[k], [xb, zb] = pts[k + 1], ya = yTop + RL.natural(xa, za) - 0.12, yb = yTop + RL.natural(xb, zb) - 0.12;
+        const i0 = vert(xa, za, ya, [nx, 0, nz]), i1 = vert(xb, zb, yb, [nx, 0, nz]), i2 = vert(xb, zb, yb - 8, [nx, 0, nz]), i3 = vert(xa, za, ya - 8, [nx, 0, nz]);
+        if ((zb - za) * nx - (xb - xa) * nz > 0) I.push(i0, i1, i2, i0, i2, i3); else I.push(i0, i2, i1, i0, i3, i2);
+      } };
+      const xsA = Array.from({ length: cols }, (_, c) => x0 + c * cell), zsA = Array.from({ length: rows }, (_, r) => z0 + r * cell), ex = RL.extent;
+      rim(xsA.map((x) => [x, ex.minZ] as [number, number]), 0, -1); rim(xsA.map((x) => [x, ex.maxZ] as [number, number]), 0, 1);
+      rim(zsA.map((z) => [ex.minX, z] as [number, number]), -1, 0); rim(zsA.map((z) => [ex.maxX, z] as [number, number]), 1, 0);
+      const ag = new THREE.BufferGeometry(); ag.setAttribute('position', new THREE.Float32BufferAttribute(P, 3)); ag.setAttribute('normal', new THREE.Float32BufferAttribute(Nn, 3)); ag.setAttribute('color', new THREE.Float32BufferAttribute(Cc, 3)); ag.setIndex(I);
+      const apron = new THREE.Mesh(ag, landMat(true, true)); apron.name = 'land-apron'; g.add(apron);
+    }
   } else {
     const apron = new THREE.RingGeometry(0.5, 90000, 96, 16); // a full disc: the map's own floors sit above it
     const pos = apron.attributes.position, cols: number[] = [];

@@ -2,6 +2,7 @@
 import type { Polygon, Vec2 } from './geometry';
 import type { GridType, HexOrientation } from './grid';
 import type { BookScaleFt, CreatureSize } from './units';
+import { validateRelief, type ReliefData } from './relief';
 
 export const VIS_CLASSES = ['player', 'explored', 'unexplored', 'secret-door', 'trap', 'hidden-creature', 'hidden-object', 'dm-note'] as const;
 export type VisClass = (typeof VIS_CLASSES)[number];
@@ -122,6 +123,8 @@ export interface Level {
   north?: '-z' | '+z' | '-x' | '+x';
   /** Unkeyed ground (lawns, roads, open country): drawn as floor, gridded, never a room. */
   terrain?: { polygon: Polygon; floor: FloorMaterial }[];
+  /** Outdoors: the ground's shape (core/relief.ts). Without it the level is flat at elevationFt. */
+  relief?: ReliefData;
   rooms: Room[];
   walls: Wall[];
   lights: LightSource[];
@@ -204,6 +207,7 @@ export function validateScene(s: SceneFile, g?: GridFile): string[] {
     }
     for (const li of l.lights) { need(!ids.has(li.id), `duplicate id ${li.id}`); ids.add(li.id); need(li.dim >= li.bright, `light ${li.id} dim < bright`); }
     if (g) need(!!g.levels[l.id], `grid.json missing level ${l.id}`);
+    if (l.relief) for (const e of validateRelief(l.relief)) errs.push(`level ${l.id}: ${e}`);
   }
   for (const k of s.links) {
     need(levelIds.has(k.from.level) && levelIds.has(k.to.level), `link ${k.id} references unknown level`);

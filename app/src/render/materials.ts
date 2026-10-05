@@ -2,6 +2,7 @@
 import * as THREE from 'three';
 import { PALETTE } from '../kit/palette';
 import { SURF, surfaceOf, type Surface } from '../kit/surfaces';
+import { GRID_DRAPE_DECL } from './gridGlsl';
 
 /** Uniforms shared by all patched materials; one level is active at a time. */
 export const fogUniforms = {
@@ -196,7 +197,10 @@ function noiseTexture(): THREE.DataTexture {
 /** Set what a material is made of (by default, what its colour is declared as in kit/surfaces). */
 export function setSurface(m: THREE.Material, s: Surface): void { const u = (m.userData.surf ??= { value: 0 }); if (u.value !== SURF[s]) { u.value = SURF[s]; m.needsUpdate = true; } }
 
-/** Patch a built-in material so it samples the coverage map. Idempotent. */
+/** Patch a built-in material so it samples the coverage map. Idempotent.
+ *  Two options are read from `m.userData` when the shader is built: `grid` (the draped grid's uniforms, from
+ *  gridOverlay.drapeGrid: the floor draws the tactical grid itself) and `agl` (the geometry carries `aAGL`, each vertex's
+ *  height above the ground under it, and the low-wall cut clips by that instead of by a level plane). */
 export function patchFog<T extends THREE.Material>(m: T, exempt = false): T {
   if (m.userData.mist) return m;
   m.userData.mist = true;
@@ -209,8 +213,23 @@ export function patchFog<T extends THREE.Material>(m: T, exempt = false): T {
     if (sh.fragmentShader.includes('#include <color_fragment>')) sh.fragmentShader = sh.fragmentShader.replace('#include <color_fragment>', '#include <color_fragment>\n diffuseColor.rgb *= mistSurface(vMistWorld, normalize(vMistN));');
     sh.vertexShader = VERT_DECL + sh.vertexShader.replace('#include <project_vertex>', '#include <project_vertex>\n' + VERT_BODY.replace('MIST_NORMAL', lit ? 'objectNormal' : 'vec3(0.0, 1.0, 0.0)'));
     sh.fragmentShader = `#define SURF ${surfU.value}\n` + FRAG_DECL + sh.fragmentShader.replace('#include <opaque_fragment>', '#include <opaque_fragment>\n gl_FragColor.rgb = mistApply(gl_FragColor.rgb);');
+    if (m.userData.shade) {
+      Object.assign(sh.uniforms, groundShade);
+      sh.fragmentShader = SHADE_DECL + sh.fragmentShader.replace('diffuseColor.rgb *= mistSurface(vMistWorld, normalize(vMistN));', 'diffuseColor.rgb *= mistSurface(vMistWorld, normalize(vMistN)) * reliefShade(normalize(vMistN));');
+    }
+    const grid = m.userData.grid as Record<string, { value: unknown }> | undefined;
+    if (grid) {
+      Object.assign(sh.uniforms, grid);
+      sh.vertexShader = 'varying vec2 vGridP;\n' + sh.vertexShader.replace('#include <project_vertex>', '#include <project_vertex>\n vGridP = transformed.xz;');
+      sh.fragmentShader = sh.fragmentShader.replace('vec3 mistApply(vec3 c) {', GRID_DRAPE_DECL + '\nvec3 mistApply(vec3 c) {').replace('#include <fog_fragment>', '#include <fog_fragment>\n gl_FragColor.rgb = gridApply(gl_FragColor.rgb);');
+    }
+    if (m.userData.agl) {
+      Object.assign(sh.uniforms, { uWallAGL: WALL_AGL });
+      sh.vertexShader = 'attribute float aAGL;\nvarying float vAGL;\n' + sh.vertexShader.replace('#include <project_vertex>', '#include <project_vertex>\n vAGL = aAGL;');
+      sh.fragmentShader = 'varying float vAGL;\nuniform float uWallAGL;\n' + sh.fragmentShader.replace('#include <clipping_planes_fragment>', '#include <clipping_planes_fragment>\n if (vAGL > uWallAGL) discard;');
+    }
   };
-  m.customProgramCacheKey = () => 'mist' + surfU.value;
+  m.customProgramCacheKey = () => 'mist' + surfU.value + (m.userData.grid ? '|grid' : '') + (m.userData.agl ? '|agl' : '') + (m.userData.shade ? '|shade' : '');
   return m;
 }
 
@@ -228,6 +247,31 @@ export function mat(color: string, opts: { emissive?: string; surface?: Surface 
   }
   return m;
 }
+
+/** The ground of a level with relief: smooth-shaded (a C1 surface lit per vertex, the one exception to flat facets on
+ *  the map, as on the land beyond it), the floor's own grain, and the draped grid when `grid` is given. One per floor
+ *  colour per level. */
+export function groundMat(color: string, grid?: Record<string, { value: unknown }>): THREE.MeshLambertMaterial {
+  const m = new THREE.MeshLambertMaterial({ color, flatShading: false });
+  setSurface(m, surfaceOf(color));
+  if (grid) m.userData.grid = grid;
+  m.userData.shade = true;
+  return patchFog(m);
+}
+
+/** The ground's hillshade (levels with relief): a slope that faces the key light is a little lighter, one turned away a
+ *  little darker, as a map shades its relief, so ground falling a few feet in a hundred reads from the table's height,
+ *  where Lambert alone would leave it a board. Tone only (never a new hue); `uShadeDir` follows the sky's key light. */
+export const groundShade = { uShadeDir: { value: new THREE.Vector3(-0.4, 0.8, 0.45).normalize() }, uShadeK: { value: 4 } };
+const SHADE_DECL = `
+uniform vec3 uShadeDir;
+uniform float uShadeK;
+float reliefShade(vec3 n) {
+  vec2 l = uShadeDir.xz; float L = length(l);
+  if (n.y < 0.5 || L < 1e-3) return 1.0;
+  return clamp(1.0 + uShadeK * dot(n.xz / n.y, l / L), 0.75, 1.25);
+}
+`;
 
 /** A private copy of a palette material (e.g. for per-object slider opacity). Same shader program. */
 export function matClone(color: string, exempt = false): THREE.MeshLambertMaterial {
@@ -247,7 +291,10 @@ export function setOpacity(m: THREE.Material, o: number): void {
 
 /** Cutaway plane for walls and doors: everything above `y` is clipped while low walls are on. Real proportions stay. */
 export const WALL_CLIP = new THREE.Plane(new THREE.Vector3(0, -1, 0), 1e6);
-export function setWallCut(y: number | null): void { WALL_CLIP.constant = y === null ? 1e6 : y; }
+/** The same cut for walls that follow the ground (a level with relief): the height above the ground under them. */
+export const WALL_AGL = { value: 1e6 };
+/** Set the cut: `y` absolute (a level plane: stacked sites, flat maps) and `agl` above the local ground (walls on relief). */
+export function setWallCut(y: number | null, agl: number | null = null): void { WALL_CLIP.constant = y === null ? 1e6 : y; WALL_AGL.value = agl === null ? 1e6 : agl; }
 /** Private wall material that honours the cutaway plane. */
 export function wallMat(color: string, opts: { emissive?: string } = {}): THREE.MeshLambertMaterial {
   const m = matClone(color);

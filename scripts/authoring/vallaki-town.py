@@ -354,7 +354,33 @@ for o in objects:
     terrain.append(OrderedDict(polygon=[[round(x, 1), round(z, 1)] for x, z in _frect(q)], floor='dirt'))
 for r in rooms:
     if r.get('floor') == 'cobble' and r['key'] != 'N8': r['floor'] = 'dirt'   # only the square keeps paving; yards are earth
-level = OrderedDict(id='town', name='Vallaki', elevationFt=0, ceilingFt=15, ambient='barovian-overcast', north='-z', terrain=terrain, rooms=rooms, walls=walls, lights=[], objects=objects)
+# Relief (scripts/authoring/relief.py, app/src/core/relief.ts): Vallaki stands on the lake's southern slope. The region's
+# heightfield, read at the town's pin, falls toward Lake Zarovich to the north (and rises to the hills south and east): the
+# town keeps a little over a quarter of that slope (_GAIN), a few tens of feet from the south wall down to the lake gate,
+# with a long low swell inside the palisade. St. Andral's stands on a slight rise, the Vistani camp lies in its hollow
+# outside the west wall, the square is near-level (a plane of 1 % at most) and every street is graded along its run.
+# Outside the palisade the land takes more of the region's slope: the town sits on a gentle bench, the fields climbing
+# south and east toward the hills and falling north to the lake shore.
+from relief import Region, build as build_relief, report as relief_report
+_rb = [p for r in rooms for p in r['polygon']] + [p for t in terrain for p in t['polygon']]
+_centre = ((min(p[0] for p in _rb) + max(p[0] for p in _rb)) / 2, (min(p[1] for p in _rb) + max(p[1] for p in _rb)) / 2)
+_region = Region(os.path.join(ROOT, 'locations', 'ch02', 'barovia-region', 'world.json'), 'N', _centre, '-z')
+_square = next(r['polygon'] for r in rooms if r['key'] == 'N8')
+_flats = [(_square, 220)]
+_ways = [(w, pts) for name, w, pts in streets_ft]
+_bumps = [(marks['N1'][0], marks['N1'][1], 50, 230, 4.0), (marks['N9'][0], marks['N9'][1], 190, 440, -6.0)]
+_GAIN = 0.28
+# the lake road runs down a shallow vale from behind the square to the lake gate: the way the town drains to the water
+_lake_road = next(pts for name, w, pts in streets_ft if name == 'Lake road')
+_vale = [p for p in _lake_road if p[1] < marks['N8'][1] - 150]
+_vales = [(_vale, 260, 0.0, 8.0)]
+relief = build_relief(OrderedDict(rooms=rooms, terrain=terrain), _region, cell=50, gain=_GAIN, gain_out=0.4, out_ft=350, core=wall,
+                      noise=((4.5, 800, 11), (1.5, 340, 23)), bumps=_bumps, vales=_vales, flats=_flats, ways=_ways, flat_slope=0.01,
+                      src=f'vallaki-town.py: barovia-region heightfield x{1.25} at pin N, gain {_GAIN} inside the palisade, 0.4 from 350 ft outside it; undulation 4.5 ft / 800 ft + 1.5 ft / 340 ft; '
+                          'knoll at N1 +4 ft, hollow at N9 -6 ft, a vale down the lake road to the lake gate (to -8 ft); square N8 levelled; '
+                          '8 streets graded (sigma 70 ft, 5 % at most); cell 50 ft; 0 at the pin')
+for k, v in relief_report(relief, _region, core=wall, flats=_flats, ways=_ways).items(): print('relief:', k, '=', v)
+level = OrderedDict(id='town', name='Vallaki', elevationFt=0, ceilingFt=15, ambient='barovian-overcast', north='-z', relief=relief, terrain=terrain, rooms=rooms, walls=walls, lights=[], objects=objects)
 scene = OrderedDict(schema=1, location='N', chapter='ch05', name='The Town of Vallaki', mapPage=97, bookScaleFt=5, ambient='barovian-overcast', placementFt=40, kind='placement', clearingFt=900, levels=[level], links=[], frame='measured-p97-400dpi')
 grid = OrderedDict(schema=1, levels=OrderedDict(town=OrderedDict(floorPolygons=[terrain[0]['polygon']], type='square', hexOrientation='pointy', origin=[0, 0], color='#1d1b22', opacity=0)))
 os.makedirs(OUT, exist_ok=True)

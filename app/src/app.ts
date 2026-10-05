@@ -13,10 +13,11 @@ import { baseRing } from './kit/pieces';
 import { adventurer } from './kit/creatures';
 import { PALETTE } from './kit/palette';
 import { buildLevel, hitObjectId, mergeByMaterial, type BuiltLevel, type LabelSpec } from './render/build';
+import { Relief, type ReliefData } from './core/relief';
 import { gridUniforms } from './render/gridOverlay';
-import { fogUniforms, sectionClip, setOpacity, setWallCut, WALL_CLIP } from './render/materials';
+import { fogUniforms, groundShade, sectionClip, setOpacity, setWallCut, WALL_CLIP } from './render/materials';
 const WALL_CUT_FT = 5;
-import { setGridType } from './render/gridOverlay';
+import { drapeGrid, setGridType } from './render/gridOverlay';
 import { World, type CameraPreset } from './render/world';
 import { loadLocation } from './data';
 import { ICON } from './ui/icons';
@@ -131,7 +132,7 @@ export class App {
   constructor(host: HTMLElement, readonly mode: Mode) {
     this.world = new World(host);
     this.channel = new Channel((m) => this.onMsg(m));
-    this.world.onCamera = () => { this.sendCamera(); this.labelDensity(); this.onCameraUi?.(); };
+    this.world.onCamera = () => { this.seatTarget(); this.sendCamera(); this.labelDensity(); this.onCameraUi?.(); };
     this.onCameraUi = null;
     this.installPointer();
   }
@@ -200,7 +201,7 @@ export class App {
         linkSpots.push([end.pos[0], end.pos[1]]);
         const to = scene.levels.find((x) => x.id === other.level);
         const up = (to?.elevationFt ?? 0) > l.elevationFt;
-        b.labels.push({ id: `link:${k.id}:${end.level}`, text: `${up ? '↑' : '↓'} ${to?.name ?? other.level}`, pos: new THREE.Vector3(end.pos[0], l.elevationFt + 3, end.pos[1]), vis: 'player', kind: 'link', linkId: k.id });
+        b.labels.push({ id: `link:${k.id}:${end.level}`, text: `${up ? '↑' : '↓'} ${to?.name ?? other.level}`, pos: new THREE.Vector3(end.pos[0], b.groundY(end.pos[0], end.pos[1]) + 3, end.pos[1]), vis: 'player', kind: 'link', linkId: k.id });
       }
       for (const spec of b.labels) {
         if (this.mode === 'player' && spec.vis === 'dm-note') continue; // no DM UI on the Player Display
@@ -240,7 +241,13 @@ export class App {
       const area = (poly: Vec2[]) => Math.abs(poly.reduce((a, [x, z], i) => { const [x2, z2] = poly[(i + 1) % poly.length]; return a + x * z2 - x2 * z; }, 0)) / 2;
       const byFloor = new Map<string, number>(); for (const t of l0.terrain ?? []) if (['grass', 'snow', 'marsh', 'dirt', 'shallow-water'].includes(t.floor)) byFloor.set(t.floor, (byFloor.get(t.floor) ?? 0) + area(t.polygon as Vec2[]));
       const ground = [...byFloor.entries()].sort((a, b) => b[1] - a[1])[0]?.[0];
-      this.backdrop = buildBackdrop({ ground: ground === 'shallow-water' || ground === 'dirt' ? undefined : ground, center: [(bb.minX + bb.maxX) / 2, (bb.minZ + bb.maxZ) / 2], radius: Math.hypot(bb.maxX - bb.minX, bb.maxZ - bb.minZ) / 2, elevation: l0.elevationFt, pin: pin!.pos as Vec2, world: worldOf(this.campaign), theme: this.campaign.theme, valley: !!scene.valley, bounds: bb, north: l0.north, roads, crag: pin!.heightFt ?? 0, clearing: scene.clearingFt ?? (scene.parent ? 1100 : undefined) }); // an area map inside a town keeps the town's ground clear
+      // with relief the land beyond carries on from the map's own edge heights, and lies well under its ground
+      const rel = levels.get(l0.id)?.relief, floorBox = grid.levels[l0.id]?.floorPolygons.length ? bounds(grid.levels[l0.id].floorPolygons) : bb;
+      // a base ground that is one plain rectangle covers the land under it completely
+      const solid = (l0.terrain ?? []).filter((t) => ['grass', 'snow', 'marsh'].includes(t.floor) && t.polygon.length === 4).map((t) => ({ t, b: bounds([t.polygon]) }))
+        .filter(({ t, b }) => t.polygon.every(([x, z]) => (x === b.minX || x === b.maxX) && (z === b.minZ || z === b.maxZ))).map(({ b }) => b)
+        .sort((a, b) => (b.maxX - b.minX) * (b.maxZ - b.minZ) - (a.maxX - a.minX) * (a.maxZ - a.minZ))[0];
+      this.backdrop = buildBackdrop({ ground: ground === 'shallow-water' || ground === 'dirt' ? undefined : ground, center: [(bb.minX + bb.maxX) / 2, (bb.minZ + bb.maxZ) / 2], radius: Math.hypot(bb.maxX - bb.minX, bb.maxZ - bb.minZ) / 2, elevation: l0.elevationFt, pin: pin!.pos as Vec2, world: worldOf(this.campaign), theme: this.campaign.theme, valley: !!scene.valley, bounds: bb, north: l0.north, roads, crag: pin!.heightFt ?? 0, clearing: scene.clearingFt ?? (scene.parent ? 1100 : undefined), relief: rel ? { relief: rel, floor: floorBox, grid: drapeGrid(levels.get(l0.id)!.grid), solid } : undefined }); // an area map inside a town keeps the town's ground clear
       this.world.scene.add(this.backdrop);
     }
     // An area map stands in its surroundings: the parent map's streets, houses and trees round it, as scenery.
@@ -300,7 +307,7 @@ export class App {
     const polys = whole ? [...this.stackOf(l.id)].flatMap((id) => this.cur!.scene.levels.find((x) => x.id === id)!.rooms.map((r) => r.polygon)) : l.rooms.map((r) => r.polygon);
     const b = bounds(polys);
     this.world.controls.maxDistance = Math.max(400, Math.hypot(b.maxX - b.minX, b.maxZ - b.minZ) * 2.5);
-    this.world.frame(b, l.elevationFt, preset);
+    this.world.frame(b, this.groundY((b.minX + b.maxX) / 2, (b.minZ + b.maxZ) / 2), preset);
   }
 
   // ------------------------------------------------------------------ tokens
@@ -386,7 +393,7 @@ export class App {
     const cur = this.current;
     if (cur && cur.token.level !== this.levelId) this.setLevel(cur.token.level);
     this.commit();
-    if (cur && this.follow) this.world.moveTo(new THREE.Vector3(cur.token.pos[0], this.level.elevationFt, cur.token.pos[1]), Math.min(this.world.camera.position.distanceTo(this.world.controls.target), 66), true);
+    if (cur && this.follow) this.world.moveTo(new THREE.Vector3(cur.token.pos[0], this.groundY(cur.token.pos[0], cur.token.pos[1]), cur.token.pos[1]), Math.min(this.world.camera.position.distanceTo(this.world.controls.target), 66), true);
   }
   /** Tactical range of a combatant token from where it stands, with the movement it has left. */
   rangeOf(tokenId: string): RangeResult | undefined {
@@ -414,7 +421,7 @@ export class App {
     if (!tok || tok.level !== this.levelId || this.renderMode === 'floorMask' || this.gridMode === 'hex') { this.world.invalidate(); return; }
     const r = this.rangeOf(tok.id); if (!r) return;
     this.rangeFor = r;
-    this.rangeMesh = buildRangeOverlay(r, this.level.elevationFt);
+    this.rangeMesh = buildRangeOverlay(r, this.level.elevationFt, this.built.relief ? (x, z) => this.groundY(x, z) + 0.3 : undefined);
     this.built.root.add(this.rangeMesh);
     this.world.invalidate();
   }
@@ -438,7 +445,7 @@ export class App {
     const b = bounds([hit.room.polygon]);
     // On a placement layer a "room" is one 40-ft square: frame it with its neighbourhood, not its doorstep.
     const pad = this.cur!.scene.placementFt ? this.cur!.scene.placementFt * 1.5 : 0;
-    this.world.frame({ minX: b.minX - pad, minZ: b.minZ - pad, maxX: b.maxX + pad, maxZ: b.maxZ + pad }, hit.level.elevationFt, this.camPreset, true);
+    this.world.frame({ minX: b.minX - pad, minZ: b.minZ - pad, maxX: b.maxX + pad, maxZ: b.maxZ + pad }, this.groundY((b.minX + b.maxX) / 2, (b.minZ + b.maxZ) / 2), this.camPreset, true);
     this.flashKey = hit.room.key;
     this.onChange?.();
     return true;
@@ -450,10 +457,9 @@ export class App {
     const t = this.party;
     if (!t || !this.cur) return;
     if (t.level !== this.levelId) this.setLevel(t.level);
-    const l = this.level;
     // Close working distance: the party's room and its neighbours fill the screen.
     const dist = Math.min(this.world.camera.position.distanceTo(this.world.controls.target), 66); // ~same on-screen size as before at the wider 40° lens
-    this.world.moveTo(new THREE.Vector3(t.pos[0], l.elevationFt, t.pos[1]), dist, animate);
+    this.world.moveTo(new THREE.Vector3(t.pos[0], this.groundY(t.pos[0], t.pos[1]), t.pos[1]), dist, animate);
   }
 
   /** Is this object currently shown to players (class + reveals + coverage)? */
@@ -542,7 +548,7 @@ export class App {
         m.userData.role = 'token';
         m.userData.tokenId = t.id;
       });
-      g.position.set(t.pos[0], this.level.elevationFt, t.pos[1]);
+      g.position.set(t.pos[0], this.groundY(t.pos[0], t.pos[1]), t.pos[1]);
       g.userData.tokenId = t.id;
       b.root.add(g);
       this.cur!.tokens.set(t.id, g);
@@ -642,7 +648,8 @@ export class App {
     const followCut = this.cur.scene.stacked === 'open' ? this.sectionRange!.max : this.level.elevationFt + (this.level.ceilingFt ?? 10) - 0.5;
     const cut = this.cur.scene.stacked ? (this.cutFt ?? followCut) : this.lowWalls ? this.level.elevationFt + WALL_CUT_FT : null;
     this.followCutFt = followCut;
-    setWallCut(cut);
+    // walls that follow the ground (a level with relief) are cut at the same height above the ground under them
+    setWallCut(cut, !this.cur.scene.stacked && this.lowWalls ? WALL_CUT_FT : null);
     // Roofs raised over authored walls (a shop's gable, a tower's cone) go whenever the walls are cut down to a cutaway,
     // and come back with full walls; on stacked sites the section plane slices them instead.
     if (!this.cur.scene.stacked) for (const b2 of this.cur.levels.values()) b2.root.traverse((o) => { if (o.userData.cap) o.visible = !this.lowWalls; });
@@ -810,6 +817,7 @@ export class App {
     if (!this.cur) return;
     const l0 = this.cur.scene.levels.find((l) => l.terrain?.length) ?? this.cur.scene.levels[0];
     this.world.setSky(this.sky, this.openAir(l0) && !!this.backdrop);
+    groundShade.uShadeDir.value.copy(this.world.key.position).normalize(); // relief is shaded from the hour's light
     (this.backdrop?.userData.setMoon as ((p: number, n: boolean, h: number) => void) | undefined)?.(this.sky.phase, this.sky.night, this.clock.hour);
   }
 
@@ -881,9 +889,31 @@ export class App {
   }
   private floorPoint(e: PointerEvent): Vec2 | null {
     this.raycaster.setFromCamera(this.ndc(e), this.world.camera);
+    return this.groundHit(this.raycaster.ray);
+  }
+  /** The ground's height (absolute) at a plan point of the current level: its relief, or its floor plane. */
+  groundY(x: number, z: number): number { return this.cur && this.levelId ? this.built.groundY(x, z) : 0; }
+  /** Where a ray (world frame) first meets the current level's ground: the relief (marched exactly, in the level's own
+   *  frame), else the level's floor plane. Plan feet. */
+  groundHit(ray: THREE.Ray): Vec2 | null {
+    const b = this.built, rel = b.relief;
+    if (rel) {
+      b.root.updateMatrixWorld();
+      const inv = b.root.matrixWorld.clone().invert(), o = ray.origin.clone().applyMatrix4(inv), d = ray.direction.clone().transformDirection(inv);
+      const t = rel.raycast(o.x, o.y - this.level.elevationFt, o.z, d.x, d.y, d.z);
+      return t === null ? null : [o.x + d.x * t, o.z + d.z * t];
+    }
     const p = new THREE.Vector3();
-    const hit = this.raycaster.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0, 1, 0), -this.level.elevationFt), p);
-    return hit ? [p.x, p.z] : null;
+    return ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0, 1, 0), -this.level.elevationFt), p) ? [p.x, p.z] : null;
+  }
+  /** On a level with relief the orbit target rides the ground as the camera pans, so zoom and turn pivot on the ground
+   *  under the eye (never in the air over a hollow or inside a hill), and the camera never dips under it. */
+  private seatTarget(): void {
+    if (!this.cur || !this.levelId || !this.built.relief || this.world.tweening) return;
+    const t = this.world.controls.target, c = this.world.camera.position, dy = this.groundY(t.x, t.z) - t.y;
+    if (Math.abs(dy) > 0.05) { t.y += dy; c.y += dy; }
+    const under = this.groundY(c.x, c.z) + 1.5 - c.y;
+    if (under > 0) c.y += under;
   }
   /** The parent map's surroundings round an area map: what stands within a few hundred feet of the room that opens
    *  this map, moved into this map's frame (offset and north), skipping whatever lies inside this map's own extent.
@@ -908,7 +938,10 @@ export class App {
       const terrain = (pl.terrain ?? []).filter((t) => t.floor !== 'grass').map((t) => ({ ...t, polygon: t.polygon.map(tf) }))
         .filter((t) => { const cx = t.polygon.reduce((a, p) => a + p[0], 0) / t.polygon.length, cz = t.polygon.reduce((a, p) => a + p[1], 0) / t.polygon.length; return near([cx, cz]) && !t.polygon.every((p) => inside(p as [number, number])); });
       terrain.unshift({ polygon: [[bc[0] - R, bc[1] - R], [bc[0] + R, bc[1] - R], [bc[0] + R, bc[1] + R], [bc[0] - R, bc[1] + R]], floor: 'grass' } as (typeof terrain)[number]);
-      const lvl = { id: 'context', name: 'Surroundings', elevationFt: l0.elevationFt - 0.05, ceilingFt: 10, north: l0.north, rooms: [], walls: [], lights: [], objects, terrain } as unknown as Level;
+      // the parent's relief, turned into this map's frame and anchored so its ground at the opening room is this map's
+      // floor; it settles just under this map's own extent, so the surroundings never come up through its floors
+      const relief = pl.relief ? contextRelief(new Relief(pl.relief), pc, bc, th, R, bb) : undefined;
+      const lvl = { id: 'context', name: 'Surroundings', elevationFt: l0.elevationFt - 0.05, ceilingFt: 10, north: l0.north, rooms: [], walls: [], lights: [], objects, terrain, relief } as unknown as Level;
       const built = buildLevel(lvl, { floorPolygons: [], type: 'square', hexOrientation: 'pointy', origin: [0, 0], color: '#000000', opacity: 0 });
       const mist = new THREE.Color(this.world.theme.mist);
       built.root.traverse((o) => {
@@ -927,10 +960,12 @@ export class App {
 
   private pick(e: PointerEvent): THREE.Intersection | undefined {
     this.raycaster.setFromCamera(this.ndc(e), this.world.camera);
-    const cut = this.lowWalls ? this.level.elevationFt + WALL_CUT_FT : Infinity;
+    const cut = this.lowWalls ? this.level.elevationFt + WALL_CUT_FT : Infinity, rel = this.built.relief;
+    // on relief the cut is a height above the ground under the hit
+    const above = (p: THREE.Vector3) => (rel ? p.y - this.groundY(p.x, p.z) + this.level.elevationFt : p.y);
     return this.raycaster.intersectObject(this.built.root, true).find((h) => h.object.visible && (h.object as THREE.Mesh).isMesh && h.object.userData.role !== 'grid' && h.object.userData.role !== 'marker' && isShown(h.object)
       // The cutaway clips walls visually; ignore hits on the clipped-away part.
-      && !((h.object.userData.role === 'wall' || h.object.userData.role === 'door') && h.point.y > cut + 0.01));
+      && !((h.object.userData.role === 'wall' || h.object.userData.role === 'door') && above(h.point) > cut + 0.01));
   }
 
   snap(p: Vec2): Vec2 {
@@ -950,8 +985,13 @@ export class App {
   rulerTo(p: Vec2): void {
     const r = this.ruler; if (!r) return;
     const y = this.level.elevationFt + 0.4, a = r.a;
-    r.line.geometry.setFromPoints([new THREE.Vector3(a[0], y, a[1]), new THREE.Vector3(p[0], y, p[1])]);
-    const ft = this.distanceFt(a, p); r.label.position.set((a[0] + p[0]) / 2, y + 1.5, (a[1] + p[1]) / 2); r.label.element.textContent = `${ft} ft`; r.label.visible = ft > 0;
+    if (this.built.relief) {
+      // over the ground, a point every few feet (the distance read off it stays the plan distance in squares)
+      const n = Math.max(2, Math.min(240, Math.ceil(Math.hypot(p[0] - a[0], p[1] - a[1]) / 4)));
+      r.line.geometry.setFromPoints(Array.from({ length: n + 1 }, (_, i) => { const x = a[0] + ((p[0] - a[0]) * i) / n, z = a[1] + ((p[1] - a[1]) * i) / n; return new THREE.Vector3(x, this.groundY(x, z) + 0.6, z); }));
+    } else r.line.geometry.setFromPoints([new THREE.Vector3(a[0], y, a[1]), new THREE.Vector3(p[0], y, p[1])]);
+    const mx = (a[0] + p[0]) / 2, mz = (a[1] + p[1]) / 2;
+    const ft = this.distanceFt(a, p); r.label.position.set(mx, (this.built.relief ? this.groundY(mx, mz) + 0.6 : y) + 1.5, mz); r.label.element.textContent = `${ft} ft`; r.label.visible = ft > 0;
     this.world.invalidate();
   }
   clearRuler(): void { if (!this.ruler) return; this.ruler.line.removeFromParent(); this.ruler.line.geometry.dispose(); this.ruler.label.element.remove(); this.ruler.label.removeFromParent(); this.ruler = undefined; this.world.invalidate(); }
@@ -1023,6 +1063,7 @@ export class App {
     if (t && obj) {
       const r = baseRingFt(t.size) * 0.31 + 0.6; ring.scale.setScalar(r); ghost.scale.setScalar(r);
       obj.add(ring);
+      this.seatRing(ring, t.pos[0], t.pos[1], 0.12, true);
       this.setStatus(this.restricted ? 'Tap where the party goes' : 'Tap where it goes · tap the token again to cancel');
     } else this.setStatus('');
     if (!this.encounter) this.refreshRange();
@@ -1058,6 +1099,7 @@ export class App {
     const y = this.cur ? this.level.elevationFt : 0, plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -y), ray = new THREE.Raycaster();
     return ([[-1, 1], [1, 1], [1, -1], [-1, -1]] as [number, number][]).map(([x, yy]) => {
       ray.setFromCamera(new THREE.Vector2(x, yy), this.world.camera); const hit = new THREE.Vector3();
+      if (this.cur && this.built.relief) return this.groundHit(ray.ray);
       return ray.ray.intersectPlane(plane, hit) ? [hit.x, hit.z] as Vec2 : null;
     });
   }
@@ -1065,6 +1107,15 @@ export class App {
   lookAt(p: Vec2): void { const t = this.world.controls.target; this.world.moveTo(new THREE.Vector3(p[0], t.y, p[1]), undefined, true); }
   /** Called before a location closes, so menus, cards and tooltips can go too. */
   onLeave?: () => void;
+  /** A ring on the ground: on relief it lies on the slope (tilted to the ground's normal, lifted over the paving); on a
+   *  flat level it stays where it was put. `child`: the ring hangs from a token already standing on the ground. */
+  private seatRing(m: THREE.Mesh, x: number, z: number, flat: number, child: boolean): void {
+    const rel = this.cur ? this.built.relief : undefined;
+    if (!rel) { m.quaternion.identity(); m.position.y = child ? flat : this.level.elevationFt + flat; return; }
+    const [nx, ny, nz] = rel.normal(x, z);
+    m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), new THREE.Vector3(nx, ny, nz));
+    m.position.y = (child ? 0 : this.groundY(x, z)) + 0.32;
+  }
   private makeRing(color: string, opacity: number): THREE.Mesh {
     const m = new THREE.Mesh(new THREE.RingGeometry(0.86, 1, 48).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color, transparent: true, opacity, depthWrite: false }));
     m.position.y = 0.12; m.renderOrder = 5; m.userData.role = 'marker';
@@ -1081,6 +1132,7 @@ export class App {
     const ok = this.canWalkTo(t.pos, s);
     if (!g.parent) this.world.scene.add(g);
     g.visible = true; g.position.set(s[0], this.level.elevationFt + 0.12, s[1]);
+    this.seatRing(g, s[0], s[1], 0.12, false);
     (g.material as THREE.MeshBasicMaterial).color.set(ok ? PALETTE.amber : '#c0392b');
     this.setStatus(ok ? `${this.distanceFt(t.pos, s)} ft` : 'No way through');
     this.world.invalidate();
@@ -1100,7 +1152,7 @@ export class App {
       else this.flashStatus('Placed by the DM: no movement spent');
     } else if (!this.canWalkTo(t.pos, to)) { this.flashStatus('No way through: walls block the party. Open a door first.'); return false; }
     t.pos = to;
-    this.cur!.tokens.get(id)?.position.set(to[0], this.level.elevationFt, to[1]);
+    this.cur!.tokens.get(id)?.position.set(to[0], this.groundY(to[0], to[1]), to[1]);
     if (id === this.party?.id) this.afterPartyMove();
     else if (this.encounter) this.afterMemberMove(t);
     else if (this.rangeHelper) this.refreshRange();
@@ -1325,6 +1377,27 @@ export class App {
     }
     this.world.invalidate();
   }
+}
+
+/** A parent map's relief seen from one of its blowouts (an area map drawn inside its parent): sampled on a grid round
+ *  the blowout in the blowout's own frame (the parent's plan turned by `th` about the opening room's centroid `pc`, which
+ *  lands on the blowout's centre `bc`), less the parent's ground at `pc` so the blowout's floor meets it, and pressed just
+ *  under the blowout's floor over its own extent `bb`, blending back to the parent's ground within forty feet. */
+function contextRelief(parent: Relief, pc: Vec2, bc: Vec2, th: number, R: number, bb: { minX: number; minZ: number; maxX: number; maxZ: number }): ReliefData {
+  const cell = parent.cell, n = Math.ceil((2 * R) / cell) + 1, x0 = bc[0] - R, z0 = bc[1] - R, c = Math.cos(th), s = Math.sin(th), h0 = parent.natural(pc[0], pc[1]);
+  const smooth = (a: number, b: number, t: number) => { const k = Math.min(1, Math.max(0, (t - a) / (b - a))); return k * k * (3 - 2 * k); };
+  const h: string[] = [];
+  for (let r = 0; r < n; r++) {
+    const row: number[] = [];
+    for (let k = 0; k < n; k++) {
+      const X = x0 + k * cell, Z = z0 + r * cell, dx = X - bc[0], dz = Z - bc[1];
+      const g = parent.natural(pc[0] + dx * c + dz * s, pc[1] - dx * s + dz * c) - h0;
+      const out = Math.max(0, bb.minX - X, X - bb.maxX, bb.minZ - Z, Z - bb.maxZ), w = smooth(8, 48, out);
+      row.push(Math.round((-0.3 + (g + 0.3) * w) * 10));
+    }
+    h.push(row.join(' '));
+  }
+  return { v: 1, origin: [x0, z0], cell, cols: n, rows: n, h, src: 'the parent map\'s relief round this blowout' };
 }
 
 function findUp(o: THREE.Object3D | null, key: string): string | undefined {

@@ -6,11 +6,11 @@ import { CELL_FT } from '../core/units';
 
 const COLORS = { move: '#3fbf6f', strike: '#d9453b', ranged: '#c96a5a' } as const;
 
-function quads(cells: [number, number][], y: number, inset: number): THREE.BufferGeometry {
+function quads(cells: [number, number][], y: number, inset: number, ground?: (x: number, z: number) => number): THREE.BufferGeometry {
   const pos: number[] = [], idx: number[] = [];
-  const h = CELL_FT / 2 - inset;
+  const h = CELL_FT / 2 - inset, Y = ground ?? (() => y);
   cells.forEach(([x, z], n) => {
-    pos.push(x - h, y, z - h, x + h, y, z - h, x + h, y, z + h, x - h, y, z + h);
+    pos.push(x - h, Y(x - h, z - h), z - h, x + h, Y(x + h, z - h), z - h, x + h, Y(x + h, z + h), z + h, x - h, Y(x - h, z + h), z + h);
     const b = n * 4; idx.push(b, b + 2, b + 1, b, b + 3, b + 2);
   });
   const g = new THREE.BufferGeometry();
@@ -19,13 +19,14 @@ function quads(cells: [number, number][], y: number, inset: number): THREE.Buffe
   return g;
 }
 
-export function buildRangeOverlay(r: RangeResult, elevationFt: number): THREE.Group {
+/** `ground`: on a level with relief, the overlay's height at a plan point (each square's corners lie on the ground). */
+export function buildRangeOverlay(r: RangeResult, elevationFt: number, ground?: (x: number, z: number) => number): THREE.Group {
   const g = new THREE.Group();
   g.name = 'range-overlay';
   const y = elevationFt + 0.07;
   const layer = (cells: [number, number][], color: string, opacity: number, order: number) => {
     if (!cells.length) return;
-    const m = new THREE.Mesh(quads(cells, y, 0.35), new THREE.MeshBasicMaterial({ color, transparent: true, opacity, depthWrite: false, fog: false }));
+    const m = new THREE.Mesh(quads(cells, y, 0.35, ground), new THREE.MeshBasicMaterial({ color, transparent: true, opacity, depthWrite: false, fog: false }));
     m.renderOrder = order; m.userData.role = 'marker';
     g.add(m);
   };

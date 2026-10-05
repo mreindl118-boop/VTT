@@ -134,6 +134,8 @@ export class World {
     this.invalidate();
   }
   invalidate(): void { this.dirty = true; }
+  /** A camera glide is in flight (its end points are fixed: nothing should nudge the target meanwhile). */
+  get tweening(): boolean { return !!this.tween; }
 
   renderNow(): void {
     this.renderer.render(this.scene, this.camera);

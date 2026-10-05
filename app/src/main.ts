@@ -42,7 +42,8 @@ const ready = app.init(builtPaths.has(path) ? path : 'appB/death-house');
   labels: () => app.cur!.labels.filter((l) => l.level === app.levelId).map((l) => ({ id: l.spec.id, vis: l.spec.vis, opacity: Number(l.obj.element.style.opacity), visible: l.obj.visible })),
   targets: () => app.built.targets.map((t) => ({ id: t.id, vis: t.vis, visible: t.root.visible, opacity: t.materials[0]?.opacity ?? 1 })),
   flush: () => app.flush(),
-  screenOf: (x: number, z: number, y = 0) => { const v = new THREE.Vector3(x, app.level.elevationFt + y, z).project(app.world.camera); const r = app.world.renderer.domElement.getBoundingClientRect(); return [r.left + (v.x + 1) / 2 * r.width, r.top + (1 - v.y) / 2 * r.height]; },
+  groundAt: (x: number, z: number) => app.groundY(x, z),
+  screenOf: (x: number, z: number, y = 0) => { const v = new THREE.Vector3(x, app.groundY(x, z) + y, z).project(app.world.camera); const r = app.world.renderer.domElement.getBoundingClientRect(); return [r.left + (v.x + 1) / 2 * r.width, r.top + (1 - v.y) / 2 * r.height]; },
   partyPos: () => app.party?.pos,
     moveParty: (level: string, x: number, z: number) => { const t = app.party; if (t) { t.level = level; t.pos = [x, z]; } app.setLevel(level); app.world.renderNow(); },
 };

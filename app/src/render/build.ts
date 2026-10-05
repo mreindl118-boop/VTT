@@ -2,15 +2,17 @@
 import * as THREE from 'three';
 import { OPENABLE_KINDS, type GridLevel, type Level, type SceneObject, type VisClass, type Wall } from '../core/schema';
 import { makeOpenable, type OpenHandle } from './openable';
-import type { Polygon } from '../core/geometry';
+import { bounds, type Polygon } from '../core/geometry';
 import { baseRingFt, DEFAULT_CEILING_FT } from '../core/units';
 import { FLOOR_COLOR, PALETTE, WALL_COLOR } from '../kit/palette';
 import { baseRing, merge, pawn, PROP_BUILDERS, segmentBox, slabGeometry, stairsStraight, WALL_T } from '../kit/pieces';
-import { mat, matClone, patchFog, wallMat } from './materials';
+import { groundMat, mat, matClone, patchFog, wallMat } from './materials';
 import { PROPS_V1 } from '../kit/props';
 import { CREATURES } from '../kit/creatures';
 import '../kit/sites';
-import { buildGridOverlay } from './gridOverlay';
+import { buildDrapedGrid, buildGridOverlay, drapeGrid } from './gridOverlay';
+import { DRAPE_KINDS, padFootprint, Relief } from '../core/relief';
+import { aglAttribute, DRAPE_LIFT, DrapeBuilder, drapeGeometry } from './terrainMesh';
 
 /** Kinds whose meshes carry a role of their own (stairs, raised ground, plates): built and placed one by one. */
 const UNMERGED = new Set(['stairs-straight', 'prism', 'pressure-plate']);
@@ -78,7 +80,14 @@ export interface BuiltLevel {
   doors: Map<string, THREE.Object3D>;
   /** Containers that open (chests, wardrobes, coffins, drawers), by object id. */
   openables: Map<string, OpenHandle>;
+  /** The level's relief, if it has one (outdoors): what the ground is at any plan point. */
+  relief?: Relief;
+  /** The ground's height (absolute, feet) at a plan point of this level: its relief, or its elevation when flat. */
+  groundY: (x: number, z: number) => number;
 }
+
+/** Trees and rocks sink a little into the ground they stand on (roots, a bedded stone). */
+const ROOTED = new Set(['pine', 'oak', 'stump', 'dead-tree', 'bush', 'boulder', 'black-boulder', 'menhir', 'standing-stone', 'gravestone']);
 
 function centroid(p: Polygon): [number, number] {
   let x = 0, z = 0;
@@ -105,6 +114,24 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
   const root = new THREE.Group();
   root.name = `level:${level.id}`;
   const y0 = level.elevationFt;
+  // Relief (core/relief.ts): the ground everything below stands on. Buildings get their pads first, so whatever stands
+  // inside a footprint stands on the building's level floor. Without relief the ground is the level's plane (G = 0).
+  const relief = level.relief ? new Relief(level.relief) : undefined;
+  if (relief) for (const o of level.objects) { const fp = padFootprint(o); if (fp) relief.addPad(o.id, fp.x, fp.z, fp.w, fp.d, fp.rot); }
+  const G = (x: number, z: number) => (relief ? relief.at(x, z) : 0);
+  /** Where a thing with a footprint stands: the lowest ground under its corners (nothing floats; the uphill side beds in). */
+  const standOn = (o: SceneObject): number => {
+    if (!relief) return 0;
+    const [x, z] = [o.pos[0], o.pos[2]], pad = relief.padOf(o.id);
+    if (pad) return pad.y;
+    if (o.size || CREATURES[o.kind]) return G(x, z);
+    if (ROOTED.has(o.kind)) return G(x, z) - 0.3;
+    if (DRAPE_KINDS.has(o.kind)) return G(x, z);
+    const d = o.dims ?? {}, hw = (d.w ?? (d.r ? d.r : d.len ? d.len : 2)) / 2, hd = (d.d ?? (d.r ? d.r : 2)) / 2, a = ((o.rotY ?? 0) * Math.PI) / 180, c = Math.cos(a), s = Math.sin(a);
+    let lo = G(x, z);
+    for (const [u, v] of [[-hw, -hd], [hw, -hd], [hw, hd], [-hw, hd]]) lo = Math.min(lo, G(x + u * c + v * s, z - u * s + v * c));
+    return lo;
+  };
   // Walls stop a hair under the ceiling so their tops sit inside the slab of the floor above on a stacked site.
   const ceiling = (level.ceilingFt ?? DEFAULT_CEILING_FT) - 0.1;
   const labels: LabelSpec[] = [];
@@ -117,6 +144,31 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
 
   // Floors: one merged mesh per floor material.
   const floors: THREE.Mesh[] = [];
+  // The grid: an overlay plane over a flat level; on a level with relief the floors draw it themselves (draped).
+  const gridMesh = relief ? buildDrapedGrid(grid) : buildGridOverlay(grid, y0, !!level.terrain?.length || level.elevationFt <= 0);
+  const BASE = (f: string) => f === 'grass' || f === 'snow' || f === 'marsh';
+  if (relief) {
+    // the ground: every floor polygon draped on the relief, one smooth-shaded mesh per floor material
+    const byFloor = new Map<string, DrapeBuilder>();
+    const B = (f: string) => { let b = byFloor.get(f); if (!b) { b = new DrapeBuilder(relief, y0); byFloor.set(f, b); } return b; };
+    for (const r of level.rooms) {
+      B(r.floor).polygon(r.polygon, DRAPE_LIFT.room, 0);
+      const [cx, cz] = centroid(r.polygon);
+      labels.push({ id: `key:${r.key}`, text: r.key, sub: r.name, page: r.page, pos: new THREE.Vector3(cx, y0 + G(cx, cz) + 0.5, cz), vis: 'dm-note', kind: 'key' });
+    }
+    // the base ground hangs a deep skirt at its rim (the land beyond lies a little under it); a street or a yard needs
+    // one only where it runs out past that ground (a road leaving the map), else it lies on the grass, seamless
+    const baseBox = bounds((level.terrain ?? []).filter((t) => BASE(t.floor)).map((t) => t.polygon));
+    const within = (poly: Polygon) => poly.every(([x, z]) => x > baseBox.minX && x < baseBox.maxX && z > baseBox.minZ && z < baseBox.maxZ);
+    for (const t of level.terrain ?? []) B(t.floor).polygon(t.polygon, BASE(t.floor) ? DRAPE_LIFT.ground : t.floor === 'dirt' ? DRAPE_LIFT.earth : DRAPE_LIFT.paved, BASE(t.floor) ? 4 : within(t.polygon) ? 0 : 1);
+    for (const [f, b] of byFloor) {
+      const m = new THREE.Mesh(b.geometry(), groundMat(FLOOR_COLOR[f as keyof typeof FLOOR_COLOR], drapeGrid(gridMesh)));
+      m.userData.role = 'floor'; m.userData.ground = true;
+      m.name = `floor:${f}`;
+      floors.push(m);
+      root.add(m);
+    }
+  } else {
   const byFloor = new Map<string, THREE.BufferGeometry[]>();
   for (const r of level.rooms) {
     const arr = byFloor.get(r.floor) ?? [];
@@ -138,6 +190,16 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
     floors.push(m);
     root.add(m);
   }
+  }
+  /** On relief, walls, doors and their frames follow the ground along their run and are cut by their height above it. */
+  const onGround = (mesh: THREE.Mesh): THREE.Mesh => {
+    if (!relief) return mesh;
+    drapeGeometry(mesh.geometry, G, y0);
+    aglAttribute(mesh.geometry, G, y0);
+    const ms = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+    for (const mm of ms) { mm.userData.agl = true; mm.clippingPlanes = null; }
+    return mesh;
+  };
 
   // Walls: merged per material; doors, windows and secret doors are their own pieces.
   const wallsGroup = new THREE.Group();
@@ -170,7 +232,7 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
     if (f.has('door')) {
       pushWall(color, segmentBox(w.a, w.b, y0 + doorTop, y0 + h));
       const slab = new THREE.Mesh(segmentBox(w.a, w.b, y0, y0 + doorTop, 0.5, false), wallMat(f.has('locked') ? PALETTE.iron : '#9a6a3a'));
-      if (f.has('locked')) { const band = new THREE.Mesh(segmentBox(w.a, w.b, y0 + 3, y0 + 3.6, 0.6, false), wallMat(PALETTE.wine)); band.userData.role = 'door'; band.userData.wallId = w.id; wallsGroup.add(band); }
+      if (f.has('locked')) { const band = new THREE.Mesh(segmentBox(w.a, w.b, y0 + 3, y0 + 3.6, 0.6, false), wallMat(PALETTE.wine)); band.userData.role = 'door'; band.userData.wallId = w.id; onGround(band); wallsGroup.add(band); }
       // the door's frame (jambs and lintel) stays with the wall; iron straps and a ring ride on the leaf
       { const L = Math.hypot(w.b[0] - w.a[0], w.b[1] - w.a[1]) || 1, ux = (w.b[0] - w.a[0]) / L, uz = (w.b[1] - w.a[1]) / L;
         if (L > 1.5) for (const [p, q] of [[w.a, [w.a[0] + ux * 0.45, w.a[1] + uz * 0.45]], [[w.b[0] - ux * 0.45, w.b[1] - uz * 0.45], w.b]] as const) pushWall(FRAME, segmentBox(p as [number, number], q as [number, number], y0, y0 + doorTop, WALL_T + 0.35, false));
@@ -179,9 +241,10 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
       slab.userData.role = 'door';
       slab.userData.wallId = w.id;
       slab.visible = !w.open;
+      if (relief) { onGround(slab); for (const c of slab.children) onGround(c as THREE.Mesh); }
       doors.set(w.id, slab);
       wallsGroup.add(slab);
-      labels.push({ id: `door:${w.id}`, text: f.has('locked') ? 'locked' : 'door', pos: new THREE.Vector3((w.a[0] + w.b[0]) / 2, y0 + doorTop + 0.5, (w.a[1] + w.b[1]) / 2), vis: 'player', kind: 'door', wallId: w.id });
+      labels.push({ id: `door:${w.id}`, text: f.has('locked') ? 'locked' : 'door', pos: new THREE.Vector3((w.a[0] + w.b[0]) / 2, y0 + G((w.a[0] + w.b[0]) / 2, (w.a[1] + w.b[1]) / 2) + doorTop + 0.5, (w.a[1] + w.b[1]) / 2), vis: 'player', kind: 'door', wallId: w.id });
       continue;
     }
     if (f.has('invisible') || f.has('ethereal')) continue;
@@ -192,19 +255,19 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
   if (panes.length) {
     const pane = new THREE.Mesh(merge(panes), wallMat(PALETTE.stone, { emissive: '#1b2530' }));
     pane.userData.role = 'wall'; pane.userData.window = true;
-    wallsGroup.add(pane);
+    wallsGroup.add(onGround(pane));
   }
   for (const [color, gs] of byWallMat) {
     const m = new THREE.Mesh(merge(gs), wallMat(color));
     m.userData.role = 'wall';
-    wallsGroup.add(m);
+    wallsGroup.add(onGround(m));
   }
   root.add(wallsGroup);
 
   // Objects.
   const wallById = new Map(level.walls.map((w) => [w.id, w]));
   for (const o of level.objects) {
-    const p = new THREE.Vector3(o.pos[0], y0 + o.pos[1], o.pos[2]);
+    const p = new THREE.Vector3(o.pos[0], y0 + o.pos[1] + standOn(o), o.pos[2]);
     if (o.vis === 'secret-door') {
       const w = wallById.get(o.wall!)!;
       const h = w.heightFt ?? ceiling;
@@ -213,6 +276,7 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
       const panel = new THREE.Mesh(geo, wallMat(color));
       panel.userData.role = 'wall';
       panel.userData.secretDoor = o.id;
+      onGround(panel);
       wallsGroup.add(panel);
       const asWall = new THREE.Mesh(geo, wallMat(color));
       asWall.userData.role = 'wall';
@@ -221,12 +285,14 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
       secretAsWall.push(asWall);
       const door = new THREE.Mesh(segmentBox(w.a, w.b, y0, y0 + doorTop, WALL_T + 0.3, false), wallMat(PALETTE.wood));
       door.userData.role = 'door';
+      onGround(door);
       wallsGroup.add(door);
       const marker = new THREE.Mesh(segmentBox(w.a, w.b, y0 + h, y0 + h + 0.3, WALL_T + 0.6, false), new THREE.MeshBasicMaterial({ color: PALETTE.violet, transparent: true, opacity: 0 }));
       marker.userData.role = 'marker';
+      if (relief) drapeGeometry(marker.geometry, G, -Infinity);
       wallsGroup.add(marker);
       secretDoors.push({ objectId: o.id, wallId: w.id, panel, door, doorMaterials: [door.material as THREE.Material], marker });
-      labels.push({ id: `obj:${o.id}`, text: o.label ?? 'Secret door', pos: new THREE.Vector3(p.x, y0 + h + 1.5, p.z), vis: 'dm-note', kind: 'object', objectId: o.id });
+      labels.push({ id: `obj:${o.id}`, text: o.label ?? 'Secret door', pos: new THREE.Vector3(p.x, y0 + G(p.x, p.z) + h + 1.5, p.z), vis: 'dm-note', kind: 'object', objectId: o.id });
       continue;
     }
     if (o.kind === 'note' || o.kind === 'spawn') {
@@ -234,6 +300,9 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
       continue;
     }
     const obj = buildObject(o, y0, labels);
+    // A building on a slope: its plinth carries on down to the lowest ground round it (the foundation shows downhill).
+    const pad = relief?.padOf(o.id);
+    if (pad && pad.drop > 0.05) foundation(obj, pad.drop);
     const ROOF = ROOF_KINDS.has(o.kind);
     // A roof piece raised on top of authored walls (a cap): it goes when the walls are cut down, or it floats.
     const CAP = (o.kind === 'roof-gable' || o.kind === 'roof-cone' || o.kind === 'onion-dome' || o.kind === 'mill-sails' || o.kind === 'chimney') && (o.dims?.y ?? 10) >= 6;
@@ -242,7 +311,7 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
     if (openMode && o.kind !== 'claw-chest-skeleton') openables.set(o.id, makeOpenable(obj, openMode, !!o.container?.open));
     if (isStatic(o)) { scatter.push({ obj, o, p }); continue; }
     obj.position.copy(p);
-    if (o.kind === 'stairs-straight' || (o.kind === 'prism' && o.polygon)) obj.position.set(0, y0, 0);
+    if (o.kind === 'stairs-straight' || (o.kind === 'prism' && o.polygon)) obj.position.set(0, y0 + standOn(o), 0);
     obj.rotation.y = ((o.rotY ?? 0) * Math.PI) / 180;
     obj.userData.objectId = o.id;
     obj.traverse((c) => { if (!c.userData.role) c.userData.role = o.size ? 'token' : 'prop'; });
@@ -273,6 +342,8 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
         let e = byMat.get(key);
         if (!e) { e = { material, role, cap, b: { gs: [], ranges: [], faces: 0 } }; byMat.set(key, e); }
         const g = m.geometry.clone().applyMatrix4(m.matrixWorld);
+        // a fence or a palisade follows the ground along its run: each vertex rides the ground under it, plumb
+        if (relief && DRAPE_KINDS.has(o.kind)) { const g0 = G(o.pos[0], o.pos[2]); drapeGeometry(g, (x, z) => G(x, z) - g0, p.y, 0.4); }
         const n = (g.index ? g.index.count : g.attributes.position.count) / 3;
         const last = e.b.ranges[e.b.ranges.length - 1];
         if (last && last.id === o.id && last.end === e.b.faces) last.end += n; else e.b.ranges.push({ start: e.b.faces, end: e.b.faces + n, id: o.id });
@@ -294,7 +365,8 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
   const lightRings: THREE.LineLoop[] = [];
   for (const l of level.lights) {
     const pl = new THREE.PointLight(PALETTE.amber, Math.max(40, l.bright * l.bright * 0.9), l.dim * 1.1, 1.6);
-    pl.position.set(l.pos[0], y0 + l.pos[1], l.pos[2]);
+    const gl0 = G(l.pos[0], l.pos[2]);
+    pl.position.set(l.pos[0], y0 + gl0 + l.pos[1], l.pos[2]);
     root.add(pl);
     lights.push(pl);
     const flame = new THREE.Mesh(new THREE.OctahedronGeometry(0.35, 0), patchFog(new THREE.MeshBasicMaterial({ color: PALETTE.amber })));
@@ -302,9 +374,9 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
     flame.userData.role = 'prop';
     root.add(flame);
     for (const [r, op] of [[l.bright, 0.9], [l.dim, 0.5]] as const) {
-      const pts = Array.from({ length: 64 }, (_, i) => new THREE.Vector3(Math.cos((i / 64) * Math.PI * 2) * r, 0, Math.sin((i / 64) * Math.PI * 2) * r));
+      const pts = Array.from({ length: 64 }, (_, i) => { const x = Math.cos((i / 64) * Math.PI * 2) * r, z = Math.sin((i / 64) * Math.PI * 2) * r; return new THREE.Vector3(x, G(l.pos[0] + x, l.pos[2] + z) - gl0, z); });
       const ring = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(pts), new THREE.LineBasicMaterial({ color: PALETTE.amber, transparent: true, opacity: 0, depthWrite: false }));
-      ring.position.set(l.pos[0], y0 + 0.1, l.pos[2]);
+      ring.position.set(l.pos[0], y0 + gl0 + 0.1, l.pos[2]);
       ring.userData.baseOpacity = op;
       ring.userData.role = 'marker';
       root.add(ring);
@@ -312,10 +384,31 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
     }
   }
 
-  const gridMesh = buildGridOverlay(grid, y0, !!level.terrain?.length || level.elevationFt <= 0);
   root.add(gridMesh);
 
-  return { level, root, grid: gridMesh, floors, targets, secretDoors, labels, lights, lightRings, secretAsWall, wallsGroup, doors, openables };
+  return { level, root, grid: gridMesh, floors, targets, secretDoors, labels, lights, lightRings, secretAsWall, wallsGroup, doors, openables, relief, groundY: (x: number, z: number) => y0 + G(x, z) };
+}
+
+/** Carry a building's plinth down `drop` feet (plus a little into the ground): a box under its lowest course, the same
+ *  stone, so on a slope the downhill side stands on a visible foundation and the uphill side beds into the ground. */
+function foundation(obj: THREE.Object3D, drop: number): void {
+  obj.updateMatrixWorld(true);
+  const inv = obj.matrixWorld.clone().invert(), local = new THREE.Matrix4();
+  let low: THREE.Mesh | undefined, lowY = Infinity;
+  const box = new THREE.Box3(), foot = new THREE.Box3();
+  obj.traverse((c) => {
+    const m = c as THREE.Mesh; if (!m.isMesh) return;
+    if (!m.geometry.boundingBox) m.geometry.computeBoundingBox();
+    box.copy(m.geometry.boundingBox!).applyMatrix4(local.multiplyMatrices(inv, m.matrixWorld));
+    if (box.min.y < 1.6) foot.union(new THREE.Box3(new THREE.Vector3(box.min.x, 0, box.min.z), new THREE.Vector3(box.max.x, 0, box.max.z)));
+    if (box.min.y < lowY - 1e-3) { lowY = box.min.y; low = m; }
+  });
+  if (!low || foot.isEmpty()) return;
+  const h = drop + 0.6, w = foot.max.x - foot.min.x, d = foot.max.z - foot.min.z;
+  const f = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), low.material as THREE.Material);
+  f.position.set((foot.min.x + foot.max.x) / 2, -h / 2 + 0.05, (foot.min.z + foot.max.z) / 2);
+  f.name = 'foundation';
+  obj.add(f);
 }
 
 function buildObject(o: SceneObject, y0: number, labels: LabelSpec[]): THREE.Object3D {
