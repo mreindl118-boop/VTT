@@ -11,7 +11,7 @@ CROP = (184, 164)  # the houses were measured on a crop of the page: its origin 
 def ft(px, py): return [round((px * S - CROP[0] - OX) / PX, 1), round((py * S - CROP[1] - OY) / PX, 1)]
 # street centrelines (px on the displayed page), width in ft
 STREETS = [
-    ('Main street', 20, [(185, 1012), (300, 1000), (440, 998), (560, 1000), (650, 990), (760, 998), (900, 1008), (1040, 1010), (1180, 1010), (1260, 1030)]),
+    ('Main street', 20, [(300, 1000), (440, 998), (560, 1000), (650, 990), (760, 998), (900, 1008), (1040, 1010), (1180, 1010)]),
     ('Church street', 16, [(455, 680), (500, 720), (560, 770), (620, 820), (680, 880), (700, 940), (700, 1000)]),
     ('North loop', 16, [(770, 998), (790, 900), (830, 810), (890, 730), (960, 680), (1050, 650), (1130, 660), (1200, 720), (1210, 800), (1180, 880), (1120, 950), (1070, 1010)]),
     ('West lane', 14, [(700, 1000), (690, 1080), (640, 1120), (600, 1200), (590, 1300), (600, 1400), (650, 1460), (690, 1500)]),
@@ -19,7 +19,15 @@ STREETS = [
     ('East lane', 14, [(1050, 1010), (1060, 1120), (1050, 1240), (1000, 1330), (930, 1400), (880, 1460), (820, 1480)]),
     ('Cross lane', 12, [(600, 1250), (800, 1255), (1000, 1250)]),
     ('North road', 16, [(1200, 720), (1210, 600), (1230, 500), (1240, 440)]),
-    ('Cemetery path', 10, [(455, 650), (420, 600), (380, 560), (340, 500)]),
+    ('Cemetery path', 8, [(455, 650), (420, 600), (380, 560), (340, 500)], 'dirt'),  # the cobbles end at the church
+]
+# Beyond the last house the street is the Old Svalich Road again: packed earth. The region's road runs east-west about
+# 0.4 mi south of the village (world.json), so from the east end of the main street it bends south and leaves the map
+# by its south edge, where the backdrop joins it to the world road; the west end fades into a cart track to the fields.
+# (plan feet, the measured frame)
+ROADS_FT = [
+    ('Old Svalich Road', 16, [(487.5, 417.4), (528.9, 427.8), (556, 462), (574, 540), (582, 650), (586, 806)], 'dirt'),
+    ('Cart track west', 10, [(32.0, 412.2), (-27.5, 418.4), (-80, 428)], 'dirt'),
 ]
 
 def strip(pts, w):
@@ -39,10 +47,12 @@ def strip(pts, w):
 scene = json.load(open('locations/ch03/E/scene.json'), object_pairs_hook=OrderedDict)
 grid = json.load(open('locations/ch03/E/grid.json'), object_pairs_hook=OrderedDict)
 lv = scene['levels'][0]
-grass = [t for t in lv['terrain'] if t['floor'] != 'cobble']
+grass = [t for t in lv['terrain'] if t['floor'] not in ('cobble', 'dirt')]
 roads = []
-for name, w, pts in STREETS:
-    for poly in strip([ft(*p) for p in pts], w): roads.append(OrderedDict(polygon=poly, floor='cobble'))
+for name, w, pts, *fl in STREETS:
+    for poly in strip([ft(*p) for p in pts], w): roads.append(OrderedDict(polygon=poly, floor=fl[0] if fl else 'cobble'))
+for name, w, pts, fl in ROADS_FT:
+    for poly in strip([list(p) for p in pts], w): roads.append(OrderedDict(polygon=poly, floor=fl))
 lv['terrain'] = grass + roads
 import os, sys; sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from settle import settle
@@ -51,4 +61,4 @@ gl = grid['levels']['village']
 gl['floorPolygons'] = [t['polygon'] for t in grass]
 json.dump(scene, open('locations/ch03/E/scene.json', 'w'), indent=1)
 json.dump(grid, open('locations/ch03/E/grid.json', 'w'), indent=1)
-print('village streets:', len(STREETS), 'streets,', len(roads), 'pieces')
+print('village streets:', len(STREETS) + len(ROADS_FT), 'streets,', len(roads), 'pieces')

@@ -75,9 +75,11 @@ walls = [[round(a[0] - cx, 1), round(a[1] - cz, 1), round(b[0] - cx, 1), round(b
 # 3. the towers: every spiral stair is a round tower from the ground to the top of the highest level it serves
 towers = {}
 for lv in S['levels']:
+    if lv['elevationFt'] < 0: continue  # a stair's foot under the rock (its plate registered a few feet off) is no tower on the skyline
     for o in lv['objects']:
         if o['kind'] != 'spiral-stair': continue
         key = (round(o['pos'][0] / 5) * 5, round(o['pos'][2] / 5) * 5)
+        key = next((k for k in towers if math.hypot(k[0] - key[0], k[1] - key[1]) <= 5), key)  # one tower per stair shaft
         r = (o.get('dims') or {}).get('r', 10)
         t = towers.setdefault(key, {'r': r, 'top': 0})
         t['r'] = max(t['r'], r); t['top'] = max(t['top'], lv['elevationFt'] + (o.get('dims') or {}).get('rise', lv['ceilingFt']))

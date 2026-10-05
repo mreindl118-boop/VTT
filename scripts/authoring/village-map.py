@@ -47,6 +47,13 @@ for i, h in enumerate(ex['houses']):
     o = OrderedDict(id=f'village-h{i}', kind='house', pos=[x, 0, z], vis='player', rotY=h['rotY'], dims=OrderedDict(w=h['w'], d=h['d'], h=11 if not big else 13, stories=2 if big or key else 1))
     if key: o['key'] = key; o['label'] = NAMES[key]
     houses.append(o)
+# The tavern's two roof blobs (an L on the page) overlap each other and both streets that frame its block (the traced
+# streets and the measured roofs come from different renders). One gabled hall that fits the block instead: 20 ft
+# across between Church street and the North loop, 40 ft deep, gable end on the main street.
+tav = [o for o in houses if o.get('key') == 'E2']
+if len(tav) > 1:
+    for o in tav[1:]: houses.remove(o)
+    tav[0].update(pos=[259, 0, 372.5], rotY=180); tav[0]['dims'].update(w=20, d=40, h=13, stories=2)
 lv['objects'] = keep + houses
 # the church piece sits on E5; move it if the seed had it elsewhere
 for o in keep:

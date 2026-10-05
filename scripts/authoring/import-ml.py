@@ -7,7 +7,9 @@ from collections import OrderedDict
 
 ROOT = os.path.join(os.path.dirname(__file__), '..', '..')
 sys.path.insert(0, os.path.dirname(__file__))
+# usage: import-ml.py [ml.json] [ID ...]  -- with ids (E5, G, C, E, recipes) only those outputs are written
 ML = json.load(open(sys.argv[1] if len(sys.argv) > 1 else '/tmp/claude-0/-home-user-VTT/3e57a1ac-07da-5111-aa9e-cccc471b7481/scratchpad/ml.json'))
+ONLY = set(sys.argv[2:])
 C = 5
 
 PROP_KIND = {  # ML prop type -> mistLAB kit kind (+ default dims)
@@ -73,7 +75,29 @@ def convert(mlid, out_chapter, out_id, manifest_location, page_by_key=None, opts
             flags = {'door': ['door'], 'locked': ['door', 'locked'], 'arch': None, 'window': ['window'], 'secret': ['secret-door']}[t]
             kk = tuple(sorted((a, b)))
             overrides[kk] = (flags, d.get('label'))
-        for kk, cnt in edge_count.items():
+        # a door/window/arch that does not coincide with one unit edge (half-cell rooms, 1-cell door centred on a cell
+        # corner): cut the room-edge segments it lies on at the door's ends and let the opening replace the middle
+        segs = list(edge_count)
+        for kk in list(overrides):
+            if kk in edge_count: continue
+            (ax, ay), (bx, by) = kk
+            if ay == by: fixed, lo, hi, horiz = ay, min(ax, bx), max(ax, bx), True
+            elif ax == bx: fixed, lo, hi, horiz = ax, min(ay, by), max(ay, by), False
+            else: continue
+            hit = False
+            for i, (p, q) in enumerate(segs):
+                if p is None: continue
+                if horiz and not (p[1] == q[1] == fixed): continue
+                if not horiz and not (p[0] == q[0] == fixed): continue
+                s0, s1 = sorted((p[0], q[0]) if horiz else (p[1], q[1]))
+                if min(s1, hi) - max(s0, lo) <= 1e-6: continue
+                hit = True
+                segs[i] = (None, None)
+                for u0, u1 in ((s0, lo), (hi, s1)):
+                    if u1 - u0 > 1e-6: segs.append(((u0, fixed), (u1, fixed)) if horiz else ((fixed, u0), (fixed, u1)))
+            if hit: segs.append(kk)
+        segs = [sg for sg in segs if sg[0] is not None]
+        for kk in segs:
             a, b = kk
             ov = overrides.pop(kk, None)
             if ov and ov[0] is None: continue  # arch: opening
@@ -106,7 +130,8 @@ def convert(mlid, out_chapter, out_id, manifest_location, page_by_key=None, opts
             kind, dd = PROP_KIND.get(p['type'], (p['type'], {}))
             dims = dict(dd); dims.update({k: v for k, v in (p.get('opts') or {}).items() if isinstance(v, (int, float))})
             if p.get('scale'): dims['scale'] = p['scale']
-            if 'stairs' == p['type']:
+            if 'stairs' == p['type'] and 'fromZ' in dims: dims.pop('run', None); dims.pop('steps', None)  # explicit run (recipe patch)
+            elif 'stairs' == p['type']:
                 run = dims.pop('run', 10); rise = dims.pop('rise', 10); dims['rise'] = abs(rise)
                 ry = p.get('ry', 0) % 360
                 x, y = p['at']
@@ -115,7 +140,7 @@ def convert(mlid, out_chapter, out_id, manifest_location, page_by_key=None, opts
                 dims.pop('steps', None)
             vis = 'hidden-object' if p.get('cls') == 'hidden-object' else 'player'
             o = OrderedDict(id=f'{lv["id"]}-p{n}{tag}', kind=kind, pos=[p['at'][0] * C, 0, p['at'][1] * C], vis=vis)
-            if p.get('ry'): o['rotY'] = p['ry']
+            if p.get('ry') and p['type'] != 'stairs': o['rotY'] = p['ry']  # a straight stair is built in world coords: fromZ/toZ carry its direction
             if p.get('key') and not p.get('name'): o['key'] = p['key']
             if p.get('name'): o['label'] = p['name']
             if dims: o['dims'] = dims
@@ -149,7 +174,8 @@ def convert(mlid, out_chapter, out_id, manifest_location, page_by_key=None, opts
     for lv in src_levels:
         for lk in lv.get('links', []):
             if lk.get('to') and any(x['id'] == lk['to'] for x in src_levels):
-                scene['links'].append(OrderedDict(id=f'lk-{lv["id"]}-{lk["to"]}', kind='stairs', **{'from': {'level': lv['id'], 'pos': [lk['at'][0] * C, lk['at'][1] * C]}, 'to': {'level': lk['to'], 'pos': [lk['at'][0] * C, lk['at'][1] * C]}}))
+                to_at = lk.get('toAt', lk['at'])  # where the stair lands on the other level (its foot), when it is not straight below
+                scene['links'].append(OrderedDict(id=f'lk-{lv["id"]}-{lk["to"]}', kind='stairs', **{'from': {'level': lv['id'], 'pos': [lk['at'][0] * C, lk['at'][1] * C]}, 'to': {'level': lk['to'], 'pos': [round(to_at[0] * C, 2), round(to_at[1] * C, 2)]}}))
     seen = set(); scene['links'] = [l for l in scene['links'] if not (tuple(sorted([l['from']['level'], l['to']['level']])) in seen or seen.add(tuple(sorted([l['from']['level'], l['to']['level']]))))]
     if opts.get('nonSpatial'): scene['nonSpatialKeys'] = opts['nonSpatial']
     out = os.path.join(ROOT, 'locations', out_chapter, out_id)
@@ -164,10 +190,36 @@ try:
     pages = {k.split('/', 1)[1]: v for k, v in pj.items()}
 except Exception: pass
 
-convert('church', 'ch03', 'E5', 'E5', page_by_key=pages, opts={'shortName': True})
-convert('tser-pool', 'ch02', 'G', 'G', page_by_key=pages)
-convert('forest-road', 'ch02', 'C', 'C', page_by_key=pages, opts={'levels': ['day'], 'keymap': {'Road': 'C'}})
-convert('village-barovia', 'ch03', 'E', 'E', page_by_key=pages, opts={'kind': 'placement'})
+def church_fixes(src):
+    """Church recipe fixes (E5): the book's wooden staircase drops from the E5d trapdoor into the undercroft, so the
+    undercroft gets a stairwell running under E5d and the stair climbs from inside E5g up to the trapdoor; the two
+    pines that stood 12-15 ft off the east wall (filling the default view) become low churchyard bushes."""
+    g = next(l for l in src['levels'] if l['id'] == 'ground'); u = next(l for l in src['levels'] if l['id'] == 'undercroft')
+    trap = next(p for p in g['props'] if p['type'] == 'trapdoor')
+    tx, ty = trap['at']                                         # (7, 7.6) cells: centre of the 4-ft trapdoor in E5d
+    top = ty + 0.4                                              # the stair's top tread meets the trapdoor's far edge
+    foot = 4.8                                                  # its foot stands inside E5g's main hall, clear of the pillars
+    rise = g.get('height', 14)                                  # ground floor slab to undercroft floor (book: 15 ft)
+    g['links'] = [dict(lk, toAt=[tx, foot - 0.4]) if lk.get('to') == 'undercroft' else lk for lk in g.get('links', [])]
+    u['links'] = [dict(lk, at=[tx, foot - 0.4]) for lk in u.get('links', [])]
+    room = next(r for r in u['rooms'] if r['key'] == 'E5g')
+    x, y, w, h = room.pop('rect')                               # E5g + a 5-ft stairwell under E5d
+    room['poly'] = [[x, y], [x + w, y], [x + w, y + h], [tx + 0.5, y + h], [tx + 0.5, top + 0.1], [tx - 0.5, top + 0.1], [tx - 0.5, y + h], [x, y + h]]
+    for p in u['props']:
+        if p['type'] == 'stairs':
+            p['at'] = [tx, (foot + top) / 2]; p.pop('ry', None)
+            p['opts'] = {'w': 4, 'rise': rise, 'fromZ': foot * C, 'toZ': top * C}
+        if p['type'] == 'pillar' and abs(p['at'][0] - tx) < 0.5 and p['at'][1] > 3:
+            p['at'] = [tx - 1, p['at'][1]]                      # the pillar in the stair's path stands a pace west
+    for p in g['props']:
+        if p['type'] == 'pine' and p['at'][0] > 9:              # east of the nave: the pines become low bushes
+            p['type'] = 'bush'; p['opts'] = {}; p['scale'] = 1.2
+    return src
+
+if not ONLY or 'E5' in ONLY: church_fixes(ML['locations']['church']); convert('church', 'ch03', 'E5', 'E5', page_by_key=pages, opts={'shortName': True})
+if not ONLY or 'G' in ONLY: convert('tser-pool', 'ch02', 'G', 'G', page_by_key=pages)
+if not ONLY or 'C' in ONLY: convert('forest-road', 'ch02', 'C', 'C', page_by_key=pages, opts={'levels': ['day'], 'keymap': {'Road': 'C'}})
+if not ONLY or 'E' in ONLY: convert('village-barovia', 'ch03', 'E', 'E', page_by_key=pages, opts={'kind': 'placement'})
 
 
 # ------------------------------------------------------------------ character figure recipes -> manifests/characters.json
@@ -192,4 +244,4 @@ def recipes():
         added += 1
     json.dump(m, open(mpath, 'w'), indent=1, ensure_ascii=False); open(mpath, 'a').write('\n')
     print('figure recipes attached:', added, 'of', len(ML['characters']))
-recipes()
+if not ONLY or 'recipes' in ONLY: recipes()
