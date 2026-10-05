@@ -3,7 +3,8 @@
 One continuous environment: from a 3D view of the whole valley the DM zooms in; as the camera nears a place its map
 streams in at its true position and orientation; zoom into a town's building and its floors appear in place inside
 the town; zoom out and it folds back up. This document is the reference for the frames, the atlas, the thresholds,
-the budgets and the fallback. It grows with the build steps; today it covers **step 0: frames and the atlas**.
+the budgets and the fallback. It grows with the build steps; today it covers **step 0: frames and the atlas** and
+**step 1: the placement seam** (shader basis, floating origin, scene ↔ drawn conversions).
 
 ## Frames (`app/src/core/frames.ts`, pure, unit-tested in `tests/frames.test.ts`)
 
@@ -72,6 +73,34 @@ edge of Vallaki's 1.7-mile map. The land blends the two bases there (weights nor
 decides whether to move the pin, shrink the band or accept the seam. The world's roads stop at Vallaki's edge, so
 Vallaki has no road exits (the backdrop finds the same today).
 
+## The placement seam (step 1, pixel-neutral)
+
+Every loaded scene hangs from its own `Loaded.root` group (its levels, its backdrop and its surroundings), and that group
+hangs from `World.root` at the scene's **absolute** world position (feet, W). Until step 2 places scenes, every root is
+the identity and nothing renders differently.
+
+- **Floating origin.** `World.root.position = −World.anchor`. `World.reanchor(abs)` moves the origin to an absolute point
+  and shifts the root, the camera, its target, the mist floor and any glide in flight by the same amount, so nothing
+  moves on screen; `onReanchor` lets the app re-read what it caches. With the origin on the active scene its vertices,
+  the camera and the shaders' world positions stay small however far across the valley the map stands.
+  `toAbsolute`/`toAnchored` convert; the Player Display's camera messages are absolute and each end draws round its own
+  anchor.
+- **Scene ↔ drawn.** `App.placement` is the active root's `matrixWorld` (drawn, i.e. anchored) and `placementInv` its
+  inverse, re-read by `syncPlacement()` in `setLevel` and on reanchor. `toWorld`/`toLocal` (xz) and
+  `toWorld3`/`toLocal3` are used by `floorPoint`, `cameraGround`, `pick`'s wall-cut test, `frameLevel`/`jumpTo`
+  (`frameBox`), `findParty`, the initiative follow in `nextTurn`, `lookAt`, `cameraFrame().north`, the mist floor and
+  `__mistlab.screenOf`. The ruler and the move ghost ring hang from the scene root, in scene feet, like the tokens.
+  The wall-cut plane is the cut plus the placement's lift (`placementY`): placements only turn about y.
+- **Shader basis.** `fogUniforms.uCovBasis` (a `Matrix3`, identity) maps world xz to the active scene's plan xz
+  (`covBasisOf` in frames.ts; `covUv` mirrors the shader in TS). `mistCoverage()` and the grid shader apply it before
+  `uCovOrigin`/`uCovSize` and the grid origin, so fog of war and the grid stay in scene feet on a turned, moved scene.
+- **Continuous-world camera** (`World.setNested`, off by default until step 2): far plane 300,000 ft, `maxDistance`
+  120,000 ft (`frameLevel` stops lowering it), `zoomToCursor`, the mist's pull-back floor 0.004 instead of 0.12
+  (identical below ~2,170 ft), and the pitch floor rising from 0.46π (outdoors) to 0.3π between 5,000 and 20,000 ft.
+  `World.flyTo(target, dist, ms?)` glides for 420–900 ms by the log of the zoom ratio and the ground covered.
+- **Test hook.** `__mistlab.setPlacement([x, y, z], rotationY, reanchor = true)` stands the active scene elsewhere and
+  keeps the camera's view of it; `__mistlab.placement`, `toWorld`, `toLocal` and `anchor` expose the seam.
+
 ## Verification
 
 - `tests/frames.test.ts`: yaw per north against backdrop.ts's `toPlan` E/S basis and buildContext's `th`/`tf`, round trips
@@ -82,6 +111,13 @@ Vallaki has no road exits (the backdrop finds the same today).
 - `e2e/world.spec.ts`: Death House and the church open inside the village (context drawn, Back leads to the village);
   every village house the running app draws round Death House stands where the atlas's placement puts the village's own
   rendering of it (to 0.01 ft): the frame maths and the app's buildContext agree; the village hides under the dungeon.
+- `tests/covbasis.test.ts`: the coverage basis is exactly the identity unplaced, and for −π/2, 50,000 ft out, π and an
+  odd angle maps every placed point to the uv of the unplaced one; it inverts a three.js root's `matrixWorld`.
+- `e2e/world.spec.ts` (step 1): the test room stood 50,000 ft out and turned −π/2, with the origin on it and without:
+  north on screen, the scale and the ground the camera sees agree with the unplaced room; the grid's pixels and the
+  players' fog land on the unplaced pixels (≤ 3 % off by a pixel); `screenOf` lands on the party token as the scene
+  graph draws it; the secret door is pixel-identical to wall at t = 0 in every view; taps select, walls block, the door
+  lets the party through, the ruler reads 20 ft; `reanchor` far away and back changes no pixel; `setNested` on and off.
 
 ## Data
 

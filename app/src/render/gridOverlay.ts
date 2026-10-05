@@ -36,6 +36,7 @@ uniform vec2 uCovOrigin;
 uniform vec2 uCovSize;
 uniform float uFog;
 uniform float uCovEnabled;
+uniform mat3 uCovBasis;   // world xz → the active scene's plan xz (the grid and the coverage are in scene feet)
 uniform float uPxPerFt;   // what a foot is worth on screen: decides which grid orders show
 
 // A line of a given spacing (feet): 1 on the line, 0 off it; bold widens it.
@@ -76,11 +77,12 @@ float hexLine(vec2 p) {
 
 void main() {
   #include <logdepthbuf_fragment>
-  vec2 p = vW.xz - uOrigin;
+  vec2 sp = (uCovBasis * vec3(vW.x, vW.z, 1.0)).xy;
+  vec2 p = sp - uOrigin;
   float line = uHex > 0.5 ? hexLine(p) : squareLine(p);
   float a = line * uOpacity;
   if (uCovEnabled > 0.5) {
-    vec2 uv = (vW.xz - uCovOrigin) / uCovSize;
+    vec2 uv = (sp - uCovOrigin) / uCovSize;
     float cov = (uv.x < 0.0 || uv.y < 0.0 || uv.x > 1.0 || uv.y > 1.0) ? 0.0 : texture2D(uCovTex, uv).r;
     a *= mix(1.0, step(0.25, cov), uFog);
   }
@@ -119,6 +121,7 @@ export function buildGridOverlay(g: GridLevel, elevation: number, ground = true)
       uCovSize: fogUniforms.uCovSize,
       uFog: fogUniforms.uFog,
       uCovEnabled: fogUniforms.uCovEnabled,
+      uCovBasis: fogUniforms.uCovBasis,
       uPxPerFt: gridUniforms.uPxPerFt,
     },
   });

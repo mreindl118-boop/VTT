@@ -34,6 +34,7 @@ const PARTY_RED = '#c0392b';
 import { creatureById, figureFor, aliasFor, seenAs, statsOf, speedFtOf, colorOf } from './bestiary';
 import { sightBlockers } from './core/light';
 import { idbGet, idbSet } from './state/idb';
+import { covBasisOf } from './core/frames';
 
 export type Mode = 'dm' | 'player';
 export type Tool = 'none' | 'reveal' | 'brush-reveal' | 'brush-fog' | 'measure';
@@ -57,6 +58,9 @@ interface Loaded {
   covTex: Map<string, THREE.DataTexture>;
   labels: { obj: CSS2DObject; spec: LabelSpec; level: string }[];
   tokens: Map<string, THREE.Group>;
+  /** The scene's own frame: its levels, backdrop and surroundings hang from it, and it hangs from the world root at the
+   *  scene's absolute placement (identity until the continuous world places it). */
+  root: THREE.Group;
 }
 
 const storeKey = (campaignId: string) => (campaignId === 'cos' ? 'campaign:default' : `campaign:${campaignId}`); // CoS keeps its original save
@@ -133,6 +137,8 @@ export class App {
     this.channel = new Channel((m) => this.onMsg(m));
     this.world.onCamera = () => { this.sendCamera(); this.labelDensity(); this.onCameraUi?.(); };
     this.onCameraUi = null;
+    // the floating origin moved: the scene's drawn placement, the coverage basis and the clip plane follow
+    this.world.onReanchor = () => { this.syncPlacement(); if (this.cur && this.levelId) this.applySlider(); };
     this.installPointer();
   }
 
@@ -171,7 +177,8 @@ export class App {
       this.cur.tokens.clear();
       this.select(null);
       this.onLeave?.();
-      for (const b of this.cur.levels.values()) this.world.scene.remove(b.root);
+      this.clearRuler();
+      this.cur.root.removeFromParent();
       for (const tx of this.cur.covTex.values()) tx.dispose();
     }
     const { scene, grid } = await loadLocation(path);
@@ -179,11 +186,13 @@ export class App {
     const coverage = new Map<string, CoverageMap>();
     const covTex = new Map<string, THREE.DataTexture>();
     const labels: Loaded['labels'] = [];
+    const root = new THREE.Group();
+    root.name = `scene:${path}`;
     for (const l of scene.levels) {
       setGrass(this.campaign.theme.grass ?? BAROVIAN_GRASS);
       const b = buildLevel(l, grid.levels[l.id]);
       levels.set(l.id, b);
-      this.world.scene.add(b.root);
+      root.add(b.root);
       const cov = CoverageMap.forPolygons([...l.rooms.map((r) => r.polygon), ...grid.levels[l.id].floorPolygons]);
       const seen = this.state.seen[`${scene.location}/${l.id}`];
       if (seen) cov.load({ seen, paint: '' });
@@ -224,7 +233,8 @@ export class App {
         labels.push({ obj, spec, level: l.id });
       }
     }
-    this.cur = { path, scene, grid, levels, coverage, covTex, labels, tokens: new Map() };
+    this.cur = { path, scene, grid, levels, coverage, covTex, labels, tokens: new Map(), root };
+    this.world.root.add(root);
     // The world-map marker follows the party into whichever pin this scene belongs to.
     const pin = pinForScene(path) ?? (scene.parent ? pinForScene(scene.parent) : undefined);
     // Outdoors: the land, forest, mountains and the castle continue to the horizon.
@@ -241,7 +251,7 @@ export class App {
       const byFloor = new Map<string, number>(); for (const t of l0.terrain ?? []) if (['grass', 'snow', 'marsh', 'dirt', 'shallow-water'].includes(t.floor)) byFloor.set(t.floor, (byFloor.get(t.floor) ?? 0) + area(t.polygon as Vec2[]));
       const ground = [...byFloor.entries()].sort((a, b) => b[1] - a[1])[0]?.[0];
       this.backdrop = buildBackdrop({ ground: ground === 'shallow-water' || ground === 'dirt' ? undefined : ground, center: [(bb.minX + bb.maxX) / 2, (bb.minZ + bb.maxZ) / 2], radius: Math.hypot(bb.maxX - bb.minX, bb.maxZ - bb.minZ) / 2, elevation: l0.elevationFt, pin: pin!.pos as Vec2, world: worldOf(this.campaign), theme: this.campaign.theme, valley: !!scene.valley, bounds: bb, north: l0.north, roads, crag: pin!.heightFt ?? 0, clearing: scene.clearingFt ?? (scene.parent ? 1100 : undefined) }); // an area map inside a town keeps the town's ground clear
-      this.world.scene.add(this.backdrop);
+      root.add(this.backdrop); // the land round the map is in the map's own frame
     }
     // An area map stands in its surroundings: the parent map's streets, houses and trees round it, as scenery.
     if (scene.parent) void this.buildContext(path, scene, l0);
@@ -268,7 +278,8 @@ export class App {
     fogUniforms.uCovTex.value = this.cur.covTex.get(id)!;
     fogUniforms.uCovOrigin.value.set(cov.originX, cov.originZ);
     fogUniforms.uCovSize.value.set(cov.widthFt, cov.heightFt);
-    this.world.mistFloor.position.y = this.level.elevationFt - 1.2;
+    this.syncPlacement();
+    this.world.mistFloor.position.copy(this.toWorld3(0, this.level.elevationFt - 1.2, 0));
     this.world.mistFloor.visible = !this.backdrop && this.world.fogOn;
     this.syncContext();
     this.syncTokens();
@@ -300,8 +311,50 @@ export class App {
     const whole = this.cur!.scene.stacked && this.cutFt !== undefined && this.cutFt !== null && this.sectionRange && this.cutFt >= this.sectionRange.max - 1;
     const polys = whole ? [...this.stackOf(l.id)].flatMap((id) => this.cur!.scene.levels.find((x) => x.id === id)!.rooms.map((r) => r.polygon)) : l.rooms.map((r) => r.polygon);
     const b = bounds(polys);
-    this.world.controls.maxDistance = Math.max(400, Math.hypot(b.maxX - b.minX, b.maxZ - b.minZ) * 2.5);
-    this.world.frame(b, l.elevationFt, preset);
+    if (!this.world.nested) this.world.controls.maxDistance = Math.max(400, Math.hypot(b.maxX - b.minX, b.maxZ - b.minZ) * 2.5);
+    this.frameBox(b, l.elevationFt, preset);
+  }
+
+  // ------------------------------------------------------------------ the scene's placement in the world
+
+  /** Scene → drawn (anchored world) coordinates: the active scene root's matrixWorld, and its inverse. Every
+   *  conversion between what the table works in (scene feet, per level) and what the camera sees goes through these. */
+  readonly placement = new THREE.Matrix4();
+  readonly placementInv = new THREE.Matrix4();
+  /** Re-read the active scene's placement and hand the shaders the matching coverage basis. */
+  syncPlacement(): void {
+    const r = this.cur?.root;
+    if (r) { r.updateWorldMatrix(true, false); this.placement.copy(r.matrixWorld); } else this.placement.identity();
+    this.placementInv.copy(this.placement).invert();
+    covBasisOf(this.placement, fogUniforms.uCovBasis.value);
+  }
+  /** A scene plan point as drawn (anchored world xz). */
+  toWorld(p: Vec2): Vec2 { const v = new THREE.Vector3(p[0], 0, p[1]).applyMatrix4(this.placement); return [v.x, v.z]; }
+  /** A drawn (anchored world) xz point in scene feet. */
+  toLocal(p: Vec2): Vec2 { const v = new THREE.Vector3(p[0], 0, p[1]).applyMatrix4(this.placementInv); return [v.x, v.z]; }
+  toWorld3(x: number, y: number, z: number): THREE.Vector3 { return new THREE.Vector3(x, y, z).applyMatrix4(this.placement); }
+  toLocal3(v: THREE.Vector3): THREE.Vector3 { return v.clone().applyMatrix4(this.placementInv); }
+  /** How far the scene's floor 0 is lifted in the drawn frame (placements only turn about y, so planes stay level). */
+  get placementY(): number { return this.placement.elements[13]; }
+  /** The horizontal plane of a scene height, as drawn. */
+  private planeAt(y: number): THREE.Plane { return new THREE.Plane(new THREE.Vector3(0, 1, 0), -(y + this.placementY)); }
+  /** Frame a box given in scene feet: its centre is placed, its size (what the fit reads) does not change with a turn. */
+  frameBox(b: { minX: number; minZ: number; maxX: number; maxZ: number }, y: number, preset: CameraPreset, animate = false): void {
+    const c = this.toWorld3((b.minX + b.maxX) / 2, y, (b.minZ + b.maxZ) / 2), hw = (b.maxX - b.minX) / 2, hd = (b.maxZ - b.minZ) / 2;
+    this.world.frame({ minX: c.x - hw, minZ: c.z - hd, maxX: c.x + hw, maxZ: c.z + hd }, c.y, preset, animate);
+  }
+  /** Test hook: stand the active scene at an absolute world position, turned about y, and (by default) anchor the
+   *  floating origin on it, as the continuous world will. The camera keeps its view of the scene. */
+  setPlacement(abs: [number, number, number], rotationY: number, reanchor = true): void {
+    if (!this.cur) return;
+    const look = this.toLocal3(this.world.controls.target), eye = this.toLocal3(this.world.camera.position);
+    this.cur.root.position.set(...abs); this.cur.root.rotation.set(0, rotationY, 0);
+    this.syncPlacement(); // before the reanchor: the root moved even if the origin does not
+    if (reanchor) this.world.reanchor(new THREE.Vector3(...abs)); else this.world.reanchor(new THREE.Vector3());
+    this.world.controls.target.copy(this.toWorld3(look.x, look.y, look.z)); this.world.camera.position.copy(this.toWorld3(eye.x, eye.y, eye.z));
+    this.world.camera.lookAt(this.world.controls.target); this.world.controls.update();
+    this.setLevel(this.levelId);
+    this.applySlider();
   }
 
   // ------------------------------------------------------------------ tokens
@@ -387,7 +440,7 @@ export class App {
     const cur = this.current;
     if (cur && cur.token.level !== this.levelId) this.setLevel(cur.token.level);
     this.commit();
-    if (cur && this.follow) this.world.moveTo(new THREE.Vector3(cur.token.pos[0], this.level.elevationFt, cur.token.pos[1]), Math.min(this.world.camera.position.distanceTo(this.world.controls.target), 66), true);
+    if (cur && this.follow) this.world.moveTo(this.toWorld3(cur.token.pos[0], this.level.elevationFt, cur.token.pos[1]), Math.min(this.world.camera.position.distanceTo(this.world.controls.target), 66), true);
   }
   /** Tactical range of a combatant token from where it stands, with the movement it has left. */
   rangeOf(tokenId: string): RangeResult | undefined {
@@ -439,7 +492,7 @@ export class App {
     const b = bounds([hit.room.polygon]);
     // On a placement layer a "room" is one 40-ft square: frame it with its neighbourhood, not its doorstep.
     const pad = this.cur!.scene.placementFt ? this.cur!.scene.placementFt * 1.5 : 0;
-    this.world.frame({ minX: b.minX - pad, minZ: b.minZ - pad, maxX: b.maxX + pad, maxZ: b.maxZ + pad }, hit.level.elevationFt, this.camPreset, true);
+    this.frameBox({ minX: b.minX - pad, minZ: b.minZ - pad, maxX: b.maxX + pad, maxZ: b.maxZ + pad }, hit.level.elevationFt, this.camPreset, true);
     this.flashKey = hit.room.key;
     this.onChange?.();
     return true;
@@ -454,7 +507,7 @@ export class App {
     const l = this.level;
     // Close working distance: the party's room and its neighbours fill the screen.
     const dist = Math.min(this.world.camera.position.distanceTo(this.world.controls.target), 66); // ~same on-screen size as before at the wider 40° lens
-    this.world.moveTo(new THREE.Vector3(t.pos[0], l.elevationFt, t.pos[1]), dist, animate);
+    this.world.moveTo(this.toWorld3(t.pos[0], l.elevationFt, t.pos[1]), dist, animate);
   }
 
   /** Is this object currently shown to players (class + reveals + coverage)? */
@@ -643,7 +696,7 @@ export class App {
     const followCut = this.cur.scene.stacked === 'open' ? this.sectionRange!.max : this.level.elevationFt + (this.level.ceilingFt ?? 10) - 0.5;
     const cut = this.cur.scene.stacked ? (this.cutFt ?? followCut) : this.lowWalls ? this.level.elevationFt + WALL_CUT_FT : null;
     this.followCutFt = followCut;
-    setWallCut(cut);
+    setWallCut(cut === null ? null : cut + this.placementY); // the cut is a scene height; the clip plane is drawn space
     // Roofs raised over authored walls (a shop's gable, a tower's cone) go whenever the walls are cut down to a cutaway,
     // and come back with full walls; on stacked sites the section plane slices them instead.
     if (!this.cur.scene.stacked) for (const b2 of this.cur.levels.values()) b2.root.traverse((o) => { if (o.userData.cap) o.visible = !this.lowWalls; });
@@ -883,8 +936,8 @@ export class App {
   private floorPoint(e: PointerEvent): Vec2 | null {
     this.raycaster.setFromCamera(this.ndc(e), this.world.camera);
     const p = new THREE.Vector3();
-    const hit = this.raycaster.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0, 1, 0), -this.level.elevationFt), p);
-    return hit ? [p.x, p.z] : null;
+    const hit = this.raycaster.ray.intersectPlane(this.planeAt(this.level.elevationFt), p);
+    return hit ? this.toLocal([p.x, p.z]) : null;
   }
   /** The parent map's surroundings round an area map: what stands within a few hundred feet of the room that opens
    *  this map, moved into this map's frame (offset and north), skipping whatever lies inside this map's own extent.
@@ -922,7 +975,7 @@ export class App {
       built.root.name = 'context';
       if (this.cur?.path !== path) return;
       built.root.userData.groundFt = lvl.elevationFt;
-      this.context = built.root; this.world.scene.add(built.root); this.syncContext(); this.world.invalidate();
+      this.context = built.root; this.cur.root.add(built.root); this.syncContext(); this.world.invalidate(); // in the area map's own frame
       return;
     }
   }
@@ -936,7 +989,7 @@ export class App {
 
   private pick(e: PointerEvent): THREE.Intersection | undefined {
     this.raycaster.setFromCamera(this.ndc(e), this.world.camera);
-    const cut = this.lowWalls ? this.level.elevationFt + WALL_CUT_FT : Infinity;
+    const cut = (this.lowWalls ? this.level.elevationFt + WALL_CUT_FT : Infinity) + this.placementY; // hits are in drawn space
     return this.raycaster.intersectObject(this.built.root, true).find((h) => h.object.visible && (h.object as THREE.Mesh).isMesh && h.object.userData.role !== 'grid' && h.object.userData.role !== 'marker' && isShown(h.object)
       // The cutaway clips walls visually; ignore hits on the clipped-away part.
       && !((h.object.userData.role === 'wall' || h.object.userData.role === 'door') && h.point.y > cut + 0.01));
@@ -952,7 +1005,7 @@ export class App {
   private ruler?: { a: Vec2; b?: Vec2; line: THREE.Line; label: CSS2DObject };
   measureTap(p: Vec2): void {
     const at: Vec2 = [Math.round(p[0] * 2) / 2, Math.round(p[1] * 2) / 2];
-    if (!this.ruler || this.ruler.b) { this.clearRuler(); const geo = new THREE.BufferGeometry(); const line = new THREE.Line(geo, new THREE.LineBasicMaterial({ color: '#f2b35b', linewidth: 2 })); line.userData.role = 'marker'; line.renderOrder = 6; const label = this.world.label('', undefined, 'ruler'); this.world.scene.add(line, label); this.ruler = { a: at, line, label }; this.setStatus('Tap the other end'); this.rulerTo(at); return; }
+    if (!this.ruler || this.ruler.b) { this.clearRuler(); const geo = new THREE.BufferGeometry(); const line = new THREE.Line(geo, new THREE.LineBasicMaterial({ color: '#f2b35b', linewidth: 2 })); line.userData.role = 'marker'; line.renderOrder = 6; const label = this.world.label('', undefined, 'ruler'); this.cur!.root.add(line, label); this.ruler = { a: at, line, label }; this.setStatus('Tap the other end'); this.rulerTo(at); return; }
     this.ruler.b = at; this.rulerTo(at); this.setStatus(`${this.distanceFt(this.ruler.a, at)} ft · ${Math.round(this.distanceFt(this.ruler.a, at) / 5)} squares · tap to measure again`);
   }
   /** Stretch the ruler to a point (the preview end, or the fixed second end). */
@@ -1044,7 +1097,9 @@ export class App {
   /** Where north points on screen (radians, 0 = up, clockwise) and how many pixels a foot covers at the target. */
   cameraFrame(): { north: number; pxPerFt: number } {
     const l = this.cur ? this.level : undefined, n = l?.north ?? '-z';
-    const nv = n === '+z' ? [0, 1] : n === '-x' ? [-1, 0] : n === '+x' ? [1, 0] : [0, -1];
+    const n0 = n === '+z' ? [0, 1] : n === '-x' ? [-1, 0] : n === '+x' ? [1, 0] : [0, -1];
+    // the level's north as drawn: the scene's placement turns it
+    const nd = new THREE.Vector3(n0[0], 0, n0[1]).transformDirection(this.placement), nv = [nd.x, nd.z];
     const az = this.world.controls.getAzimuthalAngle();
     // screen up is the direction from camera to target in plan: (-sin az, -cos az); north's screen angle is measured from it
     const upx = -Math.sin(az), upz = -Math.cos(az);
@@ -1064,14 +1119,14 @@ export class App {
   }
   /** Where the camera looks on the ground: the four screen corners dropped onto the level's floor plane (null where a corner sees sky). */
   cameraGround(): (Vec2 | null)[] {
-    const y = this.cur ? this.level.elevationFt : 0, plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -y), ray = new THREE.Raycaster();
+    const y = this.cur ? this.level.elevationFt : 0, plane = this.planeAt(y), ray = new THREE.Raycaster();
     return ([[-1, 1], [1, 1], [1, -1], [-1, -1]] as [number, number][]).map(([x, yy]) => {
       ray.setFromCamera(new THREE.Vector2(x, yy), this.world.camera); const hit = new THREE.Vector3();
-      return ray.ray.intersectPlane(plane, hit) ? [hit.x, hit.z] as Vec2 : null;
+      return ray.ray.intersectPlane(plane, hit) ? this.toLocal([hit.x, hit.z]) : null;
     });
   }
   /** Look at a plan point without changing height or heading. */
-  lookAt(p: Vec2): void { const t = this.world.controls.target; this.world.moveTo(new THREE.Vector3(p[0], t.y, p[1]), undefined, true); }
+  lookAt(p: Vec2): void { const t = this.world.controls.target, w = this.toWorld(p); this.world.moveTo(new THREE.Vector3(w[0], t.y, w[1]), undefined, true); }
   /** Called before a location closes, so menus, cards and tooltips can go too. */
   onLeave?: () => void;
   private makeRing(color: string, opacity: number): THREE.Mesh {
@@ -1088,7 +1143,7 @@ export class App {
     if (g.userData.at?.[0] === s[0] && g.userData.at?.[1] === s[1]) return;
     g.userData.at = s;
     const ok = this.canWalkTo(t.pos, s);
-    if (!g.parent) this.world.scene.add(g);
+    if (g.parent !== this.cur!.root) this.cur!.root.add(g); // in scene feet, like the tokens
     g.visible = true; g.position.set(s[0], this.level.elevationFt + 0.12, s[1]);
     (g.material as THREE.MeshBasicMaterial).color.set(ok ? PALETTE.amber : '#c0392b');
     this.setStatus(ok ? `${this.distanceFt(t.pos, s)} ft` : 'No way through');
@@ -1265,7 +1320,8 @@ export class App {
   private sendCamera(now = false): void {
     if (this.mode !== 'dm' || !this.lockPlayerCamera) return;
     const send = () => {
-      const c = this.world.camera.position, t = this.world.controls.target;
+      // absolute world feet: each end draws round its own anchor
+      const c = this.world.toAbsolute(this.world.camera.position), t = this.world.toAbsolute(this.world.controls.target);
       this.channel.send({ kind: 'camera', pos: [c.x, c.y, c.z], target: [t.x, t.y, t.z], locked: true });
     };
     if (now) return send();
@@ -1282,8 +1338,8 @@ export class App {
       if (this.levelId !== m.level) this.setLevel(m.level);
       else { this.syncTokens(); this.recompute(); }
     } else if (m.kind === 'camera' && m.locked) {
-      this.world.camera.position.set(...m.pos);
-      this.world.controls.target.set(...m.target);
+      this.world.toAnchored(new THREE.Vector3(...m.pos), this.world.camera.position);
+      this.world.toAnchored(new THREE.Vector3(...m.target), this.world.controls.target);
       this.world.camera.lookAt(this.world.controls.target);
       this.world.invalidate();
     } else if (m.kind === 'layout') {

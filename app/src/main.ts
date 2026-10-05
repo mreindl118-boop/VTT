@@ -1,4 +1,3 @@
-import * as THREE from 'three';
 import './styles.css';
 import { App, type GridMode } from './app';
 import { builtPaths, loadLocation } from './data';
@@ -42,9 +41,16 @@ const ready = app.init(builtPaths.has(path) ? path : 'appB/death-house');
   labels: () => app.cur!.labels.filter((l) => l.level === app.levelId).map((l) => ({ id: l.spec.id, vis: l.spec.vis, opacity: Number(l.obj.element.style.opacity), visible: l.obj.visible })),
   targets: () => app.built.targets.map((t) => ({ id: t.id, vis: t.vis, visible: t.root.visible, opacity: t.materials[0]?.opacity ?? 1 })),
   flush: () => app.flush(),
-  screenOf: (x: number, z: number, y = 0) => { const v = new THREE.Vector3(x, app.level.elevationFt + y, z).project(app.world.camera); const r = app.world.renderer.domElement.getBoundingClientRect(); return [r.left + (v.x + 1) / 2 * r.width, r.top + (1 - v.y) / 2 * r.height]; },
+  // a scene point (feet, on the current level) to page pixels, through the scene's placement in the world
+  screenOf: (x: number, z: number, y = 0) => { const v = app.toWorld3(x, app.level.elevationFt + y, z).project(app.world.camera); const r = app.world.renderer.domElement.getBoundingClientRect(); return [r.left + (v.x + 1) / 2 * r.width, r.top + (1 - v.y) / 2 * r.height]; },
   partyPos: () => app.party?.pos,
     moveParty: (level: string, x: number, z: number) => { const t = app.party; if (t) { t.level = level; t.pos = [x, z]; } app.setLevel(level); app.world.renderNow(); },
+  // the nested world's seam: scene → drawn placement, the floating origin, and a hook that stands the scene elsewhere
+  get placement() { return app.placement.toArray(); },
+  toWorld: (x: number, z: number) => app.toWorld([x, z]),
+  toLocal: (x: number, z: number) => app.toLocal([x, z]),
+  get anchor() { return app.world.anchor.toArray(); },
+  setPlacement: (abs: [number, number, number], rotationY: number, reanchor = true) => { app.setPlacement(abs, rotationY, reanchor); app.world.renderNow(); },
 };
 
 if ('serviceWorker' in navigator && import.meta.env.PROD && !q.has('nosw')) {

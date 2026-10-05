@@ -122,6 +122,21 @@ export function placementOf(m: THREE.Matrix4): Placement {
   return { position: [e[12], e[13], e[14]], rotationY: Math.atan2(e[8], e[0]) };
 }
 
+// ------------------------------------------------------------------ the coverage basis (shared by the fog and grid shaders)
+
+/** World xz → a scene's plan xz as a 2-D affine Matrix3 acting on (x, z, 1), from the scene root's matrix (a turn about
+ *  y and a translation, anchored). The fog and grid shaders apply it before uCovOrigin/uCovSize and the grid origin,
+ *  so the coverage map and the grid stay in scene feet wherever the scene stands. Identity in, identity out. */
+export function covBasisOf(sceneToWorld: THREE.Matrix4, out = new THREE.Matrix3()): THREE.Matrix3 {
+  const e = sceneToWorld.clone().invert().elements; // column-major: local.x = e0·x + e8·z + e12, local.z = e2·x + e10·z + e14
+  return out.set(e[0], e[8], e[12], e[2], e[10], e[14], 0, 0, 1);
+}
+/** The shaders' coverage uv, mirrored in TS: (basis · (x, z, 1) − origin) / size. */
+export function covUv(basis: THREE.Matrix3, origin: Vec2, size: Vec2, [x, z]: Vec2): Vec2 {
+  const v = new THREE.Vector3(x, z, 1).applyMatrix3(basis);
+  return [(v.x - origin[0]) / size[0], (v.y - origin[1]) / size[1]];
+}
+
 // ------------------------------------------------------------------ footprints
 
 /** The level that meets the open air: the first with terrain (a street, a courtyard), else the first level. */

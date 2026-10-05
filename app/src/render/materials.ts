@@ -14,6 +14,9 @@ export const fogUniforms = {
   uMemory: { value: 1 },
   uFogColor: { value: new THREE.Color(PALETTE.fog) },
   uCovEnabled: { value: 1 },
+  /** World xz → the active scene's plan xz (2D affine, rows (x, z, 1)): the coverage map is in scene feet. Identity
+   *  while the active scene stands at the origin unturned; App.setLevel writes it from the scene's placement. */
+  uCovBasis: { value: new THREE.Matrix3() },
 };
 
 const VERT_DECL = 'varying vec3 vMistWorld;\nvarying vec3 vMistN;\n';
@@ -36,6 +39,7 @@ uniform float uFog;
 uniform float uMemory;
 uniform vec3 uFogColor;
 uniform float uCovEnabled;
+uniform mat3 uCovBasis;
 uniform float uFogExempt;
 
 varying vec3 vMistN;
@@ -144,7 +148,8 @@ vec3 mistSurface(vec3 P, vec3 N) {
 #endif
 }
 float mistCoverage() {
-  vec2 uv = (vMistWorld.xz - uCovOrigin) / uCovSize;
+  vec2 q = (uCovBasis * vec3(vMistWorld.x, vMistWorld.z, 1.0)).xy;
+  vec2 uv = (q - uCovOrigin) / uCovSize;
   if (uv.x < 0.0 || uv.y < 0.0 || uv.x > 1.0 || uv.y > 1.0) return 0.0;
   return texture2D(uCovTex, uv).r;
 }

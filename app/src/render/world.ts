@@ -21,6 +21,14 @@ export class World {
   private fpsT = performance.now();
   fps = 0;
   mistFloor!: THREE.Mesh;
+  /** Everything placed in the world hangs from here. Its position is −anchor (a floating origin): scenes sit under it at
+   *  their absolute world positions (feet), and the active scene's root comes out at the origin, so its vertices, the
+   *  camera and every shader see small numbers however far across the valley the map stands. */
+  readonly root = new THREE.Group();
+  /** The absolute world point drawn at the origin (feet). */
+  readonly anchor = new THREE.Vector3();
+  /** Continuous-world camera: the whole valley in range (see setNested). Off by default. */
+  nested = false;
   private tween: { t0: number; dur: number; from: THREE.Vector3; to: THREE.Vector3; camFrom: THREE.Vector3; camTo: THREE.Vector3 } | null = null;
   /** Yaw in quarter turns (0..3); the camera sits south-east of the target at yaw 0. */
   yaw = 0;
@@ -49,6 +57,8 @@ export class World {
     mistFloor.rotation.x = -Math.PI / 2; mistFloor.position.y = -1.2; mistFloor.userData.role = 'marker'; mistFloor.name = 'mist-floor';
     this.scene.add(mistFloor);
     this.mistFloor = mistFloor;
+    this.root.name = 'world-root';
+    this.scene.add(this.root);
     this.camera = new THREE.PerspectiveCamera(40, 1, 2, 120000);
     this.camera.position.set(30, 70, 90);
 
@@ -66,7 +76,7 @@ export class World {
     this.controls.touches = { ONE: THREE.TOUCH.PAN, TWO: THREE.TOUCH.DOLLY_ROTATE };
     this.controls.mouseButtons = { LEFT: THREE.MOUSE.PAN, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.ROTATE };
     this.renderer.domElement.addEventListener('contextmenu', (e) => e.preventDefault());
-    this.controls.addEventListener('change', () => { if (this.scene.fog instanceof THREE.FogExp2) this.scene.fog.density = this.fogDensity; this.invalidate(); this.onCamera?.(); });
+    this.controls.addEventListener('change', () => { if (this.scene.fog instanceof THREE.FogExp2) this.scene.fog.density = this.fogDensity; if (this.nested) this.applyPolar(); this.invalidate(); this.onCamera?.(); });
 
     this.hemi = new THREE.HemisphereLight('#c8ccd8', '#3a3138', 1.6);
     this.scene.add(this.hemi);
@@ -99,7 +109,8 @@ export class World {
   /** Mist thins as the camera pulls back, so the map itself stays legible from any height and only the land beyond it fades. */
   get fogDensity(): number {
     const d = this.camera ? this.camera.position.distanceTo(this.controls.target) : 300;
-    const pullBack = THREE.MathUtils.clamp(260 / Math.max(1, d), 0.12, 1);
+    // the continuous world lets the mist thin much further, so the far mountains haze instead of vanishing (identical below ~2,170 ft)
+    const pullBack = THREE.MathUtils.clamp(260 / Math.max(1, d), this.nested ? 0.004 : 0.12, 1);
     return this.fogOn ? (this.outdoor ? this.theme.fogOut : this.theme.fogIn) * this.fogScale * pullBack : 0;
   }
   setFog(on: boolean): void { this.fogOn = on; if (this.scene.fog instanceof THREE.FogExp2) this.scene.fog.density = this.fogDensity; this.mistFloor.visible = on && this.mistFloor.visible; this.invalidate(); }
@@ -129,11 +140,59 @@ export class World {
     this.invalidate();
   }
   setOutdoor(on: boolean): void {
-    this.outdoor = on; this.controls.maxPolarAngle = Math.PI * (on ? 0.46 : 0.4);
+    this.outdoor = on; this.applyPolar();
     if (this.scene.fog instanceof THREE.FogExp2) this.scene.fog.density = this.fogDensity;
     this.invalidate();
   }
   invalidate(): void { this.dirty = true; }
+
+  /** How low the camera may drop: 0.46π outdoors, 0.4π indoors; in the continuous world the floor rises toward 0.3π
+   *  as the camera climbs past 5,000 ft, so the horizon never swallows the valley. */
+  private applyPolar(): void {
+    const base = Math.PI * (this.outdoor ? 0.46 : 0.4);
+    if (!this.nested) { this.controls.maxPolarAngle = base; return; }
+    const d = this.camera.position.distanceTo(this.controls.target);
+    const k = THREE.MathUtils.smoothstep(d, 5000, 20000);
+    this.controls.maxPolarAngle = THREE.MathUtils.lerp(base, Math.PI * 0.3, k);
+  }
+
+  /** The continuous world's camera: far plane 300,000 ft, zoom out to 120,000 ft, wheel and pinch dive toward the
+   *  place under the pointer, the mist thins to 0.004 of its strength far out, the pitch floor rises with altitude.
+   *  Off restores today's map camera exactly. */
+  setNested(on: boolean): void {
+    this.nested = on;
+    this.camera.far = on ? 300000 : 120000;
+    this.camera.updateProjectionMatrix();
+    this.controls.maxDistance = on ? 120000 : 400;
+    this.controls.zoomToCursor = on;
+    this.applyPolar();
+    if (this.scene.fog instanceof THREE.FogExp2) this.scene.fog.density = this.fogDensity;
+    this.invalidate();
+  }
+
+  /** Move the floating origin to an absolute world point. Nothing moves on screen: the world root, the camera, its
+   *  target, the mist floor and any glide in flight all shift by the same amount. */
+  reanchor(abs: THREE.Vector3): void {
+    const delta = this.anchor.clone().sub(abs);
+    if (delta.lengthSq() === 0) return;
+    this.anchor.copy(abs);
+    this.root.position.copy(abs).negate();
+    this.camera.position.add(delta);
+    this.controls.target.add(delta);
+    this.mistFloor.position.add(delta);
+    const tw = this.tween;
+    if (tw) { tw.from.add(delta); tw.to.add(delta); tw.camFrom.add(delta); tw.camTo.add(delta); }
+    this.camera.updateMatrixWorld();
+    this.root.updateMatrixWorld(true);
+    this.onReanchor?.();
+    this.invalidate();
+  }
+  /** Told after the origin moves, so whatever caches a drawn-space matrix (the app's placement, the clip plane) re-reads it. */
+  onReanchor: (() => void) | null = null;
+  /** An anchored (drawn) point as an absolute world point. */
+  toAbsolute(v: THREE.Vector3, out = new THREE.Vector3()): THREE.Vector3 { return out.copy(v).add(this.anchor); }
+  /** An absolute world point as drawn (anchored). */
+  toAnchored(v: THREE.Vector3, out = new THREE.Vector3()): THREE.Vector3 { return out.copy(v).sub(this.anchor); }
 
   renderNow(): void {
     this.renderer.render(this.scene, this.camera);
@@ -186,6 +245,17 @@ export class World {
     this.invalidate();
   }
 
+  /** Glide to a target (anchored) at a distance; the time grows with how far the zoom changes (log of the distance
+   *  ratio), 420–900 ms, unless given. */
+  flyTo(target: THREE.Vector3, dist = this.camera.position.distanceTo(this.controls.target), ms?: number): void {
+    const from = Math.max(1, this.camera.position.distanceTo(this.controls.target));
+    const d = THREE.MathUtils.clamp(dist, this.controls.minDistance, this.controls.maxDistance);
+    const travel = this.controls.target.distanceTo(target) / Math.max(d, from);
+    const dur = ms ?? flightMs(from, d, travel);
+    this.moveTo(target, d, true);
+    if (this.tween) this.tween.dur = Math.max(1, dur);
+  }
+
   private stepTween(): void {
     const tw = this.tween!;
     const k = Math.min(1, (performance.now() - tw.t0) / tw.dur), e = 1 - Math.pow(1 - k, 3);
@@ -215,6 +285,9 @@ export class World {
     this.invalidate();
   }
 
+  /** The glide in flight, if any (tests and the streamer read it). */
+  get flying(): boolean { return !!this.tween; }
+
   label(text: string, sub: string | undefined, cls: string, page?: number): CSS2DObject {
     const el = document.createElement('div');
     el.className = `lbl ${cls}`;
@@ -224,4 +297,12 @@ export class World {
     const o = new CSS2DObject(el);
     return o;
   }
+}
+
+/** A flight's duration: 420 ms for a short hop, growing with the log of the zoom ratio and with the ground covered
+ *  (in screen widths), capped at 900 ms. */
+export function flightMs(fromDist: number, toDist: number, travelRatio = 0): number {
+  const zoom = Math.abs(Math.log(Math.max(1e-6, toDist) / Math.max(1e-6, fromDist)));
+  const across = Math.log1p(Math.max(0, travelRatio));
+  return Math.round(THREE.MathUtils.clamp(420 + 90 * zoom + 120 * across, 420, 900));
 }
