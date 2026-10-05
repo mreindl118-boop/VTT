@@ -2296,7 +2296,7 @@
      "id": "pass-flank-rim-0",
      "kind": "rock-flank",
      "pos": [
-      76.875,
+      79.375,
       0,
       205.0
      ],
@@ -2305,7 +2305,7 @@
      "dims": {
       "h": 100,
       "d": 120,
-      "len": 41.1,
+      "len": 34.8,
       "seed": 1
      }
     },
@@ -2313,7 +2313,7 @@
      "id": "pass-flank-rim-1",
      "kind": "rock-flank",
      "pos": [
-      45.625,
+      53.125,
       0,
       205.0
      ],
@@ -2322,8 +2322,178 @@
      "dims": {
       "h": 100,
       "d": 120,
-      "len": 41.1,
+      "len": 34.8,
       "seed": 2
+     }
+    },
+    {
+     "id": "pass-flank-rim-2",
+     "kind": "rock-flank",
+     "pos": [
+      25.0,
+      0,
+      204.0
+     ],
+     "vis": "player",
+     "rotY": 176.2,
+     "dims": {
+      "h": 100,
+      "d": 120,
+      "len": 39.6,
+      "seed": 3
+     }
+    },
+    {
+     "id": "pass-flank-rim-3",
+     "kind": "rock-flank",
+     "pos": [
+      -10.0,
+      0,
+      202.5
+     ],
+     "vis": "player",
+     "rotY": 178.6,
+     "dims": {
+      "h": 100,
+      "d": 120,
+      "len": 52.0,
+      "seed": 4
+     }
+    },
+    {
+     "id": "pass-flank-rim-4",
+     "kind": "rock-flank",
+     "pos": [
+      -47.5,
+      0,
+      202.75
+     ],
+     "vis": "player",
+     "rotY": -177.5,
+     "dims": {
+      "h": 100,
+      "d": 120,
+      "len": 45.8,
+      "seed": 5
+     }
+    },
+    {
+     "id": "pass-flank-rim-5",
+     "kind": "rock-flank",
+     "pos": [
+      -82.5,
+      0,
+      204.25
+     ],
+     "vis": "player",
+     "rotY": -177.5,
+     "dims": {
+      "h": 100,
+      "d": 120,
+      "len": 45.8,
+      "seed": 6
+     }
+    },
+    {
+     "id": "pass-flank-rim-6",
+     "kind": "rock-flank",
+     "pos": [
+      -116.667,
+      0,
+      204.333
+     ],
+     "vis": "player",
+     "rotY": 177.7,
+     "dims": {
+      "h": 100,
+      "d": 120,
+      "len": 43.7,
+      "seed": 7
+     }
+    },
+    {
+     "id": "pass-flank-rim-7",
+     "kind": "rock-flank",
+     "pos": [
+      -150.0,
+      0,
+      203.0
+     ],
+     "vis": "player",
+     "rotY": 177.7,
+     "dims": {
+      "h": 100,
+      "d": 120,
+      "len": 43.7,
+      "seed": 8
+     }
+    },
+    {
+     "id": "pass-flank-rim-8",
+     "kind": "rock-flank",
+     "pos": [
+      -183.333,
+      0,
+      201.667
+     ],
+     "vis": "player",
+     "rotY": 177.7,
+     "dims": {
+      "h": 100,
+      "d": 120,
+      "len": 43.7,
+      "seed": 9
+     }
+    },
+    {
+     "id": "pass-flank-rim-9",
+     "kind": "rock-flank",
+     "pos": [
+      -216.667,
+      0,
+      201.833
+     ],
+     "vis": "player",
+     "rotY": -177.1,
+     "dims": {
+      "h": 100,
+      "d": 120,
+      "len": 43.7,
+      "seed": 10
+     }
+    },
+    {
+     "id": "pass-flank-rim-10",
+     "kind": "rock-flank",
+     "pos": [
+      -250.0,
+      0,
+      203.5
+     ],
+     "vis": "player",
+     "rotY": -177.1,
+     "dims": {
+      "h": 100,
+      "d": 120,
+      "len": 43.7,
+      "seed": 11
+     }
+    },
+    {
+     "id": "pass-flank-rim-11",
+     "kind": "rock-flank",
+     "pos": [
+      -283.333,
+      0,
+      205.167
+     ],
+     "vis": "player",
+     "rotY": -177.1,
+     "dims": {
+      "h": 100,
+      "d": 120,
+      "len": 43.7,
+      "seed": 12
      }
     },
     {
@@ -2466,15 +2636,16 @@
      "id": "pass-flank-er-0",
      "kind": "rock-flank",
      "pos": [
-      78.125,
+      -283.333,
       0,
-      135.0
+      136.0
      ],
      "vis": "player",
+     "rotY": -3.4,
      "dims": {
       "h": 100,
       "d": 120,
-      "len": 47.3,
+      "len": 43.7,
       "seed": 1
      }
     },
@@ -2482,7 +2653,160 @@
      "id": "pass-flank-er-1",
      "kind": "rock-flank",
      "pos": [
-      114.375,
+      -250.0,
+      0,
+      138.0
+     ],
+     "vis": "player",
+     "rotY": -3.4,
+     "dims": {
+      "h": 100,
+      "d": 120,
+      "len": 43.7,
+      "seed": 2
+     }
+    },
+    {
+     "id": "pass-flank-er-2",
+     "kind": "rock-flank",
+     "pos": [
+      -216.667,
+      0,
+      140.0
+     ],
+     "vis": "player",
+     "rotY": -3.4,
+     "dims": {
+      "h": 100,
+      "d": 120,
+      "len": 43.7,
+      "seed": 3
+     }
+    },
+    {
+     "id": "pass-flank-er-3",
+     "kind": "rock-flank",
+     "pos": [
+      -183.333,
+      0,
+      140.333
+     ],
+     "vis": "player",
+     "rotY": 2.3,
+     "dims": {
+      "h": 100,
+      "d": 120,
+      "len": 43.7,
+      "seed": 4
+     }
+    },
+    {
+     "id": "pass-flank-er-4",
+     "kind": "rock-flank",
+     "pos": [
+      -150.0,
+      0,
+      139.0
+     ],
+     "vis": "player",
+     "rotY": 2.3,
+     "dims": {
+      "h": 100,
+      "d": 120,
+      "len": 43.7,
+      "seed": 5
+     }
+    },
+    {
+     "id": "pass-flank-er-5",
+     "kind": "rock-flank",
+     "pos": [
+      -116.667,
+      0,
+      137.667
+     ],
+     "vis": "player",
+     "rotY": 2.3,
+     "dims": {
+      "h": 100,
+      "d": 120,
+      "len": 43.7,
+      "seed": 6
+     }
+    },
+    {
+     "id": "pass-flank-er-6",
+     "kind": "rock-flank",
+     "pos": [
+      -82.5,
+      0,
+      137.5
+     ],
+     "vis": "player",
+     "rotY": -1.6,
+     "dims": {
+      "h": 100,
+      "d": 120,
+      "len": 45.8,
+      "seed": 7
+     }
+    },
+    {
+     "id": "pass-flank-er-7",
+     "kind": "rock-flank",
+     "pos": [
+      -47.5,
+      0,
+      138.5
+     ],
+     "vis": "player",
+     "rotY": -1.6,
+     "dims": {
+      "h": 100,
+      "d": 120,
+      "len": 45.8,
+      "seed": 8
+     }
+    },
+    {
+     "id": "pass-flank-er-8",
+     "kind": "rock-flank",
+     "pos": [
+      -10.0,
+      0,
+      138.5
+     ],
+     "vis": "player",
+     "rotY": 1.4,
+     "dims": {
+      "h": 100,
+      "d": 120,
+      "len": 52.0,
+      "seed": 9
+     }
+    },
+    {
+     "id": "pass-flank-er-9",
+     "kind": "rock-flank",
+     "pos": [
+      25.0,
+      0,
+      136.5
+     ],
+     "vis": "player",
+     "rotY": 5.7,
+     "dims": {
+      "h": 100,
+      "d": 120,
+      "len": 39.7,
+      "seed": 10
+     }
+    },
+    {
+     "id": "pass-flank-er-10",
+     "kind": "rock-flank",
+     "pos": [
+      55.417,
       0,
       135.0
      ],
@@ -2490,8 +2814,40 @@
      "dims": {
       "h": 100,
       "d": 120,
-      "len": 47.3,
-      "seed": 2
+      "len": 40.5,
+      "seed": 11
+     }
+    },
+    {
+     "id": "pass-flank-er-11",
+     "kind": "rock-flank",
+     "pos": [
+      86.25,
+      0,
+      135.0
+     ],
+     "vis": "player",
+     "dims": {
+      "h": 100,
+      "d": 120,
+      "len": 40.5,
+      "seed": 12
+     }
+    },
+    {
+     "id": "pass-flank-er-12",
+     "kind": "rock-flank",
+     "pos": [
+      117.083,
+      0,
+      135.0
+     ],
+     "vis": "player",
+     "dims": {
+      "h": 100,
+      "d": 120,
+      "len": 40.5,
+      "seed": 13
      }
     },
     {
@@ -2872,16 +3228,16 @@
      "id": "pass-drop-w-22",
      "kind": "precipice",
      "pos": [
-      181.25,
+      182.0,
       0,
-      211.25
+      208.25
      ],
      "vis": "player",
-     "rotY": 101.3,
+     "rotY": 93.1,
      "dims": {
       "depth": 320,
       "d": 60,
-      "len": 17.9,
+      "len": 25.2,
       "seed": 23
      }
     },
@@ -2889,16 +3245,16 @@
      "id": "pass-drop-e-0",
      "kind": "precipice",
      "pos": [
-      230.0,
+      177.75,
       0,
-      55.0
+      138.0
      ],
      "vis": "player",
-     "rotY": -108.4,
+     "rotY": 94.8,
      "dims": {
       "depth": 320,
       "d": 60,
-      "len": 21.8,
+      "len": 9.5,
       "seed": 1
      }
     },
@@ -2906,16 +3262,16 @@
      "id": "pass-drop-e-1",
      "kind": "precipice",
      "pos": [
-      223.75,
+      178.75,
       0,
-      68.75
+      128.75
      ],
      "vis": "player",
-     "rotY": -121.0,
+     "rotY": 78.7,
      "dims": {
       "depth": 320,
       "d": 60,
-      "len": 20.2,
+      "len": 17.9,
       "seed": 2
      }
     },
@@ -2923,16 +3279,16 @@
      "id": "pass-drop-e-2",
      "kind": "precipice",
      "pos": [
-      215.0,
+      185.0,
       0,
-      81.25
+      117.5
      ],
      "vis": "player",
-     "rotY": -128.7,
+     "rotY": 45.0,
      "dims": {
       "depth": 320,
       "d": 60,
-      "len": 22.0,
+      "len": 19.7,
       "seed": 3
      }
     },
@@ -2940,12 +3296,12 @@
      "id": "pass-drop-e-3",
      "kind": "precipice",
      "pos": [
-      205.0,
+      195.0,
       0,
-      93.75
+      106.25
      ],
      "vis": "player",
-     "rotY": -128.7,
+     "rotY": 51.3,
      "dims": {
       "depth": 320,
       "d": 60,
@@ -2957,12 +3313,12 @@
      "id": "pass-drop-e-4",
      "kind": "precipice",
      "pos": [
-      195.0,
+      205.0,
       0,
-      106.25
+      93.75
      ],
      "vis": "player",
-     "rotY": -128.7,
+     "rotY": 51.3,
      "dims": {
       "depth": 320,
       "d": 60,
@@ -2974,16 +3330,16 @@
      "id": "pass-drop-e-5",
      "kind": "precipice",
      "pos": [
-      185.0,
+      215.0,
       0,
-      117.5
+      81.25
      ],
      "vis": "player",
-     "rotY": -135.0,
+     "rotY": 51.3,
      "dims": {
       "depth": 320,
       "d": 60,
-      "len": 19.7,
+      "len": 22.0,
       "seed": 6
      }
     },
@@ -2991,215 +3347,1230 @@
      "id": "pass-drop-e-6",
      "kind": "precipice",
      "pos": [
-      178.75,
+      223.75,
       0,
-      128.75
+      68.75
      ],
      "vis": "player",
-     "rotY": -101.3,
+     "rotY": 59.0,
      "dims": {
       "depth": 320,
       "d": 60,
-      "len": 17.9,
+      "len": 20.2,
       "seed": 7
      }
     },
     {
-     "id": "pass-gorge-w-0",
+     "id": "pass-drop-e-7",
      "kind": "precipice",
      "pos": [
-      169.062,
+      230.0,
       0,
-      205.0
+      55.0
      ],
      "vis": "player",
-     "rotY": 180.0,
+     "rotY": 71.6,
      "dims": {
-      "depth": 420,
-      "d": 14,
-      "len": 29.3,
+      "depth": 320,
+      "d": 60,
+      "len": 21.8,
+      "seed": 8
+     }
+    },
+    {
+     "id": "pass-gorge-ea-0",
+     "kind": "precipice",
+     "pos": [
+      -290.0,
+      0,
+      135.6
+     ],
+     "vis": "player",
+     "rotY": -3.4,
+     "dims": {
+      "depth": 400,
+      "d": 18,
+      "lid": 0,
+      "len": 23.6,
       "seed": 1
      }
     },
     {
-     "id": "pass-gorge-w-1",
+     "id": "pass-gorge-ea-1",
      "kind": "precipice",
      "pos": [
-      147.188,
+      -270.0,
       0,
-      205.0
+      136.8
      ],
      "vis": "player",
-     "rotY": 180.0,
+     "rotY": -3.4,
      "dims": {
-      "depth": 420,
-      "d": 14,
-      "len": 29.3,
+      "depth": 400,
+      "d": 18,
+      "lid": 0,
+      "len": 23.6,
       "seed": 2
      }
     },
     {
-     "id": "pass-gorge-w-2",
+     "id": "pass-gorge-ea-2",
      "kind": "precipice",
      "pos": [
-      125.312,
+      -250.0,
       0,
-      205.0
+      138.0
      ],
      "vis": "player",
-     "rotY": 180.0,
+     "rotY": -3.4,
      "dims": {
-      "depth": 420,
-      "d": 14,
-      "len": 29.3,
+      "depth": 400,
+      "d": 18,
+      "lid": 0,
+      "len": 23.6,
       "seed": 3
      }
     },
     {
-     "id": "pass-gorge-w-3",
+     "id": "pass-gorge-ea-3",
      "kind": "precipice",
      "pos": [
-      103.438,
+      -230.0,
       0,
-      205.0
+      139.2
      ],
      "vis": "player",
-     "rotY": 180.0,
+     "rotY": -3.4,
      "dims": {
-      "depth": 420,
-      "d": 14,
-      "len": 29.3,
+      "depth": 400,
+      "d": 18,
+      "lid": 0,
+      "len": 23.6,
       "seed": 4
      }
     },
     {
-     "id": "pass-gorge-w2-0",
+     "id": "pass-gorge-ea-4",
      "kind": "precipice",
      "pos": [
-      76.875,
+      -210.0,
       0,
-      205.0
+      140.4
      ],
      "vis": "player",
-     "rotY": 180.0,
+     "rotY": -3.4,
      "dims": {
-      "depth": 420,
-      "d": 14,
-      "len": 41.1,
+      "depth": 400,
+      "d": 18,
+      "lid": 0,
+      "len": 23.6,
+      "seed": 5
+     }
+    },
+    {
+     "id": "pass-gorge-ea-5",
+     "kind": "precipice",
+     "pos": [
+      -190.0,
+      0,
+      140.6
+     ],
+     "vis": "player",
+     "rotY": 2.3,
+     "dims": {
+      "depth": 400,
+      "d": 18,
+      "lid": 0,
+      "len": 23.6,
+      "seed": 6
+     }
+    },
+    {
+     "id": "pass-gorge-ea-6",
+     "kind": "precipice",
+     "pos": [
+      -170.0,
+      0,
+      139.8
+     ],
+     "vis": "player",
+     "rotY": 2.3,
+     "dims": {
+      "depth": 400,
+      "d": 18,
+      "lid": 0,
+      "len": 23.6,
+      "seed": 7
+     }
+    },
+    {
+     "id": "pass-gorge-ea-7",
+     "kind": "precipice",
+     "pos": [
+      -150.0,
+      0,
+      139.0
+     ],
+     "vis": "player",
+     "rotY": 2.3,
+     "dims": {
+      "depth": 400,
+      "d": 18,
+      "lid": 0,
+      "len": 23.6,
+      "seed": 8
+     }
+    },
+    {
+     "id": "pass-gorge-ea-8",
+     "kind": "precipice",
+     "pos": [
+      -130.0,
+      0,
+      138.2
+     ],
+     "vis": "player",
+     "rotY": 2.3,
+     "dims": {
+      "depth": 400,
+      "d": 18,
+      "lid": 0,
+      "len": 23.6,
+      "seed": 9
+     }
+    },
+    {
+     "id": "pass-gorge-ea-9",
+     "kind": "precipice",
+     "pos": [
+      -110.0,
+      0,
+      137.4
+     ],
+     "vis": "player",
+     "rotY": 2.3,
+     "dims": {
+      "depth": 400,
+      "d": 18,
+      "lid": 0,
+      "len": 23.6,
+      "seed": 10
+     }
+    },
+    {
+     "id": "pass-gorge-ea-10",
+     "kind": "precipice",
+     "pos": [
+      -88.333,
+      0,
+      137.333
+     ],
+     "vis": "player",
+     "rotY": -1.6,
+     "dims": {
+      "depth": 400,
+      "d": 18,
+      "lid": 0,
+      "len": 27.2,
+      "seed": 11
+     }
+    },
+    {
+     "id": "pass-gorge-ea-11",
+     "kind": "precipice",
+     "pos": [
+      -65.0,
+      0,
+      138.0
+     ],
+     "vis": "player",
+     "rotY": -1.6,
+     "dims": {
+      "depth": 400,
+      "d": 18,
+      "lid": 0,
+      "len": 27.2,
+      "seed": 12
+     }
+    },
+    {
+     "id": "pass-gorge-ea-12",
+     "kind": "precipice",
+     "pos": [
+      -41.667,
+      0,
+      138.667
+     ],
+     "vis": "player",
+     "rotY": -1.6,
+     "dims": {
+      "depth": 400,
+      "d": 18,
+      "lid": 0,
+      "len": 27.2,
+      "seed": 13
+     }
+    },
+    {
+     "id": "pass-gorge-ea-13",
+     "kind": "precipice",
+     "pos": [
+      -20.0,
+      0,
+      138.75
+     ],
+     "vis": "player",
+     "rotY": 1.4,
+     "dims": {
+      "depth": 400,
+      "d": 18,
+      "lid": 0,
+      "len": 23.6,
+      "seed": 14
+     }
+    },
+    {
+     "id": "pass-gorge-ea-14",
+     "kind": "precipice",
+     "pos": [
+      0.0,
+      0,
+      138.25
+     ],
+     "vis": "player",
+     "rotY": 1.4,
+     "dims": {
+      "depth": 400,
+      "d": 18,
+      "lid": 0,
+      "len": 23.6,
+      "seed": 15
+     }
+    },
+    {
+     "id": "pass-gorge-ea-15",
+     "kind": "precipice",
+     "pos": [
+      25.0,
+      0,
+      139.0
+     ],
+     "vis": "player",
+     "rotY": -3.8,
+     "dims": {
+      "depth": 400,
+      "d": 18,
+      "lid": 0,
+      "len": 34.5,
+      "seed": 16
+     }
+    },
+    {
+     "id": "pass-gorge-ea-16",
+     "kind": "precipice",
+     "pos": [
+      50.0,
+      0,
+      141.25
+     ],
+     "vis": "player",
+     "rotY": -7.1,
+     "dims": {
+      "depth": 400,
+      "d": 18,
+      "lid": 0,
+      "len": 23.8,
+      "seed": 17
+     }
+    },
+    {
+     "id": "pass-gorge-ea-17",
+     "kind": "precipice",
+     "pos": [
+      70.0,
+      0,
+      143.5
+     ],
+     "vis": "player",
+     "rotY": -5.7,
+     "dims": {
+      "depth": 400,
+      "d": 18,
+      "lid": 0,
+      "len": 23.7,
+      "seed": 18
+     }
+    },
+    {
+     "id": "pass-gorge-ea-18",
+     "kind": "precipice",
+     "pos": [
+      90.0,
+      0,
+      143.75
+     ],
+     "vis": "player",
+     "rotY": 4.3,
+     "dims": {
+      "depth": 400,
+      "d": 18,
+      "lid": 0,
+      "len": 23.7,
+      "seed": 19
+     }
+    },
+    {
+     "id": "pass-gorge-ea-19",
+     "kind": "precipice",
+     "pos": [
+      110.0,
+      0,
+      144.0
+     ],
+     "vis": "player",
+     "rotY": -5.7,
+     "dims": {
+      "depth": 400,
+      "d": 18,
+      "lid": 0,
+      "len": 23.7,
+      "seed": 20
+     }
+    },
+    {
+     "id": "pass-gorge-ea-20",
+     "kind": "precipice",
+     "pos": [
+      127.5,
+      0,
+      146.0
+     ],
+     "vis": "player",
+     "rotY": -7.6,
+     "dims": {
+      "depth": 400,
+      "d": 18,
+      "lid": 0,
+      "len": 18.3,
+      "seed": 21
+     }
+    },
+    {
+     "id": "pass-gorge-ea-21",
+     "kind": "precipice",
+     "pos": [
+      141.0,
+      0,
+      147.25
+     ],
+     "vis": "player",
+     "rotY": -2.4,
+     "dims": {
+      "depth": 400,
+      "d": 18,
+      "lid": 0,
+      "len": 15.0,
+      "seed": 22
+     }
+    },
+    {
+     "id": "pass-gorge-eb-0",
+     "kind": "precipice",
+     "pos": [
+      155.0,
+      0,
+      147.5
+     ],
+     "vis": "player",
+     "dims": {
+      "depth": 400,
+      "d": 18,
+      "lid": 0,
+      "rim": 0,
+      "len": 19.3,
       "seed": 1
      }
     },
     {
-     "id": "pass-gorge-w2-1",
+     "id": "pass-gorge-ec-0",
      "kind": "precipice",
      "pos": [
-      45.625,
+      167.0,
       0,
-      205.0
+      146.25
      ],
      "vis": "player",
-     "rotY": 180.0,
+     "rotY": 17.4,
      "dims": {
-      "depth": 420,
-      "d": 14,
-      "len": 41.1,
-      "seed": 2
-     }
-    },
-    {
-     "id": "pass-gorge-e2-0",
-     "kind": "precipice",
-     "pos": [
-      72.083,
-      0,
-      135.0
-     ],
-     "vis": "player",
-     "dims": {
-      "depth": 420,
-      "d": 14,
-      "len": 32.2,
+      "depth": 400,
+      "d": 18,
+      "lid": 0,
+      "len": 11.1,
       "seed": 1
      }
     },
     {
-     "id": "pass-gorge-e2-1",
+     "id": "pass-gorge-ec-1",
      "kind": "precipice",
      "pos": [
-      96.25,
+      174.5,
       0,
-      135.0
+      143.0
      ],
      "vis": "player",
+     "rotY": 29.7,
      "dims": {
-      "depth": 420,
-      "d": 14,
-      "len": 32.2,
+      "depth": 400,
+      "d": 18,
+      "lid": 0,
+      "len": 10.7,
       "seed": 2
      }
     },
     {
-     "id": "pass-gorge-e2-2",
+     "id": "pass-gorge-wa-0",
      "kind": "precipice",
      "pos": [
-      120.417,
+      141.0,
       0,
-      135.0
+      193.0
      ],
      "vis": "player",
+     "rotY": -175.2,
      "dims": {
-      "depth": 420,
-      "d": 14,
-      "len": 32.2,
+      "depth": 400,
+      "d": 18,
+      "lid": 0,
+      "len": 15.0,
+      "seed": 1
+     }
+    },
+    {
+     "id": "pass-gorge-wa-1",
+     "kind": "precipice",
+     "pos": [
+      127.5,
+      0,
+      194.5
+     ],
+     "vis": "player",
+     "rotY": -172.4,
+     "dims": {
+      "depth": 400,
+      "d": 18,
+      "lid": 0,
+      "len": 18.3,
+      "seed": 2
+     }
+    },
+    {
+     "id": "pass-gorge-wa-2",
+     "kind": "precipice",
+     "pos": [
+      110.0,
+      0,
+      196.75
+     ],
+     "vis": "player",
+     "rotY": -172.9,
+     "dims": {
+      "depth": 400,
+      "d": 18,
+      "lid": 0,
+      "len": 23.8,
       "seed": 3
      }
     },
     {
-     "id": "pass-gorge-e-0",
+     "id": "pass-gorge-wa-3",
      "kind": "precipice",
      "pos": [
-      141.875,
+      90.0,
       0,
-      135.0
+      197.25
      ],
      "vis": "player",
+     "rotY": 175.7,
      "dims": {
-      "depth": 420,
-      "d": 14,
-      "len": 25.4,
+      "depth": 400,
+      "d": 18,
+      "lid": 0,
+      "len": 23.7,
+      "seed": 4
+     }
+    },
+    {
+     "id": "pass-gorge-wa-4",
+     "kind": "precipice",
+     "pos": [
+      70.0,
+      0,
+      197.75
+     ],
+     "vis": "player",
+     "rotY": -172.9,
+     "dims": {
+      "depth": 400,
+      "d": 18,
+      "lid": 0,
+      "len": 23.8,
+      "seed": 5
+     }
+    },
+    {
+     "id": "pass-gorge-wa-5",
+     "kind": "precipice",
+     "pos": [
+      50.0,
+      0,
+      200.25
+     ],
+     "vis": "player",
+     "rotY": -172.9,
+     "dims": {
+      "depth": 400,
+      "d": 18,
+      "lid": 0,
+      "len": 23.8,
+      "seed": 6
+     }
+    },
+    {
+     "id": "pass-gorge-wa-6",
+     "kind": "precipice",
+     "pos": [
+      25.0,
+      0,
+      202.25
+     ],
+     "vis": "player",
+     "rotY": -177.1,
+     "dims": {
+      "depth": 400,
+      "d": 18,
+      "lid": 0,
+      "len": 34.4,
+      "seed": 7
+     }
+    },
+    {
+     "id": "pass-gorge-wa-7",
+     "kind": "precipice",
+     "pos": [
+      0.0,
+      0,
+      202.75
+     ],
+     "vis": "player",
+     "rotY": 178.6,
+     "dims": {
+      "depth": 400,
+      "d": 18,
+      "lid": 0,
+      "len": 23.6,
+      "seed": 8
+     }
+    },
+    {
+     "id": "pass-gorge-wa-8",
+     "kind": "precipice",
+     "pos": [
+      -20.0,
+      0,
+      202.25
+     ],
+     "vis": "player",
+     "rotY": 178.6,
+     "dims": {
+      "depth": 400,
+      "d": 18,
+      "lid": 0,
+      "len": 23.6,
+      "seed": 9
+     }
+    },
+    {
+     "id": "pass-gorge-wa-9",
+     "kind": "precipice",
+     "pos": [
+      -41.667,
+      0,
+      202.5
+     ],
+     "vis": "player",
+     "rotY": -177.5,
+     "dims": {
+      "depth": 400,
+      "d": 18,
+      "lid": 0,
+      "len": 27.2,
+      "seed": 10
+     }
+    },
+    {
+     "id": "pass-gorge-wa-10",
+     "kind": "precipice",
+     "pos": [
+      -65.0,
+      0,
+      203.5
+     ],
+     "vis": "player",
+     "rotY": -177.5,
+     "dims": {
+      "depth": 400,
+      "d": 18,
+      "lid": 0,
+      "len": 27.2,
+      "seed": 11
+     }
+    },
+    {
+     "id": "pass-gorge-wa-11",
+     "kind": "precipice",
+     "pos": [
+      -88.333,
+      0,
+      204.5
+     ],
+     "vis": "player",
+     "rotY": -177.5,
+     "dims": {
+      "depth": 400,
+      "d": 18,
+      "lid": 0,
+      "len": 27.2,
+      "seed": 12
+     }
+    },
+    {
+     "id": "pass-gorge-wa-12",
+     "kind": "precipice",
+     "pos": [
+      -110.0,
+      0,
+      204.6
+     ],
+     "vis": "player",
+     "rotY": 177.7,
+     "dims": {
+      "depth": 400,
+      "d": 18,
+      "lid": 0,
+      "len": 23.6,
+      "seed": 13
+     }
+    },
+    {
+     "id": "pass-gorge-wa-13",
+     "kind": "precipice",
+     "pos": [
+      -130.0,
+      0,
+      203.8
+     ],
+     "vis": "player",
+     "rotY": 177.7,
+     "dims": {
+      "depth": 400,
+      "d": 18,
+      "lid": 0,
+      "len": 23.6,
+      "seed": 14
+     }
+    },
+    {
+     "id": "pass-gorge-wa-14",
+     "kind": "precipice",
+     "pos": [
+      -150.0,
+      0,
+      203.0
+     ],
+     "vis": "player",
+     "rotY": 177.7,
+     "dims": {
+      "depth": 400,
+      "d": 18,
+      "lid": 0,
+      "len": 23.6,
+      "seed": 15
+     }
+    },
+    {
+     "id": "pass-gorge-wa-15",
+     "kind": "precipice",
+     "pos": [
+      -170.0,
+      0,
+      202.2
+     ],
+     "vis": "player",
+     "rotY": 177.7,
+     "dims": {
+      "depth": 400,
+      "d": 18,
+      "lid": 0,
+      "len": 23.6,
+      "seed": 16
+     }
+    },
+    {
+     "id": "pass-gorge-wa-16",
+     "kind": "precipice",
+     "pos": [
+      -190.0,
+      0,
+      201.4
+     ],
+     "vis": "player",
+     "rotY": 177.7,
+     "dims": {
+      "depth": 400,
+      "d": 18,
+      "lid": 0,
+      "len": 23.6,
+      "seed": 17
+     }
+    },
+    {
+     "id": "pass-gorge-wa-17",
+     "kind": "precipice",
+     "pos": [
+      -210.0,
+      0,
+      201.5
+     ],
+     "vis": "player",
+     "rotY": -177.1,
+     "dims": {
+      "depth": 400,
+      "d": 18,
+      "lid": 0,
+      "len": 23.6,
+      "seed": 18
+     }
+    },
+    {
+     "id": "pass-gorge-wa-18",
+     "kind": "precipice",
+     "pos": [
+      -230.0,
+      0,
+      202.5
+     ],
+     "vis": "player",
+     "rotY": -177.1,
+     "dims": {
+      "depth": 400,
+      "d": 18,
+      "lid": 0,
+      "len": 23.6,
+      "seed": 19
+     }
+    },
+    {
+     "id": "pass-gorge-wa-19",
+     "kind": "precipice",
+     "pos": [
+      -250.0,
+      0,
+      203.5
+     ],
+     "vis": "player",
+     "rotY": -177.1,
+     "dims": {
+      "depth": 400,
+      "d": 18,
+      "lid": 0,
+      "len": 23.6,
+      "seed": 20
+     }
+    },
+    {
+     "id": "pass-gorge-wa-20",
+     "kind": "precipice",
+     "pos": [
+      -270.0,
+      0,
+      204.5
+     ],
+     "vis": "player",
+     "rotY": -177.1,
+     "dims": {
+      "depth": 400,
+      "d": 18,
+      "lid": 0,
+      "len": 23.6,
+      "seed": 21
+     }
+    },
+    {
+     "id": "pass-gorge-wa-21",
+     "kind": "precipice",
+     "pos": [
+      -290.0,
+      0,
+      205.5
+     ],
+     "vis": "player",
+     "rotY": -177.1,
+     "dims": {
+      "depth": 400,
+      "d": 18,
+      "lid": 0,
+      "len": 23.6,
+      "seed": 22
+     }
+    },
+    {
+     "id": "pass-gorge-wb-0",
+     "kind": "precipice",
+     "pos": [
+      155.0,
+      0,
+      192.5
+     ],
+     "vis": "player",
+     "rotY": -180.0,
+     "dims": {
+      "depth": 400,
+      "d": 18,
+      "lid": 0,
+      "rim": 0,
+      "len": 19.3,
       "seed": 1
      }
     },
     {
-     "id": "pass-gorge-e-1",
+     "id": "pass-gorge-wc-0",
      "kind": "precipice",
      "pos": [
-      160.625,
+      177.25,
       0,
-      135.0
+      196.75
      ],
      "vis": "player",
+     "rotY": 152.1,
      "dims": {
-      "depth": 420,
-      "d": 14,
-      "len": 25.4,
+      "depth": 400,
+      "d": 18,
+      "lid": 0,
+      "len": 12.4,
+      "seed": 1
+     }
+    },
+    {
+     "id": "pass-gorge-wc-1",
+     "kind": "precipice",
+     "pos": [
+      168.0,
+      0,
+      193.5
+     ],
+     "vis": "player",
+     "rotY": 168.7,
+     "dims": {
+      "depth": 400,
+      "d": 18,
+      "lid": 0,
+      "len": 13.0,
       "seed": 2
      }
     },
     {
-     "id": "pass-gorge-e-2",
-     "kind": "precipice",
+     "id": "pass-gorge-floor",
+     "kind": "prism",
      "pos": [
-      173.75,
       0,
-      135.0
+      0,
+      0
+     ],
+     "vis": "player",
+     "polygon": [
+      [
+       -300,
+       135.0
+      ],
+      [
+       -200,
+       141.0
+      ],
+      [
+       -100,
+       137.0
+      ],
+      [
+       -30,
+       139.0
+      ],
+      [
+       10,
+       138.0
+      ],
+      [
+       40,
+       140.0
+      ],
+      [
+       60,
+       142.5
+      ],
+      [
+       80,
+       144.5
+      ],
+      [
+       100,
+       143.0
+      ],
+      [
+       120,
+       145.0
+      ],
+      [
+       135,
+       147.0
+      ],
+      [
+       147.0,
+       147.5
+      ],
+      [
+       163.0,
+       147.5
+      ],
+      [
+       171.0,
+       145.0
+      ],
+      [
+       178.0,
+       141.0
+      ],
+      [
+       181.5,
+       199.0
+      ],
+      [
+       173.0,
+       194.5
+      ],
+      [
+       163.0,
+       192.5
+      ],
+      [
+       147.0,
+       192.5
+      ],
+      [
+       135,
+       193.5
+      ],
+      [
+       120,
+       195.5
+      ],
+      [
+       100,
+       198.0
+      ],
+      [
+       80,
+       196.5
+      ],
+      [
+       60,
+       199.0
+      ],
+      [
+       40,
+       201.5
+      ],
+      [
+       10,
+       203.0
+      ],
+      [
+       -30,
+       202.0
+      ],
+      [
+       -100,
+       205.0
+      ],
+      [
+       -200,
+       201.0
+      ],
+      [
+       -300,
+       206.0
+      ]
+     ],
+     "dims": {
+      "h": 2,
+      "y": -402,
+      "color": 5066840
+     }
+    },
+    {
+     "id": "pass-gorge-fog",
+     "kind": "fog-sea",
+     "pos": [
+      -57.5,
+      0,
+      170.5
      ],
      "vis": "player",
      "dims": {
-      "depth": 420,
-      "d": 14,
-      "len": 11.4,
-      "seed": 3
+      "w": 485,
+      "len": 75,
+      "y": -90,
+      "shade": 1,
+      "lid": 0
+     }
+    },
+    {
+     "id": "pass-gorge-lid",
+     "kind": "grid-lid",
+     "pos": [
+      0,
+      0,
+      0
+     ],
+     "vis": "player",
+     "dims": {
+      "n": 2,
+      "0n": 20,
+      "0x0": -30,
+      "0z0": 139.0,
+      "0x1": 10,
+      "0z1": 138.0,
+      "0x2": 40,
+      "0z2": 140.0,
+      "0x3": 60,
+      "0z3": 142.5,
+      "0x4": 80,
+      "0z4": 144.5,
+      "0x5": 100,
+      "0z5": 143.0,
+      "0x6": 120,
+      "0z6": 145.0,
+      "0x7": 135,
+      "0z7": 147.0,
+      "0x8": 147.0,
+      "0z8": 147.5,
+      "0x9": 150,
+      "0z9": 147.5,
+      "0x10": 150,
+      "0z10": 192.5,
+      "0x11": 147.0,
+      "0z11": 192.5,
+      "0x12": 135,
+      "0z12": 193.5,
+      "0x13": 120,
+      "0z13": 195.5,
+      "0x14": 100,
+      "0z14": 198.0,
+      "0x15": 80,
+      "0z15": 196.5,
+      "0x16": 60,
+      "0z16": 199.0,
+      "0x17": 40,
+      "0z17": 201.5,
+      "0x18": 10,
+      "0z18": 203.0,
+      "0x19": -30,
+      "0z19": 202.0,
+      "1n": 43,
+      "1x0": 160,
+      "1z0": 147.5,
+      "1x1": 163.0,
+      "1z1": 147.5,
+      "1x2": 171.0,
+      "1z2": 145.0,
+      "1x3": 178.0,
+      "1z3": 141.0,
+      "1x4": 177.5,
+      "1z4": 135,
+      "1x5": 180,
+      "1z5": 122.5,
+      "1x6": 190,
+      "1z6": 112.5,
+      "1x7": 200,
+      "1z7": 100,
+      "1x8": 210,
+      "1z8": 87.5,
+      "1x9": 220,
+      "1z9": 75,
+      "1x10": 227.5,
+      "1z10": 62.5,
+      "1x11": 232.5,
+      "1z11": 47.5,
+      "1x12": 237.5,
+      "1z12": 0,
+      "1x13": 390,
+      "1z13": 0,
+      "1x14": 390,
+      "1z14": 550,
+      "1x15": 230,
+      "1z15": 550,
+      "1x16": 230,
+      "1z16": 497.5,
+      "1x17": 232.5,
+      "1z17": 480,
+      "1x18": 237.5,
+      "1z18": 460,
+      "1x19": 240,
+      "1z19": 440,
+      "1x20": 242.5,
+      "1z20": 420,
+      "1x21": 247.5,
+      "1z21": 407.5,
+      "1x22": 260,
+      "1z22": 397.5,
+      "1x23": 262.5,
+      "1z23": 382.5,
+      "1x24": 267.5,
+      "1z24": 381.5,
+      "1x25": 279.0,
+      "1z25": 377.0,
+      "1x26": 287.0,
+      "1z26": 367.0,
+      "1x27": 288.0,
+      "1z27": 352.5,
+      "1x28": 283.0,
+      "1z28": 339.5,
+      "1x29": 272.5,
+      "1z29": 333.0,
+      "1x30": 258.0,
+      "1z30": 333.0,
+      "1x31": 247.5,
+      "1z31": 327.5,
+      "1x32": 237.5,
+      "1z32": 312.5,
+      "1x33": 227.5,
+      "1z33": 297.5,
+      "1x34": 217.5,
+      "1z34": 280,
+      "1x35": 207.5,
+      "1z35": 262.5,
+      "1x36": 197.5,
+      "1z36": 245,
+      "1x37": 190,
+      "1z37": 230,
+      "1x38": 182.5,
+      "1z38": 217.5,
+      "1x39": 181.5,
+      "1z39": 199.0,
+      "1x40": 173.0,
+      "1z40": 194.5,
+      "1x41": 163.0,
+      "1z41": 192.5,
+      "1x42": 160,
+      "1z42": 192.5
      }
     },
     {
@@ -3229,7 +4600,8 @@
      "dims": {
       "len": 70,
       "w": 10,
-      "drop": 80
+      "drop": 80,
+      "lid": 0
      }
     },
     {
@@ -3517,8 +4889,48 @@
        205
       ],
       [
-       180,
+       40,
        205
+      ],
+      [
+       40,
+       201.5
+      ],
+      [
+       60,
+       199.0
+      ],
+      [
+       80,
+       196.5
+      ],
+      [
+       100,
+       198.0
+      ],
+      [
+       120,
+       195.5
+      ],
+      [
+       135,
+       193.5
+      ],
+      [
+       147.0,
+       192.5
+      ],
+      [
+       163.0,
+       192.5
+      ],
+      [
+       173.0,
+       194.5
+      ],
+      [
+       181.5,
+       199.0
       ],
       [
        182.5,
@@ -3606,6 +5018,10 @@
     {
      "polygon": [
       [
+       40,
+       135
+      ],
+      [
        132.5,
        135
       ],
@@ -3672,6 +5088,46 @@
       [
        177.5,
        135
+      ],
+      [
+       178.0,
+       141.0
+      ],
+      [
+       171.0,
+       145.0
+      ],
+      [
+       163.0,
+       147.5
+      ],
+      [
+       147.0,
+       147.5
+      ],
+      [
+       135,
+       147.0
+      ],
+      [
+       120,
+       145.0
+      ],
+      [
+       100,
+       143.0
+      ],
+      [
+       80,
+       144.5
+      ],
+      [
+       60,
+       142.5
+      ],
+      [
+       40,
+       140.0
       ]
      ],
      "floor": "snow"
@@ -4052,6 +5508,10 @@
        370
       ],
       [
+       254.949,
+       359.484
+      ],
+      [
        250,
        354.535
       ],
@@ -4243,8 +5703,8 @@
     {
      "id": "tower-upper-w-11",
      "a": [
-      250,
-      354.53499999999997
+      254.949,
+      359.484
      ],
      "b": [
       265.46500000000003,
@@ -5394,8 +6854,8 @@
    "to": {
     "level": "tower-upper",
     "pos": [
-     253.0,
-     360.0
+     255.5,
+     357.5
     ]
    }
   },

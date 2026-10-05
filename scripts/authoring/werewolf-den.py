@@ -156,7 +156,12 @@ CLIFF_W = [(8.0, 79.0), (14.0, 78.6), (20.0, 77.5), (26.0, 76.6), (30.0, 75.7), 
 CLIFF_E = [M2, (44.2, 71.2), (45.8, 69.7), (48.4, 68.4), (50.0, 66.8), (53.5, 64.6), (58.0, 63.0), (62.0, 62.0)]
 d.terrain.append(([(8.0, 79.0)] + CLIFF_W[1:] + [(36.05, 78.3), (37.1, 80.6), (38.4, 82.7), (40.0, 83.4), (41.85, 83.0), (43.7, 81.7), (44.5, 79.6), (44.2, 77.5), (43.2, 76.2)] + CLIFF_E + [(62.0, 96.0), (8.0, 96.0)], 'grass'))
 d.terrain.append(([(38.6, 83.2), (41.2, 83.2), (42.6, 88), (43.6, 96), (39.6, 96), (38.8, 88)], 'dirt'))          # the beaten path up to the mouth
-# the rock: one slab round the caves, cut to their outline (and the islands standing in the deep caves)
+# ---------------------------------------------------------------- the hill the den is dug into
+# The caves lie under a spur of the mountain: the hill rises from the forest floor east and west and from the cliff over the
+# slope at the mouth, climbs north over the caves, and breaks in a rough scarp under the shelf of the ring of stone (Z8,
+# +100) with the mountain going on up behind it. Over the caves the hill is cut away like a diorama's lid: the rock between
+# and round them stands as one terrace at the cutaway (the slab), and the hillside rises from its edge. The ring level
+# carries the same hill uncut. The land is a lattice of heights (the kit's heightfield), the caves cut to their own outline.
 caves = loops_of([poly for _, poly, _, _ in ROOMS.values()])
 caves.sort(key=lambda l: -abs(area(l)))
 cave = caves[0]
@@ -167,9 +172,47 @@ Z1P = ROOMS['Z1'][1]
 canopy = set(Z1P[Z1P.index(M2) + 1:Z1P.index(M1)])
 fwd = cave[cave.index(M1):] + cave[:cave.index(M1)]; j = fwd.index(M2)
 inner = fwd[:j + 1] if not canopy & set(fwd[:j + 1]) else [M1] + list(reversed(fwd[j:]))
-ROCK = [(8.0, 18.0), (60.0, 18.0), (62.0, 62.0)] + list(reversed(CLIFF_E[1:])) + list(reversed(inner)) + list(reversed(CLIFF_W[:-1]))
-ROCK = [(round(x, 3), round(z, 3)) for x, z in ROCK]
+CLIFF = CLIFF_W + CLIFF_E                                    # the cliff over the slope, straight across the mouth from M1 to M2
+
+def seg_dist(p, a, b):
+    dx, dz = b[0] - a[0], b[1] - a[1]; L2 = dx * dx + dz * dz or 1e-9
+    t = max(0.0, min(1.0, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dz) / L2))
+    return math.hypot(p[0] - a[0] - dx * t, p[1] - a[1] - dz * t)
+def poly_dist(p, poly):
+    return min(seg_dist(p, poly[i], poly[(i + 1) % len(poly)]) for i in range(len(poly)))
+def interp(pts, x):
+    """The polyline's z at x (pts run west to east; held flat past its ends)."""
+    if x <= pts[0][0]: return pts[0][1]
+    for (x0, z0), (x1, z1) in zip(pts, pts[1:]):
+        if x <= x1: return z0 + (z1 - z0) * (x - x0) / ((x1 - x0) or 1e-9)
+    return pts[-1][1]
+def smooth(a, b, t):
+    k = max(0.0, min(1.0, (t - a) / (b - a))); return k * k * (3 - 2 * k)
+cliff_z = lambda x: interp(CLIFF + [(70.0, 60.0)], x)
+
+# the terrace: the rock round the caves out to a ragged line about 13 ft off them (farther where the caves' arms leave a
+# bay between them, which it fills), from the cliff west of the mouth round the back of the den to the cliff east of it
+CEN = (32.0, 49.0)
+dense = []
+for _, poly, _, _ in ROOMS.values():
+    for a, b in zip(poly, poly[1:] + poly[:1]):
+        n = max(1, int(math.hypot(b[0] - a[0], b[1] - a[1]) / 0.25))
+        dense += [(a[0] + (b[0] - a[0]) * k / n, a[1] + (b[1] - a[1]) * k / n) for k in range(n)]
+polar = [(math.atan2(p[1] - CEN[1], p[0] - CEN[0]), math.hypot(p[0] - CEN[0], p[1] - CEN[1])) for p in dense]
+def reach(t, w=math.radians(2.6)):
+    return max((r for a, r in polar if abs((a - t + math.pi) % (2 * math.pi) - math.pi) < w), default=0.0)
+a1 = math.atan2(M1[1] - CEN[1], M1[0] - CEN[0]); a2 = math.atan2(M2[1] - CEN[1], M2[0] - CEN[0]) + 2 * math.pi
+steps = int((a2 - a1) / math.radians(3))
+OUTER = []
+for i in range(1, steps):
+    t = a1 + (a2 - a1) * i / steps
+    r = reach(t) + 2.6 + 0.45 * math.sin(i * 1.7) + 0.3 * math.sin(i * 0.61)
+    x, z = CEN[0] + math.cos(t) * r, CEN[1] + math.sin(t) * r
+    z = min(z, cliff_z(x) - 0.8)                               # never out past the cliff
+    OUTER.append((round(x, 2), round(z, 2)))
+ROCK = [(round(x, 3), round(z, 3)) for x, z in [M1] + OUTER + [M2] + list(reversed(inner))[1:-1]]
 if area(ROCK) < 0: ROCK = ROCK[::-1]
+TERRACE = [M1] + OUTER + [M2]                                # the terrace's whole extent (caves and all), closed across the mouth
 def enc(loops, h):
     dm = OrderedDict(n=len(loops), h=h)
     for i, lp in enumerate(loops):
@@ -177,18 +220,103 @@ def enc(loops, h):
         for k, (x, z) in enumerate(lp): dm[f'{i}x{k}'] = round(x * 5, 2); dm[f'{i}z{k}'] = round(z * 5, 2)
     return dm
 d.obj('rock', 'rock-mass', (0, 0), 'player', None, dims=enc([ROCK] + ISLANDS[:1] + ROCK_ISLANDS, ROCK_H))       # the round pillars are props of their own
+
+# the ground's height (ft above the den's floor) at plan cell (x, z), before the caves are cut
+SCARP = [(-12.0, 23.2), (8.0, 23.0), (24.0, 22.6), (36.0, 22.0), (40.7, 21.4), (54.0, 15.4), (66.6, 9.4), (92.0, -2.6)]   # the shelf's lip
+Z8P = [(44.0, 11.8), (44.6, 10.0), (45.6, 9.2), (46.8, 9.2), (47.6, 9.4), (50.1, 9.05), (52.2, 9.4), (54.4, 10.8), (55.8, 10.3), (58.6, 9.05), (61.5, 7.5), (63.3, 6.6),
+       (65.8, 5.3), (66.6, 9.4), (54.0, 15.4), (40.7, 21.4), (40.1, 18.1), (40.8, 15.6), (42.2, 13.9)]
+HEADP = [(45.6, 9.2), (44.9, 8.4), (45.0, 7.2), (45.8, 6.6), (46.9, 6.7), (47.4, 7.6), (47.2, 8.6), (46.8, 9.2)]
+SHELF_Y = 99.6                                               # under the ring level's floor
+PROF = [(0, 0), (0.04, 0.06), (0.12, 0.22), (0.3, 0.45), (0.55, 0.7), (1, 1)]   # the scarp's fall, as the kit's precipice draws one
+def prof(t):
+    for (t0, v0), (t1, v1) in zip(PROF, PROF[1:]):
+        if t <= t1: return v0 + (v1 - v0) * (t - t0) / (t1 - t0)
+    return 1.0
+def mountain(x, z):
+    """North of the scarp: the shelf at the ring of stone's floor, the mountain climbing behind it."""
+    if inside((x, z), Z8P) or inside((x, z), HEADP): return SHELF_Y
+    return min(135.0, SHELF_Y + 0.8 * 5 * min(poly_dist((x, z), Z8P), poly_dist((x, z), HEADP)))
+def hill(x, z):
+    zs = interp(SCARP, x)
+    if z < zs: h = mountain(x, z)
+    else:
+        top = mountain(x, zs - 0.01)
+        h = max(top - (top - 32.0) * prof(min(1.0, (z - zs) * 5 / 120.0)),     # the scarp under the shelf, 120 ft out to its foot
+                13.0 + 25.0 * smooth(76.0, 36.0, z))                           # the spur's back: 13 ft over the mouth, near 40 behind
+    # it falls away to the forest floor east and west (a ragged foot) and off its north end past the map
+    xw = 3.0 + 1.6 * math.sin(0.37 * z + 0.5) + 1.0 * math.sin(0.91 * z + 2.0)
+    xe = 64.0 + 12.0 * smooth(26.0, 12.0, z) + 1.8 * math.sin(0.33 * z + 1.3) + 1.1 * math.sin(0.8 * z)
+    return h * smooth(0.0, 4.0 + h / 12.0, min(x - xw, xe - x)) * smooth(-24.0, -8.0, z)
+
+# the lattice (5-ft steps on the den level, 10 on the ring's); heights packed as krezk_land.heightfield_dims packs them
+HF_HOLE = 4095
+def heightfield_dims(x0, z0, nx, nz, cell, fn, hole=None, q=0.5, origin_y=0.0, taper=None):
+    """Sample fn(x, z) on an (nx+1) x (nz+1) vertex lattice from (x0, z0); pack four 12-bit heights per number.
+    hole(x, z) -> True leaves the vertex out (no cell that touches it is drawn). Heights are relative to origin_y."""
+    vals = []
+    for j in range(nz + 1):
+        for i in range(nx + 1):
+            x, z = x0 + i * cell, z0 + j * cell
+            if hole and hole(x, z): vals.append(HF_HOLE); continue
+            h = fn(x, z) - origin_y
+            if taper: h = taper(x, z, h)
+            vals.append(max(0, min(HF_HOLE - 1, int(round(h / q)))))
+    dims = {'nx': nx, 'nz': nz, 'cell': cell, 'q': q}
+    for k in range(0, len(vals), 4):
+        chunk = vals[k:k + 4] + [HF_HOLE] * (4 - len(vals[k:k + 4]))
+        v = 0
+        for jj, c in enumerate(chunk): v += c * (4096 ** jj)
+        dims[f'd{k // 4}'] = v
+    return dims, vals
+HX0, HZ0, HX1, HZ1 = 0.0, -24.0, 82.0, 86.0                  # lattice extent (plan cells)
+FOOT_Y = -1.0                                                # the hill's foot tucks a foot under the forest floor and the slope
+def below_cliff(x, z): return z - (cliff_z(x) - 1.0)        # > 0: out on the slope below the cliff (cells)
+def cave_dist(x, z):
+    if any(inside((x, z), poly) for _, poly, _, _ in ROOMS.values()): return 0.0
+    return min(poly_dist((x, z), poly) for _, poly, _, _ in ROOMS.values()) * 5
+CUT_Y = ROCK_H - 0.4                                         # the lattice runs a little under the terrace's top
+def den_ground(x, z):
+    if below_cliff(x, z) > 0: return 0.0
+    if inside((x, z), TERRACE): return CUT_Y
+    return CUT_Y + (hill(x, z) - CUT_Y) * smooth(0.0, 2.8, poly_dist((x, z), TERRACE))   # the hillside rises off the terrace's edge
+def den_hole(x, z):
+    return below_cliff(x, z) > 1.05 or (inside((x, z), TERRACE) and cave_dist(x, z) < 3.6)
+def ring_ground(x, z): return 0.0 if below_cliff(x, z) > 0 else hill(x, z)
+def ring_hole(x, z): return below_cliff(x, z) > 2.1
+HD, HV = heightfield_dims(HX0, HZ0, int(HX1 - HX0), int(HZ1 - HZ0), 1.0, den_ground, den_hole, origin_y=FOOT_Y)
+HD['cell'] = 5.0                                             # (sampled in cells, drawn in feet)
+d.prop('hill', 'heightfield', (HX0, HZ0), None, dims=HD, y=FOOT_Y)
+def ground_at(x, z, vals=HV, cell=1.0, nx=int(HX1 - HX0)):
+    """The height of the den level's lattice at (x, z), on the triangle the kit draws there (None over a hole)."""
+    i, jz = int((x - HX0) // cell), int((z - HZ0) // cell); u, v = (x - HX0) / cell - i, (z - HZ0) / cell - jz
+    W = nx + 1; a, b, c, e = jz * W + i, jz * W + i + 1, (jz + 1) * W + i + 1, (jz + 1) * W + i
+    hs = [vals[k] for k in (a, b, c, e)]
+    if HF_HOLE in hs: return None
+    A, B, Cc, E = [hv * 0.5 + FOOT_Y for hv in hs]
+    if abs(A - Cc) < abs(B - E):                             # split a-c
+        return A + (B - A) * u + (Cc - B) * v if u >= v else A + (Cc - E) * u + (E - A) * v
+    return A + (B - A) * u + (E - A) * v if u + v <= 1 else Cc + (E - Cc) * (1 - u) + (B - Cc) * (1 - v)
+
 # the cliff face over the slope, either side of the mouth (the canopy of the wolf's jaws carries on over the mouth)
-def along(lv, pts, kind, tag, dims, step=26, over=1.2):
+def along(lv, pts, kind, tag, dims, step=26, over=1.2, y=0):
     k = 0
     for a, b in zip(pts[:-1], pts[1:]):
         dx, dz = b[0] - a[0], b[1] - a[1]; L = math.hypot(dx, dz)
         n = max(1, round(L * 5 / step))
         for jj in range(n):
             p = (a[0] + dx * jj / n, a[1] + dz * jj / n); q = (a[0] + dx * (jj + 1) / n, a[1] + dz * (jj + 1) / n)
-            lv.prop(f'{tag}-{k}', kind, ((p[0] + q[0]) / 2, (p[1] + q[1]) / 2), None, rotY=round(math.degrees(math.atan2(-dz, dx)), 1), dims=dict(dims, len=round(L * 5 / n * over + 2, 1), seed=k + 3))
+            lv.prop(f'{tag}-{k}', kind, ((p[0] + q[0]) / 2, (p[1] + q[1]) / 2), None, rotY=round(math.degrees(math.atan2(-dz, dx)), 1), dims=dict(dims, len=round(L * 5 / n * over + 2, 1), seed=k + 3), y=y)
             k += 1
-along(d, CLIFF_W[:-1] + [(33.4, 76.8)], 'rock-flank', 'cliff-w', {'h': 11, 'd': 9, 'snow': 0})
-along(d, [(43.6, 72.6)] + CLIFF_E[1:], 'rock-flank', 'cliff-e', {'h': 11, 'd': 9, 'snow': 0})
+along(d, CLIFF_W[:-1] + [(33.4, 76.8)], 'rock-flank', 'cliff-w', {'h': 14, 'd': 10, 'snow': 0})
+along(d, [(43.6, 72.6)] + CLIFF_E[1:], 'rock-flank', 'cliff-e', {'h': 14, 'd': 10, 'snow': 0})
+# the mountain behind the ring of stone, as the ring level draws it, so it stands over the den too
+MTN_W = [(40.1, 18.1), (40.8, 15.6), (42.2, 13.9), (44.0, 11.8), (44.6, 10.0)]
+MTN_HEAD = [(44.2, 6.4), (45.8, 5.8), (47.4, 6.4)]
+MTN_N = [(47.6, 9.4), (50.1, 9.05), (52.2, 9.4), (54.4, 10.8), (55.8, 10.3), (58.6, 9.05), (61.5, 7.5), (63.3, 6.6), (65.8, 5.3)]
+for lv, y in ((d, 100), ):
+    along(lv, MTN_W, 'rock-flank', 'mtn-w', {'h': 70, 'd': 50, 'snow': 0}, y=y)
+    along(lv, MTN_HEAD, 'rock-flank', 'mtn-head', {'h': 60, 'd': 40, 'snow': 0}, step=20, y=y)
+    along(lv, MTN_N, 'rock-flank', 'mtn-n', {'h': 80, 'd': 60, 'snow': 0}, y=y)
 
 # --- Z1 the cave mouth: the jaws of the wolf's head, a canopy 15 ft up on natural pillars of rock
 d.prop('Z1-maw', 'wolf-maw', (40.2, 75.7), 'Z1', rotY=13, dims={'w': 42, 'd': 38, 'h': 15})
@@ -291,15 +419,23 @@ for i, (x, z, r) in enumerate([(30.0, 82.0, 2.6), (47.0, 80.0, 2.2), (25.0, 84.5
 for i, (x, z) in enumerate([(27.5, 86.5), (52.0, 84.0), (45.0, 86.0), (31.5, 79.5)]):
     d.prop(f'scree{i}', 'rubble', (x, z), None, dims={'n': 7})
 d.obj('spawn', 'spawn', (40.4, 91.5), 'dm-note', None, 'The approach up the mountainside')
-# loose stones lying on the rock over the caves, so the slab reads as broken mountainside from above
+# loose stones lying on the rock round the caves and on the hill over them, on the ground where they lie (not on its cliffs)
 allrooms = [poly for _, poly, _, _ in ROOMS.values()]
 def clear(pt, m):
     return not any(inside((pt[0] + dx, pt[1] + dz), poly) for poly in allrooms for dx, dz in ((0, 0), (m, 0), (-m, 0), (0, m), (0, -m), (m, m), (-m, -m), (m, -m), (-m, m)))
+def lies_at(x, z):
+    """Where a stone at (x, z) rests: the terrace's top round the caves, else the hill (None on a cliff or over a hole)."""
+    if inside((x, z), TERRACE): return ROCK_H
+    hs = [ground_at(x + dx, z + dz) for dx, dz in ((0, 0), (0.5, 0), (-0.5, 0), (0, 0.5), (0, -0.5))]
+    if None in hs or max(abs(hs[1] - hs[2]), abs(hs[3] - hs[4])) > 2.5: return None
+    return hs[0]
 k = 0
-for j in range(160):
+for j in range(400):
+    if k >= 71: break
     x, z = 10 + (j * 37.31) % 49, 20 + (j * 23.77 + (j * j) % 7) % 54
-    if not inside((x, z), ROCK) or not clear((x, z), 1.6): continue
-    d.prop(f'scree-top{k}', 'boulder' if j % 3 else 'rubble', (round(x, 2), round(z, 2)), None, dims={'r': 0.9 + (j % 4) * 0.45} if j % 3 else {'n': 5}, y=ROCK_H)
+    y = lies_at(x, z) if clear((x, z), 1.6) and below_cliff(x, z) < -0.5 else None
+    if y is None: continue
+    d.prop(f'scree-top{k}', 'boulder' if j % 3 else 'rubble', (round(x, 2), round(z, 2)), None, dims={'r': 0.9 + (j % 4) * 0.45} if j % 3 else {'n': 5}, y=round(y, 2))
     k += 1
 
 # --- torches in iron brackets along the walls; the den is brightly lit throughout
@@ -347,10 +483,14 @@ for a, b in z8open:
     if (a, b) == DOOR: continue
     for u, v in unit_split(a, b): exact(r8, u, v, open_wall=True)
 
-along(r8, [(40.1, 18.1), (40.8, 15.6), (42.2, 13.9), (44.0, 11.8), (44.6, 10.0)], 'rock-flank', 'mtn-w', {'h': 70, 'd': 50, 'snow': 0})
-along(r8, [(44.2, 6.4), (45.8, 5.8), (47.4, 6.4)], 'rock-flank', 'mtn-head', {'h': 60, 'd': 40, 'snow': 0}, step=20)
-along(r8, [(47.6, 9.4), (50.1, 9.05), (52.2, 9.4), (54.4, 10.8), (55.8, 10.3), (58.6, 9.05), (61.5, 7.5), (63.3, 6.6), (65.8, 5.3)], 'rock-flank', 'mtn-n', {'h': 80, 'd': 60, 'snow': 0})
-along(r8, [(40.7, 21.4), (54.0, 15.4), (66.6, 9.4)], 'precipice', 'scarp', {'depth': 70, 'd': 120}, step=26)
+along(r8, MTN_W, 'rock-flank', 'mtn-w', {'h': 70, 'd': 50, 'snow': 0})
+along(r8, MTN_HEAD, 'rock-flank', 'mtn-head', {'h': 60, 'd': 40, 'snow': 0}, step=20)
+along(r8, MTN_N, 'rock-flank', 'mtn-n', {'h': 80, 'd': 60, 'snow': 0})
+# the shelf stands on the same hill as the den, uncut: the scarp under its lip, the slope down over the caves to the
+# cliff at the mouth, the forest round its foot (the den level's lattice, coarser)
+RD, _ = heightfield_dims(HX0, HZ0, int((HX1 - HX0) / 2), int((HZ1 - HZ0) / 2), 2.0, ring_ground, ring_hole, origin_y=FOOT_Y)
+RD['cell'] = 10.0
+r8.prop('hill', 'heightfield', (HX0, HZ0), None, dims=RD, y=FOOT_Y - 100)
 r8.prop('Z8-ring', 'stone-ring', (52.0, 13.7), 'Z8', dims={'r': 10, 'n': 24})
 for i, (x, z, r) in enumerate([(48.7, 12.8, 80), (49.2, 15.6, 120), (54.8, 11.6, -10), (55.6, 13.0, 60), (51.0, 11.0, 170)]):
     r8.prop(f'Z8-spears{i}', 'spears', (x, z), 'Z8', rotY=r, dims={'n': 2 + i % 2})

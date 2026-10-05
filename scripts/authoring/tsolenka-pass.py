@@ -76,15 +76,24 @@ def along(lv, pts, kind, key, tag, dims, step=None, over=1.25):
 # ================================================================== the pass (ground, 0 ft)
 g = Level('pass', 'The pass', 0, 20, interior='ashlar', exterior='ashlar', north='-x')
 
+# --- the gorge of the Luna River under the bridge (p.158): its east and west lips from beyond the map's north edge (page
+#     left) to where it opens onto the drop into the fog south of the shelves; about 45 ft across at the bridge, wider
+#     between the mountain's flanks upstream. The two arches stand back from the lips on solid rock, the bridge leaps it.
+LIP_E = [(-60, 27.0), (-40, 28.2), (-20, 27.4), (-6, 27.8), (2, 27.6), (8, 28.0), (12, 28.5), (16, 28.9), (20, 28.6), (24, 29.0), (27, 29.4), (29.4, 29.5), (32.6, 29.5), (34.2, 29.0), (35.6, 28.2)]
+LIP_W = [(-60, 41.2), (-40, 40.2), (-20, 41.0), (-6, 40.4), (2, 40.6), (8, 40.3), (12, 39.8), (16, 39.3), (20, 39.6), (24, 39.1), (27, 38.7), (29.4, 38.5), (32.6, 38.5), (34.6, 38.9), (36.3, 39.8)]
+EDGE_N = 8                                                     # the map's north edge: the snow strips along the lips stop here
+# (the gorge runs on 300 ft past it, through the land beyond the map, so a look up it never ends on a wall or on open ground)
+
 # --- the snow shelf the road clings to: west of the gorge (gate, tower, the climb to the bridge) and east of it
 WEST_L = [(42, 99.5), (42.5, 95), (43, 90), (43.5, 86), (43.5, 82), (42, 79.5), (42, 76.5), (43, 74), (43.5, 70), (43.5, 66), (42.5, 63), (41, 60.5),
           (39, 58), (37, 55.5), (35, 53), (32.5, 50.5), (29, 49.5), (25, 49.5), (20.5, 48.5), (18, 46), (18.5, 41)]
-WEST_R = [(36, 41), (36.5, 43.5), (38, 46), (39.5, 49), (41.5, 52.5), (43.5, 56), (45.5, 59.5), (47.5, 62.5), (49.5, 65.5), (50.5, 67.5),
+WEST_R = [LIP_W[-1], (36.5, 43.5), (38, 46), (39.5, 49), (41.5, 52.5), (43.5, 56), (45.5, 59.5), (47.5, 62.5), (49.5, 65.5), (50.5, 67.5),
           (49.6, 70), (49.6, 72.5), (51, 74.6), (52.5, 76.5), (52, 79.5), (49.5, 81.5), (48.5, 84), (48, 88), (47.5, 92), (46.5, 96), (46, 99.5)]
 EAST_L = [(26.5, 27), (26.5, 24.5), (29, 23), (31.5, 21.5), (35, 19.5), (37.5, 17), (40, 14.5), (42.5, 12), (43.5, 9.5)]
-EAST_R = [(46.5, 9.5), (45.5, 12.5), (44, 15), (42, 17.5), (40, 20), (38, 22.5), (36, 24.5), (35.5, 27)]
-g.terrain.append((WEST_L + WEST_R, 'snow'))
-g.terrain.append((EAST_L + EAST_R, 'snow'))
+EAST_R = [(46.5, 9.5), (45.5, 12.5), (44, 15), (42, 17.5), (40, 20), (38, 22.5), (36, 24.5), (35.5, 27), LIP_E[-1]]
+# each shelf runs out to its lip of the gorge, and on north along it at the foot of the mountain's flank to the map's edge
+g.terrain.append((WEST_L + [(EDGE_N, 41)] + [p for p in LIP_W[:-1] if p[0] >= EDGE_N] + WEST_R, 'snow'))
+g.terrain.append(([(EDGE_N, 27)] + EAST_L + EAST_R + [p for p in LIP_E[::-1][1:] if p[0] >= EDGE_N], 'snow'))
 TOWER = (53, 71)
 g.terrain.append(([(TOWER[0] + math.cos(a) * 4.1, TOWER[1] + math.sin(a) * 4.1) for a in [i * math.pi / 8 for i in range(16)]], 'snow'))   # the tower's footing
 # the road: a 10-ft track of trodden gravel and slush through the snow
@@ -158,18 +167,39 @@ g.note('T7-note', (31, 44), 'T7', 'Empty guard posts; anyone in them is out of t
 
 # --- the land: the mountain's flank to the north, the drop into the fog to the south, the gorge under the bridge
 along(g, WEST_L, 'rock-flank', None, 'flank-w', {'h': 110, 'd': 160}, step=28)
-along(g, [(18.5, 41), (6, 41)], 'rock-flank', None, 'flank-rim', {'h': 100, 'd': 120}, step=30)
+along(g, [(18.5, 41), (EDGE_N, 41)] + [p for p in LIP_W[::-1] if p[0] < EDGE_N], 'rock-flank', None, 'flank-rim', {'h': 100, 'd': 120}, step=30)
 along(g, EAST_L, 'rock-flank', None, 'flank-e', {'h': 120, 'd': 160}, step=28)
-along(g, [(12, 27), (26.5, 27)], 'rock-flank', None, 'flank-er', {'h': 100, 'd': 120}, step=30)
+along(g, [p for p in LIP_E if p[0] < EDGE_N] + [(EDGE_N, 27), (26.5, 27)], 'rock-flank', None, 'flank-er', {'h': 100, 'd': 120}, step=30)
+# (past the map's north edge the mountain's flanks rise straight from the gorge's lips, with no shelf at their feet)
 drop_w = [p for p in WEST_R[::-1] if p[1] > 76.4] + [(53.5, 76.3), (55.8, 75.4), (57.4, 73.4), (57.6, 70.5), (56.6, 67.9), (54.5, 66.6), (51.6, 66.6)] + [p for p in WEST_R[::-1] if p[1] < 66]
 along(g, drop_w, 'precipice', None, 'drop-w', {'depth': 320, 'd': 60}, step=24)
-along(g, EAST_R, 'precipice', None, 'drop-e', {'depth': 320, 'd': 60}, step=24)
-along(g, [(36, 41), (18.5, 41)], 'precipice', None, 'gorge-w', {'depth': 420, 'd': 14}, step=20)
-along(g, [(18.5, 41), (6, 41)], 'precipice', None, 'gorge-w2', {'depth': 420, 'd': 14}, step=25)
-along(g, [(12, 27), (26.5, 27)], 'precipice', None, 'gorge-e2', {'depth': 420, 'd': 14}, step=25)
-along(g, [(26.5, 27), (34, 27), (35.5, 27)], 'precipice', None, 'gorge-e', {'depth': 420, 'd': 14}, step=20)
+along(g, EAST_R[::-1], 'precipice', None, 'drop-e', {'depth': 320, 'd': 60}, step=24)
+# the gorge: its two walls plunge 400 ft (the book's 500 to the river, the last of it lost in the fog) from the lips, narrowing
+# as they go; the stones along the lips stop where the bridge deck crosses. Drawn through the land under the map (`lid`).
+GORGE = {'depth': 400, 'd': 18, 'lid': 0}
+def lip_rows(pts, tag, bridge):
+    a = [p for p in pts if p[0] <= bridge[0]]; b = [p for p in pts if bridge[0] <= p[0] <= bridge[1]]; c = [p for p in pts if p[0] >= bridge[1]]
+    for part, t, dims in ((a, 'a', GORGE), (b, 'b', dict(GORGE, rim=0)), (c, 'c', GORGE)):
+        along(g, part, 'precipice', None, f'{tag}{t}', dims, step=22, over=1.08)
+lip_rows(LIP_E, 'gorge-e', (29.4, 32.6))
+lip_rows(LIP_W[::-1], 'gorge-w', (29.4, 32.6))
+# its floor 400 ft down (what the land beyond the map's edge meets), and the fog filling it from 70 ft below the lips
+g.objects.append(OrderedDict(id='pass-gorge-floor', kind='prism', pos=[0, 0, 0], vis='player', polygon=[[round(x * 5, 3), round(z * 5, 3)] for x, z in LIP_E + LIP_W[::-1]], dims={'h': 2, 'y': -402, 'color': 0x4d5058}))
+g.prop('gorge-fog', 'fog-sea', (-11.5, 34.1), None, dims={'w': 485, 'len': 75, 'y': -90, 'shade': 1, 'lid': 0})
+# the ground grid stops at the lips: a lid over the opening either side of the deck
+def loops(*polys):
+    dm = OrderedDict(n=len(polys))
+    for i, lp in enumerate(polys):
+        dm[f'{i}n'] = len(lp)
+        for k, (x, z) in enumerate(lp): dm[f'{i}x{k}'] = round(x * 5, 2); dm[f'{i}z{k}'] = round(z * 5, 2)
+    return dm
+OPEN_N = [p for p in LIP_E if -6 <= p[0] <= 29.4] + [(30, 29.5), (30, 38.5)] + [p for p in LIP_W[::-1] if -6 <= p[0] <= 29.4]
+# south of the deck the lid runs on out of the gorge's mouth over the whole drop into the fog, beyond both shelves' lips
+OPEN_S = ([(32, 29.5)] + [p for p in LIP_E if p[0] >= 32.6] + EAST_R[::-1][1:] + [(47.5, 0), (78, 0), (78, 110), (46, 110)] + drop_w
+          + [p for p in LIP_W[::-1] if p[0] >= 32.6][1:] + [(32, 38.5)])
+g.prop('gorge-lid', 'grid-lid', (0, 0), None, dims=loops(OPEN_N, OPEN_S))
 g.prop('fog', 'fog-sea', (31, 50), None, dims={'r': 1500, 'y': -70})
-g.prop('T8-span', 'bridge-span', (31, 34), 'T8', dims={'len': 70, 'w': 10, 'drop': 80})
+g.prop('T8-span', 'bridge-span', (31, 34), 'T8', dims={'len': 70, 'w': 10, 'drop': 80, 'lid': 0})
 for i, (x, z, s) in enumerate([(24, 46.5, 1.0), (21.5, 44.2, 0.85), (27.5, 47.6, 0.7)]):
     g.prop(f'spruce{i}', 'pine', (x, z), None, dims={'scale': s, 'h': 26})
 for i, (x, z) in enumerate([(44.6, 94), (43.9, 83), (44.2, 64), (38.6, 55.6), (34, 48.8), (36.6, 21.3), (42.4, 13.6)]):
@@ -196,10 +226,13 @@ u = Level('tower-upper', 'Guard tower, upper floor (T5)', 20, 20, interior='ashl
 WIN_NW = (lerp(OCT[7], OCT[0], 0.3), lerp(OCT[7], OCT[0], 0.7))
 # the stairwell: the stair from below arrives up the north-west diagonal; the floor stops short of it behind a rail
 RAIL = ((53.093, 74), (50, 70.907))
-T5P = [OCT[0], WIN_E[0], WIN_E[1], OCT[1], *WIN_NE, OCT[2], OCT[3], *WIN_SE, OCT[4], RAIL[0], RAIL[1], OCT[7], *WIN_NW]
+RAIL_GAP = lerp(*RAIL, 0.68)                                   # the rail stops short of the stair's head: the way off it onto the floor
+T5P = [OCT[0], WIN_E[0], WIN_E[1], OCT[1], *WIN_NE, OCT[2], OCT[3], *WIN_SE, OCT[4], RAIL[0], RAIL_GAP, RAIL[1], OCT[7], *WIN_NW]
 u.room('T5', 'Guard Tower, Upper Floor', T5P, 'flagstone', page=pg('T5'), ceilingFt=20)
 for w in (WIN_E, WIN_NE, WIN_SE, WIN_NW): exact(u, *w, flags=['window'], wall=True)
-exact(u, *RAIL, flags=['normal'], heightFt=3.5, material='ashlar', wall=True)
+exact(u, RAIL[0], RAIL_GAP, flags=['normal'], heightFt=3.5, material='ashlar', wall=True)
+exact(u, RAIL_GAP, RAIL[1], open_wall=True)
+STAIR_OFF = (51.1, 71.5)                                       # stepping off the stair's head onto T5, beside the rail's end
 for a_, b_ in ((RAIL[0], OCT[5]), (OCT[5], OCT[6]), (OCT[6], RAIL[1])): u.wall(a_, b_, material='ashlar')   # the tower's own wall round the stairwell
 u.prop('T5-hearth', 'fireplace', (55.55, 71), 'T5', rotY=-90)
 u.prop('T5-wolfhead', 'dire-wolf-head', (55.85, 71), 'T5', rotY=-90, dims={'y': 9.5})
@@ -262,7 +295,7 @@ for lv in (g, u, t2, r6):
         if o['vis'] in ('hidden-creature', 'hidden-object') and 'playerLabel' not in o: o['playerLabel'] = SEEN.get(o['kind'], 'Something')
 levels = [g, u, t2, r6]
 lk = lambda id, kind, al, ap, bl, bp: OrderedDict(id=id, kind=kind, **{'from': OrderedDict(level=al, pos=[ap[0] * 5, ap[1] * 5]), 'to': OrderedDict(level=bl, pos=[bp[0] * 5, bp[1] * 5])})
-links = [lk('T-stair', 'stairs', 'pass', STAIR_FOOT, 'tower-upper', STAIR_HEAD), lk('T-ladder', 'trapdoor', 'tower-upper', (53, 71.9), 'tower-roof', (53, 71.9))]
+links = [lk('T-stair', 'stairs', 'pass', STAIR_FOOT, 'tower-upper', STAIR_OFF), lk('T-ladder', 'trapdoor', 'tower-upper', (53, 71.9), 'tower-roof', (53, 71.9))]
 scene = OrderedDict(schema=1, location='T', chapter='ch09', name='Tsolenka Pass', mapPage=158, bookScaleFt=10, ambient=AMB, stacked=True, entry='pass',
                     levels=[lv.to_json() for lv in levels], links=links)
 for lv in scene['levels']:

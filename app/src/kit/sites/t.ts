@@ -18,7 +18,7 @@ type Dims = Record<string, number>;
 
 // ---------------------------------------------------------------- colours (each declared with what it is made of)
 const ROCK = '#62656d', ROCK_DK = '#4d5058', SNOW = '#dfe3e8', SNOW_SH = '#c4cad3';
-const GATE = '#38373c', GATE_TOP = '#3b3a3f', GATE_EDGE = '#2e2d32';     // the black stone of the gatehouse; the lintel is cut by the section plane
+const GATE = '#38373c', GATE_TOP = '#3b3a40', GATE_EDGE = '#2e2d32';     // the black stone of the gatehouse; the lintel is cut by the section plane
 const ARCH = '#858c94', ARCH_DK = '#6c737b';                             // the bridge arches (cut by the section plane)
 const STATUE = '#7d8288', STATUE_DK = '#62676e';                         // grey stone knights and vrocks
 const GOLD = '#b8913f', GOLD_DK = '#8c6c2c';                             // the gold-plated knights on the tower
@@ -35,7 +35,7 @@ surfaceFor([GOLD, GOLD_DK], 'metal');
 surfaceFor([WOOD_RAW, WOOD_GREY], 'wood');
 surfaceFor([VINE], 'foliage');
 surfaceFor([BLOOM, SKIN, SKIN_DK, ROT], 'cloth');
-surfaceFor([FUR_GREY, FUR_DK, FUR_WHITE, FUR_BROWN, '#5a4a3c', '#4f4636', '#5a4a52', '#4a3a2c', '#5a4030', '#5a4a40', '#6b4a3a'], 'cloth');
+surfaceFor([FUR_GREY, FUR_DK, FUR_WHITE, FUR_BROWN, '#5a4a3c', '#4f4636', '#5a4a52', '#4a3a2d', '#5a4030', '#5a4a40', '#6b4a3a'], 'cloth');
 
 // ---------------------------------------------------------------- helpers
 const box = (w: number, h: number, d: number, color: string, x = 0, y = 0, z = 0) => { const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat(color)); m.position.set(x, y, z); return m; };
@@ -59,8 +59,44 @@ const shell = <T extends THREE.Object3D>(o: T): T => { o.traverse((c) => { c.use
 const cap = <T extends THREE.Object3D>(o: T): T => { o.traverse((c) => { c.userData.role = 'roof'; c.userData.cap = true; }); return o; };
 const color = (d: Dims, k: string, fallback: string) => (d[k] !== undefined ? '#' + d[k].toString(16).padStart(6, '0') : fallback);
 
+// ---------------------------------------------------------------- what lies below the map's ground
+// The land drawn round an outdoor map runs on under it a hair below the map's ground, so a gorge cut in the map (rock
+// walls, the fog in its depths, a bridge's arch) would be hidden under that sheet. Pieces given `lid` (the world height of
+// the map's ground) are drawn as seen through the ground's plane: below it, each fragment takes the depth of the point
+// where its sight line crosses the ground (a hair above the land, a hair under the map's own floors), ordered among
+// themselves by their true depth. So the opening shows the depths whatever the land under the map does, while the map's
+// floors, the bridge deck and anything standing on the ground still cover them.
+const SUNK_GLSL = `
+#if defined( USE_LOGARITHMIC_DEPTH_BUFFER )
+  if ( vIsPerspective != 0.0 && vSunkW.y < SUNK_LID && cameraPosition.y > SUNK_LID + 0.2 ) {
+    float sunkW = vFragDepth - 1.0, sunkK = 1.0 / ( cameraPosition.y - vSunkW.y );
+    float sunkLid = sunkW * ( cameraPosition.y - SUNK_LID ) * sunkK, sunkTop = sunkW * ( cameraPosition.y - SUNK_LID - 0.12 ) * sunkK;
+    gl_FragDepth = log2( 1.0 + mix( sunkTop, sunkLid, 1.0 - exp( -( sunkW - sunkLid ) / 60.0 ) ) ) * logDepthBufFC * 0.5;
+  }
+#endif`;
+function sinkBelow<T extends THREE.Material>(m: T, lid: number): T {
+  const L = (lid - 0.3).toFixed(2), prev = m.onBeforeCompile.bind(m);
+  // the base key: a patched material's own (the mist patch's), else none (the default key is the hook's source text)
+  const prevKey = m.customProgramCacheKey === THREE.Material.prototype.customProgramCacheKey ? () => '' : m.customProgramCacheKey.bind(m);
+  m.onBeforeCompile = (sh, r) => {
+    prev(sh, r);
+    sh.vertexShader = 'varying vec3 vSunkW;\n' + sh.vertexShader.replace('#include <project_vertex>', '#include <project_vertex>\n  vSunkW = ( modelMatrix * vec4( transformed, 1.0 ) ).xyz;');
+    sh.fragmentShader = 'varying vec3 vSunkW;\n' + sh.fragmentShader.replace('#include <logdepthbuf_fragment>', '#include <logdepthbuf_fragment>\n' + SUNK_GLSL.replaceAll('SUNK_LID', L));
+  };
+  m.customProgramCacheKey = () => prevKey() + '|sunk' + L;
+  return m;
+}
+const SUNK = new Map<string, THREE.MeshLambertMaterial>();
+/** The palette material for `color` (its surface and mist as mat() gives them), drawn through the ground at `lid` (see above). */
+function sunkMat(color: string, lid?: number): THREE.MeshLambertMaterial {
+  if (lid === undefined) return mat(color);
+  const k = `${color}@${lid}`; let m = SUNK.get(k);
+  if (!m) { m = sinkBelow(matClone(color), lid); SUNK.set(k, m); }
+  return m;
+}
+
 /** A jagged sheet from rows of points: rows[j][i] = [x, y, z]. Faces facing up (|n.y| > snowY) take `top`, the rest `side`. */
-function sheet(rows: [number, number, number][][], side: string, top: string | null, snowY = 0.62, flip = false): THREE.Group {
+function sheet(rows: [number, number, number][][], side: string, top: string | null, snowY = 0.62, flip = false, lid?: number): THREE.Group {
   const sideP: number[] = [], topP: number[] = [];
   const tri = (a: number[], b0: number[], c0: number[]) => {
     const [b, c] = flip ? [c0, b0] : [b0, c0];
@@ -76,7 +112,7 @@ function sheet(rows: [number, number, number][][], side: string, top: string | n
   for (const [P, col] of [[sideP, side], [topP, top]] as const) {
     if (!P.length || !col) continue;
     const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(P, 3)); geo.computeVertexNormals();
-    g.add(new THREE.Mesh(geo, mat(col)));
+    g.add(new THREE.Mesh(geo, sunkMat(col, lid)));
   }
   return g;
 }
@@ -111,7 +147,8 @@ function rockFlank(d: Dims): THREE.Group {
   return g;
 }
 /** The drop beside the road: from the shelf's lip (local z = 0) the rock falls `depth` ft, stepping out `d` ft toward local +z,
- *  lost in the fog below. A rim of snow-crusted stones marks the lip. */
+ *  lost in the fog below. A rim of snow-crusted stones marks the lip (`rim` 0: none, as under a bridge deck); `snow` 0 leaves
+ *  the ledges bare rock (below the snow line); `lid`: the map's ground height, to show through the land under the map. */
 function precipice(d: Dims): THREE.Group {
   const L = d.len ?? 30, Dp = d.depth ?? 260, D = d.d ?? 70, s = d.seed ?? 1, nx = Math.max(3, Math.round(L / 6));
   const prof: [number, number][] = [[0, 0.02], [0.04, -0.06], [0.12, -0.22], [0.3, -0.45], [0.55, -0.7], [1, -1]];
@@ -127,18 +164,42 @@ function precipice(d: Dims): THREE.Group {
     }
     rows.push(row);
   }
-  const g = sheet(rows, ROCK_DK, SNOW_SH, 0.7);
-  for (let k = 0; k < Math.round(L / 9); k++) { const r = 0.6 + hash(k, 2, s) * 0.9, b = ico(r, k % 3 ? ROCK : SNOW_SH, -L / 2 + (k + 0.5) * 9, r * 0.25, 0.6, 0); b.scale.y = 0.55; g.add(b); }
+  const g = sheet(rows, ROCK_DK, d.snow === 0 ? null : SNOW_SH, 0.7, false, d.lid);
+  if (d.rim !== 0) for (let k = 0; k < Math.round(L / 9); k++) { const r = 0.6 + hash(k, 2, s) * 0.9, b = ico(r, k % 3 || d.snow === 0 ? ROCK : SNOW_SH, -L / 2 + (k + 0.5) * 9, r * 0.25, 0.6, 0); b.scale.y = 0.55; g.add(b); }
   return g;
 }
-/** The sea of fog the road looks out over: a wide pale sheet (two layers) far below the shelf. */
+/** The sea of fog the road looks out over: a wide pale sheet (three layers) far below the shelf. With `w` and `len` it is a
+ *  strip that wide (local x) and long (local z) instead of a disc (the fog filling a gorge); `lid` as for the precipice. */
+const FOG_LAYERS = [[0, 0.62, '#c3c8d0'], [-50, 0.8, '#a2a8b3'], [-120, 0.97, '#7f8592']] as const;
+const FOG_SHADE = [[0, 0.5, '#9aa0aa'], [-50, 0.78, '#787e8a'], [-120, 0.97, '#5b606b']] as const;     // in the shadow of a gorge's walls
+const FOG_MATS = new Map<string, THREE.MeshBasicMaterial>();
 function fogSea(d: Dims): THREE.Group {
   const r = d.r ?? 1400, y = d.y ?? -70, g = grp();
-  for (const [dy, op, c] of [[0, 0.62, '#c3c8d0'], [-50, 0.8, '#a2a8b3'], [-120, 0.97, '#7f8592']] as const) {
-    const m = new THREE.Mesh(new THREE.CircleGeometry(r, 40), new THREE.MeshBasicMaterial({ color: c, transparent: true, opacity: op, depthWrite: false }));
+  for (const [dy, op, c] of d.shade ? FOG_SHADE : FOG_LAYERS) {
+    const k = `${c}@${d.lid}`; let fm = FOG_MATS.get(k);
+    if (!fm) { fm = new THREE.MeshBasicMaterial({ color: c, transparent: true, opacity: op, depthWrite: false }); if (d.lid !== undefined) sinkBelow(fm, d.lid); FOG_MATS.set(k, fm); }
+    const m = new THREE.Mesh(d.w && d.len ? new THREE.PlaneGeometry(d.w, d.len) : new THREE.CircleGeometry(r, 40), fm);
     m.rotation.x = -Math.PI / 2; m.position.y = y + dy; m.renderOrder = -1; g.add(m);
   }
   return g;
+}
+/** Plan outlines packed in dims (plan feet, absolute; place at the origin): `n` loops, loop i of `${i}n` points `${i}x${k}`, `${i}z${k}`. */
+function loopsOf(d: Dims): THREE.Vector2[][] {
+  const out: THREE.Vector2[][] = [];
+  for (let i = 0; i < (d.n ?? 0); i++) {
+    const pts: THREE.Vector2[] = [];
+    for (let k = 0; k < (d[`${i}n`] ?? 0); k++) pts.push(new THREE.Vector2(d[`${i}x${k}`], -d[`${i}z${k}`]));
+    if (pts.length >= 3) out.push(pts);
+  }
+  return out;
+}
+/** An invisible lid over an opening in the map's ground (the gorge under a bridge), a hair above the ground: drawn after
+ *  what lies below it and before the ground grid, it keeps the grid (one plane over the whole level) from hanging over the
+ *  drop while the depths still show through. Outlines as for the rock mass. */
+const GRID_LID = new THREE.MeshBasicMaterial({ colorWrite: false, transparent: true, depthWrite: true });
+function gridLid(d: Dims): THREE.Group {
+  const gs = loopsOf(d).map((pts) => new THREE.ShapeGeometry(new THREE.Shape(pts)).rotateX(-Math.PI / 2).translate(0, 0.08, 0));
+  return gs.length ? grp(new THREE.Mesh(merge(gs), GRID_LID)) : grp();
 }
 /** A drift of snow banked against a wall or a rock: a low, long mound. */
 function snowDrift(d: Dims): THREE.Group {
@@ -181,14 +242,14 @@ function flameCurtain(d: Dims): THREE.Group {
   return g;
 }
 /** The stone bridge's body under its deck (p.159): spandrels down to one great arch springing from the gorge walls `drop`
- *  ft below. Runs `len` ft along local z, `w` ft wide; its top lies just under the deck's floor. */
+ *  ft below. Runs `len` ft along local z, `w` ft wide; its top lies just under the deck's floor. `lid` as for the precipice. */
 function bridgeSpan(d: Dims): THREE.Group {
   const L = d.len ?? 70, w = d.w ?? 10, S = d.drop ?? 70, c = d.crown ?? 5, pts: THREE.Vector2[] = [new THREE.Vector2(-L / 2, -1), new THREE.Vector2(L / 2, -1), new THREE.Vector2(L / 2, -S)];
   for (let i = 1; i < 16; i++) { const t = i / 16, z = L / 2 - t * L, k = 1 - (2 * z / L) ** 2; pts.push(new THREE.Vector2(z, -S + (S - c) * Math.sqrt(Math.max(0, k)))); }
   pts.push(new THREE.Vector2(-L / 2, -S));
   const geo = new THREE.ExtrudeGeometry(new THREE.Shape(pts), { depth: w, bevelEnabled: false }); geo.translate(0, 0, -w / 2); geo.rotateY(Math.PI / 2);
-  const g = grp(new THREE.Mesh(geo, mat(ARCH_DK)));
-  for (const sx of [-1, 1]) g.add(box(0.8, 1.2, L, ARCH, sx * (w / 2 + 0.2), -1.6, 0));        // the string course under the parapets
+  const g = grp(new THREE.Mesh(geo, sunkMat(ARCH_DK, d.lid)));
+  for (const sx of [-1, 1]) { const sc = box(0.8, 1.2, L, ARCH, sx * (w / 2 + 0.2), -1.6, 0); sc.material = sunkMat(ARCH, d.lid); g.add(sc); }   // the string course under the parapets
   return g;
 }
 /** The masonry over a bridge arch (p.159): 30 ft wide, 10 ft deep, from `y0` to `y1`, with a cornice and two round plinths
@@ -454,11 +515,8 @@ function roughSteps(d: Dims): THREE.Group {
 /** The living rock round and between the caves, as one slab: `n` outlines (plan feet, absolute; place at the origin),
  *  outline i given as `${i}n` points `${i}x${k}`, `${i}z${k}`, each extruded `h` ft. The caves are cut out of the first. */
 function rockMass(d: Dims): THREE.Group {
-  const n = d.n ?? 0, h = d.h ?? 6, gs: THREE.BufferGeometry[] = [];
-  for (let i = 0; i < n; i++) {
-    const m = d[`${i}n`] ?? 0, pts: THREE.Vector2[] = [];
-    for (let k = 0; k < m; k++) pts.push(new THREE.Vector2(d[`${i}x${k}`], -d[`${i}z${k}`]));
-    if (pts.length < 3) continue;
+  const h = d.h ?? 6, gs: THREE.BufferGeometry[] = [];
+  for (const pts of loopsOf(d)) {
     const geo = new THREE.ExtrudeGeometry(new THREE.Shape(pts), { depth: h, bevelEnabled: false }); geo.rotateX(-Math.PI / 2);
     gs.push(geo);
   }
@@ -496,7 +554,7 @@ function werewolfHuman(d: Dims): THREE.Group {
 /** A werewolf in hybrid form: a hunched, clawed humanoid with a wolf's head and fur. */
 function werewolfHybrid(d: Dims): THREE.Group {
   const fur = color(d, 'fur', FUR_GREY), s = d.scale ?? 1.1;
-  const f = humanoid({ skin: fur, cloth: color(d, 'cloth', '#4a3a2c'), trim: FUR_DK, claws: true, hunch: 0.35, scale: s });
+  const f = humanoid({ skin: fur, cloth: color(d, 'cloth', '#4a3a2d'), trim: FUR_DK, claws: true, hunch: 0.35, scale: s });
   const up = upperOf(f);
   if (up) {
     const hy = 2.82 * s;
@@ -528,7 +586,7 @@ function child(d: Dims): THREE.Group {
 }
 
 Object.assign(PROPS_V1, {
-  'rock-flank': rockFlank, precipice, 'bridge-span': bridgeSpan, 'fog-sea': fogSea, 'snow-drift': snowDrift, gatehouse, 'flame-curtain': flameCurtain, 'arch-crown': archCrown,
+  'rock-flank': rockFlank, precipice, 'bridge-span': bridgeSpan, 'fog-sea': fogSea, 'grid-lid': gridLid, 'snow-drift': snowDrift, gatehouse, 'flame-curtain': flameCurtain, 'arch-crown': archCrown,
   'knight-rider': knightRider, 'gold-knight': goldKnight, 'vrock-statue': vrockStatue, 'dire-wolf-head': direWolfHead, 'tower-ribs': towerRibs, 'iron-ladder': ironLadder, 'octa-merlons': octaMerlons,
   'wolf-maw': wolfMaw, 'rock-pillar': rockPillar, 'wall-torch': wallTorch, 'wolf-cage': wolfCage, 'mother-night': motherNight, hoard,
   'hanging-corpse': hangingCorpse, 'skin-curtain': skinCurtain, 'stone-ring': stoneRing, spears, 'rough-steps': roughSteps, 'rock-mass': rockMass, 'ledge-lip': ledgeLip, pouch, 'gear-pile': gearPile,
