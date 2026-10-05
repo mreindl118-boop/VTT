@@ -2,7 +2,8 @@ import * as THREE from 'three';
 import './styles.css';
 import { App, type GridMode } from './app';
 import { builtPaths, loadLocation } from './data';
-import { openWorldMap } from './ui/worldmap';
+import { worldOf } from './campaigns';
+import { openWorldMap, pinForScene } from './ui/worldmap';
 import { buildMinimap } from './ui/minimap';
 import { dayFromHarptos, harptosParts, MONTH_NAMES, FESTIVALS } from './core/sky';
 import { PACES, type Pace } from './core/travel';
@@ -158,6 +159,41 @@ function buildDmUi(): void {
   app.onStatus = (s) => { status.textContent = s; status.classList.toggle('on', !!s); if (s) { clearTimeout(statusTimer); statusTimer = window.setTimeout(() => { if (app.tool === 'none') { status.classList.remove('on'); } }, 2200); } };
   let statusTimer = 0;
 
+  // Nesting: Enter a building from its room (menu or card), go up to the map it belongs to, or out to the world map.
+  const enterRoom = (r: { key: string; enter?: string }) => { const to = app.enterOf(r); if (!to) return; localStorage.setItem('mistlab.scene', to); void app.enter(to, r.key).then(() => app.layoutChanged()); };
+  const goUp = () => { const up = app.parentPath; if (!up) return; localStorage.setItem('mistlab.scene', up); void app.openParent().then(() => app.layoutChanged()); };
+  const openWorld = (focus?: string) => openWorldMap({
+    canMove: !app.restricted,
+    dm: !app.restricted,
+    revealed: () => app.pinsRevealed,
+    reveal: (key, on) => app.revealPin(key, on),
+    get: () => app.state.world,
+    move: (pos, key, miles) => app.moveWorld(pos, key, miles),
+    enter: (path) => { localStorage.setItem('mistlab.scene', path); void app.open(path).then(() => app.layoutChanged()); },
+    sceneName: async (path) => (await loadLocation(path)).scene.name,
+    focus,
+  });
+  // A zoom out at the far limit (button, wheel or pinch) shows a chip for the map one level up: the town a building
+  // belongs to, else the world map round this map's place. One tap goes; it fades by itself and never goes by itself.
+  const chip = document.createElement('button');
+  chip.className = 'zoomchip'; chip.hidden = true;
+  ui.appendChild(chip);
+  let chipGo: (() => void) | null = null, chipTimer = 0;
+  const dropChip = () => { clearTimeout(chipTimer); chipGo = null; chip.classList.remove('on'); chipTimer = window.setTimeout(() => { chip.hidden = true; }, 250); };
+  app.world.onZoomPastMax = () => {
+    if (app.restricted || !app.cur) return; // the DM's: never in Players mode (the Player Display has no UI at all)
+    const path = app.cur.path, up = app.parentPath;
+    void (up ? loadLocation(up).then((l) => l.scene.name) : Promise.resolve(worldOf(app.campaign).name)).then((name) => {
+      if (app.cur?.path !== path || app.restricted) return;
+      chipGo = up ? goUp : () => openWorld(pinForScene(path)?.key);
+      chip.innerHTML = `${ICON.zoomOut}<span></span>`;
+      chip.querySelector('span')!.textContent = `Zoom out to ${name.replace(/^The /, 'the ')}`;
+      chip.hidden = false; requestAnimationFrame(() => chip.classList.add('on'));
+      clearTimeout(chipTimer); chipTimer = window.setTimeout(dropChip, 5000);
+    });
+  };
+  chip.addEventListener('click', () => { const go = chipGo; dropChip(); go?.(); });
+
   const section = top.querySelector<HTMLElement>('.section')!, secIn = section.querySelector<HTMLInputElement>('input')!, secFt = section.querySelector<HTMLElement>('.sec-ft')!;
   const secList = section.querySelector<HTMLDataListElement>('datalist')!;
   // The slider snaps to each floor's default view: land near a detent and that floor is picked with its own cut.
@@ -239,7 +275,7 @@ function buildDmUi(): void {
     if (!app.cur) return;
     document.body.dataset.view = app.view;
     top.querySelector('.loc')!.textContent = app.cur.scene.name;
-    top.querySelector<HTMLElement>('.back')!.hidden = !app.cur.scene.parent || !builtPaths.has(app.cur.scene.parent);
+    top.querySelector<HTMLElement>('.back')!.hidden = !app.parentPath; // a building, up to its town; hidden on a top-level map
     top.querySelector('.sub')!.textContent = `${app.cur.scene.mapPage ? `map p.${app.cur.scene.mapPage}` : app.campaign.name} · ${app.cur.scene.placementFt ? `${app.cur.scene.placementFt}-ft placement squares` : `${app.cur.scene.bookScaleFt}-ft squares`}`;
     top.querySelectorAll<HTMLElement>('[data-view]').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.view === app.view)));
     const lv = top.querySelector<HTMLSelectElement>('select.levels')!;
@@ -265,6 +301,7 @@ function buildDmUi(): void {
     cam.querySelector('[data-cam="tilt"]')!.innerHTML = app.camPreset === 'top' ? ICON.camera : ICON.top;
     app.onCameraUi = () => { frameUi(); minimap.draw(); };
     slider!.el.hidden = app.view === 'players';
+    if (app.restricted && !chip.hidden) dropChip();
     if (roomsSheet) renderRooms();
   };
   app.onChange = refresh;
@@ -284,17 +321,8 @@ function buildDmUi(): void {
     switch (b.dataset.act) {
       case 'library': openLibrary(builtPaths, app.campaign, (p) => { localStorage.setItem('mistlab.scene', p); void app.open(p).then(() => app.layoutChanged()); }); break;
       case 'clock': openClock(); break;
-      case 'back': { const par = app.cur?.scene.parent; if (par) { localStorage.setItem('mistlab.scene', par); void app.open(par).then(() => app.layoutChanged()); } break; }
-      case 'world': openWorldMap({
-        canMove: !app.restricted,
-        dm: !app.restricted,
-        revealed: () => app.pinsRevealed,
-        reveal: (key, on) => app.revealPin(key, on),
-        get: () => app.state.world,
-        move: (pos, key, miles) => app.moveWorld(pos, key, miles),
-        enter: (path) => { localStorage.setItem('mistlab.scene', path); void app.open(path).then(() => app.layoutChanged()); },
-        sceneName: async (path) => (await loadLocation(path)).scene.name,
-      }); break;
+      case 'back': goUp(); break; // framed on the building just left
+      case 'world': openWorld(); break;
       case 'encounter': app.encounter ? bar.update() : openEncounterSheet(app, refresh); break;
       case 'creatures': openBestiary(app, refresh); break;
       case 'undo': app.undo(); break;
@@ -342,15 +370,16 @@ function buildDmUi(): void {
   ui.appendChild(tip);
   app.onHover = (t, x, y) => {
     if (!t || menu) { tip.hidden = true; return; }
-    tip.innerHTML = `<b></b>${t.sub ? '<span></span>' : ''}`;
+    tip.innerHTML = `<b></b>${t.sub ? '<span></span>' : ''}${t.enter ? `<em>${ICON.doorOpen}<i></i></em>` : ''}`;
     tip.querySelector('b')!.textContent = t.title;
     if (t.sub) tip.querySelector('span')!.textContent = t.sub;
+    if (t.enter) tip.querySelector('em i')!.textContent = t.enter; // the DM's: a tap opens the card with Enter
     tip.hidden = false;
     tip.style.left = `${Math.min(x + 14, innerWidth - tip.offsetWidth - 8)}px`;
     tip.style.top = `${Math.min(y + 16, innerHeight - tip.offsetHeight - 8)}px`;
   };
   app.world.renderer.domElement.addEventListener('pointerleave', () => { tip.hidden = true; });
-  app.onLeave = () => { closeMenu(); tip.hidden = true; };
+  app.onLeave = () => { closeMenu(); tip.hidden = true; if (!chip.hidden) dropChip(); };
 
   app.onTap = (hit, x, y) => {
     closeMenu();
@@ -377,15 +406,18 @@ function buildDmUi(): void {
         : players ? `<div class="inside">${c.locked ? `${ICON.padlock} Locked` : 'Closed'}</div>`
         : `<div class="inside">${c.locked ? `${ICON.padlock} Locked · ` : ''}Closed${c.contents ? ` · holds: ${c.contents}` : ''}</div>`;
       const openBtn = c && (!players || !c.locked || c.open) ? `<button class="primary" data-a="open">${c.open ? 'Close' : 'Open'}</button>` : '';
+      // A building (or anything) standing in a room that opens a map of its own: the card enters it, as the room menu does.
+      const enterBtn = !players && app.enterOf(hit.room) ? `<button class="${openBtn || o.vis !== 'player' ? '' : 'primary'}" data-a="enter">Enter ${hit.room!.name}</button>` : '';
       card.innerHTML = `<header><div><h2>${o.label}</h2>${where && !players ? `<div class="where">${where}</div>` : ''}</div><button class="icon close" aria-label="Close">${ICON.close}</button></header>
         <div class="body">${o.desc ? `<div class="desc">${o.desc}</div>` : ''}${!players && o.playerLabel && o.playerLabel !== o.label ? `<div class="seen-as">Players see: <b>${o.playerLabel}</b></div>` : ''}${!players && o.dm ? `<div class="dm"><span class="dm-tag">${ICON.eyeOff}DM only</span>${o.dm}</div>` : ''}${inside}${state ? `<div class="state">${state}</div>` : ''}</div>
-        ${players ? (openBtn ? `<div class="actions">${openBtn}</div>` : '') : `<div class="actions">${openBtn}${o.vis !== 'player' ? `<button class="${openBtn ? '' : 'primary'}" data-a="reveal">${o.revealed ? 'Hide from players' : 'Reveal to players'}</button>` : ''}${hit.room ? `<button data-a="frame">Frame ${hit.room.key}</button>` : ''}${hit.secretDoor ? `<button data-a="secret">${hit.secretDoor.revealed ? 'Hide secret door' : 'Reveal secret door'}</button>` : ''}</div>`}`;
+        ${players ? (openBtn ? `<div class="actions">${openBtn}</div>` : '') : `<div class="actions">${enterBtn}${openBtn}${o.vis !== 'player' ? `<button class="${openBtn ? '' : 'primary'}" data-a="reveal">${o.revealed ? 'Hide from players' : 'Reveal to players'}</button>` : ''}${hit.room ? `<button data-a="frame">Frame ${hit.room.key}</button>` : ''}${hit.secretDoor ? `<button data-a="secret">${hit.secretDoor.revealed ? 'Hide secret door' : 'Reveal secret door'}</button>` : ''}</div>`}`;
       card.style.left = `${Math.min(x, innerWidth - 360)}px`; card.style.top = `${Math.min(y, innerHeight - 260)}px`;
       card.addEventListener('click', (e) => {
         const b = (e.target as HTMLElement).closest<HTMLElement>('button'); if (!b) return;
         if (b.classList.contains('close')) return closeMenu();
         if (b.dataset.a === 'open') app.toggleOpen(o.id);
         if (b.dataset.a === 'reveal') app.toggleObject(o.id); if (b.dataset.a === 'frame') app.jumpTo(hit.room!.key); if (b.dataset.a === 'secret') app.revealSecretDoor(hit.secretDoor!.id);
+        if (b.dataset.a === 'enter') enterRoom(hit.room!);
         closeMenu(); refresh();
       });
       menu = card; ui.appendChild(card);
@@ -408,7 +440,7 @@ function buildDmUi(): void {
     if (hit.door) items.push({ label: hit.door.open ? 'Close door' : 'Open door', icon: ICON.walls, act: () => app.toggleDoor(hit.door!.wallId) });
     if (hit.secretDoor) items.push({ label: hit.secretDoor.revealed ? 'Hide secret door again' : 'Reveal secret door to players', icon: ICON.eye, act: () => app.revealSecretDoor(hit.secretDoor!.id) });
     if (hit.room) {
-      if (hit.room.enter && builtPaths.has(hit.room.enter)) { const to = hit.room.enter; items.push({ label: `Enter ${hit.room.name}`, icon: ICON.doorOpen, act: () => { localStorage.setItem('mistlab.scene', to); void app.open(to).then(() => app.layoutChanged()); } }); }
+      if (app.enterOf(hit.room)) { const r = hit.room; items.push({ label: `Enter ${r.name}`, icon: ICON.doorOpen, act: () => enterRoom(r) }); }
       items.push({ label: `${hit.room.revealed ? 'Hide' : 'Reveal'} ${hit.room.key} ${hit.room.name}`, icon: ICON.reveal, act: () => app.toggleRoom(hit.room!.key) });
       items.push({ label: 'Move party here', icon: ICON.token, act: () => { const t = app.party; if (t) { t.level = app.levelId; t.pos = app.snap(hit.pos); app.afterPartyMoveFromUi(); } } });
       items.push({ label: `Frame ${hit.room.key}`, icon: ICON.party, act: () => app.jumpTo(hit.room!.key) });

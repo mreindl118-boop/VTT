@@ -4,7 +4,7 @@ import type { CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js'
 import { bounds, pointInPolygon, type Vec2 } from './core/geometry';
 import { CoverageMap, Cov } from './core/coverage';
 import { squareCellAt, squareCellCenter, squareDistanceFt, worldToHex, hexToWorld, hexDistanceFt, hexSizeFromWidth, type DiagonalRule } from './core/grid';
-import { OPENABLE_KINDS, type Container, type GridFile, type Level, type LightSource, type SceneFile, type SceneObject, type Wall, type Ambient } from './core/schema';
+import { OPENABLE_KINDS, type Container, type GridFile, type Level, type LightSource, type Room, type SceneFile, type SceneObject, type Wall, type Ambient } from './core/schema';
 import { moveBlockers } from './core/light';
 import { canWalk } from './core/movement';
 import { classOpacity, fogCurve, hiddenCurve, labelCurve } from './core/slider';
@@ -18,7 +18,7 @@ import { fogUniforms, sectionClip, setOpacity, setWallCut, WALL_CLIP } from './r
 const WALL_CUT_FT = 5;
 import { setGridType } from './render/gridOverlay';
 import { World, type CameraPreset } from './render/world';
-import { loadLocation } from './data';
+import { builtPaths, loadLocation } from './data';
 import { ICON } from './ui/icons';
 import { pinForScene, useWorld } from './ui/worldmap';
 import { campaignOf, worldOf, type Campaign } from './campaigns';
@@ -31,6 +31,17 @@ import { buildRangeOverlay } from './render/rangeOverlay';
 import { SHELL_ROLES } from './render/materials';
 import { skyAt, type Sky } from './core/sky';
 const PARTY_RED = '#c0392b';
+/** How far round an area map its parent's surroundings are drawn, past the map's own half-extent (ft). */
+const CONTEXT_FT = 450;
+const northVec = (n?: string): [number, number] => (n === '+z' ? [0, 1] : n === '-x' ? [-1, 0] : n === '+x' ? [1, 0] : [0, -1]);
+/** The turn that carries a parent level's north onto a child level's north (plan angle, radians). */
+const northTurn = (child?: string, parent?: string) => { const nb = northVec(child), np = northVec(parent); return Math.atan2(nb[1], nb[0]) - Math.atan2(np[1], np[0]); };
+const centroidOf = (poly: Vec2[]): Vec2 => [poly.reduce((a, p) => a + p[0], 0) / poly.length, poly.reduce((a, p) => a + p[1], 0) / poly.length];
+/** A map's open-air level (the one with terrain, else the first) and its extent: rooms and terrain. */
+const groundOf = (scene: SceneFile): Level => scene.levels.find((l) => l.terrain?.length) ?? scene.levels[0];
+const extentOf = (l: Level) => bounds([...l.rooms.map((r) => r.polygon), ...(l.terrain ?? []).map((t) => t.polygon)]);
+/** Where the DM came in: the room of the parent map whose Enter opened the child. */
+export interface EnteredFrom { parent: string; level: string; key: string; child: string }
 import { creatureById, figureFor, aliasFor, seenAs, statsOf, speedFtOf, colorOf } from './bestiary';
 import { sightBlockers } from './core/light';
 import { idbGet, idbSet } from './state/idb';
@@ -90,6 +101,8 @@ export class App {
   backdrop?: THREE.Group;
   /** The parent map's surroundings drawn round an area map. */
   context?: THREE.Object3D;
+  /** The room the DM last used Enter from: Back, zooming out and the surroundings of the map it opened go by it. */
+  enteredFrom?: EnteredFrom;
   /** Section height (ft, absolute) on a stacked site; undefined follows the current level, null = none. */
   cutFt: number | null | undefined = undefined;
   private keepCut = false;
@@ -255,6 +268,53 @@ export class App {
     this.onChange?.();
   }
 
+  // ------------------------------------------------------------------ nesting: in and out of a town's buildings
+
+  /** The map this one belongs to: its parent, else the town its world-map place opens first (Death House and the
+   *  church stand in the village). Undefined on a top-level map. */
+  get parentPath(): string | undefined {
+    const c = this.cur; if (!c) return undefined;
+    if (c.scene.parent) return builtPaths.has(c.scene.parent) ? c.scene.parent : undefined;
+    const first = pinForScene(c.path)?.scenes?.[0];
+    return first && first !== c.path && builtPaths.has(first) ? first : undefined;
+  }
+
+  /** Enter: open the map a room of this one opens, remembering that room. */
+  async enter(path: string, fromKey: string): Promise<void> {
+    if (this.cur) this.enteredFrom = { parent: this.cur.path, level: this.levelId, key: fromKey, child: path };
+    await this.open(path);
+  }
+
+  /** The room of a parent map that opens a child map: the one the DM entered from, else one on the level that stands
+   *  at the height of the child's ground floor (Krezk's ledge for the abbey), else the first that opens it. */
+  anchorIn(par: SceneFile, parPath: string, path: string, scene: SceneFile): { level: Level; room: Room } | undefined {
+    const e = this.enteredFrom;
+    if (e && e.parent === parPath && e.child === path) {
+      const l = par.levels.find((x) => x.id === e.level), r = l?.rooms.find((x) => x.key === e.key && x.enter === path);
+      if (l && r) return { level: l, room: r };
+    }
+    const ground = (scene.levels.find((l) => l.id === scene.entry) ?? scene.levels[0]).elevationFt;
+    const opens = par.levels.flatMap((l) => l.rooms.filter((r) => r.enter === path).map((room) => ({ level: l, room })));
+    const pick = (xs: typeof opens) => xs.find((x) => x.room.key === scene.location) ?? xs[0];
+    return pick(opens.filter((x) => Math.abs(x.level.elevationFt - ground) < 1)) ?? pick(opens);
+  }
+
+  /** Up one level: open the map this one belongs to, framed on the room that opens this one, at about this map's span,
+   *  on that room's level, with the same compass heading. Without such a room the parent opens as usual. */
+  async openParent(): Promise<boolean> {
+    const cur = this.cur, up = this.parentPath; if (!cur || !up) return false;
+    const par = await loadLocation(up).catch(() => undefined);
+    const at = par && this.anchorIn(par.scene, up, cur.path, cur.scene);
+    const l0 = groundOf(cur.scene), ext = extentOf(l0);
+    const heading = this.world.controls.getAzimuthalAngle() + northTurn(l0.north, at?.level.north);
+    await this.open(up, at?.level.id);
+    if (!at || this.cur?.path !== up) return true;
+    const [cx, cz] = centroidOf(at.room.polygon), hw = (ext.maxX - ext.minX) / 2, hd = (ext.maxZ - ext.minZ) / 2;
+    this.world.frame({ minX: cx - hw, minZ: cz - hd, maxX: cx + hw, maxZ: cz + hd }, at.level.elevationFt, this.camPreset, false, heading - this.world.controls.getAzimuthalAngle());
+    this.onChange?.();
+    return true;
+  }
+
   setLevel(id: string, frame = false): void {
     if (!this.cur) return;
     if (this.levelId !== id && this.cutFt !== undefined && !this.keepCut) this.cutFt = undefined;
@@ -270,6 +330,7 @@ export class App {
     fogUniforms.uCovSize.value.set(cov.widthFt, cov.heightFt);
     this.world.mistFloor.position.y = this.level.elevationFt - 1.2;
     this.world.mistFloor.visible = !this.backdrop && this.world.fogOn;
+    this.syncContext();
     this.syncTokens();
     this.recompute();
     if (frame) this.frameLevel();
@@ -299,7 +360,9 @@ export class App {
     const whole = this.cur!.scene.stacked && this.cutFt !== undefined && this.cutFt !== null && this.sectionRange && this.cutFt >= this.sectionRange.max - 1;
     const polys = whole ? [...this.stackOf(l.id)].flatMap((id) => this.cur!.scene.levels.find((x) => x.id === id)!.rooms.map((r) => r.polygon)) : l.rooms.map((r) => r.polygon);
     const b = bounds(polys);
-    this.world.controls.maxDistance = Math.max(400, Math.hypot(b.maxX - b.minX, b.maxZ - b.minZ) * 2.5);
+    // An area map pulls back far enough to show some of the parent's surroundings drawn round it (buildContext's reach).
+    const e = extentOf(l), reach = this.cur!.scene.parent ? (Math.max(e.maxX - e.minX, e.maxZ - e.minZ) / 2 + CONTEXT_FT) * 1.25 : 0;
+    this.world.controls.maxDistance = Math.max(400, Math.hypot(b.maxX - b.minX, b.maxZ - b.minZ) * 2.5, reach);
     this.world.frame(b, l.elevationFt, preset);
   }
 
@@ -420,6 +483,10 @@ export class App {
   }
 
   roomAt(level: Level, p: Vec2) { return level.rooms.find((r) => pointInPolygon(p, r.polygon)); }
+  /** The room an object of the current level belongs to: its area key, else the room it stands in (a shaped piece by its outline). */
+  roomOf(o: SceneObject): Room | undefined { return (o.key ? this.level.rooms.find((r) => r.key === o.key) : undefined) ?? this.roomAt(this.level, o.polygon?.length ? centroidOf(o.polygon as Vec2[]) : [o.pos[0], o.pos[2]]); }
+  /** The map a room opens with Enter, when it is built: offered to the DM only. */
+  enterOf(room: Pick<Room, 'enter'> | undefined): string | undefined { return !this.restricted && room?.enter && builtPaths.has(room.enter) ? room.enter : undefined; }
 
   /** Rooms across levels matching a key or name fragment. */
   findRooms(q: string): { level: Level; room: Level['rooms'][number] }[] {
@@ -886,30 +953,33 @@ export class App {
     return hit ? [p.x, p.z] : null;
   }
   /** The parent map's surroundings round an area map: what stands within a few hundred feet of the room that opens
-   *  this map, moved into this map's frame (offset and north), skipping whatever lies inside this map's own extent.
+   *  this map (the one the DM entered from: anchorIn), moved into this map's frame (offset and north) on this map's
+   *  level at that room's height, skipping whatever lies inside this map's own extent.
    *  Built with the same kit, muted a little toward the mist, never picked, never fogged, never cut. */
   private async buildContext(path: string, scene: SceneFile, l0: Level): Promise<void> {
     const par = await loadLocation(scene.parent!).catch(() => undefined);
     if (!par || this.cur?.path !== path) return;
     const KINDS = new Set(['house', 'church-building', 'temple', 'pine', 'oak', 'stump', 'well', 'fence', 'wagon', 'vardo', 'big-tent', 'mound', 'dais', 'pillory', 'brazier', 'campfire', 'trough', 'signpost', 'roof-gable', 'washline', 'bush', 'boulder', 'gravestone']);
-    const nvec = (n?: string): [number, number] => (n === '+z' ? [0, 1] : n === '-x' ? [-1, 0] : n === '+x' ? [1, 0] : [0, -1]);
-    for (const pl of par.scene.levels) {
-      const room = pl.rooms.find((r) => r.enter === path && r.key === scene.location) ?? pl.rooms.find((r) => r.enter === path);
-      if (!room) continue;
-      const pc: Vec2 = [room.polygon.reduce((a, p) => a + p[0], 0) / room.polygon.length, room.polygon.reduce((a, p) => a + p[1], 0) / room.polygon.length];
-      const bb = bounds([...l0.rooms.map((r) => r.polygon), ...(l0.terrain ?? []).map((t) => t.polygon)]);
+    const at = this.anchorIn(par.scene, scene.parent!, path, scene);
+    if (at) {
+      const { level: pl, room } = at;
+      // the surroundings stand at the room's height, round the level of this map that stands there (the abbey's ground floor on Krezk's ledge)
+      const cl = scene.levels.find((l) => Math.abs(l.elevationFt - pl.elevationFt) < 1) ?? l0;
+      const pc: Vec2 = centroidOf(room.polygon);
+      const bb = extentOf(cl);
       const bc: Vec2 = [(bb.minX + bb.maxX) / 2, (bb.minZ + bb.maxZ) / 2], pad = 8;
-      const np = nvec(pl.north), nb = nvec(l0.north), th = Math.atan2(nb[1], nb[0]) - Math.atan2(np[1], np[0]), c = Math.cos(th), sn = Math.sin(th);
+      const th = northTurn(cl.north, pl.north), c = Math.cos(th), sn = Math.sin(th);
       const tf = (p: number[]): [number, number] => { const x = p[0] - pc[0], z = p[1] - pc[1]; return [bc[0] + x * c - z * sn, bc[1] + x * sn + z * c]; };
       const inside = (p: [number, number]) => p[0] > bb.minX - pad && p[0] < bb.maxX + pad && p[1] > bb.minZ - pad && p[1] < bb.maxZ + pad;
-      const R = Math.max(bb.maxX - bb.minX, bb.maxZ - bb.minZ) / 2 + 450, near = (p: [number, number]) => Math.hypot(p[0] - bc[0], p[1] - bc[1]) < R;
+      const R = Math.max(bb.maxX - bb.minX, bb.maxZ - bb.minZ) / 2 + CONTEXT_FT, near = (p: [number, number]) => Math.hypot(p[0] - bc[0], p[1] - bc[1]) < R;
       const objects = pl.objects.filter((o) => KINDS.has(o.kind)).map((o) => { const q = tf([o.pos[0], o.pos[2]]); return { ...o, id: `ctx-${o.id}`, key: undefined, label: undefined, vis: 'player' as const, pos: [q[0], o.pos[1], q[1]] as [number, number, number], rotY: (o.rotY ?? 0) - (th * 180) / Math.PI }; })
         .filter((o) => { const q: [number, number] = [o.pos[0], o.pos[2]]; return near(q) && !inside(q); });
       const terrain = (pl.terrain ?? []).filter((t) => t.floor !== 'grass').map((t) => ({ ...t, polygon: t.polygon.map(tf) }))
         .filter((t) => { const cx = t.polygon.reduce((a, p) => a + p[0], 0) / t.polygon.length, cz = t.polygon.reduce((a, p) => a + p[1], 0) / t.polygon.length; return near([cx, cz]) && !t.polygon.every((p) => inside(p as [number, number])); });
       terrain.unshift({ polygon: [[bc[0] - R, bc[1] - R], [bc[0] + R, bc[1] - R], [bc[0] + R, bc[1] + R], [bc[0] - R, bc[1] + R]], floor: 'grass' } as (typeof terrain)[number]);
-      const lvl = { id: 'context', name: 'Surroundings', elevationFt: l0.elevationFt - 0.05, ceilingFt: 10, north: l0.north, rooms: [], walls: [], lights: [], objects, terrain } as unknown as Level;
+      const lvl = { id: 'context', name: 'Surroundings', elevationFt: cl.elevationFt - 0.05, ceilingFt: 10, north: cl.north, rooms: [], walls: [], lights: [], objects, terrain } as unknown as Level;
       const built = buildLevel(lvl, { floorPolygons: [], type: 'square', hexOrientation: 'pointy', origin: [0, 0], color: '#000000', opacity: 0 });
+      built.root.userData.anchor = { level: pl.id, key: room.key };
       const mist = new THREE.Color(this.world.theme.mist);
       built.root.traverse((o) => {
         const m = o as THREE.Mesh; if (!m.isMesh) return;
@@ -920,9 +990,16 @@ export class App {
       });
       built.root.name = 'context';
       if (this.cur?.path !== path) return;
-      this.context = built.root; this.world.scene.add(built.root); this.world.invalidate();
-      return;
+      built.root.userData.groundFt = lvl.elevationFt;
+      this.context = built.root; this.world.scene.add(built.root); this.syncContext(); this.world.invalidate();
     }
+  }
+
+  /** The surroundings stand on the parent's ground: a floor below it (a cellar, a dungeon) would be buried under the
+   *  parent's grass and houses, so they hide while such a floor is shown, and in the floor-mask render like the backdrop. */
+  private syncContext(): void {
+    if (!this.context || !this.cur) return;
+    this.context.visible = this.renderMode === 'normal' && this.level.elevationFt >= (this.context.userData.groundFt as number) - 1;
   }
 
   private pick(e: PointerEvent): THREE.Intersection | undefined {
@@ -1110,13 +1187,13 @@ export class App {
 
   private hoverEvt?: PointerEvent;
   private hoverRaf = 0;
-  onHover?: (tip: { title: string; sub?: string } | null, x: number, y: number) => void;
+  onHover?: (tip: { title: string; sub?: string; enter?: string } | null, x: number, y: number) => void;
   /** Mouse hover: name what is under the cursor. The DM sees everything; players only what they can see. */
   private hover(e: PointerEvent): void {
     if (!this.cur || !this.onHover) return;
     this.onHover(this.describe(e), e.clientX, e.clientY);
   }
-  describe(e: PointerEvent): { title: string; sub?: string } | null {
+  describe(e: PointerEvent): { title: string; sub?: string; enter?: string } | null {
     const hit = this.pick(e), o = hit?.object, loc = this.cur!.scene.location, p = this.floorPoint(e);
     const room = p ? this.roomAt(this.level, p) : undefined;
     const where = room ? `${room.key} · ${room.name}` : undefined;
@@ -1135,14 +1212,16 @@ export class App {
     const obj0 = oid ? this.level.objects.find((x) => x.id === oid) : undefined;
     // roofs and chimneys are scenery: hovering one describes the room beneath, not the roof
     const obj = obj0 && !['roof-gable', 'roof-cone', 'chimney'].includes(obj0.kind) ? obj0 : undefined;
-    if (obj0 && !obj) return room ? { title: players ? room.name : `${room.key} · ${room.name}` } : null;
+    // a thing names the room it stands in (as its tap card does), and the DM is told when that room can be entered
+    const own = obj0 ? this.roomOf(obj0) ?? room : room, enter = own && this.enterOf(own) ? `Enter ${own.name}` : undefined;
+    if (obj0 && !obj) return own ? { title: players ? own.name : `${own.key} · ${own.name}`, enter } : null;
     if (obj) {
       const ci = this.containerInfo(obj, players);
       const cs = ci ? (ci.open ? 'Open' : ci.locked ? (players ? 'Locked' : 'Locked · closed') : 'Closed · tap to open') : undefined;
       if (players) return this.playerCanSee(obj) ? { title: playerLabel(obj), sub: cs } : null;
       const rs = revealSets(this.state, loc);
       const vis = obj.vis === 'player' || !obj.vis ? undefined : `${obj.vis.replace('-', ' ')} · ${rs.objects.has(obj.id) ? 'revealed' : 'hidden from players'}`;
-      return { title: obj.label ?? kindName(obj.kind), sub: [cs, vis, where].filter(Boolean).join(' · ') || undefined };
+      return { title: obj.label ?? kindName(obj.kind), sub: [cs, vis, own ? `${own.key} · ${own.name}` : undefined].filter(Boolean).join(' · ') || undefined, enter };
     }
     const role = o?.userData.role as string | undefined;
     const wallId = o?.userData.wallId as string | undefined;
@@ -1164,7 +1243,7 @@ export class App {
       const glass = o?.userData.window;
       return { title: glass ? 'Window' : 'Wall', sub: where };
     }
-    if (room && (!players || this.isRevealed(room.key))) return { title: players ? room.name : `${room.key} · ${room.name}`, sub: players ? undefined : `${this.isRevealed(room.key) ? 'Revealed' : 'Not revealed'}${room.page ? ` · p.${room.page}` : ''}` };
+    if (room && (!players || this.isRevealed(room.key))) return { title: players ? room.name : `${room.key} · ${room.name}`, sub: players ? undefined : `${this.isRevealed(room.key) ? 'Revealed' : 'Not revealed'}${room.page ? ` · p.${room.page}` : ''}`, enter };
     return null;
   }
 
@@ -1211,8 +1290,10 @@ export class App {
     if (this.tool === 'none' && this.onTap) {
       const oid = hitObjectId(hit);
       const p = this.floorPoint(e);
-      const room = p && this.roomAt(this.level, p);
       const obj = oid ? this.level.objects.find((o) => o.id === oid) : undefined;
+      // A thing belongs to the room it stands in (its key, else its footing), not to the ground the ray meets behind it:
+      // a tap on a tall roof still names its site, and the card can offer that site's Enter.
+      const room = (obj && this.roomOf(obj)) || (p && this.roomAt(this.level, p));
       const pos = p ? ([p[0], p[1]] as Vec2) : ([0, 0] as Vec2);
       const rs = revealSets(this.state, this.cur!.scene.location);
       const info: TapHit = { room: room ? { key: room.key, name: room.name, revealed: this.isRevealed(room.key), desc: room.desc, dm: room.dm, page: room.page, enter: room.enter } : undefined, pos,
@@ -1247,7 +1328,8 @@ export class App {
 
   private broadcast(): void {
     if (this.mode !== 'dm' || !this.cur) return;
-    this.channel.send({ kind: 'state', state: this.state, location: this.cur.path, level: this.levelId });
+    // the room the DM entered from travels too, so the display draws the surroundings round the same spot
+    this.channel.send({ kind: 'state', state: this.state, location: this.cur.path, level: this.levelId, from: this.enteredFrom?.child === this.cur.path ? this.enteredFrom : undefined });
     this.channel.send({ kind: 'layout', grid: this.gridMode === 'hex' ? 'hex' : 'square', gridOn: this.gridMode !== 'off', lowWalls: this.lowWalls, cut: this.cutFt ?? undefined, fog: this.world.fogOn });
     this.sendCamera(true);
   }
@@ -1267,7 +1349,7 @@ export class App {
   private async onMsg(m: Msg): Promise<void> {
     if (this.mode === 'dm') { if (m.kind === 'hello') this.broadcast(); return; }
     if (m.kind === 'state') {
-      if (!this.cur || this.cur.path !== m.location) await this.open(m.location, m.level);
+      if (!this.cur || this.cur.path !== m.location) { this.enteredFrom = m.from; await this.open(m.location, m.level); }
       this.state = { ...newCampaign(this.campaign.id), ...m.state };
       this.applySky();
       if (this.levelId !== m.level) this.setLevel(m.level);
@@ -1314,13 +1396,13 @@ export class App {
         this.maskSwap.set(m, m.material);
         m.material = stacked ? (o.userData.role === 'floor' && here ? whiteCut : blackCut) : o.userData.role === 'floor' ? white : o.userData.role === 'wall' || o.userData.role === 'door' ? blackWall : black;
       }); }
-      this.world.scene.background = new THREE.Color('#000000'); this.world.mistFloor.visible = false; this.world.scene.fog = null; if (this.backdrop) this.backdrop.visible = false;
+      this.world.scene.background = new THREE.Color('#000000'); this.world.mistFloor.visible = false; this.world.scene.fog = null; if (this.backdrop) this.backdrop.visible = false; this.syncContext();
     } else {
       for (const [m, mat] of this.maskSwap) m.material = mat;
       this.maskSwap.clear();
       for (const o of this.maskHidden) o.visible = true;
       this.maskHidden = [];
-      this.world.scene.background = null; this.world.mistFloor.visible = !this.backdrop; this.world.scene.fog = new THREE.FogExp2(this.world.theme.mist, this.world.fogDensity); if (this.backdrop) this.backdrop.visible = true;
+      this.world.scene.background = null; this.world.mistFloor.visible = !this.backdrop; this.world.scene.fog = new THREE.FogExp2(this.world.theme.mist, this.world.fogDensity); if (this.backdrop) this.backdrop.visible = true; this.syncContext();
       this.applySlider();
     }
     this.world.invalidate();

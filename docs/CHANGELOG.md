@@ -1,5 +1,43 @@
 # Changelog
 
+## Zoom and nesting fixes — 2026-10-04
+
+The owner reported that zooming in and out across nested maps did not work as intended. Nesting is still one map at
+a time (Enter and Back), and zoom is still a camera that pulls back to a limit. Six things in that design were
+broken; each is fixed here. The continuous streaming world (docs/WORLD.md on the nested-world branch) comes later.
+
+- **Enter from a building.** A tap on a house, a church, the Vistani tent, Baba Lysaga's hut or anything else
+  standing in a room that opens a map now offers *Enter <room>* on its card, and the hover tip says so too. The
+  action is the same as the room menu's Enter, shown only to the DM (never in Players mode). Before, the tap hit
+  the building and its card had no Enter, so only 2 of Vallaki's 13 sites could be entered by tap. Now all 13 can,
+  plus Berez's hut, Krezk's road and ledge sites, and the village of Barovia's Death House and church (village
+  rooms E7 and E5 now open those maps). A thing on a card belongs to the room it stands in (its area key, else
+  where it stands), not to the ground the tap's ray meets behind a tall roof, so St. Andral's church also gets
+  its *N1* line and *Frame N1*.
+- **The zoom buttons on a phone.** The compass and scale-bar frame no longer takes taps. The `#ui > *` rule gave
+  it pointer events back, so on a phone it swallowed presses on the zoom, find-party, follow and help buttons it
+  covers. On a screen 700 px wide or less the frame now sits above the camera row and under any card. A control
+  placed in the frame later has to take taps by a rule of its own.
+- **Back keeps your place.** Back (and the zoom-out chip below) opens the town framed on the site you just left,
+  at about the building map's span, on that site's level, with the same compass heading. Before, it showed the
+  whole of Vallaki. Death House and the church now have a working Back to the village. On a top-level map Back
+  is hidden (it was shown there and did nothing, because `button.icon` overrode `[hidden]`).
+- **Zoom during a glide.** A zoom press scales from where the glide in flight is heading, so two quick presses
+  reach 0.78 × 0.78 of the distance instead of losing part of the first. A wheel turn during a glide changes where
+  the glide is going, instead of being undone by it. The wheel and a pinch now zoom toward the pointer rather than
+  the middle of the screen.
+- **Zooming out goes up a level.** At the far limit, one more zoom out (button, wheel or pinch) shows a small chip:
+  *Zoom out to the Town of Vallaki* on a building, or *Zoom out to the Lands of Barovia* (or the Sheep Chase
+  country) on a top-level map, which opens the world map centred on that map's place. One tap goes. The chip
+  fades after five seconds and never goes anywhere by itself. It is the DM's only, never in Players mode. Area maps
+  can now pull back far enough to show some of the town drawn round them.
+- **The abbey's surroundings.** The parent's surroundings round an area map now stand round the room the DM came
+  in by (remembered at Enter, and sent to the Player Display so both screens agree). Without one, they stand round
+  a room on the level at the height of the map's ground floor. Before, the first matching room was used, so the
+  Krezk abbey always sat on the Winding Road and never on the ledge 400 ft up. The surroundings hide while a floor
+  below their ground is shown, so the abbey's cellar and a Vallaki cellar are not buried under them.
+- Tests: `e2e/zoom.spec.ts` covers all of the above on a 1366×768 desktop and a 390×844 touch phone.
+
 ## M0 Foundations — 2026-09-29
 
 - Vite + TypeScript + three.js PWA shell (manifest, service worker, offline cache-first), iPad-first touch.

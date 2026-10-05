@@ -11,6 +11,8 @@ ft = lambda px, py: [round((px - OX) / PX, 1), round((py - OY) / PX, 1)]
 MARK = {'E6': (330, 260), 'E5': (310, 514), 'E2': (624, 850), 'E7': (1104, 780), 'E1': (614, 1056), 'E3': (550, 1150), 'E4': (540, 1540)}
 NAMES = {'E1': "Bildrath's Mercantile", 'E2': 'Blood of the Vine Tavern', 'E3': "Mad Mary's Townhouse", 'E4': "Burgomaster's Mansion", 'E5': 'Church', 'E6': 'Cemetery', 'E7': 'Death House'}
 PAGES = {'E1': 43, 'E2': 43, 'E3': 44, 'E4': 44, 'E5': 45, 'E6': 42, 'E7': 43}
+# the keyed buildings with maps of their own: Enter on the room (or on the building standing in it) opens them
+ENTER = {'E5': 'ch03/E5', 'E7': 'appB/death-house'}
 
 ex = json.load(open('reference/imports/village-extract.json'))
 import numpy as np
@@ -28,7 +30,10 @@ grid = json.load(open('locations/ch03/E/grid.json'), object_pairs_hook=OrderedDi
 rooms = []
 for k in ['E6', 'E5', 'E2', 'E7', 'E1', 'E3', 'E4']:
     x, z = marks[k]; x0, z0 = round(x - 20), round(z - 20)
-    rooms.append(OrderedDict(key=k, name=NAMES[k], polygon=[[x0, z0], [x0 + 40, z0], [x0 + 40, z0 + 40], [x0, z0 + 40]], floor='cobble' if k not in ('E6',) else 'grass', page=PAGES[k]))
+    r = OrderedDict(key=k, name=NAMES[k], polygon=[[x0, z0], [x0 + 40, z0], [x0 + 40, z0 + 40], [x0, z0 + 40]], floor='cobble' if k not in ('E6',) else 'grass')
+    if k in ENTER: r['enter'] = ENTER[k]
+    r['page'] = PAGES[k]
+    rooms.append(r)
 lv['rooms'] = rooms
 keep = [o for o in lv['objects'] if o['kind'] != 'house']
 if scene.get('frame') == 'measured-p42': warp = lambda x, z: [x, z]   # already in the measured frame: never warp twice
