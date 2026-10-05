@@ -27,10 +27,46 @@ SRD 5.1:
 
 > This work includes material taken from the System Reference Document 5.1 (“SRD 5.1”) by Wizards of the Coast LLC and available at https://dnd.wizards.com/resources/systems-reference-document. The SRD 5.1 is licensed under the Creative Commons Attribution 4.0 International License available at https://creativecommons.org/licenses/by/4.0/legalcode.
 
-Both PDFs ask that no other attribution to Wizards be added, so none is. CC-BY-4.0 section 3(a) also asks us to say
-that the material was changed; this line (ours, not attributed to Wizards) goes with every file:
+Both PDFs ask that no other attribution to Wizards be added, so none is. Both also carry the licensor's notice
+about CC-BY-4.0's disclaimer, which goes into every `ATTRIBUTION.md`, onto each title page and into Help:
 
-> Converted from the official PDF to Markdown (by the your5e/5e-srd-markdown project) and from there to HTML and JSON, reformatted and indexed for mistLAB. No rules text was changed.
+> Section 5 of CC-BY-4.0 includes a Disclaimer of Warranties and Limitation of Liability that limits our liability to you.
+
+CC-BY-4.0 section 3(a)(1)(B) also asks us to say what was changed. These notes (ours, not attributed to Wizards) go
+with every file of each book (`CHANGES` in `app/src/books/attribution.ts`):
+
+SRD 5.2.1:
+
+> Converted from the official PDF to Markdown by the your5e/5e-srd-markdown project, then to HTML and JSON, reformatted and indexed for mistLAB. That Markdown conversion dropped most table titles and reworded the sentences that named them (for example “as shown on the Travel Pace table. The table states” became “The table states”); mistLAB restored the table titles from the official PDF, but not those sentences. mistLAB also rejoined words split by the PDF extraction and set the Efreeti Bottle table’s die back to 1d10 as printed. Otherwise no rules text was changed.
+
+SRD 5.1:
+
+> Converted from the official PDF to Markdown by the your5e/5e-srd-markdown project (which lists its own small corrections, such as a typo fixed in Contagion), then to HTML and JSON, reformatted and indexed for mistLAB. Apart from formatting and those corrections, no rules text was changed.
+
+## Corrections against the PDF
+
+The converter reads the your5e Markdown, then repairs what that conversion got wrong, each repair checked against the
+official PDF (`scripts/books/config.ts`, `prepare()` and `placeTitles()` in `scripts/books/convert.ts`):
+
+- **Table titles (SRD 5.2.1).** The Markdown keeps 94 of the PDF's table titles as headings and drops the rest.
+  `scripts/books/titles.ts` reads every title back from the PDF with `pdftohtml -xml` (the titles are set in
+  GillSans SemiBold 16 pt, the header row under them in 14–15 pt) and writes `scripts/books/titles/srd-5.2.1.json`
+  (committed, so a build without the PDF gives the same data). Each title goes onto its table as a `<caption>` with an
+  anchor (`#book/srd-5.2.1/table-travel-pace`), and the search index lists it, so "XP Budget per Character" or
+  "Trinkets" is found by name. 193 of the 194 titles land; Rare Languages has no table in the Markdown (it became a
+  list). The sentences that named the tables stay as the Markdown reworded them; the changes note says so.
+- **Patches** (`patches` in the config; the build stops if a patch no longer matches exactly once): the Efreeti
+  Bottle table's die (1d100 in the Markdown, 1d10 in the PDF), the Travel Pace header (the PDF's two-row header was
+  merged into "Distance Traveled Per - Minute"), and a space inside the licence URL on the 2024 legal page. The
+  legal pages get the PDF's curly quotes, so they quote the attribution exactly.
+- **Split words (SRD 5.2.1).** The PDF extraction split some words ("Na ture", "Leather Ar mor", "de pending").
+  Two adjacent fragments are joined when the whole word occurs at least twice elsewhere in the book and one fragment
+  is rare there; real phrases that the rule would join ("a bout", "a loud", "arm or") are kept apart by a list.
+  The build prints every join. SRD 5.1 has none.
+- **Stat blocks.** A Traits section that runs on into Multiattack or an attack (Young Green Dragon, 2024) gets its
+  Actions heading back.
+
+`npm run books` prints all of this. A unit test checks that every table rolled on NdX runs up to N×X.
 
 ## Sources
 
@@ -58,12 +94,13 @@ the build container, so the PDFs come from the your5e mirror; two independent co
 npm run books              # download (or reuse scripts/books/.cache), verify hashes, convert, write app/public/books/**
 npm run books -- --offline # use only the cache
 npm run books:check        # write nothing; fail unless a fresh build is byte-identical to the committed data
-npm run books -- --no-pdf  # skip the PDF fidelity check (it needs pdftotext)
+npm run books -- --no-pdf  # skip the PDF steps (fidelity check with pdftotext, table titles with pdftohtml);
+                           # the committed scripts/books/titles/*.json is used instead
 ```
 
 The cache (`scripts/books/.cache/`) is gitignored. The generated data is committed, so the app builds and works
 without network. Each run prints counts and the two checks, for example (2024 book): 339 spells, 330 monsters,
-455 items, 15 conditions, 226 rules; 323 of 323 monsters found in 5e-bits agree on AC, HP, CR, Str, Dex and Wis;
+449 items, 15 conditions, 226 rules; 323 of 323 monsters found in 5e-bits agree on AC, HP, CR, Str, Dex and Wis;
 910 of 910 spell, monster, condition and rule names appear in the official PDF. Known differences against 5e-bits
 are errors or edition changes on their side (Cult Fanatic's 33 hit points and the evocation healing spells are as
 printed in SRD 5.1).
@@ -93,13 +130,19 @@ Nothing loads until a book is opened: the reader's code is its own chunk, the da
 
 `app/src/books/lookup.ts`:
 
-- `lookup(termOrId, edition?, { type?, fallback? })` returns a `RuleEntry` `{ id, type, name, edition, book, summary,
-  text, html, section: { book, anchor, href }, attribution }`. It accepts ids (`spell:fireball`), names, plurals
-  (`wolves`), cue words (`prone condition`, `fire damage`), abbreviations (`AC`, `Str`) and inverted item names.
+- `lookup(termOrId, edition?, { type?, fallback? })` returns a `RuleEntry` `{ id, type, label, name, edition, book,
+  summary, text, html, section: { book, anchor, href }, attribution }`. It accepts ids (`spell:fireball`), names,
+  singular and plural forms (`wolves`, `reaction`/`reactions`), cue words (`prone condition`, `fire damage`),
+  abbreviations (`AC`, `Str`), inverted item names and per-edition aliases (`aliases` in `scripts/books/config.ts`:
+  grapple, shove, advantage, hit dice, half cover, passive perception, plate, goblin, healing potion, +1 weapon …).
   With no edition it uses the **Rules edition** preference (2024 by default, 2014 as the option; Library, Books tab).
+  Only that edition answers: a term the chosen rules do not have returns nothing. `fallback: true` lets the other
+  edition answer; the entry's `edition` then differs from the one asked for, and a card must show it ('2014 rules').
+  `label` is the type's name in that edition ('Race' in 2014, 'Species' in 2024).
 - `lookupAll(term)` returns every meaning (Shield is a spell and armour).
 - `findTerms(text, await termIndex())` returns the spans of rules terms in running text. Names that are also
-  ordinary English words (light, shield, command, guidance, fly, prone, fire …) count only when tagged
+  ordinary English words (light, shield, command, guidance, fly, prone, fire, net, poor …), and their inflected
+  forms (hides, nets), count only when tagged
   (`[[Light]]`, `[[spell:light]]`, `[[Command|the command spell]]`), capitalised mid-sentence, or followed by
   their cue word (`light cantrip`, `prone condition`, `fire damage`).
 - Types: spell, condition, monster, item, rule (glossary terms, actions, weapon and mastery properties),

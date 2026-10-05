@@ -7,7 +7,7 @@ export type Block =
   | { k: 'h'; level: number; text: string; line: number }
   | { k: 'p'; lines: string[] }
   | ListBlock
-  | { k: 'table'; head: string[]; rows: string[][] }
+  | { k: 'table'; head: string[]; rows: string[][]; caption?: string }
   | { k: 'quote'; blocks: Block[] };
 
 const isTableRow = (l: string) => /^\|.*\|\s*$/.test(l);
@@ -167,11 +167,13 @@ function renderBlock(b: Block, o: RenderOpts): string {
     case 'quote': return `<blockquote>${renderBlocks(b.blocks, { shift: o.shift })}</blockquote>`;
     case 'table': {
       const cols = b.head.length;
+      const id = o.anchors?.get(b);
+      const caption = b.caption ? `<caption>${inline(b.caption)}</caption>` : '';
       const num = b.head.map((_, c) => b.rows.length > 0 && b.rows.every((r) => !r[c] || numCell.test(plain(r[c]))));
       const cell = (tag: string, s: string, c: number) => `<${tag}${num[c] ? ' class="n"' : ''}>${inline(s ?? '')}</${tag}>`;
       const head = b.head.some((h) => h.trim()) ? `<thead><tr>${b.head.map((h, c) => cell('th', h, c)).join('')}</tr></thead>` : '';
       const rows = b.rows.map((r) => `<tr>${Array.from({ length: cols }, (_, c) => cell(c === 0 && /^\*\*.*\*\*$/.test(r[0] ?? '') ? 'th' : 'td', r[c] ?? '', c)).join('')}</tr>`).join('');
-      return `<div class="tbl"><table>${head}<tbody>${rows}</tbody></table></div>`;
+      return `<div class="tbl"${id ? ` id="${id}"` : ''}><table>${caption}${head}<tbody>${rows}</tbody></table></div>`;
     }
   }
 }
@@ -183,7 +185,7 @@ export function blocksText(blocks: Block[]): string {
   for (const b of blocks) {
     if (b.k === 'h' || b.k === 'p') t.push(plain(b.k === 'h' ? b.text : b.lines.join(' ')));
     else if (b.k === 'ul' || b.k === 'ol') list(b);
-    else if (b.k === 'table') { t.push(b.head.map(plain).join(' ')); for (const r of b.rows) t.push(r.map(plain).join(' ')); }
+    else if (b.k === 'table') { if (b.caption) t.push(plain(b.caption)); t.push(b.head.map(plain).join(' ')); for (const r of b.rows) t.push(r.map(plain).join(' ')); }
     else if (b.k === 'quote') t.push(blocksText(b.blocks));
   }
   return t.join('\n');
@@ -193,4 +195,32 @@ export function slug(s: string): string {
   return plain(s).toLowerCase().replace(/[’']/g, '').replace(/\[[^\]]*\]/g, '').replace(/&/g, ' and ')
     .normalize('NFKD').replace(/[̀-ͯ]/g, '')
     .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'section';
+}
+
+// ---- source repairs
+
+/**
+ * Rejoin words the PDF extraction split in two ('Na ture', 'Leather Ar mor', 'de pending'): two adjacent fragments
+ * join when the joined word occurs at least twice elsewhere in the book and one fragment is rare there (six times or fewer).
+ * Phrases in `keep` ('a bout') stay apart. Returns the text and what was joined, for the build log and the tests.
+ */
+const RARE = 6;
+export function repairSplitWords(md: string, keep: string[] = []): { md: string; joined: Map<string, number> } {
+  const count = new Map<string, number>();
+  for (const w of md.match(/[A-Za-z]+/g) ?? []) { const k = w.toLowerCase(); count.set(k, (count.get(k) ?? 0) + 1); }
+  const n = (w: string) => count.get(w.toLowerCase()) ?? 0;
+  const stay = new Set(keep.map((x) => x.toLowerCase()));
+  const joined = new Map<string, number>();
+  let skip = -1; // a fragment just joined to the word before it is not the start of another pair
+  // Only the first word and the space are consumed, so 'has nu merous' still tries 'nu merous'.
+  const out = md.replace(/(?<![A-Za-z'’-])([A-Za-z]+) (?=([a-z]+)(?![A-Za-z-]))/g, (all: string, a: string, b: string, at: number) => {
+    if (at === skip) return all;
+    const w = a + b;
+    if (w.length < 5 || stay.has(`${a} ${b}`.toLowerCase())) return all;
+    if (n(w) < 2 || (n(a) > RARE && n(b) > RARE)) return all;
+    joined.set(`${a} ${b}`, (joined.get(`${a} ${b}`) ?? 0) + 1);
+    skip = at + all.length;
+    return a;
+  });
+  return { md: out, joined };
 }

@@ -2,10 +2,10 @@
 // app does not grow. The text is the SRD 5.1 and 5.2.1 under CC-BY-4.0; each book's first page carries its attribution.
 import './books.css';
 import { ICON } from './icons';
-import { loadCatalog, loadIndex, loadPage, offlineState, removeOffline, saveOffline, type OfflineState } from '../books/store';
+import { loadCatalog, loadIndex, loadPage, loadTerms, offlineState, removeOffline, saveOffline, type OfflineState } from '../books/store';
 import { exactHit, groupHits, searchIndex, searchPage, type Hit } from '../books/search';
-import { findTerms, lookup, rulesEdition, setRulesEdition, termIndex } from '../books/lookup';
-import { TYPE_META, type BookId, type BookIndex, type Catalog, type Edition } from '../books/types';
+import { candidates, findTerms, lookup, rulesEdition, setRulesEdition, termIndex } from '../books/lookup';
+import { EDITION_OF, TYPE_META, typeLabel, type BookId, type BookIndex, type Catalog, type Edition, type EntryType } from '../books/types';
 
 const BOOK_ORDER: BookId[] = ['srd-5.2.1', 'srd-5.1'];
 const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -17,7 +17,7 @@ const ICON_NEXT = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" s
 /** Books never show on the players' side: not in Players mode, not on the Player Display. */
 export const booksAllowed = (): boolean => document.body.dataset.mode !== 'player' && document.body.dataset.view !== 'players';
 
-const chip = (type: string) => (type ? `<span class="tchip t-${type}">${TYPE_META[type as keyof typeof TYPE_META]?.label ?? type}</span>` : '');
+const chip = (type: string, book: BookId) => (type ? `<span class="tchip t-${type}">${type in TYPE_META ? typeLabel(type as EntryType, EDITION_OF[book]) : type}</span>` : '');
 
 // ------------------------------------------------------------------ Books tab (inside the Library sheet)
 
@@ -45,7 +45,7 @@ export async function renderBooksTab(host: HTMLElement, closeLibrary: () => void
             <span class="bk-text"><b>${esc(b!.title)}</b><span class="meta">${esc(b!.editionLabel)} · ${size(b!.bytes)} · ${esc(b!.license)}</span></span></button>
           <span class="bk-actions">${action}</span></div>`;
       }).join('')}
-      <p class="bk-note">The open rules of fifth edition, released by Wizards of the Coast under CC-BY-4.0. Each book's first page carries its attribution. Only you see the books: never the Players view or the Player Display.</p>
+      <p class="bk-note">The open rules of fifth edition, under CC-BY-4.0. Each book's first page carries its attribution. Only you see the books: never the Players view or the Player Display.</p>
     </section>`;
   };
   draw();
@@ -250,6 +250,7 @@ function renderTitle(notice?: string): void {
       <p class="br-statement">${esc(ix.attribution)}</p>
       <p>${esc(ix.changes)}</p>
       <p>Licence: <a href="${esc(ix.license.url)}" target="_blank" rel="noopener">${esc(ix.license.name)}</a>.</p>
+      <p>${esc(ix.disclaimer)}</p>
     </section>
     <h2>Contents</h2>
     <ol class="br-contents">${ix.chapters.map((c) => `<li><button data-go="${esc(c.id)}">${esc(c.title)}</button></li>`).join('')}</ol>
@@ -304,7 +305,22 @@ const scopeBooks = (): BookId[] => (R!.scope === 'both' ? BOOK_ORDER : [R!.book]
 
 async function nameHits(q: string): Promise<Hit[]> {
   const out: Hit[] = [];
-  for (const b of scopeBooks()) { try { out.push(...searchIndex(await loadIndex(b), q, 40)); } catch { /* not available offline */ } }
+  for (const b of scopeBooks()) {
+    try {
+      const ix = await loadIndex(b);
+      const hits = searchIndex(ix, q, 40);
+      // What the term index knows that the headings don't: other names and forms ('grapple' is Grappling, 'wolves'
+      // the Wolf, 'goblin' the 2024 Goblin Warrior). Those entries rank first, just under an exact heading.
+      const t = await loadTerms(b);
+      for (const i of candidates(t, q).slice(0, 3)) {
+        const [, name, type] = t.entries[i];
+        const s = ix.sections.find((x) => x[1] === name && x[4] === type);
+        if (!s || hits.some((h) => h.anchor === s[0])) continue;
+        hits.push({ book: b, anchor: s[0], title: s[1], type, page: s[3], chapter: ix.chapters[ix.pages[s[3]]?.chapter ?? 0]?.title ?? '', score: 95 });
+      }
+      out.push(...hits);
+    } catch { /* not available offline */ }
+  }
   return out.sort((a, b) => b.score - a.score);
 }
 
@@ -330,7 +346,7 @@ async function jumpToBest(q: string): Promise<void> {
 
 function hitRow(h: Hit, showBook: boolean): string {
   const sub = h.snippet ? `<span class="snip">${esc(h.snippet).replace(/«/, '<mark>').replace(/»/, '</mark>')}</span>` : '';
-  return `<li><button data-go="${esc(h.anchor)}" data-book="${h.book}"><span class="t">${esc(h.title)}</span>${chip(h.type)}${showBook ? `<span class="bk">${h.book === 'srd-5.1' ? '2014' : '2024'}</span>` : ''}${sub}</button></li>`;
+  return `<li><button data-go="${esc(h.anchor)}" data-book="${h.book}"><span class="t">${esc(h.title)}</span>${h.anchor.startsWith('table-') ? '<span class="tchip t-table">Table</span>' : chip(h.type, h.book)}${showBook ? `<span class="bk">${h.book === 'srd-5.1' ? '2014' : '2024'}</span>` : ''}${sub}</button></li>`;
 }
 
 function renderGroups(hits: Hit[]): string {

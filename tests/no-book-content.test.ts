@@ -3,7 +3,7 @@ import { execSync } from 'node:child_process';
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { ATTRIBUTION } from '../app/src/books/attribution';
+import { ATTRIBUTION, CHANGES, DISCLAIMER } from '../app/src/books/attribution';
 
 // The one exemption: the open rules books. The System Reference Document 5.1 and 5.2.1 are released by Wizards of
 // the Coast under the Creative Commons Attribution 4.0 International licence (CC-BY-4.0), which allows redistribution
@@ -33,6 +33,13 @@ describe('no book content in git', () => {
     if (!files) return;
     expect(files.filter((f) => f.startsWith('app/public/books/') && !CC_BY_BOOKS.test(f))).toEqual([]);
   });
+  it('app/public/books holds exactly the files the catalog lists, nothing else slipped in beside them', () => {
+    const files = tracked();
+    if (!files) return;
+    const cat = JSON.parse(readFileSync('app/public/books/catalog.json', 'utf8')) as { books: { id: string; files: string[] }[] };
+    const listed = ['app/public/books/catalog.json', ...cat.books.flatMap((b) => b.files.map((f) => `app/public/books/${b.id}/${f}`))].sort();
+    expect(files.filter((f) => f.startsWith('app/public/books/')).sort()).toEqual(listed);
+  });
 });
 
 describe('the CC-BY rules books carry their attribution', () => {
@@ -43,14 +50,17 @@ describe('the CC-BY rules books carry their attribution', () => {
     it(`${d}: ATTRIBUTION.md, the index and every data file carry the exact statement and the changes note`, () => {
       const statement = ATTRIBUTION[d as keyof typeof ATTRIBUTION];
       expect(statement).toMatch(/^This work includes material (taken )?from the System Reference Document 5\.[12](\.1)? \(“SRD 5\.[12](\.1)?”\) by Wizards of the Coast LLC/);
-      expect(readFileSync(join(root, d, 'ATTRIBUTION.md'), 'utf8')).toContain(statement);
+      const md = readFileSync(join(root, d, 'ATTRIBUTION.md'), 'utf8');
+      expect(md).toContain(statement);
+      expect(md).toContain(DISCLAIMER); // CC-BY-4.0 s.3(a)(1)(A)(iv)
+      expect(md).toContain(CHANGES[d as keyof typeof CHANGES]);
       const walk = (p: string): string[] => readdirSync(p).flatMap((f) => (statSync(join(p, f)).isDirectory() ? walk(join(p, f)) : [join(p, f)]));
       const json = walk(join(root, d)).filter((f) => f.endsWith('.json'));
       expect(json.length).toBeGreaterThan(10);
       for (const f of json) {
         const j = JSON.parse(readFileSync(f, 'utf8')) as { attribution?: string; changes?: string };
         expect(j.attribution, f).toBe(statement);
-        expect(j.changes, f).toMatch(/Converted from the official PDF/);
+        expect(j.changes, f).toBe(CHANGES[d as keyof typeof CHANGES]);
       }
     });
   }

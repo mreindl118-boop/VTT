@@ -10,7 +10,7 @@ import { openBestiary } from './ui/bestiary';
 import { creatureById, statsOf, seenAs } from './bestiary';
 import { openEncounterSheet, turnBar } from './ui/encounter';
 import { ICON } from './ui/icons';
-import { openLibrary } from './ui/library';
+import { booksUi, openLibrary } from './ui/library';
 import { ViewSlider } from './ui/viewSlider';
 
 const q = new URLSearchParams(location.search);
@@ -49,7 +49,7 @@ const ready = app.init(builtPaths.has(path) ? path : 'appB/death-house');
 
 // Rules books: a #book/<id>/<section> link opens the reader (DM only; its code loads on demand).
 if (mode === 'dm') {
-  const bookLink = () => { if (location.hash.startsWith('#book/')) void import('./ui/books').then((m) => m.openFromHash()); };
+  const bookLink = () => { if (location.hash.startsWith('#book/')) void booksUi().then((m) => m.openFromHash()); };
   addEventListener('hashchange', bookLink);
   bookLink();
 }
@@ -489,12 +489,11 @@ function buildDmUi(): void {
         <dt>Find an area</dt><dd>Type a key or name in the search box (or press /). The Rooms list shows every key with its revealed state.</dd>
         <dt>Doors, stairs and choices</dt><dd>Door markers open and close doors; stair and trapdoor markers move the party between levels. Tap anything for a menu of what you can do with it (reveal, hide, move the party, frame). The slider previews what players see.</dd>
         <dt>Players mode</dt><dd>Turn the iPad to the table: only revealed rooms, no DM chrome. DM mode brings everything back.</dd>
-        <dt>Rules books</dt><dd>Library, then Books: the 2014 rules (SRD 5.1) and the 2024 rules (SRD 5.2.1) with contents, search and Save for offline. Search a condition, spell or monster to jump straight to it; Map takes you back. Rules edition picks which book answers look-ups. Players never see the books.</dd>
-        <dt>Rules text</dt><dd class="attrib" data-attrib>SRD 5.2.1 and SRD 5.1, CC-BY-4.0.</dd>
+        <dt data-attrib>Rules books</dt>
       </dl></div></div>`;
     h.addEventListener('click', (e) => { const t = e.target as HTMLElement; if (t === h || t.closest('.close')) h.remove(); });
     // The books' exact attribution statements (CC-BY-4.0), loaded with Help rather than with the app.
-    void import('./books/attribution').then(({ ATTRIBUTION: A, CHANGES: C }) => { const dd = h.querySelector('[data-attrib]'); if (dd) dd.outerHTML = [A['srd-5.2.1'], A['srd-5.1'], C].map((x) => `<dd class="attrib">${x}</dd>`).join(''); });
+    void import('./books/attribution').then((m) => m.helpInto(h));
     document.body.appendChild(h);
     localStorage.setItem('mistlab.helpSeen', '1');
   }

@@ -2,13 +2,15 @@
 // monster, item or rule by name or id in the chosen edition, and find rules terms inside running text.
 // Everything loads lazily from app/public/books/<book>/ (terms.json first, then the one entry file needed).
 import { loadEntries, loadTerms } from './store';
-import { BOOK_OF, EDITION_OF, ENTRY_FILE, TYPE_META, type BookId, type Edition, type EntryType, type StoredEntry, type Summary, type TermFile } from './types';
+import { BOOK_OF, EDITION_OF, ENTRY_FILE, TYPE_META, typeLabel, type BookId, type Edition, type EntryType, type StoredEntry, type Summary, type TermFile } from './types';
 
-export { TYPE_META, BOOK_OF, type Edition, type EntryType };
+export { TYPE_META, BOOK_OF, typeLabel, type Edition, type EntryType };
 
 /** A rules entry ready for a card. */
 export interface RuleEntry {
   id: string; type: EntryType; name: string; edition: Edition; book: BookId;
+  /** The type's name in this edition ('Race' in 2014, 'Species' in 2024), for the card's badge. */
+  label: string;
   /** Typed summary fields (spell level and school, monster AC/HP/CR, item rarity, condition effects …). */
   summary: Summary;
   /** Short plain text for a tooltip. */
@@ -43,7 +45,7 @@ const CUES: Partial<Record<EntryType, RegExp>> = {
 export const normTerm = (s: string): string => s.toLowerCase().replace(/[’]/g, "'").replace(/\s*\\?\[[^\]]*\\?\]\s*/g, ' ').replace(/\s+/g, ' ').trim();
 
 function toEntry(e: StoredEntry, book: BookId, attribution: string): RuleEntry {
-  return { id: e.id, type: e.type, name: e.name, edition: EDITION_OF[book], book, summary: e.s, text: e.text, html: e.html, section: { book, anchor: e.anchor, href: `#book/${book}/${e.anchor}` }, attribution };
+  return { id: e.id, type: e.type, name: e.name, edition: EDITION_OF[book], book, label: typeLabel(e.type, EDITION_OF[book]), summary: e.s, text: e.text, html: e.html, section: { book, anchor: e.anchor, href: `#book/${book}/${e.anchor}` }, attribution };
 }
 
 async function entryById(book: BookId, id: string, type: EntryType): Promise<RuleEntry | undefined> {
@@ -70,11 +72,12 @@ export function candidates(t: TermFile, term: string, type?: EntryType): number[
 
 /**
  * Look up a rules entry by id ('spell:fireball') or by name or term ('Fireball', 'prone condition', 'AC', 'wolves')
- * in the given edition (default: the 'Rules edition' preference). With `fallback`, the other edition answers
- * when the chosen one has no such entry.
+ * in the given edition (default: the 'Rules edition' preference). Only that edition answers, unless `fallback: true`
+ * lets the other one answer when it has no such entry; the result's `edition` then differs from the one asked for,
+ * and a card must say so ('2014 rules').
  */
 export async function lookup(termOrId: string, edition: Edition = rulesEdition(), opts: { type?: EntryType; fallback?: boolean } = {}): Promise<RuleEntry | undefined> {
-  const order: Edition[] = opts.fallback === false ? [edition] : [edition, edition === '2024' ? '2014' : '2024'];
+  const order: Edition[] = opts.fallback ? [edition, edition === '2024' ? '2014' : '2024'] : [edition];
   for (const ed of order) {
     const book = BOOK_OF[ed];
     const t = await loadTerms(book);

@@ -1,7 +1,7 @@
 // The rules books converter (scripts/books) and the data it wrote to app/public/books (SRD 5.1 and 5.2.1, CC-BY-4.0).
 import { existsSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
-import { inline, parseBlocks, renderBlocks } from '../scripts/books/md';
+import { inline, parseBlocks, renderBlocks, repairSplitWords } from '../scripts/books/md';
 import type { BookId, BookIndex, Catalog, EntryFile, MonsterSummary, PageFile, SpellSummary, ItemSummary, ConditionSummary } from '../app/src/books/types';
 
 const DIR = 'app/public/books';
@@ -33,7 +33,7 @@ describe('books: chapters in order', () => {
   it('SRD 5.1 has every part of the PDF, in order', () => {
     expect(index('srd-5.1').chapters.map((c) => c.title)).toEqual([
       'Legal Information', 'Races', 'Classes', 'Character Options', 'Equipment', 'Feats', 'Using Ability Scores', 'Adventuring', 'Combat',
-      'Spellcasting', 'Spell Descriptions', 'Traps, Diseases and Hazards', 'Magic Items', 'Monsters',
+      'Spellcasting', 'Spell Descriptions', 'Traps, Diseases, Madness, Objects and Poisons', 'Magic Items', 'Monsters',
       'Appendix PH-A: Conditions', 'Appendix PH-B: Fantasy-Historical Pantheons', 'Appendix PH-C: The Planes of Existence',
       'Appendix MM-A: Miscellaneous Creatures', 'Appendix MM-B: Nonplayer Characters',
     ]);
@@ -126,6 +126,106 @@ describe('books: entries', () => {
   });
 });
 
+const BOOKS: BookId[] = ['srd-5.1', 'srd-5.2.1'];
+const pagesHtml = (b: BookId) => index(b).pages.map((p) => read<PageFile>(`${b}/p/${p.id}.json`).html).join('\n');
+const text = (h: string) => h.replace(/<[^>]+>/g, ' ').replace(/&amp;/g, '&').replace(/&#39;/g, "'").replace(/\s+/g, ' ');
+
+describe('books: fidelity to the printed PDF', () => {
+  for (const b of BOOKS) {
+    it(`${b}: every table rolled on NdX runs up to N×X (00 counts as 100)`, () => {
+      const bad: string[] = [];
+      for (const t of pagesHtml(b).match(/<table>[\s\S]*?<\/table>/g) ?? []) {
+        const th = /<thead><tr><th[^>]*>(\d+)d(\d+)<\/th>/.exec(t);
+        if (!th) continue;
+        const want = +th[1] * +th[2];
+        const firsts = [...t.matchAll(/<tr><t[dh][^>]*>([^<]*)<\/t[dh]>/g)].slice(1).map((m) => m[1].trim());
+        const nums = firsts.flatMap((c) => c.split(/[-–]/)).map((x) => (x === '00' ? 100 : Number(x))).filter((x) => Number.isFinite(x));
+        if (nums.length && Math.max(...nums) !== want) bad.push(`${th[1]}d${th[2]}: largest roll ${Math.max(...nums)} (${firsts.slice(0, 3).join(', ')} …)`);
+      }
+      expect(bad).toEqual([]);
+    });
+    it(`${b}: no stat block lists an action under Traits`, () => {
+      const bad = Object.values(entries(b, 'monsters')).filter((e) => {
+        const traits = /<h\d>Traits<\/h\d>([\s\S]*?)(?=<h\d>|$)/.exec(e.html)?.[1] ?? '';
+        return /<strong>Multiattack|Attack Roll:|Weapon Attack:/.test(traits);
+      }).map((e) => e.name);
+      expect(bad).toEqual([]);
+    });
+    it(`${b}: every magic item in the A–Z is an item entry`, () => {
+      const ix = index(b);
+      const at = ix.sections.findIndex((s) => s[1] === 'Magic Items A-Z');
+      const lv = ix.sections[at][2];
+      const kids: string[] = [];
+      for (let i = at + 1; i < ix.sections.length && ix.sections[i][2] > lv; i++) if (ix.sections[i][2] === lv + 1 && ix.sections[i][4] !== 'item') kids.push(ix.sections[i][1]);
+      expect(kids).toEqual([]);
+    });
+    it(`${b}: no item is a price-list row, and lifestyle rows keep their group`, () => {
+      const items = Object.values(entries(b, 'items'));
+      expect(items.filter((e) => /^(\d[\d,]*([-–]\d+)?|cantrip|poor|modest|wealthy|squalid|comfortable|aristocratic)$/i.test(e.name)).map((e) => e.name)).toEqual([]);
+      const t = read<{ forms: Record<string, number[]> }>(`${b}/terms.json`);
+      for (const w of ['poor', 'modest', 'wealthy', '1', 'cantrip-item']) expect(Object.keys(t.forms).includes(w) && t.forms[w].some((i) => read<{ entries: [string, string, string][] }>(`${b}/terms.json`).entries[i][2] === 'item'), w).toBe(false);
+    });
+  }
+  it('Efreeti Bottle is rolled on 1d10, as printed', () => {
+    const e = entries('srd-5.2.1', 'items')['item:efreeti-bottle'];
+    expect(e.html).toContain('<th>1d10</th>');
+    expect(e.html).not.toContain('1d100');
+  });
+  it('Young Green Dragon has its Actions', () => {
+    const h = entries('srd-5.2.1', 'monsters')['monster:young-green-dragon'].html;
+    expect(h.indexOf('<h4>Actions</h4>')).toBeGreaterThan(h.indexOf('<h4>Traits</h4>'));
+    expect(h.indexOf('<h4>Actions</h4>')).toBeLessThan(h.indexOf('Multiattack'));
+  });
+  it('Figurine of Wondrous Power is an item in both books', () => {
+    expect(entries('srd-5.1', 'items')['item:figurine-of-wondrous-power'].s).toMatchObject({ category: 'Wondrous Item', magic: true, rarity: 'rarity by figurine' });
+    expect(entries('srd-5.2.1', 'items')['item:figurine-of-wondrous-power']).toBeTruthy();
+  });
+  it('2024 lifestyle prices: inn stays and meals both kept, named by group', () => {
+    const i = entries('srd-5.2.1', 'items');
+    expect(i['item:inn-stay-poor'].s).toMatchObject({ cost: '1 SP' });
+    expect(i['item:meal-poor'].s).toMatchObject({ cost: '2 CP' });
+  });
+  it('the 2024 table titles the Markdown dropped are back, as captions the search finds', () => {
+    const ix = index('srd-5.2.1');
+    const titles = ix.sections.filter((s) => s[2] === 6).map((s) => s[1]);
+    for (const t of ['Travel Pace', 'Weapons', 'Trinkets', 'Creature Size and Space', 'Spell Scroll Costs', 'Magic Item Rarities and Values',
+      'Experience Points by Challenge Rating', 'Proficiency Bonus by Challenge Rating', 'Wand of Wonder Effects', 'XP Budget per Character', 'Ability Descriptions']) expect(titles, t).toContain(t);
+    const h = pagesHtml('srd-5.2.1');
+    expect(h).toMatch(/<div class="tbl" id="table-travel-pace"><table><caption>Travel Pace<\/caption><thead><tr><th>Pace<\/th><th[^>]*>Distance Traveled per Minute<\/th><th>per Hour<\/th><th>per Day<\/th>/);
+    expect(titles.length).toBeGreaterThanOrEqual(95);
+  });
+  it('words split by the PDF extraction are joined again in the 2024 book', () => {
+    const t = text(pagesHtml('srd-5.2.1'));
+    for (const w of ['Na ture', 'Persua sion', 'Athlet ics', 'Ath letics', 'Investi gation', 'Heavy ar mor', 'Leather Ar mor', 'Druidic Fo cus', '20 Ar rows', '8 Jav elins',
+      'En tertainer', 'nu merous', 'mu sical', 'un known', 'crea tures', 'mix ture', 'nei ther', 'depend ing', 'de pending', 'Ar cane']) expect(t, w).not.toContain(w);
+    expect(t).toContain('Choose 2: Animal Handling, Athletics, Intimidation, Nature, Perception, or Survival');
+  });
+  it('the word repair joins fragments only when the whole word is in the book and one part is rare', () => {
+    const book = 'armor armor armor nature nature. Leather Ar mor and Na ture. Take a bout of rest; a cat and a dog; an arm or a leg; the armor or the arm or the leg or.';
+    const r = repairSplitWords(book, ['a bout', 'arm or']);
+    expect(r.md).toContain('Leather Armor and Nature.');
+    expect(r.md).toContain('a bout of rest');
+    expect(r.md).toContain('an arm or a leg');
+    expect(r.md).toContain('a cat and a dog');
+    expect([...r.joined.keys()].sort()).toEqual(['Ar mor', 'Na ture']);
+  });
+  it('the 2024 legal page quotes the statement exactly, licence URL whole', () => {
+    const h = read<PageFile>('srd-5.2.1/p/legal-information.json').html;
+    expect(h).toContain(read<BookIndex>('srd-5.2.1/index.json').attribution);
+    expect(h).not.toContain('4.0/ legalcode');
+  });
+  it('2014 grouped chapters do not repeat their own name, and Circle of the Land lists are named', () => {
+    const ix = index('srd-5.1');
+    for (const ch of ['Equipment', 'Feats', 'Using Ability Scores', 'Spellcasting', 'Magic Items', 'Monsters']) {
+      const i = ix.sections.findIndex((s) => s[1] === ch && s[2] === 1);
+      expect(ix.sections[i + 1][1], ch).not.toBe(ch);
+    }
+    const c14 = Object.values(entries('srd-5.1', 'character'));
+    expect(c14.find((e) => e.name === 'Circle Spells (Arctic)')?.s).toMatchObject({ className: 'Druid', subclass: 'Circle of the Land' });
+    expect(c14.some((e) => e.name === 'Arctic')).toBe(false);
+  });
+});
+
 // The converter is deterministic: a fresh run over the pinned sources matches the committed files byte for byte.
 // Runs where `npm run books` has filled scripts/books/.cache; elsewhere `npm run books:check` does the same check.
 describe.skipIf(!existsSync('scripts/books/.cache/your5e-srd-5.2.1-md.md'))('books: regeneration', () => {
@@ -135,7 +235,8 @@ describe.skipIf(!existsSync('scripts/books/.cache/your5e-srd-5.2.1-md.md'))('boo
     const sources = JSON.parse(readFileSync('scripts/books/sources.json', 'utf8')).sources;
     for (const cfg of BOOKS) {
       const md = readFileSync(`scripts/books/.cache/${cfg.markdown}.md`, 'utf8');
-      const built = convertBook(cfg, md, sources);
+      const titles = cfg.tableTitles ? JSON.parse(readFileSync(`scripts/books/titles/${cfg.id}.json`, 'utf8')) : [];
+      const built = convertBook(cfg, md, sources, titles);
       for (const [p, s] of built.files) expect(s === readFileSync(`${DIR}/${cfg.id}/${p}`, 'utf8'), `${cfg.id}/${p}`).toBe(true);
     }
   }, 120_000);

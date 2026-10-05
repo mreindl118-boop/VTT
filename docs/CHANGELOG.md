@@ -14,10 +14,23 @@
   typed entries with stable ids, for the coming rules tooltips and stat blocks (`app/src/books/lookup.ts`). A Rules
   edition setting picks which book answers: 2024 by default, 2014 if you prefer.
 - The players never see the books: not in Players mode and not on the Player Display.
+- Checked against the printed books: the 2024 book has its table titles back (Travel Pace, XP Budget per Character,
+  Trinkets …, found by search), words the PDF split are whole again ("Nature", "Leather Armor"), the Efreeti Bottle
+  is rolled on a d10 as printed, the Young Green Dragon's attacks sit under Actions, and price lists are no longer
+  mistaken for items. The 2014 book lists the Figurine of Wondrous Power as an item and calls races races.
+- A rules look-up answers only from the edition you chose; a term the 2014 rules don't have finds nothing rather
+  than a 2024 rule. It understands more ways of saying things: grapple, shove, hit dice, half cover, plate, goblin,
+  reaction or reactions. The reader's search knows these names too, and marks a table found by its title as a table.
+- On the phone, a monster's six ability scores fit the screen, and the closed contents sheet leaves no shadow.
 - The text is Creative Commons Attribution 4.0. Each book's first page, its files and Help carry the exact
-  attribution Wizards of the Coast asks for. `npm run books` rebuilds the data from pinned sources, and
-  docs/BOOKS.md says where it comes from. Curse of Strahd text stays out of the repo, as before.
-- Nothing loads until a book is opened, so starting the app is no slower.
+  attribution statement the licence asks for, the licence's disclaimer notice and a note of what this copy changed.
+  `npm run books` rebuilds the data from pinned sources, and docs/BOOKS.md says where it comes from. Curse of Strahd
+  text stays out of the repo, as before.
+- Nothing loads until a book is opened, so starting the app is no slower. Help's books entry loads with Help. The
+  app's main script is 855 bytes larger (about 0.4 KB compressed): the Books tab button, the `#book/` link hook and
+  Help's loader, which have to be there before a book is opened.
+- Offline: the service worker now really keeps what it fetches, and finds files saved for offline whatever
+  headers the server sent, so a saved book opens with the network cut.
 
 ## M0 Foundations — 2026-09-29
 

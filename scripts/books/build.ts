@@ -1,17 +1,21 @@
 // npm run books: download the pinned SRD sources, convert both books and write app/public/books/**.
 //   --offline   use only scripts/books/.cache (no network)
 //   --check     write nothing; fail if the committed data differs from a fresh build
-//   --no-pdf    skip the fidelity check against the official PDFs (needs pdftotext)
+//   --no-pdf    skip the PDF steps: the fidelity check (pdftotext) and reading table titles (pdftohtml); the
+//               committed scripts/books/titles/<book>.json is used instead
 import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
 import { BOOKS, type BookConfig } from './config.ts';
-import { convertBook, normForm, type BuiltBook } from './convert.ts';
+import { convertBook, normForm, placeTitles, prepare, type BuiltBook } from './convert.ts';
 import { fetchSource, loadSources } from './fetch.ts';
+import { parseBlocks } from './md.ts';
+import { pdfTitles, type PdfTitle } from './titles.ts';
 import type { Catalog, Source } from '../../app/src/books/types.ts';
 
 const ROOT = join(import.meta.dirname, '..', '..');
 const OUT = join(ROOT, 'app', 'public', 'books');
+const TITLES = join(import.meta.dirname, 'titles');
 const args = new Set(process.argv.slice(2));
 const offline = args.has('--offline'), check = args.has('--check'), pdf = !args.has('--no-pdf');
 
@@ -80,7 +84,25 @@ async function main(): Promise<void> {
   for (const cfg of BOOKS) {
     console.log(`${cfg.id} (${cfg.editionLabel})`);
     const md = readFileSync(await fetchSource(need(cfg.markdown), offline), 'utf8');
-    const b = convertBook(cfg, md, sources);
+    // Table titles: read from the PDF when it and pdftohtml are at hand, else the committed list.
+    let titles: PdfTitle[] = [];
+    const titlesFile = join(TITLES, `${cfg.id}.json`);
+    if (cfg.tableTitles) {
+      let fresh: PdfTitle[] | null = null;
+      if (pdf) { try { fresh = pdfTitles(await fetchSource(need(cfg.pdf), offline)); } catch (e) { if (!(offline && /not in/.test(String(e)))) throw e; } }
+      if (fresh) {
+        const text = JSON.stringify(fresh, null, 1) + '\n';
+        if (check) { if (!existsSync(titlesFile) || readFileSync(titlesFile, 'utf8') !== text) { console.error(`${relative(ROOT, titlesFile)} differs from the PDF`); process.exit(1); } }
+        else { mkdirSync(TITLES, { recursive: true }); writeFileSync(titlesFile, text); }
+        titles = fresh;
+      } else titles = JSON.parse(readFileSync(titlesFile, 'utf8')) as PdfTitle[];
+      const probe = placeTitles(parseBlocks(prepare(cfg, md).md), titles);
+      console.log(`  table titles: ${probe.placed} restored from the PDF (${titles.length} in the PDF; ${probe.missed.length} with no table in the Markdown${probe.missed.length ? `: ${probe.missed.map((t) => t.title).join(', ')}` : ''})`);
+    }
+    const prep = prepare(cfg, md);
+    if (prep.joined.size) console.log(`  rejoined split words: ${[...prep.joined].map(([w, n]) => `${w}${n > 1 ? ` ×${n}` : ''}`).join(', ')}`);
+    for (const p of cfg.patches) console.log(`  patched: ${p.why}`);
+    const b = convertBook(cfg, md, sources, titles);
     for (const [p, s] of b.files) out.set(`${cfg.id}/${p}`, s);
     const count = (t: string) => b.entries.filter((e) => e.type === t).length;
     console.log(`  ${b.chapters.length} chapters, ${b.index.pages.length} pages, ${b.index.sections.length} sections, ${(b.index.bytes / 1024).toFixed(0)} KB`);

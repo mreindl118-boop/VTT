@@ -100,6 +100,7 @@
 .br-page tbody tr:nth-child(even) { background: color-mix(in srgb, var(--ink) 3%, transparent); }
 .br-page td.n, .br-page th.n { text-align: center; font-variant-numeric: tabular-nums; }
 .br-page .more { font-size: .85em; color: var(--ink-2); }
+.br-page caption { caption-side: top; text-align: left; font-weight: 600; font-size: 1.05em; padding: 0 0 .4em; color: var(--ink); }
 
 /* Typed entries: a colour bar per kind (spell, condition, monster, item, rule …). */
 .br-page .entry { position: relative; margin: 1.4em 0; padding: .1em 12px .2em 16px; border-left: 3px solid var(--tc, var(--hair)); }
@@ -108,6 +109,7 @@
 .br-page .entry.t-spell { --label: 'Spell'; } .br-page .entry.t-condition { --label: 'Condition'; } .br-page .entry.t-monster { --label: 'Monster'; }
 .br-page .entry.t-item { --label: 'Item'; } .br-page .entry.t-rule { --label: 'Rule'; } .br-page .entry.t-feat { --label: 'Feat'; }
 .br-page .entry.t-feature { --label: 'Class feature'; } .br-page .entry.t-species { --label: 'Species'; } .br-page .entry.t-background { --label: 'Background'; }
+.br-page[data-book='srd-5.1'] .entry.t-species { --label: 'Race'; } /* the 2014 rules' word */
 .br-page .entry.t-monster { background: color-mix(in srgb, var(--t-monster) 4%, transparent); border-radius: 0 10px 10px 0; padding-right: 12px; }
 .br-page .entry.t-monster table { font-size: .8em; }
 .br-page .entry.t-monster > ul { list-style: none; padding-left: 0; }
@@ -147,14 +149,16 @@
 .br-group mark { background: color-mix(in srgb, var(--amber) 35%, transparent); color: inherit; border-radius: 3px; }
 .br-ft { font-size: 1.1em !important; margin-top: 1.4em !important; }
 .br-fulltext { margin: 16px 0; padding: 10px 16px; border-radius: 999px; border: var(--hairline, 1px) solid var(--hair); font-size: 15px; }
+.tchip.t-table { --tc: var(--ink-2); } /* a titled table, beside the heading of the same name */
 .tchip { display: inline-block; font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; padding: 1px 7px; border-radius: 999px; color: var(--tc); background: color-mix(in srgb, var(--tc) 13%, transparent); }
 .br-group .bk { font-size: 11px; color: var(--ink-2); }
 
 /* ---- iPad portrait and phones: contents become a sheet */
 @media (max-width: 900px) {
   .book-reader.toc-collapsed .br-toc { display: block; }
-  .br-toc { position: absolute; z-index: 2; top: 0; bottom: 0; left: 0; width: min(340px, 86vw); transform: translateX(-102%); transition: transform .22s ease; box-shadow: 0 10px 40px rgba(0,0,0,.3); }
-  .toc-open .br-toc { transform: none; }
+  .br-toc { position: absolute; z-index: 2; top: 0; bottom: 0; left: 0; width: min(340px, 86vw); transform: translateX(-102%); transition: transform .22s ease, box-shadow .22s ease; }
+  /* The shadow only while open: closed, its blur would reach back on screen as a grey strip. */
+  .toc-open .br-toc { transform: none; box-shadow: 0 10px 40px rgba(0,0,0,.3); }
   .toc-open .br-scrim { display: block; position: absolute; inset: 0; z-index: 1; background: rgba(0,0,0,.25); }
 }
 @media (max-width: 640px) {
@@ -167,4 +171,9 @@
   .br-pager, .br-attrib-line { padding-left: 16px; padding-right: 16px; }
   .br-page h1 { font-size: 1.7em; }
   .br-contents { columns: 1; }
+  /* A stat block's six ability columns fit the phone's width, so Cha. is never off screen. */
+  .br-page .entry.t-monster { padding-left: 10px; padding-right: 6px; }
+  .br-page .entry.t-monster table { font-size: .7em; width: 100%; min-width: 0; }
+  .br-page .entry.t-monster :is(th, td) { padding: .35em .2em; }
+  .br-page .entry.t-monster :is(th, td):first-child { padding-left: .1em; }
 }

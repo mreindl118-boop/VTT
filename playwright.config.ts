@@ -2,6 +2,9 @@ import { defineConfig, devices } from '@playwright/test';
 
 // PW_PORT lets parallel checkouts each build and serve their own copy (default 4173).
 const PORT = Number(process.env.PW_PORT ?? 4173);
+// Route the service worker's own fetches through context.route too, so a test can really cut the network
+// (context.setOffline alone does not stop a service worker's requests). No other spec routes requests.
+process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS = '1';
 
 export default defineConfig({
   testDir: 'e2e',

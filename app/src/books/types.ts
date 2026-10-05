@@ -30,6 +30,9 @@ export const TYPE_META: Record<EntryType, { label: string; color: string }> = {
   background: { label: 'Background', color: 'var(--t-background, #6e6253)' },
 };
 
+/** The 2014 rules call species 'races'. */
+export const typeLabel = (type: EntryType, edition: Edition): string => (type === 'species' && edition === '2014' ? 'Race' : TYPE_META[type].label);
+
 /** Which entry file holds a type. */
 export const ENTRY_FILE: Record<EntryType, string> = {
   spell: 'spells', monster: 'monsters', item: 'items',
@@ -106,11 +109,13 @@ export interface BookIndex {
   attribution: string;
   /** What Wizards asks of everyone who uses the text, quoted from the legal page. */
   attributionNote: string;
+  /** The licensor's notice about CC-BY-4.0's disclaimer of warranties, from the legal page. */
+  disclaimer: string;
   changes: string;
   sources: Source[];
   chapters: { id: string; title: string; pages: number[] }[];
   pages: { id: string; title: string; chapter: number; bytes: number }[];
-  /** Every heading: [anchor, title, level, page index, entry type or ''] in reading order. */
+  /** Every heading, and every titled table at level 6: [anchor, title, level, page index, entry type or ''] in reading order. */
   sections: [string, string, number, number, EntryType | ''][];
   files: string[];
   bytes: number;

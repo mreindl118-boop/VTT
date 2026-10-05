@@ -4,6 +4,8 @@ import { ICON } from './icons';
 
 /** Rules books are the DM's: never offered in Players mode or on the Player Display. */
 const booksAllowed = () => document.body.dataset.mode !== 'player' && document.body.dataset.view !== 'players';
+/** The books' code (its own chunk), loaded from one place for the Books tab and for #book/ links. */
+export const booksUi = () => import('./books');
 
 export function openLibrary(built: Set<string>, active: Campaign, onOpen: (path: string) => void): void {
   const sheet = document.createElement('div');
@@ -27,7 +29,7 @@ export function openLibrary(built: Set<string>, active: Campaign, onOpen: (path:
       ...(books ? [] : groups),
       '</div></div>',
     ].join('');
-    if (books) void import('./books').then((m) => m.renderBooksTab(sheet.querySelector<HTMLElement>('.books-body')!, close));
+    if (books) void booksUi().then((m) => m.renderBooksTab(sheet.querySelector<HTMLElement>('.books-body')!, close));
   };
   render();
   const close = () => sheet.remove();

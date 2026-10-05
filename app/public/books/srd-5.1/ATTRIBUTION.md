@@ -8,11 +8,13 @@ This work includes material taken from the System Reference Document 5.1 (“SRD
 
 ## Changes
 
-Converted from the official PDF to Markdown (by the your5e/5e-srd-markdown project) and from there to HTML and JSON, reformatted and indexed for mistLAB. No rules text was changed.
+Converted from the official PDF to Markdown by the your5e/5e-srd-markdown project (which lists its own small corrections, such as a typo fixed in Contagion), then to HTML and JSON, reformatted and indexed for mistLAB. Apart from formatting and those corrections, no rules text was changed.
 
 ## Licence
 
 Creative Commons Attribution 4.0 International (CC-BY-4.0): https://creativecommons.org/licenses/by/4.0/legalcode
+
+Section 5 of CC-BY-4.0 includes a Disclaimer of Warranties and Limitation of Liability that limits our liability to you.
 
 ## Sources
 

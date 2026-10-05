@@ -77,10 +77,61 @@ describe('lookup', () => {
     expect(all.map((e) => e.type).sort()).toEqual(expect.arrayContaining(['item', 'spell']));
     expect((await lookup('Shield', '2024', { type: 'spell' }))!.id).toBe('spell:shield');
   });
-  it('falls back to the other edition unless told not to', async () => {
-    expect((await lookup('Cloak of Invisibility', '2014'))?.edition).toBe('2024'); // restored in 5.2.1; not in 5.1
-    expect(await lookup('Cloak of Invisibility', '2014', { fallback: false })).toBeUndefined();
+  it('answers only from the chosen edition; the other edition answers only when asked to', async () => {
+    expect(await lookup('Cloak of Invisibility', '2014')).toBeUndefined(); // restored in 5.2.1; not in 5.1
+    expect((await lookup('Cloak of Invisibility', '2014', { fallback: true }))?.edition).toBe('2024');
     expect(await lookup('no such rule at all')).toBeUndefined();
+  });
+  it('the type label follows the edition: 2014 races, 2024 species', async () => {
+    expect((await lookup('Dwarf', '2014'))).toMatchObject({ type: 'species', label: 'Race' });
+    expect((await lookup('Dwarf', '2024'))).toMatchObject({ type: 'species', label: 'Species' });
+  });
+  // Each term is answered by its own edition, never silently by the other.
+  const BOTH: [string, string, string][] = [
+    // [term, 2014 id, 2024 id]
+    ['Grapple', 'rule:grappling', 'rule:grappling'],
+    ['Grappling', 'rule:grappling', 'rule:grappling'],
+    ['Shove', 'rule:shoving-a-creature', 'rule:unarmed-strike'],
+    ['Advantage', 'rule:advantage-and-disadvantage', 'rule:advantage'],
+    ['Disadvantage', 'rule:advantage-and-disadvantage', 'rule:disadvantage'],
+    ['Reaction', 'rule:reactions', 'rule:reaction'],
+    ['Reactions', 'rule:reactions', 'rule:reaction'],
+    ['Cantrip', 'rule:cantrips', 'rule:cantrip'],
+    ['Cantrips', 'rule:cantrips', 'rule:cantrip'],
+    ['Ritual', 'rule:rituals', 'rule:ritual'],
+    ['Attunement', 'rule:attunement', 'rule:attunement'],
+    ['Passive Perception', 'rule:passive-checks', 'rule:passive-perception'],
+    ['Vulnerability', 'rule:damage-resistance-and-vulnerability', 'rule:vulnerability'],
+    ['Suffocation', 'rule:suffocating', 'rule:suffocation'],
+    ['Suffocating', 'rule:suffocating', 'rule:suffocation'],
+    ['Unarmed Strike', 'rule:melee-attacks', 'rule:unarmed-strike'],
+    ['Hit Dice', 'rule:short-rest', 'rule:hit-point-dice'],
+    ['Half Cover', 'rule:cover', 'rule:cover'],
+    ['Three-Quarters Cover', 'rule:cover', 'rule:cover'],
+    ['Inspiration', 'rule:inspiration', 'rule:heroic-inspiration'],
+    ['Proficiency Bonus', 'rule:proficiency-bonus', 'rule:proficiency'],
+    ['Plate', 'item:plate', 'item:plate-armor'],
+    ['Plate Armor', 'item:plate', 'item:plate-armor'],
+    ['Goblin', 'monster:goblin', 'monster:goblin-warrior'],
+    ['Goblins', 'monster:goblin', 'monster:goblin-warrior'],
+    ['Healing Potion', 'item:potion-of-healing', 'item:potion-of-healing'],
+    ['+1 Weapon', 'item:weapon-1-2-or-3', 'item:weapon-1-2-or-3'],
+    ['Spell Slot', 'rule:spell-slots', ''],
+    ['Figurine of Wondrous Power', 'item:figurine-of-wondrous-power', 'item:figurine-of-wondrous-power'],
+  ];
+  for (const [term, id14, id24] of BOTH) {
+    it(`'${term}' in each edition, no fallback`, async () => {
+      expect((await lookup(term, '2014'))?.id ?? '', '2014').toBe(id14);
+      expect((await lookup(term, '2014'))?.edition ?? '2014').toBe('2014');
+      expect((await lookup(term, '2024'))?.id ?? '', '2024').toBe(id24);
+      expect((await lookup(term, '2024'))?.edition ?? '2024').toBe('2024');
+    });
+  }
+  it('terms with no counterpart in the 2014 rules find nothing there rather than the 2024 entry', async () => {
+    for (const t of ['Bloodied', 'Influence', 'Study', 'Heroic Inspiration']) {
+      const e = await lookup(t, '2014');
+      expect(e === undefined || e.edition === '2014', t).toBe(true);
+    }
   });
 });
 
@@ -120,6 +171,13 @@ describe('terms in running text', () => {
   it('possessives link the name only', async () => {
     const s = findTerms("The Vampire's bite.", await termIndex('2024'));
     expect(s.map((x) => [x.text, x.id, x.start, x.end])).toEqual([['Vampire', 'monster:vampire', 4, 11]]);
+  });
+  it('price-list words and inflected common words are not linked in prose', async () => {
+    const t24 = await termIndex('2024'), t14 = await termIndex('2014');
+    const prose = 'The village is Poor, and in the Modest inn the Wealthy merchant hides two nets and a mule.';
+    expect(findTerms(prose, t24)).toEqual([]);
+    expect(findTerms(prose, t14)).toEqual([]);
+    for (const w of ['hides', 'nets', 'net', 'mule', 'cat', 'deer']) expect([...t14.common, ...t24.common], w).toContain(w);
   });
   it('2014 terms come from the 2014 book', async () => {
     const t = await termIndex('2014');
