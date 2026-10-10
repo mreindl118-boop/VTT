@@ -35,6 +35,7 @@ import { creatureById, figureFor, aliasFor, seenAs, statsOf, speedFtOf, colorOf 
 import { sightBlockers } from './core/light';
 import { idbGet, idbSet } from './state/idb';
 import { storeKey } from './state/backup';
+import { projectState } from './core/playersView';
 
 export type Mode = 'dm' | 'player';
 export type Tool = 'none' | 'reveal' | 'brush-reveal' | 'brush-fog' | 'measure';
@@ -146,7 +147,10 @@ export class App {
     if (this.cur) await this.flush();
     this.campaign = c;
     const saved = await idbGet<CampaignState>(storeKey(c.id)).catch(() => undefined);
-    this.state = saved ? { ...newCampaign(c.id), ...saved } : newCampaign(c.id); // older saves lack newer fields
+    // The display keeps only the players' share of the save (DM-only keys never sit in its memory) until the DM's
+    // window broadcasts.
+    const mine = saved && this.mode === 'player' ? (projectState(saved) as Partial<CampaignState>) : saved;
+    this.state = mine ? { ...newCampaign(c.id), ...mine } : newCampaign(c.id); // older saves lack newer fields
     useWorld(worldOf(c), c.theme.id === 'pastoral' ? 'pastoral' : 'gothic');
     this.world.setTheme(c.theme);
     document.body.dataset.campaign = c.id;
@@ -567,7 +571,8 @@ export class App {
       return { pos: t.pos, darkvisionFt: t.darkvisionFt };
     });
     cov.updateVision(viewers, this.cur.grid.levels[l.id].floorPolygons.concat(l.rooms.map((r) => r.polygon)), walls, lights, this.ambientNow(l), rs.secretWalls);
-    this.state.seen[`${loc}/${l.id}`] = cov.serialize().seen;
+    if (this.holdSeen) cov.load({ seen: this.state.seen[`${loc}/${l.id}`] ?? '', paint: cov.serialize().paint }); // a replaced campaign keeps its explored memory exactly
+    else this.state.seen[`${loc}/${l.id}`] = cov.serialize().seen;
     const tex = this.cur.covTex.get(l.id)!;
     cov.toTexture(tex.image.data as Uint8Array);
     tex.needsUpdate = true;
@@ -711,11 +716,15 @@ export class App {
     this.stopPlacing(); this.select(null);
     const level = this.cur?.path === path ? this.levelId : undefined;
     this.state = { ...newCampaign(this.campaign.id), ...structuredClone(next), id: this.campaign.id };
-    await this.open(path, level);
-    this.fresh = true; // the display rebuilds its explored memory from this state
-    this.commit();
+    this.holdSeen = true; // recompute would widen the explored memory (FEATURES bug 16): the replacement keeps its own
+    try {
+      await this.open(path, level);
+      this.fresh = true; // the display rebuilds its explored memory from this state
+      this.commit();
+    } finally { this.holdSeen = false; }
   }
   private fresh = false;
+  private holdSeen = false;
 
   toggleRoom(key: string): void {
     const loc = this.cur!.scene.location;

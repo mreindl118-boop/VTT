@@ -44,7 +44,11 @@ const isObj = (x: unknown): x is Record<string, unknown> => typeof x === 'object
 const isStr = (x: unknown): x is string => typeof x === 'string';
 const isNum = (x: unknown): x is number => typeof x === 'number' && Number.isFinite(x);
 const isVec2 = (x: unknown) => Array.isArray(x) && x.length === 2 && isNum(x[0]) && isNum(x[1]);
+const isBool = (x: unknown): x is boolean => typeof x === 'boolean';
 const isRecordOf = (x: unknown, f: (v: unknown) => boolean) => isObj(x) && Object.values(x).every(f);
+/** An optional field: absent, or of the right shape. */
+const opt = (x: unknown, f: (v: unknown) => boolean) => x === undefined || f(x);
+const SIZES = ['tiny', 'small', 'medium', 'large', 'huge', 'gargantuan'];
 
 function revealError(r: unknown, i: number): string | null {
   if (!isObj(r) || !isStr(r.location)) return `reveal ${i + 1} is not a reveal`;
@@ -63,15 +67,20 @@ export function stateError(s: unknown): string | null {
   if (!Array.isArray(s.reveals)) return 'the reveals are missing';
   for (let i = 0; i < s.reveals.length; i++) { const e = revealError(s.reveals[i], i); if (e) return e; }
   if (!Array.isArray(s.tokens)) return 'the tokens are missing';
-  for (const t of s.tokens) if (!isObj(t) || !isStr(t.id) || !isStr(t.location) || !isStr(t.level) || !isVec2(t.pos)) return 'a token is broken';
+  for (const t of s.tokens) if (!isObj(t) || !isStr(t.id) || !isStr(t.name) || !isStr(t.location) || !isStr(t.level) || !isVec2(t.pos) || !SIZES.includes(t.size as string) || !isNum(t.darkvisionFt) || !isStr(t.color)
+    || !opt(t.role, (r) => ['party', 'member', 'creature'].includes(r as string)) || !opt(t.hp, (h) => isObj(h) && isNum(h.cur) && isNum(h.max)) || !opt(t.light, (l) => isObj(l) && isNum(l.bright) && isNum(l.dim))
+    || !opt(t.sheetId, isStr) || !opt(t.creatureId, isStr) || !opt(t.playerName, isStr) || !opt(t.hidden, isBool)) return 'a token is broken';
   if (!isRecordOf(s.seen ?? {}, isStr)) return 'the explored memory is broken';
   if (!isRecordOf(s.doorsOpen ?? {}, (v) => typeof v === 'boolean')) return 'the door states are broken';
   if (!isRecordOf(s.opened ?? {}, (v) => typeof v === 'boolean')) return 'the opened containers are broken';
-  if (s.roster !== undefined && (!Array.isArray(s.roster) || !s.roster.every((r) => isObj(r) && isStr(r.id) && isStr(r.name) && isNum(r.speedFt)))) return 'the roster is broken';
-  if (s.world !== undefined && (!isObj(s.world) || !isVec2(s.world.pos) || !Array.isArray(s.world.trail))) return 'the world-map position is broken';
+  if (s.roster !== undefined && (!Array.isArray(s.roster) || !s.roster.every((r) => isObj(r) && isStr(r.id) && isStr(r.name) && isNum(r.speedFt)
+    && opt(r.color, isStr) && opt(r.reachFt, isNum) && opt(r.rangeFt, isNum) && opt(r.initMod, isNum) && opt(r.darkvisionFt, isNum) && opt(r.size, (z) => SIZES.includes(z as string)) && opt(r.kind, (k) => k === 'pc' || k === 'npc')))) return 'the roster is broken';
+  if (s.world !== undefined && (!isObj(s.world) || !isVec2(s.world.pos) || !opt(s.world.key, isStr) || !Array.isArray(s.world.trail)
+    || !s.world.trail.every((p) => isObj(p) && isVec2(p.pos) && isNum(p.miles) && isNum(p.at) && opt(p.key, isStr)))) return 'the world-map position is broken';
   if (s.worldRevealed !== undefined && (!Array.isArray(s.worldRevealed) || !s.worldRevealed.every(isStr))) return 'the revealed places are broken';
   if (s.clock !== undefined && (!isObj(s.clock) || !isNum(s.clock.day) || !isNum(s.clock.hour))) return 'the clock is broken';
-  if (s.encounter !== undefined && (!isObj(s.encounter) || !isStr(s.encounter.location) || !Array.isArray(s.encounter.order) || !isNum(s.encounter.round))) return 'the encounter is broken';
+  if (s.encounter !== undefined && (!isObj(s.encounter) || !isStr(s.encounter.location) || !isStr(s.encounter.level) || !isNum(s.encounter.round) || !isNum(s.encounter.turn) || !isNum(s.encounter.movedFt) || !isVec2(s.encounter.partyPos)
+    || !Array.isArray(s.encounter.order) || !s.encounter.order.every((c) => isObj(c) && isStr(c.sheetId) && isStr(c.tokenId) && isNum(c.init)))) return 'the encounter is broken';
   return null;
 }
 
@@ -106,7 +115,14 @@ export const loadSaved = (campaignId: string) => idbGet<CampaignState>(storeKey(
 export const saveState = (campaignId: string, state: CampaignState) => idbSet(storeKey(campaignId), state);
 
 export type SnapshotReason = 'auto' | 'before import' | 'before restore' | 'before reset';
-export interface Snapshot { at: number; reason: SnapshotReason; reveals: number; tokens: number; state: CampaignState }
+/** A kept copy; `schemaVersion` is the format of `state` (missing on none written so far, which counts as 1). */
+export interface Snapshot { at: number; reason: SnapshotReason; reveals: number; tokens: number; state: CampaignState; schemaVersion?: number }
+
+/** A snapshot's state, validated and migrated like an imported file. */
+export function snapshotState(s: Snapshot, activeId: string): ImportResult {
+  const file: CampaignFile = { app: 'mistlab', schemaVersion: s.schemaVersion ?? 1, campaign: activeId, exportedAt: new Date(s.at).toISOString(), state: s.state };
+  return parseCampaignFile(JSON.stringify(file), activeId);
+}
 
 /** Snapshots of a campaign, newest first. */
 export async function listSnapshots(campaignId: string): Promise<Snapshot[]> {
@@ -122,7 +138,7 @@ export function addSnapshot(campaignId: string, state: CampaignState, reason: Sn
   const run = queue.then(async () => {
     const list = await listSnapshots(campaignId);
     if (list[0] && sameState(list[0].state, copy)) return list;
-    const next = [{ at, reason, reveals: copy.reveals.length, tokens: copy.tokens.length, state: copy }, ...list].slice(0, SNAPSHOT_KEEP);
+    const next = [{ at, reason, reveals: copy.reveals.length, tokens: copy.tokens.length, state: copy, schemaVersion: SCHEMA_VERSION }, ...list].slice(0, SNAPSHOT_KEEP);
     await idbSet(snapKey(campaignId), next);
     return next;
   });
@@ -138,7 +154,9 @@ export async function replaceSaved(campaignId: string, current: CampaignState, n
 
 /** Decides when a commit also takes an automatic snapshot. */
 export class SnapshotSchedule {
+  /** Commits counted per campaign this session, and the count at the last automatic snapshot. */
   private commits = new Map<string, number>();
+  private takenAt = new Map<string, number>();
   private lastAt = new Map<string, number>();
   constructor(private every = SNAPSHOT_EVERY, private maxAgeMs = SNAPSHOT_MAX_AGE_MS) {}
   private chain: Promise<unknown> = Promise.resolve();
@@ -146,15 +164,16 @@ export class SnapshotSchedule {
   note(campaignId: string, state: CampaignState, now = Date.now()): Promise<boolean> {
     const n = (this.commits.get(campaignId) ?? 0) + 1;
     this.commits.set(campaignId, n);
+    const since = () => n - (this.takenAt.get(campaignId) ?? 0);
     const last = this.lastAt.get(campaignId);
-    if (last !== undefined && n < this.every && now - last < this.maxAgeMs) return Promise.resolve(false);
+    if (last !== undefined && since() < this.every && now - last < this.maxAgeMs) return Promise.resolve(false);
     const copy = structuredClone(state);
     // Decisions run in commit order; the first one of a session reads when the newest stored snapshot was taken.
     const run = this.chain.then(async () => {
       let at = this.lastAt.get(campaignId);
       if (at === undefined) { at = (await listSnapshots(campaignId))[0]?.at ?? -Infinity; this.lastAt.set(campaignId, at); }
-      if ((this.commits.get(campaignId) ?? 0) < this.every && now - at < this.maxAgeMs) return false;
-      this.commits.set(campaignId, 0);
+      if (since() < this.every && now - at < this.maxAgeMs) return false;
+      this.takenAt.set(campaignId, n);
       this.lastAt.set(campaignId, now);
       await addSnapshot(campaignId, copy, 'auto', now);
       return true;

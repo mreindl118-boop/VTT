@@ -5,7 +5,7 @@ import type { App } from '../app';
 import { CAMPAIGNS } from '../campaigns';
 import { builtPaths } from '../data';
 import { newCampaign } from '../state/campaign';
-import { exportCampaign, listSnapshots, parseCampaignFile, replaceSaved, SnapshotSchedule, type Snapshot } from '../state/backup';
+import { addSnapshot, exportCampaign, listSnapshots, parseCampaignFile, SnapshotSchedule, snapshotState, type Snapshot } from '../state/backup';
 import { requestPersist, storagePersistent, storageText } from '../state/persist';
 import './backups.css';
 
@@ -25,11 +25,18 @@ const ls = {
   set(k: string, v: string): void { try { localStorage.setItem(k, v); } catch { /* private mode: the nudge simply starts over */ } },
 };
 const exportedKey = (id: string) => `mistlab.exportedAt.${id}`;
-/** When this campaign was last exported on this device; the first visit counts as the start. */
+const nudgeKey = (id: string) => `mistlab.nudgeFrom.${id}`;
+/** When this campaign was last really exported on this device, or 0 when it never was. */
 export function lastExport(id: string): number {
   const v = Number(ls.get(exportedKey(id)));
-  if (v > 0) return v;
-  const now = Date.now(); ls.set(exportedKey(id), String(now)); return now;
+  return v > 0 ? v : 0;
+}
+/** Where the two-hour nudge counts from: the last export, or the first visit when there was none. */
+export function nudgeFrom(id: string): number {
+  const exported = lastExport(id); if (exported) return exported;
+  let from = Number(ls.get(nudgeKey(id)));
+  if (!(from > 0)) { from = Date.now(); ls.set(nudgeKey(id), String(from)); }
+  return from;
 }
 const nameOf = (id: string) => CAMPAIGNS.find((c) => c.id === id)?.name ?? id;
 const plural = (n: number, w: string) => `${n} ${w}${n === 1 ? '' : 's'}`;
@@ -65,8 +72,8 @@ function ago(ms: number): string {
 const REASON: Record<Snapshot['reason'], string> = { auto: 'automatic', 'before import': 'before an import', 'before restore': 'before a restore', 'before reset': 'before a reset' };
 
 export interface Backups {
-  /** Export the active campaign (share sheet or download). Resolves false when the DM cancelled the share sheet. */
-  exportNow(): Promise<boolean>;
+  /** Export the active campaign (share sheet or download). Resolves to what happened, or null when the DM cancelled the share sheet. */
+  exportNow(): Promise<string | null>;
   /** The Library's Campaign section, drawn into `host`; `close` closes the Library. */
   section(host: HTMLElement, close: () => void): void;
   /** Show or hide the chip. */
@@ -82,20 +89,47 @@ export function installBackups(app: App, ui: HTMLElement): Backups {
   ui.appendChild(chip);
   let redraw: (() => void) | null = null; // the open Library section, if any
 
+  // The chip sits bottom right; on a narrow screen the turn bar or the token panel can reach under it, so it moves
+  // up above whichever of them it would cover (their buttons stay tappable).
+  const watched = new WeakSet<Element>();
+  const sizes = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(() => place());
+  const overlaps = (a: DOMRect, b: DOMRect) => b.width > 0 && a.left < b.right && a.right > b.left && a.top < b.bottom && a.bottom > b.top;
+  const place = () => {
+    chip.style.bottom = ''; chip.style.right = '';
+    if (chip.hidden) return;
+    const c = chip.getBoundingClientRect(), host = ui.getBoundingClientRect();
+    let top = Infinity;
+    for (const el of ui.querySelectorAll<HTMLElement>('.turnbar, .tokpanel')) {
+      if (sizes && !watched.has(el)) { watched.add(el); sizes.observe(el); }
+      if (el.hidden) continue;
+      const r = el.getBoundingClientRect();
+      if (overlaps(c, r)) top = Math.min(top, r.top);
+    }
+    if (top === Infinity) return;
+    chip.style.bottom = `${Math.round(host.bottom - top + 8)}px`;
+    // Lifted, it may meet the view slider on the right edge: it then sits just left of it.
+    const slider = ui.querySelector<HTMLElement>('.vslider')?.getBoundingClientRect();
+    if (slider && overlaps(chip.getBoundingClientRect(), slider)) chip.style.right = `${Math.round(host.right - slider.left + 8)}px`;
+  };
+  new MutationObserver(place).observe(ui, { attributes: true, attributeFilter: ['hidden'], subtree: true });
+  addEventListener('resize', place);
+
   const update = () => {
-    const id = app.campaign.id, last = lastExport(id);
+    const id = app.campaign.id, last = nudgeFrom(id);
     chip.hidden = !(Date.now() - last >= NUDGE_AFTER_MS && app.state.updatedAt > last);
+    place();
   };
 
   const exportNow = async () => {
     const id = app.campaign.id;
     const { name, text } = exportCampaign(app.state, id, app.cur?.path);
     const how = await deliver(name, text); // no await before this: the share sheet needs the tap's activation
-    if (how === 'cancelled') return false;
+    if (how === 'cancelled') return null;
     ls.set(exportedKey(id), String(Date.now()));
+    const done = how === 'shared' ? 'Backup shared' : `Backup saved as ${name}`;
     update(); redraw?.();
-    app.flashStatus(how === 'shared' ? 'Backup shared' : `Backup saved as ${name}`);
-    return true;
+    app.flashStatus(done);
+    return done;
   };
   chip.addEventListener('click', () => void exportNow());
 
@@ -115,15 +149,18 @@ export function installBackups(app: App, ui: HTMLElement): Backups {
     const id = app.campaign.id;
     let snaps: Snapshot[] = [];
     let confirm: { text: string; yes: string; run: () => Promise<void> } | null = null;
-    let msg = '';
+    let msg = '', msgOk = false;
+    let snapsOpen = false, shown = false;
     // The file input stays put while the rest redraws, so a redraw cannot drop a file being picked.
     const body = document.createElement('div');
     const file = Object.assign(document.createElement('input'), { type: 'file', accept: '.json,application/json', hidden: true });
     file.setAttribute('aria-label', 'Backup file to import');
     host.append(body, file);
     const draw = () => {
-      if (!host.isConnected) { if (redraw === refresh) redraw = null; return; }
-      const last = Number(ls.get(exportedKey(id))) || 0;
+      // The Library draws the section before it attaches the sheet: only a section that was shown and is gone stops redrawing.
+      if (host.isConnected) shown = true;
+      else if (shown) { if (redraw === refresh) redraw = null; return; }
+      const last = lastExport(id);
       body.innerHTML = `<h3>Campaign · ${esc(nameOf(id))}</h3>
         <div class="cio-row">
           <button data-io="export">${IC.export}<span>Export</span></button>
@@ -132,30 +169,40 @@ export function installBackups(app: App, ui: HTMLElement): Backups {
         </div>
         <p class="cio-note">${last ? `Last export ${ago(Date.now() - last)}.` : 'Not exported from this device yet.'} Export saves a file you can keep or move to another device.</p>
         ${confirm ? `<div class="cio-confirm" role="alertdialog"><p>${esc(confirm.text)}</p><div><button data-io="no">Cancel</button><button class="primary" data-io="yes">${esc(confirm.yes)}</button></div></div>` : ''}
-        ${msg ? `<p class="cio-msg" role="status">${esc(msg)}</p>` : ''}
-        <h4>Snapshots</h4>
-        ${snaps.length ? `<ul class="cio-snaps">${snaps.map((s, i) => `<li class="cio-snap"><span><b>${when(s.at)}</b> · ${REASON[s.reason]} · ${plural(s.reveals, 'reveal')}, ${plural(s.tokens, 'token')}</span><button data-io="restore" data-i="${i}">Restore</button></li>`).join('')}</ul>` : '<p class="cio-note">None yet. mistLAB keeps the last five as you play.</p>'}`;
+        ${msg ? `<p class="cio-msg${msgOk ? ' ok' : ''}" role="status">${esc(msg)}</p>` : ''}
+        <details class="cio-snapbox"${snapsOpen ? ' open' : ''}><summary>Snapshots (${snaps.length})</summary>
+        ${snaps.length ? `<ul class="cio-snaps">${snaps.map((s, i) => `<li class="cio-snap"><span><b>${when(s.at)}</b> · ${REASON[s.reason]} · ${plural(s.reveals, 'reveal')}, ${plural(s.tokens, 'token')}</span><button data-io="restore" data-i="${i}">Restore</button></li>`).join('')}</ul>` : '<p class="cio-note">None yet. mistLAB keeps the last five as you play.</p>'}</details>`;
+      body.querySelector('details')!.addEventListener('toggle', (e) => { snapsOpen = (e.target as HTMLDetailsElement).open; });
     };
     const refresh = () => void listSnapshots(id).then((s) => { snaps = s; draw(); });
     redraw = refresh;
     draw(); refresh();
 
     // Replace the campaign with `next` after keeping a snapshot of what is there now.
+    // The app rebuilds from `next` first and only then is it saved; if the rebuild fails, the campaign goes back as it was.
     const replace = async (next: typeof app.state, reason: 'before import' | 'before restore' | 'before reset', done: string, scene?: string) => {
-      await replaceSaved(id, app.state, next, reason);
-      if (scene && scene !== app.cur?.path) ls.set('mistlab.scene', scene); // the location a reload opens, as when the Library opens one
-      await app.replaceState(next, scene);
+      const prev = structuredClone(app.state), prevPath = app.cur?.path;
+      await addSnapshot(id, prev, reason);
+      try { await app.replaceState(next, scene); }
+      catch (err) { await app.replaceState(prev, prevPath).catch(() => undefined); await app.flush(); throw err; }
+      await app.flush();
+      if (scene && scene !== prevPath) ls.set('mistlab.scene', scene); // the location a reload opens, as when the Library opens one
       close(); app.flashStatus(done);
     };
     host.addEventListener('click', (e) => {
       const b = (e.target as HTMLElement).closest<HTMLElement>('[data-io]'); if (!b) return;
       e.stopPropagation();
-      msg = '';
+      msg = ''; msgOk = false;
       switch (b.dataset.io) {
-        case 'export': void exportNow(); return;
+        case 'export': void exportNow().then((m) => { if (m) { msg = m; msgOk = true; draw(); } }); return;
         case 'import': file.click(); return;
         case 'reset': confirm = { text: `Start ${nameOf(id)} over? Reveals, doors, tokens, the roster, the clock, the world-map trail and the encounter are cleared. A snapshot of the campaign is kept, so you can restore it.`, yes: 'Reset', run: () => replace(newCampaign(id), 'before reset', 'Campaign reset') }; break;
-        case 'restore': { const s = snaps[Number(b.dataset.i)]; if (!s) return; confirm = { text: `Restore the snapshot from ${when(s.at)} (${plural(s.reveals, 'reveal')})? A snapshot of the campaign as it is now is kept.`, yes: 'Restore', run: () => replace(s.state, 'before restore', 'Snapshot restored') }; break; }
+        case 'restore': {
+          const s = snaps[Number(b.dataset.i)]; if (!s) return;
+          const r = snapshotState(s, id); // validated and migrated like an imported file
+          if (!r.ok) { confirm = null; msg = `Not restored. ${r.error}`; break; }
+          confirm = { text: `Restore the snapshot from ${when(s.at)} (${plural(s.reveals, 'reveal')})? A snapshot of the campaign as it is now is kept.`, yes: 'Restore', run: () => replace(r.state, 'before restore', 'Snapshot restored') }; break;
+        }
         case 'no': confirm = null; break;
         case 'yes': { const c = confirm; confirm = null; msg = c ? 'One moment…' : ''; if (c) void c.run().catch((err) => { msg = `That did not work: ${(err as Error)?.message ?? err}`; draw(); }); break; }
       }

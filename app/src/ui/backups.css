@@ -8,6 +8,7 @@
 .cio-confirm button.primary { background: var(--ink); color: var(--bg); border-color: transparent; }
 .cio-note { margin: 8px 0 0; font-size: 12.5px; color: var(--ink-2); }
 .cio-msg { margin: 8px 0 0; padding: 8px 12px; border-radius: 10px; font-size: 13px; background: color-mix(in srgb, #7a1f2b 12%, transparent); color: var(--ink); }
+.cio-msg.ok { background: color-mix(in srgb, #2e8f56 14%, transparent); }
 .cio-confirm { margin-top: 10px; padding: 10px 12px; border-radius: 12px; background: color-mix(in srgb, var(--amber) 14%, transparent); }
 .cio-confirm p { margin: 0 0 8px; font-size: 13.5px; }
 .cio-confirm div { display: flex; justify-content: flex-end; gap: 8px; flex-wrap: wrap; }
@@ -31,3 +32,10 @@
 .sheet.help .nongoals ul { margin: 0; padding-left: 18px; color: var(--ink-2); font-size: 14px; }
 .sheet.help .nongoals li { margin: 4px 0; }
 .sheet.help .nongoals b { color: var(--ink); font-weight: 600; }
+
+/* Snapshots fold away so the Library's location list stays near the top. */
+.cio-snapbox { margin-top: 8px; }
+.cio-snapbox > summary { display: flex; align-items: center; min-height: 44px; font-size: 13px; font-weight: 600; color: var(--ink-2); cursor: pointer; list-style: none; }
+.cio-snapbox > summary::-webkit-details-marker { display: none; }
+.cio-snapbox > summary::before { content: ''; width: 6px; height: 6px; margin: 0 10px 0 4px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: rotate(-45deg); transition: transform .15s; }
+.cio-snapbox[open] > summary::before { transform: rotate(45deg); }

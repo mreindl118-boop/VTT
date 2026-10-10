@@ -4,7 +4,7 @@ import 'fake-indexeddb/auto';
 import { readFileSync } from 'node:fs';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { newCampaign, type CampaignState } from '../app/src/state/campaign';
-import { addSnapshot, exportCampaign, exportName, listSnapshots, loadSaved, parseCampaignFile, replaceSaved, saveState, SCHEMA_VERSION, SNAPSHOT_EVERY, SNAPSHOT_KEEP, SnapshotSchedule, storeKey } from '../app/src/state/backup';
+import { addSnapshot, exportCampaign, exportName, listSnapshots, loadSaved, parseCampaignFile, replaceSaved, saveState, SCHEMA_VERSION, SNAPSHOT_EVERY, SNAPSHOT_KEEP, SnapshotSchedule, snapshotState, storeKey } from '../app/src/state/backup';
 import { idbDel } from '../app/src/state/idb';
 
 const FIXTURE_TEXT = readFileSync('tests/fixtures/campaign-cos-v1.json', 'utf8');
@@ -63,6 +63,12 @@ describe('export, reset, import', () => {
       JSON.stringify({ ...good, state: { ...good.state, doorsOpen: { a: 'yes' } } }),
       JSON.stringify({ ...good, state: { ...good.state, clock: { day: 'monday' } } }),
       JSON.stringify({ ...good, state: { ...good.state, encounter: { round: 1 } } }),
+      JSON.stringify({ ...good, state: { ...good.state, encounter: { ...good.state.encounter, order: [42, null] } } }),
+      JSON.stringify({ ...good, state: { ...good.state, encounter: { ...good.state.encounter, order: [{}] } } }),
+      JSON.stringify({ ...good, state: { ...good.state, tokens: [{ ...good.state.tokens[0], size: undefined, color: undefined }] } }),
+      JSON.stringify({ ...good, state: { ...good.state, tokens: [{ ...good.state.tokens[0], role: 'boss' }] } }),
+      JSON.stringify({ ...good, state: { ...good.state, world: { ...good.state.world, trail: [7, null] } } }),
+      JSON.stringify({ ...good, state: { ...good.state, roster: [{ id: 'pc-9', name: 'Ireena', speedFt: 30, size: 'enormous' }] } }),
     ];
     for (const text of bad) {
       const r = parseCampaignFile(text, 'cos', nameOf);
@@ -127,6 +133,28 @@ describe('rolling snapshots', () => {
     await replaceSaved('cos', s, pick.state, 'before restore');
     expect(await loadSaved('cos')).toEqual(pick.state);
     expect((await listSnapshots('cos'))[0].reason).toBe('before restore');
+  });
+
+  it('a burst of commits before the first read still takes one snapshot per SNAPSHOT_EVERY', async () => {
+    const sched = new SnapshotSchedule();
+    const s = newCampaign('cos');
+    const took: Promise<boolean>[] = [];
+    for (let i = 0; i < 60; i++) { s.reveals.push({ type: 'object', location: 'x', id: String(i) }); took.push(sched.note('cos', s, 1000)); }
+    expect((await Promise.all(took)).filter(Boolean).length).toBe(3); // commits 1, 26 and 51
+    expect((await listSnapshots('cos')).map((x) => x.reveals)).toEqual([51, 26, 1]);
+  });
+
+  it('a snapshot carries its schema version and restores through the import checks', async () => {
+    await addSnapshot('cos', rich(), 'auto', 5);
+    const [snap] = await listSnapshots('cos');
+    expect(snap.schemaVersion).toBe(SCHEMA_VERSION);
+    const r = snapshotState(snap, 'cos');
+    expect(r.ok).toBe(true);
+    if (r.ok) expect(r.state).toEqual(rich());
+    const legacy = { ...snap }; delete legacy.schemaVersion; // written before snapshots carried a version
+    expect(snapshotState(legacy, 'cos').ok).toBe(true);
+    expect(snapshotState({ ...snap, schemaVersion: SCHEMA_VERSION + 1 }, 'cos').ok).toBe(false);
+    expect(snapshotState({ ...snap, state: { ...snap.state, tokens: [{}] } as unknown as CampaignState }, 'cos').ok).toBe(false);
   });
 
   it('takes one every SNAPSHOT_EVERY commits and keeps only the last five', async () => {
