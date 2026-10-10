@@ -11,6 +11,8 @@ import { openEncounterSheet, turnBar } from './ui/encounter';
 import { ICON } from './ui/icons';
 import { openLibrary } from './ui/library';
 import { ViewSlider } from './ui/viewSlider';
+import { ATLAS } from './render/worldstage';
+import * as frames from './core/frames';
 
 const q = new URLSearchParams(location.search);
 const mode = q.get('display') === 'player' ? 'player' : 'dm';
@@ -51,6 +53,12 @@ const ready = app.init(builtPaths.has(path) ? path : 'appB/death-house');
   toLocal: (x: number, z: number) => app.toLocal([x, z]),
   get anchor() { return app.world.anchor.toArray(); },
   setPlacement: (abs: [number, number, number], rotationY: number, reanchor = true) => { app.setPlacement(abs, rotationY, reanchor); app.world.renderNow(); },
+  // the continuous world: the valley stage (land, proxies, forest, sky), the placement atlas, and whether it is on
+  get stage() { return app.stage; },
+  get atlas() { return ATLAS; },
+  frames,
+  get nested() { return app.nested; },
+  get staged() { return app.staged; },
 };
 
 if ('serviceWorker' in navigator && import.meta.env.PROD && !q.has('nosw')) {
@@ -502,6 +510,10 @@ function buildHud(): void {
   document.body.appendChild(hud);
   setInterval(() => {
     const i = app.world.renderer.info;
-    hud.textContent = `tris ${i.render.triangles}\ncalls ${i.render.calls}\ngeoms ${i.memory.geometries} tex ${i.memory.textures}\nfps ${app.world.fps.toFixed(0)}`;
+    const w = app.world, a = w.anchor, st = app.stage?.stats(), d = w.camera.position.distanceTo(w.controls.target);
+    hud.textContent = `tris ${i.render.triangles}\ncalls ${i.render.calls}\ngeoms ${i.memory.geometries} tex ${i.memory.textures}\nfps ${app.world.fps.toFixed(0)}`
+      + `\nworld ${app.nested ? (app.staged ? 'in the valley' : 'legacy map') : 'off'} · ${document.body.dataset.band ?? ''} · ${d < 10000 ? `${Math.round(d)} ft` : `${(d / 5280).toFixed(1)} mi`}`
+      + `\nanchor ${Math.round(a.x)}, ${Math.round(a.y)}, ${Math.round(a.z)}`
+      + (st ? `\nstage ${Math.round(st.tris / 1000)}k tris · ${st.shown}/${st.proxies} proxies · forest ${st.forest} (${st.tiles} tiles) · built ${st.buildMs} ms` : '');
   }, 500);
 }

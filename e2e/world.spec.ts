@@ -268,3 +268,200 @@ test('the floating origin moves nothing on screen; the continuous-world camera i
   const off = await page.evaluate(() => { const w = (window as any).__mistlab.app.world; w.setNested(false); return { far: w.camera.far, max: w.controls.maxDistance, ztc: w.controls.zoomToCursor }; });
   expect(off).toEqual({ far: 120000, max: 400, ztc: false });
 });
+
+// ------------------------------------------------------------------ step 2: the valley, maps opening in place
+// A pin's map now opens inside the whole valley (render/worldstage.ts): the land with every footprint baked in, the
+// other places as proxies at true scale, the forest, the sky. Area maps, buildings and dev/* still open the legacy
+// way (alone in the mist with their backdrop); `?nested=0` keeps every map that way.
+
+/** In-page: wait until no glide is in flight. */
+const settle = (page: import('@playwright/test').Page) => page.waitForFunction(() => !(window as any).__mistlab.app.world.flying, undefined, { timeout: 30_000 });
+const VILLAGE = { ...SCENES[1], scene: 'ch03/E', level: 'village', spawn: [185, 309] as [number, number] };
+
+test('valley: the whole of Barovia from above, every other place as its proxy, within the draw budget', async ({ page }) => {
+  test.setTimeout(240_000);
+  await boot(page, '', VILLAGE);
+  expect(await page.evaluate(() => { const m = (window as any).__mistlab; return { staged: m.staged, nested: m.app.world.nested, campaign: m.stage?.campaign.id }; })).toEqual({ staged: true, nested: true, campaign: 'cos' });
+  const r = await page.evaluate(() => {
+    const m = (window as any).__mistlab, a = m.app, w = a.world, st = m.stage;
+    st.frameWorld(); w.renderNow();
+    const info = { calls: w.renderer.info.render.calls, tris: w.renderer.info.render.triangles };
+    const hidden = [...st.proxies].filter(([, g]: any) => !g.visible).map(([id]: any) => id);
+    const shown = [...st.proxies].filter(([, g]: any) => g.visible).length;
+    // the castle's proxy stands on its pin, a thousand feet up on its crag
+    const castle = st.root.getObjectByName('castle-ravenloft').getWorldPosition(w.camera.position.clone());
+    const pin = m.atlas.pins.find((p: any) => p.campaign === 'cos' && p.key === 'K'), at = m.frames.worldOfMiles(st.data, pin.pos);
+    const ground = m.frames.groundY(st.data, pin.pos);
+    // pixels: the middle shows the land, the top rows the page behind the canvas (the gradient)
+    const c = document.querySelector('canvas.gl') as HTMLCanvasElement, o = document.createElement('canvas'); o.width = c.width; o.height = c.height;
+    const x = o.getContext('2d')!; x.drawImage(c, 0, 0);
+    const mid = x.getImageData(Math.floor(c.width / 2) - 20, Math.floor(c.height / 2) - 20, 40, 40).data, top = x.getImageData(0, 0, c.width, 8).data;
+    let midOpaque = 0, topClear = 0; for (let i = 3; i < mid.length; i += 4) if (mid[i] > 250) midOpaque++; for (let i = 3; i < top.length; i += 4) if (top[i] < 5) topClear++;
+    return { info, hidden, shown, total: st.proxies.size, castle: [castle.x + w.anchor.x, castle.y + w.anchor.y, castle.z + w.anchor.z], expect: [at[0], ground + 1000, at[1]], midOpaque: midOpaque / (mid.length / 4), topClear: topClear / (top.length / 4), dist: w.camera.position.distanceTo(w.controls.target) };
+  });
+  expect(r.hidden).toEqual(['ch03/E']);
+  expect(r.shown).toBe(r.total - 1);
+  expect(r.total).toBeGreaterThanOrEqual(25);
+  expect(r.info.calls).toBeLessThanOrEqual(70);
+  expect(r.info.tris).toBeLessThanOrEqual(300_000);
+  expect(r.midOpaque).toBeGreaterThan(0.99);
+  expect(r.topClear).toBeGreaterThan(0.95);
+  expect(Math.abs(r.castle[0] - r.expect[0])).toBeLessThanOrEqual(1);
+  expect(Math.abs(r.castle[2] - r.expect[2])).toBeLessThanOrEqual(1);
+  expect(Math.abs(r.castle[1] - r.expect[1])).toBeLessThanOrEqual(1);
+  expect(r.dist).toBeGreaterThan(60_000);
+});
+
+test('ground meets every map: the land is flush with each placed map and 3 ft under the survey beyond', async ({ page }) => {
+  test.setTimeout(240_000);
+  await boot(page, '', VILLAGE);
+  const r = await page.evaluate(() => {
+    const m = (window as any).__mistlab, st = m.stage, f = st.land.field, w = m.app.world, out: any[] = [];
+    const V = w.camera.position.constructor, R = new (m.app.raycaster.constructor)();
+    const land = st.land.group.children.filter((o: any) => o.name === 'land' || o.name === 'aprons');
+    st.root.updateMatrixWorld(true);
+    for (const e of Object.values(m.atlas.scenes) as any[]) {
+      if (e.campaign !== 'cos' || e.depth !== 0 || e.orphan || !e.pin) continue;
+      const b = e.worldBounds, cx = (b.minX + b.maxX) / 2, cz = (b.minZ + b.maxZ) / 2, base = e.placement.position[1] + e.elevationFt;
+      // what is drawn there: a ray straight down onto the land and the aprons
+      R.set(new V(cx - w.anchor.x, 30000, cz - w.anchor.z), new V(0, -1, 0));
+      const hit = R.intersectObjects(land, false)[0];
+      // 2,000 ft out on a side where this map is the nearest, no other map's band reaches and no lake's shore
+      const i = st.sites.findIndex((s: any) => s.path === e.path);
+      let outside: any = null;
+      for (const [dx, dz] of [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [-1, 1], [1, -1], [-1, -1]]) {
+        const x = dx > 0 ? b.maxX + 2000 : dx < 0 ? b.minX - 2000 : cx, z = dz > 0 ? b.maxZ + 2000 : dz < 0 ? b.minZ - 2000 : cz;
+        const n = f.nearest(x, z);
+        if (n.i !== i || n.other < 2600 || f.lakeNear(x, z).i >= 0) continue;
+        outside = { x, z, got: st.groundAt(x, z), want: f.ground(x, z) - 3, survey: m.frames.groundY(st.data, m.frames.milesOfWorld(st.data, [x, z])) };
+        break;
+      }
+      // a map on a lake's shore (Lake Zarovich's) has water or shore on every side: the shore rule applies there instead
+      const lakeside = f.lakeNear(cx, cz, 1.6).i >= 0;
+      out.push({ path: e.path, base, centre: st.groundAt(cx, cz), drawn: hit ? hit.point.y + w.anchor.y : null, outside, lakeside });
+    }
+    // the mist thins with height: at 60,000 ft the far mountains haze instead of vanishing; at 60 ft it is today's
+    const t = w.controls.target.clone();
+    w.flyTo(t, 60000, 1);
+    return out;
+  });
+  expect(r.length).toBeGreaterThanOrEqual(25);
+  expect(r.filter((s) => !s.outside).length, 'only lakeside maps lack a clear side').toBeLessThanOrEqual(2);
+  for (const s of r) {
+    expect(Math.abs(s.centre - (s.base - 0.4)), `${s.path} centre`).toBeLessThanOrEqual(0.5);
+    expect(s.drawn, `${s.path} drawn`).not.toBeNull();
+    expect(Math.abs(s.drawn - (s.base - 0.4)), `${s.path} drawn`).toBeLessThanOrEqual(0.5);
+    if (!s.outside) { expect(s.lakeside, `${s.path}: a side with nothing else near`).toBe(true); continue; }
+    expect(Math.abs(s.outside.got - s.outside.want), `${s.path} 2,000 ft out`).toBeLessThanOrEqual(1);
+    expect(Math.abs(s.outside.want + 3 - s.outside.survey), `${s.path} survey`).toBeLessThan(1e-6);
+  }
+  await settle(page);
+  const far = await page.evaluate(() => { const w = (window as any).__mistlab.app.world; return { d: w.camera.position.distanceTo(w.controls.target), fog: w.fogDensity }; });
+  expect(far.d).toBeGreaterThan(59_000);
+  expect(far.fog).toBeLessThanOrEqual(2e-5);
+  await page.evaluate(() => { const w = (window as any).__mistlab.app.world; w.flyTo(w.controls.target.clone(), 60, 1); });
+  await settle(page);
+  const near = await page.evaluate(() => { const w = (window as any).__mistlab.app.world; return { d: w.camera.position.distanceTo(w.controls.target), fog: w.fogDensity, today: (w.outdoor ? w.theme.fogOut : w.theme.fogIn) * w.fogScale * Math.min(1, Math.max(0.12, 260 / w.camera.position.distanceTo(w.controls.target))) }; });
+  expect(near.d).toBeCloseTo(60, 0);
+  expect(Math.abs(near.fog / near.today - 1)).toBeLessThan(0.01);
+});
+
+test('placed at the pin: the village on its pin with the origin on it, Tsolenka turned to world north, zoom from 12 ft to the whole valley', async ({ page }) => {
+  test.setTimeout(300_000);
+  await boot(page, '', VILLAGE);
+  const v = await page.evaluate(() => {
+    const m = (window as any).__mistlab, a = m.app, st = m.stage, F = m.frames, e = m.atlas.scenes['ch03/E'];
+    const pin = st.data.pins.find((p: any) => p.key === 'E'), [px, pz] = F.worldOfMiles(st.data, pin.pos), th = e.placement.rotationY;
+    const [cx, cz] = F.rotate(th, e.centre), drawn = a.cur.root.getWorldPosition(a.world.camera.position.clone());
+    return { abs: a.cur.root.position.toArray(), want: [px - cx, F.pinY(st.data, pin) - e.elevationFt, pz - cz], drawn: drawn.toArray(), rotY: a.cur.root.rotation.y, anchor: m.anchor, parent: a.cur.root.parent === a.world.root, mist: a.world.mistFloor.visible, backdrop: !!a.backdrop };
+  });
+  for (let k = 0; k < 3; k++) { expect(Math.abs(v.abs[k] - v.want[k])).toBeLessThan(1e-6); expect(Math.abs(v.drawn[k])).toBeLessThan(1e-6); }
+  expect(v.anchor).toEqual(v.abs);
+  expect(v).toMatchObject({ rotY: 0, parent: true, mist: false, backdrop: false });
+
+  // the whole range: pull back to the valley with the zoom button's steps, and down again to a few feet
+  const zoom = (k: number, until: string) => page.evaluate(async ({ k, until }) => {
+    const w = (window as any).__mistlab.app.world, d = () => w.camera.position.distanceTo(w.controls.target);
+    for (let i = 0; i < 80 && !(new Function('d', `return ${until}`))(d()); i++) { w.zoomBy(k); await new Promise<void>((r) => { const f = () => (w.flying ? requestAnimationFrame(f) : r()); f(); }); }
+    return d();
+  }, { k, until });
+  const out = await zoom(1.28, 'd >= 100000');
+  expect(out).toBeGreaterThanOrEqual(100_000);
+  const seen = await page.evaluate(() => {
+    const m = (window as any).__mistlab, w = m.app.world; w.renderNow();
+    let inView = 0; for (const g of m.stage.proxies.values()) { const p = g.getWorldPosition(w.camera.position.clone()).project(w.camera); if (Math.abs(p.x) < 1 && Math.abs(p.y) < 1 && p.z < 1) inView++; }
+    return { inView, band: document.body.dataset.band, labels: [...document.querySelectorAll('.lbl.place')].filter((e) => (e as HTMLElement).style.display !== 'none' && getComputedStyle(e).display !== 'none').length };
+  });
+  expect(seen.inView).toBeGreaterThanOrEqual(15);
+  expect(seen.band).toBe('valley');
+  expect(seen.labels).toBeGreaterThan(5);
+  const back = await zoom(0.78, 'd <= 12.5');
+  expect(back).toBeLessThanOrEqual(12.5);
+
+  // Tsolenka Pass's map points north along −x: it stands turned a quarter so its north is the world's
+  const nested = await (async () => { await boot(page, '', { ...VILLAGE, scene: 'ch09/T', level: 'pass', spawn: [235, 380] as [number, number] }); return page.evaluate(() => { const a = (window as any).__mistlab.app; return { staged: (window as any).__mistlab.staged, rotY: a.cur.root.rotation.y, north: a.cameraFrame().north, az: a.world.controls.getAzimuthalAngle() }; }); })();
+  const legacy = await (async () => { await boot(page, '&nested=0', { ...VILLAGE, scene: 'ch09/T', level: 'pass', spawn: [235, 380] as [number, number] }); return page.evaluate(() => { const a = (window as any).__mistlab.app; return { staged: (window as any).__mistlab.staged, rotY: a.cur.root.rotation.y, north: a.cameraFrame().north, az: a.world.controls.getAzimuthalAngle() }; }); })();
+  expect(nested.staged).toBe(true); expect(legacy.staged).toBe(false);
+  expect(nested.rotY).toBeCloseTo(-Math.PI / 2, 9); expect(legacy.rotY).toBe(0);
+  expect(nested.az).toBeCloseTo(legacy.az, 9);
+  const dn = Math.atan2(Math.sin(nested.north - legacy.north), Math.cos(nested.north - legacy.north));
+  expect(dn).toBeCloseTo(-Math.PI / 2, 6);
+});
+
+test('pin maps of either campaign open in their own valley; area maps, buildings and dev maps keep the legacy way', async ({ page }) => {
+  test.setTimeout(240_000);
+  await boot(page, '', SCENES[0]); // the test room: an orphan, never placed
+  const st = () => page.evaluate(() => { const m = (window as any).__mistlab, a = m.app; return { path: a.cur.path, staged: m.staged, nested: a.world.nested, stage: a.stage ? { campaign: a.stage.campaign.id, shown: a.stage.root.visible } : null, anchor: m.anchor, root: a.cur.root.position.toArray(), backdrop: !!a.backdrop }; });
+  expect(await st()).toEqual({ path: 'dev/m0-test-room', staged: false, nested: false, stage: null, anchor: [0, 0, 0], root: [0, 0, 0], backdrop: false });
+  // the Sheep campaign's tavern stands on its own region's heightfield
+  await page.evaluate(() => (window as any).__mistlab.app.open('wsc/01-tavern'));
+  const tavern = await st();
+  const atlas = JSON.parse(readFileSync(new URL('../manifests/world-atlas.json', import.meta.url), 'utf8'));
+  expect(tavern).toMatchObject({ path: 'wsc/01-tavern', staged: true, nested: true, stage: { campaign: 'wsc', shown: true }, backdrop: false });
+  for (let k = 0; k < 3; k++) expect(Math.abs(tavern.root[k] - atlas.scenes['wsc/01-tavern'].placement.position[k])).toBeLessThan(1e-6);
+  expect(tavern.anchor).toEqual(tavern.root);
+  // Death House is the village's building: alone in the mist as before, the origin back at 0 (and the Sheep valley
+  // gone with its campaign: Barovia's is built when one of its pin maps opens)
+  await page.evaluate(() => (window as any).__mistlab.app.open('appB/death-house'));
+  expect(await st()).toEqual({ path: 'appB/death-house', staged: false, nested: false, stage: null, anchor: [0, 0, 0], root: [0, 0, 0], backdrop: false });
+  expect(await page.evaluate(() => (window as any).__mistlab.app.world.mistFloor.visible)).toBe(true);
+  // from a pin map to the next the camera glides (and the old map's proxy comes back)
+  await page.evaluate(() => (window as any).__mistlab.app.open('ch03/E'));
+  await page.evaluate(() => (window as any).__mistlab.app.open('ch02/G'));
+  const g = await page.evaluate(() => { const m = (window as any).__mistlab; return { flying: m.app.world.flying, e: m.stage.proxies.get('ch03/E').visible, gp: m.stage.proxies.get('ch02/G').visible }; });
+  expect(g).toEqual({ flying: true, e: true, gp: false });
+  await settle(page);
+  // framed on the camp's rooms, in the camp's own feet
+  const d = await page.evaluate(() => {
+    const a = (window as any).__mistlab.app, t = a.toLocal3(a.world.controls.target), ps = a.level.rooms.flatMap((r: any) => r.polygon);
+    const xs = ps.map((p: number[]) => p[0]), zs = ps.map((p: number[]) => p[1]);
+    return [t.x, t.z, (Math.min(...xs) + Math.max(...xs)) / 2, (Math.min(...zs) + Math.max(...zs)) / 2];
+  });
+  expect(Math.hypot(d[0] - d[2], d[1] - d[3])).toBeLessThan(1);
+});
+
+test('?nested=0 keeps every map the legacy way, and a legacy map draws the same pixels with the valley on or off', async ({ page }) => {
+  test.setTimeout(240_000);
+  const hash = () => page.evaluate(() => {
+    const m = (window as any).__mistlab; m.frame('top'); m.render();
+    const c = document.querySelector('canvas.gl') as HTMLCanvasElement, o = document.createElement('canvas'); o.width = c.width; o.height = c.height;
+    const x = o.getContext('2d')!; x.drawImage(c, 0, 0); const d = x.getImageData(0, 0, c.width, c.height).data;
+    let h = 2166136261; for (let i = 0; i < d.length; i++) { h ^= d[i]; h = Math.imul(h, 16777619); } return h >>> 0;
+  });
+  await boot(page, '', SCENES[0]);
+  const on = await hash();
+  await boot(page, '&nested=0', SCENES[0]);
+  expect(await hash()).toBe(on);
+  // a pin map with the valley switched off: its own backdrop, the mist floor, no stage, the origin at 0
+  await boot(page, '&nested=0', VILLAGE);
+  const r = await page.evaluate(() => { const m = (window as any).__mistlab, a = m.app; return { nested: m.nested, staged: m.staged, stage: !!a.stage, backdrop: !!a.backdrop, anchor: m.anchor, root: a.cur.root.position.toArray(), far: a.world.camera.far }; });
+  expect(r).toEqual({ nested: false, staged: false, stage: false, backdrop: true, anchor: [0, 0, 0], root: [0, 0, 0], far: 120000 });
+  // the grid proof on it: the grid draws on the village's ground
+  await page.evaluate(() => { const m = (window as any).__mistlab; m.setT(1); m.frame('top'); m.setGrid('square'); });
+  await snap(page, 'on');
+  await page.evaluate(() => (window as any).__mistlab.setGrid('off'));
+  await snap(page, 'off');
+  await page.evaluate(() => (window as any).__mistlab.setRenderMode('floorMask'));
+  await snap(page, 'mask');
+  expect((await diff(page, 'on', 'off', 'mask')).changed).toBeGreaterThan(1500);
+});

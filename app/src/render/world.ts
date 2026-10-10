@@ -29,7 +29,8 @@ export class World {
   readonly anchor = new THREE.Vector3();
   /** Continuous-world camera: the whole valley in range (see setNested). Off by default. */
   nested = false;
-  private tween: { t0: number; dur: number; from: THREE.Vector3; to: THREE.Vector3; camFrom: THREE.Vector3; camTo: THREE.Vector3 } | null = null;
+  /** A glide in flight; `rise` lifts the eye over the middle of a long one (a cross-valley flight rises, then dives). */
+  private tween: { t0: number; dur: number; from: THREE.Vector3; to: THREE.Vector3; camFrom: THREE.Vector3; camTo: THREE.Vector3; rise?: number } | null = null;
   /** Yaw in quarter turns (0..3); the camera sits south-east of the target at yaw 0. */
   yaw = 0;
   /** Tilt: 0 = tabletop (~52°), 1 = top-down. */
@@ -194,7 +195,10 @@ export class World {
   /** An absolute world point as drawn (anchored). */
   toAnchored(v: THREE.Vector3, out = new THREE.Vector3()): THREE.Vector3 { return out.copy(v).sub(this.anchor); }
 
+  /** Run before every render (the world stage's sky follows the eye). */
+  readonly beforeRender = new Set<() => void>();
   renderNow(): void {
+    for (const f of this.beforeRender) f();
     this.renderer.render(this.scene, this.camera);
     this.labelRenderer.render(this.scene, this.camera);
     this.frames++;
@@ -222,14 +226,15 @@ export class World {
     return new THREE.Vector3(Math.sin(pitch) * Math.sin(a) * dist, Math.cos(pitch) * dist, Math.sin(pitch) * Math.cos(a) * dist);
   }
 
-  /** Frame a plan-space box (bounding-sphere fit, leaving room for the chrome). */
-  frame(box: { minX: number; minZ: number; maxX: number; maxZ: number }, y: number, preset: CameraPreset, animate = false): void {
+  /** Frame a plan-space box (bounding-sphere fit, leaving room for the chrome). 'fly' glides there as flyTo does. */
+  frame(box: { minX: number; minZ: number; maxX: number; maxZ: number }, y: number, preset: CameraPreset, animate: boolean | 'fly' = false): void {
     this.tilt = TILT[preset];
     const cx = (box.minX + box.maxX) / 2, cz = (box.minZ + box.maxZ) / 2;
     const r = Math.hypot(box.maxX - box.minX, box.maxZ - box.minZ) / 2 + 4;
     const vHalf = THREE.MathUtils.degToRad(this.camera.fov / 2);
     const hHalf = Math.atan(Math.tan(vHalf) * this.camera.aspect);
     const d = Math.min(this.controls.maxDistance, Math.max(36, (r / Math.sin(Math.min(vHalf, hHalf))) * 0.86));
+    if (animate === 'fly') { this.flyTo(new THREE.Vector3(cx, y, cz), d); return; }
     this.moveTo(new THREE.Vector3(cx, y, cz), d, animate);
   }
 
@@ -253,7 +258,9 @@ export class World {
     const travel = this.controls.target.distanceTo(target) / Math.max(d, from);
     const dur = ms ?? flightMs(from, d, travel);
     this.moveTo(target, d, true);
-    if (this.tween) this.tween.dur = Math.max(1, dur);
+    // across the valley the eye climbs over the middle of the flight, so the land between unrolls below and the glide
+    // dives onto the new place instead of skimming the ridges
+    if (this.tween) { this.tween.dur = Math.max(1, dur); this.tween.rise = Math.max(0, this.controls.target.distanceTo(target) * 0.45 - Math.max(d, from)); }
   }
 
   private stepTween(): void {
@@ -261,6 +268,7 @@ export class World {
     const k = Math.min(1, (performance.now() - tw.t0) / tw.dur), e = 1 - Math.pow(1 - k, 3);
     this.controls.target.lerpVectors(tw.from, tw.to, e);
     this.camera.position.lerpVectors(tw.camFrom, tw.camTo, e);
+    if (tw.rise) this.camera.position.y += tw.rise * 4 * e * (1 - e);
     this.camera.lookAt(this.controls.target);
     this.controls.update();
     this.dirty = true;
