@@ -52,8 +52,8 @@ export interface Land {
   wood: (x: number, z: number) => number;
   /** Called as the camera moves: refines the tiles round the target (a few ms at a time) and sets the haze for the zoom. */
   update: (target: { x: number; z: number }, pxPerFt: number, camDist: number, invalidate?: () => void) => void;
-  /** What the land is doing (for the diagnostics): tiles shown, triangles drawn, the last selection and build times. */
-  stats: () => { tiles: number; tris: number; levels: number[]; selectMs: number; buildMs: number; built: number; ribbonMs: number; initMs: number; steps: number };
+  /** What the land is doing (for the diagnostics): tiles shown and their triangles, tiles in the last frame's view, the last selection and build times. */
+  stats: () => { tiles: number; tris: number; drawn: number; levels: number[]; selectMs: number; buildMs: number; built: number; ribbonMs: number; initMs: number; steps: number };
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
@@ -173,7 +173,18 @@ const noise = (x: number, y: number) => { const xi = Math.floor(x), yi = Math.fl
 
 interface Lake { l: object; c0: number; c1: number; r0: number; r1: number; rmax: number; L: number }
 interface Seg { ax: number; az: number; bx: number; bz: number; w: number; minX: number; minZ: number; maxX: number; maxZ: number }
-interface Tile { key: number; l: number; i: number; j: number; x0: number; z0: number; q: number; s: number; h: Float32Array; slot: number; inst: number }
+interface Tile { key: number; l: number; i: number; j: number; x0: number; z0: number; q: number; s: number; h: Float32Array; slot: number; y0: number; y1: number }
+/** A tile's triangles: its N×N quads, then its skirt (the border ring, run round, joined to the ring under it). */
+const TILE_IDX = (() => {
+  const out: number[] = [], nv = (N + 1) * (N + 1), ring = 4 * N, border: number[] = [];
+  for (let jj = 0; jj < N; jj++) for (let ii = 0; ii < N; ii++) { const a = jj * (N + 1) + ii, b = a + 1, c = a + N + 1, d = c + 1; out.push(a, c, b, b, c, d); }
+  for (let ii = 0; ii < N; ii++) border.push(ii);
+  for (let jj = 0; jj < N; jj++) border.push(jj * (N + 1) + N);
+  for (let ii = N; ii > 0; ii--) border.push(N * (N + 1) + ii);
+  for (let jj = N; jj > 0; jj--) border.push(jj * (N + 1));
+  for (let k = 0; k < ring; k++) { const k1 = (k + 1) % ring; out.push(border[k], border[k1], nv + k, border[k1], nv + k1, nv + k); }
+  return Uint32Array.from(out);
+})();
 interface Want { key: number; l: number; i: number; j: number; x0: number; z0: number; s: number }
 
 export function buildLand(o: LandOpts): Land {
@@ -391,16 +402,42 @@ export function buildLand(o: LandOpts): Land {
   // --- tiles -----------------------------------------------------------------------------------------------------
   const landMat = centroidDepth(lit('#ffffff', o.ground === 'snow' ? 'snow' : 'grass', { vertexColors: true }));
   const ox = cx - N * Q0 * 2 ** (LEVELS - 1), oz = cz - N * Q0 * 2 ** (LEVELS - 1);
-  // every tile is one slot of a single batched mesh (one draw for the whole land); a tile put away keeps its slot in the
-  // cache until the slot is wanted for a new one, so panning back costs nothing
+  // Every tile is one slot of a single mesh: one vertex buffer holding every cached tile, and an index buffer listing
+  // only the tiles drawn. The whole land is one draw call (a BatchedMesh would be one multi-draw, which ANGLE and WebKit
+  // run as a draw per tile); a tile put away keeps its slot in the cache until the slot is wanted for a new one, so
+  // panning back costs nothing.
   const NV = (N + 1) * (N + 1) + 4 * N, NI = N * N * 6 + 4 * N * 6, SLOTS = 640;
-  const batch = new THREE.BatchedMesh(SLOTS, SLOTS * NV, SLOTS * NI, landMat);
-  // culling or sorting a few hundred tiles every frame costs more than drawing them: the batch's per-frame work is nil
-  batch.name = 'land-tiles'; batch.userData.role = 'backdrop'; batch.frustumCulled = false; batch.perObjectFrustumCulled = false; batch.sortObjects = false;
-  group.add(batch);
+  const tileGeo = new THREE.BufferGeometry();
+  const aPos = new THREE.BufferAttribute(new Float32Array(SLOTS * NV * 3), 3), aNor = new THREE.BufferAttribute(new Float32Array(SLOTS * NV * 3), 3), aCol = new THREE.BufferAttribute(new Float32Array(SLOTS * NV * 3), 3);
+  const aIdx = new THREE.BufferAttribute(new Uint32Array(SLOTS * NI), 1);
+  for (const a of [aPos, aNor, aCol, aIdx]) a.setUsage(THREE.DynamicDrawUsage);
+  tileGeo.setAttribute('position', aPos); tileGeo.setAttribute('normal', aNor); tileGeo.setAttribute('color', aCol); tileGeo.setIndex(aIdx); tileGeo.setDrawRange(0, 0);
+  tileGeo.boundingSphere = new THREE.Sphere(new THREE.Vector3(cx, yTop, cz), 2e5); tileGeo.boundingBox = new THREE.Box3(new THREE.Vector3(cx - 2e5, -1e5, cz - 2e5), new THREE.Vector3(cx + 2e5, 1e5, cz + 2e5));
+  /** Each slot's triangles with its vertices' place in the buffer, kept so the shown list is a few block copies. */
+  const slotIdx = new Uint32Array(SLOTS * NI);
+  const tiles = new THREE.Mesh(tileGeo, landMat);
+  tiles.name = 'land-tiles'; tiles.userData.role = 'backdrop'; tiles.frustumCulled = false;
+  group.add(tiles);
+  let slotsUsed = 0;
+  // The index buffer lists the shown tiles the camera can see, coarsest first (a far tile is drawn before the nearer land
+  // over it). Worked out before each frame from the tiles' bounds, a few hundred sphere tests, and rewritten only when
+  // that list changes: from straight above most of the far rings are out of the picture, and nothing of them is drawn.
+  let order: Tile[] = [], orderDirty = true, drawn = 0;
+  const lastVis: number[] = [], vis: number[] = [], frustum = new THREE.Frustum(), pv = new THREE.Matrix4(), sph = new THREE.Sphere();
+  const reindex = () => { order = [...shown.values()].sort((p, q) => q.l - p.l); orderDirty = true; };
+  tiles.onBeforeRender = (_r, _s, cam) => {
+    pv.multiplyMatrices(cam.projectionMatrix, cam.matrixWorldInverse); frustum.setFromProjectionMatrix(pv);
+    vis.length = 0; // (the sphere's margin: a skirt reaches out under its neighbour by half its drop)
+    for (const t of order) { sph.center.set(t.x0 + t.s / 2, (t.y0 + t.y1) / 2, t.z0 + t.s / 2); const m = (t.y1 - t.y0) / 2; sph.radius = Math.hypot(t.s / 2 + m, t.s / 2 + m, m); if (frustum.intersectsSphere(sph)) vis.push(t.slot); }
+    if (!orderDirty && vis.length === lastVis.length && vis.every((v, i) => v === lastVis[i])) return;
+    orderDirty = false; lastVis.length = 0; lastVis.push(...vis);
+    const a = aIdx.array as Uint32Array; let n = 0;
+    for (const slot of vis) { a.set(slotIdx.subarray(slot * NI, slot * NI + NI), n); n += NI; }
+    aIdx.clearUpdateRanges(); aIdx.addUpdateRange(0, Math.max(1, n)); aIdx.needsUpdate = true; tileGeo.setDrawRange(0, n); drawn = vis.length;
+  };
   const cache = new Map<number, Tile>(), shown = new Map<number, Tile>();
   const keyOf = (l: number, i: number, j: number) => (l << 20) | (i << 10) | j;
-  const tmpC = new THREE.Color(), tmpGeo = new THREE.BufferGeometry(), I4 = new THREE.Matrix4();
+  const tmpC = new THREE.Color();
   /** The ground's slope at a fixed scale (not the quad's), so a mountainside is the same colour at every tile level. */
   const slopeRaw = (x: number, z: number, e: number) => Math.hypot(baseAt(x + e, z) - baseAt(x - e, z), baseAt(x, z + e) - baseAt(x, z - e)) / (2 * e);
   // under the finer quads the slope is read off a 150-ft lattice (cached, shared by neighbouring tiles), bilinearly
@@ -423,12 +460,16 @@ export function buildLand(o: LandOpts): Land {
       nor[k * 3] = -dx / L; nor[k * 3 + 1] = 1 / L; nor[k * 3 + 2] = -dz / L;
       colAt(x, z, S[hi], tmpC, slopeAt(x, z, q)); col[k * 3] = tmpC.r; col[k * 3 + 1] = tmpC.g; col[k * 3 + 2] = tmpC.b;
     }
-    const idx: number[] = [];
-    for (let jj = 0; jj < N; jj++) for (let ii = 0; ii < N; ii++) { const a = jj * (N + 1) + ii, b = a + 1, c = a + N + 1, d = c + 1; idx.push(a, c, b, b, c, d); }
     // the skirt: the border ring copied down and a little outward (under the neighbour), so a coarser neighbour never
     // shows a crack; slanted, not sheer, because a wall seen edge-on from above rasterises as a hairline whose depth,
-    // read at the pixel centre beyond the sliver, can land in front of the water
-    const drop = q * 1.2 + 3, border: number[] = [], out: [number, number][] = [];
+    // read at the pixel centre beyond the sliver, can land in front of the water. A neighbour is at most one level
+    // coarser (the selection is balanced), so its edge runs through every other border vertex of this tile and the
+    // widest crack it can open is how far an odd border vertex stands off the chord of its two neighbours: the skirt
+    // drops just that far (and a little more), not a quad's depth, so on gentle land it is a few feet and draws nothing
+    let crack = 0;
+    const edgeAt = [(t: number) => t, (t: number) => N * (N + 1) + t, (t: number) => t * (N + 1), (t: number) => t * (N + 1) + N]; // top, bottom, left, right
+    for (const e of edgeAt) for (let k = 1; k < N; k += 2) crack = Math.max(crack, Math.abs(h[e(k)] - (h[e(k - 1)] + h[e(k + 1)]) / 2));
+    const drop = crack * 1.25 + 3, border: number[] = [], out: [number, number][] = [];
     for (let ii = 0; ii < N; ii++) { border.push(ii); out.push([ii ? 0 : -1, -1]); }
     for (let jj = 0; jj < N; jj++) { border.push(jj * (N + 1) + N); out.push([1, jj ? 0 : -1]); }
     for (let ii = N; ii > 0; ii--) { border.push(N * (N + 1) + ii); out.push([ii < N ? 0 : 1, 1]); }
@@ -437,17 +478,18 @@ export function buildLand(o: LandOpts): Land {
       const b = border[k], t = nv + k, [dx, dz] = out[k];
       pos[t * 3] = pos[b * 3] + dx * drop * 0.5; pos[t * 3 + 1] = pos[b * 3 + 1] - drop; pos[t * 3 + 2] = pos[b * 3 + 2] + dz * drop * 0.5;
       for (let c = 0; c < 3; c++) { nor[t * 3 + c] = nor[b * 3 + c]; col[t * 3 + c] = col[b * 3 + c]; }
-      const k1 = (k + 1) % ring; idx.push(b, border[k1], t, border[k1], nv + k1, t);
     }
-    const geo = tmpGeo;
-    geo.setAttribute('position', new THREE.BufferAttribute(pos, 3)); geo.setAttribute('normal', new THREE.BufferAttribute(nor, 3)); geo.setAttribute('color', new THREE.BufferAttribute(col, 3)); geo.setIndex(idx);
-    geo.computeBoundingBox(); geo.computeBoundingSphere();
     // a slot: a fresh one while there are any, else the one of the tile least recently shown
-    let slot = -1, inst = -1;
-    if (cache.size < SLOTS) { slot = batch.addGeometry(geo); inst = batch.addInstance(slot); batch.setMatrixAt(inst, I4); }
-    else { for (const [k, t] of cache) if (!shown.has(k)) { slot = t.slot; inst = t.inst; cache.delete(k); batch.setGeometryAt(slot, geo); break; } }
-    batch.setVisibleAt(inst, false);
-    return { key: w.key, l: w.l, i: w.i, j: w.j, x0: w.x0, z0: w.z0, q, s: w.s, h, slot, inst };
+    let slot = -1;
+    if (slotsUsed < SLOTS) slot = slotsUsed++;
+    else for (const [k, t] of cache) if (!shown.has(k)) { slot = t.slot; cache.delete(k); break; }
+    if (slot < 0) throw new Error('land: every tile slot is shown');
+    const v0 = slot * NV;
+    (aPos.array as Float32Array).set(pos, v0 * 3); (aNor.array as Float32Array).set(nor, v0 * 3); (aCol.array as Float32Array).set(col, v0 * 3);
+    for (const a of [aPos, aNor, aCol]) { a.addUpdateRange(v0 * 3, NV * 3); a.needsUpdate = true; }
+    for (let k = 0, i0 = slot * NI; k < NI; k++) slotIdx[i0 + k] = TILE_IDX[k] + v0;
+    let y0 = Infinity, y1 = -Infinity; for (let k = 0; k < h.length; k++) { y0 = Math.min(y0, h[k]); y1 = Math.max(y1, h[k]); }
+    return { key: w.key, l: w.l, i: w.i, j: w.j, x0: w.x0, z0: w.z0, q, s: w.s, h, slot, y0: y0 - drop, y1 };
   };
   /** The drawn mesh's height at (x, z): the finest tile shown there, interpolated on its own triangles. */
   const surfaceAt = (x: number, z: number): number => {
@@ -646,8 +688,9 @@ export function buildLand(o: LandOpts): Land {
     for (const d of desired) { if (cache.has(d.key)) continue; if (built && performance.now() - t0 > budgetMs) break; cache.set(d.key, buildTile(d)); built++; }
     buildMs = performance.now() - t0; builtN = built;
     const want = new Set(desired.map((d) => d.key)); let changed = false;
-    for (const d of desired) { const t = cache.get(d.key); if (t && !shown.has(d.key)) { batch.setVisibleAt(t.inst, true); shown.set(d.key, t); cache.delete(d.key); cache.set(d.key, t); changed = true; } }
-    for (const [k, t] of shown) if (!want.has(k) && desired.every((d) => !overlaps(d, t) || cache.has(d.key))) { batch.setVisibleAt(t.inst, false); shown.delete(k); changed = true; }
+    for (const d of desired) { const t = cache.get(d.key); if (t && !shown.has(d.key)) { shown.set(d.key, t); cache.delete(d.key); cache.set(d.key, t); changed = true; } }
+    for (const [k, t] of shown) if (!want.has(k) && desired.every((d) => !overlaps(d, t) || cache.has(d.key))) { shown.delete(k); changed = true; }
+    if (changed) reindex();
     pending = desired.some((d) => !cache.has(d.key)); steps++;
     dirtyRibbons ||= changed;
     if (!pending && dirtyRibbons) { dirtyRibbons = false; rebuildRibbons(); changed = true; } // the ribbons follow the land once it has settled
@@ -666,7 +709,7 @@ export function buildLand(o: LandOpts): Land {
   // the first build: everything round the map, at once
   desired = select({ x: cx, z: cz }); lastKey = ''; step(Infinity); initMs = performance.now() - tInit;
 
-  const stats = () => { const levels = new Array(LEVELS).fill(0); for (const t of shown.values()) levels[t.l]++; return { tiles: shown.size, tris: shown.size * NI / 3, levels, selectMs, buildMs, built: builtN, ribbonMs, initMs, steps }; };
+  const stats = () => { const levels = new Array(LEVELS).fill(0); for (const t of shown.values()) levels[t.l]++; return { tiles: shown.size, tris: shown.size * NI / 3, drawn, levels, selectMs, buildMs, built: builtN, ribbonMs, initMs, steps }; };
   const inWater = (x: number, z: number) => { const [mx, my] = o.toMiles(x, z); return waterAt(x, z, mx, my).s < 20; };
   return { group, yAt, surfaceAt, lakeLevel, inWater, canopy: forestC.clone(), wood, update, stats };
 }
