@@ -131,7 +131,37 @@ class XLevel(Level):
             w = OrderedDict(id=kw.get('id') or f'{self.id}-x-{j}', a=[round(a[0] * 5, 3), round(a[1] * 5, 3)], b=[round(b[0] * 5, 3), round(b[1] * 5, 3)], flags=kw.get('flags', ['normal']), material=kw.get('material', self.interior))
             if 'heightFt' in kw: w['heightFt'] = kw['heightFt']
             merged.append(w)
-        return merged
+        return self.butt_joints(merged)
+    def butt_joints(self, walls):
+        """Where a run of one stone meets a run of another end to end (amber against ashlar), the renderer's wall boxes
+        each reach half a wall's thickness past their ends, so the two overlap face to face and flicker. Draw back the
+        lower plain run by one thickness so the boxes meet end to end; a hairline of ethereal wall keeps the joint
+        closed to sight (it is never drawn)."""
+        T = 0.6                                              # WALL_T (app/src/kit/pieces.ts)
+        drawn = [w for w in walls if not ({'invisible', 'ethereal'} & set(w['flags']))]
+        H = lambda w: w.get('heightFt', self.ceiling)
+        seams, done = [], set()
+        for k, w1 in enumerate(drawn):
+            for w2 in drawn[k + 1:]:
+                if w1['material'] == w2['material']: continue
+                for e1 in ('a', 'b'):
+                    for e2 in ('a', 'b'):
+                        p, q = w1[e1], w2[e2]
+                        if abs(p[0] - q[0]) > 1e-3 or abs(p[1] - q[1]) > 1e-3: continue
+                        d1 = (w1['b'][0] - w1['a'][0], w1['b'][1] - w1['a'][1]); d2 = (w2['b'][0] - w2['a'][0], w2['b'][1] - w2['a'][1])
+                        l1, l2 = math.hypot(*d1), math.hypot(*d2)
+                        if abs(d1[0] * d2[1] - d1[1] * d2[0]) / (l1 * l2) > 0.02: continue   # a corner, not a run
+                        # draw back the lower one (on a tie the stone, so the amber reads unbroken); never a door
+                        cand = sorted([(H(w1), w1['material'] == 'amber', w1, e1, l1), (H(w2), w2['material'] == 'amber', w2, e2, l2)], key=lambda c: (c[0], c[1]))
+                        sub = next((c for c in cand if c[2]['flags'] == ['normal'] and c[4] > 2 * T + 0.5), None)
+                        if not sub or (sub is cand[1] and cand[0][0] < sub[0] - 0.5): continue
+                        _, _, w, e, l = sub
+                        if (w['id'], e) in done: continue
+                        done.add((w['id'], e)); o = 'b' if e == 'a' else 'a'
+                        old = list(w[e]); u = ((w[o][0] - w[e][0]) / l, (w[o][1] - w[e][1]) / l)
+                        w[e] = [round(old[0] + u[0] * T, 3), round(old[1] + u[1] * T, 3)]
+                        seams.append(OrderedDict(id=f"{w['id']}-seam-{e}", a=old, b=list(w[e]), flags=['ethereal'], material=w['material']))
+        return walls + seams
     # placement helpers in squares
     def P(self, id, kind, i, j, key, rotY=0, dims=None, y=0, desc=None, dm=None):
         self.prop(id, kind, S(i, j), key, rotY=rotY, dims=dims, y=y); self._say(desc, dm)
@@ -168,13 +198,14 @@ for a in ALCOVES:
     if a == 6.5: pts += [(8, -2), (9, -2)]
 pts += [(18.5, -2), (19.5, -1), (21, -1), (21, 6), (-4.5, 6), (-4.5, 0), (-3, -1)]
 f.rm('X1', 'Temple Facade', poly(*pts), 'snow', mat='ashlar', ceil=50)
-f.rm('X1a', 'Narrow Fissure', R(-3, -4, -1.5, -2), 'dirt', mat='cave-rock', ceil=50, difficult=True)
+f.rm('X1a', 'Narrow Fissure', R(-3, -4, -1.5, -2), 'dirt', mat='cave-rock', ceil=15, difficult=True)
 f.O((-3, -2), (-1.5, -2))                                  # the pocket opens on the ledge
 f.O((8, -2), (9, -2))                                      # the archway: icy steps down to the entrance (X2)
 f.O((21, -1), (21, 6)); f.O((21, 6), (-4.5, 6)); f.O((-4.5, 6), (-4.5, 0))   # the ledge runs on south, east and west
-for a, b in [((18.5, -2), (19.5, -1)), ((19.5, -1), (21, -1)), ((-4.5, 0), (-3, -1)), ((-3, -1), (-3, -2))]:   # the cliffs either side
-    if a[0] == b[0] or a[1] == b[1]: f._stamp(S(*a), S(*b), material='cave-rock', wall=True)
-    else: f.stamp_seg(S(*a), S(*b), material='cave-rock')
+# the ledge's back corners: a rim of fallen rock at the foot of the mountain (the rock face itself is the flank below)
+for a, b in [((18.5, -2), (19.5, -1)), ((19.5, -1), (21, -1)), ((-4.5, 0), (-3, -1)), ((-3, -1), (-3, -2))]:
+    if a[0] == b[0] or a[1] == b[1]: f._stamp(S(*a), S(*b), material='cave-rock', heightFt=4, wall=True)
+    else: f.stamp_seg(S(*a), S(*b), material='cave-rock', heightFt=4)
 f.terrain.append((poly((-14, -1), (-4.5, -1), (-4.5, 6), (21, 6), (21, -1.5), (31, -1.5), (31, 16), (-14, 16)), 'snow'))
 f.terrain.append((poly((6.75, 6), (7.15, 6), (7.35, 4.6), (7.1, 4.6)), 'dirt'))       # the gravel road, soon lost under the snow
 f.terrain.append((poly((5.7, 16), (6.4, 16), (7.15, 6), (6.75, 6)), 'dirt'))
@@ -191,6 +222,40 @@ f.P('X1a-rubble', 'rubble', -2.3, -3.2, 'X1a', dims={'n': 9}); f.P('X1a-rock', '
 f.N('X1-road', 8.0, 3.0, 'X1', 'The gravel road climbs north from Tsolenka Pass and fades under the snow short of the facade.')
 f.N('X1a-note', -2.2, -3.6, 'X1a', 'Fissure 2 ft wide, 10 ft tall, 15 ft deep, down into X15; light and voices beyond. Loud noise outside draws one of the mountain folk to look.')
 f.obj('spawn', 'spawn', S(8.5, 2.5), 'dm-note', 'X1', 'Party arrives up the road')
+
+# --- the mountain the temple is carved into: Mount Ghakis rises behind the ledge in three steps of broken rock and
+# snowfield (kit/sites/t.ts 'rock-flank': face at local z = 0, rising toward local -z), over the whole temple below.
+# They are props of the ledge, so the section cut takes them away whole as soon as it drops to the floors inside.
+def flank(lv, tag, pts, dims, step=40, y=0, over=1.12):
+    """Rock-flank pieces end to end along a polyline in squares, walked with the rock on the walker's left (north
+    when walking east); `dims` may vary d along the run as a function of the piece's centre square."""
+    k = 0
+    for a, b in zip(pts[:-1], pts[1:]):
+        dx, dz = (b[0] - a[0]) * 10, (b[1] - a[1]) * 10
+        L = math.hypot(dx, dz); n = max(1, round(L / step))
+        for q in range(n):
+            t = (q + 0.5) / n; m = (a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t)
+            d = dims(m) if callable(dims) else dict(dims)
+            lv.P(f'{tag}{k}', 'rock-flank', m[0], m[1], None, rotY=round(math.degrees(math.atan2(-dz, dx)), 1),
+                 dims=dict(d, len=round(L / n * over + 2, 1), seed=k + 1), y=y)
+            k += 1
+TOP1, BACK1 = 100, -8.5          # the first step: the cliff over the facade, 100 ft up to a snowfield at j = -8.5
+TOP2, BACK2 = 170, -17.5         # the second
+# the face: along the ledge's back edge, round the fissure's pocket, behind the facade's alcoves, on east
+front = lambda m: {'h': TOP1, 'd': round((m[1] - BACK1) * 10)}
+flank(f, 'cliff-w', [(-60, -1), (-3, -1)], front, step=45)
+flank(f, 'cliff-f', [(-1.5, -2.5), (7.75, -2.5)], front, step=34)
+flank(f, 'cliff-fe', [(9.25, -2.5), (18.5, -2.5)], front, step=34)
+# behind the archway the rock stands back: a cleft over the steps going down, so the arch is a door, not a blind niche
+flank(f, 'cliff-arch-w', [(8, -2.5), (8, -4.5)], {'h': 60, 'd': 15, 'snow': 0}, step=20, over=1.0)
+flank(f, 'cliff-arch', [(7.6, -4.5), (9.4, -4.5)], {'h': TOP1, 'd': round((-4.5 - BACK1) * 10)}, step=20, over=1.0)
+flank(f, 'cliff-arch-e', [(9, -4.5), (9, -2.5)], {'h': 60, 'd': 15, 'snow': 0}, step=20, over=1.0)
+flank(f, 'cliff-e', [(18.5, -2.5), (19.6, -1.5), (75, -1.5)], front, step=45)
+flank(f, 'cliff-x1a', [(-3, -1), (-3, -4)], {'h': 70, 'd': 35}, step=20, over=1.0)     # the fissure's walls: buttresses
+flank(f, 'cliff-x1ab', [(-3, -4), (-1.5, -4)], {'h': TOP1, 'd': round((-4 - BACK1) * 10)}, step=20, over=1.3)
+flank(f, 'cliff-x1ae', [(-1.5, -4), (-1.5, -2.5)], {'h': 70, 'd': 35}, step=20, over=1.0)
+flank(f, 'step2-', [(-60, BACK1), (75, BACK1)], {'h': TOP2 - TOP1, 'd': round((BACK1 - BACK2) * 10)}, step=55, y=TOP1)
+flank(f, 'step3-', [(-60, BACK2), (75, BACK2)], {'h': 90, 'd': 220}, step=75, y=TOP2)   # and on up to the snowfields under the peak
 
 # ================================================================== UPPER (+30): map p.182
 VOID = [(S(4, -18), S(4, -7)), (S(13, -18), S(13, -7)), (S(4, -18), S(13, -18))]
@@ -518,7 +583,8 @@ SARC = {
            ('E', 'Seriach, the Hell Hound Whisperer: summon two hell hounds once; Infernal; sulphur smoke when speaking it.')],
 }
 ARM = {'N': (0.5, -0.65, 0), 'S': (0.5, 1.65, 180), 'W': (-0.65, 0.5, 90), 'E': (1.65, 0.5, -90)}
-FLOORTINT = {'X33a': 0x7a3a3a, 'X33b': 0x3e5566, 'X33c': 0x2f4a3a, 'X33d': 0x3b2f47, 'X33e': 0x2a2224, 'X33f': 0x77757a}
+# marble tints in colours declared as stone (x.ts, surfaces.ts), so each floor takes the stone grain, not the generic one
+FLOORTINT = {'X33a': 0x7a3a3a, 'X33b': 0x4b5560, 'X33c': 0x2f4a3a, 'X33d': 0x3b2f47, 'X33e': 0x1c1a20, 'X33f': 0x6d6a66}
 for k, (n, ci, cj) in VAULTS.items():
     for side, dm in SARC[k]:
         dx, dz, r = ARM[side]
@@ -570,7 +636,7 @@ for k, (i, j, r) in enumerate([(15.9, -19.6, 2.4), (17.5, -19.2, 2.0), (16.3, -1
 lo.N('X14a-note', 16.8, -19.0, 'X14a', 'Ceiling 25 ft. A path through the rubble to the open doorway of X33c; unless quiet and dark, the ghasts hear the party coming.')
 # the stairs that drop from the upper plate: solid flights rising from landing to landing (pos = the low end)
 def landing(lv, id, key, i0, j0, i1, j1, h):
-    lv.prop(id, 'prism', (0, 0), key, dims={'h': h, 'color': 0x5a5a5e}); lv.objects[-1]['pos'] = [0, 0, 0]; lv.objects[-1]['polygon'] = [FT(i0, j0), FT(i1, j0), FT(i1, j1), FT(i0, j1)]
+    lv.prop(id, 'prism', (0, 0), key, dims={'h': h, 'color': 0x4b5560}); lv.objects[-1]['pos'] = [0, 0, 0]; lv.objects[-1]['polygon'] = [FT(i0, j0), FT(i1, j0), FT(i1, j1), FT(i0, j1)]
 landing(lo, 'X14-landing1', 'X14-lower', 14, -22, 15, -21, 20); landing(lo, 'X14-landing2', 'X14-lower', 16, -22, 17, -21, 10)
 lo.P('X14-flight1', 'stone-flight', 14, -21.5, 'X14-lower', rotY=180, dims={'len': 10, 'w': 9, 'rise': 10, 'y': 20})
 lo.P('X14-flight2', 'stone-flight', 16, -21.5, 'X14-lower', rotY=180, dims={'len': 10, 'w': 9, 'rise': 10, 'y': 10})
@@ -598,9 +664,9 @@ for k, (i, j) in enumerate([(18.6, -15.6), (20.4, -14.4), (20.5, -15.6)]): lo.P(
 lo.P('X35-web', 'cobweb', 20.8, -15.8, 'X35', dims={'s': 3, 'y': 8})
 for k, (i, j) in enumerate([(-0.7, -19.6), (1.7, -8.4)]): lo.P(f'X36-web{k}', 'cobweb', i, j, 'X36', dims={'s': 4, 'y': 20})
 # colored marble floors under the temple, the vaults, and the halls
-for key, pts_, col in [('X5', X5, 0x2a282c), ('X36', R(-1, -20, 2, -8), 0x2c2a2e), ('X32', poly((15, -8), (18, -8), (18, -16.5), (17.5, -17), (16.5, -17), (16, -16.5), (15.5, -16), (15, -15.5)), 0x2c2a2e)]:
+for key, pts_, col in [('X5', X5, 0x2a282c), ('X36', R(-1, -20, 2, -8), 0x2a282c), ('X32', poly((15, -8), (18, -8), (18, -16.5), (17.5, -17), (16.5, -17), (16, -16.5), (15.5, -16), (15, -15.5)), 0x2a282c)]:
     lo.prop(f'{key}-floor', 'prism', (0, 0), key, dims={'h': 0.03, 'color': col}); lo.objects[-1]['pos'] = [0, 0, 0]; lo.objects[-1]['polygon'] = [[round(x * 5, 3), round(z * 5, 3)] for x, z in pts_]
-for key, pts_, col in [('X4', R(4, -7, 13, -5), 0x2a282c), ('X23', X23, 0x2a282c), ('X11', R(10, -18, 13, -16), 0x2a282c), ('X8', R(13, -15, 15, -8), 0x2c2a2e), ('X17', R(2, -15, 4, -8), 0x2c2a2e)]:
+for key, pts_, col in [('X4', R(4, -7, 13, -5), 0x2a282c), ('X23', X23, 0x2a282c), ('X11', R(10, -18, 13, -16), 0x2a282c), ('X8', R(13, -15, 15, -8), 0x2a282c), ('X17', R(2, -15, 4, -8), 0x2a282c)]:
     u.prop(f'{key}-floor', 'prism', (0, 0), key, dims={'h': 0.03, 'color': col}); u.objects[-1]['pos'] = [0, 0, 0]; u.objects[-1]['polygon'] = [[round(x * 5, 3), round(z * 5, 3)] for x, z in pts_]
 
 # ================================================================== descriptions (our own words)
