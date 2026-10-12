@@ -12,22 +12,23 @@ export type EntryType =
   | 'spell' | 'condition' | 'monster' | 'item' | 'rule' | 'damage' | 'ability' | 'skill'
   | 'creature-type' | 'feat' | 'class' | 'feature' | 'species' | 'background';
 
-/** Label and colour family per entry type. Colours are CSS custom properties defined with the reader styles. */
+/** Label and colour family per entry type. The colour is the type's rules family (ui/kinds.ts familyOf; tests/kinds.test.ts
+ *  checks the two agree), a token from styles.css. */
 export const TYPE_META: Record<EntryType, { label: string; color: string }> = {
-  spell: { label: 'Spell', color: 'var(--t-spell, #6b4fa0)' },
-  condition: { label: 'Condition', color: 'var(--t-condition, #b8661c)' },
-  monster: { label: 'Monster', color: 'var(--t-monster, #9b2335)' },
-  item: { label: 'Item', color: 'var(--t-item, #1f7a6d)' },
-  rule: { label: 'Rule', color: 'var(--t-rule, #3a5f8f)' },
-  damage: { label: 'Damage type', color: 'var(--t-damage, #b0412e)' },
-  ability: { label: 'Ability', color: 'var(--t-ability, #4b5d1f)' },
-  skill: { label: 'Skill', color: 'var(--t-skill, #5f7a1f)' },
-  'creature-type': { label: 'Creature type', color: 'var(--t-creature, #7a4a2e)' },
-  feat: { label: 'Feat', color: 'var(--t-feat, #8a6d1f)' },
-  class: { label: 'Class', color: 'var(--t-class, #2e5e4e)' },
-  feature: { label: 'Class feature', color: 'var(--t-feature, #2e6e6e)' },
-  species: { label: 'Species', color: 'var(--t-species, #6d4d7a)' },
-  background: { label: 'Background', color: 'var(--t-background, #6e6253)' },
+  spell: { label: 'Spell', color: 'var(--k-magic)' },
+  condition: { label: 'Condition', color: 'var(--k-condition)' },
+  monster: { label: 'Monster', color: 'var(--k-monster)' },
+  item: { label: 'Item', color: 'var(--k-rules)' },
+  rule: { label: 'Rule', color: 'var(--k-rules)' },
+  damage: { label: 'Damage type', color: 'var(--k-rules)' },
+  ability: { label: 'Ability', color: 'var(--k-rules)' },
+  skill: { label: 'Skill', color: 'var(--k-rules)' },
+  'creature-type': { label: 'Creature type', color: 'var(--k-monster)' },
+  feat: { label: 'Feat', color: 'var(--k-rules)' },
+  class: { label: 'Class', color: 'var(--k-rules)' },
+  feature: { label: 'Class feature', color: 'var(--k-rules)' },
+  species: { label: 'Species', color: 'var(--k-rules)' },
+  background: { label: 'Background', color: 'var(--k-rules)' },
 };
 
 /** The 2014 rules call species 'races'. */

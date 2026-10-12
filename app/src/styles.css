@@ -1,3 +1,111 @@
+/* ==== THEME TOKENS (docs/THEME.md 'Tokens', 'Type'): the rules families, the item rarities, the page surface per
+   campaign, the type roles and the bundled fonts. Cards, tips, stat blocks and Books use these; the rest of the chrome
+   keeps the applefy tokens below until queue item 15. ==== */
+@font-face { font-family: 'Atkinson Next'; src: url(/fonts/atkinson-next-400-700.woff2) format('woff2'); font-weight: 400 700; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Alegreya SC'; src: url(/fonts/alegreya-sc-700.woff2) format('woff2'); font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Grenze Gotisch'; src: url(/fonts/grenze-gotisch-600.woff2) format('woff2'); font-weight: 600; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Fraunces Soft'; src: url(/fonts/fraunces-wonk-soft-700.woff2) format('woff2'); font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Alegreya'; src: url(/fonts/alegreya-400-700.woff2) format('woff2'); font-weight: 400 700; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Alegreya'; src: url(/fonts/alegreya-italic-400-700.woff2) format('woff2'); font-weight: 400 700; font-style: italic; font-display: swap; }
+:root {
+  --font-ui: 'Atkinson Next', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-head: 'Alegreya SC', 'Alegreya', Georgia, serif;
+  --font-book: 'Alegreya', Georgia, serif;
+  --t-1: 13px; --t-2: 14px; --t-3: 16px; --t-4: 18px; --t-5: 22px; --t-6: 28px; --t-kicker: 16px;
+  --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px; --sp-5: 24px; --sp-6: 32px;
+  --hit: 44px; --emblem-min: 20px;
+  /* rules families: -l on light pages, -d on dark pages; each family has its own underline style */
+  --k-condition-l: #87560e; --k-condition-d: #e9d973;   /* ochre / straw, dashed */
+  --k-magic-l:     #3b367d; --k-magic-d:     #b1a8ee;   /* violet: spells and magic items, double */
+  --k-monster-l:   #ad2c73; --k-monster-d:   #ed85b3;   /* raspberry, wavy */
+  --k-rules-l:     #016a80; --k-rules-d:     #9ed8e7;   /* slate-teal: rule, action, sense, damage, gear, dotted */
+  /* item rarity: only a magic item's kicker word and name */
+  --r-common-l:    #55504a; --r-common-d:    #c9c2b8;
+  --r-uncommon-l:  #2e6b2a; --r-uncommon-d:  #8fd08a;
+  --r-rare-l:      #1f4f8a; --r-rare-d:      #8fb6ea;
+  --r-veryrare-l:  #74297f; --r-veryrare-d:  #d79be6;
+  --r-legendary-l: #8f4300; --r-legendary-d: #f5a65a;
+  --r-artifact-l:  #6e3a1e; --r-artifact-d:  #e0a982;
+  --k-condition: var(--k-condition-l); --k-magic: var(--k-magic-l); --k-monster: var(--k-monster-l); --k-rules: var(--k-rules-l);
+}
+/* Barovia: cool grey parchment, wine accents (also the default before a campaign loads) */
+:root, [data-campaign='cos'] {
+  --font-display: 'Grenze Gotisch', 'Alegreya SC', Georgia, serif;
+  --r-1: 4px; --r-2: 6px; --r-3: 10px;
+  --p-bg: #ebe2cc; --p-raise: #f4eddc; --p-sunk: #dfd4b9; --p-edge: #b2a07c; --p-hair: rgba(70, 46, 22, .22);
+  --p-ink: #2a1d14; --p-ink-2: #5c4b3a; --p-accent: #7a1f2b; --p-focus: #7a1f2b;
+  --p-grad: linear-gradient(180deg, #efe7d3 0%, #e7ddc5 100%);
+  --p-shadow: inset 0 1px 0 rgba(255,255,255,.55), 0 1px 0 rgba(40, 20, 10, .25), 0 12px 32px rgba(8, 4, 12, .45);
+  --p-danger: #9b2c1c;
+  --rule-col: #7a1f2b;
+  --seal: radial-gradient(circle at 38% 30%, #a83a46 0%, #7a1f2b 55%, #4d1119 100%); --seal-ink: #f6e3d0;
+}
+/* A Wild Sheep Chase: warm paper, pine accents */
+[data-campaign='wsc'] {
+  --font-display: 'Fraunces Soft', 'Alegreya SC', Georgia, serif;
+  --r-1: 6px; --r-2: 10px; --r-3: 14px;
+  --p-bg: #fdf7e8; --p-raise: #fffcf3; --p-sunk: #f2e7cc; --p-edge: #cdb88c; --p-hair: rgba(80, 60, 25, .2);
+  --p-ink: #2a2016; --p-ink-2: #66563f; --p-accent: #2f5a3a; --p-focus: #2f5a3a;
+  --p-grad: linear-gradient(180deg, #fffaf0 0%, #fbf3df 100%);
+  --p-shadow: inset 0 1px 0 rgba(255,255,255,.7), 0 1px 0 rgba(90, 70, 30, .2), 0 10px 26px rgba(60, 45, 20, .22);
+  --p-danger: #9b2c1c;
+  --rule-col: #9a6b2e;
+  --seal: radial-gradient(circle at 38% 30%, #3d6e48 0%, #2f5a3a 55%, #1e3128 100%); --seal-ink: #f3f0dc;
+}
+/* dark scheme: Barovia's pages go to night vellum, the Sheep Chase's to walnut */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) { --k-condition: var(--k-condition-d); --k-magic: var(--k-magic-d); --k-monster: var(--k-monster-d); --k-rules: var(--k-rules-d); }
+  :root:not([data-theme='light']), :root:not([data-theme='light']) [data-campaign='cos'] {
+    --p-bg: #2a2430; --p-raise: #332c3a; --p-sunk: #211c26; --p-edge: #5a4f63; --p-hair: rgba(237, 229, 211, .16);
+    --p-ink: #ede5d3; --p-ink-2: #b8ad9e; --p-accent: #f2b35b; --p-focus: #f2b35b;
+    --p-grad: linear-gradient(180deg, #2e2834 0%, #27212d 100%);
+    --p-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 12px 32px rgba(0,0,0,.5);
+    --p-danger: #f19a8a; --rule-col: #b24a55;
+  }
+  :root:not([data-theme='light']) [data-campaign='wsc'] {
+    --p-bg: #2f2820; --p-raise: #382f26; --p-sunk: #251f18; --p-edge: #66553c; --p-hair: rgba(243, 234, 214, .16);
+    --p-ink: #f3ead6; --p-ink-2: #c2b59c; --p-accent: #8fc79c; --p-focus: #e6c27a;
+    --p-grad: linear-gradient(180deg, #332b22 0%, #2c251d 100%);
+    --p-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 12px 32px rgba(0,0,0,.5);
+    --p-danger: #f19a8a; --rule-col: #c9a052;
+  }
+}
+:root[data-theme='dark'] { --k-condition: var(--k-condition-d); --k-magic: var(--k-magic-d); --k-monster: var(--k-monster-d); --k-rules: var(--k-rules-d); }
+:root[data-theme='dark'], :root[data-theme='dark'] [data-campaign='cos'] {
+  --p-bg: #2a2430; --p-raise: #332c3a; --p-sunk: #211c26; --p-edge: #5a4f63; --p-hair: rgba(237, 229, 211, .16);
+  --p-ink: #ede5d3; --p-ink-2: #b8ad9e; --p-accent: #f2b35b; --p-focus: #f2b35b;
+  --p-grad: linear-gradient(180deg, #2e2834 0%, #27212d 100%);
+  --p-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 12px 32px rgba(0,0,0,.5);
+  --p-danger: #f19a8a; --rule-col: #b24a55;
+}
+:root[data-theme='dark'] [data-campaign='wsc'] {
+  --p-bg: #2f2820; --p-raise: #382f26; --p-sunk: #251f18; --p-edge: #66553c; --p-hair: rgba(243, 234, 214, .16);
+  --p-ink: #f3ead6; --p-ink-2: #c2b59c; --p-accent: #8fc79c; --p-focus: #e6c27a;
+  --p-grad: linear-gradient(180deg, #332b22 0%, #2c251d 100%);
+  --p-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 12px 32px rgba(0,0,0,.5);
+  --p-danger: #f19a8a; --rule-col: #c9a052;
+}
+/* page scope: inside a page surface the legacy names and the families resolve to the page */
+.page, .rt, .statblock, .tip, .tt-tip {
+  --bg: var(--p-bg); --panel: var(--p-bg); --ink: var(--p-ink); --ink-2: var(--p-ink-2); --hair: var(--p-hair); --accent: var(--p-accent);
+  --r-common: var(--r-common-l); --r-uncommon: var(--r-uncommon-l); --r-rare: var(--r-rare-l); --r-veryrare: var(--r-veryrare-l);
+  --r-legendary: var(--r-legendary-l); --r-artifact: var(--r-artifact-l);
+  color: var(--p-ink);
+  /* glyph advances unsnapped: the small-cap faces keep their spacing at 13-16 px */
+  text-rendering: geometricPrecision;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) :is(.page, .rt, .statblock, .tip, .tt-tip) {
+    --r-common: var(--r-common-d); --r-uncommon: var(--r-uncommon-d); --r-rare: var(--r-rare-d); --r-veryrare: var(--r-veryrare-d);
+    --r-legendary: var(--r-legendary-d); --r-artifact: var(--r-artifact-d);
+  }
+}
+:root[data-theme='dark'] :is(.page, .rt, .statblock, .tip, .tt-tip) {
+  --r-common: var(--r-common-d); --r-uncommon: var(--r-uncommon-d); --r-rare: var(--r-rare-d); --r-veryrare: var(--r-veryrare-d);
+  --r-legendary: var(--r-legendary-d); --r-artifact: var(--r-artifact-d);
+}
+/* ==== end of the theme tokens ==== */
+
 /* applefy: light, quiet, one type family, hairlines, line icons. */
 :root {
   --bg: #f5f5f7;
@@ -155,10 +263,6 @@ body[data-view='players'] .lbl.link { display: none; }
 .infocard .actions { display: flex; flex-wrap: wrap; gap: 6px; padding: 6px 12px 12px; }
 .infocard .actions button { font-size: 13px; padding: 7px 12px; border-radius: 999px; border: var(--hairline, 1px) solid var(--hair); }
 .infocard .actions button.primary { background: var(--ink); color: var(--bg); border-color: transparent; }
-.tip { position: fixed; z-index: 7; pointer-events: none; max-width: 260px; padding: 6px 10px; border-radius: 10px; background: var(--bg); box-shadow: 0 6px 24px rgba(0,0,0,.28); border: var(--hairline, 1px) solid var(--hair); font-size: 13px; display: grid; gap: 1px; }
-.tip b { font-weight: 600; }
-.tip span { font-size: 11px; color: var(--ink-2); }
-.tip[hidden] { display: none; }
 
 /* Top bar: one row when it fits; otherwise title and tools on top, floor tabs centred below. Never overlaps. */
 .topbar { display: grid; grid-template-columns: auto 1fr auto; grid-template-areas: 'left center right'; align-items: start; }
@@ -380,3 +484,47 @@ body[data-view='players'] .minimap { display: none; }
 .topbar .group.center:not(:has(.levels-pick:not([style*="none"]))):not(:has(.section:not([hidden]))) { display: none; }
 .levels-pick .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
 select.levels { max-width: min(46vw, 320px); padding: 6px 28px 6px 10px; border-radius: 10px; border: var(--hairline, 1px) solid var(--hair); background: var(--bg); color: var(--ink); font: 600 13px var(--font); text-overflow: ellipsis; }
+
+/* ---- tips, toggletips and rules links (docs/CLARITY.md 'The shared tooltip component', docs/THEME.md '.rt and .rl').
+   Tips and cards render in #tips, above #ui. Every surface here is an opaque page: nothing shows through. */
+#tips { position: fixed; inset: 0; z-index: 40; pointer-events: none; }
+#tips > * { pointer-events: auto; }
+#tips > .tip.hover, .tip.canvas { pointer-events: none; }
+.tip { position: fixed; z-index: 41; max-width: 260px; padding: 7px 11px 8px; background-color: var(--p-bg); background-image: var(--p-grad); border: 1px solid var(--p-edge); border-radius: var(--r-2); box-shadow: var(--p-shadow); font: 400 var(--t-1)/1.3 var(--font-ui); display: grid; gap: 2px; overflow-wrap: anywhere; }
+.tip[hidden] { display: none; }
+.tip b { font: 700 var(--t-3)/1.2 var(--font-ui); color: var(--p-ink); }
+.tip .sub, .tip > span { font-size: var(--t-1); color: var(--p-ink-2); }
+.tip kbd { display: inline-block; margin-left: 8px; padding: 1px 6px; border: 1px solid var(--p-edge); border-bottom-width: 2px; border-radius: 4px; background: var(--p-raise); font: 700 var(--t-1)/1.2 var(--font-ui); color: var(--p-ink); vertical-align: 1px; }
+.tip.pinned { padding-right: 40px; }
+.tip .x { position: absolute; right: 0; top: 0; width: var(--hit); height: var(--hit); display: grid; place-items: center; color: var(--p-ink-2); border-radius: var(--r-1); }
+.tip .x svg { width: 16px; height: 16px; }
+button.tt { position: relative; display: inline-flex; align-items: center; gap: 4px; min-height: 32px; padding: 0 10px; border-radius: 999px; border: 1px solid var(--hair); font-size: 13px; color: var(--ink); -webkit-touch-callout: none; user-select: none; -webkit-user-select: none; }
+button.tt::after { content: ''; position: absolute; inset: -6px 0; }
+button.tt[aria-expanded='true'] { background: var(--hair); }
+button.icon, summary.icon { -webkit-touch-callout: none; }
+/* inline rules link: family colour, weight 600 and the family's own underline (dotted, dashed, double, wavy, solid) */
+button.rl { position: relative; display: inline; padding: 0; margin: 0; border: 0; background: none; font: inherit; font-weight: 600; line-height: inherit; text-align: inherit; color: var(--k-rules); text-decoration: underline dotted 1.5px; text-underline-offset: 3px; cursor: help; -webkit-touch-callout: none; user-select: none; -webkit-user-select: none; }
+button.rl::after { content: ''; position: absolute; left: -2px; right: -2px; top: 50%; height: 32px; transform: translateY(-50%); }
+.rl.condition { color: var(--k-condition); text-decoration-style: dashed; }
+.rl:is(.spell, .magic) { color: var(--k-magic); text-decoration-style: double; text-decoration-thickness: 1px; text-underline-offset: 2px; }
+.rl.monster { color: var(--k-monster); text-decoration-style: wavy; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.rl.pageref { color: var(--p-ink); text-decoration: underline solid 1px; text-underline-offset: 3px; cursor: pointer; }
+/* a standalone link (stat chips, sheet meta): a 44 px box with a 30 px raised pill drawn inside, the emblem and the word */
+button.rl.pill { display: inline-flex; align-items: center; gap: 4px; min-height: var(--hit); padding: 0 9px 0 6px; text-decoration: none; isolation: isolate; }
+button.rl.pill::before { content: ''; position: absolute; inset: 7px 0; z-index: -1; border-radius: var(--r-1); background: var(--p-raise); border: 1px solid var(--p-hair); }
+button.rl.pill::after { display: none; }
+button.rl.pill span { text-decoration: underline 1px; text-decoration-style: inherit; text-underline-offset: 3px; }
+button.rl.pill svg.e { width: 20px; height: 20px; }
+svg.e { width: 22px; height: 22px; fill: currentColor; flex: none; }
+/* motif: rule. Barovia: a double hairline with a lozenge; the Sheep Chase: a brass lozenge swell. */
+.taper { position: relative; height: 9px; margin: var(--sp-2) 0; border: 0; }
+[data-campaign='cos'] .taper, .taper { background: linear-gradient(var(--rule-col), var(--rule-col)) 0 2px / 100% 1px no-repeat, linear-gradient(var(--rule-col), var(--rule-col)) 0 6px / 100% 1px no-repeat; }
+[data-campaign='cos'] .taper::after { content: ''; position: absolute; left: 50%; top: 50%; width: 7px; height: 7px; transform: translate(-50%, -50%) rotate(45deg); background: var(--rule-col); box-shadow: 0 0 0 2.5px var(--p-bg); }
+[data-campaign='wsc'] .taper { height: 5px; margin: 10px 0; background: var(--rule-col); clip-path: polygon(0 50%, 50% 0, 100% 50%, 50% 100%); }
+/* motif: wax seal, the one DM-only marker */
+.seal { --sz: 30px; width: var(--sz); height: var(--sz); flex: none; display: inline-grid; place-items: center; background: var(--seal); color: var(--seal-ink);
+  clip-path: polygon(50.0% 0.0%, 55.9% 5.4%, 62.9% 1.7%, 67.2% 8.4%, 75.0% 6.7%, 77.4% 14.3%, 85.4% 14.6%, 85.7% 22.6%, 93.3% 25.0%, 91.6% 32.8%, 98.3% 37.1%, 94.6% 44.1%, 100.0% 50.0%, 94.6% 55.9%, 98.3% 62.9%, 91.6% 67.2%, 93.3% 75.0%, 85.7% 77.4%, 85.4% 85.4%, 77.4% 85.7%, 75.0% 93.3%, 67.2% 91.6%, 62.9% 98.3%, 55.9% 94.6%, 50.0% 100.0%, 44.1% 94.6%, 37.1% 98.3%, 32.8% 91.6%, 25.0% 93.3%, 22.6% 85.7%, 14.6% 85.4%, 14.3% 77.4%, 6.7% 75.0%, 8.4% 67.2%, 1.7% 62.9%, 5.4% 55.9%, 0.0% 50.0%, 5.4% 44.1%, 1.7% 37.1%, 8.4% 32.8%, 6.7% 25.0%, 14.3% 22.6%, 14.6% 14.6%, 22.6% 14.3%, 25.0% 6.7%, 32.8% 8.4%, 37.1% 1.7%, 44.1% 5.4%);
+  font: 700 13px/1 var(--font-head); letter-spacing: .02em; }
+.sr-live { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+@media (prefers-reduced-motion: no-preference) { #tips > * { animation: tipfade .12s ease-out; } }
+@keyframes tipfade { from { opacity: 0; } }

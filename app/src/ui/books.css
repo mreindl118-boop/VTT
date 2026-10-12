@@ -1,20 +1,9 @@
 /* Rules books: Books tab and reader. Loaded with the books chunk only. */
 :root {
-  --t-spell: #6b4fa0; --t-condition: #b8661c; --t-monster: #9b2335; --t-item: #1f7a6d; --t-rule: #3a5f8f;
-  --t-damage: #b0412e; --t-ability: #4b5d1f; --t-skill: #5f7a1f; --t-creature: #7a4a2e; --t-feat: #8a6d1f;
-  --t-class: #2e5e4e; --t-feature: #2e6e6e; --t-species: #6d4d7a; --t-background: #6e6253;
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) {
-    --t-spell: #b7a0e6; --t-condition: #f0a65c; --t-monster: #ef7d8c; --t-item: #6cc9b9; --t-rule: #8fb4e6;
-    --t-damage: #f08c78; --t-ability: #b4c97a; --t-skill: #c2d98a; --t-creature: #d9a27f; --t-feat: #e2c46f;
-    --t-class: #7fc4ac; --t-feature: #7fcfcf; --t-species: #cba6db; --t-background: #c9bba8;
-  }
-}
-:root[data-theme='dark'] {
-  --t-spell: #b7a0e6; --t-condition: #f0a65c; --t-monster: #ef7d8c; --t-item: #6cc9b9; --t-rule: #8fb4e6;
-  --t-damage: #f08c78; --t-ability: #b4c97a; --t-skill: #c2d98a; --t-creature: #d9a27f; --t-feat: #e2c46f;
-  --t-class: #7fc4ac; --t-feature: #7fcfcf; --t-species: #cba6db; --t-background: #c9bba8;
+  /* One palette with the rules cards: every entry type points at its family (ui/kinds.ts; tokens in styles.css). */
+  --t-spell: var(--k-magic); --t-condition: var(--k-condition); --t-monster: var(--k-monster); --t-item: var(--k-rules); --t-rule: var(--k-rules);
+  --t-damage: var(--k-rules); --t-ability: var(--k-rules); --t-skill: var(--k-rules); --t-creature: var(--k-monster); --t-feat: var(--k-rules);
+  --t-class: var(--k-rules); --t-feature: var(--k-rules); --t-species: var(--k-rules); --t-background: var(--k-rules);
 }
 .t-spell { --tc: var(--t-spell); } .t-condition { --tc: var(--t-condition); } .t-monster { --tc: var(--t-monster); }
 .t-item { --tc: var(--t-item); } .t-rule { --tc: var(--t-rule); } .t-damage { --tc: var(--t-damage); }
