@@ -1,5 +1,23 @@
 # Changelog
 
+## Rules links in module text (queue item 1, in progress) — 2026-10-12
+
+- New app/src/ui/terms.ts finds the rules words in room, object, pin and creature text and links them, coloured and
+  underlined by family. On the DM side: spells, magic items and gear, monsters, conditions, checks ('DC 15 Dexterity
+  (thieves' tools)' becomes one link labelled 'DC 15 · DEX (Thieves' Tools)'), dice with their average and maximum,
+  key references ('(X26)') as area links, and the module's people and places. On the players' side only conditions,
+  rules, actions, senses, damage types, abilities and skills, and never an ordinary word.
+- Names stay names: 'Order of the Silver Dragon', 'Werewolf Den', 'Raven River' and the rest never link a rules
+  word inside them; on the DM side the whole name links to its place or person. 'The stairs rose' is not Rose.
+- A word that is also plain English (gate, light, shield, guard, wolf …) links only with a cue: 'scroll of', 'casts',
+  'fire damage', 'four ghouls', 'Vilnius (mage)', 'a grick lurks', a list of spells, a save or a DC.
+- Every link decision that is not a rule lives in app/src/books/term-overrides.json; no scene, world map or manifest
+  changed. `npm run terms:review` writes docs/TERMS_REVIEW.md, every link over all 45 scenes and both world maps, and
+  the test fails on any link nobody has reviewed.
+- tests/fixtures/terms-gold.json holds 323 labelled spans from eight scenes for precision and recall. It waits for the
+  owner's review before release.
+- The cards themselves arrive on the room menus, object cards, token panel and sheets in the next step.
+
 ## 0.0.2 Explored fog stays where the party has looked — 2026-10-12
 
 - Fixed: explored memory no longer spreads by itself. Before, every update (each step, each clock change) grew the remembered area one foot further, even through closed doors and walls. After about twenty ordinary actions, a whole floor showed to the players as rooms they had "seen".

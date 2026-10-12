@@ -14,7 +14,8 @@
     "ocr": "bash scripts/ocr.sh",
     "manifests:check": "vitest run tests/manifests.test.ts",
     "books": "node --experimental-strip-types --no-warnings=ExperimentalWarning scripts/books/build.ts",
-    "books:check": "node --experimental-strip-types --no-warnings=ExperimentalWarning scripts/books/build.ts --check"
+    "books:check": "node --experimental-strip-types --no-warnings=ExperimentalWarning scripts/books/build.ts --check",
+    "terms:review": "node scripts/terms-review.mjs"
   },
   "dependencies": {
     "three": "^0.180.0"
