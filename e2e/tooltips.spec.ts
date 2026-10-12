@@ -255,6 +255,28 @@ test('view flips empty #tips: the slider to Players, peek released, and the mode
   expect(await tipsEmpty(page)).toBe(true);
 });
 
+test('a DM card still loading when the view flips to Players never mounts (slider and mode switch)', async ({ context }, info) => {
+  const touch = touchProject(info.project.name);
+  for (const how of ['slider', 'mode'] as const) {
+    const page = await context.newPage();
+    // Hold the books data back so the card is still being built when the view flips.
+    await page.route('**/books/**', async (r) => { await new Promise((ok) => setTimeout(ok, 1500)); await r.continue(); });
+    await open(page);
+    await page.evaluate(() => { (window as any).__pending = (window as any).__mistlab.tips.openCard({ term: 'monster:ghoul' }).then((e: unknown) => !!e); });
+    await page.waitForTimeout(300);
+    if (how === 'slider') {
+      await page.evaluate(() => (document.querySelector('.vs-track') as HTMLElement).focus());
+      for (let i = 0; i < 12; i++) await page.keyboard.press('ArrowDown');
+      expect(await page.locator('.vslider').getAttribute('data-t')).toBe('0.00');
+    } else await tapEl(page, '[data-view="players"]', touch);
+    expect(await page.evaluate(() => (window as any).__pending)).toBe(false);
+    await page.waitForTimeout(200);
+    expect(await tipsEmpty(page)).toBe(true);
+    expect(await page.locator('.rt, .seal, .statblock').count()).toBe(0);
+    await page.close();
+  }
+});
+
 test('the Player Display has no #tips, never requests the card or emblem code, and has no rules links or cards', async ({ page }, info) => {
   test.skip(info.project.name !== 'chromium', 'desktop');
   const urls: string[] = [];

@@ -12,6 +12,8 @@
 .rt .kick button svg { width: 18px; height: 18px; }
 .rt .kick button:hover { background: var(--p-sunk); }
 .rt h4 { margin: 3px 0 2px; font: 700 21px/1.1 var(--font-head); color: var(--rar, var(--p-ink)); overflow-wrap: anywhere; }
+/* A dice expression in small caps reads '2D8'; it keeps the lower-case d. */
+.rt[data-kind="dice"] h4 { font-family: var(--font-book); }
 .rt .meta { margin: 0 0 2px; font: italic 400 15px/1.3 var(--font-book); color: var(--p-ink-2); }
 .rt .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 12px; margin: 6px 0 0; }
 .rt .stats div { min-width: 0; }
@@ -50,6 +52,8 @@
 .rt .arrow { position: fixed; width: 12px; height: 12px; background: var(--p-bg); border: 1px solid var(--p-edge); transform: rotate(45deg); z-index: -1; }
 /* under 480 px: a bottom sheet with a grab bar */
 .rt.docked { left: 0 !important; right: 0; bottom: 0; top: auto !important; width: 100%; max-height: 50vh; border-radius: var(--r-3) var(--r-3) 0 0; border-left-width: 5px; padding-bottom: env(safe-area-inset-bottom); }
+/* The sheet stays at half the screen; its footer (source, edition, Open in Books) sticks to the bottom so it never needs a scroll. */
+.rt.docked .src { position: sticky; bottom: 0; z-index: 1; margin: 8px -14px 0; padding: 2px 14px; background-color: var(--p-bg); }
 .rt.docked .grab { display: block; width: 40px; height: 5px; margin: -2px auto 4px; border-radius: 3px; background: var(--p-edge); }
 .rt .grab { display: none; }
 

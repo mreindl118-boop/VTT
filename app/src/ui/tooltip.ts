@@ -56,7 +56,7 @@ export function placeCard(a: Rect, size: { w: number; h: number }, vp: { w: numb
 }
 
 export interface TipHost {
-  /** The players' side (Players view, slider preview at Players, or the Player Display). */
+  /** The players' side (Players view or Players mode). The slider preview at t=0 with view=dm is not counted yet. */
   restricted(): boolean;
   /** The open tap menu or info card, and how to close it (the outside handler's third rule). */
   menu(): HTMLElement | null;
@@ -171,8 +171,9 @@ export function mountTips(host: TipHost): Tips {
 
   // ---- tier B: the rules card
   const closeCard = (focusBack = false) => {
-    if (!card) return;
+    // Always invalidate a card that is still loading, so a close or a view flip can never be undone by it.
     cardSeq++;
+    if (!card) return;
     clearTimeout(graceTimer); graceTimer = 0;
     card.trigger?.setAttribute('aria-expanded', 'false');
     if (focusBack) card.trigger?.focus();
@@ -209,14 +210,16 @@ export function mountTips(host: TipHost): Tips {
     const seq = ++cardSeq;
     const mod = await import('./rulecard');
     if (seq !== cardSeq) return null;
+    const aud = restricted();
     const el = await mod.buildCard(spec, {
-      restricted: restricted(), pinned: c.pinned, touch: lastType === 'touch', canBack: c.history.length > 0,
+      restricted: aud, pinned: c.pinned, touch: lastType === 'touch', canBack: c.history.length > 0,
       close: () => closeCard(true),
       pin: () => { if (card) { card.pinned = true; void showCard(card.spec, { ...card }); } },
       back: () => { if (card && card.history.length) { const h = [...card.history]; const prev = h.pop()!; void showCard(prev, { ...card, history: h }); } },
       show: (s, push) => { if (card) void showCard(s, { ...card, history: push ? [...card.history, card.spec].slice(-5) : card.history }); },
     });
-    if (seq !== cardSeq || !el) return null;
+    // Built for one audience, mounted for the same one: a flip while loading drops it.
+    if (seq !== cardSeq || !el || restricted() !== aud) return null;
     if (!el.id) el.id = `rt-${++uid}`;
     mountCard(el, { el, spec, ...c });
     return el;

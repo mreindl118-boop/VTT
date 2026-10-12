@@ -95,7 +95,8 @@ function entryCard(e: RuleEntry, kind: RuleKind, pref: Edition, ctx: CardCtx): H
     const it = s as unknown as ItemSummary;
     meta = [it.category, it.attunement ? 'attunement' : ''].filter(Boolean).join(' · ');
     row = kind === 'magic-item'
-      ? stats([['rarity', it.rarity ? String(it.rarity).toLowerCase() : undefined], ['attunement', it.attunement === true ? 'required' : typeof it.attunement === 'string' ? it.attunement : undefined], ['cost', it.cost], ['weight', it.weight]])
+      // The kicker already names the rarity ('magic item · uncommon'), so the row does not repeat it.
+      ? stats([['rarity', it.rarity && !rar ? String(it.rarity).toLowerCase() : undefined], ['attunement', it.attunement === true ? 'required' : typeof it.attunement === 'string' ? it.attunement : undefined], ['cost', it.cost], ['weight', it.weight]])
       : stats([['cost', it.cost], ['weight', it.weight], ['damage', it.damage], ['armor class', it.ac], ['mastery', it.mastery]]);
   } else if (monster) {
     meta = monsterMeta(s as unknown as MonsterSummary);
@@ -164,7 +165,7 @@ function structuralCard(s: Structural, ctx: CardCtx): HTMLElement {
     case 'dice': {
       const d = diceStats(s.expr);
       title = s.expr;
-      row = stats([['dice', s.expr], ['average', d ? String(d.avg) : undefined], ['max', d ? String(d.max) : undefined]]);
+      row = stats([['average', d ? String(d.avg) : undefined], ['max', d ? String(d.max) : undefined]]);
       break;
     }
     case 'area':
