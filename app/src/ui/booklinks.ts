@@ -41,18 +41,25 @@ export async function linkBooksText(root: HTMLElement, edition: Edition, opts: L
     work.push({ node, section: entry?.dataset.id ? `e:${entry.dataset.id}` : `h:${headId}`, self, head, stat: !!opts.statBlock || !!entry?.classList.contains('t-monster') });
   }
   const seen = new Map<string, Set<string>>();
-  let made = 0;
+  let made = 0, last: HTMLElement | null = null;
   for (const w of work) {
     const text = w.node.data;
     const spans = findTerms(text, t, { statBlock: w.stat });
     if (!spans.length) continue;
     const s = seen.get(w.section) ?? seen.set(w.section, new Set()).get(w.section)!;
     const frag = document.createDocumentFragment();
-    let at = 0, any = false;
+    let at = 0, any = false, linkEnd = 0;
     for (const x of spans) {
       // Never to itself: not the entry it stands in, not the entry its section's heading names.
       if (x.start < at || x.id === w.self || normTerm(x.name) === w.head || s.has(x.id)) continue;
+      // A stat block's 'Dex +8, Con +13' are labels of numbers, not prose: the line's own label ('Saving Throws') links.
+      if (w.stat && x.type === 'ability' && /^[A-Z][a-z]{2}$/.test(x.text)) continue;
+      // Two links with only a space between read as one ('Saving Throws Dex +9'): the first, the line's label, links.
+      if (touches(last, w.node, text.slice(any ? linkEnd : at, x.start), any)) continue;
       s.add(x.id);
+      // 'DC 10' is one link, never 'DC' alone with its number wrapped onto the next line.
+      const dc = /^DC$/.test(x.text) ? /^\s\d+/.exec(text.slice(x.end)) : null;
+      if (dc) x.end += dc[0].length;
       if (x.start > at) frag.append(text.slice(at, x.start));
       const kind = termKind(x.id, x.type, edition);
       const b = document.createElement('button');
@@ -60,13 +67,36 @@ export async function linkBooksText(root: HTMLElement, edition: Edition, opts: L
       b.className = `rl ${kindInfo(kind).cls}`;
       Object.assign(b.dataset, { kind, term: x.id, label: x.name, edition });
       b.setAttribute('aria-expanded', 'false');
-      b.textContent = text.slice(x.start, x.end);
-      frag.append(b);
-      at = x.end; any = true; made++;
+      // (a no-break space holds 'DC 10' together)
+      b.textContent = dc ? text.slice(x.start, x.end).replace(/\s+/, '\u00a0') : text.slice(x.start, x.end);
+      // A link is an atomic box: the stop or comma right after it would wrap alone ('DC 10' / '.'), so they go together.
+      linkEnd = x.end;
+      const stop = /^[.,;:!?)]+/.exec(text.slice(x.end));
+      if (stop) {
+        const keep = document.createElement('span');
+        keep.className = 'rl-keep';
+        keep.append(b, stop[0]);
+        frag.append(keep);
+        x.end += stop[0].length;
+      } else frag.append(b);
+      at = x.end; any = true; made++; last = b;
     }
     if (!any) continue;
     if (at < text.length) frag.append(text.slice(at));
     w.node.replaceWith(frag);
   }
   return made;
+}
+
+const BLOCK = 'p, li, dd, dt, td, div, blockquote, section, article';
+/** Would a link at this point touch the previous one? `gap` is the text before it in its own node; `inNode`: the
+ *  previous link was made in this same node (so `gap` is all there is between them). Across nodes, the text between
+ *  the last link and this node counts too, within one block. */
+function touches(last: HTMLElement | null, node: Text, gap: string, inNode: boolean): boolean {
+  if (!last || gap.trim()) return false;
+  if (inNode) return true;
+  if (!last.isConnected || last.closest(BLOCK) !== node.parentElement?.closest(BLOCK)) return false;
+  const r = document.createRange();
+  r.setStartAfter(last); r.setEndBefore(node);
+  return !r.toString().trim();
 }

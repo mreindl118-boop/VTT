@@ -128,6 +128,9 @@ test('a hidden ghoul aliased "Hunched thing" in initiative with a PC: never name
     // A blocked move says only 'Not your turn'.
     await page.evaluate((pc) => (window as any).__mistlab.app.moveTokenTo(pc, [7.5, 7.5]), ids.pc);
     await expect(page.locator('.status')).toHaveText('Not your turn');
+    // ... and the person at the table can read it: the toast is clear of the turn bar, not under it.
+    const [st, tb] = await page.evaluate(() => ['.status', '.turnbar'].map((s) => { const r = document.querySelector(s)!.getBoundingClientRect(); return { top: r.top, bottom: r.bottom, left: r.left, right: r.right }; }));
+    expect(st.bottom <= tb.top || st.top >= tb.bottom || st.right <= tb.left || st.left >= tb.right, `toast ${JSON.stringify(st)} under the bar ${JSON.stringify(tb)}`).toBe(true);
     expect(SECRET.exec(await pageStrings(page))?.[0]).toBeUndefined();
   };
   // 1. The slider preview (DM view, t = 0).
@@ -218,6 +221,22 @@ for (const ed of ['2024', '2014'] as const) {
   });
 }
 
+test('the slider at its players\' end: a room the players have not found keeps its name and words; a hidden secret door is not offered', async ({ page }) => {
+  await page.setViewportSize({ width: 1180, height: 820 });
+  await boot(page);
+  await page.evaluate(() => { const m = (window as any).__mistlab; m.app.setLevel('f2'); if (m.app.isRevealed('9')) m.app.toggleRoom('9'); m.setT(0); });
+  await tapCard(page, 'f2', { room: '9' });
+  await expect(page.locator('.tapmenu')).toBeVisible();
+  await expect(page.locator('.tapmenu .roomhead')).toHaveCount(0);
+  const text = await page.locator('.tapmenu').innerText();
+  expect(text).not.toMatch(/Secret Room|skeleton|secret door|\b9\b/i);
+  expect(text).toContain('Reveal this room');
+  // back at the DM's end the full menu returns
+  await page.evaluate(() => (window as any).__mistlab.setT(1));
+  await tapCard(page, 'f2', { room: '9' });
+  await expect(page.locator('.tapmenu .roomhead')).toContainText('Secret Room');
+});
+
 test('Creatures sheet: names open stat blocks, the meta is pills, places are area links, Stat block unfolds the full block; mongrelfolk has none', async ({ page }) => {
   await page.setViewportSize({ width: 1180, height: 820 });
   await boot(page);
@@ -228,6 +247,10 @@ test('Creatures sheet: names open stat blocks, the meta is pills, places are are
   await row.locator('[data-a="block"]').click();
   await expect(row.locator('.cblock .statblock .full')).toBeVisible();
   await page.waitForTimeout(400);
+  // 'DC 10' is one link (never 'DC' alone), and the token's colour swatch is a round 12 px dot, not a stray oval.
+  await expect(row.locator('.cblock .rl', { hasText: /^DC$/ })).toHaveCount(0);
+  await expect(row.locator('.cblock .rl', { hasText: /^DC\s\d+$/ }).first()).toBeVisible();
+  expect(await row.locator('.chip').evaluate((e) => { const r = e.getBoundingClientRect(); return [r.width, r.height]; })).toEqual([12, 12]);
   await page.screenshot({ path: `${SHOTS}/step3-bestiary-ghoul.png` });
   await page.locator('.csearch').fill('strahd');
   const strahd = page.locator('.crow[data-id="strahd-von-zarovich"]');
@@ -312,7 +335,7 @@ const siblingAudit = (page: Page) => page.evaluate(() => {
   const art = document.querySelector('article.br-page[data-page]')!;
   const book = (art as HTMLElement).dataset.book, edition = book === 'srd-5.1' ? '2014' : '2024';
   const seen = new Map<string, Set<string>>(), bad: string[] = [];
-  let head = '', n = 0;
+  let head = '', n = 0, prev: HTMLElement | null = null;
   const walker = document.createTreeWalker(art, NodeFilter.SHOW_ELEMENT);
   for (let el = walker.nextNode() as HTMLElement | null; el; el = walker.nextNode() as HTMLElement | null) {
     if (/^H[1-6]$/.test(el.tagName)) { head = el.id || el.textContent || ''; continue; }
@@ -325,11 +348,19 @@ const siblingAudit = (page: Page) => page.evaluate(() => {
     if (entry && entry.dataset.id === el.dataset.term) bad.push(`to itself: ${el.dataset.term}`);
     if (el.dataset.edition !== edition) bad.push(`other edition: ${el.dataset.term}`);
     if (el.closest('h1, h2, h3, h4, h5, h6, th, caption')) bad.push(`in a heading: ${el.dataset.term}`);
+    if (el.closest('.t-monster') && /^(Str|Dex|Con|Int|Wis|Cha)$/.test(el.textContent ?? '')) bad.push(`an ability abbreviation linked in a stat block: ${el.textContent}`);
+    if (el.textContent === 'DC' && /^\s\d/.test(el.nextSibling?.textContent ?? '')) bad.push(`'DC' without its number: ${el.dataset.term}`);
+    // two links with only a space between them read as one ('Saving Throws Dex +9')
+    if (prev && prev.closest('p, li, dd, dt, td, div') === el.closest('p, li, dd, dt, td, div')) {
+      const r = document.createRange(); r.setStartAfter(prev); r.setEndBefore(el);
+      if (!r.toString().trim()) bad.push(`run together: ${prev.textContent} + ${el.textContent}`);
+    }
+    prev = el;
   }
   return { n, bad };
 });
 
-for (const [book, anchor] of [['srd-5.2.1', 'rule-grappling'], ['srd-5.1', 'condition-grappled'], ['srd-5.2.1', 'monster-ghoul'], ['srd-5.1', 'monster-wolf']] as const) {
+for (const [book, anchor] of [['srd-5.2.1', 'rule-grappling'], ['srd-5.1', 'condition-grappled'], ['srd-5.2.1', 'monster-ghoul'], ['srd-5.1', 'monster-wolf'], ['srd-5.1', 'monster-adult-gold-dragon']] as const) {
   test(`Books ${book} ${anchor}: sibling terms link once per section, never to themselves, in the same edition`, async ({ page }) => {
     await page.addInitScript(() => localStorage.setItem('mistlab.helpSeen', '1'));
     await page.goto(`/?nosw&scene=appB%2Fdeath-house#book/${book}/${anchor}`);
@@ -338,6 +369,7 @@ for (const [book, anchor] of [['srd-5.2.1', 'rule-grappling'], ['srd-5.1', 'cond
     await page.waitForTimeout(500);
     const a = await siblingAudit(page);
     expect(a.bad).toEqual([]);
+    if (anchor === 'monster-adult-gold-dragon') await page.locator(`.entry:has(> #${anchor})`).first().screenshot({ path: `${SHOTS}/books-gold-dragon-links.png` });
     // A cross-link opens its card in place, in the book's own edition.
     const link = page.locator('article.br-page .rl').first();
     await link.scrollIntoViewIfNeeded();

@@ -88,6 +88,8 @@
 /* page scope: inside a page surface the legacy names and the families resolve to the page */
 .page, .rt, .statblock, .tip, .tt-tip {
   --bg: var(--p-bg); --panel: var(--p-bg); --ink: var(--p-ink); --ink-2: var(--p-ink-2); --hair: var(--p-hair); --accent: var(--p-accent);
+  /* the DM-only block's wash: light enough that every family link keeps 4.5:1 on it (12% took teal and ochre below) */
+  --dm-tint: color-mix(in srgb, var(--p-accent) 6%, var(--p-bg));
   --r-common: var(--r-common-l); --r-uncommon: var(--r-uncommon-l); --r-rare: var(--r-rare-l); --r-veryrare: var(--r-veryrare-l);
   --r-legendary: var(--r-legendary-l); --r-artifact: var(--r-artifact-l);
   color: var(--p-ink);
@@ -161,7 +163,7 @@ button.icon[aria-pressed='true'] { background: var(--ink); color: var(--bg); }
 .vs-peek { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; color: var(--ink); border: var(--hairline, 1px) solid var(--hair); }
 .vs-peek:active { background: var(--ink); color: var(--bg); }
 
-.status { position: absolute; left: 50%; bottom: calc(env(safe-area-inset-bottom) + 16px); transform: translateX(-50%); padding: 6px 14px; border-radius: 999px; background: var(--panel); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: var(--hairline, 1px) solid var(--hair); font-size: 13px; font-variant-numeric: tabular-nums; opacity: 0; transition: opacity .15s; pointer-events: none !important; }
+.status { position: absolute; z-index: 5; left: 50%; bottom: calc(env(safe-area-inset-bottom) + 16px); transform: translateX(-50%); padding: 6px 14px; border-radius: 999px; background: var(--panel); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: var(--hairline, 1px) solid var(--hair); font-size: 13px; font-variant-numeric: tabular-nums; opacity: 0; transition: opacity .15s; pointer-events: none !important; }
 .status.on { opacity: 1; }
 
 .lbl { font: 600 11px/1.2 var(--font); color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.8); white-space: nowrap; text-align: center; transition: none; }
@@ -256,7 +258,7 @@ body[data-view='players'] .lbl.link { display: none; }
 .infocard .where { font-size: 12px; color: var(--ink-2); }
 .infocard .body { padding: 10px 16px 6px; display: grid; gap: 8px; }
 .infocard .desc { font-size: 14px; }
-.infocard .dm { font-size: 13px; color: var(--ink); background: color-mix(in srgb, var(--accent) 12%, transparent); border-left: 3px solid var(--accent); padding: 6px 10px; border-radius: 0 8px 8px 0; }
+.infocard .dm { font-size: 13px; color: var(--ink); background: var(--dm-tint, color-mix(in srgb, var(--accent) 12%, transparent)); border-left: 3px solid var(--accent); padding: 6px 10px; border-radius: 0 8px 8px 0; }
 .infocard .dm-tag { display: flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); margin-bottom: 3px; }
 .infocard .dm-tag svg { width: 12px; height: 12px; }
 .infocard .seen-as { font-size: 12px; color: var(--ink-2); }
@@ -285,7 +287,7 @@ body[data-view='players'] .topbar { grid-template-columns: auto 1fr; grid-templa
 .tapmenu .roomhead { padding: 8px 10px 8px; margin-bottom: 4px; border-bottom: var(--hairline, 1px) solid var(--hair); display: grid; gap: 6px; }
 .tapmenu .rh-title { font-size: 15px; } .tapmenu .rh-title i { font-style: normal; font-size: 12px; color: var(--ink-2); }
 .tapmenu .roomhead .desc { font-size: 13px; line-height: 1.4; }
-.tapmenu .roomhead .dm { font-size: 12.5px; line-height: 1.4; background: color-mix(in srgb, var(--accent) 12%, transparent); border-left: 3px solid var(--accent); padding: 6px 10px; border-radius: 0 8px 8px 0; }
+.tapmenu .roomhead .dm { font-size: 12.5px; line-height: 1.4; background: var(--dm-tint, color-mix(in srgb, var(--accent) 12%, transparent)); border-left: 3px solid var(--accent); padding: 6px 10px; border-radius: 0 8px 8px 0; }
 .tapmenu .dm-tag { display: flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); margin-bottom: 3px; }
 .tapmenu .dm-tag svg { width: 12px; height: 12px; }
 .infocard .inside { font-size: 13px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
@@ -409,7 +411,9 @@ body[data-zoom='mid'] .lbl.link { font-size: 10px; }
 .clist { display: grid; gap: 4px; }
 .crow { display: flex; align-items: center; gap: 10px; padding: 6px 8px; border-radius: 10px; }
 .crow:hover { background: rgba(127,127,127,.08); }
-.crow .chip, .roster .chip { width: 12px; height: 12px; border-radius: 50%; background: var(--tok, #999); flex: none; display: inline-block; }
+.crow .chip, .roster .chip { box-sizing: border-box; width: 12px; height: 12px; padding: 0; border-radius: 50%; border: 1px solid color-mix(in srgb, var(--ink) 35%, transparent); background: var(--tok, #999); flex: none; display: inline-block; }
+/* the token's own colour, beside the name it belongs to (the generic .chip padding had drawn it as a stray oval) */
+.crow .chip { align-self: flex-start; margin-top: 5px; }
 .crow .cname { flex: 1; min-width: 0; display: grid; }
 .crow .cname span { font-size: 12px; color: var(--ink-2); }
 .crow button { display: inline-flex; align-items: center; gap: 6px; }
@@ -506,6 +510,7 @@ button.icon, summary.icon { -webkit-touch-callout: none; }
 /* inline rules link: family colour, weight 600 and the family's own underline (dotted, dashed, double, wavy, solid) */
 button.rl { position: relative; display: inline; padding: 0; margin: 0; border: 0; background: none; font: inherit; font-weight: 600; line-height: inherit; text-align: inherit; color: var(--k-rules); text-decoration: underline dotted 1.5px; text-underline-offset: 3px; cursor: help; -webkit-touch-callout: none; user-select: none; -webkit-user-select: none; }
 button.rl::after { content: ''; position: absolute; left: -2px; right: -2px; top: 50%; height: 32px; transform: translateY(-50%); }
+.rl-keep { white-space: nowrap; }
 .rl.condition { color: var(--k-condition); text-decoration-style: dashed; }
 .rl:is(.spell, .magic) { color: var(--k-magic); text-decoration-style: double; text-decoration-thickness: 1px; text-underline-offset: 2px; }
 .rl.monster { color: var(--k-monster); text-decoration-style: wavy; text-decoration-thickness: 1px; text-underline-offset: 3px; }
@@ -568,6 +573,11 @@ svg.e { width: 22px; height: 22px; fill: currentColor; flex: none; }
 .roster th .rl.pill svg.e { color: var(--p-ink-2); }
 .clockpop .ck-pace { font-size: 13px; }
 .clockpop .ck-note { color: var(--p-ink); }
-.sheet.help dd.colours { line-height: 2; }
+.sheet.help dd.colours { line-height: 1.5; }
+.sheet.help dd.colours ul.key { list-style: none; margin: 0 0 4px; padding: 0; display: grid; grid-template-columns: max-content max-content; gap: 6px 14px; align-items: baseline; }
+.sheet.help dd.colours ul.key li { display: contents; }
+.sheet.help dd.colours ul.key i { color: var(--p-ink-2); }
+.sheet.help dd.colours .hint { color: var(--p-ink-2); }
+@media (max-width: 520px) { .sheet.help dd.colours ul.key { grid-template-columns: 1fr max-content; } }
 .infocard.page h2, .tapmenu.page .rh-title { color: var(--p-ink); }
 .infocard .inside .in-text { flex: 1 1 12em; min-width: 0; }

@@ -29,6 +29,13 @@
   solid page reference).
 - Fixed: a monster card's 'More' did nothing for most stat blocks (the books give their Actions headings at several
   levels); the full block now opens for every monster.
+- Fixed after review: links inside the DM-only note (tap menu and object card) were below 4.5:1 on Barovia's light
+  page; the note's wash is lighter now and every family reads at 4.5:1 or more on it. 'Not your turn' sat under the
+  turn bar; it now shows above it. In a stat block 'DC 10' is one link and keeps its full stop on the line, 'Saving
+  Throws Dex +8' no longer reads as one long link (ability abbreviations stay text), and two links never touch. The
+  Creatures sheet's token colour is a round dot, not a stray oval. Help's Colours key is one family per line, so a
+  sample's card opens beside it instead of over it. At the slider's players' end, tapping a room the players have
+  not found shows no name or words ('Reveal this room'), and a hidden secret door is not offered, as in the hover tip.
 
 ## Rules links in module text (queue item 1, in progress) — 2026-10-12
 

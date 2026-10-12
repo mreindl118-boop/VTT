@@ -210,7 +210,12 @@ function buildDmUi(): void {
   const status = document.createElement('div');
   status.className = 'status';
   ui.appendChild(status);
-  app.onStatus = (s) => { status.textContent = s; status.classList.toggle('on', !!s); if (s) { clearTimeout(statusTimer); statusTimer = window.setTimeout(() => { if (app.tool === 'none') { status.classList.remove('on'); } }, 2200); } };
+  // The toast sits above the turn bar while one shows, so a blocked move's 'Not your turn' is never covered.
+  const placeStatus = (): void => {
+    const r = bar.hidden ? null : bar.getBoundingClientRect();
+    status.style.bottom = r && r.height ? `${Math.ceil(ui.getBoundingClientRect().bottom - r.top + 8)}px` : '';
+  };
+  app.onStatus = (s) => { status.textContent = s; status.classList.toggle('on', !!s); if (s) { placeStatus(); clearTimeout(statusTimer); statusTimer = window.setTimeout(() => { if (app.tool === 'none') { status.classList.remove('on'); } }, 2200); } };
   let statusTimer = 0;
 
   const section = top.querySelector<HTMLElement>('.section')!, secIn = section.querySelector<HTMLInputElement>('input')!, secFt = section.querySelector<HTMLElement>('.sec-ft')!;
@@ -464,17 +469,20 @@ function buildDmUi(): void {
       return;
     }
     if (hit.door) items.push({ label: hit.door.open ? 'Close door' : 'Open door', icon: ICON.walls, act: () => app.toggleDoor(hit.door!.wallId) });
-    if (hit.secretDoor) items.push({ label: hit.secretDoor.revealed ? 'Hide secret door again' : 'Reveal secret door to players', icon: ICON.eye, act: () => app.revealSecretDoor(hit.secretDoor!.id) });
+    // At the slider's players' end the DM still acts, but a room the players have not found keeps its name and words
+    // to itself, and a hidden secret door is not there at all (as in the hover tip).
+    const unseen = players && !!hit.room && !hit.room.revealed;
+    if (hit.secretDoor && !(players && !hit.secretDoor.revealed)) items.push({ label: hit.secretDoor.revealed ? 'Hide secret door again' : 'Reveal secret door to players', icon: ICON.eye, act: () => app.revealSecretDoor(hit.secretDoor!.id) });
     if (hit.room) {
-      if (hit.room.enter && builtPaths.has(hit.room.enter)) { const to = hit.room.enter; items.push({ label: `Enter ${hit.room.name}`, icon: ICON.doorOpen, act: () => { localStorage.setItem('mistlab.scene', to); void app.open(to).then(() => app.layoutChanged()); } }); }
-      items.push({ label: `${hit.room.revealed ? 'Hide' : 'Reveal'} ${hit.room.key} ${hit.room.name}`, icon: ICON.reveal, act: () => app.toggleRoom(hit.room!.key) });
+      if (hit.room.enter && builtPaths.has(hit.room.enter)) { const to = hit.room.enter; items.push({ label: unseen ? 'Enter this place' : `Enter ${hit.room.name}`, icon: ICON.doorOpen, act: () => { localStorage.setItem('mistlab.scene', to); void app.open(to).then(() => app.layoutChanged()); } }); }
+      items.push({ label: unseen ? 'Reveal this room' : `${hit.room.revealed ? 'Hide' : 'Reveal'} ${hit.room.key} ${hit.room.name}`, icon: ICON.reveal, act: () => app.toggleRoom(hit.room!.key) });
       items.push({ label: 'Move party here', icon: ICON.token, act: () => { const t = app.party; if (t) { t.level = app.levelId; t.pos = app.snap(hit.pos); app.afterPartyMoveFromUi(); } } });
-      items.push({ label: `Frame ${hit.room.key}`, icon: ICON.party, act: () => app.jumpTo(hit.room!.key) });
+      items.push({ label: unseen ? 'Frame this room' : `Frame ${hit.room.key}`, icon: ICON.party, act: () => app.jumpTo(hit.room!.key) });
     }
     if (!items.length) return;
     menu = document.createElement('div');
     menu.className = 'tapmenu page';
-    const r = !hit.door && !hit.secretDoor ? hit.room : undefined;
+    const r = !hit.door && !hit.secretDoor && !unseen ? hit.room : undefined;
     const head = r ? roomHeadHtml(r, opts) : '';
     menu.innerHTML = head + items.map((it, i) => `<button data-i="${i}">${it.icon ?? ''}<span>${esc(it.label)}</span></button>`).join('');
     if (r) menu.classList.add('withroom');
@@ -553,7 +561,14 @@ function buildDmUi(): void {
     h.className = 'sheet-backdrop';
     // The colour key: one sample link per family, each opening its card (the underline says the family without colour).
     const rl = (kind: string, cls: string, term: string, word: string) => `<button type="button" class="rl ${cls}" data-kind="${kind}" data-term="${term}" aria-expanded="false">${word}</button>`;
-    const colours = `${rl('condition', 'condition', 'condition:prone', 'prone')} dashed: conditions; ${rl('spell', 'spell', 'spell:bless', 'bless')} double: spells and magic items; ${rl('monster', 'monster', 'monster:wolf', 'wolf')} wavy: monsters; ${rl('rule', 'rule', 'rule:difficult-terrain', 'difficult terrain')} dotted: rules, actions, senses and damage; ${pageref(app.cur?.scene.mapPage ?? 1, app.cur?.scene.name)} solid ink: module pages, places and people. Hover or tap one for its card.`;
+    // One row per family, the words first and the sample link last: the card a sample opens sits beside it, clear of the key.
+    const colours = `<ul class="key">${([
+      ['Conditions', 'dashed', rl('condition', 'condition', 'condition:prone', 'prone')],
+      ['Spells and magic items', 'double', rl('spell', 'spell', 'spell:bless', 'bless')],
+      ['Monsters', 'wavy', rl('monster', 'monster', 'monster:wolf', 'wolf')],
+      ['Rules, actions, senses, damage', 'dotted', rl('rule', 'rule', 'rule:difficult-terrain', 'difficult terrain')],
+      ['Module pages, places, people', 'solid ink', pageref(app.cur?.scene.mapPage ?? 1, app.cur?.scene.name)],
+    ] as const).map(([what, line, link]) => `<li><span>${what} <i>${line}</i></span>${link}</li>`).join('')}</ul><span class="hint">Hover or tap one for its card.</span>`;
     h.innerHTML = `<div class="sheet help page"><header><h2>Running a session</h2><button class="icon close" aria-label="Close" data-tip="Close">${ICON.close}</button></header><div class="sheet-body">
       <dl>
         <dt>Move the party</dt><dd>Tap the amber token to pick it up, then tap where it goes (tap it again or press Esc to cancel). The room it enters is revealed and remembered; step onto stairs or a trapdoor to change level; the camera follows. In Players mode the party walks: walls and closed doors stop it, and locked doors stay shut until the DM opens them.</dd>

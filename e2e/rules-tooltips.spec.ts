@@ -139,6 +139,34 @@ test.describe('contrast on the opaque card', () => {
     });
   }
 
+  // the DM-only block on the tap menu and the object card is tinted: every family's link keeps 4.5:1 on that tint too
+  for (const th of THEMES) {
+    test(`${th.name}: links inside the DM-only block 4.5:1 on its tint`, async ({ page }) => {
+      await boot(page, th.scene, th.scheme, th.attr);
+      await page.addScriptTag({ content: COLOR_FNS });
+      const r = await page.evaluate(() => {
+        const w = window as any, cv = document.createElement('canvas'); cv.width = cv.height = 1;
+        const x = cv.getContext('2d', { willReadFrequently: true })!;
+        // composite the page and the block's own background into one sRGB pixel (color-mix computes to color(srgb ...))
+        const flat = (layers: string[]) => { x.clearRect(0, 0, 1, 1); for (const l of layers) { x.fillStyle = '#000'; x.fillStyle = l; x.fillRect(0, 0, 1, 1); } const d = x.getImageData(0, 0, 1, 1).data; return `rgb(${d[0]}, ${d[1]}, ${d[2]})`; };
+        const links = '<button type="button" class="rl spell">l</button> <button type="button" class="rl item magic rare">l</button> <button type="button" class="rl condition">l</button> <button type="button" class="rl monster">l</button> <button type="button" class="rl rule">l</button> <button type="button" class="rl check">l</button> <button type="button" class="rl pageref">l</button>';
+        const host = document.createElement('div'); host.style.cssText = 'position:fixed;left:0;top:0;z-index:99';
+        host.innerHTML = `<div class="tapmenu page" style="position:relative"><div class="roomhead"><div class="dm"><span class="dm-tag">DM only</span>a ${links}</div></div></div><div class="infocard page" style="position:relative"><div class="dm"><span class="dm-tag">DM only</span>a ${links}</div></div>`;
+        document.body.appendChild(host);
+        const out: { where: string; c: string; cr: number }[] = [];
+        for (const dm of host.querySelectorAll<HTMLElement>('.dm')) {
+          const surface = dm.closest<HTMLElement>('.page')!;
+          const bg = flat([getComputedStyle(surface).backgroundColor, getComputedStyle(dm).backgroundColor]);
+          for (const el of dm.querySelectorAll<HTMLElement>('.rl, .dm-tag')) out.push({ where: `${surface.className} ${el.className}`, c: getComputedStyle(el).color, cr: w.__cr(flat([getComputedStyle(el).color]), bg) });
+        }
+        host.remove();
+        return out;
+      });
+      expect(r.length).toBe(16);
+      expect(r.filter((t) => t.cr < 4.5), JSON.stringify(r)).toEqual([]);
+    });
+  }
+
   for (const s of [
     { name: 'Death House at night', scene: 'appB/death-house', night: true, scheme: 'light' as const, attr: null },
     { name: 'Death House at night (dark)', scene: 'appB/death-house', night: true, scheme: 'dark' as const, attr: null },
@@ -379,7 +407,13 @@ for (const name of ['ghoul', 'wolf'] as const) for (const ed of ['2024', '2014']
     expect(glance.tiles).toBe(4);
     if (info.project.name === 'ipad' || vp.width >= 1000) expect(glance.all, 'AC, HP, Speed, CR and the abilities without scrolling').toBe(true);
     expect(glance.overflow).toBeLessThanOrEqual(0);
-    if (info.project.name !== 'chromium' && name === 'ghoul' && ed === '2024') { await page.waitForTimeout(250); await page.screenshot({ path: `${SHOTS}/step3-ghoul-${info.project.name}.png` }); }
+    if (info.project.name !== 'chromium' && name === 'ghoul' && ed === '2024') {
+      // the evidence shot: only once the card is on screen and fully faded in
+      await expect(card).toBeVisible();
+      await expect.poll(() => card.evaluate((c) => getComputedStyle(c).opacity)).toBe('1');
+      await page.screenshot({ path: `${SHOTS}/step3-ghoul-${info.project.name}.png` });
+      await expect(card, 'still open after the shot').toBeVisible();
+    }
     await card.locator('button.more').click();
     await expect(card.locator('.statblock .full')).toBeVisible();
     const s = await card.evaluate((c) => {
