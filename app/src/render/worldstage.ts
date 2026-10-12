@@ -97,7 +97,7 @@ export class WorldStage {
       lb.position.set(x, site.y + 60, z); lb.userData.role = 'stage'; lb.element.dataset.key = pin.key;
       // a tap on the name flies there and opens the place's map (a pin that repeats another's opens that map)
       const go = pin.root ?? pin.scenes[0];
-      lb.element.dataset.path = go; lb.element.dataset.tip = pin.name; lb.element.dataset.tipSub = 'Fly there and open its map';
+      lb.element.dataset.path = go; lb.element.dataset.name = pin.name; lb.element.dataset.tip = pin.name; lb.element.dataset.tipSub = 'Fly there and open its map';
       lb.element.addEventListener('click', (ev) => { ev.stopPropagation(); this.onPick?.(go); });
       labels.add(lb); this.labels.push({ obj: lb, key: pin.key, pri: /settlement|castle/.test(pin.type) ? 0 : pin.root ? 1 : 2 });
     }
@@ -215,7 +215,12 @@ export class WorldStage {
     if (w.camera.aspect !== this.fitAspect) this.fitCamera();
     this.forest.visible = dist < FOREST_MAX_DIST;
     if (this.forest.visible) this.fillForest(tgt.x, tgt.z);
-    for (const l of this.labels) l.obj.visible = !o.restricted || o.revealed.has(l.key);
+    for (const l of this.labels) {
+      l.obj.visible = !o.restricted || o.revealed.has(l.key);
+      // the players' names fly nowhere, so they promise nothing either
+      const el = l.obj.element;
+      if (o.restricted) { delete el.dataset.tip; delete el.dataset.tipSub; } else if (!el.dataset.tip) { el.dataset.tip = el.dataset.name ?? ''; el.dataset.tipSub = 'Fly there and open its map'; }
+    }
     this.declutter();
   }
   /** Before every render: the sky's bodies stand round the eye (absolute), however far it has moved. */

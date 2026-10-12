@@ -610,15 +610,18 @@ test('in the valley: the camera rides the ground off the map, players see only r
   await page.evaluate(async () => { const m = (window as any).__mistlab; m.stage.frameWorld(); m.app.world.renderNow(); });
   const names = () => page.evaluate(() => {
     const els = [...document.querySelectorAll<HTMLElement>('.lbl.place')];
-    return { shown: els.filter((e) => e.style.display !== 'none').map((e) => e.dataset.key), clickable: els.filter((e) => e.style.display !== 'none' && getComputedStyle(e).pointerEvents !== 'none').length, revealed: [...(window as any).__mistlab.app.pinsRevealed] };
+    const shown = els.filter((e) => e.style.display !== 'none');
+    return { shown: shown.map((e) => e.dataset.key), clickable: shown.filter((e) => getComputedStyle(e).pointerEvents !== 'none').length, tips: shown.filter((e) => e.dataset.tip).length, revealed: [...(window as any).__mistlab.app.pinsRevealed] };
   });
   const dm = await names();
   expect(dm.shown.length).toBeGreaterThanOrEqual(25);
   expect(dm.clickable).toBe(dm.shown.length);
+  expect(dm.tips).toBe(dm.shown.length);
   await page.locator('[data-view="players"]').click();
   await page.evaluate(() => (window as any).__mistlab.app.world.renderNow());
   const pl = await names();
   expect(pl.shown.length).toBeLessThan(dm.shown.length);
   for (const k of pl.shown) expect(pl.revealed).toContain(k);
   expect(pl.clickable).toBe(0);
+  expect(pl.tips).toBe(0);
 });
