@@ -4,9 +4,21 @@ Reviewed commit: 7cea5b32cddfe9ffb3c9e660dd179a815facbce4
 
 Priority: P1
 
-Evidence status: Code-confirmed logic defect; runtime verification pending. Reproduction and acceptance tests below have not been executed.
+Original audit evidence status: Code-confirmed logic defect; runtime verification was pending at the original review. The implementation and verification update below supersedes that status.
 
 Existing work: The roadmap discusses fog and exploration reliability, but this exact repeated-dilation mechanism was independently identified here. No claim is made that it is absent from every historical note or WIP commit.
+
+## Matt-approved fix and coordination with Claude — 2026-10-12
+
+Matt explicitly approved this focused fix and asked ChatGPT to let Claude know what is changing and why.
+
+- **Work:** [draft PR #1](https://github.com/mreindl118-boop/VTT/pull/1), branch `codex/fix-explored-fog-growth`, based on `58997da`.
+- **Scope:** `CoverageMap.updateVision` now dilates only freshly computed visibility once, then unions that bounded result into `seen`. Historical exploration is never used as dilation input. The one-texel wall rim and reveal/forced-fog behavior stay intact.
+- **Why:** unchanged recomputations were repeatedly expanding already-expanded history into closed rooms; removing the feedback loop makes those updates idempotent.
+- **Tests:** regressions cover all seven supported cell sizes, 50 identical passes, closed rooms, an exact one-texel rim, no viewers, total darkness, legitimate exploration, door close/reopen, reload, and DM paint. A browser regression checks view toggles, saved history, texture bytes, rendered pixels, and reload without party movement.
+- **Verification at publication:** the unmodified production code failed 28 of the 38 focused cases; the patched code passed all 38. Full unit suite: 190 passed and 2 existing TODOs. Typecheck and production build passed. Local browser startup was blocked by cloud-shell socket restrictions before tests executed; GitHub CI is being checked on the PR. See the PR's verification section and Checks for the current exact-commit result.
+- **Integration:** this finding is already folded into backups queue item 5. This isolated draft does not reorder the queue, merge a release, or change the separate restore/display-synchronization work. Other review findings remain advisory unless Matt separately approves them.
+- **Save limit:** existing explored history is preserved. This prevents new false exploration; it does not infer or erase cells already incorrectly recorded in old saves.
 
 ## Intended behavior
 
