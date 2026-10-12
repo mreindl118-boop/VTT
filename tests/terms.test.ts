@@ -8,7 +8,7 @@ import { setBookFetcher } from '../app/src/books/store';
 import { termIndex } from '../app/src/books/lookup';
 import type { Edition, TermFile } from '../app/src/books/types';
 import { corpusFields, loadBooks, reviewMarkdown, reviewRows, reviewTable, ROOT, type Field, type Row } from '../scripts/terms-corpus';
-import { DC_COUNT_RE, diceOf, overridesFile, renderSpans, spansFor, type Audience, type Span } from '../app/src/ui/terms';
+import { DC_COUNT_RE, diceOf, homeOf, overridesFile, renderSpans, spansFor, type Audience, type Span } from '../app/src/ui/terms';
 import { PLAYER_KINDS, type RuleKind } from '../app/src/ui/kinds';
 
 interface GoldSpan { scene: string; entity: string; field: string; audience: Audience; start: number; end: number; text: string; link: boolean; kind: string; id?: string }
@@ -231,6 +231,28 @@ describe('structural sources (DM only)', () => {
   it('a hidden-creature slot links its creature: the books monster, or the module creature', () => {
     expect(links('appB/death-house', 'dungeon-ghoul0', 'label')[0]).toMatchObject({ text: 'Ghoul', kind: 'monster', id: 'monster:ghoul', via: 'structural' });
     expect(links('appB/death-house', 'f3-broom', 'label')[0]).toMatchObject({ kind: 'monster', id: 'creature:broom-of-animated-attack' });
+  });
+  it("a named variant with its own numbers is the person, not the books' stat block: Exethanter the lich (99 hp, CR 10)", () => {
+    for (const edition of ['2024', '2014'] as const) {
+      for (const [entity, field] of [['room:upper/X27', 'dm'], ['upper-X27-lich', 'label'], ['upper-X27-divan', 'dm']] as const) {
+        expect(links('ch13/X', entity, field, 'dm', edition).filter((x) => x.kind === 'monster'), `${entity} ${edition}`).toEqual([]);
+      }
+      expect(links('ch13/X', 'room:upper/X27', 'dm', 'dm', edition)[0]).toMatchObject({ text: 'Exethanter', kind: 'person' });
+      // Without its own numbers the epithet keeps the stat block.
+      expect(links('ch13/X', 'upper-X15-helwa', 'label', 'dm', edition).find((x) => x.text === 'gladiator')).toMatchObject({ kind: 'monster', id: 'monster:gladiator' });
+    }
+  });
+  it('a person card names their home from the manifests, never a raw tag', () => {
+    const person = (text: string) => spansFor(text, { audience: 'dm', edition: '2024', field: 'dm', scenePath: 'ch03/E' }).find((x) => x.kind === 'person')!.person;
+    expect(person('Strahd von Zarovich watches.')!.home).toBe('Castle Ravenloft');
+    expect(homeOf(['K'])).toBe('Castle Ravenloft');
+    expect(homeOf(['N2'])).toBe('Blue Water Inn');
+    expect(homeOf(['E4'])).toBe("Burgomaster's Mansion (Village of Barovia)");
+    expect(homeOf(['death-house'])).toBe('Death House');
+    expect(homeOf(['K', 'K84'])).toBe('Catacombs (Castle Ravenloft)');
+    expect(homeOf(['nowhere'])).toBeUndefined();
+    expect(homeOf([])).toBeUndefined();
+    for (const r of rows) if (r.span.person?.home) expect(r.span.person.home, r.span.label).not.toMatch(/^(?:[A-Z]{1,2}\d*[a-z]?|[a-z]+(?:-[a-z]+)+)(?:[,;]|$)/);
   });
 });
 

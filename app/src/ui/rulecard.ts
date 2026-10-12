@@ -157,8 +157,10 @@ function structuralCard(s: Structural, ctx: CardCtx): HTMLElement {
   switch (s.kind) {
     case 'check': {
       kicker = `check · DC ${s.dc}`;
-      title = [`DC ${s.dc}`, s.ability, s.skill ? `(${s.skill})` : ''].filter(Boolean).join(' ');
-      row = stats([['dc', String(s.dc)], ['ability', s.ability], ['skill', s.skill], ['passive', s.passive !== undefined ? String(s.passive) : undefined]]);
+      // The same normalised label as the link ('DC 15 · DEX (Thieves' Tools)', 'DC 16 · WIS save', 'DC 12 · Perception').
+      title = [`DC ${s.dc}`, [s.ability, s.skill ? (s.ability ? `(${s.skill})` : s.skill) : ''].filter(Boolean).join(' ')].filter(Boolean).join(' · ');
+      const tool = !!s.skill && /\b(tools|supplies|kit)$/i.test(s.skill);
+      row = stats([['dc', String(s.dc)], ['ability', s.ability], [tool ? 'tool' : 'skill', s.skill], ['passive', s.passive !== undefined ? String(s.passive) : undefined]]);
       body = 'Roll a d20 and add the modifier; meeting or beating the DC succeeds.';
       break;
     }

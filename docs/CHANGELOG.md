@@ -14,9 +14,15 @@
 - Every link decision that is not a rule lives in app/src/books/term-overrides.json; no scene, world map or manifest
   changed. `npm run terms:review` writes docs/TERMS_REVIEW.md, every link over all 45 scenes and both world maps, and
   the test fails on any link nobody has reviewed.
-- tests/fixtures/terms-gold.json holds 323 labelled spans from eight scenes for precision and recall. It waits for the
+- tests/fixtures/terms-gold.json holds 337 labelled spans from eight scenes for precision and recall. It waits for the
   owner's review before release.
 - The cards themselves arrive on the room menus, object cards, token panel and sheets in the next step.
+- A person card's Home names the place ('Castle Ravenloft', 'Blue Water Inn'), not the manifest tag ('K', 'N2').
+- 'Exethanter the lich (99 hp, … CR 10)' is Exethanter: a monster word beside a named person who has their own hp or CR
+  no longer opens the books' stat block (which would read CR 21, 315 hp). 'Helwa the gladiator' still links.
+- Person and area cards have their own emblems (a hood, a map pin). A check card's title is the link's label, and
+  thieves' tools are filed under Tool. XP reads 1,800, not 1800.
+- The light condition, monster and rules colours are a little darker, so links stay at least 4.5:1 on the sunk page.
 
 ## 0.0.2 Explored fog stays where the party has looked — 2026-10-12
 

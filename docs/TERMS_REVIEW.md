@@ -11,9 +11,9 @@ covers (our own wording). "Rule" is what made it a link: the books' name, a cue 
 a key reference, a hidden-creature slot), the gazetteer, or an override. "Review" is blank once the scene's list in
 the overrides file accepts the link.
 
-Fields read: 4220. Links: 3940 in 1692 rows (accepted 3896, by override 44, unreviewed 0).
+Fields read: 4220. Links: 3934 in 1689 rows (accepted 3890, by override 44, unreviewed 0).
 
-By kind: monster 1008, area 972, person 920, check 290, spell 212, rule 187, gear 95, dice 82, magic-item 76, condition 40, damage 32, sense 18, ability 4, feature 2, skill 2.
+By kind: monster 1002, area 972, person 920, check 290, spell 212, rule 187, gear 95, dice 82, magic-item 76, condition 40, damage 32, sense 18, ability 4, feature 2, skill 2.
 
 ## appB/death-house
 
@@ -1553,7 +1553,6 @@ By kind: monster 1008, area 972, person 920, check 290, spell 212, rule 187, gea
 | upper/X26 | dm | DC 25 | check | DC 25 | DC | DM |  |
 | upper/X26 | dm | X39 | area | X39 · Plundered Treasury | key | DM |  |
 | upper/X27 | dm | Exethanter | person | Exethanter | gazetteer | DM |  |
-| upper/X27 | dm | lich | monster | lich | cue: stat parenthesis | DM |  |
 | upper/X27 | dm | CR | rule | challenge-rating | name | DM 2024 |  |
 | upper/X27 | dm | Greater restoration | spell | greater-restoration | name | DM |  |
 | upper/X27 | dm | hit points | rule | hit-points | name | DM |  |
@@ -1629,9 +1628,7 @@ By kind: monster 1008, area 972, person 920, check 290, spell 212, rule 187, gea
 | upper-X26-chest | label | DC 25 Strength | check | DC 25 · STR | DC | DM |  |
 | upper-X26-chest | label | X39 | area | X39 · Plundered Treasury | key | DM |  |
 | upper-X27-divan | dm | Exethanter | person | Exethanter | gazetteer | DM |  |
-| upper-X27-divan | dm | lich | monster | lich | cue: encounter | DM |  |
 | upper-X27-lich | label | Exethanter | person | Exethanter | gazetteer | DM |  |
-| upper-X27-lich | label | lich | monster | lich | creature slot | DM |  |
 | upper-X27-lich | label | CR | rule | challenge-rating | name | DM 2024 |  |
 | upper-X27-lich | label | Greater restoration | spell | greater-restoration | name | DM |  |
 | upper-X28-box | label | Exethanter | person | Exethanter | gazetteer | DM |  |

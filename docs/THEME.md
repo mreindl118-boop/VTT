@@ -58,11 +58,12 @@ SHARED:
 - Measured layout variables, set by a ResizeObserver per panel the same way --turnbar-h is set today: --topbar-h, --turnbar-h, --cam-w/h, --mf-w/h, --mm-w/h, --vs-w.
 
 RULES FAMILIES (shared with the tooltip pass). Five inline families, each a light / dark pair, and each with its own underline style:
-- condition: #87560e / #e9d973, ochre / straw, dashed underline. Pip fill is the -d colour.
+- condition: #81520d / #e9d973, ochre / straw, dashed underline. Pip fill is the -d colour.
 - magic (spells and magic items): #3b367d / #b1a8ee, violet, double underline.
-- monster: #ad2c73 / #ed85b3, raspberry, moved off the Barovia wine. Wavy underline.
-- rules (rule, action, sense, damage type, mundane gear): #016a80 / #9ed8e7, slate-teal, dotted underline.
+- monster: #9a2865 / #ed85b3, raspberry, moved off the Barovia wine. Wavy underline.
+- rules (rule, action, sense, damage type, mundane gear): #01647a / #9ed8e7, slate-teal, dotted underline.
 - page reference: the page's own ink with a solid 1 px underline. No hue.
+- Each light colour reaches at least 4.5:1 on every light page surface, --p-sunk included (2026-10-12: condition, monster and rules were darkened from 4.2:1 on sunk; monster a little more, to keep it 8 dE2000 from rules under protan).
 
 Measured by tokens.py:
 - Pairwise distance is 22.3 to 54.0 dE2000. The closest pair is magic and monster on dark.
@@ -417,8 +418,8 @@ THREE SOURCES, ONE RULE FOR EACH:
   - Never a toolbar or header button.
   - Never below 20 px. The DOM measure finds 31 emblems on the page and 0 under 20.
 
-THE SHIPPED SET is 18 symbols, nothing reserved:
-- bleeding-wound, boot-prints, checked-shield, crossed-swords, dice-twenty-faces-twenty, evil-bat, hearts, hourglass, knockout, magic-swirl, open-book, rolling-dices, rule-book, semi-closed-eye, sheep, skull-crossed-bones, swap-bag, wolf-head
+THE SHIPPED SET is 20 symbols, nothing reserved:
+- bleeding-wound, boot-prints, checked-shield, crossed-swords, dice-twenty-faces-twenty, evil-bat, hearts, hood, hourglass, knockout, magic-swirl, open-book, position-marker, rolling-dices, rule-book, semi-closed-eye, sheep, skull-crossed-bones, swap-bag, wolf-head
 - 16,375 B raw / 6,815 B gzip.
 - Shipped as ui/emblems.ts, a dynamic import that injects one inline sprite on first use by a sheet, a tooltip, a stat block, Books or the display. It is its own chunk, never in main, and is precached through cache-pack.
 - tokens.py asserts that the sprite holds exactly the referenced symbols.
@@ -445,7 +446,7 @@ MAPPING (Ln = line icon, Gn = game-icon emblem):
   - condition G knockout; spell G magic-swirl; monster G wolf-head
   - item (any rarity; the word carries the rarity) G swap-bag
   - rule G rule-book; action G crossed-swords; sense G semi-closed-eye
-  - damage G bleeding-wound (CR keeps the skull); page reference G open-book
+  - damage G bleeding-wound (CR keeps the skull); page reference G open-book; person G hood; area G position-marker
 - Cards: Frame L+ frame; Open door L doorClosed; Move party here '&'; Reveal secret door L eye; locked state L lock.
 - Rooms and world key: L eye and eyeOff.
 - World map header: the hex toggle is L hex (not the treasure-map emblem). Travel line G hourglass.
@@ -516,7 +517,7 @@ Totals:
 ICONS:
 - proto/icons/emblems.svg: 18 symbols, 16,375 B raw / 6,815 B gzip.
 - Paths are rounded to whole units and drawn in currentColor, with no other changes.
-- bleeding-wound was fetched from github.com/game-icons/icons/blob/master/lorc/bleeding-wound.svg on 2026-10-04. The others come from the existing gi-sprite-r0.svg source.
+- bleeding-wound was fetched from github.com/game-icons/icons/blob/master/lorc/bleeding-wound.svg on 2026-10-04. hood (lorc) and position-marker (delapouite) were fetched from the same repository on 2026-10-12. The others come from the existing gi-sprite-r0.svg source.
 
 LICENCE FILES: OFL-alegreya.txt, OFL-alegreyasc.txt, OFL-atkinsonhyperlegiblenext.txt, OFL-fraunces.txt, OFL-grenzegotisch.txt and game-icons-license.txt, in proto/fonts/ and theme/assets/recommended/.
 - On 2026-10-04 each was compared byte for byte with the project's own file:
@@ -531,9 +532,9 @@ LICENCE FILES: OFL-alegreya.txt, OFL-alegreyasc.txt, OFL-atkinsonhyperlegiblenex
 CREDITS.txt is regenerated from the shipped set (proto/fonts/CREDITS.txt, mirrored in theme/assets/recommended/CREDITS.txt; it ships as app/public/fonts/CREDITS.txt). It lists:
 - each font with its file names, copyright line, licence file name and upstream URL, and the retrieval date;
 - the game-icons licence and source URL;
-- the per-author attribution that game-icons asks for, filtered to the 18 shipped symbols:
-  - 'Icons made by Delapouite: dice-twenty-faces-twenty, rolling-dices, rule-book, sheep.'
-  - 'Icons made by Lorc: bleeding-wound, boot-prints, checked-shield, crossed-swords, evil-bat, hourglass, magic-swirl, open-book, semi-closed-eye, skull-crossed-bones, swap-bag, wolf-head.'
+- the per-author attribution that game-icons asks for, filtered to the 20 shipped symbols:
+  - 'Icons made by Delapouite: dice-twenty-faces-twenty, position-marker, rolling-dices, rule-book, sheep.'
+  - 'Icons made by Lorc: bleeding-wound, boot-prints, checked-shield, crossed-swords, evil-bat, hood, hourglass, magic-swirl, open-book, semi-closed-eye, skull-crossed-bones, swap-bag, wolf-head.'
   - 'Icons made by Skoll: hearts, knockout.'
 There is no Lucide line and no DarkZaitzev line (nothing of theirs ships), and there is no bare 'OFL.txt' reference. tokens.py asserts that every woff2, every licence file and every symbol id appears in CREDITS.txt. T2 adds the Credits panel that shows it.
 

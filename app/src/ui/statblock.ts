@@ -26,7 +26,7 @@ export function statblockHtml(s: MonsterSummary, html: string, full: boolean): s
   const at = html.indexOf('<h3');
   const rest = at >= 0 ? html.slice(at) : '';
   return `<div class="statblock compact">
-    <div class="tiles">${tile('checked-shield', String(s.ac), 'AC')}${tile('hearts', String(s.hp), s.hpDice ? `HP · ${s.hpDice.replace(/\s+/g, '')}` : 'HP')}${tile('boot-prints', speed || '—', 'Speed')}${tile('skull-crossed-bones', String(s.cr), s.xp ? `CR · ${s.xp} XP` : 'CR')}</div>
+    <div class="tiles">${tile('checked-shield', String(s.ac), 'AC')}${tile('hearts', String(s.hp), s.hpDice ? `HP · ${s.hpDice.replace(/\s+/g, '')}` : 'HP')}${tile('boot-prints', speed || '—', 'Speed')}${tile('skull-crossed-bones', String(s.cr), s.xp ? `CR · ${Number(s.xp).toLocaleString('en-US')} XP` : 'CR')}</div>
     <hr class="taper">
     <div class="abil">${ABIL.map((a) => { const v = s.abilities?.[a]; return `<div><small>${a}</small><b>${v ?? '—'}</b><i>${v === undefined ? '' : mod(v)}</i></div>`; }).join('')}</div>
     <hr class="taper">

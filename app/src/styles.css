@@ -15,10 +15,10 @@
   --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px; --sp-5: 24px; --sp-6: 32px;
   --hit: 44px; --emblem-min: 20px;
   /* rules families: -l on light pages, -d on dark pages; each family has its own underline style */
-  --k-condition-l: #87560e; --k-condition-d: #e9d973;   /* ochre / straw, dashed */
+  --k-condition-l: #81520d; --k-condition-d: #e9d973;   /* ochre / straw, dashed */
   --k-magic-l:     #3b367d; --k-magic-d:     #b1a8ee;   /* violet: spells and magic items, double */
-  --k-monster-l:   #ad2c73; --k-monster-d:   #ed85b3;   /* raspberry, wavy */
-  --k-rules-l:     #016a80; --k-rules-d:     #9ed8e7;   /* slate-teal: rule, action, sense, damage, gear, dotted */
+  --k-monster-l:   #9a2865; --k-monster-d:   #ed85b3;   /* raspberry, wavy */
+  --k-rules-l:     #01647a; --k-rules-d:     #9ed8e7;   /* slate-teal: rule, action, sense, damage, gear, dotted */
   /* item rarity: only a magic item's kicker word and name */
   --r-common-l:    #55504a; --r-common-d:    #c9c2b8;
   --r-uncommon-l:  #2e6b2a; --r-uncommon-d:  #8fd08a;

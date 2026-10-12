@@ -206,6 +206,30 @@ const PEOPLE = personNames();
 /** Place names: drop a leading 'The', a bracketed note and a trailing ', ground floor'. */
 const placeName = (n: string) => n.replace(/\s*\([^)]*\)\s*/g, ' ').replace(/^The\s+/, '').replace(/,.*$/, '').trim();
 
+/**
+ * A person's home for the person card: their manifest tags resolved to place names through both location manifests.
+ * K reads 'Castle Ravenloft', N2 'Blue Water Inn (Town of Vallaki)', death-house 'Death House'. A tag that names no
+ * location or keyed area is left out, a place already named inside a more exact one is dropped, and no tag at all
+ * gives undefined (the card then has no Home field).
+ */
+export function homeOf(tags: readonly string[] | undefined): string | undefined {
+  if (!tags?.length) return undefined;
+  const locs = CAMPAIGNS.flatMap((c) => manifestOf(c).locations);
+  const tidy = (n: string) => n.replace(/^The\s+/, '').trim();
+  const one = (t: string): string | undefined => {
+    const loc = locs.find((l) => l.id === t);
+    if (loc) return tidy(loc.name);
+    const holders = locs.filter((l) => l.areas.some((a) => a.key === t));
+    const host = holders.find((l) => l.status !== 'regional' && t.startsWith(l.id)) ?? holders.find((l) => l.status !== 'regional') ?? holders[0];
+    if (!host) return undefined;
+    const area = tidy(host.areas.find((a) => a.key === t)!.name);
+    return host.status === 'regional' ? area : `${area} (${placeName(host.name)})`;
+  };
+  const names = [...new Set(tags.map(one).filter((n): n is string => !!n))];
+  const out = names.filter((n) => !names.some((m) => m !== n && m.endsWith(`(${n})`)));
+  return out.length ? out.join('; ') : undefined;
+}
+
 function gazetteer(scenePath = ''): GazName[] {
   const sc = sceneInfo(scenePath);
   let g = gazCache.get(scenePath);
@@ -241,7 +265,7 @@ function gazetteer(scenePath = ''): GazName[] {
     add({ name: n, kind: 'area', id: `place:${camp.world}#${slug}`, label: n, area: { name: n, scene: camp.world }, plainWord: !n.includes(' ') });
   }
   if (camp.id === CAMPAIGNS[0].id) for (const [n, c] of PEOPLE) {
-    add({ name: n, kind: 'person', id: `person:${c.id}`, label: c.name, person: { name: c.name, role: c.role, home: c.tags?.join(', ') }, plainWord: overridesFile.wordNames.includes(n) });
+    add({ name: n, kind: 'person', id: `person:${c.id}`, label: c.name, person: { name: c.name, role: c.role, home: homeOf(c.tags) }, plainWord: overridesFile.wordNames.includes(n) });
   }
   g = list.sort((a, b) => b.name.length - a.name.length);
   gazCache.set(scenePath, g);
@@ -499,6 +523,15 @@ export function spansFor(text: string, ctx: SpanCtx): Span[] {
       out.push({ ...r, text: m.text, kind: termKind(m.id, m.type, ctx.edition), id: m.id, label: m.name, via, why });
     }
     if (dm) spellLists(text, t, out, held, ctx.edition);
+  }
+  // A monster word in apposition to a named person and followed by that person's own numbers ('Exethanter the lich
+  // (99 hp, … CR 10)') is a one-off variant: the books' stat block would show the wrong numbers at a glance, so the
+  // person link stands and the monster link goes. Without the numbers ('Helwa the gladiator') the stat block is right.
+  const people = out.filter((x) => x.kind === 'person');
+  for (let i = out.length - 1; i >= 0; i--) {
+    const x = out[i];
+    if (x.kind !== 'monster' || x.via === 'override' || !/^\s*\([^)]*\b(?:\d+\s*hp|hp\s*\d+|CR\s*\d)/i.test(text.slice(x.end))) continue;
+    if (people.some((p) => p.end <= x.start && /^,?\s+the\s+(?:[a-z]+\s+)?$/.test(text.slice(p.end, x.start)))) out.splice(i, 1);
   }
   // 5. The audience filter.
   const kept = dm ? out : out.filter((x) => PLAYER_KINDS.has(x.kind) && (x.via === 'name' || x.via === 'tag' || x.via === 'override'));

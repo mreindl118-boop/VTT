@@ -98,6 +98,8 @@ describe('theme tokens', () => {
     for (const [t, th] of Object.entries(THEMES)) {
       expect(surfaces(th)).toHaveLength(4);
       for (const f of FAM) for (const s of surfaces(th)) expect(cr(famOf(t)[f], s), `${t} ${f} on ${s}`).toBeGreaterThanOrEqual(4.5);
+      // The sunk well too, so a rules link stays readable in any inset panel.
+      for (const f of FAM) expect(cr(famOf(t)[f], th['--p-sunk']), `${t} ${f} on sunk`).toBeGreaterThanOrEqual(4.5);
       for (const s of surfaces(th)) expect(cr(th['--p-ink'], s), `${t} ink`).toBeGreaterThanOrEqual(4.5);
     }
   });
@@ -130,10 +132,10 @@ describe('bundled fonts and emblems', () => {
     const total = files.filter((f) => f.endsWith('.woff2')).reduce((n, f) => n + statSync(`${dir}/${f}`).size, 0);
     expect(total).toBeLessThanOrEqual(162_000);
   });
-  it('the sprite holds exactly the 18 emblems the kinds use', () => {
+  it('the sprite holds exactly the 20 emblems the kinds use', () => {
     const svg = readFileSync('app/src/ui/emblems.svg', 'utf8');
     const ids = [...svg.matchAll(/id="gi-([a-z0-9-]+)"/g)].map((m) => m[1]);
-    expect(ids).toHaveLength(18);
+    expect(ids).toHaveLength(20);
     expect([...ids].sort()).toEqual([...EMBLEM_IDS].sort());
   });
   it('the font faces swap and are not preloaded', () => {

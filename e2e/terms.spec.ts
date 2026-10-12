@@ -73,6 +73,20 @@ test('DM: Death House notes link spells, checks, areas, people, monsters and dic
   await expect(page.locator('#tips .rt.check h4')).toHaveText(/DC 15/);
   await page.waitForTimeout(300);
   await page.screenshot({ path: `${SHOTS}/terms-check-card.png` });
+  // The cabinet lock: the card title is the link's normalised label, and thieves' tools are a tool, not a skill.
+  await page.keyboard.press('Escape');
+  await page.locator('.terms-demo.dm .rl.check', { hasText: /thieves/i }).click();
+  await expect(page.locator('#tips .rt.check h4')).toHaveText("DC 15 · DEX (Thieves' Tools)");
+  await expect(page.locator('#tips .rt.check dt')).toContainText(['tool']);
+  await page.waitForTimeout(300);
+  await page.screenshot({ path: `${SHOTS}/terms-check-tool.png` });
+  // A person card: the hood emblem and a home named from the manifests, never a raw tag ('K').
+  await page.keyboard.press('Escape');
+  await page.locator('.terms-demo.dm .rl[data-kind="person"]', { hasText: 'Strahd' }).first().click();
+  await expect(page.locator('#tips .rt[data-kind="person"] dd')).toContainText(['Castle Ravenloft']);
+  await expect(page.locator('#tips .rt[data-kind="person"] .kick use')).toHaveAttribute('href', '#gi-hood');
+  await page.waitForTimeout(300);
+  await page.screenshot({ path: `${SHOTS}/terms-person-card.png` });
 });
 
 test('the DM window loads the term files by itself once the scene is ready', async ({ page }) => {
@@ -103,4 +117,21 @@ test('Amber Temple X24: the WIS save, sympathy as Antipathy/Sympathy and the X26
   await expect(page.locator('#tips .rt.spell h4')).toHaveText(/Antipathy/i);
   await page.waitForTimeout(300);
   await page.screenshot({ path: `${SHOTS}/terms-x24-sympathy.png` });
+  await page.keyboard.press('Escape');
+  // X27: 'Exethanter the lich (99 hp … CR 10)' is the person; the books' CR 21 Lich never opens beside his own numbers.
+  expect(dm.filter((x) => x[0] === 'lich')).toEqual([]);
+  expect(dm.find((x) => x[0] === 'Exethanter')?.[1]).toBe('person');
+  // An area link carries the map-pin emblem on its card.
+  await page.locator('.terms-demo.dm .rl[data-kind="area"]', { hasText: 'X26' }).click();
+  await expect(page.locator('#tips .rt[data-kind="area"] .kick use')).toHaveAttribute('href', '#gi-position-marker');
+  await page.waitForTimeout(300);
+  await page.screenshot({ path: `${SHOTS}/terms-x26-area.png` });
+  await page.keyboard.press('Escape');
+  // A stat block prints its XP with a thousands separator.
+  await page.evaluate(() => document.querySelectorAll('.terms-demo').forEach((e) => e.remove()));
+  await panel(page, 'dm', [['upper-X15-helwa', 'label'], ['room:upper/X27', 'dm']]);
+  await page.locator('.terms-demo.dm .rl.monster', { hasText: 'gladiator' }).click();
+  await expect(page.locator('#tips .rt.monster')).toContainText('1,800 XP');
+  await page.waitForTimeout(300);
+  await page.screenshot({ path: `${SHOTS}/terms-gladiator-xp.png` });
 });

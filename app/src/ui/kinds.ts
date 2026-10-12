@@ -8,10 +8,10 @@ export type RuleKind = EntryType | 'action' | 'sense' | 'magic-item' | 'gear' | 
 export type Family = 'condition' | 'magic' | 'monster' | 'rules' | 'pageref';
 export type Underline = 'dashed' | 'double' | 'wavy' | 'dotted' | 'solid';
 
-/** The 18 emblems shipped in the sprite (ui/emblems.svg), by id without the 'gi-' prefix. */
+/** The 20 emblems shipped in the sprite (ui/emblems.svg), by id without the 'gi-' prefix. */
 export const EMBLEM_IDS = [
-  'bleeding-wound', 'boot-prints', 'checked-shield', 'crossed-swords', 'dice-twenty-faces-twenty', 'evil-bat', 'hearts', 'hourglass',
-  'knockout', 'magic-swirl', 'open-book', 'rolling-dices', 'rule-book', 'semi-closed-eye', 'sheep', 'skull-crossed-bones', 'swap-bag', 'wolf-head',
+  'bleeding-wound', 'boot-prints', 'checked-shield', 'crossed-swords', 'dice-twenty-faces-twenty', 'evil-bat', 'hearts', 'hood', 'hourglass',
+  'knockout', 'magic-swirl', 'open-book', 'position-marker', 'rolling-dices', 'rule-book', 'semi-closed-eye', 'sheep', 'skull-crossed-bones', 'swap-bag', 'wolf-head',
 ] as const;
 export type EmblemId = (typeof EMBLEM_IDS)[number];
 
@@ -60,8 +60,8 @@ export function kindInfo(k: RuleKind): KindInfo {
     case 'feature': return { family: 'rules', cls: 'rule', emblem: 'rule-book', word: 'class feature' };
     case 'species': return { family: 'rules', cls: 'rule', emblem: 'rule-book', word: 'species' };
     case 'background': return { family: 'rules', cls: 'rule', emblem: 'rule-book', word: 'background' };
-    case 'area': return { family: 'pageref', cls: 'pageref', emblem: 'open-book', word: 'area' };
-    case 'person': return { family: 'pageref', cls: 'pageref', emblem: 'open-book', word: 'person' };
+    case 'area': return { family: 'pageref', cls: 'pageref', emblem: 'position-marker', word: 'area' };
+    case 'person': return { family: 'pageref', cls: 'pageref', emblem: 'hood', word: 'person' };
     case 'pageref': return { family: 'pageref', cls: 'pageref', emblem: 'open-book', word: 'module page' };
     default: { const never: never = k; throw new Error(`unmapped rules kind ${String(never)}`); }
   }

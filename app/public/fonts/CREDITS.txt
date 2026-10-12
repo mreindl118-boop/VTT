@@ -15,6 +15,6 @@ TYPE. SIL Open Font License 1.1. Subset to Latin and instanced; none of these fo
 ICONS. Creative Commons Attribution 3.0 (https://creativecommons.org/licenses/by/3.0/), from https://game-icons.net.
   Licence: fonts/game-icons-license.txt, from https://github.com/game-icons/icons/blob/master/license.txt
   Paths rounded to whole units and drawn in the current text colour; no other changes. Bundled as icons/emblems.svg (18 symbols).
-Icons made by Delapouite (game-icons.net/1x1/delapouite/): dice-twenty-faces-twenty, rolling-dices, rule-book, sheep.
-Icons made by Lorc (game-icons.net/1x1/lorc/): bleeding-wound, boot-prints, checked-shield, crossed-swords, evil-bat, hourglass, magic-swirl, open-book, semi-closed-eye, skull-crossed-bones, swap-bag, wolf-head.
+Icons made by Delapouite (game-icons.net/1x1/delapouite/): dice-twenty-faces-twenty, position-marker, rolling-dices, rule-book, sheep.
+Icons made by Lorc (game-icons.net/1x1/lorc/): bleeding-wound, boot-prints, checked-shield, crossed-swords, evil-bat, hood, hourglass, magic-swirl, open-book, semi-closed-eye, skull-crossed-bones, swap-bag, wolf-head.
 Icons made by Skoll (game-icons.net/1x1/skoll/): hearts, knockout.
