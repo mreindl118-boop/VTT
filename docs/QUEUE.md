@@ -4,6 +4,15 @@ One checklist, worked top to bottom, one item at a time. Nothing runs in paralle
 
 On 2026-10-12 the owner approved going through the whole list in order: "Complete every task on the task list. One task at a time in succession, not concurrently, in order as they exist."
 
+**Lean setting (owner, 2026-10-12), for every item:**
+- One item at a time.
+- Builders work at full effort.
+- Two reviewers per build step, run side by side, at a lighter setting.
+- At most one fix pass per step; polish-only findings don't trigger one.
+- A final check with three reviewers.
+
+The goal is to save usage and time without lowering the quality of the work.
+
 For each item, in order:
 1. Finish the work and verify it.
 2. Merge it onto the main branch.
