@@ -1,5 +1,24 @@
 # Changelog
 
+## Books: the last gaps in the rules data — 2026-10-12
+
+- The 2014 Destroy Undead table has its Cleric Level column again (5th to 17th), and the Warlock table's column
+  reads Proficiency Bonus as printed. The changes note says so, and a test makes sure no table is left with one column.
+- Holy symbols, arcane and druidic foci are named as the book groups them (Holy Symbol, Amulet …), and Holy Symbol,
+  Arcane Focus, Druidic Focus, Saddle, Gaming Set, Musical Instrument, Inn Stay and Meal are things you can look up,
+  with the book's paragraph and every kind and price. A bare Orb or Wand is no longer a link.
+- Look-ups find what a Curse of Strahd page says: Turn Undead, Sacred Weapon, Potion of Greater Healing, +1 mace,
+  Wisdom (Perception) check, Multiattack, Legendary Actions and Lair Actions.
+- Running text links the same way in both editions, and plain words stay plain: the blight, the druid, a veteran
+  soldier, a scout. Conditions link when a saving throw leads to them ('or be poisoned', 'knocked prone'), and a
+  spell when someone casts it.
+- Every rules entry has a short tooltip line, classes and backgrounds included.
+- The Books tab says why it is empty when the device went offline before its code was ever fetched, and the app now
+  fetches that code early for the DM. On the phone, Help's licence links wrap and a feature's tables inside another
+  feature fit the screen. Search results for gear and for the monsters' grapple rules show their type.
+- The main script is about 270 bytes larger (about 100 bytes compressed) for the Books tab's offline message and the
+  early fetch.
+
 ## Books: the rest of the 2014 rules, sharper look-ups — 2026-10-12
 
 - The 2014 book has what its Markdown source had dropped, each checked against the printed PDF: seven spell-list

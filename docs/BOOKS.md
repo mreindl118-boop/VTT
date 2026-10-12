@@ -87,8 +87,16 @@ official PDF (`scripts/books/config.ts`, `prepare()` and `placeTitles()` in `scr
 - **Stray italics.** The PDF set some full stops in italics after a roman word (`prone_._`, `"Playing the Game_."_`);
   the emphasis around nothing but punctuation is dropped (nine places).
 - **Equipment names.** Rows that are kinds of one thing are named after it, as the PDF groups them
-  (`groupedRows`: the 2014 saddles are “Saddle, Exotic” …, not “Exotic”); unpriced rows (2014 “Vehicles (land or
-  water)”, a proficiency) are not items; grouped lifestyle prices read “Inn Stay (Poor)”, “Meals (Poor)” in both books.
+  (`groupedRows`: the 2014 saddles are “Saddle, Exotic” …, the holy symbols “Holy Symbol, Amulet” …, the arcane and
+  druidic foci likewise; 2024 tables inside an item's own section, such as Holy Symbol's, the same way), so no bare
+  “Orb”, “Wand” or “Exotic” is an item name. The thing itself is an item too (Holy Symbol, Arcane Focus, Druidic
+  Focus, Saddle, Gaming Set, Musical Instrument, Inn Stay, Meal), with the book's paragraph about it and its kinds as
+  `variants`; a kind with no paragraph of its own shows its group's (a 2014 Lute shows the Musical Instrument
+  paragraph). Unpriced rows (2014 “Vehicles (land or water)”, a proficiency) are not items; grouped lifestyle prices
+  read “Inn Stay (Poor)”, “Meals (Poor)” in both books.
+- **Lost columns and headings (2014).** The Destroy Undead table had lost its Cleric Level column (5th … 17th), and
+  the Warlock table read “Bonus Proficiency” where the PDF prints “Proficiency Bonus”. Both are patched back, and a
+  test checks that no table in either book is left with a single column.
 - **2024 tools** (Alchemist's Supplies … Thieves' Tools, 25 of them) are items of category Tool with cost, weight,
   ability, Utilize, Craft and variants; a variant answers by its own name (lute, playing cards).
 
@@ -168,8 +176,17 @@ Help still shows the attribution with no network) through the service worker's
   `label` is the type's name in that edition ('Race' in 2014, 'Species' in 2024).
   It also reads names the way running text writes them: in quotes, with a possessive or an article
   (`“Prone.”`, `the wolf's`, `the prone condition`), with a cue word (`Strength saving throw`, `undead creature`),
-  and a '+1, +2, or +3' item by its own name (`wand of the war mage`, `+2 wand of the war mage`). Within one kind, an
-  entry named exactly so comes before one that only answers to the name (`shield` is the Shield, not Shield +1).
+  and a '+1, +2, or +3' item by its own name (`wand of the war mage`, `+2 wand of the war mage`) or by the weapon or
+  armour it is (`+1 mace`, `longsword +2`, `+3 plate armor` find Weapon or Armor, +1, +2, or +3). A check written
+  `Wisdom (Perception)` or `Dexterity (Stealth) check` is the skill. The kinds in a magic item's own table are found
+  (`potion of greater healing` is the Potion of Healing), and so is the part of a name after its colon (`Turn
+  Undead` is 2014's Channel Divinity: Turn Undead); Channel Divinity's options in both books (Turn Undead, Sacred
+  Weapon, Preserve Life) are entries. Within one kind, an entry named exactly so comes before one that only answers
+  to the name (`shield` is the Shield, not Shield +1; `inn stay` is Inn Stay, not Inn Stay (Squalid)).
+- The parts of a stat block answer from the monsters' introduction: Multiattack and Legendary Actions in both books,
+  Lair Actions and Legendary Creatures in 2014 (the 2024 SRD has no lair actions). Neither SRD has a general rule
+  for Legendary Resistance (each stat block states its own), so that finds nothing. In 2014, Hit Dice answers with
+  Short Rest, the rule that says how they are spent.
 - Where two sections share a name, the one that answers is set per edition (`ruleSources` in the config, and the
   build stops if a path is missing): in 2014, Hit Points, Difficult Terrain and Initiative are the combat rules (not
   the Constitution, travel or Dexterity paragraphs), Armor Class is the Armor section's definition and Tremorsense is
@@ -179,17 +196,25 @@ Help still shows the attribution with no network) through the service worker's
 - The 2024 rules renamed some creatures; their 2014 names, which modules like Curse of Strahd use, find the 2024 stat
   block (thug → Tough, veteran → Warrior Veteran, cult fanatic → Cultist Fanatic, acolyte → Priest Acolyte, kobold →
   Kobold Warrior, flying sword → Animated Flying Sword …), and their plurals too.
-- Every entry has a short `text` for a tooltip: a monster's is its stat line ('Medium beast, unaligned. AC 13
-  (natural armor), HP 11 (2d8 + 2), Speed 40 ft. CR 1/4 (XP 50).'), a 2014 condition's its effects, gear without a
-  description its table row ('Mount or vehicle (Saddles): Cost 20 gp, 30 lb.').
+- Every entry has a short `text` for a tooltip (a test checks there is no empty one): a monster's is its stat line
+  ('Medium beast, unaligned. AC 13 (natural armor), HP 11 (2d8 + 2), Speed 40 ft. CR 1/4 (XP 50).'), a class's its
+  Hit Die, primary ability and saves, a background's its fields, a 2014 condition's its effects, gear without a
+  description its table row ('Mount or vehicle (Saddles): Cost 20 gp, 30 lb.'), a table-only section its rows
+  ('5th: 1/2 or lower; 8th: 1 or lower …').
 - `lookupAll(term)` returns every meaning (Shield is a spell and armour).
 - `findTerms(text, await termIndex())` returns the spans of rules terms in running text. Names that are also
-  ordinary English words (light, shield, command, guidance, fly, prone, fire, net, poor …), and their inflected
-  forms (hides, nets), count only when tagged
-  (`[[Light]]`, `[[spell:light]]`, `[[Command|the command spell]]`), capitalised mid-sentence, or followed by
-  their cue word (`light cantrip`, `prone condition`, `fire damage`). Mundane gear named in one word (Hammer, Rope,
-  Saddle, Feed) counts as an ordinary word, and a capitalised ordinary word inside a longer capitalised name (‘an
-  Exotic Feed seller’) is part of that name, not the rules term.
+  ordinary English words count only when tagged (`[[Light]]`, `[[spell:light]]`, `[[Command|the command spell]]`),
+  capitalised mid-sentence, followed by their cue word (`light cantrip`, `prone condition`, `fire damage`) or led
+  by one (`casts blight`, `a saving throw or be poisoned`, `knocked prone`). The ordinary words are the CLARITY
+  plan's list (light, shield, command, guard, wolf, blight, druid, gate, shadow, charm, hold …), the people and
+  animals a module names in passing (veteran, scout, soldier, noble, priest, thug, acolyte, raven, horse …), and any
+  one-word name the prose of either book uses in lower case three times or more (counted over both books, so the two
+  editions link a sentence the same way); a name and its plural are ordinary together or not at all (thug and
+  thugs). A name of several words (short rest, dim light, holy water, thieves' tools) is never treated as ordinary,
+  nor are darkvision, blindsight, truesight, tremorsense and multiattack. Mundane gear named in one word (Hammer,
+  Rope, Feed) counts as an ordinary word, and a capitalised word after another capitalised word that is not an
+  article or the like (‘Exotic Feed’, ‘the Blue Light Inn’) is part of that name, not the rules term.
+  `Wisdom (Perception)` is one span, the skill, and `+1 mace` is one span, the magic weapon.
 - Types: spell, condition, monster, item, rule (glossary terms, actions, weapon and mastery properties),
   damage, ability, skill, creature-type, feat, class, feature, species, background. `TYPE_META` gives each a label
   and a colour token (`--t-spell`, `--t-condition` …) for colour-coded cards.
