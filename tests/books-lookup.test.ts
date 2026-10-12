@@ -116,7 +116,7 @@ describe('lookup', () => {
     ['Goblins', 'monster:goblin', 'monster:goblin-warrior'],
     ['Healing Potion', 'item:potion-of-healing', 'item:potion-of-healing'],
     ['+1 Weapon', 'item:weapon-1-2-or-3', 'item:weapon-1-2-or-3'],
-    ['Spell Slot', 'rule:spell-slots', ''],
+    ['Spell Slot', 'rule:spell-slots', 'rule:spell-slots'],
     ['Figurine of Wondrous Power', 'item:figurine-of-wondrous-power', 'item:figurine-of-wondrous-power'],
     // Rules that share a name with another section: the combat rule answers (2014 has no glossary to settle it).
     ['Hit Points', 'rule:hit-points', 'rule:hit-points'],
@@ -125,7 +125,7 @@ describe('lookup', () => {
     ['Initiative', 'rule:initiative', 'rule:initiative'],
     ['AC', 'rule:armor-class', 'rule:armor-class'],
     ['Tremorsense', 'rule:tremorsense', 'rule:tremorsense'],
-    ['Heavily Obscured', 'rule:vision-and-light', 'rule:heavily-obscured'],
+    ['Heavily Obscured', 'rule:heavily-obscured', 'rule:heavily-obscured'],
     // Class features, the 2014 ones with parts of their own included.
     ['Wild Shape', 'feature:wild-shape', 'feature:wild-shape'],
     ['Metamagic', 'feature:metamagic', 'feature:metamagic'],
@@ -326,8 +326,8 @@ describe('terms in running text', () => {
   for (const [text, want] of SAME) {
     it(`both editions: ${text}`, async () => {
       for (const ed of ['2014', '2024'] as const) {
-        // Leave out the 2024 'DC' and 'saving throw' links and 'dim light' (one rule in 2024, part of Vision and Light in 2014).
-        const got = findTerms(text, await termIndex(ed)).filter((x) => !['rule:difficulty-class', 'rule:saving-throw', 'rule:saving-throws', 'rule:dim-light', 'rule:vision-and-light'].includes(x.id));
+        // Leave out the 'DC' links (the 2024 rule, the 2014 table of typical DCs), 'saving throw' and 'dim light'.
+        const got = findTerms(text, await termIndex(ed)).filter((x) => !['rule:difficulty-class', 'rule:typical-difficulty-classes', 'rule:saving-throw', 'rule:saving-throws', 'rule:dim-light', 'rule:vision-and-light'].includes(x.id));
         expect(got.map((x) => [x.text, x.id]), ed).toEqual(want);
       }
     });
@@ -345,5 +345,87 @@ describe('terms in running text', () => {
     const t = await termIndex('2014');
     expect(t.edition).toBe('2014');
     expect(findTerms('An Ogre has AC 11.', t).map((x) => x.id)).toEqual(['monster:ogre', 'rule:armor-class']);
+  });
+});
+
+describe('lookup and the matcher: one rule per name, its own text', () => {
+  const ids = async (text: string, ed: '2014' | '2024', o: { statBlock?: boolean } = {}) => findTerms(text, await termIndex(ed), o).map((x) => [x.text, x.id]);
+  it("'bonus action' is the combat rule in both editions; the 2014 casting-time note keeps its id", async () => {
+    expect((await lookup('bonus action', '2014'))!.id).toBe('rule:bonus-actions');
+    expect((await lookup('Bonus Actions', '2014'))!.id).toBe('rule:bonus-actions');
+    expect((await lookup('bonus action', '2014'))!.text).toMatch(/^Various class features, spells, and other abilities let you take an additional action/);
+    expect((await lookup('rule:bonus-action', '2014'))!.text).toMatch(/^A spell cast with a bonus action/);
+    expect((await lookup('bonus action', '2024'))!.id).toBe('rule:bonus-action');
+    for (const ed of ['2014', '2024'] as const) {
+      const want = ed === '2014' ? 'rule:bonus-actions' : 'rule:bonus-action';
+      expect(await ids('As a bonus action, it can take the Dash action.', ed), ed).toContainEqual(['bonus action', want]);
+      expect(await ids('You can use a bonus action to make one attack with the offhand weapon.', ed), ed).toContainEqual(['bonus action', want]);
+    }
+  });
+  it('2014 light and obscurement terms answer with their own paragraph', async () => {
+    for (const [q, id] of [['dim light', 'rule:dim-light'], ['bright light', 'rule:bright-light'], ['lightly obscured', 'rule:lightly-obscured'], ['heavily obscured', 'rule:heavily-obscured']]) {
+      const e = await lookup(q, '2014');
+      expect(e!.id, q).toBe(id);
+      expect(e!.text.toLowerCase(), q).toContain(q);
+      expect((await lookup(q, '2024'))!.id, q).toBe(id); // the same ids as the 2024 glossary
+    }
+    expect((await lookup('Darkness', '2014', { type: 'rule' }))!.text).toMatch(/^Darkness creates a heavily obscured area/);
+    expect((await lookup('Vision and Light', '2014'))!.text).toMatch(/^The most fundamental tasks of adventuring — noticing danger/);
+    expect(await ids('The hall is in dim light.', '2014')).toEqual([['dim light', 'rule:dim-light']]);
+  });
+  it('a 2014 table title answers with its table, not the paragraph after it', async () => {
+    expect((await lookup('Object Armor Class', '2014'))!.text).toMatch(/^Substance: AC\. Cloth, paper, rope: 11; /);
+    expect((await lookup('Object Hit Points', '2014'))!.text).toMatch(/^Tiny \(bottle, lock\): Fragile 2 \(1d4\), Resilient 5 \(2d4\);/);
+    expect((await lookup('Typical Difficulty Classes', '2014'))!.text).toMatch(/^Task Difficulty: DC\. Very easy: 5; Easy: 10;/);
+    const css = await lookup('Creating Spell Slots', '2014');
+    expect(css!.text).toBe('Spell Slot Level: Sorcery Point Cost. 1st: 2; 2nd: 3; 3rd: 5; 4th: 6; 5th: 7.');
+    expect(css!.html).not.toContain('Converting');
+    expect((await lookup('Beast Shapes', '2014'))!.text).toMatch(/^2nd: Max\. CR 1\/4, Limitations No flying or swimming speed, Example Wolf;/);
+  });
+  it("'DC' and 'Difficulty Class' answer in both editions", async () => {
+    expect((await lookup('DC', '2014'))!.id).toBe('rule:typical-difficulty-classes');
+    expect((await lookup('Difficulty Class', '2014'))!.id).toBe('rule:typical-difficulty-classes');
+    expect((await lookup('DC', '2024'))!.id).toBe('rule:difficulty-class');
+    expect(await ids('The DC for this check is 15.', '2014')).toEqual([['DC', 'rule:typical-difficulty-classes']]);
+  });
+  it('2024 answers the rules sections it has outside the glossary', async () => {
+    for (const q of ['Mounted Combat', 'Underwater Combat', 'Spell Slots', 'Spell Slot', 'Components', 'Vision and Light', 'Resting']) {
+      const e = await lookup(q, '2024', { fallback: false });
+      expect(e?.edition, q).toBe('2024');
+      expect(e!.type, q).toBe('rule');
+      expect(await lookup(q, '2014'), q).toBeDefined();
+    }
+    // A section the glossary already names stays the glossary's.
+    expect((await lookup('Critical Hits', '2024'))!.id).toBe('rule:critical-hit');
+  });
+  it('names with a slash link in running text', async () => {
+    for (const ed of ['2014', '2024'] as const) {
+      expect((await ids('Cast Enlarge/Reduce on the ogre.', ed)).filter(([, id]) => id.startsWith('spell:')), ed).toEqual([['Enlarge/Reduce', 'spell:enlarge-reduce']]);
+      expect((await ids("Hunter's Mark and Enlarge/Reduce are on the list.", ed)).map(([, id]) => id), ed).toEqual(['spell:hunters-mark', 'spell:enlarge-reduce']);
+      expect((await ids('The wizard casts antipathy/sympathy, then misty step.', ed)).map(([, id]) => id), ed).toEqual(['spell:antipathy-sympathy', 'spell:misty-step']);
+      expect(await ids('Roll 1d6/2 and/or reroll.', ed), ed).toEqual([]);
+    }
+  });
+  it('conditions in stat-block hit text', async () => {
+    const hit = 'On a hit, the target is grappled (escape DC 13). Until this grapple ends, the target is restrained.';
+    for (const ed of ['2014', '2024'] as const) {
+      const c = async (text: string, o: { statBlock?: boolean } = {}) => (await ids(text, ed, o)).filter(([, id]) => id.startsWith('condition:'));
+      expect(await c(hit, { statBlock: true }), ed).toEqual([['grappled', 'condition:grappled'], ['restrained', 'condition:restrained']]);
+      expect(await c(hit), ed).toEqual([['grappled', 'condition:grappled']]); // outside a stat block only the DC cue counts
+      expect(await c("The wolf knocks the target prone; a frightened creature can't move closer."), ed).toEqual([['prone', 'condition:prone']]);
+      expect(await c('The target is charmed by the hag.'), ed).toEqual([]);
+    }
+  });
+  it('a group answers its plural; armour answers without "Armor"', async () => {
+    expect((await lookup('inn stays', '2014'))!.id).toBe('item:inn-stay');
+    expect((await lookup('inn stays', '2024'))!.id).toBe('item:inn-stay');
+    expect((await lookup('meals', '2024'))!.id).toBe('item:meal');
+    expect((await lookup('Studded Leather', '2024'))!.id).toBe('item:studded-leather-armor');
+    expect((await lookup('Studded Leather', '2014'))!.id).toBe('item:studded-leather');
+  });
+  it("a capitalised word after 'of' in a name is the name", async () => {
+    for (const ed of ['2014', '2024'] as const) {
+      expect(await ids('She opened the Book of Shadows and read from the Order of the Gauntlet.', ed), ed).toEqual([]);
+    }
   });
 });

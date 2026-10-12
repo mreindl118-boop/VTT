@@ -136,7 +136,8 @@ export interface TermSpan {
 export const termIndex = (edition: Edition = rulesEdition()): Promise<TermFile> => loadTerms(BOOK_OF[edition]);
 
 const TYPE_CUE: Partial<Record<EntryType, RegExp>> = {
-  condition: /^\s+condition\b/i, spell: /^\s+(spell|cantrip)\b/i, rule: /^\s+action\b/i, damage: /^\s+damage\b/i,
+  // 'grappled (escape DC 13)': a stat block's DC names the condition.
+  condition: /^\s+(?:condition\b|\(escape DC\b)/i, spell: /^\s+(spell|cantrip)\b/i, rule: /^\s+action\b/i, damage: /^\s+damage\b/i,
   skill: /^\s+(check|skill|\()/i, ability: /^\s+(check|saving throw|save|score|modifier)\b/i, 'creature-type': /^\s+(creature|type)\b/i,
 };
 
@@ -145,17 +146,23 @@ const LEADING_WORDS = new Set(('the a an this that these those his her its their
   'and or but if when while as at in on by to of for from with into onto then there here all both either neither another other such what which whose').split(' '));
 
 const LEAD_CUE: Partial<Record<EntryType, RegExp>> = {
-  condition: /(?:\b(?:saving throw|save|DC \d+)\b[^.!?;]{0,80}\b(?:be|become|becomes|is|are|was|were|gain|gains|has|have|fall|falls|knocked)|\b(?:knock|knocks|knocked|fall|falls|fell|drop|drops|dropped|lie|lies|lying)(?: \w+)?)\s+$/i,
+  // After a save or DC ('… saving throw or be poisoned') or a fall ('knocks the target prone', 'falls prone').
+  condition: /(?:\b(?:saving throw|save|DC \d+)\b[^.!?;]{0,80}\b(?:be|become|becomes|is|are|was|were|gain|gains|has|have|fall|falls|knocked)|\b(?:knock|knocks|knocked|fall|falls|fell|drop|drops|dropped|lie|lies|lying)(?: \w+){0,2})\s+$/i,
   spell: /\b(?:cast|casts|casting|scroll of)\s+$/i,
 };
+
+/** In a stat block's traits and actions only ('Until this grapple ends, the target is restrained'): elsewhere 'the
+ *  target is charmed' is running prose and stays plain. */
+const STAT_LEAD: Partial<Record<EntryType, RegExp>> = { condition: /\bthe target (?:is|becomes|remains)\s+$/i };
 
 /**
  * Find rules terms in a string. Longest match wins; names that are also ordinary English words (light, shield,
  * command, guidance, fly, prone, fire …) count only when tagged ([[Light]], [[spell:light]]), capitalised
  * mid-sentence, followed by their cue word ('fire damage', 'prone condition', 'light cantrip') or led by one ('casts
- * blight', 'a saving throw or be poisoned', 'knocked prone'). 'Wisdom (Perception)' is the skill.
+ * blight', 'a saving throw or be poisoned', 'knocked prone'). 'Wisdom (Perception)' is the skill. `statBlock`: the
+ * text is a stat block's trait or action, where 'the target is restrained' names the condition too.
  */
-export function findTerms(text: string, t: TermFile, opts: { explicitOnly?: boolean } = {}): TermSpan[] {
+export function findTerms(text: string, t: TermFile, opts: { explicitOnly?: boolean; statBlock?: boolean } = {}): TermSpan[] {
   const spans: TermSpan[] = [];
   const common = new Set(t.common);
   const byId = new Map(t.entries.map((e, i) => [e[0], i]));
@@ -194,7 +201,8 @@ export function findTerms(text: string, t: TermFile, opts: { explicitOnly?: bool
       const s = words[i].s; let e = words[i + n - 1].e;
       if (!free(s, e)) continue;
       let seg = text.slice(s, e);
-      if (n > 1 && /[^\s'’A-Za-z0-9,+-]|\s{2,}|\n/.test(seg)) continue; // a term never spans punctuation ('+1 mace' is one)
+      // A term never spans punctuation ('+1 mace' is one), except a slash between letters ('Enlarge/Reduce').
+      if (n > 1 && /[^\s'’A-Za-z0-9,+-]|\s{2,}|\n/.test(seg.replace(/(?<=[A-Za-z])\/(?=[A-Za-z])/g, ''))) continue;
       let idx = t.abbr[seg];
       let key = '';
       if (!idx) { key = normTerm(seg); idx = t.forms[key]; }
@@ -207,7 +215,7 @@ export function findTerms(text: string, t: TermFile, opts: { explicitOnly?: bool
       const after = text.slice(e, e + 20), lead = text.slice(Math.max(0, s - 120), s);
       // A cue word picks the meaning: 'light cantrip' is the spell, 'fire damage' the damage type; so does what comes
       // before: 'casts blight', 'a saving throw or be poisoned', 'knocked prone'.
-      const cued = idx.find((k) => TYPE_CUE[t.entries[k][2]]?.test(after) || LEAD_CUE[t.entries[k][2]]?.test(lead));
+      const cued = idx.find((k) => TYPE_CUE[t.entries[k][2]]?.test(after) || LEAD_CUE[t.entries[k][2]]?.test(lead) || (opts.statBlock && STAT_LEAD[t.entries[k][2]]?.test(lead)));
       if (cued !== undefined) pick = cued;
       const [id, name, type] = t.entries[pick];
       if (key && common.has(key)) {
@@ -219,8 +227,11 @@ export function findTerms(text: string, t: TermFile, opts: { explicitOnly?: bool
         // name, not the rules term.
         const prev = /(?:^|[^A-Za-z'’-])([A-Za-z][A-Za-z'’-]*)$/.exec(text.slice(0, s).replace(/ $/, ''));
         // ('The Wolf', 'Each Wolf': a capitalised article or determiner is not a name.)
-        const prevIsName = !!prev && text[s - 1] === ' ' && /^[A-Z]/.test(prev[1]) && !LEADING_WORDS.has(prev[1].toLowerCase());
-        const nextIsName = /^ [A-Z][a-z]/.test(text.slice(e, e + 3));
+        // ('Book of Shadows', 'Order of the Ram': a capitalised word after 'of' inside a capitalised name is that name.)
+        const ofName = /(?:^|[^A-Za-z'’-])([A-Z][A-Za-z'’-]*) of (?:the )?$/.exec(text.slice(0, s));
+        const prevIsName = (!!prev && text[s - 1] === ' ' && /^[A-Z]/.test(prev[1]) && !LEADING_WORDS.has(prev[1].toLowerCase()))
+          || (!!ofName && !LEADING_WORDS.has(ofName[1].toLowerCase()));
+        const nextIsName = /^ (?:of (?:the )?)?[A-Z][a-z]/.test(text.slice(e, e + 11));
         if (!cue && !(capital && !sentenceStart && !prevIsName && !nextIsName)) continue;
       }
       spans.push({ start: s, end: e, text: seg, id, type, name, explicit: false });

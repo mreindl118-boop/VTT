@@ -124,7 +124,9 @@
 .br-attrib h2 { margin: 0 0 .4em; font-size: 1em; border: 0; text-transform: uppercase; letter-spacing: .05em; color: var(--ink-2); }
 .br-statement { font-weight: 500; }
 .br-contents { columns: 2 16em; padding-left: 1.4em; }
-.br-contents button { text-align: left; color: var(--accent); font-size: inherit; padding: 2px 0; }
+.br-contents li { padding: 2px 0; }
+/* top-aligned with the line height of its item, so a wrapped title keeps its number on its first line */
+.br-contents button { text-align: left; color: var(--accent); font: inherit; line-height: inherit; padding: 0; vertical-align: top; }
 .br-sources { font-size: .8em; color: var(--ink-2); margin: 1.6em 0; }
 .br-sources li { margin: .6em 0; }
 .br-pager { max-width: 46em; margin: 0 auto; padding: 8px 32px; display: flex; justify-content: space-between; gap: 12px; }
