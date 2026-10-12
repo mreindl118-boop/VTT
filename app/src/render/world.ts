@@ -116,8 +116,10 @@ export class World {
   /** Mist thins as the camera pulls back, so the map itself stays legible from any height and only the land beyond it fades. */
   get fogDensity(): number {
     const d = this.camera ? this.camera.position.distanceTo(this.controls.target) : 300;
-    // the continuous world lets the mist thin much further, so the far mountains haze instead of vanishing (identical below ~2,170 ft)
-    const pullBack = THREE.MathUtils.clamp(260 / Math.max(1, d), this.nested ? 0.004 : 0.12, 1);
+    // the continuous world lets the mist thin much further (to 0.0008, the whole valley from 325,000 ft), so the mist
+    // between the eye and the ground stays as thick as it is over a map and the far mountains haze instead of
+    // vanishing (identical below ~2,170 ft)
+    const pullBack = THREE.MathUtils.clamp(260 / Math.max(1, d), this.nested ? 0.0008 : 0.12, 1);
     return this.fogOn ? (this.outdoor ? this.theme.fogOut : this.theme.fogIn) * this.fogScale * pullBack : 0;
   }
   setFog(on: boolean): void { this.fogOn = on; if (this.scene.fog instanceof THREE.FogExp2) this.scene.fog.density = this.fogDensity; this.mistFloor.visible = on && this.mistFloor.visible; this.invalidate(); }
@@ -163,15 +165,14 @@ export class World {
     this.controls.maxPolarAngle = THREE.MathUtils.lerp(base, Math.PI * 0.3, k);
   }
 
-  /** The continuous world's camera: far plane 300,000 ft, zoom out to 120,000 ft, wheel and pinch dive toward the
-   *  place under the pointer, the mist thins to 0.004 of its strength far out, the pitch floor rises with altitude.
-   *  Off restores today's map camera exactly. */
+  /** The continuous world's camera: far plane 300,000 ft, zoom out to 120,000 ft (the stage may allow more, to fit
+   *  its whole valley), the mist thins to 0.0008 of its strength far out, the pitch floor rises with altitude. Off
+   *  restores today's map camera exactly. Zoom-to-cursor is every map's (the constructor's), on or off. */
   setNested(on: boolean): void {
     this.nested = on;
     this.camera.far = on ? 300000 : 120000;
     this.camera.updateProjectionMatrix();
     this.controls.maxDistance = on ? 120000 : 400;
-    this.controls.zoomToCursor = on;
     this.applyPolar();
     if (this.scene.fog instanceof THREE.FogExp2) this.scene.fog.density = this.fogDensity;
     this.invalidate();
@@ -265,6 +266,7 @@ export class World {
     const travel = this.controls.target.distanceTo(target) / Math.max(d, from);
     const dur = ms ?? flightMs(from, d, travel);
     this.moveTo(target, d, true);
+    this.flights++;
     // across the valley the eye climbs over the middle of the flight, so the land between unrolls below and the glide
     // dives onto the new place instead of skimming the ridges
     if (this.tween) { this.tween.dur = Math.max(1, dur); this.tween.rise = Math.max(0, this.controls.target.distanceTo(target) * 0.45 - Math.max(d, from)); }
@@ -349,6 +351,14 @@ export class World {
 
   /** The glide in flight, if any (tests and the streamer read it). */
   get flying(): boolean { return !!this.tween; }
+  /** How many glides flyTo has started (tests read it: a glide may end before anyone looks). */
+  flights = 0;
+  /** Resolves once no glide is in flight (at once if none is), or after 4 s whatever happens (a hidden tab draws no
+   *  frames, so its glide waits for the page to show again). */
+  settled(): Promise<void> {
+    const end = performance.now() + 4000;
+    return new Promise((done) => { const f = () => (this.tween && performance.now() < end ? setTimeout(f, 16) : done()); f(); });
+  }
 
   label(text: string, sub: string | undefined, cls: string, page?: number): CSS2DObject {
     const el = document.createElement('div');

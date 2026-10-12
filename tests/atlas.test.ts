@@ -73,9 +73,19 @@ describe('world atlas', () => {
     expect(K.placement.position[1]).toBeCloseTo(pinY(w, w.pins.find((q) => q.key === 'K')!), 6);
     expect(atlas.scenes['ch09/T'].placement.rotationY).toBeCloseTo(-Math.PI / 2, 6); // Tsolenka's map has north to the left
   });
-  it('no two root flatten bands overlap, except the one seam the data pass owns (Luna River Crossroads beside Vallaki)', () => {
-    expect(atlas.bandOverlaps.map((o) => o.scenes)).toEqual([['ch02/P', 'ch05/N']]);
-    expect(atlas.bandOverlaps[0].gapFt).toBeGreaterThan(0); // the maps themselves do not overlap, only their bands
+  it('no two root flatten bands overlap, except the seam the data pass owns (Luna River Crossroads beside Vallaki) and the lakeshore beside Vallaki', () => {
+    expect(atlas.bandOverlaps.map((o) => o.scenes)).toEqual([['ch02/L', 'ch05/N'], ['ch02/P', 'ch05/N']]);
+    for (const o of atlas.bandOverlaps) expect(o.gapFt).toBeGreaterThan(0); // the maps themselves do not overlap, only their bands
+  });
+  it("Lake Zarovich's map stands on the lake's south shore at the lake's level, beside Vallaki (not on the survey's hump in the lake)", () => {
+    const w = barovia as unknown as WorldData, L = atlas.scenes['ch02/L'], N = atlas.scenes['ch05/N'], pin = w.pins.find((q) => q.key === 'L')!;
+    expect(L.placement.position[1]).toBeCloseTo(pin.groundFt!, 6);
+    // both maps' bases agree, so the land between them is one level
+    expect(Math.abs(L.placement.position[1] + L.elevationFt - (N.placement.position[1] + N.elevationFt))).toBeLessThan(0.5);
+    // the map's shore line (its water room's south edge, ~185 ft south of its centre) lies on the lake's drawn shore
+    const lake = w.lakes.find((l) => /Zarovich/.test(l.name))!, [mx, my] = pin.pos;
+    const shoreY = lake.center[1] + lake.r[1] * Math.sqrt(1 - ((mx - lake.center[0]) / lake.r[0]) ** 2);
+    expect(Math.abs(my + 185 / 5280 - shoreY) * 5280).toBeLessThan(60);
   });
   it('blowouts more than 1.5× their plot are listed as warnings (the Vallaki buildings, the church, Death House)', () => {
     const big = scenes.filter((s) => (s.blowout ?? 0) > 1.5).map((s) => s.path).sort();

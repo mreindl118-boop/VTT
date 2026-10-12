@@ -3,8 +3,9 @@
 One continuous environment: from a 3D view of the whole valley the DM zooms in; as the camera nears a place its map
 streams in at its true position and orientation; zoom into a town's building and its floors appear in place inside
 the town; zoom out and it folds back up. This document is the reference for the frames, the atlas, the thresholds,
-the budgets and the fallback. It grows with the build steps; today it covers **step 0: frames and the atlas** and
-**step 1: the placement seam** (shader basis, floating origin, scene ↔ drawn conversions).
+the budgets and the fallback. It grows with the build steps; today it covers **step 0: frames and the atlas**,
+**step 1: the placement seam** (shader basis, floating origin, scene ↔ drawn conversions) and **step 2: the valley**
+(the world stage, every pin's map opening in place, flights in and out, the switch, both screens).
 
 ## Frames (`app/src/core/frames.ts`, pure, unit-tested in `tests/frames.test.ts`)
 
@@ -20,7 +21,9 @@ All frames are plan feet, x east, z south, y up, **north = −z**, exactly as sc
 
 **World frame W.** A world.json point (mx, my) in miles → `Wx = (mx − cx)·MI_FT`, `Wz = (my − cy)·MI_FT` with (cx, cy)
 the centre of `world.bounds` (`worldOfMiles`). Ground: `groundY = heightAt(mx, my) · RELIEF`; a pin's ground adds its
-`heightFt` (`pinY`: Ravenloft's thousand-foot Pillarstone).
+`heightFt` (`pinY`: Ravenloft's thousand-foot Pillarstone). A pin may carry `groundFt`, its ground in drawn feet, where
+the heightfield is wrong for it: Lake Zarovich's map stands on the lake's south shore at the lake's level (4.2 ft, as
+Vallaki beside it), not on the survey's hump inside the lake.
 
 **Yaw.** `yawOf(north)` is the three.js `rotation.y` that turns a level's north onto world north: `'-z' → 0`,
 `'+z' → π`, `'-x' → −π/2`, `'+x' → +π/2`. A plan point turns as three.js turns it: `(x cos θ + z sin θ, −x sin θ + z cos θ)`.
@@ -94,12 +97,62 @@ the identity and nothing renders differently.
 - **Shader basis.** `fogUniforms.uCovBasis` (a `Matrix3`, identity) maps world xz to the active scene's plan xz
   (`covBasisOf` in frames.ts; `covUv` mirrors the shader in TS). `mistCoverage()` and the grid shader apply it before
   `uCovOrigin`/`uCovSize` and the grid origin, so fog of war and the grid stay in scene feet on a turned, moved scene.
-- **Continuous-world camera** (`World.setNested`, off by default until step 2): far plane 300,000 ft, `maxDistance`
-  120,000 ft (`frameLevel` stops lowering it), `zoomToCursor`, the mist's pull-back floor 0.004 instead of 0.12
-  (identical below ~2,170 ft), and the pitch floor rising from 0.46π (outdoors) to 0.3π between 5,000 and 20,000 ft.
+- **Continuous-world camera** (`World.setNested`, on whenever a map stands in the valley): far plane 300,000 ft,
+  `maxDistance` 120,000 ft (`frameLevel` stops lowering it; the stage raises it to fit the whole valley), the mist's
+  pull-back floor 0.0008 instead of 0.12 (identical below ~2,170 ft; the mist between the eye and the ground stays as
+  thick as over a map out to 325,000 ft), and the pitch floor rising from 0.46π (outdoors) to 0.3π between 5,000 and
+  20,000 ft. It leaves `zoomToCursor` alone: the wheel and a pinch zoom toward the pointer on every map, in the valley
+  or not (the zoom fix), so a legacy map opened after the valley keeps it.
   `World.flyTo(target, dist, ms?)` glides for 420–900 ms by the log of the zoom ratio and the ground covered.
 - **Test hook.** `__mistlab.setPlacement([x, y, z], rotationY, reanchor = true)` stands the active scene elsewhere and
   keeps the camera's view of it; `__mistlab.placement`, `toWorld`, `toLocal` and `anchor` expose the seam.
+
+## The valley (step 2)
+
+A pin's root map (atlas `depth 0`, not an orphan, with a pin in the open campaign) opens **in place**: `App.place`
+builds the campaign's `WorldStage` once (render/worldstage.ts; the land, aprons, ribbons and lakes from
+render/worldland.ts; the proxies and sky from render/worldproxies.ts), stands the map at its atlas placement
+(`placeRoot`), hides its proxy (`setResident`), turns on the continuous-world camera and moves the floating origin onto
+the map (`reanchor`), so the map draws exactly where it always did and the valley round it. Area maps, buildings and
+`dev/*` still open the legacy way in this step (step 4 hangs children in their towns).
+
+| part | where | what |
+|---|---|---|
+| land | `worldland.buildLand` | the heightfield at 330 ft (the world lattice ×2), every footprint flattened to its base (120–900 ft, a crag 320–1,400 ft), lakes cut to their level, a coarse skirt that falls away 1,200 ft below the valley over 3 miles into the mist (the valley stands like an island; the heightfield's edge is not repeated as a shelf); snow above 4,200 ft except on steep faces, where the rock shows |
+| aprons | `buildAprons` | every footprint's rings out to 3,000 ft, one mesh, present whether or not the map is open (nothing changes shape when it opens) |
+| roads, rivers, lakes, Bluto's boat, crags | `worldPaths`, `buildRibbons`, `buildWater`, `buildCrag` | drawn once for the region; roads stop at each map's road exits; a lakeshore map's water part reads as water |
+| forest | `WorldStage.fillForest` | one instanced pool of 12,000 pines (6,000 when `navigator.deviceMemory < 4`), refilled per one-mile tile round the target, hidden past 25,000 ft |
+| proxies | `worldproxies.siteMassing` | each place's massing at true scale in two shared meshes; a place's faces collapse while its map is open |
+| names | `WorldStage` labels | `N · Town of Vallaki` over each place in the valley and road bands, decluttered; players see only revealed places; the DM taps one to fly there and open its map (`onPick`) |
+| sky, party | `buildSky`, `setParty` | the moon and sun round the eye; the `&` on the land when the party's place is not the open map |
+
+**Camera.** `WorldStage.fitCamera` sets the far limit to frame the whole valley at this screen's shape (161,000 ft on an
+iPad in landscape, more on a phone in portrait; never under 120,000) and the far plane past its far side. Off the open
+map the camera's target rides on the ground (`App.followGround`: a pan onto Mount Baratok lifts it onto the mountain,
+the eye keeps its distance), so zooming in there comes down onto the land; on the map the level's floor holds it.
+Zoom bands on `body[data-band]`: valley (under 0.02 px/ft), road (under 0.1), town (under 1), map.
+
+**Flying.** `App.open(path)` from one pin's map to another glides (`World.flyTo`: 420–900 ms by the log of the zoom
+ratio and the ground covered, rising over the middle of a long flight) and **resolves on arrival** (`World.settled()`,
+capped at 4 s for a hidden tab); `World.flights` counts the glides. Out: zoom out to the far limit (button, wheel or
+pinch) and the chip offers *Zoom out to the whole valley* (`frameWorld('fly')`); at the whole valley the next one offers
+the world map sheet, as before. In: tap a place's name. The world map sheet, the library and `?scene=` open maps with
+`App.open`, so they fly too.
+
+**The switch.** View › *Continuous world* (`App.setNestedMode`) writes `localStorage mistlab.nested` and opens the open
+map again the other way on the same level; off disposes the stage. `?nested=0|1` overrides the device's choice at
+load. The Player Display follows the DM's: the `state` and `layout` messages carry `nested`, the display reopens the
+map the same way (camera messages are absolute feet, so both ends must stand in the same world), and on each camera
+message it re-reads the zoom band, the valley's forest and the names.
+
+**Budgets measured** (swiftshader, 1180 × 820): the whole valley with the village open draws in under 70 calls and
+300k triangles (asserted); with Vallaki or Krezk open the town is still fully drawn at valley zoom (147 calls, 1.27M
+triangles) until step 3 streams it out. The stage is about 214k triangles and builds in about 0.4 s.
+
+Known for later steps: the minimap still shows the open map's plan at valley zoom (step 6), the world map button still
+opens the 2D sheet (step 6 makes it the nested map; the sheet stays as the fallback), proxies collapse at once rather
+than fading (step 3), the square grid of a big map (Vallaki, Krezk) draws its placement squares over the whole map at
+town zoom exactly as it does the legacy way.
 
 ## Verification
 
@@ -118,6 +171,15 @@ the identity and nothing renders differently.
   players' fog land on the unplaced pixels (≤ 3 % off by a pixel); `screenOf` lands on the party token as the scene
   graph draws it; the secret door is pixel-identical to wall at t = 0 in every view; taps select, walls block, the door
   lets the party through, the ruler reads 20 ft; `reanchor` far away and back changes no pixel; `setNested` on and off.
+- `e2e/world.spec.ts` (step 2): the whole valley from above with every other place as its proxy within the draw budget;
+  the land flush with every placed map; the village on its pin with the origin on it and Tsolenka turned to world north
+  (the compass turns by +π/2: clockwise on screen, the opposite sign of the three.js yaw); pin maps of both campaigns
+  open in their own valley while area maps, buildings and dev maps keep the legacy way, zoom-to-cursor staying on; the
+  whole valley fits on screen, Krezk's name flies into its map in place, the chip flies back out to the valley and then
+  offers the world map; the View-menu switch off and on, remembered over a reload, with the Player Display following
+  (same mode, same absolute camera, same band); the target riding Mount Baratok, the halved forest, the players' names.
+- `tests/atlas.test.ts`: Lake Zarovich's map on the south shore at the lake's level beside Vallaki (a second, deliberate
+  band seam: both bases agree).
 
 ## Data
 
@@ -132,6 +194,6 @@ backdrop. The church's map is in darkness (`ambient`), so it has no backdrop of 
 
 ## Fallback
 
-`?nested=0` (and the View-menu toggle, once step 2 lands) runs today's path byte for byte: one map at a time, the
+`?nested=0` (and the View menu's *Continuous world*) runs today's path byte for byte: one map at a time, the
 backdrop to the horizon, the parent's surroundings round an area map. Scenes with no pin and no parent (`dev/*`)
 always open that way.

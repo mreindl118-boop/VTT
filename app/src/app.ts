@@ -93,8 +93,9 @@ const storeKey = (campaignId: string) => (campaignId === 'cos' ? 'campaign:defau
 
 export class App {
   readonly world: World;
-  /** The continuous world: pin maps open in place inside the valley (see render/worldstage.ts). */
-  readonly nested = nestedPref();
+  /** The continuous world: pin maps open in place inside the valley (see render/worldstage.ts). The View menu's
+   *  'Continuous world' switches it (setNestedMode); the Player Display follows the DM's. */
+  nested = nestedPref();
   /** The campaign's valley, built the first time one of its pin maps opens in the continuous world. */
   stage?: WorldStage;
   /** The open map stands in the valley (placed at its pin), rather than alone in the mist with its own backdrop. */
@@ -169,7 +170,7 @@ export class App {
   constructor(host: HTMLElement, readonly mode: Mode) {
     this.world = new World(host);
     this.channel = new Channel((m) => this.onMsg(m));
-    this.world.onCamera = () => { this.sendCamera(); this.labelDensity(); this.onCameraUi?.(); };
+    this.world.onCamera = () => { this.followGround(); this.sendCamera(); this.labelDensity(); this.onCameraUi?.(); };
     this.onCameraUi = null;
     // the floating origin moved: the scene's drawn placement, the coverage basis and the clip plane follow
     // (while a new map is being placed the level is still the old map's: the slider waits for setLevel)
@@ -213,6 +214,24 @@ export class App {
     const loaded = await this.load(path);
     this.place(loaded);
     this.activate(loaded, { levelId, frame: fly ? 'fly' : true });
+    // it resolves when the camera has arrived (a glide across the valley), or at once
+    if (fly) await this.world.settled();
+  }
+
+  /** Switch the continuous world on or off (the View menu's 'Continuous world'; remembered on this device): the open
+   *  map opens again the other way, on the same level. Off disposes the valley. */
+  async setNestedMode(on: boolean, remember = true): Promise<void> {
+    if (remember) try { localStorage.setItem('mistlab.nested', on ? '1' : '0'); } catch { /* private mode: this session only */ }
+    if (on === this.nested) return;
+    this.nested = on;
+    if (this.cur) await this.open(this.cur.path, this.levelId);
+    this.dropStage();
+    this.layoutChanged();
+  }
+  /** With the continuous world off, the valley goes (its GPU buffers, its labels). */
+  private dropStage(): void {
+    if (this.nested || !this.stage || this.staged) return;
+    this.stage.dispose(); this.stage = undefined;
   }
 
   /** The atlas entry a map is placed by in the continuous world: a pin's root map of the open campaign. Children and
@@ -302,12 +321,16 @@ export class App {
     this.context?.removeFromParent(); this.context = undefined;
     const entry = this.stageEntry(loaded.path);
     if (entry) {
-      if (!this.stage) { this.stage = new WorldStage(this.world, this.campaign, worldOf(this.campaign)); this.world.root.add(this.stage.root); }
+      if (!this.stage) {
+        this.stage = new WorldStage(this.world, this.campaign, worldOf(this.campaign)); this.world.root.add(this.stage.root);
+        this.stage.onPick = (p) => { if (this.mode === 'dm' && !this.restricted) this.onPlacePick?.(p); };
+      }
       this.stage.root.visible = this.renderMode === 'normal';
       this.staged = true;
       this.world.setNested(true);
       this.stage.placeRoot(loaded, entry);
       this.stage.setResident(new Set([loaded.path]));
+      this.stage.fitCamera(); // the far limit frames the whole valley
       // the floating origin moves onto the map: it is drawn where it always was, the valley round it
       this.world.reanchor(loaded.root.position.clone());
       return;
@@ -355,6 +378,22 @@ export class App {
     if (opts.frame === 'fly') this.frameLevel(this.camPreset, true);
     this.syncStage();
     this.onChange?.();
+  }
+
+  /** A place's name was tapped in the valley (the DM's view): main.ts opens its map, which flies there. */
+  onPlacePick: ((path: string) => void) | null = null;
+
+  /** In the valley the camera's target rides on the ground: off the open map it follows the land (a pan onto a
+   *  mountain lifts it), so zooming in there comes down onto the ground and never under it. On the map the level's
+   *  floor holds it, as always. */
+  followGround(): void {
+    const st = this.stage, c = this.cur; if (!st || !this.staged || !c || this.world.flying || this.renderMode !== 'normal') return;
+    const w = this.world, t = w.controls.target, p = this.toLocal3(t), e = extentOf(groundOf(c.scene));
+    if (p.x >= e.minX - 20 && p.x <= e.maxX + 20 && p.z >= e.minZ - 20 && p.z <= e.maxZ + 20) return;
+    const abs = w.toAbsolute(t), y = st.groundAt(abs.x, abs.z) - w.anchor.y;
+    if (!Number.isFinite(y) || Math.abs(y - t.y) < 1) return;
+    w.camera.position.y += y - t.y; t.y = y;
+    w.camera.updateMatrixWorld(); w.invalidate();
   }
 
   /** The valley follows the table: labels by what the players know, the party's marker where it stands. */
@@ -1517,8 +1556,8 @@ export class App {
   private broadcast(): void {
     if (this.mode !== 'dm' || !this.cur) return;
     // the room the DM entered from travels too, so the display draws the surroundings round the same spot
-    this.channel.send({ kind: 'state', state: this.state, location: this.cur.path, level: this.levelId, from: this.enteredFrom?.child === this.cur.path ? this.enteredFrom : undefined });
-    this.channel.send({ kind: 'layout', grid: this.gridMode === 'hex' ? 'hex' : 'square', gridOn: this.gridMode !== 'off', lowWalls: this.lowWalls, cut: this.cutFt ?? undefined, fog: this.world.fogOn });
+    this.channel.send({ kind: 'state', state: this.state, location: this.cur.path, level: this.levelId, from: this.enteredFrom?.child === this.cur.path ? this.enteredFrom : undefined, nested: this.nested });
+    this.channel.send({ kind: 'layout', grid: this.gridMode === 'hex' ? 'hex' : 'square', gridOn: this.gridMode !== 'off', lowWalls: this.lowWalls, cut: this.cutFt ?? undefined, fog: this.world.fogOn, nested: this.nested });
     this.sendCamera(true);
   }
   layoutChanged(): void { this.applySlider(); this.broadcast(); }
@@ -1538,9 +1577,14 @@ export class App {
   private async onMsg(m: Msg): Promise<void> {
     if (this.mode === 'dm') { if (m.kind === 'hello') this.broadcast(); return; }
     if (m.kind === 'state') {
-      if (!this.cur || this.cur.path !== m.location) { this.enteredFrom = m.from; await this.open(m.location, m.level); }
+      // the display stands in the same world as the DM (camera messages are absolute feet): the valley or the old way
+      const flip = m.nested !== undefined && m.nested !== this.nested;
+      if (flip) this.nested = !!m.nested;
+      if (!this.cur || this.cur.path !== m.location || flip) { this.enteredFrom = m.from; await this.open(m.location, m.level); }
+      this.dropStage();
       this.state = { ...newCampaign(this.campaign.id), ...m.state };
       this.applySky();
+      this.syncStage(); // the places the players know, the party's marker
       if (this.levelId !== m.level) this.setLevel(m.level);
       else { this.syncTokens(); this.recompute(); }
     } else if (m.kind === 'camera' && m.locked) {
@@ -1548,6 +1592,7 @@ export class App {
       this.world.toAnchored(new THREE.Vector3(...m.target), this.world.controls.target);
       this.world.camera.lookAt(this.world.controls.target);
       this.world.invalidate();
+      this.labelDensity(); // the zoom band, the valley's forest and names follow the DM's camera here too
     } else if (m.kind === 'layout') {
       this.gridMode = m.gridOn ? m.grid : 'off';
       this.lowWalls = m.lowWalls; this.cutFt = m.cut; if (m.fog !== undefined) this.world.setFog(m.fog);

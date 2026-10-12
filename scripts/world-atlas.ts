@@ -101,7 +101,7 @@ export function buildAtlas(repo = REPO): Atlas {
       if (root) rootOf.set(`${c.id}/${pin.key}`, root);
       const proxyOnly = !root;
       if (listed.length && !root && !listed.some((p) => scenes.has(p) && pinOf.get(p)?.key !== pin.key)) errors.push(`${c.id}: pin ${pin.key} lists ${listed.join(', ')} but none is a root (no parent, has terrain)`);
-      atlas.pins.push({ campaign: c.id, key: pin.key, name: pin.name, type: pin.type, pos: pin.pos, world: worldOfMiles(w, pin.pos) as [number, number], groundY: groundY(w, pin.pos), ...(pin.heightFt ? { heightFt: pin.heightFt } : {}), scenes: listed, ...(root ? { root } : {}), proxyOnly });
+      atlas.pins.push({ campaign: c.id, key: pin.key, name: pin.name, type: pin.type, pos: pin.pos, world: worldOfMiles(w, pin.pos) as [number, number], groundY: pin.groundFt ?? groundY(w, pin.pos), ...(pin.heightFt ? { heightFt: pin.heightFt } : {}), scenes: listed, ...(root ? { root } : {}), proxyOnly });
     }
   }
 

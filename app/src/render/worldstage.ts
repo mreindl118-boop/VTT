@@ -25,6 +25,8 @@ export const ATLAS = ATLAS_JSON as unknown as Atlas;
 
 /** Forest: pines per one-mile tile, at most; the pool covers the 3 × 3 tiles round the camera's target. */
 const TILE_FT = MI_FT, PER_TILE = 1333, POOL = 12000, CANDIDATES = 2600;
+/** A device that says it has under 4 GB (navigator.deviceMemory: Chrome, Android) gets half the forest. */
+const lowMemory = (): boolean => { const m = (globalThis.navigator as { deviceMemory?: number } | undefined)?.deviceMemory; return m !== undefined && m < 4; };
 /** Above this camera distance the forest goes (the land's own forest colour carries the woods). */
 const FOREST_MAX_DIST = 25000;
 /** Road rides through the wood: a mask of cells this size along every road. */
@@ -59,11 +61,16 @@ export class WorldStage {
   private tiles = new Map<string, { m: Float32Array; c: Float32Array; n: number }>();
   private tileKey = '';
   private declutterQ = 0;
+  /** Pines a tile holds at most, and the pool (halved on a low-memory device). */
+  readonly perTile: number;
+  /** A place label was tapped (the DM's): fly there and open its map. */
+  onPick: ((path: string) => void) | null = null;
   /** Milliseconds the stage took to build (the HUD shows it). */
   readonly buildMs: number;
 
   constructor(readonly world: World, readonly campaign: Campaign, readonly data: WorldData) {
     const t0 = performance.now();
+    this.perTile = lowMemory() ? Math.floor(PER_TILE / 2) : PER_TILE;
     this.root.name = 'world-stage';
     this.root.userData.role = 'stage';
     const roots = Object.values(ATLAS.scenes).filter((e) => e.campaign === campaign.id && e.depth === 0 && !e.orphan && e.pin && e.worldBounds);
@@ -88,6 +95,10 @@ export class WorldStage {
       this.proxies.set(site.id, g); this.root.add(g);
       const lb = world.label(`${pin.key} · ${pin.name}`, undefined, 'place');
       lb.position.set(x, site.y + 60, z); lb.userData.role = 'stage'; lb.element.dataset.key = pin.key;
+      // a tap on the name flies there and opens the place's map (a pin that repeats another's opens that map)
+      const go = pin.root ?? pin.scenes[0];
+      lb.element.dataset.path = go; lb.element.dataset.tip = pin.name; lb.element.dataset.tipSub = 'Fly there and open its map';
+      lb.element.addEventListener('click', (ev) => { ev.stopPropagation(); this.onPick?.(go); });
       labels.add(lb); this.labels.push({ obj: lb, key: pin.key, pri: /settlement|castle/.test(pin.type) ? 0 : pin.root ? 1 : 2 });
     }
     for (const [name, list] of Object.entries(parts)) if (list.length) {
@@ -106,8 +117,8 @@ export class WorldStage {
     // the forest pool
     const tree = merge([pineTier(6.2, 16, 6, 0).translate(0, 12, 0), pineTier(3.8, 14, 6, 1).translate(0, 21, 0)]);
     const fm = new THREE.MeshLambertMaterial({ color: '#ffffff', flatShading: true, fog: true }); setSurface(fm, 'foliage'); patchFog(fm, true);
-    this.forest = new THREE.InstancedMesh(tree, fm, POOL); this.forest.name = 'forest'; this.forest.count = 0; this.forest.frustumCulled = false;
-    this.forest.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(POOL * 3), 3);
+    this.forest = new THREE.InstancedMesh(tree, fm, lowMemory() ? POOL / 2 : POOL); this.forest.name = 'forest'; this.forest.count = 0; this.forest.frustumCulled = false;
+    this.forest.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(this.forest.instanceMatrix.count * 3), 3);
     this.forest.userData.role = 'stage';
     this.root.add(this.forest);
     this.roadMask = this.maskRoads();
@@ -163,11 +174,37 @@ export class WorldStage {
   /** Exactly these maps are drawn: their proxies go, every other root's proxy shows. */
   setResident(paths: Set<string>): void { for (const id of this.proxies.keys()) if (!id.includes('@')) this.showProxy(id, !paths.has(id)); }
 
-  /** Frame the whole valley (the camera's widest view). */
-  frameWorld(animate = false): void {
-    const b = this.bounds, a = this.world.anchor, f = this.land.field;
-    const y = f.height((b.minX + b.maxX) / 2, (b.minZ + b.maxZ) / 2);
-    this.world.frame({ minX: b.minX - a.x, minZ: b.minZ - a.z, maxX: b.maxX - a.x, maxZ: b.maxZ - a.z }, y - a.y, 'tabletop', animate);
+  /** How far the camera stands to see the whole valley at this screen's shape (world.frame's fit). */
+  fitDistance(): number {
+    const b = this.bounds, cam = this.world.camera, r = Math.hypot(b.maxX - b.minX, b.maxZ - b.minZ) / 2 + 4;
+    const vHalf = THREE.MathUtils.degToRad(cam.fov / 2), hHalf = Math.atan(Math.tan(vHalf) * cam.aspect);
+    return (r / Math.sin(Math.min(vHalf, hHalf))) * 0.86;
+  }
+  private fitAspect = 0;
+  /** The far limit frames the whole valley (never nearer than the continuous world's 120,000 ft), and the far plane
+   *  reaches past its far side. Re-read when the screen changes shape. */
+  fitCamera(): void {
+    const w = this.world, d = this.fitDistance(), b = this.bounds;
+    this.fitAspect = w.camera.aspect;
+    w.controls.maxDistance = Math.max(120000, Math.ceil(d)); // framing the valley is the far limit: one more zoom out asks for the world map
+    const far = Math.max(300000, Math.ceil(w.controls.maxDistance + Math.hypot(b.maxX - b.minX, b.maxZ - b.minZ)));
+    if (w.camera.far !== far) { w.camera.far = far; w.camera.updateProjectionMatrix(); }
+  }
+  /** Where the camera stands to see the whole valley: the region's middle, on the land there (anchored). */
+  private valleyCentre(): THREE.Vector3 {
+    const b = this.bounds, a = this.world.anchor, cx = (b.minX + b.maxX) / 2, cz = (b.minZ + b.maxZ) / 2;
+    return new THREE.Vector3(cx - a.x, this.land.field.height(cx, cz) - a.y, cz - a.z);
+  }
+  /** Frame the whole valley (the camera's widest view), at once, gliding there, or flying (a glide that may rise). */
+  frameWorld(animate: boolean | 'fly' = false): void {
+    this.fitCamera();
+    const b = this.bounds, c = this.valleyCentre(), hw = (b.maxX - b.minX) / 2, hd = (b.maxZ - b.minZ) / 2;
+    this.world.frame({ minX: c.x - hw, minZ: c.z - hd, maxX: c.x + hw, maxZ: c.z + hd }, c.y, this.world.preset, animate);
+  }
+  /** The camera sees the whole valley from about its middle (what the zoom-out chip asks before offering more). */
+  get framed(): boolean {
+    const w = this.world, c = this.valleyCentre(), t = w.controls.target;
+    return Math.hypot(t.x - c.x, t.z - c.z) < 0.08 * Math.hypot(this.bounds.maxX - this.bounds.minX, this.bounds.maxZ - this.bounds.minZ) && w.camera.position.distanceTo(t) > 0.9 * this.fitDistance();
   }
 
   // ------------------------------------------------------------------ the view
@@ -175,6 +212,7 @@ export class WorldStage {
   /** The camera moved: the forest pool follows the target, labels follow the reveals. */
   onView(o: { restricted: boolean; revealed: Set<string> }): void {
     const w = this.world, tgt = w.toAbsolute(w.controls.target), dist = w.camera.position.distanceTo(w.controls.target);
+    if (w.camera.aspect !== this.fitAspect) this.fitCamera();
     this.forest.visible = dist < FOREST_MAX_DIST;
     if (this.forest.visible) this.fillForest(tgt.x, tgt.z);
     for (const l of this.labels) l.obj.visible = !o.restricted || o.revealed.has(l.key);
@@ -235,10 +273,10 @@ export class WorldStage {
     const f = this.land.field, t = f.terrain, b = this.bounds, T = this.campaign.theme;
     let seed = ((tx * 73856093) ^ (tz * 19349663)) >>> 0; seed = (seed % 2147483646) + 1;
     const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
-    const m = new Float32Array(PER_TILE * 16), c = new Float32Array(PER_TILE * 3), M = new THREE.Matrix4(), q = new THREE.Quaternion(), s = new THREE.Vector3(), p = new THREE.Vector3(), up = new THREE.Vector3(0, 1, 0);
+    const PT = this.perTile, m = new Float32Array(PT * 16), c = new Float32Array(PT * 3), M = new THREE.Matrix4(), q = new THREE.Quaternion(), s = new THREE.Vector3(), p = new THREE.Vector3(), up = new THREE.Vector3(0, 1, 0);
     const cols = [new THREE.Color(T.forest[0]), new THREE.Color(T.forest[1])];
     let n = 0;
-    for (let i = 0; i < CANDIDATES && n < PER_TILE; i++) {
+    for (let i = 0; i < CANDIDATES && n < PT; i++) {
       const x = (tx + rnd()) * TILE_FT, z = (tz + rnd()) * TILE_FT, r0 = rnd(), r1 = rnd(), r2 = rnd(), r3 = rnd();
       if (x < b.minX || x > b.maxX || z < b.minZ || z > b.maxZ) continue;
       if (this.onRoad(x, z) || f.lakeAt(x, z) >= 0) continue;
@@ -264,7 +302,7 @@ export class WorldStage {
     const mat = this.forest.instanceMatrix.array as Float32Array, col = this.forest.instanceColor!.array as Float32Array;
     let n = 0;
     for (let dz = -1; dz <= 1; dz++) for (let dx = -1; dx <= 1; dx++) {
-      const t = this.tile(tx + dx, tz + dz), k = Math.min(t.n, POOL - n);
+      const t = this.tile(tx + dx, tz + dz), k = Math.min(t.n, this.forest.instanceMatrix.count - n);
       mat.set(t.m.subarray(0, k * 16), n * 16); col.set(t.c.subarray(0, k * 3), n * 3); n += k;
     }
     this.forest.count = n;

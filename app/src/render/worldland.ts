@@ -48,6 +48,8 @@ const HOLE = APRON_REACH - 500;
 const SUB = 2;
 /** The skirt round the region: this many miles, in this many coarse steps. */
 const SKIRT_MI = 3, SKIRT_STEPS = 6;
+/** The skirt's outer rim sinks to this height (ft), under the lowest of the valley. */
+const SKIRT_FLOOR = -1200;
 /** A lake's shore rises from the water to the surveyed land between its ellipse and this many times its radii. */
 export const SHORE = 1.3;
 /** Where the high ground turns white (ft). */
@@ -160,7 +162,14 @@ function colourer(field: LandField, theme: Theme): (x: number, z: number, y: num
     }
     for (const [qx, qz] of crags) { const dd = Math.hypot(x - qx, z - qz) / MI_FT; if (dd < 0.3) c.lerp(rock, 1 - dd / 0.3); }
     if (n.i >= 0) { const st = field.sites[n.i]; c.lerp(st.crag ? rock : groundC(st.ground), st.crag ? 1 - smooth(320, 1600, n.d) : 1 - smooth(120, 1400, n.d)); }
-    if (y > SNOW_LINE) c.lerp(snowC, Math.min(1, (y - SNOW_LINE) / 1200));
+    // a lakeshore map's water part (the land is not cut there: the map carries its own water) reads as water
+    if (n.i >= 0 && n.d < FLATTEN_IN && field.lakeAt(x, z) >= 0) c.copy(waterC);
+    // snow lies on the heights, but not on their steep faces: there the rock shows, so a peak reads by its ridges
+    if (y > SNOW_LINE) {
+      const e = 260, gx = (field.ground(x + e, z) - field.ground(x - e, z)) / (2 * e), gz = (field.ground(x, z + e) - field.ground(x, z - e)) / (2 * e);
+      c.lerp(rock, 0.35);
+      c.lerp(snowC, Math.min(1, (y - SNOW_LINE) / 1200) * (1 - 0.8 * smooth(0.25, 0.7, Math.hypot(gx, gz))));
+    }
     // past the region's edge the land fades into the mist (the skirt)
     const out = Math.max(0, b.minX - mx, mx - b.maxX, b.minY - my, my - b.maxY);
     if (out > 0) c.lerp(mist, smooth(0, SKIRT_MI * 0.8, out));
@@ -185,9 +194,13 @@ function buildLattice(field: LandField, colour: ReturnType<typeof colourer>): TH
   const xs = axis(W.bounds.minX, W.bounds.maxX), ys = axis(W.bounds.minY, W.bounds.maxY), nx = xs.length, ny = ys.length;
   const P = new Float32Array(nx * ny * 3), C = new Float32Array(nx * ny * 3), hole = new Uint8Array(nx * ny);
   for (let r = 0; r < ny; r++) for (let k = 0; k < nx; k++) {
-    const [x, z] = field.feet([xs[k], ys[r]]), n = field.nearest(x, z), y = field.latticeY(x, z, n.d), v = r * nx + k;
+    const [x, z] = field.feet([xs[k], ys[r]]), n = field.nearest(x, z), v = r * nx + k;
+    // past the region's edge the heightfield only repeats its edge (stripes of snow on a flat shelf): the skirt falls
+    // away instead, down into the mist, so the valley stands like an island in it, ringed by its own mountains
+    const out = Math.max(0, W.bounds.minX - xs[k], xs[k] - W.bounds.maxX, W.bounds.minY - ys[r], ys[r] - W.bounds.maxY), fall = smooth(0, SKIRT_MI, out);
+    const y0 = field.latticeY(x, z, n.d), y = y0 + (SKIRT_FLOOR - y0) * fall;
     P[v * 3] = x; P[v * 3 + 1] = y; P[v * 3 + 2] = z;
-    const c = colour(x, z, field.height(x, z), n); C[v * 3] = c.r; C[v * 3 + 1] = c.g; C[v * 3 + 2] = c.b;
+    const h = field.height(x, z), c = colour(x, z, h + (SKIRT_FLOOR - h) * fall, n); C[v * 3] = c.r; C[v * 3 + 1] = c.g; C[v * 3 + 2] = c.b;
     hole[v] = n.d < HOLE ? 1 : 0;
   }
   const idx: number[] = [];
@@ -398,8 +411,8 @@ export function buildLand(world: WorldData, sites: LandSite[], theme: Theme): La
   const paths = worldPaths(field);
   const rib = [...paths.rivers, ...paths.roads];
   if (rib.length) group.add(buildRibbons(field, rib));
-  group.add(...buildWater(field));
-  for (const s of sites) if (s.crag) group.add(...buildCrag(field, s));
+  for (const o of buildWater(field)) group.add(o); // a region with no lakes adds nothing (add() with no argument logs an error)
+  for (const s of sites) if (s.crag) for (const o of buildCrag(field, s)) group.add(o);
   group.traverse((o) => { o.userData.role = 'stage'; o.matrixAutoUpdate = false; o.updateMatrix(); });
   return { group, field, paths };
 }

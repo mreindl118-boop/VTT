@@ -305,13 +305,13 @@
    "type": "lake",
    "pos": [
     6.66,
-    2.97
+    3.4
    ],
    "world": [
     -9609.6,
-    -17635.2
+    -15364.8
    ],
-   "groundY": 350.58,
+   "groundY": 4.2,
    "scenes": [
     "ch02/L"
    ],
@@ -1454,8 +1454,8 @@
    "placement": {
     "position": [
      -9884.6,
-     350.58,
-     -17935.2
+     4.2,
+     -15664.8
     ],
     "rotationY": 0
    },
@@ -1464,9 +1464,9 @@
    "pin": "L",
    "worldBounds": {
     "minX": -9884.6,
-    "minZ": -17935.2,
+    "minZ": -15664.8,
     "maxX": -9334.6,
-    "maxZ": -17335.2
+    "maxZ": -15064.8
    },
    "bandFt": 900
   },
@@ -3800,6 +3800,14 @@
   {
    "campaign": "cos",
    "scenes": [
+    "ch02/L",
+    "ch05/N"
+   ],
+   "gapFt": 320
+  },
+  {
+   "campaign": "cos",
+   "scenes": [
     "ch02/P",
     "ch05/N"
    ],
@@ -3817,6 +3825,7 @@
   "ch05/N6: its map (90 × 145 ft) is 3.16× the plot room N6 gives it in ch05/N (38 × 38 ft): neighbours inside that extent are hidden under it",
   "ch05/N7: its map (105 × 80 ft) is 3.44× the plot room N7 gives it in ch05/N (24 × 30 ft): neighbours inside that extent are hidden under it",
   "ch05/N8: its map (230 × 190 ft) is 1.6× the plot room N8 gives it in ch05/N (150 × 110 ft): neighbours inside that extent are hidden under it",
+  "cos: the flatten bands of ch02/L and ch05/N overlap (their maps are 320 ft apart): the land between them blends two bases",
   "cos: the flatten bands of ch02/P and ch05/N overlap (their maps are 792 ft apart): the land between them blends two bases"
  ],
  "errors": []

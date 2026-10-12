@@ -3,9 +3,9 @@ import type { CampaignState } from './campaign';
 
 export type Msg =
   | { kind: 'hello' }
-  | { kind: 'state'; state: CampaignState; location: string; level: string; from?: { parent: string; level: string; key: string; child: string } }
+  | { kind: 'state'; state: CampaignState; location: string; level: string; from?: { parent: string; level: string; key: string; child: string }; nested?: boolean }
   | { kind: 'camera'; pos: [number, number, number]; target: [number, number, number]; locked: boolean }
-  | { kind: 'layout'; grid: 'square' | 'hex'; gridOn: boolean; lowWalls: boolean; cut?: number; fog?: boolean };
+  | { kind: 'layout'; grid: 'square' | 'hex'; gridOn: boolean; lowWalls: boolean; cut?: number; fog?: boolean; nested?: boolean };
 
 export class Channel {
   private bc: BroadcastChannel | null;

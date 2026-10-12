@@ -33,7 +33,7 @@ export interface Bounds { minX: number; minZ: number; maxX: number; maxZ: number
 export interface Placement { position: [number, number, number]; rotationY: number }
 /** What a map's placement needs to know about the map: its open-air level's north, floor height and plan extent. */
 export interface Footprint { north?: North; elevationFt: number; bbox: Bounds }
-export interface PinLike { pos: [number, number]; heightFt?: number }
+export interface PinLike { pos: [number, number]; heightFt?: number; groundFt?: number }
 
 export const IDENTITY: Placement = { position: [0, 0, 0], rotationY: 0 };
 
@@ -57,9 +57,10 @@ export function milesOfWorld(world: Pick<WorldData, 'bounds'>, [wx, wz]: Vec2): 
 export function groundY(world: WorldData, [mx, my]: Vec2): number {
   return terrainOf(world).heightAt(mx, my) * RELIEF;
 }
-/** A pin's ground: the land there plus the crag it stands on (Ravenloft's thousand feet). */
+/** A pin's ground: the land there (or the pin's own `groundFt` where the survey is wrong for it: a lake's shore stands
+ *  at the lake's level) plus the crag it stands on (Ravenloft's thousand feet). */
 export function pinY(world: WorldData, pin: PinLike): number {
-  return groundY(world, pin.pos) + (pin.heightFt ?? 0);
+  return (pin.groundFt ?? groundY(world, pin.pos)) + (pin.heightFt ?? 0);
 }
 
 // ------------------------------------------------------------------ rotation

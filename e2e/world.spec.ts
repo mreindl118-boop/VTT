@@ -232,11 +232,12 @@ test('a placed scene plays like an unplaced one: tap to select, walls block, the
   expect(cam.abs[0] - cam.drawn[0]).toBe(50000);
 });
 
-test('the floating origin moves nothing on screen; the continuous-world camera is off by default', async ({ page }) => {
+test('the floating origin moves nothing on screen; the continuous-world camera is off by default, zoom-to-cursor always on', async ({ page }) => {
   test.setTimeout(180_000);
   await boot(page, '', SCENES[0]);
   const st = await page.evaluate(() => { const w = (window as any).__mistlab.app.world; return { nested: w.nested, far: w.camera.far, max: w.controls.maxDistance, ztc: w.controls.zoomToCursor, root: w.root.parent === w.scene }; });
-  expect(st).toEqual({ nested: false, far: 120000, max: 400, ztc: false, root: true });
+  // zoom-to-cursor is every map's (the zoom fix), not the continuous world's: it stays on through setNested on and off
+  expect(st).toEqual({ nested: false, far: 120000, max: 400, ztc: true, root: true });
   await page.evaluate(() => (window as any).__mistlab.frame('tabletop'));
   await snap(page, 'a');
   // shift the origin far away and back: camera, target and the world root move together
@@ -266,7 +267,7 @@ test('the floating origin moves nothing on screen; the continuous-world camera i
   expect(far.polar).toBeCloseTo(Math.PI * 0.3, 3);
   expect(far.fog).toBeLessThan(0.01);
   const off = await page.evaluate(() => { const w = (window as any).__mistlab.app.world; w.setNested(false); return { far: w.camera.far, max: w.controls.maxDistance, ztc: w.controls.zoomToCursor }; });
-  expect(off).toEqual({ far: 120000, max: 400, ztc: false });
+  expect(off).toEqual({ far: 120000, max: 400, ztc: true });
 });
 
 // ------------------------------------------------------------------ step 2: the valley, maps opening in place
@@ -404,8 +405,14 @@ test('placed at the pin: the village on its pin with the origin on it, Tsolenka 
   expect(nested.staged).toBe(true); expect(legacy.staged).toBe(false);
   expect(nested.rotY).toBeCloseTo(-Math.PI / 2, 9); expect(legacy.rotY).toBe(0);
   expect(nested.az).toBeCloseTo(legacy.az, 9);
+  // the compass (cameraFrame().north) is an angle on screen, clockwise positive. Alone in the mist the pass's north
+  // (−x) points to the left of the screen (−π/2); turned to world north it points up (0). So the compass turns by
+  // +π/2, the opposite sign of the three.js yaw (anticlockwise positive) that carried it there.
+  const wrap = (a: number) => Math.atan2(Math.sin(a), Math.cos(a));
+  expect(wrap(legacy.north - legacy.az)).toBeCloseTo(-Math.PI / 2, 6);
+  expect(wrap(nested.north - nested.az)).toBeCloseTo(0, 6);
   const dn = Math.atan2(Math.sin(nested.north - legacy.north), Math.cos(nested.north - legacy.north));
-  expect(dn).toBeCloseTo(-Math.PI / 2, 6);
+  expect(dn).toBeCloseTo(Math.PI / 2, 6);
 });
 
 test('pin maps of either campaign open in their own valley; area maps, buildings and dev maps keep the legacy way', async ({ page }) => {
@@ -425,12 +432,16 @@ test('pin maps of either campaign open in their own valley; area maps, buildings
   await page.evaluate(() => (window as any).__mistlab.app.open('appB/death-house'));
   expect(await st()).toEqual({ path: 'appB/death-house', staged: false, nested: false, stage: null, anchor: [0, 0, 0], root: [0, 0, 0], backdrop: false });
   expect(await page.evaluate(() => (window as any).__mistlab.app.world.mistFloor.visible)).toBe(true);
-  // from a pin map to the next the camera glides (and the old map's proxy comes back)
+  // zoom-to-cursor is every map's: leaving the valley for a legacy map (setNested(false)) keeps it
+  expect(await page.evaluate(() => (window as any).__mistlab.app.world.controls.zoomToCursor)).toBe(true);
+  // from a pin map to the next the camera glides (and the old map's proxy comes back); open() resolves on arrival
   await page.evaluate(() => (window as any).__mistlab.app.open('ch03/E'));
-  await page.evaluate(() => (window as any).__mistlab.app.open('ch02/G'));
-  const g = await page.evaluate(() => { const m = (window as any).__mistlab; return { flying: m.app.world.flying, e: m.stage.proxies.get('ch03/E').visible, gp: m.stage.proxies.get('ch02/G').visible }; });
-  expect(g).toEqual({ flying: true, e: true, gp: false });
-  await settle(page);
+  const g = await page.evaluate(async () => {
+    const m = (window as any).__mistlab, w = m.app.world, f0 = w.flights;
+    await m.app.open('ch02/G');
+    return { flew: w.flights - f0, flying: w.flying, e: m.stage.proxies.get('ch03/E').visible, gp: m.stage.proxies.get('ch02/G').visible, ztc: w.controls.zoomToCursor };
+  });
+  expect(g).toEqual({ flew: 1, flying: false, e: true, gp: false, ztc: true });
   // framed on the camp's rooms, in the camp's own feet
   const d = await page.evaluate(() => {
     const a = (window as any).__mistlab.app, t = a.toLocal3(a.world.controls.target), ps = a.level.rooms.flatMap((r: any) => r.polygon);
@@ -464,4 +475,150 @@ test('?nested=0 keeps every map the legacy way, and a legacy map draws the same 
   await page.evaluate(() => (window as any).__mistlab.setRenderMode('floorMask'));
   await snap(page, 'mask');
   expect((await diff(page, 'on', 'off', 'mask')).changed).toBeGreaterThan(1500);
+});
+
+// ------------------------------------------------------------------ step 2: flying the valley, the switch, both screens
+
+test('flights: the whole valley fits on screen, a place name flies into its map, the zoom-out chip flies back out', async ({ page }) => {
+  test.setTimeout(420_000);
+  await boot(page, '', VILLAGE);
+  // the widest view frames every place of the campaign, inside the far limit
+  const fit = await page.evaluate(async () => {
+    const m = (window as any).__mistlab, w = m.app.world, st = m.stage;
+    st.frameWorld('fly'); await w.settled(); w.renderNow();
+    const V = w.camera.position.constructor, off: string[] = [];
+    for (const p of m.atlas.pins.filter((q: any) => q.campaign === 'cos')) {
+      const v = new V(p.world[0] - w.anchor.x, st.groundAt(p.world[0], p.world[1]) - w.anchor.y, p.world[1] - w.anchor.z).project(w.camera);
+      if (Math.abs(v.x) > 1 || Math.abs(v.y) > 1 || v.z > 1) off.push(p.key);
+    }
+    return { off, framed: st.framed, d: w.camera.position.distanceTo(w.controls.target), max: w.controls.maxDistance, band: document.body.dataset.band };
+  });
+  expect(fit.off).toEqual([]);
+  expect(fit).toMatchObject({ framed: true, band: 'valley' });
+  expect(fit.d).toBeLessThanOrEqual(fit.max + 1);
+  // a tap on Krezk's name flies there and opens its map in place, the origin on it
+  const f0 = await page.evaluate(() => (window as any).__mistlab.app.world.flights);
+  await page.locator('.lbl.place[data-key="S"]').click();
+  await page.waitForFunction(() => { const a = (window as any).__mistlab.app; return a.cur?.path === 'ch08/S' && !a.world.flying; }, undefined, { timeout: 180_000 });
+  const s = await page.evaluate(() => {
+    const m = (window as any).__mistlab, a = m.app, w = a.world, e = m.atlas.scenes['ch08/S'];
+    const t = a.toLocal3(w.controls.target), b = e.bbox;
+    return {
+      flights: w.flights, staged: m.staged, band: document.body.dataset.band, abs: a.cur.root.position.toArray(), want: e.placement.position, anchor: m.anchor,
+      inside: t.x > b.minX && t.x < b.maxX && t.z > b.minZ && t.z < b.maxZ, d: w.camera.position.distanceTo(w.controls.target),
+      s: m.stage.proxies.get('ch08/S').visible, e: m.stage.proxies.get('ch03/E').visible,
+    };
+  });
+  expect(s.flights).toBeGreaterThan(f0);
+  expect(s).toMatchObject({ staged: true, inside: true, s: false, e: true });
+  for (let k = 0; k < 3; k++) expect(Math.abs(s.abs[k] - s.want[k])).toBeLessThan(0.01);
+  expect(s.anchor).toEqual(s.abs);
+  expect(s.d).toBeLessThan(5000);
+  // zoom out to the far limit with the button: one more press offers the whole valley, and the chip flies there
+  await page.evaluate(async () => { const w = (window as any).__mistlab.app.world; for (let i = 0; i < 60 && !w.atMaxDistance; i++) { w.zoomBy(1.6); await w.settled(); } });
+  await page.locator('[data-cam="zoomOut"]').click();
+  const chip = page.locator('.zoomchip');
+  await expect(chip).toBeVisible({ timeout: 20_000 });
+  await expect(chip).toHaveText(/whole valley/);
+  await chip.click();
+  await page.waitForFunction(() => { const m = (window as any).__mistlab; return !m.app.world.flying && m.stage.framed; }, undefined, { timeout: 60_000 });
+  expect(await page.evaluate(() => (window as any).__mistlab.app.cur.path)).toBe('ch08/S'); // the map stays open under the valley
+  // at the whole valley, the next zoom out offers the world map sheet (the 2D map stays one press away)
+  await page.locator('[data-cam="zoomOut"]').click();
+  await expect(chip).toBeVisible({ timeout: 20_000 });
+  await expect(chip).not.toHaveText(/whole valley/);
+});
+
+test('the View menu switches the continuous world, the device remembers it, and the Player Display follows the DM', async ({ page }) => {
+  test.setTimeout(420_000);
+  await page.addInitScript(() => { if (!sessionStorage.getItem('booted')) { localStorage.removeItem('mistlab.nested'); sessionStorage.setItem('booted', '1'); } });
+  await boot(page, '', VILLAGE);
+  const display = await page.context().newPage();
+  await display.goto(`/?nosw&display=player&scene=${encodeURIComponent('ch03/E')}`);
+  await display.waitForFunction(() => (window as any).__mistlab?.app?.cur?.path === 'ch03/E', undefined, { timeout: 120_000 });
+  const st = (p: import('@playwright/test').Page) => p.evaluate(() => {
+    const m = (window as any).__mistlab, a = m.app, w = a.world;
+    return { nested: m.nested, staged: m.staged, stage: !!a.stage, backdrop: !!a.backdrop, path: a.cur?.path, level: a.levelId, anchor: m.anchor, tgt: w.toAbsolute(w.controls.target).toArray(), ztc: w.controls.zoomToCursor };
+  });
+  // the camera the display shows is the DM's, in absolute feet, each drawn round its own anchor
+  const sameCamera = async () => {
+    await page.evaluate(() => { const a = (window as any).__mistlab.app; a.layoutChanged(); });
+    await display.waitForFunction((t) => { const w = (window as any).__mistlab.app.world, v = w.toAbsolute(w.controls.target); return Math.hypot(v.x - t[0], v.y - t[1], v.z - t[2]) < 0.5; }, (await st(page)).tgt, { timeout: 30_000 });
+    // and the zoom band (which names and labels show) follows it there
+    expect(await display.evaluate(() => document.body.dataset.band)).toBe(await page.evaluate(() => document.body.dataset.band));
+  };
+  expect(await st(page)).toMatchObject({ nested: true, staged: true, stage: true, backdrop: false });
+  await display.waitForFunction(() => (window as any).__mistlab.staged, undefined, { timeout: 60_000 });
+  await sameCamera();
+  // off: the village opens alone in the mist with its own backdrop, on the same level; the valley is gone
+  await page.locator('details[data-menu="view"] > summary').click();
+  const btn = page.locator('[data-act="nested"]');
+  await expect(btn).toHaveAttribute('aria-pressed', 'true');
+  await btn.click();
+  await page.waitForFunction(() => { const m = (window as any).__mistlab; return !m.nested && !m.staged && !!m.app.backdrop; }, undefined, { timeout: 120_000 });
+  expect(await st(page)).toMatchObject({ nested: false, staged: false, stage: false, backdrop: true, path: 'ch03/E', level: 'village', anchor: [0, 0, 0], ztc: true });
+  expect(await page.evaluate(() => localStorage.getItem('mistlab.nested'))).toBe('0');
+  await expect(btn).toHaveAttribute('aria-pressed', 'false');
+  await display.waitForFunction(() => { const m = (window as any).__mistlab; return !m.nested && !m.staged && !!m.app.backdrop && !m.app.stage; }, undefined, { timeout: 120_000 });
+  expect((await st(display)).anchor).toEqual([0, 0, 0]);
+  await sameCamera();
+  // the device remembers: a reload stays the old way (and ?nested=1 would override it)
+  await page.reload();
+  await page.waitForFunction(() => (window as any).__mistlab?.app?.cur?.path === 'ch03/E', undefined, { timeout: 120_000 });
+  expect(await st(page)).toMatchObject({ nested: false, staged: false, backdrop: true });
+  // on again: back in the valley, on both screens
+  await page.locator('details[data-menu="view"] > summary').click();
+  await page.locator('[data-act="nested"]').click();
+  await page.waitForFunction(() => { const m = (window as any).__mistlab; return m.nested && m.staged && !m.app.backdrop; }, undefined, { timeout: 120_000 });
+  const on = await st(page), e = JSON.parse(readFileSync(new URL('../manifests/world-atlas.json', import.meta.url), 'utf8')).scenes['ch03/E'];
+  for (let k = 0; k < 3; k++) expect(Math.abs(on.anchor[k] - e.placement.position[k])).toBeLessThan(0.01);
+  await display.waitForFunction(() => { const m = (window as any).__mistlab; return m.nested && m.staged; }, undefined, { timeout: 120_000 });
+  await sameCamera();
+  await display.close();
+});
+
+test('in the valley: the camera rides the ground off the map, players see only revealed names, low memory halves the forest', async ({ page }) => {
+  test.setTimeout(300_000);
+  await page.addInitScript(() => Object.defineProperty(Navigator.prototype, 'deviceMemory', { get: () => 2, configurable: true }));
+  await boot(page, '', VILLAGE);
+  // pan onto Mount Baratok: the target climbs onto the mountain, the camera keeps its distance; back on the village
+  // the level's floor holds it again
+  const r = await page.evaluate(() => {
+    const m = (window as any).__mistlab, w = m.app.world, st = m.stage, V = w.camera.position.constructor;
+    const M = m.atlas.pins.find((p: any) => p.campaign === 'cos' && p.key === 'M'), y0 = w.controls.target.y;
+    w.moveTo(new V(M.world[0] - w.anchor.x, y0, M.world[1] - w.anchor.z), 3000, false);
+    const on = { ty: w.controls.target.y + w.anchor.y, ground: st.groundAt(M.world[0], M.world[1]), d: w.camera.position.distanceTo(w.controls.target) };
+    m.app.frameLevel();
+    return { on, back: w.controls.target.y, y0 };
+  });
+  expect(r.on.ground).toBeGreaterThan(3000);
+  expect(Math.abs(r.on.ty - r.on.ground)).toBeLessThan(1);
+  expect(r.on.d).toBeCloseTo(3000, 0);
+  expect(Math.abs(r.back - r.y0)).toBeLessThan(1);
+  // the forest: half the pool on a device with under 4 GB; none from high up
+  const forest = await page.evaluate(async () => {
+    const m = (window as any).__mistlab, w = m.app.world, st = m.stage;
+    const near = st.stats().forest;
+    w.flyTo(w.controls.target.clone(), 40000, 1); await w.settled();
+    return { pool: st.forest.instanceMatrix.count, near, far: st.stats().forest };
+  });
+  expect(forest.pool).toBe(6000);
+  expect(forest.near).toBeGreaterThan(0);
+  expect(forest.near).toBeLessThanOrEqual(6000);
+  expect(forest.far).toBe(0);
+  // the DM sees every place's name; in Players view only the revealed ones, and a name does not fly anywhere
+  await page.evaluate(async () => { const m = (window as any).__mistlab; m.stage.frameWorld(); m.app.world.renderNow(); });
+  const names = () => page.evaluate(() => {
+    const els = [...document.querySelectorAll<HTMLElement>('.lbl.place')];
+    return { shown: els.filter((e) => e.style.display !== 'none').map((e) => e.dataset.key), clickable: els.filter((e) => e.style.display !== 'none' && getComputedStyle(e).pointerEvents !== 'none').length, revealed: [...(window as any).__mistlab.app.pinsRevealed] };
+  });
+  const dm = await names();
+  expect(dm.shown.length).toBeGreaterThanOrEqual(25);
+  expect(dm.clickable).toBe(dm.shown.length);
+  await page.locator('[data-view="players"]').click();
+  await page.evaluate(() => (window as any).__mistlab.app.world.renderNow());
+  const pl = await names();
+  expect(pl.shown.length).toBeLessThan(dm.shown.length);
+  for (const k of pl.shown) expect(pl.revealed).toContain(k);
+  expect(pl.clickable).toBe(0);
 });

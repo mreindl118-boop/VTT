@@ -159,6 +159,7 @@ function buildDmUi(): void {
         <button class="icon" data-act="snap" aria-label="Snap moves to the grid" aria-pressed="true" data-tip="Snap to grid">${ICON.grid}<span>Snap to grid</span></button>
         <button class="icon" data-act="walls" aria-label="Walls: low / full" data-tip="Walls">${ICON.walls}<span>Walls low / full</span></button>
         <button class="icon" data-act="mist" aria-label="Mist on / off" aria-pressed="true" data-tip="Mist on / off">${ICON.fog}<span>Mist</span></button>
+        <button class="icon" data-act="nested" aria-label="Continuous world" aria-pressed="true" data-tip="Continuous world" data-tip-sub="Maps stand in the whole valley; off opens each map alone in the mist">${ICON.map}<span>Continuous world</span></button>
         <button class="icon" data-act="labels" aria-label="Labels: keys / all / none" data-tip="Labels"><i></i><span>Labels</span></button>
         <button class="icon" data-act="lock" aria-label="Player camera follows DM" data-tip="Player camera follows DM"><i></i><span>Players follow my camera</span></button>
         <button class="icon" data-act="display" aria-label="Open Player Display" data-tip="Open Player Display">${ICON.display}<span>Player display</span></button>
@@ -259,9 +260,11 @@ function buildDmUi(): void {
   app.world.onZoomPastMax = () => {
     if (app.restricted || !app.cur) return; // the DM's: never in Players mode (the Player Display has no UI at all)
     const path = app.cur.path, up = app.parentPath;
-    void (up ? loadLocation(up).then((l) => l.scene.name) : Promise.resolve(worldOf(app.campaign).name)).then((name) => {
+    // in the continuous world a pin's map zooms out to the whole valley first; from there, to the world map sheet
+    const valley = !up && app.staged && app.stage && !app.stage.framed;
+    void (up ? loadLocation(up).then((l) => l.scene.name) : Promise.resolve(valley ? 'the whole valley' : worldOf(app.campaign).name)).then((name) => {
       if (app.cur?.path !== path || app.restricted) return;
-      chipGo = up ? goUp : () => openWorld(pinForScene(path)?.key);
+      chipGo = up ? goUp : valley ? () => app.stage?.frameWorld('fly') : () => openWorld(pinForScene(path)?.key);
       chip.innerHTML = `${ICON.zoomOut}<span></span>`;
       chip.querySelector('span')!.textContent = `Zoom out to ${name.replace(/^The /, 'the ')}`;
       chip.hidden = false; requestAnimationFrame(() => chip.classList.add('on'));
@@ -269,6 +272,8 @@ function buildDmUi(): void {
     });
   };
   chip.addEventListener('click', () => { const go = chipGo; dropChip(); go?.(); });
+  // A place's name over the valley (DM view): fly there and open its map.
+  app.onPlacePick = (path) => { if (app.cur?.path === path) { app.frameLevel(app.camPreset, true); return; } localStorage.setItem('mistlab.scene', path); void app.open(path).then(() => app.layoutChanged()); };
 
   const section = top.querySelector<HTMLElement>('.section')!, secIn = section.querySelector<HTMLInputElement>('input')!, secFt = section.querySelector<HTMLElement>('.sec-ft')!;
   const secList = section.querySelector<HTMLDataListElement>('datalist')!;
@@ -379,6 +384,7 @@ function buildDmUi(): void {
     slot('labels', app.labelMode === 'all' ? ICON.label : app.labelMode === 'keys' ? ICON.labelKeys : ICON.labelOff);
     top.querySelector('[data-act="walls"]')!.setAttribute('aria-pressed', String(!app.lowWalls));
     top.querySelector('[data-act="snap"]')!.setAttribute('aria-pressed', String(app.gridSnap));
+    top.querySelector('[data-act="nested"]')!.setAttribute('aria-pressed', String(app.nested));
     { const r = top.querySelector<HTMLInputElement>('[data-opt="gridOpacity"]')!; if (document.activeElement !== r) r.value = String(Math.round(app.gridOpacity * 100)); }
     slot('lock', app.lockPlayerCamera ? ICON.lock : ICON.unlock);
     top.querySelector('[data-act="lock"]')!.setAttribute('aria-pressed', String(app.lockPlayerCamera));
@@ -420,6 +426,7 @@ function buildDmUi(): void {
       case 'grid': app.gridMode = app.gridMode === 'square' ? 'hex' : app.gridMode === 'hex' ? 'off' : 'square'; app.layoutChanged(); break;
       case 'snap': app.setGridSnap(!app.gridSnap); break;
       case 'walls': app.lowWalls = !app.lowWalls; app.layoutChanged(); break;
+      case 'nested': void app.setNestedMode(!app.nested).then(refresh); break;
       case 'mist': app.world.setFog(!app.world.fogOn); top.querySelector('[data-act="mist"]')!.setAttribute('aria-pressed', String(app.world.fogOn)); app.layoutChanged(); break;
       case 'labels': app.labelMode = app.labelMode === 'keys' ? 'all' : app.labelMode === 'all' ? 'none' : 'keys'; app.applySlider(); break;
       case 'lock': app.lockPlayerCamera = !app.lockPlayerCamera; app.layoutChanged(); break;
@@ -619,6 +626,7 @@ function buildDmUi(): void {
         <dt>Move the party</dt><dd>Tap the amber token to pick it up, then tap where it goes (tap it again or press Esc to cancel). The room it enters is revealed and remembered; step onto stairs or a trapdoor to change level; the camera follows. In Players mode the party walks: walls and closed doors stop it, and locked doors stay shut until the DM opens them.</dd>
         <dt>Look around</dt><dd>One finger / left-drag pans. Right-drag or a two-finger twist rotates; pinch or scroll zooms. The buttons bottom-left turn in 90° steps, tilt, zoom and find the party. Double-tap a room to frame it.</dd>
         <dt>World map</dt><dd>The map button beside the library opens the Lands of Barovia. Drag the party to a lettered pin or into the wilderness; the card shows the distance and travel time at your pace, and opens the battle map for that place when one is built. Opening a location moves the party marker there.</dd>
+        <dt>The whole valley</dt><dd>Each place's map stands where it lies in the valley, on the land, turned to true north. Zoom out past a map's edge and the land, the roads, the lakes and every other place carry on; at the far limit the chip offers the whole valley, and from there the world map. Tap a place's name over the valley to fly there and open its map. Players see only the names of places they know. View › Continuous world switches this off: each map then opens alone in the mist, as before.</dd>
         <dt>Initiative</dt><dd>The crossed-swords button opens the roster: speed, reach, range and initiative from each character sheet. Start an encounter and each combatant gets a token. On a turn, green squares are where that combatant can still move and red squares are what it could strike from there; a paler red shows ranged reach with a clear line. Next turn (or N) advances; End folds everyone back into the party marker.</dd>
         <dt>Creatures</dt><dd>The paw button opens the repository: every person, monster and beast the module names, searchable. Place one beside the party, or place by tap and keep tapping to put down as many as you like (Esc stops). Placed creatures start hidden from the players. Tap one to pick it up: the panel shows what players will see (rename it), hit points, Reveal or Hide, the Reach helper (green squares it can move to, red ones it can strike), Initiative, Remove. The DM moves anything anywhere; players move only the party, and only where it can walk.</dd>
         <dt>Section slicer</dt><dd>Buildings with several floors show all of them at once. The Section slider beside the floor tabs cuts the building at any height: slide it up to see the roof, down through the floors, below ground into a cellar. The floor tabs follow the cut; the arrow button snaps the cut back to the current floor.</dd>
