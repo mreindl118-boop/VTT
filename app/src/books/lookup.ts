@@ -64,11 +64,17 @@ async function entryById(book: BookId, id: string, type: EntryType): Promise<Rul
   return e ? toEntry(e, book, f.attribution) : undefined;
 }
 
+/** 'Wisdom (Perception)', the way checks are written: the skill in brackets after its ability. */
+const ABILITY_SKILL = /^(strength|dexterity|constitution|intelligence|wisdom|charisma) \(([a-z' ]+)\)( check| checks| saving throw)?$/;
+
 /** Candidate entry indexes for a term in one book's term index, most relevant first. */
 export function candidates(t: TermFile, term: string, type?: EntryType): number[] {
   const raw = term.trim();
   if (t.abbr[raw]) return t.abbr[raw].filter((i) => !type || t.entries[i][2] === type);
   const k0 = normTerm(raw);
+  // 'Wisdom (Perception) check' is the Perception skill.
+  const as = ABILITY_SKILL.exec(k0);
+  if (as) { const sk = (t.forms[as[2]] ?? []).filter((i) => t.entries[i][2] === 'skill'); if (sk.length && (!type || type === 'skill')) return sk; }
   let hint = type;
   let list: number[] | undefined;
   for (const k of [k0, ...looseVariants(k0)]) {
@@ -134,10 +140,20 @@ const TYPE_CUE: Partial<Record<EntryType, RegExp>> = {
   skill: /^\s+(check|skill|\()/i, ability: /^\s+(check|saving throw|save|score|modifier)\b/i, 'creature-type': /^\s+(creature|type)\b/i,
 };
 
+/** Words that start a sentence before a name without being part of it. */
+const LEADING_WORDS = new Set(('the a an this that these those his her its their our your my each every some any no one two three four five six ' +
+  'and or but if when while as at in on by to of for from with into onto then there here all both either neither another other such what which whose').split(' '));
+
+const LEAD_CUE: Partial<Record<EntryType, RegExp>> = {
+  condition: /(?:\b(?:saving throw|save|DC \d+)\b[^.!?;]{0,80}\b(?:be|become|becomes|is|are|was|were|gain|gains|has|have|fall|falls|knocked)|\b(?:knock|knocks|knocked|fall|falls|fell|drop|drops|dropped|lie|lies|lying)(?: \w+)?)\s+$/i,
+  spell: /\b(?:cast|casts|casting|scroll of)\s+$/i,
+};
+
 /**
  * Find rules terms in a string. Longest match wins; names that are also ordinary English words (light, shield,
  * command, guidance, fly, prone, fire …) count only when tagged ([[Light]], [[spell:light]]), capitalised
- * mid-sentence, or followed by their cue word ('fire damage', 'prone condition', 'light cantrip').
+ * mid-sentence, followed by their cue word ('fire damage', 'prone condition', 'light cantrip') or led by one ('casts
+ * blight', 'a saving throw or be poisoned', 'knocked prone'). 'Wisdom (Perception)' is the skill.
  */
 export function findTerms(text: string, t: TermFile, opts: { explicitOnly?: boolean } = {}): TermSpan[] {
   const spans: TermSpan[] = [];
@@ -147,6 +163,7 @@ export function findTerms(text: string, t: TermFile, opts: { explicitOnly?: bool
   const tagRe = /\[\[(?:([a-z-]+):)?([^\]|]+?)(?:\|([^\]]+))?\]\]/g;
   let m: RegExpExecArray | null;
   const taken: [number, number][] = [];
+  const free = (s: number, e: number) => !taken.some(([a, b]) => s < b && e > a);
   while ((m = tagRe.exec(text))) {
     const type = m[1] as EntryType | undefined, name = m[2];
     let i = type ? byId.get(`${type}:${name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}`) : undefined;
@@ -157,17 +174,27 @@ export function findTerms(text: string, t: TermFile, opts: { explicitOnly?: bool
     taken.push([m.index, m.index + m[0].length]);
   }
   if (opts.explicitOnly) return spans;
+  // 'Wisdom (Perception)' is one term, the skill (with or without 'check' after it).
+  const asRe = /\b(Strength|Dexterity|Constitution|Intelligence|Wisdom|Charisma) \(([A-Z][A-Za-z' ]*)\)/g;
+  while ((m = asRe.exec(text))) {
+    const s = m.index, e = s + m[0].length;
+    if (!free(s, e)) continue;
+    const i = (t.forms[normTerm(m[2])] ?? []).find((k) => t.entries[k][2] === 'skill');
+    if (i === undefined) continue;
+    const [id, name, type] = t.entries[i];
+    spans.push({ start: s, end: e, text: m[0], id, type, name, explicit: false });
+    taken.push([s, e]);
+  }
   const words: { s: number; e: number }[] = [];
   const wre = /[A-Za-z][A-Za-z'’-]*[A-Za-z]|[A-Za-z]|\+\d/g;
   while ((m = wre.exec(text))) words.push({ s: m.index, e: m.index + m[0].length });
-  const free = (s: number, e: number) => !taken.some(([a, b]) => s < b && e > a);
   const maxWords = 6;
   for (let i = 0; i < words.length; i++) {
     for (let n = Math.min(maxWords, words.length - i); n >= 1; n--) {
       const s = words[i].s; let e = words[i + n - 1].e;
       if (!free(s, e)) continue;
       let seg = text.slice(s, e);
-      if (n > 1 && /[^\s'’A-Za-z,+-]|\s{2,}|\n/.test(seg)) continue; // a term never spans punctuation
+      if (n > 1 && /[^\s'’A-Za-z0-9,+-]|\s{2,}|\n/.test(seg)) continue; // a term never spans punctuation ('+1 mace' is one)
       let idx = t.abbr[seg];
       let key = '';
       if (!idx) { key = normTerm(seg); idx = t.forms[key]; }
@@ -177,9 +204,10 @@ export function findTerms(text: string, t: TermFile, opts: { explicitOnly?: bool
       }
       if (!idx?.length) continue;
       let pick = idx[0];
-      const after = text.slice(e, e + 20);
-      // A cue word picks the meaning: 'light cantrip' is the spell, 'fire damage' the damage type.
-      const cued = idx.find((k) => TYPE_CUE[t.entries[k][2]]?.test(after));
+      const after = text.slice(e, e + 20), lead = text.slice(Math.max(0, s - 120), s);
+      // A cue word picks the meaning: 'light cantrip' is the spell, 'fire damage' the damage type; so does what comes
+      // before: 'casts blight', 'a saving throw or be poisoned', 'knocked prone'.
+      const cued = idx.find((k) => TYPE_CUE[t.entries[k][2]]?.test(after) || LEAD_CUE[t.entries[k][2]]?.test(lead));
       if (cued !== undefined) pick = cued;
       const [id, name, type] = t.entries[pick];
       if (key && common.has(key)) {
@@ -190,7 +218,8 @@ export function findTerms(text: string, t: TermFile, opts: { explicitOnly?: bool
         // A capitalised word inside a longer capitalised name ('an Exotic Feed seller', 'the Blue Light Inn') is that
         // name, not the rules term.
         const prev = /(?:^|[^A-Za-z'’-])([A-Za-z][A-Za-z'’-]*)$/.exec(text.slice(0, s).replace(/ $/, ''));
-        const prevIsName = !!prev && text[s - 1] === ' ' && /^[A-Z]/.test(prev[1]) && !(/[.!?:;"“(\n]$/.test(text.slice(0, s - 1 - prev[1].length).trimEnd()) || !text.slice(0, s - 1 - prev[1].length).trim());
+        // ('The Wolf', 'Each Wolf': a capitalised article or determiner is not a name.)
+        const prevIsName = !!prev && text[s - 1] === ' ' && /^[A-Z]/.test(prev[1]) && !LEADING_WORDS.has(prev[1].toLowerCase());
         const nextIsName = /^ [A-Z][a-z]/.test(text.slice(e, e + 3));
         if (!cue && !(capital && !sentenceStart && !prevIsName && !nextIsName)) continue;
       }

@@ -141,7 +141,41 @@ describe('lookup', () => {
     ["Poisoner's Kit", 'item:poisoners-kit', 'item:poisoners-kit'],
     ["Smith's Tools", 'item:smiths-tools', 'item:smiths-tools'],
     ['Lute', 'item:lute', 'item:musical-instrument'],
-    ['Playing Cards', '', 'item:gaming-set'],
+    ['Playing Cards', 'item:playing-card-set', 'item:gaming-set'],
+    // A thing whose kinds are table rows is an item of its own; a bare kind ('Wand', 'Orb') is not a name.
+    ['Holy Symbol', 'item:holy-symbol', 'item:holy-symbol'],
+    ['Arcane Focus', 'item:arcane-focus', 'item:arcane-focus'],
+    ['Druidic Focus', 'item:druidic-focus', 'item:druidic-focus'],
+    ['Gaming Set', 'item:gaming-set', 'item:gaming-set'],
+    ['Musical Instrument', 'item:musical-instrument', 'item:musical-instrument'],
+    ['Sprig of Mistletoe', 'item:druidic-focus-sprig-of-mistletoe', 'item:druidic-focus-sprig-of-mistletoe'],
+    ['Wand', '', ''],
+    ['Orb', '', ''],
+    ['Amulet', '', ''],
+    ['Inn Stay', 'item:inn-stay', 'item:inn-stay'],
+    ['Meal', 'item:meals', 'item:meal'],
+    ['Saddle', 'item:saddle', ''],
+    // Kinds named in an item's own table, and magic weapons and armour by their kind.
+    ['Potion of Greater Healing', 'item:potion-of-healing', 'item:potions-of-healing'],
+    ['potion of supreme healing', 'item:potion-of-healing', 'item:potions-of-healing'],
+    ['+1 Mace', 'item:weapon-1-2-or-3', 'item:weapon-1-2-or-3'],
+    ['Longsword +2', 'item:weapon-1-2-or-3', 'item:weapon-1-2-or-3'],
+    ['+3 Plate Armor', 'item:armor-1-2-or-3', 'item:armor-1-2-or-3'],
+    ['+1 Shield', 'item:shield-1-2-or-3', 'item:shield-1-2-or-3'],
+    // Checks as modules write them.
+    ['Wisdom (Perception)', 'skill:perception', 'skill:perception'],
+    ['Dexterity (Stealth) check', 'skill:stealth', 'skill:stealth'],
+    ['Strength (Athletics)', 'skill:athletics', 'skill:athletics'],
+    // Channel Divinity's options by their own names.
+    ['Turn Undead', 'feature:channel-divinity-turn-undead', 'feature:turn-undead'],
+    ['Preserve Life', 'feature:channel-divinity-preserve-life', 'feature:preserve-life'],
+    ['Sacred Weapon', 'feature:sacred-weapon', 'feature:sacred-weapon'],
+    // The parts of a stat block, from the monsters' introduction (neither SRD has Lair Actions in 2024 or a general
+    // Legendary Resistance rule: each stat block states its own).
+    ['Multiattack', 'rule:multiattack', 'rule:multiattack'],
+    ['Legendary Actions', 'rule:legendary-actions', 'rule:legendary-actions'],
+    ['Lair Actions', 'rule:lair-actions', ''],
+    ['Legendary Resistance', '', ''],
     // A '+1, +2, or +3' item by its own name.
     ['Wand of the War Mage', 'item:wand-of-the-war-mage-1-2-or-3', 'item:wand-of-the-war-mage-1-2-or-3'],
     ['+2 Wand of the War Mage', 'item:wand-of-the-war-mage-1-2-or-3', 'item:wand-of-the-war-mage-1-2-or-3'],
@@ -231,9 +265,11 @@ describe('the Rules edition preference', () => {
 describe('terms in running text', () => {
   it('links rules terms, longest first, with their types', async () => {
     const t = await termIndex('2024');
-    const s = findTerms('The ghoul is Prone and takes 2d6 fire damage; a Wolf casts Fireball. Opportunity Attacks and Hold Person.', t);
+    // (A lower-case 'ghoul' is a creature the books' prose names in passing, so it needs a capital, a tag or a cue.)
+    const s = findTerms('A Ghoul is Prone and takes 2d6 fire damage; a Wolf casts Fireball. Opportunity Attacks and Hold Person.', t);
+    expect(findTerms('the ghoul', t)).toEqual([]);
     expect(s.map((x) => [x.text, x.id])).toEqual([
-      ['ghoul', 'monster:ghoul'], ['Prone', 'condition:prone'], ['fire', 'damage:fire'], ['Wolf', 'monster:wolf'], ['Fireball', 'spell:fireball'],
+      ['Ghoul', 'monster:ghoul'], ['Prone', 'condition:prone'], ['fire', 'damage:fire'], ['Wolf', 'monster:wolf'], ['Fireball', 'spell:fireball'],
       ['Opportunity Attacks', 'rule:opportunity-attacks'], ['Hold Person', 'spell:hold-person'],
     ]);
   });
@@ -269,6 +305,41 @@ describe('terms in running text', () => {
     for (const w of ['hammer', 'leather', 'feed', 'saddle', 'rope', 'torch']) expect(t14.common, w).toContain(w);
     // The 2024 rules' capitalised names still link mid-sentence.
     expect(findTerms('She lights a Torch and casts Light.', t24).map((x) => x.id)).toEqual(['item:torch', 'spell:light']);
+  });
+  // The same sentence links the same way in both editions.
+  const SAME: [string, [string, string][]][] = [
+    ['The blight spreads across the vines.', []],
+    ['The Druid of the grove watches. The druid speaks.', [['Druid', 'monster:druid']]],
+    ['A veteran soldier and a scout guard the gate.', []],
+    ['The thugs and the thug wait.', []],
+    ['He keeps a Wand on his belt and an Orb on the shelf.', []],
+    ['The Military escort rode out with a Pack of wolves in the Riding season; Exotic Feed was cheap.', []],
+    ['The cleric casts blight on the tree.', [['blight', 'spell:blight']]],
+    ['Make a DC 15 Wisdom (Perception) check or a DC 12 Strength (Athletics) check.', [['Wisdom (Perception)', 'skill:perception'], ['Strength (Athletics)', 'skill:athletics']]],
+    ['Each creature must succeed on a DC 13 Constitution saving throw or be poisoned for 1 minute.', [['Constitution', 'ability:constitution'], ['poisoned', 'condition:poisoned']]],
+    ['On a failed save, the target is knocked prone.', [['prone', 'condition:prone']]],
+    ['The target is poisoned until it finishes a rest.', []],
+    ['The hag offers a +1 mace and an Inn stay.', [['+1 mace', 'item:weapon-1-2-or-3'], ['Inn stay', 'item:inn-stay']]],
+    ['She lifts the Holy Symbol high.', [['Holy Symbol', 'item:holy-symbol']]],
+    ['You have darkvision and can take a short rest in dim light behind half cover with holy water.', [['darkvision', 'rule:darkvision'], ['short rest', 'rule:short-rest'], ['half cover', 'rule:cover'], ['holy water', 'item:holy-water']]],
+  ];
+  for (const [text, want] of SAME) {
+    it(`both editions: ${text}`, async () => {
+      for (const ed of ['2014', '2024'] as const) {
+        // Leave out the 2024 'DC' and 'saving throw' links and 'dim light' (one rule in 2024, part of Vision and Light in 2014).
+        const got = findTerms(text, await termIndex(ed)).filter((x) => !['rule:difficulty-class', 'rule:saving-throw', 'rule:saving-throws', 'rule:dim-light', 'rule:vision-and-light'].includes(x.id));
+        expect(got.map((x) => [x.text, x.id]), ed).toEqual(want);
+      }
+    });
+  }
+  it('the ordinary words of the plan are common in both books, with their plurals', async () => {
+    for (const ed of ['2014', '2024'] as const) {
+      const c = new Set((await termIndex(ed)).common);
+      for (const w of ['blight', 'druid', 'gate', 'shadow', 'veteran', 'veterans', 'scout', 'soldier', 'guard', 'thug', 'thugs', 'acolyte', 'wolf', 'wolves']) {
+        if ((await termIndex(ed)).forms[w]) expect(c.has(w), `${ed} ${w}`).toBe(true);
+      }
+      for (const w of ['darkvision', 'short rest', 'long rest', 'dim light', 'half cover', 'holy water', "thieves' tools"]) expect(c.has(w), `${ed} ${w}`).toBe(false);
+    }
   });
   it('2014 terms come from the 2014 book', async () => {
     const t = await termIndex('2014');
