@@ -2,7 +2,16 @@
 
 One checklist, worked top to bottom, one item at a time. Nothing runs in parallel.
 
-An item is ticked only after the owner confirms it. For each item: finish the work, test it, show the result, then wait for the owner's OK before merging, releasing or ticking it.
+On 2026-10-12 the owner approved going through the whole list in order: "Complete every task on the task list. One task at a time in succession, not concurrently, in order as they exist."
+
+For each item, in order:
+1. Finish the work and verify it.
+2. Merge it onto the main branch.
+3. Bump the version (item N ships as 0.N.0).
+4. Write the changelog entry.
+5. Pass the full test suite.
+6. Push and publish.
+7. Tick the item, then start the next one.
 
 ## Checklist
 
