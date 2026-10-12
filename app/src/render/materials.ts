@@ -2,6 +2,7 @@
 import * as THREE from 'three';
 import { PALETTE } from '../kit/palette';
 import { SURF, surfaceOf, type Surface } from '../kit/surfaces';
+import { markShared } from './dispose';
 
 /** Uniforms shared by all patched materials; one level is active at a time. */
 export const fogUniforms = {
@@ -229,6 +230,7 @@ export function mat(color: string, opts: { emissive?: string; surface?: Surface 
     m = new THREE.MeshLambertMaterial({ color, flatShading: true, emissive: opts.emissive ?? '#000000' });
     setSurface(m, opts.emissive && opts.emissive !== '#000000' ? 'none' : surf);
     patchFog(m);
+    markShared(m); // every map draws with it: render/dispose.ts never frees it
     cache.set(k, m);
   }
   return m;

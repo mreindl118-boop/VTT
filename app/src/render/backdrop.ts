@@ -7,6 +7,7 @@ import { merge } from '../kit/pieces';
 import { pineTier } from '../kit/props';
 import { FLOOR_COLOR } from '../kit/palette';
 import { patchFog, setSurface } from './materials';
+import { markShared } from './dispose';
 import { surfaceOf, type Surface } from '../kit/surfaces';
 import { terrainOf } from '../core/terrain';
 import RAVENLOFT from '../../../locations/ch04/K/exterior.json';
@@ -493,7 +494,7 @@ export function mistTexture(): THREE.CanvasTexture {
   if (MIST_TEX) return MIST_TEX;
   const c = document.createElement('canvas'); c.width = c.height = 128; const x = c.getContext('2d')!;
   const g = x.createRadialGradient(64, 64, 0, 64, 64, 64); g.addColorStop(0, 'rgba(255,255,255,0)'); g.addColorStop(0.28, 'rgba(255,255,255,0.15)'); g.addColorStop(0.45, 'rgba(255,255,255,1)'); g.addColorStop(1, 'rgba(255,255,255,0)');
-  x.fillStyle = g; x.fillRect(0, 0, 128, 128); MIST_TEX = new THREE.CanvasTexture(c); return MIST_TEX;
+  x.fillStyle = g; x.fillRect(0, 0, 128, 128); MIST_TEX = markShared(new THREE.CanvasTexture(c)); return MIST_TEX; // every crag's: never freed
 }
 export function collapse(g: THREE.Group): void {
   const buckets = new Map<string, { material: THREE.Material; gs: THREE.BufferGeometry[] }>();

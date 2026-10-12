@@ -50,6 +50,7 @@ import { sightBlockers } from './core/light';
 import { idbGet, idbSet } from './state/idb';
 import { covBasisOf, worldOfMiles } from './core/frames';
 import { ATLAS, WorldStage } from './render/worldstage';
+import { disposeTree } from './render/dispose';
 import type { AtlasScene } from '../../scripts/world-atlas';
 
 /** The continuous world (maps stand in one 3-D valley) is on unless `?nested=0`, or the device was told so
@@ -165,6 +166,7 @@ export class App {
   private camTimer = 0;
   private maskSwap = new Map<THREE.Mesh, THREE.Material | THREE.Material[]>();
   private maskHidden: THREE.Object3D[] = [];
+  private maskMats: THREE.Material[] = [];
   private raycaster = new THREE.Raycaster();
 
   constructor(host: HTMLElement, readonly mode: Mode) {
@@ -182,22 +184,23 @@ export class App {
   get T(): number { return this.mode === 'player' || this.view === 'players' ? 0 : this.t; }
 
   campaign: Campaign = campaignOf('appB/death-house');
-  /** Load the saved state of the campaign a path belongs to (each campaign has its own save). */
-  private async loadCampaign(path: string): Promise<void> {
-    const c = campaignOf(path);
-    if (this.cur && c.id === this.campaign.id) return;
-    if (this.cur) await this.flush();
+  /** Read the saved state of a campaign (each campaign has its own save); nothing changes until useCampaign. */
+  private async readCampaign(c: Campaign): Promise<CampaignState> {
+    const saved = await idbGet<CampaignState>(storeKey(c.id)).catch(() => undefined);
+    return saved ? { ...newCampaign(c.id), ...saved } : newCampaign(c.id); // older saves lack newer fields
+  }
+  /** Switch to a campaign and its save (the old campaign's state is saved first). */
+  private useCampaign(c: Campaign, state: CampaignState): void {
+    if (this.cur && c.id !== this.campaign.id) { clearTimeout(this.saveTimer); void idbSet(storeKey(this.campaign.id), this.state).catch(() => {}); }
     this.campaign = c;
     // another campaign, another valley: the old one goes, the new one is built when one of its maps opens in it
     if (this.stage && this.stage.campaign.id !== c.id) { this.stage.dispose(); this.stage = undefined; }
-    const saved = await idbGet<CampaignState>(storeKey(c.id)).catch(() => undefined);
-    this.state = saved ? { ...newCampaign(c.id), ...saved } : newCampaign(c.id); // older saves lack newer fields
+    this.state = state;
     useWorld(worldOf(c), c.theme.id === 'pastoral' ? 'pastoral' : 'gothic', c.world);
     this.world.setTheme(c.theme);
     document.body.dataset.campaign = c.id;
   }
   async init(path: string): Promise<void> {
-    await this.loadCampaign(path);
     await this.open(path);
     if (this.mode === 'player') this.channel.send({ kind: 'hello' });
     else this.broadcast();
@@ -205,17 +208,42 @@ export class App {
 
   // ------------------------------------------------------------------ loading
 
-  /** Open a map: the old one is released, the new one built, placed (at its pin in the valley, or alone in the mist
-   *  with its backdrop, the legacy way) and made active. In the valley the camera glides to it from wherever it was. */
-  async open(path: string, levelId?: string): Promise<void> {
-    await this.loadCampaign(path);
-    const fly = this.staged && !!this.stageEntry(path); // already in the valley: glide to the next place
+  /** Every open() takes a number; only the latest may change the world (the latest request wins). */
+  private navSeq = 0;
+  /** Open a map: the new one is read and built first, while the old one stays on screen; then, in one step, the old
+   *  one is released and the new one placed (at its pin in the valley, or alone in the mist with its backdrop, the
+   *  legacy way) and made active. In the valley the camera glides to it from wherever it was.
+   *  Atomic: an open overtaken by a later one is dropped (its build freed) and changes nothing; one that fails (a
+   *  scene that cannot be fetched offline) keeps the open map, its campaign and its save, and says so. Resolves to
+   *  whether this map opened; it never rejects. */
+  async open(path: string, levelId?: string): Promise<boolean> {
+    const seq = ++this.navSeq, c = campaignOf(path), switching = !this.cur || c.id !== this.campaign.id;
+    let next: Loaded, state = this.state;
+    try {
+      if (switching) state = await this.readCampaign(c);
+      if (seq !== this.navSeq) return false;
+      next = await this.load(path, { campaign: c, state });
+    } catch (err) {
+      if (seq === this.navSeq) this.openFailed(path, err);
+      return false;
+    }
+    if (seq !== this.navSeq) { this.dispose(next); return false; }
+    // from here on nothing waits: the swap happens between two frames
+    if (switching) this.useCampaign(c, state);
+    const fly = !switching && this.staged && !!this.stageEntry(path); // already in the valley: glide to the next place
     if (this.cur) this.release(this.cur);
-    const loaded = await this.load(path);
-    this.place(loaded);
-    this.activate(loaded, { levelId, frame: fly ? 'fly' : true });
+    this.place(next);
+    this.activate(next, { levelId, frame: fly ? 'fly' : true });
     // it resolves when the camera has arrived (a glide across the valley), or at once
     if (fly) await this.world.settled();
+    return this.cur === next;
+  }
+  /** A map could not be opened: the open one stays, and the status line says why for a while. */
+  private openFailed(path: string, err: unknown): void {
+    console.warn(`mistLAB: could not open ${path}`, err);
+    const name = ATLAS.scenes[path]?.name ?? path;
+    this.setStatus(`Couldn't open ${name} (offline?)`);
+    clearTimeout(this.flashT); this.flashT = window.setTimeout(() => { if (this.status.startsWith("Couldn't open")) this.setStatus(''); }, 6000);
   }
 
   /** Switch the continuous world on or off (the View menu's 'Continuous world'; remembered on this device): the open
@@ -242,8 +270,9 @@ export class App {
     return e && e.depth === 0 && !e.orphan && !!e.pin && !!e.worldBounds && e.campaign === this.campaign.id ? e : undefined;
   }
 
-  /** Build a map: its levels, coverage maps and textures, and its labels; nothing is added to the world yet. */
-  async load(path: string): Promise<Loaded> {
+  /** Build a map: its levels, coverage maps and textures, and its labels; nothing is added to the world yet. The
+   *  campaign and save it is built for (its grass, what the party has seen) are the open one's unless given. */
+  async load(path: string, ctx: { campaign: Campaign; state: CampaignState } = { campaign: this.campaign, state: this.state }): Promise<Loaded> {
     const { scene, grid } = await loadLocation(path);
     const levels = new Map<string, BuiltLevel>();
     const coverage = new Map<string, CoverageMap>();
@@ -252,12 +281,12 @@ export class App {
     const root = new THREE.Group();
     root.name = `scene:${path}`;
     for (const l of scene.levels) {
-      setGrass(this.campaign.theme.grass ?? BAROVIAN_GRASS);
+      setGrass(ctx.campaign.theme.grass ?? BAROVIAN_GRASS);
       const b = buildLevel(l, grid.levels[l.id]);
       levels.set(l.id, b);
       root.add(b.root);
       const cov = CoverageMap.forPolygons([...l.rooms.map((r) => r.polygon), ...grid.levels[l.id].floorPolygons]);
-      const seen = this.state.seen[`${scene.location}/${l.id}`];
+      const seen = ctx.state.seen[`${scene.location}/${l.id}`];
       if (seen) cov.load({ seen, paint: '' });
       coverage.set(l.id, cov);
       const tex = new THREE.DataTexture(cov.toTexture() as Uint8Array<ArrayBuffer>, cov.width, cov.height, THREE.RGBAFormat);
@@ -299,17 +328,26 @@ export class App {
     return { path, scene, grid, levels, coverage, covTex, labels, tokens: new Map(), root };
   }
 
-  /** Take a map out of the world: its page elements (labels, token tags), its graph and its textures; its proxy shows again. */
+  /** Take a map out of the world and free it: its page elements (labels, token tags), its graph, its geometries,
+   *  private materials and textures (render/dispose.ts); its proxy shows again. */
   release(loaded: Loaded): void {
-    // Labels are page elements: detach each one, or they linger over the next location.
-    for (const lb of loaded.labels) { lb.obj.removeFromParent(); lb.obj.element.remove(); }
-    // Token markers and their name tags are page elements too: they would follow the party into the next map.
-    for (const g of loaded.tokens.values()) { g.traverse((c) => { const e = (c as CSS2DObject).element; if (e instanceof HTMLElement) e.remove(); }); g.removeFromParent(); }
-    loaded.tokens.clear();
-    if (loaded === this.cur) { this.select(null); this.onLeave?.(); this.clearRuler(); }
-    loaded.root.removeFromParent();
-    for (const tx of loaded.covTex.values()) tx.dispose();
+    if (loaded === this.cur) {
+      this.select(null); this.onLeave?.(); this.clearRuler();
+      // the app's own markers outlive the map: take them off it before it is freed
+      this.ghost?.removeFromParent(); this.selRing?.removeFromParent();
+      this.rangeMesh = undefined; this.rangeFor = undefined;
+    }
+    const inside = (o?: THREE.Object3D) => { for (let p = o?.parent; p; p = p.parent) if (p === loaded.root) return true; return false; };
+    if (inside(this.backdrop)) this.backdrop = undefined;
+    if (inside(this.context)) this.context = undefined;
+    this.dispose(loaded);
     this.stage?.showProxy(loaded.path, true);
+  }
+  /** Free a built map (placed or not): everything under its root, its coverage textures, its token figures. */
+  private dispose(loaded: Loaded): void {
+    disposeTree(loaded.root);
+    for (const tx of loaded.covTex.values()) tx.dispose();
+    loaded.tokens.clear();
   }
 
   /** Make a built map the current one and stand it in the world: at its pin inside the valley (the continuous world),
@@ -317,8 +355,8 @@ export class App {
   private place(loaded: Loaded): void {
     this.cur = loaded;
     this.world.root.add(loaded.root);
-    this.backdrop?.removeFromParent(); this.backdrop = undefined;
-    this.context?.removeFromParent(); this.context = undefined;
+    if (this.backdrop) disposeTree(this.backdrop); this.backdrop = undefined;
+    if (this.context) disposeTree(this.context); this.context = undefined;
     const entry = this.stageEntry(loaded.path);
     if (entry) {
       if (!this.stage) {
@@ -651,7 +689,7 @@ export class App {
   private rangeFor?: RangeResult;
   /** Show the current combatant's ranges (per turn, in initiative only). */
   refreshRange(): void {
-    this.rangeMesh?.removeFromParent(); this.rangeMesh = undefined; this.rangeFor = undefined;
+    if (this.rangeMesh) disposeTree(this.rangeMesh); this.rangeMesh = undefined; this.rangeFor = undefined;
     const cur = this.current;
     // In initiative the current combatant's ranges show every turn; outside it the helper shows the picked-up token's.
     const tokenId = cur ? cur.token.id : this.rangeHelper && this.selected && !this.restricted ? this.selected : undefined;
@@ -769,7 +807,10 @@ export class App {
 
   private syncTokens(): void {
     const b = this.built;
-    for (const [id, g] of this.cur!.tokens) { g.traverse((c) => { const e = (c as CSS2DObject).element; if (e instanceof HTMLElement) e.remove(); }); g.parent?.remove(g); this.cur!.tokens.delete(id); }
+    // the old figures are freed (their geometry and materials are their own); the selection ring rides on and comes back
+    const ringOn = this.selRing?.parent?.userData.tokenId as string | undefined;
+    this.selRing?.removeFromParent();
+    for (const [id, g] of this.cur!.tokens) { disposeTree(g); this.cur!.tokens.delete(id); }
     for (const t of this.tokensHere()) {
       if (t.role === 'creature' && t.hidden && this.restricted) continue; // not yet shown to the players
       const base = baseRingFt(t.size);
@@ -801,6 +842,8 @@ export class App {
       b.root.add(g);
       this.cur!.tokens.set(t.id, g);
     }
+    const back = ringOn && this.selected === ringOn ? this.cur!.tokens.get(ringOn) : undefined;
+    if (back && this.selRing) back.add(this.selRing);
   }
 
   // ------------------------------------------------------------------ vision + slider
@@ -1193,7 +1236,7 @@ export class App {
         o.userData.role = 'context';
       });
       built.root.name = 'context';
-      if (this.cur?.path !== path) return;
+      if (this.cur?.path !== path) { disposeTree(built.root); return; } // the DM moved on while it was read
       built.root.userData.groundFt = lvl.elevationFt;
       this.context = built.root; this.cur.root.add(built.root); this.syncContext(); this.world.invalidate(); // in the area map's own frame
       return;
@@ -1239,7 +1282,7 @@ export class App {
     const ft = this.distanceFt(a, p); r.label.position.set((a[0] + p[0]) / 2, y + 1.5, (a[1] + p[1]) / 2); r.label.element.textContent = `${ft} ft`; r.label.visible = ft > 0;
     this.world.invalidate();
   }
-  clearRuler(): void { if (!this.ruler) return; this.ruler.line.removeFromParent(); this.ruler.line.geometry.dispose(); this.ruler.label.element.remove(); this.ruler.label.removeFromParent(); this.ruler = undefined; this.world.invalidate(); }
+  clearRuler(): void { if (!this.ruler) return; this.ruler.line.removeFromParent(); this.ruler.line.geometry.dispose(); (this.ruler.line.material as THREE.Material).dispose(); this.ruler.label.element.remove(); this.ruler.label.removeFromParent(); this.ruler = undefined; this.world.invalidate(); }
   distanceFt(a: Vec2, b: Vec2): number {
     const g = this.cur!.grid.levels[this.levelId];
     if (this.gridMode === 'hex') { const s = hexSizeFromWidth(CELL_FT); return hexDistanceFt(worldToHex(a, s, g.hexOrientation, g.origin), worldToHex(b, s, g.hexOrientation, g.origin)); }
@@ -1634,6 +1677,7 @@ export class App {
       const stacked = !!this.cur!.scene.stacked;
       const blackCut = new THREE.MeshBasicMaterial({ color: '#000000', clippingPlanes: [WALL_CLIP] });
       const whiteCut = new THREE.MeshBasicMaterial({ color: '#ffffff', clippingPlanes: [WALL_CLIP], polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -2 });
+      this.maskMats = [white, black, blackWall, blackCut, whiteCut];
       for (const [lid, b] of this.cur!.levels) { if (!b.root.visible) continue; const here = lid === this.levelId; b.root.traverse((o) => {
         if (o.userData.role === 'grid') return;
         const m = o as THREE.Mesh;
@@ -1654,6 +1698,7 @@ export class App {
     } else {
       for (const [m, mat] of this.maskSwap) m.material = mat;
       this.maskSwap.clear();
+      for (const m of this.maskMats) m.dispose(); this.maskMats = [];
       for (const o of this.maskHidden) o.visible = true;
       this.maskHidden = [];
       this.world.scene.background = null; this.world.mistFloor.visible = !this.backdrop && !this.staged; this.world.scene.fog = new THREE.FogExp2(this.world.theme.mist, this.world.fogDensity); if (this.backdrop) this.backdrop.visible = true; if (this.stage) this.stage.root.visible = this.staged; this.syncContext();
