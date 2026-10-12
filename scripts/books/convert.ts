@@ -1,6 +1,6 @@
 // SRD Markdown → book data: chapters split into lazy pages (HTML), typed rules entries, a search index and a
 // term index. Pure: takes the Markdown text and the book config, returns the files to write.
-import { blocksText, inline, parseBlocks, plain, renderBlocks, repairSplitWords, slug, type Block, type ListBlock } from './md.ts';
+import { blocksText, dropItalicPunctuation, inline, parseBlocks, plain, renderBlocks, repairSplitWords, slug, type Block, type ListBlock } from './md.ts';
 import { DISCLAIMER, LICENSE, type BookConfig } from './config.ts';
 import type { PdfTitle } from './titles.ts';
 import type {
@@ -28,10 +28,22 @@ export interface Prepared { md: string; joined: Map<string, number> }
 /** The Markdown as the converter reads it: errata patches, the legal page's quotes, split words rejoined. */
 export function prepare(cfg: BookConfig, md: string): Prepared {
   for (const p of cfg.patches) {
-    const n = md.split(p.find).length - 1;
+    let from = 0, to = md.length;
+    if (p.within) {
+      for (const m of p.within.from) {
+        const i = md.indexOf(m, from);
+        if (i < 0) throw new Error(`${cfg.id}: patch (${p.why}): marker not found: ${JSON.stringify(m)}`);
+        from = i + m.length;
+      }
+      const end = md.indexOf(p.within.to, from);
+      to = end < 0 ? md.length : end + 1; // a \n that starts the end marker stays inside, so a last line can match
+    }
+    const part = md.slice(from, to);
+    const n = part.split(p.find).length - 1;
     if (n !== (p.count ?? 1)) throw new Error(`${cfg.id}: patch (${p.why}) expected ${p.count ?? 1} match(es), found ${n}`);
-    md = md.split(p.find).join(p.replace);
+    md = md.slice(0, from) + part.split(p.find).join(p.replace) + md.slice(to);
   }
+  md = dropItalicPunctuation(md);
   // The legal page is quoted to readers as printed: curly quotes, as in the PDF.
   const legalEnd = md.indexOf('\n# ', md.indexOf('# Legal Information') + 1);
   if (legalEnd > 0) md = md.slice(0, legalEnd).replace(/(^|[\s(])"([^"\n]+)"/g, '$1“$2”') + md.slice(legalEnd);
@@ -53,6 +65,29 @@ function splitTraits(blocks: Block[]): Block[] {
       traits = null;
     }
     out.push(b);
+  }
+  return out;
+}
+
+/**
+ * 2014 stat blocks as printed: the Markdown turned the 'Saving Throws' line into a row of every save under the ability
+ * scores. The row goes, and the saves that differ from the modifier (the proficient ones) become the printed line,
+ * 'Saving Throws Dex +9, Wis +7, Cha +9', ahead of the other fields.
+ */
+function savesAsPrinted(blocks: Block[]): Block[] {
+  const out: Block[] = [];
+  for (let i = 0; i < blocks.length; i++) {
+    const b = blocks[i];
+    if (b.k !== 'table' || !b.head.some((h) => /^Str\.?$/.test(h.trim()))) { out.push(b); continue; }
+    const row = (re: RegExp) => b.rows.find((r) => re.test(plain(r[0])));
+    const mod = row(/^Modifier$/), save = row(/^Saving Throws?$/);
+    if (!mod || !save) { out.push(b); continue; }
+    const prof = b.head.flatMap((h, c) => (c > 0 && plain(save[c]) !== plain(mod[c]) ? [`${plain(h).replace(/\.$/, '')} ${plain(save[c])}`] : []));
+    out.push({ ...b, rows: b.rows.filter((r) => r !== save) });
+    if (!prof.length) continue;
+    const item = { text: `**Saving Throws** ${prof.join(', ')}` };
+    const next = blocks[i + 1];
+    if (next?.k === 'ul') { out.push({ ...next, items: [item, ...next.items] }); i++; } else out.push({ k: 'ul', items: [item] });
   }
   return out;
 }
@@ -97,7 +132,8 @@ export function placeTitles(blocks: Block[], titles: PdfTitle[]): { placed: numb
 }
 
 function chaptersOf(cfg: BookConfig, md: string, titles: PdfTitle[]): Chapter[] {
-  const blocks = splitTraits(parseBlocks(md));
+  let blocks = splitTraits(parseBlocks(md));
+  if (cfg.edition === '2014') blocks = savesAsPrinted(blocks);
   if (cfg.tableTitles) placeTitles(blocks, titles);
   const starts: number[] = [];
   let from = 0;
@@ -168,10 +204,11 @@ function leads(blocks: Block[]): { name: string; text: string; block: Block }[] 
 }
 
 const short = (s: string, n = 260) => (s.length <= n ? s : `${s.slice(0, s.lastIndexOf(' ', n - 1))} …`);
-function firstProse(blocks: Block[], skip = 0): string {
+/** The first paragraph of prose (not a field list or an italic type line); `deep` looks past sub-headings too. */
+function firstProse(blocks: Block[], skip = 0, deep = false): string {
   let k = 0;
   for (const b of blocks) {
-    if (b.k === 'h') break;
+    if (b.k === 'h') { if (deep) continue; break; }
     if (b.k === 'p' && !/^_[^_]+_$/.test(b.lines[0]) && !/^\*\*[^*]+:\*\*/.test(b.lines[0])) { if (k++ >= skip) return short(plain(b.lines.join(' '))); }
   }
   return '';
@@ -215,7 +252,7 @@ class Entries {
     const e: Entry = {
       id, type, name, s, anchor: '', at, node: n, wrap: o.wrap ?? !!n, extra: o.extra ?? [],
       html: o.html ?? (n ? entryHtml(n) : ''),
-      text: o.text ?? (n ? firstProse(body(n)) : ''),
+      text: o.text ?? (n ? firstProse(body(n)) || firstProse(body(n), 0, true) : ''),
     };
     this.list.push(e); this.byId.set(id, e);
     return e;
@@ -273,6 +310,16 @@ function monster(n: Node): MonsterSummary | undefined {
   return s;
 }
 
+/** A monster's tooltip line: 'Medium or Small Undead, Lawful Evil. AC 16, HP 195 (23d8 + 92), Speed 40 ft. … CR 13 (XP 10,000).' */
+function statLine(s: MonsterSummary): string {
+  return `${s.size} ${s.creatureType}, ${s.alignment}. AC ${s.ac}${s.acNote ? ` (${s.acNote})` : ''}, HP ${s.hp}${s.hpDice ? ` (${s.hpDice})` : ''}, Speed ${s.speed.replace(/\.$/, '')}. CR ${s.cr}${s.xp ? ` (XP ${s.xp.toLocaleString('en-US')})` : ''}.`;
+}
+
+function itemLine(s: ItemSummary): string {
+  const parts = [s.damage, s.properties, s.ac && `AC ${s.ac}`, s.strength, s.stealth && `Stealth ${s.stealth}`, s.cost && `Cost ${s.cost}`, s.weight].filter(Boolean);
+  return `${s.category}${s.subcategory ? ` (${s.subcategory})` : ''}${parts.length ? `: ${parts.join(', ').replace(/\.$/, '')}` : ''}.`;
+}
+
 function magicItem(n: Node): ItemSummary | undefined {
   const l = firstLine(n);
   if (!l || !/^_(Armor|Weapon|Wondrous [Ii]tem|Potion|Ring|Rod|Scroll|Staff|Wand|Ammunition|Shield)\b/.test(l)) return;
@@ -315,7 +362,7 @@ function recognise(cfg: BookConfig, chapters: Chapter[]): Entries {
     for (const n of defs?.children ?? []) {
       if (n.tag !== 'Condition') continue;
       const eff = [...leads(own(n)).map((x) => `${x.name}. ${x.text}`), ...own(n).flatMap((b) => (b.k === 'ul' || b.k === 'ol' ? b.items.map((i) => plain(i.text)) : []))];
-      E.add('condition', n.name, { effects: eff }, n, { node: n });
+      E.add('condition', n.name, { effects: eff }, n, { node: n, text: firstProse(own(n)) || short(eff.join(' ')) });
     }
   } else {
     const app = find(all, (n) => n.name === 'Appendix PH-A: Conditions');
@@ -325,7 +372,7 @@ function recognise(cfg: BookConfig, chapters: Chapter[]): Entries {
         if (b.k === 'ul' || b.k === 'ol') eff.push(...b.items.map((i) => plain(i.text)));
         if (b.k === 'table') eff.push(...b.rows.map((r) => `${plain(r[0])}: ${plain(r[1])}`));
       }
-      E.add('condition', n.name, { effects: eff }, n, { node: n });
+      E.add('condition', n.name, { effects: eff }, n, { node: n, text: firstProse(own(n)) || short(eff.join(' ')) });
     }
   }
 
@@ -333,7 +380,7 @@ function recognise(cfg: BookConfig, chapters: Chapter[]): Entries {
   for (const n of all) {
     const ch = n.chapter.title;
     if (/Spell/.test(ch)) { const s = spell(cfg, n, classes14); if (s) { E.add('spell', n.name, s, n, { node: n }); continue; } }
-    if (/Monster|Animals|Appendix MM/.test(ch)) { const s = monster(n); if (s) { E.add('monster', n.name, s, n, { node: n, text: firstProse(body(n)) }); continue; } }
+    if (/Monster|Animals|Appendix MM/.test(ch)) { const s = monster(n); if (s) { E.add('monster', n.name, s, n, { node: n, text: statLine(s as MonsterSummary) }); continue; } }
     if (/Magic Items/.test(ch)) { const s = magicItem(n); if (s) { E.add('item', n.name, s, n, { node: n }); continue; } }
   }
 
@@ -424,22 +471,31 @@ function recognise(cfg: BookConfig, chapters: Chapter[]): Entries {
     const intro = own(c), first = c.children[0];
     E.add('class', c.name, s, c, { node: c, wrap: false, html: html([...intro, ...(first ? [first.h, ...body(first)] : [])]), text: firstProse(intro) || firstProse(first ? body(first) : []) });
     for (const x of descendants(c)) {
-      let name = x.name, level: number | undefined, subclass: string | undefined;
+      let name = x.name, level: number | undefined, subclass: string | undefined, feature: string | undefined;
       if (v24) {
         const m = /^Level (\d+): (.+)$/.exec(x.name);
         if (!m) continue;
         level = +m[1]; name = m[2];
         subclass = /Subclass: (.+)$/.exec(x.parent?.name ?? '')?.[1];
       } else {
-        if (x.children.length || x.level < c.level + 2) continue;
+        // 2014: the class's own features are the headings of 'The <Class>' (Rage, Wild Shape, Ki …), each an entry even
+        // when it has parts of its own (Wild Shape's Beast Shapes, Ki's Flurry of Blows, the Fighting Styles), and
+        // those parts are entries too, under their feature. The other sections list the subclasses (Primal Paths →
+        // Path of the Berserker) or options (Eldritch Invocations); what is under a subclass is that subclass's.
+        if (x.level < c.level + 2) continue;
         if (x.parent && /^Class Features$/.test(x.parent.name)) continue;
         if (/^(Hit Points|Proficiencies|Equipment|Quick Build|Spellcasting Ability|Cantrips|Spell Slots|Spells Known.*|Ritual Casting|Spellcasting Focus|Preparing and Casting Spells|Learning Spells.*|Your Spellbook)$/.test(x.name)) continue;
-        if (x.parent && x.parent !== c && x.parent.parent !== c) subclass = x.parent.name;
+        const section = ancestors(x).find((a) => a.parent === c) ?? x;
+        const core = section.name === `The ${c.name}`;
+        const top = ancestors(x).find((a) => a.parent === section); // the feature, subclass or option it belongs to
+        if (core) { if (top) feature = top.name; }
+        else if (x.children.length && x.level === c.level + 2) continue; // a subclass itself: its parts are the entries
+        else if (top) subclass = top.name;
         // Circle of the Land's terrain lists: 'Circle Spells (Arctic)' of the Circle of the Land.
         if (x.parent?.name === 'Circle Spells' && x.parent.parent) { name = `Circle Spells (${x.name})`; subclass = x.parent.parent.name; }
       }
       if (/Subclass$|^Ability Score Improvement$|^Epic Boon$|^Subclass Feature$/i.test(name)) continue;
-      E.add('feature', name, { className: c.name, ...(level ? { level } : {}), ...(subclass ? { subclass } : {}) }, x, { node: x, disamb: c.name });
+      E.add('feature', name, { className: c.name, ...(level ? { level } : {}), ...(subclass ? { subclass } : {}), ...(feature ? { feature } : {}) }, x, { node: x, disamb: c.name });
     }
   }
 
@@ -448,6 +504,18 @@ function recognise(cfg: BookConfig, chapters: Chapter[]): Entries {
   for (const n of species) E.add('species', n.name, {}, n, { node: n });
   const bgs = v24 ? find(all, (n) => n.name === 'Background Descriptions')?.children ?? [] : all.filter((n) => n.chapter.title === 'Character Options' && n.name === 'Acolyte');
   for (const n of bgs) E.add('background', n.name, {}, n, { node: n });
+
+  // Rules whose name several sections share: the configured section answers (it is added first, so it wins).
+  for (const r of cfg.ruleSources ?? []) {
+    const want = r.path.split(' / ');
+    const hits = all.filter((n) => { const chain = [n, ...ancestors(n)].map((a) => a.name); return want.every((w, i) => chain[want.length - 1 - i] === w); });
+    if (hits.length !== 1) throw new Error(`${cfg.id}: rule source '${r.name}': ${hits.length} sections match '${r.path}'`);
+    const n = hits[0];
+    if (!r.lead) { E.add('rule', r.name, {}, n, { node: n }); continue; }
+    const x = leads(own(n)).find((l) => l.name === r.lead);
+    if (!x) throw new Error(`${cfg.id}: rule source '${r.name}': no lead-in '${r.lead}' in '${r.path}'`);
+    E.add('rule', r.name, {}, n, { html: `<p>${inline(x.text)}</p>`, text: short(x.text) });
+  }
 
   // 2014 rules (it has no glossary): the headings of the rules chapters. 2024 adds the Gameplay Toolbox's.
   const ruleChapters = v24 ? ['Gameplay Toolbox'] : ['Using Ability Scores', 'Adventuring', 'Combat', 'Spellcasting', 'Traps, Diseases, Madness, Objects and Poisons'];
@@ -475,6 +543,7 @@ function recognise(cfg: BookConfig, chapters: Chapter[]): Entries {
     for (const x of leads(own(n))) if (!descs.has(normName(x.name))) descs.set(normName(x.name), { node: n, blocks: [x.block], text: short(x.text) });
   }
   let cur: Node = eq.root;
+  const groupsSeen = new Set<string>();
   eq.blocks.forEach((b) => {
     const hn = b.k === 'h' ? eq.nodes.find((x) => x.h === b) : undefined;
     if (hn) { cur = hn; return; }
@@ -489,16 +558,23 @@ function recognise(cfg: BookConfig, chapters: Chapter[]): Entries {
     const category = /Weapon/.test(path) ? 'Weapon' : /Armor/.test(path) ? 'Armor' : /Tool|Artisan|Gaming|Musical/.test(path) ? 'Tool'
       : /Mount|Vehicle|Saddle|Tack|Waterborne|Drawn/.test(path) ? 'Mount or vehicle' : /Food|Drink|Lodging/.test(path) ? 'Food, drink and lodging' : /Gear/.test(path) ? 'Adventuring gear' : cur.name;
     let sub = /^(Item|Tools|Name|Armor|Weapons?|Type)$/i.test(H[0]) || !H[0] ? undefined : H[0].replace(/\s*\(.*\)$/, '');
+    // Rows that are kinds of one thing ('Saddles': Exotic, Military …) are named after it: 'Saddle, Exotic'.
+    const group = cfg.groupedRows?.[H[0]];
+    if (group) groupsSeen.add(H[0]);
     for (const r of b.rows) {
       const cells = r.map((c) => plain(c));
       if (!cells[0]) continue;
       if (cells.slice(1).every((c) => !c)) { sub = cells[0]; continue; }
       let name = cells[0], rsub = sub;
       if (/^(\d[\d,]*(?:[-–]\d+)?(?:st|nd|rd|th)?|Cantrip)$/i.test(name)) continue; // a price row, not an item
+      if (/^\*$/.test(cells[costC])) continue; // unpriced: 'Vehicles (land or water)' is a proficiency, not an item
+      if (group) name = `${group}, ${name}`;
       if (lifestyle) name = `${lifestyle} (${name})`; // 'Inn Stay (Poor)', 'Meal (Poor)'
       const pre = /^_([^_:]+):?_:? (.+)$/.exec(r[0].trim());
       if (pre) { rsub = plain(pre[1]); name = plain(pre[2]); }
-      name = name.replace(/\s*\((?:\d[^)]*|vial|flask|bottle|pint|pot|bag of [^)]*|per [^)]*|[^)]*\bfeet\b[^)]*|one week|quiver of [^)]*)\)$/i, '').trim();
+      // A lifestyle row of a grouped price ('Inn Stay (per day), Poor') is named like the 2024 rows: 'Inn Stay (Poor)'.
+      name = name.replace(/^(.+?) \(per [^)]*\), (\w+)$/, '$1 ($2)');
+      name = name.replace(/\s*\((?:\d[^)]*|vial|flask|bottle|pint|pot|bag of [^)]*|per [^)]*|[^)]*\bfeet\b[^)]*|one week|quiver of [^)]*)\)$/i, '').replace(/\s+per (?:day|person)$/i, '').trim();
       const get = (re: RegExp) => { const i = col(re); return i > 0 && cells[i] && cells[i] !== '—' ? cells[i] : undefined; };
       const s: ItemSummary = { category, magic: false, ...(rsub ? { subcategory: rsub } : {}) };
       const add = (k: keyof ItemSummary, v: string | undefined) => { if (v) (s as unknown as Record<string, string>)[k] = v; };
@@ -509,6 +585,21 @@ function recognise(cfg: BookConfig, chapters: Chapter[]): Entries {
       E.add('item', name, s, d?.node ?? cur, { html: d ? html(d.blocks) : '', text: d?.text ?? '', merge: true, extra });
     }
   });
+  for (const g of Object.keys(cfg.groupedRows ?? {})) if (!groupsSeen.has(g)) throw new Error(`${cfg.id}: grouped rows: no equipment table headed '${g}'`);
+
+  // Tools described one by one (2024: '#### Thieves' Tools' with Cost, Ability, Weight, Utilize, Craft and Variants).
+  for (const n of eq.nodes) {
+    const f = fields(own(n));
+    if (!f.has('cost') || !f.has('ability') || !f.has('utilize')) continue;
+    const s: ItemSummary = { category: 'Tool', magic: false, ...(n.parent && n.parent !== eq.root && n.parent.name !== 'Tools' ? { subcategory: n.parent.name } : {}) };
+    const add = (k: keyof ItemSummary, v: string | undefined) => { if (v && v !== '—') (s as unknown as Record<string, string>)[k] = v; };
+    add('cost', f.get('cost')); add('weight', f.get('weight')); add('ability', f.get('ability')); add('utilize', f.get('utilize')); add('craft', f.get('craft')); add('variants', f.get('variants'));
+    // Each variant is found by its own name too: 'lute' is a Musical Instrument, 'playing cards' a Gaming Set.
+    const extra = (f.get('variants') ?? '').split(/,\s*(?![^()]*\))/).map((v) => v.replace(/\s*\(.*\)$/, '').trim()).filter(Boolean);
+    E.add('item', n.name, s, n, { node: n, text: short(`${f.get('ability')}. Utilize: ${f.get('utilize')}${f.get('craft') ? `. Craft: ${f.get('craft')}` : ''}.`), extra });
+  }
+  // Gear that has a table row and no description still gets a tooltip line: 'Weapon (Martial Melee): 1d8 slashing …'.
+  for (const e of E.list) if (e.type === 'item' && !e.text) e.text = itemLine(e.s as ItemSummary);
   return E;
 }
 
@@ -615,7 +706,8 @@ const ALWAYS_COMMON = new Set(('light shield command guidance fly help hide sear
   'action reaction speed reach size target object creature monster spell weapon armor initiative cover dead stable surprise ' +
   'strength dexterity constitution intelligence wisdom charisma net mule cat deer rope torch lamp book bell chain lock ' +
   'magic study influence search hide grapple shove inspiration advantage disadvantage resistance immunity vulnerability ' +
-  'poor modest comfortable wealthy squalid wretched aristocratic').split(/\s+/));
+  'poor modest comfortable wealthy squalid wretched aristocratic ' +
+  'hammer leather feed pack riding military exotic saddle dice drum flute horn lute lyre viol shawm bagpipes dulcimer').split(/\s+/));
 
 function plural(w: string): string {
   const irregular: Record<string, string> = { wolf: 'wolves', werewolf: 'werewolves', elf: 'elves', dwarf: 'dwarves', thief: 'thieves', knife: 'knives', man: 'men', woman: 'women', mouse: 'mice', foot: 'feet', tooth: 'teeth', ox: 'oxen', fungus: 'fungi', efreeti: 'efreet', djinni: 'djinn', fish: 'fish', sheep: 'sheep', deer: 'deer', undead: 'undead', fey: 'fey', swarm: 'swarms' };
@@ -632,6 +724,9 @@ function formsOf(e: Entry): string[] {
   const n = normForm(e.name), out = new Set<string>([n]);
   const bare = n.replace(/\s*\([^)]*\)\s*$/, '').trim(); out.add(bare);
   const inv = /^([^,]+), ([^,+]+)$/.exec(bare); if (inv && e.type === 'item') { out.add(`${inv[2]} ${inv[1]}`); out.add(inv[1]); }
+  // 'Wand of the War Mage, +1, +2, or +3' is also 'wand of the war mage', '+1 wand of the war mage', 'wand of the war mage +2'.
+  const plus = /^(.+), \+1, \+2, or \+3$/.exec(bare);
+  if (plus && e.type === 'item') { out.add(plus[1]); for (const k of [1, 2, 3]) { out.add(`+${k} ${plus[1]}`); out.add(`${plus[1]} +${k}`); } }
   const words = bare.split(' ');
   if (e.type === 'item' && words[1] === 'of' && /s$/.test(words[0])) out.add([words[0].replace(/ies$/, 'y').replace(/s$/, ''), ...words.slice(1)].join(' '));
   if (['monster', 'item', 'creature-type', 'species', 'class', 'feat'].includes(e.type) && !/[,+]/.test(bare)) {
@@ -676,12 +771,26 @@ function termIndex(cfg: BookConfig, E: Entries, md: string): TermFile {
   const forms: Record<string, number[]> = {};
   const add = (f: string, e: Entry) => { const l = (forms[f] ??= []); const i = idx.get(e)!; if (!l.includes(i)) l.push(i); };
   // Aliases first: they are deliberate ('grapple' is the Grappling rule, 'goblin' the 2024 Goblin Warrior).
-  for (const [alias, id] of Object.entries(cfg.aliases)) {
+  const aliased = new Map<string, number>();
+  const alias = (f: string, e: Entry) => { const k = normForm(f); (forms[k] ??= []).unshift(idx.get(e)!); aliased.set(k, idx.get(e)!); };
+  for (const [a, id] of Object.entries(cfg.aliases)) {
     const e = E.byId.get(id);
-    if (!e) throw new Error(`${cfg.id}: alias '${alias}' names a missing entry ${id}`);
-    const l = (forms[normForm(alias)] ??= []); l.unshift(idx.get(e)!);
+    if (!e) throw new Error(`${cfg.id}: alias '${a}' names a missing entry ${id}`);
+    alias(a, e);
+    // A creature's alias answers for a group too: 'thugs' like 'thug'.
+    if (e.type === 'monster' && !/s$/.test(a)) { const w = a.split(' '); alias([...w.slice(0, -1), plural(w[w.length - 1])].join(' '), e); }
   }
   for (const e of order) for (const f of allForms.get(e)!) add(f, e);
+  // Within a kind, an entry named exactly so comes before one that only answers to the form ('shield' is the Shield
+  // before 'Shield, +1, +2, or +3'); the aliases stay first.
+  const named = (i: number, f: string) => (normForm(E.list[i].name).replace(/\s*\([^)]*\)\s*$/, '') === f ? 0 : 1);
+  for (const [f, l] of Object.entries(forms)) {
+    const head = aliased.has(f) ? l.filter((i) => i === aliased.get(f)) : [];
+    const rest = l.filter((i) => !head.includes(i));
+    const pos = new Map(rest.map((i, k) => [i, k]));
+    rest.sort((a, b) => rank(E.list[a]) - rank(E.list[b]) || named(a, f) - named(b, f) || pos.get(a)! - pos.get(b)!);
+    forms[f] = [...head, ...rest];
+  }
   const abbr: Record<string, number[]> = {};
   const addAbbr = (a: string, id: string) => { const e = E.byId.get(id); if (e) (abbr[a] ??= []).push(idx.get(e)!); };
   for (const [name, ab] of ABILITIES) { const id = `ability:${slug(name)}`; addAbbr(ab, id); addAbbr(`${ab}.`, id); addAbbr(ab.toUpperCase(), id); }
@@ -689,6 +798,8 @@ function termIndex(cfg: BookConfig, E: Entries, md: string): TermFile {
   const counts = lowerNgrams(md);
   const isCommon = (f: string) => ALWAYS_COMMON.has(f) || (counts.get(f) ?? 0) >= 3;
   const common = new Set(Object.keys(forms).filter(isCommon));
+  // A piece of mundane gear named in one word (Hammer, Rope, Saddle, Feed) is an ordinary noun in running text.
+  for (const [e, fs] of allForms) if (e.type === 'item' && !(e.s as ItemSummary).magic) for (const f of fs) if (/^[a-z'-]+$/.test(f)) common.add(f);
   // An inflected form of a common word is common too: 'hides' like 'hide', 'nets' like 'net'.
   for (const [e, fs] of allForms) {
     const base = normForm(e.name).replace(/\s*\([^)]*\)\s*$/, '').trim();

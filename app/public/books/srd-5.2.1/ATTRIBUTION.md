@@ -8,7 +8,7 @@ This work includes material from the System Reference Document 5.2.1 (“SRD 5.2
 
 ## Changes
 
-Converted from the official PDF to Markdown by the your5e/5e-srd-markdown project, then to HTML and JSON, reformatted and indexed for mistLAB. That Markdown conversion dropped most table titles and reworded the sentences that named them (for example “as shown on the Travel Pace table. The table states” became “The table states”); mistLAB restored the table titles from the official PDF, but not those sentences. mistLAB also rejoined words split by the PDF extraction and set the Efreeti Bottle table’s die back to 1d10 as printed. Otherwise no rules text was changed.
+Converted from the official PDF to Markdown by the your5e/5e-srd-markdown project, which lists its own changes: it removed the table of contents; renumbered the steps of D20 Tests; moved tables and sidebars to where they are used and removed their titles and the sentences that named them (for example “as shown on the Travel Pace table. The table states” became “The table states”); changed “on [the] table” to “in [the] table”; gave tables with several header rows a single header row; restructured side-by-side tables; split tables at their mid-table headings; and laid out the monster ability tables as score, modifier and saving throw. mistLAB converted that Markdown to HTML and JSON, reformatted and indexed it, and, checked against the official PDF, restored the table titles (not the sentences that named them), rejoined words split by the PDF extraction, merged the Travel Pace header into one row, set the Efreeti Bottle table’s die back to 1d10 as printed, rejoined the licence URL on the legal page and removed stray italics around punctuation. Apart from formatting and these changes, no rules text was changed.
 
 ## Licence
 
@@ -21,7 +21,7 @@ Section 5 of CC-BY-4.0 includes a Disclaimer of Warranties and Limitation of Lia
 - your5e/5e-srd-markdown, SRD_CC_v5.2.1.md (cleaned single-file Markdown of SRD 5.2.1) at commit f1f5060
   https://raw.githubusercontent.com/your5e/5e-srd-markdown/f1f5060fd975aa2ffc3e4b336560ded479934d80/dnd/521/SRD_CC_v5.2.1.md
   SHA-256 e4f4803e7cef3d33f42555616fae75abc72ec4f3d79ba1bf344afc906504bec2, retrieved 2026-10-04
-- Official SRD_CC_v5.2.1.pdf (Wizards of the Coast, https://media.dndbeyond.com/compendium-images/srd/5.2/SRD_CC_v5.2.1.pdf), fetched from the your5e mirror at commit f1f5060
+- Official SRD_CC_v5.2.1.pdf (https://media.dndbeyond.com/compendium-images/srd/5.2/SRD_CC_v5.2.1.pdf), fetched from the your5e mirror at commit f1f5060
   https://raw.githubusercontent.com/your5e/5e-srd-markdown/f1f5060fd975aa2ffc3e4b336560ded479934d80/dnd/521/SRD_CC_v5.2.1.pdf
   SHA-256 8974902d109d6e63672d7c490bde9ccf052410503d9cfa768237154fbc5e3d87, retrieved 2026-10-04
 

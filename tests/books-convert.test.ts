@@ -2,6 +2,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { inline, parseBlocks, renderBlocks, repairSplitWords } from '../scripts/books/md';
+import { compareSpellLists, parseSpellLists, type SpellLists } from '../scripts/books/spelllists';
 import type { BookId, BookIndex, Catalog, EntryFile, MonsterSummary, PageFile, SpellSummary, ItemSummary, ConditionSummary } from '../app/src/books/types';
 
 const DIR = 'app/public/books';
@@ -96,7 +97,7 @@ describe('books: entries', () => {
       const v = entries(b, 'monsters')['monster:vampire'];
       expect(v, b).toBeTruthy();
       expect((v.s as MonsterSummary).cr).toBe('13');
-      expect(v.html).toContain('<table>');
+      expect(v.html).toContain('<table class="abil">');
     }
   });
   it('items: weapons and armour from the tables, magic items with rarity and attunement', () => {
@@ -226,6 +227,99 @@ describe('books: fidelity to the printed PDF', () => {
   });
 });
 
+describe('books: what the Markdown dropped or garbled, restored from the PDF', () => {
+  const lists = JSON.parse(readFileSync('scripts/books/pdf/srd-5.1-spell-lists.json', 'utf8')) as { attribution: string; lists: SpellLists };
+  it('the PDF spell lists are committed with the attribution, and every 2014 spell carries exactly the classes that list it', () => {
+    expect(lists.attribution).toBe(index('srd-5.1').attribution);
+    expect(Object.keys(lists.lists).sort()).toEqual(['Bard', 'Cleric', 'Druid', 'Paladin', 'Ranger', 'Sorcerer', 'Warlock', 'Wizard']);
+    expect(Object.values(lists.lists).reduce((n, l) => n + Object.values(l).flat().length, 0)).toBe(778);
+    const spells = Object.values(entries('srd-5.1', 'spells')).map((e) => ({ name: e.name, classes: (e.s as SpellSummary).classes }));
+    expect(compareSpellLists(lists.lists, spells)).toEqual([]);
+    expect(spells.filter((x) => !x.classes.length).map((x) => x.name)).toEqual([]);
+  });
+  it('the seven 2014 spell-list entries the Markdown dropped are back, and the comparison would catch a missing one', () => {
+    const s = entries('srd-5.1', 'spells');
+    expect((s['spell:hunters-mark'].s as SpellSummary).classes).toEqual(['Ranger']);
+    expect((s['spell:enlarge-reduce'].s as SpellSummary).classes).toEqual(['Sorcerer', 'Wizard']);
+    expect((s['spell:arcanists-magic-aura'].s as SpellSummary).classes).toEqual(['Wizard']);
+    expect((s['spell:heroes-feast'].s as SpellSummary).classes).toEqual(['Cleric', 'Druid']);
+    expect((s['spell:control-weather'].s as SpellSummary).classes).toEqual(['Cleric', 'Druid', 'Wizard']);
+    const page = read<PageFile>('srd-5.1/p/spellcasting.json').html;
+    expect(page).toMatch(/<li><em>Goodberry<\/em><\/li><li><em>Hunter&#39;s Mark<\/em><\/li><li><em>Jump<\/em><\/li>|<li><em>Goodberry<\/em><\/li><li><em>Hunter's Mark<\/em><\/li><li><em>Jump<\/em><\/li>/);
+    expect(compareSpellLists(lists.lists, [{ name: "Hunter's Mark", classes: [] }])[0]).toMatch(/listed but not a spell|Hunter's Mark: lists say \[Ranger\]/);
+    expect(compareSpellLists(lists.lists, [{ name: "Hunter's Mark", classes: [] }])).toContain("Hunter's Mark: lists say [Ranger], converter says []");
+  });
+  it('the PDF column reader keeps two-word names whole', () => {
+    const l = parseSpellLists('Spell Lists\nRanger Spells\n\n1st Level\nGoodberry\t\r\u00a0\nHunter’s\t\r\u00a0Mark\t\r\u00a0\nJump\nSystem Reference Document 5.1 105\n2nd Level\nAid');
+    expect(l).toEqual({ Ranger: { 1: ['Goodberry', "Hunter's Mark", 'Jump'], 2: ['Aid'] } });
+  });
+  it('the Grimlock has its Blind Senses trait, first as printed', () => {
+    const h = entries('srd-5.1', 'monsters')['monster:grimlock'].html;
+    expect(h).toContain("<em><strong>Blind Senses.</strong></em> The grimlock can't use its blindsight while deafened and unable to smell.");
+    expect(h.indexOf('Blind Senses')).toBeLessThan(h.indexOf('Keen Hearing and Smell'));
+  });
+  it('the Deck of Illusions table ends with the Jokers', () => {
+    const h = entries('srd-5.1', 'items')['item:deck-of-illusions'].html;
+    expect(h).toMatch(/<tr><td>Jokers \(2\)<\/td><td>You \(the deck(&#39;|')s owner\)<\/td><\/tr><\/tbody>/);
+  });
+  it('2014 stat blocks print the Saving Throws line (the proficient saves), not a row of every save', () => {
+    const m = entries('srd-5.1', 'monsters');
+    expect((m['monster:vampire'].s as MonsterSummary).saves).toBe('Dex +9, Wis +7, Cha +9');
+    expect(m['monster:vampire'].html).toContain('<li><strong>Saving Throws</strong> Dex +9, Wis +7, Cha +9</li>');
+    expect((m['monster:grimlock'].s as MonsterSummary).saves).toBeUndefined();
+    expect(pagesHtml('srd-5.1')).not.toMatch(/<th><strong>Saving Throws?<\/strong><\/th>/);
+    // 2024 prints a save beside every modifier, and keeps it.
+    expect(entries('srd-5.2.1', 'monsters')['monster:vampire'].html).toMatch(/Saving Throw|<th[^>]*>Save/);
+  });
+  it('2014 equipment names are the printed ones: no bare adjectives or group labels, no unpriced rows', () => {
+    const items = entries('srd-5.1', 'items');
+    const names = Object.values(items).map((e) => e.name);
+    for (const bad of ['Military', 'Exotic', 'Pack', 'Riding', 'Vehicles (land or water)', 'Meals (per day), Meat, chunk', 'Tent, two -person']) expect(names, bad).not.toContain(bad);
+    expect(names.filter((n) => /\(per [^)]*\), /.test(n))).toEqual([]);
+    expect(items['item:saddle-military'].s).toMatchObject({ cost: '20 gp', weight: '30 lb.' });
+    expect(items['item:meat-chunk'].s).toMatchObject({ cost: '3 sp' });
+    expect(items['item:tent-two-person']).toBeTruthy();
+    expect(items['item:meals-poor'].s).toMatchObject({ cost: '6 cp' });
+    expect(Object.values(items).filter((e) => (e.s as ItemSummary).cost === '*')).toEqual([]);
+    expect(read<PageFile>('srd-5.1/p/equipment.json').html).not.toContain('two -person');
+  });
+  it('2024 tools are items, each with its ability, Utilize and cost', () => {
+    const i = entries('srd-5.2.1', 'items');
+    const tools = Object.values(i).filter((e) => (e.s as ItemSummary).category === 'Tool');
+    const ix = index('srd-5.2.1');
+    // Every heading under Artisan's Tools and Other Tools is one.
+    const under = (title: string) => { const at = ix.sections.findIndex((x) => x[1] === title); const lv = ix.sections[at][2]; const out: string[] = []; for (let k = at + 1; k < ix.sections.length && ix.sections[k][2] > lv; k++) if (ix.sections[k][2] === lv + 1) out.push(ix.sections[k][1]); return out; };
+    const want = [...under("Artisan's Tools"), ...under('Other Tools')];
+    expect(want.length).toBe(25);
+    expect(tools.map((e) => e.name).sort()).toEqual(want.sort());
+    expect(i['item:thieves-tools'].s).toEqual({ category: 'Tool', magic: false, subcategory: 'Other Tools', cost: '25 GP', weight: '1 lb.', ability: 'Dexterity', utilize: 'Pick a lock (DC 15), or disarm a trap (DC 15)' } satisfies ItemSummary);
+    expect(i['item:thieves-tools'].text).toBe('Dexterity. Utilize: Pick a lock (DC 15), or disarm a trap (DC 15).');
+    expect(i['item:smiths-tools'].s).toMatchObject({ subcategory: "Artisan's Tools", ability: 'Strength' });
+    expect((i['item:musical-instrument'].s as ItemSummary).variants).toMatch(/^Bagpipes \(30 GP, 6 lb\.\), drum/);
+  });
+  for (const b of BOOKS) {
+    it(`${b}: no stray Markdown underscores in the reader text`, () => {
+      const t = text(pagesHtml(b).replace(/<a [^>]*>[\s\S]*?<\/a>|<code>[\s\S]*?<\/code>/g, ''));
+      expect(t.match(/.{0,30}_.{0,10}/g) ?? []).toEqual([]);
+    });
+    it(`${b}: every condition, species, monster and item has a short tooltip text`, () => {
+      const empty = [...Object.values(entries(b, 'rules')), ...Object.values(entries(b, 'character')), ...Object.values(entries(b, 'monsters')), ...Object.values(entries(b, 'items'))]
+        .filter((e) => ['condition', 'species', 'monster', 'item'].includes(e.type) && !e.text).map((e) => e.id);
+      expect(empty).toEqual([]);
+    });
+    it(`${b}: every ability table of a stat block is marked for the phone layout`, () => {
+      const h = pagesHtml(b);
+      const all = h.match(/<table[^>]*><thead><tr><th><\/th><th[^>]*>Str\.<\/th>/g) ?? [];
+      expect(all.length).toBeGreaterThan(300);
+      expect(all.filter((t) => !t.startsWith('<table class="abil">'))).toEqual([]);
+    });
+  }
+  it('a monster\'s tooltip text is its stat line', () => {
+    expect(entries('srd-5.2.1', 'monsters')['monster:vampire'].text).toBe('Medium or Small Undead, Lawful Evil. AC 16, HP 195 (23d8 + 92), Speed 40 ft., Climb 40 ft. CR 13 (XP 10,000).');
+    expect(entries('srd-5.1', 'rules')['condition:prone'].text).toMatch(/^A prone creature's only movement option is to crawl/);
+  });
+});
+
 // The converter is deterministic: a fresh run over the pinned sources matches the committed files byte for byte.
 // Runs where `npm run books` has filled scripts/books/.cache; elsewhere `npm run books:check` does the same check.
 describe.skipIf(!existsSync('scripts/books/.cache/your5e-srd-5.2.1-md.md'))('books: regeneration', () => {
@@ -235,7 +329,7 @@ describe.skipIf(!existsSync('scripts/books/.cache/your5e-srd-5.2.1-md.md'))('boo
     const sources = JSON.parse(readFileSync('scripts/books/sources.json', 'utf8')).sources;
     for (const cfg of BOOKS) {
       const md = readFileSync(`scripts/books/.cache/${cfg.markdown}.md`, 'utf8');
-      const titles = cfg.tableTitles ? JSON.parse(readFileSync(`scripts/books/titles/${cfg.id}.json`, 'utf8')) : [];
+      const titles = cfg.tableTitles ? JSON.parse(readFileSync(`scripts/books/titles/${cfg.id}.json`, 'utf8')).titles : [];
       const built = convertBook(cfg, md, sources, titles);
       for (const [p, s] of built.files) expect(s === readFileSync(`${DIR}/${cfg.id}/${p}`, 'utf8'), `${cfg.id}/${p}`).toBe(true);
     }

@@ -173,7 +173,9 @@ function renderBlock(b: Block, o: RenderOpts): string {
       const cell = (tag: string, s: string, c: number) => `<${tag}${num[c] ? ' class="n"' : ''}>${inline(s ?? '')}</${tag}>`;
       const head = b.head.some((h) => h.trim()) ? `<thead><tr>${b.head.map((h, c) => cell('th', h, c)).join('')}</tr></thead>` : '';
       const rows = b.rows.map((r) => `<tr>${Array.from({ length: cols }, (_, c) => cell(c === 0 && /^\*\*.*\*\*$/.test(r[0] ?? '') ? 'th' : 'td', r[c] ?? '', c)).join('')}</tr>`).join('');
-      return `<div class="tbl"${id ? ` id="${id}"` : ''}><table>${caption}${head}<tbody>${rows}</tbody></table></div>`;
+      // A stat block's ability table (Str. … Cha.) is marked, so it can be laid out to fit a phone wherever it appears.
+      const abil = b.head.some((h) => /^Str\.?$/.test(plain(h))) && b.head.some((h) => /^Cha\.?$/.test(plain(h)));
+      return `<div class="tbl"${id ? ` id="${id}"` : ''}><table${abil ? ' class="abil"' : ''}>${caption}${head}<tbody>${rows}</tbody></table></div>`;
     }
   }
 }
@@ -198,6 +200,10 @@ export function slug(s: string): string {
 }
 
 // ---- source repairs
+
+/** The PDF set some full stops in italics after a word in roman ('knocked prone_._', 'see "Playing the Game_."_'): an
+ *  emphasis around nothing but punctuation shows as stray underscores, so it is dropped. */
+export const dropItalicPunctuation = (md: string): string => md.replace(/(?<=[A-Za-z])_([.,;:!?]["”]?)_(?![A-Za-z0-9])/g, '$1');
 
 /**
  * Rejoin words the PDF extraction split in two ('Na ture', 'Leather Ar mor', 'de pending'): two adjacent fragments

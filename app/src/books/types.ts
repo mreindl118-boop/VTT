@@ -54,6 +54,8 @@ export interface MonsterSummary {
 export interface ItemSummary {
   category: string; subcategory?: string; magic: boolean; rarity?: string; attunement?: string | boolean;
   cost?: string; weight?: string; damage?: string; properties?: string; mastery?: string; ac?: string; strength?: string; stealth?: string;
+  /** Tools (2024): the ability its checks use, what the Utilize action does with it, what it crafts, its variants. */
+  ability?: string; utilize?: string; craft?: string; variants?: string;
 }
 export interface ConditionSummary { effects: string[] }
 export interface RuleSummary { tag?: string }
@@ -61,7 +63,9 @@ export interface SkillSummary { ability: string }
 export interface AbilitySummary { abbr: string }
 export interface FeatSummary { category?: string; prerequisite?: string }
 export interface ClassSummary { hitDie?: string; primaryAbility?: string; saves?: string }
-export interface FeatureSummary { className: string; level?: number; subclass?: string }
+/** A class feature: its class, the level it comes at (2024), the subclass it belongs to, and for a part of a larger
+ *  feature (Beast Shapes of Wild Shape, Flurry of Blows of Ki) that feature's name. */
+export interface FeatureSummary { className: string; level?: number; subclass?: string; feature?: string }
 export type Summary = SpellSummary | MonsterSummary | ItemSummary | ConditionSummary | RuleSummary | SkillSummary
   | AbilitySummary | FeatSummary | ClassSummary | FeatureSummary | Record<string, never>;
 

@@ -8,7 +8,9 @@ import { ATTRIBUTION, CHANGES, DISCLAIMER } from '../app/src/books/attribution';
 // The one exemption: the open rules books. The System Reference Document 5.1 and 5.2.1 are released by Wizards of
 // the Coast under the Creative Commons Attribution 4.0 International licence (CC-BY-4.0), which allows redistribution
 // with attribution. `npm run books` (scripts/books) writes them to app/public/books/srd-* with that attribution in
-// every file. Curse of Strahd is not open: it stays out, and every other path stays guarded.
+// every file. Curse of Strahd is not open: it stays out, and every other path stays guarded. Two small files of SRD data
+// read from the official PDFs sit beside the converter (scripts/books/titles/*.json: table titles; scripts/books/pdf/*.json:
+// the 2014 class spell lists); each carries its book's attribution too (checked below).
 const CC_BY_BOOKS = /^app\/public\/books\/(srd-[\d.]+\/|catalog\.json$)/;
 
 function tracked(): string[] | null {
@@ -64,4 +66,22 @@ describe('the CC-BY rules books carry their attribution', () => {
       }
     });
   }
+});
+
+describe('SRD data beside the converter carries its attribution, and the changes notes say what changed', () => {
+  const dirs = ['scripts/books/titles', 'scripts/books/pdf'];
+  it('every file of PDF data names its book and carries the exact statement', () => {
+    const files = dirs.flatMap((d) => readdirSync(d).filter((f) => f.endsWith('.json')).map((f) => join(d, f)));
+    expect(files.length).toBeGreaterThanOrEqual(2);
+    for (const f of files) {
+      const j = JSON.parse(readFileSync(f, 'utf8')) as { book: keyof typeof ATTRIBUTION; attribution: string };
+      expect(j.attribution, f).toBe(ATTRIBUTION[j.book]);
+    }
+  });
+  it('each changes note keeps the Markdown project\'s own list of changes and lists what mistLAB restored', () => {
+    const c24 = CHANGES['srd-5.2.1'], c14 = CHANGES['srd-5.1'];
+    for (const c of [c24, c14]) { expect(c).toContain('your5e/5e-srd-markdown project, which lists its own changes'); expect(c).not.toMatch(/Otherwise no rules text was changed/); expect(c).toMatch(/Apart from formatting and these changes, no rules text was changed\.$/); }
+    for (const x of ['renumbered the steps of D20 Tests', 'changed “on [the] table” to “in [the] table”', 'removed their titles', 'a single header row', 'merged the Travel Pace header', '1d10']) expect(c24, x).toContain(x);
+    for (const x of ['“Components” typo in Contagion', 'Heroes’ Feast', 'Hunter’s Mark', 'Blind Senses', 'Jokers', 'Saving Throws line', 'Tent, two-person']) expect(c14, x).toContain(x);
+  });
 });

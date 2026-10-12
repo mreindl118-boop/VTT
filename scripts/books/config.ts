@@ -7,8 +7,25 @@ import { ATTRIBUTION, CHANGES, DISCLAIMER } from '../../app/src/books/attributio
 export { CHANGES, DISCLAIMER };
 
 /** A correction to the source Markdown, checked against the official PDF. Applied before parsing; the build stops
- *  if `find` does not occur exactly `count` times (default 1), so a changed source cannot be patched silently. */
-export interface Patch { find: string; replace: string; count?: number; why: string }
+ *  if `find` does not occur exactly `count` times (default 1), so a changed source cannot be patched silently.
+ *  `within` narrows the search to one part of the book, for a line that is not unique in the whole of it (an item of one
+ *  class's spell list): each marker of `from` is found after the one before it, and the part ends at the next `to`.
+ *  The build stops if a marker is missing. */
+export interface Patch { find: string; replace: string; count?: number; within?: { from: string[]; to: string }; why: string }
+
+/** Insert a spell the Markdown dropped into one class's spell list, between the two spells the PDF prints around it. */
+const listItem = (cls: string, level: string, after: string, spell: string, before: string): Patch => ({
+  within: { from: [`\n## ${cls} Spells\n`, `\n### ${level}\n`], to: '\n#' },
+  find: `- _${after}_\n- _${before}_\n`,
+  replace: `- _${after}_\n- _${spell}_\n- _${before}_\n`,
+  why: `${cls} spell list, ${level}: ${spell} restored between ${after} and ${before}, as in the PDF`,
+});
+
+/** A rules section that answers a name several sections share ('Hit Points' is both a Constitution paragraph and the
+ *  combat rule). `path` names the section by its heading and the headings above it, nearest last
+ *  ('Damage and Healing / Hit Points'); `lead` picks a lead-in paragraph inside it ('Armor Class (AC)'). The build
+ *  stops if the path is not found. */
+export interface RuleSource { name: string; path: string; lead?: string }
 
 export interface ChapterSpec {
   title: string;
@@ -39,8 +56,16 @@ export interface BookConfig {
   repairWords?: { keep: string[] };
   /** Restore table titles the Markdown dropped, from the PDF (scripts/books/titles/<id>.json, made by titles.ts). */
   tableTitles?: boolean;
+  /** PDF pages of the class spell lists (2014): the build reads them (spelllists.ts, committed as
+   *  scripts/books/pdf/<id>-spell-lists.json) and stops unless every spell's classes agree with them. */
+  spellListPages?: [number, number];
   /** Extra names for entries: lower-case alias → entry id. The build stops if an id is missing. */
   aliases: Record<string, string>;
+  /** Rules whose name several sections share: the section that answers (2014 has no glossary to settle it). */
+  ruleSources?: RuleSource[];
+  /** Equipment tables whose rows are kinds of one thing ('Saddles': Exotic, Military …): table header → item name
+   *  that prefixes each row ('Saddle, Exotic'), as the PDF groups them. The build stops if a table is not found. */
+  groupedRows?: Record<string, string>;
 }
 
 export const LICENSE = { name: 'Creative Commons Attribution 4.0 International (CC-BY-4.0)', url: 'https://creativecommons.org/licenses/by/4.0/legalcode' };
@@ -75,6 +100,14 @@ export const BOOKS: BookConfig[] = [
       'healing potion': 'item:potion-of-healing', 'healing potions': 'item:potion-of-healing',
       '+1 weapon': 'item:weapon-1-2-or-3', '+2 weapon': 'item:weapon-1-2-or-3', '+3 weapon': 'item:weapon-1-2-or-3',
       '+1 armor': 'item:armor-1-2-or-3', '+2 armor': 'item:armor-1-2-or-3', '+3 armor': 'item:armor-1-2-or-3',
+      // The 2014 names of creatures the 2024 rules renamed, so a module written for 2014 finds the 2024 stat block.
+      thug: 'monster:tough', veteran: 'monster:warrior-veteran', 'cult fanatic': 'monster:cultist-fanatic', acolyte: 'monster:priest-acolyte',
+      bugbear: 'monster:bugbear-warrior', centaur: 'monster:centaur-trooper', gnoll: 'monster:gnoll-warrior', hobgoblin: 'monster:hobgoblin-warrior',
+      kobold: 'monster:kobold-warrior', merfolk: 'monster:merfolk-skirmisher', sahuagin: 'monster:sahuagin-warrior', minotaur: 'monster:minotaur-of-baphomet',
+      shrieker: 'monster:shrieker-fungus', 'flying sword': 'monster:animated-flying-sword', 'rug of smothering': 'monster:animated-rug-of-smothering',
+      'poisonous snake': 'monster:venomous-snake', 'giant poisonous snake': 'monster:giant-venomous-snake', 'swarm of poisonous snakes': 'monster:swarm-of-venomous-snakes',
+      'sea horse': 'monster:seahorse', 'giant sea horse': 'monster:giant-seahorse', 'swarm of quippers': 'monster:swarm-of-piranhas',
+      ki: 'feature:monks-focus', 'ki points': 'feature:monks-focus',
     },
     chapters: [
       { title: 'Legal Information', start: [1, 'Legal Information'] },
@@ -99,7 +132,49 @@ export const BOOKS: BookConfig[] = [
     attribution: ATTRIBUTION['srd-5.1'],
     attributionNote: 'Please do not include any other attribution regarding Wizards other than that provided above. You may, however, include a statement on your work that it is “compatible with fifth edition” or “5E compatible.”',
     changes: CHANGES['srd-5.1'],
-    patches: [],
+    // What the Markdown dropped or garbled, each checked against the official PDF (pages 105–113 for the spell lists,
+    // read column by column).
+    patches: [
+      listItem('Cleric', '6th Level', 'Heal', 'Heroes\' Feast', 'Planar Ally'),
+      listItem('Druid', '6th Level', 'Heal', 'Heroes\' Feast', 'Move Earth'),
+      listItem('Ranger', '1st Level', 'Goodberry', 'Hunter\'s Mark', 'Jump'),
+      listItem('Sorcerer', '2nd Level', 'Enhance Ability', 'Enlarge/Reduce', 'Gust of Wind'),
+      listItem('Wizard', '2nd Level', 'Arcane Lock', 'Arcanist\'s Magic Aura', 'Blindness/Deafness'),
+      listItem('Wizard', '2nd Level', 'Detect Thoughts', 'Enlarge/Reduce', 'Flaming Sphere'),
+      listItem('Wizard', '8th Level', 'Clone', 'Control Weather', 'Demiplane'),
+      {
+        find: '#### Traits\n\n_**Keen Hearing and Smell.**_ The grimlock has advantage',
+        replace: '#### Traits\n\n_**Blind Senses.**_ The grimlock can\'t use its blindsight while deafened and unable to smell.\n\n_**Keen Hearing and Smell.**_ The grimlock has advantage',
+        why: 'Grimlock: the Blind Senses trait, the first of its traits in the PDF, was missing',
+      },
+      {
+        find: '| Two of clubs      | Kobold                           |\n',
+        replace: '| Two of clubs      | Kobold                           |\n| Jokers (2)        | You (the deck\'s owner)          |\n',
+        why: 'Deck of Illusions: the table\'s last row, Jokers (2), was missing',
+      },
+      {
+        find: '| Meals (per day), Meat, chunk     | 3 sp   |',
+        replace: '| Meat, chunk                      | 3 sp   |',
+        why: 'Food, Drink, and Lodging: “Meat, chunk” is its own row in the PDF, not one of the Meals',
+      },
+      {
+        find: '| Tent, two -person                   |',
+        replace: '| Tent, two-person                    |',
+        why: 'Adventuring Gear: “Tent, two-person” had a space before the hyphen',
+      },
+    ],
+    // Sections that share a name with another: the combat rule answers, not the ability's paragraph or the travel note.
+    ruleSources: [
+      { name: 'Hit Points', path: 'Damage and Healing / Hit Points' },
+      { name: 'Difficult Terrain', path: 'Movement and Position / Difficult Terrain' },
+      { name: 'Initiative', path: 'The Order of Combat / Initiative' },
+      // 2014 has no Armor Class rule of its own; the Armor section's lead-in defines it.
+      { name: 'Armor Class', path: 'Equipment / Armor', lead: 'Armor Class (AC)' },
+      // The one sense that Vision and Light leaves out is described with the monsters.
+      { name: 'Tremorsense', path: 'Senses / Tremorsense' },
+    ],
+    groupedRows: { Saddles: 'Saddle' },
+    spellListPages: [105, 114],
     aliases: {
       grapple: 'rule:grappling', grapples: 'rule:grappling',
       shove: 'rule:shoving-a-creature', shoving: 'rule:shoving-a-creature', 'shove a creature': 'rule:shoving-a-creature',
@@ -118,6 +193,7 @@ export const BOOKS: BookConfig[] = [
       '+1 armor': 'item:armor-1-2-or-3', '+2 armor': 'item:armor-1-2-or-3', '+3 armor': 'item:armor-1-2-or-3',
       'heroic inspiration': 'rule:inspiration',
       'spell slot': 'rule:spell-slots',
+      'lightly obscured': 'rule:vision-and-light', 'heavily obscured': 'rule:vision-and-light', 'bright light': 'rule:vision-and-light', 'dim light': 'rule:vision-and-light',
     },
     chapters: [
       { title: 'Legal Information', start: [1, 'Legal Information'] },

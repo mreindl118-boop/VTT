@@ -11,7 +11,20 @@ import { convertBook, normForm, placeTitles, prepare, type BuiltBook } from './c
 import { fetchSource, loadSources } from './fetch.ts';
 import { parseBlocks } from './md.ts';
 import { pdfTitles, type PdfTitle } from './titles.ts';
+import { compareSpellLists, pdfSpellLists, type SpellLists } from './spelllists.ts';
 import type { Catalog, Source } from '../../app/src/books/types.ts';
+
+/** scripts/books/titles/<book>.json */
+export interface TitlesFile { book: string; attribution: string; note: string; titles: PdfTitle[] }
+/** scripts/books/pdf/<book>-spell-lists.json */
+export interface SpellListsFile { book: string; attribution: string; note: string; lists: SpellLists }
+const PDFDATA = join(import.meta.dirname, 'pdf');
+
+/** Write (or with --check, compare) a file of data read from the PDF; it is committed so builds without the PDF agree. */
+function keepPdfData(file: string, text: string): void {
+  if (check) { if (!existsSync(file) || readFileSync(file, 'utf8') !== text) { console.error(`${relative(ROOT, file)} differs from the PDF`); process.exit(1); } }
+  else { mkdirSync(dirname(file), { recursive: true }); writeFileSync(file, text); }
+}
 
 const ROOT = join(import.meta.dirname, '..', '..');
 const OUT = join(ROOT, 'app', 'public', 'books');
@@ -91,11 +104,13 @@ async function main(): Promise<void> {
       let fresh: PdfTitle[] | null = null;
       if (pdf) { try { fresh = pdfTitles(await fetchSource(need(cfg.pdf), offline)); } catch (e) { if (!(offline && /not in/.test(String(e)))) throw e; } }
       if (fresh) {
-        const text = JSON.stringify(fresh, null, 1) + '\n';
+        // SRD text (table titles and the header cells under them), so it carries the book's attribution like the book.
+        const file: TitlesFile = { book: cfg.id, attribution: cfg.attribution, note: 'Table titles read from the official PDF by scripts/books/titles.ts; see docs/BOOKS.md.', titles: fresh };
+        const text = JSON.stringify(file, null, 1) + '\n';
         if (check) { if (!existsSync(titlesFile) || readFileSync(titlesFile, 'utf8') !== text) { console.error(`${relative(ROOT, titlesFile)} differs from the PDF`); process.exit(1); } }
         else { mkdirSync(TITLES, { recursive: true }); writeFileSync(titlesFile, text); }
         titles = fresh;
-      } else titles = JSON.parse(readFileSync(titlesFile, 'utf8')) as PdfTitle[];
+      } else titles = (JSON.parse(readFileSync(titlesFile, 'utf8')) as TitlesFile).titles;
       const probe = placeTitles(parseBlocks(prepare(cfg, md).md), titles);
       console.log(`  table titles: ${probe.placed} restored from the PDF (${titles.length} in the PDF; ${probe.missed.length} with no table in the Markdown${probe.missed.length ? `: ${probe.missed.map((t) => t.title).join(', ')}` : ''})`);
     }
@@ -104,6 +119,19 @@ async function main(): Promise<void> {
     for (const p of cfg.patches) console.log(`  patched: ${p.why}`);
     const b = convertBook(cfg, md, sources, titles);
     for (const [p, s] of b.files) out.set(`${cfg.id}/${p}`, s);
+    if (cfg.spellListPages) {
+      const listsFile = join(PDFDATA, `${cfg.id}-spell-lists.json`);
+      let lists: SpellLists | null = null;
+      if (pdf) { try { lists = pdfSpellLists(await fetchSource(need(cfg.pdf), offline), cfg.spellListPages); } catch (e) { if (!(offline && /not in/.test(String(e)))) throw e; } }
+      if (lists) {
+        const file: SpellListsFile = { book: cfg.id, attribution: cfg.attribution, note: `The class spell lists read from the official PDF (pages ${cfg.spellListPages.join('–')}) by scripts/books/spelllists.ts; see docs/BOOKS.md.`, lists };
+        keepPdfData(listsFile, JSON.stringify(file, null, 1) + '\n');
+      } else lists = (JSON.parse(readFileSync(listsFile, 'utf8')) as SpellListsFile).lists;
+      const diffs = compareSpellLists(lists, b.entries.filter((e) => e.type === 'spell').map((e) => ({ name: e.name, classes: (e.s as { classes: string[] }).classes })));
+      if (diffs.length) throw new Error(`${cfg.id}: spell lists differ from the PDF:\n  ${diffs.slice(0, 20).join('\n  ')}`);
+      const n = Object.values(lists).reduce((a, l) => a + Object.values(l).flat().length, 0);
+      console.log(`  spell lists: all ${n} entries of ${Object.keys(lists).length} classes agree with the PDF`);
+    }
     const count = (t: string) => b.entries.filter((e) => e.type === t).length;
     console.log(`  ${b.chapters.length} chapters, ${b.index.pages.length} pages, ${b.index.sections.length} sections, ${(b.index.bytes / 1024).toFixed(0)} KB`);
     console.log(`  entries: ${['spell', 'monster', 'item', 'condition', 'rule', 'damage', 'ability', 'skill', 'creature-type', 'feat', 'class', 'feature', 'species', 'background'].map((t) => `${count(t)} ${t}`).join(', ')}`);

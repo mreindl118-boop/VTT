@@ -1,1801 +1,1806 @@
-[
- {
-  "page": 5,
-  "title": "Ability Descriptions",
-  "head": [
-   "Ability",
-   "Score Measures …"
-  ]
- },
- {
-  "page": 5,
-  "title": "Ability Scores",
-  "head": [
-   "Score",
-   "Meaning"
-  ]
- },
- {
-  "page": 6,
-  "title": "Ability Modifiers",
-  "head": [
-   "Score",
-   "Modifier"
-  ]
- },
- {
-  "page": 6,
-  "title": "Ability Check Examples",
-  "head": [
-   "Ability",
-   "Make a Check To …"
-  ]
- },
- {
-  "page": 6,
-  "title": "Typical Difficulty Classes",
-  "head": [
-   "Task Difficulty",
-   "DC"
-  ]
- },
- {
-  "page": 7,
-  "title": "Saving Throw Examples",
-  "head": [
-   "Ability",
-   "Make a Save To …"
-  ]
- },
- {
-  "page": 7,
-  "title": "Attack Roll Abilities",
-  "head": [
-   "Ability",
-   "Attack Type"
-  ]
- },
- {
-  "page": 8,
-  "title": "Proficiency Bonus",
-  "head": [
-   "Level or CR",
-   "Bonus"
-  ]
- },
- {
-  "page": 9,
-  "title": "Actions",
-  "head": [
-   "Action",
-   "Summary"
-  ]
- },
- {
-  "page": 9,
-  "title": "Skills",
-  "head": [
-   "Skill",
-   "Ability",
-   "Example Uses"
-  ]
- },
- {
-  "page": 12,
-  "title": "Travel Pace",
-  "head": [
-   "Pace",
-   "Distance Traveled Per …",
-   "Minute",
-   "Hour",
-   "Day"
-  ]
- },
- {
-  "page": 14,
-  "title": "Creature Size and Space",
-  "head": [
-   "Size",
-   "Space (Feet)",
-   "Space (Squares)"
-  ]
- },
- {
-  "page": 15,
-  "title": "Cover",
-  "head": [
-   "Degree",
-   "Benefit to Target Offered By …"
-  ]
- },
- {
-  "page": 19,
-  "title": "Class Overview",
-  "head": [
-   "Class",
-   "Likes ...",
-   "Primary",
-   "Ability",
-   "Complexity"
-  ]
- },
- {
-  "page": 19,
-  "title": "Ability Scores and Backgrounds",
-  "head": [
-   "Ability",
-   "Background"
-  ]
- },
- {
-  "page": 20,
-  "title": "Standard Languages",
-  "head": [
-   "1d12 Language"
-  ]
- },
- {
-  "page": 20,
-  "title": "Rare Languages",
-  "head": [
-   "Language",
-   "Language"
-  ]
- },
- {
-  "page": 21,
-  "title": "Ability Score Point Costs",
-  "head": [
-   "Score",
-   "Cost"
-  ]
- },
- {
-  "page": 21,
-  "title": "Standard Array by Class",
-  "head": [
-   "Class",
-   "Str.",
-   "Dex. Con. Int.",
-   "Wis. Cha."
-  ]
- },
- {
-  "page": 21,
-  "title": "Ability Scores and Modifiers",
-  "head": [
-   "Score",
-   "Modifier"
-  ]
- },
- {
-  "page": 22,
-  "title": "Level 1 Hit Points by Class",
-  "head": [
-   "Class",
-   "Hit Point Maximum"
-  ]
- },
- {
-  "page": 23,
-  "title": "Character Advancement",
-  "head": [
-   "Level",
-   "Experience Points",
-   "Proficiency Bonus"
-  ]
- },
- {
-  "page": 23,
-  "title": "Fixed Hit Points by Class",
-  "head": [
-   "Class",
-   "Hit Points per Level"
-  ]
- },
- {
-  "page": 24,
-  "title": "Starting Equipment at Higher Levels",
-  "head": [
-   "Starting Level",
-   "Equipment and Money",
-   "Magic Items"
-  ]
- },
- {
-  "page": 26,
-  "title": "Multiclass Spellcaster: Spell Slots per Spell Level",
-  "head": [
-   "Level",
-   "1",
-   "2",
-   "3",
-   "4",
-   "5",
-   "6",
-   "7",
-   "8",
-   "9"
-  ]
- },
- {
-  "page": 26,
-  "title": "Trinkets",
-  "head": [
-   "1d100 Trinket"
-  ]
- },
- {
-  "page": 28,
-  "title": "Core Barbarian Traits",
-  "head": [
-   "Primary Ability"
-  ]
- },
- {
-  "page": 28,
-  "title": "Barbarian Features",
-  "head": [
-   "Level",
-   "Proficiency",
-   "Bonus",
-   "Class Features",
-   "Rages",
-   "Rage",
-   "Damage",
-   "Weapon",
-   "Mastery"
-  ]
- },
- {
-  "page": 31,
-  "title": "Core Bard Traits",
-  "head": [
-   "Primary Ability"
-  ]
- },
- {
-  "page": 31,
-  "title": "Bard Features",
-  "head": [
-   "Proficiency",
-   "Bonus",
-   "Bardic",
-   "Die",
-   "Prepared",
-   "Spells",
-   "——Spell Slots per Spell Level——",
-   "Level",
-   "Class Features",
-   "Cantrips",
-   "1",
-   "2"
-  ]
- },
- {
-  "page": 33,
-  "title": "Cantrips (Level 0 Bard Spells)",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 33,
-  "title": "Level 1 Bard Spells",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 33,
-  "title": "Level 2 Bard Spells",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 34,
-  "title": "Level 3 Bard Spells",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 34,
-  "title": "Level 4 Bard Spells",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 34,
-  "title": "Level 5 Bard Spells",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 34,
-  "title": "Level 6 Bard Spells",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 34,
-  "title": "Level 7 Bard Spells",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 35,
-  "title": "Level 8 Bard Spells",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 35,
-  "title": "Level 9 Bard Spells",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 36,
-  "title": "Core Cleric Traits",
-  "head": [
-   "Primary Ability"
-  ]
- },
- {
-  "page": 36,
-  "title": "Cleric Features",
-  "head": [
-   "Proficiency",
-   "Bonus",
-   "Channel",
-   "Divinity",
-   "Prepared",
-   "Spells",
-   "——Spell Slots per Spell Level——",
-   "Level",
-   "Class Features",
-   "Cantrips",
-   "1",
-   "2"
-  ]
- },
- {
-  "page": 38,
-  "title": "Cantrips (Level 0 Cleric Spells)",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 38,
-  "title": "Level 1 Cleric Spells",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 38,
-  "title": "Level 2 Cleric Spells",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 39,
-  "title": "Level 3 Cleric Spells",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 39,
-  "title": "Level 4 Cleric Spells",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 39,
-  "title": "Level 5 Cleric Spells",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 39,
-  "title": "Level 6 Cleric Spells",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 39,
-  "title": "Level 7 Cleric Spells",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 40,
-  "title": "Level 8 Cleric Spells",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 40,
-  "title": "Level 9 Cleric Spells",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 40,
-  "title": "Life Domain Spells",
-  "head": [
-   "Cleric",
-   "Level",
-   "Prepared Spells"
-  ]
- },
- {
-  "page": 41,
-  "title": "Core Druid Traits",
-  "head": [
-   "Primary Ability"
-  ]
- },
- {
-  "page": 41,
-  "title": "Druid Features",
-  "head": [
-   "Proficiency",
-   "Bonus",
-   "Wild",
-   "Shape",
-   "Prepared",
-   "Spells",
-   "——Spell Slots per Spell Level——",
-   "Level",
-   "Class Features",
-   "Cantrips",
-   "1",
-   "2"
-  ]
- },
- {
-  "page": 42,
-  "title": "Beast Shapes",
-  "head": [
-   "Druid",
-   "Level",
-   "Known",
-   "Forms",
-   "Max",
-   "CR",
-   "Fly",
-   "Speed"
-  ]
- },
- {
-  "page": 44,
-  "title": "Cantrips (Level 0 Druid Spells)",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 44,
-  "title": "Level 1 Druid Spells",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 44,
-  "title": "Level 2 Druid Spells",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 44,
-  "title": "Level 3 Druid Spells",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 45,
-  "title": "Level 4 Druid Spells",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 45,
-  "title": "Level 5 Druid Spells",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 45,
-  "title": "Level 6 Druid Spells",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 45,
-  "title": "Level 7 Druid Spells",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 45,
-  "title": "Level 8 Druid Spells",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 45,
-  "title": "Level 9 Druid Spells",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 46,
-  "title": "Arid Land",
-  "head": [
-   "Druid Level",
-   "Circle Spells"
-  ]
- },
- {
-  "page": 46,
-  "title": "Polar Land",
-  "head": [
-   "Druid Level",
-   "Circle Spells"
-  ]
- },
- {
-  "page": 46,
-  "title": "Temperate Land",
-  "head": [
-   "Druid Level",
-   "Circle Spells"
-  ]
- },
- {
-  "page": 46,
-  "title": "Tropical Land",
-  "head": [
-   "Druid Level",
-   "Circle Spells"
-  ]
- },
- {
-  "page": 46,
-  "title": "Nature’s Ward",
-  "head": [
-   "Land Type",
-   "Resistance"
-  ]
- },
- {
-  "page": 47,
-  "title": "Core Fighter Traits",
-  "head": [
-   "Primary Ability"
-  ]
- },
- {
-  "page": 47,
-  "title": "Fighter Features",
-  "head": [
-   "Level",
-   "Proficiency",
-   "Bonus",
-   "Class Features",
-   "Second",
-   "Wind",
-   "Weapon",
-   "Mastery"
-  ]
- },
- {
-  "page": 49,
-  "title": "Core Monk Traits",
-  "head": [
-   "Primary Ability"
-  ]
- },
- {
-  "page": 50,
-  "title": "Monk Features",
-  "head": [
-   "Level",
-   "Proficiency",
-   "Bonus",
-   "Class Features",
-   "Martial",
-   "Arts",
-   "Focus",
-   "Points",
-   "Unarmored",
-   "Movement"
-  ]
- },
- {
-  "page": 53,
-  "title": "Core Paladin Traits",
-  "head": [
-   "Primary Ability"
-  ]
- },
- {
-  "page": 53,
-  "title": "Paladin Features",
-  "head": [
-   "Proficiency",
-   "Bonus",
-   "Channel",
-   "Divinity",
-   "Prepared",
-   "Spells",
-   "—Spell Slots per Spell Level—",
-   "Level",
-   "Class Features",
-   "1",
-   "2",
-   "3"
-  ]
- },
- {
-  "page": 55,
-  "title": "Level 1 Paladin Spells",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 56,
-  "title": "Level 2 Paladin Spells",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 56,
-  "title": "Level 3 Paladin Spells",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 56,
-  "title": "Level 4 Paladin Spells",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 56,
-  "title": "Level 5 Paladin Spells",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 56,
-  "title": "Oath of Devotion Spells",
-  "head": [
-   "Paladin Level Spells"
-  ]
- },
- {
-  "page": 57,
-  "title": "Core Ranger Traits",
-  "head": [
-   "Primary Ability"
-  ]
- },
- {
-  "page": 58,
-  "title": "Ranger Features",
-  "head": [
-   "Proficiency",
-   "Bonus",
-   "Favored",
-   "Enemy",
-   "Prepared",
-   "Spells",
-   "—Spell Slots per Spell Level—",
-   "Level",
-   "Class Features",
-   "1",
-   "2",
-   "3"
-  ]
- },
- {
-  "page": 60,
-  "title": "Level 1 Ranger Spells",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 60,
-  "title": "Level 2 Ranger Spells",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 60,
-  "title": "Level 3 Ranger Spells",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 60,
-  "title": "Level 4 Ranger Spells",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 60,
-  "title": "Level 5 Ranger Spells",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 61,
-  "title": "Core Rogue Traits",
-  "head": [
-   "Primary Ability"
-  ]
- },
- {
-  "page": 62,
-  "title": "Rogue Features",
-  "head": [
-   "Level",
-   "Proficiency",
-   "Bonus",
-   "Class Features",
-   "Sneak Attack"
-  ]
- },
- {
-  "page": 64,
-  "title": "Core Sorcerer Traits",
-  "head": [
-   "Primary Ability"
-  ]
- },
- {
-  "page": 65,
-  "title": "Sorcerer Features",
-  "head": [
-   "Proficiency",
-   "Bonus",
-   "Sorcery",
-   "Points",
-   "Prepared",
-   "Spells",
-   "——Spell Slots per Spell Level——",
-   "Level",
-   "Class Features",
-   "Cantrips",
-   "1",
-   "2"
-  ]
- },
- {
-  "page": 66,
-  "title": "Creating Spell Slots",
-  "head": [
-   "Spell Slot",
-   "Level",
-   "Sorcery Point",
-   "Cost",
-   "Min. Sorcerer",
-   "Level"
-  ]
- },
- {
-  "page": 67,
-  "title": "Cantrips (Level 0 Sorcerer Spells)",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 68,
-  "title": "Level 1 Sorcerer Spells",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 68,
-  "title": "Level 2 Sorcerer Spells",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 68,
-  "title": "Level 3 Sorcerer Spells",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 69,
-  "title": "Level 4 Sorcerer Spells",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 69,
-  "title": "Level 5 Sorcerer Spells",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 69,
-  "title": "Level 6 Sorcerer Spells",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 69,
-  "title": "Level 7 Sorcerer Spells",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 69,
-  "title": "Level 8 Sorcerer Spells",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 69,
-  "title": "Level 9 Sorcerer Spells",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 70,
-  "title": "Draconic Spells",
-  "head": [
-   "Sorcerer",
-   "Level",
-   "Spells"
-  ]
- },
- {
-  "page": 70,
-  "title": "Core Warlock Traits",
-  "head": [
-   "Primary Ability"
-  ]
- },
- {
-  "page": 71,
-  "title": "Warlock Features",
-  "head": [
-   "Level",
-   "Proficiency",
-   "Bonus",
-   "Class Features",
-   "Eldritch",
-   "Invocations",
-   "Cantrips",
-   "Prepared",
-   "Spells",
-   "Spell",
-   "Slots",
-   "Slot"
-  ]
- },
- {
-  "page": 75,
-  "title": "Cantrips (Level 0 Warlock Spells)",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 75,
-  "title": "Level 1 Warlock Spells",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 75,
-  "title": "Level 2 Warlock Spells",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 75,
-  "title": "Level 3 Warlock Spells",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 75,
-  "title": "Level 4 Warlock Spells",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 75,
-  "title": "Level 5 Warlock Spells",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 75,
-  "title": "Level 6 Warlock Spells",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 75,
-  "title": "Level 7 Warlock Spells",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 76,
-  "title": "Level 8 Warlock Spells",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 76,
-  "title": "Level 9 Warlock Spells",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 76,
-  "title": "Fiend Spells",
-  "head": [
-   "Warlock Level Spells"
-  ]
- },
- {
-  "page": 77,
-  "title": "Core Wizard Traits",
-  "head": [
-   "Primary Ability"
-  ]
- },
- {
-  "page": 77,
-  "title": "Wizard Features",
-  "head": [
-   "Proficiency",
-   "Bonus",
-   "Prepared",
-   "Spells",
-   "——Spell Slots per Spell Level——",
-   "Level",
-   "Class Features",
-   "Cantrips",
-   "1",
-   "2",
-   "3",
-   "4"
-  ]
- },
- {
-  "page": 79,
-  "title": "Cantrips (Level 0 Wizard Spells)",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 79,
-  "title": "Level 1 Wizard Spells",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 80,
-  "title": "Level 2 Wizard Spells",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 80,
-  "title": "Level 3 Wizard Spells",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 80,
-  "title": "Level 4 Wizard Spells",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 81,
-  "title": "Level 5 Wizard Spells",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 81,
-  "title": "Level 6 Wizard Spells",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 81,
-  "title": "Level 7 Wizard Spells",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 82,
-  "title": "Level 8 Wizard Spells",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 82,
-  "title": "Level 9 Wizard Spells",
-  "head": [
-   "Spell",
-   "School",
-   "Special"
-  ]
- },
- {
-  "page": 84,
-  "title": "Draconic Ancestors",
-  "head": [
-   "Dragon Damage Type",
-   "Dragon Damage Type"
-  ]
- },
- {
-  "page": 85,
-  "title": "Elven Lineages",
-  "head": [
-   "Lineage",
-   "Level 1",
-   "Level 3",
-   "Level 5"
-  ]
- },
- {
-  "page": 86,
-  "title": "Fiendish Legacies",
-  "head": [
-   "Legacy",
-   "Level 1",
-   "Level 3",
-   "Level 5"
-  ]
- },
- {
-  "page": 89,
-  "title": "Coin Values",
-  "head": [
-   "Coin",
-   "Value in GP"
-  ]
- },
- {
-  "page": 91,
-  "title": "Weapons",
-  "head": [
-   "Name",
-   "Damage",
-   "Properties",
-   "Mastery",
-   "Weight",
-   "Cost"
-  ]
- },
- {
-  "page": 92,
-  "title": "Armor",
-  "head": [
-   "Armor",
-   "Armor Class (AC)",
-   "Strength",
-   "Stealth",
-   "Weight",
-   "Cost"
-  ]
- },
- {
-  "page": 95,
-  "title": "Adventuring Gear",
-  "head": [
-   "Item",
-   "Weight",
-   "Cost"
-  ]
- },
- {
-  "page": 96,
-  "title": "Ammunition",
-  "head": [
-   "Type",
-   "Amount Storage",
-   "Weight Cost"
-  ]
- },
- {
-  "page": 96,
-  "title": "Arcane Focuses",
-  "head": [
-   "Focus",
-   "Weight",
-   "Cost"
-  ]
- },
- {
-  "page": 97,
-  "title": "Druidic Focuses",
-  "head": [
-   "Focus",
-   "Weight",
-   "Cost"
-  ]
- },
- {
-  "page": 97,
-  "title": "Holy Symbols",
-  "head": [
-   "Symbol",
-   "Weight",
-   "Cost"
-  ]
- },
- {
-  "page": 100,
-  "title": "Mounts and Other Animals",
-  "head": [
-   "Item",
-   "Carrying Capacity",
-   "Cost"
-  ]
- },
- {
-  "page": 100,
-  "title": "Tack, Harness, and Drawn Vehicles",
-  "head": [
-   "Item",
-   "Weight",
-   "Cost"
-  ]
- },
- {
-  "page": 101,
-  "title": "Food, Drink, and Lodging",
-  "head": [
-   "Item",
-   "Cost"
-  ]
- },
- {
-  "page": 101,
-  "title": "Airborne and Waterborne Vehicles",
-  "head": [
-   "Ship",
-   "Speed",
-   "Crew",
-   "Passengers",
-   "Cargo (Tons)",
-   "AC",
-   "HP",
-   "Damage Threshold",
-   "Cost"
-  ]
- },
- {
-  "page": 102,
-  "title": "Hirelings",
-  "head": [
-   "Service",
-   "Cost"
-  ]
- },
- {
-  "page": 102,
-  "title": "Spellcasting Services",
-  "head": [
-   "Spell Level",
-   "Availability",
-   "Cost"
-  ]
- },
- {
-  "page": 103,
-  "title": "Spell Scroll Costs",
-  "head": [
-   "Spell Level",
-   "Time",
-   "Cost"
-  ]
- },
- {
-  "page": 104,
-  "title": "Spell Preparation by Class",
-  "head": [
-   "Class",
-   "Change When You",
-   "…",
-   "Number of Spells"
-  ]
- },
- {
-  "page": 105,
-  "title": "Schools of Magic",
-  "head": [
-   "School",
-   "Typical Effects"
-  ]
- },
- {
-  "page": 111,
-  "title": "Omens",
-  "head": [
-   "Omen",
-   "For Results That Will Be …"
-  ]
- },
- {
-  "page": 120,
-  "title": "Precipitation",
-  "head": [
-   "Stage Condition"
-  ]
- },
- {
-  "page": 120,
-  "title": "Temperature",
-  "head": [
-   "Stage Condition"
-  ]
- },
- {
-  "page": 120,
-  "title": "Wind",
-  "head": [
-   "Stage Condition"
-  ]
- },
- {
-  "page": 121,
-  "title": "Materials",
-  "head": [
-   "Material",
-   "Duration"
-  ]
- },
- {
-  "page": 125,
-  "title": "Divine Word Effects",
-  "head": [
-   "Hit Points Effect"
-  ]
- },
- {
-  "page": 154,
-  "title": "Prismatic Rays",
-  "head": [
-   "1d8 Ray"
-  ]
- },
- {
-  "page": 155,
-  "title": "Prismatic Layers",
-  "head": [
-   "Order Effects"
-  ]
- },
- {
-  "page": 168,
-  "title": "Teleportation Outcome",
-  "head": [
-   "Familiarity",
-   "Mishap",
-   "Similar",
-   "Area",
-   "Off",
-   "Target",
-   "On",
-   "Target"
-  ]
- },
- {
-  "page": 178,
-  "title": "Object Armor Class",
-  "head": [
-   "AC Substance",
-   "AC Substance"
-  ]
- },
- {
-  "page": 178,
-  "title": "Object Hit Points",
-  "head": [
-   "Size",
-   "Fragile",
-   "Resilient"
-  ]
- },
- {
-  "page": 178,
-  "title": "Carrying Capacity",
-  "head": [
-   "Creature Size",
-   "Carry",
-   "Drag/Lift/Push"
-  ]
- },
- {
-  "page": 180,
-  "title": "Damage Types",
-  "head": [
-   "Type",
-   "Examples"
-  ]
- },
- {
-  "page": 181,
-  "title": "Water Needs per Day",
-  "head": [
-   "Size",
-   "Water"
-  ]
- },
- {
-  "page": 184,
-  "title": "Influence Checks",
-  "head": [
-   "Ability Check",
-   "Interaction"
-  ]
- },
- {
-  "page": 185,
-  "title": "Food Needs per Day",
-  "head": [
-   "Size",
-   "Food",
-   "Size",
-   "Food"
-  ]
- },
- {
-  "page": 187,
-  "title": "Search",
-  "head": [
-   "Skill",
-   "Thing to Detect"
-  ]
- },
- {
-  "page": 189,
-  "title": "Areas of Knowledge",
-  "head": [
-   "Skill",
-   "Areas"
-  ]
- },
- {
-  "page": 192,
-  "title": "Travel Terrain",
-  "head": [
-   "Terrain",
-   "Maximum Pace"
-  ]
- },
- {
-  "page": 196,
-  "title": "Sample Fear DCs",
-  "head": [
-   "Example",
-   "Save DC"
-  ]
- },
- {
-  "page": 196,
-  "title": "Sample Mental Stress Effects",
-  "head": [
-   "Example",
-   "Save",
-   "DC",
-   "Psychic",
-   "Damage"
-  ]
- },
- {
-  "page": 202,
-  "title": "XP Budget per Character",
-  "head": [
-   "Party’s",
-   "Level",
-   "——— Encounter Difficulty ———",
-   "Low",
-   "Moderate",
-   "High"
-  ]
- },
- {
-  "page": 204,
-  "title": "Magic Item Categories",
-  "head": [
-   "Category",
-   "Examples"
-  ]
- },
- {
-  "page": 204,
-  "title": "Potion Miscibility",
-  "head": [
-   "1d100 Result"
-  ]
- },
- {
-  "page": 206,
-  "title": "Magic Item Rarities and Values",
-  "head": [
-   "Rarity",
-   "Value*",
-   "Rarity",
-   "Value*"
-  ]
- },
- {
-  "page": 207,
-  "title": "Magic Item Tools",
-  "head": [
-   "Item Category",
-   "Required Tool"
-  ]
- },
- {
-  "page": 207,
-  "title": "Magic Item Crafting Time and Cost",
-  "head": [
-   "Item Rarity",
-   "Time*",
-   "Cost*"
-  ]
- },
- {
-  "page": 208,
-  "title": "Sentient Item’s Alignment",
-  "head": [
-   "1d100 Alignment",
-   "1d100 Alignment"
-  ]
- },
- {
-  "page": 208,
-  "title": "Sentient Item’s Communication",
-  "head": [
-   "1d10 Communication"
-  ]
- },
- {
-  "page": 208,
-  "title": "Sentient Item’s Senses",
-  "head": [
-   "1d4",
-   "Senses"
-  ]
- },
- {
-  "page": 208,
-  "title": "Sentient Item’s Special Purpose",
-  "head": [
-   "1d10 Special Purpose"
-  ]
- },
- {
-  "page": 210,
-  "title": "Apparatus of the Crab Levers",
-  "head": [
-   "Lever Up",
-   "Down"
-  ]
- },
- {
-  "page": 212,
-  "title": "Gray Bag of Tricks",
-  "head": [
-   "1d8",
-   "Creature",
-   "1d8",
-   "Creature"
-  ]
- },
- {
-  "page": 212,
-  "title": "Rust Bag of Tricks",
-  "head": [
-   "1d8",
-   "Creature",
-   "1d8",
-   "Creature"
-  ]
- },
- {
-  "page": 212,
-  "title": "Tan Bag of Tricks",
-  "head": [
-   "1d8",
-   "Creature",
-   "1d8",
-   "Creature"
-  ]
- },
- {
-  "page": 216,
-  "title": "Cube of Force Faces",
-  "head": [
-   "Spell",
-   "Charge Cost"
-  ]
- },
- {
-  "page": 217,
-  "title": "Deck of Illusions",
-  "head": [
-   "1d100",
-   "Illusion*"
-  ]
- },
- {
-  "page": 221,
-  "title": "Feather Tokens",
-  "head": [
-   "1d100",
-   "Token",
-   "Rarity"
-  ]
- },
- {
-  "page": 231,
-  "title": "Mysterious Deck",
-  "head": [
-   "1d100",
-   "(13-Card",
-   "Deck)",
-   "1d100",
-   "(22-Card",
-   "Deck)",
-   "Card"
-  ]
- },
- {
-  "page": 252,
-  "title": "Wand of Wonder Effects",
-  "head": [
-   "1d100 Effect"
-  ]
- },
- {
-  "page": 255,
-  "title": "Hit Dice by Size",
-  "head": [
-   "Monster Size",
-   "Hit Die",
-   "Average HP per Die"
-  ]
- },
- {
-  "page": 256,
-  "title": "Experience Points by Challenge Rating",
-  "head": [
-   "CR",
-   "XP",
-   "CR",
-   "XP"
-  ]
- },
- {
-  "page": 256,
-  "title": "Proficiency Bonus by Challenge Rating",
-  "head": [
-   "CR",
-   "PB",
-   "CR",
-   "PB"
-  ]
- }
-]
+{
+ "book": "srd-5.2.1",
+ "attribution": "This work includes material from the System Reference Document 5.2.1 (“SRD 5.2.1”) by Wizards of the Coast LLC, available at https://www.dndbeyond.com/srd. The SRD 5.2.1 is licensed under the Creative Commons Attribution 4.0 International License, available at https://creativecommons.org/licenses/by/4.0/legalcode.",
+ "note": "Table titles read from the official PDF by scripts/books/titles.ts; see docs/BOOKS.md.",
+ "titles": [
+  {
+   "page": 5,
+   "title": "Ability Descriptions",
+   "head": [
+    "Ability",
+    "Score Measures …"
+   ]
+  },
+  {
+   "page": 5,
+   "title": "Ability Scores",
+   "head": [
+    "Score",
+    "Meaning"
+   ]
+  },
+  {
+   "page": 6,
+   "title": "Ability Modifiers",
+   "head": [
+    "Score",
+    "Modifier"
+   ]
+  },
+  {
+   "page": 6,
+   "title": "Ability Check Examples",
+   "head": [
+    "Ability",
+    "Make a Check To …"
+   ]
+  },
+  {
+   "page": 6,
+   "title": "Typical Difficulty Classes",
+   "head": [
+    "Task Difficulty",
+    "DC"
+   ]
+  },
+  {
+   "page": 7,
+   "title": "Saving Throw Examples",
+   "head": [
+    "Ability",
+    "Make a Save To …"
+   ]
+  },
+  {
+   "page": 7,
+   "title": "Attack Roll Abilities",
+   "head": [
+    "Ability",
+    "Attack Type"
+   ]
+  },
+  {
+   "page": 8,
+   "title": "Proficiency Bonus",
+   "head": [
+    "Level or CR",
+    "Bonus"
+   ]
+  },
+  {
+   "page": 9,
+   "title": "Actions",
+   "head": [
+    "Action",
+    "Summary"
+   ]
+  },
+  {
+   "page": 9,
+   "title": "Skills",
+   "head": [
+    "Skill",
+    "Ability",
+    "Example Uses"
+   ]
+  },
+  {
+   "page": 12,
+   "title": "Travel Pace",
+   "head": [
+    "Pace",
+    "Distance Traveled Per …",
+    "Minute",
+    "Hour",
+    "Day"
+   ]
+  },
+  {
+   "page": 14,
+   "title": "Creature Size and Space",
+   "head": [
+    "Size",
+    "Space (Feet)",
+    "Space (Squares)"
+   ]
+  },
+  {
+   "page": 15,
+   "title": "Cover",
+   "head": [
+    "Degree",
+    "Benefit to Target Offered By …"
+   ]
+  },
+  {
+   "page": 19,
+   "title": "Class Overview",
+   "head": [
+    "Class",
+    "Likes ...",
+    "Primary",
+    "Ability",
+    "Complexity"
+   ]
+  },
+  {
+   "page": 19,
+   "title": "Ability Scores and Backgrounds",
+   "head": [
+    "Ability",
+    "Background"
+   ]
+  },
+  {
+   "page": 20,
+   "title": "Standard Languages",
+   "head": [
+    "1d12 Language"
+   ]
+  },
+  {
+   "page": 20,
+   "title": "Rare Languages",
+   "head": [
+    "Language",
+    "Language"
+   ]
+  },
+  {
+   "page": 21,
+   "title": "Ability Score Point Costs",
+   "head": [
+    "Score",
+    "Cost"
+   ]
+  },
+  {
+   "page": 21,
+   "title": "Standard Array by Class",
+   "head": [
+    "Class",
+    "Str.",
+    "Dex. Con. Int.",
+    "Wis. Cha."
+   ]
+  },
+  {
+   "page": 21,
+   "title": "Ability Scores and Modifiers",
+   "head": [
+    "Score",
+    "Modifier"
+   ]
+  },
+  {
+   "page": 22,
+   "title": "Level 1 Hit Points by Class",
+   "head": [
+    "Class",
+    "Hit Point Maximum"
+   ]
+  },
+  {
+   "page": 23,
+   "title": "Character Advancement",
+   "head": [
+    "Level",
+    "Experience Points",
+    "Proficiency Bonus"
+   ]
+  },
+  {
+   "page": 23,
+   "title": "Fixed Hit Points by Class",
+   "head": [
+    "Class",
+    "Hit Points per Level"
+   ]
+  },
+  {
+   "page": 24,
+   "title": "Starting Equipment at Higher Levels",
+   "head": [
+    "Starting Level",
+    "Equipment and Money",
+    "Magic Items"
+   ]
+  },
+  {
+   "page": 26,
+   "title": "Multiclass Spellcaster: Spell Slots per Spell Level",
+   "head": [
+    "Level",
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9"
+   ]
+  },
+  {
+   "page": 26,
+   "title": "Trinkets",
+   "head": [
+    "1d100 Trinket"
+   ]
+  },
+  {
+   "page": 28,
+   "title": "Core Barbarian Traits",
+   "head": [
+    "Primary Ability"
+   ]
+  },
+  {
+   "page": 28,
+   "title": "Barbarian Features",
+   "head": [
+    "Level",
+    "Proficiency",
+    "Bonus",
+    "Class Features",
+    "Rages",
+    "Rage",
+    "Damage",
+    "Weapon",
+    "Mastery"
+   ]
+  },
+  {
+   "page": 31,
+   "title": "Core Bard Traits",
+   "head": [
+    "Primary Ability"
+   ]
+  },
+  {
+   "page": 31,
+   "title": "Bard Features",
+   "head": [
+    "Proficiency",
+    "Bonus",
+    "Bardic",
+    "Die",
+    "Prepared",
+    "Spells",
+    "——Spell Slots per Spell Level——",
+    "Level",
+    "Class Features",
+    "Cantrips",
+    "1",
+    "2"
+   ]
+  },
+  {
+   "page": 33,
+   "title": "Cantrips (Level 0 Bard Spells)",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 33,
+   "title": "Level 1 Bard Spells",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 33,
+   "title": "Level 2 Bard Spells",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 34,
+   "title": "Level 3 Bard Spells",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 34,
+   "title": "Level 4 Bard Spells",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 34,
+   "title": "Level 5 Bard Spells",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 34,
+   "title": "Level 6 Bard Spells",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 34,
+   "title": "Level 7 Bard Spells",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 35,
+   "title": "Level 8 Bard Spells",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 35,
+   "title": "Level 9 Bard Spells",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 36,
+   "title": "Core Cleric Traits",
+   "head": [
+    "Primary Ability"
+   ]
+  },
+  {
+   "page": 36,
+   "title": "Cleric Features",
+   "head": [
+    "Proficiency",
+    "Bonus",
+    "Channel",
+    "Divinity",
+    "Prepared",
+    "Spells",
+    "——Spell Slots per Spell Level——",
+    "Level",
+    "Class Features",
+    "Cantrips",
+    "1",
+    "2"
+   ]
+  },
+  {
+   "page": 38,
+   "title": "Cantrips (Level 0 Cleric Spells)",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 38,
+   "title": "Level 1 Cleric Spells",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 38,
+   "title": "Level 2 Cleric Spells",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 39,
+   "title": "Level 3 Cleric Spells",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 39,
+   "title": "Level 4 Cleric Spells",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 39,
+   "title": "Level 5 Cleric Spells",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 39,
+   "title": "Level 6 Cleric Spells",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 39,
+   "title": "Level 7 Cleric Spells",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 40,
+   "title": "Level 8 Cleric Spells",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 40,
+   "title": "Level 9 Cleric Spells",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 40,
+   "title": "Life Domain Spells",
+   "head": [
+    "Cleric",
+    "Level",
+    "Prepared Spells"
+   ]
+  },
+  {
+   "page": 41,
+   "title": "Core Druid Traits",
+   "head": [
+    "Primary Ability"
+   ]
+  },
+  {
+   "page": 41,
+   "title": "Druid Features",
+   "head": [
+    "Proficiency",
+    "Bonus",
+    "Wild",
+    "Shape",
+    "Prepared",
+    "Spells",
+    "——Spell Slots per Spell Level——",
+    "Level",
+    "Class Features",
+    "Cantrips",
+    "1",
+    "2"
+   ]
+  },
+  {
+   "page": 42,
+   "title": "Beast Shapes",
+   "head": [
+    "Druid",
+    "Level",
+    "Known",
+    "Forms",
+    "Max",
+    "CR",
+    "Fly",
+    "Speed"
+   ]
+  },
+  {
+   "page": 44,
+   "title": "Cantrips (Level 0 Druid Spells)",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 44,
+   "title": "Level 1 Druid Spells",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 44,
+   "title": "Level 2 Druid Spells",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 44,
+   "title": "Level 3 Druid Spells",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 45,
+   "title": "Level 4 Druid Spells",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 45,
+   "title": "Level 5 Druid Spells",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 45,
+   "title": "Level 6 Druid Spells",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 45,
+   "title": "Level 7 Druid Spells",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 45,
+   "title": "Level 8 Druid Spells",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 45,
+   "title": "Level 9 Druid Spells",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 46,
+   "title": "Arid Land",
+   "head": [
+    "Druid Level",
+    "Circle Spells"
+   ]
+  },
+  {
+   "page": 46,
+   "title": "Polar Land",
+   "head": [
+    "Druid Level",
+    "Circle Spells"
+   ]
+  },
+  {
+   "page": 46,
+   "title": "Temperate Land",
+   "head": [
+    "Druid Level",
+    "Circle Spells"
+   ]
+  },
+  {
+   "page": 46,
+   "title": "Tropical Land",
+   "head": [
+    "Druid Level",
+    "Circle Spells"
+   ]
+  },
+  {
+   "page": 46,
+   "title": "Nature’s Ward",
+   "head": [
+    "Land Type",
+    "Resistance"
+   ]
+  },
+  {
+   "page": 47,
+   "title": "Core Fighter Traits",
+   "head": [
+    "Primary Ability"
+   ]
+  },
+  {
+   "page": 47,
+   "title": "Fighter Features",
+   "head": [
+    "Level",
+    "Proficiency",
+    "Bonus",
+    "Class Features",
+    "Second",
+    "Wind",
+    "Weapon",
+    "Mastery"
+   ]
+  },
+  {
+   "page": 49,
+   "title": "Core Monk Traits",
+   "head": [
+    "Primary Ability"
+   ]
+  },
+  {
+   "page": 50,
+   "title": "Monk Features",
+   "head": [
+    "Level",
+    "Proficiency",
+    "Bonus",
+    "Class Features",
+    "Martial",
+    "Arts",
+    "Focus",
+    "Points",
+    "Unarmored",
+    "Movement"
+   ]
+  },
+  {
+   "page": 53,
+   "title": "Core Paladin Traits",
+   "head": [
+    "Primary Ability"
+   ]
+  },
+  {
+   "page": 53,
+   "title": "Paladin Features",
+   "head": [
+    "Proficiency",
+    "Bonus",
+    "Channel",
+    "Divinity",
+    "Prepared",
+    "Spells",
+    "—Spell Slots per Spell Level—",
+    "Level",
+    "Class Features",
+    "1",
+    "2",
+    "3"
+   ]
+  },
+  {
+   "page": 55,
+   "title": "Level 1 Paladin Spells",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 56,
+   "title": "Level 2 Paladin Spells",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 56,
+   "title": "Level 3 Paladin Spells",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 56,
+   "title": "Level 4 Paladin Spells",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 56,
+   "title": "Level 5 Paladin Spells",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 56,
+   "title": "Oath of Devotion Spells",
+   "head": [
+    "Paladin Level Spells"
+   ]
+  },
+  {
+   "page": 57,
+   "title": "Core Ranger Traits",
+   "head": [
+    "Primary Ability"
+   ]
+  },
+  {
+   "page": 58,
+   "title": "Ranger Features",
+   "head": [
+    "Proficiency",
+    "Bonus",
+    "Favored",
+    "Enemy",
+    "Prepared",
+    "Spells",
+    "—Spell Slots per Spell Level—",
+    "Level",
+    "Class Features",
+    "1",
+    "2",
+    "3"
+   ]
+  },
+  {
+   "page": 60,
+   "title": "Level 1 Ranger Spells",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 60,
+   "title": "Level 2 Ranger Spells",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 60,
+   "title": "Level 3 Ranger Spells",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 60,
+   "title": "Level 4 Ranger Spells",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 60,
+   "title": "Level 5 Ranger Spells",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 61,
+   "title": "Core Rogue Traits",
+   "head": [
+    "Primary Ability"
+   ]
+  },
+  {
+   "page": 62,
+   "title": "Rogue Features",
+   "head": [
+    "Level",
+    "Proficiency",
+    "Bonus",
+    "Class Features",
+    "Sneak Attack"
+   ]
+  },
+  {
+   "page": 64,
+   "title": "Core Sorcerer Traits",
+   "head": [
+    "Primary Ability"
+   ]
+  },
+  {
+   "page": 65,
+   "title": "Sorcerer Features",
+   "head": [
+    "Proficiency",
+    "Bonus",
+    "Sorcery",
+    "Points",
+    "Prepared",
+    "Spells",
+    "——Spell Slots per Spell Level——",
+    "Level",
+    "Class Features",
+    "Cantrips",
+    "1",
+    "2"
+   ]
+  },
+  {
+   "page": 66,
+   "title": "Creating Spell Slots",
+   "head": [
+    "Spell Slot",
+    "Level",
+    "Sorcery Point",
+    "Cost",
+    "Min. Sorcerer",
+    "Level"
+   ]
+  },
+  {
+   "page": 67,
+   "title": "Cantrips (Level 0 Sorcerer Spells)",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 68,
+   "title": "Level 1 Sorcerer Spells",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 68,
+   "title": "Level 2 Sorcerer Spells",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 68,
+   "title": "Level 3 Sorcerer Spells",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 69,
+   "title": "Level 4 Sorcerer Spells",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 69,
+   "title": "Level 5 Sorcerer Spells",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 69,
+   "title": "Level 6 Sorcerer Spells",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 69,
+   "title": "Level 7 Sorcerer Spells",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 69,
+   "title": "Level 8 Sorcerer Spells",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 69,
+   "title": "Level 9 Sorcerer Spells",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 70,
+   "title": "Draconic Spells",
+   "head": [
+    "Sorcerer",
+    "Level",
+    "Spells"
+   ]
+  },
+  {
+   "page": 70,
+   "title": "Core Warlock Traits",
+   "head": [
+    "Primary Ability"
+   ]
+  },
+  {
+   "page": 71,
+   "title": "Warlock Features",
+   "head": [
+    "Level",
+    "Proficiency",
+    "Bonus",
+    "Class Features",
+    "Eldritch",
+    "Invocations",
+    "Cantrips",
+    "Prepared",
+    "Spells",
+    "Spell",
+    "Slots",
+    "Slot"
+   ]
+  },
+  {
+   "page": 75,
+   "title": "Cantrips (Level 0 Warlock Spells)",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 75,
+   "title": "Level 1 Warlock Spells",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 75,
+   "title": "Level 2 Warlock Spells",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 75,
+   "title": "Level 3 Warlock Spells",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 75,
+   "title": "Level 4 Warlock Spells",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 75,
+   "title": "Level 5 Warlock Spells",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 75,
+   "title": "Level 6 Warlock Spells",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 75,
+   "title": "Level 7 Warlock Spells",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 76,
+   "title": "Level 8 Warlock Spells",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 76,
+   "title": "Level 9 Warlock Spells",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 76,
+   "title": "Fiend Spells",
+   "head": [
+    "Warlock Level Spells"
+   ]
+  },
+  {
+   "page": 77,
+   "title": "Core Wizard Traits",
+   "head": [
+    "Primary Ability"
+   ]
+  },
+  {
+   "page": 77,
+   "title": "Wizard Features",
+   "head": [
+    "Proficiency",
+    "Bonus",
+    "Prepared",
+    "Spells",
+    "——Spell Slots per Spell Level——",
+    "Level",
+    "Class Features",
+    "Cantrips",
+    "1",
+    "2",
+    "3",
+    "4"
+   ]
+  },
+  {
+   "page": 79,
+   "title": "Cantrips (Level 0 Wizard Spells)",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 79,
+   "title": "Level 1 Wizard Spells",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 80,
+   "title": "Level 2 Wizard Spells",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 80,
+   "title": "Level 3 Wizard Spells",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 80,
+   "title": "Level 4 Wizard Spells",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 81,
+   "title": "Level 5 Wizard Spells",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 81,
+   "title": "Level 6 Wizard Spells",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 81,
+   "title": "Level 7 Wizard Spells",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 82,
+   "title": "Level 8 Wizard Spells",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 82,
+   "title": "Level 9 Wizard Spells",
+   "head": [
+    "Spell",
+    "School",
+    "Special"
+   ]
+  },
+  {
+   "page": 84,
+   "title": "Draconic Ancestors",
+   "head": [
+    "Dragon Damage Type",
+    "Dragon Damage Type"
+   ]
+  },
+  {
+   "page": 85,
+   "title": "Elven Lineages",
+   "head": [
+    "Lineage",
+    "Level 1",
+    "Level 3",
+    "Level 5"
+   ]
+  },
+  {
+   "page": 86,
+   "title": "Fiendish Legacies",
+   "head": [
+    "Legacy",
+    "Level 1",
+    "Level 3",
+    "Level 5"
+   ]
+  },
+  {
+   "page": 89,
+   "title": "Coin Values",
+   "head": [
+    "Coin",
+    "Value in GP"
+   ]
+  },
+  {
+   "page": 91,
+   "title": "Weapons",
+   "head": [
+    "Name",
+    "Damage",
+    "Properties",
+    "Mastery",
+    "Weight",
+    "Cost"
+   ]
+  },
+  {
+   "page": 92,
+   "title": "Armor",
+   "head": [
+    "Armor",
+    "Armor Class (AC)",
+    "Strength",
+    "Stealth",
+    "Weight",
+    "Cost"
+   ]
+  },
+  {
+   "page": 95,
+   "title": "Adventuring Gear",
+   "head": [
+    "Item",
+    "Weight",
+    "Cost"
+   ]
+  },
+  {
+   "page": 96,
+   "title": "Ammunition",
+   "head": [
+    "Type",
+    "Amount Storage",
+    "Weight Cost"
+   ]
+  },
+  {
+   "page": 96,
+   "title": "Arcane Focuses",
+   "head": [
+    "Focus",
+    "Weight",
+    "Cost"
+   ]
+  },
+  {
+   "page": 97,
+   "title": "Druidic Focuses",
+   "head": [
+    "Focus",
+    "Weight",
+    "Cost"
+   ]
+  },
+  {
+   "page": 97,
+   "title": "Holy Symbols",
+   "head": [
+    "Symbol",
+    "Weight",
+    "Cost"
+   ]
+  },
+  {
+   "page": 100,
+   "title": "Mounts and Other Animals",
+   "head": [
+    "Item",
+    "Carrying Capacity",
+    "Cost"
+   ]
+  },
+  {
+   "page": 100,
+   "title": "Tack, Harness, and Drawn Vehicles",
+   "head": [
+    "Item",
+    "Weight",
+    "Cost"
+   ]
+  },
+  {
+   "page": 101,
+   "title": "Food, Drink, and Lodging",
+   "head": [
+    "Item",
+    "Cost"
+   ]
+  },
+  {
+   "page": 101,
+   "title": "Airborne and Waterborne Vehicles",
+   "head": [
+    "Ship",
+    "Speed",
+    "Crew",
+    "Passengers",
+    "Cargo (Tons)",
+    "AC",
+    "HP",
+    "Damage Threshold",
+    "Cost"
+   ]
+  },
+  {
+   "page": 102,
+   "title": "Hirelings",
+   "head": [
+    "Service",
+    "Cost"
+   ]
+  },
+  {
+   "page": 102,
+   "title": "Spellcasting Services",
+   "head": [
+    "Spell Level",
+    "Availability",
+    "Cost"
+   ]
+  },
+  {
+   "page": 103,
+   "title": "Spell Scroll Costs",
+   "head": [
+    "Spell Level",
+    "Time",
+    "Cost"
+   ]
+  },
+  {
+   "page": 104,
+   "title": "Spell Preparation by Class",
+   "head": [
+    "Class",
+    "Change When You",
+    "…",
+    "Number of Spells"
+   ]
+  },
+  {
+   "page": 105,
+   "title": "Schools of Magic",
+   "head": [
+    "School",
+    "Typical Effects"
+   ]
+  },
+  {
+   "page": 111,
+   "title": "Omens",
+   "head": [
+    "Omen",
+    "For Results That Will Be …"
+   ]
+  },
+  {
+   "page": 120,
+   "title": "Precipitation",
+   "head": [
+    "Stage Condition"
+   ]
+  },
+  {
+   "page": 120,
+   "title": "Temperature",
+   "head": [
+    "Stage Condition"
+   ]
+  },
+  {
+   "page": 120,
+   "title": "Wind",
+   "head": [
+    "Stage Condition"
+   ]
+  },
+  {
+   "page": 121,
+   "title": "Materials",
+   "head": [
+    "Material",
+    "Duration"
+   ]
+  },
+  {
+   "page": 125,
+   "title": "Divine Word Effects",
+   "head": [
+    "Hit Points Effect"
+   ]
+  },
+  {
+   "page": 154,
+   "title": "Prismatic Rays",
+   "head": [
+    "1d8 Ray"
+   ]
+  },
+  {
+   "page": 155,
+   "title": "Prismatic Layers",
+   "head": [
+    "Order Effects"
+   ]
+  },
+  {
+   "page": 168,
+   "title": "Teleportation Outcome",
+   "head": [
+    "Familiarity",
+    "Mishap",
+    "Similar",
+    "Area",
+    "Off",
+    "Target",
+    "On",
+    "Target"
+   ]
+  },
+  {
+   "page": 178,
+   "title": "Object Armor Class",
+   "head": [
+    "AC Substance",
+    "AC Substance"
+   ]
+  },
+  {
+   "page": 178,
+   "title": "Object Hit Points",
+   "head": [
+    "Size",
+    "Fragile",
+    "Resilient"
+   ]
+  },
+  {
+   "page": 178,
+   "title": "Carrying Capacity",
+   "head": [
+    "Creature Size",
+    "Carry",
+    "Drag/Lift/Push"
+   ]
+  },
+  {
+   "page": 180,
+   "title": "Damage Types",
+   "head": [
+    "Type",
+    "Examples"
+   ]
+  },
+  {
+   "page": 181,
+   "title": "Water Needs per Day",
+   "head": [
+    "Size",
+    "Water"
+   ]
+  },
+  {
+   "page": 184,
+   "title": "Influence Checks",
+   "head": [
+    "Ability Check",
+    "Interaction"
+   ]
+  },
+  {
+   "page": 185,
+   "title": "Food Needs per Day",
+   "head": [
+    "Size",
+    "Food",
+    "Size",
+    "Food"
+   ]
+  },
+  {
+   "page": 187,
+   "title": "Search",
+   "head": [
+    "Skill",
+    "Thing to Detect"
+   ]
+  },
+  {
+   "page": 189,
+   "title": "Areas of Knowledge",
+   "head": [
+    "Skill",
+    "Areas"
+   ]
+  },
+  {
+   "page": 192,
+   "title": "Travel Terrain",
+   "head": [
+    "Terrain",
+    "Maximum Pace"
+   ]
+  },
+  {
+   "page": 196,
+   "title": "Sample Fear DCs",
+   "head": [
+    "Example",
+    "Save DC"
+   ]
+  },
+  {
+   "page": 196,
+   "title": "Sample Mental Stress Effects",
+   "head": [
+    "Example",
+    "Save",
+    "DC",
+    "Psychic",
+    "Damage"
+   ]
+  },
+  {
+   "page": 202,
+   "title": "XP Budget per Character",
+   "head": [
+    "Party’s",
+    "Level",
+    "——— Encounter Difficulty ———",
+    "Low",
+    "Moderate",
+    "High"
+   ]
+  },
+  {
+   "page": 204,
+   "title": "Magic Item Categories",
+   "head": [
+    "Category",
+    "Examples"
+   ]
+  },
+  {
+   "page": 204,
+   "title": "Potion Miscibility",
+   "head": [
+    "1d100 Result"
+   ]
+  },
+  {
+   "page": 206,
+   "title": "Magic Item Rarities and Values",
+   "head": [
+    "Rarity",
+    "Value*",
+    "Rarity",
+    "Value*"
+   ]
+  },
+  {
+   "page": 207,
+   "title": "Magic Item Tools",
+   "head": [
+    "Item Category",
+    "Required Tool"
+   ]
+  },
+  {
+   "page": 207,
+   "title": "Magic Item Crafting Time and Cost",
+   "head": [
+    "Item Rarity",
+    "Time*",
+    "Cost*"
+   ]
+  },
+  {
+   "page": 208,
+   "title": "Sentient Item’s Alignment",
+   "head": [
+    "1d100 Alignment",
+    "1d100 Alignment"
+   ]
+  },
+  {
+   "page": 208,
+   "title": "Sentient Item’s Communication",
+   "head": [
+    "1d10 Communication"
+   ]
+  },
+  {
+   "page": 208,
+   "title": "Sentient Item’s Senses",
+   "head": [
+    "1d4",
+    "Senses"
+   ]
+  },
+  {
+   "page": 208,
+   "title": "Sentient Item’s Special Purpose",
+   "head": [
+    "1d10 Special Purpose"
+   ]
+  },
+  {
+   "page": 210,
+   "title": "Apparatus of the Crab Levers",
+   "head": [
+    "Lever Up",
+    "Down"
+   ]
+  },
+  {
+   "page": 212,
+   "title": "Gray Bag of Tricks",
+   "head": [
+    "1d8",
+    "Creature",
+    "1d8",
+    "Creature"
+   ]
+  },
+  {
+   "page": 212,
+   "title": "Rust Bag of Tricks",
+   "head": [
+    "1d8",
+    "Creature",
+    "1d8",
+    "Creature"
+   ]
+  },
+  {
+   "page": 212,
+   "title": "Tan Bag of Tricks",
+   "head": [
+    "1d8",
+    "Creature",
+    "1d8",
+    "Creature"
+   ]
+  },
+  {
+   "page": 216,
+   "title": "Cube of Force Faces",
+   "head": [
+    "Spell",
+    "Charge Cost"
+   ]
+  },
+  {
+   "page": 217,
+   "title": "Deck of Illusions",
+   "head": [
+    "1d100",
+    "Illusion*"
+   ]
+  },
+  {
+   "page": 221,
+   "title": "Feather Tokens",
+   "head": [
+    "1d100",
+    "Token",
+    "Rarity"
+   ]
+  },
+  {
+   "page": 231,
+   "title": "Mysterious Deck",
+   "head": [
+    "1d100",
+    "(13-Card",
+    "Deck)",
+    "1d100",
+    "(22-Card",
+    "Deck)",
+    "Card"
+   ]
+  },
+  {
+   "page": 252,
+   "title": "Wand of Wonder Effects",
+   "head": [
+    "1d100 Effect"
+   ]
+  },
+  {
+   "page": 255,
+   "title": "Hit Dice by Size",
+   "head": [
+    "Monster Size",
+    "Hit Die",
+    "Average HP per Die"
+   ]
+  },
+  {
+   "page": 256,
+   "title": "Experience Points by Challenge Rating",
+   "head": [
+    "CR",
+    "XP",
+    "CR",
+    "XP"
+   ]
+  },
+  {
+   "page": 256,
+   "title": "Proficiency Bonus by Challenge Rating",
+   "head": [
+    "CR",
+    "PB",
+    "CR",
+    "PB"
+   ]
+  }
+ ]
+}
