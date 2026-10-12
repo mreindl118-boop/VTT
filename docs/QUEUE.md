@@ -15,15 +15,16 @@ For each item, in order:
 
 ## Checklist
 
-- [ ] 1. **Nested world (top priority).** One zoomable world: the region, then a town, then a building, then a room, each map placed at its pin and streaming in as you zoom.
+- [ ] 1. **D&D-style rules tooltips (first, owner 2026-10-12).** Styled cards, not block text, with a colour per type: spells, conditions and effects, monsters, items by rarity, rules, damage types.
+  - Built on the SRD books data (`c058977`; finish its remaining accuracy fixes first) and the tooltip card from `THEME.md`.
+  - Shown on every place a rule, spell, monster or effect appears.
+- [ ] 2. **Nested world (top priority).** One zoomable world: the region, then a town, then a building, then a room, each map placed at its pin and streaming in as you zoom.
   - Review suggestions folded in (owner decision, 2026-10-12): `chat gpt suggestions/dispose-obsolete-map-and-range-resources`, `chat gpt suggestions/make-location-navigation-atomic`, `chat gpt suggestions/world-map-hidden-landmarks`. Re-check each against the code, then fix it with a failing test first.
   - Done: frame maths and the world atlas (step 0, `64506d2`); the floating origin and shader basis (step 1, `9e6ba78`).
   - Next: fold in the zoom and nesting fix (`c3557f9`: Enter from a building, Back keeps your place, zoom while gliding, zoom toward the cursor, the phone zoom buttons).
   - Then: step 2, the valley with maps opening in place (WIP `7c75a17`); step 3, streaming; step 4, nesting with breadcrumbs; step 5, the Player Display; step 6, the UI; step 7, performance and phones; step 8, the data pass.
   - Each step is shown to the owner before the next.
-- [ ] 2. **D&D-style rules tooltips (top priority).** Styled cards, not block text, with a colour per type: spells, conditions and effects, monsters, items by rarity, rules, damage types.
-  - Built on the SRD books data (`c058977`; finish its remaining accuracy fixes first) and the tooltip card from `THEME.md`.
-  - Shown on every place a rule, spell, monster or effect appears.
+  - Paused 2026-10-12 for the tooltips: the surveys finished; prototypes inked-relief and painted-atlas were interrupted (patches in the scratchpad); resume run wf_6907b12e-aa2.
 - [ ] 3. **Dollhouse view.** A cutaway toggle built into the app, working on every map with walls; nothing is authored per map.
   - When on, the walls on the camera's side of each building and room disappear, and they update as you orbit (like The Sims). Roofs and ceilings above lift away.
   - The far walls, the outside of the building, the street and the neighbouring buildings stay, so you see where the party is inside the building and in its surroundings.
