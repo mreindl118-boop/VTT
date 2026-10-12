@@ -15,6 +15,7 @@ For each item, in order:
 
 ## Checklist
 
+- [ ] 0. **Explored-fog leak (owner 2026-10-12: fix it now).** Explored memory grew by a cell through walls on every update, so ordinary actions revealed whole floors to the players (bug 16; review finding 8). Fix and tests, released as 0.0.2.
 - [ ] 1. **D&D-style rules tooltips (first, owner 2026-10-12).** Styled cards, not block text, with a colour per type: spells, conditions and effects, monsters, items by rarity, rules, damage types.
   - Built on the SRD books data (`c058977`; finish its remaining accuracy fixes first) and the tooltip card from `THEME.md`.
   - Shown on every place a rule, spell, monster or effect appears.
@@ -34,6 +35,7 @@ For each item, in order:
   - To settle at design time: how it sits beside today's low-walls toggle and the section slider.
 - [ ] 4. **Movable panels.** Built and fixed (`5aa32c7`); unit tests pass. Left: the panel browser tests, then merge.
 - [ ] 5. **Backups 0.2.0.** Built (`a732b0f`, WIP `f89512c`). Left: Restore must give back exactly the saved state (explored-memory bug 16) and one misleading message must be fixed. Then test and merge.
+  - New issues from `docs/REVIEW.md` folded in (owner 2026-10-12): N2 the Player Display rebuilds every figure on every DM action without freeing them; N3 the display's save on a campaign switch (already fixed on the branch: confirm); N4 a failed save write hangs campaign switching; N5 the save is read twice at start; N7 an imported backup's token names reach the page unescaped; N8 hidden creatures' names still reach the display through the projection.
   - Review suggestions folded in (owner decision, 2026-10-12): `chat gpt suggestions/explored-fog-expands-without-movement`, `chat gpt suggestions/protect-campaign-storage`, `chat gpt suggestions/player-display-state-authority`, `chat gpt suggestions/synchronize-display-navigation-and-memory`. Re-check each against the code, then fix it with a failing test first.
 - [ ] 6. **Map smoothing: finished maps.** Krezk, render grain, region, backdrop, Vallaki interiors, Death House, Sheep Chase, Argynvostholt, Tsolenka and the Werewolf Den, the Village and Castle Ravenloft. Left: fix the issues found on Krezk and render, check the rest, merge.
 - [ ] 7. **Map smoothing: unfinished maps.** Yester Hill (flat hill, cotton fog), the winery, the Amber Temple (WIP `a1cdc36`), and Berez with Van Richten's tower.
@@ -41,6 +43,7 @@ For each item, in order:
 - [ ] 9. **Chapter 2 sites.** A, B, D, F, H, I, J, L, M, P and R are built (A WIP `e3987b6`). Left: one fix round each, including Tser Falls as a cliff over the pool with Vallaki in view.
 - [ ] 10. **Vallaki terrain.** Built (`c0fd014`). Merge after item 8.
 - [ ] 11. **Night-one fixes 0.2.1.** Approvals A1–A9.
+  - New issues from `docs/REVIEW.md` folded in (owner 2026-10-12): N1 during an encounter a placed creature, even hidden, becomes "the party", so the DM moving it reveals rooms and players' Find party centres on it; N6 a double tap in Players mode frames an unexplored room.
   - Review suggestions folded in (owner decision, 2026-10-12): `chat gpt suggestions/make-stair-traversal-single-hop`, `chat gpt suggestions/players-mode-scene-navigation`, `chat gpt suggestions/player-initiative-visibility`. Re-check each against the code, then fix it with a failing test first.
 - [ ] 12. **Gameplay 0.3.0–0.4.0.** Per `ITERATIONS.md`.
 - [ ] 13. **Initiative strip and encounter builder.** 0.5.0 and 0.5.1, using 2024 SRD budgets only.
@@ -59,6 +62,7 @@ For each item, in order:
 ## Owner decisions
 
 - 2026-10-12: the independent review's 14 suggestions fold into their matching items. The two with no other home become item 22.
+- 2026-10-12: Claude Code's own review (`docs/REVIEW.md`) found eight more issues; they fold into items 5 and 11. The explored-fog leak is fixed first, as item 0.
 
 ### 2026-10-05
 
