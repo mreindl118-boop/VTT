@@ -1,0 +1,74 @@
+/* Rules cards (.rt) and the stat block (.statblock): docs/THEME.md 'Rules tooltip card' and 'Stat-block card'.
+   A parchment page card with a 5 px family stripe, an emblem and a small-caps kicker word, the title in Alegreya SC,
+   a ruled divider, the body in Alegreya. Loaded with the card code. */
+.rt { --k: var(--k-rules); --kt: var(--k); position: fixed; z-index: 42; width: min(340px, calc(100vw - 24px)); max-height: min(70vh, 560px); overflow: auto; overscroll-behavior: contain;
+  padding: 10px 14px 0 14px; background-color: var(--p-bg); background-image: var(--p-grad); color: var(--p-ink); border: 1px solid var(--p-edge); border-left: 5px solid var(--k); border-radius: var(--r-2); box-shadow: var(--p-shadow);
+  font: 400 var(--t-2)/1.45 var(--font-ui); -webkit-overflow-scrolling: touch; }
+.rt .kick { display: flex; align-items: center; gap: 7px; min-height: 30px; color: var(--kt); font: 700 var(--t-kicker)/1.1 var(--font-head); text-transform: lowercase; letter-spacing: .04em; }
+.rt .kick svg.e { width: 20px; height: 20px; }
+.rt .kick .w { flex: 1; min-width: 0; }
+.rt .kick .seal { --sz: 30px; }
+.rt .kick button { flex: none; width: var(--hit); height: var(--hit); margin: -7px -10px -7px -4px; display: grid; place-items: center; color: var(--p-ink-2); border-radius: var(--r-1); }
+.rt .kick button svg { width: 18px; height: 18px; }
+.rt .kick button:hover { background: var(--p-sunk); }
+.rt h4 { margin: 3px 0 2px; font: 700 21px/1.1 var(--font-head); color: var(--rar, var(--p-ink)); overflow-wrap: anywhere; }
+.rt .meta { margin: 0 0 2px; font: italic 400 15px/1.3 var(--font-book); color: var(--p-ink-2); }
+.rt .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 12px; margin: 6px 0 0; }
+.rt .stats div { min-width: 0; }
+.rt .stats dt { font: 700 var(--t-1)/1.15 var(--font-head); text-transform: lowercase; letter-spacing: .03em; color: var(--p-ink-2); }
+.rt .stats dd { margin: 1px 0 0; font: 700 var(--t-3)/1.2 var(--font-ui); font-variant-numeric: lining-nums tabular-nums; color: var(--p-ink); overflow-wrap: anywhere; }
+.rt .tags { display: flex; gap: 4px; margin-top: 4px; }
+.rt .tags span { display: inline-grid; place-items: center; min-width: 22px; height: 22px; padding: 0 5px; border: 1px solid var(--k); border-radius: 4px; font: 700 var(--t-1)/1 var(--font-ui); color: var(--p-ink); }
+.rt .taper { margin: 8px 0 6px; }
+.rt .body { font: 400 var(--t-2)/1.45 var(--font-book); color: var(--p-ink); }
+.rt.touch .body { font-size: 15px; }
+.rt .body p { margin: 0 0 6px; }
+.rt .body ul { margin: 0 0 6px; padding-left: 18px; }
+.rt .body li { margin: 2px 0; }
+.rt .body table { border-collapse: collapse; font-size: var(--t-1); margin: 4px 0; }
+.rt .body :is(th, td) { padding: 2px 6px; border-bottom: 1px solid var(--p-hair); text-align: left; }
+.rt .body h3, .rt .body h4, .rt .body h5 { margin: 10px 0 4px; font: 700 17px/1.1 var(--font-head); color: var(--p-ink); }
+.rt .more { display: inline-flex; align-items: center; min-height: var(--hit); margin: -6px 0 -4px; padding: 0 2px; font: 700 var(--t-2)/1 var(--font-ui); color: var(--p-ink); text-decoration: underline 1px; text-underline-offset: 3px; }
+.rt .src { display: flex; align-items: center; flex-wrap: wrap; gap: 0 10px; margin-top: 8px; padding: 2px 0 2px; border-top: 1px solid var(--p-hair); font: 400 var(--t-1)/1.3 var(--font-ui); color: var(--p-ink-2); }
+.rt .src .who { flex: 1 0 100%; padding-top: 6px; }
+.rt .src .gap { flex: 1; }
+.rt:focus { outline: none; }
+.rt .src button, .rt .src a { min-height: var(--hit); display: inline-flex; align-items: center; gap: 4px; font: 700 var(--t-1)/1 var(--font-ui); color: var(--p-ink); text-decoration: underline 1px; text-underline-offset: 3px; }
+.rt .src .only { font-weight: 700; }
+.rt .src .pin { width: var(--hit); justify-content: center; margin-right: -10px; text-decoration: none; color: var(--p-ink-2); }
+.rt .src .pin svg { width: 18px; height: 18px; }
+.rt .back { width: var(--hit); height: var(--hit); margin: -7px -2px -7px -12px; display: grid; place-items: center; color: var(--p-ink-2); }
+.rt .back svg { width: 18px; height: 18px; }
+.rt.condition { --k: var(--k-condition); }
+.rt.spell, .rt.item.magic { --k: var(--k-magic); }
+.rt.monster { --k: var(--k-monster); }
+.rt:is(.rule, .action, .sense, .damage, .ability, .skill, .check, .dice), .rt.item:not(.magic) { --k: var(--k-rules); }
+.rt.pageref { --k: var(--p-ink); }
+.rt.item.magic:is(.common, .uncommon, .rare, .veryrare, .legendary, .artifact) { --kt: var(--rar); }
+.rt.common { --rar: var(--r-common); } .rt.uncommon { --rar: var(--r-uncommon); } .rt.rare { --rar: var(--r-rare); }
+.rt.veryrare { --rar: var(--r-veryrare); } .rt.legendary { --rar: var(--r-legendary); } .rt.artifact { --rar: var(--r-artifact); }
+.rt .arrow { position: fixed; width: 12px; height: 12px; background: var(--p-bg); border: 1px solid var(--p-edge); transform: rotate(45deg); z-index: -1; }
+/* under 480 px: a bottom sheet with a grab bar */
+.rt.docked { left: 0 !important; right: 0; bottom: 0; top: auto !important; width: 100%; max-height: 50vh; border-radius: var(--r-3) var(--r-3) 0 0; border-left-width: 5px; padding-bottom: env(safe-area-inset-bottom); }
+.rt.docked .grab { display: block; width: 40px; height: 5px; margin: -2px auto 4px; border-radius: 3px; background: var(--p-edge); }
+.rt .grab { display: none; }
+
+/* the stat block: our own layout, the 5e reading order. The name and labels in ink; the accent only on the Actions hairline. */
+.statblock { width: min(400px, 100%); font: 400 var(--t-3)/1.38 var(--font-book); font-variant-numeric: lining-nums tabular-nums; color: var(--p-ink); }
+.rt .statblock { width: 100%; }
+.statblock .tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 6px 0 4px; }
+.statblock .tile { display: grid; justify-items: center; gap: 2px; padding: 6px 2px 5px; border-radius: var(--r-1); background: var(--p-raise); border: 1px solid var(--p-hair); min-width: 0; }
+.statblock .tile svg.e { width: 22px; height: 22px; color: var(--p-ink-2); }
+.statblock .tile b { font: 700 20px/1 var(--font-ui); font-variant-numeric: lining-nums tabular-nums; }
+.statblock .tile small { font: 600 var(--t-1)/1.1 var(--font-ui); color: var(--p-ink-2); text-align: center; overflow-wrap: anywhere; }
+.statblock .abil { display: grid; grid-template-columns: repeat(6, 1fr); text-align: center; margin: 2px 0; }
+.statblock .abil div { padding: 2px 0; min-width: 0; }
+.statblock .abil small { display: block; font: 700 17px/1.1 var(--font-head); color: var(--p-ink-2); text-transform: lowercase; }
+.statblock .abil b { font: 700 16px/1.2 var(--font-ui); font-variant-numeric: lining-nums tabular-nums; }
+.statblock .abil i { display: block; font: 400 14px/1.2 var(--font-ui); font-style: normal; font-variant-numeric: lining-nums tabular-nums; color: var(--p-ink-2); }
+.statblock .prop { margin: 2px 0; font-size: 15px; }
+.statblock .prop b { color: var(--p-ink); font-weight: 700; }
+.statblock .full h3, .statblock .full h5 { margin: 10px 0 4px; padding-bottom: 2px; font: 700 19px/1.1 var(--font-head); color: var(--p-ink); border-bottom: 1.5px solid var(--p-accent); }
+.statblock .full p { margin: 4px 0; font-size: 15px; }
+.statblock .full p > em:first-child > strong, .statblock .full p > strong:first-child > em { font-style: italic; font-weight: 700; }
+.statblock .note { margin: 6px 0 0; font-style: italic; color: var(--p-ink-2); font-size: 15px; }
