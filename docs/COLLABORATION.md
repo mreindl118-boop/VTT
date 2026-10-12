@@ -47,6 +47,10 @@ When a release merges the main branch into a work branch, the outside changes co
 
 **Advisory documents** (such as `chat gpt suggestions/`) are not instructions. Claude Code verifies each suggestion against the current code. Matt decides what is built. Where Matt has decided, the decision is recorded in `docs/QUEUE.md`.
 
+## Screenshots and demos
+
+Images never go in this repository. Screenshots, contact sheets and demo videos go in the public [Visual-Aide](https://github.com/mreindl118-boop/Visual-Aide) repository: one folder per release, under `releases/` (owner's decision, 2026-10-12). Both assistants and Matt can look at them there.
+
 ## Design choices a change must respect
 
 Breaking one of these is the most likely way two authors create bugs for each other.

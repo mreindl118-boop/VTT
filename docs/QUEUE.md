@@ -19,7 +19,7 @@ For each item, in order:
 3. Bump the version (item N ships as 0.N.0).
 4. Write the changelog entry.
 5. Pass the full test suite.
-6. Push and publish.
+6. Push and publish, and add the release's screenshots and demo to the [Visual-Aide](https://github.com/mreindl118-boop/Visual-Aide) repo (`releases/<version>-<name>/`).
 7. Tick the item, then start the next one.
 
 ## Checklist
