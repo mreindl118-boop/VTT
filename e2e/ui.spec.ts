@@ -144,7 +144,8 @@ test('creatures: placed from the repository, hidden until revealed, moved freely
   await page.evaluate((id) => { const a = (window as any).__mistlab.app; a.setRangeHelper(true); a.select(id); }, id);
   expect(await page.evaluate(() => !!(window as any).__mistlab.app.rangeFor)).toBe(true);
   await expect(page.locator('.tokpanel')).toBeVisible();
-  await expect(page.locator('.tokpanel header b')).toHaveText('Dire wolf');
+  // the name is the creature's stat-block link now (the rules tooltip pass)
+  await expect(page.locator('.tokpanel header .tp-name .rl.monster')).toHaveText('Dire wolf');
   await page.locator('.tokpanel [data-a="remove"]').click();
   expect(await page.evaluate(() => (window as any).__mistlab.app.state.tokens.filter((t: any) => t.role === 'creature').length)).toBe(1);
 });

@@ -280,3 +280,151 @@ test('iPad: a tap on a rules link opens its card clear of the link; Esc and an o
   await page.touchscreen.tap(600, 600);
   await expect(page.locator('#tips .rt')).toHaveCount(0);
 });
+
+test('phone: the Books reader\'s running head has a 44 px Contents button that opens the contents', async ({ page }, info) => {
+  test.skip(info.project.name !== 'phone', 'phone');
+  await page.addInitScript(() => localStorage.setItem('mistlab.helpSeen', '1'));
+  await page.goto('/?nosw&scene=appB%2Fdeath-house#book/srd-5.2.1/playing-the-game');
+  await expect(page.locator('article.br-page[data-page]')).toBeVisible({ timeout: 20_000 });
+  const b = page.locator('.br-run-toc');
+  await expect(b).toBeVisible();
+  const r = await b.boundingBox();
+  expect(r!.height).toBeGreaterThanOrEqual(44); expect(r!.width).toBeGreaterThanOrEqual(44);
+  await b.tap();
+  await expect(page.locator('.book-reader.toc-open')).toHaveCount(1);
+  await page.waitForTimeout(300);
+  await page.screenshot({ path: `${SHOTS}/phone-books-contents.png` });
+  expect(await page.locator('.br-toc button').evaluateAll((els) => els.filter((e) => e.getBoundingClientRect().height > 0 && e.getBoundingClientRect().height < 44).length)).toBe(0);
+});
+
+// ---- step 3: every kind opened from a real link on each device, the stat block at a glance, the edition switch
+/** One link per kind, as the surfaces and the Books reader render them (terms.ts, booklinks.ts, cards.ts, creature.ts). */
+const LINKS: [string, string][] = [
+  ['spell', '<button type="button" class="rl spell" data-kind="spell" data-term="spell:bless">bless</button>'],
+  ['magic-item', '<button type="button" class="rl item magic" data-kind="magic-item" data-term="item:cloak-of-protection">cloak of protection</button>'],
+  ['gear', '<button type="button" class="rl item" data-kind="gear" data-term="item:longsword" data-edition="2024">longsword</button>'],
+  ['condition', '<button type="button" class="rl condition" data-kind="condition" data-term="condition:prone">prone</button>'],
+  ['monster', '<button type="button" class="rl monster" data-kind="monster" data-term="monster:ghast">ghasts</button>'],
+  ['creature-type', '<button type="button" class="rl monster" data-kind="creature-type" data-term="creature-type:undead" data-edition="2024">Undead</button>'],
+  ['rule', '<button type="button" class="rl rule" data-kind="rule" data-term="rule:difficult-terrain">difficult terrain</button>'],
+  ['action', '<button type="button" class="rl action" data-kind="action" data-term="rule:dash" data-edition="2024">Dash</button>'],
+  ['sense', '<button type="button" class="rl sense" data-kind="sense" data-term="rule:darkvision">darkvision</button>'],
+  ['damage', '<button type="button" class="rl damage" data-kind="damage" data-term="damage:necrotic">necrotic</button>'],
+  ['ability', '<button type="button" class="rl ability" data-kind="ability" data-term="ability:wisdom">Wisdom</button>'],
+  ['skill', '<button type="button" class="rl skill" data-kind="skill" data-term="skill:perception">Perception</button>'],
+  ['feat', '<button type="button" class="rl rule" data-kind="feat" data-term="feat:alert" data-edition="2024">Alert</button>'],
+  ['class', '<button type="button" class="rl rule" data-kind="class" data-term="class:wizard" data-edition="2024">Wizard</button>'],
+  ['check', '<button type="button" class="rl check" data-kind="check" data-dc="15" data-ability="DEX" data-skill="Thieves\' Tools">DC 15 Dexterity (thieves\' tools)</button>'],
+  ['dice', '<button type="button" class="rl dice" data-kind="dice" data-expr="2d10">2d10</button>'],
+  ['area', '<button type="button" class="rl pageref" data-kind="area" data-key="21" data-name="Stairs" data-floor="Floor 1">21</button>'],
+  ['person', '<button type="button" class="rl pageref" data-kind="person" data-name="Rose" data-role="Ghost">Rose</button>'],
+  ['pageref', '<button type="button" class="rl pageref" data-kind="pageref" data-page="212">p.212</button>'],
+  ['creature', '<button type="button" class="rl monster" data-kind="monster" data-creature="mongrelfolk" data-name="Mongrelfolk">Mongrelfolk</button>'],
+];
+const STRUCTURAL = new Set(['check', 'dice', 'area', 'person', 'pageref', 'creature']);
+
+test('every kind: a 400 ms hover (desktop) or one tap (iPad, phone) opens a card inside the viewport, clear of its link, with its emblem, kicker and source; Esc and an outside tap close it', async ({ page }, info) => {
+  test.setTimeout(120_000);
+  const touch = info.project.name !== 'chromium';
+  await boot(page, 'appB/death-house');
+  await page.evaluate((links) => {
+    const box = document.createElement('div'); box.className = 'page kinds-demo';
+    box.style.cssText = 'position:fixed;left:12px;top:70px;right:12px;z-index:3;padding:6px 10px;background:var(--p-bg);border:1px solid var(--p-edge);border-radius:8px;font:15px/2.1 var(--font-book);display:flex;flex-wrap:wrap;gap:0 14px';
+    box.innerHTML = links.map(([k, h]) => `<span data-k="${k}">${h}</span>`).join('');
+    document.body.appendChild(box);
+  }, LINKS);
+  const vp = page.viewportSize()!;
+  for (const [i, [kind]] of LINKS.entries()) {
+    const link = page.locator(`.kinds-demo [data-k="${kind}"] .rl`);
+    if (touch) await link.tap();
+    else { await page.mouse.move(2, vp.height - 2); await link.hover(); await page.waitForTimeout(450); }
+    const card = page.locator('#tips .rt');
+    await expect(card, kind).toBeVisible();
+    await page.waitForTimeout(150);
+    const g = await page.evaluate(() => {
+      const c = document.querySelector('#tips .rt')!, r = c.getBoundingClientRect(), a = document.querySelector('.kinds-demo .rl[aria-expanded="true"]')?.getBoundingClientRect();
+      const e = c.querySelector('.kick svg.e')!.getBoundingClientRect();
+      return { r: r.toJSON(), a: a?.toJSON(), docked: c.classList.contains('docked'), ew: e.width, kick: c.querySelector('.kick .w')!.textContent, who: c.querySelector('.src .who')?.textContent ?? '' };
+    });
+    expect(g.r.left, kind).toBeGreaterThanOrEqual(0); expect(g.r.top, kind).toBeGreaterThanOrEqual(0);
+    expect(g.r.right, kind).toBeLessThanOrEqual(vp.width + 0.5); expect(g.r.bottom, kind).toBeLessThanOrEqual(vp.height + 0.5);
+    if (vp.width < 480) expect(g.docked, kind).toBe(true);
+    else if (g.a) expect(g.r.top >= g.a.bottom || g.r.bottom <= g.a.top || g.r.left >= g.a.right || g.r.right <= g.a.left, `${kind} clear of its link`).toBe(true);
+    expect(g.ew, kind).toBe(20);
+    expect(g.kick, kind).toBeTruthy();
+    expect(g.who, kind).toMatch(STRUCTURAL.has(kind) ? /Table|Module/ : /^(2024|2014) · SRD/);
+    if (kind === 'condition' && info.project.name === 'chromium') await page.screenshot({ path: `${SHOTS}/step3-condition-card.png` });
+    // close: Esc on even turns, an outside tap or click on odd ones
+    if (i % 2 === 0) await page.keyboard.press('Escape');
+    else {
+      // outside: above a bottom sheet (phone), else below the card
+      const y = g.docked ? Math.round(g.r.top - 40) : vp.height - 40;
+      if (touch) await page.touchscreen.tap(vp.width / 2, y); else await page.mouse.click(vp.width / 2, y);
+    }
+    await expect(page.locator('#tips .rt'), `${kind} closed`).toHaveCount(0);
+  }
+});
+
+for (const name of ['ghoul', 'wolf'] as const) for (const ed of ['2024', '2014'] as const) {
+  test(`stat block ${name} ${ed}: ink name and labels, the accent only on the section hairlines, lining tabular numerals, no overflow, all at a glance`, async ({ page }, info) => {
+    await boot(page, 'appB/death-house');
+    const vp = page.viewportSize()!;
+    await page.evaluate(({ name, ed }) => (window as any).__mistlab.tips.openCard({ term: `monster:${name}`, edition: ed }, { anchor: { left: 40, right: 60, top: 80, bottom: 100, width: 20, height: 20 } }), { name, ed });
+    const card = page.locator('#tips .rt.monster');
+    await expect(card.locator('.statblock .abil')).toBeVisible();
+    const glance = await card.evaluate((c) => {
+      const r = c.getBoundingClientRect(), inside = (sel: string) => [...c.querySelectorAll(sel)].every((e) => { const b = e.getBoundingClientRect(); return b.top >= r.top && b.bottom <= r.bottom + 0.5; });
+      return { tiles: c.querySelectorAll('.tile').length, all: inside('.tile') && inside('.abil div'), scroll: c.scrollTop, overflow: c.scrollWidth - c.clientWidth };
+    });
+    expect(glance.tiles).toBe(4);
+    if (info.project.name === 'ipad' || vp.width >= 1000) expect(glance.all, 'AC, HP, Speed, CR and the abilities without scrolling').toBe(true);
+    expect(glance.overflow).toBeLessThanOrEqual(0);
+    if (info.project.name !== 'chromium' && name === 'ghoul' && ed === '2024') { await page.waitForTimeout(250); await page.screenshot({ path: `${SHOTS}/step3-ghoul-${info.project.name}.png` }); }
+    await card.locator('button.more').click();
+    await expect(card.locator('.statblock .full')).toBeVisible();
+    const s = await card.evaluate((c) => {
+      const ink = getComputedStyle(c).color, acc = (() => { const p = document.createElement('i'); p.style.color = 'var(--p-accent)'; c.appendChild(p); const v = getComputedStyle(p).color; p.remove(); return v; })();
+      const accentBorders = [...c.querySelectorAll('.statblock *')].filter((e) => { const cs = getComputedStyle(e); return (['Top', 'Right', 'Bottom', 'Left'] as const).some((side) => parseFloat(cs[`border${side}Width`]) > 0 && cs[`border${side}Color`] === acc); }).map((e) => e.tagName);
+      return { ink, name: getComputedStyle(c.querySelector('h4')!).color, labels: [...c.querySelectorAll('.statblock .prop b')].map((b) => getComputedStyle(b).color), accentBorders, nums: [...c.querySelectorAll('.statblock .abil b')].map((b) => getComputedStyle(b).fontVariantNumeric), overflow: c.scrollWidth - c.clientWidth };
+    });
+    expect(s.name).toBe(s.ink);
+    expect(s.labels.length).toBeGreaterThan(0);
+    expect(new Set(s.labels)).toEqual(new Set([s.ink]));
+    expect(s.accentBorders.length).toBeGreaterThan(0);
+    expect(s.accentBorders.every((t) => /^H[3-6]$/.test(t)), s.accentBorders.join()).toBe(true);
+    expect(s.nums).toHaveLength(6);
+    for (const n of s.nums) { expect(n).toContain('lining-nums'); expect(n).toContain('tabular-nums'); }
+    expect(s.overflow).toBeLessThanOrEqual(0);
+  });
+}
+
+test('edition: the Rules edition changes the badge and the words of exhaustion and grappled; a one-edition rule says so', async ({ page }, info) => {
+  test.skip(info.project.name !== 'chromium', 'desktop');
+  await boot(page, 'appB/death-house');
+  for (const term of ['condition:exhaustion', 'condition:grappled']) {
+    await page.evaluate(() => (window as any).__mistlab.setEdition('2024'));
+    await openCard(page, { term });
+    const card = page.locator('#tips .rt.condition');
+    await expect(card.locator('.src .who')).toContainText('2024 · SRD 5.2.1');
+    const body24 = await card.locator('.body').innerText();
+    await page.evaluate(() => (window as any).__mistlab.setEdition('2014'));
+    await expect(card.locator('.src .who')).toContainText('2014 · SRD 5.1');
+    expect(await page.locator('#tips .rt.condition .body').innerText()).not.toBe(body24);
+    // the card swapped in place: fully opaque at once
+    expect(await page.locator('#tips .rt.condition').evaluate((e) => getComputedStyle(e).opacity)).toBe('1');
+    if (term === 'condition:exhaustion') { await page.waitForTimeout(250); await page.screenshot({ path: `${SHOTS}/step3-exhaustion-2014.png` }); }
+    await page.keyboard.press('Escape');
+  }
+  await openCard(page, { term: 'rule:challenge-rating' });
+  await expect(page.locator('#tips .rt .src .only')).toHaveText('⚠ 2024 only');
+  await page.keyboard.press('Escape');
+  await page.evaluate(() => (window as any).__mistlab.setEdition('2024'));
+  // magic items take their rarity colour on the kicker and the name
+  for (const [term, rar] of [['item:bag-of-holding', 'uncommon'], ['item:vorpal-sword', 'legendary']]) {
+    await openCard(page, { term });
+    await expect(page.locator(`#tips .rt.item.magic.${rar} .kick .w`)).toContainText(`magic item · ${rar}`);
+    await page.waitForTimeout(250);
+    await page.screenshot({ path: `${SHOTS}/step3-item-${rar}.png` });
+    await page.keyboard.press('Escape');
+  }
+});
