@@ -5,7 +5,7 @@ One checklist, worked top to bottom, one item at a time. Nothing runs in paralle
 On 2026-10-12 the owner approved going through the whole list in order: "Complete every task on the task list. One task at a time in succession, not concurrently, in order as they exist."
 
 **Lean setting (owner, 2026-10-12), for every item:**
-- One item at a time.
+- One item at a time. Within an item, independent parts may run side by side (owner, 2026-10-12), each in its own worktree and merged at the end. This machine allows two agents at once per run.
 - Builders work at full effort.
 - Two reviewers per build step, run side by side, at a lighter setting.
 - At most one fix pass per step; polish-only findings don't trigger one.
