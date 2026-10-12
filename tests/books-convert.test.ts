@@ -288,7 +288,7 @@ describe('books: what the Markdown dropped or garbled, restored from the PDF', (
     const du = /<section class="entry t-feature" data-id="feature:destroy-undead-cleric">[\s\S]*?<\/section>/.exec(h)?.[0] ?? '';
     expect(text(du)).toMatch(/Cleric Level Destroys Undead of CR 5th 1\/2 or lower 8th 1 or lower 11th 2 or lower 14th 3 or lower 17th 4 or lower/);
     expect(pagesHtml('srd-5.1')).not.toContain('Bonus Proficiency</th>');
-    expect(entries('srd-5.1', 'character')['feature:destroy-undead-cleric'].text).toBe('5th: 1/2 or lower; 8th: 1 or lower; 11th: 2 or lower; 14th: 3 or lower; 17th: 4 or lower.');
+    expect(entries('srd-5.1', 'character')['feature:destroy-undead-cleric'].text).toBe('Cleric Level: Destroys Undead of CR. 5th: 1/2 or lower; 8th: 1 or lower; 11th: 2 or lower; 14th: 3 or lower; 17th: 4 or lower.');
   });
   for (const b of BOOKS) it(`${b}: every table has at least two columns (a lost column shows as a table of one)`, () => {
     const tables = pagesHtml(b).match(/<table[^>]*><thead><tr>[\s\S]*?<\/tr>/g) ?? [];
@@ -368,4 +368,29 @@ describe.skipIf(!existsSync('scripts/books/.cache/your5e-srd-5.2.1-md.md'))('boo
       for (const [p, s] of built.files) expect(s === readFileSync(`${DIR}/${cfg.id}/${p}`, 'utf8'), `${cfg.id}/${p}`).toBe(true);
     }
   }, 120_000);
+});
+
+// Every word the books print is a word of the official PDF: a garble the Markdown carries ('wwizareapon', '5-footwide')
+// cannot slip through. Runs where `npm run books` has fetched the PDFs into scripts/books/.cache and pdftotext exists.
+const PDFS = { 'srd-5.2.1': 'wotc-srd-5.2.1-pdf', 'srd-5.1': 'wotc-srd-5.1-pdf' } as const;
+describe.skipIf(!existsSync('scripts/books/.cache/wotc-srd-5.1-pdf.pdf'))('books: every word is the PDF’s', () => {
+  // Ordinal suffixes SRD 5.2.1 sets as superscripts ('3rd' extracts as '3' and 'rd' apart), and the heading row
+  // ('Abbreviation', 'Stands For') the Markdown gave the glossary's list of abbreviations.
+  const ALLOW: Record<string, string[]> = { 'srd-5.2.1': ['st', 'nd', 'rd', 'th', 'abbreviation', 'stands'], 'srd-5.1': [] };
+  it('no page or tooltip line has a word the PDF never prints', async () => {
+    const { pdfText, vocabularyOf } = await import('../scripts/books/vocab');
+    for (const [book, pdf] of Object.entries(PDFS) as [BookId, string][]) {
+      const t = pdfText(`scripts/books/.cache/${pdf}.pdf`);
+      if (!t) continue; // no pdftotext here
+      const v = vocabularyOf(t);
+      const missing = new Map<string, string>();
+      const scan = (where: string, s: string) => {
+        const words = s.replace(/<[^>]+>/g, ' ').replace(/&[a-z#0-9]+;/g, ' ').toLowerCase().replace(/’/g, "'").match(/[a-z]+/g) ?? [];
+        for (const w of words) if (!v.words.has(w) && !ALLOW[book].includes(w) && !missing.has(w)) missing.set(w, where);
+      };
+      for (const p of index(book).pages) scan(`p/${p.id}`, read<PageFile>(`${book}/p/${p.id}.json`).html);
+      for (const f of ['spells', 'monsters', 'items', 'rules', 'character']) for (const e of Object.values(entries(book, f))) scan(e.id, e.text);
+      expect([...missing].map(([w, at]) => `${w} (${at})`), book).toEqual([]);
+    }
+  }, 60_000);
 });

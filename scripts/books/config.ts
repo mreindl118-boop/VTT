@@ -23,9 +23,9 @@ const listItem = (cls: string, level: string, after: string, spell: string, befo
 
 /** A rules section that answers a name several sections share ('Hit Points' is both a Constitution paragraph and the
  *  combat rule). `path` names the section by its heading and the headings above it, nearest last
- *  ('Damage and Healing / Hit Points'); `lead` picks a lead-in paragraph inside it ('Armor Class (AC)'). The build
- *  stops if the path is not found. */
-export interface RuleSource { name: string; path: string; lead?: string }
+ *  ('Damage and Healing / Hit Points'); `lead` picks a lead-in paragraph inside it ('Armor Class (AC)'), `term` the one
+ *  paragraph or bullet that defines a bold term ('Dim light'). The build stops if the path or the paragraph is not found. */
+export interface RuleSource { name: string; path: string; lead?: string; term?: string }
 
 export interface ChapterSpec {
   title: string;
@@ -199,6 +199,15 @@ export const BOOKS: BookConfig[] = [
       { name: 'Legendary Creatures', path: 'Monsters / Legendary Creatures' },
       { name: 'Legendary Actions', path: 'Legendary Creatures / Legendary Actions' },
       { name: 'Lair Actions', path: 'A Legendary Creature\'s Lair / Lair Actions' },
+      // The light and obscurement terms are defined inside Vision and Light, each in its own paragraph or bullet.
+      { name: 'Lightly Obscured', path: 'Vision and Light', term: 'lightly obscured' },
+      { name: 'Heavily Obscured', path: 'Vision and Light', term: 'heavily obscured' },
+      { name: 'Bright Light', path: 'Vision and Light', term: 'Bright light' },
+      { name: 'Dim Light', path: 'Vision and Light', term: 'Dim light' },
+      { name: 'Darkness', path: 'Vision and Light', term: 'Darkness' },
+      // The Combat chapter's rule answers 'bonus action', not the casting-time note of the same name (still found by its
+      // id, rule:bonus-action).
+      { name: 'Bonus Actions', path: 'Your Turn / Bonus Actions' },
     ],
     groupedRows: {
       Saddles: 'Saddle', 'Holy symbol': 'Holy Symbol', 'Arcane focus': 'Arcane Focus', 'Druidic focus': 'Druidic Focus',
@@ -225,7 +234,9 @@ export const BOOKS: BookConfig[] = [
       'spell slot': 'rule:spell-slots',
       'playing cards': 'item:playing-card-set', 'playing card': 'item:playing-card-set', dice: 'item:dice-set',
       'lair action': 'rule:lair-actions', 'legendary action': 'rule:legendary-actions',
-      'lightly obscured': 'rule:vision-and-light', 'heavily obscured': 'rule:vision-and-light', 'bright light': 'rule:vision-and-light', 'dim light': 'rule:vision-and-light',
+      'bonus action': 'rule:bonus-actions', 'bonus actions': 'rule:bonus-actions',
+      // 2014 defines the DC with the ability checks; its table of typical DCs is the useful card.
+      'difficulty class': 'rule:typical-difficulty-classes', 'difficulty classes': 'rule:typical-difficulty-classes',
     },
     chapters: [
       { title: 'Legal Information', start: [1, 'Legal Information'] },

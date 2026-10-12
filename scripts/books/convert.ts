@@ -273,10 +273,14 @@ class Entries {
       for (let k = 2; this.byId.has(id); k++) id = `${type}:${slug(name)}-${slug(o.disamb)}-${k}`;
     }
     const n = o.node;
+    // A heading that is really a table's title (2014 'Object Armor Class', 'Creating Spell Slots', 'Beast Shapes'): the
+    // entry is its table. The paragraph after the table belongs to the rule around it ('Hit Points.', 'Converting a
+    // Spell Slot …'), so it is neither the tooltip line nor part of the card.
+    const lead = n ? leadTables(n) : [];
     const e: Entry = {
       id, type, name, s, anchor: '', at, node: n, wrap: o.wrap ?? !!n, extra: o.extra ?? [],
-      html: o.html ?? (n ? entryHtml(n) : ''),
-      text: o.text ?? (n ? firstProse(body(n)) || firstProse(body(n), 0, true) : ''),
+      html: o.html ?? (lead.length ? html(lead) : n ? entryHtml(n) : ''),
+      text: o.text ?? (lead.length ? tableText(lead[0]) : n ? firstProse(body(n)) || firstProse(body(n), 0, true) : ''),
     };
     this.list.push(e); this.byId.set(id, e);
     return e;
@@ -556,6 +560,14 @@ function recognise(cfg: BookConfig, chapters: Chapter[]): Entries {
     const hits = all.filter((n) => { const chain = [n, ...ancestors(n)].map((a) => a.name); return want.every((w, i) => chain[want.length - 1 - i] === w); });
     if (hits.length !== 1) throw new Error(`${cfg.id}: rule source '${r.name}': ${hits.length} sections match '${r.path}'`);
     const n = hits[0];
+    if (r.term) {
+      // A term defined in bold inside the section ('**Dim light**, also called shadows, …'): its own paragraph or bullet.
+      const re = new RegExp(`\\*\\*${r.term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\*\\*`, 'i');
+      const found = own(n).flatMap((b) => (b.k === 'p' ? [b.lines.join(' ')] : b.k === 'ul' || b.k === 'ol' ? b.items.map((i) => i.text) : [])).filter((t) => re.test(t));
+      if (found.length !== 1) throw new Error(`${cfg.id}: rule source '${r.name}': ${found.length} paragraphs of '${r.path}' define '${r.term}'`);
+      E.add('rule', r.name, {}, n, { html: `<p>${inline(found[0])}</p>`, text: short(plain(found[0])) });
+      continue;
+    }
     if (!r.lead) { E.add('rule', r.name, {}, n, { node: n }); continue; }
     const x = leads(own(n)).find((l) => l.name === r.lead);
     if (!x) throw new Error(`${cfg.id}: rule source '${r.name}': no lead-in '${r.lead}' in '${r.path}'`);
@@ -569,6 +581,22 @@ function recognise(cfg: BookConfig, chapters: Chapter[]): Entries {
     if (n === n.chapter.root || SKIP.test(n.name) || ABILITIES.some(([a]) => a === n.name)) continue;
     const tag = n.parent?.name === 'Actions in Combat' ? 'Action' : undefined;
     E.add('rule', n.name, tag ? { tag } : {}, n, { node: n });
+  }
+  // 2024: the sections of Playing the Game and of the Spells chapter's opening that the glossary has no entry for
+  // (Mounted Combat, Underwater Combat, Vision and Light, Resting, Spell Slots, Components …). A section the glossary
+  // or another entry already answers under any of its forms ('Critical Hits' and the glossary's Critical Hit) stays
+  // out, and so do the headings that are part of a sentence rather than a name ('They Don't Stack', 'Roll Two D20s').
+  if (v24) {
+    const taken = new Set(E.list.flatMap((e) => formsOf(e)));
+    const SKIP24 = /^(They|One Thing|What Is|Lose |Roll Two|Rolling 20|Interactions|No Stacking|Half Damage|Damage against|Order of Application|Determining|Skill List|Combining|Character Demise|Ending Combat|Breaking Up|Moving around|Playing on a Grid|Ability Modifier|Proficiency Bonus|Difficulty Class|Armor Class|Ability Checks|Saving Throws|Attack Rolls|Effects|Targets|Duration|Range|Light|Travel|Hazards|Healing|Roleplaying|Adventuring Equipment|Special Senses|Exceptions|Fire Resistance|Vehicles|Casting without|Using a Higher|Class Spell Lists|Spell Level|School of Magic)/;
+    const parts = [...(chap('Playing the Game')?.nodes ?? []), ...(chap('Spells')?.nodes ?? []).filter((n) => !ancestors(n).some((a) => a.name === 'Spell Descriptions') && n.name !== 'Spell Descriptions')];
+    for (const n of parts) {
+      if (n.level < 3 || SKIP.test(n.name) || SKIP24.test(n.name) || ABILITIES.some(([a]) => a === n.name)) continue;
+      const probe = { type: 'rule', name: n.name, extra: [] } as unknown as Entry;
+      if (formsOf(probe).some((f) => taken.has(f))) continue;
+      const e = E.add('rule', n.name, {}, n, { node: n });
+      if (e) for (const f of formsOf(e)) taken.add(f);
+    }
   }
   // 2014 rules that live outside the rules chapters, under the names the 2024 glossary gives them.
   if (!v24) {
@@ -651,6 +679,9 @@ function recognise(cfg: BookConfig, chapters: Chapter[]): Entries {
       // A kind with no paragraph of its own shows its group's ('Lute': the Musical Instrument paragraph).
       const d = mine ?? (group ? descOf(group.name) : undefined);
       if (category === 'Armor' && !/armor|mail|plate|shirt|breastplate|shield/i.test(name)) extra.push(`${name} armor`);
+      // 2024 names armour 'Studded Leather Armor', 2014 'Studded leather': each answers the other's name.
+      const plain2 = /^(.+ .+) Armor$/i.exec(name)?.[1];
+      if (category === 'Armor' && plain2) extra.push(plain2);
       E.add('item', name, s, mine?.node ?? cur, { html: d ? html(d.blocks) : '', text: mine?.text ?? '', merge: true, extra });
     }
   });
@@ -689,6 +720,27 @@ function recognise(cfg: BookConfig, chapters: Chapter[]): Entries {
   return E;
 }
 
+/** The tables a node's own text opens with, when it opens with one: the node is that table's title. */
+function leadTables(n: Node): T[] {
+  const out: T[] = [];
+  for (const b of own(n)) { if (b.k !== 'table') break; out.push(b); }
+  return out;
+}
+
+/** A table as one tooltip line: its two column names, then the rows ('Substance: AC. Cloth, paper, rope: 11; Crystal,
+ *  glass, ice: 13 …'), or with the column names in each row where it has more than two ('Tiny (bottle, lock): Fragile
+ *  2 (1d4), Resilient 5 (2d4); …'). */
+function tableText(t: T): string {
+  const H = t.head.map((h) => plain(h));
+  const legend = H.length === 2 && H[0] && H[1] ? `${H[0]}: ${H[1]}. ` : '';
+  const rows = t.rows.map((r) => {
+    const c = r.map((x) => plain(x));
+    if (c.length <= 2) return c.filter(Boolean).join(': ');
+    return `${c[0]}: ${c.slice(1).map((x, i) => (H[i + 1] ? `${H[i + 1]} ${x}` : x)).join(', ')}`;
+  });
+  return short(`${t.caption ? `${plain(t.caption)}. ` : ''}${legend}${rows.join('; ')}.`);
+}
+
 function classLine(s: { hitDie?: string; primaryAbility?: string; saves?: string }): string {
   const parts = [s.hitDie && `Hit Die ${s.hitDie}`, s.primaryAbility && `Primary ability ${s.primaryAbility}`, s.saves && `Saving throws ${s.saves}`].filter(Boolean);
   return parts.length ? `${parts.join('. ')}.` : '';
@@ -701,7 +753,7 @@ function fallbackText(e: Entry): string {
     const f = fields(own(n));
     if (f.size) return short([...f].map(([k, v]) => `${cap(k)}: ${v.replace(/\.$/, '')}`).join('. ') + '.');
     const t = body(n).find((b): b is T => b.k === 'table');
-    if (t) return short(`${t.caption ? `${plain(t.caption)}: ` : ''}${t.rows.map((r) => r.map((c) => plain(c)).filter(Boolean).join(': ')).join('; ')}.`);
+    if (t) return tableText(t);
     const prose = blocksText(body(n));
     if (prose) return short(prose.replace(/\s+/g, ' ').trim());
   }
@@ -812,7 +864,7 @@ const ALWAYS_COMMON = new Set(('light shield command guidance fly help hide sear
   'strength dexterity constitution intelligence wisdom charisma net mule cat deer rope torch lamp book bell chain lock ' +
   'magic study influence search hide grapple shove inspiration advantage disadvantage resistance immunity vulnerability ' +
   'poor modest comfortable wealthy squalid wretched aristocratic ' +
-  'hammer leather feed pack riding military exotic saddle dice drum flute horn lute lyre viol shawm bagpipes dulcimer meal meals ' +
+  'hammer leather feed pack riding military exotic saddle ram meat dice drum flute horn lute lyre viol shawm bagpipes dulcimer meal meals ' +
   // The CLARITY plan's ordinary words, and the people and animals a module names in passing ('the druid', 'a veteran
   // soldier', 'a raven'): they link with a cue, a capital mid-sentence or a tag, not on their own.
   'blight druid shadow charm hold guard wolf darkness alarm cold speed surprise sleep message ' +
@@ -832,6 +884,12 @@ function plural(w: string): string {
   if (/[^aeiou]y$/.test(lw)) return lw.slice(0, -1) + 'ies';
   if (/(s|x|z|ch|sh)$/.test(lw)) return lw + 'es';
   return lw + 's';
+}
+
+/** A name with its noun in the plural: 'inn stay' → 'inn stays', 'potion of healing' → 'potions of healing'. */
+function pluralPhrase(n: string): string {
+  const w = n.split(' '), of = w.indexOf('of'), k = of > 0 ? of - 1 : w.length - 1;
+  return [...w.slice(0, k), plural(w[k]), ...w.slice(k + 1)].join(' ');
 }
 
 export const normForm = (s: string) => s.toLowerCase().replace(/[’]/g, "'").replace(/\s+/g, ' ').trim();
@@ -914,7 +972,11 @@ function termIndex(cfg: BookConfig, E: Entries, md: string, otherProse: string[]
   // Within a kind, an entry named exactly so comes before one that only answers to the form ('shield' is the Shield
   // before 'Shield, +1, +2, or +3'); the aliases stay first.
   // 'Inn Stay' before 'Inn Stay (Squalid)', which only answers to it without its bracket.
-  const named = (i: number, f: string) => { const n = normForm(E.list[i].name); return n === f ? 0 : n.replace(/\s*\([^)]*\)\s*$/, '') === f ? 1 : 2; };
+  // A plural answers the same way: 'inn stays' is the Inn Stay before 'Inn Stay (Squalid)'.
+  const named = (i: number, f: string) => {
+    const n = normForm(E.list[i].name), bare = n.replace(/\s*\([^)]*\)\s*$/, '');
+    return n === f || pluralPhrase(n) === f ? 0 : bare === f || pluralPhrase(bare) === f ? 1 : 2;
+  };
   for (const [f, l] of Object.entries(forms)) {
     const head = aliased.has(f) ? l.filter((i) => i === aliased.get(f)) : [];
     const rest = l.filter((i) => !head.includes(i));
@@ -922,10 +984,15 @@ function termIndex(cfg: BookConfig, E: Entries, md: string, otherProse: string[]
     rest.sort((a, b) => rank(E.list[a]) - rank(E.list[b]) || named(a, f) - named(b, f) || pos.get(a)! - pos.get(b)!);
     forms[f] = [...head, ...rest];
   }
+  // Two rules sections answering one name is the 'which Bonus Action?' mistake: the build stops unless an alias says.
+  for (const [f, l] of Object.entries(forms)) {
+    const rules = l.filter((i) => E.list[i].type === 'rule' && !/Property$/.test((E.list[i].s as { tag?: string }).tag ?? ''));
+    if (rules.length > 1 && !aliased.has(f)) throw new Error(`${cfg.id}: '${f}' names ${rules.length} rules (${rules.map((i) => E.list[i].id).join(', ')}); add an alias or a rule source`);
+  }
   const abbr: Record<string, number[]> = {};
   const addAbbr = (a: string, id: string) => { const e = E.byId.get(id); if (e) (abbr[a] ??= []).push(idx.get(e)!); };
   for (const [name, ab] of ABILITIES) { const id = `ability:${slug(name)}`; addAbbr(ab, id); addAbbr(`${ab}.`, id); addAbbr(ab.toUpperCase(), id); }
-  for (const [a, id] of [['AC', 'rule:armor-class'], ['HP', 'rule:hit-points'], ['DC', 'rule:difficulty-class'], ['CR', 'rule:challenge-rating'], ['XP', 'rule:experience-points'], ['PB', 'rule:proficiency'], ['PB', 'rule:proficiency-bonus']] as const) addAbbr(a, id);
+  for (const [a, id] of [['AC', 'rule:armor-class'], ['HP', 'rule:hit-points'], ['DC', 'rule:difficulty-class'], ['DC', 'rule:typical-difficulty-classes'], ['CR', 'rule:challenge-rating'], ['XP', 'rule:experience-points'], ['PB', 'rule:proficiency'], ['PB', 'rule:proficiency-bonus']] as const) addAbbr(a, id);
   // Ordinary words: the list, and words the books' prose (both books, so the editions agree) uses in lower case. Only
   // single words count: a name of several words ('short rest', 'holy water') is a rules term wherever it stands.
   const counts = lowerNgrams([md, ...otherProse].join('\n'));
