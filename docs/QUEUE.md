@@ -27,7 +27,7 @@ An item is ticked only after the owner confirms it. For each item: finish the wo
 - [ ] 7. **Map smoothing: unfinished maps.** Yester Hill (flat hill, cotton fog), the winery, the Amber Temple (WIP `a1cdc36`), and Berez with Van Richten's tower.
 - [ ] 8. **Natural land and water.** Diagnosis done; build WIP `066e37d`.
 - [ ] 9. **Chapter 2 sites.** A, B, D, F, H, I, J, L, M, P and R are built (A WIP `e3987b6`). Left: one fix round each, including Tser Falls as a cliff over the pool with Vallaki in view.
-- [ ] 10. **Vallaki terrain.** Built (`c0fd014`). Merge after item 7.
+- [ ] 10. **Vallaki terrain.** Built (`c0fd014`). Merge after item 8.
 - [ ] 11. **Night-one fixes 0.2.1.** Approvals A1–A9.
 - [ ] 12. **Gameplay 0.3.0–0.4.0.** Per `ITERATIONS.md`.
 - [ ] 13. **Initiative strip and encounter builder.** 0.5.0 and 0.5.1, using 2024 SRD budgets only.
