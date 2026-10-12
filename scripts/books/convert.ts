@@ -3,6 +3,9 @@
 import { blocksText, dropItalicPunctuation, inline, parseBlocks, plain, renderBlocks, repairSplitWords, slug, type Block, type ListBlock } from './md.ts';
 import { BOOKS, DISCLAIMER, LICENSE, type BookConfig } from './config.ts';
 import type { PdfTitle } from './titles.ts';
+import { applyDashes, applyHyphens, type DashRepair } from './vocab.ts';
+import { existsSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import type {
   BookIndex, EntryFile, EntryType, PageFile, Source, StoredEntry, Summary, TermFile, MonsterSummary, SpellSummary, ItemSummary,
 } from '../../app/src/books/types.ts';
@@ -23,10 +26,23 @@ const PAGE_TARGET = 90_000;
 
 // ---------------------------------------------------------------- source repairs (before parsing)
 
-export interface Prepared { md: string; joined: Map<string, number> }
+export interface Prepared { md: string; joined: Map<string, number>; hyphenated: Map<string, number>; dashes: number }
 
-/** The Markdown as the converter reads it: errata patches, the legal page's quotes, split words rejoined. */
-export function prepare(cfg: BookConfig, md: string): Prepared {
+/** What the PDF says the Markdown lost: joined word → hyphenated ('footwide' → 'foot-wide'), and dashes dropped at the
+ *  PDF's line ends. Read by vocab.ts and committed as scripts/books/pdf/<book>-repairs.json. */
+export interface PdfRepairs { hyphens: Record<string, string>; dashes: DashRepair[] }
+export interface RepairsFile extends PdfRepairs { book: string; attribution: string; note: string }
+export const repairsFile = (cfg: BookConfig): string => join(import.meta.dirname, 'pdf', `${cfg.id}-repairs.json`);
+export const NO_REPAIRS: PdfRepairs = { hyphens: {}, dashes: [] };
+export function committedRepairs(cfg: BookConfig): PdfRepairs {
+  if (!existsSync(repairsFile(cfg))) return NO_REPAIRS;
+  const f = JSON.parse(readFileSync(repairsFile(cfg), 'utf8')) as RepairsFile;
+  return { hyphens: f.hyphens, dashes: f.dashes };
+}
+
+/** The Markdown as the converter reads it: errata patches, the legal page's quotes, split words rejoined, and what the
+ *  PDF says the conversion lost put back (`repairs`, default the committed list). */
+export function prepare(cfg: BookConfig, md: string, repairs: PdfRepairs = committedRepairs(cfg)): Prepared {
   for (const p of cfg.patches) {
     let from = 0, to = md.length;
     if (p.within) {
@@ -47,8 +63,12 @@ export function prepare(cfg: BookConfig, md: string): Prepared {
   // The legal page is quoted to readers as printed: curly quotes, as in the PDF.
   const legalEnd = md.indexOf('\n# ', md.indexOf('# Legal Information') + 1);
   if (legalEnd > 0) md = md.slice(0, legalEnd).replace(/(^|[\s(])"([^"\n]+)"/g, '$1“$2”') + md.slice(legalEnd);
-  if (!cfg.repairWords) return { md, joined: new Map() };
-  return repairSplitWords(md, cfg.repairWords.keep);
+  md = applyDashes(md, repairs.dashes, cfg.id);
+  const h = applyHyphens(md, repairs.hyphens);
+  md = h.md;
+  const more = { hyphenated: h.counts, dashes: repairs.dashes.length };
+  if (!cfg.repairWords) return { md, joined: new Map(), ...more };
+  return { ...repairSplitWords(md, cfg.repairWords.keep), ...more };
 }
 
 /** The other books' prepared Markdown, for convertBook's `otherProse`. */

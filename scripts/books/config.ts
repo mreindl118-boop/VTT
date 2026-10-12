@@ -84,6 +84,7 @@ export const BOOKS: BookConfig[] = [
     patches: [
       { find: 'the GM rolls on the table to determine what happens.\n\n| 1d100 ', replace: 'the GM rolls on the table to determine what happens.\n\n| 1d10  ', why: 'Efreeti Bottle: the PDF table is rolled on 1d10 (rows 1, 2–9, 10)' },
       { find: '| Pace   | Distance Traveled Per - Minute   | Hour    | Day      |', replace: '| Pace | Distance Traveled per Minute | per Hour | per Day |', why: 'Travel Pace: the PDF’s two-row header (“Distance Traveled Per …” over Minute, Hour, Day) was merged into one garbled row' },
+      { find: 'you can throw the wwizareapon to make a ranged attack', replace: 'you can throw the weapon to make a ranged attack', why: 'Thrown: “wwizareapon” is “weapon” in the PDF' },
       { find: 'https://creativecommons.org/licenses/by/4.0/ legalcode.', replace: 'https://creativecommons.org/licenses/by/4.0/legalcode.', why: 'Legal Information: a line break inside the licence URL became a space' },
     ],
     repairWords: { keep: ['a bout', 'a loud', 'arm or'] }, // real phrases the rule would otherwise join
@@ -176,6 +177,7 @@ export const BOOKS: BookConfig[] = [
         replace: '| Level   |   Proficiency Bonus |',
         why: 'The Warlock table: the column is “Proficiency Bonus” in the PDF, as in every other class table',
       },
+      { find: '| d10   | Behaviour ', replace: '| d10   | Behavior  ', why: 'Confusion: the table heading is “Behavior” in the PDF' },
       {
         find: '| Tent, two -person                   |',
         replace: '| Tent, two-person                    |',

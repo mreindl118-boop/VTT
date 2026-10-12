@@ -7,7 +7,8 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
 import { BOOKS, type BookConfig } from './config.ts';
-import { convertBook, normForm, otherProseOf, placeTitles, prepare, type BuiltBook } from './convert.ts';
+import { convertBook, NO_REPAIRS, normForm, otherProseOf, placeTitles, prepare, repairsFile, type BuiltBook, type RepairsFile } from './convert.ts';
+import { dashRepairs, hyphenRepairs, pdfText, vocabularyOf, type PdfVocabulary } from './vocab.ts';
 import { fetchSource, loadSources } from './fetch.ts';
 import { parseBlocks } from './md.ts';
 import { pdfTitles, type PdfTitle } from './titles.ts';
@@ -96,6 +97,19 @@ async function main(): Promise<void> {
   const catalog: Catalog = { books: [] };
   const mds = new Map<string, string>();
   for (const cfg of BOOKS) mds.set(cfg.id, readFileSync(await fetchSource(need(cfg.markdown), offline), 'utf8'));
+  // The hyphens the Markdown dropped ('5-footwide'), read against both PDFs' words before any book is converted (each
+  // book's ordinary-word counts read the other's prepared text). Committed, so a build without the PDFs agrees.
+  const vocab = new Map<string, PdfVocabulary>(), texts = new Map<string, string>();
+  if (pdf) for (const cfg of BOOKS) {
+    try { const t = pdfText(await fetchSource(need(cfg.pdf), offline)); if (t) { texts.set(cfg.id, t); vocab.set(cfg.id, vocabularyOf(t)); } } catch (e) { if (!(offline && /not in/.test(String(e)))) throw e; }
+  }
+  if (vocab.size === BOOKS.length) for (const cfg of BOOKS) {
+    const raw = prepare(cfg, mds.get(cfg.id)!, NO_REPAIRS).md;
+    const dashes = dashRepairs(raw, texts.get(cfg.id)!);
+    const hyphens = hyphenRepairs(raw, vocab.get(cfg.id)!, BOOKS.filter((o) => o !== cfg).map((o) => vocab.get(o.id)!));
+    const file: RepairsFile = { book: cfg.id, attribution: cfg.attribution, note: 'What the Markdown lost against the official PDF, found by scripts/books/vocab.ts (see docs/BOOKS.md): words it printed joined that the PDF prints with a hyphen, and dashes it dropped where the PDF breaks a line after one.', hyphens, dashes };
+    keepPdfData(repairsFile(cfg), JSON.stringify(file, null, 1) + '\n');
+  }
   for (const cfg of BOOKS) {
     console.log(`${cfg.id} (${cfg.editionLabel})`);
     const md = mds.get(cfg.id)!;
@@ -118,6 +132,8 @@ async function main(): Promise<void> {
     }
     const prep = prepare(cfg, md);
     if (prep.joined.size) console.log(`  rejoined split words: ${[...prep.joined].map(([w, n]) => `${w}${n > 1 ? ` ×${n}` : ''}`).join(', ')}`);
+    if (prep.dashes) console.log(`  dashes put back: ${prep.dashes}`);
+    if (prep.hyphenated.size) console.log(`  hyphens put back: ${[...prep.hyphenated].map(([w, n]) => `${w}${n > 1 ? ` ×${n}` : ''}`).join(', ')}`);
     for (const p of cfg.patches) console.log(`  patched: ${p.why}`);
     const b = convertBook(cfg, md, sources, titles, { otherProse: otherProseOf(cfg, (o) => mds.get(o.id)!) });
     for (const [p, s] of b.files) out.set(`${cfg.id}/${p}`, s);
