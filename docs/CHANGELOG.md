@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.0.2 Explored fog stays where the party has looked — 2026-10-12
+
+- Fixed: explored memory no longer spreads by itself. Before, every update (each step, each clock change) grew the remembered area one foot further, even through closed doors and walls. After about twenty ordinary actions, a whole floor showed to the players as rooms they had "seen".
+- Explored memory now holds only what the party has actually seen, plus the wall right beside it.
+- Known limit: a campaign saved before this fix keeps the extra explored area it already gained. The DM can fog it back with the fog brush.
+
 ## Books: one rule per name, and the PDF's own words — 2026-10-12
 
 - In the 2014 rules, 'bonus action' now means the combat rule, not the spellcasting note. Dim light, bright light,
