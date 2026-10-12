@@ -16,6 +16,9 @@ export const CHANGES = {
   'srd-5.1': 'Converted from the official PDF to Markdown by the your5e/5e-srd-markdown project, which lists its own changes: it gave class tables with several header rows a single header row; added a “Traits” heading to stat blocks; fixed the “Components” typo in Contagion; set “Petrifying Gaze” in bold italics like other traits; split the Armor, Saddles, Scrying, Tack, Harness, and Drawn Vehicles and Weapons tables at their mid-table headings; moved each pantheon’s table of deities into its description; added subclass introduction headings to the Barbarian, Bard, Cleric and Druid; and laid out the monster ability tables as score, modifier and saving throw in place of the Saving Throws line. mistLAB converted that Markdown to HTML and JSON, reformatted and indexed it, and, checked against the official PDF, restored what the Markdown had dropped: seven spell-list entries (Heroes’ Feast for the Cleric and Druid, Hunter’s Mark for the Ranger, Enlarge/Reduce for the Sorcerer and Wizard, Arcanist’s Magic Aura and Control Weather for the Wizard), the Grimlock’s Blind Senses trait, the Jokers row of the Deck of Illusions table and the Saving Throws line of each stat block. It also made “Meat, chunk” its own row of the Food, Drink, and Lodging table as printed, rejoined “Tent, two-person” and removed stray italics around punctuation. Apart from formatting and these changes, no rules text was changed.',
 } as const;
 
+/** This module's own URL (its chunk in a build), so Save for offline can keep it: Help needs it with no network. */
+export const ATTRIBUTION_URL = import.meta.url;
+
 /** The Help sheet's entry for the books (loaded with Help, so the main bundle stays the same size). */
 export const HELP_BOOKS = 'Library, then Books: the 2014 rules (SRD 5.1) and the 2024 rules (SRD 5.2.1) with contents, search and Save for offline. Search a condition, spell or monster to jump straight to it; Map takes you back. Rules edition picks which book answers look-ups. Players never see the books.';
 
@@ -28,6 +31,8 @@ export function helpInto(root: ParentNode): void {
   dt.insertAdjacentHTML('afterend', [
     dd('', HELP_BOOKS), '<dt>Rules text</dt>',
     dd('attrib', ATTRIBUTION['srd-5.2.1']), dd('attrib', ATTRIBUTION['srd-5.1']), dd('attrib', DISCLAIMER),
-    dd('attrib changes', CHANGES['srd-5.2.1']), dd('attrib changes', CHANGES['srd-5.1']),
+    // The changes notes are long: one tap opens each, so Help stays short (CC-BY's indication of changes is the summary).
+    dd('attrib changes', `<details><summary>What this copy of SRD 5.2.1 changed</summary>${CHANGES['srd-5.2.1']}</details>`),
+    dd('attrib changes', `<details><summary>What this copy of SRD 5.1 changed</summary>${CHANGES['srd-5.1']}</details>`),
   ].join(''));
 }

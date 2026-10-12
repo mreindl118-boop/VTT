@@ -123,7 +123,10 @@ function buildShell(): HTMLElement {
   document.body.appendChild(el);
   const input = el.querySelector<HTMLInputElement>('.br-search input')!;
   let timer = 0;
-  input.addEventListener('input', () => { clearTimeout(timer); timer = window.setTimeout(() => void runSearch(input.value), 120); });
+  // On iPad portrait and the phone the contents are a sheet over the page: typing a search closes it, so the results
+  // (and the entry Enter jumps to) are never hidden under it.
+  input.addEventListener('focus', () => { if (R?.tocOpen) toggleToc(false); });
+  input.addEventListener('input', () => { if (R?.tocOpen) toggleToc(false); clearTimeout(timer); timer = window.setTimeout(() => void runSearch(input.value), 120); });
   input.addEventListener('keydown', (e) => {
     if (e.key === 'Enter') { e.preventDefault(); void jumpToBest(input.value); }
     if (e.key === 'Escape') { e.stopPropagation(); if (input.value) { input.value = ''; void runSearch(''); } else closeReader(); }
@@ -140,7 +143,7 @@ function buildShell(): HTMLElement {
     const scope = t.closest<HTMLElement>('[data-scope]');
     if (scope && R) { R.scope = scope.dataset.scope as 'book' | 'both'; el.querySelectorAll<HTMLElement>('[data-scope]').forEach((b) => { const on = b === scope; b.setAttribute('aria-checked', String(on)); b.setAttribute('aria-selected', String(on)); }); R.fullText = null; void runSearch(input.value); return; }
     const sw = t.closest<HTMLElement>('[data-switch]');
-    if (sw) { void go(sw.dataset.switch as BookId); return; }
+    if (sw) { toggleToc(false); void go(sw.dataset.switch as BookId); return; }
     const g = t.closest<HTMLElement>('[data-go]');
     if (g) { e.preventDefault(); toggleToc(false); void go((g.dataset.book as BookId) ?? R!.book, g.dataset.go || undefined); return; }
     // Search what is typed now, even if the name results have not caught up with the last keystrokes.
@@ -187,7 +190,12 @@ async function go(book: BookId, anchor?: string): Promise<void> {
   const content = r.el.querySelector<HTMLElement>('.br-content')!;
   let index: BookIndex;
   try { index = await loadIndex(book); } catch {
-    content.innerHTML = `<div class="br-page"><p class="bk-error">${esc(book)} is not available offline. Connect to the network once and use Save for offline in the Library's Books tab.</p></div>`;
+    // Name the book, and keep the switch and header on the book still open (it is the one that works).
+    const b = (await loadCatalog().catch(() => null))?.books.find((x) => x.id === book);
+    const name = b ? `${b.short} (${b.editionLabel.split(' · ')[0]})` : book;
+    content.innerHTML = `<div class="br-page"><p class="bk-error">${esc(name)} is not saved on this device. Connect to the network once and use Save for offline in the Library's Books tab.</p>${r.index ? `<p><button class="br-back" data-go="${esc(r.anchor || 'about')}" data-book="${r.book}">Back to ${esc(r.index.short)}</button></p>` : ''}</div>`;
+    r.el.querySelector<HTMLElement>('.br-content')!.hidden = false;
+    r.el.querySelector<HTMLElement>('.br-results')!.hidden = true;
     return;
   }
   if (R !== r) return;
@@ -221,7 +229,7 @@ async function showPage(pageIdx: number, anchor: string): Promise<void> {
         ${pageIdx > 0 ? `<button data-go="${esc(prev.id)}" class="br-prev">${ICON_PREV}<span><em>Previous</em>${esc(prev.title)}</span></button>` : `<button data-go="about" class="br-prev">${ICON_PREV}<span><em>Previous</em>About this book</span></button>`}
         ${next ? `<button data-go="${esc(next.id)}" class="br-next"><span><em>Next</em>${esc(next.title)}</span>${ICON_NEXT}</button>` : '<span></span>'}
       </nav>
-      <footer class="br-attrib-line"><p>${esc(r.index.attribution)}</p><p>${esc(r.index.changes)}</p></footer>`;
+      <footer class="br-attrib-line"><p>${esc(r.index.attribution)}</p><details><summary>This copy was converted and corrected: what changed</summary><p>${esc(r.index.changes)}</p></details></footer>`;
   }
   r.page = pageIdx;
   r.anchor = anchor;
@@ -328,6 +336,7 @@ async function runSearch(q: string): Promise<void> {
   if (!R) return;
   const r = R;
   r.query = q.trim(); r.fullText = null;
+  if (r.query && r.tocOpen) toggleToc(false);
   const res = r.el.querySelector<HTMLElement>('.br-results')!, content = r.el.querySelector<HTMLElement>('.br-content')!;
   if (!r.query) { res.hidden = true; content.hidden = false; return; }
   const hits = await nameHits(r.query);
@@ -339,6 +348,7 @@ async function runSearch(q: string): Promise<void> {
 
 async function jumpToBest(q: string): Promise<void> {
   if (!R || !q.trim()) return;
+  if (R.tocOpen) toggleToc(false);
   const hits = await nameHits(q);
   const best = exactHit(hits, q) ?? hits[0];
   if (best) { await go(best.book, best.anchor); }

@@ -45,9 +45,10 @@ export const loadTerms = (b: BookId) => loadJson<TermFile>(`${b}/terms.json`);
 
 export type OfflineState = 'saved' | 'partial' | 'none' | 'unsupported';
 
-/** The code and styles the reader needs, so the Books tab itself opens offline. */
-function appUrls(): string[] {
-  const own = [import.meta.url];
+/** The code and styles the reader needs, so the Books tab itself opens offline; and Help's attribution chunk, so
+ *  Help still names the books' licence and changes with no network. */
+async function appUrls(): Promise<string[]> {
+  const own = [import.meta.url, (await import('./attribution')).ATTRIBUTION_URL];
   const links = [...document.querySelectorAll<HTMLLinkElement>('link[rel="stylesheet"], link[rel="modulepreload"]')].map((l) => l.href);
   const scripts = [...document.querySelectorAll<HTMLScriptElement>('script[src]')].map((s) => s.src);
   return [...new Set([...own, ...links, ...scripts])].filter((u) => u.startsWith(location.origin));
@@ -68,7 +69,7 @@ export async function offlineState(b: { id: BookId; files: string[] }): Promise<
 
 /** Cache every file of a book through the service worker (or directly when none is in control). */
 export async function saveOffline(b: { id: BookId; files: string[] }): Promise<void> {
-  const urls = [...bookFiles(b), bookUrl('catalog.json'), ...appUrls()];
+  const urls = [...bookFiles(b), bookUrl('catalog.json'), ...(await appUrls())];
   const sw = typeof navigator !== 'undefined' ? navigator.serviceWorker?.controller : null;
   if (sw) {
     await new Promise<void>((resolve, reject) => {

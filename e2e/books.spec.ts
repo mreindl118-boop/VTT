@@ -147,6 +147,9 @@ test('offline after saving: every file is stored, and with the network really cu
     return out;
   });
   expect(missing).toEqual([]);
+  // Help's attribution chunk is saved with the book, so Help has it with no network.
+  const kept = await page.evaluate(async () => (await (await caches.open('mistlab-books-v1')).keys()).map((r) => r.url).filter((u) => /\/assets\/attribution-[\w-]+\.js$/.test(u)));
+  expect(kept).toHaveLength(1);
   await page.keyboard.press('Escape');
 
   // Cut the network for the page and for the service worker (PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS).
@@ -166,12 +169,70 @@ test('offline after saving: every file is stored, and with the network really cu
   await reader.locator('.br-search input').fill('stunned');
   await reader.locator('.br-search input').press('Enter');
   await expect(reader.locator('#condition-stunned')).toBeInViewport();
-  // The unsaved 2014 book says so instead of failing silently.
+  // The book's title page still carries its attribution and the full changes note.
+  await reader.locator('[data-go="about"]').first().click();
+  await expect(reader.locator('.br-statement')).toContainText('This work includes material from the System Reference Document 5.2.1');
+  await expect(reader.locator('.br-attrib')).toContainText('which lists its own changes: it removed the table of contents; renumbered the steps of D20 Tests');
+  // The unsaved 2014 book says so by name, and offers the way back to the book that is open.
   await reader.locator('.br-switch [data-switch="srd-5.1"]').click();
-  await expect(reader.locator('.bk-error')).toContainText('not available offline');
+  await expect(reader.locator('.bk-error')).toContainText('SRD 5.1 (2014 rules) is not saved on this device');
+  await expect(reader.locator('.br-book')).toHaveText('SRD 5.2.1');
+  await reader.locator('.br-back').click();
+  await expect(reader.locator('.br-statement')).toBeVisible();
+  await reader.locator('[data-act="map"]').click();
+
+  // A cold start with no network: Help still names both books' licence, disclaimer and changes.
+  await page.reload();
+  await page.waitForFunction(() => (window as any).__mistlab?.ready);
+  await page.click('[data-cam="help"]');
+  const attrib = page.locator('.sheet.help dd.attrib');
+  await expect(attrib).toHaveCount(5);
+  await expect(attrib.nth(0)).toHaveText(/^This work includes material from the System Reference Document 5\.2\.1/);
+  await expect(attrib.nth(1)).toHaveText(/^This work includes material taken from the System Reference Document 5\.1/);
+  await expect(attrib.nth(2)).toHaveText(/^Section 5 of CC-BY-4\.0 includes a Disclaimer of Warranties/);
+  await expect(attrib.nth(3).locator('summary')).toHaveText('What this copy of SRD 5.2.1 changed');
+  await attrib.nth(3).locator('summary').click();
+  await expect(attrib.nth(3)).toContainText('renumbered the steps of D20 Tests');
+  await expect(attrib.nth(3).getByText(/renumbered the steps of D20 Tests/)).toBeVisible();
+  await expect(attrib.nth(4)).toContainText('the Grimlock’s Blind Senses trait');
+  await attrib.nth(0).scrollIntoViewIfNeeded();
+  await page.screenshot({ path: `${process.env.SHOTS ?? 'test-results'}/books-offline-help.png` });
   await context.unroute('**/*');
   await context.setOffline(false);
 });
+
+// On iPad portrait and the phone the contents are a sheet over the page, and the book switch lives in it: switching
+// books, typing a search or pressing Enter must close it so the results and the entry are not hidden underneath.
+for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['iPad portrait', { width: 820, height: 1180 }]] as const) {
+  test.describe(name, () => {
+    test.use({ viewport, hasTouch: true, isMobile: name === 'phone' });
+    test(`${name}: the contents sheet closes on a book switch and a search, and Enter lands on the entry in view`, async ({ page }) => {
+      await boot(page, '', SCENES[0]);
+      await page.goto(`/?nosw&scene=${encodeURIComponent(SCENES[0].scene)}#book/srd-5.2.1`);
+      const reader = page.locator('.book-reader');
+      await expect(reader.locator('.br-statement')).toBeVisible();
+      await reader.locator('.br-toc-btn').tap();
+      await expect(reader).toHaveClass(/toc-open/);
+      await reader.locator('.br-switch [data-switch="srd-5.1"]').tap();
+      await expect(reader.locator('.br-book')).toHaveText('SRD 5.1');
+      await expect(reader).not.toHaveClass(/toc-open/);
+      // Open again, then type: the sheet gives way to the results.
+      await reader.locator('.br-toc-btn').tap();
+      await expect(reader).toHaveClass(/toc-open/);
+      const search = reader.locator('.br-search input');
+      await search.fill('grappled');
+      await expect(reader).not.toHaveClass(/toc-open/);
+      await expect(reader.locator('.br-results li').first()).toBeInViewport();
+      await search.press('Enter');
+      await expect(reader.locator('#condition-grappled')).toBeInViewport();
+      await expect(reader).not.toHaveClass(/toc-open/);
+      await page.screenshot({ path: `${process.env.SHOTS ?? 'test-results'}/books-${name.replace(' ', '-')}-grappled.png` });
+      // The next page can be tapped: nothing lies over it.
+      await reader.locator('.br-pager .br-next').tap();
+      await expect(reader.locator('.br-page[data-page]')).toBeVisible();
+    });
+  });
+}
 
 test.describe('phone', () => {
   test.use({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
@@ -203,6 +264,15 @@ test.describe('phone', () => {
     await expect.poll(async () => (await box()).x + (await box()).width).toBeLessThanOrEqual(1);
     expect(await overflow()).toEqual([0, 0]);
     await expect(reader.locator('.br-search input')).toBeVisible();
+    // Stat blocks inside spells and magic items fit too (summon spells are looked up in play).
+    for (const [book, anchor] of [['srd-5.2.1', 'spell-giant-insect'], ['srd-5.2.1', 'spell-animate-objects'], ['srd-5.1', 'item-figurine-of-wondrous-power']]) {
+      await page.evaluate((h) => { location.hash = h; }, `#book/${book}/${anchor}`);
+      await expect(reader.locator(`#${anchor}`)).toBeInViewport();
+      const wide = await reader.locator(`.entry:has(> #${anchor}) table.abil`).evaluateAll((els) => els.map((e) => e.closest('.tbl')!.scrollWidth - e.closest('.tbl')!.clientWidth));
+      expect(wide.length, anchor).toBeGreaterThan(0);
+      expect(wide.every((d) => d <= 0), anchor).toBe(true);
+    }
+    expect(await overflow()).toEqual([0, 0]);
     await reader.locator('[data-act="map"]').tap();
     await expect(page.locator('.book-reader')).toHaveCount(0);
   });

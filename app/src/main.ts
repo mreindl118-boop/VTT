@@ -56,6 +56,8 @@ if (mode === 'dm') {
 
 if ('serviceWorker' in navigator && import.meta.env.PROD && !q.has('nosw')) {
   addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
+  // Help's attribution chunk is tiny and lazy: fetch it once the worker is in control, so it is cached for offline play.
+  void navigator.serviceWorker.ready.then(() => setTimeout(() => void import('./books/attribution').catch(() => {}), 4000));
 }
 
 let slider: ViewSlider | undefined;
@@ -493,7 +495,7 @@ function buildDmUi(): void {
       </dl></div></div>`;
     h.addEventListener('click', (e) => { const t = e.target as HTMLElement; if (t === h || t.closest('.close')) h.remove(); });
     // The books' exact attribution statements (CC-BY-4.0), loaded with Help rather than with the app.
-    void import('./books/attribution').then((m) => m.helpInto(h));
+    void import('./books/attribution').then((m) => m.helpInto(h), () => h.querySelector('[data-attrib]')?.insertAdjacentHTML('afterend', '<dd>SRD 5.1 and 5.2.1, CC-BY-4.0: attribution on each book’s first page.</dd>'));
     document.body.appendChild(h);
     localStorage.setItem('mistlab.helpSeen', '1');
   }

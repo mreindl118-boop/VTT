@@ -111,7 +111,7 @@
 .br-page .entry.t-feature { --label: 'Class feature'; } .br-page .entry.t-species { --label: 'Species'; } .br-page .entry.t-background { --label: 'Background'; }
 .br-page[data-book='srd-5.1'] .entry.t-species { --label: 'Race'; } /* the 2014 rules' word */
 .br-page .entry.t-monster { background: color-mix(in srgb, var(--t-monster) 4%, transparent); border-radius: 0 10px 10px 0; padding-right: 12px; }
-.br-page .entry.t-monster table { font-size: .8em; }
+.br-page .entry.t-monster table, .br-page table.abil { font-size: .8em; }
 .br-page .entry.t-monster > ul { list-style: none; padding-left: 0; }
 .br-page .entry.t-spell > ul { list-style: none; padding-left: 0; }
 .br-page .entry > p:nth-child(2) > em:only-child { color: var(--ink-2); }
@@ -135,6 +135,7 @@
 .br-pager em { font-style: normal; font-size: 11px; color: var(--ink-2); text-transform: uppercase; letter-spacing: .05em; }
 .br-attrib-line { max-width: 46em; margin: 8px auto 0; padding: 12px 32px calc(env(safe-area-inset-bottom) + 28px); font-size: 12px; line-height: 1.45; color: var(--ink-2); border-top: var(--hairline, 1px) solid var(--hair); }
 .br-attrib-line p { margin: .3em 0; }
+.br-attrib-line summary { cursor: pointer; margin: .3em 0; }
 
 /* ---- search results */
 .br-res { padding-top: 16px; }
@@ -171,9 +172,10 @@
   .br-pager, .br-attrib-line { padding-left: 16px; padding-right: 16px; }
   .br-page h1 { font-size: 1.7em; }
   .br-contents { columns: 1; }
-  /* A stat block's six ability columns fit the phone's width, so Cha. is never off screen. */
+  /* A stat block's six ability columns fit the phone's width, so Cha. is never off screen: in a monster's entry and in
+     the stat blocks inside spells and items (Animate Objects, Giant Insect, Figurine of Wondrous Power). */
   .br-page .entry.t-monster { padding-left: 10px; padding-right: 6px; }
-  .br-page .entry.t-monster table { font-size: .7em; width: 100%; min-width: 0; }
-  .br-page .entry.t-monster :is(th, td) { padding: .35em .2em; }
-  .br-page .entry.t-monster :is(th, td):first-child { padding-left: .1em; }
+  .br-page .entry.t-monster table, .br-page table.abil { font-size: .7em; width: 100%; min-width: 0; }
+  .br-page .entry.t-monster :is(th, td), .br-page table.abil :is(th, td) { padding: .35em .2em; }
+  .br-page .entry.t-monster :is(th, td):first-child, .br-page table.abil :is(th, td):first-child { padding-left: .1em; }
 }
