@@ -130,7 +130,13 @@ export interface TermSpan {
   id: string; type: EntryType; name: string;
   /** Written as an explicit tag: [[Fireball]] or [[spell:light]]. */
   explicit: boolean;
+  /** The matched form is also an ordinary English word (it is in the term file's `common` list). */
+  common: boolean;
+  /** Why the span counts: an explicit tag, a capital mid-sentence, a cue word after it, a cue before it ('casts',
+   *  'a saving throw or be'), a stat block's 'the target is', or the name on its own (a form that is not ordinary). */
+  via: TermVia;
 }
+export type TermVia = 'tag' | 'capital' | 'cue' | 'lead' | 'statblock' | 'name';
 
 /** The term index of the chosen edition, for findTerms. */
 export const termIndex = (edition: Edition = rulesEdition()): Promise<TermFile> => loadTerms(BOOK_OF[edition]);
@@ -160,9 +166,10 @@ const STAT_LEAD: Partial<Record<EntryType, RegExp>> = { condition: /\bthe target
  * command, guidance, fly, prone, fire …) count only when tagged ([[Light]], [[spell:light]]), capitalised
  * mid-sentence, followed by their cue word ('fire damage', 'prone condition', 'light cantrip') or led by one ('casts
  * blight', 'a saving throw or be poisoned', 'knocked prone'). 'Wisdom (Perception)' is the skill. `statBlock`: the
- * text is a stat block's trait or action, where 'the target is restrained' names the condition too.
+ * text is a stat block's trait or action, where 'the target is restrained' names the condition too. `keepCommon`:
+ * return the ordinary words too, flagged `common`, for a caller with its own stricter guard (module text).
  */
-export function findTerms(text: string, t: TermFile, opts: { explicitOnly?: boolean; statBlock?: boolean } = {}): TermSpan[] {
+export function findTerms(text: string, t: TermFile, opts: { explicitOnly?: boolean; statBlock?: boolean; keepCommon?: boolean } = {}): TermSpan[] {
   const spans: TermSpan[] = [];
   const common = new Set(t.common);
   const byId = new Map(t.entries.map((e, i) => [e[0], i]));
@@ -177,7 +184,7 @@ export function findTerms(text: string, t: TermFile, opts: { explicitOnly?: bool
     if (i === undefined) i = candidates(t, name, type && type in TYPE_META ? type : undefined)[0];
     if (i === undefined) continue;
     const [id, ename, etype] = t.entries[i];
-    spans.push({ start: m.index, end: m.index + m[0].length, text: m[3] ?? name, id, type: etype, name: ename, explicit: true });
+    spans.push({ start: m.index, end: m.index + m[0].length, text: m[3] ?? name, id, type: etype, name: ename, explicit: true, common: false, via: 'tag' });
     taken.push([m.index, m.index + m[0].length]);
   }
   if (opts.explicitOnly) return spans;
@@ -189,7 +196,7 @@ export function findTerms(text: string, t: TermFile, opts: { explicitOnly?: bool
     const i = (t.forms[normTerm(m[2])] ?? []).find((k) => t.entries[k][2] === 'skill');
     if (i === undefined) continue;
     const [id, name, type] = t.entries[i];
-    spans.push({ start: s, end: e, text: m[0], id, type, name, explicit: false });
+    spans.push({ start: s, end: e, text: m[0], id, type, name, explicit: false, common: false, via: 'name' });
     taken.push([s, e]);
   }
   const words: { s: number; e: number }[] = [];
@@ -215,10 +222,18 @@ export function findTerms(text: string, t: TermFile, opts: { explicitOnly?: bool
       const after = text.slice(e, e + 20), lead = text.slice(Math.max(0, s - 120), s);
       // A cue word picks the meaning: 'light cantrip' is the spell, 'fire damage' the damage type; so does what comes
       // before: 'casts blight', 'a saving throw or be poisoned', 'knocked prone'.
-      const cued = idx.find((k) => TYPE_CUE[t.entries[k][2]]?.test(after) || LEAD_CUE[t.entries[k][2]]?.test(lead) || (opts.statBlock && STAT_LEAD[t.entries[k][2]]?.test(lead)));
+      let how: TermVia = 'name';
+      const cued = idx.find((k) => {
+        const ty = t.entries[k][2];
+        if (TYPE_CUE[ty]?.test(after)) { how = 'cue'; return true; }
+        if (LEAD_CUE[ty]?.test(lead)) { how = 'lead'; return true; }
+        if (opts.statBlock && STAT_LEAD[ty]?.test(lead)) { how = 'statblock'; return true; }
+        return false;
+      });
       if (cued !== undefined) pick = cued;
       const [id, name, type] = t.entries[pick];
-      if (key && common.has(key)) {
+      const isCommon = !!key && common.has(key);
+      if (isCommon) {
         const cue = cued !== undefined;
         const capital = seg.split(/\s+/).every((w) => /^[A-Z+]/.test(w));
         const before = text.slice(0, s).trimEnd();
@@ -232,9 +247,13 @@ export function findTerms(text: string, t: TermFile, opts: { explicitOnly?: bool
         const prevIsName = (!!prev && text[s - 1] === ' ' && /^[A-Z]/.test(prev[1]) && !LEADING_WORDS.has(prev[1].toLowerCase()))
           || (!!ofName && !LEADING_WORDS.has(ofName[1].toLowerCase()));
         const nextIsName = /^ (?:of (?:the )?)?[A-Z][a-z]/.test(text.slice(e, e + 11));
-        if (!cue && !(capital && !sentenceStart && !prevIsName && !nextIsName)) continue;
+        const byCapital = capital && !sentenceStart && !prevIsName && !nextIsName;
+        // keepCommon: the caller applies its own guard (module text, ui/terms.ts), so an ordinary word comes back
+        // with via 'name' when nothing here vouches for it.
+        if (!cue && !byCapital && !opts.keepCommon) continue;
+        if (!cue && byCapital) how = 'capital';
       }
-      spans.push({ start: s, end: e, text: seg, id, type, name, explicit: false });
+      spans.push({ start: s, end: e, text: seg, id, type, name, explicit: false, common: isCommon, via: how });
       taken.push([s, e]);
       i += n - 1;
       break;

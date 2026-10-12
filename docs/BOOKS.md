@@ -238,6 +238,11 @@ Help still shows the attribution with no network) through the service worker's
   nor are darkvision, blindsight, truesight, tremorsense and multiattack. Mundane gear named in one word (Hammer,
   Rope, Feed) counts as an ordinary word, and a capitalised word after another capitalised word that is not an
   article or the like (‘Exotic Feed’, ‘the Blue Light Inn’) is part of that name, not the rules term.
+- Each span also says `common` (its form is one of those ordinary words) and `via`, why it counts: `tag`, `capital`
+  (a capital mid-sentence), `cue` (a cue word after it), `lead` (a cue before it), `statblock` (a stat block's 'the
+  target is') or `name` (a form that is not ordinary). `findTerms(text, t, { keepCommon: true })` also returns the
+  ordinary words nothing vouches for, flagged, for a caller with a stricter guard of its own: module text
+  (app/src/ui/terms.ts) uses it, because there the capital alone does not count. No other span changes.
   `Wisdom (Perception)` is one span, the skill, and `+1 mace` is one span, the magic weapon. A name with a slash
   (`Enlarge/Reduce`, `antipathy/sympathy`) is one span. A word after 'of' inside a capitalised name ('Book of
   Shadows') is part of that name. A stat block's DC names its condition ('grappled (escape DC 13)'), and so does a

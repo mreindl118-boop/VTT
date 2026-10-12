@@ -284,6 +284,19 @@ describe('terms in running text', () => {
     const tagged = findTerms('Cast [[spell:shield]] or [[Command|the command spell]].', t);
     expect(tagged.map((x) => [x.id, x.text, x.explicit])).toEqual([['spell:shield', 'shield', true], ['spell:command', 'the command spell', true]]);
   });
+  it('each span says whether its form is an ordinary word and why it counts (common, via)', async () => {
+    const t = await termIndex('2024');
+    const s = findTerms('A Ghoul casts Fireball; the light cantrip; knocked prone; a short rest and [[spell:shield]].', t);
+    expect(s.map((x) => [x.text, x.common, x.via])).toEqual([
+      ['Ghoul', true, 'capital'], ['Fireball', false, 'lead'], ['light', true, 'cue'], ['prone', true, 'lead'], ['short rest', false, 'name'], ['shield', false, 'tag'],
+    ]);
+    expect(findTerms('Opportunity Attacks and Hold Person.', t).map((x) => [x.common, x.via])).toEqual([[false, 'name'], [false, 'name']]);
+    expect(findTerms('Until this grapple ends, the target is restrained.', t, { statBlock: true }).map((x) => [x.text, x.via])).toEqual([['restrained', 'statblock']]);
+    expect(findTerms('Wisdom (Perception)', t)[0]).toMatchObject({ common: false, via: 'name' });
+    // keepCommon hands back the ordinary words a stricter caller guards itself, flagged and with via 'name'.
+    expect(findTerms('the ghoul', t)).toEqual([]);
+    expect(findTerms('the ghoul', t, { keepCommon: true }).map((x) => [x.text, x.common, x.via])).toEqual([['ghoul', true, 'name']]);
+  });
   it('possessives link the name only', async () => {
     const s = findTerms("The Vampire's bite.", await termIndex('2024'));
     expect(s.map((x) => [x.text, x.id, x.start, x.end])).toEqual([['Vampire', 'monster:vampire', 4, 11]]);
