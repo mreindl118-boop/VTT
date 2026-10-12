@@ -514,8 +514,12 @@ select.levels { max-width: min(46vw, 320px); padding: 6px 28px 6px 10px; border-
 /* The continuous world: place labels over the valley, the party's mark on the road; a map's own labels wait until
    the camera comes down to it (zoom bands on body[data-band]: valley, road, town, map). */
 .lbl.place { font: 600 12px/1.2 var(--font); color: #efe6d2; background: rgba(24, 20, 30, .62); border: 1px solid rgba(239, 230, 210, .25); padding: 2px 8px; border-radius: 7px; text-shadow: none; letter-spacing: .01em; }
-body:not([data-view='players']):not([data-mode='player']) #stage .labels .lbl.place[data-path] { pointer-events: auto; cursor: pointer; }
-body:not([data-view='players']):not([data-mode='player']) #stage .labels .lbl.place[data-path]:hover { background: rgba(60, 46, 70, .85); border-color: rgba(239, 230, 210, .6); }
+/* the names take no pointer (a wheel or a pinch over one zooms like anywhere else); the canvas's tap and hover find
+   them (WorldStage.labelAt), and the hovered one lights up */
+body:not([data-view='players']):not([data-mode='player']) #stage .labels .lbl.place.hover { background: rgba(60, 46, 70, .85); border-color: rgba(239, 230, 210, .6); }
+.lbl.place b { font-weight: 700; } .lbl.place em { font-style: normal; }
+/* crowded out or near the edge: the key alone, a small tag on the place */
+.lbl.place.dot { padding: 1px 5px; border-radius: 999px; font-size: 11px; } .lbl.place.dot em { display: none; }
 .lbl.world-party { font: 700 24px Georgia, serif; color: #c0392b; text-shadow: 0 1px 2px rgba(0,0,0,.7), 0 0 6px rgba(255,255,255,.35); }
 body:not([data-band='valley']):not([data-band='road']) .lbl.place { display: none !important; }
 body[data-band='valley'] #stage .labels .lbl:not(.place):not(.world-party), body[data-band='road'] #stage .labels .lbl:not(.place):not(.world-party) { display: none !important; }

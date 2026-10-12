@@ -498,7 +498,10 @@ test('flights: the whole valley fits on screen, a place name flies into its map,
   expect(fit.d).toBeLessThanOrEqual(fit.max + 1);
   // a tap on Krezk's name flies there and opens its map in place, the origin on it
   const f0 = await page.evaluate(() => (window as any).__mistlab.app.world.flights);
-  await page.locator('.lbl.place[data-key="S"]').click();
+  // the names take no pointer (a wheel or a pinch over one still zooms): the canvas's tap finds the name under it
+  const sBox = (await page.locator('.lbl.place[data-key="S"]').boundingBox())!;
+  expect(await page.locator('.lbl.place[data-key="S"]').evaluate((e) => getComputedStyle(e).pointerEvents)).toBe('none');
+  await page.mouse.click(sBox.x + sBox.width / 2, sBox.y + sBox.height / 2);
   await page.waitForFunction(() => { const a = (window as any).__mistlab.app; return a.cur?.path === 'ch08/S' && !a.world.flying; }, undefined, { timeout: 180_000 });
   const s = await page.evaluate(() => {
     const m = (window as any).__mistlab, a = m.app, w = a.world, e = m.atlas.scenes['ch08/S'];
@@ -611,11 +614,13 @@ test('in the valley: the camera rides the ground off the map, players see only r
   const names = () => page.evaluate(() => {
     const els = [...document.querySelectorAll<HTMLElement>('.lbl.place')];
     const shown = els.filter((e) => e.style.display !== 'none');
-    return { shown: shown.map((e) => e.dataset.key), clickable: shown.filter((e) => getComputedStyle(e).pointerEvents !== 'none').length, tips: shown.filter((e) => e.dataset.tip).length, revealed: [...(window as any).__mistlab.app.pinsRevealed] };
+    // a name can be tapped when the app's tap at its middle finds it (the names themselves take no pointer)
+    const a = (window as any).__mistlab.app, at = (e: HTMLElement) => { const r = e.getBoundingClientRect(); return a.placeAt({ clientX: r.left + r.width / 2, clientY: r.top + r.height / 2, pointerType: 'mouse' })?.path; };
+    return { shown: shown.map((e) => e.dataset.key), clickable: shown.filter((e) => getComputedStyle(e).visibility !== 'hidden' && at(e) === e.dataset.path).length, crowded: shown.filter((e) => getComputedStyle(e).visibility === 'hidden').length, tips: shown.filter((e) => e.dataset.tip).length, revealed: [...a.pinsRevealed] };
   });
   const dm = await names();
   expect(dm.shown.length).toBeGreaterThanOrEqual(25);
-  expect(dm.clickable).toBe(dm.shown.length);
+  expect(dm.clickable).toBe(dm.shown.length - dm.crowded); // every name not crowded out (as a name or its key) flies
   expect(dm.tips).toBe(dm.shown.length);
   await page.locator('[data-view="players"]').click();
   await page.evaluate(() => (window as any).__mistlab.app.world.renderNow());
@@ -624,4 +629,107 @@ test('in the valley: the camera rides the ground off the map, players see only r
   for (const k of pl.shown) expect(pl.revealed).toContain(k);
   expect(pl.clickable).toBe(0);
   expect(pl.tips).toBe(0);
+});
+
+// The DM's natural way out and in: the wheel and the pinch, with the place names under the pointer or a finger. The
+// names take no pointer, so they never swallow a zoom (zoom-to-cursor slides the open map's own name under the cursor).
+const chipWatch = (page: import('@playwright/test').Page) => page.evaluate(() => {
+  const c = document.querySelector<HTMLElement>('.zoomchip')!; (window as any).__chips = [];
+  new MutationObserver(() => { if (!c.hidden) (window as any).__chips.push(c.textContent); }).observe(c, { attributes: true, childList: true, subtree: true });
+});
+const cam = (page: import('@playwright/test').Page) => page.evaluate(() => {
+  const m = (window as any).__mistlab, w = m.app.world;
+  return { d: w.camera.position.distanceTo(w.controls.target), max: w.controls.maxDistance, atMax: w.atMaxDistance, chips: [...(window as any).__chips] as string[], band: document.body.dataset.band, path: m.app.cur?.path };
+});
+const nameBox = (page: import('@playwright/test').Page, key: string) => page.evaluate((k) => {
+  const e = document.querySelector<HTMLElement>(`.lbl.place[data-key="${k}"]`); if (!e || getComputedStyle(e).display === 'none' || getComputedStyle(e).visibility === 'hidden') return null;
+  const r = e.getBoundingClientRect(); return r.width ? { x: r.left + r.width / 2, y: r.top + r.height / 2, w: r.width, h: r.height } : null;
+}, key);
+
+test('the wheel zooms through the place names: out from the village to the far limit and its chip, and in over a name', async ({ page }) => {
+  test.setTimeout(300_000);
+  await boot(page, '', VILLAGE);
+  await chipWatch(page);
+  await page.mouse.move(512, 400);
+  // wheel out; once the village's own name shows, the cursor goes onto it and stays there
+  let onName = 0;
+  for (let i = 0; i < 90 && !(await cam(page)).chips.length; i++) {
+    const e = await nameBox(page, 'E');
+    if (e && !onName) await page.mouse.move(e.x, e.y);
+    if (e) onName++;
+    await page.mouse.wheel(0, 400); await page.waitForTimeout(60);
+  }
+  const out = await cam(page);
+  expect(onName).toBeGreaterThan(0); // the wheel turned over the name
+  expect(out.atMax).toBe(true);
+  expect(out.chips.join()).toMatch(/whole valley/);
+  // to the whole valley, then in again with the wheel over Castle Ravenloft's name: the name does not stop it
+  await page.evaluate(async () => { const m = (window as any).__mistlab; m.stage.frameWorld(); await m.app.world.settled(); m.app.world.renderNow(); });
+  await page.waitForTimeout(300);
+  const k = (await nameBox(page, 'K'))!;
+  expect(k).not.toBeNull();
+  await page.mouse.move(k.x, k.y);
+  const d0 = (await cam(page)).d;
+  for (let i = 0; i < 10; i++) { await page.mouse.wheel(0, -400); await page.waitForTimeout(60); }
+  await page.waitForFunction(() => !(window as any).__mistlab.app.world.flying);
+  await page.waitForTimeout(500);
+  expect((await cam(page)).d).toBeLessThan(d0 / 3);
+});
+
+test.describe('on a phone', () => {
+  test.use({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
+  test('the whole valley fits beside the slider, names stay on screen, a pinch over a name zooms, a finger near a name flies', async ({ page }) => {
+    test.setTimeout(420_000);
+    await boot(page, '', VILLAGE);
+    await chipWatch(page);
+    // the whole valley: every edge of the region, every place and every name inside the screen and clear of the panels
+    await page.evaluate(async () => { const m = (window as any).__mistlab; m.stage.frameWorld(); await m.app.world.settled(); m.app.world.renderNow(); });
+    await page.waitForTimeout(400);
+    const fit = await page.evaluate(() => {
+      const m = (window as any).__mistlab, w = m.app.world, st = m.stage, V = w.camera.position.constructor, b = st.bounds;
+      const px = (x: number, z: number) => { const v = new V(x - w.anchor.x, st.land.field.height(x, z) - w.anchor.y, z - w.anchor.z).project(w.camera); return [((v.x + 1) / 2) * innerWidth, ((1 - v.y) / 2) * innerHeight]; };
+      const pts = [px(b.minX, b.minZ), px(b.maxX, b.minZ), px(b.minX, b.maxZ), px(b.maxX, b.maxZ), ...m.atlas.pins.filter((p: any) => p.campaign === 'cos').map((p: any) => px(p.world[0], p.world[1]))];
+      const slider = document.querySelector('.vslider')!.getBoundingClientRect(), panels = w.chrome().panels as DOMRect[];
+      const names = [...document.querySelectorAll<HTMLElement>('.lbl.place')].filter((e) => e.style.display !== 'none' && getComputedStyle(e).visibility !== 'hidden').map((e) => e.getBoundingClientRect());
+      return {
+        minX: Math.min(...pts.map((p) => p[0])), maxX: Math.max(...pts.map((p) => p[0])), slider: slider.left, framed: st.framed, names: names.length,
+        off: names.filter((r) => r.left < 0 || r.right > innerWidth || r.top < 0 || r.bottom > innerHeight).length,
+        under: names.filter((r) => panels.some((p) => r.left < p.right && r.right > p.left && r.top < p.bottom && r.bottom > p.top)).length,
+      };
+    });
+    expect(fit.framed).toBe(true);
+    expect(fit.minX).toBeGreaterThanOrEqual(0);
+    expect(fit.maxX).toBeLessThanOrEqual(fit.slider);
+    expect(fit.names).toBeGreaterThan(3);
+    expect(fit).toMatchObject({ off: 0, under: 0 });
+    // back on the village, pinch out with a finger on the village's name: it zooms all the way to the far limit
+    await page.evaluate(async () => { const a = (window as any).__mistlab.app; a.frameLevel(); await a.world.settled(); });
+    const cdp = await page.context().newCDPSession(page);
+    const pinch = async (fx: number, fy: number, from: number, to: number) => { // finger 1 stays at (fx, fy), finger 2 closes on it from the open side (never on the slider)
+      const at = (d: number) => [{ x: fx, y: fy, id: 1 }, { x: fx - from > 10 ? fx - d : fx + d, y: fy, id: 2 }];
+      await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: at(from) });
+      for (let i = 1; i <= 6; i++) await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: at(from + ((to - from) * i) / 6) });
+      await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+      await page.waitForTimeout(200);
+    };
+    let onName = 0;
+    for (let i = 0; i < 16 && !(await cam(page)).atMax; i++) {
+      const e = await nameBox(page, 'E');
+      if (e) { onName++; await pinch(e.x, e.y, 150, 40); } else await pinch(140, 450, 150, 40);
+    }
+    expect(onName).toBeGreaterThan(0);
+    expect((await cam(page)).atMax).toBe(true);
+    // one more pinch at the limit asks for more: the chip
+    await pinch(140, 450, 220, 30);
+    await expect.poll(async () => (await cam(page)).chips.join(), { timeout: 60_000 }).toMatch(/whole valley/);
+    // a finger a little below a name (inside its 44-px target) flies there
+    await page.evaluate(async () => { const m = (window as any).__mistlab; m.stage.frameWorld(); await m.app.world.settled(); m.app.world.renderNow(); });
+    await page.waitForTimeout(400);
+    const n = (await nameBox(page, 'N'))!;
+    expect(n).not.toBeNull();
+    expect(n.h).toBeLessThan(30);
+    await page.touchscreen.tap(n.x, n.y + 16);
+    await page.waitForFunction(() => { const a = (window as any).__mistlab.app; return a.cur?.path === 'ch05/N' && !a.world.flying; }, undefined, { timeout: 180_000 });
+    await cdp.detach();
+  });
 });

@@ -16,7 +16,7 @@ import { buildLevel, hitObjectId, mergeByMaterial, type BuiltLevel, type LabelSp
 import { gridUniforms } from './render/gridOverlay';
 import { fogUniforms, sectionClip, setOpacity, setWallCut, WALL_CLIP } from './render/materials';
 const WALL_CUT_FT = 5;
-import { setGridType } from './render/gridOverlay';
+import { clipGrid, setGridType } from './render/gridOverlay';
 import { World, type CameraPreset } from './render/world';
 import { builtPaths, loadLocation } from './data';
 import { kindName, playerDesc, playerLabel } from './core/objectText';
@@ -329,6 +329,7 @@ export class App {
       this.staged = true;
       this.world.setNested(true);
       this.stage.placeRoot(loaded, entry);
+      loaded.root.traverse((o) => { if (o.userData.role === 'grid') clipGrid(o as THREE.Mesh, 10); }); // the grid stays on the map, not over the valley
       this.stage.setResident(new Set([loaded.path]));
       this.stage.fitCamera(); // the far limit frames the whole valley
       // the floating origin moves onto the map: it is drawn where it always was, the valley round it
@@ -1250,6 +1251,12 @@ export class App {
   private installPointer(): void {
     const el = this.world.renderer.domElement;
     let drag: { kind: 'brush'; pts: Vec2[] } | { kind: 'tap'; x: number; y: number } | null = null;
+    // A gesture with a second finger (a pinch, a twist) is never a tap, even where one finger stayed put: on a place's
+    // name that would fly away mid-pinch.
+    const down = new Set<number>(); let multi = false;
+    const lifted = (e: PointerEvent) => { down.delete(e.pointerId); if (!down.size) setTimeout(() => { if (!down.size) multi = false; }); };
+    el.addEventListener('pointerdown', (e) => { down.add(e.pointerId); if (down.size > 1) multi = true; }, { capture: true });
+    el.addEventListener('pointerup', lifted); el.addEventListener('pointercancel', lifted);
     el.addEventListener('pointerdown', (e) => {
       if (this.mode === 'player' || !this.cur || e.button > 0) return;
       if (this.view === 'players' && this.tool !== 'none') this.tool = 'none';
@@ -1288,7 +1295,7 @@ export class App {
       if (d.kind === 'brush') {
         if (d.pts.length) this.state.reveals.push({ type: 'brush', location: this.cur!.scene.location, level: this.levelId, mode: this.tool === 'brush-fog' ? 'fog' : 'reveal', r: 3, pts: d.pts.map(([x, z]) => [Math.round(x * 10) / 10, Math.round(z * 10) / 10]) });
         this.commit();
-      } else if (Math.hypot(e.clientX - d.x, e.clientY - d.y) < 6) {
+      } else if (!multi && Math.hypot(e.clientX - d.x, e.clientY - d.y) < 6) {
         this.tap(e);
       }
     };
@@ -1402,7 +1409,17 @@ export class App {
   /** Mouse hover: name what is under the cursor. The DM sees everything; players only what they can see. */
   private hover(e: PointerEvent): void {
     if (!this.cur || !this.onHover) return;
+    // a place's name over the valley (the DM's): it lights up and says where a tap goes
+    const place = this.placeAt(e);
+    this.stage?.hoverLabel(place?.el ?? null);
+    this.world.renderer.domElement.style.cursor = place ? 'pointer' : '';
+    if (place) { this.onHover({ title: place.el.dataset.tip ?? place.name, sub: place.el.dataset.tipSub }, e.clientX, e.clientY); return; }
     this.onHover(this.describe(e), e.clientX, e.clientY);
+  }
+  /** The place name a tap or the mouse is on, in the valley, for the DM (players' names fly nowhere). */
+  placeAt(e: { clientX: number; clientY: number; pointerType?: string }): ReturnType<WorldStage['labelAt']> {
+    if (!this.stage || !this.staged || this.mode !== 'dm' || this.restricted || this.renderMode !== 'normal') return null;
+    return this.stage.labelAt(e.clientX, e.clientY, !!e.pointerType && e.pointerType !== 'mouse');
   }
   describe(e: PointerEvent): { title: string; sub?: string; enter?: string } | null {
     const hit = this.pick(e), o = hit?.object, loc = this.cur!.scene.location, p = this.floorPoint(e);
@@ -1478,6 +1495,9 @@ export class App {
     // Moving is two deliberate taps: the token, then where it goes. A swipe never moves anyone.
     const tokHit = this.pick(e), fp = this.floorPoint(e);
     if (this.placing && !this.restricted) { if (fp) { this.addCreature(this.placing, fp); this.placed++; this.setStatus(`${this.placed} placed · tap for more · Esc to stop`); } return; }
+    // a place's name over the valley: fly there and open its map
+    const place = this.placeAt(e);
+    if (place) { this.stage!.onPick?.(place.path); return; }
     // The figure is small from above: a tap anywhere on its base ring picks it up too.
     const tokId = (tokHit && findUp(tokHit.object, 'tokenId')) || (fp && this.tokensHere().filter((t) => this.playerSees(t) || !this.restricted).find((t) => Math.hypot(t.pos[0] - fp[0], t.pos[1] - fp[1]) <= baseRingFt(t.size) / 2 + 1)?.id);
     if (tokId) {

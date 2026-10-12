@@ -52,6 +52,10 @@ const SKIRT_MI = 3, SKIRT_STEPS = 6;
 const SKIRT_FLOOR = -1200;
 /** A lake's shore rises from the water to the surveyed land between its ellipse and this many times its radii. */
 export const SHORE = 1.3;
+/** Land lower than a lake's level (the level a lakeshore map sets) climbs to the shore from this far out instead. */
+const SHORE_UP = 1.8;
+/** The relief shading's light: from the north-west, 40° up (a unit vector in W: x east, y up, z south). */
+const HILL_LIGHT = (() => { const el = THREE.MathUtils.degToRad(40), h = Math.cos(el) / Math.SQRT2; return [-h, Math.sin(el), -h] as const; })();
 /** Where the high ground turns white (ft). */
 const SNOW_LINE = 4200;
 
@@ -101,22 +105,29 @@ export class LandField {
     return { i, rho };
   }
   lakeLevel(i: number): number { return this.lakeLevels[i]; }
-  /** A lake's surface: at a map's own ground if its shore reaches the map (the town stands on its shore), else just under its lowest shore. */
+  /** A lake's surface: just under its lowest shore, or at a map's own ground if the map stands on the shore (the
+   *  town on its shore, Lake Zarovich's own map). A map only sets the level when it stands down at the water, no
+   *  higher than the middle of the shore's heights: a map up the slope above a lake (a pass, a ridge) would hold the
+   *  water up in the air, a disc standing on walls over the land round it. */
   private levelOf(l: WorldData['lakes'][number]): number {
     const shore = (k: number, n: number, f = 1): Vec2 => { const a = (k / n) * Math.PI * 2; return this.feet([l.center[0] + Math.cos(a) * l.r[0] * f, l.center[1] + Math.sin(a) * l.r[1] * f]); };
-    for (let k = 0; k < 64; k++) { const [x, z] = shore(k, 64); const n = this.nearest(x, z); if (n.i >= 0 && n.d < 700) return this.sites[n.i].base - 2.5; }
-    let lo = Infinity; for (let k = 0; k < 32; k++) lo = Math.min(lo, this.height(...shore(k, 32)));
-    return Math.min(lo, this.height(...this.feet(l.center))) - 4;
+    const hs: number[] = []; for (let k = 0; k < 32; k++) hs.push(this.height(...shore(k, 32)));
+    hs.sort((a, b) => a - b);
+    const lo = Math.min(hs[0], this.height(...this.feet(l.center))) - 4, mid = hs[hs.length >> 1];
+    for (let k = 0; k < 64; k++) { const [x, z] = shore(k, 64); const n = this.nearest(x, z); if (n.i >= 0 && n.d < 700 && this.sites[n.i].base - 2.5 <= mid) return this.sites[n.i].base - 2.5; }
+    return lo;
   }
   /** Cut a vertex down to a lake's bed; round the lake a shore rises from just above the water to the surveyed land
    *  (the heightfield and the drawn ellipse disagree: no water hangs over lower land, no wall stands out of it).
    *  Never inside a footprint's flush zone: a map carries its own water. */
   private lake(x: number, z: number, y: number, flush: boolean): number {
     if (flush || !this.world.lakes.length) return y;
-    const { i, rho } = this.lakeNear(x, z); if (i < 0) return y;
+    const { i, rho } = this.lakeNear(x, z, SHORE_UP); if (i < 0) return y;
     const level = this.lakeLevels[i];
     if (rho < 1) return Math.min(y, level - 6);
-    const k = smooth(1, SHORE, rho); return level + 1.5 + (y - level - 1.5) * k;
+    // land above the water slopes down to it within SHORE; land below it (a map set the level) rises to the shore
+    // over the wider SHORE_UP, a long bank rather than a dike
+    const k = smooth(1, y < level ? SHORE_UP : SHORE, rho); return level + 1.5 + (y - level - 1.5) * k;
   }
   /** An apron vertex of site i at mapDist d: flush with the map near it, 3 ft under the land beyond, sinking under a
    *  neighbour's apron where that map is nearer, and diving under the lattice at the rim. */
@@ -147,7 +158,7 @@ export class LandField {
  *  map's own ground for the first few hundred feet past its edge (backdrop.ts's colAt, with real fog for its haze). */
 function colourer(field: LandField, theme: Theme): (x: number, z: number, y: number, n: { i: number; d: number }) => THREE.Color {
   const t = field.terrain, W = field.world;
-  const rock = new THREE.Color('#6a6d74'), hillC = new THREE.Color('#66705f'), forestC = new THREE.Color(theme.forest[0]), waterC = new THREE.Color('#5e7d94'), snowC = new THREE.Color('#e4e6ea');
+  const rock = new THREE.Color('#6a6d74'), hillC = new THREE.Color('#66705f'), forestC = new THREE.Color(theme.forest[0]), waterC = new THREE.Color('#5e7d94'), snowC = new THREE.Color('#aab0ba');
   const apronC = new THREE.Color(theme.forest[1]).lerp(new THREE.Color(theme.apron), 0.35), mist = new THREE.Color(theme.mist);
   const grounds = new Map<string, THREE.Color>();
   const groundC = (g: string) => { let c = grounds.get(g); if (!c) { c = new THREE.Color(FLOOR_COLOR[g as keyof typeof FLOOR_COLOR] ?? FLOOR_COLOR.grass); grounds.set(g, c); } return c; };
@@ -158,17 +169,32 @@ function colourer(field: LandField, theme: Theme): (x: number, z: number, y: num
     c.copy(apronC);
     if (t.hasCover) {
       c.lerp(forestC, Math.min(1, t.cover('f', mx, my) * 1.2)); c.lerp(hillC, t.cover('h', mx, my));
-      c.lerp(rock, Math.min(1, t.cover('m', mx, my) * 1.1 + t.cover('x', mx, my) * 0.8)); c.lerp(waterC, Math.min(1, t.cover('w', mx, my) * 1.5));
+      c.lerp(rock, Math.min(1, t.cover('m', mx, my) * 1.1 + t.cover('x', mx, my) * 0.8));
+      // the cover's water lies flat: on a slope (a lake's ellipse and the heightfield disagree there) it is a bank,
+      // not blue streaks running down it
+      const wc = t.cover('w', mx, my);
+      if (wc > 0) { const e = 200, gx = (field.ground(x + e, z) - field.ground(x - e, z)) / (2 * e), gz = (field.ground(x, z + e) - field.ground(x, z - e)) / (2 * e); c.lerp(waterC, Math.min(1, wc * 1.5) * (1 - smooth(0.06, 0.2, Math.hypot(gx, gz)))); }
     }
     for (const [qx, qz] of crags) { const dd = Math.hypot(x - qx, z - qz) / MI_FT; if (dd < 0.3) c.lerp(rock, 1 - dd / 0.3); }
     if (n.i >= 0) { const st = field.sites[n.i]; c.lerp(st.crag ? rock : groundC(st.ground), st.crag ? 1 - smooth(320, 1600, n.d) : 1 - smooth(120, 1400, n.d)); }
     // a lakeshore map's water part (the land is not cut there: the map carries its own water) reads as water
     if (n.i >= 0 && n.d < FLATTEN_IN && field.lakeAt(x, z) >= 0) c.copy(waterC);
-    // snow lies on the heights, but not on their steep faces: there the rock shows, so a peak reads by its ridges
+    // snow lies on the heights, but not on their steep faces: there the rock shows, so a peak reads by its ridges. Its
+    // albedo is kept under what the valley's light saturates (hemisphere and sun together lift it about 2.3 times), so
+    // the lit and the shaded faces of a peak stay apart instead of both clipping to white
     if (y > SNOW_LINE) {
       const e = 260, gx = (field.ground(x + e, z) - field.ground(x - e, z)) / (2 * e), gz = (field.ground(x, z + e) - field.ground(x, z - e)) / (2 * e);
       c.lerp(rock, 0.35);
-      c.lerp(snowC, Math.min(1, (y - SNOW_LINE) / 1200) * (1 - 0.8 * smooth(0.25, 0.7, Math.hypot(gx, gz))));
+      c.lerp(snowC, Math.min(1, (y - SNOW_LINE) / 1200) * (1 - 0.9 * smooth(0.16, 0.45, Math.hypot(gx, gz))));
+    }
+    // relief shading, as a drawn map shades its hills: lit from the north-west, slopes facing the light a little
+    // brighter and the far sides darker (flat ground unchanged), so a ridge and its valleys read from the whole-valley
+    // distance, where the lights alone leave a mountain one smooth mound. Not next to a map: its edge keeps its colours.
+    const near = n.i >= 0 ? 1 - smooth(120, 1400, n.d) : 0;
+    if (near < 1) {
+      const e = 260, gx = (field.ground(x + e, z) - field.ground(x - e, z)) / (2 * e), gz = (field.ground(x, z + e) - field.ground(x, z - e)) / (2 * e);
+      const nl = (gx * HILL_LIGHT[0] - HILL_LIGHT[1] * 1 + gz * HILL_LIGHT[2]) / -Math.hypot(gx, 1, gz); // normal (−gx, 1, −gz) · light
+      c.multiplyScalar(1 + (THREE.MathUtils.clamp(1 + 1.6 * (nl - HILL_LIGHT[1]), 0.45, 1.3) - 1) * (1 - near));
     }
     // past the region's edge the land fades into the mist (the skirt)
     const out = Math.max(0, b.minX - mx, mx - b.maxX, b.minY - my, my - b.maxY);

@@ -118,16 +118,20 @@ the map (`reanchor`), so the map draws exactly where it always did and the valle
 
 | part | where | what |
 |---|---|---|
-| land | `worldland.buildLand` | the heightfield at 330 ft (the world lattice ×2), every footprint flattened to its base (120–900 ft, a crag 320–1,400 ft), lakes cut to their level, a coarse skirt that falls away 1,200 ft below the valley over 3 miles into the mist (the valley stands like an island; the heightfield's edge is not repeated as a shelf); snow above 4,200 ft except on steep faces, where the rock shows |
+| land | `worldland.buildLand` | the heightfield at 330 ft (the world lattice ×2), every footprint flattened to its base (120–900 ft, a crag 320–1,400 ft), lakes cut to their level, a coarse skirt that falls away 1,200 ft below the valley over 3 miles into the mist (the valley stands like an island; the heightfield's edge is not repeated as a shelf); snow above 4,200 ft except on steep faces, where the rock shows, at an albedo the valley's light does not clip to white; relief shading lit from the north-west (up to ×1.3 on slopes facing it, down to ×0.45 on the far sides, flat ground and the land beside a map unchanged), so ridges read from the whole valley |
 | aprons | `buildAprons` | every footprint's rings out to 3,000 ft, one mesh, present whether or not the map is open (nothing changes shape when it opens) |
-| roads, rivers, lakes, Bluto's boat, crags | `worldPaths`, `buildRibbons`, `buildWater`, `buildCrag` | drawn once for the region; roads stop at each map's road exits; a lakeshore map's water part reads as water |
+| roads, rivers, lakes, Bluto's boat, crags | `worldPaths`, `buildRibbons`, `buildWater`, `buildCrag` | drawn once for the region; roads stop at each map's road exits; a lakeshore map's water part reads as water. A lake lies just under its lowest shore; a map on the shore sets the level only when it stands no higher than the middle of the shore's heights (Lake Zarovich by its own map, at 2 ft; Luna Lake and Lake Baratok no longer stand at a nearby map's height, 3,700 and 440 ft over the land, on walls). Land under the level climbs to the shore over 1.8 radii, land over it falls to the water within 1.3; the cover's water colour shows only on flat ground, so a bank where the drawn lake and the heightfield disagree is earth or rock, not blue streaks |
 | forest | `WorldStage.fillForest` | one instanced pool of 12,000 pines (6,000 when `navigator.deviceMemory < 4`), refilled per one-mile tile round the target, hidden past 25,000 ft |
 | proxies | `worldproxies.siteMassing` | each place's massing at true scale in two shared meshes; a place's faces collapse while its map is open |
-| names | `WorldStage` labels | `N · Town of Vallaki` over each place in the valley and road bands, decluttered; players see only revealed places; the DM taps one to fly there and open its map (`onPick`) |
+| names | `WorldStage` labels | `N · Town of Vallaki` over each place in the valley and road bands; players see only revealed places; the DM taps one to fly there and open its map (`onPick`). The names take **no pointer** (a wheel or a pinch over one zooms like anywhere else; zoom-to-cursor slides the open map's own name under the cursor, which used to stall the zoom at 14–21k ft): the canvas's tap and mouse hover ask `WorldStage.labelAt` (on touch a 44 px target round the name's middle), the hovered name lights up and the canvas tip says where a tap goes. A gesture that had a second finger down is never a tap. Declutter, in order of importance: the full name where it has room inside the view and clear of the page's panels (`World.chrome`), else its key alone as a small tag, else nothing |
 | sky, party | `buildSky`, `setParty` | the moon and sun round the eye; the `&` on the land when the party's place is not the open map |
 
-**Camera.** `WorldStage.fitCamera` sets the far limit to frame the whole valley at this screen's shape (161,000 ft on an
-iPad in landscape, more on a phone in portrait; never under 120,000) and the far plane past its far side. Off the open
+**Camera.** `WorldStage.fit` frames the whole valley by projection, not a bounding sphere: the region's edges at the
+land's height, its peaks and its places must all fall inside the view less the bars along its edges (the top bar, the
+camera buttons, the side slider: `World.chrome().bars`, set by main.ts), 10 px in, from the camera's present heading
+and tilt; the target slides so the valley sits in the middle of that clear part. `fitCamera` makes that distance the
+far limit (about 126,000 ft at 1440 × 900, 152,000 on a 1024 × 768 iPad, 522,000 on a 390 × 844 phone, where the
+valley fits its width beside the slider; never under 120,000) and puts the far plane past the far side. Off the open
 map the camera's target rides on the ground (`App.followGround`: a pan onto Mount Baratok lifts it onto the mountain,
 the eye keeps its distance), so zooming in there comes down onto the land; on the map the level's floor holds it.
 Zoom bands on `body[data-band]`: valley (under 0.02 px/ft), road (under 0.1), town (under 1), map.
@@ -152,7 +156,10 @@ triangles) until step 3 streams it out. The stage is about 214k triangles and bu
 Known for later steps: the minimap still shows the open map's plan at valley zoom (step 6), the world map button still
 opens the 2D sheet (step 6 makes it the nested map; the sheet stays as the fallback), proxies collapse at once rather
 than fading (step 3), the square grid of a big map (Vallaki, Krezk) draws its placement squares over the whole map at
-town zoom exactly as it does the legacy way.
+town zoom exactly as it does the legacy way, but a staged map's grid now stops 10 ft past its own floors
+(`gridOverlay.clipGrid`; the legacy way keeps its 12 % pad), so it no longer runs out over the valley. On a portrait
+phone the whole valley is small (it is twice as wide as it is deep), and A Wild Sheep Chase's skirt shows as a pale
+slope round it in that theme's light mist.
 
 ## Verification
 
@@ -177,7 +184,11 @@ town zoom exactly as it does the legacy way.
   open in their own valley while area maps, buildings and dev maps keep the legacy way, zoom-to-cursor staying on; the
   whole valley fits on screen, Krezk's name flies into its map in place, the chip flies back out to the valley and then
   offers the world map; the View-menu switch off and on, remembered over a reload, with the Player Display following
-  (same mode, same absolute camera, same band); the target riding Mount Baratok, the halved forest, the players' names.
+  (same mode, same absolute camera, same band); the target riding Mount Baratok, the halved forest, the players' names;
+  real wheel turns over the village's own name zoom out to the far limit and its chip, and in over Castle Ravenloft's;
+  on a 390 × 844 phone the whole valley fits beside the slider with every name on screen and clear of the panels, a
+  CDP pinch with a finger on the village's name zooms out to the far limit and asks for the chip, and a finger 16 px
+  below Vallaki's name flies there.
 - `tests/atlas.test.ts`: Lake Zarovich's map on the south shore at the lake's level beside Vallaki (a second, deliberate
   band seam: both bases agree).
 

@@ -39,6 +39,10 @@ export class World {
   onCamera: (() => void) | null = null;
   /** A zoom out (button, wheel or pinch) asked for at the far limit: the UI offers the map one level up. */
   onZoomPastMax: (() => void) | null = null;
+  /** The page's panels over the view, in client pixels (the UI sets it): `bars` run along an edge (the top bar, the
+   *  camera buttons, the side slider) and frame what the camera fits; `panels` are everything that covers the view
+   *  (bars, the minimap, the scale), which place names keep clear of. */
+  chrome: () => { bars: DOMRect[]; panels: DOMRect[] } = () => ({ bars: [], panels: [] });
 
   constructor(private host: HTMLElement) {
     // A logarithmic depth buffer: a town a mile across and mountains ten miles off share one view without the ground fighting the apron.
@@ -52,6 +56,13 @@ export class World {
     this.labelRenderer = new CSS2DRenderer();
     this.labelRenderer.domElement.classList.add('labels');
     host.appendChild(this.labelRenderer.domElement);
+    // A wheel turned over a label that takes the pointer (a door, a stair) still zooms: it is passed on to the canvas,
+    // where OrbitControls and the far-limit check listen. (The valley's place names take no pointer at all.)
+    this.labelRenderer.domElement.addEventListener('wheel', (e) => {
+      if (e.target === this.renderer.domElement || !e.isTrusted) return;
+      e.preventDefault(); e.stopPropagation();
+      this.renderer.domElement.dispatchEvent(new WheelEvent('wheel', e));
+    }, { passive: false });
 
     // The map sits in a misty space, not a black void: transparent clear over a CSS gradient, distance fog, a wide mist floor.
     this.renderer.setClearColor(0x000000, 0);
@@ -223,7 +234,7 @@ export class World {
   }
 
   /** Camera offset from the target for the current azimuth (free, from the gesture) and tilt band. */
-  private rigOffset(dist: number, azimuthDelta = 0): THREE.Vector3 {
+  rigOffset(dist: number, azimuthDelta = 0): THREE.Vector3 {
     // Angle from vertical: ~49° tabletop indoors, ~61° outdoors so the horizon shows; near-vertical top-down.
     const pitch = this.tilt === 1 ? Math.PI * 0.02 : this.tilt === 2 ? ISO_PITCH : this.outdoor ? Math.PI * 0.34 : Math.PI * 0.27;
     let a = this.controls.getAzimuthalAngle() + azimuthDelta;

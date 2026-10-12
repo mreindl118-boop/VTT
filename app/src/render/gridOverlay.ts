@@ -38,6 +38,7 @@ uniform float uFog;
 uniform float uCovEnabled;
 uniform mat3 uCovBasis;   // world xz → the active scene's plan xz (the grid and the coverage are in scene feet)
 uniform float uPxPerFt;   // what a foot is worth on screen: decides which grid orders show
+uniform vec4 uClip;       // plan box the grid stays inside (minX, minZ, maxX, maxZ); unbounded unless the map stands in the valley
 
 // A line of a given spacing (feet): 1 on the line, 0 off it; bold widens it.
 float lineAt(vec2 p, float spacing, float bold) {
@@ -78,6 +79,7 @@ float hexLine(vec2 p) {
 void main() {
   #include <logdepthbuf_fragment>
   vec2 sp = (uCovBasis * vec3(vW.x, vW.z, 1.0)).xy;
+  if (sp.x < uClip.x || sp.y < uClip.y || sp.x > uClip.z || sp.y > uClip.w) discard;
   vec2 p = sp - uOrigin;
   float line = uHex > 0.5 ? hexLine(p) : squareLine(p);
   float a = line * uOpacity;
@@ -123,13 +125,23 @@ export function buildGridOverlay(g: GridLevel, elevation: number, ground = true)
       uCovEnabled: fogUniforms.uCovEnabled,
       uCovBasis: fogUniforms.uCovBasis,
       uPxPerFt: gridUniforms.uPxPerFt,
+      uClip: { value: new THREE.Vector4(-1e9, -1e9, 1e9, 1e9) },
     },
   });
   const mesh = new THREE.Mesh(geo, m);
   mesh.name = 'grid-overlay';
   mesh.userData.role = 'grid';
+  mesh.userData.floorBox = { minX, minZ, maxX, maxZ };
   mesh.renderOrder = 1;
   return mesh;
+}
+
+/** Keep a grid within its own floors (plus a margin, feet), or let it run its full pad again. In the continuous world
+ *  the land carries on past the map, and a grid running out over it reads as part of the valley. */
+export function clipGrid(mesh: THREE.Mesh, margin: number | null): void {
+  const b = mesh.userData.floorBox as { minX: number; minZ: number; maxX: number; maxZ: number } | undefined, u = (mesh.material as THREE.ShaderMaterial).uniforms.uClip;
+  if (!b || !u) return;
+  if (margin === null) u.value.set(-1e9, -1e9, 1e9, 1e9); else u.value.set(b.minX - margin, b.minZ - margin, b.maxX + margin, b.maxZ + margin);
 }
 
 export function setGridType(mesh: THREE.Mesh, type: 'square' | 'hex'): void {

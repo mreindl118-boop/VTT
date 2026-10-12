@@ -93,12 +93,16 @@ export class WorldStage {
         ((m as THREE.Mesh).material as THREE.Material).dispose(); m.removeFromParent();
       }
       this.proxies.set(site.id, g); this.root.add(g);
-      const lb = world.label(`${pin.key} · ${pin.name}`, undefined, 'place');
+      const lb = world.label('', undefined, 'place');
+      // the key and the name apart: where the full name has no room, the key alone marks the place (declutter)
+      const kb = document.createElement('b'), nm = document.createElement('em');
+      kb.textContent = pin.key; nm.textContent = ` · ${pin.name}`; lb.element.append(kb, nm);
       lb.position.set(x, site.y + 60, z); lb.userData.role = 'stage'; lb.element.dataset.key = pin.key;
-      // a tap on the name flies there and opens the place's map (a pin that repeats another's opens that map)
+      // a tap on the name flies there and opens the place's map (a pin that repeats another's opens that map). The
+      // name takes no pointer itself (a wheel or a pinch over it zooms like anywhere else): the app's tap and hover
+      // on the canvas ask labelAt.
       const go = pin.root ?? pin.scenes[0];
       lb.element.dataset.path = go; lb.element.dataset.name = pin.name; lb.element.dataset.tip = pin.name; lb.element.dataset.tipSub = 'Fly there and open its map';
-      lb.element.addEventListener('click', (ev) => { ev.stopPropagation(); this.onPick?.(go); });
       labels.add(lb); this.labels.push({ obj: lb, key: pin.key, pri: /settlement|castle/.test(pin.type) ? 0 : pin.root ? 1 : 2 });
     }
     for (const [name, list] of Object.entries(parts)) if (list.length) {
@@ -174,11 +178,53 @@ export class WorldStage {
   /** Exactly these maps are drawn: their proxies go, every other root's proxy shows. */
   setResident(paths: Set<string>): void { for (const id of this.proxies.keys()) if (!id.includes('@')) this.showProxy(id, !paths.has(id)); }
 
-  /** How far the camera stands to see the whole valley at this screen's shape (world.frame's fit). */
-  fitDistance(): number {
-    const b = this.bounds, cam = this.world.camera, r = Math.hypot(b.maxX - b.minX, b.maxZ - b.minZ) / 2 + 4;
-    const vHalf = THREE.MathUtils.degToRad(cam.fov / 2), hHalf = Math.atan(Math.tan(vHalf) * cam.aspect);
-    return (r / Math.sin(Math.min(vHalf, hHalf))) * 0.86;
+  /** How far the camera stands to see the whole valley at this screen's shape (see fit). */
+  fitDistance(): number { return this.fit().dist; }
+  /** The view the whole valley fits: the region's edges (at the land's height), its peaks and its places all inside
+   *  the screen less the bars along its edges (the top bar, the camera buttons, the side slider), from the camera's
+   *  present heading and tilt. The target is moved so the valley sits in the middle of that clear part, not of the
+   *  screen. Projected, not a bounding sphere: a portrait phone fits the valley's width, a wide screen its depth. */
+  fit(): { target: THREE.Vector3; dist: number } {
+    const w = this.world, c = this.valleyCentre(), a = w.anchor, f = this.land.field, b = this.bounds;
+    const host = w.renderer.domElement.getBoundingClientRect(), W = host.width || 1, H = host.height || 1;
+    // the clear part of the view (canvas pixels): each bar trims the edge it runs along (wider than tall: the top or
+    // the bottom; else a side)
+    let l = 0, t = 0, r = W, btm = H;
+    for (const q of w.chrome().bars) {
+      const x0 = q.left - host.left, x1 = q.right - host.left, y0 = q.top - host.top, y1 = q.bottom - host.top;
+      if (x1 <= 0 || y1 <= 0 || x0 >= W || y0 >= H) continue;
+      if (q.width >= q.height) { if (y0 < H - y1) t = Math.max(t, y1); else btm = Math.min(btm, y0); }
+      else if (x0 < W - x1) l = Math.max(l, x1); else r = Math.min(r, x0);
+    }
+    if (r - l < W * 0.4 || btm - t < H * 0.4) { l = 0; t = 0; r = W; btm = H; } // never squeeze the valley into a sliver
+    const pad = 10; l += pad; t += pad; r -= pad; btm -= pad;
+    // what must show: the region's edge, every peak, every place
+    const pts: THREE.Vector3[] = [], at = (x: number, z: number) => pts.push(new THREE.Vector3(x - a.x, f.height(x, z) - a.y, z - a.z));
+    for (let k = 0; k <= 12; k++) { const u = k / 12, x = b.minX + (b.maxX - b.minX) * u, z = b.minZ + (b.maxZ - b.minZ) * u; at(x, b.minZ); at(x, b.maxZ); at(b.minX, z); at(b.maxX, z); }
+    for (const p of [...(this.data.peaks ?? []), ...this.data.pins]) { const [x, z] = worldOfMiles(this.data, p.pos as Vec2); at(x, z); }
+    const k = w.camera.clone(); k.far = 1e8; k.updateProjectionMatrix();
+    const dir = w.rigOffset(1), ray = new THREE.Raycaster(), plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -c.y), g = new THREE.Vector3(), v = new THREE.Vector3();
+    const mid = new THREE.Vector2(((l + r) / 2 / W) * 2 - 1, 1 - ((t + btm) / 2 / H) * 2);
+    const place = (d: number): THREE.Vector3 => {
+      k.position.copy(c).addScaledVector(dir, d); k.lookAt(c); k.updateMatrixWorld();
+      // slide the view so the valley's middle sits under the middle of the clear part
+      ray.setFromCamera(mid, k);
+      const s = ray.ray.intersectPlane(plane, g) ? c.clone().sub(g) : new THREE.Vector3();
+      s.y = 0; k.position.add(s); k.updateMatrixWorld();
+      return c.clone().add(s);
+    };
+    const fits = (d: number): boolean => {
+      place(d);
+      for (const p of pts) {
+        v.copy(p).project(k); if (v.z > 1) return false;
+        const x = ((v.x + 1) / 2) * W, y = ((1 - v.y) / 2) * H;
+        if (x < l || x > r || y < t || y > btm) return false;
+      }
+      return true;
+    };
+    let lo = 2000, hi = 4e6;
+    if (fits(lo)) hi = lo; else for (let i = 0; i < 32 && hi / lo > 1.002; i++) { const m = Math.sqrt(lo * hi); if (fits(m)) hi = m; else lo = m; }
+    return { target: place(hi), dist: hi };
   }
   private fitAspect = 0;
   /** The far limit frames the whole valley (never nearer than the continuous world's 120,000 ft), and the far plane
@@ -198,13 +244,13 @@ export class WorldStage {
   /** Frame the whole valley (the camera's widest view), at once, gliding there, or flying (a glide that may rise). */
   frameWorld(animate: boolean | 'fly' = false): void {
     this.fitCamera();
-    const b = this.bounds, c = this.valleyCentre(), hw = (b.maxX - b.minX) / 2, hd = (b.maxZ - b.minZ) / 2;
-    this.world.frame({ minX: c.x - hw, minZ: c.z - hd, maxX: c.x + hw, maxZ: c.z + hd }, c.y, this.world.preset, animate);
+    const f = this.fit();
+    if (animate === 'fly') this.world.flyTo(f.target, f.dist); else this.world.moveTo(f.target, f.dist, animate);
   }
   /** The camera sees the whole valley from about its middle (what the zoom-out chip asks before offering more). */
   get framed(): boolean {
-    const w = this.world, c = this.valleyCentre(), t = w.controls.target;
-    return Math.hypot(t.x - c.x, t.z - c.z) < 0.08 * Math.hypot(this.bounds.maxX - this.bounds.minX, this.bounds.maxZ - this.bounds.minZ) && w.camera.position.distanceTo(t) > 0.9 * this.fitDistance();
+    const w = this.world, f = this.fit(), t = w.controls.target;
+    return Math.hypot(t.x - f.target.x, t.z - f.target.z) < 0.08 * Math.hypot(this.bounds.maxX - this.bounds.minX, this.bounds.maxZ - this.bounds.minZ) && w.camera.position.distanceTo(t) > 0.9 * f.dist;
   }
 
   // ------------------------------------------------------------------ the view
@@ -236,18 +282,48 @@ export class WorldStage {
     if (at) this.party.position.set(at[0], this.land.field.surface(at[0], at[1]) + 12, at[1]);
   }
 
-  /** Place labels never pile up: in order of importance, any that would overlap one already placed waits. */
+  /** The place name under a point of the page (client pixels), if the DM could tap it: shown, not crowded out, and
+   *  on touch at least 44 px square round its middle. The nearest middle wins. */
+  labelAt(x: number, y: number, touch = false): { path: string; name: string; el: HTMLElement } | null {
+    let best: { path: string; name: string; el: HTMLElement } | null = null, bd = Infinity;
+    for (const l of this.labels) {
+      const el = l.obj.element;
+      if (!l.obj.visible || !el.dataset.path || el.classList.contains('declutter')) continue;
+      const r = el.getBoundingClientRect(); if (!r.width) continue; // a band that hides the names: display none
+      const cx = (r.left + r.right) / 2, cy = (r.top + r.bottom) / 2, hw = Math.max(r.width, touch ? 44 : 0) / 2, hh = Math.max(r.height, touch ? 44 : 0) / 2;
+      if (Math.abs(x - cx) > hw || Math.abs(y - cy) > hh) continue;
+      const d = Math.hypot(x - cx, y - cy);
+      if (d < bd) { bd = d; best = { path: el.dataset.path, name: el.dataset.name ?? '', el }; }
+    }
+    return best;
+  }
+  private hovered: HTMLElement | null = null;
+  /** The name the mouse is over shows it can be tapped (the names take no pointer themselves). */
+  hoverLabel(el: HTMLElement | null): void {
+    if (this.hovered === el) return;
+    this.hovered?.classList.remove('hover'); this.hovered = el; el?.classList.add('hover');
+  }
+  /** Place labels never pile up and never run off the view or under the page's panels: in order of importance each
+   *  shows its full name where that has room, else just its key (a small tag on the place), else nothing. */
   private declutter(): void {
     if (this.declutterQ) return;
     this.declutterQ = requestAnimationFrame(() => requestAnimationFrame(() => {
       this.declutterQ = 0;
       const live = this.labels.filter((l) => l.obj.visible && l.obj.element.style.display !== 'none').sort((a, b) => a.pri - b.pri);
-      for (const l of live) l.obj.element.classList.remove('declutter');
-      const placed: DOMRect[] = [];
+      for (const l of live) l.obj.element.classList.remove('declutter', 'dot');
+      const vp = this.world.renderer.domElement.getBoundingClientRect();
+      const placed: { left: number; right: number; top: number; bottom: number }[] = [...this.world.chrome().panels];
+      const clear = (r: DOMRect) => r.left >= vp.left + 2 && r.right <= vp.right - 2 && r.top >= vp.top + 2 && r.bottom <= vp.bottom - 2
+        && !placed.some((p) => r.left < p.right + 2 && r.right > p.left - 2 && r.top < p.bottom + 1 && r.bottom > p.top - 1);
+      const crowded: typeof live = [];
       for (const l of live) {
         const r = l.obj.element.getBoundingClientRect(); if (!r.width) continue;
-        if (placed.some((p) => r.left < p.right + 2 && r.right > p.left - 2 && r.top < p.bottom + 1 && r.bottom > p.top - 1)) { l.obj.element.classList.add('declutter'); continue; }
-        placed.push(r);
+        if (clear(r)) placed.push(r); else crowded.push(l);
+      }
+      for (const l of crowded) {
+        const el = l.obj.element; el.classList.add('dot');
+        const r = el.getBoundingClientRect();
+        if (clear(r)) placed.push(r); else el.classList.add('declutter');
       }
     }));
   }
@@ -326,6 +402,7 @@ export class WorldStage {
   /** Take the stage out of the world and free what it holds on the GPU and in the page. */
   dispose(): void {
     if (this.declutterQ) cancelAnimationFrame(this.declutterQ);
+    this.hovered = null;
     this.root.removeFromParent();
     this.world.beforeRender.delete(this.followSky);
     for (const l of [...this.labels.map((x) => x.obj), this.party]) { l.removeFromParent(); l.element.remove(); }
