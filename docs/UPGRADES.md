@@ -193,6 +193,13 @@ Files: `manifests/srd-creatures.json (new)`, `manifests/srd-rules.json (new)`, `
 
 Risk: Medium: licence hygiene and chunk precaching.
 
+Coordination note (the rules tooltip pass, queue item 1, 2026-10-12). Increment 8 builds on what that pass shipped, and does not add a second copy of it:
+- `app/src/books/lookup.ts` is the single SRD source (SRD 5.1 and 5.2.1, CC-BY-4.0, under `app/public/books/`, with their attribution). The planned `srd-creatures.json` and `srd-rules.json` are either the data lookup reads or are replaced by it; there is no second loader.
+- `app/src/ui/statblock.ts` is the one monster renderer. Its compact form is the stat-block card (`ui/rulecard.ts`); 'More', the token panel and the Creatures sheet's 'Stat block' show its full form. The drawer is that full form. `app/src/ui/creature.ts` decides each creature's one source (the books' entry for the Rules edition, else the module's STATS under 'Module stats'); statOverrides plug in there.
+- `app/src/ui/terms.ts` emits the dice and check links ('2d10', 'DC 15 · DEX (Thieves' Tools)'). Increment 8 adds a separate roll button beside a link, additive, and never replaces the link's tap (which opens its card).
+- The glossary tooltips are these rules cards; the quick-reference sheet links to them.
+- Token conditions (increment 9) render through `conditionChips(conditions, audience)` in `ui/terms.ts` (re-exported by `ui/rulecard.ts`); a unit fixture holds it today.
+
 ### 0.10.0 · Increment 9: Conditions, durations and combat bookkeeping
 
 - **Conditions.** Token.conditions with until {round, turnOf}; picker; expiry in nextTurn; listed in the DM turn bar.
@@ -476,6 +483,8 @@ Every gameplay feature the research found, judged against mistLAB today. "Increm
 
 ## Deliberately not built
 
+The owner asked on 2026-10-04 for a Baldur's Gate 3-style portrait initiative strip and a D&D Beyond-style encounter builder with saved encounters, so both now live in `docs/ENCOUNTERS.md` (portraits come from the existing renderer, so no second WebGL context).
+
 | Feature | Why not |
 |---|---|
 | Split the party (scout with its own vision) | Needs a cached multi-source coverage union and handling for encounter edge cases (ROADMAP V3); planned for after this plan. |
@@ -493,12 +502,10 @@ Every gameplay feature the research found, judged against mistLAB today. "Increm
 | Cross-level balcony vision | Waits for the castle authoring work (A27). |
 | Difficult terrain regions | Adds data across all 44 scenes for little value at the table. |
 | Cover check tool | The DM judges cover on the 3D view. |
-| Prefabs and saved encounters | Staging and the improvised maps cover the need. |
 | Detection senses | Would need a screen per player. |
 | Marching order and single-file movement | Outside initiative the party is one token, and inside initiative each member moves on their own turn. |
 | 3D dice, chat, voice, sheets, rules automation, animations, electronic dice | Physical dice and paper sheets stay at the table. |
 | Remote play, hosting, accounts, marketplace, plugin API | Contradicts the local-only PWA. |
-| Portrait initiative strip with rendered figures | A second WebGL context on iPad Safari risks context loss. |
 | Pop-out DM panels | Of no use on an iPad. |
 | Level-of-detail rebuild of Vallaki, Abbey and Amber Temple | Content work; increment 2 records these as named debt. |
 | Spoiler-stripped player companion and safety signal | Need player devices. |

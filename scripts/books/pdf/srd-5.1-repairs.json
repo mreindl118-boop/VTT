@@ -1,0 +1,82 @@
+{
+ "book": "srd-5.1",
+ "attribution": "This work includes material taken from the System Reference Document 5.1 (“SRD 5.1”) by Wizards of the Coast LLC and available at https://dnd.wizards.com/resources/systems-reference-document. The SRD 5.1 is licensed under the Creative Commons Attribution 4.0 International License available at https://creativecommons.org/licenses/by/4.0/legalcode.",
+ "note": "What the Markdown lost against the official PDF, found by scripts/books/vocab.ts (see docs/BOOKS.md): words it printed joined that the PDF prints with a hyphen, and dashes it dropped where the PDF breaks a line after one.",
+ "hyphens": {
+  "allnight": "all-night",
+  "briarchoked": "briar-choked",
+  "fasttalk": "fast-talk",
+  "fogshrouded": "fog-shrouded",
+  "footby": "foot-by",
+  "footcube": "foot-cube",
+  "footradius": "foot-radius",
+  "footwide": "foot-wide",
+  "goodaligned": "good-aligned",
+  "halfdragon": "half-dragon",
+  "handto": "hand-to",
+  "higherlevel": "higher-level",
+  "higherthan": "higher-than",
+  "lifethreatening": "life-threatening",
+  "longdead": "long-dead",
+  "mudfilled": "mud-filled",
+  "selfexpression": "self-expression",
+  "singleuse": "single-use",
+  "threequarters": "three-quarters",
+  "twohanded": "two-handed",
+  "whitehot": "white-hot"
+ },
+ "dashes": [
+  {
+   "find": "means to an end that end being",
+   "replace": "means to an end — that end being"
+  },
+  {
+   "find": "spells — its domain spells that you gain",
+   "replace": "spells — its domain spells — that you gain"
+  },
+  {
+   "find": "is a special item an orb, a",
+   "replace": "is a special item — an orb, a"
+  },
+  {
+   "find": "or some similar item designed to channel",
+   "replace": "or some similar item — designed to channel"
+  },
+  {
+   "find": "from accomplishing a goal for example, when",
+   "replace": "from accomplishing a goal — for example, when"
+  },
+  {
+   "find": "speed in difficult terrain moving 1 foot in",
+   "replace": "speed in difficult terrain — moving 1 foot in"
+  },
+  {
+   "find": "fundamental tasks of adventuring noticing danger, finding",
+   "replace": "fundamental tasks of adventuring — noticing danger, finding"
+  },
+  {
+   "find": "action first. Your speed sometimes called your",
+   "replace": "action first. Your speed — sometimes called your"
+  },
+  {
+   "find": "belongings on your person look different until",
+   "replace": "belongings on your person — look different until"
+  },
+  {
+   "find": "size by one category from Medium to",
+   "replace": "size by one category — from Medium to"
+  },
+  {
+   "find": "set of divinatory tools such as bones",
+   "replace": "set of divinatory tools — such as bones"
+  },
+  {
+   "find": "cells, rooms, or weapons that are up",
+   "replace": "cells, rooms, or weapons — that are up"
+  },
+  {
+   "find": "travel. Others are locations circles of standing",
+   "replace": "travel. Others are locations — circles of standing"
+  }
+ ]
+}

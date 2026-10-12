@@ -37,6 +37,198 @@ broken; each is fixed here. The continuous streaming world (docs/WORLD.md on the
   Krezk abbey always sat on the Winding Road and never on the ledge 400 ft up. The surroundings hide while a floor
   below their ground is shown, so the abbey's cellar and a Vallaki cellar are not buried under them.
 - Tests: `e2e/zoom.spec.ts` covers all of the above on a 1366×768 desktop and a 390×844 touch phone.
+- Merged with release 0.1.0: the object card's *Enter* button sits on the rules-linked card (`ui/cards.ts`), the
+  hover tip's *Enter* line is drawn by the shared tooltip, and the measure tool's line and label still hang from the
+  active map's root. At the slider's players' end an unfound room's Enter reads *Enter this place*.
+
+## 0.1.0 D&D rules tooltips and the SRD books — 2026-10-12
+
+For the DM:
+- The Library has a Books tab with the free D&D rules: SRD 5.1 (2014 rules) and SRD 5.2.1 (2024 rules). Read them
+  like a book, search them, and save them for offline play. Pick which edition's rules the cards show.
+- Rules words in the module text are now links: spells, monsters, conditions, magic items and gear, checks ('DC 15
+  Perception'), damage types, dice, and the module's own rooms, people and places. Hover or tap one and a parchment
+  card opens beside it: a coloured stripe and small-caps heading say what kind of thing it is, monsters show a full
+  stat block, and magic items show their rarity colour.
+- Each family has its own link colour and underline (dashed condition, double spell, wavy monster, dotted rule, solid
+  page reference); Help has a Colours key with one sample of each.
+- The links and cards are everywhere a rule shows up: room and object cards, notes, the token panel (its AC, HP,
+  speed and CR are pills that open their rules), the Creatures sheet ('Stat block' unfolds the full block in the
+  row), the Initiative sheet and turn bar, the clock and travel pace, the measure readout, world-map pins, Help and
+  the Books reader itself.
+- A creature's numbers come from one place: the books' stat block for your chosen edition, or the module's own
+  numbers marked 'Module stats'. A creature with neither says 'Module creature: no open stat block'.
+- Every button's small hint is now a styled tip instead of the browser's plain tooltip.
+- Help shows the release number (mistLAB 0.1.0).
+
+For the players:
+- On the players' side the links cover only conditions, rules, actions, senses, damage types, abilities and skills:
+  never monsters, spells, items or the module's rooms and people, so nothing gives away what the DM has not shown.
+- The turn bar leaves out hidden creatures and calls each revealed one by its token's name, so the players never read
+  a hidden creature's real name. Moving out of turn says 'Not your turn'.
+
+Known limits: the list of labelled examples that checks the link-finder (tests/fixtures/terms-gold.json) was labelled
+by the builder and still waits for the owner's sign-off. Words the link-finder gets wrong are fixed one at a time in
+app/src/books/term-overrides.json; docs/TERMS_REVIEW.md lists every link for checking.
+
+## Rules cards on every surface (queue item 1, in progress) — 2026-10-12
+
+- The room tap menu, the object card and the players' room and creature cards now show their rules links: tap 'DC 12
+  Perception' in Death House 2A, the scrolls of bless, protection from poison and spiritual weapon in the chest of
+  room 9, or 'sympathy' and '(X26)' in the Amber Temple's West Shrine, and its card opens. The players' cards link only
+  conditions, rules, actions, senses, damage types, abilities and skills. Every word on a card is escaped: a label
+  with '<b>' in it shows the brackets.
+- The token panel's name opens the creature's stat block, and its size, AC, HP, speed and CR are pills that open
+  their rules. The panel and the card read the same numbers: the books' entry for the chosen Rules edition, or the
+  module's own under 'Module stats'; a mongrelfolk says 'Module creature: no open stat block'. Remove is
+  red, and the hit points have a bar.
+- The Creatures sheet: names open stat blocks, the meta is the same pills, a location tag opens the place it names,
+  and 'Stat block' unfolds the full block in the row with its traits and actions linked.
+- The Initiative sheet's Speed, Reach, Range, Darkvision and Initiative headers open their rules. The clock's
+  'Difficult terrain', 'Mounted' and pace open theirs, and the pace's effect follows the Rules edition (2014: −5
+  passive Perception, able to use stealth; 2024: read from the 2024 book); miles, hours and days are unchanged. The
+  Rooms sheet's page numbers and a world-map pin's words link too.
+- The players never read a hidden creature's name: on the players' side (Players view and the slider's players'
+  end) the turn bar leaves hidden combatants out, shows only 'Round 1' on their turn, calls each revealed creature by
+  its own token's alias (two ghouls renamed differently keep their names), and has no tips; map tags and the hover
+  tip follow the same rule, and a blocked move says 'Not your turn'. The DM still sees every name.
+- The Books reader links each entry's sibling rules in the same edition, once per section and never to itself, and
+  reads like a book: Alegreya at a comfortable measure, a small-capitals running head with a Contents button on
+  phones, the chapter title in the campaign's display face, an illuminated first letter on each chapter's opening
+  paragraph, and contents links big enough to tap.
+- Help has a Colours row: one sample link per family (dashed condition, double spell, wavy monster, dotted rule,
+  solid page reference).
+- Fixed: a monster card's 'More' did nothing for most stat blocks (the books give their Actions headings at several
+  levels); the full block now opens for every monster.
+- Fixed after review: links inside the DM-only note (tap menu and object card) were below 4.5:1 on Barovia's light
+  page; the note's wash is lighter now and every family reads at 4.5:1 or more on it. 'Not your turn' sat under the
+  turn bar; it now shows above it. In a stat block 'DC 10' is one link and keeps its full stop on the line, 'Saving
+  Throws Dex +8' no longer reads as one long link (ability abbreviations stay text), and two links never touch. The
+  Creatures sheet's token colour is a round dot, not a stray oval. Help's Colours key is one family per line, so a
+  sample's card opens beside it instead of over it. At the slider's players' end, tapping a room the players have
+  not found shows no name or words ('Reveal this room'), and a hidden secret door is not offered, as in the hover tip.
+
+## Rules links in module text (queue item 1, in progress) — 2026-10-12
+
+- New app/src/ui/terms.ts finds the rules words in room, object, pin and creature text and links them, coloured and
+  underlined by family. On the DM side: spells, magic items and gear, monsters, conditions, checks ('DC 15 Dexterity
+  (thieves' tools)' becomes one link labelled 'DC 15 · DEX (Thieves' Tools)'), dice with their average and maximum,
+  key references ('(X26)') as area links, and the module's people and places. On the players' side only conditions,
+  rules, actions, senses, damage types, abilities and skills, and never an ordinary word.
+- Names stay names: 'Order of the Silver Dragon', 'Werewolf Den', 'Raven River' and the rest never link a rules
+  word inside them; on the DM side the whole name links to its place or person. 'The stairs rose' is not Rose.
+- A word that is also plain English (gate, light, shield, guard, wolf …) links only with a cue: 'scroll of', 'casts',
+  'fire damage', 'four ghouls', 'Vilnius (mage)', 'a grick lurks', a list of spells, a save or a DC.
+- Every link decision that is not a rule lives in app/src/books/term-overrides.json; no scene, world map or manifest
+  changed. `npm run terms:review` writes docs/TERMS_REVIEW.md, every link over all 45 scenes and both world maps, and
+  the test fails on any link nobody has reviewed.
+- tests/fixtures/terms-gold.json holds 337 labelled spans from eight scenes for precision and recall. It waits for the
+  owner's review before release.
+- The cards themselves arrive on the room menus, object cards, token panel and sheets in the next step.
+- A person card's Home names the place ('Castle Ravenloft', 'Blue Water Inn'), not the manifest tag ('K', 'N2').
+- 'Exethanter the lich (99 hp, … CR 10)' is Exethanter: a monster word beside a named person who has their own hp or CR
+  no longer opens the books' stat block (which would read CR 21, 315 hp). 'Helwa the gladiator' still links.
+- Person and area cards have their own emblems (a hood, a map pin). A check card's title is the link's label, and
+  thieves' tools are filed under Tool. XP reads 1,800, not 1800.
+- The light condition, monster and rules colours are a little darker, so links stay at least 4.5:1 on the sunk page.
+
+## 0.0.2 Explored fog stays where the party has looked — 2026-10-12
+
+- Fixed: explored memory no longer spreads by itself. Before, every update (each step, each clock change) grew the remembered area one foot further, even through closed doors and walls. After about twenty ordinary actions, a whole floor showed to the players as rooms they had "seen".
+- Explored memory now holds only what the party has actually seen, plus the wall right beside it.
+- Known limit: a campaign saved before this fix keeps the extra explored area it already gained. The DM can fog it back with the fog brush.
+
+## Books: one rule per name, and the PDF's own words — 2026-10-12
+
+- In the 2014 rules, 'bonus action' now means the combat rule, not the spellcasting note. Dim light, bright light,
+  darkness and lightly or heavily obscured each answer with their own paragraph, and a table's name (Object Armor
+  Class, Creating Spell Slots, Beast Shapes) answers with its table rather than the next rule's paragraph. The build
+  now stops if one name could mean two rules.
+- The 2024 rules answer Mounted Combat, Underwater Combat, Vision and Light, Resting, Spell Slots, Components and the
+  other sections the glossary leaves out, so a 2024 table no longer gets a 2014 card for them. 'DC' works in 2014.
+- The text matches the printed books word for word: the hyphens and dashes lost in the Markdown are back ('5-foot-wide'
+  in every dragon's breath), the Thrown property no longer says 'wwizareapon', and Confusion's table says 'Behavior'.
+  Both changes notes list every correction, and a test fails if any word of the books is not in the official PDF.
+- Running text links Enlarge/Reduce and other names with a slash, a stat block's 'grappled (escape DC 13)' and
+  'knocks the target prone', and leaves 'Book of Shadows' alone. 'Inn stays' and 'meals' find the group, and 2024's
+  'Studded Leather' finds its armour.
+- On the title page, a long chapter name keeps its number on its first line.
+
+## Books: the last gaps in the rules data — 2026-10-12
+
+- The 2014 Destroy Undead table has its Cleric Level column again (5th to 17th), and the Warlock table's column
+  reads Proficiency Bonus as printed. The changes note says so, and a test makes sure no table is left with one column.
+- Holy symbols, arcane and druidic foci are named as the book groups them (Holy Symbol, Amulet …), and Holy Symbol,
+  Arcane Focus, Druidic Focus, Saddle, Gaming Set, Musical Instrument, Inn Stay and Meal are things you can look up,
+  with the book's paragraph and every kind and price. A bare Orb or Wand is no longer a link.
+- Look-ups find what a Curse of Strahd page says: Turn Undead, Sacred Weapon, Potion of Greater Healing, +1 mace,
+  Wisdom (Perception) check, Multiattack, Legendary Actions and Lair Actions.
+- Running text links the same way in both editions, and plain words stay plain: the blight, the druid, a veteran
+  soldier, a scout. Conditions link when a saving throw leads to them ('or be poisoned', 'knocked prone'), and a
+  spell when someone casts it.
+- Every rules entry has a short tooltip line, classes and backgrounds included.
+- The Books tab says why it is empty when the device went offline before its code was ever fetched, and the app now
+  fetches that code early for the DM. On the phone, Help's licence links wrap and a feature's tables inside another
+  feature fit the screen. Search results for gear and for the monsters' grapple rules show their type.
+- The main script is about 270 bytes larger (about 100 bytes compressed) for the Books tab's offline message and the
+  early fetch.
+
+## Books: the rest of the 2014 rules, sharper look-ups — 2026-10-12
+
+- The 2014 book has what its Markdown source had dropped, each checked against the printed PDF: seven spell-list
+  entries (Hunter's Mark for the Ranger, Enlarge/Reduce, Arcanist's Magic Aura, Control Weather and Heroes' Feast),
+  so every 2014 spell names its classes; the Grimlock's Blind Senses; the Jokers of the Deck of Illusions; and each
+  stat block's Saving Throws line as printed. The build now reads the class spell lists from the PDF and stops if
+  any spell disagrees with them.
+- Look-ups answer with the right section: in the 2014 rules Hit Points, Difficult Terrain and Initiative are the
+  combat rules and AC is the armour rule; Wild Shape, Ki, Metamagic, Fighting Style, Font of Magic, Pact Boon and
+  Channel Divinity are class features, with their parts (Beast Shapes, Flurry of Blows, Archery …) under them.
+- The 2024 tools are items: Thieves' Tools, Herbalism Kit, Smith's Tools, the instruments and gaming sets, each with
+  its ability, Utilize and Craft. The 2014 saddles are “Saddle, Military” and so on, and ordinary words like pack,
+  feed or hammer no longer turn into links.
+- Creatures the 2024 rules renamed are found by their 2014 names (thug, veteran, cult fanatic, acolyte, kobold …),
+  as Curse of Strahd writes them. Every entry has a one-line tooltip text, a monster's being its stat line.
+- On iPad portrait and the phone, the contents sheet closes when you switch books or search, so the results are
+  never hidden. A book not saved for offline says so by name and offers the way back. Stat blocks inside spells and
+  magic items fit the phone too.
+- Offline, Help still shows both attributions, the disclaimer and what each copy changed: Save for offline keeps
+  Help's attribution, and the app fetches it once the service worker is ready. The changes notes now keep the
+  Markdown project's own list of changes and list everything this copy restored; in Help and the page footers they
+  open with one tap.
+- The main script is about 300 bytes larger (90 bytes compressed) for Help's offline fallback and the early fetch of
+  the attribution.
+
+## Books: the 2014 and 2024 rules — 2026-10-04
+
+- The Library has a new Books tab with the two open rules books: the 2024 rules (System Reference Document 5.2.1)
+  and the 2014 rules (System Reference Document 5.1). Each row shows the edition, the size and whether the book is
+  saved on this device. Save for offline stores every chapter, so a book still opens with no network.
+- A reader for the DM: contents down the side (a sheet on the phone), large type for an iPad at arm's length,
+  previous and next, and a Map button that goes back to the table in one tap. Search looks in one book or both,
+  groups the results by book and chapter, and can search the full text. Typing a condition, spell or monster
+  and pressing Enter jumps straight to it. Links like `#book/srd-5.2.1/condition-prone` open the right place and
+  survive a reload.
+- Spells, monsters with full stat blocks, equipment and magic items, conditions and glossary rules are also stored as
+  typed entries with stable ids, for the coming rules tooltips and stat blocks (`app/src/books/lookup.ts`). A Rules
+  edition setting picks which book answers: 2024 by default, 2014 if you prefer.
+- The players never see the books: not in Players mode and not on the Player Display.
+- Checked against the printed books: the 2024 book has its table titles back (Travel Pace, XP Budget per Character,
+  Trinkets …, found by search), words the PDF split are whole again ("Nature", "Leather Armor"), the Efreeti Bottle
+  is rolled on a d10 as printed, the Young Green Dragon's attacks sit under Actions, and price lists are no longer
+  mistaken for items. The 2014 book lists the Figurine of Wondrous Power as an item and calls races races.
+- A rules look-up answers only from the edition you chose; a term the 2014 rules don't have finds nothing rather
+  than a 2024 rule. It understands more ways of saying things: grapple, shove, hit dice, half cover, plate, goblin,
+  reaction or reactions. The reader's search knows these names too, and marks a table found by its title as a table.
+- On the phone, a monster's six ability scores fit the screen, and the closed contents sheet leaves no shadow.
+- The text is Creative Commons Attribution 4.0. Each book's first page, its files and Help carry the exact
+  attribution statement the licence asks for, the licence's disclaimer notice and a note of what this copy changed.
+  `npm run books` rebuilds the data from pinned sources, and docs/BOOKS.md says where it comes from. Curse of Strahd
+  text stays out of the repo, as before.
+- Nothing loads until a book is opened, so starting the app is no slower. Help's books entry loads with Help. The
+  app's main script is 855 bytes larger (about 0.4 KB compressed): the Books tab button, the `#book/` link hook and
+  Help's loader, which have to be there before a book is opened.
+- Offline: the service worker now really keeps what it fetches, and finds files saved for offline whatever
+  headers the server sent, so a saved book opens with the network cut.
 
 ## M0 Foundations — 2026-09-29
 

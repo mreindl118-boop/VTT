@@ -12,7 +12,7 @@ export interface Minimap { el: HTMLElement; draw: () => void }
 export function buildMinimap(app: App, ui: HTMLElement, onClock: () => void): Minimap {
   const el = document.createElement('div');
   el.className = 'minimap dm-only';
-  el.innerHTML = `<button class="clock" data-act="clock" aria-label="Time of day and calendar" title="Time of day and calendar">${ICON.sun}<span><span class="ck-time">14:00</span><span class="ck-day">Day 1</span></span></button>
+  el.innerHTML = `<button class="clock" data-act="clock" aria-label="Time of day and calendar" data-tip="Time of day and calendar">${ICON.sun}<span><span class="ck-time">14:00</span><span class="ck-day">Day 1</span></span></button>
     <canvas class="mm-canvas" aria-label="Minimap: tap to look there"></canvas><b class="mm-north">N</b>`;
   ui.appendChild(el);
   const cv = el.querySelector<HTMLCanvasElement>('canvas')!;

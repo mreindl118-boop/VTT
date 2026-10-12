@@ -1,6 +1,7 @@
 // The DM/Player view slider control. Spec: docs/SLIDER.md.
 import { applyDetents } from '../core/slider';
 import { ICON } from './icons';
+import { isKey } from '../core/keys';
 
 export class ViewSlider {
   readonly el: HTMLElement;
@@ -22,7 +23,7 @@ export class ViewSlider {
       </div>
       <div class="vs-end">Players</div>
       <div class="vs-readout"></div>
-      <button class="vs-peek" aria-label="Hold to peek">${ICON.eye}</button>`;
+      <button class="vs-peek" aria-label="Hold to peek" data-tip="Hold to peek" data-key="peek">${ICON.eye}</button>`;
     this.track = this.el.querySelector('.vs-track')!;
     this.thumb = this.el.querySelector('.vs-thumb')!;
     this.fill = this.el.querySelector('.vs-fill')!;
@@ -43,15 +44,15 @@ export class ViewSlider {
       e.preventDefault();
     });
     this.track.addEventListener('keydown', (e) => {
-      if (e.key === 'ArrowUp' || e.key === ']') this.set(this.t + 0.1, true);
-      if (e.key === 'ArrowDown' || e.key === '[') this.set(this.t - 0.1, true);
+      if (e.key === 'ArrowUp' || isKey(e, 'sliderUp')) this.set(this.t + 0.1, true);
+      if (e.key === 'ArrowDown' || isKey(e, 'sliderDown')) this.set(this.t - 0.1, true);
     });
     const peek = this.el.querySelector<HTMLButtonElement>('.vs-peek')!;
     peek.addEventListener('pointerdown', (e) => { peek.setPointerCapture(e.pointerId); this.peek(true); });
     peek.addEventListener('pointerup', () => this.peek(false));
     peek.addEventListener('pointercancel', () => this.peek(false));
-    window.addEventListener('keydown', (e) => { if (e.key === '\\' && !e.repeat) this.peek(true); if (e.key === ']' && document.activeElement !== this.track) this.set(this.t + 0.1, true); if (e.key === '[' && document.activeElement !== this.track) this.set(this.t - 0.1, true); });
-    window.addEventListener('keyup', (e) => { if (e.key === '\\') this.peek(false); });
+    window.addEventListener('keydown', (e) => { if (isKey(e, 'peek') && !e.repeat) this.peek(true); if (isKey(e, 'sliderUp') && document.activeElement !== this.track) this.set(this.t + 0.1, true); if (isKey(e, 'sliderDown') && document.activeElement !== this.track) this.set(this.t - 0.1, true); });
+    window.addEventListener('keyup', (e) => { if (isKey(e, 'peek')) this.peek(false); });
     this.render();
   }
 

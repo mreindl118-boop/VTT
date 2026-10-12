@@ -5,13 +5,17 @@
 import type { WorldData } from '../campaigns';
 import { PACES, type Pace } from '../core/travel';
 import { ICON } from './icons';
+import { rich } from './rich';
+import { esc } from './text';
 
 type P = [number, number];
 interface Pin { key: string; name: string; pos: P; type: string; scenes?: string[]; blurb?: string; dm?: string; heightFt?: number }
 let W: WorldData & { milesPerHex?: number } = { name: '', bounds: { minX: 0, minY: 0, maxX: 1, maxY: 1 }, pins: [], roads: [], rivers: [], lakes: [], peaks: [], woods: [], high: [] };
 let STYLE: 'gothic' | 'pastoral' = 'gothic';
+/** The world's path ('ch02/barovia-region'): the rules links read its pins under it. */
+let WORLD_PATH = '';
 /** Point the world map at the active campaign's data and look. */
-export function useWorld(w: WorldData, style: 'gothic' | 'pastoral' = 'gothic'): void { W = w; STYLE = style; }
+export function useWorld(w: WorldData, style: 'gothic' | 'pastoral' = 'gothic', path = ''): void { W = w; STYLE = style; WORLD_PATH = path; }
 /** The pin a built scene belongs to (the party marker jumps there when that scene opens). */
 export const pinForScene = (path: string): Pin | undefined => W.pins.find((p) => p.scenes?.includes(path));
 export const worldPins = (): Pin[] => W.pins;
@@ -180,11 +184,11 @@ export function openWorldMap(host: WorldHost): void {
   back.className = 'sheet-backdrop worldmap';
   const mph = W.milesPerHex ?? 1;
   back.innerHTML = `<div class="sheet world"><header><div class="wm-title"><h2>${W.name}</h2><span>1 hex = ${mph === 0.25 ? '¼ mile' : mph === 0.5 ? '½ mile' : `${mph} mile${mph > 1 ? 's' : ''}`} · north up</span></div>
-      <div class="seg pace" role="tablist" aria-label="Travel pace">${(['slow', 'normal', 'fast'] as Pace[]).map((p) => `<button role="tab" data-pace="${p}" aria-selected="${p === 'normal'}">${p[0].toUpperCase() + p.slice(1)}</button>`).join('')}</div>
-      <button class="icon" data-hex aria-label="Hex grid" aria-pressed="false" title="Hex grid">${ICON.grid ?? ICON.walls}</button>
-      <button class="icon" data-z="in" aria-label="Zoom in">${ICON.zoomIn}</button><button class="icon" data-z="out" aria-label="Zoom out">${ICON.zoomOut}</button>
-      <button class="icon close" aria-label="Close">${ICON.close}</button></header>
-    <div class="world-main"><div class="world-body"><canvas class="world-paint"></canvas><div class="world-card" hidden></div><div class="world-scale"></div><div class="world-compass">N</div></div>
+      <div class="seg pace" role="tablist" aria-label="Travel pace">${(['slow', 'normal', 'fast'] as Pace[]).map((p) => `<button role="tab" data-pace="${p}" aria-selected="${p === 'normal'}" data-tip="${p[0].toUpperCase() + p.slice(1)} pace">${p[0].toUpperCase() + p.slice(1)}</button>`).join('')}</div>
+      <button class="icon" data-hex aria-label="Hex grid" aria-pressed="false" data-tip="Hex grid">${ICON.grid ?? ICON.walls}</button>
+      <button class="icon" data-z="in" aria-label="Zoom in" data-tip="Zoom in">${ICON.zoomIn}</button><button class="icon" data-z="out" aria-label="Zoom out" data-tip="Zoom out">${ICON.zoomOut}</button>
+      <button class="icon close" aria-label="Close" data-tip="Close">${ICON.close}</button></header>
+    <div class="world-main"><div class="world-body"><canvas class="world-paint"></canvas><div class="world-card page" hidden></div><div class="world-scale"></div><div class="world-compass">N</div></div>
     <aside class="world-key"><h3>Places</h3><ol></ol></aside></div></div>`;
   document.body.appendChild(back);
   const body = back.querySelector<HTMLElement>('.world-body')!, card = back.querySelector<HTMLElement>('.world-card')!, keyList = back.querySelector<HTMLElement>('.world-key ol')!;
@@ -247,7 +251,7 @@ export function openWorldMap(host: WorldHost): void {
     const t = el('text', { y: 0.09 }, g); t.textContent = keyOf(p);
     const n = el('text', { class: 'wm-pin-name', y: 0.62 }, g); n.textContent = p.name;
     const li = document.createElement('li'); li.dataset.key = p.key;
-    li.innerHTML = `<b>${keyOf(p)}</b><span>${p.name}</span>${p.scenes ? '<i>map</i>' : ''}${host.dm ? `<button class="icon eye" data-reveal="${p.key}" aria-label="Reveal to players" title="Reveal to players">${ICON.eye ?? '◉'}</button>` : ''}`;
+    li.innerHTML = `<b>${keyOf(p)}</b><span>${p.name}</span>${p.scenes ? '<i>map</i>' : ''}${host.dm ? `<button class="icon eye" data-reveal="${p.key}" aria-label="Reveal to players" data-tip="Reveal to players">${ICON.eye ?? '◉'}</button>` : ''}`;
     // a name lettered more than once on the map (the Mount Baratok markers) lists once
     if (!W.pins.some((q) => q !== p && q.name === p.name && q.key < p.key)) keyList.appendChild(li);
     pinEls.set(p.key, { g, li });
@@ -260,12 +264,17 @@ export function openWorldMap(host: WorldHost): void {
     view.x = p.pos[0] - view.w / 2; view.y = p.pos[1] - view.h / 2; apply(); void showCard(p, p.pos, dist(at, p.pos));
   });
   // hover: a tooltip with the place's blurb (and, for the DM, the DM note and whether players can see it)
-  const tip = document.createElement('div'); tip.className = 'world-tip'; tip.hidden = true; body.appendChild(tip);
+  const tip = document.createElement('div'); tip.className = 'world-tip page'; tip.hidden = true; body.appendChild(tip);
+  // A pin's words with their rules links: the blurb is what players are told, so it reads with the players' audience
+  // (rules kinds only) on both sides; the DM note is the DM's only (people, monsters and places link there). The
+  // gazetteer keeps place names whole.
+  const pinText = (p: Pin, field: 'blurb' | 'dm', seen: Set<string>) => rich(field === 'blurb' ? p.blurb : p.dm, { audience: field === 'dm' ? 'dm' : 'player', field, scenePath: WORLD_PATH, entityId: `pin:${p.key}` }, seen);
   svg.addEventListener('pointermove', (e) => {
     const g = (e.target as Element).closest<SVGGElement>('.wm-pin'); const p = g && W.pins.find((x) => x.key === g.dataset.key);
     if (!p || !known(p) || drag) { tip.hidden = true; return; }
     const r = body.getBoundingClientRect();
-    tip.innerHTML = `<b>${keyOf(p)} · ${p.name}</b>${p.blurb ? `<div>${p.blurb}</div>` : ''}${host.dm && p.dm ? `<div class="dm">${p.dm}</div>` : ''}${host.dm ? `<div class="vis">${host.revealed().has(p.key) ? 'Players can see this place' : 'Hidden from players'}</div>` : ''}${p.scenes?.length ? '<div class="vis">Tap to open the map</div>' : ''}`;
+    const seen = new Set<string>();
+    tip.innerHTML = `<b>${esc(keyOf(p))} · ${esc(p.name)}</b>${p.blurb ? `<div>${pinText(p, 'blurb', seen)}</div>` : ''}${host.dm && p.dm ? `<div class="dm">${pinText(p, 'dm', seen)}</div>` : ''}${host.dm ? `<div class="vis">${host.revealed().has(p.key) ? 'Players can see this place' : 'Hidden from players'}</div>` : ''}${p.scenes?.length ? '<div class="vis">Tap to open the map</div>' : ''}`;
     tip.style.left = `${Math.min(e.clientX - r.left + 14, r.width - 280)}px`; tip.style.top = `${e.clientY - r.top + 14}px`; tip.hidden = false;
   });
   svg.addEventListener('pointerleave', () => { tip.hidden = true; });
@@ -326,11 +335,12 @@ export function openWorldMap(host: WorldHost): void {
   const nearestName = (p: P) => { const all = [...W.pins.map((x) => ({ name: x.name, pos: x.pos })), ...W.woods, ...W.peaks]; const n = all.reduce((a, c) => (dist(c.pos, p) < dist(a.pos, p) ? c : a)); return { name: n.name, mi: dist(n.pos, p) }; };
   async function showCard(pin: Pin | undefined, to: P, miles: number): Promise<void> {
     const speed = PACES[pace].mph, hours = miles / speed;
-    const where = pin ? `<b>${keyOf(pin)}</b> ${pin.name}` : (() => { const n = nearestName(to); return `Wilderness · ${n.mi.toFixed(1)} mi from ${n.name}`; })();
+    const where = pin ? `<b>${esc(keyOf(pin))}</b> ${esc(pin.name)}` : (() => { const n = nearestName(to); return `Wilderness · ${n.mi.toFixed(1)} mi from ${n.name}`; })();
     const scenes = pin?.scenes ?? [];
     const labels = await Promise.all(scenes.map((s) => host.sceneName(s)));
     const rev = pin ? host.revealed().has(pin.key) : false;
-    card.innerHTML = `<div class="wc-where">${where}${pin && host.dm ? `<button class="chip-btn" data-reveal="${pin.key}" aria-pressed="${rev}">${rev ? 'Shown to players' : 'Hidden from players'}</button>` : ''}</div>${pin?.blurb ? `<div class="wc-blurb">${pin.blurb}</div>` : ''}${pin?.dm && host.dm ? `<div class="wc-dm">${pin.dm}</div>` : ''}<div class="wc-travel">${miles.toFixed(1)} mi as the crow flies · about ${fmtHours(hours)} at a ${pace} pace (${speed} mph)</div>
+    const seen = new Set<string>();
+    card.innerHTML = `<div class="wc-where">${where}${pin && host.dm ? `<button class="chip-btn" data-reveal="${pin.key}" aria-pressed="${rev}">${rev ? 'Shown to players' : 'Hidden from players'}</button>` : ''}</div>${pin?.blurb ? `<div class="wc-blurb">${pinText(pin, 'blurb', seen)}</div>` : ''}${pin?.dm && host.dm ? `<div class="wc-dm">${pinText(pin, 'dm', seen)}</div>` : ''}<div class="wc-travel">${miles.toFixed(1)} mi as the crow flies · about ${fmtHours(hours)} at a ${pace} pace (${speed} mph)</div>
       ${scenes.length ? `<div class="wc-actions">${scenes.map((s, i) => `<button class="primary" data-scene="${s}">Open ${labels[i]}</button>`).join('')}</div>` : '<div class="wc-note">No battle map here yet; run it theatre-of-the-mind or pick a nearby place.</div>'}`;
     card.hidden = false;
   }
