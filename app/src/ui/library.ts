@@ -29,7 +29,11 @@ export function openLibrary(built: Set<string>, active: Campaign, onOpen: (path:
       ...(books ? [] : groups),
       '</div></div>',
     ].join('');
-    if (books) void booksUi().then((m) => m.renderBooksTab(sheet.querySelector<HTMLElement>('.books-body')!, close));
+    // Offline, before the books' code was ever fetched, the import fails: say so rather than leave the tab blank.
+    if (books) void booksUi().then((m) => m.renderBooksTab(sheet.querySelector<HTMLElement>('.books-body')!, close), () => {
+      const host = sheet.querySelector<HTMLElement>('.books-body');
+      if (host) host.innerHTML = '<p class="bk-error">The book list could not be loaded. Connect to the network once, then use Save for offline.</p>';
+    });
   };
   render();
   const close = () => sheet.remove();

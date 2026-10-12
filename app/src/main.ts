@@ -58,6 +58,8 @@ if ('serviceWorker' in navigator && import.meta.env.PROD && !q.has('nosw')) {
   addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
   // Help's attribution chunk is tiny and lazy: fetch it once the worker is in control, so it is cached for offline play.
   void navigator.serviceWorker.ready.then(() => setTimeout(() => void import('./books/attribution').catch(() => {}), 4000));
+  // The DM's Books tab code likewise, so the tab works offline even if it was never opened online.
+  if (mode === 'dm') void navigator.serviceWorker.ready.then(() => setTimeout(() => void booksUi().catch(() => {}), 6000));
 }
 
 let slider: ViewSlider | undefined;

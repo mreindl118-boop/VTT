@@ -174,6 +174,10 @@
   .br-contents { columns: 1; }
   /* A stat block's six ability columns fit the phone's width, so Cha. is never off screen: in a monster's entry and in
      the stat blocks inside spells and items (Animate Objects, Giant Insect, Figurine of Wondrous Power). */
+  /* An entry inside an entry (2014 Wild Shape's Beast Shapes) gives its tables the width back on the phone. */
+  .br-page .entry { padding-left: 10px; padding-right: 4px; }
+  .br-page .entry .entry { margin-left: -8px; margin-right: -4px; padding-left: 8px; padding-right: 0; }
+  .br-page .entry .entry table { font-size: .85em; }
   .br-page .entry.t-monster { padding-left: 10px; padding-right: 6px; }
   .br-page .entry.t-monster table, .br-page table.abil { font-size: .7em; width: 100%; min-width: 0; }
   .br-page .entry.t-monster :is(th, td), .br-page table.abil :is(th, td) { padding: .35em .2em; }

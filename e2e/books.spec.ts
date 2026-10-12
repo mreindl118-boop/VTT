@@ -121,7 +121,7 @@ test('Rules edition preference: 2024 by default, 2014 answers once chosen', asyn
   await expect(page.locator('[data-ed="2014"]')).toHaveAttribute('aria-checked', 'true');
   expect(await page.evaluate(() => localStorage.getItem('mistlab.rulesEdition'))).toBe('2014');
   expect(await look()).toEqual(['2014', 'srd-5.1', '1 action']);
-  const spans = await page.evaluate(async () => { const b = (window as any).__mistlabBooks; return b.findTerms('The ghoul is Prone.', await b.termIndex()).map((s: any) => s.id); });
+  const spans = await page.evaluate(async () => { const b = (window as any).__mistlabBooks; return b.findTerms('The Ghoul is Prone.', await b.termIndex()).map((s: any) => s.id); });
   expect(spans).toEqual(['monster:ghoul', 'condition:prone']);
 });
 
@@ -201,6 +201,47 @@ test('offline after saving: every file is stored, and with the network really cu
   await context.setOffline(false);
 });
 
+test('offline before the books code was ever fetched: the Books tab says why, never blank', async ({ page, context }) => {
+  // The books chunk never arrives (as on a device that went offline before the DM opened Books or the app fetched it).
+  await context.route(/\/assets\/books-[\w-]+\.(js|css)$/, (r) => r.abort('internetdisconnected'));
+  await page.goto(`/?scene=${encodeURIComponent(SCENES[0].scene)}`);
+  await page.waitForFunction(() => (window as any).__mistlab?.ready);
+  await page.evaluate(() => navigator.serviceWorker.ready);
+  await page.reload();
+  await page.waitForFunction(() => !!navigator.serviceWorker.controller);
+  await page.evaluate(() => (window as any).__mistlab.ready);
+  await context.route('**/*', (r) => r.abort('internetdisconnected'));
+  await context.setOffline(true);
+  await page.reload();
+  await page.waitForFunction(() => (window as any).__mistlab?.ready);
+  await page.click('[data-act="library"]');
+  await page.click('.sheet.library [data-books]');
+  await expect(page.locator('.sheet.library .books-body .bk-error')).toHaveText('The book list could not be loaded. Connect to the network once, then use Save for offline.');
+  await page.screenshot({ path: `${process.env.SHOTS ?? 'test-results'}/books-offline-tab-unsaved.png` });
+  await context.unroute('**/*');
+  await context.setOffline(false);
+});
+
+test('the books code is fetched early for the DM, so the Books tab works offline without being opened first', async ({ page, context }) => {
+  await page.goto(`/?scene=${encodeURIComponent(SCENES[0].scene)}`);
+  await page.waitForFunction(() => (window as any).__mistlab?.ready);
+  await page.evaluate(() => navigator.serviceWorker.ready);
+  await page.reload();
+  await page.waitForFunction(() => !!navigator.serviceWorker.controller);
+  await expect.poll(() => page.evaluate(async () => (await (await caches.open('mistlab-v1')).keys()).some((r) => /\/assets\/books-[\w-]+\.js$/.test(r.url))), { timeout: 30_000 }).toBe(true);
+  await context.route('**/*', (r) => r.abort('internetdisconnected'));
+  await context.setOffline(true);
+  await page.reload();
+  await page.waitForFunction(() => (window as any).__mistlab?.ready);
+  await page.click('[data-act="library"]');
+  await page.click('.sheet.library [data-books]');
+  // The tab's own code ran (its stylesheet's type colours are defined), though with no book saved it has no list.
+  await expect(page.locator('.sheet.library .books-body .bk-error, .sheet.library .bk-row').first()).toBeVisible();
+  expect(await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--t-spell').trim())).not.toBe('');
+  await context.unroute('**/*');
+  await context.setOffline(false);
+});
+
 // On iPad portrait and the phone the contents are a sheet over the page, and the book switch lives in it: switching
 // books, typing a search or pressing Enter must close it so the results and the entry are not hidden underneath.
 for (const [name, viewport] of [['phone', { width: 390, height: 844 }], ['iPad portrait', { width: 820, height: 1180 }]] as const) {
@@ -273,8 +314,28 @@ test.describe('phone', () => {
       expect(wide.every((d) => d <= 0), anchor).toBe(true);
     }
     expect(await overflow()).toEqual([0, 0]);
+    // A 2014 feature's parts sit inside it (Wild Shape's Beast Shapes): their tables still fit the phone.
+    await page.evaluate(() => { location.hash = '#book/srd-5.1/feature-wild-shape'; });
+    await expect(reader.locator('#feature-wild-shape')).toBeInViewport();
+    const nested = await reader.locator('.entry[data-id="feature:wild-shape"] .tbl').evaluateAll((els) => els.map((e) => e.scrollWidth - e.clientWidth));
+    expect(nested.length).toBeGreaterThan(0);
+    expect(nested.every((d) => d <= 0), String(nested)).toBe(true);
+    await reader.locator('.entry[data-id="feature:wild-shape"] table').first().scrollIntoViewIfNeeded();
+    await page.screenshot({ path: `${process.env.SHOTS ?? 'test-results'}/books-phone-wild-shape.png` });
     await reader.locator('[data-act="map"]').tap();
     await expect(page.locator('.book-reader')).toHaveCount(0);
+  });
+  test('Help fits the phone: the licence URLs wrap, nothing scrolls sideways', async ({ page }) => {
+    await boot(page, '', SCENES[0]);
+    // (On the phone the map's scale bar lies over the Help button, a layout issue outside the books: open it directly.)
+    await page.locator('[data-cam="help"]').dispatchEvent('click');
+    const attrib = page.locator('.sheet.help dd.attrib');
+    await expect(attrib).toHaveCount(5);
+    await attrib.nth(1).scrollIntoViewIfNeeded();
+    const wide = await page.evaluate(() => [...document.querySelectorAll('.sheet.help dd.attrib, .sheet.help .sheet-body')].map((e) => e.scrollWidth - e.clientWidth));
+    expect(wide.length).toBeGreaterThan(5);
+    expect(wide.every((d) => d <= 0), String(wide)).toBe(true);
+    await page.screenshot({ path: `${process.env.SHOTS ?? 'test-results'}/books-phone-help.png` });
   });
 });
 

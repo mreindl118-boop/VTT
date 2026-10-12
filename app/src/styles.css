@@ -115,6 +115,8 @@ body[data-view='players'] .lbl.key { display: none; }
 .sheet.help dl { margin: 0; padding: 8px 16px 16px; }
 .sheet.help dt { font-weight: 600; margin-top: 12px; }
 .sheet.help dd { margin: 2px 0 0; color: var(--ink-2); }
+/* The attribution statements carry long licence URLs: they wrap rather than run off a phone's edge. */
+.sheet.help dd.attrib { overflow-wrap: anywhere; }
 .lbl.key { font-size: 11px; padding: 1px 6px; }
 
 
