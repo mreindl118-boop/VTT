@@ -19,6 +19,7 @@ For each item, in order:
 - [ ] 1. **D&D-style rules tooltips (first, owner 2026-10-12).** Styled cards, not block text, with a colour per type: spells, conditions and effects, monsters, items by rarity, rules, damage types.
   - Built on the SRD books data (`c058977`; finish its remaining accuracy fixes first) and the tooltip card from `THEME.md`.
   - Shown on every place a rule, spell, monster or effect appears.
+- [ ] 1b. **Verify ChatGPT's suggestions G01–G17** (`GPT suggestions/REVIEW.md`, arrived 2026-10-12 during item 1). Check each against the code, then bring each to Matt to approve or deny. Nothing is built until he decides.
 - [ ] 2. **Nested world (top priority).** One zoomable world: the region, then a town, then a building, then a room, each map placed at its pin and streaming in as you zoom.
   - Review suggestions folded in (owner decision, 2026-10-12): `chat gpt suggestions/dispose-obsolete-map-and-range-resources`, `chat gpt suggestions/make-location-navigation-atomic`, `chat gpt suggestions/world-map-hidden-landmarks`. Re-check each against the code, then fix it with a failing test first.
   - Done: frame maths and the world atlas (step 0, `64506d2`); the floating origin and shader basis (step 1, `9e6ba78`).
