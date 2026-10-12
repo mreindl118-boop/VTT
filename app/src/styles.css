@@ -216,7 +216,8 @@ body[data-view='players'] .lbl.key { display: none; }
 .room { display: flex; align-items: center; border-top: var(--hairline, 1px) solid var(--hair); }
 .room .go { flex: 1; display: grid; grid-template-columns: 44px 1fr auto; gap: 8px; align-items: baseline; padding: 8px 12px; text-align: left; min-width: 0; }
 .room .go span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.room .go em { font-style: normal; font-size: 11px; color: var(--ink-2); }
+.room .go { grid-template-columns: 44px 1fr; }
+.room > em { flex: none; font-style: normal; font-size: 13px; padding: 0 4px; }
 .room .eye { margin-right: 6px; color: var(--ink-2); }
 .room.on .eye { color: var(--accent); }
 .room.here { background: color-mix(in srgb, var(--amber) 14%, transparent); }
@@ -385,7 +386,7 @@ body[data-view='players'] .topbar { grid-template-columns: auto 1fr; grid-templa
 .world-tip { position: absolute; z-index: 3; pointer-events: none; max-width: 270px; background: var(--bg); color: var(--ink); border-radius: 10px; box-shadow: 0 8px 28px rgba(0,0,0,.3); padding: 8px 10px; font-size: 12.5px; display: grid; gap: 3px; }
 .world-tip[hidden] { display: none; }
 .world-tip b { font-size: 13px; }
-.world-tip .dm, .world-card .wc-dm { color: #7b2d26; }
+.world-tip .dm, .world-card .wc-dm { color: var(--p-accent, #7b2d26); }
 .world-tip .vis { color: var(--ink-2); font-size: 11.5px; }
 .world-card .wc-blurb { font-size: 13px; }
 .world-card .wc-where { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
@@ -510,7 +511,7 @@ button.rl::after { content: ''; position: absolute; left: -2px; right: -2px; top
 .rl.monster { color: var(--k-monster); text-decoration-style: wavy; text-decoration-thickness: 1px; text-underline-offset: 3px; }
 .rl.pageref { color: var(--p-ink); text-decoration: underline solid 1px; text-underline-offset: 3px; cursor: pointer; }
 /* a standalone link (stat chips, sheet meta): a 44 px box with a 30 px raised pill drawn inside, the emblem and the word */
-button.rl.pill { display: inline-flex; align-items: center; gap: 4px; min-height: var(--hit); padding: 0 9px 0 6px; text-decoration: none; isolation: isolate; }
+button.rl.pill { display: inline-flex; align-items: center; gap: 4px; min-height: var(--hit); padding: 0 9px 0 6px; text-decoration-line: none; isolation: isolate; }
 button.rl.pill::before { content: ''; position: absolute; inset: 7px 0; z-index: -1; border-radius: var(--r-1); background: var(--p-raise); border: 1px solid var(--p-hair); }
 button.rl.pill::after { display: none; }
 button.rl.pill span { text-decoration: underline 1px; text-decoration-style: inherit; text-underline-offset: 3px; }
@@ -526,5 +527,47 @@ svg.e { width: 22px; height: 22px; fill: currentColor; flex: none; }
   clip-path: polygon(50.0% 0.0%, 55.9% 5.4%, 62.9% 1.7%, 67.2% 8.4%, 75.0% 6.7%, 77.4% 14.3%, 85.4% 14.6%, 85.7% 22.6%, 93.3% 25.0%, 91.6% 32.8%, 98.3% 37.1%, 94.6% 44.1%, 100.0% 50.0%, 94.6% 55.9%, 98.3% 62.9%, 91.6% 67.2%, 93.3% 75.0%, 85.7% 77.4%, 85.4% 85.4%, 77.4% 85.7%, 75.0% 93.3%, 67.2% 91.6%, 62.9% 98.3%, 55.9% 94.6%, 50.0% 100.0%, 44.1% 94.6%, 37.1% 98.3%, 32.8% 91.6%, 25.0% 93.3%, 22.6% 85.7%, 14.6% 85.4%, 14.3% 77.4%, 6.7% 75.0%, 8.4% 67.2%, 1.7% 62.9%, 5.4% 55.9%, 0.0% 50.0%, 5.4% 44.1%, 1.7% 37.1%, 8.4% 32.8%, 6.7% 25.0%, 14.3% 22.6%, 14.6% 14.6%, 22.6% 14.3%, 25.0% 6.7%, 32.8% 8.4%, 37.1% 1.7%, 44.1% 5.4%);
   font: 700 13px/1 var(--font-head); letter-spacing: .02em; }
 .sr-live { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
-@media (prefers-reduced-motion: no-preference) { #tips > * { animation: tipfade .12s ease-out; } }
+@media (prefers-reduced-motion: no-preference) { #tips > * { animation: tipfade .12s ease-out; } #tips > .rt.swap { animation: none; } }
 @keyframes tipfade { from { opacity: 0; } }
+
+/* ---- surfaces that hold rules links (the tooltip pass, step 3): page surfaces, the token panel (THEME T4), the
+   creature sheet's pills, the initiative headers, the clock's links, Help's colour key. Sizes and layout elsewhere
+   are unchanged until queue item 15. */
+.page .rl:focus-visible { outline: 2px solid var(--p-focus); outline-offset: 2px; border-radius: 2px; }
+.tokpanel { color: var(--p-ink); }
+.tokpanel header { align-items: center; }
+.tokpanel .tp-name { flex: 1; min-width: 0; font: 700 var(--t-5)/1.15 var(--font-head); }
+.tokpanel .tp-name b { font: inherit; }
+.tokpanel .tp-name .rl { font-weight: 700; }
+.tokpanel header span.tag { flex: none; font: 600 var(--t-1)/1 var(--font-ui); color: var(--p-ink-2); padding: 3px 7px; border: 1px dashed var(--p-edge); border-radius: 999px; }
+.tokpanel .tp-stats { display: flex; flex-wrap: wrap; align-items: center; gap: 0 4px; margin: -6px 0; min-height: var(--hit); }
+.tokpanel .tp-stats .rl.pill, .crow .cpills .rl.pill { font: 600 var(--t-1)/1 var(--font-ui); }
+.tokpanel .tp-src, .crow .csrc { font: italic 400 var(--t-1)/1.3 var(--font-book); color: var(--p-ink-2); }
+.tokpanel .seen { font: italic 400 var(--t-2)/1.35 var(--font-book); color: var(--p-ink-2); display: flex; align-items: center; gap: 6px; }
+.tokpanel .seen .tt { font: 700 var(--t-1)/1 var(--font-head); min-width: 32px; justify-content: center; color: var(--p-ink); border-color: var(--p-edge); }
+.tokpanel .hp { gap: 10px; }
+.tokpanel .hp button { width: var(--hit); height: var(--hit); border-radius: var(--r-1); border: 1px solid var(--p-edge); background: var(--p-raise); font: 700 var(--t-4)/1 var(--font-ui); }
+.tokpanel .hp-v { flex: 1; display: grid; gap: 4px; text-align: center; font: 400 var(--t-2)/1 var(--font-ui); font-variant-numeric: lining-nums tabular-nums; }
+.tokpanel .hp-v b { font-size: var(--t-3); }
+.tokpanel .hp-v i { display: block; height: 8px; border-radius: 4px; background: linear-gradient(90deg, var(--p-accent) calc(var(--f) * 100%), var(--p-sunk) 0); border: 1px solid var(--p-hair); }
+.tokpanel .acts button { min-height: 40px; padding: 0 12px; border-radius: var(--r-1); border: 1px solid var(--p-hair); }
+.tokpanel .acts button.primary { background: var(--p-ink); color: var(--p-bg); border-color: transparent; }
+.tokpanel .acts button.danger, .btn.danger { color: var(--p-danger); border-color: color-mix(in srgb, var(--p-danger) 45%, transparent); }
+.tokpanel .acts button.danger:hover { background: color-mix(in srgb, var(--p-danger) 10%, transparent); }
+.crow .cname .rl.monster { justify-self: start; font-size: 15px; }
+.crow .cmeta { display: flex; flex-wrap: wrap; align-items: center; gap: 0 6px; font-size: 13px; color: var(--p-ink-2); }
+.crow .cmeta .ckind, .crow .cmeta i { font-size: 13px; }
+.crow .cpills { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 0 2px; }
+.crow .cname .rl.pill span, .crow .cname .ctags .rl { font-size: 13px; color: inherit; }
+.crow .ctags .rl.pageref { color: var(--p-ink); }
+.crow { flex-wrap: wrap; }
+.crow .cblock { flex-basis: 100%; padding: 4px 4px 8px 22px; }
+.crow .cblock .statblock { width: min(400px, 100%); }
+.crow button[data-a='block'][aria-expanded='true'] { background: var(--p-sunk); }
+.roster th .rl.pill { font: 600 var(--t-1)/1 var(--font-ui); padding: 0 6px 0 2px; }
+.roster th .rl.pill svg.e { color: var(--p-ink-2); }
+.clockpop .ck-pace { font-size: 13px; }
+.clockpop .ck-note { color: var(--p-ink); }
+.sheet.help dd.colours { line-height: 2; }
+.infocard.page h2, .tapmenu.page .rh-title { color: var(--p-ink); }
+.infocard .inside .in-text { flex: 1 1 12em; min-width: 0; }

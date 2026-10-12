@@ -174,3 +174,42 @@
   .br-page .entry.t-monster :is(th, td), .br-page table.abil :is(th, td) { padding: .35em .2em; }
   .br-page .entry.t-monster :is(th, td):first-child, .br-page table.abil :is(th, td):first-child { padding-left: .1em; }
 }
+
+/* ---- THEME T4: the Books reader on the page surface (docs/THEME.md 'Library and Books reader'). Alegreya at a 68 ch
+   measure, a small-capitals running head (with a 44 px Contents button on phones), the h1 in the campaign's display
+   face over the rule, the illuminated initial only on a chapter's opening paragraph and read-aloud starts. */
+.book-reader { background: var(--p-bg); }
+.book-reader .br-bar { background: var(--p-raise); backdrop-filter: none; -webkit-backdrop-filter: none; border-bottom-color: var(--p-hair); }
+.book-reader .br-toc { background: var(--p-sunk); }
+.br-toc button, .br-toc .br-about { min-height: 44px; display: flex; align-items: center; }
+.br-chapters li.l2 > button, .br-chapters li.l3 > button { min-height: 44px; }
+.br-contents button { min-height: 44px; display: inline-flex; align-items: center; }
+.br-run { position: sticky; top: 0; z-index: 1; display: flex; align-items: center; gap: 8px; max-width: 68ch; margin: 0 auto; padding: 4px 32px; min-height: 44px;
+  background: var(--p-bg); border-bottom: 1px solid var(--p-hair); font: 400 17px/1.2 var(--font-book); color: var(--p-ink-2); }
+/* the measure is the page's (68 ch of the body face); the words are small capitals */
+.br-run-t, .br-run-toc { font: 700 var(--t-2)/1.2 var(--font-head); text-transform: lowercase; letter-spacing: .05em; }
+.br-run-t { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.br-run-toc { display: none; flex: none; align-items: center; gap: 6px; min-width: var(--hit); min-height: var(--hit); padding: 0 10px; margin-left: -10px; border-radius: var(--r-1); color: var(--p-ink); }
+.br-run-toc svg { width: 20px; height: 20px; }
+.br-page { max-width: 68ch; font: 400 17px/1.5 var(--font-book); color: var(--p-ink); font-variant-numeric: lining-nums; }
+.br-page h1 { font: 600 36px/1.1 var(--font-display); letter-spacing: 0; margin: .5em 0 .2em; color: var(--p-ink); }
+.br-page h1::after { content: ''; display: block; height: 9px; margin-top: .35em;
+  background: linear-gradient(var(--rule-col), var(--rule-col)) 0 2px / 100% 1px no-repeat, linear-gradient(var(--rule-col), var(--rule-col)) 0 6px / 100% 1px no-repeat; }
+.br-page h2 { font: 700 22px/1.2 var(--font-head); color: var(--p-ink); border-bottom: 1.5px solid var(--p-accent); }
+.br-page h3, .br-page h4 { font-family: var(--font-head); color: var(--p-ink); }
+.br-page .entry > :is(h1, h2, h3, h4, h5):first-child::after { font-family: var(--font-ui); font-size: 13px; }
+.br-page p.open::first-letter, .br-page .readaloud > p:first-child::first-letter {
+  initial-letter: 3; -webkit-initial-letter: 3; font-family: var(--font-head); font-weight: 700; color: var(--p-accent);
+  margin-right: .12em; padding: 0 .08em; border: 1.5px solid var(--p-accent); background: var(--p-raise); }
+.br-page .readaloud { margin: 1em 0; padding: .6em 1em; background: var(--p-raise); border-left: 4px solid var(--p-accent); border-radius: 0 var(--r-1) var(--r-1) 0; font-style: italic; }
+.br-page a, .br-contents button { color: var(--p-ink); text-decoration: underline 1px; text-underline-offset: 3px; }
+.br-page th, .br-page td { border-bottom-color: var(--p-hair); }
+.br-page thead th { border-bottom-color: var(--p-ink-2); }
+.br-page .entry { border-left-color: var(--tc, var(--p-hair)); }
+.bk-cover, .bk-cover.e2014 { background: var(--p-sunk); color: var(--p-ink); border: 1px solid var(--p-edge); box-shadow: inset 4px 0 0 var(--p-hair); }
+.br-pager, .br-attrib-line { max-width: 68ch; }
+@media (max-width: 640px) {
+  .br-run { padding: 2px 12px; }
+  .br-run-toc { display: inline-flex; }
+  .br-page h1 { font-size: 30px; }
+}

@@ -16,7 +16,7 @@ export const HOLD_EXCLUDE = '.vs-peek, .vs-track, canvas.gl, .world-svg, .mm-can
 /** Trigger guard on the players' side: nothing under these opens a tip. */
 const GUARD = '.dm-only, .dm-note, .lbl.key';
 const TRIGGER = '[data-tip], button.tt, .rl';
-const HOVER_MS = 500, HOLD_MS = 500, GRACE_MS = 250, BUFFER = 50, MARGIN = 8, GAP = 8;
+const HOVER_MS = 500, RL_HOVER_MS = 400, HOLD_MS = 500, GRACE_MS = 250, BUFFER = 50, MARGIN = 8, GAP = 8;
 
 /** One line of a tip or card, with who may read it. 'dm' lines are dropped on the players' side before any string is built. */
 export interface TipSource { text: string; audience: 'player' | 'dm'; kind?: string }
@@ -180,7 +180,8 @@ export function mountTips(host: TipHost): Tips {
     card.el.remove(); card = null;
   };
   const mountCard = (el: HTMLElement, c: NonNullable<typeof card>) => {
-    if (card && card.el !== el) card.el.remove();
+    // A card that replaces the open one (the edition toggle, a nested link, Back) swaps in place, without the fade.
+    if (card && card.el !== el) { el.classList.add('swap'); card.el.remove(); }
     card = { ...c, el };
     layer.appendChild(el);
     const a = c.anchor ?? { left: innerWidth / 2, right: innerWidth / 2, top: innerHeight / 3, bottom: innerHeight / 3, width: 0, height: 0 };
@@ -230,8 +231,10 @@ export function mountTips(host: TipHost): Tips {
     if (k === 'dice') return { kind: 'dice', expr: d.expr ?? t.textContent ?? '' };
     if (k === 'area') return { kind: 'area', key: d.key ?? '', name: d.name ?? t.textContent ?? '', floor: d.floor, desc: d.desc, revealed: d.revealed ? d.revealed === 'true' : undefined };
     if (k === 'person') return { kind: 'person', name: d.name ?? t.textContent ?? '', role: d.role, home: d.home };
-    if (k === 'pageref') return { kind: 'pageref', page: Number(d.page) };
-    return { term: d.term ?? t.textContent ?? '', kind: k as never };
+    if (k === 'pageref') return { kind: 'pageref', page: Number(d.page), where: d.where };
+    // A module creature (a token's name, a bestiary row, a creature slot the books lack): its one source decides.
+    if (d.creature || d.term?.startsWith('creature:')) return { kind: 'creature', creatureId: d.creature ?? d.term!.slice(9), name: d.name };
+    return { term: d.term ?? t.textContent ?? '', kind: k as never, edition: d.edition === '2014' || d.edition === '2024' ? d.edition : undefined };
   };
   const openFromLink = (t: HTMLElement, pinned: boolean) => {
     // A link inside an open card replaces its content (a back chevron returns, five deep).
@@ -253,7 +256,7 @@ export function mountTips(host: TipHost): Tips {
       hoverTimer = 0;
       if (!t.isConnected || !t.matches(':hover')) return;
       if (kindOfTrigger(t) === 'rl') { if (!card?.pinned && !t.closest('#tips')) openFromLink(t, false); } else showHover(t);
-    }, HOVER_MS);
+    }, kindOfTrigger(t) === 'rl' ? RL_HOVER_MS : HOVER_MS);
   }, true);
   document.addEventListener('pointerout', (e) => {
     if (e.pointerType === 'touch') return;
@@ -347,7 +350,9 @@ export function mountTips(host: TipHost): Tips {
   // ---- view flips and new surfaces close everything
   const closeAll = () => { hideHover(); closePinned(); closeCard(); hideCanvas(); if (hold) { clearTimeout(hold.timer); hold = null; } };
   const flip = () => { closeAll(); for (const f of flips) f(); };
-  new MutationObserver(flip).observe(document.body, { attributes: true, attributeFilter: ['data-view', 'data-mode'] });
+  // Only a real change flips (refresh() writes the same data-view again on every redraw).
+  new MutationObserver((rs) => { if (rs.some((r) => r.oldValue !== document.body.getAttribute(r.attributeName!))) flip(); })
+    .observe(document.body, { attributes: true, attributeOldValue: true, attributeFilter: ['data-view', 'data-mode'] });
   addEventListener('mistlab:view', flip);
   new MutationObserver((rs) => { for (const r of rs) for (const n of r.addedNodes) if (n instanceof HTMLElement && n.matches('.sheet-backdrop')) return closeAll(); })
     .observe(document.body, { childList: true });

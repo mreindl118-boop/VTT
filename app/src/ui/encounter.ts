@@ -1,10 +1,13 @@
 // Initiative: the roster (character-sheet essentials) and the turn bar. Ranges show only during a turn.
 import type { App } from '../app';
 import type { Sheet } from '../state/campaign';
+import { turnView } from '../core/identity';
 import { ICON } from './icons';
 import { esc } from './text';
 
 const d20 = () => Math.floor(Math.random() * 20) + 1;
+/** A column header as a rules link (the units are in its card). */
+const head = (term: string, word: string, icon: string, kind = 'rule') => `<button type="button" class="rl ${kind} pill" data-kind="${kind}" data-term="${term}" aria-expanded="false"><i data-e="${icon}"></i><span>${word}</span></button>`;
 
 /** Roster editor + initiative roll. The DM edits sheets in place; Start puts one token per combatant on the map. */
 export function openEncounterSheet(app: App, onStart: () => void): void {
@@ -25,14 +28,16 @@ export function openEncounterSheet(app: App, onStart: () => void): void {
         <td><input type="number" value="${s.initMod}" data-f="initMod" aria-label="Initiative modifier"></td>
         <td><label class="init"><input type="checkbox" data-f="in" ${inits.has(s.id) ? 'checked' : ''} aria-label="In this encounter"><input type="number" value="${inits.get(s.id) ?? ''}" data-f="init" placeholder="—" aria-label="Initiative"></label></td>
         <td><button class="icon" data-a="del" aria-label="Remove" data-tip="Remove">${ICON.close}</button></td></tr>`).join('');
-    back.innerHTML = `<div class="sheet encounter"><header><h2>Initiative</h2><button class="icon close" aria-label="Close" data-tip="Close">${ICON.close}</button></header>
+    back.innerHTML = `<div class="sheet encounter page"><header><h2>Initiative</h2><button class="icon close" aria-label="Close" data-tip="Close">${ICON.close}</button></header>
       <div class="sheet-body">
         <p class="hint">Speed, reach and range come from each character sheet. Tick who is in, roll or type initiative, then start. Green squares show where a combatant can still move on its turn; red squares are what it could strike from there.</p>
-        <table class="roster"><thead><tr><th></th><th>Name</th><th>Kind</th><th>Speed</th><th>Reach</th><th>Range</th><th>Darkvision</th><th>Init mod</th><th>Initiative</th><th></th></tr></thead><tbody>${rows}</tbody></table>
-        ${creatures.length ? `<h3>Creatures on this map</h3><table class="roster creatures"><thead><tr><th></th><th>Name</th><th>Players see</th><th>Hit points</th><th>Initiative</th></tr></thead><tbody>${creatures.map((t) => `<tr data-tok="${t.id}"><td><span class="chip" style="--tok:${t.color}"></span></td><td>${esc(t.name)}${t.hidden ? ' <i>(hidden)</i>' : ''}</td><td>${esc(t.playerName ?? t.name)}</td><td>${t.hp ? `${t.hp.cur}/${t.hp.max}` : '—'}</td>
+        <table class="roster"><thead><tr><th></th><th>Name</th><th>Kind</th><th>${head('rule:speed', 'Speed', 'boot-prints')}</th><th>${head('rule:reach', 'Reach', 'crossed-swords')}</th><th>${head('rule:range', 'Range', 'position-marker')}</th><th>${head('rule:darkvision', 'Darkvision', 'semi-closed-eye', 'sense')}</th><th>Init mod</th><th>${head('rule:initiative', 'Initiative', 'dice-twenty-faces-twenty')}</th><th></th></tr></thead><tbody>${rows}</tbody></table>
+        ${creatures.length ? `<h3>Creatures on this map</h3><table class="roster creatures"><thead><tr><th></th><th>Name</th><th>Players see</th><th>Hit points</th><th>Initiative</th></tr></thead><tbody>${creatures.map((t) => `<tr data-tok="${esc(t.id)}"><td><span class="chip" style="--tok:${esc(t.color)}"></span></td><td>${esc(t.name)}${t.hidden ? ' <i>(hidden)</i>' : ''}</td><td>${esc(t.playerName ?? t.name)}</td><td>${t.hp ? `${t.hp.cur}/${t.hp.max}` : '—'}</td>
           <td><label class="init"><input type="checkbox" data-f="cin" ${cinits.has(t.id) ? 'checked' : ''} aria-label="In this encounter"><input type="number" value="${cinits.get(t.id) ?? ''}" data-f="cinit" placeholder="—" aria-label="Initiative"></label></td></tr>`).join('')}</tbody></table>` : ''}
         <div class="row"><button data-a="add">${ICON.party} Add character</button><button data-a="npc">Add foe</button><span class="spacer"></span><button data-a="roll">Roll initiative</button><button class="primary" data-a="start">Start encounter</button></div>
       </div></div>`;
+    // The headers' emblems (their own chunk, DM only).
+    void import('./emblems').then((m) => { m.ensureEmblems(); back.querySelectorAll<HTMLElement>('i[data-e]').forEach((i) => { i.outerHTML = m.emblem(i.dataset.e as Parameters<typeof m.emblem>[0]); }); }).catch(() => {});
   };
   render();
   const sheetOf = (el: HTMLElement) => app.state.roster.find((s) => s.id === el.closest<HTMLElement>('tr')!.dataset.id)!;
@@ -87,13 +92,15 @@ export function turnBar(app: App, refresh: () => void): HTMLElement {
   (bar as unknown as { update: () => void }).update = () => {
     const e = app.encounter, cur = app.current;
     bar.hidden = !e;
-    if (!e || !cur) return;
-    const dm = !app.restricted, left = Math.max(0, cur.sheet.speedFt - e.movedFt);
-    // The DM's chip tip: name, initiative and hit points. The players' chips carry no tip at all.
-    const hpOf = (c: { tokenId?: string }) => { const t = c.tokenId ? app.state.tokens.find((x) => x.id === c.tokenId) : undefined; return t?.hp ? ` · hp ${t.hp.cur}/${t.hp.max}` : ''; };
-    bar.innerHTML = `<div class="order">${e.order.map((c, i) => { const s = app.state.roster.find((x) => x.id === c.sheetId); return `<span class="cb${i === e.turn % e.order.length ? ' now' : ''}" style="--tok:${s?.color ?? '#999'}"${dm ? ` data-tip="${esc(s?.name ?? '')}" data-tip-sub="initiative ${c.init}${hpOf(c)}"` : ''}>${esc(s?.name ?? '?')}<i>${c.init}</i></span>`; }).join('')}</div>
-      <div class="now"><b>Round ${e.round}</b> · ${esc(cur.sheet.name)} · <span class="move">${left} ft</span> of ${cur.sheet.speedFt} ft left${cur.sheet.rangeFt ? ` · range ${cur.sheet.rangeFt} ft` : ''}</div>
-      <div class="acts">${dm ? `<button data-a="prev" aria-label="Previous turn" data-tip="Previous turn">${ICON.rotateL}</button>` : ''}<button data-a="go" aria-label="Find the combatant" data-tip="Find the combatant">${ICON.party}</button>${dm ? `<button class="primary" data-a="next" data-tip="Next turn" data-key="nextTurn">Next turn</button><button data-a="end" data-tip="End the encounter">End</button>` : ''}</div>`;
+    if (!e || !cur) { bar.innerHTML = ''; return; }
+    // The players' side (Players view, or the slider at its players' end) reads the order through the alias and
+    // visibility projection (core/identity.ts): hidden combatants are left out, the others go by their own token's
+    // alias, a hidden combatant's turn shows only the round, and no chip carries a tip. The DM's chips get a tier A tip.
+    const players = app.playersSide, dm = !app.restricted;
+    const v = turnView(e, app.state.tokens, app.state.roster, { restricted: players });
+    bar.innerHTML = `<div class="order">${v.order.map((c) => `<span class="cb${c.now ? ' now' : ''}" style="--tok:${esc(c.color)}"${players ? '' : ` data-tip="${esc(c.name)}" data-tip-sub="initiative ${c.init}${c.hp ? ` · hp ${c.hp}` : ''}"`}>${esc(c.name)}<i>${c.init}</i></span>`).join('')}</div>
+      <div class="now"><b>Round ${v.round}</b>${v.current ? ` · ${esc(v.current.name)} · <span class="move">${v.current.leftFt} ft</span> of ${v.current.speedFt} ft left${v.current.rangeFt ? ` · range ${v.current.rangeFt} ft` : ''}` : ''}</div>
+      <div class="acts">${dm ? `<button data-a="prev" aria-label="Previous turn" data-tip="Previous turn">${ICON.rotateL}</button>` : ''}${v.current || dm ? `<button data-a="go" aria-label="Find the combatant"${players ? '' : ' data-tip="Find the combatant"'}>${ICON.party}</button>` : ''}${dm ? `<button class="primary" data-a="next" data-tip="Next turn" data-key="nextTurn">Next turn</button><button data-a="end" data-tip="End the encounter">End</button>` : ''}</div>`;
   };
   return bar;
 }

@@ -2,17 +2,20 @@ import * as THREE from 'three';
 import './styles.css';
 import { App, type GridMode } from './app';
 import { builtPaths, loadLocation } from './data';
-import { openWorldMap } from './ui/worldmap';
+import { openWorldMap, worldPins } from './ui/worldmap';
 import { buildMinimap } from './ui/minimap';
 import { dayFromHarptos, harptosParts, MONTH_NAMES, FESTIVALS } from './core/sky';
-import { PACES, type Pace } from './core/travel';
+import { PACES, paceNote, type Pace } from './core/travel';
 import { openBestiary } from './ui/bestiary';
-import { creatureById, statsOf, seenAs } from './bestiary';
+import { creatureById, seenAs } from './bestiary';
 import { openEncounterSheet, turnBar } from './ui/encounter';
 import { ICON } from './ui/icons';
 import { booksUi, openLibrary } from './ui/library';
 import { ViewSlider } from './ui/viewSlider';
 import { mountTips, type Tips } from './ui/tooltip';
+import { loadRich, termsNow } from './ui/rich';
+import { creatureCardHtml, objectCardHtml, pageref, playersRoomCardHtml, roomHeadHtml } from './ui/cards';
+import { esc } from './ui/text';
 import { isKey } from './core/keys';
 
 const q = new URLSearchParams(location.search);
@@ -49,6 +52,24 @@ const ready = app.init(builtPaths.has(path) ? path : 'appB/death-house');
   get tips() { return tips; },
   /** The rules-link pipeline (ui/terms.ts), loaded on demand. */
   terms: () => import('./ui/terms'),
+  /** Load the rules links for the map's cards now (the DM window otherwise does it shortly after the scene is ready). */
+  rich: () => loadRich(sceneOf).then(() => true),
+  /** A creature's one source of numbers (ui/creature.ts). */
+  creature: () => import('./ui/creature'),
+  /** The books' lookup and the Rules edition preference (loaded on demand). */
+  lookup: (term: string, edition?: '2014' | '2024') => import('./books/lookup').then((b) => b.lookup(term, edition)),
+  setEdition: (e: '2014' | '2024') => import('./books/lookup').then((b) => b.setRulesEdition(e)),
+  /** Every built scene's path. */
+  scenes: () => [...builtPaths],
+  /** The active campaign's world-map pins. */
+  pins: () => worldPins(),
+  /** Open the card a tap on an object or a room of the current level opens (the players' version in Players view). */
+  tapCard: (t: { object?: string; room?: string }, x = 420, y = 240) => {
+    const players = app.view === 'players';
+    const obj = t.object ? app.level.objects.find((o) => o.id === t.object) : undefined;
+    const room = t.room ? app.level.rooms.find((r) => r.key === t.room) : !players && obj ? app.level.rooms.find((r) => r.key === obj.key) : undefined;
+    app.onTap?.({ pos: [0, 0], object: obj ? app.tapObject(obj, players) : undefined, room: room && !(players && obj) ? app.tapRoom(room, players) : undefined }, x, y);
+  },
     moveParty: (level: string, x: number, z: number) => { const t = app.party; if (t) { t.level = level; t.pos = [x, z]; } app.setLevel(level); app.world.renderNow(); },
 };
 
@@ -77,7 +98,8 @@ if ('serviceWorker' in navigator && import.meta.env.PROD && !q.has('nosw')) {
 
 // Rules links in module text (ui/terms.ts): once the scene is ready, the DM window loads the term files of both
 // editions (until then, text renders plain). Never on the players' side.
-if (mode === 'dm') void ready.then(() => setTimeout(() => void import('./ui/terms').then((t) => t.preload((p) => (app.cur?.path === p ? app.cur.scene : undefined))).catch(() => {}), 2500));
+function sceneOf(p: string) { return app.cur?.path === p ? app.cur.scene : undefined; }
+if (mode === 'dm') void ready.then(() => setTimeout(() => void loadRich(sceneOf).catch(() => {}), 2500));
 
 let slider: ViewSlider | undefined;
 let tips: Tips | undefined;
@@ -205,11 +227,19 @@ function buildDmUi(): void {
   // openClock is defined below; the minimap's clock button calls it through this hook.
   function openClock(): void {
     if (clockEl) { clockEl.remove(); clockEl = null; return; }
-    const el = document.createElement('div'); el.className = 'clockpop'; clockEl = el;
+    const el = document.createElement('div'); el.className = 'clockpop page'; clockEl = el;
     const travel = { miles: 6, pace: 'normal' as Pace, difficult: false, mounted: false };
     // The pace table; difficult terrain halves it; a mount can gallop for about an hour at twice the pace (the rules' mounted travel).
     const travelHours = () => { let mph = PACES[travel.pace].mph; if (travel.difficult) mph /= 2; let miles = travel.miles, h = 0; if (travel.mounted) { const g = Math.min(miles, mph * 2); miles -= g; h += g / (mph * 2); } return h + miles / mph; };
     const elapsed = (h: number) => Math.floor(h / 8) * 24 + (h % 8); // eight hours of travel a day; the rest is camp
+    // The pace's effect follows the Rules edition (2014: our short form; 2024: read from the 2024 book). Miles,
+    // minutes and the day count never change with it.
+    let notes2024: Partial<Record<Pace, string>> | undefined;
+    const edition = () => termsNow()?.edition() ?? '2024';
+    void loadRich(sceneOf).then((t) => t.paceNotes2024()).then((n) => { notes2024 = n; if (clockEl === el) render(); }, () => {});
+    const onEd = () => { if (clockEl !== el) return removeEventListener('mistlab:rules-edition', onEd); render(); };
+    addEventListener('mistlab:rules-edition', onEd);
+    const rl = (term: string, word: string) => `<button type="button" class="rl rule" data-kind="rule" data-term="${term}" aria-expanded="false">${word}</button>`;
     const render = () => {
       const s = app.sky, c = app.clock, hp = harptosParts(c.day), th = travelHours();
       const months = [...MONTH_NAMES.map((m, i) => `<option value="${i}"${hp.month === i ? ' selected' : ''}>${m}</option>`), ...FESTIVALS.map((f, i) => `<option value="${12 + i}"${hp.month === 12 + i ? ' selected' : ''}>${f.name}</option>`)].join('');
@@ -220,9 +250,10 @@ function buildDmUi(): void {
         <div class="ck-row ck-moon"><span class="moon" style="--lit:${s.moonLit.toFixed(2)}"></span><span>${s.moonName}${s.night ? ' · night' : s.ambient === 'fog' ? ' · dusk light' : ' · daylight'}</span></div>
         <div class="ck-travel"><b>Travel</b>
           <div class="ck-row"><label class="ck-field"><input type="number" min="0" step="0.5" value="${travel.miles}" data-t="miles" aria-label="Miles"> mi</label>
-            <select data-t="pace" aria-label="Pace">${(['slow', 'normal', 'fast'] as Pace[]).map((p) => `<option value="${p}"${travel.pace === p ? ' selected' : ''}>${p[0].toUpperCase() + p.slice(1)} · ${PACES[p].mph} mph · ${PACES[p].milesPerDay} mi/day</option>`).join('')}</select></div>
-          <div class="ck-row"><label class="ck-check"><input type="checkbox" data-t="difficult"${travel.difficult ? ' checked' : ''}> Difficult terrain (half speed)</label><label class="ck-check"><input type="checkbox" data-t="mounted"${travel.mounted ? ' checked' : ''}> Mounted (gallops the first hour)</label></div>
-          <div class="ck-row"><span class="ck-out">${th < 1 ? `${Math.round(th * 60)} min` : `${Math.floor(th)} h ${Math.round((th % 1) * 60)} min`}${th > 8 ? ` · ${Math.ceil(th / 8)} days of travel (8 h a day)` : ''}${PACES[travel.pace].note ? ` · ${PACES[travel.pace].note}` : ''}</span><button class="primary" data-a="travel">Travel: advance ${elapsed(th) >= 24 ? `${Math.floor(elapsed(th) / 24)} d ${Math.round(elapsed(th) % 24)} h` : `${Math.round(elapsed(th))} h`}</button></div>
+            <select data-t="pace" aria-label="Pace">${(['slow', 'normal', 'fast'] as Pace[]).map((p) => `<option value="${p}"${travel.pace === p ? ' selected' : ''}>${p[0].toUpperCase() + p.slice(1)} · ${PACES[p].mph} mph · ${PACES[p].milesPerDay} mi/day</option>`).join('')}</select>
+            <span class="ck-pace">${rl('rule:travel-pace', `${travel.pace[0].toUpperCase() + travel.pace.slice(1)} pace`)}</span></div>
+          <div class="ck-row"><label class="ck-check"><input type="checkbox" data-t="difficult"${travel.difficult ? ' checked' : ''}> ${rl('rule:difficult-terrain', 'Difficult terrain')} (half speed)</label><label class="ck-check"><input type="checkbox" data-t="mounted"${travel.mounted ? ' checked' : ''}> ${rl('rule:mounted-combat', 'Mounted')} (gallops the first hour)</label></div>
+          <div class="ck-row"><span class="ck-out">${th < 1 ? `${Math.round(th * 60)} min` : `${Math.floor(th)} h ${Math.round((th % 1) * 60)} min`}${th > 8 ? ` · ${Math.ceil(th / 8)} days of travel (8 h a day)` : ''}${(() => { const n = paceNote(travel.pace, edition(), notes2024); return n ? ` · <span class="ck-note">${esc(n)}</span>` : ''; })()}</span><button class="primary" data-a="travel">Travel: advance ${elapsed(th) >= 24 ? `${Math.floor(elapsed(th) / 24)} d ${Math.round(elapsed(th) % 24)} h` : `${Math.round(elapsed(th))} h`}</button></div>
         </div>`;
     };
     render();
@@ -322,7 +353,7 @@ function buildDmUi(): void {
       case 'back': { const par = app.cur?.scene.parent; if (par) { localStorage.setItem('mistlab.scene', par); void app.open(par).then(() => app.layoutChanged()); } break; }
       case 'world': openWorldMap({
         canMove: !app.restricted,
-        dm: !app.restricted,
+        dm: !app.playersSide,
         revealed: () => app.pinsRevealed,
         reveal: (key, on) => app.revealPin(key, on),
         get: () => app.state.world,
@@ -351,13 +382,14 @@ function buildDmUi(): void {
 
   // Rooms sheet (right side): every area key by level, revealed state, tap = go, eye = reveal/hide.
   let roomsSheet: HTMLElement | null = null;
-  const toggleRooms = () => { if (roomsSheet) { roomsSheet.remove(); roomsSheet = null; return; } roomsSheet = document.createElement('aside'); roomsSheet.className = 'rooms dm-only'; ui.appendChild(roomsSheet); renderRooms(); };
+  const toggleRooms = () => { if (roomsSheet) { roomsSheet.remove(); roomsSheet = null; return; } roomsSheet = document.createElement('aside'); roomsSheet.className = 'rooms dm-only page'; ui.appendChild(roomsSheet); renderRooms(); };
   const renderRooms = () => {
     if (!roomsSheet || !app.cur) return;
     roomsSheet.innerHTML = `<header><h2>Rooms</h2><button class="icon close" aria-label="Close" data-tip="Close">${ICON.close}</button></header><div class="rooms-body">` +
-      app.cur.scene.levels.map((l) => `<section><h3>${l.name}${app.party?.level === l.id ? ' · party' : ''}</h3>${l.rooms.map((r) => {
+      app.cur.scene.levels.map((l) => `<section><h3>${esc(l.name)}${app.party?.level === l.id ? ' · party' : ''}</h3>${l.rooms.map((r) => {
         const on = app.isRevealed(r.key), here = app.party?.level === l.id && app.roomAt(l, app.party.pos)?.key === r.key;
-        return `<div class="room${on ? ' on' : ''}${here ? ' here' : ''}"><button class="go" data-go="${r.key}" data-tip="Go to ${r.key}"><b>${r.key}</b><span>${r.name}</span>${r.page ? `<em>p.${r.page}</em>` : ''}</button><button class="icon eye" data-reveal="${r.key}" aria-label="${on ? 'Hide from players' : 'Reveal to players'}" data-tip="${on ? 'Hide from players' : 'Reveal to players'}" aria-pressed="${on}">${ICON.eye}</button></div>`;
+        // The page reference is a rules link of its own (the module page card), beside the Go button, never inside it.
+        return `<div class="room${on ? ' on' : ''}${here ? ' here' : ''}"><button class="go" data-go="${esc(r.key)}" data-tip="Go to ${esc(r.key)}"><b>${esc(r.key)}</b><span>${esc(r.name)}</span></button>${r.page ? `<em>${pageref(r.page, `${r.key} · ${r.name}`)}</em>` : ''}<button class="icon eye" data-reveal="${esc(r.key)}" aria-label="${on ? 'Hide from players' : 'Reveal to players'}" data-tip="${on ? 'Hide from players' : 'Reveal to players'}" aria-pressed="${on}">${ICON.eye}</button></div>`;
       }).join('')}</section>`).join('') + '</div>';
   };
   ui.addEventListener('click', (e) => {
@@ -373,40 +405,49 @@ function buildDmUi(): void {
   function closeMenu(): void { menu?.remove(); menu = null; }
   // The tooltip manager: tips, toggletips and rules cards, with the one outside handler that also closes this menu.
   tips = mountTips({ restricted: () => app.restricted, menu: () => menu, closeMenu });
-  tips.onFlip(() => bar.update());
+  // A view flip (mode switch, Players view, the slider into or out of its players' end) re-renders everything that
+  // reads differently on the players' side, so no DM text is left standing: the turn bar, the token panel, the open
+  // menu or card (closed), and a status line that may name a creature (cleared).
+  tips.onFlip(() => { bar.update(); closeMenu(); renderTokPanel(); if (app.playersSide && app.tool === 'none') app.setStatus(''); });
   // Hover tooltip (mouse): what is under the cursor.
   app.onHover = (t, x, y) => tips!.canvasTip(t && !menu ? t : null, x, y);
+  // The DM's hover line on a creature token: its stat line from the creature's one source (filled once it is read;
+  // a change of the Rules edition reads it again).
+  const statLines = new Map<string, string>();
+  app.statLine = (t) => {
+    if (!t.creatureId) return undefined;
+    const id = t.creatureId;
+    if (!statLines.has(id)) { statLines.set(id, ''); void import('./ui/creature').then(async (m) => { statLines.set(id, m.statLine(await m.creatureSource(id))); }).catch(() => {}); }
+    return statLines.get(id) || undefined;
+  };
+  addEventListener('mistlab:rules-edition', () => statLines.clear());
   app.world.renderer.domElement.addEventListener('pointerleave', () => tips!.clear());
   app.onLeave = () => { closeMenu(); tips!.closeAll(); };
 
   app.onTap = (hit, x, y) => {
     closeMenu(); tips!.closeAll();
     const items: { label: string; act: () => void; icon?: string }[] = [];
-    if (hit.token) { // the players' look at a creature
-      const card = document.createElement('div'); card.className = 'infocard';
-      card.innerHTML = `<header><div><h2></h2></div><button class="icon close" aria-label="Close" data-tip="Close">${ICON.close}</button></header>${hit.token.desc ? '<div class="body"><div class="desc"></div></div>' : ''}`;
-      card.querySelector('h2')!.textContent = hit.token.name; if (hit.token.desc) card.querySelector('.desc')!.textContent = hit.token.desc;
-      card.style.left = `${Math.min(x, innerWidth - 360)}px`; card.style.top = `${Math.min(y, innerHeight - 200)}px`;
-      card.addEventListener('click', (e) => { if ((e.target as HTMLElement).closest('.close')) closeMenu(); });
+    // Who reads the card: the players' side (Players view, or the slider at its players' end) gets the players'
+    // words and links only; module words go through the rules links (ui/cards.ts, ui/rich.ts); every value is escaped.
+    const players = app.playersSide;
+    const opts = { players, scenePath: app.cur?.path ?? '', levelId: app.levelId };
+    const infoCard = (html: string, h: number) => {
+      const card = document.createElement('div'); card.className = 'infocard page';
+      card.innerHTML = html;
+      card.style.left = `${Math.min(x, innerWidth - 360)}px`; card.style.top = `${Math.min(y, innerHeight - h)}px`;
       menu = card; ui.appendChild(card);
+      return card;
+    };
+    if (hit.token) { // the players' look at a creature
+      const card = infoCard(creatureCardHtml(hit.token, opts), 200);
+      card.addEventListener('click', (e) => { if ((e.target as HTMLElement).closest('.close')) closeMenu(); });
       return;
     }
-    if (hit.object) {
+    if (hit.object && (!players || app.restricted || hit.object.visibleToPlayers)) {
       // Info card: what it is, where, what players see, DM notes, state, actions.
-      const o = hit.object, players = app.restricted;
-      const card = document.createElement('div');
-      card.className = 'infocard';
-      const where = hit.room ? `${hit.room.key} · ${hit.room.name}${o.page ? ` · p.${o.page}` : ''}` : '';
-      const state = players ? '' : o.vis === 'player' ? 'Visible to players when in sight' : `${o.vis.replace('-', ' ')} · ${o.revealed ? 'revealed to players' : o.visibleToPlayers ? 'in players\' view' : 'hidden from players'}`;
-      const c = o.container;
-      const inside = !c ? '' : c.open ? `<div class="inside"><b>Inside</b> ${c.contents ?? 'Nothing of note.'}</div>`
-        : players ? `<div class="inside">${c.locked ? `${ICON.padlock} Locked` : 'Closed'}</div>`
-        : `<div class="inside">${c.locked ? `${ICON.padlock} Locked · ` : ''}Closed${c.contents ? ` · holds: ${c.contents}` : ''}</div>`;
-      const openBtn = c && (!players || !c.locked || c.open) ? `<button class="primary" data-a="open">${c.open ? 'Close' : 'Open'}</button>` : '';
-      card.innerHTML = `<header><div><h2>${o.label}</h2>${where && !players ? `<div class="where">${where}</div>` : ''}</div><button class="icon close" aria-label="Close" data-tip="Close">${ICON.close}</button></header>
-        <div class="body">${o.desc ? `<div class="desc">${o.desc}</div>` : ''}${!players && o.playerLabel && o.playerLabel !== o.label ? `<div class="seen-as">Players see: <b>${o.playerLabel}</b></div>` : ''}${!players && o.dm ? `<div class="dm"><span class="dm-tag">${ICON.eyeOff}DM only</span>${o.dm}</div>` : ''}${inside}${state ? `<div class="state">${state}</div>` : ''}</div>
-        ${players ? (openBtn ? `<div class="actions">${openBtn}</div>` : '') : `<div class="actions">${openBtn}${o.vis !== 'player' ? `<button class="${openBtn ? '' : 'primary'}" data-a="reveal">${o.revealed ? 'Hide from players' : 'Reveal to players'}</button>` : ''}${hit.room ? `<button data-a="frame">Frame ${hit.room.key}</button>` : ''}${hit.secretDoor ? `<button data-a="secret">${hit.secretDoor.revealed ? 'Hide secret door' : 'Reveal secret door'}</button>` : ''}</div>`}`;
-      card.style.left = `${Math.min(x, innerWidth - 360)}px`; card.style.top = `${Math.min(y, innerHeight - 260)}px`;
+      const o = hit.object, so = app.level.objects.find((x) => x.id === o.id);
+      const ownWords = !!so && !!(so.label || so.playerLabel || so.desc || so.dm || so.container?.contents);
+      const card = infoCard(objectCardHtml(o, { ...opts, room: hit.room, secretDoor: hit.secretDoor, ownWords }), 260);
       card.addEventListener('click', (e) => {
         const b = (e.target as HTMLElement).closest<HTMLElement>('button'); if (!b) return;
         if (b.classList.contains('close')) return closeMenu();
@@ -414,19 +455,12 @@ function buildDmUi(): void {
         if (b.dataset.a === 'reveal') app.toggleObject(o.id); if (b.dataset.a === 'frame') app.jumpTo(hit.room!.key); if (b.dataset.a === 'secret') app.revealSecretDoor(hit.secretDoor!.id);
         closeMenu(); refresh();
       });
-      menu = card; ui.appendChild(card);
       return;
     }
     if (app.restricted && hit.room) {
       // Players: a read-only room card.
-      const r = hit.room, card = document.createElement('div');
-      card.className = 'infocard';
-      card.innerHTML = `<header><div><h2></h2></div><button class="icon close" aria-label="Close" data-tip="Close">${ICON.close}</button></header>${r.desc ? '<div class="body"><div class="desc"></div></div>' : ''}`;
-      card.querySelector('h2')!.textContent = r.name;
-      if (r.desc) card.querySelector('.desc')!.textContent = r.desc;
-      card.style.left = `${Math.min(x, innerWidth - 360)}px`; card.style.top = `${Math.min(y, innerHeight - 200)}px`;
+      const card = infoCard(playersRoomCardHtml(hit.room, opts), 200);
       card.addEventListener('click', (e) => { if ((e.target as HTMLElement).closest('.close')) closeMenu(); });
-      menu = card; ui.appendChild(card);
       return;
     }
     if (hit.door) items.push({ label: hit.door.open ? 'Close door' : 'Open door', icon: ICON.walls, act: () => app.toggleDoor(hit.door!.wallId) });
@@ -439,10 +473,10 @@ function buildDmUi(): void {
     }
     if (!items.length) return;
     menu = document.createElement('div');
-    menu.className = 'tapmenu';
+    menu.className = 'tapmenu page';
     const r = !hit.door && !hit.secretDoor ? hit.room : undefined;
-    const head = r ? `<div class="roomhead"><div class="rh-title"><b>${r.key}</b> ${r.name}${r.page ? ` <i>p.${r.page}</i>` : ''}</div>${r.desc ? `<div class="desc">${r.desc}</div>` : ''}${r.dm ? `<div class="dm"><span class="dm-tag">${ICON.eyeOff}DM only</span>${r.dm}</div>` : ''}</div>` : '';
-    menu.innerHTML = head + items.map((it, i) => `<button data-i="${i}">${it.icon ?? ''}<span>${it.label}</span></button>`).join('');
+    const head = r ? roomHeadHtml(r, opts) : '';
+    menu.innerHTML = head + items.map((it, i) => `<button data-i="${i}">${it.icon ?? ''}<span>${esc(it.label)}</span></button>`).join('');
     if (r) menu.classList.add('withroom');
     ui.appendChild(menu);
     menu.style.left = `${Math.max(8, Math.min(x, innerWidth - menu.offsetWidth - 8))}px`; menu.style.top = `${Math.max(8, Math.min(y, innerHeight - menu.offsetHeight - 8))}px`;
@@ -451,20 +485,43 @@ function buildDmUi(): void {
   };
 
   // The picked-up token's panel (DM): what players see, hit points, reveal, reach helper, initiative, remove.
-  const tokPanel = document.createElement('div'); tokPanel.className = 'tokpanel'; tokPanel.hidden = true; ui.appendChild(tokPanel);
+  const tokPanel = document.createElement('div'); tokPanel.className = 'tokpanel page'; tokPanel.hidden = true; ui.appendChild(tokPanel);
+  // The panel's stat pills (size, AC, HP, speed, CR) come from the creature's one source, the same one its stat-block
+  // card reads (ui/creature.ts): the books' entry for the Rules edition, else the module's numbers under 'Module stats'.
+  let pillsFor = '';
+  const fillPills = (t: { id: string; creatureId?: string }, size?: string) => {
+    const host = tokPanel.querySelector<HTMLElement>('.tp-stats'); if (!host || !t.creatureId) return;
+    const key = `${t.id}|${t.creatureId}`; pillsFor = key;
+    void import('./ui/creature').then(async (m) => {
+      const n = m.numbersOf(await m.creatureSource(t.creatureId!), size);
+      if (pillsFor !== key || !host.isConnected) return;
+      host.innerHTML = `${m.statPills(n)}<span class="tp-src">${esc([n.note, n.from].filter(Boolean).join(' · '))}</span>`;
+    }).catch(() => {});
+  };
   const renderTokPanel = () => {
     const t = app.selected ? app.state.tokens.find((x) => x.id === app.selected) : undefined;
-    tokPanel.hidden = !t || app.restricted || t.role === 'party';
-    if (tokPanel.hidden || !t) return;
-    const en = t.creatureId ? creatureById(t.creatureId) : undefined, st = en && statsOf(en);
-    tokPanel.innerHTML = `<header><b>${t.name}</b><span>${en ? `${en.size}${st ? ` · AC ${st.ac} · ${st.speed} · CR ${st.cr}` : ''}` : 'combatant'}</span><button class="icon close" aria-label="Close" data-tip="Close">${ICON.close}</button></header>
-      ${t.role === 'creature' ? `<label>Players see <input data-f="pname" value="${(t.playerName ?? t.name).replace(/"/g, '&quot;')}"></label>${en && seenAs(en) ? `<div class="seen">${seenAs(en)}</div>` : ''}` : ''}
-      ${t.hp ? `<div class="hp"><button data-a="hp-" aria-label="Damage" data-tip="Damage">−</button><b>${t.hp.cur}</b> / ${t.hp.max} hp<button data-a="hp+" aria-label="Heal" data-tip="Heal">+</button></div>` : ''}
+    // DM only: never in Players view, never at the slider's players' end.
+    tokPanel.hidden = !t || app.playersSide || t.role === 'party';
+    // A hidden panel keeps nothing: no name or number lingers in the page on the players' side.
+    if (tokPanel.hidden || !t) { tokPanel.innerHTML = ''; pillsFor = ''; return; }
+    const en = t.creatureId ? creatureById(t.creatureId) : undefined;
+    // The name opens the creature's stat-block card (people are the module's own: their name stays a name).
+    const name = en && en.kind !== 'npc'
+      ? `<button type="button" class="rl monster" data-kind="monster" data-creature="${esc(en.id)}" data-name="${esc(t.name)}" aria-expanded="false">${esc(t.name)}</button>`
+      : `<b>${esc(t.name)}</b>`;
+    const seen = en && seenAs(en);
+    tokPanel.innerHTML = `<header><span class="tp-name">${name}</span>${t.hidden && t.role === 'creature' ? '<span class="tag">Hidden</span>' : ''}<button class="icon close" aria-label="Close" data-tip="Close">${ICON.close}</button></header>
+      <div class="tp-stats">${en ? '' : '<span class="tp-src">combatant</span>'}</div>
+      ${t.role === 'creature' ? `<label>Players see <input data-f="pname" value="${esc(t.playerName ?? t.name)}"></label>${seen ? `<div class="seen">${esc(seen)} <button type="button" class="tt" data-tip="What players are told" data-tip-sub="Their card shows this until you rename it" aria-label="What players are told" aria-expanded="false">i</button></div>` : ''}` : ''}
+      ${t.hp ? `<div class="hp"><button data-a="hp-" aria-label="Damage" data-tip="Damage">−</button><span class="hp-v"><b>${t.hp.cur}</b> / ${t.hp.max} hp<i style="--f:${t.hp.max ? Math.max(0, Math.min(1, t.hp.cur / t.hp.max)) : 0}"></i></span><button data-a="hp+" aria-label="Heal" data-tip="Heal">+</button></div>` : ''}
       <div class="acts">${t.role === 'creature' ? `<button class="${t.hidden ? 'primary' : ''}" data-a="reveal" data-tip="${t.hidden ? 'Reveal to players' : 'Hide from players'}">${t.hidden ? ICON.eye + '<span>Reveal to players</span>' : ICON.eyeOff + '<span>Hide from players</span>'}</button>` : ''}
         ${!app.encounter ? `<button data-a="range" aria-pressed="${app.rangeHelper}" data-tip="Reach" data-tip-sub="Where it can move and strike">${ICON.grid}<span>Reach</span></button>` : ''}
         ${t.role === 'creature' && !app.encounter ? `<button data-a="init" data-tip="Initiative">${ICON.swords}<span>Initiative</span></button>` : ''}
-        ${t.role === 'creature' ? `<button data-a="remove" data-tip="Remove from the map">${ICON.close}<span>Remove</span></button>` : ''}</div>`;
+        ${t.role === 'creature' ? `<button class="danger" data-a="remove" data-tip="Remove from the map">${ICON.close}<span>Remove</span></button>` : ''}</div>`;
+    if (en) fillPills(t, en.size);
   };
+  // A change of the Rules edition re-reads the pills from the new edition's source.
+  addEventListener('mistlab:rules-edition', () => { if (!tokPanel.hidden) renderTokPanel(); });
   tokPanel.addEventListener('click', (e) => {
     const b = (e.target as HTMLElement).closest<HTMLElement>('button'); if (!b) return;
     const id = app.selected; if (!id) return;
@@ -494,7 +551,10 @@ function buildDmUi(): void {
   function showHelp(): void {
     const h = document.createElement('div');
     h.className = 'sheet-backdrop';
-    h.innerHTML = `<div class="sheet help"><header><h2>Running a session</h2><button class="icon close" aria-label="Close" data-tip="Close">${ICON.close}</button></header><div class="sheet-body">
+    // The colour key: one sample link per family, each opening its card (the underline says the family without colour).
+    const rl = (kind: string, cls: string, term: string, word: string) => `<button type="button" class="rl ${cls}" data-kind="${kind}" data-term="${term}" aria-expanded="false">${word}</button>`;
+    const colours = `${rl('condition', 'condition', 'condition:prone', 'prone')} dashed: conditions; ${rl('spell', 'spell', 'spell:bless', 'bless')} double: spells and magic items; ${rl('monster', 'monster', 'monster:wolf', 'wolf')} wavy: monsters; ${rl('rule', 'rule', 'rule:difficult-terrain', 'difficult terrain')} dotted: rules, actions, senses and damage; ${pageref(app.cur?.scene.mapPage ?? 1, app.cur?.scene.name)} solid ink: module pages, places and people. Hover or tap one for its card.`;
+    h.innerHTML = `<div class="sheet help page"><header><h2>Running a session</h2><button class="icon close" aria-label="Close" data-tip="Close">${ICON.close}</button></header><div class="sheet-body">
       <dl>
         <dt>Move the party</dt><dd>Tap the amber token to pick it up, then tap where it goes (tap it again or press Esc to cancel). The room it enters is revealed and remembered; step onto stairs or a trapdoor to change level; the camera follows. In Players mode the party walks: walls and closed doors stop it, and locked doors stay shut until the DM opens them.</dd>
         <dt>Look around</dt><dd>One finger / left-drag pans. Right-drag or a two-finger twist rotates; pinch or scroll zooms. The buttons bottom-left turn in 90° steps, tilt, zoom and find the party. Double-tap a room to frame it.</dd>
@@ -505,6 +565,7 @@ function buildDmUi(): void {
         <dt>Find an area</dt><dd>Type a key or name in the search box (or press /). The Rooms list shows every key with its revealed state.</dd>
         <dt>Doors, stairs and choices</dt><dd>Door markers open and close doors; stair and trapdoor markers move the party between levels. Tap anything for a menu of what you can do with it (reveal, hide, move the party, frame). The slider previews what players see.</dd>
         <dt>Players mode</dt><dd>Turn the iPad to the table: only revealed rooms, no DM chrome. DM mode brings everything back.</dd>
+        <dt>Colours</dt><dd class="colours">${colours}</dd>
         <dt data-attrib>Rules books</dt>
       </dl></div></div>`;
     h.addEventListener('click', (e) => { const t = e.target as HTMLElement; if (t === h || t.closest('.close')) h.remove(); });

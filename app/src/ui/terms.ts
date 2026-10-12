@@ -11,8 +11,9 @@
 //      types, abilities and skills) and never sees a structural or gazetteer link.
 // Nothing here edits module data and nothing matches inside HTML: spans are offsets into the plain string, and
 // renderSpans escapes every slice.
-import { findTerms, normTerm, rulesEdition, termIndex, type TermSpan } from '../books/lookup';
-import { loadEntries } from '../books/store';
+import { EDITION_EVENT, findTerms, normTerm, rulesEdition, termIndex, type TermSpan } from '../books/lookup';
+import { loadEntries, loadPage } from '../books/store';
+import { paceNotesFrom, type Pace } from '../core/travel';
 import { BOOK_OF, type Edition, type EntryType, type TermFile } from '../books/types';
 import characters from '../../../manifests/characters.json';
 import { CAMPAIGNS, campaignOf, manifestOf, worldOf } from '../campaigns';
@@ -22,6 +23,9 @@ import { kindInfo, PLAYER_KINDS, SENSE_IDS, type RuleKind } from './kinds';
 import { esc } from './text';
 
 export type Audience = 'player' | 'dm';
+/** The Rules edition preference and its change event (re-exported, so the main chunk need not load the books code). */
+export { EDITION_EVENT };
+export const edition = (): Edition => rulesEdition();
 /** Why a span links: a tag, the name itself, a cue, a structural source, the gazetteer, or an override. */
 export type SpanVia = 'tag' | 'name' | 'cue' | 'structural' | 'gazetteer' | 'override';
 
@@ -389,6 +393,14 @@ function creatureOf(kind: string, t: TermFile): { id: string; name: string; form
   return { id: `creature:${kind}`, name, forms: [name.toLowerCase(), kind.replace(/-/g, ' ')] };
 }
 
+/** The books' monster a module creature id stands for ('dire-wolf' → 'monster:dire-wolf'), in one edition, or nothing
+ *  (a person, or a creature the open rules do not have). Needs `ready(edition)`. */
+export function monsterIdFor(creatureId: string, edition: Edition): string | undefined {
+  const t = terms.get(edition);
+  const c = t ? creatureOf(creatureId, t) : undefined;
+  return c && c.id.startsWith('monster:') ? c.id : undefined;
+}
+
 function creatureSpans(text: string, ctx: SpanCtx, t: TermFile | undefined): Span[] {
   if (!t || (ctx.field !== 'label' && ctx.field !== 'dm')) return [];
   const sc = sceneInfo(ctx.scenePath);
@@ -592,4 +604,31 @@ function linkHtml(x: Span, shown: string): string {
   if (x.person) a.push(['data-name', x.person.name], ['data-role', x.person.role], ['data-home', x.person.home]);
   const attrs = a.filter(([, v]) => v !== undefined && v !== '').map(([n, v]) => ` ${n}="${esc(v)}"`).join('');
   return `<button type="button" class="rl ${k.cls}"${attrs}>${esc(shown)}</button>`;
+}
+
+/**
+ * A token's conditions as rules links (the hook increment 9 renders on the token panel and the players' creature
+ * card). Each name the books know as a condition becomes a condition link; on the players' side anything else is left
+ * out (it could be a DM's own note), on the DM side it stays as plain text. Needs `ready(edition)`.
+ */
+export function conditionChips(conditions: readonly string[], audience: Audience, edition: Edition = rulesEdition()): string {
+  const t = terms.get(edition);
+  const out: string[] = [];
+  for (const c of conditions) {
+    const i = t ? (t.forms[normTerm(c)] ?? []).find((x) => t.entries[x][2] === 'condition') : undefined;
+    if (i !== undefined) {
+      const [id, name] = t!.entries[i];
+      out.push(`<button type="button" class="rl ${kindInfo('condition').cls}" data-kind="condition" data-term="${esc(id)}" data-label="${esc(name)}" aria-expanded="false">${esc(name)}</button>`);
+    } else if (audience === 'dm') out.push(`<span class="cond">${esc(c)}</span>`);
+  }
+  return out.length ? `<span class="conds">${out.join(' ')}</span>` : '';
+}
+
+/** The 2024 travel paces' effects, read from the 2024 book's Travel Pace section (the clock's pace note). */
+export async function paceNotes2024(): Promise<Partial<Record<Pace, string>>> {
+  const page = await loadPage('srd-5.2.1', 'playing-the-game');
+  const at = page.html.indexOf('id="travel-pace"');
+  if (at < 0) return {};
+  const end = page.html.indexOf('<h', page.html.indexOf('</h', at) + 4);
+  return paceNotesFrom(page.html.slice(at, end < 0 ? undefined : end));
 }

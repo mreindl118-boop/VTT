@@ -7,6 +7,7 @@ import { EDITION_EVENT, lookup, rulesEdition, type Edition, type RuleEntry } fro
 import type { ConditionSummary, ItemSummary, MonsterSummary, SpellSummary } from '../books/types';
 import { emblem, ensureEmblems } from './emblems';
 import { kickerOf, kindInfo, kindOf, PLAYER_KINDS, rarityOf, type RuleKind } from './kinds';
+import { creatureSource, MODULE_STATS, NO_OPEN_BLOCK } from './creature';
 import { hasMore, moduleStatsHtml, monsterMeta, statblockHtml } from './statblock';
 import { clampWords, esc } from './text';
 
@@ -22,8 +23,11 @@ export type Structural =
   | { kind: 'pageref'; page: number; where?: string };
 /** A monster the books do not have: the module's own numbers, under 'Module stats'. */
 export interface ModuleMonster { kind: 'module-monster'; name: string; stats?: { ac: number; hp: number; speed: string; cr: string }; srd: boolean }
-/** What a card shows: a books entry (by term or id, or already looked up), or a structural card. */
-export type CardSpec = { term: string; kind?: RuleKind; entry?: RuleEntry } | Structural | ModuleMonster;
+/** A module creature (a token, a bestiary row): its one source decides the card (ui/creature.ts). */
+export interface CreatureSpec { kind: 'creature'; creatureId: string; name?: string }
+/** What a card shows: a books entry (by term or id, or already looked up; `edition` pins it, as the Books reader's
+ *  cross-links do), a module creature, or a structural card. */
+export type CardSpec = { term: string; kind?: RuleKind; entry?: RuleEntry; edition?: Edition } | Structural | ModuleMonster | CreatureSpec;
 
 export interface CardCtx {
   /** Players' side: only PLAYER_KINDS cards exist, and nothing DM-only is built. */
@@ -47,9 +51,16 @@ let uid = 0;
 export async function buildCard(spec: CardSpec, ctx: CardCtx): Promise<HTMLElement | null> {
   ensureEmblems();
   if ('kind' in spec && spec.kind === 'module-monster') return ctx.restricted ? null : moduleCard(spec, ctx);
+  if ('kind' in spec && spec.kind === 'creature') {
+    // DM only: the books' stat block for the chosen edition, else the module's own numbers, never a mix.
+    if (ctx.restricted) return null;
+    const src = await creatureSource(spec.creatureId);
+    return src.kind === 'srd' ? entryCard(src.entry, 'monster', src.edition, ctx) : moduleCard({ kind: 'module-monster', name: spec.name ?? src.name, stats: src.stats, srd: false }, ctx);
+  }
   if (isStructural(spec)) return ctx.restricted ? null : structuralCard(spec, ctx);
-  const pref = rulesEdition();
-  const entry = spec.entry ?? await lookup(spec.term, pref, { fallback: true, type: spec.kind && spec.kind !== 'sense' && spec.kind !== 'action' && spec.kind !== 'magic-item' && spec.kind !== 'gear' ? spec.kind as RuleEntry['type'] : undefined });
+  const pref = spec.edition ?? rulesEdition();
+  const typed = spec.kind && spec.kind !== 'sense' && spec.kind !== 'action' && spec.kind !== 'magic-item' && spec.kind !== 'gear' ? spec.kind as RuleEntry['type'] : undefined;
+  const entry = spec.entry ?? await lookup(spec.term, pref, { fallback: !spec.edition, type: typed });
   if (!entry) return null;
   const kind = kindOf(entry);
   if (ctx.restricted && !PLAYER_KINDS.has(kind)) return null;
@@ -129,6 +140,8 @@ function entryCard(e: RuleEntry, kind: RuleKind, pref: Edition, ctx: CardCtx): H
       // The full entry, from our generated books data, in place; the card scrolls inside its own box.
       body.innerHTML = monster ? statblockHtml(s as unknown as MonsterSummary, e.html, true) : e.html;
       b.remove();
+      // Sibling entries inside the full text link like the Books reader's (a stat block's traits use its rule).
+      if (!ctx.restricted) void import('./booklinks').then((m) => m.linkBooksText(body, e.edition, { statBlock: monster, self: e.id })).catch(() => {});
     });
     el.appendChild(b);
   }
@@ -190,7 +203,7 @@ function structuralCard(s: Structural, ctx: CardCtx): HTMLElement {
 
 function moduleCard(m: ModuleMonster, ctx: CardCtx): HTMLElement {
   const { el } = shell('monster', '', m.stats ? `monster · CR ${m.stats.cr}` : 'monster', m.name, ctx, true);
-  el.insertAdjacentHTML('beforeend', `<div class="body">${moduleStatsHtml(m.stats, m.srd ? 'Module stats' : 'Curse of Strahd creature: no open stat block')}</div><div class="src"><span class="who">Module stats</span><span class="gap"></span>${pinBtn(ctx)}</div>`);
+  el.insertAdjacentHTML('beforeend', `<div class="body">${moduleStatsHtml(m.stats, m.srd ? MODULE_STATS : NO_OPEN_BLOCK)}</div><div class="src"><span class="who">${MODULE_STATS}</span><span class="gap"></span>${pinBtn(ctx)}</div>`);
   return el;
 }
 
@@ -202,3 +215,6 @@ export function diceStats(expr: string): { avg: number; max: number } | undefine
   return { avg: Math.floor((n * (d + 1)) / 2 + k), max: n * d + k };
 }
 
+
+/** The token conditions hook (increment 9 renders it): condition links, player-safe on the players' side. */
+export { conditionChips } from './terms';

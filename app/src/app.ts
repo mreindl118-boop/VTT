@@ -4,7 +4,7 @@ import type { CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js'
 import { bounds, pointInPolygon, type Vec2 } from './core/geometry';
 import { CoverageMap, Cov } from './core/coverage';
 import { squareCellAt, squareCellCenter, squareDistanceFt, worldToHex, hexToWorld, hexDistanceFt, hexSizeFromWidth, type DiagonalRule } from './core/grid';
-import { OPENABLE_KINDS, type Container, type GridFile, type Level, type LightSource, type SceneFile, type SceneObject, type Wall, type Ambient } from './core/schema';
+import { OPENABLE_KINDS, type Container, type GridFile, type Level, type LightSource, type SceneFile, type SceneObject, type Room, type Wall, type Ambient } from './core/schema';
 import { moveBlockers } from './core/light';
 import { canWalk } from './core/movement';
 import { classOpacity, fogCurve, hiddenCurve, labelCurve } from './core/slider';
@@ -34,6 +34,7 @@ import { SHELL_ROLES } from './render/materials';
 import { skyAt, type Sky } from './core/sky';
 const PARTY_RED = '#c0392b';
 import { creatureById, figureFor, aliasFor, seenAs, statsOf, speedFtOf, colorOf } from './bestiary';
+import { playerFacing } from './core/identity';
 import { sightBlockers } from './core/light';
 import { idbGet, idbSet } from './state/idb';
 
@@ -47,7 +48,7 @@ export interface TapHit {
   secretDoor?: { id: string; revealed: boolean };
   object?: { id: string; label: string; playerLabel?: string; container?: { locked: boolean; open: boolean; contents?: string }; vis: string; revealed: boolean; kind: string; desc?: string; dm?: string; page?: number; visibleToPlayers: boolean };
   /** A creature the players can see: what they call it and what they make of it. */
-  token?: { id: string; name: string; desc?: string };
+  token?: { id: string; name: string; desc?: string; seenAsOf?: string };
 }
 
 interface Loaded {
@@ -150,7 +151,7 @@ export class App {
     this.campaign = c;
     const saved = await idbGet<CampaignState>(storeKey(c.id)).catch(() => undefined);
     this.state = saved ? { ...newCampaign(c.id), ...saved } : newCampaign(c.id); // older saves lack newer fields
-    useWorld(worldOf(c), c.theme.id === 'pastoral' ? 'pastoral' : 'gothic');
+    useWorld(worldOf(c), c.theme.id === 'pastoral' ? 'pastoral' : 'gothic', c.world);
     this.world.setTheme(c.theme);
     document.body.dataset.campaign = c.id;
   }
@@ -532,8 +533,13 @@ export class App {
       g.add(baseRing(base, t.role === 'party' ? PARTY_RED : t.color), fig);
       if (t.role === 'party') { const amp = this.world.label('&', undefined, 'token party-amp'); amp.position.set(0, 7.6, 0); g.add(amp); }
       if (t.role === 'member' || t.role === 'creature') {
-        const lb = this.world.label(this.restricted ? (t.playerName ?? t.name) : t.name, undefined, `token${t.role === 'creature' ? ' creature' : ''}${t.hidden ? ' hidden' : ''}`);
-        lb.position.set(0, 7.2, 0); lb.element.style.setProperty('--tok', t.color); g.add(lb);
+        // The name goes through the players' projection (core/identity.ts): a hidden creature has no tag on the players'
+        // side, a revealed one its own alias, never its real or sheet name.
+        const f = playerFacing(t, { restricted: this.playersSide });
+        if (f.visible) {
+          const lb = this.world.label(f.name ?? t.name, undefined, `token${t.role === 'creature' ? ' creature' : ''}${t.hidden ? ' hidden' : ''}`);
+          lb.position.set(0, 7.2, 0); lb.element.style.setProperty('--tok', t.color); g.add(lb);
+        }
       }
       const ghostly = t.role === 'creature' && !!t.hidden; // the DM sees an unrevealed creature faintly
       g.traverse((c) => {
@@ -688,7 +694,12 @@ export class App {
       }
     }));
   }
-  setT(t: number): void { this.t = t; this.applySlider(); }
+  setT(t: number): void {
+    const was = this.playersSide;
+    this.t = t; this.applySlider();
+    // Into or out of the players' preview: token names follow the players' projection (or the DM's names again).
+    if (this.cur && was !== this.playersSide) this.syncTokens();
+  }
   setView(v: 'dm' | 'players'): void { this.view = v; this.tool = 'none'; this.clearRuler(); this.stopPlacing(); this.select(null); if (this.cur) { this.syncTokens(); this.recompute(); } this.applySlider(); this.onChange?.(); }
 
   // ------------------------------------------------------------------ reveals
@@ -761,6 +772,11 @@ export class App {
   }
   /** Players' side (Players view or the Player Display) is bound by walls; the DM moves freely. */
   get restricted(): boolean { return this.mode === 'player' || this.view === 'players'; }
+  /** What the players' side reads (cards, tips, the turn bar, token names): Players view, the Player Display, and the
+   *  slider at its players' end (t = 0, 'safe to point at players'). Moving and acting still follow `restricted`. */
+  get playersSide(): boolean { return this.restricted || this.t <= 0; }
+  /** The DM's stat line for a creature token from its one source (ui/creature.ts, cached once loaded). */
+  statLine?: (t: Token) => string | undefined;
   canWalkTo(from: Vec2, to: Vec2): boolean {
     if (!this.restricted) return true;
     const floor = this.cur!.grid.levels[this.levelId].floorPolygons.concat(this.level.rooms.map((r) => r.polygon));
@@ -822,7 +838,7 @@ export class App {
   startPlacing(creatureId: string): void {
     this.placing = creatureId; this.placed = 0; this.select(null);
     const e = creatureById(creatureId);
-    this.setStatus(`Tap the map to place ${e?.name ?? 'it'} · Esc to stop`);
+    this.setStatus(this.playersSide ? 'Tap the map to place it · Esc to stop' : `Tap the map to place ${e?.name ?? 'it'} · Esc to stop`);
     this.onChange?.();
   }
   stopPlacing(): void { if (!this.placing) return; this.placing = null; this.setStatus(''); this.onChange?.(); }
@@ -1095,7 +1111,7 @@ export class App {
     const inInitiative = !!e && e.order.some((c) => c.tokenId === id);
     if (!inInitiative && t.role !== 'party' && !this.restricted) { /* the DM places people and monsters where the story needs them */ }
     else if (e && inInitiative) {
-      if (cur?.token.id !== id) { this.flashStatus(`Not ${t.name}'s turn`); return false; }
+      if (cur?.token.id !== id) { this.flashStatus(this.playersSide ? 'Not your turn' : `Not ${t.name}'s turn`); return false; }
       const cell = this.rangeFor?.move.find((m) => m.cell[0] === to[0] && m.cell[1] === to[1]);
       if (cell) e.movedFt += cell.costFt;
       else if (this.restricted) { this.flashStatus('Out of movement range'); return false; }
@@ -1122,14 +1138,15 @@ export class App {
     const hit = this.pick(e), o = hit?.object, loc = this.cur!.scene.location, p = this.floorPoint(e);
     const room = p ? this.roomAt(this.level, p) : undefined;
     const where = room ? `${room.key} · ${room.name}` : undefined;
-    const players = this.restricted;
+    const players = this.playersSide;
     const tokId = o && findUp(o, 'tokenId');
     if (tokId) {
       const t = this.state.tokens.find((x) => x.id === tokId); if (!t) return null;
       if (t.role === 'creature') {
-        const en = t.creatureId ? creatureById(t.creatureId) : undefined, st = en && statsOf(en);
-        if (players) return t.hidden ? null : { title: t.playerName ?? t.name, sub: en ? seenAs(en) : undefined };
-        return { title: t.name, sub: [t.hidden ? 'Hidden from players' : `Players see: ${t.playerName ?? t.name}`, st ? `AC ${st.ac}` : '', t.hp ? `${t.hp.cur}/${t.hp.max} hp` : '', 'tap to pick up'].filter(Boolean).join(' · ') };
+        const en = t.creatureId ? creatureById(t.creatureId) : undefined;
+        if (players) { const f = playerFacing(t, { restricted: true }); return f.visible ? { title: f.name!, sub: en ? seenAs(en) : undefined } : null; }
+        // The DM's stat line comes from the creature's one source (the books' entry, else the module's numbers).
+        return { title: t.name, sub: [t.hidden ? 'Hidden from players' : `Players see: ${t.playerName ?? t.name}`, this.statLine?.(t) ?? '', t.hp ? `${t.hp.cur}/${t.hp.max} hp` : '', 'tap to pick up'].filter(Boolean).join(' · ') };
       }
       return { title: t.name, sub: this.selected === tokId ? 'Tap where it goes' : 'Tap to pick up and move' };
     }
@@ -1170,6 +1187,18 @@ export class App {
     return null;
   }
 
+  /** What a tap tells the card about an object: the players' version (their label, no DM note) or the DM's. */
+  tapObject(obj: SceneObject, players: boolean): NonNullable<TapHit['object']> {
+    if (players) return { id: obj.id, label: playerLabel(obj), container: this.containerInfo(obj, true), vis: obj.vis, revealed: true, kind: obj.kind, desc: playerDesc(obj), visibleToPlayers: true };
+    const rs = revealSets(this.state, this.cur!.scene.location);
+    return { id: obj.id, label: obj.label ?? kindName(obj.kind), playerLabel: playerLabel(obj), container: this.containerInfo(obj, false), vis: obj.vis, revealed: rs.objects.has(obj.id), kind: obj.kind, desc: playerDesc(obj), dm: obj.dm, page: this.level.rooms.find((r) => r.key === obj.key)?.page, visibleToPlayers: this.playerCanSee(obj) };
+  }
+  /** What a tap tells the card about a room (the players' version carries no DM note and no page). */
+  tapRoom(room: Room, players: boolean): NonNullable<TapHit['room']> {
+    return players ? { key: room.key, name: room.name, revealed: true, desc: room.desc, enter: room.enter }
+      : { key: room.key, name: room.name, revealed: this.isRevealed(room.key), desc: room.desc, dm: room.dm, page: room.page, enter: room.enter };
+  }
+
   private lastTap = 0;
   private tap(e: PointerEvent): void {
     // Moving is two deliberate taps: the token, then where it goes. A swipe never moves anyone.
@@ -1180,11 +1209,12 @@ export class App {
     if (tokId) {
       const tk = this.state.tokens.find((x) => x.id === tokId)!;
       if (this.restricted && tk.role === 'creature') { // players may look, not move
-        const en = tk.creatureId ? creatureById(tk.creatureId) : undefined;
-        this.onTap?.({ pos: fp ?? tk.pos, token: { id: tk.id, name: tk.playerName ?? tk.name, desc: en ? seenAs(en) : undefined } }, e.clientX, e.clientY); return;
+        const en = tk.creatureId ? creatureById(tk.creatureId) : undefined, f = playerFacing(tk, { restricted: true });
+        if (!f.visible) return;
+        this.onTap?.({ pos: fp ?? tk.pos, token: { id: tk.id, name: f.name!, desc: en ? seenAs(en) : undefined, seenAsOf: en?.id } }, e.clientX, e.clientY); return;
       }
       const cur = this.current;
-      if (this.encounter && this.restricted && cur && cur.token.id !== tokId) { this.flashStatus(`Not ${this.state.tokens.find((x) => x.id === tokId)?.name ?? 'their'}'s turn`); return; }
+      if (this.encounter && this.restricted && cur && cur.token.id !== tokId) { this.flashStatus('Not your turn'); return; }
       this.select(this.selected === tokId ? null : tokId); return;
     }
     if (this.selected) {
@@ -1201,10 +1231,10 @@ export class App {
       // Players may look at what they can see: a description card, nothing else.
       const oid = hitObjectId(hit);
       const obj = oid ? this.level.objects.find((o) => o.id === oid) : undefined;
-      if (obj && this.onTap && this.playerCanSee(obj)) { this.onTap({ pos: [0, 0], object: { id: obj.id, label: playerLabel(obj), container: this.containerInfo(obj, true), vis: obj.vis, revealed: true, kind: obj.kind, desc: playerDesc(obj), visibleToPlayers: true } }, e.clientX, e.clientY); return; }
+      if (obj && this.onTap && this.playerCanSee(obj)) { this.onTap({ pos: [0, 0], object: this.tapObject(obj, true) }, e.clientX, e.clientY); return; }
       // A revealed room: its name and what the party notices there.
       const fp = this.floorPoint(e), room = fp && this.roomAt(this.level, fp);
-      if (room && this.onTap && this.isRevealed(room.key)) this.onTap({ pos: fp!, room: { key: room.key, name: room.name, revealed: true, desc: room.desc, enter: room.enter } }, e.clientX, e.clientY);
+      if (room && this.onTap && this.isRevealed(room.key)) this.onTap({ pos: fp!, room: this.tapRoom(room, true) }, e.clientX, e.clientY);
       return;
     }
     const sd = hit && (findUp(hit.object, 'secretDoor') ?? (hit.object.userData.role === 'door' ? this.built.secretDoors.find((s) => s.door === hit.object)?.objectId : undefined));
@@ -1217,10 +1247,10 @@ export class App {
       const obj = oid ? this.level.objects.find((o) => o.id === oid) : undefined;
       const pos = p ? ([p[0], p[1]] as Vec2) : ([0, 0] as Vec2);
       const rs = revealSets(this.state, this.cur!.scene.location);
-      const info: TapHit = { room: room ? { key: room.key, name: room.name, revealed: this.isRevealed(room.key), desc: room.desc, dm: room.dm, page: room.page, enter: room.enter } : undefined, pos,
+      const info: TapHit = { room: room ? this.tapRoom(room, false) : undefined, pos,
         door: wallId ? { wallId, open: !!(this.state.doorsOpen[`${this.cur!.scene.location}/${wallId}`] ?? this.level.walls.find((w) => w.id === wallId)?.open) } : undefined,
         secretDoor: sd ? { id: sd, revealed: rs.secretDoors.has(sd) } : undefined,
-        object: obj ? { id: obj.id, label: obj.label ?? kindName(obj.kind), playerLabel: playerLabel(obj), container: this.containerInfo(obj, false), vis: obj.vis, revealed: rs.objects.has(obj.id), kind: obj.kind, desc: playerDesc(obj), dm: obj.dm, page: this.level.rooms.find((r) => r.key === obj.key)?.page, visibleToPlayers: this.playerCanSee(obj) } : undefined };
+        object: obj ? this.tapObject(obj, false) : undefined };
       this.onTap(info, e.clientX, e.clientY);
       return;
     }

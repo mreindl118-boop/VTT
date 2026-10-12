@@ -1,6 +1,7 @@
 // The one monster renderer (docs/THEME.md 'Stat-block card'): our own layout in the 5e reading order. The compact
 // form is the DM's quick glance (four tiles, the ability grid, senses, languages, immunities); 'More' adds the traits
 // and actions. One source per block: an SRD entry from the books, or the module's own numbers, never a mix.
+import './rulecard.css';
 import type { MonsterSummary } from '../books/types';
 import { emblem } from './emblems';
 import { esc } from './text';
@@ -23,7 +24,8 @@ export function statblockHtml(s: MonsterSummary, html: string, full: boolean): s
     ['Senses', s.senses], ['Languages', s.languages],
     ['Immunities', [s.immunities, s.conditionImmunities].filter(Boolean).join('; ') || undefined],
   ];
-  const at = html.indexOf('<h3');
+  // The traits and actions start at the first heading the books give them (h3 to h6, by book and section).
+  const at = html.search(/<h[3-6][\s>]/);
   const rest = at >= 0 ? html.slice(at) : '';
   return `<div class="statblock compact">
     <div class="tiles">${tile('checked-shield', String(s.ac), 'AC')}${tile('hearts', String(s.hp), s.hpDice ? `HP · ${s.hpDice.replace(/\s+/g, '')}` : 'HP')}${tile('boot-prints', speed || '—', 'Speed')}${tile('skull-crossed-bones', String(s.cr), s.xp ? `CR · ${Number(s.xp).toLocaleString('en-US')} XP` : 'CR')}</div>
@@ -36,7 +38,7 @@ export function statblockHtml(s: MonsterSummary, html: string, full: boolean): s
 }
 
 /** Whether 'More' has anything to add to the compact block. */
-export const hasMore = (html: string): boolean => html.includes('<h3');
+export const hasMore = (html: string): boolean => /<h[3-6][\s>]/.test(html);
 
 /** The module's own numbers (bestiary STATS), shown only when the books have no such monster. */
 export function moduleStatsHtml(st: { ac: number; hp: number; speed: string; cr: string } | undefined, note: string): string {

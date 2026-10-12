@@ -103,7 +103,7 @@ export async function openBook(book: BookId, anchor?: string): Promise<void> {
 
 function buildShell(): HTMLElement {
   const el = document.createElement('div');
-  el.className = 'book-reader dm-only';
+  el.className = 'book-reader dm-only page';
   el.setAttribute('role', 'dialog');
   el.setAttribute('aria-label', 'Rules books');
   el.tabIndex = -1;
@@ -118,7 +118,7 @@ function buildShell(): HTMLElement {
     <div class="br-body">
       <nav class="br-toc" aria-label="Contents"></nav>
       <div class="br-scrim" data-act="toc"></div>
-      <main class="br-main"><div class="br-results" hidden></div><div class="br-content"></div></main>
+      <main class="br-main"><div class="br-run"><button type="button" class="br-run-toc" data-act="toc" aria-label="Contents" data-tip="Contents">${ICON.list}<span>Contents</span></button><span class="br-run-t"></span></div><div class="br-results" hidden></div><div class="br-content"></div></main>
     </div>`;
   document.body.appendChild(el);
   const input = el.querySelector<HTMLInputElement>('.br-search input')!;
@@ -203,7 +203,7 @@ async function go(book: BookId, anchor?: string): Promise<void> {
   r.el.querySelector('.br-book')!.textContent = index.short;
   r.el.querySelector('.br-sub')!.textContent = index.editionLabel.split(' · ')[0];
   clearSearch();
-  if (!anchor || anchor === 'about') { r.page = -1; r.anchor = ''; renderTitle(); renderToc(); setHash(book, ''); r.el.querySelector('.br-main')!.scrollTop = 0; return; }
+  if (!anchor || anchor === 'about') { r.page = -1; r.anchor = ''; renderTitle(); renderToc(); setHash(book, ''); r.el.querySelector('.br-run-t')!.textContent = index.short; r.el.querySelector('.br-main')!.scrollTop = 0; return; }
   let page = index.sections.find((s) => s[0] === anchor)?.[3];
   if (page === undefined) page = index.pages.findIndex((p) => p.id === anchor);
   if (page === undefined || page < 0) { r.page = -1; r.anchor = ''; renderTitle(`No section “${anchor}” in ${index.short}.`); renderToc(); setHash(book, ''); return; }
@@ -235,6 +235,17 @@ async function showPage(pageIdx: number, anchor: string): Promise<void> {
   r.anchor = anchor;
   setHash(r.book, anchor);
   renderToc();
+  // The running head: the book and the chapter, in small capitals.
+  r.el.querySelector('.br-run-t')!.textContent = `${r.index.short} · ${r.index.chapters[meta.chapter]?.title ?? meta.title}`;
+  const art = content.querySelector<HTMLElement>('article.br-page[data-page]');
+  if (art && !art.dataset.linked) {
+    art.dataset.linked = '1';
+    // The chapter's opening paragraph (its first page's first paragraph) takes the illuminated initial: only there,
+    // and on read-aloud starts.
+    if (r.index.chapters[meta.chapter]?.pages[0] === pageIdx) art.querySelector(':scope > p')?.classList.add('open');
+    // Sibling entries of the same edition, linked once per section, never to themselves.
+    void import('./booklinks').then((m) => m.linkBooksText(art, EDITION_OF[r.book])).catch(() => {});
+  }
   const main = r.el.querySelector<HTMLElement>('.br-main')!;
   const target = anchor === meta.id ? null : content.querySelector<HTMLElement>(`[id="${CSS.escape(anchor)}"]`);
   const isTop = !target || target === content.querySelector('.br-page [id]');
