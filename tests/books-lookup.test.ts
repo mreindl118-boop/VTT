@@ -118,6 +118,43 @@ describe('lookup', () => {
     ['+1 Weapon', 'item:weapon-1-2-or-3', 'item:weapon-1-2-or-3'],
     ['Spell Slot', 'rule:spell-slots', ''],
     ['Figurine of Wondrous Power', 'item:figurine-of-wondrous-power', 'item:figurine-of-wondrous-power'],
+    // Rules that share a name with another section: the combat rule answers (2014 has no glossary to settle it).
+    ['Hit Points', 'rule:hit-points', 'rule:hit-points'],
+    ['HP', 'rule:hit-points', 'rule:hit-points'],
+    ['Difficult Terrain', 'rule:difficult-terrain', 'rule:difficult-terrain'],
+    ['Initiative', 'rule:initiative', 'rule:initiative'],
+    ['AC', 'rule:armor-class', 'rule:armor-class'],
+    ['Tremorsense', 'rule:tremorsense', 'rule:tremorsense'],
+    ['Heavily Obscured', 'rule:vision-and-light', 'rule:heavily-obscured'],
+    // Class features, the 2014 ones with parts of their own included.
+    ['Wild Shape', 'feature:wild-shape', 'feature:wild-shape'],
+    ['Metamagic', 'feature:metamagic', 'feature:metamagic'],
+    ['Fighting Style', 'feature:fighting-style', 'feature:fighting-style'],
+    ['Font of Magic', 'feature:font-of-magic', 'feature:font-of-magic'],
+    ['Channel Divinity', 'feature:channel-divinity', 'feature:channel-divinity'],
+    ['Ki', 'feature:ki', 'feature:monks-focus'],
+    ['Pact Boon', 'feature:pact-boon', ''],
+    // Tools are items in both books.
+    ["Thieves' Tools", 'item:thieves-tools', 'item:thieves-tools'],
+    ['Herbalism Kit', 'item:herbalism-kit', 'item:herbalism-kit'],
+    ['Disguise Kit', 'item:disguise-kit', 'item:disguise-kit'],
+    ["Poisoner's Kit", 'item:poisoners-kit', 'item:poisoners-kit'],
+    ["Smith's Tools", 'item:smiths-tools', 'item:smiths-tools'],
+    ['Lute', 'item:lute', 'item:musical-instrument'],
+    ['Playing Cards', '', 'item:gaming-set'],
+    // A '+1, +2, or +3' item by its own name.
+    ['Wand of the War Mage', 'item:wand-of-the-war-mage-1-2-or-3', 'item:wand-of-the-war-mage-1-2-or-3'],
+    ['+2 Wand of the War Mage', 'item:wand-of-the-war-mage-1-2-or-3', 'item:wand-of-the-war-mage-1-2-or-3'],
+    // Creatures the 2024 rules renamed, by their 2014 names (the names Curse of Strahd uses).
+    ['Thug', 'monster:thug', 'monster:tough'],
+    ['Thugs', 'monster:thug', 'monster:tough'],
+    ['Veteran', 'monster:veteran', 'monster:warrior-veteran'],
+    ['Cult Fanatic', 'monster:cult-fanatic', 'monster:cultist-fanatic'],
+    ['Acolyte', 'monster:acolyte', 'monster:priest-acolyte'],
+    ['Kobold', 'monster:kobold', 'monster:kobold-warrior'],
+    ['Flying Sword', 'monster:flying-sword', 'monster:animated-flying-sword'],
+    ['Poisonous Snake', 'monster:poisonous-snake', 'monster:venomous-snake'],
+    ['Grimlock', 'monster:grimlock', 'monster:grimlock'],
   ];
   for (const [term, id14, id24] of BOTH) {
     it(`'${term}' in each edition, no fallback`, async () => {
@@ -132,6 +169,49 @@ describe('lookup', () => {
       const e = await lookup(t, '2014');
       expect(e === undefined || e.edition === '2014', t).toBe(true);
     }
+  });
+});
+
+describe('lookup answers with the right section', () => {
+  it('2014 rules that share a name answer with the combat rule, not the ability paragraph', async () => {
+    expect((await lookup('Hit Points', '2014'))!.text).toMatch(/^Hit points represent a combination of physical and mental durability/);
+    expect((await lookup('Difficult Terrain', '2014'))!.html).toContain('Every foot of movement in difficult terrain costs 1 extra foot');
+    expect((await lookup('Initiative', '2014'))!.text).toMatch(/^Initiative determines the order of turns during combat/);
+    expect((await lookup('AC', '2014'))!.text).toBe('Armor protects its wearer from attacks. The armor (and shield) you wear determines your base Armor Class.');
+    expect((await lookup('Channel Divinity', '2014'))!.summary).toEqual({ className: 'Cleric' });
+  });
+  it('2014 class features with parts: the feature and each part, the part naming its feature (not a subclass)', async () => {
+    for (const f of ['Wild Shape', 'Ki', 'Metamagic', 'Fighting Style', 'Font of Magic', 'Pact Boon']) expect((await lookup(f, '2014'))?.type, f).toBe('feature');
+    expect((await lookup('Wild Shape', '2014'))!.html).toContain('Beast Shapes');
+    expect((await lookup('Beast Shapes', '2014'))!.summary).toEqual({ className: 'Druid', feature: 'Wild Shape' });
+    expect((await lookup('Twinned Spell', '2014'))!.summary).toEqual({ className: 'Sorcerer', feature: 'Metamagic' });
+    expect((await lookup('Flurry of Blows', '2014'))!.summary).toEqual({ className: 'Monk', feature: 'Ki' });
+    expect((await lookup('Archery', '2014'))!.summary).toEqual({ className: 'Fighter', feature: 'Fighting Style' });
+    // Real subclasses keep their name; nothing names a class feature as its subclass.
+    expect((await lookup('Frenzy', '2014'))!.summary).toEqual({ className: 'Barbarian', subclass: 'Path of the Berserker' });
+    const char = JSON.parse(readFileSync('app/public/books/srd-5.1/e/character.json', 'utf8')) as { entries: Record<string, { type: string; s: { subclass?: string } }> };
+    const subs = new Set(Object.values(char.entries).flatMap((e) => (e.type === 'feature' && e.s.subclass ? [e.s.subclass] : [])));
+    expect([...subs].sort()).toEqual(['Champion', 'Circle of the Land', 'College of Lore', 'Draconic Bloodline', 'Hunter', 'Life Domain', 'Oath of Devotion', 'Path of the Berserker', 'School of Evocation', 'The Fiend', 'Thief', 'Way of the Open Hand']);
+  });
+  it('a 2024 tool card has its ability, Utilize and Craft', async () => {
+    const e = (await lookup("thieves' tools", '2024'))!;
+    expect(e).toMatchObject({ type: 'item', edition: '2024', section: { href: '#book/srd-5.2.1/item-thieves-tools' } });
+    expect(e.summary).toMatchObject({ category: 'Tool', ability: 'Dexterity', cost: '25 GP' });
+    expect((await lookup('Herbalism Kit', '2024'))!.summary).toMatchObject({ craft: "Antitoxin, Candle, Healer's Kit, Potion of Healing" });
+  });
+  it('running-text spellings: quotes, possessives, articles and cue words', async () => {
+    expect((await lookup('the prone condition'))!.id).toBe('condition:prone');
+    expect((await lookup('“Prone.”'))!.id).toBe('condition:prone');
+    expect((await lookup("the wolf's"))!.id).toBe('monster:wolf');
+    expect((await lookup('Strength saving throw'))!.id).toBe('ability:strength');
+    expect((await lookup('undead creature'))!.id).toBe('creature-type:undead');
+    expect((await lookup('Shield', '2024', { type: 'item' }))!.id).toBe('item:shield');
+  });
+  it('every short text is filled: conditions, races, monsters and gear', async () => {
+    expect((await lookup('Prone', '2014'))!.text).not.toBe('');
+    expect((await lookup('Elf', '2014'))!.text).toMatch(/elf/i);
+    expect((await lookup('Wolf', '2014'))!.text).toBe('Medium beast, unaligned. AC 13 (natural armor), HP 11 (2d8 + 2), Speed 40 ft. CR 1/4 (XP 50).');
+    expect((await lookup('Saddle, Military', '2014'))!.text).toBe('Mount or vehicle (Saddles): Cost 20 gp, 30 lb.');
   });
 });
 
@@ -178,6 +258,17 @@ describe('terms in running text', () => {
     expect(findTerms(prose, t24)).toEqual([]);
     expect(findTerms(prose, t14)).toEqual([]);
     for (const w of ['hides', 'nets', 'net', 'mule', 'cat', 'deer']) expect([...t14.common, ...t24.common], w).toContain(w);
+  });
+  it('2014 gear: no junk names to link, one-word gear only as a name, a capitalised word inside a longer name stays plain', async () => {
+    const t14 = await termIndex('2014'), t24 = await termIndex('2024');
+    const prose = 'The military escort rode out with a pack of wolves in the riding season; exotic feed was cheap, and a hammer and leather were sold.';
+    expect(findTerms(prose, t14).map((x) => x.id)).toEqual([]); // 'wolf' is an ordinary word too
+    expect(findTerms(prose, t24).map((x) => x.id)).toEqual([]);
+    const caps = 'The Military escort rode out with a Pack of wolves in the Riding season, and an Exotic Feed seller sold an Exotic Saddle.';
+    expect(findTerms(caps, t14).map((x) => [x.text, x.id])).toEqual([['Exotic Saddle', 'item:saddle-exotic']]);
+    for (const w of ['hammer', 'leather', 'feed', 'saddle', 'rope', 'torch']) expect(t14.common, w).toContain(w);
+    // The 2024 rules' capitalised names still link mid-sentence.
+    expect(findTerms('She lights a Torch and casts Light.', t24).map((x) => x.id)).toEqual(['item:torch', 'spell:light']);
   });
   it('2014 terms come from the 2014 book', async () => {
     const t = await termIndex('2014');

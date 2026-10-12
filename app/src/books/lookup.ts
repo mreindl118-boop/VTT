@@ -41,6 +41,16 @@ export function setRulesEdition(e: Edition): void {
 
 const CUES: Partial<Record<EntryType, RegExp>> = {
   condition: /\s+condition$/, spell: /\s+(spell|cantrip)$/, rule: /\s+action$/, damage: /\s+damage$/, skill: /\s+(check|skill)$/,
+  ability: /\s+(saving throw|save|score|modifier)$/, 'creature-type': /\s+creature$/,
+};
+/** What running text wraps a term in: quotes, a possessive, an article, closing punctuation ('the wolf's', '"Prone."'). */
+const looseVariants = (k: string): string[] => {
+  const out: string[] = [];
+  let x = k.replace(/^["“'‘(]+|["”'’).,;:!?]+$/g, '');
+  if (x !== k) out.push(x);
+  if (/'s$/.test(x)) out.push((x = x.slice(0, -2)));
+  if (/^(the|a|an) /.test(x)) out.push(x.replace(/^(the|a|an) /, ''));
+  return out;
 };
 export const normTerm = (s: string): string => s.toLowerCase().replace(/[’]/g, "'").replace(/\s*\\?\[[^\]]*\\?\]\s*/g, ' ').replace(/\s+/g, ' ').trim();
 
@@ -58,11 +68,16 @@ async function entryById(book: BookId, id: string, type: EntryType): Promise<Rul
 export function candidates(t: TermFile, term: string, type?: EntryType): number[] {
   const raw = term.trim();
   if (t.abbr[raw]) return t.abbr[raw].filter((i) => !type || t.entries[i][2] === type);
-  let k = normTerm(raw);
+  const k0 = normTerm(raw);
   let hint = type;
-  let list = t.forms[k];
-  if (!list) for (const [ty, re] of Object.entries(CUES) as [EntryType, RegExp][]) {
-    if (re.test(k)) { const base = k.replace(re, ''); if (t.forms[base]) { k = base; list = t.forms[base]; hint ??= ty; break; } }
+  let list: number[] | undefined;
+  for (const k of [k0, ...looseVariants(k0)]) {
+    list = t.forms[k];
+    // A cue word names the kind: 'prone condition', 'light cantrip', 'fire damage', 'Strength saving throw'.
+    if (!list) for (const [ty, re] of Object.entries(CUES) as [EntryType, RegExp][]) {
+      if (re.test(k)) { const base = k.replace(re, ''); if (t.forms[base]) { list = t.forms[base]; hint ??= ty; break; } }
+    }
+    if (list) break;
   }
   if (!list) return [];
   if (!hint) return list;
@@ -172,7 +187,12 @@ export function findTerms(text: string, t: TermFile, opts: { explicitOnly?: bool
         const capital = seg.split(/\s+/).every((w) => /^[A-Z+]/.test(w));
         const before = text.slice(0, s).trimEnd();
         const sentenceStart = !before || /[.!?:;"“(\n]$/.test(before);
-        if (!cue && !(capital && !sentenceStart)) continue;
+        // A capitalised word inside a longer capitalised name ('an Exotic Feed seller', 'the Blue Light Inn') is that
+        // name, not the rules term.
+        const prev = /(?:^|[^A-Za-z'’-])([A-Za-z][A-Za-z'’-]*)$/.exec(text.slice(0, s).replace(/ $/, ''));
+        const prevIsName = !!prev && text[s - 1] === ' ' && /^[A-Z]/.test(prev[1]) && !(/[.!?:;"“(\n]$/.test(text.slice(0, s - 1 - prev[1].length).trimEnd()) || !text.slice(0, s - 1 - prev[1].length).trim());
+        const nextIsName = /^ [A-Z][a-z]/.test(text.slice(e, e + 3));
+        if (!cue && !(capital && !sentenceStart && !prevIsName && !nextIsName)) continue;
       }
       spans.push({ start: s, end: e, text: seg, id, type, name, explicit: false });
       taken.push([s, e]);
