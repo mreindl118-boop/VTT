@@ -14,24 +14,31 @@ An item is ticked only after the owner confirms it. For each item: finish the wo
 - [ ] 2. **D&D-style rules tooltips (top priority).** Styled cards, not block text, with a colour per type: spells, conditions and effects, monsters, items by rarity, rules, damage types.
   - Built on the SRD books data (`c058977`; finish its remaining accuracy fixes first) and the tooltip card from `THEME.md`.
   - Shown on every place a rule, spell, monster or effect appears.
-- [ ] 3. **Movable panels.** Built and fixed (`5aa32c7`); unit tests pass. Left: the panel browser tests, then merge.
-- [ ] 4. **Backups 0.2.0.** Built (`a732b0f`, WIP `f89512c`). Left: Restore must give back exactly the saved state (explored-memory bug 16) and one misleading message must be fixed. Then test and merge.
-- [ ] 5. **Map smoothing: finished maps.** Krezk, render grain, region, backdrop, Vallaki interiors, Death House, Sheep Chase, Argynvostholt, Tsolenka and the Werewolf Den, the Village and Castle Ravenloft. Left: fix the issues found on Krezk and render, check the rest, merge.
-- [ ] 6. **Map smoothing: unfinished maps.** Yester Hill (flat hill, cotton fog), the winery, the Amber Temple (WIP `a1cdc36`), and Berez with Van Richten's tower.
-- [ ] 7. **Natural land and water.** Diagnosis done; build WIP `066e37d`.
-- [ ] 8. **Chapter 2 sites.** A, B, D, F, H, I, J, L, M, P and R are built (A WIP `e3987b6`). Left: one fix round each, including Tser Falls as a cliff over the pool with Vallaki in view.
-- [ ] 9. **Vallaki terrain.** Built (`c0fd014`). Merge after item 7.
-- [ ] 10. **Night-one fixes 0.2.1.** Approvals A1–A9.
-- [ ] 11. **Gameplay 0.3.0–0.4.0.** Per `ITERATIONS.md`.
-- [ ] 12. **Initiative strip and encounter builder.** 0.5.0 and 0.5.1, using 2024 SRD budgets only.
-- [ ] 13. **Gameplay 0.6.0–0.8.0.**
-- [ ] 14. **Clarity and the D&D-inspired theme for the rest of the UI.** `CLARITY.md`, `THEME.md`.
-- [ ] 15. **Landform on every map.** Four passes.
-- [ ] 16. **Surroundings.** Built from the audits already done.
-- [ ] 17. **Stylization per model type.** Built from the surveys already done.
-- [ ] 18. **Environmental feel.**
-- [ ] 19. **Two small fixes.** The Bonegrinder mill is invisible from the attic level, and building maps are cluttered.
-- [ ] 20. **Bestiary.** Needs the open-model sites allowed.
+- [ ] 3. **Dollhouse view.** A cutaway toggle built into the app, working on every map with walls; nothing is authored per map.
+  - When on, the walls on the camera's side of each building and room disappear, and they update as you orbit (like The Sims). Roofs and ceilings above lift away.
+  - The far walls, the outside of the building, the street and the neighbouring buildings stay, so you see where the party is inside the building and in its surroundings.
+  - DM: everything cuts away.
+  - Players and the Player Display: only rooms the players have revealed or explored open up. Unrevealed rooms keep their walls and give nothing away.
+  - Works across floors with the section slider, and in the nested world.
+  - To settle at design time: how it sits beside today's low-walls toggle and the section slider.
+- [ ] 4. **Movable panels.** Built and fixed (`5aa32c7`); unit tests pass. Left: the panel browser tests, then merge.
+- [ ] 5. **Backups 0.2.0.** Built (`a732b0f`, WIP `f89512c`). Left: Restore must give back exactly the saved state (explored-memory bug 16) and one misleading message must be fixed. Then test and merge.
+- [ ] 6. **Map smoothing: finished maps.** Krezk, render grain, region, backdrop, Vallaki interiors, Death House, Sheep Chase, Argynvostholt, Tsolenka and the Werewolf Den, the Village and Castle Ravenloft. Left: fix the issues found on Krezk and render, check the rest, merge.
+- [ ] 7. **Map smoothing: unfinished maps.** Yester Hill (flat hill, cotton fog), the winery, the Amber Temple (WIP `a1cdc36`), and Berez with Van Richten's tower.
+- [ ] 8. **Natural land and water.** Diagnosis done; build WIP `066e37d`.
+- [ ] 9. **Chapter 2 sites.** A, B, D, F, H, I, J, L, M, P and R are built (A WIP `e3987b6`). Left: one fix round each, including Tser Falls as a cliff over the pool with Vallaki in view.
+- [ ] 10. **Vallaki terrain.** Built (`c0fd014`). Merge after item 7.
+- [ ] 11. **Night-one fixes 0.2.1.** Approvals A1–A9.
+- [ ] 12. **Gameplay 0.3.0–0.4.0.** Per `ITERATIONS.md`.
+- [ ] 13. **Initiative strip and encounter builder.** 0.5.0 and 0.5.1, using 2024 SRD budgets only.
+- [ ] 14. **Gameplay 0.6.0–0.8.0.**
+- [ ] 15. **Clarity and the D&D-inspired theme for the rest of the UI.** `CLARITY.md`, `THEME.md`.
+- [ ] 16. **Landform on every map.** Four passes.
+- [ ] 17. **Surroundings.** Built from the audits already done.
+- [ ] 18. **Stylization per model type.** Built from the surveys already done.
+- [ ] 19. **Environmental feel.**
+- [ ] 20. **Two small fixes.** The Bonegrinder mill is invisible from the attic level, and building maps are cluttered.
+- [ ] 21. **Bestiary.** Needs the open-model sites allowed.
 
 ## Owner decisions (2026-10-05)
 
