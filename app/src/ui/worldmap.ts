@@ -171,6 +171,8 @@ export interface WorldHost {
   move(pos: P, key: string | undefined, miles: number): void;
   enter(scene: string): void;
   sceneName(path: string): Promise<string>;
+  /** Open centred on this place, a little closer than the whole region (zooming out of its map). */
+  focus?: string;
 }
 
 export function openWorldMap(host: WorldHost): void {
@@ -317,6 +319,8 @@ export function openWorldMap(host: WorldHost): void {
   });
   const drawTrail = () => { const t = host.get(); const pts = (t as { trail?: { pos: P }[] } | undefined)?.trail?.map((x) => x.pos) ?? []; trail.setAttribute('d', pts.length > 1 ? path(pts.slice(-12)) : ''); };
   drawTrail();
+  const focus = host.focus ? W.pins.find((p) => p.key === host.focus) : undefined;
+  if (focus) { view.w = Math.max(1.5, vb.w * 0.45); view.h = (view.w / vb.w) * vb.h; view.x = focus.pos[0] - view.w / 2; view.y = focus.pos[1] - view.h / 2; apply(); }
   requestAnimationFrame(blit);
 
   const nearestName = (p: P) => { const all = [...W.pins.map((x) => ({ name: x.name, pos: x.pos })), ...W.woods, ...W.peaks]; const n = all.reduce((a, c) => (dist(c.pos, p) < dist(a.pos, p) ? c : a)); return { name: n.name, mi: dist(n.pos, p) }; };

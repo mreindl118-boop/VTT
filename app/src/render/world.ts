@@ -37,6 +37,8 @@ export class World {
   tilt = 0;
   onFrame: (() => void) | null = null;
   onCamera: (() => void) | null = null;
+  /** A zoom out (button, wheel or pinch) asked for at the far limit: the UI offers the map one level up. */
+  onZoomPastMax: (() => void) | null = null;
 
   constructor(private host: HTMLElement) {
     // A logarithmic depth buffer: a town a mile across and mountains ten miles off share one view without the ground fighting the apron.
@@ -76,6 +78,10 @@ export class World {
     this.controls.maxDistance = 400;
     this.controls.touches = { ONE: THREE.TOUCH.PAN, TWO: THREE.TOUCH.DOLLY_ROTATE };
     this.controls.mouseButtons = { LEFT: THREE.MOUSE.PAN, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.ROTATE };
+    this.controls.zoomToCursor = true; // the wheel and a pinch zoom toward the pointer, not the middle of the screen
+    // Ahead of OrbitControls (capture on the host): a wheel turn during a glide, and one past the far limit.
+    host.addEventListener('wheel', this.wheel, { capture: true, passive: false });
+    this.watchPinch();
     this.renderer.domElement.addEventListener('contextmenu', (e) => e.preventDefault());
     this.controls.addEventListener('change', () => { if (this.scene.fog instanceof THREE.FogExp2) this.scene.fog.density = this.fogDensity; if (this.nested) this.applyPolar(); this.invalidate(); this.onCamera?.(); });
 
@@ -226,8 +232,9 @@ export class World {
     return new THREE.Vector3(Math.sin(pitch) * Math.sin(a) * dist, Math.cos(pitch) * dist, Math.sin(pitch) * Math.cos(a) * dist);
   }
 
-  /** Frame a plan-space box (bounding-sphere fit, leaving room for the chrome). 'fly' glides there as flyTo does. */
-  frame(box: { minX: number; minZ: number; maxX: number; maxZ: number }, y: number, preset: CameraPreset, animate: boolean | 'fly' = false): void {
+  /** Frame a plan-space box (bounding-sphere fit, leaving room for the chrome). 'fly' glides there as flyTo does;
+   *  azimuthDelta turns the heading too. */
+  frame(box: { minX: number; minZ: number; maxX: number; maxZ: number }, y: number, preset: CameraPreset, animate: boolean | 'fly' = false, azimuthDelta = 0): void {
     this.tilt = TILT[preset];
     const cx = (box.minX + box.maxX) / 2, cz = (box.minZ + box.maxZ) / 2;
     const r = Math.hypot(box.maxX - box.minX, box.maxZ - box.minZ) / 2 + 4;
@@ -235,7 +242,7 @@ export class World {
     const hHalf = Math.atan(Math.tan(vHalf) * this.camera.aspect);
     const d = Math.min(this.controls.maxDistance, Math.max(36, (r / Math.sin(Math.min(vHalf, hHalf))) * 0.86));
     if (animate === 'fly') { this.flyTo(new THREE.Vector3(cx, y, cz), d); return; }
-    this.moveTo(new THREE.Vector3(cx, y, cz), d, animate);
+    this.moveTo(new THREE.Vector3(cx, y, cz), d, animate, azimuthDelta);
   }
 
   /** Point the rig at a plan position, keeping (or setting) the distance. */
@@ -283,7 +290,54 @@ export class World {
   /** Tabletop (free turn), isometric (snapped to the grid's diagonals) or overhead (north up, square to the grid). */
   setPreset(preset: CameraPreset): void { this.tilt = TILT[preset]; this.moveTo(this.controls.target.clone()); }
   get preset(): CameraPreset { return this.tilt === 1 ? 'top' : this.tilt === 2 ? 'iso' : 'tabletop'; }
-  zoomBy(factor: number): void { this.moveTo(this.controls.target.clone(), THREE.MathUtils.clamp(this.camera.position.distanceTo(this.controls.target) * factor, this.controls.minDistance, this.controls.maxDistance)); }
+  /** Where the camera is headed: the end of the glide in flight, else where it stands. */
+  private aim(): { target: THREE.Vector3; cam: THREE.Vector3 } {
+    return this.tween ? { target: this.tween.to, cam: this.tween.camTo } : { target: this.controls.target, cam: this.camera.position };
+  }
+  /** At the far limit, or gliding to it. */
+  get atMaxDistance(): boolean { const a = this.aim(); return a.cam.distanceTo(a.target) >= this.controls.maxDistance * 0.995; }
+  /** Zoom by a factor of the distance the camera is headed for, so presses during a glide add up instead of being lost.
+   *  A zoom out at the far limit asks for the map one level up instead. */
+  zoomBy(factor: number): void {
+    if (factor > 1 && this.atMaxDistance) { this.onZoomPastMax?.(); return; }
+    const a = this.aim(), off = a.cam.clone().sub(a.target);
+    const dist = THREE.MathUtils.clamp(off.length() * factor, this.controls.minDistance, this.controls.maxDistance);
+    this.moveTo(a.target.clone(), dist, true, Math.atan2(off.x, off.z) - this.controls.getAzimuthalAngle());
+  }
+  /** The wheel, ahead of OrbitControls. During a glide it changes where the glide is going, scaled about the ground
+   *  under the cursor as the glide's end will see it (else the glide would undo it); otherwise OrbitControls zooms
+   *  toward the cursor. A turn outward at the far limit asks for the map one level up. */
+  private wheel = (e: WheelEvent): void => {
+    if (e.target !== this.renderer.domElement || !this.controls.enabled || !this.controls.enableZoom || !e.deltaY) return;
+    if (e.deltaY > 0 && this.atMaxDistance) this.onZoomPastMax?.();
+    const tw = this.tween; if (!tw) return;
+    e.preventDefault(); e.stopImmediatePropagation();
+    const s = Math.pow(0.95, this.controls.zoomSpeed * Math.abs(e.deltaY * 0.01)), off = tw.camTo.clone().sub(tw.to); // OrbitControls' step
+    const f = THREE.MathUtils.clamp(off.length() * (e.deltaY < 0 ? s : 1 / s), this.controls.minDistance, this.controls.maxDistance) / off.length();
+    const eye = this.camera.clone(); eye.position.copy(tw.camTo); eye.lookAt(tw.to); eye.updateMatrixWorld();
+    const r = this.renderer.domElement.getBoundingClientRect(), ray = new THREE.Raycaster();
+    ray.setFromCamera(new THREE.Vector2(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1), eye);
+    const p = ray.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0, 1, 0), -tw.to.y), new THREE.Vector3()) ?? tw.to.clone();
+    this.tween = { t0: performance.now(), dur: tw.dur, from: this.controls.target.clone(), to: p.clone().lerp(tw.to, f), camFrom: this.camera.position.clone(), camTo: p.clone().lerp(tw.camTo, f) };
+    this.invalidate();
+  };
+  /** A pinch that keeps closing at the far limit asks for the map one level up, as the wheel and the button do. */
+  private watchPinch(): void {
+    const el = this.renderer.domElement, touches = new Map<number, [number, number]>();
+    let spread0 = 0, asked = false;
+    el.addEventListener('pointerdown', (e) => { if (e.pointerType !== 'touch') return; touches.set(e.pointerId, [e.clientX, e.clientY]); spread0 = 0; asked = false; });
+    el.addEventListener('pointermove', (e) => {
+      if (!touches.has(e.pointerId)) return;
+      touches.set(e.pointerId, [e.clientX, e.clientY]);
+      if (touches.size !== 2 || asked) return;
+      const [a, b] = [...touches.values()], spread = Math.hypot(a[0] - b[0], a[1] - b[1]);
+      if (!this.atMaxDistance) { spread0 = 0; return; }
+      if (!spread0) spread0 = spread;
+      else if (spread < spread0 * 0.85) { asked = true; this.onZoomPastMax?.(); }
+    });
+    const lift = (e: PointerEvent) => { touches.delete(e.pointerId); if (touches.size < 2) spread0 = 0; };
+    el.addEventListener('pointerup', lift); el.addEventListener('pointercancel', lift);
+  }
 
   /** DM work light: lifts the scene so the DM can read unlit rooms; players keep the true darkness. */
   setWorkLight(k: number): void {
