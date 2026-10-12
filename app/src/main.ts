@@ -661,6 +661,8 @@ function buildHud(): void {
     hud.textContent = `tris ${i.render.triangles}\ncalls ${i.render.calls}\ngeoms ${i.memory.geometries} tex ${i.memory.textures}\nfps ${app.world.fps.toFixed(0)}`
       + `\nworld ${app.nested ? (app.staged ? 'in the valley' : 'legacy map') : 'off'} · ${document.body.dataset.band ?? ''} · ${d < 10000 ? `${Math.round(d)} ft` : `${(d / 5280).toFixed(1)} mi`}`
       + `\nanchor ${Math.round(a.x)}, ${Math.round(a.y)}, ${Math.round(a.z)}`
-      + (st ? `\nstage ${Math.round(st.tris / 1000)}k tris · ${st.shown}/${st.proxies} proxies · forest ${st.forest} (${st.tiles} tiles) · built ${st.buildMs} ms` : '');
+      + (st ? `\nstage ${Math.round(st.tris / 1000)}k tris · ${st.shown}/${st.proxies} proxies · forest ${st.forest} (${st.tiles} tiles) · built ${st.buildMs} ms` : '')
+      + (app.staged ? `\nresident ${[...app.resident.values()].map((r) => `${r.path}${r === app.cur ? '*' : ''}${r.drawn ? '' : ' (folded)'}`).join(', ')} · ${app.streamer.units()}/${app.streamer.cap} units`
+        + (app.streamLog.length ? `\nlast build ${(({ path, ms, slices, longest }) => `${path} ${ms} ms in ${slices} slices, longest ${longest} ms`)(app.streamLog[app.streamLog.length - 1])}` : '') : '');
   }, 500);
 }

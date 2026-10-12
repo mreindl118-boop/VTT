@@ -276,10 +276,11 @@ export class WorldStage {
   };
   /** The moon in its phase and the bodies on their arcs (the clock). */
   setMoon(phase: number, night: boolean, hour: number): void { this.sky.setMoon(phase, night, hour); }
-  /** The party's marker on the land (W), when the party is not on a map that is drawn. */
-  setParty(at: Vec2 | null): void {
-    this.party.visible = !!at;
-    if (at) this.party.position.set(at[0], this.land.field.surface(at[0], at[1]) + 12, at[1]);
+  /** The party's marker (W): on the land at a place, or at a given height (the party token's spot on a ghost map);
+   *  none where the party's own token shows. */
+  setParty(p: { at: Vec2; y?: number } | null): void {
+    this.party.visible = !!p;
+    if (p) this.party.position.set(p.at[0], (p.y ?? this.land.field.surface(p.at[0], p.at[1])) + 12, p.at[1]);
   }
 
   /** The place name under a point of the page (client pixels), if the DM could tap it: shown, not crowded out, and

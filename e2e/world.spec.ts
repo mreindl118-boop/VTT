@@ -496,7 +496,10 @@ test('flights: the whole valley fits on screen, a place name flies into its map,
   expect(fit.off).toEqual([]);
   expect(fit).toMatchObject({ framed: true, band: 'valley' });
   expect(fit.d).toBeLessThanOrEqual(fit.max + 1);
-  // a tap on Krezk's name flies there and opens its map in place, the origin on it
+  // a tap on Krezk's name flies there and opens its map in place, the origin on it (once the village has folded into
+  // its proxy after the flight, and the names have settled)
+  await page.waitForFunction(() => { const a = (window as any).__mistlab.app; return !a.fades.size && !a.resident.get('ch03/E')?.drawn; }, undefined, { timeout: 30_000 });
+  await page.waitForTimeout(300);
   const f0 = await page.evaluate(() => (window as any).__mistlab.app.world.flights);
   // the names take no pointer (a wheel or a pinch over one still zooms): the canvas's tap finds the name under it
   const sBox = (await page.locator('.lbl.place[data-key="S"]').boundingBox())!;

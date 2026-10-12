@@ -39,6 +39,7 @@ uniform float uCovEnabled;
 uniform mat3 uCovBasis;   // world xz → the active scene's plan xz (the grid and the coverage are in scene feet)
 uniform float uPxPerFt;   // what a foot is worth on screen: decides which grid orders show
 uniform vec4 uClip;       // plan box the grid stays inside (minX, minZ, maxX, maxZ); unbounded unless the map stands in the valley
+uniform float uFadeBelow; // in the valley: the grid fades out as a foot drops under this many pixels (0: never)
 
 // A line of a given spacing (feet): 1 on the line, 0 off it; bold widens it.
 float lineAt(vec2 p, float spacing, float bold) {
@@ -83,6 +84,7 @@ void main() {
   vec2 p = sp - uOrigin;
   float line = uHex > 0.5 ? hexLine(p) : squareLine(p);
   float a = line * uOpacity;
+  if (uFadeBelow > 0.0) a *= smoothstep(0.5 * uFadeBelow, uFadeBelow, uPxPerFt);
   if (uCovEnabled > 0.5) {
     vec2 uv = (sp - uCovOrigin) / uCovSize;
     float cov = (uv.x < 0.0 || uv.y < 0.0 || uv.x > 1.0 || uv.y > 1.0) ? 0.0 : texture2D(uCovTex, uv).r;
@@ -126,6 +128,7 @@ export function buildGridOverlay(g: GridLevel, elevation: number, ground = true)
       uCovBasis: fogUniforms.uCovBasis,
       uPxPerFt: gridUniforms.uPxPerFt,
       uClip: { value: new THREE.Vector4(-1e9, -1e9, 1e9, 1e9) },
+      uFadeBelow: { value: 0 },
     },
   });
   const mesh = new THREE.Mesh(geo, m);
@@ -146,4 +149,11 @@ export function clipGrid(mesh: THREE.Mesh, margin: number | null): void {
 
 export function setGridType(mesh: THREE.Mesh, type: 'square' | 'hex'): void {
   (mesh.material as THREE.ShaderMaterial).uniforms.uHex.value = type === 'hex' ? 1 : 0;
+}
+
+/** In the valley a map's grid is a tool of the map band: it fades out as a foot drops under `px` pixels (the town and
+ *  road bands, where the camera looks at the land, not at squares), so a town seen from the road is not netted. 0
+ *  keeps it at every zoom (the legacy way). */
+export function fadeGridBelow(mesh: THREE.Mesh, px: number): void {
+  const u = (mesh.material as THREE.ShaderMaterial).uniforms.uFadeBelow; if (u) u.value = px;
 }

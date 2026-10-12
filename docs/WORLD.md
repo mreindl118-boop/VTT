@@ -4,8 +4,10 @@ One continuous environment: from a 3D view of the whole valley the DM zooms in; 
 streams in at its true position and orientation; zoom into a town's building and its floors appear in place inside
 the town; zoom out and it folds back up. This document is the reference for the frames, the atlas, the thresholds,
 the budgets and the fallback. It grows with the build steps; today it covers **step 0: frames and the atlas**,
-**step 1: the placement seam** (shader basis, floating origin, scene ↔ drawn conversions) and **step 2: the valley**
-(the world stage, every pin's map opening in place, flights in and out, the switch, both screens).
+**step 1: the placement seam** (shader basis, floating origin, scene ↔ drawn conversions), **step 2: the valley**
+(the world stage, every pin's map opening in place, flights in and out, the switch, both screens) and **step 3:
+streaming** (maps built in place as the camera nears them, ghosts, activation by the camera, folding and freeing), with
+the two review findings it rests on (everything that leaves is freed; opening a map is one step).
 
 ## Frames (`app/src/core/frames.ts`, pure, unit-tested in `tests/frames.test.ts`)
 
@@ -149,17 +151,114 @@ load. The Player Display follows the DM's: the `state` and `layout` messages car
 map the same way (camera messages are absolute feet, so both ends must stand in the same world), and on each camera
 message it re-reads the zoom band, the valley's forest and the names.
 
-**Budgets measured** (swiftshader, 1180 × 820): the whole valley with the village open draws in under 70 calls and
-300k triangles (asserted); with Vallaki or Krezk open the town is still fully drawn at valley zoom (147 calls, 1.27M
-triangles) until step 3 streams it out. The stage is about 214k triangles and builds in about 0.4 s.
+**Budgets measured** (swiftshader, 1180 × 820): the whole valley draws in 11 calls and 232k triangles whatever map is
+active (it folds into its proxy at valley zoom, step 3; asserted under 70 and 300k). The stage is about 214k triangles
+and builds in about 0.4 s.
+
+A staged map's grid stops 10 ft past its own floors (`gridOverlay.clipGrid`; the legacy way keeps its 12 % pad), so it
+never runs out over the valley, and it fades out as a foot drops under 0.6 px (`fadeGridBelow`: the town and road
+bands), so a town seen from the road is not netted with its 500-ft squares; the legacy way keeps every order at every
+zoom.
 
 Known for later steps: the minimap still shows the open map's plan at valley zoom (step 6), the world map button still
-opens the 2D sheet (step 6 makes it the nested map; the sheet stays as the fallback), proxies collapse at once rather
-than fading (step 3), the square grid of a big map (Vallaki, Krezk) draws its placement squares over the whole map at
-town zoom exactly as it does the legacy way, but a staged map's grid now stops 10 ft past its own floors
-(`gridOverlay.clipGrid`; the legacy way keeps its 12 % pad), so it no longer runs out over the valley. On a portrait
-phone the whole valley is small (it is twice as wide as it is deep), and A Wild Sheep Chase's skirt shows as a pale
-slope round it in that theme's light mist.
+opens the 2D sheet (step 6 makes it the nested map; the sheet stays as the fallback). On a portrait phone the whole
+valley is small (it is twice as wide as it is deep), and A Wild Sheep Chase's skirt shows as a pale slope round it in
+that theme's light mist.
+
+## Freeing and opening (review findings 9 and 11)
+
+**Everything that leaves is freed** (`render/dispose.ts`). Removing an object from a three.js scene frees nothing on
+the GPU. `disposeTree(root)` takes a subtree out and disposes its geometries, its materials and the textures they own,
+and removes its labels' page elements. It runs on every map that is released (`App.release`), on the backdrop and the
+surroundings they replace, on the range overlay at each refresh, on each token figure that `syncTokens` rebuilds, and on
+a build nobody waits for any more. Objects many maps share are registered with `markShared` and never freed: the palette
+materials (`materials.ts mat()`) and the crags' mist texture. It is a registry, not a `userData` flag, because a cloned
+material copies its `userData` and the clone is its own. Five round trips through the village, Tser Pool, the test room
+and Death House end within 5 % of the first visit's GPU objects; before this change they grew from 714 to 2,226
+geometries. A hundred range refreshes and forty view toggles add nothing.
+
+**Opening a map is one step** (`App.open`). The new map is read and built while the old one stays on screen. Then, with
+nothing left to wait for, the old one is released and the new one placed and activated between two frames. Every
+`open()` takes a number and only the latest may change the world, so an open overtaken by a later one frees its build
+and changes nothing. A campaign's save is read first and switched only at that step. A map that cannot be fetched (a
+scene chunk offline) keeps the open map, its campaign and its save, and the status line says *Couldn't open … (offline?)*.
+`open()` resolves to whether the map opened and never rejects. A scene chunk that failed stays failed in the browser's
+module map for the life of the page, so `data.ts` asks for it again under a fresh query once the network is back. The
+browser's error names the file in Chromium and Firefox; Safari's does not, and there the first error stands until a
+reload.
+
+## Streaming (step 3)
+
+`render/streamer.ts` decides and `App` carries out. Each tick (at most every 100 ms while the camera moves, and while
+anything is pending) measures every pin root of the open campaign. The measure is the footprint's diagonal on screen in
+CSS pixels, seen from the eye to the nearest point of the footprint, so a town the camera stands over is big. A map is
+in view if its middle or a corner falls within 1.5 half-screens of the middle of the view, or the target is near it.
+
+| rule | when |
+|---|---|
+| prefetch the scene files | ≥ 60 px × units, in view |
+| build, then draw it in place | ≥ 140 px × units, in view; one build at a time, none during a glide |
+| fold into its proxy | < 70 px × units, or out of view (at once, with a crossfade) |
+| free it | folded for 4 s, unless it is the active map; or at once when the cap needs room (least recently wanted first) |
+| cap | 4 units resident, 2 on a small device (`navigator.deviceMemory < 4`, or a phone-sized screen); Vallaki and Krezk are 2 units (atlas `units`). The active map does not count while it is folded away, so a phone can still stream Vallaki in from the valley |
+| make it active | the drawn map whose footprint (10 ft pad) holds the camera's target, the smallest if several; the active map keeps the role until the target is a quarter of its half-diagonal outside it. Never during a glide. Only on the DM's screen: the Player Display follows the DM's choice |
+
+`planStream` is the pure rule (`tests/streamer.test.ts`). These thresholds are first guesses to tune with the HUD
+(`?hud=1` lists the resident maps, the active one starred and the folded ones marked, the units against the cap, and
+the last build's time, slices and longest slice). A glide carries the camera through places it does not stop at, so
+nothing folds, unfolds, builds or activates on the way; the map flown to stands ready, and the rule runs again on
+landing.
+
+**Building in slices.** `render/build.ts buildLevelSteps` is `buildLevel` as a generator: it yields between walls,
+objects, merged pieces and parts. Each piece is flattened as it is merged, not all at once at the end. `App.loadSteps`
+yields again after each level's coverage map. The streamer runs it for at most 8 ms after each drawn frame and waits
+out glides. Then `World.upload` gets the map onto the GPU a little at a time: `compileAsync` for its shaders (parallel
+where the browser can), then its buffers a megabyte and a half per draw into one corner pixel, with the scene's lights,
+so the programs are the ones the real frame uses. The fade's two material states are compiled before it starts.
+Measured on swiftshader with two test runs sharing four cores: the Old Svalich Road builds in about 37 slices (longest
+31 ms), Krezk in 144 (longest 25–52 ms) and Vallaki in about 395 (7 s in all, longest 58–90 ms). The plan allowed Vallaki half a second to a second in
+one piece. Opening a map by name, the library or the world map still builds it in one go, as before.
+
+**Ghosts** (`render/ghost.ts`). A map drawn in the valley that is not the active one looks as it would if it were
+active, from where the DM looks at it: its ground level and the floors standing on it, cut at 5 ft over the floor
+(stacked sites just under the ground floor's ceiling), roof caps hidden with low walls. Each mesh's material is swapped
+for a plain copy with the same colour, surface and shading. The copy ignores the active map's fog of war, clips at the
+ghost's own cut (re-read on every reanchor) and can fade and take a faint tint of the mist (12 %). The originals wait on
+`userData.liveMat`. What makes a map active is not drawn on a ghost: the grid, markers, light rings, labels, tokens,
+hidden things the players have not been shown, and its lamps (point lights would change the light count and recompile
+every material). In Players view an interior's ghost is not drawn at all. At tint 0 a ghost draws exactly the live
+map's pixels (measured: 0 pixels differ with the grid off), so becoming active shows no change. The tint glides off over
+250 ms first, and only then are the materials swapped.
+
+**Crossfades.** A streamed map comes in as a ghost at opacity 0 over its proxy and fades in over 250 ms. Then the
+proxy's faces collapse. Folding is the reverse: the proxy comes back at once and the map fades out over it, then
+hides. The active map folds too at valley zoom: it becomes a ghost that looks exactly like it, fades, and stays active
+(its tokens, tools and minimap). Drawn again, it takes its own materials back once the fade is done.
+
+**Activation by the camera** (`App.switchActive`). No flight, no framing and no travel: the party stays where it is, so
+no party token is added and the world-map marker does not move. Only the old active map's selection, ruler, range and
+token figures go, and it steps down to a ghost whose tint comes on gently. The new one comes alive with today's tail of
+`open()`: fog, sky, level, tokens, slider and the floating origin moved onto it. The device remembers it as the map
+to open next time, and the Player Display is told. `App.open` of a map the valley already holds opens it without a
+build. The map left behind stays a ghost and the streamer folds and frees it as the camera leaves. Opening a legacy map
+(a building, a dev map) or another campaign frees every map the valley holds and drops any build in flight.
+
+**The party's '&'** stands on the land at the party's place while the party's map is not drawn. If that map is drawn
+but is not the active one (a ghost has no token figures), the '&' stands on the party token's own spot. It is hidden
+while the party's map is the active one and drawn, because the token itself shows.
+
+**The Player Display** streams by the DM's camera (each camera message ticks its streamer) but never activates by
+itself. When the DM's camera makes a map active, the `state` message names it and the display opens it: without a build
+if it already holds it, and without framing (its camera is the DM's).
+
+A place whose map cannot be read while streaming keeps its proxy, is not tried again for 20 s, and the status line says
+*Couldn't load … (offline?)* once.
+
+Known: the first frame of the new light count after an activation recompiles the lit materials, as `setLevel` always
+has. The surface detail's noise is sampled in drawn space, so it slides by the floating origin's move when a map
+becomes active. The detail fades out beyond 4 ft a pixel, and activation happens from town zoom, so this does not show.
+A proxy is the place's massing, much simpler than its map (Krezk's rock is not in its proxy); the crossfade softens the
+change.
 
 ## Verification
 
@@ -191,6 +290,29 @@ slope round it in that theme's light mist.
   below Vallaki's name flies there.
 - `tests/atlas.test.ts`: Lake Zarovich's map on the south shore at the lake's level beside Vallaki (a second, deliberate
   band seam: both bases agree).
+- `e2e/stream.spec.ts` (review findings 9 and 11; each test failed before the change):
+  - Five round trips through four maps stay within 5 % of the first visit's geometries and textures, and the test room
+    draws the same pixels after them (shared materials stay live).
+  - A hundred range refreshes and forty view toggles leave the geometry count where it was.
+  - Two opens at once: the later one wins whatever order the files arrive in, its root is the only one mounted and no
+    stray label is left.
+  - A map that cannot be fetched, in the same campaign and in another, leaves the open map mounted with its labels, its
+    campaign and its save, and the status line says so. Once the network is back the same map opens.
+- `tests/streamer.test.ts`: the rule's thresholds, units, hysteresis, the 4-s linger, the cap and its least recently
+  wanted eviction (the active map kept, and not counted while folded), activation (the smallest footprint, the active
+  map holding the target, never mid-glide, never on the Player Display).
+- `e2e/stream.spec.ts` (step 3):
+  - A camera glide over Tser Pool, with no button pressed and no `open()`, streams its map in at its atlas placement
+    and makes it active (the origin moves onto it). The party stays in the village and the '&' marks it.
+  - At the whole valley Tser Pool folds into its proxy and stays active, within the draw budget.
+  - Back on the village it unfolds and becomes active again, with its party token. Tser Pool is freed and the GPU's
+    geometries and textures return to within 5 of what they were.
+  - Two places either side of the target are ghosts: ghost materials only, no lamps, labels, grid or proxy, a tint,
+    and walls cut 5 ft over the floor.
+  - Flying into one makes it active with its own materials while the other stays a ghost.
+  - A tour of four places with the cap at 3 never holds more than 3 units, and every build ran in several short slices.
+  - The Player Display draws what the DM's camera streamed in and follows the map it made active, with the same anchor
+    and camera; the party stays put.
 
 ## Data
 

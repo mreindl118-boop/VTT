@@ -102,6 +102,14 @@ function privatize(o: THREE.Object3D, tint?: THREE.Color): THREE.Material[] {
 }
 
 export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
+  const it = buildLevelSteps(level, grid);
+  for (;;) { const r = it.next(); if (r.done) return r.value; }
+}
+
+/** buildLevel in small steps: it yields between objects, merged pieces and parts, so a caller can spread a big map's
+ *  build over many frames (the continuous world streams a town in while the camera moves, render/streamer.ts) with no
+ *  step longer than one object or one concatenation. The result is the same graph as buildLevel's. */
+export function* buildLevelSteps(level: Level, grid: GridLevel): Generator<void, BuiltLevel> {
   const root = new THREE.Group();
   root.name = `level:${level.id}`;
   const y0 = level.elevationFt;
@@ -138,6 +146,7 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
     floors.push(m);
     root.add(m);
   }
+  yield;
 
   // Walls: merged per material; doors, windows and secret doors are their own pieces.
   const wallsGroup = new THREE.Group();
@@ -150,7 +159,9 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
   const FRAME = '#3a2c22';
   const COPING: Record<string, string> = { ashlar: PALETTE.stoneDeep, rubble: PALETTE.stoneDeep, brick: PALETTE.stoneDeep, plaster: '#5d5852', 'half-timber': FRAME, earth: '#4d5a3f' };
 
+  let wi = 0;
   for (const w of level.walls) {
+    if (++wi % 64 === 0) yield;
     const f = new Set(w.flags);
     const h = w.heightFt ?? ceiling;
     const color = wallColor(w);
@@ -200,10 +211,12 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
     wallsGroup.add(m);
   }
   root.add(wallsGroup);
+  yield;
 
   // Objects.
   const wallById = new Map(level.walls.map((w) => [w.id, w]));
   for (const o of level.objects) {
+    yield;
     const p = new THREE.Vector3(o.pos[0], y0 + o.pos[1], o.pos[2]);
     if (o.vis === 'secret-door') {
       const w = wallById.get(o.wall!)!;
@@ -261,6 +274,7 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
     type Bucket = { gs: THREE.BufferGeometry[]; ranges: MergedRange[]; faces: number };
     const byMat = new Map<string, { material: THREE.Material; role: string; cap: boolean; b: Bucket }>();
     for (const { obj, o, p } of scatter) {
+      yield;
       obj.position.copy(p);
       obj.rotation.y = ((o.rotY ?? 0) * Math.PI) / 180;
       obj.updateMatrixWorld(true);
@@ -272,8 +286,9 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
         const key = `${role}:${cap}:${material.uuid}`;
         let e = byMat.get(key);
         if (!e) { e = { material, role, cap, b: { gs: [], ranges: [], faces: 0 } }; byMat.set(key, e); }
-        const g = m.geometry.clone().applyMatrix4(m.matrixWorld);
-        const n = (g.index ? g.index.count : g.attributes.position.count) / 3;
+        // un-indexed, position and normal only, now (one object at a time) rather than all at once in merge()
+        const g = flat(m.geometry.clone().applyMatrix4(m.matrixWorld));
+        const n = g.attributes.position.count / 3;
         const last = e.b.ranges[e.b.ranges.length - 1];
         if (last && last.id === o.id && last.end === e.b.faces) last.end += n; else e.b.ranges.push({ start: e.b.faces, end: e.b.faces + n, id: o.id });
         e.b.faces += n;
@@ -281,6 +296,7 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
       });
     }
     for (const { material, role, cap, b } of byMat.values()) {
+      yield;
       const m = new THREE.Mesh(merge(b.gs), material);
       m.userData.role = role; if (cap) m.userData.cap = true;
       m.userData.ranges = b.ranges;
@@ -312,10 +328,20 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
     }
   }
 
+  yield;
   const gridMesh = buildGridOverlay(grid, y0, !!level.terrain?.length || level.elevationFt <= 0);
   root.add(gridMesh);
 
   return { level, root, grid: gridMesh, floors, targets, secretDoors, labels, lights, lightRings, secretAsWall, wallsGroup, doors, openables };
+}
+
+/** A piece as merge() wants it: un-indexed, with only a position and a normal. */
+function flat(g: THREE.BufferGeometry): THREE.BufferGeometry {
+  const n = g.index ? g.toNonIndexed() : g;
+  if (n !== g) g.dispose();
+  for (const k of Object.keys(n.attributes)) if (k !== 'position' && k !== 'normal') n.deleteAttribute(k);
+  if (!n.attributes.normal) n.computeVertexNormals();
+  return n;
 }
 
 function buildObject(o: SceneObject, y0: number, labels: LabelSpec[]): THREE.Object3D {

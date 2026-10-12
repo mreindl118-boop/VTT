@@ -360,6 +360,54 @@ export class World {
     this.invalidate();
   }
 
+  /** Get a map ready to draw without a hitch (the streamer, before it fades one in): its shaders compiled off the main
+   *  thread where the browser can (compileAsync), then its buffers uploaded a few meshes per frame by drawing them
+   *  into one corner pixel of the canvas (the next frame draws over it). Lights are drawn with them so the programs
+   *  are the ones the real frame uses. The root may be hidden meanwhile (it shows only for these draws). Returns the
+   *  number of slices it took. Waits while `pause()` says so. */
+  async upload(root: THREE.Object3D, sliceMs: number, pause: () => boolean, cancelled: () => boolean): Promise<number> {
+    const PREWARM = 31, r = this.renderer, cam = this.camera.clone(), shown = root.visible;
+    cam.layers.set(PREWARM);
+    root.visible = true;
+    const meshes: THREE.Object3D[] = [];
+    root.traverseVisible((o) => { if ((o as THREE.Mesh).isMesh) meshes.push(o); });
+    root.visible = shown;
+    await r.compileAsync(root, this.camera, this.scene).catch(() => undefined);
+    const lights: THREE.Object3D[] = [];
+    this.scene.traverseVisible((o) => { if ((o as THREE.Light).isLight && !o.layers.isEnabled(PREWARM)) { o.layers.enable(PREWARM); lights.push(o); } });
+    let i = 0, slices = 0;
+    const size = r.getSize(new THREE.Vector2()), scissor = r.getScissorTest();
+    try {
+      while (i < meshes.length && !cancelled()) {
+        await new Promise<void>((go) => requestAnimationFrame(() => setTimeout(go, 0)));
+        if (pause()) continue;
+        const t0 = performance.now();
+        r.setScissorTest(true); r.setScissor(0, size.y - 1, 1, 1);
+        while (i < meshes.length && performance.now() - t0 < sliceMs) {
+          // about a megabyte and a half of vertices a draw (one pass over the scene for many small meshes)
+          const batch: THREE.Object3D[] = [];
+          for (let bytes = 0; i < meshes.length && bytes < 1.5e6;) {
+            const m = meshes[i++], g = (m as THREE.Mesh).geometry;
+            for (const a of Object.values(g.attributes)) bytes += (a as THREE.BufferAttribute).array?.byteLength ?? 0;
+            m.layers.enable(PREWARM); batch.push(m);
+          }
+          // drawn whole, wherever it is on screen (a mesh off the view would otherwise upload on its first frame)
+          const culled = batch.map((m) => m.frustumCulled), was = root.visible;
+          for (const m of batch) m.frustumCulled = false;
+          root.visible = true; r.render(this.scene, cam); root.visible = was;
+          batch.forEach((m, k) => { m.layers.disable(PREWARM); m.frustumCulled = culled[k]; });
+        }
+        r.setScissor(0, 0, size.x, size.y); r.setScissorTest(scissor);
+        slices++;
+        this.invalidate();
+      }
+    } finally {
+      for (const l of lights) l.layers.disable(PREWARM);
+      r.setScissor(0, 0, size.x, size.y); r.setScissorTest(scissor);
+    }
+    return slices;
+  }
+
   /** The glide in flight, if any (tests and the streamer read it). */
   get flying(): boolean { return !!this.tween; }
   /** How many glides flyTo has started (tests read it: a glide may end before anyone looks). */
