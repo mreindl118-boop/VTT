@@ -1,5 +1,21 @@
 # Changelog
 
+## Books: one rule per name, and the PDF's own words — 2026-10-12
+
+- In the 2014 rules, 'bonus action' now means the combat rule, not the spellcasting note. Dim light, bright light,
+  darkness and lightly or heavily obscured each answer with their own paragraph, and a table's name (Object Armor
+  Class, Creating Spell Slots, Beast Shapes) answers with its table rather than the next rule's paragraph. The build
+  now stops if one name could mean two rules.
+- The 2024 rules answer Mounted Combat, Underwater Combat, Vision and Light, Resting, Spell Slots, Components and the
+  other sections the glossary leaves out, so a 2024 table no longer gets a 2014 card for them. 'DC' works in 2014.
+- The text matches the printed books word for word: the hyphens and dashes lost in the Markdown are back ('5-foot-wide'
+  in every dragon's breath), the Thrown property no longer says 'wwizareapon', and Confusion's table says 'Behavior'.
+  Both changes notes list every correction, and a test fails if any word of the books is not in the official PDF.
+- Running text links Enlarge/Reduce and other names with a slash, a stat block's 'grappled (escape DC 13)' and
+  'knocks the target prone', and leaves 'Book of Shadows' alone. 'Inn stays' and 'meals' find the group, and 2024's
+  'Studded Leather' finds its armour.
+- On the title page, a long chapter name keeps its number on its first line.
+
 ## Books: the last gaps in the rules data — 2026-10-12
 
 - The 2014 Destroy Undead table has its Cleric Level column again (5th to 17th), and the Warlock table's column

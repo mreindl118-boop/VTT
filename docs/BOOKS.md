@@ -99,6 +99,17 @@ official PDF (`scripts/books/config.ts`, `prepare()` and `placeTitles()` in `scr
   test checks that no table in either book is left with a single column.
 - **2024 tools** (Alchemist's Supplies … Thieves' Tools, 25 of them) are items of category Tool with cost, weight,
   ability, Utilize, Craft and variants; a variant answers by its own name (lute, playing cards).
+- **Hyphens and dashes the Markdown lost, and garbled words.** Where the PDF breaks a line after a hyphen or a dash,
+  the Markdown often joined the words ('5-footwide' in every dragon's breath line, 'lifethreatening', 'twohanded')
+  or dropped the dash ('adventuring noticing danger'). `scripts/books/vocab.ts` reads both PDFs' words with
+  `pdftotext -raw`: a word of the Markdown that neither PDF prints whole, and that they print with a hyphen at exactly
+  one place, gets its hyphen back (9 words in 5.2.1, 21 in 5.1); a PDF line ending in a dash whose words occur once
+  in the Markdown with only a space there gets the dash back (10 and 13). The list is committed as
+  `scripts/books/pdf/<book>-repairs.json`, so a build without the PDFs agrees, and both changes notes name every
+  word (a test keeps the notes and the files in step). Patches fix the two garbled words: “wwizareapon” in the 2024
+  Thrown property and “Behaviour” in the 2014 Confusion table. A converter test runs every page and tooltip line of
+  both books against the PDF's vocabulary, so a word the PDF never prints fails the tests (allowed: the ordinal
+  suffixes SRD 5.2.1 sets as superscripts and the heading row 'Abbreviation, Stands For' the Markdown added).
 
 `npm run books` prints all of this. A unit test checks that every table rolled on NdX runs up to N×X.
 
@@ -183,6 +194,19 @@ Help still shows the attribution with no network) through the service worker's
   Undead` is 2014's Channel Divinity: Turn Undead); Channel Divinity's options in both books (Turn Undead, Sacred
   Weapon, Preserve Life) are entries. Within one kind, an entry named exactly so comes before one that only answers
   to the name (`shield` is the Shield, not Shield +1; `inn stay` is Inn Stay, not Inn Stay (Squalid)).
+- One name, one rule: the build stops when a name answers two rules sections and no alias settles it. In 2014,
+  'bonus action' is the Combat chapter's Bonus Actions (the casting-time note of the same name keeps its id,
+  `rule:bonus-action`). The 2014 light and obscurement terms (Bright Light, Dim Light, Darkness, Lightly Obscured,
+  Heavily Obscured) answer with their own paragraph of Vision and Light, under the 2024 glossary's ids
+  (`rule:dim-light` …), with `term` in `ruleSources`. A 2014 heading that is really a table's title (Object Armor
+  Class, Object Hit Points, Typical Difficulty Classes, Creating Spell Slots, Beast Shapes, Draconic Ancestry) is its
+  table: the card shows the table and the tooltip line reads it ('Substance: AC. Cloth, paper, rope: 11; …'), not
+  the paragraph after it, which belongs to the next rule. 'DC' and 'Difficulty Class' answer in 2014 too, with the
+  Typical Difficulty Classes table.
+- 2024 rules come from the glossary and also from the sections of Playing the Game and the Spells chapter that the
+  glossary has no entry for under any form: Mounted Combat, Underwater Combat, Vision and Light, Resting, Hiding,
+  Spell Slots, Components, Casting Time … (41 sections; headings that are part of a sentence, such as 'They Don't
+  Stack', stay out).
 - The parts of a stat block answer from the monsters' introduction: Multiattack and Legendary Actions in both books,
   Lair Actions and Legendary Creatures in 2014 (the 2024 SRD has no lair actions). Neither SRD has a general rule
   for Legendary Resistance (each stat block states its own), so that finds nothing. In 2014, Hit Dice answers with
@@ -199,8 +223,8 @@ Help still shows the attribution with no network) through the service worker's
 - Every entry has a short `text` for a tooltip (a test checks there is no empty one): a monster's is its stat line
   ('Medium beast, unaligned. AC 13 (natural armor), HP 11 (2d8 + 2), Speed 40 ft. CR 1/4 (XP 50).'), a class's its
   Hit Die, primary ability and saves, a background's its fields, a 2014 condition's its effects, gear without a
-  description its table row ('Mount or vehicle (Saddles): Cost 20 gp, 30 lb.'), a table-only section its rows
-  ('5th: 1/2 or lower; 8th: 1 or lower …').
+  description its table row ('Mount or vehicle (Saddles): Cost 20 gp, 30 lb.'), a table-only section its column
+  names and rows ('Cleric Level: Destroys Undead of CR. 5th: 1/2 or lower; 8th: 1 or lower …').
 - `lookupAll(term)` returns every meaning (Shield is a spell and armour).
 - `findTerms(text, await termIndex())` returns the spans of rules terms in running text. Names that are also
   ordinary English words count only when tagged (`[[Light]]`, `[[spell:light]]`, `[[Command|the command spell]]`),
@@ -214,7 +238,12 @@ Help still shows the attribution with no network) through the service worker's
   nor are darkvision, blindsight, truesight, tremorsense and multiattack. Mundane gear named in one word (Hammer,
   Rope, Feed) counts as an ordinary word, and a capitalised word after another capitalised word that is not an
   article or the like (‘Exotic Feed’, ‘the Blue Light Inn’) is part of that name, not the rules term.
-  `Wisdom (Perception)` is one span, the skill, and `+1 mace` is one span, the magic weapon.
+  `Wisdom (Perception)` is one span, the skill, and `+1 mace` is one span, the magic weapon. A name with a slash
+  (`Enlarge/Reduce`, `antipathy/sympathy`) is one span. A word after 'of' inside a capitalised name ('Book of
+  Shadows') is part of that name. A stat block's DC names its condition ('grappled (escape DC 13)'), and so does a
+  fall ('knocks the target prone'); with `{ statBlock: true }` (a stat block's traits and actions), 'the target is
+  restrained' does too, while in other prose 'the target is charmed' stays plain. A group answers its plural before
+  its kinds ('inn stays', 'meals'), and 2024 armour answers without 'Armor' ('Studded Leather').
 - Types: spell, condition, monster, item, rule (glossary terms, actions, weapon and mastery properties),
   damage, ability, skill, creature-type, feat, class, feature, species, background. `TYPE_META` gives each a label
   and a colour token (`--t-spell`, `--t-condition` …) for colour-coded cards.
