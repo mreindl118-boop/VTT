@@ -62,6 +62,7 @@ For each item, in order:
 ## Owner decisions
 
 - 2026-10-12: the independent review's 14 suggestions fold into their matching items. The two with no other home become item 22.
+- 2026-10-12: the owner's terrain model (STL) is unavailable; item 2's topography uses the module's Lands of Barovia map and world.json.
 - 2026-10-12: Claude Code's own review (`docs/REVIEW.md`) found eight more issues; they fold into items 5 and 11. The explored-fog leak is fixed first, as item 0.
 
 ### 2026-10-05
