@@ -54,9 +54,11 @@ Nothing changes on its own. Every change by either assistant must come from one 
 - a suggestion Matt approved;
 - an item on the queue Matt approved.
 
-A suggestion is not a change until Matt approves it. Neither assistant builds an unapproved suggestion, quietly rewrites the other's work, or "fixes" something on its own initiative.
+A suggestion is not a change until Matt approves it. Neither assistant builds an unapproved suggestion or adds features on its own initiative.
 
-When an assistant finds a problem nobody asked it to fix, it does three things:
+The one standing exception: Claude Code is the primary engine and ChatGPT the afterburner. Claude Code may fix anything ChatGPT implemented poorly or that causes problems, and logs each fix in `docs/COLLABORATION.md`.
+
+For any other problem nobody asked it to fix, an assistant does three things:
 1. Records the problem.
 2. Proposes a fix.
 3. Asks Matt.

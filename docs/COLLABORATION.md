@@ -7,7 +7,7 @@ Two assistants work on this repository. **Claude Code** is the primary coding as
 - a suggestion Matt approved;
 - a queue item Matt approved.
 
-Each commit says which. Neither assistant makes an automatic or unrequested update. That means no building an unapproved suggestion, no rewriting the other's work, and no "while I was here" fix. A problem found along the way is recorded, a fix is proposed, and Matt decides.
+Each commit says which. Neither assistant makes an automatic or unrequested update: no building an unapproved suggestion, and no "while I was here" feature. There is one standing exception, set out below: Claude Code may fix outside changes that are implemented poorly or cause problems, and logs every such fix.
 
 This file is shared by both assistants and by Matt. It covers:
 - how changes from either side are noted;
@@ -26,11 +26,22 @@ This file is shared by both assistants and by Matt. It covers:
 - what could break;
 - what was done about it.
 
-**Claude Code never reverts, rewrites or "fixes" an outside change on its own, even when the build or tests break.** If one conflicts with in-progress work or would cause a bug, Claude Code:
-1. Notes it here.
-2. Tells Matt.
-3. Proposes the fix.
-4. Waits for his decision. If the problem blocks a release, the release waits too.
+**Fixing outside changes.** Matt's standing approval (2026-10-12): "Claude, you are to act as the ramjet. GPT is the afterburner; you're the primary carrying heavy-duty force. If you find anything in the code that ChatGPT has implemented poorly or is causing problems, feel free to fix it."
+
+So Claude Code fixes an outside change that is implemented poorly or causes problems, without asking first:
+- a bug;
+- a broken test or build;
+- a breach of the design choices below;
+- a conflict with in-progress work.
+
+It logs every such fix in the ledger with the commit it fixed, what was wrong, and what it changed, so Matt and ChatGPT can see it.
+
+This approval covers fixing. It does not cover building unapproved suggestions or new features: those still need Matt's request or approval.
+
+Where a fix would change something Matt clearly asked ChatGPT for, Claude Code asks Matt first. If one conflicts with in-progress work or would cause a bug, Claude Code:
+1. Fixes it (under the standing approval above), or asks Matt first when the fix would undo something he asked for.
+2. Notes it in the ledger.
+3. Tells Matt in the next report.
 
 When a release merges the main branch into a work branch, the outside changes come along. The release review checks that both sides survived the merge.
 
