@@ -253,6 +253,27 @@ Help still shows the attribution with no network) through the service worker's
   damage, ability, skill, creature-type, feat, class, feature, species, background. `TYPE_META` gives each a label
   and a colour token (`--t-spell`, `--t-condition` …) for colour-coded cards.
 
+## Rules links and cards in the app
+
+- The rules cards (`app/src/ui/rulecard.ts`) and the module-text links (`app/src/ui/terms.ts`) read this API; the map's
+  cards, the token panel, the Creatures and Initiative sheets, the clock, the Rooms sheet, the world map and Help
+  render module words through `spansFor` (`app/src/ui/rich.ts`). Module text never changes: the links are spans over
+  the plain string, and every slice is escaped.
+- The reader cross-links each entry's siblings (`app/src/ui/booklinks.ts`): the text nodes of a page run through
+  `findTerms` in the page's own edition (`{ statBlock: true }` inside a monster's entry), and each term links at most
+  once per section (an entry, or the text under one heading), never to the entry it stands in or the one its heading
+  names, never inside headings, table heads, captions or links. A cross-link opens its card in place, pinned to the
+  book's edition; 'Open in Books ›' goes to the entry. A stat block's full form (the card's 'More', the Creatures
+  sheet) links the same way.
+- The reader is a page surface (THEME T4): Alegreya 17/1.5 at a 68 ch measure, a small-capitals running head (book ·
+  chapter) with a 44 px Contents button on phones, the h1 in the campaign's display face over the double rule, the
+  illuminated initial only on a chapter's opening paragraph (`p.open`) and read-aloud starts (`.readaloud`), and 44 px
+  contents links.
+- A creature's numbers have one source (`app/src/ui/creature.ts`): the books' monster for the Rules edition (falling
+  back to the other edition, which the card then names), else the module's own numbers under 'Module stats', else
+  'Curse of Strahd creature: no open stat block'. The card, the token panel's pills, the Creatures sheet and the DM's
+  hover line all read it.
+
 ## Maintenance
 
 - 5e-bits/5e-database was archived on 2026-09-23; its data lives on in 5e-bits/5e-srd-api.

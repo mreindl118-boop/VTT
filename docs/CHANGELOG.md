@@ -1,5 +1,35 @@
 # Changelog
 
+## Rules cards on every surface (queue item 1, in progress) — 2026-10-12
+
+- The room tap menu, the object card and the players' room and creature cards now show their rules links: tap 'DC 12
+  Perception' in Death House 2A, the scrolls of bless, protection from poison and spiritual weapon in the chest of
+  room 9, or 'sympathy' and '(X26)' in the Amber Temple's West Shrine, and its card opens. The players' cards link only
+  conditions, rules, actions, senses, damage types, abilities and skills. Every word on a card is escaped: a label
+  with '<b>' in it shows the brackets.
+- The token panel's name opens the creature's stat block, and its size, AC, HP, speed and CR are pills that open
+  their rules. The panel and the card read the same numbers: the books' entry for the chosen Rules edition, or the
+  module's own under 'Module stats'; a mongrelfolk says 'Curse of Strahd creature: no open stat block'. Remove is
+  red, and the hit points have a bar.
+- The Creatures sheet: names open stat blocks, the meta is the same pills, a location tag opens the place it names,
+  and 'Stat block' unfolds the full block in the row with its traits and actions linked.
+- The Initiative sheet's Speed, Reach, Range, Darkvision and Initiative headers open their rules. The clock's
+  'Difficult terrain', 'Mounted' and pace open theirs, and the pace's effect follows the Rules edition (2014: −5
+  passive Perception, able to use stealth; 2024: read from the 2024 book); miles, hours and days are unchanged. The
+  Rooms sheet's page numbers and a world-map pin's words link too.
+- The players never read a hidden creature's name: on the players' side (Players view and the slider's players'
+  end) the turn bar leaves hidden combatants out, shows only 'Round 1' on their turn, calls each revealed creature by
+  its own token's alias (two ghouls renamed differently keep their names), and has no tips; map tags and the hover
+  tip follow the same rule, and a blocked move says 'Not your turn'. The DM still sees every name.
+- The Books reader links each entry's sibling rules in the same edition, once per section and never to itself, and
+  reads like a book: Alegreya at a comfortable measure, a small-capitals running head with a Contents button on
+  phones, the chapter title in the campaign's display face, an illuminated first letter on each chapter's opening
+  paragraph, and contents links big enough to tap.
+- Help has a Colours row: one sample link per family (dashed condition, double spell, wavy monster, dotted rule,
+  solid page reference).
+- Fixed: a monster card's 'More' did nothing for most stat blocks (the books give their Actions headings at several
+  levels); the full block now opens for every monster.
+
 ## Rules links in module text (queue item 1, in progress) — 2026-10-12
 
 - New app/src/ui/terms.ts finds the rules words in room, object, pin and creature text and links them, coloured and
