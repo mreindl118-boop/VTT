@@ -406,4 +406,4 @@ async function runFullText(): Promise<void> {
 }
 
 // Test/debug hook (like window.__mistlab): the lookup API the rules tooltips will use. DM-side code only.
-(window as unknown as { __mistlabBooks: unknown }).__mistlabBooks = { lookup, rulesEdition, termIndex, findTerms, openBook, closeReader };
+(window as unknown as { __mistlabBooks: unknown }).__mistlabBooks = { lookup, rulesEdition, termIndex, findTerms, openBook, closeReader, terms: () => import('./terms') };

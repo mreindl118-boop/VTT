@@ -47,6 +47,8 @@ const ready = app.init(builtPaths.has(path) ? path : 'appB/death-house');
   screenOf: (x: number, z: number, y = 0) => { const v = new THREE.Vector3(x, app.level.elevationFt + y, z).project(app.world.camera); const r = app.world.renderer.domElement.getBoundingClientRect(); return [r.left + (v.x + 1) / 2 * r.width, r.top + (1 - v.y) / 2 * r.height]; },
   partyPos: () => app.party?.pos,
   get tips() { return tips; },
+  /** The rules-link pipeline (ui/terms.ts), loaded on demand. */
+  terms: () => import('./ui/terms'),
     moveParty: (level: string, x: number, z: number) => { const t = app.party; if (t) { t.level = level; t.pos = [x, z]; } app.setLevel(level); app.world.renderNow(); },
 };
 
@@ -72,6 +74,10 @@ if ('serviceWorker' in navigator && import.meta.env.PROD && !q.has('nosw')) {
     if ('requestIdleCallback' in window) requestIdleCallback(post, { timeout: 4000 }); else post();
   }, 3000)).catch(() => {});
 }
+
+// Rules links in module text (ui/terms.ts): once the scene is ready, the DM window loads the term files of both
+// editions (until then, text renders plain). Never on the players' side.
+if (mode === 'dm') void ready.then(() => setTimeout(() => void import('./ui/terms').then((t) => t.preload((p) => (app.cur?.path === p ? app.cur.scene : undefined))).catch(() => {}), 2500));
 
 let slider: ViewSlider | undefined;
 let tips: Tips | undefined;
