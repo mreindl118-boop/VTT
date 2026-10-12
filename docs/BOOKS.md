@@ -10,7 +10,10 @@ mistLAB ships the two open rules cores of fifth edition as a book list in the Li
 Both are released by Wizards of the Coast under the Creative Commons Attribution 4.0 International licence
 (CC-BY-4.0, https://creativecommons.org/licenses/by/4.0/legalcode), which allows redistribution with attribution.
 This is the only book text in the repo. Curse of Strahd is not open and stays out: `tests/no-book-content.test.ts`
-guards every other path and exempts only `app/public/books/srd-*` and `catalog.json`.
+guards every other path and exempts only `app/public/books/srd-*` and `catalog.json`. Beside the converter sit two
+small files of SRD data read from the PDFs (`scripts/books/titles/srd-5.2.1.json`, the table titles, and
+`scripts/books/pdf/srd-5.1-spell-lists.json`, the class spell lists); each carries its book's attribution, and the
+guard checks that.
 
 ## Attribution
 
@@ -37,11 +40,14 @@ with every file of each book (`CHANGES` in `app/src/books/attribution.ts`):
 
 SRD 5.2.1:
 
-> Converted from the official PDF to Markdown by the your5e/5e-srd-markdown project, then to HTML and JSON, reformatted and indexed for mistLAB. That Markdown conversion dropped most table titles and reworded the sentences that named them (for example “as shown on the Travel Pace table. The table states” became “The table states”); mistLAB restored the table titles from the official PDF, but not those sentences. mistLAB also rejoined words split by the PDF extraction and set the Efreeti Bottle table’s die back to 1d10 as printed. Otherwise no rules text was changed.
+> This work includes material from the System Reference Document 5.2.1 (“SRD 5.2.1”) by Wizards of the Coast LLC, available at https://www.dndbeyond.com/srd. The SRD 5.2.1 is licensed under the Creative Commons Attribution 4.0 International License, available at https://creativecommons.org/licenses/by/4.0/legalcode.
 
 SRD 5.1:
 
-> Converted from the official PDF to Markdown by the your5e/5e-srd-markdown project (which lists its own small corrections, such as a typo fixed in Contagion), then to HTML and JSON, reformatted and indexed for mistLAB. Apart from formatting and those corrections, no rules text was changed.
+> This work includes material taken from the System Reference Document 5.1 (“SRD 5.1”) by Wizards of the Coast LLC and available at https://dnd.wizards.com/resources/systems-reference-document. The SRD 5.1 is licensed under the Creative Commons Attribution 4.0 International License available at https://creativecommons.org/licenses/by/4.0/legalcode.
+
+On the title page each note is shown in full; in Help and in each page's footer it sits behind a one-tap
+“what changed” summary, so the statement that the copy was changed stays visible and the long list does not.
 
 ## Corrections against the PDF
 
@@ -64,7 +70,27 @@ official PDF (`scripts/books/config.ts`, `prepare()` and `placeTitles()` in `scr
   is rare there; real phrases that the rule would join ("a bout", "a loud", "arm or") are kept apart by a list.
   The build prints every join. SRD 5.1 has none.
 - **Stat blocks.** A Traits section that runs on into Multiattack or an attack (Young Green Dragon, 2024) gets its
-  Actions heading back.
+  Actions heading back. 2014 stat blocks print the PDF's **Saving Throws** line again (the saves that differ from
+  the modifier, which are the proficient ones); the Markdown had replaced it with a row of every save. All 92 lines
+  agree with the PDF text.
+- **What the 2014 Markdown dropped (SRD 5.1).** Patches restore, each checked against the PDF: seven entries of the
+  class spell lists (Heroes' Feast for the Cleric and Druid, Hunter's Mark for the Ranger, Enlarge/Reduce for the
+  Sorcerer and Wizard, Arcanist's Magic Aura and Control Weather for the Wizard), the Grimlock's Blind Senses trait,
+  the Jokers row of the Deck of Illusions table, “Meat, chunk” as its own row (the Markdown had made it one of the
+  Meals) and “Tent, two-person”. A list patch is scoped with `within` (the class's list, then the level), since the
+  same two spells sit next to each other in other lists.
+- **The 2014 spell lists, read from the PDF.** A 2014 spell names its classes only in the lists, so
+  `scripts/books/spelllists.ts` reads pages 105–114 of the PDF one column at a time (`pdftotext` with a crop box)
+  and the build stops unless every spell carries exactly the classes whose list names it (778 entries, 8 classes).
+  The lists are committed as `scripts/books/pdf/srd-5.1-spell-lists.json`, with the book's attribution, so a build
+  or a test without the PDF checks the same thing.
+- **Stray italics.** The PDF set some full stops in italics after a roman word (`prone_._`, `"Playing the Game_."_`);
+  the emphasis around nothing but punctuation is dropped (nine places).
+- **Equipment names.** Rows that are kinds of one thing are named after it, as the PDF groups them
+  (`groupedRows`: the 2014 saddles are “Saddle, Exotic” …, not “Exotic”); unpriced rows (2014 “Vehicles (land or
+  water)”, a proficiency) are not items; grouped lifestyle prices read “Inn Stay (Poor)”, “Meals (Poor)” in both books.
+- **2024 tools** (Alchemist's Supplies … Thieves' Tools, 25 of them) are items of category Tool with cost, weight,
+  ability, Utilize, Craft and variants; a variant answers by its own name (lute, playing cards).
 
 `npm run books` prints all of this. A unit test checks that every table rolled on NdX runs up to N×X.
 
@@ -79,7 +105,7 @@ Pinned in `scripts/books/sources.json` with URL, SHA-256 and retrieval date. The
 | 5e-bits/5e-srd-api `packages/5e-database/src/2024/en` (Monsters, Spells) at 05c109e | Cross-check of parsed stat blocks and spells (not shipped) | Data is SRD text; code MIT (not used) |
 | 5e-bits/5e-srd-api `packages/5e-database/src/2014/en` (Monsters, Spells) at 05c109e | Cross-check for the 2014 book (not shipped) | as above |
 | Official `SRD_CC_v5.2.1.pdf` (sha256 8974902d…) via the your5e mirror | Fidelity check with `pdftotext` (never shipped or committed) | CC-BY-4.0 |
-| Official `SRD_CC_v5.1.pdf` (sha256 2504d2a0…) via the your5e mirror | Fidelity check (never shipped or committed) | CC-BY-4.0 |
+| Official `SRD_CC_v5.1.pdf` (sha256 2504d2a0…) via the your5e mirror | Fidelity check, and the class spell lists read by `spelllists.ts` (never shipped or committed) | CC-BY-4.0 |
 
 Why this choice: your5e is the only complete, clean 5.2.1 conversion (5e-bits and Open5e hold 5.2, which lacks the 15
 magic items restored in 5.2.1, the Octopus and the Rules Glossary). One text source per book keeps the reader and the
@@ -123,7 +149,8 @@ Section anchors are stable: an entry's anchor is its id with `-` for `:` (`spell
 `monster-wolf`), chapters use their slug (`rules-glossary`). Deep links are `#book/<book>/<anchor>`.
 
 Nothing loads until a book is opened: the reader's code is its own chunk, the data is fetched on demand, and
-**Save for offline** caches every file of a book (plus the reader's code) through the service worker's
+**Save for offline** caches every file of a book (plus the reader's code and Help's small attribution chunk, so
+Help still shows the attribution with no network) through the service worker's
 `cache-pack` message into the `mistlab-books-v1` cache, which survives app updates.
 
 ## Lookup API (for rules tooltips and stat blocks)
@@ -139,12 +166,30 @@ Nothing loads until a book is opened: the reader's code is its own chunk, the da
   Only that edition answers: a term the chosen rules do not have returns nothing. `fallback: true` lets the other
   edition answer; the entry's `edition` then differs from the one asked for, and a card must show it ('2014 rules').
   `label` is the type's name in that edition ('Race' in 2014, 'Species' in 2024).
+  It also reads names the way running text writes them: in quotes, with a possessive or an article
+  (`“Prone.”`, `the wolf's`, `the prone condition`), with a cue word (`Strength saving throw`, `undead creature`),
+  and a '+1, +2, or +3' item by its own name (`wand of the war mage`, `+2 wand of the war mage`). Within one kind, an
+  entry named exactly so comes before one that only answers to the name (`shield` is the Shield, not Shield +1).
+- Where two sections share a name, the one that answers is set per edition (`ruleSources` in the config, and the
+  build stops if a path is missing): in 2014, Hit Points, Difficult Terrain and Initiative are the combat rules (not
+  the Constitution, travel or Dexterity paragraphs), Armor Class is the Armor section's definition and Tremorsense is
+  the monsters' one. 2014 class features with parts of their own (Wild Shape, Ki, Metamagic, Fighting Style, Font of
+  Magic, Pact Boon, Spellcasting, Channel Divinity) are entries; each part (Beast Shapes, Flurry of Blows, Archery)
+  is one too, naming its feature in `summary.feature`, and `summary.subclass` is only ever a real subclass.
+- The 2024 rules renamed some creatures; their 2014 names, which modules like Curse of Strahd use, find the 2024 stat
+  block (thug → Tough, veteran → Warrior Veteran, cult fanatic → Cultist Fanatic, acolyte → Priest Acolyte, kobold →
+  Kobold Warrior, flying sword → Animated Flying Sword …), and their plurals too.
+- Every entry has a short `text` for a tooltip: a monster's is its stat line ('Medium beast, unaligned. AC 13
+  (natural armor), HP 11 (2d8 + 2), Speed 40 ft. CR 1/4 (XP 50).'), a 2014 condition's its effects, gear without a
+  description its table row ('Mount or vehicle (Saddles): Cost 20 gp, 30 lb.').
 - `lookupAll(term)` returns every meaning (Shield is a spell and armour).
 - `findTerms(text, await termIndex())` returns the spans of rules terms in running text. Names that are also
   ordinary English words (light, shield, command, guidance, fly, prone, fire, net, poor …), and their inflected
   forms (hides, nets), count only when tagged
   (`[[Light]]`, `[[spell:light]]`, `[[Command|the command spell]]`), capitalised mid-sentence, or followed by
-  their cue word (`light cantrip`, `prone condition`, `fire damage`).
+  their cue word (`light cantrip`, `prone condition`, `fire damage`). Mundane gear named in one word (Hammer, Rope,
+  Saddle, Feed) counts as an ordinary word, and a capitalised ordinary word inside a longer capitalised name (‘an
+  Exotic Feed seller’) is part of that name, not the rules term.
 - Types: spell, condition, monster, item, rule (glossary terms, actions, weapon and mastery properties),
   damage, ability, skill, creature-type, feat, class, feature, species, background. `TYPE_META` gives each a label
   and a colour token (`--t-spell`, `--t-condition` …) for colour-coded cards.

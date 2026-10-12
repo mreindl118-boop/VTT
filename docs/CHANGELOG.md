@@ -1,5 +1,30 @@
 # Changelog
 
+## Books: the rest of the 2014 rules, sharper look-ups — 2026-10-12
+
+- The 2014 book has what its Markdown source had dropped, each checked against the printed PDF: seven spell-list
+  entries (Hunter's Mark for the Ranger, Enlarge/Reduce, Arcanist's Magic Aura, Control Weather and Heroes' Feast),
+  so every 2014 spell names its classes; the Grimlock's Blind Senses; the Jokers of the Deck of Illusions; and each
+  stat block's Saving Throws line as printed. The build now reads the class spell lists from the PDF and stops if
+  any spell disagrees with them.
+- Look-ups answer with the right section: in the 2014 rules Hit Points, Difficult Terrain and Initiative are the
+  combat rules and AC is the armour rule; Wild Shape, Ki, Metamagic, Fighting Style, Font of Magic, Pact Boon and
+  Channel Divinity are class features, with their parts (Beast Shapes, Flurry of Blows, Archery …) under them.
+- The 2024 tools are items: Thieves' Tools, Herbalism Kit, Smith's Tools, the instruments and gaming sets, each with
+  its ability, Utilize and Craft. The 2014 saddles are “Saddle, Military” and so on, and ordinary words like pack,
+  feed or hammer no longer turn into links.
+- Creatures the 2024 rules renamed are found by their 2014 names (thug, veteran, cult fanatic, acolyte, kobold …),
+  as Curse of Strahd writes them. Every entry has a one-line tooltip text, a monster's being its stat line.
+- On iPad portrait and the phone, the contents sheet closes when you switch books or search, so the results are
+  never hidden. A book not saved for offline says so by name and offers the way back. Stat blocks inside spells and
+  magic items fit the phone too.
+- Offline, Help still shows both attributions, the disclaimer and what each copy changed: Save for offline keeps
+  Help's attribution, and the app fetches it once the service worker is ready. The changes notes now keep the
+  Markdown project's own list of changes and list everything this copy restored; in Help and the page footers they
+  open with one tap.
+- The main script is about 300 bytes larger (90 bytes compressed) for Help's offline fallback and the early fetch of
+  the attribution.
+
 ## Books: the 2014 and 2024 rules — 2026-10-04
 
 - The Library has a new Books tab with the two open rules books: the 2024 rules (System Reference Document 5.2.1)
