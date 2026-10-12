@@ -7,7 +7,7 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
 import { BOOKS, type BookConfig } from './config.ts';
-import { convertBook, normForm, placeTitles, prepare, type BuiltBook } from './convert.ts';
+import { convertBook, normForm, otherProseOf, placeTitles, prepare, type BuiltBook } from './convert.ts';
 import { fetchSource, loadSources } from './fetch.ts';
 import { parseBlocks } from './md.ts';
 import { pdfTitles, type PdfTitle } from './titles.ts';
@@ -94,9 +94,11 @@ async function main(): Promise<void> {
   const need = (id: string): Source => { const s = byId.get(id); if (!s) throw new Error(`unknown source ${id}`); return s; };
   const out = new Map<string, string>(); // path relative to OUT → contents
   const catalog: Catalog = { books: [] };
+  const mds = new Map<string, string>();
+  for (const cfg of BOOKS) mds.set(cfg.id, readFileSync(await fetchSource(need(cfg.markdown), offline), 'utf8'));
   for (const cfg of BOOKS) {
     console.log(`${cfg.id} (${cfg.editionLabel})`);
-    const md = readFileSync(await fetchSource(need(cfg.markdown), offline), 'utf8');
+    const md = mds.get(cfg.id)!;
     // Table titles: read from the PDF when it and pdftohtml are at hand, else the committed list.
     let titles: PdfTitle[] = [];
     const titlesFile = join(TITLES, `${cfg.id}.json`);
@@ -117,7 +119,7 @@ async function main(): Promise<void> {
     const prep = prepare(cfg, md);
     if (prep.joined.size) console.log(`  rejoined split words: ${[...prep.joined].map(([w, n]) => `${w}${n > 1 ? ` ×${n}` : ''}`).join(', ')}`);
     for (const p of cfg.patches) console.log(`  patched: ${p.why}`);
-    const b = convertBook(cfg, md, sources, titles);
+    const b = convertBook(cfg, md, sources, titles, { otherProse: otherProseOf(cfg, (o) => mds.get(o.id)!) });
     for (const [p, s] of b.files) out.set(`${cfg.id}/${p}`, s);
     if (cfg.spellListPages) {
       const listsFile = join(PDFDATA, `${cfg.id}-spell-lists.json`);

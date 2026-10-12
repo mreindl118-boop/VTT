@@ -283,6 +283,40 @@ describe('books: what the Markdown dropped or garbled, restored from the PDF', (
     expect(Object.values(items).filter((e) => (e.s as ItemSummary).cost === '*')).toEqual([]);
     expect(read<PageFile>('srd-5.1/p/equipment.json').html).not.toContain('two -person');
   });
+  it('2014 Destroy Undead keeps its Cleric Level column, and the Warlock table its Proficiency Bonus heading', () => {
+    const h = read<PageFile>('srd-5.1/p/classes--1.json').html;
+    const du = /<section class="entry t-feature" data-id="feature:destroy-undead-cleric">[\s\S]*?<\/section>/.exec(h)?.[0] ?? '';
+    expect(text(du)).toMatch(/Cleric Level Destroys Undead of CR 5th 1\/2 or lower 8th 1 or lower 11th 2 or lower 14th 3 or lower 17th 4 or lower/);
+    expect(pagesHtml('srd-5.1')).not.toContain('Bonus Proficiency</th>');
+    expect(entries('srd-5.1', 'character')['feature:destroy-undead-cleric'].text).toBe('5th: 1/2 or lower; 8th: 1 or lower; 11th: 2 or lower; 14th: 3 or lower; 17th: 4 or lower.');
+  });
+  for (const b of BOOKS) it(`${b}: every table has at least two columns (a lost column shows as a table of one)`, () => {
+    const tables = pagesHtml(b).match(/<table[^>]*><thead><tr>[\s\S]*?<\/tr>/g) ?? [];
+    expect(tables.length).toBeGreaterThan(300);
+    expect(tables.filter((t) => (t.match(/<th\b/g) ?? []).length < 2)).toEqual([]);
+  });
+  it('kinds of one thing are named after it, and the thing is an item with its paragraph and its kinds', () => {
+    const i14 = entries('srd-5.1', 'items'), i24 = entries('srd-5.2.1', 'items');
+    for (const items of [i14, i24]) {
+      // No bare kind ('Orb', 'Amulet', 'Totem', 'Exotic') or bare group label stands as a name.
+      const names = Object.values(items).map((e) => e.name);
+      for (const bad of ['Amulet', 'Emblem', 'Reliquary', 'Crystal', 'Orb', 'Rod', 'Staff', 'Wand', 'Totem', 'Exotic', 'Military', 'Pack', 'Riding', 'Poor', 'Wealthy', 'Squalid']) expect(names, bad).not.toContain(bad);
+      for (const g of ['Holy Symbol', 'Arcane Focus', 'Druidic Focus', 'Gaming Set', 'Musical Instrument', 'Inn Stay']) {
+        const e = Object.values(items).find((x) => x.name === g);
+        expect(e, g).toBeTruthy();
+        expect((e!.s as ItemSummary).variants, g).toBeTruthy();
+        expect(e!.text, g).not.toBe('');
+      }
+    }
+    expect(i14['item:holy-symbol'].text).toMatch(/^A holy symbol is a representation of a god or pantheon/);
+    expect((i14['item:holy-symbol'].s as ItemSummary).variants).toBe('Amulet (5 gp, 1 lb.), Emblem (5 gp), Reliquary (5 gp, 2 lb.)');
+    expect(i14['item:holy-symbol-amulet'].s).toMatchObject({ cost: '5 gp', subcategory: 'Holy symbol' });
+    expect(i14['item:holy-symbol-amulet'].html).toContain('A holy symbol is a representation');
+    expect(i14['item:saddle'].text).toMatch(/^A military saddle braces the rider/);
+    // A kept row (a Lute is a Lute) shows its group's paragraph.
+    expect(i14['item:lute'].html).toContain('Several of the most common types of musical instruments');
+    expect(i24['item:holy-symbol-amulet-worn-or-held'].s).toMatchObject({ cost: '5 GP' });
+  });
   it('2024 tools are items, each with its ability, Utilize and cost', () => {
     const i = entries('srd-5.2.1', 'items');
     const tools = Object.values(i).filter((e) => (e.s as ItemSummary).category === 'Tool');
@@ -302,10 +336,10 @@ describe('books: what the Markdown dropped or garbled, restored from the PDF', (
       const t = text(pagesHtml(b).replace(/<a [^>]*>[\s\S]*?<\/a>|<code>[\s\S]*?<\/code>/g, ''));
       expect(t.match(/.{0,30}_.{0,10}/g) ?? []).toEqual([]);
     });
-    it(`${b}: every condition, species, monster and item has a short tooltip text`, () => {
-      const empty = [...Object.values(entries(b, 'rules')), ...Object.values(entries(b, 'character')), ...Object.values(entries(b, 'monsters')), ...Object.values(entries(b, 'items'))]
-        .filter((e) => ['condition', 'species', 'monster', 'item'].includes(e.type) && !e.text).map((e) => e.id);
-      expect(empty).toEqual([]);
+    it(`${b}: every entry has a short tooltip text`, () => {
+      const all = ['rules', 'character', 'monsters', 'items', 'spells'].flatMap((f) => Object.values(entries(b, f)));
+      expect(all.length).toBeGreaterThan(1300);
+      expect(all.filter((e) => !e.text.trim()).map((e) => e.id)).toEqual([]);
     });
     it(`${b}: every ability table of a stat block is marked for the phone layout`, () => {
       const h = pagesHtml(b);
@@ -325,12 +359,12 @@ describe('books: what the Markdown dropped or garbled, restored from the PDF', (
 describe.skipIf(!existsSync('scripts/books/.cache/your5e-srd-5.2.1-md.md'))('books: regeneration', () => {
   it('convertBook reproduces the committed data', async () => {
     const { BOOKS } = await import('../scripts/books/config');
-    const { convertBook } = await import('../scripts/books/convert');
+    const { convertBook, otherProseOf } = await import('../scripts/books/convert');
     const sources = JSON.parse(readFileSync('scripts/books/sources.json', 'utf8')).sources;
     for (const cfg of BOOKS) {
       const md = readFileSync(`scripts/books/.cache/${cfg.markdown}.md`, 'utf8');
       const titles = cfg.tableTitles ? JSON.parse(readFileSync(`scripts/books/titles/${cfg.id}.json`, 'utf8')).titles : [];
-      const built = convertBook(cfg, md, sources, titles);
+      const built = convertBook(cfg, md, sources, titles, { otherProse: otherProseOf(cfg, (o) => readFileSync(`scripts/books/.cache/${o.markdown}.md`, 'utf8')) });
       for (const [p, s] of built.files) expect(s === readFileSync(`${DIR}/${cfg.id}/${p}`, 'utf8'), `${cfg.id}/${p}`).toBe(true);
     }
   }, 120_000);

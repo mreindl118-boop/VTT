@@ -82,6 +82,6 @@ describe('SRD data beside the converter carries its attribution, and the changes
     const c24 = CHANGES['srd-5.2.1'], c14 = CHANGES['srd-5.1'];
     for (const c of [c24, c14]) { expect(c).toContain('your5e/5e-srd-markdown project, which lists its own changes'); expect(c).not.toMatch(/Otherwise no rules text was changed/); expect(c).toMatch(/Apart from formatting and these changes, no rules text was changed\.$/); }
     for (const x of ['renumbered the steps of D20 Tests', 'changed “on [the] table” to “in [the] table”', 'removed their titles', 'a single header row', 'merged the Travel Pace header', '1d10']) expect(c24, x).toContain(x);
-    for (const x of ['“Components” typo in Contagion', 'Heroes’ Feast', 'Hunter’s Mark', 'Blind Senses', 'Jokers', 'Saving Throws line', 'Tent, two-person']) expect(c14, x).toContain(x);
+    for (const x of ['“Components” typo in Contagion', 'Heroes’ Feast', 'Hunter’s Mark', 'Blind Senses', 'Jokers', 'Saving Throws line', 'Tent, two-person', 'Cleric Level column of the Destroy Undead table', '“Proficiency Bonus”']) expect(c14, x).toContain(x);
   });
 });

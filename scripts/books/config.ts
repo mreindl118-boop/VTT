@@ -63,9 +63,12 @@ export interface BookConfig {
   aliases: Record<string, string>;
   /** Rules whose name several sections share: the section that answers (2014 has no glossary to settle it). */
   ruleSources?: RuleSource[];
-  /** Equipment tables whose rows are kinds of one thing ('Saddles': Exotic, Military …): table header → item name
-   *  that prefixes each row ('Saddle, Exotic'), as the PDF groups them. The build stops if a table is not found. */
-  groupedRows?: Record<string, string>;
+  /** Equipment rows that are kinds of one thing ('Saddles': Exotic, Military …; '_Holy symbol:_ Amulet'): the table
+   *  header or row prefix → the thing's name. The group becomes an item of its own (with the book's paragraph about it
+   *  and its kinds as variants), and each row is named after it ('Saddle, Exotic', 'Holy Symbol, Amulet') unless
+   *  `keepRows` (a Lute stays a Lute; it still shows the Musical Instrument paragraph). The build stops if a group is
+   *  not found. (2024 tables inside an item's own section, such as Holy Symbol's, are grouped the same way.) */
+  groupedRows?: Record<string, string | { name: string; keepRows: true }>;
 }
 
 export const LICENSE = { name: 'Creative Commons Attribution 4.0 International (CC-BY-4.0)', url: 'https://creativecommons.org/licenses/by/4.0/legalcode' };
@@ -84,6 +87,11 @@ export const BOOKS: BookConfig[] = [
       { find: 'https://creativecommons.org/licenses/by/4.0/ legalcode.', replace: 'https://creativecommons.org/licenses/by/4.0/legalcode.', why: 'Legal Information: a line break inside the licence URL became a space' },
     ],
     repairWords: { keep: ['a bout', 'a loud', 'arm or'] }, // real phrases the rule would otherwise join
+    // What a stat block's parts mean, from the Monsters chapter.
+    ruleSources: [
+      { name: 'Multiattack', path: 'Actions / Multiattack' },
+      { name: 'Legendary Actions', path: 'Parts of a Stat Block / Legendary Actions' },
+    ],
     tableTitles: true,
     aliases: {
       grapple: 'rule:grappling', grapples: 'rule:grappling', grappling: 'rule:grappling',
@@ -108,6 +116,7 @@ export const BOOKS: BookConfig[] = [
       'poisonous snake': 'monster:venomous-snake', 'giant poisonous snake': 'monster:giant-venomous-snake', 'swarm of poisonous snakes': 'monster:swarm-of-venomous-snakes',
       'sea horse': 'monster:seahorse', 'giant sea horse': 'monster:giant-seahorse', 'swarm of quippers': 'monster:swarm-of-piranhas',
       ki: 'feature:monks-focus', 'ki points': 'feature:monks-focus',
+      'legendary action': 'rule:legendary-actions',
     },
     chapters: [
       { title: 'Legal Information', start: [1, 'Legal Information'] },
@@ -158,6 +167,16 @@ export const BOOKS: BookConfig[] = [
         why: 'Food, Drink, and Lodging: “Meat, chunk” is its own row in the PDF, not one of the Meals',
       },
       {
+        find: '| Destroys Undead of CR   |\n|-------------------------|\n| 1/2 or lower            |\n| 1 or lower              |\n| 2 or lower              |\n| 3 or lower              |\n| 4 or lower              |\n',
+        replace: '| Cleric Level | Destroys Undead of CR |\n|---|---|\n| 5th | 1/2 or lower |\n| 8th | 1 or lower |\n| 11th | 2 or lower |\n| 14th | 3 or lower |\n| 17th | 4 or lower |\n',
+        why: 'Destroy Undead: the table had lost its Cleric Level column (5th, 8th, 11th, 14th, 17th)',
+      },
+      {
+        find: '| Level   |   Bonus Proficiency |',
+        replace: '| Level   |   Proficiency Bonus |',
+        why: 'The Warlock table: the column is “Proficiency Bonus” in the PDF, as in every other class table',
+      },
+      {
         find: '| Tent, two -person                   |',
         replace: '| Tent, two-person                    |',
         why: 'Adventuring Gear: “Tent, two-person” had a space before the hyphen',
@@ -172,8 +191,17 @@ export const BOOKS: BookConfig[] = [
       { name: 'Armor Class', path: 'Equipment / Armor', lead: 'Armor Class (AC)' },
       // The one sense that Vision and Light leaves out is described with the monsters.
       { name: 'Tremorsense', path: 'Senses / Tremorsense' },
+      // What a stat block's parts mean, from the monsters' introduction (the Hunter's Multiattack is a class feature).
+      { name: 'Multiattack', path: 'Actions / Multiattack' },
+      { name: 'Grapple Rules for Monsters', path: 'Grapple Rules for Monsters' },
+      { name: 'Legendary Creatures', path: 'Monsters / Legendary Creatures' },
+      { name: 'Legendary Actions', path: 'Legendary Creatures / Legendary Actions' },
+      { name: 'Lair Actions', path: 'A Legendary Creature\'s Lair / Lair Actions' },
     ],
-    groupedRows: { Saddles: 'Saddle' },
+    groupedRows: {
+      Saddles: 'Saddle', 'Holy symbol': 'Holy Symbol', 'Arcane focus': 'Arcane Focus', 'Druidic focus': 'Druidic Focus',
+      'Gaming set': { name: 'Gaming Set', keepRows: true }, 'Musical instrument': { name: 'Musical Instrument', keepRows: true },
+    },
     spellListPages: [105, 114],
     aliases: {
       grapple: 'rule:grappling', grapples: 'rule:grappling',
@@ -193,6 +221,8 @@ export const BOOKS: BookConfig[] = [
       '+1 armor': 'item:armor-1-2-or-3', '+2 armor': 'item:armor-1-2-or-3', '+3 armor': 'item:armor-1-2-or-3',
       'heroic inspiration': 'rule:inspiration',
       'spell slot': 'rule:spell-slots',
+      'playing cards': 'item:playing-card-set', 'playing card': 'item:playing-card-set', dice: 'item:dice-set',
+      'lair action': 'rule:lair-actions', 'legendary action': 'rule:legendary-actions',
       'lightly obscured': 'rule:vision-and-light', 'heavily obscured': 'rule:vision-and-light', 'bright light': 'rule:vision-and-light', 'dim light': 'rule:vision-and-light',
     },
     chapters: [

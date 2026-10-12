@@ -1,7 +1,7 @@
 // SRD Markdown → book data: chapters split into lazy pages (HTML), typed rules entries, a search index and a
 // term index. Pure: takes the Markdown text and the book config, returns the files to write.
 import { blocksText, dropItalicPunctuation, inline, parseBlocks, plain, renderBlocks, repairSplitWords, slug, type Block, type ListBlock } from './md.ts';
-import { DISCLAIMER, LICENSE, type BookConfig } from './config.ts';
+import { BOOKS, DISCLAIMER, LICENSE, type BookConfig } from './config.ts';
 import type { PdfTitle } from './titles.ts';
 import type {
   BookIndex, EntryFile, EntryType, PageFile, Source, StoredEntry, Summary, TermFile, MonsterSummary, SpellSummary, ItemSummary,
@@ -50,6 +50,10 @@ export function prepare(cfg: BookConfig, md: string): Prepared {
   if (!cfg.repairWords) return { md, joined: new Map() };
   return repairSplitWords(md, cfg.repairWords.keep);
 }
+
+/** The other books' prepared Markdown, for convertBook's `otherProse`. */
+export const otherProseOf = (cfg: BookConfig, sourceOf: (c: BookConfig) => string): string[] =>
+  BOOKS.filter((o) => o.id !== cfg.id).map((o) => prepare(o, sourceOf(o)).md);
 
 type T = Extract<Block, { k: 'table' }>;
 const ACTION_LINE = /^(?:_\*\*|\*\*_?)Multiattack\b|(?:Attack Roll|Weapon Attack|Spell Attack):/;
@@ -316,7 +320,7 @@ function statLine(s: MonsterSummary): string {
 }
 
 function itemLine(s: ItemSummary): string {
-  const parts = [s.damage, s.properties, s.ac && `AC ${s.ac}`, s.strength, s.stealth && `Stealth ${s.stealth}`, s.cost && `Cost ${s.cost}`, s.weight].filter(Boolean);
+  const parts = [s.damage, s.properties, s.ac && `AC ${s.ac}`, s.strength, s.stealth && `Stealth ${s.stealth}`, s.cost && `Cost ${s.cost}`, s.weight, s.variants].filter(Boolean);
   return `${s.category}${s.subcategory ? ` (${s.subcategory})` : ''}${parts.length ? `: ${parts.join(', ').replace(/\.$/, '')}` : ''}.`;
 }
 
@@ -337,6 +341,22 @@ function magicItem(n: Node): ItemSummary | undefined {
   const sub = /\((.*)\)/.exec(category)?.[1]; if (sub) s.subcategory = sub;
   if (att) s.attunement = /^requires attunement$/i.test(att[1]) ? true : att[1].replace(/^requires attunement\s*/i, '');
   return s;
+}
+
+/** The kinds a magic item's own table names, as running text names them: the Potions of Healing table's 'Greater
+ *  healing' (2014, under 'Potion of …') and 'Potion of Healing (greater)' (2024) are both 'potion of greater healing'. */
+function tableKinds(n: Node): string[] {
+  const first = normForm(n.name).split(' ')[0].replace(/s$/, '');
+  const out: string[] = [];
+  for (const b of body(n)) if (b.k === 'table') {
+    const pre = /^(.+?)\s*…$/.exec(plain(b.head[0]))?.[1];
+    for (const r of b.rows) {
+      let k = normForm(pre ? `${pre} ${plain(r[0])}` : plain(r[0]));
+      const m = /^(\S+ of) (.+) \((\w+)\)$/.exec(k); if (m) k = `${m[1]} ${m[3]} ${m[2]}`;
+      if (k.split(' ')[0].replace(/s$/, '') === first && k !== normForm(n.name)) out.push(k);
+    }
+  }
+  return out;
 }
 
 const normName = (s: string) => s.toLowerCase().replace(/\s*\([^)]*\)/g, '').replace(/[’']/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
@@ -381,7 +401,7 @@ function recognise(cfg: BookConfig, chapters: Chapter[]): Entries {
     const ch = n.chapter.title;
     if (/Spell/.test(ch)) { const s = spell(cfg, n, classes14); if (s) { E.add('spell', n.name, s, n, { node: n }); continue; } }
     if (/Monster|Animals|Appendix MM/.test(ch)) { const s = monster(n); if (s) { E.add('monster', n.name, s, n, { node: n, text: statLine(s as MonsterSummary) }); continue; } }
-    if (/Magic Items/.test(ch)) { const s = magicItem(n); if (s) { E.add('item', n.name, s, n, { node: n }); continue; } }
+    if (/Magic Items/.test(ch)) { const s = magicItem(n); if (s) { E.add('item', n.name, s, n, { node: n, extra: tableKinds(n) }); continue; } }
   }
 
   // Rules glossary (2024): every definition, typed by its bracketed tag.
@@ -469,7 +489,8 @@ function recognise(cfg: BookConfig, chapters: Chapter[]): Entries {
     const hitDie = tableRow('Hit Point Die') ?? f.get('hit dice');
     const s = { ...(hitDie ? { hitDie: plain(hitDie) } : {}), ...(tableRow('Primary Ability') ? { primaryAbility: plain(tableRow('Primary Ability')!) } : {}), ...((tableRow('Saving Throw Proficiencies') ?? f.get('saving throws')) ? { saves: plain(tableRow('Saving Throw Proficiencies') ?? f.get('saving throws')!) } : {}) };
     const intro = own(c), first = c.children[0];
-    E.add('class', c.name, s, c, { node: c, wrap: false, html: html([...intro, ...(first ? [first.h, ...body(first)] : [])]), text: firstProse(intro) || firstProse(first ? body(first) : []) });
+    // A class's tooltip is its Hit Die, primary ability and saves (the opening prose is 'As a cleric, you gain …').
+    E.add('class', c.name, s, c, { node: c, wrap: false, html: html([...intro, ...(first ? [first.h, ...body(first)] : [])]), text: classLine(s) || firstProse(intro) || firstProse(first ? body(first) : []) });
     for (const x of descendants(c)) {
       let name = x.name, level: number | undefined, subclass: string | undefined, feature: string | undefined;
       if (v24) {
@@ -496,6 +517,10 @@ function recognise(cfg: BookConfig, chapters: Chapter[]): Entries {
       }
       if (/Subclass$|^Ability Score Improvement$|^Epic Boon$|^Subclass Feature$/i.test(name)) continue;
       E.add('feature', name, { className: c.name, ...(level ? { level } : {}), ...(subclass ? { subclass } : {}), ...(feature ? { feature } : {}) }, x, { node: x, disamb: c.name });
+      // Channel Divinity's options are lead-in paragraphs ('Turn Undead.', 'Sacred Weapon.'): each is found by its name.
+      if (/^Channel Divinity$/.test(name)) for (const l of leads(own(x))) {
+        E.add('feature', l.name, { className: c.name, ...(level ? { level } : {}), ...(subclass ? { subclass } : {}), feature: 'Channel Divinity' }, x, { html: `<p>${inline(l.text)}</p>`, text: short(l.text), disamb: c.name });
+      }
     }
   }
 
@@ -543,7 +568,16 @@ function recognise(cfg: BookConfig, chapters: Chapter[]): Entries {
     for (const x of leads(own(n))) if (!descs.has(normName(x.name))) descs.set(normName(x.name), { node: n, blocks: [x.block], text: short(x.text) });
   }
   let cur: Node = eq.root;
+  // Rows that are kinds of one thing: a configured table or row prefix ('Saddles', '_Holy symbol:_ Amulet'), or a table
+  // inside an item's own section (2024 '### Holy Symbol' with its Symbol table).
+  const groupOf = (label: string): { name: string; keepRows: boolean } | undefined => {
+    const g = cfg.groupedRows?.[label];
+    return g === undefined ? undefined : typeof g === 'string' ? { name: g, keepRows: false } : { name: g.name, keepRows: g.keepRows };
+  };
+  interface Group { name: string; at: Node; category: string; rows: { row: string; s: ItemSummary }[] }
+  const groups = new Map<string, Group>();
   const groupsSeen = new Set<string>();
+  const descOf = (name: string) => descs.get(normName(name)) ?? descs.get(normName(plural(name)));
   eq.blocks.forEach((b) => {
     const hn = b.k === 'h' ? eq.nodes.find((x) => x.h === b) : undefined;
     if (hn) { cur = hn; return; }
@@ -558,9 +592,8 @@ function recognise(cfg: BookConfig, chapters: Chapter[]): Entries {
     const category = /Weapon/.test(path) ? 'Weapon' : /Armor/.test(path) ? 'Armor' : /Tool|Artisan|Gaming|Musical/.test(path) ? 'Tool'
       : /Mount|Vehicle|Saddle|Tack|Waterborne|Drawn/.test(path) ? 'Mount or vehicle' : /Food|Drink|Lodging/.test(path) ? 'Food, drink and lodging' : /Gear/.test(path) ? 'Adventuring gear' : cur.name;
     let sub = /^(Item|Tools|Name|Armor|Weapons?|Type)$/i.test(H[0]) || !H[0] ? undefined : H[0].replace(/\s*\(.*\)$/, '');
-    // Rows that are kinds of one thing ('Saddles': Exotic, Military …) are named after it: 'Saddle, Exotic'.
-    const group = cfg.groupedRows?.[H[0]];
-    if (group) groupsSeen.add(H[0]);
+    const tableGroup = groupOf(H[0]) ?? (cur.level >= 3 && /Gear/.test(path) && !/^(Item|Name)$/i.test(H[0]) && descs.has(normName(cur.name)) ? { name: cur.name, keepRows: false } : undefined);
+    if (groupOf(H[0])) groupsSeen.add(H[0]);
     for (const r of b.rows) {
       const cells = r.map((c) => plain(c));
       if (!cells[0]) continue;
@@ -568,24 +601,56 @@ function recognise(cfg: BookConfig, chapters: Chapter[]): Entries {
       let name = cells[0], rsub = sub;
       if (/^(\d[\d,]*(?:[-–]\d+)?(?:st|nd|rd|th)?|Cantrip)$/i.test(name)) continue; // a price row, not an item
       if (/^\*$/.test(cells[costC])) continue; // unpriced: 'Vehicles (land or water)' is a proficiency, not an item
-      if (group) name = `${group}, ${name}`;
       if (lifestyle) name = `${lifestyle} (${name})`; // 'Inn Stay (Poor)', 'Meal (Poor)'
       const pre = /^_([^_:]+):?_:? (.+)$/.exec(r[0].trim());
       if (pre) { rsub = plain(pre[1]); name = plain(pre[2]); }
+      const group = (pre ? groupOf(rsub!) : undefined) ?? tableGroup;
+      if (pre && groupOf(rsub!)) groupsSeen.add(rsub!);
       // A lifestyle row of a grouped price ('Inn Stay (per day), Poor') is named like the 2024 rows: 'Inn Stay (Poor)'.
       name = name.replace(/^(.+?) \(per [^)]*\), (\w+)$/, '$1 ($2)');
       name = name.replace(/\s*\((?:\d[^)]*|vial|flask|bottle|pint|pot|bag of [^)]*|per [^)]*|[^)]*\bfeet\b[^)]*|one week|quiver of [^)]*)\)$/i, '').replace(/\s+per (?:day|person)$/i, '').trim();
+      const row = name;
+      // A kind of a thing is named after it ('Saddle, Exotic', 'Holy Symbol, Amulet'); its own name still finds it when
+      // that name says what it is ('Sprig of mistletoe', 'Yew wand'), not when it is a bare 'Orb' or 'Exotic'.
+      const extra: string[] = [];
+      if (group && !group.keepRows) {
+        name = `${group.name}, ${row}`;
+        const bare = row.replace(/\s*\([^)]*\)$/, '');
+        if (bare.includes(' ')) extra.push(bare);
+      }
       const get = (re: RegExp) => { const i = col(re); return i > 0 && cells[i] && cells[i] !== '—' ? cells[i] : undefined; };
       const s: ItemSummary = { category, magic: false, ...(rsub ? { subcategory: rsub } : {}) };
       const add = (k: keyof ItemSummary, v: string | undefined) => { if (v) (s as unknown as Record<string, string>)[k] = v; };
       add('cost', get(/^(Cost|Price)$/i)); add('weight', get(/^Weight$/i)); add('damage', get(/^Damage$/i)); add('properties', get(/^Properties$/i));
       add('mastery', get(/^Mastery$/i)); add('ac', get(/Armor Class/i)); add('strength', get(/^Strength$/i)); add('stealth', get(/^Stealth$/i));
-      const d = descs.get(normName(name));
-      const extra = category === 'Armor' && !/armor|mail|plate|shirt|breastplate|shield/i.test(name) ? [`${name} armor`] : [];
-      E.add('item', name, s, d?.node ?? cur, { html: d ? html(d.blocks) : '', text: d?.text ?? '', merge: true, extra });
+      if (group) {
+        const g = groups.get(group.name) ?? { name: group.name, at: cur, category, rows: [] };
+        groups.set(group.name, g); g.rows.push({ row, s });
+      }
+      const mine = descs.get(normName(name)) ?? (group?.keepRows || !group ? descs.get(normName(row)) : undefined);
+      // A kind with no paragraph of its own shows its group's ('Lute': the Musical Instrument paragraph).
+      const d = mine ?? (group ? descOf(group.name) : undefined);
+      if (category === 'Armor' && !/armor|mail|plate|shirt|breastplate|shield/i.test(name)) extra.push(`${name} armor`);
+      E.add('item', name, s, mine?.node ?? cur, { html: d ? html(d.blocks) : '', text: mine?.text ?? '', merge: true, extra });
     }
   });
-  for (const g of Object.keys(cfg.groupedRows ?? {})) if (!groupsSeen.has(g)) throw new Error(`${cfg.id}: grouped rows: no equipment table headed '${g}'`);
+  for (const g of Object.keys(cfg.groupedRows ?? {})) if (!groupsSeen.has(g)) throw new Error(`${cfg.id}: grouped rows: no equipment table or row prefix '${g}'`);
+  // Rows named alike that differ only in a bracket ('Inn Stay (Poor)', 'Inn Stay (Wealthy)') are kinds of one thing too.
+  const byBase = new Map<string, Entry[]>();
+  for (const e of E.list) {
+    const m = e.type === 'item' && !(e.s as ItemSummary).magic ? /^(.+) \(([^)]+)\)$/.exec(e.name) : null;
+    if (m && !groups.has(m[1])) byBase.set(m[1], [...(byBase.get(m[1]) ?? []), e]);
+  }
+  for (const [base, rows] of byBase) if (rows.length > 1 && !E.byId.has(`item:${slug(base)}`)) {
+    groups.set(base, { name: base, at: rows[0].at, category: (rows[0].s as ItemSummary).category, rows: rows.map((e) => ({ row: /\(([^)]+)\)$/.exec(e.name)![1], s: e.s as ItemSummary })) });
+  }
+  // Each group is an item of its own, with the book's paragraph about it and its kinds (2024 has most of them already).
+  for (const g of groups.values()) {
+    const variants = g.rows.map(({ row, s }) => `${row.replace(/ \(([^)]*)\)$/, ', $1')} (${[s.cost, s.weight].filter(Boolean).join(', ')})`).join(', ');
+    const d = descOf(g.name);
+    const s: ItemSummary = { category: g.category, magic: false, variants };
+    E.add('item', g.name, s, d?.node ?? g.at, { html: d ? html(d.blocks) : '', text: d?.text ?? '', merge: true, extra: /[^s]s$/.test(g.name) ? [g.name.slice(0, -1)] : [] });
+  }
 
   // Tools described one by one (2024: '#### Thieves' Tools' with Cost, Ability, Weight, Utilize, Craft and Variants).
   for (const n of eq.nodes) {
@@ -600,7 +665,27 @@ function recognise(cfg: BookConfig, chapters: Chapter[]): Entries {
   }
   // Gear that has a table row and no description still gets a tooltip line: 'Weapon (Martial Melee): 1d8 slashing …'.
   for (const e of E.list) if (e.type === 'item' && !e.text) e.text = itemLine(e.s as ItemSummary);
+  for (const e of E.list) if (!e.text) e.text = fallbackText(e);
   return E;
+}
+
+function classLine(s: { hitDie?: string; primaryAbility?: string; saves?: string }): string {
+  const parts = [s.hitDie && `Hit Die ${s.hitDie}`, s.primaryAbility && `Primary ability ${s.primaryAbility}`, s.saves && `Saving throws ${s.saves}`].filter(Boolean);
+  return parts.length ? `${parts.join('. ')}.` : '';
+}
+
+/** A tooltip line for an entry with no paragraph of prose: a background's fields (ability scores, feat, skills); a table's rows ('5th: 1/2 or lower; 8th: 1 or lower …'). */
+function fallbackText(e: Entry): string {
+  const n = e.node;
+  if (n) {
+    const f = fields(own(n));
+    if (f.size) return short([...f].map(([k, v]) => `${cap(k)}: ${v.replace(/\.$/, '')}`).join('. ') + '.');
+    const t = body(n).find((b): b is T => b.k === 'table');
+    if (t) return short(`${t.caption ? `${plain(t.caption)}: ` : ''}${t.rows.map((r) => r.map((c) => plain(c)).filter(Boolean).join(': ')).join('; ')}.`);
+    const prose = blocksText(body(n));
+    if (prose) return short(prose.replace(/\s+/g, ' ').trim());
+  }
+  return '';
 }
 
 function ancestors(n: Node): Node[] { const out: Node[] = []; for (let p = n.parent; p; p = p.parent) out.push(p); return out; }
@@ -707,7 +792,18 @@ const ALWAYS_COMMON = new Set(('light shield command guidance fly help hide sear
   'strength dexterity constitution intelligence wisdom charisma net mule cat deer rope torch lamp book bell chain lock ' +
   'magic study influence search hide grapple shove inspiration advantage disadvantage resistance immunity vulnerability ' +
   'poor modest comfortable wealthy squalid wretched aristocratic ' +
-  'hammer leather feed pack riding military exotic saddle dice drum flute horn lute lyre viol shawm bagpipes dulcimer').split(/\s+/));
+  'hammer leather feed pack riding military exotic saddle dice drum flute horn lute lyre viol shawm bagpipes dulcimer meal meals ' +
+  // The CLARITY plan's ordinary words, and the people and animals a module names in passing ('the druid', 'a veteran
+  // soldier', 'a raven'): they link with a cue, a capital mid-sentence or a tag, not on their own.
+  'blight druid shadow charm hold guard wolf darkness alarm cold speed surprise sleep message ' +
+  'veteran scout soldier noble priest knight spy bandit commoner cultist thug tough acolyte berserker mage sage criminal ' +
+  'warrior pirate gladiator assassin archmage champion hermit merchant sailor farmer artisan entertainer ' +
+  'horse pony rat bat raven cat dog eagle owl hawk spider snake frog goat boar bear ape crab lizard vulture weasel badger elk ' +
+  // A few phrases that are plain English before they are rules.
+  '|per day|round down|round up|character sheet|player character|between adventures|cast a spell|casting a spell|stat block|unoccupied space|magical effect')
+  .split('|').flatMap((part, i) => (i === 0 ? part.split(/\s+/) : [part])).filter(Boolean));
+/** Rules words that are never ordinary English, however often the prose uses them in lower case. */
+const NEVER_COMMON = new Set(['darkvision', 'blindsight', 'truesight', 'tremorsense', 'multiattack']);
 
 function plural(w: string): string {
   const irregular: Record<string, string> = { wolf: 'wolves', werewolf: 'werewolves', elf: 'elves', dwarf: 'dwarves', thief: 'thieves', knife: 'knives', man: 'men', woman: 'women', mouse: 'mice', foot: 'feet', tooth: 'teeth', ox: 'oxen', fungus: 'fungi', efreeti: 'efreet', djinni: 'djinn', fish: 'fish', sheep: 'sheep', deer: 'deer', undead: 'undead', fey: 'fey', swarm: 'swarms' };
@@ -727,12 +823,14 @@ function formsOf(e: Entry): string[] {
   // 'Wand of the War Mage, +1, +2, or +3' is also 'wand of the war mage', '+1 wand of the war mage', 'wand of the war mage +2'.
   const plus = /^(.+), \+1, \+2, or \+3$/.exec(bare);
   if (plus && e.type === 'item') { out.add(plus[1]); for (const k of [1, 2, 3]) { out.add(`+${k} ${plus[1]}`); out.add(`${plus[1]} +${k}`); } }
+  // 'Channel Divinity: Turn Undead' is also 'Turn Undead'.
+  const colon = /^[^:]+: (.+)$/.exec(bare); if (colon) out.add(colon[1]);
   const words = bare.split(' ');
   if (e.type === 'item' && words[1] === 'of' && /s$/.test(words[0])) out.add([words[0].replace(/ies$/, 'y').replace(/s$/, ''), ...words.slice(1)].join(' '));
-  if (['monster', 'item', 'creature-type', 'species', 'class', 'feat'].includes(e.type) && !/[,+]/.test(bare)) {
-    const of = words.indexOf('of');
-    if (of > 0) out.add([...words.slice(0, of - 1), plural(words[of - 1]), ...words.slice(of)].join(' '));
-    else out.add([...words.slice(0, -1), plural(words[words.length - 1])].join(' '));
+  // A name that is a plural already ('Thieves' Tools', 'Caltrops') gets no second one.
+  if (['monster', 'item', 'creature-type', 'species', 'class', 'feat'].includes(e.type) && !/[,+:]/.test(bare)) {
+    const of = words.indexOf('of'), k = of > 0 ? of - 1 : words.length - 1;
+    if (!/[^su]s$/.test(words[k])) out.add([...words.slice(0, k), plural(words[k]), ...words.slice(k + 1)].join(' '));
   }
   if (e.type === 'rule' && !/[,()]/.test(bare)) {
     // Both numbers of a rule's name: 'Reactions' answers 'reaction', 'Reaction' answers 'reactions'.
@@ -762,7 +860,7 @@ function lowerNgrams(md: string, maxN = 3): Map<string, number> {
   return counts;
 }
 
-function termIndex(cfg: BookConfig, E: Entries, md: string): TermFile {
+function termIndex(cfg: BookConfig, E: Entries, md: string, otherProse: string[]): TermFile {
   const allForms = new Map(E.list.map((e) => [e, formsOf(e)]));
   // Weapon and mastery properties (Light, Reach, Push …) rank below spells and items of the same name.
   const rank = (e: Entry) => (e.type === 'rule' && /Property$/.test((e.s as { tag?: string }).tag ?? '') ? PRIORITY.indexOf('item') + 0.5 : PRIORITY.indexOf(e.type));
@@ -781,9 +879,22 @@ function termIndex(cfg: BookConfig, E: Entries, md: string): TermFile {
     if (e.type === 'monster' && !/s$/.test(a)) { const w = a.split(' '); alias([...w.slice(0, -1), plural(w[w.length - 1])].join(' '), e); }
   }
   for (const e of order) for (const f of allForms.get(e)!) add(f, e);
+  // '+1 mace', 'longsword +2', '+3 plate armor': a magic weapon, armour, shield or ammunition of a kind in the tables.
+  const generic = (re: RegExp) => E.list.find((e) => e.type === 'item' && (e.s as ItemSummary).magic && re.test(e.name));
+  const plus = { weapon: generic(/^Weapon, \+1/), armor: generic(/^Armor, \+1/), shield: generic(/^Shield, \+1/), ammo: generic(/^Ammunition, \+1/) };
+  for (const e of E.list) {
+    const s = e.s as ItemSummary;
+    if (e.type !== 'item' || s.magic) continue;
+    const to = s.category === 'Weapon' ? plus.weapon : s.category === 'Armor' ? (/^shield$/i.test(e.name) ? plus.shield : plus.armor) : s.subcategory === 'Ammunition' ? plus.ammo : undefined;
+    if (!to) continue;
+    const names = [normForm(e.name), ...e.extra.map(normForm)].filter((f) => !/[,()]/.test(f));
+    if (to === plus.armor) for (const f of [...names]) if (!/ armor$/.test(f)) names.push(`${f} armor`); // '+1 plate armor'
+    for (const f of names) for (const k of [1, 2, 3]) { add(`+${k} ${f}`, to); add(`${f} +${k}`, to); }
+  }
   // Within a kind, an entry named exactly so comes before one that only answers to the form ('shield' is the Shield
   // before 'Shield, +1, +2, or +3'); the aliases stay first.
-  const named = (i: number, f: string) => (normForm(E.list[i].name).replace(/\s*\([^)]*\)\s*$/, '') === f ? 0 : 1);
+  // 'Inn Stay' before 'Inn Stay (Squalid)', which only answers to it without its bracket.
+  const named = (i: number, f: string) => { const n = normForm(E.list[i].name); return n === f ? 0 : n.replace(/\s*\([^)]*\)\s*$/, '') === f ? 1 : 2; };
   for (const [f, l] of Object.entries(forms)) {
     const head = aliased.has(f) ? l.filter((i) => i === aliased.get(f)) : [];
     const rest = l.filter((i) => !head.includes(i));
@@ -795,17 +906,25 @@ function termIndex(cfg: BookConfig, E: Entries, md: string): TermFile {
   const addAbbr = (a: string, id: string) => { const e = E.byId.get(id); if (e) (abbr[a] ??= []).push(idx.get(e)!); };
   for (const [name, ab] of ABILITIES) { const id = `ability:${slug(name)}`; addAbbr(ab, id); addAbbr(`${ab}.`, id); addAbbr(ab.toUpperCase(), id); }
   for (const [a, id] of [['AC', 'rule:armor-class'], ['HP', 'rule:hit-points'], ['DC', 'rule:difficulty-class'], ['CR', 'rule:challenge-rating'], ['XP', 'rule:experience-points'], ['PB', 'rule:proficiency'], ['PB', 'rule:proficiency-bonus']] as const) addAbbr(a, id);
-  const counts = lowerNgrams(md);
-  const isCommon = (f: string) => ALWAYS_COMMON.has(f) || (counts.get(f) ?? 0) >= 3;
-  const common = new Set(Object.keys(forms).filter(isCommon));
-  // A piece of mundane gear named in one word (Hammer, Rope, Saddle, Feed) is an ordinary noun in running text.
-  for (const [e, fs] of allForms) if (e.type === 'item' && !(e.s as ItemSummary).magic) for (const f of fs) if (/^[a-z'-]+$/.test(f)) common.add(f);
-  // An inflected form of a common word is common too: 'hides' like 'hide', 'nets' like 'net'.
+  // Ordinary words: the list, and words the books' prose (both books, so the editions agree) uses in lower case. Only
+  // single words count: a name of several words ('short rest', 'holy water') is a rules term wherever it stands.
+  const counts = lowerNgrams([md, ...otherProse].join('\n'));
+  const ordinary = new Set([...ALWAYS_COMMON].flatMap((w) => (w.includes(' ') ? [w] : [w, plural(w)])));
+  const frequent = (fs: string[]) => fs.reduce((a, f) => a + (counts.get(f) ?? 0), 0) >= 3;
+  const common = new Set(Object.keys(forms).filter((f) => ordinary.has(f)));
+  // An entry named in one word is ordinary in all its one-word forms or in none: 'thug' with 'thugs', 'hide' with 'hides'.
+  const oneWord = (f: string) => /^[a-z'’-]+$/.test(f);
   for (const [e, fs] of allForms) {
-    const base = normForm(e.name).replace(/\s*\([^)]*\)\s*$/, '').trim();
-    if (!isCommon(base)) continue;
-    const n = base.split(' ').length;
-    for (const f of fs) if (f.split(' ').length === n) common.add(f);
+    const ones = fs.filter(oneWord);
+    if (!ones.length || ones.some((f) => NEVER_COMMON.has(f))) continue;
+    // A piece of mundane gear named in one word (Hammer, Rope, Feed) is an ordinary noun in running text.
+    const gear = e.type === 'item' && !(e.s as ItemSummary).magic;
+    if (gear || ones.some((f) => ordinary.has(f)) || frequent(ones)) for (const f of ones) common.add(f);
+  }
+  // The aliases too: 'veteran' and 'veterans' (2024's Warrior Veteran) like any other name.
+  for (const a of Object.keys(cfg.aliases)) {
+    const k = normForm(a), p = plural(k);
+    if (oneWord(k) && !NEVER_COMMON.has(k) && (ordinary.has(k) || frequent([k, p]))) { common.add(k); if (forms[p]) common.add(p); }
   }
   const sortedForms: Record<string, number[]> = {};
   for (const k of Object.keys(forms).sort()) sortedForms[k] = forms[k];
@@ -825,7 +944,8 @@ export interface BuiltBook {
 
 const json = (v: unknown) => JSON.stringify(v) + '\n';
 
-export function convertBook(cfg: BookConfig, source: string, sources: Source[], titles: PdfTitle[] = []): BuiltBook {
+/** `otherProse`: the other book's prepared Markdown, so both books agree on which names are ordinary words. */
+export function convertBook(cfg: BookConfig, source: string, sources: Source[], titles: PdfTitle[] = [], opts: { otherProse?: string[] } = {}): BuiltBook {
   const { md } = prepare(cfg, source);
   const chapters = chaptersOf(cfg, md, titles);
   const E = recognise(cfg, chapters);
@@ -838,6 +958,8 @@ export function convertBook(cfg: BookConfig, source: string, sources: Source[], 
   pages.forEach((p, i) => { for (const b of p.blocks) if (b.k === 'h') { const n = p.chapter.nodes.find((x) => x.h === b); if (n) pageOf.set(n, i); } });
   const typeOf = new Map<Node, EntryType>();
   for (const e of E.list) if (e.node) typeOf.set(e.node, e.type);
+  // Gear described under its own heading (2024 'Grappling Hook') is typed there too, so search shows its chip.
+  for (const e of E.list) if (!e.node && e.at.name === e.name && !typeOf.has(e.at)) typeOf.set(e.at, e.type);
 
   const pageMeta: BookIndex['pages'] = [];
   pages.forEach((p, i) => {
@@ -859,7 +981,7 @@ export function convertBook(cfg: BookConfig, source: string, sources: Source[], 
     const f: EntryFile = { ...base, entries: groups.get(g) ?? {} };
     files.set(`e/${g}.json`, json(f));
   }
-  files.set('terms.json', json(termIndex(cfg, E, md)));
+  files.set('terms.json', json(termIndex(cfg, E, md, opts.otherProse ?? [])));
   files.set('ATTRIBUTION.md', attributionMd(cfg, sources));
 
   // Every heading, and every titled table (level 6, so search finds it and the contents list does not).
