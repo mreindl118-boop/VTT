@@ -39,3 +39,31 @@ tests/ e2e/   Vitest + Playwright
 ```
 
 Milestones are listed in `docs/CHANGELOG.md`; M0 Foundations and M1 Death House are done.
+
+## Working together
+
+mistLAB is built by Matt, the owner, with two AI assistants.
+
+- **Claude Code** is the primary coding assistant. It works through `docs/QUEUE.md` one item at a time, in order, and releases each item as its own version.
+- **ChatGPT** reviews the code and may also change the repository. Its advisory reviews live in `chat gpt suggestions/`.
+
+### Matt approves every change
+
+Nothing changes on its own. Every change by either assistant must come from one of these:
+- a request Matt made;
+- a suggestion Matt approved;
+- an item on the queue Matt approved.
+
+A suggestion is not a change until Matt approves it. Neither assistant builds an unapproved suggestion, quietly rewrites the other's work, or "fixes" something on its own initiative.
+
+When an assistant finds a problem nobody asked it to fix, it does three things:
+1. Records the problem.
+2. Proposes a fix.
+3. Asks Matt.
+
+### Sharing the branch
+
+- **Branch.** Both assistants work on `claude/mistlab-curse-strahd-x6jm13`.
+- **Telling authors apart.** Claude Code's commits end with a `Claude-Session:` line. Any other commit counts as an outside change.
+- **Checking outside changes.** Claude Code reads every outside change before each release and at every check-in. It logs each one in the ledger in `docs/COLLABORATION.md` with what it touches and what could break, and tells Matt about anything that conflicts or could cause bugs.
+- **Design rules.** `docs/COLLABORATION.md` also lists the design choices every change must respect: no book content, generated scenes, a read-only Player Display, materials through the kit, and versioned releases.

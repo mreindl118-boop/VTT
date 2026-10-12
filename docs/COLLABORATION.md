@@ -2,6 +2,13 @@
 
 Two assistants work on this repository. **Claude Code** is the primary coding assistant and works through `docs/QUEUE.md` one item at a time. **ChatGPT** reviews the code and may also change the repository, with Matt's approval (given 2026-10-12). Matt decides everything.
 
+**Nothing changes without Matt's approval.** Every change either assistant makes must trace back to one of three things:
+- a request from Matt;
+- a suggestion Matt approved;
+- a queue item Matt approved.
+
+Each commit says which. Neither assistant makes an automatic or unrequested update. That means no building an unapproved suggestion, no rewriting the other's work, and no "while I was here" fix. A problem found along the way is recorded, a fix is proposed, and Matt decides.
+
 This file is shared by both assistants and by Matt. It covers:
 - how changes from either side are noted;
 - the design choices a change must not break;
@@ -19,10 +26,11 @@ This file is shared by both assistants and by Matt. It covers:
 - what could break;
 - what was done about it.
 
-**Claude Code never silently reverts or rewrites an outside change.** If one conflicts with in-progress work or would cause a bug, Claude Code:
+**Claude Code never reverts, rewrites or "fixes" an outside change on its own, even when the build or tests break.** If one conflicts with in-progress work or would cause a bug, Claude Code:
 1. Notes it here.
 2. Tells Matt.
 3. Proposes the fix.
+4. Waits for his decision. If the problem blocks a release, the release waits too.
 
 When a release merges the main branch into a work branch, the outside changes come along. The release review checks that both sides survived the merge.
 
