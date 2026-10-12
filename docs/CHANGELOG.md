@@ -9,7 +9,7 @@
   with '<b>' in it shows the brackets.
 - The token panel's name opens the creature's stat block, and its size, AC, HP, speed and CR are pills that open
   their rules. The panel and the card read the same numbers: the books' entry for the chosen Rules edition, or the
-  module's own under 'Module stats'; a mongrelfolk says 'Curse of Strahd creature: no open stat block'. Remove is
+  module's own under 'Module stats'; a mongrelfolk says 'Module creature: no open stat block'. Remove is
   red, and the hit points have a bar.
 - The Creatures sheet: names open stat blocks, the meta is the same pills, a location tag opens the place it names,
   and 'Stat block' unfolds the full block in the row with its traits and actions linked.

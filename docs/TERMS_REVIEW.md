@@ -11,9 +11,9 @@ covers (our own wording). "Rule" is what made it a link: the books' name, a cue 
 a key reference, a hidden-creature slot), the gazetteer, or an override. "Review" is blank once the scene's list in
 the overrides file accepts the link.
 
-Fields read: 4220. Links: 3930 in 1687 rows (accepted 3884, by override 46, unreviewed 0).
+Fields read: 4220. Links: 3928 in 1686 rows (accepted 3882, by override 46, unreviewed 0).
 
-By kind: monster 1000, area 972, person 920, check 290, spell 210, rule 187, gear 95, dice 82, magic-item 76, condition 40, damage 32, sense 18, ability 4, feature 2, skill 2.
+By kind: monster 1000, area 970, person 920, check 290, spell 210, rule 187, gear 95, dice 82, magic-item 76, condition 40, damage 32, sense 18, ability 4, feature 2, skill 2.
 
 ## appB/death-house
 
@@ -1489,7 +1489,6 @@ By kind: monster 1000, area 972, person 920, check 290, spell 210, rule 187, gea
 |---|---|---|---|---|---|---|---|
 | facade/X1a | dm | X15 | area | X15 · Southwest Annex | key | DM |  |
 | facade-X1-road | label | Tsolenka Pass | area | Tsolenka Pass | gazetteer | DM |  |
-| facade-X1a-note | label | Fissure | area | X41 · Fissure | gazetteer | DM |  |
 | facade-X1a-note | label | X15 | area | X15 · Southwest Annex | key | DM |  |
 | upper/X2 | dm | X2a | area | X2a · Guard Room | key ref | DM |  |
 | upper/X2 | dm | X2b | area | X2b · Guard Room | key ref | DM |  |

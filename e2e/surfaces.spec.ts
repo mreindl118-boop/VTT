@@ -316,9 +316,9 @@ test('Creatures sheet: names open stat blocks, the meta is pills, places are are
   await expect(strahd.locator('.cname > b')).toHaveText('Strahd von Zarovich');
   await page.locator('.csearch').fill('mongrelfolk');
   const mf = page.locator('.crow[data-id="mongrelfolk"]');
-  await expect(mf.locator('.csrc')).toHaveText('Curse of Strahd creature: no open stat block · Module stats');
+  await expect(mf.locator('.csrc')).toHaveText('Module creature: no open stat block · Module stats');
   await mf.locator('.rl.monster').click();
-  await expect(page.locator('#tips .rt.monster .note')).toHaveText('Curse of Strahd creature: no open stat block');
+  await expect(page.locator('#tips .rt.monster .note')).toHaveText('Module creature: no open stat block');
   await expect(page.locator('#tips .rt.monster .src .who')).toHaveText('Module');
   await page.waitForTimeout(250);
   await page.screenshot({ path: `${SHOTS}/step3-bestiary-mongrelfolk.png` });

@@ -13,8 +13,8 @@ export type CreatureSource =
   | { kind: 'srd'; entry: RuleEntry; s: MonsterSummary; edition: Edition }
   | { kind: 'module'; name: string; stats?: Stats; edition: Edition };
 
-/** What the module says when the open rules have no stat block for a creature. */
-export const NO_OPEN_BLOCK = 'Curse of Strahd creature: no open stat block';
+/** What the card says when the open rules have no stat block for a creature (either campaign's module). */
+export const NO_OPEN_BLOCK = 'Module creature: no open stat block';
 export const MODULE_STATS = 'Module stats';
 
 const memo = new Map<string, Promise<CreatureSource>>();
@@ -29,7 +29,8 @@ export function creatureSource(creatureId: string, edition: Edition = rulesEditi
 
 async function resolve(creatureId: string, edition: Edition): Promise<CreatureSource> {
   const e = creatureById(creatureId);
-  const name = e?.name ?? creatureId;
+  // A creature the bestiary does not hold still gets a readable name: 'giant-bat-swarm' reads 'Giant Bat Swarm'.
+  const name = e?.name ?? titleCase(creatureId);
   // People are the module's own; only creatures the open rules know have a books entry.
   if (e?.kind !== 'npc') {
     try {
@@ -41,6 +42,10 @@ async function resolve(creatureId: string, edition: Edition): Promise<CreatureSo
     } catch { /* the books are not available (offline and never saved): the module's numbers */ }
   }
   return { kind: 'module', name, stats: e ? statsOf(e) : undefined, edition };
+}
+
+function titleCase(id: string): string {
+  return id.split(/[-_\s]+/).filter(Boolean).map((w) => w[0].toUpperCase() + w.slice(1)).join(' ');
 }
 
 /** The numbers a panel or row shows, from one source. */

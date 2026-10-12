@@ -438,7 +438,7 @@ exports[`the review list > hit counts per kind per scene 1`] = `
     "dm 2024 spell": 3,
   },
   "ch13/X": {
-    "dm 2014 area": 96,
+    "dm 2014 area": 95,
     "dm 2014 check": 25,
     "dm 2014 condition": 12,
     "dm 2014 damage": 4,
@@ -451,7 +451,7 @@ exports[`the review list > hit counts per kind per scene 1`] = `
     "dm 2014 rule": 36,
     "dm 2014 sense": 2,
     "dm 2014 spell": 41,
-    "dm 2024 area": 96,
+    "dm 2024 area": 95,
     "dm 2024 check": 25,
     "dm 2024 condition": 12,
     "dm 2024 damage": 4,

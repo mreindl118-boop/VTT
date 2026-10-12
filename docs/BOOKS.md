@@ -271,7 +271,7 @@ Help still shows the attribution with no network) through the service worker's
   contents links.
 - A creature's numbers have one source (`app/src/ui/creature.ts`): the books' monster for the Rules edition (falling
   back to the other edition, which the card then names), else the module's own numbers under 'Module stats', else
-  'Curse of Strahd creature: no open stat block'. The card, the token panel's pills, the Creatures sheet and the DM's
+  'Module creature: no open stat block'. The card, the token panel's pills, the Creatures sheet and the DM's
   hover line all read it.
 
 ## Maintenance

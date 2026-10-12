@@ -34,7 +34,12 @@ describe('one source per creature', () => {
     expect(src.kind).toBe('module');
     const n = numbersOf(src, 'medium');
     expect(n).toEqual({ size: 'medium', from: MODULE_STATS, note: NO_OPEN_BLOCK });
-    expect(NO_OPEN_BLOCK).toBe('Curse of Strahd creature: no open stat block');
+    expect(NO_OPEN_BLOCK).toBe('Module creature: no open stat block');
+  });
+  it('a creature the bestiary does not hold: its id title-cased as the name, the campaign-neutral note', async () => {
+    const src = await creatureSource('giant-bat-swarm-of-nowhere', '2014');
+    expect(src).toMatchObject({ kind: 'module', name: 'Giant Bat Swarm Of Nowhere' });
+    expect(numbersOf(src).note).toBe(NO_OPEN_BLOCK);
   });
   it('a creature the open rules lack but the module has numbers for: the module\'s numbers, never mixed', async () => {
     const src = await creatureSource('revenant', '2024');
