@@ -82,7 +82,7 @@ export class CoverageMap {
   }
 
   /**
-   * Recompute what player tokens currently see, restricted to `floor` polygons (plus a 1-ft wall rim so walls
+   * Recompute what player tokens currently see, restricted to `floor` polygons (plus a one-texel wall rim so walls
    * bounding a seen room are remembered too). Everything seen joins explored memory.
    */
   updateVision(viewers: Viewer[], floor: Polygon[], walls: Wall[], lights: LightSource[], ambient: Ambient, revealedDoors?: ReadonlySet<string>): void {
@@ -98,13 +98,14 @@ export class CoverageMap {
           if (canSee(v, [x, z], lights, blockers, ambient)) {
             const k = j * this.width + i;
             this.visible[k] = 1;
-            this.seen[k] = 1;
             break;
           }
         }
       }
     this.dilateInto(this.visible);
-    this.dilateInto(this.seen);
+    // Only fresh visibility gets a wall rim. Dilating accumulated history would
+    // spread exploration another texel on every recompute, even without movement.
+    for (let k = 0; k < this.seen.length; k++) if (this.visible[k]) this.seen[k] = 1;
   }
 
   /** Which cells lie on the given floor polygons; the same polygons as last time reuse the cached answer. */
