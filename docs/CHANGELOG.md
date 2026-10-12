@@ -1,5 +1,35 @@
 # Changelog
 
+## 0.1.0 D&D rules tooltips and the SRD books — 2026-10-12
+
+For the DM:
+- The Library has a Books tab with the free D&D rules: SRD 5.1 (2014 rules) and SRD 5.2.1 (2024 rules). Read them
+  like a book, search them, and save them for offline play. Pick which edition's rules the cards show.
+- Rules words in the module text are now links: spells, monsters, conditions, magic items and gear, checks ('DC 15
+  Perception'), damage types, dice, and the module's own rooms, people and places. Hover or tap one and a parchment
+  card opens beside it: a coloured stripe and small-caps heading say what kind of thing it is, monsters show a full
+  stat block, and magic items show their rarity colour.
+- Each family has its own link colour and underline (dashed condition, double spell, wavy monster, dotted rule, solid
+  page reference); Help has a Colours key with one sample of each.
+- The links and cards are everywhere a rule shows up: room and object cards, notes, the token panel (its AC, HP,
+  speed and CR are pills that open their rules), the Creatures sheet ('Stat block' unfolds the full block in the
+  row), the Initiative sheet and turn bar, the clock and travel pace, the measure readout, world-map pins, Help and
+  the Books reader itself.
+- A creature's numbers come from one place: the books' stat block for your chosen edition, or the module's own
+  numbers marked 'Module stats'. A creature with neither says 'Module creature: no open stat block'.
+- Every button's small hint is now a styled tip instead of the browser's plain tooltip.
+- Help shows the release number (mistLAB 0.1.0).
+
+For the players:
+- On the players' side the links cover only conditions, rules, actions, senses, damage types, abilities and skills:
+  never monsters, spells, items or the module's rooms and people, so nothing gives away what the DM has not shown.
+- The turn bar leaves out hidden creatures and calls each revealed one by its token's name, so the players never read
+  a hidden creature's real name. Moving out of turn says 'Not your turn'.
+
+Known limits: the list of labelled examples that checks the link-finder (tests/fixtures/terms-gold.json) was labelled
+by the builder and still waits for the owner's sign-off. Words the link-finder gets wrong are fixed one at a time in
+app/src/books/term-overrides.json; docs/TERMS_REVIEW.md lists every link for checking.
+
 ## Rules cards on every surface (queue item 1, in progress) — 2026-10-12
 
 - The room tap menu, the object card and the players' room and creature cards now show their rules links: tap 'DC 12

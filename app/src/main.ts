@@ -584,7 +584,7 @@ function buildDmUi(): void {
         <dt>Players mode</dt><dd>Turn the iPad to the table: only revealed rooms, no DM chrome. DM mode brings everything back.</dd>
         <dt>Colours</dt><dd class="colours">${colours}</dd>
         <dt data-attrib>Rules books</dt>
-      </dl></div></div>`;
+      </dl><p class="version">mistLAB ${__APP_VERSION__}</p></div></div>`;
     h.addEventListener('click', (e) => { const t = e.target as HTMLElement; if (t === h || t.closest('.close')) h.remove(); });
     // The books' exact attribution statements (CC-BY-4.0), loaded with Help rather than with the app.
     void import('./books/attribution').then((m) => m.helpInto(h), () => h.querySelector('[data-attrib]')?.insertAdjacentHTML('afterend', '<dd>SRD 5.1 and 5.2.1, CC-BY-4.0: attribution on each book’s first page.</dd>'));

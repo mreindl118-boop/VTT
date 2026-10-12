@@ -1,6 +1,7 @@
 // Rules books (SRD 5.1 and 5.2.1, CC-BY-4.0): the Books tab, the reader, search, deep links, the Rules edition
 // preference, offline after saving, the phone layout, and that the players never see them.
 import { expect as baseExpect, test, type Page } from '@playwright/test';
+import { readFileSync } from 'node:fs';
 import { boot, SCENES } from './helpers';
 
 // Book pages are large and the test room boots fastest; a loaded machine still needs more than the default minute
@@ -36,6 +37,9 @@ test('Books tab: both books with edition and size; the campaign tabs still work'
   await expect(page.locator('.sheet.help dd.attrib').nth(1)).toHaveText(/^This work includes material taken from the System Reference Document 5\.1 \(“SRD 5\.1”\)/);
   await expect(page.locator('.sheet.help dd.attrib').nth(2)).toHaveText(/^Section 5 of CC-BY-4\.0 includes a Disclaimer of Warranties/);
   await expect(page.locator('.sheet.help dt', { hasText: 'Rules books' }).locator('+ dd')).toContainText('Library, then Books');
+  // Help names the release, read from package.json at build time.
+  const { version } = JSON.parse(readFileSync('package.json', 'utf8')) as { version: string };
+  await expect(page.locator('.sheet.help .version')).toHaveText(`mistLAB ${version}`);
 });
 
 test('reader: title page with attribution, search jumps to a condition, a spell and a monster, deep links survive reload, Map goes back', async ({ page }) => {

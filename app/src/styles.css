@@ -230,6 +230,7 @@ body[data-view='players'] .lbl.key { display: none; }
 .sheet.help dd { margin: 2px 0 0; color: var(--ink-2); }
 /* The attribution statements carry long licence URLs: they wrap rather than run off a phone's edge. */
 .sheet.help dd.attrib { overflow-wrap: anywhere; }
+.sheet.help .version { margin: 0; padding: 0 16px 16px; color: var(--ink-2); font-size: 12px; }
 .lbl.key { font-size: 11px; padding: 1px 6px; }
 
 
