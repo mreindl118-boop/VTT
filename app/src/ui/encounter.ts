@@ -2,9 +2,9 @@
 import type { App } from '../app';
 import type { Sheet } from '../state/campaign';
 import { ICON } from './icons';
+import { esc } from './text';
 
 const d20 = () => Math.floor(Math.random() * 20) + 1;
-const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
 
 /** Roster editor + initiative roll. The DM edits sheets in place; Start puts one token per combatant on the map. */
 export function openEncounterSheet(app: App, onStart: () => void): void {
@@ -24,8 +24,8 @@ export function openEncounterSheet(app: App, onStart: () => void): void {
         <td><input type="number" value="${s.darkvisionFt}" step="30" min="0" data-f="darkvisionFt" aria-label="Darkvision (ft)"></td>
         <td><input type="number" value="${s.initMod}" data-f="initMod" aria-label="Initiative modifier"></td>
         <td><label class="init"><input type="checkbox" data-f="in" ${inits.has(s.id) ? 'checked' : ''} aria-label="In this encounter"><input type="number" value="${inits.get(s.id) ?? ''}" data-f="init" placeholder="—" aria-label="Initiative"></label></td>
-        <td><button class="icon" data-a="del" aria-label="Remove">${ICON.close}</button></td></tr>`).join('');
-    back.innerHTML = `<div class="sheet encounter"><header><h2>Initiative</h2><button class="icon close" aria-label="Close">${ICON.close}</button></header>
+        <td><button class="icon" data-a="del" aria-label="Remove" data-tip="Remove">${ICON.close}</button></td></tr>`).join('');
+    back.innerHTML = `<div class="sheet encounter"><header><h2>Initiative</h2><button class="icon close" aria-label="Close" data-tip="Close">${ICON.close}</button></header>
       <div class="sheet-body">
         <p class="hint">Speed, reach and range come from each character sheet. Tick who is in, roll or type initiative, then start. Green squares show where a combatant can still move on its turn; red squares are what it could strike from there.</p>
         <table class="roster"><thead><tr><th></th><th>Name</th><th>Kind</th><th>Speed</th><th>Reach</th><th>Range</th><th>Darkvision</th><th>Init mod</th><th>Initiative</th><th></th></tr></thead><tbody>${rows}</tbody></table>
@@ -89,9 +89,11 @@ export function turnBar(app: App, refresh: () => void): HTMLElement {
     bar.hidden = !e;
     if (!e || !cur) return;
     const dm = !app.restricted, left = Math.max(0, cur.sheet.speedFt - e.movedFt);
-    bar.innerHTML = `<div class="order">${e.order.map((c, i) => { const s = app.state.roster.find((x) => x.id === c.sheetId); return `<span class="cb${i === e.turn % e.order.length ? ' now' : ''}" style="--tok:${s?.color ?? '#999'}" title="${esc(s?.name ?? '')} · initiative ${c.init}">${esc(s?.name ?? '?')}<i>${c.init}</i></span>`; }).join('')}</div>
+    // The DM's chip tip: name, initiative and hit points. The players' chips carry no tip at all.
+    const hpOf = (c: { tokenId?: string }) => { const t = c.tokenId ? app.state.tokens.find((x) => x.id === c.tokenId) : undefined; return t?.hp ? ` · hp ${t.hp.cur}/${t.hp.max}` : ''; };
+    bar.innerHTML = `<div class="order">${e.order.map((c, i) => { const s = app.state.roster.find((x) => x.id === c.sheetId); return `<span class="cb${i === e.turn % e.order.length ? ' now' : ''}" style="--tok:${s?.color ?? '#999'}"${dm ? ` data-tip="${esc(s?.name ?? '')}" data-tip-sub="initiative ${c.init}${hpOf(c)}"` : ''}>${esc(s?.name ?? '?')}<i>${c.init}</i></span>`; }).join('')}</div>
       <div class="now"><b>Round ${e.round}</b> · ${esc(cur.sheet.name)} · <span class="move">${left} ft</span> of ${cur.sheet.speedFt} ft left${cur.sheet.rangeFt ? ` · range ${cur.sheet.rangeFt} ft` : ''}</div>
-      <div class="acts">${dm ? `<button data-a="prev" aria-label="Previous turn">${ICON.rotateL}</button>` : ''}<button data-a="go" aria-label="Find the combatant">${ICON.party}</button>${dm ? `<button class="primary" data-a="next">Next turn</button><button data-a="end">End</button>` : ''}</div>`;
+      <div class="acts">${dm ? `<button data-a="prev" aria-label="Previous turn" data-tip="Previous turn">${ICON.rotateL}</button>` : ''}<button data-a="go" aria-label="Find the combatant" data-tip="Find the combatant">${ICON.party}</button>${dm ? `<button class="primary" data-a="next" data-tip="Next turn" data-key="nextTurn">Next turn</button><button data-a="end" data-tip="End the encounter">End</button>` : ''}</div>`;
   };
   return bar;
 }

@@ -178,10 +178,10 @@ export function openWorldMap(host: WorldHost): void {
   back.className = 'sheet-backdrop worldmap';
   const mph = W.milesPerHex ?? 1;
   back.innerHTML = `<div class="sheet world"><header><div class="wm-title"><h2>${W.name}</h2><span>1 hex = ${mph === 0.25 ? '¼ mile' : mph === 0.5 ? '½ mile' : `${mph} mile${mph > 1 ? 's' : ''}`} · north up</span></div>
-      <div class="seg pace" role="tablist" aria-label="Travel pace">${(['slow', 'normal', 'fast'] as Pace[]).map((p) => `<button role="tab" data-pace="${p}" aria-selected="${p === 'normal'}">${p[0].toUpperCase() + p.slice(1)}</button>`).join('')}</div>
-      <button class="icon" data-hex aria-label="Hex grid" aria-pressed="false" title="Hex grid">${ICON.grid ?? ICON.walls}</button>
-      <button class="icon" data-z="in" aria-label="Zoom in">${ICON.zoomIn}</button><button class="icon" data-z="out" aria-label="Zoom out">${ICON.zoomOut}</button>
-      <button class="icon close" aria-label="Close">${ICON.close}</button></header>
+      <div class="seg pace" role="tablist" aria-label="Travel pace">${(['slow', 'normal', 'fast'] as Pace[]).map((p) => `<button role="tab" data-pace="${p}" aria-selected="${p === 'normal'}" data-tip="${p[0].toUpperCase() + p.slice(1)} pace">${p[0].toUpperCase() + p.slice(1)}</button>`).join('')}</div>
+      <button class="icon" data-hex aria-label="Hex grid" aria-pressed="false" data-tip="Hex grid">${ICON.grid ?? ICON.walls}</button>
+      <button class="icon" data-z="in" aria-label="Zoom in" data-tip="Zoom in">${ICON.zoomIn}</button><button class="icon" data-z="out" aria-label="Zoom out" data-tip="Zoom out">${ICON.zoomOut}</button>
+      <button class="icon close" aria-label="Close" data-tip="Close">${ICON.close}</button></header>
     <div class="world-main"><div class="world-body"><canvas class="world-paint"></canvas><div class="world-card" hidden></div><div class="world-scale"></div><div class="world-compass">N</div></div>
     <aside class="world-key"><h3>Places</h3><ol></ol></aside></div></div>`;
   document.body.appendChild(back);
@@ -245,7 +245,7 @@ export function openWorldMap(host: WorldHost): void {
     const t = el('text', { y: 0.09 }, g); t.textContent = keyOf(p);
     const n = el('text', { class: 'wm-pin-name', y: 0.62 }, g); n.textContent = p.name;
     const li = document.createElement('li'); li.dataset.key = p.key;
-    li.innerHTML = `<b>${keyOf(p)}</b><span>${p.name}</span>${p.scenes ? '<i>map</i>' : ''}${host.dm ? `<button class="icon eye" data-reveal="${p.key}" aria-label="Reveal to players" title="Reveal to players">${ICON.eye ?? '◉'}</button>` : ''}`;
+    li.innerHTML = `<b>${keyOf(p)}</b><span>${p.name}</span>${p.scenes ? '<i>map</i>' : ''}${host.dm ? `<button class="icon eye" data-reveal="${p.key}" aria-label="Reveal to players" data-tip="Reveal to players">${ICON.eye ?? '◉'}</button>` : ''}`;
     // a name lettered more than once on the map (the Mount Baratok markers) lists once
     if (!W.pins.some((q) => q !== p && q.name === p.name && q.key < p.key)) keyList.appendChild(li);
     pinEls.set(p.key, { g, li });

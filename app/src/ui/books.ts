@@ -2,13 +2,13 @@
 // app does not grow. The text is the SRD 5.1 and 5.2.1 under CC-BY-4.0; each book's first page carries its attribution.
 import './books.css';
 import { ICON } from './icons';
+import { esc } from './text';
 import { loadCatalog, loadIndex, loadPage, loadTerms, offlineState, removeOffline, saveOffline, type OfflineState } from '../books/store';
 import { exactHit, groupHits, searchIndex, searchPage, type Hit } from '../books/search';
 import { candidates, findTerms, lookup, rulesEdition, setRulesEdition, termIndex } from '../books/lookup';
 import { EDITION_OF, TYPE_META, typeLabel, type BookId, type BookIndex, type Catalog, type Edition, type EntryType } from '../books/types';
 
 const BOOK_ORDER: BookId[] = ['srd-5.2.1', 'srd-5.1'];
-const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const size = (b: number) => (b >= 1024 * 1024 ? `${(b / 1024 / 1024).toFixed(1)} MB` : `${Math.round(b / 1024)} KB`);
 const ICON_BOOK = '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/></svg>';
 const ICON_PREV = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>';
@@ -38,7 +38,7 @@ export async function renderBooksTab(host: HTMLElement, closeLibrary: () => void
       ${BOOK_ORDER.map((id) => cat.books.find((b) => b.id === id)).filter(Boolean).map((b) => {
         const st = states.get(b!.id);
         const action = st === 'saving' ? '<button class="bk-save" disabled>Saving…</button>'
-          : st === 'saved' ? `<span class="chip bk-saved" title="Every chapter is stored on this device">Saved for offline</span><button class="bk-remove" data-remove="${b!.id}" aria-label="Remove the offline copy of ${esc(b!.short)}">Remove</button>`
+          : st === 'saved' ? `<button type="button" class="chip bk-saved tt" data-tip="Every chapter is stored on this device">Saved for offline</button><button class="bk-remove" data-remove="${b!.id}" aria-label="Remove the offline copy of ${esc(b!.short)}">Remove</button>`
             : st === 'unsupported' ? '' : `<button class="bk-save" data-save="${b!.id}">${st === 'partial' ? 'Finish saving' : 'Save for offline'}</button>`;
         return `<div class="bk-row" data-book="${b!.id}">
           <button class="bk-open" data-open="${b!.id}"><span class="bk-cover e${b!.edition}">${ICON_BOOK}<b>${b!.edition}</b></span>
@@ -109,7 +109,7 @@ function buildShell(): HTMLElement {
   el.tabIndex = -1;
   el.innerHTML = `
     <header class="br-bar">
-      <button class="br-map" data-act="map" aria-label="Back to the map" title="Back to the map (Esc)">${ICON.map}<span>Map</span></button>
+      <button class="br-map" data-act="map" aria-label="Back to the map" data-tip="Back to the map" data-key="escape">${ICON.map}<span>Map</span></button>
       <button class="icon br-toc-btn" data-act="toc" aria-label="Contents" aria-expanded="false">${ICON.list}</button>
       <div class="br-where"><b class="br-book"></b><span class="br-sub"></span></div>
       <label class="br-search">${ICON.search}<input type="search" placeholder="Search rules, spells, monsters…" aria-label="Search the books" autocomplete="off" enterkeyhint="search"></label>
