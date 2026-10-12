@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import './styles.css';
-import { App, type GridMode } from './app';
+import { App, type GridMode, type MeasureResult } from './app';
 import { builtPaths, loadLocation } from './data';
 import { openWorldMap, worldPins } from './ui/worldmap';
 import { buildMinimap } from './ui/minimap';
@@ -215,7 +215,9 @@ function buildDmUi(): void {
     const r = bar.hidden ? null : bar.getBoundingClientRect();
     status.style.bottom = r && r.height ? `${Math.ceil(ui.getBoundingClientRect().bottom - r.top + 8)}px` : '';
   };
-  app.onStatus = (s) => { status.textContent = s; status.classList.toggle('on', !!s); if (s) { placeStatus(); clearTimeout(statusTimer); statusTimer = window.setTimeout(() => { if (app.tool === 'none') { status.classList.remove('on'); } }, 2200); } };
+  // A finished measurement shows its distance as a rules chip (DM side): its card names the diagonal rule in use.
+  const measureHtml = (m: MeasureResult): string => `<button type="button" class="rl rule" data-kind="measure" data-rule="${m.rule}" data-ft="${m.ft}" data-squares="${m.squares}" aria-expanded="false">${m.ft} ft</button> · ${m.squares} squares · tap to measure again`;
+  app.onStatus = (s, m) => { if (m && !app.playersSide) status.innerHTML = measureHtml(m); else status.textContent = s; status.classList.toggle('on', !!s); if (s) { placeStatus(); clearTimeout(statusTimer); statusTimer = window.setTimeout(() => { if (app.tool === 'none') { status.classList.remove('on'); } }, 2200); } };
   let statusTimer = 0;
 
   const section = top.querySelector<HTMLElement>('.section')!, secIn = section.querySelector<HTMLInputElement>('input')!, secFt = section.querySelector<HTMLElement>('.sec-ft')!;

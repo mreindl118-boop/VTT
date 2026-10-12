@@ -165,6 +165,8 @@ button.icon[aria-pressed='true'] { background: var(--ink); color: var(--bg); }
 
 .status { position: absolute; z-index: 5; left: 50%; bottom: calc(env(safe-area-inset-bottom) + 16px); transform: translateX(-50%); padding: 6px 14px; border-radius: 999px; background: var(--panel); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: var(--hairline, 1px) solid var(--hair); font-size: 13px; font-variant-numeric: tabular-nums; opacity: 0; transition: opacity .15s; pointer-events: none !important; }
 .status.on { opacity: 1; }
+/* The measure readout's distance chip opens the diagonal-rule card: the only part of the status line that takes a tap. */
+.status.on .rl { pointer-events: auto !important; }
 
 .lbl { font: 600 11px/1.2 var(--font); color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.8); white-space: nowrap; text-align: center; transition: none; }
 .lbl span { display: block; font-weight: 400; font-size: 11px; opacity: .85; }

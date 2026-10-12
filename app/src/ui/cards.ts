@@ -58,6 +58,9 @@ export function objectCardHtml(o: NonNullable<TapHit['object']>, x: ObjectCardOp
   const at = { scenePath: x.scenePath, entityId: o.id };
   const descAt = x.ownWords ? at : { scenePath: 'kinds', entityId: `kind:${o.kind}` };
   const label = players ? (o.playerLabel ?? o.label) : o.label;
+  // The DM's title carries its rules links first (a hidden-creature slot's monster, a named spell or item), so the
+  // first occurrence on the card is in the title; the players' title stays plain text.
+  const title = players ? esc(label) : R(label, { audience: 'dm', field: 'label', ...at }, seen) || esc(label);
   const where = x.room ? `${esc(x.room.key)} · ${esc(x.room.name)}${o.page ? ` · ${pageref(o.page, `${x.room.key} · ${x.room.name}`)}` : ''}` : '';
   const state = players ? '' : o.vis === 'player' ? 'Visible to players when in sight' : `${o.vis.replace('-', ' ')} · ${o.revealed ? 'revealed to players' : o.visibleToPlayers ? 'in players\' view' : 'hidden from players'}`;
   const c = o.container;
@@ -72,7 +75,7 @@ export function objectCardHtml(o: NonNullable<TapHit['object']>, x: ObjectCardOp
   const dm = !players && o.dm ? `<div class="dm"><span class="dm-tag">${ICON.eyeOff}DM only</span>${R(o.dm, { audience: 'dm', field: 'dm', ...at }, seen)}</div>` : '';
   const acts = players ? (openBtn ? `<div class="actions">${openBtn}</div>` : '')
     : `<div class="actions">${openBtn}${o.vis !== 'player' ? `<button class="${openBtn ? '' : 'primary'}" data-a="reveal">${o.revealed ? 'Hide from players' : 'Reveal to players'}</button>` : ''}${x.room ? `<button data-a="frame">Frame ${esc(x.room.key)}</button>` : ''}${x.secretDoor ? `<button data-a="secret">${x.secretDoor.revealed ? 'Hide secret door' : 'Reveal secret door'}</button>` : ''}</div>`;
-  return `<header><div><h2>${esc(label)}</h2>${where && !players ? `<div class="where">${where}</div>` : ''}</div>${closeBtn}</header>
+  return `<header><div><h2>${title}</h2>${where && !players ? `<div class="where">${where}</div>` : ''}</div>${closeBtn}</header>
         <div class="body">${desc}${seenAs}${dm}${inside}${state ? `<div class="state">${esc(state)}</div>` : ''}</div>
         ${acts}`;
 }

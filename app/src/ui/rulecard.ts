@@ -20,7 +20,8 @@ export type Structural =
   | { kind: 'dice'; expr: string }
   | { kind: 'area'; key: string; name: string; floor?: string; revealed?: boolean; desc?: string; page?: number }
   | { kind: 'person'; name: string; role?: string; home?: string }
-  | { kind: 'pageref'; page: number; where?: string };
+  | { kind: 'pageref'; page: number; where?: string }
+  | { kind: 'measure'; rule: 'five' | 'five-ten-five' | 'hex'; ft: number; squares: number };
 /** A monster the books do not have: the module's own numbers, under 'Module stats'. */
 export interface ModuleMonster { kind: 'module-monster'; name: string; stats?: { ac: number; hp: number; speed: string; cr: string }; srd: boolean }
 /** A module creature (a token, a bestiary row): its one source decides the card (ui/creature.ts). */
@@ -44,7 +45,7 @@ export interface CardCtx {
   show(spec: CardSpec, push: boolean): void;
 }
 
-const isStructural = (s: CardSpec): s is Structural => 'kind' in s && ['check', 'dice', 'area', 'person', 'pageref'].includes(s.kind as string) && !('term' in s);
+const isStructural = (s: CardSpec): s is Structural => 'kind' in s && ['check', 'dice', 'area', 'person', 'pageref', 'measure'].includes(s.kind as string) && !('term' in s);
 let uid = 0;
 
 /** Build the card for a spec, or nothing when the audience may not see it. */
@@ -166,7 +167,7 @@ function entryCard(e: RuleEntry, kind: RuleKind, pref: Edition, ctx: CardCtx): H
 }
 
 function structuralCard(s: Structural, ctx: CardCtx): HTMLElement {
-  let kicker: string = kindInfo(s.kind).word, title = '', row = '', body = '';
+  let kicker: string = kindInfo(s.kind === 'measure' ? 'rule' : s.kind).word, title = '', row = '', body = '';
   switch (s.kind) {
     case 'check': {
       kicker = `check · DC ${s.dc}`;
@@ -195,15 +196,31 @@ function structuralCard(s: Structural, ctx: CardCtx): HTMLElement {
       title = `Page ${s.page}`; row = stats([['page', `p.${s.page}`], ['where', s.where]]);
       body = 'In the module book.';
       break;
+    case 'measure': {
+      // The rule the ruler used (the setting 'mistlab.diagonal'); the maths is core/grid.ts, unchanged.
+      const r = MEASURE_RULE[s.rule];
+      kicker = 'rule · movement on a grid'; title = r.title;
+      row = stats([['rule', r.short], ['distance', `${s.ft} ft`], ['squares', String(s.squares)]]);
+      body = r.body;
+      break;
+    }
   }
-  const { el } = shell(s.kind, '', kicker, title, ctx, true);
-  el.insertAdjacentHTML('beforeend', `${row}<hr class="taper">${body ? `<div class="body"><p>${esc(clampWords(body, 60).text)}</p></div>` : ''}<div class="src"><span class="who">${s.kind === 'dice' || s.kind === 'check' ? 'Table' : 'Module'}</span><span class="gap"></span>${pinBtn(ctx)}</div>`);
+  const { el } = shell(s.kind === 'measure' ? 'rule' : s.kind, '', kicker, title, ctx, true);
+  el.insertAdjacentHTML('beforeend', `${row}<hr class="taper">${body ? `<div class="body"><p>${esc(clampWords(body, 60).text)}</p></div>` : ''}<div class="src"><span class="who">${s.kind === 'dice' || s.kind === 'check' || s.kind === 'measure' ? 'Table' : 'Module'}</span><span class="gap"></span>${pinBtn(ctx)}</div>`);
   return el;
 }
 
+/** The measure readout's rules, in our own words. 5 ft per diagonal is the default grid rule in both editions; 5-10-5
+ *  is the optional variant (a table setting here). */
+const MEASURE_RULE: Record<'five' | 'five-ten-five' | 'hex', { title: string; short: string; body: string }> = {
+  five: { title: 'Diagonals: 5-5-5', short: '5 ft per diagonal', body: 'Every square costs 5 feet, diagonal or straight. This is the default grid rule in both the 2014 and 2024 rules; the 5-10-5 variant (every second diagonal costs 10 feet) is a table setting.' },
+  'five-ten-five': { title: 'Diagonals: 5-10-5', short: '5-10-5', body: 'Optional variant: the first diagonal costs 5 feet, the second 10, then 5 and 10 again. The default in both the 2014 and 2024 rules is 5 feet for every square.' },
+  hex: { title: 'Hexes: 5 ft each', short: '5 ft per hex', body: 'On a hex grid every hex costs 5 feet in any direction, so no diagonal rule applies.' },
+};
+
 function moduleCard(m: ModuleMonster, ctx: CardCtx): HTMLElement {
   const { el } = shell('monster', '', m.stats ? `monster · CR ${m.stats.cr}` : 'monster', m.name, ctx, true);
-  el.insertAdjacentHTML('beforeend', `<div class="body">${moduleStatsHtml(m.stats, m.srd ? MODULE_STATS : NO_OPEN_BLOCK)}</div><div class="src"><span class="who">${MODULE_STATS}</span><span class="gap"></span>${pinBtn(ctx)}</div>`);
+  el.insertAdjacentHTML('beforeend', `<div class="body">${moduleStatsHtml(m.stats, m.srd ? MODULE_STATS : NO_OPEN_BLOCK)}</div><div class="src"><span class="who">${m.stats ? MODULE_STATS : 'Module'}</span><span class="gap"></span>${pinBtn(ctx)}</div>`);
   return el;
 }
 

@@ -125,9 +125,11 @@ export function mountTips(host: TipHost): Tips {
     const kbd = key && key in KEYMAP && keysSeen() ? `<kbd>${esc(keyText(key))}</kbd>` : '';
     return `<b>${esc(name)}${kbd}</b>${t.dataset.tipSub ? `<span class="sub">${esc(t.dataset.tipSub)}</span>` : ''}`;
   };
-  const placeTip = (el: HTMLElement, a: Rect) => {
-    const w = el.offsetWidth, h = el.offsetHeight;
-    let y = a.bottom + 6; if (y + h > innerHeight - MARGIN) y = a.top - 6 - h;
+  const placeTip = (el: HTMLElement, t: HTMLElement) => {
+    const a = t.getBoundingClientRect(), w = el.offsetWidth, h = el.offsetHeight;
+    // Below the anchor, else above; anchors in the bottom-docked turn bar prefer above, clear of its own buttons.
+    const above = a.top - 6 - h, preferAbove = !!t.closest('.turnbar') && above >= MARGIN;
+    let y = preferAbove ? above : a.bottom + 6; if (!preferAbove && y + h > innerHeight - MARGIN) y = above;
     const x = Math.max(MARGIN, Math.min(innerWidth - MARGIN - w, a.left + a.width / 2 - w / 2));
     el.style.left = `${Math.round(x)}px`; el.style.top = `${Math.round(Math.max(MARGIN, y))}px`;
   };
@@ -145,7 +147,7 @@ export function mountTips(host: TipHost): Tips {
     el.className = 'tip hover'; el.id = `tip-${++uid}`; el.setAttribute('role', 'tooltip');
     el.innerHTML = tipHtml(t);
     layer.appendChild(el);
-    placeTip(el, t.getBoundingClientRect());
+    placeTip(el, t);
     t.setAttribute('aria-describedby', el.id);
     hoverEl = el; hoverFor = t;
   };
@@ -163,7 +165,7 @@ export function mountTips(host: TipHost): Tips {
     el.innerHTML = `${tipHtml(t)}<button type="button" class="x" aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>`;
     el.querySelector('.x')!.addEventListener('click', () => closePinned(true));
     layer.appendChild(el);
-    placeTip(el, t.getBoundingClientRect());
+    placeTip(el, t);
     t.setAttribute('aria-expanded', 'true'); t.setAttribute('aria-controls', el.id);
     pinnedEl = el; pinnedFor = t;
     live.textContent = t.dataset.tip ?? '';
@@ -232,6 +234,7 @@ export function mountTips(host: TipHost): Tips {
     if (k === 'area') return { kind: 'area', key: d.key ?? '', name: d.name ?? t.textContent ?? '', floor: d.floor, desc: d.desc, revealed: d.revealed ? d.revealed === 'true' : undefined };
     if (k === 'person') return { kind: 'person', name: d.name ?? t.textContent ?? '', role: d.role, home: d.home };
     if (k === 'pageref') return { kind: 'pageref', page: Number(d.page), where: d.where };
+    if (k === 'measure') return { kind: 'measure', rule: d.rule === 'five-ten-five' || d.rule === 'hex' ? d.rule : 'five', ft: Number(d.ft), squares: Number(d.squares) };
     // A module creature (a token's name, a bestiary row, a creature slot the books lack): its one source decides.
     if (d.creature || d.term?.startsWith('creature:')) return { kind: 'creature', creatureId: d.creature ?? d.term!.slice(9), name: d.name };
     return { term: d.term ?? t.textContent ?? '', kind: k as never, edition: d.edition === '2014' || d.edition === '2024' ? d.edition : undefined };

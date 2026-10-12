@@ -41,6 +41,8 @@ import { idbGet, idbSet } from './state/idb';
 export type Mode = 'dm' | 'player';
 export type Tool = 'none' | 'reveal' | 'brush-reveal' | 'brush-fog' | 'measure';
 export type GridMode = 'off' | 'square' | 'hex';
+/** A finished measurement: the distance, its squares and the rule the maths used (the readout's rules card names it). */
+export interface MeasureResult { ft: number; squares: number; rule: 'five' | 'five-ten-five' | 'hex' }
 export interface TapHit {
   room?: { key: string; name: string; revealed: boolean; desc?: string; dm?: string; page?: number; enter?: string };
   pos: Vec2;
@@ -122,7 +124,7 @@ export class App {
     return { min: Math.min(...ls.map((l) => l.elevationFt)) - 2, max: Math.max(...ls.map((l) => l.elevationFt + (l.ceilingFt ?? 10))) + 12 };
   }
   status = '';
-  onStatus: ((s: string) => void) | null = null;
+  onStatus: ((s: string, measure?: MeasureResult) => void) | null = null;
   onChange: (() => void) | null = null;
   private channel: Channel;
   private saveTimer = 0;
@@ -962,7 +964,10 @@ export class App {
   measureTap(p: Vec2): void {
     const at: Vec2 = [Math.round(p[0] * 2) / 2, Math.round(p[1] * 2) / 2];
     if (!this.ruler || this.ruler.b) { this.clearRuler(); const geo = new THREE.BufferGeometry(); const line = new THREE.Line(geo, new THREE.LineBasicMaterial({ color: '#f2b35b', linewidth: 2 })); line.userData.role = 'marker'; line.renderOrder = 6; const label = this.world.label('', undefined, 'ruler'); this.world.scene.add(line, label); this.ruler = { a: at, line, label }; this.setStatus('Tap the other end'); this.rulerTo(at); return; }
-    this.ruler.b = at; this.rulerTo(at); this.setStatus(`${this.distanceFt(this.ruler.a, at)} ft · ${Math.round(this.distanceFt(this.ruler.a, at) / 5)} squares · tap to measure again`);
+    this.ruler.b = at; this.rulerTo(at);
+    const ft = this.distanceFt(this.ruler.a, at), squares = Math.round(ft / 5);
+    // The readout's distance is a rules chip (main.ts) whose card names the diagonal rule the maths used.
+    this.setStatus(`${ft} ft · ${squares} squares · tap to measure again`, { ft, squares, rule: this.gridMode === 'hex' ? 'hex' : this.measureDiagonal() });
   }
   /** Stretch the ruler to a point (the preview end, or the fixed second end). */
   rulerTo(p: Vec2): void {
@@ -976,8 +981,10 @@ export class App {
   distanceFt(a: Vec2, b: Vec2): number {
     const g = this.cur!.grid.levels[this.levelId];
     if (this.gridMode === 'hex') { const s = hexSizeFromWidth(CELL_FT); return hexDistanceFt(worldToHex(a, s, g.hexOrientation, g.origin), worldToHex(b, s, g.hexOrientation, g.origin)); }
-    return squareDistanceFt(squareCellAt(a, g.origin), squareCellAt(b, g.origin), (localStorage.getItem('mistlab.diagonal') as 'five' | 'five-ten-five') ?? 'five');
+    return squareDistanceFt(squareCellAt(a, g.origin), squareCellAt(b, g.origin), this.measureDiagonal());
   }
+  /** The diagonal rule the measure tool uses (the setting 'mistlab.diagonal', 5 ft per diagonal by default). */
+  measureDiagonal(): 'five' | 'five-ten-five' { let v: string | null = null; try { v = localStorage.getItem('mistlab.diagonal'); } catch { /* no storage */ } return v === null || v === 'five' ? 'five' : 'five-ten-five'; }
 
   private installPointer(): void {
     const el = this.world.renderer.domElement;
@@ -1273,7 +1280,7 @@ export class App {
   /** A status line that clears itself after a moment. */
   flashStatus(s: string): void { this.setStatus(s); clearTimeout(this.flashT); this.flashT = window.setTimeout(() => { if (this.status === s) this.setStatus(""); }, 2600); }
 
-  setStatus(s: string): void { this.status = s; this.onStatus?.(s); }
+  setStatus(s: string, measure?: MeasureResult): void { this.status = s; this.onStatus?.(s, measure); }
 
   // ------------------------------------------------------------------ Player Display sync
 

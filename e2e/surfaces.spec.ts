@@ -47,7 +47,8 @@ test('Death House: 2A, the chest in 9 and the cabinet lock link their checks and
   await page.waitForTimeout(250);
   await page.screenshot({ path: `${SHOTS}/step3-chest9-dm.png` });
   await tapCard(page, 'f1', { object: 'f1-cab-lock' });
-  expect((await links(page, '.infocard')).find((l) => l.kind === 'check')?.label).toBe("DC 15 · DEX (Thieves' Tools)");
+  // The title's bare 'DC 15' is a check link too; the DM note's carries the ability and the tool.
+  expect((await links(page, '.infocard')).filter((l) => l.kind === 'check').map((l) => l.label)).toEqual(['DC 15', "DC 15 · DEX (Thieves' Tools)"]);
 
   // Players: the same room, revealed. No DM note, no DM-only link.
   await page.evaluate(() => { const m = (window as any).__mistlab; m.app.setLevel('f1'); if (!m.app.isRevealed('2A')) m.app.toggleRoom('2A'); m.app.setView('players'); });
@@ -88,6 +89,63 @@ test('an object label with markup renders literally on its card', async ({ page 
   await expect(page.locator('.infocard h2')).toHaveText('A <b>bold</b> chest');
   expect(await page.locator('.infocard b:text("bold"), .infocard i, .infocard u').count()).toBe(0);
   await expect(page.locator('.infocard .dm')).toContainText('<u>trap</u>');
+});
+
+test('object card titles carry their DM links: the gladiator, Exethanter as a person, a hidden-creature slot\'s stat block; the players\' title stays plain', async ({ page }) => {
+  await page.setViewportSize({ width: 1180, height: 820 });
+  await boot(page, 'ch13/X');
+  await tapCard(page, 'upper', { object: 'upper-X15-helwa' });
+  await page.locator('.infocard h2 .rl.monster', { hasText: 'gladiator' }).click();
+  await expect(page.locator('#tips .rt.monster')).toContainText('1,800 XP');
+  await page.waitForTimeout(250);
+  await page.screenshot({ path: `${SHOTS}/surfaces-x15-helwa.png` });
+  await page.keyboard.press('Escape');
+  await tapCard(page, 'upper', { object: 'upper-X27-lich' });
+  const lich = await links(page, '.infocard');
+  // Exethanter is the module's person; the books' CR 21 Lich never opens beside his own numbers.
+  expect(lich.filter((x) => x.text?.toLowerCase() === 'lich')).toEqual([]);
+  expect(lich.find((x) => x.text === 'Exethanter')).toMatchObject({ kind: 'person' });
+  expect(lich.some((x) => x.kind === 'spell' && /greater restoration/i.test(x.text ?? ''))).toBe(true);
+  await page.waitForTimeout(250);
+  await page.screenshot({ path: `${SHOTS}/surfaces-x27-lich.png` });
+  await tapCard(page, 'upper', { object: 'upper-X15-wolf' });
+  await page.locator('.infocard h2 .rl.monster', { hasText: /dire wolf/i }).click();
+  await expect(page.locator('#tips .rt.monster h4')).toHaveText(/Dire Wolf/i);
+  await expect(page.locator('#tips .rt.monster .statblock, #tips .rt.monster .tiles').first()).toBeVisible();
+  await page.waitForTimeout(250);
+  await page.screenshot({ path: `${SHOTS}/surfaces-x15-wolf-slot.png` });
+  await page.keyboard.press('Escape');
+  // The players' side: the title is the players' label, plain.
+  await page.evaluate(() => (window as any).__mistlab.app.setView('players'));
+  await tapCard(page, 'upper', { object: 'upper-X15-helwa' });
+  await expect(page.locator('.infocard h2')).toBeVisible();
+  await expect(page.locator('.infocard h2 .rl')).toHaveCount(0);
+  expect(await page.locator('.infocard h2').textContent()).not.toMatch(/gladiator|Helwa/i);
+});
+
+test('the measure readout: its distance chip opens a card naming the diagonal rule in use (5-5-5, then 5-10-5)', async ({ page }) => {
+  await page.setViewportSize({ width: 1180, height: 820 });
+  await boot(page);
+  const measure = () => page.evaluate(() => { const a = (window as any).__mistlab.app; a.tool = 'measure'; a.measureTap([0, 0]); a.measureTap([15, 15]); });
+  await measure();
+  const chip = page.locator('.status.on .rl.rule[data-kind="measure"]');
+  await expect(chip).toHaveText('15 ft');
+  await expect(page.locator('.status')).toContainText('3 squares');
+  await chip.click();
+  await expect(page.locator('#tips .rt.rule h4')).toHaveText('Diagonals: 5-5-5');
+  await expect(page.locator('#tips .rt.rule .kicker, #tips .rt.rule').first()).toContainText(/movement on a grid/i);
+  await page.waitForTimeout(250);
+  await page.screenshot({ path: `${SHOTS}/surfaces-measure-555.png` });
+  await page.keyboard.press('Escape');
+  await page.evaluate(() => localStorage.setItem('mistlab.diagonal', 'five-ten-five'));
+  await measure();
+  // The maths is unchanged: three diagonals cost 5 + 10 + 5.
+  await expect(chip).toHaveText('20 ft');
+  await chip.click();
+  await expect(page.locator('#tips .rt.rule h4')).toHaveText('Diagonals: 5-10-5');
+  await page.waitForTimeout(250);
+  await page.screenshot({ path: `${SHOTS}/surfaces-measure-5105.png` });
+  await page.evaluate(() => localStorage.removeItem('mistlab.diagonal'));
 });
 
 // ---- the alias and visibility projection on the three surfaces (the slider preview, Players view, the Player Display)
@@ -261,7 +319,7 @@ test('Creatures sheet: names open stat blocks, the meta is pills, places are are
   await expect(mf.locator('.csrc')).toHaveText('Curse of Strahd creature: no open stat block · Module stats');
   await mf.locator('.rl.monster').click();
   await expect(page.locator('#tips .rt.monster .note')).toHaveText('Curse of Strahd creature: no open stat block');
-  await expect(page.locator('#tips .rt.monster .src .who')).toHaveText('Module stats');
+  await expect(page.locator('#tips .rt.monster .src .who')).toHaveText('Module');
   await page.waitForTimeout(250);
   await page.screenshot({ path: `${SHOTS}/step3-bestiary-mongrelfolk.png` });
 });

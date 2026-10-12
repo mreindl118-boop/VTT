@@ -11,9 +11,9 @@ covers (our own wording). "Rule" is what made it a link: the books' name, a cue 
 a key reference, a hidden-creature slot), the gazetteer, or an override. "Review" is blank once the scene's list in
 the overrides file accepts the link.
 
-Fields read: 4220. Links: 3934 in 1689 rows (accepted 3890, by override 44, unreviewed 0).
+Fields read: 4220. Links: 3930 in 1687 rows (accepted 3884, by override 46, unreviewed 0).
 
-By kind: monster 1002, area 972, person 920, check 290, spell 212, rule 187, gear 95, dice 82, magic-item 76, condition 40, damage 32, sense 18, ability 4, feature 2, skill 2.
+By kind: monster 1000, area 972, person 920, check 290, spell 210, rule 187, gear 95, dice 82, magic-item 76, condition 40, damage 32, sense 18, ability 4, feature 2, skill 2.
 
 ## appB/death-house
 
@@ -417,7 +417,6 @@ By kind: monster 1002, area 972, person 920, check 290, spell 212, rule 187, gea
 |---|---|---|---|---|---|---|---|
 | day/M | dm | difficult terrain | rule | difficult-terrain | name | DM |  |
 | day/M | dm | Strahd | person | Strahd von Zarovich | gazetteer | DM |  |
-| day/M | dm | heroism | spell | heroism | name | DM |  |
 | day-elk25 | label | Elk | monster | elk | creature slot | DM |  |
 | day-elk25 | dm | elk | monster | elk | creature slot | DM |  |
 | day-elk25 | dm | polymorph | spell | polymorph | cue: spell parenthesis | DM |  |
@@ -756,7 +755,7 @@ By kind: monster 1002, area 972, person 920, check 290, spell 212, rule 187, gea
 | attic-victor | label | Victor Vallakovich | person | Victor Vallakovich | gazetteer | DM |  |
 | attic-victor | label | teleportation circle | spell | teleportation-circle | name | DM |  |
 | attic-N3t-children | label | Victor | person | Victor Vallakovich | gazetteer | DM |  |
-| attic-N3t-cats | label | cat | monster | cat | cue: count | DM |  |
+| attic-N3t-cats | label | cat | monster | cat | override | DM | override |
 | attic-N3t-cats | label | darkvision | sense | darkvision | name | DM |  |
 | attic-N3t-circle-note | label | Victor | person | Victor Vallakovich | gazetteer | DM |  |
 | attic-N3t-circle-note | label | DC 15 Arcana | check | DC 15 · Arcana | DC | DM |  |
@@ -1278,7 +1277,6 @@ By kind: monster 1002, area 972, person 920, check 290, spell 212, rule 187, gea
 | tower-upper-T5-note | label | T6 | area | T6 · Guard Tower Rooftop | key ref | DM |  |
 | gate-top/T2 | dm | Petrified | condition | petrified | override | DM | override |
 | gate-top-T2-note | label | petrified | condition | petrified | override | DM | override |
-| tower-roof-T6-gear | label | guards | monster | guard | cue: count | DM |  |
 | tower-roof-T6-gear | label | chain mail | gear | chain-mail | name | DM 2024 |  |
 | tower-roof-T6-gear | label | chain mail | gear | chain-mail | name | DM 2014 |  |
 | tower-roof-maiden0 ×6 | label | Snow maiden | monster | snow-maiden | creature slot | DM |  |

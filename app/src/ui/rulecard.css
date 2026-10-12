@@ -22,7 +22,7 @@
 .rt .tags { display: flex; gap: 4px; margin-top: 4px; }
 .rt .tags span { display: inline-grid; place-items: center; min-width: 22px; height: 22px; padding: 0 5px; border: 1px solid var(--k); border-radius: 4px; font: 700 var(--t-1)/1 var(--font-ui); color: var(--p-ink); }
 .rt .taper { margin: 8px 0 6px; }
-.rt .body { font: 400 var(--t-2)/1.45 var(--font-book); color: var(--p-ink); }
+.rt .body { font: 400 var(--t-2)/1.45 var(--font-book); color: var(--p-ink); font-variant-numeric: lining-nums; }
 .rt.touch .body { font-size: 15px; }
 .rt .body p { margin: 0 0 6px; }
 .rt .body ul { margin: 0 0 6px; padding-left: 18px; }
