@@ -208,9 +208,9 @@ export class App {
     const saved = await idbGet<CampaignState>(storeKey(c.id)).catch(() => undefined);
     return saved ? { ...newCampaign(c.id), ...saved } : newCampaign(c.id); // older saves lack newer fields
   }
-  /** Switch to a campaign and its save (the old campaign's state is saved first). */
+  /** Switch to a campaign and its save (only the authoritative DM saves the old campaign). */
   private useCampaign(c: Campaign, state: CampaignState): void {
-    if (this.cur && c.id !== this.campaign.id) { clearTimeout(this.saveTimer); void idbSet(storeKey(this.campaign.id), this.state).catch(() => {}); }
+    if (this.mode === 'dm' && this.cur && c.id !== this.campaign.id) { clearTimeout(this.saveTimer); void idbSet(storeKey(this.campaign.id), this.state).catch(() => {}); }
     this.campaign = c;
     // another campaign, another valley: the old one goes, the new one is built when one of its maps opens in it
     if (this.stage && this.stage.campaign.id !== c.id) { this.stage.dispose(); this.stage = undefined; }
@@ -2236,9 +2236,24 @@ export class App {
     this.camTimer = window.setTimeout(() => { this.camTimer = 0; send(); }, 40);
   }
 
+  private displayStateSeq = 0;
+  private displayPending?: { cur: Loaded | null; nested: boolean; from?: EnteredFrom };
+  /** A failed or superseded load must not leave its provisional display settings behind. */
+  private restoreDisplayPending(): void {
+    const p = this.displayPending;
+    if (p && this.cur === p.cur) { this.nested = p.nested; this.enteredFrom = p.from; }
+    this.displayPending = undefined;
+  }
+
   private async onMsg(m: Msg): Promise<void> {
     if (this.mode === 'dm') { if (m.kind === 'hello') this.broadcast(); return; }
     if (m.kind === 'state') {
+      const seq = ++this.displayStateSeq;
+      // Even a message for the current map supersedes a pending open of another campaign.
+      ++this.navSeq;
+      this.cancelSwitch();
+      this.restoreDisplayPending();
+      const previous = { cur: this.cur, nested: this.nested, from: this.enteredFrom };
       // the display stands in the same world as the DM (camera messages are absolute feet): the valley or the old way
       const flip = m.nested !== undefined && m.nested !== this.nested;
       if (flip) this.nested = !!m.nested;
@@ -2247,7 +2262,15 @@ export class App {
       const stay = m.camLocked === false && m.look;
       const location = stay ? stay.home : m.location;
       let level = stay ? (this.cur?.path === stay.home ? this.levelId : stay.level) : m.level;
-      if (!this.cur || this.cur.path !== location || flip) { this.enteredFrom = stay ? undefined : m.from; await this.open(location, level); }
+      if (!this.cur || this.cur.path !== location || flip) {
+        this.displayPending = previous;
+        this.enteredFrom = stay ? undefined : m.from;
+        const opened = await this.open(location, level);
+        if (seq !== this.displayStateSeq) return;
+        if (!opened) { this.restoreDisplayPending(); return; }
+        this.displayPending = undefined;
+      }
+      if (seq !== this.displayStateSeq || this.cur?.path !== location) return;
       this.dropStage();
       if (!this.cur) return;
       if (!level || !this.cur.levels.has(level)) level = this.levelId;
