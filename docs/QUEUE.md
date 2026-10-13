@@ -35,7 +35,7 @@ For each item, in order:
   - Done: frame maths and the world atlas (step 0, `64506d2`); the floating origin and shader basis (step 1, `9e6ba78`).
   - Next: fold in the zoom and nesting fix (`c3557f9`: Enter from a building, Back keeps your place, zoom while gliding, zoom toward the cursor, the phone zoom buttons).
   - Then: step 2, the valley with maps opening in place (WIP `7c75a17`); step 3, streaming; step 4, nesting with breadcrumbs; step 5, the Player Display; step 6, the UI; step 7, performance and phones; step 8, the data pass.
-  - Each step is shown to the owner before the next.
+  - ~~Each step is shown to the owner before the next.~~ Owner 2026-10-13: "No need, just finish it up and implement it in the main." Build the remaining steps (including 5 the Player Display, 7 performance and phones, 8 the data pass), then release onto the main branch with no stop for a preview.
   - Paused 2026-10-12 for the tooltips: the surveys finished; prototypes inked-relief and painted-atlas were interrupted (patches in the scratchpad); resume run wf_6907b12e-aa2.
 - [ ] 3. **Dollhouse view.** A cutaway toggle built into the app, working on every map with walls; nothing is authored per map.
   - When on, the walls on the camera's side of each building and room disappear, and they update as you orbit (like The Sims). Roofs and ceilings above lift away.
