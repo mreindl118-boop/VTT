@@ -37,9 +37,24 @@ Sound, and nothing a reviewer must undo:
 - One design change to confirm with Matt: every keyed place now has a marker, 32 instead of 28, so Mount Baratok's four extra marks show as markers as well as the one peak name.
 - Not yet done from this handoff: the three verification passes written down, the completeness check, the report, and the release. ChatGPT's commits did not have 1a in hand.
 
-### 1d. The cloud's full test run on `1459d18`
+### 1d. The cloud's test run on `1459d18` (stopped early on Matt's order)
 
-(filled in when the run finishes: build, unit tests, the full browser suite)
+- `npm run build`: passes.
+- `npx vitest run`: 33 files, 515 passed, 2 skipped, 2 todo, 0 failed.
+- The full browser suite (software rendering here): stopped by Matt's "cease all functions" at 33 passed and 0 failed out of 226. Not a full result. **ChatGPT runs the whole suite on the laptop's GPU before the release** (`$env:PW_GPU="1"; npm run test:e2e`, about 5 minutes).
+
+### 1e. The cloud's agreements and contentions, for ChatGPT (2026-10-13 21:05 UTC)
+
+Agreements:
+- All six of your commits stay as they are. The audience logic (`playersSide` for the stage and the Places list), the card and tooltip lifetime, the drag release point, the wilderness-name filter, the phone streaming allowance and the Help label fix are right, and the new `worldmap-safety` spec and the streamer test are welcome.
+- The rewording of the 53 description fields is within the rules (our own words, no book text), and re-anchoring the five sign-off spans without changing their words or links is the right way to keep that fixture honest.
+
+Contentions (things to settle, not to undo on your own):
+1. **32 markers instead of 28.** The world-map builder lettered Mount Baratok once on purpose (its four extra marks have no map, and the peak's name is on the land), and the spec and the inventory were written around 28. Showing all four as markers is a design change nobody asked for. Keep it for now, say so in the changelog's known limits, and let Matt decide; do not flip it back and forth.
+2. **The six findings in 1a are still open.** Your "final review fixes" were your own review's; the cloud's two reviewers found these on `4f3cad9` and you never had them. They must be fixed before 0.3.0: a release with place markers missing at full zoom-out or with an unrevealed castle's outline visible to players would not meet Matt's asks.
+3. **Update the Status section when you stop.** Your six commits left `AGENTS.md`'s Status untouched, so nobody could tell what you had done or what was next. The procedure's step 6 is not optional: it is how the three of us avoid doing the same work twice.
+4. **Versions.** 0.3.0 is item 2's, yours. Item 7 is the cloud's and goes out as 0.4.0 after 0.3.0 lands; do not touch `item7-unfinished-maps` or `claude/wip/item7-unfinished-maps`.
+5. **Publishing waits for Claude.** The cloud session is stopped until Saturday 2026-10-17 06:00 UTC (the usage limit resets then). When 0.3.0 is on the main branch, write "0.3.0 is on the main branch, ready to publish" in Status with the test counts; the cloud publishes it and the screenshots on its return, then releases 0.4.0.
 
 ## 2. What you are continuing
 

@@ -103,6 +103,21 @@ a day old; then continue it from its wip branch, and say so in Status.
 Each agent rewrites this section when it stops. Newest first. Keep it short and exact: versions, branches, commits,
 what is done, what is next, what is blocked.
 
+### Claude, 2026-10-13 21:05 UTC (cloud; STOPPED on Matt's order until Saturday 2026-10-17 06:00 UTC)
+
+- Matt: "cease all functions until the limit resets Saturday at 2am" (06:00 UTC). The cloud's check-in routine is
+  disabled until then; nothing runs in the cloud.
+- **ChatGPT, while the cloud is out:** item 2 → 0.3.0 on `claude/wip/item2-nested-world-laptop`. Read
+  `docs/handoff/item2-verify-and-report.md`: section 1a (six findings to fix), 1c (the cloud's review of your six
+  commits: sound), 1d (build and 515 unit tests pass on `1459d18`; run the browser suite on the GPU yourself), and
+  1e (agreements and contentions). Then the report (section 6) and the release (section 7). Write Status here when
+  you stop, every time.
+- **Item 7 (the cloud's):** finished and tested on `item7-unfinished-maps` at `0db19b9` (the final fix, the laptop's
+  three portability edits, main merged in; 487 unit tests pass; the two blockers are fixed). It releases as 0.4.0
+  after 0.3.0, when the cloud is back. Nobody else touches it.
+- **On the cloud's return (Saturday):** publish 0.3.0 if it is on the main branch (the mistLAB link and Visual-Aide),
+  then release and publish 0.4.0.
+
 ### Claude, 2026-10-13 21:00 UTC (cloud; credits restored)
 
 Matt, 2026-10-13: "review the changes GPT has made to the core code; work with it without overstepping each other to
