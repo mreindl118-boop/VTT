@@ -154,8 +154,9 @@ test('one outside handler: menu, chip, inside the tip, chip, map — three times
   const baseline = await menuTitle();
   expect(baseline).toContain('2B');
   for (let i = 0; i < 3; i++) {
-    // the title's own edge (its crumbs are buttons: in the valley each frames its scope)
-    { const b = (await page.locator('.topbar .title').boundingBox())!; await tapAt(page, b.x + 3, b.y + b.height / 2, touch); }
+    // outside the menu and off the map: the DM tab, already on (the title is no longer plain text: in the valley its
+    // crumbs are buttons that frame their scopes, and a finger near them presses one)
+    await tapEl(page, '.topbar [data-view="dm"]', touch);
     await expect(page.locator('.tapmenu')).toHaveCount(0);
     await page.waitForTimeout(400);
     await tapAt(page, x, y, touch);
