@@ -139,7 +139,22 @@ def build():
     s.prop('a-raven-snag', (12, 60), rot=35, dims={'h': 90}, key='A', label='The Grey Mast',
            desc='A dead giant stripped of bark, silver-grey and ninety feet tall, its crown snapped off. Ravens sit along its broken limbs watching the road: the only treetop on this road that is not lost in fog.')
     s.clear(12, 60, 5)
-    o = s.prop('a-ground-fog', (9, 45), dims={'w': 60, 'd': 26, 'h': 4, 'seed': 7}, key='A-tunnel'); o['vis'] = 'explored'
+    # ground fog only between the trunks of the verges: the road under the vault stays dark
+    for x, z, w, d, sd in ((9, 38.4, 55, 14, 7), (14, 51.6, 60, 14, 8)):
+        o = s.prop('a-ground-fog', (x, z), dims={'w': w, 'd': d, 'h': 3, 'seed': sd}, key='A-tunnel'); o['vis'] = 'explored'
+    # the tunnel giants: three more of the colossal trunks pressed against both verges, their limbs leaning out over the
+    # road, and above them the crowns closing into one dark vault (40-60 ft) under a lid of fog
+    for x, z, r, rot, sd in ((5, 38.6, 4.8, heading(0.15, 1), 41), (19.5, 39.2, 4.4, heading(-0.2, 1), 42), (12, 51.2, 5.2, heading(0.1, -1), 43)):
+        s.prop('a-giant-pine', (x, z), rot=rot, dims={'r': r, 'lean': 1, 'seed': sd}, key='A-tunnel', label='Giant tree',
+               desc='A trunk ten feet through, standing almost on the verge. Its limbs lean out over the road and lock with those of the trees opposite.')
+        s.clear(x, z, c(r) * 2.3 + 1.2)
+    o = s.prop('a-tunnel-roof', (12, 44.6), rot=heading(-1, 0.03), dims={'len': 128, 'd': 46, 'h': 40, 'seed': 3}, key='A-tunnel', label='The tunnel west',
+               desc='Overhead the crowns of the giants on both verges close together into a low dark vault, and the road runs on under it, downhill, into gloom.')
+    o['vis'] = 'explored'
+    # the scouts' cover: a buttress root of the first south giant, arching out of the verge toward the road
+    s.prop('a-buttress-root', (24.4, 48.4), rot=heading(-0.66, -0.75), dims={'len': 20, 'h': 4.5, 'seed': 4}, key='A-tunnel', label='Buttress root',
+           desc='A root as thick as a barrel arches out of the verge, chest-high on a crouching man: cover facing up the road.')
+    s.clear(24.4, 48.4, 3.2)
 
     # ------------------------------------------------------------ the woods: the frame, not the picture
     def shelf_edge(x, z):
@@ -211,7 +226,7 @@ def build():
     for i, (x, z) in enumerate(((66, 11), (70.5, 13.5), (74, 10), (79, 14), (72, 17.5))):
         s.mob('wolf', (x, z), f'Wolf {i + 6}', 'Wolf', y=SHELF_H, rot=int(s.rng.random() * 360), key='A-shelf',
               dm='The second half of the pack, on the shelf above the bank. They skirt the trappers\' pit and the wolf trap.')
-    for i, (x, z) in enumerate(((21.6, 47.3), (23.2, 48.6))):
+    for i, (x, z) in enumerate(((22.0, 48.4), (23.2, 50.0))):
         s.mob('a-hunter', (x, z), f'Barovian scout {i + 1}', 'Hooded figure', rot=facing(1, -0.1), key='A-tunnel',
               dm='Random table (1d6 scouts, p.29). Village hunters looking for a missing young man, Dalvan Olensky, whose body lies at C (p.34). Light crossbows aimed up the road; they lower them once they see the party is no threat, ask for help, or point west and leave.')
     for i, (x, z) in enumerate(((11, 58.6), (13.6, 61.2))):

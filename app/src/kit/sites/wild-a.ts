@@ -156,6 +156,15 @@ export function giantPine(d: Dims): THREE.Group {
     const y = H * (0.5 + 0.16 * i), ry = (i - 1) * 0.42, lb = limb(40 - i * 6, r * 0.28, C.barkGrey, 0.1 + i * 0.08, ry, sd * 11 + i, 3);
     lb.position.set(Math.cos(ry) * r * 0.8, y, -Math.sin(ry) * r * 0.8); g.add(lb);
   }
+  // the tunnel trees: long limbs out along +x, climbing over the road, hung with dark boughs that meet the other side's
+  if (d.lean) for (let i = 0; i < 3; i++) {
+    const y = H * (0.5 + 0.1 * i), ry = (i - 1) * 0.35, L = 30 + hash(i, sd + 30) * 8, up = 0.2 + i * 0.07;
+    const lb = limb(L, r * 0.22, C.barkGrey, up, ry, sd * 13 + i, 2); lb.position.set(Math.cos(ry) * r * 0.8, y, -Math.sin(ry) * r * 0.8); g.add(lb);
+    for (let k = 0; k < 3; k++) {
+      const t = 0.45 + k * 0.25, lx = Math.cos(ry) * (r * 0.8 + L * t * Math.cos(up)), lz = -Math.sin(ry) * (r * 0.8 + L * t * Math.cos(up));
+      g.add(place(lump(4.5 + hash(k, sd + i) * 2, k % 2 ? C.bough : C.boughDeep, sd * 17 + i * 3 + k, 1.7, 0.42, 1.3, 1), lx, y + L * t * Math.sin(up) - 1.5, lz, hash(k, sd + i + 5) * 3));
+    }
+  }
   // one dark tier of boughs where the fog begins, then the fog itself: billows round the top of the trunk and a thin
   // ragged sheet lying over them, so the crown is a grey cloud from every angle
   const tier = new THREE.Mesh(new THREE.ConeGeometry(r * 2.6, H * 0.24, 8, 1, true), mat(C.bough)); tier.position.y = H * 0.82; g.add(tier);
@@ -261,6 +270,55 @@ export function rootBank(d: Dims): THREE.Group {
     for (const x of [-1.2, 1.2]) g.add(cyl(0.15, 0.22, h + 0.6, C.rootPale, x, h / 2 + 0.1, 0.3, 5));
     for (let k = 0; k < Math.round(h / 1.3); k++) g.add(box(2.9, 0.26, 0.3, C.root, (hash(k, 1) - 0.5) * 0.3, 0.9 + k * 1.3, 0.35));
   }
+  return g;
+}
+/** The tunnel west: the crowns of the trees on both verges closing over the road, `len` along local x and `d` across, a
+ *  vault of dark boughs sagging lowest at the verges (`h` ft) and highest over the crown of the road, hung with drooping
+ *  bough-ends, a ragged fog crown lying on top, and a dark shade on the ground below so the road reads as roofed. Merged:
+ *  five draw calls. */
+export function tunnelRoof(d: Dims): THREE.Group {
+  const L = d.len ?? 120, D = d.d ?? 40, H = d.h ?? 42, sd = d.seed ?? 0, g = grp();
+  const deep: THREE.BufferGeometry[] = [], dark: THREE.BufferGeometry[] = [], hang: THREE.BufferGeometry[] = [], fogA: THREE.BufferGeometry[] = [], fogB: THREE.BufferGeometry[] = [];
+  const vault = (z: number) => H + 12 * (1 - Math.min(1, (2 * Math.abs(z)) / D) ** 2);
+  const nx = Math.max(4, Math.round(L / 9)), nz = 5;
+  for (let i = 0; i < nx; i++) for (let k = 0; k < nz; k++) {
+    const j = i * 7 + k, x = -L / 2 + ((i + 0.5 + (hash(j, sd) - 0.5) * 0.6) / nx) * L, z = -D / 2 + ((k + 0.5 + (hash(j, sd + 1) - 0.5) * 0.5) / nz) * D;
+    const b = lump(5 + hash(j, sd + 2) * 3, C.bough, sd * 31 + j, 1.6, 0.4, 1.25, 1);
+    b.geometry.rotateY(hash(j, sd + 3) * 6); b.geometry.translate(x, vault(z) + (hash(j, sd + 4) - 0.5) * 3, z); ((i + k) % 2 ? deep : dark).push(b.geometry);
+    // a drooping bough-spray under the vault: flat, tilted, more of them toward the verges
+    if (hash(j, sd + 5) < 0.3 + Math.abs(z) / D) {
+      const len = 4 + hash(j, sd + 6) * 6, c = new THREE.ConeGeometry(2.6 + hash(i, sd + 7) * 1.6, len, 6);
+      c.scale(1, 1, 0.45); c.rotateX(Math.PI + (hash(j, sd + 10) - 0.5) * 0.7); c.rotateY(hash(j, sd + 11) * 6);
+      c.translate(x + (hash(k, sd + 8) - 0.5) * 4, vault(z) - 0.5 - len / 2, z + (hash(i, sd + 9) - 0.5) * 3); hang.push(c);
+    }
+  }
+  // the sides come down: long boughs hanging from both verges almost to head height, so the road runs in a corridor
+  const ns = Math.max(6, Math.round(L / 6));
+  for (const side of [-1, 1]) for (let i = 0; i < ns; i++) {
+    const j = i + (side > 0 ? 500 : 0), x = -L / 2 + ((i + 0.5 + (hash(j, sd + 20) - 0.5) * 0.8) / ns) * L, z = side * (D / 2 - 1 - hash(j, sd + 21) * 4);
+    const len = 14 + hash(j, sd + 22) * 12, c = new THREE.ConeGeometry(3.2 + hash(j, sd + 23) * 2, len, 6);
+    c.scale(1, 1, 0.5); c.rotateX(Math.PI - side * (0.15 + hash(j, sd + 24) * 0.25)); c.translate(x, vault(z) + 1 - len / 2, z); hang.push(c);
+  }
+  // the fog crown on top: the trees' heads are lost in it, as everywhere on this road
+  for (let k = 0; k < 2; k++) { const sh = fogSheetGeo(L * (1.05 - 0.12 * k), D * (1.1 - 0.2 * k), sd * 5 + k); sh.translate(0, H + 13 + k * 5, 0); (k ? fogB : fogA).push(sh); }
+  for (let i = 0; i < Math.round(L / 14); i++) { const b = lump(6 + hash(i, sd + 11) * 4, C.mist0, sd + i * 3, 1.6, 0.6, 1.2, 1); b.geometry.translate(-L / 2 + ((i + 0.5) / Math.round(L / 14)) * L, H + 14 + hash(i, sd + 12) * 4, (hash(i, sd + 13) - 0.5) * D * 0.7); fogA.push(b.geometry); }
+  g.add(new THREE.Mesh(mergeGeometries(deep)!, mat(C.boughDeep)), new THREE.Mesh(mergeGeometries(dark)!, mat(C.bough)), new THREE.Mesh(mergeGeometries(hang.map((h) => h.toNonIndexed()))!, mat(C.boughDeep)));
+  const f1 = new THREE.Mesh(mergeGeometries(fogA.map((h) => (h.index ? h.toNonIndexed() : h)))!, fogMat(C.mist0, 0.4)), f2 = new THREE.Mesh(mergeGeometries(fogB)!, fogMat(C.mist1, 0.3));
+  // the shade it throws on the road: darkest down the middle
+  const shade = new THREE.Mesh(fogSheetGeo(L * 0.95, D * 0.75, sd + 77), fogMat(C.voidDark, 0.5)); shade.position.y = 0.35;
+  for (const m of [f1, f2, shade]) { m.renderOrder = 2; g.add(m); }
+  return g;
+}
+/** A buttress root of a giant breaking out of the verge: a long arched hump `len` ft along local x, `h` ft high, mossy on
+ *  top, with root fingers at its end; cover to crouch behind. */
+export function buttressRoot(d: Dims): THREE.Group {
+  const L = d.len ?? 16, h = d.h ?? 4, sd = d.seed ?? 0, g = grp();
+  for (let i = 0; i < 4; i++) {
+    const t = (i + 0.5) / 4, x = -L / 2 + t * L, y = h * (0.45 + 0.4 * Math.sin(Math.PI * Math.min(1, t * 1.3)));
+    g.add(place(lump(h * 0.6 * (1.15 - t * 0.35), C.bark, sd * 5 + i, 1.5, 0.75, 0.8, 1), x, y * 0.55, 0, hash(i, sd) * 0.3));
+  }
+  g.add(place(lump(h * 0.35, C.moss, sd + 9, 2.4, 0.35, 0.9, 1), -L * 0.1, h * 0.85, 0));
+  for (let k = 0; k < 3; k++) { const f = box(L * 0.3, 0.6, 0.7, C.root, L / 2 + L * 0.1, 0.25, (k - 1) * 1.3, (k - 1) * 0.5); g.add(f); }
   return g;
 }
 /** Low ground fog `w` × `d`, knee-high (`h`): three thinning ragged sheets and drifting wisps, see-through. */
@@ -494,6 +552,7 @@ Object.assign(PROPS_V1, {
   'a-wagon-ruts': wagonRuts, 'a-seep-rill': seepRill, 'a-root-bank': rootBank, 'a-ground-fog': groundFog, 'a-pipe-smoke': () => pipeSmoke(),
   'a-skull-blaze': skullBlaze, 'a-wolf-carcass': () => wolfCarcass(), 'a-grave': grave, 'a-wolf-trap': () => wolfTrap(), 'a-leather-bundle': () => leatherBundle(),
   'a-pit-tarp': pitTarp, 'a-paw-prints': pawPrints, 'a-boot-tracks': bootTracks, 'a-trinket': () => trinket(), 'a-mist-wall': mistWall, 'a-vardo': vardoMerged,
+  'a-tunnel-roof': tunnelRoof, 'a-buttress-root': buttressRoot,
 } as Record<string, (d: Dims) => THREE.Object3D>);
 Object.assign(CREATURES, {
   'a-skeletal-rider': (d) => skeletalRider(d), 'a-wereraven': (d) => wereraven(d), 'a-raven-flock': (d) => ravenFlock(d),
