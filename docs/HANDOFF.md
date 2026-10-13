@@ -90,3 +90,9 @@ The owner moved these four nested-world steps to a second release. Each runs: bu
    - Duplicate models are hidden.
    - Settle the items `docs/WORLD.md` leaves for "the data pass".
    - Add a test that checks every placement.
+
+## 5. Desktop delivery and the owner's 0.3.1 request
+
+0.3.0 is installed as a local Node/Edge desktop app, with a fixed loopback origin and dedicated persistent profile. The parent owns the alternate private web deployment. `docs/DESKTOP.md` records the tested update protocol and publishing procedure. No desktop distribution tag has been published: new public compiled-bundle publication is held pending the parent's destination clarification, and the exact source release CI must pass first. Existing website/browser campaign data remains untouched, not silently migrated.
+
+The owner subsequently requested a separate 0.3.1 release for concrete landscape-continuity defects, plus compass north alignment; queue item 2d records the scope. The cloud's parked Amber Temple correction must be inspected first to avoid duplicating its work. This new narrow authority covers the requested exposed entrance/terrain correction, not a wholesale item 7 merge or its other maps. Keep its branches intact and record any reused source commits.
