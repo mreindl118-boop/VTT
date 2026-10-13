@@ -103,11 +103,12 @@ a day old; then continue it from its wip branch, and say so in Status.
 Each agent rewrites this section when it stops. Newest first. Keep it short and exact: versions, branches, commits,
 what is done, what is next, what is blocked.
 
-### ChatGPT, 2026-10-13, item 2 checkpoint and new cloud findings
+### ChatGPT, 2026-10-13, item 2 cloud findings fixed; full GPU gate pending
 
 - Laptop WIP `claude/wip/item2-nested-world-laptop` is pushed at `c0aa651` (display-state atomicity and strict cached SRD extraction); cloud item 2 remains `4f3cad9`. Main's new handoff `bd53fbf` is merged in this checkpoint.
-- Build passes; units **517 passed, 2 todo, zero skipped** with cached verified SRD sources and existing Poppler on the process PATH. Four new display-state browser regressions pass. Stream warm-up fixes pass both GPU cases and four software cases with unchanged limits.
-- The six newly delivered world-map findings in verification section 1a are being reproduced and fixed before release. Earlier final reviews did not include them. A clean full GPU suite and final review remain required; interrupted runs do not count.
+- Next tested checkpoint `907f117` includes the stream readiness fix and the main merge. The consolidated cloud-review fix in this commit retains all place discs, fixes lettering, removes geographic building proxies and secret platform contours, and blends open floors into the land. The hover-tip finding already passed and needed no new code.
+- Build passes; units **519 passed, 2 todo, zero skipped** with cached verified SRD sources and existing Poppler on the process PATH. Four display-state regressions, six label regressions, three terrain regressions and the two stream software regressions pass. Existing assertions are unchanged. Root and the two scoped reviewers inspected the result and cross-reviewed the changes.
+- Newly delivered section 1a findings are resolved by the focused tests and inspected views; earlier final reviews did not include them. A clean full GPU suite and current-build final journey/cost check remain required. Interrupted runs do not count.
 - Version 0.3.0 release records remain local drafts, separate from this checkpoint. Main is not released. Item 7 remains paused for ChatGPT; do not touch its branches. No power, access or credential changes.
 - Matt's later direct direction approved alternate private hosting while Claude is out; the parent task owns publication and waits for the exact tested bundle. This overrides the repository's older publication wait for the app only. Screenshots and source book images remain outside the repo and are not uploaded.
 

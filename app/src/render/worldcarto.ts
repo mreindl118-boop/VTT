@@ -14,7 +14,7 @@
 //  - Massing (the places' proxies, the crags) becomes pale blocks with ink shadow sides.
 //  - Lettering: CSS labels in the bundled display faces with paper halos; a title and a compass rose at region fit.
 // One factor, `k`, a pure function of the camera (feet per CSS pixel at the target), blends the map over the 3-D
-// colours: 1 above ~24 ft/px, 0 below ~5 ft/px. The loaded maps are washed toward the paper's ink by the same factor
+// colours: 1 above 18 effective ft/px, 0 below 8 (narrow views use their horizontal span). The loaded maps are washed toward the paper's ink by the same factor
 // (materials.ts uCartoWash) so a town stays one drawing with the land round it.
 import * as THREE from 'three';
 import type { WorldData } from '../campaigns';
@@ -102,11 +102,15 @@ export type CartoUniforms = ReturnType<typeof cartoUniforms>;
 
 /** The inked map's measures of a view (a pure function of the camera and its canvas): feet per CSS pixel at the
  *  target, the view's ground width over the region's (`fit`, 1 = the whole region across), and the map's strength
- *  `k` = band(24 → 5 ft/px): 1 at or above 24 ft/px, 0 at or below 5. */
+ *  `k` blends from 0 at 8 to 1 at 18 effective ft/px (portrait views normalize their horizontal span). */
 export function cartoBands(cam: THREE.PerspectiveCamera, target: THREE.Vector3, canvas: HTMLElement, regionFt: number): { ftPerPx: number; fit: number; k: number; pxK: number } {
   const d = cam.position.distanceTo(target), cssH = canvas.clientHeight || 1, cssW = canvas.clientWidth || 1;
   const pxK = (2 * Math.tan(THREE.MathUtils.degToRad(cam.fov / 2))) / cssH, ftPerPx = d * pxK;
-  return { ftPerPx, pxK, fit: (ftPerPx * cssW) / Math.max(1, regionFt), k: band(ftPerPx, 24, 5) };
+  // A town fitted on a portrait phone must not turn into paper simply because its viewport is narrow.
+  // Vallaki defaults: desktop 7.80 ft/px; phone 14.63 (5.57 effective); TV 5.54. One continuous camera-only band
+  // keeps all three realistic, then blends to full ink between 8 and 18 effective feet per pixel.
+  const blendFtPerPx = ftPerPx * Math.min(1, cssW / 1024);
+  return { ftPerPx, pxK, fit: (ftPerPx * cssW) / Math.max(1, regionFt), k: band(blendFtPerPx, 18, 8) };
 }
 /** smoothstep over log2(ftPerPx) between log2(lo) and log2(hi): 1 at or above hi, 0 at or below lo. */
 export function band(ftPerPx: number, hi: number, lo: number): number {
@@ -134,7 +138,9 @@ export function* bakeLand(field: LandField, u: CartoUniforms): Generator<void, {
   u.uSize.value.set(nx * TEX_FT, nz * TEX_FT);
   const H = new Float32Array(nx * nz), t = field.terrain;
   for (let r = 0; r < nz; r++) {
-    for (let k = 0; k < nx; k++) H[r * nx + k] = field.height(o.x + (k + 0.5) * TEX_FT, o.y + (r + 0.5) * TEX_FT);
+    // Ink describes surveyed relief, not the rectangular construction pads that let battle maps meet the land.
+    // A hidden castle or town therefore cannot be outlined by its platform's contour rings. Physical land stays.
+    for (let k = 0; k < nx; k++) H[r * nx + k] = field.ground(o.x + (k + 0.5) * TEX_FT, o.y + (r + 0.5) * TEX_FT);
     if (r % 8 === 7) { ms += performance.now() - t0; yield; t0 = performance.now(); }
   }
   const half = new Uint16Array(nx * nz * 4), cov = new Uint8Array(nx * nz * 4), toHalf = THREE.DataUtils.toHalfFloat;
@@ -378,7 +384,7 @@ vec3 cartoLand(vec3 col3d) {
 /** Make a stage material (the land, the aprons, the lakes) paint the inked map at its absolute position as the camera
  *  climbs. Chains after patchFog when the material has it. (Massing is not painted here: it is washed toward the map's
  *  ink and paper like the maps, materials.ts.) The map's code joins the material's program only once the camera
- *  first climbs toward the map (`liveCarto`, from 3.5 ft per pixel, before the map's band begins at 5): close in a
+ *  first climbs toward the map (`liveCarto`, from 3.5 ft per pixel, before the map's band begins at 8): close in a
  *  scene compiles exactly the programs it always did, and the one recompile happens while the map is still at
  *  strength 0 (its code returns at its first branch), so it never shows. */
 export function patchCarto<T extends THREE.Material>(m: T, u: CartoUniforms, style: CartoStyleId): T {

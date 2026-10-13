@@ -575,7 +575,8 @@ body[data-mode='player'] { --pd: max(1.25, calc(1.6 * 100vh / 1080px)); }
 .lbl.carto { display: none; opacity: var(--carto); color: var(--carto-ink); font: 400 calc(12px * var(--pd))/1.1 'Alegreya', Georgia, serif; white-space: nowrap; pointer-events: none;
   text-shadow: 0 0 2px var(--carto-paper), 0 0 2px var(--carto-paper), 0 0 4px var(--carto-paper), 0 0 6px var(--carto-paper); }
 body[data-carto] .lbl.carto { display: block; }
-.lbl.carto span { display: inline-block; }
+.lbl.carto span { display: inline-block; font: inherit; opacity: 1; }
+body[data-mode='player'] .lbl.carto span { font-size: max(1em, clamp(18px, calc(100vh / 45), 24px)); }
 .lbl.carto.peak { font: italic 600 calc(13px * var(--pd))/1.05 'Alegreya', Georgia, serif; letter-spacing: .02em; text-align: center; }
 .lbl.carto.peak span::before { content: ''; display: block; margin: 0 auto 2px; width: 0; height: 0; border: 5px solid transparent; border-bottom: 9px solid var(--carto-ink); border-top: 0; }
 .lbl.carto.wood { font: 700 calc(14px * var(--pd))/1 'Alegreya SC', Georgia, serif; letter-spacing: .32em; color: var(--carto-wood); opacity: calc(var(--carto) * .9); }

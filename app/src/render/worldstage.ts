@@ -114,7 +114,7 @@ export class WorldStage {
       const e = pin.root ? ATLAS.scenes[pin.root] : undefined, wp = data.pins.find((q) => q.key === pin.key);
       const [x, z] = pin.world;
       let y = field.height(x, z);
-      if (pin.scenes.length) {
+      if (pin.scenes.length && !['lake', 'river', 'road', 'peak'].includes(pin.type)) {
         const site: ProxySite = e
           ? { id: e.path, key: pin.key, name: pin.name, type: pin.type, x, z, y: e.placement.position[1] + e.elevationFt, bounds: e.worldBounds!, rotationY: e.placement.rotationY, centre: e.centre }
           : { id: `${pin.scenes[0]}@${pin.key}`, key: pin.key, name: pin.name, type: pin.type, x, z, y, bounds: { minX: x - 60, minZ: z - 60, maxX: x + 60, maxZ: z + 60 }, rotationY: 0, centre: [0, 0] };
@@ -498,7 +498,7 @@ export class WorldStage {
     if (path.getAttribute('d') !== d) path.setAttribute('d', d);
   }
   /** The inked map follows the camera: feet per CSS pixel at the target decides how far it is drawn (fully above
-   *  24 ft/px, gone below 5), and the fit (the view's ground width over the region's) decides the sheet's frame. A
+   *  18 effective ft/px, gone below 8; narrow screens normalize their span), and the fit (the view's ground width over the region's) decides the sheet's frame. A
    *  pure function of the camera and the canvas: the same view always looks the same, on each screen its own. */
   private syncCarto(): void {
     const w = this.world, c = this.carto, b = this.bounds;
@@ -510,21 +510,36 @@ export class WorldStage {
     this.setCarto(c.ready ? v.k : 0);
     c.letters.sync(c.k, c.fit, w.controls.getAzimuthalAngle(), () => w.chrome());
   }
-  /** Far out, a placed map's open ground steps aside for the inked land under it (its streets, walls and roofs stay,
-   *  washed toward the map's paper and ink). Re-applied when the maps drawn change. */
+  /** Open map floors paint the same geography as the land beside them. They keep their realistic appearance at
+   *  k=0 and blend continuously; hiding them at k=0.5 used to expose a hard rectangular seam. */
   private groundKey = '';
-  private openGround(open: boolean): void {
-    const roots = (this.root.parent?.children ?? []).filter((r) => r !== this.root && r.type !== 'Light'), key = `${open}|${roots.map((r) => r.uuid).join()}`;
-    if (key === this.groundKey) return;
-    this.groundKey = key;
-    for (const r of roots) r.traverse((o) => {
-      if (!/^floor:(grass|snow|marsh)$/.test(o.name)) return;
-      if (!open && o.visible) { o.visible = false; o.userData.cartoHidden = true; } else if (open && o.userData.cartoHidden) { o.visible = true; delete o.userData.cartoHidden; }
-    });
+  private groundMeshes: THREE.Mesh[] = [];
+  private groundPatches = new Map<THREE.Material, () => void>();
+  private openGround(): void {
+    const roots = (this.root.parent?.children ?? []).filter((r) => r !== this.root && r.type !== 'Light'), key = roots.map((r) => r.uuid).join();
+    if (key !== this.groundKey) {
+      this.groundKey = key; this.groundMeshes = [];
+      for (const r of roots) r.traverse((o) => { if ((o as THREE.Mesh).isMesh && /^floor:(grass|snow|marsh)$/.test(o.name)) this.groundMeshes.push(o as THREE.Mesh); });
+    }
+    // Ghost activation swaps materials without changing roots. Check only the cached open floors, not whole maps.
+    for (const mesh of this.groundMeshes) for (const m of Array.isArray(mesh.material) ? mesh.material : [mesh.material]) {
+      if (!this.groundPatches.has(m)) {
+        const compile = m.onBeforeCompile, cacheKey = m.customProgramCacheKey;
+        const restore = () => {
+          m.onBeforeCompile = compile; m.customProgramCacheKey = cacheKey;
+          delete m.userData.carto; delete m.userData.cartoLive; m.needsUpdate = true;
+          m.removeEventListener('dispose', forget); this.groundPatches.delete(m);
+        };
+        const forget = () => restore();
+        this.groundPatches.set(m, restore); m.addEventListener('dispose', forget);
+        patchCarto(m, this.carto.u, this.carto.style);
+      }
+      if (this.carto.ftPerPx > 3.5) liveCarto([m]);
+    }
   }
   private setCarto(k: number): void {
     const c = this.carto, w = this.world, S = THREE.MathUtils.smoothstep;
-    this.openGround(k < 0.5);
+    this.openGround();
     if (c.k === k && c.u.uCarto.value === k) return;
     const half = (c.k >= 0.5) !== (k >= 0.5), detailChange = (c.k < 0.95) !== (k < 0.95);
     c.k = k; c.u.uCarto.value = k; w.cartoK = k;
@@ -619,8 +634,8 @@ export class WorldStage {
     if (this.hovered === el) return;
     this.hovered?.classList.remove('hover'); this.hovered = el; el?.classList.add('hover');
   }
-  /** Place labels never pile up and never run off the view or under the page's panels: in order of importance each
-   *  shows its full name where that has room, else just its key (a small tag on the place), else nothing. */
+  /** On the inked map every place keeps its disc; names yield to all discs before other names. Close in, chips
+   *  show their full name where it fits, else their key, and wait for room when even the key would collide. */
   private declutter(): void {
     if (this.declutterQ) return;
     this.declutterQ = requestAnimationFrame(() => requestAnimationFrame(() => {
@@ -632,29 +647,32 @@ export class WorldStage {
       const onView = (r: DOMRect, list: typeof placed) => r.left >= vp.left + 2 && r.right <= vp.right - 2 && r.top >= vp.top + 2 && r.bottom <= vp.bottom - 2
         && !list.some((p) => r.left < p.right + 2 && r.right > p.left - 2 && r.top < p.bottom + 1 && r.bottom > p.top - 1);
       const clear = (r: DOMRect) => onView(r, placed);
-      // on the inked map a place's disc is never crowded out by another name (only by the page's panels and the edge)
       const discs = this.carto.k >= 0.5;
-      // a place on the inked map is its disc and its name (its symbol stands over the disc and may overlap)
-      const rectOf = (l: (typeof live)[number]): DOMRect => {
-        const el = l.obj.element, r = el.getBoundingClientRect();
-        if (!discs || !l.key || el.classList.contains('dot')) return r;
-        const n = el.querySelector('.pn')?.getBoundingClientRect();
-        return n?.width ? new DOMRect(Math.min(r.left, n.left), Math.min(r.top, n.top), Math.max(r.right, n.right) - Math.min(r.left, n.left), Math.max(r.bottom, n.bottom) - Math.min(r.top, n.top)) : r;
-      };
+      if (discs) {
+        // Reserve every disc before placing any names. A late pin must not disappear just because an earlier
+        // name took its spot. Nearby discs can share space at region fit; hitLabel chooses the nearest centre.
+        const marks = live.filter((l) => l.key).map((l) => ({ label: l, rect: l.obj.element.querySelector('.pk')!.getBoundingClientRect() }));
+        for (const l of live) {
+          const el = l.obj.element;
+          const r = l.key ? el.querySelector('.pn')!.getBoundingClientRect() : el.getBoundingClientRect();
+          if (!r.width) continue;
+          const blockers = [...placed, ...marks.filter((m) => m.label !== l).map((m) => m.rect)];
+          if (onView(r, blockers)) placed.push(r);
+          else el.classList.add(l.key ? 'dot' : 'declutter');
+        }
+        return;
+      }
       const crowded: typeof live = [];
       for (const l of live) {
-        const r = rectOf(l); if (!r.width) continue;
+        const r = l.obj.element.getBoundingClientRect(); if (!r.width) continue;
         if (clear(r)) placed.push(r); else crowded.push(l);
       }
-      // the discs already standing (each full label's), for a crowded place's disc to keep clear of
-      const discRects: DOMRect[] = discs ? live.filter((l) => l.key && !crowded.includes(l)).flatMap((l) => [...l.obj.element.querySelectorAll('.pk, .pn')].map((e) => e.getBoundingClientRect())).filter((r) => r.width > 0) : [];
       for (const l of crowded) {
         const el = l.obj.element;
         if (!l.key) { el.classList.add('declutter'); continue; } // a land name never shrinks to a tag: it waits for room
         el.classList.add('dot');
         const r = el.getBoundingClientRect();
         if (clear(r)) placed.push(r);
-        else if (discs && onView(r, [...fixed, ...discRects])) { placed.push(r); discRects.push(r); } // a disc may lie over another's symbol, never over a disc or a name
         else el.classList.add('declutter');
       }
     }));
@@ -737,6 +755,8 @@ export class WorldStage {
     if (this.detailRaf) cancelAnimationFrame(this.detailRaf);
     if (this.declutterQ) cancelAnimationFrame(this.declutterQ);
     this.hovered = null;
+    for (const restore of [...this.groundPatches.values()]) restore();
+    this.groundMeshes = []; this.groundKey = '';
     this.root.removeFromParent();
     this.world.beforeRender.delete(this.followSky);
     for (const l of [...this.labels.map((x) => x.obj), this.party]) { l.removeFromParent(); l.element.remove(); }

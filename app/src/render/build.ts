@@ -140,7 +140,10 @@ export function* buildLevelSteps(level: Level, grid: GridLevel): Generator<void,
     byFloor.set(t.floor, arr);
   }
   for (const [f, gs] of byFloor) {
-    const m = new THREE.Mesh(merge(gs), mat(FLOOR_COLOR[f as keyof typeof FLOOR_COLOR]));
+    // Open ground receives the stage's geographic paint. A private kit material keeps that stage-specific shader
+    // off other maps' shared palette and is freed with this map by disposeTree.
+    const color = FLOOR_COLOR[f as keyof typeof FLOOR_COLOR];
+    const m = new THREE.Mesh(merge(gs), /^(grass|snow|marsh)$/.test(f) ? matClone(color) : mat(color));
     m.userData.role = 'floor';
     m.name = `floor:${f}`;
     floors.push(m);

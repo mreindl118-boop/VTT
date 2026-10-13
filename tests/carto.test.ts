@@ -19,6 +19,23 @@ const view = (d: number, W: number, H: number) => {
 const fitDist = (regionFt: number, W: number, H: number) => (regionFt / W) * H / (2 * Math.tan(THREE.MathUtils.degToRad(20)));
 
 describe('the inked map\'s bands', () => {
+  it('keeps measured default town frames realistic on desktop, portrait phone and TV', () => {
+    for (const [d, W, H] of [[8226.427421, 1366, 768], [16964.143992, 390, 844], [8226.427421, 1920, 1080]]) {
+      const { cam, canvas } = view(d, W, H);
+      expect(cartoBands(cam, new THREE.Vector3(), canvas, widthFt(barovia)).k).toBe(0);
+    }
+  });
+  it('crosses the narrow-screen transition continuously in both directions', () => {
+    for (const [W, H] of [[1366, 768], [390, 844], [1920, 1080]]) {
+      const at = (effective: number) => {
+        const d = effective / Math.min(1, W / 1024) * H / (2 * Math.tan(THREE.MathUtils.degToRad(20))), { cam, canvas } = view(d, W, H);
+        return cartoBands(cam, new THREE.Vector3(), canvas, widthFt(barovia)).k;
+      };
+      expect(at(8)).toBeCloseTo(0, 8); expect(at(18)).toBe(1);
+      expect(at(11)).toBeGreaterThan(0.3); expect(at(11)).toBeLessThan(0.7);
+      for (const f of [8, 11, 18]) expect(Math.abs(at(f + .001) - at(f - .001))).toBeLessThan(.001);
+    }
+  });
   it('draws the map fully at the whole region, on a television and on a phone, for both campaigns', () => {
     for (const w of [barovia, sheep]) for (const [W, H] of [[1920, 1080], [1366, 768], [1024, 768], [390, 844]]) {
       const r = widthFt(w), { cam, canvas } = view(fitDist(r, W, H), W, H), v = cartoBands(cam, new THREE.Vector3(), canvas, r);
