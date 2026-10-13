@@ -431,10 +431,11 @@ function griffon(): THREE.Group {
 }
 
 /** A buttress at one of the tower's diagonals: a stepped stone pier running out `len` ft along local +x from the wall,
- *  a sloped weathering at its setback and top, a griffon perched on the summit. */
+ *  a sloped weathering at its setback and top, a griffon perched on the summit. Set on the plinth course, its footing
+ *  reaches `foot` ft down past the course's outer face to the ground. */
 function towerButtress(d: Dims): THREE.Group {
-  const h = d.h ?? 36, L = d.len ?? 5.5, w = d.w ?? 3.2, h1 = h * 0.58, g = grp();
-  g.add(box(L + 1.2, 1.6, w + 1, STONE_DK, L / 2 + 0.3, 0.8, 0), box(L, h1, w, STONE, L / 2, h1 / 2, 0), box(L * 0.7, h - h1, w * 0.92, STONE, (L * 0.7) / 2, h1 + (h - h1) / 2, 0));
+  const h = d.h ?? 36, L = d.len ?? 5.5, w = d.w ?? 3.2, h1 = h * 0.58, ft = d.foot ?? 0, fh = ft > 0 ? ft + 0.5 : 1.6, g = grp();
+  g.add(box(L + 1.2, fh, w + 1, STONE_DK, L / 2 + 0.3, fh / 2 - ft, 0), box(L, h1, w, STONE, L / 2, h1 / 2, 0), box(L * 0.7, h - h1, w * 0.92, STONE, (L * 0.7) / 2, h1 + (h - h1) / 2, 0));
   const wedge = (x0: number, x1: number, y: number, rise: number, ww: number) => {
     const s = new THREE.Shape([new THREE.Vector2(x0, 0), new THREE.Vector2(x1, 0), new THREE.Vector2(x0, rise)]);
     const geo = new THREE.ExtrudeGeometry(s, { depth: ww, bevelEnabled: false }); geo.translate(0, 0, -ww / 2);
