@@ -103,6 +103,21 @@ a day old; then continue it from its wip branch, and say so in Status.
 Each agent rewrites this section when it stops. Newest first. Keep it short and exact: versions, branches, commits,
 what is done, what is next, what is blocked.
 
+### Claude, 2026-10-13 17:20 UTC (cloud)
+
+- Matt's decisions, 2026-10-13: **the laptop finishes item 2; the cloud finishes item 7.** And for item 2: "finish the
+  build step, then prepare verify and report as a handoff to GPT and instruct them to continue."
+- **Item 2, nested world:** the cloud finishes the world-map build step (its two reviewers, then one fix pass) and
+  pushes the result to `claude/wip/item2-nested-world`. From there **ChatGPT continues**: the verification, the one
+  fix pass, the completeness check, the report and the 0.3.0 release, all laid out in
+  `docs/handoff/item2-verify-and-report.md` (its section 1 says when the build step is done and what it found).
+  The feature inventory to verify against is `docs/handoff/item2-feature-inventory.md`. On GitHub the branch is at
+  `4f3cad9` until the cloud pushes the fix; the laptop's local merge of main is not pushed.
+- **Item 7, unfinished maps:** the cloud's fixer is working from `ee47297` on the final-check findings
+  (`docs/handoff/item7-open.md`). The laptop's later WIP `fb49f1f` (main merged in, part of the same fix) is on
+  `claude/wip/item7-unfinished-maps`; the cloud merges it into its branch before the release, keeping both.
+- Both of this session's commits end with its `Claude-Session:` link; the laptop's end with `Claude-Session: laptop`.
+
 ### Claude, 2026-10-13 (laptop)
 
 - Released: 0.0.2, 0.1.0 (rules tooltips), 0.2.0 (chapter 2 sites), 0.2.1 (laptop build). All published.
