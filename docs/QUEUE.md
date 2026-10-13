@@ -5,7 +5,7 @@ One checklist, worked top to bottom, one item at a time. Nothing runs in paralle
 On 2026-10-12 the owner approved going through the whole list in order: "Complete every task on the task list. One task at a time in succession, not concurrently, in order as they exist."
 
 **Lean setting (owner, 2026-10-12), for every item:**
-- One item at a time. Within an item, independent parts may run side by side (owner, 2026-10-12), each in its own worktree and merged at the end. This machine allows two agents at once per run.
+- Work broadly to finish sooner (owner, 2026-10-13). Items that don't touch the same code may run side by side, and independent parts within an item may too. Each runs in its own worktree. Releases still land on the main branch one at a time, each merging what came before. This machine allows two agents at once per run.
 - Builders work at full effort.
 - Two reviewers per build step, run side by side, at a lighter setting.
 - At most one fix pass per step; polish-only findings don't trigger one.
@@ -16,7 +16,7 @@ The goal is to save usage and time without lowering the quality of the work.
 For each item, in order:
 1. Finish the work and verify it.
 2. Merge it onto the main branch.
-3. Bump the version (item N ships as 0.N.0).
+3. Bump the version: each release takes the next minor version, in release order.
 4. Write the changelog entry.
 5. Pass the full test suite.
 6. Push and publish, and add the release's screenshots and demo to the [Visual-Aide](https://github.com/mreindl118-boop/Visual-Aide) repo (`releases/<version>-<name>/`).
