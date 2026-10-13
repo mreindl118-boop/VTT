@@ -11,7 +11,7 @@
 import * as THREE from 'three';
 import { PROPS_V1, pine } from '../props';
 import { CREATURES, humanoid, horse } from '../creatures';
-import { mat, matClone } from '../../render/materials';
+import { mat, matClone, patchFog, setSurface } from '../../render/materials';
 import { FLOOR_COLOR } from '../palette';
 import { surfaceFor } from '../surfaces';
 import { merge } from '../pieces';
@@ -266,41 +266,227 @@ export function rockOutcrop(d: Dims): THREE.Group {
   return g;
 }
 
-// ---------------------------------------------------------------- the river: trench, water, the land cut away above it
-/** Cut the land, forest and ribbons drawn round the map out of a column (world feet x0..x1, z0..z1) on the first frame the
- *  trench is drawn, so the river's trench, which lies below the map's ground, shows. The backdrop is rebuilt for every
- *  map (and every change of theme); each new one is cut once, when this sentinel is next drawn. */
-function landClip(x0: number, x1: number, z0: number, z1: number): THREE.Mesh {
+// ---------------------------------------------------------------- the river: trench, water, the land round the map
+type LandHit = { y: number; c: THREE.Color };
+type Sampler = (x: number, z: number) => LandHit | null;
+/** Height and colour of the backdrop's land mesh at plan (x, z): its triangles near the map binned on a coarse grid. */
+function landSampler(land: THREE.Mesh, cx: number, cz: number, half = 9000, cell = 150): Sampler {
+  const pos = land.geometry.attributes.position as THREE.BufferAttribute, col = land.geometry.attributes.color as THREE.BufferAttribute | undefined;
+  const nC = Math.ceil((2 * half) / cell), x0 = cx - half, z0 = cz - half, bins = new Map<number, number[]>();
+  for (let t = 0; t < Math.floor(pos.count / 3); t++) {
+    let a = Infinity, b = -Infinity, c = Infinity, e = -Infinity;
+    for (let k = 0; k < 3; k++) { const x = pos.getX(3 * t + k), z = pos.getZ(3 * t + k); a = Math.min(a, x); b = Math.max(b, x); c = Math.min(c, z); e = Math.max(e, z); }
+    if (b < x0 || a > x0 + 2 * half || e < z0 || c > z0 + 2 * half) continue;
+    const i0 = Math.max(0, Math.floor((a - x0) / cell)), i1 = Math.min(nC - 1, Math.floor((b - x0) / cell)), j0 = Math.max(0, Math.floor((c - z0) / cell)), j1 = Math.min(nC - 1, Math.floor((e - z0) / cell));
+    for (let i = i0; i <= i1; i++) for (let j = j0; j <= j1; j++) { const k = i * nC + j; let L = bins.get(k); if (!L) bins.set(k, (L = [])); L.push(t); }
+  }
+  return (x, z) => {
+    const i = Math.floor((x - x0) / cell), j = Math.floor((z - z0) / cell);
+    if (i < 0 || j < 0 || i >= nC || j >= nC) return null;
+    for (const t of bins.get(i * nC + j) ?? []) {
+      const A = 3 * t, ax = pos.getX(A), az = pos.getZ(A), bx = pos.getX(A + 1), bz = pos.getZ(A + 1), qx = pos.getX(A + 2), qz = pos.getZ(A + 2);
+      const det = (bz - qz) * (ax - qx) + (qx - bx) * (az - qz); if (Math.abs(det) < 1e-9) continue;
+      const l1 = ((bz - qz) * (x - qx) + (qx - bx) * (z - qz)) / det, l2 = ((qz - az) * (x - qx) + (ax - qx) * (z - qz)) / det, l3 = 1 - l1 - l2;
+      if (l1 < -1e-6 || l2 < -1e-6 || l3 < -1e-6) continue;
+      const c = new THREE.Color(1, 1, 1);
+      if (col) c.setRGB(l1 * col.getX(A) + l2 * col.getX(A + 1) + l3 * col.getX(A + 2), l1 * col.getY(A) + l2 * col.getY(A + 1) + l3 * col.getY(A + 2), l1 * col.getZ(A) + l2 * col.getZ(A + 1) + l3 * col.getZ(A + 2));
+      return { y: l1 * pos.getY(A) + l2 * pos.getY(A + 1) + l3 * pos.getY(A + 2), c };
+    }
+    return null;
+  };
+}
+/** A strip laid on the land along a polyline (world ft): vertices `step` ft apart, across it at offsets `across(s)`
+ *  (ft from the centre line, left to right), each at the land's height plus `lift(s)` and coloured by `color`. */
+function laidStrip(line: P2[], step: number, across: (s: number) => number[], lift: (s: number, y: number) => number, color: (s: number, j: number, land: THREE.Color) => THREE.Color, sample: Sampler, fallY: number): THREE.BufferGeometry {
+  const D = densify(line, step), P: number[] = [], Cs: number[] = [];
+  const row = D.map((st) => across(st.s).map((o, j) => {
+    const x = st.p[0] + st.n[0] * o, z = st.p[1] + st.n[1] * o, h = sample(x, z), y = lift(st.s, h ? h.y : fallY);
+    return { v: V(x, y, z), c: color(st.s, j, h ? h.c : new THREE.Color(FLOOR_COLOR.grass)) };
+  }));
+  const push = (a: { v: THREE.Vector3; c: THREE.Color }, b: typeof a, c: typeof a) => {
+    let [p, q, r] = [a, b, c];
+    if ((q.v.z - p.v.z) * (r.v.x - p.v.x) - (q.v.x - p.v.x) * (r.v.z - p.v.z) < 0) [q, r] = [r, q];
+    for (const k of [p, q, r]) { P.push(k.v.x, k.v.y, k.v.z); Cs.push(k.c.r, k.c.g, k.c.b); }
+  };
+  for (let i = 0; i + 1 < row.length; i++) for (let j = 0; j + 1 < Math.min(row[i].length, row[i + 1].length); j++) {
+    const a = row[i][j], b = row[i][j + 1], c = row[i + 1][j], e = row[i + 1][j + 1]; push(a, b, e); push(a, e, c);
+  }
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(P, 3)); g.setAttribute('color', new THREE.Float32BufferAttribute(Cs, 3)); g.computeVertexNormals();
+  return g;
+}
+/** Lit like the backdrop's own land (no distance fog; the mist of war passes over it), coloured per vertex. */
+function landMat(surf: 'dirt' | 'none'): THREE.MeshLambertMaterial {
+  const m = new THREE.MeshLambertMaterial({ vertexColors: true, fog: false, flatShading: true }); setSurface(m, surf); return patchFog(m, true);
+}
+const lineLen = (L: P2[]) => L.reduce((a, p, i) => (i ? a + Math.hypot(p[0] - L[i - 1][0], p[1] - L[i - 1][1]) : 0), 0);
+
+/** The sentinel that fits the land round the map to it, once for each backdrop (rebuilt for every map and theme) and once
+ *  for each build of the trench, on the first frame both are drawn:
+ *  - the land, forest and ribbons drawn round the map are cut out of the trench's column (world feet x0..x1, from the
+ *    map's north edge to its south and on until the land there has fallen to the water), so the trench, which lies below
+ *    the map's ground, shows; the trench's own lengths past the map's edges are laid onto that falling land;
+ *  - the Luna runs on from the trench's ends over the land: north out of Lake Zarovich's shore, south to where the
+ *    region's river carries on (its ribbon is hidden in between, box `rb*`);
+ *  - the world map's roads give way near the map (within `cut` ft of its edges and `vcut` of Vallaki as drawn, where
+ *    they met in a phantom junction off the west edge), and this map's four roads run on from its edges instead: the
+ *    hard road over the bridge to Vallaki and on east, and south-west to where the world's road carries on; the
+ *    cart-track and the Berez trail fade into the forest. The forest steps off them, and back onto the rides it had
+ *    left for the world's roads. Lines (world ft) from the map script: ne, ve, sw, nw, se (roads), rn, rs (river). */
+function landClip(d: Dims, x0: number, x1: number, z0: number, z1: number): THREE.Mesh {
   const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute([0, -500, 0, 0, -500, 0, 0, -500, 0], 3));
-  const m = new THREE.Mesh(geo, mat(C.bankDark)); m.frustumCulled = false; m.userData.pClip = true;
+  const m = new THREE.Mesh(geo, mat(C.bankDark)); m.frustumCulled = false; m.userData.pClip = true; m.userData.pDims = d;
+  const MW = d.mw ?? 1300, MH = d.mh ?? 800, wy = d.wy ?? -10, ox = d.ox ?? 0;
+  const bx0 = ox + (d.t0 ?? 5), bx1 = ox + (d.t1 ?? 67), xc = ox + ((d.wx0 ?? 15) + (d.wx1 ?? 55)) / 2;
+  const mapDist = (x: number, z: number) => Math.max(0, -x, x - MW, -z, z - MH);
   const planes = [new THREE.Plane(V(-1, 0, 0), x0), new THREE.Plane(V(1, 0, 0), -x1), new THREE.Plane(V(0, 0, -1), z0), new THREE.Plane(V(0, 0, 1), -z1)];
   m.onBeforeRender = (renderer, scene, camera) => {
-    const bd = scene.getObjectByName('backdrop'); if (!bd || bd.userData.pTrench) return;
+    const bd = scene.getObjectByName('backdrop'); if (!bd) return;
+    const trench = m.parent;
+    if (bd.userData.pTrench && (!trench || trench.userData.pFitted)) return;
+    const land = bd.getObjectByName('land') as THREE.Mesh | undefined;
+    const sample: Sampler = (bd.userData.pSampler ??= land ? landSampler(land, MW / 2, MH / 2) : () => null);
+    const T = (x: number, z: number) => { const h = sample(x, z); return h ? h.y + 0.4 : 0; };   // the land's top where our turf would lie
+    // the trench runs on past each edge until both its bank tops have come down to the water
+    let zN = z0, zS = z1;
+    if (land) {
+      for (let z = 0; z >= z0; z -= 10) if (Math.max(T(bx0, z), T(bx1, z)) <= wy + 0.7) { zN = z; break; }
+      for (let z = MH; z <= z1; z += 10) if (Math.max(T(bx0, z), T(bx1, z)) <= wy + 0.7) { zS = z; break; }
+    }
+    planes[2].constant = zN; planes[3].constant = -zS;
+    if (trench && !trench.userData.pFitted) { trench.userData.pFitted = true; if (land) fitTrench(trench, m, T, zN, zS); }
+    if (bd.userData.pTrench) return;
     bd.userData.pTrench = true;
-    const mats = new Set<THREE.Material>();
-    const m4 = new THREE.Matrix4(), p = new THREE.Vector3(), q = new THREE.Quaternion(), s = new THREE.Vector3();
+    const mats = new Set<THREE.Material>(), rib = new Set<THREE.Material>(), roads: THREE.Mesh[] = [], rivers: THREE.Mesh[] = [], forests: THREE.InstancedMesh[] = [];
     bd.traverse((o) => {
       const mesh = o as THREE.Mesh; if (!mesh.isMesh) return;
-      const inst = o as THREE.InstancedMesh;
-      if (inst.isInstancedMesh) {   // trees standing in the column step aside rather than being sliced
-        for (let i = 0; i < inst.count; i++) { inst.getMatrixAt(i, m4); m4.decompose(p, q, s); if (p.x > x0 - 14 && p.x < x1 + 14 && p.z > z0 - 14 && p.z < z1 + 14) { s.set(0, 0, 0); m4.compose(p, q, s); inst.setMatrixAt(i, m4); } }
-        inst.instanceMatrix.needsUpdate = true;
+      if ((o as THREE.InstancedMesh).isInstancedMesh) forests.push(o as THREE.InstancedMesh);
+      const col = mesh.geometry.attributes.color as THREE.BufferAttribute | undefined, mt = mesh.material as THREE.Material;
+      if (col && !Array.isArray(mesh.material) && mt.type === 'MeshBasicMaterial') {
+        // the region map's ribbons: rivers are blue, roads brown
+        if (col.getZ(0) > col.getX(0) + 0.06) { rib.add(mt); rivers.push(mesh); } else { roads.push(mesh); mats.add(mt); }
+        return;
       }
-      for (const mt of Array.isArray(mesh.material) ? mesh.material : [mesh.material]) mats.add(mt);
+      for (const q of Array.isArray(mesh.material) ? mesh.material : [mesh.material]) mats.add(q);
     });
-    // the region map's river ribbon runs a few hundred feet east of the map's own Luna (the map centres its pin): near
-    // the map it gives way to the trench drawn here
-    const rib = new Set<THREE.Material>();
-    bd.traverse((o) => {
-      const mesh = o as THREE.Mesh, col = mesh.isMesh ? (mesh.geometry.attributes.color as THREE.BufferAttribute | undefined) : undefined;
-      if (col && (mesh.material as THREE.Material).type === 'MeshBasicMaterial' && col.getZ(0) > col.getX(0) + 0.06) { rib.add(mesh.material as THREE.Material); mats.delete(mesh.material as THREE.Material); }
-    });
-    const near = [new THREE.Plane(V(-1, 0, 0), x0 - 900), new THREE.Plane(V(1, 0, 0), -(x1 + 1400)), new THREE.Plane(V(0, 0, -1), z0 - 2600), new THREE.Plane(V(0, 0, 1), -(z1 + 2600))];
-    for (const mt of rib) { mt.clippingPlanes = near; mt.clipIntersection = true; mt.needsUpdate = true; }
+    // the world's roads give way near the map: their triangles there fold to nothing
+    const vx = d.vx ?? 4200, vz = d.vz ?? -1870, CUT = d.cut ?? 5000, VC = d.vcut ?? 2700;
+    const cutAt = (x: number, z: number) => mapDist(x, z) < CUT || Math.hypot(x - vx, z - vz) < VC;
+    const gone: P2[] = [];
+    for (const r of roads) {
+      const pa = r.geometry.attributes.position as THREE.BufferAttribute;
+      for (let t = 0; t + 2 < pa.count; t += 3) {
+        const cx = (pa.getX(t) + pa.getX(t + 1) + pa.getX(t + 2)) / 3, cz = (pa.getZ(t) + pa.getZ(t + 1) + pa.getZ(t + 2)) / 3;
+        if (!cutAt(cx, cz)) continue;
+        gone.push([cx, cz]); for (let k = 1; k < 3; k++) pa.setXYZ(t + k, pa.getX(t), pa.getY(t), pa.getZ(t));
+      }
+      pa.needsUpdate = true; r.geometry.computeBoundingSphere();
+    }
+    // the ribbon's height and colour where a line of ours meets it
+    const near = (list: THREE.Mesh[], x: number, z: number, R: number) => {
+      let n = 0, y = 0; const c = new THREE.Color(0, 0, 0);
+      for (const r of list) {
+        const pa = r.geometry.attributes.position as THREE.BufferAttribute, ca = r.geometry.attributes.color as THREE.BufferAttribute;
+        for (let i = 0; i < pa.count; i++) { if (Math.abs(pa.getX(i) - x) > R || Math.abs(pa.getZ(i) - z) > R) continue; n++; y += pa.getY(i); c.r += ca.getX(i); c.g += ca.getY(i); c.b += ca.getZ(i); }
+      }
+      return n ? { y: y / n, c: c.multiplyScalar(1 / n) } : null;
+    };
+    // the region's river ribbon is hidden from the lake shore to where our own Luna meets it, and the land in the trench column
+    const rb = [new THREE.Plane(V(-1, 0, 0), d.rbx0 ?? x0 - 900), new THREE.Plane(V(1, 0, 0), -(d.rbx1 ?? x1 + 1400)), new THREE.Plane(V(0, 0, -1), d.rbz0 ?? z0 - 2600), new THREE.Plane(V(0, 0, 1), -(d.rbz1 ?? z1 + 2600))];
+    for (const mt of rib) { mt.clippingPlanes = rb; mt.clipIntersection = true; mt.needsUpdate = true; }
     for (const mt of mats) { mt.clippingPlanes = planes; mt.clipIntersection = true; mt.needsUpdate = true; }
+    // ---- our lines on the land
+    const fallY = T(MW / 2, MH + 40) - 0.4, laid: P2[][] = [], clearW: number[] = [];
+    const dirtM = landMat('dirt'), waterM = landMat('none');
+    const dirt = new THREE.Color(FLOOR_COLOR.dirt), road = new THREE.Color('#7a6c5a'), wet = new THREE.Color(C.water), mud = new THREE.Color(C.bankMud), sedge = new THREE.Color(C.sedge);
+    // each road starts as the map's own does at that edge (gravel east of the bridge, the gravel road's ditches to the
+    // south-west, turf on the cart-track) and weathers into the backdrop's road colour, or fades out into the forest
+    const gravel = new THREE.Color(C.gravel).multiplyScalar(0.8), dirt0 = dirt.clone().multiplyScalar(0.92), turf = new THREE.Color(C.turf).lerp(dirt, 0.45), ditch = new THREE.Color(C.ditch).lerp(wet, 0.4);
+    const roadDefs: [string, number, number, boolean, THREE.Color, boolean][] = [['ne', 20, 20, false, gravel, false], ['ve', 16, 16, false, road, false], ['sw', 20, 20, false, dirt0, true], ['nw', 12, 6, true, turf, false], ['se', 6, 5, true, dirt0, false]];
+    for (const [k, w0, w1, fade, c0, ditches] of roadDefs) {
+      const L0 = dimsLine(d, k); if (L0.length < 2) continue;
+      const L = lineLen(L0), end = L0[L0.length - 1], meet = fade ? null : near(roads, end[0], end[1], 70);
+      const hw = (s: number) => lerp(w0, w1, smooth(0, 900, s)) / 2 * (fade ? 1 - smooth(L - 450, L, s) : 1);
+      const g = laidStrip(L0, 15, (s) => { const h = hw(s); return [-h - 8, -h - 5, -h - 2, -h, -h * 0.4, h * 0.4, h, h + 2, h + 5, h + 8]; },
+        (s, y) => { const yy = y + 0.5; return meet ? lerp(yy, meet.y, smooth(L - 160, L, s)) : yy; },
+        (s, j, lc) => {
+          const far = lc.clone().lerp(meet ? meet.c : road, 0.55), c = c0.clone().lerp(dirt, smooth(0, 160, s)).lerp(far, smooth(60, 700, s));
+          if (fade) c.lerp(lc, smooth(L - 500, L, s));
+          if (j === 0 || j === 9) return lc.clone();
+          if (j <= 2 || j >= 7) return ditches ? ditch.clone().lerp(lc.clone().lerp(c, 0.25), smooth(80, 320, s)) : lc.clone().lerp(c, j === 1 || j === 8 ? 0.1 : 0.25);
+          return j === 3 || j === 6 ? c.lerp(lc, 0.2) : c;
+        }, sample, fallY);
+      const mesh = new THREE.Mesh(g, dirtM); mesh.name = `p-road-${k}`; bd.add(mesh); laid.push(L0); clearW.push(w0 / 2 + 12);
+    }
+    for (const k of ['rn', 'rs']) {
+      let L0 = dimsLine(d, k); if (L0.length < 2) continue;
+      // start where the trench ends, a few feet back inside it
+      const zEnd = k === 'rn' ? zN : zS, inMap = (p: P2) => (k === 'rn' ? p[1] > zEnd - 12 : p[1] < zEnd + 12);
+      L0 = [[xc, k === 'rn' ? zEnd + 14 : zEnd - 14], ...L0.filter((p) => !inMap(p))];
+      const L = lineLen(L0), end = L0[L0.length - 1], meet = near(rivers, end[0], end[1], 80), hw = 20;
+      const g = laidStrip(L0, 18, () => [-hw - 8, -hw, -hw * 0.5, 0, hw * 0.5, hw, hw + 8],
+        (s, y) => { const yy = y + 0.2 + 0.25 * smooth(0, 40, s); return meet && k === 'rs' ? lerp(yy, meet.y, smooth(L - 200, L, s)) : yy; },
+        (s, j, lc) => {
+          if (j === 0 || j === 6) return mud.clone().lerp(sedge, 0.4).lerp(lc, 0.35 + 0.4 * smooth(200, 2500, s));
+          // unlit, the region's ribbon reads paler than this lit water: the far end is lifted to meet it
+          return wet.clone().lerp((meet ? meet.c : new THREE.Color('#3b4e5c')).clone().multiplyScalar(1.25), smooth(L * 0.25, L * 0.95, s));
+        }, sample, fallY);
+      const mesh = new THREE.Mesh(g, waterM); mesh.name = `p-luna-${k}`; bd.add(mesh); laid.push(L0); clearW.push(hw + 18);
+    }
+    // ---- the forest: out of the trench column and off our lines, back into the rides it left for the world's roads
+    const B = 120, key = (x: number, z: number) => Math.floor(x / B) * 100003 + Math.floor(z / B);
+    const goneBins = new Map<number, P2[]>(); for (const p of gone) { const k = key(p[0], p[1]); (goneBins.get(k) ?? goneBins.set(k, []).get(k)!).push(p); }
+    const nearGone = (x: number, z: number, r: number) => { for (let i = -1; i <= 1; i++) for (let j = -1; j <= 1; j++) for (const p of goneBins.get(key(x + i * B, z + j * B)) ?? []) if (Math.hypot(p[0] - x, p[1] - z) < r) return true; return false; };
+    const segs: [P2, P2, number][] = []; laid.forEach((L, i) => { for (let k = 0; k + 1 < L.length; k++) segs.push([L[k], L[k + 1], clearW[i]]); });
+    const onLaid = (x: number, z: number) => segs.some(([a, b, w]) => Math.abs(x - a[0]) < 400 + w && Math.abs(z - a[1]) < 400 + w && segDist(x, z, a, b) < w);
+    const m4 = new THREE.Matrix4(), p = new THREE.Vector3(), q = new THREE.Quaternion(), s = new THREE.Vector3(), cl = new THREE.Color();
+    for (const inst of forests) {
+      const live = new Map<number, number[]>();
+      for (let i = 0; i < inst.count; i++) { inst.getMatrixAt(i, m4); m4.decompose(p, q, s); if (s.x > 0) { const k = key(p.x, p.z); (live.get(k) ?? live.set(k, []).get(k)!).push(i); } }
+      for (let i = 0; i < inst.count; i++) {
+        inst.getMatrixAt(i, m4); m4.decompose(p, q, s);
+        if (s.x === 0 && inst.instanceColor && mapDist(p.x, p.z) > 80 && nearGone(p.x, p.z, 34)) {
+          // a ride cut for a road that is no longer drawn: plant it again from the nearest standing tree
+          let best = -1, bd2 = 260;
+          for (let a = -2; a <= 2; a++) for (let b = -2; b <= 2; b++) for (const j of live.get(key(p.x + a * B, p.z + b * B)) ?? []) { inst.getMatrixAt(j, m4); const e = m4.elements, dd = Math.hypot(e[12] - p.x, e[14] - p.z); if (dd < bd2) { bd2 = dd; best = j; } }
+          const h = sample(p.x, p.z);
+          if (best >= 0 && h) { inst.getMatrixAt(best, m4); const e = m4.elements, k = Math.hypot(e[0], e[1], e[2]); inst.getColorAt(best, cl); s.set(k * (0.9 + hash(i, 3) * 0.2), k * (0.85 + hash(i, 4) * 0.35), k); p.y = h.y + 2; inst.setColorAt(i, cl); }
+        }
+        const inCol = p.x > x0 - 14 && p.x < x1 + 14 && p.z > zN - 14 && p.z < zS + 14;
+        if (inCol || onLaid(p.x, p.z)) s.set(0, 0, 0);   // trees standing in the column or on our lines step aside
+        m4.compose(p, q, s); inst.setMatrixAt(i, m4);
+      }
+      inst.instanceMatrix.needsUpdate = true; if (inst.instanceColor) inst.instanceColor.needsUpdate = true;
+    }
     requestAnimationFrame(() => renderer.render(scene, camera));
   };
   return m;
+}
+/** Lay the trench's lengths past the map's edges onto the land (it falls away there): its turf follows the land's top
+ *  `T`, its water comes down with the lower bank, its banks shrink between; beyond `zN`/`zS`, where both bank tops have
+ *  come down to the water, it is folded away and the river runs on over the land. Done once, on the merged meshes. */
+function fitTrench(trench: THREE.Object3D, sentinel: THREE.Object3D, T: (x: number, z: number) => number, zN: number, zS: number) {
+  const d = (sentinel.userData.pDims ?? {}) as Dims, MH = d.mh ?? 800, wy = d.wy ?? -10, ox = d.ox ?? 0;
+  const bx0 = ox + (d.t0 ?? 5), bx1 = ox + (d.t1 ?? 67);
+  trench.updateMatrixWorld(true);
+  const v = new THREE.Vector3(), inv = new THREE.Matrix4();
+  for (const o of trench.children) {
+    const mesh = o as THREE.Mesh; if (!mesh.isMesh || o === sentinel) continue;
+    const pa = mesh.geometry.attributes.position as THREE.BufferAttribute; inv.copy(mesh.matrixWorld).invert();
+    const W = new Map<number, number>(), Wat = (z: number) => { const k = Math.round(z / 4); let w = W.get(k); if (w === undefined) { w = Math.min(wy, Math.min(T(bx0, k * 4), T(bx1, k * 4)) - 0.35); W.set(k, w); } return w; };
+    for (let i = 0; i < pa.count; i++) {
+      v.fromBufferAttribute(pa, i).applyMatrix4(mesh.matrixWorld);
+      const past = v.z < 0 ? -v.z : v.z > MH ? v.z - MH : 0; if (!past) continue;
+      const t = T(v.x, v.z), w = Wat(v.z), y = v.y;
+      const yn = y >= 0 ? t + y : y >= wy ? t + (y / wy) * (w - t) : w + (y - wy);
+      v.y = y + (yn - y) * smooth(0, 40, past); v.applyMatrix4(inv); pa.setXYZ(i, v.x, v.y, v.z);
+    }
+    // past where the land meets the water nothing of the trench is left
+    for (let t = 0; t + 2 < pa.count; t += 3) {
+      let zs = 0; for (let k = 0; k < 3; k++) zs += v.fromBufferAttribute(pa, t + k).applyMatrix4(mesh.matrixWorld).z;
+      if (zs / 3 < zN || zs / 3 > zS) for (let k = 1; k < 3; k++) pa.setXYZ(t + k, pa.getX(t), pa.getY(t), pa.getZ(t));
+    }
+    pa.needsUpdate = true; mesh.geometry.computeVertexNormals(); mesh.geometry.computeBoundingSphere();
+  }
 }
 /** The Luna in its trench (origin on the terrace west of it): sedge banks from the bank tops `t0`/`t1` down to the water
  *  edges `wx0`/`wx1` (x, local ft), black water at `wy` running from `z0` to `z1` (past the map's edges `mz0`/`mz1`,
@@ -333,9 +519,18 @@ export function riverTrench(d: Dims): THREE.Group {
   g.add(new THREE.Mesh(tris(lip), mat(C.sedge)), new THREE.Mesh(tris(face), mat(C.bankEarth)), new THREE.Mesh(tris(faceD), mat(C.bankDark)), new THREE.Mesh(tris(foot), mat(C.bankMud)));
   // past the map's north and south edges the terrace and the east bank are drawn here (the land there is cut away)
   const X0 = (d.cx0 ?? ox - 35) - ox, X1 = (d.cx1 ?? ox + 71) - ox, GR = FLOOR_COLOR.grass;
-  for (const [za, zb] of [[z0, mz0], [mz1, z1]]) g.add(flat([[X0, za], [t0, za], [t0, zb], [X0, zb]], -0.36, GR), flat([[t1, za], [X1, za], [X1, zb], [t1, zb]], -0.36, GR));
+  // (a grid, so the sentinel can lay these lengths onto the land, which falls away past the edges: see fitTrench)
+  const sheet = (xa: number, xb: number, za: number, zb: number, y: number, dx: number, dz: number) => {
+    const v: THREE.Vector3[] = [], nx = Math.max(1, Math.round((xb - xa) / dx)), nz = Math.max(1, Math.round((zb - za) / dz));
+    for (let i = 0; i < nx; i++) for (let k = 0; k < nz; k++) {
+      const a = lerp(xa, xb, i / nx), b = lerp(xa, xb, (i + 1) / nx), c = lerp(za, zb, k / nz), e = lerp(za, zb, (k + 1) / nz);
+      v.push(V(a, y, c), V(b, y, c), V(b, y, e), V(a, y, c), V(b, y, e), V(a, y, e));
+    }
+    return upTris(v);
+  };
+  for (const [za, zb] of [[z0, mz0], [mz1, z1]]) g.add(new THREE.Mesh(sheet(X0, t0, za, zb, -0.36, 10, 8), mat(GR)), new THREE.Mesh(sheet(t1, X1, za, zb, -0.36, 4, 8), mat(GR)));
   // the water: black and slow, the overcast laid on it in long faint lenses, a few flecks of foam and leaves riding it
-  g.add(flat([[wx0 - 1.5, z0], [wx1 + 1.5, z0], [wx1 + 1.5, z1], [wx0 - 1.5, z1]], WY, C.water));
+  for (const [za, zb] of [[z0, mz0], [mz0, mz1], [mz1, z1]]) g.add(new THREE.Mesh(sheet(wx0 - 1.5, wx1 + 1.5, za, zb, WY, 11, za === mz0 ? 400 : 8), mat(C.water)));
   for (let i = 0; i < 22; i++) {
     const cx = lerp(wx0 + 4, wx1 - 4, hash(i, 5)), cz = lerp(z0 + 60, z1 - 60, hash(i, 6)), L = 40 + hash(i, 7) * 110, w = 1.2 + hash(i, 8) * 3.5, pts: P2[] = [];
     for (let k = 0; k <= 8; k++) pts.push([cx - w * Math.sin((k / 8) * Math.PI), cz - L / 2 + (k / 8) * L]);
@@ -369,7 +564,7 @@ export function riverTrench(d: Dims): THREE.Group {
     const end = i % 2 ? gz0 + 6 + hash(i, 64) * 30 : gz1 - 6 - hash(i, 64) * 30, x = lerp(gx0 + 3, gx1 - 3, hash(i, 65));
     tuft(sg, x, gh(x, end) + 0.02, end, 3.6 + hash(i, 66) * 1.6, [C.reed, C.reedDry], i * 11, 7, 1.1, 0.1);
   }
-  g.add(landClip(d.cx0 ?? ox - 35, d.cx1 ?? ox + 71, d.cz0 ?? oz + z0, d.cz1 ?? oz + z1));
+  g.add(landClip(d, d.cx0 ?? ox - 35, d.cx1 ?? ox + 71, d.cz0 ?? oz + z0, d.cz1 ?? oz + z1));
   return g;
 }
 

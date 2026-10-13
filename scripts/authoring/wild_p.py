@@ -17,10 +17,10 @@ The X-to-terrace fall the brief describes (about 12 ft over 900 ft, a 1-in-75 gr
 whole play surface is one level; the trench, the arches and the river keep the brief's heights relative to the
 terrace: the water 10 ft down, the main arch's soffit 8 ft over it. Only keys, names, pages, distances and
 placements come from the book; every description is our own words."""
-import math, os, sys
+import json, math, os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from wildlib import *  # noqa: F401,F403
-from wildlib import Site, Level, catmull, ribbon, inside, rnd, heading, facing, turn, blob, along, line_dist, seg_dist
+from wildlib import ROOT, Site, Level, catmull, ribbon, inside, rnd, heading, facing, turn, blob, along, line_dist, seg_dist
 from collections import OrderedDict
 
 W_FT, H_FT = 1300, 800
@@ -33,7 +33,9 @@ WATER = -10.0                            # the river's surface (the river level'
 TRENCH = dict(wx0=1210, wx1=1250, t0=1200, t1=1262)   # water edges, bank tops
 GULLY = (1166, 1192, 30, 190)           # the dry flood gully under the flood arch (x0, x1, z0, z1)
 GULLY_Y = -4.5
-CLIP = (1160, 1266, -90, 890)         # the column cut out of the land drawn beyond the map (see p-river-trench)
+CLIP = (1160, 1266, -520, 1420)       # the column cut out of the land beyond the map, at most (see p-river-trench: the
+                                      # trench runs on past the edges until the land round the map falls to the water)
+ROAD_CUT, VAL_CUT = 5000, 2700         # the world map's roads give way to this map's own within this many ft (and round Vallaki)
 CROWN = (120.0, 330.0)
 
 
@@ -103,6 +105,67 @@ def trim(line, d0=0.0, d1=0.0):
     return out
 
 
+def bez(p0, b0, p3, b3, k=0.34, n=24):
+    """a cubic from p0 leaving on compass bearing b0 to p3 arriving on bearing b3, handles k of the chord"""
+    L = math.hypot(p3[0] - p0[0], p3[1] - p0[1]) * k; u, v = bear(b0), bear(b3)
+    p1, p2 = (p0[0] + u[0] * L, p0[1] + u[1] * L), (p3[0] - v[0] * L, p3[1] - v[1] * L)
+    out = []
+    for i in range(n + 1):
+        t = i / n; a, b, c, e = (1 - t) ** 3, 3 * t * (1 - t) ** 2, 3 * t * t * (1 - t), t ** 3
+        out.append((a * p0[0] + b * p1[0] + c * p2[0] + e * p3[0], a * p0[1] + b * p1[1] + c * p2[1] + e * p3[1]))
+    return out
+
+
+def surroundings():
+    """The roads and the river carried on past the map's edges, in world feet (map origin), for p-river-trench to lay on
+    the land the backdrop draws round the map. The backdrop centres the world map's pin on the map's middle, so its own
+    roads meet in a phantom junction off the west edge and its river runs 600 ft east of ours: near the map they give way
+    (inside ROAD_CUT of the map's edges, VAL_CUT of Vallaki as drawn) and these lines join them where they carry on."""
+    w = json.load(open(os.path.join(ROOT, 'locations', 'ch02', 'barovia-region', 'world.json')))
+    pin = next(p for p in w['pins'] if p['key'] == 'P')['pos']; cx, cz = W_FT / 2, H_FT / 2
+    toP = lambda q: ((q[0] - pin[0]) * 5280 + cx, (q[1] - pin[1]) * 5280 + cz)
+    md = lambda x, z: max(0, -x, x - W_FT, -z, z - H_FT)
+    # Vallaki where the backdrop draws it: pulled in toward the map (render/backdrop.ts, pull())
+    vp = toP(next(p for p in w['pins'] if p['key'] == 'N')['pos']); dx, dz = vp[0] - cx, vp[1] - cz; dd = math.hypot(dx, dz)
+    f = 1 if dd <= 3000 else (3000 + (dd - 3000) * 0.42) / dd; VAL = (cx + dx * f, cz + dz * f)
+    cut = lambda x, z: md(x, z) < ROAD_CUT or math.hypot(x - VAL[0], z - VAL[1]) < VAL_CUT
+    joins = []                                  # where a world road leaves the cut: (point, compass bearing onward)
+    for r in w['roads']:
+        pts = [toP(q) for q in r['pts']]
+        for a, b in zip(pts, pts[1:]):
+            ia = cut(*a)
+            if ia == cut(*b): continue
+            lo, hi = 0.0, 1.0
+            for _ in range(40):
+                m = (lo + hi) / 2; q = (a[0] + (b[0] - a[0]) * m, a[1] + (b[1] - a[1]) * m)
+                if cut(*q) == ia: lo = m
+                else: hi = m
+            o = b if ia else a
+            joins.append((q, math.degrees(math.atan2(o[0] - q[0], -(o[1] - q[1]))) % 360))
+    sw = min(joins, key=lambda j: j[0][0])                       # the road on toward Krezk and the Argynvostholt branch
+    east = max(joins, key=lambda j: j[0][0])                     # the Old Svalich Road leaving Vallaki for the east
+    lines = OrderedDict()
+    ev = (1300.0, 87.6); u = (VAL[0] - ev[0], VAL[1] - ev[1]); L = math.hypot(*u); toV = math.degrees(math.atan2(u[0], -u[1])) % 360
+    lines['ne'] = bez(ev, 80, (VAL[0] - u[0] / L * 900, VAL[1] - u[1] / L * 900), toV, 0.3)     # over the bridge to Vallaki's west gate
+    lines['ve'] = bez((VAL[0] + 900, VAL[1]), 90, east[0], east[1], 0.34, 16)                    # and on from its east side
+    lines['sw'] = bez((0.0, 563.0), 242, sw[0], sw[1], 0.34, 32)
+    lines['nw'] = bez((0.0, 170.0), 300, (-2010, -720), 282, 0.34, 20)                         # the cart-track, fading to a trail
+    lines['se'] = bez((556.0, 800.0), 160, (1100, 3120), 170, 0.34, 20)                       # the Berez trail down the river
+    # the Luna: north out of Lake Zarovich's south shore, south to where the region's river ribbon carries on
+    luna = max((r for r in w['rivers'] if r.get('name') == 'Luna River'), key=lambda r: len(r['pts']))
+    rp = [toP(q) for q in luna['pts']]
+    lk = next(l for l in w['lakes'] if 'Zarovich' in l['name']); lc = toP(lk['center']); rx, rz = lk['r'][0] * 5280, lk['r'][1] * 5280
+    top = rp[0]; shore = lc[1] + rz * math.sqrt(max(0.0, 1 - ((top[0] - lc[0]) / rx) ** 2))
+    RB = (260.0, 2666.0, shore - 400, 3490.0)                    # the region ribbon is hidden in this box
+    a, b = rp[0], rp[1]; t = (RB[3] - a[1]) / (b[1] - a[1]); js = (a[0] + (b[0] - a[0]) * t, RB[3])
+    jb = math.degrees(math.atan2(rp[2][0] - b[0], -(rp[2][1] - b[1]))) % 360
+    lines['rn'] = catmull([(1230, -90), (1234, -420), (1300, -900), (1560, -1700), (1900, -2600), (top[0] - 10, top[1]), (top[0], top[1] - 1300), (top[0], shore - 180)], 8)
+    lines['rs'] = catmull([(1230, 890), (1234, 1180), (1300, 1700), (1480, 2500), (js[0] - 40, 3200), js, (js[0] + bear(jb)[0] * 40, js[1] + bear(jb)[1] * 40)], 8)
+    d = OrderedDict(mw=W_FT, mh=H_FT, cut=ROAD_CUT, vcut=VAL_CUT, vx=rnd(VAL[0], 1), vz=rnd(VAL[1], 1), rbx0=RB[0], rbx1=RB[1], rbz0=rnd(RB[2], 1), rbz1=RB[3])
+    for k, pts in lines.items(): d.update(line_dims(thin(pts, 30), (0, 0), k))
+    return d
+
+
 def build():
     s = Site('P', 'Luna River Crossroads', W_FT // 5, H_FT // 5, 1031)
     lv = s.lv; lv.id, lv.name, lv.ceiling = 'ground', 'Crossroads shoulder and terrace', 18
@@ -127,6 +190,10 @@ def build():
     s.patch(CP([(TRENCH['t1'], 0), (W_FT, 0), (W_FT, H_FT), (TRENCH['t1'], H_FT)]), 'grass')
     # the bridge's footprint carries the ground across the trench and the gully (its slab lies inside the masonry)
     s.patch(CP([ax(-10, -7.3), ax(90, -7.3), ax(90, 7.3), ax(-10, 7.3)]), 'marsh')
+    # the ground level's grid: the land either side of the trench and the bridge deck over it (the channel is the
+    # river level's floor, 10 ft down)
+    s.walk = [CP([(0, 0), (TRENCH['t0'], 0), (TRENCH['t0'], H_FT), (0, H_FT)]), CP([(TRENCH['t1'], 0), (W_FT, 0), (W_FT, H_FT), (TRENCH['t1'], H_FT)]),
+              CP([ax(-12, -7.5), ax(92, -7.5), ax(92, 7.5), ax(-12, 7.5)])]
     # trees keep off the terrace, the trench and the gully
     keep([(EDGE[0][0] - 8, -5)] + [(x - 8, z) for x, z in EDGE] + [(EDGE[-1][0] - 8, H_FT + 5), (TRENCH['t1'] + 4, H_FT + 5), (TRENCH['t1'] + 4, -5)])
 
@@ -136,6 +203,7 @@ def build():
              z0=CLIP[2] - ta[1], z1=CLIP[3] - ta[1], mz0=-ta[1], mz1=H_FT - ta[1], wy=WATER,
              gx0=g0 - ta[0], gx1=g1 - ta[0], gz0=gz0 - ta[1], gz1=gz1 - ta[1], gy=GULLY_Y,
              cx0=CLIP[0], cx1=CLIP[1], cz0=CLIP[2], cz1=CLIP[3], ox=ta[0], oz=ta[1], bx=MAIN_X, brot=BROT, bax=BR[0], baz=BR[1])
+    d.update(surroundings())
     o = P('p-river-trench', *ta, dims=d, label='The Luna River', desc='A dark, slow river forty feet wide, sliding south in a trench below sedge banks; no rapids, no sound but a low hush.')
     o['vis'] = 'explored'
 
