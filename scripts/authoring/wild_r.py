@@ -20,7 +20,8 @@ from collections import OrderedDict
 W, H = 124, 108
 WF, HF = W * 5, H * 5
 EXT = 300                       # ft the bench is built out past the map edge, so the land beyond never shows a step
-GRASS, EARTH, WATER = 0x3d5241, 0x4f4335, 0x3e5566
+GRASS, EARTH, WATER, SHINGLE = 0x3d5241, 0x4f4335, 0x3e5566, 0x4a4b40
+DIRT, GRAVEL = 0x66584a, 0x6b675f
 
 
 def P(x, z): return (x / 5, z / 5)
@@ -53,13 +54,18 @@ def clip_rect(poly, x0, z0, x1, z1):
 
 # ================================================================== the river
 RIVER = [(338, -340), (336, -160), (335, -40), (335, 0), (330, 40), (321, 80), (309, 118), (297, 152), (285, 190), (271, 235),
-         (255, 280), (238, 315), (208, 343), (160, 362), (100, 376), (45, 385), (0, 390), (-60, 396), (-340, 420)]
+         (255, 280), (238, 315), (208, 343), (160, 362), (100, 376), (45, 385), (0, 390),
+         # beyond the west edge, on the built-out bench: the river swings south and runs into the region map's own
+         # Raven River (world.json: (2.63, 4.09) to (2.27, 4.69), a straight line SSW from under the map) where it
+         # leaves the skirt's south side, so the map's water and the backdrop's are one river
+         (-50, 398), (-98, 425), (-126, 478), (-130, 545), (-112, 620), (-84, 682), (-60, 730), (-47, 770), (-49, 802), (-58, 830), (-82, 870), (-118, 930)]
 FORD = (255, 280)
 
 
 def water_hw(x, z):
     """Half-width of the water (ft): 40 ft through the Notch, 30 at the narrows, 45 at the piles."""
     if z <= 0: return 20.0
+    if x < 0: return max(20.0, 24 - max(0.0, z - 400) / 100)               # off the map: narrowing to the backdrop's 40 ft
     if z <= 152 and x >= 290: return 20 - 5 * z / 152
     if z <= 280: return 15 + 7.5 * (z - 152) / 128
     return 22.5 + min(1.5, (z - 280) / 100)
@@ -97,8 +103,9 @@ def build():
     edge_nw, edge_se = off(hwc, 1), off(hwc, -1)                         # +normal is the north-west bank
     water_l, water_r = off(hw, 1), off(hw, -1)
     E = EXT
-    nw_ext = edge_nw + [(-E - 40, -E - 40)]
-    se_ext = edge_se + [(-E - 40, HF + E), (WF + E, HF + E), (WF + E, -E - 40)]
+    SK = (-E - 40, -E - 40, WF + E, HF + E)                                # the built-out bench (the skirt) round the map
+    nw_ext = edge_nw + [(-E - 40, HF + E + 120), (-E - 40, -E - 40)]       # west of the river: the Krezk side and the south-west corner
+    se_ext = edge_se + [(WF + E, HF + E + 120), (WF + E, -E - 40)]
     nw_map, se_map = clip_rect(nw_ext, 0, 0, WF, HF), clip_rect(se_ext, 0, 0, WF, HF)
     channel_ft = edge_nw + edge_se[::-1]
     water_ft = water_l + water_r[::-1]
@@ -125,11 +132,28 @@ def build():
     # the bench itself: earth from the land's level (-6.4) to just under the turf, then a turf lip; built out past the
     # edges so the river cut runs on into the haze
     for poly in (nw_ext, se_ext):
+        poly = clip_rect(poly, *SK)
         prism(river_lv, poly, 5.2, -0.4, EARTH)
         prism(river_lv, poly, 0.9, 4.8, GRASS)
-    # the river beyond the map: water in the cut as far as the bench is built out
-    for part in (clip_rect(water_ft, -E - 40, -E - 40, WF + E, 0), clip_rect(water_ft, -E - 40, 0, 0, HF + E)):
-        if len(part) >= 3: prism(river_lv, part, 0.55, -0.5, WATER)
+    # the river beyond the map: shingle on the floor of the cut and water in it as far as the bench is built out.
+    # North of the map it is one reach. West of it the water is laid in six reaches, each a few inches higher and a
+    # shade lighter than the last, so that where it leaves the skirt it stands just over the region map's own river
+    # ribbon (whose land rises south of the map to about 3.5 ft under the bench) and matches its colour.
+    for x0, z0, x1, z1 in ((SK[0], SK[1], SK[2], 0),):
+        prism(river_lv, clip_rect(channel_ft, x0, z0, x1, z1), 0.5, -0.7, SHINGLE)
+        prism(river_lv, clip_rect(water_ft, x0, z0, x1, z1), 0.55, -0.5, WATER)
+    west = [i for i, (x, z) in enumerate(line_ft) if x < 0 and z > 0]
+    i_a, i_b = west[0] - 1, west[-1]
+    NSEG = 6
+    cuts = [i_a + round((i_b - i_a) * k / NSEG) for k in range(NSEG + 1)]
+    lerp = lambda a, b, f: sum(int(((a >> sh) & 255) + (((b >> sh) & 255) - ((a >> sh) & 255)) * f) << sh for sh in (16, 8, 0))
+    for k in range(NSEG):
+        a, b = cuts[k], cuts[k + 1]
+        f = k / (NSEG - 1); top = 3.2 * f                                   # ft above the map's water
+        ch = edge_nw[a:b + 1] + edge_se[a:b + 1][::-1]
+        wa = water_l[a:b + 1] + water_r[a:b + 1][::-1]
+        prism(river_lv, clip_rect(ch, SK[0], 0, 0, SK[3]), 0.5, top - 0.7, lerp(SHINGLE, 0x5a5d52, f))
+        prism(river_lv, clip_rect(wa, SK[0], 0, 0, SK[3]), 0.55, top - 0.5, lerp(0x4b5c6b, 0x5c7b92, f))
 
     # ------------------------------------------------------------------ the bridge (on the riverbed level, standing up through the bench)
     BC = (297, 153)                                                        # the crossing: the narrows under the arch
@@ -214,6 +238,62 @@ def build():
     s.patch(blob(*P(*J), 5.2, 6, sx=1.15), 'dirt')
     s.patch(blob(*P(*EJ), 3.6, 9, sx=1.2), 'dirt')
     s.clear(*P(*J), 3); s.clear(*P(*EJ), 3)
+
+    # ---- the roads carried across the skirt to the region map's own roads. The backdrop starts each world road
+    # through this site at the far end of a road on the scene's first outdoor level (the riverbed here) in that road's
+    # direction, so a short dirt stub under the bench marks where the Krezk, Vallaki and Tsolenka roads leave the map;
+    # on the skirt each road then runs on the backdrop's line to where the backdrop's own ribbon comes out from under it.
+    # The winery trail and the tower path have no road on the region map: they run out to the skirt's edge and stop.
+    world = json.load(open(os.path.join(ROOT, 'locations', 'ch02', 'barovia-region', 'world.json')))
+    pin = next(q['pos'] for q in world['pins'] if q['key'] == 'R')
+    CX, CZ, RAD = WF / 2, HF / 2, math.hypot(WF, HF) / 2                    # the backdrop's centre and radius (the map rectangle)
+    ft = lambda line: [(x * 5, z * 5) for x, z in line]
+    def stub(line, hw_ft):
+        pts = ft(line)
+        while len(pts) > 2 and math.hypot(pts[1][0] - pts[-1][0], pts[1][1] - pts[-1][1]) > 30: pts = pts[1:]
+        return clip_rect(ribbon(pts, hw_ft), 0, 0, WF, HF)
+    exits = []                                                             # (line ft, hw, clip rect beyond the map edge, colour)
+    for line, hw_ft, beyond, col in ((krezk, 7, (SK[0], SK[1], 0, SK[3]), DIRT), (vallaki, 8, (WF, SK[1], SK[2], SK[3]), DIRT),
+                                     (tsolenka, 6, (SK[0], HF, SK[2], SK[3]), GRAVEL)):
+        st = stub(line, hw_ft)
+        river_lv.terrain.append((cells(st), 'dirt'))
+        exits.append((ft(line), hw_ft, beyond, col, st))
+    def exit_for(b):
+        ux, uz = math.cos(b), math.sin(b)
+        best = max(exits, key=lambda e: max((x - CX) * ux + (z - CZ) * uz for x, z in e[4]))
+        mx = max((x - CX) * ux + (z - CZ) * uz for x, z in best[4])
+        far = [q for q in best[4] if (q[0] - CX) * ux + (q[1] - CZ) * uz > mx - 6]
+        return best, (sum(q[0] for q in far) / len(far), sum(q[1] for q in far) / len(far))
+    done = set()
+    for wr in world['roads']:
+        ds = [math.hypot(q[0] - pin[0], q[1] - pin[1]) * 5280 for q in wr['pts']]
+        near = ds.index(min(ds))
+        if ds[near] > 0.5 * 5280: continue
+        for half in (wr['pts'][:near + 1][::-1], wr['pts'][near:]):
+            out = [(CX + (q[0] - pin[0]) * 5280, CZ + (q[1] - pin[1]) * 5280) for q in half]
+            out = [q for q in out if RAD + 150 < math.hypot(q[0] - CX, q[1] - CZ) < 70000]
+            if not out: continue
+            (line, hw_ft, beyond, col, _), e = exit_for(math.atan2(out[0][1] - CZ, out[0][0] - CX))
+            key = (rnd(e[0]), rnd(e[1]), rnd(out[0][0]), rnd(out[0][1]))
+            if key in done: continue
+            done.add(key)
+            u = unit(out[0][0] - e[0], out[0][1] - e[1])
+            k = max(i for i in range(len(line)) if math.hypot(line[i][0] - line[-1][0], line[i][1] - line[-1][1]) > 25)
+            ctrl = [line[k], e] + [(e[0] + u[0] * d, e[1] + u[1] * d) for d in (60, 140, 240, 340, 440, 560)]
+            sk = catmull(ctrl, 6)
+            # three lengths, each a shade nearer the region map's road colour where it comes out from under the skirt
+            out_i = [i for i, q in enumerate(sk) if not (0 <= q[0] <= WF and 0 <= q[1] <= HF)]
+            i0 = max(0, out_i[0] - 1); n3 = (len(sk) - i0) // 3
+            for m in range(3):
+                sub = sk[i0 + m * n3: (i0 + (m + 1) * n3 + 1) if m < 2 else len(sk)]
+                poly = clip_rect(ribbon(sub, hw_ft + (8 - hw_ft) * min(1, (m + 0.5) / 2.5)), *beyond)
+                if len(poly) >= 3: prism(river_lv, poly, 0.12, 5.7, lerp(col, 0x786a58 if col == DIRT else 0x7a7468, (m + 1) / 3))
+    for line, hw_ft, beyond, n_out in ((winery_trail, 3.5, (SK[0], HF, SK[2], SK[3]), [(118, 600), (98, 680), (84, 760), (76, 860)]),
+                                       (tower, 3, (SK[0], SK[1], SK[2], 0), [(544, -60), (566, -140), (592, -230), (618, -360)])):
+        lf = ft(line)
+        sk = catmull([lf[-3], lf[-1]] + n_out, 6)
+        poly = clip_rect(ribbon(sk, lambda f, h=hw_ft: h * (1 - 0.35 * f)), *beyond)
+        if len(poly) >= 3: prism(river_lv, poly, 0.1, 5.7, DIRT)
 
     # ---- the signpost and the junction
     SP = (358, 280)
@@ -454,8 +534,8 @@ def build():
     s.hidden('r-prints', P(*shelf_pt('east', 0.62, 0.0)), 'Scuffs on the ledge path', 'Scuff marks', rot=heading(*shelves['east'][5]), dims={'len': 30, 'mode': 1},
              desc='Claw scrapes and boot scuffs in the green slime along the brink.',
              dm='Wereravens and werewolves both use this path to skirt the crossroads; fresh scrapes mean the pack passed within the day.', id='ledge-scuffs')
-    for i, (ax, az) in enumerate(((0.55, -0.45), (0.35, -0.3))):
-        s.mob('werewolf-human', P(*shelf_pt('east', ax, az)), 'Werewolf posing as a trapper', 'A trapper', rot=facing(-0.7, 0.7), id=f'trapper-{i + 2}',
+    for i, p in enumerate(((360, 30), (368, 42))):                         # on the ledge path, inside R-ledge
+        s.mob('werewolf-human', P(*p), 'Werewolf posing as a trapper', 'A trapper', rot=facing(-0.7, 0.7), id=f'trapper-{i + 2}',
               dm='Within whistling distance of the one on the bridge, on the ledge path above the Throat.' if i == 0 else None)
     s.mob('r-bat-swarm', P(334, 58), 'Swarm of bats (Strahd\'s spy)', 'A knot of bats', y=2, dims={'y': 2}, id='bats',
           dm='Night result 9, or the dusk and dawn spy check (p.29): bats pour out of the Notch at dusk and over the bridge. The spy\'s goal is to escape with a report or snatch an item.')
