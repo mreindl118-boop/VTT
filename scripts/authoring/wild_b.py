@@ -25,14 +25,6 @@ def build():
     piers = Level('piers', 'Pier tops', 34, 8, ambient=AMB, interior='rubble', exterior='rubble', north='-z')
     crags = Level('crags', 'Crag lips of the cutting', 14, 8, ambient=AMB, interior='rubble', exterior='rubble', north='-z')
 
-    def on(level, kind, pos, label=None, player=None, vis='player', rot=0, dims=None, y=0, size=None, desc=None, dm=None, key='B'):
-        level.obj(s.uid(kind), kind, (rnd(pos[0]), rnd(pos[1])), vis, key, label, rotY=rnd(rot, 1), dims=dims, y=y, size=size)
-        o = level.objects[-1]
-        if player: o['playerLabel'] = player
-        if desc: o['desc'] = desc
-        if dm: o['dm'] = dm
-        return o
-
     # ---------------------------------------------------------------- the Old Svalich Road
     road = s.road([(32, 80), (35.8, 73.4), (39.5, 67), (43.4, 60.3), (46.7, 54), (50, 48), (54.5, 45.3), (59.4, 43.1), G, (68.6, 38.9), (72.5, 37.7), (76, 37.1), (84, 37), (96, 37), (108, 37), (120, 37)], 2.0)
     # the side path from the road up to the lodge ruin
@@ -41,7 +33,7 @@ def build():
 
     # ---------------------------------------------------------------- the gate: piers, leaves, sill
     Pn, Ps = P(0, -18.8), P(0, 18.8)
-    s.prop('b-gate-pier', Pn, rot=ROT, dims={'w': 12, 'h': 34, 's': 1, 'litter': 1}, label='North pier', key='B',
+    s.prop('b-gate-pier', Pn, rot=ROT, dims={'w': 12, 'h': 34, 's': 1, 'litter': 1, 'marks': 1}, label='North pier', key='B',
            desc='A stepped buttress of grey stone, twelve feet square and six times the height of a man, capped with a pyramid. Its east face is bleached chalk-white; its west face is green with moss. Shield-sized iron plates hold the hinge, rust bleeding down the stone beneath them.')
     s.prop('b-gate-pier', Ps, rot=ROT, dims={'w': 12, 'h': 34, 's': -1}, label='South pier', key='B',
            desc='The twin of the north pier: chalk-white toward the fog, mossed toward the valley, with the same iron hinge plates on its inner corner.')
@@ -158,8 +150,9 @@ def build():
               dm='Twenty wolves join the dire wolves only if the party is trying to leave Barovia (p.34); they stop when it turns back toward the village.' if i == 0 else None)
     s.mob('swarm-of-ravens', P(-6.35, 0), 'Swarm of ravens', 'Ravens', y=19.6, key='B',
           dm='Random-encounter watcher (p.32): a raven follows at a distance, then more; left alone they shadow the party and harry its enemies in any hostile encounter; they fly off if attacked.')
-    on(piers, 'b-raven', (Pn[0] + 0.75, Pn[1] + 0.75), 'Wereraven (raven form)', 'A raven', vis='hidden-creature', size='tiny', rot=ROT,
-       dm='Random-encounter watcher (p.32): Stealth against passive Perception. It circles above the cutting, perches here on the north cap, shadows the party for 1d4 hours, then flies home to the Keepers of the Feather. Free foreshadowing that pays off at Vallaki.')
+    # on the day level (the stacked view fades hidden figures on the current level only), standing on the north cap's east edge
+    s.mob('b-raven', P(3.9, -22.4), 'Wereraven (raven form)', 'A raven', size='tiny', rot=ROT, y=34, key='B',
+          dm='Random-encounter watcher (p.32): Stealth against passive Perception. It circles above the cutting, perches here on the north cap, shadows the party for 1d4 hours, then flies home to the Keepers of the Feather. Free foreshadowing that pays off at Vallaki.')
     # the Vistani caravan, only if the party arrived with Stanimir's people: lead wagon at the gate line
     van = [(P(6, 0), heading(*u)), (P(50, 0.5), heading(*u)), ((84, 37.1), 0)]
     for i, (vp, vr) in enumerate(van):
@@ -175,15 +168,16 @@ def build():
               dm=('Stanimir (p.20): the storyteller who brought the party in; friendly here. Use bandit statistics only if it comes to blows.' if name == 'Stanimir' else 'Ratka and nine other Vistani with the wagons; friendly (bandit statistics if needed).' if name == 'Ratka' else None))
 
     # ---------------------------------------------------------------- the woods
-    near = lambda x, z: (1.4, 1.9) if line_dist((x, z), road) < 8 and x < 84 else None
-    dens = lambda x, z: 0.45 if x > 92 else 1.0
+    near = lambda x, z: (1.25, 1.6) if line_dist((x, z), road) < 9 and x < 84 else None
+    verge = lambda x, z: x < 86 and line_dist((x, z), road) < 5.1        # 10 ft half-road + 15.5 ft of verge, in cells
+    dens = lambda x, z: 0.0 if verge(x, z) else 0.45 if x > 92 else 1.0
     s.pines(5600, density=dens, gap=2.3, margin=1.1, scale=(1.0, 1.6), giant=near)
     s.undergrowth(bushes=55, boulders=12, dead=2, stumps=4, logs=5, density=lambda x, z: (1.0 if line_dist((x, z), road) < 12 else 0.4) * (0.3 if x > 90 else 1))
     s.scatter('weeds', 10, lambda x, z: 1.0 if math.hypot(x - G[0], z - G[1]) < 9 else 0.0, margin=0.3, gap=1.2, dims={'n': 4, 'r': 1.4}, circles=False)
 
     # ---------------------------------------------------------------- keyed areas, notes, levels
     s.room('B', 'Gates of Barovia', oriented_rect(G[0], G[1], u[0], u[1], 15, 10), 'grass',
-           'Behind you the fog pours out of the forest and swallows the road. Ahead, two tall stone piers jut out of trees so close they make a wall, chalk-white on the side that faces the fog and green on the side that faces the valley, and between them hang two huge leaves of rusted iron, dew dripping from every bar. Two stone warriors flank the way, both headless, their heads in the weeds at their feet. The only sound is water dripping from iron.',
+           'A pair of square stone piers stands across the road, taller than the pines and each topped with a squat pyramid. Their eastern sides are scoured pale as old bone; their sides toward the valley are furred green. Two leaves of rust-brown iron bars hang between them over the one stretch of paving for miles, flagstones with two curves rubbed glassy where the leaves drag. A line of ravens sits along the top bar, all turned one way, making no sound. On plinths outside the piers two stone soldiers, sword and spear, keep watch eastward with nothing above their collars. To the east the fog leans against the stone like floodwater against a dam.',
            'On foot the gates screech open as the party approaches and shut behind it; with Vistani wagons they open before the lead wagon and close after the last (pp.33-34). This is the eastern gate: it will not open for anyone leaving unless Vistani are with them, and the Mists choke non-Vistani who pass the bars or skirt the piers while it is closed. No scripted fight: the danger is the wolves (area C rule, p.34) if the party lingers in the trees. The flagstone sill, the wall stubs, the pier tops and the crag lips are the places to make a stand. If Strahd is destroyed the gates stand open and the road east clears of fog.')
     s.room('B-lodge', 'Keeper\'s lodge', oriented_rect(lodge[0], lodge[1], 0.952, -0.305, 2, 1.6), 'dirt',
            'The footings of a small lodge, knee-high and mossed, with a hearth stack at one end. Nobody has kept this gate in living memory.',
@@ -191,7 +185,7 @@ def build():
     s.room('B-causeway', 'Corduroy causeway', oriented_rect(cause[0], cause[1], cu[0], cu[1], 3.2, 2.3), 'dirt',
            'Logs laid across a black bog carry the road; a dark pool has backed up on the uphill side.', 'Difficult terrain on the logs; the bog either side is deep mud (difficult, and a wagon that leaves the logs is stuck).', difficult=True)
     s.room('B-cutting', 'The rock cutting', [(86, 34.6), (112, 34.2), (112, 39.8), (86, 39.4)], 'dirt',
-           'The road climbs between grey crags into the fog, scree at their feet, dead trees on their lips.', 'The crag tops look down on anyone in the road: DC 12 Strength (Athletics) up the scree, or walk in from the forest edge. East of the gate everything is already in the Mists: DC 20 Constitution save each turn or a level of exhaustion.')
+           'The road climbs between grey crags into the fog, scree at their feet, dead trees on their lips.', 'The cutting is clear road: the party arrives here and walks it to the gate unharmed, the fog at its back. The low tongues that spill onto the road are thin and harmless (lightly obscured at most). The Mists\' rules (DC 20 Constitution save each turn or a level of exhaustion, heavily obscured, always turned back into Barovia) begin only at the fog wall, about 130 ft east of the gate, and once the gate has shut behind the party the fog pours up the road to stand against the bars. The crag tops look down on anyone in the road: DC 12 Strength (Athletics) up the scree, or walk in from the forest edge.')
     for key, pc, nm in (('B-piernorth', Pn, 'North pier top'), ('B-piersouth', Ps, 'South pier top')):
         piers.room(key, nm, oriented_rect(pc[0], pc[1], u[0], u[1], 1.2, 1.2), 'flagstone', page=33)
         s.desc[key] = ('The capped top of the pier, twelve feet square, thirty-four feet above the road: a vantage over the canopy and down the cutting.' + (' Raven droppings, a litter of pellets and a black feather lie about the cap: something perches here often.' if 'north' in key else ''),
@@ -209,7 +203,10 @@ def build():
     lk = lambda id, kind, al, ap, bl, bp: OrderedDict(id=id, kind=kind, **{'from': OrderedDict(level=al, pos=[rnd(ap[0] * 5, 1), rnd(ap[1] * 5, 1)]), 'to': OrderedDict(level=bl, pos=[rnd(bp[0] * 5, 1), rnd(bp[1] * 5, 1)])})
     links = [lk('B-climb-n', 'ladder', 'day', P(9.5, -18.8), 'piers', Pn), lk('B-climb-s', 'ladder', 'day', P(9.5, 18.8), 'piers', Ps),
              lk('B-scree-n', 'ladder', 'day', (92, 35.4), 'crags', (92, 33)), lk('B-scree-s', 'ladder', 'day', (104, 38.8), 'crags', (104, 41.2))]
-    s.write('Gates of Barovia', {'valley': True, 'stacked': 'open', 'entry': 'day'}, levels=[piers, crags], links=links)
+    # The opening shot the site is composed for: up the ruts from the south-west to the piers, the fog wall behind the bars.
+    # (Data only for now: the viewer frames every scene on its rooms from the current bearing; nothing reads `view` yet.)
+    view = OrderedDict(pos=[150, 170, 330], target=[330, 0, 205])
+    s.write('Gates of Barovia', {'valley': True, 'stacked': 'open', 'entry': 'day', 'view': view}, levels=[piers, crags], links=links)
 
 
 if __name__ == '__main__':

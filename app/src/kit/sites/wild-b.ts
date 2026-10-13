@@ -15,7 +15,7 @@ type Dims = Record<string, number>;
 // ---------------------------------------------------------------- colours and what they are made of
 const C = {
   ashlar: '#7a766e', ashlarDeep: '#67635c', chalk: '#cfccc3', chalkDeep: '#b8b5ac', tide: '#dedbd2', paleGrey: '#a3a098',
-  moss: '#3d4a33', blackMoss: '#262c22', lichen: '#6f7a55', damp: '#4f4d47', weed: '#55613a', weedDry: '#7d7a4a',
+  moss: '#3d4a33', blackMoss: '#262c22', lichen: '#6f7a55', mossLit: '#5f7a44', mossMid: '#4c6338', mossDeep: '#36472a', mossStone: '#5f6a50', mossStoneDeep: '#535d46', damp: '#4f4d47', weed: '#55613a', weedDry: '#7d7a4a',
   iron: '#2f3034', ironPale: '#45474d', rust: '#5a3a2a', rustPale: '#7a4a30', brass: '#9a7a3a', dew: '#aeb4ba',
   flag: '#6f757b', flagDeep: '#5c6167', groove: '#3f4347', polish: '#8a9096',
   mud: '#4e4336', mudWet: '#3a3128', bog: '#2a2622', pool: '#15171a', glint: '#5f666c', seep: '#22262a',
@@ -29,7 +29,8 @@ const C = {
 surfaceFor([C.ashlar, C.ashlarDeep, C.chalk, C.chalkDeep, C.tide, C.paleGrey, C.tally, C.tallyNew], 'ashlar');
 surfaceFor([C.statue, C.fieldStone, C.fieldPale, C.groove, C.polish, C.damp], 'stone');
 surfaceFor([C.flag, C.flagDeep], 'flag');
-surfaceFor([C.moss, C.blackMoss, C.lichen, C.weed], 'foliage');
+surfaceFor([C.moss, C.blackMoss, C.lichen, C.weed, C.mossLit, C.mossMid, C.mossDeep], 'foliage');
+surfaceFor([C.mossStone, C.mossStoneDeep], 'ashlar');
 surfaceFor([C.weedDry], 'thatch');
 surfaceFor([C.iron, C.ironPale, C.rust, C.rustPale, C.brass], 'metal');
 surfaceFor([C.mud, C.mudWet, C.bog], 'dirt');
@@ -120,7 +121,8 @@ function wisp(r: number, seed: number, m: THREE.Material): THREE.Mesh {
  *  pyramid finial rises above). Local +x is outside (east): that face is chalk-white where the Mists stand against it,
  *  with the tide-line 10 to 12 ft up; the west face is green with moss. `s` (+1/-1) says which side (local z) the road
  *  is on: the pintle plates and the hinge pin sit on that inner corner's west edge, rust streaking down beneath them.
- *  Stepped buttresses lean on the east and west faces. `litter` 1 strews raven pellets and a feather on the cap. */
+ *  Stepped buttresses lean on the east and west faces. `litter` 1 strews raven pellets and a feather on the cap;
+ *  `marks` 1 leaves the moss off the outer west corner where the notice spike and tally are. */
 export function gatePier(d: Dims): THREE.Group {
   const w = d.w ?? 12, h = d.h ?? 34, s = d.s ?? 1, hw = w / 2, g = grp();
   g.add(box(w + 1.6, 3, w + 1.6, C.ashlarDeep, 0, 1.5, 0), box(w, h - 7, w, C.ashlar, 0, 3 + (h - 7) / 2, 0), box(w + 1, 1, w + 1, C.ashlarDeep, 0, h - 3.5, 0));
@@ -128,18 +130,35 @@ export function gatePier(d: Dims): THREE.Group {
   const cap = cone(w * 0.36, 3, C.ashlarDeep, 0, h + 1.5, 0, 4); cap.rotation.y = Math.PI / 4; g.add(cap, box(w * 0.5, 0.5, w * 0.5, C.ashlarDeep, 0, h + 0.25, 0));
   // the east face: chalk below the tide-line, a sharp pale line at it, grey fading above
   g.add(box(0.2, 8.6, w + 0.1, C.chalk, hw + 0.05, 7.3, 0), box(0.24, 2, w + 0.14, C.tide, hw + 0.07, 11.9, 0), box(0.2, 1.4, w + 0.1, C.chalkDeep, hw + 0.05, 13.6, 0), box(0.16, 5, w + 0.08, C.paleGrey, hw + 0.03, 16.8, 0));
-  // the west face: moss and lichen, a damp dark foot
-  g.add(box(0.16, 2.2, w + 0.08, C.damp, -hw - 0.03, 4.1, 0));
-  for (let k = 0; k < 6; k++) g.add(place(lump(0.9 + hash(k, s) * 1.1, k % 3 ? C.moss : C.blackMoss, k + s * 7, 0.25, 1.1, 1.3, 0), -hw - 0.05, 5 + hash(k, s + 1) * (h - 12), (hash(k, s + 2) - 0.5) * (w - 2)));
-  for (let k = 0; k < 4; k++) g.add(box(0.14, 1 + hash(k, 3) * 2.5, 0.8 + hash(k, 4) * 1.4, C.lichen, -hw - 0.02, 8 + hash(k, 5) * 18, (hash(k, 6) - 0.5) * (w - 3)));
-  // moss creeping round the north/south faces near the foot, lichen higher on the outside corners
-  for (let k = 0; k < 3; k++) g.add(place(lump(0.8 + hash(k, 9) * 0.8, C.moss, k + 20, 1.3, 1, 0.25, 0), (hash(k, 10) - 0.7) * w * 0.6, 3.6 + hash(k, 11) * 4, -s * (hw + 0.04)));
+  // the west face: furred green over most of it, streaks running down from the cap, heaviest and darkest at the foot;
+  // all flush layers a hair proud of the stone. `marks` leaves a scraped bare window where the spike and tally are.
+  const WX = -hw, bare = (z: number) => !!d.marks && -s * z > 2.3;
+  const n = 8, sw = w / n;
+  g.add(box(0.08, 3, w + 1.62, C.mossDeep, -hw - 0.84, 1.5, 0), box(0.9, 0.08, w + 1.62, C.mossMid, -hw - 0.4, 3.04, 0)); // the plinth's west face and ledge
+  for (let i = 0; i < n; i++) {
+    const z = -hw + (i + 0.5) * sw, low = bare(z) ? 8.2 : 3;
+    const midTop = h * (0.5 + hash(i, s + 3) * 0.22), footTop = 9 + hash(i, s + 4) * 5;
+    g.add(box(0.06, midTop - low, sw + 0.02, i % 3 === 1 ? C.mossMid : C.moss, WX - 0.03, (low + midTop) / 2, z));
+    if (footTop > low) g.add(box(0.06, footTop - low, sw * (0.86 + hash(i, s + 5) * 0.14), C.mossDeep, WX - 0.07, (low + footTop) / 2, z));
+    // a streak from under the cornice down toward the green below it
+    const sl = 5 + hash(i, s + 6) * 9, sy = h - 4.1 - sl / 2;
+    g.add(box(0.06, sl, sw * (0.62 + hash(i, s + 7) * 0.4), i % 2 ? C.mossLit : C.lichen, WX - 0.05, sy, z + (hash(i, s + 8) - 0.5) * sw * 0.3));
+  }
+  g.add(box(0.08, 1, w + 1.02, C.mossMid, -hw - 0.54, h - 3.5, 0), box(0.08, 0.6, w + 1.42, C.mossLit, -hw - 0.74, h - 0.6, 0)); // green on the cornice and cap lips
+  for (let k = 0; k < 5; k++) g.add(box(0.06, 0.8 + hash(k, 3) * 1.6, 0.8 + hash(k, 4) * 1.2, C.lichen, WX - 0.09, 9 + hash(k, 5) * 14, (hash(k, 6) - 0.5) * (w - 3)));
+  // moss creeping round the outer (non-road) face near the west corner, flush
+  g.add(box(3.2, 9, 0.06, C.moss, -hw + 1.6, 7.5, -s * (hw + 0.03)), box(1.8, 5, 0.06, C.mossDeep, -hw + 0.9, 5.5, -s * (hw + 0.07)), box(1.4, 6, 0.06, C.mossMid, -hw + 0.7, 15, -s * (hw + 0.05)));
   // stepped buttresses on the road faces (east and west), their tops sloping back to the pier
   for (const sx of [-1, 1]) for (let k = 0; k < 3; k++) {
-    const bh = h * (0.62 - k * 0.18), bd = 2.4, bw = w * 0.36 - k * 0.5, x = sx * (hw + bd / 2 + k * bd), col = sx > 0 ? (k % 2 ? C.chalk : C.chalkDeep) : (k % 2 ? C.ashlar : C.ashlarDeep);
+    const bh = h * (0.62 - k * 0.18), bd = 2.4, bw = w * 0.36 - k * 0.5, x = sx * (hw + bd / 2 + k * bd), col = sx > 0 ? (k % 2 ? C.chalk : C.chalkDeep) : (k % 2 ? C.mossStone : C.mossStoneDeep);
     g.add(box(bd, bh, bw, col, x, bh / 2, 0));
-    const slope = box(bd + 0.3, 1.2, bw + 0.2, C.ashlarDeep, x + sx * 0.1, bh + 0.3, 0); slope.rotation.z = sx * 0.55; g.add(slope);
-    if (sx < 0 && k < 2) g.add(place(lump(0.7, C.blackMoss, k + 30, 0.3, 1, 1.2, 0), x - bd / 2 - 0.05, 2 + k, 0));
+    const slope = box(bd + 0.3, 1.2, bw + 0.2, sx > 0 ? C.ashlarDeep : C.mossLit, x + sx * 0.1, bh + 0.3, 0); slope.rotation.z = sx * 0.55; g.add(slope);
+    if (sx < 0) {
+      // the step's own west face: green to two-thirds up, darkest at the foot; its sides mossed low down
+      const ft = Math.min(bh * 0.35, 6);
+      g.add(box(0.06, bh * 0.68, bw + 0.02, C.moss, x - bd / 2 - 0.03, bh * 0.34, 0), box(0.06, ft, bw + 0.06, C.mossDeep, x - bd / 2 - 0.07, ft / 2, 0));
+      for (const zz of [-1, 1]) g.add(box(bd + 0.02, bh * 0.4, 0.06, C.mossMid, x, bh * 0.2, zz * (bw / 2 + 0.03)));
+    }
   }
   // the pintle plates on the inner west corner: shield-sized iron on both faces, the pin, rust streaking down
   for (const y of [5, 15]) {
