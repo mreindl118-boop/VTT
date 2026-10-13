@@ -70,7 +70,7 @@
      "floor": "plank",
      "ceilingFt": 10,
      "desc": "A cluttered kitchen round a pine worktable, two lanterns above it.",
-     "dm": "The secret door at the west end of the south wall leads up to the hidden hall."
+     "dm": "Near the western corner of the south wall, a concealed doorway leads upstairs into the hidden hall."
     },
     {
      "key": "N2d",
@@ -2429,7 +2429,7 @@
      ],
      "vis": "secret-door",
      "key": "N2e",
-     "label": "A secret door at the west end of the kitchen's south wall: a wooden stair up to the hidden hall",
+     "label": "The kitchen has a concealed doorway near its southwest corner, opening onto wooden steps to the hidden hall",
      "wall": "ground-sd-kitchen-stair"
     },
     {
@@ -3347,7 +3347,7 @@
      "floor": "plank",
      "ceilingFt": 8,
      "desc": "A canopied bed in red silk between end tables; a tapestry of a mountain valley.",
-     "dm": "Secret door to the loft at the west end of the south wall; hidden trapdoor to the attic."
+     "dm": "A concealed doorway near the southwest corner opens into the loft; a hidden hatch reaches the attic."
     },
     {
      "key": "N2o",
@@ -3409,7 +3409,7 @@
      "floor": "plank",
      "ceilingFt": 10,
      "desc": "A balcony the length of the taproom, railings carved with ravens, the rafters in lantern light.",
-     "dm": "15 ft above the taproom; secret door at the south end of the west wall."
+     "dm": "This balcony stands 15 ft over the taproom. A doorway is concealed near the southern corner of its west wall."
     },
     {
      "key": "N2k",
@@ -6481,7 +6481,7 @@
      ],
      "vis": "secret-door",
      "key": "N2j",
-     "label": "Secret door at the south end of the great balcony's west wall into the hidden hall",
+     "label": "Near the southwest corner of the great balcony, a concealed doorway in the west wall reaches the hidden hall",
      "wall": "upper-sd-hall-balcony"
     },
     {
@@ -7575,7 +7575,7 @@
      ],
      "vis": "hidden-object",
      "key": "N2q",
-     "label": "A small square opening in the south wall: raven-sized"
+     "label": "Ravens can pass through a little square aperture in the southern wall"
     },
     {
      "id": "attic-N2q-note",

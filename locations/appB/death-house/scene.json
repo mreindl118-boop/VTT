@@ -6,7 +6,6 @@
  "mapPage": 216,
  "bookScaleFt": 5,
  "ambient": "interior-dim",
- "parent": "ch03/E",
  "stacked": true,
  "levels": [
   {
@@ -134,7 +133,7 @@
       ]
      ],
      "floor": "plank",
-     "desc": "A wide hall with a black marble fireplace at one end and a red marble staircase sweeping up at the other. Carved paneling of vines, nymphs and satyrs.",
+     "desc": "The broad hall ends in a hearth of black marble; opposite it, stairs of red marble sweep upward. Vines and figures of nymphs and satyrs decorate the carved panels.",
      "dm": "DC 12 Perception on the paneling: serpents and skulls hidden in the carving. The paneling follows the stair upward."
     },
     {
@@ -2726,7 +2725,7 @@
       "y": 2.8
      },
      "desc": "A mahogany desk with an oil lamp, ink, quill, tinderbox and a letter kit.",
-     "dm": "The drawer holds an iron key that unlocks the door to area 20. The wooden seal bears the windmill.",
+     "dm": "An iron key in this drawer opens area 20. The wooden seal carries a windmill emblem.",
      "playerLabel": "Desk"
     },
     {
@@ -2759,7 +2758,7 @@
      "dm": "Dart trap is spent. The skeleton clutches a letter under Strahd's seal. Inside: three blank black books (25 gp each), scrolls of bless, protection from poison and spiritual weapon, the deeds to the house and to a windmill, and the Dursts' will.",
      "playerLabel": "Chest and skeleton",
      "container": {
-      "contents": "Three blank books bound in black leather, three spell scrolls, the deed to this house, the deed to a windmill, and a signed will.",
+      "contents": "Black leather covers three unwritten books. Alongside them are three spell scrolls, property deeds for the house and a windmill, and a signed will.",
       "open": true
      }
     },
@@ -4570,7 +4569,7 @@
      "dm": "Box worth 75 gp: three gold rings (25 gp each) and a platinum necklace with a topaz pendant (750 gp).",
      "playerLabel": "Vanity",
      "container": {
-      "contents": "Three gold rings and a thin platinum necklace with a topaz pendant."
+      "contents": "Three rings of gold accompany a delicate platinum necklace hung with topaz."
      }
     },
     {
@@ -11212,7 +11211,7 @@
      "dm": "Cloak of protection, coffer with four potions of healing, chain shirt, mess kit, alchemist's fire, bullseye lantern, thieves' tools, and a wizard's spellbook (1st: disguise self, identify, mage armor, magic missile, protection from evil and good; 2nd: darkvision, hold person, invisibility, magic weapon). Taking anything brings the ghasts out of the walls.",
      "playerLabel": "Footlocker",
      "container": {
-      "contents": "A folded cloak, a small coffer with four potions, a chain shirt, a mess kit, a flask of alchemist's fire, a bullseye lantern, thieves' tools and a spellbook bound in yellow leather."
+      "contents": "A yellow-leather spellbook, thieves' tools, a bullseye lantern and a flask of alchemist's fire share the hoard with a mess kit and chain shirt. A cloak lies folded beside a small coffer containing four potions."
      }
     },
     {
@@ -12578,7 +12577,7 @@
       ]
      ],
      "floor": "dirt",
-     "desc": "Thirteen niches of grisly curios. Here the chant resolves into words: 'He is the Ancient. He is the Land.'",
+     "desc": "Gruesome curios fill thirteen recesses. The chanting praises an ancient master and identifies him with the land itself.",
      "dm": "The relics are worthless. The south tunnel slopes into murky water to a portcullis (37)."
     },
     {
@@ -13867,7 +13866,7 @@
      "rotY": 90,
      "key": "38",
      "desc": "A stone altar carved with grasping ghouls, stained with dried blood. Chains and shackles dangle above it.",
-     "dm": "Climbing the dais summons thirteen harmless apparitions chanting for a sacrifice. A creature must die on the altar, or the cultists rouse Lorghoth."
+     "dm": "Stepping onto the dais calls forth thirteen harmless apparitions demanding a sacrifice. The cultists rouse Lorghoth unless someone kills a creature upon the altar."
     },
     {
      "id": "dungeon-lower-chains",
@@ -14838,6 +14837,7 @@
    }
   }
  ],
+ "parent": "ch03/E",
  "nonSpatialKeys": [
   "1",
   "2",

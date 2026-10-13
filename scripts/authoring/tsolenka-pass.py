@@ -222,7 +222,7 @@ for i, (x, z) in enumerate(OCT):
 for i, (x, z, rot) in enumerate([(51.4, 69.4, 30), (54.8, 70, 110), (52, 73, 200), (54.4, 73.2, 300)]):
     r6.prop(f'T6-skel{i}', 'skeleton', (x, z), 'T6', rotY=rot)
     r6.prop(f'T6-drift{i}', 'snow-drift', (x + 0.3, z + 0.2), 'T6', rotY=rot, dims={'r': 2.6, 'h': 0.9})
-r6.hidden('T6-gear', 'gear-pile', (52, 73), 'T6', 'Under the snow, four guards\' remains: tattered cloth, broken longbows and arrows, rusted blades in ruined sheaths, rusty chain mail')
+r6.hidden('T6-gear', 'gear-pile', (52, 73), 'T6', 'Snow covers the bodies of four guards, their clothing in shreds. Broken bows, loose arrows, corroded swords, torn scabbards and rusty chain mail surround them.')
 for i in range(6):
     a = i / 6 * 2 * math.pi
     r6.creature(f'maiden{i}', 'snow-maiden', (TOWER[0] + math.cos(a) * 1.9, TOWER[1] + math.sin(a) * 1.9), 'T6', 'Snow maiden (specter; cold immune, cold Life Drain): only if the card reading puts a treasure here; it appears in the snow when the last falls')

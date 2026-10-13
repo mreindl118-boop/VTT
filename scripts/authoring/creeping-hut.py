@@ -90,7 +90,7 @@ tag(h, 'gem', playerLabel='Green light between the boards')
 tag(h, 'glyph', playerLabel='A brass-bound chest', vis='trap')
 tag(h, 'claws', playerLabel='Crawling hands')
 tag(h, 'lysaga', playerLabel='An ancient crone')
-tag(h, 'chest', container=OrderedDict(contents="1,300 gp, five 500-gp gemstones, a vial of oil of sharpness, spell scrolls of mass cure wounds and revivify, a pouch of ten +1 sling bullets, a set of pipes of haunting and a stone of good luck.", reveals=['hut-claws']),
+tag(h, 'chest', container=OrderedDict(contents='Five gemstones valued at 500 gp each, 1,300 gp, oil of sharpness in a vial, spell scrolls of mass cure wounds and revivify, a pouch of ten +1 sling bullets, a set of pipes of haunting and a stone of good luck.', reveals=['hut-claws']),
     desc='A barrel-topped wooden chest bound in brass, bolted to the floor.', dm='Glyph of warding (5d8 thunder); four crawling claws inside. A card-reading treasure here would be in it too.')
 tag(h, 'cabinet', container=OrderedDict(contents='Jars and pouches of spell components: dried things, powders, bones and herbs.'), desc='A wicker cabinet, bolted down.')
 tag(h, 'wardrobe', container=OrderedDict(contents='Soiled robes, stiff with old blood.'), desc='A slender wardrobe, leaning, bolted to the floor.')
@@ -100,7 +100,7 @@ tag(h, 'crib', desc='A ghastly wooden crib; an angelic little child sits in it, 
 DESC = {
   'U3-mire': ("Spongy mire round the rotting stump of a giant tree; the hut squats on top, its roots thrust out of the mud like a spider's legs. A hollowed giant's skull floats upside down under the doorway, and two cages of squawking ravens hang from the eaves.",
               "The ravens' racket hides any approach; only the howling skulls (U2) or nearby combat carry over it. If the party overstays, Baba Lysaga wakes the hut: the roots tear free and it walks (creeping hut, CR 11)."),
-  'U3': ('A cramped, reeking room fifteen feet square, crammed with old furniture: a cot, a wicker cabinet, a slender wardrobe, a table and stool, a brass-bound chest, an iron tub stained with blood, and in the middle a ghastly crib with a small angelic child sitting in it. Green light seeps up through the floorboards.',
+  'U3': ('Fifteen feet on each side, this cramped room reeks. A cot and stool stand among a table, wicker cupboard, narrow wardrobe and brass-trimmed chest. Blood stains an iron bathtub. At the centre, a dreadful crib holds an innocent-looking little child. Green light leaks between the floorboards.',
          'All bolted down except the crib. Crib and child are an illusion; the gem lies in a cavity under the boards. Robes in the wardrobe, spell components in the cabinet, treasure in the trapped chest.'),
 }
 levels = [m, h]

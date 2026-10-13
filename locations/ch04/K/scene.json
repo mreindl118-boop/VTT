@@ -10825,7 +10825,7 @@
      ],
      "vis": "secret-door",
      "key": "K72",
-     "label": "A secret door at the north end of the west wall: the western stair (K79) descends",
+     "label": "The west wall conceals a doorway near its northern corner, opening onto the descending western stair (K79)",
      "wall": "larders-sd-K72-west"
     },
     {
@@ -11276,7 +11276,7 @@
      ],
      "vis": "hidden-object",
      "key": "K63",
-     "label": "A crack at the south end of the west wall leads to the high tower stair (K18)"
+     "label": "A fissure near the southern corner of the west wall connects to the high tower stair (K18)"
     },
     {
      "id": "larders-K63-note",
@@ -11596,7 +11596,7 @@
      ],
      "floor": "flagstone",
      "ceilingFt": 15,
-     "desc": "A stone carriage house with hinged wooden doors.",
+     "desc": "Wooden doors swing on hinges across the entrance to this stone carriage house.",
      "dm": "The black carriage with glass windows and brass lanterns; the horses are elsewhere."
     },
     {
@@ -34332,7 +34332,7 @@
      ],
      "vis": "secret-door",
      "key": "K39",
-     "label": "A secret door at the west end of the hall of webs (one-way from the false treasury)",
+     "label": "The web-filled hall has a concealed doorway at its western end; it opens only from the false treasury",
      "wall": "weeping-sd-webs-west"
     },
     {
@@ -34345,7 +34345,7 @@
      ],
      "vis": "secret-door",
      "key": "K39",
-     "label": "A narrow secret door behind webs at the west end of the south wall",
+     "label": "Webs conceal a slim doorway near the western corner of the south wall",
      "wall": "weeping-sd-webs-south"
     },
     {
@@ -34788,7 +34788,7 @@
      ],
      "vis": "dm-note",
      "key": "K46",
-     "label": "Battlemented walkways; windows into the keep are shut and locked but easily broken. Walkways run to the outer walls north, south and east."
+     "label": "Crenellated walkways connect to the northern, southern and eastern outer walls. The keep windows are locked closed, but their glass breaks readily."
     }
    ]
   },
@@ -37322,7 +37322,7 @@
      ],
      "vis": "hidden-object",
      "key": "K51",
-     "label": "A black cloak on a hook: pulling the hook opens the secret trapdoor in the ceiling (DC 13 Perception to find)"
+     "label": "A hook carries a black cloak. Pulling that hook releases a concealed overhead hatch (DC 13 Perception to locate)"
     },
     {
      "id": "spires-chimney-k52",

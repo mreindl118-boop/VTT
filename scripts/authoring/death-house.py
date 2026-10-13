@@ -24,6 +24,8 @@ PAGE = {**{k: 212 for k in ['1', '2']}, **{k: 213 for k in ['3', '4', '5', '6', 
         **{k: 215 for k in ['13', '14', '15', '16', '17', '18', '19', '20']}, **{k: 217 for k in ['21', '22', '23']},
         **{k: 218 for k in ['24', '25', '26']}, **{k: 219 for k in ['27', '28', '29', '30', '31', '32', '33', '34', '35']},
         **{k: 220 for k in ['36', '37', '38']}}
+# Keep the committed room references when the optional OCR page index is absent.
+PAGE.update({'3': 212, '27': 218, '28': 218, '29': 218, '30': 218, '31': 218, '36': 219, '38': 219})
 for k, v in pages.items():
     if v: PAGE[k] = v
 def pg(key):
@@ -340,7 +342,7 @@ DESC = {
   'f1-dumbwaiter': ("A small door opens onto a stone shaft with a wooden box on ropes.", "2-ft shaft to 7A and 12A; a Small creature can ride it (DC 10 Acrobatics). Rope holds 200 lb. A bell rings here when a button upstairs is pressed."),
   'f1-hooks2b': ("Black cloaks hang from hooks; a top hat rests on a high shelf.", None),
   'f2-shelves': ("Floor-to-ceiling shelves of books, with a rolling ladder.", "Hundreds of tomes on history, warfare, alchemy, poetry. One red-covered book with a blank spine is a switch (DC 13 Perception): it opens the secret door to 9."),
-  'f2-key': ("A mahogany desk with an oil lamp, ink, quill, tinderbox and a letter kit.", "The drawer holds an iron key that unlocks the door to area 20. The wooden seal bears the windmill."),
+  'f2-key': ("A mahogany desk with an oil lamp, ink, quill, tinderbox and a letter kit.", 'An iron key in this drawer opens area 20. The wooden seal carries a windmill emblem.'),
   'f2-chest9': ("A heavy chest with clawed iron feet, lid half open. A skeleton in leather armor is slumped over it, three darts in its ribs.", "Dart trap is spent. The skeleton clutches a letter under Strahd's seal. Inside: three blank black books (25 gp each), scrolls of bless, protection from poison and spiritual weapon, the deeds to the house and to a windmill, and the Dursts' will."),
   'f2-shelves9': ("Shelves of tomes about summoning fiends and a cult's rites.", "The rituals are bogus (1 hour of study + DC 12 Arcana)."),
   'f2-portrait': ("A wood-framed family portrait above the mantel: a man, a woman and two smiling children; the father cradles a swaddled baby.", "The mother regards the baby with scorn: Walter, the nursemaid's stillborn child."),
@@ -391,7 +393,7 @@ DESC = {
   'dungeon-crate34': ("An open crate of thirty torches and a sack of fifteen candles.", None),
   'dungeon-lower-relic0': ("A niche holding a small mummified yellow hand on a loop of rope.", "Worthless relic (goblin's hand)."),
   'dungeon-lower-ring': ("A skeleton in a tattered black robe hangs on the back wall of the cell.", "A cultist who questioned the cult. A gold ring (25 gp) on one finger."),
-  'dungeon-lower-altar': ("A stone altar carved with grasping ghouls, stained with dried blood. Chains and shackles dangle above it.", "Climbing the dais summons thirteen harmless apparitions chanting for a sacrifice. A creature must die on the altar, or the cultists rouse Lorghoth."),
+  'dungeon-lower-altar': ("A stone altar carved with grasping ghouls, stained with dried blood. Chains and shackles dangle above it.", 'Stepping onto the dais calls forth thirteen harmless apparitions demanding a sacrifice. The cultists rouse Lorghoth unless someone kills a creature upon the altar.'),
   'dungeon-lower-wheel': ("A wooden wheel half-embedded in the wall.", "An action turns it, raising or lowering the portcullis (37). Out of reach from the far side."),
   'dungeon-lower-lorghoth': ("A half-submerged heap of refuse fills a natural alcove.", "Lorghoth the Decayer, a shambling mound, asleep. DC 15 Nature reveals it. Wakes if attacked or if the party refuses the sacrifice; pursues but never leaves the dungeon."),
   'dungeon-lower-dais': ("Stairs rise to an octagonal stone dais above the water.", "5 ft high; the water is 2 ft deep. Ceiling 16 ft."),
@@ -426,7 +428,7 @@ for _i in range(13): PLAYER_LABEL[f'dungeon-lower-relic{_i}'] = 'Wall niche'
 ROOM_DESC = {
   '1A': ("A stone portico. A rusted iron gate shrieks on its hinges; oil lamps hang on chains either side of heavy oak doors.", "The gate is unlocked. The mists close in on anyone who lingers outside."),
   '1B': ("A grand foyer. A shield with a golden windmill on red hangs between portraits of stern nobles. Stained-glass double doors lead on.", "The portraits are long-dead Dursts."),
-  '2A': ("A wide hall with a black marble fireplace at one end and a red marble staircase sweeping up at the other. Carved paneling of vines, nymphs and satyrs.", "DC 12 Perception on the paneling: serpents and skulls hidden in the carving. The paneling follows the stair upward."),
+  '2A': ('The broad hall ends in a hearth of black marble; opposite it, stairs of red marble sweep upward. Vines and figures of nymphs and satyrs decorate the carved panels.', "DC 12 Perception on the paneling: serpents and skulls hidden in the carving. The paneling follows the stair upward."),
   '2B': ("A cloakroom: black cloaks on hooks, a top hat on a high shelf.", None),
   '3': ("A hunter's den paneled in oak: a stag's head over the hearth, three stuffed wolves, fur-draped chairs, a card table under a chandelier.", "East cabinet locked (DC 15): three crossbows and bolts. North cabinet: cards and wine glasses. A trapdoor in the southwest corner stays hidden until found from below (32)."),
   '4A': ("A tidy kitchen: shelves of dishes, a worktable with a rolling pin, a domed stone oven. A small door hides a dumbwaiter with a brass bell beside it.", "Dumbwaiter: 2-ft shaft to 7A and 12A; a Small creature fits (DC 10 Acrobatics); holds 200 lb."),
@@ -477,7 +479,7 @@ ROOM_DESC = {
   '32': ("A stone stair up to a landing under a low ceiling of planks with a bolted trapdoor.", "Opens into the den (3); once found it stays usable."),
   '33': ("A den with a chandelier over a table, two high-backed chairs, a clay jug and flagons, iron candlesticks.", "The door in the southwest corner is a mimic: it sticks to whoever touches it."),
   '34': ("A bedroom: a rotted feather bed, a wardrobe of old robes, candlesticks, a crate of torches and candles, a footlocker at the bed's foot.", "Removing anything from the footlocker frees two ghasts from the walls (Gustav and Elisabeth). Footlocker: cloak of protection, four healing potions, spellbook and gear."),
-  '35': ("Thirteen niches of grisly curios. Here the chant resolves into words: 'He is the Ancient. He is the Land.'", "The relics are worthless. The south tunnel slopes into murky water to a portcullis (37)."),
+  '35': ('Gruesome curios fill thirteen recesses. The chanting praises an ancient master and identifies him with the land itself.', "The relics are worthless. The south tunnel slopes into murky water to a portcullis (37)."),
   '36': ("Alcoves with rusty shackles, empty now.", "A robed skeleton in the marked cell wears a gold ring. Secret door south (DC 15) to 38."),
   '37': ("A rusty iron portcullis over 2 ft of murky water.", "DC 20 Athletics to lift, or turn the wheel inside 38."),
   '38': ("A forty-foot hall of smooth stone and pillars, half flooded. Stairs rise to dry ledges and to a central dais with a blood-stained altar under hanging chains. A breach opens west on a heap of refuse.", "The chant stops as they enter. Climbing the dais summons thirteen apparitions: 'One must die!' Refusing wakes Lorghoth (the refuse heap)."),
@@ -489,11 +491,11 @@ CONTAINERS = {
   'f1-cab-e': dict(locked=True, contents='A heavy, a light and a hand crossbow, with twenty bolts for each.', reveals=['f1-cab-lock']),
   'f1-cab-n': dict(contents='A small box holding a deck of playing cards, and rows of wine glasses.'),
   'f2-desk': dict(contents='An iron key in the drawer. On the desk: an oil lamp, ink and quill, a tinderbox and a letter kit with a windmill seal.', reveals=['f2-key']),
-  'f2-chest9': dict(open=True, contents='Three blank books bound in black leather, three spell scrolls, the deed to this house, the deed to a windmill, and a signed will.'),
+  'f2-chest9': dict(open=True, contents='Black leather covers three unwritten books. Alongside them are three spell scrolls, property deeds for the house and a windmill, and a signed will.'),
   'f2-footlocker1': dict(contents=EMPTY), 'f2-footlocker2': dict(contents=EMPTY),
   'f3-wardrobe1': dict(contents=EMPTY), 'f3-wardrobe2': dict(contents=EMPTY),
   'f3-vanity': dict(contents='Dusty drawers; the jewelry box sits on top.', reveals=['f3-jewelry']),
-  'f3-jewelry': dict(contents='Three gold rings and a thin platinum necklace with a topaz pendant.'),
+  'f3-jewelry': dict(contents='Three rings of gold accompany a delicate platinum necklace hung with topaz.'),
   'f3-end1': dict(contents=EMPTY), 'f3-end2': dict(contents=EMPTY), 'f3-wardrobe15': dict(contents=EMPTY),
   'attic-night19': dict(contents=EMPTY), 'attic-wardrobe19': dict(contents=EMPTY),
   'attic-toychest': dict(contents='Stuffed animals and wooden toys.'),
@@ -506,7 +508,7 @@ CONTAINERS = {
   'dungeon-chest25E': dict(locked=True, contents='Worthless odds and ends, and a silvered shortsword.'),
   'dungeon-coffinC': dict(contents=EMPTY), 'dungeon-coffinD': dict(contents=EMPTY), 'dungeon-coffinE': dict(contents=EMPTY), 'dungeon-coffinF': dict(contents=EMPTY),
   'dungeon-wardrobe34': dict(contents='Several old black robes.'),
-  'dungeon-footlocker': dict(contents="A folded cloak, a small coffer with four potions, a chain shirt, a mess kit, a flask of alchemist's fire, a bullseye lantern, thieves' tools and a spellbook bound in yellow leather."),
+  'dungeon-footlocker': dict(contents="A yellow-leather spellbook, thieves' tools, a bullseye lantern and a flask of alchemist's fire share the hoard with a mess kit and chain shirt. A cloak lies folded beside a small coffer containing four potions."),
 }
 
 def apply_desc(levels):
@@ -545,6 +547,7 @@ scene['links'] = [
     OrderedDict(id='lk-trapdoor', kind='trapdoor', **{'from': {'level': 'dungeon', 'pos': [87.5, 56.5]}, 'to': {'level': 'f1', 'pos': [27.5, 52.5]}}),
     OrderedDict(id='lk-30', kind='stairs', **{'from': {'level': 'dungeon', 'pos': [45, 75]}, 'to': {'level': 'dungeon-lower', 'pos': [7.5, 20]}}),
 ]
+scene['parent'] = 'ch03/E'
 scene['nonSpatialKeys'] = ['1', '2', '4', '7', '12', '15']
 
 grid = OrderedDict(schema=1, levels=OrderedDict())

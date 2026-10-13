@@ -58,7 +58,7 @@ g.door((17, 8.5), (18, 8.5), id='N2d-kitchen'); g.door((17.5, 20), (18.5, 20), i
 g.door((15.5, 14), (15.5, 15), id='N2g-door'); g.door((12, 8), (12, 9), id='N2f-small')
 g.door((1, 12), (1, 14), id='N2f-sliding', locked=True, double=True); g.door((6, 6.5), (7, 6.5), id='N2f-north'); g.door((6, 20), (7, 20), id='N2f-south')
 g.door((24.5, 20), (26, 20), id='N2c-front', double=True, open=True); g.door((29.5, 11), (29.5, 12), id='N2c-east')
-g.secret((12, 8.5), (13, 8.5), 'kitchen-stair', 'A secret door at the west end of the kitchen\'s south wall: a wooden stair up to the hidden hall', 'N2e', extra=True)
+g.secret((12, 8.5), (13, 8.5), 'kitchen-stair', 'The kitchen has a concealed doorway near its southwest corner, opening onto wooden steps to the hidden hall', 'N2e', extra=True)
 for a, b in [((22.5, 2), (23.5, 2)), ((26.5, 2), (27.5, 2)), ((29.5, 14), (29.5, 15)), ((29.5, 18), (29.5, 19)), ((13, 2), (14, 2)), ((17, 2), (18, 2)), ((1, 8), (1, 9)), ((1, 17), (1, 18)), ((21, 12), (21, 13)), ((21, 17), (21, 18))]:
     g.window(a, b)
 g.wall((2.5, 6.5), (2.5, 11.5)); g.wall((5, 6.5), (5, 11.5)); g.wall((7.5, 6.5), (7.5, 11.5)); g.wall((2.5, 15), (2.5, 20)); g.wall((5, 15), (5, 20)); g.wall((7.5, 15), (7.5, 20))
@@ -106,7 +106,7 @@ u.door((18.5, 5), (18.5, 6), id='N2p-door'); u.door((18.5, 13), (18.5, 14), id='
 u.door((24, 19.5), (25, 19.5), id='N2m-door'); u.door((31.5, 13), (31.5, 14), id='N2l-door'); u.door((31.5, 19), (31.5, 20), id='N2l-s-door'); u.door((30, 11), (31, 11), id='N2b-top-door', locked=False)
 u.secret((12, 9), (12, 10), 'loft-bedroom', 'A secret door between the loft and the master bedroom (light shows through the cracks)', 'N2h', extra=True)
 u.secret((14.5, 11), (14.5, 12), 'hall-boys', 'Secret door from the hidden hall into the boys\' room', 'N2i')
-u.secret((18.5, 17), (18.5, 18), 'hall-balcony', 'Secret door at the south end of the great balcony\'s west wall into the hidden hall', 'N2j', extra=True)
+u.secret((18.5, 17), (18.5, 18), 'hall-balcony', 'Near the southwest corner of the great balcony, a concealed doorway in the west wall reaches the hidden hall', 'N2j', extra=True)
 for a, b in [((13, 2), (14, 2)), ((17, 2), (18, 2)), ((33, 11), (34, 11)), ((36, 11), (37, 11)), ((38, 13), (38, 14)), ((38, 19), (38, 20)), ((33, 23), (34, 23)), ((36, 23), (37, 23)), ((24, 24), (25, 24)), ((27, 24), (28, 24)), ((18, 24), (19, 24)), ((1, 10), (1, 11)), ((1, 16), (1, 17))]:
     u.window(a, b)
 u.prop('N2p-bed', 'bed', (13.5, 5), 'N2p', dims={'w': 6, 'd': 7}); u.prop('N2p-table-a', 'desk', (12.8, 2.8), 'N2p'); u.prop('N2p-table-b', 'desk', (12.8, 7.3), 'N2p')
@@ -141,7 +141,7 @@ a.prop('N2q-roof-s', 'roof-gable', (23, 21.75), 'N2q', dims={'w': 26, 'd': 32, '
 for i, z in enumerate((5.5, 8, 12, 15)): a.prop(f'N2q-nest{i}', 'hay', (15.5, z), 'N2q', dims={'s': 0.6})
 a.hidden('N2q-strongbox', 'chest', (15.5, 4.6), 'N2q', 'A locked iron strongbox against the north wall (Urwin has the key): the Keepers\' letters and 300 gp')
 a.prop('N2q-trap-a', 'trapdoor', (15, 8.5), 'N2q'); a.prop('N2q-trap-b', 'trapdoor', (15.5, 17.5), 'N2q')
-a.hidden('N2q-hole', 'niche', (15.5, 18.8), 'N2q', 'A small square opening in the south wall: raven-sized')
+a.hidden('N2q-hole', 'niche', (15.5, 18.8), 'N2q', 'Ravens can pass through a little square aperture in the southern wall')
 a.note('N2q-note', (15.5, 11), 'N2q', 'Ten by thirty-five feet, the ceiling slanting from 8 ft to 5 ft westward; the Martikovs sleep here as ravens.')
 a.prop('N2q-chimney', 'chimney', (15.5, 3), 'N2q', dims={'h': 8})
 write('N2', 'Blue Water Inn', 99, [g, u, a], [
@@ -150,7 +150,7 @@ write('N2', 'Blue Water Inn', 99, [g, u, a], [
     lk('lk-n2-attic-o', 'trapdoor', 'upper', (17.5, 11), 'attic', (15, 8.5)), lk('lk-n2-attic-p', 'trapdoor', 'upper', (15, 8.5), 'attic', (15.5, 17.5)),
 ], {
     'N2c': ("A packed taproom under a balcony: lanterns in dull orange, wolf heads on plaques, a bar along the west wall, shutters and crossbars on every window.", "Danika tends bar; Urwin cooks; Rictavio, the wolf hunters, Ismark's friends. Everything bars from within."),
-    'N2e': ("A cluttered kitchen round a pine worktable, two lanterns above it.", "The secret door at the west end of the south wall leads up to the hidden hall."),
+    'N2e': ("A cluttered kitchen round a pine worktable, two lanterns above it.", 'Near the western corner of the south wall, a concealed doorway leads upstairs into the hidden hall.'),
     'N2d': ("Empty wine barrels stacked two high by the kitchen door.", None),
     'N2g': ("A cramped space under the stair with a chest.", "Horseshoes, a mallet, nails."),
     'N2f': ("A stable: a horse, birds squawking, a ladder to a loft, sliding doors chained shut.", "Drusilla; the small east door opens to the storage room; the loft is the ravens'."),
@@ -158,7 +158,7 @@ write('N2', 'Blue Water Inn', 99, [g, u, a], [
     'N2a': ("A well in the inn yard.", None), 'N2c-porch': ("The inn's porch and double doors.", None),
     'N2h': ("A loft of hay and pitchforks under dirty windows, ravens everywhere.", "A locked chest under the hay; the ravens attack as four swarms if it is touched. Secret door to the master bedroom."),
     'N2i': ("A short panelled hall with a window, a stair down at its north end.", "Secret doors at both ends; Rictavio has heard the boys use it."),
-    'N2j': ("A balcony the length of the taproom, railings carved with ravens, the rafters in lantern light.", "15 ft above the taproom; secret door at the south end of the west wall."),
+    'N2j': ("A balcony the length of the taproom, railings carved with ravens, the rafters in lantern light.", 'This balcony stands 15 ft over the taproom. A doorway is concealed near the southern corner of its west wall.'),
     'N2k': ("A twenty-foot balcony overlooking the bar.", None),
     'N2b-top': ("The head of the outside stair.", None),
     'N2l': ("Two cosy beds heaped with wolf furs, footlockers, a lamp between them, two black wardrobes.", "Locks from inside; each guest gets a key."),
@@ -166,7 +166,7 @@ write('N2', 'Blue Water Inn', 99, [g, u, a], [
     'N2m': ("Four plain beds with straw mattresses along the north wall, a table and chairs in the corner, a bright oil lamp.", None),
     'N2n': ("A small room: a bed heaped with furs, a footlocker, a tall wardrobe, a writing desk.", "Rictavio's room, locked; the journal names Drusilla and his oddities. The lock is picked in full view of the taproom."),
     'N2o': ("Two small beds with a painted toy box between them.", "Blinsky toys in the box; a hidden trapdoor in the 8-ft ceiling to the attic."),
-    'N2p': ("A canopied bed in red silk between end tables; a tapestry of a mountain valley.", "Secret door to the loft at the west end of the south wall; hidden trapdoor to the attic."),
+    'N2p': ("A canopied bed in red silk between end tables; a tapestry of a mountain valley.", 'A concealed doorway near the southwest corner opens into the loft; a hidden hatch reaches the attic.'),
     'N2q': ("A low attic of straw nests, a strongbox against the north wall, a small square hole to the sky.", "The wereravens' roost. Two trapdoors down to the bedrooms. Urwin keeps the strongbox key."),
 }, entry='ground')
 
@@ -193,7 +193,7 @@ for a, b in [((3, 4), (3, 5)), ((11, 3), (12, 3)), ((15, 3), (16, 3)), ((21, 3),
 g.wall((31, 3), (31, 6.5)); g.wall((31, 6.5), (35, 6.5))
 g.prop('N3a-stair', 'stairs-straight', (29.25, 5), 'N3a', dims={'w': 15, 'rise': 20, 'fromZ': 35, 'toZ': 15})
 g.prop('N3a-rug', 'rug', (31, 12), 'N3a', dims={'w': 10, 'd': 14}); g.prop('N3a-hall-rug', 'rug', (18, 12), 'N3a-hall', dims={'w': 85, 'd': 6})
-g.hidden('N3a-cloaks', 'niche', (33, 5), 'N3a', 'A vestibule packed with fine cloaks, coats and boots'); g.hidden('N3a-portraits', 'niche', (29, 14), 'N3a', 'Framed portraits of past burgomasters')
+g.hidden('N3a-cloaks', 'niche', (33, 5), 'N3a', 'Expensive outerwear fills the vestibule: boots, coats and cloaks'); g.hidden('N3a-portraits', 'niche', (29, 14), 'N3a', 'Framed portraits of past burgomasters')
 g.note('N3a-twigs', (30, 10), 'N3a', 'Bundles of twigs pile up here for the wicker sun of the festival. A maid answers the door and leads callers to the den.')
 g.prop('N3e-couch-a', 'bench', (19.5, 9), 'N3e'); g.prop('N3e-couch-b', 'bench', (25.5, 9), 'N3e'); g.prop('N3e-chair-a', 'chair', (19.5, 5), 'N3e'); g.prop('N3e-chair-b', 'chair', (20.5, 6.5), 'N3e'); g.prop('N3e-table', 'table-round', (23, 6.5), 'N3e'); g.prop('N3e-side', 'desk', (26.5, 8), 'N3e')
 g.hidden('N3e-bear', 'niche', (27.2, 6), 'N3e', "A brown bear's head mounted on the east wall (a Grygorovich gift, whatever the baron says)")
@@ -246,7 +246,7 @@ for i, (x, z, r) in enumerate([(12.4, 8, 90), (12.4, 11, 90), (12.4, 14, 90), (1
 u.creature('baron', 'adventurer', (16, 12.5), 'N3l', 'Baron Vargas Vallakovich in breastplate and rapier, ring and three keys')
 u.note('N3l-note', (16, 9), 'N3l', 'Windowless, lined floor to ceiling with books (random books table). Keys: the garden door, the closet door, the manacles.')
 u.light('N3l-lamp', (16, 11), 'lantern', 15, 30, y=7)
-u.prop('N3k-bed', 'bed', (23, 3.8), 'N3k', dims={'w': 6, 'd': 7}); u.prop('N3k-shelf', 'bookshelf', (26.5, 8.6), 'N3k', rotY=180); u.hidden('N3k-mirror', 'niche', (26.8, 5.5), 'N3k', 'A full-length mirror in a wooden frame across from the door')
+u.prop('N3k-bed', 'bed', (23, 3.8), 'N3k', dims={'w': 6, 'd': 7}); u.prop('N3k-shelf', 'bookshelf', (26.5, 8.6), 'N3k', rotY=180); u.hidden('N3k-mirror', 'niche', (26.8, 5.5), 'N3k', 'Opposite the doorway stands a tall mirror edged in wood')
 u.prop('N3j-bed', 'bed', (23, 11.3), 'N3j', dims={'w': 6, 'd': 7}); u.prop('N3j-chest', 'chest', (26.5, 15.5), 'N3j')
 u.hidden('N3j-dolls', 'niche', (24.5, 15), 'N3j', "Dolls in Ireena's likeness everywhere: 'Is No Fun, Is No Blinsky!'"); u.hidden('N3j-sword', 'niche', (26.5, 16), 'N3j', 'A shortsword under wrinkled clothes in the unlocked chest; empty bottles under the bed')
 u.creature('izek', 'adventurer', (24.5, 13), 'N3j', 'Izek Strazni (when at home)')
@@ -297,7 +297,7 @@ write('N3', "Burgomaster's Mansion (Vallaki)", 104, [g, u, at], [
     'N3q': ("An iron tub with clawed feet; folded towels on a table.", None),
     'N3r': ("A dusty room under a high peaked roof: an old table with a lantern.", None),
     'N3s': ("Attic storage crammed with old furniture and crates under sheets.", "A single trail of footprints leads to the workroom."),
-    'N3t': ("A study of mismatched furniture, parchment diagrams on the tables, a shelf of bones, three small children standing with their backs to the door.", "Victor practises teleportation; the children are his failures. Six cat skeletons. The circle is deadly."),
+    'N3t': ('An assortment of unmatched furnishings crowds the study. Tables carry diagrams on parchment, and bones line a shelf. Three small children face away from anyone entering.', "Victor practises teleportation; the children are his failures. Six cat skeletons. The circle is deadly."),
 }, entry='ground')
 
 # ================================================================== N4 Wachterhaus

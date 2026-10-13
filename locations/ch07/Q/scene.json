@@ -193,7 +193,7 @@
      "floor": "plank",
      "ceilingFt": 20,
      "desc": "A wood-panelled den torn apart: rotten divans, broken chairs, upturned footstools and smashed lamps. A cold hearth fills the west wall between narrow windows; a black wooden sarcophagus with a carved queen stands on end by the north wall.",
-     "dm": "The sarcophagus was the dragon's wine cabinet (only broken glass remains). Secret door at the north end of the east wall to Q11. Unless the beacon is lit, a fire-dragon flares in the hearth on first approach (see note)."
+     "dm": "The sarcophagus was the dragon's wine cabinet (only broken glass remains). A concealed doorway near the northeast corner opens through the east wall into Q11. Unless the beacon is lit, a fire-dragon flares in the hearth on first approach (see note)."
     },
     {
      "key": "Q11",
@@ -220,7 +220,7 @@
      "floor": "flagstone",
      "ceilingFt": 20,
      "desc": "Damp and dark; old barrels rest on timber cradles against the walls.",
-     "dm": "Five barrels. Savid, a dusk elf scout with 4 hp left, hides behind them; he wants healing, was searching for the missing Vistani girl Arabelle when needle blights drove him in, and tells what he knows of Argynvost and the Order. The barrels (Wizard of Wines, long dry) hide nothing. Secret door at the north end of the west wall to Q6."
+     "dm": "Five barrels. Savid, a dusk elf scout with 4 hp left, hides behind them; he wants healing, was searching for the missing Vistani girl Arabelle when needle blights drove him in, and tells what he knows of Argynvost and the Order. The barrels (Wizard of Wines, long dry) hide nothing. A concealed doorway near the northwest corner opens through the west wall into Q6."
     },
     {
      "key": "Q10",
@@ -469,7 +469,7 @@
      "floor": "flagstone",
      "ceilingFt": 20,
      "desc": "A tight spiral stair, dimly lit through slits in the wall.",
-     "dm": "From the chapel up 20 ft to the balcony (Q24), then 20 ft more to a small empty room with a window over the chapel."
+     "dm": "From the chapel, stairs rise 20 ft to Q24 and another 20 ft to a bare little chamber overlooking the chapel through a window."
     },
     {
      "key": "Q14-south",
@@ -4175,7 +4175,7 @@
      ],
      "vis": "secret-door",
      "key": "Q6",
-     "label": "A secret door at the north end of the den's east wall, into the wine store (pushes open from the den, pulls from the store)",
+     "label": "Near the northeast corner of the den, a concealed doorway in its east wall opens into the wine store. Push from the den; pull from the store.",
      "wall": "ground-sd-Q6-Q11",
      "playerLabel": "A section of wall"
     },
@@ -4876,7 +4876,7 @@
      ],
      "vis": "dm-note",
      "key": "Q16",
-     "label": "Draconic on the far (north-east) wall: here lie the bones and treasures of Argynvost, lord of Argynvostholt and founder of the Order of the Silver Dragon."
+     "label": "Draconic writing on the northeast wall identifies this as the resting place for Argynvost and his treasure. It names him ruler of Argynvostholt and credits him with establishing the Order of the Silver Dragon."
     },
     {
      "id": "ground-Q3-mosaic",
@@ -7400,7 +7400,7 @@
       300
      ],
      "vis": "dm-note",
-     "label": "The promontory drops away to the Svalich Woods and the Luna River valley; wolves howl below."
+     "label": "Wolves howl far below this promontory. Beyond the drop lie Svalich Woods and the valley carved by the Luna River."
     }
    ],
    "terrain": [
@@ -20540,7 +20540,7 @@
      ],
      "vis": "dm-note",
      "key": "Q53",
-     "label": "When the skull is sealed in the mausoleum (Q16), the dragon's spirit becomes a light that fills this room and flashes across the valley."
+     "label": "Sealing the skull inside Q16 releases the dragon's spirit as radiance throughout this chamber, followed by a bright flash over the valley."
     }
    ]
   }
