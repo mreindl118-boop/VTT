@@ -3,15 +3,17 @@
 druids' hill on the western edge of Strahd's domain, read off the book's map in printed squares (S() turns a
 square reading into cells). Two levels share the ground:
 
-* hill - the whole map: the trail up from the north-east through the forest (Y1), the two dirt-trail rings that
-  circle the hillside lined with black berserker cairns (Y2, keyed by sector as the book scatters its six labels),
-  the druids' ring of black boulders on the top (Y3) with the fifty-foot effigy of Strahd inside it, the dead
-  copse of the Gulthias tree on the south side of the top (Y4) and the wall of fog that closes the west (Y5);
-  the forest on three sides. The hill climbs some 400 ft (contours on the plate); the map is drawn flat.
-* summit - the battle inset: the hilltop at the same place, with the graves, druids, berserkers and blights.
+* hill - the whole map, drawn as a hill: the trail winding up from the north-east through the forest (Y1), the two
+  dirt tracks that circle the hillside on the contour, lined with black berserker cairns (Y2, keyed by sector as
+  the book scatters its six labels), the druids' ring of black boulders on the broad top (Y3) with the fifty-foot
+  effigy of Strahd inside it, the dead copse of the Gulthias tree on the south side of the top (Y4) and the wall of
+  fog that closes the west (Y5); the forest on three sides. The land is a heightfield (see "the land" below).
+* summit - the battle inset: the hilltop at the same place, its floor level with the top, with the graves, druids,
+  berserkers and blights.
 
 Only keys, names, pages, dimensions, placements and our own wording live here. -> locations/ch14/Y/{scene,grid}.json"""
 import json, math, os, sys
+import numpy as np
 from collections import OrderedDict
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from authorlib import ROOT, Level, rect, unit_edges, seg_key  # noqa: F401
@@ -109,8 +111,13 @@ OUTER = catmull([S(*p) for p in [(19.2, 16.4), (23.0, 16.9), (25.6, 18.3), (27.0
 INNER = catmull([S(*p) for p in [(19.2, 19.0), (22.0, 19.4), (24.0, 20.6), (25.0, 22.6), (25.2, 25.5), (25.0, 28.8), (24.3, 32.0), (23.0, 34.8),
                                   (21.1, 37.0), (18.6, 38.4), (16.0, 38.5), (13.9, 37.5), (12.5, 35.6), (12.0, 33.0), (12.2, 30.0), (12.7, 27.2),
                                   (13.4, 24.6), (14.6, 22.2), (16.4, 20.2)]], 8)
-TRAIL = catmull([S(*p) for p in [(36.2, 10.4), (33.0, 12.2), (30.0, 13.5), (27.5, 14.6), (25.6, 15.6), (24.6, 16.8), (24.0, 18.2), (23.4, 19.7),
-                                 (22.4, 21.3), (21.4, 22.9), (20.8, 24.4), (20.45, 25.3)]], 4, closed=False)
+# Y1 climbs from the forest floor at the north-east corner and spirals south round the east slope, never steeper than
+# 1 in 5, to cross both tracks on the south-east and run over the top to the ring's north gap (ft)
+TRAIL_FT = [(1718, 25), (1679, 70), (1637, 114), (1596, 158), (1576, 213), (1577, 273), (1585, 333), (1594, 392), (1602, 451), (1608, 511),
+            (1611, 571), (1612, 631), (1610, 691), (1607, 751), (1600, 810), (1591, 870), (1578, 928), (1563, 986), (1545, 1044), (1524, 1100),
+            (1500, 1155), (1472, 1208), (1441, 1259), (1407, 1308), (1369, 1355), (1328, 1399), (1283, 1439), (1234, 1474), (1190, 1462),
+            (1134, 1411), (1095, 1330), (1065, 1230), (1035, 1112), (985, 1052), (935, 1038)]
+TRAIL = [(round(x / 5, 3), round(z / 5, 3)) for x, z in catmull(TRAIL_FT, 3, closed=False)]
 SW_PATH = catmull([S(*p) for p in [(18.3, 29.9), (17.7, 30.8), (17.0, 31.6)]], 4, closed=False)
 Y3C, Y3R = S(19.35, 27.6), 25.0                                  # the druids' ring: 250 ft across
 STATUE = S(18.15, 27.45)
@@ -134,13 +141,194 @@ def polar(curve):
 R_OUT, R_IN = polar(OUTER), polar(INNER)
 at = lambda r, a, k=0.0: (round(CEN[0] + math.cos(a) * (r(a) + k), 2), round(CEN[1] + math.sin(a) * (r(a) + k), 2))
 
+# ================================================================== the land: the hill as a heightfield (feet, +x east, +z south)
+# The hill is land you climb: a broad top inside the inner track, the band of the two cairn tracks under its brow, and
+# the wooded slope below the outer track, easing out onto the forest floor round the hill's foot. Heights are feet above
+# that forest floor (the hill level's floor). The top stands 272 ft above it, with slopes of at most about 1 in 2
+# (the book gives about 400 ft from the forest: on a plate this size that would mean slopes no one could walk). The
+# tracks hold their contour; the trail winds up at no more than 1 in 5. The land drawn round the map (kit/sites/w.ts,
+# yesterLand) follows the same slope profile from the outer track's fitted ellipse, so the two agree past the edge.
+OUT_TO_TOP = 17.0                 # the hilltop stands this far above the outer track
+# the slope below the outer track: (ft out from the track, ft below it, grade there); the same knots are in w.ts
+KNOTS = [(0, 0, 0.25), (200, 72, 0.42), (420, 162, 0.36), (650, 232, 0.18), (850, 254, 0.0), (5000, 254, 0.0)]
+ELL = (853.37, 1211.69, 0.289, 442.97, 644.42)   # the outer track's fitted ellipse: centre x, z, turn, half-axes (ft)
+LAT, MARGIN = 10.0, 120.0         # the lattice: 10-ft cells, running 120 ft past the map's edge
+CX, CZ = CEN[0] * 5.0, CEN[1] * 5.0
+GX0, GZ0, GNX, GNZ = -MARGIN, -MARGIN, 198, 250  # x -120..1860, z -120..2380 (even: the summit takes every other vertex)
+_ANG = np.linspace(-math.pi, math.pi, 3601)
+_RIN = np.array([R_IN(a) * 5.0 for a in _ANG]); _ROUT = np.array([R_OUT(a) * 5.0 for a in _ANG])
+
+
+def drop(d):
+    """Feet below the outer track, d ft out from it (cubic Hermite through KNOTS)."""
+    d = np.clip(np.asarray(d, float), 0, KNOTS[-1][0]); out = np.zeros_like(d)
+    for (d0, h0, g0), (d1, h1, g1) in zip(KNOTS[:-1], KNOTS[1:]):
+        m = (d >= d0) & (d <= d1); L = d1 - d0; s = (d[m] - d0) / L
+        out[m] = h0 * (2 * s ** 3 - 3 * s ** 2 + 1) + g0 * L * (s ** 3 - 2 * s ** 2 + s) + h1 * (-2 * s ** 3 + 3 * s ** 2) + g1 * L * (s ** 3 - s ** 2)
+    return out
+
+
+def ell_out(X, Z):
+    """Ft outside the outer track's ellipse, along the ray from its centre."""
+    ex, ez, t, a, b = ELL
+    dx, dz = X - ex, Z - ez; c, s = math.cos(t), math.sin(t)
+    u, v = dx * c + dz * s, -dx * s + dz * c; r = np.hypot(u, v)
+    k = np.sqrt((u / a) ** 2 + (v / b) ** 2); return r - r / np.maximum(k, 1e-9)
+
+
+def ground0(X, Z):
+    """The bare hill (no tracks cut in yet), in ft above the outer track."""
+    X, Z = np.asarray(X, float), np.asarray(Z, float)
+    dx, dz = X - CX, Z - CZ; r = np.hypot(dx, dz); a = np.arctan2(dz, dx)
+    rin, rout = np.interp(a, _ANG, _RIN), np.interp(a, _ANG, _ROUT)
+    t = np.clip((r - rin) / (rout - rin), 0, 1)
+    band_h = OUT_TO_TOP * (1 - t * t * (3 - 2 * t))
+    dn = r - rout; de = ell_out(X, Z); w = np.clip((dn - 100) / 300, 0, 1); w = w * w * (3 - 2 * w)
+    d = dn * (1 - w) + de * w            # the track itself near it, its ellipse far out (the land beyond the map uses that)
+    return np.where(r <= rin, OUT_TO_TOP, np.where(r <= rout, band_h, -drop(np.maximum(d, 0))))
+
+
+# the hill level's floor is a foot under the forest floor round the hill's foot (the trail's foot at the north-east
+# corner), so the level's own ground and grid never show through the land
+REF = -KNOTS[-1][1] - 1.0
+TOP = round(OUT_TO_TOP - REF, 2)          # the summit level's floor: 272 ft up (the outer track 255)
+TOP_G = TOP - 0.5                         # the turf there: a hair under the summit's floors and grid
+H_OUT = TOP - OUT_TO_TOP                  # the outer track
+
+
+def dome(X, Z):
+    """The bare hill in ft above the hill level's floor."""
+    h = ground0(X, Z) - REF
+    return np.minimum(h, TOP_G)
+
+
+def _lattice():
+    xs = GX0 + np.arange(GNX + 1) * LAT; zs = GZ0 + np.arange(GNZ + 1) * LAT
+    return np.meshgrid(xs, zs)          # [j, i]
+
+
+def _near_on(px, pz, line):
+    """Per lattice vertex: distance (ft) to a polyline of (x, z, h) and the line's height at the nearest point."""
+    best = np.full(px.shape, np.inf); bh = np.zeros(px.shape)
+    for (x0, z0, h0), (x1, z1, h1) in zip(line[:-1], line[1:]):
+        dx, dz = x1 - x0, z1 - z0; L2 = dx * dx + dz * dz or 1e-9
+        t = np.clip(((px - x0) * dx + (pz - z0) * dz) / L2, 0, 1)
+        d = np.hypot(px - x0 - dx * t, pz - z0 - dz * t)
+        m = d < best; best = np.where(m, d, best); bh = np.where(m, h0 + (h1 - h0) * t, bh)
+    return best, bh
+
+
+def bench(Hh, px, pz, line, w):
+    """Cut a track `w` ft wide into the land along `line`: level across, the bank above cut back at 1:1, the fill below
+    falling at 1:1.25."""
+    d, rh = _near_on(px, pz, line)
+    bw = w / 2 + 1.5
+    up = np.minimum(Hh, rh - 0.2 + (d - bw) * 1.0); dn = np.maximum(Hh, rh - 0.2 - (d - bw) * 0.8)
+    return np.where(d <= bw, rh - 0.2, np.where(Hh > rh, up, dn))
+
+
+def profile(pts_ft, grade_max=0.2):
+    """A trail's heights: the hill's own height along it, smoothed, then never steeper than grade_max."""
+    xs = np.array([p[0] for p in pts_ft]); zs = np.array([p[1] for p in pts_ft])
+    hs = dome(xs, zs)
+    s = np.concatenate([[0], np.cumsum(np.hypot(np.diff(xs), np.diff(zs)))])
+    k = np.exp(-0.5 * ((s[:, None] - s[None, :]) / 25.0) ** 2); hs = (k @ hs) / k.sum(1)
+    for i in range(1, len(hs)): hs[i] = min(max(hs[i], hs[i - 1]), hs[i - 1] + grade_max * (s[i] - s[i - 1]))
+    return [(float(x), float(z), round(float(h), 2)) for x, z, h in zip(xs, zs, hs)]
+
+
+# ---------------------------------------------------------------- the props' data (the format of kit/sites/s.ts; the encoders are
+# copied from krezk_land.py so this script stands on its own)
+HOLE = 4095
+def heightfield_dims(x0, z0, nx, nz, cell, fn, hole=None, q=0.5, origin_y=0.0, taper=None):
+    """Sample fn(x, z) on an (nx+1) x (nz+1) vertex lattice from (x0, z0); pack four 12-bit heights per number.
+    hole(x, z) -> True leaves the vertex out (no cell that touches it is drawn). Heights are relative to origin_y."""
+    vals = []
+    for j in range(nz + 1):
+        for i in range(nx + 1):
+            x, z = x0 + i * cell, z0 + j * cell
+            if hole and hole(x, z): vals.append(HOLE); continue
+            h = fn(x, z) - origin_y
+            if taper: h = taper(x, z, h)
+            vals.append(max(0, min(HOLE - 1, int(round(h / q)))))
+    dims = {'nx': nx, 'nz': nz, 'cell': cell, 'q': q}
+    for k in range(0, len(vals), 4):
+        chunk = vals[k:k + 4] + [HOLE] * (4 - len(vals[k:k + 4]))
+        v = 0
+        for j, c in enumerate(chunk): v += c * (4096 ** j)
+        dims[f'd{k // 4}'] = v
+    return dims
+
+
+def ribbon_dims(pts, w, origin=(0.0, 0.0, 0.0)):
+    """A road ribbon through (x, z, y) points, relative to origin."""
+    d = {'n': len(pts), 'w': w}
+    for i, (x, z, y) in enumerate(pts):
+        d[f'x{i}'] = round(x - origin[0], 2); d[f'z{i}'] = round(z - origin[1], 2); d[f'y{i}'] = round(y - origin[2], 2)
+    return d
+
+
+# ---------------------------------------------------------------- the tracks cut into the hill; the land as drawn
+loop_ft = lambda curve: [(x * 5.0, z * 5.0) for x, z in curve + curve[:1]]
+TRACK_W = 10.0                                    # the two tracks and the trail: a cart's width
+RING_IN = [(x, z, TOP_G) for x, z in loop_ft(INNER)]
+RING_OUT = [(x, z, H_OUT) for x, z in loop_ft(OUTER)]
+TRAIL3 = profile([(x * 5.0, z * 5.0) for x, z in TRAIL])
+SW3 = [(x * 5.0, z * 5.0, TOP_G) for x, z in SW_PATH]
+TRACKS = (('track-outer', RING_OUT, TRACK_W), ('track-inner', RING_IN, TRACK_W), ('trail', TRAIL3, TRACK_W), ('path-sw', SW3, 8.0))
+Q = 0.25                                          # the heightfield's step (ft)
+_X, _Z = _lattice()
+LAND = dome(_X, _Z)
+for _id, _line, _w in TRACKS: LAND = bench(LAND, _X, _Z, _line, _w)
+LAND = np.maximum(LAND, 1.0)                      # the forest floor stays a foot above the level's own ground
+LAND_Y0 = -1.0
+LAND = LAND_Y0 + np.round((LAND - LAND_Y0) / Q) * Q   # exactly what the prop draws
+
+
+def ground(x, z):
+    """The drawn land's height (ft above the hill level's floor) at (x, z) ft, on the prop's own triangles."""
+    fx, fz = (x - GX0) / LAT, (z - GZ0) / LAT
+    i = min(max(int(math.floor(fx)), 0), GNX - 1); j = min(max(int(math.floor(fz)), 0), GNZ - 1); u, v = fx - i, fz - j
+    a, b, c, e = LAND[j, i], LAND[j, i + 1], LAND[j + 1, i + 1], LAND[j + 1, i]
+    if abs(a - c) < abs(b - e): return float(a + (b - a) * u + (c - b) * v if u >= v else a + (c - e) * u + (e - a) * v)
+    return float(a + (b - a) * u + (e - a) * v if u + v <= 1 else c + (e - c) * (1 - u) + (b - c) * (1 - v))
+
+
+def land_dims(step=1, hole=None, sink=None, x0=GX0, z0=GZ0, nx=GNX, nz=GNZ):
+    """The land as a heightfield prop on every `step`-th lattice vertex of the block from (x0, z0), nx x nz cells; its
+    outer edge drops a short skirt (into the land drawn beyond the map, or into the coarser land round a finer patch).
+    `sink(x, z)` lowers a vertex by that much (where a finer patch overlaps)."""
+    look = lambda x, z: float(LAND[int(round((z - GZ0) / LAT)), int(round((x - GX0) / LAT))])
+    taper = (lambda x, z, h: h - sink(x, z)) if sink else None
+    d = heightfield_dims(x0, z0, nx // step, nz // step, LAT * step, look, hole=hole, q=Q, origin_y=LAND_Y0, taper=taper)
+    d['drop'] = 7
+    return d
+
+
+def land_props(lv, elev, fine=None):
+    """The land and its tracks on a level whose floor is `elev` ft up: the whole lattice, or (with `fine`, a block
+    (x0, z0, x1, z1) ft on the lattice) every other vertex with that block at full grain laid into it."""
+    y = round(LAND_Y0 - elev, 2)
+    if not fine: lv.obj('land', 'heightfield', (GX0 / 5, GZ0 / 5), 'player', None, dims=land_dims(), y=y)
+    else:
+        fx0, fz0, fx1, fz1 = fine
+        hole = lambda x, z: fx0 + 30 < x < fx1 - 30 and fz0 + 30 < z < fz1 - 30
+        sink = lambda x, z: 0.6 if fx0 <= x <= fx1 and fz0 <= z <= fz1 else 0.0
+        lv.obj('land', 'heightfield', (GX0 / 5, GZ0 / 5), 'player', None, dims=land_dims(2, hole, sink), y=y)
+        lv.obj('land-top', 'heightfield', (fx0 / 5, fz0 / 5), 'player', None, dims=land_dims(1, x0=fx0, z0=fz0, nx=int((fx1 - fx0) / LAT), nz=int((fz1 - fz0) / LAT)), y=y)
+    for id_, line, w in TRACKS:
+        lv.obj(id_, 'road-ribbon', (0, 0), 'player', None, dims=ribbon_dims([(x, z, y - 0.2) for x, z, y in line], w, (0, 0, elev)))
+
+
 AMB = 'barovian-overcast'
+DIRT = 0x66584a                                                    # the kit's dirt floor colour (palette FLOOR_COLOR.dirt)
 # ================================================================== the hill (the whole plate)
 h = Level('hill', 'Yester Hill', 0, 12, ambient=AMB, interior='cave-rock', exterior='cave-rock', north='-z')
-h.terrain.append((rect(0, 0, W_CELLS, H_CELLS), 'grass'))
-for curve in (OUTER, INNER): h.terrain.append((band(curve + curve[:1], 2.4), 'dirt'))
-h.terrain.append((band(TRAIL, 2.6), 'dirt'))
-h.terrain.append((band(SW_PATH, 2.0), 'dirt'))
+# The ground is the heightfield; the level's own floor lies a foot under it, over the whole lattice (the plate and the
+# margin past its edge), so it never shows and everything on the land stands on the level's ground.
+LX0, LZ0, LX1, LZ1 = (GX0 - 1) / 5, (GZ0 - 1) / 5, (GX0 + GNX * LAT + 1) / 5, (GZ0 + GNZ * LAT + 1) / 5
+h.terrain.append((rect(LX0, LZ0, LX1, LZ1), 'grass'))
+land_props(h, 0.0)
 
 # Y2: the band of the two cairn rings, in six sectors (the plate scatters six Y2 labels round it)
 SECT = [('north', -120), ('east', -60), ('southeast', 0), ('south', 60), ('southwest', 120), ('northwest', 180)]
@@ -149,8 +337,8 @@ for name, a0 in SECT:
     poly = [at(R_OUT, a, 12) for a in angs] + [at(R_IN, a, -4) for a in reversed(angs)]
     h.room(f'Y2-{name}', 'Berserker Cairns', poly, 'grass', page=pg('Y2'))
     open_all(h, poly)
-# Y1: the trail from the map's edge down to the outer ring
-y1 = band([p for p in TRAIL if math.hypot(p[0] - CEN[0], p[1] - CEN[1]) > R_OUT(math.atan2(p[1] - CEN[1], p[0] - CEN[0])) + 14], 4.4)
+# Y1: the trail from where it leaves the forest floor up to the outer ring
+y1 = band([p for p, (_, _, th) in zip(TRAIL, TRAIL3) if th > 5 and math.hypot(p[0] - CEN[0], p[1] - CEN[1]) > R_OUT(math.atan2(p[1] - CEN[1], p[0] - CEN[0])) + 4], 4.4)
 h.room('Y1', 'Trail', y1, 'dirt', page=pg('Y1')); open_all(h, y1)
 # Y3: the druids' ring; the boulders make a low wall you can climb over (it blocks sight like rough ground)
 Y3P = circle(Y3C, Y3R, 48)
@@ -165,6 +353,12 @@ h.room('Y3', "Druids' Circle", Y3P, 'dirt', page=pg('Y3')); ring_walls(h, Y3P)
 h.room('Y4', 'Gulthias Tree', Y4P, 'dirt', page=pg('Y4')); open_all(h, Y4P)
 Y5P = FOG
 h.room('Y5', 'Wall of Fog', Y5P, 'grass', page=pg('Y5')); open_all(h, Y5P)
+# on the hill level the rooms' own floors lie under the land: the withered turf of the ring and the copse's bare earth
+# are drawn on the hilltop instead
+for key, poly in (('Y3', Y3P), ('Y4', Y4P)):
+    h.obj(f'{key}-earth', 'prism', (0, 0), 'player', key, dims={'h': 0.45, 'y': round(TOP_G - 0.3, 2), 'color': DIRT})
+    h.objects[-1]['polygon'] = [[round(x * 5, 2), round(z * 5, 2)] for x, z in poly]
+PATCH = 0.15                                                       # the earth patches stand this far above the turf
 
 
 def summit_dressing(lv, full):
@@ -189,61 +383,94 @@ def summit_dressing(lv, full):
         if inside(p, Y4P): lv.prop(f'shrub{i}', 'dead-shrub', p, None, dims={'scale': round(0.9 + H(i, 9) * 0.6, 2), 'seed': i})
 
 
+def cairns(lv, keyed):
+    """The cairns: a ring just below each track, about one every fifty feet, each ring on its own contour (the outer
+    ring 32 ft out from its track; the inner one a fifth of the way across the band)."""
+    n = 0
+    for which, cnt in ((0, 64), (1, 48)):
+        for i in range(cnt):
+            a = 2 * math.pi * i / cnt + H(i, which) * 0.04
+            if which == 0: p = at(R_OUT, a, 6.4 + (H(i, 3) - 0.5) * 0.6)
+            else: p = at(R_IN, a, 0.22 * (R_OUT(a) - R_IN(a)) + (H(i, 4) - 0.5) * 0.6)
+            if dist_to(p, TRAIL) < 4: continue
+            key = f'Y2-{SECT[int(((math.degrees(a) + 120) % 360) // 60)][0]}' if keyed else None
+            lv.prop(f'cairn{n}', 'cairn', p, key, rotY=int(H(i, 5) * 360), dims={'seed': n, 'r': round(5.5 + H(i, 6) * 1.5, 2)})
+            n += 1
+    return n
+
+
+def forest(lv, thin=1):
+    """The forest on three sides of the hill, the trail cut through it: a tree every 40 ft within 120 ft of the trail and
+    the forest's edge, every 50 ft deeper in (where the canopy hides the floor), and pines every 60 ft on the forest
+    floor in the lattice's margin past the map's edge, where the land drawn beyond the map takes over. `thin` keeps one
+    in so many."""
+    trees = 0
+    near = lambda x, z: dist_to((x, z), TRAIL) < 24 or dist_to((x, z), CLEAR + CLEAR[:1]) < 24
+    plate = lambda x, z: 0 <= x <= W_CELLS and 0 <= z <= H_CELLS
+    for step, zone in ((8, 'near'), (10, 'far'), (12, 'margin')):
+        for gz in range(int(LZ0) - 1, int(LZ1) + 1, step):
+            for gx in range(int(LX0) - 1, int(LX1) + 1, step):
+                i = gz * 1000 + gx + step * 7
+                x, z = gx + (H(i, 1) - 0.5) * step * 0.75, gz + (H(i, 2) - 0.5) * step * 0.75
+                if not (LX0 + 2 <= x <= LX1 - 2 and LZ0 + 2 <= z <= LZ1 - 2): continue
+                if zone == 'margin':
+                    if plate(x, z) or x < 0: continue                     # the fog lies past the west edge
+                else:
+                    if not plate(x, z) or (zone == 'near') != near(x, z): continue
+                    if inside((x, z), CLEAR) or inside((x, z), FOG) or dist_to((x, z), TRAIL) < 4: continue
+                    edge = min(dist_to((x, z), CLEAR + CLEAR[:1]), 40)
+                    if edge < 3 and H(i, 3) < 0.5: continue            # a ragged edge
+                trees += 1
+                if trees % thin: continue
+                if zone != 'margin' and H(i, 4) < 0.22: lv.prop(f'tree{trees}', 'oak', (x, z), None, dims={'r': round(1.1 + H(i, 5) * 0.6, 2), 'h': round(20 + H(i, 6) * 10, 1), 'canopy': round(13 + H(i, 7) * 6, 1)})
+                else: lv.prop(f'tree{trees}', 'pine', (x, z), None, dims={'scale': round(1.0 + H(i, 8) * 0.5, 2)})
+    return trees
+
+
+def fog_wall(lv, keyed):
+    """Y5: the wall of fog along the whole western edge: pieces laid end to end on the lattice (their crests follow world
+    z, so they join without a seam), each standing on the land at its front and reaching down to the forest floor beyond;
+    the two end pieces run on 400 ft past the map's north and south edges, sinking away into the haze."""
+    zs = list(range(-6, H_CELLS + 34, 34))[:15]                     # piece centres (cells), all on the lattice
+    for i, z in enumerate(zs):
+        x = 8
+        end = {'end': -1, 'ext': 400} if i == 0 else {'end': 1, 'ext': 400} if i == len(zs) - 1 else {}
+        lv.prop(f'fog{i}', 'fog-wall', (x, z), 'Y5' if keyed and 0 <= z <= H_CELLS else None,
+                dims={'len': 170, 'h': 620, 'd': 900, 'base': round(ground(x * 5, z * 5) + 8, 1), 'z0': z * 5, 'seed': 3, **end})
+
+
 summit_dressing(h, False)
-# the cairns: a ring just outside each trail, about one every fifty feet, and a few strays
-n = 0
-for which, (r, k, cnt) in enumerate(((R_OUT, 6.5, 64), (R_IN, 6.0, 48))):
-    for i in range(cnt):
-        a = 2 * math.pi * i / cnt + H(i, which) * 0.04
-        p = at(r, a, k + (H(i, 3 + which) - 0.5) * 2)
-        if dist_to(p, TRAIL) < 4: continue
-        h.prop(f'cairn{n}', 'cairn', p, f'Y2-{SECT[int(((math.degrees(a) + 120) % 360) // 60)][0]}', rotY=int(H(i, 5) * 360), dims={'seed': n, 'r': round(5.5 + H(i, 6) * 1.5, 2)})
-        n += 1
+n_cairns = cairns(h, True)
 KAVAN = at(R_OUT, math.radians(150), 6.5)
 h.hidden('kavan', 'skeleton', KAVAN, 'Y2-southwest', 'Kavan\'s cairn: under the heavy rocks lie his moldy bones and the blood spear (appendix C); the chosen character gets +2 to hit and damage with it (Blood Spear of Kavan event).')
 h.objects[-1]['playerLabel'] = 'Old bones under the rocks'
-# the forest on three sides, the trail cut through it; the fog closes the west
-trees = 0
-for gz in range(0, H_CELLS + 1, 8):
-    for gx in range(0, W_CELLS + 1, 8):
-        i = gz * 1000 + gx
-        x, z = gx + (H(i, 1) - 0.5) * 6, gz + (H(i, 2) - 0.5) * 6
-        if not (0 <= x <= W_CELLS and 0 <= z <= H_CELLS): continue
-        if inside((x, z), CLEAR) or inside((x, z), FOG) or dist_to((x, z), TRAIL) < 6: continue
-        edge = min(dist_to((x, z), CLEAR + CLEAR[:1]), 40)
-        if edge < 3 and H(i, 3) < 0.5: continue                    # a ragged edge
-        if H(i, 4) < 0.22: h.prop(f'tree{trees}', 'oak', (x, z), None, dims={'r': round(1.1 + H(i, 5) * 0.6, 2), 'h': round(20 + H(i, 6) * 10, 1), 'canopy': round(13 + H(i, 7) * 6, 1)})
-        else: h.prop(f'tree{trees}', 'pine', (x, z), None, dims={'scale': round(1.0 + H(i, 8) * 0.5, 2)})
-        trees += 1
-for i, z in enumerate(range(95, 365, 34)):
-    h.prop(f'fog{i}', 'fog-wall', (8 + (H(i, 1) - 0.5) * 6, z), 'Y5', dims={'len': 180, 'h': 140, 'seed': i})
+trees = forest(h)
+fog_wall(h, True)
 # notes for the table
-h.note('Y1-note', S(28.6, 13.8), 'Y1', 'Up through dense forest to a bare hill of black cairns under massing storm clouds, lightning on the top; westward the world ends in fog.')
+h.note('Y1-note', S(33.0, 13.0), 'Y1', 'Up through dense forest to a bare hill of black cairns under massing storm clouds, lightning on the top; westward the world ends in fog. The book has the hill rise about 400 ft from the forest; the map draws its top 272 ft above the forest floor, the trail climbing at 1 in 5 or less.')
 h.note('Y2-note', S(16.0, 17.3), 'Y2-north', 'Two dirt tracks circle the slope, each edged with ten-foot cairns of slick black stone: graves of an old berserker tribe, untouched for centuries.')
 h.note('Y3-note', S(19.35, 25.6), 'Y3', 'The battle is on the Summit level (the inset): graves, druids, berserkers; lightning strikes the ring.')
 h.note('Y4-note', S(15.5, 35.3), 'Y4', 'The copse of the Gulthias tree; its blights are placed on the Summit level.')
 h.note('Y5-note', S(3.2, 27.0), 'Y5', 'Looking west from the summit or the west slope: a pale castle above a far-off city seems to float in the fog, and a bell tolls faintly. It is an illusion. Entering the fog: Mists of Ravenloft (ch.2).')
-for k, (c, r) in enumerate([((20.4, 37.1), '+400 ft'), ((21.4, 39.6), '+300 ft'), ((22.8, 41.9), '+200 ft'), ((24.6, 44.2), '+100 ft')]):
-    h.note(f'contour{k}', S(*c), None, f'Contour {r}: the hill climbs about 400 ft from the forest to the top (the map is drawn flat).')
+h.note('heights', S(24.6, 44.2), None, f'Heights: the hilltop and the inner track {TOP:.0f} ft above the forest floor, the outer track {H_OUT:.0f} ft; the slopes below it are as steep as 1 in 2. Tokens on this level stand on the forest floor: take the party to the Summit level at the top.')
 h.note('wintersplinter', S(21.5, 27.0), 'Y3', "Druids' Ritual: when Strahd comes (on Beucephalus or as a bat) the druids rise and chant for 10 rounds; Wintersplinter, a tree blight, bursts from the statue and marches north on the Wizard of Wines. Needs room for a Huge creature.")
-h.obj('spawn', 'spawn', S(34.2, 11.4), 'dm-note', None, 'The party comes up the trail from the north-east')
+h.obj('spawn', 'spawn', (TRAIL_FT[1][0] / 5, TRAIL_FT[1][1] / 5), 'dm-note', None, 'The party comes up the trail from the north-east')
 
-# ================================================================== the summit (battle inset)
-s = Level('summit', 'Summit (battle inset)', 0, 12, ambient=AMB, interior='cave-rock', exterior='cave-rock', north='-z')
-SB = (S(12.6, 21.6), S(26.2, 37.9))                                # the inset's frame
-s.terrain.append((rect(SB[0][0], SB[0][1], SB[1][0], SB[1][1]), 'grass'))
-clip = lambda line: [p for p in line if SB[0][0] - 3 <= p[0] <= SB[1][0] + 3 and SB[0][1] - 3 <= p[1] <= SB[1][1] + 3]
-for seg in (clip(TRAIL), clip(SW_PATH)):
-    if len(seg) > 1: s.terrain.append((band(seg, 2.6), 'dirt'))
+# ================================================================== the summit (battle inset): its floor is the hilltop
+s = Level('summit', 'Summit (battle inset)', TOP, 12, ambient=AMB, interior='cave-rock', exterior='cave-rock', north='-z')
+# the battle ground: the ring and the copse with a little room round them, all of it on the flat top (its corners stay
+# inside the inner track), so the grid lies on the turf
+_b = [p for poly in (Y3P, Y4P) for p in poly]
+SB = (min(x for x, _ in _b) - 0.3, min(z for _, z in _b) - 0.3, max(x for x, _ in _b) + 0.3, max(z for _, z in _b) + 0.3)
+# the summit's open ground is the ring's trodden earth (its land is the heightfield, drawn round it to the forest)
+s.terrain.append((Y3P, 'dirt'))
+land_props(s, TOP, fine=(GX0 + 520, GZ0 + 820, GX0 + 1640, GZ0 + 1960))   # x 400..1520, z 700..1840: the top, both tracks
 s.room('Y3-summit', "Druids' Circle", Y3P, 'dirt', page=pg('Y3')); ring_walls(s, Y3P)
 s.room('Y4-summit', 'Gulthias Tree', Y4P, 'dirt', page=pg('Y4')); open_all(s, Y4P)
 summit_dressing(s, True)
-# the inner ring's cairns where they fall inside the inset
-for i in range(48):
-    a = 2 * math.pi * i / 48 + H(i, 1) * 0.04
-    p = at(R_IN, a, 6.0 + (H(i, 4) - 0.5) * 2)
-    if SB[0][0] + 3 < p[0] < SB[1][0] - 3 and SB[0][1] + 3 < p[1] < SB[1][1] - 3 and dist_to(p, TRAIL) >= 4:
-        s.prop(f'cairn{i}', 'cairn', p, None, rotY=int(H(i, 5) * 360), dims={'seed': i, 'r': round(5.5 + H(i, 6) * 1.5, 2)})
+cairns(s, False)
+forest(s, 2)
+fog_wall(s, False)
 # the dozen hidden graves and their sleepers (six druids, six berserkers)
 GR = [(-14, -9), (-8, 12), (2, -16), (9, 8), (15, -6), (-17, 4), (-3, 18), (12, 15), (18, 3), (-11, -16), (6, -6), (-4, 4)]
 for i, (dx, dz) in enumerate(GR):
@@ -274,13 +501,31 @@ for i in range(12):
 s.hidden('axe', 'wall-sword', (GULTHIAS[0] + 0.08, GULTHIAS[1] + 1.1), 'Y4-summit', 'The axe in the trunk: magic, its haft carved with foliage, half the usual weight; +1d8 slashing against plants; grows thorns that prick a non-good wielder for 1 piercing per attack.')
 s.objects[-1]['dims'] = {'y': 7.6}; s.objects[-1]['rotY'] = 90; s.objects[-1]['playerLabel'] = 'An axe in the trunk'
 s.note('Y4-tree', (GULTHIAS[0] - 10, GULTHIAS[1] + 14), 'Y4-summit', 'Gulthias tree: AC 15, 250 hp, immune bludgeoning, piercing, psychic; at 0 hp it only seems dead (regains 1 hp a month) unless the whole stump is uprooted (Nature DC 15 tells). Hallow kills it in 3d10 days. 1,500 XP. Card reading treasure: buried under the skeleton.')
-s.obj('spawn', 'spawn', S(20.6, 24.0), 'dm-note', None, 'The trail enters the ring here')
+s.obj('spawn', 'spawn', (TRAIL_FT[-1][0] / 5, TRAIL_FT[-1][1] / 5 + 0.6), 'dm-note', None, 'The trail enters the ring here')
+
+# ---------------------------------------------------------------- every object stands on the land (or on the summit's floor)
+SINK = {'cairn': -0.6, 'oak': -0.4, 'pine': -0.4, 'note': 1.0}   # a cairn and a tree bed into the slope; a note floats over it
+ON_LAND = lambda o: o['kind'] not in ('heightfield', 'road-ribbon', 'prism')
+
+
+def settle(lv, elev, floors):
+    for o in lv.objects:
+        if not ON_LAND(o): continue
+        x, z = o['pos'][0], o['pos'][2]; p = (x / 5, z / 5)
+        g = ground(x, z)
+        if any(inside(p, poly) for poly in floors): g = max(g, elev)
+        elif not elev and (inside(p, Y3P) or inside(p, Y4P)): g += PATCH
+        o['pos'][1] = round(g - elev + o['pos'][1] + SINK.get(o['kind'], 0.0), 2)
+
+
+settle(h, 0.0, [])
+settle(s, TOP, [rect(*SB), Y3P, Y4P])
 
 DESC = {
-  'Y1': ("A path winds up through dense forest toward a bare hill heaped with black stone cairns; storm clouds pile overhead and lightning lances the top.", "The path forks into the two rings of Y2 and climbs on to the summit."),
+  'Y1': ("A path winds up through dense forest toward a bare hill heaped with black stone cairns; storm clouds pile overhead and lightning lances the top.", "The path climbs round the east slope, crosses both tracks of Y2 on the south-east and runs over the top to the boulder ring's north gap."),
   'Y2-north': ("Two rings of dirt track circle the hillside, each edged with ten-foot heaps of slick black stones.", "Burial cairns of an old berserker tribe, untouched for centuries."),
-  'Y2-east': ("Black stone cairns line both tracks along the eastern slope.", "The path from Y1 crosses both rings here on its way up to the boulder ring."),
-  'Y2-southeast': ("Black stone cairns line both tracks along the south-eastern slope.", "Mouldering berserker bones under every cairn."),
+  'Y2-east': ("Black stone cairns line both tracks along the eastern slope.", "Mouldering berserker bones under every cairn."),
+  'Y2-southeast': ("Black stone cairns line both tracks along the south-eastern slope.", "The path from Y1 crosses both tracks here on its way up to the boulder ring."),
   'Y2-south': ("Black stone cairns line both tracks along the southern slope.", "Mouldering berserker bones under every cairn."),
   'Y2-southwest': ("Black stone cairns line both tracks along the south-western slope.", "Kavan's cairn is here (Blood Spear of Kavan)."),
   'Y2-northwest': ("Black stone cairns line both tracks on the north-western slope, the fog close beyond.", "From this slope the vision in the fog (Y5) is plain to see."),
@@ -303,10 +548,12 @@ for lv in scene['levels']:
         if o['vis'] in ('hidden-object', 'hidden-creature') and 'playerLabel' not in o:
             o['playerLabel'] = {'druid': 'A mud-caked figure', 'berserker': 'A mud-caked warrior', 'needle-blight': 'A needled shape', 'twig-blight': 'Dead twigs',
                                 'vine-blight': 'Dead vines', 'tree-blight': 'Something vast'}.get(o['kind'], 'Something')
+# the grid: the hill level's would lie under the land (it is a travel map: none drawn); the summit's lies on the top
+FLOORS = {'hill': (rect(0, 0, W_CELLS, H_CELLS), 0), 'summit': (rect(*SB), 0.55)}
 grid = OrderedDict(schema=1, levels=OrderedDict((lv.id, OrderedDict(
-    floorPolygons=[[[x * 5, z * 5] for x, z in p] for p in lv.floor_polys] + [[[x * 5, z * 5] for x, z in p] for p, _ in lv.terrain[:1]],
-    type='square', hexOrientation='pointy', origin=[0, 0], color='#1d1b22', opacity=0.55)) for lv in levels))
+    floorPolygons=[[[x * 5, z * 5] for x, z in p] for p in lv.floor_polys] + [[[round(x * 5, 2), round(z * 5, 2)] for x, z in FLOORS[lv.id][0]]],
+    type='square', hexOrientation='pointy', origin=[0, 0], color='#1d1b22', opacity=FLOORS[lv.id][1])) for lv in levels))
 out = os.path.join(ROOT, 'locations', 'ch14', 'Y'); os.makedirs(out, exist_ok=True)
 json.dump(scene, open(os.path.join(out, 'scene.json'), 'w'), indent=1)
 json.dump(grid, open(os.path.join(out, 'grid.json'), 'w'), indent=1)
-print('yester hill:', [(lv.id, len(lv.rooms), len(lv.objects)) for lv in levels], 'trees', trees, 'cairns', n)
+print('yester hill:', [(lv.id, len(lv.rooms), len(lv.objects)) for lv in levels], 'trees', trees, 'cairns', n_cairns, 'top', TOP, 'outer track', round(H_OUT, 1))

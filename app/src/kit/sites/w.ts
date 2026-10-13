@@ -7,12 +7,13 @@
 // black cairns and boulders, the Gulthias tree, the druids' sod-covered graves and the wall of fog. Figures: the
 // druids, the four kinds of blight, wereravens, a swarm of ravens and the mud-daubed berserkers.
 import * as THREE from 'three';
-import { mat } from '../../render/materials';
+import { mat, matClone } from '../../render/materials';
 import { PALETTE } from '../palette';
 import { surfaceFor } from '../surfaces';
 import { PROPS_V1 } from '../props';
 import { CREATURES, humanoid } from '../creatures';
 import { merge } from '../pieces';
+import { SITE_SHAPERS } from '../../render/backdrop';
 
 type Dims = Record<string, number>;
 
@@ -46,6 +47,8 @@ const ico = (r: number, color: string, x = 0, y = 0, z = 0, detail = 0) => { con
 const cone = (r: number, h: number, color: string, x = 0, y = 0, z = 0, seg = 6) => { const m = new THREE.Mesh(new THREE.ConeGeometry(r, h, seg), mat(color)); m.position.set(x, y, z); return m; };
 /** A deterministic 0..1 hash, so every prop varies but rebuilds the same. */
 const hash = (a: number, b = 0) => { const s = Math.sin(a * 127.1 + b * 311.7) * 43758.5453; return s - Math.floor(s); };
+/** 0..1 easing of t between a and b. */
+const smoothstep = (a: number, b: number, t: number) => { const k = Math.min(1, Math.max(0, (t - a) / (b - a))); return k * k * (3 - 2 * k); };
 /** A box from p to q (a strut, a limb, a rope): `t` thick. */
 function strut(p: THREE.Vector3, q: THREE.Vector3, t: number, color: string): THREE.Mesh {
   const d = new THREE.Vector3().subVectors(q, p), L = d.length() || 0.01;
@@ -420,21 +423,56 @@ export function sodGrave(): THREE.Group {
   for (let i = 0; i < 10; i++) g.add(box(0.12, 0.8, 0.12, C.leafDead, (hash(i, 1) - 0.5) * 3, 0.6, (hash(i, 2) - 0.5) * 6.6));
   return g;
 }
-/** The wall of fog at the edge of Strahd's domain: billows of mist towering over the land along local z, `len` long. */
+/** Fog: the mist greys, lit like the land but see-through and drawn without depth writes; a faint glow keeps it pale
+ *  in poor light. Cached per colour and opacity, so a whole wall merges into a handful of meshes. */
+const fogMats = new Map<string, THREE.MeshLambertMaterial>();
+function fogMat(color: string, opacity: number): THREE.MeshLambertMaterial {
+  const k = color + opacity;
+  let m = fogMats.get(k);
+  if (!m) {
+    m = matClone(color); m.transparent = true; m.opacity = opacity; m.depthWrite = false; m.side = THREE.DoubleSide; m.emissive.set('#2a2c31');
+    fogMats.set(k, m);
+  }
+  return m;
+}
+/** The crest of the fog at world z (ft): long slow swells and smaller heads, the same for every piece of the wall so the
+ *  pieces join without a seam. `k` picks one of the wall's layers. 0.55..1.1 of the layer's height. */
+function fogCrest(z: number, k: number, seed: number): number {
+  const p = seed * 1.7 + k * 2.3;
+  return 0.8 + 0.13 * Math.sin(z / (230 + k * 17) + p) + 0.09 * Math.sin(z / (83 + k * 7) + p * 1.9) + 0.05 * Math.sin(z / (37 + k * 3) + p * 3.1);
+}
+/** One curtain of fog across local z from za to zb, standing at x from its foot at y0 up to a billowing crest (`top(z)`,
+ *  the crest's height at local z), leaning back toward -x by `lean` radians. */
+function fogCurtain(za: number, zb: number, y0: number, top: (z: number) => number, x: number, lean: number, m: THREE.Material): THREE.Mesh {
+  const n = Math.max(6, Math.round((zb - za) / 12)), pts = [new THREE.Vector2(za, 0), new THREE.Vector2(zb, 0)];
+  for (let i = n; i >= 0; i--) { const z = za + (i / n) * (zb - za); pts.push(new THREE.Vector2(z, Math.max(1, top(z) - y0) / Math.cos(lean))); }
+  const geo = new THREE.ShapeGeometry(new THREE.Shape(pts));
+  geo.rotateY(-Math.PI / 2); geo.rotateZ(lean); geo.translate(x, y0, 0);
+  return new THREE.Mesh(geo, m);
+}
+/** The wall of fog at the edge of Strahd's domain: a bank `d` ft deep behind local -x and `len` ft long (local z), its
+ *  crest rising westward to `h` ft above the forest floor (`base` ft below the piece's foot). Translucent curtains are
+ *  layered through its depth, low and faint at the front and taller and closer-packed behind, so it thickens with
+ *  distance and hides whatever lies past it; each has fainter fringes above its crest, so the top dissolves instead of
+ *  ending in an edge; the curtains lean back into the west, so from above they overlap like a cloud bank. `z0` is the
+ *  piece's world z: the crests follow world z (with the wall's shared `seed`), so pieces laid end to end make one wall.
+ *  At the wall's ends, `end` (-1: toward local -z, +1: +z) runs the piece on `ext` ft further, sinking away to nothing. */
 export function fogWall(d: Dims): THREE.Group {
-  const L = d.len ?? 200, H = d.h ?? 160, seed = d.seed ?? 0, g = grp();
-  // the mist glows faintly, as if lit from within; heaped billows leaning back into the west, wisps creeping east
-  const fog = (c: string) => mat(c, { emissive: c === C.fog ? '#46484f' : '#3a3c42' });
-  const puff = (r: number, c: string, x: number, y: number, z: number, sy: number) => { const m = new THREE.Mesh(new THREE.IcosahedronGeometry(r, 1), fog(c)); m.position.set(x, y, z); m.scale.set(0.75, sy, 1.15); return m; };
-  const n = Math.max(2, Math.round(L / 15));
-  for (let i = 0; i < n; i++) {
-    const z = -L / 2 + (i + 0.5) * (L / n), tall = 0.7 + hash(i, seed + 2) * 0.45;
-    for (let k = 0; k < 6; k++) {
-      const r = 11 + hash(i, k + seed) * 16, y = (k * H / 6) * tall + r * 0.4 + hash(k + seed, i) * 10, x = (hash(k, i + seed) - 0.5) * 22 - k * 5;
-      if (hash(i * 7 + k, seed + 9) < 0.18) continue;               // gaps, so it billows rather than stacks
-      g.add(puff(r, (i * 3 + k) % 4 ? C.fog : C.fogDeep, x, y, z + (hash(i + k, 3) - 0.5) * 14, 0.6 + hash(k, i) * 0.35));
+  const L = d.len ?? 170, H = d.h ?? 600, D = d.d ?? 800, base = d.base ?? 0, z0 = d.z0 ?? 0, seed = d.seed ?? 0, end = d.end ?? 0, ext = end ? d.ext ?? 0 : 0, g = grp();
+  const za = -L / 2 - (end < 0 ? ext : 0), zb = L / 2 + (end > 0 ? ext : 0);
+  const fade = (z: number) => (end ? 0.04 + 0.96 * smoothstep(0, ext + L * 0.75, end < 0 ? z - za : zb - z) : 1);
+  const floorY = -base, n = Math.max(8, Math.round(D / 55)), q = (o: number) => Math.max(0.02, Math.round(o * 50) / 50);
+  for (let k = 0; k < n; k++) {
+    const t = k / (n - 1), x = 6 - D * Math.pow(t, 1.25);
+    const hk = H * (0.1 + 0.9 * Math.pow(t, 0.85)), op = 0.07 + 0.08 * t;
+    const crest = (z: number) => floorY + hk * fade(z) * fogCrest(z0 + z, k, seed);
+    const lean = 0.15 + 0.55 * t;                      // the bank leans back into the west, more the deeper it lies
+    g.add(fogCurtain(za, zb, floorY - 2, crest, x, lean, fogMat(k % 2 ? C.fogDeep : C.fog, q(op))));
+    // fringes: fainter veils standing a little higher just behind, so the crest thins out instead of ending in an edge
+    for (let f = 1; f <= 3; f++) {
+      const lift = hk * 0.09 * f;
+      g.add(fogCurtain(za, zb, floorY - 2, (z) => crest(z) + lift * fade(z) * (0.6 + 0.4 * fogCrest(z0 + z + 300 * f, k + 5 * f, 7)), x - 4 * f, lean, fogMat(C.fog, q(op * (0.62 - 0.17 * f)))));
     }
-    for (let k = 0; k < 2; k++) g.add(puff(6 + hash(i, k + 20) * 8, C.fog, 10 + k * 12 + hash(k, i + 4) * 10, 1.5, z + (hash(i, k + 6) - 0.5) * 12, 0.22));
   }
   return g;
 }
@@ -446,6 +484,50 @@ Object.assign(PROPS_V1, {
   'shed-roof': shedRoof, ivy, 'brown-mold': brownMold, 'strahd-effigy': strahdEffigy, cairn, 'black-boulder': blackBoulder, 'gulthias-tree': gulthiasTree,
   'sod-grave': sodGrave, 'fog-wall': fogWall, 'dead-shrub': deadShrub,
 } as Record<string, (d: Dims) => THREE.Object3D>);
+
+// ================================================================ Yester Hill's land past its map
+// The map's heightfield (scripts/authoring/yester-hill.py) runs 120 ft past the plate's edge. The land drawn round the map
+// carries the same slope on: the profile below the outer track (Y_KNOTS: ft out, ft below, grade) measured out from the
+// track's fitted ellipse (Y_ELL: centre x, z, turn, half-axes), easing into the region's own relief a mile and more
+// away. Under the map and its margin it stays a few feet below the map's land, and where the level's grid reaches past
+// the plate it stays above the grid, so neither shows through. The numbers are the script's: tests/yester-hill.test.ts
+// checks the lattice's outer edge against yesterLand().
+const Y_KNOTS: readonly (readonly [number, number, number])[] = [[0, 0, 0.25], [200, 72, 0.42], [420, 162, 0.36], [650, 232, 0.18], [850, 254, 0], [5000, 254, 0]];
+const Y_ELL = [853.37, 1211.69, 0.289, 442.97, 644.42] as const;
+/** The outer track's height above the hill level's floor; the plate and the lattice's margin past it (ft). */
+const Y_OUT = 255, Y_W = 1725, Y_H = 2250, Y_MARGIN = 120;
+function yesterDrop(d: number): number {
+  const x = Math.min(Math.max(d, 0), Y_KNOTS[Y_KNOTS.length - 1][0]);
+  for (let i = 0; i + 1 < Y_KNOTS.length; i++) {
+    const [d0, h0, g0] = Y_KNOTS[i], [d1, h1, g1] = Y_KNOTS[i + 1];
+    if (x > d1) continue;
+    const L = d1 - d0, s = (x - d0) / L;
+    return h0 * (2 * s ** 3 - 3 * s ** 2 + 1) + g0 * L * (s ** 3 - 2 * s ** 2 + s) + h1 * (-2 * s ** 3 + 3 * s ** 2) + g1 * L * (s ** 3 - s ** 2);
+  }
+  return Y_KNOTS[Y_KNOTS.length - 1][1];
+}
+/** Yester Hill's land at plan (x, z) ft, in ft above the hill level's floor, reckoned from the outer track's ellipse:
+ *  what the map's own heightfield is past the plate's edge. */
+export function yesterLand(x: number, z: number): number {
+  const [ex, ez, t, a, b] = Y_ELL, dx = x - ex, dz = z - ez, c = Math.cos(t), s = Math.sin(t);
+  const u = dx * c + dz * s, v = -dx * s + dz * c, r = Math.hypot(u, v), k = Math.sqrt((u / a) ** 2 + (v / b) ** 2);
+  return Y_OUT - yesterDrop(r - r / Math.max(k, 1e-9));
+}
+SITE_SHAPERS.push({
+  pin: [-0.53, 8.0],
+  height: (x, z, h, _raw, d) => {
+    // under the plate and the lattice's margin a few feet below the map's land (deeper toward the plate's middle); past
+    // the margin the hill itself; never under the level's grid (just above the floor) where the grid reaches. `d` is
+    // measured from the map's ground (the lattice); the backdrop lowers its land by 0.4 ft within 150 ft of it and by
+    // 3 ft beyond, which is added back.
+    const out = Math.hypot(Math.max(0, -x, x - Y_W), Math.max(0, -z, z - Y_H)), deep = Math.max(0, Math.min(x, Y_W - x, z, Y_H - z));
+    const under = 6 * (1 - smoothstep(Y_MARGIN, Y_MARGIN + 80, out)) + Math.max(0, Math.min(deep, 400) - 150) * 0.5;
+    const near = Math.max(yesterLand(x, z) - under, out < 300 ? 0.4 : -1e9) + (d < 150 ? 0.4 : 3);
+    // the hill's land eases into the region's relief; west, past the fog, it waits longer before rising to the mountains
+    const west = x < 0 ? smoothstep(0, 600, -x) : 0, e = smoothstep(1500, 9000, out) * (1 - west) + smoothstep(4000, 16000, out) * west;
+    return near * (1 - e) + h * e;
+  },
+});
 
 // ================================================================ figures
 /** An evil druid: wild hair, animal skins, necklaces of teeth. `v` picks the look the book gives each one:
