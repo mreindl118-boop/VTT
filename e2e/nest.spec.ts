@@ -122,6 +122,31 @@ test('zooming into the Blue Water Inn opens it inside Vallaki; zooming out climb
   expect(await page.evaluate(() => [(window as any).__mistlab.app.cur.path, (window as any).__opens])).toEqual(['ch05/N', 0]);
 });
 
+test('Enter on a building while its town is taking the role back: the Enter wins, and the building stays the active map', async ({ page }) => {
+  test.setTimeout(LONG);
+  await page.setViewportSize({ width: 1180, height: 820 });
+  await open(page, 'ch05/N');
+  const L = await lines(page);
+  await aim(page, 'ch05/N2', L.enter + 60);
+  await until(page, `a.cur.path === 'ch05/N2'`);
+  await page.waitForTimeout(800);
+  // under the lower line: the town begins to take the role back (its tint glides off); Enter is pressed meanwhile
+  await aim(page, 'ch05/N2', L.leave - 40);
+  await until(page, `a.switching?.path === 'ch05/N'`);
+  const ok = await page.evaluate(() => (window as any).__mistlab.app.open('ch05/N2'));
+  await page.waitForTimeout(2500); // (the town's fade would have ended long since)
+  const s = await page.evaluate(() => { const a = (window as any).__mistlab.app; return { cur: a.cur.path, home: a.home, switching: a.switching?.path ?? null, crumbs: a.crumbs().map((c: any) => c.label), back: !document.querySelector<HTMLElement>('[data-act="back"]')!.hidden }; });
+  expect({ ...s, ok }).toEqual({ ok: true, cur: 'ch05/N2', home: 'ch05/N2', switching: null, crumbs: ['Barovia', 'Town of Vallaki', 'Blue Water Inn', 'Ground floor'], back: true });
+  // the town is a ghost again, tinted as the others are (not left at the tint of an active map)
+  expect(await page.evaluate(() => { const g = (window as any).__mistlab.app.resident.get('ch05/N').ghost; return [g.on, g.tint > 0]; })).toEqual([true, true]);
+  // the town crumb frames the town round the inn (not its whole level with its fields), and the town is active
+  await page.locator('.title .loc [data-crumb="1"]').click();
+  await until(page, `a.cur.path === 'ch05/N' && !a.world.tween`);
+  const d = await page.evaluate(() => { const a = (window as any).__mistlab.app, w = a.world, t = a.toLocal3(w.controls.target); return { dist: w.camera.position.distanceTo(w.controls.target), t: [t.x, t.z] }; });
+  expect(d.dist).toBeLessThan(4000);
+  expect(Math.hypot(d.t[0] - 4385, d.t[1] - 2155)).toBeLessThan(300); // over the inn's plot
+});
+
 /** Frame a room of the active map at once, then tap the building on it (a house or the church) and press Enter. */
 async function enterBuilding(page: Page, key: string): Promise<void> {
   const at = await page.evaluate((key) => {
@@ -190,10 +215,30 @@ test('Enter from Death House\'s card flies into it inside the village; its dunge
   // zooming in again with the camera alone: the house takes the role back (no open)
   await aim(page, 'appB/death-house', 900);
   await until(page, `a.cur.path === 'appB/death-house'`);
-  // the breadcrumb: the village's crumb frames the whole village and the village takes the role; the valley's frames
-  // the whole valley, and the house, far behind, is freed
+  // leaving the dungeon (by the village's crumb, then by Back) brings the village and the valley back whole
+  const veiled = () => page.evaluate(() => {
+    const a = (window as any).__mistlab.app, v = a.resident.get('ch03/E'); let off = 0;
+    v.root.traverse((o: any) => { if (!o.layers.isEnabled(0) || o.userData.veiled?.has('under')) off++; });
+    return { cur: a.cur.path, under: a.underground, village: v.levels.get('village').root.layers.isEnabled(0), stage: a.stage.root.layers.isEnabled(0), off, mist: a.world.mistFloor.visible };
+  });
+  const down = async () => {
+    await page.evaluate(() => (window as any).__mistlab.app.setLevel('dungeon-lower'));
+    expect(await veiled()).toMatchObject({ cur: 'appB/death-house', under: true, village: false, stage: false });
+  };
+  const upOk = { cur: 'ch03/E', under: false, village: true, stage: true, off: 0, mist: false };
+  await down();
+  // the breadcrumb: the village's crumb frames the whole village and the village takes the role
   await page.locator('.title .loc [data-crumb="1"]').click();
   await until(page, `a.cur.path === 'ch03/E' && !a.world.tween`);
+  expect(await veiled()).toEqual(upOk);
+  await aim(page, 'appB/death-house', 900);
+  await until(page, `a.cur.path === 'appB/death-house'`);
+  await down();
+  await page.locator('[data-act="back"]').click();
+  await until(page, `a.cur.path === 'ch03/E' && !a.world.tween`);
+  expect(await veiled()).toEqual(upOk);
+  expect(await plotOf(page, 'ch03/E', 'village', 'E1')).toMatchObject({ flat: 0 });
+  // the valley's crumb frames the whole valley, and the house, far behind, is freed
   await page.locator('.title .loc [data-crumb="0"]').click();
   await until(page, `!a.world.tween && a.stage.framed`);
   await until(page, `!a.resident.has('appB/death-house')`);
@@ -225,10 +270,13 @@ test.describe('on a phone', () => {
   test('the breadcrumb keeps its last two crumbs on screen, and Back climbs to the village', async ({ page }) => {
     test.setTimeout(LONG);
     await open(page, 'appB/death-house');
-    const c = await page.evaluate(() => [...document.querySelectorAll<HTMLElement>('.title .loc .ck')].map((e) => { const r = e.getBoundingClientRect(); return { text: e.querySelector('.crumb')!.textContent, shown: getComputedStyle(e).display !== 'none' && r.width > 0, right: r.right }; }));
-    expect(c.map((x) => x.shown)).toEqual([false, false, true, true]);
-    expect(c[2].text).toBe('Death House');
-    for (const x of c.filter((x) => x.shown)) expect(x.right).toBeLessThanOrEqual(390);
+    const c = await page.evaluate(() => [...document.querySelectorAll<HTMLElement>('.title .loc .ck')].map((e) => { const r = e.getBoundingClientRect(); const b = e.querySelector<HTMLElement>('.crumb')!; return { text: b.textContent, shown: getComputedStyle(e).display !== 'none' && r.width > 0, right: r.right, cut: b.scrollWidth > b.clientWidth + 1 }; }));
+    // the village and the house (the floor picker names the floor), each in full and a finger's height to tap
+    expect(c.map((x) => x.shown)).toEqual([false, true, true, false]);
+    expect(c.filter((x) => x.shown).map((x) => x.text)).toEqual(['Village of Barovia', 'Death House']);
+    for (const x of c.filter((x) => x.shown)) { expect(x.right).toBeLessThanOrEqual(390); expect(x.cut).toBe(false); }
+    const hit = await page.evaluate(() => { const b = document.querySelector<HTMLElement>('.title .loc [data-crumb="2"]')!, r = b.getBoundingClientRect(), x = r.left + r.width / 2; return [-14, -10, 10, 14].map((dy) => document.elementFromPoint(x, r.top + r.height / 2 + dy)?.closest('[data-crumb]')?.getAttribute('data-crumb') ?? null); });
+    expect(hit.slice(1, 3)).toEqual(['2', '2']); // 10 px above and below its text still press it
     const b = (await page.locator('[data-act="back"]').boundingBox())!;
     await page.touchscreen.tap(b.x + b.width / 2, b.y + b.height / 2);
     await until(page, `a.cur.path === 'ch03/E' && !a.world.tween`);

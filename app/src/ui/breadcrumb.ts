@@ -12,9 +12,11 @@ export function renderCrumbs(el: HTMLElement, app: App, interactive: boolean): v
   el.dataset.crumbs = key;
   el.classList.toggle('crumbs', list.length > 1);
   if (list.length <= 1) { el.textContent = list[0]?.label ?? ''; return; }
+  // a narrow screen keeps the last two places (the town and the building; the floor picker already names the floor)
+  const near = list.map((_, i) => i).filter((i) => list[i].kind !== 'level').slice(-2);
   el.replaceChildren(...list.map((c, i) => {
     const ck = document.createElement('span');
-    ck.className = `ck ${c.kind}`;
+    ck.className = `ck ${c.kind}${near.includes(i) ? ' near' : ''}${i === near[0] ? ' near0' : ''}`;
     if (i) { const sep = document.createElement('i'); sep.textContent = '›'; sep.setAttribute('aria-hidden', 'true'); ck.append(sep); }
     const last = i === list.length - 1;
     const b = document.createElement(interactive ? 'button' : 'span');

@@ -528,11 +528,12 @@ test('flights: the whole valley fits on screen, a place name flies into its map,
   expect(s.d).toBeLessThan(5000);
   // zoom out to the far limit with the button: one more press offers the whole valley, and the chip flies there
   await page.evaluate(async () => { const w = (window as any).__mistlab.app.world; for (let i = 0; i < 60 && !w.atMaxDistance; i++) { w.zoomBy(1.6); await w.settled(); } });
+  // (the chip is tapped in the page the moment it shows: a loaded machine can take longer than the chip's five seconds
+  // to deliver a click from outside)
+  const tapped = page.evaluate(() => new Promise<string>((res) => { const c = document.querySelector<HTMLElement>('.zoomchip')!; const go = () => { if (!c.hidden && c.classList.contains('on')) { const t = c.textContent ?? ''; c.click(); res(t); } else requestAnimationFrame(go); }; go(); }));
   await page.locator('[data-cam="zoomOut"]').click();
   const chip = page.locator('.zoomchip');
-  await expect(chip).toBeVisible({ timeout: 20_000 });
-  await expect(chip).toHaveText(/whole valley/);
-  await chip.click();
+  expect(await tapped).toMatch(/whole valley/);
   await page.waitForFunction(() => { const m = (window as any).__mistlab; return !m.app.world.flying && m.stage.framed; }, undefined, { timeout: 60_000 });
   expect(await page.evaluate(() => (window as any).__mistlab.app.cur.path)).toBe('ch08/S'); // the map stays open under the valley
   // at the whole valley, the next zoom out offers the world map sheet (the 2D map stays one press away)

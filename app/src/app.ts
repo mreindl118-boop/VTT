@@ -108,6 +108,9 @@ interface Loaded {
 
 const storeKey = (campaignId: string) => (campaignId === 'cos' ? 'campaign:default' : `campaign:${campaignId}`); // CoS keeps its original save
 
+/** A breadcrumb back out to a town frames at least this much of it round the place left (ft). */
+const CRUMB_TOWN_FT = 1400;
+
 export class App {
   readonly world: World;
   /** The continuous world: pin maps open in place inside the valley (see render/worldstage.ts). The View menu's
@@ -238,6 +241,7 @@ export class App {
    *  whether this map opened; it never rejects. */
   async open(path: string, levelId?: string): Promise<boolean> {
     const seq = ++this.navSeq, c = campaignOf(path), switching = !this.cur || c.id !== this.campaign.id;
+    this.cancelSwitch();
     // in the valley a map comes with the maps it hangs in (a building with its town), the root first; any of them the
     // valley already holds (streamed in, or the one left a moment ago) is used as it stands, without a build
     const chain = this.stageEntry(path, c.id) ? [...this.chainOf(path)].reverse() : [];
@@ -266,6 +270,7 @@ export class App {
     const gone = [...ups, next].some((l) => !built.includes(l) && this.resident.get(l.path) !== l);
     if (seq !== this.navSeq || gone) { for (const b of built) this.dispose(b); return false; }
     // from here on nothing waits: the swap happens between two frames
+    this.cancelSwitch(); // (one the streamer began while this map was read)
     if (switching) { this.releaseAll(); this.useCampaign(c, state); }
     const inValley = !!this.stageEntry(path), fly = !switching && this.staged && inValley; // already in the valley: glide to the next place
     const prev = this.cur;
@@ -605,7 +610,10 @@ export class App {
     if (!under && !this.underground) return;
     this.underground = under;
     if (this.stage) veil(this.stage.root, 'under', under);
-    for (const r of this.resident.values()) if (r.root.parent === this.world.root) veil(r.root, 'under', under && r !== c, c?.root);
+    // every map in the valley goes (or comes back), then the active one, which may hang inside one of them (Death
+    // House in its village), comes back whole: no root is skipped, so nothing keeps a reason from a scope left behind
+    for (const r of this.resident.values()) if (r.root.parent === this.world.root) veil(r.root, 'under', under && r !== c);
+    if (c) veil(c.root, 'under', false);
     this.world.mistFloor.visible = ((!this.backdrop && !this.staged) || under) && this.world.fogOn && this.renderMode === 'normal';
     this.world.invalidate();
   }
@@ -638,8 +646,9 @@ export class App {
   private switchActive(next: Loaded): void {
     const old = this.cur;
     if (!old || old === next || !this.staged || this.resident.get(next.path) !== next || this.switching === next) return;
+    const seq = this.navSeq; // an open or a climb meanwhile (Enter on a building, Back, a crumb) wins over this
     const swap = () => {
-      if (this.cur === next || this.resident.get(next.path) !== next || !this.staged) return;
+      if (seq !== this.navSeq || this.cur === next || this.resident.get(next.path) !== next || !this.staged) return;
       const prev = this.cur;
       if (prev) this.leaveActive(prev);
       this.cur = next;
@@ -662,6 +671,14 @@ export class App {
     });
   }
   private switching?: Loaded;
+  /** A navigation (an open, a climb) takes over: a camera activation still fading in is dropped, its map stays a
+   *  ghost where it is (the streamer may make it active again later, if the camera settles on it). */
+  private cancelSwitch(): void {
+    const left = [...this.fades].filter(([, f]) => f.switch).map(([l]) => l);
+    this.switching = undefined;
+    // (its tint was gliding off to take the role: it glides back on, a ghost among the others)
+    for (const l of left) { this.fades.get(l)!.switch = false; this.fades.get(l)!.done = undefined; if (l !== this.cur) this.fadeTo(l, l.drawn ? 1 : 0, GHOST_TINT); }
+  }
   /** Fold a map into its proxy (the proxy shows, the map fades out and goes) or bring it back (it fades in over the
    *  proxy, which then goes). The active map folds too at valley zoom (it stays active: tokens, tools and minimap). */
   private fold(path: string, on: boolean): void {
@@ -786,7 +803,8 @@ export class App {
    *  or alone at the origin with its backdrop and, for an area map, its parent's surroundings (the legacy way). */
   private place(loaded: Loaded, ups: Loaded[] = []): void {
     this.cur = loaded;
-    this.world.root.add(loaded.root);
+    // (a map the valley already holds stays where it stands: a building streamed in hangs in its town's root)
+    if (this.resident.get(loaded.path) !== loaded) this.world.root.add(loaded.root);
     if (this.backdrop) disposeTree(this.backdrop); this.backdrop = undefined;
     if (this.context) disposeTree(this.context); this.context = undefined;
     const entry = this.stageEntry(loaded.path);
@@ -966,7 +984,8 @@ export class App {
   async climb(path: string, keep = true): Promise<boolean> {
     const cur = this.cur, up = this.resident.get(path);
     if (!cur || !up || !this.staged || cur === up) return cur === up;
-    const g = groundOf(up.scene), seq = this.navSeq;
+    const g = groundOf(up.scene), seq = ++this.navSeq; // (the latest request wins: an open still loading is dropped)
+    this.cancelSwitch();
     if (keep) {
       // over the place just left, pulled back until it is half way between taking the role and giving it back
       // (render/streamer.ts enterPx, leavePx): it stays drawn in its street, small, and the town is the active map
@@ -979,7 +998,15 @@ export class App {
       const x = ATLAS.scenes[cur.path]?.extent ?? f; // (the streamer measures a child by its whole stack)
       w.flyTo(at, Math.hypot(x.maxX - x.minX, x.maxZ - x.minZ) * focal / px);
     } else {
-      const box: Bounds = extentOf(g);
+      // its open-air level whole, or, when that is much bigger than a town (Vallaki's level runs out over its fields
+      // for a mile and more), the town round the place just left, at a span its streets read at
+      let box: Bounds = extentOf(g);
+      const x = ATLAS.scenes[cur.path]?.extent ?? extentOf(groundOf(cur.scene));
+      const span = Math.max(CRUMB_TOWN_FT, 6 * Math.hypot(x.maxX - x.minX, x.maxZ - x.minZ));
+      if (Math.max(box.maxX - box.minX, box.maxZ - box.minZ) > 2 * span) {
+        const m = up.root.worldToLocal(cur.root.localToWorld(new THREE.Vector3((x.minX + x.maxX) / 2, 0, (x.minZ + x.maxZ) / 2)));
+        box = { minX: m.x - span / 2, minZ: m.z - span / 2, maxX: m.x + span / 2, maxZ: m.z + span / 2 };
+      }
       const c = up.root.localToWorld(new THREE.Vector3((box.minX + box.maxX) / 2, g.elevationFt, (box.minZ + box.maxZ) / 2)), hw = (box.maxX - box.minX) / 2, hd = (box.maxZ - box.minZ) / 2;
       this.world.frame({ minX: c.x - hw, minZ: c.z - hd, maxX: c.x + hw, maxZ: c.z + hd }, c.y, this.camPreset, 'fly');
     }

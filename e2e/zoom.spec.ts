@@ -2,7 +2,8 @@
 // a zoom out at the far limit offers the map one level up, the abbey's surroundings follow the room entered from, the
 // zoom buttons take taps on a phone, and none of it reaches Players mode. Desktop 1366x768 and a 390x844 touch phone.
 // These are the legacy way's (?nested=0: one map at a time, a building opened alone with its town's surroundings); in
-// the continuous world a building opens inside its town and zooming out climbs to it (nest.spec.ts).
+// the continuous world a building opens inside its town and zooming out climbs to it (nest.spec.ts). Card Enter with
+// Back, and Players mode, run both ways.
 import { expect, test, type Page } from '@playwright/test';
 
 // Vallaki is a town a mile and a half across; a busy software renderer can take minutes to build and draw it.
@@ -22,8 +23,8 @@ async function opened(page: Page, scene: string): Promise<void> {
   await page.waitForFunction((s) => (window as any).__mistlab?.app?.cur?.path === s, scene, { timeout: LONG, polling: 250 });
   await settle(page);
 }
-async function open(page: Page, scene: string): Promise<void> {
-  await page.goto(`/?nosw&nested=0&scene=${encodeURIComponent(scene)}`, { timeout: LONG });
+async function open(page: Page, scene: string, nested = false): Promise<void> {
+  await page.goto(`/?nosw${nested ? '' : '&nested=0'}&scene=${encodeURIComponent(scene)}`, { timeout: LONG });
   await opened(page, scene);
 }
 async function settle(page: Page): Promise<void> {
@@ -79,9 +80,9 @@ async function tapBuilding(page: Page, touch: boolean, key: string) {
 for (const dev of DEVICES) test.describe(dev.name, () => {
   test.use(dev.use);
 
-  test('Vallaki: a tap on the building of every enterable site offers Enter; Enter opens it; Back frames the town on it', async ({ page }) => {
+  for (const nested of [false, true]) test(`Vallaki: a tap on the building of every enterable site offers Enter; Enter opens it; Back frames the town on it${nested ? ' (continuous world)' : ''}`, async ({ page }) => {
     test.setTimeout(LONG);
-    await open(page, 'ch05/N');
+    await open(page, 'ch05/N', nested);
     const sites = await page.evaluate(() => (window as any).__mistlab.app.level.rooms.filter((r: any) => r.enter).map((r: any) => ({ key: r.key, name: r.name })));
     expect(sites.map((s: { key: string }) => s.key).sort()).toEqual([...VALLAKI_SITES].sort());
     for (const s of sites) {
@@ -93,7 +94,12 @@ for (const dev of DEVICES) test.describe(dev.name, () => {
     await tapBuilding(page, dev.touch, 'N2');
     await press(page, dev.touch, '.infocard [data-a="enter"]');
     await opened(page, 'ch05/N2');
-    expect(await page.evaluate(() => (window as any).__mistlab.app.enteredFrom)).toEqual({ parent: 'ch05/N', level: 'town', key: 'N2', child: 'ch05/N2' });
+    expect(await page.evaluate(() => (window as any).__mistlab.app.enteredFrom)).toMatchObject({ parent: 'ch05/N', key: 'N2', child: 'ch05/N2' });
+    if (nested) {
+      // it stays the active map: the town does not take the role back once the camera has landed
+      await page.waitForTimeout(1500);
+      expect(await page.evaluate(() => [(window as any).__mistlab.app.cur.path, (window as any).__mistlab.app.cur.root.parent?.name])).toEqual(['ch05/N2', 'scene:ch05/N']);
+    }
     // Back keeps your place: the town opens framed on the inn's site, at about the inn map's span, same heading.
     await page.evaluate(() => { const w = (window as any).__mistlab.app.world; w.moveTo(w.controls.target.clone(), undefined, false, Math.PI / 2); });
     const before = await cam(page);
@@ -183,9 +189,9 @@ for (const dev of DEVICES) test.describe(dev.name, () => {
     expect(await targetIn(page, 'N2'), 'camera target inside N2 on the town map').toBe(true);
   });
 
-  test('Players mode never shows Enter or the zoom-out chip (the village: Death House and the church)', async ({ page }) => {
+  for (const nested of [false, true]) test(`Players mode never shows Enter or the zoom-out chip (the village: Death House and the church)${nested ? ' (continuous world)' : ''}`, async ({ page }) => {
     test.setTimeout(LONG);
-    await open(page, 'ch03/E');
+    await open(page, 'ch03/E', nested);
     // The DM enters the village's Death House and church by a tap on them.
     for (const [key, name] of [['E7', 'Death House'], ['E5', 'Church']]) {
       const card = await tapBuilding(page, dev.touch, key);

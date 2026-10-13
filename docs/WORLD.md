@@ -356,15 +356,25 @@ whole stack (an abbey on its ledge), its town's ground off it, the land beyond.
 
 **Under the town.** A child's floor below its own open-air level (Death House's dungeon, the church's undercroft) lies
 under its town's grass: while one is shown the valley and the other maps are left out of the frame by their layers
-(the child itself stays) and the mist floor lies under it, as the legacy way hides the surroundings.
+(the child itself stays) and the mist floor lies under it, as the legacy way hides the surroundings. Every map in the
+valley is veiled or unveiled whole and then the active map is unveiled (`syncUnderground`); nothing is skipped, so
+leaving the dungeon by Back, a crumb or the camera brings the village back whatever map is active then.
 
 **Back and the breadcrumb** (ui/breadcrumb.ts). The title is a breadcrumb in the valley: *Barovia › Town of Vallaki ›
 Blue Water Inn › Ground floor* (the world's name, every map up the chain, the active map, its floor when it has
 several, unless that floor is named as its map: Krezk's 'Village of Krezk'). Each crumb frames its scope, flying: the valley whole (`frameWorld`), a map up the chain whole (it becomes
-the active map, `App.climb`), the active map whole, its floor. Back (`openParent` → `climb(parent)`) opens nothing: the
+the active map, `App.climb`; a town whose open-air level runs far out over its fields, Vallaki's, is framed round
+the place just left, at least 1,400 ft across, rather than whole), the active map whole, its floor. Back (`openParent` → `climb(parent)`) opens nothing: the
 camera pulls back over the building just left, same heading, to half way between the two activation lines, so the
 building stays drawn in its street, small, and the town takes the role (looking is not travelling: the party stays in
-the building, and the '&' marks it there). On a phone the breadcrumb keeps its last two crumbs. On the players' side the
+the building, and the '&' marks it there). On a phone the breadcrumb keeps its last two places (the town and the building, in full: the floor picker names
+the floor). On touch each crumb is a finger-sized target (44 px tall, the extra reaching over the bar's padding) with
+wider gaps round the separators.
+
+**One navigation at a time.** Every open and every climb takes a new number (`navSeq`); a camera activation still
+fading in (`switchActive`) is dropped when one starts (`cancelSwitch`: its map's tint glides back on), and its swap
+checks the number, so Enter pressed while the town is taking the role back wins. An open of a map the valley already
+holds leaves it where it stands (a building streamed in stays in its town's root). On the players' side the
 crumbs are plain names. The zoom-out chip no longer offers the town (the far limit is the whole valley's whatever map
 is active, and zooming out climbs to the town by itself): at the far limit it offers the whole valley, and from there
 the world map. The zoom fix's derived parent, `anchorIn` (the surroundings round the room entered from) and the chip's
@@ -375,7 +385,11 @@ active map would; Krezk's abbey stands at its atlas anchor (S5) whichever room i
 measured by their whole extent (a blowout, a dungeon), so a big inn takes the role over a little of its street, and
 Death House over its dungeon's reach under the village. The abbey's own 'Below the ledge' level repeats the village's
 cottages, walls and cliff (it is kept for the legacy way, where the abbey opens alone): in the valley they draw over
-the village's own in the same places, for the data pass (step 8) to settle.
+the village's own in the same places, for the data pass (step 8) to settle. Inside a building the whole town is drawn
+round it: measured inside the Blue Water Inn on the software renderer, 155 draw calls, 1.34 M triangles and 81 shader
+programs against 141, 249 k and 51 for the inn alone the legacy way; step 7 budgets it (the town's far blocks folded or
+its proxy while a building is active, on low tiers). The Player Display mirrors the DM's camera into a building but
+keeps the town as its active map and its party token there; following the party into nested children is step 5.
 
 ## Verification
 
@@ -450,7 +464,15 @@ the village's own in the same places, for the data pass (step 8) to settle.
   - Opening Krezk's abbey: it hangs in Krezk's root and stays the active map (it holds the target over its whole
     stack, the target rides its floor on the ledge, 400 ft up); the village's model of it on the ledge level goes;
     Back climbs to the village and the title reads *Barovia › Village of Krezk* (no second crumb for its level).
-  - On a 390 × 844 phone the breadcrumb shows its last two crumbs on screen, and a tap on Back climbs to the village.
+  - Death House's lower dungeon, left by the village's crumb and again by Back: the village and the valley come back
+    whole (no object of the village keeps the 'under' reason), the mist floor goes.
+  - Enter on the Blue Water Inn while Vallaki is taking the role back (its fade under way): the Enter wins, the inn
+    stays the active map in the town's root, the town's tint comes back; the town's crumb then frames the town round
+    the inn (under 4,000 ft out, over its plot), not the whole level with its fields.
+  - On a 390 × 844 phone the breadcrumb shows the village and the house in full (no ellipsis), a point 10 px above or
+    below a crumb's text still presses it, and a tap on Back climbs to the village.
+- `e2e/zoom.spec.ts`: card Enter with Back for Vallaki, and Players mode, run in the continuous world as well as the
+  legacy way.
 - The legacy way's surroundings tests (world.spec's Death House and church, zoom.spec) run with `?nested=0`.
 - `e2e/stream.spec.ts` (step 3):
   - A camera glide over Tser Pool, with no button pressed and no `open()`, streams its map in at its atlas placement
