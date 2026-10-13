@@ -459,7 +459,12 @@ export class WorldStage {
       el.classList.toggle('unknown', !known);
       if (show && l.text && l.at) shownPins.push({ text: l.text, at: l.at });
       // the players' names fly nowhere, so they promise nothing either
-      if (o.restricted || !el.dataset.path) { delete el.dataset.tip; delete el.dataset.tipSub; } else if (!el.dataset.tip) { el.dataset.tip = el.dataset.name ?? ''; el.dataset.tipSub = 'Fly there and open its map'; }
+      if (o.restricted) { delete el.dataset.tip; delete el.dataset.tipSub; }
+      else {
+        el.dataset.tip = el.dataset.name ?? '';
+        if (el.dataset.path) el.dataset.tipSub = 'Fly there and open its map';
+        else delete el.dataset.tipSub;
+      }
     }
     // the land's own names are geography, public to all; one a shown pin already carries close by is not lettered twice
     for (const l of this.labels) if (!l.key && l.text && l.at) l.obj.visible = !shownPins.some((p) => p.text === l.text && Math.hypot(p.at[0] - l.at![0], p.at[1] - l.at![1]) < 1.5);
