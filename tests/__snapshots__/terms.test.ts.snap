@@ -602,7 +602,7 @@ exports[`the review list > hit counts per kind per scene 1`] = `
     "dm 2024 spell": 41,
   },
   "ch14/Y": {
-    "dm 2014 area": 5,
+    "dm 2014 area": 7,
     "dm 2014 check": 1,
     "dm 2014 damage": 2,
     "dm 2014 dice": 5,
@@ -610,7 +610,7 @@ exports[`the review list > hit counts per kind per scene 1`] = `
     "dm 2014 person": 11,
     "dm 2014 rule": 14,
     "dm 2014 spell": 1,
-    "dm 2024 area": 5,
+    "dm 2024 area": 7,
     "dm 2024 check": 1,
     "dm 2024 damage": 2,
     "dm 2024 dice": 5,

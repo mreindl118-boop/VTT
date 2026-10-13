@@ -1,7 +1,8 @@
 // Yester Hill (ch14/Y) is drawn as a hill you climb (scripts/authoring/yester-hill.py): its land is a heightfield that
 // runs out to the forest floor round the hill's foot, every prop stands on it, each cairn ring keeps its contour, the
-// trail never climbs steeper than 1 in 5, a token on either level always stands on the ground under it (the forest
-// floor round the foot, or the flat top), the land drawn beyond the map (kit/sites/w.ts) meets the map's own with no
+// trail never climbs steeper than 1 in 5, a token on any level always stands on the ground under it (the forest floor
+// round the foot, a landing on the trail, the outer track, or the flat top), the party climbs the trail level by level
+// with no jump of more than about 100 ft, the land drawn beyond the map (kit/sites/w.ts) meets the map's own with no
 // step, the hill's scenery is never under the fog of war, and the fog wall fades out instead of ending in an edge.
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
@@ -19,14 +20,17 @@ import type { Level, SceneFile, GridFile } from '../app/src/core/schema';
 const scene = JSON.parse(readFileSync('locations/ch14/Y/scene.json', 'utf8')) as SceneFile;
 const grid = JSON.parse(readFileSync('locations/ch14/Y/grid.json', 'utf8')) as GridFile;
 const hill = scene.levels.find((l) => l.id === 'hill')!, summit = scene.levels.find((l) => l.id === 'summit')!;
+const outer = scene.levels.find((l) => l.id === 'outer')!;
 type Dims = Record<string, number>;
 
-/** A level's land as drawn: world height (ft) at plan (x, z). */
+/** A level's land as drawn: world height (ft) at plan (x, z). Every level draws the same land (checked below), so its
+ *  heights are read once. */
+const landDims = hill.objects.find((x) => x.kind === 'hill-land')!.dims as Dims, landFn = hillLandAt(landDims);
 function landOf(l: Level) {
-  const o = l.objects.find((x) => x.kind === 'hill-land')!, f = hillLandAt(o.dims as Dims);
-  return { o, at: (x: number, z: number) => f(x - o.pos[0], z - o.pos[2]) + o.pos[1] + l.elevationFt };
+  const o = l.objects.find((x) => x.kind === 'hill-land')!;
+  return { o, at: (x: number, z: number) => landFn(x - o.pos[0], z - o.pos[2]) + o.pos[1] + l.elevationFt };
 }
-const H = landOf(hill), S = landOf(summit);
+const H = landOf(hill);
 const ext = (o: { pos: number[]; dims?: Dims }) => ({ x0: o.pos[0], z0: o.pos[2], x1: o.pos[0] + o.dims!.nx * o.dims!.cell, z1: o.pos[2] + o.dims!.nz * o.dims!.cell });
 const E = ext(H.o);
 const floorOf = (l: Level) => [...grid.levels[l.id].floorPolygons, ...l.rooms.map((r) => r.polygon)] as Vec2[][];
@@ -70,11 +74,19 @@ describe('Yester Hill is a hill', () => {
     for (let x = E.x0; x <= E.x1; x += 10) for (const z of [E.z0 + 0.5, E.z1 - 0.5]) expect(Math.abs(H.at(x, z)), `${x},${z}`).toBeLessThan(0.1);
     for (let z = E.z0; z <= E.z1; z += 10) for (const x of [E.x0 + 0.5, E.x1 - 0.5]) expect(Math.abs(H.at(x, z)), `${x},${z}`).toBeLessThan(0.1);
   });
-  it('every prop stands on the land, on both levels (on the summit, on its floor where it has one)', () => {
+  it('every level draws the same land, the hill\'s own', () => {
+    expect(scene.levels.length).toBe(5);
+    for (const l of scene.levels) {
+      const o = landOf(l).o;
+      expect(o.dims, l.id).toEqual(landDims);
+      expect(l.elevationFt + o.pos[1], l.id).toBeCloseTo(hill.elevationFt + H.o.pos[1], 3);
+    }
+  });
+  it('every prop stands on the land, on every level (on its level\'s floor where it has one)', () => {
     const SKIP = ['hill-land', 'hill-track', 'hill-patch', 'note', 'spawn', 'fog-wall'], HIGH = ['summit-gem'];   // the gem is in the effigy's chest
-    for (const l of [hill, summit]) {
-      const land = l === hill ? H : S, rooms = l === summit ? l.rooms.map((r) => r.polygon as Vec2[]) : [];
-      const patches = l === hill ? l.objects.filter((o) => o.kind === 'hill-patch').map((o) => Array.from({ length: o.dims!.n }, (_, i) => [o.dims!['x' + i], o.dims!['z' + i]] as Vec2)) : [];
+    for (const l of scene.levels) {
+      const land = landOf(l), rooms = l.rooms.map((r) => r.polygon as Vec2[]);
+      const patches = l.objects.filter((o) => o.kind === 'hill-patch').map((o) => Array.from({ length: o.dims!.n }, (_, i) => [o.dims!['x' + i], o.dims!['z' + i]] as Vec2));
       for (const o of l.objects) {
         if (SKIP.includes(o.kind) || HIGH.includes(o.id)) continue;
         let g = land.at(o.pos[0], o.pos[2]);
@@ -129,26 +141,74 @@ describe('Yester Hill: a token always stands on the ground', () => {
     expect(canWalk([cx, cz], [cx + 260, cz], walls, w)).toBe(false);                     // up the west slope
     expect(H.at(cx + 260, cz)).toBeGreaterThan(20);
   });
-  it('the summit level: its floor (the grid, the inner track, the ring, the copse and the trail\'s last stretch) is the flat top', () => {
+  it('every level above the forest floor: its floor (the summit\'s flat top and inner track, a landing on the trail, the outer track) lies on the land', () => {
     // the turf a hair under the grid; under a keyed floor (a foot-thick slab: the tracks, the ring's earth) a bench up to
     // a foot lower is covered
-    let n = 0;
-    const rooms = summit.rooms.map((r) => r.polygon as Vec2[]);
-    for (const p of floorOf(summit)) {
-      const b = bounds([p]);
-      for (let x = b.minX + 1; x < b.maxX; x += 12) for (let z = b.minZ + 1; z < b.maxZ; z += 12) {
-        if (!pointInPolygon([x, z], p)) continue;
-        const d = summit.elevationFt - S.at(x, z);
-        expect(d, `${x},${z}`).toBeGreaterThan(0.3);
-        expect(d, `${x},${z}`).toBeLessThan(rooms.some((r) => pointInPolygon([x, z], r)) ? 1.2 : 0.8); n++;
+    for (const l of scene.levels.filter((x) => x !== hill)) {
+      let n = 0;
+      const land = landOf(l), rooms = l.rooms.map((r) => r.polygon as Vec2[]);
+      for (const p of floorOf(l)) {
+        const b = bounds([p]), st = l === summit ? 12 : l === outer ? 5 : 2;   // a landing's few hundred square feet finely
+        for (let x = b.minX + 1; x < b.maxX; x += st) for (let z = b.minZ + 1; z < b.maxZ; z += st) {
+          if (!pointInPolygon([x, z], p)) continue;
+          const d = l.elevationFt - land.at(x, z);
+          expect(d, `${l.id} ${x},${z}`).toBeGreaterThan(0.3);
+          expect(d, `${l.id} ${x},${z}`).toBeLessThan(rooms.some((r) => pointInPolygon([x, z], r)) ? 1.2 : 0.8); n++;
+        }
       }
+      expect(n, l.id).toBeGreaterThan(l === summit ? 3000 : 100);
     }
-    expect(n).toBeGreaterThan(3000);
     const link = scene.links.find((k) => k.to.level === 'summit')!;
     expect(floorOf(summit).some((p) => pointInPolygon(link.to.pos as Vec2, p))).toBe(true);
     // its battle ground is at least as big as the old flat inset's (680 x 815 ft)
     const area = (p: Vec2[]) => Math.abs(p.reduce((a, [x, z], i) => { const [x2, z2] = p[(i + 1) % p.length]; return a + x * z2 - x2 * z; }, 0)) / 2;
     expect(Math.max(...grid.levels.summit.floorPolygons.map((p) => area(p as Vec2[])))).toBeGreaterThan(480_000);
+  });
+});
+
+describe('Yester Hill: the party climbs the trail', () => {
+  // the trail up, stretch by stretch: forest floor, lower landing, upper landing, outer track, summit
+  const ORDER = ['hill', 'slope-low', 'slope-high', 'outer', 'summit'];
+  const lv = (id: string) => scene.levels.find((l) => l.id === id)!;
+  it('the levels rise one stretch of the trail at a time, none more than about 100 ft above the one below', () => {
+    expect(scene.levels.map((l) => l.id).sort()).toEqual([...ORDER].sort());
+    for (let k = 0; k + 1 < ORDER.length; k++) {
+      const a = lv(ORDER[k]), b = lv(ORDER[k + 1]);
+      const links = scene.links.filter((x) => (x.from.level === a.id && x.to.level === b.id) || (x.to.level === a.id && x.from.level === b.id));
+      expect(links.length, `${a.id} -> ${b.id}`).toBe(1);
+      expect(links[0].from.level, links[0].id).toBe(a.id);                       // each link runs up the hill
+      expect(b.elevationFt - a.elevationFt, `${a.id} -> ${b.id}`).toBeGreaterThan(10);
+      expect(b.elevationFt - a.elevationFt, `${a.id} -> ${b.id}`).toBeLessThan(100);
+    }
+    expect(scene.links.length).toBe(ORDER.length - 1);
+  });
+  it('each link stands on its level\'s floor, and on each level the party walks from the stair it came up to the next one', () => {
+    for (const k of scene.links) for (const end of [k.from, k.to]) expect(floorOf(lv(end.level)).some((p) => pointInPolygon(end.pos as Vec2, p)), `${k.id} ${end.level}`).toBe(true);
+    for (let k = 1; k + 1 < ORDER.length; k++) {
+      const l = lv(ORDER[k]), arrive = scene.links.find((x) => x.to.level === l.id)!.to.pos as Vec2, leave = scene.links.find((x) => x.from.level === l.id)!.from.pos as Vec2;
+      // far enough apart that arriving by one never takes the other (a stair is taken within 5.5 ft of its end)
+      expect(Math.hypot(arrive[0] - leave[0], arrive[1] - leave[1]), l.id).toBeGreaterThan(15);
+      const r = Math.hypot(arrive[0] - leave[0], arrive[1] - leave[1]) + 40, mid: Vec2 = [(arrive[0] + leave[0]) / 2, (arrive[1] + leave[1]) / 2];
+      const floor = floorOf(l).filter((p) => p.some((q) => Math.abs(q[0] - mid[0]) < r && Math.abs(q[1] - mid[1]) < r));
+      expect(canWalk(arrive, leave, moveBlockers(l.walls), floor), l.id).toBe(true);
+    }
+  });
+  it('the outer track is a level of its own: the party walks it all round, past Kavan\'s cairn among the cairns on its verge', () => {
+    const arrive = scene.links.find((x) => x.to.level === 'outer')!.to.pos as Vec2, walls = moveBlockers(outer.walls), floor = floorOf(outer);
+    const sectors = outer.rooms.filter((r) => r.key.startsWith('Y2-outer'));
+    expect(sectors.map((r) => r.key.slice(8)).sort()).toEqual(['east', 'north', 'northwest', 'south', 'southeast', 'southwest']);
+    for (const r of sectors) {
+      const p = r.polygon as Vec2[], mid: Vec2 = [(p[10][0] + p[p.length - 11][0]) / 2, (p[10][1] + p[p.length - 11][1]) / 2];
+      expect(canWalk(arrive, mid, walls, floor), r.key).toBe(true);
+      expect(Math.abs(outer.elevationFt - landOf(outer).at(mid[0], mid[1])), r.key).toBeLessThan(1.2);
+    }
+    const kavan = outer.objects.find((o) => o.id.endsWith('kavan'))!, cairns = outer.objects.filter((o) => o.kind === 'cairn');
+    expect(kavan.key).toBe('Y2-outersouthwest');
+    expect(Math.min(...cairns.map((c) => Math.hypot(c.pos[0] - kavan.pos[0], c.pos[2] - kavan.pos[2])))).toBeLessThan(12);
+    // the cairn stands by the track: a step off the track's floor
+    expect(floor.some((p) => pointInPolygon([kavan.pos[0], kavan.pos[2]], p))).toBe(false);
+    const toward = sectors.find((r) => r.key === 'Y2-outersouthwest')!.polygon as Vec2[];
+    expect(Math.min(...toward.map((q) => Math.hypot(q[0] - kavan.pos[0], q[1] - kavan.pos[2])))).toBeLessThan(15);
   });
 });
 
@@ -181,7 +241,7 @@ describe('Yester Hill: the land beyond the map, the fog of war and the fog', () 
       const o = hill.objects.find((x) => x.kind === k)!;          // one of each: they are built alike
       expect(open((PROPS_V1[k] as (d: Dims) => THREE.Object3D)((o.dims ?? {}) as Dims)), o.id).toBe(true);
     }
-    for (const l of [hill, summit]) for (const o of l.objects) if (KINDS.includes(o.kind) && !ALWAYS.includes(o.kind)) expect(o.dims?.open, `${l.id} ${o.id}`).toBe(1);
+    for (const l of scene.levels) for (const o of l.objects) if (KINDS.includes(o.kind) && !ALWAYS.includes(o.kind)) expect(o.dims?.open, `${l.id} ${o.id}`).toBe(1);
   });
   it('the fog wall stands on the forest floor west of the hill, runs past both ends of the land, and every sheet fades out at its top and foot', () => {
     const fog = hill.objects.filter((o) => o.kind === 'fog-wall');

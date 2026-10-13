@@ -11,9 +11,9 @@ covers (our own wording). "Rule" is what made it a link: the books' name, a cue 
 a key reference, a hidden-creature slot), the gazetteer, or an override. "Review" is blank once the scene's list in
 the overrides file accepts the link.
 
-Fields read: 6108. Links: 5884 in 2369 rows (accepted 5838, by override 46, unreviewed 0).
+Fields read: 6144. Links: 5888 in 2370 rows (accepted 5842, by override 46, unreviewed 0).
 
-By kind: monster 1514, area 1334, person 1136, check 540, dice 406, rule 279, spell 276, gear 129, magic-item 76, condition 60, damage 54, sense 46, ability 22, skill 10, feature 2.
+By kind: monster 1514, area 1338, person 1136, check 540, dice 406, rule 279, spell 276, gear 129, magic-item 76, condition 60, damage 54, sense 46, ability 22, skill 10, feature 2.
 
 The rows are in one file per chapter:
 
@@ -30,7 +30,7 @@ The rows are in one file per chapter:
 - [ch11](terms-review/ch11.md): 45 rows
 - [ch12](terms-review/ch12.md): 76 rows
 - [ch13](terms-review/ch13.md): 274 rows
-- [ch14](terms-review/ch14.md): 36 rows
+- [ch14](terms-review/ch14.md): 37 rows
 - [ch15](terms-review/ch15.md): 69 rows
 - [dev](terms-review/dev.md): 1 row
 - [kinds](terms-review/kinds.md): 4 rows

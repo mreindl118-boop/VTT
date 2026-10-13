@@ -584,7 +584,7 @@ function fogCrest(z: number, k: number, seed: number): number {
 /** The wall of fog at the edge of Strahd's domain: a bank `d` ft deep behind local -x and `len` ft long (local z), with
  *  `ext` ft more at each end where it sinks away, rising westward to `h` ft. Sheets of mist stand one behind another
  *  through its depth, low and faint in front and taller and denser behind, so it thickens with distance and hides what
- *  lies beyond. Each sheet thins to nothing over its upper half and gathers at its foot, and each rolls on its own
+ *  lies beyond. Each sheet thins to nothing toward its top (the back ones only over their upper quarter) and gathers at its foot, and each rolls on its own
  *  swell, so no crest, foot or seam reads as a line; the sheets lean back into the west, so from above it is a bank of
  *  cloud. One mesh per colour for the whole wall. */
 export function fogWall(d: Dims): THREE.Group {
@@ -593,13 +593,15 @@ export function fogWall(d: Dims): THREE.Group {
   const ends = (z: number) => smoothstep(0, ext + 150, Math.min(z - za, zb - z));
   const by = new Map<string, { P: number[]; A: number[] }>();
   for (let k = 0; k < NL; k++) {
-    const t = k / (NL - 1), x0 = 6 - D * Math.pow(t, 1.15) - 10 * hash(k, seed), hk = H * (0.1 + 0.9 * Math.pow(t, 0.8));
-    const op = 0.2 + 0.3 * t, lean = Math.tan(0.1 + 0.55 * t), ph = hash(k, seed + 1) * 2400;
+    // the back sheets stand taller and hold their density higher, so from the hilltop the bank is opaque up past the
+    // distant ridges' skyline and only thins away above it
+    const t = k / (NL - 1), back = smoothstep(0.6, 1, t), x0 = 6 - D * Math.pow(t, 1.15) - 10 * hash(k, seed), hk = H * (0.1 + 0.9 * Math.pow(t, 0.8)) * (1 + 0.9 * back);
+    const op = 0.2 + 0.3 * t + 0.3 * back, fade = 0.42 + 0.36 * back, lean = Math.tan(0.1 + 0.55 * t - 0.3 * back), ph = hash(k, seed + 1) * 2400;
     const col = k % 2 ? C.fogDeep : C.fog, e = by.get(col) ?? { P: [], A: [] }; by.set(col, e);
     const vert = (c: number, r: number): [number, number, number, number] => {
       const z = za + ((zb - za) * c) / COLS, v = r / ROWS, f = ends(z), y = Math.max(2, hk * f * fogCrest(z + ph, k, seed)) * v;
       // thick low down (the first few feet fade up from the ground), thinning away over the upper half
-      const a = op * smoothstep(0, 0.16, v) * (1 - smoothstep(0.42, 1, v)) * Math.min(1, f * 1.4);
+      const a = op * smoothstep(0, 0.16, v) * (1 - smoothstep(fade, 1, v)) * Math.min(1, f * 1.4);
       return [x0 - lean * y + 6 * Math.sin(z / 97 + k), y - 1.5, z, a];
     };
     for (let c = 0; c < COLS; c++) for (let r = 0; r < ROWS; r++) {
@@ -622,9 +624,25 @@ Object.assign(PROPS_V1, {
   'shed-roof': shedRoof, ivy, 'brown-mold': brownMold, 'sod-grave': () => compact(sodGrave()),   // a hidden grave is its own object: one mesh per material
 } as Record<string, (d: Dims) => THREE.Object3D>);
 const openable = (f: (d: Dims) => THREE.Object3D) => (d: Dims) => (d.open ? opened(f(d)) : f(d));
+/** Yester Hill's levels each draw the same land and the same wall of fog: the last few built are kept by their dims, and
+ *  a level that asks for one already built shares its geometry (and its materials, which are shared anyway). */
+const builtOnce = new Map<string, { geo: THREE.BufferGeometry; mat: THREE.Material | THREE.Material[]; order: number }[]>();
+const once = (kind: string, make: (d: Dims) => THREE.Group) => (d: Dims): THREE.Group => {
+  const key = `${kind}:${JSON.stringify(d)}`;
+  let parts = builtOnce.get(key);
+  if (!parts) {
+    const ps: { geo: THREE.BufferGeometry; mat: THREE.Material | THREE.Material[]; order: number }[] = [];
+    make(d).traverse((c) => { const m = c as THREE.Mesh; if (m.isMesh) ps.push({ geo: m.geometry, mat: m.material, order: m.renderOrder }); });
+    builtOnce.set(key, (parts = ps));
+    if (builtOnce.size > 4) builtOnce.delete(builtOnce.keys().next().value!);
+  }
+  const g = grp();
+  for (const p of parts) { const m = new THREE.Mesh(p.geo, p.mat); m.renderOrder = p.order; g.add(m); }
+  return g;
+};
 Object.assign(PROPS_V1, {
   'strahd-effigy': openable(strahdEffigy), cairn: openable(cairn), 'black-boulder': openable(blackBoulder), 'gulthias-tree': openable(gulthiasTree),
-  'dead-shrub': openable(deadShrub), 'fog-wall': fogWall, 'hill-land': hillLand, 'hill-track': hillTrack, 'hill-patch': hillPatch,
+  'dead-shrub': openable(deadShrub), 'fog-wall': once('fog-wall', fogWall), 'hill-land': once('hill-land', hillLand), 'hill-track': hillTrack, 'hill-patch': hillPatch,
   'hill-pine': (d: Dims) => opened(pine(d)), 'hill-dead-tree': (d: Dims) => opened(deadTree(d)),
 } as Record<string, (d: Dims) => THREE.Object3D>);
 
