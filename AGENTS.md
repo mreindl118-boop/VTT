@@ -103,45 +103,46 @@ a day old; then continue it from its wip branch, and say so in Status.
 Each agent rewrites this section when it stops. Newest first. Keep it short and exact: versions, branches, commits,
 what is done, what is next, what is blocked.
 
-### Claude, 2026-10-13 17:20 UTC (cloud)
+### Claude, 2026-10-13, the laptop session stopping (Matt: "prepare for usage end, pause all runs")
 
-- Matt's decisions, 2026-10-13: **the laptop finishes item 2; the cloud finishes item 7.** And for item 2: "finish the
-  build step, then prepare verify and report as a handoff to GPT and instruct them to continue."
-- **Item 2, nested world:** the cloud finishes the world-map build step (its two reviewers, then one fix pass) and
-  pushes the result to `claude/wip/item2-nested-world`. From there **ChatGPT continues**: the verification, the one
-  fix pass, the completeness check, the report and the 0.3.0 release, all laid out in
-  `docs/handoff/item2-verify-and-report.md` (its section 1 says when the build step is done and what it found).
-  The feature inventory to verify against is `docs/handoff/item2-feature-inventory.md`. On GitHub the branch is at
-  `4f3cad9` until the cloud pushes the fix; the laptop's local merge of main is not pushed.
-- **Item 7, unfinished maps:** the cloud's fixer is working from `ee47297` on the final-check findings
-  (`docs/handoff/item7-open.md`). The laptop's later WIP `fb49f1f` (main merged in, part of the same fix) is on
-  `claude/wip/item7-unfinished-maps`; the cloud merges it into its branch before the release, keeping both.
-- Both of this session's commits end with its `Claude-Session:` link; the laptop's end with `Claude-Session: laptop`.
+Two Claude sessions were active today: one on Matt's laptop (commits end `Claude-Session: laptop`) and the older
+one in the cloud (commits end with a `Claude-Session:` link). The laptop session is now paused. **The cloud session
+may still be running** its check-in routine; Matt decides whether it carries on (see Questions for Matt).
 
-### Claude, 2026-10-13 (laptop)
-
-- Released: 0.0.2, 0.1.0 (rules tooltips), 0.2.0 (chapter 2 sites), 0.2.1 (laptop build). All published.
-- On the main branch, unreleased: the "What's new" card (item 2b, `734f7d5`). It ships inside the next release.
-- **Item 2, nested world, in flight (Claude):** branch `item2-nested-world` on the laptop, pushed as
-  `claude/wip/item2-nested-world`. Steps 2–4 and the D&D world map are built; the main branch (0.2.0) is merged in
-  at `293f150`. Left: the world-map review and one fix, the final three-lens check and one fix, then release as
-  **0.3.0**. The topography, step 5 (Player Display), step 7 (phones and performance) and step 8 (data pass) are a
-  second release (`docs/HANDOFF.md` section 4). If you pick this up: `docs/WORLD.md` on the branch is the design
-  reference; the acceptance is a continuous zoom from the whole valley into Vallaki, into the Blue Water Inn, to a
-  room, and back out, with the wheel and by touch, and the breadcrumb and Back at every level.
-- **Item 7, unfinished maps, paused by Matt:** `claude/wip/item7-unfinished-maps` at `fb49f1f` (a WIP of the final
-  fix). Open blockers from the final check: the party cannot climb Yester Hill (the slope is walled off; in
-  Players mode a token must walk from the foot to the summit circle); the Amber Temple's +30 and 0 ft levels are
-  buried under the new snow ground. Fix-level: the mountain draws as a black wall in Players view; the massif reads
-  as a terraced pyramid; a black arc on the summit track; the fog bank does not hide the backdrop mountains; the
-  summit grid hangs past its floor; the Amber facade is 31% heavier in triangles; `tests/terms.test.ts` "the DC
-  count is pinned" went flaky on the combined branch (fix the cause). Matt's words: "Yester Hill is flat. Fix that.
-  The fog wall looks terrible, like cotton."
-- Next in order after those: item 3 (dollhouse view; needs the nested world released first), then 4, 5, 6, 8, 10,
-  11 and on, as `docs/QUEUE.md` lists.
-- An outside branch `codex/fix-explored-fog-growth` exists on GitHub (ChatGPT's own fog fix, 2026-10-11). The
-  same bug was fixed on the main branch as 0.0.2; the branch is not merged and needs no action.
+- **Released and published:** 0.0.2, 0.1.0 (rules tooltips), 0.2.0 (chapter 2 sites), 0.2.1 (laptop build; browser
+  tests on the GPU, Windows checkouts).
+- **On the main branch, unreleased:** the "What's new" card (item 2b, `734f7d5`), the handoff files, and the run
+  scripts in `docs/handoff/runs/` (the exact tasks, acceptance criteria and review lenses the laptop runs used:
+  `item2-finish.js`, `item7-finish.js`, `integrate.js`). It all ships inside the next release.
+- **Item 2, nested world → 0.3.0.** Matt's decisions: the laptop finishes item 2; and "finish the build step, then
+  prepare verify and report as a handoff to GPT and instruct them to continue."
+  - Built: steps 2–4 and the D&D world map (`4f3cad9`), on `claude/wip/item2-nested-world`. The cloud session was
+    finishing the world-map step's review and one fix pass and will push the result there if it is still running.
+  - The laptop merged the main branch (0.2.0) into the branch at `293f150` and was testing the merge when paused;
+    that state is on `claude/wip/item2-nested-world-laptop`. It is a pure merge, so if the cloud's fix lands on
+    `claude/wip/item2-nested-world`, continue from that branch and merge main again at release (the release
+    procedure does this anyway). If nothing new lands there, continue from `-laptop`.
+  - **ChatGPT continues** from the world-map step: the verification against `docs/handoff/item2-feature-inventory.md`,
+    one fix pass, the final three-lens check, one fix pass, the report and the 0.3.0 release, laid out in
+    `docs/handoff/item2-verify-and-report.md` and in the run brief `docs/handoff/runs/item2-finish.js`.
+  - Acceptance in Matt's words: the World map button opens a D&D-styled map you zoom into; a continuous zoom from
+    the whole valley into Vallaki, into the Blue Water Inn, to a room, and back out, with the wheel and by touch,
+    with the breadcrumb and Back at every level. `docs/WORLD.md` on the branch is the design reference.
+  - A second release follows (`docs/HANDOFF.md` section 4): the topography, step 5 (Player Display), step 7
+    (phones and performance), step 8 (data pass).
+- **Item 7, unfinished maps.** Matt's decision: the cloud finishes item 7; it was working from `ee47297` on the
+  final-check findings (`docs/handoff/item7-open.md`, and the run brief `docs/handoff/runs/item7-finish.js`).
+  The laptop's later WIP `fb49f1f` (main merged in, part of the same fix) is on `claude/wip/item7-unfinished-maps`;
+  whoever finishes merges both. Open blockers: the party cannot climb Yester Hill (the slope is walled off); the
+  Amber Temple's +30 and 0 ft levels are buried under the new snow ground. Matt's words: "Yester Hill is flat. Fix
+  that. The fog wall looks terrible, like cotton." Releases after 0.3.0, at the next version in order.
+- **Next in order:** item 3 (dollhouse view; needs the nested world released first), then 4, 5, 6, 8, 10, 11 and
+  on, as `docs/QUEUE.md` lists.
+- An outside branch `codex/fix-explored-fog-growth` exists on GitHub (ChatGPT's own fog fix, 2026-10-11). The same
+  bug was fixed on the main branch as 0.0.2; the branch is not merged and needs no action.
 
 ## Questions for Matt
 
-- (none open)
+- The cloud Claude session's check-in routine ("mistLAB queue check-in") fires every two hours and resumes its runs.
+  If everything is meant to be paused, disable that routine (Claude app → Routines) or tell the cloud session to
+  stop; otherwise it keeps working item 7 and item 2's world-map step alongside ChatGPT.
