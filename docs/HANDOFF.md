@@ -41,9 +41,9 @@ The cloud session finishes the two items it has in flight, then stops taking new
 - **The queue:** `docs/QUEUE.md` is the checklist, the lean review setting and the release procedure.
 - **Working with ChatGPT:** `docs/COLLABORATION.md` covers the approval rules, the design choices and the ledger.
 - **Never commit:** book text, art or map images, screenshots, scratch files, `test-results` or `node_modules`.
-- **Commit trailer:** every commit from the laptop session ends with:
+- **Commit trailer:** every commit from the laptop session ends with a line naming the model that wrote it, then the session line:
   ```
-  Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+  Co-Authored-By: Claude Fable 5.1 <noreply@anthropic.com>
   Claude-Session: laptop
   ```
   The `Claude-Session:` line is how the ledger tells Claude Code's commits from outside changes.
