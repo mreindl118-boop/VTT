@@ -10,6 +10,7 @@ import { CREATURES, horse, humanoid } from '../creatures';
 import { mat, matClone } from '../../render/materials';
 import { PALETTE } from '../palette';
 import { surfaceFor, type Surface } from '../surfaces';
+import { SITE_SHAPERS } from '../../render/backdrop';
 
 type Dims = Record<string, number>;
 
@@ -558,3 +559,7 @@ Object.assign(CREATURES, {
   'a-skeletal-rider': (d) => skeletalRider(d), 'a-wereraven': (d) => wereraven(d), 'a-raven-flock': (d) => ravenFlock(d),
   'a-hunter': (d) => hunter(d), 'a-vistani-digger': (d) => vistaniDigger(d), 'a-trapper': (d) => trapper(d),
 } as Record<string, (d: Dims) => THREE.Group>);
+
+// The Old Svalich Road runs straight past this map on the world map, its nearest bend well to the east: the world road
+// is split where it passes the pin, so it leaves the map both ways (into the Mists and on toward the gates).
+SITE_SHAPERS.push({ pin: [17.86, 7.21], splitAtFoot: true });

@@ -1995,7 +1995,7 @@
       ]
      ],
      "floor": "grass",
-     "desc": "High in the mountains the forest and the fog still press close. The dirt road from the south splits here: one narrow arm north-west between two rock buttresses, the other east, where the flat widens and old cobbles break through the mud: a road built for something grander. A dead iron lamp post stands at the fork; a cobbled turning circle waits at the head of the eastern road.",
+     "desc": "Even this high up, the pines and the fog still crowd close. The dirt road from the south splits here: one narrow arm north-west between two rock buttresses, the other east, where the flat widens and old cobbles break through the mud: a road built for something grander. A dead iron lamp post stands at the fork; a cobbled turning circle waits at the head of the eastern road.",
      "dm": "When Strahd has invited the party or wants them steered to him, his black carriage stands on the coach stand pointed east, lamps lit and door swung open (reveal the coach, the horses, their breath and the lamp glow). No driver; reins looped on the box; ruts and hoofprints run only east (Survival or Perception DC 12 finds no bootprint). It seats eight and goes only to J. Otherwise the choices: north-west 0.7 mi through the western Gates of Barovia (they open as the party nears and close behind it), south 0.8 mi down to the bridge at Tser Falls (H), east 2.1 mi to the Gates of Ravenloft (J). Fog lies knee-deep on the apron (light obscurement for prone or Small creatures)."
     },
     {
@@ -3756,7 +3756,7 @@
      "label": "Skeletal rider with a dark lantern (encounter 8)",
      "size": "large",
      "playerLabel": "A skeletal rider",
-     "dm": "Entry 8 on either table (p.29/31), best at night: a skeleton in ruined chain mail on a skeletal warhorse, holding up a rusted lantern that sheds no light. It comes up the cobbles out of the Cut Block at a walk, passes the coach stand without a glance and goes on down the south arm into the fog. Ignores the party unless attacked; once both are destroyed it never returns."
+     "dm": "Entry 8 on either table (p.29/31), best at night: a skeleton in ruined chain mail on a skeletal warhorse, a lantern of rusted iron raised high, cold and dark. It comes up the cobbles out of the Cut Block at a walk, passes the coach stand without a glance and goes on down the south arm into the fog. Ignores the party unless attacked; once both are destroyed it never returns."
     },
     {
      "id": "day-note69",

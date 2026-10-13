@@ -1300,7 +1300,7 @@ export function batSwarm(d: Dims): THREE.Group {
   }
   return g;
 }
-/** A skeletal rider on a skeletal warhorse (facing +x), a rusted lantern held up that sheds no light. */
+/** A skeletal rider on a skeletal warhorse (facing +x), its lantern of rusted iron raised high, cold and dark. */
 export function skeletalRider(d: Dims): THREE.Group {
   const s = d.scale ?? 1, g = grp(horse({ bone: 1, scale: s }));
   const rider = skeletonStanding(); rider.scale.setScalar(s); rider.position.set(-0.3 * s, 2.55 * s, 0); g.add(rider);

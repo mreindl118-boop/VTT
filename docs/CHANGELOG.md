@@ -19,7 +19,8 @@ For the DM:
   - P, Luna River Crossroads: the crossing, the snapped signpost and the two-arched bridge over the Luna.
   - R, Raven River Crossroads: the ford, the rapids, the trappers' ledge path and the rookery.
 - The land, roads and rivers around each map now carry on past its edges: on the Old Svalich Road the world road
-  leaves both ends of the map, and Tser Falls shapes the valley round itself.
+  leaves both ends of the map, and Tser Falls shapes the valley round itself. Only those two maps ask for this; the
+  distant roads round every other map are drawn as before.
 - The new places' notes carry the rules links: every check, creature, spell and condition on them opens its card.
 - The rules-link review list grew with them: docs/TERMS_REVIEW.md is now an index, with one file per chapter under
   docs/terms-review/.

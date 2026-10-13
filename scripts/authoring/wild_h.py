@@ -361,7 +361,7 @@ def build():
     s.mob('ghost', c((152, 238)), 'Ghost (in the spray at the sill)', 'A pale shape in the spray', y=2,
           dm='Night 2 (p.29-30). If it possesses someone it may walk the host to this chasm instead of J: the host lands in the Cauldron (pool level), 20d6.')
     s.mob('h-skeletal-rider', c((301, 160)), 'Skeletal rider and warhorse', 'A rider on a pale horse', size='large', rot=heading(-0.05, 1),
-          dm='Day 8 / night 8 (p.29, p.31). Crosses the bridge north to south at a walk, ignoring the party unless attacked. Its rusted lantern sheds no light: at night it is only hooves on wet stone.')
+          dm='Day 8 / night 8 (p.29, p.31). Crosses the bridge north to south at a walk, ignoring the party unless attacked. Its raised lantern of rusted iron stays cold and dark: at night it is only hooves on wet stone.')
 
     # ---------------------------------------------------------- DM notes
     s.note(c((268, 308)), 'The bridge: slick but safe, no check to cross. A shove over the 3-ft parapet drops the target to the Cauldron (pool level): 20d6 and prone in the water. A reaction grab within 5 ft or feather fall can save them.')

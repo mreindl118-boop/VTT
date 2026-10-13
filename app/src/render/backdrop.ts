@@ -53,6 +53,11 @@ export interface SiteShaper {
   forest?(x: number, z: number, d: number): number | undefined;
   /** Extra rings (ft from the map's centre) for the land's mesh, where the site's own landform needs a finer grain. */
   rings?: number[];
+  /** Split a world road through the site at the foot of the perpendicular from the pin, not at the road's nearest
+   *  vertex, and ease each half's first mile across onto the pin. For a site whose road's nearest vertex lies well past
+   *  it (a long straight run), so that the default split would send both halves off the same way. Other maps keep the
+   *  default, which their own maps' roads were laid out against. */
+  splitAtFoot?: boolean;
 }
 export const SITE_SHAPERS: SiteShaper[] = [];
 
@@ -179,23 +184,28 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
   };
   for (const road of W.roads) {
     const path = /path|trail|track/i.test(road.name), w = path ? 9 : 16, hex = path ? '#6d6150' : '#7a6c5a';
-    // Split the road at the foot of the perpendicular from the pin (not at its nearest vertex, which can lie past the
-    // site so both halves set off the same way), and ease each half's first mile across onto the pin: the world map
-    // may draw a pin a little off its road's line, while the map's own road runs through the map.
-    let near = 0, nd = Infinity, foot: P = road.pts[0];
-    for (let i = 0; i + 1 < road.pts.length; i++) {
-      const [ax, az] = road.pts[i], [bx, bz] = road.pts[i + 1], dx = bx - ax, dz = bz - az;
-      const t = Math.max(0, Math.min(1, ((o.pin[0] - ax) * dx + (o.pin[1] - az) * dz) / (dx * dx + dz * dz || 1e-12)));
-      const q: P = [ax + dx * t, az + dz * t], dd = Math.hypot(o.pin[0] - q[0], o.pin[1] - q[1]);
-      if (dd < nd) { nd = dd; near = i; foot = q; }
-    }
-    if (Math.min(...road.pts.map((p) => toWorld(p).d)) > 0.5 * FT) { // passes elsewhere: draw it whole
+    const ds = road.pts.map((p) => toWorld(p).d);
+    if (Math.min(...ds) > 0.5 * FT) { // passes elsewhere: draw it whole
       const pts = road.pts.map(toWorld).filter((t) => t.d < 70000); if (pts.length > 1) roadPaths.push({ pts, w, hex });
       continue;
     }
-    const ease = (pts: P[]) => { let s = 0; return pts.map((p, i): P => { if (i) s += Math.hypot(p[0] - pts[i - 1][0], p[1] - pts[i - 1][1]); const u = Math.min(1, s), f = 1 - u * u * (3 - 2 * u); return [p[0] + (o.pin[0] - foot[0]) * f, p[1] + (o.pin[1] - foot[1]) * f]; }); };
+    // By default the road splits at its vertex nearest the pin. A site that asks for it (splitAtFoot) splits it instead
+    // at the foot of the perpendicular from the pin, and eases each half's first mile across onto the pin: the world
+    // map may draw a pin a little off its road's line, while the map's own road runs through the map.
+    let near = ds.indexOf(Math.min(...ds)), foot: P | undefined;
+    if (shaper?.splitAtFoot) {
+      let nd = Infinity;
+      for (let i = 0; i + 1 < road.pts.length; i++) {
+        const [ax, az] = road.pts[i], [bx, bz] = road.pts[i + 1], dx = bx - ax, dz = bz - az;
+        const t = Math.max(0, Math.min(1, ((o.pin[0] - ax) * dx + (o.pin[1] - az) * dz) / (dx * dx + dz * dz || 1e-12)));
+        const q: P = [ax + dx * t, az + dz * t], dd = Math.hypot(o.pin[0] - q[0], o.pin[1] - q[1]);
+        if (dd < nd) { nd = dd; near = i; foot = q; }
+      }
+    }
+    const ease = (pts: P[]) => { if (!foot) return pts; const [fx, fz] = foot; let s = 0; return pts.map((p, i): P => { if (i) s += Math.hypot(p[0] - pts[i - 1][0], p[1] - pts[i - 1][1]); const u = Math.min(1, s), f = 1 - u * u * (3 - 2 * u); return [p[0] + (o.pin[0] - fx) * f, p[1] + (o.pin[1] - fz) * f]; }); };
+    const halves = foot ? [ease([foot, ...road.pts.slice(0, near + 1).reverse()]), ease([foot, ...road.pts.slice(near + 1)])] : [road.pts.slice(0, near + 1).reverse(), road.pts.slice(near)];
     // Through this site: each half leaves from the map's own road in that direction.
-    for (const half of [ease([foot, ...road.pts.slice(0, near + 1).reverse()]), ease([foot, ...road.pts.slice(near + 1)])]) {
+    for (const half of halves) {
       const out = half.map(toWorld).filter((t) => t.d > R + 150 && t.d < 70000);
       if (!out.length) continue;
       const bearing = Math.atan2(out[0].z - cz, out[0].x - cx);
