@@ -1,4 +1,5 @@
 // The "What's new" card: once after each update, on the DM's window only, and again from Help.
+import { readFileSync } from 'node:fs';
 import { expect, test } from '@playwright/test';
 import { VERSION } from './helpers';
 
@@ -17,7 +18,10 @@ test('a returning user sees the card once after an update, then not again until 
   await expect(card).toBeVisible();
   await expect(card.locator('h2')).toContainText(`mistLAB ${VERSION}`);
   await expect(card.locator('.eyebrow')).toHaveText("What's new");
-  expect(await card.locator('.sheet-body li, .sheet-body p').count()).toBeGreaterThan(0);
+  // The body is the real changelog entry: its first sentence is on the card.
+  const changelog = readFileSync(new URL('../docs/CHANGELOG.md', import.meta.url), 'utf8').replace(/\r\n/g, '\n');
+  const firstLine = changelog.split('\n## ')[1].split('\n').map((l) => l.trim()).filter((l) => l && !l.startsWith('- ')).slice(1)[0].replace(/[*`]/g, '');
+  await expect(card.locator('.sheet-body')).toContainText(firstLine.slice(0, 40));
   await card.getByRole('button', { name: "Let's play" }).click();
   await expect(card).toHaveCount(0);
   expect(await page.evaluate(() => localStorage.getItem('mistlab.seenVersion'))).toBe(VERSION);
