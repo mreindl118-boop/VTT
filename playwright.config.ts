@@ -2,6 +2,9 @@ import { defineConfig, devices } from '@playwright/test';
 
 // PW_PORT lets parallel checkouts each build and serve their own copy (default 4173).
 const PORT = Number(process.env.PW_PORT ?? 4173);
+// Route the service worker's own fetches through context.route too, so a test can really cut the network
+// (context.setOffline alone does not stop a service worker's requests). No other spec routes requests.
+process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS = '1';
 
 export default defineConfig({
   testDir: 'e2e',
@@ -15,7 +18,12 @@ export default defineConfig({
     deviceScaleFactor: 1,
     launchOptions: { args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] },
   },
-  projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'], viewport: { width: 1024, height: 768 }, deviceScaleFactor: 1 } }],
+  projects: [
+    { name: 'chromium', use: { ...devices['Desktop Chrome'], viewport: { width: 1024, height: 768 }, deviceScaleFactor: 1 } },
+    // Touch projects run only the tooltip specs, so the rest of the suite does not triple.
+    { name: 'ipad', testMatch: /(tooltips|rules-tooltips)\.spec\.ts/, use: { ...devices['Desktop Chrome'], viewport: { width: 1180, height: 820 }, deviceScaleFactor: 1, hasTouch: true, isMobile: false } },
+    { name: 'phone', testMatch: /(tooltips|rules-tooltips)\.spec\.ts/, use: { ...devices['Desktop Chrome'], viewport: { width: 390, height: 844 }, deviceScaleFactor: 1, hasTouch: true, isMobile: true } },
+  ],
   webServer: {
     command: `npm run build && npx vite preview --port ${PORT} --strictPort`,
     url: `http://localhost:${PORT}`,

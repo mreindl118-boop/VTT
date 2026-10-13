@@ -72,6 +72,14 @@ Recommendation: yes.
 |---|---|---|---|---|
 | A32 Initiative strip replaces the turn bar (requested by the owner) | The turn order is a bar at the bottom of the screen. | A Baldur's Gate 3-style portrait strip across the top; Next, Previous, End and Find move to a bottom action dock; `n` still advances the turn. | The owner asked for it on 2026-10-04. | approved 2026-10-04 (requested); built in 0.5.0 |
 
+## Clarity request (owner, 2026-10-04)
+
+The owner asked for clearer controls and tooltips. Rows here are covered by that request; C1, C2 and C4 arrive with queue item 15.
+
+| Item | Today | Proposed | Why | Decision |
+|---|---|---|---|---|
+| C3 Icon buttons show their name while held on touch; release still fires as today | A tap fires the button; there is no way to learn an icon's name on the iPad. | Holding an icon button for half a second shows its name in a tip while the finger stays down; letting go fires the button exactly as a tap does (sliding off still cancels). Hold-and-drag controls (peek, the view slider, the map, the world map, the minimap, sliders) never show it. | Touch users get the names mouse users see on hover, without changing what any tap does. | covered by the owner's clarity request; built with queue item 1 |
+
 ## Already requested by you
 
 Recommendation: already in progress.

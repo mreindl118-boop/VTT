@@ -23,7 +23,7 @@ PINS = [  # key, name, px, type, scenes (built scene paths reachable from here)
   ('B2', 'Gates of Barovia (west)', (745, 380), 'gate', ['ch02/B']),
   ('J', 'Gates of Ravenloft', (853, 453), 'gate', ['ch02/J']),
   ('K', 'Castle Ravenloft', (915, 470), 'castle', ['ch04/K']),
-  ('L', 'Lake Zarovich', (470, 210), 'lake', ['ch02/L']),
+  ('L', 'Lake Zarovich', (470, 240), 'lake', ['ch02/L']),  # the landing on the south shore (the map's own spot); the book's marker sits a little out on the water
   ('M', 'Mount Baratok', (663, 106), 'peak', ['ch02/M']),
   ('N', 'Town of Vallaki', (447, 307), 'settlement', ['ch05/N']),
   ('O', 'Old Bonegrinder', (570, 355), 'landmark', ['ch06/O']),

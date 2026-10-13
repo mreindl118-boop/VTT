@@ -53,3 +53,49 @@ export async function diff(page: Page, a: string, b: string, mask?: string): Pro
     return { changed, outside, total: w * h };
   }, { a, b, mask });
 }
+
+/** Words a reader can see inside an element: text nodes that are rendered, not hidden, not clipped away. */
+export async function countVisibleWords(page: Page, selector: string): Promise<number> {
+  return page.evaluate((sel) => {
+    const root = document.querySelector(sel);
+    if (!root) return 0;
+    let n = 0;
+    const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+    for (let t = w.nextNode(); t; t = w.nextNode()) {
+      const el = t.parentElement;
+      if (!el || !el.checkVisibility({ opacityProperty: true, visibilityProperty: true })) continue;
+      const r = document.createRange(); r.selectNodeContents(t);
+      if (!Array.from(r.getClientRects()).some((q) => q.width > 0 && q.height > 0)) continue;
+      n += (t.textContent ?? '').trim().split(/\s+/).filter(Boolean).length;
+    }
+    return n;
+  }, selector);
+}
+
+/** A single touch tap on an element (touchscreen, not a mouse click); returns the text of the tip it opened, if any. */
+export async function tapTip(page: Page, selector: string): Promise<string | null> {
+  const box = await page.locator(selector).first().boundingBox();
+  if (!box) throw new Error(`nothing to tap: ${selector}`);
+  await page.touchscreen.tap(box.x + box.width / 2, box.y + box.height / 2);
+  await page.waitForTimeout(150);
+  return page.evaluate(() => {
+    const t = document.querySelector<HTMLElement>('#tips .tip.pinned, #tips .rt');
+    if (!t) return null;
+    const r = t.getBoundingClientRect();
+    const at = document.elementFromPoint(r.left + r.width / 2, r.top + Math.min(r.height / 2, 20));
+    return at && t.contains(at) ? (t.querySelector('b, h4')?.textContent ?? t.textContent) : null;
+  });
+}
+
+/** A touch press held for `ms` (raw CDP touch events, so the browser sees a real long press). */
+export async function touchHold(page: Page, selector: string, ms: number, during?: () => Promise<void>): Promise<void> {
+  const box = (await page.locator(selector).first().boundingBox())!;
+  const x = box.x + box.width / 2, y = box.y + box.height / 2;
+  const cdp = await page.context().newCDPSession(page);
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x, y }] });
+  await page.waitForTimeout(ms);
+  if (during) await during();
+  await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+  await page.waitForTimeout(100);
+  await cdp.detach();
+}
