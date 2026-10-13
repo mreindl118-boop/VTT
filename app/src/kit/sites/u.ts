@@ -17,6 +17,7 @@ const BARK = '#5a4632', BARK_RED = '#6a4a34', BARK_DK = '#3b2d24', MUD = '#3a332
 const WOOD = PALETTE.wood, WOOD_DK = PALETTE.woodDark, ROT = '#4b3a2c', ROT_L = '#5e4a36', IRON = PALETTE.iron, RUST = '#5a3a2a';
 const BONE = '#cfc4a8', BONE_DK = '#a89c80', HOLLOW = '#1a1714';
 const REED = '#7a6f45', REED_G = '#55603a', CATTAIL = '#4a3828';
+const THORN = '#3a3d2c', THORN_DK = '#2f3a29', MENHIR = '#6f6e66', GLYPH = '#4f4e48', GLYPH_DK = '#3d3c37';
 const PURPLE = '#4f3a5c', PURPLE_DK = '#3d2c48', GOLD = '#b89a54', BRASS = '#a8853f', MUDSPLASH = '#4a3b2c', SIGN = '#a8956f';
 const CLAY = '#8a6a4a', CLAY_DK = '#6b5038', SLATE = '#3d3a44', GLOW = '#7fbf6a';
 const TAPESTRY = ['#5b3b46', '#3a4a62', '#4a5a3a', '#8a6e3e'];
@@ -25,7 +26,8 @@ surfaceFor([RUBBLE, MILDEW], 'rubble');
 surfaceFor([SLIME, MUD, MUDSPLASH], 'dirt');
 surfaceFor([THATCH, THATCH_DK, REED], 'thatch');
 surfaceFor([MOSS], 'grass');
-surfaceFor([REED_G], 'foliage');
+surfaceFor([REED_G, THORN, THORN_DK], 'foliage');
+surfaceFor([MENHIR, GLYPH, GLYPH_DK], 'rock');   // the menhirs (and the kit's standing stone, the same grey)
 surfaceFor([BARK, BARK_RED, BARK_DK, CATTAIL], 'bark');
 surfaceFor([ROT, ROT_L, PURPLE, PURPLE_DK, GOLD, SIGN], 'wood');
 surfaceFor([IRON, RUST, BRASS], 'metal');
@@ -62,6 +64,10 @@ function beam(a: THREE.Vector3, b: THREE.Vector3, t: number, color: string): THR
   m.quaternion.setFromUnitVectors(V(0, 1, 0), dir.normalize());
   return m;
 }
+/** Fine detail that only reads up close (a stalk, a picket, a seed head): tagged for the near tier of the level of
+ *  detail, so a far view can drop it and keep the mass it stands on. */
+const near = <T extends THREE.Object3D>(o: T): T => { o.userData.tier = 'near'; return o; };
+
 /** Architecture: the section plane slices it like a wall instead of hiding it whole. */
 function shell<T extends THREE.Object3D>(o: T): T { o.traverse((c) => { if ((c as THREE.Mesh).isMesh) c.userData.role = 'roof'; }); return o; }
 /** The torso group of a kit humanoid (to hang a hood, a lantern or a belly on it). */
@@ -170,7 +176,7 @@ function skullFence(d: Dims): THREE.Group {
 /** Brambles run wild: a dark tangle of thorny stems. */
 function thornThicket(d: Dims): THREE.Group {
   const s = d.s ?? 1.5, g = grp();
-  for (let i = 0; i < 5; i++) { const b = ico((1.3 + hash(i + s) * 0.8) * s, i % 2 ? '#2f3a2a' : '#3a3d2c', (hash(i * 3 + s) - 0.5) * 2.6 * s, (0.9 + hash(i * 5) * 0.6) * s, (hash(i * 7 + s) - 0.5) * 2.6 * s, 0); b.scale.y = 0.75; g.add(b); }
+  for (let i = 0; i < 5; i++) { const b = ico((1.3 + hash(i + s) * 0.8) * s, i % 2 ? THORN_DK : THORN, (hash(i * 3 + s) - 0.5) * 2.6 * s, (0.9 + hash(i * 5) * 0.6) * s, (hash(i * 7 + s) - 0.5) * 2.6 * s, 0); b.scale.y = 0.75; g.add(b); }
   for (let i = 0; i < 9; i++) { const a = (i / 9) * Math.PI * 2 + s; g.add(beam(V(Math.cos(a) * 0.8 * s, 0.3, Math.sin(a) * 0.8 * s), V(Math.cos(a) * 2.8 * s, (1.6 + hash(i) * 1.4) * s, Math.sin(a) * 2.8 * s), 0.12, BARK_DK)); }
   return g;
 }
@@ -198,7 +204,7 @@ function ironFence(d: Dims): THREE.Group {
   for (let i = 0; i <= n; i++) {
     if (hash(i * 3.7 + L) < 0.18 && i % n) continue;
     const x = -L / 2 + (i * L) / n, hh = 4.2 + (i % 5 === 0 ? 0.6 : 0);
-    inner.add(box(0.14, hh, 0.14, i % 3 ? IRON : RUST, x, hh / 2, 0), cone(0.18, 0.5, IRON, x, hh + 0.25, 0, 4));
+    inner.add(near(box(0.14, hh, 0.14, i % 3 ? IRON : RUST, x, hh / 2, 0)), near(cone(0.18, 0.5, IRON, x, hh + 0.25, 0, 4)));
   }
   inner.rotation.x = ((d.lean ?? 0) * Math.PI) / 180;
   return grp(inner);
@@ -244,23 +250,24 @@ function menhir(d: Dims): THREE.Group {
     pv.setXYZ(i, pv.getX(i) * k + j, y - (t > 0.99 ? hash(i + h) * 1.4 : 0), pv.getZ(i) * k + j * 0.6);
   }
   geo.computeVertexNormals();
-  const stone = new THREE.Mesh(geo, mat('#6f6e66'));
+  const stone = new THREE.Mesh(geo, mat(MENHIR));
   const inner = grp(stone, box(2.9, 1.6, 3.9, MOSS, 0, 0.8, 0), box(0.12, 3, 1.6, MOSS, 1.25, 4, 0.6));
-  if (d.glyph) inner.add(box(0.14, 2.2, 1.6, '#4f4e48', 1.28, h * 0.48, 0), box(0.16, 0.5, 0.9, '#3d3c37', 1.32, h * 0.52, 0.1));
+  if (d.glyph) inner.add(box(0.14, 2.2, 1.6, GLYPH, 1.28, h * 0.48, 0), box(0.16, 0.5, 0.9, GLYPH_DK, 1.32, h * 0.52, 0.1));
   inner.rotation.z = -((d.lean ?? 0) * Math.PI) / 180;
   return grp(inner, box(4.5, 0.6, 5, MUD, 0, 0.1, 0));
 }
 
-/** A clump of reeds and bulrushes standing in the wet. */
+/** A clump of reeds and bulrushes standing in the wet: a low tuft (the mass that reads from afar) and six to nine
+ *  stalks, every third with its cattail head (the near detail). */
 function reeds(d: Dims): THREE.Group {
   const s = d.s ?? 1, seed = s * 97, g = grp();
   const tuft = ico(1.0 * s, REED_G, 0, 0.2, 0); tuft.scale.set(1.3, 0.35, 1.3); g.add(tuft);
-  const n = 9 + Math.round(hash(seed) * 5);
+  const n = 6 + Math.round(hash(seed) * 3);
   for (let i = 0; i < n; i++) {
     const a = hash(seed + i * 1.9) * Math.PI * 2, r = hash(seed + i * 2.7) * 1.2 * s, h = (3 + hash(seed + i * 3.3) * 3.4) * s;
-    const st = box(0.12, h, 0.12, i % 3 ? REED : REED_G, Math.cos(a) * r, h / 2, Math.sin(a) * r, (hash(i + seed) - 0.5) * 0.35, 0, (hash(i * 5 + seed) - 0.5) * 0.35);
+    const st = near(box(0.14, h, 0.14, i % 3 ? REED : REED_G, Math.cos(a) * r, h / 2, Math.sin(a) * r, (hash(i + seed) - 0.5) * 0.35, 0, (hash(i * 5 + seed) - 0.5) * 0.35));
     g.add(st);
-    if (i % 3 === 0) { const head = cyl(0.17, 0.17, 0.8 * s, CATTAIL, 0, 0, 0, 5); head.position.copy(st.position).add(V(0, h / 2 - 0.3 * s, 0)); head.rotation.copy(st.rotation); g.add(head); }
+    if (i % 3 === 0) { const head = near(cyl(0.17, 0.17, 0.8 * s, CATTAIL, 0, 0, 0, 4)); head.position.copy(st.position).add(V(0, h / 2 - 0.3 * s, 0)); head.rotation.copy(st.rotation); g.add(head); }
   }
   return g;
 }
