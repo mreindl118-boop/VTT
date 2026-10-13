@@ -309,7 +309,8 @@ RING3 = rounded([(-15, -18.5), (-6, -17), (2, -17.5), (20, -17.5), (29, -19.5), 
                  (-15, -25)], 5, closed=True)
 RING4 = rounded([(-6, -21.5), (5, -20.5), (16, -21.5), (23, -24.5), (15, -27), (2, -26.5), (-6, -24.5)], 4, closed=True)
 # The steps are no terraces: each one's top swells and sags along the mountain (a long, slow swell, `wav`), each step's
-# faces rising from the swell of the step below to the swell of the next one behind, and the peak is a ridge, highest
+# faces rising from the swell of the step below to the swell of the next one behind as even slopes of broken rock
+# (dims.slope near 1: the cliff-and-shelf profile would stack into a wedding cake), and the peak is a ridge, highest
 # north-west of the facade, falling away to either end. Every face is scenery seen from outside the temple's rooms, so
 # it is never under the fog of war (dims.open). Fallen boulders and drifts lie along the foot only where it shows
 # (dims.foot: their density, scattered unevenly): thickest along the cliff over the ledge, sparse round the back and the
@@ -331,14 +332,14 @@ def under(ring, k, foot=None):
         t = ray(ring, m, n) or 1; back = (m[0] + n[0] * t, m[1] + n[1] * t)
         front = sstep(-n[1], 0.4, 0.8) * sstep(m[1], -15, -10) * sstep(m[0], -12, -5) * (1 - sstep(m[0], 23, 30))   # the cliffs over the ledge: sheer
         fd = foot if foot is not None else (0.7 if front > 0.5 else 0.35)
-        sl = round(min(0.9, max(0.15, 0.5 + 0.4 * wav(m[0] * 1.9, m[1] * 1.9, 5 + k))) * (1 - front), 2)   # elsewhere broken slopes and crags
+        sl = round(min(1.0, max(0.55, 0.8 + 0.3 * wav(m[0] * 1.9, m[1] * 1.9, 5 + k))) * (1 - front), 2)   # elsewhere even slopes of broken rock, a crag here and there
         return {'h': round(BASE[k + 1](back) - lift(k)(m), 1), 'd': round(t * 10) + 15, 'open': 1, 'foot': fd, 'slope': sl}
     return dims
 def summit(m, n):
     """The peak's faces meet over the middle of its ring and cross a little, so the top is closed; north and south faces
     rise to the same crest where they meet."""
     t = ray(RING4, (m[0] + n[0] * 0.2, m[1] + n[1] * 0.2), n) or 2; back = (m[0] + n[0] * t * 0.5, m[1] + n[1] * t * 0.5)
-    return {'h': round(ridge(back) - lift(3)(m), 1), 'd': round(t * 5) + 15, 'open': 1, 'foot': 0, 'slope': round(min(0.8, max(0.1, 0.45 + 0.35 * wav(m[0] * 2.3, m[1] * 2.3, 9))), 2)}
+    return {'h': round(ridge(back) - lift(3)(m), 1), 'd': round(t * 5) + 15, 'open': 1, 'foot': 0, 'slope': round(min(1.0, max(0.5, 0.75 + 0.3 * wav(m[0] * 2.3, m[1] * 2.3, 9))), 2)}
 flank(f, 'cliff-', FOOT, under(RING2, 0), step=40)
 flank(f, 'cliff-f', [(-1.5, -2.5), (7.75, -2.5)], under(RING2, 0), step=34)
 # behind the archway the rock stands back over the icy steps, so the arch is a door, not a blind niche; the rock closes
@@ -882,8 +883,8 @@ for lv in levels:
     if lv.terrain: polys += [[[round(x * 5, 3), round(z * 5, 3)] for x, z in lv.terrain[0][0]]]
     grid['levels'][lv.id] = OrderedDict(floorPolygons=polys, type='square', hexOrientation='pointy', origin=[0, 0], color='#1d1b22', opacity=0.55)
 os.makedirs(OUT, exist_ok=True)
-json.dump(scene, open(os.path.join(OUT, 'scene.json'), 'w'), indent=1)
-json.dump(grid, open(os.path.join(OUT, 'grid.json'), 'w'), indent=1)
+json.dump(scene, open(os.path.join(OUT, 'scene.json'), 'w', newline='\n'), indent=1)   # LF on every platform (the files are compared byte for byte)
+json.dump(grid, open(os.path.join(OUT, 'grid.json'), 'w', newline='\n'), indent=1)
 keys = sorted({r['key'].split('-')[0] if r['key'].count('-') and r['key'].split('-')[-1].isalpha() else r['key'] for l in scene['levels'] for r in l['rooms']} | set(scene['nonSpatialKeys']))
 want = sorted(PAGE)
 missing = [k for k in want if k not in keys]; extra = [k for k in keys if k not in want]

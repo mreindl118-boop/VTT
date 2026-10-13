@@ -24,7 +24,7 @@ const C = {
   slate: '#35333a', crest: '#26262a', ivy: '#2f4a2e', ivyDark: '#243a24', ivyLight: '#3d5a37',
   rope: '#8b7b5b', glass: '#4f6a5a', glassDark: '#33463d', sand: '#a9966f', paper: '#dad3c3', ink: '#1e1a17',
   cairn: '#26272b', cairnWet: '#323238', boulder: '#2e2e33', twig: '#4a3a2d', twigDark: '#33281e', earth: '#2b2521',
-  sod: '#4a4a36', mold: '#7a5a34', moldDark: '#5a4026', fog: '#cacdd3', fogDeep: '#aeb2ba', gem: '#7fe08a',
+  sod: '#4a4a36', mold: '#7a5a34', moldDark: '#5a4026', fog: '#bfc2c9', fogDeep: '#a2a6ae', gem: '#7fe08a',
   mud: '#6f7a80', mudDark: '#4f585e', skin: '#d9b899', hide: '#7a6650', hideDark: '#5b4b3b', antler: '#cac0a7', blood: '#6a1a1e',
   needle: '#4d5a3c', needleDark: '#36402a', sap: '#5a1218', bark: '#3b3230', barkRed: '#4a2a26', raven: '#18171c', ravenSheen: '#2a2a36',
 };
@@ -513,7 +513,7 @@ export function hillLand(d: Dims): THREE.Group {
     if (fy < 0) { b = c0; c = b0; fx = -fx; fy = -fy; fz = -fz; }
     const len = Math.hypot(fx, fy, fz) || 1, ny = fy / len, slope = Math.sqrt(Math.max(0, 1 - ny * ny)) / Math.max(ny, 0.05), y = (a[2] + b[2] + c[2]) / 3;
     col.copy(G).lerp(HEATH, smoothstep(0.1, 0.45, slope) * 0.75).lerp(STRAW, smoothstep(top * 0.5, top * 0.98, y) * 0.8);
-    col.multiplyScalar(Math.max(0.55, 1 + 0.9 * ((fx * Lx + fy * Ly + fz * Lz) / len - Ly)));   // level ground keeps its colour
+    col.multiplyScalar(Math.max(0.45, 1 + 1.5 * ((fx * Lx + fy * Ly + fz * Lz) / len - Ly)));   // level ground keeps its colour
     for (const p of [a, b, c]) { P.push(p[0] * cell, p[2], p[1] * cell); CC.push(col.r, col.g, col.b); }
   }
   // the skirt round the outer edge, a foot deep, in the turf's own shade
@@ -536,7 +536,7 @@ export function hillLand(d: Dims): THREE.Group {
 }
 
 /** A track or trail on Yester Hill: a ribbon `w` ft wide through (x{i}, y{i}, z{i}), a bed of trodden earth with a short
- *  bank down each side into the land it is cut into. */
+ *  bank down each side into the land it is cut into, in the earth's own darker shade (never a black seam). */
 export function hillTrack(d: Dims): THREE.Group {
   const n = Math.max(2, d.n | 0), w = (d.w ?? 10) / 2, pts: [number, number, number][] = [];
   for (let i = 0; i < n; i++) pts.push([d['x' + i] ?? 0, (d['y' + i] ?? 0) + 0.3, d['z' + i] ?? 0]);
@@ -550,10 +550,10 @@ export function hillTrack(d: Dims): THREE.Group {
   for (let i = 0; i + 1 < n; i++) {
     const a = L[i], b = R[i], c = R[i + 1], e = L[i + 1], ux = b[0] - a[0], uz = b[2] - a[2], vx = c[0] - a[0], vz = c[2] - a[2];
     if (uz * vx - ux * vz >= 0) quad(top, a, b, c, e); else quad(top, a, e, c, b);
-    for (const Sd of [L, R]) { const p = Sd[i], p2 = Sd[i + 1], lo = [p[0], p[1] - 1.6, p[2]], lo2 = [p2[0], p2[1] - 1.6, p2[2]]; quad(side, p, p2, lo2, lo); quad(side, p, lo, lo2, p2); }
+    for (const Sd of [L, R]) { const p = Sd[i], p2 = Sd[i + 1], lo = [p[0], p[1] - 1.0, p[2]], lo2 = [p2[0], p2[1] - 1.0, p2[2]]; quad(side, p, p2, lo2, lo); quad(side, p, lo, lo2, p2); }
   }
   const g = grp();
-  for (const [v, color] of [[top, FLOOR_COLOR.dirt], [side, C.earth]] as const) {
+  for (const [v, color] of [[top, FLOOR_COLOR.dirt], [side, '#' + new THREE.Color(FLOOR_COLOR.dirt).multiplyScalar(0.72).getHexString()]] as const) {
     const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(v, 3)); geo.computeVertexNormals(); g.add(new THREE.Mesh(geo, openMat(mat(color))));
   }
   return g;
@@ -573,7 +573,7 @@ export function hillPatch(d: Dims): THREE.Group {
 const fogMats = new Map<string, THREE.MeshLambertMaterial>();
 function fogMat(color: string): THREE.MeshLambertMaterial {
   let m = fogMats.get(color);
-  if (!m) { m = matClone(color, true); m.transparent = true; m.depthWrite = false; m.side = THREE.DoubleSide; m.vertexColors = true; m.emissive.set('#2a2c31'); fogMats.set(color, m); }
+  if (!m) { m = matClone(color, true); m.transparent = true; m.depthWrite = false; m.side = THREE.DoubleSide; m.vertexColors = true; m.emissive.set('#24262b'); fogMats.set(color, m); }
   return m;
 }
 /** The swell of one sheet of the fog along z (ft): long slow rolls and smaller heads. `k` picks the sheet. 0.6..1. */
@@ -584,9 +584,10 @@ function fogCrest(z: number, k: number, seed: number): number {
 /** The wall of fog at the edge of Strahd's domain: a bank `d` ft deep behind local -x and `len` ft long (local z), with
  *  `ext` ft more at each end where it sinks away, rising westward to `h` ft. Sheets of mist stand one behind another
  *  through its depth, low and faint in front and taller and denser behind, so it thickens with distance and hides what
- *  lies beyond. Each sheet thins to nothing toward its top (the back ones only over their upper quarter) and gathers at its foot, and each rolls on its own
- *  swell, so no crest, foot or seam reads as a line; the sheets lean back into the west, so from above it is a bank of
- *  cloud. One mesh per colour for the whole wall. */
+ *  lies beyond. Each sheet thins to nothing over the upper two thirds of its height and gathers at its foot, and each
+ *  rolls on its own swell, so no crest, foot or seam reads as a line and the bank's top is a soft gradient, not a row
+ *  of puffs; the sheets lean back into the west, so from above it is a bank of cloud. One mesh per colour for the
+ *  whole wall. */
 export function fogWall(d: Dims): THREE.Group {
   const Lz = d.len ?? 3000, H = d.h ?? 620, D = d.d ?? 900, ext = d.ext ?? 400, seed = d.seed ?? 3, NL = 11, ROWS = 6;
   const za = -Lz / 2 - ext, zb = Lz / 2 + ext, COLS = Math.max(8, Math.round((zb - za) / 30));
@@ -594,13 +595,14 @@ export function fogWall(d: Dims): THREE.Group {
   const by = new Map<string, { P: number[]; A: number[] }>();
   for (let k = 0; k < NL; k++) {
     // the back sheets stand taller and hold their density higher, so from the hilltop the bank is opaque up past the
-    // distant ridges' skyline and only thins away above it
-    const t = k / (NL - 1), back = smoothstep(0.6, 1, t), x0 = 6 - D * Math.pow(t, 1.15) - 10 * hash(k, seed), hk = H * (0.1 + 0.9 * Math.pow(t, 0.8)) * (1 + 0.9 * back);
-    const op = 0.2 + 0.3 * t + 0.3 * back, fade = 0.42 + 0.36 * back, lean = Math.tan(0.1 + 0.55 * t - 0.3 * back), ph = hash(k, seed + 1) * 2400;
+    // distant ridges' skyline; every sheet thins away over a long stretch of its height, so the bank's top is a soft
+    // gradient into the sky and no crest reads as a puff of cotton
+    const t = k / (NL - 1), back = smoothstep(0.6, 1, t), x0 = 6 - D * Math.pow(t, 1.15) - 10 * hash(k, seed), hk = H * (0.1 + 0.9 * Math.pow(t, 0.8)) * (1 + 0.5 * back);
+    const op = 0.2 + 0.3 * t + 0.3 * back, fade = 0.3 + 0.2 * back, lean = Math.tan(0.1 + 0.55 * t - 0.3 * back), ph = hash(k, seed + 1) * 2400;
     const col = k % 2 ? C.fogDeep : C.fog, e = by.get(col) ?? { P: [], A: [] }; by.set(col, e);
     const vert = (c: number, r: number): [number, number, number, number] => {
       const z = za + ((zb - za) * c) / COLS, v = r / ROWS, f = ends(z), y = Math.max(2, hk * f * fogCrest(z + ph, k, seed)) * v;
-      // thick low down (the first few feet fade up from the ground), thinning away over the upper half
+      // thick low down (the first few feet fade up from the ground), thinning away from a third of the way up
       const a = op * smoothstep(0, 0.16, v) * (1 - smoothstep(fade, 1, v)) * Math.min(1, f * 1.4);
       return [x0 - lean * y + 6 * Math.sin(z / 97 + k), y - 1.5, z, a];
     };

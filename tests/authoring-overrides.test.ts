@@ -30,7 +30,9 @@ function overlap(p: Pt, q: Pt, a: Pt, b: Pt): number {
 describe('authoring overrides reach the emitted wall segments (Amber Temple)', () => {
   beforeAll(() => {
     dir = mkdtempSync(join(tmpdir(), 'mistlab-x-'));
-    const out = execFileSync('python3', [join(ROOT, 'scripts/authoring/amber-temple.py')], {
+    // the interpreter the repo's scripts run with: 'python3' on Linux and macOS, the py launcher on Windows
+    const [py, pre] = process.platform === 'win32' ? ['py', ['-3']] : ['python3', []];
+    const out = execFileSync(py, [...pre, join(ROOT, 'scripts/authoring/amber-temple.py')], {
       cwd: ROOT, env: { ...process.env, MISTLAB_OUT: dir }, encoding: 'utf8',
     });
     const line = out.split('\n').find((l) => l.startsWith('unmatched overrides: '));
