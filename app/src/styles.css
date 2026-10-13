@@ -708,7 +708,7 @@ svg.e { width: 22px; height: 22px; fill: currentColor; flex: none; }
 .nestbar .nb-title { display: grid; margin-right: 6px; min-width: 0; } .nestbar .nb-title b { font: 600 15px/1.1 var(--font-display); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .nestbar .nb-title span { font-size: 11px; color: var(--p-ink-2); white-space: nowrap; }
 .nestbar .seg { background: var(--p-hair); } .nestbar .seg button { min-height: 36px; } .nestbar button.icon { min-width: 40px; min-height: 40px; }
 .nestbar [aria-pressed='true'] { background: var(--p-sunk); box-shadow: inset 0 0 0 1px var(--p-edge); border-radius: 8px; }
-.nestkey { position: absolute; right: 8px; top: 120px; bottom: 76px; width: 270px; z-index: 6; overflow: auto; padding: 10px 10px 12px; border-radius: var(--r-3, 10px); }
+.nestkey { position: absolute; right: 76px; top: 120px; bottom: 76px; width: 270px; z-index: 6; overflow: auto; padding: 10px 10px 12px; border-radius: var(--r-3, 10px); }
 .nestkey[hidden] { display: none; }
 .nestkey h3 { margin: 0 0 6px 6px; font: 700 13px/1.2 'Alegreya SC', Georgia, serif; letter-spacing: .08em; color: var(--p-ink-2); }
 .nestkey ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 1px; }

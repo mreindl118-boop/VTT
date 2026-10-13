@@ -61,7 +61,7 @@ export class CartoLetters {
     for (const l of data.labels ?? []) add(l.name, 'river', l.pos as Vec2, 5, l.angle ?? 0, 10);
     // the sheet's frame: the title (and its scale note) straight on the map, the rose at the bottom right, a vignette
     this.frame = document.createElement('div');
-    this.frame.className = `carto-frame ${style}`;
+    this.frame.className = `carto-frame ${style}`; this.frame.style.display = 'none';
     document.body.dataset.cartoStyle = style;
     const vig = document.createElement('div'); vig.className = 'carto-vignette';
     const title = document.createElement('div'); title.className = 'carto-title';
@@ -76,12 +76,13 @@ export class CartoLetters {
 
   /** k: how far the map is drawn; fit: the view's ground width over the region's (1 = the whole region); the camera's
    *  heading (the rose turns with it); the page's bars (the frame keeps inside what they leave clear). */
-  sync(k: number, fit: number, azimuth: number, chrome: { bars: DOMRect[] }): void {
+  sync(k: number, fit: number, azimuth: number, chrome: () => { bars: DOMRect[] }): void {
     const o = Math.round(k * THREE.MathUtils.smoothstep(fit, 0.35, 0.75) * 100) / 100;
     if (o !== this.shown) {
       this.shown = o;
       this.frame.style.opacity = String(o);
-      this.frame.style.visibility = o > 0.01 ? 'visible' : 'hidden';
+      // (not laid out at all until it shows: the screen loads the map's display faces only once the map is drawn)
+      this.frame.style.visibility = o > 0.01 ? 'visible' : 'hidden'; this.frame.style.display = o > 0.01 ? '' : 'none';
       if (o > 0.3) document.body.dataset.cartoFrame = '1'; else delete document.body.dataset.cartoFrame;
     }
     if (o <= 0.01) return;
@@ -91,7 +92,8 @@ export class CartoLetters {
     const host = (this.frame.parentElement ?? document.body).getBoundingClientRect();
     let top = 8, bottom = host.height - 8, left = 16, right = host.width - 8;
     const bar = document.querySelector('.nestbar:not([hidden])')?.getBoundingClientRect();
-    for (const q of bar?.width ? [...chrome.bars, bar] : chrome.bars) {
+    const bars = chrome().bars;
+    for (const q of bar?.width ? [...bars, bar] : bars) {
       const y0 = q.top - host.top, y1 = q.bottom - host.top, x0 = q.left - host.left, x1 = q.right - host.left;
       if (x1 <= 0 || y1 <= 0 || x0 >= host.width || y0 >= host.height) continue;
       if (q.width >= q.height) { if (y0 < host.height - y1) top = Math.max(top, y1 + 8); else bottom = Math.min(bottom, y0 - 8); }

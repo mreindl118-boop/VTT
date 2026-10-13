@@ -400,8 +400,11 @@ sheet stays as the fallback: View › Continuous world off, `?nested=0`, or a ma
 **One drawing, two readings** (render/worldcarto.ts). The map is computed in the land's own shader (`patchCarto`, after
 the mist) from the same `LandField` the 3-D land stands on, baked once to a texture at 1/32 mile (height and its slope
 as half floats, the placed maps' clearings; the cover classes as bytes), so the contours, hachures and water lie exactly
-on the 3-D hills and lakes. The bake runs a few milliseconds a frame after the stage is built; the map stays off until
-it is in (`WorldStage.cartoReady()`). Layers, in order: paper and a grain snapped to powers of two (it never swims),
+on the 3-D hills and lakes. The bake starts the first time the map is wanted (the camera climbing past 2 ft per pixel,
+the World map button) and runs in idle slices of at most 8 ms; the map stays off until it is in
+(`WorldStage.cartoReady()`). Its code joins the land's shaders only once the camera first climbs past 3.5 ft per
+pixel (the map is still at strength 0 there, so the one recompile never shows), and its frame (title, rose) is not laid
+out until it shows: close in, the page compiles, lays out and loads exactly what it did before. Layers, in order: paper and a grain snapped to powers of two (it never swims),
 the cover's tints (hills, rock, snow over 4,200 ft in Barovia, 3,800 in the Sheep Chase; pasture on the Sheep Chase's
 open lowland), a north-west hillshade, the forest's shadow on open ground, hachures down the fall line combed darker just
 under each contour, contours (500 ft at the whole region, 250 and 125 closer in, the finer set fading as it crowds;

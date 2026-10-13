@@ -24,7 +24,7 @@ import { buildDetail } from './proxydetail';
 import { GHOST_TINT } from './ghost';
 import type { Massing } from '../../../scripts/world-massing';
 import type { World } from './world';
-import { CARTO_STYLES, bakeLand, buildInk, cartoBands, cartoUniforms, patchCarto, setWash, type CartoStyleId, type CartoUniforms } from './worldcarto';
+import { CARTO_STYLES, bakeLand, buildInk, cartoBands, cartoUniforms, liveCarto, patchCarto, setWash, type CartoStyleId, type CartoUniforms } from './worldcarto';
 import { CartoLetters } from './worldletters';
 import { glyphKind, glyphSvg } from './worldglyphs';
 
@@ -90,6 +90,8 @@ export class WorldStage {
   private declutterQ = 0;
   /** Pines a tile holds at most, and the pool (halved on a low-memory device). */
   readonly perTile: number;
+  /** The inked map crossed half strength (the party's & shows over its token from there out): the app re-places it. */
+  onCartoHalf: (() => void) | null = null;
   /** A place label was tapped (the DM's): fly there and open its map. */
   onPick: ((path: string) => void) | null = null;
   /** Milliseconds the stage took to build (the HUD shows it). */
@@ -181,7 +183,7 @@ export class WorldStage {
       this.land.group.traverse((o) => {
         const m = o as THREE.Mesh; if (!m.isMesh) return;
         const mt = m.material as THREE.Material;
-        if (m.name === 'land' || m.name === 'aprons' || m.name === 'lakes') patchCarto(mt, u, style);
+        if (m.name === 'land' || m.name === 'aprons' || m.name === 'lakes') this.cartoMats.push(patchCarto(mt, u, style));
         else if (m.name === 'ribbons') mt.alphaHash = true;
         else if (m.name === 'crag-mist') m.userData.baseOpacity = (mt as THREE.MeshBasicMaterial).opacity;
       });
@@ -192,9 +194,9 @@ export class WorldStage {
       this.root.add(letters.group);
       for (const l of letters.labels) this.labels.push(l);
       this.carto = { u, style, k: 0, fit: 0, ftPerPx: 0, ready: false, bakeMs: 0, ink, letters, textures: [] };
-      // the land is baked for the map a few milliseconds a frame (the page never stalls); the map stays off until then
-      this.bakeJob = bakeLand(field, u);
-      this.pumpBake();
+      // the land is baked for the map once it is first wanted (the camera climbing toward it, the World map button),
+      // in idle slices (the page never stalls); the map stays off until then
+      this.bake = () => { if (this.bakeJob || this.carto.ready) return; this.bakeJob = bakeLand(field, u); this.pumpBake(); };
     }
     world.beforeRender.add(this.followSky);
     this.buildMs = performance.now() - t0;
@@ -203,23 +205,31 @@ export class WorldStage {
   /** The inked map (render/worldcarto.ts): its uniforms, how far it is drawn now (k), the view's ground width over the
    *  region's (fit), feet per CSS pixel at the target, whether the land's bake is in, what the bake cost. */
   readonly carto: { u: CartoUniforms; style: CartoStyleId; k: number; fit: number; ftPerPx: number; ready: boolean; bakeMs: number; ink: THREE.Mesh; letters: CartoLetters; textures: THREE.Texture[] };
+  /** The land's materials that paint the map (their programs take its code once the camera first climbs toward it). */
+  private cartoMats: THREE.Material[] = [];
   private bakeJob?: Generator<void, { land: THREE.DataTexture; cover: THREE.DataTexture; ms: number }>;
   private bakeWaiters: (() => void)[] = [];
-  /** Resolves once the land is baked for the inked map. */
-  cartoReady(): Promise<void> { return this.carto.ready ? Promise.resolve() : new Promise((r) => this.bakeWaiters.push(r)); }
+  /** Start the land's bake for the inked map (once). */
+  private bake: () => void = () => {};
+  /** Resolves once the land is baked for the inked map (starting the bake if it has not started). */
+  cartoReady(): Promise<void> { if (this.carto.ready) return Promise.resolve(); this.bake(); return new Promise((r) => this.bakeWaiters.push(r)); }
+  /** The bake runs in idle slices of at most 8 ms (a frame apart where the browser has no idle callback), so it never
+   *  holds up a frame or a tap. */
   private pumpBake(): void {
-    const step = (): void => {
+    const idle = (globalThis as { requestIdleCallback?: (f: (d: { timeRemaining(): number }) => void, o?: { timeout: number }) => number }).requestIdleCallback;
+    const later = (f: (d?: { timeRemaining(): number }) => void) => { if (idle) idle(f, { timeout: 250 }); else setTimeout(f, 16); };
+    const step = (d?: { timeRemaining(): number }): void => {
       const job = this.bakeJob; if (!job || this.disposed) return;
-      const t0 = performance.now();
+      const t0 = performance.now(), budget = Math.max(2, Math.min(8, d ? d.timeRemaining() : 8));
       let r: IteratorResult<void, { land: THREE.DataTexture; cover: THREE.DataTexture; ms: number }>;
-      do r = job.next(); while (!r.done && performance.now() - t0 < 8);
-      if (!r.done) { setTimeout(step, 0); return; }
+      do r = job.next(); while (!r.done && performance.now() - t0 < budget);
+      if (!r.done) { later(step); return; }
       this.bakeJob = undefined;
       this.carto.textures = [r.value.land, r.value.cover]; this.carto.bakeMs = r.value.ms; this.carto.ready = true;
       this.world.invalidate();
       for (const w of this.bakeWaiters.splice(0)) w();
     };
-    setTimeout(step, 0);
+    later(step);
   }
 
   // ------------------------------------------------------------------ queries
@@ -414,6 +424,7 @@ export class WorldStage {
    *  straight down with north up, as the world map (the camera's pitch there, world.ts applyPolar), the region fitting
    *  the clear part of the view. `map`: the World map button's, which keeps clear of its bar too. */
   frameWorld(animate: boolean | 'fly' = false, map = false): void {
+    this.bake();
     this.fitCamera();
     // (the world map's bar, under the top bar, is kept clear too)
     const bar = map ? document.querySelector('.nestbar:not([hidden])')?.getBoundingClientRect().bottom ?? 0 : 0;
@@ -466,7 +477,7 @@ export class WorldStage {
   pinShown(key: string): boolean { return !this.audience.restricted || this.audience.revealed.has(key); }
   /** Before every render: the sky's bodies stand round the eye (absolute), however far it has moved. */
   private followSky = (): void => {
-    if (!this.root.visible) { this.setCarto(0); this.carto.letters.sync(0, 0, 0, { bars: [] }); this.drawTrail(false); return; }
+    if (!this.root.visible) { this.setCarto(0); this.carto.letters.sync(0, 0, 0, () => ({ bars: [] })); this.drawTrail(false); return; }
     const w = this.world; this.sky.follow(w.toAbsolute(w.camera.position), w.camera.position.distanceTo(w.controls.target));
     this.syncCarto();
     this.drawTrail(true);
@@ -489,8 +500,10 @@ export class WorldStage {
     const v = cartoBands(w.camera, w.controls.target, w.renderer.domElement, b.maxX - b.minX);
     c.ftPerPx = v.ftPerPx; c.fit = v.fit; w.fit = v.fit;
     c.u.uPxK.value = v.pxK; c.u.uDpr.value = w.renderer.getPixelRatio(); c.u.uAnchor.value.copy(w.anchor);
+    if (v.ftPerPx > 2) this.bake();
+    if (v.ftPerPx > 3.5) liveCarto(this.cartoMats);
     this.setCarto(c.ready ? v.k : 0);
-    c.letters.sync(c.k, c.fit, w.controls.getAzimuthalAngle(), w.chrome());
+    c.letters.sync(c.k, c.fit, w.controls.getAzimuthalAngle(), () => w.chrome());
   }
   /** Far out, a placed map's open ground steps aside for the inked land under it (its streets, walls and roofs stay,
    *  washed toward the map's paper and ink). Re-applied when the maps drawn change. */
@@ -508,7 +521,9 @@ export class WorldStage {
     const c = this.carto, w = this.world, S = THREE.MathUtils.smoothstep;
     this.openGround(k < 0.5);
     if (c.k === k && c.u.uCarto.value === k) return;
+    const half = (c.k >= 0.5) !== (k >= 0.5);
     c.k = k; c.u.uCarto.value = k; w.cartoK = k;
+    if (half) queueMicrotask(() => this.onCartoHalf?.());
     if (w.scene.fog instanceof THREE.FogExp2) w.scene.fog.density = w.fogDensity;
     setWash(k * 0.9, CARTO_STYLES[c.style]);
     c.ink.visible = k > 0.001;

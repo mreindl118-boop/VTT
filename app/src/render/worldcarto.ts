@@ -377,13 +377,17 @@ vec3 cartoLand(vec3 col3d) {
 
 /** Make a stage material (the land, the aprons, the lakes) paint the inked map at its absolute position as the camera
  *  climbs. Chains after patchFog when the material has it. (Massing is not painted here: it is washed toward the map's
- *  ink and paper like the maps, materials.ts.) */
+ *  ink and paper like the maps, materials.ts.) The map's code joins the material's program only once the camera
+ *  first climbs toward the map (`liveCarto`, from 3.5 ft per pixel, before the map's band begins at 5): close in a
+ *  scene compiles exactly the programs it always did, and the one recompile happens while the map is still at
+ *  strength 0 (its code returns at its first branch), so it never shows. */
 export function patchCarto<T extends THREE.Material>(m: T, u: CartoUniforms, style: CartoStyleId): T {
   if (m.userData.carto) return m;
   m.userData.carto = 'land';
   const prev = m.onBeforeCompile, prevKey = m.customProgramCacheKey;
   m.onBeforeCompile = (sh, r) => {
     prev.call(m, sh, r);
+    if (!m.userData.cartoLive) return;
     Object.assign(sh.uniforms, u);
     sh.uniforms.uCartoWash = { value: 0 }; // the stage paints itself; only the maps are washed
     sh.vertexShader = 'varying vec3 vCartoW;\nvarying float vCartoDepth;\n' + sh.vertexShader.replace('#include <project_vertex>',
@@ -395,9 +399,12 @@ export function patchCarto<T extends THREE.Material>(m: T, u: CartoUniforms, sty
       ? sh.fragmentShader.replace(hook, `${hook}\n gl_FragColor.rgb = ${call}(gl_FragColor.rgb);`)
       : sh.fragmentShader.replace('#include <opaque_fragment>', `#include <opaque_fragment>\n gl_FragColor.rgb = ${call}(gl_FragColor.rgb);`);
   };
-  m.customProgramCacheKey = () => `${prevKey.call(m)}|carto-land-${style}`;
-  m.needsUpdate = true;
+  m.customProgramCacheKey = () => (m.userData.cartoLive ? `${prevKey.call(m)}|carto-land-${style}` : prevKey.call(m));
   return m;
+}
+/** The camera is climbing toward the inked map: its code joins these materials' programs (once). */
+export function liveCarto(mats: THREE.Material[]): void {
+  for (const m of mats) if (!m.userData.cartoLive) { m.userData.cartoLive = true; m.needsUpdate = true; }
 }
 
 // ------------------------------------------------------------------ ink ribbons (roads, trails, rivers)

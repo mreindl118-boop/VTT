@@ -734,8 +734,9 @@ test.describe('on a phone', () => {
     }
     expect(onName).toBeGreaterThan(0);
     expect((await cam(page)).atMax).toBe(true);
-    // one more pinch at the limit asks for more: the chip
-    await pinch(140, 450, 220, 30);
+    // one more pinch at the limit asks for more: the chip (its second finger closing from the left: from 140 px it
+    // would have started at 360 px, on the slider, and the canvas would have seen one finger)
+    await pinch(250, 450, 220, 30);
     await expect.poll(async () => (await cam(page)).chips.join(), { timeout: 60_000 }).toMatch(/whole valley/);
     // a finger a little below a name (inside its 44-px target) flies there
     await page.evaluate(async () => { const m = (window as any).__mistlab; m.stage.frameWorld(); await m.app.world.settled(); m.app.world.renderNow(); });

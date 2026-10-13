@@ -813,6 +813,7 @@ export class App {
       if (!this.stage) {
         this.stage = new WorldStage(this.world, this.campaign, worldOf(this.campaign)); this.world.root.add(this.stage.root);
         this.stage.onPick = (p) => { if (this.mode === 'dm' && !this.restricted) this.onPlacePick?.(p); };
+        this.stage.onCartoHalf = () => { if (this.staged) this.stage?.setParty(this.partyMark()); };
       }
       this.stage.root.visible = this.renderMode === 'normal';
       this.staged = true;
