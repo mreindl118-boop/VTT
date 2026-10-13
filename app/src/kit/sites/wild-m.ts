@@ -76,6 +76,15 @@ function glow(color: string, opacity: number): THREE.MeshBasicMaterial {
   if (!m) { m = new THREE.MeshBasicMaterial({ color, transparent: opacity < 1, opacity, depthWrite: opacity >= 1, fog: false }); glows.set(k, m); }
   return m;
 }
+const smooth01 = (e0: number, e1: number, x: number) => { const t = Math.max(0, Math.min(1, (x - e0) / (e1 - e0))); return t * t * (3 - 2 * t); };
+const clamp01 = (x: number) => Math.max(0, Math.min(1, x));
+/** Smooth value noise in 0..1 on a unit lattice (patches of snow, lumps in a slope). */
+function vnoise(x: number, y: number, s: number): number {
+  const ix = Math.floor(x), iy = Math.floor(y), fx = x - ix, fy = y - iy, sx = fx * fx * (3 - 2 * fx), sy = fy * fy * (3 - 2 * fy);
+  const h = (a: number, b: number) => hash(((a % 997) + 997) * 3.17 + ((b % 991) + 991) * 1.71, s);
+  const a = h(ix, iy), b = h(ix + 1, iy), c = h(ix, iy + 1), e = h(ix + 1, iy + 1);
+  return a + (b - a) * sx + (c - a) * sy + (a - b - c + e) * sx * sy;
+}
 /** A flat polygon lying in the plan at height y. */
 function flatGeo(pts: P2[], y: number): THREE.BufferGeometry {
   const g = new THREE.ShapeGeometry(new THREE.Shape(pts.map(([x, z]) => new THREE.Vector2(x, -z)))); g.rotateX(-Math.PI / 2); g.translate(0, y, 0); return g;
@@ -168,9 +177,10 @@ export function bench(d: Dims): THREE.Group {
 
 /** Sheet granite: the polygon x0/z0… (local) paved by nature with broad, thin plates of fractured rock, each tilted a
  *  little toward +z (downslope), grass and moss showing in the joints between them; a few plates cracked across.
- *  Circles cx/cz/cr0… (cn of them) stay bare (a stream, a drift). */
+ *  Circles cx/cz/cr0… (cn of them) stay bare (a stream, a drift). `th` and `tilt` scale the plates' thickness and lean
+ *  (thin, near-flat plates for a rock top that marks must show on). */
 export function slabs(d: Dims): THREE.Group {
-  const P = polyOf(d), sd = d.seed ?? 1, step = d.step ?? 11, B = new Bucket(), g = grp();
+  const P = polyOf(d), sd = d.seed ?? 1, step = d.step ?? 11, thk = d.th ?? 1, tilt = d.tilt ?? 1, B = new Bucket(), g = grp();
   const holes: [number, number, number][] = []; for (let k = 0; k < (d.cn ?? 0); k++) holes.push([d['cx' + k], d['cz' + k], d['cr' + k]]);
   let x0 = Infinity, x1 = -Infinity, z0 = Infinity, z1 = -Infinity;
   for (const [x, z] of P) { x0 = Math.min(x0, x); x1 = Math.max(x1, x); z0 = Math.min(z0, z); z1 = Math.max(z1, z); }
@@ -183,10 +193,10 @@ export function slabs(d: Dims): THREE.Group {
     const pts: P2[] = [], m = 5 + Math.floor(hash(i, sd + 15) * 4), big = hash(i, sd + 16) > 0.8 ? 1.45 : 0.75 + hash(i, sd + 17) * 0.4, sx = 1 + hash(i, sd + 18) * 0.6;
     let a = hash(i, sd + 3) * 6;
     for (let k = 0; k < m; k++) { a += ((Math.PI * 2) / m) * (0.6 + hash(i * 7 + k, sd + 19) * 0.8); const rr = step * big * (0.3 + hash(i * 7 + k, sd + 4) * 0.32); pts.push([Math.cos(a) * rr * sx, Math.sin(a) * rr]); }
-    const th = 0.35 + hash(i, sd + 5) * 0.4, sh = new THREE.Shape(pts.map(([px, pz]) => new THREE.Vector2(px, -pz)));
+    const th = (0.35 + hash(i, sd + 5) * 0.4) * thk, sh = new THREE.Shape(pts.map(([px, pz]) => new THREE.Vector2(px, -pz)));
     const geo = new THREE.ExtrudeGeometry(sh, { depth: th, bevelEnabled: false }); geo.rotateX(-Math.PI / 2);
     const col = hash(i, sd + 6) > 0.7 ? C.granitePale : hash(i, sd + 7) > 0.45 ? C.granite : C.talus;
-    B.add(geo, mat(col), cx, 0.02, cz, hash(i, sd + 8) * 6, 0.035 + hash(i, sd + 9) * 0.03, (hash(i, sd + 10) - 0.5) * 0.05);
+    B.add(geo, mat(col), cx, 0.02, cz, hash(i, sd + 8) * 6, (0.035 + hash(i, sd + 9) * 0.03) * tilt, (hash(i, sd + 10) - 0.5) * 0.05 * tilt);
     if (hash(i, sd + 11) > 0.65) B.add(new THREE.BoxGeometry(step * 0.7, 0.08, 0.22), mat(C.joint), cx, th + 0.25, cz, hash(i, sd + 12) * 3);   // a crack across
     if (hash(i, sd + 13) > 0.6) B.add(new THREE.BoxGeometry(step * 0.5, 0.1, 0.9), mat(hash(i, 1) > 0.5 ? C.moss : C.lichen), cx + step * 0.3, 0.12, cz + step * 0.35, hash(i, sd + 14) * 3);   // moss in a joint
   }
@@ -194,79 +204,202 @@ export function slabs(d: Dims): THREE.Group {
 }
 
 /** A cliff band `len` ft long (local x), `h` high, its face along z = 0 looking toward +z and the rock running `d` ft
- *  back: layered grey strata that step in and out, joints, lichen and wet streaks, broken talus at its foot.
- *  tw/te taper the west/east ends down; notch (local x), notchW, notchD cut a gully down from the top (the scree
- *  feeds from it); stair (local x of its foot) cuts a diagonal crack with chockstone steps rising toward -x; ovh juts
- *  the top strata out as an overhang (kept off clear ± clearW); snow 1 lays old snow on top. */
+ *  back: layered grey strata of very uneven thickness, joints, lichen and wet streaks, broken talus at its foot. The
+ *  plan line jogs: `jog` (amplitude), `jogO` (mean), `jogLo`/`jogHi` (limits) push whole columns out as buttresses (their
+ *  tops break off below the lip) and back as gullies. tw/te taper the west/east ends down; notch (local x), notchW,
+ *  notchD cut a V-gully down from the top (the scree feeds from it); stair (local x of its foot) cuts a zig-zag crack
+ *  with chockstone steps rising toward -x; ovh juts the top strata out as an overhang (kept off clear ± clearW).
+ *  climb (rise per foot of depth) builds the mountain on back from the top as ribs and gullies of rock climbing in
+ *  ramps and short steps, higher toward the west by `west` ft at the back (a0: the piece's centre along the whole
+ *  headwall, so neighbouring pieces agree); snow 1 lays old snow in ragged patches on its treads. hf 1 builds the rock
+ *  behind the face as that surface without the climb (flat on top, coming down at the tapered ends; tf: the share of the
+ *  height left at a tapered end). */
 export function headwall(d: Dims): THREE.Group {
   const L = d.len ?? 200, H = d.h ?? 120, D = d.d ?? 120, sd = d.seed ?? 1, tw = d.tw ?? 0, te = d.te ?? 0, ovh = d.ovh ?? 0, snow = d.snow ?? 0;
+  const climb = d.climb ?? 0, west = d.west ?? 0, a0 = d.a0 ?? 0;
   const B = new Bucket(), g = grp(), COL = [C.granite, C.graniteDeep, C.granitePale];
-  const ys: number[] = [0]; for (let y = 0, k = 0; y < H; k++) { y += 5 + hash(k, sd + 40) * 7; ys.push(Math.min(H, y)); }
-  // columns of uneven width: buttresses and recesses that run the height of the cliff, not courses of masonry
-  const xs: number[] = [-L / 2]; for (let k = 0; xs[xs.length - 1] < L / 2 - 6; k++) xs.push(Math.min(L / 2, xs[xs.length - 1] + 7 + hash(k, sd + 60) * 13)); xs[xs.length - 1] = L / 2;
+  // courses of very uneven thickness, from thin partings to thick beds
+  const ys: number[] = [0]; for (let y = 0, k = 0; y < H; k++) { const r = hash(k, sd + 40); y += 3 + r * r * 16; ys.push(Math.min(H, y)); }
+  // columns of uneven width (narrow round the notch so its V reads): buttresses and recesses, not courses of masonry
+  const xs: number[] = [-L / 2];
+  for (let k = 0; xs[xs.length - 1] < L / 2 - 4; k++) { const x = xs[xs.length - 1], near = d.notch !== undefined && Math.abs(x - d.notch) < 30; xs.push(Math.min(L / 2, x + (near ? 3.5 + hash(k, sd + 60) * 2.5 : 6 + hash(k, sd + 60) * 13))); }
+  xs[xs.length - 1] = L / 2;
   const n = xs.length - 1;
   const topAt = (x: number) => {
-    let top = H;
-    if (tw && x < -L / 2 + tw) top = H * (0.3 + 0.7 * Math.max(0, (x + L / 2) / tw));
-    if (te && x > L / 2 - te) top = H * (0.3 + 0.7 * Math.max(0, (L / 2 - x) / te));
-    if (d.notch !== undefined) { const nw = (d.notchW ?? 30) / 2, nd = Math.abs(x - d.notch); if (nd < nw) top -= (d.notchD ?? 30) * (1 - nd / nw); }
+    let top = H + (d.tv ? d.tv * (0.6 * Math.sin((x + a0) * 0.05 + sd) + 0.4 * Math.sin((x + a0) * 0.13 + sd * 1.3)) : 0);
+    const tf = d.tf ?? 0.3;   // what is left of the height at a tapered end
+    if (tw && x < -L / 2 + tw) top *= (d.tfw ?? tf) + (1 - (d.tfw ?? tf)) * smooth01(0, 1, (x + L / 2) / tw);
+    if (te && x > L / 2 - te) top *= tf + (1 - tf) * smooth01(0, 1, (L / 2 - x) / te);
+    if (d.notch !== undefined) { const nw = (d.notchW ?? 30) / 2, nd = Math.abs(x - d.notch); if (nd < nw) top -= (d.notchD ?? 30) * (1 - nd / nw) ** 1.4; }
     return top;
   };
-  const stairAt = (y: number) => (d.stair ?? 0) - (y / H) * (d.stairRun ?? 34);   // the crack's x at height y
+  // the crack-stair zig-zags up the face: its x at height y
+  const run = d.stairRun ?? 34;
+  const stairAt = (y: number) => (d.stair ?? 0) - (y / H) * run + Math.sin(y * 0.16 + 1.3) * 5 * (0.6 + 0.4 * Math.sin(y * 0.05)) + Math.sin(y * 0.41) * 1.2;
+  // the plan line: long waves out and in, calmed where the stair, the notch and the door need a plain face
+  const calm = (x: number) => {
+    let f = 1;
+    if (d.stair) { const lo = (d.stair ?? 0) - run - 8, hi = (d.stair ?? 0) + 8, e = x < lo ? lo - x : x > hi ? x - hi : 0; f = Math.min(f, Math.min(1, e / 14)); }
+    if (d.notch !== undefined) f = Math.min(f, Math.min(1, Math.max(0, Math.abs(x - d.notch) - (d.notchW ?? 30) / 2) / 12));
+    if (d.clear !== undefined) f = Math.min(f, Math.min(1, Math.max(0, Math.abs(x - d.clear) - (d.clearW ?? 10)) / 10));
+    return f;
+  };
+  const jogAt = (x: number) => {
+    const A = d.jog ?? 0; if (!A) return 0;
+    const X = x + a0, w = 0.5 * Math.sin(X * 0.029 + sd) + 0.32 * Math.sin(X * 0.077 + sd * 1.7) + 0.18 * Math.sin(X * 0.17 + sd * 0.3);
+    return Math.max(d.jogLo ?? -99, Math.min(d.jogHi ?? 99, (d.jogO ?? 0) + A * w)) * calm(x);
+  };
   for (let i = 0; i < n; i++) {
-    const w = xs[i + 1] - xs[i], x = (xs[i] + xs[i + 1]) / 2, top = topAt(x), inNotch = d.notch !== undefined && Math.abs(x - d.notch) < (d.notchW ?? 30) / 2;
-    // the rock behind the face
-    B.add(new THREE.BoxGeometry(w + 0.4, top - 0.3, D - 6), exm(C.graniteDeep), x, (top - 0.3) / 2, -6 - (D - 6) / 2);
+    const w = xs[i + 1] - xs[i], x = (xs[i] + xs[i + 1]) / 2, top = topAt(x), jog = jogAt(x);
     const clear = d.clear !== undefined && Math.abs(x - d.clear) < (d.clearW ?? 10);
-    // this column stands out or back as a whole (a buttress, a gully), leaning back a little with height
-    const col = (hash(i, sd + 61) - 0.5) * 7 + Math.sin(i * 0.9 + sd) * 1.5, bulgeAt = hash(i, sd + 62) * H, bulge = (hash(i, sd + 63) - 0.3) * 4;
+    // the rock behind the face: a plain block (or, with climb, the mountain built below)
+    if (!climb && !d.hf) B.add(new THREE.BoxGeometry(w + 0.4, top - 0.3, D - 6 + jog), exm(C.graniteDeep), x, (top - 0.3) / 2, (jog - 6 - D) / 2);
+    // a buttress that stands well out breaks off below the lip; the column leans back a little with height
+    const bTop = jog > 6 ? top - 10 - (jog - 6) * 2.4 - hash(i, sd + 70) * 12 : top + 1;
+    const bulgeAt = hash(i, sd + 62) * H, bulge = (hash(i, sd + 63) - 0.3) * 4;
     for (let j = 0; j + 1 < ys.length; j++) {
-      // bedding dips gently along the cliff, so the courses never line up like masonry
-      const dip = (x / L) * 7 + Math.sin(x * 0.05 + sd) * 1.5;
-      const y0 = j ? Math.max(0, ys[j] + dip + (hash(i, j + sd) - 0.5) * 1.4) : 0, y1 = Math.min(top - 0.3, ys[j + 1] + dip + (hash(i, j + 1 + sd) - 0.5) * 1.4);
+      // bedding dips along the cliff and steps at the joints, so the courses never line up like masonry
+      const dip = ((x + a0) / 160) * 9 + Math.sin((x + a0) * 0.045 + sd) * 4 + (hash(i, sd + 64) - 0.5) * 3;
+      const y0 = j ? Math.max(0, ys[j] + dip + (hash(i, j + sd) - 0.5) * 2.4) : 0, y1 = Math.min(top - 0.3, ys[j + 1] + dip + (hash(i, j + 1 + sd) - 0.5) * 2.4);
       if (y1 - y0 < 0.5) continue;
       const ym = (y0 + y1) / 2;
-      let front = col + (hash(i * 3 + j, sd + 7) - 0.5) * 2.2 + Math.sin(j * 1.3 + sd) * 1.0 + bulge * Math.exp(-(((ym - bulgeAt) / 25) ** 2)) - ym * 0.02;
-      if (inNotch) front -= 7;
+      let front = jog + (hash(i * 3 + j, sd + 7) - 0.5) * 2.6 + Math.sin(j * 1.3 + sd) * 1.2 + bulge * Math.exp(-(((ym - bulgeAt) / 25) ** 2)) - ym * 0.03;
+      if (ym > bTop) front = Math.min(front, 1 + (hash(i * 3 + j, sd + 71) - 0.5) * 2);
+      // the notch: a V-gully, narrow at its foot and opening upward, deepest in the middle
+      let inV = 0;
+      if (d.notch !== undefined) { const hw = 3 + ((d.notchW ?? 30) / 2 - 3) * Math.pow(ym / H, 0.8), f = 1 - Math.abs(x - d.notch) / hw; if (f > 0) { inV = f; front -= 10 * Math.sqrt(f); } }
       if (ovh && !clear && y1 > top - 16) front += ovh * Math.min(1, (y1 - (top - 16)) / 14) * (0.6 + 0.4 * hash(i, sd + 9));
-      const dep = 9 + Math.max(0, front);
-      const ry = (hash(i * 5 + j, sd + 64) - 0.5) * 0.08;
-      B.add(new THREE.BoxGeometry(w + 0.6 + hash(i, j) * 0.8, y1 - y0, dep), exm(COL[(j + (hash(i, j + 3) > 0.9 ? 1 : 0)) % 3]), x + (hash(j, i) - 0.5) * 0.6, ym, front - dep / 2, ry);
+      const dep = 9 + Math.max(0, front - jog);
+      const ry = (hash(i * 5 + j, sd + 64) - 0.5) * 0.1;
+      const c0 = inV > 0.3 ? (j % 2 ? C.wetRock : C.graniteDeep) : COL[(j + (hash(i, j + 3) > 0.8 ? 1 : 0) + (hash(i, sd + 65) > 0.7 ? 1 : 0)) % 3];
+      B.add(new THREE.BoxGeometry(w + 0.6 + hash(i, j) * 0.8, y1 - y0, dep), exm(c0), x + (hash(j, i) - 0.5) * 0.6, ym, front - dep / 2, ry);
       // lichen and moss on the strata that stand out
-      if (front > 0.8 && hash(i * 5 + j, sd + 2) > 0.7 && y1 < top - 2) B.add(new THREE.BoxGeometry(w * (0.4 + hash(i, j) * 0.5), 0.3, 1.6), exm(hash(j, i) > 0.5 ? C.lichen : C.moss), x, y1 + 0.12, front - 0.9);
-      if (snow && y1 > top * 0.55 && front > 0.5 && hash(i * 7 + j, sd + 5) > 0.55) B.add(new THREE.BoxGeometry(w * (0.5 + hash(i, j + 9) * 0.5), 0.5, 2.2), exm(C.snow), x, y1 + 0.2, front - 1.2);
+      if (front > jog + 0.8 && hash(i * 5 + j, sd + 2) > 0.7 && y1 < top - 2) B.add(new THREE.BoxGeometry(w * (0.4 + hash(i, j) * 0.5), 0.3, 1.6), exm(hash(j, i) > 0.5 ? C.lichen : C.moss), x, y1 + 0.12, front - 0.9);
+      // old snow caught on the higher ledges: small ragged lumps, not lines
+      if (snow && y1 > top * 0.55 && hash(i * 7 + j, sd + 5) > 0.8) { const r = 0.9 + hash(i, j + 9) * 1.6; B.add(lumpGeo(r, i * 7 + j, 1.6, 0.25, 0.9, 0), exm(C.snow), x + (hash(i, j + 10) - 0.5) * w * 0.6, y1 + 0.15, front - r * 0.8); }
     }
     // joints: dark, deep, thin, so they show only where they meet the face
-    if (hash(i, sd + 11) > 0.7) { const jh = 14 + hash(i, sd + 12) * 40, jy = hash(i, sd + 13) * Math.max(0, top - jh); B.add(new THREE.BoxGeometry(0.7, jh, 7), exm(C.joint), x + w / 2, jy + jh / 2, -1); }
-    if (hash(i, sd + 14) > 0.8) { const jw = w * 1.6, jy = 8 + hash(i, sd + 15) * (top - 16); B.add(new THREE.BoxGeometry(jw, 0.6, 7), exm(C.joint), x, jy, -1.2); }
+    if (hash(i, sd + 11) > 0.7) { const jh = 14 + hash(i, sd + 12) * 40, jy = hash(i, sd + 13) * Math.max(0, top - jh); B.add(new THREE.BoxGeometry(0.7, jh, 7), exm(C.joint), x + w / 2, jy + jh / 2, jog - 1); }
+    if (hash(i, sd + 14) > 0.8) { const jw = w * 1.6, jy = 8 + hash(i, sd + 15) * (top - 16); B.add(new THREE.BoxGeometry(jw, 0.6, 7), exm(C.joint), x, jy, jog - 1.2); }
     // wet black streaks where water seeps down
-    if (hash(i, sd + 16) > 0.82) { const sh = 20 + hash(i, sd + 17) * 50; B.add(new THREE.BoxGeometry(2 + hash(i, 3) * 2, sh, 7.2), exm(C.wetRock), x, Math.max(sh / 2, top - sh / 2 - 4), -1); }
-    if (snow) B.add(new THREE.BoxGeometry(w + 0.6, 1.4, D - 4 - (hash(i, sd + 18) * 4)), exm(hash(i, 2) > 0.3 ? C.snow : C.snowDirty), x, top + 0.3, -(D - 4) / 2 - 1 + ovh * 0.4);
+    if (hash(i, sd + 16) > 0.82) { const sh = 20 + hash(i, sd + 17) * 50; B.add(new THREE.BoxGeometry(2 + hash(i, 3) * 2, sh, 7.2), exm(C.wetRock), x, Math.max(sh / 2, top - sh / 2 - 4), jog - 1); }
     // talus at the foot
     if (d.talus ?? 1) {
-      for (let k = 0; k < 2; k++) { const r = 2.4 + hash(i * 2 + k, sd + 19) * 4.6, tx = x + (hash(i, k + 20) - 0.5) * w; if (d.stair && Math.abs(tx - (d.stair ?? 0)) < 6) continue;
-        B.add(lumpGeo(r, i * 2 + k, 1.35, 0.68, 1.1, 1), exm(k ? C.talus : C.granite), tx, r * 0.3, 2 + hash(i, k + 21) * 9, hash(i, k) * 6); }
-      if (hash(i, sd + 22) > 0.5) B.add(lumpGeo(1 + hash(i, 23) * 1.4, i + 50, 1.2, 0.7, 1, 0), exm(C.granitePale), x + (hash(i, 24) - 0.5) * w, 0.35, 10 + hash(i, 25) * 8);
+      for (let k = 0; k < 2; k++) { const r = 2.4 + hash(i * 2 + k, sd + 19) * 4.6, tx = x + (hash(i, k + 20) - 0.5) * w; if (d.stair && Math.abs(tx - stairAt(r)) < 6) continue;
+        B.add(lumpGeo(r, i * 2 + k, 1.35, 0.68, 1.1, 1), exm(k ? C.talus : C.granite), tx, r * 0.3, jog + 2 + hash(i, k + 21) * 9, hash(i, k) * 6); }
+      if (hash(i, sd + 22) > 0.5) B.add(lumpGeo(1 + hash(i, 23) * 1.4, i + 50, 1.2, 0.7, 1, 0), exm(C.granitePale), x + (hash(i, 24) - 0.5) * w, 0.35, jog + 10 + hash(i, 25) * 8);
     }
   }
-  // the notch: a dark gully down the face with jammed blocks, feeding the scree below
+  // the mountain climbing on back from the brow: one faceted surface of treads and short risers that wander in plan,
+  // ribs and gullies running up it, higher toward the summit (west); bare rock where steep, loose stone and old snow
+  // lying in ragged patches where it is flat; closed down to the piece's foot at its ends and back
+  if (climb || d.hf) {
+    const st = 5, U0 = 7, nx = Math.max(2, Math.ceil(L / st)), nu = Math.max(2, Math.ceil((D - U0) / st));
+    const tierU = 30 + hash(sd, 50) * 14;
+    const terr = (u: number, X: number) => { const q = u / tierU + vnoise(X / 70, 0.5, sd + 51) * 1.6 + X * 0.003, f = Math.floor(q); return (f + smooth01(0.5, 0.85, q - f)) * tierU; };
+    const vAt = (x: number, u: number) => {
+      const X = x + a0, T = topAt(x) - 0.3, sc = T / H, up = u - U0, k = up / (D - U0), wr = west * clamp01((420 - X) / 580);
+      return T + sc * climb * (0.6 * (terr(up, X) - terr(0, X)) + 0.4 * up) + wr * k
+        + (climb ? sc * k * (11 * Math.sin(X * 0.043 + sd) + 6 * Math.sin(X * 0.115 + sd * 2.3)) + (vnoise(X / 13, u / 13, sd + 3) - 0.5) * 9 * Math.min(1, up / 18)
+          // without the climb only a tapered end breaks up: lumps and slumps where the band comes down
+          : (1 - sc) * ((vnoise(X / 10, u / 10, sd + 4) - 0.5) * 26 + (vnoise(X / 27, u / 27, sd + 5) - 0.5) * 30) * Math.min(1, up / 12));
+    };
+    const xsH = Array.from({ length: nx + 1 }, (_, i) => -L / 2 + (i * L) / nx), us = Array.from({ length: nu + 1 }, (_, j) => U0 + ((D - U0) * j) / nu);
+    const V = xsH.map((x) => us.map((u) => vAt(x, u)));
+    const quad = (p: number[][], c: string) => { const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute([...p[0], ...p[1], ...p[2], ...p[2], ...p[1], ...p[3]], 3)); B.add(geo, exm(c)); };
+    for (let i = 0; i < nx; i++) for (let j = 0; j < nu; j++) {
+      const x0 = xsH[i], x1 = xsH[i + 1], z0 = -us[j], z1 = -us[j + 1], h00 = V[i][j], h10 = V[i + 1][j], h01 = V[i][j + 1], h11 = V[i + 1][j + 1];
+      const grad = Math.hypot((h10 + h11 - h00 - h01) / 2, (h01 + h11 - h00 - h10) / 2) / st, X = (x0 + x1) / 2 + a0, u = (us[j] + us[j + 1]) / 2;
+      const sn = snow ? vnoise(X / 19, u / 19, sd + 9) + (u / D) * 0.25 : 0, r = vnoise(X / 23, u / 23, sd + 52), r2 = hash(i * 211 + j, sd + 52);
+      const col = grad > 1.3 ? (r2 > 0.3 ? C.graniteDeep : C.granite)
+        : snow && grad < 0.75 && sn > 0.74 ? (sn > 0.79 ? C.snow : C.snowDirty)
+        : grad > 0.6 ? (r > 0.5 ? C.granite : C.graniteDeep) : (r > 0.62 ? C.talus : r > 0.3 ? C.granite : r2 > 0.15 ? C.granitePale : C.lichen);
+      // (x, z) winding so the surface faces up
+      quad([[x0, h00, z0], [x1, h10, z0], [x0, h01, z1], [x1, h11, z1]], col);
+      if (grad < 0.9 && hash(i * 97 + j, sd + 53) > 0.93) { const rr = 1.8 + hash(i, j + sd) * 3.5; B.add(lumpGeo(rr, i * 31 + j, 1.3, 0.6, 1.1, 1), exm(hash(j, i) > 0.5 ? C.talus : C.granite), (x0 + x1) / 2, (h00 + h11) / 2 + rr * 0.1, (z0 + z1) / 2, hash(i, j) * 6); }
+    }
+    // the ends and the back, closed down to the foot
+    for (let j = 0; j < nu; j++) for (const i of [0, nx]) { const x = xsH[i], z0 = -us[j], z1 = -us[j + 1]; const p = [[x, V[i][j], z0], [x, 0, z0], [x, V[i][j + 1], z1], [x, 0, z1]]; quad(i ? p : [p[1], p[0], p[3], p[2]], C.graniteDeep); }
+    for (let i = 0; i < nx; i++) { const z = -D, p = [[xsH[i], V[i][nu], z], [xsH[i + 1], V[i + 1][nu], z], [xsH[i], 0, z], [xsH[i + 1], 0, z]]; quad(p, C.graniteDeep); }
+    // the rock between the brow and the surface's front edge
+    for (let i = 0; i < nx; i++) { const x = (xsH[i] + xsH[i + 1]) / 2, T = topAt(x) - 0.3; B.add(new THREE.BoxGeometry(L / nx + 0.3, T, U0 + 3), exm(C.graniteDeep), x, T / 2, -(U0 + 3) / 2 - 2); }
+  }
+  // the notch: blocks jammed down the gully's bed, feeding the scree below
   if (d.notch !== undefined) {
     const nx = d.notch, nd = d.notchD ?? 30, top = H - nd;
-    B.add(new THREE.BoxGeometry(7, top, 4), exm(C.joint), nx, top / 2, -4.5);
-    for (let k = 0; k < 6; k++) { const y = 6 + k * (top - 10) / 5, r = 2 + hash(k, sd + 30) * 1.6; B.add(lumpGeo(r, k + 70, 1.2, 0.8, 1, 0), exm(C.granitePale), nx + (hash(k, 31) - 0.5) * 4, y, -3 + hash(k, 32) * 1.5, hash(k, 33) * 6); }
+    for (let k = 0; k < 9; k++) { const y = 4 + k * (top - 6) / 8, r = 1.8 + hash(k, sd + 30) * 2.2; B.add(lumpGeo(r, k + 70, 1.2, 0.8, 1, 0), exm(k % 3 ? C.granitePale : C.talus), nx + (hash(k, 31) - 0.5) * (3 + y * 0.05), y, -7 - y * 0.02 + hash(k, 32) * 2, hash(k, 33) * 6); }
   }
-  // the crack-stair: a diagonal slot up the face, chockstones wedged across it, their tops worn pale
+  // the crack-stair: a zig-zag slot up the face, chockstones of all sizes wedged across it at uneven heights, tops worn pale
   if (d.stair) {
-    const nk = Math.round(H / 6);
-    for (let k = 0; k < nk; k++) {
-      const y = (k + 0.5) * (H / nk), x = stairAt(y);
-      B.add(new THREE.BoxGeometry(4.6, H / nk + 0.4, 6.5), exm(C.joint), x, y, -1.6, 0, 0, 0.32);
-      const cy = (k + 1) * (H / nk) - 0.6, cx = stairAt(cy);
-      B.add(new THREE.BoxGeometry(3.8, 1.2, 3.2), exm(k % 2 ? C.granitePale : C.talus), cx + (hash(k, 40) - 0.5) * 0.8, cy, 1.4, hash(k, 41) * 0.6);
-      B.add(new THREE.BoxGeometry(2.6, 0.12, 2.2), exm(C.fitted), cx, cy + 0.66, 1.4);
+    let y = 0;
+    for (let k = 0; y < H - 1; k++) {
+      const dy = Math.min(H - y, 4 + hash(k, 42) * 5), ya = y, yb = y + dy, xa = stairAt(ya), xb = stairAt(yb), ang = Math.atan2(xb - xa, dy);
+      B.add(new THREE.BoxGeometry(3.6 + hash(k, 43) * 2, Math.hypot(xb - xa, dy) + 0.6, 6.5), exm(C.joint), (xa + xb) / 2, (ya + yb) / 2, -1.6, 0, 0, -ang);
+      const cw = 2.6 + hash(k, 44) * 2.2, ch = 0.8 + hash(k, 45) * 1.2;
+      B.add(lumpGeo(cw / 2, k + 120, 1.3, (ch / cw) * 1.6, 1.1, 0), exm(k % 3 ? C.granitePale : C.talus), xb + (hash(k, 40) - 0.5) * 1.2, yb - ch * 0.4, 1 + hash(k, 46), hash(k, 41) * 6);
+      B.add(new THREE.BoxGeometry(cw * 0.6, 0.12, 1.8), exm(C.fitted), xb, yb + ch * 0.35, 1.2, hash(k, 47) * 0.8);
+      y = yb;
     }
     // the foot of the stair: flat stepping stones out over the talus
-    for (let k = 0; k < 3; k++) B.add(new THREE.BoxGeometry(3.4, 0.9 + k * 0.9, 3), exm(C.granitePale), (d.stair ?? 0) + 2 + k * 1.2, 0.45 + k * 0.45, 5 - k * 2.4, 0.2 * k);
+    for (let k = 0; k < 3; k++) B.add(lumpGeo(2 + k * 0.3, k + 140, 1.3, 0.35 + k * 0.25, 1.1, 0), exm(C.granitePale), (d.stair ?? 0) + 2 + k * 1.2, 0.45 + k * 0.6, 5 - k * 2.4, 0.2 * k);
+  }
+  return B.into(g);
+}
+
+// ---------------------------------------------------------------- the ground under the cliff
+/** The apron's height at (a, o): `a` ft along the cliff foot, `o` ft out from it (the headwall's frame). A skirt of
+ *  talus about `foot` ft high at the cliff running out to nothing at a wandering toe (`toe` + toeK·a ft out; full from
+ *  wa + 50 to ea0, gone west of wa and east of ea1); a debris
+ *  ridge along the chute from (c0a, c0o) to (c1a, c1o), its crest `crest` ft either side of the axis and `bank` ft above
+ *  the water (w2 → w3), its flanks falling `flank` ft per foot, its end a rock step falling `steep` per foot into the
+ *  pool; the chute's gully cut into the crest (floor gw0 wide either side, walls out to gw1); nothing in the pool
+ *  (pa, po, pr). The site script mirrors this (apron_h in wild_m.py) to stand things on it. */
+export function apronHeight(d: Dims, a: number, o: number): number {
+  if (o < -3) return -1;
+  const ea0 = d.ea0 ?? 150, ea1 = d.ea1 ?? 230, wa = d.wa ?? -90;
+  const foot = (d.foot ?? 30) * (1 + 0.15 * Math.sin(a * 0.06 + 0.3)), toe = (d.toe ?? 105) + (d.toeK ?? 0.3) * Math.max(0, a) + 16 * Math.sin(a * 0.047 + 0.8) + 9 * Math.sin(a * 0.121 + 2.1);
+  const S = foot * Math.max(0, 1 - Math.max(0, o) / toe) * clamp01((ea1 - a) / (ea1 - ea0)) * clamp01((a - wa) / 50);
+  const ax = d.c1a - d.c0a, ao = d.c1o - d.c0o, L = Math.hypot(ax, ao) || 1, ux = ax / L, uo = ao / L;
+  const sl = (a - d.c0a) * ux + (o - d.c0o) * uo, cr = -(a - d.c0a) * uo + (o - d.c0o) * ux, lat = Math.abs(cr), sd = cr > 0 ? 1 : -1;
+  const tc = clamp01(sl / L), water = d.w2 - (d.w2 - d.w3) * tc, bank = water + (d.bank ?? 12), beyond = Math.max(0, sl - L), steep = d.steep ?? 5;
+  // the ridge's shoulders bulge and pinch along it, so its foot wanders
+  // (broad where the fallen pine lies across, at bsl, so both its ends rest on the crest)
+  const crest = Math.max((d.crest ?? 17) + 6 * Math.sin(sl * 0.085 + sd * 1.3) + 3 * Math.sin(sl * 0.21 + sd), d.bsl !== undefined ? 21 * Math.exp(-(((sl - d.bsl) / 12) ** 2)) : 0), flank = (d.flank ?? 0.75) * (1 + 0.25 * Math.sin(sl * 0.05 + sd * 2.1));
+  let h = Math.max(S, bank - flank * Math.max(0, lat - crest) - steep * beyond);
+  if (sl > -1 && lat < (d.gw1 ?? 9.5)) h = Math.min(h, water - 1 + (bank - water + 1) * smooth01(d.gw0 ?? 5, d.gw1 ?? 9.5, lat) - steep * beyond);
+  if (Math.hypot(a - (d.pa ?? 0), o - (d.po ?? 0)) < (d.pr ?? 0) + 1.5) h = Math.min(h, -1);
+  return h;
+}
+/** The apron: the ground rising from the terrace to the cliff's foot west of the scree, as a faceted mesh of talus,
+ *  moss and bare rock (rock where it is steep: the step under the last fall, the gully's walls), with loose blocks
+ *  lying on it and bigger ones heaped at the cliff's foot. Local x along the cliff (a0 → a1), z out from it (to o1). */
+export function apron(d: Dims): THREE.Group {
+  const a0 = d.a0 ?? -100, a1 = d.a1 ?? 270, o1 = d.o1 ?? 210, st = d.step ?? 3, B = new Bucket(), g = grp();
+  const na = Math.ceil((a1 - a0) / st), no = Math.ceil((o1 + 3) / st);
+  const hv: number[] = [];
+  for (let j = 0; j <= no; j++) for (let i = 0; i <= na; i++) { const h = apronHeight(d, a0 + i * st, -3 + j * st); hv.push(h > 0.05 ? h : -0.8); }
+  const H = (i: number, j: number) => hv[j * (na + 1) + i];
+  for (let j = 0; j < no; j++) for (let i = 0; i < na; i++) {
+    const h00 = H(i, j), h10 = H(i + 1, j), h01 = H(i, j + 1), h11 = H(i + 1, j + 1);
+    if (h00 <= 0 && h10 <= 0 && h01 <= 0 && h11 <= 0) continue;
+    const x0 = a0 + i * st, z0 = -3 + j * st, x1 = x0 + st, z1 = z0 + st;
+    const grad = Math.hypot((h10 + h11 - h00 - h01) / (2 * st), (h01 + h11 - h00 - h10) / (2 * st)), r = hash(i * 131 + j, 7), mo = vnoise(x0 / 17, z0 / 17, 9);
+    const low = clamp01((12 - Math.max(h00, h10, h01, h11)) / 10);   // its foot grows over with the shelf's grass
+    const col = grad < 0.6 && vnoise(x0 / 9, z0 / 9, 11) < low * 0.9 ? (r > 0.25 ? FLOOR_COLOR.grass : C.moss) : grad > 1.5 ? (r > 0.55 ? C.wetRock : r > 0.25 ? C.graniteDeep : C.granite)
+      : grad > 0.5 ? (r > 0.6 ? C.granite : r > 0.15 ? C.talus : C.graniteDeep)
+      : mo > 0.66 ? (r > 0.3 ? C.moss : C.talus) : (r > 0.55 ? C.talus : r > 0.06 ? C.granite : C.lichen);
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.Float32BufferAttribute([x0, h00, z0, x0, h01, z1, x1, h10, z0, x1, h10, z0, x0, h01, z1, x1, h11, z1], 3));
+    B.add(geo, mat(col));
+  }
+  // loose blocks on the slope, bigger and thicker toward the cliff's foot
+  for (let k = 0; k < (d.n ?? 110); k++) {
+    const a = a0 + hash(k, 21) * (a1 - a0), o = Math.pow(hash(k, 22), 1.6) * o1, h = apronHeight(d, a, o);
+    if (h < 1.5) continue;
+    const ax = d.c1a - d.c0a, ao = d.c1o - d.c0o, L = Math.hypot(ax, ao), lat = Math.abs(-(a - d.c0a) * ao + (o - d.c0o) * ax) / L, sl = ((a - d.c0a) * ax + (o - d.c0o) * ao) / L;
+    if (lat < 12 && sl > -2 && sl < L + 6) continue;   // the gully and the lip stay clear
+    const r = 1 + Math.pow(hash(k, 23), 2) * (o < 30 ? 6 : 3.5);
+    B.add(lumpGeo(r, k + 400, 1.3, 0.62, 1.1, 1), mat(k % 3 ? C.granite : k % 2 ? C.talus : C.granitePale), a, h + r * 0.12, o, hash(k, 24) * 6);
   }
   return B.into(g);
 }
@@ -304,8 +437,8 @@ export function spur(d: Dims): THREE.Group {
   for (let k = 0; k < 6; k++) B.add(lumpGeo(2.2 + hash(k, 9) * 2, k + 30, 1.3, 0.7, 1.1, 1), mat(C.talus), -14 - hash(k, 10) * 14, 1, (hash(k, 11) - 0.5) * HW * 2);
   // talus at the foot of the sheer sides
   for (let i = 0; i < 16; i++) { const t = hash(i, 12), s = i % 2 ? 1 : -1, x = t * L * 0.9 + 4, half = HW * (t < 0.62 ? 1 : 1 - (t - 0.62) * 1.4), r = 1.6 + hash(i, 13) * 3; B.add(lumpGeo(r, i + 40, 1.3, 0.62, 1.1, 1), mat(i % 3 ? C.graniteDeep : C.talus), x, r * 0.25, s * (half + 2 + hash(i, 14) * 4), hash(i, 15) * 6); }
-  // the top: moss in the joints, the lightning scars, the fish bones
-  const top = H + 0.03;
+  // the top: moss in the joints, the lightning scars, the fish bones (lifted by `sy` over the rock plates laid on it)
+  const top = H + 0.03 + (d.sy ?? 0);
   for (let i = 0; i < 6; i++) B.add(new THREE.BoxGeometry(3 + hash(i, 16) * 5, 0.12, 0.7), mat(C.moss), 6 + hash(i, 17) * L * 0.6, top, (hash(i, 18) - 0.5) * HW * 1.4, hash(i, 19) * 3);
   const scar = (x: number, z: number, a: number, len: number, depth: number, seed: number) => {
     let px = x, pz = z, ang = a;
@@ -331,8 +464,9 @@ export function spur(d: Dims): THREE.Group {
 // ---------------------------------------------------------------- the cascade
 /** The ice-cold cascade, from the ledge to the plunge pool; all points relative to the pool's centre (the origin):
  *  the stream across the ledge (s0…s3 at `lh`), the first drop at d1 (`h1`), the stepped rock in the cleft from d1 to
- *  d2 at lh − h1 with icy cheeks, the second drop at d2 (`h2`), the boulder chute on a rock rib from d2 to d3 falling
- *  `cf`, the last drop at d3 into the pool (radius `pr`): black water, iced rim, the outflow lip toward +z. */
+ *  d2 at lh − h1 with icy cheeks, the second drop at d2 (`h2`), the boulder chute from d2 to d3 falling `cf` in a gully
+ *  `bank` ft deep (the ground round it is m-apron), the last drop at d3 into the pool (radius `pr`): black water, iced
+ *  rim, the outflow lip toward +z. bt/by: where along the chute the fallen pine lies, and its height. */
 export function cascade(d: Dims): THREE.Group {
   const lh = d.lh ?? 120, h1 = d.h1 ?? 30, h2 = d.h2 ?? 45, cf = d.cf ?? 15, pr = d.pr ?? 17.5, B = new Bucket(), g = grp();
   const y1 = lh - h1, y2 = y1 - h2, y3 = y2 - cf;
@@ -387,9 +521,9 @@ export function cascade(d: Dims): THREE.Group {
     const t = (k + 0.5) / 8, cx = back1[0] + u1[0] * L1 * t + n1x * s * ((d.wb ?? 30) / 2 - 3), cz = back1[1] + u1[1] * L1 * t + n1z * s * ((d.wb ?? 30) / 2 - 3), hh = 6 + (1 - t) * 22;
     rock(4 + hash(k, s) * 1.5, k % 2 ? C.granite : C.graniteDeep, cx, y1 + hh * 0.35, cz, k * 9 + s + 300, 1.1, hh / 9, 1.1);
   }
-  // 3. the chute: a rock rib from the second drop to the last, its top falling cf, the water racing in a groove of boulders
-  const wc = d.wc ?? 34, back2: P2 = [D2[0] - u2[0] * 2, D2[1] - u2[1] * 2];
-  strata(back2, D3, (t) => y2 - cf * t, wc, 17);
+  // 3. the chute: from the second drop to the last, falling cf, the water racing down a groove of boulders
+  //    (the ground it runs on is the apron, m-apron: the chute is a gully cut into the crest of its debris ridge)
+  const bank = d.bank ?? 12;
   const L2 = Math.hypot(D3[0] - D2[0], D3[1] - D2[1]), n2x = -u2[1], n2z = u2[0], groove: [number, number, number][] = [];
   for (let k = 0; k <= 10; k++) { const t = k / 10, w = Math.sin(t * 9) * 1.5; groove.push([D2[0] + u2[0] * L2 * t + n2x * w, y2 - cf * t + 0.15, D2[1] + u2[1] * L2 * t + n2z * w]); }
   B.add(stripGeo(groove, 9), mat(C.water));
@@ -398,21 +532,10 @@ export function cascade(d: Dims): THREE.Group {
     const t = (k + 0.5) / 16, s = k % 2 ? 1 : -1, off = (hash(k, 50) - 0.5) * 5, cx = D2[0] + u2[0] * L2 * t, cz = D2[1] + u2[1] * L2 * t, cy = y2 - cf * t;
     rock(1.6 + hash(k, 51) * 1.5, C.wetRock, cx + n2x * off, cy + 0.5, cz + n2z * off, k + 500, 1.2, 0.8, 1, 0);           // boulders in the race
     B.add(new THREE.BoxGeometry(2.6, 0.12, 2), mat(C.foam), cx + n2x * (off + 1.2), cy + 0.25, cz + n2z * (off + 1.2), hash(k, 52) * 3);
-    // the banks: boulders heaped either side of the groove
-    // the cheeks: two tiers of boulders either side make a slot the torrent races down, about 12 ft deep
-    if (Math.abs((d.bt ?? -1) - t) < 0.06) continue;   // where the fallen pine lies across, the bridge's own piers stand
-    const bo = 9 + hash(k, 53) * 3;
-    rock(3.2 + hash(k, 54) * 1.6, k % 3 ? C.granite : C.talus, cx + n2x * s * bo, cy + 2.2, cz + n2z * s * bo, k + 600 + s, 1.25, 1.1, 1.1);
-    rock(2.6 + hash(k, 55) * 1.4, C.graniteDeep, cx - n2x * s * (bo + 1), cy + 1.6, cz - n2z * s * (bo + 1), k + 700 + s, 1.2, 0.9, 1.1);
-    for (const ss of [-1, 1]) rock(2.6 + hash(k, 56 + ss) * 1.2, (k + ss) % 3 ? C.granite : C.granitePale, cx + n2x * ss * (bo + 1.5), cy + 7.5, cz + n2z * ss * (bo + 1.5), k + 760 + ss, 1.25, 1.0, 1.1);
-  }
-  // the piers the fallen pine rests on: a tall block either side of the slot, rimed with spray
-  if (d.bt !== undefined) {
-    const cx = D2[0] + u2[0] * L2 * d.bt, cz = D2[1] + u2[1] * L2 * d.bt, cy = y2 - cf * d.bt;
-    for (const s of [-1, 1]) {
-      rock(4.4, s > 0 ? C.granite : C.graniteDeep, cx + n2x * s * 9.5, cy + 6.5, cz + n2z * s * 9.5, 950 + s, 1.0, 1.75, 1.05);
-      B.add(new THREE.BoxGeometry(5, 0.12, 3), mat(C.rime), cx + n2x * s * 9.5, cy + 14.2, cz + n2z * s * 9.5, Math.atan2(-u2[1], u2[0]));
-    }
+    // the gully's walls: boulders lodged in both, and heaped along its lips (kept clear where the fallen pine lies)
+    for (const ss of [-1, 1]) rock(2.1 + hash(k, 54 + ss) * 1.4, (k + ss) % 3 ? C.granite : C.wetRock, cx + n2x * ss * (6.6 + hash(k, 56 + ss) * 1.2), cy + 2.4 + hash(k, 58 + ss) * 4, cz + n2z * ss * (6.6 + hash(k, 56 + ss) * 1.2), k + 600 + ss * 7, 1.2, 0.95, 1.1);
+    if (Math.abs((d.bt ?? -1) - t) < 0.08) continue;
+    rock(2 + hash(k, 55) * 1.6, k % 3 ? C.granite : C.talus, cx + n2x * s * (10 + hash(k, 53) * 2.5), cy + bank + 0.5, cz + n2z * s * (10 + hash(k, 53) * 2.5), k + 700 + s, 1.3, 0.7, 1.1);
   }
   // 4. the three drops (the kit's falls), spray at their feet
   const fall = (at: P2, u: P2, w: number, h: number, y: number) => { const f = waterfall({ w, h }); place(f, at[0] + u[0] * 0.6, y, at[1] + u[1] * 0.6, Math.atan2(u[0], u[1])); f.updateMatrixWorld(true); f.traverse((c) => { const m = c as THREE.Mesh; if (m.isMesh) { m.updateWorldMatrix(true, false); const geo = m.geometry.clone().applyMatrix4(m.matrixWorld); B.add(geo, m.material as THREE.Material); } }); };
@@ -427,7 +550,7 @@ export function cascade(d: Dims): THREE.Group {
   icicles(D2[0] + n2x * 7.5, y2 + h2 - 0.8, D2[1] + n2z * 7.5, [n2x, n2z], 8, 2);
   icicles(D2[0] - n2x * 7.5, y2 + h2 * 0.55, D2[1] - n2z * 7.5, [n2x, n2z], 6, 3);
   for (let k = 0; k < 6; k++) { const t = (k + 0.5) / 6, cx = back1[0] + u1[0] * L1 * t + n1x * ((d.wb ?? 30) / 2 - 0.5), cz = back1[1] + u1[1] * L1 * t + n1z * ((d.wb ?? 30) / 2 - 0.5); icicles(cx, y1 - 2 - hash(k, 60) * 20, cz, u1, 5, 70 + k); }
-  if (d.bt !== undefined) for (const s of [-1, 1]) icicles(D2[0] + u2[0] * L2 * d.bt + n2x * s * 6.4, y2 - cf * d.bt + 12, D2[1] + u2[1] * L2 * d.bt + n2z * s * 6.4, u2, 5, 90 + s);   // under the bridge's piers
+  if (d.bt !== undefined) icicles(D2[0] + u2[0] * L2 * d.bt, (d.by ?? y2 - cf * d.bt + bank + 1.3) - 1.3, D2[1] + u2[1] * L2 * d.bt, [n2x, n2z], 12, 90);   // under the fallen pine
   for (let k = 0; k < 14; k++) { const a = hash(k, 61) * Math.PI * 2, r = pr + 2 + hash(k, 62) * 6; B.add(new THREE.BoxGeometry(2 + hash(k, 63) * 3, 0.1, 1.2 + hash(k, 64) * 1.4), mat(C.rime), Math.cos(a) * r, 0.5 + hash(k, 65) * 0.6, Math.sin(a) * r, a); }
   // 6. the plunge pool: black glass water ringed with spray-wet boulders and rime, a lip to the outflow (+z)
   const disc = new THREE.CircleGeometry(pr, 24).rotateX(-Math.PI / 2); disc.translate(0, 0.07, 0); B.add(disc, glow(C.pool, 0.72));
@@ -516,9 +639,11 @@ export function thunderhead(d: Dims): THREE.Group {
 }
 
 /** Castle Ravenloft glimpsed far off through a tear in the cloud: a black pinnacle of rock crowned with walls and a
- *  thicket of spires (scale `s`, feet at s = 1 for a site about a mile off), standing up out of the fog. */
+ *  thicket of spires (scale `s`, feet at s = 1 for a site about a mile off), standing up out of the fog. Pinned on the
+ *  map where the view of it is (the window) and drawn dx, dy, dz away from the pin. */
 export function castleGlimpse(d: Dims): THREE.Group {
   const s = d.s ?? 1, B = new Bucket(), g = grp();
+  g.position.set(d.dx ?? 0, d.dy ?? 0, d.dz ?? 0);
   B.add(lumpGeo(60 * s, 7, 1.3, 2.2, 1.1, 1), exm(C.castleRock), 0, 0, 0);
   B.add(new THREE.BoxGeometry(150 * s, 40 * s, 90 * s), exm(C.castleDeep), 0, 120 * s, 0);
   const spires: [number, number, number, number][] = [[-60, -30, 70, 9], [55, -28, 60, 8], [-50, 30, 55, 8], [60, 32, 62, 8], [0, 0, 120, 12], [-15, -35, 85, 7], [25, 20, 95, 9]];
@@ -526,7 +651,7 @@ export function castleGlimpse(d: Dims): THREE.Group {
     B.add(new THREE.CylinderGeometry(r * s, r * 1.1 * s, h * s, 8), exm(C.castle), x * s, (140 + h / 2) * s, z * s);
     B.add(new THREE.ConeGeometry(r * 1.3 * s, h * 0.6 * s, 8), exm(C.castleDeep), x * s, (140 + h + h * 0.3) * s, z * s);
   }
-  return B.into(g);
+  return grp(B.into(g));
 }
 
 // ---------------------------------------------------------------- the set pieces on the shelf
@@ -766,6 +891,6 @@ Object.assign(PROPS_V1, {
   'm-thunderhead': thunderhead, 'm-castle-glimpse': castleGlimpse, 'm-fulgurite-boulder': fulguriteBoulder, 'm-bolt-shot-pine': boltShotPine,
   'm-blasted-stump': blastedStump, 'm-watcher-effigy': watcherEffigy, 'm-krummholz': krummholz, 'm-elk-bed': elkBed, 'm-scree': scree,
   'm-snow-patch': snowPatch, 'm-sigil-rock': sigilRock, 'm-ward-stone': wardStone, 'm-fish-midden': fishMidden, 'm-log-bridge': logBridge,
-  'm-wolf-trap': wolfTrap, 'm-blazed-pine': blazedPine,
+  'm-wolf-trap': wolfTrap, 'm-blazed-pine': blazedPine, 'm-apron': apron,
 } as Record<string, (d: Dims) => THREE.Object3D>);
 Object.assign(CREATURES, { 'm-faithful-hound': (d) => faithfulHound(d) } as Record<string, (d: Dims) => THREE.Group>);

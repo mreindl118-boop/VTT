@@ -119,6 +119,48 @@ TRAIL_SHELF = [(362, 400), (376, 377), (391, 353), ARRIVAL]
 TRAP = (306, 455)
 
 
+# ------------------------------------------------------------------ the ground under the cliff (m-apron)
+# West of the scree the slope rises from the terrace to the cliff's foot (the brief's 30 ft) and heaps into a debris
+# ridge along the cascade's chute, the chute running in a gully cut into its crest; the ridge ends in a rock step
+# under the last fall. Heights in the headwall's frame (a along the foot, o out from it); mirrors apronHeight() in
+# app/src/kit/sites/wild-m.ts, which draws it.
+CHUTE_W2, CHUTE_W3, BANK = 45.0, 30.0, 12.0
+APRON = {'foot': 30, 'toe': 105, 'toeK': 0.3, 'wa': -90, 'ea0': 150, 'ea1': 230, 'bank': BANK, 'crest': 17, 'flank': 0.75, 'steep': 5, 'gw0': 5, 'gw1': 9.5,
+         'w2': CHUTE_W2, 'w3': CHUTE_W3, 'a0': -100, 'a1': 268, 'o1': 212, 'step': 3, 'n': 120}
+
+
+def apron_dims():
+    d = dict(APRON)
+    for k, p in (('c0', D2), ('c1', D3)): d[k + 'a'] = rnd(along(p), 2); d[k + 'o'] = rnd(off(p), 2)
+    d['pa'], d['po'], d['pr'] = rnd(along(POOL), 2), rnd(off(POOL), 2), POOL_R
+    d['bsl'] = rnd(BRIDGE_T * math.hypot(d['c1a'] - d['c0a'], d['c1o'] - d['c0o']), 2)
+    return d
+
+
+def smooth01(e0, e1, x):
+    t = max(0.0, min(1.0, (x - e0) / (e1 - e0)))
+    return t * t * (3 - 2 * t)
+
+
+def apron_h(p, d=None):
+    """The apron's height at plan point p (feet above the shelf), 0 off it."""
+    d = d or apron_dims()
+    a, o = along(p), off(p)
+    if o < -3: return 0.0
+    foot = d['foot'] * (1 + 0.15 * math.sin(a * 0.06 + 0.3))
+    toe = d['toe'] + d['toeK'] * max(0.0, a) + 16 * math.sin(a * 0.047 + 0.8) + 9 * math.sin(a * 0.121 + 2.1)
+    S = foot * max(0.0, 1 - max(0.0, o) / toe) * max(0.0, min(1.0, (d['ea1'] - a) / (d['ea1'] - d['ea0']))) * max(0.0, min(1.0, (a - d['wa']) / 50))
+    ax, ao = d['c1a'] - d['c0a'], d['c1o'] - d['c0o']; L = math.hypot(ax, ao); ux, uo = ax / L, ao / L
+    sl = (a - d['c0a']) * ux + (o - d['c0o']) * uo; cr = -(a - d['c0a']) * uo + (o - d['c0o']) * ux; lat = abs(cr); sd = 1 if cr > 0 else -1
+    tc = max(0.0, min(1.0, sl / L)); water = d['w2'] - (d['w2'] - d['w3']) * tc; bank = water + d['bank']; beyond = max(0.0, sl - L)
+    crest = max(d['crest'] + 6 * math.sin(sl * 0.085 + sd * 1.3) + 3 * math.sin(sl * 0.21 + sd), 21 * math.exp(-((sl - d['bsl']) / 12) ** 2))
+    flank = d['flank'] * (1 + 0.25 * math.sin(sl * 0.05 + sd * 2.1))
+    h = max(S, bank - flank * max(0.0, lat - crest) - d['steep'] * beyond)
+    if sl > -1 and lat < d['gw1']: h = min(h, water - 1 + (bank - water + 1) * smooth01(d['gw0'], d['gw1'], lat) - d['steep'] * beyond)
+    if math.hypot(a - d['pa'], o - d['po']) < d['pr'] + 1.5: h = min(h, -1)
+    return max(0.0, h)
+
+
 def window_lane(length=64, seed=5):
     """The Ravenloft window's outline: a ragged cut through the pines from the spur's foot down the slope, narrow at
     its head and opening out as it goes (charred ground; the stumps stand in it)."""
@@ -184,21 +226,30 @@ def build():
     #      above the ledge with its overhang (split where the stream comes down from the snows)
     def wall(a0, a1, offset, y, **kw):
         L = a1 - a0; m = (a0 + a1) / 2
-        d = dict(len=rnd(L, 1), **kw)
+        d = dict(len=rnd(L, 1), a0=rnd(m, 1), **kw)
         return P('m-headwall', F(m, offset - 0.5), rot=WALL_ROT, dims=d, y=y), m
-    _, mw = wall(-160, CLEFT[0], 0, 0, h=120, d=250, seed=3, tw=60)
-    _, me = wall(CLEFT[1], 420, 0, 0, h=120, d=250, seed=7, te=30, notch=rnd(along(SCREE_APEX) - (CLEFT[1] + 420) / 2, 1), notchW=34, notchD=34,
-                 stair=rnd(STAIR_A - (CLEFT[1] + 420) / 2, 1), stairRun=STAIR_RUN)
+    LOWJOG = dict(jog=9, jogO=5, jogLo=-3, jogHi=14)        # buttresses stand out of the lower face, never cut under the ledge
+    UPJOG = dict(jog=4, jogO=-2, jogLo=-6, jogHi=3)         # the upper face recedes here and there, never onto the ledge
+    CLIMB = dict(climb=0.75, west=90)                       # and the mountain climbs on back toward the summit (north-west)
+    # (east of the ledge the band breaks down to nothing by LOW_END; the mountain above ends where the ledge does)
+    LOW_END, UP_END = 470, WALL_END - 8
+    _, mw = wall(-160, CLEFT[0], 0, 0, h=120, d=300, seed=3, tw=60, hf=1, **LOWJOG)
+    _, me = wall(CLEFT[1], LOW_END, 0, 0, h=120, d=300, seed=7, te=LOW_END - WALL_END + 10, tf=0.06, hf=1, **LOWJOG, notch=rnd(along(SCREE_APEX) - (CLEFT[1] + LOW_END) / 2, 1), notchW=34, notchD=34,
+                 stair=rnd(STAIR_A - (CLEFT[1] + LOW_END) / 2, 1), stairRun=STAIR_RUN)
     hw_main = shelf.objects[-1]
     hw_main['label'] = 'The headwall'
     hw_main['desc'] = 'A cliff of layered grey rock closes the slope to the north, ninety feet of it above the scree, a shelf of ledge along its top under a jutting brow.'
     hw_main['dm'] = 'Climbing: Athletics DC 12 by the icy cascade cleft or the crack-stair at the east end; DC 15 anywhere else, with no holds for the last 20 ft.'
     wall(CLEFT[0], CLEFT[1], -25, 0, h=120, d=225, seed=11, talus=0)
-    _, mu = wall(-160, GAP[0], -LEDGE_W, 120, h=70, d=210, seed=13, ovh=7, snow=1, talus=0, tw=50)
-    wall(GAP[1], 420, -LEDGE_W, 120, h=70, d=210, seed=17, ovh=7, snow=1, talus=0, te=40, clear=rnd(along(DOOR) - (GAP[1] + 420) / 2, 1), clearW=8)
+    _, mu = wall(-160, GAP[0], -LEDGE_W, 120, h=70, d=260, seed=13, ovh=7, snow=1, talus=0, tw=50, te=30, tf=0.45, tv=8, **UPJOG, **CLIMB)
+    wall(GAP[1], UP_END, -LEDGE_W, 120, h=70, d=260, seed=17, ovh=7, snow=1, talus=0, tw=30, tfw=0.45, te=50, tf=0.05, tv=8, clear=rnd(along(DOOR) - (GAP[1] + UP_END) / 2, 1), clearW=8, **UPJOG, **CLIMB)
+    # the ravine the stream comes down from the snows, climbing on back behind the ledge's gap
+    wall(GAP[0] - 2, GAP[1] + 2, -LEDGE_W - 88, 120, h=12, d=172, seed=19, snow=1, talus=0, notch=rnd(along(LEDGE_STREAM[0]) - (GAP[0] + GAP[1]) / 2, 1), notchW=18, notchD=12, climb=0.55, west=90)
 
     # ---- the cascade: ledge stream, three drops, the stepped cleft and the chute's rib, the plunge pool
-    cd = {'lh': 120, 'h1': 30, 'h2': 45, 'cf': 15, 'pr': POOL_R, 'wb': 30, 'wc': 34, 'bt': BRIDGE_T, 'outA': rnd(math.atan2(OUTFLOW[0][1] - POOL[1], OUTFLOW[0][0] - POOL[0]), 3)}
+    water_y = CHUTE_W2 - (CHUTE_W2 - CHUTE_W3) * BRIDGE_T
+    bridge_y = rnd(water_y + BANK + 1.3, 2)
+    cd = {'lh': 120, 'h1': 30, 'h2': 45, 'cf': 15, 'pr': POOL_R, 'wb': 30, 'bank': BANK, 'bt': BRIDGE_T, 'by': bridge_y, 'outA': rnd(math.atan2(OUTFLOW[0][1] - POOL[1], OUTFLOW[0][0] - POOL[0]), 3)}
     for k, p in [('s0', LEDGE_STREAM[0]), ('s1', LEDGE_STREAM[1]), ('s2', LEDGE_STREAM[2]), ('s3', LEDGE_STREAM[3]), ('d1', D1), ('d2', D2), ('d3', D3)]:
         cd[k + 'x'] = rnd(p[0] - POOL[0], 2); cd[k + 'z'] = rnd(p[1] - POOL[1], 2)
     P('m-cascade', POOL, dims=cd, label='The ice-cold cascade',
@@ -207,14 +258,16 @@ def build():
     P('m-still-eye', EYE, dims={'r': EYE_R}, label='Walled side-pool',
       desc='Off the pool\'s east side a little basin has been walled with a neat ring of fitted stones; its water lies dead still, a dull mirror.',
       dm='The Mad Mage\'s scrying bowl. While he lives and is within a mile, a character who looks in and passes Arcana DC 15 feels the residue of a scrying spell cast here within the last day.')
+    # the ground the lower cascade runs on: talus rising to the cliff's foot, the chute's ridge and its gully
+    P('m-apron', F0, rot=WALL_ROT, dims=apron_dims(), label='Talus under the cliff',
+      desc='Below the cliff the slope climbs in loose talus and moss, heaped into a ridge where the torrent runs down its gully.')
     # the fallen-pine bridge over the chute
-    water_y = 45 - 15 * BRIDGE_T
-    P('m-log-bridge', BRIDGE, rot=heading(-U2[1], U2[0]), dims={'len': 38, 'r': 1.5}, y=rnd(water_y + 15.6, 2), label='Fallen-pine bridge',
+    P('m-log-bridge', BRIDGE, rot=heading(-U2[1], U2[0]), dims={'len': 38, 'r': 1.5}, y=bridge_y, label='Fallen-pine bridge',
       desc='A big dead pine lies across the chute, silver and barkless, glazed with frozen spray.',
-      dm='The only dry crossing between the terrace side and the west bank. Acrobatics DC 10 to cross at full speed; a fall drops about 15 ft into the torrent (cold water rules above). The rib it lies on is reached by scrambling its flank (Athletics DC 12).')
+      dm='The only dry crossing between the terrace side and the west bank. Acrobatics DC 10 to cross at full speed; a fall drops about 15 ft into the torrent (cold water rules above).')
 
     # ---- the spur
-    P('m-spur', SPUR_BASE, rot=SPUR_ROT, dims={'len': SPUR_L, 'hw': SPUR_HW, 'h': SPUR_H}, label="The Elk's Spur",
+    P('m-spur', SPUR_BASE, rot=SPUR_ROT, dims={'len': SPUR_L, 'hw': SPUR_HW, 'h': SPUR_H, 'sy': 0.4}, label="The Elk's Spur",
       desc='A prow of granite juts from the slope, flat-topped and twenty-five feet up, sheer on its downhill faces; boulders heap up its back like steps.',
       dm='Top: 25 ft. The lake-side faces are a sheer 25-ft drop; the back is a DC 10 scramble. Glassy black lightning scars and fish bones on top. Optional storm hazard: 1-in-20 each round of a strike on whoever stands on top (8d6 lightning, Dex DC 15 half).')
     keep(oriented(spur_pt(-28, 0), SPUR_TIP, SPUR_HW + 8, 6))
@@ -293,7 +346,7 @@ def build():
     for k in range(9):   # the party sees the elk from where it comes up
         t = k / 8; s.clear(*c((ARRIVAL[0] + (SPUR_TIP[0] - ARRIVAL[0]) * t, ARRIVAL[1] + (SPUR_TIP[1] - ARRIVAL[1]) * t)), 2.6)
     keep([F0, F(WALL_END, 0), (WALL_END, 0), (0, 0)], 0)
-    keep([(x, z) for x, z in [F(-10, 14), F(WALL_END + 20, 14), F(WALL_END + 20, -60), F(-10, -60)]])
+    keep([(x, z) for x, z in [F(-10, 14), F(480, 14), F(480, -60), F(-10, -60)]])
     scree_poly = [SCREE_APEX, (SCREE_FOOT[0] - 80, SCREE_FOOT[1]), (SCREE_FOOT[0] + 80, SCREE_FOOT[1] - 6)]
     keep(scree_poly, 0)
     keep(ribbon(catmull(TRAIL_SHELF, 6), 5))
@@ -321,10 +374,19 @@ def build():
     s.scatter('dead-tree', 4, lambda x, z: 1.0 if 230 < z * 5 < 330 else 0.0, margin=0.8, gap=3, dims=lambda g: {'scale': rnd(0.75 + g.random() * 0.35)})
     s.scatter('bush', 12, lambda x, z: 1.0 if 300 < z * 5 < edge_z(x * 5) - 8 else 0.0, margin=0.4, gap=1.4, dims=lambda g: {'scale': rnd(0.6 + g.random() * 0.5)})
 
+    # ---- what stands on the apron stands on its surface
+    AD = apron_dims()
+    for o in shelf.objects:
+        if o['kind'] in ('pine', 'boulder', 'rubble', 'dead-tree', 'bush', 'weeds', 'm-krummholz', 'm-sigil-rock', 'm-ward-stone') and not o['pos'][1]:
+            h = apron_h((o['pos'][0], o['pos'][2]), AD)
+            if h > 0.3: o['pos'][1] = rnd(h - (0.6 if o['kind'] in ('pine', 'dead-tree') else 0.2), 2)
+
     # ---- rooms on the shelf
     s.room('M', 'Mount Baratok: the arrival terrace', cells(TERRACE), 'grass',
            'You climb out of the fog onto a bench of bare grey granite, its slabs tilted toward the valley, grass and moss in the cracks. Below, the fog lies flat and white as far as you can see. Black thunderheads drag across the cliffs above. Sixty feet off, an elk stands on a jutting spur of rock.',
-           'The read-aloud fires as the lead character tops the lip at the arrival point (east end). The terrace is the only easy footing; everything else on the shelf is difficult terrain. Wolves avoid this slope entirely. The elk on the spur is the Mad Mage polymorphed; seen, he drops the shape and attacks (spell list and spent slots p.39). His staff and spellbook are not here (lost at Tser Falls, area H): searching finds only the midden, the robe scrap, the tin cup and the effigy.')
+           'The read-aloud fires as the lead character tops the lip at the arrival point (east end). The terrace is the only easy footing; everything else on the shelf is difficult terrain. Wolves avoid this slope entirely. The elk on the spur is the Mad Mage polymorphed; seen, he drops the shape and attacks (spell list and spent slots p.39). His staff and spellbook are not here (lost at Tser Falls, area H): searching finds only the midden, the robe scrap, the tin cup and the effigy. '
+           'Getting here: by rowboat from the landing at area L, about 3 mi of water to the lake\'s north-east corner (1.5-2 hours), then some 2 hours of hard scrambling up 0.85 mi and 3,200 ft, coming out of the valley fog about two-thirds of the way up; on foot round the lake\'s east end from the Old Svalich Road it is about 3 mi and 3 hours. '
+           'Do not confuse this with Lake Baratok: that is another lake far to the west, by Van Richten\'s tower and the werewolf den (area Z).')
     s.room('M-pool', 'Plunge pool', cells(circle(*POOL, POOL_R, 22)), 'shallow-water',
            'A round black pool under the last fall, glass-clear and bitterly cold, ringed with iced, spray-wet boulders.',
            'Ending a turn in the water: 1d4 cold damage and Con DC 10 or be pushed 10 ft downstream toward the outflow.', difficult=True)
@@ -344,6 +406,10 @@ def build():
     s.note(c(ARRIVAL), 'Arrival point: the trail tops the lip here. The elk on the spur tip is 60 ft away (bearing 48).')
     s.note(c((470, 120)), 'Ward-stones every 30 ft from the midden to the crack-stair (Survival DC 12 to follow).')
     s.note(c(F(STAIR_A, 18)), 'Crack-stair: chockstone steps up a diagonal crack to the ledge (Athletics DC 12).')
+    s.note(c((250, 392)), 'Approach: row from the landing at area L to the lake\'s north-east corner (about 3 mi, 1.5-2 hr), then a 2-hour scramble up out of the fog; or about 3 mi and 3 hr on foot round the east end from the Old Svalich Road. This is Mount Baratok, not Lake Baratok (far to the west, area Z).')
+    s.note(c((470, 225)), 'Once cured he is Mordenkainen: he takes the party up to his door for food and an undisturbed rest, and asks Forgotten Realms characters whether they know Elminster. '
+           'If the card reading made him their ally (the Broken One), he will not travel with them, but he will fight Strahd beside them once they know where to find Strahd and how to destroy him, and only after they recover the Holy Symbol of Ravenkind, the Tome of Strahd and the Sunsword (p.40); curt, stubborn, not to be questioned. '
+           'Otherwise he goes off alone to look for his staff and spellbook where he fell at Tser Falls (area H), refuses all company in case someone covets them, and leaves each character a charm of heroism as a parting gift.')
     s.note(c((128, 175)), 'The cascade cleft: the wet, icy scramble to the ledge (Athletics DC 12). Elsewhere the headwall is DC 15.')
     s.mob('swarm-of-ravens', c(BOLT_PINE), 'Swarm of ravens (or a wereraven)', 'Ravens', size='medium', y=13,
           dm='Optional random encounter: wolves never come here, so use the ravens instead (p.30). A wereraven of the Keepers of the Feather may be watching the wizard and will trade what it knows for the party\'s intentions.')
@@ -352,9 +418,15 @@ def build():
     # ============================================================== the spur top (25 ft)
     on(spurL)
     top = [spur_pt(x, z) for x, z in [(-2, -SPUR_HW), (SPUR_L * 0.62, -SPUR_HW * 0.92), (SPUR_L * 0.9, -SPUR_HW * 0.42), (SPUR_L, 0), (SPUR_L * 0.9, SPUR_HW * 0.42), (SPUR_L * 0.62, SPUR_HW * 0.92), (-2, SPUR_HW)]]
-    s.room('M-spur', "The Elk's Spur", cells(top), 'flagstone',
+    s.room('M-spur', "The Elk's Spur", cells(top), 'dirt',
            'A flat prow of rock high over the slope, streaked with glassy black scars and littered with fish bones. From its tip the fog runs away below to the edge of sight.',
            'The elk stands at the tip, 60 ft from the arrival point. The Mage fights from here or the air; cone of cold on anyone climbing the back. Lake side: a 25-ft fall. Down the Ravenloft window at bearing 145 the castle shows when the clouds tear.')
+    # its top is bare granite: thin plates split by the frost, grit in the joints (the scars and bones lie over them)
+    top_in = [spur_pt(x, z) for x, z in [(1, -SPUR_HW + 2), (SPUR_L * 0.62, -SPUR_HW * 0.92 + 1.5), (SPUR_L * 0.9 - 1, -SPUR_HW * 0.42 + 1), (SPUR_L - 2.5, 0), (SPUR_L * 0.9 - 1, SPUR_HW * 0.42 - 1), (SPUR_L * 0.62, SPUR_HW * 0.92 - 1.5), (1, SPUR_HW - 2)]]
+    SO = spur_pt(SPUR_L * 0.5, 0)
+    sl = {'n': len(top_in), 'step': 8, 'seed': 12, 'th': 0.35, 'tilt': 0.3}
+    for i, (x, z) in enumerate(top_in): sl[f'x{i}'] = rnd(x - SO[0], 1); sl[f'z{i}'] = rnd(z - SO[1], 1)
+    P('m-slabs', SO, dims=sl)
     elk_at = spur_pt(SPUR_L - 6, 0)
     look = facing(ARRIVAL[0] - elk_at[0], ARRIVAL[1] - elk_at[1])
     # The DM-only figures stand on the shelf level, raised to the spur top: on a stacked site the app hides unrevealed
@@ -367,14 +439,16 @@ def build():
     for i, (lx, lz) in enumerate([(SPUR_L - 12, -5), (SPUR_L - 12, 5), (SPUR_L - 17, 0)]):
         s.mob('mad-mage', c(spur_pt(lx, lz)), f'Mirror image {i + 1}', 'A wild-eyed man in tattered black robes', rot=look, y=SPUR_H,
               dm='Mirror image: place when he casts the spell, remove when struck.')
-    on(spurL)
-    # far off down the window: the castle over the fog, for when the thunderheads tear
+    # far off down the window: the castle over the fog, for when the thunderheads tear. Pinned in the window on the
+    # shelf (where the party stands, so the players never see it until it is revealed) and drawn six miles off.
     far = 5200
     b145 = math.radians(145)
     gl = (SPUR_TIP[0] + math.sin(b145) * far, SPUR_TIP[1] - math.cos(b145) * far)
-    s.hidden('m-castle-glimpse', c(gl), "Castle Ravenloft's spires through the cloud", 'Dark spires far off over the fog', y=-SPUR_H - 120, dims={'s': 1.15},
+    pin = (WINDOW_A[0] + UW[0] * 40, WINDOW_A[1] + UW[1] * 40)
+    s.hidden('m-castle-glimpse', c(pin), "Castle Ravenloft's spires through the cloud", 'Dark spires far off over the fog', dims={'s': 1.15, 'dx': rnd(gl[0] - pin[0], 1), 'dy': -120, 'dz': rnd(gl[1] - pin[1], 1)},
              desc='Far off to the south-east, black spires stand up out of the fog, and then the cloud closes over them.',
              dm='Reveal when the thunderheads tear (bearing 145, about 6 mi off) and hide again a moment later; the Mage points at it and raves about what he lost there.')
+    on(spurL)
 
     # ============================================================== the upper ledge (120 ft)
     on(ledge)
@@ -389,7 +463,7 @@ def build():
     P('m-slabs', LO, dims=sl)
     s.room('M-ledge', 'The upper ledge', cells(ledge_poly), 'dirt',
            'A shelf of bare rock thirty-odd feet wide runs along the top of the cliff under a brow of overhanging stone that keeps the rain off. In the shaded notch where the stream comes down, old snow lies grey and hard.',
-           'The Mage\'s refuge and escape route: up the crack-stair or the cleft. His invisible door is against the back wall; only he opens it (food, and a short or long rest undisturbed and hidden from Strahd). Cured, he leads the party here.')
+           'The Mage\'s refuge and escape route: up the crack-stair or the cleft. His invisible door is against the back wall; only he opens it (food, and a short or long rest undisturbed and hidden from Strahd). Cured, he leads the party here. See the note on the shelf for what he does next.')
     P('m-snow-patch', F(140, -55), rot=heading(*N), dims={'w': 34, 'd': 16}, label='Old snow',
       desc='A dirty, hard-packed drift of last winter\'s snow in the shade of the notch. Prints cross it: a bare-footed man, and an elk.',
       dm='The prints go both ways, the man\'s and the elk\'s, never together: one creature. The snow keeps the stream ice-cold all summer.')
@@ -468,7 +542,7 @@ def build():
         dict(id='M-trail', kind='stairs', **{'from': {'level': 'fog', 'pos': [345, 434]}, 'to': {'level': 'shelf', 'pos': [362, 398]}}),
         dict(id='M-spur-back', kind='stairs', **{'from': {'level': 'shelf', 'pos': [round(v, 1) for v in spur_pt(-24, 0)]}, 'to': {'level': 'spur', 'pos': [round(v, 1) for v in spur_pt(6, 0)]}}),
         dict(id='M-crack-stair', kind='ladder', **{'from': {'level': 'shelf', 'pos': [round(v, 1) for v in F(STAIR_A, 7)]}, 'to': {'level': 'ledge', 'pos': [round(v, 1) for v in F(STAIR_A - STAIR_RUN, -9)]}}),
-        dict(id='M-cleft', kind='ladder', **{'from': {'level': 'shelf', 'pos': [162, 136]}, 'to': {'level': 'ledge', 'pos': [round(v, 1) for v in F(110, -14)]}}),
+        dict(id='M-cleft', kind='ladder', **{'from': {'level': 'shelf', 'pos': [258, 252]}, 'to': {'level': 'ledge', 'pos': [round(v, 1) for v in F(110, -14)]}}),
     ]
     s.write('Mount Baratok', {'valley': True, 'stacked': 'open', 'entry': 'shelf'}, levels=[shelf, spurL, ledge], links=links)
 
