@@ -3,11 +3,12 @@
 // No DM-only link kind (monster, creature type, person, area, page reference, check, dice), no DM note, no hidden
 // thing's DM label, and no trigger under a DM-only ancestor. Desktop only.
 import { expect, test, type Page } from '@playwright/test';
+import { quiet } from './helpers';
 
 test.beforeEach(async ({ page: _p }, info) => { test.skip(info.project.name !== 'chromium', 'desktop'); });
 
 async function boot(page: Page, scene: string): Promise<void> {
-  await page.addInitScript(() => localStorage.setItem('mistlab.helpSeen', '1'));
+  await quiet(page);
   await page.goto(`/?nosw&scene=${encodeURIComponent(scene)}`);
   await page.waitForFunction(() => (window as any).__mistlab?.ready);
   await page.evaluate(async () => { const m = (window as any).__mistlab; await m.ready; await m.rich(); });

@@ -1,6 +1,6 @@
 // Moving the party: tap the token, then tap the destination. On the players' side walls and closed doors stop it.
 import { expect, test } from '@playwright/test';
-import { boot, SCENES } from './helpers';
+import { boot, SCENES, quiet } from './helpers';
 
 const tapAt = async (page: import('@playwright/test').Page, x: number, z: number, y = 0) => {
   const [sx, sy] = await page.evaluate(({ x, z, y }) => (window as any).__mistlab.screenOf(x, z, y), { x, z, y });
@@ -8,7 +8,7 @@ const tapAt = async (page: import('@playwright/test').Page, x: number, z: number
   await page.waitForTimeout(400); // clear the double-tap window
 };
 
-test.beforeEach(async ({ page }) => { await page.addInitScript(() => localStorage.setItem('mistlab.helpSeen', '1')); });
+test.beforeEach(async ({ page }) => { await quiet(page); });
 
 test('players: tap to select, walls block, open door lets the party through', async ({ page }) => {
   await boot(page, '', SCENES[0]); // test room: party at 22.5,17.5 in T1; T2 is east behind a closed door
