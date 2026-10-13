@@ -77,6 +77,13 @@ The earlier record below is preserved as evidence, not a claim that the newly re
 - Combined build passes; full units **519 passed, 2 todo**, no skips. New GPU tests: labels 6/6, terrain 3/3. Existing software stream pair 2/2, with unchanged 5% memory and 1.5% pixel limits (274/73600 changed pixels, 0.3723%). Five warmed trips retain 167 geometries and five textures. Twelve campaign/device/audience label views plus two TV-style views were inspected; terrain view checks are saved alongside them. A startup test overlapping an identical rebuild was rerun unchanged on the stable build and passed.
 - Independent cross-review found no concrete defect in the display-state fix, portable launcher, lettering or terrain changes. The full GPU suite, current-build journey/cost check and release records still gate main. Evidence is outside Git in `evidence/cloud-labels*` and `evidence/cloud-terrain/`.
 
+#### Full-suite integration findings after the cloud fix
+
+- The full GPU run on `28e3d8b` exposed a compatibility defect: removing geographic meshes also removed the streaming handles for five mapped places. The unchanged ghost-tour check dereferenced the missing road handle and the valley check counted 23 instead of at least 25 handles. Keep geometry-free handles, without massing, detailed-proxy jobs or drawn resources; retain all existing assertions and add lifecycle/no-geometry coverage.
+- The phone flight fixture touched 16px below Vallaki's disc, a point now nearer the restored P disc. The app correctly opened Luna River Crossroads. Preserve the 16px off-center touch and 44px target requirement, but select and assert an unambiguous direction before the real touch. Keep the exact Vallaki arrival assertion. This is a fixture correction, not permission to reduce touch-target coverage.
+- Main remains gated on a fresh complete GPU run and current-build final journey/cost review after these findings are resolved.
+- Frozen-build regression check: corrected phone fixture passes; strengthened geographic lifecycle check fails on the missing A handle. After the narrow source correction, build and all 519 unit tests pass (2 existing TODOs, no skips); all four targeted GPU checks pass (22.1 seconds), including both unchanged stream/valley checks. Independent source review found no additional defect. The rebuilt candidate is `index-0JlwMZEy.js`; its 204-file fingerprint is recorded outside Git before final validation.
+
 #### Earlier verification record
 
 - Continuation baseline: cloud `4f3cad9`, laptop `293f150`; current main `104f4fb` merged cleanly at `27e03d41901a33e7a66358f27bee14f8e728aaa9`. Remote heads rechecked before the fix; no newer cloud fix.

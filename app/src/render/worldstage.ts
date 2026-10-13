@@ -66,9 +66,9 @@ export class WorldStage {
   readonly root = new THREE.Group();
   readonly land: Land;
   readonly sites: LandSite[];
-  /** Proxy groups by path (`path@key` for a pin that repeats another pin's map): each stands at its pin and marks
-   *  where the place is; their massing is drawn by two shared meshes (lit and glowing), in which each place owns a run
-   *  of faces that collapses while the place is hidden, so the whole valley's places cost two draws. */
+  /** Residency handles by path (`path@key` for a repeated map). Their visibility records the map/proxy handover.
+   *  Geographic sites have empty handles only; built places own face runs in two shared massing meshes (lit and
+   *  glowing), which collapse while hidden, so the whole valley's places cost two draws. */
   readonly proxies = new Map<string, THREE.Group>();
   private proxyMeshes: { mesh: THREE.Mesh; ranges: Map<string, { start: number; count: number; saved?: Float32Array }> }[] = [];
   readonly forest: THREE.InstancedMesh;
@@ -76,7 +76,8 @@ export class WorldStage {
   /** Place labels (key: the pin's) and the land's own names (key ''; at: where they stand, miles; text). */
   private labels: { obj: CSS2DObject; key: string; pri: number; at?: Vec2; text?: string }[] = [];
   private placeLabels = new THREE.Group();
-  /** Which pin each proxy marks (a place the players do not know shows no proxy to them). */
+  /** Drawable proxies only: their pin controls audience visibility and eligibility for fine massing. Geographic
+   *  residency handles have no geometry to reveal and never enter this map. */
   private proxyKey = new Map<string, string>();
   /** Proxies kept from the players' side: their place is not revealed (and the view is the players'). */
   private secret = new Set<string>();
@@ -106,7 +107,7 @@ export class WorldStage {
     this.sites = roots.map(siteOf);
     this.land = buildLand(data, this.sites, campaign.theme);
     this.root.add(this.land.group);
-    // proxies and place labels: every pin with a map; a pin that only repeats another's map gets a proxy and a label only
+    // Every mapped pin has a residency handle; only built places have massing. Repeated maps have no resident scene.
     const field = this.land.field, labels = this.placeLabels; labels.name = 'place-labels';
     const parts: Record<'massing' | 'glow', { id: string; geo: THREE.BufferGeometry }[]> = { massing: [], glow: [] };
     // Every keyed place keeps its marker, including mountain marks with no battle map.
@@ -114,18 +115,21 @@ export class WorldStage {
       const e = pin.root ? ATLAS.scenes[pin.root] : undefined, wp = data.pins.find((q) => q.key === pin.key);
       const [x, z] = pin.world;
       let y = field.height(x, z);
-      if (pin.scenes.length && !['lake', 'river', 'road', 'peak'].includes(pin.type)) {
+      if (pin.scenes.length) {
         const site: ProxySite = e
           ? { id: e.path, key: pin.key, name: pin.name, type: pin.type, x, z, y: e.placement.position[1] + e.elevationFt, bounds: e.worldBounds!, rotationY: e.placement.rotationY, centre: e.centre }
           : { id: `${pin.scenes[0]}@${pin.key}`, key: pin.key, name: pin.name, type: pin.type, x, z, y, bounds: { minX: x - 60, minZ: z - 60, maxX: x + 60, maxZ: z + 60 }, rotationY: 0, centre: [0, 0] };
         y = site.y;
-        const g = siteMassing(site, field);
+        const geographic = ['lake', 'river', 'road', 'peak'].includes(pin.type);
+        const g = geographic ? new THREE.Group() : siteMassing(site, field);
+        if (geographic) { g.name = `site:${site.id}`; g.position.set(site.x, site.y, site.z); g.userData.role = 'stage'; }
+        else this.proxyKey.set(site.id, pin.key);
         g.updateMatrix();
         for (const m of [...g.children]) if ((m as THREE.Mesh).isMesh && (m.name === 'massing' || m.name === 'glow')) {
           parts[m.name as 'massing' | 'glow'].push({ id: site.id, geo: (m as THREE.Mesh).geometry.applyMatrix4(g.matrix) });
           ((m as THREE.Mesh).material as THREE.Material).dispose(); m.removeFromParent();
         }
-        this.proxies.set(site.id, g); this.proxyKey.set(site.id, pin.key); this.root.add(g);
+        this.proxies.set(site.id, g); this.root.add(g);
       }
       // A place's label, two ways in one element: the app's chip (key · name) close in, and the inked map's pin from
       // high up (its symbol, a keyed disc and the name in the map's lettering), cross-faded by the map's strength
@@ -304,7 +308,7 @@ export class WorldStage {
   /** The streamer's measure of a place this tick (footprint pixels per atlas unit; 0 out of view or lost in the mist):
    *  its detailed proxy is drawn from DETAIL.showPx (built the first time), the plain massing again under keepPx. */
   viewDetail(path: string, px: number, now = performance.now()): void {
-    if (!this.proxies.has(path) || path.includes('@') || this.disposed) return;
+    if (!this.proxyKey.has(path) || path.includes('@') || this.disposed) return;
     let d = this.details.get(path);
     const want = this.carto.k < 0.95 && px >= (d?.want ? DETAIL.keepPx : DETAIL.showPx);
     if (!d) { if (!want) return; d = { want: false, lastWanted: now }; this.details.set(path, d); }

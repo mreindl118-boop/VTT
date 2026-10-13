@@ -7,14 +7,35 @@ test.beforeEach(async ({ page }) => { await quiet(page); await page.setViewportS
 
 test('geographic pins have markers and map links, without building proxies', async ({ page }) => {
   const pins = await page.evaluate(() => {
-    const s = (window as any).__mistlab.stage;
-    return s.data.pins.filter((p: any) => ['lake', 'river', 'road', 'peak'].includes(p.type)).map((p: any) => ({ key: p.key,
-      marker: s.labels.some((l: any) => l.key === p.key),
-      proxy: [...s.proxyKey.values()].includes(p.key),
-    }));
+    const m = (window as any).__mistlab, s = m.stage;
+    return s.data.pins.filter((p: any) => ['lake', 'river', 'road', 'peak'].includes(p.type)).map((p: any) => {
+      const pin = m.atlas.pins.find((a: any) => a.campaign === s.campaign.id && a.key === p.key);
+      const id = pin?.scenes.length ? pin.root ?? `${pin.scenes[0]}@${pin.key}` : undefined;
+      const label = s.labels.find((l: any) => l.key === p.key), g = s.proxies.get(id);
+      const want = g?.userData.want;
+      if (id) s.showProxy(id, false);
+      const hidden = g?.visible === false;
+      if (id) { s.showProxy(id, true); s.viewDetail(id, 100); }
+      const shown = g?.visible === true;
+      if (id) s.showProxy(id, want !== false);
+      return { key: p.key, marker: !!label, proxy: [...s.proxyKey.values()].includes(p.key),
+        mapped: !!id, linked: !id || label?.obj.element.dataset.path === (pin.root ?? pin.scenes[0]),
+        handle: !!g, hidden, shown, children: g?.children.length,
+        ranges: s.proxyMeshes.some((b: any) => b.ranges.has(id)), detail: !!s.detailState()[id], k: s.carto.k,
+      };
+    });
   });
   expect(pins.length).toBeGreaterThan(0);
   for (const p of pins) { expect(p.marker, p.key).toBe(true); expect(p.proxy, p.key).toBe(false); }
+  expect(pins.filter((p: any) => p.mapped).length).toBeGreaterThan(0);
+  for (const p of pins.filter((p: any) => p.mapped)) {
+    expect(p.linked, p.key).toBe(true);
+    expect(p.handle, p.key).toBe(true);
+    expect(p.hidden, p.key).toBe(true); expect(p.shown, p.key).toBe(true);
+    expect(p.children, p.key).toBe(0); expect(p.ranges, p.key).toBe(false);
+    expect(p.k, 'detail request exercised below the region cutoff').toBeLessThan(0.95);
+    expect(p.detail, p.key).toBe(false);
+  }
 });
 
 test('inked relief follows natural terrain instead of outlining map platforms', async ({ page }) => {

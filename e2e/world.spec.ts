@@ -738,14 +738,34 @@ test.describe('on a phone', () => {
     // would have started at 360 px, on the slider, and the canvas would have seen one finger)
     await pinch(250, 450, 220, 30);
     await expect.poll(async () => (await cam(page)).chips.join(), { timeout: 60_000 }).toMatch(/whole valley/);
-    // a finger a little below a name (inside its 44-px target) flies there
+    // A finger outside the visible disc but inside its 44-px touch target flies there.
     await page.evaluate(async () => { const m = (window as any).__mistlab; m.stage.frameWorld(); await m.app.world.settled(); m.app.world.renderNow(); });
     await page.waitForTimeout(400);
     const n = (await nameBox(page, 'N'))!;
     expect(n).not.toBeNull();
-    // on the inked map the place stands taller (its symbol over its disc and name): the finger lands low on it, on the
-    // disc's row, or for a short label 16 px below its middle (inside its 44 px target)
-    await page.touchscreen.tap(n.x, n.h < 30 ? n.y + 16 : n.y + n.h / 2 - 6);
+    // Every disc now stays visible, including P just below N. Pick a 16-px direction in N's own nearest-disc area,
+    // using DOM geometry independently of hitLabel; the old fixed downward point correctly selected P instead.
+    const touch = await page.evaluate(() => {
+      const els = [...document.querySelectorAll<HTMLElement>('.lbl.place')].filter((el) => el.checkVisibility({ visibilityProperty: true, opacityProperty: true }));
+      const marks = els.map((el) => { const r = el.querySelector('.pk')!.getBoundingClientRect(); return { key: el.dataset.key, x: (r.left + r.right) / 2, y: (r.top + r.bottom) / 2 }; });
+      const here = marks.find((p) => p.key === 'N')!, el = els.find((e) => e.dataset.key === 'N')!;
+      const boxes = [el.getBoundingClientRect(), ...(!el.classList.contains('dot') ? [...el.querySelectorAll('.pn')].map((e) => e.getBoundingClientRect()) : [])];
+      const point = Array.from({ length: 24 }, (_, i) => { const angle = Math.PI / 2 + i * Math.PI / 12; return { x: here.x + 16 * Math.cos(angle), y: here.y + 16 * Math.sin(angle) }; })
+        .find((p) => !boxes.some((r) => p.x >= r.left && p.x <= r.right && p.y >= r.top && p.y <= r.bottom)
+          && marks.every((q) => q.key === 'N' || Math.hypot(p.x - q.x, p.y - q.y) > 17));
+      if (!point) return null;
+      const st = (window as any).__mistlab.stage;
+      return { ...point, dx: point.x - here.x, dy: point.y - here.y,
+        mouse: st.pinAt(point.x, point.y, false)?.key ?? null, finger: st.pinAt(point.x, point.y, true)?.key ?? null };
+    });
+    expect(touch).not.toBeNull();
+    expect(Math.hypot(touch!.dx, touch!.dy)).toBeCloseTo(16, 6);
+    expect(Math.abs(touch!.dx)).toBeLessThanOrEqual(22);
+    expect(Math.abs(touch!.dy)).toBeLessThanOrEqual(22);
+    expect(touch!.mouse).not.toBe('N');
+    expect(touch!.finger).toBe('N');
+    console.log('phone off-disc touch', touch);
+    await page.touchscreen.tap(touch!.x, touch!.y);
     await page.waitForFunction(() => { const a = (window as any).__mistlab.app; return a.cur?.path === 'ch05/N' && !a.world.flying; }, undefined, { timeout: 180_000 });
     await cdp.detach();
   });
