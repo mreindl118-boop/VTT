@@ -43,15 +43,27 @@ def octagon(r, c, splits=None):
         pts += seg[:-1]
     return pts, pieces
 
-def keyhole(outer, start, hole):
-    """Floor with a hole: the outer ring from `start`, a bridge in to the hole, the hole the other way round, and back."""
-    i = outer.index(start); o = outer[i:] + outer[:i]
-    area = lambda p: sum(p[k][0] * p[(k + 1) % len(p)][1] - p[(k + 1) % len(p)][0] * p[k][1] for k in range(len(p)))
-    hl = [pt(*q) for q in hole]
-    if (area(o) > 0) == (area(hl) > 0): hl = hl[::-1]
-    j = min(range(len(hl)), key=lambda k: (hl[k][0] - start[0]) ** 2 + (hl[k][1] - start[1]) ** 2)
-    hl = hl[j:] + hl[:j]
-    return o + [start] + hl + [hl[0]], (start, hl[0])
+SLIT = (0.25, 1 / 64)  # the cut that joins a ring floor's hole to its outer wall: at dx, this wide (cells; under 0.1 ft)
+
+def ring_floor(outer, hole):
+    """A floor round a hole as one valid ring: the octagon less the hole, cut through by a hairline slit that runs
+    straight south from the hole to the south wall (off the grid's cell centres and clear of the arrow slits), so
+    no edge crosses or touches another. Returns the ring and the slit's mouth on the outer wall (to be walled over)."""
+    x0, w = CX + SLIT[0], SLIT[1]
+    zs = max(p[1] for p in outer)
+    hp = SPoly([pt(*q) for q in hole])
+    floor = SPoly(outer).difference(hp).difference(sbox(x0, CZ, x0 + w, zs + 1))
+    assert floor.geom_type == 'Polygon' and not floor.interiors and floor.is_valid, 'the slit must cut the ring open'
+    ring = [(round(x, 4), round(z, 4)) for x, z in list(floor.exterior.coords)[:-1]]
+    assert SPoly(ring).is_valid
+    return ring, ((round(x0, 4), zs), (round(x0 + w, 4), zs))
+
+def open_inner(lv, ring, outer):
+    """Every edge of a ring floor that is not on the outer wall (the hole's rim, the slit) stands open; the slit's
+    mouth on the outer wall is walled over so the wall runs on unbroken."""
+    rim = SPoly(outer).exterior
+    for a, b in unit_edges(ring):
+        if rim.distance(LineString([a, b]).interpolate(0.5, normalized=True)) > 1e-6: open_seg(lv, a, b)
 
 def stamp(lv, a, b, **kw):
     """Override the wall on a-b: matched against the unit edges the level's rooms actually produce (so float noise in
@@ -127,7 +139,8 @@ open_poly(g, V3R)
 g.prop('plinth', 'tower-plinth', (CX, CZ), 'V4', dims={'r': 12.6, 'h': 1.6})
 for i, (dx, dz) in enumerate([(1, -1), (-1, -1), (-1, 1), (1, 1)]):
     base = 2.55 / math.sqrt(2)
-    g.prop(f'buttress{i}', 'tower-buttress', (CX + dx * base, CZ + dz * base), 'V4', rotY=round(math.degrees(math.atan2(-dz, dx)), 1), dims={'h': 36, 'len': 5.5, 'w': 3.2, 'v': i})
+    # each pier springs from the plinth's top; its footing steps down past the plinth's outer face to the ground
+    g.prop(f'buttress{i}', 'tower-buttress', (CX + dx * base, CZ + dz * base), 'V4', rotY=round(math.degrees(math.atan2(-dz, dx)), 1), dims={'h': 36, 'len': 5.5, 'w': 3.2, 'v': i, 'foot': 1.6}, y=1.6)
 g.prop('steps', 'stone-step', (CX, CZ + 3.35), 'V2', dims={'w': 6.5, 'd': 3})
 g.prop('curtain', 'drapes', (CX, CZ + 2.05), 'V2', dims={'w': 4.6, 'color': 0x5a4a44})
 g.prop('lintel', 'khazan-lintel', (CX, CZ + 3.05), 'V2', dims={'w': 6.4, 'y': 7.2})
@@ -189,10 +202,10 @@ f2_pts, f2_pc = octagon(2, 1, {'N': SLITS, 'E': SLITS, 'S': sorted(SLITS + [0.5]
 HOLE2 = [(-0.5, -0.5), (0.5, -0.5), (0.62, -0.62), (0.95, -0.55), (1.2, -0.62), (1.45, -0.35), (1.3, -0.05), (1.42, 0.3), (1.15, 0.55), (0.8, 0.72), (0.47, 0.74),
          (0.2, 0.62), (0.0, 0.7), (-0.2, 0.74), (-0.45, 0.6), (-0.5, 0.5), (-0.62, 0.38), (-1.0, 0.32), (-1.45, 0.25), (-1.3, -0.1), (-1.49, -0.45), (-1.1, -0.6), (-0.7, -0.55)]
 s2 = Level('f2', 'Second floor (V5)', 20, 20, ambient='interior-dim', interior='ashlar', exterior='ashlar', north='-z')
-v5, bridge2 = keyhole(f2_pts, pt(0, 2), HOLE2)
+v5, mouth2 = ring_floor(f2_pts, HOLE2)
 s2.room('V5', 'Tower, Second Floor', v5, 'plank', page=pg('V5'), ceilingFt=20)
-open_poly(s2, [pt(*q) for q in HOLE2])
-for a, b in unit_edges(list(bridge2)): open_seg(s2, a, b)
+open_inner(s2, v5, f2_pts)
+s2.wall(*mouth2, material='ashlar')
 for nm in ('N', 'E', 'S', 'W'):
     for a, b in f2_pc[nm]:
         L = math.hypot(b[0] - a[0], b[1] - a[1])
@@ -213,10 +226,10 @@ f3_pts, f3_pc = octagon(2, 1, {'NE': DSLITS, 'SE': DSLITS, 'SW': DSLITS, 'S': [0
 HOLE3 = [(-0.5, -0.5), (0.5, -0.5), (0.5, -0.34), (0.85, -0.3), (1.26, -0.2), (1.1, 0.05), (1.2, 0.28), (0.8, 0.22), (0.5, 0.25), (0.5, 0.5), (0.0, 0.5), (-0.5, 0.5),
          (-0.5, -0.06), (-0.9, -0.06), (-1.35, -0.15), (-1.2, -0.4), (-1.43, -0.6), (-1.25, -0.85), (-0.9, -0.95), (-0.6, -0.75)]
 s3 = Level('f3', 'Third floor (V6)', 40, 20, ambient='interior-dim', interior='ashlar', exterior='ashlar', north='-z')
-v6, bridge3 = keyhole(f3_pts, pt(0, 2), HOLE3)
+v6, mouth3 = ring_floor(f3_pts, HOLE3)
 s3.room('V6', 'Tower, Third Floor', v6, 'plank', page=pg('V6'), ceilingFt=20)
-open_poly(s3, [pt(*q) for q in HOLE3])
-for a, b in unit_edges(list(bridge3)): open_seg(s3, a, b)
+open_inner(s3, v6, f3_pts)
+s3.wall(*mouth3, material='ashlar')
 for nm in ('NE', 'SE', 'SW'):
     for a, b in f3_pc[nm]:
         if abs(math.hypot(b[0] - a[0], b[1] - a[1]) - 0.1414) < 0.01: window_seg(s3, a, b)
@@ -299,11 +312,17 @@ DESC = {
 }
 levels = [g, s2, s3, s4]
 lk = lambda id, kind, al, ap, bl, bp: OrderedDict(id=id, kind=kind, **{'from': OrderedDict(level=al, pos=[round(ap[0] * 5, 2), round(ap[1] * 5, 2)]), 'to': OrderedDict(level=bl, pos=[round(bp[0] * 5, 2), round(bp[1] * 5, 2)])})
-links = [lk('V-lift-1', 'elevator', 'grounds', (CX, CZ), 'f2', (CX, CZ)), lk('V-lift-2', 'elevator', 'f2', (CX, CZ), 'f3', (CX, CZ)), lk('V-lift-3', 'elevator', 'f3', (CX, CZ), 'f4', (CX, CZ)),
+# The lift's ends stand on floor beside the shaft, never over its hole: on each floor the way down is the square south-
+# west of the shaft and the way up the square north-east of it (14 ft apart, so arriving by one never sets off the
+# other, and both markers show); on the fourth floor the platform itself, which rests there.
+DOWN, UP = (CX - 1, CZ + 1), (CX + 1, CZ - 1)
+links = [lk('V-lift-1', 'elevator', 'grounds', UP, 'f2', DOWN), lk('V-lift-2', 'elevator', 'f2', UP, 'f3', DOWN), lk('V-lift-3', 'elevator', 'f3', UP, 'f4', (CX, CZ)),
          lk('V-scaffold-1', 'ladder', 'grounds', (CX - 3.2, CZ + 1.4), 'f2', (CX - 2.8, CZ + 1.1)), lk('V-scaffold-2', 'ladder', 'f2', (CX - 2.8, CZ - 1.6), 'f3', TOPC)]
 scene = OrderedDict(schema=1, location='V', chapter='ch11', name="Van Richten's Tower", mapPage=170, bookScaleFt=5, ambient=AMB, stacked=True, entry='grounds',
                     levels=[lv.to_json() for lv in levels], links=links)
 for lv in scene['levels']:
+    for w in lv['walls']:
+        if w['id'].startswith(lv['id'] + '-x-'): w['a'], w['b'] = [round(v, 3) for v in w['a']], [round(v, 3) for v in w['b']]
     for r in lv['rooms']:
         d = DESC.get(r['key'])
         if d: r['desc'], r['dm'] = d
