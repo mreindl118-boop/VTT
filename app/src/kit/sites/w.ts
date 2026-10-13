@@ -7,22 +7,23 @@
 // black cairns and boulders, the Gulthias tree, the druids' sod-covered graves and the wall of fog. Figures: the
 // druids, the four kinds of blight, wereravens, a swarm of ravens and the mud-daubed berserkers.
 import * as THREE from 'three';
-import { mat } from '../../render/materials';
-import { PALETTE } from '../palette';
+import { mat, matClone } from '../../render/materials';
+import { FLOOR_COLOR, PALETTE } from '../palette';
 import { surfaceFor } from '../surfaces';
-import { PROPS_V1 } from '../props';
+import { PROPS_V1, pine, deadTree } from '../props';
 import { CREATURES, humanoid } from '../creatures';
 import { merge } from '../pieces';
+import { SITE_SHAPERS } from '../../render/backdrop';
 
 type Dims = Record<string, number>;
 
 // ---------------------------------------------------------------- colours (weathered, from the palette families)
 const C = {
-  oak: '#5e4330', oakDark: '#3f2c1f', stave: '#6b4b30', hoop: '#2f2f33', must: '#4e1219', wineDark: '#3a1218',
+  oak: '#5e4330', oakDark: '#3f2c1f', stave: '#6b4b30', hoop: '#2f2f33', must: '#4e1219', wineDark: '#3a1219',
   vine: '#3c2e25', leaf: '#3c5a34', leafDark: '#2c4429', leafDead: '#5a5236', grape: '#3a2e46',
   slate: '#35333a', crest: '#26262a', ivy: '#2f4a2e', ivyDark: '#243a24', ivyLight: '#3d5a37',
   rope: '#8b7b5b', glass: '#4f6a5a', glassDark: '#33463d', sand: '#a9966f', paper: '#dad3c3', ink: '#1e1a17',
-  cairn: '#26272b', cairnWet: '#323238', boulder: '#2e2f33', twig: '#4a3a2c', twigDark: '#33281f', earth: '#2b2521',
+  cairn: '#26272b', cairnWet: '#323238', boulder: '#2e2e33', twig: '#4a3a2d', twigDark: '#33281e', earth: '#2b2521',
   sod: '#4a4a36', mold: '#7a5a34', moldDark: '#5a4026', fog: '#cacdd3', fogDeep: '#aeb2ba', gem: '#7fe08a',
   mud: '#6f7a80', mudDark: '#4f585e', skin: '#d9b899', hide: '#7a6650', hideDark: '#5b4b3b', antler: '#cac0a7', blood: '#6a1a1e',
   needle: '#4d5a3c', needleDark: '#36402a', sap: '#5a1218', bark: '#3b3230', barkRed: '#4a2a26', raven: '#18171c', ravenSheen: '#2a2a36',
@@ -46,6 +47,8 @@ const ico = (r: number, color: string, x = 0, y = 0, z = 0, detail = 0) => { con
 const cone = (r: number, h: number, color: string, x = 0, y = 0, z = 0, seg = 6) => { const m = new THREE.Mesh(new THREE.ConeGeometry(r, h, seg), mat(color)); m.position.set(x, y, z); return m; };
 /** A deterministic 0..1 hash, so every prop varies but rebuilds the same. */
 const hash = (a: number, b = 0) => { const s = Math.sin(a * 127.1 + b * 311.7) * 43758.5453; return s - Math.floor(s); };
+/** 0..1 easing of t between a and b. */
+const smoothstep = (a: number, b: number, t: number) => { const k = Math.min(1, Math.max(0, (t - a) / (b - a))); return k * k * (3 - 2 * k); };
 /** A box from p to q (a strut, a limb, a rope): `t` thick. */
 function strut(p: THREE.Vector3, q: THREE.Vector3, t: number, color: string): THREE.Mesh {
   const d = new THREE.Vector3().subVectors(q, p), L = d.length() || 0.01;
@@ -68,21 +71,23 @@ function barrelMesh(h = 3.2, r = 1.1, color = C.stave): THREE.Group {
 }
 
 // ================================================================ the vineyard
-/** A trellised row of grapevines along local x, `len` ft long: posts every 8 ft, two wires, gnarled trunks and a
+/** A trellised row of grapevines along local x, `len` ft long: posts every 8 ft, a wire, gnarled trunks and a
  *  hedge of leaves, dark grapes hanging under it. `dead` > 0 browns a share of the leaves (blighted rows). */
 export function vineRow(d: Dims): THREE.Group {
   const L = d.len ?? 40, seed = d.seed ?? 0, dead = d.dead ?? 0, g = grp();
   const n = Math.max(1, Math.round(L / 8));
   for (let i = 0; i <= n; i++) { const x = -L / 2 + (i / n) * L; g.add(box(0.35, 5.2, 0.35, i === 0 || i === n ? C.oakDark : C.oak, x, 2.6, 0)); }
-  g.add(box(L, 0.06, 0.06, C.hoop, 0, 3.0, 0), box(L, 0.06, 0.06, C.hoop, 0, 4.6, 0));
+  // the two wires read as one line at any distance: one 0.12-ft rail between their heights
+  g.add(box(L, 0.12, 0.12, C.hoop, 0, 3.8, 0));
   // the vines: a twisted trunk every 4 ft, its canopy a leaf clump along the wires, dark grapes under it
   const m = Math.max(1, Math.round(L / 5));
   for (let i = 0; i < m; i++) {
     const x = -L / 2 + (i + 0.5) * (L / m), h1 = hash(i, seed), h2 = hash(seed, i + 7), brown = hash(i * 3, seed + 3) < dead;
-    g.add(strut(V(x, 0, (h1 - 0.5) * 0.4), V(x + (h2 - 0.5) * 0.8, 3.0, 0), 0.3, C.vine));
+    // the trunks, every other leaf clump and the grapes are close-up detail (tier 'near'); posts, rail and hedge read from afar
+    const trunk = strut(V(x, 0, (h1 - 0.5) * 0.4), V(x + (h2 - 0.5) * 0.8, 3.0, 0), 0.3, C.vine); trunk.userData.tier = 'near'; g.add(trunk);
     const leaf = ico(1.5 + h1 * 0.35, brown ? C.leafDead : i % 3 ? C.leaf : C.leafDark, x, 3.8 + h2 * 0.4, (h1 - 0.5) * 0.3);
-    leaf.scale.set(1.9, 0.95, 0.9); g.add(leaf);
-    if (hash(i, seed + 11) < 0.5) g.add(ico(0.32, C.grape, x + (h1 - 0.5), 2.9, 0.55 * (h2 > 0.5 ? 1 : -1)));
+    leaf.scale.set(1.9, 0.95, 0.9); if (i % 2) leaf.userData.tier = 'near'; g.add(leaf);
+    if (hash(i, seed + 11) < 0.5) { const grape = ico(0.32, C.grape, x + (h1 - 0.5), 2.9, 0.55 * (h2 > 0.5 ? 1 : -1)); grape.userData.tier = 'near'; g.add(grape); }
   }
   return g;
 }
@@ -360,14 +365,19 @@ export function strahdEffigy(d: Dims): THREE.Group {
   for (let i = 0; i < 10; i++) { const a = i * 0.63 + 0.3, r0 = 16 * s, r1 = 9.4 * s; g.add(strut(V(Math.cos(a) * r0, 0.3, Math.sin(a) * r0), V(Math.cos(a + 0.35) * r1, 7 * s * (0.5 + hash(i, 2) * 0.7), Math.sin(a + 0.35) * r1), 1.2 * s, C.barkRed)); }
   return g;
 }
-/** A berserker cairn: a ten-foot mound of slimy black rocks. */
+/** A berserker cairn: a ten-foot mound of slimy black rocks, a few big stones to a tier. The rocks of the two lower
+ *  tiers are tagged userData.tier = 'near' (detail that only reads close up; the upper tiers keep the mound's outline). */
 export function cairn(d: Dims): THREE.Group {
   const h = d.h ?? 10, r = d.r ?? 6, seed = d.seed ?? 0, g = grp();
   const tiers = [[r, 0.9], [r * 0.78, 3.2], [r * 0.55, 5.6], [r * 0.32, 7.8]] as const;
-  for (const [rr, y] of tiers) {
-    const n = Math.max(3, Math.round(rr * 1.3));
-    for (let i = 0; i < n; i++) { const a = (i / n) * Math.PI * 2 + hash(i, seed + y), k = 0.85 + hash(seed, i + y) * 0.3; const m = ico((1.25 + hash(i, y) * 0.6) * (rr / r * 0.4 + 0.6), i % 3 ? C.cairn : C.cairnWet, Math.cos(a) * rr * 0.62 * k, y * h / 10, Math.sin(a) * rr * 0.62 * k, 0); m.rotation.set(a, a * 2, 0); g.add(m); }
-  }
+  tiers.forEach(([rr, y], t) => {
+    const n = Math.max(3, Math.round(rr * 0.85));
+    for (let i = 0; i < n; i++) {
+      const a = (i / n) * Math.PI * 2 + hash(i, seed + y), k = 0.85 + hash(seed, i + y) * 0.3;
+      const m = ico((1.6 + hash(i, y) * 0.7) * (rr / r * 0.4 + 0.6), i % 3 ? C.cairn : C.cairnWet, Math.cos(a) * rr * 0.6 * k, y * h / 10, Math.sin(a) * rr * 0.6 * k, 0);
+      m.rotation.set(a, a * 2, 0); if (t < 2) m.userData.tier = 'near'; g.add(m);
+    }
+  });
   g.add(ico(1.3, C.cairnWet, 0, h - 0.9, 0, 0));
   return g;
 }
@@ -413,21 +423,194 @@ export function sodGrave(): THREE.Group {
   for (let i = 0; i < 10; i++) g.add(box(0.12, 0.8, 0.12, C.leafDead, (hash(i, 1) - 0.5) * 3, 0.6, (hash(i, 2) - 0.5) * 6.6));
   return g;
 }
-/** The wall of fog at the edge of Strahd's domain: billows of mist towering over the land along local z, `len` long. */
-export function fogWall(d: Dims): THREE.Group {
-  const L = d.len ?? 200, H = d.h ?? 160, seed = d.seed ?? 0, g = grp();
-  // the mist glows faintly, as if lit from within; heaped billows leaning back into the west, wisps creeping east
-  const fog = (c: string) => mat(c, { emissive: c === C.fog ? '#46484f' : '#3a3c42' });
-  const puff = (r: number, c: string, x: number, y: number, z: number, sy: number) => { const m = new THREE.Mesh(new THREE.IcosahedronGeometry(r, 1), fog(c)); m.position.set(x, y, z); m.scale.set(0.75, sy, 1.15); return m; };
-  const n = Math.max(2, Math.round(L / 15));
-  for (let i = 0; i < n; i++) {
-    const z = -L / 2 + (i + 0.5) * (L / n), tall = 0.7 + hash(i, seed + 2) * 0.45;
-    for (let k = 0; k < 6; k++) {
-      const r = 11 + hash(i, k + seed) * 16, y = (k * H / 6) * tall + r * 0.4 + hash(k + seed, i) * 10, x = (hash(k, i + seed) - 0.5) * 22 - k * 5;
-      if (hash(i * 7 + k, seed + 9) < 0.18) continue;               // gaps, so it billows rather than stacks
-      g.add(puff(r, (i * 3 + k) % 4 ? C.fog : C.fogDeep, x, y, z + (hash(i + k, 3) - 0.5) * 14, 0.6 + hash(k, i) * 0.35));
+// ---------------------------------------------------------------- Yester Hill: scenery seen from both of its levels
+// The hill is one place drawn on two levels that stand on it (the forest floor round its foot, and the summit), and the
+// land, its tracks, cairns, trees, boulders and the fog are seen from both, like the land drawn round the map: their
+// materials are never under the fog of war (matClone's exempt copy, one per colour). A prop asks for that with dims.open.
+const openMats = new Map<string, THREE.MeshLambertMaterial>();
+function openMat(src: THREE.MeshLambertMaterial): THREE.MeshLambertMaterial {
+  const hex = '#' + src.color.getHexString(), k = hex + src.emissive.getHexString();
+  let m = openMats.get(k);
+  if (!m) { m = matClone(hex, true); m.emissive.copy(src.emissive); openMats.set(k, m); }
+  return m;
+}
+/** The same prop with each material swapped for its never-fogged copy. */
+function opened<T extends THREE.Object3D>(o: T): T {
+  o.traverse((c) => { const m = c as THREE.Mesh; if (m.isMesh && !(m.material as THREE.Material).userData.fogExempt?.value) m.material = openMat(m.material as THREE.MeshLambertMaterial); });
+  return o;
+}
+
+/** Yester Hill's land as stored (scripts/authoring/yester-hill.py, class Land): a lattice of `nx` × `nz` cells of `cell`
+ *  ft (both multiples of 4) in blocks of 4 × 4 cells, each drawn whole where the ground is smooth, else as four blocks
+ *  of 2 × 2, each of those whole or as four single cells (5 bits a block, nine blocks to a number in c0, c1, ...). Only
+ *  the vertices the blocks use are stored, row by row, as 12-bit steps of `q` ft, four to a number (h0, h1, ...). */
+function hillBlocks(d: Dims) {
+  const nx = d.nx | 0, nz = d.nz | 0, q = d.q ?? 0.1, W = nx + 1, n = W * (nz + 1), bx = nx >> 2, bz = nz >> 2;
+  const leaves: number[] = [], active = new Uint8Array(n), H = new Float32Array(n), byBlock = new Int32Array(bx * bz + 1);
+  const add = (i: number, j: number, s: number) => { leaves.push(i, j, s); active[j * W + i] = active[j * W + i + s] = active[(j + s) * W + i] = active[(j + s) * W + i + s] = 1; };
+  for (let b = 0; b < bx * bz; b++) {
+    byBlock[b] = leaves.length;
+    const code = Math.floor((d['c' + Math.floor(b / 9)] ?? 0) / 32 ** (b % 9)) % 32, i = (b % bx) * 4, j = Math.floor(b / bx) * 4;
+    if (!(code & 1)) { add(i, j, 4); continue; }
+    for (let c = 0; c < 4; c++) {
+      const ci = i + (c & 1) * 2, cj = j + (c >> 1) * 2;
+      if (code & (2 << c)) { add(ci, cj, 1); add(ci + 1, cj, 1); add(ci, cj + 1, 1); add(ci + 1, cj + 1, 1); } else add(ci, cj, 2);
     }
-    for (let k = 0; k < 2; k++) g.add(puff(6 + hash(i, k + 20) * 8, C.fog, 10 + k * 12 + hash(k, i + 4) * 10, 1.5, z + (hash(i, k + 6) - 0.5) * 12, 0.22));
+  }
+  byBlock[bx * bz] = leaves.length;
+  for (let k = 0, m = 0; k < n; k++) if (active[k]) { H[k] = (Math.floor((d['h' + (m >> 2)] ?? 0) / 4096 ** (m % 4)) % 4096) * q; m++; }
+  /** A block's triangles, as lattice (i, j, height) corners: two for a plain block, else a fan from its middle (at the
+   *  mean of its corners) through every vertex a smaller neighbour uses on its edge, so that no crack opens. */
+  const tris = (i: number, j: number, s: number): [number, number, number][][] => {
+    const v = (x: number, z: number): [number, number, number] => [x, z, H[z * W + x]];
+    const ring: [number, number][] = [];
+    for (let k = 0; k < s; k++) ring.push([i + k, j]);
+    for (let k = 0; k < s; k++) ring.push([i + s, j + k]);
+    for (let k = 0; k < s; k++) ring.push([i + s - k, j + s]);
+    for (let k = 0; k < s; k++) ring.push([i, j + s - k]);
+    const b = ring.filter(([x, z]) => active[z * W + x]);
+    const a = v(i, j), bb = v(i + s, j), c = v(i + s, j + s), e = v(i, j + s);
+    if (b.length === 4) return Math.abs(a[2] - c[2]) < Math.abs(bb[2] - e[2]) ? [[a, bb, c], [a, c, e]] : [[a, bb, e], [bb, c, e]];
+    const m: [number, number, number] = [i + s / 2, j + s / 2, (a[2] + bb[2] + c[2] + e[2]) / 4];
+    return b.map((p, k) => [m, v(...p), v(...b[(k + 1) % b.length])]);
+  };
+  return { nx, nz, W, bx, leaves, byBlock, active, H, tris };
+}
+/** The height of a hill-land's drawn surface at local (x, z) ft (for checks: tests/yester-hill.test.ts). */
+export function hillLandAt(d: Dims): (x: number, z: number) => number {
+  const L = hillBlocks(d), cell = d.cell ?? 10;
+  return (x, z) => {
+    const fi = Math.min(Math.max(x / cell, 0), L.nx - 1e-6), fj = Math.min(Math.max(z / cell, 0), L.nz - 1e-6), b = Math.floor(fj / 4) * L.bx + Math.floor(fi / 4);
+    let best = -Infinity, y = 0;
+    for (let t = L.byBlock[b]; t < L.byBlock[b + 1]; t += 3) {
+      const i = L.leaves[t], j = L.leaves[t + 1], s = L.leaves[t + 2];
+      if (fi < i || fi > i + s || fj < j || fj > j + s) continue;
+      for (const [A, B, C] of L.tris(i, j, s)) {
+        const den = (B[1] - C[1]) * (A[0] - C[0]) + (C[0] - B[0]) * (A[1] - C[1]);
+        const l1 = ((B[1] - C[1]) * (fi - C[0]) + (C[0] - B[0]) * (fj - C[1])) / den, l2 = ((C[1] - A[1]) * (fi - C[0]) + (A[0] - C[0]) * (fj - C[1])) / den, l3 = 1 - l1 - l2;
+        const w = Math.min(l1, l2, l3); if (w > best) { best = w; y = l1 * A[2] + l2 * B[2] + l3 * C[2]; }
+      }
+      break;
+    }
+    return y;
+  };
+}
+/** Yester Hill's land (stored as hillBlocks reads it). Each face is coloured by the ground: the turf of the forest
+ *  floor round the foot (the land drawn past the map is the same turf, so the two meet unseen), browner heath on the
+ *  steep flanks, paler withered grass toward the bare top, and a hillshade from the north-west, so the hill reads as a
+ *  hill from straight above. A foot-deep skirt closes the outer edge. */
+const landMats = new Map<string, THREE.MeshLambertMaterial>();
+export function hillLand(d: Dims): THREE.Group {
+  const L = hillBlocks(d), cell = d.cell ?? 10;
+  let top = 0; for (let k = 0; k < L.H.length; k++) top = Math.max(top, L.H[k]);
+  const G = new THREE.Color(FLOOR_COLOR.grass), HEATH = G.clone().lerp(new THREE.Color('#5b5136'), 0.5), STRAW = G.clone().lerp(new THREE.Color('#a39c78'), 0.55);
+  const LL = Math.hypot(0.45, 0.72, 0.53), Lx = -0.45 / LL, Ly = 0.72 / LL, Lz = -0.53 / LL;
+  const P: number[] = [], CC: number[] = [], col = new THREE.Color();
+  for (let t = 0; t < L.leaves.length; t += 3) for (const [a, b0, c0] of L.tris(L.leaves[t], L.leaves[t + 1], L.leaves[t + 2])) {
+    let b = b0, c = c0;
+    const ux = (b[0] - a[0]) * cell, uy = b[2] - a[2], uz = (b[1] - a[1]) * cell, vx = (c[0] - a[0]) * cell, vy = c[2] - a[2], vz = (c[1] - a[1]) * cell;
+    let fx = uy * vz - uz * vy, fy = uz * vx - ux * vz, fz = ux * vy - uy * vx;
+    if (fy < 0) { b = c0; c = b0; fx = -fx; fy = -fy; fz = -fz; }
+    const len = Math.hypot(fx, fy, fz) || 1, ny = fy / len, slope = Math.sqrt(Math.max(0, 1 - ny * ny)) / Math.max(ny, 0.05), y = (a[2] + b[2] + c[2]) / 3;
+    col.copy(G).lerp(HEATH, smoothstep(0.1, 0.45, slope) * 0.75).lerp(STRAW, smoothstep(top * 0.5, top * 0.98, y) * 0.8);
+    col.multiplyScalar(Math.max(0.55, 1 + 0.9 * ((fx * Lx + fy * Ly + fz * Lz) / len - Ly)));   // level ground keeps its colour
+    for (const p of [a, b, c]) { P.push(p[0] * cell, p[2], p[1] * cell); CC.push(col.r, col.g, col.b); }
+  }
+  // the skirt round the outer edge, a foot deep, in the turf's own shade
+  const edge: [number, number][] = [];
+  for (let i = 0; i < L.nx; i++) edge.push([i, 0]);
+  for (let j = 0; j < L.nz; j++) edge.push([L.nx, j]);
+  for (let i = L.nx; i > 0; i--) edge.push([i, L.nz]);
+  for (let j = L.nz; j > 0; j--) edge.push([0, j]);
+  const e2 = edge.filter(([x, z]) => L.active[z * L.W + x]).map(([x, z]) => [x * cell, L.H[z * L.W + x], z * cell]);
+  for (let k = 0; k < e2.length; k++) {
+    const a = e2[k], b = e2[(k + 1) % e2.length];
+    P.push(...a, b[0], b[1] - 1, b[2], ...b, ...a, a[0], a[1] - 1, a[2], b[0], b[1] - 1, b[2]);
+    for (let m = 0; m < 6; m++) CC.push(G.r * 0.8, G.g * 0.8, G.b * 0.8);
+  }
+  const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(P, 3)); geo.setAttribute('color', new THREE.Float32BufferAttribute(CC, 3)); geo.computeVertexNormals();
+  const key = FLOOR_COLOR.grass;
+  let lm = landMats.get(key);
+  if (!lm) { lm = matClone(key, true); lm.color.set('#ffffff'); lm.vertexColors = true; landMats.set(key, lm); }
+  return grp(new THREE.Mesh(geo, lm));
+}
+
+/** A track or trail on Yester Hill: a ribbon `w` ft wide through (x{i}, y{i}, z{i}), a bed of trodden earth with a short
+ *  bank down each side into the land it is cut into. */
+export function hillTrack(d: Dims): THREE.Group {
+  const n = Math.max(2, d.n | 0), w = (d.w ?? 10) / 2, pts: [number, number, number][] = [];
+  for (let i = 0; i < n; i++) pts.push([d['x' + i] ?? 0, (d['y' + i] ?? 0) + 0.3, d['z' + i] ?? 0]);
+  const top: number[] = [], side: number[] = [];
+  const quad = (arr: number[], a: number[], b: number[], c: number[], e: number[]) => arr.push(...a, ...b, ...c, ...a, ...c, ...e);
+  const L: number[][] = [], R: number[][] = [];
+  for (let i = 0; i < n; i++) {
+    const a = pts[Math.max(0, i - 1)], b = pts[Math.min(n - 1, i + 1)], tx = b[0] - a[0], tz = b[2] - a[2], tl = Math.hypot(tx, tz) || 1, lx = (-tz / tl) * w, lz = (tx / tl) * w;
+    L.push([pts[i][0] + lx, pts[i][1], pts[i][2] + lz]); R.push([pts[i][0] - lx, pts[i][1], pts[i][2] - lz]);
+  }
+  for (let i = 0; i + 1 < n; i++) {
+    const a = L[i], b = R[i], c = R[i + 1], e = L[i + 1], ux = b[0] - a[0], uz = b[2] - a[2], vx = c[0] - a[0], vz = c[2] - a[2];
+    if (uz * vx - ux * vz >= 0) quad(top, a, b, c, e); else quad(top, a, e, c, b);
+    for (const Sd of [L, R]) { const p = Sd[i], p2 = Sd[i + 1], lo = [p[0], p[1] - 1.6, p[2]], lo2 = [p2[0], p2[1] - 1.6, p2[2]]; quad(side, p, p2, lo2, lo); quad(side, p, lo, lo2, p2); }
+  }
+  const g = grp();
+  for (const [v, color] of [[top, FLOOR_COLOR.dirt], [side, C.earth]] as const) {
+    const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(v, 3)); geo.computeVertexNormals(); g.add(new THREE.Mesh(geo, openMat(mat(color))));
+  }
+  return g;
+}
+
+/** A patch of bare earth on Yester Hill: a flat polygon (x{i}, z{i}, `n` corners, plan ft) at height `y`, a few inches
+ *  thick, in the trodden earth of the tracks. */
+export function hillPatch(d: Dims): THREE.Group {
+  const n = Math.max(3, d.n | 0), y = d.y ?? 0, shape = new THREE.Shape();
+  for (let i = 0; i < n; i++) { const x = d['x' + i] ?? 0, z = d['z' + i] ?? 0; if (i) shape.lineTo(x, -z); else shape.moveTo(x, -z); }
+  const geo = new THREE.ExtrudeGeometry(shape, { depth: 0.45, bevelEnabled: false }); geo.rotateX(-Math.PI / 2); geo.translate(0, y - 0.3, 0);
+  return grp(new THREE.Mesh(geo, openMat(mat(FLOOR_COLOR.dirt))));
+}
+
+/** Fog's see-through sheets: one material per colour, lit, never under the fog of war (the wall stands far past the
+ *  map), its opacity painted per vertex so that no sheet shows an edge; a faint glow keeps it pale in poor light. */
+const fogMats = new Map<string, THREE.MeshLambertMaterial>();
+function fogMat(color: string): THREE.MeshLambertMaterial {
+  let m = fogMats.get(color);
+  if (!m) { m = matClone(color, true); m.transparent = true; m.depthWrite = false; m.side = THREE.DoubleSide; m.vertexColors = true; m.emissive.set('#2a2c31'); fogMats.set(color, m); }
+  return m;
+}
+/** The swell of one sheet of the fog along z (ft): long slow rolls and smaller heads. `k` picks the sheet. 0.6..1. */
+function fogCrest(z: number, k: number, seed: number): number {
+  const p = seed * 1.7 + k * 2.3;
+  return 0.8 + 0.1 * Math.sin(z / (230 + k * 17) + p) + 0.07 * Math.sin(z / (83 + k * 7) + p * 1.9) + 0.03 * Math.sin(z / (37 + k * 3) + p * 3.1);
+}
+/** The wall of fog at the edge of Strahd's domain: a bank `d` ft deep behind local -x and `len` ft long (local z), with
+ *  `ext` ft more at each end where it sinks away, rising westward to `h` ft. Sheets of mist stand one behind another
+ *  through its depth, low and faint in front and taller and denser behind, so it thickens with distance and hides what
+ *  lies beyond. Each sheet thins to nothing over its upper half and gathers at its foot, and each rolls on its own
+ *  swell, so no crest, foot or seam reads as a line; the sheets lean back into the west, so from above it is a bank of
+ *  cloud. One mesh per colour for the whole wall. */
+export function fogWall(d: Dims): THREE.Group {
+  const Lz = d.len ?? 3000, H = d.h ?? 620, D = d.d ?? 900, ext = d.ext ?? 400, seed = d.seed ?? 3, NL = 11, ROWS = 6;
+  const za = -Lz / 2 - ext, zb = Lz / 2 + ext, COLS = Math.max(8, Math.round((zb - za) / 30));
+  const ends = (z: number) => smoothstep(0, ext + 150, Math.min(z - za, zb - z));
+  const by = new Map<string, { P: number[]; A: number[] }>();
+  for (let k = 0; k < NL; k++) {
+    const t = k / (NL - 1), x0 = 6 - D * Math.pow(t, 1.15) - 10 * hash(k, seed), hk = H * (0.1 + 0.9 * Math.pow(t, 0.8));
+    const op = 0.2 + 0.3 * t, lean = Math.tan(0.1 + 0.55 * t), ph = hash(k, seed + 1) * 2400;
+    const col = k % 2 ? C.fogDeep : C.fog, e = by.get(col) ?? { P: [], A: [] }; by.set(col, e);
+    const vert = (c: number, r: number): [number, number, number, number] => {
+      const z = za + ((zb - za) * c) / COLS, v = r / ROWS, f = ends(z), y = Math.max(2, hk * f * fogCrest(z + ph, k, seed)) * v;
+      // thick low down (the first few feet fade up from the ground), thinning away over the upper half
+      const a = op * smoothstep(0, 0.16, v) * (1 - smoothstep(0.42, 1, v)) * Math.min(1, f * 1.4);
+      return [x0 - lean * y + 6 * Math.sin(z / 97 + k), y - 1.5, z, a];
+    };
+    for (let c = 0; c < COLS; c++) for (let r = 0; r < ROWS; r++) {
+      const p = vert(c, r), q = vert(c + 1, r), s = vert(c + 1, r + 1), u = vert(c, r + 1);
+      for (const v of [p, q, s, p, s, u]) { e.P.push(v[0], v[1], v[2]); e.A.push(1, 1, 1, v[3]); }
+    }
+  }
+  const g = grp();
+  for (const [color, { P, A }] of by) {
+    const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(P, 3)); geo.setAttribute('color', new THREE.Float32BufferAttribute(A, 4)); geo.computeVertexNormals();
+    const m = new THREE.Mesh(geo, fogMat(color)); m.renderOrder = 3; g.add(m);
   }
   return g;
 }
@@ -436,9 +619,31 @@ Object.assign(PROPS_V1, {
   'vine-row': vineRow, 'grape-tub': grapeTub, 'treading-tub': treadingTub, 'fermentation-vat': fermentationVat, barrel, 'sand-barrel': sandBarrel,
   'glass-hearth': glassHearth, 'bottle-rack': bottleRack, 'barrel-wagon': barrelWagon, 'loading-winch': loadingWinch, 'printing-press': printingPress,
   'winery-bunk-bed': bunkBed, 'rocking-horse': rockingHorse, cradle, 'stave-pile': stavePile, 'tool-rack': toolRack, arcade, pier, 'winery-roof': wineryRoof,
-  'shed-roof': shedRoof, ivy, 'brown-mold': brownMold, 'strahd-effigy': strahdEffigy, cairn, 'black-boulder': blackBoulder, 'gulthias-tree': gulthiasTree,
-  'sod-grave': sodGrave, 'fog-wall': fogWall, 'dead-shrub': deadShrub,
+  'shed-roof': shedRoof, ivy, 'brown-mold': brownMold, 'sod-grave': () => compact(sodGrave()),   // a hidden grave is its own object: one mesh per material
 } as Record<string, (d: Dims) => THREE.Object3D>);
+const openable = (f: (d: Dims) => THREE.Object3D) => (d: Dims) => (d.open ? opened(f(d)) : f(d));
+Object.assign(PROPS_V1, {
+  'strahd-effigy': openable(strahdEffigy), cairn: openable(cairn), 'black-boulder': openable(blackBoulder), 'gulthias-tree': openable(gulthiasTree),
+  'dead-shrub': openable(deadShrub), 'fog-wall': fogWall, 'hill-land': hillLand, 'hill-track': hillTrack, 'hill-patch': hillPatch,
+  'hill-pine': (d: Dims) => opened(pine(d)), 'hill-dead-tree': (d: Dims) => opened(deadTree(d)),
+} as Record<string, (d: Dims) => THREE.Object3D>);
+
+// ================================================================ Yester Hill's land past its map
+// The map's land (scripts/authoring/yester-hill.py) runs out past the plate until the hill's foot has reached the forest
+// floor all round, and ends on that floor (Y_FLOOR ft above the hill level's floor; the lattice's west edge is Y_WEST).
+// The land drawn round the map carries that floor on, flat and a few hundredths of a foot under the map's own (the level's
+// grid lies on the forest floor, as on a flat map, and runs on over it), then eases into the region's relief half a mile and more away; west, past the fog, later
+// still. The numbers are the script's; tests/yester-hill.test.ts builds this land and checks it against the map's edge.
+const Y_FLOOR = -0.05, Y_WEST = -360;
+SITE_SHAPERS.push({
+  pin: [-0.53, 8.0],
+  height: (x, _z, h, _raw, d) => {
+    // the backdrop lowers its land 0.4 ft within 150 ft of the map and 3 ft beyond: added back
+    const near = Y_FLOOR - 0.03 + (d < 150 ? 0.4 : 3);
+    const west = x < Y_WEST ? smoothstep(0, 600, Y_WEST - x) : 0, e = smoothstep(500, 9000, d) * (1 - west) + smoothstep(3000, 16000, d) * west;
+    return near * (1 - e) + h * e;
+  },
+});
 
 // ================================================================ figures
 /** An evil druid: wild hair, animal skins, necklaces of teeth. `v` picks the look the book gives each one:

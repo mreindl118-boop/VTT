@@ -79,7 +79,9 @@ def H(i, k=0):
 AMB = 'barovian-overcast'
 
 # ================================================================== ground floor (W1-W12) and the grounds
-g = Level('ground', 'Ground floor', 0, 15, ambient=AMB, interior='ashlar', exterior='rubble', north='-z')
+# The ground floor is a 15-ft storey, but its level ends 10 ft up where the vat balcony's floor begins, so the section cut
+# at the ground floor shows the vats under the balcony; its walls keep their full 15 ft (set after they are built).
+g = Level('ground', 'Ground floor', 0, 10, ambient=AMB, interior='ashlar', exterior='rubble', north='-z')
 # --- the grounds: one sweep of turf (slit open over the stairwell in W10, so the stair down shows through); the yard
 #     paths; the trail in from the east between its fences
 g.terrain.append(([(-46, -32), (82, -32), (82, 66), (11, 66), (11, 24), (12, 24), (12, 23), (10, 23), (10, 24), (11, 24), (11, 66), (-46, 66)], 'grass'))
@@ -263,6 +265,7 @@ for side in (-1, 1):
         L = math.hypot(nx, nz) or 1
         pts.append((x - nz / L * 2.6 * side, z + nx / L * 2.6 * side))
     for i, (x, z, hd) in enumerate(along(pts, 2.0)):
+        if x > 82: continue                                    # the map's ground ends at its east edge (410 ft)
         g.prop(f'fence{side}-{i}', 'fence', (x, z), None, rotY=-hd, dims={'w': 10})
 # the stand of trees north of the trail (oak, pine) where the wereravens wait
 for i in range(46):
@@ -318,13 +321,16 @@ W11U = [(3, 18), (4, 18)] + A11
 u.room('W11-upper', 'Spiral Staircase (head)', W11U, 'flagstone', page=pg('W11'), ceilingFt=10)
 u.room('W9-west', 'Fermentation Vats: west landing', rect(4, 19, 5, 20), 'plank', page=pg('W9'), ceilingFt=10)
 u.room('W9-east', 'Fermentation Vats: east landing', rect(14, 19, 15, 20), 'plank', page=pg('W9'), ceilingFt=10)
-W16P = [(15, 15), (19, 15), (19, 20), (17, 20), (17, 19), (18, 19), (18, 17), (16, 17), (16, 19), (17, 19), (17, 20), (15, 20)]
+# W16 rings the 10-ft hole in its floor: a U round the hole's north, east and west sides and the strip south of it (two
+# simple polygons, one keyed area)
+W16P = [(15, 15), (19, 15), (19, 19), (18, 19), (18, 17), (16, 17), (16, 19), (15, 19)]
 u.room('W16', 'Loading Winch', W16P, 'plank', page=pg('W16'), ceilingFt=10)
+u.room('W16-s', 'Loading Winch', rect(15, 19, 19, 20), 'plank', page=pg('W16'), ceilingFt=10)
 u.room('W12-upper', 'Ramp (head)', [(15, 20), (16, 20)] + A12, 'plank', page=pg('W12'), ceilingFt=10)
 # openings, railings, the hole in W16's floor
 seg(u, (4, 18), (4, 19), open_wall=True)
 seg(u, (15, 20), (16, 20), open_wall=True)
-seg(u, (17, 19), (17, 20), open_wall=True)
+for a, c in [((15, 19), (16, 19)), ((18, 19), (19, 19))]: seg(u, a, c, open_wall=True)   # W16 and its south strip are one room
 for a, c in [((16, 17), (18, 17)), ((18, 17), (18, 19)), ((16, 19), (18, 19)), ((16, 17), (16, 19))]: seg(u, a, c, open_wall=True)
 for a, c in [((4, 20), (5, 20)), ((14, 20), (15, 20))]: seg(u, a, c, open_wall=True)
 for a, c in [((5, 19), (5, 20)), ((14, 19), (14, 20))]: seg(u, a, c, flags=['normal'], heightFt=3.5, wall=True, material='paneling')
@@ -481,13 +487,14 @@ links = [
     L5('W11-up', 'spiral', 'ground', (3.35, 23.3), 'upper', (3.35, 23.3)), L5('W11-down', 'spiral', 'ground', (2.6, 23.3), 'cellar', (2.6, 23.3)),
     L5('W12-up', 'stairs', 'ground', (16.35, 23.3), 'upper', (16.35, 23.3)), L5('W12-down', 'stairs', 'ground', (15.6, 23.4), 'cellar', (15.6, 23.4)),
     L5('W4-up', 'spiral', 'ground', (10.6, 18.4), 'upper', (10.6, 18.4)),
-    L5('W13', 'stairs', 'ground', (10.4, 23.5), 'cellar', (13.5, 23.5)),
+    L5('W13', 'stairs', 'ground', (9.6, 23.5), 'cellar', (13.5, 23.5)),                 # from W10's floor at the stair head
     L5('W9-stair', 'stairs', 'ground', (9.5, 20.3), 'balcony', (9.5, 22.5)),
     L5('W9-west', 'stairs', 'balcony', (4.5, 20.6), 'upper', (4.5, 19.5)), L5('W9-east', 'stairs', 'balcony', (14.5, 20.6), 'upper', (14.5, 19.5)),
-    L5('W16-hole', 'shaft', 'upper', (17, 18), 'ground', (17, 18)),
+    L5('W16-hole', 'shaft', 'upper', (18.5, 18), 'ground', (17, 18)),                  # from W16's floor at the hole's east edge
 ]
 scene = OrderedDict(schema=1, location='W', chapter='ch12', name='The Wizard of Wines', mapPage=175, bookScaleFt=5, ambient=AMB, stacked=True, entry='ground',
                     levels=[lv.to_json() for lv in levels], links=links)
+for w in scene['levels'][levels.index(g)]['walls']: w.setdefault('heightFt', 14.9)   # the storey's walls, 15 ft
 for lv in scene['levels']:
     for r in lv['rooms']:
         d = DESC.get(r['key'])
