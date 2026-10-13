@@ -543,7 +543,67 @@ body:not([data-view='players']):not([data-mode='player']) #stage .labels .lbl.pl
 .lbl.place.dot { padding: 1px 5px; border-radius: 999px; font-size: 11px; } .lbl.place.dot em { display: none; }
 .lbl.world-party { font: 700 24px Georgia, serif; color: #c0392b; text-shadow: 0 1px 2px rgba(0,0,0,.7), 0 0 6px rgba(255,255,255,.35); }
 body:not([data-band='valley']):not([data-band='road']) .lbl.place { display: none !important; }
-body[data-band='valley'] #stage .labels .lbl:not(.place):not(.world-party), body[data-band='road'] #stage .labels .lbl:not(.place):not(.world-party) { display: none !important; }
+body[data-band='valley'] #stage .labels .lbl:not(.place):not(.world-party):not(.carto), body[data-band='road'] #stage .labels .lbl:not(.place):not(.world-party):not(.carto) { display: none !important; }
+.lbl.place .mark { display: none; }
+
+/* The inked map (render/worldcarto.ts, worldletters.ts, worldglyphs.ts). While the land is drawn as the map
+   (body[data-carto], --carto its strength 0..1) the land's names are lettered on it in the bundled faces with paper
+   halos, each place label cross-fades from the app's chip to the map's pin (its symbol, a keyed disc, its name; over
+   --carto .45 → .57), and at region fit the sheet carries its title, a rose and a vignette. --pd scales it all on the
+   Player Display (a television across the room). */
+body { --carto: 0; --cx: clamp(0, calc((var(--carto) - .45) / .12), 1); --pd: 1;
+  --carto-ink: #2c241c; --carto-paper: #e6dec8; --carto-red: #7b2d26; --carto-disc: #f7f1e3; --carto-water: #2c4752; --carto-wood: #1f2a20;
+  --carto-vignette: rgba(20, 14, 18, .45); --carto-title: 600 calc(40px * var(--pd)) / 1 'Grenze Gotisch', 'Alegreya SC', Georgia, serif;
+  --g-wall: #cfc2a4; --g-roof: #38323d; --g-stone: #9b9690; --g-stone2: #625e5b; --g-shade: #7d7466; --g-banner: #7a1f2b; --g-ink: #2c241c; --g-fire: #e0782c; }
+body[data-carto-style='pastoral'] { --carto-ink: #4a3a28; --carto-paper: #f8f0d8; --carto-red: #9a3b22; --carto-disc: #fffaf0; --carto-water: #355f78; --carto-wood: #3c5f2c;
+  --carto-vignette: rgba(120, 96, 60, .28); --carto-title: 700 calc(34px * var(--pd)) / 1 'Fraunces Soft', 'Alegreya SC', Georgia, serif;
+  --g-wall: #f1e6c8; --g-roof: #b5523a; --g-stone: #c2b7a4; --g-stone2: #8c8170; --g-shade: #c9b99a; --g-banner: #9a3b22; --g-ink: #5a4630; }
+body[data-mode='player'] { --pd: max(1.25, calc(1.6 * 100vh / 1080px)); }
+.lbl.carto { display: none; opacity: var(--carto); color: var(--carto-ink); font: 400 calc(12px * var(--pd))/1.1 'Alegreya', Georgia, serif; white-space: nowrap; pointer-events: none;
+  text-shadow: 0 0 2px var(--carto-paper), 0 0 2px var(--carto-paper), 0 0 4px var(--carto-paper), 0 0 6px var(--carto-paper); }
+body[data-carto] .lbl.carto { display: block; }
+.lbl.carto span { display: inline-block; }
+.lbl.carto.peak { font: italic 600 calc(13px * var(--pd))/1.05 'Alegreya', Georgia, serif; letter-spacing: .02em; text-align: center; }
+.lbl.carto.peak span::before { content: ''; display: block; margin: 0 auto 2px; width: 0; height: 0; border: 5px solid transparent; border-bottom: 9px solid var(--carto-ink); border-top: 0; }
+.lbl.carto.wood { font: 700 calc(14px * var(--pd))/1 'Alegreya SC', Georgia, serif; letter-spacing: .32em; color: var(--carto-wood); opacity: calc(var(--carto) * .9); }
+.lbl.carto.lake { font: italic 600 calc(15px * var(--pd))/1 'Alegreya', Georgia, serif; letter-spacing: .12em; color: var(--carto-water); }
+.lbl.carto.river { font: italic 600 calc(13px * var(--pd))/1 'Alegreya', Georgia, serif; letter-spacing: .1em; color: var(--carto-water); }
+/* the place label: the element stops being the pill; its chip carries the pill and fades out as the pin fades in */
+body[data-carto] .lbl.place { display: grid; place-items: center; background: none; border-color: transparent; padding: 0; }
+body[data-carto] .lbl.place > * { grid-area: 1 / 1; }
+body[data-carto] .lbl.place .chip { opacity: calc(1 - var(--cx)); background: rgba(24, 20, 30, .62); border: 1px solid rgba(239, 230, 210, .25); padding: 2px 8px; border-radius: 7px; }
+body[data-carto] .lbl.place.dot .chip { padding: 1px 5px; border-radius: 999px; }
+body[data-carto] .lbl.place .mark { display: flex; flex-direction: column; align-items: center; opacity: var(--cx); }
+.lbl.place .glyph { display: block; width: calc(var(--gw) * var(--pd)); height: auto; overflow: visible; margin-bottom: -2px; filter: drop-shadow(0 0 1.5px var(--carto-paper)); }
+.lbl.place .pd { display: flex; align-items: center; gap: 5px; }
+.lbl.place .pk { display: inline-grid; place-items: center; flex: none; box-sizing: border-box; width: calc(30px * var(--pd)); height: calc(30px * var(--pd)); border-radius: 50%;
+  background: var(--carto-disc); border: 1.5px solid var(--carto-red); color: var(--carto-red); font: 700 calc(16px * var(--pd))/1 'Alegreya SC', Georgia, serif; text-shadow: none;
+  box-shadow: 0 0 0 1.5px var(--carto-paper), 0 1px 3px rgba(0, 0, 0, .35); }
+.lbl.place.has-scene .pk { box-shadow: 0 0 0 3px #f2b35b, 0 1px 3px rgba(0, 0, 0, .35); }
+.lbl.place.unknown .pk { border-style: dashed; color: color-mix(in srgb, var(--carto-red) 70%, transparent); }
+.lbl.place .pn { font: italic 600 calc(15px * var(--pd))/1.1 'Alegreya', Georgia, serif; color: var(--carto-ink); letter-spacing: .01em; white-space: nowrap;
+  text-shadow: 0 0 2px var(--carto-paper), 0 0 2px var(--carto-paper), 0 0 4px var(--carto-paper), 0 0 6px var(--carto-paper); }
+.lbl.place.dot .pn, .lbl.place.dot .glyph { display: none; }
+body:not([data-view='players']):not([data-mode='player']) #stage .labels .lbl.place.hover .pk { background: #fff8e6; transform: scale(1.08); }
+@media (max-width: 700px) { .lbl.place .glyph { width: calc(var(--gw) * .75); } .lbl.place .pk { width: 24px; height: 24px; font-size: 13px; } .lbl.place .pn, .lbl.carto.lake { font-size: 13px; } .lbl.carto.wood { font-size: 12px; } .lbl.carto.river, .lbl.carto.peak { font-size: 12px; } }
+body[data-carto] .lbl.world-party { font: 700 calc(34px * var(--pd))/44px 'Atkinson Next', system-ui, sans-serif; width: 44px; height: 44px; text-align: center; color: #c0392b;
+  text-shadow: 0 0 2px #f3ead6, 0 0 2px #f3ead6, 0 0 4px #f3ead6, 0 0 7px #f3ead6; }
+/* the sheet's frame */
+.carto-frame { position: absolute; inset: 0; pointer-events: none; visibility: hidden; opacity: 0; color: var(--carto-ink); z-index: 1; }
+.carto-vignette { position: absolute; inset: 0; background: radial-gradient(ellipse at center, transparent 62%, var(--carto-vignette) 100%); }
+.carto-title { position: absolute; top: var(--safe-top, 72px); left: var(--safe-left, 16px); display: grid; justify-items: start; gap: 4px; padding: 0 2px; }
+.carto-title .ct-name { font: var(--carto-title); letter-spacing: .015em; white-space: nowrap; text-shadow: 0 0 3px var(--carto-paper), 0 0 6px var(--carto-paper), 0 0 10px var(--carto-paper); }
+.carto-frame.gothic .ct-name { padding-bottom: 6px; background: linear-gradient(currentColor, currentColor) 0 calc(100% - 3px) / 70% 1px no-repeat, linear-gradient(currentColor, currentColor) 0 100% / 70% .5px no-repeat; }
+.carto-title .ct-note { font: 700 calc(13px * var(--pd))/1.2 'Alegreya SC', Georgia, serif; letter-spacing: .04em; text-shadow: 0 0 3px var(--carto-paper), 0 0 6px var(--carto-paper); }
+.carto-frame.pastoral .carto-title { padding: 10px 34px 12px; justify-items: center; }
+.carto-frame.pastoral .carto-title .scroll { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; overflow: visible; }
+.carto-rose { position: absolute; right: var(--safe-right, 16px); bottom: var(--safe-bottom, 16px); width: calc(96px * var(--pd)); height: calc(96px * var(--pd)); margin: 0 16px 16px 0; filter: drop-shadow(0 0 3px var(--carto-paper)); }
+.carto-rose svg { width: 100%; height: 100%; overflow: visible; font-family: 'Alegreya SC', Georgia, serif; font-weight: 700; }
+.carto-rose text { fill: currentColor; }
+body[data-carto-frame] .mapframe .compass { display: none; }
+@media (max-width: 700px) { .carto-title .ct-name { font-size: 26px; } .carto-frame.pastoral .carto-title .ct-name { font-size: 24px; } .carto-rose { width: 64px; height: 64px; } }
+/* the scale bar in miles while the map is drawn: alternating ink and paper */
+.scalebar.miles i { height: 6px; border: 1px solid var(--carto-ink, #2c241c); background: repeating-linear-gradient(90deg, var(--carto-ink, #2c241c) 0 25%, var(--carto-paper, #e6dec8) 25% 50%); }
 
 /* ---- tips, toggletips and rules links (docs/CLARITY.md 'The shared tooltip component', docs/THEME.md '.rt and .rl').
    Tips and cards render in #tips, above #ui. Every surface here is an opaque page: nothing shows through. */
@@ -636,3 +696,33 @@ svg.e { width: 22px; height: 22px; fill: currentColor; flex: none; }
 @media (max-width: 520px) { .sheet.help dd.colours ul.key { grid-template-columns: 1fr max-content; } }
 .infocard.page h2, .tapmenu.page .rh-title { color: var(--p-ink); }
 .infocard .inside .in-text { flex: 1 1 12em; min-width: 0; }
+
+/* The nested world map's own panels (ui/worldnest.ts): the bar under the top bar while a good part of the region is in
+   view, the Places key, the place card, the hover tip, the party's trail, the minimap folded to its clock. */
+.nestbar { position: absolute; left: 50%; transform: translateX(-50%); top: 64px; z-index: 6; display: flex; align-items: center; gap: 6px; padding: 5px 6px 5px 14px; border-radius: var(--r-3, 10px); max-width: calc(100vw - 32px); }
+.nestbar[hidden] { display: none; }
+.nestbar .nb-title { display: grid; margin-right: 6px; min-width: 0; } .nestbar .nb-title b { font: 600 15px/1.1 var(--font-display); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .nestbar .nb-title span { font-size: 11px; color: var(--p-ink-2); white-space: nowrap; }
+.nestbar .seg { background: var(--p-hair); } .nestbar .seg button { min-height: 36px; } .nestbar button.icon { min-width: 40px; min-height: 40px; }
+.nestbar [aria-pressed='true'] { background: var(--p-sunk); box-shadow: inset 0 0 0 1px var(--p-edge); border-radius: 8px; }
+.nestkey { position: absolute; right: 8px; top: 120px; bottom: 76px; width: 270px; z-index: 6; overflow: auto; padding: 10px 10px 12px; border-radius: var(--r-3, 10px); }
+.nestkey[hidden] { display: none; }
+.nestkey h3 { margin: 0 0 6px 6px; font: 700 13px/1.2 'Alegreya SC', Georgia, serif; letter-spacing: .08em; color: var(--p-ink-2); }
+.nestkey ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 1px; }
+.nestkey li { display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 4px 0 6px; border-radius: 8px; cursor: pointer; font-size: 14px; }
+.nestkey li:hover { background: var(--p-hair); }
+.nestkey li b { flex: none; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font: 700 13px/1 'Alegreya SC', Georgia, serif; background: #f7f1e3; color: #7b2d26; border: 1.5px solid #7b2d26; }
+.nestkey li:not(.revealed) b { border-style: dashed; }
+.nestkey li span { flex: 1; min-width: 0; } .nestkey li i { font-style: normal; font-size: 10px; color: #b0652a; text-transform: uppercase; letter-spacing: .05em; }
+.nestkey li .eye { min-width: 40px; min-height: 40px; opacity: .45; } .nestkey li .eye[aria-pressed='true'] { opacity: 1; color: var(--p-accent); }
+.nestcard { position: fixed; left: 16px; bottom: 76px; z-index: 7; max-width: min(420px, calc(100vw - 32px)); }
+.nesttip { position: fixed; z-index: 41; }
+.nesttrail { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; z-index: 0; }
+.nesttrail path { fill: none; stroke: #c0392b; stroke-width: 2; stroke-dasharray: 6 5; stroke-linecap: round; opacity: .7; }
+.lbl.world-party.movable { cursor: move; } .lbl.world-party.snap { text-shadow: 0 0 3px #f2b35b, 0 0 6px #f2b35b, 0 0 10px #f2b35b; }
+.minimap.folded { aspect-ratio: auto; height: auto; } .minimap.folded canvas, .minimap.folded .mm-north { display: none; } .minimap.folded .clock { position: static; }
+@media (max-width: 700px) {
+  .nestbar { left: 8px; right: 8px; transform: none; flex-wrap: wrap; justify-content: center; padding: 6px; max-width: none; }
+  .nestbar .nb-title { flex: 1 1 100%; text-align: center; margin: 0; }
+  .nestkey { left: 8px; right: 8px; width: auto; top: auto; bottom: 64px; max-height: 40vh; }
+  .nestcard { left: 8px; right: 8px; bottom: 64px; max-width: none; }
+}

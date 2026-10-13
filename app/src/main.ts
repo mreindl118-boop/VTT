@@ -2,7 +2,8 @@ import './styles.css';
 import { App, type GridMode, type MeasureResult } from './app';
 import { builtPaths, loadLocation } from './data';
 import { worldOf } from './campaigns';
-import { openWorldMap, pinForScene, worldPins } from './ui/worldmap';
+import { openWorldMap, pinForScene, worldName, worldPins } from './ui/worldmap';
+import { NestedWorldMap } from './ui/worldnest';
 import { buildMinimap } from './ui/minimap';
 import { dayFromHarptos, harptosParts, MONTH_NAMES, FESTIVALS } from './core/sky';
 import { PACES, paceNote, type Pace } from './core/travel';
@@ -38,6 +39,8 @@ const ready = app.init(builtPaths.has(path) ? path : 'appB/death-house');
 // Test/debug hook. Harmless in production: it only exposes what the DM UI can already do.
 (window as unknown as { __mistlab: unknown }).__mistlab = {
   app,
+  /** The nested world map's overlay (the DM's screen only). */
+  get nest() { return (window as unknown as { __mistlabNest?: unknown }).__mistlabNest; },
   ready: ready.then(() => true),
   setT: (t: number) => { slider?.set(t); app.setT(t); app.world.renderNow(); },
   setGrid: (g: GridMode) => { app.gridMode = g; app.layoutChanged(); app.world.renderNow(); },
@@ -242,6 +245,15 @@ function buildDmUi(): void {
   // Nesting: Enter a building from its room (menu or card), go up to the map it belongs to, or out to the world map.
   const enterRoom = (r: { key: string; enter?: string }) => { const to = app.enterOf(r); if (!to) return; localStorage.setItem('mistlab.scene', to); void app.enter(to, r.key).then(() => app.layoutChanged()); };
   const goUp = () => { const up = app.parentPath; if (!up) return; localStorage.setItem('mistlab.scene', up); void app.openParent().then(() => app.layoutChanged()); };
+  // The World map button: in the continuous world the valley itself is the map (ui/worldnest.ts: flown out to the
+  // whole region, straight down, with its bar, key, cards, tips and the party's drag); the flat sheet is the fallback
+  // (View › Continuous world off, ?nested=0, or a map that does not stand in the valley).
+  const nest = new NestedWorldMap({
+    app, ui,
+    sceneName: async (path) => (await loadLocation(path)).scene.name,
+    enter: (path) => { localStorage.setItem('mistlab.scene', path); void app.open(path).then(() => app.layoutChanged()); },
+  });
+  (window as unknown as { __mistlabNest: unknown }).__mistlabNest = nest;
   const openWorld = (focus?: string) => openWorldMap({
     canMove: !app.restricted,
     dm: !app.playersSide,
@@ -281,8 +293,8 @@ function buildDmUi(): void {
   // What covers the view: the bars along its edges frame the whole valley; every panel keeps the place names clear.
   const shown = (sel: string) => [...ui.querySelectorAll<HTMLElement>(sel)].filter((e) => e.getClientRects().length && getComputedStyle(e).visibility !== 'hidden').map((e) => e.getBoundingClientRect()).filter((r) => r.width > 0 && r.height > 0);
   app.world.chrome = () => {
-    const bars = shown('.topbar > .group, .vslider, .camcluster');
-    return { bars, panels: [...bars, ...shown('.minimap, .mapframe, .zoomchip:not([hidden])')] };
+    const bars = shown('.topbar > .group, .vslider, .camcluster, .nestbar:not([hidden])');
+    return { bars, panels: [...bars, ...shown('.minimap, .mapframe, .zoomchip:not([hidden]), .nestkey:not([hidden]), .nestcard:not([hidden])')] };
   };
 
   const section = top.querySelector<HTMLElement>('.section')!, secIn = section.querySelector<HTMLInputElement>('input')!, secFt = section.querySelector<HTMLElement>('.sec-ft')!;
@@ -355,10 +367,15 @@ function buildDmUi(): void {
   const frameUi = () => {
     const f = app.cameraFrame(), c = document.querySelector<HTMLElement>('.mapframe .compass svg'), sb = document.querySelector<HTMLElement>('.mapframe .scalebar'); if (!c || !sb || !app.cur) return;
     c.style.transform = `rotate(${(f.north * 180 / Math.PI).toFixed(1)}deg)`;
-    const steps = [5, 10, 25, 50, 100, 250, 500, 1000, 2500, 5280]; let ft = steps[0];
-    for (const s of steps) { ft = s; if (s * f.pxPerFt >= 70) break; }
-    const px = Math.max(8, Math.min(220, ft * f.pxPerFt));
-    (sb.querySelector('i') as HTMLElement).style.width = `${px.toFixed(0)}px`; sb.querySelector('span')!.textContent = ft === 5280 ? '1 mile' : `${ft} ft`;
+    // while the land is drawn as the map, the bar counts miles (¼, ½, 1, 2, 3, 5, 10) and alternates ink and paper
+    const miles = (app.stage?.carto.k ?? 0) >= 0.5 && app.staged;
+    const steps = miles ? [1320, 2640, 5280, 10560, 15840, 26400, 52800] : [5, 10, 25, 50, 100, 250, 500, 1000, 2500, 5280]; let ft = steps[0];
+    for (const s of steps) { ft = s; if (s * f.pxPerFt >= (miles ? 120 : 70)) break; }
+    const px = Math.max(8, Math.min(miles ? 180 : 220, ft * f.pxPerFt));
+    sb.classList.toggle('miles', miles);
+    const mi = ft / 5280, label = !miles ? (ft === 5280 ? '1 mile' : `${ft} ft`) : mi === 0.25 ? '¼ mile' : mi === 0.5 ? '½ mile' : `${mi} mile${mi > 1 ? 's' : ''}`;
+    (sb.querySelector('i') as HTMLElement).style.width = `${px.toFixed(0)}px`; sb.querySelector('span')!.textContent = label;
+    nest.refresh();
   };
   app.onCameraUi = frameUi;
   let shownLevel = '';
@@ -396,6 +413,7 @@ function buildDmUi(): void {
     top.querySelector('[data-act="walls"]')!.setAttribute('aria-pressed', String(!app.lowWalls));
     top.querySelector('[data-act="snap"]')!.setAttribute('aria-pressed', String(app.gridSnap));
     top.querySelector('[data-act="nested"]')!.setAttribute('aria-pressed', String(app.nested));
+    { const wb = top.querySelector<HTMLElement>('[data-act="world"]')!; wb.dataset.tip = `World map: ${worldName().replace(/^The /, 'the ')}`; }
     { const r = top.querySelector<HTMLInputElement>('[data-opt="gridOpacity"]')!; if (document.activeElement !== r) r.value = String(Math.round(app.gridOpacity * 100)); }
     slot('lock', app.lockPlayerCamera ? ICON.lock : ICON.unlock);
     top.querySelector('[data-act="lock"]')!.setAttribute('aria-pressed', String(app.lockPlayerCamera));
@@ -426,7 +444,7 @@ function buildDmUi(): void {
       case 'library': openLibrary(builtPaths, app.campaign, (p) => { localStorage.setItem('mistlab.scene', p); void app.open(p).then(() => app.layoutChanged()); }); break;
       case 'clock': openClock(); break;
       case 'back': goUp(); break; // framed on the building just left
-      case 'world': openWorld(); break;
+      case 'world': if (!(app.nested && nest.open())) openWorld(); break;
       case 'encounter': app.encounter ? bar.update() : openEncounterSheet(app, refresh); break;
       case 'creatures': openBestiary(app, refresh); break;
       case 'undo': app.undo(); break;
@@ -636,7 +654,7 @@ function buildDmUi(): void {
       <dl>
         <dt>Move the party</dt><dd>Tap the amber token to pick it up, then tap where it goes (tap it again or press Esc to cancel). The room it enters is revealed and remembered; step onto stairs or a trapdoor to change level; the camera follows. In Players mode the party walks: walls and closed doors stop it, and locked doors stay shut until the DM opens them.</dd>
         <dt>Look around</dt><dd>One finger / left-drag pans. Right-drag or a two-finger twist rotates; pinch or scroll zooms. The buttons bottom-left turn in 90° steps, tilt, zoom and find the party. Double-tap a room to frame it.</dd>
-        <dt>World map</dt><dd>The map button beside the library opens the Lands of Barovia. Drag the party to a lettered pin or into the wilderness; the card shows the distance and travel time at your pace, and opens the battle map for that place when one is built. Opening a location moves the party marker there.</dd>
+        <dt>World map</dt><dd>The map button beside the library flies out over ${esc(worldName().replace(/^The /, 'the '))}, drawn from straight above as an inked map: its places with their symbols and lettered discs, the woods, rivers, lakes and peaks by name, a hex grid at the map's scale and the miles in the corner. Zoom in anywhere and the map turns into the land itself. Hover a place for its note; tap one to fly into its map (a place with several maps shows its card too). The bar under the top bar sets the travel pace and the hex grid and opens Places, the key, where the eye reveals a place to the players. Drag the party's &amp; to a place or into the wilderness: the card gives the distance and the time at your pace. Players see only the places they know, and the party. View › Continuous world off (or ?nested=0) keeps the flat world map sheet instead.</dd>
         <dt>The whole valley</dt><dd>Each place's map stands where it lies in the valley, on the land, turned to true north. Zoom out past a map's edge and the land, the roads, the lakes and every other place carry on; at the far limit the chip offers the whole valley, and from there the world map. Tap a place's name over the valley to fly there and open its map; where a name has no room, its key marks the place and a tap on it does the same. Keep zooming into a town and its buildings and area maps open in place inside it (Death House in the village, the Blue Water Inn in Vallaki); zoom out and they fold back into the town. Enter on a building's card flies into it. The title shows where you are, for example Barovia › Town of Vallaki › Blue Water Inn › Ground floor: tap a name to frame it. Back pulls out over the building and the town takes over. Players see only the names of places they know. View › Continuous world switches this off: each map then opens alone in the mist, as before.</dd>
         <dt>Initiative</dt><dd>The crossed-swords button opens the roster: speed, reach, range and initiative from each character sheet. Start an encounter and each combatant gets a token. On a turn, green squares are where that combatant can still move and red squares are what it could strike from there; a paler red shows ranged reach with a clear line. Next turn (or N) advances; End folds everyone back into the party marker.</dd>
         <dt>Creatures</dt><dd>The paw button opens the repository: every person, monster and beast the module names, searchable. Place one beside the party, or place by tap and keep tapping to put down as many as you like (Esc stops). Placed creatures start hidden from the players. Tap one to pick it up: the panel shows what players will see (rename it), hit points, Reveal or Hide, the Reach helper (green squares it can move to, red ones it can strike), Initiative, Remove. The DM moves anything anywhere; players move only the party, and only where it can walk.</dd>

@@ -4,7 +4,9 @@
 //    roads, rivers, lakes, the crags;
 //  - the proxies (render/worldproxies.ts): each place's massing at true scale while its map is not loaded;
 //  - the forest: one instanced pool of pines scattered per one-mile tile round the camera's target;
-//  - the sky's bodies and the place labels, and the party's marker on the road.
+//  - the sky's bodies and the place labels, and the party's marker on the road;
+//  - the inked map (render/worldcarto.ts, worldletters.ts, worldglyphs.ts): from high up the same land is drawn as a
+//    hand-inked D&D map of the region, and gives way to the 3-D world as the camera comes down.
 // Maps themselves hang from World.root at their atlas placement (placeRoot), or under their parent map (placeChild).
 import * as THREE from 'three';
 import type { CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
@@ -22,6 +24,12 @@ import { buildDetail } from './proxydetail';
 import { GHOST_TINT } from './ghost';
 import type { Massing } from '../../../scripts/world-massing';
 import type { World } from './world';
+import { CARTO_STYLES, bakeLand, buildInk, cartoBands, cartoUniforms, patchCarto, setWash, type CartoStyleId, type CartoUniforms } from './worldcarto';
+import { CartoLetters } from './worldletters';
+import { glyphKind, glyphSvg } from './worldglyphs';
+
+/** The world map's view: straight down, north up (a hair south of vertical, so the heading is defined). */
+const TOP_DOWN = new THREE.Vector3(0, 1, 0.002).normalize();
 
 /** Where every built map stands (scripts/world-atlas.ts → manifests/world-atlas.json). */
 export const ATLAS = ATLAS_JSON as unknown as Atlas;
@@ -65,7 +73,13 @@ export class WorldStage {
   private proxyMeshes: { mesh: THREE.Mesh; ranges: Map<string, { start: number; count: number; saved?: Float32Array }> }[] = [];
   readonly forest: THREE.InstancedMesh;
   private sky: ReturnType<typeof buildSky>;
-  private labels: { obj: CSS2DObject; key: string; pri: number }[] = [];
+  /** Place labels (key: the pin's) and the land's own names (key ''; at: where they stand, miles; text). */
+  private labels: { obj: CSS2DObject; key: string; pri: number; at?: Vec2; text?: string }[] = [];
+  private placeLabels = new THREE.Group();
+  /** Which pin each proxy marks (a place the players do not know shows no proxy to them). */
+  private proxyKey = new Map<string, string>();
+  /** Proxies kept from the players' side: their place is not revealed (and the view is the players'). */
+  private secret = new Set<string>();
   /** The valley is put away (a legacy map is open): its names leave the page; the label renderer puts them back the
    *  next time the valley is drawn. */
   detachLabels(): void { for (const l of [...this.labels.map((x) => x.obj), this.party]) l.element.remove(); }
@@ -91,32 +105,45 @@ export class WorldStage {
     this.land = buildLand(data, this.sites, campaign.theme);
     this.root.add(this.land.group);
     // proxies and place labels: every pin with a map; a pin that only repeats another's map gets a proxy and a label only
-    const field = this.land.field, labels = new THREE.Group(); labels.name = 'place-labels';
+    const field = this.land.field, labels = this.placeLabels; labels.name = 'place-labels';
     const parts: Record<'massing' | 'glow', { id: string; geo: THREE.BufferGeometry }[]> = { massing: [], glow: [] };
-    for (const pin of ATLAS.pins.filter((p) => p.campaign === campaign.id && p.scenes.length)) {
-      const e = pin.root ? ATLAS.scenes[pin.root] : undefined;
+    for (const pin of ATLAS.pins.filter((p) => p.campaign === campaign.id)) {
+      const e = pin.root ? ATLAS.scenes[pin.root] : undefined, wp = data.pins.find((q) => q.key === pin.key);
       const [x, z] = pin.world;
-      const site: ProxySite = e
-        ? { id: e.path, key: pin.key, name: pin.name, type: pin.type, x, z, y: e.placement.position[1] + e.elevationFt, bounds: e.worldBounds!, rotationY: e.placement.rotationY, centre: e.centre }
-        : { id: `${pin.scenes[0]}@${pin.key}`, key: pin.key, name: pin.name, type: pin.type, x, z, y: field.height(x, z), bounds: { minX: x - 60, minZ: z - 60, maxX: x + 60, maxZ: z + 60 }, rotationY: 0, centre: [0, 0] };
-      const g = siteMassing(site, field);
-      g.updateMatrix();
-      for (const m of [...g.children]) if ((m as THREE.Mesh).isMesh && (m.name === 'massing' || m.name === 'glow')) {
-        parts[m.name as 'massing' | 'glow'].push({ id: site.id, geo: (m as THREE.Mesh).geometry.applyMatrix4(g.matrix) });
-        ((m as THREE.Mesh).material as THREE.Material).dispose(); m.removeFromParent();
+      let y = field.height(x, z);
+      if (pin.scenes.length) {
+        const site: ProxySite = e
+          ? { id: e.path, key: pin.key, name: pin.name, type: pin.type, x, z, y: e.placement.position[1] + e.elevationFt, bounds: e.worldBounds!, rotationY: e.placement.rotationY, centre: e.centre }
+          : { id: `${pin.scenes[0]}@${pin.key}`, key: pin.key, name: pin.name, type: pin.type, x, z, y, bounds: { minX: x - 60, minZ: z - 60, maxX: x + 60, maxZ: z + 60 }, rotationY: 0, centre: [0, 0] };
+        y = site.y;
+        const g = siteMassing(site, field);
+        g.updateMatrix();
+        for (const m of [...g.children]) if ((m as THREE.Mesh).isMesh && (m.name === 'massing' || m.name === 'glow')) {
+          parts[m.name as 'massing' | 'glow'].push({ id: site.id, geo: (m as THREE.Mesh).geometry.applyMatrix4(g.matrix) });
+          ((m as THREE.Mesh).material as THREE.Material).dispose(); m.removeFromParent();
+        }
+        this.proxies.set(site.id, g); this.proxyKey.set(site.id, pin.key); this.root.add(g);
       }
-      this.proxies.set(site.id, g); this.root.add(g);
-      const lb = world.label('', undefined, 'place');
-      // the key and the name apart: where the full name has no room, the key alone marks the place (declutter)
-      const kb = document.createElement('b'), nm = document.createElement('em');
-      kb.textContent = pin.key; nm.textContent = ` · ${pin.name}`; lb.element.append(kb, nm);
-      lb.position.set(x, site.y + 60, z); lb.userData.role = 'stage'; lb.element.dataset.key = pin.key;
+      // A place's label, two ways in one element: the app's chip (key · name) close in, and the inked map's pin from
+      // high up (its symbol, a keyed disc and the name in the map's lettering), cross-faded by the map's strength
+      // (styles.css, --carto). The key and the name apart: where the full name has no room, the key alone marks the
+      // place (declutter).
+      const lb = world.label('', undefined, `place t-${pin.type}${pin.scenes.length ? ' has-scene' : ''}`);
+      const chip = document.createElement('span'), kb = document.createElement('b'), nm = document.createElement('em');
+      chip.className = 'chip'; kb.textContent = pin.key; nm.textContent = ` · ${pin.name}`; chip.append(kb, nm);
+      const mark = document.createElement('span'); mark.className = 'mark';
+      mark.innerHTML = `${glyphSvg(glyphKind({ type: pin.type, name: pin.name, heightFt: wp?.heightFt }))}<span class="pd"><b class="pk"></b><span class="pn"></span></span>`;
+      mark.querySelector('.pk')!.textContent = discKey(pin.key); mark.querySelector('.pn')!.textContent = pin.name;
+      lb.element.append(chip, mark);
+      lb.position.set(x, y + 60, z); lb.userData.role = 'stage'; lb.element.dataset.key = pin.key; lb.element.dataset.name = pin.name;
       // a tap on the name flies there and opens the place's map (a pin that repeats another's opens that map). The
       // name takes no pointer itself (a wheel or a pinch over it zooms like anywhere else): the app's tap and hover
       // on the canvas ask labelAt.
-      const go = pin.root ?? pin.scenes[0];
-      lb.element.dataset.path = go; lb.element.dataset.name = pin.name; lb.element.dataset.tip = pin.name; lb.element.dataset.tipSub = 'Fly there and open its map';
-      labels.add(lb); this.labels.push({ obj: lb, key: pin.key, pri: /settlement|castle/.test(pin.type) ? 0 : pin.root ? 1 : 2 });
+      if (pin.scenes.length) {
+        const go = pin.root ?? pin.scenes[0];
+        lb.element.dataset.path = go; lb.element.dataset.tip = pin.name; lb.element.dataset.tipSub = 'Fly there and open its map';
+      }
+      labels.add(lb); this.labels.push({ obj: lb, key: pin.key, pri: /settlement|castle/.test(pin.type) ? 0 : pin.scenes.length ? 1 : 2, at: pin.pos as Vec2, text: pin.name });
     }
     for (const [name, list] of Object.entries(parts)) if (list.length) {
       const total = list.reduce((a, p) => a + p.geo.attributes.position.count, 0), P = new Float32Array(total * 3), N = new Float32Array(total * 3), C = new Float32Array(total * 3);
@@ -131,17 +158,63 @@ export class WorldStage {
     }
     this.root.add(labels);
     this.party = world.label('&', undefined, 'world-party'); this.party.visible = false; this.root.add(this.party);
+    this.party.element.dataset.tip = 'The party';
     // the forest pool
     const tree = merge([pineTier(6.2, 16, 6, 0).translate(0, 12, 0), pineTier(3.8, 14, 6, 1).translate(0, 21, 0)]);
     const fm = new THREE.MeshLambertMaterial({ color: '#ffffff', flatShading: true, fog: true }); setSurface(fm, 'foliage'); patchFog(fm, true);
+    fm.alphaHash = true; // the pines thin out (dithered, depth-writing, no sorting) as the inked map comes in
     this.forest = new THREE.InstancedMesh(tree, fm, lowMemory() ? POOL / 2 : POOL); this.forest.name = 'forest'; this.forest.count = 0; this.forest.frustumCulled = false;
     this.forest.instanceColor = new THREE.InstancedBufferAttribute(new Float32Array(this.forest.instanceMatrix.count * 3), 3);
     this.forest.userData.role = 'stage';
     this.root.add(this.forest);
     this.roadMask = this.maskRoads();
     this.sky = buildSky(); this.root.add(this.sky.node);
+    // the inked map: the land and the lakes paint it, massing turns to ink blocks, roads and rivers are ink ribbons;
+    // the 3-D partners (ribbons, pines, the crags' mist) fade out by dithering as it comes in
+    {
+      const style: CartoStyleId = campaign.theme.id === 'pastoral' ? 'pastoral' : 'gothic', u = cartoUniforms(field, CARTO_STYLES[style]);
+      this.land.group.traverse((o) => {
+        const m = o as THREE.Mesh; if (!m.isMesh) return;
+        const mt = m.material as THREE.Material;
+        if (m.name === 'land' || m.name === 'aprons' || m.name === 'lakes') patchCarto(mt, u, 'land', style);
+        else if (m.name.startsWith('crag:') || m.name === 'blutos-boat') patchCarto(mt, u, 'object', style);
+        else if (m.name === 'ribbons') mt.alphaHash = true;
+        else if (m.name === 'crag-mist') m.userData.baseOpacity = (mt as THREE.MeshBasicMaterial).opacity;
+      });
+      for (const { mesh } of this.proxyMeshes) patchCarto(mesh.material as THREE.Material, u, 'object', style);
+      const ink = buildInk(field, u); ink.visible = false; this.root.add(ink);
+      const letters = new CartoLetters(world, data, field, style);
+      this.root.add(letters.group);
+      for (const l of letters.labels) this.labels.push(l);
+      this.carto = { u, style, k: 0, fit: 0, ftPerPx: 0, ready: false, bakeMs: 0, ink, letters, textures: [] };
+      // the land is baked for the map a few milliseconds a frame (the page never stalls); the map stays off until then
+      this.bakeJob = bakeLand(field, u);
+      this.pumpBake();
+    }
     world.beforeRender.add(this.followSky);
     this.buildMs = performance.now() - t0;
+  }
+
+  /** The inked map (render/worldcarto.ts): its uniforms, how far it is drawn now (k), the view's ground width over the
+   *  region's (fit), feet per CSS pixel at the target, whether the land's bake is in, what the bake cost. */
+  readonly carto: { u: CartoUniforms; style: CartoStyleId; k: number; fit: number; ftPerPx: number; ready: boolean; bakeMs: number; ink: THREE.Mesh; letters: CartoLetters; textures: THREE.Texture[] };
+  private bakeJob?: Generator<void, { land: THREE.DataTexture; cover: THREE.DataTexture; ms: number }>;
+  private bakeWaiters: (() => void)[] = [];
+  /** Resolves once the land is baked for the inked map. */
+  cartoReady(): Promise<void> { return this.carto.ready ? Promise.resolve() : new Promise((r) => this.bakeWaiters.push(r)); }
+  private pumpBake(): void {
+    const step = (): void => {
+      const job = this.bakeJob; if (!job || this.disposed) return;
+      const t0 = performance.now();
+      let r: IteratorResult<void, { land: THREE.DataTexture; cover: THREE.DataTexture; ms: number }>;
+      do r = job.next(); while (!r.done && performance.now() - t0 < 8);
+      if (!r.done) { setTimeout(step, 0); return; }
+      this.bakeJob = undefined;
+      this.carto.textures = [r.value.land, r.value.cover]; this.carto.bakeMs = r.value.ms; this.carto.ready = true;
+      this.world.invalidate();
+      for (const w of this.bakeWaiters.splice(0)) w();
+    };
+    setTimeout(step, 0);
   }
 
   // ------------------------------------------------------------------ queries
@@ -178,7 +251,15 @@ export class WorldStage {
   /** Show or hide a place's proxy (hidden while its map is drawn): its run of faces collapses onto one point, or comes
    *  back (or its detailed proxy shows instead, near enough). */
   showProxy(path: string, on: boolean): void {
-    const g = this.proxies.get(path); if (!g || g.visible === on) return;
+    const g = this.proxies.get(path); if (!g) return;
+    g.userData.want = on;
+    this.applyProxy(path);
+  }
+  /** A proxy shows while it is wanted (its map not drawn) and its place is not kept from the players' side. */
+  private applyProxy(path: string): void {
+    const g = this.proxies.get(path); if (!g) return;
+    const on = g.userData.want !== false && !this.secret.has(path);
+    if (g.visible === on) return;
     g.visible = on;
     this.syncProxy(path);
   }
@@ -246,7 +327,7 @@ export class WorldStage {
           this.detailJob = undefined;
           const d = this.details.get(job.path), g = this.proxies.get(job.path), e = ATLAS.scenes[job.path];
           if (d && g && e && r.value) {
-            const mesh = new THREE.Mesh(r.value, vertexLambert()), p = this.rootPlacementOf(e);
+            const mesh = new THREE.Mesh(r.value, patchCarto(vertexLambert(), this.carto.u, 'object', this.carto.style)), p = this.rootPlacementOf(e);
             mesh.name = 'detail'; mesh.userData.role = 'stage'; mesh.visible = false;
             mesh.position.set(p.position[0] - g.position.x, p.position[1] - g.position.y, p.position[2] - g.position.z); mesh.rotation.y = p.rotationY;
             g.add(mesh); mesh.updateMatrixWorld(true);
@@ -266,7 +347,7 @@ export class WorldStage {
    *  the screen less the bars along its edges (the top bar, the camera buttons, the side slider), from the camera's
    *  present heading and tilt. The target is moved so the valley sits in the middle of that clear part, not of the
    *  screen. Projected, not a bounding sphere: a portrait phone fits the valley's width, a wide screen its depth. */
-  fit(): { target: THREE.Vector3; dist: number } {
+  fit(look?: THREE.Vector3): { target: THREE.Vector3; dist: number } {
     const w = this.world, c = this.valleyCentre(), a = w.anchor, f = this.land.field, b = this.bounds;
     const host = w.renderer.domElement.getBoundingClientRect(), W = host.width || 1, H = host.height || 1;
     // the clear part of the view (canvas pixels): each bar trims the edge it runs along (wider than tall: the top or
@@ -285,7 +366,7 @@ export class WorldStage {
     for (let k = 0; k <= 12; k++) { const u = k / 12, x = b.minX + (b.maxX - b.minX) * u, z = b.minZ + (b.maxZ - b.minZ) * u; at(x, b.minZ); at(x, b.maxZ); at(b.minX, z); at(b.maxX, z); }
     for (const p of [...(this.data.peaks ?? []), ...this.data.pins]) { const [x, z] = worldOfMiles(this.data, p.pos as Vec2); at(x, z); }
     const k = w.camera.clone(); k.far = 1e8; k.updateProjectionMatrix();
-    const dir = w.rigOffset(1), ray = new THREE.Raycaster(), plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -c.y), g = new THREE.Vector3(), v = new THREE.Vector3();
+    const dir = look?.clone().normalize() ?? w.rigOffset(1), ray = new THREE.Raycaster(), plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -c.y), g = new THREE.Vector3(), v = new THREE.Vector3();
     const mid = new THREE.Vector2(((l + r) / 2 / W) * 2 - 1, 1 - ((t + btm) / 2 / H) * 2);
     const place = (d: number): THREE.Vector3 => {
       k.position.copy(c).addScaledVector(dir, d); k.lookAt(c); k.updateMatrixWorld();
@@ -323,11 +404,13 @@ export class WorldStage {
     const b = this.bounds, a = this.world.anchor, cx = (b.minX + b.maxX) / 2, cz = (b.minZ + b.maxZ) / 2;
     return new THREE.Vector3(cx - a.x, this.land.field.height(cx, cz) - a.y, cz - a.z);
   }
-  /** Frame the whole valley (the camera's widest view), at once, gliding there, or flying (a glide that may rise). */
-  frameWorld(animate: boolean | 'fly' = false): void {
+  /** Frame the whole valley (the camera's widest view), at once, gliding there, or flying (a glide that may rise).
+   *  `map`: as the world map, looking straight down with north up (the region fits the clear part of the view). */
+  frameWorld(animate: boolean | 'fly' = false, map = false): void {
     this.fitCamera();
-    const f = this.fit();
-    if (animate === 'fly') this.world.flyTo(f.target, f.dist); else this.world.moveTo(f.target, f.dist, animate);
+    const dir = map ? TOP_DOWN : undefined, f = this.fit(dir);
+    if (map) { this.world.controls.maxDistance = Math.max(this.world.controls.maxDistance, Math.ceil(f.dist)); }
+    if (animate === 'fly') this.world.flyTo(f.target, f.dist, undefined, dir); else this.world.moveTo(f.target, f.dist, animate, 0, dir);
   }
   /** The camera sees the whole valley from about its middle (what the zoom-out chip asks before offering more). */
   get framed(): boolean {
@@ -341,21 +424,88 @@ export class WorldStage {
   onView(o: { restricted: boolean; revealed: Set<string> }): void {
     const w = this.world, tgt = w.toAbsolute(w.controls.target), dist = w.camera.position.distanceTo(w.controls.target);
     if (w.camera.aspect !== this.fitAspect) this.fitCamera();
-    this.forest.visible = dist < FOREST_MAX_DIST;
+    this.forest.visible = dist < FOREST_MAX_DIST && this.carto.k < 0.75;
     if (this.forest.visible) this.fillForest(tgt.x, tgt.z);
+    this.audience = o;
+    const shownPins: { text: string; at: Vec2 }[] = [];
     for (const l of this.labels) {
-      l.obj.visible = !o.restricted || o.revealed.has(l.key);
+      if (!l.key) continue;
+      // A place the players do not know has no label on their side at all: no page element (so no name, no symbol,
+      // no tip to find in the page), and no proxy. The DM sees every place; one the players do not know has a dashed
+      // ring on its disc.
+      const known = o.revealed.has(l.key), show = !o.restricted || known, el = l.obj.element;
+      l.obj.visible = show;
+      if (show && !l.obj.parent) this.placeLabels.add(l.obj); else if (!show && l.obj.parent) l.obj.removeFromParent();
+      el.classList.toggle('unknown', !known);
+      if (show && l.text && l.at) shownPins.push({ text: l.text, at: l.at });
       // the players' names fly nowhere, so they promise nothing either
-      const el = l.obj.element;
-      if (o.restricted) { delete el.dataset.tip; delete el.dataset.tipSub; } else if (!el.dataset.tip) { el.dataset.tip = el.dataset.name ?? ''; el.dataset.tipSub = 'Fly there and open its map'; }
+      if (o.restricted || !el.dataset.path) { delete el.dataset.tip; delete el.dataset.tipSub; } else if (!el.dataset.tip) { el.dataset.tip = el.dataset.name ?? ''; el.dataset.tipSub = 'Fly there and open its map'; }
     }
+    // the land's own names are geography, public to all; one a shown pin already carries close by is not lettered twice
+    for (const l of this.labels) if (!l.key && l.text && l.at) l.obj.visible = !shownPins.some((p) => p.text === l.text && Math.hypot(p.at[0] - l.at![0], p.at[1] - l.at![1]) < 1.5);
+    for (const [id, key] of this.proxyKey) this.setSecret(id, o.restricted && !o.revealed.has(key));
     this.declutter();
   }
+  /** Who is looking, as onView last heard it. */
+  audience: { restricted: boolean; revealed: Set<string> } = { restricted: false, revealed: new Set() };
+  private setSecret(path: string, on: boolean): void {
+    if (on === this.secret.has(path)) return;
+    if (on) this.secret.add(path); else this.secret.delete(path);
+    this.applyProxy(path);
+  }
+  /** Whether a pin's place is shown on this side (the DM's: always; the players': once revealed). */
+  pinShown(key: string): boolean { return !this.audience.restricted || this.audience.revealed.has(key); }
   /** Before every render: the sky's bodies stand round the eye (absolute), however far it has moved. */
   private followSky = (): void => {
-    if (!this.root.visible) return;
+    if (!this.root.visible) { this.setCarto(0); return; }
     const w = this.world; this.sky.follow(w.toAbsolute(w.camera.position), w.camera.position.distanceTo(w.controls.target));
+    this.syncCarto();
   };
+  /** The inked map follows the camera: feet per CSS pixel at the target decides how far it is drawn (fully above
+   *  24 ft/px, gone below 5), and the fit (the view's ground width over the region's) decides the sheet's frame. A
+   *  pure function of the camera and the canvas: the same view always looks the same, on each screen its own. */
+  private syncCarto(): void {
+    const w = this.world, c = this.carto, b = this.bounds;
+    const v = cartoBands(w.camera, w.controls.target, w.renderer.domElement, b.maxX - b.minX);
+    c.ftPerPx = v.ftPerPx; c.fit = v.fit; w.fit = v.fit;
+    c.u.uPxK.value = v.pxK; c.u.uDpr.value = w.renderer.getPixelRatio(); c.u.uAnchor.value.copy(w.anchor);
+    this.setCarto(c.ready ? v.k : 0);
+    c.letters.sync(c.k, c.fit, w.controls.getAzimuthalAngle(), w.chrome());
+  }
+  /** Far out, a placed map's open ground steps aside for the inked land under it (its streets, walls and roofs stay,
+   *  washed toward the map's paper and ink). Re-applied when the maps drawn change. */
+  private groundKey = '';
+  private openGround(open: boolean): void {
+    const roots = (this.root.parent?.children ?? []).filter((r) => r !== this.root && r.type !== 'Light'), key = `${open}|${roots.map((r) => r.uuid).join()}`;
+    if (key === this.groundKey) return;
+    this.groundKey = key;
+    for (const r of roots) r.traverse((o) => {
+      if (!/^floor:(grass|snow|marsh)$/.test(o.name)) return;
+      if (!open && o.visible) { o.visible = false; o.userData.cartoHidden = true; } else if (open && o.userData.cartoHidden) { o.visible = true; delete o.userData.cartoHidden; }
+    });
+  }
+  private setCarto(k: number): void {
+    const c = this.carto, w = this.world, S = THREE.MathUtils.smoothstep;
+    this.openGround(k < 0.5);
+    if (c.k === k && c.u.uCarto.value === k) return;
+    c.k = k; c.u.uCarto.value = k; w.cartoK = k;
+    if (w.scene.fog instanceof THREE.FogExp2) w.scene.fog.density = w.fogDensity;
+    setWash(k * 0.9, CARTO_STYLES[c.style]);
+    c.ink.visible = k > 0.001;
+    // the 3-D partners fade by dithering (alphaHash: depth-writing, no sorting), never a flip inside their band
+    (this.forest.material as THREE.Material).opacity = 1 - S(k, 0.25, 0.75);
+    this.forest.visible = this.forest.visible && k < 0.75;
+    this.land.group.traverse((o) => {
+      const m = o as THREE.Mesh; if (!m.isMesh) return;
+      if (m.name === 'ribbons') { (m.material as THREE.Material).opacity = 1 - S(k, 0.4, 0.8); m.visible = k < 0.8; }
+      else if (m.name === 'crag-mist') { (m.material as THREE.Material).opacity = (m.userData.baseOpacity ?? 1) * (1 - S(k, 0.4, 0.6)); m.visible = k < 0.6; }
+    });
+    document.body.style.setProperty('--carto', k.toFixed(3));
+    if (k > 0.05) document.body.dataset.carto = '1'; else delete document.body.dataset.carto;
+    w.invalidate();
+  }
+  /** The hex grid at the map's scale (one setting, shared with the flat sheet's hex button). */
+  setHex(on: boolean): void { this.carto.u.uHexOn.value = on ? 1 : 0; this.world.invalidate(); }
   /** The moon in its phase and the bodies on their arcs (the clock). */
   setMoon(phase: number, night: boolean, hour: number): void { this.sky.setMoon(phase, night, hour); }
   /** The party's marker (W): on the land at a place, or at a given height (the party token's spot on a ghost map);
@@ -380,6 +530,42 @@ export class WorldStage {
     }
     return best;
   }
+  /** The place (any shown pin, on either side) under a point of the page, for the world map's tips, cards and the
+   *  party's snap: like labelAt, without needing a map to fly to. */
+  pinAt(x: number, y: number, touch = false): { key: string; path?: string; el: HTMLElement } | null {
+    let best: { key: string; path?: string; el: HTMLElement } | null = null, bd = Infinity;
+    for (const l of this.labels) {
+      const el = l.obj.element;
+      if (!l.key || !l.obj.visible || !l.obj.parent || el.classList.contains('declutter')) continue;
+      const r = el.getBoundingClientRect(); if (!r.width) continue;
+      const cx = (r.left + r.right) / 2, cy = (r.top + r.bottom) / 2, hw = Math.max(r.width, touch ? 44 : 0) / 2, hh = Math.max(r.height, touch ? 44 : 0) / 2;
+      if (Math.abs(x - cx) > hw || Math.abs(y - cy) > hh) continue;
+      const d = Math.hypot(x - cx, y - cy);
+      if (d < bd) { bd = d; best = { key: l.key, path: el.dataset.path, el }; }
+    }
+    return best;
+  }
+  /** The party's marker on the page (its middle), while it shows. */
+  partyAt(): { x: number; y: number } | null {
+    if (!this.party.visible || !this.party.parent || !this.root.visible) return null;
+    const r = this.party.element.getBoundingClientRect(); if (!r.width) return null;
+    return { x: (r.left + r.right) / 2, y: (r.top + r.bottom) / 2 };
+  }
+  /** Where a page point falls on the land (absolute feet): the ray from the eye meets the ground, refined on the
+   *  heightfield (a few steps; the camera looks down on the valley). */
+  groundOf(x: number, y: number): THREE.Vector3 | null {
+    const w = this.world, r = w.renderer.domElement.getBoundingClientRect();
+    const ray = new THREE.Raycaster(); ray.setFromCamera(new THREE.Vector2(((x - r.left) / r.width) * 2 - 1, 1 - ((y - r.top) / r.height) * 2), w.camera);
+    const a = w.anchor, o = ray.ray.origin, d = ray.ray.direction; if (d.y > -1e-4) return null;
+    let h = w.controls.target.y + a.y, p = new THREE.Vector3();
+    for (let i = 0; i < 6; i++) { const t = (h - a.y - o.y) / d.y; if (t < 0) return null; p = o.clone().addScaledVector(d, t).add(a); h = this.land.field.surface(p.x, p.z); }
+    p.y = h; return p;
+  }
+  /** Where a pin stands on the page (its land point projected), for the party's snap. */
+  screenOfAbs(p: THREE.Vector3): { x: number; y: number; behind: boolean } {
+    const w = this.world, r = w.renderer.domElement.getBoundingClientRect(), v = w.toAnchored(p).project(w.camera);
+    return { x: r.left + ((v.x + 1) / 2) * r.width, y: r.top + ((1 - v.y) / 2) * r.height, behind: v.z > 1 };
+  }
   private hovered: HTMLElement | null = null;
   /** The name the mouse is over shows it can be tapped (the names take no pointer themselves). */
   hoverLabel(el: HTMLElement | null): void {
@@ -395,7 +581,7 @@ export class WorldStage {
       const live = this.labels.filter((l) => l.obj.visible && l.obj.element.style.display !== 'none').sort((a, b) => a.pri - b.pri);
       for (const l of live) l.obj.element.classList.remove('declutter', 'dot');
       const vp = this.world.renderer.domElement.getBoundingClientRect();
-      const placed: { left: number; right: number; top: number; bottom: number }[] = [...this.world.chrome().panels];
+      const placed: { left: number; right: number; top: number; bottom: number }[] = [...this.world.chrome().panels, ...this.carto.letters.blockers()];
       const clear = (r: DOMRect) => r.left >= vp.left + 2 && r.right <= vp.right - 2 && r.top >= vp.top + 2 && r.bottom <= vp.bottom - 2
         && !placed.some((p) => r.left < p.right + 2 && r.right > p.left - 2 && r.top < p.bottom + 1 && r.bottom > p.top - 1);
       const crowded: typeof live = [];
@@ -404,7 +590,9 @@ export class WorldStage {
         if (clear(r)) placed.push(r); else crowded.push(l);
       }
       for (const l of crowded) {
-        const el = l.obj.element; el.classList.add('dot');
+        const el = l.obj.element;
+        if (!l.key) { el.classList.add('declutter'); continue; } // a land name never shrinks to a tag: it waits for room
+        el.classList.add('dot');
         const r = el.getBoundingClientRect();
         if (clear(r)) placed.push(r); else el.classList.add('declutter');
       }
@@ -492,6 +680,9 @@ export class WorldStage {
     this.world.beforeRender.delete(this.followSky);
     for (const l of [...this.labels.map((x) => x.obj), this.party]) { l.removeFromParent(); l.element.remove(); }
     this.sky.dispose();
+    this.bakeJob = undefined;
+    this.carto.letters.dispose(); for (const t of this.carto.textures) t.dispose(); setWash(0, CARTO_STYLES[this.carto.style]); this.world.cartoK = 0; this.world.fit = 0;
+    delete document.body.dataset.carto; document.body.style.removeProperty('--carto');
     this.root.traverse((o) => {
       const m = o as THREE.Mesh; if (!m.isMesh) return;
       m.geometry.dispose();
@@ -500,3 +691,7 @@ export class WorldStage {
     this.tiles.clear();
   }
 }
+
+/** The letter on a pin's disc: the key without a trailing number after letters (B2 shows B, M3 shows M); a key that is
+ *  all digits (A Wild Sheep Chase's 1 to 5) shows whole. */
+export const discKey = (key: string): string => key.replace(/(\D)\d+$/, '$1');

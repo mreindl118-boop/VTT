@@ -550,6 +550,7 @@ export class App {
       const r = this.resident.get(id), f = r && this.fades.get(r);
       st.showProxy(id, !(r && r.drawn && !(f && f.to > f.from)));
     }
+    this.syncSecrets();
     this.syncNest();
   }
   /** A child drawn whole in its parent hides the parent's own model of it (its house, its yard: render/hideUnder.ts),
@@ -907,6 +908,18 @@ export class App {
     const st = this.stage; if (!st || !this.staged) return;
     st.setParty(this.partyMark());
     st.onView({ restricted: this.restricted, revealed: this.pinsRevealed });
+    this.syncSecrets();
+  }
+  /** The players' side never sees a place it does not know: a map the valley holds (streamed in as the camera passed)
+   *  whose place is not revealed is not drawn for them, unless it is the open map or one it stands in. The DM sees
+   *  them all. (Its proxy, its label and its symbol go too: worldstage.ts.) */
+  private syncSecrets(): void {
+    const rev = this.pinsRevealed, keep = new Set(this.cur ? [this.cur.path, ...this.chainOf(this.cur.path)] : []);
+    for (const r of this.resident.values()) {
+      if (r.root.parent !== this.world.root) continue; // (a building hangs in its town and goes with it)
+      const key = ATLAS.scenes[r.path]?.pin, secret = this.restricted && !!key && !rev.has(key) && !keep.has(r.path);
+      if (!!r.root.userData.secret !== secret) { r.root.userData.secret = secret; veil(r.root, 'secret', secret); this.world.invalidate(); }
+    }
   }
   /** Where the party's '&' stands on the land (absolute feet), or null where the party's own token shows: on the active
    *  map while it is drawn. On a ghost (the party's map drawn but not active) it stands on the party token's spot;
@@ -917,7 +930,8 @@ export class App {
     // the map the party was taken to, if the valley holds it (a building of the town), else the town
     const path = this.home && this.resident.get(this.home) && (this.home === root || this.chainOf(this.home).includes(root ?? '')) ? this.home : root;
     const r = path ? this.resident.get(path) : undefined;
-    if (r && r === this.cur && r.drawn) return null;
+    // (far out, where the land is drawn as the world map, the '&' stands on the party's token: the token is too small to see)
+    if (r && r === this.cur && r.drawn && (this.stage?.carto.k ?? 0) < 0.5) return null;
     const tok = r?.drawn ? this.state.tokens.find((t) => t.location === r.scene.location && t.role === 'party') : undefined;
     const lv = tok && r ? r.scene.levels.find((l) => l.id === tok.level) : undefined;
     if (r && tok && lv) {
@@ -1528,7 +1542,7 @@ export class App {
     // the continuous world's zoom bands (a separate attribute, so the far/mid/near rules keep matching)
     const band = px < 0.02 ? 'valley' : px < 0.1 ? 'road' : px < 1 ? 'town' : 'map';
     if (document.body.dataset.band !== band) document.body.dataset.band = band;
-    if (this.staged) this.stage?.onView({ restricted: this.restricted, revealed: this.pinsRevealed });
+    if (this.staged && this.stage) { this.stage.onView({ restricted: this.restricted, revealed: this.pinsRevealed }); this.stage.setParty(this.partyMark()); }
     this.declutter();
   }
 
@@ -2017,12 +2031,25 @@ export class App {
   /** Mouse hover: name what is under the cursor. The DM sees everything; players only what they can see. */
   private hover(e: PointerEvent): void {
     if (!this.cur || !this.onHover) return;
-    // a place's name over the valley (the DM's): it lights up and says where a tap goes
-    const place = this.placeAt(e);
+    // a place's name over the valley: it lights up (the DM's) and its world-map tip shows (what it is; for the DM, the
+    // note, whether the players know it and where a tap goes)
+    const pin = this.pinAt(e), place = this.placeAt(e);
     this.stage?.hoverLabel(place?.el ?? null);
-    this.world.renderer.domElement.style.cursor = place ? 'pointer' : '';
+    this.world.renderer.domElement.style.cursor = pin && (place || this.onPinTap) ? 'pointer' : '';
+    if (pin && this.onPinHover) { this.onHover(null, e.clientX, e.clientY); this.onPinHover(pin.key, e.clientX, e.clientY); return; }
+    this.onPinHover?.(null, e.clientX, e.clientY);
     if (place) { this.onHover({ title: place.el.dataset.tip ?? place.name, sub: place.el.dataset.tipSub }, e.clientX, e.clientY); return; }
     this.onHover(this.describe(e), e.clientX, e.clientY);
+  }
+  /** The world map's place tip (main.ts: the nested world map, ui/worldnest.ts): key null hides it. */
+  onPinHover: ((key: string | null, x: number, y: number) => void) | null = null;
+  /** A tap on a place in the valley (either side): the world map decides (fly in, or its card). Returns false to let
+   *  the app's own tap go on. */
+  onPinTap: ((key: string, path: string | undefined) => boolean) | null = null;
+  /** Any shown place (a pin's label) under a point, on either side, in the valley. */
+  pinAt(e: { clientX: number; clientY: number; pointerType?: string }): ReturnType<WorldStage['pinAt']> {
+    if (!this.stage || !this.staged || this.renderMode !== 'normal') return null;
+    return this.stage.pinAt(e.clientX, e.clientY, !!e.pointerType && e.pointerType !== 'mouse');
   }
   /** The place name a tap or the mouse is on, in the valley, for the DM (players' names fly nowhere). */
   placeAt(e: { clientX: number; clientY: number; pointerType?: string }): ReturnType<WorldStage['labelAt']> {
@@ -2103,7 +2130,9 @@ export class App {
     // Moving is two deliberate taps: the token, then where it goes. A swipe never moves anyone.
     const tokHit = this.pick(e), fp = this.floorPoint(e);
     if (this.placing && !this.restricted) { if (fp) { this.addCreature(this.placing, fp); this.placed++; this.setStatus(`${this.placed} placed · tap for more · Esc to stop`); } return; }
-    // a place's name over the valley: fly there and open its map
+    // a place over the valley: the world map's (fly there and open its map, or its card), else fly there
+    const pin = this.pinAt(e);
+    if (pin && this.onPinTap?.(pin.key, pin.path)) return;
     const place = this.placeAt(e);
     if (place) { this.stage!.onPick?.(place.path); return; }
     // The figure is small from above: a tap anywhere on its base ring picks it up too.

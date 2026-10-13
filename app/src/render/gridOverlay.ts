@@ -40,6 +40,7 @@ uniform mat3 uCovBasis;   // world xz → the active scene's plan xz (the grid a
 uniform float uPxPerFt;   // what a foot is worth on screen: decides which grid orders show
 uniform vec4 uClip;       // plan box the grid stays inside (minX, minZ, maxX, maxZ); unbounded unless the map stands in the valley
 uniform float uFadeBelow; // in the valley: the grid fades out as a foot drops under this many pixels (0: never)
+uniform float uCartoWash; // the world's inked map has taken over (render/worldcarto.ts): the map's own grid steps aside
 
 // A line of a given spacing (feet): 1 on the line, 0 off it; bold widens it.
 float lineAt(vec2 p, float spacing, float bold) {
@@ -85,6 +86,7 @@ void main() {
   float line = uHex > 0.5 ? hexLine(p) : squareLine(p);
   float a = line * uOpacity;
   if (uFadeBelow > 0.0) a *= smoothstep(0.5 * uFadeBelow, uFadeBelow, uPxPerFt);
+  a *= 1.0 - smoothstep(0.05, 0.4, uCartoWash);
   if (uCovEnabled > 0.5) {
     vec2 uv = (sp - uCovOrigin) / uCovSize;
     float cov = (uv.x < 0.0 || uv.y < 0.0 || uv.x > 1.0 || uv.y > 1.0) ? 0.0 : texture2D(uCovTex, uv).r;
@@ -129,6 +131,7 @@ export function buildGridOverlay(g: GridLevel, elevation: number, ground = true)
       uPxPerFt: gridUniforms.uPxPerFt,
       uClip: { value: new THREE.Vector4(-1e9, -1e9, 1e9, 1e9) },
       uFadeBelow: { value: 0 },
+      uCartoWash: fogUniforms.uCartoWash,
     },
   });
   const mesh = new THREE.Mesh(geo, m);

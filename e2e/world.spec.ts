@@ -265,7 +265,10 @@ test('the floating origin moves nothing on screen; the continuous-world camera i
   await page.waitForFunction(() => !(window as any).__mistlab.app.world.flying);
   const far = await page.evaluate(() => { const w = (window as any).__mistlab.app.world; return { d: w.camera.position.distanceTo(w.controls.target), polar: w.controls.maxPolarAngle, fog: w.fogDensity / (w.outdoor ? w.theme.fogOut : w.theme.fogIn) }; });
   expect(far.d).toBeGreaterThan(59000);
-  expect(far.polar).toBeCloseTo(Math.PI * 0.3, 3);
+  // the pitch floor rises to 0.3π by 20,000 ft and on toward straight down (0.015π) from 25,000 to 80,000 ft, where the
+  // land becomes the inked map (render/world.ts applyPolar)
+  const top = ((t) => t * t * (3 - 2 * t))(Math.min(1, Math.max(0, (far.d - 25000) / 55000)));
+  expect(far.polar).toBeCloseTo(Math.PI * (0.3 + (0.015 - 0.3) * top), 3);
   expect(far.fog).toBeLessThan(0.01);
   const off = await page.evaluate(() => { const w = (window as any).__mistlab.app.world; w.setNested(false); return { far: w.camera.far, max: w.controls.maxDistance, ztc: w.controls.zoomToCursor }; });
   expect(off).toEqual({ far: 120000, max: 400, ztc: true });

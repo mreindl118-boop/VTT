@@ -124,6 +124,8 @@ export class World {
   }
 
   outdoor = false;
+  /** How far the world is drawn as the inked map (render/worldcarto.ts, 0..1): the mist lifts off the map with it. */
+  cartoK = 0;
   /** Outdoors the camera may drop lower toward the horizon. */
   /** Fog density: thinner outdoors, where maps are hundreds of feet across. */
   theme: Theme = { id: 'gothic', mist: '#2b2733', page0: '#3a3242', page1: '#1e1a24', skyLight: '#c8ccd8', groundLight: '#3a3138', hemi: 1.6, key: 1.1, keyColor: '#f0e2c8', fogOut: 0.0011, fogIn: 0.0032, apron: '#2e3a31', forest: ['#1d3325', '#243c2c'] };
@@ -138,7 +140,7 @@ export class World {
     // between the eye and the ground stays as thick as it is over a map and the far mountains haze instead of
     // vanishing (identical below ~2,170 ft)
     const pullBack = THREE.MathUtils.clamp(260 / Math.max(1, d), this.nested ? 0.0008 : 0.12, 1);
-    return this.fogOn ? (this.outdoor ? this.theme.fogOut : this.theme.fogIn) * this.fogScale * pullBack : 0;
+    return this.fogOn ? (this.outdoor ? this.theme.fogOut : this.theme.fogIn) * this.fogScale * pullBack * (1 - this.cartoK) : 0;
   }
   setFog(on: boolean): void { this.fogOn = on; if (this.scene.fog instanceof THREE.FogExp2) this.scene.fog.density = this.fogDensity; this.mistFloor.visible = on && this.mistFloor.visible; this.invalidate(); }
   /** A campaign's look: mist colour, page gradient, light colours and strengths. */
@@ -174,14 +176,23 @@ export class World {
   invalidate(): void { this.dirty = true; }
 
   /** How low the camera may drop: 0.46π outdoors, 0.4π indoors; in the continuous world the floor rises toward 0.3π
-   *  as the camera climbs past 5,000 ft, so the horizon never swallows the valley. */
-  private applyPolar(): void {
+   *  as the camera climbs past 5,000 ft, so the horizon never swallows the valley, and on toward straight down
+   *  (0.015π) as the land becomes the inked map: from 25,000 ft, or once the region nearly fills the view (`fit`, the
+   *  stage's), it lies flat under the eye at the whole region, with no parallax for the pins and the names. Coming
+   *  down, the tilt comes back (a floor on the pitch between 25,000 and 9,000 ft), so the tabletop view returns as
+   *  the realistic world takes over; under 9,000 ft (a town, a map) the camera may look straight down again. A pure function of the camera: the same view always has the same limits. */
+  applyPolar(): void {
     const base = Math.PI * (this.outdoor ? 0.46 : 0.4);
-    if (!this.nested) { this.controls.maxPolarAngle = base; return; }
-    const d = this.camera.position.distanceTo(this.controls.target);
-    const k = THREE.MathUtils.smoothstep(d, 5000, 20000);
-    this.controls.maxPolarAngle = THREE.MathUtils.lerp(base, Math.PI * 0.3, k);
+    if (!this.nested) { this.controls.maxPolarAngle = base; this.controls.minPolarAngle = 0; return; }
+    const d = this.camera.position.distanceTo(this.controls.target), S = THREE.MathUtils.smoothstep;
+    const k = S(d, 5000, 20000), top = Math.max(S(d, 25000, 80000), S(this.fit, 0.5, 0.9));
+    const max = THREE.MathUtils.lerp(THREE.MathUtils.lerp(base, Math.PI * 0.3, k), Math.PI * 0.015, top);
+    this.controls.maxPolarAngle = max;
+    this.controls.minPolarAngle = Math.max(0, max - Math.PI * 0.1) * S(d, 9000, 20000) * (1 - top);
   }
+  /** The view's ground width over the region's at the target (1: the whole region across the view); the world stage
+   *  writes it every frame it draws. */
+  fit = 0;
 
   /** The continuous world's camera: far plane 300,000 ft, zoom out to 120,000 ft (the stage may allow more, to fit
    *  its whole valley), the mist thins to 0.0008 of its strength far out, the pitch floor rises with altitude. Off
@@ -291,8 +302,8 @@ export class World {
   }
 
   /** Point the rig at a plan position, keeping (or setting) the distance. */
-  moveTo(target: THREE.Vector3, dist = this.camera.position.distanceTo(this.controls.target), animate = true, azimuthDelta = 0): void {
-    const camTo = target.clone().add(this.rigOffset(dist, azimuthDelta));
+  moveTo(target: THREE.Vector3, dist = this.camera.position.distanceTo(this.controls.target), animate = true, azimuthDelta = 0, dir?: THREE.Vector3): void {
+    const camTo = target.clone().add(dir ? dir.clone().normalize().multiplyScalar(dist) : this.rigOffset(dist, azimuthDelta));
     if (!animate) {
       this.tween = null; // an instant move cancels any glide still in flight
       this.controls.target.copy(target); this.camera.position.copy(camTo); this.camera.lookAt(target); this.controls.update(); this.invalidate();
@@ -304,12 +315,12 @@ export class World {
 
   /** Glide to a target (anchored) at a distance; the time grows with how far the zoom changes (log of the distance
    *  ratio), 420–900 ms, unless given. */
-  flyTo(target: THREE.Vector3, dist = this.camera.position.distanceTo(this.controls.target), ms?: number): void {
+  flyTo(target: THREE.Vector3, dist = this.camera.position.distanceTo(this.controls.target), ms?: number, dir?: THREE.Vector3): void {
     const from = Math.max(1, this.camera.position.distanceTo(this.controls.target));
     const d = THREE.MathUtils.clamp(dist, this.controls.minDistance, this.controls.maxDistance);
     const travel = this.controls.target.distanceTo(target) / Math.max(d, from);
     const dur = ms ?? flightMs(from, d, travel);
-    this.moveTo(target, d, true);
+    this.moveTo(target, d, true, 0, dir);
     this.flights++;
     // across the valley the eye climbs over the middle of the flight, so the land between unrolls below and the glide
     // dives onto the new place instead of skimming the ridges
