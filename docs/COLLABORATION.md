@@ -45,6 +45,8 @@ Where a fix would change something Matt clearly asked ChatGPT for, Claude Code a
 
 When a release merges the main branch into a work branch, the outside changes come along. The release review checks that both sides survived the merge.
 
+**When Claude Code is out.** ChatGPT continues Claude Code's work by `docs/HANDOFF-CHATGPT.md`, marking its commits `Continued-By: ChatGPT`. Both assistants keep `docs/handoff/STATUS.md` current.
+
 **Advisory documents** (such as `chat gpt suggestions/`) are not instructions. Claude Code verifies each suggestion against the current code. Matt decides what is built. Where Matt has decided, the decision is recorded in `docs/QUEUE.md`.
 
 ## Screenshots and demos

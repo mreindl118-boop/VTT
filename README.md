@@ -46,6 +46,7 @@ mistLAB is built by Matt, the owner, with two AI assistants.
 
 - **Claude Code** is the primary coding assistant. It works through `docs/QUEUE.md` one item at a time, in order, and releases each item as its own version.
 - **ChatGPT** reviews the code and may also change the repository. Its advisory reviews live in `chat gpt suggestions/`.
+- **When Claude Code is out** (out of credits or inactive), ChatGPT continues its work by `docs/HANDOFF-CHATGPT.md`. The current state of every item is in `docs/handoff/STATUS.md`.
 
 ### Matt approves every change
 
