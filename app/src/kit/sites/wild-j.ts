@@ -12,7 +12,7 @@ import { mat, matClone } from '../../render/materials';
 import { PALETTE } from '../palette';
 import { surfaceFor, type Surface } from '../surfaces';
 import { merge } from '../pieces';
-import { blackCarriage, gargoyleStatue } from './wild';
+import { blackCarriage, curtainWall, gargoyleStatue } from './wild';
 
 type Dims = Record<string, number>;
 
@@ -29,10 +29,14 @@ const C = {
   amber: PALETTE.amber, glow: '#ffb54d', glass: '#0d0c10', shard: '#9aa6b0', charcoal: '#1c1a1a',
   cloak: '#120f14', cloakTrim: '#2a1a22', pale: '#d8d3d0', bat: '#1a161b', batWing: '#26202a',
   mist0: '#dcdee2', mist1: '#c7cad0', deep0: '#24252a', deep1: '#383a41', deep2: '#555962', deep3: '#767b85',
+  keep: '#4b4944', keepDeep: '#3d3c39', slate: '#2c2b2f', scar: '#55534d', scarEdge: '#474a41',
 } as const;
 surfaceFor([C.rock, C.rockDeep, C.rockPale, C.rockDark, C.scree], 'rock');
 surfaceFor([C.screeDark], 'stone');
-surfaceFor([C.wall, C.wallDeep], 'ashlar');
+surfaceFor([C.wall, C.wallDeep, C.keep, C.keepDeep], 'ashlar');
+surfaceFor([C.slate], 'stone');
+surfaceFor([C.scar], 'rock');   // the bare-rock patches under the crag (prisms from the authoring script)
+surfaceFor([C.scarEdge], 'dirt');
 surfaceFor([C.flag], 'flag');
 surfaceFor([C.timber, C.timberDeep, C.plank, C.plankRot, C.plankPale], 'wood');
 surfaceFor([C.iron, C.rust, C.greased], 'metal');
@@ -312,28 +316,44 @@ export function drawbridge(d: Dims): THREE.Group {
   deck.add(box(0.8, 0.55, W, C.iron, -L + 0.4, 0.42, 0), box(1.4, 0.7, W, C.timberDeep, -0.7, 0.4, 0));                            // shod free end, heel beam
   for (const z of [-W / 2 + 0.4, W / 2 - 0.4]) { const eye = new THREE.Mesh(new THREE.TorusGeometry(0.55, 0.14, 5, 10), mat(C.iron)); place(eye, -L + 1.3, 1.25, z, Math.PI / 2); deck.add(eye, box(1.2, 0.5, 0.7, C.iron, -L + 1.3, 0.85, z)); }
   const g = grp(deck);
-  if (d.up) deck.rotation.z = -Math.PI / 2;
+  // raised: swung up on its hinge and standing just off the wall face, its walking side to the gate
+  if (d.up) { deck.rotation.z = -Math.PI / 2; deck.position.x = -UP_SHIFT; }
   return g;
 }
-/** A drawbridge chain from the iron eye at the bridge's free end (the origin) up to a slot in the wall face, `dx` ft
- *  out along local x, `rise` up and `dz` across, sagging `sag` ft at mid-span (`taut` 1: straight). At the top, the dark
- *  slot with its iron lip, and rust running down the stone below it. */
+/** How far the raised deck stands out from its hinge line so its eyes and curbs clear the wall face. */
+const UP_SHIFT = 0.35;
+/** A drawbridge chain from the iron eye at the lowered bridge's free end (the origin) up to its slot in the wall face,
+ *  `dx` ft out along local x, `rise` up and `dz` across, sagging `sag` ft at mid-span (`taut` 1: straight). `up` 1 is
+ *  the raised bridge: the same chain, with the same far end in the slot, now runs taut and short from the eye of the
+ *  deck standing against the wall (its free end then a bridge-length up, 6 ft under the slot). The slot itself is its
+ *  own piece on the wall (j-chain-slot), so it stays put whichever way the bridge stands. */
 export function chain(d: Dims): THREE.Group {
-  const dx = d.dx ?? 56, rise = d.rise ?? 59, dz = d.dz ?? 0, sag = d.taut ? 0 : d.sag ?? 3, g = grp();
-  const P = (t: number) => new THREE.Vector3(dx * t, rise * t - sag * 4 * t * (1 - t), dz * t);
-  const L = Math.hypot(dx, rise, dz) + sag, n = Math.max(4, Math.round(L / 0.8)), X = new THREE.Vector3(1, 0, 0), roll = new THREE.Quaternion().setFromAxisAngle(X, Math.PI / 2);
+  const dx = d.dx ?? 56, rise = d.rise ?? 59, dz = d.dz ?? 0, up = d.up ?? 0, sag = d.taut || up ? 0 : d.sag ?? 3, g = grp();
+  // where the chain starts: the lowered eye (the origin), or the raised eye just off the wall face below the slot
+  const s0 = up ? new THREE.Vector3(dx + 0.3, rise - 6.15, 0) : new THREE.Vector3(0, 0, 0), e = new THREE.Vector3(dx, rise, dz), span = e.clone().sub(s0);
+  const P = (t: number) => s0.clone().addScaledVector(span, t).setY(s0.y + span.y * t - sag * 4 * t * (1 - t));
+  const L = span.length() + sag, n = Math.max(4, Math.round(L / 0.8)), X = new THREE.Vector3(1, 0, 0), roll = new THREE.Quaternion().setFromAxisAngle(X, Math.PI / 2);
   const geoA = new THREE.BoxGeometry(0.95, 0.36, 0.12), mI = mat(C.iron), mR = mat(C.rust);
   for (let i = 0; i < n; i++) {
     const t = (i + 0.5) / n, p = P(t), dir = P(Math.min(1, t + 0.01)).sub(P(Math.max(0, t - 0.01))).normalize();
     const link = new THREE.Mesh(geoA, i % 5 === 2 ? mR : mI); link.position.copy(p); link.quaternion.setFromUnitVectors(X, dir); if (i % 2) link.quaternion.multiply(roll); g.add(link);
   }
-  g.add(box(0.5, 3.2, 2.6, C.slit, dx + 0.1, rise + 0.6, dz), box(0.7, 0.45, 3.2, C.iron, dx - 0.1, rise - 1.2, dz), box(0.5, 0.4, 3, C.wallDeep, dx - 0.1, rise + 2.4, dz));
-  for (let i = 0; i < 4; i++) { const h = 4 + hash(i, dz + 3) * 9; g.add(box(0.06, h, 0.22 + hash(i, 4) * 0.3, i % 2 ? C.streak : C.rust, dx + 0.15, rise - 1.5 - h / 2, dz + (i - 1.5) * 0.6)); }
   return g;
 }
-/** A rotten board in the deck (local x across the board), shown to whoever looks along it: dark, split and sagging. */
-export function weakBoard(): THREE.Group {
-  return grp(box(1.15, 0.26, 13.4, C.plankRot, 0, 0.52, 0), box(0.12, 0.27, 6, C.slit, 0.1, 0.55, -2), place(box(1.1, 0.2, 3, C.plankRot, 0, 0.42, 4.5), 0, 0.42, 4.5, 0, 0.12));
+/** A chain slot in the gate wall's outer face (the wall face is the origin plane, the chasm toward local -x): the dark
+ *  slot with its iron lip and stone hood, rust running down the stone below it. */
+export function chainSlot(d: Dims): THREE.Group {
+  const sd = d.seed ?? 0, g = grp(box(0.5, 3.2, 2.6, C.slit, 0.15, 0.6, 0), box(0.7, 0.45, 3.2, C.iron, -0.15, -1.2, 0), box(0.5, 0.4, 3, C.wallDeep, -0.15, 2.4, 0));
+  for (let i = 0; i < 4; i++) { const h = 4 + hash(i, sd + 3) * 9; g.add(box(0.06, h, 0.22 + hash(i, 4) * 0.3, i % 2 ? C.streak : C.rust, -0.1, -1.5 - h / 2, (i - 1.5) * 0.6)); }
+  return g;
+}
+/** A rotten board in the deck (local x across the board), shown to whoever looks along it: dark, split and sagging.
+ *  `hx` is its distance west of the bridge's hinge; `up` 1 swings it up with the raised deck. */
+export function weakBoard(d: Dims): THREE.Group {
+  const b = grp(box(1.15, 0.26, 13.4, C.plankRot, 0, 0.52, 0), box(0.12, 0.27, 6, C.slit, 0.1, 0.55, -2), place(box(1.1, 0.2, 3, C.plankRot, 0, 0.42, 4.5), 0, 0.42, 4.5, 0, 0.12));
+  const hx = d.hx ?? 0;
+  if (d.up) { b.position.set(-hx, 0, 0); const pivot = grp(b); pivot.rotation.z = -Math.PI / 2; pivot.position.set(hx - UP_SHIFT, 0, 0); return grp(pivot); }
+  return b;
 }
 
 // ---------------------------------------------------------------- the castle side
@@ -406,6 +426,46 @@ export function litDoorway(d: Dims): THREE.Group {
   const fan = (w0: number, w1: number, L: number, y: number, op: number) => g.add(plate([[-w0 / 2, 0], [w0 / 2, 0], [w1 / 2, L], [-w1 / 2, L]], y, veil(C.amber, op)));
   fan(DW, 34, 44, 0.24, 0.16); fan(DW - 2, 22, 28, 0.27, 0.18);
   return g;
+}
+
+/** The castle beyond the courtyard sliver, as massing for the distance: the origin on the courtyard's far edge at the
+ *  gate's axis, local +x away from the gate (east). The keep's dark bulk behind the lit doors (they are their own piece,
+ *  standing just west of the origin) with its corner towers and one taller tower behind, the inner ranges north and
+ *  south of the courtyard, the courtyard's flagstones running on to the keep and round it, and past the castle's rock
+ *  the fog that fills the valley a thousand feet below, so no meadow shows at road level. `ex` is how far west the
+ *  courtyard sliver of the map runs from the origin, `z0`/`z1` its north and south ends (local z); the flagstones here
+ *  leave that patch to the map. */
+export function castleMass(d: Dims): THREE.Group {
+  const ex = d.ex ?? 70, z0 = d.z0 ?? -175, z1 = d.z1 ?? 225, R = d.r ?? 520, g = grp(), root = grp(g); g.position.x = d.ox ?? 0;
+  // the curtain wall running on north and south past the map's own pieces of it (`wn`/`ws`: where those end, local z)
+  for (const [a, b] of [[-R - 10, d.wn ?? -R], [d.ws ?? R, R + 10]]) if (b - a > 1) { const w = curtainWall({ len: b - a, t: 20, h: 89.8 }); w.rotation.y = Math.PI / 2; w.position.set(-ex - 10, 0, (a + b) / 2); g.add(w); }
+  // the courtyard and the castle's rock top, round the map's own patch of it
+  g.add(plate([[0, -R], [330, -R], [330, R], [0, R]], 0.06, C.flag), plate([[-ex - 20, -R], [0, -R], [0, z0], [-ex - 20, z0]], 0.06, C.flag), plate([[-ex - 20, z1], [0, z1], [0, R], [-ex - 20, R]], 0.06, C.flag));
+  // the fog beyond the castle's rock: dark under the edge, paler further out
+  const fog = (x0: number, y: number, c: string, k: number) => { const pts: [number, number][] = []; const m = 24; for (let i = 0; i <= m; i++) pts.push([x0 + hash(i, k) * 30, -2600 + (i / m) * 5200]); pts.push([3200, 2600], [3200, -2600]); return plate(pts, y, c); };
+  g.add(fog(330, 0.02, C.deep0, 1), fog(352, 0.03, C.deep1, 2), fog(400, 0.04, C.deep2, 3), fog(480, 0.05, C.deep3, 4));
+  for (const s of [-1, 1]) {   // and north and south of the castle's rock, beyond the ends of the wall
+    const pts: [number, number][] = []; const m = 14; for (let i = 0; i <= m; i++) pts.push([-ex - 20 + (i / m) * 370, s * (R + hash(i, s + 7) * 20)]);
+    pts.push([350, s * 2600], [-ex - 20, s * 2600]); g.add(plate(pts, 0.03, C.deep1), plate(pts.map(([x, z]) => [x, z + s * 40] as [number, number]), 0.045, C.deep2));
+  }
+  // the keep: one dark block rising behind the doors' facade, buttressed, with corner towers and conical roofs
+  const KX0 = 6, KX1 = 140, KZ = 74, KH = 118;
+  g.add(box(KX1 - KX0, KH, KZ * 2, C.keep, (KX0 + KX1) / 2, KH / 2, 0), box(KX1 - KX0 + 3, 3, KZ * 2 + 3, C.keepDeep, (KX0 + KX1) / 2, KH * 0.62, 0));
+  for (let i = 0; i < 9; i++) g.add(box(3, 5, 3, C.keepDeep, KX0 + 1.5, KH + 2.5, -KZ + 8 + i * ((KZ * 2 - 16) / 8)));   // battlements along the west face
+  for (const z of [-KZ, KZ]) for (const x of [KX0 + 8, KX1 - 8]) { g.add(cyl(13, 14, KH + 34, C.keepDeep, x, (KH + 34) / 2, z, 12), cone(15.5, 34, C.slate, x, KH + 34 + 17, z, 12)); }
+  for (const z of [-30, 32]) g.add(box(4, 20, 2.2, C.slit, KX0 - 0.2, KH * 0.8, z));                                                           // dark lancets high on its face
+  g.add(cyl(11, 12, 230, C.keep, 96, 115, -20, 10), cone(12.5, 60, C.slate, 96, 260, -20, 10), box(3, 16, 2, C.slit, 85, 190, -20));          // the high tower behind
+  g.add(cyl(8, 9, 180, C.keepDeep, 120, 90, 46, 10), cone(9.5, 40, C.slate, 120, 200, 46, 10));
+  // the inner ranges either side of the courtyard, low and dark, gabled in slate
+  for (const s of [-1, 1]) {
+    const zc = s * 190, w = 130, dd = 90, h = 56;
+    g.add(box(w, h, dd, C.keepDeep, 40, h / 2, zc));
+    const roof = new THREE.Mesh(new THREE.CylinderGeometry(dd * 0.6, dd * 0.6, w, 3, 1), mat(C.slate)); roof.rotation.set(-Math.PI / 2, 0, Math.PI / 2); roof.scale.set(1, 1, 0.4); roof.position.set(40, h + dd * 0.12, zc); g.add(roof);   // a triangular prism, ridge along x
+    g.add(box(18, h + 30, 18, C.keep, -12, (h + 30) / 2, zc - s * 40), cone(13, 26, C.slate, -12, h + 43, zc - s * 40, 4));
+  }
+  // the castle's own outer wall round the far side of the courtyard
+  for (const [x, z, len, rot] of [[320, 0, 1040, Math.PI / 2], [160, -R + 4, 320, 0], [160, R - 4, 320, 0]] as const) { const w = box(len, 60, 14, C.keepDeep, x, 30, z); w.rotation.y = rot; g.add(w); }
+  return root;
 }
 
 // ---------------------------------------------------------------- the turrets and what lies by them
@@ -496,6 +556,85 @@ export function fogBoil(d: Dims): THREE.Group {
   return fuse(root);
 }
 
+// ---------------------------------------------------------------- the chasm and the North Gully: a real drop
+/** Smooth-shaded fog billows (opaque), cached by colour: heaped fog reads soft, not as faceted rubble. */
+const softMats = new Map<string, THREE.MeshLambertMaterial>();
+function softMat(color: string): THREE.MeshLambertMaterial {
+  let m = softMats.get(color);
+  if (!m) { m = matClone(color); m.flatShading = false; softMats.set(color, m); }
+  return m;
+}
+/** Fog laid over the depths, drawn in the opaque pass (blended, no depth writes) so it can come before the lid below. */
+function depthVeil(color: string, opacity: number): THREE.MeshLambertMaterial {
+  const m = matClone(color); m.transparent = false; m.blending = THREE.CustomBlending; m.blendSrc = THREE.SrcAlphaFactor; m.blendDst = THREE.OneMinusSrcAlphaFactor;
+  m.opacity = opacity; m.depthWrite = false; return m;
+}
+/** A sheer-sided cut in the rock whose rim is the plan polygon dims x0,z0 … x{n-1},z{n-1} (local feet; `n` corners):
+ *  undercut faces drop `depth` ft from every edge of it to a floor of fog, dark under the walls and paler where it heaps
+ *  up in the middle, with two thin layers of mist hanging part way down. The map's own floor and the land drawn under
+ *  the map lie across the gap at ground level, so the depths are drawn first and the opening is then sealed with a lid a
+ *  hair above the floor that writes depth and no colour: whatever is under the lid (floor, land) is hidden, whatever
+ *  stands above ground (a bridge, a wall, the fog boiling out) draws as usual. */
+export function cleft(d: Dims): THREE.Group {
+  const n = d.n ?? 0, D = d.depth ?? 26, P: THREE.Vector2[] = [];
+  for (let i = 0; i < n; i++) P.push(new THREE.Vector2(d['x' + i] ?? 0, d['z' + i] ?? 0));
+  const out = grp(); if (n < 3) return out;
+  let A = 0; for (let i = 0; i < n; i++) { const a = P[i], b = P[(i + 1) % n]; A += a.x * b.y - b.x * a.y; }
+  const sg = A > 0 ? 1 : -1;
+  // inward normal per edge, and at each corner the mean of its two edges (so the faces of neighbouring edges meet)
+  const en = P.map((a, i) => { const b = P[(i + 1) % n], e = b.clone().sub(a).normalize(); return new THREE.Vector2(-e.y * sg, e.x * sg); });
+  const cn = P.map((_, i) => en[i].clone().add(en[(i + n - 1) % n]).normalize());
+  const noise = (x: number, z: number, j: number) => hash(Math.round(x * 3.1) * 131 + Math.round(z * 2.7), j);
+  // rows down a face: [depth fraction, set back under the rim (−) or out (+) in ft, roughness]
+  const ROWS: [number, number, number][] = [[0, 0, 0], [0.12, -1.6, 1.2], [0.38, -2.4, 2.2], [0.68, -0.6, 2.6], [1, 1.2, 2]];
+  const COLS = [C.rockDeep, C.rockDark, C.rockDark, C.deep1];
+  const bands: number[][] = COLS.map(() => []);
+  for (let i = 0; i < n; i++) {
+    const a = P[i], b = P[(i + 1) % n], len = a.distanceTo(b), m = Math.max(1, Math.round(len / 5));
+    const col = (k: number) => { const t = k / m, p = a.clone().lerp(b, t), nn = cn[i].clone().lerp(cn[(i + 1) % n], t).normalize(); return { p, nn }; };
+    for (let k = 0; k < m; k++) {
+      const c0 = col(k), c1 = col(k + 1);
+      const v = (c: { p: THREE.Vector2; nn: THREE.Vector2 }, r: number) => {
+        const [f, set, rough] = ROWS[r], off = r ? set + (noise(c.p.x, c.p.y, r) - 0.5) * 2 * rough : 0;
+        return new THREE.Vector3(c.p.x + c.nn.x * off, -D * f + (r && r < 4 ? (noise(c.p.x, c.p.y, r + 9) - 0.5) * 2.4 : 0), c.p.y + c.nn.y * off);
+      };
+      for (let r = 0; r < 4; r++) {
+        const q = [v(c0, r), v(c1, r), v(c1, r + 1), v(c0, r + 1)], tri = [[q[0], q[1], q[2]], [q[0], q[2], q[3]]];
+        const inward = new THREE.Vector3(en[i].x, 0, en[i].y);
+        for (const t of tri) {
+          const nrm = t[1].clone().sub(t[0]).cross(t[2].clone().sub(t[0]));
+          const o = nrm.dot(inward) >= 0 ? t : [t[0], t[2], t[1]];
+          for (const p of o) bands[r].push(p.x, p.y, p.z);
+        }
+      }
+    }
+  }
+  const depths = grp();
+  bands.forEach((arr, r) => { const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(arr, 3)); geo.computeVertexNormals(); depths.add(new THREE.Mesh(geo, mat(COLS[r], { surface: 'rock' }))); });
+  // the fog floor: dark where it meets the walls, heaped paler toward the middle
+  const pts: [number, number][] = P.map((p) => [p.x, p.y]);
+  depths.add(plate(pts, -D, C.deep0));
+  const minX = Math.min(...P.map((p) => p.x)), maxX = Math.max(...P.map((p) => p.x)), minZ = Math.min(...P.map((p) => p.y)), maxZ = Math.max(...P.map((p) => p.y));
+  const inPoly = (x: number, z: number) => { let c = false; for (let i = 0, j = n - 1; i < n; j = i++) { const a = P[i], b = P[j]; if ((a.y > z) !== (b.y > z) && x < ((b.x - a.x) * (z - a.y)) / (b.y - a.y) + a.x) c = !c; } return c; };
+  const edgeDist = (x: number, z: number) => { let best = Infinity; const q = new THREE.Vector2(x, z); for (let i = 0; i < n; i++) { const a = P[i], b = P[(i + 1) % n], ab = b.clone().sub(a), t = Math.max(0, Math.min(1, q.clone().sub(a).dot(ab) / ab.lengthSq())); best = Math.min(best, a.clone().addScaledVector(ab, t).distanceTo(q)); } return best; };
+  const near = (x: number, z: number) => x > (d.nx0 ?? -1e9) && x < (d.nx1 ?? 1e9) && z > (d.nz0 ?? -1e9) && z < (d.nz1 ?? 1e9);
+  let k = 0;
+  for (let z = minZ + 5; z < maxZ; z += 12) for (let x = minX + 5; x < maxX; x += 12) {
+    k++; const jx = x + (hash(k, 1) - 0.5) * 9, jz = z + (hash(k, 2) - 0.5) * 9;
+    if (!inPoly(jx, jz)) continue;
+    const e = edgeDist(jx, jz); if (e < 7) continue;
+    const h4 = hash(k, 4), r = Math.min(e - 1, 6 + hash(k, 3) * 5), pale = e > 17 ? (h4 > 0.85 ? C.deep3 : C.deep2) : e > 11 ? C.deep2 : C.deep1;
+    const bl = lump(r, pale, k, 1.4, 0.12, 1.2, near(jx, jz) ? 1 : 0); bl.material = softMat(pale); depths.add(place(bl, jx, -D + 0.3 + hash(k, 5) * 0.8, jz, hash(k, 6) * 6));
+  }
+  const fused = fuse(depths); fused.traverse((c) => { c.renderOrder = -3; }); out.add(fused);
+  // mist hanging in the depths, the deeper layer thicker
+  for (const [f, op, ro, c] of [[0.55, 0.36, -2.9, C.deep2]] as const) { const v = plate(pts, -D * f, depthVeil(c, op)); v.renderOrder = ro; out.add(v); }
+  // the lid: depth only, a hair above the floor slabs (their tops lie at 0.07 at most)
+  const lid = plate(pts, 0.09, new THREE.MeshBasicMaterial({ colorWrite: false }));
+  lid.renderOrder = -2; lid.raycast = () => {}; out.add(lid);
+  return out;
+}
+
 // ---------------------------------------------------------------- the chasm ledge (35 ft down)
 /** The chasm as seen from its ledge, 35 ft down: the two sheer faces `w` apart (local x) over `len` (local z), rising
  *  `top` ft to the rims, streaked and seeping; the fog floor `fog` ft below the ledge. The land drawn beyond the map
@@ -504,9 +643,11 @@ export function fogBoil(d: Dims): THREE.Group {
 export function chasmShaft(d: Dims): THREE.Group {
   const w = d.w ?? 50, L = d.len ?? 200, top = d.top ?? 35, fog = d.fog ?? 10, g = grp();
   for (const sx of [-1, 1]) {
-    const face = new THREE.BoxGeometry(6, top + fog + 40, L, 1, 10, Math.max(4, Math.round(L / 10)));
-    face.translate(sx * (w / 2 + 3), (top - fog - 40) / 2, 0);
-    const pv = face.attributes.position; for (let i = 0; i < pv.count; i++) if (Math.abs(pv.getX(i)) < w / 2 + 3) pv.setX(i, pv.getX(i) - sx * (((i * 7919) % 13) / 13) * 2.6);
+    // each face is one-sided, toward the gap: from outside the chasm (wherever the camera frames the ledge from) the
+    // near face is not drawn, so it never stands between the eye and the shelf
+    const face = new THREE.PlaneGeometry(L, top + fog + 40, Math.max(4, Math.round(L / 10)), 10);
+    face.rotateY(-sx * Math.PI / 2); face.translate(sx * (w / 2), (top - fog - 40) / 2, 0);
+    const pv = face.attributes.position; for (let i = 0; i < pv.count; i++) pv.setX(i, pv.getX(i) - sx * (((i * 7919) % 13) / 13) * 2.6);
     face.computeVertexNormals(); g.add(new THREE.Mesh(face, mat(C.rockDeep, { surface: 'rock' })));
     for (let k = 0; k < Math.round(L / 9); k++) {
       const z = -L / 2 + (k + hash(k, sx)) * 9, y = -fog + 2 + hash(k, sx + 2) * (top + fog - 4);
@@ -585,10 +726,10 @@ Object.assign(PROPS_V1, {
   'j-crag-wall': cragWall, 'j-scree-fan': screeFan, 'j-verglas': verglas, 'j-rock-terrace': rockTerrace, 'j-krummholz': krummholz,
   'j-cobble-apron': cobbleApron, 'j-ruts': ruts, 'j-turning-loop': (d: Dims) => (d.fresh ? fuse(turningLoop(d)) : turningLoop(d)), 'j-spout': spout,
   'j-rim-notch': (d: Dims) => (d.evidence ? fuse(rimNotch(d)) : rimNotch(d)),
-  'j-bridge-sill': bridgeSill, 'j-hinge-sill': hingeSill, 'j-drawbridge': drawbridge, 'j-chain': chain, 'j-weak-board': () => fuse(weakBoard()),
-  'j-gate-tower': gateTower, 'j-latch': () => fuse(latch()), 'j-slot-iron': () => fuse(slotIron()), 'j-lit-doorway': litDoorway,
+  'j-bridge-sill': bridgeSill, 'j-hinge-sill': hingeSill, 'j-drawbridge': drawbridge, 'j-chain': chain, 'j-chain-slot': chainSlot, 'j-weak-board': (d: Dims) => fuse(weakBoard(d)),
+  'j-gate-tower': gateTower, 'j-latch': () => fuse(latch()), 'j-slot-iron': () => fuse(slotIron()), 'j-lit-doorway': litDoorway, 'j-castle-mass': castleMass,
   'j-turret': turret, 'j-brazier-bracket': () => fuse(brazierBracket()), 'j-fallen-gargoyle': (d: Dims) => (d.detail ? fuse(fallenGargoyle(d)) : fallenGargoyle(d)),
-  'j-wall-gargoyle': wallGargoyle, 'j-fog-boil': fogBoil, 'j-chasm-shaft': chasmShaft, 'j-board-drift': (d: Dims) => (d.part ? fuse(boardDrift(d)) : boardDrift(d)),
+  'j-wall-gargoyle': wallGargoyle, 'j-fog-boil': fogBoil, 'j-cleft': cleft, 'j-chasm-shaft': chasmShaft, 'j-board-drift': (d: Dims) => (d.part ? fuse(boardDrift(d)) : boardDrift(d)),
   'j-carriage': (d: Dims) => fuse(blackCarriage(d)),
 } as Record<string, (d: Dims) => THREE.Object3D>);
 Object.assign(CREATURES, { 'j-watcher': (d) => watcher(d), 'j-bat-swarm': (d) => batSwarm(d) } as Record<string, (d: Dims) => THREE.Group>);

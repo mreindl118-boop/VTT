@@ -64,9 +64,39 @@ def build():
 
     # bare rock: the chasm rim and the Neck's lip, under the crag, the terraces of the Brink
     ROCK, ROCK2, ROCK3 = 0x66635d, 0x5a5853, 0x4e4c48
-    prism([(372, 96), (388, 110), (400, 120), (400, 372), (372, 372), (380, 340), (384, 300), (389, 262), (392, 232), (394, 212), (390, 196), (396, 190), (396, 160), (390, 152), (384, 138), (376, 126), (362, 112)], 0.08, ROCK)
-    prism([(335, 45), (352, 70), (372, 96), (362, 112), (344, 98), (328, 84), (318, 74)], 0.08, ROCK)
-    prism(CRAG_FOOT[2:] + [(322, 82), (300, 112), (276, 128), (250, 140), (232, 136), (208, 128), (190, 122), (172, 106), (150, 100), (128, 92)], 0.07, 0x6b6862)   # the scree verge under the crag
+    er = __import__('random').Random(29)
+    def ragged(pts, amp, step=6, hold=lambda x, z: False):
+        """An inner edge broken up: each run cut into ~`step`-ft pieces, every new point pushed off the line at random."""
+        out = [pts[0]]
+        for (x0, z0), (x1, z1) in zip(pts, pts[1:]):
+            ln = ((x1 - x0) ** 2 + (z1 - z0) ** 2) ** 0.5; m = max(1, round(ln / step)); nx, nz = -(z1 - z0) / (ln or 1), (x1 - x0) / (ln or 1)
+            for k in range(1, m + 1):
+                x, z = x0 + (x1 - x0) * k / m, z0 + (z1 - z0) * k / m
+                j = 0 if k == m or hold(x, z) else er.uniform(-amp, amp)
+                out.append((x + nx * j, z + nz * j))
+        return out
+    # the bare rock along the lips: a dark, broken-edged margin, not a band (the sill and the turrets keep their own edge)
+    prism([(372, 96), (388, 110), (400, 120), (400, 372), (372, 372)] + ragged([(372, 372), (380, 340), (384, 300), (389, 262), (392, 232), (394, 212), (390, 196), (396, 190), (396, 160), (390, 152), (384, 138), (376, 126), (362, 112)], 4, hold=lambda x, z: 140 < z < 214)[1:], 0.08, ROCK2)
+    prism([(335, 45), (352, 70), (372, 96)] + ragged([(372, 96), (362, 112), (344, 98), (328, 84), (318, 74)], 5)[1:], 0.08, ROCK2)
+    # bare rock and scree under the crag: broken, ragged patches hugging the foot of the face, never one ribbon; each a
+    # dark rim blending into the turf round a paler core of rock
+    sr = __import__('random').Random(23)
+    foot = CRAG_FOOT[2:]
+    flen = sum(((foot[i + 1][0] - foot[i][0]) ** 2 + (foot[i + 1][1] - foot[i][1]) ** 2) ** 0.5 for i in range(len(foot) - 1))
+    t = 0.0
+    while t < flen - 10:
+        ln = sr.uniform(16, 34)
+        if sr.random() < 0.72:
+            out_, back = [], []
+            for k in range(7):
+                (px, pz), (tx, tz) = along(foot, min(1, (t + ln * k / 6) / flen))
+                bulge = (1 - abs(k - 3) / 3.4) * sr.uniform(4, 13) + 1.5                          # widest in the middle, ragged
+                back.append((px + tz * 3, pz - tx * 3))                                           # tucked under the face
+                out_.append((px - tz * bulge, pz + tx * bulge))
+            core = [(bx + (ox - bx) * 0.62 + sr.uniform(-1.2, 1.2), bz + (oz - bz) * 0.62 + sr.uniform(-1.2, 1.2)) for (bx, bz), (ox, oz) in zip(back, out_)]
+            prism(back + out_[::-1], 0.06, 0x474a41)
+            prism(back[1:-1] + core[1:-1][::-1], 0.07, 0x55534d)
+        t += ln + sr.uniform(8, 22)
     prism([(0, 0), (30, 0), (36, 24), (40, 48), (52, 66), (40, 86), (18, 96), (0, 100)], 0.07, ROCK2)     # the lower shoulder west of the road
     brink1 = [(0, 333), (40, 329), (90, 332), (140, 328), (200, 331), (260, 327), (320, 331), (372, 328), (380, 340), (376, 352), (0, 352)]
     brink2 = [(0, 352), (376, 352), (373, 362), (372, CLIFF + 2), (300, CLIFF - 2), (220, CLIFF + 3), (140, CLIFF - 1), (60, CLIFF + 2), (0, CLIFF)]
@@ -75,20 +105,25 @@ def build():
 
     # ============================================================== the drops: the chasm, the North Gully, the Brink
     # the chasm runs north-south off both edges; its fog fills it a few yards down
-    fp('gorge', 425, 200, dims={'w': 50, 'len': 1000, 'bz': -25, 'bw': 12}, label='The chasm', desc='A fifty-foot cleft between the spur and the castle\'s rock, sheer and slick, its depths lost in fog.')
+    # the chasm and the North Gully, one cut: sheer faces dropping from every lip into the fog, the gully biting back
+    # north-west from the chasm behind the north turret to the foot of the crag and running on north off the map
+    cut = [(400, 720), (400, 120)] + GULLY_RIM[::-1][1:] + [(324, 18), (321, -30), (342, -92), (380, -150), (400, -200), (400, -340), (450, -340), (450, 720)]
+    cx_, cz_ = 425, AXIS
+    cd = {'n': len(cut), 'depth': 36, 'nx0': -140, 'nx1': 140, 'nz0': -260, 'nz1': 260}
+    for i, (x, z) in enumerate(cut):
+        cd[f'x{i}'] = rnd(x - cx_, 2); cd[f'z{i}'] = rnd(z - cz_, 2)
+    o = fp('j-cleft', cx_, cz_, dims=cd, label='The chasm and the North Gully', desc='A fifty-foot cleft between the spur and the castle\'s rock, sheer and slick, and a side-cleft of it biting back behind the north turret; both drop into fog a few yards down.')
+    o['vis'] = 'explored'   # its own pieces, drawn in order (the depths, then the lid over them): never merged into the scatter
     # the North Gully: a side-cleft biting back north-west to the crag foot, as fog-filled as the chasm
     gully = [(335, 45), (352, 70), (372, 92), (388, 110), (400, 120), (402, 0), (402, -40), (330, -40), (326, 20)]
-    prism(gully, 0.06, 0x383a41, y=0.02, label='The North Gully')
-    prism([(344, 44), (360, 68), (378, 90), (394, 106), (401, 104), (401, -40), (336, -40), (334, 20)], 0.06, 0x555962, y=0.04)
-    prism([(356, 46), (372, 70), (388, 88), (401, 92), (401, -40), (350, -40), (348, 16)], 0.06, 0x767b85, y=0.06)
     # the Brink: below the cliff only fog, and through it, far down, the valley
     def sea(near, far, west, seed):
         """A ragged sheet of fog below the cliff: from `near` ft past the cliff edge out to about `far`, west to about `west`."""
         r = __import__('random').Random(seed); top, bot = [], []
-        for x in range(int(west), 401, 20):
+        for x in range(int(west), 400, 20):
             top.append((x, CLIFF + near + r.uniform(-2, 3) * (1 if near else 0)))
             bot.append((x, far + r.uniform(-30, 30) - max(0, -x) * 0.4))
-        top[-1] = (401, top[-1][1]); bot[-1] = (401, bot[-1][1])
+        top[-1] = (400, top[-1][1]); bot[-1] = (400, bot[-1][1])
         wend = [(west - r.uniform(0, 40), (CLIFF + near + far) / 2 + r.uniform(-30, 30))]
         return top + bot[::-1] + wend
     prism(sea(0, 690, -240, 1), 0.05, 0x24252a, y=0.02, label='The Brink')                 # the cliff's shadow on the fog
@@ -98,36 +133,38 @@ def build():
     for i, (x, z, ln, w, h) in enumerate([(425, 60, 120, 44, 26), (425, 300, 140, 44, 30), (425, 110, 50, 36, 10)]):
         fp('j-fog-boil', x, z, rot=90, dims={'len': ln, 'w': w, 'h': h, 'seed': i * 7 + 1}, label='Fog boiling from the chasm')
     fp('j-fog-boil', 372, 44, rot=-48, dims={'len': 90, 'w': 46, 'h': 30, 'seed': 31}, label='Fog in the North Gully')
+    fp('j-fog-boil', 352, 0, rot=-75, dims={'len': 70, 'w': 34, 'h': 22, 'seed': 37}, label='Fog in the North Gully')
     for i, x in enumerate((-40, 80, 200, 320)):
         fp('j-fog-boil', max(x, 2), 398, dims={'len': 130, 'w': 120, 'h': 26, 'seed': 40 + i, 'ox': min(x, 2) - 2, 'oz': 62}, label='Fog rising over the Brink')
 
     # the lips: broken rock edges where the ground falls away
     for i, ((x0, z0), (x1, z1)) in enumerate(zip(GULLY_RIM, GULLY_RIM[1:])):
         mx, mz = (x0 + x1) / 2, (z0 + z1) / 2; ln = ((x1 - x0) ** 2 + (z1 - z0) ** 2) ** 0.5
-        fp('j-rock-terrace', mx - 1.5, mz + 1.5, rot=heading(x1 - x0, z1 - z0) + 180, dims={'len': rnd(ln + 4), 'h': 400, 'talus': 0, 'seed': 10 + i})
+        fp('j-rock-terrace', mx - 1.5, mz + 1.5, rot=heading(x1 - x0, z1 - z0) + 180, dims={'len': rnd(ln + 4), 'h': 3, 'talus': 0, 'seed': 10 + i})
     for i, z in enumerate(range(128, 366, 34)):
         if abs(z + 17 - AXIS) < 24: continue
-        fp('j-rock-terrace', 399, z + 17, rot=90, dims={'len': 34, 'h': 400, 'talus': 0, 'seed': 20 + i})
+        fp('j-rock-terrace', 399, z + 17, rot=90, dims={'len': 34, 'h': 3, 'talus': 0, 'seed': 20 + i})
     for i, x in enumerate(range(0, 380, 38)):
         fp('j-rock-terrace', x + 19, 331, dims={'len': 38, 'h': 12, 'seed': 30 + i})
         fp('j-rock-terrace', x + 19, 352, dims={'len': 38, 'h': 14, 'seed': 50 + i})
         fp('j-rock-terrace', x + 19, CLIFF, dims={'len': 38, 'h': 1000, 'talus': 0, 'seed': 70 + i})
 
     # ============================================================== the north crag, the Cut and its ice, the knob
-    walls = [(48, 6, 34, 70, 52), (86, 34, 40, 80, 50), (128, 62, 44, 92, 44), (168, 76, 40, 104, 40), (206, 98, 38, 96, 36), (246, 106, 40, 88, 38), (284, 90, 40, 110, 40), (316, 50, 46, 120, 44)]
+    walls = [(61, 9, 26, 70, 48), (88, 34, 40, 80, 50), (128, 62, 44, 92, 44), (168, 76, 40, 104, 40), (206, 98, 38, 96, 36), (246, 106, 40, 88, 38), (284, 90, 40, 110, 40), (316, 50, 46, 120, 44)]
     for i, (x, z, ln, h, dd) in enumerate(walls):
         j = min(range(len(CRAG_FOOT) - 1), key=lambda k: line_dist(F(x, z), [F(*CRAG_FOOT[k]), F(*CRAG_FOOT[k + 1])]))
         (ax, az), (bx, bz) = CRAG_FOOT[j], CRAG_FOOT[j + 1]
         rot = heading(bx - ax, bz - az)           # the face (local +z) toward the road, to the south-west
         fp('j-crag-wall', x, z, rot=rot, dims={'len': ln, 'h': h, 'd': dd, 'seed': i + 3}, label='The north crag')
-    for i, (x, z, w, d_, h) in enumerate([(110, 14, 90, 70, 130), (190, 30, 90, 70, 150), (262, 40, 80, 64, 140), (70, 2, 50, 40, 95),
-                                          (40, 2, 90, 130, 150), (120, 2, 100, 130, 180), (200, 2, 100, 130, 200), (280, 2, 90, 120, 185), (352, 1, 80, 52, 140)]):
+    # (the road comes in at (40, 0) and runs south-south-east under the crag: every mass here keeps north-east of it)
+    for i, (x, z, w, d_, h) in enumerate([(124, 22, 80, 58, 130), (190, 30, 90, 70, 150), (262, 40, 80, 64, 140), (96, 12, 40, 32, 95),
+                                          (108, 1, 70, 60, 150), (170, 1, 100, 80, 185), (230, 1, 90, 100, 200), (280, 2, 90, 120, 185), (296, 1, 50, 44, 150)]):
         fp('crag', x, z, rot=s.rng.uniform(-20, 20), dims={'w': w, 'd': d_, 'h': h, 'seed': i + 41})
     for i, (x, z, w, h) in enumerate([(10, 30, 34, 26), (16, 66, 30, 18), (4, 92, 22, 12)]):        # the lower shoulder west of the road
         fp('crag', x, z, rot=s.rng.uniform(0, 360), dims={'w': w, 'd': rnd(w * 0.8), 'h': h, 'seed': i + 61})
     fp('j-scree-fan', 121, 80, rot=facing(-0.3, 1), dims={'w': 34, 'd': 18}, label='Scree under the crag')
     fp('j-scree-fan', 238, 132, rot=8, dims={'w': 30, 'd': 14})
-    fp('j-scree-fan', 50, 40, rot=-40, dims={'w': 22, 'd': 14})
+    fp('j-scree-fan', 70, 33, rot=facing(-0.85, 0.5), dims={'w': 20, 'd': 12})
     fp('j-scree-fan', 286, 108, rot=facing(-0.6, 1), dims={'w': 26, 'd': 16})
     fp('j-scree-fan', 318, 80, rot=facing(-0.8, 0.6), dims={'w': 20, 'd': 12})
     # fallen blocks strewn along the verge under the crag, so the bare strip reads as rockfall and not as a second road
@@ -179,14 +216,15 @@ def build():
     fp('j-hinge-sill', 450, AXIS, label='Bridge hinge')
     fp('j-drawbridge', 449.2, AXIS, dims={'len': 55.2, 'w': 15, 'up': 0, 'seed': 3}, label='The drawbridge', desc='Fifty-six feet of old shored-up beams and planks, three squares wide, boards missing; it groans under every step.')
     for dz, sz in ((-7.1, 160), (7.1, 190)):
-        fp('j-chain', 395.3, AXIS + dz, dims={'dx': 450 - 395.3 - 0.4, 'rise': 58.8, 'dz': rnd(sz - AXIS - dz, 2), 'sag': 3}, y=1.25, label='Drawbridge chain', desc='A rust-eaten chain runs from the bridge\'s end up to a slot sixty feet up the wall, creaking in the wind.')
+        fp('j-chain', 395.3, AXIS + dz, dims={'dx': 450 - 395.3 - 0.4, 'rise': 58.8, 'dz': rnd(sz - AXIS - dz, 2), 'sag': 3, 'up': 0}, y=1.25, label='Drawbridge chain', desc='A rust-eaten chain runs from the bridge\'s end up to a slot sixty feet up the wall, creaking in the wind.')
+        fp('j-chain-slot', 450, sz, dims={'seed': sz}, y=60.05, label='Chain slot', desc='A dark slot high in the wall face where the chain runs in, rust streaking the stone below it.')
     s.keep.append((rect(*F(382, 160), *F(400, 190)), 0.3))
 
     # ============================================================== the castle: wall, gate, towers, courtyard, the doors
-    for z0, z1 in ((-80, GATE[0]), (GATE[1], 480)):
+    for z0, z1 in ((-150, GATE[0]), (GATE[1], 610)):      # (the castle's massing piece carries it on off the map)
         o = fp('curtain-wall', 460, (z0 + z1) / 2, rot=90, dims={'len': z1 - z0, 't': 20, 'h': 89.8}, label='Curtain wall', desc='Castle Ravenloft\'s west wall rises ninety feet sheer from the far lip of the chasm.')
     fp('curtain-wall', 460, AXIS, rot=90, dims={'len': 20, 't': 20, 'h': 71.8}, y=18, label='Gate arch')
-    for a, b in [((450, -80), (450, GATE[0])), ((450, GATE[1]), (450, 480)), ((470, -80), (470, GATE[0])), ((470, GATE[1]), (470, 480)), ((450, GATE[0]), (470, GATE[0])), ((450, GATE[1]), (470, GATE[1]))]:
+    for a, b in [((450, -340), (450, GATE[0])), ((450, GATE[1]), (450, 700)), ((470, -340), (470, GATE[0])), ((470, GATE[1]), (470, 700)), ((450, GATE[0]), (470, GATE[0])), ((450, GATE[1]), (470, GATE[1]))]:
         a_, b_ = F(max(min(a[0], 540), 0), max(min(a[1], 400), 0)), F(max(min(b[0], 540), 0), max(min(b[1], 400), 0))
         L.wall(a_, b_, flags=['invisible']); L.wall(a_, b_, flags=['ethereal'])
     o = fp('rotten-portcullis', 452, AXIS, rot=90, dims={'w': 20, 'h': 14}, y=13, label='Rotting portcullis', desc='A wooden portcullis, rotten and furred green, hangs drawn up in the tunnel mouth.')
@@ -196,6 +234,7 @@ def build():
         for a, b in [((462, z - 8), (478, z - 8)), ((478, z - 8), (478, z - 3.5)), ((478, z + 3.5), (478, z + 8)), ((478, z + 8), (462, z + 8))]:
             L.wall(F(*a), F(*b), flags=['invisible']); L.wall(F(*a), F(*b), flags=['ethereal'])
     fp('j-lit-doorway', 536, AXIS, rot=-90, dims={'w': 104, 'h': 66}, label='The keep\'s open doors', desc='Across the courtyard the keep\'s great doors stand open, torches guttering either side and warm light spilling down the steps; high above, a round window of broken glass shows no light.')
+    fp('j-castle-mass', 539, AXIS, dims={'ox': 1, 'ex': 70, 'z0': -AXIS, 'z1': 400 - AXIS, 'r': 520, 'wn': -150 - AXIS, 'ws': 610 - AXIS}, label='Castle Ravenloft', desc='Beyond the courtyard the keep\'s dark bulk and towers rise over the lit doors, the castle\'s inner ranges black on either side.')
     for z in (166, 184):
         L.light(f'tunnel{z}', F(467, z), 'torch', 10, 25, y=8)
     for z in (163.5, 186.5):
@@ -259,7 +298,7 @@ def build():
     for z in (160, 190):
         hid('j-slot-iron', 449.6, z, 'Greased iron in the chain slot', 'Bright iron in the slot', y=59.4, rot=0, dm='DC 15 Wisdom (Perception) from the sill: the iron inside the slot is bright and greased while all round it rusts. Someone keeps the mechanism, and not by hand.')
     for x in (404, 418, 431, 441):
-        hid('j-weak-board', x, AXIS, 'Rotten board', 'A rotten board', dm='House rule: DC 12 Perception or Investigation along the deck picks out the four worst boards. Stepping over them still rolls the d20, but the DM may grant advantage on the Dexterity save.')
+        hid('j-weak-board', x, AXIS, 'Rotten board', 'A rotten board', dims={'hx': rnd(449.2 - x, 2), 'up': 0}, dm='House rule: DC 12 Perception or Investigation along the deck picks out the four worst boards. Stepping over them still rolls the d20, but the DM may grant advantage on the Dexterity save.')
     hid('j-rim-notch', 396, 250, 'Finger-scores and a dropped boot', 'Scratches and a boot', dims={'evidence': 1}, dm='DC 10 Wisdom (Survival): several people were walked to this spot and went over without a struggle.')
     hid('j-turning-loop', 330, 216, 'Fresh ruts, one vehicle only', 'Fresh wheel ruts', dims={'w': 72, 'd': 40, 'fresh': 1}, dm='DC 10 Survival: fresh ruts, no dung, no hoofprints off the cobbles, no foot traffic; the same carriage turns here and goes back. Only one vehicle ever uses this road.')
     hid('j-brazier-bracket', 383.9, 152, 'Signal-brazier bracket', 'A rusted bracket', rot=-90, dm='DC 12 Intelligence (Investigation): a bracket for a signal fire, charcoal in the rubble, the old way of calling for the bridge before the latches answered to one voice.')
@@ -279,7 +318,7 @@ def build():
     s.note(F(40, 18), 'North-west: the road back round the mountain to the fork at I, about 2 miles. There is no road up from the village: the valley floor is 1,000 ft straight down off the Brink.')
     s.note(F(398, 104), 'The North Gully\'s rim is undercut and unfenced: a shove or a fumble here is the same 1,000-ft fall as the chasm.', key='J')
     s.note(F(422, 150), 'Crossing on foot: d20 per creature per crossing, a board breaks on a 1; DC 10 Dexterity save or fall 1,000 ft (20d6 at the cap). Mercy: the faller snags on the ledge 35 ft down (ledge level).', key='J-bridge')
-    s.note(F(460, 232), 'Raised bridge: set the drawbridge piece to up 1 and both chains to taut (rise 4, dx 0.4); then the road ends between the turrets.', key='J-bridge')
+    s.note(F(460, 232), 'Raised bridge (after K10): set "up" to 1 on the drawbridge, on both chains and on the four rotten boards (nothing needs moving); the deck then stands against the gate, the chains run short and taut to their slots, and the road ends between the turrets.', key='J-bridge')
     s.spawn(F(252, 176))
 
     # ============================================================== the wall-walk (+90)

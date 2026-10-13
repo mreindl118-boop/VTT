@@ -1600,15 +1600,15 @@
      "id": "ground-prism1",
      "kind": "prism",
      "pos": [
-      386.18,
+      385.81,
       0,
-      205.29
+      231.89
      ],
      "vis": "player",
      "dims": {
       "h": 0.08,
       "y": 0.0,
-      "color": 6710109
+      "color": 5920851
      },
      "polygon": [
       [
@@ -1632,52 +1632,184 @@
        372
       ],
       [
-       380,
-       340
+       373.97,
+       365.69
       ],
       [
-       384,
-       300
+       374.0,
+       358.9
       ],
       [
-       389,
-       262
+       379.48,
+       353.47
       ],
       [
-       392,
-       232
+       376.76,
+       345.99
       ],
       [
-       394,
-       212
+       380.0,
+       340.0
       ],
       [
-       390,
-       196
+       380.65,
+       334.29
       ],
       [
-       396,
-       190
+       379.9,
+       328.45
       ],
       [
-       396,
-       160
+       381.04,
+       322.79
       ],
       [
-       390,
-       152
+       386.06,
+       317.52
       ],
       [
-       384,
-       138
+       379.7,
+       311.11
       ],
       [
-       376,
-       126
+       382.99,
+       305.67
       ],
       [
-       362,
-       112
+       384.0,
+       300.0
+      ],
+      [
+       382.65,
+       293.38
+      ],
+      [
+       384.47,
+       287.18
+      ],
+      [
+       390.46,
+       281.52
+      ],
+      [
+       385.98,
+       274.49
+      ],
+      [
+       389.02,
+       268.45
+      ],
+      [
+       389.0,
+       262.0
+      ],
+      [
+       388.96,
+       255.94
+      ],
+      [
+       392.03,
+       250.18
+      ],
+      [
+       390.38,
+       243.96
+      ],
+      [
+       388.78,
+       237.74
+      ],
+      [
+       392.0,
+       232.0
+      ],
+      [
+       392.14,
+       225.28
+      ],
+      [
+       392.6,
+       218.59
+      ],
+      [
+       394.0,
+       212.0
+      ],
+      [
+       392.67,
+       206.67
+      ],
+      [
+       391.33,
+       201.33
+      ],
+      [
+       390.0,
+       196.0
+      ],
+      [
+       396.0,
+       190.0
+      ],
+      [
+       396.0,
+       184.0
+      ],
+      [
+       396.0,
+       178.0
+      ],
+      [
+       396.0,
+       172.0
+      ],
+      [
+       396.0,
+       166.0
+      ],
+      [
+       396.0,
+       160.0
+      ],
+      [
+       393.0,
+       156.0
+      ],
+      [
+       390.0,
+       152.0
+      ],
+      [
+       388.0,
+       147.33
+      ],
+      [
+       386.0,
+       142.67
+      ],
+      [
+       384.0,
+       138.0
+      ],
+      [
+       381.95,
+       130.7
+      ],
+      [
+       376.0,
+       126.0
+      ],
+      [
+       371.69,
+       120.98
+      ],
+      [
+       364.95,
+       118.38
+      ],
+      [
+       362.0,
+       112.0
       ]
      ]
     },
@@ -1685,15 +1817,15 @@
      "id": "ground-prism2",
      "kind": "prism",
      "pos": [
-      344.43,
+      346.16,
       0,
-      82.71
+      90.69
      ],
      "vis": "player",
      "dims": {
       "h": 0.08,
       "y": 0.0,
-      "color": 6710109
+      "color": 5920851
      },
      "polygon": [
       [
@@ -1709,20 +1841,56 @@
        96
       ],
       [
-       362,
-       112
+       367.19,
+       100.41
       ],
       [
-       344,
-       98
+       367.04,
+       107.74
       ],
       [
-       328,
-       84
+       362.0,
+       112.0
       ],
       [
-       318,
-       74
+       357.57,
+       108.41
+      ],
+      [
+       351.28,
+       107.21
+      ],
+      [
+       347.95,
+       102.2
+      ],
+      [
+       344.0,
+       98.0
+      ],
+      [
+       341.88,
+       92.35
+      ],
+      [
+       336.1,
+       90.88
+      ],
+      [
+       333.66,
+       85.6
+      ],
+      [
+       328.0,
+       84.0
+      ],
+      [
+       324.82,
+       77.18
+      ],
+      [
+       318.0,
+       74.0
       ]
      ]
     },
@@ -1730,109 +1898,784 @@
      "id": "ground-prism3",
      "kind": "prism",
      "pos": [
-      209.41,
+      105.17,
       0,
-      97.23
+      69.45
      ],
      "vis": "player",
      "dims": {
-      "h": 0.07,
+      "h": 0.06,
       "y": 0.0,
-      "color": 7039074
+      "color": 4672065
      },
      "polygon": [
       [
-       64,
-       24
+       100.45,
+       61.47
       ],
       [
-       82,
-       50
+       102.69,
+       63.34
       ],
       [
-       106,
-       70
+       104.93,
+       65.21
       ],
       [
-       130,
-       78
+       107.18,
+       67.07
       ],
       [
-       160,
-       86
+       108.8,
+       67.77
       ],
       [
-       186,
-       102
+       111.56,
+       68.69
       ],
       [
-       208,
-       116
+       114.33,
+       69.61
       ],
       [
-       232,
-       126
+       112.61,
+       74.79
       ],
       [
-       262,
-       122
+       109.36,
+       75.3
       ],
       [
-       294,
-       104
+       105.59,
+       77.4
       ],
       [
-       320,
-       70
+       100.63,
+       74.93
       ],
       [
-       335,
-       45
+       99.72,
+       71.47
       ],
       [
-       322,
-       82
+       97.5,
+       69.57
       ],
       [
-       300,
-       112
-      ],
-      [
-       276,
-       128
-      ],
-      [
-       250,
-       140
-      ],
-      [
-       232,
-       136
-      ],
-      [
-       208,
-       128
-      ],
-      [
-       190,
-       122
-      ],
-      [
-       172,
-       106
-      ],
-      [
-       150,
-       100
-      ],
-      [
-       128,
-       92
+       96.98,
+       65.63
       ]
      ]
     },
     {
      "id": "ground-prism4",
+     "kind": "prism",
+     "pos": [
+      105.77,
+      0,
+      68.67
+     ],
+     "vis": "player",
+     "dims": {
+      "h": 0.07,
+      "y": 0.0,
+      "color": 5591885
+     },
+     "polygon": [
+      [
+       102.69,
+       63.34
+      ],
+      [
+       104.93,
+       65.21
+      ],
+      [
+       107.18,
+       67.07
+      ],
+      [
+       108.8,
+       67.77
+      ],
+      [
+       111.56,
+       68.69
+      ],
+      [
+       110.58,
+       73.08
+      ],
+      [
+       107.49,
+       73.95
+      ],
+      [
+       102.78,
+       70.88
+      ],
+      [
+       101.73,
+       69.65
+      ],
+      [
+       99.98,
+       67.01
+      ]
+     ]
+    },
+    {
+     "id": "ground-prism5",
+     "kind": "prism",
+     "pos": [
+      141.7,
+      0,
+      82.4
+     ],
+     "vis": "player",
+     "dims": {
+      "h": 0.06,
+      "y": 0.0,
+      "color": 4672065
+     },
+     "polygon": [
+      [
+       131.86,
+       75.39
+      ],
+      [
+       135.5,
+       76.36
+      ],
+      [
+       139.15,
+       77.33
+      ],
+      [
+       142.79,
+       78.31
+      ],
+      [
+       146.44,
+       79.28
+      ],
+      [
+       150.08,
+       80.25
+      ],
+      [
+       153.73,
+       81.22
+      ],
+      [
+       152.32,
+       86.48
+      ],
+      [
+       147.93,
+       88.3
+      ],
+      [
+       143.37,
+       90.76
+      ],
+      [
+       139.5,
+       90.64
+      ],
+      [
+       137.12,
+       84.94
+      ],
+      [
+       133.62,
+       83.43
+      ],
+      [
+       130.39,
+       80.87
+      ]
+     ]
+    },
+    {
+     "id": "ground-prism6",
+     "kind": "prism",
+     "pos": [
+      141.84,
+      0,
+      81.0
+     ],
+     "vis": "player",
+     "dims": {
+      "h": 0.07,
+      "y": 0.0,
+      "color": 5591885
+     },
+     "polygon": [
+      [
+       135.5,
+       76.36
+      ],
+      [
+       139.15,
+       77.33
+      ],
+      [
+       142.79,
+       78.31
+      ],
+      [
+       146.44,
+       79.28
+      ],
+      [
+       150.08,
+       80.25
+      ],
+      [
+       148.93,
+       86.01
+      ],
+      [
+       143.43,
+       85.86
+      ],
+      [
+       139.83,
+       84.99
+      ],
+      [
+       138.65,
+       81.32
+      ],
+      [
+       133.56,
+       80.32
+      ]
+     ]
+    },
+    {
+     "id": "ground-prism7",
+     "kind": "prism",
+     "pos": [
+      203.62,
+      0,
+      114.8
+     ],
+     "vis": "player",
+     "dims": {
+      "h": 0.06,
+      "y": 0.0,
+      "color": 4672065
+     },
+     "polygon": [
+      [
+       197.22,
+       105.58
+      ],
+      [
+       200.12,
+       107.43
+      ],
+      [
+       203.03,
+       109.28
+      ],
+      [
+       205.93,
+       111.13
+      ],
+      [
+       208.84,
+       112.98
+      ],
+      [
+       211.48,
+       114.2
+      ],
+      [
+       214.66,
+       115.53
+      ],
+      [
+       212.51,
+       120.69
+      ],
+      [
+       207.81,
+       123.02
+      ],
+      [
+       203.04,
+       122.08
+      ],
+      [
+       200.22,
+       120.11
+      ],
+      [
+       196.27,
+       119.9
+      ],
+      [
+       195.42,
+       114.83
+      ],
+      [
+       194.11,
+       110.48
+      ]
+     ]
+    },
+    {
+     "id": "ground-prism8",
+     "kind": "prism",
+     "pos": [
+      204.62,
+      0,
+      113.69
+     ],
+     "vis": "player",
+     "dims": {
+      "h": 0.07,
+      "y": 0.0,
+      "color": 5591885
+     },
+     "polygon": [
+      [
+       200.12,
+       107.43
+      ],
+      [
+       203.03,
+       109.28
+      ],
+      [
+       205.93,
+       111.13
+      ],
+      [
+       208.84,
+       112.98
+      ],
+      [
+       211.48,
+       114.2
+      ],
+      [
+       210.28,
+       119.76
+      ],
+      [
+       206.38,
+       119.35
+      ],
+      [
+       203.13,
+       117.14
+      ],
+      [
+       198.64,
+       114.72
+      ],
+      [
+       198.35,
+       110.95
+      ]
+     ]
+    },
+    {
+     "id": "ground-prism9",
+     "kind": "prism",
+     "pos": [
+      241.77,
+      0,
+      125.38
+     ],
+     "vis": "player",
+     "dims": {
+      "h": 0.06,
+      "y": 0.0,
+      "color": 4672065
+     },
+     "polygon": [
+      [
+       226.52,
+       120.47
+      ],
+      [
+       231.68,
+       122.62
+      ],
+      [
+       235.56,
+       122.5
+      ],
+      [
+       241.1,
+       121.76
+      ],
+      [
+       246.64,
+       121.02
+      ],
+      [
+       252.18,
+       120.28
+      ],
+      [
+       257.72,
+       119.54
+      ],
+      [
+       258.41,
+       124.7
+      ],
+      [
+       253.46,
+       129.87
+      ],
+      [
+       248.39,
+       134.16
+      ],
+      [
+       242.46,
+       131.94
+      ],
+      [
+       236.92,
+       132.69
+      ],
+      [
+       229.21,
+       128.55
+      ],
+      [
+       224.53,
+       125.24
+      ]
+     ]
+    },
+    {
+     "id": "ground-prism10",
+     "kind": "prism",
+     "pos": [
+      241.69,
+      0,
+      124.76
+     ],
+     "vis": "player",
+     "dims": {
+      "h": 0.07,
+      "y": 0.0,
+      "color": 5591885
+     },
+     "polygon": [
+      [
+       231.68,
+       122.62
+      ],
+      [
+       235.56,
+       122.5
+      ],
+      [
+       241.1,
+       121.76
+      ],
+      [
+       246.64,
+       121.02
+      ],
+      [
+       252.18,
+       120.28
+      ],
+      [
+       253.92,
+       126.98
+      ],
+      [
+       247.59,
+       128.79
+      ],
+      [
+       241.75,
+       129.03
+      ],
+      [
+       237.15,
+       128.23
+      ],
+      [
+       229.35,
+       126.4
+      ]
+     ]
+    },
+    {
+     "id": "ground-prism11",
+     "kind": "prism",
+     "pos": [
+      312.67,
+      0,
+      82.12
+     ],
+     "vis": "player",
+     "dims": {
+      "h": 0.06,
+      "y": 0.0,
+      "color": 4672065
+     },
+     "polygon": [
+      [
+       302.9,
+       87.42
+      ],
+      [
+       304.95,
+       84.74
+      ],
+      [
+       307.01,
+       82.05
+      ],
+      [
+       309.06,
+       79.36
+      ],
+      [
+       311.12,
+       76.68
+      ],
+      [
+       313.17,
+       73.99
+      ],
+      [
+       315.23,
+       71.3
+      ],
+      [
+       319.71,
+       74.73
+      ],
+      [
+       318.37,
+       77.97
+      ],
+      [
+       321.11,
+       84.32
+      ],
+      [
+       319.75,
+       87.53
+      ],
+      [
+       315.64,
+       88.65
+      ],
+      [
+       312.11,
+       90.21
+      ],
+      [
+       307.19,
+       90.71
+      ]
+     ]
+    },
+    {
+     "id": "ground-prism12",
+     "kind": "prism",
+     "pos": [
+      311.78,
+      0,
+      81.19
+     ],
+     "vis": "player",
+     "dims": {
+      "h": 0.07,
+      "y": 0.0,
+      "color": 5591885
+     },
+     "polygon": [
+      [
+       304.95,
+       84.74
+      ],
+      [
+       307.01,
+       82.05
+      ],
+      [
+       309.06,
+       79.36
+      ],
+      [
+       311.12,
+       76.68
+      ],
+      [
+       313.17,
+       73.99
+      ],
+      [
+       316.33,
+       76.34
+      ],
+      [
+       316.67,
+       81.56
+      ],
+      [
+       315.84,
+       84.53
+      ],
+      [
+       313.44,
+       85.13
+      ],
+      [
+       310.19,
+       87.52
+      ]
+     ]
+    },
+    {
+     "id": "ground-prism13",
+     "kind": "prism",
+     "pos": [
+      332.34,
+      0,
+      51.58
+     ],
+     "vis": "player",
+     "dims": {
+      "h": 0.06,
+      "y": 0.0,
+      "color": 4672065
+     },
+     "polygon": [
+      [
+       322.24,
+       60.44
+      ],
+      [
+       324.82,
+       56.14
+      ],
+      [
+       327.4,
+       51.83
+      ],
+      [
+       329.99,
+       47.52
+      ],
+      [
+       332.43,
+       43.46
+      ],
+      [
+       332.43,
+       43.46
+      ],
+      [
+       332.43,
+       43.46
+      ],
+      [
+       336.76,
+       46.06
+      ],
+      [
+       339.04,
+       47.42
+      ],
+      [
+       341.16,
+       48.69
+      ],
+      [
+       338.61,
+       52.7
+      ],
+      [
+       337.39,
+       57.82
+      ],
+      [
+       330.74,
+       59.69
+      ],
+      [
+       327.28,
+       63.47
+      ]
+     ]
+    },
+    {
+     "id": "ground-prism14",
+     "kind": "prism",
+     "pos": [
+      331.88,
+      0,
+      50.16
+     ],
+     "vis": "player",
+     "dims": {
+      "h": 0.07,
+      "y": 0.0,
+      "color": 5591885
+     },
+     "polygon": [
+      [
+       324.82,
+       56.14
+      ],
+      [
+       327.4,
+       51.83
+      ],
+      [
+       329.99,
+       47.52
+      ],
+      [
+       332.43,
+       43.46
+      ],
+      [
+       332.43,
+       43.46
+      ],
+      [
+       337.4,
+       45.91
+      ],
+      [
+       336.85,
+       47.61
+      ],
+      [
+       334.85,
+       51.69
+      ],
+      [
+       333.73,
+       55.61
+      ],
+      [
+       328.94,
+       58.43
+      ]
+     ]
+    },
+    {
+     "id": "ground-prism15",
      "kind": "prism",
      "pos": [
       27.0,
@@ -1881,7 +2724,7 @@
      ]
     },
     {
-     "id": "ground-prism5",
+     "id": "ground-prism16",
      "kind": "prism",
      "pos": [
       198.0,
@@ -1942,7 +2785,7 @@
      ]
     },
     {
-     "id": "ground-prism6",
+     "id": "ground-prism17",
      "kind": "prism",
      "pos": [
       204.56,
@@ -1995,176 +2838,58 @@
      ]
     },
     {
-     "id": "ground-gorge7",
-     "kind": "gorge",
+     "id": "ground-j-cleft18",
+     "kind": "j-cleft",
      "pos": [
       425.0,
       0,
-      200.0
+      175.0
      ],
-     "vis": "player",
+     "vis": "explored",
      "dims": {
-      "w": 50,
-      "len": 1000,
-      "bz": -25,
-      "bw": 12
+      "n": 14,
+      "depth": 36,
+      "nx0": -140,
+      "nx1": 140,
+      "nz0": -260,
+      "nz1": 260,
+      "x0": -25,
+      "z0": 545,
+      "x1": -25,
+      "z1": -55,
+      "x2": -37,
+      "z2": -65,
+      "x3": -53,
+      "z3": -83,
+      "x4": -73,
+      "z4": -105,
+      "x5": -90,
+      "z5": -130,
+      "x6": -101,
+      "z6": -157,
+      "x7": -104,
+      "z7": -205,
+      "x8": -83,
+      "z8": -267,
+      "x9": -45,
+      "z9": -325,
+      "x10": -25,
+      "z10": -375,
+      "x11": -25,
+      "z11": -515,
+      "x12": 25,
+      "z12": -515,
+      "x13": 25,
+      "z13": 545
      },
-     "label": "The chasm",
-     "desc": "A fifty-foot cleft between the spur and the castle's rock, sheer and slick, its depths lost in fog."
+     "label": "The chasm and the North Gully",
+     "desc": "A fifty-foot cleft between the spur and the castle's rock, sheer and slick, and a side-cleft of it biting back behind the north turret; both drop into fog a few yards down."
     },
     {
-     "id": "ground-prism8",
+     "id": "ground-prism19",
      "kind": "prism",
      "pos": [
-      367.44,
-      0,
-      41.89
-     ],
-     "vis": "player",
-     "dims": {
-      "h": 0.06,
-      "y": 0.02,
-      "color": 3684929
-     },
-     "label": "The North Gully",
-     "polygon": [
-      [
-       335,
-       45
-      ],
-      [
-       352,
-       70
-      ],
-      [
-       372,
-       92
-      ],
-      [
-       388,
-       110
-      ],
-      [
-       400,
-       120
-      ],
-      [
-       402,
-       0
-      ],
-      [
-       402,
-       -40
-      ],
-      [
-       330,
-       -40
-      ],
-      [
-       326,
-       20
-      ]
-     ]
-    },
-    {
-     "id": "ground-prism9",
-     "kind": "prism",
-     "pos": [
-      368.5,
-      0,
-      44.0
-     ],
-     "vis": "player",
-     "dims": {
-      "h": 0.06,
-      "y": 0.04,
-      "color": 5593442
-     },
-     "polygon": [
-      [
-       344,
-       44
-      ],
-      [
-       360,
-       68
-      ],
-      [
-       378,
-       90
-      ],
-      [
-       394,
-       106
-      ],
-      [
-       401,
-       104
-      ],
-      [
-       401,
-       -40
-      ],
-      [
-       336,
-       -40
-      ],
-      [
-       334,
-       20
-      ]
-     ]
-    },
-    {
-     "id": "ground-prism10",
-     "kind": "prism",
-     "pos": [
-      373.71,
-      0,
-      33.14
-     ],
-     "vis": "player",
-     "dims": {
-      "h": 0.06,
-      "y": 0.06,
-      "color": 7764869
-     },
-     "polygon": [
-      [
-       356,
-       46
-      ],
-      [
-       372,
-       70
-      ],
-      [
-       388,
-       88
-      ],
-      [
-       401,
-       92
-      ],
-      [
-       401,
-       -40
-      ],
-      [
-       350,
-       -40
-      ],
-      [
-       348,
-       16
-      ]
-     ]
-    },
-    {
-     "id": "ground-prism11",
-     "kind": "prism",
-     "pos": [
-      74.95,
+      65.62,
       0,
       394
      ],
@@ -2301,19 +3026,11 @@
        370.0
       ],
       [
-       380,
+       400,
        370.0
       ],
       [
-       401,
-       370.0
-      ],
-      [
-       401,
-       686.34
-      ],
-      [
-       380,
+       400,
        700.47
       ],
       [
@@ -2441,16 +3158,16 @@
        614.85
       ],
       [
-       -260.34,
-       546.71
+       -254.99,
+       526.34
       ]
      ]
     },
     {
-     "id": "ground-prism12",
+     "id": "ground-prism20",
      "kind": "prism",
      "pos": [
-      84.83,
+      75.73,
       0,
       394
      ],
@@ -2582,19 +3299,11 @@
        379.84
       ],
       [
-       380,
+       400,
        380.62
       ],
       [
-       401,
-       378.11
-      ],
-      [
-       401,
-       629.48
-      ],
-      [
-       380,
+       400,
        639.2
       ],
       [
@@ -2718,16 +3427,16 @@
        578.87
       ],
       [
-       -247.98,
-       489.46
+       -228.87,
+       498.98
       ]
      ]
     },
     {
-     "id": "ground-prism13",
+     "id": "ground-prism21",
      "kind": "prism",
      "pos": [
-      95.14,
+      95.11,
       0,
       394
      ],
@@ -2855,11 +3564,11 @@
        398.3
       ],
       [
-       401,
+       400,
        398.52
       ],
       [
-       401,
+       400,
        584.15
       ],
       [
@@ -2985,10 +3694,10 @@
      ]
     },
     {
-     "id": "ground-prism14",
+     "id": "ground-prism22",
      "kind": "prism",
      "pos": [
-      115.36,
+      115.32,
       0,
       394
      ],
@@ -3108,11 +3817,11 @@
        428.36
       ],
       [
-       401,
+       400,
        430.99
       ],
       [
-       401,
+       400,
        501.73
       ],
       [
@@ -3230,7 +3939,7 @@
      ]
     },
     {
-     "id": "ground-j-fog-boil15",
+     "id": "ground-j-fog-boil23",
      "kind": "j-fog-boil",
      "pos": [
       425.0,
@@ -3248,7 +3957,7 @@
      "label": "Fog boiling from the chasm"
     },
     {
-     "id": "ground-j-fog-boil16",
+     "id": "ground-j-fog-boil24",
      "kind": "j-fog-boil",
      "pos": [
       425.0,
@@ -3266,7 +3975,7 @@
      "label": "Fog boiling from the chasm"
     },
     {
-     "id": "ground-j-fog-boil17",
+     "id": "ground-j-fog-boil25",
      "kind": "j-fog-boil",
      "pos": [
       425.0,
@@ -3284,7 +3993,7 @@
      "label": "Fog boiling from the chasm"
     },
     {
-     "id": "ground-j-fog-boil18",
+     "id": "ground-j-fog-boil26",
      "kind": "j-fog-boil",
      "pos": [
       372.0,
@@ -3302,7 +4011,25 @@
      "label": "Fog in the North Gully"
     },
     {
-     "id": "ground-j-fog-boil19",
+     "id": "ground-j-fog-boil27",
+     "kind": "j-fog-boil",
+     "pos": [
+      352.0,
+      0,
+      0.0
+     ],
+     "vis": "player",
+     "rotY": -75,
+     "dims": {
+      "len": 70,
+      "w": 34,
+      "h": 22,
+      "seed": 37
+     },
+     "label": "Fog in the North Gully"
+    },
+    {
+     "id": "ground-j-fog-boil28",
      "kind": "j-fog-boil",
      "pos": [
       2.0,
@@ -3321,7 +4048,7 @@
      "label": "Fog rising over the Brink"
     },
     {
-     "id": "ground-j-fog-boil20",
+     "id": "ground-j-fog-boil29",
      "kind": "j-fog-boil",
      "pos": [
       80.0,
@@ -3340,7 +4067,7 @@
      "label": "Fog rising over the Brink"
     },
     {
-     "id": "ground-j-fog-boil21",
+     "id": "ground-j-fog-boil30",
      "kind": "j-fog-boil",
      "pos": [
       200.0,
@@ -3359,7 +4086,7 @@
      "label": "Fog rising over the Brink"
     },
     {
-     "id": "ground-j-fog-boil22",
+     "id": "ground-j-fog-boil31",
      "kind": "j-fog-boil",
      "pos": [
       320.0,
@@ -3378,7 +4105,7 @@
      "label": "Fog rising over the Brink"
     },
     {
-     "id": "ground-j-rock-terrace23",
+     "id": "ground-j-rock-terrace32",
      "kind": "j-rock-terrace",
      "pos": [
       342.0,
@@ -3389,13 +4116,13 @@
      "rotY": 124.2,
      "dims": {
       "len": 34.23,
-      "h": 400,
+      "h": 3,
       "talus": 0,
       "seed": 10
      }
     },
     {
-     "id": "ground-j-rock-terrace24",
+     "id": "ground-j-rock-terrace33",
      "kind": "j-rock-terrace",
      "pos": [
       360.5,
@@ -3406,13 +4133,13 @@
      "rotY": 132.3,
      "dims": {
       "len": 33.73,
-      "h": 400,
+      "h": 3,
       "talus": 0,
       "seed": 11
      }
     },
     {
-     "id": "ground-j-rock-terrace25",
+     "id": "ground-j-rock-terrace34",
      "kind": "j-rock-terrace",
      "pos": [
       378.5,
@@ -3423,13 +4150,13 @@
      "rotY": 131.6,
      "dims": {
       "len": 28.08,
-      "h": 400,
+      "h": 3,
       "talus": 0,
       "seed": 12
      }
     },
     {
-     "id": "ground-j-rock-terrace26",
+     "id": "ground-j-rock-terrace35",
      "kind": "j-rock-terrace",
      "pos": [
       392.5,
@@ -3440,13 +4167,13 @@
      "rotY": 140.2,
      "dims": {
       "len": 19.62,
-      "h": 400,
+      "h": 3,
       "talus": 0,
       "seed": 13
      }
     },
     {
-     "id": "ground-j-rock-terrace27",
+     "id": "ground-j-rock-terrace36",
      "kind": "j-rock-terrace",
      "pos": [
       399.0,
@@ -3457,13 +4184,13 @@
      "rotY": 90,
      "dims": {
       "len": 34,
-      "h": 400,
+      "h": 3,
       "talus": 0,
       "seed": 20
      }
     },
     {
-     "id": "ground-j-rock-terrace28",
+     "id": "ground-j-rock-terrace37",
      "kind": "j-rock-terrace",
      "pos": [
       399.0,
@@ -3474,13 +4201,13 @@
      "rotY": 90,
      "dims": {
       "len": 34,
-      "h": 400,
+      "h": 3,
       "talus": 0,
       "seed": 22
      }
     },
     {
-     "id": "ground-j-rock-terrace29",
+     "id": "ground-j-rock-terrace38",
      "kind": "j-rock-terrace",
      "pos": [
       399.0,
@@ -3491,13 +4218,13 @@
      "rotY": 90,
      "dims": {
       "len": 34,
-      "h": 400,
+      "h": 3,
       "talus": 0,
       "seed": 23
      }
     },
     {
-     "id": "ground-j-rock-terrace30",
+     "id": "ground-j-rock-terrace39",
      "kind": "j-rock-terrace",
      "pos": [
       399.0,
@@ -3508,13 +4235,13 @@
      "rotY": 90,
      "dims": {
       "len": 34,
-      "h": 400,
+      "h": 3,
       "talus": 0,
       "seed": 24
      }
     },
     {
-     "id": "ground-j-rock-terrace31",
+     "id": "ground-j-rock-terrace40",
      "kind": "j-rock-terrace",
      "pos": [
       399.0,
@@ -3525,13 +4252,13 @@
      "rotY": 90,
      "dims": {
       "len": 34,
-      "h": 400,
+      "h": 3,
       "talus": 0,
       "seed": 25
      }
     },
     {
-     "id": "ground-j-rock-terrace32",
+     "id": "ground-j-rock-terrace41",
      "kind": "j-rock-terrace",
      "pos": [
       399.0,
@@ -3542,13 +4269,13 @@
      "rotY": 90,
      "dims": {
       "len": 34,
-      "h": 400,
+      "h": 3,
       "talus": 0,
       "seed": 26
      }
     },
     {
-     "id": "ground-j-rock-terrace33",
+     "id": "ground-j-rock-terrace42",
      "kind": "j-rock-terrace",
      "pos": [
       19.0,
@@ -3563,7 +4290,7 @@
      }
     },
     {
-     "id": "ground-j-rock-terrace34",
+     "id": "ground-j-rock-terrace43",
      "kind": "j-rock-terrace",
      "pos": [
       19.0,
@@ -3578,7 +4305,7 @@
      }
     },
     {
-     "id": "ground-j-rock-terrace35",
+     "id": "ground-j-rock-terrace44",
      "kind": "j-rock-terrace",
      "pos": [
       19.0,
@@ -3594,7 +4321,7 @@
      }
     },
     {
-     "id": "ground-j-rock-terrace36",
+     "id": "ground-j-rock-terrace45",
      "kind": "j-rock-terrace",
      "pos": [
       57.0,
@@ -3609,7 +4336,7 @@
      }
     },
     {
-     "id": "ground-j-rock-terrace37",
+     "id": "ground-j-rock-terrace46",
      "kind": "j-rock-terrace",
      "pos": [
       57.0,
@@ -3624,7 +4351,7 @@
      }
     },
     {
-     "id": "ground-j-rock-terrace38",
+     "id": "ground-j-rock-terrace47",
      "kind": "j-rock-terrace",
      "pos": [
       57.0,
@@ -3640,7 +4367,7 @@
      }
     },
     {
-     "id": "ground-j-rock-terrace39",
+     "id": "ground-j-rock-terrace48",
      "kind": "j-rock-terrace",
      "pos": [
       95.0,
@@ -3655,7 +4382,7 @@
      }
     },
     {
-     "id": "ground-j-rock-terrace40",
+     "id": "ground-j-rock-terrace49",
      "kind": "j-rock-terrace",
      "pos": [
       95.0,
@@ -3670,7 +4397,7 @@
      }
     },
     {
-     "id": "ground-j-rock-terrace41",
+     "id": "ground-j-rock-terrace50",
      "kind": "j-rock-terrace",
      "pos": [
       95.0,
@@ -3686,7 +4413,7 @@
      }
     },
     {
-     "id": "ground-j-rock-terrace42",
+     "id": "ground-j-rock-terrace51",
      "kind": "j-rock-terrace",
      "pos": [
       133.0,
@@ -3701,7 +4428,7 @@
      }
     },
     {
-     "id": "ground-j-rock-terrace43",
+     "id": "ground-j-rock-terrace52",
      "kind": "j-rock-terrace",
      "pos": [
       133.0,
@@ -3716,7 +4443,7 @@
      }
     },
     {
-     "id": "ground-j-rock-terrace44",
+     "id": "ground-j-rock-terrace53",
      "kind": "j-rock-terrace",
      "pos": [
       133.0,
@@ -3732,7 +4459,7 @@
      }
     },
     {
-     "id": "ground-j-rock-terrace45",
+     "id": "ground-j-rock-terrace54",
      "kind": "j-rock-terrace",
      "pos": [
       171.0,
@@ -3747,7 +4474,7 @@
      }
     },
     {
-     "id": "ground-j-rock-terrace46",
+     "id": "ground-j-rock-terrace55",
      "kind": "j-rock-terrace",
      "pos": [
       171.0,
@@ -3762,7 +4489,7 @@
      }
     },
     {
-     "id": "ground-j-rock-terrace47",
+     "id": "ground-j-rock-terrace56",
      "kind": "j-rock-terrace",
      "pos": [
       171.0,
@@ -3778,7 +4505,7 @@
      }
     },
     {
-     "id": "ground-j-rock-terrace48",
+     "id": "ground-j-rock-terrace57",
      "kind": "j-rock-terrace",
      "pos": [
       209.0,
@@ -3793,7 +4520,7 @@
      }
     },
     {
-     "id": "ground-j-rock-terrace49",
+     "id": "ground-j-rock-terrace58",
      "kind": "j-rock-terrace",
      "pos": [
       209.0,
@@ -3808,7 +4535,7 @@
      }
     },
     {
-     "id": "ground-j-rock-terrace50",
+     "id": "ground-j-rock-terrace59",
      "kind": "j-rock-terrace",
      "pos": [
       209.0,
@@ -3824,7 +4551,7 @@
      }
     },
     {
-     "id": "ground-j-rock-terrace51",
+     "id": "ground-j-rock-terrace60",
      "kind": "j-rock-terrace",
      "pos": [
       247.0,
@@ -3839,7 +4566,7 @@
      }
     },
     {
-     "id": "ground-j-rock-terrace52",
+     "id": "ground-j-rock-terrace61",
      "kind": "j-rock-terrace",
      "pos": [
       247.0,
@@ -3854,7 +4581,7 @@
      }
     },
     {
-     "id": "ground-j-rock-terrace53",
+     "id": "ground-j-rock-terrace62",
      "kind": "j-rock-terrace",
      "pos": [
       247.0,
@@ -3870,7 +4597,7 @@
      }
     },
     {
-     "id": "ground-j-rock-terrace54",
+     "id": "ground-j-rock-terrace63",
      "kind": "j-rock-terrace",
      "pos": [
       285.0,
@@ -3885,7 +4612,7 @@
      }
     },
     {
-     "id": "ground-j-rock-terrace55",
+     "id": "ground-j-rock-terrace64",
      "kind": "j-rock-terrace",
      "pos": [
       285.0,
@@ -3900,7 +4627,7 @@
      }
     },
     {
-     "id": "ground-j-rock-terrace56",
+     "id": "ground-j-rock-terrace65",
      "kind": "j-rock-terrace",
      "pos": [
       285.0,
@@ -3916,7 +4643,7 @@
      }
     },
     {
-     "id": "ground-j-rock-terrace57",
+     "id": "ground-j-rock-terrace66",
      "kind": "j-rock-terrace",
      "pos": [
       323.0,
@@ -3931,7 +4658,7 @@
      }
     },
     {
-     "id": "ground-j-rock-terrace58",
+     "id": "ground-j-rock-terrace67",
      "kind": "j-rock-terrace",
      "pos": [
       323.0,
@@ -3946,7 +4673,7 @@
      }
     },
     {
-     "id": "ground-j-rock-terrace59",
+     "id": "ground-j-rock-terrace68",
      "kind": "j-rock-terrace",
      "pos": [
       323.0,
@@ -3962,7 +4689,7 @@
      }
     },
     {
-     "id": "ground-j-rock-terrace60",
+     "id": "ground-j-rock-terrace69",
      "kind": "j-rock-terrace",
      "pos": [
       361.0,
@@ -3977,7 +4704,7 @@
      }
     },
     {
-     "id": "ground-j-rock-terrace61",
+     "id": "ground-j-rock-terrace70",
      "kind": "j-rock-terrace",
      "pos": [
       361.0,
@@ -3992,7 +4719,7 @@
      }
     },
     {
-     "id": "ground-j-rock-terrace62",
+     "id": "ground-j-rock-terrace71",
      "kind": "j-rock-terrace",
      "pos": [
       361.0,
@@ -4008,27 +4735,28 @@
      }
     },
     {
-     "id": "ground-j-crag-wall63",
+     "id": "ground-j-crag-wall72",
      "kind": "j-crag-wall",
      "pos": [
-      48.0,
+      61.0,
       0,
-      6.0
+      9.0
      ],
      "vis": "player",
+     "rotY": -71.6,
      "dims": {
-      "len": 34,
+      "len": 26,
       "h": 70,
-      "d": 52,
+      "d": 48,
       "seed": 3
      },
      "label": "The north crag"
     },
     {
-     "id": "ground-j-crag-wall64",
+     "id": "ground-j-crag-wall73",
      "kind": "j-crag-wall",
      "pos": [
-      86.0,
+      88.0,
       0,
       34.0
      ],
@@ -4043,7 +4771,7 @@
      "label": "The north crag"
     },
     {
-     "id": "ground-j-crag-wall65",
+     "id": "ground-j-crag-wall74",
      "kind": "j-crag-wall",
      "pos": [
       128.0,
@@ -4061,7 +4789,7 @@
      "label": "The north crag"
     },
     {
-     "id": "ground-j-crag-wall66",
+     "id": "ground-j-crag-wall75",
      "kind": "j-crag-wall",
      "pos": [
       168.0,
@@ -4079,7 +4807,7 @@
      "label": "The north crag"
     },
     {
-     "id": "ground-j-crag-wall67",
+     "id": "ground-j-crag-wall76",
      "kind": "j-crag-wall",
      "pos": [
       206.0,
@@ -4097,7 +4825,7 @@
      "label": "The north crag"
     },
     {
-     "id": "ground-j-crag-wall68",
+     "id": "ground-j-crag-wall77",
      "kind": "j-crag-wall",
      "pos": [
       246.0,
@@ -4115,7 +4843,7 @@
      "label": "The north crag"
     },
     {
-     "id": "ground-j-crag-wall69",
+     "id": "ground-j-crag-wall78",
      "kind": "j-crag-wall",
      "pos": [
       284.0,
@@ -4133,7 +4861,7 @@
      "label": "The north crag"
     },
     {
-     "id": "ground-j-crag-wall70",
+     "id": "ground-j-crag-wall79",
      "kind": "j-crag-wall",
      "pos": [
       316.0,
@@ -4151,24 +4879,24 @@
      "label": "The north crag"
     },
     {
-     "id": "ground-crag71",
+     "id": "ground-crag80",
      "kind": "crag",
      "pos": [
-      110.0,
+      124.0,
       0,
-      14.0
+      22.0
      ],
      "vis": "player",
      "rotY": -19.3,
      "dims": {
-      "w": 90,
-      "d": 70,
+      "w": 80,
+      "d": 58,
       "h": 130,
       "seed": 41
      }
     },
     {
-     "id": "ground-crag72",
+     "id": "ground-crag81",
      "kind": "crag",
      "pos": [
       190.0,
@@ -4185,7 +4913,7 @@
      }
     },
     {
-     "id": "ground-crag73",
+     "id": "ground-crag82",
      "kind": "crag",
      "pos": [
       262.0,
@@ -4202,75 +4930,75 @@
      }
     },
     {
-     "id": "ground-crag74",
+     "id": "ground-crag83",
      "kind": "crag",
      "pos": [
-      70.0,
+      96.0,
       0,
-      2.0
+      12.0
      ],
      "vis": "player",
      "rotY": 9.9,
      "dims": {
-      "w": 50,
-      "d": 40,
+      "w": 40,
+      "d": 32,
       "h": 95,
       "seed": 44
      }
     },
     {
-     "id": "ground-crag75",
+     "id": "ground-crag84",
      "kind": "crag",
      "pos": [
-      40.0,
+      108.0,
       0,
-      2.0
+      1.0
      ],
      "vis": "player",
      "rotY": -1.5,
      "dims": {
-      "w": 90,
-      "d": 130,
+      "w": 70,
+      "d": 60,
       "h": 150,
       "seed": 45
      }
     },
     {
-     "id": "ground-crag76",
+     "id": "ground-crag85",
      "kind": "crag",
      "pos": [
-      120.0,
+      170.0,
       0,
-      2.0
+      1.0
      ],
      "vis": "player",
      "rotY": -19.9,
      "dims": {
       "w": 100,
-      "d": 130,
-      "h": 180,
+      "d": 80,
+      "h": 185,
       "seed": 46
      }
     },
     {
-     "id": "ground-crag77",
+     "id": "ground-crag86",
      "kind": "crag",
      "pos": [
-      200.0,
+      230.0,
       0,
-      2.0
+      1.0
      ],
      "vis": "player",
      "rotY": 15.4,
      "dims": {
-      "w": 100,
-      "d": 130,
+      "w": 90,
+      "d": 100,
       "h": 200,
       "seed": 47
      }
     },
     {
-     "id": "ground-crag78",
+     "id": "ground-crag87",
      "kind": "crag",
      "pos": [
       280.0,
@@ -4287,24 +5015,24 @@
      }
     },
     {
-     "id": "ground-crag79",
+     "id": "ground-crag88",
      "kind": "crag",
      "pos": [
-      352.0,
+      296.0,
       0,
       1.0
      ],
      "vis": "player",
      "rotY": 13.5,
      "dims": {
-      "w": 80,
-      "d": 52,
-      "h": 140,
+      "w": 50,
+      "d": 44,
+      "h": 150,
       "seed": 49
      }
     },
     {
-     "id": "ground-crag80",
+     "id": "ground-crag89",
      "kind": "crag",
      "pos": [
       10.0,
@@ -4321,7 +5049,7 @@
      }
     },
     {
-     "id": "ground-crag81",
+     "id": "ground-crag90",
      "kind": "crag",
      "pos": [
       16.0,
@@ -4338,7 +5066,7 @@
      }
     },
     {
-     "id": "ground-crag82",
+     "id": "ground-crag91",
      "kind": "crag",
      "pos": [
       4.0,
@@ -4355,7 +5083,7 @@
      }
     },
     {
-     "id": "ground-j-scree-fan83",
+     "id": "ground-j-scree-fan92",
      "kind": "j-scree-fan",
      "pos": [
       121.0,
@@ -4371,7 +5099,7 @@
      "label": "Scree under the crag"
     },
     {
-     "id": "ground-j-scree-fan84",
+     "id": "ground-j-scree-fan93",
      "kind": "j-scree-fan",
      "pos": [
       238.0,
@@ -4386,22 +5114,22 @@
      }
     },
     {
-     "id": "ground-j-scree-fan85",
+     "id": "ground-j-scree-fan94",
      "kind": "j-scree-fan",
      "pos": [
-      50.0,
+      70.0,
       0,
-      40.0
+      33.0
      ],
      "vis": "player",
-     "rotY": -40,
+     "rotY": -59.5,
      "dims": {
-      "w": 22,
-      "d": 14
+      "w": 20,
+      "d": 12
      }
     },
     {
-     "id": "ground-j-scree-fan86",
+     "id": "ground-j-scree-fan95",
      "kind": "j-scree-fan",
      "pos": [
       286.0,
@@ -4416,7 +5144,7 @@
      }
     },
     {
-     "id": "ground-j-scree-fan87",
+     "id": "ground-j-scree-fan96",
      "kind": "j-scree-fan",
      "pos": [
       318.0,
@@ -4431,7 +5159,7 @@
      }
     },
     {
-     "id": "ground-boulder88",
+     "id": "ground-boulder97",
      "kind": "boulder",
      "pos": [
       122.4,
@@ -4445,7 +5173,7 @@
      }
     },
     {
-     "id": "ground-boulder89",
+     "id": "ground-boulder98",
      "kind": "boulder",
      "pos": [
       140.6,
@@ -4459,7 +5187,7 @@
      }
     },
     {
-     "id": "ground-boulder90",
+     "id": "ground-boulder99",
      "kind": "boulder",
      "pos": [
       165.8,
@@ -4473,7 +5201,7 @@
      }
     },
     {
-     "id": "ground-boulder91",
+     "id": "ground-boulder100",
      "kind": "boulder",
      "pos": [
       175.05,
@@ -4487,7 +5215,7 @@
      }
     },
     {
-     "id": "ground-boulder92",
+     "id": "ground-boulder101",
      "kind": "boulder",
      "pos": [
       190.3,
@@ -4501,7 +5229,7 @@
      }
     },
     {
-     "id": "ground-boulder93",
+     "id": "ground-boulder102",
      "kind": "boulder",
      "pos": [
       201.65,
@@ -4515,7 +5243,7 @@
      }
     },
     {
-     "id": "ground-boulder94",
+     "id": "ground-boulder103",
      "kind": "boulder",
      "pos": [
       207.65,
@@ -4529,7 +5257,7 @@
      }
     },
     {
-     "id": "ground-boulder95",
+     "id": "ground-boulder104",
      "kind": "boulder",
      "pos": [
       214.6,
@@ -4543,7 +5271,7 @@
      }
     },
     {
-     "id": "ground-boulder96",
+     "id": "ground-boulder105",
      "kind": "boulder",
      "pos": [
       225.6,
@@ -4557,7 +5285,7 @@
      }
     },
     {
-     "id": "ground-boulder97",
+     "id": "ground-boulder106",
      "kind": "boulder",
      "pos": [
       240.45,
@@ -4571,7 +5299,7 @@
      }
     },
     {
-     "id": "ground-boulder98",
+     "id": "ground-boulder107",
      "kind": "boulder",
      "pos": [
       246.4,
@@ -4585,7 +5313,7 @@
      }
     },
     {
-     "id": "ground-boulder99",
+     "id": "ground-boulder108",
      "kind": "boulder",
      "pos": [
       257.25,
@@ -4599,7 +5327,7 @@
      }
     },
     {
-     "id": "ground-boulder100",
+     "id": "ground-boulder109",
      "kind": "boulder",
      "pos": [
       265.6,
@@ -4613,7 +5341,7 @@
      }
     },
     {
-     "id": "ground-boulder101",
+     "id": "ground-boulder110",
      "kind": "boulder",
      "pos": [
       279.45,
@@ -4627,7 +5355,7 @@
      }
     },
     {
-     "id": "ground-boulder102",
+     "id": "ground-boulder111",
      "kind": "boulder",
      "pos": [
       281.5,
@@ -4641,7 +5369,7 @@
      }
     },
     {
-     "id": "ground-boulder103",
+     "id": "ground-boulder112",
      "kind": "boulder",
      "pos": [
       295.8,
@@ -4655,7 +5383,7 @@
      }
     },
     {
-     "id": "ground-boulder104",
+     "id": "ground-boulder113",
      "kind": "boulder",
      "pos": [
       312.55,
@@ -4669,7 +5397,7 @@
      }
     },
     {
-     "id": "ground-boulder105",
+     "id": "ground-boulder114",
      "kind": "boulder",
      "pos": [
       318.05,
@@ -4683,7 +5411,7 @@
      }
     },
     {
-     "id": "ground-boulder106",
+     "id": "ground-boulder115",
      "kind": "boulder",
      "pos": [
       318.6,
@@ -4697,7 +5425,7 @@
      }
     },
     {
-     "id": "ground-boulder107",
+     "id": "ground-boulder116",
      "kind": "boulder",
      "pos": [
       320.4,
@@ -4711,7 +5439,7 @@
      }
     },
     {
-     "id": "ground-boulder108",
+     "id": "ground-boulder117",
      "kind": "boulder",
      "pos": [
       323.25,
@@ -4725,7 +5453,7 @@
      }
     },
     {
-     "id": "ground-boulder109",
+     "id": "ground-boulder118",
      "kind": "boulder",
      "pos": [
       331.55,
@@ -4739,7 +5467,7 @@
      }
     },
     {
-     "id": "ground-boulder110",
+     "id": "ground-boulder119",
      "kind": "boulder",
      "pos": [
       343.7,
@@ -4753,7 +5481,7 @@
      }
     },
     {
-     "id": "ground-boulder111",
+     "id": "ground-boulder120",
      "kind": "boulder",
      "pos": [
       336.15,
@@ -4767,7 +5495,7 @@
      }
     },
     {
-     "id": "ground-j-verglas112",
+     "id": "ground-j-verglas121",
      "kind": "j-verglas",
      "pos": [
       146.7,
@@ -4785,7 +5513,7 @@
      "desc": "A sheet of black ice glazes the road where a seep from the crag crosses it, scored by hooves and wheels; icicles hang from the rock above."
     },
     {
-     "id": "ground-crag113",
+     "id": "ground-crag122",
      "kind": "crag",
      "pos": [
       174.0,
@@ -4804,7 +5532,7 @@
      "label": "Rock knob"
     },
     {
-     "id": "ground-paving114",
+     "id": "ground-paving123",
      "kind": "paving",
      "pos": [
       206.0,
@@ -4817,7 +5545,7 @@
      }
     },
     {
-     "id": "ground-paving115",
+     "id": "ground-paving124",
      "kind": "paving",
      "pos": [
       216.0,
@@ -4831,7 +5559,7 @@
      }
     },
     {
-     "id": "ground-paving116",
+     "id": "ground-paving125",
      "kind": "paving",
      "pos": [
       232.0,
@@ -4845,7 +5573,7 @@
      }
     },
     {
-     "id": "ground-paving117",
+     "id": "ground-paving126",
      "kind": "paving",
      "pos": [
       252.0,
@@ -4859,7 +5587,7 @@
      }
     },
     {
-     "id": "ground-paving118",
+     "id": "ground-paving127",
      "kind": "paving",
      "pos": [
       274.0,
@@ -4873,7 +5601,7 @@
      }
     },
     {
-     "id": "ground-j-ruts119",
+     "id": "ground-j-ruts128",
      "kind": "j-ruts",
      "pos": [
       182.0,
@@ -4888,7 +5616,7 @@
      }
     },
     {
-     "id": "ground-j-ruts120",
+     "id": "ground-j-ruts129",
      "kind": "j-ruts",
      "pos": [
       197.5,
@@ -4903,7 +5631,7 @@
      }
     },
     {
-     "id": "ground-j-ruts121",
+     "id": "ground-j-ruts130",
      "kind": "j-ruts",
      "pos": [
       208.5,
@@ -4918,7 +5646,7 @@
      }
     },
     {
-     "id": "ground-j-ruts122",
+     "id": "ground-j-ruts131",
      "kind": "j-ruts",
      "pos": [
       225.0,
@@ -4933,7 +5661,7 @@
      }
     },
     {
-     "id": "ground-j-ruts123",
+     "id": "ground-j-ruts132",
      "kind": "j-ruts",
      "pos": [
       249.0,
@@ -4948,7 +5676,7 @@
      }
     },
     {
-     "id": "ground-j-ruts124",
+     "id": "ground-j-ruts133",
      "kind": "j-ruts",
      "pos": [
       279.0,
@@ -4963,7 +5691,7 @@
      }
     },
     {
-     "id": "ground-j-cobble-apron125",
+     "id": "ground-j-cobble-apron134",
      "kind": "j-cobble-apron",
      "pos": [
       332.0,
@@ -4979,7 +5707,7 @@
      "desc": "The old thoroughfare's cobbles come up through the dirt here, rutted by one pair of wheels."
     },
     {
-     "id": "ground-j-turning-loop126",
+     "id": "ground-j-turning-loop135",
      "kind": "j-turning-loop",
      "pos": [
       330.0,
@@ -4995,7 +5723,7 @@
      "desc": "Wheel ruts swing off the cobbles through the turf in a loop and back."
     },
     {
-     "id": "ground-j-spout127",
+     "id": "ground-j-spout136",
      "kind": "j-spout",
      "pos": [
       398.0,
@@ -5010,7 +5738,7 @@
      "desc": "The cobbles' carved gutter ends in a weathered beast-mouth spout that drips into the fog."
     },
     {
-     "id": "ground-j-turret128",
+     "id": "ground-j-turret137",
      "kind": "j-turret",
      "pos": [
       378.0,
@@ -5030,7 +5758,7 @@
      "desc": "A roofless round guard tower split by weather; a doorway on the road side, its inner stair fallen in, one arrow slit looking at the bridge."
     },
     {
-     "id": "ground-j-turret129",
+     "id": "ground-j-turret138",
      "kind": "j-turret",
      "pos": [
       378.0,
@@ -5050,7 +5778,7 @@
      "desc": "A broken tooth of a tower, open to the sky, its jagged top white with ravens' droppings."
     },
     {
-     "id": "ground-j-fallen-gargoyle130",
+     "id": "ground-j-fallen-gargoyle139",
      "kind": "j-fallen-gargoyle",
      "pos": [
       392.0,
@@ -5063,7 +5791,7 @@
      "desc": "A stone gargoyle lies face up where it fell from the wall long ago, half sunk in turf, one wing snapped off beside it."
     },
     {
-     "id": "ground-j-rim-notch131",
+     "id": "ground-j-rim-notch140",
      "kind": "j-rim-notch",
      "pos": [
       396.0,
@@ -5075,7 +5803,7 @@
      "desc": "A bite worn out of the chasm's lip, the turf scuffed down to bare rock."
     },
     {
-     "id": "ground-j-bridge-sill132",
+     "id": "ground-j-bridge-sill141",
      "kind": "j-bridge-sill",
      "pos": [
       394.0,
@@ -5087,7 +5815,7 @@
      "desc": "A squared stone abutment on the lip with an iron-shod rest worn into a trough by centuries of lowering."
     },
     {
-     "id": "ground-j-hinge-sill133",
+     "id": "ground-j-hinge-sill142",
      "kind": "j-hinge-sill",
      "pos": [
       450.0,
@@ -5098,7 +5826,7 @@
      "label": "Bridge hinge"
     },
     {
-     "id": "ground-j-drawbridge134",
+     "id": "ground-j-drawbridge143",
      "kind": "j-drawbridge",
      "pos": [
       449.2,
@@ -5116,7 +5844,7 @@
      "desc": "Fifty-six feet of old shored-up beams and planks, three squares wide, boards missing; it groans under every step."
     },
     {
-     "id": "ground-j-chain135",
+     "id": "ground-j-chain144",
      "kind": "j-chain",
      "pos": [
       395.3,
@@ -5128,13 +5856,29 @@
       "dx": 54.29999999999999,
       "rise": 58.8,
       "dz": -7.9,
-      "sag": 3
+      "sag": 3,
+      "up": 0
      },
      "label": "Drawbridge chain",
      "desc": "A rust-eaten chain runs from the bridge's end up to a slot sixty feet up the wall, creaking in the wind."
     },
     {
-     "id": "ground-j-chain136",
+     "id": "ground-j-chain-slot145",
+     "kind": "j-chain-slot",
+     "pos": [
+      450.0,
+      60.05,
+      160.0
+     ],
+     "vis": "player",
+     "dims": {
+      "seed": 160
+     },
+     "label": "Chain slot",
+     "desc": "A dark slot high in the wall face where the chain runs in, rust streaking the stone below it."
+    },
+    {
+     "id": "ground-j-chain146",
      "kind": "j-chain",
      "pos": [
       395.3,
@@ -5146,23 +5890,39 @@
       "dx": 54.29999999999999,
       "rise": 58.8,
       "dz": 7.9,
-      "sag": 3
+      "sag": 3,
+      "up": 0
      },
      "label": "Drawbridge chain",
      "desc": "A rust-eaten chain runs from the bridge's end up to a slot sixty feet up the wall, creaking in the wind."
     },
     {
-     "id": "ground-curtain-wall137",
+     "id": "ground-j-chain-slot147",
+     "kind": "j-chain-slot",
+     "pos": [
+      450.0,
+      60.05,
+      190.0
+     ],
+     "vis": "player",
+     "dims": {
+      "seed": 190
+     },
+     "label": "Chain slot",
+     "desc": "A dark slot high in the wall face where the chain runs in, rust streaking the stone below it."
+    },
+    {
+     "id": "ground-curtain-wall148",
      "kind": "curtain-wall",
      "pos": [
       460.0,
       0,
-      42.5
+      7.5
      ],
      "vis": "player",
      "rotY": 90,
      "dims": {
-      "len": 245,
+      "len": 315,
       "t": 20,
       "h": 89.8
      },
@@ -5170,17 +5930,17 @@
      "desc": "Castle Ravenloft's west wall rises ninety feet sheer from the far lip of the chasm."
     },
     {
-     "id": "ground-curtain-wall138",
+     "id": "ground-curtain-wall149",
      "kind": "curtain-wall",
      "pos": [
       460.0,
       0,
-      332.5
+      397.5
      ],
      "vis": "player",
      "rotY": 90,
      "dims": {
-      "len": 295,
+      "len": 425,
       "t": 20,
       "h": 89.8
      },
@@ -5188,7 +5948,7 @@
      "desc": "Castle Ravenloft's west wall rises ninety feet sheer from the far lip of the chasm."
     },
     {
-     "id": "ground-curtain-wall139",
+     "id": "ground-curtain-wall150",
      "kind": "curtain-wall",
      "pos": [
       460.0,
@@ -5205,7 +5965,7 @@
      "label": "Gate arch"
     },
     {
-     "id": "ground-rotten-portcullis140",
+     "id": "ground-rotten-portcullis151",
      "kind": "rotten-portcullis",
      "pos": [
       452.0,
@@ -5223,7 +5983,7 @@
      "dm": "Raised. The patch of green slime on its underside does not fall on anyone entering; it drops on the first creature to leave the castle this way (DC 20 Wisdom (Perception) to spot)."
     },
     {
-     "id": "ground-j-gate-tower141",
+     "id": "ground-j-gate-tower152",
      "kind": "j-gate-tower",
      "pos": [
       470.0,
@@ -5239,7 +5999,7 @@
      "desc": "A squared tower straddling the wall's inner face, an ironbound door on its courtyard side."
     },
     {
-     "id": "ground-j-gate-tower142",
+     "id": "ground-j-gate-tower153",
      "kind": "j-gate-tower",
      "pos": [
       470.0,
@@ -5255,7 +6015,7 @@
      "desc": "A squared tower straddling the wall's inner face, an ironbound door on its courtyard side."
     },
     {
-     "id": "ground-j-lit-doorway143",
+     "id": "ground-j-lit-doorway154",
      "kind": "j-lit-doorway",
      "pos": [
       536.0,
@@ -5272,7 +6032,28 @@
      "desc": "Across the courtyard the keep's great doors stand open, torches guttering either side and warm light spilling down the steps; high above, a round window of broken glass shows no light."
     },
     {
-     "id": "ground-j-krummholz144",
+     "id": "ground-j-castle-mass155",
+     "kind": "j-castle-mass",
+     "pos": [
+      539.0,
+      0,
+      175.0
+     ],
+     "vis": "player",
+     "dims": {
+      "ox": 1,
+      "ex": 70,
+      "z0": -175,
+      "z1": 225,
+      "r": 520,
+      "wn": -325,
+      "ws": 435
+     },
+     "label": "Castle Ravenloft",
+     "desc": "Beyond the courtyard the keep's dark bulk and towers rise over the lit doors, the castle's inner ranges black on either side."
+    },
+    {
+     "id": "ground-j-krummholz156",
      "kind": "j-krummholz",
      "pos": [
       7.85,
@@ -5287,7 +6068,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz145",
+     "id": "ground-j-krummholz157",
      "kind": "j-krummholz",
      "pos": [
       251.15,
@@ -5302,7 +6083,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz146",
+     "id": "ground-j-krummholz158",
      "kind": "j-krummholz",
      "pos": [
       158.75,
@@ -5317,7 +6098,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz147",
+     "id": "ground-j-krummholz159",
      "kind": "j-krummholz",
      "pos": [
       159.35,
@@ -5332,7 +6113,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz148",
+     "id": "ground-j-krummholz160",
      "kind": "j-krummholz",
      "pos": [
       3.95,
@@ -5347,7 +6128,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz149",
+     "id": "ground-j-krummholz161",
      "kind": "j-krummholz",
      "pos": [
       46.4,
@@ -5362,7 +6143,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz150",
+     "id": "ground-j-krummholz162",
      "kind": "j-krummholz",
      "pos": [
       179.85,
@@ -5377,7 +6158,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz151",
+     "id": "ground-j-krummholz163",
      "kind": "j-krummholz",
      "pos": [
       168.6,
@@ -5392,7 +6173,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz152",
+     "id": "ground-j-krummholz164",
      "kind": "j-krummholz",
      "pos": [
       9.15,
@@ -5407,7 +6188,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz153",
+     "id": "ground-j-krummholz165",
      "kind": "j-krummholz",
      "pos": [
       202.65,
@@ -5422,7 +6203,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz154",
+     "id": "ground-j-krummholz166",
      "kind": "j-krummholz",
      "pos": [
       54.4,
@@ -5437,7 +6218,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz155",
+     "id": "ground-j-krummholz167",
      "kind": "j-krummholz",
      "pos": [
       106.9,
@@ -5452,7 +6233,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz156",
+     "id": "ground-j-krummholz168",
      "kind": "j-krummholz",
      "pos": [
       153.2,
@@ -5467,7 +6248,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz157",
+     "id": "ground-j-krummholz169",
      "kind": "j-krummholz",
      "pos": [
       139.95,
@@ -5482,7 +6263,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz158",
+     "id": "ground-j-krummholz170",
      "kind": "j-krummholz",
      "pos": [
       78.95,
@@ -5497,7 +6278,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz159",
+     "id": "ground-j-krummholz171",
      "kind": "j-krummholz",
      "pos": [
       22.6,
@@ -5512,7 +6293,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz160",
+     "id": "ground-j-krummholz172",
      "kind": "j-krummholz",
      "pos": [
       13.35,
@@ -5527,7 +6308,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz161",
+     "id": "ground-j-krummholz173",
      "kind": "j-krummholz",
      "pos": [
       100.35,
@@ -5542,7 +6323,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz162",
+     "id": "ground-j-krummholz174",
      "kind": "j-krummholz",
      "pos": [
       269.45,
@@ -5557,7 +6338,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz163",
+     "id": "ground-j-krummholz175",
      "kind": "j-krummholz",
      "pos": [
       63.9,
@@ -5572,7 +6353,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz164",
+     "id": "ground-j-krummholz176",
      "kind": "j-krummholz",
      "pos": [
       121.35,
@@ -5587,7 +6368,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz165",
+     "id": "ground-j-krummholz177",
      "kind": "j-krummholz",
      "pos": [
       149.85,
@@ -5602,7 +6383,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz166",
+     "id": "ground-j-krummholz178",
      "kind": "j-krummholz",
      "pos": [
       71.8,
@@ -5617,7 +6398,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz167",
+     "id": "ground-j-krummholz179",
      "kind": "j-krummholz",
      "pos": [
       314.15,
@@ -5632,7 +6413,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz168",
+     "id": "ground-j-krummholz180",
      "kind": "j-krummholz",
      "pos": [
       88.0,
@@ -5647,7 +6428,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz169",
+     "id": "ground-j-krummholz181",
      "kind": "j-krummholz",
      "pos": [
       104.35,
@@ -5662,7 +6443,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz170",
+     "id": "ground-j-krummholz182",
      "kind": "j-krummholz",
      "pos": [
       113.25,
@@ -5677,7 +6458,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz171",
+     "id": "ground-j-krummholz183",
      "kind": "j-krummholz",
      "pos": [
       60.7,
@@ -5692,7 +6473,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz172",
+     "id": "ground-j-krummholz184",
      "kind": "j-krummholz",
      "pos": [
       59.3,
@@ -5707,7 +6488,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz173",
+     "id": "ground-j-krummholz185",
      "kind": "j-krummholz",
      "pos": [
       174.3,
@@ -5722,7 +6503,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz174",
+     "id": "ground-j-krummholz186",
      "kind": "j-krummholz",
      "pos": [
       92.9,
@@ -5737,7 +6518,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz175",
+     "id": "ground-j-krummholz187",
      "kind": "j-krummholz",
      "pos": [
       59.05,
@@ -5752,7 +6533,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz176",
+     "id": "ground-j-krummholz188",
      "kind": "j-krummholz",
      "pos": [
       121.9,
@@ -5767,7 +6548,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz177",
+     "id": "ground-j-krummholz189",
      "kind": "j-krummholz",
      "pos": [
       274.15,
@@ -5782,7 +6563,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz178",
+     "id": "ground-j-krummholz190",
      "kind": "j-krummholz",
      "pos": [
       133.0,
@@ -5797,7 +6578,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz179",
+     "id": "ground-j-krummholz191",
      "kind": "j-krummholz",
      "pos": [
       75.95,
@@ -5812,7 +6593,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz180",
+     "id": "ground-j-krummholz192",
      "kind": "j-krummholz",
      "pos": [
       150.35,
@@ -5827,7 +6608,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz181",
+     "id": "ground-j-krummholz193",
      "kind": "j-krummholz",
      "pos": [
       222.45,
@@ -5842,7 +6623,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz182",
+     "id": "ground-j-krummholz194",
      "kind": "j-krummholz",
      "pos": [
       28.65,
@@ -5857,7 +6638,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz183",
+     "id": "ground-j-krummholz195",
      "kind": "j-krummholz",
      "pos": [
       55.05,
@@ -5872,7 +6653,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz184",
+     "id": "ground-j-krummholz196",
      "kind": "j-krummholz",
      "pos": [
       193.0,
@@ -5887,7 +6668,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz185",
+     "id": "ground-j-krummholz197",
      "kind": "j-krummholz",
      "pos": [
       43.95,
@@ -5902,7 +6683,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz186",
+     "id": "ground-j-krummholz198",
      "kind": "j-krummholz",
      "pos": [
       118.25,
@@ -5917,7 +6698,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz187",
+     "id": "ground-j-krummholz199",
      "kind": "j-krummholz",
      "pos": [
       82.5,
@@ -5932,7 +6713,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz188",
+     "id": "ground-j-krummholz200",
      "kind": "j-krummholz",
      "pos": [
       38.9,
@@ -5947,7 +6728,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz189",
+     "id": "ground-j-krummholz201",
      "kind": "j-krummholz",
      "pos": [
       53.85,
@@ -5962,7 +6743,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz190",
+     "id": "ground-j-krummholz202",
      "kind": "j-krummholz",
      "pos": [
       187.2,
@@ -5977,7 +6758,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz191",
+     "id": "ground-j-krummholz203",
      "kind": "j-krummholz",
      "pos": [
       77.9,
@@ -5992,7 +6773,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz192",
+     "id": "ground-j-krummholz204",
      "kind": "j-krummholz",
      "pos": [
       173.25,
@@ -6007,7 +6788,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz193",
+     "id": "ground-j-krummholz205",
      "kind": "j-krummholz",
      "pos": [
       28.2,
@@ -6022,7 +6803,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz194",
+     "id": "ground-j-krummholz206",
      "kind": "j-krummholz",
      "pos": [
       183.55,
@@ -6037,7 +6818,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz195",
+     "id": "ground-j-krummholz207",
      "kind": "j-krummholz",
      "pos": [
       85.8,
@@ -6052,7 +6833,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz196",
+     "id": "ground-j-krummholz208",
      "kind": "j-krummholz",
      "pos": [
       67.25,
@@ -6067,7 +6848,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz197",
+     "id": "ground-j-krummholz209",
      "kind": "j-krummholz",
      "pos": [
       192.7,
@@ -6082,7 +6863,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz198",
+     "id": "ground-j-krummholz210",
      "kind": "j-krummholz",
      "pos": [
       128.65,
@@ -6097,7 +6878,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz199",
+     "id": "ground-j-krummholz211",
      "kind": "j-krummholz",
      "pos": [
       33.3,
@@ -6112,7 +6893,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz200",
+     "id": "ground-j-krummholz212",
      "kind": "j-krummholz",
      "pos": [
       20.4,
@@ -6127,7 +6908,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz201",
+     "id": "ground-j-krummholz213",
      "kind": "j-krummholz",
      "pos": [
       158.65,
@@ -6142,7 +6923,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz202",
+     "id": "ground-j-krummholz214",
      "kind": "j-krummholz",
      "pos": [
       88.4,
@@ -6157,7 +6938,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz203",
+     "id": "ground-j-krummholz215",
      "kind": "j-krummholz",
      "pos": [
       39.2,
@@ -6172,7 +6953,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz204",
+     "id": "ground-j-krummholz216",
      "kind": "j-krummholz",
      "pos": [
       134.35,
@@ -6187,7 +6968,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz205",
+     "id": "ground-j-krummholz217",
      "kind": "j-krummholz",
      "pos": [
       207.45,
@@ -6202,7 +6983,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz206",
+     "id": "ground-j-krummholz218",
      "kind": "j-krummholz",
      "pos": [
       182.95,
@@ -6217,7 +6998,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz207",
+     "id": "ground-j-krummholz219",
      "kind": "j-krummholz",
      "pos": [
       101.05,
@@ -6232,7 +7013,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz208",
+     "id": "ground-j-krummholz220",
      "kind": "j-krummholz",
      "pos": [
       90.55,
@@ -6247,7 +7028,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz209",
+     "id": "ground-j-krummholz221",
      "kind": "j-krummholz",
      "pos": [
       147.35,
@@ -6262,7 +7043,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz210",
+     "id": "ground-j-krummholz222",
      "kind": "j-krummholz",
      "pos": [
       139.8,
@@ -6277,7 +7058,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz211",
+     "id": "ground-j-krummholz223",
      "kind": "j-krummholz",
      "pos": [
       109.0,
@@ -6292,7 +7073,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz212",
+     "id": "ground-j-krummholz224",
      "kind": "j-krummholz",
      "pos": [
       198.4,
@@ -6307,7 +7088,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz213",
+     "id": "ground-j-krummholz225",
      "kind": "j-krummholz",
      "pos": [
       44.25,
@@ -6322,7 +7103,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz214",
+     "id": "ground-j-krummholz226",
      "kind": "j-krummholz",
      "pos": [
       193.5,
@@ -6337,7 +7118,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz215",
+     "id": "ground-j-krummholz227",
      "kind": "j-krummholz",
      "pos": [
       213.25,
@@ -6352,7 +7133,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz216",
+     "id": "ground-j-krummholz228",
      "kind": "j-krummholz",
      "pos": [
       162.25,
@@ -6367,7 +7148,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz217",
+     "id": "ground-j-krummholz229",
      "kind": "j-krummholz",
      "pos": [
       8.6,
@@ -6382,7 +7163,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz218",
+     "id": "ground-j-krummholz230",
      "kind": "j-krummholz",
      "pos": [
       213.05,
@@ -6397,7 +7178,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz219",
+     "id": "ground-j-krummholz231",
      "kind": "j-krummholz",
      "pos": [
       142.75,
@@ -6412,7 +7193,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz220",
+     "id": "ground-j-krummholz232",
      "kind": "j-krummholz",
      "pos": [
       218.4,
@@ -6427,7 +7208,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz221",
+     "id": "ground-j-krummholz233",
      "kind": "j-krummholz",
      "pos": [
       101.75,
@@ -6442,7 +7223,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz222",
+     "id": "ground-j-krummholz234",
      "kind": "j-krummholz",
      "pos": [
       170.65,
@@ -6457,7 +7238,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz223",
+     "id": "ground-j-krummholz235",
      "kind": "j-krummholz",
      "pos": [
       35.7,
@@ -6472,7 +7253,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz224",
+     "id": "ground-j-krummholz236",
      "kind": "j-krummholz",
      "pos": [
       175.6,
@@ -6487,7 +7268,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz225",
+     "id": "ground-j-krummholz237",
      "kind": "j-krummholz",
      "pos": [
       72.85,
@@ -6502,7 +7283,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz226",
+     "id": "ground-j-krummholz238",
      "kind": "j-krummholz",
      "pos": [
       276.95,
@@ -6517,7 +7298,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz227",
+     "id": "ground-j-krummholz239",
      "kind": "j-krummholz",
      "pos": [
       71.6,
@@ -6532,7 +7313,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz228",
+     "id": "ground-j-krummholz240",
      "kind": "j-krummholz",
      "pos": [
       60.45,
@@ -6547,7 +7328,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz229",
+     "id": "ground-j-krummholz241",
      "kind": "j-krummholz",
      "pos": [
       36.0,
@@ -6562,7 +7343,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz230",
+     "id": "ground-j-krummholz242",
      "kind": "j-krummholz",
      "pos": [
       20.2,
@@ -6577,7 +7358,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz231",
+     "id": "ground-j-krummholz243",
      "kind": "j-krummholz",
      "pos": [
       11.75,
@@ -6592,7 +7373,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz232",
+     "id": "ground-j-krummholz244",
      "kind": "j-krummholz",
      "pos": [
       39.55,
@@ -6607,7 +7388,7 @@
      }
     },
     {
-     "id": "ground-j-krummholz233",
+     "id": "ground-j-krummholz245",
      "kind": "j-krummholz",
      "pos": [
       36.55,
@@ -6622,7 +7403,7 @@
      }
     },
     {
-     "id": "ground-boulder234",
+     "id": "ground-boulder246",
      "kind": "boulder",
      "pos": [
       351.5,
@@ -6636,7 +7417,7 @@
      }
     },
     {
-     "id": "ground-boulder235",
+     "id": "ground-boulder247",
      "kind": "boulder",
      "pos": [
       243.6,
@@ -6650,7 +7431,7 @@
      }
     },
     {
-     "id": "ground-boulder236",
+     "id": "ground-boulder248",
      "kind": "boulder",
      "pos": [
       90.65,
@@ -6664,7 +7445,7 @@
      }
     },
     {
-     "id": "ground-boulder237",
+     "id": "ground-boulder249",
      "kind": "boulder",
      "pos": [
       321.35,
@@ -6678,7 +7459,7 @@
      }
     },
     {
-     "id": "ground-boulder238",
+     "id": "ground-boulder250",
      "kind": "boulder",
      "pos": [
       228.35,
@@ -6692,7 +7473,7 @@
      }
     },
     {
-     "id": "ground-boulder239",
+     "id": "ground-boulder251",
      "kind": "boulder",
      "pos": [
       71.95,
@@ -6706,7 +7487,7 @@
      }
     },
     {
-     "id": "ground-boulder240",
+     "id": "ground-boulder252",
      "kind": "boulder",
      "pos": [
       96.0,
@@ -6720,7 +7501,7 @@
      }
     },
     {
-     "id": "ground-boulder241",
+     "id": "ground-boulder253",
      "kind": "boulder",
      "pos": [
       166.2,
@@ -6734,7 +7515,7 @@
      }
     },
     {
-     "id": "ground-boulder242",
+     "id": "ground-boulder254",
      "kind": "boulder",
      "pos": [
       44.95,
@@ -6748,7 +7529,7 @@
      }
     },
     {
-     "id": "ground-boulder243",
+     "id": "ground-boulder255",
      "kind": "boulder",
      "pos": [
       331.25,
@@ -6762,7 +7543,7 @@
      }
     },
     {
-     "id": "ground-boulder244",
+     "id": "ground-boulder256",
      "kind": "boulder",
      "pos": [
       125.85,
@@ -6776,7 +7557,7 @@
      }
     },
     {
-     "id": "ground-boulder245",
+     "id": "ground-boulder257",
      "kind": "boulder",
      "pos": [
       383.15,
@@ -6790,7 +7571,7 @@
      }
     },
     {
-     "id": "ground-boulder246",
+     "id": "ground-boulder258",
      "kind": "boulder",
      "pos": [
       112.75,
@@ -6804,7 +7585,7 @@
      }
     },
     {
-     "id": "ground-boulder247",
+     "id": "ground-boulder259",
      "kind": "boulder",
      "pos": [
       103.3,
@@ -6818,7 +7599,7 @@
      }
     },
     {
-     "id": "ground-boulder248",
+     "id": "ground-boulder260",
      "kind": "boulder",
      "pos": [
       132.5,
@@ -6832,7 +7613,7 @@
      }
     },
     {
-     "id": "ground-boulder249",
+     "id": "ground-boulder261",
      "kind": "boulder",
      "pos": [
       367.3,
@@ -6846,7 +7627,7 @@
      }
     },
     {
-     "id": "ground-boulder250",
+     "id": "ground-boulder262",
      "kind": "boulder",
      "pos": [
       121.95,
@@ -6860,7 +7641,7 @@
      }
     },
     {
-     "id": "ground-boulder251",
+     "id": "ground-boulder263",
      "kind": "boulder",
      "pos": [
       39.85,
@@ -6874,7 +7655,7 @@
      }
     },
     {
-     "id": "ground-boulder252",
+     "id": "ground-boulder264",
      "kind": "boulder",
      "pos": [
       33.15,
@@ -6888,7 +7669,7 @@
      }
     },
     {
-     "id": "ground-boulder253",
+     "id": "ground-boulder265",
      "kind": "boulder",
      "pos": [
       40.8,
@@ -6902,7 +7683,7 @@
      }
     },
     {
-     "id": "ground-boulder254",
+     "id": "ground-boulder266",
      "kind": "boulder",
      "pos": [
       317.95,
@@ -6916,7 +7697,7 @@
      }
     },
     {
-     "id": "ground-boulder255",
+     "id": "ground-boulder267",
      "kind": "boulder",
      "pos": [
       303.15,
@@ -6930,7 +7711,7 @@
      }
     },
     {
-     "id": "ground-boulder256",
+     "id": "ground-boulder268",
      "kind": "boulder",
      "pos": [
       333.9,
@@ -6944,7 +7725,7 @@
      }
     },
     {
-     "id": "ground-boulder257",
+     "id": "ground-boulder269",
      "kind": "boulder",
      "pos": [
       278.5,
@@ -6958,7 +7739,7 @@
      }
     },
     {
-     "id": "ground-boulder258",
+     "id": "ground-boulder270",
      "kind": "boulder",
      "pos": [
       185.15,
@@ -6972,7 +7753,7 @@
      }
     },
     {
-     "id": "ground-boulder259",
+     "id": "ground-boulder271",
      "kind": "boulder",
      "pos": [
       25.5,
@@ -6986,7 +7767,7 @@
      }
     },
     {
-     "id": "ground-bush260",
+     "id": "ground-bush272",
      "kind": "bush",
      "pos": [
       225.85,
@@ -7000,7 +7781,7 @@
      }
     },
     {
-     "id": "ground-bush261",
+     "id": "ground-bush273",
      "kind": "bush",
      "pos": [
       291.8,
@@ -7014,7 +7795,7 @@
      }
     },
     {
-     "id": "ground-bush262",
+     "id": "ground-bush274",
      "kind": "bush",
      "pos": [
       300.6,
@@ -7028,7 +7809,7 @@
      }
     },
     {
-     "id": "ground-bush263",
+     "id": "ground-bush275",
      "kind": "bush",
      "pos": [
       269.6,
@@ -7042,7 +7823,7 @@
      }
     },
     {
-     "id": "ground-bush264",
+     "id": "ground-bush276",
      "kind": "bush",
      "pos": [
       129.85,
@@ -7056,7 +7837,7 @@
      }
     },
     {
-     "id": "ground-bush265",
+     "id": "ground-bush277",
      "kind": "bush",
      "pos": [
       171.55,
@@ -7070,7 +7851,7 @@
      }
     },
     {
-     "id": "ground-bush266",
+     "id": "ground-bush278",
      "kind": "bush",
      "pos": [
       20.6,
@@ -7084,7 +7865,7 @@
      }
     },
     {
-     "id": "ground-bush267",
+     "id": "ground-bush279",
      "kind": "bush",
      "pos": [
       128.45,
@@ -7098,7 +7879,7 @@
      }
     },
     {
-     "id": "ground-bush268",
+     "id": "ground-bush280",
      "kind": "bush",
      "pos": [
       242.05,
@@ -7112,7 +7893,7 @@
      }
     },
     {
-     "id": "ground-bush269",
+     "id": "ground-bush281",
      "kind": "bush",
      "pos": [
       210.2,
@@ -7126,7 +7907,7 @@
      }
     },
     {
-     "id": "ground-bush270",
+     "id": "ground-bush282",
      "kind": "bush",
      "pos": [
       167.65,
@@ -7140,7 +7921,7 @@
      }
     },
     {
-     "id": "ground-bush271",
+     "id": "ground-bush283",
      "kind": "bush",
      "pos": [
       31.35,
@@ -7154,7 +7935,7 @@
      }
     },
     {
-     "id": "ground-bush272",
+     "id": "ground-bush284",
      "kind": "bush",
      "pos": [
       79.8,
@@ -7168,7 +7949,7 @@
      }
     },
     {
-     "id": "ground-bush273",
+     "id": "ground-bush285",
      "kind": "bush",
      "pos": [
       238.0,
@@ -7182,7 +7963,7 @@
      }
     },
     {
-     "id": "ground-bush274",
+     "id": "ground-bush286",
      "kind": "bush",
      "pos": [
       242.7,
@@ -7196,7 +7977,7 @@
      }
     },
     {
-     "id": "ground-bush275",
+     "id": "ground-bush287",
      "kind": "bush",
      "pos": [
       258.05,
@@ -7210,7 +7991,7 @@
      }
     },
     {
-     "id": "ground-dead-tree276",
+     "id": "ground-dead-tree288",
      "kind": "dead-tree",
      "pos": [
       287.9,
@@ -7224,7 +8005,7 @@
      }
     },
     {
-     "id": "ground-green-slime277",
+     "id": "ground-green-slime289",
      "kind": "green-slime",
      "pos": [
       452.4,
@@ -7238,7 +8019,7 @@
      "dm": "Green slime (DMG). DC 20 Wisdom (Perception) to spot. It ignores those coming in and drops on the first creature to leave by this tunnel."
     },
     {
-     "id": "ground-j-latch278",
+     "id": "ground-j-latch290",
      "kind": "j-latch",
      "pos": [
       468.0,
@@ -7252,7 +8033,7 @@
      "dm": "Both latches must be released (Strahd's command word, or dispel magic DC 14 on each) before the bridge or portcullis moves. The tower door is ironbound and locked."
     },
     {
-     "id": "ground-j-latch279",
+     "id": "ground-j-latch291",
      "kind": "j-latch",
      "pos": [
       468.0,
@@ -7266,7 +8047,7 @@
      "dm": "Both latches must be released (Strahd's command word, or dispel magic DC 14 on each) before the bridge or portcullis moves. The tower door is ironbound and locked."
     },
     {
-     "id": "ground-j-slot-iron280",
+     "id": "ground-j-slot-iron292",
      "kind": "j-slot-iron",
      "pos": [
       449.6,
@@ -7280,7 +8061,7 @@
      "dm": "DC 15 Wisdom (Perception) from the sill: the iron inside the slot is bright and greased while all round it rusts. Someone keeps the mechanism, and not by hand."
     },
     {
-     "id": "ground-j-slot-iron281",
+     "id": "ground-j-slot-iron293",
      "kind": "j-slot-iron",
      "pos": [
       449.6,
@@ -7294,7 +8075,7 @@
      "dm": "DC 15 Wisdom (Perception) from the sill: the iron inside the slot is bright and greased while all round it rusts. Someone keeps the mechanism, and not by hand."
     },
     {
-     "id": "ground-j-weak-board282",
+     "id": "ground-j-weak-board294",
      "kind": "j-weak-board",
      "pos": [
       404.0,
@@ -7304,11 +8085,15 @@
      "vis": "hidden-object",
      "key": "J",
      "label": "Rotten board",
+     "dims": {
+      "hx": 45.2,
+      "up": 0
+     },
      "playerLabel": "A rotten board",
      "dm": "House rule: DC 12 Perception or Investigation along the deck picks out the four worst boards. Stepping over them still rolls the d20, but the DM may grant advantage on the Dexterity save."
     },
     {
-     "id": "ground-j-weak-board283",
+     "id": "ground-j-weak-board295",
      "kind": "j-weak-board",
      "pos": [
       418.0,
@@ -7318,11 +8103,15 @@
      "vis": "hidden-object",
      "key": "J",
      "label": "Rotten board",
+     "dims": {
+      "hx": 31.2,
+      "up": 0
+     },
      "playerLabel": "A rotten board",
      "dm": "House rule: DC 12 Perception or Investigation along the deck picks out the four worst boards. Stepping over them still rolls the d20, but the DM may grant advantage on the Dexterity save."
     },
     {
-     "id": "ground-j-weak-board284",
+     "id": "ground-j-weak-board296",
      "kind": "j-weak-board",
      "pos": [
       431.0,
@@ -7332,11 +8121,15 @@
      "vis": "hidden-object",
      "key": "J",
      "label": "Rotten board",
+     "dims": {
+      "hx": 18.2,
+      "up": 0
+     },
      "playerLabel": "A rotten board",
      "dm": "House rule: DC 12 Perception or Investigation along the deck picks out the four worst boards. Stepping over them still rolls the d20, but the DM may grant advantage on the Dexterity save."
     },
     {
-     "id": "ground-j-weak-board285",
+     "id": "ground-j-weak-board297",
      "kind": "j-weak-board",
      "pos": [
       441.0,
@@ -7346,11 +8139,15 @@
      "vis": "hidden-object",
      "key": "J",
      "label": "Rotten board",
+     "dims": {
+      "hx": 8.2,
+      "up": 0
+     },
      "playerLabel": "A rotten board",
      "dm": "House rule: DC 12 Perception or Investigation along the deck picks out the four worst boards. Stepping over them still rolls the d20, but the DM may grant advantage on the Dexterity save."
     },
     {
-     "id": "ground-j-rim-notch286",
+     "id": "ground-j-rim-notch298",
      "kind": "j-rim-notch",
      "pos": [
       396.0,
@@ -7367,7 +8164,7 @@
      "dm": "DC 10 Wisdom (Survival): several people were walked to this spot and went over without a struggle."
     },
     {
-     "id": "ground-j-turning-loop287",
+     "id": "ground-j-turning-loop299",
      "kind": "j-turning-loop",
      "pos": [
       330.0,
@@ -7386,7 +8183,7 @@
      "dm": "DC 10 Survival: fresh ruts, no dung, no hoofprints off the cobbles, no foot traffic; the same carriage turns here and goes back. Only one vehicle ever uses this road."
     },
     {
-     "id": "ground-j-brazier-bracket288",
+     "id": "ground-j-brazier-bracket300",
      "kind": "j-brazier-bracket",
      "pos": [
       383.9,
@@ -7401,7 +8198,7 @@
      "dm": "DC 12 Intelligence (Investigation): a bracket for a signal fire, charcoal in the rubble, the old way of calling for the bridge before the latches answered to one voice."
     },
     {
-     "id": "ground-j-fallen-gargoyle289",
+     "id": "ground-j-fallen-gargoyle301",
      "kind": "j-fallen-gargoyle",
      "pos": [
       392.0,
@@ -7419,7 +8216,7 @@
      "dm": "DC 10 Intelligence (Investigation): the eye sockets are drilled clean through and the wing is solid stone. This one was only ever a carving."
     },
     {
-     "id": "ground-j-carriage290",
+     "id": "ground-j-carriage302",
      "kind": "j-carriage",
      "pos": [
       322.0,
@@ -7437,7 +8234,7 @@
      "dm": "Arrives from I and halts here; the door opens by itself. If nobody gets in or out it turns on the loop and returns to the fork empty. The horses cross the bridge without any board risk."
     },
     {
-     "id": "ground-black-horse291",
+     "id": "ground-black-horse303",
      "kind": "black-horse",
      "pos": [
       337.0,
@@ -7452,7 +8249,7 @@
      "dm": "Under Strahd's control: no teamster can turn, stop or frighten it."
     },
     {
-     "id": "ground-black-horse292",
+     "id": "ground-black-horse304",
      "kind": "black-horse",
      "pos": [
       337.0,
@@ -7467,7 +8264,7 @@
      "dm": "Under Strahd's control: no teamster can turn, stop or frighten it."
     },
     {
-     "id": "ground-ghost293",
+     "id": "ground-ghost305",
      "kind": "ghost",
      "pos": [
       374.0,
@@ -7482,7 +8279,7 @@
      "dm": "Only if the wilderness ghost (p.30) possessed a character: it walks the body to the Widow's Notch and throws it into the chasm. The party has the walk to stop it."
     },
     {
-     "id": "ground-j-bat-swarm294",
+     "id": "ground-j-bat-swarm306",
      "kind": "j-bat-swarm",
      "pos": [
       424.0,
@@ -7497,7 +8294,7 @@
      "dm": "Optional, not in the book here: at dusk or when a board breaks a column of bats boils up out of the fog past whoever is mid-bridge. A distraction, not a fight."
     },
     {
-     "id": "ground-swarm-of-ravens295",
+     "id": "ground-swarm-of-ravens307",
      "kind": "swarm-of-ravens",
      "pos": [
       372.0,
@@ -7512,7 +8309,7 @@
      "dm": "Keepers of the Feather watching the gate; they scatter when the carriage arrives and never attack. They may carry word of the party."
     },
     {
-     "id": "ground-note296",
+     "id": "ground-note308",
      "kind": "note",
      "pos": [
       330.0,
@@ -7524,7 +8321,7 @@
      "label": "Weather: the moment the party passes the gate the first cold drizzle starts; within the hour a torrent, lightning on the crag behind them and thunder that shakes the deck."
     },
     {
-     "id": "ground-note297",
+     "id": "ground-note309",
      "kind": "note",
      "pos": [
       40.0,
@@ -7536,7 +8333,7 @@
      "label": "North-west: the road back round the mountain to the fork at I, about 2 miles. There is no road up from the village: the valley floor is 1,000 ft straight down off the Brink."
     },
     {
-     "id": "ground-note298",
+     "id": "ground-note310",
      "kind": "note",
      "pos": [
       398.0,
@@ -7548,7 +8345,7 @@
      "label": "The North Gully's rim is undercut and unfenced: a shove or a fumble here is the same 1,000-ft fall as the chasm."
     },
     {
-     "id": "ground-note299",
+     "id": "ground-note311",
      "kind": "note",
      "pos": [
       422.0,
@@ -7560,7 +8357,7 @@
      "label": "Crossing on foot: d20 per creature per crossing, a board breaks on a 1; DC 10 Dexterity save or fall 1,000 ft (20d6 at the cap). Mercy: the faller snags on the ledge 35 ft down (ledge level)."
     },
     {
-     "id": "ground-note300",
+     "id": "ground-note312",
      "kind": "note",
      "pos": [
       460.0,
@@ -7569,7 +8366,7 @@
      ],
      "vis": "dm-note",
      "key": "J-bridge",
-     "label": "Raised bridge: set the drawbridge piece to up 1 and both chains to taut (rise 4, dx 0.4); then the road ends between the turrets."
+     "label": "Raised bridge (after K10): set \"up\" to 1 on the drawbridge, on both chains and on the four rotten boards (nothing needs moving); the deck then stands against the gate, the chains run short and taut to their slots, and the road ends between the turrets."
     },
     {
      "id": "ground-spawn",
