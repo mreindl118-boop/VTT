@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Cell-based scene authoring shared by the hand-authored maps (Death House, the Sheep Chase tavern).
 1 cell = 5 ft; walls are derived from room polygons, then doors/windows/openings are stamped over them."""
-import json, os
+import json, os, sys
 from collections import OrderedDict
 
 ROOT = os.path.join(os.path.dirname(__file__), '..', '..')
@@ -47,6 +47,7 @@ class Level:
         self.floor_polys = []
         self.extra = []
         self.n = 0
+        self.unmatched = []  # override keys that matched no room edge segment (filled by build_walls)
 
     def room(self, key, name, poly, floor='plank', **extra):
         self.rooms.append((key, name, poly, floor, extra))
@@ -60,6 +61,24 @@ class Level:
             t0, t1 = k / steps, (k + 1) / steps
             key = seg_key((x0 + (x1 - x0) * t0, z0 + (z1 - z0) * t0), (x0 + (x1 - x0) * t1, z0 + (z1 - z0) * t1))
             self.overrides[key] = dict(self.overrides.get(key, {}), **kw)
+
+    def override(self, a, b, **kw):
+        """Override one room edge a->b, keyed the way build_walls splits edges (unit_edges): an axis-aligned edge
+        cell by cell, any other edge as one segment. Use this, not a hand-made seg_key, for a whole edge."""
+        if a[0] == b[0] or a[1] == b[1]:
+            self._stamp(a, b, **kw)
+        else:
+            k = seg_key(a, b)
+            self.overrides[k] = dict(self.overrides.get(k, {}), **kw)
+
+    def check_overrides(self, edges):
+        """Record (and warn about) every override whose key is not one of the room edge segments `edges`: it
+        would silently do nothing (a door that never appears, an opening that stays walled)."""
+        self.unmatched = sorted(k for k in self.overrides if k not in edges)
+        if self.unmatched:
+            print(f'warning: {self.id}: {len(self.unmatched)} override(s) matched no wall segment: '
+                  + ', '.join(f'{a}-{b}' for a, b in self.unmatched[:8]) + (' ...' if len(self.unmatched) > 8 else ''), file=sys.stderr)
+        return self.unmatched
 
     def wall(self, a, b, **kw):
         """Explicit extra wall (not derived from room polygons), e.g. a partition inside one keyed room."""
@@ -123,6 +142,7 @@ class Level:
             for a, b in unit_edges(poly):
                 k = seg_key(a, b)
                 count[k] = count.get(k, 0) + 1
+        self.check_overrides(count)
         segs = []
         for k, c in count.items():
             ov = self.overrides.get(k, {})
