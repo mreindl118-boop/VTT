@@ -5,7 +5,12 @@ The book prints no battle map; this is our own design from the area text, the Vi
 Barovia map. Three levels share one plan (600 x 520 ft, x east, z south, north -z):
   deck  (960 ft): the high road, the tarn and the sill of the falls, the mould-furred bridge over the chasm with its
                   four gargoyles, the Wizard's Precipice with its lightning scar and rockfall, crags and bent pines;
-                  the chasm is drawn as a real slot whose walls fall away into cloud (see kit/sites/wild-h.ts).
+                  the chasm is drawn as a real slot whose walls fall away into cloud (see kit/sites/wild-h.ts). The
+                  saddle is bare rock and ends in a sheer escarpment: past the east edge, and on the south-east beside
+                  the shelf road and a rib of rock south of the chasm (valley_edge), it drops ~380 ft to the forested
+                  valley round Tser Pool; the chasm leaves through a cleft in that cliff. The land the backdrop draws
+                  round the map follows the same shape (wild-h.ts registers it), and the world road meets the map at
+                  its own south and north exits.
   ledge (380 ft): the Vistana's shelf on the north wall, rope and pins above it, a scree gully on down.
   pool  (0 ft):   the Cauldron: the plunge pool under the falls, the spray cave, the gravel bar and the snag jam, the
                   river running out into the pines and the footpath from the Tser Pool camp (G).
@@ -13,7 +18,7 @@ Every description here is our own words. Run: python3 scripts/authoring/wild_h.p
 import sys, os, math, random
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from wildlib import *  # noqa: F401,F403
-from wildlib import Site, Level, AMB, catmull, rnd, heading, facing, turn, inside, line_dist
+from wildlib import Site, Level, AMB, catmull, rnd, heading, facing, turn, inside, line_dist, blob
 from collections import OrderedDict
 
 FT = 5.0                       # feet per cell
@@ -71,15 +76,70 @@ def chasm_outline(axis, hw, step=5):
     return out          # (the tail cap lies beyond the map's east edge)
 
 
+# The bridge's ends and the shelf road up to its south end (feet)
+BS, BN = (265, 300), (295, 215)
+_BL = math.hypot(BN[0] - BS[0], BN[1] - BS[1]); BU = ((BN[0] - BS[0]) / _BL, (BN[1] - BS[1]) / _BL)
+SOUTH_CTRL = [(170, 520), (186, 488), (201, 458), (222, 418), (240, 380), (252, 345), (259, 322), (BS[0] - BU[0] * 4, BS[1] - BU[1] * 4)]
+EDGE_OFF, STRIP = 16, 25      # the drop: this far east of the road's middle; the rock rib left south of the chasm
+
+
+def _xseg(a, b, c, d):
+    """Where segments a-b and c-d cross (or None)."""
+    r = (b[0] - a[0], b[1] - a[1]); q = (d[0] - c[0], d[1] - c[1]); den = r[0] * q[1] - r[1] * q[0]
+    if abs(den) < 1e-9: return None
+    t = ((c[0] - a[0]) * q[1] - (c[1] - a[1]) * q[0]) / den; u = ((c[0] - a[0]) * r[1] - (c[1] - a[1]) * r[0]) / den
+    return (a[0] + r[0] * t, a[1] + r[1] * t, t, u) if 0 <= t <= 1 and 0 <= u <= 1 else None
+
+
+def valley_edge():
+    """The line where the saddle drops to the valley on the south-east: from the map's south edge up the east side of the
+    shelf road (EDGE_OFF ft from its middle), round the corner K, then east along a rib of rock STRIP ft wide left south
+    of the chasm, to where it leaves the map's south edge. Returns (line, K index)."""
+    road = catmull(SOUTH_CTRL, 6)
+    edge = []
+    for i, (x, z) in enumerate(road):
+        a, b = road[max(0, i - 1)], road[min(len(road) - 1, i + 1)]; tx, tz = b[0] - a[0], b[1] - a[1]; L = math.hypot(tx, tz) or 1
+        edge.append((x - tz / L * EDGE_OFF, z + tx / L * EDGE_OFF))       # the right-hand (east) side walking north
+    edge.append((edge[-1][0] + BU[0] * 40, edge[-1][1] + BU[1] * 40))
+    # from the map's south edge, always heading north (the offset of a bend can double back on itself)
+    k0 = next(i for i in range(len(edge) - 1) if edge[i + 1][1] < H_FT)
+    a, b = edge[k0], edge[k0 + 1]; f = (H_FT - a[1]) / (b[1] - a[1]) if b[1] != a[1] else 0
+    out = [(a[0] + (b[0] - a[0]) * f, H_FT)]
+    for q in edge[k0 + 1:]:
+        if q[1] < out[-1][1] - 0.5: out.append(q)
+    edge = out
+    D = densify(AXIS, HW, 5)
+    raw = [(q[0][0] - q[1][1] * (q[2] + STRIP), q[0][1] + q[1][0] * (q[2] + STRIP)) for q in D]
+    strip = [(raw[0][0] - 80 * D[0][1][0], raw[0][1] - 80 * D[0][1][1])]
+    for q in raw:
+        if q[0] > strip[-1][0] + 0.5 and q[1] >= strip[-1][1] - 0.5: strip.append(q)
+    for i in range(len(edge) - 1):
+        for j in range(len(strip) - 1):
+            k = _xseg(edge[i], edge[i + 1], strip[j], strip[j + 1])
+            if k:
+                K = (k[0], k[1]); south = [e for e in edge[:i + 1]] + [K]
+                east = [K] + strip[j + 1:]
+                # the rib leaves the map at its south edge
+                for m in range(len(east) - 1):
+                    if east[m][1] <= H_FT < east[m + 1][1]:
+                        f = (H_FT - east[m][1]) / (east[m + 1][1] - east[m][1]); S1 = (east[m][0] + (east[m + 1][0] - east[m][0]) * f, H_FT)
+                        east = east[:m + 1] + [S1]; break
+                line = [(rnd(x, 2), rnd(z, 2)) for x, z in south + east[1:]]
+                return line, len(south) - 1
+    raise RuntimeError('valley edge: no corner')
+
+
 def deck_ground():
-    """The walkable deck: the map minus the chasm (a C wrapped round its head)."""
+    """The walkable deck: the map minus the chasm (a C wrapped round its head) and minus the valley side south-east of
+    the shelf road, where the saddle drops away (see valley_edge)."""
     O = chasm_outline(AXIS, HW)
     i = next(k for k, p in enumerate(O) if p[0] < W_FT)
     j = max(k for k, p in enumerate(O) if p[0] < W_FT)
     def cross(a, b):
         t = (W_FT - a[0]) / (b[0] - a[0])
         return (W_FT, a[1] + (b[1] - a[1]) * t)
-    poly = [(0, 0), (W_FT, 0), cross(O[i - 1], O[i])] + O[i:j + 1] + [cross(O[j], O[j + 1]), (W_FT, H_FT), (0, H_FT)]
+    edge, _ = valley_edge()
+    poly = [(0, 0), (W_FT, 0), cross(O[i - 1], O[i])] + O[i:j + 1] + [cross(O[j], O[j + 1]), (W_FT, H_FT)] + edge[::-1] + [(0, H_FT)]
     return [(rnd(x, 2), rnd(z, 2)) for x, z in poly], O
 
 
@@ -156,28 +216,31 @@ def build():
     deck = s.lv
     deck.id, deck.name, deck.elevation = 'deck', 'The bridge (road level)', DECK_Y
     ground, outline = deck_ground()
-    deck.terrain = [(cpoly(ground), 'grass')]
+    # bare rock and grit over the whole saddle: the deck's ground is the H room's stone floor, and the only terrain the
+    # roads; turf survives only in a few damp hollows by the tarn and under the crags (moss patches, laid below)
+    deck.terrain = []
     s.walk = [cpoly(ground)]
     s.keep.append((cpoly(outline), 0.6))       # nothing scattered over the void
+    vedge, _ = valley_edge()
+    s.keep.append((cpoly(vedge + [(W_FT, H_FT)]), 0.8))   # nor over the drop to the valley
 
     # ---------------------------------------------------------- the road: up the mountainside from F, over the bridge, on to I
-    BS, BN = (265, 300), (295, 215)                       # the bridge's south and north ends
-    bdx, bdz = BN[0] - BS[0], BN[1] - BS[1]; BL = math.hypot(bdx, bdz); bu = (bdx / BL, bdz / BL)
-    south_ctrl = [(170, 520), (186, 488), (201, 458), (222, 418), (240, 380), (252, 345), (259, 322), (BS[0] - bu[0] * 4, BS[1] - bu[1] * 4)]
+    bdx, bdz = BN[0] - BS[0], BN[1] - BS[1]; BL = math.hypot(bdx, bdz); bu = BU
+    south_ctrl = SOUTH_CTRL
     north_ctrl = [(BN[0] + bu[0] * 3, BN[1] + bu[1] * 3), (BN[0] + bu[0] * 18, BN[1] + bu[1] * 18), (302, 172), (300, 150), (292, 115), (280, 80), (266, 42), (250, 0)]
     s.road([c(p) for p in south_ctrl], 1.3)
     s.road([c(p) for p in north_ctrl], 1.3)
     road_line = catmull(south_ctrl, 6)
     s.prop('h-shelf-road', c((170, 470)), dims=dict(line_dims(road_line[::2] + [road_line[-1]], origin=(170, 470)), ox=0, oz=0, hw=7.5, wall=12, gaps=3),
-           label='The shelf road', desc='The road clings to the mountainside: a cut rock wall on the uphill side, a crumbling edge and loose stone on the other, ruts full of water.')
+           label='The shelf road', desc='A rutted shelf hacked along the mountain\'s flank: cut rock rising on the uphill side, a crumbling edge and loose stone on the other, the ruts brimming with rainwater.')
 
     # ---------------------------------------------------------- the chasm and the falls
     rot_b = heading(*bu)
-    s.prop('h-chasm', c((120, 330)), dims=dict(line_dims(AXIS, HW), ox=120, oz=330, y0=DECK_Y, depth=230, bx=280, bz=258, br=26),
+    s.prop('h-chasm', c((120, 330)), dims=dict(line_dims(AXIS, HW), ox=120, oz=330, y0=DECK_Y, depth=230, bx=280, bz=258, br=26, edge=W_FT),
            label='The chasm', desc='A sheer slot in the mountain, its wet walls streaming, dropping away into billowing white cloud. No bottom shows; cold air pours up over the lips and the ground trembles underfoot.')
     s.prop('h-falls-sill', c((153.5, 253)), dims={'w': 45, 'curve': 6}, label='The sill of the falls',
            desc='The tarn slides over a glossy undercut lip of rock and simply vanishes into its own cloud a few dozen feet down.')
-    s.prop('h-spray-cloud', c((150, 253)), rot=heading(1, 0.08), dims={'r': 18, 'len': 190, 'h': 22, 'n': 20, 'op': 0.2}, label='Spray plume',
+    s.prop('h-spray-cloud', c((176, 255)), rot=heading(1, 0.08), dims={'r': 16, 'len': 170, 'h': 22, 'n': 16, 'op': 0.09}, label='Spray plume',
            desc='Cold mist boils up out of the head of the chasm and drifts east over the bridge; everything near the sill is soaked.')
     s.prop('h-tarn', c((80, 240)), dims={'rx': 66, 'rz': 45, 'sill': 74, 'sw': 45, 'sz': 13, 'inflow': 82, 'iw': 26, 'seed': 4}, label='The tarn',
            desc='The fast clear river from the west slows into a cold black pond held against the sill; pine needles drift toward the spill.')
@@ -213,9 +276,11 @@ def build():
              dm='DC 15 Perception from the road. The only line a climber\'s kit can use: pins down the wall to the ledge 580 ft below (DC 15 Athletics per 100 ft, a failure drops 25 ft for 2d6 before the anchor holds).')
 
     # ---------------------------------------------------------- crags: the mountain on the west, the cut to the north
-    crags = [  # x, z, w, d, h, seed: the massif on the west (tiered, highest at the edge), the cut's two crags, low rock to the north
-        (18, 22, 96, 76, 118, 1), (82, 14, 72, 52, 84, 2), (20, 100, 84, 74, 104, 3), (88, 82, 62, 50, 62, 4), (60, 156, 70, 36, 34, 5), (138, 126, 40, 34, 30, 6),
-        (128, 52, 46, 40, 46, 19), (22, 188, 46, 30, 52, 20),
+    # x, z, w, d, h, seed: the massif on the west (tiered, highest at the edge), the cut's two crags, low rock to the north;
+    # a gap is left on the line from the top of the falls north-west to Vallaki, so the town shows on the horizon
+    crags = [
+        (18, 22, 96, 76, 118, 1), (82, 14, 72, 52, 84, 2), (20, 100, 84, 74, 104, 3), (88, 82, 62, 50, 62, 4), (78, 136, 66, 34, 34, 5), (138, 126, 40, 34, 30, 6),
+        (128, 52, 46, 40, 46, 19),
         (24, 334, 74, 60, 82, 7), (86, 352, 62, 52, 56, 8), (18, 418, 84, 74, 116, 9), (92, 432, 62, 52, 74, 10), (34, 500, 96, 62, 106, 11), (118, 500, 52, 40, 48, 12),
         (148, 398, 34, 28, 24, 13), (150, 462, 30, 26, 20, 21), (60, 290, 40, 26, 22, 22),
         (232, 58, 44, 36, 48, 14), (334, 66, 50, 40, 56, 15), (205, 20, 44, 32, 40, 16), (368, 18, 54, 30, 30, 17),
@@ -229,8 +294,10 @@ def build():
 
     # ---------------------------------------------------------- bare rock of the saddle: slabs, boulders, the anvil, the bent pines
     roads_ft = [catmull(south_ctrl, 6), catmull(north_ctrl, 6)]
+    vcut = vedge + [(W_FT, H_FT)]
     def clear_of(p, r):
         if in_chasm(p, r + 4): return False
+        if inside(p, vcut) or line_dist(p, vedge) < r + 3: return False
         if any(line_dist(p, ln) < r + 10 for ln in roads_ft): return False
         if ((p[0] - 80) / (70 + r)) ** 2 + ((p[1] - 240) / (50 + r)) ** 2 < 1: return False      # the tarn
         if math.hypot(p[0] - 200, p[1] - 168) < r + 34: return False                              # the precipice
@@ -300,14 +367,28 @@ def build():
     s.note(c((268, 308)), 'The bridge: slick but safe, no check to cross. A shove over the 3-ft parapet drops the target to the Cauldron (pool level): 20d6 and prone in the water. A reaction grab within 5 ft or feather fall can save them.')
     s.note(c((138, 262)), 'Within 60 ft of the sill: difficult ground, lightly obscured; in a gust the far end of the bridge is heavily obscured for a round. Fliers in the spray: DC 10 Str save to hold position.')
     s.note(c((222, 160)), 'From the precipice (and the bridge when the fog thins): Castle Ravenloft on its pillar 2.4 mi east, across the valley.')
-    s.note(c((180, 505)), 'South: the road loops down the mountainside to the crossroads at F (about 6 mi, 2 hours).')
-    s.note(c((262, 18)), 'North: the cut through the mountains to the fork at I (about 1.5 mi, 30 min).')
+    s.note(c((180, 505)), 'South: the road loops down the mountainside to the crossroads at F (about 6 mi, 2 hours). East of it the saddle ends in a sheer drop of nearly 400 ft to the valley.')
+    s.note(c((262, 18)), 'North: the road squeezes between two crags and winds on to the fork at I (about 1.5 mi, 30 min).')
     s.note(c((314, 204)), 'Ravens perch on the two northern gargoyles; bats roost under the arch. The Keepers\' cache is in the crack under the north abutment.')
     s.spawn(c((236, 392)))
+    for k, (x, z, r) in enumerate([(30, 196, 13), (58, 186, 9), (118, 292, 11), (26, 284, 12), (150, 212, 7), (112, 150, 9), (64, 308, 8), (130, 446, 8), (200, 64, 7), (300, 112, 6)]):
+        pts = [(rnd(px - x, 2), rnd(pz - z, 2)) for px, pz in blob(x, z, r, 40 + k, 1.3, 10)]
+        s.prop('h-slab', c((x, z)), dims=dict(line_dims(pts), h=0.03, tone=3))
 
-    s.room('H', 'Tser Falls', cpoly(ground), 'grass',
-           'The road clings to the mountainside and ends at an arching bridge of mould-encrusted stone across a sheer chasm; moss-cloaked gargoyles crouch on its corners. Upstream a black tarn slides over a lip and vanishes into cloud, and the fall is felt through the stones more than heard.',
-           'The walls cannot be climbed without magic or a climber\'s kit. The bridge is slick but safe; the gargoyles are harmless sculpture. South the road runs down to F, north it cuts through the mountains to I. The pool nearly a thousand feet below feeds the river past the Vistani camp at G. Random encounters come from the wilderness tables (p.29).')
+    # Vallaki, 5 mi off to the north-west, where the backdrop draws it (true bearing, drawn nearer): see wild-h.ts
+    s.prop('h-far-vallaki', (0, 0), dims={'vx': -10447, 'vz': -7135, 'vy': 891, 'y0': DECK_Y, 'haze': 0.22}, label='Vallaki, far off',
+           desc='Far to the north-west, beyond the falling valleys, the dark ring of Vallaki\'s palisade and its church tower stand on the horizon.')
+    s.prop('h-valley-pines', (0, 0), dims={'y0': DECK_Y, 'n': 520}, label='Pines below the cliff',
+           desc='Far below the shelf road\'s crumbling edge the valley\'s pines begin, dark crowns crowding the slope.')
+    s.prop('h-valley-mist', (0, 0), dims={'y0': DECK_Y, 'n': 20}, label='Fog in the valley',
+           desc='Far below the cliff, banks of fog lie in the pines and along the gorge the river runs out of.')
+    # the escarpment under the saddle's east and south-east edges, broken by the chasm's cleft (placed last: it carries
+    # the see-through sheet over the chasm's opening, which must be drawn after the other see-through pieces)
+    s.prop('h-escarpment', (0, 0), dims=dict(line_dims(AXIS, HW, prefix='a'), **line_dims(vedge, prefix='e'), y0=DECK_Y), label='The escarpment',
+           desc='Past the saddle\'s edge the mountain simply stops: a sheer wall of dark rock drops hundreds of feet to the slope below, and the chasm leaves through a cleft in it.')
+    s.room('H', 'Tser Falls', cpoly(ground), 'cobble',
+           'A tremor comes up through the bare rock before any sound does. West of the span a black tarn slips over its sill and is swallowed by cloud; ravens sit hunched on the two northern gargoyles, and past the saddle\'s edge the whole valley lies far below.',
+           'Climb: magic or a climber\'s kit only. Crossing: no check (wet but sound). Gargoyles: decoration. Roads: F to the south, I to the north. East of the road: a sheer drop of nearly 400 ft to the pines below (20d6). Below the span: the Cauldron, nearly 1,000 ft down; its river runs on to the Vistani at G. Encounters: wilderness tables (p.29).')
     s.room('H-bridge', 'The bridge', cpoly(deck_room), 'flagstone',
            'Fifteen feet of wet, green-black paving between waist-high parapets furred with moss; a tremor runs through it and cold spray drifts across.',
            'Ninety feet abutment to abutment, about seventy of them over the void. Room for a wagon or a shield wall of three; nobody can be flanked here. The two northern gargoyles carry the ravens.')
@@ -317,7 +398,7 @@ def build():
     s.lv = ledge
     shelf = [(172, 191), (195, 184), (225, 183), (255, 188), (263, 204), (259, 224), (230, 228), (200, 226), (178, 222), (169, 207)]
     s.room('H-ledge', "The Vistana's ledge", cpoly(shelf), 'cobble',
-           'A wet shelf of rock clinging to the north wall under a drift of spray, a stunted pine in its crack. Rusted iron pins and a frayed rope come down the wall above; a gully of loose stone drops away from its east end.',
+           'A wet shelf of rock on the north wall under a drift of spray, a stunted pine in its crack. Rusted iron pins and a frayed rope come down the wall above; a gully of loose stone drops away from its east end.',
            'About 380 ft above the pool and 580 ft below the deck: where a fallen or levitating character might fetch up, and the only rest on a climber\'s-kit descent. The Vistana came this way after the duel looking for valuables. From here, the gully to the pool needs DC 12 Acrobatics or a tumble (2d6) every 100 ft.')
     wall_front = [(470, 300), (400, 268), (330, 238), (290, 228), (259, 226), (230, 229), (200, 227), (175, 224), (150, 226), (110, 228), (60, 236), (20, 250)]
     wall_back = [(470, 300), (400, 268), (330, 238), (290, 228), (266, 214), (257, 189), (225, 181), (195, 182), (170, 189), (165, 210), (150, 222), (110, 226), (60, 234), (20, 248)]
@@ -352,7 +433,7 @@ def build():
     pool.terrain.append(([(rnd(x, 2), rnd(z, 2)) for x, z in ribbon(path_line, 0.9)], 'dirt'))
     s.room('H-pool', 'The Cauldron', cpoly(floor_in), 'marsh',
            'A canyon floor walled in on three sides by black, streaming rock that climbs out of sight into the cloud. The falls hammer into a heaving pool, the roar is everywhere, and far overhead a hair-thin arch spans the sky.',
-           'Speech must be shouted; nothing is heard beyond 30 ft. Within 80 ft of the fall: difficult ground, lightly obscured. Inside the standing wave: DC 15 Athletics each round or be pushed under; an hour in the water, DC 10 Con or a level of exhaustion. The walls cannot be climbed without magic or a kit. G is 1.3 mi down the footpath (40 min).')
+           'Speech must be shouted; nothing is heard beyond 30 ft. Within 80 ft of the fall: difficult ground, lightly obscured. Inside the standing wave: DC 15 Athletics each round or be pushed under; an hour in the water, DC 10 Con or a level of exhaustion. Walls: magic or a climber\'s kit only. G is 1.3 mi down the footpath (40 min).')
     s.room('H-cave', 'The spray cave', cpoly(cave_world()), 'dirt',
            'A dry hollow behind the curtain of the falls: a dead fire ring, mud-caked hides, the smell of old smoke.',
            'Hidden from the path, the bar and the south-west shore; found only by wading the north wall through the spray. Mountain folk (berserkers caked in grey mud, p.30) shelter here.')

@@ -32,6 +32,30 @@ export interface BackdropOpts {
   clearing?: number;
 }
 
+/** A site that reshapes the land drawn round its own map (a cliff it stands on, a valley it looks down into) and says
+ *  where the world's roads meet its map. A site's prop module registers one; the backdrop finds it by the site's pin. */
+export interface SiteShaper {
+  /** The site's world-map pin (miles). */
+  pin: P;
+  /** The land's height at plan (x, z) ft: `h` is the backdrop's own (held to the map's level near it), `raw` the surveyed
+   *  height there at the backdrop's scale, `d` the distance past the map's edge. */
+  height?(x: number, z: number, h: number, raw: number, d: number): number;
+  /** A world road leaving the site (`pts` in plan ft, from the point nearest the site outward): the line to draw
+   *  instead, starting at the map's own road exit, or undefined to keep the default. */
+  road?(name: string, pts: P[]): P[] | undefined;
+  /** More running water in plan ft (the river below the site's falls), drawn like the world's rivers. */
+  rivers?: { pts: P[]; w: number }[];
+  /** The colour the land beside the map blends into, when the map's ground is not one the land knows (bare rock). */
+  ground?: string;
+  /** Recolour the land at plan (x, z), height `y`, `d` ft past the map's edge (`c`, the backdrop's own colour, in place). */
+  tint?(x: number, z: number, y: number, d: number, c: THREE.Color): void;
+  /** How thickly the forest stands at plan (x, z), `d` ft past the map's edge, 0..1; undefined keeps the land cover's. */
+  forest?(x: number, z: number, d: number): number | undefined;
+  /** Extra rings (ft from the map's centre) for the land's mesh, where the site's own landform needs a finer grain. */
+  rings?: number[];
+}
+export const SITE_SHAPERS: SiteShaper[] = [];
+
 export function buildBackdrop(o: BackdropOpts): THREE.Group {
   const W = o.world, T = o.theme, V = o.valley ? 2.2 : 1;
   MIST = new THREE.Color(T.mist);
@@ -66,6 +90,7 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
   // Distant landmarks are drawn nearer than surveyed (a painter's foreshortening): true distance up to 3,000 ft, then
   // under half of the rest, so the castle and the towns impose on the skyline at their true size.
   const pull = (d: number) => (d <= 3000 ? 1 : (3000 + (d - 3000) * 0.42) / d);
+  const shaper = SITE_SHAPERS.find((s) => Math.hypot(s.pin[0] - o.pin[0], s.pin[1] - o.pin[1]) < 0.02);
   const kPin = W.pins.find((q) => q.key === 'K' && q.type === 'castle' && Math.hypot(q.pos[0] - o.pin[0], q.pos[1] - o.pin[1]) > 0.3);
   // a sheltered place (the Tser Pool camp, in the gorge at the foot of the falls) is spared the castle's gaze
   const here = W.pins.find((q) => Math.hypot(q.pos[0] - o.pin[0], q.pos[1] - o.pin[1]) < 0.05) as { sheltered?: boolean } | undefined;
@@ -86,8 +111,8 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
     }
     // a site on its crag: the map's own floors are its rock top; under and past them the land falls away at once (so a
     // chasm left open in the map shows its depth), then the valley carries on from the foot of the cliff
-    if (crag > 0) { const cliff = yTop - crag; return cliff + (h - cliff) * smooth(320, 1400, d); }
-    return yTop + (h - yTop) * smooth(120, 900, d);
+    const held = crag > 0 ? yTop - crag + (h - yTop + crag) * smooth(320, 1400, d) : yTop + (h - yTop) * smooth(120, 900, d);
+    return shaper?.height ? shaper.height(x, z, held, h, d) : held;
   };
   const lakeLevel = new Map<object, number>();
   if (HF) for (const l of W.lakes) {
@@ -99,15 +124,17 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
   }
   if (HF) {
     // a polar mesh: fine near the site, coarse toward the horizon
-    const radii: number[] = [0]; for (let r = 90; r <= 3000; r += 130) radii.push(r); for (let r = 3400; r <= 16000; r += 450) radii.push(r); for (let r = 18500; r <= 90000; r += 2500) radii.push(r);
+    let radii: number[] = [0]; for (let r = 90; r <= 3000; r += 130) radii.push(r); for (let r = 3400; r <= 16000; r += 450) radii.push(r); for (let r = 18500; r <= 90000; r += 2500) radii.push(r);
+    if (shaper?.rings) radii = [...new Set([...radii, ...shaper.rings])].sort((a, b) => a - b);
     const SEG = 96, P3: number[] = [], C: number[] = [], idx: number[] = [];
-    const snowLine = 4200, GRASS = new THREE.Color(FLOOR_COLOR[(o.ground ?? 'grass') as keyof typeof FLOOR_COLOR] ?? FLOOR_COLOR.grass), rock = new THREE.Color('#6a6d74'), hillC = new THREE.Color('#66705f'), forestC = new THREE.Color(T.forest[0]), waterC = new THREE.Color('#5e7d94'), snowC = new THREE.Color('#e4e6ea'), apronC = new THREE.Color(T.forest[1]).lerp(new THREE.Color(T.apron), 0.35);
+    const snowLine = 4200, GRASS = new THREE.Color(shaper?.ground ?? FLOOR_COLOR[(o.ground ?? 'grass') as keyof typeof FLOOR_COLOR] ?? FLOOR_COLOR.grass), rock = new THREE.Color('#6a6d74'), hillC = new THREE.Color('#66705f'), forestC = new THREE.Color(T.forest[0]), waterC = new THREE.Color('#5e7d94'), snowC = new THREE.Color('#e4e6ea'), apronC = new THREE.Color(T.forest[1]).lerp(new THREE.Color(T.apron), 0.35);
     const colAt = (x: number, z: number, y: number, d: number) => {
       const [mx, my] = toMiles(x, z), f = terrain.cover('f', mx, my), m = terrain.cover('m', mx, my), hl = terrain.cover('h', mx, my), w = terrain.cover('w', mx, my), mist = terrain.cover('x', mx, my);
       const c = apronC.clone(); if (terrain.hasCover) { c.lerp(forestC, Math.min(1, f * 1.2)); c.lerp(hillC, hl); c.lerp(rock, Math.min(1, m * 1.1 + mist * 0.8)); c.lerp(waterC, Math.min(1, w * 1.5)); }
       for (const q of W.pins) if (q.heightFt) { const [qx, qz] = toPlan(q.pos); const dd = Math.hypot(x - cx - qx, z - cz - qz) / FT; if (dd < 0.3) c.lerp(rock, 1 - dd / 0.3); }
       // the first few hundred feet past the map are the map's own ground, fading into the land's cover beyond
       c.lerp(GRASS, 1 - smooth(120, 1400, mapDist(x, z)));
+      shaper?.tint?.(x, z, y, mapDist(x, z), c);
       const above = y - yTop + hPin; if (above > snowLine) c.lerp(snowC, Math.min(1, (above - snowLine) / 1200));
       // the high peaks stand clear of the haze: the higher the ground, the less mist between it and the eye
       return c.lerp(MIST, haze(d) * Math.max(0.35, 1 - Math.max(0, above - 1500) / 5000));
@@ -164,12 +191,14 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
       if (!out.length) continue;
       const bearing = Math.atan2(out[0].z - cz, out[0].x - cx);
       roadBearings.push(bearing);
-      roadPaths.push({ pts: [exitFor(bearing), ...out], w, hex });
+      const alt = shaper?.road?.(road.name, half.map((p) => { const t = toWorld(p); return [t.x, t.z] as P; }));
+      roadPaths.push({ pts: alt ? alt.map(([x, z]) => ({ x, z, d: Math.hypot(x - cx, z - cz) })) : [exitFor(bearing), ...out], w, hex });
     }
   }
   for (const river of W.rivers) {
     const pts = river.pts.map(toWorld).filter((t) => t.d < 70000); if (pts.length > 1) riverPaths.push({ pts, w: 40, hex: '#5e7d94' });
   }
+  for (const r of shaper?.rivers ?? []) riverPaths.push({ pts: r.pts.map(([x, z]) => ({ x, z, d: Math.hypot(x - cx, z - cz) })), w: r.w, hex: '#5e7d94' });
   const nearRoad = (x: number, z: number, within: number) => roadPaths.some((r) => { for (let i = 0; i + 1 < r.pts.length; i++) { const a = r.pts[i], b = r.pts[i + 1]; const dx = b.x - a.x, dz = b.z - a.z, L2 = dx * dx + dz * dz || 1; const t = Math.max(0, Math.min(1, ((x - a.x) * dx + (z - a.z) * dz) / L2)); if (Math.hypot(x - a.x - dx * t, z - a.z - dz * t) < within + r.w / 2) return true; } return false; });
 
   // 1b. A site on a crag stands on its pillar of rock; the land below is the valley floor.
@@ -200,7 +229,9 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
     const d = edge + off, k = 1.25 * (0.75 + rnd() * 0.7) * (1 + off / 6000); // old growth: a quarter taller
     const tx = (bbm.minX + bbm.maxX) / 2 + ca * d, tz = (bbm.minZ + bbm.maxZ) / 2 + sa * d;
     let drop = nearRoad(tx, tz, 14) || mapDist(tx, tz) < Math.max(30, o.clearing ?? 0); // a ride through the wood for the road; nothing on the map or its felled approaches
-    if (terrain.hasCover && !drop) { const [mx, my] = toMiles(tx, tz); const f = terrain.cover('f', mx, my), w = terrain.cover('w', mx, my), m = terrain.cover('m', mx, my); drop = w > 0.3 || m > 0.6 || f + (near ? 0.35 : 0) < 0.4 + rnd() * 0.3; }
+    const fs = drop ? undefined : shaper?.forest?.(tx, tz, mapDist(tx, tz));
+    if (fs !== undefined) drop = rnd() > fs;
+    else if (terrain.hasCover && !drop) { const [mx, my] = toMiles(tx, tz); const f = terrain.cover('f', mx, my), w = terrain.cover('w', mx, my), m = terrain.cover('m', mx, my); drop = w > 0.3 || m > 0.6 || f + (near ? 0.35 : 0) < 0.4 + rnd() * 0.3; }
     if (drop) { s.set(0, 0, 0); p.set(tx, y0 - 50, tz); m4.compose(p, q, s); trees.setMatrixAt(i, m4); continue; }
     p.set(tx, yAt(tx, tz) - 1, tz); s.set(k, k * (0.9 + rnd() * 0.4), k); m4.compose(p, q, s);
     trees.setMatrixAt(i, m4); trees.setColorAt(i, blend(i % 3 ? T.forest[0] : T.forest[1], haze(off) * 0.9));

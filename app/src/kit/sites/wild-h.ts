@@ -15,6 +15,7 @@ import { mat, matClone } from '../../render/materials';
 import { PALETTE } from '../palette';
 import { surfaceFor } from '../surfaces';
 import { merge } from '../pieces';
+import { SITE_SHAPERS } from '../../render/backdrop';
 
 type Dims = Record<string, number>;
 type P2 = [number, number];
@@ -159,18 +160,175 @@ function densify(pts: P2[], w: number[], step: number, closed = false): { p: P2;
   return out;
 }
 
+// ---------------------------------------------------------------- the land round the map
+// The saddle is the lip of the valley: past the map's east and south-east edges the mountain drops away in a sheer
+// escarpment, then falls on as a long slope into the forest and fog round Tser Pool; the chasm leaves through a cleft
+// in that cliff as a gorge running down to the pool. The backdrop draws the land with these heights (the shaper below,
+// found by the site's pin), and the escarpment piece draws the cliff face itself against them, so the two agree.
+const MAP_W = 600, MAP_D = 520, MAP_C: P2 = [300, 260], DECK_Y = 960;
+/** How far the escarpment drops at its full height (ft), and how wide its face is before the slope below takes over. */
+const SCARP = 380, SCARP_W = 12;
+/** The gorge below the cleft: the chasm's own axis past the map's edge, then down the valley to where the River Ivlis
+ *  begins near Tser Pool. */
+const GORGE: P2[] = [[600, 418], [690, 476], [800, 540], [1100, 700], [1600, 1050], [2600, 1800], [3800, 2700], [5000, 3500], [6425, 4431]];
+const smoothstep = (a: number, b: number, t: number) => { const k = Math.min(1, Math.max(0, (t - a) / (b - a))); return k * k * (3 - 2 * k); };
+const mapDistH = (x: number, z: number) => Math.max(0, -x, x - MAP_W, -z, z - MAP_D);
+/** How much of the drop a direction from the map carries: the whole of it from east-north-east round to south-south-east,
+ *  none toward the massif in the north or the mountain the road comes down on to the south-west. */
+function scarpWeight(x: number, z: number): number {
+  const b = ((Math.atan2(x - MAP_C[0], -(z - MAP_C[1])) * 180) / Math.PI + 360) % 360;
+  return smoothstep(45, 70, b) * (1 - smoothstep(150, 175, b));
+}
+/** The nearest point of a polyline: the distance to it and how far along the line it lies. */
+function along(pts: P2[], x: number, z: number): { lat: number; s: number } {
+  let best = Infinity, bs = 0, run = 0;
+  for (let i = 0; i + 1 < pts.length; i++) {
+    const [ax, az] = pts[i], [bx, bz] = pts[i + 1], dx = bx - ax, dz = bz - az, L = Math.hypot(dx, dz) || 1;
+    const t = Math.max(0, Math.min(1, ((x - ax) * dx + (z - az) * dz) / (L * L))), dd = Math.hypot(x - ax - dx * t, z - az - dz * t);
+    if (dd < best) { best = dd; bs = run + t * L; }
+    run += L;
+  }
+  return { lat: best, s: bs };
+}
+/** The gorge `s` ft below the cleft: its floor (level with the Cauldron at the cliff, sinking toward Tser Pool), the
+ *  half-width of that floor, and the half-width at its rim (the chasm's own width at the cliff, then opening out). */
+const gorgeFloor = (s: number) => -0.045 * s;
+const gorgeHw = (s: number) => (s < 580 ? 28 + 0.16 * s : 121 + 0.04 * (s - 580));
+const gorgeRim = (s: number) => (s < 580 ? 59 + 0.17 * s : 158 + (s - 580) * 0.25);
+// The pool level's canyon (its walls' feet: mirrors N_WALL, CAULDRON and S_WALL in wild_h.py, run on a little east).
+// The land is cut away over it, a margin wider all round, under the map as well as past it: the pool level then sees
+// its own walls and the sky, and the deck sees the canyon run on below the cleft. Under the deck the cut never shows
+// (the floor covers it, and the chasm's opening is drawn over it).
+const POOL_CANYON: P2[] = [[1100, 560], [1000, 520], [860, 452], [760, 410], [680, 384], [600, 354], [520, 318], [450, 288], [390, 262], [330, 236], [290, 222], [255, 205], [215, 193], [180, 187],
+  [120, 193], [92, 199], [66, 214], [46, 240], [38, 268], [45, 300], [62, 330], [92, 355], [128, 372], [168, 380], [208, 375], [240, 360], [262, 342],
+  [292, 338], [340, 352], [395, 384], [440, 422], [475, 470], [505, 520], [545, 590], [610, 650], [720, 700], [860, 760], [1000, 820], [1100, 870]];
+/** A polygon grown outward by `dist` (mitred, the miter clamped). */
+function grow(poly: P2[], dist: number): P2[] {
+  const n = poly.length, area = poly.reduce((a, [x, z], i) => { const [x2, z2] = poly[(i + 1) % n]; return a + x * z2 - x2 * z; }, 0), sgn = area > 0 ? 1 : -1;
+  return poly.map((p, i) => {
+    const a = poly[(i - 1 + n) % n], b = poly[(i + 1) % n], e1 = [p[0] - a[0], p[1] - a[1]], e2 = [b[0] - p[0], b[1] - p[1]], l1 = Math.hypot(e1[0], e1[1]) || 1, l2 = Math.hypot(e2[0], e2[1]) || 1;
+    const n1 = [(sgn * e1[1]) / l1, (-sgn * e1[0]) / l1], n2 = [(sgn * e2[1]) / l2, (-sgn * e2[0]) / l2], m = [n1[0] + n2[0], n1[1] + n2[1]], lm = Math.hypot(m[0], m[1]) || 1, k = dist / Math.max(0.5, (m[0] * n1[0] + m[1] * n1[1]) / lm);
+    return [p[0] + (m[0] / lm) * k, p[1] + (m[1] / lm) * k] as P2;
+  });
+}
+const CANYON: P2[] = grow(POOL_CANYON, 40);
+const CANYON_K = 20; // its walls' batter: feet of drop per foot in from the rim
+function inPoly(poly: P2[], x: number, z: number): boolean { let c = false; for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) { const [xi, zi] = poly[i], [xj, zj] = poly[j]; if ((zi > z) !== (zj > z) && x < ((xj - xi) * (z - zi)) / (zj - zi) + xi) c = !c; } return c; }
+function polyEdgeDist(poly: P2[], x: number, z: number): number { let best = Infinity; for (let i = 0; i < poly.length; i++) { const [ax, az] = poly[i], [bx, bz] = poly[(i + 1) % poly.length], dx = bx - ax, dz = bz - az, t = Math.max(0, Math.min(1, ((x - ax) * dx + (z - az) * dz) / (dx * dx + dz * dz || 1))); best = Math.min(best, Math.hypot(x - ax - dx * t, z - az - dz * t)); } return best; }
+const CANYON_FLOOR = -8;
+// Vallaki, as the backdrop draws it (its true bearing, drawn nearer: see backdrop.ts `pull`), and the eye at the top of
+// the falls: a notch is cut through the one ridge that would hide the town's walls from there.
+const VAL_EYE: P2 = [150, 252], VAL_AT: P2 = [-10447, -7135], VAL_EYE_Y = 966, VAL_AIM_Y = 891 + 30;
+// The drop on the south-east (mirrors valley_edge() in wild_h.py, every few points): up the east side of the shelf road
+// from the map's south edge to the corner K (index 10), then east along the rib of rock left south of the chasm to where
+// it leaves the map. Past the map the line runs on south down the mountainside beside the road (the world road below
+// the map, 16 ft to its east) and on south-east past the rib's end; the valley lies to its right as drawn.
+const VALLEY_EDGE: P2[] = [[188, 520], [198, 501], [208, 481], [218, 459], [233, 432], [246, 406], [257, 379], [266, 355], [271, 337], [275, 323], [276, 320], [290, 322], [309, 324], [323, 329],
+  [341, 336], [359, 344], [375, 351], [391, 362], [407, 373], [424, 383], [438, 393], [455, 405], [471, 417], [488, 429], [501, 440], [515, 454], [530, 467], [548, 483], [567, 497], [584, 509], [599, 520]];
+const VALLEY_LINE: P2[] = [[8, 4200], [28, 3200], [60, 2300], [100, 1600], [138, 1100], [166, 800], [179, 640], ...VALLEY_EDGE, [1090, 900]];
+/** Where a point lies against the valley line: its distance from it, and whether it is on the valley side. */
+function valleyOf(x: number, z: number): { dist: number; valley: boolean } {
+  let best = Infinity, side = 0;
+  for (let i = 0; i + 1 < VALLEY_LINE.length; i++) {
+    const [ax, az] = VALLEY_LINE[i], [bx, bz] = VALLEY_LINE[i + 1], dx = bx - ax, dz = bz - az, L2 = dx * dx + dz * dz || 1;
+    const t = Math.max(0, Math.min(1, ((x - ax) * dx + (z - az) * dz) / L2)), dd = Math.hypot(x - ax - dx * t, z - az - dz * t);
+    if (dd < best - 1e-6) { best = dd; side = (x - ax) * -dz + (z - az) * dx; }
+  }
+  return { dist: best, valley: side > 0 };
+}
+/** The land before the gorge is cut: the escarpment (sheer for SCARP_W ft, then a long slope; nothing here depends on
+ *  the survey within 700 ft of the edge, so the pieces on the map can match it exactly), merging into the surveyed
+ *  land below by 3,000 ft. It drops past the map's east edge (by bearing) and everywhere on the valley side of the
+ *  valley line, inside the map too. Under the deck close to the line the land is dropped as well, out of sight under
+ *  the floor, so the land's coarse mesh never ramps up across the foot of the cliff. */
+function scarpLand(x: number, z: number, h: number, raw: number, d: number): number {
+  const v = valleyOf(x, z), inner = Math.min(x, MAP_W - x, z, MAP_D - z);
+  let w = d > 0 ? scarpWeight(x, z) : 0, e = d;
+  if (v.valley) { w = 1; e = Math.max(d, v.dist); }
+  else if (d <= 0 && v.dist < 50 && inner > 25) return DECK_Y - SCARP - 20;
+  if (w <= 0) return h;
+  const bench = DECK_Y - SCARP * smoothstep(0, SCARP_W, e) - 0.12 * Math.max(0, e - SCARP_W);
+  const far = raw - SCARP * (1 - smoothstep(1200, 3000, e));
+  const y = bench + (far - bench) * smoothstep(700, 1500, e);
+  return h + (y - h) * w;
+}
+/** The land's height round Tser Falls at plan (x, z): the backdrop's own `h` (held to the deck near the map), the
+ *  surveyed `raw`, `d` ft past the map's edge. */
+export function tserLand(x: number, z: number, h: number, raw: number, d: number): number {
+  let y = scarpLand(x, z, h, raw, d);
+  // the canyon (see POOL_CANYON): sheer-walled, its floor level with the Cauldron, under the map too, so that through
+  // the cleft the eye sees out over it and the valley rather than the land the deck stands on
+  if (x < 1140 && inPoly(CANYON, x, z)) y = Math.min(y, Math.max(CANYON_FLOOR, y - polyEdgeDist(CANYON, x, z) * CANYON_K));
+  if (d > 0) {
+    // then the gorge on down the valley: a V cut from its floor to its rim, opening out as it goes
+    const { lat, s } = along(GORGE, x, z), fl = Math.min(CANYON_FLOOR, gorgeFloor(s)), hw = gorgeHw(s), rim = gorgeRim(s);
+    if (s > 400 && lat < rim && y > fl) y = Math.min(y, fl + Math.max(0, lat - hw) * ((y - fl) / (rim - hw)));
+  }
+  const vx = VAL_AT[0] - VAL_EYE[0], vz = VAL_AT[1] - VAL_EYE[1], L2 = vx * vx + vz * vz, t = ((x - VAL_EYE[0]) * vx + (z - VAL_EYE[1]) * vz) / L2;
+  if (t > 0.3 && t < 0.99) {
+    const lat = Math.abs((x - VAL_EYE[0]) * vz - (z - VAL_EYE[1]) * vx) / Math.sqrt(L2), wdt = 200 + t * 1200;
+    if (lat < wdt * 1.6) { const los = VAL_EYE_Y + (VAL_AIM_Y - VAL_EYE_Y) * t - 25, k = smoothstep(wdt * 1.6, wdt * 0.7, lat); if (y > los) y += (los - y) * k; }
+  }
+  return y;
+}
+/** The escarpment's own height near the map (world y), before the gorge: what the cliff face and gorge walls stand on. */
+const scarpAt = (x: number, z: number) => scarpLand(x, z, DECK_Y, DECK_Y, mapDistH(x, z));
+/** The land near the map as cut (escarpment, canyon and gorge), world y. */
+const landAt = (x: number, z: number) => tserLand(x, z, DECK_Y, DECK_Y, mapDistH(x, z));
+// The world road reaches the map at its own exits: south down the mountainside toward F (joining the surveyed road
+// where it bends west), north through the cut toward I.
+const ROAD_SOUTH: P2[] = [[170, 520], [163, 640], [150, 800], [122, 1100], [84, 1600], [44, 2300], [12, 3200], [-8, 4200]];
+const ROAD_NORTH: P2[] = [[250, 0], [256, -90], [276, -250], [330, -520], [430, -900], [560, -1350]];
+/** Below the cliff the valley is forest and leaf litter, darkening as the land falls; the gorge floor is wet rock. */
+const VALLEY = new THREE.Color('#25312a'), GORGE_ROCK = new THREE.Color('#33373a');
+function tserTint(x: number, z: number, y: number, d: number, c: THREE.Color): void {
+  // the canyon floor: dark wet ground and pine litter, as on the pool level
+  if (x < 1140 && inPoly(CANYON, x, z)) { c.lerp(y < 200 ? VALLEY : GORGE_ROCK, 0.85); return; }
+  const v = valleyOf(x, z), w = v.valley ? 1 : d > 0 ? scarpWeight(x, z) : 0;
+  if (w <= 0) return;
+  const fade = 1 - smoothstep(2400, 3800, Math.max(d, v.valley ? v.dist : 0));
+  c.lerp(VALLEY, w * fade * 0.85 * smoothstep(60, 300, DECK_Y - y));
+  const { lat, s } = along(GORGE, x, z);
+  if (lat < gorgeRim(s)) c.lerp(GORGE_ROCK, fade * (1 - smoothstep(gorgeHw(s), gorgeRim(s), lat)) * 0.6);
+}
+/** The forest closes in on the slope below the cliff (not in the gorge), thinning out where the drop gives way. */
+function tserForest(x: number, z: number, d: number): number | undefined {
+  const v = valleyOf(x, z), w = v.valley ? 1 : d > 0 ? scarpWeight(x, z) : 0, e = v.valley ? Math.max(d, v.dist) : d;
+  if (w <= 0.05 || e > 3800) return undefined;
+  if (x < 1140 && inPoly(CANYON, x, z)) return 0;
+  const { lat, s } = along(GORGE, x, z);
+  if (lat < gorgeRim(s) * 0.8 && (s < 260 || lat < gorgeHw(s) + 25)) return 0;
+  return 0.85 * w * smoothstep(40, 200, e);
+}
+SITE_SHAPERS.push({
+  pin: [10.55, 6.81],
+  height: tserLand,
+  ground: '#5d5e60',
+  tint: tserTint,
+  forest: tserForest,
+  rings: Array.from({ length: 44 }, (_, i) => 15 + i * 20),
+  road: (name, pts) => {
+    if (name !== 'Ravenloft/Vallaki road' || pts.length < 4) return undefined;
+    return pts[1][1] > MAP_D + 800 ? [...ROAD_SOUTH, ...pts.slice(3)] : [...ROAD_NORTH, pts[pts.length - 1]];
+  },
+  rivers: [{ pts: [[700, 482], ...GORGE.slice(2)], w: 46 }],
+});
+
 // ---------------------------------------------------------------- the void: what lies below the deck
 const VOID_N = 12;
 const VOID = {
   uVoidY: { value: 1e6 },
   uVoidN: { value: 0 },
+  uVoidX: { value: 1e6 },
   uVoidP: { value: Array.from({ length: VOID_N }, () => new THREE.Vector3()) },
 };
 const VOID_DECL = `
 uniform float uVoidY;
 uniform int uVoidN;
+uniform float uVoidX;
 uniform vec3 uVoidP[${VOID_N}];
 bool hVoidHole(vec2 q) {
+  if (q.x > uVoidX) return false; // past the map's edge the land itself is cut away: nothing is drawn through it
   for (int i = 0; i < ${VOID_N - 1}; i++) {
     if (i + 1 >= uVoidN) break;
     vec3 a = uVoidP[i], b = uVoidP[i + 1];
@@ -236,48 +394,83 @@ const dmats = new Map<string, THREE.MeshLambertMaterial>();
 /** A palette material drawn from both sides (for open surfaces seen from either: a chute, a rib of rock). */
 const DS: MatFn = (c) => { let m = dmats.get(c); if (!m) { m = matClone(c); m.side = THREE.DoubleSide; dmats.set(c, m); } return m; };
 const VD: MatFn = (c) => vmat(c, 1, true);
+const fmats = new Map<string, THREE.MeshLambertMaterial>();
+/** Rock of the land beyond the map (the gorge below the cleft): drawn from both sides and, like the backdrop it stands
+ *  in, kept out of the near fog, which would wash it out to a grey wall a few hundred feet off. */
+const FD: MatFn = (c) => { let m = fmats.get(c); if (!m) { m = matClone(c, true); m.side = THREE.DoubleSide; m.fog = false; fmats.set(c, m); } return m; };
 
-/** The chasm's outline: the lips round a chain of capsules along the axis (world ft), with the inward normal at each
- *  lip point. North lip east→west, the round head, the south lip west→east, the round tail. */
-function chasmOutline(axis: P2[], hw: number[], step = 5): { p: P2; n: P2 }[] {
-  const D = densify(axis, hw, step), out: { p: P2; n: P2 }[] = [];
-  const side = (q: { p: P2; t: P2; w: number }, s: number) => { const nx = q.t[1] * s, nz = -q.t[0] * s; return { p: [q.p[0] + nx * q.w, q.p[1] + nz * q.w] as P2, n: [-nx, -nz] as P2 }; };
-  for (let i = D.length - 1; i >= 0; i--) out.push(side(D[i], 1));
-  // the head: from the north lip round the upstream end (the -t side) to the south lip
-  const q0 = D[0], nN0: P2 = [q0.t[1], -q0.t[0]], k0 = Math.max(4, Math.round((Math.PI * q0.w) / step));
-  for (let j = 1; j < k0; j++) { const th = (j / k0) * Math.PI, vx = nN0[0] * Math.cos(th) - q0.t[0] * Math.sin(th), vz = nN0[1] * Math.cos(th) - q0.t[1] * Math.sin(th); out.push({ p: [q0.p[0] + vx * q0.w, q0.p[1] + vz * q0.w], n: [-vx, -vz] }); }
-  for (let i = 0; i < D.length; i++) out.push(side(D[i], -1));
-  // the tail: from the south lip round the far end (the +t side) to the north lip
-  const q = D[D.length - 1], nN: P2 = [q.t[1], -q.t[0]], k = Math.max(4, Math.round((Math.PI * q.w) / step));
-  for (let j = 1; j < k; j++) { const th = (j / k) * Math.PI, vx = -nN[0] * Math.cos(th) + q.t[0] * Math.sin(th), vz = -nN[1] * Math.cos(th) + q.t[1] * Math.sin(th); out.push({ p: [q.p[0] + vx * q.w, q.p[1] + vz * q.w], n: [-vx, -vz] }); }
-  return out;
-}
 /** How far the chasm wall stands in from its lip at depth d (ft), before the rock's own jitter. */
 const lean = (d: number) => 6 * (1 - Math.exp(-d / 40));
 const leanAmp = (d: number) => (d < 1 ? 0 : 1.2 + Math.min(d, 200) * 0.018);
 
+/** The lips of a slot along `axis` (local ft) with half-widths `hw`: north and south, west to east, each point with the
+ *  inward normal (toward the axis) and its distance along the axis. */
+function slotLips(axis: P2[], hw: number[], step = 5): { north: { p: P2; n: P2; s: number }[]; south: { p: P2; n: P2; s: number }[]; D: { p: P2; t: P2; w: number }[] } {
+  const D = densify(axis, hw, step), north: { p: P2; n: P2; s: number }[] = [], south: { p: P2; n: P2; s: number }[] = [];
+  let run = 0;
+  D.forEach((q, i) => {
+    if (i) run += Math.hypot(q.p[0] - D[i - 1].p[0], q.p[1] - D[i - 1].p[1]);
+    const nx = q.t[1], nz = -q.t[0];
+    north.push({ p: [q.p[0] + nx * q.w, q.p[1] + nz * q.w], n: [-nx, -nz], s: run });
+    south.push({ p: [q.p[0] - nx * q.w, q.p[1] - nz * q.w], n: [nx, nz], s: run });
+  });
+  return { north, south, D };
+}
+/** The open chain round a slot's opening up to x = `edge` (local): north lip east→west, the round head, south lip
+ *  west→east, each point with its inward normal; and the lips beyond the edge. */
+function slotOpening(axis: P2[], hw: number[], edge: number, step = 5) {
+  const L = slotLips(axis, hw, step), N = cutLip(L.north, edge), S = cutLip(L.south, edge);
+  const O: { p: P2; n: P2 }[] = [...N.inside].reverse();
+  const q0 = L.D[0], nN0: P2 = [q0.t[1], -q0.t[0]], k0 = Math.max(4, Math.round((Math.PI * q0.w) / step));
+  for (let j = 1; j < k0; j++) { const th = (j / k0) * Math.PI, vx = nN0[0] * Math.cos(th) - q0.t[0] * Math.sin(th), vz = nN0[1] * Math.cos(th) - q0.t[1] * Math.sin(th); O.push({ p: [q0.p[0] + vx * q0.w, q0.p[1] + vz * q0.w], n: [-vx, -vz] }); }
+  O.push(...S.inside);
+  return { O, N, S, L };
+}
+/** A lip cut where it crosses x = `edge` (local): the part on the near side, and the part beyond, the crossing in both. */
+function cutLip<T extends { p: P2; n: P2; s: number }>(lip: T[], edge: number): { inside: T[]; outside: T[] } {
+  const inside: T[] = [], outside: T[] = [];
+  for (let i = 0; i < lip.length; i++) {
+    const a = lip[i];
+    (a.p[0] <= edge ? inside : outside).push(a);
+    const b = lip[i + 1];
+    if (b && (a.p[0] <= edge) !== (b.p[0] <= edge)) {
+      const f = (edge - a.p[0]) / (b.p[0] - a.p[0]), c = { ...a, p: [edge, lerp(a.p[1], b.p[1], f)] as P2, s: lerp(a.s, b.s, f) };
+      inside.push(c); outside.push(c);
+    }
+  }
+  return { inside, outside };
+}
+
 /** The chasm at Tser Falls: a slot in the mountain along a bending axis (world-ft points `x{i}`,`z{i}` with half-widths
  *  `w{i}`; the object stands at world (`ox`,`oz`), unturned; `y0` is the deck's elevation). Sheer wet walls lean in and
  *  pale with depth into the mist, water streaks down them, layer on layer of fog fills it and a billowing floor of cloud
- *  hides the bottom some 230 ft down. Lip boulders keep clear of a bridge (`bx`,`bz`, radius `br`) and of the falls'
- *  head (the first axis point). */
+ *  hides the bottom some 230 ft down. At the map's east edge (`edge`, world x) the slot leaves through a cleft in the
+ *  escarpment: past it the walls carry on down to the gorge floor far below, standing on the land the backdrop draws
+ *  there (see tserLand), and the cloud pours out of the cleft. Lip boulders keep clear of a bridge (`bx`,`bz`, radius
+ *  `br`) and of the falls' head (the first axis point). */
 export function chasm(d: Dims): THREE.Group {
-  const g = grp(), { pts, w } = dimsLine(d), ox = d.ox ?? 0, oz = d.oz ?? 0, floorY = -(d.depth ?? 230);
+  const g = grp(), { pts, w } = dimsLine(d), ox = d.ox ?? 0, oz = d.oz ?? 0, floorY = -(d.depth ?? 230), y0 = d.y0 ?? 0, EDGE = (d.edge ?? 1e6) - ox;
   if (pts.length < 2) return g;
   // the opening, for the void materials (world ft), a little generous so no sliver of land shows at the lip
-  VOID.uVoidY.value = d.y0 ?? 0; VOID.uVoidN.value = Math.min(VOID_N, pts.length);
+  VOID.uVoidY.value = y0; VOID.uVoidN.value = Math.min(VOID_N, pts.length); VOID.uVoidX.value = (d.edge ?? 1e6) + 1;
   pts.slice(0, VOID_N).forEach((p, i) => VOID.uVoidP.value[i].set(p[0], p[1], w[i] + 1));
-  const loc = pts.map(([x, z]) => [x - ox, z - oz] as P2), O = chasmOutline(loc, w, 5), n = O.length;
+  // the slot's own axis to the cleft, then the gorge's on down the valley (both in local ft)
+  const loc = pts.map(([x, z]) => [x - ox, z - oz] as P2);
+  const out = GORGE.filter(([x]) => x - ox > loc[loc.length - 1][0] + 1).map(([x, z]) => [x - ox, z - oz] as P2).slice(0, 1);
+  const axis = [...loc, ...out], widths = [...w, ...out.map(([x, z]) => gorgeRim(along(GORGE, x + ox, z + oz).s))];
+  // the open chain round the slot inside the map: north lip east→west, the round head, south lip west→east
+  const { O, N, S } = slotOpening(axis, widths, EDGE);
+  const n = O.length;
   // walls: rows of points down from the lip; ribs (jointing) run down the face, ledges break it
   const ROWS = [0, 4, 10, 18, 28, 40, 55, 72, 92, 115, 140, 168, 198, 232, 270, 310];
   const BANDS: [number, number, string, string][] = [[0, 2, C.band0, C.bandW0], [2, 4, C.band1, C.bandW1], [4, 6, C.band2, C.bandW2], [6, 8, C.band3, C.bandW3], [8, 10, C.band4, C.bandW4], [10, 12, C.band5, C.bandW5], [12, 15, C.band6, C.bandW6]];
   const off = (k: number, depth: number) => lean(depth) + leanAmp(depth) * (0.65 * noise1(k / 2.6, 3) + 0.35 * noise1(k / 1.1 + depth / 23, 7));
-  const at = (k: number, depth: number) => { const o = O[((k % n) + n) % n], f = off(k, depth); return new THREE.Vector3(o.p[0] + o.n[0] * f, -depth, o.p[1] + o.n[1] * f); };
+  const at = (k: number, depth: number) => { const o = O[Math.min(n - 1, Math.max(0, k))], f = off(k, depth); return new THREE.Vector3(o.p[0] + o.n[0] * f, -depth, o.p[1] + o.n[1] * f); };
   // water streams down some runs of the wall (darker, wetter rock); the rest is dry
   const wetRun = (k: number) => noise1(k / 1.9, 17) > 0.25 || hash(k, 19) > 0.88;
   for (const [r0, r1, col, wcol] of BANDS) {
     const rows: THREE.Vector3[][] = [];
-    for (let j = r0; j <= r1; j++) { const row: THREE.Vector3[] = []; for (let k = 0; k <= n; k++) row.push(at(k, ROWS[j])); rows.push(row); }
+    for (let j = r0; j <= r1; j++) { const row: THREE.Vector3[] = []; for (let k = 0; k < n; k++) row.push(at(k, ROWS[j])); rows.push(row); }
     g.add(new THREE.Mesh(stripCols(rows, (k) => !wetRun(k)), VD(col)), new THREE.Mesh(stripCols(rows, wetRun), VD(wcol)));
   }
   // water streaming down the walls: narrow wet ribs standing a little proud of the face, pale threads in them
@@ -286,12 +479,13 @@ export function chasm(d: Dims): THREE.Group {
   // wet, glossy rock where seepage comes over the lip into a streaming run
   for (let s = 0; s < 12; s++) {
     const k = Math.floor(hash(s, 41) * n), o = O[k];
-    if (nearBridge(o.p) || nearHead(o.p) || o.p[0] + ox > 600 || !wetRun(k)) continue;
+    if (nearBridge(o.p) || nearHead(o.p) || o.p[0] > EDGE - 4 || !wetRun(k)) continue;
     const c0 = at(k, 0);
     g.add(place(lump(0.8, C.wetSheen, s, 1.6, 0.4, 1, 0, V), c0.x - o.n[0] * 0.6, 0.05, c0.z - o.n[1] * 0.6));
   }
-  // fog: thin layers filling the slot, thicker with depth, then the cloud floor that hides the bottom
-  const ring = (depth: number, extra: number): P2[] => O.filter((_, i) => i % 2 === 0).map((o, i) => { const f = lean(depth) - extra - hash(i, depth) * 3; return [o.p[0] + o.n[0] * f, o.p[1] + o.n[1] * f] as P2; });
+  // fog: thin layers filling the slot, thicker with depth, then the cloud floor that hides the bottom (each closed
+  // straight across the cleft)
+  const ring = (depth: number, extra: number): P2[] => O.filter((_, i) => i % 2 === 0 || i === n - 1).map((o, i) => { const f = lean(depth) - extra - hash(i, depth) * 3; return [Math.min(EDGE, o.p[0] + o.n[0] * f), o.p[1] + o.n[1] * f] as P2; });
   for (const [dd, op, col] of [[95, 0.1, C.mist0], [150, 0.16, C.mist1], [195, 0.24, C.mist1]] as [number, number, string][]) g.add(fogFlat(ring(dd, 4), -dd, col, op, vmat(col, op)));
   // the cloud floor: shadowed where it meets the walls, bright in the middle where the light falls into the slot
   g.add(fogFlat(ring(-floorY, 8), floorY, C.shadowMist, 1, vmat(C.shadowMist)));
@@ -299,6 +493,7 @@ export function chasm(d: Dims): THREE.Group {
   // billows on the cloud floor, along the axis, heaped toward the head where the falls boil up
   const DA = densify(loc, w, 9);
   DA.forEach((q, i) => {
+    if (q.p[0] > EDGE - 8) return;
     const head = Math.max(0, 1 - i / 8);
     for (let k = 0; k < 2 + Math.round(head * 3); k++) {
       const s = i * 7 + k, lat = (hash(s, 51) - 0.5) * q.w * 1.2, r = q.w * (0.3 + hash(s, 52) * 0.35) * (1 + head * 0.4);
@@ -308,17 +503,170 @@ export function chasm(d: Dims): THREE.Group {
   // cold air spilling over the lips: wisps hanging a little way down the walls
   for (let s = 0; s < 16; s++) {
     const k = Math.floor(hash(s, 61) * n), o = O[k];
-    if (nearBridge(o.p) || o.p[0] + ox > 620) continue;
+    if (nearBridge(o.p) || o.p[0] > EDGE - 10) continue;
     const c = at(k, 14), card = new THREE.Mesh(new THREE.PlaneGeometry(14 + hash(s, 62) * 16, 22 + hash(s, 63) * 20), vmat(C.mist0, 0.1));
     place(card, c.x + o.n[0] * 3, -14, c.z + o.n[1] * 3, Math.atan2(o.n[0], o.n[1])); g.add(card);
   }
   // broken rock and moss along both lips (on the ground: ordinary materials)
   for (let k = 0; k < n; k += 2) {
-    const o = O[k]; if (nearBridge(o.p) || nearHead(o.p) || o.p[0] + ox > 615 || hash(k, 71) < 0.15) continue;
+    const o = O[k]; if (nearBridge(o.p) || nearHead(o.p) || o.p[0] > EDGE - 6 || hash(k, 71) < 0.15) continue;
     const r = 0.7 + hash(k, 72) * 1.9, back = 0.6 + hash(k, 73) * 2.2;
     g.add(place(lump(r, k % 3 ? C.rockMid : C.rock, k, 1.3, 0.55, 1.05, 0), o.p[0] - o.n[0] * back, r * 0.2, o.p[1] - o.n[1] * back, hash(k, 74) * 3));
     if (hash(k, 75) > 0.6) g.add(place(lump(0.6 + hash(k, 76) * 0.7, C.blackMoss, k + 3, 1.6, 0.35, 1.2, 0), o.p[0] - o.n[0] * (back + 1.5), 0.12, o.p[1] - o.n[1] * (back + 1.5)));
   }
+  // ---- past the cleft: the canyon's walls, from the rim down to its floor, standing a foot or two proud of the land
+  if (N.outside.length > 1 && S.outside.length > 1) {
+    const GB: [number, string, string][] = [[0.0, C.wall1, C.wet1], [0.08, C.wall0, C.wet0], [0.25, C.wall1, C.wet1], [0.5, C.wall2, C.wet2], [0.75, C.wall1, C.wet1], [1.0, C.wall0, C.wet0]];
+    // the grown canyon's two long sides, as they run past the map: north (drawn west→east) and south (west→east)
+    const north = CANYON.slice(0, 14).reverse(), south = CANYON.slice(27);
+    for (const [line, side] of [[north, 1], [south, -1]] as const) {
+      const D = densify(line as P2[], (line as P2[]).map(() => 0), 6), rows: THREE.Vector3[][] = GB.map(() => []);
+      D.forEach((q, k) => {
+        if ((mapDistH(q.p[0], q.p[1]) <= 2 && !valleyOf(q.p[0], q.p[1]).valley) || q.p[0] > 1130) return;
+        // the canyon lies to the right of the north side as drawn east, to the left of the south side
+        const nIn: P2 = side > 0 ? [-q.t[1], q.t[0]] : [q.t[1], -q.t[0]], top = scarpAt(q.p[0] - nIn[0] * 6, q.p[1] - nIn[1] * 6);
+        GB.forEach(([f], j) => {
+          const y = top + (CANYON_FLOOR - top) * f, inward = (top - y) / CANYON_K + 1.5 + (j && j < GB.length - 1 ? 0.6 + 1.6 * (0.5 + 0.5 * noise1(k / 2.3 + j, 5)) : 0);
+          rows[j].push(new THREE.Vector3(q.p[0] + nIn[0] * inward - ox, y - y0, q.p[1] + nIn[1] * inward - oz));
+        });
+      });
+      for (let j = 0; j + 1 < GB.length; j++) {
+        const wet = (k: number) => noise1(k / 1.7, 23 + side) > 0.3;
+        g.add(new THREE.Mesh(stripCols([rows[j], rows[j + 1]], (k) => !wet(k), side < 0), FD(GB[j][1])), new THREE.Mesh(stripCols([rows[j], rows[j + 1]], wet, side < 0), FD(GB[j][2])));
+      }
+    }
+    // the cloud pouring out of the cleft and down the cliff, thinning as it falls into the gorge
+    const mouthN = N.outside[0].p, mouthS = S.outside[0].p, mx = EDGE, mz = (mouthN[1] + mouthS[1]) / 2, mw = Math.abs(mouthS[1] - mouthN[1]);
+    for (let i = 0; i < 14; i++) {
+      const f = Math.pow(hash(i, 81), 0.7), y = floorY + 30 - f * 640, r = mw * (0.12 + hash(i, 82) * 0.1) * (1 + f * 1.4), op = Math.round(Math.max(0.05, 0.16 - f * 0.12) * 20) / 20;
+      g.add(place(new THREE.Mesh(lumpGeo(r, i + 90, 1.7, 0.3, 1.3, 1), fogMat(i % 3 ? C.mist0 : C.mist1, op)), mx + 4 + f * 240 + hash(i, 83) * 30, y, mz + (hash(i, 84) - 0.5) * mw * (0.8 + f) + f * 140, hash(i, 85) * 3));
+    }
+  }
+  return g;
+}
+
+/** Fog lying in the valley below the cliff (the object at the map's origin, unturned): long low banks over the forest
+ *  and a river of cloud along the gorge, each laid at the height of the land under it (see tserLand). */
+export function valleyMist(d: Dims): THREE.Group {
+  const g = grp(), y0 = d.y0 ?? DECK_Y, n = d.n ?? 14;
+  for (let i = 0; i < n; i++) {
+    const s = 150 + hash(i, 1) * 1050, k = Math.min(GORGE.length - 2, Math.floor(s / 330)), a = GORGE[k], b = GORGE[k + 1], f = (s - k * 330) / 330;
+    const side = hash(i, 2) < 0.5 ? -1 : 1, dx = b[0] - a[0], dz = b[1] - a[1], L = Math.hypot(dx, dz) || 1;
+    const lat = side * (140 + hash(i, 3) * 380), x = lerp(a[0], b[0], Math.min(1, f)) - (dz / L) * lat, z = lerp(a[1], b[1], Math.min(1, f)) + (dx / L) * lat;
+    const vv = valleyOf(x, z);
+    if (vv.valley ? vv.dist < 60 : mapDistH(x, z) < 40) continue;
+    const y = Math.min(landAt(x, z), DECK_Y - 260) + 25 + hash(i, 4) * 40, r = 70 + hash(i, 5) * 110;
+    g.add(fogFlat(blobPts(r, i + 200, 1.8, 12, 0.45).map(([px, pz]) => { const c = Math.cos(Math.atan2(dz, dx)), sn = Math.sin(Math.atan2(dz, dx)); return [x + px * c - pz * sn, z + px * sn + pz * c] as P2; }), y - y0, C.mist0, 0.16));
+    g.add(fogFlat(blobPts(r * 0.6, i + 300, 1.6, 12, 0.5).map(([px, pz]) => [x + px, z + pz] as P2), y - y0 + 14, C.mist1, 0.1));
+  }
+  return g;
+}
+
+/** Vallaki on the horizon, north-west across the valleys (the object at the map's origin, unturned; the town stands at
+ *  (`vx`,`vz`) world ft, its ground at `vy`, where the backdrop draws it at its true bearing). The backdrop's own town
+ *  is a few specks at this range; this is the same town drawn to read from the top of the falls: a palisade ring with
+ *  gate towers, close-packed roofs, the church tower and the burgomaster's house, coloured through the haze and never
+ *  under the near fog. */
+const farMats = new Map<string, THREE.MeshLambertMaterial>();
+function farMat(hex: string, haze: number): THREE.MeshLambertMaterial {
+  const k = hex + haze; let m = farMats.get(k);
+  if (!m) { m = matClone('#' + new THREE.Color(hex).lerp(new THREE.Color('#2b2733'), haze).getHexString(), true); m.fog = false; farMats.set(k, m); }
+  return m;
+}
+export function farVallaki(d: Dims): THREE.Group {
+  const g = grp(), X = d.vx ?? -10447, Z = d.vz ?? -7135, Y = (d.vy ?? 891) - (d.y0 ?? DECK_Y), hz = d.haze ?? 0.22, F = (c: string) => farMat(c, hz);
+  const at = (o: THREE.Object3D, x: number, y: number, z: number, ry = 0) => { o.position.set(X + x, Y + y, Z + z); o.rotation.y = ry; g.add(o); };
+  const blk = (w: number, h: number, dd: number, c: string, x: number, z: number, ry = 0, sink = 40) => { const b = new THREE.BoxGeometry(w, h + sink, dd); b.translate(0, (h - sink) / 2, 0); at(new THREE.Mesh(b, F(c)), x, 0, z, ry); };
+  const roof = (w: number, dd: number, h: number, y: number, c: string, x: number, z: number, ry = 0) => { const r = new THREE.ConeGeometry(Math.SQRT1_2, 1, 4); r.rotateY(Math.PI / 4); r.translate(0, 0.5, 0); r.scale(w, h, dd); at(new THREE.Mesh(r, F(c)), x, y, z, ry); };
+  // the hill it stands on, so the ring does not float where the land dips
+  const base = new THREE.CylinderGeometry(760, 900, 120, 16); base.translate(0, -60, 0); at(new THREE.Mesh(base, F('#3a3f3a')), 0, 2, 0);
+  // the palisade and its gate towers
+  const R = 700, NW = 28;
+  for (let i = 0; i < NW; i++) { const a = (i / NW) * Math.PI * 2; blk(2 * R * Math.sin(Math.PI / NW) + 6, 48, 12, '#4b4038', Math.cos(a) * R, Math.sin(a) * R, -a + Math.PI / 2); }
+  for (let i = 0; i < 8; i++) { const a = (i / 8) * Math.PI * 2 + 0.2; blk(40, 90, 40, '#51463d', Math.cos(a) * R, Math.sin(a) * R, -a); roof(52, 52, 34, 90, '#2f2b33', Math.cos(a) * R, Math.sin(a) * R, -a); }
+  // the houses, packed inside, roofs dark
+  for (let i = 0; i < 90; i++) {
+    const a = hash(i, 1) * Math.PI * 2, r = Math.sqrt(hash(i, 2)) * 600, x = Math.cos(a) * r, z = Math.sin(a) * r, w = 40 + hash(i, 3) * 30, dd = 28 + hash(i, 4) * 18, h = 26 + hash(i, 5) * 22, ry = hash(i, 6) * Math.PI;
+    if (Math.hypot(x - 60, z + 40) < 130) continue;
+    blk(w, h, dd, i % 3 ? '#7a7166' : '#6d655c', x, z, ry); roof(w + 6, dd + 6, 22 + hash(i, 7) * 10, h, i % 4 ? '#36313b' : '#3e3640', x, z, ry);
+  }
+  // St Andral's: nave and a tall tower with its spire; the burgomaster's house beside the square
+  blk(64, 52, 140, '#8a8378', 60, -40, 0.3); roof(70, 146, 40, 52, '#33303a', 60, -40, 0.3);
+  blk(40, 150, 40, '#8f887d', 60 + Math.sin(0.3) * 80, -40 + Math.cos(0.3) * 80, 0.3); roof(46, 46, 110, 150, '#2c2932', 60 + Math.sin(0.3) * 80, -40 + Math.cos(0.3) * 80, 0.3);
+  blk(130, 64, 80, '#80786c', -150, 90, -0.4); roof(136, 86, 36, 64, '#34303a', -150, 90, -0.4);
+  return g;
+}
+
+/** The escarpment where the saddle drops to the valley: a sheer face from the deck's edge down to the slope the
+ *  backdrop draws below it (see tserLand), banded and streaked, its height following the land. Two runs: past the map's
+ *  east edge north of the chasm's cleft (fading out toward the north-east), and on the south-east the valley edge
+ *  (`e{i}` points, world ft: up beside the shelf road, along the rib south of the chasm, out to the map's south edge),
+ *  then along the south edge to the corner and up the east edge to the cleft. The object stands at the map's origin,
+ *  unturned; the chasm (`ax{i}`,`az{i}`, half-widths `aw{i}`) gives the cleft. It also lays an all but invisible sheet a
+ *  hair over the deck across the chasm's opening, the valley side and the strips of air past the map's edges: the
+ *  ground grid runs a margin past every map, and without the sheet it would be drawn on thin air there (the piece is
+ *  placed last, so the sheet is drawn after every other see-through piece and hides only the grid). */
+export function escarpment(d: Dims): THREE.Group {
+  const g = grp(), y0 = d.y0 ?? DECK_Y, pad = d.pad ?? 80, { pts, w } = dimsLine(d, 'a'), edge = dimsLine(d, 'e').pts;
+  const L = slotLips(pts, w, 4), nIn = cutLip(L.north, MAP_W).inside, sIn = cutLip(L.south, MAP_W).inside;
+  const zN = nIn.length ? nIn[nIn.length - 1].p[1] : 350, zS = sIn.length ? sIn[sIn.length - 1].p[1] : 490;
+  // the lip, as runs of points with their outward normals
+  const runs: { p: P2; n: P2 }[][] = [[], []];
+  for (let z = 0; z < zN; z += 4) runs[0].push({ p: [MAP_W, z], n: [1, 0] });
+  runs[0].push({ p: [MAP_W, zN], n: [1, 0] });
+  const south: P2[] = edge.length > 1 ? [...edge, [MAP_W, MAP_D], [MAP_W, zS]] : [[MAP_W, MAP_D], [MAP_W, zS]];
+  for (const q of densify(south, south.map(() => 0), 4)) runs[1].push({ p: q.p, n: [-q.t[1], q.t[0]] });  // the right-hand side, walking
+  const FR = [0, 0.03, 0.1, 0.22, 0.38, 0.56, 0.74, 0.9, 1.0, 1.12];
+  const COL = [C.wall0, C.wall1, C.wall1, C.wall2, C.wall1, C.wall2, C.wall3, C.wall2, C.wall3];
+  const WET = [C.wet0, C.wet0, C.wet1, C.wet1, C.wet0, C.wet1, C.wet2, C.wet1, C.wet2];
+  let kk = 0;
+  for (const run of runs) {
+    const rows: THREE.Vector3[][] = FR.map(() => []), cols: number[] = [];
+    for (const o of run) {
+      const k = kk++, fx = o.p[0] + o.n[0] * (SCARP_W + 8), fz = o.p[1] + o.n[1] * (SCARP_W + 8), drop = DECK_Y - landAt(fx, fz);
+      cols.push(drop);
+      FR.forEach((f, j) => {
+        const dep = drop * f, out = j === 0 ? 0.05 : 0.3 + dep * 0.02 + (1 + dep * 0.012) * (0.5 + 0.5 * noise1(k / 3.1 + j * 0.7, 11)) * 2.2 + (j % 3 === 2 ? 1.2 : 0);
+        rows[j].push(new THREE.Vector3(o.p[0] + o.n[0] * out, y0 - DECK_Y - dep + (j ? noise1(k / 1.7, 13 + j) * 0.04 * dep : 0), o.p[1] + o.n[1] * out));
+      });
+    }
+    const live = (i: number) => cols[i] > 2 || cols[i + 1] > 2, wet = (i: number) => noise1(i / 2.2, 29) > 0.35;
+    for (let j = 0; j + 1 < FR.length; j++) {
+      const band = [rows[j], rows[j + 1]];
+      g.add(new THREE.Mesh(stripCols(band, (i) => live(i) && !wet(i), true), DS(COL[j])), new THREE.Mesh(stripCols(band, (i) => live(i) && wet(i), true), DS(WET[j])));
+    }
+  }
+  // a crumbling lip: loose stone and broken edge along the valley side
+  const r1 = runs[1];
+  for (let i = 0; i < 90; i++) {
+    const o = r1[Math.floor(hash(i, 3) * r1.length)], back = 0.8 + hash(i, 4) * 4, r = 0.4 + hash(i, 5) * 1.3;
+    g.add(place(lump(r, i % 3 ? C.rockMid : C.rock, i, 1.3, 0.55, 1.1, 0), o.p[0] - o.n[0] * back, y0 - DECK_Y + r * 0.18, o.p[1] - o.n[1] * back, hash(i, 6) * 3));
+  }
+  // the sheet over the chasm's opening, the valley side and the air past the lip (see above)
+  const stop = new THREE.MeshBasicMaterial({ color: '#000000', transparent: true, opacity: 0.004, depthWrite: true, fog: false });
+  const sheet = (poly: P2[]) => g.add(fogFlat(poly, y0 - DECK_Y + 0.1, '#000000', 0.004, stop));
+  const op = slotOpening(pts, w, MAP_W, 5).O.map((o) => [o.p[0] - o.n[0] * 0.5, o.p[1] - o.n[1] * 0.5] as P2);
+  if (op.length > 3) sheet(op);
+  if (edge.length > 2) sheet(edge);
+  sheet([[MAP_W, -pad], [MAP_W + pad, -pad], [MAP_W + pad, MAP_D + pad], [MAP_W, MAP_D + pad]]);
+  const x0 = edge.length ? edge[0][0] : 300;
+  sheet([[x0, MAP_D], [MAP_W, MAP_D], [MAP_W, MAP_D + pad], [x0 - pad * 0.4, MAP_D + pad]]);
+  return g;
+}
+
+/** Pines on the valley slope below the cliff (the object at the map's origin, unturned): old trees standing on the land
+ *  as the backdrop draws it there (see tserLand), from the cliff's foot out to where the backdrop's own forest takes
+ *  over, none in the canyon. `n` tries; merged into one mesh per colour. */
+export function valleyPines(d: Dims): THREE.Group {
+  const g = grp(), N = d.n ?? 420, y0 = d.y0 ?? DECK_Y, bark: THREE.BufferGeometry[] = [], a: THREE.BufferGeometry[] = [], b: THREE.BufferGeometry[] = [];
+  for (let i = 0; i < N; i++) {
+    const x = 120 + hash(i, 1) * 960, z = 280 + hash(i, 2) * 700, v = valleyOf(x, z);
+    if (!v.valley || v.dist < 22 || inPoly(CANYON, x, z) || mapDistH(x, z) > 400 || hash(i, 4) > 0.85 * smoothstep(20, 90, v.dist) + 0.1) continue;
+    const s = 1.05 + hash(i, 3) * 0.6, h = 26 * s, y = landAt(x, z) - y0;
+    bark.push(new THREE.CylinderGeometry(0.45 * s, 0.8 * s, h * 0.34, 5).translate(x, y + h * 0.17 - 1, z));
+    for (let k = 0; k < 3; k++) { const tr = 6 * s * (1 - k * 0.26), th = h * (0.36 - k * 0.03); (k % 2 ? b : a).push(pineTier(tr, th, 6, k + i).translate(x, y + h * 0.26 + k * h * 0.22 + th / 2, z)); }
+  }
+  if (bark.length) g.add(new THREE.Mesh(merge(bark), mat(C.bark)), new THREE.Mesh(merge(a), mat(C.pine)), new THREE.Mesh(merge(b), mat(C.pineDeep)));
   return g;
 }
 
@@ -343,10 +691,22 @@ export function fallsSill(d: Dims): THREE.Group {
     const curl = new THREE.Mesh(new THREE.CylinderGeometry(2.6, 2.6, ww, 6, 1, true, 0, Math.PI / 2), V(col)); curl.rotation.x = Math.PI / 2; curl.position.set(lx, -2.2, z); g.add(curl);
     // the falling sheet: drifting out from the wall as it drops, broken into ropes of white
     const drop = 26 + hash(i, 4) * 26;
-    for (let j = 0; j < 4; j++) { const y0 = -2.2 - j * (drop / 4), y1 = y0 - drop / 4; const seg = box(ww, drop / 4 + 0.3, 1.4, j % 2 ? col : C.fallPale, lx + 2.6 + (j + 0.5) * 1.6, (y0 + y1) / 2, z, 0, VD); seg.rotation.z = -0.06; g.add(seg); }
+    for (let j = 0; j < 4; j++) {
+      const y0 = -2.2 - j * (drop / 4), y1 = y0 - drop / 4, seg = new THREE.Mesh(new THREE.PlaneGeometry(ww, drop / 4 + 0.3), VD(j % 2 ? col : C.fallPale));
+      place(seg, lx + 2.6 + (j + 0.5) * 1.6, (y0 + y1) / 2, z, Math.PI / 2); seg.rotation.order = 'YXZ'; seg.rotation.x = -0.06; g.add(seg);
+    }
     if (i % 2 === 0) g.add(box(0.6, drop * 0.8, 1.5, C.foam, lx + 3.4 + hash(i, 5), -2.5 - drop * 0.4, z + (hash(i, 6) - 0.5) * ww * 0.6, 0, VD));
+    // on down the head of the chasm: the column standing off the wall, broken into white ropes, into the cloud floor
+    const x1 = lx + 2.6 + 4 * 1.6, y1 = -2.2 - drop, deep = (d.deep ?? 226) + y1;
+    for (let j = 0; j < 4; j++) {
+      const ya = y1 - (j * deep) / 4, h = deep / 4 + 0.6;
+      if (hash(i * 7 + j, 8) < 0.15) continue;
+      const sheet = new THREE.Mesh(new THREE.PlaneGeometry(ww * (0.95 - j * 0.06), h), VD((i + j) % 3 === 0 ? C.foam : j % 2 ? C.fallPale : C.fall));
+      place(sheet, x1 + 2 + j * 3 + hash(i, j + 20) * 1.5, ya - h / 2, z + (hash(i * 3 + j, 9) - 0.5) * 2, Math.PI / 2, 0, 0); sheet.rotation.order = 'YXZ'; sheet.rotation.x = -0.05; g.add(sheet);
+    }
   }
-  for (let i = 0; i < n; i++) { const z = -W / 2 + (i + 0.5) * (W / n); g.add(place(new THREE.Mesh(new THREE.BoxGeometry(2.4, 1, (W / n) * 1.1), mat(C.foam)), lipX(z) + 0.6, 0.15, z)); }
+  // white water breaking over the lip: a low broken ridge of foam
+  for (let i = 0; i < n * 2; i++) { const z = -W / 2 + (i + 0.5) * (W / (n * 2)); g.add(place(lump(0.9 + hash(i, 15) * 0.4, C.foam, i + 60, 1.1, 0.4, (W / (n * 2)) * 0.7, 0), lipX(z) + 0.4 + hash(i, 16) * 0.6, 0.35, z, hash(i, 17) * 0.4)); }
   // the cloud the sheet vanishes into, boiling up the head of the chasm
   for (let i = 0; i < 16; i++) {
     const r = 7 + hash(i, 11) * 9, m = i % 3 === 0 ? vmat(C.foam, 0.92) : vmat(i % 2 ? C.mist0 : C.mist1, 0.72);
@@ -655,10 +1015,12 @@ export function slab(d: Dims): THREE.Group {
   if (pts.length < 3) return g;
   const shape = new THREE.Shape(pts.map(([x, z]) => new THREE.Vector2(x, -z)));
   const geo = new THREE.ExtrudeGeometry(shape, { depth: H, bevelEnabled: false }); geo.rotateX(-Math.PI / 2);
-  g.add(new THREE.Mesh(geo, mat([C.slab, C.slabDark, C.slabPale][tone % 3])));
+  // tone 3 is a damp patch of moss and turf in a hollow, not a slab
+  const moss = tone === 3;
+  g.add(new THREE.Mesh(geo, mat([C.slab, C.slabDark, C.slabPale, C.fern][tone % 4])));
   const cx = pts.reduce((a, p) => a + p[0], 0) / pts.length, cz = pts.reduce((a, p) => a + p[1], 0) / pts.length;
-  pts.forEach((p, i) => { if (hash(i, 3) > 0.55) g.add(place(lump(0.5 + hash(i, 4) * 0.9, C.rockMid, i, 1.3, 0.6, 1, 0), p[0] + (cx - p[0]) * 0.05, H * 0.6, p[1] + (cz - p[1]) * 0.05)); });
-  for (let i = 0; i < Math.min(9, pts.length); i += 3) { const f = 0.25 + hash(i, 6) * 0.5, p = pts[i]; g.add(flat(blobPts(0.5 + hash(i, 7) * 0.8, i + 20, 1.2, 7, 0.5).map(([x, z]) => [x + lerp(cx, p[0], f), z + lerp(cz, p[1], f)] as P2), H + 0.03, i % 2 ? C.lichen : C.lichenPale)); }
+  if (!moss) pts.forEach((p, i) => { if (hash(i, 3) > 0.55) g.add(place(lump(0.5 + hash(i, 4) * 0.9, C.rockMid, i, 1.3, 0.6, 1, 0), p[0] + (cx - p[0]) * 0.05, H * 0.6, p[1] + (cz - p[1]) * 0.05)); });
+  for (let i = 0; i < Math.min(9, pts.length); i += 3) { const f = 0.25 + hash(i, 6) * 0.5, p = pts[i]; g.add(flat(blobPts(0.5 + hash(i, 7) * 0.8, i + 20, 1.2, 7, 0.5).map(([x, z]) => [x + lerp(cx, p[0], f), z + lerp(cz, p[1], f)] as P2), H + 0.03, moss ? C.fernDeep : i % 2 ? C.lichen : C.lichenPale)); }
   return g;
 }
 
@@ -948,7 +1310,7 @@ export function skeletalRider(d: Dims): THREE.Group {
 }
 
 const H_PROPS: Record<string, (d: Dims) => THREE.Object3D> = {
-  'h-chasm': chasm, 'h-falls-sill': fallsSill, 'h-spray-cloud': sprayCloud, 'h-tarn': tarn, 'h-bridge': hBridge, 'h-rockfall-scar': rockfallScar,
+  'h-chasm': chasm, 'h-escarpment': escarpment, 'h-valley-pines': valleyPines, 'h-valley-mist': valleyMist, 'h-far-vallaki': farVallaki, 'h-falls-sill': fallsSill, 'h-spray-cloud': sprayCloud, 'h-tarn': tarn, 'h-bridge': hBridge, 'h-rockfall-scar': rockfallScar,
   'h-lightning-star': lightningStar, 'h-precipice-stance': precipice, 'h-shelf-road': shelfRoad, 'h-anvil-block': anvilBlock, 'h-raven-litter': ravenLitter,
   'h-bent-pine': bentPine, 'h-climb-rope': climbRope, 'h-slab': slab, 'h-scree-gully': screeGully, 'h-falls-column': fallsColumn, 'h-plunge-pool': plungePool,
   'h-cauldron-wall': cauldronWall, 'h-spray-cave': sprayCave, 'h-scavenger-stake': scavengerStake, 'h-snag-jam': snagJam, 'h-gravel-bar': gravelBar,
