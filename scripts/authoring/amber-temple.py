@@ -21,7 +21,7 @@ from collections import OrderedDict
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from authorlib import ROOT, Level, rect, unit_edges, seg_key  # noqa: F401
 
-OUT = os.path.join(ROOT, 'locations', 'ch13', 'X')
+OUT = os.environ.get('MISTLAB_OUT') or os.path.join(ROOT, 'locations', 'ch13', 'X')   # MISTLAB_OUT: write elsewhere (tests)
 _M = json.load(open(os.path.join(ROOT, 'manifests', 'locations.json')))
 PAGE = {a['key']: a['page'] for l in _M['locations'] if l['id'] == 'X' for a in l['areas']}
 def pg(k): return PAGE.get(k.split('-')[0])
@@ -53,13 +53,10 @@ class XLevel(Level):
     def rm(self, key, name, pts, floor='flagstone', mat='ashlar', ceil=10, **extra):
         MATS[key] = mat; CEIL[key] = ceil
         self.room(key, name, pts, floor, page=pg(key), ceilingFt=ceil, **extra)
-    def stamp_seg(self, a, b, **kw):
-        k = seg_key(a, b); self.overrides[k] = dict(self.overrides.get(k, {}), **kw)
-    def open_seg(self, a, b): self.stamp_seg(a, b, open_wall=True)
+    def open_seg(self, a, b): self.override(a, b, open_wall=True)
     def mat_seg(self, a, b, m):
-        """Give one polygon edge (cells) its own wall material: axis-aligned edges are stamped cell by cell."""
-        if a[0] == b[0] or a[1] == b[1]: self._stamp(a, b, material=m)
-        else: self.stamp_seg(a, b, material=m)
+        """Give one polygon edge (cells) its own wall material."""
+        self.override(a, b, material=m)
     def finish(self):
         """Per unit edge: amber wins over stone; height is the tallest ceiling either side (capped by the level)."""
         owners = {}
@@ -88,6 +85,7 @@ class XLevel(Level):
         for _, _, poly_, _, _ in self.rooms:
             for a, b in unit_edges(poly_):
                 k = seg_key(a, b); count[k] = count.get(k, 0) + 1
+        self.check_overrides(count)
         segs = []
         for k, c in count.items():
             ov = self.overrides.get(k, {})
@@ -204,8 +202,7 @@ f.O((8, -2), (9, -2))                                      # the archway: icy st
 f.O((21, -1), (21, 6)); f.O((21, 6), (-4.5, 6)); f.O((-4.5, 6), (-4.5, 0))   # the ledge runs on south, east and west
 # the ledge's back corners: a rim of fallen rock at the foot of the mountain (the rock face itself is the flank below)
 for a, b in [((18.5, -2), (19.5, -1)), ((19.5, -1), (21, -1)), ((-4.5, 0), (-3, -1)), ((-3, -1), (-3, -2))]:
-    if a[0] == b[0] or a[1] == b[1]: f._stamp(S(*a), S(*b), material='cave-rock', heightFt=4, wall=True)
-    else: f.stamp_seg(S(*a), S(*b), material='cave-rock', heightFt=4)
+    f.override(S(*a), S(*b), material='cave-rock', heightFt=4, wall=True)
 f.terrain.append((poly((-14, -1), (-4.5, -1), (-4.5, 6), (21, 6), (21, -1.5), (31, -1.5), (31, 16), (-14, 16)), 'snow'))
 f.terrain.append((poly((6.75, 6), (7.15, 6), (7.35, 4.6), (7.1, 4.6)), 'dirt'))       # the gravel road, soon lost under the snow
 f.terrain.append((poly((5.7, 16), (6.4, 16), (7.15, 6), (6.75, 6)), 'dirt'))
@@ -315,7 +312,7 @@ u.rm('X30', 'Preserved Library', [S(6, -26)] + SHAFT_S + [S(11, -26), S(11, -21)
 HC = S(8.5, -16.5); hw, hc = 1.7, 0.7
 HEAD = [(HC[0] - hc, HC[1] - hw), (HC[0] + hc, HC[1] - hw), (HC[0] + hw, HC[1] - hc), (HC[0] + hw, HC[1] + hc), (HC[0] + hc, HC[1] + hw), (HC[0] - hc, HC[1] + hw), (HC[0] - hw, HC[1] + hc), (HC[0] - hw, HC[1] - hc)]
 u.rm('X5a', 'God of Secrets (the head)', HEAD, ceil=10)
-for a, b in zip(HEAD, HEAD[1:] + HEAD[:1]): u.stamp_seg(a, b, flags=['invisible'])   # the head itself is the prop; its walls only bound the room
+for a, b in zip(HEAD, HEAD[1:] + HEAD[:1]): u.override(a, b, flags=['invisible'])   # the head itself is the prop; its walls only bound the room
 # --- doors, openings, secret doors (upper)
 u.O((8, -5), (9, -5)); u.O((8, -2), (9, -2))              # the entrance hall runs from the facade steps into the overlook
 u.D((5, -5), (5.5, -5), id='X3w-door'); u.D((13, -4.5), (13, -4), id='X3e-door')
@@ -352,7 +349,7 @@ for a, b in zip(X23[1:], X23[2:]): u.open_seg(a, b)       # the broken edge of X
 # the shaft in the library: a black marble railing round its south half, open where the spiral stair arrives
 for k, (a, b) in enumerate(zip(SHAFT_S[:-1], SHAFT_S[1:])):
     if k in (8, 9): u.open_seg(a, b)
-    else: u.stamp_seg(a, b, flags=['normal'], heightFt=3.5, material='ashlar')
+    else: u.override(a, b, flags=['normal'], heightFt=3.5, material='ashlar')
 for a, b in zip(SHAFT_N[:-1], SHAFT_N[1:]): u.wall(a, b, material='amber', heightFt=30)   # the shaft's far wall, continuing up from the amber vault
 u.wall(S(8, -18), S(9, -18), material='amber', heightFt=30)   # the temple's north wall above the X5b stairwell
 u.wall(S(8, -21), S(8, -20)); u.wall(S(9, -21), S(9, -20))       # the X5b stairwell between the archer posts
@@ -786,4 +783,5 @@ json.dump(grid, open(os.path.join(OUT, 'grid.json'), 'w'), indent=1)
 keys = sorted({r['key'].split('-')[0] if r['key'].count('-') and r['key'].split('-')[-1].isalpha() else r['key'] for l in scene['levels'] for r in l['rooms']} | set(scene['nonSpatialKeys']))
 want = sorted(PAGE)
 missing = [k for k in want if k not in keys]; extra = [k for k in keys if k not in want]
+print('unmatched overrides:', json.dumps({lv.id: [[list(a), list(b)] for a, b in lv.unmatched] for lv in levels}))
 print('amber temple:', [(l['id'], len(l['rooms']), len(l['walls']), len(l['objects'])) for l in scene['levels']], 'links', len(links), 'missing', missing, 'extra', extra)
