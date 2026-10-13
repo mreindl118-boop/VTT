@@ -22,8 +22,15 @@ const C = {
   bone: '#d9d0b8', ash: '#3a3a3c', soot: '#1c1b1d', stone: '#5f5b55',
   vSkin: '#c9a384', vCloth0: '#6a3a3a', vCloth1: '#3a4a5a', vCloth2: '#5a4a30', vCloth3: '#4a3a52', vTrim: '#2b2420', vHair: '#1f1a18', vScarf: '#8a5a2a',
   bat: '#231f24', batWing: '#2f2a30',
+  // the ground: turf, the stony scrub of the windward slope, the needle floor under the woods, the damp hollow, scree
+  gTurf: '#3d5241', gTurf2: '#42563f', gScrub: '#545a4b', gScrub2: '#4d5346', gForest: '#373a2d', gForest2: '#3c3d2f',
+  gHollow: '#34463b', gEarth: '#4f4538', gKept: '#43573f', gScree: '#646159', gRock: '#5a5852', gRock2: '#4b4a49', gRock3: '#55534f',
+  road: '#5a4c3b', roadMud: '#4b3f32', verge: '#4a4236',
 } as const;
-surfaceFor([C.rock, C.rockDeep, C.rockPale], 'rock');
+surfaceFor([C.rock, C.rockDeep, C.rockPale, C.gRock, C.gRock2, C.gRock3], 'rock');
+surfaceFor([C.gTurf, C.gTurf2, C.gScrub, C.gScrub2, C.gHollow, C.gKept], 'grass');
+surfaceFor([C.gForest, C.gForest2, C.gEarth, C.road, C.roadMud, C.verge], 'dirt');
+surfaceFor([C.gScree], 'rock');
 surfaceFor([C.stone], 'stone');
 surfaceFor([C.turf, C.turfPale, C.lichen], 'grass');
 surfaceFor([C.earth, C.earthRaw, C.earthDark, C.mud, C.mudRidge], 'dirt');
@@ -64,31 +71,110 @@ function profile(pts: [number, number][], len: number, color: string): THREE.Mes
   const geo = new THREE.ExtrudeGeometry(new THREE.Shape(pts.map(([x, y]) => new THREE.Vector2(x, y))), { depth: len, bevelEnabled: false }); geo.translate(0, 0, -len / 2);
   return new THREE.Mesh(geo, mat(color));
 }
+/** A strip laid along local x on a slope: tilted `pitch` degrees (its +x end up) inside a group the scene turns. */
+function pitched(inner: THREE.Group, pitch?: number): THREE.Group {
+  if (pitch) inner.rotation.z = (pitch * Math.PI) / 180;
+  return grp(inner);
+}
 /** Triangles (non-indexed) into one flat-shaded mesh. */
 function tris(verts: number[], color: string): THREE.Mesh {
   const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3)); geo.computeVertexNormals();
   return new THREE.Mesh(geo, mat(color));
 }
 
+// ---------------------------------------------------------------- the land
+/** The ground of the crossroads: a lattice `nx` × `nz` of `cell` ft from the origin, heights packed four to a number
+ *  (12 bits each, `q` ft per step) in d0.., and a ground class per vertex packed thirteen to a number (4 bits each) in
+ *  c0..: 0 turf, 1 stony scrub, 2 needle floor under the woods, 3 damp hollow, 4 trodden earth, 5 the graveyard's kept
+ *  turf. A face too steep for turf shows bedded rock, a middling one scree. The lattice's edge drops to the origin as a
+ *  rock face (the land beyond the map is lower on the west). */
+export function land(d: Dims): THREE.Group {
+  const nx = Math.max(1, d.nx | 0), nz = Math.max(1, d.nz | 0), cell = d.cell ?? 5, q = d.q ?? 0.1, W = nx + 1, n = W * (nz + 1);
+  const H = new Float32Array(n), K = new Uint8Array(n);
+  for (let k = 0; k < n; k++) {
+    H[k] = (Math.floor((d['d' + Math.floor(k / 4)] ?? 0) / Math.pow(4096, k % 4)) % 4096) * q;
+    K[k] = Math.floor((d['c' + Math.floor(k / 13)] ?? 0) / Math.pow(16, k % 13)) % 16;
+  }
+  const PAL: string[][] = [[C.gTurf, C.gTurf2], [C.gScrub, C.gScrub2], [C.gForest, C.gForest2], [C.gHollow, C.gHollow], [C.gEarth, C.gEarth], [C.gKept, C.gKept]];
+  const bins = new Map<string, number[]>();
+  const push = (color: string, ...v: number[]) => { let a = bins.get(color); if (!a) { a = []; bins.set(color, a); } a.push(...v); };
+  const P = (k: number): [number, number, number] => [(k % W) * cell, H[k], Math.floor(k / W) * cell];
+  const tri = (a: number, b: number, c: number) => {
+    let A = P(a), B = P(b), Cc = P(c);
+    const ux = B[0] - A[0], uy = B[1] - A[1], uz = B[2] - A[2], vx = Cc[0] - A[0], vy = Cc[1] - A[1], vz = Cc[2] - A[2];
+    let ny = uz * vx - ux * vz; const nxv = uy * vz - uz * vy, nzv = ux * vy - uy * vx;
+    if (ny < 0) { const t = B; B = Cc; Cc = t; ny = -ny; }
+    const k = ny / (Math.hypot(nxv, ny, nzv) || 1), x = (A[0] + B[0] + Cc[0]) / 3, y = (A[1] + B[1] + Cc[1]) / 3, z = (A[2] + B[2] + Cc[2]) / 3;
+    const cls = K[b] === K[c] ? K[b] : K[a], tone = Math.sin(x * 0.043 + z * 0.017) + Math.cos(z * 0.051 - x * 0.012) > 0.3 ? 1 : 0;
+    const band = ((Math.floor((y + 1.5 * Math.sin(x * 0.07) + Math.cos(z * 0.09)) / 2.2) % 3) + 3) % 3;
+    const color = k < 0.66 ? [C.gRock, C.gRock2, C.gRock3][band] : k < 0.86 ? C.gScree : (PAL[cls] ?? PAL[0])[tone];
+    push(color, ...A, ...B, ...Cc);
+  };
+  for (let j = 0; j < nz; j++) for (let i = 0; i < nx; i++) {
+    const a = j * W + i, b = a + 1, c = a + W + 1, e = a + W;
+    if (Math.abs(H[a] - H[c]) < Math.abs(H[b] - H[e])) { tri(a, b, c); tri(a, c, e); } else { tri(a, b, e); tri(b, c, e); }
+  }
+  const edge = (a: number, b: number) => { const A = P(a), B = P(b); push(C.gRock2, A[0], A[1], A[2], B[0], B[1], B[2], B[0], 0, B[2], A[0], A[1], A[2], B[0], 0, B[2], A[0], 0, A[2]); };
+  for (let i = 0; i < nx; i++) { edge(i, i + 1); edge(nz * W + i + 1, nz * W + i); }
+  for (let j = 0; j < nz; j++) { edge((j + 1) * W, j * W); edge(j * W + nx, (j + 1) * W + nx); }
+  const g = grp();
+  for (const [color, v] of bins) {
+    const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(v, 3)); geo.computeVertexNormals();
+    g.add(new THREE.Mesh(geo, mat(color)));
+  }
+  return g;
+}
+
+/** A road bed laid on the land through (x{i}, y{i}, z{i}), `w` ft wide: trodden earth (`c` 1: churned mud) a hand above
+ *  the ground, a darker verge either side that frays into the turf, and sides dropping 2 ft so a bed across a slope
+ *  never shows daylight under it. */
+export function road(d: Dims): THREE.Group {
+  const n = Math.max(2, d.n | 0), hw = (d.w ?? 10) / 2, lift = 0.15, pts: [number, number, number][] = [];
+  for (let i = 0; i < n; i++) pts.push([d['x' + i] ?? 0, (d['y' + i] ?? 0) + lift, d['z' + i] ?? 0]);
+  const top: number[] = [], verge: number[] = [], side: number[] = [];
+  const quad = (arr: number[], a: number[], b: number[], c: number[], e: number[]) => {
+    const ux = b[0] - a[0], uz = b[2] - a[2], vx = c[0] - a[0], vz = c[2] - a[2];
+    if (uz * vx - ux * vz >= 0) arr.push(...a, ...b, ...c, ...a, ...c, ...e); else arr.push(...a, ...c, ...b, ...a, ...e, ...c);
+  };
+  const off = (i: number, w: number, dy = 0): number[] => {
+    const a = pts[Math.max(0, i - 1)], b = pts[Math.min(n - 1, i + 1)], tx = b[0] - a[0], tz = b[2] - a[2], tl = Math.hypot(tx, tz) || 1;
+    return [pts[i][0] - (tz / tl) * w, pts[i][1] + dy, pts[i][2] + (tx / tl) * w];
+  };
+  for (let i = 0; i + 1 < n; i++) {
+    const j0 = 0.85 + 0.3 * hash(i, 3), j1 = 0.85 + 0.3 * hash(i + 1, 3), v0 = 1 + 1.4 * hash(i, 5), v1 = 1 + 1.4 * hash(i + 1, 5);
+    quad(top, off(i, hw * j0), off(i, -hw * j0), off(i + 1, -hw * j1), off(i + 1, hw * j1));
+    for (const s of [1, -1]) {
+      quad(verge, off(i, s * hw * j0, -0.04), off(i, s * (hw * j0 + v0), -0.08), off(i + 1, s * (hw * j1 + v1), -0.08), off(i + 1, s * hw * j1, -0.04));
+      const p = off(i, s * (hw * j0 + v0), -0.08), q2 = off(i + 1, s * (hw * j1 + v1), -0.08);
+      const pd = [p[0], p[1] - 2, p[2]], qd = [q2[0], q2[1] - 2, q2[2]];
+      side.push(...p, ...q2, ...qd, ...p, ...qd, ...pd, ...p, ...qd, ...q2, ...p, ...pd, ...qd);   // both faces
+    }
+  }
+  const g = grp();
+  for (const [v, color] of [[top, d.c ? C.roadMud : C.road], [verge, C.verge], [side, C.verge]] as const) {
+    const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(v, 3)); geo.computeVertexNormals();
+    g.add(new THREE.Mesh(geo, mat(color)));
+  }
+  return g;
+}
+
 // ---------------------------------------------------------------- the gallows knoll
-/** A flat-topped bedrock knoll `w` × `d` (local x × z), `h` high at its blunt east face (+x); the crown stays level over
- *  the eastern two thirds and the western third grades down into the slope. Lichen-grey rock, a skin of thin turf on
- *  the crown that stops short of the edges so the rock shows. The gallows stands on it. */
+/** A flat-topped bedrock knoll `w` × `d` (local x × z), `h` high at its blunt east face (+x). The crown is level; the
+ *  faces run down to `base` (ft below the origin) so the rising ground to the west can swallow them: set on a slope, the
+ *  west face shows only its top course and the knoll grades into the hill. Lichen-grey rock, a skin of thin turf on the
+ *  crown that stops short of the edges so the rock shows. The gallows stands on it. */
 export function rockShelf(d: Dims): THREE.Group {
-  const W = d.w ?? 60, D = d.d ?? 44, H = d.h ?? 8, sd = d.seed ?? 0, g = grp();
+  const W = d.w ?? 60, D = d.d ?? 44, H = d.h ?? 8, sd = d.seed ?? 0, B = -(d.base ?? 0.5), g = grp();
   const n = 12, ring: [number, number][] = [];
   for (let i = 0; i < n; i++) { const a = (i / n) * Math.PI * 2, k = 0.86 + 0.16 * hash(i, sd); ring.push([Math.cos(a) * (W / 2) * k, Math.sin(a) * (D / 2) * k]); }
-  // the top: full height east of the hinge, falling to a quarter height at the west end
-  const hinge = -W * 0.17, west = -W / 2;
-  const top = (x: number) => { if (x >= hinge) return H; const t = (hinge - x) / (hinge - west); return H * (1 - 0.72 * t * t); };
   const rock: number[] = [], turf: number[] = [];
   const push = (arr: number[], ...p: number[]) => arr.push(...p);
   for (let i = 0; i < n; i++) {
     const [x0, z0] = ring[i], [x1, z1] = ring[(i + 1) % n];
-    push(rock, 0, top(0), 0, x1, top(x1), z1, x0, top(x0), z0);                       // crown fan (wound so it faces up)
-    push(rock, x0, 0, z0, x1, top(x1), z1, x1, 0, z1, x0, 0, z0, x0, top(x0), z0, x1, top(x1), z1);   // the face down to the ground
-    const k = 0.78, t0 = [x0 * k, z0 * k], t1 = [x1 * k, z1 * k];
-    push(turf, 0, top(0) + 0.14, 0, t1[0], top(t1[0]) + 0.14, t1[1], t0[0], top(t0[0]) + 0.14, t0[1]);
+    push(rock, 0, H, 0, x1, H, z1, x0, H, z0);                       // crown fan (wound so it faces up)
+    push(rock, x0, B, z0, x1, H, z1, x1, B, z1, x0, B, z0, x0, H, z0, x1, H, z1);   // the face down into the ground
+    const kk = (x: number) => (x < -W * 0.15 ? 0.98 : 0.78), t0 = [x0 * kk(x0), z0 * kk(x0)], t1 = [x1 * kk(x1), z1 * kk(x1)];   // the turf runs off the west edge into the hillside's
+    push(turf, 0, H + 0.14, 0, t1[0], H + 0.14, t1[1], t0[0], H + 0.14, t0[1]);
   }
   g.add(tris(rock, C.rock), tris(turf, C.turf));
   // ledges and blocks on the east face, a lichen crust where the wind polishes the stone, a few loose stones at the foot
@@ -234,8 +320,11 @@ export function leanTo(d: Dims): THREE.Group {
 
 // ---------------------------------------------------------------- roads
 /** A strip of road `len` long (local x) cut by two wagon ruts `w` apart: dark grooves, a ridge of churned mud between,
- *  `puddles` of black standing water lying in the ruts. */
+ *  `puddles` of black standing water lying in the ruts; `pitch` tilts it to lie along a climbing road. */
 export function wagonRuts(d: Dims): THREE.Group {
+  return pitched(wagonRutsFlat(d), d.pitch);
+}
+function wagonRutsFlat(d: Dims): THREE.Group {
   const L = d.len ?? 40, w = d.w ?? 5, np = d.puddles ?? 2, sd = Math.round(L * 1.7 + w), g = grp();
   const n = Math.max(2, Math.round(L / 10));
   for (let i = 0; i < n; i++) {
@@ -263,8 +352,11 @@ export function waterBar(d: Dims): THREE.Group {
 }
 
 /** A low earth-and-stone bank along the uphill side of a road cut into a slope, `len` long (local x), `h` high: steep
- *  face toward the road (-z), roots and stones showing, turf on top. */
+ *  face toward the road (-z), roots and stones showing, turf on top; `pitch` tilts it to follow the road's climb. */
 export function roadBank(d: Dims): THREE.Group {
+  return pitched(roadBankFlat(d), d.pitch);
+}
+function roadBankFlat(d: Dims): THREE.Group {
   const L = d.len ?? 50, h = d.h ?? 2.5, sd = Math.round(L + h * 13), g = grp();
   const n = Math.max(2, Math.round(L / 12));
   for (let i = 0; i < n; i++) {
@@ -310,6 +402,6 @@ export function bats(d: Dims): THREE.Group {
 
 Object.assign(PROPS_V1, {
   'f-rock-shelf': rockShelf, 'f-knoll-stair': knollStair, 'f-gallows-junk': gallowsJunk, 'f-wind-pine': windPine, 'f-needle-drift': needleDrift, 'f-yew': yew,
-  'f-sunken-grave': sunkenGrave, 'f-open-grave': openGrave, 'f-lean-to': leanTo, 'f-wagon-ruts': wagonRuts, 'f-water-bar': waterBar, 'f-road-bank': roadBank, 'f-cold-hearth': coldHearth,
+  'f-sunken-grave': sunkenGrave, 'f-open-grave': openGrave, 'f-lean-to': leanTo, 'f-wagon-ruts': wagonRuts, 'f-water-bar': waterBar, 'f-road-bank': roadBank, 'f-cold-hearth': coldHearth, 'f-land': land, 'f-road': road,
 } as Record<string, (d: Dims) => THREE.Object3D>);
 Object.assign(CREATURES, { 'f-vistani': (d) => vistani(d), 'f-bats': (d) => bats(d) } as Record<string, (d: Dims) => THREE.Group>);
