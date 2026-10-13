@@ -434,8 +434,8 @@ function openMat(src: THREE.MeshLambertMaterial): THREE.MeshLambertMaterial {
   if (!m) { m = matClone(hex, true); m.emissive.copy(src.emissive); openMats.set(k, m); }
   return m;
 }
-/** The same prop with each material swapped for its never-fogged copy. */
-function opened<T extends THREE.Object3D>(o: T): T {
+/** The same prop with each material swapped for its never-fogged copy (also for the Amber Temple's mountain, t.ts). */
+export function opened<T extends THREE.Object3D>(o: T): T {
   o.traverse((c) => { const m = c as THREE.Mesh; if (m.isMesh && !(m.material as THREE.Material).userData.fogExempt?.value) m.material = openMat(m.material as THREE.MeshLambertMaterial); });
   return o;
 }
