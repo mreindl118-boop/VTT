@@ -2,6 +2,7 @@
 // token panel and the creature sheet from one source, the initiative headers, the clock by edition, the Rooms sheet,
 // Help's colour key, and the escaping. Desktop; the touch devices run e2e/rules-tooltips.spec.ts.
 import { expect, test, type Page } from '@playwright/test';
+import { quiet } from './helpers';
 
 const SHOTS = process.env.SHOTS ?? 'test-results';
 const DM_KINDS = ['monster', 'creature-type', 'person', 'area', 'pageref', 'check', 'dice'];
@@ -9,7 +10,8 @@ const DM_KINDS = ['monster', 'creature-type', 'person', 'area', 'pageref', 'chec
 test.beforeEach(async ({ page: _p }, info) => { test.skip(info.project.name !== 'chromium', 'desktop'); });
 
 async function boot(page: Page, scene = 'appB/death-house', edition: '2024' | '2014' = '2024'): Promise<void> {
-  await page.addInitScript((ed) => { localStorage.setItem('mistlab.helpSeen', '1'); localStorage.setItem('mistlab.rulesEdition', ed); }, edition);
+  await quiet(page);
+  await page.addInitScript((ed) => localStorage.setItem('mistlab.rulesEdition', ed), edition);
   await page.goto(`/?nosw&scene=${encodeURIComponent(scene)}`);
   await page.waitForFunction(() => (window as any).__mistlab?.ready);
   await page.evaluate(async () => { const m = (window as any).__mistlab; await m.ready; await m.rich(); });
@@ -420,7 +422,7 @@ const siblingAudit = (page: Page) => page.evaluate(() => {
 
 for (const [book, anchor] of [['srd-5.2.1', 'rule-grappling'], ['srd-5.1', 'condition-grappled'], ['srd-5.2.1', 'monster-ghoul'], ['srd-5.1', 'monster-wolf'], ['srd-5.1', 'monster-adult-gold-dragon']] as const) {
   test(`Books ${book} ${anchor}: sibling terms link once per section, never to themselves, in the same edition`, async ({ page }) => {
-    await page.addInitScript(() => localStorage.setItem('mistlab.helpSeen', '1'));
+    await quiet(page);
     await page.goto(`/?nosw&scene=appB%2Fdeath-house#book/${book}/${anchor}`);
     await expect(page.locator('article.br-page[data-page]')).toBeVisible({ timeout: 20_000 });
     await expect.poll(async () => (await siblingAudit(page)).n, { timeout: 20_000 }).toBeGreaterThan(5);
@@ -441,7 +443,7 @@ test('Books typography: the initial only on a chapter\'s opening paragraph, 44 p
   await page.setViewportSize({ width: 1180, height: 820 });
   for (const [scene, scheme, name] of [['appB/death-house', 'light', 'cos-light'], ['appB/death-house', 'dark', 'cos-dark'], ['wsc/02-street', 'light', 'wsc-light'], ['wsc/02-street', 'dark', 'wsc-dark']] as const) {
     await page.emulateMedia({ colorScheme: scheme });
-    await page.addInitScript(() => localStorage.setItem('mistlab.helpSeen', '1'));
+    await quiet(page);
     await page.goto(`/?nosw&scene=${encodeURIComponent(scene)}#book/srd-5.2.1/playing-the-game`);
     await expect(page.locator('article.br-page[data-page="playing-the-game"]')).toBeVisible({ timeout: 20_000 });
     await expect(page.locator('article.br-page p.open')).toHaveCount(1);

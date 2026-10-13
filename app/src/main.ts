@@ -9,6 +9,7 @@ import { buildMinimap } from './ui/minimap';
 import { dayFromHarptos, harptosParts, MONTH_NAMES, FESTIVALS } from './core/sky';
 import { PACES, paceNote, type Pace } from './core/travel';
 import { openBestiary } from './ui/bestiary';
+import { markSeen, seenThisVersion, showWhatsNew } from './ui/whatsnew';
 import { creatureById, seenAs } from './bestiary';
 import { openEncounterSheet, turnBar } from './ui/encounter';
 import { ICON } from './ui/icons';
@@ -665,14 +666,16 @@ function buildDmUi(): void {
         <dt>Players mode</dt><dd>Turn the iPad to the table: only revealed rooms, no DM chrome. DM mode brings everything back.</dd>
         <dt>Colours</dt><dd class="colours">${colours}</dd>
         <dt data-attrib>Rules books</dt>
-      </dl><p class="version">mistLAB ${__APP_VERSION__}</p></div></div>`;
-    h.addEventListener('click', (e) => { const t = e.target as HTMLElement; if (t === h || t.closest('.close')) h.remove(); });
+      </dl><p class="version">mistLAB ${__APP_VERSION__} · <button type="button" class="link whatsnew-link">What's new</button></p></div></div>`;
+    h.addEventListener('click', (e) => { const t = e.target as HTMLElement; if (t === h || t.closest('.close')) h.remove(); else if (t.closest('.whatsnew-link')) { h.remove(); showWhatsNew(markSeen); } });
     // The books' exact attribution statements (CC-BY-4.0), loaded with Help rather than with the app.
     void import('./books/attribution').then((m) => m.helpInto(h), () => h.querySelector('[data-attrib]')?.insertAdjacentHTML('afterend', '<dd>SRD 5.1 and 5.2.1, CC-BY-4.0: attribution on each book’s first page.</dd>'));
     document.body.appendChild(h);
     localStorage.setItem('mistlab.helpSeen', '1');
   }
-  if (!localStorage.getItem('mistlab.helpSeen')) queueMicrotask(() => ready.then(showHelp));
+  // The first run ever opens Help (and counts this version as seen); every later update opens "What's new" once.
+  if (!localStorage.getItem('mistlab.helpSeen')) queueMicrotask(() => ready.then(() => { markSeen(); showHelp(); }));
+  else if (!seenThisVersion()) queueMicrotask(() => ready.then(() => showWhatsNew(markSeen)));
 }
 
 function buildHud(): void {

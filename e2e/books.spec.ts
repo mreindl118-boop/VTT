@@ -2,12 +2,12 @@
 // preference, offline after saving, the phone layout, and that the players never see them.
 import { expect as baseExpect, test, type Page } from '@playwright/test';
 import { readFileSync } from 'node:fs';
-import { boot, SCENES } from './helpers';
+import { boot, SCENES, quiet } from './helpers';
 
 // Book pages are large and the test room boots fastest; a loaded machine still needs more than the default minute
 // for a test and more than five seconds for a chapter to arrive.
 const expect = baseExpect.configure({ timeout: 20_000 });
-test.beforeEach(async ({ page }) => { test.setTimeout(180_000); await page.addInitScript(() => localStorage.setItem('mistlab.helpSeen', '1')); });
+test.beforeEach(async ({ page }) => { test.setTimeout(180_000); await quiet(page); });
 
 async function openBooksTab(page: Page): Promise<void> {
   await page.click('[data-act="library"]');
