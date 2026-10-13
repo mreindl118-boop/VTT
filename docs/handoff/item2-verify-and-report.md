@@ -4,12 +4,42 @@ Owner (Matt), 2026-10-13: "finish the build step, then prepare verify and report
 
 ## 1. State at handoff
 
-Filled in by the cloud session when the world-map step ends. Until then: the branch head is `4f3cad9` (the world map built), its two reviewers started at 16:21 UTC on 2026-10-13, and the one fix pass follows if they find anything.
+Written by the cloud session, 2026-10-13 21:00 UTC. The cloud's fix pass after the world-map reviews never ran (the session ran out of credits), so the reviewers' findings below are ChatGPT's to fix. ChatGPT has since made six commits of its own on `claude/wip/item2-nested-world-laptop` (head `1459d18`, on top of the cloud's `4f3cad9` and the laptop's merge of main); the cloud reviewed them (section 1c) and is running the full test suite on that branch (results in 1d when done).
 
-- Head commit: (to fill)
-- The reviewers' findings and what the fix pass changed: (to fill)
-- Still open after the fix pass: (to fill)
-- Test counts at the head: (to fill)
+### 1a. What the two world-map reviewers found on `4f3cad9` (fix every one)
+
+Severity fix, none blocking:
+
+1. **At full zoom-out, place markers go missing.** The label thinning hides 8 of the 28 place discs, so the DM can neither see nor click them; places with maps lose their disc entirely. The spec says a disc is never hidden; a displaced name shows on hover or tap.
+2. **Land names are too small.** Every lake, river, peak and wood name renders at 11px, weight 400, opacity .85, instead of the spec's sizes. On the Player Display that breaks the theme's 24px minimum for a TV.
+3. **Water and peak pins get a building proxy.** The spec's rule that pins of type lake, river, road or peak get no proxy is not done: a dithered block with pines stands in Lake Zarovich.
+4. **Players can still see where an unrevealed place is.** An unrevealed Castle Ravenloft is marked on the land as a crisp square plateau with inked square contour rings, and the flattened footprint of any unrevealed map is drawn with contours as a man-made plan. Approved fix A4 says players never see a painted mark of a place they do not know. Keep the land; drop the plateau rings and the footprint plan for unrevealed places.
+5. **A place's hover tooltip sticks** after you click the place: it rides along the whole flight and stays over the opened map ("Tap to open the map"). ChatGPT's `d497bdf` may already fix this: re-check.
+6. **Arriving at a town is washed out, and the hand-off has a seam.** Tapping Vallaki's pin ends at 8,226 ft (k about 0.2): the town's battle-map view gets hex lines, contour lines, lake ripple rings and a paper wash, and the map's footprint shows as a hard-edged pale rectangle. At 11,000 ft (k about 0.45) the open map's footprint is a lighter flat rectangle with hard edges against the inked land. The default framing of a big town map must be the realistic view again, and the footprint's edge must blend.
+
+Nits (fix if cheap): the Player Display clamps at 120,000 ft while the DM's full zoom-out sits at 134,040 ft (`frameWorld` raises `maxDistance` on the DM's screen only); at region fit on a 1366x768 screen most land names are thinned away (Balinok Mountains, Luna Lake, Lake Baratok, Mount Ghakis); the open Vallaki map lingers up to 5 s after an instant `frameWorld` (127 draw calls and 1.33M triangles at full zoom-out until it settles); on the Sheep Chase sheet a stray inner rectangle line is drawn inside the deckled edge, and the river and the Tavern road end abruptly inside the paper.
+
+What those reviewers confirmed works on `4f3cad9`: build and 509 unit tests pass; worldmap.spec 6 of 6; the world, zoom, slider, grid, move and ui specs 104 of 104; the two A4 tests fail on the old head for the right reason and pass on this one; at k = 0 the frames match the realistic world.
+
+### 1b. What the builder left undone on purpose
+
+Land names are not curved along their paths; the map's title is always top left; the phone shader tier is defined but never measured; Lake Zarovich's land name is dropped whenever pin L shows; forest clearings and flattened footprints stay visible to players as land (see finding 4); on a phone the whole region is small.
+
+### 1c. The cloud's review of ChatGPT's six commits (`27e03d4..1459d18`)
+
+Sound, and nothing a reviewer must undo:
+- The players' preview (the slider at its players' end) now hides unrevealed places and their maps, the same way it already hid names. Players cannot reveal places or open maps from the Places list or a card; a card or tooltip is dropped when the audience, the campaign or the map changes; the wilderness card no longer names an unrevealed place; a drag ends with the pointer's release point. New spec `e2e/worldmap-safety.spec.ts` covers it.
+- Streaming makes room for a building together with its required chain on a phone, with a unit test.
+- Fine building proxies are not drawn at region scale (k at or above 0.95).
+- The Help panel's version label is separate from the What's new link again (an exact-version test caught the laptop's regression).
+- 53 description fields were reworded to pass the copied-text check; five sign-off fixture spans were re-anchored with their words and links unchanged. Matt's sign-off of that fixture is still pending.
+- No test was weakened: the players' sweep now runs on both the flat and the nested map; the assertions it touches are tightened, not loosened.
+- One design change to confirm with Matt: every keyed place now has a marker, 32 instead of 28, so Mount Baratok's four extra marks show as markers as well as the one peak name.
+- Not yet done from this handoff: the three verification passes written down, the completeness check, the report, and the release. ChatGPT's commits did not have 1a in hand.
+
+### 1d. The cloud's full test run on `1459d18`
+
+(filled in when the run finishes: build, unit tests, the full browser suite)
 
 ## 2. What you are continuing
 

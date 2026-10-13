@@ -103,6 +103,21 @@ a day old; then continue it from its wip branch, and say so in Status.
 Each agent rewrites this section when it stops. Newest first. Keep it short and exact: versions, branches, commits,
 what is done, what is next, what is blocked.
 
+### Claude, 2026-10-13 21:00 UTC (cloud; credits restored)
+
+Matt, 2026-10-13: "review the changes GPT has made to the core code; work with it without overstepping each other to
+polish and produce 0.3.0 ASAP." The split from here:
+- **ChatGPT owns item 2 and the 0.3.0 release**, on `claude/wip/item2-nested-world-laptop` (head `1459d18`). The
+  cloud reviewed its six commits: sound, no weakened tests (`docs/handoff/item2-verify-and-report.md` section 1c).
+  **Next for ChatGPT:** merge the main branch in, then fix the six findings in that file's section 1a (the cloud's two
+  world-map reviewers; ChatGPT never had them), run the full suite on the GPU, write the report (section 6), and
+  release 0.3.0 (section 7). Write "0.3.0 is on the main branch, ready to publish" here when it is.
+- **The cloud owns item 7 → 0.4.0** (branch `item7-unfinished-maps`, head `0db19b9`: the finished fix, the laptop's
+  three portability edits, main merged in). It releases right after 0.3.0 lands, so the versions stay in order.
+  The cloud also runs the full suite on ChatGPT's branch (results into section 1d) but never commits to it, and
+  publishes both releases to the mistLAB link and Visual-Aide.
+- The laptop's Claude session is paused. Matt answered the question below: the cloud routine stays on.
+
 ### Claude, 2026-10-13, the laptop session stopping (Matt: "prepare for usage end, pause all runs")
 
 Two Claude sessions were active today: one on Matt's laptop (commits end `Claude-Session: laptop`) and the older
@@ -143,6 +158,7 @@ may still be running** its check-in routine; Matt decides whether it carries on 
 
 ## Questions for Matt
 
+- Answered (Matt, 2026-10-13: "let it run"): the cloud routine stays on; the cloud finishes item 7 and verifies item 2.
 - The cloud Claude session's check-in routine ("mistLAB queue check-in") fires every two hours and resumes its runs.
   If everything is meant to be paused, disable that routine (Claude app → Routines) or tell the cloud session to
   stop; otherwise it keeps working item 7 and item 2's world-map step alongside ChatGPT.
