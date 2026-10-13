@@ -22,13 +22,15 @@ export function canWalk(from: Vec2, to: Vec2, blockers: Segment[], floor: Polygo
   const x0 = Math.floor(b.minX / STEP) * STEP, z0 = Math.floor(b.minZ / STEP) * STEP;
   const nx = Math.ceil((b.maxX - x0) / STEP), nz = Math.ceil((b.maxZ - z0) / STEP);
   const at = (i: number, j: number): Vec2 => [x0 + (i + 0.5) * STEP, z0 + (j + 0.5) * STEP];
-  const ok = new Uint8Array(nx * nz);
-  for (let j = 0; j < nz; j++) for (let i = 0; i < nx; i++) ok[j * nx + i] = onFloor(at(i, j)) ? 1 : 0;
+  // Which lattice nodes lie on the floor, worked out only for the nodes the search reaches (a thin floor in a wide
+  // bounding box, a track round a hill, would otherwise test every node of the box): 0 unknown, 1 on, 2 off.
+  const known = new Uint8Array(nx * nz);
+  const ok = (n: number) => { if (!known[n]) known[n] = onFloor(at(n % nx, (n - (n % nx)) / nx)) ? 1 : 2; return known[n] === 1; };
   // Attach an arbitrary point to the lattice nodes around it that it can reach in a straight step.
   const attach = (p: Vec2): number[] => {
     const ci = Math.floor((p[0] - x0) / STEP - 0.5), cj = Math.floor((p[1] - z0) / STEP - 0.5), out: number[] = [];
     for (let j = cj - 1; j <= cj + 2; j++) for (let i = ci - 1; i <= ci + 2; i++) {
-      if (i < 0 || j < 0 || i >= nx || j >= nz || !ok[j * nx + i]) continue;
+      if (i < 0 || j < 0 || i >= nx || j >= nz || !ok(j * nx + i)) continue;
       if (!crosses(p, at(i, j), blockers)) out.push(j * nx + i);
     }
     return out;
@@ -46,9 +48,9 @@ export function canWalk(from: Vec2, to: Vec2, blockers: Segment[], floor: Polygo
       const a = i + di, c = j + dj;
       if (a < 0 || c < 0 || a >= nx || c >= nz) continue;
       const m = c * nx + a;
-      if (seen[m] || !ok[m]) continue;
+      if (seen[m] || !ok(m)) continue;
       // No corner cutting: a diagonal step needs both orthogonal neighbours to be floor.
-      if (di && dj && (!ok[j * nx + a] || !ok[c * nx + i])) continue;
+      if (di && dj && (!ok(j * nx + a) || !ok(c * nx + i))) continue;
       if (crosses(p, at(a, c), blockers)) continue;
       seen[m] = 1; queue.push(m);
     }
