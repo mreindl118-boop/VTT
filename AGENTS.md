@@ -103,6 +103,44 @@ a day old; then continue it from its wip branch, and say so in Status.
 Each agent rewrites this section when it stops. Newest first. Keep it short and exact: versions, branches, commits,
 what is done, what is next, what is blocked.
 
+### ChatGPT, 2026-10-13, item 2 checkpoint and new cloud findings
+
+- Laptop WIP `claude/wip/item2-nested-world-laptop` is pushed at `c0aa651` (display-state atomicity and strict cached SRD extraction); cloud item 2 remains `4f3cad9`. Main's new handoff `bd53fbf` is merged in this checkpoint.
+- Build passes; units **517 passed, 2 todo, zero skipped** with cached verified SRD sources and existing Poppler on the process PATH. Four new display-state browser regressions pass. Stream warm-up fixes pass both GPU cases and four software cases with unchanged limits.
+- The six newly delivered world-map findings in verification section 1a are being reproduced and fixed before release. Earlier final reviews did not include them. A clean full GPU suite and final review remain required; interrupted runs do not count.
+- Version 0.3.0 release records remain local drafts, separate from this checkpoint. Main is not released. Item 7 remains paused for ChatGPT; do not touch its branches. No power, access or credential changes.
+- Matt's later direct direction approved alternate private hosting while Claude is out; the parent task owns publication and waits for the exact tested bundle. This overrides the repository's older publication wait for the app only. Screenshots and source book images remain outside the repo and are not uploaded.
+
+### Claude, 2026-10-13 21:05 UTC (cloud; STOPPED on Matt's order until Saturday 2026-10-17 06:00 UTC)
+
+- Matt: "cease all functions until the limit resets Saturday at 2am" (06:00 UTC). The cloud's check-in routine is
+  disabled until then; nothing runs in the cloud.
+- **ChatGPT, while the cloud is out:** item 2 → 0.3.0 on `claude/wip/item2-nested-world-laptop`. Read
+  `docs/handoff/item2-verify-and-report.md`: section 1a (six findings to fix), 1c (the cloud's review of your six
+  commits: sound), 1d (build and 515 unit tests pass on `1459d18`; run the browser suite on the GPU yourself), and
+  1e (agreements and contentions). Then the report (section 6) and the release (section 7). Write Status here when
+  you stop, every time.
+- **Item 7 (the cloud's):** finished and tested on `item7-unfinished-maps` at `0db19b9` (the final fix, the laptop's
+  three portability edits, main merged in; 487 unit tests pass; the two blockers are fixed). It releases as 0.4.0
+  after 0.3.0, when the cloud is back. Nobody else touches it.
+- **On the cloud's return (Saturday):** publish 0.3.0 if it is on the main branch (the mistLAB link and Visual-Aide),
+  then release and publish 0.4.0.
+
+### Claude, 2026-10-13 21:00 UTC (cloud; credits restored)
+
+Matt, 2026-10-13: "review the changes GPT has made to the core code; work with it without overstepping each other to
+polish and produce 0.3.0 ASAP." The split from here:
+- **ChatGPT owns item 2 and the 0.3.0 release**, on `claude/wip/item2-nested-world-laptop` (head `1459d18`). The
+  cloud reviewed its six commits: sound, no weakened tests (`docs/handoff/item2-verify-and-report.md` section 1c).
+  **Next for ChatGPT:** merge the main branch in, then fix the six findings in that file's section 1a (the cloud's two
+  world-map reviewers; ChatGPT never had them), run the full suite on the GPU, write the report (section 6), and
+  release 0.3.0 (section 7). Write "0.3.0 is on the main branch, ready to publish" here when it is.
+- **The cloud owns item 7 → 0.4.0** (branch `item7-unfinished-maps`, head `0db19b9`: the finished fix, the laptop's
+  three portability edits, main merged in). It releases right after 0.3.0 lands, so the versions stay in order.
+  The cloud also runs the full suite on ChatGPT's branch (results into section 1d) but never commits to it, and
+  publishes both releases to the mistLAB link and Visual-Aide.
+- The laptop's Claude session is paused. Matt answered the question below: the cloud routine stays on.
+
 ### Claude, 2026-10-13, the laptop session stopping (Matt: "prepare for usage end, pause all runs")
 
 Two Claude sessions were active today: one on Matt's laptop (commits end `Claude-Session: laptop`) and the older
@@ -143,6 +181,7 @@ may still be running** its check-in routine; Matt decides whether it carries on 
 
 ## Questions for Matt
 
+- Answered (Matt, 2026-10-13: "let it run"): the cloud routine stays on; the cloud finishes item 7 and verifies item 2.
 - The cloud Claude session's check-in routine ("mistLAB queue check-in") fires every two hours and resumes its runs.
   If everything is meant to be paused, disable that routine (Claude app → Routines) or tell the cloud session to
   stop; otherwise it keeps working item 7 and item 2's world-map step alongside ChatGPT.

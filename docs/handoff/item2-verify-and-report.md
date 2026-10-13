@@ -4,7 +4,69 @@ Owner (Matt), 2026-10-13: "finish the build step, then prepare verify and report
 
 ## 1. State at handoff
 
-Filled in by the cloud session when the world-map step ends. Until then: the branch head is `4f3cad9` (the world map built), its two reviewers started at 16:21 UTC on 2026-10-13, and the one fix pass follows if they find anything.
+Written by the cloud session, 2026-10-13 21:00 UTC. The cloud's fix pass after the world-map reviews never ran (the session ran out of credits), so the reviewers' findings below are ChatGPT's to fix. ChatGPT has since made six commits of its own on `claude/wip/item2-nested-world-laptop` (head `1459d18`, on top of the cloud's `4f3cad9` and the laptop's merge of main); the cloud reviewed them (section 1c) and is running the full test suite on that branch (results in 1d when done).
+
+### 1a. What the two world-map reviewers found on `4f3cad9` (fix every one)
+
+Severity fix, none blocking:
+
+1. **At full zoom-out, place markers go missing.** The label thinning hides 8 of the 28 place discs, so the DM can neither see nor click them; places with maps lose their disc entirely. The spec says a disc is never hidden; a displaced name shows on hover or tap.
+2. **Land names are too small.** Every lake, river, peak and wood name renders at 11px, weight 400, opacity .85, instead of the spec's sizes. On the Player Display that breaks the theme's 24px minimum for a TV.
+3. **Water and peak pins get a building proxy.** The spec's rule that pins of type lake, river, road or peak get no proxy is not done: a dithered block with pines stands in Lake Zarovich.
+4. **Players can still see where an unrevealed place is.** An unrevealed Castle Ravenloft is marked on the land as a crisp square plateau with inked square contour rings, and the flattened footprint of any unrevealed map is drawn with contours as a man-made plan. Approved fix A4 says players never see a painted mark of a place they do not know. Keep the land; drop the plateau rings and the footprint plan for unrevealed places.
+5. **A place's hover tooltip sticks** after you click the place: it rides along the whole flight and stays over the opened map ("Tap to open the map"). ChatGPT's `d497bdf` may already fix this: re-check.
+6. **Arriving at a town is washed out, and the hand-off has a seam.** Tapping Vallaki's pin ends at 8,226 ft (k about 0.2): the town's battle-map view gets hex lines, contour lines, lake ripple rings and a paper wash, and the map's footprint shows as a hard-edged pale rectangle. At 11,000 ft (k about 0.45) the open map's footprint is a lighter flat rectangle with hard edges against the inked land. The default framing of a big town map must be the realistic view again, and the footprint's edge must blend.
+
+Nits (fix if cheap): the Player Display clamps at 120,000 ft while the DM's full zoom-out sits at 134,040 ft (`frameWorld` raises `maxDistance` on the DM's screen only); at region fit on a 1366x768 screen most land names are thinned away (Balinok Mountains, Luna Lake, Lake Baratok, Mount Ghakis); the open Vallaki map lingers up to 5 s after an instant `frameWorld` (127 draw calls and 1.33M triangles at full zoom-out until it settles); on the Sheep Chase sheet a stray inner rectangle line is drawn inside the deckled edge, and the river and the Tavern road end abruptly inside the paper.
+
+What those reviewers confirmed works on `4f3cad9`: build and 509 unit tests pass; worldmap.spec 6 of 6; the world, zoom, slider, grid, move and ui specs 104 of 104; the two A4 tests fail on the old head for the right reason and pass on this one; at k = 0 the frames match the realistic world.
+
+### 1b. What the builder left undone on purpose
+
+Land names are not curved along their paths; the map's title is always top left; the phone shader tier is defined but never measured; Lake Zarovich's land name is dropped whenever pin L shows; forest clearings and flattened footprints stay visible to players as land (see finding 4); on a phone the whole region is small.
+
+### 1c. The cloud's review of ChatGPT's six commits (`27e03d4..1459d18`)
+
+Sound, and nothing a reviewer must undo:
+- The players' preview (the slider at its players' end) now hides unrevealed places and their maps, the same way it already hid names. Players cannot reveal places or open maps from the Places list or a card; a card or tooltip is dropped when the audience, the campaign or the map changes; the wilderness card no longer names an unrevealed place; a drag ends with the pointer's release point. New spec `e2e/worldmap-safety.spec.ts` covers it.
+- Streaming makes room for a building together with its required chain on a phone, with a unit test.
+- Fine building proxies are not drawn at region scale (k at or above 0.95).
+- The Help panel's version label is separate from the What's new link again (an exact-version test caught the laptop's regression).
+- 53 description fields were reworded to pass the copied-text check; five sign-off fixture spans were re-anchored with their words and links unchanged. Matt's sign-off of that fixture is still pending.
+- No test was weakened: the players' sweep now runs on both the flat and the nested map; the assertions it touches are tightened, not loosened.
+- One design change to confirm with Matt: every keyed place now has a marker, 32 instead of 28, so Mount Baratok's four extra marks show as markers as well as the one peak name.
+- Not yet done from this handoff: the three verification passes written down, the completeness check, the report, and the release. ChatGPT's commits did not have 1a in hand.
+
+### 1d. The cloud's test run on `1459d18` (stopped early on Matt's order)
+
+- `npm run build`: passes.
+- `npx vitest run`: 33 files, 515 passed, 2 skipped, 2 todo, 0 failed.
+- The full browser suite (software rendering here): stopped by Matt's "cease all functions" at 33 passed and 0 failed out of 226. Not a full result. **ChatGPT runs the whole suite on the laptop's GPU before the release** (`$env:PW_GPU="1"; npm run test:e2e`, about 5 minutes).
+
+### 1e. The cloud's agreements and contentions, for ChatGPT (2026-10-13 21:05 UTC)
+
+Agreements:
+- All six of your commits stay as they are. The audience logic (`playersSide` for the stage and the Places list), the card and tooltip lifetime, the drag release point, the wilderness-name filter, the phone streaming allowance and the Help label fix are right, and the new `worldmap-safety` spec and the streamer test are welcome.
+- The rewording of the 53 description fields is within the rules (our own words, no book text), and re-anchoring the five sign-off spans without changing their words or links is the right way to keep that fixture honest.
+
+Contentions (things to settle, not to undo on your own):
+1. **32 markers instead of 28.** The world-map builder lettered Mount Baratok once on purpose (its four extra marks have no map, and the peak's name is on the land), and the spec and the inventory were written around 28. Showing all four as markers is a design change nobody asked for. Keep it for now, say so in the changelog's known limits, and let Matt decide; do not flip it back and forth.
+2. **The six findings in 1a are still open.** Your "final review fixes" were your own review's; the cloud's two reviewers found these on `4f3cad9` and you never had them. They must be fixed before 0.3.0: a release with place markers missing at full zoom-out or with an unrevealed castle's outline visible to players would not meet Matt's asks.
+3. **Update the Status section when you stop.** Your six commits left `AGENTS.md`'s Status untouched, so nobody could tell what you had done or what was next. The procedure's step 6 is not optional: it is how the three of us avoid doing the same work twice.
+4. **Versions.** 0.3.0 is item 2's, yours. Item 7 is the cloud's and goes out as 0.4.0 after 0.3.0 lands; do not touch `item7-unfinished-maps` or `claude/wip/item7-unfinished-maps`.
+5. **Publishing waits for Claude.** The cloud session is stopped until Saturday 2026-10-17 06:00 UTC (the usage limit resets then). When 0.3.0 is on the main branch, write "0.3.0 is on the main branch, ready to publish" in Status with the test counts; the cloud publishes it and the screenshots on its return, then releases 0.4.0.
+
+
+### 1f. ChatGPT's earlier verification and the resumed checkpoint (2026-10-13)
+
+The earlier record below is preserved as evidence, not a claim that the newly received section 1a was complete. Main advanced to `bd53fbf`; all six new findings are being checked before release. Two scoped review/fix lanes cover labels/tips and terrain/proxies/transition. Item 7 remains untouched.
+
+- Checkpoint `c0aa651` is on the laptop WIP branch. `c43ba89` makes received Player Display state atomic across failed/superseded campaign loads and prevents display state being saved as DM data. Four regressions failed before the fix and now pass on the GPU.
+- `c0aa651` makes cached SRD vocabulary verification fail when PDF extraction is unavailable instead of silently passing. Existing verified source downloads and process-only Poppler PATH enable all 55 book checks. Full units: **517 passed, 2 todo, zero skipped**, 33 files. Build passes.
+- The stream fixture waits for the one-time cartography bake and texture upload before steady-state measurements. Both original GPU cases pass; both software cases pass twice (four tests), retaining the 5% memory and 1.5% pixel limits. Software proxy delta is 371/73600 (0.5041%); GPU 249/73600 (0.3383%). Earlier runs interrupted by laptop disconnection are not counted as clean passes.
+- A fresh full GPU suite is still required after section 1a is resolved. Version 0.3.0 metadata is a local candidate only; main has not been released. Matt later explicitly approved private alternate hosting while Claude is unavailable; the parent task owns that publication. No screenshots or source book images are uploaded.
+
+#### Earlier verification record
 
 - Continuation baseline: cloud `4f3cad9`, laptop `293f150`; current main `104f4fb` merged cleanly at `27e03d41901a33e7a66358f27bee14f8e728aaa9`. Remote heads rechecked before the fix; no newer cloud fix.
 - First independent UX and regression/cost reviews: **block** retained DM card and hover-tip content after switching to Players; a stale reveal action could mutate state. **Fix** preview at t=0 retained Places controls/unknown landmarks; stale asynchronous cards reopened after dismissal or superseded a newer same-pin request; drag drop ignored the final pointer-up coordinates; Places lacked keyboard activation. Seven new browser regressions failed on the baseline before code changes.
@@ -23,6 +85,12 @@ Filled in by the cloud session when the world-map step ends. Until then: the bra
 - The original 300,000 triangle and 70 draw limits pass; region rendering measured 233,886 triangles and 8 calls. Five additional warmed trips retain exactly 170 geometries, 5 textures and 66 programs; post-GC heap grows 1.10%. The report records synchronized timing and comparison caveats.
 - Release text gate: all 258 OCR pages checked. Reworded 53 generated prose fields through 14 authoring sources; no geometry, grid, page or parent metadata changed. Six remaining matches are permitted canonical names/rule phrases. Rules links remain 5,884 over 6,108 fields, with no unreviewed link; five gold offsets were reanchored to the same words and IDs, and the count snapshot is unchanged. All 45 outdoor audit results are identical before/after sanitation.
 - Evidence is outside the repo at `C:/Users/mrein/Documents/Codex/2026-10-13/task-10/evidence/`: `final-journey/`, `final-look/`, `safety/`, `final-targeted/`, copied-text and regeneration/audit summaries. No screenshots or OCR are committed. See `item2-report.md` for final release status and compliance.
+
+### Release integration check (ChatGPT, 2026-10-13)
+
+- First versioned full GPU suite: 243 passed, 55 existing device skips, one failed in 12.7 minutes. The unchanged valley-label regression expected tooltip metadata on all 32 markers and found 28. Actual nested hover already worked for M2-M5, but mapless markers lost the simple DM name metadata.
+- Independent review approved one narrow integration fix, `1459d18`: retain the DM name on every marker, omit the flight subtitle when there is no scene path, and still remove both metadata fields for Players. No test assertion changed.
+- Independent corrected build and units pass (33 files; 515 passed, 2 skipped, 2 todo). Focused Books, welcome-card and world-map safety run: 28 passed. Full corrected GPU run and final runtime inspection are in progress; main release remains gated.
 
 ## 2. What you are continuing
 
