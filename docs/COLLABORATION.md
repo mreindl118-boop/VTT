@@ -45,6 +45,8 @@ Where a fix would change something Matt clearly asked ChatGPT for, Claude Code a
 
 When a release merges the main branch into a work branch, the outside changes come along. The release review checks that both sides survived the merge.
 
+**When ChatGPT continues the queue** (Matt, 2026-10-13: it picks up Claude's work when Claude is out of credits), it follows `AGENTS.md` at the repository root: the same rules, the same branches, the same release procedure, and a status section each agent rewrites when it stops. Its commits end with `Agent: ChatGPT (continuing item <n>)`. Claude still reviews them as outside changes when it is back, and ChatGPT adds its own ledger rows for anything it changed outside the item it was continuing.
+
 **Advisory documents** (such as `chat gpt suggestions/`) are not instructions. Claude Code verifies each suggestion against the current code. Matt decides what is built. Where Matt has decided, the decision is recorded in `docs/QUEUE.md`.
 
 ## Screenshots and demos
