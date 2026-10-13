@@ -182,7 +182,8 @@ def build():
         s.keep.append((cl(corners), 0.8))
         for i in range(4):
             a, b = corners[i], corners[(i + 1) % 4]
-            lv.wall(c(a), c(b), flags=['invisible'], material='cave-rock'); lv.wall(c(a), c(b), flags=['ethereal'], material='cave-rock')
+            # movement only: a 16-ft block must not black out the 55-ft crag behind it in the players' fog of war
+            lv.wall(c(a), c(b), flags=['invisible'], material='cave-rock')
     # scree: the scramble up behind the guard-post (DC 10), and the Cut Block's scree up to the crest (DC 12)
     for (fx, fz), (tx, tz), w, h, seed in [((272, 188), (266, 120), 15, CREST_H - 2, 3), ((470, 224), (474, 136), 24, CREST_H - 2, 9)]:
         L = math.hypot(tx - fx, tz - fz)
@@ -397,7 +398,7 @@ def build():
     crest.note('note-crest', c((300, 112)), 'I', 'The bat cleft opens in the face just below here, above the guard-post.')
 
     lk = lambda id, a, b: OrderedDict(id=id, kind='ladder', **{'from': OrderedDict(level='day', pos=[a[0], a[1]]), 'to': OrderedDict(level='crest', pos=[b[0], b[1]])})
-    links = [lk('I-scramble-post', (272, 186), (264, 112)), lk('I-scramble-cut', (468, 218), (474, 126))]
+    links = [lk('I-scramble-post', (272, 186), (264, 112)), lk('I-scramble-cut', (466, 205), (474, 126))]
     s.write('Black Carriage', {'valley': True, 'stacked': 'open', 'entry': 'day'}, levels=[crest], links=links)
 
 
