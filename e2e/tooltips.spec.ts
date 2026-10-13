@@ -2,12 +2,12 @@
 // phone projects: names on every icon button, hover timing, the held tip on touch, the one outside handler, the Esc
 // stack, hygiene, view flips and the Player Display.
 import { expect, test, type Page } from '@playwright/test';
-import { SCENES, touchHold } from './helpers';
+import { SCENES, touchHold, quiet } from './helpers';
 
 const DH = { scene: 'appB/death-house', level: 'f1', spawn: [12.5, 27.5], keys: [], secret: '', hidden: '', room: '2A' };
 
 async function open(page: Page, scene = DH, query = ''): Promise<void> {
-  await page.addInitScript(() => localStorage.setItem('mistlab.helpSeen', '1'));
+  await quiet(page);
   await page.goto(`/?nosw&scene=${encodeURIComponent(scene.scene)}${query}`);
   await page.waitForFunction(() => (window as any).__mistlab?.ready);
   await page.evaluate(() => (window as any).__mistlab.ready);

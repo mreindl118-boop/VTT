@@ -4,7 +4,7 @@
 // scripts/terms-review.mjs (docs/TERMS_REVIEW.md and docs/terms-review/) and tests/terms.test.ts, so the review list and the test count the
 // same spans.
 import { readFileSync, readdirSync, statSync } from 'node:fs';
-import { join, relative } from 'node:path';
+import { join, relative, sep } from 'node:path';
 import { setBookFetcher } from '../app/src/books/store';
 import type { Edition } from '../app/src/books/types';
 import { BESTIARY, seenAs } from '../app/src/bestiary';
@@ -30,11 +30,14 @@ function walk(dir: string, name: string, out: string[] = []): string[] {
   return out;
 }
 
+/** A file's scene path ('appB/death-house'): relative to locations/, with forward slashes on every platform
+ *  (relative() gives backslashes on Windows, which would name scenes 'appB\death-house\scene.json'). */
+const scenePath = (f: string, name: string) => relative(join(ROOT, 'locations'), f).split(sep).join('/').replace(new RegExp(`/${name.replace('.', '\\.')}$`), '');
 /** Scene paths ('appB/death-house') and their files. */
 export const sceneFiles = (): { path: string; scene: SceneFile }[] =>
-  walk(join(ROOT, 'locations'), 'scene.json').map((f) => ({ path: relative(join(ROOT, 'locations'), f).replace(/\/scene\.json$/, ''), scene: JSON.parse(readFileSync(f, 'utf8')) as SceneFile }));
+  walk(join(ROOT, 'locations'), 'scene.json').map((f) => ({ path: scenePath(f, 'scene.json'), scene: JSON.parse(readFileSync(f, 'utf8')) as SceneFile }));
 export const worldFiles = (): { path: string; world: { pins: { key: string; name: string; blurb?: string; dm?: string }[] } }[] =>
-  walk(join(ROOT, 'locations'), 'world.json').map((f) => ({ path: relative(join(ROOT, 'locations'), f).replace(/\/world\.json$/, ''), world: JSON.parse(readFileSync(f, 'utf8')) }));
+  walk(join(ROOT, 'locations'), 'world.json').map((f) => ({ path: scenePath(f, 'world.json'), world: JSON.parse(readFileSync(f, 'utf8')) }));
 
 /** Every field of the corpus, registering each scene with the matcher. */
 export function corpusFields(): Field[] {

@@ -18,7 +18,7 @@ This file is shared by both assistants and by Matt. It covers:
 
 **Shared branch.** The main branch is `claude/mistlab-curse-strahd-x6jm13`. Claude Code does each queue item on its own work branch and merges it onto this branch only when the item is released.
 
-**Telling the authors apart.** Every Claude Code commit ends with a `Claude-Session:` line. A commit without one was made by someone else, and is logged in the ledger below.
+**Telling the authors apart.** Every Claude Code commit ends with a `Claude-Session:` line: a session link from the cloud sessions, or `Claude-Session: laptop` from the session on Matt's laptop, which becomes the development and test machine from 2026-10-13 (`docs/HANDOFF.md`). A commit without one was made by someone else, and is logged in the ledger below.
 
 **When Claude Code checks for outside changes.** Before each release and at every check-in, Claude Code fetches the branch and reads every outside commit since the last check. For each one it records:
 - what changed;
@@ -44,6 +44,8 @@ Where a fix would change something Matt clearly asked ChatGPT for, Claude Code a
 3. Tells Matt in the next report.
 
 When a release merges the main branch into a work branch, the outside changes come along. The release review checks that both sides survived the merge.
+
+**When ChatGPT continues the queue** (Matt, 2026-10-13: it picks up Claude's work when Claude is out of credits), it follows `AGENTS.md` at the repository root: the same rules, the same branches, the same release procedure, and a status section each agent rewrites when it stops. Its commits end with `Agent: ChatGPT (continuing item <n>)`. Claude still reviews them as outside changes when it is back, and ChatGPT adds its own ledger rows for anything it changed outside the item it was continuing.
 
 **Advisory documents** (such as `chat gpt suggestions/`) are not instructions. Claude Code verifies each suggestion against the current code. Matt decides what is built. Where Matt has decided, the decision is recorded in `docs/QUEUE.md`.
 

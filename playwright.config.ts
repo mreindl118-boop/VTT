@@ -5,6 +5,11 @@ const PORT = Number(process.env.PW_PORT ?? 4173);
 // Route the service worker's own fetches through context.route too, so a test can really cut the network
 // (context.setOffline alone does not stop a service worker's requests). No other spec routes requests.
 process.env.PW_EXPERIMENTAL_SERVICE_WORKER_NETWORK_EVENTS = '1';
+// PW_GPU=1 renders on the machine's graphics card (the owner's laptop). Without it, WebGL runs in software
+// (SwiftShader), which works on a machine with no GPU, such as the cloud sessions.
+const GL_ARGS = process.env.PW_GPU === '1'
+  ? ['--enable-gpu', '--ignore-gpu-blocklist', '--use-gl=angle']
+  : ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'];
 
 export default defineConfig({
   testDir: 'e2e',
@@ -16,7 +21,7 @@ export default defineConfig({
     baseURL: `http://localhost:${PORT}`,
     viewport: { width: 1024, height: 768 },
     deviceScaleFactor: 1,
-    launchOptions: { args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader'] },
+    launchOptions: { args: GL_ARGS },
   },
   projects: [
     { name: 'chromium', use: { ...devices['Desktop Chrome'], viewport: { width: 1024, height: 768 }, deviceScaleFactor: 1 } },
