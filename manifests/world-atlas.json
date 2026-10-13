@@ -795,37 +795,73 @@
      "id": "f1",
      "name": "Floor 1",
      "elevationFt": 0,
-     "ceilingFt": 10
+     "ceilingFt": 10,
+     "bbox": {
+      "minX": 0,
+      "minZ": 0,
+      "maxX": 30,
+      "maxZ": 55
+     }
     },
     {
      "id": "f2",
      "name": "Floor 2",
      "elevationFt": 10,
-     "ceilingFt": 12
+     "ceilingFt": 12,
+     "bbox": {
+      "minX": 0,
+      "minZ": 0,
+      "maxX": 30,
+      "maxZ": 55
+     }
     },
     {
      "id": "f3",
      "name": "Floor 3",
      "elevationFt": 22,
-     "ceilingFt": 8
+     "ceilingFt": 8,
+     "bbox": {
+      "minX": 0,
+      "minZ": 0,
+      "maxX": 30,
+      "maxZ": 55
+     }
     },
     {
      "id": "attic",
      "name": "Attic",
      "elevationFt": 30,
-     "ceilingFt": 13
+     "ceilingFt": 13,
+     "bbox": {
+      "minX": 0,
+      "minZ": 0,
+      "maxX": 30,
+      "maxZ": 55
+     }
     },
     {
      "id": "dungeon",
      "name": "Dungeon",
      "elevationFt": -20,
-     "ceilingFt": 8
+     "ceilingFt": 8,
+     "bbox": {
+      "minX": 0,
+      "minZ": 0,
+      "maxX": 100,
+      "maxZ": 105
+     }
     },
     {
      "id": "dungeon-lower",
      "name": "Lower dungeon",
      "elevationFt": -30,
-     "ceilingFt": 8
+     "ceilingFt": 8,
+     "bbox": {
+      "minX": 5,
+      "minZ": 5,
+      "maxX": 60,
+      "maxZ": 80
+     }
     }
    ],
    "stacked": true,
@@ -847,6 +883,12 @@
    "enterRoom": {
     "key": "E7",
     "level": "village"
+   },
+   "extent": {
+    "minX": 0,
+    "minZ": 0,
+    "maxX": 100,
+    "maxZ": 105
    },
    "anchor": {
     "x": 510,
@@ -1738,13 +1780,25 @@
      "id": "ground",
      "name": "Ground Floor",
      "elevationFt": 0,
-     "ceilingFt": 14
+     "ceilingFt": 14,
+     "bbox": {
+      "minX": -20,
+      "minZ": -15,
+      "maxX": 65,
+      "maxZ": 60
+     }
     },
     {
      "id": "undercroft",
      "name": "Undercroft (E5g)",
      "elevationFt": -14,
-     "ceilingFt": 8
+     "ceilingFt": 8,
+     "bbox": {
+      "minX": 0,
+      "minZ": 0,
+      "maxX": 45,
+      "maxZ": 30
+     }
     }
    ],
    "stacked": false,
@@ -1766,6 +1820,12 @@
    "enterRoom": {
     "key": "E5",
     "level": "village"
+   },
+   "extent": {
+    "minX": -20,
+    "minZ": -15,
+    "maxX": 65,
+    "maxZ": 60
    },
    "anchor": {
     "x": 109,
@@ -1975,7 +2035,13 @@
      "id": "ground",
      "name": "Church",
      "elevationFt": 0,
-     "ceilingFt": 14
+     "ceilingFt": 14,
+     "bbox": {
+      "minX": -90,
+      "minZ": -20,
+      "maxX": 290,
+      "maxZ": 250
+     }
     }
    ],
    "stacked": false,
@@ -1996,6 +2062,12 @@
    "enterRoom": {
     "key": "N1",
     "level": "town"
+   },
+   "extent": {
+    "minX": -90,
+    "minZ": -20,
+    "maxX": 290,
+    "maxZ": 250
    },
    "anchor": {
     "x": 2727.3,
@@ -2035,19 +2107,37 @@
      "id": "ground",
      "name": "Ground floor",
      "elevationFt": 0,
-     "ceilingFt": 15
+     "ceilingFt": 15,
+     "bbox": {
+      "minX": -10,
+      "minZ": -10,
+      "maxX": 210,
+      "maxZ": 135
+     }
     },
     {
      "id": "upper",
      "name": "Upper floor",
      "elevationFt": 15,
-     "ceilingFt": 10
+     "ceilingFt": 10,
+     "bbox": {
+      "minX": 5,
+      "minZ": 10,
+      "maxX": 190,
+      "maxZ": 120
+     }
     },
     {
      "id": "attic",
      "name": "Attic / roof",
      "elevationFt": 23,
-     "ceilingFt": 8
+     "ceilingFt": 8,
+     "bbox": {
+      "minX": 72.5,
+      "minZ": 20,
+      "maxX": 82.5,
+      "maxZ": 95
+     }
     }
    ],
    "stacked": true,
@@ -2068,6 +2158,12 @@
    "enterRoom": {
     "key": "N2",
     "level": "town"
+   },
+   "extent": {
+    "minX": -10,
+    "minZ": -10,
+    "maxX": 210,
+    "maxZ": 135
    },
    "anchor": {
     "x": 4385,
@@ -2107,19 +2203,37 @@
      "id": "ground",
      "name": "Ground floor",
      "elevationFt": 0,
-     "ceilingFt": 18
+     "ceilingFt": 18,
+     "bbox": {
+      "minX": -50,
+      "minZ": -15,
+      "maxX": 200,
+      "maxZ": 125
+     }
     },
     {
      "id": "upper",
      "name": "Upper floor",
      "elevationFt": 20,
-     "ceilingFt": 10
+     "ceilingFt": 10,
+     "bbox": {
+      "minX": 15,
+      "minZ": 10,
+      "maxX": 175,
+      "maxZ": 105
+     }
     },
     {
      "id": "attic",
      "name": "Attic",
      "elevationFt": 30,
-     "ceilingFt": 20
+     "ceilingFt": 20,
+     "bbox": {
+      "minX": 15,
+      "minZ": 7.5,
+      "maxX": 175,
+      "maxZ": 65
+     }
     }
    ],
    "stacked": true,
@@ -2140,6 +2254,12 @@
    "enterRoom": {
     "key": "N3",
     "level": "town"
+   },
+   "extent": {
+    "minX": -50,
+    "minZ": -15,
+    "maxX": 200,
+    "maxZ": 125
    },
    "anchor": {
     "x": 4165,
@@ -2179,19 +2299,37 @@
      "id": "cellar",
      "name": "Cellar",
      "elevationFt": -12,
-     "ceilingFt": 10
+     "ceilingFt": 10,
+     "bbox": {
+      "minX": 12.5,
+      "minZ": 10,
+      "maxX": 132.5,
+      "maxZ": 95
+     }
     },
     {
      "id": "ground",
      "name": "Ground floor",
      "elevationFt": 0,
-     "ceilingFt": 15
+     "ceilingFt": 15,
+     "bbox": {
+      "minX": -40,
+      "minZ": -10,
+      "maxX": 170,
+      "maxZ": 125
+     }
     },
     {
      "id": "upper",
      "name": "Upper floor",
      "elevationFt": 15,
-     "ceilingFt": 10
+     "ceilingFt": 10,
+     "bbox": {
+      "minX": 7.5,
+      "minZ": 10,
+      "maxX": 140,
+      "maxZ": 95
+     }
     }
    ],
    "stacked": true,
@@ -2212,6 +2350,12 @@
    "enterRoom": {
     "key": "N4",
     "level": "town"
+   },
+   "extent": {
+    "minX": -40,
+    "minZ": -10,
+    "maxX": 170,
+    "maxZ": 125
    },
    "anchor": {
     "x": 4985,
@@ -2251,7 +2395,13 @@
      "id": "yard",
      "name": "The stockyard",
      "elevationFt": 0,
-     "ceilingFt": 15
+     "ceilingFt": 15,
+     "bbox": {
+      "minX": -10,
+      "minZ": -10,
+      "maxX": 170,
+      "maxZ": 150
+     }
     }
    ],
    "stacked": false,
@@ -2272,6 +2422,12 @@
    "enterRoom": {
     "key": "N5",
     "level": "town"
+   },
+   "extent": {
+    "minX": -10,
+    "minZ": -10,
+    "maxX": 170,
+    "maxZ": 150
    },
    "anchor": {
     "x": 6422.5,
@@ -2311,13 +2467,25 @@
      "id": "ground",
      "name": "Ground level",
      "elevationFt": 0,
-     "ceilingFt": 10
+     "ceilingFt": 10,
+     "bbox": {
+      "minX": 5,
+      "minZ": 7.5,
+      "maxX": 95,
+      "maxZ": 152.5
+     }
     },
     {
      "id": "upper",
      "name": "Upper level",
      "elevationFt": 10,
-     "ceilingFt": 10
+     "ceilingFt": 10,
+     "bbox": {
+      "minX": 5,
+      "minZ": 7.5,
+      "maxX": 95,
+      "maxZ": 150
+     }
     }
    ],
    "stacked": true,
@@ -2338,6 +2506,12 @@
    "enterRoom": {
     "key": "N6",
     "level": "town"
+   },
+   "extent": {
+    "minX": 5,
+    "minZ": 7.5,
+    "maxX": 95,
+    "maxZ": 152.5
    },
    "anchor": {
     "x": 5630,
@@ -2377,7 +2551,13 @@
      "id": "ground",
      "name": "Shop",
      "elevationFt": 0,
-     "ceilingFt": 10
+     "ceilingFt": 10,
+     "bbox": {
+      "minX": -15,
+      "minZ": -10,
+      "maxX": 90,
+      "maxZ": 70
+     }
     }
    ],
    "stacked": false,
@@ -2398,6 +2578,12 @@
    "enterRoom": {
     "key": "N7",
     "level": "town"
+   },
+   "extent": {
+    "minX": -15,
+    "minZ": -10,
+    "maxX": 90,
+    "maxZ": 70
    },
    "anchor": {
     "x": 4632.5,
@@ -2437,7 +2623,13 @@
      "id": "square",
      "name": "The square",
      "elevationFt": 0,
-     "ceilingFt": 12
+     "ceilingFt": 12,
+     "bbox": {
+      "minX": 0,
+      "minZ": 0,
+      "maxX": 230,
+      "maxZ": 190
+     }
     }
    ],
    "stacked": false,
@@ -2458,6 +2650,12 @@
    "enterRoom": {
     "key": "N8",
     "level": "town"
+   },
+   "extent": {
+    "minX": 0,
+    "minZ": 0,
+    "maxX": 230,
+    "maxZ": 190
    },
    "anchor": {
     "x": 5029.3,
@@ -2497,7 +2695,13 @@
      "id": "camp",
      "name": "The camp",
      "elevationFt": 0,
-     "ceilingFt": 20
+     "ceilingFt": 20,
+     "bbox": {
+      "minX": 0,
+      "minZ": 0,
+      "maxX": 335,
+      "maxZ": 350
+     }
     }
    ],
    "stacked": false,
@@ -2518,6 +2722,12 @@
    "enterRoom": {
     "key": "N9",
     "level": "town"
+   },
+   "extent": {
+    "minX": 0,
+    "minZ": 0,
+    "maxX": 335,
+    "maxZ": 350
    },
    "anchor": {
     "x": 478,
@@ -2804,31 +3014,61 @@
      "id": "valley",
      "name": "Below the ledge",
      "elevationFt": 0,
-     "ceilingFt": 398
+     "ceilingFt": 398,
+     "bbox": {
+      "minX": 39,
+      "minZ": 200,
+      "maxX": 79,
+      "maxZ": 240
+     }
     },
     {
      "id": "ground",
      "name": "Ground floor",
      "elevationFt": 400,
-     "ceilingFt": 15
+     "ceilingFt": 15,
+     "bbox": {
+      "minX": 80,
+      "minZ": 60,
+      "maxX": 280,
+      "maxZ": 210
+     }
     },
     {
      "id": "upper",
      "name": "Upper floor",
      "elevationFt": 415,
-     "ceilingFt": 8
+     "ceilingFt": 8,
+     "bbox": {
+      "minX": 80,
+      "minZ": 110,
+      "maxX": 280,
+      "maxZ": 210
+     }
     },
     {
      "id": "loft",
      "name": "Loft and belfry",
      "elevationFt": 420,
-     "ceilingFt": 12
+     "ceilingFt": 12,
+     "bbox": {
+      "minX": 80,
+      "minZ": 60,
+      "maxX": 130,
+      "maxZ": 110
+     }
     },
     {
      "id": "cellar",
      "name": "Wine cellar",
      "elevationFt": 380,
-     "ceilingFt": 19.5
+     "ceilingFt": 19.5,
+     "bbox": {
+      "minX": 80,
+      "minZ": 60,
+      "maxX": 130,
+      "maxZ": 110
+     }
     }
    ],
    "stacked": true,
@@ -2851,6 +3091,12 @@
    "enterRoom": {
     "key": "S5",
     "level": "village"
+   },
+   "extent": {
+    "minX": 39,
+    "minZ": 60,
+    "maxX": 280,
+    "maxZ": 240
    },
    "anchor": {
     "x": 457.5,
@@ -3030,13 +3276,25 @@
      "id": "mire",
      "name": "The mire (U3)",
      "elevationFt": 0,
-     "ceilingFt": 13
+     "ceilingFt": 13,
+     "bbox": {
+      "minX": 0,
+      "minZ": 0,
+      "maxX": 55,
+      "maxZ": 55
+     }
     },
     {
      "id": "hut",
      "name": "Baba Lysaga's hut (U3)",
      "elevationFt": 10,
-     "ceilingFt": 8
+     "ceilingFt": 8,
+     "bbox": {
+      "minX": 20,
+      "minZ": 20,
+      "maxX": 35,
+      "maxZ": 35
+     }
     }
    ],
    "stacked": true,
@@ -3058,6 +3316,12 @@
    "enterRoom": {
     "key": "U3",
     "level": "berez"
+   },
+   "extent": {
+    "minX": 0,
+    "minZ": 0,
+    "maxX": 55,
+    "maxZ": 55
    },
    "anchor": {
     "x": 1232,

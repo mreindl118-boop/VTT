@@ -1,6 +1,7 @@
 // The nested world, step 0: the frame data is in place. Death House and the church are blowouts of the Village of
 // Barovia now (scene.parent + the village rooms that enter them), so they open with the village drawn round them and
-// Back leads to the village, exactly as the Vallaki buildings do.
+// Back leads to the village, exactly as the Vallaki buildings do. The first four tests are the legacy way's
+// surroundings (?nested=0: buildContext); in the continuous world the village itself stands round them (nest.spec.ts).
 import { expect, test } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 import { boot, diff, snap, SCENES } from './helpers';
@@ -8,7 +9,7 @@ import { boot, diff, snap, SCENES } from './helpers';
 test.beforeEach(async ({ page }) => { await page.addInitScript(() => localStorage.setItem('mistlab.helpSeen', '1')); });
 
 test('Death House stands in the village: the village is drawn round it and Back leads there', async ({ page }) => {
-  await boot(page, '', SCENES[1]);
+  await boot(page, '&nested=0', SCENES[1]);
   expect(await page.evaluate(() => (window as any).__mistlab.app.cur.scene.parent)).toBe('ch03/E');
   // the surroundings are built after the house itself; they come from the village's own kit, muted, never picked
   await page.waitForFunction(() => !!(window as any).__mistlab.app.context, undefined, { timeout: 20_000 });
@@ -31,7 +32,7 @@ test('Death House stands in the village: the village is drawn round it and Back 
 });
 
 test('the village rooms open the church and Death House, which hang from the village', async ({ page }) => {
-  await boot(page, '', { ...SCENES[1], scene: 'ch03/E', level: 'village', spawn: [185, 309] });
+  await boot(page, '&nested=0', { ...SCENES[1], scene: 'ch03/E', level: 'village', spawn: [185, 309] });
   const enters = await page.evaluate(() => {
     const a = (window as any).__mistlab.app, rooms = a.cur.scene.levels[0].rooms as { key: string; enter?: string }[];
     return Object.fromEntries(rooms.filter((r) => r.enter).map((r) => [r.key, r.enter]));
@@ -54,7 +55,7 @@ test('the atlas places Death House where the app draws the village round it', as
   const dh = atlas.scenes['appB/death-house'];
   expect(dh).toMatchObject({ parent: 'ch03/E', depth: 1, root: 'ch03/E', enterRoom: { key: 'E7' } });
   expect(dh.placement.rotationY).toBeCloseTo(-Math.PI / 2, 6);
-  await boot(page, '', SCENES[1]);
+  await boot(page, '&nested=0', SCENES[1]);
   await page.waitForFunction(() => !!(window as any).__mistlab.app.context, undefined, { timeout: 20_000 });
   // The plan centre of each object drawn in a group, from the merged meshes' face ranges (in world = scene coordinates).
   // A house's model is not symmetric about its pos, so the village's own rendering is the reference, not the pos.
@@ -93,7 +94,7 @@ test('the atlas places Death House where the app draws the village round it', as
 });
 
 test('the village round Death House hides while a floor under the ground is shown (it would bury the dungeon)', async ({ page }) => {
-  await boot(page, '', SCENES[1]);
+  await boot(page, '&nested=0', SCENES[1]);
   await page.waitForFunction(() => !!(window as any).__mistlab.app.context, undefined, { timeout: 20_000 });
   const vis = (level: string) => page.evaluate((level) => { const m = (window as any).__mistlab; m.moveParty(level, ...(level.startsWith('dungeon') ? [27.5, 12.5] : [12.5, 27.5])); return m.app.context.visible; }, level);
   expect(await vis('f2')).toBe(true);
@@ -415,7 +416,7 @@ test('placed at the pin: the village on its pin with the origin on it, Tsolenka 
   expect(dn).toBeCloseTo(Math.PI / 2, 6);
 });
 
-test('pin maps of either campaign open in their own valley; area maps, buildings and dev maps keep the legacy way', async ({ page }) => {
+test('pin maps of either campaign open in their own valley, buildings in their towns; dev maps keep the legacy way', async ({ page }) => {
   test.setTimeout(240_000);
   await boot(page, '', SCENES[0]); // the test room: an orphan, never placed
   const st = () => page.evaluate(() => { const m = (window as any).__mistlab, a = m.app; return { path: a.cur.path, staged: m.staged, nested: a.world.nested, stage: a.stage ? { campaign: a.stage.campaign.id, shown: a.stage.root.visible } : null, anchor: m.anchor, root: a.cur.root.position.toArray(), backdrop: !!a.backdrop }; });
@@ -427,13 +428,18 @@ test('pin maps of either campaign open in their own valley; area maps, buildings
   expect(tavern).toMatchObject({ path: 'wsc/01-tavern', staged: true, nested: true, stage: { campaign: 'wsc', shown: true }, backdrop: false });
   for (let k = 0; k < 3; k++) expect(Math.abs(tavern.root[k] - atlas.scenes['wsc/01-tavern'].placement.position[k])).toBeLessThan(1e-6);
   expect(tavern.anchor).toEqual(tavern.root);
-  // Death House is the village's building: alone in the mist as before, the origin back at 0 (and the Sheep valley
-  // gone with its campaign: Barovia's is built when one of its pin maps opens)
+  // Death House is the village's building (step 4): it hangs in the village's root at its atlas placement, the village
+  // round it, in Barovia's valley (the Sheep valley gone with its campaign); the origin on the house
   await page.evaluate(() => (window as any).__mistlab.app.open('appB/death-house'));
-  expect(await st()).toEqual({ path: 'appB/death-house', staged: false, nested: false, stage: null, anchor: [0, 0, 0], root: [0, 0, 0], backdrop: false });
-  expect(await page.evaluate(() => (window as any).__mistlab.app.world.mistFloor.visible)).toBe(true);
+  const dh = await page.evaluate(() => { const a = (window as any).__mistlab.app, r = a.cur.root; return { up: r.parent?.name, pos: r.position.toArray(), rot: r.rotation.y, abs: a.world.toAbsolute(r.getWorldPosition(r.position.clone())).toArray(), anchor: a.world.anchor.toArray() }; });
+  expect(await st()).toMatchObject({ path: 'appB/death-house', staged: true, nested: true, stage: { campaign: 'cos', shown: true }, backdrop: false });
+  expect(dh.up).toBe('scene:ch03/E');
+  for (let k = 0; k < 3; k++) { expect(Math.abs(dh.pos[k] - atlas.scenes['appB/death-house'].placement.position[k])).toBeLessThan(1e-6); expect(Math.abs(dh.abs[k] - dh.anchor[k])).toBeLessThan(1e-6); }
+  expect(dh.rot).toBeCloseTo(atlas.scenes['appB/death-house'].placement.rotationY, 6);
+  expect(await page.evaluate(() => (window as any).__mistlab.app.world.mistFloor.visible)).toBe(false); // the land is the floor
   // zoom-to-cursor is every map's: leaving the valley for a legacy map (setNested(false)) keeps it
-  expect(await page.evaluate(() => (window as any).__mistlab.app.world.controls.zoomToCursor)).toBe(true);
+  await page.evaluate(() => (window as any).__mistlab.app.open('dev/m0-test-room'));
+  expect(await page.evaluate(() => { const w = (window as any).__mistlab.app.world; return [w.nested, w.controls.zoomToCursor]; })).toEqual([false, true]);
   // from a pin map to the next the camera glides (and the old map's proxy comes back); open() resolves on arrival
   await page.evaluate(() => (window as any).__mistlab.app.open('ch03/E'));
   const g = await page.evaluate(async () => {
@@ -518,7 +524,7 @@ test('flights: the whole valley fits on screen, a place name flies into its map,
   expect(s.flights).toBeGreaterThan(f0);
   expect(s).toMatchObject({ staged: true, inside: true, s: false, e: true });
   for (let k = 0; k < 3; k++) expect(Math.abs(s.abs[k] - s.want[k])).toBeLessThan(0.01);
-  expect(s.anchor).toEqual(s.abs);
+  for (let k = 0; k < 3; k++) expect(Math.abs(s.anchor[k] - s.abs[k])).toBeLessThan(1e-6); // the origin on it (to float rounding)
   expect(s.d).toBeLessThan(5000);
   // zoom out to the far limit with the button: one more press offers the whole valley, and the chip flies there
   await page.evaluate(async () => { const w = (window as any).__mistlab.app.world; for (let i = 0; i < 60 && !w.atMaxDistance; i++) { w.zoomBy(1.6); await w.settled(); } });

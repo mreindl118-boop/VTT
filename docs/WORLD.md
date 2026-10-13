@@ -5,9 +5,11 @@ streams in at its true position and orientation; zoom into a town's building and
 the town; zoom out and it folds back up. This document is the reference for the frames, the atlas, the thresholds,
 the budgets and the fallback. It grows with the build steps; today it covers **step 0: frames and the atlas**,
 **step 1: the placement seam** (shader basis, floating origin, scene ↔ drawn conversions), **step 2: the valley**
-(the world stage, every pin's map opening in place, flights in and out, the switch, both screens) and **step 3:
+(the world stage, every pin's map opening in place, flights in and out, the switch, both screens), **step 3:
 streaming** (maps built in place as the camera nears them, ghosts, activation by the camera, folding and freeing), with
-the two review findings it rests on (everything that leaves is freed; opening a map is one step).
+the two review findings it rests on (everything that leaves is freed; opening a map is one step), and **step 4:
+nesting** (buildings, area maps and dungeons in place inside their towns, the depth deciding the active map, Back and
+the breadcrumb).
 
 ## Frames (`app/src/core/frames.ts`, pure, unit-tested in `tests/frames.test.ts`)
 
@@ -61,6 +63,7 @@ roadExits [{road, bearing, x, z}]            (roots: in the map's own frame)
 placement {position, rotationY}              (roots: in W; children: in the parent's frame)
 worldBounds, bandFt, crag?                   (roots: footprint and flatten reach in W)
 anchor {x, z, dTheta}, footprintInParent, blowout   (children)
+extent, levels[].bbox                        (children: the whole stack, and each level, in its own frame)
 objects, units                               (units: 2 for ≥ 2,000 objects — Vallaki, Krezk — else 1)
 ```
 
@@ -115,8 +118,8 @@ A pin's root map (atlas `depth 0`, not an orphan, with a pin in the open campaig
 builds the campaign's `WorldStage` once (render/worldstage.ts; the land, aprons, ribbons and lakes from
 render/worldland.ts; the proxies and sky from render/worldproxies.ts), stands the map at its atlas placement
 (`placeRoot`), hides its proxy (`setResident`), turns on the continuous-world camera and moves the floating origin onto
-the map (`reanchor`), so the map draws exactly where it always did and the valley round it. Area maps, buildings and
-`dev/*` still open the legacy way in this step (step 4 hangs children in their towns).
+the map (`reanchor`), so the map draws exactly where it always did and the valley round it. `dev/*` opens the legacy way; since step 4
+area maps and buildings hang in their towns (see Nesting).
 
 | part | where | what |
 |---|---|---|
@@ -296,6 +299,84 @@ The warm-up draws lines too (a lamp's ring was the last program Tser Pool built 
 still build one program (a transparent basic material its props take when the active map styles them). A real iPad has
 not been measured.
 
+## Nesting (step 4)
+
+A map with an atlas `parent` (a building, an area map, a dungeon: depth 1 today, any depth by the same rules) opens
+**inside its town** in the continuous world: `App.stageEntry` takes it when its chain of parents ends in a pin root of
+the open campaign. Its root hangs in its parent's root at the atlas placement (`WorldStage.placeChild`: the centre of
+its open-air level on the centroid of the room that opens it, turned by the two norths, `NEST_LIFT` over the parent's
+floor), so three.js composes the frames; the floating origin moves onto the child's absolute position
+(`App.absOf`), and everything the table does stays in the child's own feet as in step 1.
+
+**Opening.** `App.open(child)` brings the chain: each map it hangs in that the valley does not hold is read and built
+first (root first) and stands as a ghost round it, then the child opens in place and is made active, the camera
+gliding there from wherever it was (`chainOf`; one step, the latest request wins, a map that cannot be fetched changes
+nothing, as before). `?scene=ch05/N2`, the library, the Player Display and Enter on a building's card all go this way.
+
+**Streaming children** (render/streamer.ts `DEPTHS`). The candidates are the pin roots and the children of every map
+the valley holds, measured where they hang (their footprint and floor in W, composed through their parents:
+`App.streamSite`). A child is measured by its whole stack, the atlas `extent` (every level's rooms and terrain: the
+abbey of Saint Markovia's ledge 400 ft over the foot of its cliff, Death House's dungeon under its yard); its `bbox`
+stays its open-air level's, which places it. A child is built only big on screen and near the camera's target, and
+folds far from it:
+
+| depth | prefetch | build and draw | fold |
+|---|---|---|---|
+| 0, a pin's root | 60 px × units | 140 px × units | under 70 px × units, or out of view |
+| 1, a building or area map | 120 px, target within 1,000 ft | 220 px, target within 600 ft | under 110 px, or target farther than 1,000 ft |
+| 2, a building of an area map | 160 px, within 400 ft | 260 px, within 250 ft | under 130 px, or farther than 400 ft |
+
+A child is one unit. While a child is the active map its whole chain is pinned (the town is never freed under its
+inn). Freeing a map frees the children hanging in it first.
+
+**Hidden massing** (render/hideUnder.ts). While a child is drawn whole (not during its fade in; at once when it folds),
+its town's own model of it goes: on each level of the parent, the objects whose footing lies inside what the child
+covers there (in the parent's frame, plus 8 ft): the child's levels that stand within that level's height, from its
+floor to its ceiling (atlas `levels[].bbox`), and always the open-air level on the level of the room that opens it. So
+the inn hides the town's house on the street, and the abbey hides the village's model of it on the ledge level 400 ft
+up while the pines at the foot of the cliff stay. Faces of merged meshes (`scatter`, `merged-roofs`, not indexed, with `userData.ranges`)
+collapse onto their first vertex (nothing drawn, rays miss them) with their nine floats kept aside and put back exactly;
+objects that stand alone are left out of the frame by their layers (the slider, the section and the ghosts own
+`visible`); the parent's area-key labels there take `nest-hidden`. The parent's ground stays. A blowout bigger than its
+plot takes its neighbours inside its extent too (the Blue Water Inn is three and a half times its plot), the trade
+buildContext makes; overlapping children are undone and redone together. On the players' side an interior that is not
+the active map is not drawn, so the town's house stays there.
+
+**The depth decides the active map.** A child drawn under the camera's target takes the role from its parent once its
+footprint is big on screen, `enterPx` = the larger of 1.6 × its build line and 0.45 × the screen's smaller side (352 px
+at 768), and gives it back under `leavePx` = 0.6 × that, or when the target leaves it. In between nothing changes,
+whichever map is active. So zooming in goes town → building and zooming out climbs back building → town; out over the
+valley the role climbs to the town even while both are folded (the building is freed later). A map of another town
+never takes the role from a town that holds the target. The active map's floor picker, section slider, Whole building,
+tokens and fog of war are the child's; the town round it is a ghost (no clipping by the child's section). The section
+plane of a stacked child is set on shell materials the maps share (render/materials.ts `mat()`); when a map that is not
+stacked takes the role back, `applySlider` takes the plane off its non-wall materials again (`sectionClip(…, false)`),
+or the town's houses would stand cut open at 5 ft. The camera's target rides the active map's floor anywhere over its
+whole stack (an abbey on its ledge), its town's ground off it, the land beyond.
+
+**Under the town.** A child's floor below its own open-air level (Death House's dungeon, the church's undercroft) lies
+under its town's grass: while one is shown the valley and the other maps are left out of the frame by their layers
+(the child itself stays) and the mist floor lies under it, as the legacy way hides the surroundings.
+
+**Back and the breadcrumb** (ui/breadcrumb.ts). The title is a breadcrumb in the valley: *Barovia › Town of Vallaki ›
+Blue Water Inn › Ground floor* (the world's name, every map up the chain, the active map, its floor when it has
+several, unless that floor is named as its map: Krezk's 'Village of Krezk'). Each crumb frames its scope, flying: the valley whole (`frameWorld`), a map up the chain whole (it becomes
+the active map, `App.climb`), the active map whole, its floor. Back (`openParent` → `climb(parent)`) opens nothing: the
+camera pulls back over the building just left, same heading, to half way between the two activation lines, so the
+building stays drawn in its street, small, and the town takes the role (looking is not travelling: the party stays in
+the building, and the '&' marks it there). On a phone the breadcrumb keeps its last two crumbs. On the players' side the
+crumbs are plain names. The zoom-out chip no longer offers the town (the far limit is the whole valley's whatever map
+is active, and zooming out climbs to the town by itself): at the far limit it offers the whole valley, and from there
+the world map. The zoom fix's derived parent, `anchorIn` (the surroundings round the room entered from) and the chip's
+town remain the legacy way's (`?nested=0`), unchanged; in the valley a child stands at its one atlas anchor.
+
+Known: the ghost of a stacked building shows its ground floor cut under its ceiling (its rooms, not its roof) as the
+active map would; Krezk's abbey stands at its atlas anchor (S5) whichever room it is entered from. Children are
+measured by their whole extent (a blowout, a dungeon), so a big inn takes the role over a little of its street, and
+Death House over its dungeon's reach under the village. The abbey's own 'Below the ledge' level repeats the village's
+cottages, walls and cliff (it is kept for the legacy way, where the abbey opens alone): in the valley they draw over
+the village's own in the same places, for the data pass (step 8) to settle.
+
 ## Verification
 
 - `tests/frames.test.ts`: yaw per north against backdrop.ts's `toPlan` E/S basis and buildContext's `th`/`tf`, round trips
@@ -350,6 +431,27 @@ not been measured.
   - In Players view at 1024 px the floor picker and the section slider stay on screen.
 - `tests/streamer.test.ts` (second round): the place under the target first, then the nearest, never while the wheel
   turns; a build whose place fell under the fold line is dropped.
+- `tests/streamer.test.ts` (step 4): a child is built only big on screen and near the target and folds far from it;
+  it takes the role over its town at `enterPx`, keeps it down to `leavePx` and gives it back under it or off its
+  footprint; out over the valley the role climbs to the folded town; another town's building never takes it.
+- `e2e/nest.spec.ts` (step 4; every test fails before it):
+  - Zooming into Vallaki's Blue Water Inn with the camera alone: it streams in under Vallaki's root at its atlas
+    placement, the town's own house on its plot collapses, the inn takes the role closer in (no open, no travel, the
+    origin on it, the title *Barovia › Town of Vallaki › Blue Water Inn › Ground floor*); pulling back the town takes
+    the role while the inn is still drawn, then the inn folds and every vertex of the town comes back exactly; at the
+    whole valley the inn is freed and the town stays active.
+  - Enter on Death House's card in the village flies into it inside the village (the village a ghost round it, its
+    house hidden); the lower dungeon stands alone in the mist; Back pulls out over the house, same heading, the
+    village takes the role and the house stays drawn and does not take it back; in Players view the house is not
+    drawn and the village's house shows; the camera alone takes the house back; the village's crumb frames the
+    village and the valley's crumb frames the valley, where the house is freed.
+  - After the inn gave the role back, no material of the town's own levels other than a wall's or a door's carries the
+    section plane (the inn's cut does not leave the town's houses cut open).
+  - Opening Krezk's abbey: it hangs in Krezk's root and stays the active map (it holds the target over its whole
+    stack, the target rides its floor on the ledge, 400 ft up); the village's model of it on the ledge level goes;
+    Back climbs to the village and the title reads *Barovia › Village of Krezk* (no second crumb for its level).
+  - On a 390 × 844 phone the breadcrumb shows its last two crumbs on screen, and a tap on Back climbs to the village.
+- The legacy way's surroundings tests (world.spec's Death House and church, zoom.spec) run with `?nested=0`.
 - `e2e/stream.spec.ts` (step 3):
   - A camera glide over Tser Pool, with no button pressed and no `open()`, streams its map in at its atlas placement
     and makes it active (the origin moves onto it). The party stays in the village and the '&' marks it.

@@ -42,17 +42,25 @@ const centroidOf = (poly: Vec2[]): Vec2 => [poly.reduce((a, p) => a + p[0], 0) /
 /** A map's open-air level (the one with terrain, else the first) and its extent: rooms and terrain. */
 const groundOf = (scene: SceneFile): Level => scene.levels.find((l) => l.terrain?.length) ?? scene.levels[0];
 const extentOf = (l: Level) => bounds([...l.rooms.map((r) => r.polygon), ...(l.terrain ?? []).map((t) => t.polygon)]);
+/** Every level's rooms and terrain together (a building's whole stack). */
+const wholes = new WeakMap<SceneFile, Bounds>();
+const wholeExtent = (s: SceneFile): Bounds => {
+  let b = wholes.get(s);
+  if (!b) { const lv = s.levels.filter((l) => l.rooms.length || l.terrain?.length); b = bounds(lv.flatMap((l) => [...l.rooms.map((r) => r.polygon), ...(l.terrain ?? []).map((t) => t.polygon)])); wholes.set(s, b); }
+  return b;
+};
 /** Where the DM came in: the room of the parent map whose Enter opened the child. */
 export interface EnteredFrom { parent: string; level: string; key: string; child: string }
 import { creatureById, figureFor, aliasFor, seenAs, statsOf, speedFtOf, colorOf } from './bestiary';
 import { playerFacing } from './core/identity';
 import { sightBlockers } from './core/light';
 import { idbGet, idbSet } from './state/idb';
-import { covBasisOf, worldOfMiles } from './core/frames';
+import { boundsInParent, compose, covBasisOf, grow, worldOfMiles, type Bounds, type Placement } from './core/frames';
 import { ATLAS, WorldStage } from './render/worldstage';
 import { disposeTree } from './render/dispose';
 import { Ghost, GHOST_TINT, type GhostLook } from './render/ghost';
-import { STREAM, Streamer, type StreamHost } from './render/streamer';
+import { enterPx, leavePx, STREAM, Streamer, type StreamHost } from './render/streamer';
+import { hideUnder, restoreUnder, veil, type NestMask } from './render/hideUnder';
 import type { AtlasScene } from '../../scripts/world-atlas';
 
 /** The continuous world (maps stand in one 3-D valley) is on unless `?nested=0`, or the device was told so
@@ -94,6 +102,8 @@ interface Loaded {
   drawn: boolean;
   /** In the valley and not the active map: drawn as a ghost (render/ghost.ts). */
   ghost?: Ghost;
+  /** A child map drawn in its parent: what the parent hid under it (render/hideUnder.ts). */
+  nest?: NestMask;
 }
 
 const storeKey = (campaignId: string) => (campaignId === 'cos' ? 'campaign:default' : `campaign:${campaignId}`); // CoS keeps its original save
@@ -228,22 +238,33 @@ export class App {
    *  whether this map opened; it never rejects. */
   async open(path: string, levelId?: string): Promise<boolean> {
     const seq = ++this.navSeq, c = campaignOf(path), switching = !this.cur || c.id !== this.campaign.id;
-    // a map the valley already holds (streamed in, or the one left a moment ago) opens without a build
-    let held = !switching && this.staged && this.stageEntry(path) ? this.resident.get(path) : undefined;
-    let next: Loaded, state = this.state;
-    if (held) next = held;
-    else try {
+    // in the valley a map comes with the maps it hangs in (a building with its town), the root first; any of them the
+    // valley already holds (streamed in, or the one left a moment ago) is used as it stands, without a build
+    const chain = this.stageEntry(path, c.id) ? [...this.chainOf(path)].reverse() : [];
+    const holding = (p: string) => (!switching && this.staged && this.stageEntry(p) ? this.resident.get(p) : undefined);
+    const built: Loaded[] = [], ups: Loaded[] = [];
+    let state = this.state;
+    const take = async (p: string): Promise<Loaded> => {
+      const h = holding(p); if (h) return h;
+      const l = await this.load(p, { campaign: c, state });
+      // the streamer stood its own copy of this map in the valley meanwhile: that one opens, this build is freed
+      const streamed = holding(p); if (streamed) { this.dispose(l); return streamed; }
+      built.push(l); return l;
+    };
+    let next: Loaded;
+    try {
       if (switching) state = await this.readCampaign(c);
       if (seq !== this.navSeq) return false;
-      next = await this.load(path, { campaign: c, state });
-      // the streamer stood its own copy of this map in the valley meanwhile: that one opens, this build is freed
-      const streamed = !switching && this.staged && this.stageEntry(path) ? this.resident.get(path) : undefined;
-      if (streamed) { this.dispose(next); next = held = streamed; }
+      for (const p of chain) { ups.push(await take(p)); if (seq !== this.navSeq) break; }
+      next = await take(path);
     } catch (err) {
+      for (const b of built) this.dispose(b);
       if (seq === this.navSeq) this.openFailed(path, err);
       return false;
     }
-    if (seq !== this.navSeq || (held && this.resident.get(path) !== held)) { if (!held) this.dispose(next); return false; }
+    // overtaken, or a map it holds went meanwhile (the streamer freed it): nothing changes
+    const gone = [...ups, next].some((l) => !built.includes(l) && this.resident.get(l.path) !== l);
+    if (seq !== this.navSeq || gone) { for (const b of built) this.dispose(b); return false; }
     // from here on nothing waits: the swap happens between two frames
     if (switching) { this.releaseAll(); this.useCampaign(c, state); }
     const inValley = !!this.stageEntry(path), fly = !switching && this.staged && inValley; // already in the valley: glide to the next place
@@ -255,7 +276,7 @@ export class App {
       else this.release(prev);
     }
     if (!inValley) this.releaseAll();
-    this.place(next);
+    this.place(next, ups);
     // the Player Display's camera is the DM's (camera messages): it never frames a map it follows the DM onto
     const follow = this.mode === 'player' && !!prev;
     this.home = path; // the party's map (the camera alone never changes it)
@@ -289,12 +310,55 @@ export class App {
     this.stage.dispose(); this.stage = undefined;
   }
 
-  /** The atlas entry a map is placed by in the continuous world: a pin's root map of the open campaign. Children and
-   *  orphans (dev/*) open the legacy way in this step. */
-  stageEntry(path: string): AtlasScene | undefined {
+  /** The atlas entry a map is placed by in the continuous world: a pin's root map of the open campaign (or of the one
+   *  given), or a map that hangs in one (a building, an area map, a dungeon: atlas `parent`, at any depth). Orphans
+   *  (dev/*) open the legacy way. */
+  stageEntry(path: string, campaignId = this.campaign.id): AtlasScene | undefined {
     if (!this.nested) return undefined;
     const e = ATLAS.scenes[path];
-    return e && e.depth === 0 && !e.orphan && !!e.pin && !!e.worldBounds && e.campaign === this.campaign.id ? e : undefined;
+    if (!e || e.orphan || e.campaign !== campaignId) return undefined;
+    if (!e.depth) return e.pin && e.worldBounds ? e : undefined;
+    return e.parent && e.placement && e.enterRoom && this.stageEntry(e.parent, campaignId) ? e : undefined;
+  }
+  /** The maps a map hangs in, nearest first (the atlas's parents): the inn's is [Vallaki]. */
+  chainOf(path: string): string[] {
+    const out: string[] = [];
+    for (let p = ATLAS.scenes[path]?.parent; p && !out.includes(p); p = ATLAS.scenes[p]?.parent) out.push(p);
+    return out;
+  }
+  /** The maps that hang in a map (its buildings and area maps), by the atlas. */
+  private childrenOf(path: string): AtlasScene[] {
+    let list = this.kids.get(path);
+    if (!list) { list = Object.values(ATLAS.scenes).filter((e) => e.parent === path && !e.orphan && !!e.placement && !!e.enterRoom); this.kids.set(path, list); }
+    return list;
+  }
+  private kids = new Map<string, AtlasScene[]>();
+  /** A map's placement in W: a root's at its pin, a child's composed through the maps it hangs in. */
+  private placementInW(path: string): Placement | undefined {
+    let pl = this.placedW.get(path);
+    if (pl) return pl;
+    const e = ATLAS.scenes[path]; if (!e) return undefined;
+    if (!e.depth) pl = (this.stage && e.pin ? this.stage.rootPlacementOf(e) : e.placement);
+    else { const up = e.parent ? this.placementInW(e.parent) : undefined; pl = up ? compose(up, e.placement) : undefined; }
+    if (pl) this.placedW.set(path, pl);
+    return pl;
+  }
+  private placedW = new Map<string, Placement>();
+  /** A child as the streamer measures it: its footprint and floor in W (composed through its parents). */
+  private streamSite(e: AtlasScene): AtlasScene | undefined {
+    let s = this.siteCache.get(e.path);
+    if (s) return s;
+    const pl = this.placementInW(e.path); if (!pl) return undefined;
+    s = { ...e, placement: pl, worldBounds: boundsInParent(pl, e.extent ?? e.bbox) }; // (its whole stack)
+    this.siteCache.set(e.path, s);
+    return s;
+  }
+  private siteCache = new Map<string, AtlasScene>();
+  /** Where a placed map's root stands (absolute feet), however deep it hangs. */
+  private absOf(l: Loaded): THREE.Vector3 {
+    if (l.root.parent === this.world.root) return l.root.position.clone(); // a root stands in W (exactly)
+    l.root.updateWorldMatrix(true, false);
+    return this.world.toAbsolute(new THREE.Vector3().setFromMatrixPosition(l.root.matrixWorld));
   }
 
   /** Build a map: its levels, coverage maps and textures, and its labels; nothing is added to the world yet. The
@@ -364,6 +428,9 @@ export class App {
   /** Take a map out of the world and free it: its page elements (labels, token tags), its graph, its geometries,
    *  private materials and textures (render/dispose.ts); its proxy shows again. */
   release(loaded: Loaded): void {
+    // the maps that hang in it go first (they are drawn inside its root); a child gives its parent's massing back
+    for (const r of [...this.resident.values()]) if (r !== loaded && ATLAS.scenes[r.path]?.parent === loaded.path && this.resident.get(loaded.path) === loaded) this.release(r);
+    if (loaded.nest) { this.unnestAll(); }
     if (loaded === this.cur) {
       this.select(null); this.onLeave?.(); this.clearRuler();
       // the app's own markers outlive the map: take them off it before it is freed
@@ -377,6 +444,7 @@ export class App {
     if (this.resident.get(loaded.path) === loaded) this.resident.delete(loaded.path);
     this.dispose(loaded);
     this.stage?.showProxy(loaded.path, true);
+    this.syncNest();
   }
   /** Free a built map (placed or not): everything under its root, its coverage textures, its token figures, its ghost. */
   private dispose(loaded: Loaded): void {
@@ -423,14 +491,19 @@ export class App {
       streaming: () => this.nested && this.staged && !!this.stage && this.renderMode === 'normal',
       sites: () => {
         if (sites?.id !== this.campaign.id) sites = { id: this.campaign.id, list: Object.values(ATLAS.scenes).filter((e) => e.campaign === this.campaign.id && e.depth === 0 && !e.orphan && !!e.pin && !!e.worldBounds) };
-        const now = performance.now();
-        return sites.list.filter((e) => !((this.streamFailed.get(e.path) ?? -Infinity) > now));
+        const now = performance.now(), ok = (e: AtlasScene) => !((this.streamFailed.get(e.path) ?? -Infinity) > now);
+        // and the buildings and area maps of every map the valley holds (measured where they hang, in W)
+        const kids: AtlasScene[] = [];
+        for (const r of this.resident.values()) if (!this.streams.has(r.path)) for (const k of this.childrenOf(r.path)) { const e = ok(k) ? this.streamSite(k) : undefined; if (e) kids.push(e); }
+        return [...sites.list.filter(ok), ...kids];
       },
+      chainOf: (p) => this.chainOf(p),
       // a map still being got ready (its buffers going up) counts as loading, not resident
       residentState: (p) => { const r = this.resident.get(p); return r && !this.streams.has(p) ? { drawn: r.drawn } : undefined; },
       loading: (p) => this.streams.has(p),
       // the active map is kept (the party's map is not: it is built again when the camera comes back to it)
-      pinned: () => new Set(this.cur ? [this.cur.path] : []),
+      // (and the maps it hangs in: a building's town stays while the building is active)
+      pinned: () => new Set(this.cur ? [this.cur.path, ...this.chainOf(this.cur.path)] : []),
       activePath: () => this.cur?.path,
       autoActivate: () => this.mode === 'dm',
       busy: () => this.world.userMoving,
@@ -451,11 +524,18 @@ export class App {
   }
 
   /** Stand a built map at its pin in the valley (it joins the resident maps; its grid stays on its own floors). */
-  private standInValley(l: Loaded, entry: AtlasScene): void {
-    this.stage!.placeRoot(l, entry);
+  private standInValley(l: Loaded, entry: AtlasScene): boolean {
+    if (!entry.depth) this.stage!.placeRoot(l, entry);
+    else {
+      // a child hangs in its parent's root, at the room that opens it (its own placement is in the parent's frame)
+      const up = entry.parent ? this.resident.get(entry.parent) : undefined;
+      if (!up) return false;
+      this.stage!.placeChild(l, entry, up);
+    }
     // the grid stays on the map, not over the valley, and goes as the camera pulls back to the town and road bands
     l.root.traverse((o) => { if (o.userData.role === 'grid') { clipGrid(o as THREE.Mesh, 10); fadeGridBelow(o as THREE.Mesh, 0.6); } });
     this.resident.set(l.path, l);
+    return true;
   }
   /** Each place's proxy shows exactly while its map is not drawn whole (a crossfade keeps it until the map is in). */
   private syncProxies(): void {
@@ -465,6 +545,69 @@ export class App {
       const r = this.resident.get(id), f = r && this.fades.get(r);
       st.showProxy(id, !(r && r.drawn && !(f && f.to > f.from)));
     }
+    this.syncNest();
+  }
+  /** A child drawn whole in its parent hides the parent's own model of it (its house, its yard: render/hideUnder.ts),
+   *  exactly while it is drawn (a crossfade keeps the model until the child is in; folding brings it back at once).
+   *  Overlapping children are undone and redone together, so every face comes back exactly. */
+  private syncNest(): void {
+    const want: Loaded[] = [];
+    for (const r of this.resident.values()) {
+      const e = ATLAS.scenes[r.path], up = e?.depth && e.parent ? this.resident.get(e.parent) : undefined;
+      const f = this.fades.get(r);
+      if (up && r.drawn && r.root.visible && !(f && f.to > f.from)) want.push(r);
+    }
+    const key = want.map((r) => r.path).sort().join('|');
+    if (key !== this.nestKey) {
+      this.unnestAll();
+      for (const r of want) {
+        const e = ATLAS.scenes[r.path], up = this.resident.get(e.parent!)!;
+        r.nest = { child: r.path, faces: [], objects: [], labels: [] };
+        for (const [id, box] of this.nestBoxes(e, up)) {
+          const m = hideUnder(up, id, grow(boundsInParent(e.placement, box), 8), r.path);
+          r.nest.faces.push(...m.faces); r.nest.objects.push(...m.objects); r.nest.labels.push(...m.labels);
+        }
+        this.nests.push(r);
+      }
+      this.nestKey = key;
+      this.world.invalidate();
+    }
+    this.syncUnderground();
+  }
+  /** What a child covers on each level of its parent (in the child's frame): the child's levels that stand within that
+   *  level's height (its floor up to its ceiling), so a building hides the town's model of it on the street and an
+   *  abbey the village's model of it on the ledge 400 ft up; the room that opens it is always covered. */
+  private nestBoxes(e: AtlasScene, up: Loaded): Map<string, Bounds> {
+    const out = new Map<string, Bounds>(), dy = e.placement.position[1];
+    const add = (id: string, b: Bounds) => { const o = out.get(id); out.set(id, o ? { minX: Math.min(o.minX, b.minX), minZ: Math.min(o.minZ, b.minZ), maxX: Math.max(o.maxX, b.maxX), maxZ: Math.max(o.maxZ, b.maxZ) } : b); };
+    if (e.enterRoom) add(e.enterRoom.level, e.bbox);
+    for (const pl of up.scene.levels) {
+      const lo = pl.elevationFt - 2, hi = pl.elevationFt + Math.max(2, pl.ceilingFt ?? 10);
+      for (const cl of e.levels) { const y = cl.elevationFt + dy; if (cl.bbox && y >= lo && y < hi) add(pl.id, cl.bbox); }
+    }
+    return out;
+  }
+  private nests: Loaded[] = [];
+  private nestKey = '';
+  /** Every parent's massing back (latest first). */
+  private unnestAll(): void {
+    for (const r of this.nests.reverse()) if (r.nest) { restoreUnder(r.nest); r.nest = undefined; }
+    this.nests = []; this.nestKey = '';
+  }
+  /** A child's floor below the ground it stands on (Death House's dungeon) would lie buried under its town and the
+   *  land: while one is shown the valley and the other maps are left out of the frame, the mist floor under it, as
+   *  the legacy way hides the surroundings. */
+  underground = false;
+  private syncUnderground(): void {
+    const c = this.cur, e = c ? this.stageEntry(c.path) : undefined;
+    const lv = c && c.levels.has(this.levelId) ? c.scene.levels.find((l) => l.id === this.levelId) : undefined;
+    const under = !!(c && lv && e?.depth && this.staged && lv.elevationFt < groundOf(c.scene).elevationFt - 1);
+    if (!under && !this.underground) return;
+    this.underground = under;
+    if (this.stage) veil(this.stage.root, 'under', under);
+    for (const r of this.resident.values()) if (r.root.parent === this.world.root) veil(r.root, 'under', under && r !== c, c?.root);
+    this.world.mistFloor.visible = ((!this.backdrop && !this.staged) || under) && this.world.fogOn && this.renderMode === 'normal';
+    this.world.invalidate();
   }
   /** What a ghost of this map shows: its ground level and the floors on it, cut as the active map would be. */
   private ghostLook(l: Loaded): GhostLook {
@@ -495,19 +638,27 @@ export class App {
   private switchActive(next: Loaded): void {
     const old = this.cur;
     if (!old || old === next || !this.staged || this.resident.get(next.path) !== next || this.switching === next) return;
-    this.switching = next;
-    this.fadeTo(next, 1, 0, true, () => {
-      this.switching = undefined;
-      if (this.cur === next || this.resident.get(next.path) !== next || !this.staged || !next.drawn) return;
+    const swap = () => {
+      if (this.cur === next || this.resident.get(next.path) !== next || !this.staged) return;
       const prev = this.cur;
       if (prev) this.leaveActive(prev);
       this.cur = next;
-      next.ghost?.restore(next);
-      this.world.reanchor(next.root.position.clone());
+      if (next.drawn) next.ghost?.restore(next);
+      this.world.reanchor(this.absOf(next));
       // looking is not travelling: the map a reload opens (mistlab.scene) stays the one the party was taken to
       this.activate(next, { levelId: groundOf(next.scene).id, travel: false });
       this.broadcast();
       this.syncStage();
+      this.syncNest();
+    };
+    // folded away (the camera is out over the valley): nothing to fade, it takes the role as it is; it takes its own
+    // materials when it is drawn again
+    if (!next.drawn) { swap(); return; }
+    this.switching = next;
+    this.fadeTo(next, 1, 0, true, () => {
+      this.switching = undefined;
+      if (!next.drawn) return;
+      swap();
     });
   }
   private switching?: Loaded;
@@ -584,6 +735,7 @@ export class App {
       next = r.value;
       const entry = this.stageEntry(path);
       if (token.cancelled || this.campaign !== campaign || !this.staged || !this.stage || !entry || this.resident.has(path)) return;
+      if (entry.depth && !(entry.parent && this.resident.get(entry.parent)?.drawn)) return; // its town folded or went meanwhile
       this.streamLog.push({ path, ms: Math.round(performance.now() - t0), slices, longest: Math.round(longest * 10) / 10, flying });
       if (this.streamLog.length > 50) this.streamLog.shift();
       next.drawn = false;
@@ -632,7 +784,7 @@ export class App {
 
   /** Make a built map the current one and stand it in the world: at its pin inside the valley (the continuous world),
    *  or alone at the origin with its backdrop and, for an area map, its parent's surroundings (the legacy way). */
-  private place(loaded: Loaded): void {
+  private place(loaded: Loaded, ups: Loaded[] = []): void {
     this.cur = loaded;
     this.world.root.add(loaded.root);
     if (this.backdrop) disposeTree(this.backdrop); this.backdrop = undefined;
@@ -646,6 +798,11 @@ export class App {
       this.stage.root.visible = this.renderMode === 'normal';
       this.staged = true;
       this.world.setNested(true);
+      // the maps it hangs in stand first (root first), drawn as ghosts round it
+      for (const u of ups) {
+        if (this.resident.get(u.path) !== u) { this.standInValley(u, this.stageEntry(u.path)!); u.drawn = true; this.fades.delete(u); this.ghostify(u, GHOST_TINT); }
+        else if (!u.drawn) this.fold(u.path, false); // folded away: it comes back round the map that opens in it
+      }
       if (this.resident.get(loaded.path) !== loaded) this.standInValley(loaded, entry);
       // the map comes alive: drawn whole, with its own materials
       this.fades.delete(loaded); loaded.root.visible = true; loaded.drawn = true;
@@ -653,10 +810,10 @@ export class App {
       this.syncProxies();
       this.stage.fitCamera(); // the far limit frames the whole valley
       // the floating origin moves onto the map: it is drawn where it always was, the valley round it
-      this.world.reanchor(loaded.root.position.clone());
+      this.world.reanchor(this.absOf(loaded));
       return;
     }
-    if (this.stage) this.stage.root.visible = false;
+    if (this.stage) { this.stage.root.visible = false; this.stage.detachLabels(); } // (hidden names never stay in the page)
     this.staged = false;
     if (this.world.nested) this.world.setNested(false);
     this.world.reanchor(new THREE.Vector3());
@@ -711,9 +868,17 @@ export class App {
    *  floor holds it, as always. */
   followGround(): void {
     const st = this.stage, c = this.cur; if (!st || !this.staged || !c || this.world.flying || this.renderMode !== 'normal') return;
-    const w = this.world, t = w.controls.target, p = this.toLocal3(t), e = extentOf(groundOf(c.scene));
+    // (the whole map: a building's every floor, an abbey's ledge 400 ft over the foot of its cliff)
+    const w = this.world, t = w.controls.target, p = this.toLocal3(t), e = wholeExtent(c.scene);
     if (p.x >= e.minX - 20 && p.x <= e.maxX + 20 && p.z >= e.minZ - 20 && p.z <= e.maxZ + 20) return;
-    const abs = w.toAbsolute(t), y = st.groundAt(abs.x, abs.z) - w.anchor.y;
+    // off a building but over its town: the town's ground holds it
+    let y = NaN;
+    for (const up of this.chainOf(c.path)) {
+      const u = this.resident.get(up); if (!u) continue;
+      const g = groundOf(u.scene), b = extentOf(g), q = u.root.worldToLocal(t.clone());
+      if (q.x >= b.minX - 20 && q.x <= b.maxX + 20 && q.z >= b.minZ - 20 && q.z <= b.maxZ + 20) { y = u.root.localToWorld(new THREE.Vector3(q.x, g.elevationFt, q.z)).y; break; }
+    }
+    if (!Number.isFinite(y)) { const abs = w.toAbsolute(t); y = st.groundAt(abs.x, abs.z) - w.anchor.y; }
     if (!Number.isFinite(y) || Math.abs(y - t.y) < 1) return;
     w.camera.position.y += y - t.y; t.y = y;
     w.camera.updateMatrixWorld(); w.invalidate();
@@ -730,7 +895,9 @@ export class App {
    *  otherwise on the party's place on the world map. */
   private partyMark(): { at: Vec2; y?: number } | null {
     const w = this.state.world; if (!w) return null;
-    const path = w.key ? ATLAS.pins.find((p) => p.campaign === this.campaign.id && p.key === w.key)?.root : undefined;
+    const root = w.key ? ATLAS.pins.find((p) => p.campaign === this.campaign.id && p.key === w.key)?.root : undefined;
+    // the map the party was taken to, if the valley holds it (a building of the town), else the town
+    const path = this.home && this.resident.get(this.home) && (this.home === root || this.chainOf(this.home).includes(root ?? '')) ? this.home : root;
     const r = path ? this.resident.get(path) : undefined;
     if (r && r === this.cur && r.drawn) return null;
     const tok = r?.drawn ? this.state.tokens.find((t) => t.location === r.scene.location && t.role === 'party') : undefined;
@@ -748,6 +915,8 @@ export class App {
    *  church stand in the village). Undefined on a top-level map. */
   get parentPath(): string | undefined {
     const c = this.cur; if (!c) return undefined;
+    // in the valley: the map it hangs in, by the atlas (a pin's root map hangs in the valley itself: the breadcrumb)
+    if (this.staged) { const e = ATLAS.scenes[c.path]; return e?.depth && e.parent && this.resident.has(e.parent) ? e.parent : undefined; }
     if (c.scene.parent) return builtPaths.has(c.scene.parent) ? c.scene.parent : undefined;
     const first = pinForScene(c.path)?.scenes?.[0];
     return first && first !== c.path && builtPaths.has(first) ? first : undefined;
@@ -777,6 +946,7 @@ export class App {
    *  on that room's level, with the same compass heading. Without such a room the parent opens as usual. */
   async openParent(): Promise<boolean> {
     const cur = this.cur, up = this.parentPath; if (!cur || !up) return false;
+    if (this.staged) return this.climb(up); // in the valley: the camera pulls back and the town takes over
     const par = await loadLocation(up).catch(() => undefined);
     const at = par && this.anchorIn(par.scene, up, cur.path, cur.scene);
     const l0 = groundOf(cur.scene), ext = extentOf(l0);
@@ -787,6 +957,70 @@ export class App {
     this.frameBox({ minX: cx - hw, minZ: cz - hd, maxX: cx + hw, maxZ: cz + hd }, at.level.elevationFt, this.camPreset, false, heading - this.world.controls.getAzimuthalAngle());
     this.onChange?.();
     return true;
+  }
+
+  /** Up the nesting in the valley, without opening anything: the camera glides out to a map this one hangs in and
+   *  that map becomes the active one (looking is not travelling: the party stays). `keep` frames it on the place left
+   *  (the building stays drawn, small, in its street: Back); otherwise it frames the whole of its open-air level (a
+   *  breadcrumb). Resolves once the map is active. */
+  async climb(path: string, keep = true): Promise<boolean> {
+    const cur = this.cur, up = this.resident.get(path);
+    if (!cur || !up || !this.staged || cur === up) return cur === up;
+    const g = groundOf(up.scene), seq = this.navSeq;
+    if (keep) {
+      // over the place just left, pulled back until it is half way between taking the role and giving it back
+      // (render/streamer.ts enterPx, leavePx): it stays drawn in its street, small, and the town is the active map
+      const f = extentOf(groundOf(cur.scene)), y = groundOf(cur.scene).elevationFt, w = this.world;
+      const mid = up.root.worldToLocal(cur.root.localToWorld(new THREE.Vector3((f.minX + f.maxX) / 2, y, (f.minZ + f.maxZ) / 2)));
+      const at = up.root.localToWorld(new THREE.Vector3(mid.x, g.elevationFt, mid.z));
+      const rc = w.renderer.domElement.getBoundingClientRect(), scr = Math.min(rc.width, rc.height) || 768;
+      const focal = (rc.height || 768) / 2 / Math.tan(THREE.MathUtils.degToRad(w.camera.fov / 2));
+      const site = { depth: ATLAS.scenes[cur.path]?.depth ?? 1, units: 1 }, px = (enterPx(site, scr) + leavePx(site, scr)) / 2;
+      const x = ATLAS.scenes[cur.path]?.extent ?? f; // (the streamer measures a child by its whole stack)
+      w.flyTo(at, Math.hypot(x.maxX - x.minX, x.maxZ - x.minZ) * focal / px);
+    } else {
+      const box: Bounds = extentOf(g);
+      const c = up.root.localToWorld(new THREE.Vector3((box.minX + box.maxX) / 2, g.elevationFt, (box.minZ + box.maxZ) / 2)), hw = (box.maxX - box.minX) / 2, hd = (box.maxZ - box.minZ) / 2;
+      this.world.frame({ minX: c.x - hw, minZ: c.z - hd, maxX: c.x + hw, maxZ: c.z + hd }, c.y, this.camPreset, 'fly');
+    }
+    await this.world.settled();
+    if (seq !== this.navSeq || this.resident.get(path) !== up) return false;
+    if (!up.drawn) this.fold(path, false);
+    this.switchActive(up);
+    // the role changes once the town's tint has glided off (render/ghost.ts)
+    const end = performance.now() + 3000;
+    while (this.cur !== up && performance.now() < end && seq === this.navSeq) await new Promise((r) => setTimeout(r, 40));
+    this.streamer.tick();
+    return this.cur === up;
+  }
+  /** Where the active map hangs, from the whole valley down to the floor shown: the breadcrumb. */
+  crumbs(): { label: string; path?: string; level?: string; kind: 'valley' | 'map' | 'level' }[] {
+    const c = this.cur; if (!c) return [];
+    // the legacy way: one map alone in the mist, its name as the title always showed it
+    if (!this.staged) return [{ label: c.scene.name, path: c.path, kind: 'map' }];
+    const short = (n: string) => n.replace(/^The /, '');
+    const out: ReturnType<App['crumbs']> = [];
+    {
+      out.push({ label: short(worldOf(this.campaign).name).replace(/^Lands of /, ''), kind: 'valley' });
+      for (const p of [...this.chainOf(c.path)].reverse()) { const u = this.resident.get(p); out.push({ label: short(u?.scene.name ?? ATLAS.scenes[p]?.name ?? p), path: p, kind: 'map' }); }
+    }
+    out.push({ label: short(c.scene.name), path: c.path, kind: 'map' });
+    // (a level named as its map, Krezk's 'Village of Krezk', is the map itself: no second crumb)
+    const same = (a: string, b: string) => short(a).toLowerCase() === short(b).toLowerCase();
+    if (c.scene.levels.length > 1 && !same(this.level.name, c.scene.name)) out.push({ label: this.level.name, path: c.path, level: this.levelId, kind: 'level' });
+    return out;
+  }
+  /** A breadcrumb was tapped: frame that scope (the whole valley, a map the active one hangs in, the active map, its
+   *  floor), flying there; a map up the chain becomes the active one. */
+  async goCrumb(i: number): Promise<void> {
+    const k = this.crumbs()[i]; if (!k) return;
+    if (k.kind === 'valley') { this.stage?.frameWorld('fly'); return; }
+    if (k.path && k.path !== this.cur?.path) { await this.climb(k.path, false); return; }
+    if (k.kind === 'level') { this.frameLevel(this.camPreset, true); return; }
+    // the map itself: its open-air level whole
+    const g = groundOf(this.cur!.scene);
+    if (g.id !== this.levelId && !this.cur!.scene.stacked) this.setLevel(g.id);
+    this.frameBox(extentOf(g), g.elevationFt, this.camPreset, 'fly');
   }
 
   setLevel(id: string, frame = false): void {
@@ -806,6 +1040,7 @@ export class App {
     this.syncPlacement();
     this.world.mistFloor.position.copy(this.toWorld3(0, this.level.elevationFt - 1.2, 0));
     this.world.mistFloor.visible = !this.backdrop && !this.staged && this.world.fogOn; // in the valley the land is the floor
+    this.syncUnderground(); // (but not under it: a dungeon below its town stands in the mist)
     this.syncContext();
     this.syncTokens();
     this.recompute();
@@ -1243,6 +1478,9 @@ export class App {
     // Roofs raised over authored walls (a shop's gable, a tower's cone) go whenever the walls are cut down to a cutaway,
     // and come back with full walls; on stacked sites the section plane slices them instead.
     if (!this.cur.scene.stacked) for (const b2 of this.cur.levels.values()) b2.root.traverse((o) => { if (o.userData.cap) o.visible = !this.lowWalls; });
+    // a map that is not stacked slices only its walls: the shared materials a stacked map's section plane took (a
+    // building that was active a moment ago, in its town) come back whole, or the town's houses would be cut open
+    if (!this.cur.scene.stacked) for (const b2 of this.cur.levels.values()) sectionClip(b2.root, false);
     this.declutter();
     if (this.cur.scene.stacked) for (const [lid, b] of this.cur.levels) {
       sectionClip(b.root, true);
@@ -1926,7 +2164,7 @@ export class App {
   }
   layoutChanged(): void { this.applySlider(); this.restyleGhosts(); this.broadcast(); }
   /** The ghosts follow what the active map would show (low or full walls; Players view hides interiors). */
-  private restyleGhosts(): void { for (const r of this.resident.values()) if (r !== this.cur && r.ghost?.on) this.ghostify(r, r.ghost.tint); }
+  private restyleGhosts(): void { for (const r of this.resident.values()) if (r !== this.cur && r.ghost?.on) this.ghostify(r, r.ghost.tint); this.syncNest(); }
 
   private sendCamera(now = false): void {
     if (this.mode !== 'dm' || !this.lockPlayerCamera) return;
@@ -2013,7 +2251,7 @@ export class App {
       for (const m of this.maskMats) m.dispose(); this.maskMats = [];
       for (const o of this.maskHidden) o.visible = true;
       this.maskHidden = [];
-      this.world.scene.background = null; this.world.mistFloor.visible = !this.backdrop && !this.staged; this.world.scene.fog = new THREE.FogExp2(this.world.theme.mist, this.world.fogDensity); if (this.backdrop) this.backdrop.visible = true; if (this.stage) this.stage.root.visible = this.staged; this.syncContext();
+      this.world.scene.background = null; this.world.mistFloor.visible = (!this.backdrop && !this.staged) || this.underground; this.world.scene.fog = new THREE.FogExp2(this.world.theme.mist, this.world.fogDensity); if (this.backdrop) this.backdrop.visible = true; if (this.stage) this.stage.root.visible = this.staged; this.syncContext();
       this.applySlider();
     }
     this.world.invalidate();

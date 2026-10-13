@@ -154,7 +154,8 @@ test('one outside handler: menu, chip, inside the tip, chip, map — three times
   const baseline = await menuTitle();
   expect(baseline).toContain('2B');
   for (let i = 0; i < 3; i++) {
-    await tapEl(page, '.topbar .title', touch);
+    // the title's own edge (its crumbs are buttons: in the valley each frames its scope)
+    { const b = (await page.locator('.topbar .title').boundingBox())!; await tapAt(page, b.x + 3, b.y + b.height / 2, touch); }
     await expect(page.locator('.tapmenu')).toHaveCount(0);
     await page.waitForTimeout(400);
     await tapAt(page, x, y, touch);

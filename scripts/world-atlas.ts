@@ -17,7 +17,11 @@ import {
 import type { Level, SceneFile } from '../app/src/core/schema';
 import type { Campaign, WorldData } from '../app/src/campaigns';
 
-export interface AtlasLevel { id: string; name: string; elevationFt: number; ceilingFt?: number }
+export interface AtlasLevel {
+  id: string; name: string; elevationFt: number; ceilingFt?: number;
+  /** Children: this level's rooms and terrain (its own frame), what it covers of its parent when drawn there. */
+  bbox?: Bounds;
+}
 export interface AtlasScene {
   path: string; campaign: string; name: string; location: string;
   /** The pin this map is placed at (roots), and any other pins that list it (proxy and label only there). */
@@ -39,6 +43,10 @@ export interface AtlasScene {
   anchor?: { x: number; z: number; dTheta: number };
   /** Children: the plot the parent gives this map, and how much bigger the map's own extent is. */
   footprintInParent?: Bounds; blowout?: number;
+  /** Children: every level's rooms and terrain (its own frame): a building's whole stack, an abbey on its ledge. The
+   *  streamer measures a child by it, and its parent hides what stands under it. (`bbox` stays the open-air level's:
+   *  it places the map.) */
+  extent?: Bounds;
   objects: number; units: number;
 }
 export interface AtlasPin { campaign: string; key: string; name: string; type: string; pos: [number, number]; world: [number, number]; groundY: number; heightFt?: number; scenes: string[]; root?: string; proxyOnly: boolean }
@@ -132,6 +140,10 @@ export function buildAtlas(repo = REPO): Atlas {
         if (!hit) errors.push(`${path}: parent ${s.parent} has no room that enters it (enter: '${path}')`);
         else {
           e.enterRoom = { key: hit.room.key, level: hit.level.id };
+          const boxes = s.levels.map((l) => footprintOf(l as Level).bbox), has = (b: Bounds) => b.maxX > b.minX || b.maxZ > b.minZ;
+          boxes.forEach((b, i) => { if (has(b)) e.levels[i].bbox = b; });
+          const all = boxes.filter(has);
+          e.extent = all.length ? all.reduce((a, b) => ({ minX: Math.min(a.minX, b.minX), minZ: Math.min(a.minZ, b.minZ), maxX: Math.max(a.maxX, b.maxX), maxZ: Math.max(a.maxZ, b.maxZ) })) : fp.bbox;
           const pl = hit.level as Level, place = childPlacement(fp, pl, hit.room.polygon);
           e.placement = place;
           const [ax, az] = centroid(hit.room.polygon);

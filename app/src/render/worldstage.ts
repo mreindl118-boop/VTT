@@ -66,6 +66,9 @@ export class WorldStage {
   readonly forest: THREE.InstancedMesh;
   private sky: ReturnType<typeof buildSky>;
   private labels: { obj: CSS2DObject; key: string; pri: number }[] = [];
+  /** The valley is put away (a legacy map is open): its names leave the page; the label renderer puts them back the
+   *  next time the valley is drawn. */
+  detachLabels(): void { for (const l of [...this.labels.map((x) => x.obj), this.party]) l.element.remove(); }
   private party: CSS2DObject;
   private roadMask: { m: Uint8Array; nx: number; nz: number; x0: number; z0: number };
   private tiles = new Map<string, { m: Float32Array; c: Float32Array; n: number }>();

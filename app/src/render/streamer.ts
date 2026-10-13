@@ -21,13 +21,30 @@
 //                             the active map keeps the role until the target leaves it by a quarter of its
 //                             half-diagonal (it is never left with none: the last one stays active at valley zoom)
 //
+// Nesting (step 4): a town's buildings, area maps and dungeons (atlas depth 1, 2) stream in under their parent once
+// it is resident, by stricter rules (DEPTHS: bigger on screen, and near the camera's target), and the depth decides
+// who is active: a child drawn under the target takes over from its parent once it fills a good part of the screen
+// (enterPx), and gives the role back as the camera pulls away (under leavePx, or the target leaves it), so zooming
+// in goes town → building and zooming out climbs back building → town → valley.
+//
 // planStream is the pure rule (tests/streamer.test.ts); Streamer measures the camera and keeps the clock.
 import * as THREE from 'three';
 import type { AtlasScene } from '../../../scripts/world-atlas';
 import type { World } from './world';
 
+/** The thresholds by nesting depth: a pin's root map (0), a building or area map in it (1), a building of that (2).
+ *  A child is built only near the camera's target (nearFt) and folds once the target is farther than farFt. */
+export const DEPTHS: { prefetchPx: number; showPx: number; hidePx: number; nearFt?: number; farFt?: number }[] = [
+  { prefetchPx: 60, showPx: 140, hidePx: 70 },
+  { prefetchPx: 120, showPx: 220, hidePx: 110, nearFt: 600, farFt: 1000 },
+  { prefetchPx: 160, showPx: 260, hidePx: 130, nearFt: 250, farFt: 400 },
+];
 export const STREAM = {
-  prefetchPx: 60, showPx: 140, hidePx: 70,
+  prefetchPx: DEPTHS[0].prefetchPx, showPx: DEPTHS[0].showPx, hidePx: DEPTHS[0].hidePx,
+  /** A child takes the active role from its parent once its footprint is this big on screen: the larger of
+   *  `enterK` × its build line and `enterScreen` × the screen's smaller side; it gives the role back under
+   *  `leaveK` of that. */
+  enterK: 1.6, enterScreen: 0.45, leaveK: 0.6,
   /** A folded map is freed this long after it stopped being wanted (ms). */
   lingerMs: 4000,
   units: 4, unitsSmall: 2,
@@ -68,6 +85,9 @@ export interface SiteView {
   /** When it was last wanted (ms), and since when it has been unwanted while resident. */
   lastWanted: number;
   lowSince?: number;
+  /** Nesting depth (0: a pin's root map) and the maps it hangs in, nearest first. */
+  depth?: number;
+  chain?: string[];
 }
 
 export interface StreamPlan {
@@ -81,8 +101,14 @@ export interface StreamPlan {
   activate?: string;
 }
 
-export const wanted = (s: Pick<SiteView, 'px' | 'inView' | 'units'>): boolean => s.inView && s.px >= STREAM.showPx * s.units;
-export const low = (s: Pick<SiteView, 'px' | 'inView' | 'units'>): boolean => !s.inView || s.px < STREAM.hidePx * s.units;
+type Measured = Pick<SiteView, 'px' | 'inView' | 'units'> & Partial<Pick<SiteView, 'depth' | 'dTarget'>>;
+const rule = (s: { depth?: number }) => DEPTHS[Math.min(DEPTHS.length - 1, s.depth ?? 0)];
+export const wanted = (s: Measured): boolean => { const r = rule(s); return s.inView && s.px >= r.showPx * s.units && (r.nearFt === undefined || (s.dTarget ?? 0) < r.nearFt); };
+export const low = (s: Measured): boolean => { const r = rule(s); return !s.inView || s.px < r.hidePx * s.units || (r.farFt !== undefined && (s.dTarget ?? 0) > r.farFt); };
+const prefetchable = (s: Measured): boolean => { const r = rule(s); return s.inView && s.px >= r.prefetchPx * s.units && (r.farFt === undefined || (s.dTarget ?? 0) <= r.farFt); };
+/** How big a child must be on screen to take the active role (CSS px), and under which it gives it back. */
+export const enterPx = (s: { depth?: number; units: number }, screen = 768): number => Math.max(rule(s).showPx * s.units * STREAM.enterK, STREAM.enterScreen * screen);
+export const leavePx = (s: { depth?: number; units: number }, screen = 768): number => STREAM.leaveK * enterPx(s, screen);
 
 /** The rule: given every place's view, what to prefetch, build, show, fold, free and which map to make active. */
 /** Does a place count against the unit cap: resident or being built, and not the active map folded away. */
@@ -95,12 +121,12 @@ export function unitsAfter(sites: SiteView[], plan: StreamPlan): number {
 /** Which wanted place is built first: the one holding the camera's target, then the nearest to it, then the biggest. */
 const first = (a: SiteView, b: SiteView): number => Number(b.inside) - Number(a.inside) || a.dTarget - b.dTarget || b.px - a.px;
 
-export function planStream(sites: SiteView[], o: { now: number; cap: number; active?: string; activeHolds: boolean; flying: boolean; activate: boolean; busy?: boolean }): StreamPlan {
+export function planStream(sites: SiteView[], o: { now: number; cap: number; active?: string; activeHolds: boolean; flying: boolean; activate: boolean; busy?: boolean; screen?: number }): StreamPlan {
   const plan: StreamPlan = { prefetch: [], load: [], show: [], fold: [], unload: [], cancel: [] };
   const used = () => sites.reduce((a, s) => a + (counts(s) ? s.units : 0), 0) - plan.unload.reduce((a, p) => { const s = sites.find((x) => x.path === p); return a + (s && counts(s) ? s.units : 0); }, 0);
   for (const s of sites) {
     if (s.loading && low(s)) plan.cancel.push(s.path);
-    if (s.inView && s.px >= STREAM.prefetchPx * s.units && !s.resident) plan.prefetch.push(s.path);
+    if (prefetchable(s) && !s.resident) plan.prefetch.push(s.path);
     if (!s.resident) continue;
     if (s.drawn && low(s)) plan.fold.push(s.path);
     if (!s.drawn && wanted(s)) plan.show.push(s.path);
@@ -120,8 +146,23 @@ export function planStream(sites: SiteView[], o: { now: number; cap: number; act
       break;
     }
   }
-  if (o.activate && !o.flying && !(o.active && o.activeHolds)) {
-    const c = sites.filter((s) => s.resident && s.drawn && s.inside && !plan.fold.includes(s.path) && !plan.unload.includes(s.path)).sort((a, b) => a.area - b.area)[0];
+  if (o.activate && !o.flying) {
+    // a drawn map under the target may take the role; a child only once it is big on screen
+    const live = (s: SiteView) => s.resident && s.drawn && !plan.fold.includes(s.path) && !plan.unload.includes(s.path);
+    const claims = (s: SiteView) => live(s) && s.inside && (!s.depth || s.px >= enterPx(s, o.screen));
+    const act = o.active ? sites.find((s) => s.path === o.active) : undefined;
+    // the active map keeps the role while the target stays on it (a child: while it is still big enough on screen)
+    const keeps = !!o.active && o.activeHolds && (!act || !act.depth || act.px >= leavePx(act, o.screen));
+    const smallest = (xs: SiteView[]) => xs.sort((a, b) => a.area - b.area)[0];
+    let c: SiteView | undefined;
+    // kept: only a map inside it (a building of the town) can take over, zooming in
+    if (keeps) c = smallest(sites.filter((s) => claims(s) && !!act && (s.chain ?? []).includes(act.path)));
+    else {
+      c = smallest(sites.filter(claims));
+      // a child gives the role back to the map it hangs in, zooming out (drawn; or as it is, folded away like the
+      // child itself, out over the valley)
+      if (!c && act?.depth) c = (act.chain ?? []).map((p) => sites.find((s) => s.path === p)).find((s) => !!s && s.resident && (live(s) || !live(act)));
+    }
     if (c && c.path !== o.active) plan.activate = c.path;
   }
   return plan;
@@ -139,8 +180,11 @@ export interface StreamHost {
   readonly world: World;
   /** Streaming runs (a pin map is open in the valley, the normal render). */
   streaming(): boolean;
-  /** The places that can stream: the open campaign's pin roots. */
+  /** The places that can stream: the open campaign's pin roots, and the children of the resident maps (their
+   *  `worldBounds` and `placement` in W, composed through their parents). */
   sites(): AtlasScene[];
+  /** The maps a map hangs in, nearest first (none for a root). */
+  chainOf?(path: string): string[];
   residentState(path: string): { drawn: boolean } | undefined;
   loading(path: string): boolean;
   pinned(): Set<string>;
@@ -208,6 +252,7 @@ export class Streamer {
       const s: SiteView = {
         path: e.path, units: Math.max(1, e.units), px, inView, inside: dT <= STREAM.insidePadFt, area: (b.maxX - b.minX) * (b.maxZ - b.minZ), dTarget: dT,
         resident: !!r, drawn: !!r?.drawn, loading: h.loading(e.path), pinned: pinned.has(e.path) || e.path === active, lastWanted: st.lastWanted, lowSince: st.lowSince,
+        depth: e.depth, chain: h.chainOf?.(e.path),
       };
       if (wanted(s)) st.lastWanted = now;
       if (s.resident && low(s)) st.lowSince ??= now; else st.lowSince = undefined;
@@ -235,7 +280,8 @@ export class Streamer {
     const now = performance.now(), sites = this.views(now), active = h.activePath();
     h.measured?.(sites);
     const busy = h.busy();
-    const plan = planStream(sites, { now, cap: this.cap, active, activeHolds: this.holds(active), flying: h.world.flying, activate: h.autoActivate(), busy });
+    const rc = h.world.renderer.domElement.getBoundingClientRect();
+    const plan = planStream(sites, { now, cap: this.cap, active, activeHolds: this.holds(active), flying: h.world.flying, activate: h.autoActivate(), busy, screen: Math.min(rc.width, rc.height) || 768 });
     this.lastPlan = plan;
     for (const p of plan.cancel) h.cancel(p);
     for (const p of plan.unload) { h.unload(p); this.last.delete(p); }

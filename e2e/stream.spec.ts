@@ -68,11 +68,12 @@ test('range overlays and token figures are disposed when they are rebuilt', asyn
 test('two opens at once: the latest request wins and only its map is mounted', async ({ page }) => {
   test.setTimeout(240_000);
   await boot(page, '', SCENES[0]);
-  // the village's scene arrives three seconds late; Death House, asked for after it, arrives first
+  // the village's scene arrives three seconds late; Tser Pool, asked for after it, arrives first (a building of the
+  // village would wait for the village: it opens inside it)
   await page.route(SCENE_JS, sceneChunk(/location:.E.,chapter:.ch03./, async (r) => { await new Promise((d) => setTimeout(d, 3000)); await r.continue(); }));
   const r = await page.evaluate(async () => {
     const a = (window as any).__mistlab.app, w = a.world;
-    const p1 = a.open('ch03/E'), p2 = a.open('appB/death-house');
+    const p1 = a.open('ch03/E'), p2 = a.open('ch02/G');
     const settled = await Promise.allSettled([p1, p2]);
     await new Promise((d) => setTimeout(d, 500));
     w.renderNow();
@@ -83,7 +84,7 @@ test('two opens at once: the latest request wins and only its map is mounted', a
     const stray = [...document.querySelectorAll('.labels .lbl')].filter((e) => !known.has(e) && !e.matches('.place, .world-party') && (e as HTMLElement).style.display !== 'none');
     return { path: a.cur.path, roots, stray: stray.length, rejected: settled.filter((s) => s.status === 'rejected').length, staged: a.staged };
   });
-  expect(r).toEqual({ path: 'appB/death-house', roots: ['scene:appB/death-house'], stray: 0, rejected: 0, staged: false });
+  expect(r).toEqual({ path: 'ch02/G', roots: ['scene:ch02/G'], stray: 0, rejected: 0, staged: true });
 });
 
 test('a map that fails to load leaves the open map as it was and says so', async ({ page }) => {

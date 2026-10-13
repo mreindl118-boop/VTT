@@ -1,7 +1,7 @@
 // The streaming rule (app/src/render/streamer.ts planStream): which maps of the valley are built, drawn, folded into
 // their proxies, freed, and which one the camera makes active.
 import { describe, expect, it } from 'vitest';
-import { planStream, STREAM, unitsAfter, type SiteView } from '../app/src/render/streamer';
+import { DEPTHS, enterPx, leavePx, planStream, STREAM, unitsAfter, type SiteView } from '../app/src/render/streamer';
 
 const site = (path: string, o: Partial<SiteView> = {}): SiteView => ({
   path, units: 1, px: 0, inView: true, inside: false, area: 1e6, dTarget: 5000, resident: false, drawn: false, loading: false, pinned: false, lastWanted: 0, ...o,
@@ -82,3 +82,42 @@ describe('planStream', () => {
     expect(planStream([site('x', { resident: true, drawn: false, inside: true })], opts({ active: 'far' })).activate).toBeUndefined();
   });
 });
+
+describe('planStream: nesting (the buildings and area maps of a town)', () => {
+  // Vallaki is resident and active; the Blue Water Inn (depth 1) hangs in it
+  const town = (o: Partial<SiteView> = {}) => site('ch05/N', { resident: true, drawn: true, units: 2, px: 5000, inside: true, area: 9e6, dTarget: 0, pinned: true, ...o });
+  const inn = (o: Partial<SiteView> = {}) => site('ch05/N2', { depth: 1, chain: ['ch05/N'], area: 3e4, dTarget: 0, ...o });
+  it('builds a child only big on screen and near the target, and folds it far from the target', () => {
+    expect(planStream([town(), inn({ px: DEPTHS[1].showPx + 1, dTarget: 100 })], opts()).load).toEqual(['ch05/N2']);
+    expect(planStream([town(), inn({ px: DEPTHS[0].showPx + 1, dTarget: 100 })], opts()).load).toEqual([]); // a root's line is not enough
+    expect(planStream([town(), inn({ px: 900, dTarget: 700 })], opts()).load).toEqual([]); // 700 ft from the target
+    expect(planStream([town(), inn({ px: DEPTHS[1].prefetchPx + 1, dTarget: 900 })], opts()).prefetch).toEqual(['ch05/N2']);
+    expect(planStream([town(), inn({ resident: true, drawn: true, px: 900, dTarget: 1100 })], opts()).fold).toEqual(['ch05/N2']);
+    expect(planStream([town(), inn({ resident: true, drawn: true, px: DEPTHS[1].hidePx - 1, dTarget: 0 })], opts()).fold).toEqual(['ch05/N2']);
+  });
+  it('a child under the target takes the role once it fills a good part of the screen, and gives it back zooming out', () => {
+    const big = enterPx({ depth: 1, units: 1 }, 768), small = leavePx({ depth: 1, units: 1 }, 768);
+    expect(small).toBeLessThan(big);
+    expect(small).toBeGreaterThan(DEPTHS[1].hidePx); // it gives the role back while it is still drawn
+    // zooming in: the town holds the target, yet its building takes over
+    expect(planStream([town(), inn({ resident: true, drawn: true, inside: true, px: big + 1 })], opts({ active: 'ch05/N', activeHolds: true, screen: 768 })).activate).toBe('ch05/N2');
+    // between the two lines nothing changes, whichever is active (Back leaves the building there, the town active)
+    const mid = (big + small) / 2;
+    expect(planStream([town(), inn({ resident: true, drawn: true, inside: true, px: mid })], opts({ active: 'ch05/N', activeHolds: true, screen: 768 })).activate).toBeUndefined();
+    expect(planStream([town(), inn({ resident: true, drawn: true, inside: true, px: mid })], opts({ active: 'ch05/N2', activeHolds: true, screen: 768 })).activate).toBeUndefined();
+    // zooming out: under the lower line the town takes the role back
+    expect(planStream([town(), inn({ resident: true, drawn: true, inside: true, px: small - 1 })], opts({ active: 'ch05/N2', activeHolds: true, screen: 768 })).activate).toBe('ch05/N');
+    // panned off the building onto the street: the town
+    expect(planStream([town(), inn({ resident: true, drawn: true, inside: false, px: big + 1 })], opts({ active: 'ch05/N2', activeHolds: false, screen: 768 })).activate).toBe('ch05/N');
+    // out over the valley, both folded: the role climbs to the town as it is (the building is freed later)
+    expect(planStream([town({ drawn: false, px: 20 }), inn({ resident: true, drawn: false, px: 1 })], opts({ active: 'ch05/N2', activeHolds: false })).activate).toBe('ch05/N');
+    // a building of another town never takes over from a town that holds the target
+    expect(planStream([town(), site('ch03/E', { resident: true, drawn: true, inside: false, area: 5e6, px: 900 }), site('appB/death-house', { depth: 1, chain: ['ch03/E'], resident: true, drawn: true, inside: true, area: 2e3, px: 2000 })], opts({ active: 'ch05/N', activeHolds: true })).activate).toBeUndefined();
+  });
+  it('the active building keeps its town (the chain is pinned by the app); the town counts its units', () => {
+    const p = planStream([town({ pinned: true }), inn({ resident: true, drawn: true, pinned: true, px: 900, dTarget: 0 }), site('far', { px: 300, units: 2 })], opts({ cap: 4 }));
+    expect(p.load).toEqual([]); // 2 + 1 + 2 > 4, and nothing may be freed
+    expect(p.unload).toEqual([]);
+  });
+});
+

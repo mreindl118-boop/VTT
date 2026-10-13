@@ -1,6 +1,8 @@
 // Zoom and nesting: a tap on a town's building offers Enter, Back keeps your place, zoom presses during a glide add up,
 // a zoom out at the far limit offers the map one level up, the abbey's surroundings follow the room entered from, the
 // zoom buttons take taps on a phone, and none of it reaches Players mode. Desktop 1366x768 and a 390x844 touch phone.
+// These are the legacy way's (?nested=0: one map at a time, a building opened alone with its town's surroundings); in
+// the continuous world a building opens inside its town and zooming out climbs to it (nest.spec.ts).
 import { expect, test, type Page } from '@playwright/test';
 
 // Vallaki is a town a mile and a half across; a busy software renderer can take minutes to build and draw it.
@@ -21,7 +23,7 @@ async function opened(page: Page, scene: string): Promise<void> {
   await settle(page);
 }
 async function open(page: Page, scene: string): Promise<void> {
-  await page.goto(`/?nosw&scene=${encodeURIComponent(scene)}`, { timeout: LONG });
+  await page.goto(`/?nosw&nested=0&scene=${encodeURIComponent(scene)}`, { timeout: LONG });
   await opened(page, scene);
 }
 async function settle(page: Page): Promise<void> {
