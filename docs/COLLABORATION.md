@@ -18,7 +18,7 @@ This file is shared by both assistants and by Matt. It covers:
 
 **Shared branch.** The main branch is `claude/mistlab-curse-strahd-x6jm13`. Claude Code does each queue item on its own work branch and merges it onto this branch only when the item is released.
 
-**Telling the authors apart.** Every Claude Code commit ends with a `Claude-Session:` line. A commit without one was made by someone else, and is logged in the ledger below.
+**Telling the authors apart.** Every Claude Code commit ends with a `Claude-Session:` line: a session link from the cloud sessions, or `Claude-Session: laptop` from the session on Matt's laptop, which becomes the development and test machine from 2026-10-13 (`docs/HANDOFF.md`). A commit without one was made by someone else, and is logged in the ledger below.
 
 **When Claude Code checks for outside changes.** Before each release and at every check-in, Claude Code fetches the branch and reads every outside commit since the last check. For each one it records:
 - what changed;
