@@ -18,11 +18,11 @@ type Dims = Record<string, number>;
 
 // ---------------------------------------------------------------- colours (weathered, from the palette families)
 const C = {
-  oak: '#5e4330', oakDark: '#3f2c1f', stave: '#6b4b30', hoop: '#2f2f33', must: '#4e1219', wineDark: '#3a1218',
+  oak: '#5e4330', oakDark: '#3f2c1f', stave: '#6b4b30', hoop: '#2f2f33', must: '#4e1219', wineDark: '#3a1219',
   vine: '#3c2e25', leaf: '#3c5a34', leafDark: '#2c4429', leafDead: '#5a5236', grape: '#3a2e46',
   slate: '#35333a', crest: '#26262a', ivy: '#2f4a2e', ivyDark: '#243a24', ivyLight: '#3d5a37',
   rope: '#8b7b5b', glass: '#4f6a5a', glassDark: '#33463d', sand: '#a9966f', paper: '#dad3c3', ink: '#1e1a17',
-  cairn: '#26272b', cairnWet: '#323238', boulder: '#2e2f33', twig: '#4a3a2c', twigDark: '#33281f', earth: '#2b2521',
+  cairn: '#26272b', cairnWet: '#323238', boulder: '#2e2e33', twig: '#4a3a2d', twigDark: '#33281e', earth: '#2b2521',
   sod: '#4a4a36', mold: '#7a5a34', moldDark: '#5a4026', fog: '#cacdd3', fogDeep: '#aeb2ba', gem: '#7fe08a',
   mud: '#6f7a80', mudDark: '#4f585e', skin: '#d9b899', hide: '#7a6650', hideDark: '#5b4b3b', antler: '#cac0a7', blood: '#6a1a1e',
   needle: '#4d5a3c', needleDark: '#36402a', sap: '#5a1218', bark: '#3b3230', barkRed: '#4a2a26', raven: '#18171c', ravenSheen: '#2a2a36',
@@ -68,21 +68,23 @@ function barrelMesh(h = 3.2, r = 1.1, color = C.stave): THREE.Group {
 }
 
 // ================================================================ the vineyard
-/** A trellised row of grapevines along local x, `len` ft long: posts every 8 ft, two wires, gnarled trunks and a
+/** A trellised row of grapevines along local x, `len` ft long: posts every 8 ft, a wire, gnarled trunks and a
  *  hedge of leaves, dark grapes hanging under it. `dead` > 0 browns a share of the leaves (blighted rows). */
 export function vineRow(d: Dims): THREE.Group {
   const L = d.len ?? 40, seed = d.seed ?? 0, dead = d.dead ?? 0, g = grp();
   const n = Math.max(1, Math.round(L / 8));
   for (let i = 0; i <= n; i++) { const x = -L / 2 + (i / n) * L; g.add(box(0.35, 5.2, 0.35, i === 0 || i === n ? C.oakDark : C.oak, x, 2.6, 0)); }
-  g.add(box(L, 0.06, 0.06, C.hoop, 0, 3.0, 0), box(L, 0.06, 0.06, C.hoop, 0, 4.6, 0));
+  // the two wires read as one line at any distance: one 0.12-ft rail between their heights
+  g.add(box(L, 0.12, 0.12, C.hoop, 0, 3.8, 0));
   // the vines: a twisted trunk every 4 ft, its canopy a leaf clump along the wires, dark grapes under it
   const m = Math.max(1, Math.round(L / 5));
   for (let i = 0; i < m; i++) {
     const x = -L / 2 + (i + 0.5) * (L / m), h1 = hash(i, seed), h2 = hash(seed, i + 7), brown = hash(i * 3, seed + 3) < dead;
-    g.add(strut(V(x, 0, (h1 - 0.5) * 0.4), V(x + (h2 - 0.5) * 0.8, 3.0, 0), 0.3, C.vine));
+    // the trunks, every other leaf clump and the grapes are close-up detail (tier 'near'); posts, rail and hedge read from afar
+    const trunk = strut(V(x, 0, (h1 - 0.5) * 0.4), V(x + (h2 - 0.5) * 0.8, 3.0, 0), 0.3, C.vine); trunk.userData.tier = 'near'; g.add(trunk);
     const leaf = ico(1.5 + h1 * 0.35, brown ? C.leafDead : i % 3 ? C.leaf : C.leafDark, x, 3.8 + h2 * 0.4, (h1 - 0.5) * 0.3);
-    leaf.scale.set(1.9, 0.95, 0.9); g.add(leaf);
-    if (hash(i, seed + 11) < 0.5) g.add(ico(0.32, C.grape, x + (h1 - 0.5), 2.9, 0.55 * (h2 > 0.5 ? 1 : -1)));
+    leaf.scale.set(1.9, 0.95, 0.9); if (i % 2) leaf.userData.tier = 'near'; g.add(leaf);
+    if (hash(i, seed + 11) < 0.5) { const grape = ico(0.32, C.grape, x + (h1 - 0.5), 2.9, 0.55 * (h2 > 0.5 ? 1 : -1)); grape.userData.tier = 'near'; g.add(grape); }
   }
   return g;
 }
@@ -360,14 +362,19 @@ export function strahdEffigy(d: Dims): THREE.Group {
   for (let i = 0; i < 10; i++) { const a = i * 0.63 + 0.3, r0 = 16 * s, r1 = 9.4 * s; g.add(strut(V(Math.cos(a) * r0, 0.3, Math.sin(a) * r0), V(Math.cos(a + 0.35) * r1, 7 * s * (0.5 + hash(i, 2) * 0.7), Math.sin(a + 0.35) * r1), 1.2 * s, C.barkRed)); }
   return g;
 }
-/** A berserker cairn: a ten-foot mound of slimy black rocks. */
+/** A berserker cairn: a ten-foot mound of slimy black rocks. The rocks of the two lower tiers are tagged
+ *  userData.tier = 'near' (detail that only reads close up; the upper tiers keep the mound's outline from afar). */
 export function cairn(d: Dims): THREE.Group {
   const h = d.h ?? 10, r = d.r ?? 6, seed = d.seed ?? 0, g = grp();
   const tiers = [[r, 0.9], [r * 0.78, 3.2], [r * 0.55, 5.6], [r * 0.32, 7.8]] as const;
-  for (const [rr, y] of tiers) {
+  tiers.forEach(([rr, y], t) => {
     const n = Math.max(3, Math.round(rr * 1.3));
-    for (let i = 0; i < n; i++) { const a = (i / n) * Math.PI * 2 + hash(i, seed + y), k = 0.85 + hash(seed, i + y) * 0.3; const m = ico((1.25 + hash(i, y) * 0.6) * (rr / r * 0.4 + 0.6), i % 3 ? C.cairn : C.cairnWet, Math.cos(a) * rr * 0.62 * k, y * h / 10, Math.sin(a) * rr * 0.62 * k, 0); m.rotation.set(a, a * 2, 0); g.add(m); }
-  }
+    for (let i = 0; i < n; i++) {
+      const a = (i / n) * Math.PI * 2 + hash(i, seed + y), k = 0.85 + hash(seed, i + y) * 0.3;
+      const m = ico((1.25 + hash(i, y) * 0.6) * (rr / r * 0.4 + 0.6), i % 3 ? C.cairn : C.cairnWet, Math.cos(a) * rr * 0.62 * k, y * h / 10, Math.sin(a) * rr * 0.62 * k, 0);
+      m.rotation.set(a, a * 2, 0); if (t < 2) m.userData.tier = 'near'; g.add(m);
+    }
+  });
   g.add(ico(1.3, C.cairnWet, 0, h - 0.9, 0, 0));
   return g;
 }
