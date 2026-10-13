@@ -4,9 +4,10 @@
 // town → valley. Enter from a building's card flies into it inside its town; Back pulls out over it and the town takes
 // over; the breadcrumb in the title frames each scope. A dungeon under its town stands in the mist.
 import { expect, test, type Page } from '@playwright/test';
+import { quiet } from './helpers';
 
 const LONG = 600_000;
-test.beforeEach(async ({ page }) => { await page.addInitScript(() => localStorage.setItem('mistlab.helpSeen', '1')); });
+test.beforeEach(async ({ page }) => { await quiet(page); });
 
 async function open(page: Page, scene: string): Promise<void> {
   await page.goto(`/?nosw&scene=${encodeURIComponent(scene)}`, { timeout: LONG });

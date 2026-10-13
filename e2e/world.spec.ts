@@ -4,9 +4,9 @@
 // surroundings (?nested=0: buildContext); in the continuous world the village itself stands round them (nest.spec.ts).
 import { expect, test } from '@playwright/test';
 import { readFileSync } from 'node:fs';
-import { boot, diff, snap, SCENES } from './helpers';
+import { boot, diff, snap, SCENES, quiet } from './helpers';
 
-test.beforeEach(async ({ page }) => { await page.addInitScript(() => localStorage.setItem('mistlab.helpSeen', '1')); });
+test.beforeEach(async ({ page }) => { await quiet(page); });
 
 test('Death House stands in the village: the village is drawn round it and Back leads there', async ({ page }) => {
   await boot(page, '&nested=0', SCENES[1]);

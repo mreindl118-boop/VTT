@@ -909,7 +909,7 @@ export class App {
     const st = this.stage; if (!st || !this.staged) return;
     st.setParty(this.partyMark());
     st.trail = (this.state.world?.trail ?? []).slice(-12).map((t) => t.pos);
-    st.onView({ restricted: this.restricted, revealed: this.pinsRevealed });
+    st.onView({ restricted: this.playersSide, revealed: this.pinsRevealed });
     this.syncSecrets();
   }
   /** The players' side never sees a place it does not know: a map the valley holds (streamed in as the camera passed)
@@ -919,7 +919,7 @@ export class App {
     const rev = this.pinsRevealed, keep = new Set(this.cur ? [this.cur.path, ...this.chainOf(this.cur.path)] : []);
     for (const r of this.resident.values()) {
       if (r.root.parent !== this.world.root) continue; // (a building hangs in its town and goes with it)
-      const key = ATLAS.scenes[r.path]?.pin, secret = this.restricted && !!key && !rev.has(key) && !keep.has(r.path);
+      const key = ATLAS.scenes[r.path]?.pin, secret = this.playersSide && !!key && !rev.has(key) && !keep.has(r.path);
       if (!!r.root.userData.secret !== secret) { r.root.userData.secret = secret; veil(r.root, 'secret', secret); this.world.invalidate(); }
     }
   }
@@ -1544,7 +1544,7 @@ export class App {
     // the continuous world's zoom bands (a separate attribute, so the far/mid/near rules keep matching)
     const band = px < 0.02 ? 'valley' : px < 0.1 ? 'road' : px < 1 ? 'town' : 'map';
     if (document.body.dataset.band !== band) document.body.dataset.band = band;
-    if (this.staged && this.stage) { this.stage.onView({ restricted: this.restricted, revealed: this.pinsRevealed }); this.stage.setParty(this.partyMark()); }
+    if (this.staged && this.stage) { this.stage.onView({ restricted: this.playersSide, revealed: this.pinsRevealed }); this.stage.setParty(this.partyMark()); }
     this.declutter();
   }
 
@@ -1572,7 +1572,7 @@ export class App {
     const was = this.playersSide;
     this.t = t; this.applySlider();
     // Into or out of the players' preview: token names follow the players' projection (or the DM's names again).
-    if (this.cur && was !== this.playersSide) this.syncTokens();
+    if (this.cur && was !== this.playersSide) { this.syncTokens(); this.syncStage(); }
   }
   setView(v: 'dm' | 'players'): void { this.view = v; this.tool = 'none'; this.clearRuler(); this.stopPlacing(); this.select(null); if (this.cur) { this.syncTokens(); this.recompute(); } this.applySlider(); this.restyleGhosts(); this.syncStage(); this.onChange?.(); }
 

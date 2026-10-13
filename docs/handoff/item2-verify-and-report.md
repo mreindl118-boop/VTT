@@ -6,10 +6,13 @@ Owner (Matt), 2026-10-13: "finish the build step, then prepare verify and report
 
 Filled in by the cloud session when the world-map step ends. Until then: the branch head is `4f3cad9` (the world map built), its two reviewers started at 16:21 UTC on 2026-10-13, and the one fix pass follows if they find anything.
 
-- Head commit: (to fill)
-- The reviewers' findings and what the fix pass changed: (to fill)
-- Still open after the fix pass: (to fill)
-- Test counts at the head: (to fill)
+- Continuation baseline: cloud `4f3cad9`, laptop `293f150`; current main `104f4fb` merged cleanly at `27e03d41901a33e7a66358f27bee14f8e728aaa9`. Remote heads rechecked before the fix; no newer cloud fix.
+- First independent UX and regression/cost reviews: **block** retained DM card and hover-tip content after switching to Players; a stale reveal action could mutate state. **Fix** preview at t=0 retained Places controls/unknown landmarks; stale asynchronous cards reopened after dismissal or superseded a newer same-pin request; drag drop ignored the final pointer-up coordinates; Places lacked keyboard activation. Seven new browser regressions failed on the baseline before code changes.
+- One first fix pass: invalidate cards/tips by audience and campaign; identify each pending card request; recheck actions against current permissions; use the player-facing audience for landmark visibility; process release coordinates before clearing a drag; expose a semantic Places action button. Merge integration also updates nested-world test fixtures to the existing `quiet()` helper so the welcome card does not obstruct unrelated tests. Its dedicated tests remain intact. Help's version-label regression is a separate concern recorded in the collaboration ledger.
+- Journey evidence: desktop wheel-only valley -> Vallaki -> Blue Water Inn -> room distance -> valley passed without camera injection. Real iPad touch journeys passed for the Inn, Death House, and Sheep Chase tavern. Phone Sheep Chase passed; phone Inn and Death House require the final journey review to resolve gesture aiming. Both fallback sheets, campaign titles and six viewport/campaign toolbar layouts were checked. These results do not claim exhaustive inventory coverage.
+- Cost/safety: real Intel Graphics ANGLE D3D11; five additional warmed round trips stayed at 172 geometries, 5 textures, 66 programs; post-GC heap 79,697,141 -> 80,655,128 bytes (+1.20%); no non-local requests in that journey. Concurrent-load timings are provisional, not a frame-budget pass. Full measurements and known second-release limits go in the report.
+- Still open for final review: 32 inventory markers versus 28 implemented markers (M2-M5 consolidated into the Mount Baratok label); phone child entry; exhaustive inventory evidence; quiet performance timing; full browser suite; copied-text check. No claim that the cloud's earlier reviewers completed.
+- Baseline and first-fix build pass; unit suite 33 files, 514 passed, 2 skipped, 2 todo. Initial full browser baseline was interrupted after the welcome-card obstruction was identified in nested specs. CI 38437615945 is now complete: 173 passed, 55 skipped, 2 failed (Books version label and rules-grappling reader). Untouched-main local comparison reproduced the version-label failure; the reader case passed. Final counts are pending.
 
 ## 2. What you are continuing
 

@@ -47,6 +47,8 @@ export class NestedWorldMap {
   private keyAudience = '';
   private folded = false;
   private shownBar = false;
+  private audience = '';
+  private campaign = '';
 
   constructor(private h: NestHost) {
     const { ui, app } = h;
@@ -76,19 +78,19 @@ export class NestedWorldMap {
       if (t.closest('[data-nest-close]')) this.leave();
     });
     this.key.addEventListener('click', (e) => {
-      const t = e.target as HTMLElement, li = t.closest<HTMLElement>('li'); const p = li && this.pin(li.dataset.key!); if (!p) return;
-      if (t.closest('[data-reveal]')) { app.revealPin(p.key, !app.pinsRevealed.has(p.key)); this.refresh(); return; }
+      const t = e.target as HTMLElement, li = t.closest<HTMLElement>('li'); const p = li && this.pin(li.dataset.key!); if (!p || !this.shown(p)) return;
+      if (t.closest('[data-reveal]')) { if (app.playersSide) return; app.revealPin(p.key, !app.pinsRevealed.has(p.key)); this.refresh(); return; }
       this.flyToPin(p); void this.showCard(p, p.pos as P, dist(this.at(), p.pos as P));
     });
     this.card.addEventListener('click', (e) => {
       const t = e.target as HTMLElement, s = t.closest<HTMLElement>('[data-scene]')?.dataset.scene;
-      if (s) { this.card.hidden = true; this.h.enter(s); return; }
+      if (s) { if (app.restricted || this.card.hidden || !this.cardFor?.pin || !this.shown(this.cardFor.pin) || !this.cardFor.pin.scenes?.includes(s)) return; this.closeCard(); this.h.enter(s); return; }
       const rv = t.closest<HTMLElement>('[data-reveal]');
-      if (rv) { const p = this.pin(rv.dataset.reveal!); if (p) { app.revealPin(p.key, !app.pinsRevealed.has(p.key)); this.refresh(); void this.showCard(p, p.pos as P, dist(this.at(), p.pos as P)); } }
+      if (rv) { if (app.playersSide || this.card.hidden) return; const p = this.pin(rv.dataset.reveal!); if (p && p === this.cardFor?.pin) { app.revealPin(p.key, !app.pinsRevealed.has(p.key)); this.refresh(); void this.showCard(p, p.pos as P, dist(this.at(), p.pos as P)); } }
     });
     addEventListener('keydown', (e) => {
       if (e.key !== 'Escape' || document.querySelector('.sheet-backdrop, details.menu[open]')) return;
-      if (!this.card.hidden) { this.card.hidden = true; this.cardFor = null; return; }
+      if (!this.card.hidden) { this.closeCard(); return; }
       if (!this.key.hidden) { this.toggleKey(false); return; }
       if (this.shownBar) this.leave();
     });
@@ -119,7 +121,9 @@ export class NestedWorldMap {
   private pin(key: string): Pin | undefined { return worldPins().find((p) => p.key === key); }
   /** Where the party stands (miles), or the first place with a map. */
   private at(): P { const w = this.h.app.state.world; return (w?.pos ?? (worldPins().find((p) => p.scenes?.length) ?? worldPins()[0]).pos) as P; }
-  private shown(p: Pin): boolean { return !this.h.app.restricted || this.h.app.pinsRevealed.has(p.key); }
+  private shown(p: Pin): boolean { return !this.h.app.playersSide || this.h.app.pinsRevealed.has(p.key); }
+  private audienceKey(): string { const a = this.h.app; return `${a.campaign.id}|${a.playersSide}|${a.restricted}|${[...a.pinsRevealed].sort().join()}`; }
+  private closeCard(): void { this.card.hidden = true; this.cardFor = null; this.card.replaceChildren(); }
 
   /** The World map button: fly out to the whole region, straight down with north up, with the bar. False when the
    *  open map is not in the valley (a legacy map): the caller opens the flat sheet. */
@@ -133,7 +137,7 @@ export class NestedWorldMap {
   /** Back to the open map (Escape, the bar's close). */
   leave(): void {
     const a = this.h.app;
-    this.card.hidden = true; this.cardFor = null; this.toggleKey(false); this.tip.hidden = true;
+    this.closeCard(); this.toggleKey(false); this.tip.hidden = true; this.tip.replaceChildren();
     if (a.cur) a.frameLevel(a.camPreset, true);
   }
   setHex(on: boolean): void {
@@ -165,9 +169,20 @@ export class NestedWorldMap {
     // the minimap folds to its clock while the whole region is in view, and comes back nearer in
     const fold = !!st && (this.folded ? fit >= 0.6 : fit >= 0.75);
     if (fold !== this.folded) { this.folded = fold; document.querySelector('.minimap')?.classList.toggle('folded', fold); }
-    const aud = `${a.campaign.id}|${a.restricted}|${[...a.pinsRevealed].sort().join()}`;
+    const aud = this.audienceKey();
+    if (aud !== this.audience) {
+      const changedCampaign = this.campaign !== '' && this.campaign !== a.campaign.id;
+      this.audience = aud; this.campaign = a.campaign.id;
+      this.tip.hidden = true; this.tip.replaceChildren();
+      const card = this.cardFor;
+      if (card) {
+        if (changedCampaign || !st || (card.pin && !this.shown(card.pin))) this.closeCard();
+        else void this.showCard(card.pin, card.to, card.miles);
+      }
+      if (this.drag && (changedCampaign || !this.canDrag())) { this.drag = null; a.world.controls.enabled = true; a.syncStage(); }
+    }
     if (!this.key.hidden && (aud !== this.keyAudience || this.keyCampaign !== a.campaign.id)) this.renderKey();
-    if (this.cardFor?.pin && !this.shown(this.cardFor.pin)) { this.card.hidden = true; this.cardFor = null; }
+    if (!st && this.cardFor) this.closeCard();
     const party = st ? document.querySelector<HTMLElement>('.lbl.world-party') : null;
     if (party) { const t = a.restricted ? 'The party' : 'The party · drag to travel'; if (party.title !== t) { party.title = t; party.setAttribute('aria-label', t); } party.classList.toggle('movable', this.canDrag()); }
   }
@@ -175,9 +190,9 @@ export class NestedWorldMap {
   /** The Places list: one row per place the side knows (a name lettered twice lists once). */
   private renderKey(): void {
     const a = this.h.app, ol = this.key.querySelector('ol')!, dm = !a.playersSide, rev = a.pinsRevealed, pins = worldPins();
-    this.keyCampaign = a.campaign.id; this.keyAudience = `${a.campaign.id}|${a.restricted}|${[...rev].sort().join()}`;
+    this.keyCampaign = a.campaign.id; this.keyAudience = this.audienceKey();
     ol.innerHTML = pins.filter((p) => this.shown(p) && !pins.some((q) => q !== p && q.name === p.name && q.key < p.key && this.shown(q)))
-      .map((p) => `<li data-key="${esc(p.key)}" class="${rev.has(p.key) ? 'revealed' : ''}"><b>${esc(keyOf(p))}</b><span>${esc(p.name)}</span>${p.scenes?.length ? '<i>map</i>' : ''}${dm ? `<button class="icon eye" data-reveal="${esc(p.key)}" aria-pressed="${rev.has(p.key)}" aria-label="Reveal to players" data-tip="Reveal to players">${ICON.eye}</button>` : ''}</li>`).join('');
+      .map((p) => `<li data-key="${esc(p.key)}" class="${rev.has(p.key) ? 'revealed' : ''}"><button type="button" class="place-action" aria-label="${esc(p.name)}"><b>${esc(keyOf(p))}</b><span>${esc(p.name)}</span>${p.scenes?.length ? '<i>map</i>' : ''}</button>${dm ? `<button class="icon eye" data-reveal="${esc(p.key)}" aria-pressed="${rev.has(p.key)}" aria-label="Reveal to players" data-tip="Reveal to players">${ICON.eye}</button>` : ''}</li>`).join('');
   }
 
   /** Fly to frame a place at road zoom (the land still the map, its symbol and the roads round it). */
@@ -206,15 +221,18 @@ export class NestedWorldMap {
     this.tip.hidden = true;
     const a = this.h.app, n = p.scenes?.length ?? 0;
     if (a.restricted) { void this.showCard(p, p.pos as P, dist(this.at(), p.pos as P)); return true; }
-    if (n !== 1) void this.showCard(p, p.pos as P, dist(this.at(), p.pos as P)); else { this.card.hidden = true; this.cardFor = null; }
+    if (n !== 1) void this.showCard(p, p.pos as P, dist(this.at(), p.pos as P)); else this.closeCard();
     return !path; // with a map: let the app fly there and open it
   }
   private cardFor: { pin: Pin | undefined; to: P; miles: number } | null = null;
   async showCard(pin: Pin | undefined, to: P, miles: number): Promise<void> {
     const a = this.h.app;
-    this.cardFor = { pin, to, miles };
+    if (!this.stage || (pin && !this.shown(pin))) { this.closeCard(); return; }
+    const request = { pin, to, miles }, campaign = a.campaign.id;
+    this.cardFor = request;
+    this.card.hidden = true; this.card.replaceChildren();
     const labels = await Promise.all((pin?.scenes ?? []).map((s) => this.h.sceneName(s).catch(() => s)));
-    if (this.cardFor?.pin !== pin) return;
+    if (this.cardFor !== request || campaign !== a.campaign.id || !this.stage || (pin && !this.shown(pin))) return;
     this.card.innerHTML = worldCardHtml(pin, to, miles, { dm: !a.playersSide, revealed: pin ? a.pinsRevealed.has(pin.key) : false, pace: this.pace, canOpen: !a.restricted, labels });
     this.card.hidden = false;
   }
@@ -237,7 +255,7 @@ export class NestedWorldMap {
     this.drag = { id: e.pointerId, from, to: from, dx: an ? an.x - e.clientX : 0, dy: an ? an.y - e.clientY : 0 };
     this.h.app.world.controls.enabled = false;
     const el = this.h.app.world.renderer.domElement; el.setPointerCapture(e.pointerId);
-    this.tip.hidden = true; this.card.hidden = true; this.cardFor = null;
+    this.tip.hidden = true; this.closeCard();
   }
   /** The place the party would snap to at a page point: within 22 px of its mark, or a third of a mile of it. */
   private snapAt(x: number, y: number, miles: P | null): Pin | undefined {
@@ -263,11 +281,13 @@ export class NestedWorldMap {
     this.h.app.world.invalidate();
   }
   private drop(e: PointerEvent): void {
-    const a = this.h.app, d = this.drag!; this.drag = null;
+    const a = this.h.app, d = this.drag!;
+    if (this.canDrag()) this.dragTo(e);
+    this.drag = null;
     a.world.controls.enabled = true;
     try { a.world.renderer.domElement.releasePointerCapture(e.pointerId); } catch { /* released */ }
     document.querySelector('.lbl.world-party')?.classList.remove('snap');
-    this.dragTo(e); this.drag = null;
+    if (!this.canDrag()) { a.syncStage(); return; }
     const miles = dist(d.from, d.to);
     if (miles < 0.05) { a.syncStage(); return; }
     a.moveWorld(d.to, d.key, miles);

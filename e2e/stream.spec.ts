@@ -2,9 +2,9 @@
 // range resources) and 11 (atomic location navigation), then the nested world's step 3, streaming: zooming in on a
 // place loads its map in place, the camera's target picks the active map, zooming out folds and unloads.
 import { expect, test, type Page, type Route } from '@playwright/test';
-import { boot, diff, snap, SCENES } from './helpers';
+import { boot, diff, snap, SCENES, quiet } from './helpers';
 
-test.beforeEach(async ({ page }) => { await page.addInitScript(() => localStorage.setItem('mistlab.helpSeen', '1')); });
+test.beforeEach(async ({ page }) => { await quiet(page); });
 
 /** GPU objects the renderer holds, after a frame. */
 const mem = (page: Page) => page.evaluate(() => {

@@ -3,9 +3,9 @@
 // players' side never sees the symbol, proxy, label or painted mark of a place it does not know, on the nested map and
 // on the flat sheet (the land, rivers, roads and mountains stay). The two A4 tests failed on the build before the fix.
 import { expect, test, type Page } from '@playwright/test';
-import { boot, SCENES } from './helpers';
+import { boot, SCENES, quiet } from './helpers';
 
-test.beforeEach(async ({ page }) => { await page.addInitScript(() => localStorage.setItem('mistlab.helpSeen', '1')); });
+test.beforeEach(async ({ page }) => { await quiet(page); });
 
 const VILLAGE = { ...SCENES[1], scene: 'ch03/E', level: 'village', spawn: [185, 309] as [number, number] };
 const settle = (page: Page) => page.waitForFunction(() => !(window as any).__mistlab.app.world.flying, undefined, { timeout: 60_000 });

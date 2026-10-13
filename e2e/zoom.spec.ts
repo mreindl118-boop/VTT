@@ -5,6 +5,7 @@
 // the continuous world a building opens inside its town and zooming out climbs to it (nest.spec.ts). Card Enter with
 // Back, and Players mode, run both ways.
 import { expect, test, type Page } from '@playwright/test';
+import { quiet } from './helpers';
 
 // Vallaki is a town a mile and a half across; a busy software renderer can take minutes to build and draw it.
 const LONG = 20 * 60_000;
@@ -16,7 +17,7 @@ const DEVICES = [
 type Pt = [number, number];
 type Cam = { path: string; level: string; target: [number, number, number]; dist: number; az: number; max: number };
 
-test.beforeEach(async ({ page }) => { await page.addInitScript(() => localStorage.setItem('mistlab.helpSeen', '1')); });
+test.beforeEach(async ({ page }) => { await quiet(page); });
 
 /** Wait until a scene is open and the camera has stopped gliding. */
 async function opened(page: Page, scene: string): Promise<void> {
