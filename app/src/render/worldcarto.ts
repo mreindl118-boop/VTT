@@ -169,7 +169,6 @@ uniform int uLakeN;
 uniform vec3 cPaper, cPaper2, cInk, cForest, cForest2, cHill, cRock, cSnow, cWater, cWaterInk, cMist, cMeadow, cMeadow2, cDeckle;
 varying vec3 vCartoW;
 varying float vCartoDepth;
-varying vec3 vCartoN;
 `;
 
 const FUNCS = /* glsl */ `
@@ -284,7 +283,7 @@ vec3 cartoLand(vec3 col3d) {
   // it, so the survey's rim never draws as contoured walls)
   float out_ = max(max(uRegion.x - p.x, p.x - uRegion.z), max(uRegion.y - p.y, p.y - uRegion.w));
   float outD = out_ + (texture(tGrain, p / 1900.0).r - 0.5) * 0.12 * 5280.0;
-  float reliefMask = uPastoral > 0.5 ? 1.0 - smoothstep(-0.35 * 5280.0, -0.25 * 5280.0, out_) : 1.0 - smoothstep(-600.0, 400.0, out_);
+  float reliefMask = uPastoral > 0.5 ? 1.0 - smoothstep(-0.7 * 5280.0, -0.45 * 5280.0, out_) : 1.0 - smoothstep(-600.0, 400.0, out_);
   // L1 paper, L2 cover and height
   vec3 c = mix(cPaper, cPaper2, smoothstep(0.35, 0.75, big) * 0.55) * (0.95 + 0.1 * grain);
   c = mix(c, cHill, C.g * 0.5);
@@ -374,40 +373,29 @@ vec3 cartoLand(vec3 col3d) {
   }
   return mix(col3d, c, uCarto);
 }
-// massing (proxies, crags): pale blocks with ink shadow sides, lit from the NW
-vec3 cartoObject(vec3 col3d) {
-  if (uCarto <= 0.001) return col3d;
-  vec3 Ld = normalize(vec3(-0.6, 0.75, -0.6));
-  float lam = clamp(dot(normalize(vCartoN), Ld), 0.0, 1.0);
-  float l = dot(col3d, vec3(0.299, 0.587, 0.114));
-  vec3 c = mix(cInk, mix(cPaper, cPaper2, 0.3), smoothstep(0.1, 0.85, lam));
-  c = mix(c, c * (0.75 + 0.6 * l), 0.4);
-  return mix(col3d, c, uCarto);
-}
 `;
 
-/** Make a stage material draw the inked map as the camera climbs: 'land' paints the whole map at its absolute
- *  position (the land, the aprons, the lakes); 'object' turns massing into pale blocks with ink shadow sides. Chains
- *  after patchFog when the material has it. */
-export function patchCarto<T extends THREE.Material>(m: T, u: CartoUniforms, mode: 'land' | 'object', style: CartoStyleId): T {
+/** Make a stage material (the land, the aprons, the lakes) paint the inked map at its absolute position as the camera
+ *  climbs. Chains after patchFog when the material has it. (Massing is not painted here: it is washed toward the map's
+ *  ink and paper like the maps, materials.ts.) */
+export function patchCarto<T extends THREE.Material>(m: T, u: CartoUniforms, style: CartoStyleId): T {
   if (m.userData.carto) return m;
-  m.userData.carto = mode;
+  m.userData.carto = 'land';
   const prev = m.onBeforeCompile, prevKey = m.customProgramCacheKey;
   m.onBeforeCompile = (sh, r) => {
     prev.call(m, sh, r);
     Object.assign(sh.uniforms, u);
     sh.uniforms.uCartoWash = { value: 0 }; // the stage paints itself; only the maps are washed
-    const nrm = sh.vertexShader.includes('objectNormal') ? 'normalize(mat3(modelMatrix) * objectNormal)' : 'vec3(0.0, 1.0, 0.0)';
-    sh.vertexShader = 'varying vec3 vCartoW;\nvarying float vCartoDepth;\nvarying vec3 vCartoN;\n' + sh.vertexShader.replace('#include <project_vertex>',
-      `#include <project_vertex>\n vCartoW = (modelMatrix * vec4(transformed, 1.0)).xyz; vCartoDepth = -mvPosition.z; vCartoN = ${nrm};`);
-    const call = mode === 'land' ? 'cartoLand' : 'cartoObject';
+    sh.vertexShader = 'varying vec3 vCartoW;\nvarying float vCartoDepth;\n' + sh.vertexShader.replace('#include <project_vertex>',
+      '#include <project_vertex>\n vCartoW = (modelMatrix * vec4(transformed, 1.0)).xyz; vCartoDepth = -mvPosition.z;');
+    const call = 'cartoLand';
     sh.fragmentShader = DECL + FUNCS + sh.fragmentShader;
     const hook = 'gl_FragColor.rgb = mistApply(gl_FragColor.rgb);';
     sh.fragmentShader = sh.fragmentShader.includes(hook)
       ? sh.fragmentShader.replace(hook, `${hook}\n gl_FragColor.rgb = ${call}(gl_FragColor.rgb);`)
       : sh.fragmentShader.replace('#include <opaque_fragment>', `#include <opaque_fragment>\n gl_FragColor.rgb = ${call}(gl_FragColor.rgb);`);
   };
-  m.customProgramCacheKey = () => `${prevKey.call(m)}|carto-${mode}-${style}`;
+  m.customProgramCacheKey = () => `${prevKey.call(m)}|carto-land-${style}`;
   m.needsUpdate = true;
   return m;
 }
@@ -418,7 +406,8 @@ const INK_VERT = /* glsl */ `
 #include <common>
 #include <logdepthbuf_pars_vertex>
 attribute vec3 aDir;   // the offset direction (x, z) and the side (±1)
-attribute vec4 aInfo;  // kind (0 road, 1 trail, 2 river), t along a river (0 source … 1 mouth), arc length (ft), true half width (ft)
+attribute vec4 aInfo;  // kind (0 road, 1 trail, 2 river, 3 a bridge's tick), t along a river (0 source … 1 mouth; a tick: its offset
+                       // across the road, px), arc length (ft; a tick: its end, ±1), true half width (ft)
 uniform float uPxK;
 varying float vSide, vU, vKind, vT, vFpp;
 varying vec3 vW;
@@ -426,10 +415,16 @@ void main() {
   vec4 wc = modelMatrix * vec4(position, 1.0);
   float fpp = max(1.0, -(viewMatrix * wc).z) * uPxK;
   float kind = aInfo.x, t = aInfo.y;
-  float wpx = kind < 0.5 ? 3.4 : kind < 1.5 ? 2.4 : mix(2.0, 5.0, pow(t, 0.7));
-  float hw = max(aInfo.w, 0.5 * wpx * fpp);
-  wc.xz += aDir.xy * aDir.z * hw;
-  wc.y += 2.0 + 0.6 * hw;
+  if (kind > 2.5) {
+    // a bridge: two ticks 4 px long and 1 px wide either side of the road, held in screen pixels like the road
+    wc.xz += aDir.xy * (t + aDir.z * 0.5) * fpp + vec2(aDir.y, -aDir.x) * aInfo.z * 2.0 * fpp;
+  } else {
+    float wpx = kind < 0.5 ? 3.4 : kind < 1.5 ? 2.4 : mix(2.0, 5.0, pow(t, 0.7));
+    float hw = max(aInfo.w, 0.5 * wpx * fpp);
+    wc.xz += aDir.xy * aDir.z * hw;
+    wc.y += 0.6 * hw;
+  }
+  wc.y += 2.0;
   vSide = aDir.z; vU = aInfo.z; vKind = kind; vT = t; vFpp = fpp; vW = wc.xyz;
   gl_Position = projectionMatrix * viewMatrix * wc;
   #include <logdepthbuf_vertex>
@@ -453,9 +448,11 @@ void main() {
   for (int i = 0; i < ${MAX_LAKES}; i++) { if (i >= uLakeN) break; vec4 L = uLakes[i]; vec2 d = (p - L.xy) / L.zw; float rho = max(length(d), 1e-4); sd = min(sd, (rho - 1.0) / max(length(d / (L.zw * rho)), 1e-9)); }
   float s = abs(vSide), aa = fwidth(vSide) * 1.2;
   vec3 c; float a;
-  if (vKind < 0.5) { c = mix(cRoad, cRoadCase, smoothstep(0.42 - aa, 0.42 + aa, s)); a = 1.0 - smoothstep(1.0 - aa, 1.0, s); }
+  if (vKind > 2.5) { c = cRoadCase; a = 1.0; }
+  else if (vKind < 0.5) { c = mix(cRoad, cRoadCase, smoothstep(0.42 - aa, 0.42 + aa, s)); a = 1.0 - smoothstep(1.0 - aa, 1.0, s); }
   else if (vKind < 1.5) { float ph = fract(vU / (vFpp * 6.0)) - 0.5; float d = length(vec2(ph * 6.0 / 1.2, vSide)); c = cRoadCase; a = 1.0 - smoothstep(0.75, 1.05, d); }
   else { c = mix(mix(cWater, cWaterInk, 0.35), cWaterInk, smoothstep(0.7 - aa, 0.7 + aa, s)); a = (1.0 - smoothstep(1.0 - aa, 1.0, s)) * step(0.0, sd); }
+  // (a tick has no across-coordinate of its own: it is drawn whole)
   // inside a placed map's ground the town's own streets carry on: no ink over them until the map is mostly paper
   if (uCarto < 0.6 && texture2D(tLand, (p - uOrigin) / uSize).a > 0.5) discard;
   if (a * uCarto < 0.004) discard;
@@ -463,7 +460,7 @@ void main() {
   #include <colorspace_fragment>
 }`;
 
-type InkPath = { pts: Vec2[]; kind: 0 | 1 | 2; halfFt: number };
+type InkPath = { pts: Vec2[]; kind: 0 | 1 | 2; halfFt: number; coarse: Vec2[] };
 
 /** Roads, trails and rivers from the world data as one ribbon mesh whose width is held in screen pixels. */
 export function buildInk(field: LandField, u: CartoUniforms): THREE.Mesh {
@@ -478,8 +475,8 @@ export function buildInk(field: LandField, u: CartoUniforms): THREE.Mesh {
     for (let i = 0; i < pts.length; i++) { if (i) { const a = pts[i - 1], b = pts[i], n = Math.max(1, Math.ceil(Math.hypot(b[0] - a[0], b[1] - a[1]) / step)); for (let k = 1; k < n; k++) out.push([a[0] + ((b[0] - a[0]) * k) / n, a[1] + ((b[1] - a[1]) * k) / n]); } out.push(pts[i]); }
     return out;
   };
-  for (const r of W.roads) { const trail = r.kind === 'trail' || /path|trail|track/i.test(r.name); paths.push({ pts: densify(chaikin(r.pts.map((p) => field.feet(p)))), kind: trail ? 1 : 0, halfFt: trail ? 4.5 : 8 }); }
-  for (const r of W.rivers) paths.push({ pts: densify(chaikin(r.pts.map((p) => field.feet(p)))), kind: 2, halfFt: 20 });
+  for (const r of W.roads) { const trail = r.kind === 'trail' || /path|trail|track/i.test(r.name), c = chaikin(r.pts.map((p) => field.feet(p))); paths.push({ pts: densify(c), coarse: c, kind: trail ? 1 : 0, halfFt: trail ? 4.5 : 8 }); }
+  for (const r of W.rivers) { const c = chaikin(r.pts.map((p) => field.feet(p))); paths.push({ pts: densify(c), coarse: c, kind: 2, halfFt: 20 }); }
   const P: number[] = [], D: number[] = [], I: number[] = [], idx: number[] = [];
   for (const r of paths) {
     const n = r.pts.length; if (n < 2) continue;
@@ -491,6 +488,26 @@ export function buildInk(field: LandField, u: CartoUniforms): THREE.Mesh {
       for (const side of [1, -1]) { P.push(x, y, z); D.push(-dz / L, dx / L, side); I.push(r.kind, lens[i] / Math.max(1, s), lens[i], r.halfFt); }
     }
     for (let i = 0; i + 1 < n; i++) { const a = v0 + i * 2; idx.push(a, a + 2, a + 1, a + 1, a + 2, a + 3); }
+  }
+  // bridges: where a road (not a trail) crosses a river, two ticks either side of the road
+  const cross = (a: Vec2, b: Vec2, c: Vec2, d: Vec2): Vec2 | null => {
+    const r = [b[0] - a[0], b[1] - a[1]], q = [d[0] - c[0], d[1] - c[1]], den = r[0] * q[1] - r[1] * q[0]; if (Math.abs(den) < 1e-9) return null;
+    const t = ((c[0] - a[0]) * q[1] - (c[1] - a[1]) * q[0]) / den, v = ((c[0] - a[0]) * r[1] - (c[1] - a[1]) * r[0]) / den;
+    return t >= 0 && t <= 1 && v >= 0 && v <= 1 ? [a[0] + r[0] * t, a[1] + r[1] * t] : null;
+  };
+  const bridges: { at: Vec2; dir: Vec2 }[] = [];
+  for (const rd of paths.filter((x) => x.kind === 0)) for (const rv of paths.filter((x) => x.kind === 2)) {
+    const a = rd.coarse, b = rv.coarse;
+    for (let i = 0; i + 1 < a.length; i++) for (let j = 0; j + 1 < b.length; j++) {
+      const x = cross(a[i], a[i + 1], b[j], b[j + 1]); if (!x || bridges.some((q) => Math.hypot(q.at[0] - x[0], q.at[1] - x[1]) < 400)) continue;
+      const dx = a[i + 1][0] - a[i][0], dz = a[i + 1][1] - a[i][1], L = Math.hypot(dx, dz) || 1;
+      bridges.push({ at: x, dir: [dx / L, dz / L] });
+    }
+  }
+  for (const b of bridges) for (const off of [-2.7, 2.7]) {
+    const v0 = P.length / 3, y = field.height(b.at[0], b.at[1]);
+    for (const [end, side] of [[-1, 1], [-1, -1], [1, 1], [1, -1]]) { P.push(b.at[0], y, b.at[1]); D.push(-b.dir[1], b.dir[0], side); I.push(3, off, end, 0); }
+    idx.push(v0, v0 + 2, v0 + 1, v0 + 1, v0 + 2, v0 + 3);
   }
   const g = new THREE.BufferGeometry();
   g.setAttribute('position', new THREE.Float32BufferAttribute(P, 3)); g.setAttribute('aDir', new THREE.Float32BufferAttribute(D, 3)); g.setAttribute('aInfo', new THREE.Float32BufferAttribute(I, 4));

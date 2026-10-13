@@ -90,7 +90,8 @@ export class CartoLetters {
     // the safe part of the view: clear of the top bar, the bottom toolbar and the side slider, 16 px from the left
     const host = (this.frame.parentElement ?? document.body).getBoundingClientRect();
     let top = 8, bottom = host.height - 8, left = 16, right = host.width - 8;
-    for (const q of chrome.bars) {
+    const bar = document.querySelector('.nestbar:not([hidden])')?.getBoundingClientRect();
+    for (const q of bar?.width ? [...chrome.bars, bar] : chrome.bars) {
       const y0 = q.top - host.top, y1 = q.bottom - host.top, x0 = q.left - host.left, x1 = q.right - host.left;
       if (x1 <= 0 || y1 <= 0 || x0 >= host.width || y0 >= host.height) continue;
       if (q.width >= q.height) { if (y0 < host.height - y1) top = Math.max(top, y1 + 8); else bottom = Math.min(bottom, y0 - 8); }

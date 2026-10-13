@@ -9,7 +9,8 @@ the budgets and the fallback. It grows with the build steps; today it covers **s
 streaming** (maps built in place as the camera nears them, ghosts, activation by the camera, folding and freeing), with
 the two review findings it rests on (everything that leaves is freed; opening a map is one step), and **step 4:
 nesting** (buildings, area maps and dungeons in place inside their towns, the depth deciding the active map, Back and
-the breadcrumb).
+the breadcrumb), and **the world map** (the valley drawn from high up as an inked D&D map, the World map button's own
+view, and what the players may see of it).
 
 ## Frames (`app/src/core/frames.ts`, pure, unit-tested in `tests/frames.test.ts`)
 
@@ -133,8 +134,8 @@ area maps and buildings hang in their towns (see Nesting).
 
 **Camera.** `WorldStage.fit` frames the whole valley by projection, not a bounding sphere: the region's edges at the
 land's height, its peaks and its places must all fall inside the view less the bars along its edges (the top bar, the
-camera buttons, the side slider: `World.chrome().bars`, set by main.ts), 10 px in, from the camera's present heading
-and tilt; the target slides so the valley sits in the middle of that clear part. `fitCamera` makes that distance the
+camera buttons, the side slider: `World.chrome().bars`, set by main.ts), 10 px in, looking straight down
+with north up (as the world map: see The world map); the target slides so the valley sits in the middle of that clear part. `fitCamera` makes that distance the
 far limit (about 126,000 ft at 1440 × 900, 152,000 on a 1024 × 768 iPad, 522,000 on a 390 × 844 phone, where the
 valley fits its width beside the slider; never under 120,000) and puts the far plane past the far side. Off the open
 map the camera's target rides on the ground (`App.followGround`: a pan onto Mount Baratok lifts it onto the mountain,
@@ -163,10 +164,8 @@ never runs out over the valley, and it fades out as a foot drops under 0.6 px (`
 bands), so a town seen from the road is not netted with its 500-ft squares; the legacy way keeps every order at every
 zoom.
 
-Known for later steps: the minimap still shows the open map's plan at valley zoom (step 6), the world map button still
-opens the 2D sheet (step 6 makes it the nested map; the sheet stays as the fallback). On a portrait phone the whole
-valley is small (it is twice as wide as it is deep), and A Wild Sheep Chase's skirt shows as a pale slope round it in
-that theme's light mist.
+Known for later steps: on a portrait phone the whole valley is small (it is twice as wide as it is deep). (The world
+map button and the minimap at the whole valley: see The world map.)
 
 ## Freeing and opening (review findings 9 and 11)
 
@@ -391,6 +390,83 @@ programs against 141, 249 k and 51 for the inn alone the legacy way; step 7 budg
 its proxy while a building is active, on low tiers). The Player Display mirrors the DM's camera into a building but
 keeps the town as its active map and its party token there; following the party into nested children is step 5.
 
+## The world map (the inked map)
+
+The World map button no longer opens a separate picture: it flies out over the valley itself, straight down with north
+up, and the land is drawn there as a hand-inked D&D map of the region, which turns into the realistic 3-D world as the
+camera comes down. Every feature of the flat sheet (ui/worldmap.ts) has its place round it (ui/worldnest.ts). The flat
+sheet stays as the fallback: View › Continuous world off, `?nested=0`, or a map that does not stand in the valley.
+
+**One drawing, two readings** (render/worldcarto.ts). The map is computed in the land's own shader (`patchCarto`, after
+the mist) from the same `LandField` the 3-D land stands on, baked once to a texture at 1/32 mile (height and its slope
+as half floats, the placed maps' clearings; the cover classes as bytes), so the contours, hachures and water lie exactly
+on the 3-D hills and lakes. The bake runs a few milliseconds a frame after the stage is built; the map stays off until
+it is in (`WorldStage.cartoReady()`). Layers, in order: paper and a grain snapped to powers of two (it never swims),
+the cover's tints (hills, rock, snow over 4,200 ft in Barovia, 3,800 in the Sheep Chase; pasture on the Sheep Chase's
+open lowland), a north-west hillshade, the forest's shadow on open ground, hachures down the fall line combed darker just
+under each contour, contours (500 ft at the whole region, 250 and 125 closer in, the finer set fading as it crowds;
+index lines every 1,000 ft in Barovia, 500 in the Sheep Chase), the hex grid on open ground and water, the canopy as two
+staggered lattices of lit crowns, the Sheep Chase's broadleaf trees and hill marks (drawn in the shader, no texture),
+the lakes from their ellipses (wash, casing, shore ink, ripples widening toward the middle), and the region's edge (a
+mist edge in Barovia; a deckled sheet in the Sheep Chase, its relief stopping short of the survey's rim). Roads, trails
+and rivers are one ribbon mesh whose width is held in screen pixels (`buildInk`: a cased road, a beaded trail, a river
+widening from its source, two ticks for a bridge where a road crosses a river; none over a placed map's own streets until the map is mostly paper). The loaded maps and the
+massing (the proxies, detailed or plain, and the crags) are washed alike toward the map's ink and paper, lit from the
+north-west (`uCartoWash` in materials.ts; a map's grid steps aside), so a place's proxy and its map still look the same
+at the hand-over. Palettes: gothic for Barovia, pastoral for the Sheep Chase; the
+map is a page and does not follow the clock.
+
+**The blend is a pure function of the camera** (`cartoBands`): feet per CSS pixel at the target decides the map's
+strength `k`, 1 at or above 24 ft/px and 0 at or below 5, smooth in the log between; `fit` is the view's ground width
+over the region's. Each screen computes its own (the Player Display too). Over the same band the 3-D partners fade by
+dithering (`alphaHash`: the pines, the 3-D ribbons, the crags' mist), the mist thins with `1 − k`, and a placed map's open
+ground steps aside under the paper at `k ≥ 0.5`. At `k = 0` every shader returns at its first branch: close in, the
+world draws as before. The camera: at the whole region (from 25,000 ft, or once the view holds most of the region) it
+looks straight down; coming down, a floor on the pitch brings the tilt back between 20,000 and 9,000 ft, so the tabletop
+view returns as the realistic world takes over; under 9,000 ft it may look straight down again. `frameWorld(…, true)`
+fits the region into the part of the view the bars leave clear, straight down, north up.
+
+**Lettering and the frame** (render/worldletters.ts, render/worldglyphs.ts, styles.css). Each place's label cross-fades
+from the app's chip (close in) to the map's pin over `k` 0.45 → 0.57: a symbol of our own (inline SVG in the label: a
+town's church and houses, a village, the winery's vines, a castle, Castle Ravenloft on its rock pillar, a tower, the
+temple's columns, ruins, the camp's tents, the mill, a gate, the den), a keyed disc (a candle ring when it has a map;
+dashed for the DM when the players do not know it) and the name in Alegreya italic. The land's own names (woods, lakes,
+rivers, peaks) are lettered in Alegreya and Alegreya SC; a name a shown place carries close by is not lettered twice.
+At the whole region the sheet carries its title (Grenze Gotisch for Barovia, Fraunces on a scroll for the Sheep Chase)
+with its scale note, a rose that turns with the camera and a vignette, inside the part of the view the bars leave clear.
+The scale bar counts miles (¼, ½, 1, 2, 3, 5, 10) in alternating ink and paper while the map is drawn. Every face is a
+bundled woff2 (app/public/fonts); nothing is fetched. On the Player Display everything is scaled by
+`--pd = max(1.25, 1.6 × height / 1080)`.
+
+**Round the map** (ui/worldnest.ts, the DM's screen). The bar under the top bar, while the view holds at least a third of
+the region's width: the world's name and scale, the travel pace (remembered), the hex grid (one setting,
+`mistlab.worldHex`, with the flat sheet's button; on unless switched off), Places, zoom in and out, and back to the open
+map (Escape does the same, after closing the card and Places). Places lists each place once (Mount Baratok's five marks
+are one row), with the DM's reveal eye; a row flies there at road zoom and shows its card. A hover shows the place's tip
+(the DM's: the note, whether the players know it, what a tap does). A tap flies into the place's map, as before; a
+place with several maps (the village: the village, the church, Death House) or none shows its card too, with an Open
+button per map, the distance from the party and the time at the pace. The players' tap shows the card with the blurb
+alone. The party's `&` (shown on the land, and over the party's token while the map is drawn) is dragged over the land
+by the DM: it snaps to a place within 22 px of its disc or a third of a mile; dropped elsewhere it marks the wilderness
+and the card names the nearest place. The last 12 moves are a dashed line on the land on both screens. The minimap folds
+to its clock while the view holds three quarters of the region (a view state: it comes back below 60 %).
+
+**What the players see (review finding 13, approval A4).** The players' side (Players view and the Player Display)
+never sees the symbol, proxy, label or painted mark of a place it does not know. An unrevealed place has no label element
+at all on their side (no name, no symbol, no tip to find in the page), its proxy is not drawn (`WorldStage.setSecret`),
+and a map the valley streamed in for it is veiled for them (`App.syncSecrets`) unless it is the open map or one it stands
+in. On the flat sheet its painted symbol is left out of the players' paint. The land, the forest and its clearings, the
+water, the roads, the rivers, the mountains and their names are everyone's. The DM sees every place.
+
+**Measured** (swiftshader on a loaded 4-core machine): the inked map adds one draw (the ink ribbons: 6,426 triangles for
+Barovia, with 3 bridges; `tests/carto.test.ts` holds them under 15k); the rest of its cost is fragment shading, zero
+close in. The world map at 1366 × 768 with Vallaki open draws in 10 calls and about 320k triangles (56k of them
+Vallaki's detailed proxy, which step 3 keeps for 30 s after it was last wanted); with the village open the valley stays
+within world.spec's 70 calls and 300k. The land's bake took about 0.7 s in all, in 8 ms slices.
+
+Not done yet: the title placed in the corner with the fewest places (it is
+always top left); river names repeated along long rivers; lettering along curved paths.
+
 ## Verification
 
 - `tests/frames.test.ts`: yaw per north against backdrop.ts's `toPlan` E/S basis and buildContext's `th`/`tf`, round trips
@@ -471,6 +547,19 @@ keeps the town as its active map and its party token there; following the party 
     the inn (under 4,000 ft out, over its plot), not the whole level with its fields.
   - On a 390 × 844 phone the breadcrumb shows the village and the house in full (no ellipsis), a point 10 px above or
     below a crumb's text still presses it, and a tap on Back climbs to the village.
+- `e2e/worldmap.spec.ts` (the world map; the two A4 tests failed on the build before the change):
+  - A4, the flat sheet: the players' paint round Castle Ravenloft differs from the DM's while it is unknown and matches
+    once it is revealed; the village they know paints the same.
+  - A4, the valley: in Players view Castle Ravenloft has no label element, its name is nowhere in the page and its proxy
+    is not drawn; revealed, all three come back.
+  - The World map button: the inked map fully drawn, straight down, north up, the bar, the title and its note, 32 pins,
+    the land's names, the bundled faces loaded, the scale in miles; the hex toggle and its setting; the DM's tip; Places
+    (28 rows, Mount Baratok once) and the eye; the players' side (no C, G with a blurb-only tip, no eyes); Escape back.
+  - The party dragged to Tser Pool (key, trail, reveal, the card's 2.7 miles and 55 min, 41 min at a fast pace), into
+    the wilderness, not by the players; a tap on Tser Pool opens its map.
+  - The Sheep Chase: pastoral, its title and note, discs 1 to 5. A 390 × 844 phone: the bar and Places on screen.
+- `tests/carto.test.ts`: the bands at region fit for both campaigns on four screens, gone at 3 ft/px, monotonic, the
+  same view the same numbers; the symbols per place type; the disc letters.
 - `e2e/zoom.spec.ts`: card Enter with Back for Vallaki, and Players mode, run in the continuous world as well as the
   legacy way.
 - The legacy way's surroundings tests (world.spec's Death House and church, zoom.spec) run with `?nested=0`.

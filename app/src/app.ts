@@ -907,6 +907,7 @@ export class App {
   syncStage(): void {
     const st = this.stage; if (!st || !this.staged) return;
     st.setParty(this.partyMark());
+    st.trail = (this.state.world?.trail ?? []).slice(-12).map((t) => t.pos);
     st.onView({ restricted: this.restricted, revealed: this.pinsRevealed });
     this.syncSecrets();
   }

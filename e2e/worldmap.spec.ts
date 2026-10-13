@@ -93,7 +93,7 @@ test('the World map button: the whole region from straight above as the inked ma
   expect(v.title).toBe('The Lands of Barovia');
   expect(v.note).toContain('1 hex = ¼ mile');
   expect(v.frame).toBeGreaterThan(0.9);
-  expect(v.pins).toBe(32);
+  expect(v.pins).toBe(28); // every place with a map (Mount Baratok's four other marks are its one peak name)
   expect(v.disc).toBe('K');
   expect(v.land).not.toContain('Lake Zarovich');
   for (const n of ['Svalich Woods', 'Balinok Mountains', 'Luna Lake', 'Mount Ghakis', 'Luna River', 'Raven River']) expect(v.land).toContain(n);

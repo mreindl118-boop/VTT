@@ -2,14 +2,14 @@
 // straight above with north up, is the map (render/worldcarto.ts draws it as an inked D&D map up there and lets it
 // turn into the 3-D world as the camera comes down); this module carries everything the flat sheet (ui/worldmap.ts)
 // had round it, on the same data and with the same wording:
-//  - the world bar under the top bar (while the view holds a good part of the region): the title and scale note, the
-//    travel pace, the hex grid (one setting with the sheet's), Places, zoom in and out, and back to the open map;
+//  - the world bar under the top bar (while the view holds a good part of the region; the title and scale note are on
+//    the map itself): the travel pace, the hex grid (one setting with the sheet's), Places, zoom in and out, and back to the open map;
 //  - Places: the key panel, one row per place (a name used twice lists once), the DM's reveal eye per row; a row
 //    flies there and shows its card;
 //  - the place card (distance from the party and the time at the pace, the DM's note and reveal chip, Open per map)
 //    and the hover tip (players: the name and the blurb only);
 //  - the party's '&' dragged over the land to a place (it snaps within 22 px or a third of a mile) or into the
-//    wilderness, and its trail (the last 12 moves, dashed);
+//    wilderness (its trail, the last 12 moves dashed on the land, is the stage's: both screens draw it);
 //  - the minimap folds to its clock while the whole region is in view.
 // Players see only the places they know: no label, symbol, proxy, tip, card or row for the others (worldstage.ts).
 import * as THREE from 'three';
@@ -41,9 +41,8 @@ export class NestedWorldMap {
   readonly key: HTMLElement;
   readonly card: HTMLElement;
   readonly tip: HTMLElement;
-  readonly trail: SVGSVGElement;
   pace: Pace = 'normal';
-  private drag: { id: number; from: P; to: P; key?: string } | null = null;
+  private drag: { id: number; from: P; to: P; key?: string; dx: number; dy: number } | null = null;
   private keyCampaign = '';
   private keyAudience = '';
   private folded = false;
@@ -54,8 +53,7 @@ export class NestedWorldMap {
     try { const p = localStorage.getItem('mistlab.pace'); if (p === 'slow' || p === 'normal' || p === 'fast') this.pace = p; } catch { /* no storage */ }
     this.bar = document.createElement('div');
     this.bar.className = 'nestbar page'; this.bar.hidden = true;
-    this.bar.innerHTML = `<div class="nb-title"><b></b><span></span></div>
-      <div class="seg pace" role="tablist" aria-label="Travel pace">${(['slow', 'normal', 'fast'] as Pace[]).map((p) => `<button role="tab" data-pace="${p}" aria-selected="${p === this.pace}" data-tip="${p[0].toUpperCase() + p.slice(1)} pace">${p[0].toUpperCase() + p.slice(1)}</button>`).join('')}</div>
+    this.bar.innerHTML = `<div class="seg pace" role="tablist" aria-label="Travel pace">${(['slow', 'normal', 'fast'] as Pace[]).map((p) => `<button role="tab" data-pace="${p}" aria-selected="${p === this.pace}" data-tip="${p[0].toUpperCase() + p.slice(1)} pace">${p[0].toUpperCase() + p.slice(1)}</button>`).join('')}</div>
       <button class="icon" data-hex aria-label="Hex grid" aria-pressed="${hexPref()}" data-tip="Hex grid">${ICON.hex}</button>
       <button class="icon" data-places aria-label="Places" aria-pressed="false" data-tip="Places">${ICON.list}</button>
       <button class="icon" data-z="in" aria-label="Zoom in" data-tip="Zoom in">${ICON.zoomIn}</button><button class="icon" data-z="out" aria-label="Zoom out" data-tip="Zoom out">${ICON.zoomOut}</button>
@@ -63,15 +61,10 @@ export class NestedWorldMap {
     this.key = document.createElement('aside');
     this.key.className = 'nestkey page'; this.key.hidden = true;
     this.key.innerHTML = '<h3>Places</h3><ol></ol>';
-    this.card = document.createElement('div'); this.card.className = 'nestcard world-card page'; this.card.hidden = true;
-    this.tip = document.createElement('div'); this.tip.className = 'nesttip world-tip page'; this.tip.hidden = true; this.tip.setAttribute('role', 'tooltip');
+    this.card = document.createElement('div'); this.card.className = 'nestcard page'; this.card.hidden = true;
+    this.tip = document.createElement('div'); this.tip.className = 'nesttip page'; this.tip.hidden = true; this.tip.setAttribute('role', 'tooltip');
     ui.append(this.bar, this.key, this.card, this.tip);
-    // the party's trail: an overlay over the canvas, under the labels (the Player Display draws it too)
-    this.trail = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    this.trail.setAttribute('class', 'nesttrail'); this.trail.innerHTML = '<path d=""/>';
-    const host = app.world.renderer.domElement.parentElement ?? document.body;
-    host.insertBefore(this.trail, app.world.labelRenderer.domElement);
-    app.world.beforeRender.add(this.drawTrail);
+    app.world.beforeRender.add(this.onFrame);
 
     this.bar.addEventListener('click', (e) => {
       const t = e.target as HTMLElement;
@@ -103,10 +96,20 @@ export class NestedWorldMap {
     app.onPinHover = (k, x, y) => this.hover(k, x, y);
     app.onPinTap = (k, path) => this.tapPin(k, path);
     const el = app.world.renderer.domElement;
-    el.addEventListener('pointerdown', (e) => this.grab(e), { capture: true });
-    el.addEventListener('pointermove', (e) => { if (this.drag && e.pointerId === this.drag.id) { e.stopImmediatePropagation(); this.dragTo(e); } }, { capture: true });
-    el.addEventListener('pointerup', (e) => { if (this.drag && e.pointerId === this.drag.id) this.drop(e); }, { capture: true });
-    el.addEventListener('pointercancel', (e) => { if (this.drag && e.pointerId === this.drag.id) { this.drag = null; app.world.controls.enabled = true; app.syncStage(); } }, { capture: true });
+    // A mouse takes the party at once. A finger takes it only once it moves alone (a second finger makes it a pinch,
+    // which the camera keeps: the party's & often stands on the very place a pinch is aimed at).
+    el.addEventListener('pointerdown', (e) => {
+      if (e.pointerType === 'touch') { this.touches.add(e.pointerId); if (this.touches.size > 1) this.pending = null; else if (this.near(e)) this.pending = { id: e.pointerId, x: e.clientX, y: e.clientY }; return; }
+      this.grab(e);
+    }, { capture: true });
+    el.addEventListener('pointermove', (e) => {
+      const p = this.pending;
+      if (p && e.pointerId === p.id && this.touches.size === 1 && Math.hypot(e.clientX - p.x, e.clientY - p.y) >= 6) { this.pending = null; this.grab(e, true); }
+      if (this.drag && e.pointerId === this.drag.id) { e.stopImmediatePropagation(); this.dragTo(e); }
+    }, { capture: true });
+    const lift = (e: PointerEvent) => { this.touches.delete(e.pointerId); if (this.pending?.id === e.pointerId) this.pending = null; };
+    el.addEventListener('pointerup', (e) => { lift(e); if (this.drag && e.pointerId === this.drag.id) this.drop(e); }, { capture: true });
+    el.addEventListener('pointercancel', (e) => { lift(e); if (this.drag && e.pointerId === this.drag.id) { this.drag = null; app.world.controls.enabled = true; app.syncStage(); } }, { capture: true });
     el.addEventListener('pointerleave', () => { this.tip.hidden = true; });
   }
 
@@ -151,13 +154,12 @@ export class NestedWorldMap {
     const show = !!st && dm && (force || fit >= 0.35);
     if (show !== this.shownBar) {
       this.shownBar = show; this.bar.hidden = !show;
-      if (!show) { this.toggleKey(false); this.card.hidden = true; this.cardFor = null; }
+      if (!show) this.toggleKey(false); // (a card stays: a row or a tap flies in to road zoom with it)
       document.body.classList.toggle('nest-world', show);
       if (show) {
         const top = Math.max(0, ...[...document.querySelectorAll('.topbar > .group')].map((g) => g.getBoundingClientRect().bottom));
         this.bar.style.top = `${Math.round((top || 56) + 8)}px`;
-        this.bar.querySelector('.nb-title b')!.textContent = worldName();
-        this.bar.querySelector('.nb-title span')!.textContent = hexScale();
+        this.bar.setAttribute('aria-label', `${worldName()}: ${hexScale()}`);
       }
     }
     // the minimap folds to its clock while the whole region is in view, and comes back nearer in
@@ -167,7 +169,7 @@ export class NestedWorldMap {
     if (!this.key.hidden && (aud !== this.keyAudience || this.keyCampaign !== a.campaign.id)) this.renderKey();
     if (this.cardFor?.pin && !this.shown(this.cardFor.pin)) { this.card.hidden = true; this.cardFor = null; }
     const party = st ? document.querySelector<HTMLElement>('.lbl.world-party') : null;
-    if (party) { const t = a.restricted ? 'The party' : 'The party · drag to travel'; party.title = t; party.setAttribute('aria-label', t); party.classList.toggle('movable', this.canDrag()); }
+    if (party) { const t = a.restricted ? 'The party' : 'The party · drag to travel'; if (party.title !== t) { party.title = t; party.setAttribute('aria-label', t); } party.classList.toggle('movable', this.canDrag()); }
   }
 
   /** The Places list: one row per place the side knows (a name lettered twice lists once). */
@@ -220,12 +222,19 @@ export class NestedWorldMap {
   // ------------------------------------------------------------------ the party's drag
 
   private canDrag(): boolean { const a = this.h.app; return !!this.stage && a.mode === 'dm' && !a.restricted && a.tool === 'none'; }
-  private grab(e: PointerEvent): void {
-    if (e.button > 0 || !this.canDrag()) return;
-    const st = this.stage!, pa = st.partyAt(); if (!pa || Math.hypot(e.clientX - pa.x, e.clientY - pa.y) > SNAP_PX) return;
-    e.stopImmediatePropagation(); e.preventDefault();
-    const from = this.at();
-    this.drag = { id: e.pointerId, from, to: from };
+  private touches = new Set<number>();
+  private pending: { id: number; x: number; y: number } | null = null;
+  /** The pointer is on the party's & (within 22 px of it), and the DM may move it. */
+  private near(e: PointerEvent): boolean {
+    if (e.button > 0 || !this.canDrag()) return false;
+    const pa = this.stage!.partyAt(); return !!pa && Math.hypot(e.clientX - pa.x, e.clientY - pa.y) <= SNAP_PX;
+  }
+  private grab(e: PointerEvent, moved = false): void {
+    if (!moved && !this.near(e)) return;
+    if (!moved) { e.stopImmediatePropagation(); e.preventDefault(); }
+    const from = this.at(), an = this.stage!.partyAnchor();
+    // (the & stands a little off its place on the inked map: the place follows the finger by the same offset)
+    this.drag = { id: e.pointerId, from, to: from, dx: an ? an.x - e.clientX : 0, dy: an ? an.y - e.clientY : 0 };
     this.h.app.world.controls.enabled = false;
     const el = this.h.app.world.renderer.domElement; el.setPointerCapture(e.pointerId);
     this.tip.hidden = true; this.card.hidden = true; this.cardFor = null;
@@ -246,8 +255,8 @@ export class NestedWorldMap {
   }
   private dragTo(e: PointerEvent): void {
     const st = this.stage, d = this.drag; if (!st || !d) return;
-    const g = st.groundOf(e.clientX, e.clientY); if (!g) return;
-    const mi = milesOfWorld(st.data, [g.x, g.z]) as P, near = this.snapAt(e.clientX, e.clientY, mi);
+    const g = st.groundOf(e.clientX + d.dx, e.clientY + d.dy); if (!g) return;
+    const mi = milesOfWorld(st.data, [g.x, g.z]) as P, near = this.snapAt(e.clientX + d.dx, e.clientY + d.dy, mi) ?? this.snapAt(e.clientX, e.clientY, null);
     d.to = near ? [...near.pos] as P : [Math.round(mi[0] * 100) / 100, Math.round(mi[1] * 100) / 100]; d.key = near?.key;
     st.setParty({ at: worldOfMiles(st.data, d.to) });
     document.querySelector('.lbl.world-party')?.classList.toggle('snap', !!near);
@@ -266,18 +275,10 @@ export class NestedWorldMap {
     void this.showCard(d.key ? this.pin(d.key) : undefined, d.to, miles);
   }
 
-  /** The party's last 12 positions as a dashed line on the land (each frame: it is projected with the camera). */
-  private drawTrail = (): void => {
-    this.refresh();
-    const st = this.stage, path = this.trail.firstElementChild as SVGPathElement, band = document.body.dataset.band;
-    const trail = (this.h.app.state.world as { trail?: { pos: P }[] } | undefined)?.trail ?? [];
-    if (!st || trail.length < 2 || (band !== 'valley' && band !== 'road')) { if (path.getAttribute('d')) path.setAttribute('d', ''); return; }
-    const host = this.trail.getBoundingClientRect();
-    const d = trail.slice(-12).map((t, i) => { const [x, z] = worldOfMiles(st.data, t.pos as Vec2), s = st.screenOfAbs(new THREE.Vector3(x, st.groundAt(x, z), z)); return `${i ? 'L' : 'M'}${(s.x - host.left).toFixed(1)} ${(s.y - host.top).toFixed(1)}`; }).join('');
-    if (path.getAttribute('d') !== d) path.setAttribute('d', d);
-  };
+  /** Each frame: the bar and the fold follow the camera. */
+  private onFrame = (): void => { this.refresh(); };
   /** The trail's points (miles) as drawn now (tests). */
-  trailPoints(): P[] { return ((this.h.app.state.world as { trail?: { pos: P }[] } | undefined)?.trail ?? []).slice(-12).map((t) => t.pos); }
+  trailPoints(): P[] { return (this.h.app.stage?.trail ?? []) as P[]; }
   /** The world the overlay serves (tests). */
   get worldData() { return worldOf(this.h.app.campaign); }
 }

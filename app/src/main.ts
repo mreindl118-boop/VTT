@@ -4,6 +4,7 @@ import { builtPaths, loadLocation } from './data';
 import { worldOf } from './campaigns';
 import { openWorldMap, pinForScene, worldName, worldPins } from './ui/worldmap';
 import { NestedWorldMap } from './ui/worldnest';
+import { band as cartoBand } from './render/worldcarto';
 import { buildMinimap } from './ui/minimap';
 import { dayFromHarptos, harptosParts, MONTH_NAMES, FESTIVALS } from './core/sky';
 import { PACES, paceNote, type Pace } from './core/travel';
@@ -293,7 +294,7 @@ function buildDmUi(): void {
   // What covers the view: the bars along its edges frame the whole valley; every panel keeps the place names clear.
   const shown = (sel: string) => [...ui.querySelectorAll<HTMLElement>(sel)].filter((e) => e.getClientRects().length && getComputedStyle(e).visibility !== 'hidden').map((e) => e.getBoundingClientRect()).filter((r) => r.width > 0 && r.height > 0);
   app.world.chrome = () => {
-    const bars = shown('.topbar > .group, .vslider, .camcluster, .nestbar:not([hidden])');
+    const bars = shown('.topbar > .group, .vslider, .camcluster');
     return { bars, panels: [...bars, ...shown('.minimap, .mapframe, .zoomchip:not([hidden]), .nestkey:not([hidden]), .nestcard:not([hidden])')] };
   };
 
@@ -368,7 +369,7 @@ function buildDmUi(): void {
     const f = app.cameraFrame(), c = document.querySelector<HTMLElement>('.mapframe .compass svg'), sb = document.querySelector<HTMLElement>('.mapframe .scalebar'); if (!c || !sb || !app.cur) return;
     c.style.transform = `rotate(${(f.north * 180 / Math.PI).toFixed(1)}deg)`;
     // while the land is drawn as the map, the bar counts miles (¼, ½, 1, 2, 3, 5, 10) and alternates ink and paper
-    const miles = (app.stage?.carto.k ?? 0) >= 0.5 && app.staged;
+    const miles = app.staged && !!app.stage && cartoBand(1 / Math.max(1e-6, f.pxPerFt), 24, 5) >= 0.5; // (the inked map's own measure, fresh from the camera)
     const steps = miles ? [1320, 2640, 5280, 10560, 15840, 26400, 52800] : [5, 10, 25, 50, 100, 250, 500, 1000, 2500, 5280]; let ft = steps[0];
     for (const s of steps) { ft = s; if (s * f.pxPerFt >= (miles ? 120 : 70)) break; }
     const px = Math.max(8, Math.min(miles ? 180 : 220, ft * f.pxPerFt));

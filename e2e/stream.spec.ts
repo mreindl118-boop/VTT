@@ -81,7 +81,7 @@ test('two opens at once: the latest request wins and only its map is mounted', a
     // every label on the page belongs to the open map, its tokens or the valley (hidden while a legacy map is open)
     const known = new Set<Element>(a.cur.labels.map((l: any) => l.obj.element));
     for (const g of a.cur.tokens.values()) g.traverse((c: any) => { if (c.element) known.add(c.element); });
-    const stray = [...document.querySelectorAll('.labels .lbl')].filter((e) => !known.has(e) && !e.matches('.place, .world-party') && (e as HTMLElement).style.display !== 'none');
+    const stray = [...document.querySelectorAll('.labels .lbl')].filter((e) => !known.has(e) && !e.matches('.place, .world-party, .carto') && (e as HTMLElement).style.display !== 'none');
     return { path: a.cur.path, roots, stray: stray.length, rejected: settled.filter((s) => s.status === 'rejected').length, staged: a.staged };
   });
   expect(r).toEqual({ path: 'ch02/G', roots: ['scene:ch02/G'], stray: 0, rejected: 0, staged: true });

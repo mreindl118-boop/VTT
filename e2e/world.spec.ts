@@ -297,12 +297,12 @@ test('valley: the whole of Barovia from above, every other place as its proxy, w
     const castle = st.root.getObjectByName('castle-ravenloft').getWorldPosition(w.camera.position.clone());
     const pin = m.atlas.pins.find((p: any) => p.campaign === 'cos' && p.key === 'K'), at = m.frames.worldOfMiles(st.data, pin.pos);
     const ground = m.frames.groundY(st.data, pin.pos);
-    // pixels: the middle shows the land, the top rows the page behind the canvas (the gradient)
+    // pixels: the middle shows the land
     const c = document.querySelector('canvas.gl') as HTMLCanvasElement, o = document.createElement('canvas'); o.width = c.width; o.height = c.height;
     const x = o.getContext('2d')!; x.drawImage(c, 0, 0);
-    const mid = x.getImageData(Math.floor(c.width / 2) - 20, Math.floor(c.height / 2) - 20, 40, 40).data, top = x.getImageData(0, 0, c.width, 8).data;
-    let midOpaque = 0, topClear = 0; for (let i = 3; i < mid.length; i += 4) if (mid[i] > 250) midOpaque++; for (let i = 3; i < top.length; i += 4) if (top[i] < 5) topClear++;
-    return { info, hidden, shown, total: st.proxies.size, castle: [castle.x + w.anchor.x, castle.y + w.anchor.y, castle.z + w.anchor.z], expect: [at[0], ground + 1000, at[1]], midOpaque: midOpaque / (mid.length / 4), topClear: topClear / (top.length / 4), dist: w.camera.position.distanceTo(w.controls.target) };
+    const mid = x.getImageData(Math.floor(c.width / 2) - 20, Math.floor(c.height / 2) - 20, 40, 40).data;
+    let midOpaque = 0; for (let i = 3; i < mid.length; i += 4) if (mid[i] > 250) midOpaque++;
+    return { info, hidden, shown, total: st.proxies.size, castle: [castle.x + w.anchor.x, castle.y + w.anchor.y, castle.z + w.anchor.z], expect: [at[0], ground + 1000, at[1]], midOpaque: midOpaque / (mid.length / 4), dist: w.camera.position.distanceTo(w.controls.target), polar: w.controls.getPolarAngle() };
   });
   expect(r.hidden).toEqual(['ch03/E']);
   expect(r.shown).toBe(r.total - 1);
@@ -310,7 +310,9 @@ test('valley: the whole of Barovia from above, every other place as its proxy, w
   expect(r.info.calls).toBeLessThanOrEqual(70);
   expect(r.info.tris).toBeLessThanOrEqual(300_000);
   expect(r.midOpaque).toBeGreaterThan(0.99);
-  expect(r.topClear).toBeGreaterThan(0.95);
+  // the whole valley is the world map now: seen from straight above with north up (world.ts applyPolar; the region's
+  // land runs on past the top of the view as its skirt, where the tilted view used to show the page above the horizon)
+  expect(r.polar).toBeLessThan(0.05);
   expect(Math.abs(r.castle[0] - r.expect[0])).toBeLessThanOrEqual(1);
   expect(Math.abs(r.castle[2] - r.expect[2])).toBeLessThanOrEqual(1);
   expect(Math.abs(r.castle[1] - r.expect[1])).toBeLessThanOrEqual(1);
@@ -740,8 +742,9 @@ test.describe('on a phone', () => {
     await page.waitForTimeout(400);
     const n = (await nameBox(page, 'N'))!;
     expect(n).not.toBeNull();
-    expect(n.h).toBeLessThan(30);
-    await page.touchscreen.tap(n.x, n.y + 16);
+    // on the inked map the place stands taller (its symbol over its disc and name): the finger lands low on it, on the
+    // disc's row, or for a short label 16 px below its middle (inside its 44 px target)
+    await page.touchscreen.tap(n.x, n.h < 30 ? n.y + 16 : n.y + n.h / 2 - 6);
     await page.waitForFunction(() => { const a = (window as any).__mistlab.app; return a.cur?.path === 'ch05/N' && !a.world.flying; }, undefined, { timeout: 180_000 });
     await cdp.detach();
   });

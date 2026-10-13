@@ -345,11 +345,11 @@ body[data-view='players'] .topbar { grid-template-columns: auto minmax(0, 1fr); 
 .wm-party .halo { fill: #e0a44a; opacity: .25; stroke: none; }
 .wm-party .glyph { fill: none; stroke: #3a2610; stroke-width: .05; stroke-linecap: round; }
 .wm-party.movable { cursor: move; } .wm-party.snap .halo { opacity: .55; }
-.world-card { position: absolute; left: 16px; bottom: 16px; max-width: min(420px, calc(100% - 32px)); background: var(--bg); border-radius: 14px; box-shadow: 0 12px 40px rgba(0,0,0,.35); padding: 12px 14px; display: grid; gap: 6px; font-size: 14px; z-index: 2; }
-.world-card[hidden] { display: none; }
-.world-card .wc-travel, .world-card .wc-note { font-size: 12.5px; color: var(--ink-2); }
-.world-card .wc-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 2px; }
-.world-card .wc-actions button { font-size: 13px; padding: 7px 12px; border-radius: 999px; background: var(--ink); color: var(--bg); }
+:is(.world-card, .nestcard) { position: absolute; left: 16px; bottom: 16px; max-width: min(420px, calc(100% - 32px)); background: var(--bg); border-radius: 14px; box-shadow: 0 12px 40px rgba(0,0,0,.35); padding: 12px 14px; display: grid; gap: 6px; font-size: 14px; z-index: 2; }
+:is(.world-card, .nestcard)[hidden] { display: none; }
+:is(.world-card, .nestcard) .wc-travel, :is(.world-card, .nestcard) .wc-note { font-size: 12.5px; color: var(--ink-2); }
+:is(.world-card, .nestcard) .wc-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 2px; }
+:is(.world-card, .nestcard) .wc-actions button { font-size: 13px; padding: 7px 12px; border-radius: 999px; background: var(--ink); color: var(--bg); }
 .world-scale { position: absolute; right: 16px; bottom: 16px; display: grid; gap: 3px; justify-items: start; font: 11px -apple-system, system-ui, sans-serif; color: #2a2420; background: rgba(255,250,240,.82); padding: 6px 10px; border-radius: 8px; pointer-events: none; }
 .world-scale i { display: block; height: 6px; border: 1.5px solid #2a2420; border-top: 0; background: linear-gradient(90deg, #2a2420 0 50%, transparent 50%); }
 .world-compass { position: absolute; right: 22px; top: 14px; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font: 700 13px Georgia, serif; color: #2a2420; background: rgba(255,250,240,.85); box-shadow: 0 1px 4px rgba(0,0,0,.25); pointer-events: none; }
@@ -409,13 +409,13 @@ body[data-view='players'] .topbar { grid-template-columns: auto minmax(0, 1fr); 
 .section button.icon { width: 28px; height: 28px; }
 
 /* world map: tooltips, reveal state */
-.world-tip { position: absolute; z-index: 3; pointer-events: none; max-width: 270px; background: var(--bg); color: var(--ink); border-radius: 10px; box-shadow: 0 8px 28px rgba(0,0,0,.3); padding: 8px 10px; font-size: 12.5px; display: grid; gap: 3px; }
-.world-tip[hidden] { display: none; }
-.world-tip b { font-size: 13px; }
-.world-tip .dm, .world-card .wc-dm { color: var(--p-accent, #7b2d26); }
-.world-tip .vis { color: var(--ink-2); font-size: 11.5px; }
-.world-card .wc-blurb { font-size: 13px; }
-.world-card .wc-where { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+:is(.world-tip, .nesttip) { position: absolute; z-index: 3; pointer-events: none; max-width: 270px; background: var(--bg); color: var(--ink); border-radius: 10px; box-shadow: 0 8px 28px rgba(0,0,0,.3); padding: 8px 10px; font-size: 12.5px; display: grid; gap: 3px; }
+:is(.world-tip, .nesttip)[hidden] { display: none; }
+:is(.world-tip, .nesttip) b { font-size: 13px; }
+:is(.world-tip, .nesttip) .dm, :is(.world-card, .nestcard) .wc-dm { color: var(--p-accent, #7b2d26); }
+:is(.world-tip, .nesttip) .vis { color: var(--ink-2); font-size: 11.5px; }
+:is(.world-card, .nestcard) .wc-blurb { font-size: 13px; }
+:is(.world-card, .nestcard) .wc-where { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .chip-btn { font: 600 11px/1 -apple-system, system-ui, sans-serif; padding: 5px 8px; border-radius: 999px; border: 1px solid var(--hair); background: var(--bg-2, transparent); color: var(--ink-2); cursor: pointer; }
 .chip-btn[aria-pressed="true"] { background: #2f6b3a; color: #fff; border-color: transparent; }
 .world-key li .eye { margin-left: auto; width: 26px; height: 26px; opacity: .45; }
@@ -569,13 +569,15 @@ body[data-carto] .lbl.carto { display: block; }
 .lbl.carto.lake { font: italic 600 calc(15px * var(--pd))/1 'Alegreya', Georgia, serif; letter-spacing: .12em; color: var(--carto-water); }
 .lbl.carto.river { font: italic 600 calc(13px * var(--pd))/1 'Alegreya', Georgia, serif; letter-spacing: .1em; color: var(--carto-water); }
 /* the place label: the element stops being the pill; its chip carries the pill and fades out as the pin fades in */
-body[data-carto] .lbl.place { display: grid; place-items: center; background: none; border-color: transparent; padding: 0; }
-body[data-carto] .lbl.place > * { grid-area: 1 / 1; }
-body[data-carto] .lbl.place .chip { opacity: calc(1 - var(--cx)); background: rgba(24, 20, 30, .62); border: 1px solid rgba(239, 230, 210, .25); padding: 2px 8px; border-radius: 7px; }
+/* the label's own box is the disc, centred on the place: the symbol stands over it and the name runs to its right,
+   both outside the box (the declutter measures the disc and the name: worldstage.ts) */
+body[data-carto] .lbl.place { display: block; background: none; border-color: transparent; padding: 0; }
+body[data-carto] .lbl.place .chip { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); white-space: nowrap; opacity: calc(1 - var(--cx)); background: rgba(24, 20, 30, .62); border: 1px solid rgba(239, 230, 210, .25); padding: 2px 8px; border-radius: 7px; }
 body[data-carto] .lbl.place.dot .chip { padding: 1px 5px; border-radius: 999px; }
-body[data-carto] .lbl.place .mark { display: flex; flex-direction: column; align-items: center; opacity: var(--cx); }
-.lbl.place .glyph { display: block; width: calc(var(--gw) * var(--pd)); height: auto; overflow: visible; margin-bottom: -2px; filter: drop-shadow(0 0 1.5px var(--carto-paper)); }
-.lbl.place .pd { display: flex; align-items: center; gap: 5px; }
+body[data-carto] .lbl.place .mark { display: block; opacity: var(--cx); }
+.lbl.place .glyph { position: absolute; left: 50%; bottom: calc(100% - 3px); transform: translateX(-50%); display: block; width: calc(var(--gw) * var(--pd)); height: auto; overflow: visible; filter: drop-shadow(0 0 1.5px var(--carto-paper)); pointer-events: none; }
+.lbl.place .pd { position: relative; display: flex; }
+.lbl.place .pn { position: absolute; left: calc(100% + 5px); top: 50%; transform: translateY(-50%); }
 .lbl.place .pk { display: inline-grid; place-items: center; flex: none; box-sizing: border-box; width: calc(30px * var(--pd)); height: calc(30px * var(--pd)); border-radius: 50%;
   background: var(--carto-disc); border: 1.5px solid var(--carto-red); color: var(--carto-red); font: 700 calc(16px * var(--pd))/1 'Alegreya SC', Georgia, serif; text-shadow: none;
   box-shadow: 0 0 0 1.5px var(--carto-paper), 0 1px 3px rgba(0, 0, 0, .35); }
@@ -583,10 +585,11 @@ body[data-carto] .lbl.place .mark { display: flex; flex-direction: column; align
 .lbl.place.unknown .pk { border-style: dashed; color: color-mix(in srgb, var(--carto-red) 70%, transparent); }
 .lbl.place .pn { font: italic 600 calc(15px * var(--pd))/1.1 'Alegreya', Georgia, serif; color: var(--carto-ink); letter-spacing: .01em; white-space: nowrap;
   text-shadow: 0 0 2px var(--carto-paper), 0 0 2px var(--carto-paper), 0 0 4px var(--carto-paper), 0 0 6px var(--carto-paper); }
-.lbl.place.dot .pn, .lbl.place.dot .glyph { display: none; }
+.lbl.place.dot .pn { display: none; }
 body:not([data-view='players']):not([data-mode='player']) #stage .labels .lbl.place.hover .pk { background: #fff8e6; transform: scale(1.08); }
 @media (max-width: 700px) { .lbl.place .glyph { width: calc(var(--gw) * .75); } .lbl.place .pk { width: 24px; height: 24px; font-size: 13px; } .lbl.place .pn, .lbl.carto.lake { font-size: 13px; } .lbl.carto.wood { font-size: 12px; } .lbl.carto.river, .lbl.carto.peak { font-size: 12px; } }
-body[data-carto] .lbl.world-party { font: 700 calc(34px * var(--pd))/44px 'Atkinson Next', system-ui, sans-serif; width: 44px; height: 44px; text-align: center; color: #c0392b;
+/* the party's & stands over every place's disc, a little up and to the right of its spot (so a place's letter stays legible) */
+body[data-carto] .lbl.world-party { z-index: 100000 !important; margin: -14px 0 0 16px; font: 700 calc(34px * var(--pd))/44px 'Atkinson Next', system-ui, sans-serif; width: 44px; height: 44px; text-align: center; color: #c0392b;
   text-shadow: 0 0 2px #f3ead6, 0 0 2px #f3ead6, 0 0 4px #f3ead6, 0 0 7px #f3ead6; }
 /* the sheet's frame */
 .carto-frame { position: absolute; inset: 0; pointer-events: none; visibility: hidden; opacity: 0; color: var(--carto-ink); z-index: 1; }
@@ -699,8 +702,9 @@ svg.e { width: 22px; height: 22px; fill: currentColor; flex: none; }
 
 /* The nested world map's own panels (ui/worldnest.ts): the bar under the top bar while a good part of the region is in
    view, the Places key, the place card, the hover tip, the party's trail, the minimap folded to its clock. */
-.nestbar { position: absolute; left: 50%; transform: translateX(-50%); top: 64px; z-index: 6; display: flex; align-items: center; gap: 6px; padding: 5px 6px 5px 14px; border-radius: var(--r-3, 10px); max-width: calc(100vw - 32px); }
+.nestbar { position: absolute; left: 50%; transform: translateX(-50%); top: 64px; z-index: 6; display: flex; align-items: center; gap: 6px; padding: 5px 6px; border-radius: var(--r-3, 10px); max-width: calc(100vw - 32px); }
 .nestbar[hidden] { display: none; }
+.nestbar, .nestkey, .nestcard { background-color: var(--p-bg); background-image: var(--p-grad); border: 1px solid var(--p-edge); box-shadow: var(--p-shadow); }
 .nestbar .nb-title { display: grid; margin-right: 6px; min-width: 0; } .nestbar .nb-title b { font: 600 15px/1.1 var(--font-display); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .nestbar .nb-title span { font-size: 11px; color: var(--p-ink-2); white-space: nowrap; }
 .nestbar .seg { background: var(--p-hair); } .nestbar .seg button { min-height: 36px; } .nestbar button.icon { min-width: 40px; min-height: 40px; }
 .nestbar [aria-pressed='true'] { background: var(--p-sunk); box-shadow: inset 0 0 0 1px var(--p-edge); border-radius: 8px; }
@@ -721,8 +725,8 @@ svg.e { width: 22px; height: 22px; fill: currentColor; flex: none; }
 .lbl.world-party.movable { cursor: move; } .lbl.world-party.snap { text-shadow: 0 0 3px #f2b35b, 0 0 6px #f2b35b, 0 0 10px #f2b35b; }
 .minimap.folded { aspect-ratio: auto; height: auto; } .minimap.folded canvas, .minimap.folded .mm-north { display: none; } .minimap.folded .clock { position: static; }
 @media (max-width: 700px) {
-  .nestbar { left: 8px; right: 8px; transform: none; flex-wrap: wrap; justify-content: center; padding: 6px; max-width: none; }
-  .nestbar .nb-title { flex: 1 1 100%; text-align: center; margin: 0; }
+  .nestbar { left: 8px; right: 68px; transform: none; flex-wrap: wrap; justify-content: center; padding: 4px; gap: 4px; max-width: none; } .nestbar .seg button { padding: 6px 9px; }
+  .nestbar .nb-title, .nestbar [data-z] { display: none; } /* the sheet's title is on the map; the camera buttons zoom */
   .nestkey { left: 8px; right: 8px; width: auto; top: auto; bottom: 64px; max-height: 40vh; }
   .nestcard { left: 8px; right: 8px; bottom: 64px; max-width: none; }
 }

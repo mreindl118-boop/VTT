@@ -61,3 +61,17 @@ describe('the places\' symbols and discs', () => {
     expect(['A', 'B2', 'M5', 'D2', '1', '5'].map(discKey)).toEqual(['A', 'B', 'M', 'D', '1', '5']);
   });
 });
+
+describe('the ink ribbons', () => {
+  it('are one mesh of roads, trails, rivers and bridges within the added-triangle budget (15k)', async () => {
+    const { LandField } = await import('../app/src/render/worldland');
+    const { buildInk, cartoUniforms, CARTO_STYLES } = await import('../app/src/render/worldcarto');
+    for (const w of [barovia, sheep]) {
+      const field = new LandField(w as never, []), mesh = buildInk(field, cartoUniforms(field, CARTO_STYLES.gothic));
+      const tris = mesh.geometry.index!.count / 3, kinds = new Set(Array.from({ length: mesh.geometry.attributes.aInfo.count }, (_, i) => mesh.geometry.attributes.aInfo.getX(i)));
+      expect(tris).toBeLessThanOrEqual(15000);
+      expect(kinds.has(0) && kinds.has(2)).toBe(true);
+      if (w === barovia) expect(kinds.has(3)).toBe(true); // Barovia's roads cross its rivers: bridges
+    }
+  });
+});
