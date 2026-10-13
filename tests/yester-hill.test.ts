@@ -1,56 +1,87 @@
-// Yester Hill (ch14/Y) is drawn as a hill you climb (scripts/authoring/yester-hill.py): its land is a heightfield, every
-// prop stands on it, each cairn ring keeps its contour, the trail never climbs steeper than 1 in 5, the summit level's
-// floor is the hilltop with its grid on the turf, and the land drawn beyond the map (kit/sites/w.ts) meets the lattice.
+// Yester Hill (ch14/Y) is drawn as a hill you climb (scripts/authoring/yester-hill.py): its land is a heightfield that
+// runs out to the forest floor round the hill's foot, every prop stands on it, each cairn ring keeps its contour, the
+// trail never climbs steeper than 1 in 5, a token on either level always stands on the ground under it (the forest
+// floor round the foot, or the flat top), the land drawn beyond the map (kit/sites/w.ts) meets the map's own with no
+// step, the hill's scenery is never under the fog of war, and the fog wall fades out instead of ending in an edge.
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
-import { yesterLand } from '../app/src/kit/sites/w';
+import * as THREE from 'three';
+import { hillLandAt } from '../app/src/kit/sites/w';
 import { PROPS_V1 } from '../app/src/kit/props';
 import '../app/src/kit/sites';
+import { buildBackdrop } from '../app/src/render/backdrop';
+import { CAMPAIGNS, worldOf } from '../app/src/campaigns';
+import { bounds, pointInPolygon, type Vec2 } from '../app/src/core/geometry';
+import { canWalk } from '../app/src/core/movement';
+import { moveBlockers } from '../app/src/core/light';
+import type { Level, SceneFile, GridFile } from '../app/src/core/schema';
 
-type Obj = { id: string; kind: string; pos: [number, number, number]; dims?: Record<string, number>; polygon?: number[][] };
-type Lvl = { id: string; elevationFt: number; objects: Obj[] };
-const scene = JSON.parse(readFileSync('locations/ch14/Y/scene.json', 'utf8')) as { levels: Lvl[] };
-const grid = JSON.parse(readFileSync('locations/ch14/Y/grid.json', 'utf8')) as { levels: Record<string, { floorPolygons: number[][][] }> };
+const scene = JSON.parse(readFileSync('locations/ch14/Y/scene.json', 'utf8')) as SceneFile;
+const grid = JSON.parse(readFileSync('locations/ch14/Y/grid.json', 'utf8')) as GridFile;
 const hill = scene.levels.find((l) => l.id === 'hill')!, summit = scene.levels.find((l) => l.id === 'summit')!;
+type Dims = Record<string, number>;
 
-/** A heightfield prop as the kit draws it (kit/sites/s.ts): heights in ft relative to the level's floor. */
-function field(o: Obj, elev: number) {
-  const d = o.dims!, nx = d.nx, nz = d.nz, cell = d.cell, q = d.q, W = nx + 1, H: number[] = [];
-  for (let k = 0; k < W * (nz + 1); k++) { const c = Math.floor(d['d' + Math.floor(k / 4)] / 4096 ** (k % 4)) % 4096; H.push(c === 4095 ? NaN : c * q + o.pos[1] + elev); }
-  const at = (x: number, z: number) => {
-    const fx = (x - o.pos[0]) / cell, fz = (z - o.pos[2]) / cell, i = Math.min(Math.max(Math.floor(fx), 0), nx - 1), j = Math.min(Math.max(Math.floor(fz), 0), nz - 1), u = fx - i, v = fz - j;
-    const a = H[j * W + i], b = H[j * W + i + 1], c = H[(j + 1) * W + i + 1], e = H[(j + 1) * W + i];
-    if (Math.abs(a - c) < Math.abs(b - e)) return u >= v ? a + (b - a) * u + (c - b) * v : a + (c - e) * u + (e - a) * v;
-    return u + v <= 1 ? a + (b - a) * u + (e - a) * v : c + (e - c) * (1 - u) + (b - c) * (1 - v);
-  };
-  return { at, H, W, nx, nz, cell, x0: o.pos[0], z0: o.pos[2] };
+/** A level's land as drawn: world height (ft) at plan (x, z). */
+function landOf(l: Level) {
+  const o = l.objects.find((x) => x.kind === 'hill-land')!, f = hillLandAt(o.dims as Dims);
+  return { o, at: (x: number, z: number) => f(x - o.pos[0], z - o.pos[2]) + o.pos[1] + l.elevationFt };
 }
-const land = field(hill.objects.find((o) => o.kind === 'heightfield')!, hill.elevationFt);
-const inPoly = (x: number, z: number, p: number[][]) => { let c = false; for (let i = 0, j = p.length - 1; i < p.length; j = i++) if ((p[i][1] > z) !== (p[j][1] > z) && x < ((p[j][0] - p[i][0]) * (z - p[i][1])) / (p[j][1] - p[i][1]) + p[i][0]) c = !c; return c; };
+const H = landOf(hill), S = landOf(summit);
+const ext = (o: { pos: number[]; dims?: Dims }) => ({ x0: o.pos[0], z0: o.pos[2], x1: o.pos[0] + o.dims!.nx * o.dims!.cell, z1: o.pos[2] + o.dims!.nz * o.dims!.cell });
+const E = ext(H.o);
+const floorOf = (l: Level) => [...grid.levels[l.id].floorPolygons, ...l.rooms.map((r) => r.polygon)] as Vec2[][];
+/** The hill level's fence: the invisible walls round the hill's foot, as one closed loop. */
+const fence = hill.walls.filter((w) => w.flags.includes('invisible'));
+const fenceLoop = fence.map((w) => w.a as Vec2);
+const segDist = (x: number, z: number, a: Vec2, b: Vec2) => { const dx = b[0] - a[0], dz = b[1] - a[1], t = Math.max(0, Math.min(1, ((x - a[0]) * dx + (z - a[1]) * dz) / (dx * dx + dz * dz || 1))); return Math.hypot(x - a[0] - dx * t, z - a[1] - dz * t); };
+/** The backdrop draws its moon and halo on canvases: a stand-in 2D canvas for node (nothing here looks at them). */
+function stubCanvas(): void {
+  const g = globalThis as unknown as { document?: unknown };
+  if (g.document) return;
+  const ctx: unknown = new Proxy({}, { get: (_t, k) => (k === 'createRadialGradient' || k === 'createLinearGradient' ? () => ({ addColorStop() {} }) : () => {}), set: () => true });
+  g.document = { createElement: () => ({ width: 0, height: 0, style: {}, getContext: () => ctx }) };
+}
 
 describe('Yester Hill is a hill', () => {
   it('every kind the two maps use is in the kit', () => {
-    const scenes = ['locations/ch14/Y/scene.json', 'locations/ch12/W/scene.json'].map((f) => JSON.parse(readFileSync(f, 'utf8')) as { levels: Lvl[] });
+    const scenes = ['locations/ch14/Y/scene.json', 'locations/ch12/W/scene.json'].map((f) => JSON.parse(readFileSync(f, 'utf8')) as SceneFile);
     const kinds = new Set(scenes.flatMap((sc) => sc.levels.flatMap((l) => l.objects.map((o) => o.kind))));
-    for (const k of ['cairn', 'black-boulder', 'fog-wall', 'strahd-effigy', 'gulthias-tree', 'vine-row', 'fermentation-vat']) { expect(kinds.has(k), k).toBe(true); expect(typeof PROPS_V1[k], k).toBe('function'); }
-    const fog = (PROPS_V1['fog-wall'] as (d: Record<string, number>) => { children: unknown[] })({ len: 170, h: 620, d: 900, base: 40, z0: 0, seed: 3, end: 1, ext: 400 });
-    expect(fog.children.length).toBeGreaterThan(20);
-  });
-  it('the land climbs some 270 ft from the forest floor to a broad top, no slope steeper than about 1 in 2', () => {
-    const plate = land.H.filter((_, k) => { const x = land.x0 + (k % land.W) * land.cell, z = land.z0 + Math.floor(k / land.W) * land.cell; return x >= 0 && x <= 1725 && z >= 0 && z <= 2250; });
-    expect(Math.min(...plate)).toBeGreaterThanOrEqual(0.5);          // never under the level's own floor and grid
-    expect(Math.max(...plate)).toBeGreaterThan(250);
-    let steep = 0;
-    for (let x = 0; x <= 1720; x += 10) for (let z = 0; z <= 2240; z += 10) {
-      const g = Math.hypot(land.at(x + 10, z) - land.at(x, z), land.at(x, z + 10) - land.at(x, z)) / 10;
-      if (g > 0.55) steep++;
+    for (const k of ['hill-land', 'hill-track', 'hill-patch', 'hill-pine', 'hill-dead-tree', 'cairn', 'black-boulder', 'fog-wall', 'strahd-effigy', 'gulthias-tree', 'vine-row', 'fermentation-vat']) {
+      expect(kinds.has(k), k).toBe(true); expect(typeof PROPS_V1[k], k).toBe('function');
     }
-    expect(steep, 'cells steeper than 0.55 (cut banks of the tracks excepted, they are few)').toBeLessThan(400);
   });
-  it('every prop stands on the land', () => {
-    for (const o of hill.objects) {
-      if (['heightfield', 'road-ribbon', 'prism', 'note', 'spawn', 'fog-wall'].includes(o.kind)) continue;
-      expect(Math.abs(o.pos[1] - land.at(o.pos[0], o.pos[2])), o.id).toBeLessThan(1);
+  it('the land climbs some 270 ft from the forest floor to a broad top, its slopes no steeper than about 1 in 2', () => {
+    // the tracks and the trail are cut into the slope: their banks are steeper than the land round them
+    const lines = hill.objects.filter((o) => o.kind === 'hill-track').map((o) => Array.from({ length: o.dims!.n }, (_, i) => [o.dims!['x' + i], o.dims!['z' + i]] as Vec2));
+    const nearLine = (x: number, z: number) => lines.some((l) => l.some(([px, pz], i) => i > 0 && segDist(x, z, l[i - 1], [px, pz]) < 40));   // a deep cut's bank reaches a way out
+    let lo = Infinity, hi = -Infinity, steep = 0, worst = 0, n = 0;
+    for (let x = E.x0; x < E.x1 - 10; x += 10) for (let z = E.z0 + ((x - E.x0) % 20); z < E.z1 - 10; z += 20) {   // every other cell
+      const h = H.at(x + 5, z + 5); lo = Math.min(lo, h); hi = Math.max(hi, h); n++;
+      const g = Math.hypot(H.at(x + 10, z + 5) - H.at(x, z + 5), H.at(x + 5, z + 10) - H.at(x + 5, z)) / 10;
+      worst = Math.max(worst, g);
+      if (g > 0.56 && !nearLine(x + 5, z + 5)) steep++;
+    }
+    expect(lo).toBeGreaterThan(-0.2);                    // never under the forest floor (the level's own ground)
+    expect(hi).toBeGreaterThan(265);
+    expect(steep, 'cells steeper than 0.56 away from the tracks and the trail').toBe(0);
+    expect(worst, 'the banks cut for the tracks and the trail').toBeLessThan(0.8);
+  });
+  it('the land reaches the forest floor before it ends, all round', () => {
+    for (let x = E.x0; x <= E.x1; x += 10) for (const z of [E.z0 + 0.5, E.z1 - 0.5]) expect(Math.abs(H.at(x, z)), `${x},${z}`).toBeLessThan(0.1);
+    for (let z = E.z0; z <= E.z1; z += 10) for (const x of [E.x0 + 0.5, E.x1 - 0.5]) expect(Math.abs(H.at(x, z)), `${x},${z}`).toBeLessThan(0.1);
+  });
+  it('every prop stands on the land, on both levels (on the summit, on its floor where it has one)', () => {
+    const SKIP = ['hill-land', 'hill-track', 'hill-patch', 'note', 'spawn', 'fog-wall'], HIGH = ['summit-gem'];   // the gem is in the effigy's chest
+    for (const l of [hill, summit]) {
+      const land = l === hill ? H : S, rooms = l === summit ? l.rooms.map((r) => r.polygon as Vec2[]) : [];
+      const patches = l === hill ? l.objects.filter((o) => o.kind === 'hill-patch').map((o) => Array.from({ length: o.dims!.n }, (_, i) => [o.dims!['x' + i], o.dims!['z' + i]] as Vec2)) : [];
+      for (const o of l.objects) {
+        if (SKIP.includes(o.kind) || HIGH.includes(o.id)) continue;
+        let g = land.at(o.pos[0], o.pos[2]);
+        if (rooms.some((p) => pointInPolygon([o.pos[0], o.pos[2]], p))) g = Math.max(g, l.elevationFt);
+        else if (patches.some((p) => pointInPolygon([o.pos[0], o.pos[2]], p))) g += 0.15;
+        expect(Math.abs(l.elevationFt + o.pos[1] - g), `${l.id} ${o.id}`).toBeLessThan(1);
+      }
     }
   });
   it('each ring of cairns keeps its contour', () => {
@@ -63,28 +94,116 @@ describe('Yester Hill is a hill', () => {
     let worst = 0;
     for (let i = 1; i < d.n; i++) worst = Math.max(worst, (d['y' + i] - d['y' + (i - 1)]) / Math.hypot(d['x' + i] - d['x' + (i - 1)], d['z' + i] - d['z' + (i - 1)]));
     expect(worst).toBeLessThanOrEqual(0.2001);
-    expect(d['y0']).toBeLessThan(3);
+    expect(d['y0']).toBeLessThan(1.5);
     expect(d['y' + (d.n - 1)]).toBeGreaterThan(260);
   });
-  it('the summit level stands on the hilltop: its floor is the turf and its grid lies on it', () => {
-    const top = summit.elevationFt;
-    for (const poly of grid.levels.summit.floorPolygons) for (const [x, z] of poly) expect(Math.abs(land.at(x, z) - top), `${x},${z}`).toBeLessThan(1.2);
-    for (const o of summit.objects.filter((o) => o.kind === 'black-boulder' || o.kind === 'strahd-effigy')) expect(Math.abs(o.pos[1]), o.id).toBeLessThan(1);
+});
+
+describe('Yester Hill: a token always stands on the ground', () => {
+  it('the hill level: players walk the forest floor round the foot; a closed fence keeps them off the slope', () => {
+    expect(fence.length).toBeGreaterThan(60);
+    for (let k = 0; k < fence.length; k++) expect(fence[k].b).toEqual(fence[(k + 1) % fence.length].a);
+    const floor = floorOf(hill);
+    // everywhere a player can stand (on the floor, outside the fence) the land is the level's own ground
+    let n = 0;
+    for (let x = E.x0 + 2.5; x < E.x1; x += 25) for (let z = E.z0 + 2.5; z < E.z1; z += 25) {
+      if (!floor.some((p) => pointInPolygon([x, z], p)) || pointInPolygon([x, z], fenceLoop)) continue;
+      expect(Math.abs(H.at(x, z) - hill.elevationFt), `${x},${z}`).toBeLessThan(0.4); n++;
+    }
+    expect(n).toBeGreaterThan(2000);
+    // the rooms, the spawn and the stair up all lie on that floor
+    for (const r of hill.rooms) for (const p of r.polygon) expect(pointInPolygon(p as Vec2, fenceLoop), r.key).toBe(false);
+    const spawn = hill.objects.find((o) => o.kind === 'spawn')!, link = scene.links.find((k) => k.from.level === 'hill')!;
+    for (const p of [[spawn.pos[0], spawn.pos[2]], link.from.pos] as Vec2[]) { expect(pointInPolygon(p, fenceLoop)).toBe(false); expect(Math.abs(H.at(p[0], p[1]))).toBeLessThan(0.4); }
   });
-  it('the land drawn beyond the map meets the lattice at its outer edge', () => {
-    let worst = 0;
-    for (let i = 0; i <= land.nx; i++) for (const j of [0, land.nz]) { const x = land.x0 + i * land.cell, z = land.z0 + j * land.cell; worst = Math.max(worst, Math.abs(land.H[j * land.W + i] - yesterLand(x, z))); }
-    for (let j = 0; j <= land.nz; j++) for (const i of [0, land.nx]) { const x = land.x0 + i * land.cell, z = land.z0 + j * land.cell; worst = Math.max(worst, Math.abs(land.H[j * land.W + i] - yesterLand(x, z))); }
-    expect(worst).toBeLessThan(1);
+  it('the hill level: the party walks the forest floor at the trail\'s foot and by the fog, never up the slope', () => {
+    // walking is checked inside a window round each place (the whole level's floor is the lattice: a slow search)
+    const walls = moveBlockers(hill.walls), link = scene.links.find((k) => k.from.level === 'hill')!;
+    const win = (x: number, z: number, r: number): Vec2[][] => [[[x - r, z - r], [x + r, z - r], [x + r, z + r], [x - r, z + r]]];
+    const [lx, lz] = link.from.pos as Vec2, ne = win(lx, lz, 300);
+    expect(canWalk([lx, lz], [lx + 120, lz - 40], walls, ne)).toBe(true);                // on along the forest floor
+    expect(canWalk([lx, lz], [lx - 200, lz + 260], walls, ne)).toBe(false);              // up the east slope
+    expect(H.at(lx - 200, lz + 260)).toBeGreaterThan(20);
+    const y5 = bounds([hill.rooms.find((r) => r.key === 'Y5')!.polygon as Vec2[]]), cx = (y5.minX + y5.maxX) / 2, cz = (y5.minZ + y5.maxZ) / 2, w = win(cx, cz, 300);
+    expect(canWalk([cx, cz - 250], [cx, cz], walls, w)).toBe(true);                      // along the fog's foot
+    expect(canWalk([cx, cz], [cx + 260, cz], walls, w)).toBe(false);                     // up the west slope
+    expect(H.at(cx + 260, cz)).toBeGreaterThan(20);
   });
-  it('the fog wall stands on the west rim and its pieces join end to end', () => {
-    const fog = hill.objects.filter((o) => o.kind === 'fog-wall').sort((a, b) => a.pos[2] - b.pos[2]);
-    expect(fog.length).toBeGreaterThan(10);
-    for (const o of fog) { expect(o.pos[0]).toBeLessThan(60); expect(o.dims!.z0).toBe(o.pos[2]); }
-    for (let i = 1; i < fog.length; i++) expect(fog[i].pos[2] - fog[i - 1].pos[2]).toBeCloseTo(fog[i].dims!.len, 3);
-    expect(fog[0].pos[2] - fog[0].dims!.len / 2).toBeLessThan(0);
-    expect(fog[fog.length - 1].pos[2] + fog[0].dims!.len / 2).toBeGreaterThan(2250);
-    const inFog = fog.filter((o) => inPoly(o.pos[0], o.pos[2], [[0, 0], [1725, 0], [1725, 2250], [0, 2250]]));
-    expect(inFog.length).toBeGreaterThan(8);
+  it('the summit level: its floor (the grid, the inner track, the ring, the copse and the trail\'s last stretch) is the flat top', () => {
+    // the turf a hair under the grid; under a keyed floor (a foot-thick slab: the tracks, the ring's earth) a bench up to
+    // a foot lower is covered
+    let n = 0;
+    const rooms = summit.rooms.map((r) => r.polygon as Vec2[]);
+    for (const p of floorOf(summit)) {
+      const b = bounds([p]);
+      for (let x = b.minX + 1; x < b.maxX; x += 12) for (let z = b.minZ + 1; z < b.maxZ; z += 12) {
+        if (!pointInPolygon([x, z], p)) continue;
+        const d = summit.elevationFt - S.at(x, z);
+        expect(d, `${x},${z}`).toBeGreaterThan(0.3);
+        expect(d, `${x},${z}`).toBeLessThan(rooms.some((r) => pointInPolygon([x, z], r)) ? 1.2 : 0.8); n++;
+      }
+    }
+    expect(n).toBeGreaterThan(3000);
+    const link = scene.links.find((k) => k.to.level === 'summit')!;
+    expect(floorOf(summit).some((p) => pointInPolygon(link.to.pos as Vec2, p))).toBe(true);
+    // its battle ground is at least as big as the old flat inset's (680 x 815 ft)
+    const area = (p: Vec2[]) => Math.abs(p.reduce((a, [x, z], i) => { const [x2, z2] = p[(i + 1) % p.length]; return a + x * z2 - x2 * z; }, 0)) / 2;
+    expect(Math.max(...grid.levels.summit.floorPolygons.map((p) => area(p as Vec2[])))).toBeGreaterThan(480_000);
+  });
+});
+
+describe('Yester Hill: the land beyond the map, the fog of war and the fog', () => {
+  it('the land drawn beyond the map (built as the app builds it) meets the map\'s land at its edge with no step', () => {
+    stubCanvas();
+    const camp = CAMPAIGNS.find((c) => c.prefixes.includes('ch14'))!, world = worldOf(camp);
+    const pin = world.pins.find((p) => p.scenes?.includes('ch14/Y'))!;
+    const bb = bounds([...hill.rooms.map((r) => r.polygon), ...(hill.terrain ?? []).map((t) => t.polygon)]);
+    const bd = buildBackdrop({ ground: 'grass', center: [(bb.minX + bb.maxX) / 2, (bb.minZ + bb.maxZ) / 2], radius: Math.hypot(bb.maxX - bb.minX, bb.maxZ - bb.minZ) / 2, elevation: hill.elevationFt, pin: pin.pos as Vec2, world, theme: camp.theme, bounds: bb, north: hill.north, roads: [], crag: pin.heightFt ?? 0 });
+    const land = bd.getObjectByName('land')!, ray = new THREE.Raycaster();
+    bd.updateMatrixWorld(true);
+    const at = (x: number, z: number) => { ray.set(new THREE.Vector3(x, 5000, z), new THREE.Vector3(0, -1, 0)); return ray.intersectObject(land)[0]?.point.y; };
+    let worst = 0, n = 0;
+    for (let t = 0.02; t < 0.99; t += 0.04) {
+      const x = E.x0 + (E.x1 - E.x0) * t, z = E.z0 + (E.z1 - E.z0) * t;
+      for (const [px, pz, dx, dz] of [[x, E.z0, 0, -1], [x, E.z1, 0, 1], [E.x0, z, -1, 0], [E.x1, z, 1, 0]]) {
+        const out = at(px + dx * 4, pz + dz * 4); expect(out, `${px},${pz}`).toBeDefined();
+        worst = Math.max(worst, Math.abs(out! - H.at(px - dx * 0.5, pz - dz * 0.5))); n++;
+      }
+    }
+    expect(n).toBeGreaterThan(90);
+    expect(worst).toBeLessThan(0.25);
+  });
+  it('the hill\'s scenery is never under the fog of war (it is seen from both levels, like the land beyond the map)', () => {
+    const open = (o: THREE.Object3D) => { let all = true, n = 0; o.traverse((c) => { const m = c as THREE.Mesh; if (!m.isMesh) return; n++; if (!(m.material as THREE.Material).userData.fogExempt?.value) all = false; }); return n > 0 && all; };
+    const KINDS = ['hill-land', 'hill-track', 'hill-patch', 'hill-pine', 'hill-dead-tree', 'cairn', 'black-boulder', 'strahd-effigy', 'gulthias-tree', 'dead-shrub', 'fog-wall'];
+    const ALWAYS = ['hill-land', 'hill-track', 'hill-patch', 'hill-pine', 'hill-dead-tree', 'fog-wall'];   // the rest ask for it (dims.open)
+    for (const k of KINDS) {
+      const o = hill.objects.find((x) => x.kind === k)!;          // one of each: they are built alike
+      expect(open((PROPS_V1[k] as (d: Dims) => THREE.Object3D)((o.dims ?? {}) as Dims)), o.id).toBe(true);
+    }
+    for (const l of [hill, summit]) for (const o of l.objects) if (KINDS.includes(o.kind) && !ALWAYS.includes(o.kind)) expect(o.dims?.open, `${l.id} ${o.id}`).toBe(1);
+  });
+  it('the fog wall stands on the forest floor west of the hill, runs past both ends of the land, and every sheet fades out at its top and foot', () => {
+    const fog = hill.objects.filter((o) => o.kind === 'fog-wall');
+    expect(fog.length).toBe(1);
+    const f = fog[0], d = f.dims!;
+    expect(f.pos[0]).toBeLessThan(E.x0 + 20);
+    expect(Math.abs(f.pos[1] - H.at(f.pos[0] + 10, f.pos[2]))).toBeLessThan(0.1);
+    expect(f.pos[2] - d.len / 2 - d.ext).toBeLessThan(E.z0 - 300); expect(f.pos[2] + d.len / 2 + d.ext).toBeGreaterThan(E.z1 + 300);
+    const g = (PROPS_V1['fog-wall'] as (d: Dims) => THREE.Object3D)(d as Dims);
+    let top = 0, foot = 0, most = 0, n = 0;
+    g.traverse((c) => {
+      const m = c as THREE.Mesh; if (!m.isMesh) return;
+      const pos = m.geometry.attributes.position, col = m.geometry.attributes.color;
+      expect(col.itemSize).toBe(4);
+      let ymax = 0; for (let i = 0; i < pos.count; i++) ymax = Math.max(ymax, pos.getY(i));
+      for (let i = 0; i < pos.count; i++) { const a = col.getW(i); most = Math.max(most, a); n++; if (pos.getY(i) < -1.4) foot = Math.max(foot, a); }
+      // the highest vertices of each sheet are clear
+      for (let i = 0; i < pos.count; i++) if (pos.getY(i) > ymax * 0.98) top = Math.max(top, col.getW(i));
+    });
+    expect(n).toBeGreaterThan(1000);
+    expect(most).toBeGreaterThan(0.3);
+    expect(top).toBeLessThan(0.01);
+    expect(foot).toBeLessThan(0.01);
   });
 });
