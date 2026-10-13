@@ -168,6 +168,9 @@ export interface GridLevel {
   origin: Vec2;
   color: string;
   opacity: number;
+  /** Draw the grid on the floor polygons themselves (which must not overlap), not over their bounding box: for a level
+   *  whose floor is no walled room (a hilltop, a track round a hill), so the grid never hangs past it. */
+  clip?: boolean;
 }
 export interface GridFile {
   schema: 1;
