@@ -15,7 +15,7 @@ from wildlib import *  # noqa: F401,F403
 
 W, H = 140, 100          # cells (700 x 500 ft), x east, z south
 PER = 6                  # catmull points per span
-GRASS, EARTH, ROCK, SHINGLE, MUD, DIRT = 0x3d5241, 0x4f4538, 0x5d6168, 0xb0a998, 0x4a3f33, 0x66584a
+GRASS, EARTH, ROCK, SHINGLE, MUD, DIRT = 0x3d5241, 0x4f4538, 0x5d6168, 0xb0a998, 0x4b3f32, 0x66584a
 
 
 def build():
@@ -59,10 +59,12 @@ def build():
     N_EDGE = [edge(i, -hw(fr(i))) for i in range(N)]
     N_LIP = [edge(i, -(hw(fr(i)) + lip(fr(i)))) for i in range(N)]        # the bluff lip
     water = clamp_poly([(rnd(x), rnd(z)) for x, z in ribbon(line, hw)], W, H)
-    Spoly = clamp_poly([(rnd(x), rnd(z)) for x, z in S_FOOT] + [(W, H), (0, H)], W, H)
+    # the south terrace: the bank foot, then back along the south edge in short steps (the key label sits at the
+    # polygon's vertex average, so the edge's vertices pull it off the water onto the grass)
+    Spoly = clamp_poly([(rnd(x), rnd(z)) for x, z in S_FOOT] + [(rnd(W - W * k / 60), H) for k in range(61)], W, H)
     Npoly = clamp_poly([(0, 0), (W, 0)] + [(rnd(x), rnd(z)) for x, z in N_LIP[::-1]], W, H)
     g.terrain[0] = (Spoly, 'grass'); g.terrain.append((Npoly, 'grass'))
-    s.walk = [Spoly, Npoly]
+    s.walk = [Spoly, Npoly, water]   # the water too, so the party on the banks sees the river (fog coverage is per level)
     s.keep.append((ribbon(line, lambda f: hw(f) + 1.3), 0))
 
     # ------------------------------------------------------------ the road (bearing 029) and the bridge geometry
@@ -99,7 +101,10 @@ def build():
            'The north bluff is 7 ft of layered rock over the water. From the Sheep Rocks a watcher sees the whole road from edge to edge and the ford; anyone there is hidden from the bridge with cover. Scouts stage here.')
     # the river is the level that meets the open air, so it carries a sliver of terrain (the wading margin along the south
     # shore, under its shingle); the water itself is the keyed room, so the grid shows over it
-    river.terrain.append((strip(0, N - 1, lambda f: hw(f) - 0.3, lambda f: hw(f) + 0.9), 'shallow-water'))
+    river.terrain.append((clamp_poly(strip(0, N - 1, lambda f: hw(f) - 0.3, lambda f: hw(f) + 0.9), W, H), 'shallow-water'))
+    # the whole map under everything at the river's level (hidden by the banks and the water): the backdrop reads this
+    # level's extent as the map's own, so the land beyond meets the map at every edge
+    river.terrain.append((rect(0, 0, W, H), 'grass'))
     river.room('D-river', 'The River Ivlis', water, 'shallow-water', page=35, difficult=True)
     s.desc['D-river'] = ('Fifty feet of fast, glass-clear winter-blue water, every stone on the bed showing ten feet down; two ribs of rock foam white under the bridge, and a long slow pool lies still above them.',
                          '50 ft wide, 5-10 ft deep, very cold. Swimming: DC 10 Athletics in the Mirror Pool; DC 15 in the narrows, the elbow and the north channel, and a failure sweeps the swimmer 20 ft downstream per round toward the bar. The south channel at the bar is a 2-3 ft wade (difficult terrain, no check). Heavy armour: disadvantage. Every 10 minutes in the water: DC 10 Con save or a level of exhaustion from the cold. Fog lies on the water at dawn and dusk (lightly obscured).')
@@ -125,11 +130,19 @@ def build():
         return o
     prism(river, 'bank-s', Spoly, 6.6, 0, EARTH)
     prism(river, 'bank-n', Npoly, 6.6, 0, EARTH)
-    prism(river, 'bluff', strip(idx(4.0), N - 1, lambda f: -hw(f) + 0.15, lambda f: -(hw(f) + lip(f) + 0.3)), 6.9, 0, ROCK)
-    prism(river, 'margin-s', strip(0, N - 1, lambda f: hw(f) - 0.35, lambda f: hw(f) + 0.95), 0.5, 0, SHINGLE)
-    prism(river, 'mud-slope', strip(idx(2.1), idx(3.2), lambda f: hw(f) - 1.9, lambda f: hw(f) + 0.3), 3.4, 0, MUD)
-    prism(river, 'beach', strip(idx(3.3), idx(4.7), lambda f: hw(f) - 2.6, lambda f: hw(f) + 0.3), 1.6, 0, SHINGLE)
-    prism(river, 'ford-mud', strip(idx(9.3), idx(10.4), lambda f: hw(f) - 1.4, lambda f: hw(f) + 0.3), 1.0, 0, MUD)
+    prism(river, 'bluff', clamp_poly(strip(idx(4.0), N - 1, lambda f: -hw(f) + 0.15, lambda f: -(hw(f) + lip(f) + 0.3)), W, H), 6.9, 0, ROCK)
+    prism(river, 'margin-s', clamp_poly(strip(0, N - 1, lambda f: hw(f) - 0.35, lambda f: hw(f) + 0.95), W, H), 0.4, 0, SHINGLE)
+    def ramp(pid, t0, t1, run, h, color, label=None):
+        """A sloping wedge from the south bank's top (h ft above the water) down into the water `run` ft out, along the
+        bank foot between control indices t0 and t1: the drinking slope, the beach, the ford exit."""
+        pts = S_FOOT[idx(t0):idx(t1) + 1]; a, b = pts[0], pts[-1]
+        cx, cz = sum(q[0] for q in pts) / len(pts), sum(q[1] for q in pts) / len(pts)
+        L = math.hypot(b[0] - a[0], b[1] - a[1]); i = idx((t0 + t1) / 2); nx, nz = -NRM[i][0], -NRM[i][1]   # toward the water
+        river.prop(pid, 'd-bank-ramp', (rnd(cx), rnd(cz)), None, rotY=facing(nx, nz), dims={'len': rnd(L * 5 + 3), 'run': run, 'h': h, 'back': 6, 'color': color})
+        if label: river.objects[-1]['label'] = label
+    ramp('mud-slope', 2.1, 3.2, 20, 6.9, MUD, 'The Drinking Slope')
+    ramp('beach', 3.3, 4.7, 16, 3.6, SHINGLE)
+    ramp('ford-mud', 9.15, 9.75, 13, 6.9, MUD)
     prism(g, 'knoll', blob(73, 42, 5, 17, sx=1.5), 3.0, 0, GRASS)
 
     # ------------------------------------------------------------ the water's set pieces (river level, y = water surface)
@@ -152,14 +165,20 @@ def build():
     river.objects[-1]['label'] = 'The Strand Line'; river.objects[-1]['desc'] = 'Splintered timbers, a wagon wheel, bleached bones, rags and a torn boot, combed into one heap by the current on the head of the bar.'
     river.prop('wain', 'd-drowned-wain', (109, 60), 'D-bar', rotY=-20, y=0.6)
     river.objects[-1]['label'] = 'The Drowned Wain'; river.objects[-1]['desc'] = 'A farm wain that went off the ford in a flood, half buried in gravel, one shaft pointing at the sky, a wheel still turning in the current.'
-    river.prop('weir', 'd-fish-weir', (104, 65.2), None, rotY=heading(1, 0.05), dims={'len': 20})
+    WA, WB = (510 / 5, 305 / 5), (530 / 5, 331 / 5)     # the bar's south edge and the south bank
+    wdx, wdz = WA[0] - WB[0], WA[1] - WB[1]; wl = math.hypot(wdx, wdz)
+    river.prop('weir', 'd-fish-weir', ((WA[0] + WB[0]) / 2, (WA[1] + WB[1]) / 2), None, rotY=heading(wdx, wdz), dims={'len': rnd(wl * 5 + 2), 'depth': 0.32})
+    wr = math.radians(heading(wdx, wdz)); wt = 0.32 * (wl * 5 + 2) + 2.6        # the basket: local +z from the weir's centre
+    trap = ((WA[0] + WB[0]) / 2 + math.sin(wr) * wt / 5, (WA[1] + WB[1]) / 2 + math.cos(wr) * wt / 5)
     river.objects[-1]['label'] = 'Fish weir'; river.objects[-1]['desc'] = 'Driven stakes and wicker panels angled across the shallow channel, a basket trap at the point; a cord runs up to a bell on the bank. A villager checks it at dawn.'
     river.prop('wash', 'd-washing-slabs', (56, 50.6), None, rotY=heading(1, 0.1), dims={'len': 60})
     river.objects[-1]['label'] = 'The Washing Stones'; river.objects[-1]['desc'] = 'Flat slabs at the waterline with hollows worn into them by generations of beaten laundry; a drying pole with a forgotten rag, a basket. Every word spoken on the bridge is heard here.'
     river.prop('willow', 'd-hollow-willow', (64.4, 51.4), None, rotY=35, dims={'h': 35})
     river.objects[-1]['label'] = 'The Hollow Willow'; river.objects[-1]['desc'] = 'An ancient pollarded willow, roots in the river, trunk split and hollow, its crown a fist of thick stubs where ravens sit in all weathers and watch the bridge.'
-    ux, uz = flow(9.0); p = edge(idx(8.95), -hw(8.95 / (NC - 1)) + 0.1)
-    river.prop('undercut', 'd-undercut-bank', (rnd(p[0]), rnd(p[1])), None, rotY=heading(ux, uz), dims={'len': 30, 'h': 7})
+    ux, uz = flow(9.0); uc = edge(idx(8.95), -hw(8.95 / (NC - 1)) + 0.1)   # the undercut: kept apart, the villager and the bats are placed from it
+    def under(a, b):   # a cells downstream along the bluff, b cells out from its foot toward the river -> plan cells
+        return (rnd(uc[0] + ux * a - uz * b), rnd(uc[1] + uz * a + ux * b))
+    river.prop('undercut', 'd-undercut-bank', (rnd(uc[0]), rnd(uc[1])), None, rotY=heading(ux, uz), dims={'len': 30, 'h': 7})
     river.objects[-1]['label'] = 'The Undercut'; river.objects[-1]['desc'] = 'Where the fast channel runs hard against the bluff the current has eaten a hollow under it, roots hanging into black water. A sweetish rot drifts out when the wind backs east.'
     river.prop('mirror', 'd-castle-reflection', (23.6, 37.4), None, rotY=heading(math.sin(math.radians(151)), -math.cos(math.radians(151))), dims={'len': 54, 'w': 34})
     river.objects[-1]['label'] = 'The Mirror Pool'; river.objects[-1]['desc'] = 'Above the sills the river backs up into a slow, glass-clear reach holding the only blue in the valley; the pillar of Castle Ravenloft stands over the pines to the north-west and hangs upside down in the water.'
@@ -167,6 +186,51 @@ def build():
         side = -1 if t < 3 and i % 2 == 0 else 1
         p = edge(idx(t), side * (hw(t / (NC - 1)) + (0.5 if side > 0 else -0.1)))
         if s.inmap(p): river.prop(f'reeds-{i}', 'reeds', (rnd(p[0]), rnd(p[1])), None, rotY=int(rng.random() * 360), dims={'r': rnd(1.6 + rng.random() * 1.4), 'n': 9}, y=0.3 if side > 0 else 0)
+    # the river runs on past both edges in its trench, the banks sinking into the land beyond (scenery, not map)
+    def edge_cross(xe):   # where the centreline crosses x = xe (cells), and the flow direction there
+        for i in range(N - 1):
+            (x0, z0), (x1, z1) = line[i], line[i + 1]
+            if (x0 - xe) * (x1 - xe) <= 0 and x1 != x0:
+                u = (xe - x0) / (x1 - x0); L = math.hypot(x1 - x0, z1 - z0)
+                return (xe, z0 + (z1 - z0) * u), ((x1 - x0) / L, (z1 - z0) / L), hw(fr(i))
+    # The land beyond the map draws the world map's river as a ribbon through the pin, which the backdrop puts at the
+    # middle of this level's extent. A speck of terrain far to the north sets that middle (RIB_Z, ft) so the ribbon
+    # meets the map's own river at the west edge where it comes out of the pines, and runs under the north bank across
+    # the map; each reach then carries the channel on from the map's edge until it runs into that ribbon.
+    WORLD = json.load(open(os.path.join(ROOT, 'locations', 'ch02', 'barovia-region', 'world.json')))
+    PIN = next(q['pos'] for q in WORLD['pins'] if q['key'] == 'D')
+    IVLIS = next(r['pts'] for r in WORLD['rivers'] if r['name'] == 'River Ivlis' and any(abs(x - PIN[0]) < 0.6 for x, _ in r['pts']))
+    def ribbon_z(xft, cz):   # the world ribbon's centre (ft) where it crosses plan x = xft, the map's middle at (350, cz)
+        wx = PIN[0] + (xft - W * 5 / 2) / 5280
+        for (x0, y0), (x1, y1) in zip(IVLIS, IVLIS[1:]):
+            if x0 <= wx <= x1: return cz + (y0 + (y1 - y0) * (wx - x0) / (x1 - x0) - PIN[1]) * 5280
+    q0, _, h0 = edge_cross(0)
+    RIB_Z = rnd(q0[1] * 5 - h0 * 5 - 21 - (ribbon_z(0, 0) or 0), 1)    # the 40-ft ribbon just clear of the water at x 0
+    river.terrain.append(([(W / 2, (2 * RIB_Z - H * 5) / 5), (W / 2 + 0.2, (2 * RIB_Z - H * 5) / 5), (W / 2, (2 * RIB_Z - H * 5) / 5 + 0.2)], 'grass'))
+    def reach_to_ribbon(q, d):
+        """(len, bend, s) of the reach from q (ft) heading d whose end lands on the ribbon heading along it: an arc
+        (s 0) or an S (s 1, back to its first heading), short enough to stay on the flat land round the map."""
+        best = None; ph0 = math.atan2(d[1], d[0]); n = 16
+        for S in (0, 1):
+            for L in range(80, 340, 5):
+                for B in range(-66, 67, 2):   # no hairpins
+                    x, z = q; b = math.radians(B)
+                    for i in range(n):
+                        t = (i + 0.5) / n; a = ph0 + b * (math.sin(math.pi * t) if S else t); x += math.cos(a) * L / n; z += math.sin(a) * L / n
+                    rz = ribbon_z(x, RIB_Z)
+                    if rz is None or not -110 <= x <= W * 5 + 250: continue
+                    ph1 = ph0 + (0 if S else b); sg = 1 if d[0] > 0 else -1
+                    rd = math.atan2(ribbon_z(x + sg, RIB_Z) - rz, sg)
+                    err = abs(z - rz) + 30 * abs(math.atan2(math.sin(ph1 - rd), math.cos(ph1 - rd))) + 0.03 * L
+                    if best is None or err < best[0]: best = (err, L, B, S, abs(z - rz))
+        return best[1:]
+    for pid, xe, sgn in (('reach-w', 0, -1), ('reach-e', W, 1)):
+        q, (dx, dz), h = edge_cross(xe)
+        L, B, S, miss = reach_to_ribbon((q[0] * 5, q[1] * 5), (sgn * dx, sgn * dz))
+        print(f'  {pid}: {L} ft, bend {B}, {"S" if S else "arc"}, ends {miss:.1f} ft off the ribbon')
+        st = (q[0] - sgn * dx * 0.4, q[1] - sgn * dz * 0.4)   # it starts 2 ft inside the edge, so it laps the map's own water
+        river.prop(pid, 'd-river-reach', (rnd(st[0]), rnd(st[1])), None, rotY=heading(sgn * dx, sgn * dz), dims={'len': L + 2, 'w': rnd(h * 10), 'hb': 7, 'bend': B, 's': S, 'blend': 1})
+        river.objects[-1]['vis'] = 'explored'   # its own draw (kept out of the merged scatter, which drops vertex colours)
     for i, (t, L, D) in enumerate(((1.9, 80, 24), (4.6, 56, 22))):   # dawn mist in ribbons on the water
         fx, fz = flow(t); p = line[idx(t)]
         river.prop(f'mist-{i}', 'mist', (rnd(p[0]), rnd(p[1])), None, rotY=heading(fx, fz), dims={'len': L, 'h': 5, 'd': D}); river.objects[-1]['vis'] = 'explored'; river.objects[-1]['label'] = 'Mist on the water'
@@ -198,7 +262,8 @@ def build():
     s.prop('d-trappers-hide', (100, 72.4), rot=facing(0, -1), label='The Trappers\' Hide',
            desc='A low blind of brush and wicker hurdles facing the ford, a floor of trodden pine needles, a cold fire ring, two crossbow bolts stuck in the sod.')
     s.clear(100, 72.4, 4.5)
-    s.prop('d-bell-stake', (106, 69.2), rot=heading(-10, -25), dims={'cord': 27, 'drop': 10}, label='Weir bell',
+    bell = (106, 69.2); cord = math.hypot(trap[0] - bell[0], trap[1] - bell[1]) * 5
+    s.prop('d-bell-stake', bell, rot=heading(trap[0] - bell[0], trap[1] - bell[1]), dims={'cord': rnd(cord), 'drop': 8.5}, label='Weir bell',
            desc='A small bronze bell on a stake; its cord runs down into the river to the fish weir. It creaks when the current pulls.')
     s.clear(106, 69.2, 3)
     s.hidden('d-wolf-trap', (103, 67.2), 'Hunting trap (set)', 'A steel trap', rot=20, dims={'sprung': 0},
@@ -221,7 +286,7 @@ def build():
     o['desc'] = 'A small iron-bound box wedged under the wain\'s bed, buried in gravel.'
     o['dm'] = 'DC 13 Perception from the bar, 10 minutes of digging: a few coins and one roll on the Trinkets table (the "trinket" encounter, p.32).'
     o['container'] = OrderedDict(locked=False, contents='A handful of worn coins, 2d10 cp and 1d6 sp, and one small odd keepsake (roll a trinket).')
-    river.hidden('villager', 'd-drowned-villager', (rnd(p[0] + ux * -1.2 + uz * 0.9), rnd(p[1] + uz * -1.2 - ux * 0.9)), None, 'The missing villager', rotY=heading(ux, uz) + 20)
+    river.hidden('villager', 'd-drowned-villager', under(-0.6, 0.62), None, 'The missing villager', rotY=heading(ux, uz) + 95)   # lying along the foot of the hollow
     o = river.objects[-1]; o['playerLabel'] = 'A pale shape under the roots'
     o['desc'] = 'A man\'s body wedged under the roots below the waterline, torn about the throat and belly.'
     o['dm'] = 'The villager the scouts are searching for (the "corpse" encounter, p.30), killed by dire wolves. DC 12 Perception from the bar to see him as a pale shape under the roots. The scouts recognise him.'
@@ -253,8 +318,8 @@ def build():
     BA = 'Swarms of bats (1d8), night: they attack without provocation when a light is carried under the bridge or along the north bank below the bluff. One swarm is the castle\'s spy and tries to leave with a report (p.32, spies sidebar).'
     mob(river, 'bats-1', 'd-bat-swarm', (41.2, 48.6), 'Swarm of bats (under the arch)', 'A flutter of wings under the arch', y=5, dm=BA)
     mob(river, 'bats-2', 'd-bat-swarm', (38.8, 47.0), 'Swarm of bats (under the arch)', 'A flutter of wings under the arch', y=6, dm=BA)
-    mob(river, 'bats-3', 'd-bat-swarm', (rnd(p[0] + 1.0), rnd(p[1] + 1.2)), 'Swarm of bats (the Undercut)', 'Bats in the hollow', y=3, dm=BA)
-    mob(river, 'bats-4', 'd-bat-swarm', (rnd(p[0] - 1.6), rnd(p[1] + 0.8)), 'Swarm of bats (the Undercut)', 'Bats in the hollow', y=3.5, dm=BA)
+    mob(river, 'bats-3', 'd-bat-swarm', under(1.6, 0.66), 'Swarm of bats (the Undercut)', 'Bats in the hollow', y=2, dm=BA)
+    mob(river, 'bats-4', 'd-bat-swarm', under(-1.8, 0.6), 'Swarm of bats (the Undercut)', 'Bats in the hollow', y=3, dm=BA)
     mob(river, 'raven', 'd-raven', (64.0, 50.2), 'Raven in the willow (spy or wereraven)', 'A raven', size='tiny', rot=facing(-0.9, -0.3), y=14,
         dm='Always present by day. 50%: an ordinary spy of the castle (flees when noticed, tries to snatch a small item). 50%: a wereraven in raven form who keeps its distance, flies off when stared at and comes back; its bundle is in the hollow of the crown. Ravens carry lost souls, the Vistani say; killing one is bad luck (p.28).')
     mob(g, 'rider', 'd-skeletal-warhorse', road_pt(T_N - 18), 'Skeletal rider on a skeletal warhorse', 'A rider in the fog', size='large', rot=heading(-RD[0], -RD[1]),
@@ -279,13 +344,15 @@ def build():
         if z > 79: return 0.9
         if north:
             if x < road_x(z) - 3.5: return 0.9 if z > 8 or x < 40 else 0.5
-            if x > 120: return 0.25
-            if z < 20: return 0.08
-            return 0.012
-        if x > 119 and z > 62: return 0.72
-        if z > 72: return 0.3
-        return 0.03
+            return 0.0                       # the village's open meadow: only the lone pines below
+        if z > 78: return 0.9                # the forest edge, z 390 ft
+        if z > 75: return 0.12               # a few at its fringe
+        return 0.0                           # the terrace: grass to the forest edge
     s.pines(5200, density=dens, gap=2.3, margin=1.3, scale=(1.0, 1.55))
+    # lone pines on the north meadow east of the road, well back from the bluff and clear of the Sheep Rocks
+    lone = lambda x, z: 1.0 if inside((x, z), Npoly) and x > road_x(z) + 5 and z < 26 and math.hypot(x - 73, z - 42) > 14 else 0.0
+    for _ in range(400):
+        if s.pines(1, density=lone, gap=11, margin=1.3, scale=(1.05, 1.6)) and sum(1 for t in s.trees if lone(t[0], t[1])) >= 10: break
     s.undergrowth(bushes=48, boulders=14, dead=5, stumps=7, logs=5, density=lambda x, z: 1.0 if dens(x, z) > 0.4 else 0.12)
     s.scatter('boulder', 7, lambda x, z: 1.0 if inside((x, z), Npoly) and z < 46 and x > 50 else 0.0, margin=0.8, gap=2.5, dims=lambda r: {'r': rnd(1.6 + r.random() * 2.2)})
     s.scatter('weeds', 16, lambda x, z: 1.0 if (inside((x, z), Spoly) and z < 72) or inside((x, z), Npoly) else 0.0, margin=0.3, gap=1.5, dims={'n': 4, 'r': 1.5}, circles=False)

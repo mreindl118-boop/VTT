@@ -5,7 +5,7 @@
 import * as THREE from 'three';
 import { PROPS_V1 } from '../props';
 import { CREATURES, horse, humanoid } from '../creatures';
-import { mat, matClone } from '../../render/materials';
+import { mat, matClone, patchFog } from '../../render/materials';
 import { FLOOR_COLOR, PALETTE } from '../palette';
 import { surfaceFor, type Surface } from '../surfaces';
 
@@ -20,7 +20,7 @@ const C = {
   wainWood: '#5d4a36', wainDark: '#453626', rust: '#4a3329', iron: '#2e2f33', stake: '#5b4a36', wicker: '#8a7a55', post: '#4d3b2b', twine: '#6e5f45',
   slab: '#747770', slabDark: '#5e615b', pelt: '#5c4a3a', peltDark: '#433629', floodStone: '#777a74', score: '#3d3f3c', scoreFaint: '#5a5d58',
   willowBark: '#4a4238', willowDark: '#3a332b', hollowDark: '#1c1f24', rootBrown: '#5a4a3a', turfEdge: '#3d5241', needles: '#4e4030', brush: '#2f4a3a', brushDark: '#1e3128',
-  ash: '#2a2a2c', fletch: '#8a8577', fieldStone: '#5f5b55', trapIron: '#2a2a2e', reflection: '#2e3640', bell: '#8a7340', leather: '#5a4330', blueCloth: '#45577f', silver: '#b9bec6',
+  ash: '#2a2a2c', bankEarth: '#4f4538', mapWater: '#3f5467', worldRiver: '#5d7c93', fletch: '#8a8577', fieldStone: '#5f5b55', trapIron: '#2a2a2e', reflection: '#2e3640', bell: '#8a7340', leather: '#5a4330', blueCloth: '#45577f', silver: '#b9bec6',
   scoutCloth: '#4a5248', scoutTrim: '#3b352c', bow: '#4a3224', vistaniCloth: '#7a3a40', vistaniTrim: '#b08a44', raven: '#141218', ravenDark: '#0d0c10', beak: '#2e2c30',
   wispCore: '#dcecf6', wispGlow: '#9fc8e8', bat: '#2a2a30', barding: '#3a3230', bardingDark: '#2b2522', ribDark: '#1d1b1a', lanternIron: '#2a2a2e', lanternGlass: '#1a1d22',
   corpseSkin: '#9a9c94', corpseCloth: '#4e4f52', corpseTrim: '#3a3b3d', corpseHair: '#2a2826',
@@ -30,13 +30,15 @@ surfaceFor([C.deck], 'flag');
 surfaceFor([C.wetRock, C.wetRockDeep, C.erratic, C.erraticDeep, C.rock, C.slab, C.slabDark, C.fieldStone], 'rock');
 surfaceFor([C.shingle, C.shingleDeep, C.spine], 'stone');
 surfaceFor([C.moss, C.mold, C.lichen, C.turfEdge, C.brush, C.brushDark], 'foliage');
+surfaceFor([C.bankEarth, '#4b3f32'], 'dirt');
+surfaceFor(['#b0a998'], 'shingle');
 surfaceFor([C.drift, C.driftDark, C.wainWood, C.wainDark, C.stake, C.post, C.bow, C.rootBrown], 'wood');
 surfaceFor([C.willowBark, C.willowDark], 'bark');
 surfaceFor([C.wicker, C.needles], 'thatch');
 surfaceFor([C.rag, C.ragDark, C.pelt, C.peltDark, C.twine, C.leather, C.blueCloth, C.scoutCloth, C.scoutTrim, C.vistaniCloth, C.vistaniTrim, C.corpseCloth, C.corpseTrim, C.barding, C.bardingDark], 'cloth');
 surfaceFor([C.rust, C.iron, C.trapIron, C.bell, C.silver, C.lanternIron], 'metal');
 surfaceFor([C.wave], 'water');
-surfaceFor([C.foam, C.voidDark, C.blackWater, C.hollowDark, C.reflection, C.wispCore, C.wispGlow, C.lanternGlass, C.ash, C.score, C.scoreFaint, C.slime, C.ribDark], 'none');
+surfaceFor([C.mapWater, C.worldRiver, C.foam, C.voidDark, C.blackWater, C.hollowDark, C.reflection, C.wispCore, C.wispGlow, C.lanternGlass, C.ash, C.score, C.scoreFaint, C.slime, C.ribDark], 'none');
 
 // ---------------------------------------------------------------- helpers
 const grp = (...m: THREE.Object3D[]) => { const g = new THREE.Group(); if (m.length) g.add(...m); return g; };
@@ -84,13 +86,12 @@ function hurdle(len: number, h: number, x: number, y: number, z: number, ry: num
 export function archBridge(d: Dims): THREE.Group {
   const W = d.w ?? 16, S = d.span ?? 60, R = d.ramp ?? 50, DROP = d.drop ?? 8, WY = d.wy ?? 15, P = d.par ?? 3, g = grp();
   const hs = S / 2, HALF = W / 2, a = hs - 5, rise = WY - 4;
-  // the body: one extruded profile with the arch as a hole, from below the water up to just under the deck
-  const prof = new THREE.Shape();
-  prof.moveTo(-hs, -WY - 2); prof.lineTo(hs, -WY - 2); prof.lineTo(hs, -0.3); prof.lineTo(-hs, -0.3); prof.closePath();
-  const arch = new THREE.Path();
-  arch.moveTo(a, -WY - 2.5); arch.lineTo(a, -WY); arch.absellipse(0, -WY, a, rise, 0, Math.PI, false, 0); arch.lineTo(-a, -WY - 2.5); arch.closePath();
-  prof.holes.push(arch);
-  const body = new THREE.Mesh(new THREE.ExtrudeGeometry(prof, { depth: W - 0.4, bevelEnabled: false, curveSegments: 10 }), mat(C.bridge)); body.position.z = -(W - 0.4) / 2; g.add(body);
+  // the body: one extruded profile, a single contour with the arch as an open notch (up the left pier from under the
+  // water, round the soffit, down the right pier, then under the deck), so the river shows through it
+  const pts: THREE.Vector2[] = [new THREE.Vector2(-hs, -WY - 2), new THREE.Vector2(-a, -WY - 2), new THREE.Vector2(-a, -WY)];
+  for (let i = 1; i < 24; i++) { const t = Math.PI - (i / 24) * Math.PI; pts.push(new THREE.Vector2(Math.cos(t) * a, -WY + Math.sin(t) * rise)); }
+  pts.push(new THREE.Vector2(a, -WY), new THREE.Vector2(a, -WY - 2), new THREE.Vector2(hs, -WY - 2), new THREE.Vector2(hs, -0.3), new THREE.Vector2(-hs, -0.3));
+  const body = new THREE.Mesh(new THREE.ExtrudeGeometry(new THREE.Shape(pts), { depth: W - 0.4, bevelEnabled: false }), mat(C.bridge)); body.position.z = -(W - 0.4) / 2; g.add(body);
   // the arch ring on both faces, the string course under the deck, the plinth courses at the waterline
   for (const s of [-1, 1]) for (let k = 0; k < 17; k++) {
     const t = ((k + 0.5) / 17) * Math.PI, v = box(S / 17, 0.65, 0.4, k % 2 ? C.bridge : C.bridgeDeep, Math.cos(t) * (a + 0.3), -WY + Math.sin(t) * (rise + 0.3), s * (HALF + 0.05));
@@ -110,7 +111,7 @@ export function archBridge(d: Dims): THREE.Group {
     for (const sx of [-1, 1]) g.add(box(1.7, P + 1.1, 1.7, C.bridgeDeep, sx * (hs - 0.85), (P + 1.1) / 2 - 0.1, s * (HALF - 0.45)), box(2.1, 0.4, 2.1, C.bridgeDeep, sx * (hs - 0.85), P + 1.2, s * (HALF - 0.45)));
   }
   // the drain spout on the downstream face at mid-span, dribbling green down the spandrel
-  g.add(box(0.7, 0.55, 1.4, C.bridgeDeep, 2, -1.5, HALF + 0.5), box(0.45, 2.4, 0.08, C.slime, 2, -3.0, HALF + 0.06), box(0.3, 1.6, 0.08, C.mold, 2.6, -3.6, HALF + 0.06));
+  g.add(box(0.7, 0.55, 1.4, C.bridgeDeep, 2, -1.5, HALF + 0.5), box(0.45, 1.9, 0.08, C.slime, 2, -2.75, HALF + 0.06), box(0.3, 1.3, 0.08, C.mold, 2.6, -3.0, HALF + 0.06));
   // the ramps: a sloping paved deck on a stone-faced embankment, parapets sinking toward the feet, wing walls at the ends
   const n = 10;
   for (const sx of [-1, 1]) for (let i = 0; i < n; i++) {
@@ -130,7 +131,12 @@ export function archBridge(d: Dims): THREE.Group {
     const wing = box(7, 1.8, 0.8, C.bridge, sx * (hs + R + 2.8), -DROP + 0.8, s * (HALF + 1.4)); wing.rotation.y = sx * s * -0.42; g.add(wing);
   }
   // moss furs the north faces (local -z): the spandrel, the pier and the parapet's outer face
-  for (let k = 0; k < 7; k++) g.add(box(2 + hash(k, 1) * 3, 1.5 + hash(k, 2) * 3.5, 0.14, C.moss, (hash(k, 3) - 0.5) * S * 0.8, -WY + 3 + hash(k, 4) * (WY - 6), -(HALF + 0.03)));
+  // (on the stone only: over the arch the patch sits between the soffit and the string course, on the piers anywhere)
+  for (let k = 0; k < 7; k++) {
+    const mw = 2 + hash(k, 1) * 3, mx = (hash(k, 3) - 0.5) * S * 0.9, ex = Math.max(0, Math.abs(mx) - mw / 2);
+    const floor = ex < a ? -WY + rise * Math.sqrt(1 - (ex / a) ** 2) + 0.4 : -WY + 1, mh = Math.min(1.5 + hash(k, 2) * 3.5, -1.3 - floor);
+    if (mh > 0.5) g.add(box(mw, mh, 0.14, C.moss, mx, floor + mh / 2 + hash(k, 4) * Math.max(0, -1.3 - floor - mh), -(HALF + 0.03)));
+  }
   for (let k = 0; k < 4; k++) g.add(box(2 + hash(k, 5) * 4, 0.6 + hash(k, 6) * 1.2, 0.1, C.moss, (hash(k, 7) - 0.5) * S * 0.8, 0.6 + hash(k, 8) * 1.4, -(HALF - 0.45 + 0.5)));
   return g;
 }
@@ -193,16 +199,16 @@ export function drownedWain(): THREE.Group {
   return g;
 }
 /** A fish weir: two arms of driven stakes and wicker panels angled downstream (+z) across a shallow channel `len`
- *  wide, meeting at a wicker basket trap. */
+ *  wide, meeting `depth`·len downstream at a wicker basket trap. */
 export function fishWeir(d: Dims): THREE.Group {
-  const L = d.len ?? 20, g = grp(), n = Math.max(3, Math.round(L / 2.4));
+  const L = d.len ?? 20, K = d.depth ?? 0.45, g = grp(), n = Math.max(3, Math.round(L / 2.4));
   for (const sx of [-1, 1]) for (let i = 0; i <= n; i++) {
-    const t = i / n, x = sx * (L / 2) * (1 - t), z = t * L * 0.45;
+    const t = i / n, x = sx * (L / 2) * (1 - t), z = t * L * K;
     g.add(cyl(0.17, 0.24, 4.6 + hash(i, sx) * 0.8, C.stake, x, 1.6, z, 5));
-    if (i < n) { const x2 = sx * (L / 2) * (1 - (i + 1) / n), z2 = ((i + 1) / n) * L * 0.45; g.add(hurdle(Math.hypot(x2 - x, z2 - z), 2.4, (x + x2) / 2, 1.1, (z + z2) / 2, Math.atan2(-(z2 - z), x2 - x))); }
+    if (i < n) { const x2 = sx * (L / 2) * (1 - (i + 1) / n), z2 = ((i + 1) / n) * L * K; g.add(hurdle(Math.hypot(x2 - x, z2 - z), 2.4, (x + x2) / 2, 1.1, (z + z2) / 2, Math.atan2(-(z2 - z), x2 - x))); }
   }
-  const trap = cyl(0.95, 0.55, 4.2, C.wicker, 0, 0.8, L * 0.45 + 2.6, 7); trap.rotation.x = Math.PI / 2 - 0.25; g.add(trap);
-  g.add(cyl(0.2, 0.26, 5, C.stake, 0.6, 1.9, L * 0.45 + 0.8, 5), box(0.06, 0.06, 3, C.twine, 0.4, 3.4, L * 0.45 - 0.8));
+  const trap = cyl(0.95, 0.55, 4.2, C.wicker, 0, 0.8, L * K + 2.6, 7); trap.rotation.x = Math.PI / 2 - 0.25; g.add(trap);
+  g.add(cyl(0.2, 0.26, 5, C.stake, 0.6, 1.9, L * K + 0.8, 5), box(0.06, 0.06, 3, C.twine, 0.4, 3.4, L * K - 0.8));
   return g;
 }
 /** A shelf of flat slabs at the waterline (`len` along local x, the river toward +z): worn hollows on their tops, a
@@ -241,6 +247,70 @@ export function castleReflection(d: Dims): THREE.Group {
   const geo = new THREE.ShapeGeometry(new THREE.Shape(o.map(([x, y]) => new THREE.Vector2(x * L - L / 2, y * Wd)))); geo.rotateX(-Math.PI / 2); geo.translate(0, 0.06, 0);
   const g = grp(new THREE.Mesh(geo, mat(C.reflection)));
   for (let i = 0; i < 5; i++) g.add(box(L * (0.4 + hash(i, 1) * 0.5), 0.03, 0.7 + hash(i, 2), FLOOR_COLOR['shallow-water'], (hash(i, 3) - 0.5) * L * 0.3, 0.085, -Wd / 2 + (i + 0.5) * (Wd / 5)));
+  return g;
+}
+
+/** A sloping wedge of bank (mud, shingle) from the bank top down into the water: `len` along local x, the slope falling
+ *  toward +z from height `h` at z 0 to just under the water `run` ft out; `back` ft of it hide under the turf behind.
+ *  `color` is a packed RGB number. The drinking slope, the beach under the arch, the wolves' ford exit. */
+export function bankRamp(d: Dims): THREE.Group {
+  const L = d.len ?? 30, run = d.run ?? 15, h = d.h ?? 7, back = d.back ?? 5, hex = '#' + (d.color ?? 0x4b3f32).toString(16).padStart(6, '0');
+  const sh = new THREE.Shape([new THREE.Vector2(-back, -1.2), new THREE.Vector2(run, -1.2), new THREE.Vector2(run, -0.35), new THREE.Vector2(run * 0.55, h * 0.3), new THREE.Vector2(0, h), new THREE.Vector2(-back, h)]);
+  const geo = new THREE.ExtrudeGeometry(sh, { depth: L, bevelEnabled: false }).rotateY(-Math.PI / 2).translate(L / 2, 0, 0);
+  const g = grp(new THREE.Mesh(geo, mat(hex)));
+  // a few stones bedded in the slope, darker at the waterline
+  for (let i = 0; i < 9; i++) {
+    const u = 0.15 + hash(i, 1) * 0.8, z = u * run, y = u < 0.55 ? h - (h - h * 0.3) * (u / 0.55) : h * 0.3 - (h * 0.3 + 0.35) * ((u - 0.55) / 0.45);
+    g.add(place(lump(0.5 + hash(i, 2) * 0.6, i % 3 ? C.wetRockDeep : C.shingleDeep, i + 60, 1.4, 0.45, 1.1, 0, 'stone'), (hash(i, 3) - 0.5) * L * 0.85, y, z));
+  }
+  return g;
+}
+
+let reachMats: { water: THREE.Material; earth: THREE.Material; turf: THREE.Material } | undefined;
+/** The river running on past the map's edge into the land beyond: a water ribbon `w` wide and `len` long from the
+ *  origin along local +x, turning `bend` degrees (toward +z) as it goes (`s` 1: an S that swings `bend` and comes back
+ *  to its first heading), between banks that stand `hb` ft at the map's edge and sink into the land by its far end.
+ *  `blend` 1 shades the water from the map's river to the world map's river ribbon it runs into. Scenery, outside the
+ *  fog of the map like the land it lies on; unlit, as that ribbon is. */
+export function riverReach(d: Dims): THREE.Group {
+  const L = d.len ?? 90, Wd = d.w ?? 50, hb = d.hb ?? 7, bend = ((d.bend ?? 0) * Math.PI) / 180, S = d.s ?? 0, n = 24, slope = 9, top = d.top ?? 26, fall = 40;
+  if (!reachMats) {
+    const water = patchFog(new THREE.MeshBasicMaterial({ vertexColors: true, side: THREE.DoubleSide }), true);
+    reachMats = { water, earth: matClone(C.bankEarth, true), turf: matClone(C.turfEdge, true) };
+  }
+  // stations along the centreline, each with its unit normal (toward +z on the right bank)
+  const head = (t: number) => bend * (S ? Math.sin(Math.PI * t) : t);
+  const st: { x: number; z: number; nx: number; nz: number; h: number; t: number; wy: number }[] = [];
+  let x = 0, z = 0;
+  for (let i = 0; i <= n; i++) {
+    const t = i / n, a = head(t), nx = -Math.sin(a), nz = Math.cos(a);
+    // the water climbs a few inches clear of the map's own (and over the world ribbon, which rides 0.6 ft up) once off the map
+    st.push({ x, z, nx, nz, h: Math.max(0.9, hb * (1 - t) ** 1.4), t, wy: 0.12 + 0.66 * Math.min(1, t / 0.2) });
+    const am = head((i + 0.5) / n); x += Math.cos(am) * (L / n); z += Math.sin(am) * (L / n);
+  }
+  // a cross-section: offsets (ft from the centreline) and heights; [water | earth slope | turf top and fall]
+  const c0 = new THREE.Color(C.mapWater), c1 = new THREE.Color(d.blend ? C.worldRiver : C.mapWater);
+  const strip = (prof: (s: (typeof st)[0]) => [number, number][], m: THREE.Material, tint = false) => {
+    const pos: number[] = [], col: number[] = [];
+    for (let i = 0; i < n; i++) {
+      const A = prof(st[i]), B = prof(st[i + 1]);
+      for (let k = 0; k + 1 < A.length; k++) {
+        const p = (s: (typeof st)[0], q: [number, number]) => [s.x + s.nx * q[0], q[1], s.z + s.nz * q[0]];
+        const a0 = p(st[i], A[k]), a1 = p(st[i], A[k + 1]), b0 = p(st[i + 1], B[k]), b1 = p(st[i + 1], B[k + 1]);
+        pos.push(...a0, ...b0, ...a1, ...a1, ...b0, ...b1);
+        if (tint) for (const s of [st[i], st[i + 1], st[i], st[i], st[i + 1], st[i + 1]]) { const c = c0.clone().lerp(c1, Math.min(1, Math.max(0, (s.t - 0.35) / 0.6))); col.push(c.r, c.g, c.b); }
+      }
+    }
+    const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); geo.computeVertexNormals();
+    if (tint) geo.setAttribute('color', new THREE.Float32BufferAttribute(col, 3));
+    const mesh = new THREE.Mesh(geo, m); (mesh.material as THREE.Material).side = THREE.DoubleSide; return mesh;
+  };
+  const hw = Wd / 2, g = grp();
+  g.add(strip((s) => [[-hw - 1, s.wy], [hw + 1, s.wy]], reachMats.water, true));
+  for (const sg of [-1, 1]) {
+    g.add(strip((s) => [[sg * (hw - 0.5), s.wy - 0.2], [sg * (hw + slope), s.h]], reachMats.earth));
+    g.add(strip((s) => [[sg * (hw + slope), s.h], [sg * (hw + slope + top), s.h], [sg * (hw + slope + top + fall), 0.05]], reachMats.turf));
+  }
   return g;
 }
 
@@ -418,7 +488,7 @@ export function skeletalWarhorse(d: Dims): THREE.Group {
 Object.assign(PROPS_V1, {
   'd-arch-bridge': archBridge, 'd-river-sill': riverSill, 'd-gravel-bar': gravelBar, 'd-strand-line': strandLine, 'd-drowned-wain': () => drownedWain(), 'd-fish-weir': fishWeir,
   'd-washing-slabs': washingSlabs, 'd-wolf-gibbet': wolfGibbet, 'd-flood-stone': () => floodStone(), 'd-hollow-willow': hollowWillow, 'd-undercut-bank': undercutBank, 'd-trappers-hide': () => trappersHide(),
-  'd-sheep-rocks': sheepRocks, 'd-wolf-trap': wolfTrap, 'd-castle-reflection': castleReflection, 'd-bell-stake': bellStake,
+  'd-sheep-rocks': sheepRocks, 'd-bank-ramp': bankRamp, 'd-river-reach': riverReach, 'd-wolf-trap': wolfTrap, 'd-castle-reflection': castleReflection, 'd-bell-stake': bellStake,
   'd-bundle': () => bundle(), 'd-clasp-rag': () => claspRag(), 'd-tally-marks': () => tallyMarks(), 'd-drowned-villager': () => drownedVillager(),
 } as Record<string, (d: Dims) => THREE.Object3D>);
 Object.assign(CREATURES, {
