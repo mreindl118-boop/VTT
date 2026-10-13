@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.2.1 Built and tested on the owner's laptop — 2026-10-13
+
+The first release made on the owner's laptop instead of a cloud machine. Nothing changes at the table.
+
+- The browser tests now render on the laptop's graphics card (`PW_GPU=1`): the full suite runs in 5 minutes instead
+  of 25, with the same results (171 passed, 55 skipped by device, 0 failed; 461 unit tests passed).
+- Windows checkouts work: scene names in the rules-terms tooling use forward slashes on every platform, and a
+  `.gitattributes` keeps every text file on LF, so the generated files the tests compare byte for byte are identical
+  on Windows and Linux.
+
+Known limits: none new. The nested world (item 2) and the unfinished maps (item 7) are in their final checks and
+release next.
+
 ## 0.2.0 Chapter 2 sites — 2026-10-13
 
 For the DM:
