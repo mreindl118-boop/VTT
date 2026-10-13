@@ -883,8 +883,8 @@ for lv in levels:
     if lv.terrain: polys += [[[round(x * 5, 3), round(z * 5, 3)] for x, z in lv.terrain[0][0]]]
     grid['levels'][lv.id] = OrderedDict(floorPolygons=polys, type='square', hexOrientation='pointy', origin=[0, 0], color='#1d1b22', opacity=0.55)
 os.makedirs(OUT, exist_ok=True)
-json.dump(scene, open(os.path.join(OUT, 'scene.json'), 'w'), indent=1)
-json.dump(grid, open(os.path.join(OUT, 'grid.json'), 'w'), indent=1)
+json.dump(scene, open(os.path.join(OUT, 'scene.json'), 'w', newline='\n'), indent=1)   # LF on every platform (the files are compared byte for byte)
+json.dump(grid, open(os.path.join(OUT, 'grid.json'), 'w', newline='\n'), indent=1)
 keys = sorted({r['key'].split('-')[0] if r['key'].count('-') and r['key'].split('-')[-1].isalpha() else r['key'] for l in scene['levels'] for r in l['rooms']} | set(scene['nonSpatialKeys']))
 want = sorted(PAGE)
 missing = [k for k in want if k not in keys]; extra = [k for k in keys if k not in want]

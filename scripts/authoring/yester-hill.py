@@ -539,7 +539,7 @@ LX0, LZ0, LX1, LZ1 = (GX0 - 1) / 5, (GZ0 - 1) / 5, (GX0 + GNX * LAT + 1) / 5, (G
 h.terrain.append((rect(LX0, LZ0, LX1, LZ1), 'grass'))
 # Players walk the forest floor only: a fence they cannot see or cross runs round the hill's foot, where the slope
 # begins (the trail up is the level's stair to its first landing). The DM places anything anywhere.
-FENCE = [tuple(c / 5 for c in ell_at(2 * math.pi * k / 120, FENCE_D)) for k in range(120)]
+FENCE = [tuple(round(c / 5, 3) for c in ell_at(2 * math.pi * k / 120, FENCE_D)) for k in range(120)]   # rounded: the same file on every machine
 for k, (a, b) in enumerate(zip(FENCE, FENCE[1:] + FENCE[:1])): h.wall(a, b, flags=['invisible'], id=f'hill-foot-{k}')
 # Y1: the trail from the north-east corner of the plate through the forest to the foot of the slope
 y1 = band([(x / 5, z / 5) for x, z, _ in TRAIL3[:FOOT_I + 1]], 2.0)
@@ -716,6 +716,6 @@ for lv in levels:
     if lv.id != 'hill': g['clip'] = True
     grid['levels'][lv.id] = g
 out = os.path.join(ROOT, 'locations', 'ch14', 'Y'); os.makedirs(out, exist_ok=True)
-json.dump(scene, open(os.path.join(out, 'scene.json'), 'w'), indent=1)
-json.dump(grid, open(os.path.join(out, 'grid.json'), 'w'), indent=1)
+json.dump(scene, open(os.path.join(out, 'scene.json'), 'w', newline='\n'), indent=1)   # LF on every platform (the files are compared byte for byte)
+json.dump(grid, open(os.path.join(out, 'grid.json'), 'w', newline='\n'), indent=1)
 print('yester hill:', [(lv.id, lv.elevation, len(lv.rooms), len(lv.objects)) for lv in levels], 'top', TOP_G, 'outer track', round(H_OUT, 1), 'trail foot', FOOT_I, 'top', TOP_I, 'runs', RUNS)
