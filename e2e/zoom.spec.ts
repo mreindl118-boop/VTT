@@ -43,11 +43,25 @@ const targetIn = (page: Page, key: string): Promise<boolean> => page.evaluate((k
   return c;
 }, key);
 /** Frame a room at once (no glide to wait for), on its level. */
-const frameRoom = (page: Page, key: string): Promise<void> => page.evaluate((key) => {
+const frameRoom = (page: Page, key: string): Promise<void> => page.evaluate(async (key) => {
   const a = (window as any).__mistlab.app, hit = a.findRooms(key).find((h: any) => h.room.key === key);
   if (a.levelId !== hit.level.id) a.setLevel(hit.level.id);
   const xs = hit.room.polygon.map((p: number[]) => p[0]), zs = hit.room.polygon.map((p: number[]) => p[1]), pad = 40;
   a.world.frame({ minX: Math.min(...xs) - pad, minZ: Math.min(...zs) - pad, maxX: Math.max(...xs) + pad, maxZ: Math.max(...zs) + pad }, hit.level.elevationFt, a.camPreset, false);
+  // This fixture taps the town's building, before continuous zoom enters its child map.
+  // Keep the injected camera outside the child's fold line so its ghost does not replace
+  // the building being tapped; wheel/touch entry is exercised in nest.spec.
+  if (a.world.nested) {
+    const w = a.world;
+    let farther = 1;
+    for (const s of a.streamer.views()) if (s.inside && (s.chain ?? []).includes(a.cur.path)) {
+      const line = (s.depth > 1 ? 130 : 110) * s.units;
+      farther = Math.max(farther, s.px / (line * 0.8));
+    }
+    if (farther > 1) w.moveTo(w.controls.target.clone(), w.camera.position.distanceTo(w.controls.target) * farther, false);
+    a.streamer.tick();
+    await new Promise((resolve) => setTimeout(resolve, 300)); // the proxy/map crossfade
+  }
   a.world.camera.updateMatrixWorld();
 }, key);
 /** Where on screen a point of the current level is (y above its floor). */

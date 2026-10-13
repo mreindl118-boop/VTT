@@ -7,6 +7,20 @@ test.beforeEach(async ({ page }) => {
 });
 
 for (const audience of ['players', 'preview'] as const) {
+  test(`wilderness does not name an unrevealed landmark in ${audience}`, async ({ page }) => {
+    await page.evaluate(async () => {
+      const m = (window as any).__mistlab, k = m.pins().find((p: any) => p.key === 'K');
+      await m.nest.showCard(undefined, [k.pos[0] + 0.5, k.pos[1]], 2);
+    });
+    await expect(page.locator('.nestcard .wc-where')).toContainText('Castle Ravenloft');
+    await page.evaluate((audience) => {
+      const m = (window as any).__mistlab;
+      if (audience === 'players') m.app.setView('players'); else m.setT(0);
+      m.app.world.renderNow();
+    }, audience);
+    await expect(page.locator('.nestcard .wc-where')).not.toContainText('Castle Ravenloft');
+    await expect(page.locator('.nestcard')).toBeVisible();
+  });
   test(`an open world card immediately loses DM content in ${audience}`, async ({ page }) => {
     await page.evaluate(async () => {
       const m = (window as any).__mistlab;
@@ -42,6 +56,42 @@ test('a dismissed wilderness card cannot reopen after its asynchronous render', 
     return m.nest.card.hidden;
   });
   expect(hidden).toBe(true);
+});
+
+test('Escape cancels a pending card before it becomes visible', async ({ page }) => {
+  await page.evaluate(() => {
+    const m = (window as any).__mistlab, n = m.nest;
+    n.h.sceneName = () => new Promise<string>((resolve) => { (window as any).__releaseName = resolve; });
+    const p = m.pins().find((p: any) => p.key === 'G');
+    (window as any).__pendingCard = n.showCard(p, p.pos, 2);
+  });
+  await page.keyboard.press('Escape');
+  await page.evaluate(async () => { (window as any).__releaseName('Tser Pool'); await (window as any).__pendingCard; });
+  await expect(page.locator('.nestcard')).toBeHidden();
+});
+
+test('every Barovian atlas key has a marker, including the four mountain marks', async ({ page }) => {
+  await page.click('[data-act="world"]');
+  await page.waitForFunction(() => !(window as any).__mistlab.app.world.flying);
+  const keys = await page.locator('.lbl.place').evaluateAll((els) => els.map((e) => (e as HTMLElement).dataset.key).sort());
+  const pins = await page.evaluate(() => (window as any).__mistlab.pins().map((p: any) => p.key).sort());
+  expect(keys).toEqual(pins);
+  expect(keys).toEqual(expect.arrayContaining(['M2', 'M3', 'M4', 'M5']));
+});
+
+test('the full Sheep Chase title fits on a phone', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/?nosw&scene=wsc/02-street');
+  await page.waitForFunction(() => (window as any).__mistlab?.ready);
+  await page.evaluate(() => (window as any).__mistlab.ready);
+  await page.click('[data-act="world"]');
+  await page.waitForFunction(() => !(window as any).__mistlab.app.world.flying);
+  await page.evaluate(async () => { await (window as any).__mistlab.stage.cartoReady(); await document.fonts.ready; });
+  await page.waitForTimeout(300);
+  const r = await page.locator('.carto-title .ct-name').boundingBox();
+  expect(r).not.toBeNull();
+  expect(r!.x).toBeGreaterThanOrEqual(0);
+  expect(r!.x + r!.width).toBeLessThanOrEqual(390);
 });
 
 test('a newer request for the same pin wins when names resolve out of order', async ({ page }) => {

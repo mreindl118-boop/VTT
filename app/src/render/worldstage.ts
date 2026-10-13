@@ -109,8 +109,8 @@ export class WorldStage {
     // proxies and place labels: every pin with a map; a pin that only repeats another's map gets a proxy and a label only
     const field = this.land.field, labels = this.placeLabels; labels.name = 'place-labels';
     const parts: Record<'massing' | 'glow', { id: string; geo: THREE.BufferGeometry }[]> = { massing: [], glow: [] };
-    // (a pin with no map of its own, Mount Baratok's other marks, has no label: the peak is lettered once on the land)
-    for (const pin of ATLAS.pins.filter((p) => p.campaign === campaign.id && p.scenes.length)) {
+    // Every keyed place keeps its marker, including mountain marks with no battle map.
+    for (const pin of ATLAS.pins.filter((p) => p.campaign === campaign.id)) {
       const e = pin.root ? ATLAS.scenes[pin.root] : undefined, wp = data.pins.find((q) => q.key === pin.key);
       const [x, z] = pin.world;
       let y = field.height(x, z);
@@ -281,7 +281,7 @@ export class WorldStage {
   /** A place's plain massing shows while its proxy does and its detailed one is not drawn. */
   private syncProxy(path: string): void {
     const g = this.proxies.get(path); if (!g) return;
-    const d = this.details.get(path), detail = !!d?.mesh && d.want;
+    const d = this.details.get(path), detail = !!d?.mesh && d.want && this.carto.k < 0.95;
     if (d?.mesh) d.mesh.visible = detail;
     const on = g.visible && !detail;
     for (const { mesh, ranges } of this.proxyMeshes) {
@@ -306,7 +306,7 @@ export class WorldStage {
   viewDetail(path: string, px: number, now = performance.now()): void {
     if (!this.proxies.has(path) || path.includes('@') || this.disposed) return;
     let d = this.details.get(path);
-    const want = px >= (d?.want ? DETAIL.keepPx : DETAIL.showPx);
+    const want = this.carto.k < 0.95 && px >= (d?.want ? DETAIL.keepPx : DETAIL.showPx);
     if (!d) { if (!want) return; d = { want: false, lastWanted: now }; this.details.set(path, d); }
     if (want) d.lastWanted = now;
     if (d.want !== want) { d.want = want; this.syncProxy(path); }
@@ -319,7 +319,7 @@ export class WorldStage {
   }
   /** Which places have a detailed proxy built, and which of them is drawn (tests and the HUD). */
   detailState(): Record<string, { built: boolean; drawn: boolean }> {
-    return Object.fromEntries([...this.details].map(([p, d]) => [p, { built: !!d.mesh, drawn: !!d.mesh && d.want && !!this.proxies.get(p)?.visible }]));
+    return Object.fromEntries([...this.details].map(([p, d]) => [p, { built: !!d.mesh, drawn: !!d.mesh?.visible && !!this.proxies.get(p)?.visible }]));
   }
   /** Build the wanted detailed proxies, one at a time, a few milliseconds a frame. */
   private pumpDetails(): void {
@@ -521,8 +521,10 @@ export class WorldStage {
     const c = this.carto, w = this.world, S = THREE.MathUtils.smoothstep;
     this.openGround(k < 0.5);
     if (c.k === k && c.u.uCarto.value === k) return;
-    const half = (c.k >= 0.5) !== (k >= 0.5);
+    const half = (c.k >= 0.5) !== (k >= 0.5), detailChange = (c.k < 0.95) !== (k < 0.95);
     c.k = k; c.u.uCarto.value = k; w.cartoK = k;
+    // At region scale the existing plain silhouettes carry places; fine buildings add no readable detail.
+    if (detailChange) for (const path of this.details.keys()) this.syncProxy(path);
     if (half) queueMicrotask(() => this.onCartoHalf?.());
     if (w.scene.fog instanceof THREE.FogExp2) w.scene.fog.density = w.fogDensity;
     setWash(k * 0.9, CARTO_STYLES[c.style]);

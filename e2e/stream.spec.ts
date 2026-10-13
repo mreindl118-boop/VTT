@@ -35,6 +35,8 @@ test('maps that leave are disposed: five round trips stay within 5% of the first
   await page.evaluate(async () => { const m = (window as any).__mistlab; await m.app.open('dev/m0-test-room'); m.app.frameLevel('top'); m.render(); });
   await snap(page, 'first');
   await page.evaluate(async () => { await (window as any).__mistlab.app.open('appB/death-house'); });
+  // Include the map's two one-time, lazily baked textures in the warmed baseline.
+  await page.evaluate(async () => { const m = (window as any).__mistlab; await m.stage.cartoReady(); m.render(); });
   const first = await mem(page);
   for (let i = 0; i < 5; i++) await trip();
   const last = await mem(page);
@@ -140,6 +142,11 @@ const resident = (page: Page, path: string, drawn = true) => page.waitForFunctio
 test('zooming in on a place streams its map in place and the camera makes it active; zooming out folds it, then frees it', async ({ page }) => {
   test.setTimeout(420_000);
   await boot(page, '', VILLAGE);
+  // Warm the persistent world meshes (ink, boats, crag mist and proxy buffers) before
+  // measuring map disposal; their first GPU upload is not a retained departed map.
+  await page.evaluate(async () => { const m = (window as any).__mistlab; await m.stage.cartoReady(); m.stage.frameWorld('fly'); await m.app.world.settled(); m.render(); });
+  await look(page, 'ch03/E', 1500);
+  await resident(page, 'ch03/E');
   await page.evaluate(() => (window as any).__mistlab.app.frameLevel());
   await page.waitForTimeout(800);
   const before = await mem(page);

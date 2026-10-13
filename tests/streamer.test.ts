@@ -87,6 +87,19 @@ describe('planStream: nesting (the buildings and area maps of a town)', () => {
   // Vallaki is resident and active; the Blue Water Inn (depth 1) hangs in it
   const town = (o: Partial<SiteView> = {}) => site('ch05/N', { resident: true, drawn: true, units: 2, px: 5000, inside: true, area: 9e6, dTarget: 0, pinned: true, ...o });
   const inn = (o: Partial<SiteView> = {}) => site('ch05/N2', { depth: 1, chain: ['ch05/N'], area: 3e4, dTarget: 0, ...o });
+  it('admits the child under a phone camera with its necessary parent, without adding unrelated maps to that allowance', () => {
+    const child = inn({ px: 900, inside: true });
+    const p = planStream([town(), child], opts({ cap: 2, active: 'ch05/N', activeHolds: true }));
+    expect(p.load).toEqual(['ch05/N2']);
+    expect(p.unload).toEqual([]);
+    expect(unitsAfter([town(), child], p)).toBe(3);
+    expect(planStream([town(), inn({ px: 900, inside: false, dTarget: 100 })], opts({ cap: 2 })).load).toEqual([]);
+    expect(planStream([town(), child, site('other', { resident: true, pinned: true, px: 900 })], opts({ cap: 2 })).load).toEqual([]);
+    const old = site('old', { resident: true, px: 100, lastWanted: 1 });
+    const replaced = planStream([town(), child, old], opts({ cap: 2 }));
+    expect(replaced.unload).toEqual(['old']);
+    expect(replaced.load).toEqual(['ch05/N2']);
+  });
   it('builds a child only big on screen and near the target, and folds it far from the target', () => {
     expect(planStream([town(), inn({ px: DEPTHS[1].showPx + 1, dTarget: 100 })], opts()).load).toEqual(['ch05/N2']);
     expect(planStream([town(), inn({ px: DEPTHS[0].showPx + 1, dTarget: 100 })], opts()).load).toEqual([]); // a root's line is not enough

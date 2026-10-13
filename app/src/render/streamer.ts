@@ -137,9 +137,13 @@ export function planStream(sites: SiteView[], o: { now: number; cap: number; act
   if (!o.flying && !o.busy && !sites.some((s) => s.loading && !plan.cancel.includes(s.path))) {
     for (const s of sites.filter((x) => !x.resident && !x.loading && wanted(x)).sort(first)) {
       // make room: free the least recently wanted maps that are not wanted now and not pinned
-      const spare = sites.filter((x) => x.resident && !x.pinned && !wanted(x) && !plan.unload.includes(x.path)).sort((a, b) => a.lastWanted - b.lastWanted);
+      // A phone must fit the child under its camera together with its required ancestors.
+      // This allowance is exactly that chain's cost, not spare capacity for neighbouring maps.
+      const chain = s.inside ? sites.filter((x) => counts(x) && (s.chain ?? []).includes(x.path)) : [];
+      const cap = Math.max(o.cap, s.units + chain.reduce((n, x) => n + x.units, 0));
+      const spare = sites.filter((x) => x.resident && !x.pinned && !wanted(x) && !chain.includes(x) && !plan.unload.includes(x.path)).sort((a, b) => a.lastWanted - b.lastWanted);
       const free: string[] = [];
-      let need = used() + s.units - o.cap;
+      let need = used() + s.units - cap;
       for (const x of spare) { if (need <= 0) break; free.push(x.path); need -= x.units; }
       if (need > 0) continue; // no room: it stays a proxy
       plan.unload.push(...free); plan.load.push(s.path);

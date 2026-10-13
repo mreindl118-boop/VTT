@@ -43,7 +43,7 @@ export const worldName = () => W.name;
 export const hexPref = (): boolean => { try { return localStorage.getItem('mistlab.worldHex') !== '0'; } catch { return true; } };
 export const setHexPref = (on: boolean): void => { try { localStorage.setItem('mistlab.worldHex', on ? '1' : '0'); } catch { /* no storage */ } };
 /** The nearest named thing (a place, a wood, a peak) to a point, and how far (miles). */
-export const nearestName = (p: P) => { const all = [...W.pins.map((x) => ({ name: x.name, pos: x.pos })), ...W.woods, ...W.peaks]; const n = all.reduce((a, c) => (dist(c.pos, p) < dist(a.pos, p) ? c : a)); return { name: n.name, mi: dist(n.pos, p) }; };
+export const nearestName = (p: P, known?: ReadonlySet<string>) => { const all = [...W.pins.filter((x) => !known || known.has(x.key)).map((x) => ({ name: x.name, pos: x.pos })), ...W.woods, ...W.peaks]; const n = all.reduce((a, c) => (dist(c.pos, p) < dist(a.pos, p) ? c : a)); return { name: n.name, mi: dist(n.pos, p) }; };
 /** A pin's words with their rules links: the blurb is what players are told, so it reads with the players' audience
  *  (rules kinds only) on both sides; the DM note is the DM's only (people, monsters and places link there). The
  *  gazetteer keeps place names whole. */
@@ -56,9 +56,9 @@ export function pinTipHtml(p: Pin, o: { dm: boolean; revealed: boolean; canOpen:
 }
 /** The place card: where (a place, or the wilderness near the nearest name), the blurb, the DM's note and reveal
  *  chip, the distance from the party and the time at a pace, and an Open button per map (or the no-map note). */
-export function worldCardHtml(pin: Pin | undefined, to: P, miles: number, o: { dm: boolean; revealed: boolean; pace: Pace; canOpen: boolean; labels: string[] }): string {
+export function worldCardHtml(pin: Pin | undefined, to: P, miles: number, o: { dm: boolean; known?: ReadonlySet<string>; revealed: boolean; pace: Pace; canOpen: boolean; labels: string[] }): string {
   const speed = PACES[o.pace].mph, hours = miles / speed;
-  const where = pin ? `<b>${esc(keyOf(pin))}</b> ${esc(pin.name)}` : (() => { const n = nearestName(to); return `Wilderness · ${n.mi.toFixed(1)} mi from ${esc(n.name)}`; })();
+  const where = pin ? `<b>${esc(keyOf(pin))}</b> ${esc(pin.name)}` : (() => { const n = nearestName(to, o.dm ? undefined : (o.known ?? new Set())); return `Wilderness · ${n.mi.toFixed(1)} mi from ${esc(n.name)}`; })();
   const scenes = pin?.scenes ?? [], seen = new Set<string>();
   return `<div class="wc-where">${where}${pin && o.dm ? `<button class="chip-btn" data-reveal="${pin.key}" aria-pressed="${o.revealed}">${o.revealed ? 'Shown to players' : 'Hidden from players'}</button>` : ''}</div>${pin?.blurb ? `<div class="wc-blurb">${pinText(pin, 'blurb', seen)}</div>` : ''}${pin?.dm && o.dm ? `<div class="wc-dm">${pinText(pin, 'dm', seen)}</div>` : ''}<div class="wc-travel">${miles.toFixed(1)} mi as the crow flies · about ${fmtHours(hours)} at a ${o.pace} pace (${speed} mph)</div>
       ${scenes.length && o.canOpen ? `<div class="wc-actions">${scenes.map((s, i) => `<button class="primary" data-scene="${s}">Open ${esc(o.labels[i] ?? s)}</button>`).join('')}</div>` : scenes.length ? '' : '<div class="wc-note">No battle map here yet; run it theatre-of-the-mind or pick a nearby place.</div>'}`;
@@ -364,7 +364,7 @@ export function openWorldMap(host: WorldHost): void {
 
   async function showCard(pin: Pin | undefined, to: P, miles: number): Promise<void> {
     const labels = await Promise.all((pin?.scenes ?? []).map((s) => host.sceneName(s)));
-    card.innerHTML = worldCardHtml(pin, to, miles, { dm: host.dm, revealed: pin ? host.revealed().has(pin.key) : false, pace, canOpen: host.canMove, labels });
+    card.innerHTML = worldCardHtml(pin, to, miles, { dm: host.dm, known: host.revealed(), revealed: pin ? host.revealed().has(pin.key) : false, pace, canOpen: host.canMove, labels });
     card.hidden = false;
   }
   card.addEventListener('click', (e) => {

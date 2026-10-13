@@ -90,7 +90,7 @@ export class NestedWorldMap {
     });
     addEventListener('keydown', (e) => {
       if (e.key !== 'Escape' || document.querySelector('.sheet-backdrop, details.menu[open]')) return;
-      if (!this.card.hidden) { this.closeCard(); return; }
+      if (this.cardFor || !this.card.hidden) { this.closeCard(); return; }
       if (!this.key.hidden) { this.toggleKey(false); return; }
       if (this.shownBar) this.leave();
     });
@@ -233,7 +233,7 @@ export class NestedWorldMap {
     this.card.hidden = true; this.card.replaceChildren();
     const labels = await Promise.all((pin?.scenes ?? []).map((s) => this.h.sceneName(s).catch(() => s)));
     if (this.cardFor !== request || campaign !== a.campaign.id || !this.stage || (pin && !this.shown(pin))) return;
-    this.card.innerHTML = worldCardHtml(pin, to, miles, { dm: !a.playersSide, revealed: pin ? a.pinsRevealed.has(pin.key) : false, pace: this.pace, canOpen: !a.restricted, labels });
+    this.card.innerHTML = worldCardHtml(pin, to, miles, { dm: !a.playersSide, known: a.pinsRevealed, revealed: pin ? a.pinsRevealed.has(pin.key) : false, pace: this.pace, canOpen: !a.restricted, labels });
     this.card.hidden = false;
   }
 

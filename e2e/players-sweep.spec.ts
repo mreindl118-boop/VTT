@@ -7,9 +7,9 @@ import { quiet } from './helpers';
 
 test.beforeEach(async ({ page: _p }, info) => { test.skip(info.project.name !== 'chromium', 'desktop'); });
 
-async function boot(page: Page, scene: string): Promise<void> {
+async function boot(page: Page, scene: string, nested = true): Promise<void> {
   await quiet(page);
-  await page.goto(`/?nosw&scene=${encodeURIComponent(scene)}`);
+  await page.goto(`/?nosw&scene=${encodeURIComponent(scene)}&nested=${nested ? 1 : 0}`);
   await page.waitForFunction(() => (window as any).__mistlab?.ready);
   await page.evaluate(async () => { const m = (window as any).__mistlab; await m.ready; await m.rich(); });
 }
@@ -94,10 +94,10 @@ test('every room and object card of all 45 scenes, in Players view and at the sl
 });
 
 for (const [scene, camp] of [['appB/death-house', 'Barovia'], ['wsc/02-street', 'the Sheep Chase']] as const) {
-  test(`every pin of ${camp}'s world map, every place revealed, in Players view: no DM note, only players' links`, async ({ page }) => {
+  for (const nested of [false, true]) test(`every pin of ${camp}'s ${nested ? 'nested' : 'flat'} world map, every place revealed, in Players view: no DM note, only players' links`, async ({ page }) => {
     test.setTimeout(180_000);
     await page.setViewportSize({ width: 1180, height: 820 });
-    await boot(page, scene);
+    await boot(page, scene, nested);
     // Every place revealed, so the players' map shows them all; the DM notes are the secrets.
     const secrets: string[] = await page.evaluate(() => {
       const m = (window as any).__mistlab;
@@ -108,19 +108,28 @@ for (const [scene, camp] of [['appB/death-house', 'Barovia'], ['wsc/02-street', 
     });
     expect(secrets.length).toBeGreaterThan(3);
     await page.locator('[data-act="world"]').click();
-    const lis = page.locator('.world-key li:not([hidden])');
+    if (nested) {
+      await page.waitForFunction(() => !(window as any).__mistlab.app.world.flying);
+      await page.locator('.nestbar [data-places]').click();
+    }
+    const lis = page.locator(`${nested ? '.nestkey' : '.world-key'} li:not([hidden])`);
     const n = await lis.count();
     expect(n).toBeGreaterThanOrEqual(5);
     const DM = ['monster', 'creature-type', 'person', 'area', 'pageref', 'check', 'dice', 'spell', 'magic-item', 'gear', 'item'];
     const bad: string[] = [];
     for (let i = 0; i < n; i++) {
-      await lis.nth(i).click();
+      if (nested) await lis.nth(i).locator('.place-action').evaluate((e: HTMLElement) => e.click());
+      else await lis.nth(i).click();
+      await expect(page.locator(`${nested ? '.nestcard' : '.world-card'} .wc-where`)).toBeVisible();
       // the hover tip too: a pointer over the pin
       const key = await lis.nth(i).getAttribute('data-key');
-      await page.evaluate((key) => { const g = document.querySelector(`.wm-pin[data-key="${key}"]`); g?.dispatchEvent(new PointerEvent('pointermove', { bubbles: true, clientX: 300, clientY: 300 })); }, key);
+      await page.evaluate(({ key, nested }) => {
+        if (nested) (window as any).__mistlab.nest.hover(key, 300, 300);
+        else document.querySelector(`.wm-pin[data-key="${key}"]`)?.dispatchEvent(new PointerEvent('pointermove', { bubbles: true, clientX: 300, clientY: 300 }));
+      }, { key, nested });
       const r = await page.evaluate(({ DM, secrets }) => {
         const out: string[] = [];
-        for (const el of [document.querySelector('.world-card'), document.querySelector('.world-tip')]) {
+        for (const el of document.querySelectorAll('.world-card, .world-tip, .nestcard, .nesttip')) {
           if (!el) continue;
           const s = [el.textContent ?? '', ...[el, ...el.querySelectorAll('*')].flatMap((e) => [...e.attributes].map((a) => a.value))].join('\n');
           for (const x of secrets) if (s.includes(x)) out.push(`DM note: ${x.slice(0, 40)}`);
