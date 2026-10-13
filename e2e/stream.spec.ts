@@ -6,6 +6,15 @@ import { boot, diff, snap, SCENES, quiet } from './helpers';
 
 test.beforeEach(async ({ page }) => { await quiet(page); });
 
+/** Finish the one-time cartography bake and GPU upload before measuring steady state. */
+const warmCartography = (page: Page) => page.evaluate(async () => {
+  const m = (window as any).__mistlab;
+  await m.stage.cartoReady();
+  // CPU bake completion does not upload textures that are not yet used by a drawn material.
+  for (const texture of m.stage.carto.textures) m.app.world.renderer.initTexture(texture);
+  m.render();
+});
+
 /** GPU objects the renderer holds, after a frame. */
 const mem = (page: Page) => page.evaluate(() => {
   const a = (window as any).__mistlab.app, w = a.world; w.renderNow();
@@ -36,7 +45,7 @@ test('maps that leave are disposed: five round trips stay within 5% of the first
   await snap(page, 'first');
   await page.evaluate(async () => { await (window as any).__mistlab.app.open('appB/death-house'); });
   // Include the map's two one-time, lazily baked textures in the warmed baseline.
-  await page.evaluate(async () => { const m = (window as any).__mistlab; await m.stage.cartoReady(); m.render(); });
+  await warmCartography(page);
   const first = await mem(page);
   for (let i = 0; i < 5; i++) await trip();
   const last = await mem(page);
@@ -381,6 +390,8 @@ test('a place\'s proxy has its map\'s shape: at the build line the last proxy fr
   });
   expect(cam.dist).toBeGreaterThan(2000);
   await page.waitForFunction(() => { const st = (window as any).__mistlab.app.stage; return st.detailState ? st.detailState()['ch08/S']?.drawn : true; }, undefined, { timeout: 120_000 });
+  // Compare the proxy and resident map under the same completed terrain/cartography bake.
+  await warmCartography(page);
   await snap(page, 'proxy');
   await page.evaluate(() => { const a = (window as any).__mistlab.app; a.streamer.enabled = true; a.streamer.tick(); });
   await page.waitForFunction(() => { const a = (window as any).__mistlab.app, r = a.resident.get('ch08/S'); return !!r && r.drawn && !a.fades.has(r); }, undefined, { timeout: 180_000 });
