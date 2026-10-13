@@ -38,7 +38,7 @@ docs/         UNITS · SLIDER · STYLE · PIPELINE · CHANGELOG
 tests/ e2e/   Vitest + Playwright
 ```
 
-Milestones are listed in `docs/CHANGELOG.md`; M0 Foundations and M1 Death House are done.
+Release notes are in `docs/CHANGELOG.md`. Screenshots and demos of each release are in [Visual-Aide](https://github.com/mreindl118-boop/Visual-Aide).
 
 ## Working together
 

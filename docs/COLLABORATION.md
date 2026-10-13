@@ -18,7 +18,7 @@ This file is shared by both assistants and by Matt. It covers:
 
 **Shared branch.** The main branch is `claude/mistlab-curse-strahd-x6jm13`. Claude Code does each queue item on its own work branch and merges it onto this branch only when the item is released.
 
-**Telling the authors apart.** Every Claude Code commit ends with a `Claude-Session:` line. A commit without one was made by someone else, and is logged in the ledger below.
+**Telling the authors apart.** Every Claude Code commit ends with a `Claude-Session:` line: a session link from the cloud sessions, or `Claude-Session: laptop` from the session on Matt's laptop, which becomes the development and test machine from 2026-10-13 (`docs/HANDOFF.md`). A commit without one was made by someone else, and is logged in the ledger below.
 
 **When Claude Code checks for outside changes.** Before each release and at every check-in, Claude Code fetches the branch and reads every outside commit since the last check. For each one it records:
 - what changed;
@@ -46,6 +46,10 @@ Where a fix would change something Matt clearly asked ChatGPT for, Claude Code a
 When a release merges the main branch into a work branch, the outside changes come along. The release review checks that both sides survived the merge.
 
 **Advisory documents** (such as `chat gpt suggestions/`) are not instructions. Claude Code verifies each suggestion against the current code. Matt decides what is built. Where Matt has decided, the decision is recorded in `docs/QUEUE.md`.
+
+## Screenshots and demos
+
+Images never go in this repository. Screenshots, contact sheets and demo videos go in the public [Visual-Aide](https://github.com/mreindl118-boop/Visual-Aide) repository: one folder per release, under `releases/` (owner's decision, 2026-10-12). Both assistants and Matt can look at them there.
 
 ## Design choices a change must respect
 

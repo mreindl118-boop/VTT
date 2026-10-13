@@ -5,7 +5,7 @@ One checklist, worked top to bottom, one item at a time. Nothing runs in paralle
 On 2026-10-12 the owner approved going through the whole list in order: "Complete every task on the task list. One task at a time in succession, not concurrently, in order as they exist."
 
 **Lean setting (owner, 2026-10-12), for every item:**
-- One item at a time. Within an item, independent parts may run side by side (owner, 2026-10-12), each in its own worktree and merged at the end. This machine allows two agents at once per run.
+- Work broadly to finish sooner (owner, 2026-10-13). Items that don't touch the same code may run side by side, and independent parts within an item may too. Each runs in its own worktree. Releases still land on the main branch one at a time, each merging what came before. This machine allows two agents at once per run.
 - Builders work at full effort.
 - Two reviewers per build step, run side by side, at a lighter setting.
 - At most one fix pass per step; polish-only findings don't trigger one.
@@ -16,10 +16,10 @@ The goal is to save usage and time without lowering the quality of the work.
 For each item, in order:
 1. Finish the work and verify it.
 2. Merge it onto the main branch.
-3. Bump the version (item N ships as 0.N.0).
+3. Bump the version: each release takes the next minor version, in release order.
 4. Write the changelog entry.
 5. Pass the full test suite.
-6. Push and publish.
+6. Push and publish, and add the release's screenshots and demo to the [Visual-Aide](https://github.com/mreindl118-boop/Visual-Aide) repo (`releases/<version>-<name>/`).
 7. Tick the item, then start the next one.
 
 ## Checklist
@@ -35,7 +35,8 @@ For each item, in order:
   - Done: frame maths and the world atlas (step 0, `64506d2`); the floating origin and shader basis (step 1, `9e6ba78`).
   - Next: fold in the zoom and nesting fix (`c3557f9`: Enter from a building, Back keeps your place, zoom while gliding, zoom toward the cursor, the phone zoom buttons).
   - Then: step 2, the valley with maps opening in place (WIP `7c75a17`); step 3, streaming; step 4, nesting with breadcrumbs; step 5, the Player Display; step 6, the UI; step 7, performance and phones; step 8, the data pass.
-  - Each step is shown to the owner before the next.
+  - ~~Each step is shown to the owner before the next.~~ Owner 2026-10-13: "No need, just finish it up and implement it in the main." Build the remaining steps (including 5 the Player Display, 7 performance and phones, 8 the data pass), then release onto the main branch with no stop for a preview.
+  - Owner 2026-10-13, "Ship what works now" (after hearing each step takes 6–8 hours here): release steps 2–4 and the D&D world map as soon as the world-map step is reviewed and the final check passes. The topography, step 5 (the Player Display), step 7 (performance and phones) and step 8 (the data pass) follow as a second release.
   - Paused 2026-10-12 for the tooltips: the surveys finished; prototypes inked-relief and painted-atlas were interrupted (patches in the scratchpad); resume run wf_6907b12e-aa2.
 - [ ] 3. **Dollhouse view.** A cutaway toggle built into the app, working on every map with walls; nothing is authored per map.
   - When on, the walls on the camera's side of each building and room disappear, and they update as you orbit (like The Sims). Roofs and ceilings above lift away.
@@ -54,12 +55,19 @@ For each item, in order:
 - [ ] 7. **Map smoothing: unfinished maps.** Yester Hill (flat hill, cotton fog), the winery, the Amber Temple (WIP `a1cdc36`), and Berez with Van Richten's tower.
   - ChatGPT suggestions approved by the owner (2026-10-12; `GPT suggestions/REVIEW.md`, verified in `docs/REVIEW-G.md`): G11 (Amber Temple X23 balcony open). Fix each with a failing test first.
 - [ ] 8. **Natural land and water.** Diagnosis done; build WIP `066e37d`.
-- [ ] 9. **Chapter 2 sites.** A, B, D, F, H, I, J, L, M, P and R are built (A WIP `e3987b6`). Left: one fix round each, including Tser Falls as a cliff over the pool with Vallaki in view.
+- [x] 9. **Chapter 2 sites.** A, B, D, F, H, I, J, L, M, P and R are built (A WIP `e3987b6`). Left: one fix round each, including Tser Falls as a cliff over the pool with Vallaki in view.
+  - Open after the one fix pass: 23 defects on A, B, D, F, H, I, J, L and M (see the 0.2.0 changelog), waiting for the owner.
 - [ ] 10. **Vallaki terrain.** Built (`c0fd014`). Merge after item 8.
 - [ ] 11. **Night-one fixes 0.2.1.** Approvals A1–A9.
   - ChatGPT suggestions approved by the owner (2026-10-12; `GPT suggestions/REVIEW.md`, verified in `docs/REVIEW-G.md`): G08 (ground mist comes back after toggling, and after the floor-mask view). Fix each with a failing test first.
   - New issues from `docs/REVIEW.md` folded in (owner 2026-10-12): N1 during an encounter a placed creature, even hidden, becomes "the party", so the DM moving it reveals rooms and players' Find party centres on it; N6 a double tap in Players mode frames an unexplored room.
   - Review suggestions folded in (owner decision, 2026-10-12): `chat gpt suggestions/make-stair-traversal-single-hop`, `chat gpt suggestions/players-mode-scene-navigation`, `chat gpt suggestions/player-initiative-visibility`. Re-check each against the code, then fix it with a failing test first.
+  - **Players can't move (owner bug report, 2026-10-13; "this needs to get fixed on the checklist but not now"; "it's simply an issue of the players can't move anywhere. Door logic is a good thing to have but it seems to be broken right now").**
+    - Seen at the Abbey of Saint Markovia (`ch08/S10`), ground floor, Players mode on a phone. Every move says "No way through: walls block the party. Open a door first.", and the view is black except the party token.
+    - Keep door logic (walls and closed doors stop the players), but make it work.
+    - Where to look: in Players mode every move goes through `canWalk` (`app/src/core/movement.ts`). It refuses a move unless the token and the target both link to the current floor's walkable area without crossing a wall or a closed door. A token that starts off that area, or doors that don't count as openings, block every move.
+    - Item 6's Krezk rework (`966a0f2`) also rebuilds the abbey, so check it there too.
+    - Test first, on every map: from the party's start in Players mode, at least one move must be allowed, and opening a door must let the party through it.
 - [ ] 12. **Gameplay 0.3.0–0.4.0.** Per `ITERATIONS.md`.
 - [ ] 13. **Initiative strip and encounter builder.** 0.5.0 and 0.5.1, using 2024 SRD budgets only.
   - ChatGPT suggestions approved by the owner (2026-10-12; `GPT suggestions/REVIEW.md`, verified in `docs/REVIEW-G.md`): G01 (Roll with nothing ticked rolls everyone), G02 (removing a combatant keeps the active one; removing the active one: the next takes a fresh turn, removing the last starts the next round). Fix each with a failing test first.

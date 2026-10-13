@@ -291,15 +291,15 @@
    "name": "Lake Zarovich",
    "pos": [
     6.66,
-    3.4
+    3.41
    ],
-   "groundFt": 4.2,
    "type": "lake",
    "blurb": "A wide mountain lake, cold and deep, fished by folk from Vallaki.",
    "dm": "Bluto and his rowboat; Arabelle.",
    "scenes": [
     "ch02/L"
-   ]
+   ],
+   "groundFt": 4.2
   },
   {
    "key": "M",

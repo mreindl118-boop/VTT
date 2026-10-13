@@ -10,6 +10,8 @@ PX_PER_MILE = 17.6 * 4          # 4 hexes per mile
 m = lambda x, y: [round(x / PX_PER_MILE, 2), round(y / PX_PER_MILE, 2)]
 
 HEIGHT = {'K': 1000}  # the Pillarstone of Ravenloft: the castle stands a thousand feet above the valley (p.53)
+GROUND = {'L': 4.2}   # a pin's ground in drawn feet where the heightfield is wrong for it: Lake Zarovich's map stands on the
+                      # lake's south shore at the lake's level (as Vallaki beside it), not on the survey's hump inside the lake
 PINS = [  # key, name, px, type, scenes (built scene paths reachable from here)
   ('A', 'Old Svalich Road', (1258, 507), 'road', ['ch02/A']),
   ('B', 'Gates of Barovia (east)', (1222, 470), 'gate', ['ch02/B']),
@@ -23,7 +25,7 @@ PINS = [  # key, name, px, type, scenes (built scene paths reachable from here)
   ('B2', 'Gates of Barovia (west)', (745, 380), 'gate', ['ch02/B']),
   ('J', 'Gates of Ravenloft', (853, 453), 'gate', ['ch02/J']),
   ('K', 'Castle Ravenloft', (915, 470), 'castle', ['ch04/K']),
-  ('L', 'Lake Zarovich', (470, 210), 'lake', ['ch02/L']),
+  ('L', 'Lake Zarovich', (470, 240), 'lake', ['ch02/L']),  # the landing on the south shore (the map's own spot); the book's marker sits a little out on the water
   ('M', 'Mount Baratok', (663, 106), 'peak', ['ch02/M']),
   ('N', 'Town of Vallaki', (447, 307), 'settlement', ['ch05/N']),
   ('O', 'Old Bonegrinder', (570, 355), 'landmark', ['ch06/O']),
@@ -68,7 +70,7 @@ out = OrderedDict(
   schema=1, name='The Lands of Barovia', page=35, milesPerHex=0.25,
   note='Positions measured from the regional map; art is original. Yester Hill approximate (off the printed crop).',
   bounds=m(1300, 920) and OrderedDict(minX=m(-80, 0)[0], minY=0, maxX=m(1300, 0)[0], maxY=m(0, 920)[1]),
-  pins=[OrderedDict(key=k, name=n, pos=m(*p), type=t, **({'scenes': sc} if sc else {}), **({'heightFt': HEIGHT[k]} if k in HEIGHT else {})) for k, n, p, t, sc in PINS],
+  pins=[OrderedDict(key=k, name=n, pos=m(*p), type=t, **({'scenes': sc} if sc else {}), **({'groundFt': GROUND[k]} if k in GROUND else {}), **({'heightFt': HEIGHT[k]} if k in HEIGHT else {})) for k, n, p, t, sc in PINS],
   roads=[OrderedDict(name=n, pts=[m(*p) for p in pts]) for n, pts in ROADS],
   rivers=[OrderedDict(name=n, pts=[m(*p) for p in pts]) for n, pts in RIVERS],
   lakes=[OrderedDict(name=n, center=m(*c), r=m(*r)) for n, c, r in LAKES],

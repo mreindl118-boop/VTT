@@ -7,7 +7,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { setBookFetcher } from '../app/src/books/store';
 import { termIndex } from '../app/src/books/lookup';
 import type { Edition, TermFile } from '../app/src/books/types';
-import { corpusFields, loadBooks, reviewMarkdown, reviewRows, reviewTable, ROOT, type Field, type Row } from '../scripts/terms-corpus';
+import { corpusFields, loadBooks, REVIEW_DIR, REVIEW_INDEX, reviewFiles, reviewRows, reviewTable, ROOT, type Field, type Row } from '../scripts/terms-corpus';
 import { DC_COUNT_RE, diceOf, homeOf, overridesFile, renderSpans, spansFor, type Audience, type Span } from '../app/src/ui/terms';
 import { PLAYER_KINDS, type RuleKind } from '../app/src/ui/kinds';
 
@@ -42,11 +42,14 @@ describe('the review list', () => {
     expect(scenes).toContain('wsc/00-region');
     expect(new Set(rows.map((r) => `${r.audience} ${r.edition}`))).toEqual(new Set(['dm 2024', 'dm 2014', 'player 2024', 'player 2014']));
   });
-  it('docs/TERMS_REVIEW.md is current and its rows are exactly the spans spansFor returns', () => {
-    const md = readFileSync(join(ROOT, 'docs/TERMS_REVIEW.md'), 'utf8');
-    expect(md, 'run npm run terms:review').toBe(reviewMarkdown(rows, fields));
+  it('docs/TERMS_REVIEW.md and its parts are current and their rows are exactly the spans spansFor returns', () => {
+    const want = reviewFiles(rows, fields);
+    expect(readdirSync(join(ROOT, REVIEW_DIR)).map((f) => `${REVIEW_DIR}/${f}`).sort(), 'run npm run terms:review').toEqual([...want.keys()].filter((p) => p !== REVIEW_INDEX).sort());
+    for (const [path, text] of want) expect(readFileSync(join(ROOT, path), 'utf8'), `${path}: run npm run terms:review`).toBe(text);
+    const md = readFileSync(join(ROOT, REVIEW_INDEX), 'utf8');
+    const parts = [...want.keys()].filter((p) => p !== REVIEW_INDEX).map((p) => readFileSync(join(ROOT, p), 'utf8')).join('\n');
     const table = reviewTable(rows, fields);
-    const lines = md.split('\n').filter((l) => l.startsWith('| ') && !l.startsWith('| Where '));
+    const lines = parts.split('\n').filter((l) => l.startsWith('| ') && !l.startsWith('| Where '));
     expect(lines.length).toBe(table.length);
     // Each row stands for its link in each object it names (×n) for each audience and edition it lists: together, every span once.
     expect(table.reduce((n, r) => n + r.entities.length * r.who.size, 0)).toBe(rows.length);

@@ -1,0 +1,10 @@
+# Every text file is checked out with LF line endings on every platform, whatever core.autocrlf says.
+# Generated files (scenes, grids, the terms review list, snapshots) are compared byte for byte by the tests, so a
+# Windows checkout with CRLF would fail them and make a regeneration touch every line.
+* text=auto eol=lf
+*.woff2 binary
+*.png binary
+*.jpg binary
+*.gif binary
+*.glb binary
+*.pdf binary

@@ -305,11 +305,11 @@
    "type": "lake",
    "pos": [
     6.66,
-    3.4
+    3.41
    ],
    "world": [
     -9609.6,
-    -15364.8
+    -15312
    ],
    "groundY": 4.2,
    "scenes": [
@@ -916,12 +916,12 @@
    "bbox": {
     "minX": 0,
     "minZ": 0,
-    "maxX": 600,
-    "maxZ": 320
+    "maxX": 640,
+    "maxZ": 420
    },
    "centre": [
-    300,
-    160
+    320,
+    210
    ],
    "levels": [
     {
@@ -938,26 +938,26 @@
     {
      "road": "Old Svalich Road",
      "bearing": -0.9724,
-     "x": 594.65,
-     "z": 152.88
+     "x": 636.83,
+     "z": 195.03
     }
    ],
    "placement": {
     "position": [
-     49226.4,
+     49206.4,
      1476.025,
-     4592
+     4542
     ],
     "rotationY": 0
    },
-   "objects": 670,
+   "objects": 839,
    "units": 1,
    "pin": "A",
    "worldBounds": {
-    "minX": 49226.4,
-    "minZ": 4592,
-    "maxX": 49826.4,
-    "maxZ": 4912
+    "minX": 49206.4,
+    "minZ": 4542,
+    "maxX": 49846.4,
+    "maxZ": 4962
    },
    "bandFt": 900
   },
@@ -974,12 +974,12 @@
    "bbox": {
     "minX": 0,
     "minZ": 0,
-    "maxX": 500,
-    "maxZ": 350
+    "maxX": 600,
+    "maxZ": 400
    },
    "centre": [
-    250,
-    175
+    300,
+    200
    ],
    "levels": [
     {
@@ -987,38 +987,50 @@
      "name": "Day (overcast)",
      "elevationFt": 0,
      "ceilingFt": 8
+    },
+    {
+     "id": "piers",
+     "name": "Pier tops",
+     "elevationFt": 34,
+     "ceilingFt": 8
+    },
+    {
+     "id": "crags",
+     "name": "Crag lips of the cutting",
+     "elevationFt": 14,
+     "ceilingFt": 8
     }
    ],
-   "stacked": false,
+   "stacked": "open",
    "outdoor": true,
    "interior": false,
    "roadExits": [
     {
      "road": "Old Svalich Road",
      "bearing": 1.5708,
-     "x": 250,
-     "z": 350
+     "x": 166.09,
+     "z": 397.85
     }
    ],
    "placement": {
     "position": [
-     46636.4,
+     46586.4,
      500.535,
-     1778.6
+     1753.6
     ],
     "rotationY": 0
    },
-   "objects": 630,
+   "objects": 963,
    "units": 1,
    "pin": "B",
    "alsoAt": [
     "B2"
    ],
    "worldBounds": {
-    "minX": 46636.4,
-    "minZ": 1778.6,
-    "maxX": 47136.4,
-    "maxZ": 2128.6
+    "minX": 46586.4,
+    "minZ": 1753.6,
+    "maxX": 47186.4,
+    "maxZ": 2153.6
    },
    "bandFt": 900
   },
@@ -1087,57 +1099,69 @@
    "location": "D",
    "depth": 0,
    "root": "ch02/D",
-   "l0": "day",
+   "l0": "river",
    "north": "-z",
-   "elevationFt": 0,
+   "elevationFt": -7,
    "bbox": {
     "minX": 0,
-    "minZ": 0,
-    "maxX": 450,
-    "maxZ": 400
+    "minZ": -392.4,
+    "maxX": 700,
+    "maxZ": 500
    },
    "centre": [
-    225,
-    200
+    350,
+    53.8
    ],
    "levels": [
     {
-     "id": "day",
-     "name": "Day (overcast)",
+     "id": "river",
+     "name": "River and bar",
+     "elevationFt": -7,
+     "ceilingFt": 7
+    },
+    {
+     "id": "ground",
+     "name": "Banks and road",
      "elevationFt": 0,
+     "ceilingFt": 8
+    },
+    {
+     "id": "bridge",
+     "name": "Bridge deck",
+     "elevationFt": 8,
      "ceilingFt": 8
     }
    ],
-   "stacked": false,
+   "stacked": "open",
    "outdoor": true,
    "interior": false,
    "roadExits": [
     {
      "road": "Old Svalich Road",
      "bearing": -1.8998,
-     "x": 274.5,
-     "z": 2.1
+     "x": 197.64,
+     "z": -392.4
     }
    ],
    "placement": {
     "position": [
-     29343,
-     487,
-     12313.6
+     29218,
+     494,
+     12459.8
     ],
     "rotationY": 0
    },
-   "objects": 427,
+   "objects": 649,
    "units": 1,
    "pin": "D",
    "alsoAt": [
     "D2"
    ],
    "worldBounds": {
-    "minX": 29343,
-    "minZ": 12313.6,
-    "maxX": 29793,
-    "maxZ": 12713.6
+    "minX": 29218,
+    "minZ": 12067.4,
+    "maxX": 29918,
+    "maxZ": 12959.8
    },
    "bandFt": 900
   },
@@ -1148,60 +1172,78 @@
    "location": "F",
    "depth": 0,
    "root": "ch02/F",
-   "l0": "day",
+   "l0": "low",
    "north": "-z",
-   "elevationFt": 0,
+   "elevationFt": -25,
    "bbox": {
     "minX": 0,
     "minZ": 0,
-    "maxX": 500,
-    "maxZ": 400
+    "maxX": 600,
+    "maxZ": 500
    },
    "centre": [
-    250,
-    200
+    300,
+    250
    ],
    "levels": [
+    {
+     "id": "low",
+     "name": "Low ground (river side)",
+     "elevationFt": -25,
+     "ceilingFt": 10
+    },
     {
      "id": "day",
      "name": "Day (overcast)",
      "elevationFt": 0,
      "ceilingFt": 8
+    },
+    {
+     "id": "knoll",
+     "name": "Gallows knoll (crown)",
+     "elevationFt": 8,
+     "ceilingFt": 10
+    },
+    {
+     "id": "deck",
+     "name": "Gallows platform",
+     "elevationFt": 13,
+     "ceilingFt": 12
     }
    ],
-   "stacked": false,
+   "stacked": "open",
    "outdoor": true,
    "interior": false,
    "roadExits": [
     {
      "road": "Ravenloft/Vallaki road",
      "bearing": 3.0727,
-     "x": 0.57,
-     "z": 10.57
+     "x": 1.77,
+     "z": 357.07
     },
     {
      "road": "Old Svalich Road",
      "bearing": -1.7295,
-     "x": 13.27,
-     "z": 0.56
+     "x": 95.63,
+     "z": 2.31
     }
    ],
    "placement": {
     "position": [
-     18705.2,
-     520.75,
-     15851.2
+     18655.2,
+     545.75,
+     15801.2
     ],
     "rotationY": 0
    },
-   "objects": 703,
+   "objects": 910,
    "units": 1,
    "pin": "F",
    "worldBounds": {
-    "minX": 18705.2,
-    "minZ": 15851.2,
-    "maxX": 19205.2,
-    "maxZ": 16251.2
+    "minX": 18655.2,
+    "minZ": 15801.2,
+    "maxX": 19255.2,
+    "maxZ": 16301.2
    },
    "bandFt": 900
   },
@@ -1270,60 +1312,73 @@
    "location": "H",
    "depth": 0,
    "root": "ch02/H",
-   "l0": "day",
+   "l0": "deck",
    "north": "-z",
-   "elevationFt": 0,
+   "elevationFt": 960,
    "bbox": {
     "minX": 0,
     "minZ": 0,
-    "maxX": 450,
-    "maxZ": 420
+    "maxX": 600,
+    "maxZ": 520
    },
    "centre": [
-    225,
-    210
+    300,
+    260
    ],
    "levels": [
     {
-     "id": "day",
-     "name": "Day (overcast)",
-     "elevationFt": 0,
+     "id": "deck",
+     "name": "The bridge (road level)",
+     "elevationFt": 960,
      "ceilingFt": 8
+    },
+    {
+     "id": "ledge",
+     "name": "The Vistana's ledge",
+     "elevationFt": 380,
+     "ceilingFt": 10
+    },
+    {
+     "id": "pool",
+     "name": "The Cauldron (canyon floor)",
+     "elevationFt": 0,
+     "ceilingFt": 10
     }
    ],
    "stacked": false,
    "outdoor": true,
    "interior": false,
+   "clearingFt": 380,
    "roadExits": [
     {
      "road": "Old Svalich Road",
      "bearing": -1.956,
-     "x": 233.6,
-     "z": 2.42
+     "x": 0,
+     "z": 0
     },
     {
      "road": "Ravenloft/Vallaki road",
      "bearing": 0.2692,
-     "x": 450,
-     "z": 272.07
+     "x": 598.2,
+     "z": 519.42
     }
    ],
    "placement": {
     "position": [
-     10704.6,
-     1296,
-     2430
+     10629.6,
+     336,
+     2380
     ],
     "rotationY": 0
    },
-   "objects": 527,
+   "objects": 295,
    "units": 1,
    "pin": "H",
    "worldBounds": {
-    "minX": 10704.6,
-    "minZ": 2430,
-    "maxX": 11154.6,
-    "maxZ": 2850
+    "minX": 10629.6,
+    "minZ": 2380,
+    "maxX": 11229.6,
+    "maxZ": 2900
    },
    "bandFt": 900
   },
@@ -1340,12 +1395,12 @@
    "bbox": {
     "minX": 0,
     "minZ": 0,
-    "maxX": 500,
-    "maxZ": 400
+    "maxX": 600,
+    "maxZ": 500
    },
    "centre": [
-    250,
-    200
+    300,
+    250
    ],
    "levels": [
     {
@@ -1353,53 +1408,59 @@
      "name": "Day (overcast)",
      "elevationFt": 0,
      "ceilingFt": 8
+    },
+    {
+     "id": "crest",
+     "name": "Crag crest",
+     "elevationFt": 55,
+     "ceilingFt": 12
     }
    ],
-   "stacked": false,
+   "stacked": "open",
    "outdoor": true,
    "interior": false,
    "roadExits": [
     {
      "road": "Old Svalich Road",
      "bearing": 2.9362,
-     "x": 6.26,
-     "z": 10.4
+     "x": 14.93,
+     "z": 2.03
     },
     {
      "road": "Old Svalich Road",
      "bearing": -2.0813,
-     "x": 13.79,
-     "z": 3.92
+     "x": 17.22,
+     "z": 0.6
     },
     {
      "road": "Road to Ravenloft",
      "bearing": -0.9828,
-     "x": 494.4,
-     "z": 177
+     "x": 597.16,
+     "z": 219.93
     },
     {
      "road": "Ravenloft/Vallaki road",
      "bearing": 1.5458,
-     "x": 203.48,
-     "z": 398.17
+     "x": 253.47,
+     "z": 499.17
     }
    ],
    "placement": {
     "position": [
-     10996.4,
+     10946.4,
      1804.75,
-     -1678.4
+     -1728.4
     ],
     "rotationY": 0
    },
-   "objects": 633,
+   "objects": 877,
    "units": 1,
    "pin": "I",
    "worldBounds": {
-    "minX": 10996.4,
-    "minZ": -1678.4,
-    "maxX": 11496.4,
-    "maxZ": -1278.4
+    "minX": 10946.4,
+    "minZ": -1728.4,
+    "maxX": 11546.4,
+    "maxZ": -1228.4
    },
    "bandFt": 900
   },
@@ -1410,54 +1471,66 @@
    "location": "J",
    "depth": 0,
    "root": "ch02/J",
-   "l0": "day",
+   "l0": "ground",
    "north": "-z",
    "elevationFt": 0,
    "bbox": {
     "minX": 0,
     "minZ": 0,
-    "maxX": 470,
-    "maxZ": 350
+    "maxX": 540,
+    "maxZ": 400
    },
    "centre": [
-    235,
-    175
+    270,
+    200
    ],
    "levels": [
     {
-     "id": "day",
-     "name": "Day (overcast)",
+     "id": "ground",
+     "name": "The Spur (road level)",
      "elevationFt": 0,
-     "ceilingFt": 8
+     "ceilingFt": 93
+    },
+    {
+     "id": "wall-walk",
+     "name": "Curtain wall top and gate-tower heads",
+     "elevationFt": 90,
+     "ceilingFt": 10
+    },
+    {
+     "id": "ledge",
+     "name": "Chasm ledge",
+     "elevationFt": -35,
+     "ceilingFt": 35
     }
    ],
-   "stacked": false,
+   "stacked": true,
    "outdoor": true,
    "interior": false,
    "roadExits": [
     {
      "road": "Road to Ravenloft",
      "bearing": -2.0672,
-     "x": 67.37,
-     "z": 4.58
+     "x": 31.03,
+     "z": 0.37
     }
    ],
    "placement": {
     "position": [
-     19142.6,
+     19107.6,
      1549.185,
-     564.2
+     539.2
     ],
     "rotationY": 0
    },
-   "objects": 379,
+   "objects": 324,
    "units": 1,
    "pin": "J",
    "worldBounds": {
-    "minX": 19142.6,
-    "minZ": 564.2,
-    "maxX": 19612.6,
-    "maxZ": 914.2
+    "minX": 19107.6,
+    "minZ": 539.2,
+    "maxX": 19647.6,
+    "maxZ": 939.2
    },
    "bandFt": 900
   },
@@ -1468,25 +1541,31 @@
    "location": "L",
    "depth": 0,
    "root": "ch02/L",
-   "l0": "day",
+   "l0": "shore",
    "north": "-z",
    "elevationFt": 0,
    "bbox": {
     "minX": 0,
     "minZ": 0,
-    "maxX": 550,
-    "maxZ": 600
+    "maxX": 650,
+    "maxZ": 750
    },
    "centre": [
-    275,
-    300
+    325,
+    375
    ],
    "levels": [
     {
-     "id": "day",
-     "name": "Day (overcast)",
+     "id": "shore",
+     "name": "Shore and lake surface",
      "elevationFt": 0,
-     "ceilingFt": 8
+     "ceilingFt": 40
+    },
+    {
+     "id": "lakebed",
+     "name": "Lakebed beneath the boat",
+     "elevationFt": -40,
+     "ceilingFt": 36
     }
    ],
    "stacked": false,
@@ -1495,20 +1574,20 @@
    "roadExits": [],
    "placement": {
     "position": [
-     -9884.6,
+     -9934.6,
      4.2,
-     -15664.8
+     -15687
     ],
     "rotationY": 0
    },
-   "objects": 208,
+   "objects": 496,
    "units": 1,
    "pin": "L",
    "worldBounds": {
-    "minX": -9884.6,
-    "minZ": -15664.8,
-    "maxX": -9334.6,
-    "maxZ": -15064.8
+    "minX": -9934.6,
+    "minZ": -15687,
+    "maxX": -9284.6,
+    "maxZ": -14937
    },
    "bandFt": 900
   },
@@ -1519,47 +1598,65 @@
    "location": "M",
    "depth": 0,
    "root": "ch02/M",
-   "l0": "day",
+   "l0": "fog",
    "north": "-z",
-   "elevationFt": 0,
+   "elevationFt": -40,
    "bbox": {
     "minX": 0,
     "minZ": 0,
-    "maxX": 450,
-    "maxZ": 450
+    "maxX": 600,
+    "maxZ": 520.72
    },
    "centre": [
-    225,
-    225
+    300,
+    260.36
    ],
    "levels": [
     {
-     "id": "day",
-     "name": "Day (overcast)",
+     "id": "fog",
+     "name": "In the fog",
+     "elevationFt": -40,
+     "ceilingFt": 10
+    },
+    {
+     "id": "shelf",
+     "name": "The fog-line shelf",
      "elevationFt": 0,
+     "ceilingFt": 10
+    },
+    {
+     "id": "spur",
+     "name": "The Elk's Spur top",
+     "elevationFt": 25,
      "ceilingFt": 8
+    },
+    {
+     "id": "ledge",
+     "name": "The upper ledge",
+     "elevationFt": 120,
+     "ceilingFt": 10
     }
    ],
-   "stacked": false,
+   "stacked": "open",
    "outdoor": true,
    "interior": false,
    "roadExits": [],
    "placement": {
     "position": [
-     4738.2,
-     4683.425,
-     -25569
+     4663.2,
+     4723.425,
+     -25604.36
     ],
     "rotationY": 0
    },
-   "objects": 482,
+   "objects": 514,
    "units": 1,
    "pin": "M",
    "worldBounds": {
-    "minX": 4738.2,
-    "minZ": -25569,
-    "maxX": 5188.2,
-    "maxZ": -25119
+    "minX": 4663.2,
+    "minZ": -25604.36,
+    "maxX": 5263.2,
+    "maxZ": -25083.64
    },
    "bandFt": 900
   },
@@ -1570,60 +1667,72 @@
    "location": "P",
    "depth": 0,
    "root": "ch02/P",
-   "l0": "day",
+   "l0": "ground",
    "north": "-z",
    "elevationFt": 0,
    "bbox": {
-    "minX": 0,
+    "minX": -3.25,
     "minZ": 0,
-    "maxX": 500,
-    "maxZ": 500
+    "maxX": 1300,
+    "maxZ": 800
    },
    "centre": [
-    250,
-    250
+    648.375,
+    400
    ],
    "levels": [
     {
-     "id": "day",
-     "name": "Day (overcast)",
+     "id": "ground",
+     "name": "Crossroads shoulder and terrace",
      "elevationFt": 0,
-     "ceilingFt": 8
+     "ceilingFt": 18
+    },
+    {
+     "id": "crown",
+     "name": "Knoll crown",
+     "elevationFt": 18,
+     "ceilingFt": 40
+    },
+    {
+     "id": "river",
+     "name": "Luna channel",
+     "elevationFt": -10,
+     "ceilingFt": 10
     }
    ],
-   "stacked": false,
+   "stacked": "open",
    "outdoor": true,
    "interior": false,
    "roadExits": [
     {
      "road": "Old Svalich Road",
      "bearing": -1.2611,
-     "x": 490.65,
-     "z": 23.55
+     "x": 1298.25,
+     "z": 77.75
     },
     {
      "road": "Road to Argynvostholt",
      "bearing": -2.9442,
-     "x": 59.43,
-     "z": 7.43
+     "x": 0,
+     "z": 170
     }
    ],
    "placement": {
     "position": [
-     -16459.6,
+     -16857.975,
      341.885,
-     -9701.2
+     -9851.2
     ],
     "rotationY": 0
    },
-   "objects": 829,
+   "objects": 1560,
    "units": 1,
    "pin": "P",
    "worldBounds": {
-    "minX": -16459.6,
-    "minZ": -9701.2,
-    "maxX": -15959.6,
-    "maxZ": -9201.2
+    "minX": -16861.225,
+    "minZ": -9851.2,
+    "maxX": -15557.975,
+    "maxZ": -9051.2
    },
    "bandFt": 900
   },
@@ -1634,66 +1743,84 @@
    "location": "R",
    "depth": 0,
    "root": "ch02/R",
-   "l0": "day",
+   "l0": "river",
    "north": "-z",
-   "elevationFt": 0,
+   "elevationFt": -6,
    "bbox": {
     "minX": 0,
     "minZ": 0,
-    "maxX": 550,
-    "maxZ": 500
+    "maxX": 620,
+    "maxZ": 540
    },
    "centre": [
-    275,
-    250
+    310,
+    270
    ],
    "levels": [
     {
-     "id": "day",
-     "name": "Day (overcast)",
+     "id": "river",
+     "name": "Riverbed, piles and ford",
+     "elevationFt": -6,
+     "ceilingFt": 6
+    },
+    {
+     "id": "bench",
+     "name": "Crossroads bench",
      "elevationFt": 0,
+     "ceilingFt": 10
+    },
+    {
+     "id": "bridge",
+     "name": "Bridge deck",
+     "elevationFt": 10,
+     "ceilingFt": 8
+    },
+    {
+     "id": "notch",
+     "name": "The Notch shelves",
+     "elevationFt": 12,
      "ceilingFt": 8
     }
    ],
-   "stacked": false,
+   "stacked": "open",
    "outdoor": true,
    "interior": false,
    "roadExits": [
     {
      "road": "Old Svalich Road",
      "bearing": 2.7828,
-     "x": 31.53,
-     "z": 493.28
+     "x": 0.63,
+     "z": 104.88
     },
     {
      "road": "Road to Argynvostholt",
      "bearing": 0.2742,
-     "x": 492.93,
-     "z": 494.55
+     "x": 620,
+     "z": 309.46
     },
     {
      "road": "Tsolenka road",
      "bearing": 1.1619,
-     "x": 485,
-     "z": 498.9
+     "x": 514.94,
+     "z": 540
     }
    ],
    "placement": {
     "position": [
-     -31163,
-     196,
-     -11918.8
+     -31198,
+     202,
+     -11938.8
     ],
     "rotationY": 0
    },
-   "objects": 906,
+   "objects": 768,
    "units": 1,
    "pin": "R",
    "worldBounds": {
-    "minX": -31163,
-    "minZ": -11918.8,
-    "maxX": -30613,
-    "maxZ": -11418.8
+    "minX": -31198,
+    "minZ": -11938.8,
+    "maxX": -30578,
+    "maxZ": -11398.8
    },
    "bandFt": 900
   },
@@ -4067,7 +4194,7 @@
     "ch02/L",
     "ch05/N"
    ],
-   "gapFt": 320
+   "gapFt": 192
   },
   {
    "campaign": "cos",
@@ -4075,7 +4202,7 @@
     "ch02/P",
     "ch05/N"
    ],
-   "gapFt": 792
+   "gapFt": 642
   }
  ],
  "warnings": [
@@ -4089,8 +4216,8 @@
   "ch05/N6: its map (90 × 145 ft) is 3.16× the plot room N6 gives it in ch05/N (38 × 38 ft): neighbours inside that extent are hidden under it",
   "ch05/N7: its map (105 × 80 ft) is 3.44× the plot room N7 gives it in ch05/N (24 × 30 ft): neighbours inside that extent are hidden under it",
   "ch05/N8: its map (230 × 190 ft) is 1.6× the plot room N8 gives it in ch05/N (150 × 110 ft): neighbours inside that extent are hidden under it",
-  "cos: the flatten bands of ch02/L and ch05/N overlap (their maps are 320 ft apart): the land between them blends two bases",
-  "cos: the flatten bands of ch02/P and ch05/N overlap (their maps are 792 ft apart): the land between them blends two bases"
+  "cos: the flatten bands of ch02/L and ch05/N overlap (their maps are 192 ft apart): the land between them blends two bases",
+  "cos: the flatten bands of ch02/P and ch05/N overlap (their maps are 642 ft apart): the land between them blends two bases"
  ],
  "errors": []
 }
