@@ -54,7 +54,8 @@ For each item, in order:
 - [ ] 7. **Map smoothing: unfinished maps.** Yester Hill (flat hill, cotton fog), the winery, the Amber Temple (WIP `a1cdc36`), and Berez with Van Richten's tower.
   - ChatGPT suggestions approved by the owner (2026-10-12; `GPT suggestions/REVIEW.md`, verified in `docs/REVIEW-G.md`): G11 (Amber Temple X23 balcony open). Fix each with a failing test first.
 - [ ] 8. **Natural land and water.** Diagnosis done; build WIP `066e37d`.
-- [ ] 9. **Chapter 2 sites.** A, B, D, F, H, I, J, L, M, P and R are built (A WIP `e3987b6`). Left: one fix round each, including Tser Falls as a cliff over the pool with Vallaki in view.
+- [x] 9. **Chapter 2 sites.** A, B, D, F, H, I, J, L, M, P and R are built (A WIP `e3987b6`). Left: one fix round each, including Tser Falls as a cliff over the pool with Vallaki in view.
+  - Open after the one fix pass: 23 defects on A, B, D, F, H, I, J, L and M (see the 0.2.0 changelog), waiting for the owner.
 - [ ] 10. **Vallaki terrain.** Built (`c0fd014`). Merge after item 8.
 - [ ] 11. **Night-one fixes 0.2.1.** Approvals A1–A9.
   - ChatGPT suggestions approved by the owner (2026-10-12; `GPT suggestions/REVIEW.md`, verified in `docs/REVIEW-G.md`): G08 (ground mist comes back after toggling, and after the floor-mask view). Fix each with a failing test first.

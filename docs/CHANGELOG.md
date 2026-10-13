@@ -1,5 +1,56 @@
 # Changelog
 
+## 0.2.0 Chapter 2 sites — 2026-10-13
+
+For the DM:
+- Eleven chapter 2 places in the Svalich Woods that had only a stand-in map are now real outdoor maps of their own, each
+  with its rooms, props, creatures, DM notes and players' views:
+  - A, Old Svalich Road: a tunnel of leaning giant pines, scouts behind a buttress root, and the road leaving into the
+    Mists.
+  - B, Gates of Barovia: the stone gate in its rock cutting, the corduroy causeway and the fog behind the bars.
+  - D, River Ivlis: the village bridge on the river's elbow, the shingle bar and the bluff.
+  - F, River Ivlis Crossroads: the gallows on its knoll, the open grave and the roads that meet there.
+  - H, Tser Falls: a real cliff over Tser Pool a thousand feet down, the bridge over the falls, and the valley with
+    Vallaki and Castle Ravenloft in view.
+  - I, the Black Carriage: the fork on the Count's road, the guard-post shell, the Cut Block and the falls window.
+  - J, Gates of Ravenloft: the road's end on its spur, the drawbridge over the chasm and the gate.
+  - L, Lake Zarovich: the fishers' landing on the south shore, the black lake under its mist, Bluto out in his boat.
+  - M, Mount Baratok: the fog-line shelf where the Mad Mage lives as an elk, the cascade and the scree.
+  - P, Luna River Crossroads: the crossing, the snapped signpost and the two-arched bridge over the Luna.
+  - R, Raven River Crossroads: the ford, the rapids, the trappers' ledge path and the rookery.
+- The land, roads and rivers around each map now carry on past its edges: on the Old Svalich Road the world road
+  leaves both ends of the map, and Tser Falls shapes the valley round itself.
+- The new places' notes carry the rules links: every check, creature, spell and condition on them opens its card.
+- The rules-link review list grew with them: docs/TERMS_REVIEW.md is now an index, with one file per chapter under
+  docs/terms-review/.
+
+For the players:
+- Opening any of these places shows the woods, roads, rock and water the party is standing in, built for that place,
+  instead of the old stand-in map.
+- On Lake Zarovich's own map the distant scenery no longer draws a second copy of Bluto's boat.
+
+Known limits: the item had one build, one review and one fix pass on each map. P and R passed review. 23 defects remain
+on the other nine, none blocking play, waiting for the owner:
+- A, Old Svalich Road (4): the fog hollow sits level with the road instead of 10 ft below it; the ravens and the
+  wereraven stand at the foot of the dead tree instead of perching in it and circling above; the skeletal rider
+  overlaps the second wagon; the wall of Mists is see-through, and the road runs on visibly beyond it.
+- B, Gates of Barovia (1): the first view shows the gate small, with a fog bank filling the right side; the map's own
+  camera view is stored but not used yet.
+- D, River Ivlis (3): the village bank is no higher than the far bank; the road stops short of the scenery road at
+  the north edge; east of the map the river looks like two rivers, with scenery pines standing in the water.
+- F, River Ivlis Crossroads (3): the hanged man stands on the trapdoor instead of hanging; the open grave reads as a
+  flat frame, not a pit; in the low woods the grid and tokens float above the falling ground.
+- H, Tser Falls (3): a second road runs into the north-west corner and ends in the rocks; the east side ends in a
+  straight cliff along the map edge; the saddle's floor reads as cobbled street, and the pool floor is marsh green
+  instead of bare rock.
+- I, the Black Carriage (2): the slope down to the falls window is flat (one level is missing); a token can walk into
+  the crag.
+- J, Gates of Ravenloft (3): the wheel ruts and turning loop look like a railway track; the north crag looks like a
+  lone drum instead of the ridge face; the two terraces at the brink are flat paving instead of step-downs.
+- L, Lake Zarovich (3): the mist barely shows and the far shore's edge is a hard line; Mount Baratok behind looks like
+  a painted curtain; outside the map the land is bare grass instead of forest.
+- M, Mount Baratok (1): the scree slope rises over the shelf's grid, so a token placed on it sits inside the rock.
+
 ## 0.1.0 D&D rules tooltips and the SRD books — 2026-10-12
 
 For the DM:
