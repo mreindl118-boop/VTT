@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.3.0 One world to zoom through - 2026-10-13
+
+- World map opens an inked map of the active campaign: gothic Barovia or the pastoral Sheep Chase countryside. Zoom continuously from the region into a town, a building and a room, with the wheel or touch. Breadcrumbs and Back keep the route clear.
+- Places, hover tips, the hex grid, travel pace and the draggable party marker carry over. Maps load as you approach and return to simple outlines as you leave. View > Continuous world off, or `?nested=0`, keeps the flat-map fallback available.
+- Players see only known landmarks. Switching to Players or the slider's player end clears private notes and controls, including pending cards and wilderness directions.
+- Help shows the release number separately from its What's new link. After an update, the DM sees the newest changes once; the Player Display does not show that card.
+- Reworded map descriptions where they overlapped the source module, preserving their facts, rules links and map geometry.
+
+Known limits: the separate topography, expanded Player Display, phone/performance and data passes remain for item 2's second release. Nested towns and interiors retain surrounding scenery and can render more slowly than the flat fallback. All 32 keyed places currently have discs, including Mount Baratok's extra M2-M5 markers; the original design grouped that peak once, and the owner may choose that presentation later. Existing map and movement issues remain in their own queue items; item 7 is paused.
+
 ## 0.2.1 Built and tested on the owner's laptop — 2026-10-13
 
 The first release made on the owner's laptop instead of a cloud machine. Nothing changes at the table.

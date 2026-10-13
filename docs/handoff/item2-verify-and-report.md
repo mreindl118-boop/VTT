@@ -111,6 +111,14 @@ The earlier record below is preserved as evidence, not a claim that the newly re
 - Independent review approved one narrow integration fix, `1459d18`: retain the DM name on every marker, omit the flight subtitle when there is no scene path, and still remove both metadata fields for Players. No test assertion changed.
 - Independent corrected build and units pass (33 files; 515 passed, 2 skipped, 2 todo). Focused Books, welcome-card and world-map safety run: 28 passed. Full corrected GPU run and final runtime inspection are in progress; main release remains gated.
 
+### Final release gate (ChatGPT, 2026-10-13)
+
+- Corrected frozen 0.3.0 build on implementation `b8fe85e`: build passes; 519 unit tests pass, 2 existing TODOs, zero skipped. Full laptop GPU suite: **257 passed, 55 existing device skips, zero failures in 13.3 minutes**. GitHub CI `38472350232` on that checkpoint completed successfully.
+- Current actual-wheel desktop and phone touch journeys reach the Inn, Death House and Sheep Chase tavern and return to the cartographic region. Zoom preserves camera aim; the World map/root breadcrumb frames the whole region. Physical phones were not tested.
+- Quiet main/candidate/fallback comparison, six warmed trips and network checks complete; no retained growth or external runtime requests. Nested Vallaki's median/p95 is 21.6/37.8 ms against main 7.4/9.5 ms under the documented render/readback measurement. Deferred performance work remains explicit.
+- The 258-page copied-text check matches the six reviewed canonical-name/rules exemptions exactly. No new geometry/audit changes. Fresh refs still show main `bd53fbf`, cloud `4f3cad9`, laptop `b8fe85e`; main is already merged.
+- Release records are finalized for main and the laptop WIP; exact tested bytes and final source commit accompany the bundle. The parent owns the owner's approved private deployment. A later owner request adds local desktop installation/automatic updates; it does not reopen item 7 or claim the updater is already complete.
+
 ## 2. What you are continuing
 
 - **Branch:** `claude/wip/item2-nested-world` on GitHub. Make your own branch from it and merge the main branch in with a merge commit:

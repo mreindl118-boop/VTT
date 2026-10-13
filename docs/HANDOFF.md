@@ -59,12 +59,12 @@ The unreleased work is on GitHub under `claude/wip/`.
 
 | Item | Branch | State and what is left |
 |---|---|---|
-| 2. Nested world | `claude/wip/item2-nested-world` | Steps 2–4 and the D&D world map are built. **Releasing from the cloud** (the owner's call: "ship what works now"). A second release follows; see section 4. |
+| 2. Nested world | `claude/wip/item2-nested-world-laptop` | Released on main as 0.3.0: steps 2-4 and the D&D world map verified and fixed by ChatGPT; build, 519 units and 257 GPU browser checks pass (55 existing device skips). The parent task owns the owner-approved alternate private publication; that deployment is separate from this Git release. See `handoff/item2-report.md`. Second release remains pending (section 4). |
 | 3. Dollhouse view | none, start from the main branch | Not started. It needs the nested world, so start it after item 2 releases. |
 | 4. Movable panels | `claude/wip/item4-movable-panels` (`5aa32c7`) | Built and fixed; unit tests pass. Left: two failing panel browser tests, then merge. |
 | 5. Backups | `claude/wip/item5-backups` (WIP `f89512c`) | Left: as `docs/QUEUE.md` item 5 lists. Restore must give back exactly the saved state; one misleading message; G03; N2–N8; four folded suggestions. |
 | 6. Finished maps | ten branches `claude/wip/item6-<group>` | One branch per map group. Each group's brief, its issues, the fixer's result and the review are in [`docs/handoff/item6-map-groups.json`](handoff/item6-map-groups.json). Krezk and render were reviewed and still have issues. The other eight are built but not reviewed. Left: review each, run one fix pass, merge the ten, then fix G06, G07, G09–G11 and G13–G17 (each with a failing test first). `item6-backdrop` touches `app.ts`, `backdrop.ts` and `gridOverlay.ts`: merge it after item 2. |
-| 7. Unfinished maps | `claude/wip/item7-*` | **Releasing from the cloud.** |
+| 7. Unfinished maps | `claude/wip/item7-*` | **Paused by the owner.** |
 | 8. Natural land and water | `claude/wip/item8-natural-land` (WIP `066e37d`) | The diagnosis is done; the build is a WIP. |
 | 10. Vallaki terrain | `claude/wip/item10-vallaki-terrain` (`c0fd014`) | Built. Merge after item 8. |
 | 11–22 | none, start from the main branch | As `docs/QUEUE.md` lists. Item 11 now includes the owner's report "players can't move anywhere" (door logic). |
