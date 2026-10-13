@@ -8,6 +8,8 @@ The cloud session finishes the two items it has in flight, then stops taking new
 - item 7 (unfinished maps);
 - item 2 (nested world, first release).
 
+If Claude Code is out of credits or inactive, ChatGPT continues the work by `AGENTS.md` at the repository root, whose Status section says where each item is right now.
+
 ## 1. Set up the laptop (once)
 
 1. **Install:**
