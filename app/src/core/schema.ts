@@ -143,6 +143,9 @@ export interface SceneFile {
    *  true = a roofed building: the cut follows the current floor. 'open' = open platforms (a tower, a treehouse):
    *  the cut rests above the top platform until the DM moves it, so the whole stack stays in view. */
   stacked?: boolean | 'open';
+  /** A stacked site with floors below its open ground (a temple carved into a mountain, a winery's cellar): while the
+   *  section shows them, the land drawn round the map is cut open over them (render/backdrop.ts, landHole). */
+  landCut?: boolean;
   /** Felled ground round a walled site: no forest within this many feet of the map's edge. */
   clearingFt?: number;
   /** Outdoors in a wooded mountain valley: taller ridges and deeper forest in the backdrop. */

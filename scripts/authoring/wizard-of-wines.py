@@ -492,7 +492,8 @@ links = [
     L5('W9-west', 'stairs', 'balcony', (4.5, 20.6), 'upper', (4.5, 19.5)), L5('W9-east', 'stairs', 'balcony', (14.5, 20.6), 'upper', (14.5, 19.5)),
     L5('W16-hole', 'shaft', 'upper', (18.5, 18), 'ground', (17, 18)),                  # from W16's floor at the hole's east edge
 ]
-scene = OrderedDict(schema=1, location='W', chapter='ch12', name='The Wizard of Wines', mapPage=175, bookScaleFt=5, ambient=AMB, stacked=True, entry='ground',
+# landCut: the land drawn round the map is cut open over the cellar while the section shows it
+scene = OrderedDict(schema=1, location='W', chapter='ch12', name='The Wizard of Wines', mapPage=175, bookScaleFt=5, ambient=AMB, stacked=True, landCut=True, entry='ground',
                     levels=[lv.to_json() for lv in levels], links=links)
 for w in scene['levels'][levels.index(g)]['walls']: w.setdefault('heightFt', 14.9)   # the storey's walls, 15 ft
 for lv in scene['levels']:
