@@ -133,8 +133,8 @@ class XLevel(Level):
     def butt_joints(self, walls):
         """Where a run of one stone meets a run of another end to end (amber against ashlar), the renderer's wall boxes
         each reach half a wall's thickness past their ends, so the two overlap face to face and flicker. Draw back the
-        lower plain run by one thickness so the boxes meet end to end; a hairline of ethereal wall keeps the joint
-        closed to sight (it is never drawn)."""
+        lower plain run by one thickness so the boxes meet end to end. Two undrawn hairlines close the joint again: an
+        ethereal one to sight and an invisible one to movement (core/light.ts lets each flag through the other)."""
         T = 0.6                                              # WALL_T (app/src/kit/pieces.ts)
         drawn = [w for w in walls if not ({'invisible', 'ethereal'} & set(w['flags']))]
         H = lambda w: w.get('heightFt', self.ceiling)
@@ -158,7 +158,8 @@ class XLevel(Level):
                         done.add((w['id'], e)); o = 'b' if e == 'a' else 'a'
                         old = list(w[e]); u = ((w[o][0] - w[e][0]) / l, (w[o][1] - w[e][1]) / l)
                         w[e] = [round(old[0] + u[0] * T, 3), round(old[1] + u[1] * T, 3)]
-                        seams.append(OrderedDict(id=f"{w['id']}-seam-{e}", a=old, b=list(w[e]), flags=['ethereal'], material=w['material']))
+                        for fl in ('ethereal', 'invisible'):
+                            seams.append(OrderedDict(id=f"{w['id']}-seam-{e}" + ('' if fl == 'ethereal' else '-m'), a=old, b=list(w[e]), flags=[fl], material=w['material']))
         return walls + seams
     # placement helpers in squares
     def P(self, id, kind, i, j, key, rotY=0, dims=None, y=0, desc=None, dm=None):
@@ -225,34 +226,50 @@ f.obj('spawn', 'spawn', S(8.5, 2.5), 'dm-note', 'X1', 'Party arrives up the road
 # They are props of the ledge, so the section cut takes them away whole as soon as it drops to the floors inside.
 def flank(lv, tag, pts, dims, step=40, y=0, over=1.12):
     """Rock-flank pieces end to end along a polyline in squares, walked with the rock on the walker's left (north
-    when walking east); `dims` may vary d along the run as a function of the piece's centre square."""
+    when walking east); `dims` may vary d along the run as a function of the piece's centre square. At each bend a
+    filler piece, set half a square back into the rock and turned halfway, closes the notch the two runs leave."""
     k = 0
+    ang = lambda a, b: math.atan2(-(b[1] - a[1]), b[0] - a[0])
     for a, b in zip(pts[:-1], pts[1:]):
         dx, dz = (b[0] - a[0]) * 10, (b[1] - a[1]) * 10
         L = math.hypot(dx, dz); n = max(1, round(L / step))
         for q in range(n):
             t = (q + 0.5) / n; m = (a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t)
             d = dims(m) if callable(dims) else dict(dims)
-            lv.P(f'{tag}{k}', 'rock-flank', m[0], m[1], None, rotY=round(math.degrees(math.atan2(-dz, dx)), 1),
+            lv.P(f'{tag}{k}', 'rock-flank', m[0], m[1], None, rotY=round(math.degrees(ang(a, b)), 1),
                  dims=dict(d, len=round(L / n * over + 2, 1), seed=k + 1), y=y)
             k += 1
+    for p0, p1, p2 in zip(pts[:-2], pts[1:-1], pts[2:]):
+        a1, a2 = ang(p0, p1), ang(p1, p2)
+        mid = a1 + math.atan2(math.sin(a2 - a1), math.cos(a2 - a1)) / 2
+        back = (p1[0] - 0.5 * math.sin(mid), p1[1] - 0.5 * math.cos(mid))   # half a square into the rock
+        d = dims(p1) if callable(dims) else dict(dims)
+        lv.P(f'{tag}{k}', 'rock-flank', back[0], back[1], None, rotY=round(math.degrees(mid), 1), dims=dict(d, len=25, seed=k + 1), y=y)
+        k += 1
 TOP1, BACK1 = 100, -8.5          # the first step: the cliff over the facade, 100 ft up to a snowfield at j = -8.5
 TOP2, BACK2 = 170, -17.5         # the second
-# the face: along the ledge's back edge, round the fissure's pocket, behind the facade's alcoves, on east
-front = lambda m: {'h': TOP1, 'd': round((m[1] - BACK1) * 10)}
+# away from the facade the steps wander back and forth, so they read as a mountainside, not terraces ruled straight
+B1 = [(-60, -10.5), (-42, -8), (-25, -10), (-8, -8.5), (24, -8.5), (40, -10.5), (57, -8), (75, -9.5)]
+B2 = [(-60, -19), (-38, -16.5), (-18, -18.5), (2, -17.5), (20, -17.5), (36, -20), (55, -17), (75, -19)]
+def along(pts, i):
+    """The j of a west-to-east polyline at i."""
+    for (i0, j0), (i1, j1) in zip(pts[:-1], pts[1:]):
+        if i <= i1: return j0 + (j1 - j0) * max(0, (i - i0) / (i1 - i0))
+    return pts[-1][1]
+front = lambda m: {'h': TOP1, 'd': round((m[1] - along(B1, m[0])) * 10) + 15}   # a little under the next step
 flank(f, 'cliff-w', [(-60, -1), (-3, -1)], front, step=45)
 flank(f, 'cliff-f', [(-1.5, -2.5), (7.75, -2.5)], front, step=34)
-flank(f, 'cliff-fe', [(9.25, -2.5), (18.5, -2.5)], front, step=34)
-# behind the archway the rock stands back: a cleft over the steps going down, so the arch is a door, not a blind niche
-flank(f, 'cliff-arch-w', [(8, -2.5), (8, -4.5)], {'h': 60, 'd': 15, 'snow': 0}, step=20, over=1.0)
-flank(f, 'cliff-arch', [(7.6, -4.5), (9.4, -4.5)], {'h': TOP1, 'd': round((-4.5 - BACK1) * 10)}, step=20, over=1.0)
-flank(f, 'cliff-arch-e', [(9, -4.5), (9, -2.5)], {'h': 60, 'd': 15, 'snow': 0}, step=20, over=1.0)
-flank(f, 'cliff-e', [(18.5, -2.5), (19.6, -1.5), (75, -1.5)], front, step=45)
+flank(f, 'cliff-fe', [(9.25, -2.5), (18.5, -2.5), (19.6, -1.5), (75, -1.5)], front, step=34)
+# behind the archway the rock stands back over the icy steps, so the arch is a door, not a blind niche; the rock closes
+# again where the steps reach the entrance hall (j = -3), so the hall lies under the mountain, not open to the sky
+flank(f, 'cliff-arch-w', [(8, -2.5), (8, -3.1)], {'h': 60, 'd': 15, 'snow': 0}, step=20, over=1.0)
+flank(f, 'cliff-arch', [(7.6, -3.1), (9.4, -3.1)], {'h': TOP1, 'd': round((-3.1 - BACK1) * 10) + 15}, step=20, over=1.0)
+flank(f, 'cliff-arch-e', [(9, -3.1), (9, -2.5)], {'h': 60, 'd': 15, 'snow': 0}, step=20, over=1.0)
 flank(f, 'cliff-x1a', [(-3, -1), (-3, -4)], {'h': 70, 'd': 35}, step=20, over=1.0)     # the fissure's walls: buttresses
 flank(f, 'cliff-x1ab', [(-3, -4), (-1.5, -4)], {'h': TOP1, 'd': round((-4 - BACK1) * 10)}, step=20, over=1.3)
 flank(f, 'cliff-x1ae', [(-1.5, -4), (-1.5, -2.5)], {'h': 70, 'd': 35}, step=20, over=1.0)
-flank(f, 'step2-', [(-60, BACK1), (75, BACK1)], {'h': TOP2 - TOP1, 'd': round((BACK1 - BACK2) * 10)}, step=55, y=TOP1)
-flank(f, 'step3-', [(-60, BACK2), (75, BACK2)], {'h': 90, 'd': 220}, step=75, y=TOP2)   # and on up to the snowfields under the peak
+flank(f, 'step2-', B1, lambda m: {'h': TOP2 - TOP1, 'd': round((m[1] - along(B2, m[0])) * 10) + 15}, step=55, y=TOP1, over=1.25)
+flank(f, 'step3-', B2, {'h': 90, 'd': 220}, step=75, y=TOP2, over=1.25)   # and on up to the snowfields under the peak
 
 # ================================================================== UPPER (+30): map p.182
 VOID = [(S(4, -18), S(4, -7)), (S(13, -18), S(13, -7)), (S(4, -18), S(13, -18))]
