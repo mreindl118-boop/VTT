@@ -2,11 +2,12 @@
 // Death House's notes render with spell, check, area, person and monster links in their families' colours and
 // underlines, a link opens its card, and the same strings on the players' side carry no link at all.
 import { expect, test, type Page } from '@playwright/test';
+import { quiet } from './helpers';
 
 const SHOTS = process.env.SHOTS ?? 'test-results';
 
 async function boot(page: Page, scene = 'appB/death-house'): Promise<void> {
-  await page.addInitScript(() => localStorage.setItem('mistlab.helpSeen', '1'));
+  await quiet(page);
   await page.goto(`/?nosw&scene=${encodeURIComponent(scene)}`);
   await page.waitForFunction(() => (window as any).__mistlab?.ready);
   await page.evaluate(() => (window as any).__mistlab.ready);

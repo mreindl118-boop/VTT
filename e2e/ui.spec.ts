@@ -1,8 +1,8 @@
 // UI hygiene: opening another location clears the previous one's labels; hover names things on the DM side.
 import { expect, test } from '@playwright/test';
-import { boot, SCENES } from './helpers';
+import { boot, SCENES, quiet } from './helpers';
 
-test.beforeEach(async ({ page }) => { await page.addInitScript(() => localStorage.setItem('mistlab.helpSeen', '1')); });
+test.beforeEach(async ({ page }) => { await quiet(page); });
 
 test('a new location wipes the old labels and door icons', async ({ page }) => {
   await boot(page, '', SCENES[1]); // Death House

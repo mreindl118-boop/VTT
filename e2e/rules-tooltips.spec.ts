@@ -2,6 +2,7 @@
 // emblem and kicker word; link underlines per family; contrast on the opaque page card in all four themes, also as
 // rendered pixels over three scenes; the fonts' byte budget; and the card offline with fonts and emblems from cache.
 import { expect, test, type Page } from '@playwright/test';
+import { quiet } from './helpers';
 
 const SHOTS = process.env.SHOTS ?? 'test-results';
 type Spec = Record<string, unknown>;
@@ -37,7 +38,7 @@ const THEMES = [
 
 async function boot(page: Page, scene: string, scheme: 'light' | 'dark' = 'light', attr: string | null = null, sw = false): Promise<void> {
   await page.emulateMedia({ colorScheme: scheme });
-  await page.addInitScript(() => localStorage.setItem('mistlab.helpSeen', '1'));
+  await quiet(page);
   await page.goto(`/?${sw ? '' : 'nosw&'}scene=${encodeURIComponent(scene)}`);
   await page.waitForFunction(() => (window as any).__mistlab?.ready);
   await page.evaluate(() => (window as any).__mistlab.ready);
@@ -218,7 +219,7 @@ test('fonts: the first load fetches 40,000 B of woff2 or less (nothing is preloa
   let bytes = 0;
   const pending: Promise<void>[] = [];
   ctx.on('response', (r) => { if (/\.woff2(\?|$)/.test(r.url())) pending.push(r.body().then((b) => { bytes += b.length; }, () => {})); });
-  await page.addInitScript(() => localStorage.setItem('mistlab.helpSeen', '1'));
+  await quiet(page);
   await page.goto('/?scene=appB%2Fdeath-house', { waitUntil: 'load' });
   await page.waitForTimeout(2000);
   await Promise.all(pending);
@@ -231,7 +232,7 @@ test('offline: after cache-pack, the Wolf card opens with Alegreya SC, Alegreya 
   test.setTimeout(120_000);
   const ctx = await browser.newContext();
   const page = await ctx.newPage();
-  await page.addInitScript(() => localStorage.setItem('mistlab.helpSeen', '1'));
+  await quiet(page);
   await page.goto('/?scene=appB%2Fdeath-house');
   await page.waitForFunction(() => (window as any).__mistlab?.ready);
   await page.evaluate(() => navigator.serviceWorker.ready);
@@ -311,7 +312,7 @@ test('iPad: a tap on a rules link opens its card clear of the link; Esc and an o
 
 test('phone: the Books reader\'s running head has a 44 px Contents button that opens the contents', async ({ page }, info) => {
   test.skip(info.project.name !== 'phone', 'phone');
-  await page.addInitScript(() => localStorage.setItem('mistlab.helpSeen', '1'));
+  await quiet(page);
   await page.goto('/?nosw&scene=appB%2Fdeath-house#book/srd-5.2.1/playing-the-game');
   await expect(page.locator('article.br-page[data-page]')).toBeVisible({ timeout: 20_000 });
   const b = page.locator('.br-run-toc');

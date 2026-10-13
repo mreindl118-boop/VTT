@@ -1,4 +1,13 @@
 import type { Page } from '@playwright/test';
+import { readFileSync } from 'node:fs';
+
+/** The version under test (package.json), for marking the "What's new" card as already seen. */
+export const VERSION = (JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')) as { version: string }).version;
+
+/** Start each page as a returning user on this version: no first-run Help and no "What's new" card. */
+export async function quiet(page: Page): Promise<void> {
+  await page.addInitScript((v) => { localStorage.setItem('mistlab.helpSeen', '1'); localStorage.setItem('mistlab.seenVersion', v); }, VERSION);
+}
 
 /** Scenes the acceptance suites run against: the M0 test room and Death House (M1), by level. */
 export const SCENES = [
