@@ -381,8 +381,8 @@ describe.skipIf(!existsSync('scripts/books/.cache/wotc-srd-5.1-pdf.pdf'))('books
     const { pdfText, vocabularyOf } = await import('../scripts/books/vocab');
     for (const [book, pdf] of Object.entries(PDFS) as [BookId, string][]) {
       const t = pdfText(`scripts/books/.cache/${pdf}.pdf`);
-      if (!t) continue; // no pdftotext here
-      const v = vocabularyOf(t);
+      expect(t?.trim(), `${book}: PDF extraction must succeed; put pdftotext on PATH before running the cached-source check`).toBeTruthy();
+      const v = vocabularyOf(t!);
       const missing = new Map<string, string>();
       const scan = (where: string, s: string) => {
         const words = s.replace(/<[^>]+>/g, ' ').replace(/&[a-z#0-9]+;/g, ' ').toLowerCase().replace(/’/g, "'").match(/[a-z]+/g) ?? [];
