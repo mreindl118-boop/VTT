@@ -94,13 +94,20 @@ export class World {
     host.addEventListener('wheel', this.wheel, { capture: true, passive: false });
     this.watchPinch();
     this.renderer.domElement.addEventListener('contextmenu', (e) => e.preventDefault());
-    this.controls.addEventListener('change', () => { if (this.scene.fog instanceof THREE.FogExp2) this.scene.fog.density = this.fogDensity; if (this.nested) this.applyPolar(); this.invalidate(); this.onCamera?.(); });
+    // the user's own hand on the camera: a drag or a pinch while it moves, a wheel turn (the streamer starts no build then)
+    this.controls.addEventListener('start', () => { this.dragging = true; });
+    this.controls.addEventListener('end', () => { this.dragging = false; });
+    this.controls.addEventListener('change', () => { this.lastChange = performance.now(); if (this.scene.fog instanceof THREE.FogExp2) this.scene.fog.density = this.fogDensity; if (this.nested) this.applyPolar(); this.invalidate(); this.onCamera?.(); });
 
     this.hemi = new THREE.HemisphereLight('#c8ccd8', '#3a3138', 1.6);
     this.scene.add(this.hemi);
     this.key = new THREE.DirectionalLight('#f0e2c8', 1.1);
     this.key.position.set(-40, 90, 50);
     this.scene.add(this.key);
+    this.lampPad.name = 'lamp-pad';
+    this.scene.add(this.lampPad);
+    // every render (the corner-pixel warm-ups too) first evens out the lamp count
+    this.scene.onBeforeRender = (_r, _s, cam) => this.padLamps(cam);
 
     new ResizeObserver(() => this.resize()).observe(host);
     this.resize();
@@ -213,6 +220,32 @@ export class World {
   /** An absolute world point as drawn (anchored). */
   toAnchored(v: THREE.Vector3, out = new THREE.Vector3()): THREE.Vector3 { return out.copy(v).sub(this.anchor); }
 
+  /** The user is moving the camera by hand: a drag or a pinch that moved in the last 300 ms, or a wheel turn. */
+  get userMoving(): boolean { const now = performance.now(); return (this.dragging && now - this.lastChange < 300) || now - this.lastWheel < 300; }
+  private dragging = false;
+  private lastChange = 0;
+  private lastWheel = 0;
+
+  /** In the continuous world the shaders are always built for the same number of point lights (LAMPS): what the
+   *  drawn lamps leave over is made up with dark lamps that light nothing (black, intensity 0, out of reach). A
+   *  lamp-lit map becoming active (its lamps show, the last one's go) then recompiles nothing; three.js builds a
+   *  program per light count, and recompiling every material of a valley at once froze the page for seconds. A map
+   *  with more lamps than LAMPS in view recompiles as before. Off the valley (the legacy way) there is no pad. */
+  static readonly LAMPS = 6;
+  private readonly lampPad = new THREE.Group();
+  padLamps(cam: THREE.Camera = this.camera): void {
+    let n = 0; // the lamps this camera draws (a warm-up's camera sees only its own layer)
+    if (this.nested) this.scene.traverseVisible((o) => { if ((o as THREE.PointLight).isPointLight && o.parent !== this.lampPad && o.layers.test(cam.layers)) n++; });
+    const want = this.nested ? Math.max(0, World.LAMPS - n) : 0, pad = this.lampPad.children;
+    while (pad.length < want) {
+      const l = new THREE.PointLight(0x000000, 0, 1, 2);
+      l.layers.enableAll(); // drawn for every camera (the warm-ups draw on their own layer)
+      l.position.set(0, -1e6, 0);
+      this.lampPad.add(l); l.updateMatrixWorld(true);
+    }
+    pad.forEach((l, i) => { l.visible = i < want; });
+  }
+
   /** Run before every render (the world stage's sky follows the eye). */
   readonly beforeRender = new Set<() => void>();
   renderNow(): void {
@@ -322,6 +355,7 @@ export class World {
    *  toward the cursor. A turn outward at the far limit asks for the map one level up. */
   private wheel = (e: WheelEvent): void => {
     if (e.target !== this.renderer.domElement || !this.controls.enabled || !this.controls.enableZoom || !e.deltaY) return;
+    this.lastWheel = performance.now();
     if (e.deltaY > 0 && this.atMaxDistance) this.onZoomPastMax?.();
     const tw = this.tween; if (!tw) return;
     e.preventDefault(); e.stopImmediatePropagation();
@@ -360,19 +394,23 @@ export class World {
     this.invalidate();
   }
 
-  /** Get a map ready to draw without a hitch (the streamer, before it fades one in): its shaders compiled off the main
-   *  thread where the browser can (compileAsync), then its buffers uploaded a few meshes per frame by drawing them
-   *  into one corner pixel of the canvas (the next frame draws over it). Lights are drawn with them so the programs
-   *  are the ones the real frame uses. The root may be hidden meanwhile (it shows only for these draws). Returns the
-   *  number of slices it took. Waits while `pause()` says so. */
+  /** Get a map ready to draw without a hitch (the streamer, before it fades one in): its buffers uploaded and its
+   *  shaders built a few meshes per frame by drawing them into one corner pixel of the canvas (the next frame draws
+   *  over it). Lights are drawn with them (and the lamp pad evens their count) so the programs are exactly the ones the
+   *  real frame uses; at most a few materials not yet drawn as they are now go in one slice (each may need a program
+   *  built). compileAsync is not used: three.js's compile() does not set each material's clipping state, so for the
+   *  cut walls it built programs no frame used. The root may be hidden meanwhile (it shows only for these draws).
+   *  Called again with other materials on (a ghost half faded, the live ones) it builds their programs the same way.
+   *  Returns the number of slices it took. Waits while `pause()` says so. */
   async upload(root: THREE.Object3D, sliceMs: number, pause: () => boolean, cancelled: () => boolean): Promise<number> {
     const PREWARM = 31, r = this.renderer, cam = this.camera.clone(), shown = root.visible;
     cam.layers.set(PREWARM);
     root.visible = true;
     const meshes: THREE.Object3D[] = [];
-    root.traverseVisible((o) => { if ((o as THREE.Mesh).isMesh) meshes.push(o); });
+    root.traverseVisible((o) => { if ((o as THREE.Mesh).isMesh || (o as THREE.Line).isLine || (o as THREE.Points).isPoints) meshes.push(o); }); // (lines too: a lamp's ring)
     root.visible = shown;
-    await r.compileAsync(root, this.camera, this.scene).catch(() => undefined);
+    const props = r.properties as unknown as { get(m: THREE.Material): { __version?: number } };
+    const fresh = (m: THREE.Object3D) => { const x = (m as THREE.Mesh).material, list = Array.isArray(x) ? x : [x]; return list.filter((k) => k && props.get(k).__version !== k.version).length; };
     const lights: THREE.Object3D[] = [];
     this.scene.traverseVisible((o) => { if ((o as THREE.Light).isLight && !o.layers.isEnabled(PREWARM)) { o.layers.enable(PREWARM); lights.push(o); } });
     let i = 0, slices = 0;
@@ -386,8 +424,9 @@ export class World {
         while (i < meshes.length && performance.now() - t0 < sliceMs) {
           // about a megabyte and a half of vertices a draw (one pass over the scene for many small meshes)
           const batch: THREE.Object3D[] = [];
-          for (let bytes = 0; i < meshes.length && bytes < 1.5e6;) {
+          for (let bytes = 0, mats = 0; i < meshes.length && bytes < 1.5e6 && mats < 3;) {
             const m = meshes[i++], g = (m as THREE.Mesh).geometry;
+            mats += fresh(m);
             for (const a of Object.values(g.attributes)) bytes += (a as THREE.BufferAttribute).array?.byteLength ?? 0;
             m.layers.enable(PREWARM); batch.push(m);
           }

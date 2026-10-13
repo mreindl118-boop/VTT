@@ -344,6 +344,10 @@ function flat(g: THREE.BufferGeometry): THREE.BufferGeometry {
   return n;
 }
 
+/** One scene object as the map builds it, unplaced (the proxies of the continuous world borrow it for big pieces). */
+export function buildSceneObject(o: SceneObject): THREE.Object3D { return buildObject(o, 0, []); }
+/** Whether a kind has a kit piece of its own (else buildObject draws a creature figure or a pawn). */
+export const hasKit = (kind: string): boolean => kind === 'prism' || kind === 'stairs-straight' || kind === 'pressure-plate' || !!PROP_BUILDERS[kind] || !!PROPS_V1[kind];
 function buildObject(o: SceneObject, y0: number, labels: LabelSpec[]): THREE.Object3D {
   if (o.kind === 'stairs-straight') {
     const { mesh, treadLabels } = stairsStraight(o.dims ?? {}, [o.pos[0], o.pos[2]]);

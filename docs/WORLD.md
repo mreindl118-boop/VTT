@@ -183,21 +183,26 @@ nothing left to wait for, the old one is released and the new one placed and act
 and changes nothing. A campaign's save is read first and switched only at that step. A map that cannot be fetched (a
 scene chunk offline) keeps the open map, its campaign and its save, and the status line says *Couldn't open … (offline?)*.
 `open()` resolves to whether the map opened and never rejects. A scene chunk that failed stays failed in the browser's
-module map for the life of the page, so `data.ts` asks for it again under a fresh query once the network is back. The
+module map for the life of the page, so `data.ts` asks for it again under a query once the network is back. The
 browser's error names the file in Chromium and Firefox; Safari's does not, and there the first error stands until a
-reload.
+reload. Each file is asked for again once at a time and, once it has come, never again: every later read shares that
+module (one download, one copy in memory). A retry that fails too is forgotten, and the next read tries the next query.
 
 ## Streaming (step 3)
 
 `render/streamer.ts` decides and `App` carries out. Each tick (at most every 100 ms while the camera moves, and while
 anything is pending) measures every pin root of the open campaign. The measure is the footprint's diagonal on screen in
-CSS pixels, seen from the eye to the nearest point of the footprint, so a town the camera stands over is big. A map is
-in view if its middle or a corner falls within 1.5 half-screens of the middle of the view, or the target is near it.
+CSS pixels, seen from the eye to the nearest point of the footprint, so a town the camera stands over is big. Seen
+edge-on from low down a footprint is foreshortened: it counts √(sin e) × 1.15 of its size (e the eye's elevation angle
+over its middle; at least 0.3 of it, at most all). A map is in view if its middle or a corner falls within 1.5
+half-screens of the middle of the view, or the target is near it, and if at least a fifth of its nearest point shows
+through the mist (FogExp2: exp(−(density × d)²) ≥ 0.2). A town thirty thousand feet off in the mist is not wanted.
 
 | rule | when |
 |---|---|
 | prefetch the scene files | ≥ 60 px × units, in view |
-| build, then draw it in place | ≥ 140 px × units, in view; one build at a time, none during a glide |
+| build, then draw it in place | ≥ 140 px × units, in view; one build at a time, none during a glide or while the user's hand moves the camera (a wheel turn in the last 300 ms, a drag or pinch that moved in the last 300 ms). The place holding the camera's target goes first, then the nearest to the target, then the biggest on screen |
+| drop a build | its place fell under the fold line or out of view before the build was done (it is freed) |
 | fold into its proxy | < 70 px × units, or out of view (at once, with a crossfade) |
 | free it | folded for 4 s, unless it is the active map; or at once when the cap needs room (least recently wanted first) |
 | cap | 4 units resident, 2 on a small device (`navigator.deviceMemory < 4`, or a phone-sized screen); Vallaki and Krezk are 2 units (atlas `units`). The active map does not count while it is folded away, so a phone can still stream Vallaki in from the valley |
@@ -212,9 +217,20 @@ landing.
 **Building in slices.** `render/build.ts buildLevelSteps` is `buildLevel` as a generator: it yields between walls,
 objects, merged pieces and parts. Each piece is flattened as it is merged, not all at once at the end. `App.loadSteps`
 yields again after each level's coverage map. The streamer runs it for at most 8 ms after each drawn frame and waits
-out glides. Then `World.upload` gets the map onto the GPU a little at a time: `compileAsync` for its shaders (parallel
-where the browser can), then its buffers a megabyte and a half per draw into one corner pixel, with the scene's lights,
-so the programs are the ones the real frame uses. The fade's two material states are compiled before it starts.
+out glides. Then `World.upload` gets the map onto the GPU a little at a time by drawing it into one corner pixel, a
+megabyte and a half of vertices or three materials not yet drawn as they are a draw, with the scene's lights, so the
+programs built are exactly the ones the real frame uses. It runs three times: as an opaque ghost, as a half-faded
+ghost (the crossfade's state) and with the map's own materials on its ghost-look levels (the state it will draw in
+once active). `compileAsync` is not used: three.js's `compile()` does not set each material's clipping state, so for
+the cut walls it built programs no frame used, all in one task.
+
+**The lamp count.** three.js builds a shader program per point-light count. A ghost's lamps are hidden, so when the
+camera made a lamp-lit map active its lamps appeared, the old map's went, and every lit material of the valley was
+compiled again in one frame: 17 programs, a frame of 2.4 to 22 s on swiftshader. In the continuous world `World`
+therefore makes up the visible lamps to `World.LAMPS` (6) with dark lamps before every render (black, intensity 0, out
+of reach: they add exactly nothing to a pixel). The count the shaders see never changes when a map becomes active, so
+nothing is compiled (measured: 51 → 51 programs at Tser Pool's activation, against 50 → 67 before). A map with more
+than six lamps in view recompiles as before. The legacy way has no pad.
 Measured on swiftshader with two test runs sharing four cores: the Old Svalich Road builds in about 37 slices (longest
 31 ms), Krezk in 144 (longest 25–52 ms) and Vallaki in about 395 (7 s in all, longest 58–90 ms). The plan allowed Vallaki half a second to a second in
 one piece. Opening a map by name, the library or the world map still builds it in one go, as before.
@@ -239,8 +255,10 @@ hides. The active map folds too at valley zoom: it becomes a ghost that looks ex
 no party token is added and the world-map marker does not move. Only the old active map's selection, ruler, range and
 token figures go, and it steps down to a ghost whose tint comes on gently. The new one comes alive with today's tail of
 `open()`: fog, sky, level, tokens, slider and the floating origin moved onto it. The device remembers it as the map
-to open next time, and the Player Display is told. `App.open` of a map the valley already holds opens it without a
-build. The map left behind stays a ghost and the streamer folds and frees it as the camera leaves. Opening a legacy map
+to open next time is still the one the party was taken to (`mistlab.scene` is written by opens only: looking is not
+travelling, so a reload does not move the party). The Player Display is told. `App.open` of a map the valley already
+holds opens it without a build; if the streamer stands its own copy of the map in the valley while `open` is reading
+it, that copy opens and `open`'s build is freed. The map left behind stays a ghost and the streamer folds and frees it as the camera leaves. Opening a legacy map
 (a building, a dev map) or another campaign frees every map the valley holds and drops any build in flight.
 
 **The party's '&'** stands on the land at the party's place while the party's map is not drawn. If that map is drawn
@@ -249,16 +267,34 @@ while the party's map is the active one and drawn, because the token itself show
 
 **The Player Display** streams by the DM's camera (each camera message ticks its streamer) but never activates by
 itself. When the DM's camera makes a map active, the `state` message names it and the display opens it: without a build
-if it already holds it, and without framing (its camera is the DM's).
+if it already holds it, and without framing (its camera is the DM's). With the players' camera unlocked the display
+stays on the party's map (the message carries `look: { home }` when the DM's active map is not the one the party was
+taken to, and `camLocked`): the DM looking elsewhere does not take the players' grid and token away. Locked again, it
+follows the DM's map.
+
+**While a map loads** the DM's status line says *Loading …* (the title still names the active map until the camera
+makes the new one active).
+
+**Detailed proxies** (`render/proxydetail.ts`, data from `scripts/world-massing.ts` → `manifests/world-massing.json`,
+a chunk of its own read when the valley is first built). At valley zoom every place is its plain massing
+(`worldproxies.ts`, all places in one draw). Once a place is 24 px across per atlas unit on screen (and in view, not lost
+in the mist), its detailed proxy is built in 6-ms steps and drawn instead (the plain one again under 14 px; one not
+wanted for 30 s is freed). It is the map's own massing, as its ghost would show it: the ground's floor materials on a
+lattice, trees as cones, houses as a body and a gable roof in the house kit's own tones (`kit/props.ts houseLook`),
+palisades, fences and vine rows as boxes, walls up to the ghost's cut, and every other big piece (Krezk's rock and
+road, prisms, crags, towers, cottages, the church) built with the map's own kit. Its colours lean 12 % toward the mist,
+as a ghost's do. So when the map streams in over it, the crossfade changes detail, not shape: at Krezk's build line
+the last proxy frame and the first map frame differ in under 1 % of the pixels of Krezk's own rectangle on screen,
+against several times that with the plain massing (e2e). Castle Ravenloft keeps its proxy from its exterior plans.
 
 A place whose map cannot be read while streaming keeps its proxy, is not tried again for 20 s, and the status line says
 *Couldn't load … (offline?)* once.
 
-Known: the first frame of the new light count after an activation recompiles the lit materials, as `setLevel` always
-has. The surface detail's noise is sampled in drawn space, so it slides by the floating origin's move when a map
+Known: the surface detail's noise is sampled in drawn space, so it slides by the floating origin's move when a map
 becomes active. The detail fades out beyond 4 ft a pixel, and activation happens from town zoom, so this does not show.
-A proxy is the place's massing, much simpler than its map (Krezk's rock is not in its proxy); the crossfade softens the
-change.
+The warm-up draws lines too (a lamp's ring was the last program Tser Pool built at activation). Krezk's activation may
+still build one program (a transparent basic material its props take when the active map styles them). A real iPad has
+not been measured.
 
 ## Verification
 
@@ -301,6 +337,19 @@ change.
 - `tests/streamer.test.ts`: the rule's thresholds, units, hysteresis, the 4-s linger, the cap and its least recently
   wanted eviction (the active map kept, and not counted while folded), activation (the smallest footprint, the active
   map holding the target, never mid-glide, never on the Player Display).
+- `e2e/stream.spec.ts` (step 3, second round; each failed on the first round's build):
+  - A camera activation (Tser Pool, three lamps, over the lampless village) builds at most one program, and no frame
+    round it costs more than 2.5 × a plain frame of the same view + 300 ms.
+  - After the camera alone made Tser Pool active, a reload opens the village with the party there and one party token.
+  - With the players' camera unlocked the Player Display stays on the village (its level, its party token, no ghost
+    materials) while the DM looks at Tser Pool; locked again, it follows.
+  - Over Tser Pool, 1,500 ft up and looking along the valley: Tser Pool is built first and Vallaki, in the mist, never.
+  - A scene chunk cut once is fetched again exactly once for five later reads.
+  - Krezk at its build line: the detailed proxy and the map that streams in over it differ in under 1.5 % of the pixels (measured 0.4 %, against 4.6 % on the first round)
+    of Krezk's rectangle on screen.
+  - In Players view at 1024 px the floor picker and the section slider stay on screen.
+- `tests/streamer.test.ts` (second round): the place under the target first, then the nearest, never while the wheel
+  turns; a build whose place fell under the fold line is dropped.
 - `e2e/stream.spec.ts` (step 3):
   - A camera glide over Tser Pool, with no button pressed and no `open()`, streams its map in at its atlas placement
     and makes it active (the origin moves onto it). The party stays in the village and the '&' marks it.

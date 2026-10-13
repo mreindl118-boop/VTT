@@ -18,6 +18,9 @@ import { pineTier } from '../kit/props';
 import { patchFog, setSurface } from './materials';
 import { buildLand, vertexLambert, type Land, type LandSite } from './worldland';
 import { buildSky, siteMassing, type ProxySite } from './worldproxies';
+import { buildDetail } from './proxydetail';
+import { GHOST_TINT } from './ghost';
+import type { Massing } from '../../../scripts/world-massing';
 import type { World } from './world';
 
 /** Where every built map stands (scripts/world-atlas.ts → manifests/world-atlas.json). */
@@ -29,6 +32,13 @@ const TILE_FT = MI_FT, PER_TILE = 1333, POOL = 12000, CANDIDATES = 2600;
 const lowMemory = (): boolean => { const m = (globalThis.navigator as { deviceMemory?: number } | undefined)?.deviceMemory; return m !== undefined && m < 4; };
 /** Above this camera distance the forest goes (the land's own forest colour carries the woods). */
 const FOREST_MAX_DIST = 25000;
+/** A place's detailed proxy (its map's own massing, render/proxydetail.ts) is drawn once it is this many pixels
+ *  across per atlas unit on screen, and its plain massing again under the second figure; one not wanted for this long
+ *  is freed. */
+export const DETAIL = { showPx: 24, keepPx: 14, sliceMs: 6, forgetMs: 30000 };
+/** The massing digest, read once (a chunk of its own: only the continuous world needs it). */
+let massingLoad: Promise<Massing | null> | undefined;
+const loadMassing = (): Promise<Massing | null> => (massingLoad ??= import('../../../manifests/world-massing.json').then((m) => m.default as unknown as Massing, () => { massingLoad = undefined; return null; }));
 /** Road rides through the wood: a mask of cells this size along every road. */
 const MASK_FT = 50;
 
@@ -162,18 +172,87 @@ export class WorldStage {
     loaded.root.position.set(x, y, z); loaded.root.rotation.set(0, entry.placement.rotationY, 0);
     parent.root.add(loaded.root); loaded.root.updateMatrixWorld(true);
   }
-  /** Show or hide a place's proxy (hidden while its map is drawn): its run of faces collapses onto one point, or comes back. */
+  /** Show or hide a place's proxy (hidden while its map is drawn): its run of faces collapses onto one point, or comes
+   *  back (or its detailed proxy shows instead, near enough). */
   showProxy(path: string, on: boolean): void {
     const g = this.proxies.get(path); if (!g || g.visible === on) return;
     g.visible = on;
+    this.syncProxy(path);
+  }
+  /** A place's plain massing shows while its proxy does and its detailed one is not drawn. */
+  private syncProxy(path: string): void {
+    const g = this.proxies.get(path); if (!g) return;
+    const d = this.details.get(path), detail = !!d?.mesh && d.want;
+    if (d?.mesh) d.mesh.visible = detail;
+    const on = g.visible && !detail;
     for (const { mesh, ranges } of this.proxyMeshes) {
-      const r = ranges.get(path); if (!r) continue;
+      const r = ranges.get(path); if (!r || on === !r.saved) continue;
       const pos = mesh.geometry.attributes.position as THREE.BufferAttribute, a = pos.array as Float32Array, s = r.start * 3, e = (r.start + r.count) * 3;
       if (!on) { r.saved = a.slice(s, e); for (let i = s; i < e; i += 3) { a[i] = a[s]; a[i + 1] = a[s + 1]; a[i + 2] = a[s + 2]; } }
-      else if (r.saved) { a.set(r.saved, s); r.saved = undefined; }
+      else { a.set(r.saved!, s); r.saved = undefined; }
       pos.clearUpdateRanges(); pos.addUpdateRange(s, e - s); pos.needsUpdate = true;
     }
     this.world.invalidate();
+  }
+
+  // ------------------------------------------------------------------ detailed proxies
+
+  /** Detailed proxies by path: built once wanted, drawn while wanted (and the place's proxy shows). */
+  private details = new Map<string, { mesh?: THREE.Mesh; want: boolean; lastWanted: number }>();
+  private detailJob?: { path: string; it: Generator<void, THREE.BufferGeometry | null> };
+  private detailRaf = 0;
+  private disposed = false;
+  /** The streamer's measure of a place this tick (footprint pixels per atlas unit; 0 out of view or lost in the mist):
+   *  its detailed proxy is drawn from DETAIL.showPx (built the first time), the plain massing again under keepPx. */
+  viewDetail(path: string, px: number, now = performance.now()): void {
+    if (!this.proxies.has(path) || path.includes('@') || this.disposed) return;
+    let d = this.details.get(path);
+    const want = px >= (d?.want ? DETAIL.keepPx : DETAIL.showPx);
+    if (!d) { if (!want) return; d = { want: false, lastWanted: now }; this.details.set(path, d); }
+    if (want) d.lastWanted = now;
+    if (d.want !== want) { d.want = want; this.syncProxy(path); }
+    if (want && !d.mesh) this.pumpDetails();
+    if (!want && now - d.lastWanted > DETAIL.forgetMs) {
+      if (d.mesh) { d.mesh.removeFromParent(); d.mesh.geometry.dispose(); (d.mesh.material as THREE.Material).dispose(); }
+      if (this.detailJob?.path === path) this.detailJob = undefined;
+      this.details.delete(path); this.syncProxy(path);
+    }
+  }
+  /** Which places have a detailed proxy built, and which of them is drawn (tests and the HUD). */
+  detailState(): Record<string, { built: boolean; drawn: boolean }> {
+    return Object.fromEntries([...this.details].map(([p, d]) => [p, { built: !!d.mesh, drawn: !!d.mesh && d.want && !!this.proxies.get(p)?.visible }]));
+  }
+  /** Build the wanted detailed proxies, one at a time, a few milliseconds a frame. */
+  private pumpDetails(): void {
+    if (this.detailRaf || this.disposed) return;
+    this.detailRaf = requestAnimationFrame(() => {
+      this.detailRaf = 0;
+      void loadMassing().then((m) => {
+        if (!m || this.disposed) return;
+        if (!this.detailJob) {
+          const next = [...this.details].filter(([, d]) => d.want && !d.mesh).sort((a, b) => b[1].lastWanted - a[1].lastWanted)[0]?.[0];
+          const site = next ? m.sites[next] : undefined;
+          if (!next) return;
+          if (!site) { this.details.delete(next); this.pumpDetails(); return; } // (Castle Ravenloft keeps its own)
+          this.detailJob = { path: next, it: buildDetail(site, m.lines, m.wallMaterials, new THREE.Color(this.world.theme.mist), GHOST_TINT) };
+        }
+        const job = this.detailJob, t0 = performance.now();
+        let r: IteratorResult<void, THREE.BufferGeometry | null>;
+        do r = job.it.next(); while (!r.done && performance.now() - t0 < DETAIL.sliceMs);
+        if (r.done) {
+          this.detailJob = undefined;
+          const d = this.details.get(job.path), g = this.proxies.get(job.path), e = ATLAS.scenes[job.path];
+          if (d && g && e && r.value) {
+            const mesh = new THREE.Mesh(r.value, vertexLambert()), p = this.rootPlacementOf(e);
+            mesh.name = 'detail'; mesh.userData.role = 'stage'; mesh.visible = false;
+            mesh.position.set(p.position[0] - g.position.x, p.position[1] - g.position.y, p.position[2] - g.position.z); mesh.rotation.y = p.rotationY;
+            g.add(mesh); mesh.updateMatrixWorld(true);
+            d.mesh = mesh; this.syncProxy(job.path);
+          } else r.value?.dispose();
+        }
+        if ([...this.details.values()].some((d) => d.want && !d.mesh)) this.pumpDetails();
+      });
+    });
   }
   /** Exactly these maps are drawn: their proxies go, every other root's proxy shows. */
   setResident(paths: Set<string>): void { for (const id of this.proxies.keys()) if (!id.includes('@')) this.showProxy(id, !paths.has(id)); }
@@ -402,6 +481,8 @@ export class WorldStage {
   }
   /** Take the stage out of the world and free what it holds on the GPU and in the page. */
   dispose(): void {
+    this.disposed = true; this.detailJob = undefined;
+    if (this.detailRaf) cancelAnimationFrame(this.detailRaf);
     if (this.declutterQ) cancelAnimationFrame(this.declutterQ);
     this.hovered = null;
     this.root.removeFromParent();

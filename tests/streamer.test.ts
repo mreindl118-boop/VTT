@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 import { planStream, STREAM, unitsAfter, type SiteView } from '../app/src/render/streamer';
 
 const site = (path: string, o: Partial<SiteView> = {}): SiteView => ({
-  path, units: 1, px: 0, inView: true, inside: false, area: 1e6, resident: false, drawn: false, loading: false, pinned: false, lastWanted: 0, ...o,
+  path, units: 1, px: 0, inView: true, inside: false, area: 1e6, dTarget: 5000, resident: false, drawn: false, loading: false, pinned: false, lastWanted: 0, ...o,
 });
 const opts = (o: Partial<Parameters<typeof planStream>[1]> = {}) => ({ now: 10_000, cap: 4, activeHolds: false, flying: false, activate: true, ...o });
 
@@ -15,8 +15,12 @@ describe('planStream', () => {
     expect(p.load).toEqual(['b']); // Vallaki (2 units) waits for 280 px
     expect(planStream([site('big', { px: 2 * STREAM.showPx })], opts()).load).toEqual(['big']);
   });
-  it('builds one map at a time, the biggest on screen first, and none during a glide', () => {
-    expect(planStream([site('a', { px: 150 }), site('b', { px: 400 })], opts()).load).toEqual(['b']);
+  it('builds one map at a time, the place under the camera first, then the nearest, and none during a glide or a zoom', () => {
+    expect(planStream([site('a', { px: 150 }), site('b', { px: 400 })], opts()).load).toEqual(['b']); // as near: the bigger
+    // a town far off but big on screen waits for the place the camera is over, and for the one nearer the target
+    expect(planStream([site('town', { px: 419, dTarget: 30000 }), site('pool', { px: 219, inside: true, dTarget: 0 })], opts()).load).toEqual(['pool']);
+    expect(planStream([site('town', { px: 419, dTarget: 30000 }), site('pool', { px: 219, dTarget: 800 })], opts()).load).toEqual(['pool']);
+    expect(planStream([site('a', { px: 150 })], opts({ busy: true })).load).toEqual([]); // the wheel still turning
     expect(planStream([site('a', { px: 150 }), site('b', { px: 400, loading: true })], opts()).load).toEqual([]);
     expect(planStream([site('a', { px: 150 })], opts({ flying: true })).load).toEqual([]);
   });
@@ -30,6 +34,13 @@ describe('planStream', () => {
     ], opts());
     expect(p.fold).toEqual(['small', 'gone']);
     expect(p.show).toEqual(['back']);
+  });
+  it('drops a build whose place fell under the fold line or out of view before it was done', () => {
+    const p = planStream([site('passed', { loading: true, px: 50 }), site('turned', { loading: true, px: 300, inView: false }), site('kept', { loading: true, px: 100 }), site('next', { px: 300 })], opts());
+    expect(p.cancel).toEqual(['passed', 'turned']);
+    expect(p.load).toEqual([]); // 'kept' is still being built: one at a time
+    // with the only build dropped, the next one starts at once
+    expect(planStream([site('passed', { loading: true, px: 50 }), site('next', { px: 300 })], opts()).load).toEqual(['next']);
   });
   it('frees a folded map after 4 s, never a pinned one', () => {
     const now = 10_000;

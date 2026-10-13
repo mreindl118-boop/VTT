@@ -4,10 +4,13 @@
 //
 // The measure is how big a map's footprint is on screen (its diagonal in CSS pixels, seen from the camera), which
 // suits a 60-ft house and a 9,500-ft town alike. A map with more objects (atlas `units`: Vallaki, Krezk) needs a
-// proportionally bigger footprint before it is built (it costs more to build and to draw).
+// proportionally bigger footprint before it is built (it costs more to build and to draw). A footprint seen edge-on
+// from low down is foreshortened (it counts as smaller), and one lost in the mist is not in view at all.
 //
 //   prefetch the scene files  px ≥ 60 × units, in view
-//   build and draw            px ≥ 140 × units, in view (one build at a time, never during a glide)
+//   build and draw            px ≥ 140 × units, in view (one build at a time, never during a glide or while the
+//                             user's hand moves the camera; the place under the camera's target first, then the
+//                             nearest to it); a build whose place drops under the fold line on the way is dropped
 //   fold into the proxy       px < 70 × units, or out of view (at once, with a crossfade)
 //   free                      folded for 4 s, unless pinned (the active map), or at once when the unit cap needs the
 //                             room (least recently wanted first)
@@ -39,6 +42,11 @@ export const STREAM = {
   sliceMs: 8,
   /** The rule is re-read this often while the camera moves (ms). */
   tickMs: 100,
+  /** Foreshortening: a footprint seen at an elevation angle e counts sqrt(sin e) × this of its size, at most whole,
+   *  at least `flatMin` of it (a town on the horizon is a sliver). */
+  foreshorten: 1.15, flatMin: 0.3,
+  /** Out of view in the mist: less than this much of the footprint's nearest point shows through the fog. */
+  mistSeen: 0.2,
 };
 
 /** What the streamer knows about one place this tick. */
@@ -51,6 +59,8 @@ export interface SiteView {
   /** The camera's target is inside the footprint (padded), and its area (smaller wins). */
   inside: boolean;
   area: number;
+  /** Plan distance (ft) from the camera's target to the footprint (0 inside): the nearest place is built first. */
+  dTarget: number;
   resident: boolean;
   drawn: boolean;
   loading: boolean;
@@ -66,6 +76,8 @@ export interface StreamPlan {
   show: string[];
   fold: string[];
   unload: string[];
+  /** Builds in flight to drop: their place fell under the fold line (or out of view) before they were done. */
+  cancel: string[];
   activate?: string;
 }
 
@@ -80,19 +92,24 @@ export function unitsAfter(sites: SiteView[], plan: StreamPlan): number {
   return sites.reduce((a, s) => a + ((counts(s) && !plan.unload.includes(s.path)) || plan.load.includes(s.path) ? s.units : 0), 0);
 }
 
-export function planStream(sites: SiteView[], o: { now: number; cap: number; active?: string; activeHolds: boolean; flying: boolean; activate: boolean }): StreamPlan {
-  const plan: StreamPlan = { prefetch: [], load: [], show: [], fold: [], unload: [] };
+/** Which wanted place is built first: the one holding the camera's target, then the nearest to it, then the biggest. */
+const first = (a: SiteView, b: SiteView): number => Number(b.inside) - Number(a.inside) || a.dTarget - b.dTarget || b.px - a.px;
+
+export function planStream(sites: SiteView[], o: { now: number; cap: number; active?: string; activeHolds: boolean; flying: boolean; activate: boolean; busy?: boolean }): StreamPlan {
+  const plan: StreamPlan = { prefetch: [], load: [], show: [], fold: [], unload: [], cancel: [] };
   const used = () => sites.reduce((a, s) => a + (counts(s) ? s.units : 0), 0) - plan.unload.reduce((a, p) => { const s = sites.find((x) => x.path === p); return a + (s && counts(s) ? s.units : 0); }, 0);
   for (const s of sites) {
+    if (s.loading && low(s)) plan.cancel.push(s.path);
     if (s.inView && s.px >= STREAM.prefetchPx * s.units && !s.resident) plan.prefetch.push(s.path);
     if (!s.resident) continue;
     if (s.drawn && low(s)) plan.fold.push(s.path);
     if (!s.drawn && wanted(s)) plan.show.push(s.path);
     if (!s.pinned && low(s) && s.lowSince !== undefined && o.now - s.lowSince >= STREAM.lingerMs) plan.unload.push(s.path);
   }
-  // one build at a time, and none while the camera glides (it would hitch the glide)
-  if (!o.flying && !sites.some((s) => s.loading)) {
-    for (const s of sites.filter((x) => !x.resident && !x.loading && wanted(x)).sort((a, b) => b.px - a.px)) {
+  // one build at a time, and none while the camera glides (it would hitch the glide) or the user's hand moves it (the
+  // place the camera comes to rest over is the one wanted)
+  if (!o.flying && !o.busy && !sites.some((s) => s.loading && !plan.cancel.includes(s.path))) {
+    for (const s of sites.filter((x) => !x.resident && !x.loading && wanted(x)).sort(first)) {
       // make room: free the least recently wanted maps that are not wanted now and not pinned
       const spare = sites.filter((x) => x.resident && !x.pinned && !wanted(x) && !plan.unload.includes(x.path)).sort((a, b) => a.lastWanted - b.lastWanted);
       const free: string[] = [];
@@ -130,6 +147,11 @@ export interface StreamHost {
   activePath(): string | undefined;
   /** The camera activates maps (the DM's screen; the Player Display follows the DM's choice). */
   autoActivate(): boolean;
+  /** The user's hand is on the camera (a wheel turn, a drag or pinch in motion): no build starts. */
+  busy(): boolean;
+  cancel(path: string): void;
+  /** Every place as measured this tick (its detailed proxy follows its size on screen). */
+  measured?(sites: SiteView[]): void;
   prefetch(path: string): void;
   streamIn(path: string): void;
   fold(path: string, on: boolean): void;
@@ -144,7 +166,7 @@ export class Streamer {
   private lastTick = 0;
   /** Units resident at most so far (tests read it), and what each tick decided (the HUD). */
   maxUnits = 0;
-  lastPlan: StreamPlan = { prefetch: [], load: [], show: [], fold: [], unload: [] };
+  lastPlan: StreamPlan = { prefetch: [], load: [], show: [], fold: [], unload: [], cancel: [] };
   cap = unitCap();
   enabled = true;
 
@@ -164,6 +186,7 @@ export class Streamer {
     const host = w.renderer.domElement.getBoundingClientRect(), H = host.height || 1;
     const focal = H / 2 / Math.tan(THREE.MathUtils.degToRad(cam.fov / 2));
     const eye = w.toAbsolute(cam.position), tgt = w.toAbsolute(w.controls.target), dist = cam.position.distanceTo(w.controls.target);
+    const fog = w.scene.fog as THREE.FogExp2 | null, density = fog?.isFogExp2 ? fog.density : 0;
     const pinned = h.pinned(), active = h.activePath();
     const v = new THREE.Vector3();
     const ndcIn = (x: number, y: number, z: number) => { v.set(x - a.x, y - a.y, z - a.z).project(cam); return v.z < 1 && Math.abs(v.x) <= STREAM.viewPad && Math.abs(v.y) <= STREAM.viewPad; };
@@ -172,13 +195,18 @@ export class Streamer {
       const diag = Math.hypot(b.maxX - b.minX, b.maxZ - b.minZ);
       // seen from the eye: the nearest point of the footprint (a town the camera stands over is big on screen)
       const nx = THREE.MathUtils.clamp(eye.x, b.minX, b.maxX), nz = THREE.MathUtils.clamp(eye.z, b.minZ, b.maxZ);
-      const px = (diag * focal) / Math.max(1, Math.hypot(eye.x - nx, eye.y - y, eye.z - nz));
+      const near = Math.max(1, Math.hypot(eye.x - nx, eye.y - y, eye.z - nz));
+      // edge-on from low down it is a sliver (the elevation angle of the eye over its middle)
+      const cx = (b.minX + b.maxX) / 2, cz = (b.minZ + b.maxZ) / 2, toMid = Math.max(1, Math.hypot(eye.x - cx, eye.y - y, eye.z - cz));
+      const flat = THREE.MathUtils.clamp(Math.sqrt(Math.max(0, eye.y - y) / toMid) * STREAM.foreshorten, STREAM.flatMin, 1);
+      const px = ((diag * focal) / near) * flat;
       const tx = THREE.MathUtils.clamp(tgt.x, b.minX, b.maxX), tz = THREE.MathUtils.clamp(tgt.z, b.minZ, b.maxZ), dT = Math.hypot(tgt.x - tx, tgt.z - tz);
-      const cx = (b.minX + b.maxX) / 2, cz = (b.minZ + b.maxZ) / 2;
-      const inView = dT < 0.5 * dist || ndcIn(cx, y, cz) || ndcIn(b.minX, y, b.minZ) || ndcIn(b.maxX, y, b.minZ) || ndcIn(b.minX, y, b.maxZ) || ndcIn(b.maxX, y, b.maxZ);
+      // the mist between the eye and its nearest point (FogExp2: what shows through is exp(-(density × d)²))
+      const misted = density > 0 && Math.exp(-((density * near) ** 2)) < STREAM.mistSeen;
+      const inView = !misted && (dT < 0.5 * dist || ndcIn(cx, y, cz) || ndcIn(b.minX, y, b.minZ) || ndcIn(b.maxX, y, b.minZ) || ndcIn(b.minX, y, b.maxZ) || ndcIn(b.maxX, y, b.maxZ));
       const r = h.residentState(e.path), st = this.last.get(e.path) ?? { lastWanted: 0 };
       const s: SiteView = {
-        path: e.path, units: Math.max(1, e.units), px, inView, inside: dT <= STREAM.insidePadFt, area: (b.maxX - b.minX) * (b.maxZ - b.minZ),
+        path: e.path, units: Math.max(1, e.units), px, inView, inside: dT <= STREAM.insidePadFt, area: (b.maxX - b.minX) * (b.maxZ - b.minZ), dTarget: dT,
         resident: !!r, drawn: !!r?.drawn, loading: h.loading(e.path), pinned: pinned.has(e.path) || e.path === active, lastWanted: st.lastWanted, lowSince: st.lowSince,
       };
       if (wanted(s)) st.lastWanted = now;
@@ -205,8 +233,11 @@ export class Streamer {
     // the way (the map flown to stands ready); the rule is read again when it lands
     if (h.world.flying) { if (!this.timer) this.timer = window.setTimeout(() => { this.timer = 0; this.tick(); }, STREAM.tickMs); return undefined; }
     const now = performance.now(), sites = this.views(now), active = h.activePath();
-    const plan = planStream(sites, { now, cap: this.cap, active, activeHolds: this.holds(active), flying: h.world.flying, activate: h.autoActivate() });
+    h.measured?.(sites);
+    const busy = h.busy();
+    const plan = planStream(sites, { now, cap: this.cap, active, activeHolds: this.holds(active), flying: h.world.flying, activate: h.autoActivate(), busy });
     this.lastPlan = plan;
+    for (const p of plan.cancel) h.cancel(p);
     for (const p of plan.unload) { h.unload(p); this.last.delete(p); }
     for (const p of plan.fold) h.fold(p, true);
     for (const p of plan.show) h.fold(p, false);
@@ -217,7 +248,7 @@ export class Streamer {
     this.maxUnits = Math.max(this.maxUnits, this.lastUnits);
     // come back while something waits: a fold's countdown, a build, a glide
     // (a map just drawn again may hold the target: it is made active once its crossfade is done)
-    const pending = sites.some((s) => s.loading || (s.resident && !s.pinned && s.lowSince !== undefined)) || h.world.flying
+    const pending = sites.some((s) => s.loading || (s.resident && !s.pinned && s.lowSince !== undefined)) || h.world.flying || busy
       || plan.load.length > 0 || plan.show.length > 0 || plan.fold.length > 0 || !!plan.activate;
     if (pending && !this.timer) this.timer = window.setTimeout(() => { this.timer = 0; this.tick(); }, STREAM.fadeMs + 150);
     return plan;
