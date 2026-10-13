@@ -13,6 +13,7 @@ import { mat, matClone } from '../../render/materials';
 import { PALETTE } from '../palette';
 import { surfaceFor } from '../surfaces';
 import { merge } from '../pieces';
+import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 
 type Dims = Record<string, number>;
 type P2 = [number, number];
@@ -42,6 +43,7 @@ const C = {
   skiff: '#3e3428', skiffDark: '#2c251d', anchor: '#3b2b22', clay: '#6e5038',
   crate: '#5a4c3c', crateRot: '#40382d', mist0: '#dcdee2', mist1: '#c7cad0',
   heron: '#d2cbb8', reedDry: '#857b4c', crag: '#686761', cragLichen: '#6e7258', cragDeep: '#56554f', cragPale: '#75736b', drowned: '#10140f',
+  cane: '#a39a76', coat: '#4a4236', coatDark: '#3a342b', breeches: '#3b352c', skin: '#c99a84', hair: '#4a3a2a', hat: '#2f2b26', boot: '#2b2420',
 } as const;
 surfaceFor([C.fade1, C.fade2, C.fade3, C.ink, C.deep, C.deep2, C.sheen, C.sheen2, C.cloud, C.ring, C.brook, C.brookPale, C.bubble, C.foam, C.mist0, C.mist1, C.shaft, C.murk], 'none');
 surfaceFor([C.lip, C.pebble, C.pebble2, C.pebble3, C.pebbleWet, C.brookBed], 'rubble');
@@ -49,7 +51,9 @@ surfaceFor([C.shelf, C.shelfPale], 'dirt');          // silt and grit under clea
 surfaceFor([C.crag, C.cragLichen, C.cragDeep, C.cragPale], 'stone');        // the knoll's bare crown: weathered rock, not laid stones
 surfaceFor([C.shingle, C.shingle2, C.shingleDark], 'dirt');
 surfaceFor([C.mud, C.mudDark, C.rootEarth, C.duff, C.silt, C.siltPale, C.siltDark, C.needleBrown], 'dirt');
-surfaceFor([C.stake, C.stakeTop, C.board, C.boardDark, C.bucket, C.plank, C.pike, C.board2, C.crate, C.crateRot, C.skiff, C.skiffDark, C.pole, C.bobbin], 'wood');
+surfaceFor([C.stake, C.stakeTop, C.board, C.boardDark, C.bucket, C.plank, C.pike, C.board2, C.crate, C.crateRot, C.skiff, C.skiffDark, C.pole, C.bobbin, C.cane], 'wood');
+surfaceFor([C.coat, C.coatDark, C.breeches, C.hat], 'cloth');
+surfaceFor([C.skin, C.hair, C.boot], 'generic');
 surfaceFor([C.bark, C.barkWorn, C.barkWet, C.root, C.logBlack, C.logGrey], 'bark');
 surfaceFor([C.drift, C.driftDeep, C.blaze, C.blazeLip], 'wood');
 surfaceFor([C.rope, C.ropeDark, C.cord, C.tar, C.netDark, C.cloth, C.clothFade, C.ribbon, C.burlap, C.burlapWet, C.twine, C.line], 'cloth');
@@ -151,16 +155,18 @@ function ribbon(D: { p: P2; t: P2; w: number }[], off0: (q: { w: number }, i: nu
   }
   return upTris(v);
 }
-/** Collapse a piece to one mesh per material (hidden pieces and figures are not merged by the level). */
+/** Collapse a piece to one mesh per material (hidden pieces and figures are not merged by the level), each keeping the
+ *  latest draw order of the meshes it took in. */
 function compact(root: THREE.Object3D): THREE.Group {
   root.updateMatrixWorld(true);
-  const inv = root.matrixWorld.clone().invert(), by = new Map<THREE.Material, THREE.BufferGeometry[]>(), out = new THREE.Group();
+  const inv = root.matrixWorld.clone().invert(), by = new Map<THREE.Material, THREE.BufferGeometry[]>(), order = new Map<THREE.Material, number>(), out = new THREE.Group();
   root.traverse((o) => {
     const m = o as THREE.Mesh; if (!m.isMesh) return;
     const mt = m.material as THREE.Material, list = by.get(mt) ?? [];
     list.push(m.geometry.clone().applyMatrix4(new THREE.Matrix4().multiplyMatrices(inv, m.matrixWorld))); by.set(mt, list);
+    order.set(mt, Math.max(order.get(mt) ?? 0, m.renderOrder));
   });
-  for (const [mt, gs] of by) { const mesh = new THREE.Mesh(merge(gs), mt); out.add(mesh); }
+  for (const [mt, gs] of by) { const mesh = new THREE.Mesh(merge(gs), mt); mesh.renderOrder = order.get(mt) ?? 0; out.add(mesh); }
   return out;
 }
 /** Fog: lit, see-through, no depth writes, never under the fog of war (it reaches past the map); cached per colour and opacity. */
@@ -182,14 +188,74 @@ const ringGeo = (r0: number, r1: number, y: number, seg = 40) => { const g = new
 // ---------------------------------------------------------------- the water
 /** The water's sheets lie side by side at one height (`WATER_Y`, under the grid's lift), never stacked: a sheet a hair
  *  over another flickers at a distance. The drop line is cut into tiles shared by the shelf, the drop's lip and ink band,
- *  and the black water, all from one densified line so their edges meet exactly. */
-const WATER_Y = 0.03, LIP = 1.2, INK0 = 0.6, INK1 = 3.8;
+ *  and the black water, all from one densified line so their edges meet exactly. Floors lie a hair under them, so close
+ *  that far off their depths round to the same value and whichever is drawn later shows: every water sheet is drawn
+ *  after the floors (`AFTER_FLOOR`), and anything resting on the water (rings, bubbles) sits at `RING_Y`,
+ *  high enough over the black that it never rounds into it. The sheets lie level with the floor (which `stillFloor`
+ *  silences), a full grid's lift under the squares and 0.05 ft over the grass laid under the whole map. */
+const WATER_Y = 0, LIP = 1.2, INK0 = 0.6, INK1 = 3.8, AFTER_FLOOR = 1, RING_Y = 0.3;
+/** The water's own sheets: drawn after everything solid (`AFTER_FLOOR`), tested as if a hair nearer than they are
+ *  (one part in ten thousand of the distance, about a tenth of a foot from across the map) so the grass and floors laid
+ *  under the whole map never come up through them, and leaving the depth as they found it, so the grid and anything
+ *  low on the water still show over them while whatever is under the surface stays under it. */
+const waterMats = new Map<string, THREE.MeshLambertMaterial>();
+function waterMat(color: string): THREE.MeshLambertMaterial {
+  let m = waterMats.get(color);
+  if (m) return m;
+  m = matClone(color); m.depthWrite = false;
+  const compile = m.onBeforeCompile, key = m.customProgramCacheKey;
+  m.onBeforeCompile = (sh, r) => {
+    compile.call(m, sh, r);
+    sh.fragmentShader = sh.fragmentShader.replace('#include <logdepthbuf_fragment>', '#include <logdepthbuf_fragment>\n#if defined( USE_LOGARITHMIC_DEPTH_BUFFER )\n gl_FragDepth = vIsPerspective == 0.0 ? gl_FragCoord.z : log2( vFragDepth * 0.9999 ) * logDepthBufFC * 0.5;\n#endif');
+  };
+  m.customProgramCacheKey = () => key.call(m) + ':l-water';
+  waterMats.set(color, m);
+  return m;
+}
 const dropLine = (d: Dims) => { const drop = dimsLine(d, 'd').pts; return drop.length > 1 ? densify(drop, drop.map(() => 0), 5) : []; };
 const offsetPts = (D: { p: P2; t: P2 }[], o: number): P2[] => D.map((q) => [q.p[0] + q.t[1] * o, q.p[1] - q.t[0] * o] as P2);
+const smooth = (t: number) => { const u = Math.min(1, Math.max(0, t)); return u * u * (3 - 2 * u); };
+/** See-through sheets whose opacity is painted per vertex (fades with no edge): one material per colour, lit, never
+ *  under the fog of war (they reach past the map). Their meshes are never merged with others (that drops the paint). */
+const fadeMats = new Map<string, THREE.MeshLambertMaterial>();
+function fadeMat(color: string): THREE.MeshLambertMaterial {
+  let m = fadeMats.get(color);
+  if (!m) { m = matClone(color, true); m.transparent = true; m.depthWrite = false; m.side = THREE.DoubleSide; m.vertexColors = true; fadeMats.set(color, m); }
+  return m;
+}
+/** A flat lattice of quads over x0..x1 × z0..z1 (cells about `step` ft) at height y, each vertex's opacity from `alpha`;
+ *  cells that are clear at all four corners are left out. */
+function fadeGrid(x0: number, x1: number, z0: number, z1: number, step: number, y: number, alpha: (x: number, z: number) => number): THREE.BufferGeometry | null {
+  const nx = Math.max(1, Math.round((x1 - x0) / step)), nz = Math.max(1, Math.round((z1 - z0) / step)), P: number[] = [], A: number[] = [];
+  const at = (i: number, j: number): [number, number, number] => { const x = x0 + ((x1 - x0) * i) / nx, z = z0 + ((z1 - z0) * j) / nz; return [x, z, alpha(x, z)]; };
+  for (let j = 0; j < nz; j++) for (let i = 0; i < nx; i++) {
+    const a = at(i, j), b = at(i + 1, j), c = at(i + 1, j + 1), e = at(i, j + 1);
+    if (Math.max(a[2], b[2], c[2], e[2]) < 0.004) continue;
+    for (const v of [a, e, c, a, c, b]) { P.push(v[0], y, v[1]); A.push(1, 1, 1, v[2]); }
+  }
+  if (!P.length) return null;
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(P, 3)); g.setAttribute('color', new THREE.Float32BufferAttribute(A, 4)); g.computeVertexNormals();
+  return g;
+}
+/** The lake's own floor (the room's shallow-water slab) lies just under the water's sheets, which cover all of it; drawn
+ *  as one long fan of slivers it comes up through them in streaks at a distance, its depth there worse than the hair
+ *  between them. So once the water is drawn its level's lake floor stops painting (it stays for picking and the rules). */
+const quiet = new THREE.MeshBasicMaterial({ colorWrite: false, depthWrite: false });
+function stillFloor(water: THREE.Mesh): void {
+  water.frustumCulled = false;
+  water.onBeforeRender = (renderer, scene, camera) => {
+    let lv: THREE.Object3D | null = water.parent; while (lv && !lv.name.startsWith('level:')) lv = lv.parent;
+    const floor = lv?.children.find((c) => c.name === 'floor:shallow-water') as THREE.Mesh | undefined;
+    if (!floor || floor.material === quiet) return;
+    floor.material = quiet;
+    requestAnimationFrame(() => renderer.render(scene, camera));
+  };
+}
 /** The still lake: the deep, ink-black water beyond the drop (`d` line, west to east) out to the outline `n`,`x{i}`,`z{i}`
  *  (from the drop's east end round the north to its west end), then `b` (the shore under the bluff, back toward the
- *  drop), the overcast sky laid on it in faint pale lenses. Past the map's edges (`mx0`,`mx1`,`mz0`;
- *  the shore at `sw` west and `se` east) the black fades out toward the paler water drawn beyond the map. */
+ *  drop), the overcast sky laid on it in faint pale lenses. Past the map's edges (`mx0`,`mx1`,`mz0`; the shore at `sw`
+ *  west and `se` east) the same black carries on and thins away over `fade` ft into the paler water drawn beyond the
+ *  map, so the map's water is one piece with the lake rather than a dark box set in it. */
 export function lakeMirror(d: Dims): THREE.Group {
   const outer = dimsLine(d).pts, bluff = dimsLine(d, 'b').pts, D = dropLine(d), g = grp();
   if (outer.length < 2 || D.length < 2) return g;
@@ -206,22 +272,23 @@ export function lakeMirror(d: Dims): THREE.Group {
     for (let k = 9; k >= 1; k--) { const t = k / 10; band.push([cx - L / 2 + t * L, cz + w * 0.5 * Math.sin(t * Math.PI)]); }
     bands.push(band); boxes.push([cx - L / 2, cz - w, cx + L / 2, cz + w]);
   }
-  g.add(flat(pts, WATER_Y, mat(C.deep), false));
-  // the sky's sheen: faint veils over the black (see-through, so they never fight it for the same depth)
+  const base = flat(pts, WATER_Y, waterMat(C.deep), false); base.renderOrder = AFTER_FLOOR; g.add(base); stillFloor(base);
+  // the sky's sheen: faint veils over the black (see-through and not depth-writing, so they never fight it)
   bands.forEach((b, i) => { const v = flat(b, WATER_Y + 0.04, fogMat(C.cloud, i % 3 === 0 ? 0.32 : 0.22), false); v.renderOrder = 1; g.add(v); });
-  // beyond the map: the black fades out toward the lake drawn past the edge, in see-through veils that each reach a little
-  // further (west, north and east of the map, their outer edges wavering), so the dark thins without a line
+  // beyond the map: the black runs on past the west, north and east edges and thins to nothing over `fade` ft, its reach
+  // wavering a little so the fade has no straight front; one lattice, the cells laid on the map's edge lines so the
+  // strips meet without a seam
   if (d.mx1 !== undefined) {
-    const X0 = d.mx0 ?? 0, X1 = d.mx1, Z0 = d.mz0 ?? 0, SW = d.sw ?? 0, SE = d.se ?? 0;
-    for (let k = 0; k < 8; k++) {
-      const e = (k + 1) * 42, wv = (i: number, s2: number) => e + 14 * Math.sin(i * 0.9 + k * 1.7 + s2) + 8 * Math.sin(i * 2.3 + k);
-      const out: P2[] = [];
-      const nW = Math.max(3, Math.round((SW - Z0 + e) / 30)), nN = Math.max(3, Math.round((X1 - X0 + 2 * e) / 30)), nE = Math.max(3, Math.round((SE - Z0 + e) / 30));
-      for (let i = 0; i <= nW; i++) out.push([X0 - wv(i, 1), SW - (i / nW) * (SW - Z0)]);
-      for (let i = 0; i <= nN; i++) out.push([X0 + (i / nN) * (X1 - X0), Z0 - wv(i, 2)]);
-      for (let i = 0; i <= nE; i++) out.push([X1 + wv(i, 3), Z0 + (i / nE) * (SE - Z0)]);
-      g.add(flat([...out, [X1, SE], [X1, Z0], [X0, Z0], [X0, SW]], WATER_Y, fogMat(C.deep, 0.16), false));
-    }
+    const X0 = d.mx0 ?? 0, X1 = d.mx1, Z0 = d.mz0 ?? 0, SW = d.sw ?? 0, SE = d.se ?? 0, R = d.fade ?? 480, S = 24, T = 96;
+    const alpha = (x: number, z: number) => {
+      const dx = Math.max(X0 - x, 0, x - X1), dz = Math.max(Z0 - z, 0), dist = Math.hypot(dx, dz);
+      const reach = R * (0.82 + 0.1 * Math.sin(x * 0.006 + 1.3) + 0.08 * Math.sin(z * 0.011 + x * 0.004));
+      const shore = x <= X0 ? SW : x >= X1 ? SE : Z0;   // past the side shores the black runs a little way on and thins out
+      return Math.pow(1 - smooth(dist / reach), 1.4) * (1 - smooth((z - shore) / T));
+    };
+    const y = WATER_Y + 0.03;   // past the map the land drawn round it has an edge level with the map's own ground: stay over it
+    const parts = [fadeGrid(X0 - R, X0, Z0 - R, SW + T, S, y, alpha), fadeGrid(X0, X1, Z0 - R, Z0, S, y, alpha), fadeGrid(X1, X1 + R, Z0 - R, SE + T, S, y, alpha)].filter((p): p is THREE.BufferGeometry => !!p);
+    if (parts.length) { const m = new THREE.Mesh(mergeGeometries(parts)!, fadeMat(C.deep)); m.renderOrder = AFTER_FLOOR; g.add(m); }
   }
   return g;
 }
@@ -236,10 +303,10 @@ export function dropOff(d: Dims): THREE.Group {
   const lineZ0 = (L: P2[], x: number) => { for (let i = 0; i + 1 < L.length; i++) if (x >= L[i][0] && x <= L[i + 1][0]) return lerp(L[i][1], L[i + 1][1], (x - L[i][0]) / ((L[i + 1][0] - L[i][0]) || 1)); return x < L[0][0] ? L[0][1] : L[L.length - 1][1]; };
   const near: P2[] = S.slice(1, -1).map((q) => [q.p[0], Math.max(lineZ0(drop, q.p[0]) + 4, q.p[1] - 14 - hash(Math.round(q.p[0]), 2) * 6)] as P2);
   const inner = offsetPts(D, -LIP);
-  g.add(flat([...inner, ...[...near].reverse()], WATER_Y, mat(C.shelf), false));
-  g.add(flat([S[0].p, ...near, S[S.length - 1].p, ...[...S].reverse().slice(1, -1).map((q) => q.p)], WATER_Y, mat(C.shelfPale), false));
-  // the lip and the ink band
-  g.add(new THREE.Mesh(ribbon(D, () => -LIP, () => INK0, WATER_Y), mat(C.lip)), new THREE.Mesh(ribbon(D, () => INK0, () => INK1, WATER_Y), mat(C.ink)));
+  const sheets = [flat([...inner, ...[...near].reverse()], WATER_Y, waterMat(C.shelf), false), flat([S[0].p, ...near, S[S.length - 1].p, ...[...S].reverse().slice(1, -1).map((q) => q.p)], WATER_Y, waterMat(C.shelfPale), false),
+    // the lip and the ink band
+    new THREE.Mesh(ribbon(D, () => -LIP, () => INK0, WATER_Y), waterMat(C.lip)), new THREE.Mesh(ribbon(D, () => INK0, () => INK1, WATER_Y), waterMat(C.ink))];
+  for (const m of sheets) { m.renderOrder = AFTER_FLOOR; g.add(m); }
   // pebbles on the shelf: flat faceted stones, more toward the shore
   const geo: Record<string, THREE.BufferGeometry[]> = {};
   const add = (c: string, gg: THREE.BufferGeometry) => (geo[c] ??= []).push(gg);
@@ -251,39 +318,46 @@ export function dropOff(d: Dims): THREE.Group {
     const s = new THREE.IcosahedronGeometry(r, 0); s.scale(1.3, 0.22, 1); s.rotateY(hash(i, 44) * 6); s.translate(x, 0.03, z);
     add([C.pebble, C.pebble2, C.pebble3, C.pebbleWet][i % 4], s);
   }
-  for (const [c, gs] of Object.entries(geo)) g.add(new THREE.Mesh(merge(gs), mat(c)));
+  // (drawn after the shelf they lie in, or its sheet would cover the lower stones where their depths round together)
+  for (const [c, gs] of Object.entries(geo)) { const m = new THREE.Mesh(merge(gs), mat(c)); m.renderOrder = AFTER_FLOOR + 1; g.add(m); }
   return g;
 }
 /** A lid of fog lying on the water: `len` × `d` ft, thin and torn along the last `span` ft of its southern (+z) edge,
- *  thick toward the north where it swallows the far shore; never higher than `h` ft. */
+ *  thick toward the north where it swallows the far shore; never higher than `h` ft. Its sheets are painted thin at
+ *  every edge (their opacity falls away over `edge` ft at the east, west and north, over a few tens of feet behind each
+ *  wavering front) so the lid has no rim and no steps where its layers end. */
 export function mistShelf(d: Dims): THREE.Group {
-  const L = d.len ?? 600, D = d.d ?? 250, H = d.h ?? 3, g = grp();
+  const L = d.len ?? 600, D = d.d ?? 250, H = d.h ?? 3, sp = d.span ?? D, E = d.edge ?? 280;
   // layers: each covers from the north edge to a soft wavering southern front, the fronts stepping north as it thickens
   const layers = [[1.0, 0.07, C.mist1], [0.84, 0.08, C.mist0], [0.66, 0.1, C.mist0], [0.46, 0.13, C.mist1], [0.26, 0.2, C.mist0]] as const;
+  const byCol = new Map<string, THREE.BufferGeometry[]>();
   layers.forEach(([reach, op, col], k) => {
-    const front = D / 2 - (1 - reach) * (d.span ?? D), Lk = L * (1 - 0.07 * k), pts: P2[] = [];
-    const end = (z: number, sgn: number) => sgn * (Lk / 2 - 18 * (1 + Math.sin(z * 0.03 + k * 2.2)));
-    const zs = front - 20, m = Math.max(3, Math.round((zs + D / 2) / 30));
-    for (let i = 0; i <= m; i++) { const z = zs - (i / m) * (zs + D / 2); pts.push([end(z, -1), z]); }          // west side, south to north
-    for (let i = m; i >= 0; i--) { const z = zs - (i / m) * (zs + D / 2); pts.push([end(z, 1), z]); }           // east side, north to south
-    const xe = end(zs, 1), xw = end(zs, -1), n = Math.max(4, Math.round((xe - xw) / 8));
-    for (let i = 1; i < n; i++) { const x = xe - (i / n) * (xe - xw); pts.push([x, front - 9 - 7 * Math.sin(x * 0.021 + k * 1.3) - 5 * Math.sin(x * 0.057 + k * 2.1) - 3 * Math.sin(x * 0.13 + k)]); }
-    g.add(flat(pts, 0.5 + (k / layers.length) * H, fogMat(col, op)));
+    const front = D / 2 - (1 - reach) * sp, Lk = L * (1 - 0.06 * k), ramp = 36 + 10 * k;
+    const zf = (x: number) => front - 9 - 7 * Math.sin(x * 0.021 + k * 1.3) - 5 * Math.sin(x * 0.057 + k * 2.1) - 3 * Math.sin(x * 0.13 + k);
+    const alpha = (x: number, z: number) => {
+      const side = Math.min(x + Lk / 2, Lk / 2 - x) - 25 * (1 + Math.sin(z * 0.03 + k * 2.2)), north = z + D / 2;
+      return op * smooth((zf(x) - z) / ramp) * smooth(side / E) * smooth(north / E);
+    };
+    const geo = fadeGrid(-Lk / 2, Lk / 2, -D / 2, front + 4, 18, 0.5 + (k / layers.length) * H, alpha);
+    if (geo) (byCol.get(col) ?? byCol.set(col, []).get(col)!).push(geo);
   });
-  // drifting wisps over the front and loose tatters out onto the clear water
+  // drifting wisps over the front and loose tatters out onto the clear water, thickest at the middle, gone at the rim
   for (let i = 0; i < 30; i++) {
-    const sp = d.span ?? D, x = -L / 2 + hash(i, 7) * L, z = D / 2 - sp * (0.55 - hash(i, 8) * 0.62);
-    g.add(flat(wisp(5 + hash(i, 9) * 9, i + 50, 2.6).map(([a, b]) => [a + x, b + z] as P2), 0.6 + hash(i, 10) * H, fogMat(i % 2 ? C.mist0 : C.mist1, 0.1)));
+    const x = -L / 2 + hash(i, 7) * L, z = D / 2 - sp * (0.55 - hash(i, 8) * 0.62), y = 0.6 + hash(i, 10) * H, rim = wisp(5 + hash(i, 9) * 9, i + 50, 2.6);
+    const P: number[] = [], A: number[] = [];
+    rim.forEach(([a, b], j) => { const [c, e] = rim[(j + 1) % rim.length]; P.push(x, y, z, x + a, y, z + b, x + c, y, z + e); A.push(1, 1, 1, 0.16, 1, 1, 1, 0, 1, 1, 1, 0); });
+    const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(P, 3)); geo.setAttribute('color', new THREE.Float32BufferAttribute(A, 4)); geo.computeVertexNormals();
+    const col = i % 2 ? C.mist0 : C.mist1; (byCol.get(col) ?? byCol.set(col, []).get(col)!).push(geo);
   }
-  const sheet = compact(g);   // one mesh per layer's material
-  sheet.traverse((c) => { if ((c as THREE.Mesh).isMesh) c.renderOrder = 2; });
+  const sheet = grp();   // one mesh per colour
+  for (const [col, gs] of byCol) { const m = new THREE.Mesh(mergeGeometries(gs)!, fadeMat(col)); m.renderOrder = 2; sheet.add(m); }
   sheet.position.z = d.dz ?? 0;   // the piece may stand on the map while its sheet reaches far past the edge
   return grp(sheet, backdropSwitch(true));
 }
 /** Rings spreading on still water round something sitting in it (`r` the innermost radius, `n` rings). */
 export function rippleRing(d: Dims): THREE.Group {
   const r = d.r ?? 6, n = d.n ?? 3, gs: THREE.BufferGeometry[] = [];
-  for (let i = 0; i < n; i++) { const rr = r * (1 + i * 0.8); gs.push(ringGeo(rr, rr + 0.35 + i * 0.3, 0.06 + i * 0.001, 48)); }
+  for (let i = 0; i < n; i++) { const rr = r * (1 + i * 0.8); gs.push(ringGeo(rr, rr + 0.35 + i * 0.3, RING_Y + i * 0.002, 48)); }
   return grp(new THREE.Mesh(merge(gs), mat(C.ring)));
 }
 
@@ -325,7 +399,7 @@ export function shingleBeach(d: Dims): THREE.Group {
 export function mooringStake(d: Dims): THREE.Group {
   const tilt = (hash(d.seed ?? 1, 1) - 0.5) * 0.14, g = grp();
   const st = grp(cyl(0.32, 0.4, 5.2, C.stake, 0, 2.0, 0, 6), cyl(0.33, 0.33, 0.5, C.stakeTop, 0, 3.6, 0, 6), cone(0.32, 0.4, C.stakeTop, 0, 4.8, 0, 6));
-  st.rotation.set(tilt, 0, -tilt * 0.6); g.add(st, place(new THREE.Mesh(ringGeo(0.45, 0.75, 0.06, 12), mat(C.ring)), 0, 0, 0));
+  st.rotation.set(tilt, 0, -tilt * 0.6); g.add(st, place(new THREE.Mesh(ringGeo(0.45, 0.75, RING_Y, 12), mat(C.ring)), 0, 0, 0));
   if (d.painter) {
     g.add(place(new THREE.Mesh(new THREE.TorusGeometry(0.42, 0.09, 4, 10), mat(C.rope)), 0, 3.4, 0, 0, Math.PI / 2));
     for (let i = 0; i < 4; i++) { const r = box(0.13, 0.13, 1.3, C.ropeDark, 0.2 + i * 0.25, 3.0 - i * 0.85, 0.4 + i * 0.4); r.rotation.x = 0.9; g.add(r); }
@@ -348,7 +422,7 @@ export function trotline(d: Dims): THREE.Group {
     const x = -L / 2 + (i / 24) * L, y = sag(x); g.add(box(0.035, 0.9, 0.035, C.cord, x, y - 0.45, 0), box(0.12, 0.12, 0.05, C.hook, x, y - 0.95, 0));
     if (i === 7 || i === 16) g.add(place(lump(0.22, C.bread, i, 1, 0.8, 1, 0), x, y - 1.1, 0));
   }
-  g.add(place(new THREE.Mesh(ringGeo(1.2, 1.5, 0.06, 16), mat(C.ring)), 0, 0, 0));
+  g.add(place(new THREE.Mesh(ringGeo(1.2, 1.5, RING_Y, 16), mat(C.ring)), 0, 0, 0));
   return g;
 }
 /** The fallen pier-pine: a whole shore pine blown over into the lake, `len` ft along local -x from its upturned root
@@ -382,7 +456,7 @@ export function pierPine(d: Dims): THREE.Group {
     g.add(flat(bough.map(([u, v]) => [x + Math.cos(a) * u - Math.sin(a) * v * 0.5, Math.sin(a) * u + Math.cos(a) * v] as P2), WATER_Y + 0.04, fogMat(i % 3 ? C.drowned : C.mossDeep, i % 3 ? 0.6 : 0.45), false));
     if (i % 3 === 0) { const t = box(0.22, 1.4, 0.22, C.barkWet, x + Math.cos(a) * len * 0.7, 0.4, Math.sin(a) * len * 0.7); t.rotation.z = (hash(i, 9) - 0.5) * 0.8; g.add(t); }
   }
-  g.add(place(new THREE.Mesh(ringGeo(2.2, 2.6, 0.06, 20), mat(C.ring)), -dry, 0, 0));
+  g.add(place(new THREE.Mesh(ringGeo(2.2, 2.6, RING_Y, 20), mat(C.ring)), -dry, 0, 0));
   return g;
 }
 /** A 12-ft pole rack along local x: tarred nets draped over the bar, cork floats, a coil of hempen rope at one end and
@@ -460,7 +534,7 @@ export function blackTooth(): THREE.Group {
   for (let i = 0; i < 9; i++) { const a = (i / 9) * Math.PI * 2; g.add(place(lump(0.9 + hash(i, 1) * 0.6, i % 2 ? C.weed : C.weedSlick, i, 1.6, 0.5, 1, 0), Math.cos(a) * 5.6, 0.55, Math.sin(a) * 4.8)); }
   g.add(place(new THREE.Mesh(new THREE.TorusGeometry(0.6, 0.13, 5, 12), mat(C.rust)), 1.6, 4.2, -0.6, 0, Math.PI / 2 - 0.4), box(0.4, 0.4, 0.4, C.iron, 1.6, 3.85, -0.6));
   for (let i = 0; i < 6; i++) g.add(place(new THREE.Mesh(new THREE.CircleGeometry(0.4 + hash(i, 3) * 0.5, 6).rotateX(-Math.PI / 2), mat(C.guano)), -1.5 + hash(i, 4) * 4, 3.0 + hash(i, 5) * 0.8, -2 + hash(i, 6) * 3));
-  const rings: THREE.BufferGeometry[] = []; for (const r of [7.4, 10.5]) rings.push(ringGeo(r, r + 0.35, 0.06, 32));
+  const rings: THREE.BufferGeometry[] = []; for (const r of [7.4, 10.5]) rings.push(ringGeo(r, r + 0.35, RING_Y, 32));
   g.add(new THREE.Mesh(merge(rings), mat(C.ring)));
   return g;
 }
@@ -600,10 +674,10 @@ export function driftLog(d: Dims): THREE.Group {
  *  pressed into the mud round it. */
 export function offeringStone(): THREE.Group {
   const g = grp(place(lump(2.4, C.offer, 6, 1.5, 0.3, 1.1, 1), 0, 0.25, 0));
-  for (let i = 0; i < 16; i++) { const a = hash(i, 1) * Math.PI * 2, r = 3.4 + hash(i, 2) * 1.6; g.add(place(new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.22, 0.06, 7), mat(i % 3 ? C.copper : C.copperPale)), Math.cos(a) * r, 0.08, Math.sin(a) * r * 0.8, 0, (hash(i, 3) - 0.5) * 0.5)); }
+  for (let i = 0; i < 16; i++) { const a = hash(i, 1) * Math.PI * 2, r = 3.4 + hash(i, 2) * 1.6; g.add(place(new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.22, 0.06, 7), mat(i % 3 ? C.copper : C.copperPale)), Math.cos(a) * r, 0.14, Math.sin(a) * r * 0.8, 0, (hash(i, 3) - 0.5) * 0.5)); }
   g.add(box(0.1, 0.06, 1.2, C.charm, 2.4, 0.95, -0.4, 0.5), box(0.6, 0.06, 0.08, C.charm, 2.4, 0.95, -0.4, 0.5));
   const rib = box(0.25, 0.05, 2.4, C.ribbon, -2.6, 0.1, 1.2, 0.7); g.add(rib, place(lump(0.25, C.ribbon, 3, 1, 0.6, 1, 0), -2.2, 0.15, 0.6));
-  g.add(place(new THREE.Mesh(ringGeo(4.6, 4.9, 0.06, 24), mat(C.ring)), 0, 0, 0));
+  g.add(place(new THREE.Mesh(ringGeo(4.6, 4.9, RING_Y, 24), mat(C.ring)), 0, 0, 0));
   return g;
 }
 /** A heron's skeleton tangled in reeds: long neck bones, the skull and bill, a splay of rib and leg. */
@@ -618,14 +692,60 @@ export function heronBones(): THREE.Group {
 }
 
 // ---------------------------------------------------------------- the boat and the sack
-/** A long cane pole clamped to a gunwale, leaning out over the water to local +x, its line slack to a cork float. */
+/** A long cane pole leaning out over the water to local +x at `a` rad, its butt at height `y0`, its line slack to a cork
+ *  float. `held` 1: nothing holds it but the hands of whoever sits behind it (Bluto, see `blutoSeated`); otherwise it is
+ *  clamped to a gunwale. */
 export function fishingPole(d: Dims): THREE.Group {
-  const L = d.len ?? 12, a = 0.42, g = grp();
-  const pole = box(L, 0.24, 0.24, C.cord, (L / 2) * Math.cos(a), 1.8 + (L / 2) * Math.sin(a), 0); pole.rotation.z = a; g.add(pole, box(0.5, 0.5, 0.4, C.iron, 0.2, 1.8, 0));
-  const tx = L * Math.cos(a), ty = 1.8 + L * Math.sin(a), fx = tx + 2.2;
+  const L = d.len ?? 12, a = d.a ?? 0.42, y0 = d.y0 ?? 1.8, g = grp();
+  const pole = cyl(0.05, 0.11, L, C.cane, (L / 2) * Math.cos(a), y0 + (L / 2) * Math.sin(a), 0, 6); pole.rotation.z = a - Math.PI / 2; g.add(pole);
+  for (let i = 1; i < 6; i++) { const t = (i / 6) * L * 0.8; g.add(place(new THREE.Mesh(new THREE.CylinderGeometry(0.13 - i * 0.012, 0.13 - i * 0.012, 0.08, 6), mat(C.pole)), t * Math.cos(a), y0 + t * Math.sin(a), 0, 0, 0, a - Math.PI / 2)); }
+  if (!d.held) g.add(box(0.5, 0.5, 0.4, C.iron, 0.2, y0, 0));
+  const tx = L * Math.cos(a), ty = y0 + L * Math.sin(a), fx = tx + 2.2;
   const ln = box(0.03, Math.hypot(fx - tx, ty), 0.03, C.line, (tx + fx) / 2, ty / 2, 0); ln.rotation.z = Math.atan2(fx - tx, ty); g.add(ln);
   g.add(place(lump(0.22, C.float, 1, 1, 1.3, 1, 0), fx, 0.15, 0), cone(0.1, 0.3, C.floatRed, fx, 0.5, 0, 5));
-  g.add(place(new THREE.Mesh(ringGeo(0.6, 0.75, 0.06, 14), mat(C.ring)), fx, 0, 0));
+  g.add(place(new THREE.Mesh(ringGeo(0.6, 0.75, RING_Y, 14), mat(C.ring)), fx, 0, 0));
+  return g;
+}
+/** Where Bluto's pole lies relative to his figure (shared with wild_l.py): its butt `BLUTO_POLE.z` ft in front of his
+ *  hips at `BLUTO_POLE.y` over the boards, rising at `BLUTO_POLE.a` rad straight ahead of him. */
+export const BLUTO_POLE = { z: 0.5, y: 0.95, a: 0.55 };
+/** A limb: a tapered cylinder from a to b. */
+function limb(a: THREE.Vector3, b: THREE.Vector3, r0: number, r1: number, color: string): THREE.Mesh {
+  const dir = b.clone().sub(a), m = new THREE.Mesh(new THREE.CylinderGeometry(r1, r0, dir.length(), 6), mat(color));
+  m.position.copy(a).add(b).multiplyScalar(0.5); m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.normalize()); return m;
+}
+/** Bluto Krogarov sitting slumped on a thwart, facing local +z: origin on the boards under his hips, the seat 0.9 ft up,
+ *  knees drawn up, back bowed and head hung over them, elbows on his knees and both fists on the butt of his pole (the
+ *  separate l-fishing-pole, laid where `BLUTO_POLE` says), a shapeless felt hat. About 4 ft tall as he sits. */
+export function blutoSeated(d: Dims = {}): THREE.Group {
+  const s = d.scale ?? 1, g = grp(), V = (x: number, y: number, z: number) => new THREE.Vector3(x * s, y * s, z * s);
+  // legs: thighs forward and a little up from the seat, shins down to boots on the boards
+  for (const sx of [-1, 1]) {
+    const hip = V(sx * 0.3, 1.12, 0.05), knee = V(sx * 0.44, 1.55, 1.18), ankle = V(sx * 0.38, 0.32, 1.36);
+    g.add(limb(hip, knee, 0.26 * s, 0.22 * s, C.breeches), limb(knee, ankle, 0.21 * s, 0.17 * s, C.breeches), place(new THREE.Mesh(new THREE.SphereGeometry(0.23 * s, 6, 4), mat(C.breeches)), knee.x, knee.y, knee.z));
+    g.add(box(0.46 * s, 0.5 * s, 0.82 * s, C.boot, sx * 0.38 * s, 0.25 * s, 1.52 * s));
+  }
+  g.add(box(1.15 * s, 0.5 * s, 0.85 * s, C.breeches, 0, 1.15 * s, 0.02 * s));
+  // the body bowed forward from the hips, the shoulders rounded and dropped
+  const up = grp(); up.position.set(0, 1.3 * s, 0); up.rotation.x = 0.62; g.add(up);
+  const torso = cyl(0.7 * s, 0.62 * s, 2.0 * s, C.coat, 0, 1.0 * s, 0, 7); torso.scale.z = 0.66; up.add(torso);
+  up.add(cyl(0.68 * s, 0.82 * s, 0.6 * s, C.coat, 0, 0.15 * s, 0.02 * s, 7), cyl(0.66 * s, 0.66 * s, 0.2 * s, C.coatDark, 0, 0.38 * s, 0, 7));   // skirt of the coat, belt
+  const hump = place(new THREE.Mesh(new THREE.SphereGeometry(0.6 * s, 7, 5), mat(C.coat)), 0, 1.72 * s, -0.2 * s); hump.scale.set(1.2, 0.75, 0.85); up.add(hump);
+  for (const sx of [-1, 1]) up.add(place(new THREE.Mesh(new THREE.SphereGeometry(0.3 * s, 6, 4), mat(C.coat)), sx * 0.7 * s, 1.8 * s, 0.02 * s));
+  up.add(place(cyl(0.16 * s, 0.2 * s, 0.4 * s, C.skin, 0, 2.12 * s, 0.14 * s), 0, 2.12 * s, 0.14 * s, 0, 0.35));
+  // the head hung low, chin on the chest, under a sagging hat
+  const head = grp(); head.position.set(0, 2.52 * s, 0.32 * s); head.rotation.x = 0.45; up.add(head);
+  const skull = new THREE.Mesh(new THREE.IcosahedronGeometry(0.42 * s, 1), mat(C.skin)); skull.scale.set(0.92, 1.05, 0.95); head.add(skull);
+  head.add(box(0.13 * s, 0.2 * s, 0.16 * s, C.skin, 0, -0.06 * s, 0.42 * s), place(new THREE.Mesh(new THREE.IcosahedronGeometry(0.43 * s, 1), mat(C.hair)), 0, 0.02 * s, -0.12 * s));
+  const crown = place(new THREE.Mesh(new THREE.SphereGeometry(0.46 * s, 8, 5), mat(C.hat)), 0, 0.2 * s, -0.02 * s); crown.scale.y = 0.62; head.add(crown);
+  const brim = cyl(0.64 * s, 0.64 * s, 0.06 * s, C.hat, 0, 0.12 * s, 0.02 * s, 10); brim.rotation.x = 0.12; head.add(brim);
+  // arms: shoulder to an elbow on the knee to a fist on the pole
+  g.updateMatrixWorld(true);
+  const tan = Math.tan(BLUTO_POLE.a), onPole = (u: number) => V(0, BLUTO_POLE.y + u * tan, BLUTO_POLE.z + u);
+  for (const [sx, u] of [[-1, 0.72], [1, 1.28]] as const) {
+    const sh = new THREE.Vector3(sx * 0.7 * s, 1.8 * s, 0.02 * s).applyMatrix4(up.matrixWorld), hand = onPole(u).add(V(sx * 0.07, 0.1, 0)), elbow = V(sx * 0.66, 1.78, 1.02 + u * 0.25);
+    g.add(limb(sh, elbow, 0.2 * s, 0.17 * s, C.coat), limb(elbow, hand, 0.17 * s, 0.14 * s, C.coat), place(new THREE.Mesh(new THREE.SphereGeometry(0.18 * s, 6, 4), mat(C.skin)), hand.x, hand.y, hand.z));
+  }
   return g;
 }
 /** The sack: `s` 0 going under beside the boat, half sunk in a ring of bubbles; `s` 1 lying in the silt on the bottom. */
@@ -636,8 +756,8 @@ export function sinkingSack(d: Dims): THREE.Group {
   if (sunk) { body.rotation.y = 0.6; g.add(body, place(lump(2.4, C.siltPale, 5, 1.4, 0.18, 1.1, 1), 0.2, 0, 0)); }
   else {
     body.position.y = -0.55; body.rotation.z = 0.5; g.add(body);
-    for (let i = 0; i < 14; i++) { const a = hash(i, 1) * Math.PI * 2, r = 1.2 + hash(i, 2) * 2.2; g.add(place(new THREE.Mesh(new THREE.IcosahedronGeometry(0.12 + hash(i, 3) * 0.14, 0), mat(C.bubble)), Math.cos(a) * r, 0.06, Math.sin(a) * r)); }
-    g.add(new THREE.Mesh(merge([ringGeo(2.6, 2.9, 0.06, 24), ringGeo(4.4, 4.65, 0.06, 28)]), mat(C.ring)));
+    for (let i = 0; i < 14; i++) { const a = hash(i, 1) * Math.PI * 2, r = 1.2 + hash(i, 2) * 2.2; g.add(place(new THREE.Mesh(new THREE.IcosahedronGeometry(0.12 + hash(i, 3) * 0.14, 0), mat(C.bubble)), Math.cos(a) * r, RING_Y * 0.6, Math.sin(a) * r)); }
+    g.add(new THREE.Mesh(merge([ringGeo(2.6, 2.9, RING_Y, 24), ringGeo(4.4, 4.65, RING_Y, 28)]), mat(C.ring)));
   }
   return g;
 }
@@ -711,6 +831,10 @@ const L_PROPS: Record<string, (d: Dims) => THREE.Object3D> = {
   'l-heron-bones': heronBones, 'l-fishing-pole': fishingPole, 'l-sinking-sack': sinkingSack, 'l-cache': cache,
   'l-lakebed-silt': lakebedSilt, 'l-sunken-skiff': sunkenSkiff, 'l-drowned-crown': drownedCrown,
 };
-// the fog lid keeps its draw order (it is drawn whole, over the grid); everything else collapses to a mesh per material
-Object.assign(PROPS_V1, Object.fromEntries(Object.entries(L_PROPS).map(([k, f]) => [k, k === 'l-mist-shelf' || k === 'l-lakebed-silt' ? f : (d: Dims) => compact(f(d))])));
-void CREATURES; void PALETTE;
+// the water and the fog lid are drawn whole (their sheets carry painted opacity and their own draw order); everything
+// else collapses to a mesh per material
+const WHOLE = new Set(['l-lake-mirror', 'l-mist-shelf', 'l-lakebed-silt']);
+Object.assign(PROPS_V1, Object.fromEntries(Object.entries(L_PROPS).map(([k, f]) => [k, WHOLE.has(k) ? f : (d: Dims) => compact(f(d))])));
+// Bluto sits in his boat: a figure of his own (the standing villager would have him upright at the stern)
+Object.assign(CREATURES, { 'l-bluto': (d: Dims) => blutoSeated(d) });
+void PALETTE;

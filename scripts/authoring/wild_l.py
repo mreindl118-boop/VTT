@@ -68,15 +68,17 @@ def build():
     shelf_shore = [p for p in SH if p[0] >= 135]
     o = (380, 505)
     d = line_dims(DROP, o, 'd'); d.update(line_dims(shelf_shore, o, 's')); d['stones'] = 460
-    P('l-drop-off', *o, dims=d, label='The drop-off', desc='Clear shallows over pale pebbles, every stone visible, ending in a hard line where the bed falls away and the water goes black.')
+    drop = P('l-drop-off', *o, dims=d, label='The drop-off', desc='Clear shallows over pale pebbles, every stone visible, ending in a hard line where the bed falls away and the water goes black.')
+    drop['vis'] = 'explored'   # the water's sheets are drawn on their own, after the lake's floor (see WATER_Y in wild-l.ts)
     o = (325, 250)
     d = line_dims([(W_FT, DROP[-1][1] - 3.8), (W_FT, 0), (0, 0), (0, 506)], o)       # east end of the drop, round the north, to the bluff
     d.update(line_dims([p for p in SH if 0 < p[0] <= 130], o, 'b'))                  # the shore under the bluff, out to the drop's west end
     d.update(line_dims(DROP, o, 'd'))
     d.update(mx0=-o[0], mx1=W_FT - o[0], mz0=-o[1], sw=506 - o[1], se=540 - o[1])  # the black steps out past the map's edges
     d.update(ux0=-o[0] + 20, ux1=W_FT - o[0] - 20, uz0=180 - o[1], uz1=470 - o[1])  # the sky's lenses (u: not b, which is the bluff line)
-    P('l-lake-mirror', *o, dims=d)
-    m = P('l-mist-shelf', 325, 5, dims={'dz': -155, 'len': 1450, 'd': 800, 'span': 260, 'h': 3}, label='Mist on the water', desc='A flat lid of mist lies a few feet over the lake from about three hundred feet out, swallowing the far shore.')
+    d['fade'] = 480                                                                # the black thins away over this far past the edges
+    P('l-lake-mirror', *o, dims=d)['vis'] = 'explored'
+    m = P('l-mist-shelf', 325, 5, dims={'dz': -155, 'len': 1450, 'd': 800, 'span': 260, 'h': 3, 'edge': 300}, label='Mist on the water', desc='A flat lid of mist lies a few feet over the lake from about three hundred feet out, swallowing the far shore.')
     m['vis'] = 'explored'
 
     # ------------------------------------------------------------------ the Watch Knoll and its bluff
@@ -169,11 +171,16 @@ def build():
     # ------------------------------------------------------------------ out on the water
     bp, brot = (360, 150), 18
     P('rowboat', *bp, rot=brot, dims={'oars': 1, 'pole': 0}, label="A rowboat far out", desc='A lone rowboat sitting dead still on the water, four hundred feet out; someone hunched in it, a pole in hand.')
-    off = turn(-3.2, 1.9, brot); P('l-fishing-pole', bp[0] + off[0], bp[1] + off[1], rot=brot - 90, dims={'len': 12})
+    # Bluto sits slumped on the aft thwart (2.6 ft aft of the boat's middle) facing the stern, fists on his pole, which
+    # rises past the transom over the water: its butt half a foot in front of his hips, 0.95 ft over the boards (0.35 ft
+    # up), at 0.55 rad (BLUTO_POLE in wild-l.ts)
+    hip_x = -2.45
+    off = turn(hip_x - 0.5, 0, brot)
+    P('l-fishing-pole', bp[0] + off[0], bp[1] + off[1], rot=brot + 180, dims={'len': 12, 'a': 0.55, 'y0': 1.3, 'held': 1})
     P('l-ripple-ring', *bp, dims={'r': 8, 'n': 4})
     P('l-black-tooth', 470, 90, rot=20, label='The Black Tooth', desc='A single dark rock breaking the surface, slick with weed, a pale band at the waterline and a rusted iron ring set in its top. Ravens sit on it.')
-    bo = turn(-2.4, -0.3, brot)
-    s.mob('commoner', C((bp[0] + bo[0], bp[1] + bo[1])), 'Bluto Krogarov (commoner, in a trance)', 'A hunched fisherman', rot=brot - 80, y=0.5,
+    bo = turn(hip_x, 0, brot)
+    s.mob('l-bluto', C((bp[0] + bo[0], bp[1] + bo[1])), 'Bluto Krogarov (commoner, in a trance)', 'A hunched fisherman', rot=brot - 90, y=0.05,
           dm='A destitute Vallaki drunk who wants fish to trade for wine at the Blue Water Inn; after a fishless week he means to give the lake a lucky Vistana child. He answers nothing and does nothing unless attacked; unarmed; neither helps nor resists. Watch him for several minutes or row out and he drops the sack. Killing him is murder of a citizen; dragged back to town he is a bargaining chip with the baron\'s guard.')
     so = turn(2.0, 0.1, brot)
     s.mob('sacked-child', C((bp[0] + so[0], bp[1] + so[1])), 'Arabelle, bound in a burlap sack (commoner, 2 hp)', 'A burlap sack', size='small', rot=brot, y=0.45,

@@ -1314,7 +1314,7 @@
       0,
       505.0
      ],
-     "vis": "player",
+     "vis": "explored",
      "dims": {
       "dn": 16,
       "dx0": -245,
@@ -1465,7 +1465,7 @@
       0,
       250.0
      ],
-     "vis": "player",
+     "vis": "explored",
      "dims": {
       "n": 4,
       "x0": 325,
@@ -1544,7 +1544,8 @@
       "ux0": -305,
       "ux1": 305,
       "uz0": -70,
-      "uz1": 220
+      "uz1": 220,
+      "fade": 480
      }
     },
     {
@@ -1561,7 +1562,8 @@
       "len": 1450,
       "d": 800,
       "span": 260,
-      "h": 3
+      "h": 3,
+      "edge": 300
      },
      "label": "Mist on the water",
      "desc": "A flat lid of mist lies a few feet over the lake from about three hundred feet out, swallowing the far shore."
@@ -2780,14 +2782,17 @@
      "id": "shore-l-fishing-pole74",
      "kind": "l-fishing-pole",
      "pos": [
-      357.55,
+      357.2,
       0,
-      152.8
+      150.9
      ],
      "vis": "player",
-     "rotY": -72,
+     "rotY": 198,
      "dims": {
-      "len": 12
+      "len": 12,
+      "a": 0.55,
+      "y0": 1.3,
+      "held": 1
      }
     },
     {
@@ -2818,15 +2823,15 @@
      "desc": "A single dark rock breaking the surface, slick with weed, a pale band at the waterline and a rusted iron ring set in its top. Ravens sit on it."
     },
     {
-     "id": "shore-commoner77",
-     "kind": "commoner",
+     "id": "shore-l-bluto77",
+     "kind": "l-bluto",
      "pos": [
-      357.6,
-      0.5,
-      150.45
+      357.65,
+      0.05,
+      150.75
      ],
      "vis": "hidden-creature",
-     "rotY": -62,
+     "rotY": -72,
      "key": "L",
      "label": "Bluto Krogarov (commoner, in a trance)",
      "size": "medium",
