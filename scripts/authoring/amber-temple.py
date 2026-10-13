@@ -196,8 +196,9 @@ for a in ALCOVES:
     pts += [(a - 0.5, -2), (a - 0.5, -2.25), (a - 0.25, -2.5), (a + 0.25, -2.5), (a + 0.5, -2.25), (a + 0.5, -2)]
     if a == 6.5: pts += [(8, -2), (9, -2)]
 pts += [(18.5, -2), (19.5, -1), (21, -1), (21, 6), (-4.5, 6), (-4.5, 0), (-3, -1)]
+X1PTS = list(pts)
 f.rm('X1', 'Temple Facade', poly(*pts), 'snow', mat='ashlar', ceil=50)
-f.rm('X1a', 'Narrow Fissure', R(-3, -4, -1.5, -2), 'dirt', mat='cave-rock', ceil=15, difficult=True)
+f.rm('X1a', 'Narrow Fissure', R(-3, -4, -1.5, -2), 'dirt', mat='cave-rock', ceil=10, difficult=True)   # the fissure is 10 ft tall
 f.O((-3, -2), (-1.5, -2))                                  # the pocket opens on the ledge
 f.O((8, -2), (9, -2))                                      # the archway: icy steps down to the entrance (X2)
 f.O((21, -1), (21, 6)); f.O((21, 6), (-4.5, 6)); f.O((-4.5, 6), (-4.5, 0))   # the ledge runs on south, east and west
@@ -221,55 +222,110 @@ f.N('X1-road', 8.0, 3.0, 'X1', 'The gravel road climbs north from Tsolenka Pass 
 f.N('X1a-note', -2.2, -3.6, 'X1a', 'Fissure 2 ft wide, 10 ft tall, 15 ft deep, down into X15; light and voices beyond. Loud noise outside draws one of the mountain folk to look.')
 f.obj('spawn', 'spawn', S(8.5, 2.5), 'dm-note', 'X1', 'Party arrives up the road')
 
-# --- the mountain the temple is carved into: Mount Ghakis rises behind the ledge in three steps of broken rock and
-# snowfield (kit/sites/t.ts 'rock-flank': face at local z = 0, rising toward local -z), over the whole temple below.
-# They are props of the ledge, so the section cut takes them away whole as soon as it drops to the floors inside.
-def flank(lv, tag, pts, dims, step=40, y=0, over=1.12):
+# --- the mountain the temple is carved into: Mount Ghakis rises behind the ledge in steps of broken rock and snowfield
+# to a peak (kit/sites/t.ts 'rock-flank': face at local z = 0, rising toward local -z) and closes over the whole temple
+# below. Each step is a ring of faces round the one above it, so the mountain has a back and two ends as well as its
+# front: seen from any side, the rock hides the floors inside. The faces' feet stand on the map's ground (a snow
+# polygon under the whole massif). They are props of the ledge, so the section cut takes them away whole as soon as it
+# drops to the floors inside.
+EPS = 0.05                       # each face stands half a foot into the rock, so its foot lies on the ground under it
+def ang(a, b): return math.atan2(-(b[1] - a[1]), b[0] - a[0])
+def rock_n(a, b):
+    """Unit normal into the rock (the walker's left) of the edge a-b, in squares (i east, j south)."""
+    dx, dz = b[0] - a[0], b[1] - a[1]; L = math.hypot(dx, dz) or 1
+    return (dz / L, -dx / L)
+def ray(poly, m, n):
+    """Distance (squares) from m along n to the nearest crossing of the closed polygon `poly`."""
+    best = None
+    for p, q in zip(poly, poly[1:] + poly[:1]):
+        ex, ez = q[0] - p[0], q[1] - p[1]; den = n[0] * ez - n[1] * ex
+        if abs(den) < 1e-12: continue
+        t = ((p[0] - m[0]) * ez - (p[1] - m[1]) * ex) / den; u = ((p[0] - m[0]) * n[1] - (p[1] - m[1]) * n[0]) / den
+        if t > 1e-6 and -1e-9 <= u <= 1 + 1e-9: best = t if best is None else min(best, t)
+    return best
+def rounded(pts, r, closed=False):
+    """Turn each corner of more than 30 degrees through bends of about 30 degrees on a radius of r squares (no more
+    than half of either edge), so the faces wrap round it instead of leaving the notch two straight runs would."""
+    out, N = [], len(pts)
+    for k, p in enumerate(pts):
+        if not closed and k in (0, N - 1): out.append(p); continue
+        a, b = pts[k - 1], pts[(k + 1) % N]
+        la, lb = math.hypot(p[0] - a[0], p[1] - a[1]), math.hypot(b[0] - p[0], b[1] - p[1])
+        u = ((p[0] - a[0]) / la, (p[1] - a[1]) / la); v = ((b[0] - p[0]) / lb, (b[1] - p[1]) / lb)
+        turn = math.atan2(u[0] * v[1] - u[1] * v[0], u[0] * v[0] + u[1] * v[1])
+        if abs(turn) < math.radians(30): out.append(p); continue
+        t = min(r * math.tan(abs(turn) / 2), 0.5 * la, 0.5 * lb); rr = t / math.tan(abs(turn) / 2)
+        s = 1 if turn > 0 else -1; nx, nz = -u[1] * s, u[0] * s
+        p0 = (p[0] - u[0] * t, p[1] - u[1] * t); c = (p0[0] + nx * rr, p0[1] + nz * rr); n = max(2, round(abs(turn) / math.radians(30)))
+        for q in range(n + 1):
+            f = turn * q / n; vx, vz = p0[0] - c[0], p0[1] - c[1]
+            out.append((round(c[0] + vx * math.cos(f) - vz * math.sin(f), 4), round(c[1] + vx * math.sin(f) + vz * math.cos(f), 4)))
+    dedup = [out[0]]
+    for p in out[1:]:
+        if math.hypot(p[0] - dedup[-1][0], p[1] - dedup[-1][1]) > 0.05: dedup.append(p)
+    if closed and math.hypot(dedup[0][0] - dedup[-1][0], dedup[0][1] - dedup[-1][1]) <= 0.05: dedup.pop()
+    return dedup
+def flank(lv, tag, pts, dims, step=40, y=0, over=1.12, closed=False):
     """Rock-flank pieces end to end along a polyline in squares, walked with the rock on the walker's left (north
-    when walking east); `dims` may vary d along the run as a function of the piece's centre square. At each bend a
-    filler piece, set half a square back into the rock and turned halfway, closes the notch the two runs leave."""
+    when walking east); `dims` may be a function of the piece's centre and its normal into the rock. At each bend a
+    filler piece, set half a square back into the rock and turned halfway, closes the notch the two runs leave (a bend
+    of less than 12 degrees leaves none worth closing)."""
     k = 0
-    ang = lambda a, b: math.atan2(-(b[1] - a[1]), b[0] - a[0])
-    for a, b in zip(pts[:-1], pts[1:]):
+    segs = list(zip(pts[:-1], pts[1:])) + ([(pts[-1], pts[0])] if closed else [])
+    for a, b in segs:
         dx, dz = (b[0] - a[0]) * 10, (b[1] - a[1]) * 10
-        L = math.hypot(dx, dz); n = max(1, round(L / step))
+        L = math.hypot(dx, dz); n = max(1, round(L / step)); nr = rock_n(a, b)
         for q in range(n):
-            t = (q + 0.5) / n; m = (a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t)
-            d = dims(m) if callable(dims) else dict(dims)
+            t = (q + 0.5) / n; m = (a[0] + (b[0] - a[0]) * t + nr[0] * EPS, a[1] + (b[1] - a[1]) * t + nr[1] * EPS)
+            d = dims(m, nr) if callable(dims) else dict(dims)
             lv.P(f'{tag}{k}', 'rock-flank', m[0], m[1], None, rotY=round(math.degrees(ang(a, b)), 1),
                  dims=dict(d, len=round(L / n * over + 2, 1), seed=k + 1), y=y)
             k += 1
-    for p0, p1, p2 in zip(pts[:-2], pts[1:-1], pts[2:]):
+    bends = list(zip(pts[:-2], pts[1:-1], pts[2:])) + ([(pts[-2], pts[-1], pts[0]), (pts[-1], pts[0], pts[1])] if closed else [])
+    for p0, p1, p2 in bends:
         a1, a2 = ang(p0, p1), ang(p1, p2)
-        mid = a1 + math.atan2(math.sin(a2 - a1), math.cos(a2 - a1)) / 2
-        back = (p1[0] - 0.5 * math.sin(mid), p1[1] - 0.5 * math.cos(mid))   # half a square into the rock
-        d = dims(p1) if callable(dims) else dict(dims)
+        turn = math.atan2(math.sin(a2 - a1), math.cos(a2 - a1)); mid = a1 + turn / 2
+        if abs(turn) < math.radians(12): continue
+        nr = (-math.sin(mid), -math.cos(mid)); back = (p1[0] + 0.5 * nr[0], p1[1] + 0.5 * nr[1])   # half a square into the rock
+        d = dims(back, nr) if callable(dims) else dict(dims)
         lv.P(f'{tag}{k}', 'rock-flank', back[0], back[1], None, rotY=round(math.degrees(mid), 1), dims=dict(d, len=25, seed=k + 1), y=y)
         k += 1
-TOP1, BACK1 = 100, -8.5          # the first step: the cliff over the facade, 100 ft up to a snowfield at j = -8.5
-TOP2, BACK2 = 170, -17.5         # the second
-# away from the facade the steps wander back and forth, so they read as a mountainside, not terraces ruled straight
-B1 = [(-60, -10.5), (-42, -8), (-25, -10), (-8, -8.5), (24, -8.5), (40, -10.5), (57, -8), (75, -9.5)]
-B2 = [(-60, -19), (-38, -16.5), (-18, -18.5), (2, -17.5), (20, -17.5), (36, -20), (55, -17), (75, -19)]
-def along(pts, i):
-    """The j of a west-to-east polyline at i."""
-    for (i0, j0), (i1, j1) in zip(pts[:-1], pts[1:]):
-        if i <= i1: return j0 + (j1 - j0) * max(0, (i - i0) / (i1 - i0))
-    return pts[-1][1]
-front = lambda m: {'h': TOP1, 'd': round((m[1] - along(B1, m[0])) * 10) + 15}   # a little under the next step
-flank(f, 'cliff-w', [(-60, -1), (-3, -1)], front, step=45)
-flank(f, 'cliff-f', [(-1.5, -2.5), (7.75, -2.5)], front, step=34)
-flank(f, 'cliff-fe', [(9.25, -2.5), (18.5, -2.5), (19.6, -1.5), (75, -1.5)], front, step=34)
+TOP1, TOP2, TOP3, TOP4 = 100, 170, 240, 350   # the cliff over the facade, two steps of snowfield, the peak
+# the foot of the mountain (squares, rock on the left): east along the cliff from the facade's corner, up the east end,
+# west along the back and down the west end to the fissure; away from the facade it wanders, so it reads as a mountain
+FOOT = [(9.25, -2.5), (18.5, -2.5)] + rounded([(19.6, -1.5), (31, -1.5), (42, -2.5), (49, -6), (53, -14), (50, -23), (52, -31), (45, -38),
+                                              (31, -41), (16, -38.5), (1, -42), (-13, -40), (-25, -37), (-32, -29), (-30, -19),
+                                              (-34, -10), (-29, -3), (-20, -1), (-3, -1)], 5)   # the facade's corner kept sharp
+# each step stands back from the one below by an uneven ledge of snow, and the peak stands north-west of the facade
+RING2 = rounded([(-24, -9.5), (-14, -10.2), (-4, -8.5), (24, -8.5), (34, -10), (41, -13), (44, -20), (42, -28), (35, -33.5), (22, -33),
+                 (8, -35), (-6, -34), (-18, -32), (-24, -26), (-22, -17)], 5, closed=True)
+RING3 = rounded([(-15, -18.5), (-6, -17), (2, -17.5), (20, -17.5), (29, -19.5), (34, -24), (30, -29), (18, -28), (5, -30.5), (-8, -29),
+                 (-15, -25)], 5, closed=True)
+RING4 = rounded([(-6, -21.5), (5, -20.5), (16, -21.5), (23, -24.5), (15, -27), (2, -26.5), (-6, -24.5)], 4, closed=True)
+def under(ring, h):
+    """A step's faces reach a little (15 ft) under the next step's foot."""
+    return lambda m, n: {'h': h, 'd': round((ray(ring, m, n) or 1) * 10) + 15}
+def summit(m, n):
+    """The peak's faces meet over the middle of its ring and cross a little, so the top is closed."""
+    return {'h': TOP4 - TOP3, 'd': round((ray(RING4, (m[0] + n[0] * 0.2, m[1] + n[1] * 0.2), n) or 2) * 5) + 15}
+flank(f, 'cliff-', FOOT, under(RING2, TOP1), step=40)
+flank(f, 'cliff-f', [(-1.5, -2.5), (7.75, -2.5)], under(RING2, TOP1), step=34)
 # behind the archway the rock stands back over the icy steps, so the arch is a door, not a blind niche; the rock closes
 # again where the steps reach the entrance hall (j = -3), so the hall lies under the mountain, not open to the sky
 flank(f, 'cliff-arch-w', [(8, -2.5), (8, -3.1)], {'h': 60, 'd': 15, 'snow': 0}, step=20, over=1.0)
-flank(f, 'cliff-arch', [(7.6, -3.1), (9.4, -3.1)], {'h': TOP1, 'd': round((-3.1 - BACK1) * 10) + 15}, step=20, over=1.0)
+flank(f, 'cliff-arch', [(7.6, -3.1), (9.4, -3.1)], under(RING2, TOP1), step=20, over=1.0)
 flank(f, 'cliff-arch-e', [(9, -3.1), (9, -2.5)], {'h': 60, 'd': 15, 'snow': 0}, step=20, over=1.0)
 flank(f, 'cliff-x1a', [(-3, -1), (-3, -4)], {'h': 70, 'd': 35}, step=20, over=1.0)     # the fissure's walls: buttresses
-flank(f, 'cliff-x1ab', [(-3, -4), (-1.5, -4)], {'h': TOP1, 'd': round((-4 - BACK1) * 10)}, step=20, over=1.3)
+flank(f, 'cliff-x1ab', [(-3, -4), (-1.5, -4)], under(RING2, TOP1), step=20, over=1.3)
 flank(f, 'cliff-x1ae', [(-1.5, -4), (-1.5, -2.5)], {'h': 70, 'd': 35}, step=20, over=1.0)
-flank(f, 'step2-', B1, lambda m: {'h': TOP2 - TOP1, 'd': round((m[1] - along(B2, m[0])) * 10) + 15}, step=55, y=TOP1, over=1.25)
-flank(f, 'step3-', B2, {'h': 90, 'd': 220}, step=75, y=TOP2, over=1.25)   # and on up to the snowfields under the peak
+flank(f, 'step2-', RING2, under(RING3, TOP2 - TOP1), step=55, y=TOP1, over=1.12, closed=True)
+flank(f, 'step3-', RING3, under(RING4, TOP3 - TOP2), step=55, y=TOP2, over=1.12, closed=True)
+flank(f, 'peak-', RING4, summit, step=50, y=TOP3, over=1.12, closed=True)
+# the ground under the massif: from the foot of its faces to the ledge's back edge, round the fissure and the archway
+# (the stair down stays open)
+back = X1PTS[X1PTS.index((-1.5, -2)):X1PTS.index((21, -1)) + 1]
+arch = back.index((8, -2)); back[arch + 1:arch + 1] = [(8, -3.1), (9, -3.1)]
+f.terrain.append((poly(*FOOT[FOOT.index((19.6, -1.5)) + 1:], (-3, -4), (-1.5, -4), *back, (21, -1.5)), 'snow'))
 
 # ================================================================== UPPER (+30): map p.182
 VOID = [(S(4, -18), S(4, -7)), (S(13, -18), S(13, -7)), (S(4, -18), S(13, -18))]

@@ -240,7 +240,7 @@
      ],
      "floor": "dirt",
      "difficult": true,
-     "ceilingFt": 15,
+     "ceilingFt": 10,
      "desc": "A narrow crack in the rock west of the facade; lamplight and voices come from somewhere beyond.",
      "dm": "The fissure (2 ft wide, 10 ft tall, 15 ft deep) leads to X15. Loud noise outside brings one of the creatures there to look."
     }
@@ -910,7 +910,7 @@
       "normal"
      ],
      "material": "cave-rock",
-     "heightFt": 15
+     "heightFt": 10
     },
     {
      "id": "facade-w-44",
@@ -926,7 +926,7 @@
       "normal"
      ],
      "material": "cave-rock",
-     "heightFt": 15
+     "heightFt": 10
     },
     {
      "id": "facade-w-45",
@@ -942,7 +942,7 @@
       "normal"
      ],
      "material": "cave-rock",
-     "heightFt": 15
+     "heightFt": 10
     },
     {
      "id": "facade-w-46",
@@ -958,7 +958,7 @@
       "normal"
      ],
      "material": "cave-rock",
-     "heightFt": 15
+     "heightFt": 10
     },
     {
      "id": "facade-w-47",
@@ -974,7 +974,7 @@
       "normal"
      ],
      "material": "cave-rock",
-     "heightFt": 15
+     "heightFt": 10
     },
     {
      "id": "facade-w-48",
@@ -990,7 +990,7 @@
       "normal"
      ],
      "material": "cave-rock",
-     "heightFt": 15
+     "heightFt": 10
     }
    ],
    "lights": [],
@@ -1419,211 +1419,1490 @@
      "label": "Party arrives up the road"
     },
     {
-     "id": "facade-cliff-w0",
+     "id": "facade-cliff-0",
      "kind": "rock-flank",
      "pos": [
-      -538.077,
+      155.625,
       0,
-      290.0
+      274.5
      ],
      "vis": "player",
      "dims": {
       "h": 100,
-      "d": 107,
-      "len": 51.1,
+      "d": 75,
+      "len": 53.8,
       "seed": 1
      }
     },
     {
-     "id": "facade-cliff-w1",
+     "id": "facade-cliff-1",
      "kind": "rock-flank",
      "pos": [
-      -494.231,
+      201.875,
       0,
-      290.0
+      274.5
      ],
      "vis": "player",
      "dims": {
       "h": 100,
-      "d": 101,
-      "len": 51.1,
+      "d": 75,
+      "len": 53.8,
       "seed": 2
      }
     },
     {
-     "id": "facade-cliff-w2",
+     "id": "facade-cliff-2",
      "kind": "rock-flank",
      "pos": [
-      -450.385,
+      230.837,
       0,
-      290.0
+      279.63
      ],
      "vis": "player",
+     "rotY": -42.3,
      "dims": {
       "h": 100,
-      "d": 95,
-      "len": 51.1,
+      "d": 105,
+      "len": 18.6,
       "seed": 3
      }
     },
     {
-     "id": "facade-cliff-w3",
+     "id": "facade-cliff-3",
      "kind": "rock-flank",
      "pos": [
-      -406.538,
+      255.0,
       0,
-      290.0
+      284.5
      ],
      "vis": "player",
      "dims": {
       "h": 100,
-      "d": 89,
-      "len": 51.1,
+      "d": 85,
+      "len": 44.6,
       "seed": 4
      }
     },
     {
-     "id": "facade-cliff-w4",
+     "id": "facade-cliff-4",
      "kind": "rock-flank",
      "pos": [
-      -362.692,
+      293.0,
       0,
-      290.0
+      284.5
      ],
      "vis": "player",
      "dims": {
       "h": 100,
-      "d": 87,
-      "len": 51.1,
+      "d": 86,
+      "len": 44.6,
       "seed": 5
      }
     },
     {
-     "id": "facade-cliff-w5",
+     "id": "facade-cliff-5",
      "kind": "rock-flank",
      "pos": [
-      -318.846,
+      331.0,
       0,
-      290.0
+      284.5
      ],
      "vis": "player",
      "dims": {
       "h": 100,
       "d": 92,
-      "len": 51.1,
+      "len": 44.6,
       "seed": 6
      }
     },
     {
-     "id": "facade-cliff-w6",
+     "id": "facade-cliff-6",
      "kind": "rock-flank",
      "pos": [
-      -275.0,
+      368.288,
       0,
-      290.0
+      282.836
      ],
      "vis": "player",
+     "rotY": 5.2,
      "dims": {
       "h": 100,
-      "d": 97,
-      "len": 51.1,
+      "d": 95,
+      "len": 43.2,
       "seed": 7
      }
     },
     {
-     "id": "facade-cliff-w7",
+     "id": "facade-cliff-7",
      "kind": "rock-flank",
      "pos": [
-      -231.154,
+      404.954,
       0,
-      290.0
+      279.502
      ],
      "vis": "player",
+     "rotY": 5.2,
      "dims": {
       "h": 100,
-      "d": 103,
-      "len": 51.1,
+      "d": 102,
+      "len": 43.2,
       "seed": 8
      }
     },
     {
-     "id": "facade-cliff-w8",
+     "id": "facade-cliff-8",
      "kind": "rock-flank",
      "pos": [
-      -187.308,
+      441.621,
       0,
-      290.0
+      276.168
      ],
      "vis": "player",
+     "rotY": 5.2,
      "dims": {
       "h": 100,
-      "d": 103,
-      "len": 51.1,
+      "d": 114,
+      "len": 43.2,
       "seed": 9
      }
     },
     {
-     "id": "facade-cliff-w9",
+     "id": "facade-cliff-9",
      "kind": "rock-flank",
      "pos": [
-      -143.462,
+      473.55,
       0,
-      290.0
+      267.666
+     ],
+     "vis": "player",
+     "rotY": 26.6,
+     "dims": {
+      "h": 100,
+      "d": 114,
+      "len": 36.5,
+      "seed": 10
+     }
+    },
+    {
+     "id": "facade-cliff-10",
+     "kind": "rock-flank",
+     "pos": [
+      501.096,
+      0,
+      253.894
+     ],
+     "vis": "player",
+     "rotY": 26.6,
+     "dims": {
+      "h": 100,
+      "d": 122,
+      "len": 36.5,
+      "seed": 11
+     }
+    },
+    {
+     "id": "facade-cliff-11",
+     "kind": "rock-flank",
+     "pos": [
+      521.298,
+      0,
+      242.365
+     ],
+     "vis": "player",
+     "rotY": 35.8,
+     "dims": {
+      "h": 100,
+      "d": 125,
+      "len": 19.9,
+      "seed": 12
+     }
+    },
+    {
+     "id": "facade-cliff-12",
+     "kind": "rock-flank",
+     "pos": [
+      532.365,
+      0,
+      231.298
+     ],
+     "vis": "player",
+     "rotY": 54.2,
+     "dims": {
+      "h": 100,
+      "d": 122,
+      "len": 19.9,
+      "seed": 13
+     }
+    },
+    {
+     "id": "facade-cliff-13",
+     "kind": "rock-flank",
+     "pos": [
+      548.649,
+      0,
+      201.585
+     ],
+     "vis": "player",
+     "rotY": 63.4,
+     "dims": {
+      "h": 100,
+      "d": 119,
+      "len": 60.3,
+      "seed": 14
+     }
+    },
+    {
+     "id": "facade-cliff-14",
+     "kind": "rock-flank",
+     "pos": [
+      562.832,
+      0,
+      168.984
+     ],
+     "vis": "player",
+     "rotY": 74.7,
+     "dims": {
+      "h": 100,
+      "d": 119,
+      "len": 23.8,
+      "seed": 15
+     }
+    },
+    {
+     "id": "facade-cliff-15",
+     "kind": "rock-flank",
+     "pos": [
+      564.175,
+      0,
+      150.093
+     ],
+     "vis": "player",
+     "rotY": 97.2,
+     "dims": {
+      "h": 100,
+      "d": 131,
+      "len": 23.9,
+      "seed": 16
+     }
+    },
+    {
+     "id": "facade-cliff-16",
+     "kind": "rock-flank",
+     "pos": [
+      553.553,
+      0,
+      112.24
+     ],
+     "vis": "player",
+     "rotY": 108.4,
+     "dims": {
+      "h": 100,
+      "d": 112,
+      "len": 68.7,
+      "seed": 17
+     }
+    },
+    {
+     "id": "facade-cliff-17",
+     "kind": "rock-flank",
+     "pos": [
+      542.848,
+      0,
+      76.956
+     ],
+     "vis": "player",
+     "rotY": 100.3,
+     "dims": {
+      "h": 100,
+      "d": 83,
+      "len": 17.8,
+      "seed": 18
+     }
+    },
+    {
+     "id": "facade-cliff-18",
+     "kind": "rock-flank",
+     "pos": [
+      542.306,
+      0,
+      62.846
+     ],
+     "vis": "player",
+     "rotY": 84.1,
+     "dims": {
+      "h": 100,
+      "d": 89,
+      "len": 17.8,
+      "seed": 19
+     }
+    },
+    {
+     "id": "facade-cliff-19",
+     "kind": "rock-flank",
+     "pos": [
+      547.848,
+      0,
+      36.548
+     ],
+     "vis": "player",
+     "rotY": 76.0,
+     "dims": {
+      "h": 100,
+      "d": 117,
+      "len": 46.3,
+      "seed": 20
+     }
+    },
+    {
+     "id": "facade-cliff-20",
+     "kind": "rock-flank",
+     "pos": [
+      552.473,
+      0,
+      4.734
+     ],
+     "vis": "player",
+     "rotY": 90.7,
+     "dims": {
+      "h": 100,
+      "d": 125,
+      "len": 30.5,
+      "seed": 21
+     }
+    },
+    {
+     "id": "facade-cliff-21",
+     "kind": "rock-flank",
+     "pos": [
+      545.966,
+      0,
+      -18.761
+     ],
+     "vis": "player",
+     "rotY": 120.2,
+     "dims": {
+      "h": 100,
+      "d": 113,
+      "len": 30.5,
+      "seed": 22
+     }
+    },
+    {
+     "id": "facade-cliff-22",
+     "kind": "rock-flank",
+     "pos": [
+      519.858,
+      0,
+      -49.435
+     ],
+     "vis": "player",
+     "rotY": 135.0,
+     "dims": {
+      "h": 100,
+      "d": 109,
+      "len": 64.6,
+      "seed": 23
+     }
+    },
+    {
+     "id": "facade-cliff-23",
+     "kind": "rock-flank",
+     "pos": [
+      494.411,
+      0,
+      -73.442
+     ],
+     "vis": "player",
+     "rotY": 143.2,
+     "dims": {
+      "h": 100,
+      "d": 110,
+      "len": 18.0,
+      "seed": 24
+     }
+    },
+    {
+     "id": "facade-cliff-24",
+     "kind": "rock-flank",
+     "pos": [
+      482.097,
+      0,
+      -80.14
+     ],
+     "vis": "player",
+     "rotY": 159.7,
+     "dims": {
+      "h": 100,
+      "d": 112,
+      "len": 18.0,
+      "seed": 25
+     }
+    },
+    {
+     "id": "facade-cliff-25",
+     "kind": "rock-flank",
+     "pos": [
+      454.53,
+      0,
+      -87.09
+     ],
+     "vis": "player",
+     "rotY": 167.9,
+     "dims": {
+      "h": 100,
+      "d": 105,
+      "len": 49.9,
+      "seed": 26
+     }
+    },
+    {
+     "id": "facade-cliff-26",
+     "kind": "rock-flank",
+     "pos": [
+      412.676,
+      0,
+      -96.058
+     ],
+     "vis": "player",
+     "rotY": 167.9,
+     "dims": {
+      "h": 100,
+      "d": 85,
+      "len": 49.9,
+      "seed": 27
+     }
+    },
+    {
+     "id": "facade-cliff-27",
+     "kind": "rock-flank",
+     "pos": [
+      370.822,
+      0,
+      -105.027
+     ],
+     "vis": "player",
+     "rotY": 167.9,
+     "dims": {
+      "h": 100,
+      "d": 88,
+      "len": 49.9,
+      "seed": 28
+     }
+    },
+    {
+     "id": "facade-cliff-28",
+     "kind": "rock-flank",
+     "pos": [
+      331.332,
+      0,
+      -106.382
+     ],
+     "vis": "player",
+     "rotY": -170.5,
+     "dims": {
+      "h": 100,
+      "d": 89,
+      "len": 44.6,
+      "seed": 29
+     }
+    },
+    {
+     "id": "facade-cliff-29",
+     "kind": "rock-flank",
+     "pos": [
+      293.832,
+      0,
+      -100.132
+     ],
+     "vis": "player",
+     "rotY": -170.5,
+     "dims": {
+      "h": 100,
+      "d": 84,
+      "len": 44.6,
+      "seed": 30
+     }
+    },
+    {
+     "id": "facade-cliff-30",
+     "kind": "rock-flank",
+     "pos": [
+      256.332,
+      0,
+      -93.882
+     ],
+     "vis": "player",
+     "rotY": -170.5,
+     "dims": {
+      "h": 100,
+      "d": 79,
+      "len": 44.6,
+      "seed": 31
+     }
+    },
+    {
+     "id": "facade-cliff-31",
+     "kind": "rock-flank",
+     "pos": [
+      218.832,
+      0,
+      -87.632
+     ],
+     "vis": "player",
+     "rotY": -170.5,
+     "dims": {
+      "h": 100,
+      "d": 69,
+      "len": 44.6,
+      "seed": 32
+     }
+    },
+    {
+     "id": "facade-cliff-32",
+     "kind": "rock-flank",
+     "pos": [
+      181.137,
+      0,
+      -88.888
+     ],
+     "vis": "player",
+     "rotY": 166.9,
+     "dims": {
+      "h": 100,
+      "d": 62,
+      "len": 45.1,
+      "seed": 33
+     }
+    },
+    {
+     "id": "facade-cliff-33",
+     "kind": "rock-flank",
+     "pos": [
+      143.637,
+      0,
+      -97.638
+     ],
+     "vis": "player",
+     "rotY": 166.9,
+     "dims": {
+      "h": 100,
+      "d": 66,
+      "len": 45.1,
+      "seed": 34
+     }
+    },
+    {
+     "id": "facade-cliff-34",
+     "kind": "rock-flank",
+     "pos": [
+      106.136,
+      0,
+      -106.388
+     ],
+     "vis": "player",
+     "rotY": 166.9,
+     "dims": {
+      "h": 100,
+      "d": 75,
+      "len": 45.1,
+      "seed": 35
+     }
+    },
+    {
+     "id": "facade-cliff-35",
+     "kind": "rock-flank",
+     "pos": [
+      68.636,
+      0,
+      -115.138
+     ],
+     "vis": "player",
+     "rotY": 166.9,
+     "dims": {
+      "h": 100,
+      "d": 87,
+      "len": 45.1,
+      "seed": 36
+     }
+    },
+    {
+     "id": "facade-cliff-36",
+     "kind": "rock-flank",
+     "pos": [
+      32.571,
+      0,
+      -117.005
+     ],
+     "vis": "player",
+     "rotY": -171.9,
+     "dims": {
+      "h": 100,
+      "d": 88,
+      "len": 41.6,
+      "seed": 37
+     }
+    },
+    {
+     "id": "facade-cliff-37",
+     "kind": "rock-flank",
+     "pos": [
+      -2.429,
+      0,
+      -112.005
+     ],
+     "vis": "player",
+     "rotY": -171.9,
+     "dims": {
+      "h": 100,
+      "d": 86,
+      "len": 41.6,
+      "seed": 38
+     }
+    },
+    {
+     "id": "facade-cliff-38",
+     "kind": "rock-flank",
+     "pos": [
+      -37.429,
+      0,
+      -107.005
+     ],
+     "vis": "player",
+     "rotY": -171.9,
+     "dims": {
+      "h": 100,
+      "d": 84,
+      "len": 41.6,
+      "seed": 39
+     }
+    },
+    {
+     "id": "facade-cliff-39",
+     "kind": "rock-flank",
+     "pos": [
+      -72.43,
+      0,
+      -102.005
+     ],
+     "vis": "player",
+     "rotY": -171.9,
+     "dims": {
+      "h": 100,
+      "d": 85,
+      "len": 41.6,
+      "seed": 40
+     }
+    },
+    {
+     "id": "facade-cliff-40",
+     "kind": "rock-flank",
+     "pos": [
+      -107.347,
+      0,
+      -95.148
+     ],
+     "vis": "player",
+     "rotY": -166.0,
+     "dims": {
+      "h": 100,
+      "d": 84,
+      "len": 42.3,
+      "seed": 41
+     }
+    },
+    {
+     "id": "facade-cliff-41",
+     "kind": "rock-flank",
+     "pos": [
+      -142.283,
+      0,
+      -86.414
+     ],
+     "vis": "player",
+     "rotY": -166.0,
+     "dims": {
+      "h": 100,
+      "d": 81,
+      "len": 42.3,
+      "seed": 42
+     }
+    },
+    {
+     "id": "facade-cliff-42",
+     "kind": "rock-flank",
+     "pos": [
+      -177.219,
+      0,
+      -77.68
+     ],
+     "vis": "player",
+     "rotY": -166.0,
+     "dims": {
+      "h": 100,
+      "d": 93,
+      "len": 42.3,
+      "seed": 43
+     }
+    },
+    {
+     "id": "facade-cliff-43",
+     "kind": "rock-flank",
+     "pos": [
+      -201.588,
+      0,
+      -70.416
+     ],
+     "vis": "player",
+     "rotY": -157.3,
+     "dims": {
+      "h": 100,
+      "d": 101,
+      "len": 18.9,
+      "seed": 44
+     }
+    },
+    {
+     "id": "facade-cliff-44",
+     "kind": "rock-flank",
+     "pos": [
+      -214.21,
+      0,
+      -62.704
+     ],
+     "vis": "player",
+     "rotY": -139.9,
+     "dims": {
+      "h": 100,
+      "d": 98,
+      "len": 18.9,
+      "seed": 45
+     }
+    },
+    {
+     "id": "facade-cliff-45",
+     "kind": "rock-flank",
+     "pos": [
+      -230.798,
+      0,
+      -45.472
+     ],
+     "vis": "player",
+     "rotY": -131.2,
+     "dims": {
+      "h": 100,
+      "d": 97,
+      "len": 39.0,
+      "seed": 46
+     }
+    },
+    {
+     "id": "facade-cliff-46",
+     "kind": "rock-flank",
+     "pos": [
+      -252.525,
+      0,
+      -20.641
+     ],
+     "vis": "player",
+     "rotY": -131.2,
+     "dims": {
+      "h": 100,
+      "d": 99,
+      "len": 39.0,
+      "seed": 47
+     }
+    },
+    {
+     "id": "facade-cliff-47",
+     "kind": "rock-flank",
+     "pos": [
+      -268.664,
+      0,
+      1.699
+     ],
+     "vis": "player",
+     "rotY": -118.1,
+     "dims": {
+      "h": 100,
+      "d": 101,
+      "len": 27.4,
+      "seed": 48
+     }
+    },
+    {
+     "id": "facade-cliff-48",
+     "kind": "rock-flank",
+     "pos": [
+      -274.306,
+      0,
+      22.845
+     ],
+     "vis": "player",
+     "rotY": -91.8,
+     "dims": {
+      "h": 100,
+      "d": 106,
+      "len": 27.4,
+      "seed": 49
+     }
+    },
+    {
+     "id": "facade-cliff-49",
+     "kind": "rock-flank",
+     "pos": [
+      -271.663,
+      0,
+      49.137
+     ],
+     "vis": "player",
+     "rotY": -78.7,
+     "dims": {
+      "h": 100,
+      "d": 101,
+      "len": 36.4,
+      "seed": 50
+     }
+    },
+    {
+     "id": "facade-cliff-50",
+     "kind": "rock-flank",
+     "pos": [
+      -265.638,
+      0,
+      79.255
+     ],
+     "vis": "player",
+     "rotY": -78.7,
+     "dims": {
+      "h": 100,
+      "d": 88,
+      "len": 36.4,
+      "seed": 51
+     }
+    },
+    {
+     "id": "facade-cliff-51",
+     "kind": "rock-flank",
+     "pos": [
+      -262.284,
+      0,
+      102.049
+     ],
+     "vis": "player",
+     "rotY": -87.5,
+     "dims": {
+      "h": 100,
+      "d": 90,
+      "len": 19.2,
+      "seed": 52
+     }
+    },
+    {
+     "id": "facade-cliff-52",
+     "kind": "rock-flank",
+     "pos": [
+      -263.971,
+      0,
+      117.257
+     ],
+     "vis": "player",
+     "rotY": -105.1,
+     "dims": {
+      "h": 100,
+      "d": 99,
+      "len": 19.2,
+      "seed": 53
+     }
+    },
+    {
+     "id": "facade-cliff-53",
+     "kind": "rock-flank",
+     "pos": [
+      -276.968,
+      0,
+      149.409
+     ],
+     "vis": "player",
+     "rotY": -114.0,
+     "dims": {
+      "h": 100,
+      "d": 115,
+      "len": 62.5,
+      "seed": 54
+     }
+    },
+    {
+     "id": "facade-cliff-54",
+     "kind": "rock-flank",
+     "pos": [
+      -289.928,
+      0,
+      186.639
+     ],
+     "vis": "player",
+     "rotY": -99.1,
+     "dims": {
+      "h": 100,
+      "d": 25,
+      "len": 30.8,
+      "seed": 55
+     }
+    },
+    {
+     "id": "facade-cliff-55",
+     "kind": "rock-flank",
+     "pos": [
+      -287.451,
+      0,
+      211.068
+     ],
+     "vis": "player",
+     "rotY": -69.3,
+     "dims": {
+      "h": 100,
+      "d": 119,
+      "len": 30.8,
+      "seed": 56
+     }
+    },
+    {
+     "id": "facade-cliff-56",
+     "kind": "rock-flank",
+     "pos": [
+      -271.856,
+      0,
+      238.541
+     ],
+     "vis": "player",
+     "rotY": -54.5,
+     "dims": {
+      "h": 100,
+      "d": 115,
+      "len": 44.9,
+      "seed": 57
+     }
+    },
+    {
+     "id": "facade-cliff-57",
+     "kind": "rock-flank",
+     "pos": [
+      -254.243,
+      0,
+      260.366
+     ],
+     "vis": "player",
+     "rotY": -44.0,
+     "dims": {
+      "h": 100,
+      "d": 113,
+      "len": 22.4,
+      "seed": 58
+     }
+    },
+    {
+     "id": "facade-cliff-58",
+     "kind": "rock-flank",
+     "pos": [
+      -239.474,
+      0,
+      270.139
+     ],
+     "vis": "player",
+     "rotY": -23.0,
+     "dims": {
+      "h": 100,
+      "d": 167,
+      "len": 22.4,
+      "seed": 59
+     }
+    },
+    {
+     "id": "facade-cliff-59",
+     "kind": "rock-flank",
+     "pos": [
+      -213.363,
+      0,
+      277.629
+     ],
+     "vis": "player",
+     "rotY": -12.5,
+     "dims": {
+      "h": 100,
+      "d": 122,
+      "len": 42.9,
+      "seed": 60
+     }
+    },
+    {
+     "id": "facade-cliff-60",
+     "kind": "rock-flank",
+     "pos": [
+      -177.716,
+      0,
+      285.551
+     ],
+     "vis": "player",
+     "rotY": -12.5,
+     "dims": {
+      "h": 100,
+      "d": 100,
+      "len": 42.9,
+      "seed": 61
+     }
+    },
+    {
+     "id": "facade-cliff-61",
+     "kind": "rock-flank",
+     "pos": [
+      -138.75,
+      0,
+      289.5
+     ],
+     "vis": "player",
+     "dims": {
+      "h": 100,
+      "d": 104,
+      "len": 49.6,
+      "seed": 62
+     }
+    },
+    {
+     "id": "facade-cliff-62",
+     "kind": "rock-flank",
+     "pos": [
+      -96.25,
+      0,
+      289.5
+     ],
+     "vis": "player",
+     "dims": {
+      "h": 100,
+      "d": 106,
+      "len": 49.6,
+      "seed": 63
+     }
+    },
+    {
+     "id": "facade-cliff-63",
+     "kind": "rock-flank",
+     "pos": [
+      -53.75,
+      0,
+      289.5
      ],
      "vis": "player",
      "dims": {
       "h": 100,
       "d": 99,
-      "len": 51.1,
-      "seed": 10
+      "len": 49.6,
+      "seed": 64
      }
     },
     {
-     "id": "facade-cliff-w10",
+     "id": "facade-cliff-64",
      "kind": "rock-flank",
      "pos": [
-      -99.616,
+      -11.25,
       0,
-      290.0
-     ],
-     "vis": "player",
-     "dims": {
-      "h": 100,
-      "d": 95,
-      "len": 51.1,
-      "seed": 11
-     }
-    },
-    {
-     "id": "facade-cliff-w11",
-     "kind": "rock-flank",
-     "pos": [
-      -55.769,
-      0,
-      290.0
+      289.5
      ],
      "vis": "player",
      "dims": {
       "h": 100,
       "d": 91,
-      "len": 51.1,
-      "seed": 12
+      "len": 49.6,
+      "seed": 65
      }
     },
     {
-     "id": "facade-cliff-w12",
+     "id": "facade-cliff-65",
      "kind": "rock-flank",
      "pos": [
-      -11.923,
+      226.803,
       0,
-      290.0
+      270.337
      ],
      "vis": "player",
+     "rotY": -21.1,
+     "dims": {
+      "h": 100,
+      "d": 74,
+      "len": 25,
+      "seed": 66
+     }
+    },
+    {
+     "id": "facade-cliff-66",
+     "kind": "rock-flank",
+     "pos": [
+      237.803,
+      0,
+      280.337
+     ],
+     "vis": "player",
+     "rotY": -21.1,
+     "dims": {
+      "h": 100,
+      "d": 85,
+      "len": 25,
+      "seed": 67
+     }
+    },
+    {
+     "id": "facade-cliff-67",
+     "kind": "rock-flank",
+     "pos": [
+      458.632,
+      0,
+      270.191
+     ],
+     "vis": "player",
+     "rotY": 15.9,
+     "dims": {
+      "h": 100,
+      "d": 111,
+      "len": 25,
+      "seed": 68
+     }
+    },
+    {
+     "id": "facade-cliff-68",
+     "kind": "rock-flank",
+     "pos": [
+      524.553,
+      0,
+      234.553
+     ],
+     "vis": "player",
+     "rotY": 45.0,
+     "dims": {
+      "h": 100,
+      "d": 119,
+      "len": 25,
+      "seed": 69
+     }
+    },
+    {
+     "id": "facade-cliff-69",
+     "kind": "rock-flank",
+     "pos": [
+      560.904,
+      0,
+      159.353
+     ],
+     "vis": "player",
+     "rotY": 85.9,
+     "dims": {
+      "h": 100,
+      "d": 119,
+      "len": 25,
+      "seed": 70
+     }
+    },
+    {
+     "id": "facade-cliff-70",
+     "kind": "rock-flank",
+     "pos": [
+      537.078,
+      0,
+      70.112
+     ],
+     "vis": "player",
+     "rotY": 92.2,
+     "dims": {
+      "h": 100,
+      "d": 79,
+      "len": 25,
+      "seed": 71
+     }
+    },
+    {
+     "id": "facade-cliff-71",
+     "kind": "rock-flank",
+     "pos": [
+      548.168,
+      0,
+      16.884
+     ],
+     "vis": "player",
+     "rotY": 83.3,
+     "dims": {
+      "h": 100,
+      "d": 124,
+      "len": 25,
+      "seed": 72
+     }
+    },
+    {
+     "id": "facade-cliff-72",
+     "kind": "rock-flank",
+     "pos": [
+      547.995,
+      0,
+      -6.675
+     ],
+     "vis": "player",
+     "rotY": 105.5,
+     "dims": {
+      "h": 100,
+      "d": 111,
+      "len": 25,
+      "seed": 73
+     }
+    },
+    {
+     "id": "facade-cliff-73",
+     "kind": "rock-flank",
+     "pos": [
+      536.022,
+      0,
+      -26.966
+     ],
+     "vis": "player",
+     "rotY": 127.6,
+     "dims": {
+      "h": 100,
+      "d": 109,
+      "len": 25,
+      "seed": 74
+     }
+    },
+    {
+     "id": "facade-cliff-74",
+     "kind": "rock-flank",
+     "pos": [
+      486.591,
+      0,
+      -73.733
+     ],
+     "vis": "player",
+     "rotY": 151.5,
+     "dims": {
+      "h": 100,
+      "d": 106,
+      "len": 25,
+      "seed": 75
+     }
+    },
+    {
+     "id": "facade-cliff-75",
+     "kind": "rock-flank",
+     "pos": [
+      349.885,
+      0,
+      -105.001
+     ],
+     "vis": "player",
+     "rotY": 178.7,
+     "dims": {
+      "h": 100,
+      "d": 87,
+      "len": 25,
+      "seed": 76
+     }
+    },
+    {
+     "id": "facade-cliff-76",
+     "kind": "rock-flank",
+     "pos": [
+      199.84,
+      0,
+      -80.002
+     ],
+     "vis": "player",
+     "rotY": -181.8,
+     "dims": {
+      "h": 100,
+      "d": 56,
+      "len": 25,
+      "seed": 77
+     }
+    },
+    {
+     "id": "facade-cliff-77",
+     "kind": "rock-flank",
+     "pos": [
+      49.782,
+      0,
+      -115.005
+     ],
+     "vis": "player",
+     "rotY": 177.5,
+     "dims": {
+      "h": 100,
+      "d": 85,
+      "len": 25,
+      "seed": 78
+     }
+    },
+    {
+     "id": "facade-cliff-78",
+     "kind": "rock-flank",
+     "pos": [
+      -206.145,
+      0,
+      -63.691
+     ],
+     "vis": "player",
+     "rotY": -148.6,
+     "dims": {
+      "h": 100,
+      "d": 95,
+      "len": 25,
+      "seed": 79
+     }
+    },
+    {
+     "id": "facade-cliff-79",
+     "kind": "rock-flank",
+     "pos": [
+      -259.651,
+      0,
+      -5.714
+     ],
+     "vis": "player",
+     "rotY": -124.6,
+     "dims": {
+      "h": 100,
+      "d": 97,
+      "len": 25,
+      "seed": 80
+     }
+    },
+    {
+     "id": "facade-cliff-80",
+     "kind": "rock-flank",
+     "pos": [
+      -269.615,
+      0,
+      12.771
+     ],
+     "vis": "player",
+     "rotY": -104.9,
+     "dims": {
+      "h": 100,
+      "d": 99,
+      "len": 25,
+      "seed": 81
+     }
+    },
+    {
+     "id": "facade-cliff-81",
+     "kind": "rock-flank",
+     "pos": [
+      -270.182,
+      0,
+      33.762
+     ],
+     "vis": "player",
+     "rotY": -85.3,
+     "dims": {
+      "h": 100,
+      "d": 101,
+      "len": 25,
+      "seed": 82
+     }
+    },
+    {
+     "id": "facade-cliff-82",
+     "kind": "rock-flank",
+     "pos": [
+      -257.481,
+      0,
+      110.279
+     ],
+     "vis": "player",
+     "rotY": -96.3,
      "dims": {
       "h": 100,
       "d": 90,
-      "len": 51.1,
-      "seed": 13
+      "len": 25,
+      "seed": 83
+     }
+    },
+    {
+     "id": "facade-cliff-83",
+     "kind": "rock-flank",
+     "pos": [
+      -283.601,
+      0,
+      175.308
+     ],
+     "vis": "player",
+     "rotY": -106.5,
+     "dims": {
+      "h": 100,
+      "d": 25,
+      "len": 25,
+      "seed": 84
+     }
+    },
+    {
+     "id": "facade-cliff-84",
+     "kind": "rock-flank",
+     "pos": [
+      -287.474,
+      0,
+      198.731
+     ],
+     "vis": "player",
+     "rotY": -84.2,
+     "dims": {
+      "h": 100,
+      "d": 117,
+      "len": 25,
+      "seed": 85
+     }
+    },
+    {
+     "id": "facade-cliff-85",
+     "kind": "rock-flank",
+     "pos": [
+      -278.98,
+      0,
+      220.899
+     ],
+     "vis": "player",
+     "rotY": -61.9,
+     "dims": {
+      "h": 100,
+      "d": 116,
+      "len": 25,
+      "seed": 86
+     }
+    },
+    {
+     "id": "facade-cliff-86",
+     "kind": "rock-flank",
+     "pos": [
+      -245.284,
+      0,
+      262.873
+     ],
+     "vis": "player",
+     "rotY": -33.5,
+     "dims": {
+      "h": 100,
+      "d": 115,
+      "len": 25,
+      "seed": 87
+     }
+    },
+    {
+     "id": "facade-cliff-87",
+     "kind": "rock-flank",
+     "pos": [
+      -159.454,
+      0,
+      285.03
+     ],
+     "vis": "player",
+     "rotY": -6.3,
+     "dims": {
+      "h": 100,
+      "d": 99,
+      "len": 25,
+      "seed": 88
      }
     },
     {
@@ -1632,7 +2911,7 @@
      "pos": [
       40.416,
       0,
-      275.0
+      274.5
      ],
      "vis": "player",
      "dims": {
@@ -1648,7 +2927,7 @@
      "pos": [
       71.25,
       0,
-      275.0
+      274.5
      ],
      "vis": "player",
      "dims": {
@@ -1664,7 +2943,7 @@
      "pos": [
       102.083,
       0,
-      275.0
+      274.5
      ],
      "vis": "player",
      "dims": {
@@ -1672,368 +2951,13 @@
       "d": 75,
       "len": 36.5,
       "seed": 3
-     }
-    },
-    {
-     "id": "facade-cliff-fe0",
-     "kind": "rock-flank",
-     "pos": [
-      147.917,
-      0,
-      275.0
-     ],
-     "vis": "player",
-     "dims": {
-      "h": 100,
-      "d": 75,
-      "len": 36.5,
-      "seed": 1
-     }
-    },
-    {
-     "id": "facade-cliff-fe1",
-     "kind": "rock-flank",
-     "pos": [
-      178.75,
-      0,
-      275.0
-     ],
-     "vis": "player",
-     "dims": {
-      "h": 100,
-      "d": 75,
-      "len": 36.5,
-      "seed": 2
-     }
-    },
-    {
-     "id": "facade-cliff-fe2",
-     "kind": "rock-flank",
-     "pos": [
-      209.583,
-      0,
-      275.0
-     ],
-     "vis": "player",
-     "dims": {
-      "h": 100,
-      "d": 75,
-      "len": 36.5,
-      "seed": 3
-     }
-    },
-    {
-     "id": "facade-cliff-fe3",
-     "kind": "rock-flank",
-     "pos": [
-      230.5,
-      0,
-      280.0
-     ],
-     "vis": "player",
-     "rotY": -42.3,
-     "dims": {
-      "h": 100,
-      "d": 80,
-      "len": 18.6,
-      "seed": 4
-     }
-    },
-    {
-     "id": "facade-cliff-fe4",
-     "kind": "rock-flank",
-     "pos": [
-      253.312,
-      0,
-      285.0
-     ],
-     "vis": "player",
-     "dims": {
-      "h": 100,
-      "d": 85,
-      "len": 40.8,
-      "seed": 5
-     }
-    },
-    {
-     "id": "facade-cliff-fe5",
-     "kind": "rock-flank",
-     "pos": [
-      287.938,
-      0,
-      285.0
-     ],
-     "vis": "player",
-     "dims": {
-      "h": 100,
-      "d": 86,
-      "len": 40.8,
-      "seed": 6
-     }
-    },
-    {
-     "id": "facade-cliff-fe6",
-     "kind": "rock-flank",
-     "pos": [
-      322.562,
-      0,
-      285.0
-     ],
-     "vis": "player",
-     "dims": {
-      "h": 100,
-      "d": 90,
-      "len": 40.8,
-      "seed": 7
-     }
-    },
-    {
-     "id": "facade-cliff-fe7",
-     "kind": "rock-flank",
-     "pos": [
-      357.188,
-      0,
-      285.0
-     ],
-     "vis": "player",
-     "dims": {
-      "h": 100,
-      "d": 95,
-      "len": 40.8,
-      "seed": 8
-     }
-    },
-    {
-     "id": "facade-cliff-fe8",
-     "kind": "rock-flank",
-     "pos": [
-      391.812,
-      0,
-      285.0
-     ],
-     "vis": "player",
-     "dims": {
-      "h": 100,
-      "d": 99,
-      "len": 40.8,
-      "seed": 9
-     }
-    },
-    {
-     "id": "facade-cliff-fe9",
-     "kind": "rock-flank",
-     "pos": [
-      426.438,
-      0,
-      285.0
-     ],
-     "vis": "player",
-     "dims": {
-      "h": 100,
-      "d": 103,
-      "len": 40.8,
-      "seed": 10
-     }
-    },
-    {
-     "id": "facade-cliff-fe10",
-     "kind": "rock-flank",
-     "pos": [
-      461.062,
-      0,
-      285.0
-     ],
-     "vis": "player",
-     "dims": {
-      "h": 100,
-      "d": 102,
-      "len": 40.8,
-      "seed": 11
-     }
-    },
-    {
-     "id": "facade-cliff-fe11",
-     "kind": "rock-flank",
-     "pos": [
-      495.688,
-      0,
-      285.0
-     ],
-     "vis": "player",
-     "dims": {
-      "h": 100,
-      "d": 97,
-      "len": 40.8,
-      "seed": 12
-     }
-    },
-    {
-     "id": "facade-cliff-fe12",
-     "kind": "rock-flank",
-     "pos": [
-      530.312,
-      0,
-      285.0
-     ],
-     "vis": "player",
-     "dims": {
-      "h": 100,
-      "d": 92,
-      "len": 40.8,
-      "seed": 13
-     }
-    },
-    {
-     "id": "facade-cliff-fe13",
-     "kind": "rock-flank",
-     "pos": [
-      564.938,
-      0,
-      285.0
-     ],
-     "vis": "player",
-     "dims": {
-      "h": 100,
-      "d": 87,
-      "len": 40.8,
-      "seed": 14
-     }
-    },
-    {
-     "id": "facade-cliff-fe14",
-     "kind": "rock-flank",
-     "pos": [
-      599.562,
-      0,
-      285.0
-     ],
-     "vis": "player",
-     "dims": {
-      "h": 100,
-      "d": 82,
-      "len": 40.8,
-      "seed": 15
-     }
-    },
-    {
-     "id": "facade-cliff-fe15",
-     "kind": "rock-flank",
-     "pos": [
-      634.188,
-      0,
-      285.0
-     ],
-     "vis": "player",
-     "dims": {
-      "h": 100,
-      "d": 82,
-      "len": 40.8,
-      "seed": 16
-     }
-    },
-    {
-     "id": "facade-cliff-fe16",
-     "kind": "rock-flank",
-     "pos": [
-      668.812,
-      0,
-      285.0
-     ],
-     "vis": "player",
-     "dims": {
-      "h": 100,
-      "d": 85,
-      "len": 40.8,
-      "seed": 17
-     }
-    },
-    {
-     "id": "facade-cliff-fe17",
-     "kind": "rock-flank",
-     "pos": [
-      703.438,
-      0,
-      285.0
-     ],
-     "vis": "player",
-     "dims": {
-      "h": 100,
-      "d": 88,
-      "len": 40.8,
-      "seed": 18
-     }
-    },
-    {
-     "id": "facade-cliff-fe18",
-     "kind": "rock-flank",
-     "pos": [
-      738.062,
-      0,
-      285.0
-     ],
-     "vis": "player",
-     "dims": {
-      "h": 100,
-      "d": 91,
-      "len": 40.8,
-      "seed": 19
-     }
-    },
-    {
-     "id": "facade-cliff-fe19",
-     "kind": "rock-flank",
-     "pos": [
-      772.688,
-      0,
-      285.0
-     ],
-     "vis": "player",
-     "dims": {
-      "h": 100,
-      "d": 94,
-      "len": 40.8,
-      "seed": 20
-     }
-    },
-    {
-     "id": "facade-cliff-fe20",
-     "kind": "rock-flank",
-     "pos": [
-      226.803,
-      0,
-      270.337
-     ],
-     "vis": "player",
-     "rotY": -21.1,
-     "dims": {
-      "h": 100,
-      "d": 75,
-      "len": 25,
-      "seed": 21
-     }
-    },
-    {
-     "id": "facade-cliff-fe21",
-     "kind": "rock-flank",
-     "pos": [
-      237.803,
-      0,
-      280.337
-     ],
-     "vis": "player",
-     "rotY": -21.1,
-     "dims": {
-      "h": 100,
-      "d": 85,
-      "len": 25,
-      "seed": 22
      }
     },
     {
      "id": "facade-cliff-arch-w0",
      "kind": "rock-flank",
      "pos": [
-      120.0,
+      119.5,
       0,
       272.0
      ],
@@ -2053,7 +2977,7 @@
      "pos": [
       125.0,
       0,
-      269.0
+      268.5
      ],
      "vis": "player",
      "dims": {
@@ -2067,7 +2991,7 @@
      "id": "facade-cliff-arch-e0",
      "kind": "rock-flank",
      "pos": [
-      130.0,
+      130.5,
       0,
       272.0
      ],
@@ -2085,7 +3009,7 @@
      "id": "facade-cliff-x1a0",
      "kind": "rock-flank",
      "pos": [
-      10.0,
+      9.5,
       0,
       282.5
      ],
@@ -2102,7 +3026,7 @@
      "id": "facade-cliff-x1a1",
      "kind": "rock-flank",
      "pos": [
-      10.0,
+      9.5,
       0,
       267.5
      ],
@@ -2121,12 +3045,12 @@
      "pos": [
       17.5,
       0,
-      260.0
+      259.5
      ],
      "vis": "player",
      "dims": {
       "h": 100,
-      "d": 45,
+      "d": 59,
       "len": 21.5,
       "seed": 1
      }
@@ -2135,7 +3059,7 @@
      "id": "facade-cliff-x1ae0",
      "kind": "rock-flank",
      "pos": [
-      25.0,
+      25.5,
       0,
       267.5
      ],
@@ -2152,16 +3076,16 @@
      "id": "facade-step2-0",
      "kind": "rock-flank",
      "pos": [
-      -530.0,
+      -189.65,
       100,
-      199.167
+      174.035
      ],
      "vis": "player",
-     "rotY": -7.9,
+     "rotY": -91.3,
      "dims": {
       "h": 70,
-      "d": 101,
-      "len": 77.7,
+      "d": 25,
+      "len": 16.6,
       "seed": 1
      }
     },
@@ -2169,16 +3093,16 @@
      "id": "facade-step2-1",
      "kind": "rock-flank",
      "pos": [
-      -470.0,
+      -186.998,
       100,
-      207.5
+      186.197
      ],
      "vis": "player",
-     "rotY": -7.9,
+     "rotY": -64.1,
      "dims": {
       "h": 70,
-      "d": 102,
-      "len": 77.7,
+      "d": 158,
+      "len": 16.6,
       "seed": 2
      }
     },
@@ -2186,16 +3110,16 @@
      "id": "facade-step2-2",
      "kind": "rock-flank",
      "pos": [
-      -410.0,
+      -179.073,
       100,
-      215.833
+      195.798
      ],
      "vis": "player",
-     "rotY": -7.9,
+     "rotY": -36.8,
      "dims": {
       "h": 70,
-      "d": 104,
-      "len": 77.7,
+      "d": 137,
+      "len": 16.6,
       "seed": 3
      }
     },
@@ -2203,16 +3127,16 @@
      "id": "facade-step2-3",
      "kind": "rock-flank",
      "pos": [
-      -351.666,
+      -167.634,
       100,
-      216.667
+      200.708
      ],
      "vis": "player",
-     "rotY": 6.7,
+     "rotY": -9.6,
      "dims": {
       "h": 70,
-      "d": 98,
-      "len": 73.3,
+      "d": 25,
+      "len": 16.6,
       "seed": 4
      }
     },
@@ -2220,16 +3144,16 @@
      "id": "facade-step2-4",
      "kind": "rock-flank",
      "pos": [
-      -295.0,
+      -130.677,
       100,
-      210.0
+      199.646
      ],
      "vis": "player",
-     "rotY": 6.7,
+     "rotY": 4.0,
      "dims": {
       "h": 70,
-      "d": 95,
-      "len": 73.3,
+      "d": 25,
+      "len": 70.8,
       "seed": 5
      }
     },
@@ -2237,16 +3161,16 @@
      "id": "facade-step2-5",
      "kind": "rock-flank",
      "pos": [
-      -238.333,
+      -74.916,
       100,
-      203.333
+      201.757
      ],
      "vis": "player",
-     "rotY": 6.7,
+     "rotY": -9.6,
      "dims": {
       "h": 70,
-      "d": 93,
-      "len": 73.3,
+      "d": 95,
+      "len": 58.8,
       "seed": 6
      }
     },
@@ -2254,16 +3178,16 @@
      "id": "facade-step2-6",
      "kind": "rock-flank",
      "pos": [
-      -181.667,
+      -24.916,
       100,
-      202.5
+      210.257
      ],
      "vis": "player",
-     "rotY": -5.0,
+     "rotY": -9.6,
      "dims": {
       "h": 70,
-      "d": 98,
-      "len": 73.1,
+      "d": 97,
+      "len": 58.8,
       "seed": 7
      }
     },
@@ -2271,16 +3195,15 @@
      "id": "facade-step2-7",
      "kind": "rock-flank",
      "pos": [
-      -125.0,
+      28.0,
       100,
-      207.5
+      214.5
      ],
      "vis": "player",
-     "rotY": -5.0,
      "dims": {
       "h": 70,
-      "d": 107,
-      "len": 73.1,
+      "d": 103,
+      "len": 64.7,
       "seed": 8
      }
     },
@@ -2288,16 +3211,15 @@
      "id": "facade-step2-8",
      "kind": "rock-flank",
      "pos": [
-      -68.334,
+      84.0,
       100,
-      212.5
+      214.5
      ],
      "vis": "player",
-     "rotY": -5.0,
      "dims": {
       "h": 70,
-      "d": 109,
-      "len": 73.1,
+      "d": 105,
+      "len": 64.7,
       "seed": 9
      }
     },
@@ -2305,15 +3227,15 @@
      "id": "facade-step2-9",
      "kind": "rock-flank",
      "pos": [
-      -13.334,
+      140.0,
       100,
-      215.0
+      214.5
      ],
      "vis": "player",
      "dims": {
       "h": 70,
-      "d": 109,
-      "len": 68.7,
+      "d": 105,
+      "len": 64.7,
       "seed": 10
      }
     },
@@ -2321,15 +3243,15 @@
      "id": "facade-step2-10",
      "kind": "rock-flank",
      "pos": [
-      40.0,
+      196.0,
       100,
-      215.0
+      214.5
      ],
      "vis": "player",
      "dims": {
       "h": 70,
-      "d": 106,
-      "len": 68.7,
+      "d": 105,
+      "len": 64.7,
       "seed": 11
      }
     },
@@ -2337,15 +3259,15 @@
      "id": "facade-step2-11",
      "kind": "rock-flank",
      "pos": [
-      93.333,
+      252.0,
       100,
-      215.0
+      214.5
      ],
      "vis": "player",
      "dims": {
       "h": 70,
-      "d": 105,
-      "len": 68.7,
+      "d": 107,
+      "len": 64.7,
       "seed": 12
      }
     },
@@ -2353,15 +3275,16 @@
      "id": "facade-step2-12",
      "kind": "rock-flank",
      "pos": [
-      146.667,
+      304.926,
       100,
-      215.0
+      210.755
      ],
      "vis": "player",
+     "rotY": 8.5,
      "dims": {
       "h": 70,
-      "d": 105,
-      "len": 68.7,
+      "d": 113,
+      "len": 58.6,
       "seed": 13
      }
     },
@@ -2369,15 +3292,16 @@
      "id": "facade-step2-13",
      "kind": "rock-flank",
      "pos": [
-      200.0,
+      354.926,
       100,
-      215.0
+      203.255
      ],
      "vis": "player",
+     "rotY": 8.5,
      "dims": {
       "h": 70,
-      "d": 105,
-      "len": 68.7,
+      "d": 123,
+      "len": 58.6,
       "seed": 14
      }
     },
@@ -2385,15 +3309,16 @@
      "id": "facade-step2-14",
      "kind": "rock-flank",
      "pos": [
-      253.333,
+      405.611,
       100,
-      215.0
+      188.48
      ],
      "vis": "player",
+     "rotY": 23.2,
      "dims": {
       "h": 70,
-      "d": 107,
-      "len": 68.7,
+      "d": 135,
+      "len": 64.9,
       "seed": 15
      }
     },
@@ -2401,16 +3326,16 @@
      "id": "facade-step2-15",
      "kind": "rock-flank",
      "pos": [
-      306.666,
+      439.166,
       100,
-      211.667
+      172.163
      ],
      "vis": "player",
-     "rotY": 7.1,
+     "rotY": 34.1,
      "dims": {
       "h": 70,
-      "d": 112,
-      "len": 69.2,
+      "d": 146,
+      "len": 23.2,
       "seed": 16
      }
     },
@@ -2418,16 +3343,16 @@
      "id": "facade-step2-16",
      "kind": "rock-flank",
      "pos": [
-      360.0,
+      452.163,
       100,
-      205.0
+      159.166
      ],
      "vis": "player",
-     "rotY": 7.1,
+     "rotY": 55.9,
      "dims": {
       "h": 70,
-      "d": 114,
-      "len": 69.2,
+      "d": 141,
+      "len": 23.2,
       "seed": 17
      }
     },
@@ -2435,16 +3360,16 @@
      "id": "facade-step2-17",
      "kind": "rock-flank",
      "pos": [
-      413.334,
+      465.162,
       100,
-      198.333
+      133.352
      ],
      "vis": "player",
-     "rotY": 7.1,
+     "rotY": 66.8,
      "dims": {
       "h": 70,
-      "d": 111,
-      "len": 69.2,
+      "d": 138,
+      "len": 46.0,
       "seed": 18
      }
     },
@@ -2452,16 +3377,16 @@
      "id": "facade-step2-18",
      "kind": "rock-flank",
      "pos": [
-      468.334,
+      474.821,
       100,
-      199.167
+      107.51
      ],
      "vis": "player",
-     "rotY": -8.4,
+     "rotY": 76.1,
      "dims": {
       "h": 70,
-      "d": 103,
-      "len": 73.6,
+      "d": 135,
+      "len": 20.1,
       "seed": 19
      }
     },
@@ -2469,16 +3394,16 @@
      "id": "facade-step2-19",
      "kind": "rock-flank",
      "pos": [
-      525.0,
+      476.083,
       100,
-      207.5
+      91.76
      ],
      "vis": "player",
-     "rotY": -8.4,
+     "rotY": 94.7,
      "dims": {
       "h": 70,
-      "d": 103,
-      "len": 73.6,
+      "d": 160,
+      "len": 20.1,
       "seed": 20
      }
     },
@@ -2486,16 +3411,16 @@
      "id": "facade-step2-20",
      "kind": "rock-flank",
      "pos": [
-      581.666,
+      469.549,
       100,
-      215.833
+      60.256
      ],
      "vis": "player",
-     "rotY": -8.4,
+     "rotY": 104.0,
      "dims": {
       "h": 70,
-      "d": 102,
-      "len": 73.6,
+      "d": 143,
+      "len": 56.3,
       "seed": 21
      }
     },
@@ -2503,16 +3428,16 @@
      "id": "facade-step2-21",
      "kind": "rock-flank",
      "pos": [
-      640.0,
+      460.422,
       100,
-      217.5
+      29.28
      ],
      "vis": "player",
-     "rotY": 4.8,
+     "rotY": 113.5,
      "dims": {
       "h": 70,
-      "d": 107,
-      "len": 77.3,
+      "d": 122,
+      "len": 20.4,
       "seed": 22
      }
     },
@@ -2520,16 +3445,16 @@
      "id": "facade-step2-22",
      "kind": "rock-flank",
      "pos": [
-      700.0,
+      451.703,
       100,
-      212.5
+      15.823
      ],
      "vis": "player",
-     "rotY": 4.8,
+     "rotY": 132.4,
      "dims": {
       "h": 70,
-      "d": 109,
-      "len": 77.3,
+      "d": 25,
+      "len": 20.4,
       "seed": 23
      }
     },
@@ -2537,16 +3462,16 @@
      "id": "facade-step2-23",
      "kind": "rock-flank",
      "pos": [
-      760.0,
+      425.185,
       100,
-      207.5
+      -6.72
      ],
      "vis": "player",
-     "rotY": 4.8,
+     "rotY": 141.8,
      "dims": {
       "h": 70,
-      "d": 109,
-      "len": 77.3,
+      "d": 124,
+      "len": 61.9,
       "seed": 24
      }
     },
@@ -2554,16 +3479,16 @@
      "id": "facade-step2-24",
      "kind": "rock-flank",
      "pos": [
-      -379.948,
+      396.485,
       100,
-      215.001
+      -27.327
      ],
      "vis": "player",
-     "rotY": -0.6,
+     "rotY": 151.9,
      "dims": {
       "h": 70,
-      "d": 105,
-      "len": 25,
+      "d": 89,
+      "len": 21.6,
       "seed": 25
      }
     },
@@ -2571,16 +3496,16 @@
      "id": "facade-step2-25",
      "kind": "rock-flank",
      "pos": [
-      -210.073,
+      380.245,
       100,
-      195.001
+      -32.596
      ],
      "vis": "player",
-     "rotY": 0.8,
+     "rotY": 172.1,
      "dims": {
       "h": 70,
-      "d": 93,
-      "len": 25,
+      "d": 25,
+      "len": 21.6,
       "seed": 26
      }
     },
@@ -2588,16 +3513,16 @@
      "id": "facade-step2-26",
      "kind": "rock-flank",
      "pos": [
-      -39.78,
+      343.747,
       100,
-      210.005
+      -32.721
      ],
      "vis": "player",
-     "rotY": -2.5,
+     "rotY": -177.8,
      "dims": {
       "h": 70,
-      "d": 110,
-      "len": 25,
+      "d": 70,
+      "len": 64.6,
       "seed": 27
      }
     },
@@ -2605,16 +3530,16 @@
      "id": "facade-step2-27",
      "kind": "rock-flank",
      "pos": [
-      279.69,
+      287.928,
       100,
-      210.01
+      -30.574
      ],
      "vis": "player",
-     "rotY": 3.6,
+     "rotY": -177.8,
      "dims": {
       "h": 70,
-      "d": 111,
-      "len": 25,
+      "d": 60,
+      "len": 64.6,
       "seed": 28
      }
     },
@@ -2622,16 +3547,16 @@
      "id": "facade-step2-28",
      "kind": "rock-flank",
      "pos": [
-      440.054,
+      236.596,
       100,
-      190.001
+      -32.839
      ],
      "vis": "player",
-     "rotY": -0.6,
+     "rotY": 171.9,
      "dims": {
       "h": 70,
-      "d": 104,
-      "len": 25,
+      "d": 68,
+      "len": 54.8,
       "seed": 29
      }
     },
@@ -2639,33 +3564,543 @@
      "id": "facade-step2-29",
      "kind": "rock-flank",
      "pos": [
-      610.157,
+      189.93,
       100,
-      215.002
+      -39.505
      ],
      "vis": "player",
-     "rotY": -1.8,
+     "rotY": 171.9,
      "dims": {
       "h": 70,
-      "d": 107,
-      "len": 25,
+      "d": 68,
+      "len": 54.8,
       "seed": 30
+     }
+    },
+    {
+     "id": "facade-step2-30",
+     "kind": "rock-flank",
+     "pos": [
+      143.262,
+      100,
+      -46.171
+     ],
+     "vis": "player",
+     "rotY": 171.9,
+     "dims": {
+      "h": 70,
+      "d": 66,
+      "len": 54.8,
+      "seed": 31
+     }
+    },
+    {
+     "id": "facade-step2-31",
+     "kind": "rock-flank",
+     "pos": [
+      96.702,
+      100,
+      -47.835
+     ],
+     "vis": "player",
+     "rotY": -175.9,
+     "dims": {
+      "h": 70,
+      "d": 60,
+      "len": 54.4,
+      "seed": 32
+     }
+    },
+    {
+     "id": "facade-step2-32",
+     "kind": "rock-flank",
+     "pos": [
+      50.035,
+      100,
+      -44.502
+     ],
+     "vis": "player",
+     "rotY": -175.9,
+     "dims": {
+      "h": 70,
+      "d": 59,
+      "len": 54.4,
+      "seed": 33
+     }
+    },
+    {
+     "id": "facade-step2-33",
+     "kind": "rock-flank",
+     "pos": [
+      3.369,
+      100,
+      -41.168
+     ],
+     "vis": "player",
+     "rotY": -175.9,
+     "dims": {
+      "h": 70,
+      "d": 61,
+      "len": 54.4,
+      "seed": 34
+     }
+    },
+    {
+     "id": "facade-step2-34",
+     "kind": "rock-flank",
+     "pos": [
+      -45.967,
+      100,
+      -35.166
+     ],
+     "vis": "player",
+     "rotY": -170.5,
+     "dims": {
+      "h": 70,
+      "d": 61,
+      "len": 61.2,
+      "seed": 35
+     }
+    },
+    {
+     "id": "facade-step2-35",
+     "kind": "rock-flank",
+     "pos": [
+      -98.064,
+      100,
+      -26.483
+     ],
+     "vis": "player",
+     "rotY": -170.5,
+     "dims": {
+      "h": 70,
+      "d": 80,
+      "len": 61.2,
+      "seed": 36
+     }
+    },
+    {
+     "id": "facade-step2-36",
+     "kind": "rock-flank",
+     "pos": [
+      -131.367,
+      100,
+      -19.729
+     ],
+     "vis": "player",
+     "rotY": -161.7,
+     "dims": {
+      "h": 70,
+      "d": 99,
+      "len": 19.3,
+      "seed": 37
+     }
+    },
+    {
+     "id": "facade-step2-37",
+     "kind": "rock-flank",
+     "pos": [
+      -144.797,
+      100,
+      -12.817
+     ],
+     "vis": "player",
+     "rotY": -143.9,
+     "dims": {
+      "h": 70,
+      "d": 93,
+      "len": 19.3,
+      "seed": 38
+     }
+    },
+    {
+     "id": "facade-step2-38",
+     "kind": "rock-flank",
+     "pos": [
+      -165.607,
+      100,
+      6.314
+     ],
+     "vis": "player",
+     "rotY": -135.0,
+     "dims": {
+      "h": 70,
+      "d": 99,
+      "len": 48.3,
+      "seed": 39
+     }
+    },
+    {
+     "id": "facade-step2-39",
+     "kind": "rock-flank",
+     "pos": [
+      -186.487,
+      100,
+      31.534
+     ],
+     "vis": "player",
+     "rotY": -120.6,
+     "dims": {
+      "h": 70,
+      "d": 104,
+      "len": 29.8,
+      "seed": 40
+     }
+    },
+    {
+     "id": "facade-step2-40",
+     "kind": "rock-flank",
+     "pos": [
+      -193.145,
+      100,
+      54.397
+     ],
+     "vis": "player",
+     "rotY": -91.9,
+     "dims": {
+      "h": 70,
+      "d": 104,
+      "len": 29.8,
+      "seed": 41
+     }
+    },
+    {
+     "id": "facade-step2-41",
+     "kind": "rock-flank",
+     "pos": [
+      -186.535,
+      100,
+      98.288
+     ],
+     "vis": "player",
+     "rotY": -77.5,
+     "dims": {
+      "h": 70,
+      "d": 93,
+      "len": 74.5,
+      "seed": 42
+     }
+    },
+    {
+     "id": "facade-step2-42",
+     "kind": "rock-flank",
+     "pos": [
+      -184.517,
+      100,
+      148.879
+     ],
+     "vis": "player",
+     "rotY": -104.9,
+     "dims": {
+      "h": 70,
+      "d": 25,
+      "len": 45.5,
+      "seed": 43
+     }
+    },
+    {
+     "id": "facade-step2-43",
+     "kind": "rock-flank",
+     "pos": [
+      -185.414,
+      100,
+      179.481
+     ],
+     "vis": "player",
+     "rotY": -77.7,
+     "dims": {
+      "h": 70,
+      "d": 271,
+      "len": 25,
+      "seed": 44
+     }
+    },
+    {
+     "id": "facade-step2-44",
+     "kind": "rock-flank",
+     "pos": [
+      -180.739,
+      100,
+      189.102
+     ],
+     "vis": "player",
+     "rotY": -50.5,
+     "dims": {
+      "h": 70,
+      "d": 132,
+      "len": 25,
+      "seed": 45
+     }
+    },
+    {
+     "id": "facade-step2-45",
+     "kind": "rock-flank",
+     "pos": [
+      -172.179,
+      100,
+      195.516
+     ],
+     "vis": "player",
+     "rotY": -23.2,
+     "dims": {
+      "h": 70,
+      "d": 25,
+      "len": 25,
+      "seed": 46
+     }
+    },
+    {
+     "id": "facade-step2-46",
+     "kind": "rock-flank",
+     "pos": [
+      -161.04,
+      100,
+      197.296
+     ],
+     "vis": "player",
+     "rotY": -2.8,
+     "dims": {
+      "h": 70,
+      "d": 25,
+      "len": 25,
+      "seed": 47
+     }
+    },
+    {
+     "id": "facade-step2-47",
+     "kind": "rock-flank",
+     "pos": [
+      -99.754,
+      100,
+      193.006
+     ],
+     "vis": "player",
+     "rotY": -2.8,
+     "dims": {
+      "h": 70,
+      "d": 96,
+      "len": 25,
+      "seed": 48
+     }
+    },
+    {
+     "id": "facade-step2-48",
+     "kind": "rock-flank",
+     "pos": [
+      378.633,
+      100,
+      195.19
+     ],
+     "vis": "player",
+     "rotY": 15.9,
+     "dims": {
+      "h": 70,
+      "d": 126,
+      "len": 25,
+      "seed": 49
+     }
+    },
+    {
+     "id": "facade-step2-49",
+     "kind": "rock-flank",
+     "pos": [
+      443.74,
+      100,
+      163.74
+     ],
+     "vis": "player",
+     "rotY": 45.0,
+     "dims": {
+      "h": 70,
+      "d": 136,
+      "len": 25,
+      "seed": 50
+     }
+    },
+    {
+     "id": "facade-step2-50",
+     "kind": "rock-flank",
+     "pos": [
+      472.264,
+      100,
+      99.38
+     ],
+     "vis": "player",
+     "rotY": 85.4,
+     "dims": {
+      "h": 70,
+      "d": 140,
+      "len": 25,
+      "seed": 51
+     }
+    },
+    {
+     "id": "facade-step2-51",
+     "kind": "rock-flank",
+     "pos": [
+      453.412,
+      100,
+      24.269
+     ],
+     "vis": "player",
+     "rotY": 122.9,
+     "dims": {
+      "h": 70,
+      "d": 158,
+      "len": 25,
+      "seed": 52
+     }
+    },
+    {
+     "id": "facade-step2-52",
+     "kind": "rock-flank",
+     "pos": [
+      387.448,
+      100,
+      -27.134
+     ],
+     "vis": "player",
+     "rotY": 162.0,
+     "dims": {
+      "h": 70,
+      "d": 90,
+      "len": 25,
+      "seed": 53
+     }
+    },
+    {
+     "id": "facade-step2-53",
+     "kind": "rock-flank",
+     "pos": [
+      119.823,
+      100,
+      -45.003
+     ],
+     "vis": "player",
+     "rotY": 178.0,
+     "dims": {
+      "h": 70,
+      "d": 60,
+      "len": 25,
+      "seed": 54
+     }
+    },
+    {
+     "id": "facade-step2-54",
+     "kind": "rock-flank",
+     "pos": [
+      -136.566,
+      100,
+      -13.327
+     ],
+     "vis": "player",
+     "rotY": -152.8,
+     "dims": {
+      "h": 70,
+      "d": 90,
+      "len": 25,
+      "seed": 55
+     }
+    },
+    {
+     "id": "facade-step2-55",
+     "kind": "rock-flank",
+     "pos": [
+      -176.642,
+      100,
+      23.657
+     ],
+     "vis": "player",
+     "rotY": -127.8,
+     "dims": {
+      "h": 70,
+      "d": 100,
+      "len": 25,
+      "seed": 56
+     }
+    },
+    {
+     "id": "facade-step2-56",
+     "kind": "rock-flank",
+     "pos": [
+      -188.442,
+      100,
+      43.366
+     ],
+     "vis": "player",
+     "rotY": -106.2,
+     "dims": {
+      "h": 70,
+      "d": 100,
+      "len": 25,
+      "seed": 57
+     }
+    },
+    {
+     "id": "facade-step2-57",
+     "kind": "rock-flank",
+     "pos": [
+      -189.067,
+      100,
+      66.329
+     ],
+     "vis": "player",
+     "rotY": -84.7,
+     "dims": {
+      "h": 70,
+      "d": 100,
+      "len": 25,
+      "seed": 58
+     }
+    },
+    {
+     "id": "facade-step2-58",
+     "kind": "rock-flank",
+     "pos": [
+      -175.001,
+      100,
+      130.105
+     ],
+     "vis": "player",
+     "rotY": -91.2,
+     "dims": {
+      "h": 70,
+      "d": 25,
+      "len": 25,
+      "seed": 59
+     }
+    },
+    {
+     "id": "facade-step2-59",
+     "kind": "rock-flank",
+     "pos": [
+      -185.05,
+      100,
+      168.207
+     ],
+     "vis": "player",
+     "rotY": -98.1,
+     "dims": {
+      "h": 70,
+      "d": 25,
+      "len": 25,
+      "seed": 60
      }
     },
     {
      "id": "facade-step3-0",
      "kind": "rock-flank",
      "pos": [
-      -523.334,
+      -107.446,
       170,
-      114.167
+      91.046
      ],
      "vis": "player",
-     "rotY": -6.5,
+     "rotY": -76.6,
      "dims": {
-      "h": 90,
-      "d": 220,
-      "len": 94.3,
+      "h": 70,
+      "d": 105,
+      "len": 21.9,
       "seed": 1
      }
     },
@@ -2673,16 +4108,16 @@
      "id": "facade-step3-1",
      "kind": "rock-flank",
      "pos": [
-      -450.0,
+      -99.727,
       170,
-      122.5
+      106.297
      ],
      "vis": "player",
-     "rotY": -6.5,
+     "rotY": -49.7,
      "dims": {
-      "h": 90,
-      "d": 220,
-      "len": 94.3,
+      "h": 70,
+      "d": 25,
+      "len": 21.9,
       "seed": 2
      }
     },
@@ -2690,16 +4125,16 @@
      "id": "facade-step3-2",
      "kind": "rock-flank",
      "pos": [
-      -376.666,
+      -85.953,
       170,
-      130.833
+      116.419
      ],
      "vis": "player",
-     "rotY": -6.5,
+     "rotY": -22.9,
      "dims": {
-      "h": 90,
-      "d": 220,
-      "len": 94.3,
+      "h": 70,
+      "d": 25,
+      "len": 21.9,
       "seed": 3
      }
     },
@@ -2707,16 +4142,16 @@
      "id": "facade-step3-3",
      "kind": "rock-flank",
      "pos": [
-      -306.666,
+      -48.889,
       170,
-      131.667
+      124.678
      ],
      "vis": "player",
-     "rotY": 5.7,
+     "rotY": -9.5,
      "dims": {
-      "h": 90,
-      "d": 220,
-      "len": 85.7,
+      "h": 70,
+      "d": 25,
+      "len": 67.8,
       "seed": 4
      }
     },
@@ -2724,16 +4159,16 @@
      "id": "facade-step3-4",
      "kind": "rock-flank",
      "pos": [
-      -240.0,
+      19.969,
       170,
-      125.0
+      127.001
      ],
      "vis": "player",
-     "rotY": 5.7,
+     "rotY": 3.6,
      "dims": {
-      "h": 90,
-      "d": 220,
-      "len": 85.7,
+      "h": 70,
+      "d": 54,
+      "len": 91.8,
       "seed": 5
      }
     },
@@ -2741,16 +4176,15 @@
      "id": "facade-step3-5",
      "kind": "rock-flank",
      "pos": [
-      -173.333,
+      90.0,
       170,
-      118.333
+      124.5
      ],
      "vis": "player",
-     "rotY": 5.7,
      "dims": {
-      "h": 90,
-      "d": 220,
-      "len": 85.7,
+      "h": 70,
+      "d": 44,
+      "len": 69.2,
       "seed": 6
      }
     },
@@ -2758,16 +4192,15 @@
      "id": "facade-step3-6",
      "kind": "rock-flank",
      "pos": [
-      -106.667,
+      150.0,
       170,
-      116.667
+      124.5
      ],
      "vis": "player",
-     "rotY": -2.9,
      "dims": {
-      "h": 90,
-      "d": 220,
-      "len": 85.4,
+      "h": 70,
+      "d": 50,
+      "len": 69.2,
       "seed": 7
      }
     },
@@ -2775,16 +4208,15 @@
      "id": "facade-step3-7",
      "kind": "rock-flank",
      "pos": [
-      -40.0,
+      210.0,
       170,
-      120.0
+      124.5
      ],
      "vis": "player",
-     "rotY": -2.9,
      "dims": {
-      "h": 90,
-      "d": 220,
-      "len": 85.4,
+      "h": 70,
+      "d": 59,
+      "len": 69.2,
       "seed": 8
      }
     },
@@ -2792,16 +4224,16 @@
      "id": "facade-step3-8",
      "kind": "rock-flank",
      "pos": [
-      26.667,
+      262.392,
       170,
-      123.333
+      119.512
      ],
      "vis": "player",
-     "rotY": -2.9,
+     "rotY": 12.5,
      "dims": {
-      "h": 90,
-      "d": 220,
-      "len": 85.4,
+      "h": 70,
+      "d": 25,
+      "len": 53.6,
       "seed": 9
      }
     },
@@ -2809,15 +4241,16 @@
      "id": "facade-step3-9",
      "kind": "rock-flank",
      "pos": [
-      105.0,
+      307.392,
       170,
-      125.0
+      109.512
      ],
      "vis": "player",
+     "rotY": 12.5,
      "dims": {
-      "h": 90,
-      "d": 220,
-      "len": 114.5,
+      "h": 70,
+      "d": 25,
+      "len": 53.6,
       "seed": 10
      }
     },
@@ -2825,15 +4258,16 @@
      "id": "facade-step3-10",
      "kind": "rock-flank",
      "pos": [
-      195.0,
+      342.767,
       170,
-      125.0
+      92.837
      ],
      "vis": "player",
+     "rotY": 42.0,
      "dims": {
-      "h": 90,
-      "d": 220,
-      "len": 114.5,
+      "h": 70,
+      "d": 25,
+      "len": 41.5,
       "seed": 11
      }
     },
@@ -2841,16 +4275,16 @@
      "id": "facade-step3-11",
      "kind": "rock-flank",
      "pos": [
-      280.0,
+      360.466,
       170,
-      118.75
+      74.088
      ],
      "vis": "player",
-     "rotY": 8.9,
+     "rotY": 56.4,
      "dims": {
-      "h": 90,
-      "d": 220,
-      "len": 103.2,
+      "h": 70,
+      "d": 25,
+      "len": 21.0,
       "seed": 12
      }
     },
@@ -2858,16 +4292,16 @@
      "id": "facade-step3-12",
      "kind": "rock-flank",
      "pos": [
-      360.0,
+      365.754,
       170,
-      106.25
+      58.834
      ],
      "vis": "player",
-     "rotY": 8.9,
+     "rotY": 85.3,
      "dims": {
-      "h": 90,
-      "d": 220,
-      "len": 103.2,
+      "h": 70,
+      "d": 141,
+      "len": 21.0,
       "seed": 13
      }
     },
@@ -2875,16 +4309,16 @@
      "id": "facade-step3-13",
      "kind": "rock-flank",
      "pos": [
-      431.666,
+      363.015,
       170,
-      105.0
+      42.924
      ],
      "vis": "player",
-     "rotY": -9.0,
+     "rotY": 114.2,
      "dims": {
-      "h": 90,
-      "d": 220,
-      "len": 82.1,
+      "h": 70,
+      "d": 25,
+      "len": 21.0,
       "seed": 14
      }
     },
@@ -2892,16 +4326,16 @@
      "id": "facade-step3-14",
      "kind": "rock-flank",
      "pos": [
-      495.0,
+      357.931,
       170,
-      115.0
+      33.215
      ],
      "vis": "player",
-     "rotY": -9.0,
+     "rotY": 128.7,
      "dims": {
-      "h": 90,
-      "d": 220,
-      "len": 82.1,
+      "h": 70,
+      "d": 25,
+      "len": 8.0,
       "seed": 15
      }
     },
@@ -2909,16 +4343,16 @@
      "id": "facade-step3-15",
      "kind": "rock-flank",
      "pos": [
-      558.334,
+      346.703,
       170,
-      125.0
+      23.857
      ],
      "vis": "player",
-     "rotY": -9.0,
+     "rotY": 142.7,
      "dims": {
-      "h": 90,
-      "d": 220,
-      "len": 82.1,
+      "h": 70,
+      "d": 25,
+      "len": 29.1,
       "seed": 16
      }
     },
@@ -2926,16 +4360,16 @@
      "id": "facade-step3-16",
      "kind": "rock-flank",
      "pos": [
-      623.334,
+      325.328,
       170,
-      126.667
+      14.657
      ],
      "vis": "player",
-     "rotY": 5.7,
+     "rotY": 170.7,
      "dims": {
-      "h": 90,
-      "d": 220,
-      "len": 85.7,
+      "h": 70,
+      "d": 25,
+      "len": 29.1,
       "seed": 17
      }
     },
@@ -2943,16 +4377,16 @@
      "id": "facade-step3-17",
      "kind": "rock-flank",
      "pos": [
-      690.0,
+      290.127,
       170,
-      120.0
+      14.658
      ],
      "vis": "player",
-     "rotY": 5.7,
+     "rotY": -175.2,
      "dims": {
-      "h": 90,
-      "d": 220,
-      "len": 85.7,
+      "h": 70,
+      "d": 25,
+      "len": 54.5,
       "seed": 18
      }
     },
@@ -2960,16 +4394,16 @@
      "id": "facade-step3-18",
      "kind": "rock-flank",
      "pos": [
-      756.667,
+      243.404,
       170,
-      113.333
+      18.552
      ],
      "vis": "player",
-     "rotY": 5.7,
+     "rotY": -175.2,
      "dims": {
-      "h": 90,
-      "d": 220,
-      "len": 85.7,
+      "h": 70,
+      "d": 25,
+      "len": 54.5,
       "seed": 19
      }
     },
@@ -2977,16 +4411,16 @@
      "id": "facade-step3-19",
      "kind": "rock-flank",
      "pos": [
-      -339.966,
+      187.405,
       170,
-      130.0
+      14.241
      ],
      "vis": "player",
-     "rotY": -0.4,
+     "rotY": 169.1,
      "dims": {
-      "h": 90,
-      "d": 220,
-      "len": 25,
+      "h": 70,
+      "d": 31,
+      "len": 76.1,
       "seed": 20
      }
     },
@@ -2994,16 +4428,16 @@
      "id": "facade-step3-20",
      "kind": "rock-flank",
      "pos": [
-      -140.124,
+      122.406,
       170,
-      110.001
+      1.741
      ],
      "vis": "player",
-     "rotY": 1.4,
+     "rotY": 169.1,
      "dims": {
-      "h": 90,
-      "d": 220,
-      "len": 25,
+      "h": 70,
+      "d": 47,
+      "len": 76.1,
       "seed": 21
      }
     },
@@ -3011,16 +4445,16 @@
      "id": "facade-step3-21",
      "kind": "rock-flank",
      "pos": [
-      60.125,
+      57.557,
       170,
-      120.001
+      -0.754
      ],
      "vis": "player",
-     "rotY": -1.4,
+     "rotY": -173.4,
      "dims": {
-      "h": 90,
-      "d": 220,
-      "len": 25,
+      "h": 70,
+      "d": 51,
+      "len": 75.3,
       "seed": 22
      }
     },
@@ -3028,16 +4462,16 @@
      "id": "facade-step3-22",
      "kind": "rock-flank",
      "pos": [
-      239.613,
+      -7.442,
       170,
-      120.015
+      6.746
      ],
      "vis": "player",
-     "rotY": 4.4,
+     "rotY": -173.4,
      "dims": {
-      "h": 90,
-      "d": 220,
-      "len": 25,
+      "h": 70,
+      "d": 59,
+      "len": 75.3,
       "seed": 23
      }
     },
@@ -3045,15 +4479,16 @@
      "id": "facade-step3-23",
      "kind": "rock-flank",
      "pos": [
-      400.004,
+      -62.156,
       170,
-      95.0
+      23.236
      ],
      "vis": "player",
+     "rotY": -150.3,
      "dims": {
-      "h": 90,
-      "d": 220,
-      "len": 25,
+      "h": 70,
+      "d": 25,
+      "len": 59.8,
       "seed": 24
      }
     },
@@ -3061,17 +4496,1003 @@
      "id": "facade-step3-24",
      "kind": "rock-flank",
      "pos": [
-      590.142,
+      -93.674,
       170,
-      125.002
+      45.117
      ],
      "vis": "player",
-     "rotY": -1.6,
+     "rotY": -135.2,
      "dims": {
-      "h": 90,
-      "d": 220,
+      "h": 70,
+      "d": 25,
+      "len": 31.1,
+      "seed": 25
+     }
+    },
+    {
+     "id": "facade-step3-25",
+     "kind": "rock-flank",
+     "pos": [
+      -106.14,
+      170,
+      66.598
+     ],
+     "vis": "player",
+     "rotY": -105.1,
+     "dims": {
+      "h": 70,
+      "d": 25,
+      "len": 31.1,
+      "seed": 26
+     }
+    },
+    {
+     "id": "facade-step3-26",
+     "kind": "rock-flank",
+     "pos": [
+      -109.5,
+      170,
+      80.758
+     ],
+     "vis": "player",
+     "rotY": -90.0,
+     "dims": {
+      "h": 70,
+      "d": 109,
+      "len": 5.9,
+      "seed": 27
+     }
+    },
+    {
+     "id": "facade-step3-27",
+     "kind": "rock-flank",
+     "pos": [
+      -101.404,
+      170,
+      97.567
+     ],
+     "vis": "player",
+     "rotY": -63.2,
+     "dims": {
+      "h": 70,
+      "d": 25,
+      "len": 25,
+      "seed": 28
+     }
+    },
+    {
+     "id": "facade-step3-28",
+     "kind": "rock-flank",
+     "pos": [
+      -91.392,
+      170,
+      109.387
+     ],
+     "vis": "player",
+     "rotY": -36.3,
+     "dims": {
+      "h": 70,
+      "d": 25,
+      "len": 25,
+      "seed": 29
+     }
+    },
+    {
+     "id": "facade-step3-29",
+     "kind": "rock-flank",
+     "pos": [
+      -76.549,
+      170,
+      115.541
+     ],
+     "vis": "player",
+     "rotY": -16.2,
+     "dims": {
+      "h": 70,
+      "d": 25,
+      "len": 25,
+      "seed": 30
+     }
+    },
+    {
+     "id": "facade-step3-30",
+     "kind": "rock-flank",
+     "pos": [
+      -19.744,
+      170,
+      125.007
+     ],
+     "vis": "player",
+     "rotY": -2.9,
+     "dims": {
+      "h": 70,
+      "d": 62,
+      "len": 25,
+      "seed": 31
+     }
+    },
+    {
+     "id": "facade-step3-31",
+     "kind": "rock-flank",
+     "pos": [
+      239.454,
+      170,
+      120.03
+     ],
+     "vis": "player",
+     "rotY": 6.3,
+     "dims": {
+      "h": 70,
+      "d": 65,
+      "len": 25,
+      "seed": 32
+     }
+    },
+    {
+     "id": "facade-step3-32",
+     "kind": "rock-flank",
+     "pos": [
+      327.71,
+      170,
+      100.555
+     ],
+     "vis": "player",
+     "rotY": 27.3,
+     "dims": {
+      "h": 70,
+      "d": 25,
+      "len": 25,
+      "seed": 33
+     }
+    },
+    {
+     "id": "facade-step3-33",
+     "kind": "rock-flank",
+     "pos": [
+      352.418,
+      170,
+      78.151
+     ],
+     "vis": "player",
+     "rotY": 49.2,
+     "dims": {
+      "h": 70,
+      "d": 25,
+      "len": 25,
+      "seed": 34
+     }
+    },
+    {
+     "id": "facade-step3-34",
+     "kind": "rock-flank",
+     "pos": [
+      360.839,
+      170,
+      65.674
+     ],
+     "vis": "player",
+     "rotY": 70.9,
+     "dims": {
+      "h": 70,
+      "d": 25,
+      "len": 25,
+      "seed": 35
+     }
+    },
+    {
+     "id": "facade-step3-35",
+     "kind": "rock-flank",
+     "pos": [
+      362.015,
+      170,
+      51.288
+     ],
+     "vis": "player",
+     "rotY": 99.8,
+     "dims": {
+      "h": 70,
+      "d": 156,
+      "len": 25,
+      "seed": 36
+     }
+    },
+    {
+     "id": "facade-step3-36",
+     "kind": "rock-flank",
+     "pos": [
+      355.734,
+      170,
+      37.608
+     ],
+     "vis": "player",
+     "rotY": 121.4,
+     "dims": {
+      "h": 70,
+      "d": 25,
+      "len": 25,
+      "seed": 37
+     }
+    },
+    {
+     "id": "facade-step3-37",
+     "kind": "rock-flank",
+     "pos": [
+      353.15,
+      170,
+      34.382
+     ],
+     "vis": "player",
+     "rotY": 135.7,
+     "dims": {
+      "h": 70,
+      "d": 25,
+      "len": 25,
+      "seed": 38
+     }
+    },
+    {
+     "id": "facade-step3-38",
+     "kind": "rock-flank",
+     "pos": [
+      335.392,
+      170,
+      20.707
+     ],
+     "vis": "player",
+     "rotY": 156.7,
+     "dims": {
+      "h": 70,
+      "d": 25,
+      "len": 25,
+      "seed": 39
+     }
+    },
+    {
+     "id": "facade-step3-39",
+     "kind": "rock-flank",
+     "pos": [
+      313.252,
+      170,
+      17.209
+     ],
+     "vis": "player",
+     "rotY": 177.8,
+     "dims": {
+      "h": 70,
+      "d": 25,
+      "len": 25,
+      "seed": 40
+     }
+    },
+    {
+     "id": "facade-step3-40",
+     "kind": "rock-flank",
+     "pos": [
+      219.733,
+      170,
+      24.993
+     ],
+     "vis": "player",
+     "rotY": -183.1,
+     "dims": {
+      "h": 70,
+      "d": 29,
+      "len": 25,
+      "seed": 41
+     }
+    },
+    {
+     "id": "facade-step3-41",
+     "kind": "rock-flank",
+     "pos": [
+      89.812,
+      170,
+      -0.004
+     ],
+     "vis": "player",
+     "rotY": 177.8,
+     "dims": {
+      "h": 70,
+      "d": 49,
+      "len": 25,
+      "seed": 42
+     }
+    },
+    {
+     "id": "facade-step3-42",
+     "kind": "rock-flank",
+     "pos": [
+      -38.441,
+      170,
+      14.751
+     ],
+     "vis": "player",
+     "rotY": -161.8,
+     "dims": {
+      "h": 70,
+      "d": 78,
+      "len": 25,
+      "seed": 43
+     }
+    },
+    {
+     "id": "facade-step3-43",
+     "kind": "rock-flank",
+     "pos": [
+      -81.778,
+      170,
+      39.583
+     ],
+     "vis": "player",
+     "rotY": -142.7,
+     "dims": {
+      "h": 70,
+      "d": 25,
+      "len": 25,
+      "seed": 44
+     }
+    },
+    {
+     "id": "facade-step3-44",
+     "kind": "rock-flank",
+     "pos": [
+      -98.922,
+      170,
+      56.429
+     ],
+     "vis": "player",
+     "rotY": -120.1,
+     "dims": {
+      "h": 70,
+      "d": 25,
+      "len": 25,
+      "seed": 45
+     }
+    },
+    {
+     "id": "facade-step3-45",
+     "kind": "rock-flank",
+     "pos": [
+      -105.043,
+      170,
+      79.672
+     ],
+     "vis": "player",
+     "rotY": -97.5,
+     "dims": {
+      "h": 70,
+      "d": 25,
+      "len": 25,
+      "seed": 46
+     }
+    },
+    {
+     "id": "facade-step3-46",
+     "kind": "rock-flank",
+     "pos": [
+      -105.035,
+      170,
+      81.915
+     ],
+     "vis": "player",
+     "rotY": -83.3,
+     "dims": {
+      "h": 70,
+      "d": 101,
+      "len": 25,
+      "seed": 47
+     }
+    },
+    {
+     "id": "facade-peak-0",
+     "kind": "rock-flank",
+     "pos": [
+      -18.535,
+      240,
+      73.767
+     ],
+     "vis": "player",
+     "rotY": -75.9,
+     "dims": {
+      "h": 110,
+      "d": 100,
+      "len": 11.0,
+      "seed": 1
+     }
+    },
+    {
+     "id": "facade-peak-1",
+     "kind": "rock-flank",
+     "pos": [
+      -14.967,
+      240,
+      80.404
+     ],
+     "vis": "player",
+     "rotY": -47.6,
+     "dims": {
+      "h": 110,
+      "d": 41,
+      "len": 11.0,
+      "seed": 2
+     }
+    },
+    {
+     "id": "facade-peak-2",
+     "kind": "rock-flank",
+     "pos": [
+      -8.681,
+      240,
+      84.558
+     ],
+     "vis": "player",
+     "rotY": -19.3,
+     "dims": {
+      "h": 110,
+      "d": 33,
+      "len": 11.0,
+      "seed": 3
+     }
+    },
+    {
+     "id": "facade-peak-3",
+     "kind": "rock-flank",
+     "pos": [
+      18.749,
+      240,
+      88.02
+     ],
+     "vis": "player",
+     "rotY": -5.2,
+     "dims": {
+      "h": 110,
+      "d": 36,
+      "len": 55.5,
+      "seed": 4
+     }
+    },
+    {
+     "id": "facade-peak-4",
+     "kind": "rock-flank",
+     "pos": [
+      66.28,
+      240,
+      92.341
+     ],
+     "vis": "player",
+     "rotY": -5.2,
+     "dims": {
+      "h": 110,
+      "d": 43,
+      "len": 55.5,
+      "seed": 5
+     }
+    },
+    {
+     "id": "facade-peak-5",
+     "kind": "rock-flank",
+     "pos": [
+      117.454,
+      240,
+      92.002
+     ],
+     "vis": "player",
+     "rotY": 5.2,
+     "dims": {
+      "h": 110,
+      "d": 44,
+      "len": 63.9,
+      "seed": 6
+     }
+    },
+    {
+     "id": "facade-peak-6",
+     "kind": "rock-flank",
+     "pos": [
+      172.455,
+      240,
+      87.002
+     ],
+     "vis": "player",
+     "rotY": 5.2,
+     "dims": {
+      "h": 110,
+      "d": 42,
+      "len": 63.9,
+      "seed": 7
+     }
+    },
+    {
+     "id": "facade-peak-7",
+     "kind": "rock-flank",
+     "pos": [
+      217.303,
+      240,
+      77.04
+     ],
+     "vis": "player",
+     "rotY": 23.2,
+     "dims": {
+      "h": 110,
+      "d": 38,
+      "len": 44.6,
+      "seed": 8
+     }
+    },
+    {
+     "id": "facade-peak-8",
+     "kind": "rock-flank",
+     "pos": [
+      237.4,
+      240,
+      67.554
+     ],
+     "vis": "player",
+     "rotY": 37.1,
+     "dims": {
+      "h": 110,
+      "d": 33,
+      "len": 9.6,
+      "seed": 9
+     }
+    },
+    {
+     "id": "facade-peak-9",
+     "kind": "rock-flank",
+     "pos": [
+      241.382,
+      240,
+      62.621
+     ],
+     "vis": "player",
+     "rotY": 65.0,
+     "dims": {
+      "h": 110,
+      "d": 52,
+      "len": 9.6,
+      "seed": 10
+     }
+    },
+    {
+     "id": "facade-peak-10",
+     "kind": "rock-flank",
+     "pos": [
+      242.595,
+      240,
+      56.399
+     ],
+     "vis": "player",
+     "rotY": 92.9,
+     "dims": {
+      "h": 110,
+      "d": 145,
+      "len": 9.6,
+      "seed": 11
+     }
+    },
+    {
+     "id": "facade-peak-11",
+     "kind": "rock-flank",
+     "pos": [
+      240.755,
+      240,
+      50.332
+     ],
+     "vis": "player",
+     "rotY": 120.8,
+     "dims": {
+      "h": 110,
+      "d": 50,
+      "len": 9.6,
+      "seed": 12
+     }
+    },
+    {
+     "id": "facade-peak-12",
+     "kind": "rock-flank",
+     "pos": [
+      236.291,
+      240,
+      45.831
+     ],
+     "vis": "player",
+     "rotY": 148.7,
+     "dims": {
+      "h": 110,
+      "d": 33,
+      "len": 9.6,
+      "seed": 13
+     }
+    },
+    {
+     "id": "facade-peak-13",
+     "kind": "rock-flank",
+     "pos": [
+      211.678,
+      240,
+      37.298
+     ],
+     "vis": "player",
+     "rotY": 162.6,
+     "dims": {
+      "h": 110,
+      "d": 39,
+      "len": 53.2,
+      "seed": 14
+     }
+    },
+    {
+     "id": "facade-peak-14",
+     "kind": "rock-flank",
+     "pos": [
+      168.352,
+      240,
+      31.333
+     ],
+     "vis": "player",
+     "rotY": -177.8,
+     "dims": {
+      "h": 110,
+      "d": 42,
+      "len": 50.6,
+      "seed": 15
+     }
+    },
+    {
+     "id": "facade-peak-15",
+     "kind": "rock-flank",
+     "pos": [
+      125.019,
+      240,
+      32.999
+     ],
+     "vis": "player",
+     "rotY": -177.8,
+     "dims": {
+      "h": 110,
+      "d": 43,
+      "len": 50.6,
+      "seed": 16
+     }
+    },
+    {
+     "id": "facade-peak-16",
+     "kind": "rock-flank",
+     "pos": [
+      81.686,
+      240,
+      34.666
+     ],
+     "vis": "player",
+     "rotY": -177.8,
+     "dims": {
+      "h": 110,
+      "d": 44,
+      "len": 50.6,
+      "seed": 17
+     }
+    },
+    {
+     "id": "facade-peak-17",
+     "kind": "rock-flank",
+     "pos": [
+      27.398,
+      240,
+      43.666
+     ],
+     "vis": "player",
+     "rotY": -166.0,
+     "dims": {
+      "h": 110,
+      "d": 38,
+      "len": 77.6,
+      "seed": 18
+     }
+    },
+    {
+     "id": "facade-peak-18",
+     "kind": "rock-flank",
+     "pos": [
+      -8.986,
+      240,
+      53.7
+     ],
+     "vis": "player",
+     "rotY": -153.3,
+     "dims": {
+      "h": 110,
+      "d": 33,
+      "len": 11.4,
+      "seed": 19
+     }
+    },
+    {
+     "id": "facade-peak-19",
+     "kind": "rock-flank",
+     "pos": [
+      -15.169,
+      240,
+      58.772
+     ],
+     "vis": "player",
+     "rotY": -128.0,
+     "dims": {
+      "h": 110,
+      "d": 39,
+      "len": 11.4,
+      "seed": 20
+     }
+    },
+    {
+     "id": "facade-peak-20",
+     "kind": "rock-flank",
+     "pos": [
+      -18.589,
+      240,
+      66.001
+     ],
+     "vis": "player",
+     "rotY": -102.7,
+     "dims": {
+      "h": 110,
+      "d": 77,
+      "len": 11.4,
+      "seed": 21
+     }
+    },
+    {
+     "id": "facade-peak-21",
+     "kind": "rock-flank",
+     "pos": [
+      -13.637,
+      240,
+      75.411
+     ],
+     "vis": "player",
+     "rotY": -61.7,
+     "dims": {
+      "h": 110,
+      "d": 57,
+      "len": 25,
+      "seed": 22
+     }
+    },
+    {
+     "id": "facade-peak-22",
+     "kind": "rock-flank",
+     "pos": [
+      -9.874,
+      240,
+      79.532
+     ],
+     "vis": "player",
+     "rotY": -33.5,
+     "dims": {
+      "h": 110,
+      "d": 33,
+      "len": 25,
+      "seed": 23
+     }
+    },
+    {
+     "id": "facade-peak-23",
+     "kind": "rock-flank",
+     "pos": [
+      -4.0,
+      240,
+      81.472
+     ],
+     "vis": "player",
+     "rotY": -12.3,
+     "dims": {
+      "h": 110,
+      "d": 30,
+      "len": 25,
+      "seed": 24
+     }
+    },
+    {
+     "id": "facade-peak-24",
+     "kind": "rock-flank",
+     "pos": [
+      198.774,
+      240,
+      80.153
+     ],
+     "vis": "player",
+     "rotY": 14.2,
+     "dims": {
+      "h": 110,
+      "d": 40,
       "len": 25,
       "seed": 25
+     }
+    },
+    {
+     "id": "facade-peak-25",
+     "kind": "rock-flank",
+     "pos": [
+      232.487,
+      240,
+      65.678
+     ],
+     "vis": "player",
+     "rotY": 30.2,
+     "dims": {
+      "h": 110,
+      "d": 30,
+      "len": 25,
+      "seed": 26
+     }
+    },
+    {
+     "id": "facade-peak-26",
+     "kind": "rock-flank",
+     "pos": [
+      236.514,
+      240,
+      62.766
+     ],
+     "vis": "player",
+     "rotY": 51.1,
+     "dims": {
+      "h": 110,
+      "d": 38,
+      "len": 25,
+      "seed": 27
+     }
+    },
+    {
+     "id": "facade-peak-27",
+     "kind": "rock-flank",
+     "pos": [
+      238.359,
+      240,
+      58.803
+     ],
+     "vis": "player",
+     "rotY": 79.0,
+     "dims": {
+      "h": 110,
+      "d": 81,
+      "len": 25,
+      "seed": 28
+     }
+    },
+    {
+     "id": "facade-peak-28",
+     "kind": "rock-flank",
+     "pos": [
+      238.136,
+      240,
+      54.439
+     ],
+     "vis": "player",
+     "rotY": 106.9,
+     "dims": {
+      "h": 110,
+      "d": 81,
+      "len": 25,
+      "seed": 29
+     }
+    },
+    {
+     "id": "facade-peak-29",
+     "kind": "rock-flank",
+     "pos": [
+      235.897,
+      240,
+      50.684
+     ],
+     "vis": "player",
+     "rotY": 134.8,
+     "dims": {
+      "h": 110,
+      "d": 38,
+      "len": 25,
+      "seed": 30
+     }
+    },
+    {
+     "id": "facade-peak-30",
+     "kind": "rock-flank",
+     "pos": [
+      231.594,
+      240,
+      48.198
+     ],
+     "vis": "player",
+     "rotY": 155.7,
+     "dims": {
+      "h": 110,
+      "d": 30,
+      "len": 25,
+      "seed": 31
+     }
+    },
+    {
+     "id": "facade-peak-31",
+     "kind": "rock-flank",
+     "pos": [
+      189.341,
+      240,
+      34.956
+     ],
+     "vis": "player",
+     "rotY": 172.4,
+     "dims": {
+      "h": 110,
+      "d": 40,
+      "len": 25,
+      "seed": 32
+     }
+    },
+    {
+     "id": "facade-peak-32",
+     "kind": "rock-flank",
+     "pos": [
+      -3.708,
+      240,
+      56.049
+     ],
+     "vis": "player",
+     "rotY": -159.6,
+     "dims": {
+      "h": 110,
+      "d": 31,
+      "len": 25,
+      "seed": 33
+     }
+    },
+    {
+     "id": "facade-peak-33",
+     "kind": "rock-flank",
+     "pos": [
+      -9.801,
+      240,
+      59.011
+     ],
+     "vis": "player",
+     "rotY": -140.6,
+     "dims": {
+      "h": 110,
+      "d": 33,
+      "len": 25,
+      "seed": 34
+     }
+    },
+    {
+     "id": "facade-peak-34",
+     "kind": "rock-flank",
+     "pos": [
+      -13.635,
+      240,
+      63.922
+     ],
+     "vis": "player",
+     "rotY": -115.3,
+     "dims": {
+      "h": 110,
+      "d": 45,
+      "len": 25,
+      "seed": 35
+     }
+    },
+    {
+     "id": "facade-peak-35",
+     "kind": "rock-flank",
+     "pos": [
+      -15.001,
+      240,
+      69.936
+     ],
+     "vis": "player",
+     "rotY": -89.3,
+     "dims": {
+      "h": 110,
+      "d": 141,
+      "len": 25,
+      "seed": 36
      }
     }
    ],
@@ -3154,6 +5575,351 @@
       ]
      ],
      "floor": "dirt"
+    },
+    {
+     "polygon": [
+      [
+       350,
+       285.0
+      ],
+      [
+       460,
+       275.0
+      ],
+      [
+       515.093,
+       247.454
+      ],
+      [
+       528.088,
+       238.088
+      ],
+      [
+       537.454,
+       225.093
+      ],
+      [
+       560.738,
+       178.524
+      ],
+      [
+       565.891,
+       159.708
+      ],
+      [
+       563.451,
+       140.352
+      ],
+      [
+       544.604,
+       83.813
+      ],
+      [
+       542.075,
+       69.92
+      ],
+      [
+       543.531,
+       55.875
+      ],
+      [
+       553.134,
+       17.464
+      ],
+      [
+       552.813,
+       -8.009
+      ],
+      [
+       539.982,
+       -30.018
+      ],
+      [
+       500.441,
+       -69.559
+      ],
+      [
+       488.98,
+       -78.125
+      ],
+      [
+       475.562,
+       -83.094
+      ],
+      [
+       350,
+       -110
+      ],
+      [
+       200,
+       -85.0
+      ],
+      [
+       50,
+       -120
+      ],
+      [
+       -90,
+       -100
+      ],
+      [
+       -194.809,
+       -73.798
+      ],
+      [
+       -208.752,
+       -67.957
+      ],
+      [
+       -220.311,
+       -58.216
+      ],
+      [
+       -263.765,
+       -8.555
+      ],
+      [
+       -274.446,
+       11.482
+      ],
+      [
+       -275.165,
+       34.176
+      ],
+      [
+       -263.117,
+       94.413
+      ],
+      [
+       -262.451,
+       109.728
+      ],
+      [
+       -266.456,
+       124.526
+      ],
+      [
+       -288.394,
+       173.886
+      ],
+      [
+       -292.448,
+       199.235
+      ],
+      [
+       -283.39,
+       223.254
+      ],
+      [
+       -261.136,
+       254.409
+      ],
+      [
+       -248.043,
+       267.043
+      ],
+      [
+       -231.296,
+       274.156
+      ],
+      [
+       -160,
+       290
+      ],
+      [
+       10,
+       290
+      ],
+      [
+       10,
+       260
+      ],
+      [
+       25.0,
+       260
+      ],
+      [
+       25.0,
+       280
+      ],
+      [
+       40.0,
+       280
+      ],
+      [
+       40.0,
+       277.5
+      ],
+      [
+       42.5,
+       275.0
+      ],
+      [
+       47.5,
+       275.0
+      ],
+      [
+       50.0,
+       277.5
+      ],
+      [
+       50.0,
+       280
+      ],
+      [
+       70.0,
+       280
+      ],
+      [
+       70.0,
+       277.5
+      ],
+      [
+       72.5,
+       275.0
+      ],
+      [
+       77.5,
+       275.0
+      ],
+      [
+       80.0,
+       277.5
+      ],
+      [
+       80.0,
+       280
+      ],
+      [
+       100.0,
+       280
+      ],
+      [
+       100.0,
+       277.5
+      ],
+      [
+       102.5,
+       275.0
+      ],
+      [
+       107.5,
+       275.0
+      ],
+      [
+       110.0,
+       277.5
+      ],
+      [
+       110.0,
+       280
+      ],
+      [
+       120,
+       280
+      ],
+      [
+       120,
+       269.0
+      ],
+      [
+       130,
+       269.0
+      ],
+      [
+       130,
+       280
+      ],
+      [
+       140.0,
+       280
+      ],
+      [
+       140.0,
+       277.5
+      ],
+      [
+       142.5,
+       275.0
+      ],
+      [
+       147.5,
+       275.0
+      ],
+      [
+       150.0,
+       277.5
+      ],
+      [
+       150.0,
+       280
+      ],
+      [
+       170.0,
+       280
+      ],
+      [
+       170.0,
+       277.5
+      ],
+      [
+       172.5,
+       275.0
+      ],
+      [
+       177.5,
+       275.0
+      ],
+      [
+       180.0,
+       277.5
+      ],
+      [
+       180.0,
+       280
+      ],
+      [
+       200.0,
+       280
+      ],
+      [
+       200.0,
+       277.5
+      ],
+      [
+       202.5,
+       275.0
+      ],
+      [
+       207.5,
+       275.0
+      ],
+      [
+       210.0,
+       277.5
+      ],
+      [
+       210.0,
+       280
+      ],
+      [
+       225.0,
+       280
+      ],
+      [
+       235.0,
+       290
+      ],
+      [
+       250,
+       290
+      ],
+      [
+       250,
+       285.0
+      ]
+     ],
+     "floor": "snow"
     }
    ]
   },
