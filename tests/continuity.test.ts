@@ -88,6 +88,69 @@ describe('source-backed site continuity', () => {
       expect(field.surface(x,z),`room at ${lx},${lz}`).toBeLessThan(wy-0.5);
     }
   });
+  it('keeps the rendered Amber approach flush up to the excavation lip', () => {
+    const land=buildLand(data,sites.map(s=>({...s,crag:false})),campaigns.campaigns[0].theme as unknown as Theme);
+    land.group.updateMatrixWorld(true);
+    try {
+      for(const [lx,lz,ly] of [[125,360,39.6],[125,292.25,39.6],[125,291.75,-2]]) {
+        const [x,y,z]=point('ch13/X',lx,lz,ly);
+        const ray=new THREE.Raycaster(new THREE.Vector3(x,y+1000,z),new THREE.Vector3(0,-1,0));
+        const hits=ray.intersectObjects(land.group.children.filter(m=>['land','aprons'].includes(m.name)));
+        expect(hits.length).toBeGreaterThan(0);
+        expect(Math.abs(hits[0].point.y-y),`rendered approach at ${lx},${lz}`).toBeLessThanOrEqual(.05);
+      }
+    } finally {
+      land.group.traverse(o=>{if(o instanceof THREE.Mesh){o.geometry.dispose();for(const m of Array.isArray(o.material)?o.material:[o.material])m.dispose();}});
+    }
+  });
+  it('preserves both sides of every Amber excavation edge on flat surrounding ground', () => {
+    const amber=sites.find(s=>s.path==='ch13/X')!;
+    // Isolate the hard-edge meshing from the coarse regional heightfield's
+    // interpolation: extend this test's flat footprint over all of its room cuts.
+    const bounds={...amber.bounds};
+    for(const {bounds:b} of amber.cuts!) {
+      bounds.minX=Math.min(bounds.minX,b.minX-1); bounds.maxX=Math.max(bounds.maxX,b.maxX+1);
+      bounds.minZ=Math.min(bounds.minZ,b.minZ-1); bounds.maxZ=Math.max(bounds.maxZ,b.maxZ+1);
+    }
+    const land=buildLand(data,[{...amber,bounds,crag:false}],campaigns.campaigns[0].theme as unknown as Theme);
+    land.group.updateMatrixWorld(true);
+    try {
+      const probes: [number,number,number][]=[];
+      for(const cut of amber.cuts!) {
+        const b=cut.bounds, cx=(b.minX+b.maxX)/2, cz=(b.minZ+b.maxZ)/2;
+        // Both sides of every room edge, including overlapping room excavations.
+        for(const d of [-.25,.25]) for(const [px,pz] of [[b.minX+d,cz],[b.maxX+d,cz],[cx,b.minZ+d],[cx,b.maxZ+d]]) {
+          probes.push([px,pz,land.field.surface(px,pz)]);
+        }
+      }
+      for(const [px,pz,want] of probes) {
+        const ray=new THREE.Raycaster(new THREE.Vector3(px,amber.base+1000,pz),new THREE.Vector3(0,-1,0));
+        const hits=ray.intersectObjects(land.group.children.filter(m=>['land','aprons'].includes(m.name)));
+        expect(hits.length).toBeGreaterThan(0);
+        expect(Math.abs(hits[0].point.y-want),`rendered ground at ${px},${pz}: ${hits[0].point.y}, expected ${want}`).toBeLessThanOrEqual(.05);
+      }
+    } finally {
+      land.group.traverse(o=>{if(o instanceof THREE.Mesh){o.geometry.dispose();for(const m of Array.isArray(o.material)?o.material:[o.material])m.dispose();}});
+    }
+  });
+  it('faces all four hard excavation walls into the opening', () => {
+    const amber=sites.find(s=>s.path==='ch13/X')!, [x,,z]=point('ch13/X',125,360);
+    const cut={bounds:{minX:x-10,maxX:x+10,minZ:z-10,maxZ:z+10},floor:amber.base-40,featherX:0,featherZ:0};
+    const land=buildLand(data,[{...amber,crag:false,cuts:[cut]}],campaigns.campaigns[0].theme as unknown as Theme);
+    land.group.updateMatrixWorld(true);
+    try {
+      for(const [dx,dz] of [[1,0],[-1,0],[0,1],[0,-1]]) {
+        const direction=new THREE.Vector3(dx,0,dz);
+        const ray=new THREE.Raycaster(new THREE.Vector3(x,amber.base-20,z),direction,0,20);
+        const hits=ray.intersectObjects(land.group.children.filter(m=>m.name==='aprons'));
+        expect(hits.length,`wall seen from the opening toward ${dx},${dz}`).toBeGreaterThan(0);
+        expect(hits[0].distance).toBeCloseTo(10,2);
+        expect(hits[0].face!.normal.dot(direction)).toBeLessThan(-.99);
+      }
+    } finally {
+      land.group.traverse(o=>{if(o instanceof THREE.Mesh){o.geometry.dispose();for(const m of Array.isArray(o.material)?o.material:[o.material])m.dispose();}});
+    }
+  });
   it('the Gates map detailed proxy does not draw a second distant Ravenloft', () => {
     expect(buildMassing(atlas).sites['ch02/J'].kits.map(k=>k[0])).not.toContain('j-castle-mass');
   });

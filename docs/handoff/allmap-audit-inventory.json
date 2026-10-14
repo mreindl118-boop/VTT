@@ -41231,5 +41231,45 @@
     "all46MapsHaveSomeSourceOrAuthoredReferenceEvidence": true,
     "wscPublisherImageReviewComplete": false,
     "fullSourceRuntimeCertification": false
+  },
+  "approvedAmberCorrection": {
+    "date": "2026-10-14",
+    "authority": "Matt explicitly approved the additional targeted correction/retest after the final fix-pass limit: nah just go for it.",
+    "build": "index-DSh4mmpD.js",
+    "scope": "Hard excavation mesh edges and their verification only. No region redesign, item 7 resumption or public compiled-bundle publication.",
+    "reviews": 2,
+    "units": {
+      "passed": 543,
+      "existingTodo": 2,
+      "failed": 0,
+      "skipped": 0
+    },
+    "continuityUnits": 15,
+    "originalOutdoorErrorFt": 24.761613187792136,
+    "redTests": [
+      "Production-coordinate outdoor surface raycast",
+      "Horizontal rays toward all four excavation walls"
+    ],
+    "gpu": {
+      "initialCorrectedBuild": "index-BaC7TO3k.js",
+      "groundAndBudgetChecksPassed": 2,
+      "finalCorrectedBundleFullSuite": "pending: GPU yielded for owner-prioritized SD smoke test",
+      "interruptedRunLoggedPasses": 18,
+      "interruptedAtUtc": "2026-10-14T03:10:00Z",
+      "runnerAndBrowserExited": true
+    },
+    "apronGeometry": {
+      "trianglesBefore": 83876,
+      "trianglesAfter": 84752,
+      "verticesBefore": 43015,
+      "verticesAfter": 43461,
+      "extraDrawCalls": 0
+    },
+    "cpuConstruction": {
+      "medianBeforeMs": 241.5077,
+      "medianAfterMs": 261.79285,
+      "limitation": "One warmup pair and six alternating CPU builds; crags disabled in both for their canvas dependency. Not GPU frame time."
+    },
+    "fullCriterionSignoff": false
   }
 }

@@ -8,6 +8,8 @@ Matt requested local terrain continuity at Tsolenka Pass, Tser Pool, Ravenloft a
 
 Public compiled-bundle publication and a distribution tag remain held by the parent task. Source release, desktop update, source-map audit and publication are separate gates. The hold covers only new public compiled bundles and the update feed; it does not block authorized private WIP pushes or later private Site deployment once all release gates pass. No source book art, screenshots or copied descriptions are published by this checkpoint.
 
+On 2026-10-14 Matt explicitly approved the additional Amber correction and retest ("nah just go for it") after being told that it exceeds the original final fix-pass allowance. This limited exception covers the confirmed hard-cut mesh regression and its verification. It does not resume unrelated regional work, item 7, or public compiled-bundle publication.
+
 ## Commits
 
 - `068fd154a368e7a490b807a76cb1a613d72fdf49`: local and regional compass activation aligns north while preserving target, distance and pitch. Native buttons support click, tap, Enter and Space; reduced motion is immediate, normal motion follows a short arc, and new camera input cancels that arc. Player Display controls remain disabled.
@@ -18,7 +20,7 @@ Public compiled-bundle publication and a distribution tag remain held by the par
 
 Each of the two build steps received two reviews and at most one fix pass. The final correctness, regression and acceptance reviews are complete; the single final fix pass is complete. It corrected missing ribbon normals, the source-backed northern Tser shoreline, the remaining prose overlap, excessive cut-grid triangles, and the compass test's unstable raw-coordinate interaction after a layout change. No additional polish loop has started.
 
-Current frozen app bundle: `index-CF69xAqx.js`. Package version remains 0.3.0 until the 0.3.1 release gates are resolved.
+The original final-review bundle was `index-CF69xAqx.js`; its results below are preserved. The approved Amber correction is now `index-DSh4mmpD.js`, with its separate verification record below. Package version remains 0.3.0 until the 0.3.1 release gates are resolved.
 
 | Check | Result |
 |---|---|
@@ -33,6 +35,20 @@ Current frozen app bundle: `index-CF69xAqx.js`. Package version remains 0.3.0 un
 | Module-overlap scan | 258 pages; seven remaining canonical name/rule-list matches, no flagged descriptive sentence |
 
 The first full GPU run on the preceding bundle `index-CNfvXVpQ.js` had 265 passes, 55 existing device skips and two failures. The compass fixture clicked raw coordinates while the Players layout was changing; it now uses locator actionability. The existing 300,000-triangle valley limit failed at 316,960; the cut mesh now retains all cut boundaries without the excessive uniform/outer-ring Cartesian grid, removing 18,994 combined T/X cut triangles. Assertions and thresholds were not loosened. The final full rerun found one additional failure: Amber's outdoor centre renders 24.7616 ft below its correct height function. A raycast identifies a triangle spanning local z292 at -2 ft to z460 at +39.6 ft, an unintended 168-ft ramp. The reduced hard-cut grid lacks a separate outside-edge height. The assertion remains unchanged. An additional targeted correction is requested under the explicit one-fix limit; release stays blocked.
+
+### Approved additional Amber correction, 2026-10-14
+
+The hard-cut grid previously shared one boundary vertex between the room excavation and its outdoor neighbour. A triangle then joined the -2-ft cut floor at local z292 to the +39.6-ft apron at z460, rendering the z360 outdoor probe 24.761613 ft too low. The new production-coordinate raycast reproduced that exact error before implementation. Adjacent cells now select the height on their own side of each cut, reuse matching vertices, and close height differences with vertical faces. The broad room-edge regression uses flat surrounding ground to isolate this discontinuity from the regional heightfield's existing coarse interpolation; the real approach and lip are also raycast directly.
+
+Two independent focused reviews are complete. The first found incorrect winding on two vertical wall directions. A horizontal-ray test failed before its correction; all four walls now face into the excavation. The second review found no further actionable defect. The original full-suite ground tolerance (0.5 ft) and valley budget (300,000 triangles) are unchanged.
+
+- Build passes; full units: 35 files, 543 passed, two existing todo, zero skips/failures. All 15 continuity tests pass.
+- The unchanged GPU ground-height and valley-budget tests passed on the first corrected bundle `index-BaC7TO3k.js` (two checks, 9.5 seconds). The subsequent winding-only correction produces `index-DSh4mmpD.js` and still needs final GPU verification.
+- At Matt's direction to give SD priority, the full GPU run was interrupted at 03:10 UTC after 18 logged passes. Its Playwright runner and isolated browser exited. This partial run is not a completed suite or a test failure. Further GPU launches remain held until the SD smoke test releases the GPU.
+- Apron geometry changes from 83,876 to 84,752 triangles and from 43,015 to 43,461 vertices; it remains one mesh/material with no extra draw calls. A CPU-only comparison used one warm-up pair then six alternating builds per version, production root sites and crags disabled in both versions because their canvas texture requires a browser. Median land construction: 241.5 ms before, 261.8 ms after; ranges 236.7-252.7 and 256.3-309.0 ms. This is construction cost, not frame time or physical-device performance.
+- Existing unrelated generated-file newline changes remain unstaged. No region placements, authoring data, materials, versions, release tags or installed app were changed for this correction.
+
+Local evidence: `evidence/amber-approved-red.log`, `amber-approved-wall-red.log`, `amber-approved-green.log`, `amber-approved-build.log`, `amber-approved-unit.log`, `amber-approved-focused-gpu.log`, interrupted `amber-approved-full-gpu.log`, and `amber-approved-cpu-cost.json`. These stay outside Git.
 
 ## Visible results and limits
 
@@ -68,6 +84,6 @@ All 44 production scenes/122 levels have a first desktop DM visual triage. Forty
 
 The implementation and first audit checkpoint were pushed without a main merge to `claude/wip/item2-nested-world-laptop` at `3da4420767adf76b8e73c0330fef4c077cfcb749`. Its CI run `38496911286` passed typecheck, unit and desktop-host steps and was running browser tests at the latest check. Main remains `785421c`, cloud item2 remains `4f3cad9`; their older successful checks are not substituted for current CI.
 
-Before a 0.3.1 source release: resolve the remaining rendered-ground failure under the fix-pass authority, obtain a clean full GPU run, reconcile the all-map audit scope and pending regional decision, refresh/merge current main as required, update both version files and changelog, finish release verification, then push main only under the explicit release authority. Distribution publication remains a separate held action.
+Before a 0.3.1 source release: finish GPU verification and refreshed views of the approved Amber correction once SD releases the GPU, reconcile the all-map audit scope and pending regional decision, refresh/merge current main as required, update both version files and changelog, finish release verification, then push main only under the explicit release authority. Distribution publication remains a separate held action.
 
 Local evidence (not committed): worktree `evidence/final-*.log`; task workspace `evidence/continuity-031/final-cost/results.json`, `final-views/results.json`, final review reports and source-audit evidence. Screenshots and source pages stay local.

@@ -120,7 +120,7 @@ The column below identifies partial source/reference evidence; “pending” is 
 
 ## Decisions and release gates
 
-The additional X mesh correction awaits an explicit answer because the final fix pass is used. The broader regional heightfield/drainage and entrance-placement boundary is a separate pending question. Continue independent audit work without assuming either answer. Do not merge paused item 7 or reinterpret recorded source conflicts silently.
+Matt explicitly approved the additional X mesh correction/retest on 2026-10-14 ("nah just go for it"). The corrected mesh has two focused reviews, a passing build, 543 passing units and 15 passing continuity tests. Its initial GPU ground-height/budget checks passed; the final winding correction still requires GPU verification. Matt then gave SD priority: the full GPU run was interrupted at 03:10 UTC after 18 logged passes, and its isolated browser/runner exited. Resume GPU verification only after the SD smoke test releases it. The broader regional heightfield/drainage and entrance-placement boundary is still a separate pending question. Do not merge paused item 7 or reinterpret recorded source conflicts silently. See the approved-correction section in `item2-continuity-report.md` for exact evidence and cost limits.
 
 No 0.3.1 version bump, main merge, desktop update, publication or distribution tag has occurred. Public compiled-bundle publication remains held by the parent task. Installed 0.3.0 stays usable.
 

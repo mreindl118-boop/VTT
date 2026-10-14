@@ -110,10 +110,13 @@ export class LandField {
   }
   lakeLevel(i: number): number { return this.lakeLevels[i]; }
   /** Ground openings affect every overlapping mesh, not just their owner's apron. */
-  cut(x: number, z: number, y: number): number {
+  cut(x: number, z: number, y: number, cell?: Vec2): number {
     for (const s of this.sites) for (const c of s.cuts ?? []) {
       const b = c.bounds, dx = Math.min(x - b.minX, b.maxX - x), dz = Math.min(z - b.minZ, b.maxZ - z);
       if (dx < 0 || dz < 0) continue;
+      // At a hard edge, each adjoining mesh cell owns its own boundary height.
+      // The outside cell must not inherit the inside cell's excavation floor.
+      if (cell && (cell[0] < b.minX || cell[0] > b.maxX || cell[1] < b.minZ || cell[1] > b.maxZ)) continue;
       const w = (c.featherX ? smooth(0, c.featherX, dx) : 1) * (c.featherZ ? smooth(0, c.featherZ, dz) : 1);
       y = Math.min(y, y + (c.floor - y) * w);
     }
@@ -152,12 +155,12 @@ export class LandField {
   }
   /** An apron vertex of site i at mapDist d: flush with the map near it, 3 ft under the land beyond, sinking under a
    *  neighbour's apron where that map is nearer, and diving under the lattice at the rim. */
-  apronY(i: number, x: number, z: number, d = mapDist(this.sites[i].bounds, x, z)): number {
+  apronY(i: number, x: number, z: number, d = mapDist(this.sites[i].bounds, x, z), cell?: Vec2): number {
     let other = Infinity; for (let k = 0; k < this.sites.length; k++) if (k !== i) other = Math.min(other, mapDist(this.sites[k].bounds, x, z));
     let y = this.height(x, z) - (d < 150 ? 0.4 : 3);
     y -= 6 * smooth(0, 200, d - other);
     y -= 35 * smooth(APRON_REACH - 250, APRON_REACH, d);
-    return this.cut(x, z, this.lake(x, z, y, d < FLATTEN_IN));
+    return this.cut(x, z, this.lake(x, z, y, d < FLATTEN_IN), cell);
   }
   /** A lattice vertex: 3 ft under the land, and well under any apron that covers it. */
   latticeY(x: number, z: number, md = this.nearest(x, z).d): number {
@@ -327,12 +330,31 @@ function buildAprons(field: LandField, colour: ReturnType<typeof colourer>): THR
         }
         return [...a].sort((a,b) => a-b);
       };
-      const xs = axis(s.bounds.minX, s.bounds.maxX, 'X'), zs = axis(s.bounds.minZ, s.bounds.maxZ, 'Z'), n = xs.length, v = P.length / 3;
-      for (const z of zs) for (const x of xs) {
-        const d = mapDist(s.bounds, x, z), y = field.apronY(i, x, z, d), c = colour(x, z, y, { i, d });
-        P.push(x,y,z); C.push(c.r,c.g,c.b);
+      const xs = axis(s.bounds.minX, s.bounds.maxX, 'X'), zs = axis(s.bounds.minZ, s.bounds.maxZ, 'Z');
+      const vertices = new Map<string, number>(), cells: number[][] = [];
+      const vertex = (k: number, r: number, cell: Vec2) => {
+        const x=xs[k], z=zs[r], d=mapDist(s.bounds,x,z), y=field.apronY(i,x,z,d,cell);
+        const key=`${k},${r},${y}`, existing=vertices.get(key);
+        if(existing!==undefined) return existing;
+        const v=P.length/3, c=colour(x,z,y,{i,d});
+        P.push(x,y,z); C.push(c.r,c.g,c.b); vertices.set(key,v); return v;
+      };
+      // Close only the discontinuous edges. Shared heights still share vertices;
+      // hard cuts add vertical faces, not extra rows across the entire apron.
+      const wall = (a: number, b: number, c: number, d: number) => {
+        if(a===c && b===d) return;
+        // The edge order follows the cell boundary. Its height difference
+        // already turns the normal toward the lower side of the opening.
+        idx.push(a,c,d,a,d,b);
+      };
+      for(let r=0;r<zs.length-1;r++) for(let k=0;k<xs.length-1;k++) {
+        const cell: Vec2=[(xs[k]+xs[k+1])/2,(zs[r]+zs[r+1])/2];
+        const a=vertex(k,r,cell), b=vertex(k+1,r,cell), c=vertex(k+1,r+1,cell), d=vertex(k,r+1,cell);
+        idx.push(a,d,c,a,c,b);
+        if(k) { const left=cells[cells.length-1]; wall(a,d,left[1],left[2]); }
+        if(r) { const above=cells[cells.length-(xs.length-1)]; wall(b,a,above[2],above[3]); }
+        cells.push([a,b,c,d]);
       }
-      for (let r=0;r<zs.length-1;r++) for(let k=0;k<n-1;k++) { const a=v+r*n+k; idx.push(a,a+n,a+n+1,a,a+n+1,a+1); }
       return;
     }
     const ol = outline(s.bounds), S = ol.length, v0 = P.length / 3, cx = (s.bounds.minX + s.bounds.maxX) / 2, cz = (s.bounds.minZ + s.bounds.maxZ) / 2;
