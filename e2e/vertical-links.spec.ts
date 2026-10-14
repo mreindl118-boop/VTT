@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { quiet } from './helpers';
+import { quiet, takeRoute } from './helpers';
 
 async function boot(page: Page) {
   await quiet(page);
@@ -15,9 +15,7 @@ test('the Floor 2 stair marker takes one hop, persists it, and does not bounce o
     m.moveParty('f1', 25.5, 27.5);
     m.app.frameLevel('top');
   });
-  const marker = page.locator('.lbl.link').filter({ hasText: 'Floor 2' });
-  // A real pointer click must reach the visible marker through the current camera/layout.
-  await marker.click();
+  await takeRoute(page, 'lk-spiral-1-2', 'from');
   expect(await page.evaluate(() => (window as any).__mistlab.app.party.level)).toBe('f2');
   expect(await page.evaluate(() => (window as any).__mistlab.app.levelId)).toBe('f2');
   await page.evaluate(() => {
@@ -169,20 +167,18 @@ test('DM placement dispatcher preserves no-op and walk-off while permitting newl
 });
 
 
-test('nested-world phone DM stair choices accept touch around Players departure and reload', async ({ browser }) => {
+test('nested-world phone Players return choice accepts touch after departure and survives reload', async ({ browser }) => {
   const context = await browser.newContext({viewport:{width:390,height:844},hasTouch:true});
   const page = await context.newPage();
   try {
     await boot(page);
     await page.evaluate(() => { const m = (window as any).__mistlab; m.moveParty('f1',17.5,27.5); m.app.frameLevel('top'); });
     expect(await page.evaluate(() => (window as any).__mistlab.app.nested)).toBe(true);
-    await page.locator('.lbl.link').filter({hasText:'Floor 2'}).tap();
+    await takeRoute(page, 'lk-spiral-1-2', 'from', true);
     expect(await page.evaluate(() => (window as any).__mistlab.app.party.level)).toBe('f2');
     const departure = await page.evaluate(() => {const a=(window as any).__mistlab.app; a.setView('players'); return {moved:a.moveTokenTo(a.party.id,[22.5,27.5]),level:a.party.level};});
     expect(departure).toEqual({moved:true,level:'f2'});
-    // Players return-marker visibility is a separately recorded UI integration gate.
-    await page.evaluate(() => {const a=(window as any).__mistlab.app; a.setView('dm'); a.frameLevel('top');});
-    await page.locator('.lbl.link').filter({hasText:'Floor 1'}).tap();
+    await takeRoute(page, 'lk-spiral-1-2', 'to', true);
     expect(await page.evaluate(() => (window as any).__mistlab.app.party.level)).toBe('f1');
     await page.evaluate(() => (window as any).__mistlab.flush());
     await page.reload();
@@ -193,7 +189,7 @@ test('nested-world phone DM stair choices accept touch around Players departure 
 });
 
 
-test('nested-world pointer walking approaches, departs and resumes through the Floor selector after reload', async ({page}) => {
+test('nested-world pointer walking approaches, departs and resumes on the saved floor after reload', async ({page}) => {
   await boot(page);
   await page.evaluate(() => {const m=(window as any).__mistlab; m.moveParty('f1',12.5,27.5); m.app.setView('players'); m.frame('top');});
   expect(await page.evaluate(() => (window as any).__mistlab.app.nested)).toBe(true);
@@ -211,10 +207,9 @@ test('nested-world pointer walking approaches, departs and resumes through the F
   await page.evaluate(() => (window as any).__mistlab.flush());
   await page.reload();
   await page.waitForFunction(() => (window as any).__mistlab?.ready);
-  await page.evaluate(() => {const a=(window as any).__mistlab.app; return (window as any).__mistlab.ready.then(() => {a.setView('dm');a.frameLevel('top');});});
+  await page.evaluate(() => {const a=(window as any).__mistlab.app; return (window as any).__mistlab.ready.then(() => {a.setView('players');a.frameLevel('top');});});
   expect(await page.evaluate(() => (window as any).__mistlab.app.party.level)).toBe('f2');
-  // Reload currently opens the entry floor; use the ordinary visible floor control to resume.
-  await page.getByRole('combobox', {name:'Floor', exact:true}).selectOption('f2');
-  await page.locator('.lbl.link').filter({hasText:'Floor 1'}).click();
+  await expect(page.getByRole('combobox', {name:'Floor', exact:true})).toHaveValue('f2');
+  await takeRoute(page, 'lk-spiral-1-2', 'to');
   expect(await page.evaluate(() => (window as any).__mistlab.app.party.level)).toBe('f1');
 });

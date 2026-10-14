@@ -8,6 +8,7 @@ import { OPENABLE_KINDS, type Container, type GridFile, type Level, type LightSo
 import { moveBlockers } from './core/light';
 import { canWalk } from './core/movement';
 import { VerticalTransitions, verticalArrival, type VerticalRequest } from './core/verticalLinks';
+import { linkMarkerGroups, type LinkMarkerEndpoint } from './core/linkMarkers';
 import { SITE_INTERFACES } from './core/siteInterfaces';
 import { classOpacity, fogCurve, hiddenCurve, labelCurve } from './core/slider';
 import { baseRingFt, CELL_FT } from './core/units';
@@ -398,14 +399,9 @@ export class App {
       tex.needsUpdate = true;
       covTex.set(l.id, tex);
       yield;
-      const linkSpots: [number, number][] = [];
-      for (const k of scene.links) for (const [end, other] of [[k.from, k.to], [k.to, k.from]] as const) {
-        if (end.level !== l.id) continue;
-        if (linkSpots.some((q) => Math.hypot(q[0] - end.pos[0], q[1] - end.pos[1]) < 12)) continue; // one marker per stair
-        linkSpots.push([end.pos[0], end.pos[1]]);
-        const to = scene.levels.find((x) => x.id === other.level);
-        const up = (to?.elevationFt ?? 0) > l.elevationFt;
-        b.labels.push({ id: `link:${k.id}:${end.level}`, text: `${up ? '↑' : '↓'} ${to?.name ?? other.level}`, pos: new THREE.Vector3(end.pos[0], l.elevationFt + 3, end.pos[1]), vis: 'player', kind: 'link', linkId: k.id });
+      for (const choices of linkMarkerGroups(scene, l.id)) {
+        const end = choices[0];
+        b.labels.push({ id: `link:${end.linkId}:${end.linkEnd}`, text: 'Choose route', pos: new THREE.Vector3(end.pos[0], l.elevationFt + 3, end.pos[1]), vis: 'player', kind: 'link', linkId: end.linkId, linkEnd: end.linkEnd, linkChoices: choices });
       }
       for (const spec of b.labels) {
         if (this.mode === 'player' && spec.vis === 'dm-note') continue; // no DM UI on the Player Display
@@ -419,11 +415,10 @@ export class App {
           obj.element.addEventListener('click', () => this.toggleDoor(spec.wallId!));
         }
         if (spec.kind === 'link') {
-          const up = spec.text.startsWith('↑');
-          obj.element.innerHTML = `${up ? ICON.stairsUp : ICON.stairsDown}<span>${spec.text.slice(2)}</span>`;
-          const lk = scene.links.find((k) => k.id === spec.linkId);
-          obj.element.title = `${lk?.kind === 'trapdoor' ? 'Trapdoor' : lk?.kind === 'dumbwaiter' ? 'Dumbwaiter' : 'Stairs'} ${up ? 'up' : 'down'} to ${spec.text.slice(2)} · click to take the party`;
-          obj.element.addEventListener('click', () => this.takeLink(spec.linkId!));
+          obj.element.setAttribute('role', 'button'); obj.element.tabIndex = 0;
+          const act = () => { if (this.cur?.path === path) this.chooseLink(spec, obj.element); };
+          obj.element.addEventListener('click', act);
+          obj.element.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); act(); } });
         }
         b.root.add(obj);
         labels.push({ obj, spec, level: l.id });
@@ -875,9 +870,10 @@ export class App {
     this.applySky();
     // opening a map takes the party there; the camera looking at a place does not (travel: false)
     const travel = opts.travel ?? true;
+    const savedLevel = travel && this.mode === 'dm' && !levelId ? this.party?.level : undefined;
     if (travel && pin && this.state.world?.key !== pin.key) this.moveWorld([...pin.pos] as Vec2, pin.key, this.state.world ? Math.hypot(this.state.world.pos[0] - pin.pos[0], this.state.world.pos[1] - pin.pos[1]) : 0, false);
     if (travel) this.ensureDefaultToken();
-    const id = levelId && levels.has(levelId) ? levelId : scene.entry && levels.has(scene.entry) ? scene.entry : scene.levels[0].id;
+    const id = levelId && levels.has(levelId) ? levelId : savedLevel && levels.has(savedLevel) ? savedLevel : scene.entry && levels.has(scene.entry) ? scene.entry : scene.levels[0].id;
     this.setLevel(id, opts.frame === true);
     if (opts.frame === 'fly') this.frameLevel(this.camPreset, true);
     this.syncStage();
@@ -1344,6 +1340,55 @@ export class App {
   }
 
   private verticalTransitions = new VerticalTransitions();
+  private closeLinkMenu?: () => void;
+
+  private linkChoiceText(c: LinkMarkerEndpoint): string {
+    const scene = this.cur!.scene, from = scene.levels.find(l => l.id === c.level)!, to = scene.levels.find(l => l.id === c.otherLevel)!;
+    const kind = c.kind === 'spiral' || c.kind === 'stairs' ? 'Stairs' : c.kind[0].toUpperCase() + c.kind.slice(1);
+    const direction = to.elevationFt > from.elevationFt ? ' up' : to.elevationFt < from.elevationFt ? ' down' : '';
+    return `${kind}${direction} to ${to.name}${c.level === c.otherLevel ? ` · landing ${c.linkEnd === 'from' ? '2' : '1'}` : ''}`;
+  }
+
+  private visibleLinkChoices(spec: LabelSpec): LinkMarkerEndpoint[] {
+    if (!this.cur || this.labelMode === 'none' || this.renderMode === 'floorMask') return [];
+    const revealed = revealSets(this.state, this.cur.scene.location).objects;
+    return (spec.linkChoices ?? []).filter(c => c.level === this.levelId && (!this.playersSide ||
+      ((!c.hiddenObjectId || revealed.has(c.hiddenObjectId)) && this.cur!.coverage.get(c.level)!.state(...c.pos) !== Cov.Unexplored)));
+  }
+
+  /** One spatial marker keeps every eligible route; buttons carry the clicked endpoint, never infer it from the party. */
+  private chooseLink(spec: LabelSpec, marker: HTMLElement): void {
+    if (this.mode === 'player') return;
+    this.closeLinkMenu?.();
+    const choices = this.visibleLinkChoices(spec);
+    if (choices.length === 1) { this.takeLink(choices[0].linkId, choices[0].linkEnd); return; }
+    if (!choices.length) return;
+    const panel = document.createElement('div'); panel.className = 'tapmenu page';
+    panel.setAttribute('role', 'menu'); panel.setAttribute('aria-label', 'Choose route');
+    panel.style.position = 'fixed'; panel.style.maxHeight = 'min(70vh, 420px)'; panel.style.overflowY = 'auto';
+    const names = choices.map(c => this.linkChoiceText(c));
+    choices.forEach((c, i) => {
+      const button = document.createElement('button'); button.type = 'button'; button.setAttribute('role', 'menuitem');
+      button.textContent = names[i] + (names.filter(n => n === names[i]).length > 1 ? ` · route ${i + 1}` : '');
+      button.dataset.linkId = c.linkId; button.dataset.linkEnd = c.linkEnd;
+      button.addEventListener('click', () => {
+        const allowed = this.visibleLinkChoices(spec).some(x => x.linkId === c.linkId && x.linkEnd === c.linkEnd);
+        this.closeLinkMenu?.();
+        if (allowed) this.takeLink(c.linkId, c.linkEnd);
+      });
+      panel.append(button);
+    });
+    document.body.append(panel);
+    const r = marker.getBoundingClientRect();
+    panel.style.left = `${Math.max(8, Math.min(r.left, innerWidth - panel.offsetWidth - 8))}px`;
+    panel.style.top = `${Math.max(8, Math.min(r.bottom + 4, innerHeight - panel.offsetHeight - 8))}px`;
+    const outside = (e: PointerEvent) => { if (!panel.contains(e.target as Node) && !marker.contains(e.target as Node)) this.closeLinkMenu?.(); };
+    const escape = (e: KeyboardEvent) => { if (e.key === 'Escape') { this.closeLinkMenu?.(); marker.focus(); } };
+    this.closeLinkMenu = () => { panel.remove(); document.removeEventListener('pointerdown', outside, true); document.removeEventListener('keydown', escape); marker.setAttribute('aria-expanded', 'false'); this.closeLinkMenu = undefined; };
+    marker.setAttribute('aria-expanded', 'true');
+    document.addEventListener('pointerdown', outside, true); document.addEventListener('keydown', escape);
+    panel.querySelector('button')?.focus();
+  }
 
   /** Move the party through a vertical link (either end). */
   takeLink(linkId: string, from?: 'from' | 'to'): void {
@@ -1360,6 +1405,8 @@ export class App {
     if (!transition) return false;
     const { link, to } = transition, level = scene.levels.find(l => l.id === to.level);
     if (!level) return false;
+    const source = this.cur!.labels.flatMap(l => l.spec.linkChoices ?? []).find(c => c.linkId === link.id && c.linkEnd === (to === link.to ? 'from' : 'to'));
+    if (this.playersSide && source?.hiddenObjectId && !revealSets(this.state, scene.location).objects.has(source.hiddenObjectId)) return false;
     const grid = this.cur!.grid.levels[to.level], rs = revealSets(this.state, scene.location);
     const walls = level.walls.map(w => ({ ...w,
       flags: w.flags.includes('secret-door') && rs.secretWalls.has(w.id) ? (['door'] as typeof w.flags) : w.flags,
@@ -1484,6 +1531,7 @@ export class App {
 
   applySlider(): void {
     if (!this.cur) return;
+    this.closeLinkMenu?.();
     // Restore what the section hid last pass before the visibility rules below run again.
     if (this.cur.scene.stacked) for (const b of this.cur.levels.values()) b.root.traverse((o) => { if (o.userData.secHidden) { o.visible = true; delete o.userData.secHidden; } });
     const T = this.T;
@@ -1520,6 +1568,22 @@ export class App {
       let o: number;
       if (lb.spec.vis === 'dm-note') o = labelCurve(T);
       else o = cov.state(lb.spec.pos.x, lb.spec.pos.z) !== Cov.Unexplored ? 1 : 1 - fogCurve(T);
+      if (lb.spec.kind === 'link') {
+        const choices = this.visibleLinkChoices(lb.spec), first = choices[0];
+        if (!first) o = 0;
+        else {
+          lb.obj.position.set(first.pos[0], this.level.elevationFt + 3, first.pos[1]);
+          const text = choices.length === 1 ? this.linkChoiceText(first) : `Choose route · ${choices.length} choices`;
+          const destination = this.cur.scene.levels.find(l => l.id === first.otherLevel)!;
+          const icon = choices.length > 1 || destination.elevationFt === this.level.elevationFt ? ICON.stairs : destination.elevationFt > this.level.elevationFt ? ICON.stairsUp : ICON.stairsDown;
+          lb.obj.element.innerHTML = `${icon}<span></span>`;
+          lb.obj.element.querySelector('span')!.textContent = text;
+          lb.obj.element.title = text; lb.obj.element.setAttribute('aria-label', text);
+          lb.obj.element.dataset.routes = choices.map(c => `${c.linkId}:${c.linkEnd}`).join(' ');
+          lb.obj.element.setAttribute('aria-haspopup', choices.length > 1 ? 'menu' : 'false');
+          o = this.playersSide ? 1 : cov.state(...first.pos) !== Cov.Unexplored ? 1 : 1 - fogCurve(T);
+        }
+      }
       if (this.renderMode === 'floorMask') o = 0;
       if (this.labelMode === 'none' || (this.labelMode === 'keys' && lb.spec.vis === 'dm-note' && lb.spec.kind !== 'key')) o = 0;
       if (lb.spec.kind === 'door') { const open = this.state.doorsOpen[`${this.cur.scene.location}/${lb.spec.wallId}`] ?? this.level.walls.find((w) => w.id === lb.spec.wallId)?.open; lb.obj.element.classList.toggle('open', !!open); }
@@ -1567,7 +1631,7 @@ export class App {
     this.declutter();
   }
 
-  /** Labels never pile up: once the frame is drawn, labels are placed in order of importance (room keys, then stairs,
+  /** Labels never pile up: once the frame is drawn, labels are placed in order of importance (stairs, then room keys,
    *  objects, doors, notes) and any that would overlap one already placed is hidden until the view changes. */
   private declutterQ = 0;
   declutter(): void {
@@ -1575,7 +1639,7 @@ export class App {
     this.declutterQ = requestAnimationFrame(() => requestAnimationFrame(() => {
       this.declutterQ = 0;
       if (!this.cur) return;
-      const PRI: Record<string, number> = { key: 0, link: 1, object: 2, door: 3, note: 4, tread: 5 };
+      const PRI: Record<string, number> = { link: 0, key: 1, object: 2, door: 3, note: 4, tread: 5 };
       const live = this.cur.labels.filter((l) => l.obj.visible && l.obj.element.style.display !== 'none' && Number(l.obj.element.style.opacity || 1) > 0.05);
       for (const l of live) l.obj.element.classList.remove('declutter');
       live.sort((a, b) => (PRI[a.spec.kind] ?? 9) - (PRI[b.spec.kind] ?? 9));

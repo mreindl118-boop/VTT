@@ -103,6 +103,12 @@ a day old; then continue it from its wip branch, and say so in Status.
 Each agent rewrites this section when it stops. Newest first. Keep it short and exact: versions, branches, commits,
 what is done, what is next, what is blocked.
 
+### ChatGPT, 2026-10-14, production transition UI checkpoint
+
+- Parent extended item 11 ownership to production menu, endpoint markers, Players visibility and reload restoration. Continued the isolated cloud branch from `f1b632e`; all four caller/UI gates below are now implemented. Terrain, authoring and integration remain laptop-owned. See `docs/handoff/item11-ui-report.md` for exact files and integration surface.
+- Final build and 565 units pass (two existing skips, two TODOs). All 31 software browser regressions pass, including real pointer/touch/menu/reload controls and all 346 link directions with zero wrong levels or multiple hops. Desktop/phone DM/Players chooser captures inspected. Two implementation reviews and three final review passes completed; one icon correction applied. No tests weakened.
+- Software rendering is not hardware GPU verification. Laptop integration, GPU, CI and release remain pending; six authored landing defects and broader all-map findings remain open. Published laptop WIP is `1c8d94a`; parent-reported local `b65d789` was not fetchable. No main/release/version/publication changes.
+
 ### ChatGPT, 2026-10-14, scoped transition follow-up
 
 - Continued `claude/wip/item11-vertical-transitions-cloud` from tested `166259b`, under parent assignment. Automatic dispatch chooses the unique nearest newly entered endpoint; equal-distance choices require explicit selection. Endpoint-aware `takeLink` and previous-aware DM dispatch APIs are ready. No main.ts, renderer-module, authoring or generated-map edits.
