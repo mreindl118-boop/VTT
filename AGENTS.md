@@ -103,6 +103,12 @@ a day old; then continue it from its wip branch, and say so in Status.
 Each agent rewrites this section when it stops. Newest first. Keep it short and exact: versions, branches, commits,
 what is done, what is next, what is blocked.
 
+### ChatGPT, 2026-10-14, independent 0.3.2 transition checkpoint
+
+- Parent assigned CORE-NAV from `55b118e` on dedicated `claude/wip/item11-vertical-transitions-cloud`; laptop retains terrain, placement and integration. Explicit links now use the requested endpoint exactly once; automatic entry is one hop with safe walk-off/reload handling. Amber's valid fissure landing survives unsafe grid snapping. No generated-map, renderer-module, version, main or publication change.
+- Failing-first browser checks reproduce the defects. Untouched baseline's real-app sweep confirms 56 wrong levels / 22 multiple transitions in 346 activations, plus six wrong endpoints on the correct floor. Final candidate: all 346 directions pass with zero wrong levels/multiple transitions; 12 software browser tests pass, build and 555 units pass (two existing source-cache skips, two existing TODOs). Two independent reviews completed. Software rendering is not GPU verification.
+- Six authored landing cases remain for map owners; three old short-probe failures permit five-foot exits. Shared-landing marker deduplication hides some onward choices; ownership extension requested before touching label creation. Full GPU/integrated CI and these map/UI gates remain open. See `docs/handoff/item11-transition-report.md`. Newer laptop WIP `1c8d94a` was inspected for overlap, not merged or overwritten.
+
 ### ChatGPT, 2026-10-14, approved Amber correction verified; release gates remain
 
 - Matt resolved the scope boundary: "Every map's logic should be correct for 0.3.2." Finish bounded 0.3.1 with explicit remaining-issue notes, then comprehensive terrain, roads, water, placement, doors, stairs and source-backed geometry across both campaigns in item 2e. No blanket item 7 merge or unrelated work; identify any necessary component and preserve adaptations. Both package versions and the 0.3.1 changelog are prepared; final versioned verification and CI precede the main release. Public desktop distribution remains held.

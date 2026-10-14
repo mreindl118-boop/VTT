@@ -7,6 +7,7 @@ import { squareCellAt, squareCellCenter, squareDistanceFt, worldToHex, hexToWorl
 import { OPENABLE_KINDS, type Container, type GridFile, type Level, type LightSource, type SceneFile, type SceneObject, type Room, type Wall, type Ambient } from './core/schema';
 import { moveBlockers } from './core/light';
 import { canWalk } from './core/movement';
+import { VerticalTransitions, verticalArrival } from './core/verticalLinks';
 import { SITE_INTERFACES } from './core/siteInterfaces';
 import { classOpacity, fogCurve, hiddenCurve, labelCurve } from './core/slider';
 import { baseRingFt, CELL_FT } from './core/units';
@@ -1336,14 +1337,34 @@ export class App {
   /** UI moved the party token directly (menu / list). */
   afterPartyMoveFromUi(): void { this.afterPartyMove(); this.commit(); }
 
+  private verticalTransitions = new VerticalTransitions();
+
   /** Move the party through a vertical link (either end). */
   takeLink(linkId: string): void {
-    const t = this.party, k = this.cur?.scene.links.find((x) => x.id === linkId);
-    if (!t || !k) return;
-    const here = k.from.level === t.level ? k.from : k.to.level === t.level ? k.to : k.from;
-    t.level = here.level; t.pos = squareCellCenter(squareCellAt(here.pos));
-    this.afterPartyMove();
+    if (this.mode === 'player' || !this.traversePartyLink(linkId)) return;
+    this.afterPartyMove(false);
     this.commit();
+  }
+
+  /** Resolve once, then apply only that destination and retain the arrival's trigger zone. */
+  private traversePartyLink(linkId?: string, previous?: Vec2): boolean {
+    const t = this.party, scene = this.cur?.scene;
+    if (!t || !scene) return false;
+    const transition = this.verticalTransitions.resolve(scene.links, t, linkId, previous);
+    if (!transition) return false;
+    const { link, to } = transition, level = scene.levels.find(l => l.id === to.level);
+    if (!level) return false;
+    const grid = this.cur!.grid.levels[to.level], rs = revealSets(this.state, scene.location);
+    const walls = level.walls.map(w => ({ ...w,
+      flags: w.flags.includes('secret-door') && rs.secretWalls.has(w.id) ? (['door'] as typeof w.flags) : w.flags,
+      open: this.state.doorsOpen[`${scene.location}/${w.id}`] ?? w.open,
+    }));
+    t.level = to.level;
+    t.pos = verticalArrival(to.pos, grid.origin, grid.floorPolygons.concat(level.rooms.map(r => r.polygon)), moveBlockers(walls));
+    this.verticalTransitions.arrived(scene.links, t);
+    this.setStatus(`${link.kind === 'trapdoor' ? 'Through the trapdoor' : link.kind === 'dumbwaiter' ? 'Down the dumbwaiter' : 'Took the stairs'} → ${level.name}`);
+    this.setLevel(to.level);
+    return true;
   }
 
   /** What the DM tapped; the UI turns it into a menu of actions. */
@@ -1362,22 +1383,11 @@ export class App {
     this.recompute();
   }
   /** After the party moves: reveal the room it entered, take stairs it stepped on, follow with the camera. */
-  private afterPartyMove(): void {
+  private afterPartyMove(takeNearbyLink = true, previous?: Vec2): void {
     const t = this.party;
     if (!t || !this.cur) return;
     const loc = this.cur.scene.location;
-    // vertical links: stepping within one cell of an endpoint takes the stairs
-    for (const k of this.cur.scene.links) {
-      for (const [end, other] of [[k.from, k.to], [k.to, k.from]] as const) {
-        if (end.level !== t.level) continue;
-        if (Math.hypot(end.pos[0] - t.pos[0], end.pos[1] - t.pos[1]) <= 5.5) {
-          t.level = other.level; t.pos = squareCellCenter(squareCellAt(other.pos));
-          this.setStatus(`${k.kind === 'trapdoor' ? 'Through the trapdoor' : k.kind === 'dumbwaiter' ? 'Down the dumbwaiter' : 'Took the stairs'} → ${this.cur.scene.levels.find((l) => l.id === other.level)?.name ?? other.level}`);
-          this.setLevel(other.level);
-          break;
-        }
-      }
-    }
+    if (takeNearbyLink) this.traversePartyLink(undefined, previous);
     const l = this.cur.scene.levels.find((x) => x.id === t.level)!;
     const room = this.roomAt(l, t.pos);
     if (room && this.autoReveal && !this.isRevealed(room.key)) this.state.reveals.push({ type: 'room', location: loc, key: room.key, mode: 'explored' });
@@ -2026,9 +2036,10 @@ export class App {
       else if (this.restricted) { this.flashStatus('Out of movement range'); return false; }
       else this.flashStatus('Placed by the DM: no movement spent');
     } else if (!this.canWalkTo(t.pos, to)) { this.flashStatus('No way through: walls block the party. Open a door first.'); return false; }
+    const previous = t.pos, moved = Math.hypot(previous[0] - to[0], previous[1] - to[1]) > 1e-6;
     t.pos = to;
     this.cur!.tokens.get(id)?.position.set(to[0], this.level.elevationFt, to[1]);
-    if (id === this.party?.id) this.afterPartyMove();
+    if (id === this.party?.id) this.afterPartyMove(moved, previous);
     else if (this.encounter) this.afterMemberMove(t);
     else if (this.rangeHelper) this.refreshRange();
     this.commit();
