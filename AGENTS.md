@@ -100,6 +100,11 @@ a day old; then continue it from its wip branch, and say so in Status.
 
 ## Status
 
+### ChatGPT, 2026-10-14, bounded runtime coverage follow-up
+
+- Parent assigned classification of 18 off-grid endpoint observations and selected door approaches on published `ca63a73` / runtime `aea9fc9`. Reused `index-CWlyiRy1.js` with software Chromium. Eight observations are room-floor/grid differences; five are intentional lift/shaft openings; five off-floor centers still support nearby automatic entry. Twelve of 18 have verified valid-floor approach transitions; six remain unresolved by this probe.
+- Seventeen selected door sequences plus bounded retries yield eleven full approach/closed/open/return passes. Krezk ladder-a, K37-north-b, S2-gate reachability and K35's intervening automatic transition remain actionable findings. No runtime/map/generator edits. See `docs/handoff/bounded-runtime-followup.md` for coordinates, unsupported probes and method limits. One sequential independent review completed with no blocker; GPU/all-map acceptance remain open. Requested pass stopped after classification.
+
 ### ChatGPT, 2026-10-14, published map coverage audit
 
 - Parent assigned test-only verification from published `aea9fc9`, on isolated `claude/wip/item2e-coverage-audit-032`. Dynamic manifest/filesystem discovery accounts for 46 built production maps, 122 levels, 346 directions and 418 doors including secrets; unbuilt/development entries and runtime omissions remain explicit. Eighteen off-floor endpoint observations remain findings, not fixes. See `docs/handoff/published-coverage-audit.md`.
