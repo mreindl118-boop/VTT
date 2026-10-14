@@ -100,6 +100,11 @@ a day old; then continue it from its wip branch, and say so in Status.
 
 ## Status
 
+### ChatGPT, 2026-10-14, four movement causes diagnosed
+
+- Coordinator-only follow-up on `aea9fc9` identified Krezk gate routing around an unrepresented cliff boundary (not through the closed gate), K37's remaining diagonal tower blocker, K35's exact `lk-k64-weep` proximity trigger, and ladder-a's one-cell wall-walk stub. Production-function counterfactuals were in memory only. See `docs/handoff/four-movement-causes.md` for exact segments, coordinates and bounded recommendations.
+- No runtime/map/generator changes, workers, broad reruns or GPU claims. All four cases are diagnostically resolved; intended geometry/access decisions remain laptop-owned. Stopped the requested pass.
+
 ### ChatGPT, 2026-10-14, bounded runtime coverage follow-up
 
 - Parent assigned classification of 18 off-grid endpoint observations and selected door approaches on published `ca63a73` / runtime `aea9fc9`. Reused `index-CWlyiRy1.js` with software Chromium. Eight observations are room-floor/grid differences; five are intentional lift/shaft openings; five off-floor centers still support nearby automatic entry. Twelve of 18 have verified valid-floor approach transitions; six remain unresolved by this probe.
