@@ -273,6 +273,7 @@ for lv in scene['levels']:
             if d[1]: r['dm'] = d[1]
 grid = OrderedDict(schema=1, levels=OrderedDict((lv.id, OrderedDict(floorPolygons=[[[round(x * 5, 3), round(z * 5, 3)] for x, z in p] for p in lv.floor_polys] + [[[round(x * 5, 3), round(z * 5, 3)] for x, z in p] for p, _ in lv.terrain],
                                                                      type='square', hexOrientation='pointy', origin=[0, 0], color='#1d1b22', opacity=0.55)) for lv in levels))
+grid['levels']['pass']['clipToFloors'] = True
 out = os.path.join(ROOT, 'locations', 'ch09', 'T'); os.makedirs(out, exist_ok=True)
 json.dump(scene, open(os.path.join(out, 'scene.json'), 'w'), indent=1)
 json.dump(grid, open(os.path.join(out, 'grid.json'), 'w'), indent=1)

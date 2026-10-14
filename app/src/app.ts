@@ -7,6 +7,7 @@ import { squareCellAt, squareCellCenter, squareDistanceFt, worldToHex, hexToWorl
 import { OPENABLE_KINDS, type Container, type GridFile, type Level, type LightSource, type SceneFile, type SceneObject, type Room, type Wall, type Ambient } from './core/schema';
 import { moveBlockers } from './core/light';
 import { canWalk } from './core/movement';
+import { SITE_INTERFACES } from './core/siteInterfaces';
 import { classOpacity, fogCurve, hiddenCurve, labelCurve } from './core/slider';
 import { baseRingFt, CELL_FT } from './core/units';
 import { baseRing } from './kit/pieces';
@@ -539,6 +540,7 @@ export class App {
     }
     // the grid stays on the map, not over the valley, and goes as the camera pulls back to the town and road bands
     l.root.traverse((o) => { if (o.userData.role === 'grid') { clipGrid(o as THREE.Mesh, 10); fadeGridBelow(o as THREE.Mesh, 0.6); } });
+    l.root.traverse((o) => { if (o.userData.worldStandin) veil(o, 'world-standin', true); });
     this.resident.set(l.path, l);
     return true;
   }
@@ -607,7 +609,7 @@ export class App {
   private syncUnderground(): void {
     const c = this.cur, e = c ? this.stageEntry(c.path) : undefined;
     const lv = c && c.levels.has(this.levelId) ? c.scene.levels.find((l) => l.id === this.levelId) : undefined;
-    const under = !!(c && lv && e?.depth && this.staged && lv.elevationFt < groundOf(c.scene).elevationFt - 1);
+    const under = !!(c && lv && e && (e.depth || SITE_INTERFACES[c.path]?.excavate) && this.staged && lv.elevationFt < groundOf(c.scene).elevationFt - 1);
     if (!under && !this.underground) return;
     this.underground = under;
     if (this.stage) veil(this.stage.root, 'under', under);
@@ -835,6 +837,7 @@ export class App {
     }
     if (this.stage) { this.stage.root.visible = false; this.stage.detachLabels(); } // (hidden names never stay in the page)
     this.staged = false;
+    loaded.root.traverse((o) => { if (o.userData.worldStandin) veil(o, 'world-standin', false); });
     if (this.world.nested) this.world.setNested(false);
     this.world.reanchor(new THREE.Vector3());
     const { scene } = loaded, path = loaded.path;

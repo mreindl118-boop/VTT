@@ -18,7 +18,8 @@ import { MI_FT, RELIEF, CRAG_IN, CRAG_OUT, FLATTEN_IN, FLATTEN_OUT, mapDist, smo
 import type { Vec2 } from '../core/geometry';
 import { FLOOR_COLOR } from '../kit/palette';
 import { merge } from '../kit/pieces';
-import { patchFog, setSurface } from './materials';
+import { matClone, patchFog, setSurface } from './materials';
+import type { GroundCut } from '../core/siteInterfaces';
 import { mistTexture } from './backdrop';
 
 /** A placed root map as the land sees it: its footprint and base in W, and what its edges are made of. */
@@ -34,6 +35,9 @@ export interface LandSite {
   clearingFt: number;
   /** The ground the land beside it blends into ('grass', 'snow'). */
   ground: string;
+  cuts?: GroundCut[];
+  shoreLake?: string;
+  exactExits?: boolean;
   /** Where each world road leaving the map starts (W), by road name. */
   exits: { road: string; x: number; z: number }[];
 }
@@ -105,11 +109,23 @@ export class LandField {
     return { i, rho };
   }
   lakeLevel(i: number): number { return this.lakeLevels[i]; }
+  /** Ground openings affect every overlapping mesh, not just their owner's apron. */
+  cut(x: number, z: number, y: number): number {
+    for (const s of this.sites) for (const c of s.cuts ?? []) {
+      const b = c.bounds, dx = Math.min(x - b.minX, b.maxX - x), dz = Math.min(z - b.minZ, b.maxZ - z);
+      if (dx < 0 || dz < 0) continue;
+      const w = (c.featherX ? smooth(0, c.featherX, dx) : 1) * (c.featherZ ? smooth(0, c.featherZ, dz) : 1);
+      y = Math.min(y, y + (c.floor - y) * w);
+    }
+    return y;
+  }
   /** A lake's surface: just under its lowest shore, or at a map's own ground if the map stands on the shore (the
    *  town on its shore, Lake Zarovich's own map). A map only sets the level when it stands down at the water, no
    *  higher than the middle of the shore's heights: a map up the slope above a lake (a pass, a ridge) would hold the
    *  water up in the air, a disc standing on walls over the land round it. */
   private levelOf(l: WorldData['lakes'][number]): number {
+    const shoreSite = this.sites.find(s => s.shoreLake === l.name);
+    if (shoreSite) return shoreSite.base + 0.05;
     const shore = (k: number, n: number, f = 1): Vec2 => { const a = (k / n) * Math.PI * 2; return this.feet([l.center[0] + Math.cos(a) * l.r[0] * f, l.center[1] + Math.sin(a) * l.r[1] * f]); };
     const hs: number[] = []; for (let k = 0; k < 32; k++) hs.push(this.height(...shore(k, 32)));
     hs.sort((a, b) => a - b);
@@ -121,10 +137,15 @@ export class LandField {
    *  (the heightfield and the drawn ellipse disagree: no water hangs over lower land, no wall stands out of it).
    *  Never inside a footprint's flush zone: a map carries its own water. */
   private lake(x: number, z: number, y: number, flush: boolean): number {
-    if (flush || !this.world.lakes.length) return y;
+    if (!this.world.lakes.length) return y;
     const { i, rho } = this.lakeNear(x, z, SHORE_UP); if (i < 0) return y;
+    const owner = this.sites.find(s => s.shoreLake === this.world.lakes[i].name);
+    if (flush && !owner) return y;
     const level = this.lakeLevels[i];
-    if (rho < 1) return Math.min(y, level - 6);
+    if (rho < 1 || (owner && rho <= 1.000001)) return Math.min(y, level - 6);
+    // A detailed shore already owns the dry floor. A raised regional bank must
+    // never cover it, including its tactical grid and approach.
+    if (owner && flush) return Math.min(y, owner.base - 0.4);
     // land above the water slopes down to it within SHORE; land below it (a map set the level) rises to the shore
     // over the wider SHORE_UP, a long bank rather than a dike
     const k = smooth(1, y < level ? SHORE_UP : SHORE, rho); return level + 1.5 + (y - level - 1.5) * k;
@@ -136,12 +157,12 @@ export class LandField {
     let y = this.height(x, z) - (d < 150 ? 0.4 : 3);
     y -= 6 * smooth(0, 200, d - other);
     y -= 35 * smooth(APRON_REACH - 250, APRON_REACH, d);
-    return this.lake(x, z, y, d < FLATTEN_IN);
+    return this.cut(x, z, this.lake(x, z, y, d < FLATTEN_IN));
   }
   /** A lattice vertex: 3 ft under the land, and well under any apron that covers it. */
   latticeY(x: number, z: number, md = this.nearest(x, z).d): number {
     const y = this.height(x, z) - 3 - 25 * (1 - smooth(HOLE - 50, APRON_REACH - 150, md));
-    return this.lake(x, z, y, false);
+    return this.cut(x, z, this.lake(x, z, y, false));
   }
   /** The drawn ground's top in W at (x, z): the apron over its footprint's surroundings, else the lattice. Lakes are
    *  their beds here (the water is a separate surface). */
@@ -204,8 +225,8 @@ function colourer(field: LandField, theme: Theme): (x: number, z: number, y: num
 }
 
 const landMaterial = (vertexColors = true): THREE.MeshLambertMaterial => {
-  const m = new THREE.MeshLambertMaterial({ vertexColors, flatShading: true, fog: true });
-  setSurface(m, 'grass'); return patchFog(m, true);
+  const m = matClone('#ffffff', true); m.vertexColors = vertexColors;
+  setSurface(m, 'grass'); return m;
 };
 
 /** The lattice: the region at twice the world lattice's resolution, a coarse skirt round it, and holes where aprons lie. */
@@ -264,6 +285,56 @@ function outline(b: Bounds, corner = 4): { p: Vec2; n: Vec2 }[] {
 function buildAprons(field: LandField, colour: ReturnType<typeof colourer>): THREE.Mesh {
   const P: number[] = [], C: number[] = [], idx: number[] = [];
   field.sites.forEach((s, i) => {
+    if (s.shoreLake) {
+      // Follow the water's polygon explicitly. A rectangular sample grid bridges
+      // across the shore discontinuity, producing submerged banks and dry spikes.
+      const lake=field.world.lakes.find(l=>l.name===s.shoreLake)!;
+      const [cx,cz]=field.feet(lake.center), rx=lake.r[0]*MI_FT, rz=lake.r[1]*MI_FT;
+      const b=s.bounds, x0=b.minX-APRON_REACH, x1=b.maxX+APRON_REACH, z0=b.minZ-APRON_REACH, z1=b.maxZ+APRON_REACH;
+      const angles=new Set(Array.from({length:128},(_,k)=>k/128*Math.PI*2));
+      for(const x of [x0,x1])for(const z of [z0,z1])angles.add((Math.atan2((z-cz)/rz,(x-cx)/rx)+Math.PI*2)%(Math.PI*2));
+      const aa=[...angles].sort((a,b)=>a-b), n=aa.length, first=P.length/3;
+      const add=(x:number,z:number)=>{const d=mapDist(b,x,z),y=field.apronY(i,x,z,d),c=colour(x,z,y,{i,d});P.push(x,y,z);C.push(c.r,c.g,c.b);};
+      add(cx,cz);
+      const rings=[.5,.9,.99,1,1.00001,1.02,1.12,1.3,1.8,2.2,3,4];
+      for(let ring=0;ring<rings.length+6;ring++)for(const a of aa){
+        const dx=rx*Math.cos(a),dz=rz*Math.sin(a);
+        const edge=Math.min(Math.abs(dx)>1e-9?((dx>0?x1:x0)-cx)/dx:Infinity,Math.abs(dz)>1e-9?((dz>0?z1:z0)-cz)/dz:Infinity);
+        const rho=ring<rings.length?rings[ring]:4+(edge-4)*(ring-rings.length+1)/6;
+        add(cx+dx*rho,cz+dz*rho);
+      }
+      for(let k=0;k<n;k++)idx.push(first,first+1+(k+1)%n,first+1+k);
+      for(let r=0;r<rings.length+5;r++)for(let k=0;k<n;k++){
+        const a=first+1+r*n+k, next=first+1+r*n+(k+1)%n;
+        idx.push(a,next,next+n,a,next+n,a+n);
+      }
+      return;
+    }
+    if (s.cuts?.length) {
+      // Tensor grid with explicit lip/room-edge vertices: a centre fan would bridge
+      // right over a narrow gorge, even when the sampled height function is correct.
+      const axis = (lo: number, hi: number, key: 'X' | 'Z') => {
+        const a = new Set<number>([lo, hi]);
+        // Cut boundaries already partition the flat floor exactly. Extending an
+        // extra 20-ft grid and every apron ring across both axes multiplies
+        // triangles even far from the opening. Keep every cut edge, with a
+        // coarser sampling of the smooth outer apron and its unchanged rim.
+        for (const d of RINGS.filter((_, i) => i % 2 === 0 || i === RINGS.length - 1)) { a.add(lo - d); a.add(hi + d); }
+        for (const c of s.cuts ?? []) {
+          const min = key === 'X' ? c.bounds.minX : c.bounds.minZ, max = key === 'X' ? c.bounds.maxX : c.bounds.maxZ;
+          const f = key === 'X' ? c.featherX : c.featherZ;
+          for (const p of [min, min + f / 2, min + f, max - f, max - f / 2, max]) if (p > lo - APRON_REACH && p < hi + APRON_REACH) a.add(p);
+        }
+        return [...a].sort((a,b) => a-b);
+      };
+      const xs = axis(s.bounds.minX, s.bounds.maxX, 'X'), zs = axis(s.bounds.minZ, s.bounds.maxZ, 'Z'), n = xs.length, v = P.length / 3;
+      for (const z of zs) for (const x of xs) {
+        const d = mapDist(s.bounds, x, z), y = field.apronY(i, x, z, d), c = colour(x, z, y, { i, d });
+        P.push(x,y,z); C.push(c.r,c.g,c.b);
+      }
+      for (let r=0;r<zs.length-1;r++) for(let k=0;k<n-1;k++) { const a=v+r*n+k; idx.push(a,a+n,a+n+1,a,a+n+1,a+1); }
+      return;
+    }
     const ol = outline(s.bounds), S = ol.length, v0 = P.length / 3, cx = (s.bounds.minX + s.bounds.maxX) / 2, cz = (s.bounds.minZ + s.bounds.maxZ) / 2;
     P.push(cx, s.base - 0.4, cz); { const c = colour(cx, cz, s.base, { i, d: 0 }); C.push(c.r, c.g, c.b); }
     for (const d of RINGS) for (const { p, n } of ol) {
@@ -282,7 +353,7 @@ function buildAprons(field: LandField, colour: ReturnType<typeof colourer>): THR
   const m = new THREE.Mesh(g, landMaterial()); m.name = 'aprons'; return m;
 }
 
-type Path = { pts: Vec2[]; w: number; hex: string; lift: number };
+type Path = { pts: Vec2[]; w: number; hex: string; lift: number; water?: boolean };
 
 /** World roads and rivers as paths in W. A road through a map stops at the map's edge, on the line toward the far end
  *  of the map's own road that leaves that way (the atlas's road exits, backdrop.ts's exitFor); rivers pass under maps. */
@@ -299,6 +370,7 @@ export function worldPaths(field: LandField): { roads: Path[]; rivers: Path[] } 
     const ex = s.exits.filter((e) => e.road === road), cand = ex.length ? ex : s.exits;
     let from: Vec2 = [(s.bounds.minX + s.bounds.maxX) / 2, (s.bounds.minZ + s.bounds.maxZ) / 2];
     let best = Infinity; for (const e of cand) { const d = Math.hypot(e.x - out[0], e.z - out[1]); if (d < best) { best = d; from = [e.x, e.z]; } }
+    if (s.exactExits) return from;
     // walk from the exit toward the outside point until the map's edge
     const dx = out[0] - from[0], dz = out[1] - from[1];
     let lo = 0, hi = 1; for (let k = 0; k < 24; k++) { const m = (lo + hi) / 2; if (inside(s, [from[0] + dx * m, from[1] + dz * m], 0)) lo = m; else hi = m; }
@@ -319,8 +391,8 @@ export function worldPaths(field: LandField): { roads: Path[]; rivers: Path[] } 
   for (const river of W.rivers) {
     const pts = densify(river.pts.map((p) => field.feet(p)));
     let cur: Vec2[] = [];
-    for (const p of pts) { if (field.sites.some((q) => inside(q, p, 10))) { if (cur.length > 1) rivers.push({ pts: cur, w: 40, hex: '#5e7d94', lift: 0.6 }); cur = []; } else cur.push(p); }
-    if (cur.length > 1) rivers.push({ pts: cur, w: 40, hex: '#5e7d94', lift: 0.6 });
+    for (const p of pts) { if (field.sites.some((q) => !q.cuts?.length && !q.shoreLake && inside(q, p, 10))) { if (cur.length > 1) rivers.push({ pts: cur, w: 40, hex: '#5e7d94', lift: 0.6, water: true }); cur = []; } else cur.push(p); }
+    if (cur.length > 1) rivers.push({ pts: cur, w: 40, hex: '#5e7d94', lift: 0.6, water: true });
   }
   return { roads, rivers };
 }
@@ -333,21 +405,23 @@ function buildRibbons(field: LandField, paths: Path[]): THREE.Mesh {
     for (let i = 0; i < n; i++) {
       const a = r.pts[Math.max(0, i - 1)], b = r.pts[Math.min(n - 1, i + 1)], dx = b[0] - a[0], dz = b[1] - a[1], L = Math.hypot(dx, dz) || 1;
       const nx = (-dz / L) * h, nz = (dx / L) * h, [x, z] = r.pts[i];
-      for (const s of [1, -1]) { const px = x + nx * s, pz = z + nz * s; P.push(px, field.height(px, pz) + r.lift, pz); C.push(col.r, col.g, col.b); }
+      const waterY = field.lakeAt(x,z) >= 0 ? field.lakeLevel(field.lakeAt(x,z)) : field.surface(x,z) + r.lift;
+      for (const s of [1, -1]) { const px = x + nx * s, pz = z + nz * s; P.push(px, r.water ? waterY : field.surface(px, pz) + r.lift, pz); C.push(col.r, col.g, col.b); }
     }
     for (let i = 0; i + 1 < n; i++) { const a = v0 + i * 2; idx.push(a, a + 2, a + 1, a + 1, a + 2, a + 3); }
   }
   const g = new THREE.BufferGeometry();
   g.setAttribute('position', new THREE.Float32BufferAttribute(P, 3)); g.setAttribute('color', new THREE.Float32BufferAttribute(C, 3));
-  g.setIndex(idx); g.computeBoundingSphere();
-  const m = new THREE.Mesh(g, new THREE.MeshBasicMaterial({ vertexColors: true, fog: true, side: THREE.DoubleSide })); m.name = 'ribbons'; return m;
+  g.setIndex(idx); g.computeVertexNormals(); g.computeBoundingSphere();
+  const material = matClone('#ffffff', true); material.vertexColors = true; material.side = THREE.DoubleSide;
+  const m = new THREE.Mesh(g, material); m.name = 'ribbons'; return m;
 }
 
 /** The lakes at their levels (one mesh) and Bluto Krogarov's rowboat on Lake Zarovich, off the shore nearest Vallaki. */
 function buildWater(field: LandField): THREE.Object3D[] {
   const W = field.world, gs: THREE.BufferGeometry[] = [], out: THREE.Object3D[] = [];
-  W.lakes.forEach((l, i) => { const g = new THREE.CircleGeometry(1, 64); g.rotateX(-Math.PI / 2); g.scale(l.r[0] * MI_FT, 1, l.r[1] * MI_FT); const [x, z] = field.feet(l.center); g.translate(x, field.lakeLevel(i), z); gs.push(g); });
-  if (gs.length) { const m = new THREE.Mesh(merge(gs), new THREE.MeshBasicMaterial({ color: '#5e7d94', fog: true })); m.name = 'lakes'; out.push(m); }
+  W.lakes.forEach((l, i) => { const g = new THREE.CircleGeometry(1, field.sites.some(s=>s.shoreLake===l.name)?128:64); g.rotateX(-Math.PI / 2); g.scale(l.r[0] * MI_FT, 1, l.r[1] * MI_FT); const [x, z] = field.feet(l.center); g.translate(x, field.lakeLevel(i), z); gs.push(g); });
+  if (gs.length) { const material = matClone(FLOOR_COLOR['shallow-water'], true); setSurface(material, 'water'); const m = new THREE.Mesh(merge(gs), material); m.name = 'lakes'; out.push(m); }
   const zi = W.lakes.findIndex((l) => /Zarovich/.test(l.name)), town = W.pins.find((p) => p.key === 'N');
   if (zi >= 0 && town) {
     const l = W.lakes[zi], [tx, tz] = field.feet(town.pos);

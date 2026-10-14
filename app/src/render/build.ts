@@ -5,12 +5,13 @@ import { makeOpenable, type OpenHandle } from './openable';
 import type { Polygon } from '../core/geometry';
 import { baseRingFt, DEFAULT_CEILING_FT } from '../core/units';
 import { FLOOR_COLOR, PALETTE, WALL_COLOR } from '../kit/palette';
-import { baseRing, merge, pawn, PROP_BUILDERS, segmentBox, slabGeometry, stairsStraight, WALL_T } from '../kit/pieces';
+import { baseRing, merge, pawn, planeGeometry, PROP_BUILDERS, segmentBox, slabGeometry, stairsStraight, WALL_T } from '../kit/pieces';
 import { mat, matClone, patchFog, wallMat } from './materials';
 import { PROPS_V1 } from '../kit/props';
 import { CREATURES } from '../kit/creatures';
 import '../kit/sites';
 import { buildGridOverlay } from './gridOverlay';
+import { WORLD_STANDINS } from '../core/siteInterfaces';
 
 /** Kinds whose meshes carry a role of their own (stairs, raised ground, plates): built and placed one by one. */
 const UNMERGED = new Set(['stairs-straight', 'prism', 'pressure-plate']);
@@ -37,7 +38,7 @@ export function hitObjectId(h: THREE.Intersection | undefined): string | undefin
 /** Static things a player can always see and never operate (houses, trees, fences, furniture that does not open):
  *  one mesh per material per level instead of thousands of small ones. Anything interactive stays its own object. */
 function isStatic(o: SceneObject): boolean {
-  if (o.vis !== 'player' || o.size || UNMERGED.has(o.kind) || OPENABLE_KINDS[o.kind] || CREATURES[o.kind]) return false;
+    if (o.vis !== 'player' || o.size || UNMERGED.has(o.kind) || WORLD_STANDINS.has(o.kind) || OPENABLE_KINDS[o.kind] || CREATURES[o.kind]) return false;
   return !!(PROP_BUILDERS[o.kind] || PROPS_V1[o.kind]);
 }
 
@@ -261,6 +262,7 @@ export function* buildLevelSteps(level: Level, grid: GridLevel): Generator<void,
     if (o.kind === 'stairs-straight' || (o.kind === 'prism' && o.polygon)) obj.position.set(0, y0, 0);
     obj.rotation.y = ((o.rotY ?? 0) * Math.PI) / 180;
     obj.userData.objectId = o.id;
+    if (WORLD_STANDINS.has(o.kind)) obj.userData.worldStandin = true;
     obj.traverse((c) => { if (!c.userData.role) c.userData.role = o.size ? 'token' : 'prop'; });
     root.add(obj);
     if (o.vis !== 'player' && o.vis !== 'explored' && o.vis !== 'unexplored') {
@@ -352,6 +354,9 @@ export function buildSceneObject(o: SceneObject): THREE.Object3D { return buildO
 /** Whether a kind has a kit piece of its own (else buildObject draws a creature figure or a pawn). */
 export const hasKit = (kind: string): boolean => kind === 'prism' || kind === 'stairs-straight' || kind === 'pressure-plate' || !!PROP_BUILDERS[kind] || !!PROPS_V1[kind];
 function buildObject(o: SceneObject, y0: number, labels: LabelSpec[]): THREE.Object3D {
+  if (o.kind === 'water' && o.polygon) {
+    return new THREE.Mesh(planeGeometry(o.polygon, 0.051), mat(FLOOR_COLOR['shallow-water'], {surface:'water'}));
+  }
   if (o.kind === 'stairs-straight') {
     const { mesh, treadLabels } = stairsStraight(o.dims ?? {}, [o.pos[0], o.pos[2]]);
     mesh.userData.role = 'stairs';

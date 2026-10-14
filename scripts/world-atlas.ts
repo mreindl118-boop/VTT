@@ -16,6 +16,7 @@ import {
 } from '../app/src/core/frames.ts';
 import type { Level, SceneFile } from '../app/src/core/schema';
 import type { Campaign, WorldData } from '../app/src/campaigns';
+import { SITE_INTERFACES, type GroundCut } from '../app/src/core/siteInterfaces.ts';
 
 export interface AtlasLevel {
   id: string; name: string; elevationFt: number; ceilingFt?: number;
@@ -39,6 +40,8 @@ export interface AtlasScene {
   placement: Placement;
   /** Roots: the footprint and its flatten band in W. */
   worldBounds?: Bounds; bandFt?: number; crag?: boolean;
+  /** Authored ground openings, in the map's frame. Kept apart from placement bounds. */
+  groundCuts?: GroundCut[]; shoreLake?: string; exactRoadExits?: boolean;
   /** Children: the centroid of the enter room (parent frame) and the yaw difference. */
   anchor?: { x: number; z: number; dTheta: number };
   /** Children: the plot the parent gives this map, and how much bigger the map's own extent is. */
@@ -159,6 +162,11 @@ export function buildAtlas(repo = REPO): Atlas {
       const wp = w.pins.find((q) => q.key === pin.key)!, crag = (wp.heightFt ?? 0) > 0;
       e.placement = rootPlacement(fp, wp, w);
       e.worldBounds = boundsInParent(e.placement, fp.bbox); e.bandFt = flattenReach(crag); if (crag) e.crag = true;
+      const ties = SITE_INTERFACES[path];
+      if (ties?.cuts) e.groundCuts = ties.cuts;
+      if (ties?.lake) e.shoreLake = ties.lake;
+      if (ties?.excavate) e.groundCuts = s.levels.filter(l => l.elevationFt < l0.elevationFt).flatMap(l =>
+        l.rooms.map(r => ({ bounds: grow(footprintOf({ elevationFt: l.elevationFt, rooms: [r] }).bbox, 2), floor: l.elevationFt - 2, featherX: 0, featherZ: 0 })));
       // where the world's roads leave this site (backdrop.ts: a road passing within half a mile of the pin runs through it)
       const local = (p: [number, number]) => { const [x, z] = toLocal(e.placement, worldOfMiles(w, p)); return { x, z }; };
       const [cx, cz] = e.centre, R = Math.max(60, diagOf(fp.bbox) / 2), roads = siteRoads(l0);
@@ -172,6 +180,10 @@ export function buildAtlas(repo = REPO): Atlas {
           if (e.roadExits.some((q) => q.road === road.name && Math.abs(q.bearing - bearing) < 1e-3)) continue; // a road whose nearest point is an end gives the same exit twice
           e.roadExits.push({ road: road.name, bearing: Math.round(bearing * 1e4) / 1e4, x: Math.round(x * 100) / 100, z: Math.round(z * 100) / 100 });
         }
+      }
+      if (ties?.roads) {
+        e.roadExits = ties.roads.map(r => ({ ...r, bearing: Math.atan2(r.z - e.centre[1], r.x - e.centre[0]) }));
+        e.exactRoadExits = true;
       }
     } else if (pin) {
       errors.push(`${path}: listed at pin ${pin.key} but neither its root (no parent, has terrain) nor anchored in a parent`);

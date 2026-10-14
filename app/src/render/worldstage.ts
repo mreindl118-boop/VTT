@@ -13,7 +13,7 @@ import type { CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js'
 import type { Campaign, WorldData } from '../campaigns';
 import type { Atlas, AtlasScene } from '../../../scripts/world-atlas';
 import ATLAS_JSON from '../../../manifests/world-atlas.json';
-import { MI_FT, mapDist, rootPlacement, rotate, worldOfMiles, type Bounds, type Placement } from '../core/frames';
+import { MI_FT, mapDist, rootPlacement, rotate, worldOfMiles, boundsInParent, type Bounds, type Placement } from '../core/frames';
 import type { Vec2 } from '../core/geometry';
 import { merge } from '../kit/pieces';
 import { pineTier } from '../kit/props';
@@ -57,6 +57,10 @@ export function siteOf(e: AtlasScene): LandSite {
     path: e.path, key: e.pin ?? e.location, bounds: e.worldBounds!, base, crag: !!e.crag, clearingFt: e.clearingFt ?? 0,
     // the land beside a map high in the mountains is snow (Tsolenka, the Amber Temple, Mount Baratok)
     ground: base > 3500 ? 'snow' : 'grass',
+    shoreLake: e.shoreLake, exactExits: e.exactRoadExits,
+    cuts: e.groundCuts?.map(c => ({ ...c, bounds: boundsInParent(e.placement, c.bounds), floor: py + c.floor,
+      featherX: Math.abs(Math.sin(th)) > 0.5 ? c.featherZ : c.featherX,
+      featherZ: Math.abs(Math.sin(th)) > 0.5 ? c.featherX : c.featherZ })),
     exits: e.roadExits.map((x) => { const [wx, wz] = rotate(th, [x.x, x.z]); return { road: x.road, x: wx + px, z: wz + pz }; }),
   };
 }

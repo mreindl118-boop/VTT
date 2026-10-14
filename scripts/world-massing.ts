@@ -16,6 +16,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { Level, SceneFile, SceneObject } from '../app/src/core/schema';
 import type { Atlas } from './world-atlas.ts';
+import { WORLD_STANDINS } from '../app/src/core/siteInterfaces.ts';
 
 const here = dirname(fileURLToPath(import.meta.url));
 export const REPO = resolve(here, '..');
@@ -125,7 +126,7 @@ export function buildMassing(atlas: Atlas = readJson<Atlas>(join(REPO, 'manifest
       }
       if (above) continue;
       for (const o of l.objects) {
-        if (!SEEN.has(o.vis) || SKIP.has(o.kind) || o.size) continue;
+        if (!SEEN.has(o.vis) || SKIP.has(o.kind) || WORLD_STANDINS.has(o.kind) || o.size) continue;
         const d = o.dims ?? {}, x = o.pos[0], y = y0 + o.pos[1], z = o.pos[2], rot = o.rotY ?? 0;
         if ((TREES as readonly string[]).includes(o.kind)) {
           if (o.kind === 'pine') { const sc = d.scale ?? 1; trees.push(0, x * 2, z * 2, y * 2, (d.h ?? 24) * sc * 10, (d.r ?? 6) * sc * 10); }

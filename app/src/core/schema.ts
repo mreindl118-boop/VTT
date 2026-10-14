@@ -161,6 +161,8 @@ export interface SceneFile {
 }
 
 export interface GridLevel {
+  /** Open terrain with real gaps (bridges): never draw a grid across empty space. */
+  clipToFloors?: boolean;
   /** Walkable floor polygons: the grid is clipped to these and nothing else. */
   floorPolygons: Polygon[];
   type: GridType;

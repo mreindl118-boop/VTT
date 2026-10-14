@@ -1277,13 +1277,13 @@
    ],
    "stacked": false,
    "outdoor": true,
-   "interior": true,
+   "interior": false,
    "roadExits": [
     {
-     "road": "Ravenloft/Vallaki road",
-     "bearing": 2.5309,
-     "x": 40,
-     "z": 110
+     "road": "Tser camp path",
+     "x": 0,
+     "z": 135,
+     "bearing": 2.601173
     }
    ],
    "placement": {
@@ -1294,7 +1294,7 @@
     ],
     "rotationY": 0
    },
-   "objects": 81,
+   "objects": 80,
    "units": 1,
    "pin": "G",
    "worldBounds": {
@@ -1303,7 +1303,9 @@
     "maxX": 15306.4,
     "maxZ": 7731
    },
-   "bandFt": 900
+   "bandFt": 900,
+   "shoreLake": "Tser Pool",
+   "exactRoadExits": true
   },
   "ch02/H": {
    "path": "ch02/H",
@@ -3290,15 +3292,15 @@
    "roadExits": [
     {
      "road": "Tsolenka road",
-     "bearing": -2.1975,
-     "x": 220.53,
-     "z": 45.27
+     "x": 227.5,
+     "z": 497.5,
+     "bearing": 1.396573
     },
     {
      "road": "Tsolenka road",
-     "bearing": -3.0222,
-     "x": 90,
-     "z": 259.93
+     "x": 225,
+     "z": 47.5,
+     "bearing": -1.406123
     }
    ],
    "placement": {
@@ -3318,7 +3320,21 @@
     "maxX": -27704.8075,
     "maxZ": 18419.35
    },
-   "bandFt": 900
+   "bandFt": 900,
+   "groundCuts": [
+    {
+     "bounds": {
+      "minX": -1600,
+      "maxX": 1800,
+      "minZ": 135,
+      "maxZ": 205
+     },
+     "floor": -502,
+     "featherX": 500,
+     "featherZ": 12
+    }
+   ],
+   "exactRoadExits": true
   },
   "ch10/U": {
    "path": "ch10/U",
@@ -3654,9 +3670,9 @@
    "roadExits": [
     {
      "road": "Tsolenka road",
-     "bearing": 0.373,
-     "x": 350,
-     "z": 448.04
+     "x": 100.5,
+     "z": 460,
+     "bearing": 1.811064
     }
    ],
    "placement": {
@@ -3676,7 +3692,670 @@
     "maxX": -18149.4,
     "maxZ": 23807.2
    },
-   "bandFt": 900
+   "bandFt": 900,
+   "groundCuts": [
+    {
+     "bounds": {
+      "minX": 118,
+      "minZ": 248,
+      "maxX": 132,
+      "maxZ": 282
+     },
+     "floor": 28,
+     "featherX": 0,
+     "featherZ": 0
+    },
+    {
+     "bounds": {
+      "minX": 98,
+      "minZ": 248,
+      "maxX": 122,
+      "maxZ": 272
+     },
+     "floor": 28,
+     "featherX": 0,
+     "featherZ": 0
+    },
+    {
+     "bounds": {
+      "minX": 128,
+      "minZ": 248,
+      "maxX": 152,
+      "maxZ": 272
+     },
+     "floor": 28,
+     "featherX": 0,
+     "featherZ": 0
+    },
+    {
+     "bounds": {
+      "minX": 78,
+      "minZ": 248,
+      "maxX": 102,
+      "maxZ": 272
+     },
+     "floor": 28,
+     "featherX": 0,
+     "featherZ": 0
+    },
+    {
+     "bounds": {
+      "minX": 148,
+      "minZ": 248,
+      "maxX": 172,
+      "maxZ": 272
+     },
+     "floor": 28,
+     "featherX": 0,
+     "featherZ": 0
+    },
+    {
+     "bounds": {
+      "minX": 78,
+      "minZ": 228,
+      "maxX": 172,
+      "maxZ": 252
+     },
+     "floor": 28,
+     "featherX": 0,
+     "featherZ": 0
+    },
+    {
+     "bounds": {
+      "minX": 168,
+      "minZ": 218,
+      "maxX": 222,
+      "maxZ": 272
+     },
+     "floor": 28,
+     "featherX": 0,
+     "featherZ": 0
+    },
+    {
+     "bounds": {
+      "minX": 188,
+      "minZ": 248,
+      "maxX": 212,
+      "maxZ": 262
+     },
+     "floor": 28,
+     "featherX": 0,
+     "featherZ": 0
+    },
+    {
+     "bounds": {
+      "minX": 168,
+      "minZ": 148,
+      "maxX": 192,
+      "maxZ": 222
+     },
+     "floor": 28,
+     "featherX": 0,
+     "featherZ": 0
+    },
+    {
+     "bounds": {
+      "minX": 188,
+      "minZ": 158,
+      "maxX": 242,
+      "maxZ": 212
+     },
+     "floor": 28,
+     "featherX": 0,
+     "featherZ": 0
+    },
+    {
+     "bounds": {
+      "minX": 168,
+      "minZ": 118,
+      "maxX": 217,
+      "maxZ": 152
+     },
+     "floor": 28,
+     "featherX": 0,
+     "featherZ": 0
+    },
+    {
+     "bounds": {
+      "minX": 138,
+      "minZ": 118,
+      "maxX": 172,
+      "maxZ": 142
+     },
+     "floor": 28,
+     "featherX": 0,
+     "featherZ": 0
+    },
+    {
+     "bounds": {
+      "minX": 138,
+      "minZ": 98,
+      "maxX": 187,
+      "maxZ": 122
+     },
+     "floor": 28,
+     "featherX": 0,
+     "featherZ": 0
+    },
+    {
+     "bounds": {
+      "minX": 128,
+      "minZ": 98,
+      "maxX": 142,
+      "maxZ": 122
+     },
+     "floor": 28,
+     "featherX": 0,
+     "featherZ": 0
+    },
+    {
+     "bounds": {
+      "minX": 158,
+      "minZ": 78,
+      "maxX": 172,
+      "maxZ": 102
+     },
+     "floor": 28,
+     "featherX": 0,
+     "featherZ": 0
+    },
+    {
+     "bounds": {
+      "minX": 28,
+      "minZ": 218,
+      "maxX": 82,
+      "maxZ": 252
+     },
+     "floor": 28,
+     "featherX": 0,
+     "featherZ": 0
+    },
+    {
+     "bounds": {
+      "minX": 21.5,
+      "minZ": 243.606,
+      "maxX": 39.5,
+      "maxZ": 261
+     },
+     "floor": 28,
+     "featherX": 0,
+     "featherZ": 0
+    },
+    {
+     "bounds": {
+      "minX": 48,
+      "minZ": 248,
+      "maxX": 72,
+      "maxZ": 262
+     },
+     "floor": 28,
+     "featherX": 0,
+     "featherZ": 0
+    },
+    {
+     "bounds": {
+      "minX": 58,
+      "minZ": 148,
+      "maxX": 82,
+      "maxZ": 222
+     },
+     "floor": 28,
+     "featherX": 0,
+     "featherZ": 0
+    },
+    {
+     "bounds": {
+      "minX": 38,
+      "minZ": 178,
+      "maxX": 62,
+      "maxZ": 192
+     },
+     "floor": 28,
+     "featherX": 0,
+     "featherZ": 0
+    },
+    {
+     "bounds": {
+      "minX": 28,
+      "minZ": 188,
+      "maxX": 62,
+      "maxZ": 212
+     },
+     "floor": 28,
+     "featherX": 0,
+     "featherZ": 0
+    },
+    {
+     "bounds": {
+      "minX": 28,
+      "minZ": 158,
+      "maxX": 62,
+      "maxZ": 182
+     },
+     "floor": 28,
+     "featherX": 0,
+     "featherZ": 0
+    },
+    {
+     "bounds": {
+      "minX": 28,
+      "minZ": 178,
+      "maxX": 42,
+      "maxZ": 192
+     },
+     "floor": 28,
+     "featherX": 0,
+     "featherZ": 0
+    },
+    {
+     "bounds": {
+      "minX": 28,
+      "minZ": 118,
+      "maxX": 82,
+      "maxZ": 152
+     },
+     "floor": 28,
+     "featherX": 0,
+     "featherZ": 0
+    },
+    {
+     "bounds": {
+      "minX": 78,
+      "minZ": 118,
+      "maxX": 117,
+      "maxZ": 142
+     },
+     "floor": 28,
+     "featherX": 0,
+     "featherZ": 0
+    },
+    {
+     "bounds": {
+      "minX": 63,
+      "minZ": 98,
+      "maxX": 112,
+      "maxZ": 122
+     },
+     "floor": 28,
+     "featherX": 0,
+     "featherZ": 0
+    },
+    {
+     "bounds": {
+      "minX": 108,
+      "minZ": 98,
+      "maxX": 122,
+      "maxZ": 122
+     },
+     "floor": 28,
+     "featherX": 0,
+     "featherZ": 0
+    },
+    {
+     "bounds": {
+      "minX": 78,
+      "minZ": 88,
+      "maxX": 92,
+      "maxZ": 102
+     },
+     "floor": 28,
+     "featherX": 0,
+     "featherZ": 0
+    },
+    {
+     "bounds": {
+      "minX": 46.5,
+      "minZ": 58,
+      "maxX": 92,
+      "maxZ": 92
+     },
+     "floor": 28,
+     "featherX": 0,
+     "featherZ": 0
+    },
+    {
+     "bounds": {
+      "minX": 78,
+      "minZ": 48,
+      "maxX": 102,
+      "maxZ": 62
+     },
+     "floor": 28,
+     "featherX": 0,
+     "featherZ": 0
+    },
+    {
+     "bounds": {
+      "minX": 88,
+      "minZ": 58,
+      "maxX": 102,
+      "maxZ": 82
+     },
+     "floor": 28,
+     "featherX": 0,
+     "featherZ": 0
+    },
+    {
+     "bounds": {
+      "minX": 98,
+      "minZ": 37.998,
+      "maxX": 152,
+      "maxZ": 92
+     },
+     "floor": 28,
+     "featherX": 0,
+     "featherZ": 0
+    },
+    {
+     "bounds": {
+      "minX": 114.5,
+      "minZ": 124.5,
+      "maxX": 135.5,
+      "maxZ": 145.5
+     },
+     "floor": 28,
+     "featherX": 0,
+     "featherZ": 0
+    },
+    {
+     "bounds": {
+      "minX": 68,
+      "minZ": 118,
+      "maxX": 182,
+      "maxZ": 232
+     },
+     "floor": -2,
+     "featherX": 0,
+     "featherZ": 0
+    },
+    {
+     "bounds": {
+      "minX": 118,
+      "minZ": 88,
+      "maxX": 132,
+      "maxZ": 122
+     },
+     "floor": -2,
+     "featherX": 0,
+     "featherZ": 0
+    },
+    {
+     "bounds": {
+      "minX": 118,
+      "minZ": 228,
+      "maxX": 132,
+      "maxZ": 242
+     },
+     "floor": -2,
+     "featherX": 0,
+     "featherZ": 0
+    },
+    {
+     "bounds": {
+      "minX": 58,
+      "minZ": 148,
+      "maxX": 82,
+      "maxZ": 172
+     },
+     "floor": -2,
+     "featherX": 0,
+     "featherZ": 0
+    },
+    {
+     "bounds": {
+      "minX": 168,
+      "minZ": 148,
+      "maxX": 192,
+      "maxZ": 172
+     },
+     "floor": -2,
+     "featherX": 0,
+     "featherZ": 0
+    },
+    {
+     "bounds": {
+      "minX": 78,
+      "minZ": 78,
+      "maxX": 122,
+      "maxZ": 122
+     },
+     "floor": -2,
+     "featherX": 0,
+     "featherZ": 0
+    },
+    {
+     "bounds": {
+      "minX": 128,
+      "minZ": 78,
+      "maxX": 172,
+      "maxZ": 122
+     },
+     "floor": -2,
+     "featherX": 0,
+     "featherZ": 0
+    },
+    {
+     "bounds": {
+      "minX": 143,
+      "minZ": 68,
+      "maxX": 157,
+      "maxZ": 82
+     },
+     "floor": -2,
+     "featherX": 0,
+     "featherZ": 0
+    },
+    {
+     "bounds": {
+      "minX": 88,
+      "minZ": 26.47,
+      "maxX": 162,
+      "maxZ": 82
+     },
+     "floor": -2,
+     "featherX": 0,
+     "featherZ": 0
+    },
+    {
+     "bounds": {
+      "minX": 28,
+      "minZ": 98,
+      "maxX": 62,
+      "maxZ": 222
+     },
+     "floor": -2,
+     "featherX": 0,
+     "featherZ": 0
+    },
+    {
+     "bounds": {
+      "minX": -2,
+      "minZ": 158,
+      "maxX": 32,
+      "maxZ": 182
+     },
+     "floor": -2,
+     "featherX": 0,
+     "featherZ": 0
+    },
+    {
+     "bounds": {
+      "minX": -2,
+      "minZ": 138,
+      "maxX": 32,
+      "maxZ": 162
+     },
+     "floor": -2,
+     "featherX": 0,
+     "featherZ": 0
+    },
+    {
+     "bounds": {
+      "minX": 8,
+      "minZ": 178,
+      "maxX": 32,
+      "maxZ": 212
+     },
+     "floor": -2,
+     "featherX": 0,
+     "featherZ": 0
+    },
+    {
+     "bounds": {
+      "minX": 188,
+      "minZ": 128,
+      "maxX": 222,
+      "maxZ": 222
+     },
+     "floor": -2,
+     "featherX": 0,
+     "featherZ": 0
+    },
+    {
+     "bounds": {
+      "minX": 218,
+      "minZ": 158,
+      "maxX": 252,
+      "maxZ": 182
+     },
+     "floor": -2,
+     "featherX": 0,
+     "featherZ": 0
+    },
+    {
+     "bounds": {
+      "minX": 218,
+      "minZ": 138,
+      "maxX": 252,
+      "maxZ": 162
+     },
+     "floor": -2,
+     "featherX": 0,
+     "featherZ": 0
+    },
+    {
+     "bounds": {
+      "minX": 193,
+      "minZ": 98,
+      "maxX": 222,
+      "maxZ": 127
+     },
+     "floor": -2,
+     "featherX": 0,
+     "featherZ": 0
+    },
+    {
+     "bounds": {
+      "minX": 168,
+      "minZ": 78,
+      "maxX": 212,
+      "maxZ": 102
+     },
+     "floor": -2,
+     "featherX": 0,
+     "featherZ": 0
+    },
+    {
+     "bounds": {
+      "minX": 188,
+      "minZ": 218,
+      "maxX": 222,
+      "maxZ": 252
+     },
+     "floor": -2,
+     "featherX": 0,
+     "featherZ": 0
+    },
+    {
+     "bounds": {
+      "minX": 218,
+      "minZ": 188,
+      "maxX": 252,
+      "maxZ": 222
+     },
+     "floor": -2,
+     "featherX": 0,
+     "featherZ": 0
+    },
+    {
+     "bounds": {
+      "minX": 218,
+      "minZ": 98,
+      "maxX": 252,
+      "maxZ": 132
+     },
+     "floor": -2,
+     "featherX": 0,
+     "featherZ": 0
+    },
+    {
+     "bounds": {
+      "minX": 28,
+      "minZ": 68,
+      "maxX": 62,
+      "maxZ": 102
+     },
+     "floor": -2,
+     "featherX": 0,
+     "featherZ": 0
+    },
+    {
+     "bounds": {
+      "minX": -2,
+      "minZ": 98,
+      "maxX": 32,
+      "maxZ": 132
+     },
+     "floor": -2,
+     "featherX": 0,
+     "featherZ": 0
+    },
+    {
+     "bounds": {
+      "minX": 28,
+      "minZ": 218,
+      "maxX": 62,
+      "maxZ": 252
+     },
+     "floor": -2,
+     "featherX": 0,
+     "featherZ": 0
+    },
+    {
+     "bounds": {
+      "minX": 98,
+      "minZ": 238,
+      "maxX": 152,
+      "maxZ": 292
+     },
+     "floor": -2,
+     "featherX": 0,
+     "featherZ": 0
+    },
+    {
+     "bounds": {
+      "minX": 58,
+      "minZ": 248,
+      "maxX": 102,
+      "maxZ": 282
+     },
+     "floor": -2,
+     "featherX": 0,
+     "featherZ": 0
+    },
+    {
+     "bounds": {
+      "minX": 148,
+      "minZ": 248,
+      "maxX": 192,
+      "maxZ": 282
+     },
+     "floor": -2,
+     "featherX": 0,
+     "featherZ": 0
+    }
+   ],
+   "exactRoadExits": true
   },
   "ch14/Y": {
    "path": "ch14/Y",
