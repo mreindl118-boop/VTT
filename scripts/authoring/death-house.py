@@ -398,7 +398,7 @@ DESC = {
   'dungeon-lower-lorghoth': ("A half-submerged heap of refuse fills a natural alcove.", "Lorghoth the Decayer, a shambling mound, asleep. DC 15 Nature reveals it. Wakes if attacked or if the party refuses the sacrifice; pursues but never leaves the dungeon."),
   'dungeon-lower-dais': ("Stairs rise to an octagonal stone dais above the water.", "5 ft high; the water is 2 ft deep. Ceiling 16 ft."),
 }
-RELIC = ["a knife carved from human bone", "a dagger with a rat's skull in the pommel", "an 8-inch varnished orb made from a nothic's eye", "a bone aspergillum", "a folded cloak of stitched ghoul skin", "a desiccated frog lashed to a stick", "a bag of bat guano", "a hag's severed finger", "a 6-inch wooden mummy figurine", "an iron pendant with a devil's face", "the shrunken head of a halfling", "a small coffer holding a dire wolf's withered tongue"]
+RELIC = ["a knife carved from human bone", "a dagger with a rat's skull in the pommel", "a nothic's eye sealed in varnish, forming an eight-inch sphere", "a bone aspergillum", "a folded cloak of stitched ghoul skin", "a desiccated frog lashed to a stick", "a bag of bat guano", "a hag's severed finger", "a 6-inch wooden mummy figurine", "an iron pendant with a devil's face", "the shrunken head of a halfling", "a small coffer holding a dire wolf's withered tongue"]
 for i, r in enumerate(RELIC): DESC[f'dungeon-lower-relic{i + 1}'] = (f"A wall niche holding {r}.", "Worthless cult relic.")
 for i in range(1, 4): DESC[f'dungeon-ghoul{i}'] = DESC['dungeon-ghoul0']
 for i in range(1, 5): DESC[f'dungeon-shadow{i}'] = DESC['dungeon-shadow0']
