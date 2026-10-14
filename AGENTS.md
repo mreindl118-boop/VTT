@@ -103,6 +103,16 @@ a day old; then continue it from its wip branch, and say so in Status.
 Each agent rewrites this section when it stops. Newest first. Keep it short and exact: versions, branches, commits,
 what is done, what is next, what is blocked.
 
+### ChatGPT, 2026-10-14, 0.3.1 checkpoint; release blocked
+
+- Worktree `.worktrees/continuity`, branch `item2-continuity-031`, base `785421c`. Commits: compass `068fd15`, local terrain `080fed5`, one-field prose gate `f18f087`. Installed 0.3.0 unchanged; no 0.3.1 release, publication or distribution tag. See `docs/handoff/item2-continuity-report.md`.
+- Both build steps received two reviews and one fix pass; final correctness/regression/acceptance reviews and the single final fix pass are complete. Build and 540 units pass (two existing todo, zero skips), two Python checks, nine repeated compass/budget GPU checks and six focused continuity GPU checks pass. The final full GPU run on `index-CF69xAqx.js`: **266 passed, 55 existing device skips, one failure, 12.8 minutes**.
+- Remaining regression: X's hard-cut apron triangle interpolates from local z292 at -2 ft to z460 at +39.6 ft, making the outdoor centre at z360 render 24.7616 ft too low although the height function is correct. The original ground-height assertion remains intact. An additional targeted fix was requested because the final fix-pass allowance is used; no further app correction is authorized by silence.
+- Tser is now beside north-side water and the gorge is open under Tsolenka. Regional approach/drainage incoherence and the J/K 4,598-ft entrance gap remain. The pending broader heightfield/drainage/placement decision is separate from the additional targeted-fix request. Item 7 stays paused.
+- All-map inventory: 46 production maps, 44 scenes / 122 levels. All 45 schemas and 120 rigid-placement assertions pass. First desktop DM images cover all 122 levels; initial Players movement passes 42/44 and desktop wheel responds both ways in 44/44. The final-build phone pass inspected 92 images across all 44 DM/Players entries; zoom responds both ways in all 44, movement passes 42/44, and page errors are zero. A qualified CPU probe covered 365 doors across all levels: 290 open passes, 28 blocked cases (25 overlap another normal blocking wall), 47 without an applicable two-sided floor probe. These are not full traversal certification.
+- Source work: 13 chapter2 maps / 34 levels / 47 narrative comparisons; five structure maps / 31 levels / 45 plan/narrative comparisons; six Sheep Chase maps / nine levels / 15 authored-reference comparisons. The remaining 21 Strahd scenes are being audited. Sheep Chase's original PDF review is blocked by download challenge and browser-tool startup failure; its prior local export is available. No book art or screenshots enter Git.
+- Fresh remote main/laptop WIP remain `785421c`, cloud item2 `4f3cad9`. Exact 0.3.0 source CI `38481827736` and both support runs `38484665794`/`38484665697` succeeded. New checkpoint CI must be checked after pushing the laptop WIP. Public compiled-bundle publication remains held by the parent.
+
 ### ChatGPT, 2026-10-13, desktop installed; update publication held; 0.3.1 requested
 
 - 0.3.0 source release is `e254c88c585c1304f3c9d52698ea04d26346902c`, on main and the laptop WIP. Exact ZIP passed its extracted-launch smoke test and is in Library; the parent owns private hosting. Its SHA-256 is `72698ce833b11055429d0c9118ed80d1a9090e373da08a1e3de765fd5f62cedb`. No screenshot or book-source upload.
@@ -190,6 +200,8 @@ may still be running** its check-in routine; Matt decides whether it carries on 
 
 ## Questions for Matt
 
+- Pending additional targeted 0.3.1 fix: correct the Amber hard-cut mesh interpolation, prove rendered outdoor height and preserve the unchanged triangle budget, then rerun verification. The single final fix pass is already used; the request is explicit, not approval through elapsed time.
+- Pending 0.3.1 boundary: ship bounded local corrections with the all-map audit findings, or also authorize regional heightfield/drainage and source-backed J-to-K entrance placement corrections? The current local patch does not resolve the broader river/road grades or the 4,598 ft entrance separation. Do not assume approval from elapsed time.
 - Answered (Matt, 2026-10-13: "let it run"): the cloud routine stays on; the cloud finishes item 7 and verifies item 2.
 - The cloud Claude session's check-in routine ("mistLAB queue check-in") fires every two hours and resumes its runs.
   If everything is meant to be paused, disable that routine (Claude app → Routines) or tell the cloud session to

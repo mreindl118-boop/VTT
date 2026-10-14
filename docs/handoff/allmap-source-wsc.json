@@ -1,0 +1,174 @@
+{
+  "baselineCommit": "785421cb45ad3b7a5467a14f6e696074efb9bd27",
+  "date": "2026-10-14",
+  "reference": {
+    "file": "local sheep-chase-maps-export.zip",
+    "sha256": "b7f57b01659882db1500578ee87f79e8dd55b8d2636e35d7cef8ee42fc248e05",
+    "nature": "User-authored prior export, not a fresh review of publisher map art",
+    "publisher": "https://winghornpress.com/adventures/a-wild-sheep-chase/",
+    "limits": [
+      "Official PDF link located; direct retrieval returned a browser challenge.",
+      "Browser tool startup failed twice before page access. No challenge was bypassed.",
+      "All six maps compared with the local export and current source; zero original module-image sign-offs.",
+      "Text is original audit prose; no exported source descriptions or map artwork included."
+    ]
+  },
+  "coverage": {
+    "maps": 6,
+    "levels": 9,
+    "comparisons": 15,
+    "fullSourceSignoffs": 0
+  },
+  "maps": [
+    {
+      "path": "wsc/00-region",
+      "levelCount": 0,
+      "referenceComparison": "completed with qualifications",
+      "originalModuleImageReview": false,
+      "comparisons": [
+        {
+          "id": "wsc-region-authorship",
+          "status": "authored choice",
+          "summary": "The export explicitly identifies the region as an authored setting, so its exact terrain and pins cannot be certified as printed module geography.",
+          "evidence": "Export specs/00-region.json and DECISIONS.md; current world.json"
+        },
+        {
+          "id": "wsc-side-distance",
+          "status": "source-reference discrepancy",
+          "summary": "The retained side-path polyline is 4.7320 miles long. The authored export describes roughly one mile of side-path travel; its geometry and prose disagree. Original module confirmation remains pending.",
+          "evidence": "world.json roads[Side path].pts; export specs/00-region.json"
+        },
+        {
+          "id": "wsc-flow",
+          "status": "measured risk",
+          "summary": "The raw regional stream profile ranges from 0 to 375 ft and includes rises and falls in either travel direction. Coherent downstream flow is not established.",
+          "evidence": "allmap-audit-inventory.json regional river profile, 80-ft maximum sampling interval"
+        }
+      ],
+      "fullSourceSignoff": false,
+      "fixStatus": "audit only; no map changes"
+    },
+    {
+      "path": "wsc/01-tavern",
+      "levelCount": 2,
+      "referenceComparison": "completed with qualifications",
+      "originalModuleImageReview": false,
+      "comparisons": [
+        {
+          "id": "wsc-tavern-authorship",
+          "status": "recorded adaptation",
+          "summary": "The local export offers an invented 30 by 40 ft tavern with one upper floor. Current wsc-town.py deliberately authors a larger inn with an alley and outbuilding. Its plan should be reviewed against the accepted adaptation, not reported as a measured book-map mismatch.",
+          "evidence": "Export specs/01a-tavern-L0.json and specs/01b-tavern-L1.json; scripts/authoring/wsc-town.py; current scene"
+        },
+        {
+          "id": "wsc-tavern-street",
+          "status": "confirmed authored continuity discrepancy",
+          "summary": "The region places the tavern and the street outside it at independent root pins exactly 1 mile (5,280 ft) apart. The street retains its own tavern facade, so the local exterior and true interior are not colocated.",
+          "evidence": "world.json pins 1=[2.5,4.041] and 2=[3.5,4.041]; atlas depth=0 for both; export specs/02-town-street.json identifies this as the adjacent street"
+        },
+        {
+          "id": "wsc-tavern-rise",
+          "status": "supported authored relationship",
+          "summary": "The two current levels retain a 10-ft vertical separation and one connecting stair link. Exact room footprint and door traversal require runtime reconciliation.",
+          "evidence": "scene levels L0=0/L1=10 and lk-stairs; export level elevations"
+        }
+      ],
+      "fullSourceSignoff": false,
+      "fixStatus": "audit only; no map changes"
+    },
+    {
+      "path": "wsc/02-street",
+      "levelCount": 1,
+      "referenceComparison": "completed with qualifications",
+      "originalModuleImageReview": false,
+      "comparisons": [
+        {
+          "id": "wsc-street-authorship",
+          "status": "recorded adaptation",
+          "summary": "The current six-area town square is an authored replacement for the earlier generic street. Its neighboring shells are not claimed as canonical module buildings.",
+          "evidence": "scripts/authoring/wsc-town.py; export specs/02-town-street.json source=possible"
+        },
+        {
+          "id": "wsc-street-entry",
+          "status": "confirmed runtime failure",
+          "summary": "All six attempted short moves from the actual default party entry failed in Players mode. The probe does not establish which floor, wall or door causes the failure.",
+          "evidence": "runtimeFirstPass in allmap-audit-inventory.json; index-B3tGevXq.js"
+        },
+        {
+          "id": "wsc-street-entrance",
+          "status": "shared finding",
+          "summary": "The street facade and true tavern are separated by a mile at independent regional pins; see wsc-tavern-street.",
+          "evidence": "world.json pins 1/2 and world-atlas.json"
+        }
+      ],
+      "fullSourceSignoff": false,
+      "fixStatus": "audit only; no map changes"
+    },
+    {
+      "path": "wsc/03-compound",
+      "levelCount": 4,
+      "referenceComparison": "completed with qualifications",
+      "originalModuleImageReview": false,
+      "comparisons": [
+        {
+          "id": "wsc-compound-adaptation",
+          "status": "recorded source divergence requiring owner interpretation",
+          "summary": "The exported treehouse has offset platforms about 34/60/20.5 ft across. Commit d4cdd10d6c14148668aeb24dbb0d69e700e15203 deliberately replaces it with four colocated 40-ft octagonal floors, a spiral stair and conical roof. The current regional blurb still calls it a treehouse with platforms. Do not silently reverse this older adaptation.",
+          "evidence": "Export specs/03d,03e,03f; scripts/authoring/noke-tower.py CX/CY/R/TOWER/STAIR; docs/CHANGELOG.md M3.0; world.json pin5"
+        },
+        {
+          "id": "wsc-compound-heights",
+          "status": "supported authored relationship",
+          "summary": "Current floors remain at 0, 10, 20 and 30 ft, matching the export elevations. The three links share [67.5,52.5] by deliberate spiral-stair design; this is not an accidental loss of the earlier offset stair endpoints.",
+          "evidence": "scene levels and links; noke-tower.py STAIR/sp; export specs/03g"
+        }
+      ],
+      "fullSourceSignoff": false,
+      "fixStatus": "audit only; no map changes"
+    },
+    {
+      "path": "wsc/03a-road",
+      "levelCount": 1,
+      "referenceComparison": "completed with qualifications",
+      "originalModuleImageReview": false,
+      "comparisons": [
+        {
+          "id": "wsc-road-scale",
+          "status": "supported authored relationship",
+          "summary": "The current ground canvas remains 70 by 100 ft, with the 0.2-ft road crown and 0.5-ft undergrowth patch heights retained from the authored export.",
+          "evidence": "scene room L0-2 and patch1/patch2; export maps/03a-main-road-pasture.json"
+        },
+        {
+          "id": "wsc-road-orientation",
+          "status": "integration review required",
+          "summary": "The exported main road crosses the local canvas north-south, while atlas road-exit labels assign east-west regional bearings. An exact road-label/orientation check against the final rendered join is still needed.",
+          "evidence": "export maps/03a-main-road-pasture.json road decal x20..35,z0..100; atlas roadExits; no assumption that a nearest road proves access"
+        }
+      ],
+      "fullSourceSignoff": false,
+      "fixStatus": "audit only; no map changes"
+    },
+    {
+      "path": "wsc/03b-path",
+      "levelCount": 1,
+      "referenceComparison": "completed with qualifications",
+      "originalModuleImageReview": false,
+      "comparisons": [
+        {
+          "id": "wsc-path-scale",
+          "status": "supported authored relationship",
+          "summary": "The current floor is 60 by 100 ft. The export deliberately gives two northern banks 5-ft relief and a shallow crossing through the middle.",
+          "evidence": "scene room L0-1 and patch1/patch2; export maps/03b-woodland-path.json"
+        },
+        {
+          "id": "wsc-path-burial",
+          "status": "confirmed authored geometry discrepancy",
+          "summary": "Oaks 1,3,5,15 and20 have bases at y=0 inside 5-ft raised northern bank polygons. Their trunks start 5 ft below the bank tops. This matches the existing parked item6 finding; that branch has not been merged.",
+          "evidence": "scene object positions and patch polygons; docs/handoff/item6-map-groups.json sheep-chase group"
+        }
+      ],
+      "fullSourceSignoff": false,
+      "fixStatus": "audit only; no map changes"
+    }
+  ]
+}
