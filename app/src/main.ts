@@ -560,7 +560,14 @@ function buildDmUi(): void {
     if (hit.room) {
       if (app.enterOf(hit.room)) { const r = hit.room; items.push({ label: unseen ? 'Enter this place' : `Enter ${r.name}`, icon: ICON.doorOpen, act: () => enterRoom(r) }); }
       items.push({ label: unseen ? 'Reveal this room' : `${hit.room.revealed ? 'Hide' : 'Reveal'} ${hit.room.key} ${hit.room.name}`, icon: ICON.reveal, act: () => app.toggleRoom(hit.room!.key) });
-      items.push({ label: 'Move party here', icon: ICON.token, act: () => { const t = app.party; if (t) { t.level = app.levelId; t.pos = app.snap(hit.pos); app.afterPartyMoveFromUi(); } } });
+      items.push({ label: 'Move party here', icon: ICON.token, act: () => {
+        const t = app.party;
+        if (t) {
+          const previous = { level: t.level, pos: [...t.pos] as typeof t.pos };
+          t.level = app.levelId; t.pos = app.snap(hit.pos);
+          app.afterPartyMoveFromUi(previous);
+        }
+      } });
       items.push({ label: unseen ? 'Frame this room' : `Frame ${hit.room.key}`, icon: ICON.party, act: () => app.jumpTo(hit.room!.key) });
     }
     if (!items.length) return;

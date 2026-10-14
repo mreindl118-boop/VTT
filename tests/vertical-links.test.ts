@@ -31,6 +31,7 @@ describe('vertical transitions', () => {
 
   it('takes one automatic hop, permits walking off the arrival, and rearms after leaving', () => {
     const traversal = new VerticalTransitions(), actor = { level: 'f1', pos: [27.5, 27.5] as [number, number] };
+    const stairs = scene('appB/death-house').links.filter(k => k.id === 'lk-spiral-1-2');
     const first = traversal.resolve(stairs, actor)!;
     expect(first.to.level).toBe('f2');
     actor.level = first.to.level; actor.pos = [27.5, 27.5]; traversal.arrived(stairs, actor);
@@ -41,6 +42,49 @@ describe('vertical transitions', () => {
     expect(traversal.resolve(stairs, actor)).toBeUndefined();
     actor.pos = [27.5, 27.5];
     expect(traversal.resolve(stairs, actor)?.to.level).toBe('f1');
+  });
+
+  it('chooses the nearest newly entered endpoint independently of link order', () => {
+    const links = scene('ch07/Q').links, actor = {level:'ground', pos:[183,118] as [number,number]};
+    for (const order of [links, [...links].reverse()]) {
+      expect(new VerticalTransitions().resolve(order, actor, undefined, [183,125])?.to.pos).toEqual([195,134]);
+    }
+  });
+
+  it('requires an explicit choice between equally near destinations', () => {
+    const actor = {level:'f2', pos:[25.5,27.5] as [number,number]};
+    for (const order of [stairs, [...stairs].reverse()]) {
+      const t = new VerticalTransitions();
+      expect(t.resolve(order, actor, undefined, [15.5,27.5])).toBeUndefined();
+      expect(t.resolve(order, actor, 'lk-spiral-1-2')?.to.level).toBe('f1');
+      expect(t.resolve(order, actor, 'lk-spiral-2-3')?.to.level).toBe('f3');
+    }
+  });
+
+  it('honors explicit same-level endpoint direction even when the party is nearer the other end', () => {
+    const links = scene('ch04/K').links, k = links.find(k => k.id === 'lk-k85')!;
+    expect(k.from.level).toBe(k.to.level);
+    const actor = {level:k.from.level, pos:k.from.pos};
+    const t = new VerticalTransitions();
+    expect(t.resolve(links, actor, {linkId:k.id, from:'to'})?.to).toEqual(k.from);
+    expect(t.resolve(links, {...actor,pos:k.to.pos}, {linkId:k.id, from:'from'})?.to).toEqual(k.to);
+    expect(actor.pos).toEqual(k.from.pos);
+  });
+
+  it('filters already occupied triggers before choosing the nearest new trigger', () => {
+    const links: VerticalLink[] = [
+      {id:'old',kind:'stairs',from:{level:'a',pos:[0,0]},to:{level:'b',pos:[0,0]}},
+      {id:'new',kind:'stairs',from:{level:'a',pos:[8,0]},to:{level:'c',pos:[0,0]}},
+    ];
+    for (const order of [links,[...links].reverse()]) {
+      expect(new VerticalTransitions().resolve(order,{level:'a',pos:[3,0]},undefined,[0,0])?.to.level).toBe('c');
+    }
+  });
+
+  it('rejects an explicit endpoint belonging to another floor without moving the actor', () => {
+    const k = stairs.find(k => k.id === 'lk-spiral-1-2')!, actor = {level:'f1',pos:[27.5,27.5] as [number,number]};
+    expect(new VerticalTransitions().resolve(stairs,actor,{linkId:k.id,from:'to'})).toBeUndefined();
+    expect(actor).toEqual({level:'f1',pos:[27.5,27.5]});
   });
 
   it('allows an explicit next or return hop on a shared landing', () => {
@@ -62,7 +106,7 @@ describe('vertical transitions', () => {
   });
 
   it('does not carry an arrival suppression into another scene or another party', () => {
-    const traversal = new VerticalTransitions(), actor = { level: 'f2', pos: [27.5, 27.5] as [number, number] };
+    const traversal = new VerticalTransitions(), actor = { level: 'f1', pos: [27.5, 27.5] as [number, number] };
     traversal.arrived(stairs, actor);
     expect(traversal.resolve([...stairs], actor)).toBeDefined();
     traversal.arrived(stairs, actor);

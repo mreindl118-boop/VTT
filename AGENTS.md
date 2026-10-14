@@ -103,6 +103,12 @@ a day old; then continue it from its wip branch, and say so in Status.
 Each agent rewrites this section when it stops. Newest first. Keep it short and exact: versions, branches, commits,
 what is done, what is next, what is blocked.
 
+### ChatGPT, 2026-10-14, isolated published-checkpoint integration candidate
+
+- Parent authorized a new cloud integration WIP from published laptop `37ae2ff` and cloud `4ae764c` while the laptop is offline. Only AGENTS Status conflicted; both records and current ownership are preserved. No new runtime edits, authoring execution, scene/grid regeneration or reconstruction of unpushed laptop work.
+- Combined build, 28 focused transition/marker/land-footprint units and 11 focused software browser checks pass. Full suites were not repeated under the parent's scoped validation instruction. See `docs/handoff/cloud-integration-report.md` for exact parents, bundle and remaining gates. One sequential independent read-only review completed with no integration blocker.
+- Laptop integration/default refs stay unchanged. Hardware GPU remains blocked offline; authored map corrections, integrated CI/release and reconciliation with unpushed laptop changes remain open. The following records retain historical test counts; the ownership assignments in the laptop record remain current.
+
 ### ChatGPT, 2026-10-14, active 0.3.2 integration checkpoint
 
 - Bounded 0.3.1 remains separate in `item2-continuity-031`, remote laptop WIP `1c8d94a`. Its versioned frozen build `index-CoeOhM3n.js` passes build, 543 units (two existing TODOs), 21 desktop tests and the full GPU suite: 267 passed, 55 existing device skips, zero failures in 13.0 minutes. The 204-file manifest is unchanged after verification. Current CI `38510870342` remains in browser checks after passing earlier steps; main/release and public distribution are unchanged.
@@ -111,6 +117,18 @@ what is done, what is next, what is blocked.
 - N9 burial reproduced against actual apron triangles; correction `b461609` has two independent reviews and one fix pass, with four new CPU regressions plus all 15 continuity checks passing. Latest integrated build and 561 units pass (two existing TODOs, no skips); 14 wall Python checks also pass. No mesh/draw count or save-schema change. Full integrated visual/GPU/cost verification remains open; see `docs/handoff/land-footprint-report.md`.
 - Shared wall correction completed two reviews and one fix pass: 14 focused Python checks pass, including independent invisible/ethereal layers and collision-safe IDs. Write-suppressed checks cover 26 generators / 106 levels, 102 passing with 23 overlapping apertures reduced to zero. Four strict N4/N5/K malformed-aperture requests require their generator owners. Actual output regeneration, all-map runtime and visual gates remain open; see `docs/handoff/wall-topology-report.md`.
 - Source contract is recorded in `docs/handoff/regional-logic-contract.md`. H/G/D still fails the retained downhill-water regression; directed profiles, connected catchments, channel meshes and road grades are active work, not completed. Additional owner requests are queued in `docs/QUEUE.md` under "Owner backup backlog after 0.3.2". They do not divert implementation capacity from item 2e; the grid-icon idea was withdrawn.
+
+### ChatGPT, 2026-10-14, production transition UI checkpoint
+
+- Parent extended item 11 ownership to production menu, endpoint markers, Players visibility and reload restoration. Continued the isolated cloud branch from `f1b632e`; all four caller/UI gates below are now implemented. Terrain, authoring and integration remain laptop-owned. See `docs/handoff/item11-ui-report.md` for exact files and integration surface.
+- Final build and 565 units pass (two existing skips, two TODOs). All 31 software browser regressions pass, including real pointer/touch/menu/reload controls and all 346 link directions with zero wrong levels or multiple hops. Desktop/phone DM/Players chooser captures inspected. Two implementation reviews and three final review passes completed; one icon correction applied. No tests weakened.
+- Software rendering is not hardware GPU verification. Laptop integration, GPU, CI and release remain pending; six authored landing defects and broader all-map findings remain open. Published laptop WIP is `1c8d94a`; parent-reported local `b65d789` was not fetchable. No main/release/version/publication changes.
+
+### ChatGPT, 2026-10-14, scoped transition follow-up
+
+- Continued `claude/wip/item11-vertical-transitions-cloud` from tested `166259b`, under parent assignment. Automatic dispatch chooses the unique nearest newly entered endpoint; equal-distance choices require explicit selection. Endpoint-aware `takeLink` and previous-aware DM dispatch APIs are ready. No main.ts, renderer-module, authoring or generated-map edits.
+- Three failing-first unit regressions and the DM dispatcher browser regression reproduced the defects. Build and 560 units pass (two existing source-cache skips, two TODOs); 14 browser checks pass (including all 346 directions), with the remaining pointer continuation passing separately after ordinary Floor-selector navigation. The initial reload-view failure is retained, not counted as a clean 15-test run. Two implementation reviews and three final reviews found no dispatcher blocker. See `docs/handoff/item11-followup-report.md`.
+- Production caller gates remain: main.ts context action must pass previous pose; marker creation/listeners must preserve choices and endpoint direction. Actual context-menu no-op/walk-off failure and invisible Players return marker are retained as failures, not claimed fixed. Six authoring proposals and the 48-entry suppressed marker inventory are in the follow-up report. Hardware GPU, integrated CI and release remain laptop-owned.
 
 ### ChatGPT, 2026-10-14, independent 0.3.2 transition checkpoint
 
