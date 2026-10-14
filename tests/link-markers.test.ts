@@ -1,15 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { linkMarkerGroups } from '../app/src/core/linkMarkers';
-import type { SceneFile } from '../app/src/core/schema';
+import { validateScene, type SceneFile } from '../app/src/core/schema';
 
 const scene = (path: string): SceneFile => JSON.parse(readFileSync(`locations/${path}/scene.json`, 'utf8'));
 const endpoints = (s: SceneFile) => s.levels.flatMap(l => linkMarkerGroups(s, l.id).flat());
 
 describe('link marker choices', () => {
-  it('retains all 346 production endpoints, including the 48 formerly suppressed choices', () => {
+  it('retains all 346 production endpoints, including all 48 original and the corrected Tsolenka shared choice', () => {
     const inventory = JSON.parse(readFileSync('docs/handoff/allmap-audit-inventory.json', 'utf8'));
-    let total = 0, merged = 0;
+    let total = 0, merged = 0, originalMerged = 0;
     for (const map of inventory.maps.filter((m: {scope:string;levelCount:number}) => m.scope === 'production' && m.levelCount)) {
       const s = scene(map.path);
       for (const level of s.levels) {
@@ -18,9 +18,15 @@ describe('link marker choices', () => {
         expect(choices.map(e => `${e.linkId}/${e.linkEnd}`).sort(), map.path).toEqual(expected.sort());
         expect(linkMarkerGroups(s, level.id)).toEqual(groups);
         total += choices.length; merged += choices.length - groups.length;
+        const original = structuredClone(s);
+        // Preserve the pre-correction 48-choice regression as well as the new landing.
+        if (map.path === 'ch09/T') original.links.find(k => k.id === 'T-stair')!.to.pos = [253, 360];
+        originalMerged += choices.length - linkMarkerGroups(original, level.id).length;
       }
     }
-    expect(total).toBe(346); expect(merged).toBe(48);
+    expect(total).toBe(346); expect(originalMerged).toBe(48); expect(merged).toBe(49);
+    expect(linkMarkerGroups(scene('ch09/T'), 'tower-upper').map(g => g.map(e => `${e.linkId}/${e.linkEnd}`)))
+      .toEqual([['T-stair/to', 'T-ladder/from']]);
   });
 
   it('preserves separate endpoint identity for a same-level link', () => {
@@ -61,5 +67,22 @@ describe('link marker choices', () => {
     const s=scene('ch05/N2'), k=s.links.find(k=>k.id==='lk-n2-attic-o')!;
     k.from.pos=[k.from.pos[0]+0.1,k.from.pos[1]];
     expect(endpoints(s).find(e=>e.linkId===k.id && e.linkEnd==='from')?.hiddenObjectId).toBeUndefined();
+  });
+
+  it('preserves an authored reveal gate when the operating object is off the arrival point', () => {
+    const s=scene('ch05/N2'), k=s.links.find(k=>k.id==='lk-n2-attic-o')!;
+    k.from.pos=[k.from.pos[0]+4,k.from.pos[1]];
+    Object.assign(k.from, {hiddenObjectId:'upper-N2o-trap'});
+    expect(validateScene(s)).toEqual([]);
+    expect(endpoints(s).find(e=>e.linkId===k.id && e.linkEnd==='from')?.hiddenObjectId).toBe('upper-N2o-trap');
+    expect(endpoints(s).find(e=>e.linkId===k.id && e.linkEnd==='to')?.hiddenObjectId).toBeUndefined();
+  });
+
+  it.each(['absent-object', 'attic-N2q-hole', 'upper-N2o-trap', '', null])('rejects invalid authored gate %s before exposing any marker', id => {
+    const s=scene('ch05/N2'), k=s.links.find(k=>k.id==='lk-n2-attic-o')!;
+    if(id==='upper-N2o-trap') s.levels.find(l=>l.id===k.from.level)!.objects.find(o=>o.id===id)!.vis='player';
+    Object.assign(k.from, {hiddenObjectId:id});
+    expect(validateScene(s)).toContain(`link ${k.id}/from reveal gate must reference a hidden object on its level`);
+    expect(()=>endpoints(s)).toThrow(`link ${k.id}/from reveal gate must reference a hidden object on its level`);
   });
 });

@@ -368,6 +368,56 @@ def build():
         """A point on a shelf: ax across (-1 landward .. +1 at the river face), az along (-1 north .. +1 south)."""
         c, rot, wdt, L, f, u, lx = shelves[name]
         return (c[0] + lx[0] * f * wdt / 2 * ax + u[0] * L / 2 * az, c[1] + lx[1] * f * wdt / 2 * ax + u[1] * L / 2 * az)
+    def shelf_local(name, x, z):
+        c, _, _, _, _, u, lx = shelves[name]
+        return (c[0] + lx[0] * x + u[0] * z, c[1] + lx[1] * x + u[1] * z)
+    def shelf_outline(name):
+        # Match the widest physical base of r-rock-shelf in wild-r.ts.
+        _, _, wdt, length, face, _, _ = shelves[name]
+        length = rnd(length, 1)  # The renderer consumes the exported dimension.
+        seed = 6 if name == 'east' else 2
+        def hash_(i, s):
+            x = math.sin(i * 127.1 + s * 311.7 + 0.5) * 43758.5453
+            return x - math.floor(x)
+        ring = [(face * wdt / 2 + face * (hash_(i, seed) - 0.5) * 0.6,
+                 -length / 2 + i / 14 * length) for i in range(15)]
+        back = [(face * wdt / 2 - face * math.sin(i / 10 * math.pi) * wdt * (0.85 + 0.2 * hash_(i, seed + 3)),
+                 length / 2 * math.cos(i / 10 * math.pi) * (0.92 + 0.08 * hash_(i, seed + 5))) for i in range(1, 10)]
+        return ring + back
+    def shelf_crown(name):
+        # The crown contracts inside the base on the landward side; a point
+        # outside this crown can still be buried in the sloped rock body.
+        outline = shelf_outline(name)
+        face = shelves[name][4]
+        cx = sum(p[0] for p in outline) / len(outline)
+        cz = sum(p[1] for p in outline) / len(outline)
+        return [(x - face * 0.4, z) if i < 15 else (cx + (x - cx) * 0.76, cz + (z - cz) * 0.82)
+                for i, (x, z) in enumerate(outline)]
+
+    # Register east access to the actual five cut steps, whose top is +12 ft.
+    _, _, ew, el, ef, _, _ = shelves['east']
+    el = rnd(el, 1)
+    ex = ef * (ew / 2 - 4.5)
+    east_landing = [shelf_local('east', x, z) for x, z in
+                    ((ex - 2, el / 2 - 10), (ex + 2, el / 2 - 10),
+                     (ex + 2, el / 2 - 0.8), (ex - 2, el / 2 - 0.8))]
+    # A stone cap joins the full-height tread to the crown, not an invisible floor.
+    s.prop('prism', P(0, 0), dims={'h': 12, 'color': 0x737980}, id='ledge-head')
+    s.lv.objects[-1]['polygon'] = [[rnd(x, 3), rnd(z, 3)] for x, z in east_landing]
+    steps_top = shelf_local('east', ex, el / 2 - 8)
+    steps_foot = shelf_local('east', ex, el / 2 + 9.5)
+    # The west scramble crosses the whole sloped body: the head is three feet
+    # inside its crown, and the foot four feet beyond its wider physical base.
+    # It rises twelve feet as an authored rock climb, not a stair flight.
+    west_crown = shelf_crown('west')
+    a, b = west_crown[16], west_crown[17]
+    mid = ((a[0] + b[0]) / 2, (a[1] + b[1]) / 2)
+    centre = (sum(p[0] for p in west_crown) / len(west_crown), sum(p[1] for p in west_crown) / len(west_crown))
+    inward = unit(centre[0] - mid[0], centre[1] - mid[1])
+    wshelf_top = shelf_local('west', mid[0] + inward[0] * 3, mid[1] + inward[1] * 3)
+    base = shelf_outline('west')
+    base_mid = ((base[16][0] + base[17][0]) / 2, (base[16][1] + base[17][1]) / 2)
+    wshelf_foot = shelf_local('west', base_mid[0] - inward[0] * 4, base_mid[1] - inward[1] * 4)
     for name, pts in (('east', ((0.1, -0.2), (-0.35, 0.3), (-0.5, -0.55))), ('west', ((-0.3, 0.1), (-0.45, -0.45)))):
         for i, (ax, az) in enumerate(pts):
             p = shelf_pt(name, ax, az)
@@ -517,13 +567,7 @@ def build():
     # ------------------------------------------------------------------ the Notch shelves (+12)
     on(notch_lv)
     def shelf_room(name):
-        pts = []
-        for k in range(9):
-            az = -1 + 2 * k / 8
-            pts.append(shelf_pt(name, 0.9, az * 0.8))
-        for k in range(1, 8):
-            t = math.pi * k / 8
-            pts.append(shelf_pt(name, 0.9 - 1.1 * math.sin(t), 0.75 * math.cos(t)))
+        pts = [shelf_local(name, x, z) for x, z in shelf_crown(name)]
         return cells(clip_rect(pts, 0, 1, WF, HF))
     s.room('R-ledge', 'East shelf and ledge path', shelf_room('east'), 'flagstone',
            'A flat top of wet granite twelve feet above the bench, lichen and puddles on it, the Throat roaring below its sheer western face. A worn path runs along the brink, and at its south end the shelf looks straight down onto the bridge deck. Fog from the lake slides over it.',
@@ -531,6 +575,7 @@ def build():
     s.room('R-shelf', 'West shelf', shelf_room('west'), 'flagstone',
            'A wet granite shelf on the far side of the Throat, its eastern face dropping sheer into the white water; stunted pines cling to its back.',
            'Reached from the Krezk road side by a DC 12 Athletics scramble. From here a watcher sees the bridge, the east bank and the rookery across the rapids.')
+    notch_lv.floor_polys.append(cells(east_landing))
     s.hidden('r-prints', P(*shelf_pt('east', 0.62, 0.0)), 'Scuffs on the ledge path', 'Scuff marks', rot=heading(*shelves['east'][5]), dims={'len': 30, 'mode': 1},
              desc='Claw scrapes and boot scuffs in the green slime along the brink.',
              dm='Wereravens and werewolves both use this path to skirt the crossroads; fresh scrapes mean the pack passed within the day.', id='ledge-scuffs')
@@ -544,8 +589,6 @@ def build():
     def lk(id, kind, la, pa, lb, pb):
         return OrderedDict(id=id, kind=kind, **{'from': OrderedDict(level=la, pos=[rnd(pa[0], 1), rnd(pa[1], 1)]), 'to': OrderedDict(level=lb, pos=[rnd(pb[0], 1), rnd(pb[1], 1)])})
     crown_e = (BC[0] - AX[0] * 10, BC[1] - AX[1] * 10); crown_w = (BC[0] + AX[0] * 10, BC[1] + AX[1] * 10)
-    steps_foot = shelf_pt('east', 0.8, 1.12); steps_top = shelf_pt('east', 0.8, 0.85)
-    wshelf_foot = shelf_pt('west', -0.2, 1.15); wshelf_top = shelf_pt('west', -0.2, 0.8)
     links = [
         lk('R-bridge-east', 'stairs', 'bench', (e_end[0] + 2, e_end[1] + 2), 'bridge', crown_e),
         lk('R-bridge-west', 'stairs', 'bench', (w_end[0] - 4, w_end[1] - 2), 'bridge', crown_w),
@@ -562,7 +605,8 @@ def build():
     grid = json.load(open(gp), object_pairs_hook=OrderedDict)
     rooms_ft = lambda lv: [[[rnd(x * 5, 3), rnd(z * 5, 3)] for x, z in r[2]] for r in lv.rooms]
     grid['levels']['bench']['floorPolygons'] = [[[rnd(x, 3), rnd(z, 3)] for x, z in nw_map], [[rnd(x, 3), rnd(z, 3)] for x, z in se_map]] + rooms_ft(bench)
-    for lv in (bridge_lv, notch_lv): grid['levels'][lv.id]['floorPolygons'] = rooms_ft(lv)
+    for lv in (bridge_lv, notch_lv):
+        grid['levels'][lv.id]['floorPolygons'] = [[[rnd(x * 5, 3), rnd(z * 5, 3)] for x, z in p] for p in lv.floor_polys]
     json.dump(grid, open(gp, 'w'), indent=1, ensure_ascii=False)
 
 

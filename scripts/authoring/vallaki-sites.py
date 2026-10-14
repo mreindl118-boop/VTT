@@ -52,7 +52,8 @@ g.room('N2b', 'Outside Staircase', rect(29.5, 2, 32, 11), 'plank', page=pg('N2b'
 g.room('N2c-porch', 'Porch', rect(22.5, 20, 28, 22), 'plank', page=pg('N2c'), ceilingFt=10)
 g.room('N2a', 'Well', rect(30, 17, 38, 24), 'cobble', page=pg('N2a'), ceilingFt=10)
 g.terrain.append(([(-2, -2), (42, -2), (42, 27), (-2, 27)], 'grass'))
-g.opening((29.5, 2), (29.5, 11)); g.opening((22.5, 20), (28, 20)); g.opening((32, 17), (32, 18)); g.opening((30, 17), (32, 17))
+# The porch meets a closed taproom frontage; only N2c-front cuts that boundary.
+g.opening((29.5, 2), (29.5, 11)); g.opening((32, 17), (32, 18)); g.opening((30, 17), (32, 17))
 g.door((21, 3), (21, 4), id='N2e-taproom', double=False); g.door((12, 4), (12, 5), id='N2e-west')
 g.door((17, 8.5), (18, 8.5), id='N2d-kitchen'); g.door((17.5, 20), (18.5, 20), id='N2d-outside', double=True)
 g.door((15.5, 14), (15.5, 15), id='N2g-door'); g.door((12, 8), (12, 9), id='N2f-small')
@@ -97,13 +98,15 @@ u.room('N2k', 'Guest Balcony', rect(29.5, 11, 31.5, 19.5), 'plank', page=pg('N2k
 u.room('N2b-top', 'Outside Staircase (head)', rect(29.5, 2, 32, 11), 'plank', page=pg('N2b'), ceilingFt=10)
 u.room('N2l', 'Guest Rooms', rect(31.5, 11, 38, 17), 'plank', page=pg('N2l'), ceilingFt=8)
 u.room('N2l-s', 'Guest Rooms (south)', rect(31.5, 17, 38, 23), 'plank', page=pg('N2l'), ceilingFt=8)
-u.room('N2m', 'Guest Room', rect(21, 19.5, 29.5, 24), 'plank', page=pg('N2m'), ceilingFt=8)
+# P.99: this room extends beneath the east guest balcony, where its door opens.
+u.room('N2m', 'Guest Room', rect(21, 19.5, 31.5, 24), 'plank', page=pg('N2m'), ceilingFt=8)
 u.room('N2n', 'Private Guest Room', rect(16.5, 19.5, 21, 24), 'plank', page=pg('N2n'), ceilingFt=8)
 u.opening((29.5, 2), (29.5, 4.5)); u.opening((21, 2), (21, 4.5)); u.opening((29.5, 11), (29.5, 12))
-u.railing((21, 4.5), (29.5, 4.5)); u.railing((21, 4.5), (21, 19.5)); u.railing((21, 19.5), (29.5, 19.5)); u.railing((29.5, 4.5), (29.5, 19.5))
+# The south edge of the void is N2m's full-height wall, not a balcony railing.
+u.railing((21, 4.5), (29.5, 4.5)); u.railing((21, 4.5), (21, 19.5)); u.railing((29.5, 4.5), (29.5, 19.5))
 u.railing((1, 11), (1, 15)); u.railing((5, 11), (5, 15)); u.railing((1, 11), (5, 11)); u.railing((1, 15), (5, 15))
 u.door((18.5, 5), (18.5, 6), id='N2p-door'); u.door((18.5, 13), (18.5, 14), id='N2o-door'); u.door((20, 19.5), (21, 19.5), id='N2n-door', locked=True)
-u.door((24, 19.5), (25, 19.5), id='N2m-door'); u.door((31.5, 13), (31.5, 14), id='N2l-door'); u.door((31.5, 19), (31.5, 20), id='N2l-s-door'); u.door((30, 11), (31, 11), id='N2b-top-door', locked=False)
+u.door((30, 19.5), (31, 19.5), id='N2m-door'); u.door((31.5, 13), (31.5, 14), id='N2l-door'); u.door((31.5, 19), (31.5, 20), id='N2l-s-door'); u.door((30, 11), (31, 11), id='N2b-top-door', locked=False)
 u.secret((12, 9), (12, 10), 'loft-bedroom', 'A secret door between the loft and the master bedroom (light shows through the cracks)', 'N2h', extra=True)
 u.secret((14.5, 11), (14.5, 12), 'hall-boys', 'Secret door from the hidden hall into the boys\' room', 'N2i')
 u.secret((18.5, 17), (18.5, 18), 'hall-balcony', 'Near the southwest corner of the great balcony, a concealed doorway in the west wall reaches the hidden hall', 'N2j', extra=True)
@@ -327,7 +330,8 @@ g.door((6, 10), (6, 11), id='N4k-door'); g.door((11, 7), (12, 7), id='N4h-i'); g
 g.door((28, 5.5), (28, 6.5), id='N4r-door'); g.door((30.5, 5.5), (30.5, 6.5), id='N4r-outer')
 g.secret((19, 7), (20, 7), 'closet-stair', 'A secret door in the south wall of the servants\' closet: a stone stair to the cellar (DC 10 Perception)', 'N4f', extra=True) if False else None
 g.secret((17, 5.5), (17, 6.5), 'closet-stair', 'A secret door in the south wall of the servants\' closet: a stone stair to the cellar (DC 10 Perception)', 'N4f', extra=True)
-for a, b in [((1.5, 10), (1.5, 11)), ((3, 7.5), (4, 7.5)), ((3, 13.5), (4, 13.5)), ((8, 3), (9, 3)), ((13, 3), (14, 3)), ((23, 3), (24, 3)), ((26, 3), (27, 3)), ((28, 11), (28, 12)), ((28, 17), (28, 18)), ((25, 21), (26, 21)), ((13, 21), (14, 21)), ((8, 21), (9, 21)), ((6, 16), (6, 17)), ((6, 19), (6, 20))]:
+# The p.111 plan's short horizontal bay sides are at z=7 and z=14 on this outline.
+for a, b in [((1.5, 10), (1.5, 11)), ((3, 7), (4, 7)), ((3, 14), (4, 14)), ((8, 3), (9, 3)), ((13, 3), (14, 3)), ((23, 3), (24, 3)), ((26, 3), (27, 3)), ((28, 11), (28, 12)), ((28, 17), (28, 18)), ((25, 21), (26, 21)), ((13, 21), (14, 21)), ((8, 21), (9, 21)), ((6, 16), (6, 17)), ((6, 19), (6, 20))]:
     g.window(a, b)
 g.prop('N4b-stair', 'stairs-straight', (19, 11), 'N4b', dims={'w': 5, 'rise': 15, 'fromZ': 75, 'toZ': 35})
 g.hidden('N4b-glass', 'niche', (19, 15.5), 'N4b', 'Three stained-glass doors in wooden frames at the foot of the stair')
@@ -587,7 +591,8 @@ s.room('N5c', 'Sheds', rect(0, 24, 24, 28), 'plank', page=pg('N5'), ceilingFt=8)
 s.room('N5d', "Rictavio's Carnival Wagon", rect(8, 17, 14, 22), 'plank', page=pg('N5'), ceilingFt=9)
 s.door((11, 0), (13, 0), id='N5-gate', double=True, open=True); s.door((24, 6), (24, 8), id='N5b-doors', double=True, locked=True); s.door((24, 2), (24, 3), id='N5b-side')
 for i in range(6): s.door((2 + i * 4, 24), (3 + i * 4, 24), id=f'N5c-shed{i}', locked=True); s.wall((4 + i * 4, 24), (4 + i * 4, 28))
-s.door((11, 17), (11, 18), id='N5d-door', locked=True)
+# P.115 specifies a locked rear door; this authored wagon's front seat is north.
+s.door((10.5, 22), (11.5, 22), id='N5d-door', locked=True)
 s.hidden('N5-sign', 'niche', (12, -0.6), 'N5a', 'A sign over the gate: Arasek Stockyard')
 for i, (x, z) in enumerate([(3, 4), (3, 10), (3, 16)]): s.prop(f'N5a-pen{i}', 'fence', (6, z), 'N5a', dims={'w': 20}); s.prop(f'N5a-penb{i}', 'fence', (1, z + 3), 'N5a', rotY=90, dims={'w': 6})
 for i, (x, z) in enumerate([(4, 6), (8, 12), (6, 18)]): s.creature(f'N5a-horse{i}', 'horse', (x, z), 'N5a', 'Stockyard horses', size='large')

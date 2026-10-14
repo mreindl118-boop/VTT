@@ -125,7 +125,9 @@ O((26, 18.5), (26, 19.5)); O((26, 22.5), (26, 23.5))                    # chapel
 O((24.5, 18.5), (24.5, 19.5)); O((24.5, 22.5), (24.5, 23.5))            # accesses → hall side
 O((25, 20), (25.5, 20)); O((25, 22), (25.5, 22))                        # accesses open on the hall
 O((24.5, 19), (24.5, 20))                                               # north access → creaky landing
-D((12, 16), (12, 17), id='K22-door'); D((12, 24.5), (12, 25.5), id='K11-door')
+# K22 meets the north access hall along its north edge (map 3, p.55).
+# The former request crossed the middle of K22 and was silently discarded.
+D((12, 15.5), (13, 15.5), id='K22-door'); D((12, 24.5), (12, 25.5), id='K11-door')
 O((12, 15), (12, 15.5)); O((15, 15), (15, 15.5))                        # north hall to the turret and the stair head
 O((10.5, 17), (10.5, 18)); O((10.5, 23), (10.5, 24))
 O((12, 26), (12, 27)); O((16.5, 26.5), (16.5, 27.5))                    # south hall to the turret and the guards' stair
@@ -199,7 +201,7 @@ def turrets(lv, ceil):
     lv.room('K22', "North Archers' Post", rect3(11, 15.5, 13, 17.5), 'flagstone', page=pg('K22'), ceilingFt=ceil)
     lv.room('K11', "South Archers' Post", rect3(10.5, 24, 12, 26), 'flagstone', page=pg('K11'), ceilingFt=ceil)
     lv.room('K64', "Guards' Stair", rect3(16.5, 26, 18, 27.5), 'flagstone', page=pg('K64'), ceilingFt=ceil)
-    Dr(lv, m3, (12, 16), (12, 17), id=f'{lv.id}-K22-door'); Dr(lv, m3, (12, 24.5), (12, 25.5), id=f'{lv.id}-K11-door')
+    Dr(lv, m3, (12, 15.5), (13, 15.5), id=f'{lv.id}-K22-door'); Dr(lv, m3, (12, 24.5), (12, 25.5), id=f'{lv.id}-K11-door')
     Op(lv, m3, (12, 15), (12, 15.5)); Op(lv, m3, (10.5, 17), (10.5, 18)); Op(lv, m3, (10.5, 23), (10.5, 24)); Op(lv, m3, (12, 26), (12, 27)); Op(lv, m3, (16.5, 26.5), (16.5, 27.5))
     lv.prop('k64-stair', 'stairs-straight', m3(17.25, 26.75), 'K64', dims={'w': 5, 'rise': 10, 'fromX': 2 * 16.5 - 2, 'toX': 2 * 18 - 2})
     lv.light('K12n-slits', m3(10.5, 15), 'daylight', 5, 10, y=8); lv.light('K12s-slits', m3(10.5, 26.5), 'daylight', 5, 10, y=8)
@@ -231,7 +233,11 @@ c.room('K34', "Servants' Upper Floor", rect3(22.5, 13, 25, 15.5), 'plank', page=
 Dr(c, m3, (17, 18.5), (17, 19.5), id='K25-east', double=True); Dr(c, m3, (17, 21), (17, 22), id='K25-south-door')
 c.secret(m3(14, 22.5), m3(15, 22.5), 'K25-K13', 'A secret door in the south wall of the audience hall', 'K25')
 c.secret(m3(16, 14), m3(16, 15), 'K33-west', 'A secret door into the apartment stair', 'K33'); c.secret(m3(17, 15.5), m3(17, 16.5), 'K33-south', 'A secret door at the foot of the apartment stair', 'K33', extra=True)
-Op(c, m3, (18.5, 18.5), (18.5, 19.5)); Op(c, m3, (24.5, 19.5), (24.5, 20.5)); Dr(c, m3, (26, 19.5), (26, 20.5), id='K28-doors', double=True)
+Op(c, m3, (18.5, 18.5), (18.5, 19.5)); Op(c, m3, (24.5, 19.5), (24.5, 20.5))
+# The balcony's entry bay includes the stair head, so its enclosing polygon
+# cannot also express the interior partition carrying the paired doors (p.62).
+c.wall(m3(26, 18.5), m3(26, 20.5))
+Dr(c, m3, (26, 19.5), (26, 20.5), id='K28-doors', double=True)
 Dr(c, m3, (16, 24), (16, 25), id='K30-west'); Dr(c, m3, (18.5, 24), (18.5, 25), id='K30-east')
 Dr(c, m3, (20, 21), (21, 21), id='K31-door'); Op(c, m3, (20, 22.5), (21, 22.5))
 Dr(c, m3, (23, 15.5), (24, 15.5), id='K34-south'); c.secret(m3(22.5, 15.5), m3(23, 15.5), 'K34-closet', 'Behind the west mirror: a closet with a ladder up 20 ft to a secret door in the tower stair (K20)', 'K34', extra=True)
@@ -308,20 +314,25 @@ sp = Level('spires', 'Spires of Ravenloft (+130 ft)', 130, 20, ambient='storm', 
 towers(sp, ['K20', 'K18'], 20)
 sp.room('K47', 'Portrait of Strahd', rect3(17.5, 22.5, 19.5, 24.5), 'plank', page=pg('K47'), ceilingFt=10)
 sp.room('K31a', 'Elevator Shaft (top)', rect3(19.5, 22.5, 21.5, 23.5), 'flagstone', page=pg('K31a'), ceilingFt=10)
-sp.room('K48', 'Offstair', oct_(*m3(21.25, 25.5), 1.5), 'flagstone', page=pg('K48'), ceilingFt=60)
-sp.room('K49', 'Lounge', [m3(17.5, 24.5), m3(20, 24.5), m3(20, 28.5), m3(18.5, 28.5), m3(17.5, 27.5)], 'plank', page=pg('K49'), ceilingFt=15)
-sp.room('K50', 'Guest Room', rect3(20, 26.5, 22.5, 28.5), 'plank', page=pg('K50'), ceilingFt=15)
-sp.room('K51', 'Closet', rect3(19, 28.5, 21, 29.5), 'plank', page=pg('K51'), ceilingFt=10)
+sp.room('K48', 'Offstair', rect3(19.5, 24.5, 22.5, 26.25), 'flagstone', page=pg('K48'), ceilingFt=60)
+# Register maps 6/7 using the explicit connections (pp.70-73): K50 has
+# west/east doors; its east closet is directly below K55's northeast hatch.
+# The isometric outlines are reconstructed within the existing tower envelope;
+# these coordinates are an authored rectification, not printed dimensions.
+K51_HATCH = m3(22, 28.75)
+sp.room('K49', 'Lounge', poly3([(17.5, 24.5), (19.5, 24.5), (19.5, 30.25), (18.5, 30.25), (17.5, 29.25)]), 'plank', page=pg('K49'), ceilingFt=15)
+sp.room('K50', 'Guest Room', rect3(19.5, 26.25, 21.5, 30.25), 'plank', page=pg('K50'), ceilingFt=15)
+sp.room('K51', 'Closet', rect3(21.5, 28.25, 22.5, 29.25), 'plank', page=pg('K51'), ceilingFt=10)
 sp.room('K53-w', 'Rooftop (west wing)', rect3(9, 13.5, 13, 28), 'flagstone', page=pg('K53'), ceilingFt=10)
 sp.room('K53-n', 'Rooftop (north)', rect3(13, 13.5, 26, 15.5), 'flagstone', page=pg('K53'), ceilingFt=10)
 sp.room('K53-s', 'Rooftop (south)', rect3(13, 22.5, 17.5, 28), 'flagstone', page=pg('K53'), ceilingFt=10)
 Dr(sp, m3, (17.5, 23), (17.5, 24), id='K47-west-door'); Op(sp, m3, (19.5, 23), (19.5, 23.5)); Op(sp, m3, (18, 24.5), (19.5, 24.5))
-Dr(sp, m3, (20, 25), (20, 26), id='K49-K48'); Dr(sp, m3, (20, 27), (20, 28), id='K49-K50'); Dr(sp, m3, (20, 28.5), (21, 28.5), id='K51-door')
+Dr(sp, m3, (19.5, 25.25), (19.5, 25.75), id='K49-K48'); Dr(sp, m3, (19.5, 28.25), (19.5, 29.25), id='K49-K50'); Dr(sp, m3, (21.5, 28.5), (21.5, 29), id='K51-door')
 sp.prop('trap-k47', 'trapdoor', m3(18, 23.4), 'K47'); sp.hidden('portrait', 'niche', m3(18.5, 22.6), 'K47', 'A framed portrait of a handsome, serene man: Strahd')
 sp.prop('rug-k47', 'rug', m3(18.5, 24), 'K47'); sp.note('K47-note', m3(18.5, 24.3), 'K47', 'Landing 10 × 20 ft; the spiral stair (K21) continues up from the north end of the east wall; the elevator trapdoor is before the west door.')
-sp.prop('books-k49', 'bookshelf', m3(19.8, 26.5), 'K49', rotY=-90); sp.creature('escher', 'adventurer', m3(18.5, 26), 'K49', 'Escher, Strahd\'s consort (vampire spawn)')
-sp.prop('bed-k50', 'bed', m3(21.5, 27), 'K50'); sp.note('K50-note', m3(21.5, 27.8), 'K50', 'Resting here at night brings 1d4 witches from K56.')
-sp.hidden('hook-k51', 'niche', m3(20, 29.3), 'K51', 'A hook carries a black cloak. Pulling that hook releases a concealed overhead hatch (DC 13 Perception to locate)')
+sp.prop('books-k49', 'bookshelf', m3(19.3, 27), 'K49', rotY=-90); sp.creature('escher', 'adventurer', m3(18.5, 26), 'K49', 'Escher, Strahd\'s consort (vampire spawn)')
+sp.prop('bed-k50', 'bed', m3(20.5, 28.25), 'K50'); sp.note('K50-note', m3(20.5, 29.75), 'K50', 'Resting here at night brings 1d4 witches from K56.')
+sp.hidden('hook-k51', 'niche', m3(22, 29.15), 'K51', 'A hook carries a black cloak. Pulling that hook releases a concealed overhead hatch (DC 13 Perception to locate)')
 sp.prop('chimney-k52', 'chimney', m3(17, 19.5), 'K52', dims={'h': 30})
 sp.note('K52-note', m3(17, 20), 'K52', 'Smokestack 5 ft across, 30 ft above the roof peak; leads 60 ft down to the study fireplace (3d6 fire).')
 sp.prop('roof-w', 'roof-gable', m3(11, 20.75), 'K53-w', dims={'w': 40, 'd': 145, 'h': 18}); sp.prop('roof-n', 'roof-gable', m3(19.5, 14.5), 'K53-n', rotY=90, dims={'w': 20, 'd': 130, 'h': 12}); sp.prop('roof-s', 'roof-gable', m3(15.25, 25.25), 'K53-s', rotY=90, dims={'w': 55, 'd': 45, 'h': 16})
@@ -331,16 +342,21 @@ sp.light('K49-lightning', m3(18.5, 26.5), 'daylight', 10, 20, y=6)
 
 st = Level('south-tower', 'South tower, witches\' floor (+150 ft)', 150, 40, ambient='interior-dim', interior='paneling', exterior='ashlar', north='-z')
 towers(st, ['K20', 'K18'], 40)
-st.room('K55', 'Element Room', [m3(17.5, 24.5), m3(20.5, 24.5), m3(20.5, 28.5), m3(18.5, 28.5), m3(17.5, 27.5)], 'plank', page=pg('K55'), ceilingFt=15)
-st.room('K54', 'Familiar Room', rect3(20.5, 24.5, 22.5, 26.5), 'plank', page=pg('K54'), ceilingFt=8)
-st.room('K56', 'Cauldron', rect3(20.5, 26.5, 22.5, 28.5), 'plank', page=pg('K56'), ceilingFt=15)
-st.room('K48', 'Offstair', oct_(*m3(21.25, 25.5), 0.75), 'flagstone', page=pg('K48'), ceilingFt=40)
-Dr(st, m3, (20.5, 25), (20.5, 26), id='K54-door'); Dr(st, m3, (20.5, 27), (20.5, 28), id='K56-door'); Op(st, m3, (20.5, 24.5), (20.5, 25))
+# Map 7: K54 is west of K56; K48 is behind/north of K56. Keep the
+# cross-level stair centre, with an actual rear bay and west access passage.
+# The earlier containment-only arrangement reversed K54/K56 and hid the stair
+# inside K54. The partition band and the K55/K51 hatch move as one structure.
+st.room('K55', 'Element Room', poly3([(17.5, 28.25), (22.5, 28.25), (22.5, 29.25), (21.5, 30.25), (18.5, 30.25), (17.5, 29.25)]), 'plank', page=pg('K55'), ceilingFt=15)
+st.room('K54', 'Familiar Room', rect3(17.5, 26.25, 19.5, 28.25), 'plank', page=pg('K54'), ceilingFt=8)
+st.room('K56', 'Cauldron', rect3(19.5, 26.25, 22.5, 28.25), 'plank', page=pg('K56'), ceilingFt=15)
+st.room('K48-t', 'Offstair (upper)', poly3([(19.5, 24.5), (22.5, 24.5), (22.5, 26.25), (17.5, 26.25), (17.5, 25.75), (19.5, 25.75)]), 'flagstone', page=pg('K48'), ceilingFt=40)
+Op(st, m3, (18, 26.25), (18.5, 26.25))
+Dr(st, m3, (18, 28.25), (19, 28.25), id='K54-door'); Dr(st, m3, (20.5, 28.25), (21.5, 28.25), id='K56-door')
 st.prop('k48-stair', 'spiral-stair', m3(21.25, 25.5), 'K48', dims={'r': 6, 'rise': 40})
-st.creature('cats', 'wolf', m3(21.5, 25.5), 'K54', 'Three cats, the witches\' familiars', size='tiny')
-st.prop('cauldron', 'brazier', m3(21.5, 27.5), 'K56'); st.creature('witches', 'adventurer', m3(21, 27), 'K56', 'Seven Barovian witches around the cauldron (fewer if some were met in K50)')
-st.note('K55-note', m3(19, 26.5), 'K55', 'Boot prints in the dust lead from the north-east corner to the easternmost door; windows open on the tower wall (vampire spawn may notice).')
-st.hidden('trap-k51-top', 'trapdoor', m3(20, 28.6), 'K55', 'The secret trapdoor from the closet (K51) below')
+st.creature('cats', 'wolf', m3(18.5, 27.25), 'K54', 'Three cats, the witches\' familiars', size='tiny')
+st.prop('cauldron', 'brazier', m3(21, 27.25), 'K56'); st.creature('witches', 'adventurer', m3(20.5, 26.75), 'K56', 'Seven Barovian witches around the cauldron (fewer if some were met in K50)')
+st.note('K55-note', m3(19, 29.25), 'K55', 'Boot prints in the dust lead from the north-east corner to the easternmost door; windows open on the tower wall (vampire spawn may notice).')
+st.hidden('trap-k51-top', 'trapdoor', K51_HATCH, 'K55', 'The secret trapdoor from the closet (K51) below')
 
 # ================================================================== TOWER TOPS (maps 8–10)
 tr = Level('tower-roofs', 'Tower roofs and the bridge (+190 ft)', 190, 50, ambient='storm', interior='ashlar', exterior='ashlar', north='-z')
@@ -589,11 +605,13 @@ scene['links'] = [
     lk('lk-k79', 'stairs', 'dungeon', m12(10.75, 14), 'larders', m11(10, 8.75)),
     lk('lk-k80', 'stairs', 'dungeon', m12(12.5, 16.75), 'dungeon', m12(16.5, 16.75)),
     lk('lk-k82', 'slide', 'dungeon', m12(23, 17), 'dungeon', m12(16.5, 29)),
-    lk('lk-k51', 'trapdoor', 'spires', m3(20, 29.3), 'south-tower', m3(20, 28.6)),
+    lk('lk-k51', 'trapdoor', 'spires', K51_HATCH, 'south-tower', K51_HATCH),
     lk('lk-k85', 'stairs', 'dungeon', m12(27, 15), 'dungeon', m12(27, 14.5)), lk('lk-k86', 'stairs', 'dungeon', m12(27, 34), 'dungeon', m12(27, 36)),
     lk('lk-k87', 'stairs', 'dungeon', m12(34, 25), 'dungeon', m12(37, 25)),
 ]
 scene['nonSpatialKeys'] = []
+# The concealed wall hook operates K51's hatch four feet away from the safe landing.
+next(link for link in scene['links'] if link['id'] == 'lk-k51')['from']['hiddenObjectId'] = 'spires-hook-k51'
 
 grid = OrderedDict(schema=1, levels=OrderedDict())
 for lv in levels:

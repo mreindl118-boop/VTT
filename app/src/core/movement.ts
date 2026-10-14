@@ -2,13 +2,23 @@
 // through open doors. Pure and unit-tested; the DM side is never restricted.
 import { bounds, pointInPolygon, segmentsIntersect, type Polygon, type Segment, type Vec2 } from './geometry';
 
-const STEP = 2.5; // lattice spacing (ft); node centres sit at 1.25 + 2.5k, never on a 5-ft wall line
+const STEP = 2.5; // lattice spacing (ft); diagonal and off-grid walls can still pass through node centres
+const CONTACT_EPS = 1e-9; // feet; numerical contact only, not a creature-radius clearance
+
+function onSegment(p: Vec2, a: Vec2, b: Vec2): boolean {
+  const dx = b[0] - a[0], dz = b[1] - a[1], lengthSq = dx * dx + dz * dz;
+  const t = lengthSq ? Math.max(0, Math.min(1, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dz) / lengthSq)) : 0;
+  return (p[0] - a[0] - t * dx) ** 2 + (p[1] - a[1] - t * dz) ** 2 <= CONTACT_EPS ** 2;
+}
 
 const crosses = (p: Vec2, q: Vec2, blockers: Segment[]) => {
   const minX = Math.min(p[0], q[0]), maxX = Math.max(p[0], q[0]), minZ = Math.min(p[1], q[1]), maxZ = Math.max(p[1], q[1]);
   for (const w of blockers) {
-    if (Math.max(w.a[0], w.b[0]) < minX || Math.min(w.a[0], w.b[0]) > maxX || Math.max(w.a[1], w.b[1]) < minZ || Math.min(w.a[1], w.b[1]) > maxZ) continue;
-    if (segmentsIntersect(p, q, w.a, w.b)) return true;
+    if (Math.max(w.a[0], w.b[0]) < minX - CONTACT_EPS || Math.min(w.a[0], w.b[0]) > maxX + CONTACT_EPS || Math.max(w.a[1], w.b[1]) < minZ - CONTACT_EPS || Math.min(w.a[1], w.b[1]) > maxZ + CONTACT_EPS) continue;
+    // Sight rays may start/end at walls, but movement must not join both sides
+    // through a node on a blocker. Include endpoint contact and collinear overlap.
+    if (segmentsIntersect(p, q, w.a, w.b) || onSegment(p, w.a, w.b) || onSegment(q, w.a, w.b)
+      || onSegment(w.a, p, q) || onSegment(w.b, p, q)) return true;
   }
   return false;
 };

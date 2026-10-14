@@ -377,6 +377,8 @@ export class App {
   }
   /** load() in small steps (render/build.ts buildLevelSteps): the streamer spreads a map's build over frames. */
   private *loadSteps(path: string, { scene, grid }: { scene: SceneFile; grid: GridFile }, ctx: { campaign: Campaign; state: CampaignState }): Generator<void, Loaded> {
+    // Reject malformed reveal references before allocating any scene resources.
+    const linkGroups = new Map(scene.levels.map(l => [l.id, linkMarkerGroups(scene, l.id)]));
     const levels = new Map<string, BuiltLevel>();
     const coverage = new Map<string, CoverageMap>();
     const covTex = new Map<string, THREE.DataTexture>();
@@ -399,7 +401,7 @@ export class App {
       tex.needsUpdate = true;
       covTex.set(l.id, tex);
       yield;
-      for (const choices of linkMarkerGroups(scene, l.id)) {
+      for (const choices of linkGroups.get(l.id)!) {
         const end = choices[0];
         b.labels.push({ id: `link:${end.linkId}:${end.linkEnd}`, text: 'Choose route', pos: new THREE.Vector3(end.pos[0], l.elevationFt + 3, end.pos[1]), vis: 'player', kind: 'link', linkId: end.linkId, linkEnd: end.linkEnd, linkChoices: choices });
       }

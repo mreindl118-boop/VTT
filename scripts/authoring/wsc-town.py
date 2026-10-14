@@ -5,13 +5,16 @@ room with a party table in the middle, the bar under a mezzanine, barrels in the
 three inn rooms upstairs, stables in the yard; and a square for a town of fifty: the tavern, a temple, the town
 hall, the well and the stables around a cobbled square, houses behind. Runs after import-mapset.py and overwrites
 those two sites; the manifest's area lists are refreshed. x east, z south, north = -z."""
-import json, os, sys
+import argparse, json, os, sys
 from collections import OrderedDict
 sys.path.insert(0, os.path.dirname(__file__))
 from authorlib import seg_key, ROOT, C, rect, ft, Level
 
 CAMP = 'wsc'
 N = '-z'
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument('--square-only', action='store_true', help='Regenerate only 02-street, preserving the tavern and manifest.')
+args = parser.parse_args()
 
 # ================================================================== THE TAVERN (60 × 50 ft building, yard and stables east)
 L0 = Level('L0', 'Ground floor', 0, 10, ambient='interior-dim', interior='paneling', exterior='plaster', north=N)
@@ -118,9 +121,10 @@ for lv, notes in [(tavern['levels'][0], {
         d = notes.get(r['key'])
         if d: r['desc'] = d[0]; r['dm'] = d[1] or ''
         if not r['dm']: del r['dm']
-os.makedirs(os.path.join(ROOT, 'locations', CAMP, '01-tavern'), exist_ok=True)
-json.dump(tavern, open(os.path.join(ROOT, 'locations', CAMP, '01-tavern', 'scene.json'), 'w'), indent=1)
-json.dump(OrderedDict(schema=1, levels=OrderedDict((lv.id, OrderedDict(floorPolygons=[ft(p) for p in lv.floor_polys], type='square', hexOrientation='pointy', origin=[0, 0], color='#1d1b22', opacity=0.55)) for lv in (L0, L1))), open(os.path.join(ROOT, 'locations', CAMP, '01-tavern', 'grid.json'), 'w'), indent=1)
+if not args.square_only:
+    os.makedirs(os.path.join(ROOT, 'locations', CAMP, '01-tavern'), exist_ok=True)
+    json.dump(tavern, open(os.path.join(ROOT, 'locations', CAMP, '01-tavern', 'scene.json'), 'w'), indent=1)
+    json.dump(OrderedDict(schema=1, levels=OrderedDict((lv.id, OrderedDict(floorPolygons=[ft(p) for p in lv.floor_polys], type='square', hexOrientation='pointy', origin=[0, 0], color='#1d1b22', opacity=0.55)) for lv in (L0, L1))), open(os.path.join(ROOT, 'locations', CAMP, '01-tavern', 'grid.json'), 'w'), indent=1)
 
 # ================================================================== THE TOWN SQUARE (a town of fifty: ~12 houses)
 S = Level('L0', 'The square', 0, 10, ambient='barovian-overcast', interior='plaster', exterior='plaster', north=N)
@@ -136,7 +140,8 @@ S.room('S3', 'East Lane', rect(21, 19, 34, 23), 'dirt')
 S.room('S4', 'Temple Yard', rect(9, 30, 21, 37), 'grass')
 S.room('S5', 'Tavern Yard', [(14 + OX, 0), (20 + OX, 0), (20 + OX, 13), (12 + OX, 13), (12 + OX, 12), (14 + OX, 12)], 'dirt')
 S.room('S6', 'Stables', rect(14 + OX, 5, 17 + OX, 11), 'dirt')
-S.terrain.append((rect(-2, -2, 38, 42), 'grass'))
+OUTDOOR_BOUNDS = (-2, -2, 38, 42)
+S.terrain.append((rect(*OUTDOOR_BOUNDS), 'grass'))
 import math
 for i in range(16):  # the ring road: a dirt annulus between the cobbles and the buildings
     a0, a1 = i * math.pi / 8, (i + 1) * math.pi / 8
@@ -172,6 +177,65 @@ S.obj('guz', 'commoner', (7, 21), 'hidden-creature', 'S2', 'Guz (half-orc mercen
 S.obj('bear', 'bear', (2, 21), 'hidden-creature', 'S2', 'Brown bear (polymorphed henchman)', size='large')
 S.obj('spawn', 'spawn', (8 + OX, 13.5), 'dm-note', 'S1', 'Party spawn: outside the tavern door')
 S.note('pop', (15, 17), 'S1', 'A town of about fifty: the tavern, the temple, the town hall, a handful of houses beyond the ring road. The well is the meeting place.')
+
+def outdoor_floor(level, bounds):
+    """Walk on the drawn ground, except solid scenery buildings with no playable interior.
+
+    Partition rectangles at footprint edges so holes need no special grid representation.
+    Room walls still control the stable; floor coverage never opens a door or a wall.
+    """
+    x0, z0, x1, z1 = bounds
+    blocks = []
+    for obj in level.objects:
+        if obj['kind'] not in ('house', 'temple'):
+            continue
+        angle = obj.get('rotY', 0) % 360
+        if angle % 90:
+            raise ValueError(f"Square building {obj['id']} needs a rotated walkable footprint")
+        w, d = obj['dims']['w'], obj['dims']['d']
+        parts = [(-w/2, -d/2, w/2, d/2)]
+        if obj['kind'] == 'temple':
+            # Match the ground-level solids in app/src/kit/props.ts temple():
+            # plinth, closed door, and four buttresses. Roof/eave overhangs do
+            # not block ground below them. Keep paths between protrusions.
+            parts = [(-(w+1)/2, -(d+1)/2, (w+1)/2, (d+1)/2),
+                     (-3, d/2, 3, d/2+0.6)]
+            for side in (-1, 1):
+                bx = side * (w/2 + 0.6)
+                for bz in (-d/8, d/8):
+                    parts.append((bx-0.6, bz-1, bx+0.6, bz+1))
+        cosine, sine = {0: (1, 0), 90: (0, 1), 180: (-1, 0), 270: (0, -1)}[angle]
+        for part in parts:
+            corners = [((obj['pos'][0] + cosine*x + sine*z)/C,
+                        (obj['pos'][2] - sine*x + cosine*z)/C) for x, z in rect(*part)]
+            block = (max(x0, min(p[0] for p in corners)), max(z0, min(p[1] for p in corners)),
+                     min(x1, max(p[0] for p in corners)), min(z1, max(p[1] for p in corners)))
+            if block[0] < block[2] and block[1] < block[3]: blocks.append(block)
+    xs = sorted({x0, x1} | {x for a, _, b, _ in blocks for x in (a, b)})
+    zs = sorted({z0, z1} | {z for _, a, _, b in blocks for z in (a, b)})
+    result, previous = [], {}
+    for za, zb in zip(zs, zs[1:]):
+        runs, start = [], None
+        for xa, xb in zip(xs, xs[1:]):
+            cx, cz = (xa+xb)/2, (za+zb)/2
+            blocked = any(a < cx < b and c < cz < d for a, c, b, d in blocks)
+            if not blocked and start is None: start = xa
+            if blocked and start is not None:
+                runs.append((start, xa)); start = None
+        if start is not None: runs.append((start, x1))
+        current = {}
+        for a, b in runs:
+            if (a, b) in previous:
+                index = previous[(a, b)]
+                result[index][2][1] = result[index][3][1] = zb
+            else:
+                index = len(result)
+                result.append([list(p) for p in rect(a, za, b, zb)])
+            current[(a, b)] = index
+        previous = current
+    return result
+
+S.floor_polys = outdoor_floor(S, OUTDOOR_BOUNDS)
 square = OrderedDict(schema=1, location='02-street', chapter=CAMP, name='The Town Square', bookScaleFt=5, ambient='barovian-overcast')
 square['levels'] = [S.to_json()]
 square['links'] = []
@@ -186,11 +250,13 @@ json.dump(square, open(os.path.join(ROOT, 'locations', CAMP, '02-street', 'scene
 json.dump(OrderedDict(schema=1, levels=OrderedDict(L0=OrderedDict(floorPolygons=[ft(p) for p in S.floor_polys], type='square', hexOrientation='pointy', origin=[0, 0], color='#1d1b22', opacity=0.55))), open(os.path.join(ROOT, 'locations', CAMP, '02-street', 'grid.json'), 'w'), indent=1)
 
 # refresh the manifest's area lists for these two sites
-mp = os.path.join(ROOT, 'manifests', f'{CAMP}-locations.json')
-man = json.load(open(mp), object_pairs_hook=OrderedDict)
-for loc in man['locations']:
-    sc = {'01-tavern': tavern, '02-street': square}.get(loc['id'])
-    if sc:
-        loc['name'] = sc['name']; loc['areas'] = [OrderedDict(key=r['key'], name=r['name']) for lv in sc['levels'] for r in lv['rooms']]
-json.dump(man, open(mp, 'w'), indent=1)
-print('tavern', [len(l['rooms']) for l in tavern['levels']], 'rooms;', 'square', len(square['levels'][0]['rooms']), 'rooms', len(square['levels'][0]['objects']), 'objects')
+if not args.square_only:
+    mp = os.path.join(ROOT, 'manifests', f'{CAMP}-locations.json')
+    man = json.load(open(mp), object_pairs_hook=OrderedDict)
+    for loc in man['locations']:
+        sc = {'01-tavern': tavern, '02-street': square}.get(loc['id'])
+        if sc:
+            loc['name'] = sc['name']; loc['areas'] = [OrderedDict(key=r['key'], name=r['name']) for lv in sc['levels'] for r in lv['rooms']]
+    json.dump(man, open(mp, 'w'), indent=1)
+if not args.square_only: print('tavern', [len(l['rooms']) for l in tavern['levels']], 'rooms;')
+print('square', len(square['levels'][0]['rooms']), 'rooms', len(square['levels'][0]['objects']), 'objects')

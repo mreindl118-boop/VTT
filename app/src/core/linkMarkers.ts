@@ -13,8 +13,9 @@ export interface LinkMarkerEndpoint {
 }
 
 /** Preserve the existing first-anchor marker spacing without discarding destinations.
- * Link visibility is not authored separately: only an exactly co-located concealed
- * hatch (or a trapdoor's concealed operating niche) supplies an object reveal gate.
+ * An explicit operating-object reference survives corrected landing positions.
+ * Otherwise only an exactly co-located concealed hatch (or a trapdoor's concealed
+ * operating niche) supplies an object reveal gate.
  * Nearby hidden furnishings and elevator pressure plates are not hatch gates.
  */
 export function linkMarkerGroups(scene: SceneFile, levelId: string): LinkMarkerEndpoint[][] {
@@ -24,13 +25,19 @@ export function linkMarkerGroups(scene: SceneFile, levelId: string): LinkMarkerE
   for (const link of scene.links) for (const linkEnd of ['from', 'to'] as const) {
     const end = link[linkEnd];
     if (end.level !== levelId) continue;
+    if (end.hiddenObjectId !== undefined && (typeof end.hiddenObjectId !== 'string' || !end.hiddenObjectId.length
+      || !level.objects.some(o => o.id === end.hiddenObjectId && o.vis === 'hidden-object'))) {
+      throw new Error(`link ${link.id}/${linkEnd} reveal gate must reference a hidden object on its level`);
+    }
     const hidden = level.objects.find(o => o.vis === 'hidden-object'
       && o.pos[0] === end.pos[0] && o.pos[2] === end.pos[1]
       && (o.kind === 'trapdoor' || (link.kind === 'trapdoor' && o.kind === 'niche')));
+    // Invalid explicit references are rejected above, never treated as public.
+    const hiddenObjectId = end.hiddenObjectId ?? hidden?.id;
     const endpoint: LinkMarkerEndpoint = {
       linkId: link.id, linkEnd, level: end.level, pos: [...end.pos],
       otherLevel: link[linkEnd === 'from' ? 'to' : 'from'].level, kind: link.kind,
-      ...(hidden ? { hiddenObjectId: hidden.id } : {}),
+      ...(hiddenObjectId !== undefined ? { hiddenObjectId } : {}),
     };
     const group = groups.find(g => Math.hypot(g[0].pos[0] - end.pos[0], g[0].pos[1] - end.pos[1]) < 12);
     if (group) group.push(endpoint);

@@ -104,11 +104,17 @@ export const OPENABLE_KINDS: Record<string, 'lid' | 'doors' | 'drawer'> = {
 };
 
 export type LinkKind = 'stairs' | 'spiral' | 'shaft' | 'elevator' | 'slide' | 'ladder' | 'trapdoor' | 'dumbwaiter';
+export interface LinkEndpoint {
+  level: string;
+  pos: Vec2;
+  /** Concealed operating object on this level; its reveal also reveals this direction. */
+  hiddenObjectId?: string;
+}
 export interface VerticalLink {
   id: string;
   kind: LinkKind;
-  from: { level: string; pos: Vec2 };
-  to: { level: string; pos: Vec2 };
+  from: LinkEndpoint;
+  to: LinkEndpoint;
 }
 
 export interface Level {
@@ -209,6 +215,13 @@ export function validateScene(s: SceneFile, g?: GridFile): string[] {
   }
   for (const k of s.links) {
     need(levelIds.has(k.from.level) && levelIds.has(k.to.level), `link ${k.id} references unknown level`);
+    for (const direction of ['from', 'to'] as const) {
+      const end = k[direction];
+      if (end.hiddenObjectId !== undefined) need(
+        typeof end.hiddenObjectId === 'string' && end.hiddenObjectId.length > 0
+          && !!s.levels.find(l => l.id === end.level)?.objects.some(o => o.id === end.hiddenObjectId && o.vis === 'hidden-object'),
+        `link ${k.id}/${direction} reveal gate must reference a hidden object on its level`);
+    }
   }
   return errs;
 }

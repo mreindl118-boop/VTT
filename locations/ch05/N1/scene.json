@@ -178,7 +178,7 @@
       0.0
      ],
      "b": [
-      40.0,
+      12.5,
       0.0
      ],
      "flags": [
@@ -189,132 +189,42 @@
     {
      "id": "ground-w-1",
      "a": [
-      40.0,
+      12.5,
       0.0
      ],
      "b": [
-      40.0,
-      42.5
+      15.0,
+      0.0
      ],
      "flags": [
-      "normal"
+      "window"
      ],
      "material": "rubble"
     },
     {
      "id": "ground-w-2",
      "a": [
-      35.0,
-      25.0
+      15.0,
+      0.0
      ],
      "b": [
-      40.0,
-      25.0
+      17.5,
+      0.0
      ],
      "flags": [
-      "normal"
+      "window"
      ],
-     "material": "plaster"
+     "material": "rubble"
     },
     {
      "id": "ground-w-3",
      "a": [
-      30.0,
-      25.0
+      17.5,
+      0.0
      ],
      "b": [
-      35.0,
-      25.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster"
-    },
-    {
-     "id": "ground-w-4",
-     "a": [
-      25.0,
-      25.0
-     ],
-     "b": [
-      30.0,
-      25.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster"
-    },
-    {
-     "id": "ground-w-5",
-     "a": [
-      20.0,
-      25.0
-     ],
-     "b": [
-      25.0,
-      25.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster"
-    },
-    {
-     "id": "ground-w-6",
-     "a": [
-      15.0,
-      25.0
-     ],
-     "b": [
-      20.0,
-      25.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster"
-    },
-    {
-     "id": "ground-w-7",
-     "a": [
-      10.0,
-      25.0
-     ],
-     "b": [
-      15.0,
-      25.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster"
-    },
-    {
-     "id": "ground-w-8",
-     "a": [
-      5.0,
-      25.0
-     ],
-     "b": [
-      10.0,
-      25.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster"
-    },
-    {
-     "id": "ground-w-9",
-     "a": [
-      5.0,
-      20.0
-     ],
-     "b": [
-      5.0,
-      42.5
+      22.5,
+      0.0
      ],
      "flags": [
       "normal"
@@ -322,14 +232,104 @@
      "material": "rubble"
     },
     {
-     "id": "ground-w-10",
+     "id": "ground-w-4",
      "a": [
-      5.0,
-      15.0
+      22.5,
+      0.0
      ],
      "b": [
-      5.0,
-      20.0
+      25.0,
+      0.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "ground-w-5",
+     "a": [
+      25.0,
+      0.0
+     ],
+     "b": [
+      27.5,
+      0.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "ground-w-6",
+     "a": [
+      27.5,
+      0.0
+     ],
+     "b": [
+      40.0,
+      0.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "ground-w-7",
+     "a": [
+      40.0,
+      0.0
+     ],
+     "b": [
+      40.0,
+      2.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "ground-w-8",
+     "a": [
+      40.0,
+      2.5
+     ],
+     "b": [
+      40.0,
+      5.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "ground-w-9",
+     "a": [
+      40.0,
+      5.0
+     ],
+     "b": [
+      40.0,
+      7.5
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "ground-w-10",
+     "a": [
+      40.0,
+      7.5
+     ],
+     "b": [
+      40.0,
+      12.5
      ],
      "flags": [
       "normal"
@@ -339,68 +339,38 @@
     {
      "id": "ground-w-11",
      "a": [
-      5.0,
-      10.0
+      40.0,
+      12.5
      ],
      "b": [
-      5.0,
+      40.0,
       15.0
      ],
      "flags": [
-      "normal"
+      "window"
      ],
      "material": "rubble"
     },
     {
      "id": "ground-w-12",
      "a": [
-      5.0,
-      5.0
+      40.0,
+      15.0
      ],
      "b": [
-      5.0,
-      10.0
+      40.0,
+      17.5
      ],
      "flags": [
-      "normal"
+      "window"
      ],
      "material": "rubble"
     },
     {
      "id": "ground-w-13",
      "a": [
-      5.0,
-      0.0
-     ],
-     "b": [
-      5.0,
-      5.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "rubble"
-    },
-    {
-     "id": "ground-w-14",
-     "a": [
-      30.0,
-      25.0
-     ],
-     "b": [
-      30.0,
-      42.5
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "plaster"
-    },
-    {
-     "id": "ground-w-15",
-     "a": [
-      25.0,
-      42.5
+      40.0,
+      17.5
      ],
      "b": [
       40.0,
@@ -412,44 +382,74 @@
      "material": "rubble"
     },
     {
-     "id": "ground-w-16",
+     "id": "ground-w-14",
      "a": [
-      20.0,
-      42.5
+      35.0,
+      25.0
      ],
      "b": [
-      25.0,
-      42.5
+      40.0,
+      25.0
      ],
      "flags": [
       "normal"
      ],
-     "material": "rubble"
+     "material": "plaster"
+    },
+    {
+     "id": "ground-w-15",
+     "a": [
+      30.0,
+      25.0
+     ],
+     "b": [
+      35.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "ground-w-16",
+     "a": [
+      25.0,
+      25.0
+     ],
+     "b": [
+      30.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
     },
     {
      "id": "ground-w-17",
      "a": [
-      15.0,
-      42.5
+      20.0,
+      25.0
      ],
      "b": [
-      20.0,
-      42.5
+      25.0,
+      25.0
      ],
      "flags": [
       "normal"
      ],
-     "material": "rubble"
+     "material": "plaster"
     },
     {
      "id": "ground-w-18",
      "a": [
       15.0,
-      38.125
+      25.0
      ],
      "b": [
-      15.0,
-      42.5
+      20.0,
+      25.0
      ],
      "flags": [
       "normal"
@@ -459,12 +459,12 @@
     {
      "id": "ground-w-19",
      "a": [
-      15.0,
-      33.75
+      10.0,
+      25.0
      ],
      "b": [
       15.0,
-      38.125
+      25.0
      ],
      "flags": [
       "normal"
@@ -474,12 +474,12 @@
     {
      "id": "ground-w-20",
      "a": [
-      15.0,
-      29.375
+      5.0,
+      25.0
      ],
      "b": [
-      15.0,
-      33.75
+      10.0,
+      25.0
      ],
      "flags": [
       "normal"
@@ -489,57 +489,57 @@
     {
      "id": "ground-w-21",
      "a": [
-      15.0,
-      25.0
+      5.0,
+      20.0
      ],
      "b": [
-      15.0,
-      29.375
+      5.0,
+      42.5
      ],
      "flags": [
       "normal"
      ],
-     "material": "plaster"
+     "material": "rubble"
     },
     {
      "id": "ground-w-22",
      "a": [
-      10.0,
-      33.75
+      5.0,
+      15.0
      ],
      "b": [
-      15.0,
-      33.75
+      5.0,
+      17.5
      ],
      "flags": [
-      "normal"
+      "window"
      ],
-     "material": "plaster"
+     "material": "rubble"
     },
     {
      "id": "ground-w-23",
      "a": [
       5.0,
-      33.75
+      17.5
      ],
      "b": [
-      10.0,
-      33.75
+      5.0,
+      20.0
      ],
      "flags": [
       "normal"
      ],
-     "material": "plaster"
+     "material": "rubble"
     },
     {
      "id": "ground-w-24",
      "a": [
-      10.0,
-      42.5
+      5.0,
+      10.0
      ],
      "b": [
-      15.0,
-      42.5
+      5.0,
+      12.5
      ],
      "flags": [
       "normal"
@@ -550,6 +550,312 @@
      "id": "ground-w-25",
      "a": [
       5.0,
+      12.5
+     ],
+     "b": [
+      5.0,
+      15.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "ground-w-26",
+     "a": [
+      5.0,
+      5.0
+     ],
+     "b": [
+      5.0,
+      7.5
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "ground-w-27",
+     "a": [
+      5.0,
+      7.5
+     ],
+     "b": [
+      5.0,
+      10.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "ground-w-28",
+     "a": [
+      5.0,
+      0.0
+     ],
+     "b": [
+      5.0,
+      2.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "ground-w-29",
+     "a": [
+      5.0,
+      2.5
+     ],
+     "b": [
+      5.0,
+      5.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "N1-ground-w-55",
+     "a": [
+      30.0,
+      25.0
+     ],
+     "b": [
+      30.0,
+      30.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "plaster",
+     "open": false
+    },
+    {
+     "id": "ground-w-31",
+     "a": [
+      30.0,
+      30.0
+     ],
+     "b": [
+      30.0,
+      33.75
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "N1-ground-w-56",
+     "a": [
+      30.0,
+      33.75
+     ],
+     "b": [
+      30.0,
+      38.75
+     ],
+     "flags": [
+      "door",
+      "locked"
+     ],
+     "material": "plaster",
+     "open": false
+    },
+    {
+     "id": "ground-w-33",
+     "a": [
+      30.0,
+      38.75
+     ],
+     "b": [
+      30.0,
+      42.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "ground-w-34",
+     "a": [
+      25.0,
+      42.5
+     ],
+     "b": [
+      40.0,
+      42.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "N1-ground-w-52",
+     "a": [
+      17.5,
+      42.5
+     ],
+     "b": [
+      22.5,
+      42.5
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "rubble",
+     "open": false
+    },
+    {
+     "id": "ground-w-36",
+     "a": [
+      22.5,
+      42.5
+     ],
+     "b": [
+      25.0,
+      42.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "ground-w-37",
+     "a": [
+      15.0,
+      42.5
+     ],
+     "b": [
+      17.5,
+      42.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "N1-ground-w-54",
+     "a": [
+      15.0,
+      33.75
+     ],
+     "b": [
+      15.0,
+      38.75
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "plaster",
+     "open": false
+    },
+    {
+     "id": "ground-w-39",
+     "a": [
+      15.0,
+      38.75
+     ],
+     "b": [
+      15.0,
+      42.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "N1-ground-w-53",
+     "a": [
+      15.0,
+      25.0
+     ],
+     "b": [
+      15.0,
+      30.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "plaster",
+     "open": false
+    },
+    {
+     "id": "ground-w-41",
+     "a": [
+      15.0,
+      30.0
+     ],
+     "b": [
+      15.0,
+      33.75
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "ground-w-42",
+     "a": [
+      10.0,
+      33.75
+     ],
+     "b": [
+      15.0,
+      33.75
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "ground-w-43",
+     "a": [
+      5.0,
+      33.75
+     ],
+     "b": [
+      10.0,
+      33.75
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "plaster"
+    },
+    {
+     "id": "ground-w-44",
+     "a": [
+      10.0,
+      42.5
+     ],
+     "b": [
+      15.0,
+      42.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "rubble"
+    },
+    {
+     "id": "ground-w-45",
+     "a": [
+      5.0,
       42.5
      ],
      "b": [
@@ -562,7 +868,7 @@
      "material": "rubble"
     },
     {
-     "id": "ground-w-26",
+     "id": "ground-w-46",
      "a": [
       35.0,
       33.75
@@ -577,7 +883,7 @@
      "material": "plaster"
     },
     {
-     "id": "ground-w-27",
+     "id": "ground-w-47",
      "a": [
       30.0,
       33.75

@@ -126,7 +126,11 @@ slab('ledge', KL.RIM_CELLS, GRASS)
 GRID_EXTRA = [[(56, 26), (58, 24), (74, 24), (76, 26), (76, 35), (74.5, 38), (70, 39.5), (64, 41), (58, 42), (56, 42)]]   # the gardens
 ROAD_N = [(12.5, -1.3), (19, -1.4), (26, -1.2), (27, 1), (27.6, 5), (27.6, 12), (28, 19), (29.5, 23), (31.2, 25.6)]
 ROAD_E = [(32.5, 26.5), (36, 28.4), (42, 29.1), (50, 29.1), (55, 29.3), (58.5, 30.5)]
-for i, poly in enumerate(strip(ROAD_N, 2.2) + strip(ROAD_E, 2.4)): slab(f'road{i}', poly, DIRT, h=0.12, y=-0.05)
+ROAD_STRIPS = strip(ROAD_N, 2.2) + strip(ROAD_E, 2.4)
+for i, poly in enumerate(ROAD_STRIPS): slab(f'road{i}', poly, DIRT, h=0.12, y=-0.05)
+# Collision follows the same rendered ledge and narrow road strips. The outer
+# cliff is still outside the floor; the existing curtain/gate walls still block.
+GRID_EXTRA += [KL.RIM_CELLS] + ROAD_STRIPS
 # the five-foot walls of mortared stone round the grounds, the gate posts (S6), the garden gatehouse (S8)
 def wall_run(lv, pts, h=5, material='rubble'):
     for a, b in zip(pts[:-1], pts[1:]): lv.wall(a, b, heightFt=h, material=material)

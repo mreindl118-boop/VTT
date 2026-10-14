@@ -59,3 +59,35 @@ test('unexplored ordinary routes stay hidden and an open chooser closes on view 
   });
   await expect(page.locator('.lbl.link:visible')).toHaveCount(0);
 });
+
+test('K51 wall hook reveals the corrected hatch landing without moving the hook', async ({page}) => {
+  await boot(page,'ch04/K');
+  const offset=await page.evaluate(() => {
+    const m=(window as any).__mistlab,a=m.app,k=a.cur.scene.links.find((k:any)=>k.id==='lk-k51');
+    const hook=a.cur.scene.levels.find((l:any)=>l.id===k.from.level).objects.find((o:any)=>o.id==='spires-hook-k51');
+    m.moveParty(k.from.level,...k.from.pos);a.jumpTo('K51');a.setView('players');m.frame('top');
+    return Math.hypot(hook.pos[0]-k.from.pos[0],hook.pos[2]-k.from.pos[1]);
+  });
+  expect(offset).toBe(4);
+  const hatch=page.locator('.lbl.link[data-routes~="lk-k51:from"]:visible');
+  await expect(hatch).toHaveCount(0);
+  expect(await page.evaluate(() => {const a=(window as any).__mistlab.app;a.afterPartyMoveFromUi();return a.party.level;})).toBe('spires');
+  await page.evaluate(() => {const a=(window as any).__mistlab.app;a.toggleObject('spires-hook-k51');a.recompute();});
+  await expect(hatch).toBeVisible();
+  await takeRoute(page,'lk-k51','from');
+  expect(await page.evaluate(() => (window as any).__mistlab.app.party.level)).toBe('south-tower');
+});
+
+test('an invalid reveal reference rejects the map before graphics allocation and preserves the open scene',async({page})=>{
+  await boot(page);
+  const result=await page.evaluate(()=>{
+    const a=(window as any).__mistlab.app,scene=structuredClone(a.cur.scene),before=JSON.stringify(a.state),current=a.cur;
+    scene.links[0].from.hiddenObjectId='';
+    const memory={...a.world.renderer.info.memory};let message='';
+    try { a.loadSteps('invalid-fixture',{scene,grid:a.cur.grid},{campaign:a.campaign,state:a.state}).next(); }
+    catch(error) {message=String(error);}
+    return {message,same:a.cur===current&&JSON.stringify(a.state)===before,memorySame:JSON.stringify(a.world.renderer.info.memory)===JSON.stringify(memory)};
+  });
+  expect(result.message).toContain('reveal gate must reference a hidden object on its level');
+  expect(result.same).toBe(true);expect(result.memorySame).toBe(true);
+});

@@ -1481,8 +1481,8 @@
       390
      ],
      "b": [
-      230,
-      390
+      230.0,
+      390.0
      ],
      "flags": [
       "normal"
@@ -1493,8 +1493,8 @@
     {
      "id": "pass-x-1",
      "a": [
-      240,
-      390
+      240.0,
+      390.0
      ],
      "b": [
       260,
@@ -4052,6 +4052,14 @@
        370
       ],
       [
+       256.035,
+       360.57
+      ],
+      [
+       252.435,
+       356.97
+      ],
+      [
        250,
        354.535
       ],
@@ -4072,6 +4080,31 @@
      "ceilingFt": 20,
      "desc": "Bitter cold up here, and nearly every wall has a window. A rusted ladder climbs to a trapdoor in the ceiling; a dire wolf's head glares down from above the hearth.",
      "dm": "The rusted ladder is bolted to floor and ceiling; the trapdoor squeals open onto the roof."
+    },
+    {
+     "key": "T5-landing",
+     "name": "Guard Tower Stair Landing",
+     "page": 159,
+     "polygon": [
+      [
+       251.0,
+       358.2
+      ],
+      [
+       254.6,
+       361.8
+      ],
+      [
+       256.035,
+       360.57
+      ],
+      [
+       252.435,
+       356.97
+      ]
+     ],
+     "floor": "flagstone",
+     "ceilingFt": 20
     }
    ],
    "walls": [
@@ -4243,8 +4276,8 @@
     {
      "id": "tower-upper-w-11",
      "a": [
-      250,
-      354.53499999999997
+      256.035,
+      360.57000000000005
      ],
      "b": [
       265.46500000000003,
@@ -4259,6 +4292,22 @@
     {
      "id": "tower-upper-w-12",
      "a": [
+      250,
+      354.53499999999997
+     ],
+     "b": [
+      252.435,
+      356.97
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 3.5
+    },
+    {
+     "id": "tower-upper-w-13",
+     "a": [
       250.0,
       348.75
      ],
@@ -4272,7 +4321,7 @@
      "material": "ashlar"
     },
     {
-     "id": "tower-upper-w-13",
+     "id": "tower-upper-w-14",
      "a": [
       250,
       348.75
@@ -4287,7 +4336,7 @@
      "material": "ashlar"
     },
     {
-     "id": "tower-upper-w-14",
+     "id": "tower-upper-w-15",
      "a": [
       252.625,
       346.125
@@ -4302,7 +4351,7 @@
      "material": "ashlar"
     },
     {
-     "id": "tower-upper-w-15",
+     "id": "tower-upper-w-16",
      "a": [
       256.125,
       342.625
@@ -4319,12 +4368,12 @@
     {
      "id": "tower-upper-x-0",
      "a": [
-      265.46500000000003,
+      258.75,
       370
      ],
      "b": [
-      258.75,
-      370
+      265.46500000000003,
+      370.0
      ],
      "flags": [
       "normal"
@@ -4334,12 +4383,12 @@
     {
      "id": "tower-upper-x-1",
      "a": [
-      258.75,
-      370
-     ],
-     "b": [
       250,
       361.25
+     ],
+     "b": [
+      258.75,
+      370
      ],
      "flags": [
       "normal"
@@ -4349,12 +4398,12 @@
     {
      "id": "tower-upper-x-2",
      "a": [
-      250,
-      361.25
+      250.0,
+      354.53499999999997
      ],
      "b": [
       250,
-      354.53499999999997
+      361.25
      ],
      "flags": [
       "normal"
@@ -5394,8 +5443,8 @@
    "to": {
     "level": "tower-upper",
     "pos": [
-     253.0,
-     360.0
+     255.5,
+     357.5
     ]
    }
   },

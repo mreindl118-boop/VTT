@@ -1536,6 +1536,21 @@
       35.0
      ],
      "b": [
+      20.0,
+      35.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-2",
+     "a": [
+      20.0,
+      35.0
+     ],
+     "b": [
       30.0,
       35.0
      ],
@@ -1545,7 +1560,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-2",
+     "id": "ground-w-3",
      "a": [
       30.0,
       35.0
@@ -1576,7 +1591,7 @@
      "open": false
     },
     {
-     "id": "ground-w-4",
+     "id": "ground-w-5",
      "a": [
       30.0,
       55.0
@@ -1591,7 +1606,7 @@
      "material": "paneling"
     },
     {
-     "id": "ground-w-5",
+     "id": "ground-w-6",
      "a": [
       25.0,
       70.0
@@ -1606,7 +1621,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-6",
+     "id": "ground-w-7",
      "a": [
       20.0,
       70.0
@@ -1621,7 +1636,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-7",
+     "id": "ground-w-8",
      "a": [
       15.0,
       70.0
@@ -1631,12 +1646,12 @@
       70.0
      ],
      "flags": [
-      "normal"
+      "window"
      ],
      "material": "ashlar"
     },
     {
-     "id": "ground-w-8",
+     "id": "ground-w-9",
      "a": [
       7.5,
       60
@@ -1651,7 +1666,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-9",
+     "id": "ground-w-10",
      "a": [
       7.5,
       55.0
@@ -1666,7 +1681,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-10",
+     "id": "ground-w-11",
      "a": [
       7.5,
       50.0
@@ -1681,7 +1696,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-11",
+     "id": "ground-w-12",
      "a": [
       7.5,
       45.0
@@ -1696,7 +1711,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-12",
+     "id": "ground-w-13",
      "a": [
       30.0,
       15.0
@@ -1711,7 +1726,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-13",
+     "id": "ground-w-14",
      "a": [
       40.0,
       15.0
@@ -1726,7 +1741,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-14",
+     "id": "ground-w-15",
      "a": [
       45.0,
       15.0
@@ -1741,7 +1756,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-15",
+     "id": "ground-w-16",
      "a": [
       65.0,
       15.0
@@ -1756,13 +1771,13 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-16",
+     "id": "ground-w-17",
      "a": [
       70.0,
       15.0
      ],
      "b": [
-      115.0,
+      92.5,
       15.0
      ],
      "flags": [
@@ -1771,10 +1786,71 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-17",
+     "id": "ground-w-18",
      "a": [
       85.0,
       15.0
+     ],
+     "b": [
+      85.0,
+      17.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "N4e-h",
+     "a": [
+      85.0,
+      17.5
+     ],
+     "b": [
+      85.0,
+      22.5
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "paneling",
+     "open": false
+    },
+    {
+     "id": "ground-w-20",
+     "a": [
+      85.0,
+      22.5
+     ],
+     "b": [
+      85,
+      27.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-sd-closet-stair",
+     "a": [
+      85,
+      27.5
+     ],
+     "b": [
+      85,
+      32.5
+     ],
+     "flags": [
+      "secret-door"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-22",
+     "a": [
+      85,
+      32.5
      ],
      "b": [
       85.0,
@@ -1786,13 +1862,13 @@
      "material": "paneling"
     },
     {
-     "id": "ground-w-18",
+     "id": "ground-w-23",
      "a": [
       80.0,
       35.0
      ],
      "b": [
-      105.0,
+      92.5,
       35.0
      ],
      "flags": [
@@ -1801,7 +1877,7 @@
      "material": "paneling"
     },
     {
-     "id": "ground-w-19",
+     "id": "ground-w-24",
      "a": [
       75.0,
       35.0
@@ -1816,7 +1892,7 @@
      "material": "paneling"
     },
     {
-     "id": "ground-w-20",
+     "id": "ground-w-25",
      "a": [
       70.0,
       35.0
@@ -1831,7 +1907,7 @@
      "material": "paneling"
     },
     {
-     "id": "ground-w-21",
+     "id": "ground-w-26",
      "a": [
       65.0,
       35.0
@@ -1846,7 +1922,7 @@
      "material": "paneling"
     },
     {
-     "id": "ground-w-22",
+     "id": "ground-w-27",
      "a": [
       60.0,
       35.0
@@ -1877,7 +1953,7 @@
      "open": false
     },
     {
-     "id": "ground-w-24",
+     "id": "ground-w-29",
      "a": [
       50.0,
       35.0
@@ -1892,7 +1968,7 @@
      "material": "paneling"
     },
     {
-     "id": "ground-w-25",
+     "id": "ground-w-30",
      "a": [
       45.0,
       35.0
@@ -1907,7 +1983,7 @@
      "material": "paneling"
     },
     {
-     "id": "ground-w-26",
+     "id": "ground-w-31",
      "a": [
       40.0,
       35.0
@@ -1922,7 +1998,7 @@
      "material": "paneling"
     },
     {
-     "id": "ground-w-27",
+     "id": "ground-w-32",
      "a": [
       35.0,
       35.0
@@ -1937,7 +2013,7 @@
      "material": "paneling"
     },
     {
-     "id": "ground-w-28",
+     "id": "ground-w-33",
      "a": [
       30.0,
       35.0
@@ -1952,7 +2028,7 @@
      "material": "paneling"
     },
     {
-     "id": "ground-w-29",
+     "id": "ground-w-34",
      "a": [
       30.0,
       30.0
@@ -1967,7 +2043,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-30",
+     "id": "ground-w-35",
      "a": [
       30.0,
       25.0
@@ -1982,88 +2058,167 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-31",
-     "a": [
-      30.0,
-      20.0
-     ],
-     "b": [
-      30.0,
-      25.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-32",
-     "a": [
-      30.0,
-      15.0
-     ],
-     "b": [
-      30.0,
-      20.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-33",
-     "a": [
-      105.0,
-      15.0
-     ],
-     "b": [
-      105.0,
-      75.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-34",
-     "a": [
-      100.0,
-      25.0
-     ],
-     "b": [
-      105.0,
-      25.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "ground-w-35",
-     "a": [
-      95.0,
-      25.0
-     ],
-     "b": [
-      100.0,
-      25.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
      "id": "ground-w-36",
+     "a": [
+      30.0,
+      20.0
+     ],
+     "b": [
+      30.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-37",
+     "a": [
+      30.0,
+      15.0
+     ],
+     "b": [
+      30.0,
+      20.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "N4e-back",
+     "a": [
+      92.5,
+      15.0
+     ],
+     "b": [
+      97.5,
+      15.0
+     ],
+     "flags": [
+      "door",
+      "locked"
+     ],
+     "material": "ashlar",
+     "open": false
+    },
+    {
+     "id": "ground-w-39",
+     "a": [
+      97.5,
+      15.0
+     ],
+     "b": [
+      115.0,
+      15.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-40",
+     "a": [
+      105.0,
+      15.0
+     ],
+     "b": [
+      105.0,
+      17.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "N4e-d",
+     "a": [
+      105.0,
+      17.5
+     ],
+     "b": [
+      105.0,
+      22.5
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "paneling",
+     "open": false
+    },
+    {
+     "id": "ground-w-42",
+     "a": [
+      105.0,
+      22.5
+     ],
+     "b": [
+      105.0,
+      57.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-43",
+     "a": [
+      100.0,
+      25.0
+     ],
+     "b": [
+      105.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "N4e-f",
+     "a": [
+      92.5,
+      25.0
+     ],
+     "b": [
+      97.5,
+      25.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "paneling",
+     "open": false
+    },
+    {
+     "id": "ground-w-45",
+     "a": [
+      97.5,
+      25.0
+     ],
+     "b": [
+      100.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-46",
      "a": [
       90.0,
       25.0
      ],
      "b": [
-      95.0,
+      92.5,
       25.0
      ],
      "flags": [
@@ -2072,7 +2227,7 @@
      "material": "paneling"
     },
     {
-     "id": "ground-w-37",
+     "id": "ground-w-47",
      "a": [
       85.0,
       25.0
@@ -2087,164 +2242,14 @@
      "material": "paneling"
     },
     {
-     "id": "ground-w-38",
-     "a": [
-      115.0,
-      15.0
-     ],
-     "b": [
-      120.0,
-      15.0
-     ],
-     "flags": [
-      "window"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-39",
-     "a": [
-      120.0,
-      15.0
-     ],
-     "b": [
-      130.0,
-      15.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-40",
-     "a": [
-      130.0,
-      15.0
-     ],
-     "b": [
-      135.0,
-      15.0
-     ],
-     "flags": [
-      "window"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-41",
-     "a": [
-      135.0,
-      15.0
-     ],
-     "b": [
-      140.0,
-      15.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-42",
-     "a": [
-      140.0,
-      15.0
-     ],
-     "b": [
-      140.0,
-      85.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-43",
-     "a": [
-      135.0,
-      47.5
-     ],
-     "b": [
-      140.0,
-      47.5
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "ground-w-44",
-     "a": [
-      130.0,
-      47.5
-     ],
-     "b": [
-      135.0,
-      47.5
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "ground-w-45",
-     "a": [
-      125.0,
-      47.5
-     ],
-     "b": [
-      130.0,
-      47.5
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "ground-w-46",
-     "a": [
-      120.0,
-      47.5
-     ],
-     "b": [
-      125.0,
-      47.5
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "ground-w-47",
-     "a": [
-      115.0,
-      47.5
-     ],
-     "b": [
-      120.0,
-      47.5
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
      "id": "ground-w-48",
      "a": [
-      110.0,
-      47.5
+      100.0,
+      35.0
      ],
      "b": [
-      115.0,
-      47.5
+      105.0,
+      35.0
      ],
      "flags": [
       "normal"
@@ -2252,59 +2257,60 @@
      "material": "paneling"
     },
     {
-     "id": "ground-w-49",
+     "id": "N4f-b",
      "a": [
-      105.0,
-      47.5
+      92.5,
+      35.0
      ],
      "b": [
-      110.0,
-      47.5
+      97.5,
+      35.0
      ],
      "flags": [
-      "normal"
+      "door"
      ],
-     "material": "paneling"
+     "material": "paneling",
+     "open": false
     },
     {
      "id": "ground-w-50",
      "a": [
-      105.0,
-      42.08333333333333
+      97.5,
+      35.0
      ],
      "b": [
-      105.0,
-      75.0
+      100.0,
+      35.0
      ],
      "flags": [
       "normal"
      ],
-     "material": "ashlar"
+     "material": "paneling"
     },
     {
      "id": "ground-w-51",
      "a": [
-      105.0,
-      36.66666666666667
+      115.0,
+      15.0
      ],
      "b": [
-      105.0,
-      42.08333333333333
+      120.0,
+      15.0
      ],
      "flags": [
-      "normal"
+      "window"
      ],
      "material": "ashlar"
     },
     {
      "id": "ground-w-52",
      "a": [
-      105.0,
-      31.25
+      120.0,
+      15.0
      ],
      "b": [
-      105.0,
-      36.66666666666667
+      130.0,
+      15.0
      ],
      "flags": [
       "normal"
@@ -2314,27 +2320,27 @@
     {
      "id": "ground-w-53",
      "a": [
-      105.0,
-      25.833333333333336
+      130.0,
+      15.0
      ],
      "b": [
-      105.0,
-      31.25
+      135.0,
+      15.0
      ],
      "flags": [
-      "normal"
+      "window"
      ],
      "material": "ashlar"
     },
     {
      "id": "ground-w-54",
      "a": [
-      105.0,
-      20.416666666666664
+      135.0,
+      15.0
      ],
      "b": [
-      105.0,
-      25.833333333333336
+      140.0,
+      15.0
      ],
      "flags": [
       "normal"
@@ -2344,17 +2350,183 @@
     {
      "id": "ground-w-55",
      "a": [
-      105.0,
+      140.0,
       15.0
      ],
      "b": [
-      105.0,
-      20.416666666666664
+      140.0,
+      25.0
      ],
      "flags": [
       "normal"
      ],
      "material": "ashlar"
+    },
+    {
+     "id": "ground-w-56",
+     "a": [
+      140.0,
+      25.0
+     ],
+     "b": [
+      140.0,
+      27.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "N4r-door",
+     "a": [
+      140.0,
+      27.5
+     ],
+     "b": [
+      140.0,
+      32.5
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "paneling",
+     "open": false
+    },
+    {
+     "id": "ground-w-58",
+     "a": [
+      140.0,
+      32.5
+     ],
+     "b": [
+      140.0,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-59",
+     "a": [
+      140.0,
+      35.0
+     ],
+     "b": [
+      140.0,
+      55.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-60",
+     "a": [
+      135.0,
+      47.5
+     ],
+     "b": [
+      140.0,
+      47.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-61",
+     "a": [
+      130.0,
+      47.5
+     ],
+     "b": [
+      135.0,
+      47.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-62",
+     "a": [
+      125.0,
+      47.5
+     ],
+     "b": [
+      130.0,
+      47.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-63",
+     "a": [
+      120.0,
+      47.5
+     ],
+     "b": [
+      125.0,
+      47.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-64",
+     "a": [
+      115.0,
+      47.5
+     ],
+     "b": [
+      120.0,
+      47.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-65",
+     "a": [
+      110.0,
+      47.5
+     ],
+     "b": [
+      115.0,
+      47.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "ground-w-66",
+     "a": [
+      105.0,
+      47.5
+     ],
+     "b": [
+      110.0,
+      47.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
     },
     {
      "id": "N4i-door",
@@ -2373,7 +2545,7 @@
      "open": false
     },
     {
-     "id": "ground-w-57",
+     "id": "ground-w-68",
      "a": [
       85.0,
       55.0
@@ -2388,7 +2560,7 @@
      "material": "paneling"
     },
     {
-     "id": "ground-w-58",
+     "id": "ground-w-69",
      "a": [
       80.0,
       70.0
@@ -2403,7 +2575,7 @@
      "material": "paneling"
     },
     {
-     "id": "ground-w-59",
+     "id": "ground-w-70",
      "a": [
       75.0,
       70.0
@@ -2418,7 +2590,7 @@
      "material": "paneling"
     },
     {
-     "id": "ground-w-60",
+     "id": "ground-w-71",
      "a": [
       70.0,
       70.0
@@ -2433,7 +2605,7 @@
      "material": "paneling"
     },
     {
-     "id": "ground-w-61",
+     "id": "ground-w-72",
      "a": [
       65.0,
       70.0
@@ -2448,7 +2620,7 @@
      "material": "paneling"
     },
     {
-     "id": "ground-w-62",
+     "id": "ground-w-73",
      "a": [
       60.0,
       70.0
@@ -2479,7 +2651,7 @@
      "open": false
     },
     {
-     "id": "ground-w-64",
+     "id": "ground-w-75",
      "a": [
       50.0,
       70.0
@@ -2494,7 +2666,7 @@
      "material": "paneling"
     },
     {
-     "id": "ground-w-65",
+     "id": "ground-w-76",
      "a": [
       45.0,
       70.0
@@ -2509,7 +2681,7 @@
      "material": "paneling"
     },
     {
-     "id": "ground-w-66",
+     "id": "ground-w-77",
      "a": [
       40.0,
       70.0
@@ -2524,7 +2696,7 @@
      "material": "paneling"
     },
     {
-     "id": "ground-w-67",
+     "id": "ground-w-78",
      "a": [
       35.0,
       70.0
@@ -2539,7 +2711,7 @@
      "material": "paneling"
     },
     {
-     "id": "ground-w-68",
+     "id": "ground-w-79",
      "a": [
       30.0,
       70.0
@@ -2554,14 +2726,30 @@
      "material": "paneling"
     },
     {
-     "id": "ground-w-69",
+     "id": "N4c-door",
      "a": [
       105.0,
-      75.0
+      57.5
      ],
      "b": [
       105.0,
-      95.0
+      62.5
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "paneling",
+     "open": false
+    },
+    {
+     "id": "ground-w-81",
+     "a": [
+      105.0,
+      62.5
+     ],
+     "b": [
+      105.0,
+      82.5
      ],
      "flags": [
       "normal"
@@ -2569,7 +2757,7 @@
      "material": "paneling"
     },
     {
-     "id": "ground-w-70",
+     "id": "ground-w-82",
      "a": [
       100.0,
       80.0
@@ -2584,9 +2772,25 @@
      "material": "paneling"
     },
     {
-     "id": "ground-w-71",
+     "id": "N4a-inner",
      "a": [
-      95.0,
+      92.5,
+      80.0
+     ],
+     "b": [
+      97.5,
+      80.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "paneling",
+     "open": false
+    },
+    {
+     "id": "ground-w-84",
+     "a": [
+      97.5,
       80.0
      ],
      "b": [
@@ -2599,13 +2803,13 @@
      "material": "paneling"
     },
     {
-     "id": "ground-w-72",
+     "id": "ground-w-85",
      "a": [
       90.0,
       80.0
      ],
      "b": [
-      95.0,
+      92.5,
       80.0
      ],
      "flags": [
@@ -2614,7 +2818,7 @@
      "material": "paneling"
     },
     {
-     "id": "ground-w-73",
+     "id": "ground-w-86",
      "a": [
       85.0,
       80.0
@@ -2629,7 +2833,52 @@
      "material": "paneling"
     },
     {
-     "id": "ground-w-74",
+     "id": "ground-w-87",
+     "a": [
+      140.0,
+      55.0
+     ],
+     "b": [
+      140.0,
+      56.66666666666667
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-88",
+     "a": [
+      140.0,
+      56.66666666666667
+     ],
+     "b": [
+      140.0,
+      60.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-89",
+     "a": [
+      140.0,
+      60.0
+     ],
+     "b": [
+      140.0,
+      85.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-90",
      "a": [
       135.0,
       75.0
@@ -2641,10 +2890,10 @@
      "flags": [
       "normal"
      ],
-     "material": "ashlar"
+     "material": "paneling"
     },
     {
-     "id": "ground-w-75",
+     "id": "ground-w-91",
      "a": [
       130.0,
       75.0
@@ -2656,10 +2905,10 @@
      "flags": [
       "normal"
      ],
-     "material": "ashlar"
+     "material": "paneling"
     },
     {
-     "id": "ground-w-76",
+     "id": "ground-w-92",
      "a": [
       125.0,
       75.0
@@ -2671,10 +2920,10 @@
      "flags": [
       "normal"
      ],
-     "material": "ashlar"
+     "material": "paneling"
     },
     {
-     "id": "ground-w-77",
+     "id": "ground-w-93",
      "a": [
       120.0,
       75.0
@@ -2686,10 +2935,10 @@
      "flags": [
       "normal"
      ],
-     "material": "ashlar"
+     "material": "paneling"
     },
     {
-     "id": "ground-w-78",
+     "id": "ground-w-94",
      "a": [
       115.0,
       75.0
@@ -2701,7 +2950,7 @@
      "flags": [
       "normal"
      ],
-     "material": "ashlar"
+     "material": "paneling"
     },
     {
      "id": "N4c-pantry-door",
@@ -2716,11 +2965,11 @@
      "flags": [
       "door"
      ],
-     "material": "ashlar",
+     "material": "paneling",
      "open": false
     },
     {
-     "id": "ground-w-80",
+     "id": "ground-w-96",
      "a": [
       105.0,
       75.0
@@ -2732,25 +2981,10 @@
      "flags": [
       "normal"
      ],
-     "material": "ashlar"
+     "material": "paneling"
     },
     {
-     "id": "ground-w-81",
-     "a": [
-      105.0,
-      75.0
-     ],
-     "b": [
-      140.0,
-      75.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-82",
+     "id": "ground-w-97",
      "a": [
       117.5,
       75.0
@@ -2765,7 +2999,7 @@
      "material": "paneling"
     },
     {
-     "id": "ground-w-83",
+     "id": "ground-w-98",
      "a": [
       111.25,
       90.0
@@ -2780,7 +3014,7 @@
      "material": "paneling"
     },
     {
-     "id": "ground-w-84",
+     "id": "ground-w-99",
      "a": [
       105.0,
       90.0
@@ -2788,6 +3022,37 @@
      "b": [
       111.25,
       90.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "N4k-east-door",
+     "a": [
+      105.0,
+      82.5
+     ],
+     "b": [
+      105.0,
+      87.5
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "paneling",
+     "open": false
+    },
+    {
+     "id": "ground-w-101",
+     "a": [
+      105.0,
+      87.5
+     ],
+     "b": [
+      105.0,
+      95.0
      ],
      "flags": [
       "normal"
@@ -2811,7 +3076,7 @@
      "open": false
     },
     {
-     "id": "ground-w-86",
+     "id": "ground-w-103",
      "a": [
       85.0,
       90.0
@@ -2842,7 +3107,7 @@
      "open": false
     },
     {
-     "id": "ground-w-88",
+     "id": "ground-w-105",
      "a": [
       85.0,
       100.0
@@ -2857,7 +3122,7 @@
      "material": "paneling"
     },
     {
-     "id": "ground-w-89",
+     "id": "ground-w-106",
      "a": [
       80.0,
       105.0
@@ -2872,7 +3137,7 @@
      "material": "paneling"
     },
     {
-     "id": "ground-w-90",
+     "id": "ground-w-107",
      "a": [
       75.0,
       105.0
@@ -2887,7 +3152,7 @@
      "material": "paneling"
     },
     {
-     "id": "ground-w-91",
+     "id": "ground-w-108",
      "a": [
       70.0,
       105.0
@@ -2902,7 +3167,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-92",
+     "id": "ground-w-109",
      "a": [
       65.0,
       105.0
@@ -2917,7 +3182,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-93",
+     "id": "ground-w-110",
      "a": [
       60.0,
       105.0
@@ -2932,7 +3197,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-94",
+     "id": "ground-w-111",
      "a": [
       55.0,
       105.0
@@ -2947,7 +3212,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-95",
+     "id": "ground-w-112",
      "a": [
       50.0,
       105.0
@@ -2962,7 +3227,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-96",
+     "id": "ground-w-113",
      "a": [
       45.0,
       105.0
@@ -2977,7 +3242,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-97",
+     "id": "ground-w-114",
      "a": [
       40.0,
       105.0
@@ -2992,7 +3257,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-98",
+     "id": "ground-w-115",
      "a": [
       35.0,
       105.0
@@ -3007,7 +3272,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-99",
+     "id": "ground-w-116",
      "a": [
       30.0,
       105.0
@@ -3022,7 +3287,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-100",
+     "id": "ground-w-117",
      "a": [
       30.0,
       100.0
@@ -3037,7 +3302,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-101",
+     "id": "ground-w-118",
      "a": [
       30.0,
       95.0
@@ -3052,7 +3317,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-102",
+     "id": "ground-w-119",
      "a": [
       30.0,
       90.0
@@ -3067,7 +3332,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-103",
+     "id": "ground-w-120",
      "a": [
       30.0,
       85.0
@@ -3082,7 +3347,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-104",
+     "id": "ground-w-121",
      "a": [
       30.0,
       80.0
@@ -3097,7 +3362,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-105",
+     "id": "ground-w-122",
      "a": [
       30.0,
       75.0
@@ -3112,7 +3377,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-106",
+     "id": "ground-w-123",
      "a": [
       30.0,
       70.0
@@ -3143,7 +3408,7 @@
      "open": false
     },
     {
-     "id": "ground-w-108",
+     "id": "ground-w-125",
      "a": [
       105.0,
       100.0
@@ -3158,13 +3423,13 @@
      "material": "paneling"
     },
     {
-     "id": "ground-w-109",
+     "id": "ground-w-126",
      "a": [
       100.0,
       105.0
      ],
      "b": [
-      140.0,
+      125.0,
       105.0
      ],
      "flags": [
@@ -3173,9 +3438,26 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-110",
+     "id": "N4a-front",
      "a": [
-      95.0,
+      92.5,
+      105.0
+     ],
+     "b": [
+      97.5,
+      105.0
+     ],
+     "flags": [
+      "door",
+      "locked"
+     ],
+     "material": "ashlar",
+     "open": false
+    },
+    {
+     "id": "ground-w-128",
+     "a": [
+      97.5,
       105.0
      ],
      "b": [
@@ -3188,13 +3470,13 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-111",
+     "id": "ground-w-129",
      "a": [
       90.0,
       105.0
      ],
      "b": [
-      95.0,
+      92.5,
       105.0
      ],
      "flags": [
@@ -3203,7 +3485,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-112",
+     "id": "ground-w-130",
      "a": [
       85.0,
       105.0
@@ -3218,7 +3500,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-113",
+     "id": "ground-w-131",
      "a": [
       75.0,
       90.0
@@ -3233,7 +3515,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-114",
+     "id": "ground-w-132",
      "a": [
       75.0,
       100.0
@@ -3248,7 +3530,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-115",
+     "id": "ground-w-133",
      "a": [
       75.0,
       95.0
@@ -3263,7 +3545,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-116",
+     "id": "ground-w-134",
      "a": [
       75.0,
       90.0
@@ -3278,7 +3560,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-117",
+     "id": "ground-w-135",
      "a": [
       140.0,
       85.0
@@ -3293,7 +3575,7 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-118",
+     "id": "ground-w-136",
      "a": [
       140.0,
       90.0
@@ -3308,7 +3590,67 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-119",
+     "id": "ground-w-137",
+     "a": [
+      134.375,
+      105.0
+     ],
+     "b": [
+      140.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-138",
+     "a": [
+      128.75,
+      105.0
+     ],
+     "b": [
+      130.0,
+      105.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-139",
+     "a": [
+      130.0,
+      105.0
+     ],
+     "b": [
+      134.375,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-140",
+     "a": [
+      125.0,
+      105.0
+     ],
+     "b": [
+      128.75,
+      105.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-141",
      "a": [
       140.0,
       25.0
@@ -3323,14 +3665,14 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-120",
+     "id": "ground-w-142",
      "a": [
       152.5,
       25.0
      ],
      "b": [
       152.5,
-      35.0
+      27.5
      ],
      "flags": [
       "normal"
@@ -3338,79 +3680,65 @@
      "material": "ashlar"
     },
     {
-     "id": "ground-w-121",
+     "id": "N4r-outer",
      "a": [
-      146.25,
-      35.0
-     ],
-     "b": [
       152.5,
-      35.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-122",
-     "a": [
-      140.0,
-      35.0
-     ],
-     "b": [
-      146.25,
-      35.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-123",
-     "a": [
-      140.0,
-      30.0
-     ],
-     "b": [
-      140.0,
-      35.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-w-124",
-     "a": [
-      140.0,
-      25.0
-     ],
-     "b": [
-      140.0,
-      30.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "ground-sd-closet-stair",
-     "a": [
-      85,
       27.5
      ],
      "b": [
-      85,
+      152.5,
       32.5
      ],
      "flags": [
-      "secret-door"
+      "door"
      ],
-     "material": "paneling"
+     "material": "ashlar",
+     "open": false
+    },
+    {
+     "id": "ground-w-144",
+     "a": [
+      152.5,
+      32.5
+     ],
+     "b": [
+      152.5,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-145",
+     "a": [
+      146.25,
+      35.0
+     ],
+     "b": [
+      152.5,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "ground-w-146",
+     "a": [
+      140.0,
+      35.0
+     ],
+     "b": [
+      146.25,
+      35.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
     }
    ],
    "lights": [
@@ -4609,7 +4937,7 @@
       10.0
      ],
      "b": [
-      115.0,
+      92.5,
       10.0
      ],
      "flags": [
@@ -4656,7 +4984,7 @@
      ],
      "b": [
       85.0,
-      85.0
+      72.5
      ],
      "flags": [
       "normal"
@@ -4676,7 +5004,7 @@
      "flags": [
       "normal"
      ],
-     "material": "ashlar"
+     "material": "paneling"
     },
     {
      "id": "upper-w-15",
@@ -4691,7 +5019,7 @@
      "flags": [
       "normal"
      ],
-     "material": "ashlar"
+     "material": "paneling"
     },
     {
      "id": "upper-w-16",
@@ -4706,7 +5034,7 @@
      "flags": [
       "normal"
      ],
-     "material": "ashlar"
+     "material": "paneling"
     },
     {
      "id": "upper-w-17",
@@ -4715,13 +5043,13 @@
       45.0
      ],
      "b": [
-      85.0,
+      68.75,
       45.0
      ],
      "flags": [
       "normal"
      ],
-     "material": "ashlar"
+     "material": "paneling"
     },
     {
      "id": "upper-w-18",
@@ -4736,7 +5064,7 @@
      "flags": [
       "normal"
      ],
-     "material": "ashlar"
+     "material": "paneling"
     },
     {
      "id": "upper-w-19",
@@ -4751,7 +5079,7 @@
      "flags": [
       "normal"
      ],
-     "material": "ashlar"
+     "material": "paneling"
     },
     {
      "id": "upper-w-20",
@@ -4791,7 +5119,7 @@
      ],
      "b": [
       52.5,
-      85.0
+      72.5
      ],
      "flags": [
       "normal"
@@ -4805,7 +5133,7 @@
       65.0
      ],
      "b": [
-      52.5,
+      85.0,
       65.0
      ],
      "flags": [
@@ -4964,44 +5292,46 @@
      "material": "ashlar"
     },
     {
-     "id": "upper-w-34",
+     "id": "N4n-door",
      "a": [
       52.5,
-      45.0
+      72.5
      ],
      "b": [
-      68.75,
-      45.0
+      52.5,
+      77.5
      ],
      "flags": [
-      "normal"
+      "door",
+      "locked"
      ],
-     "material": "ashlar"
+     "material": "paneling",
+     "open": false
     },
     {
      "id": "upper-w-35",
      "a": [
-      79.58333333333333,
-      65.0
+      52.5,
+      77.5
      ],
      "b": [
-      85.0,
-      65.0
+      52.5,
+      85.0
      ],
      "flags": [
       "normal"
      ],
-     "material": "ashlar"
+     "material": "paneling"
     },
     {
      "id": "upper-w-36",
      "a": [
-      74.16666666666667,
-      65.0
+      46.875,
+      85.0
      ],
      "b": [
-      79.58333333333333,
-      65.0
+      60.0,
+      85.0
      ],
      "flags": [
       "normal"
@@ -5011,27 +5341,27 @@
     {
      "id": "upper-w-37",
      "a": [
-      68.75,
-      65.0
+      41.25,
+      85.0
      ],
      "b": [
-      74.16666666666667,
-      65.0
+      42.5,
+      85.0
      ],
      "flags": [
-      "normal"
+      "window"
      ],
      "material": "ashlar"
     },
     {
      "id": "upper-w-38",
      "a": [
-      63.33333333333334,
-      65.0
+      42.5,
+      85.0
      ],
      "b": [
-      85.0,
-      65.0
+      46.875,
+      85.0
      ],
      "flags": [
       "normal"
@@ -5041,12 +5371,12 @@
     {
      "id": "upper-w-39",
      "a": [
-      57.91666666666666,
-      65.0
+      35.625,
+      85.0
      ],
      "b": [
-      63.33333333333334,
-      65.0
+      37.5,
+      85.0
      ],
      "flags": [
       "normal"
@@ -5056,26 +5386,26 @@
     {
      "id": "upper-w-40",
      "a": [
-      52.5,
-      65.0
+      37.5,
+      85.0
      ],
      "b": [
-      57.91666666666666,
-      65.0
+      41.25,
+      85.0
      ],
      "flags": [
-      "normal"
+      "window"
      ],
      "material": "ashlar"
     },
     {
      "id": "upper-w-41",
      "a": [
-      46.875,
+      30.0,
       85.0
      ],
      "b": [
-      85.0,
+      35.625,
       85.0
      ],
      "flags": [
@@ -5086,11 +5416,11 @@
     {
      "id": "upper-w-42",
      "a": [
-      41.25,
-      85.0
+      30.0,
+      80.0
      ],
      "b": [
-      46.875,
+      30.0,
       85.0
      ],
      "flags": [
@@ -5101,12 +5431,12 @@
     {
      "id": "upper-w-43",
      "a": [
-      35.625,
-      85.0
+      30.0,
+      75.0
      ],
      "b": [
-      41.25,
-      85.0
+      30.0,
+      80.0
      ],
      "flags": [
       "normal"
@@ -5117,11 +5447,11 @@
      "id": "upper-w-44",
      "a": [
       30.0,
-      85.0
+      70.0
      ],
      "b": [
-      35.625,
-      85.0
+      30.0,
+      75.0
      ],
      "flags": [
       "normal"
@@ -5132,56 +5462,57 @@
      "id": "upper-w-45",
      "a": [
       30.0,
-      80.0
-     ],
-     "b": [
-      30.0,
-      85.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-46",
-     "a": [
-      30.0,
-      75.0
-     ],
-     "b": [
-      30.0,
-      80.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-47",
-     "a": [
-      30.0,
-      70.0
-     ],
-     "b": [
-      30.0,
-      75.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-48",
-     "a": [
-      30.0,
       65.0
      ],
      "b": [
       30.0,
       70.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "N4m-door",
+     "a": [
+      85.0,
+      72.5
+     ],
+     "b": [
+      85.0,
+      77.5
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "paneling",
+     "open": false
+    },
+    {
+     "id": "upper-w-47",
+     "a": [
+      85.0,
+      77.5
+     ],
+     "b": [
+      85.0,
+      85.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-48",
+     "a": [
+      79.58333333333333,
+      85.0
+     ],
+     "b": [
+      85.0,
+      85.0
      ],
      "flags": [
       "normal"
@@ -5191,12 +5522,12 @@
     {
      "id": "upper-w-49",
      "a": [
-      52.5,
-      65.0
+      74.16666666666667,
+      85.0
      ],
      "b": [
-      68.75,
-      65.0
+      79.58333333333333,
+      85.0
      ],
      "flags": [
       "normal"
@@ -5206,42 +5537,27 @@
     {
      "id": "upper-w-50",
      "a": [
-      115.0,
-      10.0
+      68.75,
+      85.0
      ],
      "b": [
-      120.0,
-      10.0
+      74.16666666666667,
+      85.0
      ],
      "flags": [
-      "window"
+      "normal"
      ],
      "material": "ashlar"
     },
     {
      "id": "upper-w-51",
      "a": [
-      120.0,
-      10.0
+      63.33333333333334,
+      85.0
      ],
      "b": [
-      130.0,
-      10.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-52",
-     "a": [
-      130.0,
-      10.0
-     ],
-     "b": [
-      135.0,
-      10.0
+      65.0,
+      85.0
      ],
      "flags": [
       "window"
@@ -5249,14 +5565,14 @@
      "material": "ashlar"
     },
     {
-     "id": "upper-w-53",
+     "id": "upper-w-52",
      "a": [
-      135.0,
-      10.0
+      65.0,
+      85.0
      ],
      "b": [
-      140.0,
-      10.0
+      68.75,
+      85.0
      ],
      "flags": [
       "normal"
@@ -5264,14 +5580,29 @@
      "material": "ashlar"
     },
     {
+     "id": "upper-w-53",
+     "a": [
+      60.0,
+      85.0
+     ],
+     "b": [
+      63.33333333333334,
+      85.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
      "id": "upper-w-54",
      "a": [
-      140.0,
+      105.0,
       10.0
      ],
      "b": [
-      140.0,
-      95.0
+      115.0,
+      10.0
      ],
      "flags": [
       "normal"
@@ -5281,86 +5612,86 @@
     {
      "id": "upper-w-55",
      "a": [
+      115.0,
+      10.0
+     ],
+     "b": [
+      120.0,
+      10.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-56",
+     "a": [
+      120.0,
+      10.0
+     ],
+     "b": [
+      130.0,
+      10.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-57",
+     "a": [
+      130.0,
+      10.0
+     ],
+     "b": [
+      135.0,
+      10.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-58",
+     "a": [
+      135.0,
+      10.0
+     ],
+     "b": [
+      140.0,
+      10.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-59",
+     "a": [
+      140.0,
+      10.0
+     ],
+     "b": [
+      140.0,
+      55.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-60",
+     "a": [
       135.0,
       42.5
      ],
      "b": [
       140.0,
-      42.5
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "upper-w-56",
-     "a": [
-      130.0,
-      42.5
-     ],
-     "b": [
-      135.0,
-      42.5
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "upper-w-57",
-     "a": [
-      125.0,
-      42.5
-     ],
-     "b": [
-      130.0,
-      42.5
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "upper-w-58",
-     "a": [
-      120.0,
-      42.5
-     ],
-     "b": [
-      125.0,
-      42.5
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "upper-w-59",
-     "a": [
-      115.0,
-      42.5
-     ],
-     "b": [
-      120.0,
-      42.5
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "upper-w-60",
-     "a": [
-      110.0,
-      42.5
-     ],
-     "b": [
-      115.0,
       42.5
      ],
      "flags": [
@@ -5371,6 +5702,81 @@
     {
      "id": "upper-w-61",
      "a": [
+      130.0,
+      42.5
+     ],
+     "b": [
+      135.0,
+      42.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-62",
+     "a": [
+      125.0,
+      42.5
+     ],
+     "b": [
+      130.0,
+      42.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-63",
+     "a": [
+      120.0,
+      42.5
+     ],
+     "b": [
+      125.0,
+      42.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-64",
+     "a": [
+      115.0,
+      42.5
+     ],
+     "b": [
+      120.0,
+      42.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-65",
+     "a": [
+      110.0,
+      42.5
+     ],
+     "b": [
+      115.0,
+      42.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-66",
+     "a": [
       105.0,
       42.5
      ],
@@ -5384,109 +5790,34 @@
      "material": "paneling"
     },
     {
-     "id": "upper-w-62",
-     "a": [
-      105.0,
-      37.083333333333336
-     ],
-     "b": [
-      105.0,
-      95.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-63",
-     "a": [
-      105.0,
-      31.66666666666667
-     ],
-     "b": [
-      105.0,
-      37.083333333333336
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-64",
-     "a": [
-      105.0,
-      26.25
-     ],
-     "b": [
-      105.0,
-      31.66666666666667
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-65",
-     "a": [
-      105.0,
-      20.833333333333336
-     ],
-     "b": [
-      105.0,
-      26.25
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-66",
-     "a": [
-      105.0,
-      15.416666666666664
-     ],
-     "b": [
-      105.0,
-      20.833333333333336
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
      "id": "upper-w-67",
      "a": [
       105.0,
-      10.0
+      37.083333333333336
      ],
      "b": [
       105.0,
-      15.416666666666664
+      60.0
      ],
      "flags": [
       "normal"
      ],
-     "material": "ashlar"
+     "material": "paneling"
     },
     {
      "id": "upper-w-68",
      "a": [
       105.0,
-      10.0
+      31.66666666666667
      ],
      "b": [
       105.0,
-      25.0
+      37.083333333333336
      ],
      "flags": [
       "normal"
      ],
-     "material": "ashlar"
+     "material": "paneling"
     },
     {
      "id": "N4m-n-door",
@@ -5501,7 +5832,7 @@
      "flags": [
       "door"
      ],
-     "material": "ashlar",
+     "material": "paneling",
      "open": false
     },
     {
@@ -5512,7 +5843,97 @@
      ],
      "b": [
       105.0,
-      60.0
+      31.66666666666667
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-71",
+     "a": [
+      105.0,
+      20.833333333333336
+     ],
+     "b": [
+      105.0,
+      25.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-72",
+     "a": [
+      105.0,
+      15.416666666666664
+     ],
+     "b": [
+      105.0,
+      20.833333333333336
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-73",
+     "a": [
+      105.0,
+      10.0
+     ],
+     "b": [
+      105.0,
+      15.416666666666664
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-74",
+     "a": [
+      92.5,
+      10.0
+     ],
+     "b": [
+      95.0,
+      10.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-75",
+     "a": [
+      95.0,
+      10.0
+     ],
+     "b": [
+      97.5,
+      10.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-76",
+     "a": [
+      97.5,
+      10.0
+     ],
+     "b": [
+      105.0,
+      10.0
      ],
      "flags": [
       "normal"
@@ -5533,11 +5954,11 @@
       "door",
       "locked"
      ],
-     "material": "ashlar",
+     "material": "paneling",
      "open": false
     },
     {
-     "id": "upper-w-72",
+     "id": "upper-w-78",
      "a": [
       105.0,
       65.0
@@ -5549,106 +5970,92 @@
      "flags": [
       "normal"
      ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-73",
-     "a": [
-      100.0,
-      85.0
-     ],
-     "b": [
-      105.0,
-      85.0
-     ],
-     "flags": [
-      "normal"
-     ],
      "material": "paneling"
-    },
-    {
-     "id": "upper-w-74",
-     "a": [
-      95.0,
-      85.0
-     ],
-     "b": [
-      100.0,
-      85.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "upper-w-75",
-     "a": [
-      90.0,
-      85.0
-     ],
-     "b": [
-      95.0,
-      85.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "upper-w-76",
-     "a": [
-      85.0,
-      85.0
-     ],
-     "b": [
-      90.0,
-      85.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "upper-w-77",
-     "a": [
-      100.0,
-      95.0
-     ],
-     "b": [
-      105.0,
-      95.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "upper-w-78",
-     "a": [
-      95.0,
-      95.0
-     ],
-     "b": [
-      100.0,
-      95.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
     },
     {
      "id": "upper-w-79",
      "a": [
-      90.0,
-      95.0
+      100.0,
+      85.0
      ],
      "b": [
-      95.0,
+      105.0,
+      85.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "N4l-closet-door",
+     "a": [
+      92.5,
+      85.0
+     ],
+     "b": [
+      97.5,
+      85.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "paneling",
+     "open": false
+    },
+    {
+     "id": "upper-w-81",
+     "a": [
+      97.5,
+      85.0
+     ],
+     "b": [
+      100.0,
+      85.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-82",
+     "a": [
+      90.0,
+      85.0
+     ],
+     "b": [
+      92.5,
+      85.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-83",
+     "a": [
+      85.0,
+      85.0
+     ],
+     "b": [
+      90.0,
+      85.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "upper-w-84",
+     "a": [
+      105.0,
+      85.0
+     ],
+     "b": [
+      105.0,
       95.0
      ],
      "flags": [
@@ -5657,7 +6064,82 @@
      "material": "ashlar"
     },
     {
-     "id": "upper-w-80",
+     "id": "upper-w-85",
+     "a": [
+      100.0,
+      95.0
+     ],
+     "b": [
+      105.0,
+      95.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-86",
+     "a": [
+      95.0,
+      95.0
+     ],
+     "b": [
+      97.5,
+      95.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-87",
+     "a": [
+      97.5,
+      95.0
+     ],
+     "b": [
+      100.0,
+      95.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-88",
+     "a": [
+      90.0,
+      95.0
+     ],
+     "b": [
+      92.5,
+      95.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-89",
+     "a": [
+      92.5,
+      95.0
+     ],
+     "b": [
+      95.0,
+      95.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-90",
      "a": [
       85.0,
       95.0
@@ -5672,7 +6154,7 @@
      "material": "ashlar"
     },
     {
-     "id": "upper-w-81",
+     "id": "upper-w-91",
      "a": [
       85.0,
       90.0
@@ -5687,7 +6169,7 @@
      "material": "ashlar"
     },
     {
-     "id": "upper-w-82",
+     "id": "upper-w-92",
      "a": [
       85.0,
       85.0
@@ -5702,7 +6184,97 @@
      "material": "ashlar"
     },
     {
-     "id": "upper-w-83",
+     "id": "upper-w-93",
+     "a": [
+      140.0,
+      55.0
+     ],
+     "b": [
+      140.0,
+      58.4375
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-94",
+     "a": [
+      140.0,
+      58.4375
+     ],
+     "b": [
+      140.0,
+      60.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-95",
+     "a": [
+      140.0,
+      60.0
+     ],
+     "b": [
+      140.0,
+      70.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-96",
+     "a": [
+      140.0,
+      70.0
+     ],
+     "b": [
+      140.0,
+      74.375
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-97",
+     "a": [
+      140.0,
+      74.375
+     ],
+     "b": [
+      140.0,
+      75.0
+     ],
+     "flags": [
+      "window"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-98",
+     "a": [
+      140.0,
+      75.0
+     ],
+     "b": [
+      140.0,
+      95.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "upper-w-99",
      "a": [
       135.0,
       85.0
@@ -5733,7 +6305,7 @@
      "open": false
     },
     {
-     "id": "upper-w-85",
+     "id": "upper-w-101",
      "a": [
       125.0,
       85.0
@@ -5748,7 +6320,7 @@
      "material": "paneling"
     },
     {
-     "id": "upper-w-86",
+     "id": "upper-w-102",
      "a": [
       120.0,
       85.0
@@ -5763,7 +6335,7 @@
      "material": "ashlar"
     },
     {
-     "id": "upper-w-87",
+     "id": "upper-w-103",
      "a": [
       115.0,
       85.0
@@ -5778,7 +6350,7 @@
      "material": "ashlar"
     },
     {
-     "id": "upper-w-88",
+     "id": "upper-w-104",
      "a": [
       110.0,
       85.0
@@ -5793,7 +6365,7 @@
      "material": "ashlar"
     },
     {
-     "id": "upper-w-89",
+     "id": "upper-w-105",
      "a": [
       105.0,
       85.0
@@ -5808,7 +6380,7 @@
      "material": "ashlar"
     },
     {
-     "id": "upper-w-90",
+     "id": "upper-w-106",
      "a": [
       135.0,
       95.0
@@ -5823,7 +6395,7 @@
      "material": "ashlar"
     },
     {
-     "id": "upper-w-91",
+     "id": "upper-w-107",
      "a": [
       130.0,
       95.0
@@ -5838,7 +6410,7 @@
      "material": "ashlar"
     },
     {
-     "id": "upper-w-92",
+     "id": "upper-w-108",
      "a": [
       125.0,
       95.0
@@ -5853,7 +6425,7 @@
      "material": "ashlar"
     },
     {
-     "id": "upper-w-93",
+     "id": "upper-w-109",
      "a": [
       125.0,
       90.0
@@ -5868,7 +6440,7 @@
      "material": "ashlar"
     },
     {
-     "id": "upper-w-94",
+     "id": "upper-w-110",
      "a": [
       125.0,
       85.0

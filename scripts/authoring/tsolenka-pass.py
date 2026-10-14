@@ -124,7 +124,9 @@ for w in (WIN_E, WIN_NE, WIN_SE): exact(g, *w, flags=['window'], wall=True)
 g.prop('T4-hearth', 'fireplace', (55.55, 71), 'T4', rotY=-90)
 g.prop('T4-ribs', 'tower-ribs', TOWER, None, dims={'r': 15.4, 'h': 40})
 # the stair: along the west wall from the fog-side corner, then up the north-west diagonal on a stone base (9 ft, then 11)
-STAIR_FOOT, STAIR_TURN, STAIR_HEAD = (54.1, 73.5), (52.1, 73.5), (50.6, 72.0)
+STAIR_FOOT, STAIR_TURN, STAIR_TOP = (54.1, 73.5), (52.1, 73.5), (50.6, 72.0)
+# The flight ends alongside the stairwell rail; a short stone landing turns onto T5.
+STAIR_HEAD = (51.1, 71.5)
 g.prop('T4-stair-a', 'stairs-run', STAIR_FOOT, 'T4', rotY=180, dims={'len': 10, 'w': 3.6, 'rise': 9})
 BASE = [(52.355, 73.245), (50.855, 71.745), (50.345, 72.255), (51.845, 73.755)]
 g.objects.append(OrderedDict(id='pass-T4-stair-base', kind='prism', pos=[0, 0, 0], vis='player', key='T4', polygon=[[round(x * 5, 3), round(z * 5, 3)] for x, z in BASE], dims={'h': 9, 'color': 0x6c737b}))
@@ -196,10 +198,17 @@ u = Level('tower-upper', 'Guard tower, upper floor (T5)', 20, 20, interior='ashl
 WIN_NW = (lerp(OCT[7], OCT[0], 0.3), lerp(OCT[7], OCT[0], 0.7))
 # the stairwell: the stair from below arrives up the north-west diagonal; the floor stops short of it behind a rail
 RAIL = ((53.093, 74), (50, 70.907))
-T5P = [OCT[0], WIN_E[0], WIN_E[1], OCT[1], *WIN_NE, OCT[2], OCT[3], *WIN_SE, OCT[4], RAIL[0], RAIL[1], OCT[7], *WIN_NW]
+LANDING_GAP = ((51.207, 72.114), (50.487, 71.394))
+T5P = [OCT[0], WIN_E[0], WIN_E[1], OCT[1], *WIN_NE, OCT[2], OCT[3], *WIN_SE, OCT[4], RAIL[0], *LANDING_GAP, RAIL[1], OCT[7], *WIN_NW]
 u.room('T5', 'Guard Tower, Upper Floor', T5P, 'flagstone', page=pg('T5'), ceilingFt=20)
 for w in (WIN_E, WIN_NE, WIN_SE, WIN_NW): exact(u, *w, flags=['window'], wall=True)
-exact(u, *RAIL, flags=['normal'], heightFt=3.5, material='ashlar', wall=True)
+for a, b in ((RAIL[0], LANDING_GAP[0]), (LANDING_GAP[1], RAIL[1])):
+    exact(u, a, b, flags=['normal'], heightFt=3.5, material='ashlar', wall=True)
+exact(u, *LANDING_GAP, open_wall=True)
+# A 5.09-ft-wide head slab shares the rail aperture and reaches the actual stair top.
+LANDING = [(50.2, 71.64), (50.92, 72.36), *LANDING_GAP]
+u.room('T5-landing', 'Guard Tower Stair Landing', LANDING, 'flagstone', page=pg('T5'), ceilingFt=20)
+for a, b in zip(LANDING, LANDING[1:] + LANDING[:1]): exact(u, a, b, open_wall=True)
 for a_, b_ in ((RAIL[0], OCT[5]), (OCT[5], OCT[6]), (OCT[6], RAIL[1])): u.wall(a_, b_, material='ashlar')   # the tower's own wall round the stairwell
 u.prop('T5-hearth', 'fireplace', (55.55, 71), 'T5', rotY=-90)
 u.prop('T5-wolfhead', 'dire-wolf-head', (55.85, 71), 'T5', rotY=-90, dims={'y': 9.5})

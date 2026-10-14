@@ -100,6 +100,14 @@ a day old; then continue it from its wip branch, and say so in Status.
 
 ## Status
 
+### ChatGPT, 2026-10-14 08:08 UTC, reviewed map-access checkpoint
+
+- Cloud UI merge is committed and pushed at `4e2d63a` on `claude/wip/item2e-map-logic-laptop`. This checkpoint integrates the separately reviewed movement, WSC square, Vallaki apertures, Castle/Abbey/Tsolenka/R landings and E5 geometry; generated exterior, atlas and massing match the staged data. No licensed inputs or private artifacts are included.
+- Marker/data integration received two independent reviews and one consolidated fix. K51 explicitly references its concealed wall hook; malformed reveal references reject before graphics allocation. All 346 directions are retained, including the original 48 grouped choices and Tsolenka's one new group. Exact staged build `index-CWlyiRy1.js` passes 675 units (two existing TODOs, no skips) and six focused laptop GPU marker checks. See `docs/handoff/map-access-integration-report.md`.
+- Castle migration helper correction passes 63 migration/coverage checks; activation/save/reload work is now local and unstaged. Its first real browser run reproduced two missing-activation/fresh-revision failures and passed two safety cases. Roof/source compatibility, J/K placement, directed regional terrain and all-map source/runtime/visual gates remain open. Separate terrain worktree is unfinished; no full 0.3.2 release claim.
+- Bounded 0.3.1 final three-lens reconciliation passed. Documentation-only release record `39e06f3` is on the laptop WIP, awaiting exact-head CI `38532111504` before main advances. Its build/543 units/21 desktop checks pass; all 204 output files are identical to the versioned build that passed 267 GPU checks with 55 existing device skips. Main remains `785421c`; public bundle/feed/tag/screenshots remain held.
+- Brief 07:57 runner disconnection recovered at 07:58; logs and local edits were preserved. Coordinator plus one worker, sequential reviews through 13:00 UTC. Latest account-wide meter: 51% weekly window remains. No power/access/security/credential changes or rewritten history.
+
 Each agent rewrites this section when it stops. Newest first. Keep it short and exact: versions, branches, commits,
 what is done, what is next, what is blocked.
 
