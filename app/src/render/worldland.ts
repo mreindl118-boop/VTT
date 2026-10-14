@@ -69,9 +69,21 @@ export class LandField {
   readonly hasHeight: boolean;
   readonly cx: number; readonly cy: number;
   private lakeLevels: number[] = [];
+  private flattenInner = new Map<LandSite, number>();
   constructor(readonly world: WorldData, readonly sites: LandSite[]) {
     this.terrain = terrainOf(world); this.hasHeight = this.terrain.hasHeight;
     this.cx = (world.bounds.minX + world.bounds.maxX) / 2; this.cy = (world.bounds.minY + world.bounds.maxY) / 2;
+    for (const site of sites) {
+      const a = site.bounds;
+      let gap = Infinity;
+      for (const other of sites) if (other !== site) {
+        const b = other.bounds;
+        gap = Math.min(gap, Math.max(0, a.minX - b.maxX, b.minX - a.maxX, a.minZ - b.maxZ, b.minZ - a.maxZ));
+      }
+      // Close maps cannot both claim the same flat collar at different heights.
+      // Leave at least half their gap for a continuous blend between the datums.
+      this.flattenInner.set(site, Math.min(site.crag ? CRAG_IN : FLATTEN_IN, gap / 4));
+    }
     this.lakeLevels = world.lakes.map((l) => this.levelOf(l));
   }
   /** W feet → world-map miles. */
@@ -80,18 +92,28 @@ export class LandField {
   feet([mx, my]: Vec2): Vec2 { return [(mx - this.cx) * MI_FT, (my - this.cy) * MI_FT]; }
   /** The surveyed ground in W (the heightfield, RELIEF-steepened), before any map flattens it. */
   ground(x: number, z: number): number { if (!this.hasHeight) return 0; const [mx, my] = this.miles(x, z); return this.terrain.heightAt(mx, my) * RELIEF; }
-  /** The land with every footprint's flattening applied (weights normalised where bands overlap). */
+  /** An authored footprint owns its datum. Neighbouring fade bands cannot lift
+   * its edge vertices and turn a large apron fan into a roof over child maps. */
   height(x: number, z: number): number {
     const g = this.ground(x, z);
     let sw = 0, sb = 0;
+    let inside = Infinity, anchored = Infinity;
     for (const s of this.sites) {
       const d = mapDist(s.bounds, x, z), o = s.crag ? CRAG_OUT : FLATTEN_OUT;
+      // Conflicting overlapping footprints need authoring reconciliation. The
+      // regional substrate must at least remain below both floors, in any order.
+      if (d === 0) { inside = Math.min(inside, s.base); continue; }
       if (d >= o) continue;
-      const w = 1 - smooth(s.crag ? CRAG_IN : FLATTEN_IN, o, d);
-      sw += w; sb += w * s.base;
+      const w = 1 - smooth(this.flattenInner.get(s)!, o, d);
+      if (w === 1) { anchored = Math.min(anchored, s.base); continue; }
+      // Odds weights retain the original blend for one site and tend smoothly
+      // to that site's datum as its weight reaches one, even beside another band.
+      const weight = w / (1 - w);
+      sw += weight; sb += weight * s.base;
     }
-    if (sw <= 0) return g;
-    return sw > 1 ? sb / sw : sb + (1 - sw) * g;
+    if (inside < Infinity) return inside;
+    if (anchored < Infinity) return anchored;
+    return (g + sb) / (1 + sw);
   }
   /** Distance past the nearest footprint's edge, which one, and the next nearest's. */
   nearest(x: number, z: number): { i: number; d: number; other: number } {
