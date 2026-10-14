@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.3.1 Local terrain joins and compass north - 2026-10-14
+
+- Activate either compass by click, tap, Enter or Space to face north while keeping the same place, zoom and camera pitch.
+- Open the gorge beneath Tsolenka Pass and improve its local road joins. Place Tser Pool's camp beside north-side water and improve the local shoreline and river connections.
+- Remove substitute Ravenloft geometry where the actual world site is present.
+- Expose Amber Temple's approach and keep excavation edges vertical so nearby outdoor ground stays at its intended height.
+- Reword one Death House description without changing geometry or rules links.
+
+Known limits: this is a bounded local correction release. Regional road grades and downstream water heights remain inconsistent, Ravenloft's gates and castle remain separated by 4,598 ft, and Amber's complete mountain enclosure is unresolved. The all-map audit records further terrain, placement, door, stair and source-geometry issues. Matt assigned comprehensive logic correction across both campaigns to 0.3.2; passing this release's tests does not certify every map. Expanded Player Display, physical-phone certification and other deferred nested-world work remain separate.
+
 ## 0.3.0 One world to zoom through - 2026-10-13
 
 - World map opens an inked map of the active campaign: gothic Barovia or the pastoral Sheep Chase countryside. Zoom continuously from the region into a town, a building and a room, with the wheel or touch. Breadcrumbs and Back keep the route clear.

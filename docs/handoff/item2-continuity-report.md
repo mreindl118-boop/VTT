@@ -4,7 +4,7 @@
 
 ## Scope and authority
 
-Matt requested local terrain continuity at Tsolenka Pass, Tser Pool, Ravenloft and Amber Temple, plus north alignment from either compass. He then expanded the logic audit to every available map in both campaigns. The implementation retains the requested bounded local scope. Broader regional heightfield/drainage and J/K world-placement correction are still awaiting the pending owner boundary decision. Item 7 remains paused; none of its branches was merged.
+Matt requested local terrain continuity at Tsolenka Pass, Tser Pool, Ravenloft and Amber Temple, plus north alignment from either compass. He then expanded the logic audit to every available map in both campaigns. On 2026-10-14 he resolved the release boundary: "Every map's logic should be correct for 0.3.2." The 0.3.1 release retains the bounded local corrections with explicit limits; comprehensive regional heightfield/drainage, J/K placement and all-map logic follow in item 2e as 0.3.2. No item 7 branch has been merged; any specific component required for 0.3.2 must be identified and reviewed independently.
 
 Public compiled-bundle publication and a distribution tag remain held by the parent task. Source release, desktop update, source-map audit and publication are separate gates. The hold covers only new public compiled bundles and the update feed; it does not block authorized private WIP pushes or later private Site deployment once all release gates pass. No source book art, screenshots or copied descriptions are published by this checkpoint.
 
@@ -22,7 +22,7 @@ On 2026-10-14 Matt explicitly approved the additional Amber correction and retes
 
 Each of the two build steps received two reviews and at most one fix pass. The final correctness, regression and acceptance reviews are complete; the single final fix pass is complete. It corrected missing ribbon normals, the source-backed northern Tser shoreline, the remaining prose overlap, excessive cut-grid triangles, and the compass test's unstable raw-coordinate interaction after a layout change. No additional polish loop has started.
 
-The original final-review bundle was `index-CF69xAqx.js`; its results below are preserved. The approved Amber correction is now `index-DSh4mmpD.js`, with its separate verification record below. Package version remains 0.3.0 until the 0.3.1 release gates are resolved.
+The original final-review bundle was `index-CF69xAqx.js`; its results below are preserved. The approved Amber correction is `index-DSh4mmpD.js`, with its separate verification record below. Those bundles carry 0.3.0. The authorized 0.3.1 version/changelog candidate is now prepared and requires its own final release verification; installed 0.3.0 remains unchanged.
 
 | Check | Result |
 |---|---|
@@ -75,6 +75,12 @@ Local evidence, outside Git: `evidence/amber-approved-red.log`, `amber-approved-
 
 ## Visible results and limits
 
+### Versioned 0.3.1 candidate
+
+After Matt assigned comprehensive geography to 0.3.2, both package versions and the dated 0.3.1 changelog were prepared. Fresh main `785421c` is already included; the merge command reported already up to date. No application implementation changed from the approved Amber checkpoint. Build `index-CoeOhM3n.js` passes, as do 543 unit tests (two existing todo) and all 21 desktop-host tests. The initial unit attempt hit sandbox temporary-file lookup errors and lacked the existing PDF extractor on its process PATH; the unchanged tests pass outside that sandbox with the existing extractor. Both logs are retained.
+
+The versioned candidate is frozen separately for its full GPU suite: 204 files, 17,145,309 bytes; sorted manifest SHA-256 `f1769fb11275aee02b37a49a168e80f007729e45511052078d0f97fbbd34bbc5`. Verification uses port 5644 and is still running; do not transfer the earlier bundle's full-suite pass to these new bytes. The fresh copied-text scan covers 258 OCR pages and finds the same seven reviewed canonical name/rule-list matches. The audit-document scan finds only numeric sequences, no descriptive prose match. Source release and public distribution have not occurred.
+
 Forty-two final-build desktop/phone, DM/Players screenshots were inspected locally, including settled repeat views. Tser is exposed beside water to the north; its circular shore is an authored approximation, not a claim to trace every source contour. Its older tent/wagon/horse composition and missing riverside footpath remain audit findings. Tsolenka has an open gorge under its bridge, but the regional approaches and sharply angular terrain are still incoherent. Removing the substitute castle does not close the 4,598-ft gap between the true J and K placements.
 
 Amber's entrance and section-navigation interiors are accessible to the camera, but the source describes a structure extending into a mountainside. The excavation treatment does not prove the entire temple should be an open-air pit. Mountain-envelope modeling and the source audit's X9 stair-height discrepancy remain unresolved. Unexplored floors viewed manually as Players correctly remain dark.
@@ -97,7 +103,26 @@ Same laptop, desktop 1366 by 768, isolated context per case/version, frozen 0.3.
 | Ravenloft gates | 241 / 234 | 491,538 / 498,860 | 1.3 / 1.4 | 1.8 / 1.6 |
 | Amber facade | 675 / 675 | 389,654 / 400,350 | 2.9 / 2.9 | 3.5 / 3.7 |
 
-Settled region measurements differ from the full-suite immediate-frame triangle budget; both are reported as measured. The full suite passed its five-round-trip retained-resource check; the separate Amber rendered-ground failure blocks release.
+Settled region measurements differ from the full-suite immediate-frame triangle budget; both are reported as measured. This table predates the approved Amber correction. That correction resolves the rendered-ground failure and passes the five-round-trip retained-resource check in the clean full suite recorded above; its separate cost measurements supersede this table's Amber candidate values. Current release gates are CI and final versioned verification, not the resolved Amber regression.
+
+## Release-scope decision for Matt
+
+The green tests establish that the bounded patch passes its tested assertions. They do not establish completion of the requested geographic logic. The remaining work falls into three different categories; an audit finding is not automatically permission to implement it.
+
+| Requested outcome | Verified result | Still needed before claiming that outcome complete |
+|---|---|---|
+| Compass north alignment | Both compasses preserve place, zoom and pitch; desktop/phone and keyboard checks pass | No outstanding scoped defect identified |
+| Coherent Tsolenka crossing and approaches | Gorge opened and local bridge/road joins corrected | Regional approaches still reach 167%/159% grade; reconcile the approach elevations with the source-backed regional terrain |
+| Poolside Tser and coherent water connections | Camp sits beside north-side water; local shore/river ties corrected | H/G/D datums still rise downstream, about 336 -> 366.55 -> 487 ft; regional drainage remains incoherent |
+| Ravenloft duplicate ownership and parent-child continuity | Substitute geometry suppressed while the real world site is present | J gates and K castle remain 4,598 ft apart horizontally and about 584 ft vertically despite their contiguous entrance relationship |
+| Exposed Amber approach and terrain/building continuity | Production ground raycasts, excavation walls and section views pass | Reconcile the mountain-enclosed source structure with the open excavation treatment; passing the approach-height test does not settle the full mountain envelope |
+| Apply the logic audit to every available map | Inventory, source/reference records and bounded runtime evidence cover all 46 maps / 122 scene levels | Reconcile remaining source/render/traversal criteria or record their limitations; publisher source for Sheep Chase is unavailable, and complete traversal is not certified |
+
+The regional T/G/J-K issues above remain gaps in the requested continuity outcome. Matt has now assigned their comprehensive correction to 0.3.2, explicitly resolving the earlier choice between a bounded and expanded 0.3.1. Ship the verified local corrections in 0.3.1 with these named limits after its release checks pass. Amber's source-backed mountain envelope belongs in the 0.3.2 work too. Do not describe all road, river and map logic as fixed by 0.3.1 or mark item 2d released before it reaches main.
+
+The new 0.3.2 authority includes the audit's terrain, placement, doorway/blocking-wall, stair/multiple-hop and source-geometry findings, including N9/H/K burial, the Sheep Chase tavern/street gap, missing G footpath and X9 stair descent. It does not authorize silently reversing prior source adaptations or guessing at ambiguous source conflicts. The expanded Player Display and comprehensive phone/performance pass remain deferred except for regressions caused by this work. Do not wholesale merge item 7: identify each component essential to all-map logic, preserve its branch and attribution, and verify it under 0.3.2. Existing item 11 findings should be reconciled when their logic is actually corrected, not double-implemented.
+
+At 04:02 UTC on 2026-10-14, exact checkpoint CI `38508583254` on `55b118e0b78a89b04d0780dd0c713f0a54632c9c` has passed typecheck, units and desktop-host tests; browser checks are still running. Main is freshly confirmed at `785421c` and is already an ancestor; cloud item 2 remains `4f3cad9`. Public desktop bundle/feed publication remains a separate held action even after source-release gates pass.
 
 ## All-map audit and remaining gates
 
@@ -107,6 +132,6 @@ All 44 production scenes/122 levels have a first desktop DM visual triage. Forty
 
 The earlier implementation and first audit checkpoint were pushed without a main merge to `claude/wip/item2-nested-world-laptop` at `3da4420767adf76b8e73c0330fef4c077cfcb749`. At that earlier checkpoint its CI run `38496911286` passed typecheck, unit and desktop-host steps and was running browser tests; current verification is recorded in the approved-correction section above. Main remains `785421c`, cloud item2 remains `4f3cad9`; their older successful checks are not substituted for current CI.
 
-Before a 0.3.1 source release: obtain the exact current CI terminal result, reconcile the all-map audit scope and pending regional decision, refresh/merge current main as required, update both version files and changelog, finish release verification, then push main only under the explicit release authority. Distribution publication remains a separate held action.
+Before a 0.3.1 source release: obtain the exact current CI terminal result, refresh/merge current main as required, finalize both version files and changelog, finish versioned release verification, then push main under the explicit bounded-release authority. Matt assigned the remaining comprehensive all-map logic to 0.3.2. Distribution publication remains a separate held action.
 
 Local evidence (not committed): worktree `evidence/final-*.log`; task workspace `evidence/continuity-031/final-cost/results.json`, `final-views/results.json`, final review reports and source-audit evidence. Screenshots and source pages stay local.
