@@ -115,6 +115,20 @@ describe('source-backed site continuity', () => {
     const land=buildLand(data,[{...amber,bounds,crag:false}],campaigns.campaigns[0].theme as unknown as Theme);
     land.group.updateMatrixWorld(true);
     try {
+      const ground=land.group.children.filter(m=>['land','aprons'].includes(m.name)) as THREE.Mesh[];
+      // Hundreds of rays share this footprint. Discard only triangles whose X/Z
+      // bounds cannot intersect any probe; keep every possible land/apron hit.
+      // Otherwise each ray also scans the entire distant regional lattice.
+      for(const mesh of ground) {
+        const position=mesh.geometry.getAttribute('position'), index=mesh.geometry.index!, nearby:number[]=[];
+        for(let k=0;k<index.count;k+=3) {
+          const tri=[index.getX(k),index.getX(k+1),index.getX(k+2)];
+          const xs=tri.map(v=>position.getX(v)), zs=tri.map(v=>position.getZ(v));
+          if(Math.max(...xs)<bounds.minX || Math.min(...xs)>bounds.maxX || Math.max(...zs)<bounds.minZ || Math.min(...zs)>bounds.maxZ) continue;
+          nearby.push(...tri);
+        }
+        mesh.geometry.setIndex(nearby);
+      }
       const probes: [number,number,number][]=[];
       for(const cut of amber.cuts!) {
         const b=cut.bounds, cx=(b.minX+b.maxX)/2, cz=(b.minZ+b.maxZ)/2;
@@ -125,7 +139,7 @@ describe('source-backed site continuity', () => {
       }
       for(const [px,pz,want] of probes) {
         const ray=new THREE.Raycaster(new THREE.Vector3(px,amber.base+1000,pz),new THREE.Vector3(0,-1,0));
-        const hits=ray.intersectObjects(land.group.children.filter(m=>['land','aprons'].includes(m.name)));
+        const hits=ray.intersectObjects(ground);
         expect(hits.length).toBeGreaterThan(0);
         expect(Math.abs(hits[0].point.y-want),`rendered ground at ${px},${pz}: ${hits[0].point.y}, expected ${want}`).toBeLessThanOrEqual(.05);
       }
