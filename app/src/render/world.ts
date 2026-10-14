@@ -30,7 +30,7 @@ export class World {
   /** Continuous-world camera: the whole valley in range (see setNested). Off by default. */
   nested = false;
   /** A glide in flight; `rise` lifts the eye over the middle of a long one (a cross-valley flight rises, then dives). */
-  private tween: { t0: number; dur: number; from: THREE.Vector3; to: THREE.Vector3; camFrom: THREE.Vector3; camTo: THREE.Vector3; rise?: number } | null = null;
+  private tween: { t0: number; dur: number; from: THREE.Vector3; to: THREE.Vector3; camFrom: THREE.Vector3; camTo: THREE.Vector3; rise?: number; orbit?: { from: number; delta: number; radius: number; height: number } } | null = null;
   /** Yaw in quarter turns (0..3); the camera sits south-east of the target at yaw 0. */
   yaw = 0;
   /** Tilt: 0 = tabletop (~52°), 1 = top-down. */
@@ -95,7 +95,7 @@ export class World {
     this.watchPinch();
     this.renderer.domElement.addEventListener('contextmenu', (e) => e.preventDefault());
     // the user's own hand on the camera: a drag or a pinch while it moves, a wheel turn (the streamer starts no build then)
-    this.controls.addEventListener('start', () => { this.dragging = true; });
+    this.controls.addEventListener('start', () => { this.dragging = true; if (this.tween?.orbit) this.tween = null; });
     this.controls.addEventListener('end', () => { this.dragging = false; });
     this.controls.addEventListener('change', () => { this.lastChange = performance.now(); if (this.scene.fog instanceof THREE.FogExp2) this.scene.fog.density = this.fogDensity; if (this.nested) this.applyPolar(); this.invalidate(); this.onCamera?.(); });
 
@@ -331,17 +331,44 @@ export class World {
     const tw = this.tween!;
     const k = Math.min(1, (performance.now() - tw.t0) / tw.dur), e = 1 - Math.pow(1 - k, 3);
     this.controls.target.lerpVectors(tw.from, tw.to, e);
-    this.camera.position.lerpVectors(tw.camFrom, tw.camTo, e);
+    if (tw.orbit) {
+      const o = tw.orbit, angle = o.from + o.delta * e;
+      this.camera.position.copy(this.controls.target).add(new THREE.Vector3(Math.sin(angle) * o.radius, o.height, Math.cos(angle) * o.radius));
+    } else this.camera.position.lerpVectors(tw.camFrom, tw.camTo, e);
     if (tw.rise) this.camera.position.y += tw.rise * 4 * e * (1 - e);
     this.camera.lookAt(this.controls.target);
     this.controls.update();
     this.dirty = true;
     if (this.scene.fog instanceof THREE.FogExp2) this.scene.fog.density = this.fogDensity;
-    if (k >= 1) { this.tween = null; this.onCamera?.(); }
+    if (k >= 1) {
+      // Keep a north alignment marked as in flight while notifying: its fixed target must not be ground-followed.
+      if (tw.orbit) { this.onCamera?.(); this.tween = null; }
+      else { this.tween = null; this.onCamera?.(); }
+    }
   }
 
   rotate(steps: number): void {
     this.moveTo(this.controls.target.clone(), undefined, true, steps * (this.tilt === 2 ? Math.PI / 2 : Math.PI / 2));
+  }
+  /** Put the drawn north direction at screen-up, orbiting the current target without changing pitch or distance.
+   *  Unlike a framing glide, the arc keeps the same radius throughout. A new gesture takes the camera back. */
+  alignNorth(north = new THREE.Vector3(0, 0, -1), animate = !(typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches)): void {
+    const target = this.controls.target.clone(), eye = this.camera.position.clone(), offset = eye.clone().sub(target);
+    const from = Math.atan2(offset.x, offset.z), to = Math.atan2(-north.x, -north.z);
+    const delta = Math.atan2(Math.sin(to - from), Math.cos(to - from)), radius = Math.hypot(offset.x, offset.z);
+    const camTo = target.clone().add(new THREE.Vector3(Math.sin(to) * radius, offset.y, Math.cos(to) * radius));
+    this.tween = { t0: performance.now(), dur: 420, from: target, to: target.clone(), camFrom: eye, camTo, orbit: { from, delta, radius, height: offset.y } };
+    // Flush a previous drag's damping, then restore this exact view before starting the arc.
+    // OrbitControls exposes no separate clear-inertia method; a non-damped update consumes its pending deltas.
+    const damping = this.controls.enableDamping;
+    this.controls.enableDamping = false; this.controls.update();
+    this.controls.target.copy(target); this.camera.position.copy(eye); this.controls.update();
+    this.controls.enableDamping = damping;
+    if (!animate || Math.abs(delta) < 1e-10) {
+      this.camera.position.copy(camTo); this.camera.lookAt(target); this.controls.update(); this.onCamera?.();
+      this.tween = null;
+    }
+    this.invalidate();
   }
   setTilt(top: boolean): void { this.setPreset(top ? 'top' : 'tabletop'); }
   /** Tabletop (free turn), isometric (snapped to the grid's diagonals) or overhead (north up, square to the grid). */
@@ -356,10 +383,12 @@ export class World {
   /** Zoom by a factor of the distance the camera is headed for, so presses during a glide add up instead of being lost.
    *  A zoom out at the far limit asks for the map one level up instead. */
   zoomBy(factor: number): void {
+    const takingOrbit = !!this.tween?.orbit;
+    if (this.tween?.orbit) this.tween = null; // a new zoom takes over at the current heading
     if (factor > 1 && this.atMaxDistance) { this.onZoomPastMax?.(); return; }
     const a = this.aim(), off = a.cam.clone().sub(a.target);
     const dist = THREE.MathUtils.clamp(off.length() * factor, this.controls.minDistance, this.controls.maxDistance);
-    this.moveTo(a.target.clone(), dist, true, Math.atan2(off.x, off.z) - this.controls.getAzimuthalAngle());
+    this.moveTo(a.target.clone(), dist, true, Math.atan2(off.x, off.z) - this.controls.getAzimuthalAngle(), takingOrbit ? off : undefined);
   }
   /** The wheel, ahead of OrbitControls. During a glide it changes where the glide is going, scaled about the ground
    *  under the cursor as the glide's end will see it (else the glide would undo it); otherwise OrbitControls zooms
@@ -367,6 +396,7 @@ export class World {
   private wheel = (e: WheelEvent): void => {
     if (e.target !== this.renderer.domElement || !this.controls.enabled || !this.controls.enableZoom || !e.deltaY) return;
     this.lastWheel = performance.now();
+    if (this.tween?.orbit) this.tween = null; // let OrbitControls zoom; never turn an arc into a chord
     if (e.deltaY > 0 && this.atMaxDistance) this.onZoomPastMax?.();
     const tw = this.tween; if (!tw) return;
     e.preventDefault(); e.stopImmediatePropagation();

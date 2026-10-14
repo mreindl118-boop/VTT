@@ -496,11 +496,11 @@ button.clock.night .ck-time { color: #9fb0d8; }
 /* the map frame: compass and scale bar */
 .mapframe { position: absolute; right: 10px; bottom: calc(env(safe-area-inset-bottom) + 12px); z-index: 5; display: flex; align-items: center; gap: 12px; padding: 6px 10px; background: var(--panel); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); border: var(--hairline, 1px) solid var(--hair); border-radius: var(--radius); pointer-events: none; }
 body.world-open .mapframe { display: none; }
-.compass { position: relative; width: 34px; height: 34px; } .compass svg { width: 34px; height: 34px; transition: transform .15s; } .compass b { position: absolute; top: -1px; left: 50%; transform: translateX(-50%); font-size: 9px; color: var(--ink-2); }
+.compass { position: relative; width: 44px; height: 44px; padding: 5px; border: 0; background: transparent; border-radius: 50%; pointer-events: auto; } .compass svg { display: block; width: 34px; height: 34px; } .compass b { position: absolute; top: 1px; left: 50%; transform: translateX(-50%); font-size: 9px; color: var(--ink-2); }
+:is(.compass, .carto-rose):focus-visible { outline: 2px solid var(--p-focus); outline-offset: 2px; }
 .scalebar { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; min-width: 60px; } .scalebar i { display: block; height: 6px; border: 2px solid var(--ink); border-top: none; width: 70px; transition: width .15s; } .scalebar span { font-size: 10px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
-/* The frame is a read-out laid over the corner, never a control: taps go through it to the camera buttons it can lie
-   over on a phone ('#ui > *' above would otherwise give it pointer events back). A control placed in the frame takes
-   taps by a rule of its own. On a narrow screen it also stands clear of them, above the camera row and under any card. */
+/* The frame's empty space passes taps through; only its compass takes input. On a narrow screen the frame stands
+   clear of the camera row and under any card. */
 #ui > .mapframe { pointer-events: none; }
 @media (max-width: 700px) { .mapframe { bottom: calc(env(safe-area-inset-bottom) + 64px); z-index: 2; } }
 .camcluster button > svg { pointer-events: none; } /* a press anywhere on a camera button lands on the button itself */
@@ -615,7 +615,8 @@ body[data-carto] .lbl.world-party { z-index: 100000 !important; margin: -14px 0 
 .carto-frame.pastoral .carto-title { padding: 10px 34px 12px; justify-items: center; }
 .carto-frame.pastoral .ct-name { white-space: normal; text-align: center; min-width: 0; }
 .carto-frame.pastoral .carto-title .scroll { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; overflow: visible; }
-.carto-rose { position: absolute; right: var(--safe-right, 16px); bottom: var(--safe-bottom, 16px); width: calc(96px * var(--pd)); height: calc(96px * var(--pd)); margin: 0 16px 16px 0; filter: drop-shadow(0 0 3px var(--carto-paper)); }
+.carto-rose { position: absolute; right: var(--safe-right, 16px); bottom: var(--safe-bottom, 16px); width: calc(96px * var(--pd)); height: calc(96px * var(--pd)); margin: 0 16px 16px 0; padding: 0; border: 0; background: transparent; color: inherit; border-radius: 50%; pointer-events: auto; filter: drop-shadow(0 0 3px var(--carto-paper)); }
+.carto-rose:disabled { pointer-events: none; }
 .carto-rose svg { width: 100%; height: 100%; overflow: visible; font-family: 'Alegreya SC', Georgia, serif; font-weight: 700; }
 .carto-rose text { fill: currentColor; }
 body[data-carto-frame] .mapframe .compass { display: none; }

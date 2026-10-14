@@ -38,7 +38,7 @@ export class CartoLetters {
   /** The land's names (key '' marks them as the land's, not a place's; at: miles; text: the name). */
   readonly labels: { obj: CSS2DObject; key: string; pri: number; at: Vec2; text: string }[] = [];
   private frame: HTMLElement;
-  private rose: HTMLElement;
+  private rose: HTMLButtonElement;
   private shown = -1;
   private turn = NaN;
   private safeKey = '';
@@ -69,7 +69,9 @@ export class CartoLetters {
     const note = document.createElement('div'); note.className = 'ct-note'; note.textContent = hexNote(data.milesPerHex ?? 1);
     if (style === 'pastoral') title.insertAdjacentHTML('afterbegin', SCROLL);
     title.append(h, note);
-    this.rose = document.createElement('div'); this.rose.className = 'carto-rose'; this.rose.innerHTML = ROSE;
+    this.rose = document.createElement('button'); this.rose.type = 'button'; this.rose.className = 'carto-rose'; this.rose.innerHTML = ROSE;
+    this.rose.setAttribute('aria-label', 'Align north'); this.rose.dataset.tip = 'Align north';
+    this.rose.addEventListener('click', () => { if (document.body.dataset.mode !== 'player') world.alignNorth(); });
     this.frame.append(vig, title, this.rose);
     (world.labelRenderer.domElement.parentElement ?? document.body).appendChild(this.frame);
   }
@@ -83,11 +85,13 @@ export class CartoLetters {
       this.frame.style.opacity = String(o);
       // (not laid out at all until it shows: the screen loads the map's display faces only once the map is drawn)
       this.frame.style.visibility = o > 0.01 ? 'visible' : 'hidden'; this.frame.style.display = o > 0.01 ? '' : 'none';
+      this.rose.disabled = o <= 0.3 || document.body.dataset.mode === 'player';
+      this.rose.setAttribute('aria-hidden', String(this.rose.disabled));
       if (o > 0.3) document.body.dataset.cartoFrame = '1'; else delete document.body.dataset.cartoFrame;
     }
     if (o <= 0.01) return;
     const turn = Math.round(THREE.MathUtils.radToDeg(azimuth) * 10) / 10;
-    if (turn !== this.turn) { this.turn = turn; this.rose.style.transform = `rotate(${turn}deg)`; }
+    if (turn !== this.turn) { this.turn = turn; (this.rose.firstElementChild as SVGElement).style.transform = `rotate(${turn}deg)`; }
     // the safe part of the view: clear of the top bar, the bottom toolbar and the side slider, 16 px from the left
     const host = (this.frame.parentElement ?? document.body).getBoundingClientRect();
     let top = 8, bottom = host.height - 8, left = 16, right = host.width - 8;

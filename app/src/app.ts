@@ -1949,6 +1949,11 @@ export class App {
   onSelect?: (id: string | null) => void;
   /** The compass and scale bar follow the camera. */
   onCameraUi: (() => void) | null = null;
+  /** A level's north includes its nested placement, just as the compass read-out does. */
+  alignNorth(): void {
+    const n = northVec(this.cur ? this.level.north : undefined);
+    this.world.alignNorth(new THREE.Vector3(n[0], 0, n[1]).transformDirection(this.placement));
+  }
   /** Where north points on screen (radians, 0 = up, clockwise) and how many pixels a foot covers at the target. */
   cameraFrame(): { north: number; pxPerFt: number } {
     const l = this.cur ? this.level : undefined, n = l?.north ?? '-z';

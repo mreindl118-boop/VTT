@@ -192,7 +192,8 @@ function buildDmUi(): void {
   const minimap = buildMinimap(app, ui, () => openClock());
   // the title is a breadcrumb in the valley: each crumb frames its scope (ui/breadcrumb.ts)
   wireCrumbs(top.querySelector<HTMLElement>('.loc')!, app, () => { app.layoutChanged(); refresh(); });
-  ui.insertAdjacentHTML('beforeend', `<div class="mapframe" aria-hidden="true"><div class="compass"><svg viewBox="0 0 40 40"><path d="M20 4 L26 22 L20 18 L14 22 Z" fill="#c0392b"/><path d="M20 36 L14 18 L20 22 L26 18 Z" fill="#e8e3d8" opacity=".55"/></svg><b>N</b></div><div class="scalebar"><i></i><span>50 ft</span></div></div>`);
+  ui.insertAdjacentHTML('beforeend', `<div class="mapframe"><button type="button" class="compass" aria-label="Align north" data-tip="Align north"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 4 L26 22 L20 18 L14 22 Z" fill="#c0392b"/><path d="M20 36 L14 18 L20 22 L26 18 Z" fill="#e8e3d8" opacity=".55"/></svg><b aria-hidden="true">N</b></button><div class="scalebar" aria-hidden="true"><i></i><span>50 ft</span></div></div>`);
+  ui.querySelector('.mapframe .compass')!.addEventListener('click', () => app.alignNorth());
   cam.addEventListener('click', (e) => {
     const b = (e.target as HTMLElement).closest<HTMLElement>('button');
     if (!b) return;
