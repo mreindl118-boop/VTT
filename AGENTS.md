@@ -100,6 +100,11 @@ a day old; then continue it from its wip branch, and say so in Status.
 
 ## Status
 
+### ChatGPT, 2026-10-14, published map coverage audit
+
+- Parent assigned test-only verification from published `aea9fc9`, on isolated `claude/wip/item2e-coverage-audit-032`. Dynamic manifest/filesystem discovery accounts for 46 built production maps, 122 levels, 346 directions and 418 doors including secrets; unbuilt/development entries and runtime omissions remain explicit. Eighteen off-floor endpoint observations remain findings, not fixes. See `docs/handoff/published-coverage-audit.md`.
+- Build, typecheck and 112 focused tests pass; full suites were not repeated. One sequential independent read-only review completed with no blocker. No runtime/authoring/migration/roof/hydrology/renderer changes or reconstruction of offline laptop work. GPU and all-map acceptance remain open.
+
 ### ChatGPT, 2026-10-14 08:08 UTC, reviewed map-access checkpoint
 
 - Cloud UI merge is committed and pushed at `4e2d63a` on `claude/wip/item2e-map-logic-laptop`. This checkpoint integrates the separately reviewed movement, WSC square, Vallaki apertures, Castle/Abbey/Tsolenka/R landings and E5 geometry; generated exterior, atlas and massing match the staged data. No licensed inputs or private artifacts are included.
