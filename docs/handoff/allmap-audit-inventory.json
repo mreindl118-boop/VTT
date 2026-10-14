@@ -111,7 +111,7 @@
         "ch09/T",
         "ch13/X"
       ],
-      "status": "inventory/structural probes complete; source, render, movement and zoom pending"
+      "status": "Inventory complete; qualified source/reference, render and movement probes recorded per map. Full criterion sign-off remains open."
     },
     {
       "id": 1,
@@ -129,7 +129,7 @@
         "ch02/R",
         "ch02/barovia-region"
       ],
-      "status": "inventory/structural probes complete; source, render, movement and zoom pending"
+      "status": "Inventory complete; qualified source/reference, render and movement probes recorded per map. Full criterion sign-off remains open."
     },
     {
       "id": 2,
@@ -150,7 +150,7 @@
         "ch08/S10",
         "ch10/U3"
       ],
-      "status": "inventory/structural probes complete; source, render, movement and zoom pending"
+      "status": "Inventory complete; qualified source/reference, render and movement probes recorded per map. Full criterion sign-off remains open."
     },
     {
       "id": 3,
@@ -165,7 +165,7 @@
         "ch14/Y",
         "ch15/Z"
       ],
-      "status": "inventory/structural probes complete; source, render, movement and zoom pending"
+      "status": "Inventory complete; qualified source/reference, render and movement probes recorded per map. Full criterion sign-off remains open."
     },
     {
       "id": 4,
@@ -177,7 +177,7 @@
         "ch05/N",
         "ch06/O"
       ],
-      "status": "inventory/structural probes complete; source, render, movement and zoom pending"
+      "status": "Inventory complete; qualified source/reference, render and movement probes recorded per map. Full criterion sign-off remains open."
     },
     {
       "id": 5,
@@ -191,7 +191,7 @@
         "wsc/03a-road",
         "wsc/03b-path"
       ],
-      "status": "inventory/structural probes complete; source, render, movement and zoom pending"
+      "status": "Inventory complete; qualified source/reference, render and movement probes recorded per map. Full criterion sign-off remains open."
     },
     {
       "id": 6,
@@ -200,7 +200,7 @@
       "paths": [
         "dev/m0-test-room"
       ],
-      "status": "inventory/structural probes complete; source, render, movement and zoom pending"
+      "status": "Inventory complete; qualified source/reference, render and movement probes recorded per map. Full criterion sign-off remains open."
     }
   ],
   "atlasErrors": [],
@@ -771,6 +771,19 @@
         "entryMovementPass": true,
         "zoomBothDirectionsRespond": true,
         "fullCriterionSignoff": false
+      },
+      "verticalLinkProbe": {
+        "links": 0,
+        "endpoints": 0,
+        "snappedNearbyMovePass": 0,
+        "snappedNearbyMoveBlocked": 0,
+        "notProbed": 0,
+        "sourceInterpretationRequired": true
+      },
+      "isolatedLinkTransitions": {
+        "activations": 0,
+        "wrongDestination": 0,
+        "multipleTransitions": 0
       }
     },
     {
@@ -1535,6 +1548,19 @@
         "entryMovementPass": true,
         "zoomBothDirectionsRespond": true,
         "fullCriterionSignoff": false
+      },
+      "verticalLinkProbe": {
+        "links": 3,
+        "endpoints": 6,
+        "snappedNearbyMovePass": 6,
+        "snappedNearbyMoveBlocked": 0,
+        "notProbed": 0,
+        "sourceInterpretationRequired": true
+      },
+      "isolatedLinkTransitions": {
+        "activations": 6,
+        "wrongDestination": 0,
+        "multipleTransitions": 0
       }
     },
     {
@@ -2252,6 +2278,19 @@
         "entryMovementPass": true,
         "zoomBothDirectionsRespond": true,
         "fullCriterionSignoff": false
+      },
+      "verticalLinkProbe": {
+        "links": 4,
+        "endpoints": 8,
+        "snappedNearbyMovePass": 8,
+        "snappedNearbyMoveBlocked": 0,
+        "notProbed": 0,
+        "sourceInterpretationRequired": true
+      },
+      "isolatedLinkTransitions": {
+        "activations": 8,
+        "wrongDestination": 0,
+        "multipleTransitions": 0
       }
     },
     {
@@ -5897,7 +5936,20 @@
         "entryMovementPass": true,
         "zoomBothDirectionsRespond": true,
         "fullCriterionSignoff": false,
-        "finding": "Default dungeon is obscured by regional terrain in DM and Players phone views. Existing root-underground classification also excluded K at baseline 785421c; no baseline visual comparison, so this is not labeled a new regression."
+        "finding": "Dungeon burial reproduces on frozen 0.3.0 in desktop/phone DM/Players. Ground entry remains visible. Candidate phone images were taken after the movement probe traversed to the dungeon, not at the untouched default entry."
+      },
+      "verticalLinkProbe": {
+        "links": 47,
+        "endpoints": 94,
+        "snappedNearbyMovePass": 93,
+        "snappedNearbyMoveBlocked": 1,
+        "notProbed": 0,
+        "sourceInterpretationRequired": true
+      },
+      "isolatedLinkTransitions": {
+        "activations": 94,
+        "wrongDestination": 32,
+        "multipleTransitions": 11
       }
     },
     {
@@ -7248,6 +7300,19 @@
         "entryMovementPass": true,
         "zoomBothDirectionsRespond": true,
         "fullCriterionSignoff": false
+      },
+      "verticalLinkProbe": {
+        "links": 2,
+        "endpoints": 4,
+        "snappedNearbyMovePass": 3,
+        "snappedNearbyMoveBlocked": 1,
+        "notProbed": 0,
+        "sourceInterpretationRequired": true
+      },
+      "isolatedLinkTransitions": {
+        "activations": 4,
+        "wrongDestination": 0,
+        "multipleTransitions": 0
       }
     },
     {
@@ -8852,6 +8917,19 @@
         "entryMovementPass": true,
         "zoomBothDirectionsRespond": true,
         "fullCriterionSignoff": false
+      },
+      "verticalLinkProbe": {
+        "links": 10,
+        "endpoints": 20,
+        "snappedNearbyMovePass": 19,
+        "snappedNearbyMoveBlocked": 1,
+        "notProbed": 0,
+        "sourceInterpretationRequired": true
+      },
+      "isolatedLinkTransitions": {
+        "activations": 20,
+        "wrongDestination": 0,
+        "multipleTransitions": 0
       }
     },
     {
@@ -9429,6 +9507,19 @@
         "entryMovementPass": true,
         "zoomBothDirectionsRespond": true,
         "fullCriterionSignoff": false
+      },
+      "verticalLinkProbe": {
+        "links": 0,
+        "endpoints": 0,
+        "snappedNearbyMovePass": 0,
+        "snappedNearbyMoveBlocked": 0,
+        "notProbed": 0,
+        "sourceInterpretationRequired": true
+      },
+      "isolatedLinkTransitions": {
+        "activations": 0,
+        "wrongDestination": 0,
+        "multipleTransitions": 0
       }
     },
     {
@@ -10123,6 +10214,19 @@
         "entryMovementPass": true,
         "zoomBothDirectionsRespond": true,
         "fullCriterionSignoff": false
+      },
+      "verticalLinkProbe": {
+        "links": 4,
+        "endpoints": 8,
+        "snappedNearbyMovePass": 8,
+        "snappedNearbyMoveBlocked": 0,
+        "notProbed": 0,
+        "sourceInterpretationRequired": true
+      },
+      "isolatedLinkTransitions": {
+        "activations": 8,
+        "wrongDestination": 0,
+        "multipleTransitions": 0
       }
     },
     {
@@ -11149,6 +11253,19 @@
         "entryMovementPass": true,
         "zoomBothDirectionsRespond": true,
         "fullCriterionSignoff": false
+      },
+      "verticalLinkProbe": {
+        "links": 6,
+        "endpoints": 12,
+        "snappedNearbyMovePass": 12,
+        "snappedNearbyMoveBlocked": 0,
+        "notProbed": 0,
+        "sourceInterpretationRequired": true
+      },
+      "isolatedLinkTransitions": {
+        "activations": 12,
+        "wrongDestination": 0,
+        "multipleTransitions": 0
       }
     },
     {
@@ -11989,6 +12106,19 @@
         "entryMovementPass": true,
         "zoomBothDirectionsRespond": true,
         "fullCriterionSignoff": false
+      },
+      "verticalLinkProbe": {
+        "links": 3,
+        "endpoints": 6,
+        "snappedNearbyMovePass": 5,
+        "snappedNearbyMoveBlocked": 1,
+        "notProbed": 0,
+        "sourceInterpretationRequired": true
+      },
+      "isolatedLinkTransitions": {
+        "activations": 6,
+        "wrongDestination": 0,
+        "multipleTransitions": 0
       }
     },
     {
@@ -12818,6 +12948,19 @@
         "entryMovementPass": true,
         "zoomBothDirectionsRespond": true,
         "fullCriterionSignoff": false
+      },
+      "verticalLinkProbe": {
+        "links": 3,
+        "endpoints": 6,
+        "snappedNearbyMovePass": 6,
+        "snappedNearbyMoveBlocked": 0,
+        "notProbed": 0,
+        "sourceInterpretationRequired": true
+      },
+      "isolatedLinkTransitions": {
+        "activations": 6,
+        "wrongDestination": 0,
+        "multipleTransitions": 0
       }
     },
     {
@@ -13540,6 +13683,19 @@
         "entryMovementPass": true,
         "zoomBothDirectionsRespond": true,
         "fullCriterionSignoff": false
+      },
+      "verticalLinkProbe": {
+        "links": 2,
+        "endpoints": 4,
+        "snappedNearbyMovePass": 4,
+        "snappedNearbyMoveBlocked": 0,
+        "notProbed": 0,
+        "sourceInterpretationRequired": true
+      },
+      "isolatedLinkTransitions": {
+        "activations": 4,
+        "wrongDestination": 0,
+        "multipleTransitions": 0
       }
     },
     {
@@ -14141,6 +14297,19 @@
         "entryMovementPass": true,
         "zoomBothDirectionsRespond": true,
         "fullCriterionSignoff": false
+      },
+      "verticalLinkProbe": {
+        "links": 2,
+        "endpoints": 4,
+        "snappedNearbyMovePass": 4,
+        "snappedNearbyMoveBlocked": 0,
+        "notProbed": 0,
+        "sourceInterpretationRequired": true
+      },
+      "isolatedLinkTransitions": {
+        "activations": 4,
+        "wrongDestination": 0,
+        "multipleTransitions": 0
       }
     },
     {
@@ -15359,6 +15528,19 @@
         "entryMovementPass": true,
         "zoomBothDirectionsRespond": true,
         "fullCriterionSignoff": false
+      },
+      "verticalLinkProbe": {
+        "links": 3,
+        "endpoints": 6,
+        "snappedNearbyMovePass": 6,
+        "snappedNearbyMoveBlocked": 0,
+        "notProbed": 0,
+        "sourceInterpretationRequired": true
+      },
+      "isolatedLinkTransitions": {
+        "activations": 6,
+        "wrongDestination": 0,
+        "multipleTransitions": 0
       }
     },
     {
@@ -16442,6 +16624,19 @@
         "entryMovementPass": true,
         "zoomBothDirectionsRespond": true,
         "fullCriterionSignoff": false
+      },
+      "verticalLinkProbe": {
+        "links": 6,
+        "endpoints": 12,
+        "snappedNearbyMovePass": 10,
+        "snappedNearbyMoveBlocked": 2,
+        "notProbed": 0,
+        "sourceInterpretationRequired": true
+      },
+      "isolatedLinkTransitions": {
+        "activations": 12,
+        "wrongDestination": 0,
+        "multipleTransitions": 0
       }
     },
     {
@@ -17998,7 +18193,16 @@
           "rows": 104,
           "columns": 160
         }
-      ]
+      ],
+      "regionViewReview": {
+        "desktopDm": true,
+        "desktopPlayers": true,
+        "phoneDm": true,
+        "phonePlayers": true,
+        "zoomBothDirectionsRespond": true,
+        "fullCriterionSignoff": false,
+        "build": "index-CF69xAqx.js"
+      }
     },
     {
       "path": "appB/death-house",
@@ -19126,6 +19330,19 @@
         "entryMovementPass": true,
         "zoomBothDirectionsRespond": true,
         "fullCriterionSignoff": false
+      },
+      "verticalLinkProbe": {
+        "links": 8,
+        "endpoints": 16,
+        "snappedNearbyMovePass": 16,
+        "snappedNearbyMoveBlocked": 0,
+        "notProbed": 0,
+        "sourceInterpretationRequired": true
+      },
+      "isolatedLinkTransitions": {
+        "activations": 16,
+        "wrongDestination": 4,
+        "multipleTransitions": 2
       }
     },
     {
@@ -19214,7 +19431,8 @@
             "movementChecked": false,
             "zoomChecked": false,
             "completeAudit": false,
-            "desktopDmOverviewTriaged": true
+            "desktopDmOverviewTriaged": true,
+            "declaredStaticSourceCompared": true
           },
           "applicability": {
             "canonicalRelationships": "required",
@@ -19281,7 +19499,8 @@
             "movementChecked": false,
             "zoomChecked": false,
             "completeAudit": false,
-            "desktopDmOverviewTriaged": true
+            "desktopDmOverviewTriaged": true,
+            "declaredStaticSourceCompared": true
           },
           "applicability": {
             "canonicalRelationships": "required",
@@ -19431,57 +19650,64 @@
           "applicable": true,
           "reason": "Verify authored map and room page relationships; page metadata is only a locator",
           "structural": "page metadata inventoried",
-          "source": "pending",
+          "source": "checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch03/E5"
         },
         "transformElevationScale": {
           "applicable": true,
           "reason": "Rigid placement checks do not validate canonical placement, physical size or doorway alignment",
           "structural": "checked",
-          "source": "pending",
+          "source": "checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch03/E5"
         },
         "terrainFoundationUnderground": {
           "applicable": true,
           "reason": "Room/terrain polygons and levels inventoried; intentional burial and visible foundations require source/render review",
           "structural": "checked",
-          "source": "pending",
+          "source": "source_and_static_intent_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch03/E5"
         },
         "roadAccessGradeConnectivity": {
           "applicable": true,
           "reason": "Authored street/dirt, atlas exit or parent entrance exists",
           "structural": "candidate geometry measured",
-          "source": "pending",
+          "source": "source_access_intent_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch03/E5"
         },
         "waterFlowBridgeClearance": {
           "applicable": false,
           "reason": "No authored water/bridge/wet floor or nearby regional river detected; revisit if source identifies one",
           "structural": "N/A",
-          "source": "N/A",
+          "source": "applicability_checked",
           "rendered": "N/A",
-          "result": "N/A"
+          "result": "N/A",
+          "sourceEvidence": "allmap-source-remaining.json#ch03/E5"
         },
         "biomeMaterialSeams": {
           "applicable": true,
           "reason": "Material categories inventoried; appearance and boundary continuity require render review",
           "structural": "materials inventoried",
-          "source": "pending",
+          "source": "source_material_families_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch03/E5"
         },
         "duplicateProxyLodStructures": {
           "applicable": true,
           "reason": "Placed scene has a runtime LOD/proxy relationship",
           "structural": "stand-in candidates and atlas ownership inventoried",
-          "source": "pending",
+          "source": "identity_atlas_and_documented_insets_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch03/E5"
         }
       },
       "findings": [
@@ -19824,6 +20050,28 @@
         "entryMovementPass": true,
         "zoomBothDirectionsRespond": true,
         "fullCriterionSignoff": false
+      },
+      "verticalLinkProbe": {
+        "links": 1,
+        "endpoints": 2,
+        "snappedNearbyMovePass": 1,
+        "snappedNearbyMoveBlocked": 1,
+        "notProbed": 0,
+        "sourceInterpretationRequired": true
+      },
+      "isolatedLinkTransitions": {
+        "activations": 2,
+        "wrongDestination": 0,
+        "multipleTransitions": 0
+      },
+      "sourceRemainingPass": {
+        "status": "complete_with_findings_for_declared_static_structure_scope",
+        "relations": 3,
+        "sourcePlanPrintedPages": [
+          46
+        ],
+        "evidence": "allmap-source-remaining.json#ch03/E5",
+        "fullRuntimeSignoff": false
       }
     },
     {
@@ -19879,7 +20127,8 @@
             "movementChecked": false,
             "zoomChecked": false,
             "completeAudit": false,
-            "desktopDmOverviewTriaged": true
+            "desktopDmOverviewTriaged": true,
+            "declaredStaticSourceCompared": true
           },
           "applicability": {
             "canonicalRelationships": "required",
@@ -20000,57 +20249,64 @@
           "applicable": true,
           "reason": "Verify authored map and room page relationships; page metadata is only a locator",
           "structural": "page metadata inventoried",
-          "source": "pending",
+          "source": "checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N1"
         },
         "transformElevationScale": {
           "applicable": true,
           "reason": "Rigid placement checks do not validate canonical placement, physical size or doorway alignment",
           "structural": "checked",
-          "source": "pending",
+          "source": "checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N1"
         },
         "terrainFoundationUnderground": {
           "applicable": true,
           "reason": "Room/terrain polygons and levels inventoried; intentional burial and visible foundations require source/render review",
           "structural": "checked",
-          "source": "pending",
+          "source": "source_and_static_intent_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N1"
         },
         "roadAccessGradeConnectivity": {
           "applicable": true,
           "reason": "Authored street/dirt, atlas exit or parent entrance exists",
           "structural": "candidate geometry measured",
-          "source": "pending",
+          "source": "source_access_intent_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N1"
         },
         "waterFlowBridgeClearance": {
           "applicable": false,
           "reason": "No authored water/bridge/wet floor or nearby regional river detected; revisit if source identifies one",
           "structural": "N/A",
-          "source": "N/A",
+          "source": "applicability_checked",
           "rendered": "N/A",
-          "result": "N/A"
+          "result": "N/A",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N1"
         },
         "biomeMaterialSeams": {
           "applicable": true,
           "reason": "Material categories inventoried; appearance and boundary continuity require render review",
           "structural": "materials inventoried",
-          "source": "pending",
+          "source": "source_material_families_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N1"
         },
         "duplicateProxyLodStructures": {
           "applicable": true,
           "reason": "Placed scene has a runtime LOD/proxy relationship",
           "structural": "stand-in candidates and atlas ownership inventoried",
-          "source": "pending",
+          "source": "identity_atlas_and_documented_insets_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N1"
         }
       },
       "findings": [
@@ -20195,6 +20451,29 @@
         "entryMovementPass": true,
         "zoomBothDirectionsRespond": true,
         "fullCriterionSignoff": false
+      },
+      "verticalLinkProbe": {
+        "links": 0,
+        "endpoints": 0,
+        "snappedNearbyMovePass": 0,
+        "snappedNearbyMoveBlocked": 0,
+        "notProbed": 0,
+        "sourceInterpretationRequired": true
+      },
+      "isolatedLinkTransitions": {
+        "activations": 0,
+        "wrongDestination": 0,
+        "multipleTransitions": 0
+      },
+      "sourceRemainingPass": {
+        "status": "complete_with_findings_for_declared_static_structure_scope",
+        "relations": 2,
+        "sourcePlanPrintedPages": [
+          46,
+          97
+        ],
+        "evidence": "allmap-source-remaining.json#ch05/N1",
+        "fullRuntimeSignoff": false
       }
     },
     {
@@ -20334,7 +20613,8 @@
             "movementChecked": false,
             "zoomChecked": false,
             "completeAudit": false,
-            "desktopDmOverviewTriaged": true
+            "desktopDmOverviewTriaged": true,
+            "declaredStaticSourceCompared": true
           },
           "applicability": {
             "canonicalRelationships": "required",
@@ -20494,7 +20774,8 @@
             "movementChecked": false,
             "zoomChecked": false,
             "completeAudit": false,
-            "desktopDmOverviewTriaged": true
+            "desktopDmOverviewTriaged": true,
+            "declaredStaticSourceCompared": true
           },
           "applicability": {
             "canonicalRelationships": "required",
@@ -20579,7 +20860,8 @@
             "movementChecked": false,
             "zoomChecked": false,
             "completeAudit": false,
-            "desktopDmOverviewTriaged": true
+            "desktopDmOverviewTriaged": true,
+            "declaredStaticSourceCompared": true
           },
           "applicability": {
             "canonicalRelationships": "required",
@@ -20729,57 +21011,64 @@
           "applicable": true,
           "reason": "Verify authored map and room page relationships; page metadata is only a locator",
           "structural": "page metadata inventoried",
-          "source": "pending",
+          "source": "checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N2"
         },
         "transformElevationScale": {
           "applicable": true,
           "reason": "Rigid placement checks do not validate canonical placement, physical size or doorway alignment",
           "structural": "checked",
-          "source": "pending",
+          "source": "checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N2"
         },
         "terrainFoundationUnderground": {
           "applicable": true,
           "reason": "Room/terrain polygons and levels inventoried; intentional burial and visible foundations require source/render review",
           "structural": "checked",
-          "source": "pending",
+          "source": "source_and_static_intent_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N2"
         },
         "roadAccessGradeConnectivity": {
           "applicable": true,
           "reason": "Authored street/dirt, atlas exit or parent entrance exists",
           "structural": "candidate geometry measured",
-          "source": "pending",
+          "source": "source_access_intent_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N2"
         },
         "waterFlowBridgeClearance": {
           "applicable": false,
           "reason": "No authored water/bridge/wet floor or nearby regional river detected; revisit if source identifies one",
           "structural": "N/A",
-          "source": "N/A",
+          "source": "applicability_checked",
           "rendered": "N/A",
-          "result": "N/A"
+          "result": "N/A",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N2"
         },
         "biomeMaterialSeams": {
           "applicable": true,
           "reason": "Material categories inventoried; appearance and boundary continuity require render review",
           "structural": "materials inventoried",
-          "source": "pending",
+          "source": "source_material_families_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N2"
         },
         "duplicateProxyLodStructures": {
           "applicable": true,
           "reason": "Placed scene has a runtime LOD/proxy relationship",
           "structural": "stand-in candidates and atlas ownership inventoried",
-          "source": "pending",
+          "source": "identity_atlas_and_documented_insets_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N2"
         }
       },
       "findings": [
@@ -21168,6 +21457,28 @@
         "entryMovementPass": true,
         "zoomBothDirectionsRespond": true,
         "fullCriterionSignoff": false
+      },
+      "verticalLinkProbe": {
+        "links": 6,
+        "endpoints": 12,
+        "snappedNearbyMovePass": 12,
+        "snappedNearbyMoveBlocked": 0,
+        "notProbed": 0,
+        "sourceInterpretationRequired": true
+      },
+      "isolatedLinkTransitions": {
+        "activations": 12,
+        "wrongDestination": 0,
+        "multipleTransitions": 0
+      },
+      "sourceRemainingPass": {
+        "status": "complete_with_findings_for_declared_static_structure_scope",
+        "relations": 3,
+        "sourcePlanPrintedPages": [
+          99
+        ],
+        "evidence": "allmap-source-remaining.json#ch05/N2",
+        "fullRuntimeSignoff": false
       }
     },
     {
@@ -21269,7 +21580,8 @@
             "movementChecked": false,
             "zoomChecked": false,
             "completeAudit": false,
-            "desktopDmOverviewTriaged": true
+            "desktopDmOverviewTriaged": true,
+            "declaredStaticSourceCompared": true
           },
           "applicability": {
             "canonicalRelationships": "required",
@@ -21374,7 +21686,8 @@
             "movementChecked": false,
             "zoomChecked": false,
             "completeAudit": false,
-            "desktopDmOverviewTriaged": true
+            "desktopDmOverviewTriaged": true,
+            "declaredStaticSourceCompared": true
           },
           "applicability": {
             "canonicalRelationships": "required",
@@ -21441,7 +21754,8 @@
             "movementChecked": false,
             "zoomChecked": false,
             "completeAudit": false,
-            "desktopDmOverviewTriaged": true
+            "desktopDmOverviewTriaged": true,
+            "declaredStaticSourceCompared": true
           },
           "applicability": {
             "canonicalRelationships": "required",
@@ -21591,57 +21905,64 @@
           "applicable": true,
           "reason": "Verify authored map and room page relationships; page metadata is only a locator",
           "structural": "page metadata inventoried",
-          "source": "pending",
+          "source": "checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N3"
         },
         "transformElevationScale": {
           "applicable": true,
           "reason": "Rigid placement checks do not validate canonical placement, physical size or doorway alignment",
           "structural": "checked",
-          "source": "pending",
+          "source": "checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N3"
         },
         "terrainFoundationUnderground": {
           "applicable": true,
           "reason": "Room/terrain polygons and levels inventoried; intentional burial and visible foundations require source/render review",
           "structural": "checked",
-          "source": "pending",
+          "source": "source_and_static_intent_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N3"
         },
         "roadAccessGradeConnectivity": {
           "applicable": true,
           "reason": "Authored street/dirt, atlas exit or parent entrance exists",
           "structural": "candidate geometry measured",
-          "source": "pending",
+          "source": "source_access_intent_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N3"
         },
         "waterFlowBridgeClearance": {
           "applicable": false,
           "reason": "No authored water/bridge/wet floor or nearby regional river detected; revisit if source identifies one",
           "structural": "N/A",
-          "source": "N/A",
+          "source": "applicability_checked",
           "rendered": "N/A",
-          "result": "N/A"
+          "result": "N/A",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N3"
         },
         "biomeMaterialSeams": {
           "applicable": true,
           "reason": "Material categories inventoried; appearance and boundary continuity require render review",
           "structural": "materials inventoried",
-          "source": "pending",
+          "source": "source_material_families_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N3"
         },
         "duplicateProxyLodStructures": {
           "applicable": true,
           "reason": "Placed scene has a runtime LOD/proxy relationship",
           "structural": "stand-in candidates and atlas ownership inventoried",
-          "source": "pending",
+          "source": "identity_atlas_and_documented_insets_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N3"
         }
       },
       "findings": [
@@ -21989,6 +22310,28 @@
         "entryMovementPass": true,
         "zoomBothDirectionsRespond": true,
         "fullCriterionSignoff": false
+      },
+      "verticalLinkProbe": {
+        "links": 3,
+        "endpoints": 6,
+        "snappedNearbyMovePass": 6,
+        "snappedNearbyMoveBlocked": 0,
+        "notProbed": 0,
+        "sourceInterpretationRequired": true
+      },
+      "isolatedLinkTransitions": {
+        "activations": 6,
+        "wrongDestination": 0,
+        "multipleTransitions": 0
+      },
+      "sourceRemainingPass": {
+        "status": "complete_with_findings_for_declared_static_structure_scope",
+        "relations": 2,
+        "sourcePlanPrintedPages": [
+          104
+        ],
+        "evidence": "allmap-source-remaining.json#ch05/N3",
+        "fullRuntimeSignoff": false
       }
     },
     {
@@ -22088,7 +22431,8 @@
             "movementChecked": false,
             "zoomChecked": false,
             "completeAudit": false,
-            "desktopDmOverviewTriaged": true
+            "desktopDmOverviewTriaged": true,
+            "declaredStaticSourceCompared": true
           },
           "applicability": {
             "canonicalRelationships": "required",
@@ -22195,7 +22539,8 @@
             "movementChecked": false,
             "zoomChecked": false,
             "completeAudit": false,
-            "desktopDmOverviewTriaged": true
+            "desktopDmOverviewTriaged": true,
+            "declaredStaticSourceCompared": true
           },
           "applicability": {
             "canonicalRelationships": "required",
@@ -22263,7 +22608,8 @@
             "movementChecked": false,
             "zoomChecked": false,
             "completeAudit": false,
-            "desktopDmOverviewTriaged": true
+            "desktopDmOverviewTriaged": true,
+            "declaredStaticSourceCompared": true
           },
           "applicability": {
             "canonicalRelationships": "required",
@@ -22424,57 +22770,64 @@
           "applicable": true,
           "reason": "Verify authored map and room page relationships; page metadata is only a locator",
           "structural": "page metadata inventoried",
-          "source": "pending",
+          "source": "checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N4"
         },
         "transformElevationScale": {
           "applicable": true,
           "reason": "Rigid placement checks do not validate canonical placement, physical size or doorway alignment",
           "structural": "checked",
-          "source": "pending",
+          "source": "checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N4"
         },
         "terrainFoundationUnderground": {
           "applicable": true,
           "reason": "Room/terrain polygons and levels inventoried; intentional burial and visible foundations require source/render review",
           "structural": "checked",
-          "source": "pending",
+          "source": "source_and_static_intent_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N4"
         },
         "roadAccessGradeConnectivity": {
           "applicable": true,
           "reason": "Authored street/dirt, atlas exit or parent entrance exists",
           "structural": "candidate geometry measured",
-          "source": "pending",
+          "source": "source_access_intent_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N4"
         },
         "waterFlowBridgeClearance": {
           "applicable": false,
           "reason": "No authored water/bridge/wet floor or nearby regional river detected; revisit if source identifies one",
           "structural": "N/A",
-          "source": "N/A",
+          "source": "applicability_checked",
           "rendered": "N/A",
-          "result": "N/A"
+          "result": "N/A",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N4"
         },
         "biomeMaterialSeams": {
           "applicable": true,
           "reason": "Material categories inventoried; appearance and boundary continuity require render review",
           "structural": "materials inventoried",
-          "source": "pending",
+          "source": "source_material_families_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N4"
         },
         "duplicateProxyLodStructures": {
           "applicable": true,
           "reason": "Placed scene has a runtime LOD/proxy relationship",
           "structural": "stand-in candidates and atlas ownership inventoried",
-          "source": "pending",
+          "source": "identity_atlas_and_documented_insets_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N4"
         }
       },
       "findings": [
@@ -22764,6 +23117,28 @@
         "entryMovementPass": true,
         "zoomBothDirectionsRespond": true,
         "fullCriterionSignoff": false
+      },
+      "verticalLinkProbe": {
+        "links": 3,
+        "endpoints": 6,
+        "snappedNearbyMovePass": 6,
+        "snappedNearbyMoveBlocked": 0,
+        "notProbed": 0,
+        "sourceInterpretationRequired": true
+      },
+      "isolatedLinkTransitions": {
+        "activations": 6,
+        "wrongDestination": 0,
+        "multipleTransitions": 0
+      },
+      "sourceRemainingPass": {
+        "status": "complete_with_findings_for_declared_static_structure_scope",
+        "relations": 2,
+        "sourcePlanPrintedPages": [
+          111
+        ],
+        "evidence": "allmap-source-remaining.json#ch05/N4",
+        "fullRuntimeSignoff": false
       }
     },
     {
@@ -22821,7 +23196,8 @@
             "movementChecked": false,
             "zoomChecked": false,
             "completeAudit": false,
-            "desktopDmOverviewTriaged": true
+            "desktopDmOverviewTriaged": true,
+            "declaredStaticSourceCompared": true
           },
           "applicability": {
             "canonicalRelationships": "required",
@@ -22942,57 +23318,64 @@
           "applicable": true,
           "reason": "Verify authored map and room page relationships; page metadata is only a locator",
           "structural": "page metadata inventoried",
-          "source": "pending",
+          "source": "checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N5"
         },
         "transformElevationScale": {
           "applicable": true,
           "reason": "Rigid placement checks do not validate canonical placement, physical size or doorway alignment",
           "structural": "checked",
-          "source": "pending",
+          "source": "checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N5"
         },
         "terrainFoundationUnderground": {
           "applicable": true,
           "reason": "Room/terrain polygons and levels inventoried; intentional burial and visible foundations require source/render review",
           "structural": "checked",
-          "source": "pending",
+          "source": "source_and_static_intent_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N5"
         },
         "roadAccessGradeConnectivity": {
           "applicable": true,
           "reason": "Authored street/dirt, atlas exit or parent entrance exists",
           "structural": "candidate geometry measured",
-          "source": "pending",
+          "source": "source_access_intent_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N5"
         },
         "waterFlowBridgeClearance": {
           "applicable": false,
           "reason": "No authored water/bridge/wet floor or nearby regional river detected; revisit if source identifies one",
           "structural": "N/A",
-          "source": "N/A",
+          "source": "applicability_checked",
           "rendered": "N/A",
-          "result": "N/A"
+          "result": "N/A",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N5"
         },
         "biomeMaterialSeams": {
           "applicable": true,
           "reason": "Material categories inventoried; appearance and boundary continuity require render review",
           "structural": "materials inventoried",
-          "source": "pending",
+          "source": "source_material_families_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N5"
         },
         "duplicateProxyLodStructures": {
           "applicable": true,
           "reason": "Placed scene has a runtime LOD/proxy relationship",
           "structural": "stand-in candidates and atlas ownership inventoried",
-          "source": "pending",
+          "source": "identity_atlas_and_documented_insets_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N5"
         }
       },
       "findings": [
@@ -23137,6 +23520,28 @@
         "entryMovementPass": true,
         "zoomBothDirectionsRespond": true,
         "fullCriterionSignoff": false
+      },
+      "verticalLinkProbe": {
+        "links": 0,
+        "endpoints": 0,
+        "snappedNearbyMovePass": 0,
+        "snappedNearbyMoveBlocked": 0,
+        "notProbed": 0,
+        "sourceInterpretationRequired": true
+      },
+      "isolatedLinkTransitions": {
+        "activations": 0,
+        "wrongDestination": 0,
+        "multipleTransitions": 0
+      },
+      "sourceRemainingPass": {
+        "status": "complete_with_findings_for_declared_static_structure_scope",
+        "relations": 1,
+        "sourcePlanPrintedPages": [
+          97
+        ],
+        "evidence": "allmap-source-remaining.json#ch05/N5",
+        "fullRuntimeSignoff": false
       }
     },
     {
@@ -23214,7 +23619,8 @@
             "movementChecked": false,
             "zoomChecked": false,
             "completeAudit": false,
-            "desktopDmOverviewTriaged": true
+            "desktopDmOverviewTriaged": true,
+            "declaredStaticSourceCompared": true
           },
           "applicability": {
             "canonicalRelationships": "required",
@@ -23282,7 +23688,8 @@
             "movementChecked": false,
             "zoomChecked": false,
             "completeAudit": false,
-            "desktopDmOverviewTriaged": true
+            "desktopDmOverviewTriaged": true,
+            "declaredStaticSourceCompared": true
           },
           "applicability": {
             "canonicalRelationships": "required",
@@ -23417,57 +23824,64 @@
           "applicable": true,
           "reason": "Verify authored map and room page relationships; page metadata is only a locator",
           "structural": "page metadata inventoried",
-          "source": "pending",
+          "source": "checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N6"
         },
         "transformElevationScale": {
           "applicable": true,
           "reason": "Rigid placement checks do not validate canonical placement, physical size or doorway alignment",
           "structural": "checked",
-          "source": "pending",
+          "source": "checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N6"
         },
         "terrainFoundationUnderground": {
           "applicable": true,
           "reason": "Room/terrain polygons and levels inventoried; intentional burial and visible foundations require source/render review",
           "structural": "checked",
-          "source": "pending",
+          "source": "source_and_static_intent_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N6"
         },
         "roadAccessGradeConnectivity": {
           "applicable": true,
           "reason": "Authored street/dirt, atlas exit or parent entrance exists",
           "structural": "candidate geometry measured",
-          "source": "pending",
+          "source": "source_access_intent_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N6"
         },
         "waterFlowBridgeClearance": {
           "applicable": false,
           "reason": "No authored water/bridge/wet floor or nearby regional river detected; revisit if source identifies one",
           "structural": "N/A",
-          "source": "N/A",
+          "source": "applicability_checked",
           "rendered": "N/A",
-          "result": "N/A"
+          "result": "N/A",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N6"
         },
         "biomeMaterialSeams": {
           "applicable": true,
           "reason": "Material categories inventoried; appearance and boundary continuity require render review",
           "structural": "materials inventoried",
-          "source": "pending",
+          "source": "source_material_families_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N6"
         },
         "duplicateProxyLodStructures": {
           "applicable": true,
           "reason": "Placed scene has a runtime LOD/proxy relationship",
           "structural": "stand-in candidates and atlas ownership inventoried",
-          "source": "pending",
+          "source": "identity_atlas_and_documented_insets_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N6"
         }
       },
       "findings": [
@@ -23706,6 +24120,28 @@
         "entryMovementPass": true,
         "zoomBothDirectionsRespond": true,
         "fullCriterionSignoff": false
+      },
+      "verticalLinkProbe": {
+        "links": 1,
+        "endpoints": 2,
+        "snappedNearbyMovePass": 2,
+        "snappedNearbyMoveBlocked": 0,
+        "notProbed": 0,
+        "sourceInterpretationRequired": true
+      },
+      "isolatedLinkTransitions": {
+        "activations": 2,
+        "wrongDestination": 0,
+        "multipleTransitions": 0
+      },
+      "sourceRemainingPass": {
+        "status": "complete_with_findings_for_declared_static_structure_scope",
+        "relations": 2,
+        "sourcePlanPrintedPages": [
+          116
+        ],
+        "evidence": "allmap-source-remaining.json#ch05/N6",
+        "fullRuntimeSignoff": false
       }
     },
     {
@@ -23764,7 +24200,8 @@
             "movementChecked": false,
             "zoomChecked": false,
             "completeAudit": false,
-            "desktopDmOverviewTriaged": true
+            "desktopDmOverviewTriaged": true,
+            "declaredStaticSourceCompared": true
           },
           "applicability": {
             "canonicalRelationships": "required",
@@ -23886,57 +24323,64 @@
           "applicable": true,
           "reason": "Verify authored map and room page relationships; page metadata is only a locator",
           "structural": "page metadata inventoried",
-          "source": "pending",
+          "source": "checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N7"
         },
         "transformElevationScale": {
           "applicable": true,
           "reason": "Rigid placement checks do not validate canonical placement, physical size or doorway alignment",
           "structural": "checked",
-          "source": "pending",
+          "source": "checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N7"
         },
         "terrainFoundationUnderground": {
           "applicable": true,
           "reason": "Room/terrain polygons and levels inventoried; intentional burial and visible foundations require source/render review",
           "structural": "checked",
-          "source": "pending",
+          "source": "source_and_static_intent_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N7"
         },
         "roadAccessGradeConnectivity": {
           "applicable": true,
           "reason": "Authored street/dirt, atlas exit or parent entrance exists",
           "structural": "candidate geometry measured",
-          "source": "pending",
+          "source": "source_access_intent_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N7"
         },
         "waterFlowBridgeClearance": {
           "applicable": false,
           "reason": "No authored water/bridge/wet floor or nearby regional river detected; revisit if source identifies one",
           "structural": "N/A",
-          "source": "N/A",
+          "source": "applicability_checked",
           "rendered": "N/A",
-          "result": "N/A"
+          "result": "N/A",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N7"
         },
         "biomeMaterialSeams": {
           "applicable": true,
           "reason": "Material categories inventoried; appearance and boundary continuity require render review",
           "structural": "materials inventoried",
-          "source": "pending",
+          "source": "source_material_families_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N7"
         },
         "duplicateProxyLodStructures": {
           "applicable": true,
           "reason": "Placed scene has a runtime LOD/proxy relationship",
           "structural": "stand-in candidates and atlas ownership inventoried",
-          "source": "pending",
+          "source": "identity_atlas_and_documented_insets_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N7"
         }
       },
       "findings": [
@@ -24081,6 +24525,28 @@
         "entryMovementPass": true,
         "zoomBothDirectionsRespond": true,
         "fullCriterionSignoff": false
+      },
+      "verticalLinkProbe": {
+        "links": 0,
+        "endpoints": 0,
+        "snappedNearbyMovePass": 0,
+        "snappedNearbyMoveBlocked": 0,
+        "notProbed": 0,
+        "sourceInterpretationRequired": true
+      },
+      "isolatedLinkTransitions": {
+        "activations": 0,
+        "wrongDestination": 0,
+        "multipleTransitions": 0
+      },
+      "sourceRemainingPass": {
+        "status": "complete_with_findings_for_declared_static_structure_scope",
+        "relations": 1,
+        "sourcePlanPrintedPages": [
+          97
+        ],
+        "evidence": "allmap-source-remaining.json#ch05/N7",
+        "fullRuntimeSignoff": false
       }
     },
     {
@@ -24140,7 +24606,8 @@
             "movementChecked": false,
             "zoomChecked": false,
             "completeAudit": false,
-            "desktopDmOverviewTriaged": true
+            "desktopDmOverviewTriaged": true,
+            "declaredStaticSourceCompared": true
           },
           "applicability": {
             "canonicalRelationships": "required",
@@ -24261,57 +24728,64 @@
           "applicable": true,
           "reason": "Verify authored map and room page relationships; page metadata is only a locator",
           "structural": "page metadata inventoried",
-          "source": "pending",
+          "source": "checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N8"
         },
         "transformElevationScale": {
           "applicable": true,
           "reason": "Rigid placement checks do not validate canonical placement, physical size or doorway alignment",
           "structural": "checked",
-          "source": "pending",
+          "source": "checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N8"
         },
         "terrainFoundationUnderground": {
           "applicable": true,
           "reason": "Room/terrain polygons and levels inventoried; intentional burial and visible foundations require source/render review",
           "structural": "checked",
-          "source": "pending",
+          "source": "source_and_static_intent_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N8"
         },
         "roadAccessGradeConnectivity": {
           "applicable": true,
           "reason": "Authored street/dirt, atlas exit or parent entrance exists",
           "structural": "candidate geometry measured",
-          "source": "pending",
+          "source": "source_access_intent_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N8"
         },
         "waterFlowBridgeClearance": {
           "applicable": false,
           "reason": "No authored water/bridge/wet floor or nearby regional river detected; revisit if source identifies one",
           "structural": "N/A",
-          "source": "N/A",
+          "source": "applicability_checked",
           "rendered": "N/A",
-          "result": "N/A"
+          "result": "N/A",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N8"
         },
         "biomeMaterialSeams": {
           "applicable": true,
           "reason": "Material categories inventoried; appearance and boundary continuity require render review",
           "structural": "materials inventoried",
-          "source": "pending",
+          "source": "source_material_families_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N8"
         },
         "duplicateProxyLodStructures": {
           "applicable": true,
           "reason": "Placed scene has a runtime LOD/proxy relationship",
           "structural": "stand-in candidates and atlas ownership inventoried",
-          "source": "pending",
+          "source": "identity_atlas_and_documented_insets_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N8"
         }
       },
       "findings": [
@@ -24456,6 +24930,28 @@
         "entryMovementPass": true,
         "zoomBothDirectionsRespond": true,
         "fullCriterionSignoff": false
+      },
+      "verticalLinkProbe": {
+        "links": 0,
+        "endpoints": 0,
+        "snappedNearbyMovePass": 0,
+        "snappedNearbyMoveBlocked": 0,
+        "notProbed": 0,
+        "sourceInterpretationRequired": true
+      },
+      "isolatedLinkTransitions": {
+        "activations": 0,
+        "wrongDestination": 0,
+        "multipleTransitions": 0
+      },
+      "sourceRemainingPass": {
+        "status": "complete_with_findings_for_declared_static_structure_scope",
+        "relations": 2,
+        "sourcePlanPrintedPages": [
+          97
+        ],
+        "evidence": "allmap-source-remaining.json#ch05/N8",
+        "fullRuntimeSignoff": false
       }
     },
     {
@@ -24519,7 +25015,8 @@
             "movementChecked": false,
             "zoomChecked": false,
             "completeAudit": false,
-            "desktopDmOverviewTriaged": true
+            "desktopDmOverviewTriaged": true,
+            "declaredStaticSourceCompared": true
           },
           "applicability": {
             "canonicalRelationships": "required",
@@ -24643,57 +25140,64 @@
           "applicable": true,
           "reason": "Verify authored map and room page relationships; page metadata is only a locator",
           "structural": "page metadata inventoried",
-          "source": "pending",
+          "source": "checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N9"
         },
         "transformElevationScale": {
           "applicable": true,
           "reason": "Rigid placement checks do not validate canonical placement, physical size or doorway alignment",
           "structural": "checked",
-          "source": "pending",
+          "source": "checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N9"
         },
         "terrainFoundationUnderground": {
           "applicable": true,
           "reason": "Room/terrain polygons and levels inventoried; intentional burial and visible foundations require source/render review",
           "structural": "checked",
-          "source": "pending",
+          "source": "source_and_static_intent_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N9"
         },
         "roadAccessGradeConnectivity": {
           "applicable": true,
           "reason": "Authored street/dirt, atlas exit or parent entrance exists",
           "structural": "candidate geometry measured",
-          "source": "pending",
+          "source": "source_access_intent_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N9"
         },
         "waterFlowBridgeClearance": {
           "applicable": false,
           "reason": "No authored water/bridge/wet floor or nearby regional river detected; revisit if source identifies one",
           "structural": "N/A",
-          "source": "N/A",
+          "source": "applicability_checked",
           "rendered": "N/A",
-          "result": "N/A"
+          "result": "N/A",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N9"
         },
         "biomeMaterialSeams": {
           "applicable": true,
           "reason": "Material categories inventoried; appearance and boundary continuity require render review",
           "structural": "materials inventoried",
-          "source": "pending",
+          "source": "source_material_families_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N9"
         },
         "duplicateProxyLodStructures": {
           "applicable": true,
           "reason": "Placed scene has a runtime LOD/proxy relationship",
           "structural": "stand-in candidates and atlas ownership inventoried",
-          "source": "pending",
+          "source": "identity_atlas_and_documented_insets_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N9"
         }
       },
       "findings": [],
@@ -24840,6 +25344,28 @@
         "entryMovementPass": true,
         "zoomBothDirectionsRespond": true,
         "fullCriterionSignoff": false
+      },
+      "verticalLinkProbe": {
+        "links": 0,
+        "endpoints": 0,
+        "snappedNearbyMovePass": 0,
+        "snappedNearbyMoveBlocked": 0,
+        "notProbed": 0,
+        "sourceInterpretationRequired": true
+      },
+      "isolatedLinkTransitions": {
+        "activations": 0,
+        "wrongDestination": 0,
+        "multipleTransitions": 0
+      },
+      "sourceRemainingPass": {
+        "status": "complete_with_findings_for_declared_static_structure_scope",
+        "relations": 2,
+        "sourcePlanPrintedPages": [
+          120
+        ],
+        "evidence": "allmap-source-remaining.json#ch05/N9",
+        "fullRuntimeSignoff": false
       }
     },
     {
@@ -24931,7 +25457,8 @@
             "movementChecked": false,
             "zoomChecked": false,
             "completeAudit": false,
-            "desktopDmOverviewTriaged": true
+            "desktopDmOverviewTriaged": true,
+            "declaredStaticSourceCompared": true
           },
           "applicability": {
             "canonicalRelationships": "required",
@@ -25057,7 +25584,8 @@
             "movementChecked": false,
             "zoomChecked": false,
             "completeAudit": false,
-            "desktopDmOverviewTriaged": true
+            "desktopDmOverviewTriaged": true,
+            "declaredStaticSourceCompared": true
           },
           "applicability": {
             "canonicalRelationships": "required",
@@ -25146,7 +25674,8 @@
             "movementChecked": false,
             "zoomChecked": false,
             "completeAudit": false,
-            "desktopDmOverviewTriaged": true
+            "desktopDmOverviewTriaged": true,
+            "declaredStaticSourceCompared": true
           },
           "applicability": {
             "canonicalRelationships": "required",
@@ -25231,7 +25760,8 @@
             "movementChecked": false,
             "zoomChecked": false,
             "completeAudit": false,
-            "desktopDmOverviewTriaged": true
+            "desktopDmOverviewTriaged": true,
+            "declaredStaticSourceCompared": true
           },
           "applicability": {
             "canonicalRelationships": "required",
@@ -25298,7 +25828,8 @@
             "movementChecked": false,
             "zoomChecked": false,
             "completeAudit": false,
-            "desktopDmOverviewTriaged": true
+            "desktopDmOverviewTriaged": true,
+            "declaredStaticSourceCompared": true
           },
           "applicability": {
             "canonicalRelationships": "required",
@@ -25475,57 +26006,64 @@
           "applicable": true,
           "reason": "Verify authored map and room page relationships; page metadata is only a locator",
           "structural": "page metadata inventoried",
-          "source": "pending",
+          "source": "checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch08/S10"
         },
         "transformElevationScale": {
           "applicable": true,
           "reason": "Rigid placement checks do not validate canonical placement, physical size or doorway alignment",
           "structural": "checked",
-          "source": "pending",
+          "source": "checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch08/S10"
         },
         "terrainFoundationUnderground": {
           "applicable": true,
           "reason": "Room/terrain polygons and levels inventoried; intentional burial and visible foundations require source/render review",
           "structural": "checked",
-          "source": "pending",
+          "source": "source_and_static_intent_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch08/S10"
         },
         "roadAccessGradeConnectivity": {
           "applicable": true,
           "reason": "Authored street/dirt, atlas exit or parent entrance exists",
           "structural": "candidate geometry measured",
-          "source": "pending",
+          "source": "source_access_intent_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch08/S10"
         },
         "waterFlowBridgeClearance": {
           "applicable": false,
           "reason": "No authored water/bridge/wet floor or nearby regional river detected; revisit if source identifies one",
           "structural": "N/A",
-          "source": "N/A",
+          "source": "applicability_checked",
           "rendered": "N/A",
-          "result": "N/A"
+          "result": "N/A",
+          "sourceEvidence": "allmap-source-remaining.json#ch08/S10"
         },
         "biomeMaterialSeams": {
           "applicable": true,
           "reason": "Material categories inventoried; appearance and boundary continuity require render review",
           "structural": "materials inventoried",
-          "source": "pending",
+          "source": "source_material_families_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch08/S10"
         },
         "duplicateProxyLodStructures": {
           "applicable": true,
           "reason": "Placed scene has a runtime LOD/proxy relationship",
           "structural": "stand-in candidates and atlas ownership inventoried",
-          "source": "pending",
+          "source": "identity_atlas_and_documented_insets_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch08/S10"
         }
       },
       "findings": [
@@ -25789,6 +26327,29 @@
         "entryMovementPass": false,
         "zoomBothDirectionsRespond": true,
         "fullCriterionSignoff": false
+      },
+      "verticalLinkProbe": {
+        "links": 5,
+        "endpoints": 10,
+        "snappedNearbyMovePass": 9,
+        "snappedNearbyMoveBlocked": 1,
+        "notProbed": 0,
+        "sourceInterpretationRequired": true
+      },
+      "isolatedLinkTransitions": {
+        "activations": 10,
+        "wrongDestination": 0,
+        "multipleTransitions": 0
+      },
+      "sourceRemainingPass": {
+        "status": "complete_with_findings_for_declared_static_structure_scope",
+        "relations": 3,
+        "sourcePlanPrintedPages": [
+          149,
+          153
+        ],
+        "evidence": "allmap-source-remaining.json#ch08/S10",
+        "fullRuntimeSignoff": false
       }
     },
     {
@@ -25874,7 +26435,8 @@
             "movementChecked": false,
             "zoomChecked": false,
             "completeAudit": false,
-            "desktopDmOverviewTriaged": true
+            "desktopDmOverviewTriaged": true,
+            "declaredStaticSourceCompared": true
           },
           "applicability": {
             "canonicalRelationships": "required",
@@ -25941,7 +26503,8 @@
             "movementChecked": false,
             "zoomChecked": false,
             "completeAudit": false,
-            "desktopDmOverviewTriaged": true
+            "desktopDmOverviewTriaged": true,
+            "declaredStaticSourceCompared": true
           },
           "applicability": {
             "canonicalRelationships": "required",
@@ -26075,57 +26638,64 @@
           "applicable": true,
           "reason": "Verify authored map and room page relationships; page metadata is only a locator",
           "structural": "page metadata inventoried",
-          "source": "pending",
+          "source": "checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch10/U3"
         },
         "transformElevationScale": {
           "applicable": true,
           "reason": "Rigid placement checks do not validate canonical placement, physical size or doorway alignment",
           "structural": "checked",
-          "source": "pending",
+          "source": "checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch10/U3"
         },
         "terrainFoundationUnderground": {
           "applicable": true,
           "reason": "Room/terrain polygons and levels inventoried; intentional burial and visible foundations require source/render review",
           "structural": "checked",
-          "source": "pending",
+          "source": "source_and_static_intent_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch10/U3"
         },
         "roadAccessGradeConnectivity": {
           "applicable": true,
           "reason": "Authored street/dirt, atlas exit or parent entrance exists",
           "structural": "candidate geometry measured",
-          "source": "pending",
+          "source": "source_access_intent_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch10/U3"
         },
         "waterFlowBridgeClearance": {
           "applicable": true,
           "reason": "Authored water/bridge/wet floor or regional river within 500 ft",
           "structural": "features inventoried; flow and deck clearances pending",
-          "source": "pending",
+          "source": "applicability_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch10/U3"
         },
         "biomeMaterialSeams": {
           "applicable": true,
           "reason": "Material categories inventoried; appearance and boundary continuity require render review",
           "structural": "materials inventoried",
-          "source": "pending",
+          "source": "source_material_families_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch10/U3"
         },
         "duplicateProxyLodStructures": {
           "applicable": true,
           "reason": "Placed scene has a runtime LOD/proxy relationship",
           "structural": "stand-in candidates and atlas ownership inventoried",
-          "source": "pending",
+          "source": "identity_atlas_and_documented_insets_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch10/U3"
         }
       },
       "findings": [],
@@ -26270,6 +26840,28 @@
         "entryMovementPass": true,
         "zoomBothDirectionsRespond": true,
         "fullCriterionSignoff": false
+      },
+      "verticalLinkProbe": {
+        "links": 1,
+        "endpoints": 2,
+        "snappedNearbyMovePass": 2,
+        "snappedNearbyMoveBlocked": 0,
+        "notProbed": 0,
+        "sourceInterpretationRequired": true
+      },
+      "isolatedLinkTransitions": {
+        "activations": 2,
+        "wrongDestination": 0,
+        "multipleTransitions": 0
+      },
+      "sourceRemainingPass": {
+        "status": "complete_with_findings_for_declared_static_structure_scope",
+        "relations": 2,
+        "sourcePlanPrintedPages": [
+          163
+        ],
+        "evidence": "allmap-source-remaining.json#ch10/U3",
+        "fullRuntimeSignoff": false
       }
     },
     {
@@ -27610,6 +28202,19 @@
         "entryMovementPass": true,
         "zoomBothDirectionsRespond": true,
         "fullCriterionSignoff": false
+      },
+      "verticalLinkProbe": {
+        "links": 15,
+        "endpoints": 30,
+        "snappedNearbyMovePass": 30,
+        "snappedNearbyMoveBlocked": 0,
+        "notProbed": 0,
+        "sourceInterpretationRequired": true
+      },
+      "isolatedLinkTransitions": {
+        "activations": 30,
+        "wrongDestination": 7,
+        "multipleTransitions": 4
       }
     },
     {
@@ -27886,7 +28491,8 @@
             "movementChecked": false,
             "zoomChecked": false,
             "completeAudit": false,
-            "desktopDmOverviewTriaged": true
+            "desktopDmOverviewTriaged": true,
+            "declaredStaticSourceCompared": true
           },
           "applicability": {
             "canonicalRelationships": "required",
@@ -28113,7 +28719,8 @@
             "movementChecked": false,
             "zoomChecked": false,
             "completeAudit": false,
-            "desktopDmOverviewTriaged": true
+            "desktopDmOverviewTriaged": true,
+            "declaredStaticSourceCompared": true
           },
           "applicability": {
             "canonicalRelationships": "required",
@@ -28182,7 +28789,8 @@
             "movementChecked": false,
             "zoomChecked": false,
             "completeAudit": false,
-            "desktopDmOverviewTriaged": true
+            "desktopDmOverviewTriaged": true,
+            "declaredStaticSourceCompared": true
           },
           "applicability": {
             "canonicalRelationships": "required",
@@ -28327,57 +28935,64 @@
           "applicable": true,
           "reason": "Verify authored map and room page relationships; page metadata is only a locator",
           "structural": "page metadata inventoried",
-          "source": "pending",
+          "source": "checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch08/S"
         },
         "transformElevationScale": {
           "applicable": true,
           "reason": "Rigid placement checks do not validate canonical placement, physical size or doorway alignment",
           "structural": "checked",
-          "source": "pending",
+          "source": "checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch08/S"
         },
         "terrainFoundationUnderground": {
           "applicable": true,
           "reason": "Room/terrain polygons and levels inventoried; intentional burial and visible foundations require source/render review",
           "structural": "checked",
-          "source": "pending",
+          "source": "source_and_static_intent_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch08/S"
         },
         "roadAccessGradeConnectivity": {
           "applicable": true,
           "reason": "Authored street/dirt, atlas exit or parent entrance exists",
           "structural": "candidate geometry measured",
-          "source": "pending",
+          "source": "source_access_intent_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch08/S"
         },
         "waterFlowBridgeClearance": {
           "applicable": true,
           "reason": "Authored water/bridge/wet floor or regional river within 500 ft",
           "structural": "features inventoried; flow and deck clearances pending",
-          "source": "pending",
+          "source": "applicability_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch08/S"
         },
         "biomeMaterialSeams": {
           "applicable": true,
           "reason": "Material categories inventoried; appearance and boundary continuity require render review",
           "structural": "materials inventoried",
-          "source": "pending",
+          "source": "source_material_families_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch08/S"
         },
         "duplicateProxyLodStructures": {
           "applicable": true,
           "reason": "Placed scene has a runtime LOD/proxy relationship",
           "structural": "stand-in candidates and atlas ownership inventoried",
-          "source": "pending",
+          "source": "identity_atlas_and_documented_insets_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch08/S"
         }
       },
       "findings": [
@@ -28633,6 +29248,28 @@
         "entryMovementPass": true,
         "zoomBothDirectionsRespond": true,
         "fullCriterionSignoff": false
+      },
+      "verticalLinkProbe": {
+        "links": 11,
+        "endpoints": 22,
+        "snappedNearbyMovePass": 22,
+        "snappedNearbyMoveBlocked": 0,
+        "notProbed": 0,
+        "sourceInterpretationRequired": true
+      },
+      "isolatedLinkTransitions": {
+        "activations": 22,
+        "wrongDestination": 0,
+        "multipleTransitions": 0
+      },
+      "sourceRemainingPass": {
+        "status": "complete_with_findings_for_declared_static_structure_scope",
+        "relations": 2,
+        "sourcePlanPrintedPages": [
+          144
+        ],
+        "evidence": "allmap-source-remaining.json#ch08/S",
+        "fullRuntimeSignoff": false
       }
     },
     {
@@ -28727,7 +29364,8 @@
             "movementChecked": false,
             "zoomChecked": false,
             "completeAudit": false,
-            "desktopDmOverviewTriaged": true
+            "desktopDmOverviewTriaged": true,
+            "declaredStaticSourceCompared": true
           },
           "applicability": {
             "canonicalRelationships": "required",
@@ -28808,7 +29446,8 @@
             "movementChecked": false,
             "zoomChecked": false,
             "completeAudit": false,
-            "desktopDmOverviewTriaged": true
+            "desktopDmOverviewTriaged": true,
+            "declaredStaticSourceCompared": true
           },
           "applicability": {
             "canonicalRelationships": "required",
@@ -28934,57 +29573,64 @@
           "applicable": true,
           "reason": "Verify authored map and room page relationships; page metadata is only a locator",
           "structural": "page metadata inventoried",
-          "source": "pending",
+          "source": "checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch10/U"
         },
         "transformElevationScale": {
           "applicable": true,
           "reason": "Rigid placement checks do not validate canonical placement, physical size or doorway alignment",
           "structural": "checked",
-          "source": "pending",
+          "source": "checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch10/U"
         },
         "terrainFoundationUnderground": {
           "applicable": true,
           "reason": "Room/terrain polygons and levels inventoried; intentional burial and visible foundations require source/render review",
           "structural": "checked",
-          "source": "pending",
+          "source": "source_and_static_intent_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch10/U"
         },
         "roadAccessGradeConnectivity": {
           "applicable": true,
           "reason": "Authored street/dirt, atlas exit or parent entrance exists",
           "structural": "candidate geometry measured",
-          "source": "pending",
+          "source": "source_access_intent_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch10/U"
         },
         "waterFlowBridgeClearance": {
           "applicable": true,
           "reason": "Authored water/bridge/wet floor or regional river within 500 ft",
           "structural": "features inventoried; flow and deck clearances pending",
-          "source": "pending",
+          "source": "applicability_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch10/U"
         },
         "biomeMaterialSeams": {
           "applicable": true,
           "reason": "Material categories inventoried; appearance and boundary continuity require render review",
           "structural": "materials inventoried",
-          "source": "pending",
+          "source": "source_material_families_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch10/U"
         },
         "duplicateProxyLodStructures": {
           "applicable": true,
           "reason": "Placed scene has a runtime LOD/proxy relationship",
           "structural": "stand-in candidates and atlas ownership inventoried",
-          "source": "pending",
+          "source": "identity_atlas_and_documented_insets_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch10/U"
         }
       },
       "findings": [],
@@ -29168,6 +29814,28 @@
         "entryMovementPass": true,
         "zoomBothDirectionsRespond": true,
         "fullCriterionSignoff": false
+      },
+      "verticalLinkProbe": {
+        "links": 1,
+        "endpoints": 2,
+        "snappedNearbyMovePass": 1,
+        "snappedNearbyMoveBlocked": 0,
+        "notProbed": 1,
+        "sourceInterpretationRequired": true
+      },
+      "isolatedLinkTransitions": {
+        "activations": 2,
+        "wrongDestination": 0,
+        "multipleTransitions": 0
+      },
+      "sourceRemainingPass": {
+        "status": "complete_with_findings_for_declared_static_structure_scope",
+        "relations": 3,
+        "sourcePlanPrintedPages": [
+          164
+        ],
+        "evidence": "allmap-source-remaining.json#ch10/U",
+        "fullRuntimeSignoff": false
       }
     },
     {
@@ -29279,7 +29947,8 @@
             "movementChecked": false,
             "zoomChecked": false,
             "completeAudit": false,
-            "desktopDmOverviewTriaged": true
+            "desktopDmOverviewTriaged": true,
+            "declaredStaticSourceCompared": true
           },
           "applicability": {
             "canonicalRelationships": "required",
@@ -29400,7 +30069,8 @@
             "movementChecked": false,
             "zoomChecked": false,
             "completeAudit": false,
-            "desktopDmOverviewTriaged": true
+            "desktopDmOverviewTriaged": true,
+            "declaredStaticSourceCompared": true
           },
           "applicability": {
             "canonicalRelationships": "required",
@@ -29507,7 +30177,8 @@
             "movementChecked": false,
             "zoomChecked": false,
             "completeAudit": false,
-            "desktopDmOverviewTriaged": true
+            "desktopDmOverviewTriaged": true,
+            "declaredStaticSourceCompared": true
           },
           "applicability": {
             "canonicalRelationships": "required",
@@ -29577,7 +30248,8 @@
             "movementChecked": false,
             "zoomChecked": false,
             "completeAudit": false,
-            "desktopDmOverviewTriaged": true
+            "desktopDmOverviewTriaged": true,
+            "declaredStaticSourceCompared": true
           },
           "applicability": {
             "canonicalRelationships": "required",
@@ -29702,57 +30374,64 @@
           "applicable": true,
           "reason": "Verify authored map and room page relationships; page metadata is only a locator",
           "structural": "page metadata inventoried",
-          "source": "pending",
+          "source": "checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch11/V"
         },
         "transformElevationScale": {
           "applicable": true,
           "reason": "Rigid placement checks do not validate canonical placement, physical size or doorway alignment",
           "structural": "checked",
-          "source": "pending",
+          "source": "checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch11/V"
         },
         "terrainFoundationUnderground": {
           "applicable": true,
           "reason": "Room/terrain polygons and levels inventoried; intentional burial and visible foundations require source/render review",
           "structural": "checked",
-          "source": "pending",
+          "source": "source_and_static_intent_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch11/V"
         },
         "roadAccessGradeConnectivity": {
           "applicable": true,
           "reason": "Authored street/dirt, atlas exit or parent entrance exists",
           "structural": "candidate geometry measured",
-          "source": "pending",
+          "source": "source_access_intent_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch11/V"
         },
         "waterFlowBridgeClearance": {
           "applicable": true,
           "reason": "Authored water/bridge/wet floor or regional river within 500 ft",
           "structural": "features inventoried; flow and deck clearances pending",
-          "source": "pending",
+          "source": "applicability_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch11/V"
         },
         "biomeMaterialSeams": {
           "applicable": true,
           "reason": "Material categories inventoried; appearance and boundary continuity require render review",
           "structural": "materials inventoried",
-          "source": "pending",
+          "source": "source_material_families_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch11/V"
         },
         "duplicateProxyLodStructures": {
           "applicable": true,
           "reason": "Placed scene has a runtime LOD/proxy relationship",
           "structural": "stand-in candidates and atlas ownership inventoried",
-          "source": "pending",
+          "source": "identity_atlas_and_documented_insets_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch11/V"
         }
       },
       "findings": [
@@ -30648,6 +31327,28 @@
         "entryMovementPass": true,
         "zoomBothDirectionsRespond": true,
         "fullCriterionSignoff": false
+      },
+      "verticalLinkProbe": {
+        "links": 5,
+        "endpoints": 10,
+        "snappedNearbyMovePass": 8,
+        "snappedNearbyMoveBlocked": 2,
+        "notProbed": 0,
+        "sourceInterpretationRequired": true
+      },
+      "isolatedLinkTransitions": {
+        "activations": 10,
+        "wrongDestination": 3,
+        "multipleTransitions": 1
+      },
+      "sourceRemainingPass": {
+        "status": "complete_with_findings_for_declared_static_structure_scope",
+        "relations": 4,
+        "sourcePlanPrintedPages": [
+          170
+        ],
+        "evidence": "allmap-source-remaining.json#ch11/V",
+        "fullRuntimeSignoff": false
       }
     },
     {
@@ -30775,7 +31476,8 @@
             "movementChecked": false,
             "zoomChecked": false,
             "completeAudit": false,
-            "desktopDmOverviewTriaged": true
+            "desktopDmOverviewTriaged": true,
+            "declaredStaticSourceCompared": true
           },
           "applicability": {
             "canonicalRelationships": "required",
@@ -30973,7 +31675,8 @@
             "movementChecked": false,
             "zoomChecked": false,
             "completeAudit": false,
-            "desktopDmOverviewTriaged": true
+            "desktopDmOverviewTriaged": true,
+            "declaredStaticSourceCompared": true
           },
           "applicability": {
             "canonicalRelationships": "required",
@@ -31079,7 +31782,8 @@
             "movementChecked": false,
             "zoomChecked": false,
             "completeAudit": false,
-            "desktopDmOverviewTriaged": true
+            "desktopDmOverviewTriaged": true,
+            "declaredStaticSourceCompared": true
           },
           "applicability": {
             "canonicalRelationships": "required",
@@ -31240,7 +31944,8 @@
             "movementChecked": false,
             "zoomChecked": false,
             "completeAudit": false,
-            "desktopDmOverviewTriaged": true
+            "desktopDmOverviewTriaged": true,
+            "declaredStaticSourceCompared": true
           },
           "applicability": {
             "canonicalRelationships": "required",
@@ -31404,57 +32109,64 @@
           "applicable": true,
           "reason": "Verify authored map and room page relationships; page metadata is only a locator",
           "structural": "page metadata inventoried",
-          "source": "pending",
+          "source": "checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch12/W"
         },
         "transformElevationScale": {
           "applicable": true,
           "reason": "Rigid placement checks do not validate canonical placement, physical size or doorway alignment",
           "structural": "checked",
-          "source": "pending",
+          "source": "checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch12/W"
         },
         "terrainFoundationUnderground": {
           "applicable": true,
           "reason": "Room/terrain polygons and levels inventoried; intentional burial and visible foundations require source/render review",
           "structural": "checked",
-          "source": "pending",
+          "source": "source_and_static_intent_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch12/W"
         },
         "roadAccessGradeConnectivity": {
           "applicable": true,
           "reason": "Authored street/dirt, atlas exit or parent entrance exists",
           "structural": "candidate geometry measured",
-          "source": "pending",
+          "source": "source_access_intent_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch12/W"
         },
         "waterFlowBridgeClearance": {
           "applicable": false,
           "reason": "No authored water/bridge/wet floor or nearby regional river detected; revisit if source identifies one",
           "structural": "N/A",
-          "source": "N/A",
+          "source": "applicability_checked",
           "rendered": "N/A",
-          "result": "N/A"
+          "result": "N/A",
+          "sourceEvidence": "allmap-source-remaining.json#ch12/W"
         },
         "biomeMaterialSeams": {
           "applicable": true,
           "reason": "Material categories inventoried; appearance and boundary continuity require render review",
           "structural": "materials inventoried",
-          "source": "pending",
+          "source": "source_material_families_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch12/W"
         },
         "duplicateProxyLodStructures": {
           "applicable": true,
           "reason": "Placed scene has a runtime LOD/proxy relationship",
           "structural": "stand-in candidates and atlas ownership inventoried",
-          "source": "pending",
+          "source": "identity_atlas_and_documented_insets_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch12/W"
         }
       },
       "findings": [
@@ -31768,6 +32480,28 @@
         "entryMovementPass": true,
         "zoomBothDirectionsRespond": true,
         "fullCriterionSignoff": false
+      },
+      "verticalLinkProbe": {
+        "links": 10,
+        "endpoints": 20,
+        "snappedNearbyMovePass": 20,
+        "snappedNearbyMoveBlocked": 0,
+        "notProbed": 0,
+        "sourceInterpretationRequired": true
+      },
+      "isolatedLinkTransitions": {
+        "activations": 20,
+        "wrongDestination": 4,
+        "multipleTransitions": 2
+      },
+      "sourceRemainingPass": {
+        "status": "complete_with_findings_for_declared_static_structure_scope",
+        "relations": 3,
+        "sourcePlanPrintedPages": [
+          175
+        ],
+        "evidence": "allmap-source-remaining.json#ch12/W",
+        "fullRuntimeSignoff": false
       }
     },
     {
@@ -31839,7 +32573,8 @@
             "movementChecked": false,
             "zoomChecked": false,
             "completeAudit": false,
-            "desktopDmOverviewTriaged": true
+            "desktopDmOverviewTriaged": true,
+            "declaredStaticSourceCompared": true
           },
           "applicability": {
             "canonicalRelationships": "required",
@@ -31891,7 +32626,8 @@
             "movementChecked": false,
             "zoomChecked": false,
             "completeAudit": false,
-            "desktopDmOverviewTriaged": true
+            "desktopDmOverviewTriaged": true,
+            "declaredStaticSourceCompared": true
           },
           "applicability": {
             "canonicalRelationships": "required",
@@ -32004,57 +32740,64 @@
           "applicable": true,
           "reason": "Verify authored map and room page relationships; page metadata is only a locator",
           "structural": "page metadata inventoried",
-          "source": "pending",
+          "source": "checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch14/Y"
         },
         "transformElevationScale": {
           "applicable": true,
           "reason": "Rigid placement checks do not validate canonical placement, physical size or doorway alignment",
           "structural": "checked",
-          "source": "pending",
+          "source": "checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch14/Y"
         },
         "terrainFoundationUnderground": {
           "applicable": true,
           "reason": "Room/terrain polygons and levels inventoried; intentional burial and visible foundations require source/render review",
           "structural": "checked",
-          "source": "pending",
+          "source": "source_and_static_intent_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch14/Y"
         },
         "roadAccessGradeConnectivity": {
           "applicable": true,
           "reason": "Authored street/dirt, atlas exit or parent entrance exists",
           "structural": "candidate geometry measured",
-          "source": "pending",
+          "source": "source_access_intent_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch14/Y"
         },
         "waterFlowBridgeClearance": {
           "applicable": false,
           "reason": "No authored water/bridge/wet floor or nearby regional river detected; revisit if source identifies one",
           "structural": "N/A",
-          "source": "N/A",
+          "source": "applicability_checked",
           "rendered": "N/A",
-          "result": "N/A"
+          "result": "N/A",
+          "sourceEvidence": "allmap-source-remaining.json#ch14/Y"
         },
         "biomeMaterialSeams": {
           "applicable": true,
           "reason": "Material categories inventoried; appearance and boundary continuity require render review",
           "structural": "materials inventoried",
-          "source": "pending",
+          "source": "source_material_families_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch14/Y"
         },
         "duplicateProxyLodStructures": {
           "applicable": true,
           "reason": "Placed scene has a runtime LOD/proxy relationship",
           "structural": "stand-in candidates and atlas ownership inventoried",
-          "source": "pending",
+          "source": "identity_atlas_and_documented_insets_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch14/Y"
         }
       },
       "findings": [
@@ -32259,6 +33002,28 @@
         "entryMovementPass": true,
         "zoomBothDirectionsRespond": true,
         "fullCriterionSignoff": false
+      },
+      "verticalLinkProbe": {
+        "links": 0,
+        "endpoints": 0,
+        "snappedNearbyMovePass": 0,
+        "snappedNearbyMoveBlocked": 0,
+        "notProbed": 0,
+        "sourceInterpretationRequired": true
+      },
+      "isolatedLinkTransitions": {
+        "activations": 0,
+        "wrongDestination": 0,
+        "multipleTransitions": 0
+      },
+      "sourceRemainingPass": {
+        "status": "complete_with_findings_for_declared_static_structure_scope",
+        "relations": 2,
+        "sourcePlanPrintedPages": [
+          199
+        ],
+        "evidence": "allmap-source-remaining.json#ch14/Y",
+        "fullRuntimeSignoff": false
       }
     },
     {
@@ -32350,7 +33115,8 @@
             "movementChecked": false,
             "zoomChecked": false,
             "completeAudit": false,
-            "desktopDmOverviewTriaged": true
+            "desktopDmOverviewTriaged": true,
+            "declaredStaticSourceCompared": true
           },
           "applicability": {
             "canonicalRelationships": "required",
@@ -32418,7 +33184,8 @@
             "movementChecked": false,
             "zoomChecked": false,
             "completeAudit": false,
-            "desktopDmOverviewTriaged": true
+            "desktopDmOverviewTriaged": true,
+            "declaredStaticSourceCompared": true
           },
           "applicability": {
             "canonicalRelationships": "required",
@@ -32531,57 +33298,64 @@
           "applicable": true,
           "reason": "Verify authored map and room page relationships; page metadata is only a locator",
           "structural": "page metadata inventoried",
-          "source": "pending",
+          "source": "checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch15/Z"
         },
         "transformElevationScale": {
           "applicable": true,
           "reason": "Rigid placement checks do not validate canonical placement, physical size or doorway alignment",
           "structural": "checked",
-          "source": "pending",
+          "source": "checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch15/Z"
         },
         "terrainFoundationUnderground": {
           "applicable": true,
           "reason": "Room/terrain polygons and levels inventoried; intentional burial and visible foundations require source/render review",
           "structural": "checked",
-          "source": "pending",
+          "source": "source_and_static_intent_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch15/Z"
         },
         "roadAccessGradeConnectivity": {
           "applicable": true,
           "reason": "Authored street/dirt, atlas exit or parent entrance exists",
           "structural": "candidate geometry measured",
-          "source": "pending",
+          "source": "source_access_intent_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch15/Z"
         },
         "waterFlowBridgeClearance": {
           "applicable": true,
           "reason": "Authored water/bridge/wet floor or regional river within 500 ft",
           "structural": "features inventoried; flow and deck clearances pending",
-          "source": "pending",
+          "source": "applicability_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch15/Z"
         },
         "biomeMaterialSeams": {
           "applicable": true,
           "reason": "Material categories inventoried; appearance and boundary continuity require render review",
           "structural": "materials inventoried",
-          "source": "pending",
+          "source": "source_material_families_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch15/Z"
         },
         "duplicateProxyLodStructures": {
           "applicable": true,
           "reason": "Placed scene has a runtime LOD/proxy relationship",
           "structural": "stand-in candidates and atlas ownership inventoried",
-          "source": "pending",
+          "source": "identity_atlas_and_documented_insets_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch15/Z"
         }
       },
       "findings": [
@@ -34740,6 +35514,28 @@
         "entryMovementPass": true,
         "zoomBothDirectionsRespond": true,
         "fullCriterionSignoff": false
+      },
+      "verticalLinkProbe": {
+        "links": 1,
+        "endpoints": 2,
+        "snappedNearbyMovePass": 2,
+        "snappedNearbyMoveBlocked": 0,
+        "notProbed": 0,
+        "sourceInterpretationRequired": true
+      },
+      "isolatedLinkTransitions": {
+        "activations": 2,
+        "wrongDestination": 0,
+        "multipleTransitions": 0
+      },
+      "sourceRemainingPass": {
+        "status": "complete_with_findings_for_declared_static_structure_scope",
+        "relations": 3,
+        "sourcePlanPrintedPages": [
+          202
+        ],
+        "evidence": "allmap-source-remaining.json#ch15/Z",
+        "fullRuntimeSignoff": false
       }
     },
     {
@@ -35148,6 +35944,19 @@
         "entryMovementPass": true,
         "zoomBothDirectionsRespond": true,
         "fullCriterionSignoff": false
+      },
+      "verticalLinkProbe": {
+        "links": 0,
+        "endpoints": 0,
+        "snappedNearbyMovePass": 0,
+        "snappedNearbyMoveBlocked": 0,
+        "notProbed": 0,
+        "sourceInterpretationRequired": true
+      },
+      "isolatedLinkTransitions": {
+        "activations": 0,
+        "wrongDestination": 0,
+        "multipleTransitions": 0
       }
     },
     {
@@ -35220,7 +36029,8 @@
             "movementChecked": false,
             "zoomChecked": false,
             "completeAudit": false,
-            "desktopDmOverviewTriaged": true
+            "desktopDmOverviewTriaged": true,
+            "declaredStaticSourceCompared": true
           },
           "applicability": {
             "canonicalRelationships": "required",
@@ -35350,57 +36160,64 @@
           "applicable": true,
           "reason": "Verify authored map and room page relationships; page metadata is only a locator",
           "structural": "page metadata inventoried",
-          "source": "pending",
+          "source": "checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch03/E"
         },
         "transformElevationScale": {
           "applicable": true,
           "reason": "Rigid placement checks do not validate canonical placement, physical size or doorway alignment",
           "structural": "checked",
-          "source": "pending",
+          "source": "checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch03/E"
         },
         "terrainFoundationUnderground": {
           "applicable": true,
           "reason": "Room/terrain polygons and levels inventoried; intentional burial and visible foundations require source/render review",
           "structural": "checked",
-          "source": "pending",
+          "source": "source_and_static_intent_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch03/E"
         },
         "roadAccessGradeConnectivity": {
           "applicable": true,
           "reason": "Authored street/dirt, atlas exit or parent entrance exists",
           "structural": "candidate geometry measured",
-          "source": "pending",
+          "source": "source_access_intent_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch03/E"
         },
         "waterFlowBridgeClearance": {
           "applicable": false,
           "reason": "No authored water/bridge/wet floor or nearby regional river detected; revisit if source identifies one",
           "structural": "N/A",
-          "source": "N/A",
+          "source": "applicability_checked",
           "rendered": "N/A",
-          "result": "N/A"
+          "result": "N/A",
+          "sourceEvidence": "allmap-source-remaining.json#ch03/E"
         },
         "biomeMaterialSeams": {
           "applicable": true,
           "reason": "Material categories inventoried; appearance and boundary continuity require render review",
           "structural": "materials inventoried",
-          "source": "pending",
+          "source": "source_material_families_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch03/E"
         },
         "duplicateProxyLodStructures": {
           "applicable": true,
           "reason": "Placed scene has a runtime LOD/proxy relationship",
           "structural": "stand-in candidates and atlas ownership inventoried",
-          "source": "pending",
+          "source": "identity_atlas_and_documented_insets_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch03/E"
         }
       },
       "findings": [
@@ -35622,6 +36439,28 @@
         "entryMovementPass": true,
         "zoomBothDirectionsRespond": true,
         "fullCriterionSignoff": false
+      },
+      "verticalLinkProbe": {
+        "links": 0,
+        "endpoints": 0,
+        "snappedNearbyMovePass": 0,
+        "snappedNearbyMoveBlocked": 0,
+        "notProbed": 0,
+        "sourceInterpretationRequired": true
+      },
+      "isolatedLinkTransitions": {
+        "activations": 0,
+        "wrongDestination": 0,
+        "multipleTransitions": 0
+      },
+      "sourceRemainingPass": {
+        "status": "complete_with_findings_for_declared_static_structure_scope",
+        "relations": 2,
+        "sourcePlanPrintedPages": [
+          42
+        ],
+        "evidence": "allmap-source-remaining.json#ch03/E",
+        "fullRuntimeSignoff": false
       }
     },
     {
@@ -35698,7 +36537,8 @@
             "movementChecked": false,
             "zoomChecked": false,
             "completeAudit": false,
-            "desktopDmOverviewTriaged": true
+            "desktopDmOverviewTriaged": true,
+            "declaredStaticSourceCompared": true
           },
           "applicability": {
             "canonicalRelationships": "required",
@@ -35808,57 +36648,64 @@
           "applicable": true,
           "reason": "Verify authored map and room page relationships; page metadata is only a locator",
           "structural": "page metadata inventoried",
-          "source": "pending",
+          "source": "checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N"
         },
         "transformElevationScale": {
           "applicable": true,
           "reason": "Rigid placement checks do not validate canonical placement, physical size or doorway alignment",
           "structural": "checked",
-          "source": "pending",
+          "source": "checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N"
         },
         "terrainFoundationUnderground": {
           "applicable": true,
           "reason": "Room/terrain polygons and levels inventoried; intentional burial and visible foundations require source/render review",
           "structural": "checked",
-          "source": "pending",
+          "source": "source_and_static_intent_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N"
         },
         "roadAccessGradeConnectivity": {
           "applicable": true,
           "reason": "Authored street/dirt, atlas exit or parent entrance exists",
           "structural": "candidate geometry measured",
-          "source": "pending",
+          "source": "source_access_intent_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N"
         },
         "waterFlowBridgeClearance": {
           "applicable": false,
           "reason": "No authored water/bridge/wet floor or nearby regional river detected; revisit if source identifies one",
           "structural": "N/A",
-          "source": "N/A",
+          "source": "applicability_checked",
           "rendered": "N/A",
-          "result": "N/A"
+          "result": "N/A",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N"
         },
         "biomeMaterialSeams": {
           "applicable": true,
           "reason": "Material categories inventoried; appearance and boundary continuity require render review",
           "structural": "materials inventoried",
-          "source": "pending",
+          "source": "source_material_families_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N"
         },
         "duplicateProxyLodStructures": {
           "applicable": true,
           "reason": "Placed scene has a runtime LOD/proxy relationship",
           "structural": "stand-in candidates and atlas ownership inventoried",
-          "source": "pending",
+          "source": "identity_atlas_and_documented_insets_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch05/N"
         }
       },
       "findings": [],
@@ -36053,6 +36900,28 @@
         "entryMovementPass": true,
         "zoomBothDirectionsRespond": true,
         "fullCriterionSignoff": false
+      },
+      "verticalLinkProbe": {
+        "links": 0,
+        "endpoints": 0,
+        "snappedNearbyMovePass": 0,
+        "snappedNearbyMoveBlocked": 0,
+        "notProbed": 0,
+        "sourceInterpretationRequired": true
+      },
+      "isolatedLinkTransitions": {
+        "activations": 0,
+        "wrongDestination": 0,
+        "multipleTransitions": 0
+      },
+      "sourceRemainingPass": {
+        "status": "complete_with_findings_for_declared_static_structure_scope",
+        "relations": 2,
+        "sourcePlanPrintedPages": [
+          97
+        ],
+        "evidence": "allmap-source-remaining.json#ch05/N",
+        "fullRuntimeSignoff": false
       }
     },
     {
@@ -36141,7 +37010,8 @@
             "movementChecked": false,
             "zoomChecked": false,
             "completeAudit": false,
-            "desktopDmOverviewTriaged": true
+            "desktopDmOverviewTriaged": true,
+            "declaredStaticSourceCompared": true
           },
           "applicability": {
             "canonicalRelationships": "required",
@@ -36226,7 +37096,8 @@
             "movementChecked": false,
             "zoomChecked": false,
             "completeAudit": false,
-            "desktopDmOverviewTriaged": true
+            "desktopDmOverviewTriaged": true,
+            "declaredStaticSourceCompared": true
           },
           "applicability": {
             "canonicalRelationships": "required",
@@ -36311,7 +37182,8 @@
             "movementChecked": false,
             "zoomChecked": false,
             "completeAudit": false,
-            "desktopDmOverviewTriaged": true
+            "desktopDmOverviewTriaged": true,
+            "declaredStaticSourceCompared": true
           },
           "applicability": {
             "canonicalRelationships": "required",
@@ -36378,7 +37250,8 @@
             "movementChecked": false,
             "zoomChecked": false,
             "completeAudit": false,
-            "desktopDmOverviewTriaged": true
+            "desktopDmOverviewTriaged": true,
+            "declaredStaticSourceCompared": true
           },
           "applicability": {
             "canonicalRelationships": "required",
@@ -36567,57 +37440,64 @@
           "applicable": true,
           "reason": "Verify authored map and room page relationships; page metadata is only a locator",
           "structural": "page metadata inventoried",
-          "source": "pending",
+          "source": "checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch06/O"
         },
         "transformElevationScale": {
           "applicable": true,
           "reason": "Rigid placement checks do not validate canonical placement, physical size or doorway alignment",
           "structural": "checked",
-          "source": "pending",
+          "source": "checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch06/O"
         },
         "terrainFoundationUnderground": {
           "applicable": true,
           "reason": "Room/terrain polygons and levels inventoried; intentional burial and visible foundations require source/render review",
           "structural": "checked",
-          "source": "pending",
+          "source": "source_and_static_intent_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch06/O"
         },
         "roadAccessGradeConnectivity": {
           "applicable": true,
           "reason": "Authored street/dirt, atlas exit or parent entrance exists",
           "structural": "candidate geometry measured",
-          "source": "pending",
+          "source": "source_access_intent_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch06/O"
         },
         "waterFlowBridgeClearance": {
           "applicable": false,
           "reason": "No authored water/bridge/wet floor or nearby regional river detected; revisit if source identifies one",
           "structural": "N/A",
-          "source": "N/A",
+          "source": "applicability_checked",
           "rendered": "N/A",
-          "result": "N/A"
+          "result": "N/A",
+          "sourceEvidence": "allmap-source-remaining.json#ch06/O"
         },
         "biomeMaterialSeams": {
           "applicable": true,
           "reason": "Material categories inventoried; appearance and boundary continuity require render review",
           "structural": "materials inventoried",
-          "source": "pending",
+          "source": "source_material_families_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch06/O"
         },
         "duplicateProxyLodStructures": {
           "applicable": true,
           "reason": "Placed scene has a runtime LOD/proxy relationship",
           "structural": "stand-in candidates and atlas ownership inventoried",
-          "source": "pending",
+          "source": "identity_atlas_and_documented_insets_checked",
           "rendered": "pending",
-          "result": "pending complete audit"
+          "result": "pending complete audit",
+          "sourceEvidence": "allmap-source-remaining.json#ch06/O"
         }
       },
       "findings": [
@@ -36826,6 +37706,28 @@
         "entryMovementPass": true,
         "zoomBothDirectionsRespond": true,
         "fullCriterionSignoff": false
+      },
+      "verticalLinkProbe": {
+        "links": 3,
+        "endpoints": 6,
+        "snappedNearbyMovePass": 6,
+        "snappedNearbyMoveBlocked": 0,
+        "notProbed": 0,
+        "sourceInterpretationRequired": true
+      },
+      "isolatedLinkTransitions": {
+        "activations": 6,
+        "wrongDestination": 3,
+        "multipleTransitions": 1
+      },
+      "sourceRemainingPass": {
+        "status": "complete_with_findings_for_declared_static_structure_scope",
+        "relations": 2,
+        "sourcePlanPrintedPages": [
+          127
+        ],
+        "evidence": "allmap-source-remaining.json#ch06/O",
+        "fullRuntimeSignoff": false
       }
     },
     {
@@ -37138,6 +38040,15 @@
         ],
         "evidence": "allmap-source-wsc.json#wsc/00-region",
         "originalModuleImageReview": false
+      },
+      "regionViewReview": {
+        "desktopDm": true,
+        "desktopPlayers": true,
+        "phoneDm": true,
+        "phonePlayers": true,
+        "zoomBothDirectionsRespond": true,
+        "fullCriterionSignoff": false,
+        "build": "index-CF69xAqx.js"
       }
     },
     {
@@ -37640,6 +38551,19 @@
         "entryMovementPass": true,
         "zoomBothDirectionsRespond": true,
         "fullCriterionSignoff": false
+      },
+      "verticalLinkProbe": {
+        "links": 1,
+        "endpoints": 2,
+        "snappedNearbyMovePass": 2,
+        "snappedNearbyMoveBlocked": 0,
+        "notProbed": 0,
+        "sourceInterpretationRequired": true
+      },
+      "isolatedLinkTransitions": {
+        "activations": 2,
+        "wrongDestination": 0,
+        "multipleTransitions": 0
       }
     },
     {
@@ -38197,6 +39121,19 @@
         "entryMovementPass": false,
         "zoomBothDirectionsRespond": true,
         "fullCriterionSignoff": false
+      },
+      "verticalLinkProbe": {
+        "links": 0,
+        "endpoints": 0,
+        "snappedNearbyMovePass": 0,
+        "snappedNearbyMoveBlocked": 0,
+        "notProbed": 0,
+        "sourceInterpretationRequired": true
+      },
+      "isolatedLinkTransitions": {
+        "activations": 0,
+        "wrongDestination": 0,
+        "multipleTransitions": 0
       }
     },
     {
@@ -38854,6 +39791,19 @@
         "entryMovementPass": true,
         "zoomBothDirectionsRespond": true,
         "fullCriterionSignoff": false
+      },
+      "verticalLinkProbe": {
+        "links": 3,
+        "endpoints": 6,
+        "snappedNearbyMovePass": 6,
+        "snappedNearbyMoveBlocked": 0,
+        "notProbed": 0,
+        "sourceInterpretationRequired": true
+      },
+      "isolatedLinkTransitions": {
+        "activations": 6,
+        "wrongDestination": 3,
+        "multipleTransitions": 1
       }
     },
     {
@@ -39291,6 +40241,19 @@
         "entryMovementPass": true,
         "zoomBothDirectionsRespond": true,
         "fullCriterionSignoff": false
+      },
+      "verticalLinkProbe": {
+        "links": 0,
+        "endpoints": 0,
+        "snappedNearbyMovePass": 0,
+        "snappedNearbyMoveBlocked": 0,
+        "notProbed": 0,
+        "sourceInterpretationRequired": true
+      },
+      "isolatedLinkTransitions": {
+        "activations": 0,
+        "wrongDestination": 0,
+        "multipleTransitions": 0
       }
     },
     {
@@ -39709,6 +40672,19 @@
         "entryMovementPass": true,
         "zoomBothDirectionsRespond": true,
         "fullCriterionSignoff": false
+      },
+      "verticalLinkProbe": {
+        "links": 0,
+        "endpoints": 0,
+        "snappedNearbyMovePass": 0,
+        "snappedNearbyMoveBlocked": 0,
+        "notProbed": 0,
+        "sourceInterpretationRequired": true
+      },
+      "isolatedLinkTransitions": {
+        "activations": 0,
+        "wrongDestination": 0,
+        "multipleTransitions": 0
       }
     },
     {
@@ -40168,6 +41144,92 @@
       "ch10/U3"
     ],
     "qualification": "The first sequence selected the parent after zoom on four child scenes. Their original parent captures remain evidence of that journey; four fresh Players entries were separately captured and inspected. Button responses do not certify nested target retention or physical-phone performance.",
-    "evidence": "Local-only task-10/evidence/allmap-phone-031/runtime.json, fresh-player-entries.json and fresh-player-entry-U3.json; 15 contact sheets plus four full-size fresh-entry images inspected."
+    "evidence": "Local-only task-10/evidence/allmap-phone-031/runtime.json, fresh-player-entries.json and fresh-player-entry-U3.json; 15 contact sheets plus four full-size fresh-entry images inspected.",
+    "samplingMoment": "Scene view after the initial movement probe; the movement hook can trigger vertical links. Castle was on its dungeon afterward although fresh entry is ground. Four fresh Players repeats are separately identified."
+  },
+  "linkEndpointOverview": {
+    "authored": {
+      "maps": 44,
+      "levels": 122,
+      "links": 173,
+      "endpoints": 346,
+      "onFloor": 330,
+      "outsideFloorMoreThanHalfFoot": 14,
+      "localMovePass": 336,
+      "localMoveBlocked": 9,
+      "notProbed": 1
+    },
+    "snapped": {
+      "maps": 44,
+      "levels": 122,
+      "links": 173,
+      "endpoints": 346,
+      "onFloor": 322,
+      "outsideFloorMoreThanHalfFoot": 20,
+      "localMovePass": 335,
+      "localMoveBlocked": 10,
+      "notProbed": 1
+    },
+    "evidence": "allmap-movement-coverage.json",
+    "qualification": "A nearby move pass is not a complete route. Off-floor arrivals at an elevator or shaft can represent a deliberate void and need source interpretation. Wrong destination and multiple-hop counts reproduce existing queued transition behavior; they do not authorize fixing item 11 in this release."
+  },
+  "isolatedLinkTransitionOverview": {
+    "maps": 44,
+    "linkActivations": 346,
+    "expectedLevel": 290,
+    "wrongLevel": 56,
+    "multipleTransitions": 22,
+    "zeroTransitions": 0,
+    "evidence": "allmap-movement-coverage.json",
+    "baselineMethodsAndLinkArraysUnchanged": true,
+    "completeBrowserTraversal": false
+  },
+  "regionViewOverview": {
+    "build": "index-CF69xAqx.js",
+    "regions": 2,
+    "deviceViewCombinations": 8,
+    "imagesInspected": 16,
+    "zoomBothDirectionsRespond": 8,
+    "pageErrors": 0,
+    "scope": "Desktop and phone, DM and Players; one initial regional frame plus settled illustrated map per combination. Initial frames may already enter illustrated mode; they do not establish separate 3D-terrain coverage.",
+    "evidence": "Local-only task-10/evidence/allmap-regions-031/results.json and four region contact sheets."
+  },
+  "castleBaselineComparison": {
+    "baselineBuild": "index-0JlwMZEy.js",
+    "candidateBuild": "index-CF69xAqx.js",
+    "baselineImagesInspected": 8,
+    "finding": "Dungeon burial reproduces on frozen 0.3.0 in desktop/phone DM/Players. Ground entry remains visible. Candidate phone images were taken after the movement probe traversed to the dungeon, not at the untouched default entry.",
+    "evidence": "Local-only task-10/evidence/allmap-regions-031/castle-dungeon-baseline.json plus results.json; four entry and four exact dungeon images."
+  },
+  "remainingSourceOverview": {
+    "baseline": "785421cb45ad3b7a5467a14f6e696074efb9bd27",
+    "counts": {
+      "maps": 21,
+      "levels": 48,
+      "roomPolygons": 291,
+      "links": 51,
+      "sourceRelationships": 48,
+      "primaryMapPagesInspected": 18,
+      "CPUlevelDiagramsInspected": 48,
+      "applicationFilesModified": 0,
+      "buildsRun": 0,
+      "gpuRuns": 0,
+      "commitsMade": 0
+    },
+    "evidence": "allmap-source-remaining.json",
+    "scope": "Remaining 21 CoS production scenes: source-backed static room-group plans, relative heights, stair/shaft registration, explicit scales, entrances and parent-child identities, external foundation/terrain/water/material intent. All 48 levels included.",
+    "qualification": "Complete source/static comparison for the declared scope, with supported relationships, confirmed mismatches, authored adaptations, source conflicts and runtime candidates separated. This is not an all-map runtime pass or release approval."
+  },
+  "sourceCoverageSummary": {
+    "cosScenes": 39,
+    "cosLevels": 113,
+    "cosComparisons": 140,
+    "wscMapsIncludingRegion": 6,
+    "wscLevels": 9,
+    "wscAuthoredComparisons": 15,
+    "cosRegionalPlanRead": true,
+    "all46MapsHaveSomeSourceOrAuthoredReferenceEvidence": true,
+    "wscPublisherImageReviewComplete": false,
+    "fullSourceRuntimeCertification": false
   }
 }
