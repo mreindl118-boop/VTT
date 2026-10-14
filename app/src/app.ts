@@ -31,6 +31,7 @@ import { buildBackdrop } from './render/backdrop';
 import { BAROVIAN_GRASS, setGrass } from './kit/surfaces';
 import { Channel, type Msg } from './state/channel';
 import { newCampaign, revealSets, type CampaignState, type Combatant, type Encounter, type Reveal, type Sheet, type Token } from './state/campaign';
+import { MapMigrationError, newCurrentCampaign, prepareCampaignState } from './state/campaignLoad';
 import { tacticalRange, type RangeResult } from './core/range';
 import { buildRangeOverlay } from './render/rangeOverlay';
 import { SHELL_ROLES } from './render/materials';
@@ -206,10 +207,20 @@ export class App {
   get T(): number { return this.mode === 'player' || this.view === 'players' ? 0 : this.t; }
 
   campaign: Campaign = campaignOf('appB/death-house');
+  private readonly migratedCampaigns = new WeakSet<CampaignState>();
   /** Read the saved state of a campaign (each campaign has its own save); nothing changes until useCampaign. */
   private async readCampaign(c: Campaign): Promise<CampaignState> {
-    const saved = await idbGet<CampaignState>(storeKey(c.id)).catch(() => undefined);
-    return saved ? { ...newCampaign(c.id), ...saved } : newCampaign(c.id); // older saves lack newer fields
+    const saved = await idbGet<CampaignState>(storeKey(c.id)).catch(err => {
+      // A DM read failure is not an absent save: abort before a later campaign
+      // switch could persist an empty replacement. Displays remain read-only.
+      if (this.mode === 'player') return undefined;
+      throw err;
+    });
+    // Display state comes from the DM; it never transforms or persists a local save.
+    if (this.mode === 'player') return saved ? { ...newCampaign(c.id), ...saved } : newCurrentCampaign(c.id);
+    const prepared = await prepareCampaignState(c.id, saved, () => loadLocation('ch04/K'));
+    if (prepared.migrated) this.migratedCampaigns.add(prepared.state);
+    return prepared.state;
   }
   /** Switch to a campaign and its save (only the authoritative DM saves the old campaign). */
   private useCampaign(c: Campaign, state: CampaignState): void {
@@ -289,6 +300,7 @@ export class App {
     const follow = this.mode === 'player' && !!prev;
     this.home = path; // the party's map (the camera alone never changes it)
     this.activate(next, { levelId, frame: follow ? false : fly ? 'fly' : true });
+    if (switching && this.mode === 'dm' && this.migratedCampaigns.delete(state)) this.commit();
     // it resolves when the camera has arrived (a glide across the valley), or at once
     if (fly) await this.world.settled();
     this.streamer.tick(); // what the camera has come to: the place left behind folds into its proxy
@@ -298,7 +310,9 @@ export class App {
   private openFailed(path: string, err: unknown): void {
     console.warn(`mistLAB: could not open ${path}`, err);
     const name = ATLAS.scenes[path]?.name ?? path;
-    this.setStatus(`Couldn't open ${name} (offline?)`);
+    this.setStatus(err instanceof MapMigrationError
+      ? "Couldn't update saved Castle positions. Your original save is unchanged."
+      : `Couldn't open ${name} (offline?)`);
     clearTimeout(this.flashT); this.flashT = window.setTimeout(() => { if (this.status.startsWith("Couldn't open")) this.setStatus(''); }, 6000);
   }
 
@@ -1851,7 +1865,7 @@ export class App {
   /** The range helper outside initiative: green and red squares for whichever token is picked up. */
   rangeHelper = false;
   setRangeHelper(on: boolean): void { this.rangeHelper = on; this.refreshRange(); this.onChange?.(); }
-  resetCampaign(): void { this.state = newCampaign(); this.ensureDefaultToken(); this.syncTokens(); this.commit(); }
+  resetCampaign(): void { this.state = newCurrentCampaign(this.campaign.id); this.ensureDefaultToken(); this.syncTokens(); this.commit(); }
 
   // ------------------------------------------------------------------ pointer: tokens, taps, brushes
 

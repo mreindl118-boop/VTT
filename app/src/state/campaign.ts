@@ -71,6 +71,8 @@ export interface CampaignState {
   doorsOpen: Record<string, boolean>;
   /** Opened containers by `${location}/${objectId}`. */
   opened: Record<string, boolean>;
+  /** Authored-map coordinate revisions already applied to this save; absent means legacy coordinates. */
+  mapRevisions?: Record<string, number>;
   /** Where the party is on the world map (miles), the pin it is at, and the trail of moves. */
   world?: WorldPos;
   /** World-map places the DM has revealed to the players (pin keys). */

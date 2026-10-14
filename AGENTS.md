@@ -100,6 +100,14 @@ a day old; then continue it from its wip branch, and say so in Status.
 
 ## Status
 
+### ChatGPT, 2026-10-14 14:01 UTC, laptop recovered and source release completed
+
+- 0.3.1 is on the main branch, ready to publish: `39e06f338d4aa061f5a5be69a34bb2fe3a6b5ba2`. Exact-head CI `38532111504` passed; fresh main was an ancestor and the fast-forward push was verified remotely. Its 543 units, 21 desktop checks and byte-identical 204-file build retain the 267-pass / 55-existing-skip GPU evidence. Public compiled bundle, feed, distribution tag and screenshots remain held.
+- Laptop execution recovered at 13:57 UTC. The interrupted migration run's sole failure was `books-convert.test.ts` PDF vocabulary extraction without `pdftotext` on that process's PATH. With the installed Poppler path supplied, unchanged assertions pass: 747 units, two existing TODOs, no skips; all 16 focused GPU activation, persistence, Display and reload checks pass. Two independent activation reviews and one consolidated correction preserve malformed/unreadable saves instead of replacing them. No installed user save was touched.
+- Cloud test/report-only commits through `8b0f149` are fast-forward integrated on local `item2-map-logic-032`; its prior published implementation remains `aea9fc9`. Four movement diagnoses are in `docs/handoff/four-movement-causes.md`, not claimed fixed. The new audit has an additional coordinator review of its discovery/counting/evidence boundaries.
+- Roof implementation resumes in the preserved logic worktree; its six failing-first regressions remain. A separate worker resumes the preserved terrain worktree. Root owns migration targets, atlas/massing, integration and releases. Roof/save target alignment, four movement cases, J/K registration, connected terrain/water/roads and all-map runtime/visual/final review gates remain open. No 0.3.2 release claim.
+- Current account-wide meter at 13:57 UTC reports 100% weekly allowance remaining. Coordinator plus two disjoint workers; reserve final QA capacity. No power, credentials, access or security changes, and no history rewrite.
+
 ### ChatGPT, 2026-10-14, four movement causes diagnosed
 
 - Coordinator-only follow-up on `aea9fc9` identified Krezk gate routing around an unrepresented cliff boundary (not through the closed gate), K37's remaining diagonal tower blocker, K35's exact `lk-k64-weep` proximity trigger, and ladder-a's one-cell wall-walk stub. Production-function counterfactuals were in memory only. See `docs/handoff/four-movement-causes.md` for exact segments, coordinates and bounded recommendations.
