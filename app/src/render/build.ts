@@ -3,6 +3,7 @@ import * as THREE from 'three';
 import { OPENABLE_KINDS, type GridLevel, type Level, type SceneObject, type VisClass, type Wall } from '../core/schema';
 import { makeOpenable, type OpenHandle } from './openable';
 import type { Polygon } from '../core/geometry';
+import type { LinkMarkerEndpoint } from '../core/linkMarkers';
 import { baseRingFt, DEFAULT_CEILING_FT } from '../core/units';
 import { FLOOR_COLOR, PALETTE, WALL_COLOR } from '../kit/palette';
 import { baseRing, merge, pawn, planeGeometry, PROP_BUILDERS, segmentBox, slabGeometry, stairsStraight, WALL_T } from '../kit/pieces';
@@ -42,7 +43,7 @@ function isStatic(o: SceneObject): boolean {
   return !!(PROP_BUILDERS[o.kind] || PROPS_V1[o.kind]);
 }
 
-export interface LabelSpec { id: string; text: string; sub?: string; page?: number; pos: THREE.Vector3; vis: VisClass; kind: 'key' | 'object' | 'tread' | 'note' | 'door' | 'link'; objectId?: string; wallId?: string; linkId?: string }
+export interface LabelSpec { id: string; text: string; sub?: string; page?: number; pos: THREE.Vector3; vis: VisClass; kind: 'key' | 'object' | 'tread' | 'note' | 'door' | 'link'; objectId?: string; wallId?: string; linkId?: string; linkEnd?: 'from' | 'to'; linkChoices?: LinkMarkerEndpoint[] }
 
 export interface SliderTarget {
   id: string;

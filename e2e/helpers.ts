@@ -108,3 +108,15 @@ export async function touchHold(page: Page, selector: string, ms: number, during
   await page.waitForTimeout(100);
   await cdp.detach();
 }
+
+/** Activate a visible authored endpoint with real pointer/touch input, including its route chooser. */
+export async function takeRoute(page: Page, linkId: string, end: 'from' | 'to', touch = false): Promise<void> {
+  const marker = page.locator(`.lbl.link[data-routes~="${linkId}:${end}"]:visible`);
+  await marker.waitFor({state:'visible',timeout:5000});
+  const grouped = await marker.getAttribute('aria-haspopup') === 'menu';
+  if (touch) await marker.tap(); else await marker.click();
+  if (grouped) {
+    const choice = page.getByRole('menu', { name: 'Choose route' }).locator(`[data-link-id="${linkId}"][data-link-end="${end}"]`);
+    if (touch) await choice.tap(); else await choice.click();
+  }
+}
