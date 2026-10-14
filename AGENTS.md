@@ -103,6 +103,12 @@ a day old; then continue it from its wip branch, and say so in Status.
 Each agent rewrites this section when it stops. Newest first. Keep it short and exact: versions, branches, commits,
 what is done, what is next, what is blocked.
 
+### ChatGPT, 2026-10-14, scoped transition follow-up
+
+- Continued `claude/wip/item11-vertical-transitions-cloud` from tested `166259b`, under parent assignment. Automatic dispatch chooses the unique nearest newly entered endpoint; equal-distance choices require explicit selection. Endpoint-aware `takeLink` and previous-aware DM dispatch APIs are ready. No main.ts, renderer-module, authoring or generated-map edits.
+- Three failing-first unit regressions and the DM dispatcher browser regression reproduced the defects. Build and 560 units pass (two existing source-cache skips, two TODOs); 14 browser checks pass (including all 346 directions), with the remaining pointer continuation passing separately after ordinary Floor-selector navigation. The initial reload-view failure is retained, not counted as a clean 15-test run. Two implementation reviews and three final reviews found no dispatcher blocker. See `docs/handoff/item11-followup-report.md`.
+- Production caller gates remain: main.ts context action must pass previous pose; marker creation/listeners must preserve choices and endpoint direction. Actual context-menu no-op/walk-off failure and invisible Players return marker are retained as failures, not claimed fixed. Six authoring proposals and the 48-entry suppressed marker inventory are in the follow-up report. Hardware GPU, integrated CI and release remain laptop-owned.
+
 ### ChatGPT, 2026-10-14, independent 0.3.2 transition checkpoint
 
 - Parent assigned CORE-NAV from `55b118e` on dedicated `claude/wip/item11-vertical-transitions-cloud`; laptop retains terrain, placement and integration. Explicit links now use the requested endpoint exactly once; automatic entry is one hop with safe walk-off/reload handling. Amber's valid fissure landing survives unsafe grid snapping. No generated-map, renderer-module, version, main or publication change.

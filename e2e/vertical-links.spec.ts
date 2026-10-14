@@ -16,8 +16,8 @@ test('the Floor 2 stair marker takes one hop, persists it, and does not bounce o
     m.app.frameLevel('top');
   });
   const marker = page.locator('.lbl.link').filter({ hasText: 'Floor 2' });
-  // Click the actual marker listener, independent of the camera's label occlusion.
-  await marker.evaluate((el: HTMLElement) => el.click());
+  // A real pointer click must reach the visible marker through the current camera/layout.
+  await marker.click();
   expect(await page.evaluate(() => (window as any).__mistlab.app.party.level)).toBe('f2');
   expect(await page.evaluate(() => (window as any).__mistlab.app.levelId)).toBe('f2');
   await page.evaluate(() => {
@@ -142,4 +142,79 @@ test('the Player Display follows a stair arrival and cannot dispatch its own lin
   await player.evaluate(() => (window as any).__mistlab.app.takeLink('lk-spiral-2-3'));
   expect(await player.evaluate(() => (window as any).__mistlab.app.party.level)).toBe('f2');
   await player.close();
+});
+
+
+test('DM placement dispatcher preserves no-op and walk-off while permitting newly entered stairs', async ({ page }) => {
+  await boot(page);
+  const result = await page.evaluate(() => {
+    const m = (window as any).__mistlab, a = m.app;
+    const place = (level: string, pos: [number,number]) => {
+      const previous = {level:a.party.level, pos:[...a.party.pos]};
+      a.party.level = level; a.party.pos = pos; a.setLevel(level);
+      a.afterPartyMoveFromUi(previous);
+      return {level:a.party.level, pos:[...a.party.pos]};
+    };
+    m.moveParty('f1', 27.5, 27.5);
+    const noop = place('f1', [27.5,27.5]);
+    m.moveParty('f1', 27.5, 27.5);
+    const walkoff = place('f1', [22.5,27.5]);
+    m.moveParty('f1', 17.5, 27.5);
+    const enter = place('f1', [27.5,27.5]);
+    m.moveParty('attic', 27.5, 27.5);
+    const otherFloor = place('f1', [27.5,27.5]);
+    return {noop,walkoff,enter,otherFloor};
+  });
+  expect(result).toEqual({noop:{level:'f1',pos:[27.5,27.5]},walkoff:{level:'f1',pos:[22.5,27.5]},enter:{level:'f2',pos:[27.5,27.5]},otherFloor:{level:'f2',pos:[27.5,27.5]}});
+});
+
+
+test('nested-world phone DM stair choices accept touch around Players departure and reload', async ({ browser }) => {
+  const context = await browser.newContext({viewport:{width:390,height:844},hasTouch:true});
+  const page = await context.newPage();
+  try {
+    await boot(page);
+    await page.evaluate(() => { const m = (window as any).__mistlab; m.moveParty('f1',17.5,27.5); m.app.frameLevel('top'); });
+    expect(await page.evaluate(() => (window as any).__mistlab.app.nested)).toBe(true);
+    await page.locator('.lbl.link').filter({hasText:'Floor 2'}).tap();
+    expect(await page.evaluate(() => (window as any).__mistlab.app.party.level)).toBe('f2');
+    const departure = await page.evaluate(() => {const a=(window as any).__mistlab.app; a.setView('players'); return {moved:a.moveTokenTo(a.party.id,[22.5,27.5]),level:a.party.level};});
+    expect(departure).toEqual({moved:true,level:'f2'});
+    // Players return-marker visibility is a separately recorded UI integration gate.
+    await page.evaluate(() => {const a=(window as any).__mistlab.app; a.setView('dm'); a.frameLevel('top');});
+    await page.locator('.lbl.link').filter({hasText:'Floor 1'}).tap();
+    expect(await page.evaluate(() => (window as any).__mistlab.app.party.level)).toBe('f1');
+    await page.evaluate(() => (window as any).__mistlab.flush());
+    await page.reload();
+    await page.waitForFunction(() => (window as any).__mistlab?.ready);
+    await page.evaluate(() => (window as any).__mistlab.ready);
+    expect(await page.evaluate(() => (window as any).__mistlab.app.party.level)).toBe('f1');
+  } finally {await context.close();}
+});
+
+
+test('nested-world pointer walking approaches, departs and resumes through the Floor selector after reload', async ({page}) => {
+  await boot(page);
+  await page.evaluate(() => {const m=(window as any).__mistlab; m.moveParty('f1',12.5,27.5); m.app.setView('players'); m.frame('top');});
+  expect(await page.evaluate(() => (window as any).__mistlab.app.nested)).toBe(true);
+  const tap = async (x:number,z:number,y=0) => {
+    const [sx,sy] = await page.evaluate(({x,z,y}) => (window as any).__mistlab.screenOf(x,z,y),{x,z,y});
+    await page.mouse.click(sx,sy); await page.waitForTimeout(400);
+  };
+  await tap(12.5,27.5,1); await tap(17.5,27.5);
+  expect(await page.evaluate(() => (window as any).__mistlab.partyPos())).toEqual([17.5,27.5]);
+  await tap(17.5,27.5,1); await tap(22.5,27.5);
+  expect(await page.evaluate(() => (window as any).__mistlab.app.party.level)).toBe('f2');
+  await page.evaluate(() => (window as any).__mistlab.frame('top'));
+  await tap(27.5,27.5,1); await tap(17.5,27.5);
+  expect(await page.evaluate(() => ({level:(window as any).__mistlab.app.party.level,pos:(window as any).__mistlab.partyPos()}))).toEqual({level:'f2',pos:[17.5,27.5]});
+  await page.evaluate(() => (window as any).__mistlab.flush());
+  await page.reload();
+  await page.waitForFunction(() => (window as any).__mistlab?.ready);
+  await page.evaluate(() => {const a=(window as any).__mistlab.app; return (window as any).__mistlab.ready.then(() => {a.setView('dm');a.frameLevel('top');});});
+  expect(await page.evaluate(() => (window as any).__mistlab.app.party.level)).toBe('f2');
+  // Reload currently opens the entry floor; use the ordinary visible floor control to resume.
+  await page.getByRole('combobox', {name:'Floor', exact:true}).selectOption('f2');
+  await page.locator('.lbl.link').filter({hasText:'Floor 1'}).click();
+  expect(await page.evaluate(() => (window as any).__mistlab.app.party.level)).toBe('f1');
 });

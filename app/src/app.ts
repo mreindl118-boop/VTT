@@ -7,7 +7,7 @@ import { squareCellAt, squareCellCenter, squareDistanceFt, worldToHex, hexToWorl
 import { OPENABLE_KINDS, type Container, type GridFile, type Level, type LightSource, type SceneFile, type SceneObject, type Room, type Wall, type Ambient } from './core/schema';
 import { moveBlockers } from './core/light';
 import { canWalk } from './core/movement';
-import { VerticalTransitions, verticalArrival } from './core/verticalLinks';
+import { VerticalTransitions, verticalArrival, type VerticalRequest } from './core/verticalLinks';
 import { SITE_INTERFACES } from './core/siteInterfaces';
 import { classOpacity, fogCurve, hiddenCurve, labelCurve } from './core/slider';
 import { baseRingFt, CELL_FT } from './core/units';
@@ -1335,19 +1335,25 @@ export class App {
   }
 
   /** UI moved the party token directly (menu / list). */
-  afterPartyMoveFromUi(): void { this.afterPartyMove(); this.commit(); }
+  afterPartyMoveFromUi(previous?: { level: string; pos: Vec2 }): void {
+    const t = this.party;
+    const sameLevel = !!t && previous?.level === t.level;
+    const moved = !sameLevel || Math.hypot(t!.pos[0] - previous!.pos[0], t!.pos[1] - previous!.pos[1]) > 1e-6;
+    this.afterPartyMove(moved, sameLevel ? previous!.pos : undefined);
+    this.commit();
+  }
 
   private verticalTransitions = new VerticalTransitions();
 
   /** Move the party through a vertical link (either end). */
-  takeLink(linkId: string): void {
-    if (this.mode === 'player' || !this.traversePartyLink(linkId)) return;
+  takeLink(linkId: string, from?: 'from' | 'to'): void {
+    if (this.mode === 'player' || !this.traversePartyLink(from ? { linkId, from } : linkId)) return;
     this.afterPartyMove(false);
     this.commit();
   }
 
   /** Resolve once, then apply only that destination and retain the arrival's trigger zone. */
-  private traversePartyLink(linkId?: string, previous?: Vec2): boolean {
+  private traversePartyLink(linkId?: VerticalRequest, previous?: Vec2): boolean {
     const t = this.party, scene = this.cur?.scene;
     if (!t || !scene) return false;
     const transition = this.verticalTransitions.resolve(scene.links, t, linkId, previous);
