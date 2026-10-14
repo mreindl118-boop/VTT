@@ -41253,10 +41253,25 @@
     "gpu": {
       "initialCorrectedBuild": "index-BaC7TO3k.js",
       "groundAndBudgetChecksPassed": 2,
-      "finalCorrectedBundleFullSuite": "pending: GPU yielded for owner-prioritized SD smoke test",
+      "finalCorrectedBundleFullSuite": {
+        "passed": 267,
+        "existingDeviceSkips": 55,
+        "failed": 0,
+        "minutes": 13.5,
+        "frozenBuild": true
+      },
       "interruptedRunLoggedPasses": 18,
       "interruptedAtUtc": "2026-10-14T03:10:00Z",
-      "runnerAndBrowserExited": true
+      "runnerAndBrowserExited": true,
+      "finalFocusedGroundAndBudgetChecksPassed": 2,
+      "repeatedTooltipChecksPassed": 3,
+      "releasedAtUtc": "2026-10-14T03:50:00Z",
+      "nonFrozenPriorFullRun": {
+        "passed": 266,
+        "existingDeviceSkips": 55,
+        "failed": 1,
+        "failure": "App-load timeout before Amber tooltip assertion; output rebuilt during run. Not accepted as clean verification."
+      }
     },
     "apronGeometry": {
       "trianglesBefore": 83876,
@@ -41270,6 +41285,69 @@
       "medianAfterMs": 261.79285,
       "limitation": "One warmup pair and six alternating CPU builds; crags disabled in both for their canvas dependency. Not GPU frame time."
     },
-    "fullCriterionSignoff": false
+    "fullCriterionSignoff": false,
+    "implementationCommit": "e37734dff30e61ff16ae816ddb294dca4fe46300",
+    "testAccelerationCommit": "f9e099cee9997287ad027a8cb498742df2b05205",
+    "groundProbe": {
+      "date": "2026-10-14T03:50:08.220Z",
+      "ground": {
+        "build": "http://localhost:5643/assets/index-DSh4mmpD.js",
+        "points": [
+          {
+            "local": [
+              125,
+              39.6,
+              360
+            ],
+            "expectedWorldY": 6987.535000000001,
+            "actualWorldY": 6987.53515625,
+            "errorFt": 0.00015624999923602445,
+            "mesh": "aprons"
+          },
+          {
+            "local": [
+              125,
+              39.6,
+              292.25
+            ],
+            "expectedWorldY": 6987.535000000001,
+            "actualWorldY": 6987.53515625,
+            "errorFt": 0.00015624999923602445,
+            "mesh": "aprons"
+          },
+          {
+            "local": [
+              125,
+              -2,
+              291.75
+            ],
+            "expectedWorldY": 6945.935,
+            "actualWorldY": 6945.93505859375,
+            "errorFt": 5.859374959982233e-05,
+            "mesh": "aprons"
+          }
+        ],
+        "immediateWorld": {
+          "calls": 49,
+          "triangles": 298844
+        },
+        "apronTriangles": 84752
+      },
+      "amberFacadeCost": {
+        "calls": 675,
+        "triangles": 401226,
+        "medianMs": 3.100000023841858,
+        "p95Ms": 4.599999964237213,
+        "method": "10 warmup plus40 forced frames with WebGLfinish; completion cost,not FPS or physical phone performance."
+      }
+    },
+    "frozenManifestSha256": "d6c7040a1f24b97224a47bb4bc078d727ffde57788d79ee52d2d425003bbf65b",
+    "refreshedImagesInspectedLocally": 12,
+    "ci": {
+      "runId": 38505966683,
+      "head": "f9e099cee9997287ad027a8cb498742df2b05205",
+      "status": "browser checks in progress; typecheck/units/desktop host passed",
+      "checkedAtUtc": "2026-10-14T03:47:57Z"
+    }
   }
 }
