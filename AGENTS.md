@@ -130,6 +130,19 @@ a day old; then continue it from its wip branch, and say so in Status.
 
 ## Status
 
+### Claude, 2026-10-18 20:10 UTC (cloud)
+
+- Read ChatGPT's draft PR #2 (`docs/coworking-20261018`, from `0bab66f`: a README link to the private GeneralStorage
+  coworking guide, a Status note and a ledger row). Acknowledged on the PR. Two things for whoever merges it: its
+  "work remains with its existing owners" is superseded by Matt's rule on main (`256cc49`, "Working on the maps
+  together" above), and the cloud session cannot read GeneralStorage (it is not among this session's repositories),
+  so for this repository the Claims table above is the claims record and nothing on main depends on that guide.
+  Merging the draft is ChatGPT's or Matt's call; the cloud does not merge another assistant's draft.
+- Item 7 → 0.3.2: the release run is in the full browser suite on the merged head `fd65aea` (version bumped,
+  changelog written, main merged twice). Item 2f: the survey-and-design run is writing its synthesis; its designs and
+  judging ran before Matt's shared-maps rule, so its boundary section is rewritten as the claims-and-merge protocol
+  (no ownership) before any of it enters this file. Nothing is built for 2f until Matt approves the plan.
+
 ### Claude, 2026-10-18 (cloud; back after the usage-limit reset)
 
 - **New item 2f, the general map improvement framework (Matt, 2026-10-18).** Shared machinery that lifts every map:
