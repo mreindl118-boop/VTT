@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.3.2 Map smoothing: unfinished maps — 2026-10-18
+
+The four Curse of Strahd maps that were still rough are finished.
+
+- Yester Hill is a hill. The party climbs it stretch by stretch: the trail from the forest floor to two landings, the outer cairn track and the summit circle, with stairs between them, so in Players view a token walks from the foot to the top. The land ends on flat forest floor that the valley continues, and the fog is a soft bank round the hill instead of a cotton wall. The summit's grid stays inside the inner ring of cairns, and the players' view is no longer a black frame.
+- The Amber Temple stands in a closed, grounded mountain. Its upper (+30 ft) and lower (0 ft) levels show again, the X23 balcony is open, and players arriving on the ledge see rock and snow behind the facade instead of a black wall.
+- The Wizard of Wines shows its cellar under the winery.
+- Berez has fewer, lighter reeds and its menhirs are rock; Baba Lysaga's hut sits in a ragged mire; Van Richten's tower has sound walls, its lift links clear of the shaft, and its buttresses on the plinth.
+- The other maps are unchanged. The main branch's 0.3.0 and 0.3.1 work (the continuous world, the compass, the local terrain joins, the desktop host) is all here too.
+
+Known limits: the Yester Hill summit costs more to draw than before (about 275,000 triangles in Players view against 156,000 on the flat map, and about 446,000 with the valley round it in the continuous world: the price of seeing the hill, the cairns and the fog round the summit), the fog bank is a fill-rate cost on the hill level, Yester Hill's download grew about six times, and the players' sweep test runs about 7% slower. Baba Lysaga's hut now covers almost twice the plot Berez gives it, so Berez's own scenery hides under the hut while it is open (as for Death House in the village). Two mechanisms show the Amber Temple's buried levels and never act together: in the continuous world the valley is veiled on those levels (0.3.1), in the flat map (Continuous world off) the land is cut over them (this release). Yester Hill hangs in the continuous world with its edge on the valley's land; the data pass that smooths every map's seam with the land is a later release.
+
 ## 0.3.1 Local terrain joins and compass north - 2026-10-14
 
 - Activate either compass by click, tap, Enter or Space to face north while keeping the same place, zoom and camera pitch.
