@@ -100,6 +100,12 @@ a day old; then continue it from its wip branch, and say so in Status.
 
 ## Status
 
+### ChatGPT, 2026-10-18 18:56 UTC, owner-requested coordination documentation
+
+- Matt requested the shared coworking workflow. This documentation-only branch `docs/coworking-20261018` starts from remote main `0bab66fb1beb880abea97e72eacca5dce41cbea1` and adds a README pointer plus this note and an outside-change ledger row; existing statuses, instructions, queue and ownership are preserved.
+- Claim `20261018-coworking-vtt-codex` is in GeneralStorage; Claude's acknowledgement of this new workflow is pending. The current item 7 / item 2e / item 2f work remains with its existing owners. This branch is for draft PR review only, with no product work or release.
+- Checks: additive-content preservation, exact changed-path scope, Markdown link target and `git diff --check`. Application build/unit/browser suites are not run for this documentation-only change under Matt's explicit bounded instruction; no dependencies are installed.
+
 ### Claude, 2026-10-18 (cloud; back after the usage-limit reset)
 
 - **New item 2f, the general map improvement framework (Matt, 2026-10-18), held by the cloud.** Shared machinery that
