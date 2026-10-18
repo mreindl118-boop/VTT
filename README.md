@@ -42,6 +42,8 @@ Release notes are in `docs/CHANGELOG.md`. Screenshots and demos of each release 
 
 ## Working together
 
+For repository task claims, review and handoff, read the [shared coworking README](https://github.com/mreindl118-boop/GeneralStorage/blob/docs/coworking-20261018/projects/repository-handoff-20261016/coworking/README.md) (private GeneralStorage; existing authorized access required). Check current branches and ownership before starting; `AGENTS.md`, the queue and existing project instructions still apply.
+
 mistLAB is built by Matt, the owner, with two AI assistants.
 
 - **Claude Code** is the primary coding assistant. It works through `docs/QUEUE.md` in order and releases each item as its own version.
