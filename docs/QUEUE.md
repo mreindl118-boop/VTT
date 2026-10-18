@@ -20,6 +20,7 @@ For each item, in order:
 4. Write the changelog entry.
 5. Pass the full test suite.
 6. Push and publish, and add the release's screenshots and demo to the [Visual-Aide](https://github.com/mreindl118-boop/Visual-Aide) repo (`releases/<version>-<name>/`).
+   - The same build goes to all three places the owner uses (owner, 2026-10-18): the main branch, the mistLAB link (the cloud publishes it), and the desktop distribution tag `desktop-vX.Y.Z` (`scripts/desktop/publish.mjs`, after CI is green on the release commit), so every way of opening the app shows the same version.
 7. Tick the item, then start the next one.
 
 ## Checklist
