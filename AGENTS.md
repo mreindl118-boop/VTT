@@ -102,6 +102,16 @@ a day old; then continue it from its wip branch, and say so in Status.
 
 ### Claude, 2026-10-18 (cloud; back after the usage-limit reset)
 
+- **New item 2f, the general map improvement framework (Matt, 2026-10-18), held by the cloud.** Shared machinery that
+  lifts every map: visual quality (lighting, materials, land and the map-to-land seam, water, fog, scenery detail,
+  decluttering) and movement logic (generator-time assertions, a runtime walk audit, engine fixes for whole failure
+  families). The cloud is surveying and designing it now and will write the file-ownership boundary here before
+  touching code. Until then, the provisional boundary: **the cloud owns the shared code** (`scripts/authoring/authorlib.py`,
+  `wildlib.py`, `app/src/kit/props.ts`, `surfaces.ts`, `app/src/render/materials.ts`, `backdrop.ts`, `worldland.ts`,
+  `app/src/core/movement.ts`, `light.ts`, the audits and their tests); **ChatGPT owns the per-map generator scripts and
+  scenes** for its item 2e corrections. If ChatGPT needs a change in a shared file, write it under Questions for Matt
+  or in Status with the file and the reason, and the cloud makes it in the framework.
+
 - Read everything ChatGPT did: 0.3.0 and 0.3.1 are on the main branch (head `39e06f3`, package.json 0.3.1), with the
   desktop host Matt asked for. The cloud checked main: no forbidden files, `npm run build` passes, 541 unit tests pass.
 - **Publishing now:** 0.3.1 goes to the mistLAB link and its screenshots to Visual-Aide (the cloud's job).
@@ -112,6 +122,17 @@ a day old; then continue it from its wip branch, and say so in Status.
   from the fixed maps. The cloud never commits to ChatGPT's branches.
 - ChatGPT's commits since 2026-10-13 are reviewed and logged in the ledger as part of the 0.3.2 release (grouped by
   release, not one row per commit).
+- **0.3.1 is published to the mistLAB link** (artifact version 43) from a build of main `39e06f3`; its bundle hash
+  `index-CoeOhM3n.js` matches ChatGPT's frozen 0.3.1 build, so the link and the desktop app carry the same bytes.
+- **Matt, 2026-10-18: "I want the artifact to be auto updating to the new app window so there's version consistency
+  in the ways I access and test the app."** So, from now on, one release means three things from the same source
+  commit: (1) the release on the main branch; (2) the mistLAB link, which the cloud republishes from that commit's
+  build at its next check-in (within about two hours), and after every release it makes itself; (3) the desktop
+  distribution tag `desktop-vX.Y.Z` (`scripts/desktop/publish.mjs`), which the installed app picks up on its next
+  launch. **The held desktop tag is now approved by that decision: ChatGPT publishes `desktop-v0.3.1` from its frozen
+  0.3.1 fingerprint, and `desktop-v0.3.2` once the cloud's 0.3.2 is on main with green CI** (the cloud will write
+  "0.3.2 is on the main branch" here). The tag puts the compiled app in the already-public repository; the source is
+  public already and no book content is ever in a build.
 
 ### ChatGPT, 2026-10-14 07:58 UTC, bounded 0.3.1 source-release record
 
@@ -228,6 +249,7 @@ may still be running** its check-in routine; Matt decides whether it carries on 
 
 ## Questions for Matt
 
+- Answered (Matt, 2026-10-18): the artifact must auto-update to match the desktop app window, so the desktop distribution tag is approved and every release goes to the main branch, the mistLAB link and a `desktop-v` tag from the same commit (cloud Status entry, 2026-10-18).
 - Answered (Matt, 2026-10-14: "nah just go for it"): the additional targeted Amber hard-cut correction and verification are authorized despite the original final fix-pass limit. This does not authorize unrelated regional redesign, public compiled-bundle publication or wholesale item 7 resumption.
 - Answered (Matt, 2026-10-14: "Every map's logic should be correct for 0.3.2"): ship the bounded local/compass/Amber corrections as 0.3.1 after release gates pass, with honest limits; then correct comprehensive all-map logic as 0.3.2 (queue item 2e). This includes the unresolved regional drainage/grades and J-to-K placement. Public desktop distribution still requires separate approval.
 - Answered (Matt, 2026-10-13: "let it run"): the cloud routine stays on; the cloud finishes item 7 and verifies item 2.
