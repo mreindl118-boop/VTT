@@ -87,6 +87,7 @@ editing the same thing at once:
 
 | What | Who | Since (UTC) | Doing | Expected on main |
 |---|---|---|---|---|
+| `scripts/authoring/castle-ravenloft.py`, `locations/ch04/K`, `print/castle-ravenloft/` (item 2g) | Claude, cloud (castle session) | 2026-10-18 21:08 | the playable castle + print set on `claude/wip/castle-playable`; waiting for Matt's approval, then build/tests on a machine with npm | after Matt approves and 0.3.3 lands |
 | `item7-unfinished-maps` (ch14/Y, ch12/W, ch13/X, ch10/U, ch10/U3, ch11/V) | Claude, cloud | 2026-10-18 18:40 | the 0.3.2 release of item 7 (merging main, tests, review) | 2026-10-18 |
 | `scripts/authoring/castle-ravenloft.py`, `ravenloft-exterior.py`, `locations/ch04/K/**`, new `print/castle-ravenloft/` | Claude, cloud | 2026-10-18 21:15 | the playable castle and the scene-derived print generators (Matt, issue #3); branch `claude/wip/castle-playable`, work starts after the usage window resets at 23:40 UTC | after Matt approves the playable castle |
 
@@ -131,6 +132,7 @@ a day old; then continue it from its wip branch, and say so in Status.
 
 ## Status
 
+<<<<<<< HEAD
 ### Claude, 2026-10-18 21:15 UTC (cloud; PAUSED under USAGE.md until the five-hour window resets at 23:40 UTC)
 
 - **Matt's usage rule binds every agent** (GeneralStorage `USAGE.md`, branch `claude/coworking-ack`, 2026-10-18). This
@@ -141,8 +143,8 @@ a day old; then continue it from its wip branch, and say so in Status.
   (`wf_87fec1ac-32e`: integrate done, release commit `a447725`, head `5593e4e` on `item7-unfinished-maps`, main merged
   three times; browser suite 266 passed, 55 device skips, 1 failed, fixed at its cause by test commit `38143c9` and
   re-run green; vitest 567 passed, 2 pre-existing environment skips, 2 todo; the review stage was in flight and is
-  redone on resume, then the release is published); the ease-of-use audit (`wf_6aeedc2c-d18`, done: inventory);
-  the map-logic audit (`wf_fe7ebc32-113`, done: scout; the runtime pass was in flight). Both audits are
+  redone on resume, then the release is published); the ease-of-use audit (`wf_6aeedc2c-d18`, done: ; the other of the desktop walk and
+  the heuristic review was in flight); the map-logic audit (`wf_fe7ebc32-113`, done: ; the runtime pass was in flight). Both audits are
   findings only.
 - **Castle Ravenloft (Matt, 2026-10-18, issue #3; Codex paused): claimed in the Claims table, not started.** On
   resume: branch `claude/wip/castle-playable` from main plus the castle-only commits of `claude/wip/item6-village-castle`
@@ -158,6 +160,22 @@ a day old; then continue it from its wip branch, and say so in Status.
   **The full brief is in Matt's message to Codex, which the cloud cannot read: Matt, paste it here or into
   `docs/handoff/castle-brief.md`; until then the defaults above (from Codex's record) are the spec.**
 - The item 2f plan (`docs/MAPS-FRAMEWORK.md`) awaits Matt's go. ChatGPT's draft PR #2 is acknowledged, not merged.
+=======
+### Claude, 2026-10-18 21:08 UTC (cloud; a second cloud session Matt opened for the castle)
+
+- **New item 2g (Matt, 2026-10-18, by voice): Castle Ravenloft playable + print set + trinket**, on `claude/wip/castle-playable`
+  (from main `97f3bee` + the castle part of `claude/wip/item6-village-castle`). Brief and co-working instructions:
+  `docs/handoff/castle-playable.md`. Done: the generator's playable pass, the regenerated scene, `print/castle-ravenloft/`
+  (stack, trinket, previews, README) and a first full output set delivered to Matt as a zip. **Not done:** `npm run build`,
+  the unit tests and the in-app look (this session had no npm access). Whoever has npm next: run them on the branch and
+  write the result here. **Nothing from this item merges until Matt approves the playable castle**; it releases after
+  ChatGPT's 0.3.3 (merge main, re-run `castle-ravenloft.py`, never hand-merge the scene JSON).
+- Claimed above: the castle generator, its scene files and `print/castle-ravenloft/`. ChatGPT's item 2e castle edits
+  (K22 door, K28 partition, maps 6/7 re-registration, K51 hatch) were **not** taken onto this branch; they come in with
+  0.3.3 and the merge is theirs to carry over by re-running the script.
+- Matt also said "set up co-work instructions" for the other assistant on this item: they are the "Co-working on item
+  2g" section of the brief. Nothing in it changes the claims-and-merge rules above.
+>>>>>>> origin/claude/mistlab-curse-strahd-x6jm13
 
 ### Claude, 2026-10-18 20:45 UTC (cloud)
 
