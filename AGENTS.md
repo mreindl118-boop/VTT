@@ -130,6 +130,23 @@ a day old; then continue it from its wip branch, and say so in Status.
 
 ## Status
 
+### Claude, 2026-10-18 20:45 UTC (cloud)
+
+- **The item 2f plan is written: `docs/MAPS-FRAMEWORK.md`.** Eight small releases on the lean setting, visual first with
+  the two "cannot move" engine fixes pulled to the front: 1 the party always starts on a floor it can leave, a step is
+  instant, a refusal says why, and a map contract counts every map's findings (report mode); 2 the light rig and the
+  measuring tools (before/after pairs, an address-bar switch per feature); 3 one mist piece, and fog of war that reads
+  as mist; 4 the grid stays on the map, towns open framed, pins fold away; 5 ground colour, grain and contact
+  darkening (a port of the reviewed item 6 render work); 6 level of detail, instancing, prop shapes, hard per-map
+  budgets; 7 land as one surface, ground-following levels, water and height fog (after ChatGPT's Status line on
+  `worldland.ts`/`backdrop.ts`, or its 0.3.3); 8 the browser walks every map, the contract turns hard, one regeneration
+  of all 44 scenes with save migrations (after 0.3.3). Releases 1-6 touch no file ChatGPT's branches change. Part C of
+  the plan is this item's paragraph for "Working on the maps together": claims, not ownership. **Nothing is built until
+  Matt approves the plan**; his ten questions are under Questions for Matt below (Part A of the plan has the detail).
+- Two audits Matt asked for at 20:20 UTC are running, findings only: an ease-of-use audit of 0.3.1 (desktop and phone,
+  DM and Players) and a map-logic audit of all 45 scenes (starts, steps, doors, rooms, links, ground, lattice, nested
+  placement). Their reports land in `docs/handoff/` when done; nothing is queued from them without Matt.
+
 ### Claude, 2026-10-18 20:10 UTC (cloud)
 
 - Read ChatGPT's draft PR #2 (`docs/coworking-20261018`, from `0bab66f`: a README link to the private GeneralStorage
@@ -288,6 +305,16 @@ may still be running** its check-in routine; Matt decides whether it carries on 
 
 ## Questions for Matt
 
+- **The item 2f framework plan (`docs/MAPS-FRAMEWORK.md`, 2026-10-18) needs a go or no-go; its ten questions are
+  answered when their release starts (recommended answers in Part A):** 1 the filmic tone curve on for every map
+  (recommended: decide on release 2's pairs, default off); 2 players' unexplored outdoors shown as the hour's mist with
+  silhouettes instead of black (yes); 3 ground-following levels, with Yester Hill rebuilt as one sloped level under a
+  claim on its generator (yes, judged on a dev slope first); 4 rooms may be marked sealed on purpose, and which of K76,
+  K41 and T2 are (allow the flag); 5 a room behind a locked door counts as reachable (yes, the lock listed); 6 adopt
+  ChatGPT's integration branch early (no, unless ChatGPT asks); 7 version order (answered: item 7 is 0.3.2, ChatGPT's
+  all-map release 0.3.3, the framework reserves no number); 8 a shadow-map spike for the Sheep Chase (skip); 9 the grid
+  fades out 40 ft past the rooms instead of covering the valley (yes); 10 outdoor levels reveal a 60-ft radius round
+  the party as well as the room (yes, outdoors only).
 - Answered (Matt, 2026-10-18): the artifact must auto-update to match the desktop app window, so the desktop distribution tag is approved and every release goes to the main branch, the mistLAB link and a `desktop-v` tag from the same commit (cloud Status entry, 2026-10-18).
 - Answered (Matt, 2026-10-14: "nah just go for it"): the additional targeted Amber hard-cut correction and verification are authorized despite the original final fix-pass limit. This does not authorize unrelated regional redesign, public compiled-bundle publication or wholesale item 7 resumption.
 - Answered (Matt, 2026-10-14: "Every map's logic should be correct for 0.3.2"): ship the bounded local/compass/Amber corrections as 0.3.1 after release gates pass, with honest limits; then correct comprehensive all-map logic as 0.3.2 (queue item 2e). This includes the unresolved regional drainage/grades and J-to-K placement. Public desktop distribution still requires separate approval.
