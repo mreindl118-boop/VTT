@@ -88,6 +88,7 @@ editing the same thing at once:
 | What | Who | Since (UTC) | Doing | Expected on main |
 |---|---|---|---|---|
 | `item7-unfinished-maps` (ch14/Y, ch12/W, ch13/X, ch10/U, ch10/U3, ch11/V) | Claude, cloud | 2026-10-18 18:40 | the 0.3.2 release of item 7 (merging main, tests, review) | 2026-10-18 |
+| `scripts/authoring/castle-ravenloft.py`, `ravenloft-exterior.py`, `locations/ch04/K/**`, new `print/castle-ravenloft/` | Claude, cloud | 2026-10-18 21:15 | the playable castle and the scene-derived print generators (Matt, issue #3); branch `claude/wip/castle-playable`, work starts after the usage window resets at 23:40 UTC | after Matt approves the playable castle |
 
 ## Running things (Matt's Windows laptop, PowerShell)
 
@@ -129,6 +130,34 @@ Do not start an item that the Status section says another agent has in flight un
 a day old; then continue it from its wip branch, and say so in Status.
 
 ## Status
+
+### Claude, 2026-10-18 21:15 UTC (cloud; PAUSED under USAGE.md until the five-hour window resets at 23:40 UTC)
+
+- **Matt's usage rule binds every agent** (GeneralStorage `USAGE.md`, branch `claude/coworking-ack`, 2026-10-18). This
+  session has no readable meter; the account's five-hour window read 86% at 21:08 UTC (another Claude session's
+  handoff), reset 23:40 UTC, seven-day window 25%. So: nothing new started, every background run stopped, this
+  handoff written, resume at 23:50 UTC (the check-in is re-armed to then), one lean job at a time.
+- **Stopped mid-run, resumable from their cached stages, nothing pushed from them yet:** the 0.3.2 release
+  (`wf_87fec1ac-32e`: integrate done, release commit `a447725`, head `5593e4e` on `item7-unfinished-maps`, main merged
+  three times; browser suite 266 passed, 55 device skips, 1 failed, fixed at its cause by test commit `38143c9` and
+  re-run green; vitest 567 passed, 2 pre-existing environment skips, 2 todo; the review stage was in flight and is
+  redone on resume, then the release is published); the ease-of-use audit (`wf_6aeedc2c-d18`, done: inventory);
+  the map-logic audit (`wf_fe7ebc32-113`, done: scout; the runtime pass was in flight). Both audits are
+  findings only.
+- **Castle Ravenloft (Matt, 2026-10-18, issue #3; Codex paused): claimed in the Claims table, not started.** On
+  resume: branch `claude/wip/castle-playable` from main plus the castle-only commits of `claude/wip/item6-village-castle`
+  (`a9a7a62`: `castle-ravenloft.py`, `ravenloft-exterior.py`, `locations/ch04/K/**`); the playable castle through
+  `castle-ravenloft.py` (10-ft corridors except prison cells, full-cell doors, wall-line decor, open tower wells, 20-ft
+  courtyard apron; party start and doors on every level), regenerated, never hand-edited; scene-derived
+  `print/castle-ravenloft/build.py` (25.4 mm cell, 32 mm pitch, 3 mm slab and wall, 0.6 x 0.5 mm registration grooves,
+  250 mm bed, apron by default, colour-separated STL plus mono and 3MF, manifests, previews, mountain frame) and
+  `trinket.py` (80 mm desk model, true heights, 0.8 mm minimum feature, two-piece option), with manifold, bed-fit and
+  peg/socket checks as tests. Held for StudioBook (Matt back about 01:00 UTC; the laptop connection and Rhino/GPU are
+  verified then): Rhino refinement, trinket sculpting, GPU inspection, fabrication acceptance. ChatGPT's castle
+  changes on `item2e-map-logic-laptop` are not imported before 0.3.3. Matt approves before any merge or release.
+  **The full brief is in Matt's message to Codex, which the cloud cannot read: Matt, paste it here or into
+  `docs/handoff/castle-brief.md`; until then the defaults above (from Codex's record) are the spec.**
+- The item 2f plan (`docs/MAPS-FRAMEWORK.md`) awaits Matt's go. ChatGPT's draft PR #2 is acknowledged, not merged.
 
 ### Claude, 2026-10-18 20:45 UTC (cloud)
 
@@ -305,6 +334,8 @@ may still be running** its check-in routine; Matt decides whether it carries on 
 
 ## Questions for Matt
 
+- **The Castle Ravenloft brief:** the full brief is in your message to Codex (2026-10-18 20:58 UTC), which the cloud
+  cannot read. Paste it in chat or into `docs/handoff/castle-brief.md`; the defaults in Codex's record are used until then.
 - **The item 2f framework plan (`docs/MAPS-FRAMEWORK.md`, 2026-10-18) needs a go or no-go; its ten questions are
   answered when their release starts (recommended answers in Part A):** 1 the filmic tone curve on for every map
   (recommended: decide on release 2's pairs, default off); 2 players' unexplored outdoors shown as the hour's mist with
