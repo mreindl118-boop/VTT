@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.3.1 Local terrain joins and compass north - 2026-10-14
+
+- Activate either compass by click, tap, Enter or Space to face north while keeping the same place, zoom and camera pitch.
+- Open the gorge beneath Tsolenka Pass and improve its local road joins. Place Tser Pool's camp beside north-side water and improve the local shoreline and river connections.
+- Remove substitute Ravenloft geometry where the actual world site is present.
+- Expose Amber Temple's approach and keep excavation edges vertical so nearby outdoor ground stays at its intended height.
+- Reword one Death House description without changing geometry or rules links.
+
+Known limits: this is a bounded local correction release. Regional road grades and downstream water heights remain inconsistent, Ravenloft's gates and castle remain separated by 4,598 ft, and Amber's complete mountain enclosure is unresolved. The all-map audit records further terrain, placement, door, stair and source-geometry issues. Matt assigned comprehensive logic correction across both campaigns to 0.3.2; passing this release's tests does not certify every map. Expanded Player Display, physical-phone certification and other deferred nested-world work remain separate.
+
+## 0.3.0 One world to zoom through - 2026-10-13
+
+- World map opens an inked map of the active campaign: gothic Barovia or the pastoral Sheep Chase countryside. Zoom continuously from the region into a town, a building and a room, with the wheel or touch. Breadcrumbs and Back keep the route clear.
+- Places, hover tips, the hex grid, travel pace and the draggable party marker carry over. Maps load as you approach and return to simple outlines as you leave. View > Continuous world off, or `?nested=0`, keeps the flat-map fallback available.
+- Players see only known landmarks. Switching to Players or the slider's player end clears private notes and controls, including pending cards and wilderness directions.
+- Help shows the release number separately from its What's new link. After an update, the DM sees the newest changes once; the Player Display does not show that card.
+- Reworded map descriptions where they overlapped the source module, preserving their facts, rules links and map geometry.
+
+Known limits: the separate topography, expanded Player Display, phone/performance and data passes remain for item 2's second release. Nested towns and interiors retain surrounding scenery and can render more slowly than the flat fallback. All 32 keyed places currently have discs, including Mount Baratok's extra M2-M5 markers; the original design grouped that peak once, and the owner may choose that presentation later. Existing map and movement issues remain in their own queue items; item 7 is paused.
+
 ## 0.2.1 Built and tested on the owner's laptop — 2026-10-13
 
 The first release made on the owner's laptop instead of a cloud machine. Nothing changes at the table.
@@ -64,6 +84,46 @@ on the other nine, none blocking play, waiting for the owner:
 - L, Lake Zarovich (3): the mist barely shows and the far shore's edge is a hard line; Mount Baratok behind looks like
   a painted curtain; outside the map the land is bare grass instead of forest.
 - M, Mount Baratok (1): the scree slope rises over the shelf's grid, so a token placed on it sits inside the rock.
+## Zoom and nesting fixes — 2026-10-04
+
+The owner reported that zooming in and out across nested maps did not work as intended. Nesting is still one map at
+a time (Enter and Back), and zoom is still a camera that pulls back to a limit. Six things in that design were
+broken; each is fixed here. The continuous streaming world (docs/WORLD.md on the nested-world branch) comes later.
+
+- **Enter from a building.** A tap on a house, a church, the Vistani tent, Baba Lysaga's hut or anything else
+  standing in a room that opens a map now offers *Enter <room>* on its card, and the hover tip says so too. The
+  action is the same as the room menu's Enter, shown only to the DM (never in Players mode). Before, the tap hit
+  the building and its card had no Enter, so only 2 of Vallaki's 13 sites could be entered by tap. Now all 13 can,
+  plus Berez's hut, Krezk's road and ledge sites, and the village of Barovia's Death House and church (village
+  rooms E7 and E5 now open those maps). A thing on a card belongs to the room it stands in (its area key, else
+  where it stands), not to the ground the tap's ray meets behind a tall roof, so St. Andral's church also gets
+  its *N1* line and *Frame N1*.
+- **The zoom buttons on a phone.** The compass and scale-bar frame no longer takes taps. The `#ui > *` rule gave
+  it pointer events back, so on a phone it swallowed presses on the zoom, find-party, follow and help buttons it
+  covers. On a screen 700 px wide or less the frame now sits above the camera row and under any card. A control
+  placed in the frame later has to take taps by a rule of its own.
+- **Back keeps your place.** Back (and the zoom-out chip below) opens the town framed on the site you just left,
+  at about the building map's span, on that site's level, with the same compass heading. Before, it showed the
+  whole of Vallaki. Death House and the church now have a working Back to the village. On a top-level map Back
+  is hidden (it was shown there and did nothing, because `button.icon` overrode `[hidden]`).
+- **Zoom during a glide.** A zoom press scales from where the glide in flight is heading, so two quick presses
+  reach 0.78 × 0.78 of the distance instead of losing part of the first. A wheel turn during a glide changes where
+  the glide is going, instead of being undone by it. The wheel and a pinch now zoom toward the pointer rather than
+  the middle of the screen.
+- **Zooming out goes up a level.** At the far limit, one more zoom out (button, wheel or pinch) shows a small chip:
+  *Zoom out to the Town of Vallaki* on a building, or *Zoom out to the Lands of Barovia* (or the Sheep Chase
+  country) on a top-level map, which opens the world map centred on that map's place. One tap goes. The chip
+  fades after five seconds and never goes anywhere by itself. It is the DM's only, never in Players mode. Area maps
+  can now pull back far enough to show some of the town drawn round them.
+- **The abbey's surroundings.** The parent's surroundings round an area map now stand round the room the DM came
+  in by (remembered at Enter, and sent to the Player Display so both screens agree). Without one, they stand round
+  a room on the level at the height of the map's ground floor. Before, the first matching room was used, so the
+  Krezk abbey always sat on the Winding Road and never on the ledge 400 ft up. The surroundings hide while a floor
+  below their ground is shown, so the abbey's cellar and a Vallaki cellar are not buried under them.
+- Tests: `e2e/zoom.spec.ts` covers all of the above on a 1366×768 desktop and a 390×844 touch phone.
+- Merged with release 0.1.0: the object card's *Enter* button sits on the rules-linked card (`ui/cards.ts`), the
+  hover tip's *Enter* line is drawn by the shared tooltip, and the measure tool's line and label still hang from the
+  active map's root. At the slider's players' end an unfound room's Enter reads *Enter this place*.
 
 ## 0.1.0 D&D rules tooltips and the SRD books — 2026-10-12
 

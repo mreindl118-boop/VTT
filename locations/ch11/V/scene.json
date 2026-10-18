@@ -65,7 +65,7 @@
      ],
      "floor": "flagstone",
      "ceilingFt": 20,
-     "desc": "A flagstone floor strewn with debris, a few old crates by the east wall, a torn curtain to the south. In the middle, a 5-ft square pit holds four pulleys whose taut iron chains rise through a hole in the rotted ceiling; four tall clay statues stand by them.",
+     "desc": "Debris litters the flagstones. Crates remain beside the eastern wall, with a ripped curtain on the southern side. Four clay figures flank a central pit five feet across; its four pulleys carry tight iron chains upward through an opening in the decaying ceiling.",
      "dm": "The statues are clay golems that work the lift: they lower the 5-ft platform from the fourth floor and raise it wherever asked, 5 ft a round. The crates are empty."
     },
     {
@@ -734,7 +734,7 @@
      "vis": "player",
      "key": "V1",
      "desc": "A mud-spattered, barrel-topped wagon in fresh purple paint with gold-trimmed wheels; brass lanterns at its corners, red drapes in tombstone-shaped windows, a padlocked back door with a cheap wooden \"Keep out!\" sign.",
-     "dm": "Conjuration aura. Sit in the driver's seat and say \"Drovash\" for two quasi-real draft horses (speed 30), \"Arvesh\" to dismiss. Treasure: claw-marked trunk of weapons (battleaxe, flail, morningstar, light crossbow, 10 silvered bolts); wardrobe of clothes, mask and wigs; climber's, disguise, healer's and poisoner's kits; a golden-stringed lyre (50 gp); a caged chicken and a silver ewer (100 gp) of eggs; a tarokka deck in silk; copper pots (50 gp); three manacles; a shovel; a chest with a gold Morninglord symbol (100 gp), holy water, perfume, antitoxin, rope, tinderbox, mirror, stake and spyglass; scrolls of major image and remove curse; a map of Barovia; a charred page of van Richten's journal."
+     "dm": "Conjuration aura. Sit in the driver's seat and say \"Drovash\" for two quasi-real draft horses (speed 30), \"Arvesh\" to dismiss. Treasure: claw-marked trunk of weapons (battleaxe, flail, morningstar, light crossbow, 10 silvered bolts); wardrobe of clothes, mask and wigs; climber's, disguise, healer's and poisoner's kits; a golden-stringed lyre (50 gp); a caged chicken and a silver ewer (100 gp) of eggs; a tarokka deck in silk; copper pots (50 gp); three manacles; a shovel; a chest with a gold Morninglord symbol (100 gp), holy water, perfume, antitoxin, rope, tinderbox, mirror, stake and spyglass; a Barovia map; scrolls of major image and remove curse; a charred page of van Richten's journal."
     },
     {
      "id": "grounds-wagon-hatch",
@@ -7860,7 +7860,7 @@
      "vis": "player",
      "rotY": -90,
      "key": "V7",
-     "desc": "A large iron stove with plenty of wood stacked beside it; old ash in its belly."
+     "desc": "A sizable iron stove contains cold ash, with a generous stack of firewood nearby."
     },
     {
      "id": "f4-woodpile",

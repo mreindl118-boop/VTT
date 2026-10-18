@@ -705,7 +705,7 @@ for lv in scene['levels']:
             ob['playerLabel'] = {'druid': 'A mud-caked figure', 'berserker': 'A mud-caked warrior', 'needle-blight': 'A needled shape', 'twig-blight': 'Dead twigs',
                                  'vine-blight': 'Dead vines', 'tree-blight': 'Something vast'}.get(ob['kind'], 'Something')
 # the grid: on the hill level it covers the whole lattice (so players' sight runs over the whole hill) and lies buried
-# under the land, a travel map; above it, it lies on that level's own floors only (clip), each once: the summit's flat
+# under the land, a travel map; above it, it lies on that level's own floors only (clipToFloors), each once: the summit's flat
 # top and inner track, a landing's stretch of trail, the outer track and the trail off it either side
 FLOORS = {'hill': [rect(LX0, LZ0, LX1, LZ1)], 'summit': [TOPP], 'outer': OUTER_GRID}
 grid = OrderedDict(schema=1, levels=OrderedDict())
@@ -713,7 +713,7 @@ for lv in levels:
     polys = FLOORS.get(lv.id, lv.floor_polys) if lv.id != 'hill' else lv.floor_polys + FLOORS['hill']
     g = OrderedDict(floorPolygons=[[[round(x * 5, 2), round(z * 5, 2)] for x, z in p] for p in polys],
                     type='square', hexOrientation='pointy', origin=[0, 0], color='#1d1b22', opacity=0 if lv.id == 'hill' else 0.55)
-    if lv.id != 'hill': g['clip'] = True
+    if lv.id != 'hill': g['clipToFloors'] = True
     grid['levels'][lv.id] = g
 out = os.path.join(ROOT, 'locations', 'ch14', 'Y'); os.makedirs(out, exist_ok=True)
 json.dump(scene, open(os.path.join(out, 'scene.json'), 'w', newline='\n'), indent=1)   # LF on every platform (the files are compared byte for byte)

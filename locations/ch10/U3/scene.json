@@ -1641,7 +1641,7 @@
      ],
      "floor": "plank",
      "ceilingFt": 8,
-     "desc": "A cramped, reeking room fifteen feet square, crammed with old furniture: a cot, a wicker cabinet, a slender wardrobe, a table and stool, a brass-bound chest, an iron tub stained with blood, and in the middle a ghastly crib with a small angelic child sitting in it. Green light seeps up through the floorboards.",
+     "desc": "Fifteen feet on each side, this cramped room reeks. A cot and stool stand among a table, wicker cupboard, narrow wardrobe and brass-trimmed chest. Blood stains an iron bathtub. At the centre, a dreadful crib holds an innocent-looking little child. Green light leaks between the floorboards.",
      "dm": "All bolted down except the crib. Crib and child are an illusion; the gem lies in a cavity under the boards. Robes in the wardrobe, spell components in the cabinet, treasure in the trapped chest."
     }
    ],
@@ -1965,7 +1965,7 @@
      "rotY": 90,
      "key": "U3",
      "container": {
-      "contents": "1,300 gp, five 500-gp gemstones, a vial of oil of sharpness, spell scrolls of mass cure wounds and revivify, a pouch of ten +1 sling bullets, a set of pipes of haunting and a stone of good luck.",
+      "contents": "Five gemstones valued at 500 gp each, 1,300 gp, oil of sharpness in a vial, spell scrolls of mass cure wounds and revivify, a pouch of ten +1 sling bullets, a set of pipes of haunting and a stone of good luck.",
       "reveals": [
        "hut-claws"
       ]

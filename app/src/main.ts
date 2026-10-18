@@ -1,8 +1,10 @@
-import * as THREE from 'three';
 import './styles.css';
 import { App, type GridMode, type MeasureResult } from './app';
 import { builtPaths, loadLocation } from './data';
-import { openWorldMap, worldPins } from './ui/worldmap';
+import { worldOf } from './campaigns';
+import { openWorldMap, pinForScene, worldName, worldPins } from './ui/worldmap';
+import { NestedWorldMap } from './ui/worldnest';
+import { band as cartoBand } from './render/worldcarto';
 import { buildMinimap } from './ui/minimap';
 import { dayFromHarptos, harptosParts, MONTH_NAMES, FESTIVALS } from './core/sky';
 import { PACES, paceNote, type Pace } from './core/travel';
@@ -13,11 +15,14 @@ import { openEncounterSheet, turnBar } from './ui/encounter';
 import { ICON } from './ui/icons';
 import { booksUi, openLibrary } from './ui/library';
 import { ViewSlider } from './ui/viewSlider';
+import { ATLAS } from './render/worldstage';
+import * as frames from './core/frames';
 import { mountTips, type Tips } from './ui/tooltip';
 import { loadRich, termsNow } from './ui/rich';
 import { creatureCardHtml, objectCardHtml, pageref, playersRoomCardHtml, roomHeadHtml } from './ui/cards';
 import { esc } from './ui/text';
 import { isKey } from './core/keys';
+import { renderCrumbs, wireCrumbs } from './ui/breadcrumb';
 
 const q = new URLSearchParams(location.search);
 const mode = q.get('display') === 'player' ? 'player' : 'dm';
@@ -36,6 +41,8 @@ const ready = app.init(builtPaths.has(path) ? path : 'appB/death-house');
 // Test/debug hook. Harmless in production: it only exposes what the DM UI can already do.
 (window as unknown as { __mistlab: unknown }).__mistlab = {
   app,
+  /** The nested world map's overlay (the DM's screen only). */
+  get nest() { return (window as unknown as { __mistlabNest?: unknown }).__mistlabNest; },
   ready: ready.then(() => true),
   setT: (t: number) => { slider?.set(t); app.setT(t); app.world.renderNow(); },
   setGrid: (g: GridMode) => { app.gridMode = g; app.layoutChanged(); app.world.renderNow(); },
@@ -48,7 +55,8 @@ const ready = app.init(builtPaths.has(path) ? path : 'appB/death-house');
   labels: () => app.cur!.labels.filter((l) => l.level === app.levelId).map((l) => ({ id: l.spec.id, vis: l.spec.vis, opacity: Number(l.obj.element.style.opacity), visible: l.obj.visible })),
   targets: () => app.built.targets.map((t) => ({ id: t.id, vis: t.vis, visible: t.root.visible, opacity: t.materials[0]?.opacity ?? 1 })),
   flush: () => app.flush(),
-  screenOf: (x: number, z: number, y = 0) => { const v = new THREE.Vector3(x, app.level.elevationFt + y, z).project(app.world.camera); const r = app.world.renderer.domElement.getBoundingClientRect(); return [r.left + (v.x + 1) / 2 * r.width, r.top + (1 - v.y) / 2 * r.height]; },
+  // a scene point (feet, on the current level) to page pixels, through the scene's placement in the world
+  screenOf: (x: number, z: number, y = 0) => { const v = app.toWorld3(x, app.level.elevationFt + y, z).project(app.world.camera); const r = app.world.renderer.domElement.getBoundingClientRect(); return [r.left + (v.x + 1) / 2 * r.width, r.top + (1 - v.y) / 2 * r.height]; },
   partyPos: () => app.party?.pos,
   get tips() { return tips; },
   /** The rules-link pipeline (ui/terms.ts), loaded on demand. */
@@ -71,7 +79,19 @@ const ready = app.init(builtPaths.has(path) ? path : 'appB/death-house');
     const room = t.room ? app.level.rooms.find((r) => r.key === t.room) : !players && obj ? app.level.rooms.find((r) => r.key === obj.key) : undefined;
     app.onTap?.({ pos: [0, 0], object: obj ? app.tapObject(obj, players) : undefined, room: room && !(players && obj) ? app.tapRoom(room, players) : undefined }, x, y);
   },
-    moveParty: (level: string, x: number, z: number) => { const t = app.party; if (t) { t.level = level; t.pos = [x, z]; } app.setLevel(level); app.world.renderNow(); },
+  moveParty: (level: string, x: number, z: number) => { const t = app.party; if (t) { t.level = level; t.pos = [x, z]; } app.setLevel(level); app.world.renderNow(); },
+  // the nested world's seam: scene → drawn placement, the floating origin, and a hook that stands the scene elsewhere
+  get placement() { return app.placement.toArray(); },
+  toWorld: (x: number, z: number) => app.toWorld([x, z]),
+  toLocal: (x: number, z: number) => app.toLocal([x, z]),
+  get anchor() { return app.world.anchor.toArray(); },
+  setPlacement: (abs: [number, number, number], rotationY: number, reanchor = true) => { app.setPlacement(abs, rotationY, reanchor); app.world.renderNow(); },
+  // the continuous world: the valley stage (land, proxies, forest, sky), the placement atlas, and whether it is on
+  get stage() { return app.stage; },
+  get atlas() { return ATLAS; },
+  frames,
+  get nested() { return app.nested; },
+  get staged() { return app.staged; },
 };
 
 // Rules books: a #book/<id>/<section> link opens the reader (DM only; its code loads on demand).
@@ -145,6 +165,7 @@ function buildDmUi(): void {
         <button class="icon" data-act="snap" aria-label="Snap moves to the grid" aria-pressed="true" data-tip="Snap to grid">${ICON.grid}<span>Snap to grid</span></button>
         <button class="icon" data-act="walls" aria-label="Walls: low / full" data-tip="Walls">${ICON.walls}<span>Walls low / full</span></button>
         <button class="icon" data-act="mist" aria-label="Mist on / off" aria-pressed="true" data-tip="Mist on / off">${ICON.fog}<span>Mist</span></button>
+        <button class="icon" data-act="nested" aria-label="Continuous world" aria-pressed="true" data-tip="Continuous world" data-tip-sub="Maps stand in the whole valley; off opens each map alone in the mist">${ICON.map}<span>Continuous world</span></button>
         <button class="icon" data-act="labels" aria-label="Labels: keys / all / none" data-tip="Labels"><i></i><span>Labels</span></button>
         <button class="icon" data-act="lock" aria-label="Player camera follows DM" data-tip="Player camera follows DM"><i></i><span>Players follow my camera</span></button>
         <button class="icon" data-act="display" aria-label="Open Player Display" data-tip="Open Player Display">${ICON.display}<span>Player display</span></button>
@@ -169,7 +190,10 @@ function buildDmUi(): void {
     <button class="icon" data-cam="help" aria-label="Help" data-tip="Help">${ICON.help}</button>`;
   ui.appendChild(cam);
   const minimap = buildMinimap(app, ui, () => openClock());
-  ui.insertAdjacentHTML('beforeend', `<div class="mapframe" aria-hidden="true"><div class="compass"><svg viewBox="0 0 40 40"><path d="M20 4 L26 22 L20 18 L14 22 Z" fill="#c0392b"/><path d="M20 36 L14 18 L20 22 L26 18 Z" fill="#e8e3d8" opacity=".55"/></svg><b>N</b></div><div class="scalebar"><i></i><span>50 ft</span></div></div>`);
+  // the title is a breadcrumb in the valley: each crumb frames its scope (ui/breadcrumb.ts)
+  wireCrumbs(top.querySelector<HTMLElement>('.loc')!, app, () => { app.layoutChanged(); refresh(); });
+  ui.insertAdjacentHTML('beforeend', `<div class="mapframe"><button type="button" class="compass" aria-label="Align north" data-tip="Align north"><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M20 4 L26 22 L20 18 L14 22 Z" fill="#c0392b"/><path d="M20 36 L14 18 L20 22 L26 18 Z" fill="#e8e3d8" opacity=".55"/></svg><b aria-hidden="true">N</b></button><div class="scalebar" aria-hidden="true"><i></i><span>50 ft</span></div></div>`);
+  ui.querySelector('.mapframe .compass')!.addEventListener('click', () => app.alignNorth());
   cam.addEventListener('click', (e) => {
     const b = (e.target as HTMLElement).closest<HTMLElement>('button');
     if (!b) return;
@@ -220,6 +244,61 @@ function buildDmUi(): void {
   const measureHtml = (m: MeasureResult): string => `<button type="button" class="rl rule" data-kind="measure" data-rule="${m.rule}" data-ft="${m.ft}" data-squares="${m.squares}" aria-expanded="false">${m.ft} ft</button> · ${m.squares} squares · tap to measure again`;
   app.onStatus = (s, m) => { if (m && !app.playersSide) status.innerHTML = measureHtml(m); else status.textContent = s; status.classList.toggle('on', !!s); if (s) { placeStatus(); clearTimeout(statusTimer); statusTimer = window.setTimeout(() => { if (app.tool === 'none') { status.classList.remove('on'); } }, 2200); } };
   let statusTimer = 0;
+
+  // Nesting: Enter a building from its room (menu or card), go up to the map it belongs to, or out to the world map.
+  const enterRoom = (r: { key: string; enter?: string }) => { const to = app.enterOf(r); if (!to) return; localStorage.setItem('mistlab.scene', to); void app.enter(to, r.key).then(() => app.layoutChanged()); };
+  const goUp = () => { const up = app.parentPath; if (!up) return; localStorage.setItem('mistlab.scene', up); void app.openParent().then(() => app.layoutChanged()); };
+  // The World map button: in the continuous world the valley itself is the map (ui/worldnest.ts: flown out to the
+  // whole region, straight down, with its bar, key, cards, tips and the party's drag); the flat sheet is the fallback
+  // (View › Continuous world off, ?nested=0, or a map that does not stand in the valley).
+  const nest = new NestedWorldMap({
+    app, ui,
+    sceneName: async (path) => (await loadLocation(path)).scene.name,
+    enter: (path) => { localStorage.setItem('mistlab.scene', path); void app.open(path).then(() => app.layoutChanged()); },
+  });
+  (window as unknown as { __mistlabNest: unknown }).__mistlabNest = nest;
+  const openWorld = (focus?: string) => openWorldMap({
+    canMove: !app.restricted,
+    dm: !app.playersSide,
+    revealed: () => app.pinsRevealed,
+    reveal: (key, on) => app.revealPin(key, on),
+    get: () => app.state.world,
+    move: (pos, key, miles) => app.moveWorld(pos, key, miles),
+    enter: (path) => { localStorage.setItem('mistlab.scene', path); void app.open(path).then(() => app.layoutChanged()); },
+    sceneName: async (path) => (await loadLocation(path)).scene.name,
+    focus,
+  });
+  // A zoom out at the far limit (button, wheel or pinch) shows a chip for the map one level up: the town a building
+  // belongs to, else the world map round this map's place. One tap goes; it fades by itself and never goes by itself.
+  const chip = document.createElement('button');
+  chip.className = 'zoomchip'; chip.hidden = true;
+  ui.appendChild(chip);
+  let chipGo: (() => void) | null = null, chipTimer = 0;
+  const dropChip = () => { clearTimeout(chipTimer); chipGo = null; chip.classList.remove('on'); chipTimer = window.setTimeout(() => { chip.hidden = true; }, 250); };
+  app.world.onZoomPastMax = () => {
+    if (app.restricted || !app.cur) return; // the DM's: never in Players mode (the Player Display has no UI at all)
+    // in the continuous world the far limit is the whole valley's, whatever map is active (a building's town is on the
+    // way out: zooming out climbs to it by itself), so the chip offers the whole valley, and from there the world map
+    const path = app.cur.path, up = app.staged ? undefined : app.parentPath;
+    const valley = !up && app.staged && app.stage && !app.stage.framed;
+    void (up ? loadLocation(up).then((l) => l.scene.name) : Promise.resolve(valley ? 'the whole valley' : worldOf(app.campaign).name)).then((name) => {
+      if (app.cur?.path !== path || app.restricted) return;
+      chipGo = up ? goUp : valley ? () => app.stage?.frameWorld('fly') : () => openWorld(pinForScene(path)?.key);
+      chip.innerHTML = `${ICON.zoomOut}<span></span>`;
+      chip.querySelector('span')!.textContent = `Zoom out to ${name.replace(/^The /, 'the ')}`;
+      chip.hidden = false; requestAnimationFrame(() => chip.classList.add('on'));
+      clearTimeout(chipTimer); chipTimer = window.setTimeout(dropChip, 5000);
+    });
+  };
+  chip.addEventListener('click', () => { const go = chipGo; dropChip(); go?.(); });
+  // A place's name over the valley (DM view): fly there and open its map.
+  app.onPlacePick = (path) => { if (app.cur?.path === path) { app.frameLevel(app.camPreset, true); return; } localStorage.setItem('mistlab.scene', path); void app.open(path).then(() => app.layoutChanged()); };
+  // What covers the view: the bars along its edges frame the whole valley; every panel keeps the place names clear.
+  const shown = (sel: string) => [...ui.querySelectorAll<HTMLElement>(sel)].filter((e) => e.getClientRects().length && getComputedStyle(e).visibility !== 'hidden').map((e) => e.getBoundingClientRect()).filter((r) => r.width > 0 && r.height > 0);
+  app.world.chrome = () => {
+    const bars = shown('.topbar > .group, .vslider, .camcluster');
+    return { bars, panels: [...bars, ...shown('.minimap, .mapframe, .zoomchip:not([hidden]), .nestkey:not([hidden]), .nestcard:not([hidden])')] };
+  };
 
   const section = top.querySelector<HTMLElement>('.section')!, secIn = section.querySelector<HTMLInputElement>('input')!, secFt = section.querySelector<HTMLElement>('.sec-ft')!;
   const secList = section.querySelector<HTMLDataListElement>('datalist')!;
@@ -291,10 +370,15 @@ function buildDmUi(): void {
   const frameUi = () => {
     const f = app.cameraFrame(), c = document.querySelector<HTMLElement>('.mapframe .compass svg'), sb = document.querySelector<HTMLElement>('.mapframe .scalebar'); if (!c || !sb || !app.cur) return;
     c.style.transform = `rotate(${(f.north * 180 / Math.PI).toFixed(1)}deg)`;
-    const steps = [5, 10, 25, 50, 100, 250, 500, 1000, 2500, 5280]; let ft = steps[0];
-    for (const s of steps) { ft = s; if (s * f.pxPerFt >= 70) break; }
-    const px = Math.max(8, Math.min(220, ft * f.pxPerFt));
-    (sb.querySelector('i') as HTMLElement).style.width = `${px.toFixed(0)}px`; sb.querySelector('span')!.textContent = ft === 5280 ? '1 mile' : `${ft} ft`;
+    // while the land is drawn as the map, the bar counts miles (¼, ½, 1, 2, 3, 5, 10) and alternates ink and paper
+    const miles = app.staged && !!app.stage && cartoBand(1 / Math.max(1e-6, f.pxPerFt), 24, 5) >= 0.5; // (the inked map's own measure, fresh from the camera)
+    const steps = miles ? [1320, 2640, 5280, 10560, 15840, 26400, 52800] : [5, 10, 25, 50, 100, 250, 500, 1000, 2500, 5280]; let ft = steps[0];
+    for (const s of steps) { ft = s; if (s * f.pxPerFt >= (miles ? 120 : 70)) break; }
+    const px = Math.max(8, Math.min(miles ? 180 : 220, ft * f.pxPerFt));
+    sb.classList.toggle('miles', miles);
+    const mi = ft / 5280, label = !miles ? (ft === 5280 ? '1 mile' : `${ft} ft`) : mi === 0.25 ? '¼ mile' : mi === 0.5 ? '½ mile' : `${mi} mile${mi > 1 ? 's' : ''}`;
+    (sb.querySelector('i') as HTMLElement).style.width = `${px.toFixed(0)}px`; sb.querySelector('span')!.textContent = label;
+    nest.refresh();
   };
   app.onCameraUi = frameUi;
   let shownLevel = '';
@@ -312,8 +396,9 @@ function buildDmUi(): void {
     if (!app.cur) return;
     if (app.levelId !== shownLevel) { shownLevel = app.levelId; tips?.closeAll(); }
     document.body.dataset.view = app.view;
-    top.querySelector('.loc')!.textContent = app.cur.scene.name;
-    top.querySelector<HTMLElement>('.back')!.hidden = !app.cur.scene.parent || !builtPaths.has(app.cur.scene.parent);
+    renderCrumbs(top.querySelector<HTMLElement>('.loc')!, app, !app.restricted);
+    { const b = top.querySelector<HTMLElement>('.back')!, up = app.parentPath; b.hidden = !up; // a building, up to its town; hidden on a top-level map
+      if (up && app.staged) { const n = (app.resident.get(up)?.scene.name ?? 'the town').replace(/^The /, 'the '); b.dataset.tip = `Back to ${n}`; b.setAttribute('aria-label', `Back to ${n}`); } }
     top.querySelector('.sub')!.textContent = `${app.cur.scene.mapPage ? `map p.${app.cur.scene.mapPage}` : app.campaign.name} · ${app.cur.scene.placementFt ? `${app.cur.scene.placementFt}-ft placement squares` : `${app.cur.scene.bookScaleFt}-ft squares`}`;
     top.querySelectorAll<HTMLElement>('[data-view]').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.view === app.view)));
     const lv = top.querySelector<HTMLSelectElement>('select.levels')!;
@@ -330,6 +415,8 @@ function buildDmUi(): void {
     slot('labels', app.labelMode === 'all' ? ICON.label : app.labelMode === 'keys' ? ICON.labelKeys : ICON.labelOff);
     top.querySelector('[data-act="walls"]')!.setAttribute('aria-pressed', String(!app.lowWalls));
     top.querySelector('[data-act="snap"]')!.setAttribute('aria-pressed', String(app.gridSnap));
+    top.querySelector('[data-act="nested"]')!.setAttribute('aria-pressed', String(app.nested));
+    { const wb = top.querySelector<HTMLElement>('[data-act="world"]')!; wb.dataset.tip = `World map: ${worldName().replace(/^The /, 'the ')}`; }
     { const r = top.querySelector<HTMLInputElement>('[data-opt="gridOpacity"]')!; if (document.activeElement !== r) r.value = String(Math.round(app.gridOpacity * 100)); }
     slot('lock', app.lockPlayerCamera ? ICON.lock : ICON.unlock);
     top.querySelector('[data-act="lock"]')!.setAttribute('aria-pressed', String(app.lockPlayerCamera));
@@ -339,6 +426,7 @@ function buildDmUi(): void {
     cam.querySelector('[data-cam="tilt"]')!.innerHTML = app.camPreset === 'top' ? ICON.camera : ICON.top;
     app.onCameraUi = () => { frameUi(); minimap.draw(); };
     slider!.el.hidden = app.view === 'players';
+    if (app.restricted && !chip.hidden) dropChip();
     if (roomsSheet) renderRooms();
   };
   app.onChange = refresh;
@@ -358,17 +446,8 @@ function buildDmUi(): void {
     switch (b.dataset.act) {
       case 'library': openLibrary(builtPaths, app.campaign, (p) => { localStorage.setItem('mistlab.scene', p); void app.open(p).then(() => app.layoutChanged()); }); break;
       case 'clock': openClock(); break;
-      case 'back': { const par = app.cur?.scene.parent; if (par) { localStorage.setItem('mistlab.scene', par); void app.open(par).then(() => app.layoutChanged()); } break; }
-      case 'world': openWorldMap({
-        canMove: !app.restricted,
-        dm: !app.playersSide,
-        revealed: () => app.pinsRevealed,
-        reveal: (key, on) => app.revealPin(key, on),
-        get: () => app.state.world,
-        move: (pos, key, miles) => app.moveWorld(pos, key, miles),
-        enter: (path) => { localStorage.setItem('mistlab.scene', path); void app.open(path).then(() => app.layoutChanged()); },
-        sceneName: async (path) => (await loadLocation(path)).scene.name,
-      }); break;
+      case 'back': goUp(); break; // framed on the building just left
+      case 'world': if (!(app.nested && nest.open())) openWorld(); break;
       case 'encounter': app.encounter ? bar.update() : openEncounterSheet(app, refresh); break;
       case 'creatures': openBestiary(app, refresh); break;
       case 'undo': app.undo(); break;
@@ -379,6 +458,7 @@ function buildDmUi(): void {
       case 'grid': app.gridMode = app.gridMode === 'square' ? 'hex' : app.gridMode === 'hex' ? 'off' : 'square'; app.layoutChanged(); break;
       case 'snap': app.setGridSnap(!app.gridSnap); break;
       case 'walls': app.lowWalls = !app.lowWalls; app.layoutChanged(); break;
+      case 'nested': void app.setNestedMode(!app.nested).then(refresh); break;
       case 'mist': app.world.setFog(!app.world.fogOn); top.querySelector('[data-act="mist"]')!.setAttribute('aria-pressed', String(app.world.fogOn)); app.layoutChanged(); break;
       case 'labels': app.labelMode = app.labelMode === 'keys' ? 'all' : app.labelMode === 'all' ? 'none' : 'keys'; app.applySlider(); break;
       case 'lock': app.lockPlayerCamera = !app.lockPlayerCamera; app.layoutChanged(); break;
@@ -430,7 +510,7 @@ function buildDmUi(): void {
   };
   addEventListener('mistlab:rules-edition', () => statLines.clear());
   app.world.renderer.domElement.addEventListener('pointerleave', () => tips!.clear());
-  app.onLeave = () => { closeMenu(); tips!.closeAll(); };
+  app.onLeave = () => { closeMenu(); tips!.closeAll(); if (!chip.hidden) dropChip(); };
 
   app.onTap = (hit, x, y) => {
     closeMenu(); tips!.closeAll();
@@ -455,12 +535,13 @@ function buildDmUi(): void {
       // Info card: what it is, where, what players see, DM notes, state, actions.
       const o = hit.object, so = app.level.objects.find((x) => x.id === o.id);
       const ownWords = !!so && !!(so.label || so.playerLabel || so.desc || so.dm || so.container?.contents);
-      const card = infoCard(objectCardHtml(o, { ...opts, room: hit.room, secretDoor: hit.secretDoor, ownWords }), 260);
+      const card = infoCard(objectCardHtml(o, { ...opts, room: hit.room, secretDoor: hit.secretDoor, ownWords, enter: app.enterOf(hit.room) ? hit.room!.name : undefined }), 260);
       card.addEventListener('click', (e) => {
         const b = (e.target as HTMLElement).closest<HTMLElement>('button'); if (!b) return;
         if (b.classList.contains('close')) return closeMenu();
         if (b.dataset.a === 'open') app.toggleOpen(o.id);
         if (b.dataset.a === 'reveal') app.toggleObject(o.id); if (b.dataset.a === 'frame') app.jumpTo(hit.room!.key); if (b.dataset.a === 'secret') app.revealSecretDoor(hit.secretDoor!.id);
+        if (b.dataset.a === 'enter') enterRoom(hit.room!);
         closeMenu(); refresh();
       });
       return;
@@ -477,7 +558,7 @@ function buildDmUi(): void {
     const unseen = players && !!hit.room && !hit.room.revealed;
     if (hit.secretDoor && !(players && !hit.secretDoor.revealed)) items.push({ label: hit.secretDoor.revealed ? 'Hide secret door again' : 'Reveal secret door to players', icon: ICON.eye, act: () => app.revealSecretDoor(hit.secretDoor!.id) });
     if (hit.room) {
-      if (hit.room.enter && builtPaths.has(hit.room.enter)) { const to = hit.room.enter; items.push({ label: unseen ? 'Enter this place' : `Enter ${hit.room.name}`, icon: ICON.doorOpen, act: () => { localStorage.setItem('mistlab.scene', to); void app.open(to).then(() => app.layoutChanged()); } }); }
+      if (app.enterOf(hit.room)) { const r = hit.room; items.push({ label: unseen ? 'Enter this place' : `Enter ${r.name}`, icon: ICON.doorOpen, act: () => enterRoom(r) }); }
       items.push({ label: unseen ? 'Reveal this room' : `${hit.room.revealed ? 'Hide' : 'Reveal'} ${hit.room.key} ${hit.room.name}`, icon: ICON.reveal, act: () => app.toggleRoom(hit.room!.key) });
       items.push({ label: 'Move party here', icon: ICON.token, act: () => { const t = app.party; if (t) { t.level = app.levelId; t.pos = app.snap(hit.pos); app.afterPartyMoveFromUi(); } } });
       items.push({ label: unseen ? 'Frame this room' : `Frame ${hit.room.key}`, icon: ICON.party, act: () => app.jumpTo(hit.room!.key) });
@@ -576,7 +657,8 @@ function buildDmUi(): void {
       <dl>
         <dt>Move the party</dt><dd>Tap the amber token to pick it up, then tap where it goes (tap it again or press Esc to cancel). The room it enters is revealed and remembered; step onto stairs or a trapdoor to change level; the camera follows. In Players mode the party walks: walls and closed doors stop it, and locked doors stay shut until the DM opens them.</dd>
         <dt>Look around</dt><dd>One finger / left-drag pans. Right-drag or a two-finger twist rotates; pinch or scroll zooms. The buttons bottom-left turn in 90° steps, tilt, zoom and find the party. Double-tap a room to frame it.</dd>
-        <dt>World map</dt><dd>The map button beside the library opens the Lands of Barovia. Drag the party to a lettered pin or into the wilderness; the card shows the distance and travel time at your pace, and opens the battle map for that place when one is built. Opening a location moves the party marker there.</dd>
+        <dt>World map</dt><dd>The map button beside the library flies out over ${esc(worldName().replace(/^The /, 'the '))}, drawn from straight above as an inked map: its places with their symbols and lettered discs, the woods, rivers, lakes and peaks by name, a hex grid at the map's scale and the miles in the corner. Zoom in anywhere and the map turns into the land itself. Hover a place for its note; tap one to fly into its map (a place with several maps shows its card too). The bar under the top bar sets the travel pace and the hex grid and opens Places, the key, where the eye reveals a place to the players. Drag the party's &amp; to a place or into the wilderness: the card gives the distance and the time at your pace. Players see only the places they know, and the party. View › Continuous world off (or ?nested=0) keeps the flat world map sheet instead.</dd>
+        <dt>The whole valley</dt><dd>Each place's map stands where it lies in the valley, on the land, turned to true north. Zoom out past a map's edge and the land, the roads, the lakes and every other place carry on; at the far limit the chip offers the whole valley, and from there the world map. Tap a place's name over the valley to fly there and open its map; where a name has no room, its key marks the place and a tap on it does the same. Keep zooming into a town and its buildings and area maps open in place inside it (Death House in the village, the Blue Water Inn in Vallaki); zoom out and they fold back into the town. Enter on a building's card flies into it. The title shows where you are, for example Barovia › Town of Vallaki › Blue Water Inn › Ground floor: tap a name to frame it. Back pulls out over the building and the town takes over. Players see only the names of places they know. View › Continuous world switches this off: each map then opens alone in the mist, as before.</dd>
         <dt>Initiative</dt><dd>The crossed-swords button opens the roster: speed, reach, range and initiative from each character sheet. Start an encounter and each combatant gets a token. On a turn, green squares are where that combatant can still move and red squares are what it could strike from there; a paler red shows ranged reach with a clear line. Next turn (or N) advances; End folds everyone back into the party marker.</dd>
         <dt>Creatures</dt><dd>The paw button opens the repository: every person, monster and beast the module names, searchable. Place one beside the party, or place by tap and keep tapping to put down as many as you like (Esc stops). Placed creatures start hidden from the players. Tap one to pick it up: the panel shows what players will see (rename it), hit points, Reveal or Hide, the Reach helper (green squares it can move to, red ones it can strike), Initiative, Remove. The DM moves anything anywhere; players move only the party, and only where it can walk.</dd>
         <dt>Section slicer</dt><dd>Buildings with several floors show all of them at once. The Section slider beside the floor tabs cuts the building at any height: slide it up to see the roof, down through the floors, below ground into a cellar. The floor tabs follow the cut; the arrow button snaps the cut back to the current floor.</dd>
@@ -585,7 +667,7 @@ function buildDmUi(): void {
         <dt>Players mode</dt><dd>Turn the iPad to the table: only revealed rooms, no DM chrome. DM mode brings everything back.</dd>
         <dt>Colours</dt><dd class="colours">${colours}</dd>
         <dt data-attrib>Rules books</dt>
-      </dl><p class="version">mistLAB ${__APP_VERSION__} · <button type="button" class="link whatsnew-link">What's new</button></p></div></div>`;
+      </dl><p><span class="version">mistLAB ${__APP_VERSION__}</span> · <button type="button" class="link whatsnew-link">What's new</button></p></div></div>`;
     h.addEventListener('click', (e) => { const t = e.target as HTMLElement; if (t === h || t.closest('.close')) h.remove(); else if (t.closest('.whatsnew-link')) { h.remove(); showWhatsNew(markSeen); } });
     // The books' exact attribution statements (CC-BY-4.0), loaded with Help rather than with the app.
     void import('./books/attribution').then((m) => m.helpInto(h), () => h.querySelector('[data-attrib]')?.insertAdjacentHTML('afterend', '<dd>SRD 5.1 and 5.2.1, CC-BY-4.0: attribution on each book’s first page.</dd>'));
@@ -603,6 +685,12 @@ function buildHud(): void {
   document.body.appendChild(hud);
   setInterval(() => {
     const i = app.world.renderer.info;
-    hud.textContent = `tris ${i.render.triangles}\ncalls ${i.render.calls}\ngeoms ${i.memory.geometries} tex ${i.memory.textures}\nfps ${app.world.fps.toFixed(0)}`;
+    const w = app.world, a = w.anchor, st = app.stage?.stats(), d = w.camera.position.distanceTo(w.controls.target);
+    hud.textContent = `tris ${i.render.triangles}\ncalls ${i.render.calls}\ngeoms ${i.memory.geometries} tex ${i.memory.textures}\nfps ${app.world.fps.toFixed(0)}`
+      + `\nworld ${app.nested ? (app.staged ? 'in the valley' : 'legacy map') : 'off'} · ${document.body.dataset.band ?? ''} · ${d < 10000 ? `${Math.round(d)} ft` : `${(d / 5280).toFixed(1)} mi`}`
+      + `\nanchor ${Math.round(a.x)}, ${Math.round(a.y)}, ${Math.round(a.z)}`
+      + (st ? `\nstage ${Math.round(st.tris / 1000)}k tris · ${st.shown}/${st.proxies} proxies · forest ${st.forest} (${st.tiles} tiles) · built ${st.buildMs} ms` : '')
+      + (app.staged ? `\nresident ${[...app.resident.values()].map((r) => `${r.path}${r === app.cur ? '*' : ''}${r.drawn ? '' : ' (folded)'}`).join(', ')} · ${app.streamer.units()}/${app.streamer.cap} units`
+        + (app.streamLog.length ? `\nlast build ${(({ path, ms, slices, longest }) => `${path} ${ms} ms in ${slices} slices, longest ${longest} ms`)(app.streamLog[app.streamLog.length - 1])}` : '') : '');
   }, 500);
 }

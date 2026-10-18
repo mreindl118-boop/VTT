@@ -20,8 +20,9 @@ export function useWorld(w: WorldData, style: 'gothic' | 'pastoral' = 'gothic', 
 export const pinForScene = (path: string): Pin | undefined => W.pins.find((p) => p.scenes?.includes(path));
 export const worldPins = (): Pin[] => W.pins;
 
-const SNAP_MI = 0.35;
-const dist = (a: P, b: P) => Math.hypot(a[0] - b[0], a[1] - b[1]);
+/** The party's drag snaps onto a place this close (miles). */
+export const SNAP_MI = 0.35;
+export const dist = (a: P, b: P) => Math.hypot(a[0] - b[0], a[1] - b[1]);
 const NS = 'http://www.w3.org/2000/svg';
 const el = <K extends keyof SVGElementTagNameMap>(tag: K, attrs: Record<string, string | number>, parent?: Element): SVGElementTagNameMap[K] => {
   const e = document.createElementNS(NS, tag);
@@ -30,8 +31,38 @@ const el = <K extends keyof SVGElementTagNameMap>(tag: K, attrs: Record<string, 
   return e;
 };
 const path = (pts: P[]) => pts.map((p, i) => `${i ? 'L' : 'M'}${p[0]},${p[1]}`).join(' ');
-const fmtHours = (h: number) => { const hh = Math.floor(h), mm = Math.round((h - hh) * 60); return hh ? `${hh} h${mm ? ` ${mm} min` : ''}` : `${mm} min`; };
-const keyOf = (p: Pin) => p.key.replace(/\d+$/, '');
+export const fmtHours = (h: number) => { const hh = Math.floor(h), mm = Math.round((h - hh) * 60); return hh ? `${hh} h${mm ? ` ${mm} min` : ''}` : `${mm} min`; };
+/** The letter a place shows: its key without a number after letters (B2 shows B, M3 shows M); a key that is all
+ *  digits (A Wild Sheep Chase's 1 to 5) shows whole. */
+export const keyOf = (p: { key: string }) => p.key.replace(/(\D)\d+$/, '$1');
+/** The world's scale as the sheet says it: '1 hex = ¼ mile · north up'. */
+export const hexScale = () => { const mph = W.milesPerHex ?? 1; return `1 hex = ${mph === 0.25 ? '¼ mile' : mph === 0.5 ? '½ mile' : `${mph} mile${mph > 1 ? 's' : ''}`} · north up`; };
+/** The world's name ('The Lands of Barovia', 'The Country Round the Town'). */
+export const worldName = () => W.name;
+/** One setting for the hex grid, shared by the flat sheet and the nested world map (on unless switched off). */
+export const hexPref = (): boolean => { try { return localStorage.getItem('mistlab.worldHex') !== '0'; } catch { return true; } };
+export const setHexPref = (on: boolean): void => { try { localStorage.setItem('mistlab.worldHex', on ? '1' : '0'); } catch { /* no storage */ } };
+/** The nearest named thing (a place, a wood, a peak) to a point, and how far (miles). */
+export const nearestName = (p: P, known?: ReadonlySet<string>) => { const all = [...W.pins.filter((x) => !known || known.has(x.key)).map((x) => ({ name: x.name, pos: x.pos })), ...W.woods, ...W.peaks]; const n = all.reduce((a, c) => (dist(c.pos, p) < dist(a.pos, p) ? c : a)); return { name: n.name, mi: dist(n.pos, p) }; };
+/** A pin's words with their rules links: the blurb is what players are told, so it reads with the players' audience
+ *  (rules kinds only) on both sides; the DM note is the DM's only (people, monsters and places link there). The
+ *  gazetteer keeps place names whole. */
+const pinText = (p: Pin, field: 'blurb' | 'dm', seen: Set<string>) => rich(field === 'blurb' ? p.blurb : p.dm, { audience: field === 'dm' ? 'dm' : 'player', field, scenePath: WORLD_PATH, entityId: `pin:${p.key}` }, seen);
+/** A place's hover tip: its key and name and its blurb; for the DM its note and whether the players know it; and
+ *  what a tap does (the DM's tap opens its map; the players' shows its card). */
+export function pinTipHtml(p: Pin, o: { dm: boolean; revealed: boolean; canOpen: boolean }): string {
+  const seen = new Set<string>();
+  return `<b>${esc(keyOf(p))} · ${esc(p.name)}</b>${p.blurb ? `<div>${pinText(p, 'blurb', seen)}</div>` : ''}${o.dm && p.dm ? `<div class="dm">${pinText(p, 'dm', seen)}</div>` : ''}${o.dm ? `<div class="vis">${o.revealed ? 'Players can see this place' : 'Hidden from players'}</div>` : ''}${p.scenes?.length ? `<div class="vis">${o.canOpen ? 'Tap to open the map' : 'Tap for its card'}</div>` : ''}`;
+}
+/** The place card: where (a place, or the wilderness near the nearest name), the blurb, the DM's note and reveal
+ *  chip, the distance from the party and the time at a pace, and an Open button per map (or the no-map note). */
+export function worldCardHtml(pin: Pin | undefined, to: P, miles: number, o: { dm: boolean; known?: ReadonlySet<string>; revealed: boolean; pace: Pace; canOpen: boolean; labels: string[] }): string {
+  const speed = PACES[o.pace].mph, hours = miles / speed;
+  const where = pin ? `<b>${esc(keyOf(pin))}</b> ${esc(pin.name)}` : (() => { const n = nearestName(to, o.dm ? undefined : (o.known ?? new Set())); return `Wilderness · ${n.mi.toFixed(1)} mi from ${esc(n.name)}`; })();
+  const scenes = pin?.scenes ?? [], seen = new Set<string>();
+  return `<div class="wc-where">${where}${pin && o.dm ? `<button class="chip-btn" data-reveal="${pin.key}" aria-pressed="${o.revealed}">${o.revealed ? 'Shown to players' : 'Hidden from players'}</button>` : ''}</div>${pin?.blurb ? `<div class="wc-blurb">${pinText(pin, 'blurb', seen)}</div>` : ''}${pin?.dm && o.dm ? `<div class="wc-dm">${pinText(pin, 'dm', seen)}</div>` : ''}<div class="wc-travel">${miles.toFixed(1)} mi as the crow flies · about ${fmtHours(hours)} at a ${o.pace} pace (${speed} mph)</div>
+      ${scenes.length && o.canOpen ? `<div class="wc-actions">${scenes.map((s, i) => `<button class="primary" data-scene="${s}">Open ${esc(o.labels[i] ?? s)}</button>`).join('')}</div>` : scenes.length ? '' : '<div class="wc-note">No battle map here yet; run it theatre-of-the-mind or pick a nearby place.</div>'}`;
+}
 
 // ---------------------------------------------------------------- the painted base layer
 const PALETTES = {
@@ -61,7 +92,9 @@ function coverSampler(): { cell: number; at: (c: string, p: P) => number; cells:
   return { cell, at, cells };
 }
 
-function paint(cv: HTMLCanvasElement, vb: { x: number; y: number; w: number; h: number }): void {
+/** Paint the base. `known`: the places whose symbols are painted (the players' side paints only the places it knows:
+ *  an unknown castle or village leaves no mark; the land, rivers, roads and mountains are everyone's). */
+function paint(cv: HTMLCanvasElement, vb: { x: number; y: number; w: number; h: number }, known: (p: Pin) => boolean = () => true): void {
   const C = PALETTES[STYLE], ctx = cv.getContext('2d')!, S = cv.width / vb.w; // px per mile
   const X = (x: number) => (x - vb.x) * S, Y = (y: number) => (y - vb.y) * S;
   const hash = (x: number, y: number) => { const h = Math.sin(x * 127.1 + y * 311.7) * 43758.5453; return h - Math.floor(h); };
@@ -142,6 +175,7 @@ function paint(cv: HTMLCanvasElement, vb: { x: number; y: number; w: number; h: 
   for (const r of W.roads) { const p = r.kind === 'trail' || /path|trail/i.test(r.name); stroke(r.pts, C.roadCase, Math.max(2.4, S * 0.13)); stroke(r.pts, C.road, Math.max(1.4, S * 0.08), p ? [S * 0.2, S * 0.12] : undefined); }
   // 6. settlements and landmarks as symbols under the pins
   for (const p of W.pins) {
+    if (!known(p)) continue;
     const x = X(p.pos[0]), y = Y(p.pos[1]), u = Math.max(3, S * 0.09);
     if (p.type === 'settlement') {
       const n = p.name.match(/Town|Village/i) ? 7 : 4;
@@ -175,15 +209,17 @@ export interface WorldHost {
   move(pos: P, key: string | undefined, miles: number): void;
   enter(scene: string): void;
   sceneName(path: string): Promise<string>;
+  /** Open centred on this place, a little closer than the whole region (zooming out of its map). */
+  focus?: string;
 }
 
 export function openWorldMap(host: WorldHost): void {
   const back = document.createElement('div');
   back.className = 'sheet-backdrop worldmap';
-  const mph = W.milesPerHex ?? 1;
-  back.innerHTML = `<div class="sheet world"><header><div class="wm-title"><h2>${W.name}</h2><span>1 hex = ${mph === 0.25 ? '¼ mile' : mph === 0.5 ? '½ mile' : `${mph} mile${mph > 1 ? 's' : ''}`} · north up</span></div>
+  const mph = W.milesPerHex ?? 1, hexOn = hexPref();
+  back.innerHTML = `<div class="sheet world"><header><div class="wm-title"><h2>${esc(W.name)}</h2><span>${hexScale()}</span></div>
       <div class="seg pace" role="tablist" aria-label="Travel pace">${(['slow', 'normal', 'fast'] as Pace[]).map((p) => `<button role="tab" data-pace="${p}" aria-selected="${p === 'normal'}" data-tip="${p[0].toUpperCase() + p.slice(1)} pace">${p[0].toUpperCase() + p.slice(1)}</button>`).join('')}</div>
-      <button class="icon" data-hex aria-label="Hex grid" aria-pressed="false" data-tip="Hex grid">${ICON.grid ?? ICON.walls}</button>
+      <button class="icon" data-hex aria-label="Hex grid" aria-pressed="${hexOn}" data-tip="Hex grid">${ICON.grid ?? ICON.walls}</button>
       <button class="icon" data-z="in" aria-label="Zoom in" data-tip="Zoom in">${ICON.zoomIn}</button><button class="icon" data-z="out" aria-label="Zoom out" data-tip="Zoom out">${ICON.zoomOut}</button>
       <button class="icon close" aria-label="Close" data-tip="Close">${ICON.close}</button></header>
     <div class="world-main"><div class="world-body"><canvas class="world-paint"></canvas><div class="world-card page" hidden></div><div class="world-scale"></div><div class="world-compass">N</div></div>
@@ -200,7 +236,10 @@ export function openWorldMap(host: WorldHost): void {
   body.insertBefore(svg, card);
   // painted base: fixed resolution, blitted under the SVG with the same view transform
   const PX = 2600; paintCv.width = PX; paintCv.height = Math.round((PX * vb.h) / vb.w);
-  paint(paintCv, vb);
+  // Players see only the places the DM has revealed (and wherever the party has been); the DM sees all. The painted
+  // symbols follow the same rule: an unknown place leaves no mark on the players' sheet.
+  const known = (p: Pin) => host.dm || host.revealed().has(p.key);
+  paint(paintCv, vb, known);
   const view = { ...vb };
   const screen = document.createElement('canvas'); screen.className = 'world-screen'; body.insertBefore(screen, svg);
   paintCv.hidden = true;
@@ -220,7 +259,7 @@ export function openWorldMap(host: WorldHost): void {
   new ResizeObserver(blit).observe(body);
 
   // hex grid at the map's scale (pointy hexes, flat-to-flat = milesPerHex)
-  const hexes = el('g', { class: 'wm-hex', visibility: 'hidden' }, svg);
+  const hexes = el('g', { class: 'wm-hex', visibility: hexOn ? 'visible' : 'hidden' }, svg);
   { const f = mph, hh = (2 * f) / Math.sqrt(3), d: string[] = [];
     for (let row = Math.floor(vb.y / (0.75 * hh)) - 1; row * 0.75 * hh < vb.y + vb.h + hh; row++) for (let col = Math.floor(vb.x / f) - 1; col * f < vb.x + vb.w + f; col++) {
       const cx = col * f + (row % 2 ? f / 2 : 0), cy = row * 0.75 * hh, pts: P[] = [];
@@ -240,8 +279,6 @@ export function openWorldMap(host: WorldHost): void {
   // pins
   const pins = el('g', { class: 'wm-pins' }, svg);
   const major = (p: Pin) => ['settlement', 'castle', 'camp', 'tower', 'temple', 'ruin', 'pass', 'den', 'hill', 'landmark'].includes(p.type);
-  // Players see only the places the DM has revealed (and wherever the party has been); the DM sees all.
-  const known = (p: Pin) => host.dm || host.revealed().has(p.key);
   const pinEls = new Map<string, { g: SVGGElement; li: HTMLLIElement }>();
   for (const p of W.pins) {
     const g = el('g', { class: `wm-pin t-${p.type}${p.scenes ? ' has-scene' : ''}${major(p) ? ' major' : ''}`, transform: `translate(${p.pos[0]},${p.pos[1]})`, 'data-key': p.key }, pins);
@@ -263,16 +300,11 @@ export function openWorldMap(host: WorldHost): void {
   });
   // hover: a tooltip with the place's blurb (and, for the DM, the DM note and whether players can see it)
   const tip = document.createElement('div'); tip.className = 'world-tip page'; tip.hidden = true; body.appendChild(tip);
-  // A pin's words with their rules links: the blurb is what players are told, so it reads with the players' audience
-  // (rules kinds only) on both sides; the DM note is the DM's only (people, monsters and places link there). The
-  // gazetteer keeps place names whole.
-  const pinText = (p: Pin, field: 'blurb' | 'dm', seen: Set<string>) => rich(field === 'blurb' ? p.blurb : p.dm, { audience: field === 'dm' ? 'dm' : 'player', field, scenePath: WORLD_PATH, entityId: `pin:${p.key}` }, seen);
   svg.addEventListener('pointermove', (e) => {
     const g = (e.target as Element).closest<SVGGElement>('.wm-pin'); const p = g && W.pins.find((x) => x.key === g.dataset.key);
     if (!p || !known(p) || drag) { tip.hidden = true; return; }
     const r = body.getBoundingClientRect();
-    const seen = new Set<string>();
-    tip.innerHTML = `<b>${esc(keyOf(p))} · ${esc(p.name)}</b>${p.blurb ? `<div>${pinText(p, 'blurb', seen)}</div>` : ''}${host.dm && p.dm ? `<div class="dm">${pinText(p, 'dm', seen)}</div>` : ''}${host.dm ? `<div class="vis">${host.revealed().has(p.key) ? 'Players can see this place' : 'Hidden from players'}</div>` : ''}${p.scenes?.length ? '<div class="vis">Tap to open the map</div>' : ''}`;
+    tip.innerHTML = pinTipHtml(p, { dm: host.dm, revealed: host.revealed().has(p.key), canOpen: host.canMove });
     tip.style.left = `${Math.min(e.clientX - r.left + 14, r.width - 280)}px`; tip.style.top = `${e.clientY - r.top + 14}px`; tip.hidden = false;
   });
   svg.addEventListener('pointerleave', () => { tip.hidden = true; });
@@ -326,18 +358,13 @@ export function openWorldMap(host: WorldHost): void {
   });
   const drawTrail = () => { const t = host.get(); const pts = (t as { trail?: { pos: P }[] } | undefined)?.trail?.map((x) => x.pos) ?? []; trail.setAttribute('d', pts.length > 1 ? path(pts.slice(-12)) : ''); };
   drawTrail();
+  const focus = host.focus ? W.pins.find((p) => p.key === host.focus) : undefined;
+  if (focus) { view.w = Math.max(1.5, vb.w * 0.45); view.h = (view.w / vb.w) * vb.h; view.x = focus.pos[0] - view.w / 2; view.y = focus.pos[1] - view.h / 2; apply(); }
   requestAnimationFrame(blit);
 
-  const nearestName = (p: P) => { const all = [...W.pins.map((x) => ({ name: x.name, pos: x.pos })), ...W.woods, ...W.peaks]; const n = all.reduce((a, c) => (dist(c.pos, p) < dist(a.pos, p) ? c : a)); return { name: n.name, mi: dist(n.pos, p) }; };
   async function showCard(pin: Pin | undefined, to: P, miles: number): Promise<void> {
-    const speed = PACES[pace].mph, hours = miles / speed;
-    const where = pin ? `<b>${esc(keyOf(pin))}</b> ${esc(pin.name)}` : (() => { const n = nearestName(to); return `Wilderness · ${n.mi.toFixed(1)} mi from ${n.name}`; })();
-    const scenes = pin?.scenes ?? [];
-    const labels = await Promise.all(scenes.map((s) => host.sceneName(s)));
-    const rev = pin ? host.revealed().has(pin.key) : false;
-    const seen = new Set<string>();
-    card.innerHTML = `<div class="wc-where">${where}${pin && host.dm ? `<button class="chip-btn" data-reveal="${pin.key}" aria-pressed="${rev}">${rev ? 'Shown to players' : 'Hidden from players'}</button>` : ''}</div>${pin?.blurb ? `<div class="wc-blurb">${pinText(pin, 'blurb', seen)}</div>` : ''}${pin?.dm && host.dm ? `<div class="wc-dm">${pinText(pin, 'dm', seen)}</div>` : ''}<div class="wc-travel">${miles.toFixed(1)} mi as the crow flies · about ${fmtHours(hours)} at a ${pace} pace (${speed} mph)</div>
-      ${scenes.length ? `<div class="wc-actions">${scenes.map((s, i) => `<button class="primary" data-scene="${s}">Open ${labels[i]}</button>`).join('')}</div>` : '<div class="wc-note">No battle map here yet; run it theatre-of-the-mind or pick a nearby place.</div>'}`;
+    const labels = await Promise.all((pin?.scenes ?? []).map((s) => host.sceneName(s)));
+    card.innerHTML = worldCardHtml(pin, to, miles, { dm: host.dm, known: host.revealed(), revealed: pin ? host.revealed().has(pin.key) : false, pace, canOpen: host.canMove, labels });
     card.hidden = false;
   }
   card.addEventListener('click', (e) => {
@@ -349,7 +376,10 @@ export function openWorldMap(host: WorldHost): void {
     const t = e.target as HTMLElement;
     if (t === back || t.closest('.close')) back.remove();
     const z = t.closest<HTMLElement>('[data-z]')?.dataset.z; if (z) zoom(z === 'in' ? 0.75 : 1.33);
-    const hx = t.closest<HTMLElement>('[data-hex]'); if (hx) { const on = hx.getAttribute('aria-pressed') !== 'true'; hx.setAttribute('aria-pressed', String(on)); hexes.setAttribute('visibility', on ? 'visible' : 'hidden'); }
+    const hx = t.closest<HTMLElement>('[data-hex]'); if (hx) { const on = hx.getAttribute('aria-pressed') !== 'true'; hx.setAttribute('aria-pressed', String(on)); hexes.setAttribute('visibility', on ? 'visible' : 'hidden'); setHexPref(on); }
   });
-  addEventListener('keydown', function esc(e) { if (e.key === 'Escape') { back.remove(); removeEventListener('keydown', esc); } });
+  // Escape closes the sheet; the listener goes with it however the sheet closes (no listener piles up per open)
+  const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') back.remove(); };
+  addEventListener('keydown', onKey);
+  new MutationObserver((_m, o) => { if (!back.isConnected) { removeEventListener('keydown', onKey); o.disconnect(); } }).observe(document.body, { childList: true });
 }

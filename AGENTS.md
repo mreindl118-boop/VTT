@@ -100,48 +100,137 @@ a day old; then continue it from its wip branch, and say so in Status.
 
 ## Status
 
+### Claude, 2026-10-18 (cloud; back after the usage-limit reset)
+
+- Read everything ChatGPT did: 0.3.0 and 0.3.1 are on the main branch (head `39e06f3`, package.json 0.3.1), with the
+  desktop host Matt asked for. The cloud checked main: no forbidden files, `npm run build` passes, 541 unit tests pass.
+- **Publishing now:** 0.3.1 goes to the mistLAB link and its screenshots to Visual-Aide (the cloud's job).
+- **Versions:** Matt was asked which version item 7 takes and had no preference, so the standing rule applies: the next
+  version in release order. **Item 7 (unfinished maps) releases now as 0.3.2** from `item7-unfinished-maps`
+  (`0db19b9`, the finished and tested fix), merging main first. **ChatGPT's all-map logic release (item 2e) takes the
+  next number after it lands (0.3.3)**; its branch should merge main after 0.3.2 so its Amber and Yester work starts
+  from the fixed maps. The cloud never commits to ChatGPT's branches.
+- ChatGPT's commits since 2026-10-13 are reviewed and logged in the ledger as part of the 0.3.2 release (grouped by
+  release, not one row per commit).
+
+### ChatGPT, 2026-10-14 07:58 UTC, bounded 0.3.1 source-release record
+
+- Bounded 0.3.1 has passed final acceptance, correctness and regression reconciliation. Exact versioned candidate `1c8d94a` passed CI `38510870342`; build `index-CoeOhM3n.js` passed 543 units, 21 desktop-host checks and 267 GPU checks with 55 existing device skips and zero failures. Acceptance independently rehashed all 204 frozen files without a mismatch.
+- This release-record commit changes documentation only. Root verifies its output against the frozen versioned build and exact-head CI before advancing main; fresh main `785421c` is already included. Queue 2d and HANDOFF are prepared for that source release. Public compiled bundle/feed, distribution tag and screenshot publication remain held.
+- Comprehensive all-map logic continues separately on `claude/wip/item2e-map-logic-laptop` at `4e2d63a`; the reviewed map-access batch is not yet committed. Its staged export passes build, 673 units (two existing TODOs) and five focused GPU marker checks. Independent integration reviews remain pending. Terrain, Castle save-migration activation/roof compatibility, J/K placement and all-map runtime/source/visual gates remain open.
+- Preserve the coordinator-plus-one-worker pacing and sequential reviews through 13:00 UTC. No power, access, credentials, security settings or shared history changes.
+
+
 Each agent rewrites this section when it stops. Newest first. Keep it short and exact: versions, branches, commits,
 what is done, what is next, what is blocked.
 
-### Claude, 2026-10-13 17:20 UTC (cloud)
+### ChatGPT, 2026-10-14, approved Amber correction verified; release gates remain
 
-- Matt's decisions, 2026-10-13: **the laptop finishes item 2; the cloud finishes item 7.** And for item 2: "finish the
-  build step, then prepare verify and report as a handoff to GPT and instruct them to continue."
-- **Item 2, nested world:** the cloud finishes the world-map build step (its two reviewers, then one fix pass) and
-  pushes the result to `claude/wip/item2-nested-world`. From there **ChatGPT continues**: the verification, the one
-  fix pass, the completeness check, the report and the 0.3.0 release, all laid out in
-  `docs/handoff/item2-verify-and-report.md` (its section 1 says when the build step is done and what it found).
-  The feature inventory to verify against is `docs/handoff/item2-feature-inventory.md`. On GitHub the branch is at
-  `4f3cad9` until the cloud pushes the fix; the laptop's local merge of main is not pushed.
-- **Item 7, unfinished maps:** the cloud's fixer is working from `ee47297` on the final-check findings
-  (`docs/handoff/item7-open.md`). The laptop's later WIP `fb49f1f` (main merged in, part of the same fix) is on
-  `claude/wip/item7-unfinished-maps`; the cloud merges it into its branch before the release, keeping both.
-- Both of this session's commits end with its `Claude-Session:` link; the laptop's end with `Claude-Session: laptop`.
+- Matt resolved the scope boundary: "Every map's logic should be correct for 0.3.2." Finish bounded 0.3.1 with explicit remaining-issue notes, then comprehensive terrain, roads, water, placement, doors, stairs and source-backed geometry across both campaigns in item 2e. No blanket item 7 merge or unrelated work; identify any necessary component and preserve adaptations. Both package versions and the 0.3.1 changelog are prepared; final versioned verification and CI precede the main release. Public desktop distribution remains held.
+- The parent confirmed the cloud fallback at `55b118e`: build, units, desktop tests and the 346-transition probe work; Chromium software rendering is available. Cloud owns the independent 0.3.2 vertical-transition dispatch/arrival correction and narrow tests; laptop root has made no transition implementation edits and retains regional terrain/hydrology/placement plus integration/release ownership. Await its exact file claim before related edits. The sanitized overnight plan is being prepared; licensed sources and ignored authoring imports are not copied into Git.
+- Sanitized overnight plan is ready in `docs/handoff/item2e-032-plan.md`: all 46 maps / 122 levels, independent source/implementation/runtime/visual gates, dependency order, numeric/source constraints and cloud prerequisites. Candidate `81b02a3` is pushed to the laptop WIP; its CI is `38510227430`. Isolated `.worktrees/logic-032` / `item2-map-logic-032` starts from that candidate, with root on regional work and the cloud on transitions. Reconcile the completed 0.3.1 release ancestor before releasing 0.3.2.
+- Versioned 0.3.1 `index-CoeOhM3n.js`: build, 543 units (two existing todo), 21 desktop-host tests and the full GPU suite pass: **267 passed, 55 existing device skips, zero failures in 13.0 minutes**, completed by 04:34:54 UTC. The frozen 204-file manifest is unchanged after verification; the preview and verification browsers have exited. Initial sandbox-only unit environment failures are retained; unchanged tests passed with existing dependencies outside it. CI `38510870342` on `1c8d94a` passes typecheck/units/desktop checks and is still in browser checks. No source-release claim until current CI finishes and main is reconciled.
+- Documentation clarification: the Amber rendered-ground regression is resolved; contradictory historical wording is corrected. The report's release-scope table names the Tsolenka approaches, downstream water, J/K adjacency and Amber mountain-envelope outcomes now assigned to 0.3.2. Do not describe all geographic logic as complete. Exact checkpoint CI `38508583254` on `55b118e` has passed typecheck/units/desktop-host checks and is still in browser tests. Fresh main `785421c` is already an ancestor; cloud item 2 stays `4f3cad9`.
+- Worktree `.worktrees/continuity`, branch `item2-continuity-031`, base `785421c`. Commits: compass `068fd15`, local terrain `080fed5`, one-field prose gate `f18f087`. Installed 0.3.0 unchanged; no 0.3.1 release, publication or distribution tag. See `docs/handoff/item2-continuity-report.md`.
+- Before the additional Amber correction, both build steps received two reviews and one fix pass; final correctness/regression/acceptance reviews and the original final fix pass were complete. Build and 540 units passed (two existing todo, zero skips), two Python checks, nine repeated compass/budget GPU checks and six focused continuity GPU checks pass. The final full GPU run on `index-CF69xAqx.js`: **266 passed, 55 existing device skips, one failure, 12.8 minutes**.
+- Matt explicitly approved the additional Amber correction/retest ("nah just go for it") after being told it exceeds the original one-fix allowance. The exception covers this correction and its verification only. The renderer keeps separate heights on opposite sides of hard excavation edges and closes the vertical seams. The production raycast reproduced the exact 24.7616-ft failure before the change; a review then caught two culled wall directions, reproduced by a failing horizontal-ray test and corrected. Two focused reviews are complete. Build, 543 units (two existing todo) and all 15 continuity units pass on final `index-DSh4mmpD.js`.
+- Final `index-DSh4mmpD.js`: **267 GPU tests passed, 55 existing device skips, zero failures in 13.5 minutes**, served from an untouched frozen copy. The unchanged ground-height and 300,000-triangle checks pass. Exact outdoor ground error is now 0.00015625 ft; immediate whole-valley frame is 298,844 triangles / 49 draws. Twelve refreshed Amber desktop/phone DM/Players images were inspected locally. All verification browsers exited and GPU use was released by 03:50 UTC.
+- Approved implementation `e37734d` and test acceleration `f9e099c` are pushed to the laptop WIP. CI `38505511097` failed the new exhaustive test at its unchanged five-second timeout; pruning only disjoint triangles resolved it. CI `38505966683` on `f9e099c` passes typecheck/units/desktop-host steps and was running browser checks at 03:47:57 UTC. Earlier interruption for SD and a non-frozen app-load timeout are preserved in the report, not counted as clean runs. Added apron cost: 876 triangles, 446 vertices, zero draws; median CPU land construction 241.5 -> 261.8 ms. No 0.3.1 release or publication.
+- Tser is now beside north-side water and the gorge is open under Tsolenka. Regional approach/drainage incoherence and the J/K 4,598-ft entrance gap remain for the now-authorized 0.3.2. No wholesale item 7 merge; identify only the components necessary for all-map logic.
+- All-map inventory: 46 production maps, 44 scenes / 122 levels. All 45 schemas and 120 rigid-placement assertions pass. First desktop DM images cover all 122 levels; initial Players movement passes 42/44 and desktop wheel responds both ways in 44/44. The final-build phone pass inspected 92 images across all 44 DM/Players scene views after movement probes; zoom responds both ways in all 44, movement passes 42/44, and page errors are zero. A qualified CPU probe covered 365 doors across all levels: 290 open passes, 28 blocked cases (25 overlap another normal blocking wall), 47 without an applicable two-sided floor probe. These are not full traversal certification.
+- Source work: 13 chapter2 maps / 34 levels / 47 narrative comparisons; five structure maps / 31 levels / 45 plan/narrative comparisons; six Sheep Chase maps / nine levels / 15 authored-reference comparisons. The remaining 21 Strahd scenes / 48 levels now have 48 comparisons, all 18 primary map pages and 48 CPU diagrams inspected. All 39 Strahd scenes / 113 levels have declared source evidence; full source/runtime certification is still open. Sheep Chase's original PDF review is blocked by download challenge and browser-tool startup failure; its prior local export is available. No book art or screenshots enter Git.
+- Checkpoint `3da4420` is pushed to the laptop WIP; main remains `785421c`, cloud item2 `4f3cad9`. That earlier checkpoint was superseded by `576d740`, then the approved Amber commits above; use their current CI rather than this older run. Two-region desktop/phone DM/Players zoom checks pass in all eight combinations. Castle dungeon burial reproduces on frozen 0.3.0. All 173 vertical links were probed; isolated exact transition methods reproduce 56 wrong destinations and 22 multiple transitions across 346 activations, unchanged from baseline and tracked by item 11. Public compiled-bundle publication remains held by the parent.
 
-### Claude, 2026-10-13 (laptop)
+### ChatGPT, 2026-10-13, desktop installed; update publication held; 0.3.1 requested
 
-- Released: 0.0.2, 0.1.0 (rules tooltips), 0.2.0 (chapter 2 sites), 0.2.1 (laptop build). All published.
-- On the main branch, unreleased: the "What's new" card (item 2b, `734f7d5`). It ships inside the next release.
-- **Item 2, nested world, in flight (Claude):** branch `item2-nested-world` on the laptop, pushed as
-  `claude/wip/item2-nested-world`. Steps 2–4 and the D&D world map are built; the main branch (0.2.0) is merged in
-  at `293f150`. Left: the world-map review and one fix, the final three-lens check and one fix, then release as
-  **0.3.0**. The topography, step 5 (Player Display), step 7 (phones and performance) and step 8 (data pass) are a
-  second release (`docs/HANDOFF.md` section 4). If you pick this up: `docs/WORLD.md` on the branch is the design
-  reference; the acceptance is a continuous zoom from the whole valley into Vallaki, into the Blue Water Inn, to a
-  room, and back out, with the wheel and by touch, and the breadcrumb and Back at every level.
-- **Item 7, unfinished maps, paused by Matt:** `claude/wip/item7-unfinished-maps` at `fb49f1f` (a WIP of the final
-  fix). Open blockers from the final check: the party cannot climb Yester Hill (the slope is walled off; in
-  Players mode a token must walk from the foot to the summit circle); the Amber Temple's +30 and 0 ft levels are
-  buried under the new snow ground. Fix-level: the mountain draws as a black wall in Players view; the massif reads
-  as a terraced pyramid; a black arc on the summit track; the fog bank does not hide the backdrop mountains; the
-  summit grid hangs past its floor; the Amber facade is 31% heavier in triangles; `tests/terms.test.ts` "the DC
-  count is pinned" went flaky on the combined branch (fix the cause). Matt's words: "Yester Hill is flat. Fix that.
-  The fog wall looks terrible, like cotton."
-- Next in order after those: item 3 (dollhouse view; needs the nested world released first), then 4, 5, 6, 8, 10,
-  11 and on, as `docs/QUEUE.md` lists.
-- An outside branch `codex/fix-explored-fog-growth` exists on GitHub (ChatGPT's own fog fix, 2026-10-11). The
-  same bug was fixed on the main branch as 0.0.2; the branch is not merged and needs no action.
+- 0.3.0 source release is `e254c88c585c1304f3c9d52698ea04d26346902c`, on main and the laptop WIP. Exact ZIP passed its extracted-launch smoke test and is in Library; the parent owns private hosting. Its SHA-256 is `72698ce833b11055429d0c9118ed80d1a9090e373da08a1e3de765fd5f62cedb`. No screenshot or book-source upload.
+- Matt's desktop request is installed at `C:\Users\mrein\AppData\Local\mistLAB`, with `C:\Users\mrein\Desktop\mistLAB.lnk`. The app window and local 0.3.0 status were verified. The dedicated profile preserves future desktop saves; other website/browser saves remain untouched and are not automatically imported.
+- Desktop support: 21 focused CPU checks pass, two independent source reviews complete, and a real isolated Edge campaign/party/roster/rules-preference survives restart, 0.2.1 -> 0.3.0 -> compatible rollback -> 0.3.0. Two actual Edge app windows preserve the second when the first closes and stop the host after the last closes. Both checks used software rendering; the live profile was untouched. Details: `docs/DESKTOP.md`.
+- The update publisher is ready but **no distribution tag is published**. The repository is already public; the parent's latest direction holds a new public compiled bundle pending distribution clarification. Exact-source CI `38481827736` on `e254c88` was still running at the latest check. No visibility, credential, access, security or power changes. The installed 0.3.0 remains usable independently.
+- Matt now requests a separate **0.3.1** landscape-continuity release: source-backed Tsolenka crossings/approaches, Ravenloft duplicate ownership, Tser Pool beside its pool, Amber Temple's exposed entrance/structure, coherent parent/local/building interfaces, and compass click/tap/keyboard north alignment preserving target, distance and pitch. Work on a separate branch after the bounded desktop handoff. Inspect the cloud's parked Amber Temple fix before adapting anything; do not merge or resume the rest of item 7. No speculative whole-region remapping.
+
+### ChatGPT, 2026-10-13, item 2 released; delivery and desktop installation follow
+
+- **0.3.0 is on the main branch, ready to publish.** The release uses tested implementation `b8fe85e` (including the `64d7695` streaming-handle/phone-fixture correction), with version and release records. Main `bd53fbf` was merged at `95d413d`; cloud item 2 remains `4f3cad9`. No item 7 branch was touched.
+- Build passes; units **519 passed, 2 existing todo, zero skipped**; final full GPU suite **257 passed, 55 existing device skips, zero failed in 13.3 minutes**. GitHub CI `38472350232` on `b8fe85e` completed successfully. Existing assertions and thresholds remain intact.
+- Current-build wheel and phone touch journeys pass for the Inn, Death House and Sheep Chase tavern. Five additional warmed round trips show no retained resource growth. The cost comparison is in `docs/handoff/item2-report.md`: nested Vallaki remains slower than main; phone/performance tuning, topography, expanded Display and the data pass are still deferred. Physical iPad/Android performance is unverified.
+- Frozen tested output: `index-0JlwMZEy.js`, 204 files, 17,132,061 bytes; fingerprint SHA-256 `d7d6d3f9bfdcf23ee9b8e77231766552f396a811099ee147e71cb57e7ad36c6d`. The exact bundle, portable-launcher smoke check and Library transfer follow this Git release. Screenshots and source book images remain outside Git and are not uploaded.
+- Matt approved alternate private hosting while Claude is out; the parent task owns that deployment. Matt then requested a local desktop app with automatic updates. ChatGPT is inspecting/installing that separately from the frozen web build, with a stable local origin/profile and updates restricted to tested releases. Installation and a proven version transition are not yet complete. No power, access, credential or OS-security changes.
+- Item 7 remains paused for ChatGPT and reserved to the cloud for 0.4.0. No further queue item has started. See the report for exact evidence limits and the two recorded instruction deviations.
+
+### Claude, 2026-10-13 21:05 UTC (cloud; STOPPED on Matt's order until Saturday 2026-10-17 06:00 UTC)
+
+- Matt: "cease all functions until the limit resets Saturday at 2am" (06:00 UTC). The cloud's check-in routine is
+  disabled until then; nothing runs in the cloud.
+- **ChatGPT, while the cloud is out:** item 2 → 0.3.0 on `claude/wip/item2-nested-world-laptop`. Read
+  `docs/handoff/item2-verify-and-report.md`: section 1a (six findings to fix), 1c (the cloud's review of your six
+  commits: sound), 1d (build and 515 unit tests pass on `1459d18`; run the browser suite on the GPU yourself), and
+  1e (agreements and contentions). Then the report (section 6) and the release (section 7). Write Status here when
+  you stop, every time.
+- **Item 7 (the cloud's):** finished and tested on `item7-unfinished-maps` at `0db19b9` (the final fix, the laptop's
+  three portability edits, main merged in; 487 unit tests pass; the two blockers are fixed). It releases as 0.4.0
+  after 0.3.0, when the cloud is back. Nobody else touches it.
+- **On the cloud's return (Saturday):** publish 0.3.0 if it is on the main branch (the mistLAB link and Visual-Aide),
+  then release and publish 0.4.0.
+
+### Claude, 2026-10-13 21:00 UTC (cloud; credits restored)
+
+Matt, 2026-10-13: "review the changes GPT has made to the core code; work with it without overstepping each other to
+polish and produce 0.3.0 ASAP." The split from here:
+- **ChatGPT owns item 2 and the 0.3.0 release**, on `claude/wip/item2-nested-world-laptop` (head `1459d18`). The
+  cloud reviewed its six commits: sound, no weakened tests (`docs/handoff/item2-verify-and-report.md` section 1c).
+  **Next for ChatGPT:** merge the main branch in, then fix the six findings in that file's section 1a (the cloud's two
+  world-map reviewers; ChatGPT never had them), run the full suite on the GPU, write the report (section 6), and
+  release 0.3.0 (section 7). Write "0.3.0 is on the main branch, ready to publish" here when it is.
+- **The cloud owns item 7 → 0.4.0** (branch `item7-unfinished-maps`, head `0db19b9`: the finished fix, the laptop's
+  three portability edits, main merged in). It releases right after 0.3.0 lands, so the versions stay in order.
+  The cloud also runs the full suite on ChatGPT's branch (results into section 1d) but never commits to it, and
+  publishes both releases to the mistLAB link and Visual-Aide.
+- The laptop's Claude session is paused. Matt answered the question below: the cloud routine stays on.
+
+### Claude, 2026-10-13, the laptop session stopping (Matt: "prepare for usage end, pause all runs")
+
+Two Claude sessions were active today: one on Matt's laptop (commits end `Claude-Session: laptop`) and the older
+one in the cloud (commits end with a `Claude-Session:` link). The laptop session is now paused. **The cloud session
+may still be running** its check-in routine; Matt decides whether it carries on (see Questions for Matt).
+
+- **Released and published:** 0.0.2, 0.1.0 (rules tooltips), 0.2.0 (chapter 2 sites), 0.2.1 (laptop build; browser
+  tests on the GPU, Windows checkouts).
+- **On the main branch, unreleased:** the "What's new" card (item 2b, `734f7d5`), the handoff files, and the run
+  scripts in `docs/handoff/runs/` (the exact tasks, acceptance criteria and review lenses the laptop runs used:
+  `item2-finish.js`, `item7-finish.js`, `integrate.js`). It all ships inside the next release.
+- **Item 2, nested world → 0.3.0.** Matt's decisions: the laptop finishes item 2; and "finish the build step, then
+  prepare verify and report as a handoff to GPT and instruct them to continue."
+  - Built: steps 2–4 and the D&D world map (`4f3cad9`), on `claude/wip/item2-nested-world`. The cloud session was
+    finishing the world-map step's review and one fix pass and will push the result there if it is still running.
+  - The laptop merged the main branch (0.2.0) into the branch at `293f150` and was testing the merge when paused;
+    that state is on `claude/wip/item2-nested-world-laptop`. It is a pure merge, so if the cloud's fix lands on
+    `claude/wip/item2-nested-world`, continue from that branch and merge main again at release (the release
+    procedure does this anyway). If nothing new lands there, continue from `-laptop`.
+  - **ChatGPT continues** from the world-map step: the verification against `docs/handoff/item2-feature-inventory.md`,
+    one fix pass, the final three-lens check, one fix pass, the report and the 0.3.0 release, laid out in
+    `docs/handoff/item2-verify-and-report.md` and in the run brief `docs/handoff/runs/item2-finish.js`.
+  - Acceptance in Matt's words: the World map button opens a D&D-styled map you zoom into; a continuous zoom from
+    the whole valley into Vallaki, into the Blue Water Inn, to a room, and back out, with the wheel and by touch,
+    with the breadcrumb and Back at every level. `docs/WORLD.md` on the branch is the design reference.
+  - A second release follows (`docs/HANDOFF.md` section 4): the topography, step 5 (Player Display), step 7
+    (phones and performance), step 8 (data pass).
+- **Item 7, unfinished maps.** Matt's decision: the cloud finishes item 7; it was working from `ee47297` on the
+  final-check findings (`docs/handoff/item7-open.md`, and the run brief `docs/handoff/runs/item7-finish.js`).
+  The laptop's later WIP `fb49f1f` (main merged in, part of the same fix) is on `claude/wip/item7-unfinished-maps`;
+  whoever finishes merges both. Open blockers: the party cannot climb Yester Hill (the slope is walled off); the
+  Amber Temple's +30 and 0 ft levels are buried under the new snow ground. Matt's words: "Yester Hill is flat. Fix
+  that. The fog wall looks terrible, like cotton." Releases after 0.3.0, at the next version in order.
+- **Next in order:** item 3 (dollhouse view; needs the nested world released first), then 4, 5, 6, 8, 10, 11 and
+  on, as `docs/QUEUE.md` lists.
+- An outside branch `codex/fix-explored-fog-growth` exists on GitHub (ChatGPT's own fog fix, 2026-10-11). The same
+  bug was fixed on the main branch as 0.0.2; the branch is not merged and needs no action.
 
 ## Questions for Matt
 
-- (none open)
+- Answered (Matt, 2026-10-14: "nah just go for it"): the additional targeted Amber hard-cut correction and verification are authorized despite the original final fix-pass limit. This does not authorize unrelated regional redesign, public compiled-bundle publication or wholesale item 7 resumption.
+- Answered (Matt, 2026-10-14: "Every map's logic should be correct for 0.3.2"): ship the bounded local/compass/Amber corrections as 0.3.1 after release gates pass, with honest limits; then correct comprehensive all-map logic as 0.3.2 (queue item 2e). This includes the unresolved regional drainage/grades and J-to-K placement. Public desktop distribution still requires separate approval.
+- Answered (Matt, 2026-10-13: "let it run"): the cloud routine stays on; the cloud finishes item 7 and verifies item 2.
+- The cloud Claude session's check-in routine ("mistLAB queue check-in") fires every two hours and resumes its runs.
+  If everything is meant to be paused, disable that routine (Claude app → Routines) or tell the cloud session to
+  stop; otherwise it keeps working item 7 and item 2's world-map step alongside ChatGPT.

@@ -510,7 +510,7 @@ u.P('X19-niches-w', 'bottle-niches', -0.95, -10, 'X19', rotY=90, dims={'w': 16})
 u.P('X19-ladder0', 'leaning-ladder', -0.5, -10.75, 'X19', rotY=0, dims={'h': 12}); u.P('X19-ladder1', 'leaning-ladder', 1.6, -9.25, 'X19', rotY=180, dims={'h': 12})
 for k, (i, j) in enumerate([(-0.9, -10.9), (1.9, -10.9), (1.9, -9.1)]): u.P(f'X19-web{k}', 'cobweb', i, j, 'X19', dims={'s': 3, 'y': 12})
 u.N('X19-note', 0.5, -9.6, 'X19', 'Hundreds of dusty bottles: dried potions, long useless. The ladders will not bear weight.')
-u.P('X20-model', 'castle-model', 0.5, -13.1, 'X20', desc='A twelve-foot model of a dark castle with high walls and tall spires, sculpted from rock.',
+u.P('X20-model', 'castle-model', 0.5, -13.1, 'X20', desc='Rock has been carved into a twelve-foot castle miniature, with looming ramparts and slender spires.',
     dm='Artimus\'s model of Castle Ravenloft. A card-reading treasure here is inside it: smash in to reach it.')
 u.P('X20-debris', 'wood-debris', -0.6, -12.4, 'X20')
 u.P('X20-chest', 'chest', 1.55, -12.4, 'X20', rotY=-90)
@@ -620,7 +620,7 @@ SB = S(8.5, -16.4)
 lo.extra.append(((SB[0] - 0.55, SB[1] - 1.45), (SB[0] + 0.55, SB[1] - 1.45), dict(flags=['secret-door'], id='lower-sd-X5a', material='ashlar', heightFt=8)))
 lo.obj('sdo-X5a', 'secret-panel', (SB[0], SB[1] - 1.45), 'secret-door', 'X5a', 'Secret door at the back of the statue\'s base (DC 20): a spiral stair climbs to a trapdoor in the head', wall='lower-sd-X5a')
 # --- dressing (lower)
-lo.P('X5-statue', 'god-of-secrets', 8.5, -16.4, 'X5a', dims={'h': 30}, desc='A forty-foot granite statue of a cowled figure in flowing robes, hands outstretched as if casting a spell; its face is utter blackness.')
+lo.P('X5-statue', 'god-of-secrets', 8.5, -16.4, 'X5a', dims={'h': 30}, desc='A hooded figure carved in granite rises forty feet high. Robes drape its body and its hands reach forward in a spellcasting pose; darkness completely hides its features.')
 for k, (i, j) in enumerate([(6, -15), (11, -15), (6, -10), (11, -10)]): lo.P(f'X5-col{k}', 'black-column', i, j, 'X5', dims={'h': 30, 'cap': 0}, desc='A column of black marble.' if k == 0 else None)
 lo.P('X5-stair-w', 'stairs-straight', 5, -8.5, 'X5', dims={'w': 18, 'rise': 30, 'fromZ': S(0, -10)[1] * 5, 'toZ': S(0, -7)[1] * 5}, desc='A wide black marble staircase climbing 30 ft to the southern balcony.')
 lo.P('X5-stair-e', 'stairs-straight', 12, -8.5, 'X5', dims={'w': 18, 'rise': 30, 'fromZ': S(0, -10)[1] * 5, 'toZ': S(0, -7)[1] * 5})
@@ -646,7 +646,7 @@ for k, (i, j) in enumerate([(9.6, -18.6), (9.6, -19.5), (9.6, -20.5), (12.4, -18
     lo.P(f'X40-pile{k + 1}', 'treasure-pile', i, j, 'X40', dims={'n': k}, desc=f'A heap of treasure (pile {k + 1} on the map).')
 lo.objects[-6]['dm'] = 'Pile 1: 17,500 cp, thirty 50-gp gems, rusted plate and shields, a child-sized black sarcophagus inlaid with gold (250 gp).'
 lo.objects[-5]['dm'] = 'Pile 2: 12,000 sp, rusted mail, a silvered rapier with a pink glass hilt, a gilded chariot (750 gp).'
-lo.objects[-4]['dm'] = 'Pile 3: 6,600 ep stamped with Strahd, empty bottles, a trunk of six gowns, ten jewels (250 gp each) and 500 gp in a rotted chest, eight saint statuettes (250 gp).'
+lo.objects[-4]['dm'] = 'Pile 3: 6,600 ep bearing Strahd, empty bottles, six gowns in a trunk, ten jewels worth 250 gp apiece, a decaying chest containing 500 gp, and eight saint statuettes worth 250 gp.'
 lo.objects[-3]['dm'] = 'Pile 4: iron ingots (250 gp, 2,500 lb), thirty holy symbols, twelve copper chalices (25 gp), a gilded skull with garnet eyes (250 gp), hammers and picks.'
 lo.objects[-2]['dm'] = 'Pile 5: 9,000 sp, six crystal balls (20 gp), a bronze crown with dragon spires (750 gp), a wooden pony, six marble vases (100 gp).'
 lo.objects[-1]['dm'] = 'Pile 6: 7,000 painted wooden coins, 15,000 cp in iron pots, an obsidian scepter (2,500 gp), rusted helms, fifteen signed storybooks.'
@@ -750,7 +750,7 @@ lo.P('X21-flight3', 'stone-flight', -1, -9.5, 'X21-lower', rotY=180, dims={'len'
 for k, (side, i, r, j, w) in enumerate([('w', -0.95, 90, -16.75, 20), ('w', -0.95, 90, -14.0, 16), ('w', -0.95, 90, -11.25, 20), ('e', 1.95, -90, -17.5, 40), ('e', 1.95, -90, -10.5, 40)]):
     lo.P(f'X36-ledge-{side}{k}', 'animal-ledge', i, j, 'X36', rotY=r, dims={'w': w, 'y': 5, 'seed': k})   # ledges between the doors
 for k, (i, j, r) in enumerate([(0.3, -17.2, 30), (1.4, -11.7, 140), (-0.2, -9.6, 250)]): lo.P(f'X36-broken{k}', 'animal-shards', i, j, 'X36', rotY=r)
-lo.N('X36-note', 0.5, -14.0, 'X36', 'Vaulted ceiling 25 ft. Ledges 5 ft up hold alabaster cats, frogs, hawks, owls, rats, ravens, snakes, toads and weasels: familiars, harmless.')
+lo.N('X36-note', 0.5, -14.0, 'X36', 'Vaulted ceiling 25 ft. Ledges 5 ft up hold alabaster weasels and toads, snakes and ravens, rats and owls, hawks and frogs, and cats: familiars, harmless.')
 lo.P('X37-heap0', 'wood-debris', -3.3, -13.4, 'X37', rotY=20, dims={'pale': 1}, desc='Furnishings of ancient, colorless wood collapsed under their own weight.'); lo.P('X37-heap1', 'wood-debris', -1.8, -12.6, 'X37', rotY=110, dims={'pale': 1})
 for k, (i, j) in enumerate([(-3.8, -13.8), (-1.2, -12.2)]): lo.P(f'X37-web{k}', 'cobweb', i, j, 'X37', dims={'s': 3, 'y': 8})
 lo.P('X38-bed', 'wood-debris', -3.2, -15.2, 'X38', rotY=0, desc='The wreck of a bedchamber: bed, wardrobe, trunks, candlesticks, desk, bookshelf, chairs; torn books, quills and rags strewn about.')
@@ -793,7 +793,7 @@ DESC = {
   'X5d': ('An arched hall twenty feet high. Your reflections in the amber do not mirror you: they wave and scream without a sound.', 'Illusions to warn intruders off (DC 15). East hall to X32, west hall to X36.'),
   'X5d-w': ('An arched hall twenty feet high. Your reflections in the amber do not mirror you: they wave and scream without a sound.', 'Illusions (DC 15). Leads to X36.'),
   'X5d-e': ('An arched hall twenty feet high. Your reflections in the amber do not mirror you: they wave and scream without a sound.', 'Illusions (DC 15). Leads to X32.'),
-  'X6': ('A bare annex with a ragged ten-foot hole in the east of its floor and empty sconces on the walls. Double doors of amber stand open north and west; a single door lies just south of them.',
+  'X6': ('This empty annex has unused wall sconces and a jagged hole ten feet across in the eastern floor. Paired amber doors open toward the north and west; a lone door stands just south of those openings.',
          'Ceiling 20 ft. The hole: a rough shaft 20 ft down with good handholds, then a 10-ft drop into X33a; its flameskulls come up if they hear noise. Secret door south to X7.'),
   'X7': ('A dusty niche-room whose south wall is bored with round holes for scrolls.', 'The emergency scrolls kept here are dust.'),
   'X8': ('A twenty-foot-wide arched corridor seventy feet long, glazed in amber, doors open at both ends. A shut door midway along the east wall faces three arrow slits; cracks run the length of the black marble floor.', 'The golem (X10) cracked the floor. The slits (5 in by 2 ft) look down on X5.'),
@@ -806,7 +806,7 @@ DESC = {
   'X13': ('A narrow post with one arrow slit in the middle of its south wall.', 'Ceiling 10 ft; the slit looks down under the statue\'s raised left arm.'),
   'X14': ('A dusty corridor heads north and turns east down a dark stair. The air is thin and smells of death.', 'Three 10-ft flights with landings drop 30 ft to X14a.'),
   'X14-lower': ('The last flights of a dark stair, the stench of death rising.', 'Down to X14a.'),
-  'X14a': ('A high, amber-glazed hall half buried in fallen stone; a path through the rubble leads to an open doorway that breathes a deathly stench.', 'Ceiling 25 ft; once joined X32. Unless the party is dark and quiet, the ghasts in X33c hear them coming.'),
+  'X14a': ('Fallen masonry half fills this tall hall, whose walls are glazed with amber. A clear route winds between the debris toward a doorway giving off the smell of death.', 'Ceiling 25 ft; once joined X32. Unless the party is dark and quiet, the ghasts in X33c hear them coming.'),
   'X15': ('A torchlit stone annex, its floor covered in fur bedrolls. Cold air blows through a crack in the south-west wall.',
           'Helwa (gladiator) and five berserkers sharpening weapons; a dire wolf of Strahd\'s asleep in the middle. They fight to the death; the wolf flees east below half hp. They keep the doors to X17 shut. Secret door south to X16 (unknown to them).'),
   'X16': ('A dusty space whose south wall is bored with round holes for scrolls.', 'As X7: the scrolls are dust.'),
@@ -843,12 +843,12 @@ DESC = {
   'X33e': ('Amber walls, black marble veined with red, three amber blocks in alcoves.', 'A death slaad stands invisible in the middle, greatsword ready; it attacks on entry. Door arcane locked (Harkotha).'),
   'X33f': ('Amber walls, gray marble veined with black, three amber blocks in alcoves.', 'Door arcane locked (Thangob).'),
   'X34': ('A white marble bed in a bare stone room, golden hawks on its posts; the rest of the furniture is dusty heaps. Cobwebs hang over sigils cut into the walls.', 'Ceiling 10 ft. The sigils were wards, now spent. Four golden hawks, 250 gp each.'),
-  'X35': ('Decayed furniture around a man-shaped construct of dark wood and riveted iron, its helmed head scraping the ceiling, cobwebs running from it to the wreckage.', 'An incapacitated shield guardian; its control amulet is on Vilnius (X9).'),
+  'X35': ('Ruined furnishings and cobwebs surround a humanlike construct assembled from black timber and riveted iron plates. Its helmet nearly touches the ceiling.', 'An incapacitated shield guardian; its control amulet is on Vilnius (X9).'),
   'X36': ('An enormous hall coated in amber like sculpted honey, dust on black marble, a vault twenty-five feet up. Ledges five feet up hold life-size alabaster animals; many have fallen and shattered.', 'The animals are familiars, harmless. The north door stands open; four others are shut.'),
   'X37': ('Furnishings of ancient, colourless wood have collapsed under their own weight, deep in dust and cobwebs.', 'Ceiling 10 ft.'),
   'X38': ('A wrecked bedchamber: the remains of a bed, wardrobe, trunks, tall candlesticks, a desk, a bookshelf and chairs, with torn books, quills and old clothes everywhere.', 'Ceiling 10 ft. A poltergeist throws the wreckage. A search finds a scroll tube: spell scroll of wall of fire.'),
   'X39': ('A great stone room whose amber doors lie smashed among crushed bones, armour and weapons.', 'Ceiling 30 ft. The golem that guarded it went upstairs (X10). Four poltergeists of dead thieves cannot leave and fight until destroyed.'),
-  'X40': ('Heaps of treasure against the west and east walls; a ten-foot amber statue of a hawk-headed warrior stands in a wide alcove to the north, a crack in the wall behind it.', "Ceiling 30 ft. Doors arcane locked ('Dhaviton'); smashing them makes the golem invisible for a minute. The golem attacks anyone who disturbs the treasure."),
+  'X40': ('Treasure lies piled along both side walls. In a broad northern recess stands an amber warrior with a hawk head, ten feet tall. The masonry behind it is cracked.', "Ceiling 30 ft. Doors arcane locked ('Dhaviton'); smashing them makes the golem invisible for a minute. The golem attacks anyone who disturbs the treasure."),
   'X41': ('Two natural cracks, side by side, split the rock.', 'Each 3 ft wide, 8 ft high, 10 ft long, between X40 and X42.'),
   'X42': ('A golden marble stair with a black railing spirals up a broad shaft along the north wall. Six rotting crates lie in the middle; the amber walls are sculpted as tentacles gripping reliefs of kings and queens. Tall rough blocks of amber stand in the alcoves; cracks in the south wall have spilled rubble.',
           'Six vampire spawn burst from the crates at intruders. West: the Vampyr; south: Tenebrous; east: Zhudun (Kasimir\'s goal). The spiral climbs 30 ft to X30.'),

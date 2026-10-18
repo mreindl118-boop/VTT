@@ -9,6 +9,7 @@
 import { KEYMAP, keysSeen, keyText, type KeyAction } from '../core/keys';
 import type { CardSpec } from './rulecard';
 import { esc } from './text';
+import { ICON } from './icons';
 
 /** Press-and-hold and pointer-capture controls: never a long-press tip (tests/tooltip.test.ts checks every
  *  setPointerCapture site is covered). */
@@ -70,7 +71,8 @@ export interface Tips {
   /** Close everything: tips, the pinned toggletip and the card. */
   closeAll(): void;
   /** The map's hover tip (what is under the cursor), at the cursor. */
-  canvasTip(t: { title: string; sub?: string } | null, x: number, y: number): void;
+  /** `enter`: the DM's line when the room under the cursor opens a map of its own (a tap opens the card with Enter). */
+  canvasTip(t: { title: string; sub?: string; enter?: string } | null, x: number, y: number): void;
   /** Open a rules card for a spec, at an anchor (or centred when there is none). */
   openCard(spec: CardSpec, opts?: { anchor?: Element | Rect; pinned?: boolean; trigger?: HTMLElement }): Promise<HTMLElement | null>;
   /** What is open (tests and the Esc stack). */
@@ -368,8 +370,9 @@ export function mountTips(host: TipHost): Tips {
       if (!t) return hideCanvas();
       const html = renderTip([{ text: t.title, audience: restricted() ? 'player' : 'dm' }, ...(t.sub ? [{ text: t.sub, audience: restricted() ? 'player' as const : 'dm' as const }] : [])], { restricted: restricted() });
       if (!html) return hideCanvas();
+      const enter = t.enter && !restricted() ? `<em>${ICON.doorOpen}<i>${esc(t.enter)}</i></em>` : '';
       if (!canvasEl) { canvasEl = document.createElement('div'); canvasEl.className = 'tip canvas'; canvasEl.setAttribute('role', 'tooltip'); layer.appendChild(canvasEl); }
-      canvasEl.innerHTML = html; canvasEl.hidden = false;
+      canvasEl.innerHTML = html + enter; canvasEl.hidden = false;
       canvasEl.style.left = `${Math.min(x + 14, innerWidth - canvasEl.offsetWidth - 8)}px`;
       canvasEl.style.top = `${Math.min(y + 16, innerHeight - canvasEl.offsetHeight - 8)}px`;
     },

@@ -279,7 +279,7 @@ for i in range(8): u.prop(f'S21-bed-s{i}', 'iron-bed', (47.5 + i * 1.07, 35.9), 
 for i, (x, z) in enumerate([(45.5, 35.2), (50.5, 34.9), (53.2, 35), (48, 32.7), (55.2, 33.1), (46.9, 37.2)]): u.creature(f'S21-shadow{i}', 'shadow', (x, z), 'S21', 'Six shadows wait until someone is 10 ft inside, then step out of the ordinary shadows; they cannot leave the room' if i == 0 else 'Shadow')
 cobwebs(u, rect(44, 32, 56, 38), 'S21', y=7, n=4)
 u.prop('S22-table', 'operating-table', (46, 40.2), 'S22')
-u.note('S22-note', (46.6, 41.4), 'S22', 'The first touch of the table: a scream echoing through time, then fainter screams of those who died under the knife.')
+u.note('S22-note', (46.6, 41.4), 'S22', 'Touching the table for the first time brings a scream from the past, followed by softer cries from former surgical victims.')
 for i, (x, z) in enumerate([(48.9, 38.9), (50.9, 39.3), (49.4, 41.1)]): u.prop(f'S23-crib{i}', 'crib-wreck', (x, z), 'S23', dims={'seed': i + 3})
 u.note('S23-note', (50, 40.2), 'S23', 'Searching: one character sees a nun in white reflected in the window glass, standing in the doorway; nothing is there. A card-reading treasure lies under a crib.')
 u.creature('S24-raven', 'raven', (54.5, 41.75), 'S24', 'A raven on the windowsill: approached, it flies to the nearest garden scarecrow. Killing it curses the killer (disadvantage on attacks and checks until remove curse)')

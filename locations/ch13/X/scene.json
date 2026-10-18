@@ -7196,7 +7196,7 @@
      ],
      "floor": "flagstone",
      "ceilingFt": 20,
-     "desc": "A bare annex with a ragged ten-foot hole in the east of its floor and empty sconces on the walls. Double doors of amber stand open north and west; a single door lies just south of them.",
+     "desc": "This empty annex has unused wall sconces and a jagged hole ten feet across in the eastern floor. Paired amber doors open toward the north and west; a lone door stands just south of those openings.",
      "dm": "Ceiling 20 ft. The hole: a rough shaft 20 ft down with good handholds, then a 10-ft drop into X33a; its flameskulls come up if they hear noise. Secret door south to X7."
     },
     {
@@ -16573,7 +16573,7 @@
      ],
      "vis": "player",
      "key": "X20",
-     "desc": "A twelve-foot model of a dark castle with high walls and tall spires, sculpted from rock.",
+     "desc": "Rock has been carved into a twelve-foot castle miniature, with looming ramparts and slender spires.",
      "dm": "Artimus's model of Castle Ravenloft. A card-reading treasure here is inside it: smash in to reach it."
     },
     {
@@ -18302,7 +18302,7 @@
      ],
      "floor": "flagstone",
      "ceilingFt": 30,
-     "desc": "Heaps of treasure against the west and east walls; a ten-foot amber statue of a hawk-headed warrior stands in a wide alcove to the north, a crack in the wall behind it.",
+     "desc": "Treasure lies piled along both side walls. In a broad northern recess stands an amber warrior with a hawk head, ten feet tall. The masonry behind it is cracked.",
      "dm": "Ceiling 30 ft. Doors arcane locked ('Dhaviton'); smashing them makes the golem invisible for a minute. The golem attacks anyone who disturbs the treasure."
     },
     {
@@ -18678,7 +18678,7 @@
      ],
      "floor": "flagstone",
      "ceilingFt": 10,
-     "desc": "Decayed furniture around a man-shaped construct of dark wood and riveted iron, its helmed head scraping the ceiling, cobwebs running from it to the wreckage.",
+     "desc": "Ruined furnishings and cobwebs surround a humanlike construct assembled from black timber and riveted iron plates. Its helmet nearly touches the ceiling.",
      "dm": "An incapacitated shield guardian; its control amulet is on Vilnius (X9)."
     },
     {
@@ -18722,7 +18722,7 @@
      "floor": "flagstone",
      "difficult": true,
      "ceilingFt": 25,
-     "desc": "A high, amber-glazed hall half buried in fallen stone; a path through the rubble leads to an open doorway that breathes a deathly stench.",
+     "desc": "Fallen masonry half fills this tall hall, whose walls are glazed with amber. A clear route winds between the debris toward a doorway giving off the smell of death.",
      "dm": "Ceiling 25 ft; once joined X32. Unless the party is dark and quiet, the ghasts in X33c hear them coming."
     },
     {
@@ -26457,7 +26457,7 @@
      "dims": {
       "h": 30
      },
-     "desc": "A forty-foot granite statue of a cowled figure in flowing robes, hands outstretched as if casting a spell; its face is utter blackness."
+     "desc": "A hooded figure carved in granite rises forty feet high. Robes drape its body and its hands reach forward in a spellcasting pose; darkness completely hides its features."
     },
     {
      "id": "lower-X5-col0",
@@ -26961,7 +26961,7 @@
       "n": 2
      },
      "desc": "A heap of treasure (pile 3 on the map).",
-     "dm": "Pile 3: 6,600 ep stamped with Strahd, empty bottles, a trunk of six gowns, ten jewels (250 gp each) and 500 gp in a rotted chest, eight saint statuettes (250 gp)."
+     "dm": "Pile 3: 6,600 ep bearing Strahd, empty bottles, six gowns in a trunk, ten jewels worth 250 gp apiece, a decaying chest containing 500 gp, and eight saint statuettes worth 250 gp."
     },
     {
      "id": "lower-X40-pile4",
@@ -29738,7 +29738,7 @@
      ],
      "vis": "dm-note",
      "key": "X36",
-     "label": "Vaulted ceiling 25 ft. Ledges 5 ft up hold alabaster cats, frogs, hawks, owls, rats, ravens, snakes, toads and weasels: familiars, harmless."
+     "label": "Vaulted ceiling 25 ft. Ledges 5 ft up hold alabaster weasels and toads, snakes and ravens, rats and owls, hawks and frogs, and cats: familiars, harmless."
     },
     {
      "id": "lower-X37-heap0",

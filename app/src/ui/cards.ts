@@ -49,6 +49,8 @@ export interface ObjectCardOpts extends CardOpts {
   secretDoor?: TapHit['secretDoor'];
   /** Whether the object has words of its own (else its description is the generic one for its kind). */
   ownWords: boolean;
+  /** The DM's: the name of the place the object's room opens (a building on a town map), for an Enter button. */
+  enter?: string;
 }
 
 /** The object card: what it is, where, what players see, the DM note, its state and its actions. */
@@ -74,7 +76,7 @@ export function objectCardHtml(o: NonNullable<TapHit['object']>, x: ObjectCardOp
   const seenAs = !players && o.playerLabel && o.playerLabel !== o.label ? `<div class="seen-as">Players see: <b>${esc(o.playerLabel)}</b></div>` : '';
   const dm = !players && o.dm ? `<div class="dm"><span class="dm-tag">${ICON.eyeOff}DM only</span>${R(o.dm, { audience: 'dm', field: 'dm', ...at }, seen)}</div>` : '';
   const acts = players ? (openBtn ? `<div class="actions">${openBtn}</div>` : '')
-    : `<div class="actions">${openBtn}${o.vis !== 'player' ? `<button class="${openBtn ? '' : 'primary'}" data-a="reveal">${o.revealed ? 'Hide from players' : 'Reveal to players'}</button>` : ''}${x.room ? `<button data-a="frame">Frame ${esc(x.room.key)}</button>` : ''}${x.secretDoor ? `<button data-a="secret">${x.secretDoor.revealed ? 'Hide secret door' : 'Reveal secret door'}</button>` : ''}</div>`;
+    : `<div class="actions">${x.enter ? `<button class="${openBtn || o.vis !== 'player' ? '' : 'primary'}" data-a="enter">Enter ${esc(x.enter)}</button>` : ''}${openBtn}${o.vis !== 'player' ? `<button class="${openBtn ? '' : 'primary'}" data-a="reveal">${o.revealed ? 'Hide from players' : 'Reveal to players'}</button>` : ''}${x.room ? `<button data-a="frame">Frame ${esc(x.room.key)}</button>` : ''}${x.secretDoor ? `<button data-a="secret">${x.secretDoor.revealed ? 'Hide secret door' : 'Reveal secret door'}</button>` : ''}</div>`;
   return `<header><div><h2>${title}</h2>${where && !players ? `<div class="where">${where}</div>` : ''}</div>${closeBtn}</header>
         <div class="body">${desc}${seenAs}${dm}${inside}${state ? `<div class="state">${esc(state)}</div>` : ''}</div>
         ${acts}`;

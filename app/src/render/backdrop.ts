@@ -7,6 +7,7 @@ import { merge } from '../kit/pieces';
 import { pineTier } from '../kit/props';
 import { FLOOR_COLOR } from '../kit/palette';
 import { patchFog, setSurface } from './materials';
+import { markShared } from './dispose';
 import { surfaceOf, type Surface } from '../kit/surfaces';
 import { terrainOf } from '../core/terrain';
 import RAVENLOFT from '../../../locations/ch04/K/exterior.json';
@@ -545,7 +546,7 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
  *  or is picked, so every opaque solid-coloured mesh folds into one mesh per material look. Instanced forest, the
  *  vertex-coloured apron and ribbons, and the translucent mists keep their own draw. */
 /** The moon's face in a phase (0 new, 0.5 full): the lit part bright and mottled with maria, the dark part a faint earthshine. */
-function drawMoon(c: HTMLCanvasElement, phase: number): void {
+export function drawMoon(c: HTMLCanvasElement, phase: number): void {
   const x = c.getContext('2d')!, S = c.width, r = S * 0.46, o = S / 2;
   x.clearRect(0, 0, S, S);
   x.fillStyle = 'rgba(70,74,92,0.55)'; x.beginPath(); x.arc(o, o, r, 0, Math.PI * 2); x.fill();          // earthshine
@@ -560,21 +561,21 @@ function drawMoon(c: HTMLCanvasElement, phase: number): void {
   for (const [a, b, rr] of [[-0.25, -0.2, 0.22], [0.15, -0.3, 0.16], [0.05, 0.1, 0.26], [-0.3, 0.25, 0.14], [0.3, 0.3, 0.12]]) { l.beginPath(); l.arc(o + a * r, o + b * r, rr * r, 0, Math.PI * 2); l.fill(); }
   x.drawImage(lit, 0, 0);
 }
-function moonTexture(phase: number): THREE.CanvasTexture { const c = document.createElement('canvas'); c.width = c.height = 256; drawMoon(c, phase); return new THREE.CanvasTexture(c); }
-function haloTexture(): THREE.CanvasTexture {
+export function moonTexture(phase: number): THREE.CanvasTexture { const c = document.createElement('canvas'); c.width = c.height = 256; drawMoon(c, phase); return new THREE.CanvasTexture(c); }
+export function haloTexture(): THREE.CanvasTexture {
   const c = document.createElement('canvas'); c.width = c.height = 128; const x = c.getContext('2d')!;
   const g = x.createRadialGradient(64, 64, 10, 64, 64, 64); g.addColorStop(0, 'rgba(255,255,255,0.9)'); g.addColorStop(0.35, 'rgba(255,255,255,0.25)'); g.addColorStop(1, 'rgba(255,255,255,0)');
   x.fillStyle = g; x.fillRect(0, 0, 128, 128); return new THREE.CanvasTexture(c);
 }
 let MIST_TEX: THREE.CanvasTexture | null = null;
 /** A soft ring of mist: clear at the centre (the rock stands there), densest a third of the way out, fading to nothing at the rim. */
-function mistTexture(): THREE.CanvasTexture {
+export function mistTexture(): THREE.CanvasTexture {
   if (MIST_TEX) return MIST_TEX;
   const c = document.createElement('canvas'); c.width = c.height = 128; const x = c.getContext('2d')!;
   const g = x.createRadialGradient(64, 64, 0, 64, 64, 64); g.addColorStop(0, 'rgba(255,255,255,0)'); g.addColorStop(0.28, 'rgba(255,255,255,0.15)'); g.addColorStop(0.45, 'rgba(255,255,255,1)'); g.addColorStop(1, 'rgba(255,255,255,0)');
-  x.fillStyle = g; x.fillRect(0, 0, 128, 128); MIST_TEX = new THREE.CanvasTexture(c); return MIST_TEX;
+  x.fillStyle = g; x.fillRect(0, 0, 128, 128); MIST_TEX = markShared(new THREE.CanvasTexture(c)); return MIST_TEX; // every crag's: never freed
 }
-function collapse(g: THREE.Group): void {
+export function collapse(g: THREE.Group): void {
   const buckets = new Map<string, { material: THREE.Material; gs: THREE.BufferGeometry[] }>();
   const drop: THREE.Object3D[] = [];
   g.updateMatrixWorld(true);
@@ -596,7 +597,7 @@ function collapse(g: THREE.Group): void {
 
 /** The mountains the castle is tucked into: a horseshoe of peaks behind and beside it, open only on the bearing of
  *  the steep valley that runs down to the village, whose two walls are rows of ridges flanking that line. */
-function cradle(g: THREE.Group, at: { x: number; z: number }, towardX: number, towardZ: number, dist: number, y0: number, mat: (hex: string, d: number) => THREE.Material, d0: number, S = 1): void {
+export function cradle(g: THREE.Group, at: { x: number; z: number }, towardX: number, towardZ: number, dist: number, y0: number, mat: (hex: string, d: number) => THREE.Material, d0: number, S = 1): void {
   const b0 = Math.atan2(towardZ - at.z, towardX - at.x);
   let seed = 11; const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
   const peak = (x: number, z: number, h: number, r: number) => { const c = new THREE.ConeGeometry(r, h, 7); c.translate(0, h / 2, 0); const m = new THREE.Mesh(c, mat('#4f5560', d0)); m.position.set(x, y0 - 40, z); m.rotation.y = rnd() * Math.PI; g.add(m); if (h > 1800) { const sn = new THREE.ConeGeometry(r * 0.28, h * 0.26, 7); sn.translate(0, h * 0.87, 0); const sm = new THREE.Mesh(sn, mat('#d9dde3', d0)); sm.position.copy(m.position); sm.rotation.y = m.rotation.y; g.add(sm); } };
@@ -614,7 +615,7 @@ function cradle(g: THREE.Group, at: { x: number; z: number }, towardX: number, t
 
 /** Castle Ravenloft as it stands on the Pillarstone: the plan of `scripts/authoring/castle-ravenloft.py` (x east,
  *  z south, centred on the courtyard) raised to the heights of its levels. Lit windows pick it out at night. */
-function ravenloft(s: THREE.Group, mat: (hex: string) => THREE.Material): void {
+export function ravenloft(s: THREE.Group, mat: (hex: string) => THREE.Material): void {
   // Built from the castle's own plans (scripts/authoring/ravenloft-exterior.py): every column of the castle rises to its
   // highest roofed room, the curtain walls stand at their height with battlements, every stair tower is a round tower
   // with a conical cap, and windows burn along the outer faces.

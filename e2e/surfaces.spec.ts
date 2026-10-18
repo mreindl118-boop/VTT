@@ -357,12 +357,22 @@ test('Initiative headers, the Rooms sheet\'s page references, Help\'s colour key
   await page.keyboard.press('Escape');
   await page.evaluate(() => document.querySelectorAll('.sheet-backdrop').forEach((s) => s.remove()));
   // The world map: a pin's card with its blurb and the DM note's links.
+  // Exercise the retained flat fallback explicitly; the nested card is checked below too.
+  await page.evaluate(() => (window as any).__mistlab.app.setNestedMode(false));
   await page.locator('[data-act="world"]').click();
   await page.locator('.world-key li[data-key="K"]').click();
   await expect(page.locator('.world-card.page .wc-dm')).toBeVisible();
   expect(await page.locator('.world-card .wc-blurb .rl').evaluateAll((els) => els.filter((e) => !['condition', 'rule', 'action', 'sense', 'damage', 'ability', 'skill'].includes((e as HTMLElement).dataset.kind!)).length)).toBe(0);
   await page.waitForTimeout(250);
   await page.screenshot({ path: `${SHOTS}/step3-world-K.png` });
+  await page.keyboard.press('Escape');
+  await page.evaluate(() => (window as any).__mistlab.app.setNestedMode(true));
+  await page.locator('[data-act="world"]').click();
+  await page.waitForFunction(() => !(window as any).__mistlab.app.world.flying);
+  await page.locator('.nestbar [data-places]').click();
+  await page.locator('.nestkey li[data-key="K"] .place-action').click();
+  await expect(page.locator('.nestcard .wc-dm')).toBeVisible();
+  expect(await page.locator('.nestcard .wc-blurb .rl').evaluateAll((els) => els.filter((e) => !['condition', 'rule', 'action', 'sense', 'damage', 'ability', 'skill'].includes((e as HTMLElement).dataset.kind!)).length)).toBe(0);
 });
 
 test('the clock: Difficult terrain, Mounted and the pace are rules links; the pace note follows the edition, the times do not', async ({ page }) => {

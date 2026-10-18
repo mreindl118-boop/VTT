@@ -362,14 +362,21 @@ export function rug(d: Dims): THREE.Group { return g_(box(d.w ?? 8, 0.08, d.d ??
 /** Village house: plain block with a pitched roof; stories from dims. */
 /** A Barovian house: timber frame over plaster, a steep gabled roof along the long side, shuttered windows,
  * a chimney. Tones vary per house (deterministically from its size) so a street never looks cloned. */
-export function house(d: Dims): THREE.Group {
+/** A house's tones and shape from its size (deterministic): the walls, the roof, a stone ground floor and its jetty,
+ *  and the gable roof's length, span and rise. The continuous world's proxies draw a house's massing from the same. */
+export function houseLook(d: Dims): { w: number; dd: number; sh: number; stories: number; h: number; plaster: string; roofC: string; stone: string; long: boolean; stoneBase: boolean; jet: number; L: number; S: number; rise: number; v2: number } {
   const w = d.w ?? 20, dd = d.d ?? 20, sh = d.h ?? 10, stories = d.stories ?? 1, h = sh * stories;
   const v = Math.abs(Math.sin(w * 12.9898 + dd * 78.233)) % 1, v2 = Math.abs(Math.sin(w * 4.1414 + dd * 9.31 + stories)) % 1;
-  const plaster = ['#8f8676', '#7d7466', '#9a917f', '#6f675b'][Math.floor(v * 4)], beam = '#3a2c22', shut = '#4b3a2c', STONE = '#6d6860';
+  const plaster = ['#8f8676', '#7d7466', '#9a917f', '#6f675b'][Math.floor(v * 4)];
   const roofC = ['#3d3a3e', '#4a3a33', '#35393a', '#51463c'][Math.floor(v * 7) % 4];
-  const long = w >= dd;
+  const long = w >= dd, stoneBase = stories >= 2 && v2 < 0.45, jet = stoneBase ? 1.2 : 0;
+  const tw = w + jet * 2, td = dd + jet * 2, L = (long ? tw : td) + 2, S = (long ? td : tw) + 2.4;
+  return { w, dd, sh, stories, h, plaster, roofC, stone: '#6d6860', long, stoneBase, jet, L, S, rise: S * 0.62, v2 };
+}
+export function house(d: Dims): THREE.Group {
+  const { w, dd, sh, stories, h, plaster, roofC, long, stoneBase, jet } = houseLook(d);
+  const beam = '#3a2c22', shut = '#4b3a2c', STONE = '#6d6860';
   // a rubble plinth the frame stands on; a two-storey house often has a stone ground floor and a jettied upper floor
-  const stoneBase = stories >= 2 && v2 < 0.45, jet = stoneBase ? 1.2 : 0;
   const g = g_(box(w + 0.8, 1.4, dd + 0.8, STONE, 0, 0.7, 0));
   const bodies: [number, number, number, number, string][] = stoneBase   // [w, d, y0, y1, colour] per storey block
     ? [[w, dd, 0, sh, STONE], [w + jet * 2, dd + jet * 2, sh, h, plaster]]
@@ -391,7 +398,7 @@ export function house(d: Dims): THREE.Group {
     }
   }
   // the roof: a steep gable along the long side over the eaves, with a ridge beam
-  const tw = w + jet * 2, td = dd + jet * 2, L = (long ? tw : td) + 2, S = (long ? td : tw) + 2.4, rise = S * 0.62;
+  const { L, S, rise } = houseLook(d);
   const shape = new THREE.Shape([new THREE.Vector2(-S / 2, 0), new THREE.Vector2(S / 2, 0), new THREE.Vector2(0, rise)]);
   const prism = new THREE.ExtrudeGeometry(shape, { depth: L, bevelEnabled: false }); prism.translate(0, 0, -L / 2);
   const roof = new THREE.Mesh(prism, mat(roofC)); roof.position.y = h; if (long) roof.rotation.y = Math.PI / 2; g.add(roof);

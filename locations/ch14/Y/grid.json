@@ -160,7 +160,7 @@
    ],
    "color": "#1d1b22",
    "opacity": 0.55,
-   "clip": true
+   "clipToFloors": true
   },
   "slope-high": {
    "floorPolygons": [
@@ -199,7 +199,7 @@
    ],
    "color": "#1d1b22",
    "opacity": 0.55,
-   "clip": true
+   "clipToFloors": true
   },
   "outer": {
    "floorPolygons": [
@@ -1276,7 +1276,7 @@
    ],
    "color": "#1d1b22",
    "opacity": 0.55,
-   "clip": true
+   "clipToFloors": true
   },
   "summit": {
    "floorPolygons": [
@@ -1579,7 +1579,7 @@
    ],
    "color": "#1d1b22",
    "opacity": 0.55,
-   "clip": true
+   "clipToFloors": true
   }
  }
 }

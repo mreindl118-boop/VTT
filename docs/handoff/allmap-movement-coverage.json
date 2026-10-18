@@ -1,0 +1,5187 @@
+{
+  "schemaVersion": 1,
+  "implementationCommit": "f18f087486f39dc4acb8de4199c43776fbef9fe5",
+  "auditCheckpoint": "3da4420767adf76b8e73c0330fef4c077cfcb749",
+  "scope": "Qualified CPU movement audit across all 44 production scenes and 122 levels. No application changes, browser link UI events, complete route or physical-phone certification.",
+  "doorApertures": {
+    "tested": 365,
+    "openPass": 290,
+    "blocked": 28,
+    "notProbed": 47,
+    "confirmedOtherWallCollinearOverlaps": 25,
+    "method": "Straight local cross-section geometry of the 28 failed canWalk door probes; positive collinear overlap confirms another blocking wall on the opened aperture, not complete route analysis.",
+    "blockedGeometry": [
+      {
+        "path": "ch04/K",
+        "level": "dungeon",
+        "door": "K75-door",
+        "doorSegment": [
+          [
+            170.0,
+            250.0
+          ],
+          [
+            180.0,
+            250.0
+          ]
+        ],
+        "probe": [
+          [
+            175,
+            252
+          ],
+          [
+            175,
+            248
+          ]
+        ],
+        "crossingBlockers": [
+          {
+            "id": "dungeon-w-17",
+            "flags": [
+              "normal"
+            ],
+            "a": [
+              170,
+              243.284
+            ],
+            "b": [
+              181.716,
+              255.0
+            ],
+            "overlapWithDoorFt": 0.0,
+            "probeCross": "POINT (175 248.284)"
+          }
+        ]
+      },
+      {
+        "path": "ch04/K",
+        "level": "dungeon",
+        "door": "K74d-bars",
+        "doorSegment": [
+          [
+            170.0,
+            230.0
+          ],
+          [
+            170.0,
+            240.0
+          ]
+        ],
+        "probe": [
+          [
+            168,
+            235
+          ],
+          [
+            172,
+            235
+          ]
+        ],
+        "crossingBlockers": [
+          {
+            "id": "dungeon-w-19",
+            "flags": [
+              "normal"
+            ],
+            "a": [
+              170.0,
+              232.23866666666666
+            ],
+            "b": [
+              170.0,
+              237.76133333333334
+            ],
+            "overlapWithDoorFt": 5.5227,
+            "probeCross": "POINT (170 235)"
+          }
+        ]
+      },
+      {
+        "path": "ch04/K",
+        "level": "dungeon",
+        "door": "K74c-bars",
+        "doorSegment": [
+          [
+            170.0,
+            220.0
+          ],
+          [
+            170.0,
+            230.0
+          ]
+        ],
+        "probe": [
+          [
+            168,
+            225
+          ],
+          [
+            172,
+            225
+          ]
+        ],
+        "crossingBlockers": [
+          {
+            "id": "dungeon-w-21",
+            "flags": [
+              "normal"
+            ],
+            "a": [
+              170,
+              226.716
+            ],
+            "b": [
+              181.716,
+              215.0
+            ],
+            "overlapWithDoorFt": 0.0,
+            "probeCross": "POINT (171.716 225)"
+          }
+        ]
+      },
+      {
+        "path": "ch04/K",
+        "level": "weeping",
+        "door": "K37-north-b",
+        "doorSegment": [
+          [
+            165.0,
+            160.0
+          ],
+          [
+            175.0,
+            160.0
+          ]
+        ],
+        "probe": [
+          [
+            170,
+            162
+          ],
+          [
+            170,
+            158
+          ]
+        ],
+        "crossingBlockers": [
+          {
+            "id": "weeping-w-7",
+            "flags": [
+              "normal"
+            ],
+            "a": [
+              162.5,
+              152.2485
+            ],
+            "b": [
+              172.7515,
+              162.5
+            ],
+            "overlapWithDoorFt": 0.0,
+            "probeCross": "POINT (170 159.7485)"
+          }
+        ]
+      },
+      {
+        "path": "ch03/E5",
+        "level": "ground",
+        "door": "ground-w-52",
+        "doorSegment": [
+          [
+            17.5,
+            42.5
+          ],
+          [
+            22.5,
+            42.5
+          ]
+        ],
+        "probe": [
+          [
+            20,
+            44.5
+          ],
+          [
+            20,
+            40.5
+          ]
+        ],
+        "crossingBlockers": [
+          {
+            "id": "ground-w-30",
+            "flags": [
+              "normal"
+            ],
+            "a": [
+              20.0,
+              42.5
+            ],
+            "b": [
+              25.0,
+              42.5
+            ],
+            "overlapWithDoorFt": 2.5,
+            "probeCross": "POINT (20 42.5)"
+          },
+          {
+            "id": "ground-w-31",
+            "flags": [
+              "normal"
+            ],
+            "a": [
+              15.0,
+              42.5
+            ],
+            "b": [
+              20.0,
+              42.5
+            ],
+            "overlapWithDoorFt": 2.5,
+            "probeCross": "POINT (20 42.5)"
+          }
+        ]
+      },
+      {
+        "path": "ch03/E5",
+        "level": "ground",
+        "door": "ground-w-53",
+        "doorSegment": [
+          [
+            15,
+            25.0
+          ],
+          [
+            15,
+            30.0
+          ]
+        ],
+        "probe": [
+          [
+            13,
+            27.5
+          ],
+          [
+            17,
+            27.5
+          ]
+        ],
+        "crossingBlockers": [
+          {
+            "id": "ground-w-35",
+            "flags": [
+              "normal"
+            ],
+            "a": [
+              15.0,
+              25.0
+            ],
+            "b": [
+              15.0,
+              29.375
+            ],
+            "overlapWithDoorFt": 4.375,
+            "probeCross": "POINT (15 27.5)"
+          }
+        ]
+      },
+      {
+        "path": "ch03/E5",
+        "level": "ground",
+        "door": "ground-w-54",
+        "doorSegment": [
+          [
+            15,
+            33.75
+          ],
+          [
+            15,
+            38.75
+          ]
+        ],
+        "probe": [
+          [
+            13,
+            36.25
+          ],
+          [
+            17,
+            36.25
+          ]
+        ],
+        "crossingBlockers": [
+          {
+            "id": "ground-w-33",
+            "flags": [
+              "normal"
+            ],
+            "a": [
+              15.0,
+              33.75
+            ],
+            "b": [
+              15.0,
+              38.125
+            ],
+            "overlapWithDoorFt": 4.375,
+            "probeCross": "POINT (15 36.25)"
+          }
+        ]
+      },
+      {
+        "path": "ch03/E5",
+        "level": "ground",
+        "door": "ground-w-55",
+        "doorSegment": [
+          [
+            30,
+            25.0
+          ],
+          [
+            30,
+            30.0
+          ]
+        ],
+        "probe": [
+          [
+            28,
+            27.5
+          ],
+          [
+            32,
+            27.5
+          ]
+        ],
+        "crossingBlockers": [
+          {
+            "id": "ground-w-25",
+            "flags": [
+              "normal"
+            ],
+            "a": [
+              30.0,
+              25.0
+            ],
+            "b": [
+              30.0,
+              29.375
+            ],
+            "overlapWithDoorFt": 4.375,
+            "probeCross": "POINT (30 27.5)"
+          }
+        ]
+      },
+      {
+        "path": "ch03/E5",
+        "level": "ground",
+        "door": "ground-w-56",
+        "doorSegment": [
+          [
+            30,
+            33.75
+          ],
+          [
+            30,
+            38.75
+          ]
+        ],
+        "probe": [
+          [
+            28,
+            36.25
+          ],
+          [
+            32,
+            36.25
+          ]
+        ],
+        "crossingBlockers": [
+          {
+            "id": "ground-w-27",
+            "flags": [
+              "normal"
+            ],
+            "a": [
+              30.0,
+              33.75
+            ],
+            "b": [
+              30.0,
+              38.125
+            ],
+            "overlapWithDoorFt": 4.375,
+            "probeCross": "POINT (30 36.25)"
+          }
+        ]
+      },
+      {
+        "path": "ch05/N2",
+        "level": "ground",
+        "door": "N2d-kitchen",
+        "doorSegment": [
+          [
+            85.0,
+            42.5
+          ],
+          [
+            90.0,
+            42.5
+          ]
+        ],
+        "probe": [
+          [
+            87.5,
+            44.5
+          ],
+          [
+            87.5,
+            40.5
+          ]
+        ],
+        "crossingBlockers": [
+          {
+            "id": "ground-w-50",
+            "flags": [
+              "normal"
+            ],
+            "a": [
+              77.5,
+              42.5
+            ],
+            "b": [
+              105.0,
+              42.5
+            ],
+            "overlapWithDoorFt": 5.0,
+            "probeCross": "POINT (87.5 42.5)"
+          }
+        ]
+      },
+      {
+        "path": "ch05/N2",
+        "level": "ground",
+        "door": "N2e-taproom",
+        "doorSegment": [
+          [
+            105.0,
+            15.0
+          ],
+          [
+            105.0,
+            20.0
+          ]
+        ],
+        "probe": [
+          [
+            103,
+            17.5
+          ],
+          [
+            107,
+            17.5
+          ]
+        ],
+        "crossingBlockers": [
+          {
+            "id": "ground-w-34",
+            "flags": [
+              "normal"
+            ],
+            "a": [
+              105.0,
+              10.0
+            ],
+            "b": [
+              105.0,
+              100.0
+            ],
+            "overlapWithDoorFt": 5.0,
+            "probeCross": "POINT (105 17.5)"
+          }
+        ]
+      },
+      {
+        "path": "ch05/N2",
+        "level": "ground",
+        "door": "ground-sd-kitchen-stair",
+        "doorSegment": [
+          [
+            60,
+            42.5
+          ],
+          [
+            65,
+            42.5
+          ]
+        ],
+        "probe": [
+          [
+            62.5,
+            44.5
+          ],
+          [
+            62.5,
+            40.5
+          ]
+        ],
+        "crossingBlockers": [
+          {
+            "id": "ground-w-43",
+            "flags": [
+              "normal"
+            ],
+            "a": [
+              60.0,
+              42.5
+            ],
+            "b": [
+              65.0,
+              42.5
+            ],
+            "overlapWithDoorFt": 5.0,
+            "probeCross": "POINT (62.5 42.5)"
+          }
+        ]
+      },
+      {
+        "path": "ch05/N2",
+        "level": "upper",
+        "door": "N2p-door",
+        "doorSegment": [
+          [
+            92.5,
+            25.0
+          ],
+          [
+            92.5,
+            30.0
+          ]
+        ],
+        "probe": [
+          [
+            90.5,
+            27.5
+          ],
+          [
+            94.5,
+            27.5
+          ]
+        ],
+        "crossingBlockers": [
+          {
+            "id": "upper-w-100",
+            "flags": [
+              "normal"
+            ],
+            "a": [
+              92.5,
+              24.58333333333333
+            ],
+            "b": [
+              92.5,
+              29.444444444444446
+            ],
+            "overlapWithDoorFt": 4.4444,
+            "probeCross": "POINT (92.5 27.5)"
+          }
+        ]
+      },
+      {
+        "path": "ch05/N2",
+        "level": "upper",
+        "door": "N2o-door",
+        "doorSegment": [
+          [
+            92.5,
+            65.0
+          ],
+          [
+            92.5,
+            70.0
+          ]
+        ],
+        "probe": [
+          [
+            90.5,
+            67.5
+          ],
+          [
+            94.5,
+            67.5
+          ]
+        ],
+        "crossingBlockers": [
+          {
+            "id": "upper-w-92",
+            "flags": [
+              "normal"
+            ],
+            "a": [
+              92.5,
+              63.47222222222222
+            ],
+            "b": [
+              92.5,
+              68.33333333333334
+            ],
+            "overlapWithDoorFt": 3.3333,
+            "probeCross": "POINT (92.5 67.5)"
+          }
+        ]
+      },
+      {
+        "path": "ch05/N2",
+        "level": "upper",
+        "door": "N2l-door",
+        "doorSegment": [
+          [
+            157.5,
+            65.0
+          ],
+          [
+            157.5,
+            70.0
+          ]
+        ],
+        "probe": [
+          [
+            155.5,
+            67.5
+          ],
+          [
+            159.5,
+            67.5
+          ]
+        ],
+        "crossingBlockers": [
+          {
+            "id": "upper-w-105",
+            "flags": [
+              "normal"
+            ],
+            "a": [
+              157.5,
+              55.0
+            ],
+            "b": [
+              157.5,
+              97.5
+            ],
+            "overlapWithDoorFt": 5.0,
+            "probeCross": "POINT (157.5 67.5)"
+          }
+        ]
+      },
+      {
+        "path": "ch05/N2",
+        "level": "upper",
+        "door": "upper-sd-loft-bedroom",
+        "doorSegment": [
+          [
+            60,
+            45
+          ],
+          [
+            60,
+            50
+          ]
+        ],
+        "probe": [
+          [
+            58,
+            47.5
+          ],
+          [
+            62,
+            47.5
+          ]
+        ],
+        "crossingBlockers": [
+          {
+            "id": "upper-w-1",
+            "flags": [
+              "normal"
+            ],
+            "a": [
+              60.0,
+              42.5
+            ],
+            "b": [
+              60.0,
+              87.5
+            ],
+            "overlapWithDoorFt": 5.0,
+            "probeCross": "POINT (60 47.5)"
+          },
+          {
+            "id": "upper-w-47",
+            "flags": [
+              "normal"
+            ],
+            "a": [
+              60.0,
+              45.0
+            ],
+            "b": [
+              60.0,
+              50.0
+            ],
+            "overlapWithDoorFt": 5.0,
+            "probeCross": "POINT (60 47.5)"
+          }
+        ]
+      },
+      {
+        "path": "ch05/N3",
+        "level": "ground",
+        "door": "N3h-f",
+        "doorSegment": [
+          [
+            42.5,
+            25.0
+          ],
+          [
+            42.5,
+            30.0
+          ]
+        ],
+        "probe": [
+          [
+            40.5,
+            27.5
+          ],
+          [
+            44.5,
+            27.5
+          ]
+        ],
+        "crossingBlockers": [
+          {
+            "id": "ground-w-1",
+            "flags": [
+              "normal"
+            ],
+            "a": [
+              42.5,
+              15.0
+            ],
+            "b": [
+              42.5,
+              107.5
+            ],
+            "overlapWithDoorFt": 5.0,
+            "probeCross": "POINT (42.5 27.5)"
+          }
+        ]
+      },
+      {
+        "path": "ch05/N3",
+        "level": "ground",
+        "door": "N3g-hall",
+        "doorSegment": [
+          [
+            42.5,
+            55.0
+          ],
+          [
+            42.5,
+            60.0
+          ]
+        ],
+        "probe": [
+          [
+            40.5,
+            57.5
+          ],
+          [
+            44.5,
+            57.5
+          ]
+        ],
+        "crossingBlockers": [
+          {
+            "id": "ground-w-1",
+            "flags": [
+              "normal"
+            ],
+            "a": [
+              42.5,
+              15.0
+            ],
+            "b": [
+              42.5,
+              107.5
+            ],
+            "overlapWithDoorFt": 5.0,
+            "probeCross": "POINT (42.5 57.5)"
+          }
+        ]
+      },
+      {
+        "path": "ch05/N3",
+        "level": "upper",
+        "door": "N3n-door",
+        "doorSegment": [
+          [
+            60.0,
+            20.0
+          ],
+          [
+            60.0,
+            25.0
+          ]
+        ],
+        "probe": [
+          [
+            58,
+            22.5
+          ],
+          [
+            62,
+            22.5
+          ]
+        ],
+        "crossingBlockers": [
+          {
+            "id": "upper-w-30",
+            "flags": [
+              "normal"
+            ],
+            "a": [
+              60.0,
+              18.75
+            ],
+            "b": [
+              60.0,
+              23.125
+            ],
+            "overlapWithDoorFt": 3.125,
+            "probeCross": "POINT (60 22.5)"
+          }
+        ]
+      },
+      {
+        "path": "ch05/N3",
+        "level": "upper",
+        "door": "N3p-door",
+        "doorSegment": [
+          [
+            35.0,
+            45.0
+          ],
+          [
+            40.0,
+            45.0
+          ]
+        ],
+        "probe": [
+          [
+            37.5,
+            47
+          ],
+          [
+            37.5,
+            43
+          ]
+        ],
+        "crossingBlockers": [
+          {
+            "id": "upper-w-68",
+            "flags": [
+              "normal"
+            ],
+            "a": [
+              15.0,
+              45.0
+            ],
+            "b": [
+              52.5,
+              45.0
+            ],
+            "overlapWithDoorFt": 5.0,
+            "probeCross": "POINT (37.5 45)"
+          }
+        ]
+      },
+      {
+        "path": "ch05/N3",
+        "level": "upper",
+        "door": "N3l-south",
+        "doorSegment": [
+          [
+            75.0,
+            85.0
+          ],
+          [
+            80.0,
+            85.0
+          ]
+        ],
+        "probe": [
+          [
+            77.5,
+            87
+          ],
+          [
+            77.5,
+            83
+          ]
+        ],
+        "crossingBlockers": [
+          {
+            "id": "upper-w-92",
+            "flags": [
+              "normal"
+            ],
+            "a": [
+              52.5,
+              85.0
+            ],
+            "b": [
+              107.5,
+              85.0
+            ],
+            "overlapWithDoorFt": 5.0,
+            "probeCross": "POINT (77.5 85)"
+          }
+        ]
+      },
+      {
+        "path": "ch05/N3",
+        "level": "upper",
+        "door": "N3k-gallery",
+        "doorSegment": [
+          [
+            137.5,
+            25.0
+          ],
+          [
+            137.5,
+            30.0
+          ]
+        ],
+        "probe": [
+          [
+            135.5,
+            27.5
+          ],
+          [
+            139.5,
+            27.5
+          ]
+        ],
+        "crossingBlockers": [
+          {
+            "id": "upper-w-47",
+            "flags": [
+              "normal"
+            ],
+            "a": [
+              137.5,
+              10.0
+            ],
+            "b": [
+              137.5,
+              85.0
+            ],
+            "overlapWithDoorFt": 5.0,
+            "probeCross": "POINT (137.5 27.5)"
+          }
+        ]
+      },
+      {
+        "path": "ch05/N4",
+        "level": "ground",
+        "door": "N4c-pantry-door",
+        "doorSegment": [
+          [
+            110.0,
+            75.0
+          ],
+          [
+            115.0,
+            75.0
+          ]
+        ],
+        "probe": [
+          [
+            112.5,
+            77
+          ],
+          [
+            112.5,
+            73
+          ]
+        ],
+        "crossingBlockers": [
+          {
+            "id": "ground-w-81",
+            "flags": [
+              "normal"
+            ],
+            "a": [
+              105.0,
+              75.0
+            ],
+            "b": [
+              140.0,
+              75.0
+            ],
+            "overlapWithDoorFt": 5.0,
+            "probeCross": "POINT (112.5 75)"
+          }
+        ]
+      },
+      {
+        "path": "ch05/N4",
+        "level": "ground",
+        "door": "ground-sd-closet-stair",
+        "doorSegment": [
+          [
+            85,
+            27.5
+          ],
+          [
+            85,
+            32.5
+          ]
+        ],
+        "probe": [
+          [
+            83,
+            30
+          ],
+          [
+            87,
+            30
+          ]
+        ],
+        "crossingBlockers": [
+          {
+            "id": "ground-w-17",
+            "flags": [
+              "normal"
+            ],
+            "a": [
+              85.0,
+              15.0
+            ],
+            "b": [
+              85.0,
+              50.0
+            ],
+            "overlapWithDoorFt": 5.0,
+            "probeCross": "POINT (85 30)"
+          }
+        ]
+      },
+      {
+        "path": "ch05/N4",
+        "level": "upper",
+        "door": "N4m-n-door",
+        "doorSegment": [
+          [
+            105.0,
+            25.0
+          ],
+          [
+            105.0,
+            30.0
+          ]
+        ],
+        "probe": [
+          [
+            103,
+            27.5
+          ],
+          [
+            107,
+            27.5
+          ]
+        ],
+        "crossingBlockers": [
+          {
+            "id": "upper-w-64",
+            "flags": [
+              "normal"
+            ],
+            "a": [
+              105.0,
+              26.25
+            ],
+            "b": [
+              105.0,
+              31.66666666666667
+            ],
+            "overlapWithDoorFt": 3.75,
+            "probeCross": "POINT (105 27.5)"
+          }
+        ]
+      },
+      {
+        "path": "ch05/N4",
+        "level": "upper",
+        "door": "N4o-door",
+        "doorSegment": [
+          [
+            105.0,
+            60.0
+          ],
+          [
+            105.0,
+            65.0
+          ]
+        ],
+        "probe": [
+          [
+            103,
+            62.5
+          ],
+          [
+            107,
+            62.5
+          ]
+        ],
+        "crossingBlockers": [
+          {
+            "id": "upper-w-62",
+            "flags": [
+              "normal"
+            ],
+            "a": [
+              105.0,
+              37.083333333333336
+            ],
+            "b": [
+              105.0,
+              95.0
+            ],
+            "overlapWithDoorFt": 5.0,
+            "probeCross": "POINT (105 62.5)"
+          }
+        ]
+      },
+      {
+        "path": "ch05/N6",
+        "level": "ground",
+        "door": "N6b-a",
+        "doorSegment": [
+          [
+            60.0,
+            100.0
+          ],
+          [
+            65.0,
+            100.0
+          ]
+        ],
+        "probe": [
+          [
+            62.5,
+            102
+          ],
+          [
+            62.5,
+            98
+          ]
+        ],
+        "crossingBlockers": [
+          {
+            "id": "ground-w-51",
+            "flags": [
+              "normal"
+            ],
+            "a": [
+              45.0,
+              100.0
+            ],
+            "b": [
+              95.0,
+              100.0
+            ],
+            "overlapWithDoorFt": 5.0,
+            "probeCross": "POINT (62.5 100)"
+          }
+        ]
+      },
+      {
+        "path": "ch05/N6",
+        "level": "ground",
+        "door": "N6c-a",
+        "doorSegment": [
+          [
+            45.0,
+            85.0
+          ],
+          [
+            45.0,
+            90.0
+          ]
+        ],
+        "probe": [
+          [
+            43,
+            87.5
+          ],
+          [
+            47,
+            87.5
+          ]
+        ],
+        "crossingBlockers": [
+          {
+            "id": "ground-w-42",
+            "flags": [
+              "normal"
+            ],
+            "a": [
+              45.0,
+              60.0
+            ],
+            "b": [
+              45.0,
+              152.5
+            ],
+            "overlapWithDoorFt": 5.0,
+            "probeCross": "POINT (45 87.5)"
+          }
+        ]
+      }
+    ]
+  },
+  "authoredLinkEndpoints": {
+    "summary": {
+      "maps": 44,
+      "levels": 122,
+      "links": 173,
+      "endpoints": 346,
+      "onFloor": 330,
+      "outsideFloorMoreThanHalfFoot": 14,
+      "localMovePass": 336,
+      "localMoveBlocked": 9,
+      "notProbed": 1
+    },
+    "method": "Every authored vertical link endpoint, current grid plus room floor, actual canWalk/moveBlockers with doors in authored default state. Try eight nearby 2.5-ft offsets until one is allowed. Distances measure polygon edge geometry; points exactly on edges may fail pointInPolygon but have zero outside distance. Exclude lattices over one million nodes. Does not fire UI link transitions, prove end-to-end routes, or decide canonical landing positions."
+  },
+  "snappedLinkArrivals": {
+    "summary": {
+      "maps": 44,
+      "levels": 122,
+      "links": 173,
+      "endpoints": 346,
+      "onFloor": 322,
+      "outsideFloorMoreThanHalfFoot": 20,
+      "localMovePass": 335,
+      "localMoveBlocked": 10,
+      "notProbed": 1
+    },
+    "method": "Every vertical link arrival snapped through the same squareCellCenter(squareCellAt(pos)) used by App.afterPartyMove, current grid plus room floor, actual canWalk/moveBlockers with doors in authored default state. Try eight nearby 2.5-ft offsets until one is allowed. Distances measure polygon edge geometry; points exactly on edges may fail pointInPolygon but have zero outside distance. Exclude lattices over one million nodes. Does not fire UI link transitions, prove end-to-end routes, or decide canonical landing positions.",
+    "findings": [
+      {
+        "path": "ch04/K",
+        "link": "lk-k51",
+        "kind": "trapdoor",
+        "side": "to",
+        "level": "south-tower",
+        "pos": [
+          192.5,
+          257.5
+        ],
+        "authoredPos": [
+          190,
+          256
+        ],
+        "elevationFt": 150,
+        "onFloor": false,
+        "distanceOutsideFloorFt": 2.5,
+        "latticeNodes": 1377,
+        "localMoveAllowed": false,
+        "attempts": [
+          {
+            "to": [
+              195,
+              257.5
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              190,
+              257.5
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              192.5,
+              260
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              192.5,
+              255
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              195,
+              260
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              190,
+              255
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              195,
+              255
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              190,
+              260
+            ],
+            "allowed": false
+          }
+        ]
+      },
+      {
+        "path": "ch09/T",
+        "link": "T-stair",
+        "kind": "stairs",
+        "side": "to",
+        "level": "tower-upper",
+        "pos": [
+          252.5,
+          362.5
+        ],
+        "authoredPos": [
+          253,
+          360
+        ],
+        "elevationFt": 20,
+        "onFloor": false,
+        "distanceOutsideFloorFt": 3.864338559184465,
+        "latticeNodes": 144,
+        "localMoveAllowed": false,
+        "attempts": [
+          {
+            "to": [
+              255,
+              362.5
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              250,
+              362.5
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              252.5,
+              365
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              252.5,
+              360
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              255,
+              365
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              250,
+              360
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              255,
+              360
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              250,
+              365
+            ],
+            "allowed": false
+          }
+        ]
+      },
+      {
+        "path": "ch13/X",
+        "link": "X-fissure",
+        "kind": "stairs",
+        "side": "to",
+        "level": "upper",
+        "pos": [
+          22.5,
+          257.5
+        ],
+        "authoredPos": [
+          24.5,
+          258
+        ],
+        "elevationFt": 30,
+        "onFloor": false,
+        "distanceOutsideFloorFt": 1.0440306508910582,
+        "latticeNodes": 8439,
+        "localMoveAllowed": false,
+        "attempts": [
+          {
+            "to": [
+              25,
+              257.5
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              20,
+              257.5
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              22.5,
+              260
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              22.5,
+              255
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              25,
+              260
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              20,
+              255
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              25,
+              255
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              20,
+              260
+            ],
+            "allowed": false
+          }
+        ]
+      },
+      {
+        "path": "ch02/D",
+        "link": "D-beach",
+        "kind": "stairs",
+        "side": "to",
+        "level": "river",
+        "pos": [
+          182.5,
+          267.5
+        ],
+        "authoredPos": [
+          182,
+          265
+        ],
+        "elevationFt": -7,
+        "onFloor": false,
+        "distanceOutsideFloorFt": 1.331583551302102,
+        "latticeNodes": 31080,
+        "localMoveAllowed": true,
+        "attempts": [
+          {
+            "to": [
+              185,
+              267.5
+            ],
+            "allowed": true
+          }
+        ]
+      },
+      {
+        "path": "ch02/F",
+        "link": "F-knoll-stair",
+        "kind": "stairs",
+        "side": "to",
+        "level": "knoll",
+        "pos": [
+          247.5,
+          242.5
+        ],
+        "authoredPos": [
+          246,
+          242
+        ],
+        "elevationFt": 8,
+        "onFloor": false,
+        "distanceOutsideFloorFt": 2.5,
+        "latticeNodes": 272,
+        "localMoveAllowed": false,
+        "attempts": [
+          {
+            "to": [
+              250,
+              242.5
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              245,
+              242.5
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              247.5,
+              245
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              247.5,
+              240
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              250,
+              245
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              245,
+              240
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              250,
+              240
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              245,
+              245
+            ],
+            "allowed": false
+          }
+        ]
+      },
+      {
+        "path": "ch02/I",
+        "link": "I-scramble-post",
+        "kind": "ladder",
+        "side": "to",
+        "level": "crest",
+        "pos": [
+          262.5,
+          112.5
+        ],
+        "authoredPos": [
+          264,
+          112
+        ],
+        "elevationFt": 55,
+        "onFloor": false,
+        "distanceOutsideFloorFt": 1.4555676015910628,
+        "latticeNodes": 11808,
+        "localMoveAllowed": true,
+        "attempts": [
+          {
+            "to": [
+              265,
+              112.5
+            ],
+            "allowed": true
+          }
+        ]
+      },
+      {
+        "path": "ch02/P",
+        "link": "P-pier",
+        "kind": "ladder",
+        "side": "from",
+        "level": "ground",
+        "pos": [
+          1202.5,
+          97.5
+        ],
+        "authoredPos": [
+          1202.3,
+          98.1
+        ],
+        "elevationFt": 0,
+        "onFloor": false,
+        "distanceOutsideFloorFt": 0.5557875630664774,
+        "latticeNodes": 167040,
+        "localMoveAllowed": true,
+        "attempts": [
+          {
+            "to": [
+              1205,
+              97.5
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              1200,
+              97.5
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              1202.5,
+              100
+            ],
+            "allowed": true
+          }
+        ]
+      },
+      {
+        "path": "ch02/R",
+        "link": "R-ford-east",
+        "kind": "stairs",
+        "side": "from",
+        "level": "bench",
+        "pos": [
+          297.5,
+          297.5
+        ],
+        "authoredPos": [
+          298.1,
+          297.4
+        ],
+        "elevationFt": 0,
+        "onFloor": false,
+        "distanceOutsideFloorFt": 0.9041944301794652,
+        "latticeNodes": 53568,
+        "localMoveAllowed": true,
+        "attempts": [
+          {
+            "to": [
+              300,
+              297.5
+            ],
+            "allowed": true
+          }
+        ]
+      },
+      {
+        "path": "ch02/R",
+        "link": "R-ford-west",
+        "kind": "stairs",
+        "side": "from",
+        "level": "bench",
+        "pos": [
+          212.5,
+          262.5
+        ],
+        "authoredPos": [
+          211.9,
+          262.6
+        ],
+        "elevationFt": 0,
+        "onFloor": false,
+        "distanceOutsideFloorFt": 1.5215419128946004,
+        "latticeNodes": 53568,
+        "localMoveAllowed": true,
+        "attempts": [
+          {
+            "to": [
+              215,
+              262.5
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              210,
+              262.5
+            ],
+            "allowed": true
+          }
+        ]
+      },
+      {
+        "path": "ch02/R",
+        "link": "R-ledge-steps",
+        "kind": "stairs",
+        "side": "to",
+        "level": "notch",
+        "pos": [
+          342.5,
+          87.5
+        ],
+        "authoredPos": [
+          343.8,
+          87.4
+        ],
+        "elevationFt": 12,
+        "onFloor": false,
+        "distanceOutsideFloorFt": 5.02286253005187,
+        "latticeNodes": 1683,
+        "localMoveAllowed": false,
+        "attempts": [
+          {
+            "to": [
+              345,
+              87.5
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              340,
+              87.5
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              342.5,
+              90
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              342.5,
+              85
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              345,
+              90
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              340,
+              85
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              345,
+              85
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              340,
+              90
+            ],
+            "allowed": false
+          }
+        ]
+      },
+      {
+        "path": "ch02/R",
+        "link": "R-shelf-climb",
+        "kind": "ladder",
+        "side": "to",
+        "level": "notch",
+        "pos": [
+          262.5,
+          72.5
+        ],
+        "authoredPos": [
+          261.3,
+          74.6
+        ],
+        "elevationFt": 12,
+        "onFloor": false,
+        "distanceOutsideFloorFt": 20.955063896496455,
+        "latticeNodes": 1683,
+        "localMoveAllowed": false,
+        "attempts": [
+          {
+            "to": [
+              265,
+              72.5
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              260,
+              72.5
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              262.5,
+              75
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              262.5,
+              70
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              265,
+              75
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              260,
+              70
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              265,
+              70
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              260,
+              75
+            ],
+            "allowed": false
+          }
+        ]
+      },
+      {
+        "path": "ch03/E5",
+        "link": "lk-ground-undercroft",
+        "kind": "stairs",
+        "side": "to",
+        "level": "undercroft",
+        "pos": [
+          37.5,
+          37.5
+        ],
+        "authoredPos": [
+          35,
+          38
+        ],
+        "elevationFt": -14,
+        "onFloor": false,
+        "distanceOutsideFloorFt": 7.5,
+        "latticeNodes": 216,
+        "localMoveAllowed": false,
+        "attempts": [
+          {
+            "to": [
+              40,
+              37.5
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              35,
+              37.5
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              37.5,
+              40
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              37.5,
+              35
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              40,
+              40
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              35,
+              35
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              40,
+              35
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              35,
+              40
+            ],
+            "allowed": false
+          }
+        ]
+      },
+      {
+        "path": "ch08/S10",
+        "link": "lk-road",
+        "kind": "stairs",
+        "side": "to",
+        "level": "ground",
+        "pos": [
+          132.5,
+          -7.5
+        ],
+        "authoredPos": [
+          132.5,
+          -7.5
+        ],
+        "elevationFt": 400,
+        "onFloor": false,
+        "distanceOutsideFloorFt": 67.54628043053148,
+        "latticeNodes": 7200,
+        "localMoveAllowed": false,
+        "attempts": [
+          {
+            "to": [
+              135,
+              -7.5
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              130,
+              -7.5
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              132.5,
+              -5
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              132.5,
+              -10
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              135,
+              -5
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              130,
+              -10
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              135,
+              -10
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              130,
+              -5
+            ],
+            "allowed": false
+          }
+        ]
+      },
+      {
+        "path": "ch08/S",
+        "link": "lk-ladder-j",
+        "kind": "ladder",
+        "side": "to",
+        "level": "walls",
+        "pos": [
+          397.5,
+          132.5
+        ],
+        "authoredPos": [
+          395.25,
+          134.71
+        ],
+        "elevationFt": 20,
+        "onFloor": false,
+        "distanceOutsideFloorFt": 0.6480521233047558,
+        "latticeNodes": 51678,
+        "localMoveAllowed": true,
+        "attempts": [
+          {
+            "to": [
+              400,
+              132.5
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              395,
+              132.5
+            ],
+            "allowed": true
+          }
+        ]
+      },
+      {
+        "path": "ch10/U",
+        "link": "U-cellar-stair",
+        "kind": "stairs",
+        "side": "from",
+        "level": "berez",
+        "pos": [
+          932.5,
+          1772.5
+        ],
+        "authoredPos": [
+          930,
+          1770
+        ],
+        "elevationFt": 0,
+        "onFloor": true,
+        "distanceOutsideFloorFt": 0,
+        "latticeNodes": 2027520,
+        "localMoveAllowed": null,
+        "attempts": []
+      },
+      {
+        "path": "ch11/V",
+        "link": "V-lift-1",
+        "kind": "elevator",
+        "side": "to",
+        "level": "f2",
+        "pos": [
+          252.5,
+          222.5
+        ],
+        "authoredPos": [
+          252.5,
+          222.5
+        ],
+        "elevationFt": 20,
+        "onFloor": false,
+        "distanceOutsideFloorFt": 2.5,
+        "latticeNodes": 88,
+        "localMoveAllowed": false,
+        "attempts": [
+          {
+            "to": [
+              255,
+              222.5
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              250,
+              222.5
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              252.5,
+              225
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              252.5,
+              220
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              255,
+              225
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              250,
+              220
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              255,
+              220
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              250,
+              225
+            ],
+            "allowed": false
+          }
+        ]
+      },
+      {
+        "path": "ch11/V",
+        "link": "V-lift-2",
+        "kind": "elevator",
+        "side": "from",
+        "level": "f2",
+        "pos": [
+          252.5,
+          222.5
+        ],
+        "authoredPos": [
+          252.5,
+          222.5
+        ],
+        "elevationFt": 20,
+        "onFloor": false,
+        "distanceOutsideFloorFt": 2.5,
+        "latticeNodes": 88,
+        "localMoveAllowed": false,
+        "attempts": [
+          {
+            "to": [
+              255,
+              222.5
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              250,
+              222.5
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              252.5,
+              225
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              252.5,
+              220
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              255,
+              225
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              250,
+              220
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              255,
+              220
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              250,
+              225
+            ],
+            "allowed": false
+          }
+        ]
+      },
+      {
+        "path": "ch11/V",
+        "link": "V-lift-2",
+        "kind": "elevator",
+        "side": "to",
+        "level": "f3",
+        "pos": [
+          252.5,
+          222.5
+        ],
+        "authoredPos": [
+          252.5,
+          222.5
+        ],
+        "elevationFt": 40,
+        "onFloor": false,
+        "distanceOutsideFloorFt": 2.5,
+        "latticeNodes": 100,
+        "localMoveAllowed": true,
+        "attempts": [
+          {
+            "to": [
+              255,
+              222.5
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              250,
+              222.5
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              252.5,
+              225
+            ],
+            "allowed": true
+          }
+        ]
+      },
+      {
+        "path": "ch11/V",
+        "link": "V-lift-3",
+        "kind": "elevator",
+        "side": "from",
+        "level": "f3",
+        "pos": [
+          252.5,
+          222.5
+        ],
+        "authoredPos": [
+          252.5,
+          222.5
+        ],
+        "elevationFt": 40,
+        "onFloor": false,
+        "distanceOutsideFloorFt": 2.5,
+        "latticeNodes": 100,
+        "localMoveAllowed": true,
+        "attempts": [
+          {
+            "to": [
+              255,
+              222.5
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              250,
+              222.5
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              252.5,
+              225
+            ],
+            "allowed": true
+          }
+        ]
+      },
+      {
+        "path": "ch12/W",
+        "link": "W13",
+        "kind": "stairs",
+        "side": "from",
+        "level": "ground",
+        "pos": [
+          52.5,
+          117.5
+        ],
+        "authoredPos": [
+          52,
+          117.5
+        ],
+        "elevationFt": 0,
+        "onFloor": false,
+        "distanceOutsideFloorFt": 2.5,
+        "latticeNodes": 50176,
+        "localMoveAllowed": true,
+        "attempts": [
+          {
+            "to": [
+              55,
+              117.5
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              50,
+              117.5
+            ],
+            "allowed": false
+          },
+          {
+            "to": [
+              52.5,
+              120
+            ],
+            "allowed": true
+          }
+        ]
+      },
+      {
+        "path": "ch12/W",
+        "link": "W16-hole",
+        "kind": "shaft",
+        "side": "from",
+        "level": "upper",
+        "pos": [
+          87.5,
+          92.5
+        ],
+        "authoredPos": [
+          85,
+          90
+        ],
+        "elevationFt": 15,
+        "onFloor": false,
+        "distanceOutsideFloorFt": 2.5,
+        "latticeNodes": 612,
+        "localMoveAllowed": true,
+        "attempts": [
+          {
+            "to": [
+              90,
+              92.5
+            ],
+            "allowed": true
+          }
+        ]
+      }
+    ]
+  },
+  "isolatedLinkTransitions": {
+    "summary": {
+      "maps": 44,
+      "linkActivations": 346,
+      "expectedLevel": 290,
+      "wrongLevel": 56,
+      "multipleTransitions": 22,
+      "zeroTransitions": 0
+    },
+    "method": "Executed exact committed App.takeLink and App.afterPartyMove bodies after TypeScript stripping, with actual grid functions. Harness stubs rendering, status, persistence and reveal side effects; captures level transitions for every link in both directions. This proves isolated transition logic, not browser/UI visibility or complete gameplay.",
+    "methodSha256": "2c07d6f2b551f1e24b7d983f7f6600c5d2d943af93862c6aa0cc43ba964c9f7b",
+    "baselineComparison": {
+      "commit": "785421cb45ad3b7a5467a14f6e696074efb9bd27",
+      "exactTransitionMethodsUnchanged": true,
+      "sceneLinkArraysCompared": 44,
+      "changedArrays": []
+    },
+    "maps": [
+      {
+        "path": "ch02/G",
+        "activations": 0,
+        "wrongDestination": 0,
+        "multipleTransitions": 0,
+        "findings": []
+      },
+      {
+        "path": "ch02/J",
+        "activations": 6,
+        "wrongDestination": 0,
+        "multipleTransitions": 0,
+        "findings": []
+      },
+      {
+        "path": "ch02/M",
+        "activations": 8,
+        "wrongDestination": 0,
+        "multipleTransitions": 0,
+        "findings": []
+      },
+      {
+        "path": "ch04/K",
+        "activations": 94,
+        "wrongDestination": 32,
+        "multipleTransitions": 11,
+        "findings": [
+          {
+            "id": "lk-k20-court",
+            "kind": "spiral",
+            "side": "from",
+            "entry": {
+              "level": "ground",
+              "pos": [
+                180,
+                145
+              ]
+            },
+            "expected": {
+              "level": "court",
+              "pos": [
+                180,
+                145
+              ]
+            },
+            "actual": {
+              "level": "north-peak",
+              "pos": [
+                182.5,
+                147.5
+              ]
+            },
+            "levelMatches": false,
+            "transitionCount": 6,
+            "transitions": [
+              {
+                "level": "court",
+                "pos": [
+                  182.5,
+                  147.5
+                ]
+              },
+              {
+                "level": "weeping",
+                "pos": [
+                  182.5,
+                  147.5
+                ]
+              },
+              {
+                "level": "spires",
+                "pos": [
+                  182.5,
+                  147.5
+                ]
+              },
+              {
+                "level": "south-tower",
+                "pos": [
+                  182.5,
+                  147.5
+                ]
+              },
+              {
+                "level": "tower-roofs",
+                "pos": [
+                  182.5,
+                  147.5
+                ]
+              },
+              {
+                "level": "north-peak",
+                "pos": [
+                  182.5,
+                  147.5
+                ]
+              }
+            ]
+          },
+          {
+            "id": "lk-k20-court",
+            "kind": "spiral",
+            "side": "to",
+            "entry": {
+              "level": "court",
+              "pos": [
+                180,
+                145
+              ]
+            },
+            "expected": {
+              "level": "ground",
+              "pos": [
+                180,
+                145
+              ]
+            },
+            "actual": {
+              "level": "larders",
+              "pos": [
+                202.5,
+                122.5
+              ]
+            },
+            "levelMatches": false,
+            "transitionCount": 2,
+            "transitions": [
+              {
+                "level": "ground",
+                "pos": [
+                  182.5,
+                  147.5
+                ]
+              },
+              {
+                "level": "larders",
+                "pos": [
+                  202.5,
+                  122.5
+                ]
+              }
+            ]
+          },
+          {
+            "id": "lk-k20-weep",
+            "kind": "spiral",
+            "side": "from",
+            "entry": {
+              "level": "court",
+              "pos": [
+                180,
+                145
+              ]
+            },
+            "expected": {
+              "level": "weeping",
+              "pos": [
+                180,
+                145
+              ]
+            },
+            "actual": {
+              "level": "larders",
+              "pos": [
+                202.5,
+                122.5
+              ]
+            },
+            "levelMatches": false,
+            "transitionCount": 2,
+            "transitions": [
+              {
+                "level": "ground",
+                "pos": [
+                  182.5,
+                  147.5
+                ]
+              },
+              {
+                "level": "larders",
+                "pos": [
+                  202.5,
+                  122.5
+                ]
+              }
+            ]
+          },
+          {
+            "id": "lk-k20-spires",
+            "kind": "spiral",
+            "side": "from",
+            "entry": {
+              "level": "weeping",
+              "pos": [
+                180,
+                145
+              ]
+            },
+            "expected": {
+              "level": "spires",
+              "pos": [
+                180,
+                145
+              ]
+            },
+            "actual": {
+              "level": "court",
+              "pos": [
+                182.5,
+                147.5
+              ]
+            },
+            "levelMatches": false,
+            "transitionCount": 1,
+            "transitions": [
+              {
+                "level": "court",
+                "pos": [
+                  182.5,
+                  147.5
+                ]
+              }
+            ]
+          },
+          {
+            "id": "lk-k20-st",
+            "kind": "spiral",
+            "side": "from",
+            "entry": {
+              "level": "spires",
+              "pos": [
+                180,
+                145
+              ]
+            },
+            "expected": {
+              "level": "south-tower",
+              "pos": [
+                180,
+                145
+              ]
+            },
+            "actual": {
+              "level": "weeping",
+              "pos": [
+                182.5,
+                147.5
+              ]
+            },
+            "levelMatches": false,
+            "transitionCount": 1,
+            "transitions": [
+              {
+                "level": "weeping",
+                "pos": [
+                  182.5,
+                  147.5
+                ]
+              }
+            ]
+          },
+          {
+            "id": "lk-k20-roofs",
+            "kind": "spiral",
+            "side": "from",
+            "entry": {
+              "level": "south-tower",
+              "pos": [
+                180,
+                145
+              ]
+            },
+            "expected": {
+              "level": "tower-roofs",
+              "pos": [
+                180,
+                145
+              ]
+            },
+            "actual": {
+              "level": "spires",
+              "pos": [
+                182.5,
+                147.5
+              ]
+            },
+            "levelMatches": false,
+            "transitionCount": 1,
+            "transitions": [
+              {
+                "level": "spires",
+                "pos": [
+                  182.5,
+                  147.5
+                ]
+              }
+            ]
+          },
+          {
+            "id": "lk-k20-peak",
+            "kind": "spiral",
+            "side": "from",
+            "entry": {
+              "level": "tower-roofs",
+              "pos": [
+                180,
+                145
+              ]
+            },
+            "expected": {
+              "level": "north-peak",
+              "pos": [
+                180,
+                145
+              ]
+            },
+            "actual": {
+              "level": "south-tower",
+              "pos": [
+                182.5,
+                147.5
+              ]
+            },
+            "levelMatches": false,
+            "transitionCount": 1,
+            "transitions": [
+              {
+                "level": "south-tower",
+                "pos": [
+                  182.5,
+                  147.5
+                ]
+              }
+            ]
+          },
+          {
+            "id": "lk-k20a",
+            "kind": "stairs",
+            "side": "from",
+            "entry": {
+              "level": "larders",
+              "pos": [
+                200,
+                120
+              ]
+            },
+            "expected": {
+              "level": "ground",
+              "pos": [
+                180,
+                145
+              ]
+            },
+            "actual": {
+              "level": "court",
+              "pos": [
+                217.5,
+                122.5
+              ]
+            },
+            "levelMatches": false,
+            "transitionCount": 2,
+            "transitions": [
+              {
+                "level": "ground",
+                "pos": [
+                  182.5,
+                  147.5
+                ]
+              },
+              {
+                "level": "court",
+                "pos": [
+                  217.5,
+                  122.5
+                ]
+              }
+            ]
+          },
+          {
+            "id": "lk-k20a",
+            "kind": "stairs",
+            "side": "to",
+            "entry": {
+              "level": "ground",
+              "pos": [
+                180,
+                145
+              ]
+            },
+            "expected": {
+              "level": "larders",
+              "pos": [
+                200,
+                120
+              ]
+            },
+            "actual": {
+              "level": "north-peak",
+              "pos": [
+                182.5,
+                147.5
+              ]
+            },
+            "levelMatches": false,
+            "transitionCount": 6,
+            "transitions": [
+              {
+                "level": "court",
+                "pos": [
+                  182.5,
+                  147.5
+                ]
+              },
+              {
+                "level": "weeping",
+                "pos": [
+                  182.5,
+                  147.5
+                ]
+              },
+              {
+                "level": "spires",
+                "pos": [
+                  182.5,
+                  147.5
+                ]
+              },
+              {
+                "level": "south-tower",
+                "pos": [
+                  182.5,
+                  147.5
+                ]
+              },
+              {
+                "level": "tower-roofs",
+                "pos": [
+                  182.5,
+                  147.5
+                ]
+              },
+              {
+                "level": "north-peak",
+                "pos": [
+                  182.5,
+                  147.5
+                ]
+              }
+            ]
+          },
+          {
+            "id": "lk-k21-dun",
+            "kind": "spiral",
+            "side": "from",
+            "entry": {
+              "level": "dungeon",
+              "pos": [
+                190,
+                235
+              ]
+            },
+            "expected": {
+              "level": "larders",
+              "pos": [
+                190,
+                235
+              ]
+            },
+            "actual": {
+              "level": "spires",
+              "pos": [
+                177.5,
+                207.5
+              ]
+            },
+            "levelMatches": false,
+            "transitionCount": 5,
+            "transitions": [
+              {
+                "level": "larders",
+                "pos": [
+                  192.5,
+                  237.5
+                ]
+              },
+              {
+                "level": "ground",
+                "pos": [
+                  192.5,
+                  237.5
+                ]
+              },
+              {
+                "level": "court",
+                "pos": [
+                  192.5,
+                  237.5
+                ]
+              },
+              {
+                "level": "weeping",
+                "pos": [
+                  192.5,
+                  237.5
+                ]
+              },
+              {
+                "level": "spires",
+                "pos": [
+                  177.5,
+                  207.5
+                ]
+              }
+            ]
+          },
+          {
+            "id": "lk-k21-gr",
+            "kind": "spiral",
+            "side": "from",
+            "entry": {
+              "level": "larders",
+              "pos": [
+                190,
+                235
+              ]
+            },
+            "expected": {
+              "level": "ground",
+              "pos": [
+                190,
+                235
+              ]
+            },
+            "actual": {
+              "level": "dungeon",
+              "pos": [
+                192.5,
+                237.5
+              ]
+            },
+            "levelMatches": false,
+            "transitionCount": 1,
+            "transitions": [
+              {
+                "level": "dungeon",
+                "pos": [
+                  192.5,
+                  237.5
+                ]
+              }
+            ]
+          },
+          {
+            "id": "lk-k21-court",
+            "kind": "spiral",
+            "side": "from",
+            "entry": {
+              "level": "ground",
+              "pos": [
+                190,
+                235
+              ]
+            },
+            "expected": {
+              "level": "court",
+              "pos": [
+                190,
+                235
+              ]
+            },
+            "actual": {
+              "level": "larders",
+              "pos": [
+                192.5,
+                237.5
+              ]
+            },
+            "levelMatches": false,
+            "transitionCount": 1,
+            "transitions": [
+              {
+                "level": "larders",
+                "pos": [
+                  192.5,
+                  237.5
+                ]
+              }
+            ]
+          },
+          {
+            "id": "lk-k21-weep",
+            "kind": "spiral",
+            "side": "from",
+            "entry": {
+              "level": "court",
+              "pos": [
+                190,
+                235
+              ]
+            },
+            "expected": {
+              "level": "weeping",
+              "pos": [
+                190,
+                235
+              ]
+            },
+            "actual": {
+              "level": "ground",
+              "pos": [
+                192.5,
+                237.5
+              ]
+            },
+            "levelMatches": false,
+            "transitionCount": 1,
+            "transitions": [
+              {
+                "level": "ground",
+                "pos": [
+                  192.5,
+                  237.5
+                ]
+              }
+            ]
+          },
+          {
+            "id": "lk-k21-top",
+            "kind": "spiral",
+            "side": "from",
+            "entry": {
+              "level": "weeping",
+              "pos": [
+                190,
+                235
+              ]
+            },
+            "expected": {
+              "level": "spires",
+              "pos": [
+                175,
+                205
+              ]
+            },
+            "actual": {
+              "level": "court",
+              "pos": [
+                192.5,
+                237.5
+              ]
+            },
+            "levelMatches": false,
+            "transitionCount": 1,
+            "transitions": [
+              {
+                "level": "court",
+                "pos": [
+                  192.5,
+                  237.5
+                ]
+              }
+            ]
+          },
+          {
+            "id": "lk-k48-st",
+            "kind": "spiral",
+            "side": "from",
+            "entry": {
+              "level": "spires",
+              "pos": [
+                202.5,
+                225
+              ]
+            },
+            "expected": {
+              "level": "south-tower",
+              "pos": [
+                202.5,
+                225
+              ]
+            },
+            "actual": {
+              "level": "tower-roofs",
+              "pos": [
+                202.5,
+                227.5
+              ]
+            },
+            "levelMatches": false,
+            "transitionCount": 2,
+            "transitions": [
+              {
+                "level": "south-tower",
+                "pos": [
+                  202.5,
+                  227.5
+                ]
+              },
+              {
+                "level": "tower-roofs",
+                "pos": [
+                  202.5,
+                  227.5
+                ]
+              }
+            ]
+          },
+          {
+            "id": "lk-k48-roof",
+            "kind": "spiral",
+            "side": "from",
+            "entry": {
+              "level": "south-tower",
+              "pos": [
+                202.5,
+                225
+              ]
+            },
+            "expected": {
+              "level": "tower-roofs",
+              "pos": [
+                202.5,
+                225
+              ]
+            },
+            "actual": {
+              "level": "spires",
+              "pos": [
+                202.5,
+                227.5
+              ]
+            },
+            "levelMatches": false,
+            "transitionCount": 1,
+            "transitions": [
+              {
+                "level": "spires",
+                "pos": [
+                  202.5,
+                  227.5
+                ]
+              }
+            ]
+          },
+          {
+            "id": "lk-k18-court",
+            "kind": "spiral",
+            "side": "from",
+            "entry": {
+              "level": "ground",
+              "pos": [
+                215,
+                200
+              ]
+            },
+            "expected": {
+              "level": "court",
+              "pos": [
+                215,
+                200
+              ]
+            },
+            "actual": {
+              "level": "high-peak",
+              "pos": [
+                217.5,
+                202.5
+              ]
+            },
+            "levelMatches": false,
+            "transitionCount": 8,
+            "transitions": [
+              {
+                "level": "court",
+                "pos": [
+                  217.5,
+                  202.5
+                ]
+              },
+              {
+                "level": "weeping",
+                "pos": [
+                  217.5,
+                  202.5
+                ]
+              },
+              {
+                "level": "spires",
+                "pos": [
+                  217.5,
+                  202.5
+                ]
+              },
+              {
+                "level": "south-tower",
+                "pos": [
+                  217.5,
+                  202.5
+                ]
+              },
+              {
+                "level": "tower-roofs",
+                "pos": [
+                  217.5,
+                  202.5
+                ]
+              },
+              {
+                "level": "north-peak",
+                "pos": [
+                  217.5,
+                  202.5
+                ]
+              },
+              {
+                "level": "north-roof",
+                "pos": [
+                  217.5,
+                  202.5
+                ]
+              },
+              {
+                "level": "high-peak",
+                "pos": [
+                  217.5,
+                  202.5
+                ]
+              }
+            ]
+          },
+          {
+            "id": "lk-k18-weep",
+            "kind": "spiral",
+            "side": "from",
+            "entry": {
+              "level": "court",
+              "pos": [
+                215,
+                200
+              ]
+            },
+            "expected": {
+              "level": "weeping",
+              "pos": [
+                215,
+                200
+              ]
+            },
+            "actual": {
+              "level": "ground",
+              "pos": [
+                217.5,
+                202.5
+              ]
+            },
+            "levelMatches": false,
+            "transitionCount": 1,
+            "transitions": [
+              {
+                "level": "ground",
+                "pos": [
+                  217.5,
+                  202.5
+                ]
+              }
+            ]
+          },
+          {
+            "id": "lk-k18-spires",
+            "kind": "spiral",
+            "side": "from",
+            "entry": {
+              "level": "weeping",
+              "pos": [
+                215,
+                200
+              ]
+            },
+            "expected": {
+              "level": "spires",
+              "pos": [
+                215,
+                200
+              ]
+            },
+            "actual": {
+              "level": "court",
+              "pos": [
+                217.5,
+                202.5
+              ]
+            },
+            "levelMatches": false,
+            "transitionCount": 1,
+            "transitions": [
+              {
+                "level": "court",
+                "pos": [
+                  217.5,
+                  202.5
+                ]
+              }
+            ]
+          },
+          {
+            "id": "lk-k18-st",
+            "kind": "spiral",
+            "side": "from",
+            "entry": {
+              "level": "spires",
+              "pos": [
+                215,
+                200
+              ]
+            },
+            "expected": {
+              "level": "south-tower",
+              "pos": [
+                215,
+                200
+              ]
+            },
+            "actual": {
+              "level": "weeping",
+              "pos": [
+                217.5,
+                202.5
+              ]
+            },
+            "levelMatches": false,
+            "transitionCount": 1,
+            "transitions": [
+              {
+                "level": "weeping",
+                "pos": [
+                  217.5,
+                  202.5
+                ]
+              }
+            ]
+          },
+          {
+            "id": "lk-k18-roofs",
+            "kind": "spiral",
+            "side": "from",
+            "entry": {
+              "level": "south-tower",
+              "pos": [
+                215,
+                200
+              ]
+            },
+            "expected": {
+              "level": "tower-roofs",
+              "pos": [
+                215,
+                200
+              ]
+            },
+            "actual": {
+              "level": "spires",
+              "pos": [
+                217.5,
+                202.5
+              ]
+            },
+            "levelMatches": false,
+            "transitionCount": 1,
+            "transitions": [
+              {
+                "level": "spires",
+                "pos": [
+                  217.5,
+                  202.5
+                ]
+              }
+            ]
+          },
+          {
+            "id": "lk-k18-np",
+            "kind": "spiral",
+            "side": "from",
+            "entry": {
+              "level": "tower-roofs",
+              "pos": [
+                215,
+                200
+              ]
+            },
+            "expected": {
+              "level": "north-peak",
+              "pos": [
+                215,
+                200
+              ]
+            },
+            "actual": {
+              "level": "south-tower",
+              "pos": [
+                217.5,
+                202.5
+              ]
+            },
+            "levelMatches": false,
+            "transitionCount": 1,
+            "transitions": [
+              {
+                "level": "south-tower",
+                "pos": [
+                  217.5,
+                  202.5
+                ]
+              }
+            ]
+          },
+          {
+            "id": "lk-k18-nr",
+            "kind": "spiral",
+            "side": "from",
+            "entry": {
+              "level": "north-peak",
+              "pos": [
+                215,
+                200
+              ]
+            },
+            "expected": {
+              "level": "north-roof",
+              "pos": [
+                215,
+                200
+              ]
+            },
+            "actual": {
+              "level": "tower-roofs",
+              "pos": [
+                217.5,
+                202.5
+              ]
+            },
+            "levelMatches": false,
+            "transitionCount": 1,
+            "transitions": [
+              {
+                "level": "tower-roofs",
+                "pos": [
+                  217.5,
+                  202.5
+                ]
+              }
+            ]
+          },
+          {
+            "id": "lk-k18-hp",
+            "kind": "spiral",
+            "side": "from",
+            "entry": {
+              "level": "north-roof",
+              "pos": [
+                215,
+                200
+              ]
+            },
+            "expected": {
+              "level": "high-peak",
+              "pos": [
+                215,
+                200
+              ]
+            },
+            "actual": {
+              "level": "north-peak",
+              "pos": [
+                217.5,
+                202.5
+              ]
+            },
+            "levelMatches": false,
+            "transitionCount": 1,
+            "transitions": [
+              {
+                "level": "north-peak",
+                "pos": [
+                  217.5,
+                  202.5
+                ]
+              }
+            ]
+          },
+          {
+            "id": "lk-k64-gr",
+            "kind": "stairs",
+            "side": "from",
+            "entry": {
+              "level": "larders",
+              "pos": [
+                152.5,
+                252.5
+              ]
+            },
+            "expected": {
+              "level": "ground",
+              "pos": [
+                162.5,
+                237.5
+              ]
+            },
+            "actual": {
+              "level": "weeping",
+              "pos": [
+                162.5,
+                237.5
+              ]
+            },
+            "levelMatches": false,
+            "transitionCount": 3,
+            "transitions": [
+              {
+                "level": "ground",
+                "pos": [
+                  162.5,
+                  237.5
+                ]
+              },
+              {
+                "level": "court",
+                "pos": [
+                  162.5,
+                  237.5
+                ]
+              },
+              {
+                "level": "weeping",
+                "pos": [
+                  162.5,
+                  237.5
+                ]
+              }
+            ]
+          },
+          {
+            "id": "lk-k64-court",
+            "kind": "stairs",
+            "side": "from",
+            "entry": {
+              "level": "ground",
+              "pos": [
+                162.5,
+                237.5
+              ]
+            },
+            "expected": {
+              "level": "court",
+              "pos": [
+                162.5,
+                237.5
+              ]
+            },
+            "actual": {
+              "level": "larders",
+              "pos": [
+                152.5,
+                252.5
+              ]
+            },
+            "levelMatches": false,
+            "transitionCount": 1,
+            "transitions": [
+              {
+                "level": "larders",
+                "pos": [
+                  152.5,
+                  252.5
+                ]
+              }
+            ]
+          },
+          {
+            "id": "lk-k64-weep",
+            "kind": "stairs",
+            "side": "from",
+            "entry": {
+              "level": "court",
+              "pos": [
+                162.5,
+                237.5
+              ]
+            },
+            "expected": {
+              "level": "weeping",
+              "pos": [
+                162.5,
+                237.5
+              ]
+            },
+            "actual": {
+              "level": "ground",
+              "pos": [
+                162.5,
+                237.5
+              ]
+            },
+            "levelMatches": false,
+            "transitionCount": 1,
+            "transitions": [
+              {
+                "level": "ground",
+                "pos": [
+                  162.5,
+                  237.5
+                ]
+              }
+            ]
+          },
+          {
+            "id": "lk-k83-gr",
+            "kind": "spiral",
+            "side": "from",
+            "entry": {
+              "level": "larders",
+              "pos": [
+                127.5,
+                165
+              ]
+            },
+            "expected": {
+              "level": "ground",
+              "pos": [
+                135,
+                155
+              ]
+            },
+            "actual": {
+              "level": "weeping",
+              "pos": [
+                137.5,
+                157.5
+              ]
+            },
+            "levelMatches": false,
+            "transitionCount": 3,
+            "transitions": [
+              {
+                "level": "ground",
+                "pos": [
+                  137.5,
+                  157.5
+                ]
+              },
+              {
+                "level": "court",
+                "pos": [
+                  137.5,
+                  157.5
+                ]
+              },
+              {
+                "level": "weeping",
+                "pos": [
+                  137.5,
+                  157.5
+                ]
+              }
+            ]
+          },
+          {
+            "id": "lk-k83-court",
+            "kind": "spiral",
+            "side": "from",
+            "entry": {
+              "level": "ground",
+              "pos": [
+                135,
+                155
+              ]
+            },
+            "expected": {
+              "level": "court",
+              "pos": [
+                135,
+                155
+              ]
+            },
+            "actual": {
+              "level": "larders",
+              "pos": [
+                127.5,
+                167.5
+              ]
+            },
+            "levelMatches": false,
+            "transitionCount": 1,
+            "transitions": [
+              {
+                "level": "larders",
+                "pos": [
+                  127.5,
+                  167.5
+                ]
+              }
+            ]
+          },
+          {
+            "id": "lk-k83-weep",
+            "kind": "spiral",
+            "side": "from",
+            "entry": {
+              "level": "court",
+              "pos": [
+                135,
+                155
+              ]
+            },
+            "expected": {
+              "level": "weeping",
+              "pos": [
+                135,
+                155
+              ]
+            },
+            "actual": {
+              "level": "ground",
+              "pos": [
+                137.5,
+                157.5
+              ]
+            },
+            "levelMatches": false,
+            "transitionCount": 1,
+            "transitions": [
+              {
+                "level": "ground",
+                "pos": [
+                  137.5,
+                  157.5
+                ]
+              }
+            ]
+          },
+          {
+            "id": "lk-k34-ladder",
+            "kind": "ladder",
+            "side": "to",
+            "entry": {
+              "level": "ground",
+              "pos": [
+                180,
+                145
+              ]
+            },
+            "expected": {
+              "level": "court",
+              "pos": [
+                217.5,
+                123
+              ]
+            },
+            "actual": {
+              "level": "north-peak",
+              "pos": [
+                182.5,
+                147.5
+              ]
+            },
+            "levelMatches": false,
+            "transitionCount": 6,
+            "transitions": [
+              {
+                "level": "court",
+                "pos": [
+                  182.5,
+                  147.5
+                ]
+              },
+              {
+                "level": "weeping",
+                "pos": [
+                  182.5,
+                  147.5
+                ]
+              },
+              {
+                "level": "spires",
+                "pos": [
+                  182.5,
+                  147.5
+                ]
+              },
+              {
+                "level": "south-tower",
+                "pos": [
+                  182.5,
+                  147.5
+                ]
+              },
+              {
+                "level": "tower-roofs",
+                "pos": [
+                  182.5,
+                  147.5
+                ]
+              },
+              {
+                "level": "north-peak",
+                "pos": [
+                  182.5,
+                  147.5
+                ]
+              }
+            ]
+          },
+          {
+            "id": "lk-elevator",
+            "kind": "elevator",
+            "side": "to",
+            "entry": {
+              "level": "spires",
+              "pos": [
+                170,
+                204
+              ]
+            },
+            "expected": {
+              "level": "larders",
+              "pos": [
+                180,
+                195
+              ]
+            },
+            "actual": {
+              "level": "weeping",
+              "pos": [
+                192.5,
+                237.5
+              ]
+            },
+            "levelMatches": false,
+            "transitionCount": 1,
+            "transitions": [
+              {
+                "level": "weeping",
+                "pos": [
+                  192.5,
+                  237.5
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "path": "ch09/T",
+        "activations": 4,
+        "wrongDestination": 0,
+        "multipleTransitions": 0,
+        "findings": []
+      },
+      {
+        "path": "ch13/X",
+        "activations": 20,
+        "wrongDestination": 0,
+        "multipleTransitions": 0,
+        "findings": []
+      },
+      {
+        "path": "ch02/A",
+        "activations": 0,
+        "wrongDestination": 0,
+        "multipleTransitions": 0,
+        "findings": []
+      },
+      {
+        "path": "ch02/B",
+        "activations": 8,
+        "wrongDestination": 0,
+        "multipleTransitions": 0,
+        "findings": []
+      },
+      {
+        "path": "ch02/D",
+        "activations": 12,
+        "wrongDestination": 0,
+        "multipleTransitions": 0,
+        "findings": []
+      },
+      {
+        "path": "ch02/F",
+        "activations": 6,
+        "wrongDestination": 0,
+        "multipleTransitions": 0,
+        "findings": []
+      },
+      {
+        "path": "ch02/H",
+        "activations": 6,
+        "wrongDestination": 0,
+        "multipleTransitions": 0,
+        "findings": []
+      },
+      {
+        "path": "ch02/I",
+        "activations": 4,
+        "wrongDestination": 0,
+        "multipleTransitions": 0,
+        "findings": []
+      },
+      {
+        "path": "ch02/L",
+        "activations": 4,
+        "wrongDestination": 0,
+        "multipleTransitions": 0,
+        "findings": []
+      },
+      {
+        "path": "ch02/P",
+        "activations": 6,
+        "wrongDestination": 0,
+        "multipleTransitions": 0,
+        "findings": []
+      },
+      {
+        "path": "ch02/R",
+        "activations": 12,
+        "wrongDestination": 0,
+        "multipleTransitions": 0,
+        "findings": []
+      },
+      {
+        "path": "appB/death-house",
+        "activations": 16,
+        "wrongDestination": 4,
+        "multipleTransitions": 2,
+        "findings": [
+          {
+            "id": "lk-spiral-1-2",
+            "kind": "spiral",
+            "side": "from",
+            "entry": {
+              "level": "f1",
+              "pos": [
+                25.5,
+                27.5
+              ]
+            },
+            "expected": {
+              "level": "f2",
+              "pos": [
+                25.5,
+                27.5
+              ]
+            },
+            "actual": {
+              "level": "f3",
+              "pos": [
+                27.5,
+                27.5
+              ]
+            },
+            "levelMatches": false,
+            "transitionCount": 2,
+            "transitions": [
+              {
+                "level": "f2",
+                "pos": [
+                  27.5,
+                  27.5
+                ]
+              },
+              {
+                "level": "f3",
+                "pos": [
+                  27.5,
+                  27.5
+                ]
+              }
+            ]
+          },
+          {
+            "id": "lk-spiral-2-3",
+            "kind": "spiral",
+            "side": "from",
+            "entry": {
+              "level": "f2",
+              "pos": [
+                25.5,
+                27.5
+              ]
+            },
+            "expected": {
+              "level": "f3",
+              "pos": [
+                25.5,
+                27.5
+              ]
+            },
+            "actual": {
+              "level": "f1",
+              "pos": [
+                27.5,
+                27.5
+              ]
+            },
+            "levelMatches": false,
+            "transitionCount": 1,
+            "transitions": [
+              {
+                "level": "f1",
+                "pos": [
+                  27.5,
+                  27.5
+                ]
+              }
+            ]
+          },
+          {
+            "id": "lk-dumbwaiter-1-2",
+            "kind": "dumbwaiter",
+            "side": "from",
+            "entry": {
+              "level": "f1",
+              "pos": [
+                28.5,
+                18.5
+              ]
+            },
+            "expected": {
+              "level": "f2",
+              "pos": [
+                28.5,
+                18.5
+              ]
+            },
+            "actual": {
+              "level": "f3",
+              "pos": [
+                27.5,
+                17.5
+              ]
+            },
+            "levelMatches": false,
+            "transitionCount": 2,
+            "transitions": [
+              {
+                "level": "f2",
+                "pos": [
+                  27.5,
+                  17.5
+                ]
+              },
+              {
+                "level": "f3",
+                "pos": [
+                  27.5,
+                  17.5
+                ]
+              }
+            ]
+          },
+          {
+            "id": "lk-dumbwaiter-2-3",
+            "kind": "dumbwaiter",
+            "side": "from",
+            "entry": {
+              "level": "f2",
+              "pos": [
+                28.5,
+                18.5
+              ]
+            },
+            "expected": {
+              "level": "f3",
+              "pos": [
+                28.5,
+                18.5
+              ]
+            },
+            "actual": {
+              "level": "f1",
+              "pos": [
+                27.5,
+                17.5
+              ]
+            },
+            "levelMatches": false,
+            "transitionCount": 1,
+            "transitions": [
+              {
+                "level": "f1",
+                "pos": [
+                  27.5,
+                  17.5
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "path": "ch03/E5",
+        "activations": 2,
+        "wrongDestination": 0,
+        "multipleTransitions": 0,
+        "findings": []
+      },
+      {
+        "path": "ch05/N1",
+        "activations": 0,
+        "wrongDestination": 0,
+        "multipleTransitions": 0,
+        "findings": []
+      },
+      {
+        "path": "ch05/N2",
+        "activations": 12,
+        "wrongDestination": 0,
+        "multipleTransitions": 0,
+        "findings": []
+      },
+      {
+        "path": "ch05/N3",
+        "activations": 6,
+        "wrongDestination": 0,
+        "multipleTransitions": 0,
+        "findings": []
+      },
+      {
+        "path": "ch05/N4",
+        "activations": 6,
+        "wrongDestination": 0,
+        "multipleTransitions": 0,
+        "findings": []
+      },
+      {
+        "path": "ch05/N5",
+        "activations": 0,
+        "wrongDestination": 0,
+        "multipleTransitions": 0,
+        "findings": []
+      },
+      {
+        "path": "ch05/N6",
+        "activations": 2,
+        "wrongDestination": 0,
+        "multipleTransitions": 0,
+        "findings": []
+      },
+      {
+        "path": "ch05/N7",
+        "activations": 0,
+        "wrongDestination": 0,
+        "multipleTransitions": 0,
+        "findings": []
+      },
+      {
+        "path": "ch05/N8",
+        "activations": 0,
+        "wrongDestination": 0,
+        "multipleTransitions": 0,
+        "findings": []
+      },
+      {
+        "path": "ch05/N9",
+        "activations": 0,
+        "wrongDestination": 0,
+        "multipleTransitions": 0,
+        "findings": []
+      },
+      {
+        "path": "ch08/S10",
+        "activations": 10,
+        "wrongDestination": 0,
+        "multipleTransitions": 0,
+        "findings": []
+      },
+      {
+        "path": "ch10/U3",
+        "activations": 2,
+        "wrongDestination": 0,
+        "multipleTransitions": 0,
+        "findings": []
+      },
+      {
+        "path": "ch07/Q",
+        "activations": 30,
+        "wrongDestination": 7,
+        "multipleTransitions": 4,
+        "findings": [
+          {
+            "id": "Q-grand-stair-n",
+            "kind": "stairs",
+            "side": "to",
+            "entry": {
+              "level": "second",
+              "pos": [
+                195,
+                96
+              ]
+            },
+            "expected": {
+              "level": "ground",
+              "pos": [
+                183,
+                115
+              ]
+            },
+            "actual": {
+              "level": "second",
+              "pos": [
+                197.5,
+                132.5
+              ]
+            },
+            "levelMatches": false,
+            "transitionCount": 2,
+            "transitions": [
+              {
+                "level": "ground",
+                "pos": [
+                  182.5,
+                  117.5
+                ]
+              },
+              {
+                "level": "second",
+                "pos": [
+                  197.5,
+                  132.5
+                ]
+              }
+            ]
+          },
+          {
+            "id": "Q14-n-1",
+            "kind": "spiral",
+            "side": "from",
+            "entry": {
+              "level": "ground",
+              "pos": [
+                255,
+                95
+              ]
+            },
+            "expected": {
+              "level": "second",
+              "pos": [
+                255,
+                95
+              ]
+            },
+            "actual": {
+              "level": "third",
+              "pos": [
+                257.5,
+                97.5
+              ]
+            },
+            "levelMatches": false,
+            "transitionCount": 2,
+            "transitions": [
+              {
+                "level": "second",
+                "pos": [
+                  257.5,
+                  97.5
+                ]
+              },
+              {
+                "level": "third",
+                "pos": [
+                  257.5,
+                  97.5
+                ]
+              }
+            ]
+          },
+          {
+            "id": "Q14-n-2",
+            "kind": "spiral",
+            "side": "from",
+            "entry": {
+              "level": "second",
+              "pos": [
+                255,
+                96
+              ]
+            },
+            "expected": {
+              "level": "third",
+              "pos": [
+                255,
+                96
+              ]
+            },
+            "actual": {
+              "level": "ground",
+              "pos": [
+                257.5,
+                97.5
+              ]
+            },
+            "levelMatches": false,
+            "transitionCount": 1,
+            "transitions": [
+              {
+                "level": "ground",
+                "pos": [
+                  257.5,
+                  97.5
+                ]
+              }
+            ]
+          },
+          {
+            "id": "Q14-s-1",
+            "kind": "spiral",
+            "side": "from",
+            "entry": {
+              "level": "ground",
+              "pos": [
+                255,
+                135
+              ]
+            },
+            "expected": {
+              "level": "second",
+              "pos": [
+                255,
+                135
+              ]
+            },
+            "actual": {
+              "level": "third",
+              "pos": [
+                257.5,
+                132.5
+              ]
+            },
+            "levelMatches": false,
+            "transitionCount": 2,
+            "transitions": [
+              {
+                "level": "second",
+                "pos": [
+                  257.5,
+                  137.5
+                ]
+              },
+              {
+                "level": "third",
+                "pos": [
+                  257.5,
+                  132.5
+                ]
+              }
+            ]
+          },
+          {
+            "id": "Q14-s-2",
+            "kind": "spiral",
+            "side": "from",
+            "entry": {
+              "level": "second",
+              "pos": [
+                255,
+                134
+              ]
+            },
+            "expected": {
+              "level": "third",
+              "pos": [
+                255,
+                134
+              ]
+            },
+            "actual": {
+              "level": "ground",
+              "pos": [
+                257.5,
+                137.5
+              ]
+            },
+            "levelMatches": false,
+            "transitionCount": 1,
+            "transitions": [
+              {
+                "level": "ground",
+                "pos": [
+                  257.5,
+                  137.5
+                ]
+              }
+            ]
+          },
+          {
+            "id": "Q50-Q51",
+            "kind": "stairs",
+            "side": "from",
+            "entry": {
+              "level": "roof",
+              "pos": [
+                265,
+                125
+              ]
+            },
+            "expected": {
+              "level": "beacon",
+              "pos": [
+                265,
+                105
+              ]
+            },
+            "actual": {
+              "level": "peak",
+              "pos": [
+                267.5,
+                122.5
+              ]
+            },
+            "levelMatches": false,
+            "transitionCount": 2,
+            "transitions": [
+              {
+                "level": "beacon",
+                "pos": [
+                  267.5,
+                  107.5
+                ]
+              },
+              {
+                "level": "peak",
+                "pos": [
+                  267.5,
+                  122.5
+                ]
+              }
+            ]
+          },
+          {
+            "id": "Q51-Q53",
+            "kind": "stairs",
+            "side": "from",
+            "entry": {
+              "level": "beacon",
+              "pos": [
+                265,
+                107
+              ]
+            },
+            "expected": {
+              "level": "peak",
+              "pos": [
+                265,
+                123
+              ]
+            },
+            "actual": {
+              "level": "roof",
+              "pos": [
+                267.5,
+                127.5
+              ]
+            },
+            "levelMatches": false,
+            "transitionCount": 1,
+            "transitions": [
+              {
+                "level": "roof",
+                "pos": [
+                  267.5,
+                  127.5
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "path": "ch08/S",
+        "activations": 22,
+        "wrongDestination": 0,
+        "multipleTransitions": 0,
+        "findings": []
+      },
+      {
+        "path": "ch10/U",
+        "activations": 2,
+        "wrongDestination": 0,
+        "multipleTransitions": 0,
+        "findings": []
+      },
+      {
+        "path": "ch11/V",
+        "activations": 10,
+        "wrongDestination": 3,
+        "multipleTransitions": 1,
+        "findings": [
+          {
+            "id": "V-lift-1",
+            "kind": "elevator",
+            "side": "from",
+            "entry": {
+              "level": "grounds",
+              "pos": [
+                252.5,
+                222.5
+              ]
+            },
+            "expected": {
+              "level": "f2",
+              "pos": [
+                252.5,
+                222.5
+              ]
+            },
+            "actual": {
+              "level": "f4",
+              "pos": [
+                252.5,
+                222.5
+              ]
+            },
+            "levelMatches": false,
+            "transitionCount": 3,
+            "transitions": [
+              {
+                "level": "f2",
+                "pos": [
+                  252.5,
+                  222.5
+                ]
+              },
+              {
+                "level": "f3",
+                "pos": [
+                  252.5,
+                  222.5
+                ]
+              },
+              {
+                "level": "f4",
+                "pos": [
+                  252.5,
+                  222.5
+                ]
+              }
+            ]
+          },
+          {
+            "id": "V-lift-2",
+            "kind": "elevator",
+            "side": "from",
+            "entry": {
+              "level": "f2",
+              "pos": [
+                252.5,
+                222.5
+              ]
+            },
+            "expected": {
+              "level": "f3",
+              "pos": [
+                252.5,
+                222.5
+              ]
+            },
+            "actual": {
+              "level": "grounds",
+              "pos": [
+                252.5,
+                222.5
+              ]
+            },
+            "levelMatches": false,
+            "transitionCount": 1,
+            "transitions": [
+              {
+                "level": "grounds",
+                "pos": [
+                  252.5,
+                  222.5
+                ]
+              }
+            ]
+          },
+          {
+            "id": "V-lift-3",
+            "kind": "elevator",
+            "side": "from",
+            "entry": {
+              "level": "f3",
+              "pos": [
+                252.5,
+                222.5
+              ]
+            },
+            "expected": {
+              "level": "f4",
+              "pos": [
+                252.5,
+                222.5
+              ]
+            },
+            "actual": {
+              "level": "f2",
+              "pos": [
+                252.5,
+                222.5
+              ]
+            },
+            "levelMatches": false,
+            "transitionCount": 1,
+            "transitions": [
+              {
+                "level": "f2",
+                "pos": [
+                  252.5,
+                  222.5
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "path": "ch12/W",
+        "activations": 20,
+        "wrongDestination": 4,
+        "multipleTransitions": 2,
+        "findings": [
+          {
+            "id": "W11-up",
+            "kind": "spiral",
+            "side": "to",
+            "entry": {
+              "level": "upper",
+              "pos": [
+                16.75,
+                116.5
+              ]
+            },
+            "expected": {
+              "level": "ground",
+              "pos": [
+                16.75,
+                116.5
+              ]
+            },
+            "actual": {
+              "level": "cellar",
+              "pos": [
+                12.5,
+                117.5
+              ]
+            },
+            "levelMatches": false,
+            "transitionCount": 2,
+            "transitions": [
+              {
+                "level": "ground",
+                "pos": [
+                  17.5,
+                  117.5
+                ]
+              },
+              {
+                "level": "cellar",
+                "pos": [
+                  12.5,
+                  117.5
+                ]
+              }
+            ]
+          },
+          {
+            "id": "W11-down",
+            "kind": "spiral",
+            "side": "from",
+            "entry": {
+              "level": "ground",
+              "pos": [
+                13,
+                116.5
+              ]
+            },
+            "expected": {
+              "level": "cellar",
+              "pos": [
+                13,
+                116.5
+              ]
+            },
+            "actual": {
+              "level": "upper",
+              "pos": [
+                17.5,
+                117.5
+              ]
+            },
+            "levelMatches": false,
+            "transitionCount": 1,
+            "transitions": [
+              {
+                "level": "upper",
+                "pos": [
+                  17.5,
+                  117.5
+                ]
+              }
+            ]
+          },
+          {
+            "id": "W12-up",
+            "kind": "stairs",
+            "side": "to",
+            "entry": {
+              "level": "upper",
+              "pos": [
+                81.75,
+                116.5
+              ]
+            },
+            "expected": {
+              "level": "ground",
+              "pos": [
+                81.75,
+                116.5
+              ]
+            },
+            "actual": {
+              "level": "cellar",
+              "pos": [
+                77.5,
+                117.5
+              ]
+            },
+            "levelMatches": false,
+            "transitionCount": 2,
+            "transitions": [
+              {
+                "level": "ground",
+                "pos": [
+                  82.5,
+                  117.5
+                ]
+              },
+              {
+                "level": "cellar",
+                "pos": [
+                  77.5,
+                  117.5
+                ]
+              }
+            ]
+          },
+          {
+            "id": "W12-down",
+            "kind": "stairs",
+            "side": "from",
+            "entry": {
+              "level": "ground",
+              "pos": [
+                78,
+                117
+              ]
+            },
+            "expected": {
+              "level": "cellar",
+              "pos": [
+                78,
+                117
+              ]
+            },
+            "actual": {
+              "level": "upper",
+              "pos": [
+                82.5,
+                117.5
+              ]
+            },
+            "levelMatches": false,
+            "transitionCount": 1,
+            "transitions": [
+              {
+                "level": "upper",
+                "pos": [
+                  82.5,
+                  117.5
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "path": "ch14/Y",
+        "activations": 0,
+        "wrongDestination": 0,
+        "multipleTransitions": 0,
+        "findings": []
+      },
+      {
+        "path": "ch15/Z",
+        "activations": 2,
+        "wrongDestination": 0,
+        "multipleTransitions": 0,
+        "findings": []
+      },
+      {
+        "path": "ch02/C",
+        "activations": 0,
+        "wrongDestination": 0,
+        "multipleTransitions": 0,
+        "findings": []
+      },
+      {
+        "path": "ch03/E",
+        "activations": 0,
+        "wrongDestination": 0,
+        "multipleTransitions": 0,
+        "findings": []
+      },
+      {
+        "path": "ch05/N",
+        "activations": 0,
+        "wrongDestination": 0,
+        "multipleTransitions": 0,
+        "findings": []
+      },
+      {
+        "path": "ch06/O",
+        "activations": 6,
+        "wrongDestination": 3,
+        "multipleTransitions": 1,
+        "findings": [
+          {
+            "id": "O-stair-1",
+            "kind": "stairs",
+            "side": "from",
+            "entry": {
+              "level": "O1L",
+              "pos": [
+                112.5,
+                124.5
+              ]
+            },
+            "expected": {
+              "level": "O2L",
+              "pos": [
+                112.5,
+                124.5
+              ]
+            },
+            "actual": {
+              "level": "O4L",
+              "pos": [
+                117.5,
+                122.5
+              ]
+            },
+            "levelMatches": false,
+            "transitionCount": 3,
+            "transitions": [
+              {
+                "level": "O2L",
+                "pos": [
+                  112.5,
+                  122.5
+                ]
+              },
+              {
+                "level": "O3L",
+                "pos": [
+                  112.5,
+                  122.5
+                ]
+              },
+              {
+                "level": "O4L",
+                "pos": [
+                  117.5,
+                  122.5
+                ]
+              }
+            ]
+          },
+          {
+            "id": "O-stair-2",
+            "kind": "stairs",
+            "side": "from",
+            "entry": {
+              "level": "O2L",
+              "pos": [
+                112.5,
+                124.5
+              ]
+            },
+            "expected": {
+              "level": "O3L",
+              "pos": [
+                112.5,
+                124.5
+              ]
+            },
+            "actual": {
+              "level": "O1L",
+              "pos": [
+                112.5,
+                122.5
+              ]
+            },
+            "levelMatches": false,
+            "transitionCount": 1,
+            "transitions": [
+              {
+                "level": "O1L",
+                "pos": [
+                  112.5,
+                  122.5
+                ]
+              }
+            ]
+          },
+          {
+            "id": "O-ladder",
+            "kind": "trapdoor",
+            "side": "from",
+            "entry": {
+              "level": "O3L",
+              "pos": [
+                117.5,
+                123
+              ]
+            },
+            "expected": {
+              "level": "O4L",
+              "pos": [
+                117.5,
+                123
+              ]
+            },
+            "actual": {
+              "level": "O2L",
+              "pos": [
+                112.5,
+                122.5
+              ]
+            },
+            "levelMatches": false,
+            "transitionCount": 1,
+            "transitions": [
+              {
+                "level": "O2L",
+                "pos": [
+                  112.5,
+                  122.5
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "path": "wsc/01-tavern",
+        "activations": 2,
+        "wrongDestination": 0,
+        "multipleTransitions": 0,
+        "findings": []
+      },
+      {
+        "path": "wsc/02-street",
+        "activations": 0,
+        "wrongDestination": 0,
+        "multipleTransitions": 0,
+        "findings": []
+      },
+      {
+        "path": "wsc/03-compound",
+        "activations": 6,
+        "wrongDestination": 3,
+        "multipleTransitions": 1,
+        "findings": [
+          {
+            "id": "lk-stair_L0_L1",
+            "kind": "stairs",
+            "side": "from",
+            "entry": {
+              "level": "L0",
+              "pos": [
+                67.5,
+                52.5
+              ]
+            },
+            "expected": {
+              "level": "L1",
+              "pos": [
+                67.5,
+                52.5
+              ]
+            },
+            "actual": {
+              "level": "L3",
+              "pos": [
+                67.5,
+                52.5
+              ]
+            },
+            "levelMatches": false,
+            "transitionCount": 3,
+            "transitions": [
+              {
+                "level": "L1",
+                "pos": [
+                  67.5,
+                  52.5
+                ]
+              },
+              {
+                "level": "L2",
+                "pos": [
+                  67.5,
+                  52.5
+                ]
+              },
+              {
+                "level": "L3",
+                "pos": [
+                  67.5,
+                  52.5
+                ]
+              }
+            ]
+          },
+          {
+            "id": "lk-stair_L1_L2",
+            "kind": "stairs",
+            "side": "from",
+            "entry": {
+              "level": "L1",
+              "pos": [
+                67.5,
+                52.5
+              ]
+            },
+            "expected": {
+              "level": "L2",
+              "pos": [
+                67.5,
+                52.5
+              ]
+            },
+            "actual": {
+              "level": "L0",
+              "pos": [
+                67.5,
+                52.5
+              ]
+            },
+            "levelMatches": false,
+            "transitionCount": 1,
+            "transitions": [
+              {
+                "level": "L0",
+                "pos": [
+                  67.5,
+                  52.5
+                ]
+              }
+            ]
+          },
+          {
+            "id": "lk-stair_L2_L3",
+            "kind": "stairs",
+            "side": "from",
+            "entry": {
+              "level": "L2",
+              "pos": [
+                67.5,
+                52.5
+              ]
+            },
+            "expected": {
+              "level": "L3",
+              "pos": [
+                67.5,
+                52.5
+              ]
+            },
+            "actual": {
+              "level": "L1",
+              "pos": [
+                67.5,
+                52.5
+              ]
+            },
+            "levelMatches": false,
+            "transitionCount": 1,
+            "transitions": [
+              {
+                "level": "L1",
+                "pos": [
+                  67.5,
+                  52.5
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "path": "wsc/03a-road",
+        "activations": 0,
+        "wrongDestination": 0,
+        "multipleTransitions": 0,
+        "findings": []
+      },
+      {
+        "path": "wsc/03b-path",
+        "activations": 0,
+        "wrongDestination": 0,
+        "multipleTransitions": 0,
+        "findings": []
+      }
+    ]
+  },
+  "interpretation": "A nearby move pass is not a complete route. Off-floor arrivals at an elevator or shaft can represent a deliberate void and need source interpretation. Wrong destination and multiple-hop counts reproduce existing queued transition behavior; they do not authorize fixing item 11 in this release."
+}

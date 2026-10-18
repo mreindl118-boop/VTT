@@ -83,7 +83,8 @@ EXTRA = [('M2', 'Mount Baratok', (1005, 381), 'peak'), ('M3', 'Mount Baratok', (
          ('M5', 'Mount Baratok', (1770, 366), 'peak'), ('D2', 'River Ivlis (east bridge)', (2604, 1386), 'river')]
 FIX = {'Y': (240, 1245)}  # discs the detector misses on the page (Yester Hill stands in the mist at the west edge)
 # the letter is drawn beside the place: where it stands off the symbol, the pin moves onto it (miles, +y south)
-NUDGE = {'N': (0.0, -0.45)}   # Vallaki's letter sits on the road south of the town, which lies on the lake shore
+NUDGE = {'N': (0.0, -0.45),   # Vallaki's letter sits on the road south of the town, which lies on the lake shore
+         'L': (0.0, 0.44)}    # Lake Zarovich's marker sits a little out on the water; its map is the landing on the south shore
 pins = []
 for p in base['pins']:
     q = refine(p['pos']) if p['key'] not in FIX else np.array(FIX[p['key']], float); e = OrderedDict(p); e['pos'] = mi(*q)

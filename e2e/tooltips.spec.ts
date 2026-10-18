@@ -154,7 +154,9 @@ test('one outside handler: menu, chip, inside the tip, chip, map — three times
   const baseline = await menuTitle();
   expect(baseline).toContain('2B');
   for (let i = 0; i < 3; i++) {
-    await tapEl(page, '.topbar .title', touch);
+    // outside the menu and off the map: the DM tab, already on (the title is no longer plain text: in the valley its
+    // crumbs are buttons that frame their scopes, and a finger near them presses one)
+    await tapEl(page, '.topbar [data-view="dm"]', touch);
     await expect(page.locator('.tapmenu')).toHaveCount(0);
     await page.waitForTimeout(400);
     await tapAt(page, x, y, touch);
@@ -235,13 +237,14 @@ test('view flips empty #tips: the slider to Players, peek released, and the mode
   expect(await page.locator('.vslider').getAttribute('data-t')).toBe('0.00');
   expect(await tipsEmpty(page)).toBe(true);
   // peek held: open a DM card, release: back to Players and #tips is empty
+  // (the slider glides by animation frames: Death House in its village can take seconds a frame on a software renderer)
   const t = () => page.locator('.vslider').getAttribute('data-t');
   await page.keyboard.down('\\');
-  await expect.poll(t, { timeout: 5000 }).toBe('1.00');
+  await expect.poll(t, { timeout: 30_000 }).toBe('1.00');
   await openDmCard();
   await expect(page.locator('#tips .rt')).toBeVisible();
   await page.keyboard.up('\\');
-  await expect.poll(t, { timeout: 5000 }).toBe('0.00');
+  await expect.poll(t, { timeout: 30_000 }).toBe('0.00');
   expect(await tipsEmpty(page)).toBe(true);
   // the mode switch
   await page.evaluate(() => (window as any).__mistlab.setT(1));

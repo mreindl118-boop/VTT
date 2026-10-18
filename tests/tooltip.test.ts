@@ -16,6 +16,7 @@ const SITES: Record<string, { selector: string; proof: [file: string, text: stri
   'app/src/ui/viewSlider.ts:peek': { selector: '.vs-peek', proof: ['app/src/ui/viewSlider.ts', 'class="vs-peek"'] },
   'app/src/ui/worldmap.ts:svg': { selector: '.world-svg', proof: ['app/src/ui/worldmap.ts', "class: 'world-svg'"] },
   'app/src/app.ts:el': { selector: 'canvas.gl', proof: ['app/src/render/world.ts', "domElement.classList.add('gl')"] },
+  'app/src/ui/worldnest.ts:el': { selector: 'canvas.gl', proof: ['app/src/render/world.ts', "domElement.classList.add('gl')"] },
 };
 
 describe('hold exclusion', () => {

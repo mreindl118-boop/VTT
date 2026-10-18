@@ -1905,7 +1905,7 @@
      "floor": "cobble",
      "ceilingFt": 15,
      "desc": "An open-fronted dock: a flatbed wagon carrying three braced barrels, a raised plank walk round three sides, and overhead an opening where a crane's arm and hooks hang down.",
-     "dm": "Barrels roll up the ramp (W12) to the winch (W16) and drop onto the wagon. All three hold Purple Grapemash No. 3. The south door was forced; it no longer shuts, only barricades."
+     "dm": "Barrels roll up the ramp (W12) to the winch (W16) and drop onto the wagon. Purple Grapemash No. 3 fills all three barrels. Someone forced the southern door; it no longer shuts, only barricades."
     },
     {
      "key": "W1",
@@ -11954,7 +11954,7 @@
      "floor": "plank",
      "ceilingFt": 10,
      "desc": "A four-poster carved with a great raven, a black fur rug, two narrow wardrobes either side of a hanging that shows a church, a carved cradle, a plain desk under the window, a chest and a tall mirror.",
-     "dm": "Stefania and Dag sleep here for now. The chest is locked (its key is in a bedpost); shipping records in the desk; a hidden door at the north end of the east wall leads to W16."
+     "dm": "Stefania and Dag sleep here for now. The chest is locked (its key is in a bedpost); shipping records in the desk; a doorway concealed near the northeast corner opens through the east wall into W16."
     },
     {
      "key": "W11-hall",
@@ -12137,7 +12137,7 @@
      "floor": "plank",
      "ceilingFt": 10,
      "desc": "A plank floor with a square drop to the dock below and a timber winch standing over it; a wild man squats on top, brandishing a crooked black staff.",
-     "dm": "The druid holds the Gulthias staff. A hidden door at the north end of the west wall leads to W17."
+     "dm": "The druid holds the Gulthias staff. Near the northwest corner, a concealed opening through the west wall leads into W17."
     },
     {
      "key": "W16-s",

@@ -164,6 +164,10 @@ export interface SceneFile {
 }
 
 export interface GridLevel {
+  /** Draw the grid on the floor polygons themselves (which must not overlap), not over their bounding box: open terrain
+   *  with real gaps (bridges), or a level whose floor is no walled room (a hilltop, a track round a hill), so the grid
+   *  never hangs past it or across empty space. */
+  clipToFloors?: boolean;
   /** Walkable floor polygons: the grid is clipped to these and nothing else. */
   floorPolygons: Polygon[];
   type: GridType;
@@ -171,9 +175,6 @@ export interface GridLevel {
   origin: Vec2;
   color: string;
   opacity: number;
-  /** Draw the grid on the floor polygons themselves (which must not overlap), not over their bounding box: for a level
-   *  whose floor is no walled room (a hilltop, a track round a hill), so the grid never hangs past it. */
-  clip?: boolean;
 }
 export interface GridFile {
   schema: 1;

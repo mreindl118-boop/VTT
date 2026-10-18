@@ -59,12 +59,14 @@ The unreleased work is on GitHub under `claude/wip/`.
 
 | Item | Branch | State and what is left |
 |---|---|---|
-| 2. Nested world | `claude/wip/item2-nested-world` | Steps 2–4 and the D&D world map are built. **Releasing from the cloud** (the owner's call: "ship what works now"). A second release follows; see section 4. |
+| 2. Nested world | `claude/wip/item2-nested-world-laptop` | Released on main as 0.3.0: steps 2-4 and the D&D world map verified and fixed by ChatGPT; build, 519 units and 257 GPU browser checks pass (55 existing device skips). The parent task owns the owner-approved alternate private publication; that deployment is separate from this Git release. See `handoff/item2-report.md`. Second release remains pending (section 4). |
+| 2d. Bounded 0.3.1 continuity release | `claude/wip/item2-nested-world-laptop`; source release 0.3.1 | Final acceptance, correctness and regression reconciliations pass for verified candidate `1c8d94a`. Versioned `index-CoeOhM3n.js`: build, 543 units, 21 desktop checks and 267 GPU passes / 55 existing device skips / zero failures; CI `38510870342` succeeded. Original ground and triangle limits remain intact. This release records only local/compass/Amber corrections; comprehensive geography remains item 2e. Public compiled-bundle/update-feed publication stays held. See `handoff/item2-continuity-report.md`. |
+| 2e. Comprehensive 0.3.2 map logic | Start after bounded 0.3.1 from the laptop WIP; root integrates while online | Matt: "Every map's logic should be correct for 0.3.2." Both campaigns, all 46 maps / 122 levels: terrain, connected roads/rivers/bridges, placements, doors, stairs and source geometry. Separate source, implementation, runtime and visual evidence. Prepare sanitized cloud continuation; preserve source adaptations, identify only essential item 7 components, and do not publish licensed sources or private data. See `handoff/allmap-audit-report.md` and item 2e in the queue. |
 | 3. Dollhouse view | none, start from the main branch | Not started. It needs the nested world, so start it after item 2 releases. |
 | 4. Movable panels | `claude/wip/item4-movable-panels` (`5aa32c7`) | Built and fixed; unit tests pass. Left: two failing panel browser tests, then merge. |
 | 5. Backups | `claude/wip/item5-backups` (WIP `f89512c`) | Left: as `docs/QUEUE.md` item 5 lists. Restore must give back exactly the saved state; one misleading message; G03; N2–N8; four folded suggestions. |
 | 6. Finished maps | ten branches `claude/wip/item6-<group>` | One branch per map group. Each group's brief, its issues, the fixer's result and the review are in [`docs/handoff/item6-map-groups.json`](handoff/item6-map-groups.json). Krezk and render were reviewed and still have issues. The other eight are built but not reviewed. Left: review each, run one fix pass, merge the ten, then fix G06, G07, G09–G11 and G13–G17 (each with a failing test first). `item6-backdrop` touches `app.ts`, `backdrop.ts` and `gridOverlay.ts`: merge it after item 2. |
-| 7. Unfinished maps | `claude/wip/item7-*` | **Releasing from the cloud.** |
+| 7. Unfinished maps | `claude/wip/item7-*` | **Paused by the owner.** |
 | 8. Natural land and water | `claude/wip/item8-natural-land` (WIP `066e37d`) | The diagnosis is done; the build is a WIP. |
 | 10. Vallaki terrain | `claude/wip/item10-vallaki-terrain` (`c0fd014`) | Built. Merge after item 8. |
 | 11–22 | none, start from the main branch | As `docs/QUEUE.md` lists. Item 11 now includes the owner's report "players can't move anywhere" (door logic). |
@@ -90,3 +92,11 @@ The owner moved these four nested-world steps to a second release. Each runs: bu
    - Duplicate models are hidden.
    - Settle the items `docs/WORLD.md` leaves for "the data pass".
    - Add a test that checks every placement.
+
+## 5. Desktop delivery and the owner's 0.3.1 request
+
+0.3.0 is installed as a local Node/Edge desktop app, with a fixed loopback origin and dedicated persistent profile. The parent owns the alternate private web deployment. `docs/DESKTOP.md` records the tested update protocol and publishing procedure. No desktop distribution tag has been published: new public compiled-bundle publication is held pending the parent's destination clarification, and the exact source release CI must pass first. Existing website/browser campaign data remains untouched, not silently migrated.
+
+The owner subsequently requested a separate 0.3.1 release for concrete landscape-continuity defects, plus compass north alignment; queue item 2d records the scope. The cloud's parked Amber Temple correction must be inspected first to avoid duplicating its work. This new narrow authority covers the requested exposed entrance/terrain correction, not a wholesale item 7 merge or its other maps. Keep its branches intact and record any reused source commits.
+
+On 2026-10-14 Matt assigned comprehensive all-map logic to 0.3.2 and authorized an overnight effort with independent agents and cloud continuation if this laptop goes offline. Finish bounded 0.3.1 first with explicit known limits. For 0.3.2 use source descriptions, physical logic and connected landscape context: Tser Falls must include a credible upstream channel, crest/drop, broad gorge/pool and downstream continuation, with bridge/road approaches and regional blending. Label canonical constraints versus interpolation. The parent provisions the cloud fallback; root retains integration ownership while online. Checkpoint code and sanitized evidence in Git, never licensed PDFs/art, personal files, credentials or campaign saves. Public desktop distribution remains separately held.

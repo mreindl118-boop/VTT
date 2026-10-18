@@ -6,6 +6,7 @@
  "mapPage": 46,
  "bookScaleFt": 5,
  "ambient": "darkness",
+ "parent": "ch03/E",
  "levels": [
   {
    "id": "ground",

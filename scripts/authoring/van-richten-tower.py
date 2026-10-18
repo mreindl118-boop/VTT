@@ -160,7 +160,7 @@ for i, (dx, dz, r) in enumerate([(-1.3, -0.4, 20), (-1.0, 0.7, 75), (-1.5, 0.9, 
 # V1: the wagon, its secrets
 g.prop('wagon', 'ezmerelda-wagon', WAG, 'V1', rotY=0)
 tag(g, 'wagon', desc='A mud-spattered, barrel-topped wagon in fresh purple paint with gold-trimmed wheels; brass lanterns at its corners, red drapes in tombstone-shaped windows, a padlocked back door with a cheap wooden "Keep out!" sign.',
-    dm='Conjuration aura. Sit in the driver\'s seat and say "Drovash" for two quasi-real draft horses (speed 30), "Arvesh" to dismiss. Treasure: claw-marked trunk of weapons (battleaxe, flail, morningstar, light crossbow, 10 silvered bolts); wardrobe of clothes, mask and wigs; climber\'s, disguise, healer\'s and poisoner\'s kits; a golden-stringed lyre (50 gp); a caged chicken and a silver ewer (100 gp) of eggs; a tarokka deck in silk; copper pots (50 gp); three manacles; a shovel; a chest with a gold Morninglord symbol (100 gp), holy water, perfume, antitoxin, rope, tinderbox, mirror, stake and spyglass; scrolls of major image and remove curse; a map of Barovia; a charred page of van Richten\'s journal.')
+    dm='Conjuration aura. Sit in the driver\'s seat and say "Drovash" for two quasi-real draft horses (speed 30), "Arvesh" to dismiss. Treasure: claw-marked trunk of weapons (battleaxe, flail, morningstar, light crossbow, 10 silvered bolts); wardrobe of clothes, mask and wigs; climber\'s, disguise, healer\'s and poisoner\'s kits; a golden-stringed lyre (50 gp); a caged chicken and a silver ewer (100 gp) of eggs; a tarokka deck in silk; copper pots (50 gp); three manacles; a shovel; a chest with a gold Morninglord symbol (100 gp), holy water, perfume, antitoxin, rope, tinderbox, mirror, stake and spyglass; a Barovia map; scrolls of major image and remove curse; a charred page of van Richten\'s journal.')
 g.hidden('wagon-hatch', 'trapdoor', (WAG[0] - 0.3, WAG[1] + 0.25), 'V1', 'Hidden trapdoor in the underbelly (DC 13 Wisdom (Perception) from underneath): the only safe way in')
 tag(g, 'wagon-hatch', playerLabel='A hatch under the wagon', pos=[round((WAG[0] - 0.3) * 5, 2), 0.05, round((WAG[1] + 0.25) * 5, 2)])
 g.hidden('wagon-trap', 'niche', (WAG[0] - 0.9, WAG[1]), 'V1', 'Booby trap: the back door\'s wire drops a flask of alchemist\'s fire into a hundred more; 10d10 fire within 30 ft (DC 12 Con, half; disadvantage inside or within 5 ft); wagon and contents destroyed. Seen at once from inside; DC 10 Dex to disarm.')
@@ -292,7 +292,7 @@ tag(s4, 'compartment', playerLabel='Loose stones in the wall')
 tag(s4, 'chest', container=OrderedDict(contents="A man's severed head, waxy and embalmed in lavender-scented oils."),
     desc='A wooden chest; a smell of lavender comes from it.', dm='Unlocked, safe. The head of Yan, a Vistana banished for theft; Rictavio killed him and has questioned the head twice with speak with dead. Taken out of the spell drain and asked, Yan begs the party to warn the Vistani.')
 tag(s4, 'desk', container=OrderedDict(contents='Dry quills, an empty inkwell, ash.'), desc='A desk with a matching chair.', dm='Van Richten burned his notes and journals in the stove; Ezmerelda took the surviving map and journal page to her wagon.')
-tag(s4, 'stove', desc='A large iron stove with plenty of wood stacked beside it; old ash in its belly.')
+tag(s4, 'stove', desc='A sizable iron stove contains cold ash, with a generous stack of firewood nearby.')
 
 DESC = {
   'V1': ("A barrel-topped wagon parked within sight of the tower door, mud-caked over fresh purple paint and gold-trimmed wheels; brass lanterns hang at its corners and a padlocked back door bears a sign: \"Keep out!\"",
@@ -303,7 +303,7 @@ DESC = {
          'Holds 200 lb at most. Collapse: 20-ft fall (1d6 per 10 ft + 2d6 piercing); anyone under it DC 13 Dex or 4d6.'),
   'V3-mid': ('A sagging plank platform on the scaffolding outside the west wall, twenty feet up; a ladder climbs on toward the north-west.', 'Part of V3: 200 lb limit.'),
   'V3-top': ('A narrow platform of rotten planks against the gash in the north-west wall, forty feet above the island.', 'Part of V3: 200 lb limit. The gash opens into V6.'),
-  'V4': ('A flagstone floor strewn with debris, a few old crates by the east wall, a torn curtain to the south. In the middle, a 5-ft square pit holds four pulleys whose taut iron chains rise through a hole in the rotted ceiling; four tall clay statues stand by them.',
+  'V4': ('Debris litters the flagstones. Crates remain beside the eastern wall, with a ripped curtain on the southern side. Four clay figures flank a central pit five feet across; its four pulleys carry tight iron chains upward through an opening in the decaying ceiling.',
          'The statues are clay golems that work the lift: they lower the 5-ft platform from the fourth floor and raise it wherever asked, 5 ft a round. The crates are empty.'),
   'V5': ('Dust and cobwebs; an empty room whose rotted boards have partly fallen through. A 5-ft hole in the middle of floor and ceiling, a rusty chain at each corner.', 'Weak floor round the shaft (150 lb a square).'),
   'V6': ('Slimy black mildew on the walls, a gash torn in the north-west wall, the floor rotted through and falling away round a 5-ft hole with a rusty chain at each corner.', 'Weak floor round the shaft (50 lb a square); the gash opens onto the scaffolding.'),

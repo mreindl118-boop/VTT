@@ -153,7 +153,7 @@ DESC = {
   'U5': ('A little raised plot, ten feet square, inside a broken iron fence: a weathered statue of a kneeling peasant girl holding a rose.',
          'The epitaph reads "Marina, Taken by the Mists". Found only by searching the square (DC 15 Wisdom (Perception), 10 minutes) or by Ulrich\'s directions. A card-reading treasure lies in a cavity under the statue (DC 15 Strength). Disturbing it raises seven bloated corpses from the mire 60 ft west.'),
   'U6': ('Twelve mossy menhirs, 15 to 18 ft tall, stand in a ring a hundred feet across; two lean inward. A lantern flickers behind the tallest.',
-         'Muriel Vinshaw, a wereraven, signals with her lantern and warns the party about Berez. The four tall stones face the compass points; the eight others bear worn glyphs of bear, elk, hawk, goat, owl, panther, raven and wolf. No divination reaches inside the circle; a druid who wild-shapes here gains maximum hit points.'),
+         'Muriel Vinshaw, a wereraven, signals with her lantern and warns the party about Berez. The four tall stones face the compass points; the eight others bear worn glyphs of wolf and raven, panther and owl, goat and hawk, elk and bear. No divination reaches inside the circle; a druid who wild-shapes here gains maximum hit points.'),
   'U2-cellar': ('A 30-ft-square cellar of mortared stone under rotting ceiling beams, ankle-deep in stagnant water; rotted casks stand in rows.',
                 'Two dozen empty, rotted Wizard of Wines casks labelled Champagne du le Stomp.'),
 }
