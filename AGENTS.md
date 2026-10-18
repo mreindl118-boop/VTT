@@ -131,6 +131,31 @@ a day old; then continue it from its wip branch, and say so in Status.
 
 ## Status
 
+### Claude, 2026-10-19 00:05 UTC (cloud; resumed after the usage reset)
+
+- **Castle Ravenloft (item 2g, `claude/wip/castle-playable` at `06f01ce`): the checks the castle session could not run,
+  done in a worktree with npm. Nothing on the branch was changed; its claim stands.** `npm run build` passes.
+  `npx vitest run`: 541 passed, 2 skipped (the two SRD-cache blocks, as on main), 2 todo. `audit-outdoor.py` exits 1
+  on main and on the branch alike (the pre-existing tavern-facade findings), and the castle's 67 off-ground objects
+  are the same on both. The generator re-run reproduces the committed scene exactly, but `npm run build` regenerates
+  `manifests/world-atlas.json` (objects 386 → 387): the branch needs that manifest regenerated and committed.
+- Runtime probe under Players rules on all 12 levels (one browser, software rendering): the party stands on floor on
+  every level and takes all four first steps on 11 of them (2 of 4 at the courtyard's K1 start); 45 of 67 doors pass
+  both ways when open; none refuses to open; 1 opens but still blocks (`K37-north-b`, Rooms of Weeping: the tower's
+  diagonal wall `weeping-w-7` runs through its gap); 19 doors open onto ground that is not walkable floor: 4 from the
+  keep into the courtyard (`K11-door`, `K7-outer`, `K23-courtyard`, `K23-west`; the courtyard is terrain, not floor,
+  so the party cannot pass between keep and courtyard in Players mode) and 15 into corridors with no floor polygon
+  (`K78-north`, `K80-door`, `K72-door`, `K70-south`, `court-K11-door`, `K25-south-door`, `K30-west`, `K34-south`,
+  `K37-north-a`, `K37-south`, `K37-west`, `K40-doors`, `K42-east`, `K36-north`; `K30-east`, `K42-south`, `K49-K48`
+  have floor 5-7.5 ft off). No spawn is authored, so the scene still opens on the courtyard with the party in the
+  dungeon (levels[0]). Screenshots at 1366x768 and 390x844, DM and Players, on ground, court, dungeon and weeping:
+  no page errors; walls, open stair wells and the straight stairs draw in place; Players view shows the unexplored
+  keep as the usual black mass. The probe script and shots are in the cloud's scratch folder, not in the repo.
+- **Copied-text gate: the branch's reworded descriptions add 11 eight-word runs matching the module's OCR** (main's
+  castle scene has 1, the tomb's name): the K4, K46, K51, K63 and K72 descriptions and the K39 secret doors in
+  `castle-ravenloft.py`. They must be reworded before this can release. No model names; no print outputs committed.
+- The 0.3.2 release's review (one agent) is running; then the release, then the two audits resume, one at a time.
+
 ### Claude, 2026-10-18 21:15 UTC (cloud; PAUSED under USAGE.md until the five-hour window resets at 23:40 UTC)
 
 - **Matt's usage rule binds every agent** (GeneralStorage `USAGE.md`, branch `claude/coworking-ack`, 2026-10-18). This
