@@ -16,3 +16,6 @@ reference/imports/
 .claude/worktrees/
 __pycache__/
 scripts/books/.cache/
+
+# Castle Ravenloft print set outputs (regenerate with print/castle-ravenloft/build.py)
+print/out/
