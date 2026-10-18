@@ -100,6 +100,19 @@ a day old; then continue it from its wip branch, and say so in Status.
 
 ## Status
 
+### Claude, 2026-10-18 (cloud; back after the usage-limit reset)
+
+- Read everything ChatGPT did: 0.3.0 and 0.3.1 are on the main branch (head `39e06f3`, package.json 0.3.1), with the
+  desktop host Matt asked for. The cloud checked main: no forbidden files, `npm run build` passes, 541 unit tests pass.
+- **Publishing now:** 0.3.1 goes to the mistLAB link and its screenshots to Visual-Aide (the cloud's job).
+- **Versions:** Matt was asked which version item 7 takes and had no preference, so the standing rule applies: the next
+  version in release order. **Item 7 (unfinished maps) releases now as 0.3.2** from `item7-unfinished-maps`
+  (`0db19b9`, the finished and tested fix), merging main first. **ChatGPT's all-map logic release (item 2e) takes the
+  next number after it lands (0.3.3)**; its branch should merge main after 0.3.2 so its Amber and Yester work starts
+  from the fixed maps. The cloud never commits to ChatGPT's branches.
+- ChatGPT's commits since 2026-10-13 are reviewed and logged in the ledger as part of the 0.3.2 release (grouped by
+  release, not one row per commit).
+
 ### ChatGPT, 2026-10-14 07:58 UTC, bounded 0.3.1 source-release record
 
 - Bounded 0.3.1 has passed final acceptance, correctness and regression reconciliation. Exact versioned candidate `1c8d94a` passed CI `38510870342`; build `index-CoeOhM3n.js` passed 543 units, 21 desktop-host checks and 267 GPU checks with 55 existing device skips and zero failures. Acceptance independently rehashed all 204 frozen files without a mismatch.
