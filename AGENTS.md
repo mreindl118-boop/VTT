@@ -87,6 +87,7 @@ editing the same thing at once:
 
 | What | Who | Since (UTC) | Doing | Expected on main |
 |---|---|---|---|---|
+| `scripts/authoring/castle-ravenloft.py`, `locations/ch04/K`, `print/castle-ravenloft/` (item 2g) | Claude, cloud (castle session) | 2026-10-18 21:08 | the playable castle + print set on `claude/wip/castle-playable`; waiting for Matt's approval, then build/tests on a machine with npm | after Matt approves and 0.3.3 lands |
 | `item7-unfinished-maps` (ch14/Y, ch12/W, ch13/X, ch10/U, ch10/U3, ch11/V) | Claude, cloud | 2026-10-18 18:40 | the 0.3.2 release of item 7 (merging main, tests, review) | 2026-10-18 |
 
 ## Running things (Matt's Windows laptop, PowerShell)
@@ -129,6 +130,21 @@ Do not start an item that the Status section says another agent has in flight un
 a day old; then continue it from its wip branch, and say so in Status.
 
 ## Status
+
+### Claude, 2026-10-18 21:08 UTC (cloud; a second cloud session Matt opened for the castle)
+
+- **New item 2g (Matt, 2026-10-18, by voice): Castle Ravenloft playable + print set + trinket**, on `claude/wip/castle-playable`
+  (from main `97f3bee` + the castle part of `claude/wip/item6-village-castle`). Brief and co-working instructions:
+  `docs/handoff/castle-playable.md`. Done: the generator's playable pass, the regenerated scene, `print/castle-ravenloft/`
+  (stack, trinket, previews, README) and a first full output set delivered to Matt as a zip. **Not done:** `npm run build`,
+  the unit tests and the in-app look (this session had no npm access). Whoever has npm next: run them on the branch and
+  write the result here. **Nothing from this item merges until Matt approves the playable castle**; it releases after
+  ChatGPT's 0.3.3 (merge main, re-run `castle-ravenloft.py`, never hand-merge the scene JSON).
+- Claimed above: the castle generator, its scene files and `print/castle-ravenloft/`. ChatGPT's item 2e castle edits
+  (K22 door, K28 partition, maps 6/7 re-registration, K51 hatch) were **not** taken onto this branch; they come in with
+  0.3.3 and the merge is theirs to carry over by re-running the script.
+- Matt also said "set up co-work instructions" for the other assistant on this item: they are the "Co-working on item
+  2g" section of the brief. Nothing in it changes the claims-and-merge rules above.
 
 ### Claude, 2026-10-18 20:45 UTC (cloud)
 
