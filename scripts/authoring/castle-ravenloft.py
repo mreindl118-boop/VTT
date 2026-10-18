@@ -7,6 +7,10 @@ grid). Each plate has its own frame; `m3()` etc. place a plate's 10-ft cells int
 cells (x east, z south, origin at the north-west corner of the curtain wall). Only keys, names, page refs,
 dimensions and placements live here; descriptions are our own wording.
 
+Playable pass (2026-10-18, owner request): decorative statues stand in their alcoves along the walls, never in the
+walkway; the great tower stairs climb round open wells; the straight stairs run in feet. The same scene feeds the
+3D-print set (print/castle-ravenloft/build.py), so the printed castle and the one in the app are one plan.
+
 Levels (elevation from the plates' "up/down n feet" captions):
   ground    0 ft   courtyard (map 2) and the keep's main floor (map 3)
   court   +50 ft   court of the count (map 4)        [next]
@@ -140,9 +144,11 @@ g.creature('dragons', 'statue', m3(14, 21), 'K7', 'Four stone dragons on the vau
 g.note('K8-gargoyles', m3(17, 21), 'K8', 'Eight gargoyles squat on the rim of the dome; they attack anyone who returns after leaving.')
 g.prop('grand-stair', 'stairs-straight', m3(16.25, 16), 'K8', dims={'w': 15, 'rise': 30, 'fromZ': 2 * 19.5 - 6, 'toZ': 2 * 12.5 - 6})
 g.prop('k83-stair', 'spiral-stair', m3(14.5, 18.5), 'K83', dims={'r': 8, 'rise': 50})
-g.prop('k21-stair', 'spiral-stair', m3(20, 26), 'K21', dims={'r': 13, 'rise': 50})
-g.prop('k18-stair', 'spiral-stair', m3(22.5, 23), 'K18', dims={'r': 13, 'rise': 50})
-g.prop('k20-stair', 'spiral-stair', m3(19, 17.5), 'K20', dims={'r': 16, 'rise': 50})
+# the three great tower stairs climb round an open well (r0: the treads' inner edge), not a solid fan from the axis;
+# the Heart of Sorrow (K20) hangs in its well, and K18's well is the shaft K18a
+g.prop('k21-stair', 'spiral-stair', m3(20, 26), 'K21', dims={'r': 13, 'r0': 8, 'rise': 50})
+g.prop('k18-stair', 'spiral-stair', m3(22.5, 23), 'K18', dims={'r': 13, 'r0': 8, 'rise': 50})
+g.prop('k20-stair', 'spiral-stair', m3(19, 17.5), 'K20', dims={'r': 16, 'r0': 11, 'rise': 50})
 g.prop('k20a-stair', 'stairs-straight', m3(19, 17.5), 'K20a', dims={'w': 5, 'rise': 0.1, 'fromZ': 2 * 18 - 6, 'toZ': 2 * 17 - 6})
 g.prop('k64-stair', 'stairs-straight', m3(17.25, 26.75), 'K64', dims={'w': 5, 'rise': 10, 'fromX': 2 * 16.5 - 2, 'toX': 2 * 18 - 2})
 g.prop('k29-stair', 'stairs-straight', m3(23, 19.25), 'K29', dims={'w': 10, 'rise': 50, 'fromX': 2 * 24.5 - 2, 'toX': 2 * 21.5 - 2})
@@ -155,9 +161,9 @@ g.prop('armor-k9', 'armor-suit', m3(18.2, 25.2), 'K9')
 g.prop('altar', 'altar', m3(30, 21.5), 'K15'); g.prop('dais-k15', 'dais', m3(30, 21.5), 'K15', dims={'w': 15, 'h': 2, 'steps': 2})
 g.hidden('mace', 'niche', m3(29.5, 22), 'K15', 'A black mace on the floor by the altar; a cloaked figure draped over the altar')
 g.note('K15-balcony', m3(26.5, 21.5), 'K15', 'Balcony along the west wall 50 ft up (K28), two thrones at its centre.')
-for i, (x, y) in enumerate([(25, 18.25), (25, 19.75), (25, 22.25), (25, 23.75)]):
+for i, (x, y) in enumerate([(24.8, 18.25), (24.8, 19.75), (24.8, 22.25), (24.8, 23.75)]):   # in their alcoves on the west wall, out of the walkway
     g.prop(f'knight-{i}', 'armor-suit', m3(x, y), 'K16' if y < 21 else 'K17')
-for i, y in enumerate((20.4, 21.6)):
+for i, y in enumerate((20.25, 21.75)):   # the knights stand against the walls; the hall's middle 15 ft stay clear
     for j, x in enumerate((20, 21, 22, 23, 24, 25)):
         g.prop(f'knight-hall-{i}-{j}', 'statue', m3(x, y), 'K14')
 g.prop('skel-a', 'skeleton', m3(23.2, 17.2), 'K23'); g.prop('skel-b', 'skeleton', m3(24.3, 17.2), 'K23')
@@ -183,12 +189,19 @@ def Op(lv, f, a, b): lv.opening(f(*a), f(*b))
 TOWER = {  # the towers rise through every level: (map-3 cell centre, radius in 10-ft cells)
   'K20': ((19, 17.5), 1.75), 'K18': ((22.5, 23), 1.5), 'K21': ((20, 26.5), 2), 'K83': ((14.5, 18.5), 1), 'K64': None,
 }
-def towers(lv, which, ceil, page_of='K18'):
-    """The stair towers that pass through a level, as rooms with their spiral stairs."""
+WELL = ('K18', 'K20', 'K21')  # tower stairs with an open well: the treads run from r0 = r - 5 ft out to r
+def spiral(r, rise, k): return {'r': r, 'r0': r - 5, 'rise': rise} if k in WELL and r > 6 else {'r': r, 'rise': rise}
+def towers(lv, which, ceil, page_of='K18', shell=()):
+    """The stair towers that pass through a level, as rooms with their spiral stairs. A tower in `shell` stands inside
+    another room on this level (a turret in a hall): its walls only, no keyed room of its own (no label pile-up)."""
     for k in which:
         (cx, cy), r = TOWER[k]
-        lv.room(k, {'K20': 'Heart of Sorrow', 'K18': 'High Tower Staircase', 'K21': 'South Tower Stair', 'K83': 'Spiral Stair'}[k], oct3(cx, cy, r), 'flagstone', page=pg(k), ceilingFt=ceil)
-        lv.prop(f'{k}-stair', 'spiral-stair', m3(cx, cy), k, dims={'r': r * 8, 'rise': ceil if k != 'K18' else 40})
+        if k in shell:
+            o = oct3(cx, cy, r)
+            for i in range(len(o)): lv.wall(o[i], o[(i + 1) % len(o)], material=lv.interior)
+        else:
+            lv.room(k, {'K20': 'Heart of Sorrow', 'K18': 'High Tower Staircase', 'K21': 'South Tower Stair', 'K83': 'Spiral Stair'}[k], oct3(cx, cy, r), 'flagstone', page=pg(k), ceilingFt=ceil)
+        lv.prop(f'{k}-stair', 'spiral-stair', m3(cx, cy), k if k not in shell else None, dims=spiral(r * 8, ceil if k != 'K18' else 40, k))
 def turrets(lv, ceil):
     """The west wing repeats on every floor of the keep: two turrets, the halls between them, the archers' posts."""
     lv.room('K12-n', 'Turret Post (north-west)', oct3(10.5, 15, 1.5), 'flagstone', page=pg('K12'), ceilingFt=ceil)
@@ -211,13 +224,13 @@ L.room('K8-s', 'Grand Staircase (head)', rect3(15.5, 14, 17, 15.5), 'flagstone',
 Op(L, m3, (15.5, 14), (17, 14))
 L.prop('armor-k19-w', 'armor-suit', m3(15.4, 13.6), 'K19'); L.prop('armor-k19-e', 'armor-suit', m3(18.6, 13.6), 'K19')
 L.hidden('plate-w', 'pressure-plate', m3(15.6, 13.3), 'K19', 'Pressure plate: the west suit of armour animates'); L.hidden('plate-e', 'pressure-plate', m3(18.4, 13.3), 'K19', 'Pressure plate: the east suit of armour animates')
-L.prop('k19-stair-w', 'stairs-straight', m3(15.5, 14), 'K19', dims={'w': 5, 'rise': 20, 'fromZ': 2 * 14 - 6, 'toZ': 2 * 15.5 - 6})
-L.prop('k19-stair-e', 'stairs-straight', m3(18.5, 14), 'K19', dims={'w': 5, 'rise': 20, 'fromZ': 2 * 14 - 6, 'toZ': 2 * 15.5 - 6})
+L.prop('k19-stair-w', 'stairs-straight', m3(15.5, 14), 'K19', dims={'w': 5, 'rise': 20, 'fromZ': 2 * 14 - 6, 'toZ': 2 * 12.25 - 6})  # climbs north inside the landing
+L.prop('k19-stair-e', 'stairs-straight', m3(18.5, 14), 'K19', dims={'w': 5, 'rise': 20, 'fromZ': 2 * 14 - 6, 'toZ': 2 * 12.25 - 6})  # climbs north inside the landing
 L.light('K19-torches', m3(17, 13), 'torch', 10, 20, y=8)
 
 # ================================================================== COURT OF THE COUNT (+50, map 4)
 c = Level('court', 'Court of the Count (+50 ft)', 50, 40, ambient='interior-dim', interior='ashlar', exterior='ashlar', north='-z')
-turrets(c, 40); towers(c, ['K20', 'K18', 'K21', 'K83'], 40)
+turrets(c, 40); towers(c, ['K20', 'K18', 'K21', 'K83'], 40, shell=('K83',))  # K83's turret stands inside the audience hall K25
 c.room('K25', 'Audience Hall', rect3(12, 15.5, 17, 22.5), 'flagstone', page=pg('K25'), ceilingFt=40)
 c.room('K26', "Guards' Post", rect3(17, 17.5, 18.5, 19.5), 'flagstone', page=pg('K26'), ceilingFt=15)
 c.room('K27', "King's Hall", rect3(17, 19.5, 24.5, 21.5), 'flagstone', page=pg('K27'), ceilingFt=20)
@@ -276,8 +289,8 @@ w.room('K64', "Guards' Stair (head)", rect3(16.5, 26, 18, 27.5), 'flagstone', pa
 Dr(w, m5, (17, 20.5), (17, 21.5), id='K37-west', double=True); Dr(w, m5, (17.5, 20), (18.5, 20), id='K37-north-a'); Dr(w, m5, (19, 20), (20, 20), id='K37-north-b'); Dr(w, m5, (18, 22), (19, 22), id='K37-south')
 w.secret(m5(20, 21), m5(20, 22), 'fireplace', 'The back wall of the fireplace swings open when the poker is lifted', 'K37')
 w.prop('fireplace-k37', 'fireplace', m5(19.7, 21.5), 'K37', rotY=-90); w.prop('desk-k37', 'desk', m5(18, 21), 'K37'); w.prop('books-k37', 'bookshelf', m5(17.3, 20.3), 'K37')
-w.secret(m5(22, 21.5), m5(22, 22), 'webs-west', 'The web-filled hall has a concealed doorway at its western end; it opens only from the false treasury', 'K39')
-w.secret(m5(22.5, 22), m5(23, 22), 'webs-south', 'Webs conceal a slim doorway near the western corner of the south wall', 'K39', extra=True)
+w.secret(m5(22, 21.5), m5(22, 22), 'webs-west', 'A secret door at the west end of the hall of webs (one-way from the false treasury)', 'K39')
+w.secret(m5(22.5, 22), m5(23, 22), 'webs-south', 'A narrow secret door behind webs at the west end of the south wall', 'K39', extra=True)
 Dr(w, m5, (26, 21.5), (26, 22.5), id='K40-doors', double=True); w.secret(m5(26, 21), m5(27, 21), 'belfry-north', 'Behind thick webs: a secret door into the treasury', 'K40')
 w.prop('chest-k38', 'chest', m5(21.25, 21.5), 'K38'); w.note('K38-gas', m5(21.25, 22), 'K38', 'Opening the chest releases sleeping gas; the witches drag sleepers to K50.')
 w.prop('bell-rope', 'chains', m5(27, 22), 'K40', dims={'y': 50, 'len': 48}); w.note('K40-bell', m5(27, 22.5), 'K40', 'Ringing the bell wakes the castle.')
@@ -294,14 +307,14 @@ w.creature('rats-k35-n', 'swarm', m5(19.2, 24.1), 'K35', 'Two swarms of rats sta
 Op(w, m5, (18, 24), (18, 25)); Op(w, m5, (20.5, 24), (20.5, 25))
 Op(w, m5, (18, 17), (18, 18)); Op(w, m5, (14, 17), (14, 18))
 for i in range(6):
-    w.prop(f'hero-n-{i}', 'statue', m5(14.5 + i * 0.6, 16.3), 'K45'); w.prop(f'hero-s-{i}', 'statue', m5(14.5 + i * 0.6, 18.7), 'K45')
+    w.prop(f'hero-n-{i}', 'statue', m5(14.5 + i * 0.6, 16.2), 'K45'); w.prop(f'hero-s-{i}', 'statue', m5(14.5 + i * 0.6, 18.8), 'K45')   # along the walls
 w.prop('rubble-k45', 'rubble', m5(16, 17.5), 'K45'); w.note('K45-roof', m5(16, 17.5), 'K45', 'The ceiling has fallen in: lightning lights the statues. Stairs west down 40 ft to K33; archway east to the tower landing (K20).')
 w.prop('k33-top', 'stairs-straight', m5(14, 17.5), 'K45', dims={'w': 5, 'rise': 0.1, 'fromX': 2 * 12.5 - 2 - 2 * 1.5, 'toX': 2 * 14 - 2 - 2 * 1.5})
 Op(w, m5, (21.5, 21.5), (21.5, 22.5)); Op(w, m5, (21.5, 23.5), (21.5, 24))
 w.prop('trap-k31b', 'trapdoor', m3(20.5, 23), 'K31b'); w.note('K31b-note', m3(20.5, 23.3), 'K31b', 'Elevator landing: the car stops here; a stone trapdoor 40 ft above opens into K47.')
 for key, pos in (('K46-w', (10.25, 21)), ('K46-n', (20, 15.25)), ('K46-s', (16, 29)), ('K46-e', (28.75, 19.5))):
     w.light(f'{key}-sky', m5(*pos), 'daylight', 10, 20, y=4)
-w.note('K46-note', m5(10.25, 20), 'K46', 'Crenellated walkways connect to the northern, southern and eastern outer walls. The keep windows are locked closed, but their glass breaks readily.')
+w.note('K46-note', m5(10.25, 20), 'K46', 'Battlemented walkways; windows into the keep are shut and locked but easily broken. Walkways run to the outer walls north, south and east.')
 
 # ================================================================== SPIRES (+130, map 6) and the south tower (+150, map 7)
 sp = Level('spires', 'Spires of Ravenloft (+130 ft)', 130, 20, ambient='storm', interior='paneling', exterior='ashlar', north='-z')
@@ -321,7 +334,7 @@ sp.prop('trap-k47', 'trapdoor', m3(18, 23.4), 'K47'); sp.hidden('portrait', 'nic
 sp.prop('rug-k47', 'rug', m3(18.5, 24), 'K47'); sp.note('K47-note', m3(18.5, 24.3), 'K47', 'Landing 10 × 20 ft; the spiral stair (K21) continues up from the north end of the east wall; the elevator trapdoor is before the west door.')
 sp.prop('books-k49', 'bookshelf', m3(19.8, 26.5), 'K49', rotY=-90); sp.creature('escher', 'adventurer', m3(18.5, 26), 'K49', 'Escher, Strahd\'s consort (vampire spawn)')
 sp.prop('bed-k50', 'bed', m3(21.5, 27), 'K50'); sp.note('K50-note', m3(21.5, 27.8), 'K50', 'Resting here at night brings 1d4 witches from K56.')
-sp.hidden('hook-k51', 'niche', m3(20, 29.3), 'K51', 'A hook carries a black cloak. Pulling that hook releases a concealed overhead hatch (DC 13 Perception to locate)')
+sp.hidden('hook-k51', 'niche', m3(20, 29.3), 'K51', 'A black cloak on a hook: pulling the hook opens the secret trapdoor in the ceiling (DC 13 Perception to find)')
 sp.prop('chimney-k52', 'chimney', m3(17, 19.5), 'K52', dims={'h': 30})
 sp.note('K52-note', m3(17, 20), 'K52', 'Smokestack 5 ft across, 30 ft above the roof peak; leads 60 ft down to the study fireplace (3d6 fire).')
 sp.prop('roof-w', 'roof-gable', m3(11, 20.75), 'K53-w', dims={'w': 40, 'd': 145, 'h': 18}); sp.prop('roof-n', 'roof-gable', m3(19.5, 14.5), 'K53-n', rotY=90, dims={'w': 20, 'd': 130, 'h': 12}); sp.prop('roof-s', 'roof-gable', m3(15.25, 25.25), 'K53-s', rotY=90, dims={'w': 55, 'd': 45, 'h': 16})
@@ -334,13 +347,14 @@ towers(st, ['K20', 'K18'], 40)
 st.room('K55', 'Element Room', [m3(17.5, 24.5), m3(20.5, 24.5), m3(20.5, 28.5), m3(18.5, 28.5), m3(17.5, 27.5)], 'plank', page=pg('K55'), ceilingFt=15)
 st.room('K54', 'Familiar Room', rect3(20.5, 24.5, 22.5, 26.5), 'plank', page=pg('K54'), ceilingFt=8)
 st.room('K56', 'Cauldron', rect3(20.5, 26.5, 22.5, 28.5), 'plank', page=pg('K56'), ceilingFt=15)
-st.room('K48', 'Offstair', oct_(*m3(21.25, 25.5), 0.75), 'flagstone', page=pg('K48'), ceilingFt=40)
-Dr(st, m3, (20.5, 25), (20.5, 26), id='K54-door'); Dr(st, m3, (20.5, 27), (20.5, 28), id='K56-door'); Op(st, m3, (20.5, 24.5), (20.5, 25))
-st.prop('k48-stair', 'spiral-stair', m3(21.25, 25.5), 'K48', dims={'r': 6, 'rise': 40})
+# the offstair (K48) climbs on through the familiar room to the tower roof: an open stair in K54, not a room of its own;
+# K54's west wall is whole but for its door
+Dr(st, m3, (20.5, 25), (20.5, 26), id='K54-door'); Dr(st, m3, (20.5, 27), (20.5, 28), id='K56-door')
+st.prop('k48-stair', 'spiral-stair', m3(21.25, 25.5), 'K54', dims={'r': 6, 'rise': 40})
 st.creature('cats', 'wolf', m3(21.5, 25.5), 'K54', 'Three cats, the witches\' familiars', size='tiny')
 st.prop('cauldron', 'brazier', m3(21.5, 27.5), 'K56'); st.creature('witches', 'adventurer', m3(21, 27), 'K56', 'Seven Barovian witches around the cauldron (fewer if some were met in K50)')
 st.note('K55-note', m3(19, 26.5), 'K55', 'Boot prints in the dust lead from the north-east corner to the easternmost door; windows open on the tower wall (vampire spawn may notice).')
-st.hidden('trap-k51-top', 'trapdoor', m3(20, 28.6), 'K55', 'The secret trapdoor from the closet (K51) below')
+st.hidden('trap-k51-top', 'trapdoor', m3(20, 28.2), 'K55', 'The secret trapdoor from the closet (K51) below')  # 252 ft: inside K55's south wall
 
 # ================================================================== TOWER TOPS (maps 8–10)
 tr = Level('tower-roofs', 'Tower roofs and the bridge (+190 ft)', 190, 50, ambient='storm', interior='ashlar', exterior='ashlar', north='-z')
@@ -358,7 +372,7 @@ tr.light('heart-glow', m3(19, 17.5), 'candle', 20, 40, y=20)
 np_ = Level('north-peak', 'North tower peak (+240 ft)', 240, 9, ambient='interior-dim', interior='ashlar', exterior='ashlar', north='-z')
 np_.room('K60', 'North Tower Peak', oct3(19, 17.5, 1.75), 'flagstone', page=pg('K60'), ceilingFt=9)
 np_.room('K18', 'High Tower Staircase', oct3(22.5, 23, 1.5), 'flagstone', page=pg('K18'), ceilingFt=60)
-np_.prop('k18-stair', 'spiral-stair', m3(22.5, 23), 'K18', dims={'r': 12, 'rise': 60})
+np_.prop('k18-stair', 'spiral-stair', m3(22.5, 23), 'K18', dims=spiral(12, 60, 'K18'))
 np_.prop('ladder-k60', 'stairs-straight', m3(19, 16.5), 'K60', dims={'w': 3, 'rise': 9, 'fromZ': 2 * 17 - 6, 'toZ': 2 * 16 - 6})
 np_.prop('chest-k60', 'chest', m3(18, 18.2), 'K60'); np_.hidden('chest-k60-lock', 'niche', m3(18, 18.6), 'K60', 'Iron chest, locked; the key is with Cyrus Belview (K62). Strahd\'s crest on the lid.')
 np_.prop('shackles-k60', 'chains', m3(20.2, 17), 'K60', dims={'y': 6, 'len': 2}); np_.prop('puddle', 'water', m3(19, 16.9), 'K60', dims={'w': 4, 'd': 4})
@@ -366,13 +380,14 @@ np_.note('K60-note', m3(19, 18), 'K60', 'Manacles on the walls; a ladder to a ro
 nr = Level('north-roof', 'North tower rooftop (+250 ft)', 250, 50, ambient='storm', interior='ashlar', exterior='ashlar', north='-z')
 nr.room('K60a', 'North Tower Rooftop', oct3(19, 17.5, 1.75), 'flagstone', page=pg('K60a'), ceilingFt=0.1)
 nr.room('K18', 'High Tower Staircase', oct3(22.5, 23, 1.5), 'flagstone', page=pg('K18'), ceilingFt=50)
-nr.prop('k18-stair', 'spiral-stair', m3(22.5, 23), 'K18', dims={'r': 12, 'rise': 50})
+nr.prop('k18-stair', 'spiral-stair', m3(22.5, 23), 'K18', dims=spiral(12, 50, 'K18'))
 nr.prop('trap-k60a', 'trapdoor', m3(19, 16.5), 'K60a'); nr.note('K60a-note', m3(19, 17.5), 'K60a', 'The courtyard 260 ft below, the keep roof 130 ft below. Bats roost here at dusk.')
 hp = Level('high-peak', 'High tower peak (+300 ft)', 300, 20, ambient='storm', interior='ashlar', exterior='ashlar', north='-z')
 hp.room('K59', 'High Tower Peak', oct3(22.5, 23, 1.5), 'flagstone', page=pg('K59'), ceilingFt=20)
 hp.prop('shaft-k59', 'pit-cover', m3(22.5, 23), 'K59', dims={'r': 7.5}); hp.note('K59-note', m3(22.5, 23.8), 'K59', 'A 5-ft walkway rings the 15-ft hole: the shaft (K18a) drops 390 ft to the catacombs. One beam and part of the cone roof have fallen.')
 hp.creature('pidlwick', 'adventurer', m3(23.5, 22.2), 'K59', 'Pidlwick II, the clockwork fool, in the rafters', size='small')
 hp.light('K59-sky', m3(22.5, 23), 'daylight', 10, 20, y=10)
+hp.prop('k59-cone', 'roof-cone', m3(22.5, 23), 'K59', dims={'r': 17, 'h': 18, 'y': 20})   # the cone roof, part of it fallen (see the note)
 
 # ================================================================== LARDERS OF ILL OMEN (-40, map 11)
 la = Level('larders', 'Larders of Ill Omen (-40 ft)', -40, 40, ambient='darkness', interior='rubble', exterior='rubble', north='-z')
@@ -393,7 +408,7 @@ la.room('K69', "Guards' Quarters", R(m11, 6, 18.5, 12, 21), 'flagstone', page=pg
 la.room('K64', "Guards' Stair (foot)", R(m11, 12, 22, 13.5, 23.5), 'flagstone', page=pg('K64'), ceilingFt=40)
 la.room('K20a', 'Tower Hall Stair', R(m11, 16.5, 9, 18.5, 10), 'flagstone', page=pg('K20a'), ceilingFt=40)
 la.room('K23-s', "Servants' Stair (foot)", R(m11, 19.5, 11, 20.5, 14.5), 'flagstone', page=pg('K23'), ceilingFt=40)
-Dr(la, m11, (12.5, 7.5), (12.5, 8.5), id='K72-door'); la.secret(m11(12.5, 6), m11(12.5, 7), 'K72-west', 'The west wall conceals a doorway near its northern corner, opening onto the descending western stair (K79)', 'K72')
+Dr(la, m11, (12.5, 7.5), (12.5, 8.5), id='K72-door'); la.secret(m11(12.5, 6), m11(12.5, 7), 'K72-west', 'A secret door at the north end of the west wall: the western stair (K79) descends', 'K72')
 Dr(la, m11, (13, 9), (14, 9), id='K70-north'); Dr(la, m11, (12, 12.5), (13, 12.5), id='K70-south'); Op(la, m11, (14, 10), (14, 11))
 Op(la, m11, (11, 10.5), (11, 11.5)); Op(la, m11, (16.5, 9), (16.5, 10))
 Dr(la, m11, (14.5, 14.5), (15.5, 14.5), id='K66-door'); Dr(la, m11, (17, 14.5), (18, 14.5), id='K65-door'); Op(la, m11, (19.5, 14.5), (19.5, 15.5))
@@ -415,7 +430,7 @@ la.prop('bed-k66', 'bed', m11(14, 12.9), 'K66'); la.creature('cyrus', 'adventure
 for i, x in enumerate((20, 20.6, 21.2)): la.prop(f'cask-n-{i}', 'wine-cask', m11(x, 13.7), 'K63')
 for i, y in enumerate((14, 14.5, 15, 15.5, 16, 16.5)): la.prop(f'cask-e-{i}', 'wine-cask', m11(22.7, y), 'K63')
 for i, x in enumerate((20, 20.6, 21.2)): la.prop(f'cask-s-{i}', 'wine-cask', m11(x, 16.8), 'K63')
-la.hidden('crack-k63', 'niche', m11(19.6, 16.7), 'K63', 'A fissure near the southern corner of the west wall connects to the high tower stair (K18)')
+la.hidden('crack-k63', 'niche', m11(19.6, 16.7), 'K63', 'A crack at the south end of the west wall leads to the high tower stair (K18)')
 la.note('K63-note', m11(21, 15.25), 'K63', 'Three casks north, six east, three south; the card reading may place a treasure here. Cyrus keeps the rats as pets.')
 la.hidden('elev-plate', 'pressure-plate', m11(15.5, 17), 'K61', 'Elevator trap: 400 lb on the floor drops portcullises and lifts the car; the counterweight falls in the east half')
 la.note('K61-note', m11(15.5, 18), 'K61', 'A 10 × 30 ft corridor; the spiral stair (K21) is south, a wooden door north.')
@@ -428,9 +443,11 @@ cobwebs(la, R(m11, 11.5, 14.5, 19.5, 15.5), 'K62', y=8, n=2)
 # ================================================================== DUNGEON AND CATACOMBS (-80, map 12)
 d = Level('dungeon', 'Dungeon and catacombs (-80 ft)', -80, 40, ambient='darkness', interior='rubble', exterior='rubble', north='-z')
 d.room('K18', 'High Tower Staircase (foot)', oct3(22.5, 23, 1.5), 'flagstone', page=pg('K18'), ceilingFt=40)
-d.prop('k18-stair', 'spiral-stair', m3(22.5, 23), 'K18', dims={'r': 12, 'rise': 40})
-d.room('K21', 'South Tower Stair (foot)', oct3(20, 26.5, 2), 'flagstone', page=pg('K21'), ceilingFt=40)
-d.prop('k21-stair', 'spiral-stair', m3(20, 26.5), 'K21', dims={'r': 16, 'rise': 40})
+d.prop('k18-stair', 'spiral-stair', m3(22.5, 23), 'K18', dims=spiral(12, 40, 'K18'))
+# The plate puts the north cells (K74e-h) inside the south tower's footprint; the stair's foot is the slot of the tower
+# left between the cells (x 190) and the catacombs (x 200), where it comes down into the east end of the dungeon hall
+d.room('K21', 'South Tower Stair (foot)', rect(38, 43, 40, 51), 'flagstone', page=pg('K21'), ceilingFt=40)  # whole cells: its walls are the cells' and the catacombs'
+d.prop('k21-stair', 'spiral-stair', (39, 47), 'K21', dims={'r': 4.5, 'rise': 40})
 d.room('K83', 'Spiral Stair (foot)', OCT(m12, 14, 20, 1), 'flagstone', page=pg('K83'), ceilingFt=40)
 d.prop('k83-stair', 'spiral-stair', m12(14, 20), 'K83', dims={'r': 8, 'rise': 40})
 d.room('K73', 'Dungeon Hall', R(m12, 14, 29.5, 18.5, 30.5), 'shallow-water', page=pg('K73'), ceilingFt=8, difficult=True)
@@ -518,7 +535,7 @@ DESC = {
   'K2': ("A gate in a wall that runs from the keep to the curtain wall.", "North and south gates: unlocked, heavy."),
   'K3': ("A narrow courtyard between the keep and the eastern wall; a carriage house stands in the corner.", "The door into the keep (K23) is swollen shut: DC 10 Strength."),
   'K3-s': ("The courtyard continues round the south-east of the keep.", None),
-  'K4': ('Wooden doors swing on hinges across the entrance to this stone carriage house.', "The black carriage with glass windows and brass lanterns; the horses are elsewhere."),
+  'K4': ("A stone carriage house with hinged wooden doors.", "The black carriage with glass windows and brass lanterns; the horses are elsewhere."),
   'K5': ("A struggling garden behind the keep under boarded stained-glass windows.", None),
   'K6': ("A stone balcony beyond the east wall, open to the storm.", "The village lies a thousand feet below. Perception 15: a stone box with three dirty windows juts from the cliff a hundred feet down (K63, the wine cellar)."),
   'K7': ("An entry hall twenty feet deep between two sets of doors, torches guttering in iron sconces. Four stone dragons glare down from the vaulted ceiling.", "The dragons are red dragon wyrmlings: they attack anyone entering from K8 who is not Strahd, never anyone coming in from the courtyard."),
@@ -558,6 +575,41 @@ scene = OrderedDict(schema=1, location='K', chapter='ch04', name='Castle Ravenlo
 scene['levels'] = [lv.to_json() for lv in levels]
 apply_desc(scene['levels'])
 
+OPENING = {'door', 'window', 'secret-door'}
+def free_openings(lvj):
+    """Half-cell plans (octagons, plate-registered rooms) leave room-edge walls running straight through a door, bars
+    or secret door that sits on a different cell split, or is stamped as an extra wall. Cut every non-opening wall that
+    lies along an opening for more than 1 ft, keeping the pieces either side, so each leaf is free in its own gap."""
+    opens = [w for w in lvj['walls'] if OPENING & set(w['flags'])]
+    out, cut = [], 0
+    for w in lvj['walls']:
+        if w in opens: out.append(w); continue
+        (ax, az), (bx, bz) = w['a'], w['b']; L = math.hypot(bx - ax, bz - az)
+        if L < 1e-6: out.append(w); continue
+        ux, uz = (bx - ax) / L, (bz - az) / L
+        keep = [(0.0, L)]
+        for o in opens:
+            if any(abs((px - ax) * uz - (pz - az) * ux) > 0.3 for px, pz in (o['a'], o['b'])): continue
+            t0, t1 = sorted(((px - ax) * ux + (pz - az) * uz) for px, pz in (o['a'], o['b']))
+            if min(L, t1) - max(0.0, t0) <= 1: continue
+            keep = [q for s0, s1 in keep for q in ((s0, min(s1, t0)), (max(s0, t1), s1)) if q[1] - q[0] > 0.25]
+        if keep == [(0.0, L)]: out.append(w); continue
+        cut += 1
+        for i, (s0, s1) in enumerate(keep):
+            nw = OrderedDict(w); nw['id'] = w['id'] if i == 0 else f"{w['id']}-{'abcdefgh'[i]}"
+            nw['a'] = [round(ax + ux * s0, 3), round(az + uz * s0, 3)]; nw['b'] = [round(ax + ux * s1, 3), round(az + uz * s1, 3)]
+            out.append(nw)
+    lvj['walls'] = out
+    return cut
+print('walls cut free of openings:', {lvj['id']: n for lvj in scene['levels'] if (n := free_openings(lvj))})
+# The straight stairs' runs (fromX/toX, fromZ/toZ) are written above in 5-ft cells like every other coordinate here,
+# but the stair mesh reads them as feet: convert, or each flight is drawn near the castle's north-west corner.
+for lvj in scene['levels']:
+    for o in lvj['objects']:
+        if o['kind'] == 'stairs-straight':
+            for k in ('fromX', 'toX', 'fromZ', 'toZ'):
+                if k in o['dims']: o['dims'][k] = round(o['dims'][k] * 5, 3)
+
 def lk(id, kind, a_level, a, b_level, b): return OrderedDict(id=id, kind=kind, **{'from': {'level': a_level, 'pos': [a[0] * 5, a[1] * 5]}, 'to': {'level': b_level, 'pos': [b[0] * 5, b[1] * 5]}})
 scene['links'] = [
     lk('lk-grand', 'stairs', 'ground', m3(16.25, 19.25), 'landing', m3(16.25, 14.5)),
@@ -567,7 +619,7 @@ scene['links'] = [
     lk('lk-k20-roofs', 'spiral', 'south-tower', m3(19, 17.5), 'tower-roofs', m3(19, 17.5)), lk('lk-k20-peak', 'spiral', 'tower-roofs', m3(19, 17.5), 'north-peak', m3(19, 17.5)),
     lk('lk-k60a', 'ladder', 'north-peak', m3(19, 16.5), 'north-roof', m3(19, 16.5)),
     lk('lk-k20a', 'stairs', 'larders', m11(17.5, 9.5), 'ground', m3(19, 17.5)),
-    lk('lk-k21-dun', 'spiral', 'dungeon', m3(20, 26.5), 'larders', m3(20, 26.5)), lk('lk-k21-gr', 'spiral', 'larders', m3(20, 26.5), 'ground', m3(20, 26.5)),
+    lk('lk-k21-dun', 'spiral', 'dungeon', (39, 47), 'larders', m3(20, 26.5)), lk('lk-k21-gr', 'spiral', 'larders', m3(20, 26.5), 'ground', m3(20, 26.5)),
     lk('lk-k21-court', 'spiral', 'ground', m3(20, 26.5), 'court', m3(20, 26.5)), lk('lk-k21-weep', 'spiral', 'court', m3(20, 26.5), 'weeping', m3(20, 26.5)),
     lk('lk-k21-top', 'spiral', 'weeping', m3(20, 26.5), 'spires', m3(18.5, 23.5)),
     lk('lk-k48-st', 'spiral', 'spires', m3(21.25, 25.5), 'south-tower', m3(21.25, 25.5)), lk('lk-k48-roof', 'spiral', 'south-tower', m3(21.25, 25.5), 'tower-roofs', m3(21.25, 25.5)),
@@ -589,7 +641,7 @@ scene['links'] = [
     lk('lk-k79', 'stairs', 'dungeon', m12(10.75, 14), 'larders', m11(10, 8.75)),
     lk('lk-k80', 'stairs', 'dungeon', m12(12.5, 16.75), 'dungeon', m12(16.5, 16.75)),
     lk('lk-k82', 'slide', 'dungeon', m12(23, 17), 'dungeon', m12(16.5, 29)),
-    lk('lk-k51', 'trapdoor', 'spires', m3(20, 29.3), 'south-tower', m3(20, 28.6)),
+    lk('lk-k51', 'trapdoor', 'spires', m3(20, 28.7), 'south-tower', m3(20, 28.2)),
     lk('lk-k85', 'stairs', 'dungeon', m12(27, 15), 'dungeon', m12(27, 14.5)), lk('lk-k86', 'stairs', 'dungeon', m12(27, 34), 'dungeon', m12(27, 36)),
     lk('lk-k87', 'stairs', 'dungeon', m12(34, 25), 'dungeon', m12(37, 25)),
 ]
