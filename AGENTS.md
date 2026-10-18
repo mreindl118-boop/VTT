@@ -89,7 +89,6 @@ editing the same thing at once:
 |---|---|---|---|---|
 | `scripts/authoring/castle-ravenloft.py`, `locations/ch04/K`, `print/castle-ravenloft/` (item 2g) | Claude, cloud (castle session) | 2026-10-18 21:08 | the playable castle + print set on `claude/wip/castle-playable`; waiting for Matt's approval, then build/tests on a machine with npm | after Matt approves and 0.3.3 lands |
 | `item7-unfinished-maps` (ch14/Y, ch12/W, ch13/X, ch10/U, ch10/U3, ch11/V) | Claude, cloud | 2026-10-18 18:40 | the 0.3.2 release of item 7 (merging main, tests, review) | 2026-10-18 |
-| `scripts/authoring/castle-ravenloft.py`, `ravenloft-exterior.py`, `locations/ch04/K/**`, new `print/castle-ravenloft/` | Claude, cloud | 2026-10-18 21:15 | the playable castle and the scene-derived print generators (Matt, issue #3); branch `claude/wip/castle-playable`, work starts after the usage window resets at 23:40 UTC | after Matt approves the playable castle |
 
 ## Running things (Matt's Windows laptop, PowerShell)
 
@@ -132,7 +131,6 @@ a day old; then continue it from its wip branch, and say so in Status.
 
 ## Status
 
-<<<<<<< HEAD
 ### Claude, 2026-10-18 21:15 UTC (cloud; PAUSED under USAGE.md until the five-hour window resets at 23:40 UTC)
 
 - **Matt's usage rule binds every agent** (GeneralStorage `USAGE.md`, branch `claude/coworking-ack`, 2026-10-18). This
@@ -143,24 +141,19 @@ a day old; then continue it from its wip branch, and say so in Status.
   (`wf_87fec1ac-32e`: integrate done, release commit `a447725`, head `5593e4e` on `item7-unfinished-maps`, main merged
   three times; browser suite 266 passed, 55 device skips, 1 failed, fixed at its cause by test commit `38143c9` and
   re-run green; vitest 567 passed, 2 pre-existing environment skips, 2 todo; the review stage was in flight and is
-  redone on resume, then the release is published); the ease-of-use audit (`wf_6aeedc2c-d18`, done: ; the other of the desktop walk and
-  the heuristic review was in flight); the map-logic audit (`wf_fe7ebc32-113`, done: ; the runtime pass was in flight). Both audits are
+  redone on resume, then the release is published); the ease-of-use audit (`wf_6aeedc2c-d18`, done: inventory, heuristics; the heuristic review was in
+  flight); the map-logic audit (`wf_fe7ebc32-113`, done: scout, static:placement-doors, static:rooms-links, static:lattice-placement; the runtime pass was in flight). Both audits are
   findings only.
-- **Castle Ravenloft (Matt, 2026-10-18, issue #3; Codex paused): claimed in the Claims table, not started.** On
-  resume: branch `claude/wip/castle-playable` from main plus the castle-only commits of `claude/wip/item6-village-castle`
-  (`a9a7a62`: `castle-ravenloft.py`, `ravenloft-exterior.py`, `locations/ch04/K/**`); the playable castle through
-  `castle-ravenloft.py` (10-ft corridors except prison cells, full-cell doors, wall-line decor, open tower wells, 20-ft
-  courtyard apron; party start and doors on every level), regenerated, never hand-edited; scene-derived
-  `print/castle-ravenloft/build.py` (25.4 mm cell, 32 mm pitch, 3 mm slab and wall, 0.6 x 0.5 mm registration grooves,
-  250 mm bed, apron by default, colour-separated STL plus mono and 3MF, manifests, previews, mountain frame) and
-  `trinket.py` (80 mm desk model, true heights, 0.8 mm minimum feature, two-piece option), with manifold, bed-fit and
-  peg/socket checks as tests. Held for StudioBook (Matt back about 01:00 UTC; the laptop connection and Rhino/GPU are
-  verified then): Rhino refinement, trinket sculpting, GPU inspection, fabrication acceptance. ChatGPT's castle
-  changes on `item2e-map-logic-laptop` are not imported before 0.3.3. Matt approves before any merge or release.
-  **The full brief is in Matt's message to Codex, which the cloud cannot read: Matt, paste it here or into
-  `docs/handoff/castle-brief.md`; until then the defaults above (from Codex's record) are the spec.**
+- **Castle Ravenloft (Matt, 2026-10-18, issue #3; queue item 2g):** a second cloud session Matt opened by voice built
+  it at 21:08 UTC (its entry is below): the playable pass, the regenerated scene and `print/castle-ravenloft/` on
+  `claude/wip/castle-playable`, brief in `docs/handoff/castle-playable.md`. This session's own claim, written seven
+  minutes later without seeing that entry, is withdrawn: one plan, one branch, that one. What that session could not
+  run (no npm there) and this one can, after the usage reset and if nobody has by then: `npm run build`,
+  `npx vitest run`, `audit-outdoor.py`, the Players-mode start test on every castle level, the in-app look on desktop
+  and phone as DM and Players, written here with the commit hash; then Matt approves or not. Rhino refinement,
+  trinket sculpting, GPU inspection and fabrication acceptance wait for StudioBook (Matt back about 01:00 UTC; the
+  laptop connection and Rhino/GPU are verified then). Nothing merges or releases before Matt's yes and 0.3.3.
 - The item 2f plan (`docs/MAPS-FRAMEWORK.md`) awaits Matt's go. ChatGPT's draft PR #2 is acknowledged, not merged.
-=======
 ### Claude, 2026-10-18 21:08 UTC (cloud; a second cloud session Matt opened for the castle)
 
 - **New item 2g (Matt, 2026-10-18, by voice): Castle Ravenloft playable + print set + trinket**, on `claude/wip/castle-playable`
@@ -175,7 +168,6 @@ a day old; then continue it from its wip branch, and say so in Status.
   0.3.3 and the merge is theirs to carry over by re-running the script.
 - Matt also said "set up co-work instructions" for the other assistant on this item: they are the "Co-working on item
   2g" section of the brief. Nothing in it changes the claims-and-merge rules above.
->>>>>>> origin/claude/mistlab-curse-strahd-x6jm13
 
 ### Claude, 2026-10-18 20:45 UTC (cloud)
 
@@ -352,8 +344,9 @@ may still be running** its check-in routine; Matt decides whether it carries on 
 
 ## Questions for Matt
 
-- **The Castle Ravenloft brief:** the full brief is in your message to Codex (2026-10-18 20:58 UTC), which the cloud
-  cannot read. Paste it in chat or into `docs/handoff/castle-brief.md`; the defaults in Codex's record are used until then.
+- Answered by the castle session's handoff (2026-10-18 21:08): the Castle Ravenloft brief is with that session
+  (`castle-ravenloft-occ.md`, Matt has it); `docs/handoff/castle-playable.md` is what lives in the repository. Its open
+  questions for Matt are listed in that file's "Co-working on item 2g" section, point 6.
 - **The item 2f framework plan (`docs/MAPS-FRAMEWORK.md`, 2026-10-18) needs a go or no-go; its ten questions are
   answered when their release starts (recommended answers in Part A):** 1 the filmic tone curve on for every map
   (recommended: decide on release 2's pairs, default off); 2 players' unexplored outdoors shown as the hour's mist with
