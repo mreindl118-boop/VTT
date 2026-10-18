@@ -66,6 +66,7 @@ For any other problem nobody asked it to fix, an assistant does three things:
 ### Sharing the branch
 
 - **Branch.** Both assistants work on `claude/mistlab-curse-strahd-x6jm13`.
+- **Maps.** No map or file belongs to one assistant. Both work on any map under the claims and merge rules in `AGENTS.md`.
 - **Telling authors apart.** Claude Code's commits end with a `Claude-Session:` line. Any other commit counts as an outside change.
 - **Checking outside changes.** Claude Code reads every outside change before each release and at every check-in. It logs each one in the ledger in `docs/COLLABORATION.md` with what it touches and what could break, and tells Matt about anything that conflicts or could cause bugs.
 - **Design rules.** `docs/COLLABORATION.md` also lists the design choices every change must respect: no book content, generated scenes, a read-only Player Display, materials through the kit, and versioned releases.

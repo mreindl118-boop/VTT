@@ -59,6 +59,36 @@ a row added by you to the ledger for anything you changed outside the queue item
 - **Worktrees:** each item in its own worktree (`git worktree add .worktrees\<name> <branch>`), with `node_modules`
   shared by a junction: `New-Item -ItemType Junction -Path .worktrees\<name>\node_modules -Target node_modules`.
 
+## Working on the maps together
+
+Matt, 2026-10-18: "The maps should not be proprietary to any agent." No map, generator script, scene or shared file
+belongs to one agent. Claude Code and ChatGPT both work on any map, the framework included. To keep two agents from
+editing the same thing at once:
+
+1. **Claim before you edit.** Add a row to the Claims table below: the map or file (one map's generator script and
+   its scene files, or one shared module), who, the time in UTC, what you are doing, and when you expect it on the
+   main branch. Release the claim (delete the row) when the change is on main. A claim older than 12 hours with no
+   commit on its branch is stale: anyone may take it over, and says so in Status.
+2. **Small, regenerated commits.** Change the script, regenerate the scene (never hand-edit the JSON), run the build,
+   the unit tests and `audit-outdoor.py`, commit with a message that names the maps you regenerated and looked at,
+   push to your branch, and merge the main branch into your branch at least once a day.
+3. **Shared files** (`authorlib.py`, `wildlib.py`, the kit's shared modules, `materials.ts`, `backdrop.ts`,
+   `worldland.ts`, `movement.ts`, `light.ts`, the audits and tests) follow the same claim rule, plus: keep a change
+   opt-in or behaviour-preserving unless the change is the point; add or extend the test that proves it; always
+   check Death House, Vallaki and the Sheep Chase square afterwards, and say so in the commit.
+4. **Conflicts.** Whoever merges second resolves them, keeping both sides' behaviour. Never resolve a generated file
+   by hand: merge the scripts and re-run them. If both sides changed the same logic, read both commit messages and
+   combine them; if any choice loses behaviour, ask Matt.
+5. **Nothing is owned, everything is recorded.** The framework (item 2f) is shared machinery either agent may extend;
+   the per-map corrections (item 2e) may use it; either agent may fix a map the other built. Write what you changed
+   and checked in Status so nobody redoes it, and read the other agent's Status entries before starting a map.
+
+## Claims
+
+| What | Who | Since (UTC) | Doing | Expected on main |
+|---|---|---|---|---|
+| `item7-unfinished-maps` (ch14/Y, ch12/W, ch13/X, ch10/U, ch10/U3, ch11/V) | Claude, cloud | 2026-10-18 18:40 | the 0.3.2 release of item 7 (merging main, tests, review) | 2026-10-18 |
+
 ## Running things (Matt's Windows laptop, PowerShell)
 
 ```powershell
@@ -102,15 +132,11 @@ a day old; then continue it from its wip branch, and say so in Status.
 
 ### Claude, 2026-10-18 (cloud; back after the usage-limit reset)
 
-- **New item 2f, the general map improvement framework (Matt, 2026-10-18), held by the cloud.** Shared machinery that
-  lifts every map: visual quality (lighting, materials, land and the map-to-land seam, water, fog, scenery detail,
-  decluttering) and movement logic (generator-time assertions, a runtime walk audit, engine fixes for whole failure
-  families). The cloud is surveying and designing it now and will write the file-ownership boundary here before
-  touching code. Until then, the provisional boundary: **the cloud owns the shared code** (`scripts/authoring/authorlib.py`,
-  `wildlib.py`, `app/src/kit/props.ts`, `surfaces.ts`, `app/src/render/materials.ts`, `backdrop.ts`, `worldland.ts`,
-  `app/src/core/movement.ts`, `light.ts`, the audits and their tests); **ChatGPT owns the per-map generator scripts and
-  scenes** for its item 2e corrections. If ChatGPT needs a change in a shared file, write it under Questions for Matt
-  or in Status with the file and the reason, and the cloud makes it in the framework.
+- **New item 2f, the general map improvement framework (Matt, 2026-10-18).** Shared machinery that lifts every map:
+  visual quality (lighting, materials, land and the map-to-land seam, water, fog, scenery detail, decluttering) and
+  movement logic (generator-time assertions, a runtime walk audit, engine fixes for whole failure families). The
+  cloud is surveying and designing it now and shows the plan to Matt before building. **Nobody owns it or any map**
+  (Matt, 2026-10-18): see "Working on the maps together" and the Claims table above. The design run was told the same.
 
 - Read everything ChatGPT did: 0.3.0 and 0.3.1 are on the main branch (head `39e06f3`, package.json 0.3.1), with the
   desktop host Matt asked for. The cloud checked main: no forbidden files, `npm run build` passes, 541 unit tests pass.
@@ -119,7 +145,7 @@ a day old; then continue it from its wip branch, and say so in Status.
   version in release order. **Item 7 (unfinished maps) releases now as 0.3.2** from `item7-unfinished-maps`
   (`0db19b9`, the finished and tested fix), merging main first. **ChatGPT's all-map logic release (item 2e) takes the
   next number after it lands (0.3.3)**; its branch should merge main after 0.3.2 so its Amber and Yester work starts
-  from the fixed maps. The cloud never commits to ChatGPT's branches.
+  from the fixed maps. Neither agent commits to a branch the other is working on without a claim; the work meets on main.
 - ChatGPT's commits since 2026-10-13 are reviewed and logged in the ledger as part of the 0.3.2 release (grouped by
   release, not one row per commit).
 - **0.3.1 is published to the mistLAB link** (artifact version 43) from a build of main `39e06f3`; its bundle hash
