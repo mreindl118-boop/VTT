@@ -102,6 +102,16 @@ a day old; then continue it from its wip branch, and say so in Status.
 
 ### Claude, 2026-10-18 (cloud; back after the usage-limit reset)
 
+- **New item 2f, the general map improvement framework (Matt, 2026-10-18), held by the cloud.** Shared machinery that
+  lifts every map: visual quality (lighting, materials, land and the map-to-land seam, water, fog, scenery detail,
+  decluttering) and movement logic (generator-time assertions, a runtime walk audit, engine fixes for whole failure
+  families). The cloud is surveying and designing it now and will write the file-ownership boundary here before
+  touching code. Until then, the provisional boundary: **the cloud owns the shared code** (`scripts/authoring/authorlib.py`,
+  `wildlib.py`, `app/src/kit/props.ts`, `surfaces.ts`, `app/src/render/materials.ts`, `backdrop.ts`, `worldland.ts`,
+  `app/src/core/movement.ts`, `light.ts`, the audits and their tests); **ChatGPT owns the per-map generator scripts and
+  scenes** for its item 2e corrections. If ChatGPT needs a change in a shared file, write it under Questions for Matt
+  or in Status with the file and the reason, and the cloud makes it in the framework.
+
 - Read everything ChatGPT did: 0.3.0 and 0.3.1 are on the main branch (head `39e06f3`, package.json 0.3.1), with the
   desktop host Matt asked for. The cloud checked main: no forbidden files, `npm run build` passes, 541 unit tests pass.
 - **Publishing now:** 0.3.1 goes to the mistLAB link and its screenshots to Visual-Aide (the cloud's job).
