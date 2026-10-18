@@ -328,7 +328,7 @@ class LevelBuild:
                 else:
                     self.parts['stone'].append(Manifold.cylinder(min(cfg.clear - 0.3, 99), 1.4 * f, 1.4 * f, 12).translate([x, y, z0]))
             elif k == 'statue' or k == 'strahd-statue':
-                s = d.get('s', 1.0)
+                s = min(d.get('s', 1.0), (cfg.clear - 1.0) / (6.4 * f))      # never taller than the level
                 m = union([Manifold.cube([2 * f * s, 2 * f * s, 0.8 * f]).translate([-f * s, -f * s, z0]),
                            Manifold.cylinder(5 * f * s, 0.7 * f * s, 0.55 * f * s, 10).translate([x * 0, 0, z0 + 0.8 * f]),
                            Manifold.sphere(0.6 * f * s, 10).translate([0, 0, z0 + 5.8 * f * s])])
@@ -377,8 +377,8 @@ class LevelBuild:
             elif k == 'portcullis':
                 self.portcullis(x, y, rot)
             elif k == 'crystal-orb':
-                r = d.get('r', 2) * f
-                grp = 'heart' if r > 3 * f else 'stone'
+                r = min(d.get('r', 2) * f, (cfg.clear - 1.0) / 2)
+                grp = 'heart' if d.get('r', 2) > 3 else 'stone'
                 zc = z0 + (r if grp == 'stone' else min(cfg.clear / 2, r + 1))
                 self.parts[grp].append(Manifold.sphere(r, 20).translate([x, y, zc]))
             elif k == 'roof-gable':
@@ -514,29 +514,35 @@ class LevelBuild:
 
 # ------------------------------------------------------------------ tiling
 def cut_positions(cfg, lo, hi, door_cells, axis):
-    """Cut lines through cell centres between lo and hi (mm), at most `max_cells` apart, avoiding door cells."""
-    max_cells = int((cfg.bed - 2 * cfg.tongue - 6) // cfg.cell)
-    n_cells = int(math.ceil((hi - lo) / cfg.cell - 1e-6))
-    if n_cells <= max_cells:
+    """Cut lines through cell centres between lo and hi (mm): no tile wider than the bed allows, each cut as close to
+    an even split as possible, and off any door cell when a choice exists."""
+    max_w = int((cfg.bed - 2 * cfg.tongue - 6) // cfg.cell) * cfg.cell     # widest tile, whole cells
+    span = hi - lo
+    if span <= max_w + 1e-6:
         return []
-    n_tiles = int(math.ceil(n_cells / max_cells))
-    ideal = [lo + (hi - lo) * i / n_tiles for i in range(1, n_tiles)]
+    n_tiles = int(math.ceil(span / max_w - 1e-9))
     first_center = (math.floor(lo / cfg.cell) + 0.5) * cfg.cell
-    cuts = []
-    for t in ideal:
+    cuts = []; prev = lo
+    for t in range(1, n_tiles):
+        ideal = lo + span * t / n_tiles
+        remaining = n_tiles - t                        # tiles still to come after this cut
+        lo_ok = max(prev + cfg.cell, hi - remaining * max_w)
+        hi_ok = min(prev + max_w, hi - cfg.cell)
         best, best_score = None, None
-        for k in range(-3, 4):
-            c = first_center + round((t - first_center) / cfg.cell + k) * cfg.cell
-            if c <= lo + cfg.cell or c >= hi - cfg.cell or (cuts and c - cuts[-1] > max_cells * cfg.cell):
+        k0 = int(math.floor((lo_ok - first_center) / cfg.cell)) - 1
+        for k in range(k0, k0 + int(span / cfg.cell) + 3):
+            c = first_center + k * cfg.cell
+            if c < lo_ok - 1e-6 or c > hi_ok + 1e-6:
                 continue
-            score = abs(c - t) / cfg.cell
+            score = abs(c - ideal) / cfg.cell
             for (mid, L) in door_cells:
                 if abs(mid[axis] - c) < L / 2 + cfg.wall:
                     score += 10
             if best is None or score < best_score:
                 best, best_score = c, score
-        if best is not None:
-            cuts.append(best)
+        if best is None:                               # no cell centre fits: cut at the limit
+            best = hi_ok
+        cuts.append(best); prev = best
     return cuts
 
 
