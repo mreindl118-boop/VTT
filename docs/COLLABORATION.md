@@ -16,6 +16,8 @@ This file is shared by both assistants and by Matt. It covers:
 
 ## How changes are handled
 
+**Shared maps.** No map, generator script or shared file belongs to one assistant (Matt, 2026-10-18). Both work on any of them under the claims and merge rules in `AGENTS.md`, "Working on the maps together".
+
 **Shared branch.** The main branch is `claude/mistlab-curse-strahd-x6jm13`. Claude Code does each queue item on its own work branch and merges it onto this branch only when the item is released.
 
 **Telling the authors apart.** Every Claude Code commit ends with a `Claude-Session:` line: a session link from the cloud sessions, or `Claude-Session: laptop` from the session on Matt's laptop, which becomes the development and test machine from 2026-10-13 (`docs/HANDOFF.md`). A commit without one was made by someone else, and is logged in the ledger below.
