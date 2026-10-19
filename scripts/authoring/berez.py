@@ -11,6 +11,8 @@ the river's banks were traced by hand on that render. Only positions, sizes and 
 wording are ours. The marsh is the floor everywhere; the cellar under the mansion is a second level."""
 import json, math, os, random, sys
 from collections import OrderedDict
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from geomlib import inside
 
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..')
 OUT = os.path.join(ROOT, 'locations', 'ch10', 'U')
@@ -21,12 +23,6 @@ rng = random.Random(10)
 R1 = lambda v: round(v, 1)
 
 # ------------------------------------------------------------------ geometry helpers
-def inside(p, poly):
-    x, z = p; c = False; n = len(poly)
-    for i in range(n):
-        (x0, z0), (x1, z1) = poly[i], poly[(i + 1) % n]
-        if (z0 > z) != (z1 > z) and x < (x1 - x0) * (z - z0) / (z1 - z0) + x0: c = not c
-    return c
 
 def seg_dist(p, a, b):
     dx, dz = b[0] - a[0], b[1] - a[1]; L2 = dx * dx + dz * dz or 1

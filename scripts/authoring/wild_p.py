@@ -21,6 +21,7 @@ import json, math, os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from wildlib import *  # noqa: F401,F403
 from wildlib import ROOT, Site, Level, catmull, ribbon, inside, rnd, heading, facing, turn, blob, along, line_dist, seg_dist
+from geomlib import line_dims
 from collections import OrderedDict
 
 W_FT, H_FT = 1300, 800
@@ -71,13 +72,6 @@ def knollH(x, z):
 def edge_x(z):
     """the forest's edge onto the hay terrace"""
     return 905 + 22 * math.sin(z / 95.0) + 12 * math.sin(z / 37.0 + 1.3)
-
-
-def line_dims(pts, origin, prefix=''):
-    d = {prefix + 'n': len(pts)}
-    for i, (x, z) in enumerate(pts):
-        d[f'{prefix}x{i}'] = rnd(x - origin[0], 2); d[f'{prefix}z{i}'] = rnd(z - origin[1], 2)
-    return d
 
 
 def thin(line, step):

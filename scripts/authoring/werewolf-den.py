@@ -16,6 +16,7 @@ import json, math, os, sys
 from collections import OrderedDict
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from authorlib import ROOT, Level, seg_key  # noqa: F401
+from geomlib import exact
 
 _M = json.load(open(os.path.join(ROOT, 'manifests', 'locations.json')))
 PAGE = {a['key']: a['page'] for l in _M['locations'] if l['id'] == 'Z' for a in l['areas']}
@@ -24,9 +25,6 @@ AMB = 'barovian-overcast'
 WALL_H = 6          # cave walls stand a little proud of the rock slab (5.6 ft): the cutaway of a carved diorama
 ROCK_H = 5.6
 
-
-def exact(lv, a, b, **kw):
-    k = seg_key(a, b); lv.overrides[k] = dict(lv.overrides.get(k, {}), **kw)
 
 def open_edges(lv, poly, a, b):
     """Open (no wall) every edge of `poly` from vertex a to vertex b, walking forward."""

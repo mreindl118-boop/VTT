@@ -13,6 +13,7 @@ import json, math, os, sys
 from collections import OrderedDict
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from authorlib import ROOT, Level, rect, unit_edges, seg_key  # noqa: F401
+from geomlib import ov, band, H
 
 _M = json.load(open(os.path.join(ROOT, 'manifests', 'locations.json')))
 PAGE = {a['key']: a['page'] for l in _M['locations'] if l['id'] == 'W' for a in l['areas']}
@@ -30,11 +31,6 @@ def arc(cx, cz, r, a0, a1, step=30):
     return out
 
 
-def ov(lv, a, b, **kw):
-    """Override one edge exactly as the wall builder splits it (diagonals whole, straight runs per cell)."""
-    k = seg_key(a, b); lv.overrides[k] = dict(lv.overrides.get(k, {}), **kw)
-
-
 def stamp_edges(lv, poly, **kw):
     """Override every unit edge of a polygon (open it, give it a material or a height)."""
     for a, b in unit_edges(poly):
@@ -43,19 +39,6 @@ def stamp_edges(lv, poly, **kw):
 
 def seg(lv, a, b, **kw):
     lv._stamp(a, b, **kw)
-
-
-def band(points, w):
-    """A strip `w` cells wide along a polyline (for paths and trails)."""
-    left, right = [], []
-    for i, (x, z) in enumerate(points):
-        if i == 0: dx, dz = points[1][0] - x, points[1][1] - z
-        elif i == len(points) - 1: dx, dz = x - points[i - 1][0], z - points[i - 1][1]
-        else: dx, dz = points[i + 1][0] - points[i - 1][0], points[i + 1][1] - points[i - 1][1]
-        L = math.hypot(dx, dz) or 1
-        nx, nz = -dz / L * w / 2, dx / L * w / 2
-        left.append((round(x + nx, 2), round(z + nz, 2))); right.append((round(x - nx, 2), round(z - nz, 2)))
-    return left + right[::-1]
 
 
 def along(points, step):
@@ -68,12 +51,6 @@ def along(points, step):
             d += step
         carry = d - L
     return out
-
-
-def H(i, k=0):
-    """A deterministic 0..1 jitter."""
-    s = math.sin(i * 127.1 + k * 311.7) * 43758.5453
-    return s - math.floor(s)
 
 
 AMB = 'barovian-overcast'

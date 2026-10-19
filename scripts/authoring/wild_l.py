@@ -10,6 +10,7 @@ import math, os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from wildlib import *  # noqa: F401,F403
 from wildlib import Site, Level, AMB, catmull, ribbon, inside, rnd, heading, facing, turn, blob
+from geomlib import line_dims
 from collections import OrderedDict
 
 W_FT, H_FT = 650, 750
@@ -27,13 +28,6 @@ def knollH(x, z):
 def C(p):
     """map feet -> cells"""
     return (p[0] / 5, p[1] / 5)
-
-
-def line_dims(pts, origin, prefix=''):
-    d = {prefix + 'n': len(pts)}
-    for i, (x, z) in enumerate(pts):
-        d[f'{prefix}x{i}'] = rnd(x - origin[0], 2); d[f'{prefix}z{i}'] = rnd(z - origin[1], 2)
-    return d
 
 
 def zline(L, x):

@@ -15,6 +15,7 @@ Props of this site live in app/src/kit/sites/wild-r.ts (kinds r-*)."""
 import sys, os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from wildlib import *  # noqa: F401,F403
+from geomlib import unit, bearing_dir
 from collections import OrderedDict
 
 W, H = 124, 108
@@ -25,10 +26,6 @@ DIRT, GRAVEL = 0x66584a, 0x6b675f
 
 
 def P(x, z): return (x / 5, z / 5)
-def unit(dx, dz):
-    L = math.hypot(dx, dz) or 1; return (dx / L, dz / L)
-def bearing_dir(b):
-    r = math.radians(b); return (math.sin(r), -math.cos(r))
 
 
 def clip_rect(poly, x0, z0, x1, z1):

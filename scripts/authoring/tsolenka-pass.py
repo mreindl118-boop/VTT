@@ -15,6 +15,7 @@ import json, math, os, sys
 from collections import OrderedDict
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from authorlib import ROOT, Level, rect, seg_key  # noqa: F401
+from geomlib import exact, lerp
 
 _M = json.load(open(os.path.join(ROOT, 'manifests', 'locations.json')))
 PAGE = {a['key']: a['page'] for l in _M['locations'] if l['id'] == 'T' for a in l['areas']}
@@ -23,10 +24,6 @@ AMB = 'barovian-overcast'
 
 
 # ------------------------------------------------------------------ helpers
-def exact(lv, a, b, **kw):
-    """Override one exact polygon edge (a whole diagonal, or a sub-edge made by inserted vertices)."""
-    k = seg_key(a, b)
-    lv.overrides[k] = dict(lv.overrides.get(k, {}), **kw)
 
 def insert(poly, *pts):
     """Insert points that lie on a polygon's edges (to make a door or window its own edge)."""
@@ -40,8 +37,6 @@ def insert(poly, *pts):
         else:
             raise ValueError(f'{p} is on no edge')
     return out
-
-def lerp(a, b, t): return (round(a[0] + (b[0] - a[0]) * t, 4), round(a[1] + (b[1] - a[1]) * t, 4))
 
 def octagon(cx, cz, r=3, c=1.25):
     """A regular-ish octagon on the lattice: flat faces 2c long at distance r (cells), clockwise from the north-west corner."""

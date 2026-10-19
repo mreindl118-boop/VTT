@@ -8,6 +8,8 @@ markers N1–N9 are traced by hand on the same render. Only positions and sizes 
 Keyed buildings with their own maps carry `enter` so the town map opens them."""
 import json, math, os
 from collections import OrderedDict
+import sys; sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from geomlib import inside, strip
 
 ROOT = os.path.join(os.path.dirname(__file__), '..', '..')
 OUT = os.path.join(ROOT, 'locations', 'ch05', 'N')
@@ -35,23 +37,6 @@ NAMES = {'N1': "St. Andral's Church", 'N2': 'Blue Water Inn', 'N3': "Burgomaster
 ENTER = {'N1': 'ch05/N1', 'N2': 'ch05/N2', 'N3': 'ch05/N3', 'N4': 'ch05/N4', 'N5': 'ch05/N5', 'N6': 'ch05/N6', 'N7': 'ch05/N7', 'N9': 'ch05/N9', 'N8': 'ch05/N8', 'N8a': 'ch05/N8', 'N8b': 'ch05/N8', 'N8c': 'ch05/N8', 'N8d': 'ch05/N8'}
 _M = json.load(open(os.path.join(ROOT, 'manifests', 'locations.json')))
 PAGE = {a['key']: a['page'] for l in _M['locations'] if l['id'] == 'N' for a in l['areas']}
-
-def strip(pts, w):
-    out, h = [], w / 2
-    for i in range(len(pts) - 1):
-        (x0, z0), (x1, z1) = pts[i], pts[i + 1]
-        dx, dz = x1 - x0, z1 - z0; L = math.hypot(dx, dz) or 1; nx, nz = -dz / L * h, dx / L * h
-        out.append([[round(x0 + nx, 1), round(z0 + nz, 1)], [round(x1 + nx, 1), round(z1 + nz, 1)], [round(x1 - nx, 1), round(z1 - nz, 1)], [round(x0 - nx, 1), round(z0 - nz, 1)]])
-    for (x, z) in pts[1:-1]:
-        out.append([[round(x + math.cos(a) * h, 1), round(z + math.sin(a) * h, 1)] for a in [k * math.pi / 4 for k in range(8)]])
-    return out
-
-def inside(p, poly):
-    x, z = p; c = False; n = len(poly)
-    for i in range(n):
-        (x0, z0), (x1, z1) = poly[i], poly[(i + 1) % n]
-        if (z0 > z) != (z1 > z) and x < (x1 - x0) * (z - z0) / (z1 - z0) + x0: c = not c
-    return c
 
 def _smooth(pts, passes=3, step=20.0):
     """The traced outline is a polygon of hand-clicked corners; the palisade itself bends in long easy curves.

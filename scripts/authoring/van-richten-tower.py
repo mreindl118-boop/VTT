@@ -16,6 +16,7 @@ import json, math, os, sys
 from collections import OrderedDict
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from authorlib import ROOT, Level, rect, unit_edges, seg_key  # noqa: F401
+from geomlib import lerp
 from shapely.geometry import Polygon as SPoly, LineString, box as sbox
 from shapely.ops import unary_union
 
@@ -27,7 +28,6 @@ FX, FZ = 140, 124            # the frame, cells
 AMB = 'barovian-overcast'
 
 def pt(dx, dz): return (round(CX + dx, 4), round(CZ + dz, 4))
-def lerp(a, b, t): return (round(a[0] + (b[0] - a[0]) * t, 4), round(a[1] + (b[1] - a[1]) * t, 4))
 
 def octagon(r, c, splits=None):
     """The octagon's corners clockwise from the north flat's west end, with extra points on named edges

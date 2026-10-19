@@ -18,6 +18,7 @@ from collections import OrderedDict
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from authorlib import ROOT  # noqa: F401
 import krezk_land as KL
+from geomlib import strip
 
 OUT = os.path.join(ROOT, 'locations', 'ch08', 'S')
 _M = json.load(open(os.path.join(ROOT, 'manifests', 'locations.json')))
@@ -36,15 +37,6 @@ def obj(id, kind, x, z, y=0, key=None, label=None, rotY=None, dims=None, vis='pl
     if dims: o['dims'] = OrderedDict(dims)
     objects.append(o); return o
 
-def strip(pts, w):
-    out, h = [], w / 2
-    for i in range(len(pts) - 1):
-        (x0, z0), (x1, z1) = pts[i], pts[i + 1]
-        dx, dz = x1 - x0, z1 - z0; L = math.hypot(dx, dz) or 1; nx, nz = -dz / L * h, dx / L * h
-        out.append([[round(x0 + nx, 1), round(z0 + nz, 1)], [round(x1 + nx, 1), round(z1 + nz, 1)], [round(x1 - nx, 1), round(z1 - nz, 1)], [round(x0 - nx, 1), round(z0 - nz, 1)]])
-    for (x, z) in pts[1:-1]:
-        out.append([[round(x + math.cos(a) * h, 1), round(z + math.sin(a) * h, 1)] for a in [k * math.pi / 4 for k in range(8)]])
-    return out
 def chaikin(pts, passes=2):
     for _ in range(passes):
         out = [pts[0]]

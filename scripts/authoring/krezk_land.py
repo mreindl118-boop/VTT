@@ -10,6 +10,9 @@ The village floor is 0; the abbey's ledge is 400 ft above it (the text). The led
 to the north-east; to the west and south it falls in cliffs to the village, and the switchback road (S5) climbs the
 west cliff in three legs. Only positions, sizes and heights live here (no book art)."""
 import math
+import os, sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from geomlib import inside, ribbon_dims
 
 PX_PER_FT = 67.1 / 50.0
 def K(px, py):
@@ -75,12 +78,6 @@ def road_profile():
 ROAD = road_profile()
 
 # ------------------------------------------------------------------ geometry helpers
-def inside(p, poly):
-    x, z = p; c = False; n = len(poly)
-    for i in range(n):
-        (x0, z0), (x1, z1) = poly[i], poly[(i + 1) % n]
-        if (z0 > z) != (z1 > z) and x < (x1 - x0) * (z - z0) / (z1 - z0) + x0: c = not c
-    return c
 
 def seg_dist(p, a, b):
     dx, dz = b[0] - a[0], b[1] - a[1]; L2 = dx * dx + dz * dz or 1e-9
@@ -211,13 +208,6 @@ def heightfield_dims(x0, z0, nx, nz, cell, fn, hole=None, q=0.5, origin_y=0.0, t
         for j, c in enumerate(chunk): v += c * (4096 ** j)
         dims[f'd{k // 4}'] = v
     return dims
-
-def ribbon_dims(pts, w, origin=(0.0, 0.0, 0.0)):
-    """A road ribbon through (x, z, y) points, relative to origin."""
-    d = {'n': len(pts), 'w': w}
-    for i, (x, z, y) in enumerate(pts):
-        d[f'x{i}'] = round(x - origin[0], 2); d[f'z{i}'] = round(z - origin[1], 2); d[f'y{i}'] = round(y - origin[2], 2)
-    return d
 
 def slope_at(p, e=5.0):
     h = height(p)

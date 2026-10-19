@@ -22,6 +22,7 @@ import numpy as np
 from collections import OrderedDict
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from authorlib import ROOT, Level, rect, unit_edges, seg_key  # noqa: F401
+from geomlib import ov, band, H, ribbon_dims
 
 _M = json.load(open(os.path.join(ROOT, 'manifests', 'locations.json')))
 PAGE = {a['key']: a['page'] for l in _M['locations'] if l['id'] == 'Y' for a in l['areas']}
@@ -31,11 +32,6 @@ pg = lambda k: PAGE.get(k)
 def S(c, r):
     """A reading in printed squares (column, row on the plate's grid) -> plan cells (5 ft)."""
     return (round((c - 1.5) * 10, 2), round((r - 4.5) * 10, 2))
-
-
-def H(i, k=0):
-    s = math.sin(i * 127.1 + k * 311.7) * 43758.5453
-    return s - math.floor(s)
 
 
 def catmull(pts, n=12, closed=True):
@@ -51,18 +47,6 @@ def catmull(pts, n=12, closed=True):
             out.append(tuple(round(0.5 * ((2 * p1[j]) + (-p0[j] + p2[j]) * t + (2 * p0[j] - 5 * p1[j] + 4 * p2[j] - p3[j]) * t2 + (-p0[j] + 3 * p1[j] - 3 * p2[j] + p3[j]) * t3), 3) for j in (0, 1)))
     if not closed: out.append(tuple(pts[-1]))
     return out
-
-
-def band(points, w):
-    left, right = [], []
-    for i, (x, z) in enumerate(points):
-        if i == 0: dx, dz = points[1][0] - x, points[1][1] - z
-        elif i == len(points) - 1: dx, dz = x - points[i - 1][0], z - points[i - 1][1]
-        else: dx, dz = points[i + 1][0] - points[i - 1][0], points[i + 1][1] - points[i - 1][1]
-        L = math.hypot(dx, dz) or 1
-        nx, nz = -dz / L * w / 2, dx / L * w / 2
-        left.append((round(x + nx, 2), round(z + nz, 2))); right.append((round(x - nx, 2), round(z - nz, 2)))
-    return left + right[::-1]
 
 
 def along(points, step, closed=False):
@@ -92,11 +76,6 @@ def dist_to(p, line):
         t = max(0, min(1, ((p[0] - x0) * dx + (p[1] - z0) * dz) / L2))
         best = min(best, math.hypot(p[0] - x0 - dx * t, p[1] - z0 - dz * t))
     return best
-
-
-def ov(lv, a, b, **kw):
-    """Override one edge exactly as the wall builder splits it (diagonals whole, straight runs per cell)."""
-    k = seg_key(a, b); lv.overrides[k] = dict(lv.overrides.get(k, {}), **kw)
 
 
 def open_all(lv, poly):
@@ -259,12 +238,6 @@ def profile(pts_ft, grade_max=0.199, landings=(), span=2):
 
 
 # ---------------------------------------------------------------- the props' data
-def ribbon_dims(pts, w, origin=(0.0, 0.0, 0.0)):
-    """A ribbon through (x, z, y) points, relative to origin."""
-    d = {'n': len(pts), 'w': w}
-    for i, (x, z, y) in enumerate(pts):
-        d[f'x{i}'] = round(x - origin[0], 2); d[f'z{i}'] = round(z - origin[1], 2); d[f'y{i}'] = round(y - origin[2], 2)
-    return d
 
 
 # ---------------------------------------------------------------- the tracks cut into the hill; the land as drawn
