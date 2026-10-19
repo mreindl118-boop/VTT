@@ -14,6 +14,7 @@ import { surfaceFor } from '../surfaces';
 import { merge } from '../pieces';
 import { blackCarriage, curtainWall, gargoyleStatue } from './wild';
 import { box, cone, cyl, flat as plate, grp, hash, lump, place } from '../shapes';
+import { veil } from '../mist';
 
 type Dims = Record<string, number>;
 
@@ -82,14 +83,6 @@ function fogMat(color: string, opacity: number): THREE.MeshLambertMaterial {
   const k = color + opacity;
   let m = fogMats.get(k);
   if (!m) { m = matClone(color); m.transparent = true; m.opacity = opacity; m.depthWrite = false; m.side = THREE.DoubleSide; m.flatShading = false; fogMats.set(k, m); }
-  return m;
-}
-/** Unlit see-through glow (cached): light pooled on stone, which is not lit by anything else. */
-const veils = new Map<string, THREE.MeshBasicMaterial>();
-function veil(color: string, opacity: number): THREE.MeshBasicMaterial {
-  const k = color + opacity;
-  let m = veils.get(k);
-  if (!m) { m = new THREE.MeshBasicMaterial({ color, transparent: true, opacity, depthWrite: false, side: THREE.DoubleSide }); veils.set(k, m); }
   return m;
 }
 /** One mesh per material: a piece that is drawn on its own (fog, hidden things, the chasm) costs a few draws, not dozens. */

@@ -13,6 +13,7 @@ import { FLOOR_COLOR } from '../palette';
 import { surfaceFor } from '../surfaces';
 import { waterfall } from './wild';
 import { grp, hash } from '../shapes';
+import { fogMat } from '../mist';
 
 type Dims = Record<string, number>;
 type P2 = [number, number];
@@ -58,14 +59,6 @@ function lumpGeo(r: number, seed: number, sx = 1, sy = 1, sz = 1, detail = 1): T
   }
   geo.computeVertexNormals();
   return geo;
-}
-/** Fog: the palette's mist, lit, see-through and drawn without depth writes (cached per colour and opacity). */
-const fogMats = new Map<string, THREE.MeshLambertMaterial>();
-function fogMat(color: string, opacity: number, far = false): THREE.MeshLambertMaterial {
-  const k = color + opacity + far;
-  let m = fogMats.get(k);
-  if (!m) { m = matClone(color, far); m.transparent = true; m.opacity = opacity; m.depthWrite = false; m.side = THREE.DoubleSide; fogMats.set(k, m); }
-  return m;
 }
 /** Unlit see-through glow (lightning inside a cloud, the glass of a bolt scar catching the light). */
 const glows = new Map<string, THREE.MeshBasicMaterial>();

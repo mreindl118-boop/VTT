@@ -17,6 +17,7 @@ import { surfaceFor } from '../surfaces';
 import { merge } from '../pieces';
 import { SITE_SHAPERS } from '../../render/backdrop';
 import { compact, densify, dimsLine, grp, hash, lerp, lumpGeo, place, smoothstep } from '../shapes';
+import { fogMat } from '../mist';
 
 type Dims = Record<string, number>;
 type P2 = [number, number];
@@ -77,14 +78,6 @@ function flat(poly: P2[], y: number, c: string, m: MatFn = M): THREE.Mesh {
 }
 /** An irregular blob outline of radius about r (stretched sx along x), n points. */
 const blobPts = (r: number, seed: number, sx = 1, n = 11, j = 0.3): P2[] => Array.from({ length: n }, (_, i) => { const a = (i / n) * Math.PI * 2, k = r * (1 - j / 2 + j * hash(i, seed)); return [Math.cos(a) * k * sx, Math.sin(a) * k] as P2; });
-/** Fog: lit like everything else but see-through and drawn without depth writes; cached per colour and opacity. */
-const fogMats = new Map<string, THREE.MeshLambertMaterial>();
-function fogMat(color: string, opacity: number): THREE.MeshLambertMaterial {
-  const k = color + opacity;
-  let m = fogMats.get(k);
-  if (!m) { m = matClone(color); m.transparent = true; m.opacity = opacity; m.depthWrite = false; m.side = THREE.DoubleSide; fogMats.set(k, m); }
-  return m;
-}
 /** A ragged fog sheet over a plan polygon at height y. */
 function fogFlat(poly: P2[], y: number, color: string, opacity: number, m?: THREE.Material): THREE.Mesh {
   const geo = new THREE.ShapeGeometry(new THREE.Shape(poly.map(([x, z]) => new THREE.Vector2(x, -z))));

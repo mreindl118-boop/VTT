@@ -7,11 +7,12 @@ import * as THREE from 'three';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { PROPS_V1, vardo } from '../props';
 import { CREATURES, horse, humanoid } from '../creatures';
-import { mat, matClone } from '../../render/materials';
+import { mat } from '../../render/materials';
 import { PALETTE } from '../palette';
 import { surfaceFor } from '../surfaces';
 import { SITE_SHAPERS } from '../../render/backdrop';
 import { box, cone, cyl, grp, hash, lump, place } from '../shapes';
+import { fogMat } from '../mist';
 
 type Dims = Record<string, number>;
 
@@ -49,14 +50,6 @@ function blobGeo(w: number, d: number, seed: number, y: number, n = 11): THREE.B
   return geo;
 }
 const blob = (w: number, d: number, seed: number, y: number, color: string, n = 11) => new THREE.Mesh(blobGeo(w, d, seed, y, n), mat(color));
-/** Fog: the palette's mist grey, lit like everything else but see-through, drawn without depth writes. Cached. */
-const fogMats = new Map<string, THREE.MeshLambertMaterial>();
-function fogMat(color: string, opacity: number): THREE.MeshLambertMaterial {
-  const k = color + opacity;
-  let m = fogMats.get(k);
-  if (!m) { m = matClone(color); m.transparent = true; m.opacity = opacity; m.depthWrite = false; m.side = THREE.DoubleSide; fogMats.set(k, m); }
-  return m;
-}
 /** A ragged-edged sheet `L` × `D` in the xz plane (a layer of fog seen from above). */
 function fogSheetGeo(L: number, D: number, seed: number): THREE.BufferGeometry {
   const pts: THREE.Vector2[] = [], n = Math.max(4, Math.round(L / 6)), m = Math.max(2, Math.round(D / 6));

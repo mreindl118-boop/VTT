@@ -11,10 +11,11 @@
 import * as THREE from 'three';
 import { PROPS_V1, pine } from '../props';
 import { CREATURES, humanoid, horse } from '../creatures';
-import { mat, matClone, patchFog, setSurface } from '../../render/materials';
+import { mat, patchFog, setSurface } from '../../render/materials';
 import { FLOOR_COLOR } from '../palette';
 import { surfaceFor } from '../surfaces';
 import { box, compact, coneWith, cylWith, flat, grp, hash, lerp, lump, place, smoothstep as smooth, upTris, V } from '../shapes';
+import { fogMat } from '../mist';
 const cyl = cylWith(7), cone = coneWith(5);
 
 type Dims = Record<string, number>;
@@ -125,14 +126,6 @@ function segDist(px: number, pz: number, a: P2, b: P2): number {
   return Math.hypot(px - a[0] - dx * t, pz - a[1] - dz * t);
 }
 const lineDist = (x: number, z: number, L: P2[]) => { let m = Infinity; for (let i = 0; i + 1 < L.length; i++) m = Math.min(m, segDist(x, z, L[i], L[i + 1])); return m; };
-/** See-through fog and water sheen: lit, no depth writes; cached per colour and opacity. */
-const fogMats = new Map<string, THREE.MeshLambertMaterial>();
-function fogMat(color: string, opacity: number): THREE.MeshLambertMaterial {
-  const k = color + opacity;
-  let m = fogMats.get(k);
-  if (!m) { m = matClone(color); m.transparent = true; m.opacity = opacity; m.depthWrite = false; m.side = THREE.DoubleSide; fogMats.set(k, m); }
-  return m;
-}
 /** Split a geometry with material groups (an extrusion's faces and sides) into one geometry per group. */
 function splitGroups(geo: THREE.BufferGeometry): THREE.BufferGeometry[] {
   const g = geo.index ? geo.toNonIndexed() : geo, pos = g.attributes.position, nor = g.attributes.normal, out: THREE.BufferGeometry[] = [];

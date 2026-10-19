@@ -11,10 +11,11 @@
 import * as THREE from 'three';
 import { PROPS_V1 } from '../props';
 import { CREATURES, horse, humanoid } from '../creatures';
-import { mat, matClone } from '../../render/materials';
+import { mat } from '../../render/materials';
 import { FLOOR_COLOR, PALETTE } from '../palette';
 import { surfaceFor } from '../surfaces';
 import { box, cyl, grp, hash, lump, place } from '../shapes';
+import { fogMat } from '../mist';
 
 type Dims = Record<string, number>;
 type P2 = [number, number];
@@ -581,14 +582,6 @@ export function breathPuff(d: Dims): THREE.Group {
 
 
 // ---------------------------------------------------------------- fog
-/** Fog material: mist grey, lit like the map (it darkens at night), see-through, no depth writes; cached. */
-const fogMats = new Map<string, THREE.MeshLambertMaterial>();
-function fogMat(color: string, opacity: number): THREE.MeshLambertMaterial {
-  const k = color + opacity;
-  let m = fogMats.get(k);
-  if (!m) { m = matClone(color); m.transparent = true; m.opacity = opacity; m.depthWrite = false; m.side = THREE.DoubleSide; fogMats.set(k, m); }
-  return m;
-}
 /** Ragged-edged sheet outline L x D (local x, z), as plan points. */
 function raggedOutline(L: number, D: number, seed: number): THREE.Vector2[] {
   const pts: THREE.Vector2[] = [], n = 22;

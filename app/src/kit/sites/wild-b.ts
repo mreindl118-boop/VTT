@@ -6,9 +6,10 @@
 import * as THREE from 'three';
 import { PROPS_V1, vardo } from '../props';
 import { CREATURES, horse, humanoid } from '../creatures';
-import { mat, matClone } from '../../render/materials';
+import { mat } from '../../render/materials';
 import { surfaceFor } from '../surfaces';
 import { box, compact, cone, cyl, grp, hash, lump, place } from '../shapes';
+import { fogMat } from '../mist';
 
 type Dims = Record<string, number>;
 
@@ -63,14 +64,6 @@ function sapling(x: number, z: number, h: number, seed: number): THREE.Group {
   const g = grp(cyl(0.12, 0.2, h, C.sapling, x, h / 2, z, 5));
   for (let i = 0; i < 2; i++) g.add(cone(0.9 - i * 0.3, 1.6, i ? '#2f4a3a' : '#1e3128', x, h * 0.55 + i * 1.3, z, 5));
   g.children[0].rotation.z = (hash(1, seed) - 0.5) * 0.2; return g;
-}
-/** Fog: the palette's mist grey, lit like everything else but see-through, drawn without depth writes. Cached. */
-const fogMats = new Map<string, THREE.MeshLambertMaterial>();
-function fogMat(color: string, opacity: number): THREE.MeshLambertMaterial {
-  const k = color + opacity;
-  let m = fogMats.get(k);
-  if (!m) { m = matClone(color); m.transparent = true; m.opacity = opacity; m.depthWrite = false; m.side = THREE.DoubleSide; fogMats.set(k, m); }
-  return m;
 }
 /** A ragged-edged sheet L × D lying in the xz plane. */
 function fogSheet(L: number, D: number, seed: number, m: THREE.Material): THREE.Mesh {

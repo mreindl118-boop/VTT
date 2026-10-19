@@ -6,9 +6,10 @@
 import * as THREE from 'three';
 import { PROPS_V1, pineTier } from '../props';
 import { CREATURES, horse, humanoid } from '../creatures';
-import { mat, matClone } from '../../render/materials';
+import { mat } from '../../render/materials';
 import { surfaceFor } from '../surfaces';
 import { box, compact, coneWith, cylWith, grp, hash, lump, place, plate, tris } from '../shapes';
+import { fogMat as veil } from '../mist';
 const cyl = cylWith(7), cone = coneWith(5);
 
 type Dims = Record<string, number>;
@@ -56,14 +57,6 @@ function outward(v: number[], dir: (x: number, y: number, z: number) => [number,
     if (nx * dx + ny * dy + nz * dz < 0) for (let k = 0; k < 3; k++) { const tmp = v[i + 3 + k]; v[i + 3 + k] = v[i + 6 + k]; v[i + 6 + k] = tmp; }
   }
   return v;
-}
-/** See-through spray and fog, lit like everything else, drawn without depth writes (cached per colour and opacity). */
-const veils = new Map<string, THREE.MeshLambertMaterial>();
-function veil(color: string, opacity: number): THREE.MeshLambertMaterial {
-  const k = color + opacity;
-  let m = veils.get(k);
-  if (!m) { m = matClone(color); m.transparent = true; m.opacity = opacity; m.depthWrite = false; m.side = THREE.DoubleSide; veils.set(k, m); }
-  return m;
 }
 /** One mesh per material: a piece built from dozens of parts draws in a handful of calls (for the pieces that are
  *  not merged into the level's static scatter: hidden things, fog, figures). */

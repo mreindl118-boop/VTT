@@ -15,6 +15,8 @@ import { surfaceFor } from '../surfaces';
 import { merge } from '../pieces';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { box, cone, cylWith, densify, dimsLine, grp, hash, lerp, lump, place, upTris } from '../shapes';
+import { fogMat as mistFogMat } from '../mist';
+const fogMat = (color: string, opacity: number) => mistFogMat(color, opacity, true); // this site's mist lies beyond the coverage fog
 const cyl = cylWith(7);
 
 type Dims = Record<string, number>;
@@ -124,14 +126,6 @@ function compact(root: THREE.Object3D): THREE.Group {
   });
   for (const [mt, gs] of by) { const mesh = new THREE.Mesh(merge(gs), mt); mesh.renderOrder = order.get(mt) ?? 0; out.add(mesh); }
   return out;
-}
-/** Fog: lit, see-through, no depth writes, never under the fog of war (it reaches past the map); cached per colour and opacity. */
-const fogMats = new Map<string, THREE.MeshLambertMaterial>();
-function fogMat(color: string, opacity: number): THREE.MeshLambertMaterial {
-  const k = color + opacity;
-  let m = fogMats.get(k);
-  if (!m) { m = matClone(color, true); m.transparent = true; m.opacity = opacity; m.depthWrite = false; m.side = THREE.DoubleSide; fogMats.set(k, m); }
-  return m;
 }
 /** A ragged soft blob in the xz plane. */
 function wisp(r: number, seed: number, sx = 1.5): P2[] {

@@ -4,10 +4,11 @@
 import * as THREE from 'three';
 import { PROPS_V1 } from '../props';
 import { CREATURES, horse, humanoid } from '../creatures';
-import { mat, matClone } from '../../render/materials';
+import { mat } from '../../render/materials';
 import { FLOOR_COLOR, PALETTE } from '../palette';
 import { surfaceFor } from '../surfaces';
 import { box, cone, cyl, grp, hash, lump, place } from '../shapes';
+import { fogMat, veil } from '../mist';
 
 type Dims = Record<string, number>;
 
@@ -43,14 +44,6 @@ surfaceFor([C.deep0, C.deep1], 'rock');
 surfaceFor([C.letter, C.slime, C.corpseSkin, C.corpseTrim, C.corpseHair, C.horseBlack, C.maneBlack, C.harness, C.elk, C.elkPale, C.elkDark, C.antler, C.mageHair, C.beard], 'generic');
 
 // ---------------------------------------------------------------- helpers
-/** Unlit see-through material (cached), drawn without depth writes like the kit's chasm fog: for what glows of itself. */
-const veils = new Map<string, THREE.MeshBasicMaterial>();
-function veil(color: string, opacity: number): THREE.MeshBasicMaterial {
-  const k = color + opacity;
-  let m = veils.get(k);
-  if (!m) { m = new THREE.MeshBasicMaterial({ color, transparent: true, opacity, depthWrite: false, side: THREE.DoubleSide }); veils.set(k, m); }
-  return m;
-}
 /** A soft-edged flat blob (a wisp of fog lying on the ground), radius r, in the xz plane. */
 function wisp(r: number, seed: number, color: string, opacity: number): THREE.Mesh {
   const pts: THREE.Vector2[] = [];
@@ -67,13 +60,6 @@ function weedTuft(x: number, z: number, s: number, seed: number): THREE.Group {
 // ---------------------------------------------------------------- the Mists
 /** Fog: the palette's mist grey, lit like everything else (it darkens at night) but see-through, drawn without depth
  *  writes. Cached per colour and opacity so a map's fog merges into a handful of meshes. */
-const fogMats = new Map<string, THREE.MeshLambertMaterial>();
-function fogMat(color: string, opacity: number): THREE.MeshLambertMaterial {
-  const k = color + opacity;
-  let m = fogMats.get(k);
-  if (!m) { m = matClone(color); m.transparent = true; m.opacity = opacity; m.depthWrite = false; m.side = THREE.DoubleSide; fogMats.set(k, m); }
-  return m;
-}
 /** A ragged-edged sheet `L` × `D` in the xz plane (a layer of fog seen from above). */
 function fogSheet(L: number, D: number, seed: number, mat_: THREE.Material): THREE.Mesh {
   const pts: THREE.Vector2[] = [], n = Math.max(4, Math.round(L / 7)), m = Math.max(2, Math.round(D / 7));
