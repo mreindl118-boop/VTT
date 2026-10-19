@@ -683,39 +683,52 @@ for lvj in scene['levels']:
                 if k in o['dims']: o['dims'][k] = round(o['dims'][k] * 5, 3)
 
 def lk(id, kind, a_level, a, b_level, b): return OrderedDict(id=id, kind=kind, **{'from': {'level': a_level, 'pos': [a[0] * 5, a[1] * 5]}, 'to': {'level': b_level, 'pos': [b[0] * 5, b[1] * 5]}})
+# Where each stair, ladder and trapdoor stands on each floor, in 5-ft cells. The app takes a link when the party stands
+# within 5.5 ft of its end and lands it in the cell holding the other end; it does not stop at that landing, so no
+# landing may stand on another link's end, and the cell the party lands in must leave a step that takes no stair. So
+# each end sits on a cell corner (the landing cell lies to its south-east, a step on leaves it 7.9 ft behind), and a
+# tower stair on a floor it passes keeps its way down (where the party arrives from below) apart from its way up: west
+# and east of the K20 and K21 wells, south and east of K18's; in the small K64 and K83 rooms, opposite corners.
+UP20, DN20, SIDE20 = (38, 29), (34, 29), (36, 31)    # K20: the stair up, the landing from below, the K34 ladder's door
+UP18, DN18 = (45, 40), (43, 42)                      # K18
+UP21, DN21, UP21g, DN21g = (40, 47), (36, 47), (40, 46), (36, 46)   # K21 (smaller on the main floor)
+UP64, DN64 = (31, 48), (33, 46)                      # K64's room, 15 ft square
+UP83, DN83 = (26, 32), (28, 30)                      # K83's turret
 scene['links'] = [
-    lk('lk-grand', 'stairs', 'ground', m3(16.25, 19.25), 'landing', m3(16.25, 14.5)),
-    lk('lk-k19-w', 'stairs', 'landing', m3(15.5, 13.8), 'court', m3(13, 15.8)), lk('lk-k19-e', 'stairs', 'landing', m3(18.5, 13.8), 'court', m3(16, 15.8)),
-    lk('lk-k20-court', 'spiral', 'ground', m3(19, 17.5), 'court', m3(19, 17.5)), lk('lk-k20-weep', 'spiral', 'court', m3(19, 17.5), 'weeping', m3(19, 17.5)),
-    lk('lk-k20-spires', 'spiral', 'weeping', m3(19, 17.5), 'spires', m3(19, 17.5)), lk('lk-k20-st', 'spiral', 'spires', m3(19, 17.5), 'south-tower', m3(19, 17.5)),
-    lk('lk-k20-roofs', 'spiral', 'south-tower', m3(19, 17.5), 'tower-roofs', m3(19, 17.5)), lk('lk-k20-peak', 'spiral', 'tower-roofs', m3(19, 17.5), 'north-peak', m3(19, 17.5)),
+    lk('lk-grand', 'stairs', 'ground', (30, 32), 'landing', (30, 23)),
+    lk('lk-k19-w', 'stairs', 'landing', (29, 20), 'court', (23, 34)), lk('lk-k19-e', 'stairs', 'landing', (34, 20), 'court', (28, 34)),
+    lk('lk-k20a', 'stairs', 'larders', m11(17.5, 9.5), 'ground', DN20),
+    lk('lk-k20-court', 'spiral', 'ground', UP20, 'court', DN20), lk('lk-k20-weep', 'spiral', 'court', UP20, 'weeping', DN20),
+    lk('lk-k20-spires', 'spiral', 'weeping', UP20, 'spires', DN20), lk('lk-k20-st', 'spiral', 'spires', UP20, 'south-tower', DN20),
+    lk('lk-k20-roofs', 'spiral', 'south-tower', UP20, 'tower-roofs', DN20), lk('lk-k20-peak', 'spiral', 'tower-roofs', UP20, 'north-peak', DN20),
     lk('lk-k60a', 'ladder', 'north-peak', m3(19, 16.5), 'north-roof', m3(19, 16.5)),
-    lk('lk-k20a', 'stairs', 'larders', m11(17.5, 9.5), 'ground', m3(19, 17.5)),
-    lk('lk-k21-dun', 'spiral', 'dungeon', (39, 47), 'larders', m3(20, 26.5)), lk('lk-k21-gr', 'spiral', 'larders', m3(20, 26.5), 'ground', m3(20, 26.5)),
-    lk('lk-k21-court', 'spiral', 'ground', m3(20, 26.5), 'court', m3(20, 26.5)), lk('lk-k21-weep', 'spiral', 'court', m3(20, 26.5), 'weeping', m3(20, 26.5)),
-    lk('lk-k21-top', 'spiral', 'weeping', m3(20, 26.5), 'spires', m3(18.5, 23.5)),
-    lk('lk-k48-st', 'spiral', 'spires', m3(21.25, 25.5), 'south-tower', m3(21.25, 25.5)), lk('lk-k48-roof', 'spiral', 'south-tower', m3(21.25, 25.5), 'tower-roofs', m3(21.25, 25.5)),
-    lk('lk-k18-court', 'spiral', 'ground', m3(22.5, 23), 'court', m3(22.5, 23)), lk('lk-k18-weep', 'spiral', 'court', m3(22.5, 23), 'weeping', m3(22.5, 23)),
-    lk('lk-k18-spires', 'spiral', 'weeping', m3(22.5, 23), 'spires', m3(22.5, 23)), lk('lk-k18-st', 'spiral', 'spires', m3(22.5, 23), 'south-tower', m3(22.5, 23)),
-    lk('lk-k18-roofs', 'spiral', 'south-tower', m3(22.5, 23), 'tower-roofs', m3(22.5, 23)), lk('lk-k18-np', 'spiral', 'tower-roofs', m3(22.5, 23), 'north-peak', m3(22.5, 23)),
-    lk('lk-k18-nr', 'spiral', 'north-peak', m3(22.5, 23), 'north-roof', m3(22.5, 23)), lk('lk-k18-hp', 'spiral', 'north-roof', m3(22.5, 23), 'high-peak', m3(22.5, 23)),
-    lk('lk-k18-larders', 'spiral', 'dungeon', m3(22.5, 23), 'larders', m3(22.5, 23)),
-    lk('lk-k64-gr', 'stairs', 'larders', m11(12.75, 22.75), 'ground', m3(17.25, 26.75)), lk('lk-k64-court', 'stairs', 'ground', m3(17.25, 26.75), 'court', m3(17.25, 26.75)),
-    lk('lk-k64-weep', 'stairs', 'court', m3(17.25, 26.75), 'weeping', m3(17.25, 26.75)),
-    lk('lk-k83-dun', 'spiral', 'dungeon', m12(14, 20), 'larders', m11(10.25, 11)), lk('lk-k83-gr', 'spiral', 'larders', m11(10.25, 14), 'ground', m3(14.5, 18.5)),
-    lk('lk-k83-court', 'spiral', 'ground', m3(14.5, 18.5), 'court', m3(14.5, 18.5)), lk('lk-k83-weep', 'spiral', 'court', m3(14.5, 18.5), 'weeping', m3(14.5, 18.5)),
-    lk('lk-k23', 'stairs', 'ground', m3(23.75, 17.2), 'larders', m11(20, 11.5)),
-    lk('lk-k24', 'stairs', 'ground', m3(23, 13.25), 'court', m3(23.75, 13.25)),
-    lk('lk-k29', 'stairs', 'ground', m3(23, 19.25), 'court', m3(25.25, 19.5)),
-    lk('lk-k33', 'stairs', 'court', m3(16.75, 13.5), 'weeping', m5(14, 17.5)),
-    lk('lk-k34-ladder', 'ladder', 'court', m3(22.75, 15.3), 'ground', m3(19, 17.5)),
-    lk('lk-elevator', 'elevator', 'larders', m11(15.5, 17), 'spires', m3(18, 23.4)),
-    lk('lk-k79', 'stairs', 'dungeon', m12(10.75, 14), 'larders', m11(10, 8.75)),
-    lk('lk-k80', 'stairs', 'dungeon', m12(12.5, 16.75), 'dungeon', m12(16.5, 16.75)),
-    lk('lk-k82', 'slide', 'dungeon', m12(23, 17), 'dungeon', m12(16.5, 29)),
-    lk('lk-k51', 'trapdoor', 'spires', m3(20, 28.7), 'south-tower', m3(20, 28.2)),
-    lk('lk-k85', 'stairs', 'dungeon', m12(27, 15), 'dungeon', m12(27, 14.5)), lk('lk-k86', 'stairs', 'dungeon', m12(27, 34), 'dungeon', m12(27, 36)),
-    lk('lk-k87', 'stairs', 'dungeon', m12(34, 25), 'dungeon', m12(37, 25)),
+    lk('lk-k21-dun', 'spiral', 'dungeon', (38, 47), 'larders', DN21), lk('lk-k21-gr', 'spiral', 'larders', UP21, 'ground', DN21g),
+    lk('lk-k21-court', 'spiral', 'ground', UP21g, 'court', DN21), lk('lk-k21-weep', 'spiral', 'court', UP21, 'weeping', DN21),
+    lk('lk-k21-top', 'spiral', 'weeping', UP21, 'spires', (36, 39)),   # it ends at the north end of K47's east wall
+    lk('lk-k48-st', 'spiral', 'spires', (40, 45), 'south-tower', (38, 45)), lk('lk-k48-roof', 'spiral', 'south-tower', (41, 44), 'tower-roofs', (40, 45)),
+    lk('lk-k18-court', 'spiral', 'ground', UP18, 'court', DN18), lk('lk-k18-weep', 'spiral', 'court', UP18, 'weeping', DN18),
+    lk('lk-k18-spires', 'spiral', 'weeping', UP18, 'spires', DN18), lk('lk-k18-st', 'spiral', 'spires', UP18, 'south-tower', DN18),
+    lk('lk-k18-roofs', 'spiral', 'south-tower', UP18, 'tower-roofs', DN18), lk('lk-k18-np', 'spiral', 'tower-roofs', UP18, 'north-peak', DN18),
+    lk('lk-k18-nr', 'spiral', 'north-peak', UP18, 'north-roof', DN18), lk('lk-k18-hp', 'spiral', 'north-roof', UP18, 'high-peak', DN18),
+    lk('lk-k18-larders', 'spiral', 'dungeon', UP18, 'larders', DN18),   # the new wall closes the stair above this floor (K18)
+    lk('lk-k64-gr', 'stairs', 'larders', (30, 50), 'ground', DN64), lk('lk-k64-court', 'stairs', 'ground', UP64, 'court', DN64),
+    lk('lk-k64-weep', 'stairs', 'court', UP64, 'weeping', (32, 47)),
+    lk('lk-k83-dun', 'spiral', 'dungeon', m12(14, 20), 'larders', (25, 27)), lk('lk-k83-gr', 'spiral', 'larders', (25, 32), 'ground', DN83),
+    lk('lk-k83-court', 'spiral', 'ground', UP83, 'court', DN83), lk('lk-k83-weep', 'spiral', 'court', UP83, 'weeping', (27, 31)),
+    lk('lk-k23', 'stairs', 'ground', (45, 27), 'larders', m11(20, 11.5)),
+    lk('lk-k24', 'stairs', 'ground', (44, 21), 'court', (45, 21)),
+    lk('lk-k29', 'stairs', 'ground', (44, 32), 'court', (48, 32)),
+    lk('lk-k33', 'stairs', 'court', (31, 22), 'weeping', (24, 26)),
+    # the ladder behind K34's mirror climbs to the K20 stair's landing on this floor (p.65): it ends there
+    lk('lk-k34-ladder', 'ladder', 'court', (43, 25), 'court', SIDE20),
+    lk('lk-elevator', 'elevator', 'larders', m11(16.5, 17), 'spires', (34, 41)),
+    lk('lk-k79', 'stairs', 'dungeon', (21, 17), 'larders', (24, 17)),
+    # passages within the dungeon: taken from either end the party ends at `to`, the far end
+    lk('lk-k80', 'stairs', 'dungeon', (25, 22), 'dungeon', (35, 22)),   # from the door at its foot up into the tunnel (K81)
+    lk('lk-k82', 'slide', 'dungeon', m12(23, 17), 'dungeon', (36, 40)),   # the marble slide drops into the flooded cell, K74e
+    lk('lk-k51', 'trapdoor', 'spires', K51_HATCH, 'south-tower', K51_HATCH),
+    lk('lk-k85', 'stairs', 'dungeon', (54, 19), 'dungeon', (54, 15)), lk('lk-k86', 'stairs', 'dungeon', (54, 56), 'dungeon', (54, 64)),
+    lk('lk-k87', 'stairs', 'dungeon', (67, 39), 'dungeon', (77, 39)),
 ]
 scene['nonSpatialKeys'] = []
 
