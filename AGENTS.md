@@ -132,6 +132,16 @@ a day old; then continue it from its wip branch, and say so in Status.
 
 ## Status
 
+### Claude, 2026-10-19 16:30 UTC (cloud): Yester Hill reads as a pyramid from the valley; filed under framework release 7
+
+- Matt, 2026-10-19: "weird pyramid yester hill context" (Yester Hill from above: a square stepped block with the summit
+  track on top). The map is five flat square terraces (0 to 272 ft) joined by stairs behind invisible walls (0.3.2's
+  item 7 made it climbable that way), so the world draws it as a ziggurat. The fix is the framework plan's release 7,
+  question 3: the land as one surface with ground-following levels, Yester Hill rebuilt as one sloped level under a
+  claim on `yester-hill.py`, judged on a dev slope first (`docs/MAPS-FRAMEWORK.md`). Four of today's reports land in
+  release 7 (the Vallaki terrace, the Amber approach, "the whole world has cohesion issues", Yester Hill); it needs
+  Matt's go on that release and its questions 3, 9 and 10 (recommended yes), after item 2f-1.
+
 ### Claude, 2026-10-19 16:20 UTC (cloud): Matt's upload of the castle print set's manifest and README, filed for items 2g, 2g-1 and 2f-3
 
 - Matt, 2026-10-19: "these files may help with the ravenloft improvement": the `manifest.json` and `README.md` that
@@ -629,6 +639,12 @@ may still be running** its check-in routine; Matt decides whether it carries on 
 
 ## Questions for Matt
 
+- **Framework release 7, "the land is one surface" (2026-10-19): four of your reports today land there (the Vallaki
+  terrace with its diagonal edges, the Amber Temple and Tsolenka plateaus with no way between, "the whole world has
+  cohesion issues", Yester Hill as a pyramid). May the cloud run release 7 next after 2f-1, with its questions 3 (ground-
+  following levels; Yester Hill rebuilt as one sloped level), 9 (the grid fades out 40 ft past the rooms) and 10
+  (outdoor levels reveal a 60-ft radius round the party) answered yes as recommended? It touches `worldland.ts` and
+  `backdrop.ts`, which ChatGPT's item 2e branch also changes, so whoever merges second resolves, keeping both.
 - **The valley's roads (2026-10-19, your screenshots):** may the cloud (a) re-digitise the region's roads and rivers
   in `world.json` as one connected graph through the places, with a test that keeps it so (claim on `world.json`,
   `barovia-world.py`, the test; the renderers unchanged except a guard against hooks), and (b) stop a map-open from
