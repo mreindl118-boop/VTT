@@ -28029,16 +28029,16 @@
        120
       ],
       [
-       155.0,
+       162.5,
        120
       ],
       [
-       155.0,
-       150
+       162.5,
+       145.0
       ],
       [
        115.0,
-       150
+       145.0
       ]
      ],
      "floor": "flagstone",
@@ -28054,8 +28054,12 @@
        160
       ],
       [
-       175.0,
+       170.0,
        160
+      ],
+      [
+       175.0,
+       165.0
       ],
       [
        175.0,
@@ -28070,12 +28074,111 @@
      "ceilingFt": 15
     },
     {
+     "key": "K37-hw",
+     "name": "Hall west of the Study",
+     "page": 66,
+     "polygon": [
+      [
+       130.0,
+       165.0
+      ],
+      [
+       145.0,
+       165.0
+      ],
+      [
+       145.0,
+       180
+      ],
+      [
+       130.0,
+       180
+      ]
+     ],
+     "floor": "flagstone",
+     "ceilingFt": 15
+    },
+    {
+     "key": "K37-hn",
+     "name": "Hall north of the Study",
+     "page": 66,
+     "polygon": [
+      [
+       145.0,
+       145.0
+      ],
+      [
+       162.5,
+       145.0
+      ],
+      [
+       162.5,
+       152.25
+      ],
+      [
+       170.25,
+       160
+      ],
+      [
+       170.0,
+       160
+      ],
+      [
+       145.0,
+       160
+      ]
+     ],
+     "floor": "flagstone",
+     "ceilingFt": 15
+    },
+    {
+     "key": "K37-hs",
+     "name": "Hall south of the Study",
+     "page": 66,
+     "polygon": [
+      [
+       145.0,
+       180
+      ],
+      [
+       155.0,
+       180
+      ],
+      [
+       155.0,
+       205.0
+      ],
+      [
+       180.0,
+       205.0
+      ],
+      [
+       180.0,
+       215.0
+      ],
+      [
+       155.0,
+       215.0
+      ],
+      [
+       155.0,
+       210
+      ],
+      [
+       145.0,
+       210
+      ]
+     ],
+     "floor": "flagstone",
+     "ceilingFt": 15
+    },
+    {
      "key": "K38",
      "name": "False Treasury",
      "page": 66,
      "polygon": [
       [
-       180.0,
+       175.0,
        165.0
       ],
       [
@@ -28087,7 +28190,7 @@
        185.0
       ],
       [
-       180.0,
+       175.0,
        185.0
       ]
      ],
@@ -28159,11 +28262,11 @@
       ],
       [
        245.0,
-       165.0
+       170
       ],
       [
        220.0,
-       165.0
+       170
       ]
      ],
      "floor": "flagstone",
@@ -28195,17 +28298,42 @@
      "ceilingFt": 15
     },
     {
+     "key": "K42-hd",
+     "name": "Dusty Hall",
+     "page": 68,
+     "polygon": [
+      [
+       95.0,
+       140
+      ],
+      [
+       115.0,
+       140
+      ],
+      [
+       115.0,
+       160
+      ],
+      [
+       95.0,
+       160
+      ]
+     ],
+     "floor": "flagstone",
+     "ceilingFt": 10
+    },
+    {
      "key": "K43",
      "name": "Bath Chamber",
      "page": 68,
      "polygon": [
       [
        95.0,
-       195.0
+       190
       ],
       [
        125.0,
-       195.0
+       190
       ],
       [
        125.0,
@@ -28229,11 +28357,11 @@
        220
       ],
       [
-       135.0,
+       130.0,
        220
       ],
       [
-       135.0,
+       130.0,
        240
       ],
       [
@@ -28254,11 +28382,11 @@
        210
       ],
       [
-       165.0,
+       155.0,
        210
       ],
       [
-       165.0,
+       155.0,
        240
       ],
       [
@@ -28275,20 +28403,20 @@
      "page": 64,
      "polygon": [
       [
-       155.0,
-       200
+       180.0,
+       205.0
+      ],
+      [
+       200.0,
+       205.0
+      ],
+      [
+       200.0,
+       215.0
       ],
       [
        180.0,
-       200
-      ],
-      [
-       180.0,
-       210
-      ],
-      [
-       155.0,
-       210
+       215.0
       ]
      ],
      "floor": "flagstone",
@@ -28320,6 +28448,31 @@
      "ceilingFt": 40
     },
     {
+     "key": "K31b-h",
+     "name": "Passage to the Shaft",
+     "page": null,
+     "polygon": [
+      [
+       195.0,
+       180
+      ],
+      [
+       200.0,
+       180
+      ],
+      [
+       200.0,
+       195.0
+      ],
+      [
+       195.0,
+       195.0
+      ]
+     ],
+     "floor": "flagstone",
+     "ceilingFt": 10
+    },
+    {
      "key": "K46-w",
      "name": "Parapets (west)",
      "page": 69,
@@ -28334,11 +28487,11 @@
       ],
       [
        85.0,
-       245.0
+       255.0
       ],
       [
        70.0,
-       245.0
+       255.0
       ]
      ],
      "floor": "flagstone",
@@ -28379,11 +28532,11 @@
        245.0
       ],
       [
-       195.0,
+       170.0,
        245.0
       ],
       [
-       195.0,
+       170.0,
        255.0
       ],
       [
@@ -28420,6 +28573,31 @@
      "ceilingFt": 10
     },
     {
+     "key": "K46-a",
+     "name": "Archway to the Parapets",
+     "page": 69,
+     "polygon": [
+      [
+       175.0,
+       120
+      ],
+      [
+       185.0,
+       120
+      ],
+      [
+       185.0,
+       127.5
+      ],
+      [
+       175.0,
+       127.5
+      ]
+     ],
+     "floor": "flagstone",
+     "ceilingFt": 10
+    },
+    {
      "key": "K64-w",
      "name": "Guards' Stair (head)",
      "page": 78,
@@ -28449,11 +28627,26 @@
     {
      "id": "weeping-w-0",
      "a": [
-      172.7515,
+      172.751,
       127.5
      ],
      "b": [
-      187.2485,
+      175.0,
+      127.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "weeping-w-0-b",
+     "a": [
+      185.0,
+      127.5
+     ],
+     "b": [
+      187.249,
       127.5
      ],
      "flags": [
@@ -28554,57 +28747,12 @@
     {
      "id": "weeping-w-7",
      "a": [
-      162.5,
-      152.2485
+      170.251,
+      159.999
      ],
      "b": [
-      172.7515,
+      172.751,
       162.5
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-8",
-     "a": [
-      162.5,
-      147.41616666666667
-     ],
-     "b": [
-      162.5,
-      152.2485
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-9",
-     "a": [
-      162.5,
-      142.58383333333333
-     ],
-     "b": [
-      162.5,
-      147.41616666666667
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-10",
-     "a": [
-      162.5,
-      137.7515
-     ],
-     "b": [
-      162.5,
-      142.58383333333333
      ],
      "flags": [
       "normal"
@@ -28780,6 +28928,21 @@
      "id": "weeping-w-22",
      "a": [
       181.716,
+      215.0
+     ],
+     "b": [
+      182.5,
+      215.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "weeping-w-22-b",
+     "a": [
+      197.5,
       215.0
      ],
      "b": [
@@ -29019,7 +29182,7 @@
     {
      "id": "weeping-w-38",
      "a": [
-      135.0,
+      138.75,
       165.0
      ],
      "b": [
@@ -29038,7 +29201,22 @@
       165.0
      ],
      "b": [
-      135.0,
+      131.25,
+      165.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "weeping-w-39-b",
+     "a": [
+      138.75,
+      165.0
+     ],
+     "b": [
+      145.0,
       165.0
      ],
      "flags": [
@@ -29113,68 +29291,23 @@
       120.0
      ],
      "b": [
-      155.0,
+      162.5,
       120.0
      ],
      "flags": [
       "normal"
      ],
-     "material": "paneling"
+     "material": "ashlar"
     },
     {
      "id": "weeping-w-45",
      "a": [
-      155.0,
+      162.5,
       120.0
      ],
      "b": [
-      155.0,
-      130.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-46",
-     "a": [
-      155.0,
-      140.0
-     ],
-     "b": [
-      155.0,
-      150.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-47",
-     "a": [
-      150.0,
-      150.0
-     ],
-     "b": [
-      155.0,
-      150.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-48",
-     "a": [
-      145.0,
-      150.0
-     ],
-     "b": [
-      150.0,
-      150.0
+      162.5,
+      138.0
      ],
      "flags": [
       "normal"
@@ -29184,12 +29317,12 @@
     {
      "id": "weeping-w-49",
      "a": [
-      140.0,
-      150.0
+      143.5,
+      145.0
      ],
      "b": [
       145.0,
-      150.0
+      145.0
      ],
      "flags": [
       "normal"
@@ -29199,12 +29332,12 @@
     {
      "id": "weeping-w-50",
      "a": [
-      135.0,
-      150.0
+      138.75,
+      145.0
      ],
      "b": [
-      140.0,
-      150.0
+      143.5,
+      145.0
      ],
      "flags": [
       "normal"
@@ -29214,12 +29347,12 @@
     {
      "id": "weeping-w-51",
      "a": [
-      130.0,
-      150.0
+      134.0,
+      145.0
      ],
      "b": [
-      135.0,
-      150.0
+      138.75,
+      145.0
      ],
      "flags": [
       "normal"
@@ -29229,12 +29362,12 @@
     {
      "id": "weeping-w-52",
      "a": [
-      125.0,
-      150.0
+      129.25,
+      145.0
      ],
      "b": [
-      130.0,
-      150.0
+      134.0,
+      145.0
      ],
      "flags": [
       "normal"
@@ -29244,12 +29377,12 @@
     {
      "id": "weeping-w-53",
      "a": [
-      120.0,
-      150.0
+      124.5,
+      145.0
      ],
      "b": [
-      125.0,
-      150.0
+      129.25,
+      145.0
      ],
      "flags": [
       "normal"
@@ -29259,12 +29392,12 @@
     {
      "id": "weeping-w-54",
      "a": [
-      115.0,
-      150.0
+      119.75,
+      145.0
      ],
      "b": [
-      120.0,
-      150.0
+      124.5,
+      145.0
      ],
      "flags": [
       "normal"
@@ -29278,8 +29411,8 @@
       145.0
      ],
      "b": [
-      115.0,
-      150.0
+      119.75,
+      145.0
      ],
      "flags": [
       "normal"
@@ -29290,11 +29423,11 @@
      "id": "weeping-w-56",
      "a": [
       115.0,
-      140.0
+      135.0
      ],
      "b": [
       115.0,
-      145.0
+      140.0
      ],
      "flags": [
       "normal"
@@ -29303,6 +29436,21 @@
     },
     {
      "id": "weeping-w-57",
+     "a": [
+      115.0,
+      130.0
+     ],
+     "b": [
+      115.0,
+      135.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "weeping-w-58",
      "a": [
       115.0,
       125.0
@@ -29317,7 +29465,7 @@
      "material": "ashlar"
     },
     {
-     "id": "weeping-w-58",
+     "id": "weeping-w-59",
      "a": [
       115.0,
       120.0
@@ -29332,7 +29480,7 @@
      "material": "ashlar"
     },
     {
-     "id": "weeping-w-59",
+     "id": "weeping-w-60",
      "a": [
       145.0,
       160.0
@@ -29344,7 +29492,7 @@
      "flags": [
       "normal"
      ],
-     "material": "ashlar"
+     "material": "paneling"
     },
     {
      "id": "K37-north-a",
@@ -29359,11 +29507,11 @@
      "flags": [
       "door"
      ],
-     "material": "ashlar",
+     "material": "paneling",
      "open": false
     },
     {
-     "id": "weeping-w-61",
+     "id": "weeping-w-62",
      "a": [
       160.0,
       160.0
@@ -29375,7 +29523,7 @@
      "flags": [
       "normal"
      ],
-     "material": "ashlar"
+     "material": "paneling"
     },
     {
      "id": "K37-north-b",
@@ -29384,20 +29532,35 @@
       160.0
      ],
      "b": [
-      175.0,
+      170.0,
       160.0
      ],
      "flags": [
       "door"
      ],
-     "material": "ashlar",
+     "material": "paneling",
      "open": false
     },
     {
-     "id": "weeping-w-63",
+     "id": "weeping-w-64",
+     "a": [
+      170.0,
+      160
+     ],
+     "b": [
+      175.0,
+      165.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "weeping-w-65",
      "a": [
       175.0,
-      160.0
+      165.0
      ],
      "b": [
       175.0,
@@ -29406,7 +29569,7 @@
      "flags": [
       "normal"
      ],
-     "material": "ashlar"
+     "material": "paneling"
     },
     {
      "id": "weeping-sd-fireplace",
@@ -29421,10 +29584,10 @@
      "flags": [
       "secret-door"
      ],
-     "material": "ashlar"
+     "material": "paneling"
     },
     {
-     "id": "weeping-w-65",
+     "id": "weeping-w-67",
      "a": [
       170.0,
       180.0
@@ -29439,7 +29602,7 @@
      "material": "ashlar"
     },
     {
-     "id": "weeping-w-66",
+     "id": "weeping-w-68",
      "a": [
       165.0,
       180.0
@@ -29454,44 +29617,13 @@
      "material": "ashlar"
     },
     {
-     "id": "K37-south",
+     "id": "weeping-w-69",
      "a": [
-      155.0,
+      160.0,
       180.0
      ],
      "b": [
       165.0,
-      180.0
-     ],
-     "flags": [
-      "door"
-     ],
-     "material": "ashlar",
-     "open": false
-    },
-    {
-     "id": "weeping-w-68",
-     "a": [
-      150.0,
-      180.0
-     ],
-     "b": [
-      155.0,
-      180.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-69",
-     "a": [
-      145.0,
-      180.0
-     ],
-     "b": [
-      150.0,
       180.0
      ],
      "flags": [
@@ -29502,11 +29634,11 @@
     {
      "id": "weeping-w-70",
      "a": [
-      145.0,
-      175.0
+      155.0,
+      180.0
      ],
      "b": [
-      145.0,
+      160.0,
       180.0
      ],
      "flags": [
@@ -29515,23 +29647,54 @@
      "material": "ashlar"
     },
     {
+     "id": "K37-south",
+     "a": [
+      145.0,
+      180.0
+     ],
+     "b": [
+      155.0,
+      180.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "paneling",
+     "open": false
+    },
+    {
      "id": "K37-west",
+     "a": [
+      145.0,
+      170.0
+     ],
+     "b": [
+      145.0,
+      180.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "paneling",
+     "open": false
+    },
+    {
+     "id": "weeping-w-73",
      "a": [
       145.0,
       165.0
      ],
      "b": [
       145.0,
-      175.0
+      170.0
      ],
      "flags": [
-      "door"
+      "normal"
      ],
-     "material": "ashlar",
-     "open": false
+     "material": "paneling"
     },
     {
-     "id": "weeping-w-72",
+     "id": "weeping-w-74",
      "a": [
       145.0,
       160.0
@@ -29546,9 +29709,418 @@
      "material": "ashlar"
     },
     {
-     "id": "weeping-w-73",
+     "id": "weeping-w-75",
+     "a": [
+      130.0,
+      165.0
+     ],
+     "b": [
+      131.25,
+      165.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "weeping-w-76",
+     "a": [
+      140.0,
+      180.0
+     ],
+     "b": [
+      145.0,
+      180.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "weeping-w-77",
+     "a": [
+      135.0,
+      180.0
+     ],
+     "b": [
+      140.0,
+      180.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "weeping-w-78",
+     "a": [
+      130.0,
+      180.0
+     ],
+     "b": [
+      135.0,
+      180.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "K42-east",
+     "a": [
+      130.0,
+      170.0
+     ],
+     "b": [
+      130.0,
+      180.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "paneling",
+     "open": false
+    },
+    {
+     "id": "weeping-w-80",
+     "a": [
+      130.0,
+      165.0
+     ],
+     "b": [
+      130.0,
+      170.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "weeping-w-83",
+     "a": [
+      170.0,
+      160.0
+     ],
+     "b": [
+      170.25,
+      160.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "weeping-w-84",
+     "a": [
+      145.0,
+      155.0
+     ],
+     "b": [
+      145.0,
+      160.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "weeping-w-85",
+     "a": [
+      145.0,
+      150.0
+     ],
+     "b": [
+      145.0,
+      155.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "weeping-w-86",
+     "a": [
+      145.0,
+      145.0
+     ],
+     "b": [
+      145.0,
+      150.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "weeping-w-87",
+     "a": [
+      155.0,
+      180.0
+     ],
+     "b": [
+      155.0,
+      205.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "weeping-w-88",
+     "a": [
+      155.0,
+      205.0
+     ],
+     "b": [
+      185.0,
+      205.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "K35-door",
      "a": [
       180.0,
+      205.0
+     ],
+     "b": [
+      180.0,
+      215.0
+     ],
+     "flags": [
+      "door",
+      "locked"
+     ],
+     "material": "paneling",
+     "open": false
+    },
+    {
+     "id": "weeping-w-90",
+     "a": [
+      175.0,
+      215.0
+     ],
+     "b": [
+      182.5,
+      215.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "weeping-w-90-b",
+     "a": [
+      197.5,
+      215.0
+     ],
+     "b": [
+      200.0,
+      215.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "weeping-w-91",
+     "a": [
+      170.0,
+      215.0
+     ],
+     "b": [
+      175.0,
+      215.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "weeping-w-92",
+     "a": [
+      165.0,
+      215.0
+     ],
+     "b": [
+      170.0,
+      215.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "weeping-w-93",
+     "a": [
+      160.0,
+      215.0
+     ],
+     "b": [
+      165.0,
+      215.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "weeping-w-94",
+     "a": [
+      155.0,
+      215.0
+     ],
+     "b": [
+      160.0,
+      215.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "weeping-w-95",
+     "a": [
+      155.0,
+      210.0
+     ],
+     "b": [
+      155.0,
+      215.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "K36-north",
+     "a": [
+      145.0,
+      210.0
+     ],
+     "b": [
+      155.0,
+      210.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "paneling",
+     "open": false
+    },
+    {
+     "id": "weeping-w-97",
+     "a": [
+      145.0,
+      205.0
+     ],
+     "b": [
+      145.0,
+      210.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "weeping-w-98",
+     "a": [
+      145.0,
+      200.0
+     ],
+     "b": [
+      145.0,
+      205.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "weeping-w-99",
+     "a": [
+      145.0,
+      195.0
+     ],
+     "b": [
+      145.0,
+      200.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "weeping-w-100",
+     "a": [
+      145.0,
+      190.0
+     ],
+     "b": [
+      145.0,
+      195.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "weeping-w-101",
+     "a": [
+      145.0,
+      185.0
+     ],
+     "b": [
+      145.0,
+      190.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "weeping-w-102",
+     "a": [
+      145.0,
+      180.0
+     ],
+     "b": [
+      145.0,
+      185.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "weeping-w-103",
+     "a": [
+      175.0,
       165.0
      ],
      "b": [
@@ -29561,7 +30133,7 @@
      "material": "ashlar"
     },
     {
-     "id": "weeping-w-74",
+     "id": "weeping-w-104",
      "a": [
       195.0,
       165.0
@@ -29576,7 +30148,7 @@
      "material": "ashlar"
     },
     {
-     "id": "weeping-w-75",
+     "id": "weeping-w-105",
      "a": [
       195.0,
       170.0
@@ -29606,7 +30178,7 @@
      "material": "paneling"
     },
     {
-     "id": "weeping-w-77",
+     "id": "weeping-w-107",
      "a": [
       195.0,
       180.0
@@ -29618,10 +30190,10 @@
      "flags": [
       "normal"
      ],
-     "material": "ashlar"
+     "material": "paneling"
     },
     {
-     "id": "weeping-w-78",
+     "id": "weeping-w-108",
      "a": [
       190.0,
       185.0
@@ -29636,7 +30208,7 @@
      "material": "ashlar"
     },
     {
-     "id": "weeping-w-79",
+     "id": "weeping-w-109",
      "a": [
       185.0,
       185.0
@@ -29651,7 +30223,7 @@
      "material": "ashlar"
     },
     {
-     "id": "weeping-w-80",
+     "id": "weeping-w-110",
      "a": [
       180.0,
       185.0
@@ -29666,10 +30238,10 @@
      "material": "ashlar"
     },
     {
-     "id": "weeping-w-81",
+     "id": "weeping-w-111",
      "a": [
-      180.0,
-      180.0
+      175.0,
+      185.0
      ],
      "b": [
       180.0,
@@ -29681,29 +30253,14 @@
      "material": "ashlar"
     },
     {
-     "id": "weeping-w-82",
+     "id": "weeping-w-112",
      "a": [
-      180.0,
-      175.0
-     ],
-     "b": [
-      180.0,
+      175.0,
       180.0
      ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-83",
-     "a": [
-      180.0,
-      170.0
-     ],
      "b": [
-      180.0,
-      175.0
+      175.0,
+      185.0
      ],
      "flags": [
       "normal"
@@ -29711,28 +30268,13 @@
      "material": "ashlar"
     },
     {
-     "id": "weeping-w-84",
-     "a": [
-      180.0,
-      165.0
-     ],
-     "b": [
-      180.0,
-      170.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-85",
+     "id": "weeping-w-113",
      "a": [
       195.0,
       170.0
      ],
      "b": [
-      235.0,
+      220.0,
       170.0
      ],
      "flags": [
@@ -29741,14 +30283,14 @@
      "material": "ashlar"
     },
     {
-     "id": "weeping-w-86",
+     "id": "weeping-w-114",
      "a": [
-      235.0,
+      220.0,
       170.0
      ],
      "b": [
       235.0,
-      175.0
+      170.0
      ],
      "flags": [
       "normal"
@@ -29759,11 +30301,11 @@
      "id": "K40-doors",
      "a": [
       235.0,
-      175.0
+      170.0
      ],
      "b": [
       235.0,
-      185.0
+      180.0
      ],
      "flags": [
       "door"
@@ -29772,7 +30314,7 @@
      "open": false
     },
     {
-     "id": "weeping-w-88",
+     "id": "weeping-w-116",
      "a": [
       230.0,
       180.0
@@ -29787,7 +30329,7 @@
      "material": "ashlar"
     },
     {
-     "id": "weeping-w-89",
+     "id": "weeping-w-117",
      "a": [
       225.0,
       180.0
@@ -29802,7 +30344,7 @@
      "material": "ashlar"
     },
     {
-     "id": "weeping-w-90",
+     "id": "weeping-w-118",
      "a": [
       220.0,
       180.0
@@ -29817,7 +30359,7 @@
      "material": "ashlar"
     },
     {
-     "id": "weeping-w-91",
+     "id": "weeping-w-119",
      "a": [
       215.0,
       180.0
@@ -29832,7 +30374,7 @@
      "material": "ashlar"
     },
     {
-     "id": "weeping-w-92",
+     "id": "weeping-w-120",
      "a": [
       210.0,
       180.0
@@ -29847,7 +30389,7 @@
      "material": "ashlar"
     },
     {
-     "id": "weeping-w-93",
+     "id": "weeping-w-121",
      "a": [
       205.0,
       180.0
@@ -29862,7 +30404,22 @@
      "material": "ashlar"
     },
     {
-     "id": "weeping-w-95",
+     "id": "weeping-w-122",
+     "a": [
+      200.0,
+      180.0
+     ],
+     "b": [
+      205.0,
+      180.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "weeping-sd-webs-south",
      "a": [
       195.0,
       180.0
@@ -29872,9 +30429,9 @@
       180.0
      ],
      "flags": [
-      "normal"
+      "secret-door"
      ],
-     "material": "ashlar"
+     "material": "paneling"
     },
     {
      "id": "weeping-sd-belfry-north",
@@ -29889,10 +30446,10 @@
      "flags": [
       "secret-door"
      ],
-     "material": "ashlar"
+     "material": "paneling"
     },
     {
-     "id": "weeping-w-97",
+     "id": "weeping-w-125",
      "a": [
       245.0,
       170.0
@@ -29907,7 +30464,7 @@
      "material": "ashlar"
     },
     {
-     "id": "weeping-w-98",
+     "id": "weeping-w-126",
      "a": [
       255.0,
       170.0
@@ -29922,7 +30479,7 @@
      "material": "paneling"
     },
     {
-     "id": "weeping-w-99",
+     "id": "weeping-w-127",
      "a": [
       250.0,
       190.0
@@ -29937,7 +30494,7 @@
      "material": "ashlar"
     },
     {
-     "id": "weeping-w-100",
+     "id": "weeping-w-128",
      "a": [
       245.0,
       190.0
@@ -29952,7 +30509,7 @@
      "material": "ashlar"
     },
     {
-     "id": "weeping-w-101",
+     "id": "weeping-w-129",
      "a": [
       240.0,
       190.0
@@ -29967,7 +30524,7 @@
      "material": "ashlar"
     },
     {
-     "id": "weeping-w-102",
+     "id": "weeping-w-130",
      "a": [
       235.0,
       190.0
@@ -29982,7 +30539,7 @@
      "material": "ashlar"
     },
     {
-     "id": "weeping-w-103",
+     "id": "weeping-w-131",
      "a": [
       235.0,
       185.0
@@ -29997,7 +30554,22 @@
      "material": "ashlar"
     },
     {
-     "id": "weeping-w-104",
+     "id": "weeping-w-132",
+     "a": [
+      235.0,
+      180.0
+     ],
+     "b": [
+      235.0,
+      185.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "weeping-w-133",
      "a": [
       220.0,
       145.0
@@ -30012,14 +30584,14 @@
      "material": "ashlar"
     },
     {
-     "id": "weeping-w-105",
+     "id": "weeping-w-134",
      "a": [
       245.0,
       145.0
      ],
      "b": [
       245.0,
-      165.0
+      170.0
      ],
      "flags": [
       "normal"
@@ -30027,74 +30599,14 @@
      "material": "ashlar"
     },
     {
-     "id": "weeping-w-106",
-     "a": [
-      240.0,
-      165.0
-     ],
-     "b": [
-      245.0,
-      165.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-107",
-     "a": [
-      235.0,
-      165.0
-     ],
-     "b": [
-      240.0,
-      165.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-108",
-     "a": [
-      230.0,
-      165.0
-     ],
-     "b": [
-      235.0,
-      165.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-109",
-     "a": [
-      225.0,
-      165.0
-     ],
-     "b": [
-      230.0,
-      165.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-110",
+     "id": "weeping-w-135",
      "a": [
       220.0,
       165.0
      ],
      "b": [
-      225.0,
-      165.0
+      220.0,
+      170.0
      ],
      "flags": [
       "normal"
@@ -30102,7 +30614,7 @@
      "material": "ashlar"
     },
     {
-     "id": "weeping-w-111",
+     "id": "weeping-w-136",
      "a": [
       220.0,
       160.0
@@ -30117,7 +30629,7 @@
      "material": "ashlar"
     },
     {
-     "id": "weeping-w-112",
+     "id": "weeping-w-137",
      "a": [
       220.0,
       155.0
@@ -30132,7 +30644,7 @@
      "material": "ashlar"
     },
     {
-     "id": "weeping-w-113",
+     "id": "weeping-w-138",
      "a": [
       220.0,
       150.0
@@ -30147,7 +30659,7 @@
      "material": "ashlar"
     },
     {
-     "id": "weeping-w-114",
+     "id": "weeping-w-139",
      "a": [
       220.0,
       145.0
@@ -30162,7 +30674,7 @@
      "material": "ashlar"
     },
     {
-     "id": "weeping-w-115",
+     "id": "weeping-w-140",
      "a": [
       85.0,
       160.0
@@ -30189,15 +30701,30 @@
      "flags": [
       "secret-door"
      ],
-     "material": "ashlar"
+     "material": "paneling"
     },
     {
-     "id": "weeping-w-117",
+     "id": "weeping-w-142",
      "a": [
       105.0,
       160.0
      ],
      "b": [
+      115.0,
+      160.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "weeping-w-143",
+     "a": [
+      115.0,
+      160.0
+     ],
+     "b": [
       130.0,
       160.0
      ],
@@ -30207,14 +30734,14 @@
      "material": "ashlar"
     },
     {
-     "id": "weeping-w-118",
+     "id": "weeping-w-144",
      "a": [
       130.0,
       160.0
      ],
      "b": [
       130.0,
-      170.0
+      165.0
      ],
      "flags": [
       "normal"
@@ -30222,23 +30749,7 @@
      "material": "ashlar"
     },
     {
-     "id": "K42-east",
-     "a": [
-      130.0,
-      170.0
-     ],
-     "b": [
-      130.0,
-      180.0
-     ],
-     "flags": [
-      "door"
-     ],
-     "material": "ashlar",
-     "open": false
-    },
-    {
-     "id": "weeping-w-120",
+     "id": "weeping-w-145",
      "a": [
       130.0,
       180.0
@@ -30253,7 +30764,7 @@
      "material": "ashlar"
     },
     {
-     "id": "weeping-w-121",
+     "id": "weeping-w-146",
      "a": [
       125.0,
       190.0
@@ -30268,7 +30779,7 @@
      "material": "ashlar"
     },
     {
-     "id": "weeping-w-122",
+     "id": "weeping-w-147",
      "a": [
       120.0,
       190.0
@@ -30280,10 +30791,10 @@
      "flags": [
       "normal"
      ],
-     "material": "ashlar"
+     "material": "paneling"
     },
     {
-     "id": "weeping-w-123",
+     "id": "weeping-w-148",
      "a": [
       115.0,
       190.0
@@ -30295,7 +30806,7 @@
      "flags": [
       "normal"
      ],
-     "material": "ashlar"
+     "material": "paneling"
     },
     {
      "id": "K42-south",
@@ -30310,394 +30821,18 @@
      "flags": [
       "door"
      ],
-     "material": "ashlar",
+     "material": "paneling",
      "open": false
-    },
-    {
-     "id": "weeping-w-125",
-     "a": [
-      100.0,
-      190.0
-     ],
-     "b": [
-      105.0,
-      190.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-126",
-     "a": [
-      95.0,
-      190.0
-     ],
-     "b": [
-      100.0,
-      190.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-127",
-     "a": [
-      90.0,
-      190.0
-     ],
-     "b": [
-      95.0,
-      190.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-128",
-     "a": [
-      85.0,
-      190.0
-     ],
-     "b": [
-      90.0,
-      190.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-129",
-     "a": [
-      85.0,
-      185.0
-     ],
-     "b": [
-      85.0,
-      190.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "weeping-w-130",
-     "a": [
-      85.0,
-      180.0
-     ],
-     "b": [
-      85.0,
-      185.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "weeping-w-131",
-     "a": [
-      85.0,
-      175.0
-     ],
-     "b": [
-      85.0,
-      180.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "weeping-w-132",
-     "a": [
-      85.0,
-      170.0
-     ],
-     "b": [
-      85.0,
-      175.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "weeping-w-133",
-     "a": [
-      85.0,
-      165.0
-     ],
-     "b": [
-      85.0,
-      170.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "weeping-w-134",
-     "a": [
-      85.0,
-      160.0
-     ],
-     "b": [
-      85.0,
-      165.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "weeping-w-135",
-     "a": [
-      95.0,
-      195.0
-     ],
-     "b": [
-      125.0,
-      195.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-136",
-     "a": [
-      125.0,
-      195.0
-     ],
-     "b": [
-      125.0,
-      220.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-137",
-     "a": [
-      120.0,
-      220.0
-     ],
-     "b": [
-      125.0,
-      220.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "weeping-w-138",
-     "a": [
-      110.0,
-      220.0
-     ],
-     "b": [
-      115.0,
-      220.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "weeping-w-139",
-     "a": [
-      105.0,
-      220.0
-     ],
-     "b": [
-      110.0,
-      220.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "weeping-w-140",
-     "a": [
-      95.0,
-      220.0
-     ],
-     "b": [
-      100.0,
-      220.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "weeping-w-141",
-     "a": [
-      95.0,
-      215.0
-     ],
-     "b": [
-      95.0,
-      240.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-142",
-     "a": [
-      95.0,
-      210.0
-     ],
-     "b": [
-      95.0,
-      215.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-143",
-     "a": [
-      95.0,
-      205.0
-     ],
-     "b": [
-      95.0,
-      210.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-144",
-     "a": [
-      95.0,
-      200.0
-     ],
-     "b": [
-      95.0,
-      205.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-145",
-     "a": [
-      95.0,
-      195.0
-     ],
-     "b": [
-      95.0,
-      200.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-146",
-     "a": [
-      125.0,
-      220.0
-     ],
-     "b": [
-      135.0,
-      220.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-147",
-     "a": [
-      135.0,
-      220.0
-     ],
-     "b": [
-      135.0,
-      225.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "K36-west",
-     "a": [
-      135.0,
-      225.0
-     ],
-     "b": [
-      135.0,
-      235.0
-     ],
-     "flags": [
-      "door"
-     ],
-     "material": "ashlar",
-     "open": false
-    },
-    {
-     "id": "weeping-w-149",
-     "a": [
-      135.0,
-      235.0
-     ],
-     "b": [
-      135.0,
-      240.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
     },
     {
      "id": "weeping-w-150",
      "a": [
-      130.0,
-      240.0
+      100.0,
+      190.0
      ],
      "b": [
-      135.0,
-      240.0
+      105.0,
+      190.0
      ],
      "flags": [
       "normal"
@@ -30707,11 +30842,311 @@
     {
      "id": "weeping-w-151",
      "a": [
-      125.0,
-      240.0
+      95.0,
+      190.0
      ],
      "b": [
-      130.0,
+      100.0,
+      190.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "weeping-w-152",
+     "a": [
+      90.0,
+      190.0
+     ],
+     "b": [
+      95.0,
+      190.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "weeping-w-153",
+     "a": [
+      85.0,
+      190.0
+     ],
+     "b": [
+      90.0,
+      190.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "weeping-w-154",
+     "a": [
+      85.0,
+      185.0
+     ],
+     "b": [
+      85.0,
+      190.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "weeping-w-155",
+     "a": [
+      85.0,
+      180.0
+     ],
+     "b": [
+      85.0,
+      185.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "weeping-w-156",
+     "a": [
+      85.0,
+      175.0
+     ],
+     "b": [
+      85.0,
+      180.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "weeping-w-157",
+     "a": [
+      85.0,
+      170.0
+     ],
+     "b": [
+      85.0,
+      175.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "weeping-w-158",
+     "a": [
+      85.0,
+      165.0
+     ],
+     "b": [
+      85.0,
+      170.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "weeping-w-159",
+     "a": [
+      85.0,
+      160.0
+     ],
+     "b": [
+      85.0,
+      165.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "weeping-w-160",
+     "a": [
+      95.0,
+      140.0
+     ],
+     "b": [
+      115.0,
+      140.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "weeping-w-161",
+     "a": [
+      115.0,
+      145.0
+     ],
+     "b": [
+      115.0,
+      160.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "weeping-w-162",
+     "a": [
+      95.0,
+      155.0
+     ],
+     "b": [
+      95.0,
+      160.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "weeping-w-163",
+     "a": [
+      95.0,
+      150.0
+     ],
+     "b": [
+      95.0,
+      155.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "weeping-w-164",
+     "a": [
+      95.0,
+      145.0
+     ],
+     "b": [
+      95.0,
+      150.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "weeping-w-165",
+     "a": [
+      95.0,
+      140.0
+     ],
+     "b": [
+      95.0,
+      145.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "weeping-w-166",
+     "a": [
+      125.0,
+      190.0
+     ],
+     "b": [
+      125.0,
+      220.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "weeping-w-167",
+     "a": [
+      120.0,
+      220.0
+     ],
+     "b": [
+      125.0,
+      220.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "weeping-w-168",
+     "a": [
+      110.0,
+      220.0
+     ],
+     "b": [
+      115.0,
+      220.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "weeping-w-169",
+     "a": [
+      105.0,
+      220.0
+     ],
+     "b": [
+      110.0,
+      220.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "weeping-w-170",
+     "a": [
+      95.0,
+      220.0
+     ],
+     "b": [
+      100.0,
+      220.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "weeping-w-171",
+     "a": [
+      95.0,
+      215.0
+     ],
+     "b": [
+      95.0,
       240.0
      ],
      "flags": [
@@ -30720,7 +31155,158 @@
      "material": "ashlar"
     },
     {
-     "id": "weeping-w-152",
+     "id": "weeping-w-172",
+     "a": [
+      95.0,
+      210.0
+     ],
+     "b": [
+      95.0,
+      215.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "weeping-w-173",
+     "a": [
+      95.0,
+      205.0
+     ],
+     "b": [
+      95.0,
+      210.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "weeping-w-174",
+     "a": [
+      95.0,
+      200.0
+     ],
+     "b": [
+      95.0,
+      205.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "weeping-w-175",
+     "a": [
+      95.0,
+      195.0
+     ],
+     "b": [
+      95.0,
+      200.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "weeping-w-176",
+     "a": [
+      95.0,
+      190.0
+     ],
+     "b": [
+      95.0,
+      195.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "weeping-w-177",
+     "a": [
+      125.0,
+      220.0
+     ],
+     "b": [
+      130.0,
+      220.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "weeping-w-178",
+     "a": [
+      130.0,
+      220.0
+     ],
+     "b": [
+      130.0,
+      225.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "K36-west",
+     "a": [
+      130.0,
+      225.0
+     ],
+     "b": [
+      130.0,
+      235.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "paneling",
+     "open": false
+    },
+    {
+     "id": "weeping-w-180",
+     "a": [
+      130.0,
+      235.0
+     ],
+     "b": [
+      130.0,
+      240.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "weeping-w-181",
+     "a": [
+      125.0,
+      240.0
+     ],
+     "b": [
+      155.0,
+      240.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "weeping-w-182",
      "a": [
       120.0,
       240.0
@@ -30735,7 +31321,7 @@
      "material": "ashlar"
     },
     {
-     "id": "weeping-w-153",
+     "id": "weeping-w-183",
      "a": [
       115.0,
       240.0
@@ -30750,7 +31336,7 @@
      "material": "ashlar"
     },
     {
-     "id": "weeping-w-154",
+     "id": "weeping-w-184",
      "a": [
       110.0,
       240.0
@@ -30765,7 +31351,7 @@
      "material": "ashlar"
     },
     {
-     "id": "weeping-w-155",
+     "id": "weeping-w-185",
      "a": [
       105.0,
       240.0
@@ -30780,7 +31366,7 @@
      "material": "ashlar"
     },
     {
-     "id": "weeping-w-156",
+     "id": "weeping-w-186",
      "a": [
       100.0,
       240.0
@@ -30795,7 +31381,7 @@
      "material": "ashlar"
     },
     {
-     "id": "weeping-w-157",
+     "id": "weeping-w-187",
      "a": [
       95.0,
       240.0
@@ -30810,467 +31396,14 @@
      "material": "ashlar"
     },
     {
-     "id": "weeping-w-158",
-     "a": [
-      130.0,
-      210.0
-     ],
-     "b": [
-      145.0,
-      210.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "K36-north",
-     "a": [
-      145.0,
-      210.0
-     ],
-     "b": [
-      155.0,
-      210.0
-     ],
-     "flags": [
-      "door"
-     ],
-     "material": "ashlar",
-     "open": false
-    },
-    {
-     "id": "weeping-w-160",
-     "a": [
-      155.0,
-      210.0
-     ],
-     "b": [
-      165.0,
-      210.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "weeping-w-161",
-     "a": [
-      165.0,
-      210.0
-     ],
-     "b": [
-      165.0,
-      225.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "K35-door",
-     "a": [
-      165.0,
-      225.0
-     ],
-     "b": [
-      165.0,
-      235.0
-     ],
-     "flags": [
-      "door",
-      "locked"
-     ],
-     "material": "ashlar",
-     "open": false
-    },
-    {
-     "id": "weeping-w-163",
-     "a": [
-      165.0,
-      235.0
-     ],
-     "b": [
-      165.0,
-      240.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-164",
-     "a": [
-      160.0,
-      240.0
-     ],
-     "b": [
-      165.0,
-      240.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-165",
-     "a": [
-      155.0,
-      240.0
-     ],
-     "b": [
-      160.0,
-      240.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-166",
-     "a": [
-      150.0,
-      240.0
-     ],
-     "b": [
-      155.0,
-      240.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-167",
-     "a": [
-      145.0,
-      240.0
-     ],
-     "b": [
-      150.0,
-      240.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-168",
-     "a": [
-      140.0,
-      240.0
-     ],
-     "b": [
-      145.0,
-      240.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-169",
-     "a": [
-      135.0,
-      240.0
-     ],
-     "b": [
-      140.0,
-      240.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-170",
-     "a": [
-      130.0,
-      235.0
-     ],
-     "b": [
-      130.0,
-      240.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-171",
-     "a": [
-      130.0,
-      230.0
-     ],
-     "b": [
-      130.0,
-      235.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-172",
-     "a": [
-      130.0,
-      225.0
-     ],
-     "b": [
-      130.0,
-      230.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-173",
-     "a": [
-      130.0,
-      220.0
-     ],
-     "b": [
-      130.0,
-      225.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-174",
-     "a": [
-      130.0,
-      215.0
-     ],
-     "b": [
-      130.0,
-      220.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-175",
-     "a": [
-      130.0,
-      210.0
-     ],
-     "b": [
-      130.0,
-      215.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-176",
-     "a": [
-      155.0,
-      200.0
-     ],
-     "b": [
-      180.0,
-      200.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-177",
-     "a": [
-      175.0,
-      210.0
-     ],
-     "b": [
-      180.0,
-      210.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-178",
-     "a": [
-      170.0,
-      210.0
-     ],
-     "b": [
-      175.0,
-      210.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-179",
-     "a": [
-      165.0,
-      210.0
-     ],
-     "b": [
-      170.0,
-      210.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-180",
-     "a": [
-      185.0,
-      195.0
-     ],
-     "b": [
-      205.0,
-      195.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-181",
-     "a": [
-      205.0,
-      195.0
-     ],
-     "b": [
-      205.0,
-      205.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-182",
-     "a": [
-      200.0,
-      205.0
-     ],
-     "b": [
-      205.0,
-      205.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-183",
-     "a": [
-      195.0,
-      205.0
-     ],
-     "b": [
-      200.0,
-      205.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-184",
-     "a": [
-      190.0,
-      205.0
-     ],
-     "b": [
-      195.0,
-      205.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-185",
-     "a": [
-      185.0,
-      205.0
-     ],
-     "b": [
-      190.0,
-      205.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-186",
-     "a": [
-      185.0,
-      200.0
-     ],
-     "b": [
-      185.0,
-      205.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-187",
-     "a": [
-      185.0,
-      195.0
-     ],
-     "b": [
-      185.0,
-      200.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
      "id": "weeping-w-188",
      "a": [
-      70.0,
-      105.0
+      130.0,
+      210.0
      ],
      "b": [
-      265.0,
-      105.0
+      145.0,
+      210.0
      ],
      "flags": [
       "normal"
@@ -31280,27 +31413,12 @@
     {
      "id": "weeping-w-189",
      "a": [
-      85.0,
-      105.0
+      155.0,
+      215.0
      ],
      "b": [
-      85.0,
-      120.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "weeping-w-190",
-     "a": [
-      85.0,
-      120.0
-     ],
-     "b": [
-      85.0,
-      160.0
+      155.0,
+      230.0
      ],
      "flags": [
       "normal"
@@ -31308,14 +31426,29 @@
      "material": "ashlar"
     },
     {
-     "id": "weeping-w-191",
+     "id": "weeping-w-190",
      "a": [
-      85.0,
-      190.0
+      155.0,
+      230.0
      ],
      "b": [
-      85.0,
-      255.0
+      155.0,
+      240.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "paneling"
+    },
+    {
+     "id": "weeping-w-191",
+     "a": [
+      130.0,
+      215.0
+     ],
+     "b": [
+      130.0,
+      220.0
      ],
      "flags": [
       "normal"
@@ -31325,12 +31458,12 @@
     {
      "id": "weeping-w-192",
      "a": [
-      80.0,
-      245.0
+      130.0,
+      210.0
      ],
      "b": [
-      155.0,
-      245.0
+      130.0,
+      215.0
      ],
      "flags": [
       "normal"
@@ -31340,27 +31473,27 @@
     {
      "id": "weeping-w-193",
      "a": [
-      75.0,
-      245.0
+      185.0,
+      205.0
      ],
      "b": [
-      80.0,
-      245.0
+      200.0,
+      205.0
      ],
      "flags": [
       "normal"
      ],
-     "material": "ashlar"
+     "material": "paneling"
     },
     {
      "id": "weeping-w-194",
      "a": [
-      70.0,
-      245.0
+      200.0,
+      205.0
      ],
      "b": [
-      75.0,
-      245.0
+      200.0,
+      215.0
      ],
      "flags": [
       "normal"
@@ -31370,12 +31503,12 @@
     {
      "id": "weeping-w-195",
      "a": [
-      70.0,
-      240.0
+      185.0,
+      195.0
      ],
      "b": [
-      70.0,
-      245.0
+      195.0,
+      195.0
      ],
      "flags": [
       "normal"
@@ -31385,12 +31518,12 @@
     {
      "id": "weeping-w-196",
      "a": [
-      70.0,
-      235.0
+      200.0,
+      195.0
      ],
      "b": [
-      70.0,
-      240.0
+      205.0,
+      195.0
      ],
      "flags": [
       "normal"
@@ -31400,12 +31533,12 @@
     {
      "id": "weeping-w-197",
      "a": [
-      70.0,
-      230.0
+      205.0,
+      195.0
      ],
      "b": [
-      70.0,
-      235.0
+      205.0,
+      205.0
      ],
      "flags": [
       "normal"
@@ -31415,12 +31548,12 @@
     {
      "id": "weeping-w-198",
      "a": [
-      70.0,
-      225.0
+      200.0,
+      205.0
      ],
      "b": [
-      70.0,
-      230.0
+      205.0,
+      205.0
      ],
      "flags": [
       "normal"
@@ -31430,12 +31563,12 @@
     {
      "id": "weeping-w-199",
      "a": [
-      70.0,
-      220.0
+      185.0,
+      200.0
      ],
      "b": [
-      70.0,
-      225.0
+      185.0,
+      205.0
      ],
      "flags": [
       "normal"
@@ -31445,12 +31578,12 @@
     {
      "id": "weeping-w-200",
      "a": [
-      70.0,
-      215.0
+      185.0,
+      195.0
      ],
      "b": [
-      70.0,
-      220.0
+      185.0,
+      200.0
      ],
      "flags": [
       "normal"
@@ -31460,12 +31593,12 @@
     {
      "id": "weeping-w-201",
      "a": [
-      70.0,
-      210.0
+      200.0,
+      180.0
      ],
      "b": [
-      70.0,
-      215.0
+      200.0,
+      195.0
      ],
      "flags": [
       "normal"
@@ -31475,12 +31608,12 @@
     {
      "id": "weeping-w-202",
      "a": [
-      70.0,
-      205.0
+      195.0,
+      190.0
      ],
      "b": [
-      70.0,
-      210.0
+      195.0,
+      195.0
      ],
      "flags": [
       "normal"
@@ -31490,12 +31623,12 @@
     {
      "id": "weeping-w-203",
      "a": [
-      70.0,
-      200.0
+      195.0,
+      185.0
      ],
      "b": [
-      70.0,
-      205.0
+      195.0,
+      190.0
      ],
      "flags": [
       "normal"
@@ -31506,6 +31639,261 @@
      "id": "weeping-w-204",
      "a": [
       70.0,
+      105.0
+     ],
+     "b": [
+      265.0,
+      105.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "weeping-w-205",
+     "a": [
+      85.0,
+      120.0
+     ],
+     "b": [
+      85.0,
+      160.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "weeping-w-206",
+     "a": [
+      85.0,
+      190.0
+     ],
+     "b": [
+      85.0,
+      245.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "weeping-w-207",
+     "a": [
+      80.0,
+      255.0
+     ],
+     "b": [
+      170.0,
+      255.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "weeping-w-208",
+     "a": [
+      75.0,
+      255.0
+     ],
+     "b": [
+      80.0,
+      255.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "weeping-w-209",
+     "a": [
+      70.0,
+      255.0
+     ],
+     "b": [
+      75.0,
+      255.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "weeping-w-210",
+     "a": [
+      70.0,
+      250.0
+     ],
+     "b": [
+      70.0,
+      255.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "weeping-w-211",
+     "a": [
+      70.0,
+      245.0
+     ],
+     "b": [
+      70.0,
+      250.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "weeping-w-212",
+     "a": [
+      70.0,
+      240.0
+     ],
+     "b": [
+      70.0,
+      245.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "weeping-w-213",
+     "a": [
+      70.0,
+      235.0
+     ],
+     "b": [
+      70.0,
+      240.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "weeping-w-214",
+     "a": [
+      70.0,
+      230.0
+     ],
+     "b": [
+      70.0,
+      235.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "weeping-w-215",
+     "a": [
+      70.0,
+      225.0
+     ],
+     "b": [
+      70.0,
+      230.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "weeping-w-216",
+     "a": [
+      70.0,
+      220.0
+     ],
+     "b": [
+      70.0,
+      225.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "weeping-w-217",
+     "a": [
+      70.0,
+      215.0
+     ],
+     "b": [
+      70.0,
+      220.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "weeping-w-218",
+     "a": [
+      70.0,
+      210.0
+     ],
+     "b": [
+      70.0,
+      215.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "weeping-w-219",
+     "a": [
+      70.0,
+      205.0
+     ],
+     "b": [
+      70.0,
+      210.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "weeping-w-220",
+     "a": [
+      70.0,
+      200.0
+     ],
+     "b": [
+      70.0,
+      205.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "weeping-w-221",
+     "a": [
+      70.0,
       195.0
      ],
      "b": [
@@ -31518,7 +31906,7 @@
      "material": "ashlar"
     },
     {
-     "id": "weeping-w-205",
+     "id": "weeping-w-222",
      "a": [
       70.0,
       190.0
@@ -31533,7 +31921,7 @@
      "material": "ashlar"
     },
     {
-     "id": "weeping-w-206",
+     "id": "weeping-w-223",
      "a": [
       70.0,
       185.0
@@ -31548,7 +31936,7 @@
      "material": "ashlar"
     },
     {
-     "id": "weeping-w-207",
+     "id": "weeping-w-224",
      "a": [
       70.0,
       180.0
@@ -31563,7 +31951,7 @@
      "material": "ashlar"
     },
     {
-     "id": "weeping-w-208",
+     "id": "weeping-w-225",
      "a": [
       70.0,
       175.0
@@ -31578,7 +31966,7 @@
      "material": "ashlar"
     },
     {
-     "id": "weeping-w-209",
+     "id": "weeping-w-226",
      "a": [
       70.0,
       170.0
@@ -31593,7 +31981,7 @@
      "material": "ashlar"
     },
     {
-     "id": "weeping-w-210",
+     "id": "weeping-w-227",
      "a": [
       70.0,
       165.0
@@ -31608,7 +31996,7 @@
      "material": "ashlar"
     },
     {
-     "id": "weeping-w-211",
+     "id": "weeping-w-228",
      "a": [
       70.0,
       160.0
@@ -31623,7 +32011,7 @@
      "material": "ashlar"
     },
     {
-     "id": "weeping-w-212",
+     "id": "weeping-w-229",
      "a": [
       70.0,
       155.0
@@ -31638,7 +32026,7 @@
      "material": "ashlar"
     },
     {
-     "id": "weeping-w-213",
+     "id": "weeping-w-230",
      "a": [
       70.0,
       150.0
@@ -31653,7 +32041,7 @@
      "material": "ashlar"
     },
     {
-     "id": "weeping-w-214",
+     "id": "weeping-w-231",
      "a": [
       70.0,
       145.0
@@ -31668,7 +32056,7 @@
      "material": "ashlar"
     },
     {
-     "id": "weeping-w-215",
+     "id": "weeping-w-232",
      "a": [
       70.0,
       140.0
@@ -31683,7 +32071,7 @@
      "material": "ashlar"
     },
     {
-     "id": "weeping-w-216",
+     "id": "weeping-w-233",
      "a": [
       70.0,
       135.0
@@ -31698,7 +32086,7 @@
      "material": "ashlar"
     },
     {
-     "id": "weeping-w-217",
+     "id": "weeping-w-234",
      "a": [
       70.0,
       130.0
@@ -31713,7 +32101,7 @@
      "material": "ashlar"
     },
     {
-     "id": "weeping-w-218",
+     "id": "weeping-w-235",
      "a": [
       70.0,
       125.0
@@ -31728,7 +32116,7 @@
      "material": "ashlar"
     },
     {
-     "id": "weeping-w-219",
+     "id": "weeping-w-236",
      "a": [
       70.0,
       120.0
@@ -31743,268 +32131,13 @@
      "material": "ashlar"
     },
     {
-     "id": "weeping-w-220",
-     "a": [
-      70.0,
-      115.0
-     ],
-     "b": [
-      70.0,
-      120.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-221",
-     "a": [
-      70.0,
-      110.0
-     ],
-     "b": [
-      70.0,
-      115.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-222",
-     "a": [
-      70.0,
-      105.0
-     ],
-     "b": [
-      70.0,
-      110.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-223",
-     "a": [
-      265.0,
-      105.0
-     ],
-     "b": [
-      265.0,
-      120.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-224",
-     "a": [
-      260.0,
-      120.0
-     ],
-     "b": [
-      265.0,
-      120.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "weeping-w-225",
-     "a": [
-      255.0,
-      120.0
-     ],
-     "b": [
-      260.0,
-      120.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "paneling"
-    },
-    {
-     "id": "weeping-w-226",
-     "a": [
-      250.0,
-      120.0
-     ],
-     "b": [
-      255.0,
-      120.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-227",
-     "a": [
-      245.0,
-      120.0
-     ],
-     "b": [
-      250.0,
-      120.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-228",
-     "a": [
-      240.0,
-      120.0
-     ],
-     "b": [
-      245.0,
-      120.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-229",
-     "a": [
-      235.0,
-      120.0
-     ],
-     "b": [
-      240.0,
-      120.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-230",
-     "a": [
-      230.0,
-      120.0
-     ],
-     "b": [
-      235.0,
-      120.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-231",
-     "a": [
-      225.0,
-      120.0
-     ],
-     "b": [
-      230.0,
-      120.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-232",
-     "a": [
-      220.0,
-      120.0
-     ],
-     "b": [
-      225.0,
-      120.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-233",
-     "a": [
-      215.0,
-      120.0
-     ],
-     "b": [
-      220.0,
-      120.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-234",
-     "a": [
-      210.0,
-      120.0
-     ],
-     "b": [
-      215.0,
-      120.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-235",
-     "a": [
-      205.0,
-      120.0
-     ],
-     "b": [
-      210.0,
-      120.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-236",
-     "a": [
-      200.0,
-      120.0
-     ],
-     "b": [
-      205.0,
-      120.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
      "id": "weeping-w-237",
      "a": [
-      195.0,
-      120.0
+      70.0,
+      115.0
      ],
      "b": [
-      200.0,
+      70.0,
       120.0
      ],
      "flags": [
@@ -32015,12 +32148,12 @@
     {
      "id": "weeping-w-238",
      "a": [
-      190.0,
-      120.0
+      70.0,
+      110.0
      ],
      "b": [
-      195.0,
-      120.0
+      70.0,
+      115.0
      ],
      "flags": [
       "normal"
@@ -32030,12 +32163,12 @@
     {
      "id": "weeping-w-239",
      "a": [
-      185.0,
-      120.0
+      70.0,
+      105.0
      ],
      "b": [
-      190.0,
-      120.0
+      70.0,
+      110.0
      ],
      "flags": [
       "normal"
@@ -32045,11 +32178,11 @@
     {
      "id": "weeping-w-240",
      "a": [
-      180.0,
-      120.0
+      265.0,
+      105.0
      ],
      "b": [
-      185.0,
+      265.0,
       120.0
      ],
      "flags": [
@@ -32060,11 +32193,11 @@
     {
      "id": "weeping-w-241",
      "a": [
-      175.0,
+      250.0,
       120.0
      ],
      "b": [
-      180.0,
+      255.0,
       120.0
      ],
      "flags": [
@@ -32075,11 +32208,11 @@
     {
      "id": "weeping-w-242",
      "a": [
-      170.0,
+      245.0,
       120.0
      ],
      "b": [
-      175.0,
+      250.0,
       120.0
      ],
      "flags": [
@@ -32090,11 +32223,11 @@
     {
      "id": "weeping-w-243",
      "a": [
-      165.0,
+      240.0,
       120.0
      ],
      "b": [
-      170.0,
+      245.0,
       120.0
      ],
      "flags": [
@@ -32105,11 +32238,11 @@
     {
      "id": "weeping-w-244",
      "a": [
-      160.0,
+      235.0,
       120.0
      ],
      "b": [
-      165.0,
+      240.0,
       120.0
      ],
      "flags": [
@@ -32120,11 +32253,11 @@
     {
      "id": "weeping-w-245",
      "a": [
-      155.0,
+      230.0,
       120.0
      ],
      "b": [
-      160.0,
+      235.0,
       120.0
      ],
      "flags": [
@@ -32135,11 +32268,11 @@
     {
      "id": "weeping-w-246",
      "a": [
-      110.0,
+      225.0,
       120.0
      ],
      "b": [
-      115.0,
+      230.0,
       120.0
      ],
      "flags": [
@@ -32150,11 +32283,11 @@
     {
      "id": "weeping-w-247",
      "a": [
-      105.0,
+      220.0,
       120.0
      ],
      "b": [
-      110.0,
+      225.0,
       120.0
      ],
      "flags": [
@@ -32165,11 +32298,11 @@
     {
      "id": "weeping-w-248",
      "a": [
-      100.0,
+      215.0,
       120.0
      ],
      "b": [
-      105.0,
+      220.0,
       120.0
      ],
      "flags": [
@@ -32180,11 +32313,11 @@
     {
      "id": "weeping-w-249",
      "a": [
-      95.0,
+      210.0,
       120.0
      ],
      "b": [
-      100.0,
+      215.0,
       120.0
      ],
      "flags": [
@@ -32195,11 +32328,11 @@
     {
      "id": "weeping-w-250",
      "a": [
-      90.0,
+      205.0,
       120.0
      ],
      "b": [
-      95.0,
+      210.0,
       120.0
      ],
      "flags": [
@@ -32210,11 +32343,11 @@
     {
      "id": "weeping-w-251",
      "a": [
-      85.0,
+      200.0,
       120.0
      ],
      "b": [
-      90.0,
+      205.0,
       120.0
      ],
      "flags": [
@@ -32225,27 +32358,27 @@
     {
      "id": "weeping-w-252",
      "a": [
-      155.0,
-      245.0
+      195.0,
+      120.0
      ],
      "b": [
-      170.0,
-      245.0
+      200.0,
+      120.0
      ],
      "flags": [
       "normal"
      ],
-     "material": "paneling"
+     "material": "ashlar"
     },
     {
      "id": "weeping-w-253",
      "a": [
-      170.0,
-      245.0
+      190.0,
+      120.0
      ],
      "b": [
       195.0,
-      245.0
+      120.0
      ],
      "flags": [
       "normal"
@@ -32255,42 +32388,12 @@
     {
      "id": "weeping-w-254",
      "a": [
-      195.0,
-      245.0
-     ],
-     "b": [
-      195.0,
-      255.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-255",
-     "a": [
-      190.0,
-      255.0
-     ],
-     "b": [
-      195.0,
-      255.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-256",
-     "a": [
       185.0,
-      255.0
+      120.0
      ],
      "b": [
       190.0,
-      255.0
+      120.0
      ],
      "flags": [
       "normal"
@@ -32300,12 +32403,12 @@
     {
      "id": "weeping-w-257",
      "a": [
-      180.0,
-      255.0
+      170.0,
+      120.0
      ],
      "b": [
-      185.0,
-      255.0
+      175.0,
+      120.0
      ],
      "flags": [
       "normal"
@@ -32315,12 +32418,12 @@
     {
      "id": "weeping-w-258",
      "a": [
-      175.0,
-      255.0
+      165.0,
+      120.0
      ],
      "b": [
-      180.0,
-      255.0
+      170.0,
+      120.0
      ],
      "flags": [
       "normal"
@@ -32330,12 +32433,12 @@
     {
      "id": "weeping-w-259",
      "a": [
-      170.0,
-      255.0
+      160.0,
+      120.0
      ],
      "b": [
-      175.0,
-      255.0
+      165.0,
+      120.0
      ],
      "flags": [
       "normal"
@@ -32345,12 +32448,12 @@
     {
      "id": "weeping-w-260",
      "a": [
-      165.0,
-      255.0
+      155.0,
+      120.0
      ],
      "b": [
-      170.0,
-      255.0
+      160.0,
+      120.0
      ],
      "flags": [
       "normal"
@@ -32360,12 +32463,12 @@
     {
      "id": "weeping-w-261",
      "a": [
-      160.0,
-      255.0
+      150.0,
+      120.0
      ],
      "b": [
-      165.0,
-      255.0
+      155.0,
+      120.0
      ],
      "flags": [
       "normal"
@@ -32375,12 +32478,12 @@
     {
      "id": "weeping-w-262",
      "a": [
-      155.0,
-      255.0
+      145.0,
+      120.0
      ],
      "b": [
-      160.0,
-      255.0
+      150.0,
+      120.0
      ],
      "flags": [
       "normal"
@@ -32390,12 +32493,12 @@
     {
      "id": "weeping-w-263",
      "a": [
-      150.0,
-      255.0
+      140.0,
+      120.0
      ],
      "b": [
-      155.0,
-      255.0
+      145.0,
+      120.0
      ],
      "flags": [
       "normal"
@@ -32405,12 +32508,12 @@
     {
      "id": "weeping-w-264",
      "a": [
-      145.0,
-      255.0
+      135.0,
+      120.0
      ],
      "b": [
-      150.0,
-      255.0
+      140.0,
+      120.0
      ],
      "flags": [
       "normal"
@@ -32420,12 +32523,12 @@
     {
      "id": "weeping-w-265",
      "a": [
-      140.0,
-      255.0
+      130.0,
+      120.0
      ],
      "b": [
-      145.0,
-      255.0
+      135.0,
+      120.0
      ],
      "flags": [
       "normal"
@@ -32435,12 +32538,12 @@
     {
      "id": "weeping-w-266",
      "a": [
-      135.0,
-      255.0
+      125.0,
+      120.0
      ],
      "b": [
-      140.0,
-      255.0
+      130.0,
+      120.0
      ],
      "flags": [
       "normal"
@@ -32450,12 +32553,12 @@
     {
      "id": "weeping-w-267",
      "a": [
-      130.0,
-      255.0
+      120.0,
+      120.0
      ],
      "b": [
-      135.0,
-      255.0
+      125.0,
+      120.0
      ],
      "flags": [
       "normal"
@@ -32465,12 +32568,12 @@
     {
      "id": "weeping-w-268",
      "a": [
-      125.0,
-      255.0
+      115.0,
+      120.0
      ],
      "b": [
-      130.0,
-      255.0
+      120.0,
+      120.0
      ],
      "flags": [
       "normal"
@@ -32480,12 +32583,12 @@
     {
      "id": "weeping-w-269",
      "a": [
-      120.0,
-      255.0
+      110.0,
+      120.0
      ],
      "b": [
-      125.0,
-      255.0
+      115.0,
+      120.0
      ],
      "flags": [
       "normal"
@@ -32495,12 +32598,12 @@
     {
      "id": "weeping-w-270",
      "a": [
-      115.0,
-      255.0
+      105.0,
+      120.0
      ],
      "b": [
-      120.0,
-      255.0
+      110.0,
+      120.0
      ],
      "flags": [
       "normal"
@@ -32510,12 +32613,12 @@
     {
      "id": "weeping-w-271",
      "a": [
-      110.0,
-      255.0
+      100.0,
+      120.0
      ],
      "b": [
-      115.0,
-      255.0
+      105.0,
+      120.0
      ],
      "flags": [
       "normal"
@@ -32525,12 +32628,12 @@
     {
      "id": "weeping-w-272",
      "a": [
-      105.0,
-      255.0
+      95.0,
+      120.0
      ],
      "b": [
-      110.0,
-      255.0
+      100.0,
+      120.0
      ],
      "flags": [
       "normal"
@@ -32540,12 +32643,12 @@
     {
      "id": "weeping-w-273",
      "a": [
-      100.0,
-      255.0
+      90.0,
+      120.0
      ],
      "b": [
-      105.0,
-      255.0
+      95.0,
+      120.0
      ],
      "flags": [
       "normal"
@@ -32555,12 +32658,12 @@
     {
      "id": "weeping-w-274",
      "a": [
-      95.0,
-      255.0
+      85.0,
+      120.0
      ],
      "b": [
-      100.0,
-      255.0
+      90.0,
+      120.0
      ],
      "flags": [
       "normal"
@@ -32570,12 +32673,12 @@
     {
      "id": "weeping-w-275",
      "a": [
-      90.0,
-      255.0
+      85.0,
+      245.0
      ],
      "b": [
-      95.0,
-      255.0
+      155.0,
+      245.0
      ],
      "flags": [
       "normal"
@@ -32585,11 +32688,11 @@
     {
      "id": "weeping-w-276",
      "a": [
-      85.0,
-      255.0
+      170.0,
+      245.0
      ],
      "b": [
-      90.0,
+      170.0,
       255.0
      ],
      "flags": [
@@ -32780,42 +32883,12 @@
     {
      "id": "weeping-w-289",
      "a": [
-      155.0,
-      230.0
+      185.0,
+      120.0
      ],
      "b": [
-      170.0,
-      230.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-290",
-     "a": [
-      170.0,
-      230.0
-     ],
-     "b": [
-      170.0,
-      245.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar"
-    },
-    {
-     "id": "weeping-w-291",
-     "a": [
-      155.0,
-      240.0
-     ],
-     "b": [
-      155.0,
-      245.0
+      185.0,
+      127.5
      ],
      "flags": [
       "normal"
@@ -32825,12 +32898,12 @@
     {
      "id": "weeping-w-292",
      "a": [
-      155.0,
-      235.0
+      175.0,
+      123.75
      ],
      "b": [
-      155.0,
-      240.0
+      175.0,
+      127.5
      ],
      "flags": [
       "normal"
@@ -32840,12 +32913,12 @@
     {
      "id": "weeping-w-293",
      "a": [
-      155.0,
-      230.0
+      175.0,
+      120.0
      ],
      "b": [
-      155.0,
-      235.0
+      175.0,
+      123.75
      ],
      "flags": [
       "normal"
@@ -32853,19 +32926,65 @@
      "material": "ashlar"
     },
     {
-     "id": "weeping-sd-webs-south",
+     "id": "weeping-w-294",
      "a": [
-      200.0,
-      180
+      155.0,
+      230.0
      ],
      "b": [
-      205.0,
-      180
+      170.0,
+      230.0
      ],
      "flags": [
-      "secret-door"
+      "normal"
      ],
-     "material": "paneling"
+     "material": "ashlar"
+    },
+    {
+     "id": "weeping-w-295",
+     "a": [
+      170.0,
+      230.0
+     ],
+     "b": [
+      170.0,
+      245.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "weeping-w-296",
+     "a": [
+      155.0,
+      240.0
+     ],
+     "b": [
+      155.0,
+      245.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar"
+    },
+    {
+     "id": "K83-door",
+     "a": [
+      131.25,
+      165.0
+     ],
+     "b": [
+      138.75,
+      165.0
+     ],
+     "flags": [
+      "door"
+     ],
+     "material": "paneling",
+     "open": false
     }
    ],
    "lights": [
@@ -33042,13 +33161,13 @@
      "id": "weeping-sdo-webs-south",
      "kind": "secret-panel",
      "pos": [
-      202.5,
+      197.5,
       0,
       180.0
      ],
      "vis": "secret-door",
      "key": "K39",
-     "label": "A narrow secret door behind webs at the west end of the south wall",
+     "label": "A narrow secret door behind webs at the west end of the south wall: the shaft access",
      "wall": "weeping-sd-webs-south"
     },
     {
@@ -33264,9 +33383,9 @@
      "id": "weeping-rats-k35-n",
      "kind": "swarm",
      "pos": [
-      167.0,
+      187.5,
       0,
-      201.0
+      207.5
      ],
      "vis": "hidden-creature",
      "key": "K35",
@@ -33277,9 +33396,9 @@
      "id": "weeping-rats-k35-s",
      "kind": "swarm",
      "pos": [
-      167.0,
+      192.5,
       0,
-      209.0
+      207.5
      ],
      "vis": "hidden-creature",
      "key": "K35",
@@ -33303,7 +33422,7 @@
      "pos": [
       120.0,
       0,
-      148.0
+      143.0
      ],
      "vis": "player",
      "key": "K45"
@@ -33325,7 +33444,7 @@
      "pos": [
       126.0,
       0,
-      148.0
+      143.0
      ],
      "vis": "player",
      "key": "K45"
@@ -33347,7 +33466,7 @@
      "pos": [
       132.0,
       0,
-      148.0
+      143.0
      ],
      "vis": "player",
      "key": "K45"
@@ -33369,7 +33488,7 @@
      "pos": [
       138.0,
       0,
-      148.0
+      143.0
      ],
      "vis": "player",
      "key": "K45"
@@ -33391,7 +33510,7 @@
      "pos": [
       144.0,
       0,
-      148.0
+      143.0
      ],
      "vis": "player",
      "key": "K45"
@@ -33413,7 +33532,7 @@
      "pos": [
       150.0,
       0,
-      148.0
+      143.0
      ],
      "vis": "player",
      "key": "K45"
