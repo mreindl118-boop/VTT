@@ -205,7 +205,8 @@ describe('Castle Ravenloft plays from its gate', () => {
 
   it('a passage on one level leads to its far end', () => {
     // same-level links (the dungeon's stairs and slide, the ladder behind K34's mirror): the party, taken from either
-    // end, ends at `to` (app.ts takeLink), so `to` is the far end: in another room, at least a marker apart (12 ft)
+    // end, comes out at the other (app.ts takeLink, core/verticalLinks.ts), so the two ends are in different rooms, at
+    // least a marker apart (12 ft)
     const bad: string[] = [];
     const roomAt = (l: Level, p: Vec2) => l.rooms.find((r) => pointInPolygon(p, r.polygon))?.key;
     for (const k of scene.links.filter((x) => x.from.level === x.to.level)) {

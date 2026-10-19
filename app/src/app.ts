@@ -7,6 +7,7 @@ import { squareCellAt, squareCellCenter, squareDistanceFt, worldToHex, hexToWorl
 import { OPENABLE_KINDS, type Container, type GridFile, type Level, type LightSource, type SceneFile, type SceneObject, type Room, type Wall, type Ambient } from './core/schema';
 import { moveBlockers } from './core/light';
 import { canWalk } from './core/movement';
+import { chosenRoute, enteredRoute, routeOf, type LinkEnd, type LinkRoute } from './core/verticalLinks';
 import { SITE_INTERFACES } from './core/siteInterfaces';
 import { classOpacity, fogCurve, hiddenCurve, labelCurve } from './core/slider';
 import { baseRingFt, CELL_FT } from './core/units';
@@ -1341,17 +1342,30 @@ export class App {
     return cov.state(o.pos[0], o.pos[2]) !== Cov.Unexplored;
   }
 
-  /** UI moved the party token directly (menu / list). */
-  afterPartyMoveFromUi(): void { this.afterPartyMove(); this.commit(); }
+  /** UI moved the party token directly (menu / list); `before` is where it stood, so a stair it was already on is not
+   *  taken again. */
+  afterPartyMoveFromUi(before: { level: string; pos: Vec2 }): void { this.afterPartyMove(before); this.commit(); }
 
-  /** Move the party through a vertical link (either end). */
-  takeLink(linkId: string): void {
-    const t = this.party, k = this.cur?.scene.links.find((x) => x.id === linkId);
-    if (!t || !k) return;
-    const here = k.from.level === t.level ? k.from : k.to.level === t.level ? k.to : k.from;
-    t.level = here.level; t.pos = squareCellCenter(squareCellAt(here.pos));
-    this.afterPartyMove();
+  /** Take the party through a vertical link, once: in at the given end (a marker's), or, by id alone, at its end on the
+   *  party's level (of a passage with both ends there, the nearer, so it comes out at the far end); out at the other.
+   *  The arrival takes no further link. The Player Display takes none of its own: it follows the DM's. */
+  takeLink(linkId: string, end?: LinkEnd): void {
+    const t = this.party, scene = this.cur?.scene;
+    if (!t || !scene || this.mode === 'player') return;
+    const k = scene.links.find((x) => x.id === linkId);
+    const way = k && end ? routeOf(k, end) : chosenRoute(scene.links, linkId, t);
+    if (!way) return;
+    this.throughLink(way);
+    this.afterPartyMove(null);
     this.commit();
+  }
+
+  /** The party goes through one link: out at its far end, on that end's level. */
+  private throughLink(way: LinkRoute): void {
+    const t = this.party!, to = way.to, name = this.cur!.scene.levels.find((l) => l.id === to.level)?.name ?? to.level;
+    t.level = to.level; t.pos = squareCellCenter(squareCellAt(to.pos));
+    this.setStatus(`${way.link.kind === 'trapdoor' ? 'Through the trapdoor' : way.link.kind === 'dumbwaiter' ? 'Down the dumbwaiter' : 'Took the stairs'} → ${name}`);
+    this.setLevel(to.level);
   }
 
   /** What the DM tapped; the UI turns it into a menu of actions. */
@@ -1369,22 +1383,20 @@ export class App {
     if (this.autoReveal && room && !this.isRevealed(room.key)) this.state.reveals.push({ type: 'room', location: loc, key: room.key, mode: 'explored' });
     this.recompute();
   }
-  /** After the party moves: reveal the room it entered, take stairs it stepped on, follow with the camera. */
-  private afterPartyMove(): void {
+  /** After the party moves: take the stairs it stepped onto, reveal the room it entered, follow with the camera.
+   *  `before` is where it stood: a stair is taken only when the move entered its end (within one cell of it, and not
+   *  before), so a step off a landing, or standing still, takes none; one move takes one at most. null: a link was
+   *  just taken, and its arrival takes no other. */
+  private afterPartyMove(before: { level: string; pos: Vec2 } | null): void {
     const t = this.party;
     if (!t || !this.cur) return;
     const loc = this.cur.scene.location;
-    // vertical links: stepping within one cell of an endpoint takes the stairs
-    for (const k of this.cur.scene.links) {
-      for (const [end, other] of [[k.from, k.to], [k.to, k.from]] as const) {
-        if (end.level !== t.level) continue;
-        if (Math.hypot(end.pos[0] - t.pos[0], end.pos[1] - t.pos[1]) <= 5.5) {
-          t.level = other.level; t.pos = squareCellCenter(squareCellAt(other.pos));
-          this.setStatus(`${k.kind === 'trapdoor' ? 'Through the trapdoor' : k.kind === 'dumbwaiter' ? 'Down the dumbwaiter' : 'Took the stairs'} → ${this.cur.scene.levels.find((l) => l.id === other.level)?.name ?? other.level}`);
-          this.setLevel(other.level);
-          break;
-        }
-      }
+    const step = before ? enteredRoute(this.cur.scene.links, t, before.level === t.level ? before.pos : null) : null;
+    if (step && 'route' in step) this.throughLink(step.route);
+    else if (step) {
+      // two ways from one landing (an up and a down stair): the DM picks one on its marker
+      const ways = step.choices.map((r) => { const to = this.cur!.scene.levels.find((l) => l.id === r.to.level), from = this.cur!.scene.levels.find((l) => l.id === t.level); return `${(to?.elevationFt ?? 0) > (from?.elevationFt ?? 0) ? 'up' : 'down'} to ${to?.name ?? r.to.level}`; });
+      this.setStatus(`Stairs ${ways.join(' or ')}: the DM picks one on the stair marker`);
     }
     const l = this.cur.scene.levels.find((x) => x.id === t.level)!;
     const room = this.roomAt(l, t.pos);
@@ -2036,9 +2048,10 @@ export class App {
       else if (this.restricted) { this.flashStatus('Out of movement range'); return false; }
       else this.flashStatus('Placed by the DM: no movement spent');
     } else if (!this.canWalkTo(t.pos, to)) { this.flashStatus('No way through: walls block the party. Open a door first.'); return false; }
+    const before = { level: t.level, pos: t.pos };
     t.pos = to;
     this.cur!.tokens.get(id)?.position.set(to[0], this.level.elevationFt, to[1]);
-    if (id === this.party?.id) this.afterPartyMove();
+    if (id === this.party?.id) this.afterPartyMove(before);
     else if (this.encounter) this.afterMemberMove(t);
     else if (this.rangeHelper) this.refreshRange();
     this.commit();
