@@ -87,6 +87,7 @@ editing the same thing at once:
 
 | What | Who | Since (UTC) | Doing | Expected on main |
 |---|---|---|---|---|
+| `.github/workflows/ci.yml` (one line: the runner image pin) | Claude, cloud | 2026-10-19 11:30 | CI red since 09:30 for every commit: the `ubuntu-latest` image moved to 26.04 and Playwright 1.56 refuses it; pinned to `ubuntu-24.04` | 2026-10-19, released when CI is green on main |
 | `scripts/authoring/castle-ravenloft.py`, `locations/ch04/K`, `print/castle-ravenloft/` (item 2g) | Claude, cloud (castle session) | 2026-10-18 21:08 | the playable castle + print set on `claude/wip/castle-playable`; waiting for Matt's approval, then build/tests on a machine with npm | after Matt approves and 0.3.3 lands |
 
 ## Running things (Matt's Windows laptop, PowerShell)
