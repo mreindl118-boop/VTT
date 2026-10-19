@@ -61,8 +61,13 @@ WALL_H = 90  # the curtain walls (p.53)
 # --- the courtyard, 340 × 300 ft inside a 20-ft curtain wall; the keep stands in the middle
 # K1 front courtyard wraps the keep's west, north-west and south-west; K2's two gated walls run from the keep to
 # the curtain wall north and south of it; K3 the servants' courtyard takes the east.
-g.room('K1', 'Front Courtyard', [(4, 4), (50, 4), (50, 18), (16, 18), (16, 50), (48, 50), (48, 64), (4, 64)], 'cobble', page=pg('K1'))
-g.room('K3', "Servants' Courtyard", [(50, 4), (62, 4), (62, 10), (72, 10), (72, 30), (60, 30), (60, 18), (50, 18)], 'cobble', page=pg('K3'))
+# the front courtyard wraps the keep's west, north-west and south-west, and runs in between the two west turrets up to
+# the keep's open doors (K7), flanked by the archers' posts (K22 north, K11 south: map 3)
+g.room('K1', 'Front Courtyard', [(4, 4), (50, 4), (50, 18), (16, 18), (16, 29), (24, 29), (24, 39), (22, 39), (22, 40), (19, 40), (19, 44), (16, 44), (16, 50),
+                                 (48, 50), (48, 64), (4, 64)], 'cobble', page=pg('K1'))
+# the servants' courtyard takes in the corner north of the chapel, where the servants' entrance (K23) opens
+g.room('K3', "Servants' Courtyard", [(50, 4), (62, 4), (62, 10), (72, 10), (72, 30), (60, 30), (60, 28), (58, 26), (52, 26), (50, 28), (48, 28), (48, 18), (50, 18)],
+       'cobble', page=pg('K3'))
 g.room('K3-s', "Servants' Courtyard (south)", [(48, 50), (60, 50), (60, 36), (72, 36), (72, 64), (48, 64)], 'cobble', page=pg('K3'))
 g.room('K4', 'Carriage House', rect(62, 4, 72, 10), 'flagstone', page=pg('K4'), ceilingFt=15)
 g.room('K5', 'Chapel Garden', rect(60, 30, 72, 36), 'grass', page=pg('K5'))
@@ -74,13 +79,14 @@ g.door((50, 10), (50, 12), id='K2-north-gate', double=True)
 g.door((48, 56), (48, 58), id='K2-south-gate', double=True)
 g.door((62, 6), (62, 8), id='K4-doors', double=True)
 g.opening((72, 32), (72, 34)); g.opening((76, 32), (76, 34))
-g.opening((60, 32), (60, 34))   # garden to the servants' courtyard
+g.opening((60, 30), (72, 30)); g.opening((60, 36), (72, 36))   # the garden lies open to both servants' courtyards
 g.opening((4, 33), (4, 35)); g.opening((0, 33), (0, 35))  # the gate stands open
 # curtain wall: the courtyard's outer faces are 90 ft high; the outer edge of the wall is 20 ft further out
 for a, b in [((4, 4), (72, 4)), ((72, 4), (72, 64)), ((72, 64), (4, 64)), ((4, 64), (4, 4))]:
     g._stamp(a, b, flags=['normal'], heightFt=WALL_H, material='ashlar', wall=True)
 for a, b in [((0, 0), (76, 0)), ((76, 0), (76, 68)), ((76, 68), (0, 68)), ((0, 68), (0, 0))]:
     g.wall(a, b, heightFt=WALL_H, material='ashlar')
+arch(g, (0, 33), (0, 35)); arch(g, (76, 32), (76, 34))   # the gate and the postern through the curtain's outer face
 # The approach from the Gates of Ravenloft (J): the road along the ridge, the fifty-foot chasm, the drawbridge of
 # old shored-up beams across it, the two gate towers either side of the entry tunnel (p.37-38)
 g.terrain.append(([(-62, 30), (-11, 30), (-11, 38), (-62, 38)], 'cobble'))                  # the road on the ridge
@@ -92,6 +98,9 @@ for s_ in (-1, 1): g.prop(f'J-tower{s_}', 'gate-tower', (-1.6, 34 + s_ * 4.6), N
 g.prop('J-portcullis', 'portcullis', (0.3, 34), 'K1-g', rotY=90)
 g.note('J-bridge-note', (-6, 31), 'K1-bridge', 'The drawbridge: 5% chance a board breaks under any crosser but Strahd and his horses; DC 10 Dexterity save or fall 1,000 ft (advantage if a companion within 5 ft grabs you).')
 g.terrain.append(([(0, 0), (76, 0), (76, 68), (0, 68)], 'flagstone'))        # wall tops / foundations under everything
+# the party arrives over the drawbridge and through the gate passage: it starts just inside the gate, in the front
+# courtyard, with the keep's open doors ahead
+g.obj('spawn', 'spawn', (7.5, 34.5), 'dm-note', 'K1', 'Party arrives: over the drawbridge and through the gate')
 g.prop('carriage', 'wagon', (67, 7), 'K4', rotY=90)
 g.note('K6-note', (81, 33), 'K6', 'Balcony over the cliff: the village lies a thousand feet below; a window-set stone box juts from the cliff 100 ft down (K63).')
 g.light('K7-torch-a', (14.5, 25), 'torch', 20, 40, y=8); g.light('K7-torch-b', (14.5, 27), 'torch', 20, 40, y=8)
@@ -99,21 +108,21 @@ g.light('K7-torch-a', (14.5, 25), 'torch', 20, 40, y=8); g.light('K7-torch-b', (
 # --- the keep's main floor (map 3), 10-ft cells read off the rectified plate
 g.room('K12-n', 'Turret Post (north-west)', oct3(10.5, 15, 1.5), 'flagstone', page=pg('K12'), ceilingFt=30)
 g.room('K12-s', 'Turret Post (south-west)', oct3(10.5, 26.5, 1.5), 'flagstone', page=pg('K12'), ceilingFt=30)
-g.room('K13-n', 'Turret Post Access Hall (north)', rect3(12, 14.5, 15, 15.5), 'flagstone', page=pg('K13'), ceilingFt=15)
-g.room('K13-w', 'Turret Post Access Hall (west)', rect3(9.5, 16.5, 10.5, 24), 'flagstone', page=pg('K13'), ceilingFt=15)
+g.room('K13-n', 'Turret Post Access Hall (north)', rect3(12, 14.5, 15.5, 15.5), 'flagstone', page=pg('K13'), ceilingFt=15)   # meets the grand staircase
 g.room('K13-s', 'Turret Post Access Hall (south)', rect3(12, 26, 16.5, 27), 'flagstone', page=pg('K13'), ceilingFt=15)
-g.room('K22', "North Archers' Post", rect3(11, 15.5, 13, 17.5), 'flagstone', page=pg('K22'), ceilingFt=15)
-g.room('K11', "South Archers' Post", rect3(10.5, 24, 12, 26), 'flagstone', page=pg('K11'), ceilingFt=15)
+# the archers' posts flank the courtyard's way in to the keep's doors, clear of the turrets (the plate's posts overlap them)
+g.room('K22', "North Archers' Post", rect3(12, 15.5, 13, 17.5), 'flagstone', page=pg('K22'), ceilingFt=15)
+g.room('K11', "South Archers' Post", rect3(10.5, 23, 12, 25), 'flagstone', page=pg('K11'), ceilingFt=15)
 g.room('K83', 'Spiral Stair', oct3(14.5, 18.5, 1), 'flagstone', page=pg('K83'), ceilingFt=50)
 g.room('K8-s', 'Grand Staircase', rect3(15.5, 12.5, 17, 19.5), 'flagstone', page=pg('K8'), ceilingFt=40)
 g.room('K7', 'Entry', rect3(13, 20, 15, 22), 'flagstone', page=pg('K7'), ceilingFt=20)
 g.room('K8', 'Great Entry', rect3(15, 19.5, 19, 22.5), 'flagstone', page=pg('K8'), ceilingFt=40)
 g.room('K14', 'Turret Access Hall', rect3(19, 20, 26, 22), 'flagstone', page=pg('K14'), ceilingFt=15)
 g.room('K16', 'North Chapel Access', rect3(24.5, 18, 26, 20), 'flagstone', page=pg('K16'), ceilingFt=15)
-g.room('K17', 'South Chapel Access', rect3(24.5, 22, 26, 24), 'flagstone', page=pg('K17'), ceilingFt=15)
+g.room('K17', 'South Chapel Access', rect3(24, 22, 26, 24), 'flagstone', page=pg('K17'), ceilingFt=15)   # its west end is the high tower stair's landing
 g.room('K15', 'Chapel', poly3([(27, 16), (30, 16), (31, 17), (31, 26), (30, 27), (27, 27), (26, 26), (26, 17)]), 'flagstone', page=pg('K15'), ceilingFt=90)
 g.room('K9', "Guests' Hall", rect3(15, 22.5, 18, 25.5), 'flagstone', page=pg('K9'), ceilingFt=20)
-g.room('K9-h', 'Arched Hallway', rect3(18, 23.5, 19.5, 24.5), 'flagstone', page=pg('K9'), ceilingFt=15)
+g.room('K9-h', 'Arched Hallway', rect3(18, 23.5, 20.5, 24.5), 'flagstone', page=pg('K9'), ceilingFt=15)   # runs on to the south tower stair
 g.room('K10', 'Dining Hall', rect3(12, 22.5, 15, 25), 'flagstone', page=pg('K10'), ceilingFt=20)
 g.room('K31a', 'Elevator Shaft', rect3(19.5, 22.5, 21.5, 23.5), 'flagstone', page=pg('K31a'), ceilingFt=170)
 g.room('K18', 'High Tower Staircase', oct3(22.5, 23, 1.5), 'flagstone', page=pg('K18'), ceilingFt=300)
@@ -133,19 +142,22 @@ O((15.5, 19.5), (17, 19.5))                                             # great 
 D((19, 20.5), (19, 21.5), id='K8-east', double=True)                    # great entry → turret access hall (bronze)
 D((16.5, 22.5), (17.5, 22.5), id='K8-south', double=True)               # great entry → guests' hall (bronze)
 D((15, 23.5), (15, 24.5), id='K10-doors', double=True, open=True)       # guests' hall → dining hall
-O((18, 23.5), (18, 24.5)); O((19.5, 23.5), (19.5, 24.5))                # hallway to the south tower stair
+O((18, 23.5), (18, 24.5)); arch(g, m3(19, 24.5), m3(20, 24.5))            # guests' hall → hallway → the south tower stair
 D((26, 20.5), (26, 21.5), id='K15-west', double=True)                   # hall → chapel
 O((26, 18.5), (26, 19.5)); O((26, 22.5), (26, 23.5))                    # chapel accesses → chapel
-O((24.5, 18.5), (24.5, 19.5)); O((24.5, 22.5), (24.5, 23.5))            # accesses → hall side
+O((24.5, 18.5), (24.5, 19.5)); arch(g, m3(24, 22.5), m3(24, 23.5))          # north access → creaky stair; south access → the high tower stair (K18)
 O((25, 20), (25.5, 20)); O((25, 22), (25.5, 22))                        # accesses open on the hall
 O((24.5, 19), (24.5, 20))                                               # north access → creaky landing
-D((12, 16), (12, 17), id='K22-door'); D((12, 24.5), (12, 25.5), id='K11-door')
-O((12, 15), (12, 15.5)); O((15, 15), (15, 15.5))                        # north hall to the turret and the stair head
-O((10.5, 17), (10.5, 18)); O((10.5, 23), (10.5, 24))
-O((12, 26), (12, 27)); O((16.5, 26.5), (16.5, 27.5))                    # south hall to the turret and the guards' stair
-D((22.5, 16), (22.5, 17), id='K23-west'); D((25, 16), (25, 17), id='K23-courtyard', locked=False)
+# K22 meets the north access hall along its north edge (map 3); ported from ChatGPT's item 2e branch: the earlier door
+# crossed the middle of K22 and matched no wall
+D((12, 15.5), (13, 15.5), id='K22-door')
+# K11's one door is the secret door behind the organ in K10 (p.57); the turret post (K12) opens into it from the south
+g.secret(m3(12, 23.5), m3(12, 24), 'K11-organ', 'A secret door behind the pipe organ: it opens once the organ slides out', 'K11')
+arch(g, m3(10.5, 25), m3(11.12, 25))
+arch(g, m3(12, 14.5), m3(12, 15.5)); O((15.5, 14.5), (15.5, 15.5))         # north hall to the turret and the grand staircase
+arch(g, m3(12, 26), m3(12, 27)); O((16.5, 26.5), (16.5, 27.5))           # south hall to the turret and the guards' stair
+D((25, 16), (25, 17), id='K23-courtyard', locked=False)                 # the servants' entrance: east to the courtyard
 D((23, 15), (24, 15), id='K23-north', open=True)
-O((21.5, 19), (21.5, 20))                                               # landing stair → tower hall
 
 # fixtures
 for i, x in enumerate((15.5, 16.5, 17.5, 18.5)):
