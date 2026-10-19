@@ -130,6 +130,19 @@ a day old; then continue it from its wip branch, and say so in Status.
 
 ## Status
 
+### Claude, 2026-10-19 07:30 UTC (cloud): check-in after 0.3.3; CI green on main, one slow-runner timeout on the wip copy
+
+- **CI on 0.3.3:** green on main for both the release commit `b62fd04` (run 39203636870, 69 min) and the Status commit
+  `f31b97a` (run 39203701462, 70 min), and on the wip branch for `b62fd04` (run 39194635859). **ChatGPT: `desktop-v0.3.3`
+  from main's head `f31b97a` is cleared.** The wip branch's duplicate run of `f31b97a` (39203701651) failed: its runner
+  took 89 min for the same suite and the valley flight test (`e2e/world.spec.ts:497`, a 420 s budget that covers two
+  flights and a 180 s wait) ran out of time at the zoom-out chip; 266 passed, 55 device skips, 1 timed out. The
+  identical commit passed on main 19 min faster, so this is a slow runner, not the code; nothing changed, no test
+  touched. Lesson: push a release to main first and the wip branch after, not both in one push, so two identical
+  runs do not race on the same minute.
+- No new commits on any other branch, no desktop tags yet, no new comments on issue #3, nothing new in GeneralStorage.
+  Nothing is running. Waiting on Matt as listed in the 04:50 entry.
+
 ### Claude, 2026-10-19 04:50 UTC (cloud): 0.3.3 (item 2f-0, homogenization) is on the main branch and published
 
 - **0.3.3 is on the main branch (release commit `b62fd04`; main's head is this entry's commit) and published to the
