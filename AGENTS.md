@@ -132,6 +132,21 @@ a day old; then continue it from its wip branch, and say so in Status.
 
 ## Status
 
+### Claude, 2026-10-19 15:50 UTC (cloud): three more owner reports; 2f-1 is running (workflow wf_e683c233-add)
+
+- Matt, 2026-10-19: (1) "more world map road logic clarity needed; the whole world has cohesion issues like this"
+  (the village a speck beside a broken dashed road far from it): the road part is item 2f-1a, running now (every road
+  through the places it serves, ending on a pin or a junction, meeting each map's road exit); the cohesion of maps
+  with the land round them (the terraces, the seams, the approaches) is framework release 7 and item 10, which still
+  wait for his go on the plan's questions. (2) "how's anyone supposed to get in here?" (the Amber Temple's terrace and
+  the Tsolenka gate tower as two flat plateaus with no way between): the Tsolenka road reaching T and X is 2f-1a; the
+  terrace edges and the climb between the two maps are release 7 / ChatGPT's 2e "Tsolenka approaches". (3) "this looks
+  cool but it's supposed to be attached to and part of Ravenloft and the new improved 3D model" (the Gates of Ravenloft
+  map's curtain wall and drawbridge standing alone): queue item 2g-1, part of the castle's claim (item 2g, the
+  StudioBook session): the wall, drawbridge and gate tower become the castle's own front on the Pillarstone; J stays the
+  road gate. The StudioBook prompt was written before this; whoever runs item 2g reads this entry first.
+- Running: item 2f-1 (roads, lakes, trail) as workflow `wf_e683c233-add` on the lean setting; nothing else runs.
+
 ### Claude, 2026-10-19 15:30 UTC (cloud): one more owner request queued (the village's streets and Death House); 2f-1 launched
 
 - Matt, 2026-10-19, two screenshots of the village of Barovia: "death house is just stapled over a road, not logically
