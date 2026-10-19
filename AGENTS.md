@@ -132,6 +132,15 @@ a day old; then continue it from its wip branch, and say so in Status.
 
 ## Status
 
+### Claude, 2026-10-19 16:45 UTC (cloud): the Mists as every map's edge (owner's standard), queued as 2f-5
+
+- Matt, 2026-10-19: "this wall of fog at yester hill should be the standard way to isolate playable areas. the whole map
+  should feel confined by this in some way without overdoing it." Queue item 2f-5: framework release 3's mist piece
+  with his words as the acceptance; the `fog-wall` object Yester Hill authors per level becomes the shared edge of every
+  outdoor map's playable ground, automatic, soft, fading with the zoom. Recommended order, for Matt: 2f-5 right after
+  2f-1, before 2f-2, because the mist edge also hides the terrace edges at Vallaki, the Amber Temple and Yester Hill
+  while release 7 reshapes the land underneath; otherwise it runs after 2f-4 in order of arrival.
+
 ### Claude, 2026-10-19 16:30 UTC (cloud): Yester Hill reads as a pyramid from the valley; filed under framework release 7
 
 - Matt, 2026-10-19: "weird pyramid yester hill context" (Yester Hill from above: a square stepped block with the summit
@@ -639,6 +648,9 @@ may still be running** its check-in routine; Matt decides whether it carries on 
 
 ## Questions for Matt
 
+- **Order of the mist edge (2f-5):** run it right after 2f-1, ahead of Krezk's crag, the castle's presence and the village
+  streets? It is the one change that softens the terrace edges you flagged on every outdoor map at once; the land
+  itself is reshaped by release 7 afterwards. Default without an answer: in order of arrival, after 2f-4.
 - **Framework release 7, "the land is one surface" (2026-10-19): four of your reports today land there (the Vallaki
   terrace with its diagonal edges, the Amber Temple and Tsolenka plateaus with no way between, "the whole world has
   cohesion issues", Yester Hill as a pyramid). May the cloud run release 7 next after 2f-1, with its questions 3 (ground-
