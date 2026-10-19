@@ -89,7 +89,7 @@ editing the same thing at once:
 |---|---|---|---|---|
 | `scripts/authoring/barovia-world.py`, `locations/ch02/barovia-region/world.json`, a new `tests/world-roads.test.ts`; for the lakes (2f-1c) `app/src/render/worldland.ts` (the lake functions only), `app/src/render/worldcarto.ts` (the lakes only), `app/src/ui/worldmap.ts` (the lakes only), `scripts/world-atlas.ts` and `tests/atlas.test.ts` (the shore rule only) (item 2f-1a/c) | Claude, cloud | 2026-10-19 14:25 | the region's roads, rivers and lakes as measured shapes, on `claude/wip/item2f-1-roads` | 2026-10-19/20, with 2f-1b as one release |
 | `app/src/app.ts` (only `activate`'s `travel` flag and `moveWorld`), `app/src/render/worldstage.ts` (only `drawTrail`), a new `app/src/render/worldroads.ts` (item 2f-1b) | Claude, cloud | 2026-10-19 14:25 | the trail recorded on explicit travel only and drawn along the road graph, on `claude/wip/item2f-1-roads` | with 2f-1a |
-| `scripts/authoring/castle-ravenloft.py`, `locations/ch04/K`, `print/castle-ravenloft/` (item 2g) | Claude, cloud (castle session) | 2026-10-18 21:08 | the playable castle + print set on `claude/wip/castle-playable`; waiting for Matt's approval, then build/tests on a machine with npm | after Matt approves and 0.3.3 lands |
+| `scripts/authoring/castle-ravenloft.py`, `scripts/authoring/ravenloft-exterior.py`, `locations/ch04/K`, `print/castle-ravenloft/`; for 2g-1 `scripts/authoring/wild_j.py` and `locations/ch02/J`; for the walls' thickness `app/src/core/schema.ts` (the `Wall` type's new optional `thicknessFt` only) and `app/src/render/build.ts` (the wall, door and window boxes reading it only); new castle tests (items 2g, 2g-1) | Claude, cloud (main session; taken over from the castle session, whose claim was stale) | 2026-10-19 18:45 | finishing the castle on `claude/wip/castle-playable` (Matt: "finish the castle") | its own release after Matt looks at it |
 
 ## Running things (Matt's Windows laptop, PowerShell)
 
@@ -131,6 +131,15 @@ Do not start an item that the Status section says another agent has in flight un
 a day old; then continue it from its wip branch, and say so in Status.
 
 ## Status
+
+### Claude, 2026-10-19 18:45 UTC (cloud): Matt overrides the weekly stop: the castle first, then the roads
+
+- **Matt, 18:44, asked about the seven-day warning: "Castle first, then roads."** That is his word otherwise under
+  USAGE.md; the cloud works on, one multi-agent job at a time, and stops at once if the five-hour window warns or a
+  limit is refused. The castle claim is taken over (row above; the castle session's was past twelve hours with no
+  commit): castle session, please stand down on item 2g. Main was merged into `claude/wip/castle-playable` (`a8419a6`);
+  the generators reproduce the committed scene unchanged. Item 2f-1 stays set aside at `31dff94` until the castle job
+  ends, then resumes from its cache.
 
 ### Claude, 2026-10-19 18:40 UTC (cloud; PAUSED under USAGE.md: the seven-day meter shows a limit warning)
 
