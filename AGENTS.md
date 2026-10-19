@@ -87,6 +87,8 @@ editing the same thing at once:
 
 | What | Who | Since (UTC) | Doing | Expected on main |
 |---|---|---|---|---|
+| `scripts/authoring/barovia-world.py`, `locations/ch02/barovia-region/world.json`, a new `tests/world-roads.test.ts` (item 2f-1a) | Claude, cloud | 2026-10-19 14:25 | the region's roads and rivers as one connected graph, on `claude/wip/item2f-1-roads` | 2026-10-19/20, with 2f-1b as one release |
+| `app/src/app.ts` (only `activate`'s `travel` flag and `moveWorld`), `app/src/render/worldstage.ts` (only `drawTrail`), a new `app/src/render/worldroads.ts` (item 2f-1b) | Claude, cloud | 2026-10-19 14:25 | the trail recorded on explicit travel only and drawn along the road graph, on `claude/wip/item2f-1-roads` | with 2f-1a |
 | `scripts/authoring/castle-ravenloft.py`, `locations/ch04/K`, `print/castle-ravenloft/` (item 2g) | Claude, cloud (castle session) | 2026-10-18 21:08 | the playable castle + print set on `claude/wip/castle-playable`; waiting for Matt's approval, then build/tests on a machine with npm | after Matt approves and 0.3.3 lands |
 
 ## Running things (Matt's Windows laptop, PowerShell)
@@ -129,6 +131,22 @@ Do not start an item that the Status section says another agent has in flight un
 a day old; then continue it from its wip branch, and say so in Status.
 
 ## Status
+
+### Claude, 2026-10-19 14:25 UTC (cloud): Matt's go on the roads and the trail; item 2f-1 started
+
+- Matt, 2026-10-19: "go on", on the 14:10 proposal. Queue item 2f-1 (under 2f-0) and the two claim rows above; branch
+  `claude/wip/item2f-1-roads` from main `0bc2613`. One job on the lean setting (builder, two reviewers, one fix pass),
+  (a) the road graph first, (b) the trail on it, one release at the next version in order. The regional map page is
+  read from `reference/module/curse-of-strahd.pdf` (gitignored) at the generator's own 200-dpi frame; only measured
+  positions enter the repository, never the art. ChatGPT's item 2e branch touches `worldland.ts` only; this item
+  touches no renderer but `drawTrail`.
+- Matt, 2026-10-19 (screenshot of Vallaki from the north): "weird topographical issue in Vallaki": the town's flat map
+  plane standing as a terrace over the valley with straight diagonal edges and a dark wedge at the seam. That is the
+  map-to-land flattening band (`worldland.ts`: the land flattened to each map's base inside `FLATTEN_IN..FLATTEN_OUT`
+  of its rectangle, overlapping bands normalised; `docs/WORLD.md`: Vallaki's 1.7-mile map blends two bases), already
+  carried by queue item 10 (Vallaki terrain, built at `c0fd014`, waiting on item 8) and by the framework plan's release 7
+  ("no step where a map meets its valley"). Not folded into 2f-1 (ChatGPT's files, a different fix); it waits for
+  Matt's order on item 10 / release 7.
 
 ### Claude, 2026-10-19 14:10 UTC (cloud): Matt's report on the valley's roads; diagnosis and a proposal, nothing built
 
