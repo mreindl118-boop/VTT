@@ -43,6 +43,16 @@ def oct_(cx, cy, r, k=0.4142):
     c = r * k
     return [(cx - c, cy - r), (cx + c, cy - r), (cx + r, cy - c), (cx + r, cy + c), (cx + c, cy + r), (cx - c, cy + r), (cx - r, cy + c), (cx - r, cy - c)]
 def oct3(x, y, r10): cx, cy = m3(x, y); return oct_(cx, cy, r10 * 2)
+# Where a room meets a tower's side, a curtain wall or a partition, no room edge runs cell by cell along the gap, so
+# Level.opening() and Level.door() (which lift or flag a room edge they match cell by cell) cannot open it. An arch cuts
+# every wall that lies along it once the walls are built (room edges, octagon sides, the curtain's own walls); an inner
+# door is a door set in such a line: the walls under it are cut the same way (free_openings below).
+ARCH = {}       # level id -> [(a, b)] in 5-ft cells
+DOOR_OPEN = {}  # inner doors' ids -> open
+def arch(lv, a, b): ARCH.setdefault(lv.id, []).append((a, b))
+def inner_door(lv, a, b, id, locked=False, open=False):
+    lv.extra.append((a, b, dict(flags=['door'] + (['locked'] if locked else []), id=id)))
+    DOOR_OPEN[id] = open
 
 # ================================================================== GROUND: courtyard (map 2) + main floor (map 3)
 g = Level('ground', 'Courtyard and main floor', 0, 50, ambient='storm', interior='ashlar', exterior='ashlar', north='-z')
@@ -579,11 +589,15 @@ OPENING = {'door', 'window', 'secret-door'}
 def free_openings(lvj):
     """Half-cell plans (octagons, plate-registered rooms) leave room-edge walls running straight through a door, bars
     or secret door that sits on a different cell split, or is stamped as an extra wall. Cut every non-opening wall that
-    lies along an opening for more than 1 ft, keeping the pieces either side, so each leaf is free in its own gap."""
+    lies along an opening or an arch for more than 1 ft, keeping the pieces either side, so each leaf is free in its own
+    gap and each arch is open."""
+    for w in lvj['walls']:
+        if w['id'] in DOOR_OPEN: w['open'] = DOOR_OPEN[w['id']]
     opens = [w for w in lvj['walls'] if OPENING & set(w['flags'])]
+    opens += [{'a': [a[0] * 5, a[1] * 5], 'b': [b[0] * 5, b[1] * 5]} for a, b in ARCH.get(lvj['id'], [])]
     out, cut = [], 0
     for w in lvj['walls']:
-        if w in opens: out.append(w); continue
+        if OPENING & set(w['flags']): out.append(w); continue
         (ax, az), (bx, bz) = w['a'], w['b']; L = math.hypot(bx - ax, bz - az)
         if L < 1e-6: out.append(w); continue
         ux, uz = (bx - ax) / L, (bz - az) / L
