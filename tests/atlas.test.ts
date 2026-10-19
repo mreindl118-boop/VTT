@@ -5,6 +5,7 @@ import committed from '../manifests/world-atlas.json';
 import barovia from '../locations/ch02/barovia-region/world.json';
 import { buildAtlas, scenePaths, serialize, REPO, type Atlas } from '../scripts/world-atlas.ts';
 import { pinY, worldOfMiles } from '../app/src/core/frames';
+import { pointInPolygon } from '../app/src/core/geometry';
 import type { WorldData } from '../app/src/campaigns';
 import { join } from 'node:path';
 
@@ -82,10 +83,15 @@ describe('world atlas', () => {
     expect(L.placement.position[1]).toBeCloseTo(pin.groundFt!, 6);
     // both maps' bases agree, so the land between them is one level
     expect(Math.abs(L.placement.position[1] + L.elevationFt - (N.placement.position[1] + N.elevationFt))).toBeLessThan(0.5);
-    // the map's shore line (its water room's south edge, ~185 ft south of its centre) lies on the lake's drawn shore
-    const lake = w.lakes.find((l) => /Zarovich/.test(l.name))!, [mx, my] = pin.pos;
-    const shoreY = lake.center[1] + lake.r[1] * Math.sqrt(1 - ((mx - lake.center[0]) / lake.r[0]) ** 2);
+    // the map's shore line (its water room's south edge, ~185 ft south of its centre) lies on the lake's drawn shore:
+    // the measured outline's southmost crossing of the pin's meridian (barovia-world.py bows the outline onto it)
+    const lake = w.lakes.find((l) => /Zarovich/.test(l.name))!, [mx, my] = pin.pos, ring = (lake as { pts?: [number, number][] }).pts!;
+    expect(ring, 'Lake Zarovich has a measured outline').toBeDefined();
+    let shoreY = -Infinity;
+    for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) { const a = ring[j], b = ring[i]; if ((a[0] - mx) * (b[0] - mx) <= 0 && a[0] !== b[0]) shoreY = Math.max(shoreY, a[1] + ((mx - a[0]) / (b[0] - a[0])) * (b[1] - a[1])); }
     expect(Math.abs(my + 185 / 5280 - shoreY) * 5280).toBeLessThan(60);
+    // and the landing stands on that shore: its north half in the water, its south half on land
+    expect(pointInPolygon([mx, my - 0.05], ring)).toBe(true); expect(pointInPolygon([mx, my + 0.06], ring)).toBe(false);
   });
   it('blowouts more than 1.5× their plot are listed as warnings (the Vallaki buildings, the church, Death House)', () => {
     const big = scenes.filter((s) => (s.blowout ?? 0) > 1.5).map((s) => s.path).sort();

@@ -7,9 +7,9 @@ placed approximately west of the Wizard of Wines.
 Two files come from here. Run alone, this writes the base world.json (schema 1) that `barovia-cover.py` starts from
 (the laptop: it needs the PDF; it refines the pins from the 400-dpi page and adds the land-cover grid, then
 `heightfield.py` adds the height lattice). Run on a machine where that refined file (schema 2) is already on disk,
-this keeps all of it and lays in only what is measured here: the roads and rivers below, bent onto the pins as the
-file places them (see `lay_roads`). So it runs anywhere, and runs last: after the cover pass too, whose own traced
-road ribbons it replaces."""
+this keeps all of it and lays in only what is measured here: the roads, rivers and lakes below, bent onto the pins as
+the file places them (see `lay_roads` and `lay_lakes`). So it runs anywhere, and runs last: after the cover pass too,
+whose own traced road ribbons it replaces, and after `site-continuity.py` (whose Tser Pool it keeps: see TIED)."""
 import json, math, os
 from collections import OrderedDict
 
@@ -79,7 +79,27 @@ RIVERS = [
   ('River Ivlis', [(863, 598), (875, 606), (893, 611), (909, 608), (925, 598), (933, 597), (951, 602), (967, 611), (983, 620), (1002, 623), (1022, 626), (1041, 630), (1060, 633), (1080, 636), (1099, 639), (1120, 636), (1140, 634), (1161, 631), (1178, 622), (1195, 613), (1212, 604), (1222, 602), (1235, 601), (1249, 600), (1266, 602), (1283, 604), (1300, 606)]),
   ('Raven River', [(200, 270), (192, 282), (183, 288), (173, 295), (161, 300), (149, 302), (136, 304), (116, 305), (96, 306), (75, 307), (55, 308), (35, 309), (20, 309), (4, 308), (-11, 308), (-32, 305), (-53, 302), (-75, 298), (-96, 295), (-117, 292)]),
 ]
-LAKES = [('Lake Zarovich', (500, 195), (170, 48)), ('Lake Baratok', (190, 205), (30, 22)), ('Tser Pool', (850, 562), (16, 12)), ('Luna Lake', (200, 712), (55, 22))]
+# LAKES were traced on 2026-10-19 from the same page render as the roads: the water colour, closed and filled, the river
+# channels cut off, each body's outer contour simplified to 24-40 points, clockwise on the page (y down), in script px.
+# The file's `center`/`r` (the bounding ellipse the older data carried; backdrop.ts and the lettering still read it) are
+# computed from the outline as written, so the two cannot disagree. Only positions enter the data; no art.
+LAKES = [  # name, outline (script px)
+  ('Lake Zarovich', [(642, 153), (679, 171), (676, 219), (650, 237), (634, 258), (627, 252), (606, 252), (585, 260), (535, 259), (503, 247), (467, 257), (450, 253), (441, 240), (425, 239), (419, 239), (414, 249), (402, 243), (393, 251), (388, 236), (371, 234), (364, 222), (350, 229), (343, 226), (329, 200), (330, 190), (355, 166), (366, 168), (379, 160), (397, 173), (411, 175), (423, 167), (478, 159), (486, 152), (514, 170), (583, 174), (605, 166), (615, 151)]),
+  ('Lake Baratok', [(252, 185), (247, 192), (249, 203), (246, 214), (241, 219), (223, 218), (202, 229), (200, 243), (211, 248), (200, 257), (194, 269), (189, 269), (185, 265), (191, 253), (189, 239), (180, 234), (177, 225), (168, 224), (160, 215), (156, 205), (156, 192), (170, 182), (183, 182), (196, 191), (215, 195), (220, 192), (229, 193), (236, 184), (244, 181)]),
+  ('Tser Pool', [(847, 542), (852, 545), (857, 550), (855, 556), (855, 563), (860, 567), (865, 573), (866, 580), (861, 584), (854, 585), (849, 589), (845, 594), (839, 593), (837, 587), (832, 582), (829, 576), (827, 570), (826, 564), (831, 559), (834, 554), (832, 549), (829, 544), (836, 541), (842, 538)]),
+  ('Luna Lake', [(257, 689), (257, 698), (270, 706), (283, 727), (277, 747), (287, 759), (280, 766), (275, 767), (270, 760), (272, 752), (267, 742), (272, 730), (268, 721), (258, 722), (251, 739), (236, 740), (231, 733), (224, 733), (215, 738), (211, 748), (205, 728), (198, 727), (193, 732), (193, 743), (184, 748), (180, 759), (165, 749), (157, 737), (117, 731), (113, 727), (149, 714), (156, 707), (174, 708), (189, 701), (201, 701), (212, 692), (217, 699), (229, 702), (252, 685)]),
+]
+# A map standing on a lake's shore: the pin, the lake, and how far south of the pin the map's own water edge lies (ft).
+# The outline is bowed so its shore runs through that edge, as the roads are bowed through the pins (`lay_lakes`). Lake
+# Zarovich's landing (ch02/L, wild_l.py: the water fills the map to z 552 of 750, 177 ft south of its centre) was placed
+# against the old ellipse; the page's shore runs 0.2 mi south of it there, in an inlet that would also reach into
+# Vallaki's 1.7-mile footprint, so the inlet is lifted onto the landing's shore line (0.85 mi of shore eased).
+SHORE_MAPS = {'L': ('Lake Zarovich', 177)}
+# A lake a map's own water continues into (app/src/core/siteInterfaces.ts `lake`; site-continuity.py places it as a
+# 180-ft disc at the Tser camp's north edge, the owner's 0.3.1 request). The page draws the pool 0.45 mi east of the
+# camp's disc, so the traced outline cannot meet the camp; until the camp and the pool are reconciled (Matt's call) the
+# file's disc stands and the outline above is only recorded.
+TIED = {'Tser Pool'}
 PEAKS = [('Mount Baratok', (850, 70)), ('Mount Ghakis', (505, 780)), ('Balinok Mountains', (160, 470))]
 # Unnamed high ground from the map: the castle's pillar of rock, the Ghakis foothills, the Balinok range,
 # the snowy north-east and the ridges between Vallaki and the Tser valley.
@@ -144,6 +164,46 @@ def lay_roads(roads, pins):
             if _dist(cur[i], q) <= 0.25 * PX_PER_MILE: cur[i] = list(q)
     return [(n, k, cur) for (n, k, _), cur in zip(roads, out)]
 
+def _nearest_on_ring(ring, p):
+    """The closed outline's nearest point to p: (the segment's first index, t along it, the point)."""
+    best = None
+    for i in range(len(ring)):
+        a, b = ring[i], ring[(i + 1) % len(ring)]
+        dx, dy = b[0] - a[0], b[1] - a[1]; L2 = dx * dx + dy * dy or 1e-12
+        t = max(0.0, min(1.0, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / L2))
+        q = [a[0] + dx * t, a[1] + dy * t]; d = _dist(p, q)
+        if best is None or d < best[0]: best = (d, i, t, q)
+    return best[1:]
+
+def _bow_ring(ring, k, delta):
+    """`_bow` for a closed outline: ring[k] moves by delta and its neighbours round the ring by a raised cosine of their
+    distance along it, fading to nothing by R = max(60, 4|delta|) px (a shore eases over a longer reach than a road)."""
+    R = max(60.0, 4 * math.hypot(*delta)); n = len(ring); w = {k: 1.0}
+    for d in (-1, 1):
+        s, i = 0.0, k
+        for _ in range(n - 1):
+            s += _dist(ring[i % n], ring[(i + d) % n]); i += d
+            if s >= R: break
+            w[i % n] = max(w.get(i % n, 0.0), 0.5 * (1 + math.cos(math.pi * s / R)))
+    for i, wi in w.items(): ring[i][0] += delta[0] * wi; ring[i][1] += delta[1] * wi
+
+def lay_lakes(lakes, pins):
+    """The traced outlines laid against the pins as the file writes them (`pins`: key -> (x, y) px): a lake a map stands
+    on (SHORE_MAPS) is bowed so its shore runs through the map's water edge (a vertex is set there). Returns
+    [(name, ring)] with float px."""
+    out = [(n, [list(p) for p in pts]) for n, pts in lakes]
+    for key, (name, south_ft) in SHORE_MAPS.items():
+        if key not in pins: continue
+        ring = next(r for n, r in out if n == name)
+        target = [pins[key][0], pins[key][1] + south_ft / 5280 * PX_PER_MILE]
+        i, t, q = _nearest_on_ring(ring, target)
+        if _dist(q, ring[i]) < 1: k = i
+        elif _dist(q, ring[(i + 1) % len(ring)]) < 1: k = (i + 1) % len(ring)
+        else: ring.insert(i + 1, q); k = i + 1
+        delta = (target[0] - ring[k][0], target[1] - ring[k][1])
+        if math.hypot(*delta) >= 0.05: _bow_ring(ring, k, delta)
+    return out
+
 def clip(pts, b):
     """A polyline cut at the frame (b: minX, minY, maxX, maxY in px): an end beyond it ends where it crosses the edge."""
     x0, y0, x1, y1 = b
@@ -169,6 +229,21 @@ def paths(pins, bounds):
     rivers = [OrderedDict(name=n, pts=[m(*p) for p in clip(pts, bounds)]) for n, pts in RIVERS]
     return roads, rivers
 
+def lakes_for(pins, kept=None):
+    """The lakes for the file: each traced outline laid against `pins`, in miles, with the bounding ellipse (`center`,
+    `r`) of the outline as written. A TIED lake keeps the entry the file holds (`kept`: name -> entry) and has no outline;
+    with no file, its bounding ellipse alone."""
+    out = []
+    for name, ring in lay_lakes(LAKES, pins):
+        pts = [m(*p) for p in ring]
+        xs, ys = [p[0] for p in pts], [p[1] for p in pts]
+        center, r = [round((min(xs) + max(xs)) / 2, 3), round((min(ys) + max(ys)) / 2, 3)], [round((max(xs) - min(xs)) / 2, 3), round((max(ys) - min(ys)) / 2, 3)]
+        if name in TIED:
+            out.append(kept[name] if kept and name in kept else OrderedDict(name=name, center=center, r=r))
+        else:
+            out.append(OrderedDict(name=name, center=center, r=r, pts=pts))
+    return out
+
 PATH = 'locations/ch02/barovia-region/world.json'
 BOUNDS = (-80, 0, 1300, 920)  # the base frame, px
 out = OrderedDict(
@@ -177,7 +252,7 @@ out = OrderedDict(
   bounds=m(1300, 920) and OrderedDict(minX=m(-80, 0)[0], minY=0, maxX=m(1300, 0)[0], maxY=m(0, 920)[1]),
   pins=[OrderedDict(key=k, name=n, pos=m(*p), type=t, **({'scenes': sc} if sc else {}), **({'groundFt': GROUND[k]} if k in GROUND else {}), **({'heightFt': HEIGHT[k]} if k in HEIGHT else {})) for k, n, p, t, sc in PINS],
   roads=[], rivers=[],  # laid below, against this file's own pins and frame
-  lakes=[OrderedDict(name=n, center=m(*c), r=m(*r)) for n, c, r in LAKES],
+  lakes=[],  # laid below, against this file's own pins
   peaks=[OrderedDict(name=n, pos=m(*p)) for n, p in PEAKS],
   high=[m(*p) for p in HIGH],
   woods=[OrderedDict(name=n, pos=m(*p)) for n, p in WOODS],
@@ -196,11 +271,14 @@ old = json.load(open(PATH), object_pairs_hook=OrderedDict) if os.path.exists(PAT
 if old is not None and 'cover' in old:
     # the cover pass's refined file: everything it holds stays; the roads and rivers are this script's
     b = old['bounds']; px = lambda p: (p[0] * PX_PER_MILE, p[1] * PX_PER_MILE)
-    old['roads'], old['rivers'] = paths({p['key']: px(p['pos']) for p in old['pins']}, (*px((b['minX'], b['minY'])), *px((b['maxX'], b['maxY']))))
+    pins = {p['key']: px(p['pos']) for p in old['pins']}
+    old['roads'], old['rivers'] = paths(pins, (*px((b['minX'], b['minY'])), *px((b['maxX'], b['maxY']))))
+    old['lakes'] = lakes_for(pins, {l['name']: l for l in old.get('lakes', [])})
     world, which = old, 'the refined world.json (cover kept)'
 else:
     out['roads'], out['rivers'] = paths({k: p for k, _, p, _, _ in PINS}, BOUNDS)
+    out['lakes'] = lakes_for({k: p for k, _, p, _, _ in PINS})
     keep_notes(out, PATH)
     world, which = out, 'the base world.json'
 with open(PATH, 'w') as f: json.dump(world, f, indent=1); f.write('\n')
-print('world:', which + ';', len(world['pins']), 'pins,', len(world['roads']), 'roads,', len(world['rivers']), 'rivers')
+print('world:', which + ';', len(world['pins']), 'pins,', len(world['roads']), 'roads,', len(world['rivers']), 'rivers,', len(world['lakes']), 'lakes (' + str(sum('pts' in l for l in world['lakes'])) + ' outlined)')
