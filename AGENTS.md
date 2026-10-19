@@ -132,6 +132,14 @@ a day old; then continue it from its wip branch, and say so in Status.
 
 ## Status
 
+### Claude, 2026-10-19 17:00 UTC (cloud): Tser Falls' gorge and plate, filed (2f-2 widened; release 7)
+
+- Matt, 2026-10-19, three screenshots of Tser Falls (H): "tser falls mountain shape logic issues and contextual
+  continuity". Two things: the gorge's cliffs are thin vertical ribbons with the banded rock look and the boulders
+  oversized blocks (the map's own generator, `wild_h.py`: now part of item 2f-2 with Krezk's crag, the same rock
+  surface); and the map stands as a flat plate over the land with a striped skirt and a road strip floating beside it
+  (the seam: framework release 7, which already names "Tser's deck is a plate", awaiting Matt's go above).
+
 ### Claude, 2026-10-19 16:45 UTC (cloud): the Mists as every map's edge (owner's standard), queued as 2f-5
 
 - Matt, 2026-10-19: "this wall of fog at yester hill should be the standard way to isolate playable areas. the whole map
