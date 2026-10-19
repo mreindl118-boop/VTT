@@ -87,6 +87,7 @@ editing the same thing at once:
 
 | What | Who | Since (UTC) | Doing | Expected on main |
 |---|---|---|---|---|
+| `scripts/authoring/castle-ravenloft.py`, `locations/ch04/K`, `print/castle-ravenloft/` (item 2g) | Claude, cloud (castle session) | 2026-10-18 21:08 | the playable castle + print set on `claude/wip/castle-playable`; waiting for Matt's approval, then build/tests on a machine with npm | after Matt approves and 0.3.3 lands |
 | `item7-unfinished-maps` (ch14/Y, ch12/W, ch13/X, ch10/U, ch10/U3, ch11/V) | Claude, cloud | 2026-10-18 18:40 | the 0.3.2 release of item 7 (merging main, tests, review) | 2026-10-18 |
 
 ## Running things (Matt's Windows laptop, PowerShell)
@@ -129,6 +130,86 @@ Do not start an item that the Status section says another agent has in flight un
 a day old; then continue it from its wip branch, and say so in Status.
 
 ## Status
+
+### Claude, 2026-10-19 00:05 UTC (cloud; resumed after the usage reset)
+
+- **Castle Ravenloft (item 2g, `claude/wip/castle-playable` at `06f01ce`): the checks the castle session could not run,
+  done in a worktree with npm. Nothing on the branch was changed; its claim stands.** `npm run build` passes.
+  `npx vitest run`: 541 passed, 2 skipped (the two SRD-cache blocks, as on main), 2 todo. `audit-outdoor.py` exits 1
+  on main and on the branch alike (the pre-existing tavern-facade findings), and the castle's 67 off-ground objects
+  are the same on both. The generator re-run reproduces the committed scene exactly, but `npm run build` regenerates
+  `manifests/world-atlas.json` (objects 386 → 387): the branch needs that manifest regenerated and committed.
+- Runtime probe under Players rules on all 12 levels (one browser, software rendering): the party stands on floor on
+  every level and takes all four first steps on 11 of them (2 of 4 at the courtyard's K1 start); 45 of 67 doors pass
+  both ways when open; none refuses to open; 1 opens but still blocks (`K37-north-b`, Rooms of Weeping: the tower's
+  diagonal wall `weeping-w-7` runs through its gap); 19 doors open onto ground that is not walkable floor: 4 from the
+  keep into the courtyard (`K11-door`, `K7-outer`, `K23-courtyard`, `K23-west`; the courtyard is terrain, not floor,
+  so the party cannot pass between keep and courtyard in Players mode) and 15 into corridors with no floor polygon
+  (`K78-north`, `K80-door`, `K72-door`, `K70-south`, `court-K11-door`, `K25-south-door`, `K30-west`, `K34-south`,
+  `K37-north-a`, `K37-south`, `K37-west`, `K40-doors`, `K42-east`, `K36-north`; `K30-east`, `K42-south`, `K49-K48`
+  have floor 5-7.5 ft off). No spawn is authored, so the scene still opens on the courtyard with the party in the
+  dungeon (levels[0]). Screenshots at 1366x768 and 390x844, DM and Players, on ground, court, dungeon and weeping:
+  no page errors; walls, open stair wells and the straight stairs draw in place; Players view shows the unexplored
+  keep as the usual black mass. The probe script and shots are in the cloud's scratch folder, not in the repo.
+- **Copied-text gate: the branch's reworded descriptions add 11 eight-word runs matching the module's OCR** (main's
+  castle scene has 1, the tomb's name): the K4, K46, K51, K63 and K72 descriptions and the K39 secret doors in
+  `castle-ravenloft.py`. They must be reworded before this can release. No model names; no print outputs committed.
+- The 0.3.2 release's review (one agent) is running; then the release, then the two audits resume, one at a time.
+
+### Claude, 2026-10-18 21:15 UTC (cloud; PAUSED under USAGE.md until the five-hour window resets at 23:40 UTC)
+
+- **Matt's usage rule binds every agent** (GeneralStorage `USAGE.md`, branch `claude/coworking-ack`, 2026-10-18). This
+  session has no readable meter; the account's five-hour window read 86% at 21:08 UTC (another Claude session's
+  handoff), reset 23:40 UTC, seven-day window 25%. So: nothing new started, every background run stopped, this
+  handoff written, resume at 23:50 UTC (the check-in is re-armed to then), one lean job at a time.
+- **Stopped mid-run, resumable from their cached stages, nothing pushed from them yet:** the 0.3.2 release
+  (`wf_87fec1ac-32e`: integrate done, release commit `a447725`, head `5593e4e` on `item7-unfinished-maps`, main merged
+  three times; browser suite 266 passed, 55 device skips, 1 failed, fixed at its cause by test commit `38143c9` and
+  re-run green; vitest 567 passed, 2 pre-existing environment skips, 2 todo; the review stage was in flight and is
+  redone on resume, then the release is published); the ease-of-use audit (`wf_6aeedc2c-d18`, done: inventory, heuristics; the desktop walk was in
+  flight); the map-logic audit (`wf_fe7ebc32-113`, done: scout, static:placement-doors, static:rooms-links, static:lattice-placement; the runtime pass was in flight). Both audits are
+  findings only.
+- **Castle Ravenloft (Matt, 2026-10-18, issue #3; queue item 2g):** a second cloud session Matt opened by voice built
+  it at 21:08 UTC (its entry is below): the playable pass, the regenerated scene and `print/castle-ravenloft/` on
+  `claude/wip/castle-playable`, brief in `docs/handoff/castle-playable.md`. This session's own claim, written seven
+  minutes later without seeing that entry, is withdrawn: one plan, one branch, that one. What that session could not
+  run (no npm there) and this one can, after the usage reset and if nobody has by then: `npm run build`,
+  `npx vitest run`, `audit-outdoor.py`, the Players-mode start test on every castle level, the in-app look on desktop
+  and phone as DM and Players, written here with the commit hash; then Matt approves or not. Rhino refinement,
+  trinket sculpting, GPU inspection and fabrication acceptance wait for StudioBook (Matt back about 01:00 UTC; the
+  laptop connection and Rhino/GPU are verified then). Nothing merges or releases before Matt's yes and 0.3.3.
+- The item 2f plan (`docs/MAPS-FRAMEWORK.md`) awaits Matt's go. ChatGPT's draft PR #2 is acknowledged, not merged.
+### Claude, 2026-10-18 21:08 UTC (cloud; a second cloud session Matt opened for the castle)
+
+- **New item 2g (Matt, 2026-10-18, by voice): Castle Ravenloft playable + print set + trinket**, on `claude/wip/castle-playable`
+  (from main `97f3bee` + the castle part of `claude/wip/item6-village-castle`). Brief and co-working instructions:
+  `docs/handoff/castle-playable.md`. Done: the generator's playable pass, the regenerated scene, `print/castle-ravenloft/`
+  (stack, trinket, previews, README) and a first full output set delivered to Matt as a zip. **Not done:** `npm run build`,
+  the unit tests and the in-app look (this session had no npm access). Whoever has npm next: run them on the branch and
+  write the result here. **Nothing from this item merges until Matt approves the playable castle**; it releases after
+  ChatGPT's 0.3.3 (merge main, re-run `castle-ravenloft.py`, never hand-merge the scene JSON).
+- Claimed above: the castle generator, its scene files and `print/castle-ravenloft/`. ChatGPT's item 2e castle edits
+  (K22 door, K28 partition, maps 6/7 re-registration, K51 hatch) were **not** taken onto this branch; they come in with
+  0.3.3 and the merge is theirs to carry over by re-running the script.
+- Matt also said "set up co-work instructions" for the other assistant on this item: they are the "Co-working on item
+  2g" section of the brief. Nothing in it changes the claims-and-merge rules above.
+
+### Claude, 2026-10-18 20:45 UTC (cloud)
+
+- **The item 2f plan is written: `docs/MAPS-FRAMEWORK.md`.** Eight small releases on the lean setting, visual first with
+  the two "cannot move" engine fixes pulled to the front: 1 the party always starts on a floor it can leave, a step is
+  instant, a refusal says why, and a map contract counts every map's findings (report mode); 2 the light rig and the
+  measuring tools (before/after pairs, an address-bar switch per feature); 3 one mist piece, and fog of war that reads
+  as mist; 4 the grid stays on the map, towns open framed, pins fold away; 5 ground colour, grain and contact
+  darkening (a port of the reviewed item 6 render work); 6 level of detail, instancing, prop shapes, hard per-map
+  budgets; 7 land as one surface, ground-following levels, water and height fog (after ChatGPT's Status line on
+  `worldland.ts`/`backdrop.ts`, or its 0.3.3); 8 the browser walks every map, the contract turns hard, one regeneration
+  of all 44 scenes with save migrations (after 0.3.3). Releases 1-6 touch no file ChatGPT's branches change. Part C of
+  the plan is this item's paragraph for "Working on the maps together": claims, not ownership. **Nothing is built until
+  Matt approves the plan**; his ten questions are under Questions for Matt below (Part A of the plan has the detail).
+- Two audits Matt asked for at 20:20 UTC are running, findings only: an ease-of-use audit of 0.3.1 (desktop and phone,
+  DM and Players) and a map-logic audit of all 45 scenes (starts, steps, doors, rooms, links, ground, lattice, nested
+  placement). Their reports land in `docs/handoff/` when done; nothing is queued from them without Matt.
 
 ### Claude, 2026-10-18 20:10 UTC (cloud)
 
@@ -288,6 +369,19 @@ may still be running** its check-in routine; Matt decides whether it carries on 
 
 ## Questions for Matt
 
+- Answered by the castle session's handoff (2026-10-18 21:08): the Castle Ravenloft brief is with that session
+  (`castle-ravenloft-occ.md`, Matt has it); `docs/handoff/castle-playable.md` is what lives in the repository. Its open
+  questions for Matt are listed in that file's "Co-working on item 2g" section, point 6.
+- **The item 2f framework plan (`docs/MAPS-FRAMEWORK.md`, 2026-10-18) needs a go or no-go; its ten questions are
+  answered when their release starts (recommended answers in Part A):** 1 the filmic tone curve on for every map
+  (recommended: decide on release 2's pairs, default off); 2 players' unexplored outdoors shown as the hour's mist with
+  silhouettes instead of black (yes); 3 ground-following levels, with Yester Hill rebuilt as one sloped level under a
+  claim on its generator (yes, judged on a dev slope first); 4 rooms may be marked sealed on purpose, and which of K76,
+  K41 and T2 are (allow the flag); 5 a room behind a locked door counts as reachable (yes, the lock listed); 6 adopt
+  ChatGPT's integration branch early (no, unless ChatGPT asks); 7 version order (answered: item 7 is 0.3.2, ChatGPT's
+  all-map release 0.3.3, the framework reserves no number); 8 a shadow-map spike for the Sheep Chase (skip); 9 the grid
+  fades out 40 ft past the rooms instead of covering the valley (yes); 10 outdoor levels reveal a 60-ft radius round
+  the party as well as the room (yes, outdoors only).
 - (0.3.2 release review) The world map gives Mount Baratok's M2–M5 marks their own discs (32 pins) where the world-map step grouped that peak once (28); ChatGPT changed the assertion and disclosed it in the 0.3.0 known limits. Keep the five discs, or group the peak once as designed?
 - Answered (Matt, 2026-10-18): the artifact must auto-update to match the desktop app window, so the desktop distribution tag is approved and every release goes to the main branch, the mistLAB link and a `desktop-v` tag from the same commit (cloud Status entry, 2026-10-18).
 - Answered (Matt, 2026-10-14: "nah just go for it"): the additional targeted Amber hard-cut correction and verification are authorized despite the original final fix-pass limit. This does not authorize unrelated regional redesign, public compiled-bundle publication or wholesale item 7 resumption.
