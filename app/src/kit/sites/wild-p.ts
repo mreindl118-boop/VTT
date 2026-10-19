@@ -14,7 +14,7 @@ import { CREATURES, humanoid, horse } from '../creatures';
 import { mat, patchFog, setSurface } from '../../render/materials';
 import { FLOOR_COLOR } from '../palette';
 import { surfaceFor } from '../surfaces';
-import { box, compact, coneWith, cylWith, flat, grp, hash, inPoly, lerp, lump, place, smoothstep as smooth, upTris, V } from '../shapes';
+import { box, compact, coneWith, cylWith, flat, grp, hash, lerp, lump, place, smoothstep as smooth, upTris, V } from '../shapes';
 import { fogMat } from '../mist';
 const cyl = cylWith(7), cone = coneWith(5);
 
@@ -118,6 +118,9 @@ function blobPts(r: number, seed: number, sx = 1, n = 11): P2[] {
   for (let i = 0; i < n; i++) { const a = (i / n) * Math.PI * 2, k = r * (0.72 + 0.4 * hash(i, seed)); pts.push([Math.cos(a) * k * sx, Math.sin(a) * k]); }
   return pts;
 }
+function inPoly(x: number, z: number, pts: P2[]): boolean {
+  let c = false; for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) { const [xi, zi] = pts[i], [xj, zj] = pts[j]; if ((zi > z) !== (zj > z) && x < ((xj - xi) * (z - zi)) / (zj - zi) + xi) c = !c; } return c;
+}
 function segDist(px: number, pz: number, a: P2, b: P2): number {
   const dx = b[0] - a[0], dz = b[1] - a[1], L2 = dx * dx + dz * dz || 1e-9, t = Math.max(0, Math.min(1, ((px - a[0]) * dx + (pz - a[1]) * dz) / L2));
   return Math.hypot(px - a[0] - dx * t, pz - a[1] - dz * t);
@@ -199,7 +202,7 @@ export function rockOutcrop(d: Dims): THREE.Group {
     const xs = poly.map((p) => p[0]), zs = poly.map((p) => p[1]);
     for (let i = 0; i < 12; i++) {
       const x = lerp(Math.min(...xs), Math.max(...xs), hash(i, 31 + k)), z = lerp(Math.min(...zs), Math.max(...zs), hash(i, 37 + k));
-      if (!inPoly(poly, x / 0.86, z / 0.86)) continue;
+      if (!inPoly(x / 0.86, z / 0.86, poly)) continue;
       const kind = hash(i, 41 + k), r = 0.6 + hash(i, 43 + k) * 1.8;
       g.add(flat(blobPts(r, i + k, 1.2, 7).map(([a, b]) => [a + x, b + z] as P2), y + 0.02 + (i % 3) * 0.004, kind < 0.35 ? C.lichen : kind < 0.5 ? C.lichenOchre : kind < 0.65 ? C.lichenPale : C.duff));
     }
@@ -628,7 +631,7 @@ export function gravelShoal(): THREE.Group {
   for (let r = 0; r + 1 < R.length; r++) for (let i = 0; i < outer.length; i++) { const j = (i + 1) % outer.length; (r === 0 ? v : vt).push(R[r][i], R[r + 1][i], R[r + 1][j], R[r][i], R[r + 1][j], R[r][j]); }
   for (let i = 0; i < outer.length; i++) vt.push(ctr, R[3][i], R[3][(i + 1) % outer.length]);
   g.add(new THREE.Mesh(upTris(v), mat(C.bankMud)), new THREE.Mesh(upTris(vt), mat(C.silt)));
-  for (let i = 0; i < 160; i++) { const x = (hash(i, 1) - 0.5) * 20, z = (hash(i, 2) - 0.5) * 46; if (!inPoly(outer.map(([a, b]) => [a * 0.92, b * 0.92] as P2), x, z)) continue; g.add(place(lump(0.2 + hash(i, 3) * 0.45, i % 3 ? C.pebble : i % 2 ? C.pebbleDark : C.gravel, i, 1.3, 0.55, 1, 0), x, 0.35 + hash(i, 4) * 0.3, z, hash(i, 5) * 3)); }
+  for (let i = 0; i < 160; i++) { const x = (hash(i, 1) - 0.5) * 20, z = (hash(i, 2) - 0.5) * 46; if (!inPoly(x, z, outer.map(([a, b]) => [a * 0.92, b * 0.92] as P2))) continue; g.add(place(lump(0.2 + hash(i, 3) * 0.45, i % 3 ? C.pebble : i % 2 ? C.pebbleDark : C.gravel, i, 1.3, 0.55, 1, 0), x, 0.35 + hash(i, 4) * 0.3, z, hash(i, 5) * 3)); }
   // the snag: a bleached alder, root plate up on the bar's north end, trunk out across the current
   const root = V(-2, 1.4, -21);
   g.add(place(lump(2.3, C.alderDark, 4, 1.0, 1.0, 0.35, 1), root.x, root.y, root.z, 0.4, 0, 0));
@@ -722,7 +725,7 @@ export function weedTriangle(d: Dims): THREE.Group {
   let placed = 0;
   for (let i = 0; i < 1600 && placed < 330; i++) {
     const x = lerp(X0, X1, hash(i, sd)), z = lerp(Z0, Z1, hash(i, sd + 1));
-    if (!inPoly(poly, x, z) || (fur.length > 1 && lineDist(x, z, fur) < 1.8)) continue;
+    if (!inPoly(x, z, poly) || (fur.length > 1 && lineDist(x, z, fur) < 1.8)) continue;
     placed++;
     const t = hash(i, sd + 2);
     if (t < 0.45) tuft(g, x, 0, z, 3.0 + hash(i, 3) * 1.4, [C.nettle, C.sedge], i, 6, 1.1, 0.16);
@@ -950,13 +953,13 @@ export function hayMeadow(d: Dims): THREE.Group {
   // the meadow's mottle: wetter dark swales and paler dry knolls under the tussocks
   for (let i = 0; i < 46; i++) {
     const x = lerp(X0 + 20, X1 - 20, hash(i, sd + 50)), z = lerp(Z0 + 20, Z1 - 20, hash(i, sd + 51));
-    if (!inPoly(poly, x, z) || (road.length > 1 && lineDist(x, z, road) < 22)) continue;
+    if (!inPoly(x, z, poly) || (road.length > 1 && lineDist(x, z, road) < 22)) continue;
     g.add(flat(blobPts(9 + hash(i, sd + 52) * 16, i, 1.3 + hash(i, 53), 12).map(([a, b]) => [a + x, b + z] as P2), 0.012 + (i % 3) * 0.002, i % 3 ? '#383f31' : '#474c38'));
   }
   let placed = 0;
   for (let i = 0; i < count * 4 && placed < count; i++) {
     const x = lerp(X0, X1, hash(i, sd)), z = lerp(Z0, Z1, hash(i, sd + 1));
-    if (!inPoly(poly, x, z) || (road.length > 1 && lineDist(x, z, road) < 17)) continue;
+    if (!inPoly(x, z, poly) || (road.length > 1 && lineDist(x, z, road) < 17)) continue;
     if (d.gx0 !== undefined && x > d.gx0 - 2 && x < (d.gx1 ?? 0) + 2 && z > (d.gz0 ?? 0) - 2 && z < (d.gz1 ?? 0) + 2) continue;
     let skip = false; for (let k = 0; k < cn; k++) if (Math.hypot(x - d[`cx${k}`], z - d[`cz${k}`]) < d[`cr${k}`]) skip = true;
     if (skip) continue;

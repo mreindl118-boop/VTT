@@ -12,7 +12,7 @@ import { mat, matClone } from '../../render/materials';
 import { FLOOR_COLOR } from '../palette';
 import { surfaceFor } from '../surfaces';
 import { waterfall } from './wild';
-import { grp, hash, inPoly, place } from '../shapes';
+import { grp, hash, place } from '../shapes';
 import { fogMat } from '../mist';
 
 type Dims = Record<string, number>;
@@ -99,6 +99,7 @@ function stripGeo(pts: [number, number, number][], w: number | ((t: number) => n
 }
 const pt = (d: Dims, k: string): P2 => [d[k + 'x'] ?? 0, d[k + 'z'] ?? 0];
 const polyOf = (d: Dims, p = ''): P2[] => { const out: P2[] = []; for (let i = 0; i < (d[p + 'n'] ?? 0); i++) out.push([d[p + 'x' + i], d[p + 'z' + i]]); return out; };
+function inPoly([x, z]: P2, poly: P2[]): boolean { let c = false; for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) { const [xi, zi] = poly[i], [xj, zj] = poly[j]; if ((zi > z) !== (zj > z) && x < ((xj - xi) * (z - zi)) / (zj - zi) + xi) c = !c; } return c; }
 /** Outward unit normals at a polygon's vertices (bisectors), whichever way it winds. */
 function outwardNormals(P: P2[]): P2[] {
   const n = P.length, out: P2[] = [];
@@ -109,7 +110,7 @@ function outwardNormals(P: P2[]): P2[] {
     out.push([nx, nz]);
   }
   const t: P2 = [P[0][0] + out[0][0] * 0.05, P[0][1] + out[0][1] * 0.05];
-  return inPoly(P, t[0], t[1]) ? out.map(([x, z]) => [-x, -z] as P2) : out;
+  return inPoly(t, P) ? out.map(([x, z]) => [-x, -z] as P2) : out;
 }
 /** Collect meshes of one colour into one geometry (a big piece stays a handful of meshes). */
 class Bucket {
@@ -177,7 +178,7 @@ export function slabs(d: Dims): THREE.Group {
   let i = 0;
   for (let z = z0 + step / 2; z < z1; z += step * 0.86) for (let x = x0 + step / 2 + ((Math.round((z - z0) / step) % 2) * step) / 2; x < x1; x += step, i++) {
     const cx = x + (hash(i, sd) - 0.5) * step * 0.7, cz = z + (hash(i, sd + 1) - 0.5) * step * 0.7;
-    if (!inPoly(P, cx, cz) || hash(i, sd + 2) < 0.12) continue;
+    if (!inPoly([cx, cz], P) || hash(i, sd + 2) < 0.12) continue;
     if (holes.some(([hx, hz, hr]) => Math.hypot(cx - hx, cz - hz) < hr)) continue;
     // an irregular plate: 5 to 8 corners at uneven angles and radii, stretched one way, some plates much bigger
     const pts: P2[] = [], m = 5 + Math.floor(hash(i, sd + 15) * 4), big = hash(i, sd + 16) > 0.8 ? 1.45 : 0.75 + hash(i, sd + 17) * 0.4, sx = 1 + hash(i, sd + 18) * 0.6;

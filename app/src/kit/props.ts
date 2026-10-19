@@ -5,6 +5,12 @@ import { PALETTE } from './palette';
 import { merge, regularPolygonGeometry } from './pieces';
 
 type Dims = Record<string, number>;
+const box = (w: number, h: number, d: number, color: string, x = 0, y = 0, z = 0) => {
+  const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat(color));
+  m.position.set(x, y, z);
+  return m;
+};
+const g = (...m: THREE.Object3D[]) => { const grp = new THREE.Group(); if (m.length) grp.add(...m); return grp; };
 
 /** Spiral stair: `dims.rise` ft over `dims.turns` turns, radius `dims.r` (default 6). */
 export function spiralStair(d: Dims): THREE.Group {
@@ -165,8 +171,9 @@ export const PROPS_V1: Record<string, (d: Dims) => THREE.Object3D> = {
 
 // ---------------------------------------------------------------- kit v2: characterized props
 import { wolf } from './creatures';
-import { box, cyl, grp as g, ico } from './shapes';
 const boxr = (w: number, h: number, d: number, color: string, x: number, y: number, z: number, ry: number) => { const m = box(w, h, d, color, x, y, z); m.rotation.y = ry; return m; };
+const cyl = (rt: number, rb: number, h: number, color: string, x = 0, y = 0, z = 0, seg = 8) => { const m = new THREE.Mesh(new THREE.CylinderGeometry(rt, rb, h, seg), mat(color)); m.position.set(x, y, z); return m; };
+const ico = (r: number, color: string, x = 0, y = 0, z = 0) => { const m = new THREE.Mesh(new THREE.IcosahedronGeometry(r, 0), mat(color)); m.position.set(x, y, z); return m; };
 
 export function chandelier(d: Dims): THREE.Group {
   const y = d.y ?? 8, brass = d.brass ? PALETTE.amberDeep : PALETTE.iron;

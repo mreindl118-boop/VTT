@@ -8,7 +8,7 @@ import { PROPS_V1, vardo } from '../props';
 import { CREATURES, horse, humanoid } from '../creatures';
 import { mat } from '../../render/materials';
 import { surfaceFor } from '../surfaces';
-import { box, compact, cone, cyl, flat, grp, hash, lump, place } from '../shapes';
+import { box, compact, cone, cyl, grp, hash, lump, place } from '../shapes';
 import { fogMat } from '../mist';
 import { weedTuft } from './wild';
 
@@ -45,6 +45,10 @@ surfaceFor([C.raven, C.ravenSheen, C.beak, C.skin, C.hair, C.sashTrim, C.horseBa
 
 // ---------------------------------------------------------------- helpers
 /** A flat polygon lying in the xz plane at height y (points as [x, z]). */
+function flat(pts: [number, number][], color: string, y: number, material?: THREE.Material): THREE.Mesh {
+  const geo = new THREE.ShapeGeometry(new THREE.Shape(pts.map(([x, z]) => new THREE.Vector2(x, -z)))); geo.rotateX(-Math.PI / 2); geo.translate(0, y, 0);
+  return new THREE.Mesh(geo, material ?? mat(color));
+}
 /** An irregular blob outline about r across, stretched sx along x. */
 function blobPts(r: number, seed: number, sx = 1.4, n = 10): [number, number][] {
   const out: [number, number][] = [];
@@ -64,12 +68,12 @@ function fogSheet(L: number, D: number, seed: number, m: THREE.Material): THREE.
   for (let i = 1; i <= k; i++) pts.push([L / 2 + Math.abs(j(i, 3)) * 6, -D / 2 + (i / k) * D]);
   for (let i = n - 1; i >= 0; i--) pts.push([-L / 2 + (i / n) * L + j(i, 4) * 3, D / 2 + Math.abs(j(i, 5)) * D * 0.3]);
   for (let i = k - 1; i >= 1; i--) pts.push([-L / 2 - Math.abs(j(i, 6)) * 6, -D / 2 + (i / k) * D]);
-  return flat(pts, 0, m);
+  return flat(pts, C.mist0, 0, m);
 }
 function wisp(r: number, seed: number, m: THREE.Material): THREE.Mesh {
   const pts: [number, number][] = [];
   for (let i = 0; i < 9; i++) { const a = (i / 9) * Math.PI * 2, k = r * (0.65 + 0.45 * hash(i, seed)); pts.push([Math.cos(a) * k * 1.5, Math.sin(a) * k]); }
-  return flat(pts, 0, m);
+  return flat(pts, C.mist0, 0, m);
 }
 
 // ---------------------------------------------------------------- the gate
@@ -159,7 +163,7 @@ export function thresholdSill(d: Dims): THREE.Group {
   for (let i = 1; i <= 6; i++) edge.push([dd / 2 + hash(i, 2) * 0.6, -w / 2 + (i / 6) * w]);
   for (let i = 7; i >= 0; i--) edge.push([-dd / 2 + (i / 8) * dd, w / 2 + hash(i, 3) * 0.8]);
   for (let i = 5; i >= 1; i--) edge.push([-dd / 2 - hash(i, 4) * 0.6, -w / 2 + (i / 6) * w]);
-  g.add(flat(edge, 0.16, C.flag));
+  g.add(flat(edge, C.flag, 0.16));
   for (let k = 0; k < 9; k++) g.add(box(2 + hash(k, 5) * 1.6, 0.14, 1.6 + hash(k, 6), k % 2 ? C.flagDeep : C.flag, (hash(k, 7) - 0.5) * (dd - 4), 0.2, (hash(k, 8) - 0.5) * (w - 4), hash(k, 9) * 0.4));
   for (const s of [-1, 1]) {
     const cx = hx, cz = s * w / 2, m = 16;
@@ -172,7 +176,7 @@ export function thresholdSill(d: Dims): THREE.Group {
     const cres: [number, number][] = [];
     for (let i = 0; i <= 10; i++) { const t = (0.45 + 0.55 * i / 10) * Math.PI / 2; cres.push([cx - Math.sin(t) * (r + 2.2), cz - s * Math.cos(t) * (r + 2.2)]); }
     for (let i = 10; i >= 0; i--) { const t = (0.45 + 0.55 * i / 10) * Math.PI / 2; cres.push([cx - Math.sin(t) * (r - 1.2), cz - s * Math.cos(t) * (r - 1.2)]); }
-    g.add(flat(cres, 0.13, C.mudWet));
+    g.add(flat(cres, C.mudWet, 0.13));
   }
   return g;
 }
@@ -242,7 +246,7 @@ export function ravenRow(d: Dims): THREE.Group {
 /** A guardian's fallen helmeted head in a knee-high weed bed `w` ft across, in the shallow mud hollow its weight made,
  *  earth rolled up on the side it struck. `v` 0 lies face-up (rain pooled in the eye sockets), 1 face-down. */
 export function fallenHeadPit(d: Dims): THREE.Group {
-  const w = d.w ?? 8, v = d.v ?? 0, g = grp(flat(blobPts(2.3, 3, 1.2), 0.1, C.mudWet));
+  const w = d.w ?? 8, v = d.v ?? 0, g = grp(flat(blobPts(2.3, 3, 1.2), C.mudWet, 0.1));
   for (let k = 0; k < 5; k++) g.add(place(lump(0.5 + hash(k, 1) * 0.4, C.mud, k + 7, 1.4, 0.5, 1, 0), -2.2 + k * 0.9, 0.22, 2.1 + (hash(k, 2) - 0.5) * 0.8));
   const S = C.statue, SD = C.ashlarDeep;
   if (v === 0) {
@@ -279,7 +283,7 @@ export function wheelRuts(d: Dims): THREE.Group {
 /** A mirror-dark standing pool in a wheel hollow, `len` by `w` ft, dead flat, a churned mud rim round it, the
  *  surface near-black with one faint grey reflection and nothing else. */
 export function blackPool(d: Dims): THREE.Group {
-  const L = d.len ?? 10, W = d.w ?? 4.5, sd = d.seed ?? 0, g = grp(flat(blobPts(W / 2 + 0.9, sd, L / W, 11), 0.11, C.mudWet), flat(blobPts(W / 2, sd + 1, L / W, 11), 0.15, C.pool));
+  const L = d.len ?? 10, W = d.w ?? 4.5, sd = d.seed ?? 0, g = grp(flat(blobPts(W / 2 + 0.9, sd, L / W, 11), C.mudWet, 0.11), flat(blobPts(W / 2, sd + 1, L / W, 11), C.pool, 0.15));
   g.add(box(L * 0.35, 0.02, 0.35, C.glint, -L * 0.1, 0.17, -W * 0.14, 0.08));
   for (let k = 0; k < 6; k++) { const a = (k / 6) * Math.PI * 2 + hash(k, sd); g.add(place(lump(0.3 + hash(k, sd + 2) * 0.3, C.mud, k + sd, 1.5, 0.5, 1, 0), Math.cos(a) * (L / 2 + 0.6), 0.14, Math.sin(a) * (W / 2 + 0.6))); }
   return g;
@@ -289,22 +293,22 @@ export function blackPool(d: Dims): THREE.Group {
  *  long has backed up on the uphill side (local +z) and a thin seep crosses the logs and runs off to -z. */
 export function corduroy(d: Dims): THREE.Group {
   const L = d.len ?? 30, W = d.w ?? 22, PL = d.poolLen ?? 30, g = grp(), n = Math.round(L / 1.15), COL = [C.logRot, C.logPale, '#43362a'];
-  g.add(flat(blobPts(W / 2 + 4, 2, (L + 10) / W, 12), 0.09, C.bog));
+  g.add(flat(blobPts(W / 2 + 4, 2, (L + 10) / W, 12), C.bog, 0.09));
   for (let i = 0; i < n; i++) {
     const x = -L / 2 + (i + 0.5) * (L / n), r = 0.5 + hash(i, 1) * 0.12, lg = cyl(r, r, W * (0.96 + hash(i, 2) * 0.06), COL[i % 3], x, r * 0.9, (hash(i, 3) - 0.5) * 0.8, 7); lg.rotation.x = Math.PI / 2; lg.rotation.z = (hash(i, 4) - 0.5) * 0.05; g.add(lg);
     if (hash(i, 5) > 0.72) g.add(place(lump(0.4, C.blackMoss, i, 1.3, 0.4, 1.6, 0), x, r * 1.75, (hash(i, 6) - 0.5) * W * 0.7));
   }
   for (const s of [-1, 1]) g.add(box(L, 0.1, 0.9, C.mudWet, 0, 1.12, s * 2.5), box(L * 0.4, 0.03, 0.4, C.glint, (hash(1, s) - 0.5) * L * 0.5, 1.18, s * 2.5));
   // the backed-up pool uphill of the logs, a silted culvert mouth at its edge
-  g.add(flat(blobPts(PL / 2, 7, 0.55, 12).map(([x, z]) => [z * 0.95 - 2, x + W / 2 + PL * 0.42] as [number, number]), 0.14, C.pool));
-  g.add(flat(blobPts(PL / 2 + 1.5, 8, 0.55, 12).map(([x, z]) => [z * 0.95 - 2, x + W / 2 + PL * 0.42] as [number, number]), 0.11, C.mudWet));
+  g.add(flat(blobPts(PL / 2, 7, 0.55, 12).map(([x, z]) => [z * 0.95 - 2, x + W / 2 + PL * 0.42] as [number, number]), C.pool, 0.14));
+  g.add(flat(blobPts(PL / 2 + 1.5, 8, 0.55, 12).map(([x, z]) => [z * 0.95 - 2, x + W / 2 + PL * 0.42] as [number, number]), C.mudWet, 0.11));
   g.add(box(2.6, 1.4, 0.8, C.fieldStone, -2, 0.6, W / 2 + 0.2), box(0.8, 1.2, 0.6, C.fieldStone, -3.4, 0.6, W / 2 + 0.4), box(0.8, 1.2, 0.6, C.fieldStone, -0.6, 0.6, W / 2 + 0.4), box(1.2, 0.6, 0.5, C.mudWet, -2, 0.35, W / 2 + 0.65));
   // the seep across the logs and away into the trees
   g.add(box(1.0, 0.04, W + 1, C.seep, 1.7, 1.2, 0));
   const seep: [number, number][] = [];
   for (let i = 0; i <= 8; i++) seep.push([1.7 + Math.sin(i * 1.3) * 1.2 - 0.6, -W / 2 - (i / 8) * 20]);
   for (let i = 8; i >= 0; i--) seep.push([1.7 + Math.sin(i * 1.3) * 1.2 + 0.6, -W / 2 - (i / 8) * 20]);
-  g.add(flat(seep, 0.12, C.seep));
+  g.add(flat(seep, C.seep, 0.12));
   for (let k = 0; k < 8; k++) g.add(weedTuft((hash(k, 20) - 0.5) * (L + 6), (k % 2 ? 1 : -1) * (W / 2 + 1 + hash(k, 21) * 3), 1.1, k + 30));
   return g;
 }
