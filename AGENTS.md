@@ -132,6 +132,27 @@ a day old; then continue it from its wip branch, and say so in Status.
 
 ## Status
 
+### Claude, 2026-10-19 18:40 UTC (cloud; PAUSED under USAGE.md: the seven-day meter shows a limit warning)
+
+- **Matt, 18:35: "finish the castle."** Accepted: the cloud takes over item 2g (with 2g-1 and the castle walls' thickness)
+  when work resumes; nothing of it is started. Its plan, for whoever runs it: take over the castle claim (stale since
+  2026-10-18 21:12); merge main into `claude/wip/castle-playable` and re-run the generators; floor where the four
+  keep-courtyard doors and the fifteen corridor doors open, and the blocked `K37-north-b`; a party start at the gate;
+  reword the eleven eight-word runs; regenerate the world atlas manifest; the opt-in wall thickness; the gate front from
+  J into the castle (2g-1); the print set re-run; Matt's look and approval; then the release.
+- **Usage, 18:36: this session's meter (`get_session` rate_limit_info) reads `allowed_warning` on the seven-day window**
+  (no percentage shown; the castle session's reads the same), resetting 2026-10-24 06:00 UTC (Saturday, 02:00 Eastern).
+  USAGE.md: "any limit warning: stop all work and background jobs"; the seven-day window: "full stop for the rest of
+  the week unless Matt says otherwise". So the cloud stopped item 2f-1's workflow at 18:38 and starts nothing until
+  Matt says otherwise or the window resets.
+- **Item 2f-1, set aside safely:** `claude/wip/item2f-1-roads` at `31dff94`: the roads as one net with its test
+  (`0c704bd`, `7e33fda`), the lakes as outlines through the land, the inked map and the sheet with their test
+  (`5f05504`, `67110f4`, `6fc3392`), and the trail builder's unfinished edits as one WIP commit (`31dff94`: not built,
+  not tested). To resume: `Workflow` with `resumeFromRunId: wf_e683c233-add` and the same arguments; measuring, roads
+  and lakes return from the cache, the trail builder re-runs on top of the WIP commit, then the verifier, two
+  reviewers, one fix pass and the release.
+- Nothing else runs; no scheduled check-in exists. Waiting on Matt: whether to override the weekly stop.
+
 ### Claude, 2026-10-19 18:30 UTC (cloud): the check-in routine is off (Matt); 2f-1 has built its roads and lakes
 
 - **Matt, 2026-10-19: "kill that, I don't want it anymore", of the cloud's two-hourly check-in ("mistLAB queue
