@@ -6,9 +6,11 @@
 import * as THREE from 'three';
 import { PROPS_V1, pineTier } from '../props';
 import { CREATURES, horse, humanoid } from '../creatures';
-import { mat, matClone } from '../../render/materials';
+import { mat } from '../../render/materials';
 import { surfaceFor } from '../surfaces';
-import { merge } from '../pieces';
+import { box, compact, coneWith, cylWith, grp, hash, lump, place, plate, tris } from '../shapes';
+import { fogMat as veil } from '../mist';
+const cyl = cylWith(7), cone = coneWith(5);
 
 type Dims = Record<string, number>;
 
@@ -46,34 +48,6 @@ surfaceFor([C.trough], 'stone');
 surfaceFor([C.cloth, C.clothDark, C.rope, C.leather, C.strap, C.scoutCloth, C.scoutCloak, C.vCloth0, C.vCloth1, C.vCloth2, C.vCloth3, C.vScarf], 'cloth');
 
 // ---------------------------------------------------------------- helpers
-const grp = (...m: THREE.Object3D[]) => { const g = new THREE.Group(); if (m.length) g.add(...m); return g; };
-const place = <T extends THREE.Object3D>(o: T, x: number, y: number, z: number, ry = 0, rx = 0, rz = 0): T => { o.position.set(x, y, z); o.rotation.set(rx, ry, rz); return o; };
-const box = (w: number, h: number, d: number, c: string, x = 0, y = 0, z = 0, ry = 0, rx = 0, rz = 0) => place(new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat(c)), x, y, z, ry, rx, rz);
-const cyl = (rt: number, rb: number, h: number, c: string, x = 0, y = 0, z = 0, seg = 7) => place(new THREE.Mesh(new THREE.CylinderGeometry(rt, rb, h, seg), mat(c)), x, y, z);
-const cone = (r: number, h: number, c: string, x = 0, y = 0, z = 0, seg = 5) => place(new THREE.Mesh(new THREE.ConeGeometry(r, h, seg), mat(c)), x, y, z);
-const hash = (i: number, s = 0) => { const x = Math.sin(i * 127.1 + s * 311.7 + 0.5) * 43758.5453; return x - Math.floor(x); };
-/** A faceted lump: an icosahedron with its vertices pushed in and out, then squashed. */
-function lump(r: number, color: string, seed: number, sx = 1, sy = 1, sz = 1, detail = 1): THREE.Mesh {
-  const geo = new THREE.IcosahedronGeometry(r, detail), pv = geo.attributes.position;
-  for (let i = 0; i < pv.count; i++) {
-    const x = pv.getX(i), y = pv.getY(i), z = pv.getZ(i), k = 0.82 + 0.3 * Math.abs(Math.sin(x * 2.9 + y * 1.7 + z * 2.3 + seed * 1.37));
-    pv.setXYZ(i, x * k * sx, y * k * sy, z * k * sz);
-  }
-  geo.computeVertexNormals();
-  return new THREE.Mesh(geo, mat(color));
-}
-/** A flat plate with a ragged outline lying on the ground, radius r, stretched sx along x. */
-function plate(r: number, seed: number, color: string, y = 0.04, sx = 1.3, m?: THREE.Material): THREE.Mesh {
-  const pts: THREE.Vector2[] = [];
-  for (let i = 0; i < 9; i++) { const a = (i / 9) * Math.PI * 2, k = r * (0.7 + 0.4 * hash(i, seed)); pts.push(new THREE.Vector2(Math.cos(a) * k * sx, Math.sin(a) * k)); }
-  const geo = new THREE.ShapeGeometry(new THREE.Shape(pts)); geo.rotateX(-Math.PI / 2); geo.translate(0, y, 0);
-  return new THREE.Mesh(geo, m ?? mat(color));
-}
-/** Triangles (non-indexed) into one flat-shaded mesh. */
-function tris(verts: number[], color: string): THREE.Mesh {
-  const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3)); geo.computeVertexNormals();
-  return new THREE.Mesh(geo, mat(color));
-}
 /** Flip every triangle of a non-indexed list whose face points against `dir(centroid)` (so the winding of hand-built
  *  rock comes out right whichever way the piece is mirrored). */
 function outward(v: number[], dir: (x: number, y: number, z: number) => [number, number, number]): number[] {
@@ -84,28 +58,8 @@ function outward(v: number[], dir: (x: number, y: number, z: number) => [number,
   }
   return v;
 }
-/** See-through spray and fog, lit like everything else, drawn without depth writes (cached per colour and opacity). */
-const veils = new Map<string, THREE.MeshLambertMaterial>();
-function veil(color: string, opacity: number): THREE.MeshLambertMaterial {
-  const k = color + opacity;
-  let m = veils.get(k);
-  if (!m) { m = matClone(color); m.transparent = true; m.opacity = opacity; m.depthWrite = false; m.side = THREE.DoubleSide; veils.set(k, m); }
-  return m;
-}
 /** One mesh per material: a piece built from dozens of parts draws in a handful of calls (for the pieces that are
  *  not merged into the level's static scatter: hidden things, fog, figures). */
-function compact(root: THREE.Group, order = 0): THREE.Group {
-  root.updateMatrixWorld(true);
-  const inv = root.matrixWorld.clone().invert(), by = new Map<THREE.Material, THREE.BufferGeometry[]>();
-  root.traverse((o) => {
-    const m = o as THREE.Mesh; if (!m.isMesh) return;
-    const mt = m.material as THREE.Material, list = by.get(mt) ?? [];
-    list.push(m.geometry.clone().applyMatrix4(new THREE.Matrix4().multiplyMatrices(inv, m.matrixWorld))); by.set(mt, list);
-  });
-  const out = new THREE.Group();
-  for (const [mt, gs] of by) { const m = new THREE.Mesh(merge(gs), mt); m.renderOrder = order; out.add(m); }
-  return out;
-}
 /** White water that keeps a faint light of its own at night. */
 const foamMat = (c: string) => mat(c, { emissive: '#1c2125' });
 

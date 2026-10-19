@@ -195,10 +195,15 @@ describe('structural sources (DM only)', () => {
     expect(GOLD.dc.regex).toBe(DC_COUNT_RE.source);
     const total = dmFields().reduce((n, f) => n + [...f.text.matchAll(DC_COUNT_RE)].length, 0);
     expect(total).toBe(GOLD.dc.count);
+    // The spans spansFor returns for every field, audience and edition were worked out once, before the tests (rows:
+    // the review list's own, which the test above holds to exactly spansFor's). Reading them here, not working the
+    // whole corpus out again, keeps this test's time to a few milliseconds however loaded the machine is.
+    const spansOf = new Map<string, Span[]>();
+    for (const r of rows) if (r.audience === 'dm') { const k = `${r.scene}|${r.entity}|${r.field}|${r.edition}`; spansOf.set(k, [...(spansOf.get(k) ?? []), r.span]); }
     for (const edition of ['2024', '2014'] as const) {
       let checks = 0;
       for (const f of dmFields()) {
-        const s = spansFor(f.text, { audience: 'dm', edition, field: f.field, scenePath: f.scene, entityId: f.entity }).filter((x) => x.kind === 'check');
+        const s = (spansOf.get(`${f.scene}|${f.entity}|${f.field}|${edition}`) ?? []).filter((x) => x.kind === 'check');
         checks += s.length;
         for (const x of s) {
           const dc = /DC\s?(\d+)/.exec(x.text)![1];

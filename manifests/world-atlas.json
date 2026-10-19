@@ -3383,7 +3383,7 @@
     ],
     "rotationY": 0
    },
-   "objects": 1393,
+   "objects": 1201,
    "units": 1,
    "pin": "U",
    "worldBounds": {
@@ -3405,14 +3405,14 @@
    "north": "-z",
    "elevationFt": 0,
    "bbox": {
-    "minX": 0,
-    "minZ": 0,
-    "maxX": 55,
-    "maxZ": 55
+    "minX": -30.85,
+    "minZ": -34.2,
+    "maxX": 90.85,
+    "maxZ": 83.05
    },
    "centre": [
-    27.5,
-    27.5
+    30,
+    24.425
    ],
    "levels": [
     {
@@ -3421,10 +3421,10 @@
      "elevationFt": 0,
      "ceilingFt": 13,
      "bbox": {
-      "minX": 0,
-      "minZ": 0,
-      "maxX": 55,
-      "maxZ": 55
+      "minX": -30.85,
+      "minZ": -34.2,
+      "maxX": 90.85,
+      "maxZ": 83.05
      }
     },
     {
@@ -3446,13 +3446,13 @@
    "roadExits": [],
    "placement": {
     "position": [
-     1204.5,
+     1202,
      0.2,
-     1277.5
+     1280.575
     ],
     "rotationY": 0
    },
-   "objects": 52,
+   "objects": 84,
    "units": 1,
    "pin": "U",
    "parent": "ch10/U",
@@ -3461,10 +3461,10 @@
     "level": "berez"
    },
    "extent": {
-    "minX": 0,
-    "minZ": 0,
-    "maxX": 55,
-    "maxZ": 55
+    "minX": -30.85,
+    "minZ": -34.2,
+    "maxX": 90.85,
+    "maxZ": 83.05
    },
    "anchor": {
     "x": 1232,
@@ -3477,7 +3477,7 @@
     "maxX": 1264,
     "maxZ": 1337
    },
-   "blowout": 0.86
+   "blowout": 1.87
   },
   "ch11/V": {
    "path": "ch11/V",
@@ -3579,7 +3579,7 @@
      "id": "ground",
      "name": "Ground floor",
      "elevationFt": 0,
-     "ceilingFt": 15
+     "ceilingFt": 10
     },
     {
      "id": "balcony",
@@ -3613,7 +3613,7 @@
     ],
     "rotationY": 0
    },
-   "objects": 633,
+   "objects": 632,
    "units": 1,
    "pin": "W",
    "worldBounds": {
@@ -3635,14 +3635,14 @@
    "north": "-z",
    "elevationFt": 40,
    "bbox": {
-    "minX": -100,
-    "minZ": 260,
-    "maxX": 350,
+    "minX": -292.448,
+    "minZ": -120,
+    "maxX": 565.891,
     "maxZ": 460
    },
    "centre": [
-    125,
-    360
+    136.7215,
+    170
    ],
    "levels": [
     {
@@ -3672,25 +3672,25 @@
      "road": "Tsolenka road",
      "x": 100.5,
      "z": 460,
-     "bearing": 1.811064
+     "bearing": 1.695055
     }
    ],
    "placement": {
     "position": [
-     -18499.4,
+     -18511.1215,
      6947.935,
-     23347.2
+     23537.2
     ],
     "rotationY": 0
    },
-   "objects": 461,
+   "objects": 702,
    "units": 1,
    "pin": "X",
    "worldBounds": {
-    "minX": -18599.4,
-    "minZ": 23607.2,
-    "maxX": -18149.4,
-    "maxZ": 23807.2
+    "minX": -18803.5695,
+    "minZ": 23417.2,
+    "maxX": -17945.2305,
+    "maxZ": 23997.2
    },
    "bandFt": 900,
    "groundCuts": [
@@ -4368,26 +4368,44 @@
    "north": "-z",
    "elevationFt": 0,
    "bbox": {
-    "minX": 0,
-    "minZ": 0,
-    "maxX": 1740.5,
-    "maxZ": 2250
+    "minX": -361,
+    "minZ": -171,
+    "maxX": 2081,
+    "maxZ": 2591
    },
    "centre": [
-    870.25,
-    1125
+    860,
+    1210
    ],
    "levels": [
     {
      "id": "hill",
-     "name": "Yester Hill",
+     "name": "Yester Hill: the forest floor",
      "elevationFt": 0,
      "ceilingFt": 12
     },
     {
+     "id": "slope-low",
+     "name": "The trail: lower landing (94 ft)",
+     "elevationFt": 94.5,
+     "ceilingFt": 12
+    },
+    {
+     "id": "slope-high",
+     "name": "The trail: upper landing (178 ft)",
+     "elevationFt": 178.1,
+     "ceilingFt": 12
+    },
+    {
+     "id": "outer",
+     "name": "The outer track (254 ft)",
+     "elevationFt": 254.5,
+     "ceilingFt": 12
+    },
+    {
      "id": "summit",
-     "name": "Summit (battle inset)",
-     "elevationFt": 0,
+     "name": "Summit",
+     "elevationFt": 272,
      "ceilingFt": 12
     }
    ],
@@ -4397,20 +4415,20 @@
    "roadExits": [],
    "placement": {
     "position": [
-     -48443.05,
+     -48432.8,
      1606.135,
-     7798.2
+     7713.2
     ],
     "rotationY": 0
    },
-   "objects": 1737,
-   "units": 1,
+   "objects": 4430,
+   "units": 2,
    "pin": "Y",
    "worldBounds": {
-    "minX": -48443.05,
-    "minZ": 7798.2,
-    "maxX": -46702.55,
-    "maxZ": 10048.2
+    "minX": -48793.8,
+    "minZ": 7542.2,
+    "maxX": -46351.8,
+    "maxZ": 10304.2
    },
    "bandFt": 900
   },
@@ -4895,6 +4913,7 @@
   "ch05/N6: its map (90 × 145 ft) is 3.16× the plot room N6 gives it in ch05/N (38 × 38 ft): neighbours inside that extent are hidden under it",
   "ch05/N7: its map (105 × 80 ft) is 3.44× the plot room N7 gives it in ch05/N (24 × 30 ft): neighbours inside that extent are hidden under it",
   "ch05/N8: its map (230 × 190 ft) is 1.6× the plot room N8 gives it in ch05/N (150 × 110 ft): neighbours inside that extent are hidden under it",
+  "ch10/U3: its map (122 × 117 ft) is 1.87× the plot room U3 gives it in ch10/U (64 × 64 ft): neighbours inside that extent are hidden under it",
   "cos: the flatten bands of ch02/L and ch05/N overlap (their maps are 192 ft apart): the land between them blends two bases",
   "cos: the flatten bands of ch02/P and ch05/N overlap (their maps are 642 ft apart): the land between them blends two bases"
  ],

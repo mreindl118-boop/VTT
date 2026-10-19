@@ -2,7 +2,9 @@ name: ci
 on: [push, pull_request]
 jobs:
   test:
-    runs-on: ubuntu-latest
+    # Pinned to the image CI ran on until 2026-10-19: that morning the ubuntu-latest label moved to ubuntu-26.04, which
+    # Playwright 1.56 cannot install Chromium on ("Playwright does not support chromium on ubuntu26.04-x64").
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

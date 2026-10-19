@@ -11,6 +11,7 @@ is a raised bench on it; the spur top (25) and the upper ledge (120) sit on rock
 import sys, os, math
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from wildlib import *  # noqa: F401,F403
+from geomlib import unit
 
 W, H = 600, 520                      # feet
 AMBIENT = 'barovian-overcast'
@@ -32,11 +33,6 @@ def circle(cx, cz, r, n=20, seed=None):
 
 def dist(a, b):
     return math.hypot(a[0] - b[0], a[1] - b[1])
-
-
-def unit(dx, dz):
-    L = math.hypot(dx, dz) or 1
-    return (dx / L, dz / L)
 
 
 # ------------------------------------------------------------------ the headwall's frame

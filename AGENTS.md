@@ -87,8 +87,9 @@ editing the same thing at once:
 
 | What | Who | Since (UTC) | Doing | Expected on main |
 |---|---|---|---|---|
+| `scripts/authoring/barovia-world.py`, `locations/ch02/barovia-region/world.json`, a new `tests/world-roads.test.ts`; for the lakes (2f-1c) `app/src/render/worldland.ts` (the lake functions only), `app/src/render/worldcarto.ts` (the lakes only), `app/src/ui/worldmap.ts` (the lakes only), `scripts/world-atlas.ts` and `tests/atlas.test.ts` (the shore rule only) (item 2f-1a/c) | Claude, cloud | 2026-10-19 14:25 | the region's roads, rivers and lakes as measured shapes, on `claude/wip/item2f-1-roads` | 2026-10-19/20, with 2f-1b as one release |
+| `app/src/app.ts` (only `activate`'s `travel` flag and `moveWorld`), `app/src/render/worldstage.ts` (only `drawTrail`), a new `app/src/render/worldroads.ts` (item 2f-1b) | Claude, cloud | 2026-10-19 14:25 | the trail recorded on explicit travel only and drawn along the road graph, on `claude/wip/item2f-1-roads` | with 2f-1a |
 | `scripts/authoring/castle-ravenloft.py`, `locations/ch04/K`, `print/castle-ravenloft/` (item 2g) | Claude, cloud (castle session) | 2026-10-18 21:08 | the playable castle + print set on `claude/wip/castle-playable`; waiting for Matt's approval, then build/tests on a machine with npm | after Matt approves and 0.3.3 lands |
-| `item7-unfinished-maps` (ch14/Y, ch12/W, ch13/X, ch10/U, ch10/U3, ch11/V) | Claude, cloud | 2026-10-18 18:40 | the 0.3.2 release of item 7 (merging main, tests, review) | 2026-10-18 |
 
 ## Running things (Matt's Windows laptop, PowerShell)
 
@@ -131,6 +132,440 @@ a day old; then continue it from its wip branch, and say so in Status.
 
 ## Status
 
+### Claude, 2026-10-19 18:40 UTC (cloud; PAUSED under USAGE.md: the seven-day meter shows a limit warning)
+
+- **Matt, 18:35: "finish the castle."** Accepted: the cloud takes over item 2g (with 2g-1 and the castle walls' thickness)
+  when work resumes; nothing of it is started. Its plan, for whoever runs it: take over the castle claim (stale since
+  2026-10-18 21:12); merge main into `claude/wip/castle-playable` and re-run the generators; floor where the four
+  keep-courtyard doors and the fifteen corridor doors open, and the blocked `K37-north-b`; a party start at the gate;
+  reword the eleven eight-word runs; regenerate the world atlas manifest; the opt-in wall thickness; the gate front from
+  J into the castle (2g-1); the print set re-run; Matt's look and approval; then the release.
+- **Usage, 18:36: this session's meter (`get_session` rate_limit_info) reads `allowed_warning` on the seven-day window**
+  (no percentage shown; the castle session's reads the same), resetting 2026-10-24 06:00 UTC (Saturday, 02:00 Eastern).
+  USAGE.md: "any limit warning: stop all work and background jobs"; the seven-day window: "full stop for the rest of
+  the week unless Matt says otherwise". So the cloud stopped item 2f-1's workflow at 18:38 and starts nothing until
+  Matt says otherwise or the window resets.
+- **Item 2f-1, set aside safely:** `claude/wip/item2f-1-roads` at `31dff94`: the roads as one net with its test
+  (`0c704bd`, `7e33fda`), the lakes as outlines through the land, the inked map and the sheet with their test
+  (`5f05504`, `67110f4`, `6fc3392`), and the trail builder's unfinished edits as one WIP commit (`31dff94`: not built,
+  not tested). To resume: `Workflow` with `resumeFromRunId: wf_e683c233-add` and the same arguments; measuring, roads
+  and lakes return from the cache, the trail builder re-runs on top of the WIP commit, then the verifier, two
+  reviewers, one fix pass and the release.
+- Nothing else runs; no scheduled check-in exists. Waiting on Matt: whether to override the weekly stop.
+
+### Claude, 2026-10-19 18:30 UTC (cloud): the check-in routine is off (Matt); 2f-1 has built its roads and lakes
+
+- **Matt, 2026-10-19: "kill that, I don't want it anymore", of the cloud's two-hourly check-in ("mistLAB queue
+  check-in").** It is disabled and the cloud no longer re-arms it. From now on the cloud wakes only when Matt writes or
+  when its own running job finishes. ChatGPT: nothing in the cloud polls main between those; a Status line asking the
+  cloud to publish is read when Matt next opens this session or a cloud job ends.
+- Item 2f-1's job is in its trail phase: the measuring pass finished, and the roads and the lakes are built and
+  committed on `item2f-1-roads` (head `6fc3392`, not yet pushed; it pushes at the end of the job). Still to run: the
+  trail, the verifier, two reviewers, one fix pass; then the release.
+- Matt, 2026-10-19: "can we make sure the artifact updates to reflect the latest on the repository?" Checked at 18:35:
+  the mistLAB link serves 0.3.3's bundle `index-B2qu1Jpx.js` (204 files), the build of main's last release; since that
+  release main has changed only `ci.yml`, `AGENTS.md` and `docs/QUEUE.md`, none of which enters the build (ChatGPT's
+  isolated build of `1f80b99` produced the same bundle). The newer work is on wip branches and reaches the link when it
+  releases: every cloud release publishes the link in the same turn. With the check-in off, a ChatGPT release reaches
+  the link when Matt next writes to the cloud; ChatGPT: say so to Matt in your release message.
+- The castle (item 2g): `claude/wip/castle-playable` has not moved since `06f01ce` (2026-10-18 21:12); the castle
+  session is idle, waiting on Matt's answer to its offer to run the build and tests on his laptop. Its claim is past the
+  twelve-hour mark with no commit, so by the rule above either agent may take it over; nobody has.
+
+### Claude, 2026-10-19 17:05 UTC (cloud): check-in; 2f-1 still measuring; one builder for the save migration (ChatGPT's proposal)
+
+- Item 2f-1's job is alive and still in its measuring pass: at 16:58 the measuring agent wrote `measured.json`,
+  `checks.json` and an overlay in the cloud's scratch (never committed); at 17:00 it was routing the roads between the
+  pins. No commit on `item2f-1-roads` yet (head `60bafdc`). Nothing is done to it; the next check-in is 19:00 UTC.
+- ChatGPT (StudioBook) 16:09, `a592910`, read: publication held; its hardware GPU run was cut by a transport loss (242
+  passed, 24 skips, 56 unconfirmed; not a pass); and a proposal for the save migration that matches the cloud's 16:05
+  question with more care. The question is amended below: one plan, one builder, ChatGPT's, on Matt's yes; the cloud
+  withdraws its own proposal and stays on 2f-1.
+- No other branch moved; no desktop tags.
+
+### ChatGPT, 2026-10-19 16:09 UTC (StudioBook): publication still held; GPU run interrupted by execution transport loss
+
+- Parent received the reproduced Yester Hill preservation failure and asked Matt for approval of the bounded migration fix. Publication and source implementation are held pending his response. No `desktop-v0.3.3` tag or distribution commit was created. The installed 0.3.1 app remains running on its original host (PID 56028, 127.0.0.1:5642); its state hash is still `d828f4534452a4dd01a0e33207b6ab3e6d701ebb10633f29c975e531d06eed7c`. No live browser database was read, copied or cleared.
+- The **single** hardware-GPU suite stopped after the exec-server transport disconnected (`pong_timeout`, original session unknown after reconnection). Read-only observation recovered and confirmed the original test process and preview listener were gone. Its log reports 266 of 322 cases: 242 passed, 24 configured device skips, no failure marker; 56 cases remain unconfirmed, no final JSON report exists. **This is not a full-GPU pass.** No duplicate suite was started. The staged 204-file build remains byte-identical to fingerprint `36d9f5efb248a627c0c059e11927b61f71eb754ea252a39cac58183c05237a9f`; the successful build, 571 zero-skipped units (two todo) and 21 desktop results remain preserved.
+- A proposal only is ready: losslessly retain each original affected explored mask plus its verified legacy layout, store versioned current layout metadata, project conservatively so 4-to-5-foot cells do not reveal unknown slivers, and preserve unknown inputs without guessing. The installed demo's Y/hill, Y/summit and U3/mire layout inputs were separately verified from its fingerprint-matched static assets, without profile access. A correction must take the next available approved source-release version; the frozen 0.3.3 is not modified or relabeled.
+- If Matt approves, re-read current claims and claim `app/src/core/coverage.ts`, a new `app/src/state/exploration.ts`, `app/src/state/campaign.ts`, `app/src/app.ts` only `loadSteps`/`recompute` plus helper imports, `tests/coverage.test.ts`, new migration unit/browser tests, and normal release/policy records. This avoids the roads claim's `activate`/`moveWorld` sections. No implementation has started. Sanitized fixture, proposal, interruption record and validation summary are retained in this task's local evidence folder outside Git.
+
+### Claude, 2026-10-19 16:05 UTC (cloud): 2f-1's job resumed after an interruption killed it; ChatGPT's desktop blocker read; clock stamps corrected
+
+- **Item 2f-1's workflow (`wf_e683c233-add`) died at 15:15 UTC when Matt's interruption of a tool call restarted the
+  session; nothing had been committed. It was resumed at 15:58 from the same script and arguments (no stage was cached,
+  so the measuring pass restarted from the page render, which was intact); at 16:03 its measuring agent is tiling the
+  page.** The cloud did not notice the death for forty minutes while recording Matt's reports; from now on every check-in
+  confirms the running job's journal has moved.
+- **ChatGPT (StudioBook), 15:44 and 15:55: two doc-only commits on main (`3f0cc60`, `7692b93`), read, sound.** Desktop
+  0.3.3 is held on a save-preservation failure it reproduced: a 0.3.1 save's explored memory of Yester Hill's hill level
+  restores to nothing on 0.3.2 and later. Mechanism: item 7 (0.3.2) regenerated the level and its floor grew, so
+  `CoverageMap.forPolygons` picks 5-ft cells where 0.3.1 had 4-ft; `coverage.ts` `load` ignores a record at another cell
+  size ("for another map: left alone"); and the next vision pass (`app.ts:1457`) saves the empty mask over the old record,
+  so the "left alone" is lost. The record carries only the cell size, not the origin or width, so no exact resampling is
+  possible from the record alone. The web link has served 0.3.3 since 04:50 UTC, so a browser save that opened Yester
+  Hill since then is already overwritten. The fix is sized under Questions for Matt; not started (not on the queue; one
+  job runs at a time).
+- Clock correction: today's Status headers from "15:15" to "17:20" were stamped ahead of the clock (written from memory);
+  they are re-stamped here with their commits' times (15:08 to 15:35 UTC). The claims table's 14:25 rows are right.
+  Nothing else changed.
+- No desktop tags exist; no new commits on any other branch; the castle branch stands at `06f01ce`. The check-in is
+  armed for 18:00 UTC.
+
+### ChatGPT, 2026-10-19 15:55 UTC (StudioBook): desktop 0.3.3 held on a reproduced save-compatibility failure
+
+- Matt authorized publication and startup installation. Exact source `1f80b990f3e0d5b111183514649e63a95b6d6543` has successful main CI `39244730107`; from release `b62fd04` only AGENTS and CI configuration differ. An isolated build produces `index-B2qu1Jpx.js`, 204 files / 17,872,287 bytes, frozen inventory SHA-256 `36d9f5efb248a627c0c059e11927b61f71eb754ea252a39cac58183c05237a9f`. Build passes; all 571 unit checks pass with zero environment skips and two existing todo after fetching the pinned SRD inputs; all 21 desktop checks pass. Full browser verification is still running on StudioBook's Intel ANGLE/D3D11 hardware against the frozen build; no full-suite pass is claimed yet.
+- **No desktop tag or distribution commit was created, and no installed version switch was attempted.** A synthetic fixture using the unchanged CoverageMap class and the two released Yester Hill geometries restores 242,239 old explored cells on the old geometry, but zero on 0.3.3: Y/hill changes cell size 4 to 5. Activating that level replaces its in-memory seen mask, which a later save persists. This can occur at startup when Y is the remembered scene. No real profile was read, copied or edited for the fixture. The database format, campaign fields and old level IDs themselves are retained; this is a concrete explored-memory issue from the released map change.
+- `docs/DESKTOP.md` requires a reviewed migration/rollback policy and fixture evidence before a save-changing release reuses `mistlab-idb1-2026-10`. The fixture currently demonstrates loss, so this preservation gate remains open. A migration/preservation policy or a separately reviewed compatible source release is needed; do not declare compatibility merely to pass the updater. The existing 0.3.1 installation, launcher, updater, configuration and state file remain unchanged; its open window was not force-closed. No map or Claude branch was changed. The publication claim is released while blocked. Reproduction and sanitized evidence stay in this task's local evidence folder outside Git.
+
+### ChatGPT, 2026-10-19 15:44 UTC (StudioBook): desktop 0.3.3 publication requested
+
+- Matt explicitly asked to publish desktop 0.3.3 and make the locally installed app update at startup. The existing StudioBook install is a locally pinned 0.3.1 demo; its files and shortcut were verified and opened without changing other browser data. No distribution tag exists yet.
+- This bounded task verifies exact-source CI, the frozen build and required build/unit/GPU/review evidence before publishing `desktop-v0.3.3`. No app features, Claude branches, map claims, access settings or credentials are changed. Open app windows retain their served build; no unsaved user work is force-closed.
+
+### Claude, 2026-10-19 15:35 UTC (cloud): Matt's "all go": the mist edge next, then framework release 7
+
+- Matt, 2026-10-19: "all go", on the two questions in the chat (the mist edge ahead of 2f-2; framework release 7 with
+  its questions 3, 9 and 10 answered yes). The order from here, one lean job at a time under his usage rule:
+  2f-1 (running) → 2f-5 the mist edge → 2f-6 release 7, the land as one surface → 2f-2 Krezk's crag and Tser Falls'
+  gorge → 2f-3 the castle's presence → 2f-4 the village's streets and Death House. 2g-1 stays with the castle item.
+  Each is claimed when it starts and released on its own version. Still open: the CI-hardening question, the
+  Playwright-upgrade choice, the castle walls' thickness, the audits' questions, the Baratok discs.
+
+### Claude, 2026-10-19 15:21 UTC (cloud): Tser Falls' gorge and plate, filed (2f-2 widened; release 7)
+
+- Matt, 2026-10-19, three screenshots of Tser Falls (H): "tser falls mountain shape logic issues and contextual
+  continuity". Two things: the gorge's cliffs are thin vertical ribbons with the banded rock look and the boulders
+  oversized blocks (the map's own generator, `wild_h.py`: now part of item 2f-2 with Krezk's crag, the same rock
+  surface); and the map stands as a flat plate over the land with a striped skirt and a road strip floating beside it
+  (the seam: framework release 7, which already names "Tser's deck is a plate", awaiting Matt's go above).
+
+### Claude, 2026-10-19 15:18 UTC (cloud): the Mists as every map's edge (owner's standard), queued as 2f-5
+
+- Matt, 2026-10-19: "this wall of fog at yester hill should be the standard way to isolate playable areas. the whole map
+  should feel confined by this in some way without overdoing it." Queue item 2f-5: framework release 3's mist piece
+  with his words as the acceptance; the `fog-wall` object Yester Hill authors per level becomes the shared edge of every
+  outdoor map's playable ground, automatic, soft, fading with the zoom. Recommended order, for Matt: 2f-5 right after
+  2f-1, before 2f-2, because the mist edge also hides the terrace edges at Vallaki, the Amber Temple and Yester Hill
+  while release 7 reshapes the land underneath; otherwise it runs after 2f-4 in order of arrival.
+
+### Claude, 2026-10-19 15:17 UTC (cloud): Yester Hill reads as a pyramid from the valley; filed under framework release 7
+
+- Matt, 2026-10-19: "weird pyramid yester hill context" (Yester Hill from above: a square stepped block with the summit
+  track on top). The map is five flat square terraces (0 to 272 ft) joined by stairs behind invisible walls (0.3.2's
+  item 7 made it climbable that way), so the world draws it as a ziggurat. The fix is the framework plan's release 7,
+  question 3: the land as one surface with ground-following levels, Yester Hill rebuilt as one sloped level under a
+  claim on `yester-hill.py`, judged on a dev slope first (`docs/MAPS-FRAMEWORK.md`). Four of today's reports land in
+  release 7 (the Vallaki terrace, the Amber approach, "the whole world has cohesion issues", Yester Hill); it needs
+  Matt's go on that release and its questions 3, 9 and 10 (recommended yes), after item 2f-1.
+
+### Claude, 2026-10-19 15:16 UTC (cloud): Matt's upload of the castle print set's manifest and README, filed for items 2g, 2g-1 and 2f-3
+
+- Matt, 2026-10-19: "these files may help with the ravenloft improvement": the `manifest.json` and `README.md` that
+  `print/castle-ravenloft/build.py` wrote on 2026-10-18 from the castle branch (895 files, all manifold, 12 levels:
+  dungeon -80 ft, larders -40, ground 0, grand landing +30, court +50, weeping +90, spires +130, south tower +150, tower
+  roofs and the bridge +190, north peak +240, north roof +250, high peak +300; the mountain base 64 mm; thirteen colour
+  groups on four AMS slots). Print outputs are never committed; the files are kept with the cloud's castle scratch and
+  the StudioBook session regenerates the same set from the branch. What they settle: for 2f-3 (the castle's presence)
+  the silhouette's true heights above the courtyard, +300 ft at the high peak on the thousand-foot Pillarstone; for
+  2g-1 (the front wall and drawbridge) that the castle scene already carries the approach from J, the fifty-foot chasm
+  and the drawbridge (`castle-ravenloft.py`, the approach comment near line 70), so the J map's standalone curtain wall
+  duplicates the castle's own front and is the part to fold back into the castle.
+
+### Claude, 2026-10-19 15:15 UTC (cloud): three more owner reports; 2f-1 is running (workflow wf_e683c233-add)
+
+- Matt, 2026-10-19: (1) "more world map road logic clarity needed; the whole world has cohesion issues like this"
+  (the village a speck beside a broken dashed road far from it): the road part is item 2f-1a, running now (every road
+  through the places it serves, ending on a pin or a junction, meeting each map's road exit); the cohesion of maps
+  with the land round them (the terraces, the seams, the approaches) is framework release 7 and item 10, which still
+  wait for his go on the plan's questions. (2) "how's anyone supposed to get in here?" (the Amber Temple's terrace and
+  the Tsolenka gate tower as two flat plateaus with no way between): the Tsolenka road reaching T and X is 2f-1a; the
+  terrace edges and the climb between the two maps are release 7 / ChatGPT's 2e "Tsolenka approaches". (3) "this looks
+  cool but it's supposed to be attached to and part of Ravenloft and the new improved 3D model" (the Gates of Ravenloft
+  map's curtain wall and drawbridge standing alone): queue item 2g-1, part of the castle's claim (item 2g, the
+  StudioBook session): the wall, drawbridge and gate tower become the castle's own front on the Pillarstone; J stays the
+  road gate. The StudioBook prompt was written before this; whoever runs item 2g reads this entry first.
+- Running: item 2f-1 (roads, lakes, trail) as workflow `wf_e683c233-add` on the lean setting; nothing else runs.
+
+### Claude, 2026-10-19 15:10 UTC (cloud): one more owner request queued (the village's streets and Death House); 2f-1 launched
+
+- Matt, 2026-10-19, two screenshots of the village of Barovia: "death house is just stapled over a road, not logically
+  placed"; "roads don't do that". Queue item 2f-4: `village-roads.py` lays each street as one cobble slab per segment
+  with a disc at each joint (blunt ends in the grass, kinks, streets that do not meet), and `village-map.py` puts Death
+  House where a street runs. Its own lean job after 2f-1, 2f-2 and 2f-3, claimed when it starts.
+- Order of the owner's requests, all approved by his words today: 2f-1 (roads, trail, lakes; running), 2f-2 (Krezk's
+  crag), 2f-3 (the castle's presence), 2f-4 (the village's streets and Death House). Item 10 / release 7 hold the
+  Vallaki seam.
+
+### Claude, 2026-10-19 15:08 UTC (cloud): three more owner requests queued (lakes, Krezk's crag, the castle's presence); 2f-1 runs
+
+- Matt, 2026-10-19, in a burst with screenshots: (1) "all of these unnatural oval lakes aren't looking good" (the inked
+  valley: Lake Zarovich a perfect ellipse); (2) "krezk mountain thing is too steep, is broken texture; make it more
+  realistic in scale and texture" (the abbey's cutting from below); (3) "ravenloft in the distance should be more
+  visible and imposing even across distances; it's an ever-present moment in the module" (the castle a speck on the
+  horizon from the Svalich road). (1) joins item 2f-1 as part (c): the lakes are ellipses in `world.json`
+  (`lakes[].center/r`), consumed analytically by `worldland.ts` `lakeNear`/`levelOf`, the carto shader's `uLakes`
+  and `worldmap.ts`; measured outlines replace them in the same job as the roads, since the same map page is measured.
+  (2) is queue item 2f-2 and (3) item 2f-3, each its own lean job after 2f-1, each claimed when it starts. The Vallaki
+  seam stays with item 10 / framework release 7 (14:25 entry).
+- Item 2f-1 (roads, trail, lakes) is being built now on `claude/wip/item2f-1-roads` (worktree `.claude/worktrees/roads`)
+  as one workflow on the lean setting: a measuring scout on the 200-dpi page render (scratch only), one builder per
+  part in sequence, a verifier, two reviewers, one fix pass; then the release at the next version in order.
+
+### Claude, 2026-10-19 14:25 UTC (cloud): Matt's go on the roads and the trail; item 2f-1 started
+
+- Matt, 2026-10-19: "go on", on the 14:10 proposal. Queue item 2f-1 (under 2f-0) and the two claim rows above; branch
+  `claude/wip/item2f-1-roads` from main `0bc2613`. One job on the lean setting (builder, two reviewers, one fix pass),
+  (a) the road graph first, (b) the trail on it, one release at the next version in order. The regional map page is
+  read from `reference/module/curse-of-strahd.pdf` (gitignored) at the generator's own 200-dpi frame; only measured
+  positions enter the repository, never the art. ChatGPT's item 2e branch touches `worldland.ts` only; this item
+  touches no renderer but `drawTrail`.
+- Matt, 2026-10-19 (screenshot of Vallaki from the north): "weird topographical issue in Vallaki": the town's flat map
+  plane standing as a terrace over the valley with straight diagonal edges and a dark wedge at the seam. That is the
+  map-to-land flattening band (`worldland.ts`: the land flattened to each map's base inside `FLATTEN_IN..FLATTEN_OUT`
+  of its rectangle, overlapping bands normalised; `docs/WORLD.md`: Vallaki's 1.7-mile map blends two bases), already
+  carried by queue item 10 (Vallaki terrain, built at `c0fd014`, waiting on item 8) and by the framework plan's release 7
+  ("no step where a map meets its valley"). Not folded into 2f-1 (ChatGPT's files, a different fix); it waits for
+  Matt's order on item 10 / release 7.
+
+### Claude, 2026-10-19 14:10 UTC (cloud): Matt's report on the valley's roads; diagnosis and a proposal, nothing built
+
+- **Matt, 2026-10-19 (with four screenshots: the castle and gates, the Wizard of Wines, the Balinok slopes, Raven River
+  Crossroads, Old Bonegrinder): "there's these floating dotted lines and the main roads are all messed up, they don't
+  seem to go logically on the main map nor through the areas they connect"; "see the lack of road logic here?"**
+- **Two different things are on screen.** (1) The bright red straight rays, dashed and solid, fanning out from one
+  place across the whole valley are not roads: they are the party's trail (`.nesttrail`, `worldstage.ts:499-506`),
+  the last 12 world moves drawn as straight lines between the places' positions. Opening a place from its name with
+  `travel` set records a move (`app.ts:878`, `moveWorld`), so every map the DM opened while looking round became a
+  ray from the previous place; where the trail doubles back, two dashed strokes out of phase read as one solid line.
+  (2) The dark winding ribbons are the real roads, and their data is the problem: `locations/ch02/barovia-region/
+  world.json` holds 35 road pieces (the Old Svalich Road alone in 17 fragments, many of 2-4 points); 43 of the 70
+  fragment ends lie at no pin and no other road within half a mile (the dead-end stubs); every place except Tser Pool,
+  Tsolenka and the Amber Temple sits 0.25-0.47 mi from the nearest road point (the roads skirt the places they
+  connect); Castle Ravenloft is 1.08 mi, Berez 1.65, Yester Hill 1.90 off the net; and a 2-3 point fragment with a
+  tight turn, smoothed (`chaikin` in `worldcarto.ts:491`), makes the hooks seen at Bonegrinder and the Balinoks. The
+  rivers are 12 pieces with two identical pairs (ChatGPT's 2e plan noted them). World roads also stop at each map's
+  edge by rule (`worldland.ts:380-411`), so a map whose road exits do not line up with the valley road shows a gap.
+- **Already tracked, not started:** ChatGPT's item 2e plan (`docs/handoff/item2e-032-plan.md` step 3, "the connected
+  regional land, water and road model": shared endpoints, tangent continuity, graph connectivity, no draping over
+  noise) and framework release 7 consume it; ChatGPT's branch touches `worldland.ts` only (+27/-5), not the data.
+- **Proposal for Matt (two bounded jobs, his go needed; see Questions):** A. the road net as one graph: re-digitise
+  the roads in `world.json` from the regional map as connected polylines between the places (3-8 points per mile, every
+  end on a pin or a junction, each road meeting its map's road exits at the map edge), the rivers de-duplicated and
+  joined, with a unit test that holds it (every end on a pin or junction; every road place within 0.1 mi of a road; no
+  hook); claim on `world.json`, `barovia-world.py` and that test. B. the trail: a move is recorded only on an explicit
+  travel (a drag of the party or a Travel choice), not when the DM opens a map to look, and the drawn trail follows
+  the road graph between places instead of a straight line; claim on `app.ts` (`moveWorld`, the `travel` open) and
+  `worldstage.ts` (`drawTrail`). Nothing is built until he answers.
+
+### Claude, 2026-10-19 13:30 UTC (cloud): CI is green on main again on the pinned runner; the ci.yml claim is released
+
+- **All four runs with the pin are green:** `3f017e8` (39244566085 main, 67 min; 39244610015 wip, 73 min) and `1f80b99`
+  (39244730107 main, 80 min; 39244773241 wip, 85 min), each the full suite on `ubuntu-24.04`. **ChatGPT: `desktop-v0.3.3`
+  from main's head is cleared; main's CI has been green on every commit since 0.3.3's release commit `b62fd04`.** The
+  claim row for `.github/workflows/ci.yml` is released; the pin stays until Matt decides on a Playwright upgrade.
+- No new commits on any other branch, no desktop tags yet, no new comments on issue #3, nothing new in GeneralStorage.
+  Nothing is running. Waiting on Matt as listed in the 11:30, 09:50 and 04:50 entries.
+
+### Claude, 2026-10-19 11:30 UTC (cloud): CI broke for every commit at 09:30 (the hosted image moved); the runner is pinned
+
+- **Both runs on `722dc04` (doc-only) failed in one minute at `npx playwright install --with-deps chromium`:** since
+  about 09:30 UTC GitHub's `ubuntu-latest` label resolves to the `ubuntu-26.04` image (version 20261012.163.1), and
+  Playwright 1.56.1 refuses it ("Playwright does not support chromium on ubuntu26.04-x64"). Typecheck, the 569 unit
+  tests and the 21 desktop checks passed before that step; no browser test ran. The 07:24 runs, green, were on the
+  earlier image. Not the code, not the tests: every push from any branch would fail the same way, ChatGPT's and the
+  castle's included, and `desktop-v0.3.3` needs green CI on main's head.
+- **Fix, one line, reversible, on main as `3f017e8` and on the wip branch:** `runs-on: ubuntu-24.04` in
+  `.github/workflows/ci.yml`, the image CI ran on until this morning, with a comment saying why; claim row above. On
+  the first run with the pin (39244566085) the install step passes and the browser suite is running; its result is read
+  at the next check-in, and the claim row is released when it is green. The alternative, a Playwright upgrade that
+  supports 26.04, changes the tested browser and is Matt's call, not a check-in's.
+- No new commits on any other branch, no desktop tags yet, no new comments on issue #3, nothing new in GeneralStorage.
+  Nothing else is running. Waiting on Matt as listed in the 09:50 and 04:50 entries.
+
+### Claude, 2026-10-19 09:50 UTC (cloud): check-in; CI green on main again; the world suite's three flaky checks, named
+
+- **CI on `4850a52` (doc-only): green on main (run 39215743890, 84 min); the wip branch's duplicate run (39215746871,
+  67 min) failed a different check than last time: `e2e/world.spec.ts:602` expected all 32 shown valley names
+  clickable and found 31.** Nothing is changed; no test is touched. 0.3.3 stands; ChatGPT's `desktop-v0.3.3` is still
+  cleared from main's head.
+- **The world suite has three timing-sensitive checks that fail only on the hosted runners, and did so before 0.3.3:**
+  4 of the last 20 CI runs failed, every one in `e2e/world.spec.ts`, every one on code that passed the same suite
+  elsewhere (the identical commit on the other branch, or locally). (1) The valley fit (line 511): after
+  `frameWorld('fly')` the test waits on `settled()`, which gives up after a hard 4 s whatever the flight is doing
+  (`app/src/render/world.ts:497`), so a slow runner measures the valley mid-flight and finds pins S, W and Y off-screen
+  (run 39188832664 on `a790925`, the 0.3.2 code plus a doc commit, 2026-10-19 02:11). (2) The zoom-out chip (line
+  542): the test's 420 s budget covers two flights and a 180 s wait; an 89-min runner ran out of it (run 39203701651).
+  (3) The names' clickable count (line 642): a name is "clickable" when the app's nearest-mark hit-test at its box
+  centre returns itself; where two marks share space the nearest wins by design, so one near-tie flips with sub-pixel
+  layout differences (run 39215746871). Locally, on the 0.3.3 build with software rendering, the two tests pass 8 of 8
+  (four repeats each, 4.2 min). The app is not at fault in any of the three; the fixes are test-side (wait on the
+  flight's own state instead of the 4 s cap, judge the count by the app's own rule, size the chip wait to the flight)
+  and no assertion gets loosened. **Question for Matt below: run that as a bounded job, or leave CI as it is and
+  read a duplicate run's red as noise.**
+- No new commits on any other branch, no desktop tags yet, no new comments on issue #3, nothing new in GeneralStorage.
+  Nothing is running. Waiting on Matt as listed in the 04:50 entry.
+
+### Claude, 2026-10-19 07:30 UTC (cloud): check-in after 0.3.3; CI green on main, one slow-runner timeout on the wip copy
+
+- **CI on 0.3.3:** green on main for both the release commit `b62fd04` (run 39203636870, 69 min) and the Status commit
+  `f31b97a` (run 39203701462, 70 min), and on the wip branch for `b62fd04` (run 39194635859). **ChatGPT: `desktop-v0.3.3`
+  from main's head `f31b97a` is cleared.** The wip branch's duplicate run of `f31b97a` (39203701651) failed: its runner
+  took 89 min for the same suite and the valley flight test (`e2e/world.spec.ts:497`, a 420 s budget that covers two
+  flights and a 180 s wait) ran out of time at the zoom-out chip; 266 passed, 55 device skips, 1 timed out. The
+  identical commit passed on main 19 min faster, so this is a slow runner, not the code; nothing changed, no test
+  touched. Lesson: push a release to main first and the wip branch after, not both in one push, so two identical
+  runs do not race on the same minute.
+- No new commits on any other branch, no desktop tags yet, no new comments on issue #3, nothing new in GeneralStorage.
+  Nothing is running. Waiting on Matt as listed in the 04:50 entry.
+
+### Claude, 2026-10-19 04:50 UTC (cloud): 0.3.3 (item 2f-0, homogenization) is on the main branch and published
+
+- **0.3.3 is on the main branch (release commit `b62fd04`; main's head is this entry's commit) and published to the
+  mistLAB link (artifact version 45, bundle `index-B2qu1Jpx.js`). ChatGPT: publish `desktop-v0.3.3` from
+  main's head once CI is green on it.** Item 2f-0 is ticked; its claim row is released. Visual-Aide: a root-table row
+  only (`34e1b1f`), because nothing looks different. Versions from here, by the standing rule (next number in release
+  order): ChatGPT's all-map logic release (item 2e) takes 0.3.4; the castle (item 2g) takes the next number free when
+  Matt approves it (its claim row says "after 0.3.3 lands", which is now).
+- What changed: `app/src/kit/shapes.ts` (the shape helpers up to 18 site modules declared by copy), `app/src/kit/mist.ts`
+  (one `fogMat` with one cache, for the seven copies), `scripts/authoring/geomlib.py` (the plane-geometry helpers copied
+  26 times across 17 generator scripts), and wild-b using wild's weed tuft; 39 files, +340/-635 before the release docs.
+  Nothing looks or plays differently.
+- Proofs on the release head: build passes; `npx vitest run` 569 passed, 2 environment skips, 2 todo (new
+  `tests/compact-frame.test.ts`); browser suite 267 passed, 55 device skips, 0 failed (1.0 h, software rendering);
+  all 45 scenes' entry frames pixel-identical with equal draw calls, triangles and meshes against the 0.3.2 build
+  (`2fd728a`), captured twice (on the consolidated code at version 0.3.2, then on the release bundle); the object
+  fingerprint identical (789 kinds, 3012 builds); 14 generators regenerate their scenes byte-identical; the changelog
+  entry has no eight-word run from the module; no model names in the diff. One harness lesson, for whoever captures
+  next: the scene-graph mesh count the capture also records jitters by one or two on scenes with a world-stage proxy
+  (the proxy's detail mesh streams in at a variable moment, on the 0.3.2 build just the same, and is not drawn in the
+  frame), and the "What's new" card must be suppressed by seeding the exact app version or its backdrop dims every frame;
+  the gate reads pixels, draw calls and triangles.
+- Review (two reviewers, one fix pass): the review caught one behaviour change the fingerprint could not see (the shared
+  `compact` drops the root scale a sleeping werewolf-wolf relies on, and no scene passes `sleeping`): `t.ts` keeps its own
+  world-frame `compact`, with a test that failed first; two claim-boundary overreaches were reverted (call-site
+  reordering in the site modules; the `props.ts` helpers restored as local copies).
+- For Matt: `vallaki-town.py` cannot reproduce the committed `ch05/N` scene without `reference/imports/vallaki-houses.json`
+  (pre-existing, not from this release; the scene was not regenerated). The later rounds change behaviour and wait for
+  his go: one mist piece, the three overlapping land systems, the two world maps, the castle generator (item 2g's claim).
+
+### Claude, 2026-10-19 02:30 UTC (cloud): item 2f-0, homogenization, started on Matt's go
+
+- Matt, 2026-10-19: "Go ahead and work on homogenization and smoothing of features stacking things together where they
+  belong. Making sure that things are not redundant, making sure that there's no bloat." Queue item 2f-0 (above item
+  3) and the claim row above. Scope of this first round, pure consolidation with no visual or logic change: the shape
+  helpers declared in up to 18 site modules, the ten `fogMat` copies and the fog-sheet builders, the creature and prop
+  builders copied across site modules, and the authoring helpers copied across generator scripts, each to one home.
+  Gate: every scene's entry frame pixel-identical and draw counts equal against the build before (the capture of all
+  45 scenes from `2fd728a` is the baseline), every scene regenerated byte-identical, build, unit tests and the audit
+  unchanged. Left for later rounds, with Matt: the one mist piece (a visual change), the three overlapping land
+  systems (ChatGPT's files), the two world maps (a feature question), the castle generator (item 2g's claim).
+
+### Claude, 2026-10-19 01:20 UTC (cloud): the map-logic audit is in; CI is green on 0.3.2
+
+- **CI run 39179350076 on `2fd728a` (0.3.2) completed green at 01:14 UTC. ChatGPT: publish `desktop-v0.3.2` from
+  that commit.** Both audits are done and the cloud's background runs are all stopped.
+- **`docs/handoff/map-logic-audit-2026-10-18.md`** (findings only, on 0.3.1; a spot check notes what 0.3.2 changed):
+  40 families, 2 blockers, 21 major, 13 minor, 2 nits, 2 reported elsewhere but not reproduced on main; a scorecard
+  for all 45 scenes: 13 play clean, 20 play with faults, 10 broken for at least one thing a table would do (E5, K, N1,
+  N3, N4, N6, S10, Y at 0.3.1, wsc/02-street and the sealed Vallaki interiors). The blockers: the party spawns off
+  every floor polygon on S10 and the Sheep Chase square, so Players cannot move at all; and the link loop keeps
+  scanning after a transition, so 56 of 348 stair activations on 7 maps land on the wrong floor or fire more than
+  once. The three fixes that clear the most: a generator contract in `authorlib` (spawn and link ends on floor, no
+  wall over a door, floor both sides of a door, rooms reachable unless flagged sealed, polygons simple); the
+  vertical-link loop fixed to one hop per move with one marker per destination and origin-aware snapping; land
+  flattened to the entry level with the footprint as the union of every level. Nine questions for Matt are in the
+  report's "For Matt to decide". The report's numbers agree with item 11, ChatGPT's all-map and transition reports
+  and the framework survey where they overlap, and say where they differ. Nothing is queued or built from it.
+
+### Claude, 2026-10-19 00:35 UTC (cloud): the ease-of-use audit is in
+
+- **`docs/handoff/ease-of-use-audit-2026-10-18.md`** (findings only, on 0.3.1): 55 findings after merging and
+  refuting, 1 blocker, 7 major, 30 minor, 17 nit, each with the smallest fix and the queue item that already covers
+  it. The blocker: on a phone both DM menus (Tools and View) open off the left edge, so no fog tool, Measure, Walls,
+  Mist or Player Display can be reached. Majors: the Death House spiral stair carries the party two floors in one
+  step (item 11 / 2e); Players view leaves the Library, World map, Back, floor picker, Whole building, Section and
+  the DM tab live for the table (item 22); the phone's floor row runs under the DM/Players slider; the phone roster's
+  ticks and Initiative inputs are off-screen; the turn bar covers the clock, minimap and compass on the phone; Vallaki
+  opens from 17,000 ft on the phone; the inn hands over at 12 ft on floorboards. Seven findings have no queue home and
+  are questions for Matt (section 4 of the report). Nothing is queued or built from it without him.
+- The map-logic audit (findings only, on 0.3.1) resumes now from its cached static stages.
+
+### Claude, 2026-10-19 00:55 UTC (cloud): new owner request on the castle (item 2g)
+
+- Matt, 2026-10-19: "Notice how the walls in Ravenloft as they are are like 0 mm thin. That shouldn't be the case. They
+  should be proportionately sized walls where possible. Borrowing from the space around them and kind of distorting the
+  place just slightly to make it logical." Diagnosis: walls are centreline segments with no thickness in the data;
+  `app/src/render/build.ts` draws every wall of every map as a box `WALL_T` = 0.6 ft thick (`app/src/kit/pieces.ts`),
+  and `print/castle-ravenloft/build.py` prints them 3 mm thick (the same 0.6 ft at 25.4 mm per cell). Proposed shape,
+  for Matt's go: an opt-in `thicknessFt` on `Wall` (schema), honoured by the wall, door and window boxes in
+  `build.ts` and by the print set, default unchanged so every other map draws the same pixels; the castle generator
+  sets it per wall class and insets each room's floor by half the thickness so the walls take their space from the
+  rooms, never below one clear cell. The castle session holds the claim; whoever builds it claims `schema.ts`,
+  `build.ts` and the castle generator first and writes the before/after pair.
+
+### Claude, 2026-10-19 00:40 UTC (cloud)
+
+- **0.3.2 is on the main branch (`2fd728a`) and published to the mistLAB link (artifact version 44, bundle
+  `index-DNdaqxu6.js`). ChatGPT: publish `desktop-v0.3.2` from that commit once CI is green on it.** Item 7 (the
+  unfinished maps) is ticked; its claim is released. The release's single review passed with nits only (recorded in
+  the review, none blocking). The merged head was built and unit-tested again (567 passed, 2 environment skips, 2
+  todo); the six maps' text has no eight-word run from the module. Screenshots for 0.3.1 and 0.3.2 are in Visual-Aide
+  (`releases/0.3.1-nested-world/`, `releases/0.3.2-unfinished-maps/`, commits `fcd3e79` and `d37e19b`). CI run
+  39179350076 on `2fd728a` was still running at 00:20 UTC. The ease-of-use and map-logic audits resume next, one at a time, against a served
+  copy of the 0.3.1 build they started on.
+- From this commit on, the cloud's commits carry `Co-Authored-By: Claude <noreply@anthropic.com>` without a model
+  name, as the rule "model names stay out of the repo" requires (the earlier trailers stay as they are: history is
+  never rewritten).
+
+### Claude, 2026-10-19 00:05 UTC (cloud; resumed after the usage reset)
+
+- **Castle Ravenloft (item 2g, `claude/wip/castle-playable` at `06f01ce`): the checks the castle session could not run,
+  done in a worktree with npm. Nothing on the branch was changed; its claim stands.** `npm run build` passes.
+  `npx vitest run`: 541 passed, 2 skipped (the two SRD-cache blocks, as on main), 2 todo. `audit-outdoor.py` exits 1
+  on main and on the branch alike (the pre-existing tavern-facade findings), and the castle's 67 off-ground objects
+  are the same on both. The generator re-run reproduces the committed scene exactly, but `npm run build` regenerates
+  `manifests/world-atlas.json` (objects 386 → 387): the branch needs that manifest regenerated and committed.
+- Runtime probe under Players rules on all 12 levels (one browser, software rendering): the party stands on floor on
+  every level and takes all four first steps on 11 of them (2 of 4 at the courtyard's K1 start); 45 of 67 doors pass
+  both ways when open; none refuses to open; 1 opens but still blocks (`K37-north-b`, Rooms of Weeping: the tower's
+  diagonal wall `weeping-w-7` runs through its gap); 19 doors open onto ground that is not walkable floor: 4 from the
+  keep into the courtyard (`K11-door`, `K7-outer`, `K23-courtyard`, `K23-west`; the courtyard is terrain, not floor,
+  so the party cannot pass between keep and courtyard in Players mode) and 15 into corridors with no floor polygon
+  (`K78-north`, `K80-door`, `K72-door`, `K70-south`, `court-K11-door`, `K25-south-door`, `K30-west`, `K34-south`,
+  `K37-north-a`, `K37-south`, `K37-west`, `K40-doors`, `K42-east`, `K36-north`; `K30-east`, `K42-south`, `K49-K48`
+  have floor 5-7.5 ft off). No spawn is authored, so the scene still opens on the courtyard with the party in the
+  dungeon (levels[0]). Screenshots at 1366x768 and 390x844, DM and Players, on ground, court, dungeon and weeping:
+  no page errors; walls, open stair wells and the straight stairs draw in place; Players view shows the unexplored
+  keep as the usual black mass. The probe script and shots are in the cloud's scratch folder, not in the repo.
+- **Copied-text gate: the branch's reworded descriptions add 11 eight-word runs matching the module's OCR** (main's
+  castle scene has 1, the tomb's name): the K4, K46, K51, K63 and K72 descriptions and the K39 secret doors in
+  `castle-ravenloft.py`. They must be reworded before this can release. No model names; no print outputs committed.
+- The 0.3.2 release's review (one agent) is running; then the release, then the two audits resume, one at a time.
+
+### Claude, 2026-10-18 21:15 UTC (cloud; PAUSED under USAGE.md until the five-hour window resets at 23:40 UTC)
+
+- **Matt's usage rule binds every agent** (GeneralStorage `USAGE.md`, branch `claude/coworking-ack`, 2026-10-18). This
+  session has no readable meter; the account's five-hour window read 86% at 21:08 UTC (another Claude session's
+  handoff), reset 23:40 UTC, seven-day window 25%. So: nothing new started, every background run stopped, this
+  handoff written, resume at 23:50 UTC (the check-in is re-armed to then), one lean job at a time.
+- **Stopped mid-run, resumable from their cached stages, nothing pushed from them yet:** the 0.3.2 release
+  (`wf_87fec1ac-32e`: integrate done, release commit `a447725`, head `5593e4e` on `item7-unfinished-maps`, main merged
+  three times; browser suite 266 passed, 55 device skips, 1 failed, fixed at its cause by test commit `38143c9` and
+  re-run green; vitest 567 passed, 2 pre-existing environment skips, 2 todo; the review stage was in flight and is
+  redone on resume, then the release is published); the ease-of-use audit (`wf_6aeedc2c-d18`, done: inventory, heuristics; the desktop walk was in
+  flight); the map-logic audit (`wf_fe7ebc32-113`, done: scout, static:placement-doors, static:rooms-links, static:lattice-placement; the runtime pass was in flight). Both audits are
+  findings only.
+- **Castle Ravenloft (Matt, 2026-10-18, issue #3; queue item 2g):** a second cloud session Matt opened by voice built
+  it at 21:08 UTC (its entry is below): the playable pass, the regenerated scene and `print/castle-ravenloft/` on
+  `claude/wip/castle-playable`, brief in `docs/handoff/castle-playable.md`. This session's own claim, written seven
+  minutes later without seeing that entry, is withdrawn: one plan, one branch, that one. What that session could not
+  run (no npm there) and this one can, after the usage reset and if nobody has by then: `npm run build`,
+  `npx vitest run`, `audit-outdoor.py`, the Players-mode start test on every castle level, the in-app look on desktop
+  and phone as DM and Players, written here with the commit hash; then Matt approves or not. Rhino refinement,
+  trinket sculpting, GPU inspection and fabrication acceptance wait for StudioBook (Matt back about 01:00 UTC; the
+  laptop connection and Rhino/GPU are verified then). Nothing merges or releases before Matt's yes and 0.3.3.
+- The item 2f plan (`docs/MAPS-FRAMEWORK.md`) awaits Matt's go. ChatGPT's draft PR #2 is acknowledged, not merged.
 ### Claude, 2026-10-18 21:08 UTC (cloud; a second cloud session Matt opened for the castle)
 
 - **New item 2g (Matt, 2026-10-18, by voice): Castle Ravenloft playable + print set + trinket**, on `claude/wip/castle-playable`
@@ -321,6 +756,32 @@ may still be running** its check-in routine; Matt decides whether it carries on 
 
 ## Questions for Matt
 
+- **Desktop 0.3.3 (ChatGPT, 2026-10-19 15:55) is held on a reproduced save loss: may the cloud fix it as one bounded
+  job?** The explored-fog memory of Yester Hill's hill level saved before 0.3.2 is dropped on 0.3.2 and later (mechanism
+  in the 16:05 Status entry). Proposed, under a claim on `app/src/core/coverage.ts`, `app/src/app.ts` (the two coverage
+  lines, 391 and 1457) and `tests/coverage.test.ts`: (1) the saved record gains a header with its origin and size, so
+  every future regeneration of any map can carry its explored memory over; (2) `load` resamples a record whose cell,
+  origin or size differ (a new cell counts as explored when an old explored cell overlaps it); (3) the legacy `c4:`
+  record of `ch14/Y/hill` is resampled with its 0.3.1 geometry written into the migration (origin -2,-2 ft, 4-ft cells),
+  proven by a fixture test that fails first, as ChatGPT's fixture does; (4) a record that still cannot be placed is kept
+  under a side key, never overwritten. **ChatGPT (StudioBook, 16:09) proposes the same fix with more care** (the original
+  masks kept losslessly, a conservative projection so a 4-ft record never reveals an unknown 5-ft sliver, versioned
+  layout metadata, Y/summit and U3/mire included) and holds the fixture and the verified legacy layouts. One plan, one
+  builder: on Matt's yes, ChatGPT builds it under the claim its 16:09 entry lists and the cloud reviews it at its release;
+  the cloud's own proposal above is withdrawn in its favour and the cloud stays on 2f-1. If Matt's yes arrives in the
+  cloud's chat, the cloud writes it here and ChatGPT starts. It takes the next version in order; the desktop tag follows
+  it. Without it, the gate in `docs/DESKTOP.md` holds every desktop release.
+- Answered (Matt, 2026-10-19: "all go"): the mist edge (2f-5) runs right after 2f-1, ahead of Krezk's crag, the castle's presence and the village streets.
+- Answered (Matt, 2026-10-19: "all go"): framework release 7 runs after the mist edge, with its questions 3, 9 and 10 answered yes as recommended (queue item 2f-6).
+- Answered (Matt, 2026-10-19: "go on"): the valley's roads as one graph and the trail along them, item 2f-1, running.
+- **CI flakiness (2026-10-19): may the cloud harden the three timing-sensitive checks in `e2e/world.spec.ts`** (the
+  valley fit after a flight, the zoom-out chip, the names' clickable count; mechanisms in the 09:50 Status entry) as
+  one bounded test-only job under a claim on that file, with no assertion loosened and each change proven by the
+  same test passing on a deliberately slowed run? Until then a red duplicate run on a doc-only commit is noise when
+  the same commit is green on the other branch, and the cloud says so in Status each time.
+- Answered by the castle session's handoff (2026-10-18 21:08): the Castle Ravenloft brief is with that session
+  (`castle-ravenloft-occ.md`, Matt has it); `docs/handoff/castle-playable.md` is what lives in the repository. Its open
+  questions for Matt are listed in that file's "Co-working on item 2g" section, point 6.
 - **The item 2f framework plan (`docs/MAPS-FRAMEWORK.md`, 2026-10-18) needs a go or no-go; its ten questions are
   answered when their release starts (recommended answers in Part A):** 1 the filmic tone curve on for every map
   (recommended: decide on release 2's pairs, default off); 2 players' unexplored outdoors shown as the hour's mist with
@@ -331,10 +792,12 @@ may still be running** its check-in routine; Matt decides whether it carries on 
   all-map release 0.3.3, the framework reserves no number); 8 a shadow-map spike for the Sheep Chase (skip); 9 the grid
   fades out 40 ft past the rooms instead of covering the valley (yes); 10 outdoor levels reveal a 60-ft radius round
   the party as well as the room (yes, outdoors only).
+- (0.3.2 release review) The world map gives Mount Baratok's M2–M5 marks their own discs (32 pins) where the world-map step grouped that peak once (28); ChatGPT changed the assertion and disclosed it in the 0.3.0 known limits. Keep the five discs, or group the peak once as designed?
 - Answered (Matt, 2026-10-18): the artifact must auto-update to match the desktop app window, so the desktop distribution tag is approved and every release goes to the main branch, the mistLAB link and a `desktop-v` tag from the same commit (cloud Status entry, 2026-10-18).
 - Answered (Matt, 2026-10-14: "nah just go for it"): the additional targeted Amber hard-cut correction and verification are authorized despite the original final fix-pass limit. This does not authorize unrelated regional redesign, public compiled-bundle publication or wholesale item 7 resumption.
 - Answered (Matt, 2026-10-14: "Every map's logic should be correct for 0.3.2"): ship the bounded local/compass/Amber corrections as 0.3.1 after release gates pass, with honest limits; then correct comprehensive all-map logic as 0.3.2 (queue item 2e). This includes the unresolved regional drainage/grades and J-to-K placement. Public desktop distribution still requires separate approval.
 - Answered (Matt, 2026-10-13: "let it run"): the cloud routine stays on; the cloud finishes item 7 and verifies item 2.
-- The cloud Claude session's check-in routine ("mistLAB queue check-in") fires every two hours and resumes its runs.
+- Answered (Matt, 2026-10-19: "kill that, I don't want it anymore"): the check-in routine is disabled. Earlier text kept for the record:
+  the cloud Claude session's check-in routine ("mistLAB queue check-in") fires every two hours and resumes its runs.
   If everything is meant to be paused, disable that routine (Claude app → Routines) or tell the cloud session to
   stop; otherwise it keeps working item 7 and item 2's world-map step alongside ChatGPT.

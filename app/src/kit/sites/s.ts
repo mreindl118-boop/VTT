@@ -8,6 +8,7 @@ import { CREATURES, humanoid, type HumanoidOpts } from '../creatures';
 import { mat } from '../../render/materials';
 import { surfaceFor } from '../surfaces';
 import { FLOOR_COLOR, PALETTE } from '../palette';
+import { box, cone, cyl, grp, ico } from '../shapes';
 
 type Dims = Record<string, number>;
 
@@ -34,11 +35,6 @@ surfaceFor([SACK, HEMP, FUR, FUR_LT, SHROUD], 'cloth');
 surfaceFor([LEAF, LEAF_DK], 'foliage');
 
 // ---------------------------------------------------------------- helpers
-const box = (w: number, h: number, d: number, color: string, x = 0, y = 0, z = 0, ry = 0) => { const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat(color)); m.position.set(x, y, z); m.rotation.y = ry; return m; };
-const cyl = (rt: number, rb: number, h: number, color: string, x = 0, y = 0, z = 0, seg = 8) => { const m = new THREE.Mesh(new THREE.CylinderGeometry(rt, rb, h, seg), mat(color)); m.position.set(x, y, z); return m; };
-const ico = (r: number, color: string, x = 0, y = 0, z = 0, detail = 0) => { const m = new THREE.Mesh(new THREE.IcosahedronGeometry(r, detail), mat(color)); m.position.set(x, y, z); return m; };
-const cone = (r: number, h: number, color: string, x = 0, y = 0, z = 0, seg = 6) => { const m = new THREE.Mesh(new THREE.ConeGeometry(r, h, seg), mat(color)); m.position.set(x, y, z); return m; };
-const grp = (...m: THREE.Object3D[]) => { const g = new THREE.Group(); if (m.length) g.add(...m); return g; };
 /** Mark a piece as part of a building's shell raised on authored walls (a roof cap): the section cut slices it like a
  *  roof, and a cutaway hides it, as the kit's own roofs. */
 const asCap = (g: THREE.Group) => { g.traverse((c) => { c.userData.role = 'roof'; c.userData.cap = true; }); return g; };

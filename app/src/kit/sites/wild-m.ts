@@ -12,6 +12,8 @@ import { mat, matClone } from '../../render/materials';
 import { FLOOR_COLOR } from '../palette';
 import { surfaceFor } from '../surfaces';
 import { waterfall } from './wild';
+import { grp, hash, place } from '../shapes';
+import { fogMat } from '../mist';
 
 type Dims = Record<string, number>;
 type P2 = [number, number];
@@ -43,9 +45,6 @@ surfaceFor([C.rime, C.ice, C.foam, C.pool, C.mirror, C.glass, C.scorch, C.ash, C
   C.hound, C.houndDeep, C.cloud, C.cloudDeep, C.cloudPale, C.flicker, C.mist0, C.mist1, C.mist2], 'generic');
 
 // ---------------------------------------------------------------- helpers
-const grp = (...m: THREE.Object3D[]) => { const g = new THREE.Group(); if (m.length) g.add(...m); return g; };
-const place = <T extends THREE.Object3D>(o: T, x: number, y: number, z: number, ry = 0, rx = 0, rz = 0): T => { o.position.set(x, y, z); o.rotation.set(rx, ry, rz); return o; };
-const hash = (i: number, s = 0) => { const x = Math.sin(i * 127.1 + s * 311.7 + 0.5) * 43758.5453; return x - Math.floor(x); };
 /** Scenery that stands past the map's edge (the mountain, the sky, the far valley) keeps its colour in the players'
  *  fog of war, as the backdrop does: exempt materials, cached per colour. */
 const exempt = new Map<string, THREE.MeshLambertMaterial>();
@@ -59,14 +58,6 @@ function lumpGeo(r: number, seed: number, sx = 1, sy = 1, sz = 1, detail = 1): T
   }
   geo.computeVertexNormals();
   return geo;
-}
-/** Fog: the palette's mist, lit, see-through and drawn without depth writes (cached per colour and opacity). */
-const fogMats = new Map<string, THREE.MeshLambertMaterial>();
-function fogMat(color: string, opacity: number, far = false): THREE.MeshLambertMaterial {
-  const k = color + opacity + far;
-  let m = fogMats.get(k);
-  if (!m) { m = matClone(color, far); m.transparent = true; m.opacity = opacity; m.depthWrite = false; m.side = THREE.DoubleSide; fogMats.set(k, m); }
-  return m;
 }
 /** Unlit see-through glow (lightning inside a cloud, the glass of a bolt scar catching the light). */
 const glows = new Map<string, THREE.MeshBasicMaterial>();

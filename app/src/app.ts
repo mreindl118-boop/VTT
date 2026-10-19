@@ -25,7 +25,7 @@ export { KIND_DESC, kindName, playerDesc, playerLabel } from './core/objectText'
 import { ICON } from './ui/icons';
 import { pinForScene, useWorld } from './ui/worldmap';
 import { campaignOf, worldOf, type Campaign } from './campaigns';
-import { buildBackdrop } from './render/backdrop';
+import { buildBackdrop, cutLand, landHole, underBox } from './render/backdrop';
 import { BAROVIAN_GRASS, setGrass } from './kit/surfaces';
 import { Channel, type Msg } from './state/channel';
 import { newCampaign, revealSets, type CampaignState, type Combatant, type Encounter, type Reveal, type Sheet, type Token } from './state/campaign';
@@ -853,6 +853,7 @@ export class App {
       const area = (poly: Vec2[]) => Math.abs(poly.reduce((a, [x, z], i) => { const [x2, z2] = poly[(i + 1) % poly.length]; return a + x * z2 - x2 * z; }, 0)) / 2;
       const byFloor = new Map<string, number>(); for (const t of l0.terrain ?? []) if (['grass', 'snow', 'marsh', 'dirt', 'shallow-water'].includes(t.floor)) byFloor.set(t.floor, (byFloor.get(t.floor) ?? 0) + area(t.polygon as Vec2[]));
       const ground = [...byFloor.entries()].sort((a, b) => b[1] - a[1])[0]?.[0];
+      this.groundFt = l0.elevationFt;
       this.backdrop = buildBackdrop({ ground: ground === 'shallow-water' || ground === 'dirt' ? undefined : ground, center: [(bb.minX + bb.maxX) / 2, (bb.minZ + bb.maxZ) / 2], radius: Math.hypot(bb.maxX - bb.minX, bb.maxZ - bb.minZ) / 2, elevation: l0.elevationFt, pin: pin!.pos as Vec2, world: worldOf(this.campaign), theme: this.campaign.theme, valley: !!scene.valley, bounds: bb, north: l0.north, roads, crag: pin!.heightFt ?? 0, clearing: scene.clearingFt ?? (scene.parent ? 1100 : undefined) }); // an area map inside a town keeps the town's ground clear
       loaded.root.add(this.backdrop); // the land round the map is in the map's own frame
     }
@@ -1094,6 +1095,13 @@ export class App {
     this.onChange?.();
   }
 
+  /** The height of the ground the land beyond the map is drawn at (the level that meets the open air). */
+  private groundFt = 0;
+  /** The plan box of the current stack's floors below that ground (render/backdrop.ts, underBox). */
+  private belowGround(): { minX: number; minZ: number; maxX: number; maxZ: number } | null {
+    const stack = this.stackOf(this.levelId);
+    return underBox(this.cur!.scene.levels.filter((l) => stack.has(l.id)), this.groundFt);
+  }
   /** The floors that stand on one another around a level: each one's ceiling meets the next one's floor.
    *  A house and the dungeon dug under its garden are two stacks; an open site (a tower) is one. */
   stackOf(id: string, scene: SceneFile = this.cur!.scene): Set<string> {
@@ -1521,6 +1529,8 @@ export class App {
     const cut = this.cur.scene.stacked ? (this.cutFt ?? followCut) : this.lowWalls ? this.level.elevationFt + WALL_CUT_FT : null;
     this.followCutFt = followCut;
     setWallCut(cut === null ? null : cut + this.placementY); // the cut is a scene height; the clip plane is drawn space
+    // the land cut over the floors below ground: its planes are scene space too, and the land hangs in the placed frame
+    if (this.backdrop && this.cur.scene.stacked && this.cur.scene.landCut) cutLand(this.backdrop, landHole(this.belowGround(), cut !== null && cut < this.groundFt - 0.3 ? cut : null)?.map((pl) => pl.applyMatrix4(this.placement)) ?? null);
     // Roofs raised over authored walls (a shop's gable, a tower's cone) go whenever the walls are cut down to a cutaway,
     // and come back with full walls; on stacked sites the section plane slices them instead.
     if (!this.cur.scene.stacked) for (const b2 of this.cur.levels.values()) b2.root.traverse((o) => { if (o.userData.cap) o.visible = !this.lowWalls; });

@@ -11,6 +11,7 @@ import { CREATURES, humanoid } from '../creatures';
 import { mat, matClone, patchFog } from '../../render/materials';
 import { surfaceFor } from '../surfaces';
 import { PALETTE } from '../palette';
+import { box, cone, cyl, grp as g, ico, rot } from '../shapes';
 
 type Dims = Record<string, number>;
 const Q = {
@@ -30,12 +31,6 @@ surfaceFor(['#666b73', '#57535c', '#5e3a3c', '#6e6248', '#6f7680', '#5f646d', '#
 surfaceFor(['#5a3a28', '#b8a888'], 'cloth');
 surfaceFor([Q.corpse, Q.corpseDeep, Q.phantom, Q.phantomDeep, Q.spider, Q.spiderDeep, Q.spiderRed, Q.soot, Q.smoke, Q.glass], 'generic');
 
-const box = (w: number, h: number, d: number, color: string, x = 0, y = 0, z = 0) => { const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat(color)); m.position.set(x, y, z); return m; };
-const cyl = (rt: number, rb: number, h: number, color: string, x = 0, y = 0, z = 0, seg = 8) => { const m = new THREE.Mesh(new THREE.CylinderGeometry(rt, rb, h, seg), mat(color)); m.position.set(x, y, z); return m; };
-const cone = (r: number, h: number, color: string, x = 0, y = 0, z = 0, seg = 6) => { const m = new THREE.Mesh(new THREE.ConeGeometry(r, h, seg), mat(color)); m.position.set(x, y, z); return m; };
-const ico = (r: number, color: string, x = 0, y = 0, z = 0, detail = 0) => { const m = new THREE.Mesh(new THREE.IcosahedronGeometry(r, detail), mat(color)); m.position.set(x, y, z); return m; };
-const g = (...m: THREE.Object3D[]) => { const grp = new THREE.Group(); if (m.length) grp.add(...m); return grp; };
-const rot = <T extends THREE.Object3D>(o: T, x: number, y: number, z: number): T => { o.rotation.set(x, y, z); return o; };
 /** A deterministic 0..1 sequence, so a heap of wreckage looks the same every time it is built. */
 const seq = (seed: number) => { let s = (Math.abs(seed) * 9301 + 49297) % 233280; return () => ((s = (s * 9301 + 49297) % 233280) / 233280); };
 /** A sloped box between two points (a stair string, a raking rail, a fallen beam). */

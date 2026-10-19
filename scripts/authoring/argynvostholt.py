@@ -24,16 +24,13 @@ from collections import OrderedDict
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from authorlib import ROOT, Level, rect, unit_edges, seg_key, cobwebs  # noqa: F401
+from geomlib import ov
 
 _M = json.load(open(os.path.join(ROOT, 'manifests', 'locations.json')))
 PAGE = {a['key']: a['page'] for l in _M['locations'] if l['id'] == 'Q' for a in l['areas']}
 def pg(k): return PAGE.get(k.split('-')[0])
 
 # ------------------------------------------------------------------ helpers
-def ov(lv, a, b, **kw):
-    """Override one exact wall segment (diagonals and fractional edges, which _stamp would split)."""
-    k = seg_key(a, b)
-    lv.overrides[k] = dict(lv.overrides.get(k, {}), **kw)
 
 def door_edge(lv, a, b, id, locked=False, open=False):
     lv.n += 1

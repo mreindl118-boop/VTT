@@ -6,9 +6,11 @@
 import * as THREE from 'three';
 import { PROPS_V1, vardo } from '../props';
 import { CREATURES, horse, humanoid } from '../creatures';
-import { mat, matClone } from '../../render/materials';
-import { surfaceFor, type Surface } from '../surfaces';
-import { merge } from '../pieces';
+import { mat } from '../../render/materials';
+import { surfaceFor } from '../surfaces';
+import { box, compact, cone, cyl, grp, hash, lump, place } from '../shapes';
+import { fogMat } from '../mist';
+import { weedTuft } from './wild';
 
 type Dims = Record<string, number>;
 
@@ -42,22 +44,6 @@ surfaceFor([C.pool, C.glint, C.seep, C.dew, C.mist0, C.mist1, C.mist2], 'none');
 surfaceFor([C.raven, C.ravenSheen, C.beak, C.skin, C.hair, C.sashTrim, C.horseBay, C.horseDark], 'generic');
 
 // ---------------------------------------------------------------- helpers
-const grp = (...m: THREE.Object3D[]) => { const g = new THREE.Group(); if (m.length) g.add(...m); return g; };
-const place = <T extends THREE.Object3D>(o: T, x: number, y: number, z: number, ry = 0, rx = 0, rz = 0): T => { o.position.set(x, y, z); o.rotation.set(rx, ry, rz); return o; };
-const box = (w: number, h: number, d: number, c: string, x = 0, y = 0, z = 0, ry = 0) => place(new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat(c)), x, y, z, ry);
-const cyl = (rt: number, rb: number, h: number, c: string, x = 0, y = 0, z = 0, seg = 8) => place(new THREE.Mesh(new THREE.CylinderGeometry(rt, rb, h, seg), mat(c)), x, y, z);
-const cone = (r: number, h: number, c: string, x = 0, y = 0, z = 0, seg = 6) => place(new THREE.Mesh(new THREE.ConeGeometry(r, h, seg), mat(c)), x, y, z);
-const hash = (i: number, s = 0) => { const x = Math.sin(i * 127.1 + s * 311.7 + 0.5) * 43758.5453; return x - Math.floor(x); };
-/** A faceted lump: an icosahedron with its vertices pushed in and out, then squashed. */
-function lump(r: number, color: string, seed: number, sx = 1, sy = 1, sz = 1, detail = 1, surface?: Surface): THREE.Mesh {
-  const geo = new THREE.IcosahedronGeometry(r, detail), pv = geo.attributes.position;
-  for (let i = 0; i < pv.count; i++) {
-    const x = pv.getX(i), y = pv.getY(i), z = pv.getZ(i), k = 0.82 + 0.3 * Math.abs(Math.sin(x * 2.9 + y * 1.7 + z * 2.3 + seed * 1.37));
-    pv.setXYZ(i, x * k * sx, y * k * sy, z * k * sz);
-  }
-  geo.computeVertexNormals();
-  return new THREE.Mesh(geo, mat(color, surface ? { surface } : {}));
-}
 /** A flat polygon lying in the xz plane at height y (points as [x, z]). */
 function flat(pts: [number, number][], color: string, y: number, material?: THREE.Material): THREE.Mesh {
   const geo = new THREE.ShapeGeometry(new THREE.Shape(pts.map(([x, z]) => new THREE.Vector2(x, -z)))); geo.rotateX(-Math.PI / 2); geo.translate(0, y, 0);
@@ -69,37 +55,11 @@ function blobPts(r: number, seed: number, sx = 1.4, n = 10): [number, number][] 
   for (let i = 0; i < n; i++) { const a = (i / n) * Math.PI * 2, k = r * (0.72 + 0.4 * hash(i, seed)); out.push([Math.cos(a) * k * sx, Math.sin(a) * k]); }
   return out;
 }
-function weedTuft(x: number, z: number, s: number, seed: number): THREE.Group {
-  const g = grp();
-  for (let i = 0; i < 5; i++) { const b = cone(0.16 * s, (1.2 + hash(i, seed) * 0.9) * s, i % 2 ? C.weedDry : C.weed, x + (hash(i, seed + 1) - 0.5) * 0.7 * s, (0.6 + hash(i, seed) * 0.45) * s, z + (hash(i, seed + 2) - 0.5) * 0.7 * s, 4); b.rotation.z = (hash(i, seed + 3) - 0.5) * 0.6; b.rotation.x = (hash(i, seed + 4) - 0.5) * 0.6; g.add(b); }
-  return g;
-}
 /** A sapling: a thin trunk and two small tiers, grown out of a ruin. */
 function sapling(x: number, z: number, h: number, seed: number): THREE.Group {
   const g = grp(cyl(0.12, 0.2, h, C.sapling, x, h / 2, z, 5));
   for (let i = 0; i < 2; i++) g.add(cone(0.9 - i * 0.3, 1.6, i ? '#2f4a3a' : '#1e3128', x, h * 0.55 + i * 1.3, z, 5));
   g.children[0].rotation.z = (hash(1, seed) - 0.5) * 0.2; return g;
-}
-/** One mesh per material (the figure or fog built from dozens of parts draws in a handful of calls). */
-function compact(root: THREE.Group, order = 0): THREE.Group {
-  root.updateMatrixWorld(true);
-  const inv = root.matrixWorld.clone().invert(), by = new Map<THREE.Material, THREE.BufferGeometry[]>();
-  root.traverse((o) => {
-    const m = o as THREE.Mesh; if (!m.isMesh) return;
-    const mt = m.material as THREE.Material, list = by.get(mt) ?? [];
-    list.push(m.geometry.clone().applyMatrix4(new THREE.Matrix4().multiplyMatrices(inv, m.matrixWorld))); by.set(mt, list);
-  });
-  const out = new THREE.Group();
-  for (const [mt, gs] of by) { const m = new THREE.Mesh(merge(gs), mt); if (order) m.renderOrder = order; out.add(m); }
-  return out;
-}
-/** Fog: the palette's mist grey, lit like everything else but see-through, drawn without depth writes. Cached. */
-const fogMats = new Map<string, THREE.MeshLambertMaterial>();
-function fogMat(color: string, opacity: number): THREE.MeshLambertMaterial {
-  const k = color + opacity;
-  let m = fogMats.get(k);
-  if (!m) { m = matClone(color); m.transparent = true; m.opacity = opacity; m.depthWrite = false; m.side = THREE.DoubleSide; fogMats.set(k, m); }
-  return m;
 }
 /** A ragged-edged sheet L × D lying in the xz plane. */
 function fogSheet(L: number, D: number, seed: number, m: THREE.Material): THREE.Mesh {

@@ -62,6 +62,33 @@ export interface SiteShaper {
 }
 export const SITE_SHAPERS: SiteShaper[] = [];
 
+/** On a stacked site whose floors go down below the ground (a cellar, a temple carved into a mountain), the land drawn
+ *  beyond the map lies at the ground's own height over the map too, and would bury those floors whenever the section
+ *  cut drops to them. The land is cut away there as the map's own ground is: over `box` (plan ft: the floors below
+ *  the ground, with a margin), above the cut. The planes clip only where every one of them agrees (clipIntersection),
+ *  so the land elsewhere, the mountains round the map included, stays whole. Null: nothing to cut. */
+export function landHole(box: { minX: number; minZ: number; maxX: number; maxZ: number } | null, cut: number | null): THREE.Plane[] | null {
+  if (!box || cut === null) return null;
+  return [new THREE.Plane(new THREE.Vector3(0, -1, 0), cut), new THREE.Plane(new THREE.Vector3(-1, 0, 0), box.minX), new THREE.Plane(new THREE.Vector3(1, 0, 0), -box.maxX),
+    new THREE.Plane(new THREE.Vector3(0, 0, -1), box.minZ), new THREE.Plane(new THREE.Vector3(0, 0, 1), -box.maxZ)];
+}
+/** The plan box (ft) of the floors among `levels` that lie below the ground at `groundFt`, wide enough that the camera's
+ *  usual tilt sees the deepest of them past the edge of the land round it (half as wide again as they lie deep); null
+ *  if none does. */
+export function underBox(levels: readonly { elevationFt: number; rooms: readonly { polygon: readonly (readonly number[])[] }[] }[], groundFt: number): { minX: number; minZ: number; maxX: number; maxZ: number } | null {
+  const under = levels.filter((l) => l.elevationFt < groundFt - 0.5), pts = under.flatMap((l) => l.rooms.flatMap((r) => r.polygon));
+  if (!pts.length) return null;
+  const xs = pts.map((p) => p[0]), zs = pts.map((p) => p[1]), pad = Math.max(2, (groundFt - Math.min(...under.map((l) => l.elevationFt))) * 1.6);
+  return { minX: Math.min(...xs) - pad, minZ: Math.min(...zs) - pad, maxX: Math.max(...xs) + pad, maxZ: Math.max(...zs) + pad };
+}
+/** Cut the backdrop's land (or close it again with null): see landHole. */
+export function cutLand(backdrop: THREE.Object3D, planes: THREE.Plane[] | null): void {
+  const land = backdrop.getObjectByName('land') as THREE.Mesh | undefined;
+  if (!land) return;
+  const m = land.material as THREE.Material;
+  m.clippingPlanes = planes; m.clipIntersection = !!planes;
+}
+
 export function buildBackdrop(o: BackdropOpts): THREE.Group {
   const W = o.world, T = o.theme, V = o.valley ? 2.2 : 1;
   MIST = new THREE.Color(T.mist);

@@ -6,6 +6,8 @@ the street ribbons (cobble/dirt terrain polygons), the walls, each other, and th
 streets or inside houses; keyed site boxes with no building on them; objects off the ground polygon.
 Usage: audit-outdoor.py [scene.json ...]   (default: every scene with terrain under locations/)"""
 import json, math, os, sys, glob
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from geomlib import inside, seg_hits
 
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..')
 BUILDING = {'house', 'church-building', 'temple', 'tower', 'inn', 'barn', 'hall'}
@@ -20,13 +22,6 @@ def rect(o):
     x, z = o['pos'][0], o['pos'][2]
     return [[x + c * dx + s * dz, z - s * dx + c * dz] for dx, dz in ((-w / 2, -dd / 2), (w / 2, -dd / 2), (w / 2, dd / 2), (-w / 2, dd / 2))]
 
-def inside(p, poly):
-    x, z = p; c = False; n = len(poly)
-    for i in range(n):
-        (x0, z0), (x1, z1) = poly[i], poly[(i + 1) % n]
-        if (z0 > z) != (z1 > z) and x < (x1 - x0) * (z - z0) / (z1 - z0) + x0: c = not c
-    return c
-
 def axes(poly):
     for i in range(len(poly)):
         (x0, z0), (x1, z1) = poly[i], poly[(i + 1) % len(poly)]
@@ -39,15 +34,6 @@ def overlap(a, b, slack=0.0):
         pa = [p[0] * ax[0] + p[1] * ax[1] for p in a]; pb = [p[0] * ax[0] + p[1] * ax[1] for p in b]
         if max(pa) - slack < min(pb) or max(pb) - slack < min(pa): return False
     return True
-
-def seg_hits(a, b, poly):
-    """Does segment a-b cross the convex polygon (or lie inside it)?"""
-    if inside(a, poly) or inside(b, poly): return True
-    def cross(o, p, q): return (p[0] - o[0]) * (q[1] - o[1]) - (p[1] - o[1]) * (q[0] - o[0])
-    for i in range(len(poly)):
-        c, d = poly[i], poly[(i + 1) % len(poly)]
-        if (cross(a, b, c) > 0) != (cross(a, b, d) > 0) and (cross(c, d, a) > 0) != (cross(c, d, b) > 0): return True
-    return False
 
 def area(poly):
     return abs(sum(poly[i][0] * poly[(i + 1) % len(poly)][1] - poly[(i + 1) % len(poly)][0] * poly[i][1] for i in range(len(poly))) / 2)

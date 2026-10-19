@@ -21,9 +21,6 @@ W, H = 120, 100
 CX, CZ = 60, 50
 def P(x, z): return (CX + x / 5, CZ + z / 5)            # brief feet -> cells
 def FT(x, z): return [rnd(CX * 5 + x, 1), rnd(CZ * 5 + z, 1)]   # brief feet -> map feet (prism polygons)
-def bearing_dir(b):
-    """Unit plan vector of a compass bearing (degrees clockwise from north = -z)."""
-    r = math.radians(b); return (math.sin(r), -math.cos(r))
 
 
 def build():

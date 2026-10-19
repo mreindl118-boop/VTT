@@ -1,3 +1,5 @@
+Resolved in 0.3.2; only the nits under Nits remain, for the owner to decide.
+
 # Item 7, unfinished maps: what is still open
 
 Written 2026-10-13 by Claude Code from its final check of branch `claude/wip/item7-unfinished-maps`. The three map groups were built on their own branches, reviewed, fixed once, and merged at `bb393fe`. The final check (three reviewers) then found the issues below. A fixer started on them and was interrupted; its half-finished edits are the WIP commit `ee47297` on the same branch. Read that diff first, keep what is sound, and finish the rest.

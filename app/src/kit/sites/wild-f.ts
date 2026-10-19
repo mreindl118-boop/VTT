@@ -9,6 +9,8 @@ import { CREATURES, humanoid } from '../creatures';
 import { mat } from '../../render/materials';
 import { PALETTE } from '../palette';
 import { surfaceFor } from '../surfaces';
+import { box, cylWith, grp, hash, lump, place, plate, tris } from '../shapes';
+const cyl = cylWith(7);
 
 type Dims = Record<string, number>;
 
@@ -44,28 +46,6 @@ surfaceFor([C.rope, C.ropeGreen, C.vCloth0, C.vCloth1, C.vCloth2, C.vCloth3, C.v
 surfaceFor([C.iron, C.rust], 'metal');
 
 // ---------------------------------------------------------------- helpers
-const grp = (...m: THREE.Object3D[]) => { const g = new THREE.Group(); if (m.length) g.add(...m); return g; };
-const place = <T extends THREE.Object3D>(o: T, x: number, y: number, z: number, ry = 0, rx = 0, rz = 0): T => { o.position.set(x, y, z); o.rotation.set(rx, ry, rz); return o; };
-const box = (w: number, h: number, d: number, c: string, x = 0, y = 0, z = 0, ry = 0, rx = 0, rz = 0) => place(new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat(c)), x, y, z, ry, rx, rz);
-const cyl = (rt: number, rb: number, h: number, c: string, x = 0, y = 0, z = 0, seg = 7) => place(new THREE.Mesh(new THREE.CylinderGeometry(rt, rb, h, seg), mat(c)), x, y, z);
-const hash = (i: number, s = 0) => { const x = Math.sin(i * 127.1 + s * 311.7 + 0.5) * 43758.5453; return x - Math.floor(x); };
-/** A faceted lump: an icosahedron with its vertices pushed in and out, then squashed. */
-function lump(r: number, color: string, seed: number, sx = 1, sy = 1, sz = 1, detail = 1): THREE.Mesh {
-  const geo = new THREE.IcosahedronGeometry(r, detail), pv = geo.attributes.position;
-  for (let i = 0; i < pv.count; i++) {
-    const x = pv.getX(i), y = pv.getY(i), z = pv.getZ(i), k = 0.82 + 0.3 * Math.abs(Math.sin(x * 2.9 + y * 1.7 + z * 2.3 + seed * 1.37));
-    pv.setXYZ(i, x * k * sx, y * k * sy, z * k * sz);
-  }
-  geo.computeVertexNormals();
-  return new THREE.Mesh(geo, mat(color));
-}
-/** A flat plate with a ragged outline lying on the ground (a scatter of needles, a patch of ash), radius r, in the xz plane. */
-function plate(r: number, seed: number, color: string, y = 0.04, sx = 1.3): THREE.Mesh {
-  const pts: THREE.Vector2[] = [];
-  for (let i = 0; i < 9; i++) { const a = (i / 9) * Math.PI * 2, k = r * (0.7 + 0.4 * hash(i, seed)); pts.push(new THREE.Vector2(Math.cos(a) * k * sx, Math.sin(a) * k)); }
-  const geo = new THREE.ShapeGeometry(new THREE.Shape(pts)); geo.rotateX(-Math.PI / 2); geo.translate(0, y, 0);
-  return new THREE.Mesh(geo, mat(color));
-}
 /** A profile in the (x, y) plane extruded `len` along z, centred on z. */
 function profile(pts: [number, number][], len: number, color: string): THREE.Mesh {
   const geo = new THREE.ExtrudeGeometry(new THREE.Shape(pts.map(([x, y]) => new THREE.Vector2(x, y))), { depth: len, bevelEnabled: false }); geo.translate(0, 0, -len / 2);
@@ -75,11 +55,6 @@ function profile(pts: [number, number][], len: number, color: string): THREE.Mes
 function pitched(inner: THREE.Group, pitch?: number): THREE.Group {
   if (pitch) inner.rotation.z = (pitch * Math.PI) / 180;
   return grp(inner);
-}
-/** Triangles (non-indexed) into one flat-shaded mesh. */
-function tris(verts: number[], color: string): THREE.Mesh {
-  const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3)); geo.computeVertexNormals();
-  return new THREE.Mesh(geo, mat(color));
 }
 
 // ---------------------------------------------------------------- the land

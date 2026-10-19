@@ -330,6 +330,10 @@ test('ground meets every map: the land is flush with each placed map and 3 ft un
     for (const e of Object.values(m.atlas.scenes) as any[]) {
       if (e.campaign !== 'cos' || e.depth !== 0 || e.orphan || !e.pin) continue;
       const b = e.worldBounds, cx = (b.minX + b.maxX) / 2, cz = (b.minZ + b.maxZ) / 2, base = e.placement.position[1] + e.elevationFt;
+      // the land is flush with the map's ground, unless the centre lies over an authored ground opening (the Amber
+      // Temple's rooms under its mountain): there the land is meant to be at the opening's floor
+      const [lx, lz] = e.centre, cut = (e.groundCuts ?? []).find((c: any) => lx >= c.bounds.minX && lx <= c.bounds.maxX && lz >= c.bounds.minZ && lz <= c.bounds.maxZ);
+      const want = cut ? e.placement.position[1] + cut.floor : base - 0.4;
       // what is drawn there: a ray straight down onto the land and the aprons
       R.set(new V(cx - w.anchor.x, 30000, cz - w.anchor.z), new V(0, -1, 0));
       const hit = R.intersectObjects(land, false)[0];
@@ -345,7 +349,7 @@ test('ground meets every map: the land is flush with each placed map and 3 ft un
       }
       // a map on a lake's shore (Lake Zarovich's) has water or shore on every side: the shore rule applies there instead
       const lakeside = f.lakeNear(cx, cz, 1.6).i >= 0;
-      out.push({ path: e.path, base, centre: st.groundAt(cx, cz), drawn: hit ? hit.point.y + w.anchor.y : null, outside, lakeside });
+      out.push({ path: e.path, want, centre: st.groundAt(cx, cz), drawn: hit ? hit.point.y + w.anchor.y : null, outside, lakeside });
     }
     // the mist thins with height: at 60,000 ft the far mountains haze instead of vanishing; at 60 ft it is today's
     const t = w.controls.target.clone();
@@ -355,9 +359,9 @@ test('ground meets every map: the land is flush with each placed map and 3 ft un
   expect(r.length).toBeGreaterThanOrEqual(25);
   expect(r.filter((s) => !s.outside).length, 'only lakeside maps lack a clear side').toBeLessThanOrEqual(2);
   for (const s of r) {
-    expect(Math.abs(s.centre - (s.base - 0.4)), `${s.path} centre`).toBeLessThanOrEqual(0.5);
+    expect(Math.abs(s.centre - s.want), `${s.path} centre`).toBeLessThanOrEqual(0.5);
     expect(s.drawn, `${s.path} drawn`).not.toBeNull();
-    expect(Math.abs(s.drawn - (s.base - 0.4)), `${s.path} drawn`).toBeLessThanOrEqual(0.5);
+    expect(Math.abs(s.drawn - s.want), `${s.path} drawn`).toBeLessThanOrEqual(0.5);
     if (!s.outside) { expect(s.lakeside, `${s.path}: a side with nothing else near`).toBe(true); continue; }
     expect(Math.abs(s.outside.got - s.outside.want), `${s.path} 2,000 ft out`).toBeLessThanOrEqual(1);
     expect(Math.abs(s.outside.want + 3 - s.outside.survey), `${s.path} survey`).toBeLessThan(1e-6);

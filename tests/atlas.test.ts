@@ -89,14 +89,16 @@ describe('world atlas', () => {
   });
   it('blowouts more than 1.5× their plot are listed as warnings (the Vallaki buildings, the church, Death House)', () => {
     const big = scenes.filter((s) => (s.blowout ?? 0) > 1.5).map((s) => s.path).sort();
-    expect(big).toEqual(['appB/death-house', 'ch03/E5', 'ch05/N1', 'ch05/N2', 'ch05/N3', 'ch05/N4', 'ch05/N5', 'ch05/N6', 'ch05/N7', 'ch05/N8']);
+    // (ch10/U3 since item 7: Baba Lysaga's hut sits in a ragged mire of 122 × 117 ft on the 64-ft plot Berez gives it)
+    expect(big).toEqual(['appB/death-house', 'ch03/E5', 'ch05/N1', 'ch05/N2', 'ch05/N3', 'ch05/N4', 'ch05/N5', 'ch05/N6', 'ch05/N7', 'ch05/N8', 'ch10/U3']);
     for (const path of big) expect(atlas.warnings.some((w) => w.startsWith(`${path}:`)), `${path} warned`).toBe(true);
     expect(atlas.scenes['ch05/N9'].blowout).toBeLessThanOrEqual(1.5); // the Vistani camp fits its field
   });
-  it('reports no errors; the dev room is the only orphan; Vallaki and Krezk weigh two units', () => {
+  it('reports no errors; the dev room is the only orphan; Vallaki, Krezk and Yester Hill weigh two units', () => {
     expect(atlas.errors).toEqual([]);
     expect(scenes.filter((s) => s.orphan).map((s) => s.path)).toEqual(['dev/m0-test-room']);
-    expect(scenes.filter((s) => s.units > 1).map((s) => s.path).sort()).toEqual(['ch05/N', 'ch08/S']);
+    // Yester Hill weighs two since item 7: the whole hill, its trail, cairns and trees are over 2,000 objects
+    expect(scenes.filter((s) => s.units > 1).map((s) => s.path).sort()).toEqual(['ch05/N', 'ch08/S', 'ch14/Y']);
     expect(atlas.scenes['ch03/E'].roadExits.length).toBeGreaterThan(0); // the Old Svalich Road leaves the village
     expect(atlas.scenes['ch05/N'].roadExits).toEqual([]); // the world's roads stop at Vallaki's 1.7-mile map, as the backdrop finds today
     expect(atlas.constants).toEqual({ MI_FT: 5280, RELIEF: 1.25, NEST_LIFT: 0.2 });

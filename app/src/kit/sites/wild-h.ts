@@ -16,6 +16,8 @@ import { PALETTE } from '../palette';
 import { surfaceFor } from '../surfaces';
 import { merge } from '../pieces';
 import { SITE_SHAPERS } from '../../render/backdrop';
+import { compact, densify, dimsLine, grp, hash, inPoly, lerp, lumpGeo, place, smoothstep } from '../shapes';
+import { fogMat } from '../mist';
 
 type Dims = Record<string, number>;
 type P2 = [number, number];
@@ -58,10 +60,6 @@ surfaceFor([C.shingle, C.shingle2, C.shingle3], 'rubble');
 surfaceFor([C.leather, C.boot, C.rope, C.ropeWet, C.hide, C.hideDark, C.cloth, C.clothTie], 'cloth');
 
 // ---------------------------------------------------------------- helpers
-const grp = (...m: THREE.Object3D[]) => { const g = new THREE.Group(); if (m.length) g.add(...m); return g; };
-const place = <T extends THREE.Object3D>(o: T, x: number, y: number, z: number, ry = 0, rx = 0, rz = 0): T => { o.position.set(x, y, z); o.rotation.set(rx, ry, rz); return o; };
-const hash = (i: number, s = 0) => { const x = Math.sin(i * 127.1 + s * 311.7 + 0.5) * 43758.5453; return x - Math.floor(x); };
-const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 /** Smooth value noise along one axis (period 1), seeded. */
 const noise1 = (x: number, s = 0) => { const i = Math.floor(x), f = x - i, u = f * f * (3 - 2 * f); return lerp(hash(i, s), hash(i + 1, s), u) * 2 - 1; };
 type MatFn = (c: string) => THREE.Material;
@@ -69,16 +67,6 @@ const M: MatFn = (c) => mat(c);
 const box = (w: number, h: number, d: number, c: string, x = 0, y = 0, z = 0, ry = 0, m: MatFn = M) => place(new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m(c)), x, y, z, ry);
 const cyl = (rt: number, rb: number, h: number, c: string, x = 0, y = 0, z = 0, seg = 7, m: MatFn = M) => place(new THREE.Mesh(new THREE.CylinderGeometry(rt, rb, h, seg), m(c)), x, y, z);
 const cone = (r: number, h: number, c: string, x = 0, y = 0, z = 0, seg = 6, m: MatFn = M) => place(new THREE.Mesh(new THREE.ConeGeometry(r, h, seg), m(c)), x, y, z);
-/** A faceted lump (rock, billow): an icosahedron with its vertices pushed in and out, then squashed. */
-function lumpGeo(r: number, seed: number, sx = 1, sy = 1, sz = 1, detail = 1): THREE.BufferGeometry {
-  const geo = new THREE.IcosahedronGeometry(r, detail), pv = geo.attributes.position;
-  for (let i = 0; i < pv.count; i++) {
-    const x = pv.getX(i), y = pv.getY(i), z = pv.getZ(i), k = 0.82 + 0.3 * Math.abs(Math.sin(x * 2.9 + y * 1.7 + z * 2.3 + seed * 1.37));
-    pv.setXYZ(i, x * k * sx, y * k * sy, z * k * sz);
-  }
-  geo.computeVertexNormals();
-  return geo;
-}
 const lump = (r: number, c: string, seed: number, sx = 1, sy = 1, sz = 1, detail = 1, m: MatFn = M) => new THREE.Mesh(lumpGeo(r, seed, sx, sy, sz, detail), m(c));
 /** An angular, fresh-broken block (low detail: big flat facets). */
 const shard = (r: number, c: string, seed: number, sx = 1, sy = 1, sz = 1, m: MatFn = M) => new THREE.Mesh(lumpGeo(r, seed, sx, sy, sz, 0), m(c));
@@ -90,20 +78,6 @@ function flat(poly: P2[], y: number, c: string, m: MatFn = M): THREE.Mesh {
 }
 /** An irregular blob outline of radius about r (stretched sx along x), n points. */
 const blobPts = (r: number, seed: number, sx = 1, n = 11, j = 0.3): P2[] => Array.from({ length: n }, (_, i) => { const a = (i / n) * Math.PI * 2, k = r * (1 - j / 2 + j * hash(i, seed)); return [Math.cos(a) * k * sx, Math.sin(a) * k] as P2; });
-/** Polyline from dims: `${p}n` points at `${p}x${i}`, `${p}z${i}` (and widths `${p}w${i}`). */
-function dimsLine(d: Dims, p = ''): { pts: P2[]; w: number[] } {
-  const n = d[p + 'n'] ?? 0, pts: P2[] = [], w: number[] = [];
-  for (let i = 0; i < n; i++) { pts.push([d[`${p}x${i}`] ?? 0, d[`${p}z${i}`] ?? 0]); w.push(d[`${p}w${i}`] ?? 0); }
-  return { pts, w };
-}
-/** Fog: lit like everything else but see-through and drawn without depth writes; cached per colour and opacity. */
-const fogMats = new Map<string, THREE.MeshLambertMaterial>();
-function fogMat(color: string, opacity: number): THREE.MeshLambertMaterial {
-  const k = color + opacity;
-  let m = fogMats.get(k);
-  if (!m) { m = matClone(color); m.transparent = true; m.opacity = opacity; m.depthWrite = false; m.side = THREE.DoubleSide; fogMats.set(k, m); }
-  return m;
-}
 /** A ragged fog sheet over a plan polygon at height y. */
 function fogFlat(poly: P2[], y: number, color: string, opacity: number, m?: THREE.Material): THREE.Mesh {
   const geo = new THREE.ShapeGeometry(new THREE.Shape(poly.map(([x, z]) => new THREE.Vector2(x, -z))));
@@ -135,30 +109,6 @@ function stripCols(rows: THREE.Vector3[][], pick: (i: number) => boolean, flip =
 }
 /** One mesh per material: a piece built from many parts draws in a handful of calls (and a hidden piece, which the
  *  level does not merge, stays cheap). */
-function compact(root: THREE.Object3D): THREE.Group {
-  root.updateMatrixWorld(true);
-  const inv = root.matrixWorld.clone().invert(), by = new Map<THREE.Material, THREE.BufferGeometry[]>();
-  root.traverse((o) => {
-    const m = o as THREE.Mesh; if (!m.isMesh) return;
-    const mt = m.material as THREE.Material, list = by.get(mt) ?? [];
-    list.push(m.geometry.clone().applyMatrix4(new THREE.Matrix4().multiplyMatrices(inv, m.matrixWorld))); by.set(mt, list);
-  });
-  const out = new THREE.Group();
-  for (const [mt, gs] of by) out.add(new THREE.Mesh(merge(gs), mt));
-  return out;
-}
-/** Points every `step` ft along a polyline, each with its unit tangent and interpolated width. */
-function densify(pts: P2[], w: number[], step: number, closed = false): { p: P2; t: P2; w: number }[] {
-  const out: { p: P2; t: P2; w: number }[] = [], n = pts.length, segs = closed ? n : n - 1;
-  for (let i = 0; i < segs; i++) {
-    const a = pts[i], b = pts[(i + 1) % n], L = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1, k = Math.max(1, Math.round(L / step)), t: P2 = [(b[0] - a[0]) / L, (b[1] - a[1]) / L];
-    for (let s = 0; s < k; s++) { const f = s / k; out.push({ p: [lerp(a[0], b[0], f), lerp(a[1], b[1], f)], t, w: lerp(w[i] ?? 0, w[(i + 1) % n] ?? 0, f) }); }
-  }
-  if (!closed) { const a = pts[n - 2], b = pts[n - 1], L = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1; out.push({ p: [...b] as P2, t: [(b[0] - a[0]) / L, (b[1] - a[1]) / L], w: w[n - 1] ?? 0 }); }
-  // smooth the tangents at the joints
-  for (let i = 1; i + 1 < out.length; i++) { const a = out[i - 1].t, b = out[i + 1].t, tx = a[0] + b[0], tz = a[1] + b[1], L = Math.hypot(tx, tz) || 1; out[i].t = [tx / L, tz / L]; }
-  return out;
-}
 
 // ---------------------------------------------------------------- the land round the map
 // The saddle is the lip of the valley: past the map's east and south-east edges the mountain drops away in a sheer
@@ -171,7 +121,6 @@ const SCARP = 380, SCARP_W = 12;
 /** The gorge below the cleft: the chasm's own axis past the map's edge, then down the valley to where the River Ivlis
  *  begins near Tser Pool. */
 const GORGE: P2[] = [[600, 418], [690, 476], [800, 540], [1100, 700], [1600, 1050], [2600, 1800], [3800, 2700], [5000, 3500], [6425, 4431]];
-const smoothstep = (a: number, b: number, t: number) => { const k = Math.min(1, Math.max(0, (t - a) / (b - a))); return k * k * (3 - 2 * k); };
 const mapDistH = (x: number, z: number) => Math.max(0, -x, x - MAP_W, -z, z - MAP_D);
 /** How much of the drop a direction from the map carries: the whole of it from east-north-east round to south-south-east,
  *  none toward the massif in the north or the mountain the road comes down on to the south-west. */
@@ -213,7 +162,6 @@ function grow(poly: P2[], dist: number): P2[] {
 }
 const CANYON: P2[] = grow(POOL_CANYON, 40);
 const CANYON_K = 20; // its walls' batter: feet of drop per foot in from the rim
-function inPoly(poly: P2[], x: number, z: number): boolean { let c = false; for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) { const [xi, zi] = poly[i], [xj, zj] = poly[j]; if ((zi > z) !== (zj > z) && x < ((xj - xi) * (z - zi)) / (zj - zi) + xi) c = !c; } return c; }
 function polyEdgeDist(poly: P2[], x: number, z: number): number { let best = Infinity; for (let i = 0; i < poly.length; i++) { const [ax, az] = poly[i], [bx, bz] = poly[(i + 1) % poly.length], dx = bx - ax, dz = bz - az, t = Math.max(0, Math.min(1, ((x - ax) * dx + (z - az) * dz) / (dx * dx + dz * dz || 1))); best = Math.min(best, Math.hypot(x - ax - dx * t, z - az - dz * t)); } return best; }
 const CANYON_FLOOR = -8;
 // Vallaki, as the backdrop draws it (its true bearing, drawn nearer: see backdrop.ts `pull`), and the eye at the top of

@@ -7,10 +7,12 @@ import * as THREE from 'three';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { PROPS_V1, vardo } from '../props';
 import { CREATURES, horse, humanoid } from '../creatures';
-import { mat, matClone } from '../../render/materials';
+import { mat } from '../../render/materials';
 import { PALETTE } from '../palette';
-import { surfaceFor, type Surface } from '../surfaces';
+import { surfaceFor } from '../surfaces';
 import { SITE_SHAPERS } from '../../render/backdrop';
+import { box, cone, cyl, grp, hash, lump, place } from '../shapes';
+import { fogMat } from '../mist';
 
 type Dims = Record<string, number>;
 
@@ -40,22 +42,6 @@ surfaceFor([C.leather, C.twine, C.fur, C.furDeep, C.pelt, C.peltDeep, C.hunterCl
 surfaceFor([C.bone, C.boneOld, C.hunterSkin, C.hunterHair, C.vistSkin, C.vistHair, C.raven, C.ravenSheen], 'generic');
 
 // ---------------------------------------------------------------- helpers
-const grp = (...m: THREE.Object3D[]) => { const g = new THREE.Group(); if (m.length) g.add(...m); return g; };
-const place = <T extends THREE.Object3D>(o: T, x: number, y: number, z: number, ry = 0, rx = 0, rz = 0): T => { o.position.set(x, y, z); o.rotation.set(rx, ry, rz); return o; };
-const box = (w: number, h: number, d: number, c: string, x = 0, y = 0, z = 0, ry = 0) => place(new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat(c)), x, y, z, ry);
-const cyl = (rt: number, rb: number, h: number, c: string, x = 0, y = 0, z = 0, seg = 8) => place(new THREE.Mesh(new THREE.CylinderGeometry(rt, rb, h, seg), mat(c)), x, y, z);
-const cone = (r: number, h: number, c: string, x = 0, y = 0, z = 0, seg = 6) => place(new THREE.Mesh(new THREE.ConeGeometry(r, h, seg), mat(c)), x, y, z);
-const hash = (i: number, s = 0) => { const x = Math.sin(i * 127.1 + s * 311.7 + 0.5) * 43758.5453; return x - Math.floor(x); };
-/** A faceted lump: an icosahedron with its vertices pushed in and out, then squashed. */
-function lump(r: number, color: string, seed: number, sx = 1, sy = 1, sz = 1, detail = 1, surface?: Surface): THREE.Mesh {
-  const geo = new THREE.IcosahedronGeometry(r, detail), pv = geo.attributes.position;
-  for (let i = 0; i < pv.count; i++) {
-    const x = pv.getX(i), y = pv.getY(i), z = pv.getZ(i), k = 0.82 + 0.3 * Math.abs(Math.sin(x * 2.9 + y * 1.7 + z * 2.3 + seed * 1.37));
-    pv.setXYZ(i, x * k * sx, y * k * sy, z * k * sz);
-  }
-  geo.computeVertexNormals();
-  return new THREE.Mesh(geo, mat(color, surface ? { surface } : {}));
-}
 /** An irregular flat blob in the xz plane, `w` × `d`, lifted `y`: a pool, a stain, a patch of needles. */
 function blobGeo(w: number, d: number, seed: number, y: number, n = 11): THREE.BufferGeometry {
   const pts: THREE.Vector2[] = [];
@@ -64,14 +50,6 @@ function blobGeo(w: number, d: number, seed: number, y: number, n = 11): THREE.B
   return geo;
 }
 const blob = (w: number, d: number, seed: number, y: number, color: string, n = 11) => new THREE.Mesh(blobGeo(w, d, seed, y, n), mat(color));
-/** Fog: the palette's mist grey, lit like everything else but see-through, drawn without depth writes. Cached. */
-const fogMats = new Map<string, THREE.MeshLambertMaterial>();
-function fogMat(color: string, opacity: number): THREE.MeshLambertMaterial {
-  const k = color + opacity;
-  let m = fogMats.get(k);
-  if (!m) { m = matClone(color); m.transparent = true; m.opacity = opacity; m.depthWrite = false; m.side = THREE.DoubleSide; fogMats.set(k, m); }
-  return m;
-}
 /** A ragged-edged sheet `L` × `D` in the xz plane (a layer of fog seen from above). */
 function fogSheetGeo(L: number, D: number, seed: number): THREE.BufferGeometry {
   const pts: THREE.Vector2[] = [], n = Math.max(4, Math.round(L / 6)), m = Math.max(2, Math.round(D / 6));

@@ -7,7 +7,8 @@ claw out across the mire; an open doorway in the middle of the east wall, a litt
 hollow giant's skull floating beyond. Two levels: the mire (the roots, the stump, the skull, the raven cages under
 the eaves) and the hut's floor ten feet up on the stump, an 8-ft room under a gently sloping thatch roof
 (appendix D). The furniture is placed as the plan shows it. Grid and placements read off a 400-dpi render; the
-art and the wording are ours. The hut is a blowout of the Berez map (`parent`)."""
+art and the wording are ours. The hut is a blowout of the Berez map (`parent`); the mire runs on past the plan's
+square, a ragged patch about 120 ft across with its own pools, reeds and brambles."""
 import json, math, os, sys
 from collections import OrderedDict
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -34,10 +35,23 @@ def tag(lv, oid, **kw):
 
 # ---------------------------------------------------------------- the mire round the stump
 m = Level('mire', 'The mire (U3)', 0, 13, ambient='fog', interior='log', exterior='log', north='-z')
-m.terrain.append((rect(0, 0, N, N), 'marsh'))
+# The mire runs on past the plan's square: a ragged patch about 120 ft across round the stump, with black pools,
+# reeds and brambles out in it, so the plan sits in its marsh instead of on a tile.
+MIRE_R = 12.0
+def ragged(cx, cz, r, n, amp, seed):
+    pts = []
+    for k in range(n):
+        a = k / n * 2 * math.pi
+        q = r * (1 + amp * (0.55 * math.sin(3 * a + seed) + 0.3 * math.cos(5 * a + 2 * seed) + 0.25 * math.sin(11 * a + 3 * seed)))
+        pts.append((round(cx + math.cos(a) * q, 2), round(cz + math.sin(a) * q * 0.96, 2)))
+    return pts
+MIRE = ragged(HC[0], HC[1], MIRE_R, 40, 0.09, 0.7)
+m.terrain.append((MIRE, 'marsh'))
 for poly in ([(0.3, 2.2), (1.6, 1.8), (2.2, 2.9), (1.4, 3.6), (0.4, 3.3)], [(8.4, 7.4), (9.8, 7.1), (10.6, 8.2), (9.9, 9.1), (8.6, 8.7)],
              [(2.6, 9.6), (3.9, 9.3), (4.5, 10.4), (3.2, 10.8), (2.4, 10.3)], [(9.2, 3.2), (10.5, 3.0), (10.8, 4.1), (9.7, 4.4)], [(6.6, 0.4), (8.0, 0.3), (8.3, 1.2), (7.0, 1.5)]):
     m.terrain.append((poly, 'shallow-water'))
+OUT_POOLS = [(-1.6, 1.0, 1.6, 0.4), (12.9, 3.2, 1.3, 1.9), (13.0, 9.0, 1.8, 0.2), (7.6, 13.4, 1.5, 2.6), (-1.9, 8.2, 1.4, 1.1), (2.3, -2.2, 1.7, 0.9), (10.4, -1.8, 1.2, 2.2), (-0.6, 13.2, 1.1, 1.5)]
+for i, (x, z, r, sd) in enumerate(OUT_POOLS): m.terrain.append((ragged(x, z, r, 10, 0.18, sd), 'shallow-water'))
 m.room('U3-mire', "Baba Lysaga's Hut: the mire round the stump", rect(0, 0, N, N), 'marsh', page=PAGE.get('U3'), ceilingFt=13)
 open_room(m, rect(0, 0, N, N))
 m.prop('stump', 'hut-stump', HC, 'U3-mire', dims={'r': 9, 'h': FLOOR})
@@ -57,6 +71,25 @@ for i, (x, z, s) in enumerate([(1.0, 0.8, 1.2), (3.2, 0.5, 1), (8.8, 0.9, 1.3), 
                                (10.4, 6.2, 1.2), (10.1, 5.0, 0.9), (2.2, 6.9, 0.9), (2.9, 3.4, 1), (7.9, 2.6, 1.1), (3.4, 8.2, 0.8), (8.9, 8.0, 1), (0.5, 5.1, 0.9)]):
     m.prop(f'reeds{i}', 'marsh-reeds', (x, z), None, rotY=i * 53, dims={'s': s})
 for i, (x, z) in enumerate([(2.0, 2.3), (9.6, 8.3), (3.6, 10.0)]): m.prop(f'bush{i}', 'thorn-thicket', (x, z), None, rotY=i * 70, dims={'s': 1.1})
+# out in the mire beyond the plan: clumps of reeds, brambles, a drowned snag
+def wet(x, z): return any(math.hypot(x - px, z - pz) < r + 0.3 for px, pz, r, _ in OUT_POOLS)
+def in_mire(x, z, m_=1.2):
+    """Inside the mire's ragged edge by at least m_ cells."""
+    rr = lambda px, pz: math.hypot(px - HC[0], (pz - HC[1]) / 0.96)
+    k = int(math.atan2((z - HC[1]) / 0.96, x - HC[0]) % (2 * math.pi) / (2 * math.pi) * len(MIRE))
+    return rr(x, z) < min(rr(*MIRE[k]), rr(*MIRE[(k + 1) % len(MIRE)])) - m_
+k = 0
+for j in range(400):
+    a, q = j * 2.39996, 6.9 + (j * 0.618034 % 1) * 4.6
+    x, z = round(HC[0] + math.cos(a) * q, 2), round(HC[1] + math.sin(a) * q, 2)
+    if -0.4 < x < N + 0.4 and -0.4 < z < N + 0.4: continue
+    if not in_mire(x, z) or wet(x, z): continue
+    m.prop(f'reedo{k}', 'marsh-reeds', (x, z), None, rotY=(j * 47) % 360, dims={'s': round(0.8 + (j * 0.381966 % 1) * 0.6, 2)}); k += 1
+    if k >= 28: break
+for i, (x, z, s_) in enumerate([(-3.0, 4.6, 1.2), (14.0, 6.2, 1.0), (4.4, 14.5, 1.3), (12.2, 12.4, 0.9), (-2.4, -1.4, 1.0)]):
+    if in_mire(x, z, 2) and not wet(x, z): m.prop(f'brambles{i}', 'thorn-thicket', (x, z), None, rotY=i * 61, dims={'s': s_})
+for i, (x, z, s_) in enumerate([(-3.4, 10.6, 0.8), (14.6, 1.0, 0.9), (9.6, 15.0, 0.7)]):
+    if in_mire(x, z, 1.5) and not wet(x, z): m.prop(f'snag{i}', 'dead-tree', (x, z), None, rotY=i * 97, dims={'scale': s_})
 
 # ---------------------------------------------------------------- the hut, ten feet up on the stump
 h = Level('hut', "Baba Lysaga's hut (U3)", FLOOR, 8, ambient='darkness', interior='log', exterior='log', north='-z')
@@ -112,7 +145,9 @@ for lv in scene['levels']:
     for r in lv['rooms']:
         d = DESC.get(r['key'])
         if d: r['desc'], r['dm'] = d
-grid = OrderedDict(schema=1, levels=OrderedDict((lv.id, OrderedDict(floorPolygons=[[[x * 5, z * 5] for x, z in p] for p in lv.floor_polys], type='square', hexOrientation='pointy', origin=[0, 0], color='#1d1b22', opacity=0.55)) for lv in levels))
+# the party can wade out across the whole mire, not only the plan's square
+grid = OrderedDict(schema=1, levels=OrderedDict((lv.id, OrderedDict(floorPolygons=[[[x * 5, z * 5] for x, z in p] for p in lv.floor_polys] + [[[round(x * 5, 2), round(z * 5, 2)] for x, z in p] for p, f in lv.terrain if f == 'marsh' and p is MIRE],
+                                                                 type='square', hexOrientation='pointy', origin=[0, 0], color='#1d1b22', opacity=0.55)) for lv in levels))
 out = os.path.join(ROOT, 'locations', 'ch10', 'U3'); os.makedirs(out, exist_ok=True)
 json.dump(scene, open(os.path.join(out, 'scene.json'), 'w'), indent=1)
 json.dump(grid, open(os.path.join(out, 'grid.json'), 'w'), indent=1)

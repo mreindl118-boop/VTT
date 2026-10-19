@@ -19,6 +19,7 @@ from collections import OrderedDict
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from authorlib import ROOT, Level, rect, seg_key, unit_edges, cobwebs  # noqa: F401
 import krezk_land as KL
+from geomlib import ov
 
 _M = json.load(open(os.path.join(ROOT, 'manifests', 'locations.json')))
 PAGE = {a['key']: a['page'] for l in _M['locations'] if l['id'] == 'S10' for a in l['areas']}
@@ -28,8 +29,6 @@ LEDGE = 400
 G_EL, U_EL, L_EL, C_EL = LEDGE, LEDGE + 15, LEDGE + 20, LEDGE - 20
 
 # ------------------------------------------------------------------ helpers for diagonal walls (authorlib stamps whole cells)
-def ov(lv, a, b, **kw):
-    k = seg_key(a, b); lv.overrides[k] = dict(lv.overrides.get(k, {}), **kw)
 
 def is_axis(a, b): return a[0] == b[0] or a[1] == b[1]
 
