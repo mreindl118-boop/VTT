@@ -132,6 +132,15 @@ a day old; then continue it from its wip branch, and say so in Status.
 
 ## Status
 
+### Claude, 2026-10-19 17:20 UTC (cloud): Matt's "all go": the mist edge next, then framework release 7
+
+- Matt, 2026-10-19: "all go", on the two questions in the chat (the mist edge ahead of 2f-2; framework release 7 with
+  its questions 3, 9 and 10 answered yes). The order from here, one lean job at a time under his usage rule:
+  2f-1 (running) → 2f-5 the mist edge → 2f-6 release 7, the land as one surface → 2f-2 Krezk's crag and Tser Falls'
+  gorge → 2f-3 the castle's presence → 2f-4 the village's streets and Death House. 2g-1 stays with the castle item.
+  Each is claimed when it starts and released on its own version. Still open: the CI-hardening question, the
+  Playwright-upgrade choice, the castle walls' thickness, the audits' questions, the Baratok discs.
+
 ### Claude, 2026-10-19 17:00 UTC (cloud): Tser Falls' gorge and plate, filed (2f-2 widened; release 7)
 
 - Matt, 2026-10-19, three screenshots of Tser Falls (H): "tser falls mountain shape logic issues and contextual
@@ -656,20 +665,9 @@ may still be running** its check-in routine; Matt decides whether it carries on 
 
 ## Questions for Matt
 
-- **Order of the mist edge (2f-5):** run it right after 2f-1, ahead of Krezk's crag, the castle's presence and the village
-  streets? It is the one change that softens the terrace edges you flagged on every outdoor map at once; the land
-  itself is reshaped by release 7 afterwards. Default without an answer: in order of arrival, after 2f-4.
-- **Framework release 7, "the land is one surface" (2026-10-19): four of your reports today land there (the Vallaki
-  terrace with its diagonal edges, the Amber Temple and Tsolenka plateaus with no way between, "the whole world has
-  cohesion issues", Yester Hill as a pyramid). May the cloud run release 7 next after 2f-1, with its questions 3 (ground-
-  following levels; Yester Hill rebuilt as one sloped level), 9 (the grid fades out 40 ft past the rooms) and 10
-  (outdoor levels reveal a 60-ft radius round the party) answered yes as recommended? It touches `worldland.ts` and
-  `backdrop.ts`, which ChatGPT's item 2e branch also changes, so whoever merges second resolves, keeping both.
-- **The valley's roads (2026-10-19, your screenshots):** may the cloud (a) re-digitise the region's roads and rivers
-  in `world.json` as one connected graph through the places, with a test that keeps it so (claim on `world.json`,
-  `barovia-world.py`, the test; the renderers unchanged except a guard against hooks), and (b) stop a map-open from
-  counting as a party move and draw the trail along the roads (claim on `moveWorld` and `drawTrail`)? Each is one lean
-  job; (a) first. Or leave both to ChatGPT's item 2e, where the road model is planned but not started.
+- Answered (Matt, 2026-10-19: "all go"): the mist edge (2f-5) runs right after 2f-1, ahead of Krezk's crag, the castle's presence and the village streets.
+- Answered (Matt, 2026-10-19: "all go"): framework release 7 runs after the mist edge, with its questions 3, 9 and 10 answered yes as recommended (queue item 2f-6).
+- Answered (Matt, 2026-10-19: "go on"): the valley's roads as one graph and the trail along them, item 2f-1, running.
 - **CI flakiness (2026-10-19): may the cloud harden the three timing-sensitive checks in `e2e/world.spec.ts`** (the
   valley fit after a flight, the zoom-out chip, the names' clickable count; mechanisms in the 09:50 Status entry) as
   one bounded test-only job under a claim on that file, with no assertion loosened and each change proven by the
