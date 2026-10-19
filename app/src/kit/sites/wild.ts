@@ -51,7 +51,7 @@ function wisp(r: number, seed: number, color: string, opacity: number): THREE.Me
   const geo = new THREE.ShapeGeometry(new THREE.Shape(pts)); geo.rotateX(-Math.PI / 2);
   return new THREE.Mesh(geo, fogMat(color, opacity));
 }
-function weedTuft(x: number, z: number, s: number, seed: number): THREE.Group {
+export function weedTuft(x: number, z: number, s: number, seed: number): THREE.Group {
   const g = grp();
   for (let i = 0; i < 5; i++) { const b = cone(0.16 * s, (1.2 + hash(i, seed) * 0.9) * s, i % 2 ? C.weedDry : C.weed, x + (hash(i, seed + 1) - 0.5) * 0.7 * s, (0.6 + hash(i, seed) * 0.45) * s, z + (hash(i, seed + 2) - 0.5) * 0.7 * s, 4); b.rotation.z = (hash(i, seed + 3) - 0.5) * 0.6; b.rotation.x = (hash(i, seed + 4) - 0.5) * 0.6; g.add(b); }
   return g;

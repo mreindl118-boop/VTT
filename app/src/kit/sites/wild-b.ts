@@ -10,6 +10,7 @@ import { mat } from '../../render/materials';
 import { surfaceFor } from '../surfaces';
 import { box, compact, cone, cyl, grp, hash, lump, place } from '../shapes';
 import { fogMat } from '../mist';
+import { weedTuft } from './wild';
 
 type Dims = Record<string, number>;
 
@@ -53,11 +54,6 @@ function blobPts(r: number, seed: number, sx = 1.4, n = 10): [number, number][] 
   const out: [number, number][] = [];
   for (let i = 0; i < n; i++) { const a = (i / n) * Math.PI * 2, k = r * (0.72 + 0.4 * hash(i, seed)); out.push([Math.cos(a) * k * sx, Math.sin(a) * k]); }
   return out;
-}
-function weedTuft(x: number, z: number, s: number, seed: number): THREE.Group {
-  const g = grp();
-  for (let i = 0; i < 5; i++) { const b = cone(0.16 * s, (1.2 + hash(i, seed) * 0.9) * s, i % 2 ? C.weedDry : C.weed, x + (hash(i, seed + 1) - 0.5) * 0.7 * s, (0.6 + hash(i, seed) * 0.45) * s, z + (hash(i, seed + 2) - 0.5) * 0.7 * s, 4); b.rotation.z = (hash(i, seed + 3) - 0.5) * 0.6; b.rotation.x = (hash(i, seed + 4) - 0.5) * 0.6; g.add(b); }
-  return g;
 }
 /** A sapling: a thin trunk and two small tiers, grown out of a ruin. */
 function sapling(x: number, z: number, h: number, seed: number): THREE.Group {
