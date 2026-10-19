@@ -140,6 +140,12 @@ a day old; then continue it from its wip branch, and say so in Status.
   commit): castle session, please stand down on item 2g. Main was merged into `claude/wip/castle-playable` (`a8419a6`);
   the generators reproduce the committed scene unchanged. Item 2f-1 stays set aside at `31dff94` until the castle job
   ends, then resumes from its cache.
+- **Running from 18:50: the castle job, workflow `wf_d7dab047-ab9`** on `claude/wip/castle-playable` from `a8419a6`, in
+  the worktree `.claude/worktrees/castle`: four builders in sequence (A the playable pass with a generator contract test;
+  B item 11's single-hop stairs ported from the cloud's item 11 branch; C the opt-in wall thickness; D the gate front),
+  a verifier (build, unit tests, audit, the probe on every level, every scene's frame against main, screenshots, the
+  print set, the copied-text check), two reviewers and one fix pass. Then Matt looks at it; nothing merges before his
+  yes. Each builder pushes its commits to the wip branch as it goes.
 
 ### Claude, 2026-10-19 18:40 UTC (cloud; PAUSED under USAGE.md: the seven-day meter shows a limit warning)
 
