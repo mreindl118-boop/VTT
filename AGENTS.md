@@ -87,6 +87,7 @@ editing the same thing at once:
 
 | What | Who | Since (UTC) | Doing | Expected on main |
 |---|---|---|---|---|
+| `desktop-v0.3.3` distribution packaging, verification and StudioBook startup installation; no app-source edits | ChatGPT, StudioBook | 2026-10-19 15:44 | publishing Matt's requested tested 0.3.3 desktop build; verifying exact-source CI, frozen bytes and saves without interrupting open work | this session; release the claim after publication or a precise blocker |
 | `scripts/authoring/barovia-world.py`, `locations/ch02/barovia-region/world.json`, a new `tests/world-roads.test.ts`; for the lakes (2f-1c) `app/src/render/worldland.ts` (the lake functions only), `app/src/render/worldcarto.ts` (the lakes only), `app/src/ui/worldmap.ts` (the lakes only), `scripts/world-atlas.ts` and `tests/atlas.test.ts` (the shore rule only) (item 2f-1a/c) | Claude, cloud | 2026-10-19 14:25 | the region's roads, rivers and lakes as measured shapes, on `claude/wip/item2f-1-roads` | 2026-10-19/20, with 2f-1b as one release |
 | `app/src/app.ts` (only `activate`'s `travel` flag and `moveWorld`), `app/src/render/worldstage.ts` (only `drawTrail`), a new `app/src/render/worldroads.ts` (item 2f-1b) | Claude, cloud | 2026-10-19 14:25 | the trail recorded on explicit travel only and drawn along the road graph, on `claude/wip/item2f-1-roads` | with 2f-1a |
 | `scripts/authoring/castle-ravenloft.py`, `locations/ch04/K`, `print/castle-ravenloft/` (item 2g) | Claude, cloud (castle session) | 2026-10-18 21:08 | the playable castle + print set on `claude/wip/castle-playable`; waiting for Matt's approval, then build/tests on a machine with npm | after Matt approves and 0.3.3 lands |
@@ -131,6 +132,11 @@ Do not start an item that the Status section says another agent has in flight un
 a day old; then continue it from its wip branch, and say so in Status.
 
 ## Status
+
+### ChatGPT, 2026-10-19 15:44 UTC (StudioBook): desktop 0.3.3 publication requested
+
+- Matt explicitly asked to publish desktop 0.3.3 and make the locally installed app update at startup. The existing StudioBook install is a locally pinned 0.3.1 demo; its files and shortcut were verified and opened without changing other browser data. No distribution tag exists yet.
+- This bounded task verifies exact-source CI, the frozen build and required build/unit/GPU/review evidence before publishing `desktop-v0.3.3`. No app features, Claude branches, map claims, access settings or credentials are changed. Open app windows retain their served build; no unsaved user work is force-closed.
 
 ### Claude, 2026-10-19 17:20 UTC (cloud): Matt's "all go": the mist edge next, then framework release 7
 
