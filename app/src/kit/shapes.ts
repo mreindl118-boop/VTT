@@ -76,6 +76,9 @@ export function upTris(v: THREE.Vector3[]): THREE.BufferGeometry {
   const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(P, 3)); g.computeVertexNormals(); return g;
 }
 
+/** Point-in-polygon in the plan (even-odd rule) for a closed ring of (x, z) points: the test the wilderness sites each declared. */
+export function inPoly(poly: P2[], x: number, z: number): boolean { let c = false; for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) { const [xi, zi] = poly[i], [xj, zj] = poly[j]; if ((zi > z) !== (zj > z) && x < ((xj - xi) * (z - zi)) / (zj - zi) + xi) c = !c; } return c; }
+
 /** A polyline from dims: `${p}n` points at `${p}x{i}`, `${p}z{i}`, each with a width `${p}w{i}`. */
 export function dimsLine(d: Dims, p = ''): { pts: P2[]; w: number[] } {
   const n = d[p + 'n'] ?? 0, pts: P2[] = [], w: number[] = [];

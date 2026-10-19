@@ -16,7 +16,7 @@ import { PALETTE } from '../palette';
 import { surfaceFor } from '../surfaces';
 import { merge } from '../pieces';
 import { SITE_SHAPERS } from '../../render/backdrop';
-import { compact, densify, dimsLine, grp, hash, lerp, lumpGeo, place, smoothstep } from '../shapes';
+import { compact, densify, dimsLine, grp, hash, inPoly, lerp, lumpGeo, place, smoothstep } from '../shapes';
 import { fogMat } from '../mist';
 
 type Dims = Record<string, number>;
@@ -162,7 +162,6 @@ function grow(poly: P2[], dist: number): P2[] {
 }
 const CANYON: P2[] = grow(POOL_CANYON, 40);
 const CANYON_K = 20; // its walls' batter: feet of drop per foot in from the rim
-function inPoly(poly: P2[], x: number, z: number): boolean { let c = false; for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) { const [xi, zi] = poly[i], [xj, zj] = poly[j]; if ((zi > z) !== (zj > z) && x < ((xj - xi) * (z - zi)) / (zj - zi) + xi) c = !c; } return c; }
 function polyEdgeDist(poly: P2[], x: number, z: number): number { let best = Infinity; for (let i = 0; i < poly.length; i++) { const [ax, az] = poly[i], [bx, bz] = poly[(i + 1) % poly.length], dx = bx - ax, dz = bz - az, t = Math.max(0, Math.min(1, ((x - ax) * dx + (z - az) * dz) / (dx * dx + dz * dz || 1))); best = Math.min(best, Math.hypot(x - ax - dx * t, z - az - dz * t)); } return best; }
 const CANYON_FLOOR = -8;
 // Vallaki, as the backdrop draws it (its true bearing, drawn nearer: see backdrop.ts `pull`), and the eye at the top of
