@@ -130,6 +130,36 @@ a day old; then continue it from its wip branch, and say so in Status.
 
 ## Status
 
+### Claude, 2026-10-19 14:10 UTC (cloud): Matt's report on the valley's roads; diagnosis and a proposal, nothing built
+
+- **Matt, 2026-10-19 (with four screenshots: the castle and gates, the Wizard of Wines, the Balinok slopes, Raven River
+  Crossroads, Old Bonegrinder): "there's these floating dotted lines and the main roads are all messed up, they don't
+  seem to go logically on the main map nor through the areas they connect"; "see the lack of road logic here?"**
+- **Two different things are on screen.** (1) The bright red straight rays, dashed and solid, fanning out from one
+  place across the whole valley are not roads: they are the party's trail (`.nesttrail`, `worldstage.ts:499-506`),
+  the last 12 world moves drawn as straight lines between the places' positions. Opening a place from its name with
+  `travel` set records a move (`app.ts:878`, `moveWorld`), so every map the DM opened while looking round became a
+  ray from the previous place; where the trail doubles back, two dashed strokes out of phase read as one solid line.
+  (2) The dark winding ribbons are the real roads, and their data is the problem: `locations/ch02/barovia-region/
+  world.json` holds 35 road pieces (the Old Svalich Road alone in 17 fragments, many of 2-4 points); 43 of the 70
+  fragment ends lie at no pin and no other road within half a mile (the dead-end stubs); every place except Tser Pool,
+  Tsolenka and the Amber Temple sits 0.25-0.47 mi from the nearest road point (the roads skirt the places they
+  connect); Castle Ravenloft is 1.08 mi, Berez 1.65, Yester Hill 1.90 off the net; and a 2-3 point fragment with a
+  tight turn, smoothed (`chaikin` in `worldcarto.ts:491`), makes the hooks seen at Bonegrinder and the Balinoks. The
+  rivers are 12 pieces with two identical pairs (ChatGPT's 2e plan noted them). World roads also stop at each map's
+  edge by rule (`worldland.ts:380-411`), so a map whose road exits do not line up with the valley road shows a gap.
+- **Already tracked, not started:** ChatGPT's item 2e plan (`docs/handoff/item2e-032-plan.md` step 3, "the connected
+  regional land, water and road model": shared endpoints, tangent continuity, graph connectivity, no draping over
+  noise) and framework release 7 consume it; ChatGPT's branch touches `worldland.ts` only (+27/-5), not the data.
+- **Proposal for Matt (two bounded jobs, his go needed; see Questions):** A. the road net as one graph: re-digitise
+  the roads in `world.json` from the regional map as connected polylines between the places (3-8 points per mile, every
+  end on a pin or a junction, each road meeting its map's road exits at the map edge), the rivers de-duplicated and
+  joined, with a unit test that holds it (every end on a pin or junction; every road place within 0.1 mi of a road; no
+  hook); claim on `world.json`, `barovia-world.py` and that test. B. the trail: a move is recorded only on an explicit
+  travel (a drag of the party or a Travel choice), not when the DM opens a map to look, and the drawn trail follows
+  the road graph between places instead of a straight line; claim on `app.ts` (`moveWorld`, the `travel` open) and
+  `worldstage.ts` (`drawTrail`). Nothing is built until he answers.
+
 ### Claude, 2026-10-19 13:30 UTC (cloud): CI is green on main again on the pinned runner; the ci.yml claim is released
 
 - **All four runs with the pin are green:** `3f017e8` (39244566085 main, 67 min; 39244610015 wip, 73 min) and `1f80b99`
@@ -528,6 +558,11 @@ may still be running** its check-in routine; Matt decides whether it carries on 
 
 ## Questions for Matt
 
+- **The valley's roads (2026-10-19, your screenshots):** may the cloud (a) re-digitise the region's roads and rivers
+  in `world.json` as one connected graph through the places, with a test that keeps it so (claim on `world.json`,
+  `barovia-world.py`, the test; the renderers unchanged except a guard against hooks), and (b) stop a map-open from
+  counting as a party move and draw the trail along the roads (claim on `moveWorld` and `drawTrail`)? Each is one lean
+  job; (a) first. Or leave both to ChatGPT's item 2e, where the road model is planned but not started.
 - **CI flakiness (2026-10-19): may the cloud harden the three timing-sensitive checks in `e2e/world.spec.ts`** (the
   valley fit after a flight, the zoom-out chip, the names' clickable count; mechanisms in the 09:50 Status entry) as
   one bounded test-only job under a claim on that file, with no assertion loosened and each change proven by the
