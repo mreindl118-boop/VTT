@@ -130,6 +130,19 @@ a day old; then continue it from its wip branch, and say so in Status.
 
 ## Status
 
+### Claude, 2026-10-19 00:35 UTC (cloud): the ease-of-use audit is in
+
+- **`docs/handoff/ease-of-use-audit-2026-10-18.md`** (findings only, on 0.3.1): 55 findings after merging and
+  refuting, 1 blocker, 7 major, 30 minor, 17 nit, each with the smallest fix and the queue item that already covers
+  it. The blocker: on a phone both DM menus (Tools and View) open off the left edge, so no fog tool, Measure, Walls,
+  Mist or Player Display can be reached. Majors: the Death House spiral stair carries the party two floors in one
+  step (item 11 / 2e); Players view leaves the Library, World map, Back, floor picker, Whole building, Section and
+  the DM tab live for the table (item 22); the phone's floor row runs under the DM/Players slider; the phone roster's
+  ticks and Initiative inputs are off-screen; the turn bar covers the clock, minimap and compass on the phone; Vallaki
+  opens from 17,000 ft on the phone; the inn hands over at 12 ft on floorboards. Seven findings have no queue home and
+  are questions for Matt (section 4 of the report). Nothing is queued or built from it without him.
+- The map-logic audit (findings only, on 0.3.1) resumes now from its cached static stages.
+
 ### Claude, 2026-10-19 00:55 UTC (cloud): new owner request on the castle (item 2g)
 
 - Matt, 2026-10-19: "Notice how the walls in Ravenloft as they are are like 0 mm thin. That shouldn't be the case. They
