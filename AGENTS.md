@@ -87,7 +87,7 @@ editing the same thing at once:
 
 | What | Who | Since (UTC) | Doing | Expected on main |
 |---|---|---|---|---|
-| `scripts/authoring/barovia-world.py`, `locations/ch02/barovia-region/world.json`, a new `tests/world-roads.test.ts` (item 2f-1a) | Claude, cloud | 2026-10-19 14:25 | the region's roads and rivers as one connected graph, on `claude/wip/item2f-1-roads` | 2026-10-19/20, with 2f-1b as one release |
+| `scripts/authoring/barovia-world.py`, `locations/ch02/barovia-region/world.json`, a new `tests/world-roads.test.ts`; for the lakes (2f-1c) `app/src/render/worldland.ts` (the lake functions only), `app/src/render/worldcarto.ts` (the lakes only), `app/src/ui/worldmap.ts` (the lakes only), `scripts/world-atlas.ts` and `tests/atlas.test.ts` (the shore rule only) (item 2f-1a/c) | Claude, cloud | 2026-10-19 14:25 | the region's roads, rivers and lakes as measured shapes, on `claude/wip/item2f-1-roads` | 2026-10-19/20, with 2f-1b as one release |
 | `app/src/app.ts` (only `activate`'s `travel` flag and `moveWorld`), `app/src/render/worldstage.ts` (only `drawTrail`), a new `app/src/render/worldroads.ts` (item 2f-1b) | Claude, cloud | 2026-10-19 14:25 | the trail recorded on explicit travel only and drawn along the road graph, on `claude/wip/item2f-1-roads` | with 2f-1a |
 | `scripts/authoring/castle-ravenloft.py`, `locations/ch04/K`, `print/castle-ravenloft/` (item 2g) | Claude, cloud (castle session) | 2026-10-18 21:08 | the playable castle + print set on `claude/wip/castle-playable`; waiting for Matt's approval, then build/tests on a machine with npm | after Matt approves and 0.3.3 lands |
 
@@ -131,6 +131,21 @@ Do not start an item that the Status section says another agent has in flight un
 a day old; then continue it from its wip branch, and say so in Status.
 
 ## Status
+
+### Claude, 2026-10-19 15:15 UTC (cloud): three more owner requests queued (lakes, Krezk's crag, the castle's presence); 2f-1 runs
+
+- Matt, 2026-10-19, in a burst with screenshots: (1) "all of these unnatural oval lakes aren't looking good" (the inked
+  valley: Lake Zarovich a perfect ellipse); (2) "krezk mountain thing is too steep, is broken texture; make it more
+  realistic in scale and texture" (the abbey's cutting from below); (3) "ravenloft in the distance should be more
+  visible and imposing even across distances; it's an ever-present moment in the module" (the castle a speck on the
+  horizon from the Svalich road). (1) joins item 2f-1 as part (c): the lakes are ellipses in `world.json`
+  (`lakes[].center/r`), consumed analytically by `worldland.ts` `lakeNear`/`levelOf`, the carto shader's `uLakes`
+  and `worldmap.ts`; measured outlines replace them in the same job as the roads, since the same map page is measured.
+  (2) is queue item 2f-2 and (3) item 2f-3, each its own lean job after 2f-1, each claimed when it starts. The Vallaki
+  seam stays with item 10 / framework release 7 (14:25 entry).
+- Item 2f-1 (roads, trail, lakes) is being built now on `claude/wip/item2f-1-roads` (worktree `.claude/worktrees/roads`)
+  as one workflow on the lean setting: a measuring scout on the 200-dpi page render (scratch only), one builder per
+  part in sequence, a verifier, two reviewers, one fix pass; then the release at the next version in order.
 
 ### Claude, 2026-10-19 14:25 UTC (cloud): Matt's go on the roads and the trail; item 2f-1 started
 
