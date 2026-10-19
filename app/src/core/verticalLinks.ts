@@ -1,11 +1,13 @@
-// Stairs, ladders, trapdoors, lifts and slides: the scene's vertical links, and which one a move or a click takes.
-// One move takes at most one link, and which one never depends on the order the scene lists its links in (app.ts
-// takeLink and afterPartyMove apply what these choose).
+// Stairs, ladders, trapdoors, lifts and slides: the scene's vertical links, which one a move or a click takes, and the
+// markers that offer them. One move takes at most one link, and which one never depends on the order the scene lists
+// its links in (app.ts takeLink and afterPartyMove apply what these choose).
 import type { Vec2 } from './geometry';
 import type { VerticalLink } from './schema';
 
 /** Within this distance of a link's end the party takes it: a cell, and half a foot. */
 export const LINK_TRIGGER_FT = 5.5;
+/** Link ends closer than this to a marker's first end share that marker (the old one-marker-per-stair spacing). */
+export const LINK_MARKER_FT = 12;
 
 export type LinkEnd = 'from' | 'to';
 /** One way through a link: in at one of its ends (`from`), out at the other (`to`). */
@@ -49,4 +51,16 @@ export function enteredRoute(links: readonly VerticalLink[], at: { level: string
   if (!entered.length) return null;
   const nearest = entered.filter((e) => e.d - entered[0].d < 1e-6);
   return nearest.length > 1 ? { choices: nearest.map((e) => e.r) } : { route: entered[0].r };
+}
+
+/** A level's stair markers: the link ends within LINK_MARKER_FT of a marker's first end share it, and each of them keeps
+ *  its own way out there (never only the first link's). */
+export function linkMarkers(links: readonly VerticalLink[], level: string): LinkRoute[][] {
+  const markers: LinkRoute[][] = [];
+  for (const r of routesOn(links, level)) {
+    const m = markers.find((g) => dist(g[0].from.pos, r.from.pos) < LINK_MARKER_FT);
+    if (m) m.push(r);
+    else markers.push([r]);
+  }
+  return markers;
 }

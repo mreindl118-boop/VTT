@@ -1,7 +1,7 @@
 // Stairs take the party one floor, once, in the running app (app.ts takeLink / afterPartyMove, core/verticalLinks.ts):
-// the chosen way whatever the scene's order, a stair taken only when a move enters it (walking, or the DM's "Move
-// party here"), a passage on one level to its far end, and the Player Display following without taking stairs of its
-// own.
+// a marker for every way out of a landing, the chosen way whatever the scene's order, a stair taken only when a move
+// enters it (walking, or the DM's "Move party here"), a passage on one level to its far end, and the Player Display
+// following without taking stairs of its own.
 import { expect, test, type Page } from '@playwright/test';
 import { quiet } from './helpers';
 
@@ -12,6 +12,39 @@ async function open(page: Page, scene = 'appB/death-house', query = '') {
   await page.evaluate(() => (window as any).__mistlab.ready);
 }
 const pose = (page: Page) => page.evaluate(() => { const a = (window as any).__mistlab.app; return { level: a.party.level, visible: a.levelId, pos: a.party.pos }; });
+/** Click a stair marker's way (link id and the end it goes in at) with the mouse, as the DM does. */
+async function clickWay(page: Page, link: string, end: 'from' | 'to') {
+  const way = page.locator(`.lbl.link[data-link="${link}"][data-end="${end}"]:visible, .lbl.link .way[data-link="${link}"][data-end="${end}"]:visible`);
+  await expect(way).toHaveCount(1);
+  await way.click();
+}
+
+test('Death House: the Floor 1 stair marker takes the party to Floor 2, whose landing offers up to Floor 3 and down to Floor 1, one floor each', async ({ page }) => {
+  await open(page);
+  // Floor 2's landing, seen from the top: its stair marker names both floors (and the dumbwaiter's both ways)
+  await page.evaluate(() => { const m = (window as any).__mistlab; m.moveParty('f2', 12.5, 27.5); m.frame('top'); });
+  const titles = () => page.locator('.lbl.link:visible, .lbl.link .way:visible').evaluateAll((els) => els.map((e) => e.getAttribute('title')).filter(Boolean));
+  await expect.poll(titles).toEqual(expect.arrayContaining([expect.stringMatching(/^Stairs up to Floor 3/), expect.stringMatching(/^Stairs down to Floor 1/)]));
+  await page.evaluate(() => { const m = (window as any).__mistlab; m.moveParty('f1', 17.5, 27.5); m.frame('top'); });
+  await clickWay(page, 'lk-spiral-1-2', 'from');
+  expect(await pose(page)).toEqual({ level: 'f2', visible: 'f2', pos: [27.5, 27.5] });
+  await expect(page.locator('.status')).toContainText('Floor 2');
+  // the landing's marker: both ways, each its own button
+  await page.evaluate(() => (window as any).__mistlab.frame('top'));
+  const marker = page.locator('.lbl.link.ways:visible').filter({ has: page.locator('.way[data-link="lk-spiral-2-3"]') });
+  await expect(marker.locator('.way')).toHaveCount(4);
+  await expect(marker.locator('.way[data-link="lk-spiral-2-3"][data-end="from"]')).toHaveAttribute('title', /Stairs up to Floor 3/);
+  await expect(marker.locator('.way[data-link="lk-spiral-1-2"][data-end="to"]')).toHaveAttribute('title', /Stairs down to Floor 1/);
+  await clickWay(page, 'lk-spiral-2-3', 'from');
+  expect(await pose(page)).toEqual({ level: 'f3', visible: 'f3', pos: [27.5, 27.5] });
+  await page.evaluate(() => (window as any).__mistlab.frame('top'));
+  await clickWay(page, 'lk-spiral-2-3', 'to');
+  expect(await pose(page)).toEqual({ level: 'f2', visible: 'f2', pos: [27.5, 27.5] });
+  await page.evaluate(() => (window as any).__mistlab.frame('top'));
+  await clickWay(page, 'lk-spiral-1-2', 'to');
+  expect(await pose(page)).toEqual({ level: 'f1', visible: 'f1', pos: [27.5, 27.5] });
+});
+
 test('Death House: walking onto the stair climbs one floor; stepping off the landing does not bring the party back; the shared landing asks the DM', async ({ page }) => {
   await open(page);
   const r = await page.evaluate(() => {
@@ -39,6 +72,32 @@ test('a link chosen by its id on a shared landing goes to its own floor, both wa
     return { up, down, lower };
   });
   expect(r).toEqual({ up: { party: 'f3', visible: 'f3' }, down: { party: 'f2', visible: 'f2' }, lower: { party: 'f1', visible: 'f1' } });
+});
+
+test('a passage on one level (the castle\'s dungeon stair K85) goes to its far end from the end whose marker is clicked', async ({ page }) => {
+  await open(page, 'ch04/K');
+  const ends = await page.evaluate(() => {
+    const m = (window as any).__mistlab, a = m.app, k = a.cur.scene.links.find((x: any) => x.id === 'lk-k85');
+    m.moveParty(k.from.level, ...a.snap(k.from.pos)); m.frame('top'); a.jumpTo('K85');
+    return { from: a.snap(k.from.pos), to: a.snap(k.to.pos) };
+  });
+  // the marker drawn at each end, found where it stands on screen, clicked with the mouse
+  const markerAt = async (end: 'from' | 'to') => {
+    await page.evaluate(() => (window as any).__mistlab.app.jumpTo('K85'));
+    const nearest = () => page.evaluate((end) => {
+      const m = (window as any).__mistlab, k = m.app.cur.scene.links.find((x: any) => x.id === 'lk-k85'), [x, y] = m.screenOf(k[end].pos[0], k[end].pos[1], 3);
+      const els = [...document.querySelectorAll<HTMLElement>('.lbl.link')].filter((e) => e.checkVisibility({ visibilityProperty: true }));
+      let best = -1, d = Infinity;
+      els.forEach((e, i) => { const r = e.getBoundingClientRect(), dd = Math.hypot(r.x + r.width / 2 - x, r.y + r.height / 2 - y); if (dd < d) { d = dd; best = i; } });
+      return { i: best, d, n: els.length };
+    }, end);
+    await expect.poll(async () => (await nearest()).d).toBeLessThan(20);
+    await page.locator('.lbl.link:visible').nth((await nearest()).i).click();
+  };
+  await markerAt('from');
+  expect((await pose(page)).pos).toEqual(ends.to);
+  await markerAt('to');
+  expect((await pose(page)).pos).toEqual(ends.from);
 });
 
 test('Castle Ravenloft: every link, taken from its origin by its marker, by its id or by walking onto it, lands once on its destination level', async ({ page }) => {

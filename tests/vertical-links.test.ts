@@ -1,10 +1,10 @@
 // Stairs take the party one floor, once (app/src/core/verticalLinks.ts; app.ts takeLink and afterPartyMove apply it):
 // the chosen link whatever the scene's order, a link taken only when a move enters its end, a passage on one level to
-// its far end.
+// its far end, and a marker for every way out of a landing.
 import { describe, expect, it } from 'vitest';
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { chosenRoute, enteredRoute, LINK_TRIGGER_FT, routeOf, type LinkRoute } from '../app/src/core/verticalLinks';
+import { chosenRoute, enteredRoute, linkMarkers, LINK_TRIGGER_FT, routeOf, routesOn, type LinkRoute } from '../app/src/core/verticalLinks';
 import type { GridFile, SceneFile, VerticalLink } from '../app/src/core/schema';
 import { pointInPolygon, type Vec2 } from '../app/src/core/geometry';
 import { canWalk } from '../app/src/core/movement';
@@ -158,5 +158,30 @@ describe('Castle Ravenloft: every stair, ladder, trapdoor, lift and slide takes 
       if (!t || !('route' in t) || t.route.link !== k || t.route.end !== end) bad.push(`${k.id} from ${end}: walking on takes ${JSON.stringify(step(t))}`);
     }
     expect(bad).toEqual([]);
+  });
+});
+
+describe('stair markers', () => {
+  it('every way out of every landing of every scene has a marker (none dropped for being near another)', () => {
+    for (const path of SCENES) {
+      const s = scene(path);
+      for (const l of s.levels) {
+        const markers = linkMarkers(s.links, l.id);
+        expect(ways(markers.flat()), `${path}/${l.id}`).toEqual(ways(routesOn(s.links, l.id)));
+        for (const m of markers) for (const r of m) expect(Math.hypot(r.from.pos[0] - m[0].from.pos[0], r.from.pos[1] - m[0].from.pos[1])).toBeLessThan(12);
+      }
+    }
+  });
+
+  it('Death House\'s Floor 2 landing offers the stairs up to Floor 3 and down to Floor 1, and the dumbwaiter both ways', () => {
+    const m = linkMarkers(house, 'f2');
+    expect(m.map(ways)).toEqual([['lk-dumbwaiter-1-2:to', 'lk-dumbwaiter-2-3:from', 'lk-spiral-1-2:to', 'lk-spiral-2-3:from']]);
+    expect(linkMarkers(house, 'f3').map(ways)).toEqual([['lk-attic-stair:from', 'lk-dumbwaiter-2-3:to', 'lk-spiral-2-3:to']]);
+  });
+
+  it('ends share a marker under twelve feet from its first end, and not at twelve', () => {
+    const links: VerticalLink[] = [0, 11, 12, 22].map((x, i) => ({ id: `k${i}`, kind: 'stairs', from: { level: 'a', pos: [x, 100] }, to: { level: 'b', pos: [x, 100] } }));
+    expect(linkMarkers(links, 'a').map(ways)).toEqual([['k0:from', 'k1:from'], ['k2:from', 'k3:from']]);
+    expect(LINK_TRIGGER_FT).toBe(5.5);
   });
 });

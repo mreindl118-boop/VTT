@@ -7,7 +7,7 @@ import { squareCellAt, squareCellCenter, squareDistanceFt, worldToHex, hexToWorl
 import { OPENABLE_KINDS, type Container, type GridFile, type Level, type LightSource, type SceneFile, type SceneObject, type Room, type Wall, type Ambient } from './core/schema';
 import { moveBlockers } from './core/light';
 import { canWalk } from './core/movement';
-import { chosenRoute, enteredRoute, routeOf, type LinkEnd, type LinkRoute } from './core/verticalLinks';
+import { chosenRoute, enteredRoute, linkMarkers, routeOf, type LinkEnd, type LinkRoute } from './core/verticalLinks';
 import { SITE_INTERFACES } from './core/siteInterfaces';
 import { classOpacity, fogCurve, hiddenCurve, labelCurve } from './core/slider';
 import { baseRingFt, CELL_FT } from './core/units';
@@ -398,14 +398,14 @@ export class App {
       tex.needsUpdate = true;
       covTex.set(l.id, tex);
       yield;
-      const linkSpots: [number, number][] = [];
-      for (const k of scene.links) for (const [end, other] of [[k.from, k.to], [k.to, k.from]] as const) {
-        if (end.level !== l.id) continue;
-        if (linkSpots.some((q) => Math.hypot(q[0] - end.pos[0], q[1] - end.pos[1]) < 12)) continue; // one marker per stair
-        linkSpots.push([end.pos[0], end.pos[1]]);
-        const to = scene.levels.find((x) => x.id === other.level);
+      // one marker per stair (link ends within 12 ft share it), and on it every way out: a landing with an up and a
+      // down stair offers both, never only the first link's
+      const markerWays = new Map<string, LinkRoute[]>();
+      for (const ways of linkMarkers(scene.links, l.id)) {
+        const r = ways[0], id = `link:${r.link.id}:${r.end}`, to = scene.levels.find((x) => x.id === r.to.level);
         const up = (to?.elevationFt ?? 0) > l.elevationFt;
-        b.labels.push({ id: `link:${k.id}:${end.level}`, text: `${up ? '↑' : '↓'} ${to?.name ?? other.level}`, pos: new THREE.Vector3(end.pos[0], l.elevationFt + 3, end.pos[1]), vis: 'player', kind: 'link', linkId: k.id });
+        b.labels.push({ id, text: `${up ? '↑' : '↓'} ${to?.name ?? r.to.level}`, pos: new THREE.Vector3(r.from.pos[0], l.elevationFt + 3, r.from.pos[1]), vis: 'player', kind: 'link', linkId: r.link.id });
+        markerWays.set(id, ways);
       }
       for (const spec of b.labels) {
         if (this.mode === 'player' && spec.vis === 'dm-note') continue; // no DM UI on the Player Display
@@ -418,13 +418,7 @@ export class App {
           if (locked) obj.element.classList.add('locked');
           obj.element.addEventListener('click', () => this.toggleDoor(spec.wallId!));
         }
-        if (spec.kind === 'link') {
-          const up = spec.text.startsWith('↑');
-          obj.element.innerHTML = `${up ? ICON.stairsUp : ICON.stairsDown}<span>${spec.text.slice(2)}</span>`;
-          const lk = scene.links.find((k) => k.id === spec.linkId);
-          obj.element.title = `${lk?.kind === 'trapdoor' ? 'Trapdoor' : lk?.kind === 'dumbwaiter' ? 'Dumbwaiter' : 'Stairs'} ${up ? 'up' : 'down'} to ${spec.text.slice(2)} · click to take the party`;
-          obj.element.addEventListener('click', () => this.takeLink(spec.linkId!));
-        }
+        if (spec.kind === 'link') this.linkMarker(obj.element, scene, l, markerWays.get(spec.id)!, path);
         b.root.add(obj);
         labels.push({ obj, spec, level: l.id });
       }
@@ -1345,6 +1339,26 @@ export class App {
   /** UI moved the party token directly (menu / list); `before` is where it stood, so a stair it was already on is not
    *  taken again. */
   afterPartyMoveFromUi(before: { level: string; pos: Vec2 }): void { this.afterPartyMove(before); this.commit(); }
+
+  /** A stair marker: one button per way out of it, each taking the party that way, once; a marker with one way is the
+   *  plain pill it always was. */
+  private linkMarker(el: HTMLElement, scene: SceneFile, level: Level, ways: LinkRoute[], path: string): void {
+    const look = (r: LinkRoute) => {
+      const to = scene.levels.find((x) => x.id === r.to.level), name = to?.name ?? r.to.level, up = (to?.elevationFt ?? 0) > level.elevationFt;
+      const kind = r.link.kind === 'trapdoor' ? 'Trapdoor' : r.link.kind === 'dumbwaiter' ? 'Dumbwaiter' : 'Stairs';
+      // on a marker with several ways, a way that is not a stair says what it is (the dumbwaiter beside the stairs)
+      const shown = ways.length > 1 && r.link.kind !== 'stairs' && r.link.kind !== 'spiral' ? `${r.link.kind[0].toUpperCase()}${r.link.kind.slice(1)} · ${name}` : name;
+      return { html: `${up ? ICON.stairsUp : ICON.stairsDown}<span>${shown}</span>`, title: `${kind} ${up ? 'up' : 'down'} to ${name} · click to take the party` };
+    };
+    const wire = (b: HTMLElement, r: LinkRoute) => {
+      const w = look(r);
+      b.innerHTML = w.html; b.title = w.title; b.dataset.link = r.link.id; b.dataset.end = r.end;
+      b.addEventListener('click', () => { if (this.cur?.path === path) this.takeLink(r.link.id, r.end); });
+    };
+    if (ways.length === 1) { wire(el, ways[0]); return; }
+    el.textContent = ''; el.classList.add('ways');
+    for (const r of ways) { const b = document.createElement('i'); b.className = 'way'; el.append(b); wire(b, r); }
+  }
 
   /** Take the party through a vertical link, once: in at the given end (a marker's), or, by id alone, at its end on the
    *  party's level (of a passage with both ends there, the nearer, so it comes out at the far end); out at the other.

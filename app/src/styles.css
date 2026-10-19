@@ -277,6 +277,7 @@ body[data-view='players'] .lbl.key { display: none; }
 .lbl.declutter { visibility: hidden; }
 .lbl.link svg { width: 16px; height: 16px; }
 .lbl.link:hover { background: rgba(60, 96, 74, 1); }
+.lbl.link.ways { gap: 2px; } .lbl.link .way { display: flex; align-items: center; gap: 4px; font-style: normal; border-radius: 999px; } .lbl.link .way:hover { background: rgba(255,255,255,.16); }
 body[data-view='players'] .lbl.link { display: none; }
 .tapmenu { position: absolute; z-index: 5; min-width: 220px; padding: 4px; background: var(--bg); border: var(--hairline, 1px) solid var(--hair); border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,.3); display: flex; flex-direction: column; }
 .tapmenu button { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 8px; text-align: left; font-size: 14px; }
