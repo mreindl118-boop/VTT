@@ -14,6 +14,7 @@ import { surfaceFor } from '../surfaces';
 import { PALETTE } from '../palette';
 import { merge } from '../pieces';
 import { opened } from './w';
+import { box, compact, cone, cyl, grp, ico } from '../shapes';
 
 type Dims = Record<string, number>;
 
@@ -39,21 +40,7 @@ surfaceFor([BLOOM, SKIN, SKIN_DK, ROT], 'cloth');
 surfaceFor([FUR_GREY, FUR_DK, FUR_WHITE, FUR_BROWN, '#5a4a3c', '#4f4636', '#5a4a52', '#4a3a2c', '#5a4030', '#5a4a40', '#6b4a3a'], 'cloth');
 
 // ---------------------------------------------------------------- helpers
-const box = (w: number, h: number, d: number, color: string, x = 0, y = 0, z = 0) => { const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat(color)); m.position.set(x, y, z); return m; };
-const cyl = (rt: number, rb: number, h: number, color: string, x = 0, y = 0, z = 0, seg = 8) => { const m = new THREE.Mesh(new THREE.CylinderGeometry(rt, rb, h, seg), mat(color)); m.position.set(x, y, z); return m; };
-const cone = (r: number, h: number, color: string, x = 0, y = 0, z = 0, seg = 6) => { const m = new THREE.Mesh(new THREE.ConeGeometry(r, h, seg), mat(color)); m.position.set(x, y, z); return m; };
-const ico = (r: number, color: string, x = 0, y = 0, z = 0, detail = 0) => { const m = new THREE.Mesh(new THREE.IcosahedronGeometry(r, detail), mat(color)); m.position.set(x, y, z); return m; };
-const grp = (...m: THREE.Object3D[]) => { const g = new THREE.Group(); if (m.length) g.add(...m); return g; };
 const hash = (a: number, b: number, c = 0) => { const s = Math.sin(a * 12.9898 + b * 78.233 + c * 37.719) * 43758.5453; return s - Math.floor(s); };
-/** A figure as few meshes as it has colours (one draw call each): hidden creatures are drawn mesh by mesh. */
-function compact(g: THREE.Group): THREE.Group {
-  g.updateMatrixWorld(true);
-  const byMat = new Map<THREE.Material, THREE.BufferGeometry[]>();
-  g.traverse((o) => { const m = o as THREE.Mesh; if (!m.isMesh) return; const mt = m.material as THREE.Material, a = byMat.get(mt) ?? []; a.push(m.geometry.clone().applyMatrix4(m.matrixWorld)); byMat.set(mt, a); });
-  const out = new THREE.Group();
-  for (const [mt, gs] of byMat) out.add(new THREE.Mesh(merge(gs), mt));
-  return out;
-}
 /** Mark every mesh under `o` as building shell: the section plane slices it on a stacked site. */
 const shell = <T extends THREE.Object3D>(o: T): T => { o.traverse((c) => { c.userData.role = 'roof'; }); return o; };
 /** A roof over open ground (a canopy): it goes whenever the walls are cut down to a cutaway. */

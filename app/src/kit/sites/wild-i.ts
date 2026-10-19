@@ -14,6 +14,7 @@ import { CREATURES, horse, humanoid } from '../creatures';
 import { mat, matClone } from '../../render/materials';
 import { FLOOR_COLOR, PALETTE } from '../palette';
 import { surfaceFor } from '../surfaces';
+import { box, cyl, grp, hash, lump, place } from '../shapes';
 
 type Dims = Record<string, number>;
 type P2 = [number, number];
@@ -46,22 +47,7 @@ surfaceFor([C.cleft, C.shadow, C.shadowSoft, C.rime, C.soot, C.seal, C.fog0, C.f
 surfaceFor([C.bone, C.boneDark, C.trinket], 'generic');
 
 // ---------------------------------------------------------------- helpers
-const grp = (...m: THREE.Object3D[]) => { const g = new THREE.Group(); if (m.length) g.add(...m); return g; };
-const place = <T extends THREE.Object3D>(o: T, x: number, y: number, z: number, ry = 0, rx = 0, rz = 0): T => { o.position.set(x, y, z); o.rotation.set(rx, ry, rz); return o; };
-const box = (w: number, h: number, d: number, c: string, x = 0, y = 0, z = 0, ry = 0) => place(new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat(c)), x, y, z, ry);
-const cyl = (rt: number, rb: number, h: number, c: string, x = 0, y = 0, z = 0, seg = 8) => place(new THREE.Mesh(new THREE.CylinderGeometry(rt, rb, h, seg), mat(c)), x, y, z);
-const hash = (i: number, s = 0) => { const x = Math.sin(i * 127.1 + s * 311.7 + 0.5) * 43758.5453; return x - Math.floor(x); };
 const jit = (i: number, s: number, a: number) => (hash(i, s) - 0.5) * 2 * a;
-/** A faceted lump (rock, billow, sack): an icosahedron with its vertices pushed in and out, then squashed. */
-function lump(r: number, color: string, seed: number, sx = 1, sy = 1, sz = 1, detail = 1): THREE.Mesh {
-  const geo = new THREE.IcosahedronGeometry(r, detail), pv = geo.attributes.position;
-  for (let i = 0; i < pv.count; i++) {
-    const x = pv.getX(i), y = pv.getY(i), z = pv.getZ(i), k = 0.82 + 0.3 * Math.abs(Math.sin(x * 2.9 + y * 1.7 + z * 2.3 + seed * 1.37));
-    pv.setXYZ(i, x * k * sx, y * k * sy, z * k * sz);
-  }
-  geo.computeVertexNormals();
-  return new THREE.Mesh(geo, mat(color));
-}
 /** A flat irregular plate lying in the xz plane at height y (a puddle, a patch of rime, a drift of needles). */
 function plate(r: number, color: string, seed: number, y: number, sx = 1.4, n = 8): THREE.Mesh {
   const pts: THREE.Vector2[] = [];

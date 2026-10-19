@@ -14,7 +14,8 @@ import { CREATURES, humanoid, horse } from '../creatures';
 import { mat, matClone, patchFog, setSurface } from '../../render/materials';
 import { FLOOR_COLOR } from '../palette';
 import { surfaceFor } from '../surfaces';
-import { merge } from '../pieces';
+import { box, compact, coneWith, cylWith, flat, grp, hash, lerp, lump, place, smoothstep as smooth, upTris, V } from '../shapes';
+const cyl = cylWith(7), cone = coneWith(5);
 
 type Dims = Record<string, number>;
 type P2 = [number, number];
@@ -69,24 +70,6 @@ surfaceFor([DE, ME, C.silt], 'dirt'); surfaceFor([GRN, MOS, LEAF, LEAFD], 'folia
 surfaceFor([WD, WDD, PALEW], 'wood'); surfaceFor([WAT], 'none'); surfaceFor([C.alder, C.alderDark], 'bark'); surfaceFor([RED], 'generic');
 
 // ---------------------------------------------------------------- helpers
-const grp = (...m: THREE.Object3D[]) => { const g = new THREE.Group(); if (m.length) g.add(...m); return g; };
-const place = <T extends THREE.Object3D>(o: T, x: number, y: number, z: number, ry = 0, rx = 0, rz = 0): T => { o.position.set(x, y, z); o.rotation.set(rx, ry, rz); return o; };
-const box = (w: number, h: number, d: number, c: string, x = 0, y = 0, z = 0, ry = 0) => place(new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat(c)), x, y, z, ry);
-const cyl = (rt: number, rb: number, h: number, c: string, x = 0, y = 0, z = 0, seg = 7) => place(new THREE.Mesh(new THREE.CylinderGeometry(rt, rb, h, seg), mat(c)), x, y, z);
-const cone = (r: number, h: number, c: string, x = 0, y = 0, z = 0, seg = 5) => place(new THREE.Mesh(new THREE.ConeGeometry(r, h, seg), mat(c)), x, y, z);
-const hash = (i: number, s = 0) => { const x = Math.sin(i * 127.1 + s * 311.7 + 0.5) * 43758.5453; return x - Math.floor(x); };
-const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
-const smooth = (a: number, b: number, t: number) => { const k = Math.min(1, Math.max(0, (t - a) / (b - a))); return k * k * (3 - 2 * k); };
-/** A faceted lump (a rock, a sack, a heap): an icosahedron pushed in and out, then squashed. */
-function lump(r: number, color: string, seed: number, sx = 1, sy = 1, sz = 1, detail = 1): THREE.Mesh {
-  const geo = new THREE.IcosahedronGeometry(r, detail), pv = geo.attributes.position;
-  for (let i = 0; i < pv.count; i++) {
-    const x = pv.getX(i), y = pv.getY(i), z = pv.getZ(i), k = 0.82 + 0.3 * Math.abs(Math.sin(x * 2.9 + y * 1.7 + z * 2.3 + seed * 1.37));
-    pv.setXYZ(i, x * k * sx, y * k * sy, z * k * sz);
-  }
-  geo.computeVertexNormals();
-  return new THREE.Mesh(geo, mat(color));
-}
 /** A rod from a to b (a root, a branch, a stave): a thin cylinder turned onto the segment. */
 function rod(a: THREE.Vector3, b: THREE.Vector3, r0: number, r1: number, c: string, seg = 5): THREE.Mesh {
   const L = a.distanceTo(b), m = new THREE.Mesh(new THREE.CylinderGeometry(r1, r0, L, seg), mat(c));
@@ -94,7 +77,6 @@ function rod(a: THREE.Vector3, b: THREE.Vector3, r0: number, r1: number, c: stri
   m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), b.clone().sub(a).normalize());
   return m;
 }
-const V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z);
 /** A polyline from dims: `n` points `x{i}`,`z{i}` (with a prefix). */
 function dimsLine(d: Dims, p = ''): P2[] {
   const n = d[p + 'n'] ?? 0, pts: P2[] = [];
@@ -117,17 +99,6 @@ function densify(pts: P2[], step: number): Station[] {
   for (let i = 1; i + 1 < out.length; i++) { const p = out[i - 1].t, q = out[i + 1].t, tx = p[0] + q[0], tz = p[1] + q[1], L2 = Math.hypot(tx, tz) || 1; out[i].t = [tx / L2, tz / L2]; out[i].n = [-tz / L2, tx / L2]; }
   return out;
 }
-/** Triangles from a flat list of points, every face turned to look up. */
-function upTris(v: THREE.Vector3[]): THREE.BufferGeometry {
-  const P: number[] = [];
-  for (let i = 0; i + 2 < v.length; i += 3) {
-    let [a, b, c] = [v[i], v[i + 1], v[i + 2]];
-    const ny = (b.z - a.z) * (c.x - a.x) - (b.x - a.x) * (c.z - a.z);
-    if (ny < 0) [b, c] = [c, b];
-    P.push(a.x, a.y, a.z, b.x, b.y, b.z, c.x, c.y, c.z);
-  }
-  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(P, 3)); g.computeVertexNormals(); return g;
-}
 /** Triangles as given (both windings drawn by the caller's choice of material); normals computed. */
 function tris(v: THREE.Vector3[]): THREE.BufferGeometry {
   const P: number[] = []; for (const p of v) P.push(p.x, p.y, p.z);
@@ -139,11 +110,6 @@ function band(D: Station[], o0: (i: number) => number, o1: (i: number) => number
   const at = (i: number, o: number) => V(D[i].p[0] + D[i].n[0] * o, y(i), D[i].p[1] + D[i].n[1] * o);
   for (let i = 0; i + 1 < D.length; i++) { const a0 = at(i, o0(i)), a1 = at(i, o1(i)), b0 = at(i + 1, o0(i + 1)), b1 = at(i + 1, o1(i + 1)); v.push(a0, a1, b1, a0, b1, b0); }
   return upTris(v);
-}
-/** A flat polygon in the xz plane at height y, facing up. */
-function flat(pts: P2[], y: number, color: string | THREE.Material): THREE.Mesh {
-  const geo = new THREE.ShapeGeometry(new THREE.Shape(pts.map(([x, z]) => new THREE.Vector2(x, -z)))); geo.rotateX(-Math.PI / 2); geo.translate(0, y, 0);
-  return new THREE.Mesh(geo, typeof color === 'string' ? mat(color) : color);
 }
 /** A ragged blob outline in the xz plane. */
 function blobPts(r: number, seed: number, sx = 1, n = 11): P2[] {
@@ -159,18 +125,6 @@ function segDist(px: number, pz: number, a: P2, b: P2): number {
   return Math.hypot(px - a[0] - dx * t, pz - a[1] - dz * t);
 }
 const lineDist = (x: number, z: number, L: P2[]) => { let m = Infinity; for (let i = 0; i + 1 < L.length; i++) m = Math.min(m, segDist(x, z, L[i], L[i + 1])); return m; };
-/** Collapse a piece to one mesh per material (hidden pieces and figures are not merged by the level). */
-function compact(root: THREE.Object3D): THREE.Group {
-  root.updateMatrixWorld(true);
-  const inv = root.matrixWorld.clone().invert(), by = new Map<THREE.Material, THREE.BufferGeometry[]>(), out = new THREE.Group();
-  root.traverse((o) => {
-    const m = o as THREE.Mesh; if (!m.isMesh) return;
-    const mt = m.material as THREE.Material, list = by.get(mt) ?? [];
-    list.push(m.geometry.clone().applyMatrix4(new THREE.Matrix4().multiplyMatrices(inv, m.matrixWorld))); by.set(mt, list);
-  });
-  for (const [mt, gs] of by) out.add(new THREE.Mesh(merge(gs), mt));
-  return out;
-}
 /** See-through fog and water sheen: lit, no depth writes; cached per colour and opacity. */
 const fogMats = new Map<string, THREE.MeshLambertMaterial>();
 function fogMat(color: string, opacity: number): THREE.MeshLambertMaterial {

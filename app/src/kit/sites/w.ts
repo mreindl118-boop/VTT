@@ -12,8 +12,9 @@ import { FLOOR_COLOR, PALETTE } from '../palette';
 import { surfaceFor } from '../surfaces';
 import { PROPS_V1, pine, deadTree } from '../props';
 import { CREATURES, humanoid } from '../creatures';
-import { merge } from '../pieces';
 import { SITE_SHAPERS } from '../../render/backdrop';
+import { box, compact, cone, cylWith, grp, ico, smoothstep, V } from '../shapes';
+const cyl = cylWith(10);
 
 type Dims = Record<string, number>;
 
@@ -40,15 +41,8 @@ surfaceFor([C.rope, C.paper, C.hide, C.hideDark], 'cloth');
 surfaceFor([C.fog, C.fogDeep, C.gem, C.glass, C.glassDark, C.must, C.wineDark, C.grape, C.ink, C.blood, C.sap, C.raven, C.ravenSheen], 'none');
 
 // ---------------------------------------------------------------- small helpers
-const grp = (...m: THREE.Object3D[]) => { const g = new THREE.Group(); if (m.length) g.add(...m); return g; };
-const box = (w: number, h: number, d: number, color: string, x = 0, y = 0, z = 0) => { const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat(color)); m.position.set(x, y, z); return m; };
-const cyl = (rt: number, rb: number, h: number, color: string, x = 0, y = 0, z = 0, seg = 10) => { const m = new THREE.Mesh(new THREE.CylinderGeometry(rt, rb, h, seg), mat(color)); m.position.set(x, y, z); return m; };
-const ico = (r: number, color: string, x = 0, y = 0, z = 0, detail = 0) => { const m = new THREE.Mesh(new THREE.IcosahedronGeometry(r, detail), mat(color)); m.position.set(x, y, z); return m; };
-const cone = (r: number, h: number, color: string, x = 0, y = 0, z = 0, seg = 6) => { const m = new THREE.Mesh(new THREE.ConeGeometry(r, h, seg), mat(color)); m.position.set(x, y, z); return m; };
 /** A deterministic 0..1 hash, so every prop varies but rebuilds the same. */
 const hash = (a: number, b = 0) => { const s = Math.sin(a * 127.1 + b * 311.7) * 43758.5453; return s - Math.floor(s); };
-/** 0..1 easing of t between a and b. */
-const smoothstep = (a: number, b: number, t: number) => { const k = Math.min(1, Math.max(0, (t - a) / (b - a))); return k * k * (3 - 2 * k); };
 /** A box from p to q (a strut, a limb, a rope): `t` thick. */
 function strut(p: THREE.Vector3, q: THREE.Vector3, t: number, color: string): THREE.Mesh {
   const d = new THREE.Vector3().subVectors(q, p), L = d.length() || 0.01;
@@ -57,7 +51,6 @@ function strut(p: THREE.Vector3, q: THREE.Vector3, t: number, color: string): TH
   m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), d.normalize());
   return m;
 }
-const V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z);
 /** Tag every mesh under `g` with a role the renderer honours (roofs and walls are sliced by the section cut). */
 function role<T extends THREE.Object3D>(g: T, r: 'roof' | 'wall', cap = false): T { g.traverse((c) => { c.userData.role = r; if (cap) c.userData.cap = true; }); return g; }
 
@@ -736,19 +729,6 @@ export function berserker(): THREE.Group {
   const g = humanoid({ skin: C.mud, cloth: C.mudDark, trim: '#3b352c', hair: '#2a2420', weapon: 'none', scale: 1.05 });
   g.add(box(0.15, 4.4, 0.15, C.oakDark, 0.95, 3.4, 0.4), box(0.12, 1.3, 1.1, '#8a8d93', 0.95, 5.3, 0.75));
   return g;
-}
-/** One mesh per material: a figure built from dozens of parts draws in a handful of calls (the base ring is the caller's). */
-function compact(root: THREE.Group): THREE.Group {
-  root.updateMatrixWorld(true);
-  const inv = root.matrixWorld.clone().invert(), by = new Map<THREE.Material, THREE.BufferGeometry[]>();
-  root.traverse((o) => {
-    const m = o as THREE.Mesh; if (!m.isMesh) return;
-    const mt = m.material as THREE.Material, list = by.get(mt) ?? [];
-    list.push(m.geometry.clone().applyMatrix4(new THREE.Matrix4().multiplyMatrices(inv, m.matrixWorld))); by.set(mt, list);
-  });
-  const out = new THREE.Group();
-  for (const [mt, gs] of by) out.add(new THREE.Mesh(merge(gs), mt));
-  return out;
 }
 Object.assign(CREATURES, {
   druid: (d) => compact(druid(d)), 'twig-blight': (d) => compact(twigBlight(d)), 'needle-blight': () => compact(needleBlight()), 'vine-blight': () => compact(vineBlight()),

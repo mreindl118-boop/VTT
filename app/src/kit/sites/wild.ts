@@ -6,7 +6,8 @@ import { PROPS_V1 } from '../props';
 import { CREATURES, horse, humanoid } from '../creatures';
 import { mat, matClone } from '../../render/materials';
 import { FLOOR_COLOR, PALETTE } from '../palette';
-import { surfaceFor, type Surface } from '../surfaces';
+import { surfaceFor } from '../surfaces';
+import { box, cone, cyl, grp, hash, lump, place } from '../shapes';
 
 type Dims = Record<string, number>;
 
@@ -42,22 +43,6 @@ surfaceFor([C.deep0, C.deep1], 'rock');
 surfaceFor([C.letter, C.slime, C.corpseSkin, C.corpseTrim, C.corpseHair, C.horseBlack, C.maneBlack, C.harness, C.elk, C.elkPale, C.elkDark, C.antler, C.mageHair, C.beard], 'generic');
 
 // ---------------------------------------------------------------- helpers
-const grp = (...m: THREE.Object3D[]) => { const g = new THREE.Group(); if (m.length) g.add(...m); return g; };
-const place = <T extends THREE.Object3D>(o: T, x: number, y: number, z: number, ry = 0, rx = 0, rz = 0): T => { o.position.set(x, y, z); o.rotation.set(rx, ry, rz); return o; };
-const box = (w: number, h: number, d: number, c: string, x = 0, y = 0, z = 0, ry = 0) => place(new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat(c)), x, y, z, ry);
-const cyl = (rt: number, rb: number, h: number, c: string, x = 0, y = 0, z = 0, seg = 8) => place(new THREE.Mesh(new THREE.CylinderGeometry(rt, rb, h, seg), mat(c)), x, y, z);
-const cone = (r: number, h: number, c: string, x = 0, y = 0, z = 0, seg = 6) => place(new THREE.Mesh(new THREE.ConeGeometry(r, h, seg), mat(c)), x, y, z);
-const hash = (i: number, s = 0) => { const x = Math.sin(i * 127.1 + s * 311.7 + 0.5) * 43758.5453; return x - Math.floor(x); };
-/** A faceted lump (rock, billow, sack): an icosahedron with its vertices pushed in and out, then squashed. */
-function lump(r: number, color: string, seed: number, sx = 1, sy = 1, sz = 1, detail = 1, surface?: Surface): THREE.Mesh {
-  const geo = new THREE.IcosahedronGeometry(r, detail), pv = geo.attributes.position;
-  for (let i = 0; i < pv.count; i++) {
-    const x = pv.getX(i), y = pv.getY(i), z = pv.getZ(i), k = 0.82 + 0.3 * Math.abs(Math.sin(x * 2.9 + y * 1.7 + z * 2.3 + seed * 1.37));
-    pv.setXYZ(i, x * k * sx, y * k * sy, z * k * sz);
-  }
-  geo.computeVertexNormals();
-  return new THREE.Mesh(geo, mat(color, surface ? { surface } : {}));
-}
 /** Unlit see-through material (cached), drawn without depth writes like the kit's chasm fog: for what glows of itself. */
 const veils = new Map<string, THREE.MeshBasicMaterial>();
 function veil(color: string, opacity: number): THREE.MeshBasicMaterial {

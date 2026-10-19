@@ -7,6 +7,7 @@ import { CREATURES, humanoid } from '../creatures';
 import { mat } from '../../render/materials';
 import { surfaceFor } from '../surfaces';
 import { PALETTE } from '../palette';
+import { cone, cyl, grp, ico, V } from '../shapes';
 
 type Dims = Record<string, number>;
 
@@ -39,15 +40,8 @@ surfaceFor(TAPESTRY, 'cloth');
 const box = (w: number, h: number, d: number, color: string, x = 0, y = 0, z = 0, rx = 0, ry = 0, rz = 0) => {
   const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat(color)); m.position.set(x, y, z); m.rotation.set(rx, ry, rz); return m;
 };
-const cyl = (rt: number, rb: number, h: number, color: string, x = 0, y = 0, z = 0, seg = 8) => {
-  const m = new THREE.Mesh(new THREE.CylinderGeometry(rt, rb, h, seg), mat(color)); m.position.set(x, y, z); return m;
-};
-const ico = (r: number, color: string, x = 0, y = 0, z = 0, detail = 0) => { const m = new THREE.Mesh(new THREE.IcosahedronGeometry(r, detail), mat(color)); m.position.set(x, y, z); return m; };
-const cone = (r: number, h: number, color: string, x = 0, y = 0, z = 0, seg = 6) => { const m = new THREE.Mesh(new THREE.ConeGeometry(r, h, seg), mat(color)); m.position.set(x, y, z); return m; };
-const grp = (...m: THREE.Object3D[]) => { const g = new THREE.Group(); if (m.length) g.add(...m); return g; };
 /** Deterministic noise in [0, 1). */
 const hash = (n: number) => { const s = Math.sin(n * 127.1 + 311.7) * 43758.5453; return s - Math.floor(s); };
-const V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z);
 /** A tapered round member from a to b (a root, a rail, a leg), radius r0 at a and r1 at b. */
 function limb(a: THREE.Vector3, b: THREE.Vector3, r0: number, r1: number, color: string, seg = 6): THREE.Mesh {
   const dir = new THREE.Vector3().subVectors(b, a), L = dir.length();

@@ -10,9 +10,10 @@ import { PROPS_V1 } from '../props';
 import { CREATURES, humanoid } from '../creatures';
 import { mat, matClone } from '../../render/materials';
 import { PALETTE } from '../palette';
-import { surfaceFor, type Surface } from '../surfaces';
+import { surfaceFor } from '../surfaces';
 import { merge } from '../pieces';
 import { blackCarriage, curtainWall, gargoyleStatue } from './wild';
+import { box, cone, cyl, flat as plate, grp, hash, lump, place } from '../shapes';
 
 type Dims = Record<string, number>;
 
@@ -51,34 +52,13 @@ surfaceFor([C.cloak, C.cloakTrim, C.leather, C.purse, C.mail], 'cloth');
 surfaceFor([C.pale, C.bat, C.batWing], 'generic');
 
 // ---------------------------------------------------------------- helpers
-const grp = (...m: THREE.Object3D[]) => { const g = new THREE.Group(); if (m.length) g.add(...m); return g; };
-const place = <T extends THREE.Object3D>(o: T, x: number, y: number, z: number, ry = 0, rx = 0, rz = 0): T => { o.position.set(x, y, z); o.rotation.set(rx, ry, rz); return o; };
-const box = (w: number, h: number, d: number, c: string, x = 0, y = 0, z = 0, ry = 0) => place(new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat(c)), x, y, z, ry);
-const cyl = (rt: number, rb: number, h: number, c: string, x = 0, y = 0, z = 0, seg = 8) => place(new THREE.Mesh(new THREE.CylinderGeometry(rt, rb, h, seg), mat(c)), x, y, z);
-const cone = (r: number, h: number, c: string, x = 0, y = 0, z = 0, seg = 6) => place(new THREE.Mesh(new THREE.ConeGeometry(r, h, seg), mat(c)), x, y, z);
-const hash = (i: number, s = 0) => { const x = Math.sin(i * 127.1 + s * 311.7 + 0.5) * 43758.5453; return x - Math.floor(x); };
 const glowMat = (c: string, e: string) => mat(c, { emissive: e });
-/** A faceted lump (rock, billow, sack): an icosahedron with its vertices pushed in and out, then squashed. */
-function lump(r: number, color: string, seed: number, sx = 1, sy = 1, sz = 1, detail = 1, surface?: Surface): THREE.Mesh {
-  const geo = new THREE.IcosahedronGeometry(r, detail), pv = geo.attributes.position;
-  for (let i = 0; i < pv.count; i++) {
-    const x = pv.getX(i), y = pv.getY(i), z = pv.getZ(i), k = 0.82 + 0.3 * Math.abs(Math.sin(x * 2.9 + y * 1.7 + z * 2.3 + seed * 1.37));
-    pv.setXYZ(i, x * k * sx, y * k * sy, z * k * sz);
-  }
-  geo.computeVertexNormals();
-  return new THREE.Mesh(geo, mat(color, surface ? { surface } : {}));
-}
 /** A rod (a trunk, a strut, a bone) from a to b, radius r0 at a and r1 at b. */
 function rod(a: [number, number, number], b: [number, number, number], r0: number, r1: number, c: string, seg = 6): THREE.Mesh {
   const A = new THREE.Vector3(...a), B = new THREE.Vector3(...b), d = B.clone().sub(A), L = d.length() || 0.01;
   const m = new THREE.Mesh(new THREE.CylinderGeometry(r1, r0, L, seg), mat(c));
   m.position.copy(A).addScaledVector(d, 0.5); m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), d.normalize());
   return m;
-}
-/** A flat plate of the given plan outline (x, z pairs) lying at height y. */
-function plate(pts: [number, number][], y: number, c: string | THREE.Material): THREE.Mesh {
-  const geo = new THREE.ShapeGeometry(new THREE.Shape(pts.map(([x, z]) => new THREE.Vector2(x, -z)))); geo.rotateX(-Math.PI / 2); geo.translate(0, y, 0);
-  return new THREE.Mesh(geo, typeof c === 'string' ? mat(c) : c);
 }
 /** A ragged roughly elliptical outline rx × rz (plan), for patches of ice, mud and fog. */
 function ragged(rx: number, rz: number, seed: number, n = 12, j = 0.3): [number, number][] {

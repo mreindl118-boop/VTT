@@ -14,6 +14,8 @@ import { PALETTE } from '../palette';
 import { surfaceFor } from '../surfaces';
 import { merge } from '../pieces';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
+import { box, cone, cylWith, densify, dimsLine, grp, hash, lerp, lump, place, upTris } from '../shapes';
+const cyl = cylWith(7);
 
 type Dims = Record<string, number>;
 type P2 = [number, number];
@@ -65,29 +67,6 @@ surfaceFor([C.fish, C.fishBurnt, C.fishSplit, C.scale, C.bone, C.boneGrey, C.bon
   C.jug, C.jugDark, C.clay, C.charm, C.cork, C.float, C.floatRed, C.bread, C.heron], 'generic');
 
 // ---------------------------------------------------------------- helpers
-const grp = (...m: THREE.Object3D[]) => { const g = new THREE.Group(); if (m.length) g.add(...m); return g; };
-const place = <T extends THREE.Object3D>(o: T, x: number, y: number, z: number, ry = 0, rx = 0, rz = 0): T => { o.position.set(x, y, z); o.rotation.set(rx, ry, rz); return o; };
-const box = (w: number, h: number, d: number, c: string, x = 0, y = 0, z = 0, ry = 0) => place(new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat(c)), x, y, z, ry);
-const cyl = (rt: number, rb: number, h: number, c: string, x = 0, y = 0, z = 0, seg = 7) => place(new THREE.Mesh(new THREE.CylinderGeometry(rt, rb, h, seg), mat(c)), x, y, z);
-const cone = (r: number, h: number, c: string, x = 0, y = 0, z = 0, seg = 6) => place(new THREE.Mesh(new THREE.ConeGeometry(r, h, seg), mat(c)), x, y, z);
-const hash = (i: number, s = 0) => { const x = Math.sin(i * 127.1 + s * 311.7 + 0.5) * 43758.5453; return x - Math.floor(x); };
-const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
-/** A faceted lump (a rock, a sack, a heap): an icosahedron pushed in and out, then squashed. */
-function lump(r: number, color: string, seed: number, sx = 1, sy = 1, sz = 1, detail = 1, m?: THREE.Material): THREE.Mesh {
-  const geo = new THREE.IcosahedronGeometry(r, detail), pv = geo.attributes.position;
-  for (let i = 0; i < pv.count; i++) {
-    const x = pv.getX(i), y = pv.getY(i), z = pv.getZ(i), k = 0.82 + 0.3 * Math.abs(Math.sin(x * 2.9 + y * 1.7 + z * 2.3 + seed * 1.37));
-    pv.setXYZ(i, x * k * sx, y * k * sy, z * k * sz);
-  }
-  geo.computeVertexNormals();
-  return new THREE.Mesh(geo, m ?? mat(color));
-}
-/** A polyline from dims: `n` points `x{i}`,`z{i}` (and `w{i}` where given). */
-function dimsLine(d: Dims, p = ''): { pts: P2[]; w: number[] } {
-  const n = d[p + 'n'] ?? 0, pts: P2[] = [], w: number[] = [];
-  for (let i = 0; i < n; i++) { pts.push([d[`${p}x${i}`] ?? 0, d[`${p}z${i}`] ?? 0]); w.push(d[`${p}w${i}`] ?? 0); }
-  return { pts, w };
-}
 /** Split triangles until no edge is longer than `max` ft: the depth buffer is logarithmic, and a long sliver of a flat
  *  sheet laid a hair over another surface loses to it in places when its depth is only right at its corners. */
 function tess(geo: THREE.BufferGeometry, max = 30): THREE.BufferGeometry {
@@ -121,29 +100,6 @@ function backdropSwitch(show: boolean): THREE.Mesh {
     requestAnimationFrame(() => renderer.render(scene, camera));
   };
   return m;
-}
-/** Triangles from a flat list of points, every face turned to look up. */
-function upTris(v: THREE.Vector3[]): THREE.BufferGeometry {
-  const P: number[] = [];
-  for (let i = 0; i + 2 < v.length; i += 3) {
-    let [a, b, c] = [v[i], v[i + 1], v[i + 2]];
-    const ny = (b.z - a.z) * (c.x - a.x) - (b.x - a.x) * (c.z - a.z);
-    if (ny < 0) [b, c] = [c, b];
-    P.push(a.x, a.y, a.z, b.x, b.y, b.z, c.x, c.y, c.z);
-  }
-  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(P, 3)); g.computeVertexNormals(); return g;
-}
-/** Points every `step` ft along a polyline, with unit tangent and interpolated width. */
-function densify(pts: P2[], w: number[], step: number): { p: P2; t: P2; w: number }[] {
-  const out: { p: P2; t: P2; w: number }[] = [];
-  for (let i = 0; i + 1 < pts.length; i++) {
-    const a = pts[i], b = pts[i + 1], L = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1, k = Math.max(1, Math.round(L / step)), t: P2 = [(b[0] - a[0]) / L, (b[1] - a[1]) / L];
-    for (let s = 0; s < k; s++) { const f = s / k; out.push({ p: [lerp(a[0], b[0], f), lerp(a[1], b[1], f)], t, w: lerp(w[i] ?? 0, w[i + 1] ?? 0, f) }); }
-  }
-  const a = pts[pts.length - 2], b = pts[pts.length - 1], L = Math.hypot(b[0] - a[0], b[1] - a[1]) || 1;
-  out.push({ p: [...b] as P2, t: [(b[0] - a[0]) / L, (b[1] - a[1]) / L], w: w[pts.length - 1] ?? 0 });
-  for (let i = 1; i + 1 < out.length; i++) { const p = out[i - 1].t, q = out[i + 1].t, tx = p[0] + q[0], tz = p[1] + q[1], L2 = Math.hypot(tx, tz) || 1; out[i].t = [tx / L2, tz / L2]; }
-  return out;
 }
 /** A flat ribbon along a polyline, `off0`..`off1` ft to the left of it (left = the tangent turned toward -x when it runs +z). */
 function ribbon(D: { p: P2; t: P2; w: number }[], off0: (q: { w: number }, i: number) => number, off1: (q: { w: number }, i: number) => number, y: number): THREE.BufferGeometry {
