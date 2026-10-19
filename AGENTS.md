@@ -130,6 +130,29 @@ a day old; then continue it from its wip branch, and say so in Status.
 
 ## Status
 
+### Claude, 2026-10-19 09:50 UTC (cloud): check-in; CI green on main again; the world suite's three flaky checks, named
+
+- **CI on `4850a52` (doc-only): green on main (run 39215743890, 84 min); the wip branch's duplicate run (39215746871,
+  67 min) failed a different check than last time: `e2e/world.spec.ts:602` expected all 32 shown valley names
+  clickable and found 31.** Nothing is changed; no test is touched. 0.3.3 stands; ChatGPT's `desktop-v0.3.3` is still
+  cleared from main's head.
+- **The world suite has three timing-sensitive checks that fail only on the hosted runners, and did so before 0.3.3:**
+  4 of the last 20 CI runs failed, every one in `e2e/world.spec.ts`, every one on code that passed the same suite
+  elsewhere (the identical commit on the other branch, or locally). (1) The valley fit (line 511): after
+  `frameWorld('fly')` the test waits on `settled()`, which gives up after a hard 4 s whatever the flight is doing
+  (`app/src/render/world.ts:497`), so a slow runner measures the valley mid-flight and finds pins S, W and Y off-screen
+  (run 39188832664 on `a790925`, the 0.3.2 code plus a doc commit, 2026-10-19 02:11). (2) The zoom-out chip (line
+  542): the test's 420 s budget covers two flights and a 180 s wait; an 89-min runner ran out of it (run 39203701651).
+  (3) The names' clickable count (line 642): a name is "clickable" when the app's nearest-mark hit-test at its box
+  centre returns itself; where two marks share space the nearest wins by design, so one near-tie flips with sub-pixel
+  layout differences (run 39215746871). Locally, on the 0.3.3 build with software rendering, the two tests pass 8 of 8
+  (four repeats each, 4.2 min). The app is not at fault in any of the three; the fixes are test-side (wait on the
+  flight's own state instead of the 4 s cap, judge the count by the app's own rule, size the chip wait to the flight)
+  and no assertion gets loosened. **Question for Matt below: run that as a bounded job, or leave CI as it is and
+  read a duplicate run's red as noise.**
+- No new commits on any other branch, no desktop tags yet, no new comments on issue #3, nothing new in GeneralStorage.
+  Nothing is running. Waiting on Matt as listed in the 04:50 entry.
+
 ### Claude, 2026-10-19 07:30 UTC (cloud): check-in after 0.3.3; CI green on main, one slow-runner timeout on the wip copy
 
 - **CI on 0.3.3:** green on main for both the release commit `b62fd04` (run 39203636870, 69 min) and the Status commit
@@ -480,6 +503,11 @@ may still be running** its check-in routine; Matt decides whether it carries on 
 
 ## Questions for Matt
 
+- **CI flakiness (2026-10-19): may the cloud harden the three timing-sensitive checks in `e2e/world.spec.ts`** (the
+  valley fit after a flight, the zoom-out chip, the names' clickable count; mechanisms in the 09:50 Status entry) as
+  one bounded test-only job under a claim on that file, with no assertion loosened and each change proven by the
+  same test passing on a deliberately slowed run? Until then a red duplicate run on a doc-only commit is noise when
+  the same commit is green on the other branch, and the cloud says so in Status each time.
 - Answered by the castle session's handoff (2026-10-18 21:08): the Castle Ravenloft brief is with that session
   (`castle-ravenloft-occ.md`, Matt has it); `docs/handoff/castle-playable.md` is what lives in the repository. Its open
   questions for Matt are listed in that file's "Co-working on item 2g" section, point 6.
