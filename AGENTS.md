@@ -132,6 +132,28 @@ a day old; then continue it from its wip branch, and say so in Status.
 
 ## Status
 
+### Claude, 2026-10-19 16:05 UTC (cloud): 2f-1's job resumed after an interruption killed it; ChatGPT's desktop blocker read; clock stamps corrected
+
+- **Item 2f-1's workflow (`wf_e683c233-add`) died at 15:15 UTC when Matt's interruption of a tool call restarted the
+  session; nothing had been committed. It was resumed at 15:58 from the same script and arguments (no stage was cached,
+  so the measuring pass restarted from the page render, which was intact); at 16:03 its measuring agent is tiling the
+  page.** The cloud did not notice the death for forty minutes while recording Matt's reports; from now on every check-in
+  confirms the running job's journal has moved.
+- **ChatGPT (StudioBook), 15:44 and 15:55: two doc-only commits on main (`3f0cc60`, `7692b93`), read, sound.** Desktop
+  0.3.3 is held on a save-preservation failure it reproduced: a 0.3.1 save's explored memory of Yester Hill's hill level
+  restores to nothing on 0.3.2 and later. Mechanism: item 7 (0.3.2) regenerated the level and its floor grew, so
+  `CoverageMap.forPolygons` picks 5-ft cells where 0.3.1 had 4-ft; `coverage.ts` `load` ignores a record at another cell
+  size ("for another map: left alone"); and the next vision pass (`app.ts:1457`) saves the empty mask over the old record,
+  so the "left alone" is lost. The record carries only the cell size, not the origin or width, so no exact resampling is
+  possible from the record alone. The web link has served 0.3.3 since 04:50 UTC, so a browser save that opened Yester
+  Hill since then is already overwritten. The fix is sized under Questions for Matt; not started (not on the queue; one
+  job runs at a time).
+- Clock correction: today's Status headers from "15:15" to "17:20" were stamped ahead of the clock (written from memory);
+  they are re-stamped here with their commits' times (15:08 to 15:35 UTC). The claims table's 14:25 rows are right.
+  Nothing else changed.
+- No desktop tags exist; no new commits on any other branch; the castle branch stands at `06f01ce`. The check-in is
+  armed for 18:00 UTC.
+
 ### ChatGPT, 2026-10-19 15:55 UTC (StudioBook): desktop 0.3.3 held on a reproduced save-compatibility failure
 
 - Matt authorized publication and startup installation. Exact source `1f80b990f3e0d5b111183514649e63a95b6d6543` has successful main CI `39244730107`; from release `b62fd04` only AGENTS and CI configuration differ. An isolated build produces `index-B2qu1Jpx.js`, 204 files / 17,872,287 bytes, frozen inventory SHA-256 `36d9f5efb248a627c0c059e11927b61f71eb754ea252a39cac58183c05237a9f`. Build passes; all 571 unit checks pass with zero environment skips and two existing todo after fetching the pinned SRD inputs; all 21 desktop checks pass. Full browser verification is still running on StudioBook's Intel ANGLE/D3D11 hardware against the frozen build; no full-suite pass is claimed yet.
@@ -143,7 +165,7 @@ a day old; then continue it from its wip branch, and say so in Status.
 - Matt explicitly asked to publish desktop 0.3.3 and make the locally installed app update at startup. The existing StudioBook install is a locally pinned 0.3.1 demo; its files and shortcut were verified and opened without changing other browser data. No distribution tag exists yet.
 - This bounded task verifies exact-source CI, the frozen build and required build/unit/GPU/review evidence before publishing `desktop-v0.3.3`. No app features, Claude branches, map claims, access settings or credentials are changed. Open app windows retain their served build; no unsaved user work is force-closed.
 
-### Claude, 2026-10-19 17:20 UTC (cloud): Matt's "all go": the mist edge next, then framework release 7
+### Claude, 2026-10-19 15:35 UTC (cloud): Matt's "all go": the mist edge next, then framework release 7
 
 - Matt, 2026-10-19: "all go", on the two questions in the chat (the mist edge ahead of 2f-2; framework release 7 with
   its questions 3, 9 and 10 answered yes). The order from here, one lean job at a time under his usage rule:
@@ -152,7 +174,7 @@ a day old; then continue it from its wip branch, and say so in Status.
   Each is claimed when it starts and released on its own version. Still open: the CI-hardening question, the
   Playwright-upgrade choice, the castle walls' thickness, the audits' questions, the Baratok discs.
 
-### Claude, 2026-10-19 17:00 UTC (cloud): Tser Falls' gorge and plate, filed (2f-2 widened; release 7)
+### Claude, 2026-10-19 15:21 UTC (cloud): Tser Falls' gorge and plate, filed (2f-2 widened; release 7)
 
 - Matt, 2026-10-19, three screenshots of Tser Falls (H): "tser falls mountain shape logic issues and contextual
   continuity". Two things: the gorge's cliffs are thin vertical ribbons with the banded rock look and the boulders
@@ -160,7 +182,7 @@ a day old; then continue it from its wip branch, and say so in Status.
   surface); and the map stands as a flat plate over the land with a striped skirt and a road strip floating beside it
   (the seam: framework release 7, which already names "Tser's deck is a plate", awaiting Matt's go above).
 
-### Claude, 2026-10-19 16:45 UTC (cloud): the Mists as every map's edge (owner's standard), queued as 2f-5
+### Claude, 2026-10-19 15:18 UTC (cloud): the Mists as every map's edge (owner's standard), queued as 2f-5
 
 - Matt, 2026-10-19: "this wall of fog at yester hill should be the standard way to isolate playable areas. the whole map
   should feel confined by this in some way without overdoing it." Queue item 2f-5: framework release 3's mist piece
@@ -169,7 +191,7 @@ a day old; then continue it from its wip branch, and say so in Status.
   2f-1, before 2f-2, because the mist edge also hides the terrace edges at Vallaki, the Amber Temple and Yester Hill
   while release 7 reshapes the land underneath; otherwise it runs after 2f-4 in order of arrival.
 
-### Claude, 2026-10-19 16:30 UTC (cloud): Yester Hill reads as a pyramid from the valley; filed under framework release 7
+### Claude, 2026-10-19 15:17 UTC (cloud): Yester Hill reads as a pyramid from the valley; filed under framework release 7
 
 - Matt, 2026-10-19: "weird pyramid yester hill context" (Yester Hill from above: a square stepped block with the summit
   track on top). The map is five flat square terraces (0 to 272 ft) joined by stairs behind invisible walls (0.3.2's
@@ -179,7 +201,7 @@ a day old; then continue it from its wip branch, and say so in Status.
   release 7 (the Vallaki terrace, the Amber approach, "the whole world has cohesion issues", Yester Hill); it needs
   Matt's go on that release and its questions 3, 9 and 10 (recommended yes), after item 2f-1.
 
-### Claude, 2026-10-19 16:20 UTC (cloud): Matt's upload of the castle print set's manifest and README, filed for items 2g, 2g-1 and 2f-3
+### Claude, 2026-10-19 15:16 UTC (cloud): Matt's upload of the castle print set's manifest and README, filed for items 2g, 2g-1 and 2f-3
 
 - Matt, 2026-10-19: "these files may help with the ravenloft improvement": the `manifest.json` and `README.md` that
   `print/castle-ravenloft/build.py` wrote on 2026-10-18 from the castle branch (895 files, all manifold, 12 levels:
@@ -192,7 +214,7 @@ a day old; then continue it from its wip branch, and say so in Status.
   and the drawbridge (`castle-ravenloft.py`, the approach comment near line 70), so the J map's standalone curtain wall
   duplicates the castle's own front and is the part to fold back into the castle.
 
-### Claude, 2026-10-19 15:50 UTC (cloud): three more owner reports; 2f-1 is running (workflow wf_e683c233-add)
+### Claude, 2026-10-19 15:15 UTC (cloud): three more owner reports; 2f-1 is running (workflow wf_e683c233-add)
 
 - Matt, 2026-10-19: (1) "more world map road logic clarity needed; the whole world has cohesion issues like this"
   (the village a speck beside a broken dashed road far from it): the road part is item 2f-1a, running now (every road
@@ -207,7 +229,7 @@ a day old; then continue it from its wip branch, and say so in Status.
   road gate. The StudioBook prompt was written before this; whoever runs item 2g reads this entry first.
 - Running: item 2f-1 (roads, lakes, trail) as workflow `wf_e683c233-add` on the lean setting; nothing else runs.
 
-### Claude, 2026-10-19 15:30 UTC (cloud): one more owner request queued (the village's streets and Death House); 2f-1 launched
+### Claude, 2026-10-19 15:10 UTC (cloud): one more owner request queued (the village's streets and Death House); 2f-1 launched
 
 - Matt, 2026-10-19, two screenshots of the village of Barovia: "death house is just stapled over a road, not logically
   placed"; "roads don't do that". Queue item 2f-4: `village-roads.py` lays each street as one cobble slab per segment
@@ -217,7 +239,7 @@ a day old; then continue it from its wip branch, and say so in Status.
   crag), 2f-3 (the castle's presence), 2f-4 (the village's streets and Death House). Item 10 / release 7 hold the
   Vallaki seam.
 
-### Claude, 2026-10-19 15:15 UTC (cloud): three more owner requests queued (lakes, Krezk's crag, the castle's presence); 2f-1 runs
+### Claude, 2026-10-19 15:08 UTC (cloud): three more owner requests queued (lakes, Krezk's crag, the castle's presence); 2f-1 runs
 
 - Matt, 2026-10-19, in a burst with screenshots: (1) "all of these unnatural oval lakes aren't looking good" (the inked
   valley: Lake Zarovich a perfect ellipse); (2) "krezk mountain thing is too steep, is broken texture; make it more
@@ -676,6 +698,17 @@ may still be running** its check-in routine; Matt decides whether it carries on 
 
 ## Questions for Matt
 
+- **Desktop 0.3.3 (ChatGPT, 2026-10-19 15:55) is held on a reproduced save loss: may the cloud fix it as one bounded
+  job?** The explored-fog memory of Yester Hill's hill level saved before 0.3.2 is dropped on 0.3.2 and later (mechanism
+  in the 16:05 Status entry). Proposed, under a claim on `app/src/core/coverage.ts`, `app/src/app.ts` (the two coverage
+  lines, 391 and 1457) and `tests/coverage.test.ts`: (1) the saved record gains a header with its origin and size, so
+  every future regeneration of any map can carry its explored memory over; (2) `load` resamples a record whose cell,
+  origin or size differ (a new cell counts as explored when an old explored cell overlaps it); (3) the legacy `c4:`
+  record of `ch14/Y/hill` is resampled with its 0.3.1 geometry written into the migration (origin -2,-2 ft, 4-ft cells),
+  proven by a fixture test that fails first, as ChatGPT's fixture does; (4) a record that still cannot be placed is kept
+  under a side key, never overwritten. Recommended: its own patch first, at the next version in order, so the desktop
+  tag can go out from it and 2f-1 takes the number after; or it rides 2f-1's release. Without it, the gate in
+  `docs/DESKTOP.md` holds every desktop release.
 - Answered (Matt, 2026-10-19: "all go"): the mist edge (2f-5) runs right after 2f-1, ahead of Krezk's crag, the castle's presence and the village streets.
 - Answered (Matt, 2026-10-19: "all go"): framework release 7 runs after the mist edge, with its questions 3, 9 and 10 answered yes as recommended (queue item 2f-6).
 - Answered (Matt, 2026-10-19: "go on"): the valley's roads as one graph and the trail along them, item 2f-1, running.
