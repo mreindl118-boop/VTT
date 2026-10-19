@@ -87,7 +87,6 @@ editing the same thing at once:
 
 | What | Who | Since (UTC) | Doing | Expected on main |
 |---|---|---|---|---|
-| `desktop-v0.3.3` distribution packaging, verification and StudioBook startup installation; no app-source edits | ChatGPT, StudioBook | 2026-10-19 15:44 | publishing Matt's requested tested 0.3.3 desktop build; verifying exact-source CI, frozen bytes and saves without interrupting open work | this session; release the claim after publication or a precise blocker |
 | `scripts/authoring/barovia-world.py`, `locations/ch02/barovia-region/world.json`, a new `tests/world-roads.test.ts`; for the lakes (2f-1c) `app/src/render/worldland.ts` (the lake functions only), `app/src/render/worldcarto.ts` (the lakes only), `app/src/ui/worldmap.ts` (the lakes only), `scripts/world-atlas.ts` and `tests/atlas.test.ts` (the shore rule only) (item 2f-1a/c) | Claude, cloud | 2026-10-19 14:25 | the region's roads, rivers and lakes as measured shapes, on `claude/wip/item2f-1-roads` | 2026-10-19/20, with 2f-1b as one release |
 | `app/src/app.ts` (only `activate`'s `travel` flag and `moveWorld`), `app/src/render/worldstage.ts` (only `drawTrail`), a new `app/src/render/worldroads.ts` (item 2f-1b) | Claude, cloud | 2026-10-19 14:25 | the trail recorded on explicit travel only and drawn along the road graph, on `claude/wip/item2f-1-roads` | with 2f-1a |
 | `scripts/authoring/castle-ravenloft.py`, `locations/ch04/K`, `print/castle-ravenloft/` (item 2g) | Claude, cloud (castle session) | 2026-10-18 21:08 | the playable castle + print set on `claude/wip/castle-playable`; waiting for Matt's approval, then build/tests on a machine with npm | after Matt approves and 0.3.3 lands |
@@ -132,6 +131,12 @@ Do not start an item that the Status section says another agent has in flight un
 a day old; then continue it from its wip branch, and say so in Status.
 
 ## Status
+
+### ChatGPT, 2026-10-19 15:55 UTC (StudioBook): desktop 0.3.3 held on a reproduced save-compatibility failure
+
+- Matt authorized publication and startup installation. Exact source `1f80b990f3e0d5b111183514649e63a95b6d6543` has successful main CI `39244730107`; from release `b62fd04` only AGENTS and CI configuration differ. An isolated build produces `index-B2qu1Jpx.js`, 204 files / 17,872,287 bytes, frozen inventory SHA-256 `36d9f5efb248a627c0c059e11927b61f71eb754ea252a39cac58183c05237a9f`. Build passes; all 571 unit checks pass with zero environment skips and two existing todo after fetching the pinned SRD inputs; all 21 desktop checks pass. Full browser verification is still running on StudioBook's Intel ANGLE/D3D11 hardware against the frozen build; no full-suite pass is claimed yet.
+- **No desktop tag or distribution commit was created, and no installed version switch was attempted.** A synthetic fixture using the unchanged CoverageMap class and the two released Yester Hill geometries restores 242,239 old explored cells on the old geometry, but zero on 0.3.3: Y/hill changes cell size 4 to 5. Activating that level replaces its in-memory seen mask, which a later save persists. This can occur at startup when Y is the remembered scene. No real profile was read, copied or edited for the fixture. The database format, campaign fields and old level IDs themselves are retained; this is a concrete explored-memory issue from the released map change.
+- `docs/DESKTOP.md` requires a reviewed migration/rollback policy and fixture evidence before a save-changing release reuses `mistlab-idb1-2026-10`. The fixture currently demonstrates loss, so this preservation gate remains open. A migration/preservation policy or a separately reviewed compatible source release is needed; do not declare compatibility merely to pass the updater. The existing 0.3.1 installation, launcher, updater, configuration and state file remain unchanged; its open window was not force-closed. No map or Claude branch was changed. The publication claim is released while blocked. Reproduction and sanitized evidence stay in this task's local evidence folder outside Git.
 
 ### ChatGPT, 2026-10-19 15:44 UTC (StudioBook): desktop 0.3.3 publication requested
 
