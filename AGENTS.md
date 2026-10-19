@@ -132,6 +132,13 @@ a day old; then continue it from its wip branch, and say so in Status.
 
 ## Status
 
+### ChatGPT, 2026-10-19 16:09 UTC (StudioBook): publication still held; GPU run interrupted by execution transport loss
+
+- Parent received the reproduced Yester Hill preservation failure and asked Matt for approval of the bounded migration fix. Publication and source implementation are held pending his response. No `desktop-v0.3.3` tag or distribution commit was created. The installed 0.3.1 app remains running on its original host (PID 56028, 127.0.0.1:5642); its state hash is still `d828f4534452a4dd01a0e33207b6ab3e6d701ebb10633f29c975e531d06eed7c`. No live browser database was read, copied or cleared.
+- The **single** hardware-GPU suite stopped after the exec-server transport disconnected (`pong_timeout`, original session unknown after reconnection). Read-only observation recovered and confirmed the original test process and preview listener were gone. Its log reports 266 of 322 cases: 242 passed, 24 configured device skips, no failure marker; 56 cases remain unconfirmed, no final JSON report exists. **This is not a full-GPU pass.** No duplicate suite was started. The staged 204-file build remains byte-identical to fingerprint `36d9f5efb248a627c0c059e11927b61f71eb754ea252a39cac58183c05237a9f`; the successful build, 571 zero-skipped units (two todo) and 21 desktop results remain preserved.
+- A proposal only is ready: losslessly retain each original affected explored mask plus its verified legacy layout, store versioned current layout metadata, project conservatively so 4-to-5-foot cells do not reveal unknown slivers, and preserve unknown inputs without guessing. The installed demo's Y/hill, Y/summit and U3/mire layout inputs were separately verified from its fingerprint-matched static assets, without profile access. A correction must take the next available approved source-release version; the frozen 0.3.3 is not modified or relabeled.
+- If Matt approves, re-read current claims and claim `app/src/core/coverage.ts`, a new `app/src/state/exploration.ts`, `app/src/state/campaign.ts`, `app/src/app.ts` only `loadSteps`/`recompute` plus helper imports, `tests/coverage.test.ts`, new migration unit/browser tests, and normal release/policy records. This avoids the roads claim's `activate`/`moveWorld` sections. No implementation has started. Sanitized fixture, proposal, interruption record and validation summary are retained in this task's local evidence folder outside Git.
+
 ### Claude, 2026-10-19 16:05 UTC (cloud): 2f-1's job resumed after an interruption killed it; ChatGPT's desktop blocker read; clock stamps corrected
 
 - **Item 2f-1's workflow (`wf_e683c233-add`) died at 15:15 UTC when Matt's interruption of a tool call restarted the
