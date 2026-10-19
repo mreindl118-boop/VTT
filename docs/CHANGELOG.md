@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.3.3 One home for each helper — 2026-10-19
+
+Nothing looks or plays differently in this release. It is housekeeping the owner asked for: the small building blocks
+that the map modules each kept their own copy of now live in one place each.
+
+- The shape helpers the site modules declared for themselves (boxes, cylinders, cones, lumps, grouping, hashing and
+  the like, up to eighteen copies of one function) are one shared kit module; each site imports what it used to
+  redeclare. The fog material the outdoor sites each built is one shared helper, so the same mist colour is one
+  material across sites instead of one per site. The plane-geometry helpers copied between the map generators
+  (point-in-polygon, strips, bands and the rest) are one shared Python module.
+- Every change was proved identical: every registered piece builds the same geometry and materials as before,
+  every regenerated scene is byte for byte the same, and every map's entry frame draws the same pixels with the
+  same draw calls as the 0.3.2 build. Copies that only looked alike but behaved differently were left where they
+  were, and listed, rather than forced together.
+- Known limits: the three land systems, the mist pieces themselves and the two world maps are untouched; they are
+  the next rounds and change what you see, so they wait for the owner. The Vallaki town generator cannot reproduce
+  its committed scene on a machine without the house import file; the scene is unchanged and was not regenerated.
+
 ## 0.3.2 Map smoothing: unfinished maps — 2026-10-18
 
 The four Curse of Strahd maps that were still rough are finished.
