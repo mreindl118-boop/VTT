@@ -1,7 +1,7 @@
 // Stairs take the party one floor, once, in the running app (app.ts takeLink / afterPartyMove, core/verticalLinks.ts):
 // a marker for every way out of a landing, the chosen way whatever the scene's order, a stair taken only when a move
-// enters it (walking, or the DM's "Move party here"), a passage on one level to its far end, and the Player Display
-// following without taking stairs of its own.
+// enters it (walking, or the DM's "Move party here"), a passage on one level to its far end, the party's floor kept
+// over a reload, and the Player Display following without taking stairs of its own.
 import { expect, test, type Page } from '@playwright/test';
 import { quiet } from './helpers';
 
@@ -234,6 +234,21 @@ test('the DM\'s "Move party here" takes a stair only when it puts the party onto
   expect(await menuMove('f1', 27.5, 22.5), 'off the landing, still beside the stair').toEqual({ level: 'f1', visible: 'f1', pos: [22.5, 27.5] });
   expect(await menuMove('f1', 17.5, 22.5), 'onto the stair from the room').toEqual({ level: 'f2', visible: 'f2', pos: [27.5, 27.5] });
   expect(await menuMove('f3', 27.5, 27.5), 'onto the stair from another floor').toEqual({ level: 'f2', visible: 'f2', pos: [27.5, 27.5] });
+});
+
+test('a reload opens the map on the party\'s floor; a floor asked for wins; a first visit opens on the entry', async ({ page }) => {
+  await open(page);
+  await page.evaluate(async () => { const m = (window as any).__mistlab; m.moveParty('f2', 17.5, 27.5); await m.flush(); });
+  await page.reload();
+  await page.waitForFunction(() => (window as any).__mistlab?.ready);
+  await page.evaluate(() => (window as any).__mistlab.ready);
+  await expect(page.getByRole('combobox', { name: 'Floor', exact: true })).toHaveValue('f2');
+  expect(await pose(page)).toEqual({ level: 'f2', visible: 'f2', pos: [17.5, 27.5] });
+  const asked = await page.evaluate(async () => { const a = (window as any).__mistlab.app; const ok = await a.open(a.cur.path, 'f1'); return { ok, visible: a.levelId, party: a.party.level }; });
+  expect(asked).toEqual({ ok: true, visible: 'f1', party: 'f2' });
+  // the castle, never visited: it opens on its entry (the main floor at the gate), where its party is made
+  const first = await page.evaluate(async () => { const a = (window as any).__mistlab.app; await a.open('ch04/K'); return { visible: a.levelId, entry: a.cur.scene.entry, party: a.party.level }; });
+  expect(first).toEqual({ visible: 'ground', entry: 'ground', party: 'ground' });
 });
 
 test('the Player Display follows the party up a stair and takes none of its own', async ({ page, context }) => {

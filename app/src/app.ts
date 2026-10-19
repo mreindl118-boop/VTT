@@ -284,6 +284,8 @@ export class App {
     }
     if (!inValley) this.releaseAll();
     this.place(next, ups);
+    // the DM opens a map the party is on at the party's floor (a reload, a return to it), unless a floor is asked for
+    if (levelId === undefined && this.mode === 'dm') levelId = this.partyFloor(next);
     // the Player Display's camera is the DM's (camera messages): it never frames a map it follows the DM onto
     const follow = this.mode === 'player' && !!prev;
     this.home = path; // the party's map (the camera alone never changes it)
@@ -1189,6 +1191,12 @@ export class App {
     const c = squareCellCenter(squareCellAt(pos));
     // The party carries a torch (PHB 20/40) so unlit maps are playable out of the box.
     this.state.tokens.push({ id: `pc-${loc}`, name: 'Party', location: loc, level: level.id, pos: c, size: 'medium', darkvisionFt: 0, color: PARTY_RED, light: { bright: 20, dim: 40 }, role: 'party' });
+  }
+
+  /** The floor the party stands on in a loaded map, if it is there (a saved token on one of the map's levels). */
+  private partyFloor(loaded: Loaded): string | undefined {
+    const here = this.state.tokens.filter((t) => t.location === loaded.scene.location), t = here.find((x) => x.role !== 'member') ?? here[0];
+    return t && loaded.levels.has(t.level) ? t.level : undefined;
   }
 
   /** The party token for the loaded location. */
