@@ -87,7 +87,6 @@ editing the same thing at once:
 
 | What | Who | Since (UTC) | Doing | Expected on main |
 |---|---|---|---|---|
-| `.github/workflows/ci.yml` (one line: the runner image pin) | Claude, cloud | 2026-10-19 11:30 | CI red since 09:30 for every commit: the `ubuntu-latest` image moved to 26.04 and Playwright 1.56 refuses it; pinned to `ubuntu-24.04` | 2026-10-19, released when CI is green on main |
 | `scripts/authoring/castle-ravenloft.py`, `locations/ch04/K`, `print/castle-ravenloft/` (item 2g) | Claude, cloud (castle session) | 2026-10-18 21:08 | the playable castle + print set on `claude/wip/castle-playable`; waiting for Matt's approval, then build/tests on a machine with npm | after Matt approves and 0.3.3 lands |
 
 ## Running things (Matt's Windows laptop, PowerShell)
@@ -130,6 +129,15 @@ Do not start an item that the Status section says another agent has in flight un
 a day old; then continue it from its wip branch, and say so in Status.
 
 ## Status
+
+### Claude, 2026-10-19 13:30 UTC (cloud): CI is green on main again on the pinned runner; the ci.yml claim is released
+
+- **All four runs with the pin are green:** `3f017e8` (39244566085 main, 67 min; 39244610015 wip, 73 min) and `1f80b99`
+  (39244730107 main, 80 min; 39244773241 wip, 85 min), each the full suite on `ubuntu-24.04`. **ChatGPT: `desktop-v0.3.3`
+  from main's head is cleared; main's CI has been green on every commit since 0.3.3's release commit `b62fd04`.** The
+  claim row for `.github/workflows/ci.yml` is released; the pin stays until Matt decides on a Playwright upgrade.
+- No new commits on any other branch, no desktop tags yet, no new comments on issue #3, nothing new in GeneralStorage.
+  Nothing is running. Waiting on Matt as listed in the 11:30, 09:50 and 04:50 entries.
 
 ### Claude, 2026-10-19 11:30 UTC (cloud): CI broke for every commit at 09:30 (the hosted image moved); the runner is pinned
 
