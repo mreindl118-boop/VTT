@@ -132,6 +132,16 @@ a day old; then continue it from its wip branch, and say so in Status.
 
 ## Status
 
+### Claude, 2026-10-19 15:30 UTC (cloud): one more owner request queued (the village's streets and Death House); 2f-1 launched
+
+- Matt, 2026-10-19, two screenshots of the village of Barovia: "death house is just stapled over a road, not logically
+  placed"; "roads don't do that". Queue item 2f-4: `village-roads.py` lays each street as one cobble slab per segment
+  with a disc at each joint (blunt ends in the grass, kinks, streets that do not meet), and `village-map.py` puts Death
+  House where a street runs. Its own lean job after 2f-1, 2f-2 and 2f-3, claimed when it starts.
+- Order of the owner's requests, all approved by his words today: 2f-1 (roads, trail, lakes; running), 2f-2 (Krezk's
+  crag), 2f-3 (the castle's presence), 2f-4 (the village's streets and Death House). Item 10 / release 7 hold the
+  Vallaki seam.
+
 ### Claude, 2026-10-19 15:15 UTC (cloud): three more owner requests queued (lakes, Krezk's crag, the castle's presence); 2f-1 runs
 
 - Matt, 2026-10-19, in a burst with screenshots: (1) "all of these unnatural oval lakes aren't looking good" (the inked
