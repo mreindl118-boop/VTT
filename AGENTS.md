@@ -130,6 +130,19 @@ a day old; then continue it from its wip branch, and say so in Status.
 
 ## Status
 
+### Claude, 2026-10-19 00:55 UTC (cloud): new owner request on the castle (item 2g)
+
+- Matt, 2026-10-19: "Notice how the walls in Ravenloft as they are are like 0 mm thin. That shouldn't be the case. They
+  should be proportionately sized walls where possible. Borrowing from the space around them and kind of distorting the
+  place just slightly to make it logical." Diagnosis: walls are centreline segments with no thickness in the data;
+  `app/src/render/build.ts` draws every wall of every map as a box `WALL_T` = 0.6 ft thick (`app/src/kit/pieces.ts`),
+  and `print/castle-ravenloft/build.py` prints them 3 mm thick (the same 0.6 ft at 25.4 mm per cell). Proposed shape,
+  for Matt's go: an opt-in `thicknessFt` on `Wall` (schema), honoured by the wall, door and window boxes in
+  `build.ts` and by the print set, default unchanged so every other map draws the same pixels; the castle generator
+  sets it per wall class and insets each room's floor by half the thickness so the walls take their space from the
+  rooms, never below one clear cell. The castle session holds the claim; whoever builds it claims `schema.ts`,
+  `build.ts` and the castle generator first and writes the before/after pair.
+
 ### Claude, 2026-10-19 00:40 UTC (cloud)
 
 - **0.3.2 is on the main branch (`2fd728a`) and published to the mistLAB link (artifact version 44, bundle
