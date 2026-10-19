@@ -132,6 +132,19 @@ a day old; then continue it from its wip branch, and say so in Status.
 
 ## Status
 
+### Claude, 2026-10-19 16:20 UTC (cloud): Matt's upload of the castle print set's manifest and README, filed for items 2g, 2g-1 and 2f-3
+
+- Matt, 2026-10-19: "these files may help with the ravenloft improvement": the `manifest.json` and `README.md` that
+  `print/castle-ravenloft/build.py` wrote on 2026-10-18 from the castle branch (895 files, all manifold, 12 levels:
+  dungeon -80 ft, larders -40, ground 0, grand landing +30, court +50, weeping +90, spires +130, south tower +150, tower
+  roofs and the bridge +190, north peak +240, north roof +250, high peak +300; the mountain base 64 mm; thirteen colour
+  groups on four AMS slots). Print outputs are never committed; the files are kept with the cloud's castle scratch and
+  the StudioBook session regenerates the same set from the branch. What they settle: for 2f-3 (the castle's presence)
+  the silhouette's true heights above the courtyard, +300 ft at the high peak on the thousand-foot Pillarstone; for
+  2g-1 (the front wall and drawbridge) that the castle scene already carries the approach from J, the fifty-foot chasm
+  and the drawbridge (`castle-ravenloft.py`, the approach comment near line 70), so the J map's standalone curtain wall
+  duplicates the castle's own front and is the part to fold back into the castle.
+
 ### Claude, 2026-10-19 15:50 UTC (cloud): three more owner reports; 2f-1 is running (workflow wf_e683c233-add)
 
 - Matt, 2026-10-19: (1) "more world map road logic clarity needed; the whole world has cohesion issues like this"
