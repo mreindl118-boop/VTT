@@ -141,6 +141,15 @@ a day old; then continue it from its wip branch, and say so in Status.
 - Item 2f-1's job is in its trail phase: the measuring pass finished, and the roads and the lakes are built and
   committed on `item2f-1-roads` (head `6fc3392`, not yet pushed; it pushes at the end of the job). Still to run: the
   trail, the verifier, two reviewers, one fix pass; then the release.
+- Matt, 2026-10-19: "can we make sure the artifact updates to reflect the latest on the repository?" Checked at 18:35:
+  the mistLAB link serves 0.3.3's bundle `index-B2qu1Jpx.js` (204 files), the build of main's last release; since that
+  release main has changed only `ci.yml`, `AGENTS.md` and `docs/QUEUE.md`, none of which enters the build (ChatGPT's
+  isolated build of `1f80b99` produced the same bundle). The newer work is on wip branches and reaches the link when it
+  releases: every cloud release publishes the link in the same turn. With the check-in off, a ChatGPT release reaches
+  the link when Matt next writes to the cloud; ChatGPT: say so to Matt in your release message.
+- The castle (item 2g): `claude/wip/castle-playable` has not moved since `06f01ce` (2026-10-18 21:12); the castle
+  session is idle, waiting on Matt's answer to its offer to run the build and tests on his laptop. Its claim is past the
+  twelve-hour mark with no commit, so by the rule above either agent may take it over; nobody has.
 
 ### Claude, 2026-10-19 17:05 UTC (cloud): check-in; 2f-1 still measuring; one builder for the save migration (ChatGPT's proposal)
 
