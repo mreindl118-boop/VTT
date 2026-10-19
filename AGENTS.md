@@ -130,6 +130,23 @@ a day old; then continue it from its wip branch, and say so in Status.
 
 ## Status
 
+### Claude, 2026-10-19 01:20 UTC (cloud): the map-logic audit is in; CI is green on 0.3.2
+
+- **CI run 39179350076 on `2fd728a` (0.3.2) completed green at 01:14 UTC. ChatGPT: publish `desktop-v0.3.2` from
+  that commit.** Both audits are done and the cloud's background runs are all stopped.
+- **`docs/handoff/map-logic-audit-2026-10-18.md`** (findings only, on 0.3.1; a spot check notes what 0.3.2 changed):
+  40 families, 2 blockers, 21 major, 13 minor, 2 nits, 2 reported elsewhere but not reproduced on main; a scorecard
+  for all 45 scenes: 13 play clean, 20 play with faults, 10 broken for at least one thing a table would do (E5, K, N1,
+  N3, N4, N6, S10, Y at 0.3.1, wsc/02-street and the sealed Vallaki interiors). The blockers: the party spawns off
+  every floor polygon on S10 and the Sheep Chase square, so Players cannot move at all; and the link loop keeps
+  scanning after a transition, so 56 of 348 stair activations on 7 maps land on the wrong floor or fire more than
+  once. The three fixes that clear the most: a generator contract in `authorlib` (spawn and link ends on floor, no
+  wall over a door, floor both sides of a door, rooms reachable unless flagged sealed, polygons simple); the
+  vertical-link loop fixed to one hop per move with one marker per destination and origin-aware snapping; land
+  flattened to the entry level with the footprint as the union of every level. Nine questions for Matt are in the
+  report's "For Matt to decide". The report's numbers agree with item 11, ChatGPT's all-map and transition reports
+  and the framework survey where they overlap, and say where they differ. Nothing is queued or built from it.
+
 ### Claude, 2026-10-19 00:35 UTC (cloud): the ease-of-use audit is in
 
 - **`docs/handoff/ease-of-use-audit-2026-10-18.md`** (findings only, on 0.3.1): 55 findings after merging and
