@@ -337,8 +337,8 @@ Dr(w, m5, (15.5, 21), (15.5, 22), id='K42-east', double=True); Dr(w, m5, (17, 21
 Dr(w, m5, (17.5, 20), (18.5, 20), id='K37-north-a'); Dr(w, m5, (19, 20), (19.5, 20), id='K37-north-b'); Dr(w, m5, (17, 22), (18, 22), id='K37-south')
 w.secret(m5(20, 21), m5(20, 22), 'fireplace', 'The back wall of the fireplace swings open when the poker is lifted', 'K37')
 w.prop('fireplace-k37', 'fireplace', m5(19.7, 21.5), 'K37', rotY=-90); w.prop('desk-k37', 'desk', m5(18, 21), 'K37'); w.prop('books-k37', 'bookshelf', m5(17.3, 20.3), 'K37')
-w.secret(m5(22, 21.5), m5(22, 22), 'webs-west', 'A secret door at the west end of the hall of webs (one-way from the false treasury)', 'K39')
-w.secret(m5(22, 22), m5(22.5, 22), 'webs-south', 'A narrow secret door behind webs at the west end of the south wall: the shaft access', 'K39')
+w.secret(m5(22, 21.5), m5(22, 22), 'webs-west', 'Secret door in the hall\'s west wall; it opens only from the false treasury side', 'K39')
+w.secret(m5(22, 22), m5(22.5, 22), 'webs-south', 'Behind the webs by the south wall\'s west corner: a narrow secret door down to the shaft access (K31b)', 'K39')
 Op(w, m5, (22, 23.5), (22.5, 23.5))
 Dr(w, m5, (26, 21), (26, 22), id='K40-doors', double=True); w.secret(m5(26, 21), m5(27, 21), 'belfry-north', 'Behind thick webs: a secret door into the treasury', 'K40')
 arch(w, m5(18.75, 17.8), m5(18.75, 19.225)); arch(w, m5(18.75, 19.225), m5(19.525, 20))   # the hall of heroes and the north hall open on the K20 landing
@@ -366,7 +366,7 @@ w.prop('k33-top', 'stairs-straight', m5(14, 17.5), 'K45', dims={'w': 5, 'rise': 
 w.prop('trap-k31b', 'trapdoor', m3(20.5, 23), 'K31b'); w.note('K31b-note', m3(20.5, 23.3), 'K31b', 'Elevator landing: the car stops here; a stone trapdoor 40 ft above opens into K47.')
 for key, pos in (('K46-w', (10.25, 21)), ('K46-n', (20, 15.25)), ('K46-s', (16, 29)), ('K46-e', (28.75, 19.5))):
     w.light(f'{key}-sky', m5(*pos), 'daylight', 10, 20, y=4)
-w.note('K46-note', m5(10.25, 20), 'K46', 'Battlemented walkways; windows into the keep are shut and locked but easily broken. Walkways run to the outer walls north, south and east.')
+w.note('K46-note', m5(10.25, 20), 'K46', 'Battlemented walkways round the keep; every window into it is locked, though the glass breaks easily. Walkways lead off north, south and east to the curtain walls.')
 
 # ================================================================== SPIRES (+130, map 6) and the south tower (+150, map 7)
 sp = Level('spires', 'Spires of Ravenloft (+130 ft)', 130, 20, ambient='storm', interior='paneling', exterior='ashlar', north='-z')
@@ -395,7 +395,7 @@ sp.prop('rug-k47', 'rug', m3(18.5, 24), 'K47'); sp.note('K47-note', m3(18.5, 24.
 sp.prop('k48-foot', 'spiral-stair', m3(21.25, 25.5), 'K48', dims={'r': 6, 'rise': 20})
 sp.prop('books-k49', 'bookshelf', (36.7, 47), 'K49', rotY=-90); sp.creature('escher', 'adventurer', (35, 47), 'K49', 'Escher, Strahd\'s consort (vampire spawn)')
 sp.prop('bed-k50', 'bed', (39, 49), 'K50'); sp.note('K50-note', (39, 50.8), 'K50', 'Resting here at night brings 1d4 witches from K56.')
-sp.hidden('hook-k51', 'niche', (42, 51.8), 'K51', 'A black cloak on a hook: pulling the hook opens the secret trapdoor in the ceiling (DC 13 Perception to find)')
+sp.hidden('hook-k51', 'niche', (42, 51.8), 'K51', 'A black cloak hangs on one hook; pull that hook and the hidden trapdoor overhead drops open (DC 13 Perception to find)')
 sp.prop('chimney-k52', 'chimney', m3(17, 19.5), 'K52', dims={'h': 30})
 sp.note('K52-note', m3(17, 20), 'K52', 'Smokestack 5 ft across, 30 ft above the roof peak; leads 60 ft down to the study fireplace (3d6 fire).')
 sp.prop('roof-w', 'roof-gable', m3(11, 20.75), 'K53-w', dims={'w': 40, 'd': 145, 'h': 18}); sp.prop('roof-n', 'roof-gable', m3(19.5, 14.5), 'K53-n', rotY=90, dims={'w': 20, 'd': 130, 'h': 12}); sp.prop('roof-s', 'roof-gable', m3(15.25, 25.25), 'K53-s', rotY=90, dims={'w': 55, 'd': 45, 'h': 16})
@@ -472,7 +472,7 @@ la.room('K69', "Guards' Quarters", R(m11, 6, 18.5, 12, 21), 'flagstone', page=pg
 la.room('K64', "Guards' Stair (foot)", R(m11, 12, 22, 13.5, 23.5), 'flagstone', page=pg('K64'), ceilingFt=40)
 la.room('K20a', 'Tower Hall Stair', R(m11, 16.5, 9, 18.5, 10), 'flagstone', page=pg('K20a'), ceilingFt=40)
 la.room('K23-s', "Servants' Stair (foot)", R(m11, 19.5, 11, 20.5, 14.5), 'flagstone', page=pg('K23'), ceilingFt=40)
-la.secret(m11(12.5, 6), m11(12.5, 7), 'K72-west', 'A secret door at the north end of the west wall: the western stair (K79) descends', 'K72')
+la.secret(m11(12.5, 6), m11(12.5, 7), 'K72-west', 'West wall, northern corner: a hidden door, and beyond it the western stair (K79) dropping to its landing', 'K72')
 Dr(la, m11, (13, 9), (14, 9), id='K70-north'); Dr(la, m11, (12, 12), (13, 12), id='K70-south'); Op(la, m11, (12, 14.5), (13, 14.5)); Op(la, m11, (14, 10), (14, 11))
 Op(la, m11, (11, 10.5), (11, 11.5)); Op(la, m11, (16.5, 9), (16.5, 10))
 Dr(la, m11, (14.5, 14.5), (15.5, 14.5), id='K66-door'); Dr(la, m11, (17, 14.5), (18, 14.5), id='K65-door'); Op(la, m11, (19.5, 14.5), (19.5, 15.5))
@@ -496,7 +496,7 @@ la.prop('bed-k66', 'bed', m11(14, 12.9), 'K66'); la.creature('cyrus', 'adventure
 for i, x in enumerate((20.8, 21.4, 22)): la.prop(f'cask-n-{i}', 'wine-cask', m11(x, 14.75), 'K63')
 for i, y in enumerate((14.8, 15.2, 15.6, 16, 16.4, 16.8)): la.prop(f'cask-e-{i}', 'wine-cask', m11(22.7, y), 'K63')
 for i, x in enumerate((20, 20.6, 21.2)): la.prop(f'cask-s-{i}', 'wine-cask', m11(x, 16.8), 'K63')
-la.hidden('crack-k63', 'niche', m11(19.6, 16.7), 'K63', 'A crack at the south end of the west wall leads to the high tower stair (K18)')
+la.hidden('crack-k63', 'niche', m11(19.6, 16.7), 'K63', 'A thin crack low in the west wall, near its south corner, reaches the high tower stair (K18); far too narrow to pass')
 la.note('K63-note', m11(21, 15.25), 'K63', 'Three casks north, six east, three south; the card reading may place a treasure here. Cyrus keeps the rats as pets.')
 la.hidden('elev-plate', 'pressure-plate', m11(16.5, 17), 'K61', 'Elevator trap: 400 lb on the floor drops portcullises and lifts the car; the counterweight falls in the east half')
 la.note('K61-note', m11(16.5, 18), 'K61', 'A 10 × 30 ft corridor; the spiral stair (K21) is south, a wooden door north.')
@@ -603,7 +603,7 @@ DESC = {
   'K2': ("A gate in a wall that runs from the keep to the curtain wall.", "North and south gates: unlocked, heavy."),
   'K3': ("A narrow courtyard between the keep and the eastern wall; a carriage house stands in the corner.", "The door into the keep (K23) is swollen shut: DC 10 Strength."),
   'K3-s': ("The courtyard continues round the south-east of the keep.", None),
-  'K4': ("A stone carriage house with hinged wooden doors.", "The black carriage with glass windows and brass lanterns; the horses are elsewhere."),
+  'K4': ("A carriage house of stone, shut by a pair of wooden doors on hinges.", "The black carriage with glass windows and brass lanterns; the horses are elsewhere."),
   'K5': ("A struggling garden behind the keep under boarded stained-glass windows.", None),
   'K6': ("A stone balcony beyond the east wall, open to the storm.", "The village lies a thousand feet below. Perception 15: a stone box with three dirty windows juts from the cliff a hundred feet down (K63, the wine cellar)."),
   'K7': ("An entry hall twenty feet deep between two sets of doors, torches guttering in iron sconces. Four stone dragons glare down from the vaulted ceiling.", "The dragons are red dragon wyrmlings: they attack anyone entering from K8 who is not Strahd, never anyone coming in from the courtyard."),
