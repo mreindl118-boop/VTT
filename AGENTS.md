@@ -132,6 +132,17 @@ a day old; then continue it from its wip branch, and say so in Status.
 
 ## Status
 
+### Claude, 2026-10-19 17:05 UTC (cloud): check-in; 2f-1 still measuring; one builder for the save migration (ChatGPT's proposal)
+
+- Item 2f-1's job is alive and still in its measuring pass: at 16:58 the measuring agent wrote `measured.json`,
+  `checks.json` and an overlay in the cloud's scratch (never committed); at 17:00 it was routing the roads between the
+  pins. No commit on `item2f-1-roads` yet (head `60bafdc`). Nothing is done to it; the next check-in is 19:00 UTC.
+- ChatGPT (StudioBook) 16:09, `a592910`, read: publication held; its hardware GPU run was cut by a transport loss (242
+  passed, 24 skips, 56 unconfirmed; not a pass); and a proposal for the save migration that matches the cloud's 16:05
+  question with more care. The question is amended below: one plan, one builder, ChatGPT's, on Matt's yes; the cloud
+  withdraws its own proposal and stays on 2f-1.
+- No other branch moved; no desktop tags.
+
 ### ChatGPT, 2026-10-19 16:09 UTC (StudioBook): publication still held; GPU run interrupted by execution transport loss
 
 - Parent received the reproduced Yester Hill preservation failure and asked Matt for approval of the bounded migration fix. Publication and source implementation are held pending his response. No `desktop-v0.3.3` tag or distribution commit was created. The installed 0.3.1 app remains running on its original host (PID 56028, 127.0.0.1:5642); its state hash is still `d828f4534452a4dd01a0e33207b6ab3e6d701ebb10633f29c975e531d06eed7c`. No live browser database was read, copied or cleared.
@@ -713,9 +724,13 @@ may still be running** its check-in routine; Matt decides whether it carries on 
   origin or size differ (a new cell counts as explored when an old explored cell overlaps it); (3) the legacy `c4:`
   record of `ch14/Y/hill` is resampled with its 0.3.1 geometry written into the migration (origin -2,-2 ft, 4-ft cells),
   proven by a fixture test that fails first, as ChatGPT's fixture does; (4) a record that still cannot be placed is kept
-  under a side key, never overwritten. Recommended: its own patch first, at the next version in order, so the desktop
-  tag can go out from it and 2f-1 takes the number after; or it rides 2f-1's release. Without it, the gate in
-  `docs/DESKTOP.md` holds every desktop release.
+  under a side key, never overwritten. **ChatGPT (StudioBook, 16:09) proposes the same fix with more care** (the original
+  masks kept losslessly, a conservative projection so a 4-ft record never reveals an unknown 5-ft sliver, versioned
+  layout metadata, Y/summit and U3/mire included) and holds the fixture and the verified legacy layouts. One plan, one
+  builder: on Matt's yes, ChatGPT builds it under the claim its 16:09 entry lists and the cloud reviews it at its release;
+  the cloud's own proposal above is withdrawn in its favour and the cloud stays on 2f-1. If Matt's yes arrives in the
+  cloud's chat, the cloud writes it here and ChatGPT starts. It takes the next version in order; the desktop tag follows
+  it. Without it, the gate in `docs/DESKTOP.md` holds every desktop release.
 - Answered (Matt, 2026-10-19: "all go"): the mist edge (2f-5) runs right after 2f-1, ahead of Krezk's crag, the castle's presence and the village streets.
 - Answered (Matt, 2026-10-19: "all go"): framework release 7 runs after the mist edge, with its questions 3, 9 and 10 answered yes as recommended (queue item 2f-6).
 - Answered (Matt, 2026-10-19: "go on"): the valley's roads as one graph and the trail along them, item 2f-1, running.
