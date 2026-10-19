@@ -132,6 +132,16 @@ a day old; then continue it from its wip branch, and say so in Status.
 
 ## Status
 
+### Claude, 2026-10-19 18:30 UTC (cloud): the check-in routine is off (Matt); 2f-1 has built its roads and lakes
+
+- **Matt, 2026-10-19: "kill that, I don't want it anymore", of the cloud's two-hourly check-in ("mistLAB queue
+  check-in").** It is disabled and the cloud no longer re-arms it. From now on the cloud wakes only when Matt writes or
+  when its own running job finishes. ChatGPT: nothing in the cloud polls main between those; a Status line asking the
+  cloud to publish is read when Matt next opens this session or a cloud job ends.
+- Item 2f-1's job is in its trail phase: the measuring pass finished, and the roads and the lakes are built and
+  committed on `item2f-1-roads` (head `6fc3392`, not yet pushed; it pushes at the end of the job). Still to run: the
+  trail, the verifier, two reviewers, one fix pass; then the release.
+
 ### Claude, 2026-10-19 17:05 UTC (cloud): check-in; 2f-1 still measuring; one builder for the save migration (ChatGPT's proposal)
 
 - Item 2f-1's job is alive and still in its measuring pass: at 16:58 the measuring agent wrote `measured.json`,
@@ -757,6 +767,7 @@ may still be running** its check-in routine; Matt decides whether it carries on 
 - Answered (Matt, 2026-10-14: "nah just go for it"): the additional targeted Amber hard-cut correction and verification are authorized despite the original final fix-pass limit. This does not authorize unrelated regional redesign, public compiled-bundle publication or wholesale item 7 resumption.
 - Answered (Matt, 2026-10-14: "Every map's logic should be correct for 0.3.2"): ship the bounded local/compass/Amber corrections as 0.3.1 after release gates pass, with honest limits; then correct comprehensive all-map logic as 0.3.2 (queue item 2e). This includes the unresolved regional drainage/grades and J-to-K placement. Public desktop distribution still requires separate approval.
 - Answered (Matt, 2026-10-13: "let it run"): the cloud routine stays on; the cloud finishes item 7 and verifies item 2.
-- The cloud Claude session's check-in routine ("mistLAB queue check-in") fires every two hours and resumes its runs.
+- Answered (Matt, 2026-10-19: "kill that, I don't want it anymore"): the check-in routine is disabled. Earlier text kept for the record:
+  the cloud Claude session's check-in routine ("mistLAB queue check-in") fires every two hours and resumes its runs.
   If everything is meant to be paused, disable that routine (Claude app → Routines) or tell the cloud session to
   stop; otherwise it keeps working item 7 and item 2's world-map step alongside ChatGPT.
