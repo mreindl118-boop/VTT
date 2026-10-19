@@ -657,8 +657,9 @@ export class App {
       this.cur = next;
       if (next.drawn) next.ghost?.restore(next);
       this.world.reanchor(this.absOf(next));
-      // looking is not travelling: the map a reload opens (mistlab.scene) stays the one the party was taken to
-      this.activate(next, { levelId: groundOf(next.scene).id, travel: false });
+      // looking is not travelling: the map a reload opens (mistlab.scene) stays the one the party was taken to, and a
+      // map the camera alone made active gets no party token
+      this.activate(next, { levelId: groundOf(next.scene).id, travel: false, token: false });
       this.broadcast();
       this.syncStage();
       this.syncNest();
@@ -862,8 +863,12 @@ export class App {
   }
 
   /** The current map comes alive: fog and light for where it stands, the party's place on the world map, its tokens,
-   *  its level; framed (or flown to) if asked. */
-  activate(loaded: Loaded, opts: { levelId?: string; frame?: boolean | 'fly'; travel?: boolean } = {}): void {
+   *  its level; framed (or flown to) if asked. Looking is not travelling: an open (a place's name, the world map's
+   *  disc, a crumb, the library, a reload) moves the camera and gives the map the party's token (`token`), but the
+   *  party's place on the world map and its trail change only on an explicit travel (`travel`; the drag of the
+   *  party's '&' in ui/worldnest.ts and ui/worldmap.ts calls moveWorld itself), or when the party has no place yet
+   *  (a new campaign starts where its first map is, with no trail behind it). */
+  activate(loaded: Loaded, opts: { levelId?: string; frame?: boolean | 'fly'; travel?: boolean; token?: boolean } = {}): void {
     this.cur = loaded;
     const { scene, levels } = loaded, path = loaded.path, levelId = opts.levelId;
     // The world-map marker follows the party into whichever pin this scene belongs to.
@@ -873,10 +878,10 @@ export class App {
     this.world.fogScale = outdoor ? Math.min(1, 900 / span) : 1;
     this.world.setOutdoor(outdoor);
     this.applySky();
-    // opening a map takes the party there; the camera looking at a place does not (travel: false)
-    const travel = opts.travel ?? true;
-    if (travel && pin && this.state.world?.key !== pin.key) this.moveWorld([...pin.pos] as Vec2, pin.key, this.state.world ? Math.hypot(this.state.world.pos[0] - pin.pos[0], this.state.world.pos[1] - pin.pos[1]) : 0, false);
-    if (travel) this.ensureDefaultToken();
+    // the party's place on the world map: an explicit travel, or its first place (never the camera looking at a map)
+    const travel = opts.travel ?? false, token = opts.token ?? true;
+    if (pin && (travel || !this.state.world) && this.state.world?.key !== pin.key) this.moveWorld([...pin.pos] as Vec2, pin.key, this.state.world ? Math.hypot(this.state.world.pos[0] - pin.pos[0], this.state.world.pos[1] - pin.pos[1]) : 0, false);
+    if (token) this.ensureDefaultToken();
     const id = levelId && levels.has(levelId) ? levelId : scene.entry && levels.has(scene.entry) ? scene.entry : scene.levels[0].id;
     this.setLevel(id, opts.frame === true);
     if (opts.frame === 'fly') this.frameLevel(this.camPreset, true);
@@ -1676,7 +1681,8 @@ export class App {
     this.state.doorsOpen[k] = !(this.state.doorsOpen[k] ?? w?.open ?? false);
     this.commit();
   }
-  /** Move the party on the world map (miles); keeps a short trail of moves. */
+  /** Move the party on the world map (miles): an explicit travel (the drag of its '&' on the valley or the flat
+   *  sheet), never an open. Keeps a short trail of moves, drawn along the roads (render/worldstage.ts, drawTrail). */
   moveWorld(pos: Vec2, key: string | undefined, miles: number, save = true): void {
     const w = this.state.world, trail = [...(w?.trail ?? (w ? [{ pos: w.pos, key: w.key, miles: 0, at: Date.now() }] : [])), { pos, key, miles: Math.round(miles * 100) / 100, at: Date.now() }].slice(-50);
     this.state.world = { pos, key, trail };
