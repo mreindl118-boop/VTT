@@ -100,7 +100,9 @@ describe('world atlas', () => {
     // Yester Hill weighs two since item 7: the whole hill, its trail, cairns and trees are over 2,000 objects
     expect(scenes.filter((s) => s.units > 1).map((s) => s.path).sort()).toEqual(['ch05/N', 'ch08/S', 'ch14/Y']);
     expect(atlas.scenes['ch03/E'].roadExits.length).toBeGreaterThan(0); // the Old Svalich Road leaves the village
-    expect(atlas.scenes['ch05/N'].roadExits).toEqual([]); // the world's roads stop at Vallaki's 1.7-mile map, as the backdrop finds today
+    // the Old Svalich Road runs through Vallaki (item 2f-1a): its 1.7-mile map has the road leaving west and east
+    expect(atlas.scenes['ch05/N'].roadExits.map((e) => e.road)).toEqual(['Old Svalich Road', 'Old Svalich Road']);
+    expect(atlas.scenes['ch05/N'].roadExits.map((e) => Math.sign(Math.cos(e.bearing)))).toEqual([-1, 1]);
     expect(atlas.constants).toEqual({ MI_FT: 5280, RELIEF: 1.25, NEST_LIFT: 0.2 });
   });
 });
