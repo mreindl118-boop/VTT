@@ -87,7 +87,6 @@ editing the same thing at once:
 
 | What | Who | Since (UTC) | Doing | Expected on main |
 |---|---|---|---|---|
-| new `app/src/kit/shapes.ts` and `app/src/kit/mist.ts`; `app/src/kit/sites/*.ts` (helper imports and the removal of local copies only); `app/src/kit/props.ts` (the duplicated builders); new `scripts/authoring/geomlib.py`; the generator scripts except `castle-ravenloft.py` (helper imports only) | Claude, cloud | 2026-10-19 02:30 | item 2f-0, homogenization, on `claude/wip/item2f-0-homogenize` | 2026-10-19 |
 | `scripts/authoring/castle-ravenloft.py`, `locations/ch04/K`, `print/castle-ravenloft/` (item 2g) | Claude, cloud (castle session) | 2026-10-18 21:08 | the playable castle + print set on `claude/wip/castle-playable`; waiting for Matt's approval, then build/tests on a machine with npm | after Matt approves and 0.3.3 lands |
 
 ## Running things (Matt's Windows laptop, PowerShell)
@@ -130,6 +129,36 @@ Do not start an item that the Status section says another agent has in flight un
 a day old; then continue it from its wip branch, and say so in Status.
 
 ## Status
+
+### Claude, 2026-10-19 04:50 UTC (cloud): 0.3.3 (item 2f-0, homogenization) is on the main branch and published
+
+- **0.3.3 is on the main branch (release commit `b62fd04`; main's head is this entry's commit) and published to the
+  mistLAB link (artifact version 45, bundle `index-B2qu1Jpx.js`). ChatGPT: publish `desktop-v0.3.3` from
+  main's head once CI is green on it.** Item 2f-0 is ticked; its claim row is released. Visual-Aide: a root-table row
+  only (`34e1b1f`), because nothing looks different. Versions from here, by the standing rule (next number in release
+  order): ChatGPT's all-map logic release (item 2e) takes 0.3.4; the castle (item 2g) takes the next number free when
+  Matt approves it (its claim row says "after 0.3.3 lands", which is now).
+- What changed: `app/src/kit/shapes.ts` (the shape helpers up to 18 site modules declared by copy), `app/src/kit/mist.ts`
+  (one `fogMat` with one cache, for the seven copies), `scripts/authoring/geomlib.py` (the plane-geometry helpers copied
+  26 times across 17 generator scripts), and wild-b using wild's weed tuft; 39 files, +340/-635 before the release docs.
+  Nothing looks or plays differently.
+- Proofs on the release head: build passes; `npx vitest run` 569 passed, 2 environment skips, 2 todo (new
+  `tests/compact-frame.test.ts`); browser suite 267 passed, 55 device skips, 0 failed (1.0 h, software rendering);
+  all 45 scenes' entry frames pixel-identical with equal draw calls, triangles and meshes against the 0.3.2 build
+  (`2fd728a`), captured twice (on the consolidated code at version 0.3.2, then on the release bundle); the object
+  fingerprint identical (789 kinds, 3012 builds); 14 generators regenerate their scenes byte-identical; the changelog
+  entry has no eight-word run from the module; no model names in the diff. One harness lesson, for whoever captures
+  next: the scene-graph mesh count the capture also records jitters by one or two on scenes with a world-stage proxy
+  (the proxy's detail mesh streams in at a variable moment, on the 0.3.2 build just the same, and is not drawn in the
+  frame), and the "What's new" card must be suppressed by seeding the exact app version or its backdrop dims every frame;
+  the gate reads pixels, draw calls and triangles.
+- Review (two reviewers, one fix pass): the review caught one behaviour change the fingerprint could not see (the shared
+  `compact` drops the root scale a sleeping werewolf-wolf relies on, and no scene passes `sleeping`): `t.ts` keeps its own
+  world-frame `compact`, with a test that failed first; two claim-boundary overreaches were reverted (call-site
+  reordering in the site modules; the `props.ts` helpers restored as local copies).
+- For Matt: `vallaki-town.py` cannot reproduce the committed `ch05/N` scene without `reference/imports/vallaki-houses.json`
+  (pre-existing, not from this release; the scene was not regenerated). The later rounds change behaviour and wait for
+  his go: one mist piece, the three overlapping land systems, the two world maps, the castle generator (item 2g's claim).
 
 ### Claude, 2026-10-19 02:30 UTC (cloud): item 2f-0, homogenization, started on Matt's go
 
