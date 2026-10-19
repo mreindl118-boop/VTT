@@ -4,7 +4,8 @@
 //
 //  - LandField: the surface as a function. The heightfield (RELIEF-steepened) flattened to each map's base near its
 //    footprint (frames.flattenWeight: 120–900 ft, a crag 320–1400 ft; overlapping bands are normalised), lakes cut
-//    to their level, and the layering backdrop.ts uses: flush with the map (−0.4 ft) within 150 ft of its edge, 3 ft
+//    to their level inside their shore (the measured outline where the data has one, else the bounding ellipse; see
+//    `lakeNear`), and the layering backdrop.ts uses: flush with the map (−0.4 ft) within 150 ft of its edge, 3 ft
 //    under the ground beyond.
 //  - The land lattice (the world lattice subdivided ×2, plus a coarse skirt fading into the mist) carries the region;
 //    round every footprint it is cut away and a fine apron (backdrop's rings, laid as rounded-rectangle offsets of
@@ -15,7 +16,7 @@ import * as THREE from 'three';
 import type { Theme, WorldData } from '../campaigns';
 import { terrainOf, type Terrain } from '../core/terrain';
 import { MI_FT, RELIEF, CRAG_IN, CRAG_OUT, FLATTEN_IN, FLATTEN_OUT, mapDist, smooth, type Bounds } from '../core/frames';
-import type { Vec2 } from '../core/geometry';
+import { pointInPolygon, polygonArea, type Vec2 } from '../core/geometry';
 import { FLOOR_COLOR } from '../kit/palette';
 import { merge } from '../kit/pieces';
 import { matClone, patchFog, setSurface } from './materials';
@@ -54,7 +55,8 @@ const SUB = 2;
 const SKIRT_MI = 3, SKIRT_STEPS = 6;
 /** The skirt's outer rim sinks to this height (ft), under the lowest of the valley. */
 const SKIRT_FLOOR = -1200;
-/** A lake's shore rises from the water to the surveyed land between its ellipse and this many times its radii. */
+/** A lake's shore rises from the water to the surveyed land between its shore (rho 1) and this far out (rho; for an
+ *  ellipse a multiple of its radii, for an outline the same fraction of the distance from its centre to the shore). */
 export const SHORE = 1.3;
 /** Land lower than a lake's level (the level a lakeshore map sets) climbs to the shore from this far out instead. */
 const SHORE_UP = 1.8;
@@ -63,16 +65,117 @@ const HILL_LIGHT = (() => { const el = THREE.MathUtils.degToRad(40), h = Math.co
 /** Where the high ground turns white (ft). */
 const SNOW_LINE = 4200;
 
+/** A lake as the data draws it: its bounding ellipse (`center`, `r`, miles) and, where the data was measured, its
+ *  outline (`pts`, miles, a closed ring). */
+export type Lake = WorldData['lakes'][number] & { pts?: Vec2[] };
+/** The lake's measured outline, or undefined for data that carries only the ellipse. */
+export const lakeOutline = (l: WorldData['lakes'][number]): Vec2[] | undefined => { const p = (l as Lake).pts; return p && p.length >= 3 ? p : undefined; };
+/** Signed distance from a point to a closed ring's edge: negative inside, positive outside. */
+export function ringSd(ring: Vec2[], x: number, z: number): number {
+  let best = Infinity;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const [ax, az] = ring[j], [bx, bz] = ring[i], dx = bx - ax, dz = bz - az, L2 = dx * dx + dz * dz || 1e-12;
+    const t = Math.max(0, Math.min(1, ((x - ax) * dx + (z - az) * dz) / L2)), ex = x - ax - dx * t, ez = z - az - dz * t;
+    const d = ex * ex + ez * ez; if (d < best) best = d;
+  }
+  return pointInPolygon([x, z], ring) ? -Math.sqrt(best) : Math.sqrt(best);
+}
+/** A ring's area centroid (its vertex mean when degenerate). */
+export function ringCentroid(ring: Vec2[]): Vec2 {
+  const A = polygonArea(ring);
+  if (Math.abs(A) < 1e-9) return [ring.reduce((s, p) => s + p[0], 0) / ring.length, ring.reduce((s, p) => s + p[1], 0) / ring.length];
+  let cx = 0, cz = 0;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) { const [ax, az] = ring[j], [bx, bz] = ring[i], c = ax * bz - bx * az; cx += (ax + bx) * c; cz += (az + bz) * c; }
+  return [cx / (6 * A), cz / (6 * A)];
+}
+/** A lake's shape as the land samples it, in W: the ellipse's centre and radii, or the outline with its centroid. */
+interface LakeShape {
+  cx: number; cz: number; rx: number; rz: number;
+  ring?: Vec2[];
+  /** The outline's extent, and the farthest shore point from the centroid. */
+  minX: number; maxX: number; minZ: number; maxZ: number; reach: number;
+}
+
 /** The surface of the region, sampled anywhere in W. Pure apart from the heightfield lookups; no meshes. */
 export class LandField {
   readonly terrain: Terrain;
   readonly hasHeight: boolean;
   readonly cx: number; readonly cy: number;
   private lakeLevels: number[] = [];
+  private shapes: LakeShape[] = [];
   constructor(readonly world: WorldData, readonly sites: LandSite[]) {
     this.terrain = terrainOf(world); this.hasHeight = this.terrain.hasHeight;
     this.cx = (world.bounds.minX + world.bounds.maxX) / 2; this.cy = (world.bounds.minY + world.bounds.maxY) / 2;
-    this.lakeLevels = world.lakes.map((l) => this.levelOf(l));
+    this.shapes = world.lakes.map((l) => this.shapeOf(l));
+    this.lakeLevels = world.lakes.map((_, i) => this.levelOf(i));
+  }
+  private shapeOf(l: WorldData['lakes'][number]): LakeShape {
+    const [cx, cz] = this.feet(l.center), rx = l.r[0] * MI_FT, rz = l.r[1] * MI_FT, pts = lakeOutline(l);
+    if (!pts) return { cx, cz, rx, rz, minX: cx - rx, maxX: cx + rx, minZ: cz - rz, maxZ: cz + rz, reach: Math.max(rx, rz) };
+    const ring = pts.map((p) => this.feet(p)), [px, pz] = ringCentroid(ring);
+    // the centroid is the pole the shore is measured from; a shape that leaves it outside (a crescent) uses the ellipse's centre
+    const inside = pointInPolygon([px, pz], ring), ox = inside ? px : cx, oz = inside ? pz : cz;
+    let minX = Infinity, maxX = -Infinity, minZ = Infinity, maxZ = -Infinity, reach = 0;
+    for (const [x, z] of ring) { minX = Math.min(minX, x); maxX = Math.max(maxX, x); minZ = Math.min(minZ, z); maxZ = Math.max(maxZ, z); reach = Math.max(reach, Math.hypot(x - ox, z - oz)); }
+    return { cx: ox, cz: oz, rx, rz, ring, minX, maxX, minZ, maxZ, reach };
+  }
+  /** How far out in lake i a W point lies: 0 at its centre, 1 on its shore, growing outside with the same meaning for
+   *  SHORE. An ellipse: the point's radius in its frame. An outline: the point's distance from the centroid over the
+   *  centroid's distance to the shore through it (both from the signed distance to the ring), so a circle gives the
+   *  ellipse's value exactly and the shore band is the same fraction of the local radius. Infinity beyond `grow`. */
+  private rhoOf(i: number, x: number, z: number, grow: number): number {
+    const s = this.shapes[i];
+    if (!s.ring) return Math.sqrt(((x - s.cx) / s.rx) ** 2 + ((z - s.cz) / s.rz) ** 2);
+    // a point farther from the outline's box than the band can reach lies past `grow`
+    const out = Math.max(0, s.minX - x, x - s.maxX, s.minZ - z, z - s.maxZ);
+    if (out > (grow - 1) * s.reach) return Infinity;
+    const d = Math.hypot(x - s.cx, z - s.cz), sd = ringSd(s.ring, x, z);
+    return d / Math.max(1e-6, d - sd);
+  }
+  /** Lake i's shore point in W along a ray from its centre at angle a (an ellipse's parametric angle; an outline's
+   *  farthest crossing), and the angle such a ray has at a W point. */
+  shoreRay(i: number, a: number): Vec2 {
+    const s = this.shapes[i], ux = Math.cos(a), uz = Math.sin(a);
+    if (!s.ring) return [s.cx + ux * s.rx, s.cz + uz * s.rz];
+    let best = -Infinity;
+    for (let k = 0, j = s.ring.length - 1; k < s.ring.length; j = k++) {
+      const [ax, az] = s.ring[j], [bx, bz] = s.ring[k], ex = bx - ax, ez = bz - az, den = ux * ez - uz * ex;
+      if (Math.abs(den) < 1e-12) continue;
+      const t = ((ax - s.cx) * ez - (az - s.cz) * ex) / den, u = ((ax - s.cx) * uz - (az - s.cz) * ux) / den;
+      if (t > 0 && u >= 0 && u < 1) best = Math.max(best, t);
+    }
+    if (best === -Infinity) best = s.reach;
+    return [s.cx + ux * best, s.cz + uz * best];
+  }
+  shoreAngle(i: number, x: number, z: number): number {
+    const s = this.shapes[i];
+    return s.ring ? Math.atan2(z - s.cz, x - s.cx) : Math.atan2((z - s.cz) / s.rz, (x - s.cx) / s.rx);
+  }
+  /** Lake i's centre in W (an outline's centroid). */
+  lakeCentre(i: number): Vec2 { const s = this.shapes[i]; return [s.cx, s.cz]; }
+  /** Lake i's extent in W. */
+  lakeBox(i: number): Bounds { const s = this.shapes[i]; return { minX: s.minX, maxX: s.maxX, minZ: s.minZ, maxZ: s.maxZ }; }
+  /** Signed distance (ft) from a W point to lake i's shore, negative in the water: exact for an outline; for an ellipse
+   *  the first-order estimate the inked map's shader draws from (worldcarto.ts cLakeSd). */
+  lakeSd(i: number, x: number, z: number): number {
+    const s = this.shapes[i];
+    if (s.ring) return ringSd(s.ring, x, z);
+    const dx = (x - s.cx) / s.rx, dz = (z - s.cz) / s.rz, rho = Math.max(Math.hypot(dx, dz), 1e-4);
+    return (rho - 1) / Math.max(Math.hypot(dx / (s.rx * rho), dz / (s.rz * rho)), 1e-9);
+  }
+  /** n points round lake i's shore in W, evenly by angle (an ellipse) or by arc length (an outline), scaled by f about the centre. */
+  shorePoints(i: number, n: number, f = 1): Vec2[] {
+    const s = this.shapes[i], out: Vec2[] = [];
+    if (!s.ring) { for (let k = 0; k < n; k++) { const a = (k / n) * Math.PI * 2; out.push([s.cx + Math.cos(a) * s.rx * f, s.cz + Math.sin(a) * s.rz * f]); } return out; }
+    const ring = s.ring, lens = [0]; for (let k = 0; k < ring.length; k++) { const a = ring[k], b = ring[(k + 1) % ring.length]; lens.push(lens[k] + Math.hypot(b[0] - a[0], b[1] - a[1])); }
+    const L = lens[ring.length]; let k = 0;
+    for (let m = 0; m < n; m++) {
+      const t = (m / n) * L; while (k + 1 < ring.length && lens[k + 1] < t) k++;
+      const a = ring[k], b = ring[(k + 1) % ring.length], u = (t - lens[k]) / Math.max(1e-9, lens[k + 1] - lens[k]);
+      const x = a[0] + (b[0] - a[0]) * u, z = a[1] + (b[1] - a[1]) * u;
+      out.push([s.cx + (x - s.cx) * f, s.cz + (z - s.cz) * f]);
+    }
+    return out;
   }
   /** W feet → world-map miles. */
   miles(x: number, z: number): Vec2 { return [this.cx + x / MI_FT, this.cy + z / MI_FT]; }
@@ -101,11 +204,10 @@ export class LandField {
   }
   /** Which lake (index) a W point lies in, or −1. */
   lakeAt(x: number, z: number): number { return this.lakeNear(x, z, 1).i; }
-  /** The lake whose ellipse, grown by a factor, holds a W point, and how far out in it the point lies (0 centre, 1 shore). */
+  /** The lake whose shore, grown by a factor, holds a W point, and how far out in it the point lies (0 centre, 1 shore). */
   lakeNear(x: number, z: number, grow = SHORE): { i: number; rho: number } {
-    const [mx, my] = this.miles(x, z);
     let i = -1, rho = Infinity;
-    this.world.lakes.forEach((l, k) => { const r = Math.sqrt(((mx - l.center[0]) / l.r[0]) ** 2 + ((my - l.center[1]) / l.r[1]) ** 2); if (r < grow && r < rho) { rho = r; i = k; } });
+    for (let k = 0; k < this.shapes.length; k++) { const r = this.rhoOf(k, x, z, grow); if (r < grow && r < rho) { rho = r; i = k; } }
     return { i, rho };
   }
   lakeLevel(i: number): number { return this.lakeLevels[i]; }
@@ -126,18 +228,17 @@ export class LandField {
    *  town on its shore, Lake Zarovich's own map). A map only sets the level when it stands down at the water, no
    *  higher than the middle of the shore's heights: a map up the slope above a lake (a pass, a ridge) would hold the
    *  water up in the air, a disc standing on walls over the land round it. */
-  private levelOf(l: WorldData['lakes'][number]): number {
-    const shoreSite = this.sites.find(s => s.shoreLake === l.name);
+  private levelOf(i: number): number {
+    const l = this.world.lakes[i], shoreSite = this.sites.find(s => s.shoreLake === l.name);
     if (shoreSite) return shoreSite.base + 0.05;
-    const shore = (k: number, n: number, f = 1): Vec2 => { const a = (k / n) * Math.PI * 2; return this.feet([l.center[0] + Math.cos(a) * l.r[0] * f, l.center[1] + Math.sin(a) * l.r[1] * f]); };
-    const hs: number[] = []; for (let k = 0; k < 32; k++) hs.push(this.height(...shore(k, 32)));
+    const hs = this.shorePoints(i, 32).map(([x, z]) => this.height(x, z));
     hs.sort((a, b) => a - b);
-    const lo = Math.min(hs[0], this.height(...this.feet(l.center))) - 4, mid = hs[hs.length >> 1];
-    for (let k = 0; k < 64; k++) { const [x, z] = shore(k, 64); const n = this.nearest(x, z); if (n.i >= 0 && n.d < 700 && this.sites[n.i].base - 2.5 <= mid) return this.sites[n.i].base - 2.5; }
+    const lo = Math.min(hs[0], this.height(...this.lakeCentre(i))) - 4, mid = hs[hs.length >> 1];
+    for (const [x, z] of this.shorePoints(i, 64)) { const n = this.nearest(x, z); if (n.i >= 0 && n.d < 700 && this.sites[n.i].base - 2.5 <= mid) return this.sites[n.i].base - 2.5; }
     return lo;
   }
   /** Cut a vertex down to a lake's bed; round the lake a shore rises from just above the water to the surveyed land
-   *  (the heightfield and the drawn ellipse disagree: no water hangs over lower land, no wall stands out of it).
+   *  (the heightfield and the drawn shore disagree: no water hangs over lower land, no wall stands out of it).
    *  Never inside a footprint's flush zone: a map carries its own water. */
   private lake(x: number, z: number, y: number, flush: boolean): number {
     if (!this.world.lakes.length) return y;
@@ -194,7 +295,7 @@ function colourer(field: LandField, theme: Theme): (x: number, z: number, y: num
     if (t.hasCover) {
       c.lerp(forestC, Math.min(1, t.cover('f', mx, my) * 1.2)); c.lerp(hillC, t.cover('h', mx, my));
       c.lerp(rock, Math.min(1, t.cover('m', mx, my) * 1.1 + t.cover('x', mx, my) * 0.8));
-      // the cover's water lies flat: on a slope (a lake's ellipse and the heightfield disagree there) it is a bank,
+      // the cover's water lies flat: on a slope (a lake's shore and the heightfield disagree there) it is a bank,
       // not blue streaks running down it
       const wc = t.cover('w', mx, my);
       if (wc > 0) { const e = 200, gx = (field.ground(x + e, z) - field.ground(x - e, z)) / (2 * e), gz = (field.ground(x, z + e) - field.ground(x, z - e)) / (2 * e); c.lerp(waterC, Math.min(1, wc * 1.5) * (1 - smooth(0.06, 0.2, Math.hypot(gx, gz)))); }
@@ -291,17 +392,16 @@ function buildAprons(field: LandField, colour: ReturnType<typeof colourer>): THR
     if (s.shoreLake) {
       // Follow the water's polygon explicitly. A rectangular sample grid bridges
       // across the shore discontinuity, producing submerged banks and dry spikes.
-      const lake=field.world.lakes.find(l=>l.name===s.shoreLake)!;
-      const [cx,cz]=field.feet(lake.center), rx=lake.r[0]*MI_FT, rz=lake.r[1]*MI_FT;
+      const li=field.world.lakes.findIndex(l=>l.name===s.shoreLake), [cx,cz]=field.lakeCentre(li);
       const b=s.bounds, x0=b.minX-APRON_REACH, x1=b.maxX+APRON_REACH, z0=b.minZ-APRON_REACH, z1=b.maxZ+APRON_REACH;
       const angles=new Set(Array.from({length:128},(_,k)=>k/128*Math.PI*2));
-      for(const x of [x0,x1])for(const z of [z0,z1])angles.add((Math.atan2((z-cz)/rz,(x-cx)/rx)+Math.PI*2)%(Math.PI*2));
+      for(const x of [x0,x1])for(const z of [z0,z1])angles.add((field.shoreAngle(li,x,z)+Math.PI*2)%(Math.PI*2));
       const aa=[...angles].sort((a,b)=>a-b), n=aa.length, first=P.length/3;
       const add=(x:number,z:number)=>{const d=mapDist(b,x,z),y=field.apronY(i,x,z,d),c=colour(x,z,y,{i,d});P.push(x,y,z);C.push(c.r,c.g,c.b);};
       add(cx,cz);
       const rings=[.5,.9,.99,1,1.00001,1.02,1.12,1.3,1.8,2.2,3,4];
       for(let ring=0;ring<rings.length+6;ring++)for(const a of aa){
-        const dx=rx*Math.cos(a),dz=rz*Math.sin(a);
+        const [sx,sz]=field.shoreRay(li,a), dx=sx-cx, dz=sz-cz;
         const edge=Math.min(Math.abs(dx)>1e-9?((dx>0?x1:x0)-cx)/dx:Infinity,Math.abs(dz)>1e-9?((dz>0?z1:z0)-cz)/dz:Infinity);
         const rho=ring<rings.length?rings[ring]:4+(edge-4)*(ring-rings.length+1)/6;
         add(cx+dx*rho,cz+dz*rho);
@@ -439,16 +539,35 @@ function buildRibbons(field: LandField, paths: Path[]): THREE.Mesh {
   const m = new THREE.Mesh(g, material); m.name = 'ribbons'; return m;
 }
 
-/** The lakes at their levels (one mesh) and Bluto Krogarov's rowboat on Lake Zarovich, off the shore nearest Vallaki. */
+/** A flat sheet filling a ring at height y, facing up. */
+function ringSheet(ring: Vec2[], y: number): THREE.BufferGeometry {
+  const tris = THREE.ShapeUtils.triangulateShape(ring.map(([x, z]) => new THREE.Vector2(x, z)), []);
+  const P: number[] = [], N: number[] = [], idx: number[] = [];
+  for (const [x, z] of ring) { P.push(x, y, z); N.push(0, 1, 0); }
+  for (const [a, b, c] of tris) {
+    const [ax, az] = ring[a], [bx, bz] = ring[b], [cx, cz] = ring[c];
+    if ((bz - az) * (cx - ax) - (bx - ax) * (cz - az) >= 0) idx.push(a, b, c); else idx.push(a, c, b);
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(P, 3)); g.setAttribute('normal', new THREE.Float32BufferAttribute(N, 3)); g.setIndex(idx);
+  return g;
+}
+
+/** The lakes at their levels (one mesh: each outline as its own flat sheet, an ellipse as a disc) and Bluto Krogarov's
+ *  rowboat on Lake Zarovich, off the shore nearest Vallaki. */
 function buildWater(field: LandField): THREE.Object3D[] {
   const W = field.world, gs: THREE.BufferGeometry[] = [], out: THREE.Object3D[] = [];
-  W.lakes.forEach((l, i) => { const g = new THREE.CircleGeometry(1, field.sites.some(s=>s.shoreLake===l.name)?128:64); g.rotateX(-Math.PI / 2); g.scale(l.r[0] * MI_FT, 1, l.r[1] * MI_FT); const [x, z] = field.feet(l.center); g.translate(x, field.lakeLevel(i), z); gs.push(g); });
+  W.lakes.forEach((l, i) => {
+    const ring = lakeOutline(l);
+    if (ring) { gs.push(ringSheet(ring.map((p) => field.feet(p)), field.lakeLevel(i))); return; }
+    const g = new THREE.CircleGeometry(1, field.sites.some(s=>s.shoreLake===l.name)?128:64); g.rotateX(-Math.PI / 2); g.scale(l.r[0] * MI_FT, 1, l.r[1] * MI_FT); const [x, z] = field.feet(l.center); g.translate(x, field.lakeLevel(i), z); gs.push(g);
+  });
   if (gs.length) { const material = matClone(FLOOR_COLOR['shallow-water'], true); setSurface(material, 'water'); const m = new THREE.Mesh(merge(gs), material); m.name = 'lakes'; out.push(m); }
   const zi = W.lakes.findIndex((l) => /Zarovich/.test(l.name)), town = W.pins.find((p) => p.key === 'N');
   if (zi >= 0 && town) {
-    const l = W.lakes[zi], [tx, tz] = field.feet(town.pos);
-    let best: Vec2 = field.feet(l.center), bd = Infinity;
-    for (let k = 0; k < 48; k++) { const a = (k / 48) * Math.PI * 2, p = field.feet([l.center[0] + Math.cos(a) * l.r[0] * 0.82, l.center[1] + Math.sin(a) * l.r[1] * 0.82]), d = Math.hypot(p[0] - tx, p[1] - tz); if (d < bd) { bd = d; best = p; } }
+    const [tx, tz] = field.feet(town.pos);
+    let best: Vec2 = field.lakeCentre(zi), bd = Infinity;
+    for (const p of field.shorePoints(zi, 48, 0.82)) { const d = Math.hypot(p[0] - tx, p[1] - tz); if (d < bd) { bd = d; best = p; } }
     const parts: [THREE.BufferGeometry, string][] = [];
     const hull = new THREE.CylinderGeometry(2.4, 1.6, 13, 8, 1, false, 0, Math.PI); hull.rotateZ(Math.PI / 2); hull.rotateX(Math.PI); hull.scale(1, 0.75, 1); hull.translate(0, 1.4, 0); parts.push([hull, '#5a4632']);
     parts.push([new THREE.BoxGeometry(0.6, 0.3, 4).translate(1, 1.6, 0), '#6b5640']);

@@ -3,6 +3,7 @@
 // compass, and the party marker that mirrors campaign state. The DM drags the party to a place (enter a
 // built scene there) or into the wilderness; the card gives straight-line distance and travel time.
 import type { WorldData } from '../campaigns';
+import { pointInPolygon } from '../core/geometry';
 import { PACES, type Pace } from '../core/travel';
 import { ICON } from './icons';
 import { rich } from './rich';
@@ -22,6 +23,10 @@ export const worldPins = (): Pin[] => W.pins;
 
 /** The party's drag snaps onto a place this close (miles). */
 export const SNAP_MI = 0.35;
+/** A lake's measured outline (miles, a closed ring; render/worldland.ts's Lake), where the data has one. */
+const lakeRing = (l: WorldData['lakes'][number]): P[] | undefined => { const p = (l as { pts?: P[] }).pts; return p && p.length >= 3 ? p : undefined; };
+/** Whether a point (miles) lies in a lake as the data draws it: inside its outline, else inside its ellipse. */
+export const inLake = (p: P): boolean => W.lakes.some((l) => { const ring = lakeRing(l); return ring ? pointInPolygon(p, ring) : ((p[0] - l.center[0]) / l.r[0]) ** 2 + ((p[1] - l.center[1]) / l.r[1]) ** 2 < 1; });
 export const dist = (a: P, b: P) => Math.hypot(a[0] - b[0], a[1] - b[1]);
 const NS = 'http://www.w3.org/2000/svg';
 const el = <K extends keyof SVGElementTagNameMap>(tag: K, attrs: Record<string, string | number>, parent?: Element): SVGElementTagNameMap[K] => {
@@ -104,8 +109,7 @@ function paint(cv: HTMLCanvasElement, vb: { x: number; y: number; w: number; h: 
   const cover = coverSampler();
   const woodDensity = cover ? (p: P) => cover.at('f', p) * 0.85 : (p: P) => (near(p, woodPts, kw) / Math.max(1, W.woods.length / 5)) * 0.6;
   const highDensity = cover ? (p: P) => cover.at('h', p) * 0.75 + cover.at('m', p) * 1.5 + near(p, W.peaks.map((q) => q.pos), 0.9) * 0.6 : (p: P) => near(p, highPts, kh) * (W.high.length > 40 ? 0.35 : 1);
-  const inLake = (p: P) => W.lakes.some((l) => ((p[0] - l.center[0]) / l.r[0]) ** 2 + ((p[1] - l.center[1]) / l.r[1]) ** 2 < 1);
-  const inWater = cover ? (p: P) => cover.at('w', p) > 0.5 : inLake;
+  const inWater = cover ? (p: P) => cover.at('w', p) > 0.5 || inLake(p) : inLake;
   // 1. ground: two-tone noise
   ctx.fillStyle = C.ground[0]; ctx.fillRect(0, 0, cv.width, cv.height);
   const cell = Math.max(4, Math.round(S * 0.08));
@@ -153,21 +157,45 @@ function paint(cv: HTMLCanvasElement, vb: { x: number; y: number; w: number; h: 
     ctx.strokeStyle = C.ink; ctx.lineWidth = Math.max(0.6, s * 0.06); ctx.globalAlpha = 0.5; ctx.beginPath(); ctx.moveTo(x - s, y + s * 0.55); ctx.quadraticCurveTo(x - s * 0.3, y - s * (mountain ? 1.3 : 0.6), x, y - s * (mountain ? 1.3 : 0.6)); ctx.stroke(); ctx.globalAlpha = 1;
     if (h > 1.7) { ctx.fillStyle = C.snow; ctx.beginPath(); ctx.moveTo(x, y - s * 1.3); ctx.lineTo(x - s * 0.28, y - s * 0.75); ctx.lineTo(x - s * 0.1, y - s * 0.85); ctx.lineTo(x + 0.05 * s, y - s * 0.7); ctx.lineTo(x + s * 0.28, y - s * 0.75); ctx.closePath(); ctx.fill(); }
   }
-  // 4. water: lakes and rivers with a darker bank. With a cover grid the lakes take their real shapes from it.
+  // 4. water: lakes and rivers with a darker bank. With a cover grid the water takes its shape from the grid's wet cells;
+  //    a lake with a measured outline is then drawn over them as that outline (its bank an offset copy and a shore line,
+  //    its ripples the outline shrunk toward its centre, on the far shore); without a grid the outline, else the
+  //    ellipse, is all there is.
+  const ringPath = (ring: P[], ox = 0, oy = 0) => { ctx.beginPath(); ring.forEach(([x, y], i) => { if (i) ctx.lineTo(X(x) + ox, Y(y) + oy); else ctx.moveTo(X(x) + ox, Y(y) + oy); }); ctx.closePath(); };
+  const centreOf = (ring: P[]): P => [ring.reduce((s, p) => s + p[0], 0) / ring.length, ring.reduce((s, p) => s + p[1], 0) / ring.length];
+  const ripples = (l: WorldData['lakes'][number], alpha: string) => {
+    ctx.strokeStyle = alpha; ctx.lineWidth = Math.max(0.8, S * 0.02);
+    const ring = lakeRing(l);
+    for (let k = 0; k < 3; k++) {
+      if (!ring) { ctx.beginPath(); ctx.ellipse(X(l.center[0]), Y(l.center[1]), l.r[0] * S * (0.3 + k * 0.2), l.r[1] * S * (0.25 + k * 0.2), 0, Math.PI * 1.1, Math.PI * 1.9); ctx.stroke(); continue; }
+      // the outline shrunk toward its centre, drawn where it faces north-ish (the ellipse's arc from 1.1π to 1.9π)
+      const c = centreOf(ring), f = 0.3 + k * 0.2; let on = false; ctx.beginPath();
+      for (const [x, y] of [...ring, ring[0]]) {
+        const a = (Math.atan2(y - c[1], x - c[0]) + Math.PI * 2) % (Math.PI * 2), px = X(c[0] + (x - c[0]) * f), py = Y(c[1] + (y - c[1]) * f);
+        if (a > Math.PI * 1.1 && a < Math.PI * 1.9) { if (on) ctx.lineTo(px, py); else ctx.moveTo(px, py); on = true; } else on = false;
+      }
+      ctx.stroke();
+    }
+  };
   if (cover) {
     const r0 = cover.cell * 0.78 * S;
     for (const pass of [0, 1]) for (const [p, v] of cover.cells('w')) {
       if (v < 0.5) continue;
       ctx.fillStyle = pass ? C.water : C.waterEdge; ctx.beginPath(); ctx.arc(X(p[0]) + (pass ? 0 : S * 0.02), Y(p[1]) + (pass ? 0 : S * 0.03), pass ? r0 : r0 * 1.18, 0, Math.PI * 2); ctx.fill();
     }
-    for (const l of W.lakes) if (l.r[0] > 0.5) { ctx.strokeStyle = 'rgba(255,255,255,.3)'; ctx.lineWidth = Math.max(0.8, S * 0.02);
-      for (let k = 0; k < 3; k++) { ctx.beginPath(); ctx.ellipse(X(l.center[0]), Y(l.center[1]), l.r[0] * S * (0.3 + k * 0.2), l.r[1] * S * (0.25 + k * 0.2), 0, Math.PI * 1.1, Math.PI * 1.9); ctx.stroke(); } }
   }
-  for (const l of cover ? [] : W.lakes) {
-    ctx.fillStyle = C.waterEdge; ctx.beginPath(); ctx.ellipse(X(l.center[0]) + S * 0.03, Y(l.center[1]) + S * 0.04, l.r[0] * S, l.r[1] * S, 0, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = C.water; ctx.beginPath(); ctx.ellipse(X(l.center[0]), Y(l.center[1]), l.r[0] * S * 0.96, l.r[1] * S * 0.94, 0, 0, Math.PI * 2); ctx.fill();
-    ctx.strokeStyle = 'rgba(255,255,255,.35)'; ctx.lineWidth = Math.max(0.8, S * 0.02);
-    for (let k = 0; k < 3; k++) { ctx.beginPath(); ctx.ellipse(X(l.center[0]), Y(l.center[1]), l.r[0] * S * (0.3 + k * 0.2), l.r[1] * S * (0.25 + k * 0.2), 0, Math.PI * 1.1, Math.PI * 1.9); ctx.stroke(); }
+  for (const l of W.lakes) {
+    const ring = lakeRing(l);
+    if (!ring && cover) { if (l.r[0] > 0.5) ripples(l, 'rgba(255,255,255,.3)'); continue; }
+    if (ring) {
+      ctx.fillStyle = ctx.strokeStyle = C.waterEdge; ctx.lineWidth = Math.max(1, S * 0.03); ctx.lineJoin = 'round';
+      ringPath(ring, S * 0.03, S * 0.04); ctx.fill(); ringPath(ring); ctx.stroke();
+      ctx.fillStyle = C.water; ringPath(ring); ctx.fill();
+    } else {
+      ctx.fillStyle = C.waterEdge; ctx.beginPath(); ctx.ellipse(X(l.center[0]) + S * 0.03, Y(l.center[1]) + S * 0.04, l.r[0] * S, l.r[1] * S, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = C.water; ctx.beginPath(); ctx.ellipse(X(l.center[0]), Y(l.center[1]), l.r[0] * S * 0.96, l.r[1] * S * 0.94, 0, 0, Math.PI * 2); ctx.fill();
+    }
+    if (!cover || l.r[0] > 0.5) ripples(l, cover ? 'rgba(255,255,255,.3)' : 'rgba(255,255,255,.35)');
   }
   const stroke = (pts: P[], color: string, w: number, dash?: number[]) => { ctx.strokeStyle = color; ctx.lineWidth = w; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.setLineDash(dash ?? []); ctx.beginPath(); pts.forEach((p, i) => (i ? ctx.lineTo(X(p[0]), Y(p[1])) : ctx.moveTo(X(p[0]), Y(p[1])))); ctx.stroke(); ctx.setLineDash([]); };
   for (const r of W.rivers) { stroke(r.pts, C.waterEdge, Math.max(2, S * 0.2)); stroke(r.pts, C.water, Math.max(1.2, S * 0.12)); }
