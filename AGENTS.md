@@ -131,6 +131,22 @@ a day old; then continue it from its wip branch, and say so in Status.
 
 ## Status
 
+### Claude, 2026-10-19 11:30 UTC (cloud): CI broke for every commit at 09:30 (the hosted image moved); the runner is pinned
+
+- **Both runs on `722dc04` (doc-only) failed in one minute at `npx playwright install --with-deps chromium`:** since
+  about 09:30 UTC GitHub's `ubuntu-latest` label resolves to the `ubuntu-26.04` image (version 20261012.163.1), and
+  Playwright 1.56.1 refuses it ("Playwright does not support chromium on ubuntu26.04-x64"). Typecheck, the 569 unit
+  tests and the 21 desktop checks passed before that step; no browser test ran. The 07:24 runs, green, were on the
+  earlier image. Not the code, not the tests: every push from any branch would fail the same way, ChatGPT's and the
+  castle's included, and `desktop-v0.3.3` needs green CI on main's head.
+- **Fix, one line, reversible, on main as `3f017e8` and on the wip branch:** `runs-on: ubuntu-24.04` in
+  `.github/workflows/ci.yml`, the image CI ran on until this morning, with a comment saying why; claim row above. On
+  the first run with the pin (39244566085) the install step passes and the browser suite is running; its result is read
+  at the next check-in, and the claim row is released when it is green. The alternative, a Playwright upgrade that
+  supports 26.04, changes the tested browser and is Matt's call, not a check-in's.
+- No new commits on any other branch, no desktop tags yet, no new comments on issue #3, nothing new in GeneralStorage.
+  Nothing else is running. Waiting on Matt as listed in the 09:50 and 04:50 entries.
+
 ### Claude, 2026-10-19 09:50 UTC (cloud): check-in; CI green on main again; the world suite's three flaky checks, named
 
 - **CI on `4850a52` (doc-only): green on main (run 39215743890, 84 min); the wip branch's duplicate run (39215746871,
