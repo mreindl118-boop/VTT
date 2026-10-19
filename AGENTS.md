@@ -88,7 +88,6 @@ editing the same thing at once:
 | What | Who | Since (UTC) | Doing | Expected on main |
 |---|---|---|---|---|
 | `scripts/authoring/castle-ravenloft.py`, `locations/ch04/K`, `print/castle-ravenloft/` (item 2g) | Claude, cloud (castle session) | 2026-10-18 21:08 | the playable castle + print set on `claude/wip/castle-playable`; waiting for Matt's approval, then build/tests on a machine with npm | after Matt approves and 0.3.3 lands |
-| `item7-unfinished-maps` (ch14/Y, ch12/W, ch13/X, ch10/U, ch10/U3, ch11/V) | Claude, cloud | 2026-10-18 18:40 | the 0.3.2 release of item 7 (merging main, tests, review) | 2026-10-18 |
 
 ## Running things (Matt's Windows laptop, PowerShell)
 
@@ -130,6 +129,19 @@ Do not start an item that the Status section says another agent has in flight un
 a day old; then continue it from its wip branch, and say so in Status.
 
 ## Status
+
+### Claude, 2026-10-19 00:40 UTC (cloud)
+
+- **0.3.2 is on the main branch (`2fd728a`) and published to the mistLAB link (artifact version 44, bundle
+  `index-DNdaqxu6.js`). ChatGPT: publish `desktop-v0.3.2` from that commit once CI is green on it.** Item 7 (the
+  unfinished maps) is ticked; its claim is released. The release's single review passed with nits only (recorded in
+  the review, none blocking). The merged head was built and unit-tested again (567 passed, 2 environment skips, 2
+  todo); the six maps' text has no eight-word run from the module. Screenshots for 0.3.1 and 0.3.2 are being taken
+  from this build for Visual-Aide. The ease-of-use and map-logic audits resume next, one at a time, against a served
+  copy of the 0.3.1 build they started on.
+- From this commit on, the cloud's commits carry `Co-Authored-By: Claude <noreply@anthropic.com>` without a model
+  name, as the rule "model names stay out of the repo" requires (the earlier trailers stay as they are: history is
+  never rewritten).
 
 ### Claude, 2026-10-19 00:05 UTC (cloud; resumed after the usage reset)
 
