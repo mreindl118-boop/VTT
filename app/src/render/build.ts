@@ -365,7 +365,6 @@ export function* buildLevelSteps(level: Level, grid: GridLevel): Generator<void,
   return { level, root, grid: gridMesh, floors, targets, secretDoors, labels, lights, lightRings, secretAsWall, wallsGroup, doors, openables };
 }
 
-/** A piece as merge() wants it: un-indexed, with only a position and a normal. */
 /** The cut face of thick walls standing from ya to yb (drawn y, the level's own frame). While the section plane
  *  (WALL_CLIP) cuts them it rides 0.02 ft under the plane, so the cut reads as solid stone; otherwise it shrinks to
  *  nothing inside the solid, so a translucent ghost or a fading wall never shows it. */
@@ -387,6 +386,7 @@ function sectionCap(polys: Polygon[], color: string, ya: number, yb: number): TH
   return m;
 }
 
+/** A piece as merge() wants it: un-indexed, with only a position and a normal. */
 function flat(g: THREE.BufferGeometry): THREE.BufferGeometry {
   const n = g.index ? g.toNonIndexed() : g;
   if (n !== g) g.dispose();
