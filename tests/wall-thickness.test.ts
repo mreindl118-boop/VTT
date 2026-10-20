@@ -249,6 +249,44 @@ describe('the fog remembers a seen wall\'s whole top', () => {
   });
 });
 
+describe('a window, a coping and a secret door in a wall with a body stand round its own faces', () => {
+  const FRAME = new THREE.Color('#3a2c22').getHexString(), COPING = new THREE.Color('#4b5560').getHexString();
+  it('a window: the wall below and above it is the body, its sill stands proud of both faces, its glass in the body\'s middle', () => {
+    // a 4-ft wall taking all its thickness from its left (+z): its body runs from z 0 to z 4
+    const l = level([W('win', [0, 0], [5, 0], 4, ['window'], 2)]);
+    const wall = extent(l);
+    expect(wall.min.z).toBeCloseTo(0, 5); expect(wall.max.z).toBeCloseTo(4, 5);
+    expect(wall.min.x).toBeCloseTo(0, 5); expect(wall.max.x).toBeCloseTo(5, 5);
+    const sill = extent(l, FRAME);
+    expect(sill.min.z).toBeCloseTo(-0.25, 5); expect(sill.max.z).toBeCloseTo(4.25, 5);
+    const glass = buildLevel(l, GRID).wallsGroup.children.find((o) => o.userData.window) as THREE.Mesh;
+    const g = new THREE.Box3().setFromObject(glass);
+    expect(g.min.z).toBeCloseTo(1.9, 5); expect(g.max.z).toBeCloseTo(2.1, 5);
+    expect(g.min.y).toBeCloseTo(3, 5); expect(g.max.y).toBeCloseTo(7, 5);
+  });
+  it('a free-standing wall\'s coping is its own footprint, a little proud of both faces', () => {
+    const l = level([{ ...W('g', [0, 0], [20, 0], 2), heightFt: 4 }]);
+    const c = extent(l, COPING);
+    expect(c.min.z).toBeCloseTo(-1.175, 5); expect(c.max.z).toBeCloseTo(1.175, 5);
+    expect(c.min.y).toBeCloseTo(4, 5); expect(c.max.y).toBeCloseTo(4.35, 5);
+  });
+  it('a secret door: its panel is the wall\'s body, the hidden door and its marker stand round it; hidden it blocks at its face', () => {
+    const walls = [W('s', [0, 0], [5, 0], 4, ['secret-door'], -2)];   // the body on the wall's right (-z), z -4 to 0
+    const l: Level = { ...level(walls), objects: [{ id: 'sd', kind: 'secret-panel', pos: [2.5, 0, 0], vis: 'secret-door', wall: 's' }] };
+    const [sd] = buildLevel(l, GRID).secretDoors;
+    const box = (m: THREE.Mesh) => new THREE.Box3().setFromBufferAttribute(m.geometry.attributes.position as THREE.BufferAttribute);
+    expect(box(sd.panel).min.z).toBeCloseTo(-4, 5); expect(box(sd.panel).max.z).toBeCloseTo(0, 5);
+    expect(box(sd.door).min.z).toBeCloseTo(-4.15, 5); expect(box(sd.door).max.z).toBeCloseTo(0.15, 5);
+    expect(box(sd.marker).min.z).toBeCloseTo(-4.3, 5); expect(box(sd.marker).max.z).toBeCloseTo(0.3, 5);
+    // hidden, the party stops at the body's face; found (the app makes it a door) and opened, it walks through
+    const floor: Polygon[] = [[[0.5, -10], [4.5, -10], [4.5, 10], [0.5, 10]]];
+    expect(canWalk([2.5, -8], [2.5, -2], moveBlockers(walls), floor)).toBe(false);
+    expect(canWalk([2.5, -8], [2.5, -4.5], moveBlockers(walls), floor)).toBe(true);
+    const found = [{ ...walls[0], flags: ['door'] as WallFlag[], open: true }];
+    expect(canWalk([2.5, -8], [2.5, 8], moveBlockers(found), floor)).toBe(true);
+  });
+});
+
 describe('the scene check reads the thickness', () => {
   it('a thickness that is not a positive number of feet is reported', () => {
     const s = (t: number): SceneFile => ({ schema: 1, location: 'x', chapter: 'c', name: 'n', bookScaleFt: 5, ambient: 'night', links: [], levels: [{ ...level([W('w', [0, 0], [5, 0], t)]) }] });
