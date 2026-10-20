@@ -597,6 +597,17 @@ may still be running** its check-in routine; Matt decides whether it carries on 
   traced outline is only recorded (`TIED` in `barovia-world.py`); the River Ivlis runs through the page's pool position
   and a short outlet joins the camp's pool to it. Move the camp onto the pool's west shore so the pool can be its
   measured outline, or keep the pool where the camp is?
+- **The valley's roads, rivers and trail (2026-10-20, item 2f-1's review), four choices:** (1) the measured rivers run
+  over the land's ridges (the height lattice was raised from the land-cover grid, whose water followed the old
+  courses): re-running `heightfield.py` does not mend it and moves the ground under most maps by up to 380 ft, and
+  making every river run downhill by cutting channels would cut canyons up to 4,000 ft deep. Recommended: the land
+  rebuilt round the measured water in framework release 7 (2f-6), the cover grid's water drawn from the measured rivers
+  first. Yes? (2) Opening a map only to look still puts the party's token on it, so the party stands on that map while
+  its place on the world map stays where it was: keep that, or give a look no token? (3) The trail on the inked map is a
+  red dash over dark-red roads and hard to see from the whole valley: a contrasting colour or a light casing under it?
+  (4) The east bridge pin (D2) has no road to it (give it the page's crossing, or rename it), and the lake landing (L)
+  now takes an Old Svalich Road exit that bends the road through the boat landing with the continuous world off:
+  leave the landing out of road exits?
 - **The valley's roads (2026-10-19, your screenshots):** may the cloud (a) re-digitise the region's roads and rivers
   in `world.json` as one connected graph through the places, with a test that keeps it so (claim on `world.json`,
   `barovia-world.py`, the test; the renderers unchanged except a guard against hooks), and (b) stop a map-open from
