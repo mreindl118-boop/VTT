@@ -1,7 +1,7 @@
 // 5e light & vision model (PHB ch. 8). See docs §5.
 import { dist, segmentsIntersect, type Segment, type Vec2 } from './geometry';
 import type { Ambient, LightSource, Wall } from './schema';
-import { anyThick, bodyLine, bodyOutlines, hasBody } from './wallBody';
+import { anyThick, bodyLine, bodyOutlines, doorBlockers, hasBody } from './wallBody';
 
 export const enum Illum { Dark = 0, Dim = 1, Bright = 2 }
 
@@ -32,7 +32,8 @@ export interface Blocker extends Segment { terrain: boolean }
 
 /** Walls that block sight. Doors block when closed; windows and invisible walls never do. A wall with a body
  *  (thicknessFt) also blocks along its faces, as drawn; a door's body is its opening, which a shut leaf blocks where it
- *  hangs, in the body's middle (core/wallBody.ts bodyLine: a->b itself unless the wall stands off its line). */
+ *  hangs, in the body's middle (core/wallBody.ts bodyLine: a->b itself unless the wall stands off its line), and across
+ *  the body's depth at its two jambs, so nothing is seen round the leaf's end whatever the walls beside it are. */
 export function sightBlockers(walls: Wall[], revealedSecretDoors: ReadonlySet<string> = new Set()): Blocker[] {
   const out: Blocker[] = [];
   const isDoor = (w: Wall) => w.flags.includes('door') || (w.flags.includes('secret-door') && revealedSecretDoors.has(w.id));
@@ -42,25 +43,35 @@ export function sightBlockers(walls: Wall[], revealedSecretDoors: ReadonlySet<st
     const f = new Set(w.flags);
     if (f.has('window') || f.has('invisible')) continue;
     if (isDoor(w) && w.open) continue;
-    if (solid(w)) continue;
+    if (solid(w) || (isDoor(w) && hasBody(w))) continue;   // a shut door with a body: its leaf and jambs, below
     const [a, b] = isDoor(w) ? bodyLine(w) : [w.a, w.b];
     out.push({ a, b, terrain: f.has('terrain') });
   }
-  if (anyThick(walls)) for (const s of bodyOutlines(walls, solid)) out.push({ ...s, terrain: false });
+  if (anyThick(walls)) {
+    for (const s of bodyOutlines(walls, solid)) out.push({ ...s, terrain: false });
+    const shut = (w: Wall) => hasBody(w) && isDoor(w) && !w.open && !w.flags.includes('window');
+    for (const s of doorBlockers(walls, shut)) out.push({ ...s, terrain: false });
+  }
   return out;
 }
 
 /** Walls that block movement. Ethereal walls never do; windows and closed doors do. A wall with a body
  *  (thicknessFt) also blocks along its faces, so the party stops at the face it sees; a shut door stops it at its leaf,
- *  in the body's middle, from either side. */
+ *  in the body's middle, from either side, and across the body's depth at its jambs, so the party cannot go round the
+ *  leaf's end where the wall beside it is thinner or stands off the line the other way. */
 export function moveBlockers(walls: Wall[]): Segment[] {
   // the walls whose body blocks along its outline: their own line, inside the body or on its face, adds nothing
   const solid = (w: Wall) => hasBody(w) && !w.flags.includes('door');
-  const out = walls.filter((w) => !w.flags.includes('ethereal') && !((w.flags.includes('door')) && w.open) && !solid(w)).map((w) => {
+  // a shut door with a body: its leaf and jambs, below
+  const leafed = (w: Wall) => hasBody(w) && w.flags.includes('door');
+  const out = walls.filter((w) => !w.flags.includes('ethereal') && !((w.flags.includes('door')) && w.open) && !solid(w) && !leafed(w)).map((w) => {
     const [a, b] = w.flags.includes('door') ? bodyLine(w) : [w.a, w.b];
     return { a, b };
   });
-  if (anyThick(walls)) out.push(...bodyOutlines(walls, solid));
+  if (anyThick(walls)) {
+    out.push(...bodyOutlines(walls, solid));
+    out.push(...doorBlockers(walls, (w) => leafed(w) && !w.open));
+  }
   return out;
 }
 

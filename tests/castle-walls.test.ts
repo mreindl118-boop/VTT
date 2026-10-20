@@ -9,7 +9,8 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { pointInPolygon, segmentsIntersect, type Polygon, type Vec2 } from '../app/src/core/geometry';
 import { bodyLine, wallFootprints } from '../app/src/core/wallBody';
-import { moveBlockers, sightBlockers } from '../app/src/core/light';
+import { hasLineOfSight, moveBlockers, sightBlockers } from '../app/src/core/light';
+import { canWalk } from '../app/src/core/movement';
 import type { GridFile, Level, SceneFile, Wall } from '../app/src/core/schema';
 
 const scene = JSON.parse(readFileSync('locations/ch04/K/scene.json', 'utf8')) as SceneFile;
@@ -164,6 +165,37 @@ describe('Castle Ravenloft: walls with a body', () => {
         if (!cuts(shut, out, inside)) bad.push(`${l.id}/${w.id}: the party walks into its body`);
         if (!cuts(seen, out, inside)) bad.push(`${l.id}/${w.id}: sight enters its body`);
       }
+    }
+    expect(bad).toEqual([]);
+  });
+
+  it('a shut door, a door of bars, or a found secret door stops the party and sight as a wall in its place would', () => {
+    // every door shut; each door in turn, and each secret door as the players find it (a door), against the same
+    // opening walled up with a solid wall of its body: from 2.5 ft before one face to past the other, inside a box
+    // round it, the party's lattice and straight sight lines may pass only where they pass the solid wall too (round a
+    // free end of the run). The leaf hangs in the middle of a body that can stand off its line one way while the wall
+    // it is cut from stands off the other way, or is thinner: the leaf must still meet that wall at its jambs.
+    const bad: string[] = [];
+    for (const l of scene.levels) for (const d of l.walls.filter(opening)) {
+      const L = len(d), u: Vec2 = [(d.b[0] - d.a[0]) / L, (d.b[1] - d.a[1]) / L], n: Vec2 = [-u[1], u[0]];
+      const [ba, bb] = bodyLine(d), m: Vec2 = [(ba[0] + bb[0]) / 2, (ba[1] + bb[1]) / 2], h = (d.thicknessFt ?? 0) / 2;
+      const others = l.walls.map((w) => (w.flags.includes('door') ? { ...w, open: false } : w));
+      const asDoor = others.map((w) => (w.id === d.id ? { ...w, flags: ['door'] as Wall['flags'], open: false } : w));
+      const asWall = others.map((w) => (w.id === d.id ? { ...w, flags: ['normal'] as Wall['flags'], open: undefined } : w));
+      const r = Math.max(L / 2, h) + 6, box: Polygon = [[m[0] - r, m[1] - r], [m[0] + r, m[1] - r], [m[0] + r, m[1] + r], [m[0] - r, m[1] + r]];
+      const at = (side: number, depth: number, along: number): Vec2 => [m[0] + n[0] * side * depth + u[0] * along, m[1] + n[1] * side * depth + u[1] * along];
+      const walkDoor = moveBlockers(asDoor), walkWall = moveBlockers(asWall);
+      for (const side of [-1, 1]) {
+        const p = at(side, h + 2.5, 0), q = at(-side, h + 2.5, 0);
+        if (canWalk(p, q, walkDoor, [box]) && !canWalk(p, q, walkWall, [box])) bad.push(`${l.id}/${d.id}: the party walks past it shut, from side ${side}`);
+      }
+      const seeDoor = sightBlockers(asDoor), seeWall = sightBlockers(asWall);
+      let lines = 0;
+      for (const side of [-1, 1]) for (let e = -L / 2; e <= L / 2; e += 1) for (let k = 2.5; k <= 12; k += 1.5) for (let f = -L / 2 - 4; f <= L / 2 + 4; f += 1) {
+        const p = at(side, h + 2.5, e), q = at(-side, h + k, f);
+        if (hasLineOfSight(p, q, seeDoor) && !hasLineOfSight(p, q, seeWall)) lines++;
+      }
+      if (lines) bad.push(`${l.id}/${d.id}: ${lines} sight lines past it shut`);
     }
     expect(bad).toEqual([]);
   });

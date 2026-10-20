@@ -240,6 +240,28 @@ describe('the party and sight meet the drawn body', () => {
     expect(hasLineOfSight([12.5, 3], [12.5, 8], seen)).toBe(true);
     expect(canWalk([12.5, -6], [12.5, 8], moveBlockers(walls(true)), hall)).toBe(true);
   });
+  it('a shut door stops the party and sight whatever the walls at its jambs are: thinner, standing off the other way, none', () => {
+    // the door takes its 4 ft from its left (+z, z 0 to 4, its leaf at z 2); the wall it is cut from takes its 4 ft from
+    // the right on one side (z -4 to 0) and is a 1-ft partition on the other: past both jambs the doorway's depth meets
+    // open floor, where the leaf alone would leave a way round its ends
+    const walls = (open: boolean) => [W('w1', [0, 0], [10, 0], 4, ['normal'], -2), { ...W('d', [10, 0], [15, 0], 4, ['door'], 2), open }, W('w2', [15, 0], [30, 0], 1)];
+    const hall: Polygon[] = [[[1, -10], [29, -10], [29, 10], [1, 10]]], shut = moveBlockers(walls(false)), seen = sightBlockers(walls(false));
+    expect(canWalk([12.5, -6], [12.5, 8], shut, hall)).toBe(false);
+    expect(canWalk([12.5, 8], [12.5, -6], shut, hall)).toBe(false);
+    expect(canWalk([12.5, -6], [12.5, 1], shut, hall)).toBe(true);    // the reveal stays open up to the leaf
+    expect(canWalk([12.5, 8], [12.5, 3], shut, hall)).toBe(true);
+    // from below, into the doorway's depth on the leaf's near side and out past a jamb, round the leaf's end
+    expect(hasLineOfSight([12, -3], [8, 5], seen)).toBe(false);
+    expect(hasLineOfSight([13, -3], [17, 5], seen)).toBe(false);
+    expect(hasLineOfSight([12.5, -3], [12.5, 1], seen)).toBe(true);   // the reveal is seen up to the leaf
+    expect(canWalk([12.5, -6], [12.5, 8], moveBlockers(walls(true)), hall)).toBe(true);
+    expect(hasLineOfSight([12, -3], [8, 5], sightBlockers(walls(true)))).toBe(true);
+    // a door at a mitred corner, its body running on past its end point to the corner's mitre: the leaf runs on to it
+    const corner = (open: boolean) => [{ ...W('c', [0, 0], [10, 0], 1, ['door']), open }, W('t', [10, -20], [10, 0], 5, ['normal'], -2.5)];
+    expect(hasLineOfSight([8, -1], [13, 1.25], sightBlockers(corner(false)))).toBe(false);
+    expect(hasLineOfSight([8, -1], [13, 1.25], sightBlockers(corner(true)))).toBe(true);
+  });
+
   it('the blockers of bodies that meet are the solid\'s outline: no seam where they join, no centreline inside', () => {
     // two 4-ft walls in one line and a third turning off the end (an L): one solid; every wall line lies inside it
     const walls = [W('a', [0, 0], [10, 0], 4), W('b', [10, 0], [20, 0], 4), W('c', [20, 0], [20, 15], 4)];

@@ -101,7 +101,52 @@ export function bodyOutlines(walls: readonly Wall[], keep: (w: Wall) => boolean)
   return out;
 }
 
+/** What a shut door with a body blocks along, for every kept wall: its leaf, the body's middle line (bodyLine) run
+ *  on to the body's ends where the body reaches past its wall's end points (a mitred corner), and the body's two end
+ *  cuts, its sides across the depth at a and at b where it meets the walls at its jambs (not its two faces). The end
+ *  cuts tie the leaf to whatever stands at the jambs, a thinner wall, a wall standing off the line the other way or one
+ *  with no body, so nothing passes round the leaf's end through the doorway's depth; the reveal on either side of the
+ *  leaf stays open from its own room. */
+export function doorBlockers(walls: readonly Wall[], keep: (w: Wall) => boolean): Segment[] {
+  const fp = wallFootprints(walls), out: Segment[] = [];
+  for (let i = 0; i < walls.length; i++) {
+    const p = fp[i];
+    if (!p || !keep(walls[i])) continue;
+    // the footprint is the cut at a reversed, then the cut at b reversed: the edge after the first cut is the right
+    // face, the closing edge the left face
+    const na = A_CUT.get(p) ?? 2, m = p.length;
+    for (let k = 0; k < m - 1; k++) if (k !== na - 1) out.push({ a: p[k], b: p[k + 1] });
+    const [a, b] = bodyLine(walls[i]);
+    out.push({ a: runOn(b, a, p), b: runOn(a, b, p) });
+  }
+  return out;
+}
+
+/** The end b of the line a->b, run on along it to where it leaves the polygon when b lies inside it; b otherwise. */
+function runOn(a: Vec2, b: Vec2, poly: Polygon): Vec2 {
+  const u = sub(b, a);
+  let best = Infinity;
+  for (let k = 0; k < poly.length; k++) {
+    const e0 = poly[k], e = sub(poly[(k + 1) % poly.length], e0), c = cross(u, e);
+    if (Math.abs(c) < 1e-12) continue;
+    const t = cross(sub(e0, a), e) / c, s = cross(sub(e0, a), u) / c;
+    if (s >= -1e-9 && s <= 1 + 1e-9 && t > 1 - 1e-7 && t < best) best = t;
+  }
+  // b on the polygon's outline (a square cut through it), or outside it (a cut short of it): left where it is
+  if (!Number.isFinite(best) || best <= 1 + 1e-6 || !inside(add(a, mul(u, (1 + best) / 2)), poly)) return b;
+  return add(a, mul(u, best));
+}
+
+function inside(pt: Vec2, poly: Polygon): boolean {
+  let r = false;
+  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++)
+    if (poly[i][1] > pt[1] !== poly[j][1] > pt[1] && pt[0] < ((poly[j][0] - poly[i][0]) * (pt[1] - poly[i][1])) / (poly[j][1] - poly[i][1]) + poly[i][0]) r = !r;
+  return r;
+}
+
 const CACHE = new Map<string, (Polygon | null)[]>();
+/** How many points each footprint's cut at a has (the footprint starts with that cut, reversed). */
+const A_CUT = new WeakMap<Polygon, number>();
 function signature(walls: readonly Wall[], grow: number): string {
   let s = `${grow}`;
   for (const w of walls) s += hasBody(w) ? `|${w.a[0]},${w.a[1]},${w.b[0]},${w.b[1]},${w.thicknessFt},${w.offsetFt ?? 0}` : '|';
@@ -256,7 +301,9 @@ function compute(walls: readonly Wall[], grow: number): (Polygon | null)[] {
     const ca = cuts.get(cutKey(i, 0)) ?? [add(a, mul(nrm, -hr)), add(a, mul(nrm, hl))];
     const cb = cuts.get(cutKey(i, 1)) ?? [add(b, mul(nrm, hl)), add(b, mul(nrm, -hr))];
     const poly: Polygon = [...ca.slice().reverse(), ...cb.slice().reverse()];
-    out.push(valid(poly) ? poly : [add(a, mul(nrm, hl)), add(a, mul(nrm, -hr)), add(b, mul(nrm, -hr)), add(b, mul(nrm, hl))]);
+    const kept: Polygon = valid(poly) ? poly : [add(a, mul(nrm, hl)), add(a, mul(nrm, -hr)), add(b, mul(nrm, -hr)), add(b, mul(nrm, hl))];
+    A_CUT.set(kept, kept === poly ? ca.length : 2);
+    out.push(kept);
   }
   return out;
 }
