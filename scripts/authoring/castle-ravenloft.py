@@ -98,9 +98,9 @@ arch(g, (76, 32), (76, 34))   # the postern through the curtain's outer face
 # ten feet, and either side of the tunnel a squared gate tower runs back through the wall to the courtyard, hollow to
 # its battlements ten feet over the walk, the latches for the bridge and the portcullis on its flagstone floor, an
 # ironbound door with a lock on the courtyard (map 2; p.52-53). The castle's rock runs out from the foot of the wall to
-# the gatehouse's face, where the chasm opens; stone gargoyles lean out from the wall top over it. The drawbridge, its chains and slots, the portcullis and the
-# gargoyles are the pieces the Gates of Ravenloft used to draw on their own (kit/sites/wild-j.ts; the castle's shell
-# pieces, kit/sites/k.ts). Positions in feet unless a helper says cells.
+# the gatehouse's face, where the chasm opens; stone gargoyles lean out from the wall top over it. The drawbridge, its
+# chains and slots, the portcullis and the gargoyles are the pieces the Gates of Ravenloft used to draw on their own
+# (kit/sites/wild-j.ts; the castle's shell pieces, kit/sites/k.ts). Positions in feet unless a helper says cells.
 GATE_H = 100                        # the gate towers' heads, ten feet over the curtain's walk
 GATE_Z = 170                        # the gate's axis (ft): the road, the bridge, the tunnel
 FRONT = -10                         # the gatehouse's face, ten feet forward of the curtain's outer face: the chasm's lip
@@ -110,7 +110,7 @@ DECK_W = 20                         # as wide as the tunnel
 f5 = lambda x, z: (x / 5, z / 5)    # feet to cells, for the authoring helpers
 g.terrain.append(([(-62, 30), (-12, 30), (-12, 38), (-62, 38)], 'cobble'))                  # the road on the ridge
 g.terrain.append(([(-62, 22), (-12, 22), (-12, 46), (-62, 46)], 'grass'))                   # the ridge's crown either side
-g.terrain.append(([(-2, 0), (0, 0), (0, 68), (-2, 68)], 'dirt'))                            # the rock at the wall's foot
+g.terrain.append(([(-2, 0), (0, 0), (0, 68), (-2, 68)], 'flagstone'))                       # the wall's footing out to the lip
 g.room('K1-bridge', 'Drawbridge', [(-12, 32), (-2, 32), (-2, 36), (-12, 36)], 'plank', ceilingFt=None)
 g.room('K1-g', 'Gate Tunnel', rect(-2, 32, 4, 36), 'flagstone', page=pg('K1'), ceilingFt=18)
 g.room('K1-tn', 'North Gate Tower', rect(-2, 28, 4, 32), 'flagstone', page=pg('K1'), ceilingFt=GATE_H)
