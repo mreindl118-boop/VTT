@@ -18,6 +18,9 @@ let MIST = new THREE.Color('#2b2733');
 const blend = (hex: string, t: number) => new THREE.Color(hex).lerp(MIST, Math.min(1, Math.max(0, t)));
 /** A landmark's material: lit, its colour hazed toward the mist, its grain the surface its own colour is made of. */
 const lambert = (c: THREE.Color, surf: Surface = 'generic') => { const m = new THREE.MeshLambertMaterial({ color: c, fog: false, flatShading: true }); setSurface(m, surf); return patchFog(m, true); };
+/** The castle's rock in the backdrop (site() below: the Pillarstone's core, 1.5 × its 250-ft radius at the foot): a map
+ *  whose footprint lies within this of the castle's pin stands on the rock itself. */
+const PILLARSTONE_R = 375;
 
 export interface BackdropOpts {
   center: P; radius: number; elevation: number; pin: P; world: WorldData; theme: Theme; valley?: boolean;
@@ -357,9 +360,12 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
   // 4. The other places on the world map, at true scale and distance: visual only, nothing to click.
   const site = (p: { key: string; name: string; type: string; pos: P; heightFt?: number }) => {
     const t0 = toWorld(p.pos); if (t0.d < 400 || t0.d > 60000) return;
+    const looming = p.key === 'K' && p.type === 'castle';
+    // a map standing on the castle's own rock (the Gates of Ravenloft at its drawbridge) is not shown the castle on its
+    // Pillarstone rising out of its ground: the map carries the castle's stand-in across its chasm instead
+    if (looming && mapDist(t0.x, t0.z) < PILLARSTONE_R) return;
     const f = pull(t0.d), t = { x: cx + (t0.x - cx) * f, z: cz + (t0.z - cz) * f, d: t0.d * f };
     const dropY = HF ? Math.max(0, yAt(t0.x, t0.z) - yAt(t.x, t.z)) : 0; // the ground at the drawn spot may lie lower than at the true one
-    const looming = p.key === 'K' && p.type === 'castle';
     // Ravenloft is drawn for dread, not for the surveyor: pulled in to a few hundred yards and made half again
     // as big, on a cliff that overhangs the water below as if about to let go.
     // Ravenloft keeps its true map position: a thousand feet up on the Pillarstone, the valley at its feet.

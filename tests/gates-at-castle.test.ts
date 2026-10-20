@@ -12,6 +12,9 @@ import { WORLD_STANDINS } from '../app/src/core/siteInterfaces';
 import { pointInPolygon, type Polygon, type Vec2 } from '../app/src/core/geometry';
 import { siteOf } from '../app/src/render/worldstage';
 import { buildLand } from '../app/src/render/worldland';
+import { buildBackdrop } from '../app/src/render/backdrop';
+import { bounds } from '../app/src/core/geometry';
+import { CAMPAIGNS, worldOf } from '../app/src/campaigns';
 import type { Atlas } from '../scripts/world-atlas';
 import type { Level, SceneFile, SceneObject } from '../app/src/core/schema';
 import type { Theme, WorldData } from '../app/src/campaigns';
@@ -125,6 +128,30 @@ describe('the Gates of Ravenloft stand at the castle\'s gate in the valley', () 
       }
     } finally {
       land.group.traverse((o) => { if (o instanceof THREE.Mesh) { o.geometry.dispose(); for (const m of Array.isArray(o.material) ? o.material : [o.material]) m.dispose(); } });
+    }
+  });
+});
+
+/** A map's backdrop as app.ts builds it where the continuous world is off: its open-air level's extent, its pin, its
+ *  crag, the land beyond it, the other places on the world map. */
+function backdropOf(path: string): THREE.Group {
+  stubCanvas();
+  const sc = scene(path), l0 = ground(sc), camp = CAMPAIGNS.find((c) => c.prefixes.some((x) => path.startsWith(x)))!, w = worldOf(camp);
+  const pin = w.pins.find((p) => p.scenes?.includes(path))!;
+  const bb = bounds([...l0.rooms.map((r) => r.polygon), ...(l0.terrain ?? []).map((t) => t.polygon)]);
+  return buildBackdrop({ ground: 'grass', center: [(bb.minX + bb.maxX) / 2, (bb.minZ + bb.maxZ) / 2], radius: Math.hypot(bb.maxX - bb.minX, bb.maxZ - bb.minZ) / 2, elevation: l0.elevationFt, pin: pin.pos as Vec2, world: w, theme: camp.theme, bounds: bb, north: l0.north, roads: [], crag: pin.heightFt ?? 0 });
+}
+function dispose(g: THREE.Object3D): void { g.traverse((o) => { if (o instanceof THREE.Mesh) { o.geometry.dispose(); for (const m of Array.isArray(o.material) ? o.material : [o.material]) m.dispose(); } }); }
+
+describe('the Gates of Ravenloft where the continuous world is off', () => {
+  it('the backdrop draws no castle on its rock over the Gates\' own map: the Gates\' stand-in closes the view', () => {
+    expect(gj.objects.some((o) => o.kind === 'j-castle-mass'), 'J carries the castle\'s stand-in').toBe(true);
+    const j = backdropOf('ch02/J');
+    try { expect(!!j.getObjectByName('castle-ravenloft'), 'the backdrop\'s castle beside J').toBe(false); } finally { dispose(j); }
+    // every other place keeps the castle on its horizon (the village 1.45 mi away, the fork at I)
+    for (const path of ['ch03/E', 'ch02/I']) {
+      const b = backdropOf(path);
+      try { expect(!!b.getObjectByName('castle-ravenloft'), path).toBe(true); } finally { dispose(b); }
     }
   });
 });
