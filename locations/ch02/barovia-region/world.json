@@ -262,14 +262,15 @@
    "key": "J",
    "name": "Gates of Ravenloft",
    "pos": [
-    12.15,
-    6.45
+    12.905719697,
+    6.684734848
    ],
    "type": "gate",
-   "blurb": "Iron gates and a gatehouse at the foot of the castle's crag.",
+   "blurb": "The road's end on the castle's rock: two broken turrets and a worn stone sill on the lip of a chasm full of fog, where the castle's drawbridge comes down.",
    "scenes": [
     "ch02/J"
-   ]
+   ],
+   "groundFt": 2133.0
   },
   {
    "key": "K",

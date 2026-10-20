@@ -73,9 +73,17 @@ describe('world atlas', () => {
     expect(K.placement.position[1]).toBeCloseTo(pinY(w, w.pins.find((q) => q.key === 'K')!), 6);
     expect(atlas.scenes['ch09/T'].placement.rotationY).toBeCloseTo(-Math.PI / 2, 6); // Tsolenka's map has north to the left
   });
-  it('no two root flatten bands overlap, except the seam the data pass owns (Luna River Crossroads beside Vallaki) and the lakeshore beside Vallaki', () => {
-    expect(atlas.bandOverlaps.map((o) => o.scenes)).toEqual([['ch02/L', 'ch05/N'], ['ch02/P', 'ch05/N']]);
-    for (const o of atlas.bandOverlaps) expect(o.gapFt).toBeGreaterThan(0); // the maps themselves do not overlap, only their bands
+  it('no two root flatten bands overlap, except the seam the data pass owns (Luna River Crossroads beside Vallaki), the lakeshore beside Vallaki, and the Gates of Ravenloft at the castle\'s gate', () => {
+    expect(atlas.bandOverlaps.map((o) => o.scenes)).toEqual([['ch02/J', 'ch04/K'], ['ch02/L', 'ch05/N'], ['ch02/P', 'ch05/N']]);
+    for (const o of atlas.bandOverlaps) {
+      // the maps themselves do not overlap, only their bands; the Gates meet the castle edge to edge at the chasm (item
+      // 2g-1, tests/gates-at-castle.test.ts), on one base, so the land the two bands blend is one level
+      if (o.scenes[0] === 'ch02/J') {
+        const [a, b] = o.scenes.map((p) => atlas.scenes[p]);
+        expect(Math.abs(o.gapFt)).toBe(0);
+        expect(Math.abs(a.placement.position[1] + a.elevationFt - (b.placement.position[1] + b.elevationFt))).toBeLessThan(0.5);
+      } else expect(o.gapFt).toBeGreaterThan(0);
+    }
   });
   it("Lake Zarovich's map stands on the lake's south shore at the lake's level, beside Vallaki (not on the survey's hump in the lake)", () => {
     const w = barovia as unknown as WorldData, L = atlas.scenes['ch02/L'], N = atlas.scenes['ch05/N'], pin = w.pins.find((q) => q.key === 'L')!;

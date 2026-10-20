@@ -27,6 +27,11 @@ export const SITE_INTERFACES: Record<string, {
   // the castle falls away there under the drawbridge, a sheer cut with no feather. The larders and the dungeon stand in
   // the mist, not under the land.
   'ch04/K': { underground: true, cuts: [{ bounds: { minX: -60, maxX: -10, minZ: 0, maxZ: 395 }, floor: -400, featherX: 0, featherZ: 0 }] },
+  // The Gates of Ravenloft end on the near lip of that chasm, their sill under the drawbridge's free end (J's pin:
+  // barovia-world.py TIES). The same cut in J's own feet (J's lip at x 400; the castle's frame is J's less 460 ft east
+  // and 5 ft south), so J's apron is laid with the chasm's lips as its own edges and drops sheer there too, not in a
+  // slope across the cut from J's edge.
+  'ch02/J': { cuts: [{ bounds: { minX: 400, maxX: 450, minZ: 5, maxZ: 400 }, floor: -400, featherX: 0, featherZ: 0 }] },
 };
 
 /** These are distant scenery substitutes, not the miniature inside the Amber Temple.

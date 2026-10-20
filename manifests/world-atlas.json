@@ -263,14 +263,14 @@
    "name": "Gates of Ravenloft",
    "type": "gate",
    "pos": [
-    12.15,
-    6.45
+    12.90572,
+    6.684735
    ],
    "world": [
-    19377.6,
-    739.2
+    23367.8,
+    1978.599997
    ],
-   "groundY": 1549.185,
+   "groundY": 2133,
    "scenes": [
     "ch02/J"
    ],
@@ -1503,19 +1503,12 @@
    "stacked": true,
    "outdoor": true,
    "interior": false,
-   "roadExits": [
-    {
-     "road": "Road to Ravenloft",
-     "bearing": -2.0672,
-     "x": 31.03,
-     "z": 0.37
-    }
-   ],
+   "roadExits": [],
    "placement": {
     "position": [
-     19177.6,
-     1549.185,
-     539.2
+     23167.8,
+     2133,
+     1778.599997
     ],
     "rotationY": 0
    },
@@ -1523,12 +1516,25 @@
    "units": 1,
    "pin": "J",
    "worldBounds": {
-    "minX": 19177.6,
-    "minZ": 539.2,
-    "maxX": 19577.6,
-    "maxZ": 939.2
+    "minX": 23167.8,
+    "minZ": 1778.599997,
+    "maxX": 23567.8,
+    "maxZ": 2178.599997
    },
-   "bandFt": 900
+   "bandFt": 900,
+   "groundCuts": [
+    {
+     "bounds": {
+      "minX": 400,
+      "maxX": 450,
+      "minZ": 5,
+      "maxZ": 400
+     },
+     "floor": -400,
+     "featherX": 0,
+     "featherZ": 0
+    }
+   ]
   },
   "ch02/L": {
    "path": "ch02/L",
@@ -4895,6 +4901,14 @@
   {
    "campaign": "cos",
    "scenes": [
+    "ch02/J",
+    "ch04/K"
+   ],
+   "gapFt": 0
+  },
+  {
+   "campaign": "cos",
+   "scenes": [
     "ch02/L",
     "ch05/N"
    ],
@@ -4921,6 +4935,7 @@
   "ch05/N7: its map (105 × 80 ft) is 3.44× the plot room N7 gives it in ch05/N (24 × 30 ft): neighbours inside that extent are hidden under it",
   "ch05/N8: its map (230 × 190 ft) is 1.6× the plot room N8 gives it in ch05/N (150 × 110 ft): neighbours inside that extent are hidden under it",
   "ch10/U3: its map (122 × 117 ft) is 1.87× the plot room U3 gives it in ch10/U (64 × 64 ft): neighbours inside that extent are hidden under it",
+  "cos: the flatten bands of ch02/J and ch04/K overlap (their maps are 0 ft apart): the land between them blends two bases",
   "cos: the flatten bands of ch02/L and ch05/N overlap (their maps are 192 ft apart): the land between them blends two bases",
   "cos: the flatten bands of ch02/P and ch05/N overlap (their maps are 642 ft apart): the land between them blends two bases"
  ],

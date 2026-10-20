@@ -2,8 +2,14 @@
 """Barovia world map data: pin positions, roads, rivers, lakes, peaks and woods, measured from the regional
 map (book p.35) at 200 dpi, where one quarter-mile hex spans ~17.6 px. Output is in miles, origin top-left.
 Only positions and names are recorded; no map art is copied. Yester Hill (Y) lies off the printed crop and is
-placed approximately west of the Wizard of Wines."""
-import json
+placed approximately west of the Wizard of Wines.
+
+A tied pin (TIES) is not read off the page: it stands where its map meets a neighbour's, worked out from the two scenes,
+and its ground is the neighbour's. The Gates of Ravenloft (J) are tied to the castle (K). This script writes the base
+the cover pass (barovia-cover.py) refines; that pass moves every pin onto a disc on the page, so after it and the
+heightfield run `barovia-world.py --ties`, which sets only the tied pins' position, ground and text in the world file
+on disk, leaving everything else as it is. Idempotent."""
+import json, math, os, sys
 from collections import OrderedDict
 
 PX_PER_MILE = 17.6 * 4          # 4 hexes per mile
@@ -12,6 +18,15 @@ m = lambda x, y: [round(x / PX_PER_MILE, 2), round(y / PX_PER_MILE, 2)]
 HEIGHT = {'K': 1000}  # the Pillarstone of Ravenloft: the castle stands a thousand feet above the valley (p.53)
 GROUND = {'L': 4.2}   # a pin's ground in drawn feet where the heightfield is wrong for it: Lake Zarovich's map stands on the
                       # lake's south shore at the lake's level (as Vallaki beside it), not on the survey's hump inside the lake
+# Pins tied to a neighbour's map (item 2g-1; owner 2026-10-19, of the Gates of Ravenloft: "it's supposed to be attached to
+# and part of Ravenloft"): the Gates are the road gate on the near lip of the castle's chasm, and their sill
+# (wild_j.py's j-bridge-sill) lies under the free end of the castle's drawbridge (castle-ravenloft.py's j-drawbridge),
+# on the castle's ground. The page's own marker for J (below) is kept as measured.
+TIES = {'J': ('K', 'ch02/J', 'j-bridge-sill', 'ch04/K', 'j-drawbridge')}
+BLURB = {  # the players' line for a pin this script owns (others are hand-written in the world file and kept)
+  'J': "The road's end on the castle's rock: two broken turrets and a worn stone sill on the lip of a chasm full of fog, "
+       "where the castle's drawbridge comes down.",
+}
 PINS = [  # key, name, px, type, scenes (built scene paths reachable from here)
   ('A', 'Old Svalich Road', (1258, 507), 'road', ['ch02/A']),
   ('B', 'Gates of Barovia (east)', (1222, 470), 'gate', ['ch02/B']),
@@ -88,6 +103,69 @@ def keep_notes(world, path):
             if k in old.get(p['key'], {}) and k not in p: p[k] = old[p['key']][k]
 
 
-keep_notes(out, 'locations/ch02/barovia-region/world.json')
-json.dump(out, open('locations/ch02/barovia-region/world.json', 'w'), indent=1)
-print('world:', len(PINS), 'pins,', len(ROADS), 'roads')
+# ------------------------------------------------------------------ tied pins
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+WORLD = os.path.join(ROOT, 'locations/ch02/barovia-region/world.json')
+RELIEF = 1.25   # app/src/core/frames.ts: the heightfield is drawn a quarter steeper than surveyed
+
+def ground_ft(world, pin):
+    """A pin's ground in drawn feet, as app/src/core/frames.ts pinY reads it: its groundFt, else the heightfield there
+    (core/terrain.ts heightAt: bilinear on the cover lattice, clamped to its edge cells) steepened by RELIEF; plus its crag."""
+    if 'groundFt' in pin: return pin['groundFt'] + pin.get('heightFt', 0)
+    H, cell, b = world['height'], world.get('cellMiles', 0.125), world['bounds']
+    rows, cols = len(H), len(H[0]); x0, y0 = b['minX'], b['minY']
+    mx = min(x0 + (cols - 0.5) * cell, max(x0 + 0.5 * cell, pin['pos'][0])); my = min(y0 + (rows - 0.5) * cell, max(y0 + 0.5 * cell, pin['pos'][1]))
+    gx, gy = (mx - x0) / cell - 0.5, (my - y0) / cell - 0.5; k0, r0 = math.floor(gx), math.floor(gy); tx, ty = gx - k0, gy - r0
+    g = lambda r, k: 0 if r < 0 or r >= rows or k < 0 or k >= cols else H[r][k]
+    h = (g(r0, k0) * (1 - tx) + g(r0, k0 + 1) * tx) * (1 - ty) + (g(r0 + 1, k0) * (1 - tx) + g(r0 + 1, k0 + 1) * tx) * ty
+    return h * RELIEF + pin.get('heightFt', 0)
+
+def frame(path, kind):
+    """A map as its root placement sees it (app/src/core/frames.ts rootPlacement): its open-air level's elevation, the
+    centre of that level's rooms and terrain, its yaw; and the object of `kind` on it: its plan point and height. A
+    drawbridge's point is its free end, `len` ft out along its local -x from the hinge it stands on."""
+    sc = json.load(open(os.path.join(ROOT, 'locations', path, 'scene.json')))
+    lv = next(l for l in sc['levels'] if l.get('terrain'))
+    pts = [q for r in lv['rooms'] + lv['terrain'] for q in r['polygon']]
+    c = ((min(q[0] for q in pts) + max(q[0] for q in pts)) / 2, (min(q[1] for q in pts) + max(q[1] for q in pts)) / 2)
+    yaw = {'+z': math.pi, '-x': -math.pi / 2, '+x': math.pi / 2}.get(lv.get('north', '-z'), 0.0)
+    o = next(o for o in lv['objects'] if o['kind'] == kind)
+    x, z = o['pos'][0], o['pos'][2]
+    if kind == 'j-drawbridge':
+        a = math.radians(o.get('rotY', 0)); L = o['dims']['len']; x, z = x - L * math.cos(a), z + L * math.sin(a)
+    return lv['elevationFt'], c, yaw, (x, z), o['pos'][1]
+
+def rot(t, x, z): return x * math.cos(t) + z * math.sin(t), -x * math.sin(t) + z * math.cos(t)
+
+def tie(world, heights=None):
+    """Stand each tied pin where its map meets its neighbour's: its point (J's sill) on the neighbour's (the drawbridge's
+    free end), in plan and in height. A root map's point lies at pin + yaw(point - centre) in the world (frames.ts), so
+    the tied pin is the neighbour's pin moved by the difference; the ground is the neighbour's, from `heights` (a world
+    with the heightfield) when this one has none yet."""
+    pins = {p['key']: p for p in world['pins']}
+    for key, (other, path, kind, opath, okind) in TIES.items():
+        p, q = pins[key], pins[other]
+        e0, c0, t0, (x0, z0), y0 = frame(opath, okind)
+        e1, c1, t1, (x1, z1), y1 = frame(path, kind)
+        ax, az = rot(t0, x0 - c0[0], z0 - c0[1]); bx, bz = rot(t1, x1 - c1[0], z1 - c1[1])
+        p['pos'] = [round(q['pos'][0] + (ax - bx) / 5280, 9), round(q['pos'][1] + (az - bz) / 5280, 9)]
+        src = world if 'height' in world else heights
+        if src is not None: p['groundFt'] = round(ground_ft(src, q) - e0 + y0 + e1 - y1, 3)
+        if key in BLURB: p['blurb'] = BLURB[key]
+    return world
+
+
+if '--ties' in sys.argv:
+    text = open(WORLD, encoding='utf-8').read(); w = json.loads(text, object_pairs_hook=OrderedDict)
+    tie(w)
+    out_text = json.dumps(w, indent=1, ensure_ascii=False) + '\n'
+    open(WORLD, 'w', encoding='utf-8', newline='\n').write(out_text)
+    print('tied pins:', ', '.join(f"{k} at {p['pos']} on {p.get('groundFt')} ft" for k in TIES for p in w['pins'] if p['key'] == k), '' if out_text != text else '(unchanged)')
+else:
+    on_disk = json.load(open(WORLD)) if os.path.exists(WORLD) else None
+    for p in out['pins']:
+        if p['key'] in BLURB: p['blurb'] = BLURB[p['key']]
+    keep_notes(out, WORLD)
+    tie(out, on_disk if on_disk and 'height' in on_disk else None)
+    json.dump(out, open(WORLD, 'w'), indent=1)
+    print('world:', len(PINS), 'pins,', len(ROADS), 'roads')
