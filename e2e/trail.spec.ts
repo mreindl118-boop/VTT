@@ -2,7 +2,8 @@
 // party's '&', which ends in App.moveWorld), never when the DM opens a map to look at it (a place's name, the world
 // map's disc, a crumb, the library, a reload); and the trail is drawn along the roads between its places
 // (render/worldroads.ts, render/worldstage.ts drawTrail), not as a straight ray across the valley. Both tests failed
-// on the build before: every open moved the party, and the trail was straight lines between the places.
+// on the build before: every open moved the party, and the trail was straight lines between the places. The flat sheet
+// (the continuous world off, ui/worldmap.ts) draws its trail the same way.
 import { expect, test } from '@playwright/test';
 import { boot, SCENES, quiet } from './helpers';
 
@@ -77,4 +78,31 @@ test('the trail of a travel is drawn along the roads: the village to Vallaki by 
   expect(r.endsFt[0]).toBeLessThan(60); expect(r.endsFt[1]).toBeLessThan(60); // from the village's place to Vallaki's
   expect(r.drawnMi).toBeGreaterThan(r.straightMi * 1.3); // along the winding road, not as the crow flies
   expect(r.dash).not.toBe('none'); // still the dashed trail
+});
+
+test('the flat sheet (the continuous world off) draws the trail along the roads too', async ({ page }) => {
+  test.setTimeout(300_000);
+  await boot(page, '&nested=0', VILLAGE);
+  // the same travel, from the village to Vallaki
+  await page.evaluate(() => {
+    const m = (window as any).__mistlab, a = m.app, N = m.pins().find((p: any) => p.key === 'N'), from = a.state.world.pos;
+    a.moveWorld([...N.pos], 'N', Math.hypot(N.pos[0] - from[0], N.pos[1] - from[1]));
+  });
+  await page.click('[data-act="world"]');
+  await page.waitForSelector('.worldmap .wm-trail');
+  const r = await page.evaluate(() => {
+    const m = (window as any).__mistlab, W = (window as any).__mistlabNest.worldData, FT = 5280;
+    const d = document.querySelector('.worldmap .wm-trail')!.getAttribute('d') ?? '';
+    // the sheet is drawn in miles: the path's points are the trail's own
+    const pts = [...d.matchAll(/[ML](-?[\d.]+),(-?[\d.]+)/g)].map((x) => [Number(x[1]), Number(x[2])]);
+    const segDist = (p: number[], a: number[], b: number[]) => { const dx = b[0] - a[0], dz = b[1] - a[1], L2 = dx * dx + dz * dz || 1e-12, t = Math.max(0, Math.min(1, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dz) / L2)); return Math.hypot(p[0] - a[0] - dx * t, p[1] - a[1] - dz * t); };
+    const toRoad = (p: number[]) => Math.min(...W.roads.flatMap((rd: any) => rd.pts.slice(1).map((b: number[], i: number) => segDist(p, rd.pts[i], b)))) * FT;
+    const E = m.pins().find((p: any) => p.key === 'E').pos, N = m.pins().find((p: any) => p.key === 'N').pos, dist = (a: number[], b: number[]) => Math.hypot(a[0] - b[0], a[1] - b[1]);
+    let drawn = 0; for (let i = 1; i < pts.length; i++) drawn += dist(pts[i], pts[i - 1]);
+    return { n: pts.length, offRoadFt: pts.slice(1, -1).map(toRoad), ends: [dist(pts[0], E) * FT, dist(pts[pts.length - 1], N) * FT], drawnMi: drawn, straightMi: dist(E, N) };
+  });
+  expect(r.n).toBeGreaterThan(20); // the road's vertices between the two places, not one straight stroke
+  for (const ft of r.offRoadFt) expect(ft).toBeLessThan(60);
+  expect(r.ends[0]).toBeLessThan(1); expect(r.ends[1]).toBeLessThan(1); // from the village's place to Vallaki's
+  expect(r.drawnMi).toBeGreaterThan(r.straightMi * 1.3);
 });

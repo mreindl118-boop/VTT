@@ -4,6 +4,7 @@
 // built scene there) or into the wilderness; the card gives straight-line distance and travel time.
 import type { WorldData } from '../campaigns';
 import { inLakeShape, lakeRing } from '../render/worldlakes';
+import { graphOf, route } from '../render/worldroads';
 import { PACES, type Pace } from '../core/travel';
 import { ICON } from './icons';
 import { rich } from './rich';
@@ -383,7 +384,15 @@ export function openWorldMap(host: WorldHost): void {
     at = to; place(at); drawTrail(); refreshKnown();
     void showCard(near, to, miles);
   });
-  const drawTrail = () => { const t = host.get(); const pts = (t as { trail?: { pos: P }[] } | undefined)?.trail?.map((x) => x.pos) ?? []; trail.setAttribute('d', pts.length > 1 ? path(pts.slice(-12)) : ''); };
+  // the party's last moves (at most 11), each along the roads between its two ends, or straight where an end is off
+  // them: the way the valley's trail is drawn (render/worldroads.ts, render/worldstage.ts drawTrail)
+  const drawTrail = () => {
+    const t = host.get(), pts = ((t as { trail?: { pos: P }[] } | undefined)?.trail?.map((x) => x.pos) ?? []).slice(-12);
+    if (pts.length < 2) { trail.setAttribute('d', ''); return; }
+    const g = graphOf(W), way: P[] = [pts[0]];
+    for (let i = 1; i < pts.length; i++) way.push(...((route(g, pts[i - 1], pts[i]) ?? [pts[i - 1], pts[i]]) as P[]).slice(1));
+    trail.setAttribute('d', path(way));
+  };
   drawTrail();
   const focus = host.focus ? W.pins.find((p) => p.key === host.focus) : undefined;
   if (focus) { view.w = Math.max(1.5, vb.w * 0.45); view.h = (view.w / vb.w) * vb.h; view.x = focus.pos[0] - view.w / 2; view.y = focus.pos[1] - view.h / 2; apply(); }
