@@ -270,8 +270,7 @@
     23367.8,
     1978.599997
    ],
-   "groundY": 1106.840307,
-   "heightFt": 1026.159693,
+   "groundY": 2133,
    "scenes": [
     "ch02/J"
    ],
@@ -1529,8 +1528,7 @@
     "maxX": 23567.8,
     "maxZ": 2178.599997
    },
-   "bandFt": 1400,
-   "crag": true,
+   "bandFt": 900,
    "groundCuts": [
     {
      "bounds": {

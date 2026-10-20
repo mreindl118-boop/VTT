@@ -5,11 +5,10 @@ Only positions and names are recorded; no map art is copied. Yester Hill (Y) lie
 placed approximately west of the Wizard of Wines.
 
 A tied pin (TIES) is not read off the page: it stands where its map meets a neighbour's, worked out from the two scenes,
-and its ground is the neighbour's (on a neighbour's crag, the same rock: a crag height over the land surveyed under it).
-The Gates of Ravenloft (J) are tied to the castle (K). This script writes the base the cover pass (barovia-cover.py)
-refines; that pass moves every pin onto a disc on the page, so after it and the heightfield run `barovia-world.py
---ties`, which sets only the tied pins' position, ground or crag height, and text in the world file on disk, leaving
-everything else as it is. Idempotent."""
+and its ground is the neighbour's. The Gates of Ravenloft (J) are tied to the castle (K). This script writes the base
+the cover pass (barovia-cover.py) refines; that pass moves every pin onto a disc on the page, so after it and the
+heightfield run `barovia-world.py --ties`, which sets only the tied pins' position, ground and text in the world file
+on disk, leaving everything else as it is. Idempotent."""
 import json, math, os, sys
 from collections import OrderedDict
 
@@ -142,10 +141,7 @@ def tie(world, heights=None):
     """Stand each tied pin where its map meets its neighbour's: its point (J's sill) on the neighbour's (the drawbridge's
     free end), in plan and in height. A root map's point lies at pin + yaw(point - centre) in the world (frames.ts), so
     the tied pin is the neighbour's pin moved by the difference; the ground is the neighbour's, from `heights` (a world
-    with the heightfield) when this one has none yet. A neighbour on its crag (the castle on the Pillarstone) carries the
-    tied pin up onto the same rock: its height over the land surveyed under it is a crag's (heightFt, as the castle's),
-    so the valley's land is held level round it and then falls away as round the castle, with the crag's rock, and not
-    in a grass cliff a few hundred feet past its edge."""
+    with the heightfield) when this one has none yet."""
     pins = {p['key']: p for p in world['pins']}
     for key, (other, path, kind, opath, okind) in TIES.items():
         p, q = pins[key], pins[other]
@@ -154,12 +150,7 @@ def tie(world, heights=None):
         ax, az = rot(t0, x0 - c0[0], z0 - c0[1]); bx, bz = rot(t1, x1 - c1[0], z1 - c1[1])
         p['pos'] = [round(q['pos'][0] + (ax - bx) / 5280, 9), round(q['pos'][1] + (az - bz) / 5280, 9)]
         src = world if 'height' in world else heights
-        if src is not None:
-            g = ground_ft(src, q) - e0 + y0 + e1 - y1
-            p.pop('groundFt', None)
-            # (to a millionth of a foot, rounded down: the Gates never stand above the deck that comes down on them)
-            if q.get('heightFt'): p['heightFt'] = math.floor((g - ground_ft(src, {'pos': p['pos']})) * 1e6) / 1e6
-            else: p['groundFt'] = round(g, 3)
+        if src is not None: p['groundFt'] = round(ground_ft(src, q) - e0 + y0 + e1 - y1, 3)
         if key in BLURB: p['blurb'] = BLURB[key]
     return world
 
@@ -169,7 +160,7 @@ if '--ties' in sys.argv:
     tie(w)
     out_text = json.dumps(w, indent=1, ensure_ascii=False) + '\n'
     open(WORLD, 'w', encoding='utf-8', newline='\n').write(out_text)
-    print('tied pins:', ', '.join(f"{k} at {p['pos']}, {'crag ' + str(p['heightFt']) if 'heightFt' in p else 'ground ' + str(p.get('groundFt'))} ft" for k in TIES for p in w['pins'] if p['key'] == k), '' if out_text != text else '(unchanged)')
+    print('tied pins:', ', '.join(f"{k} at {p['pos']} on {p.get('groundFt')} ft" for k in TIES for p in w['pins'] if p['key'] == k), '' if out_text != text else '(unchanged)')
 else:
     on_disk = json.load(open(WORLD)) if os.path.exists(WORLD) else None
     for p in out['pins']:
