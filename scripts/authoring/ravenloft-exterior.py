@@ -12,6 +12,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 S = json.load(open(os.path.join(ROOT, 'locations/ch04/K/scene.json')))
 C = 5.0
 OPEN = {'cobble', 'grass', 'dirt'}
+OPEN_KEYS = {'K1-bridge'}           # the drawbridge: planks over the chasm, no roof
 
 def inside(x, z, poly):
     c = False; n = len(poly)
@@ -39,7 +40,7 @@ def cells_in(poly):
 for lv in levels:
     mine = {}
     for r in lv['rooms']:
-        if r['floor'] in OPEN: continue
+        if r['floor'] in OPEN or r['key'] in OPEN_KEYS: continue
         h = lv['elevationFt'] + (r.get('ceilingFt') or lv['ceilingFt'])
         for c in cells_in(r['polygon']): mine[c] = max(mine.get(c, 0), h)
     for w, f in zip(lv['walls'], footprints(lv['walls'])):
@@ -48,6 +49,13 @@ for lv in levels:
             h = max([mine.get(c, 0) for c in ((i, k), (i - 1, k), (i + 1, k), (i, k - 1), (i, k + 1))])
             if h and (i, k) not in mine: mine[(i, k)] = h
     for c, h in mine.items(): top[c] = max(top.get(c, 0), h)
+# the masonry over the gate tunnel (the castle's front: a piece of the scene, kit/sites/k.ts), up to the wall's walk
+for o in ground['objects']:
+    if o['kind'] != 'k-gate-arch': continue
+    d = o.get('dims') or {}; a = math.radians(o.get('rotY', 0)); w2, t2 = d.get('w', 20) / 2, d.get('t', 20) / 2
+    # the piece's local x (its span) and z (its depth) turned as the app turns it (three.js: y up, rotY in degrees)
+    pts = [(o['pos'][0] + lx * math.cos(a) + lz * math.sin(a), o['pos'][2] - lx * math.sin(a) + lz * math.cos(a)) for lx, lz in ((-w2, -t2), (w2, -t2), (w2, t2), (-w2, t2))]
+    for c in cells_in(pts): top[c] = max(top.get(c, 0), d.get('h', 90))
 # runs along x of equal height → boxes (x, z, w, d, h) in castle-centred feet
 blocks = []
 for k in range(Z0, Z1 + 1):
@@ -122,9 +130,13 @@ for b in merged:
                 if (hash((round(fx), round(fz), y, s)) % 3) == 0: continue  # not every window burns
                 win.append([round(fx + (0 if nx else off), 1), round(fz + (off if nx else 0), 1), y, 1 if nx else 0])
 
-# the approach: the drawbridge west from the gate across the fifty-foot chasm, the gate towers, the road beyond
-gate = (0 - cx, 170 - cz)
-approach = OrderedDict(gate=[round(gate[0], 1), round(gate[1], 1)], chasm=50, bridgeW=18, towers=[[round(gate[0] - 8, 1), round(gate[1] - 23, 1)], [round(gate[0] - 8, 1), round(gate[1] + 23, 1)]])
+# the approach: the drawbridge west from the gate across the fifty-foot chasm, the road beyond. The gate is the
+# gatehouse's mouth (the outer face of the masonry over the tunnel); the gate towers are the gatehouse's own walls and
+# massing above, so no round towers stand apart from it any more
+arch_ = next(o for o in ground['objects'] if o['kind'] == 'k-gate-arch')
+deck_ = next(o for o in ground['objects'] if o['kind'] == 'j-drawbridge')
+gate = (arch_['pos'][0] - arch_['dims']['t'] / 2 - cx, arch_['pos'][2] - cz)
+approach = OrderedDict(gate=[round(gate[0], 1), round(gate[1], 1)], chasm=50, bridgeW=deck_['dims']['w'], towers=[])
 out = OrderedDict(approach=approach, note='Derived from locations/ch04/K by scripts/authoring/ravenloft-exterior.py; castle-centred feet, x east, z south.',
                   centre=[round(cx, 1), round(cz, 1)], blocks=merged, walls=walls, towers=tw, windows=win[:400])
 json.dump(out, open(os.path.join(ROOT, 'locations/ch04/K/exterior.json'), 'w'), separators=(',', ':'))

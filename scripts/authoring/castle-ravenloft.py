@@ -71,34 +71,106 @@ g.room('K3', "Servants' Courtyard", [(50, 4), (62, 4), (62, 10), (72, 10), (72, 
 g.room('K3-s', "Servants' Courtyard (south)", [(48, 50), (60, 50), (60, 36), (72, 36), (72, 64), (48, 64)], 'cobble', page=pg('K3'))
 g.room('K4', 'Carriage House', rect(62, 4, 72, 10), 'flagstone', page=pg('K4'), ceilingFt=15)
 g.room('K5', 'Chapel Garden', rect(60, 30, 72, 36), 'grass', page=pg('K5'))
-# the postern and the gate passage are tunnels through the solid curtain wall, as wide as their openings (10 ft), so
-# the wall stands whole either side of them (walls with a body, below)
+# the postern is a tunnel through the solid curtain wall, as wide as its opening (10 ft), so the wall stands whole either
+# side of it (walls with a body, below); the gate is the gatehouse's (the castle's front, below)
 g.room('K5-p', 'Postern', rect(72, 32, 76, 34), 'flagstone', page=pg('K5'))
 g.room('K6', 'Overlook', [(76, 30), (84, 30), (86, 32), (86, 34), (84, 36), (76, 36)], 'flagstone', page=pg('K6'))
-g.room('K1-g', 'Gatehouse Passage', rect(0, 33, 4, 35), 'flagstone', page=pg('K1'))
 # gates in K2's walls and the passages
 g.door((50, 10), (50, 12), id='K2-north-gate', double=True)
 g.door((48, 56), (48, 58), id='K2-south-gate', double=True)
 g.door((62, 6), (62, 8), id='K4-doors', double=True)
 g.opening((72, 32), (72, 34)); g.opening((76, 32), (76, 34))
 g.opening((60, 30), (72, 30)); g.opening((60, 36), (72, 36))   # the garden lies open to both servants' courtyards
-g.opening((4, 33), (4, 35)); g.opening((0, 33), (0, 35))  # the gate stands open
-# curtain wall: the courtyard's outer faces are 90 ft high; the outer edge of the wall is 20 ft further out
-for a, b in [((4, 4), (72, 4)), ((72, 4), (72, 64)), ((72, 64), (4, 64)), ((4, 64), (4, 4))]:
+# curtain wall: the courtyard's outer faces are 90 ft high; the outer edge of the wall is 20 ft further out (the gate
+# towers stand in its west run, z 28..40: the gatehouse below)
+for a, b in [((4, 4), (72, 4)), ((72, 4), (72, 64)), ((72, 64), (4, 64)), ((4, 64), (4, 40)), ((4, 28), (4, 4))]:
     g._stamp(a, b, flags=['normal'], heightFt=WALL_H, material='ashlar', wall=True)
-for a, b in [((0, 0), (76, 0)), ((76, 0), (76, 68)), ((76, 68), (0, 68)), ((0, 68), (0, 0))]:
+for a, b in [((0, 0), (76, 0)), ((76, 0), (76, 68)), ((76, 68), (0, 68)), ((0, 68), (0, 40)), ((0, 28), (0, 0))]:
     g.wall(a, b, heightFt=WALL_H, material='ashlar')
-arch(g, (0, 33), (0, 35)); arch(g, (76, 32), (76, 34))   # the gate and the postern through the curtain's outer face
-# The approach from the Gates of Ravenloft (J): the road along the ridge, the fifty-foot chasm, the drawbridge of
-# old shored-up beams across it, the two gate towers either side of the entry tunnel (p.37-38)
-g.terrain.append(([(-62, 30), (-11, 30), (-11, 38), (-62, 38)], 'cobble'))                  # the road on the ridge
-g.terrain.append(([(-62, 22), (-11, 22), (-11, 46), (-62, 46)], 'grass'))                   # the ridge's crown either side
-g.room('K1-bridge', 'Drawbridge', [(-11, 32), (0, 32), (0, 36), (-11, 36)], 'plank', ceilingFt=None)
-g.prop('J-chasm', 'chasm', (-5.5, 34), 'K1-bridge', dims={'w': 50, 'len': 340, 'depth': 1000})
-g.prop('J-drawbridge', 'drawbridge', (-5.5, 34), 'K1-bridge', dims={'len': 56, 'w': 18})
-for s_ in (-1, 1): g.prop(f'J-tower{s_}', 'gate-tower', (-1.6, 34 + s_ * 4.6), None, dims={'r': 7, 'h': 100})
-g.prop('J-portcullis', 'portcullis', (0.3, 34), 'K1-g', rotY=90)
-g.note('J-bridge-note', (-6, 31), 'K1-bridge', 'The drawbridge: 5% chance a board breaks under any crosser but Strahd and his horses; DC 10 Dexterity save or fall 1,000 ft (advantage if a companion within 5 ft grabs you).')
+arch(g, (76, 32), (76, 34))   # the postern through the curtain's outer face
+
+# --- the castle's front (item 2g-1; owner 2026-10-19, of the Gates of Ravenloft map: "this looks cool but it's supposed
+# to be attached to and part of Ravenloft and the new improved 3D model"). The gate is the castle's own, one model with
+# the keep, the courtyard and the bridge; the Gates of Ravenloft (wild_j.py) are now the road's end on the far side of
+# the chasm. From the ridge the road crosses the fifty-foot chasm on the drawbridge of old shored-up beams, hung on two
+# chains that run up into slots sixty feet up the wall; the gate tunnel, twenty feet wide and vaulted, runs through the
+# west wall under its rotting portcullis. The gatehouse stands forward of the wall's outer face onto the chasm's lip,
+# ten feet, and either side of the tunnel a squared gate tower runs back through the wall to the courtyard, hollow to
+# its battlements ten feet over the walk, the latches for the bridge and the portcullis on its flagstone floor, an
+# ironbound door with a lock on the courtyard (map 2; p.52-53). The castle's rock runs out from the foot of the wall to
+# the gatehouse's face, where the chasm opens; stone gargoyles lean out from the wall top over it. The drawbridge, its chains and slots, the portcullis and the
+# gargoyles are the pieces the Gates of Ravenloft used to draw on their own (kit/sites/wild-j.ts; the castle's shell
+# pieces, kit/sites/k.ts). Positions in feet unless a helper says cells.
+GATE_H = 100                        # the gate towers' heads, ten feet over the curtain's walk
+GATE_Z = 170                        # the gate's axis (ft): the road, the bridge, the tunnel
+FRONT = -10                         # the gatehouse's face, ten feet forward of the curtain's outer face: the chasm's lip
+HINGE = FRONT - 0.8                 # the drawbridge's hinge, just off the gatehouse's face (ft)
+DECK_END = FRONT - 52               # its free end, resting on the ridge's lip across the fifty-foot chasm (ft)
+DECK_W = 20                         # as wide as the tunnel
+f5 = lambda x, z: (x / 5, z / 5)    # feet to cells, for the authoring helpers
+g.terrain.append(([(-62, 30), (-12, 30), (-12, 38), (-62, 38)], 'cobble'))                  # the road on the ridge
+g.terrain.append(([(-62, 22), (-12, 22), (-12, 46), (-62, 46)], 'grass'))                   # the ridge's crown either side
+g.terrain.append(([(-2, 0), (0, 0), (0, 68), (-2, 68)], 'dirt'))                            # the rock at the wall's foot
+g.room('K1-bridge', 'Drawbridge', [(-12, 32), (-2, 32), (-2, 36), (-12, 36)], 'plank', ceilingFt=None)
+g.room('K1-g', 'Gate Tunnel', rect(-2, 32, 4, 36), 'flagstone', page=pg('K1'), ceilingFt=18)
+g.room('K1-tn', 'North Gate Tower', rect(-2, 28, 4, 32), 'flagstone', page=pg('K1'), ceilingFt=GATE_H)
+g.room('K1-ts', 'South Gate Tower', rect(-2, 36, 4, 40), 'flagstone', page=pg('K1'), ceilingFt=GATE_H)
+# the bridge lies open over the chasm (no wall along its sides or its far end: off the deck there is no floor to stand
+# on); the tunnel opens on the drawbridge and on the courtyard
+g.opening((-12, 32), (-2, 32)); g.opening((-12, 36), (-2, 36)); g.opening((-12, 32), (-12, 36))
+g.opening((-2, 32), (-2, 36)); g.opening((4, 32), (4, 36))
+arch(g, (-2, 32), (-2, 36))
+g.door((4, 29), (4, 30), id='K1-tn-door', locked=True)                  # the gate towers' ironbound doors, locked
+g.door((4, 38), (4, 39), id='K1-ts-door', locked=True)
+g.prop('J-chasm', 'chasm', f5(FRONT - 25, GATE_Z), 'K1-bridge', dims={'w': 50, 'len': 340, 'depth': 1000})
+# the masonry over the tunnel, its vault and the portcullis's slot; the towers' battlemented heads
+g.prop('gate-arch', 'k-gate-arch', f5(5, GATE_Z), 'K1-g', rotY=90, dims={'w': 20, 't': 30, 'y0': 18, 'h': WALL_H, 'slot': 2})
+g.prop('gate-head-n', 'k-tower-head', f5(5, 150), 'K1-tn', dims={'w': 30, 'd': 20, 'y': GATE_H, 't': 5})
+g.prop('gate-head-s', 'k-tower-head', f5(5, 190), 'K1-ts', dims={'w': 30, 'd': 20, 'y': GATE_H, 't': 5})
+# the portcullis, drawn up in its slot, and the slime on it
+g.obj('portcullis', 'rotten-portcullis', f5(FRONT + 2, GATE_Z), 'player', 'K1-g', rotY=90, dims={'w': 20, 'h': 14}, y=13)
+g.objects[-1]['label'] = 'Rotting portcullis'
+g.objects[-1]['desc'] = 'A wooden portcullis, rotten and furred green, hangs drawn up in the tunnel mouth.'
+g.objects[-1]['dm'] = 'Raised. The patch of green slime on its underside does not fall on anyone entering; it drops on the first creature to leave the castle this way (DC 20 Wisdom (Perception) to spot).'
+g.obj('green-slime', 'green-slime', f5(FRONT + 2.4, GATE_Z + 4), 'hidden-object', 'K1-g', 'Green slime under the portcullis', y=13)
+g.objects[-1]['playerLabel'] = 'Green ooze'
+g.objects[-1]['dm'] = 'Green slime (DMG). DC 20 Wisdom (Perception) to spot. It ignores those coming in and drops on the first creature to leave by this tunnel.'
+# the drawbridge on its hinge at the tunnel's mouth, its free end on the ridge; the chains from the eyes at its free end
+# up to their slots in the wall's face, either side of the gate; the four worst boards
+g.prop('hinge-sill', 'j-hinge-sill', f5(FRONT, GATE_Z), 'K1-bridge')
+g.prop('drawbridge', 'j-drawbridge', f5(HINGE, GATE_Z), 'K1-bridge', dims={'len': round(HINGE - DECK_END, 2), 'w': DECK_W, 'up': 0, 'seed': 3})
+g.objects[-1]['label'] = 'The drawbridge'
+g.objects[-1]['desc'] = 'Fifty-odd feet of old beams and planks, patched and shored up, spanning the fog on two rusty chains; boards are missing here and there.'
+EYE_X = DECK_END + 1.3
+for side_, slot_z in ((-1, GATE_Z - 15), (1, GATE_Z + 15)):
+    ez = GATE_Z + side_ * (DECK_W / 2 - 0.4)
+    g.prop(f'chain{side_}', 'k-chain', f5(EYE_X, ez), 'K1-bridge', dims={'dx': round(FRONT - EYE_X - 0.4, 2), 'rise': 58.8, 'dz': round(slot_z - ez, 2), 'sag': 3, 'up': 0}, y=1.25)
+    g.objects[-1]['label'] = 'Drawbridge chain'
+    g.objects[-1]['desc'] = 'A rust-eaten chain runs from the bridge\'s end up to a slot sixty feet up the wall, creaking in the wind.'
+    g.prop(f'chain-slot{side_}', 'k-chain-slot', f5(FRONT, slot_z), 'K1-bridge', dims={'seed': slot_z}, y=60.05)
+    g.obj(f'slot-iron{side_}', 'j-slot-iron', f5(FRONT - 0.4, slot_z), 'hidden-object', 'K1-bridge', 'Greased iron in the chain slot', y=59.4)
+    g.objects[-1]['playerLabel'] = 'Bright iron in the slot'
+    g.objects[-1]['dm'] = 'DC 15 Wisdom (Perception) from the bridge\'s far end: the iron inside the slot is bright and greased while all round it rusts. Someone keeps the mechanism, and not by hand.'
+for i, hx in enumerate((45.2, 31.2, 18.2, 8.2)):
+    g.obj(f'weak-board{i}', 'j-weak-board', f5(HINGE - hx, GATE_Z), 'hidden-object', 'K1-bridge', 'Rotten board', dims={'hx': hx, 'up': 0})
+    g.objects[-1]['playerLabel'] = 'A rotten board'
+    g.objects[-1]['dm'] = 'House rule: DC 12 Perception or Investigation along the deck picks out the four worst boards. Stepping over them still rolls for a break, but the DM may grant advantage on the Dexterity save.'
+g.obj('bats', 'j-bat-swarm', f5(FRONT - 26, GATE_Z + 19), 'hidden-creature', 'K1-bridge', 'Swarm of bats (optional)', size='medium', y=0.5)
+g.objects[-1]['playerLabel'] = 'Bats'
+g.objects[-1]['dm'] = 'Optional, not in the book here: at dusk or when a board breaks a column of bats boils up out of the fog past whoever is mid-bridge. A distraction, not a fight.'
+# the latches, one in each gate tower
+for k_, z_ in (('K1-tn', 150), ('K1-ts', 190)):
+    g.obj(f'latch-{k_}', 'j-latch', f5(5, z_), 'hidden-object', k_, 'Latch mechanism (bridge and portcullis)', rotY=90)
+    g.objects[-1]['playerLabel'] = 'A winch and ratchet'
+    g.objects[-1]['dm'] = 'Both latches must be released (Strahd\'s command word, or dispel magic DC 14 on each) before the bridge or the portcullis moves.'
+# the gargoyles on the wall top, leaning out over the chasm
+for i, z_ in enumerate((35, 95, 125, 215, 245, 305)):
+    g.prop(f'gargoyle{i}', 'k-wall-gargoyle', f5(1.5, z_), 'K1', rotY=180, y=90.6)
+    g.objects[-1]['label'] = 'Stone gargoyle'
+    g.objects[-1]['desc'] = 'A hollow-eyed stone gargoyle leans out from the wall top over the chasm, grinning down at the bridge.'
+for z_ in (GATE_Z - 9, GATE_Z + 9): g.light(f'tunnel{z_}', f5(15, z_), 'torch', 10, 25, y=8)
+g.note('J-bridge-note', f5(FRONT - 20, 155), 'K1-bridge', 'The drawbridge: 5% chance a board breaks under any crosser but Strahd and his horses; DC 10 Dexterity save or fall 1,000 ft (advantage if a companion within 5 ft grabs you).')
+g.note('bridge-raised', f5(FRONT - 30, GATE_Z + 16), 'K1-bridge', 'Raised bridge (after K10): set "up" to 1 on the drawbridge, on both chains and on the four rotten boards (nothing needs moving); the deck then stands against the gate, the chains run short and taut to their slots, and the road ends at the far lip.')
 g.terrain.append(([(0, 0), (76, 0), (76, 68), (0, 68)], 'flagstone'))        # wall tops / foundations under everything
 # the party arrives over the drawbridge and through the gate passage: it starts just inside the gate, in the front
 # courtyard, with the keep's open doors ahead
@@ -626,6 +698,14 @@ for lv in [g] + [x for x in levels if x is not g]:
 # ------------------------------------------------------------------ descriptions (own wording)
 DESC = {
   'K1': ("A wide courtyard of broken flagstones before the keep, its walls rising ninety feet on every side. The doors of the keep stand open under torches.", "Lightning and rain; the gate behind the party swings shut on its own if Strahd wills it."),
+  'K1-bridge': ("Old beams and planks shored up and patched, twenty feet wide, laid across fifty feet of boiling fog on two rust-eaten chains; boards are missing here and there and the deck groans under every step.",
+                "Each creature crossing (not Strahd, not his carriage horses): a 5% chance a board breaks under it (roll a d20, a 1 breaks); DC 10 Dexterity save or fall 1,000 ft, with advantage if a companion within 5 ft reaches out to grab. Raised after the illusion at K10, with the portcullis dropped."),
+  'K1-g': ("A vaulted tunnel twenty feet wide through the west wall. Over its outer mouth an old wooden portcullis, rotten and furred green, hangs drawn up in its slot; torches gutter along the walls, and at its far end the courtyard opens between the two gate towers.",
+           "Green slime clings under the portcullis (DC 20 Wisdom (Perception)); it lets the party in and drops on the first creature to leave the castle this way. Neither the portcullis nor the drawbridge moves until both gate-tower latches are released."),
+  'K1-tn': ("A squared tower beside the gate, hollow to its battlements far overhead; a winch drum and its ratchet stand on the flagstones. Its ironbound door to the courtyard is shut and locked.",
+            "One of the two latches for the drawbridge and the portcullis: both must be released, by Strahd's command word or dispel magic (DC 14) on each, before either moves."),
+  'K1-ts': ("The second gate tower, the first one's twin: hollow to its battlements, a winch and ratchet on its floor, its ironbound door shut and locked.",
+            "The other latch. Both latches together, or neither moves."),
   'K2': ("A gate in a wall that runs from the keep to the curtain wall.", "North and south gates: unlocked, heavy."),
   'K3': ("A narrow courtyard between the keep and the eastern wall; a carriage house stands in the corner.", "The door into the keep (K23) is swollen shut: DC 10 Strength."),
   'K3-s': ("The courtyard continues round the south-east of the keep.", None),
@@ -785,6 +865,16 @@ TOWER_KEYS = {'K12-n', 'K12-s', 'K18', 'K20', 'K21', 'K83', 'K57', 'K59', 'K60',
 OUTBUILDING = {'K4'}
 CURTAIN_OUT = (0, 0, 380, 340)      # the curtain's outer face (ft); its inner face is the courtyard's edge, 20 ft in
 CLEAR = 5                           # one clear cell: no corridor or stair is left narrower
+# the gatehouse (the castle's front, above): the two gate towers and the tunnel between them stand in the curtain's band
+# and forward of it, so the band's rule (the curtain's 20-ft body is every wall's there) does not hold for them: each of
+# the towers' walls is 5 ft, all of it taken from its tower, so the gatehouse's face and the courtyard's stay flat on
+# their lines and the tunnel keeps its twenty feet; they rise to the towers' heads
+GATEHOUSE = (-10, 140, 20, 200)     # ft
+GATE_TOWERS = {'K1-tn', 'K1-ts'}
+T_GATE = 5
+def in_gatehouse(w):
+    x0, z0, x1, z1 = GATEHOUSE
+    return all(x0 - 0.01 <= p[0] <= x1 + 0.01 and z0 - 0.01 <= p[1] <= z1 + 0.01 for p in (w['a'], w['b']))
 
 def _stairs(lvj):
     """Where the level's stairs stand in plan: straight flights as rectangles, spirals as discs (shapely)."""
@@ -859,6 +949,9 @@ def _plan_walls(lvj, keys):
         tower = next((side[s][0] for s in (1, -1) if side[s] and side[s][0] in TOWER_KEYS and len(side[s][1]['polygon']) >= 8 and on_edge(w, side[s][0])), None)
         towards = lambda want: next(s for s in (1, -1) if kind[s] == want)
         ks = sorted(kind.values())
+        if lvj['id'] == 'ground' and in_gatehouse(w):
+            s_t = next((s for s in (1, -1) if side[s] and side[s][0] in GATE_TOWERS), None)
+            if s_t is not None: plan[w['id']] = (T_GATE, s_t); continue
         if lvj['id'] == 'ground' and on_curtain(w):
             plan[w['id']] = (T_CURTAIN, towards('void') if 'void' in ks else 0); continue
         if tower:
@@ -978,6 +1071,7 @@ def thicken(lvj, keys):
     if lvj['id'] == 'ground':   # the whole courtyard face of the curtain is 90 ft (authorlib's cell keys miss a few)
         for w in lvj['walls']:
             if on_curtain(w) and not set(w['flags']) & TW.UNCUT: w['heightFt'] = WALL_H
+            if in_gatehouse(w) and TW.drawn(w): w['heightFt'] = GATE_H     # the gate towers, hollow to their heads
     # a stretch two walls share keeps the one that matters: a door's, the curtain's, a tower's side, then a room's edge
     towers_ = [_Poly(r['polygon']) for i, r in enumerate(lvj['rooms']) if keys[i] in TOWER_KEYS and len(r['polygon']) >= 8]   # the octagons
     ring_ = lambda w: any(_Ln(list(T.exterior.coords)).buffer(0.3).contains(_Ln([tuple(w['a']), tuple(w['b'])])) for T in towers_)
@@ -990,7 +1084,7 @@ def thicken(lvj, keys):
         x0, z0, x1, z1 = CURTAIN_OUT
         X0, Z0, X1, Z1 = CURTAIN_IN
         in_band = lambda p: x0 - 0.01 <= p[0] <= x1 + 0.01 and z0 - 0.01 <= p[1] <= z1 + 0.01 and not (X0 + 0.01 < p[0] < X1 - 0.01 and Z0 + 0.01 < p[1] < Z1 - 0.01)
-        band = lambda w: not on_curtain(w) and not set(w['flags']) & TW.UNCUT and in_band(w['a']) and in_band(w['b']) and in_band(((w['a'][0] + w['b'][0]) / 2, (w['a'][1] + w['b'][1]) / 2))
+        band = lambda w: not on_curtain(w) and not in_gatehouse(w) and not set(w['flags']) & TW.UNCUT and in_band(w['a']) and in_band(w['b']) and in_band(((w['a'][0] + w['b'][0]) / 2, (w['a'][1] + w['b'][1]) / 2))
         lvj['walls'] = [w for w in lvj['walls'] if not band(w)]
     lvj['walls'], stubs = TW.absorb_stubs(lvj['walls'])
     pts = [tuple(q) for r in lvj['rooms'] for q in r['polygon']] + [tuple(w[e]) for w in lvj['walls'] for e in ('a', 'b')]
@@ -1093,6 +1187,9 @@ def fit_stairs(lvj):
     return notes
 
 ON_THE_FACE = {'bricked-window': 0.15, 'niche': 0.3}   # wall-mounted: set on the face; anything else stands clear of it
+# the castle's front: pieces set on the wall top or in its face on purpose (the gargoyles on the walk's edge, the chains'
+# slots and their iron, the masonry over the gate), which stay where they stand
+IN_THE_WALL = {'k-wall-gargoyle', 'k-chain-slot', 'j-slot-iron', 'k-gate-arch', 'k-tower-head'}
 
 def props_out_of_walls(lvj):
     """A prop the plan set against a wall's line (statues along a hall, a suit of armour in its alcove, a bricked
@@ -1104,7 +1201,7 @@ def props_out_of_walls(lvj):
     floor = [(_Poly(r['polygon']).buffer(0), r['key']) for r in lvj['rooms']]
     notes = []
     for o in lvj['objects']:
-        if o['vis'] == 'secret-door' or o['kind'] in ('note', 'spawn'): continue
+        if o['vis'] == 'secret-door' or o['kind'] in ('note', 'spawn') or o['kind'] in IN_THE_WALL: continue
         p = _Pt(o['pos'][0], o['pos'][2])
         body = next((b for b in solid if b.buffer(-0.05).contains(p)), None)
         if body is None: continue

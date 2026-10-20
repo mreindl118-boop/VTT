@@ -9875,52 +9875,127 @@
      "dm": "The village lies a thousand feet below. Perception 15: a stone box with three dirty windows juts from the cliff a hundred feet down (K63, the wine cellar)."
     },
     {
-     "key": "K1-g",
-     "name": "Gatehouse Passage",
-     "page": 52,
-     "polygon": [
-      [
-       0.0,
-       175.0
-      ],
-      [
-       20.0,
-       175.0
-      ],
-      [
-       20.0,
-       165.0
-      ],
-      [
-       0.0,
-       165.0
-      ]
-     ],
-     "floor": "flagstone"
-    },
-    {
      "key": "K1-bridge",
      "name": "Drawbridge",
      "page": null,
      "polygon": [
       [
-       -55.0,
+       -60.0,
        180.0
       ],
       [
-       0.0,
+       -10.0,
        180.0
       ],
       [
-       0.0,
+       -10.0,
        160.0
       ],
       [
-       -55.0,
+       -60.0,
        160.0
       ]
      ],
-     "floor": "plank"
+     "floor": "plank",
+     "desc": "Old beams and planks shored up and patched, twenty feet wide, laid across fifty feet of boiling fog on two rust-eaten chains; boards are missing here and there and the deck groans under every step.",
+     "dm": "Each creature crossing (not Strahd, not his carriage horses): a 5% chance a board breaks under it (roll a d20, a 1 breaks); DC 10 Dexterity save or fall 1,000 ft, with advantage if a companion within 5 ft reaches out to grab. Raised after the illusion at K10, with the portcullis dropped."
+    },
+    {
+     "key": "K1-g",
+     "name": "Gate Tunnel",
+     "page": 52,
+     "polygon": [
+      [
+       -10.0,
+       180.0
+      ],
+      [
+       20.0,
+       180.0
+      ],
+      [
+       20.0,
+       160.0
+      ],
+      [
+       -10.0,
+       160.0
+      ]
+     ],
+     "floor": "flagstone",
+     "ceilingFt": 18,
+     "desc": "A vaulted tunnel twenty feet wide through the west wall. Over its outer mouth an old wooden portcullis, rotten and furred green, hangs drawn up in its slot; torches gutter along the walls, and at its far end the courtyard opens between the two gate towers.",
+     "dm": "Green slime clings under the portcullis (DC 20 Wisdom (Perception)); it lets the party in and drops on the first creature to leave the castle this way. Neither the portcullis nor the drawbridge moves until both gate-tower latches are released."
+    },
+    {
+     "key": "K1-tn",
+     "name": "North Gate Tower",
+     "page": 52,
+     "polygon": [
+      [
+       20.0,
+       145.0
+      ],
+      [
+       -5.0,
+       145.0
+      ],
+      [
+       -5.0,
+       155.0
+      ],
+      [
+       15.0,
+       155.0
+      ],
+      [
+       15.0,
+       150.0
+      ],
+      [
+       20.0,
+       150.0
+      ]
+     ],
+     "floor": "flagstone",
+     "ceilingFt": 100,
+     "desc": "A squared tower beside the gate, hollow to its battlements far overhead; a winch drum and its ratchet stand on the flagstones. Its ironbound door to the courtyard is shut and locked.",
+     "dm": "One of the two latches for the drawbridge and the portcullis: both must be released, by Strahd's command word or dispel magic (DC 14) on each, before either moves."
+    },
+    {
+     "key": "K1-ts",
+     "name": "South Gate Tower",
+     "page": 52,
+     "polygon": [
+      [
+       20.0,
+       190.0
+      ],
+      [
+       15.0,
+       190.0
+      ],
+      [
+       15.0,
+       185.0
+      ],
+      [
+       -5.0,
+       185.0
+      ],
+      [
+       -5.0,
+       195.0
+      ],
+      [
+       20.0,
+       195.0
+      ]
+     ],
+     "floor": "flagstone",
+     "ceilingFt": 100,
+     "desc": "The second gate tower, the first one's twin: hollow to its battlements, a winch and ratchet on its floor, its ironbound door shut and locked.",
+     "dm": "The other latch. Both latches together, or neither moves."
     },
     {
      "key": "K12-n",
@@ -10212,35 +10287,35 @@
      "page": 85,
      "polygon": [
       [
-       127.0,
-       158.314
+       138.314,
+       147.0
       ],
       [
        131.686,
-       163.0
+       147.0
       ],
       [
-       138.314,
-       163.0
-      ],
-      [
-       143.0,
-       158.314
-      ],
-      [
-       143.0,
+       127.0,
        151.686
       ],
       [
-       138.314,
-       147.0
+       127.0,
+       158.314
       ],
       [
        131.686,
-       147.0
+       163.0
       ],
       [
-       127.0,
+       138.314,
+       163.0
+      ],
+      [
+       143.0,
+       158.314
+      ],
+      [
+       143.0,
        151.686
       ]
      ],
@@ -11219,18 +11294,6 @@
      "page": 59,
      "polygon": [
       [
-       164.5,
-       151.42
-      ],
-      [
-       173.58,
-       160.5
-      ],
-      [
-       186.42,
-       160.5
-      ],
-      [
        195.5,
        151.42
       ],
@@ -11249,6 +11312,18 @@
       [
        164.5,
        138.58
+      ],
+      [
+       164.5,
+       151.42
+      ],
+      [
+       173.58,
+       160.5
+      ],
+      [
+       186.42,
+       160.5
       ]
      ],
      "floor": "flagstone",
@@ -11816,7 +11891,83 @@
      "thicknessFt": 3
     },
     {
-     "id": "ground-w-215",
+     "id": "ground-w-169",
+     "a": [
+      20.0,
+      195.0
+     ],
+     "b": [
+      20.0,
+      200.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 100,
+     "thicknessFt": 5,
+     "offsetFt": 2.5
+    },
+    {
+     "id": "K1-ts-door",
+     "a": [
+      20.0,
+      190.0
+     ],
+     "b": [
+      20.0,
+      195.0
+     ],
+     "flags": [
+      "door",
+      "locked"
+     ],
+     "material": "ashlar",
+     "open": false,
+     "heightFt": 100,
+     "thicknessFt": 5,
+     "offsetFt": 2.5
+    },
+    {
+     "id": "K1-tn-door",
+     "a": [
+      20.0,
+      145.0
+     ],
+     "b": [
+      20.0,
+      150.0
+     ],
+     "flags": [
+      "door",
+      "locked"
+     ],
+     "material": "ashlar",
+     "open": false,
+     "heightFt": 100,
+     "thicknessFt": 5,
+     "offsetFt": 2.5
+    },
+    {
+     "id": "ground-w-176",
+     "a": [
+      20.0,
+      140.0
+     ],
+     "b": [
+      20.0,
+      145.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 100,
+     "thicknessFt": 5,
+     "offsetFt": 2.5
+    },
+    {
+     "id": "ground-w-213",
      "a": [
       310.0,
       20.0
@@ -11851,7 +12002,7 @@
      "offsetFt": -1.5
     },
     {
-     "id": "ground-w-217",
+     "id": "ground-w-215",
      "a": [
       310.0,
       40.0
@@ -11868,7 +12019,7 @@
      "offsetFt": -1.5
     },
     {
-     "id": "ground-w-218",
+     "id": "ground-w-216",
      "a": [
       310.0,
       50.0
@@ -11885,7 +12036,7 @@
      "offsetFt": -1.5
     },
     {
-     "id": "ground-w-239-s3",
+     "id": "ground-w-237-s3",
      "a": [
       300.0,
       230.0
@@ -11902,7 +12053,7 @@
      "offsetFt": 2.5
     },
     {
-     "id": "ground-w-241",
+     "id": "ground-w-239",
      "a": [
       290,
       130
@@ -11919,7 +12070,7 @@
      "offsetFt": 2.5
     },
     {
-     "id": "ground-w-248",
+     "id": "ground-w-246",
      "a": [
       250,
       140
@@ -11954,7 +12105,7 @@
      "offsetFt": -2.5
     },
     {
-     "id": "ground-w-257",
+     "id": "ground-w-255",
      "a": [
       240.0,
       100.0
@@ -11971,7 +12122,7 @@
      "offsetFt": -2.5
     },
     {
-     "id": "ground-w-337",
+     "id": "ground-w-335",
      "a": [
       380.0,
       150.0
@@ -11988,7 +12139,7 @@
      "offsetFt": -1.5
     },
     {
-     "id": "ground-w-338",
+     "id": "ground-w-336",
      "a": [
       420,
       150
@@ -12005,7 +12156,7 @@
      "offsetFt": -1.5
     },
     {
-     "id": "ground-w-339",
+     "id": "ground-w-337",
      "a": [
       430.0,
       160.0
@@ -12022,7 +12173,7 @@
      "offsetFt": -1.5
     },
     {
-     "id": "ground-w-340",
+     "id": "ground-w-338",
      "a": [
       420,
       180
@@ -12039,24 +12190,43 @@
      "offsetFt": 1.5
     },
     {
-     "id": "ground-w-358",
+     "id": "ground-w-351",
      "a": [
-      -55.0,
+      -10.0,
       160.0
      ],
      "b": [
-      0.0,
+      20.0,
       160.0
      ],
      "flags": [
       "normal"
      ],
      "material": "ashlar",
-     "thicknessFt": 3,
-     "offsetFt": -1.5
+     "heightFt": 100,
+     "thicknessFt": 5,
+     "offsetFt": -2.5
     },
     {
-     "id": "ground-w-376",
+     "id": "ground-w-358",
+     "a": [
+      -10.0,
+      140.0
+     ],
+     "b": [
+      20.0,
+      140.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 100,
+     "thicknessFt": 5,
+     "offsetFt": 2.5
+    },
+    {
+     "id": "ground-w-373",
      "a": [
       88.787,
       105.0
@@ -12072,7 +12242,7 @@
      "thicknessFt": 4
     },
     {
-     "id": "ground-w-377",
+     "id": "ground-w-374",
      "a": [
       101.213,
       105.0
@@ -12088,7 +12258,7 @@
      "thicknessFt": 4
     },
     {
-     "id": "ground-w-378-b",
+     "id": "ground-w-375-b",
      "a": [
       110.0,
       125.0
@@ -12104,7 +12274,7 @@
      "thicknessFt": 4
     },
     {
-     "id": "ground-w-379",
+     "id": "ground-w-376",
      "a": [
       101.213,
       135.0
@@ -12120,7 +12290,7 @@
      "thicknessFt": 4
     },
     {
-     "id": "ground-w-382",
+     "id": "ground-w-379",
      "a": [
       80.0,
       126.213
@@ -12136,7 +12306,7 @@
      "thicknessFt": 4
     },
     {
-     "id": "ground-w-385",
+     "id": "ground-w-382",
      "a": [
       80.0,
       113.787
@@ -12152,7 +12322,7 @@
      "thicknessFt": 4
     },
     {
-     "id": "ground-w-386-b",
+     "id": "ground-w-383-b",
      "a": [
       101.2,
       220.0
@@ -12169,7 +12339,7 @@
      "offsetFt": 0.5
     },
     {
-     "id": "ground-w-386-b-s1",
+     "id": "ground-w-383-b-s1",
      "a": [
       110.0,
       220.0
@@ -12186,7 +12356,7 @@
      "offsetFt": 2.5
     },
     {
-     "id": "ground-w-387",
+     "id": "ground-w-384",
      "a": [
       101.213,
       220.0
@@ -12202,7 +12372,7 @@
      "thicknessFt": 4
     },
     {
-     "id": "ground-w-389",
+     "id": "ground-w-386",
      "a": [
       101.213,
       250.0
@@ -12218,7 +12388,7 @@
      "thicknessFt": 4
     },
     {
-     "id": "ground-w-392",
+     "id": "ground-w-389",
      "a": [
       80.0,
       241.21300000000002
@@ -12234,7 +12404,7 @@
      "thicknessFt": 4
     },
     {
-     "id": "ground-w-395",
+     "id": "ground-w-392",
      "a": [
       80.0,
       228.78699999999998
@@ -12250,7 +12420,7 @@
      "thicknessFt": 4
     },
     {
-     "id": "ground-w-396",
+     "id": "ground-w-393",
      "a": [
       110.0,
       115.0
@@ -12285,7 +12455,7 @@
      "offsetFt": 2.5
     },
     {
-     "id": "ground-w-403",
+     "id": "ground-w-400",
      "a": [
       110.0,
       126.213
@@ -12302,7 +12472,7 @@
      "offsetFt": 2.5
     },
     {
-     "id": "ground-w-405",
+     "id": "ground-w-402",
      "a": [
       110.0,
       230.0
@@ -12319,7 +12489,7 @@
      "offsetFt": -2.5
     },
     {
-     "id": "ground-w-405-s1",
+     "id": "ground-w-402-s1",
      "a": [
       155.0,
       230.0
@@ -12336,7 +12506,7 @@
      "offsetFt": -1.25
     },
     {
-     "id": "ground-w-406",
+     "id": "ground-w-403",
      "a": [
       155.0,
       230.0
@@ -12352,7 +12522,7 @@
      "thicknessFt": 2
     },
     {
-     "id": "ground-w-418",
+     "id": "ground-w-415",
      "a": [
       120.0,
       125.0
@@ -12385,7 +12555,7 @@
      "thicknessFt": 2
     },
     {
-     "id": "ground-w-420",
+     "id": "ground-w-417",
      "a": [
       110.0,
       210.0
@@ -12401,7 +12571,7 @@
      "thicknessFt": 2
     },
     {
-     "id": "ground-w-421",
+     "id": "ground-w-418",
      "a": [
       130.858,
       145.0
@@ -12417,7 +12587,7 @@
      "thicknessFt": 4
     },
     {
-     "id": "ground-w-422",
+     "id": "ground-w-419",
      "a": [
       139.142,
       145.0
@@ -12433,10 +12603,26 @@
      "thicknessFt": 4
     },
     {
-     "id": "ground-w-423",
+     "id": "ground-w-420",
      "a": [
       145.0,
       150.858
+     ],
+     "b": [
+      145.0,
+      159.142
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "thicknessFt": 4
+    },
+    {
+     "id": "ground-w-421",
+     "a": [
+      139.142,
+      165.0
      ],
      "b": [
       145.0,
@@ -12451,12 +12637,12 @@
     {
      "id": "ground-w-424",
      "a": [
-      139.142,
-      165.0
+      125.0,
+      159.142
      ],
      "b": [
-      145.0,
-      159.142
+      130.858,
+      165.0
      ],
      "flags": [
       "normal"
@@ -12468,22 +12654,6 @@
      "id": "ground-w-427",
      "a": [
       125.0,
-      159.142
-     ],
-     "b": [
-      130.858,
-      165.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar",
-     "thicknessFt": 4
-    },
-    {
-     "id": "ground-w-430",
-     "a": [
-      125.0,
       150.858
      ],
      "b": [
@@ -12497,7 +12667,7 @@
      "thicknessFt": 4
     },
     {
-     "id": "ground-w-431",
+     "id": "ground-w-428",
      "a": [
       145.0,
       95.0
@@ -12514,7 +12684,7 @@
      "offsetFt": -1.25
     },
     {
-     "id": "ground-w-432",
+     "id": "ground-w-429",
      "a": [
       160.0,
       95.0
@@ -12529,28 +12699,28 @@
      "material": "ashlar",
      "thicknessFt": 2.5,
      "offsetFt": -1.25
+    },
+    {
+     "id": "ground-w-430",
+     "a": [
+      145.0,
+      159.142
+     ],
+     "b": [
+      145.0,
+      165.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "thicknessFt": 1,
+     "offsetFt": 0.5
     },
     {
      "id": "ground-w-433",
      "a": [
       145.0,
-      159.142
-     ],
-     "b": [
-      145.0,
-      165.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar",
-     "thicknessFt": 1,
-     "offsetFt": 0.5
-    },
-    {
-     "id": "ground-w-436",
-     "a": [
-      145.0,
       145.0
      ],
      "b": [
@@ -12565,7 +12735,7 @@
      "offsetFt": 0.5
     },
     {
-     "id": "ground-w-445",
+     "id": "ground-w-442",
      "a": [
       120.0,
       170.0
@@ -12582,7 +12752,7 @@
      "offsetFt": -2.5
     },
     {
-     "id": "ground-w-446",
+     "id": "ground-w-443",
      "a": [
       140.0,
       170.0
@@ -12615,7 +12785,7 @@
      "thicknessFt": 2
     },
     {
-     "id": "ground-w-448",
+     "id": "ground-w-445",
      "a": [
       140.0,
       185.0
@@ -12631,7 +12801,7 @@
      "thicknessFt": 2
     },
     {
-     "id": "ground-w-448-s1",
+     "id": "ground-w-445-s1",
      "a": [
       140.0,
       190.0
@@ -12648,7 +12818,7 @@
      "offsetFt": 2.5
     },
     {
-     "id": "ground-w-448-s2",
+     "id": "ground-w-445-s2",
      "a": [
       140.0,
       195.0
@@ -12664,7 +12834,7 @@
      "thicknessFt": 2
     },
     {
-     "id": "ground-w-453",
+     "id": "ground-w-450",
      "a": [
       139.142,
       165.0
@@ -12681,7 +12851,7 @@
      "offsetFt": -0.5
     },
     {
-     "id": "ground-w-454",
+     "id": "ground-w-451",
      "a": [
       160.0,
       165.0
@@ -12698,7 +12868,7 @@
      "offsetFt": -1.25
     },
     {
-     "id": "ground-w-455-s1",
+     "id": "ground-w-452-s1",
      "a": [
       180.0,
       170.0
@@ -12731,7 +12901,7 @@
      "thicknessFt": 2
     },
     {
-     "id": "ground-w-457",
+     "id": "ground-w-454",
      "a": [
       180.0,
       185.0
@@ -12747,7 +12917,7 @@
      "thicknessFt": 2
     },
     {
-     "id": "ground-w-457-s1",
+     "id": "ground-w-454-s1",
      "a": [
       180.0,
       190.0
@@ -12764,7 +12934,7 @@
      "offsetFt": -2.5
     },
     {
-     "id": "ground-w-460",
+     "id": "ground-w-457",
      "a": [
       165.0,
       195.0
@@ -12797,7 +12967,7 @@
      "thicknessFt": 2
     },
     {
-     "id": "ground-w-462",
+     "id": "ground-w-459",
      "a": [
       140.0,
       165.0
@@ -12814,7 +12984,7 @@
      "offsetFt": 2.5
     },
     {
-     "id": "ground-w-463",
+     "id": "ground-w-460",
      "a": [
       250.0,
       185.0
@@ -12830,7 +13000,7 @@
      "thicknessFt": 2
     },
     {
-     "id": "ground-w-463-s1",
+     "id": "ground-w-460-s1",
      "a": [
       250.0,
       190.0
@@ -12863,7 +13033,7 @@
      "thicknessFt": 2
     },
     {
-     "id": "ground-w-465",
+     "id": "ground-w-462",
      "a": [
       250.0,
       170.0
@@ -12879,7 +13049,7 @@
      "thicknessFt": 2
     },
     {
-     "id": "ground-w-466",
+     "id": "ground-w-463",
      "a": [
       245.0,
       170.0
@@ -12895,7 +13065,7 @@
      "thicknessFt": 2
     },
     {
-     "id": "ground-w-478",
+     "id": "ground-w-475",
      "a": [
       180.0,
       170.0
@@ -12912,7 +13082,7 @@
      "offsetFt": -2.75
     },
     {
-     "id": "ground-w-479",
+     "id": "ground-w-476",
      "a": [
       180.0,
       190.0
@@ -12929,7 +13099,7 @@
      "offsetFt": 2.5
     },
     {
-     "id": "ground-w-480",
+     "id": "ground-w-477",
      "a": [
       203.78699999999998,
       190.0
@@ -12945,7 +13115,7 @@
      "thicknessFt": 4
     },
     {
-     "id": "ground-w-481",
+     "id": "ground-w-478",
      "a": [
       208.78699999999998,
       185.0
@@ -12961,7 +13131,7 @@
      "thicknessFt": 4
     },
     {
-     "id": "ground-w-482",
+     "id": "ground-w-479",
      "a": [
       221.21300000000002,
       185.0
@@ -12977,7 +13147,7 @@
      "thicknessFt": 4
     },
     {
-     "id": "ground-w-483",
+     "id": "ground-w-480",
      "a": [
       226.213,
       190.0
@@ -12994,7 +13164,7 @@
      "offsetFt": 0.5
     },
     {
-     "id": "ground-w-483-s1",
+     "id": "ground-w-480-s1",
      "a": [
       230.0,
       190.0
@@ -13010,7 +13180,7 @@
      "thicknessFt": 2
     },
     {
-     "id": "ground-w-484",
+     "id": "ground-w-481",
      "a": [
       235.0,
       150.0
@@ -13027,7 +13197,7 @@
      "offsetFt": -2.5
     },
     {
-     "id": "ground-w-485",
+     "id": "ground-w-482",
      "a": [
       250.0,
       150.0
@@ -13043,7 +13213,7 @@
      "thicknessFt": 2
     },
     {
-     "id": "ground-w-486",
+     "id": "ground-w-483",
      "a": [
       250.0,
       165.0
@@ -13059,7 +13229,7 @@
      "thicknessFt": 2
     },
     {
-     "id": "ground-w-487",
+     "id": "ground-w-484",
      "a": [
       235.0,
       150.0
@@ -13076,7 +13246,7 @@
      "offsetFt": 2.5
     },
     {
-     "id": "ground-w-490",
+     "id": "ground-w-487",
      "a": [
       250.0,
       205.0
@@ -13092,7 +13262,7 @@
      "thicknessFt": 2
     },
     {
-     "id": "ground-w-490-s1",
+     "id": "ground-w-487-s1",
      "a": [
       250.0,
       210.0
@@ -13109,7 +13279,7 @@
      "offsetFt": 2.5
     },
     {
-     "id": "ground-w-495",
+     "id": "ground-w-492",
      "a": [
       230.0,
       206.213
@@ -13126,7 +13296,7 @@
      "offsetFt": 0.5
     },
     {
-     "id": "ground-w-497",
+     "id": "ground-w-494",
      "a": [
       230.0,
       205.0
@@ -13142,7 +13312,7 @@
      "thicknessFt": 4
     },
     {
-     "id": "ground-w-498",
+     "id": "ground-w-495",
      "a": [
       230.0,
       190.0
@@ -13159,7 +13329,7 @@
      "offsetFt": 0.5
     },
     {
-     "id": "ground-w-499",
+     "id": "ground-w-496",
      "a": [
       290,
       240
@@ -13176,7 +13346,7 @@
      "offsetFt": 2.5
     },
     {
-     "id": "ground-w-506",
+     "id": "ground-w-503",
      "a": [
       250,
       230
@@ -13193,7 +13363,7 @@
      "offsetFt": 2.5
     },
     {
-     "id": "ground-w-509",
+     "id": "ground-w-506",
      "a": [
       170.0,
       195.0
@@ -13210,7 +13380,7 @@
      "offsetFt": -2.5
     },
     {
-     "id": "ground-w-510",
+     "id": "ground-w-507",
      "a": [
       170.0,
       215.0
@@ -13227,7 +13397,7 @@
      "offsetFt": -2.5
     },
     {
-     "id": "ground-w-517",
+     "id": "ground-w-514",
      "a": [
       140.0,
       220.0
@@ -13244,7 +13414,7 @@
      "offsetFt": 2.5
     },
     {
-     "id": "ground-w-518",
+     "id": "ground-w-515",
      "a": [
       140.0,
       215.0
@@ -13277,7 +13447,7 @@
      "thicknessFt": 2
     },
     {
-     "id": "ground-w-520",
+     "id": "ground-w-517",
      "a": [
       170.0,
       205.0
@@ -13294,7 +13464,7 @@
      "offsetFt": -2.5
     },
     {
-     "id": "ground-w-520-s1",
+     "id": "ground-w-517-s1",
      "a": [
       185.0,
       205.0
@@ -13310,7 +13480,7 @@
      "thicknessFt": 2
     },
     {
-     "id": "ground-w-520-s2",
+     "id": "ground-w-517-s2",
      "a": [
       195.0,
       205.0
@@ -13327,7 +13497,7 @@
      "offsetFt": 2.5
     },
     {
-     "id": "ground-w-521",
+     "id": "ground-w-518",
      "a": [
       195.0,
       205.0
@@ -13344,7 +13514,7 @@
      "offsetFt": -2.5
     },
     {
-     "id": "ground-w-522",
+     "id": "ground-w-519",
      "a": [
       190.0,
       215.0
@@ -13360,7 +13530,7 @@
      "thicknessFt": 4
     },
     {
-     "id": "ground-w-523",
+     "id": "ground-w-520",
      "a": [
       195.0,
       215.0
@@ -13376,7 +13546,7 @@
      "thicknessFt": 4
     },
     {
-     "id": "ground-w-525",
+     "id": "ground-w-522",
      "a": [
       175.0,
       215.0
@@ -13393,7 +13563,7 @@
      "offsetFt": 1.893
     },
     {
-     "id": "ground-w-526",
+     "id": "ground-w-523",
      "a": [
       170.0,
       215.0
@@ -13410,7 +13580,7 @@
      "offsetFt": 2.5
     },
     {
-     "id": "ground-w-527",
+     "id": "ground-w-524",
      "a": [
       185.0,
       195.0
@@ -13427,7 +13597,7 @@
      "offsetFt": 2.5
     },
     {
-     "id": "ground-w-529-q",
+     "id": "ground-w-526-q",
      "a": [
       200.0,
       205.0
@@ -13443,7 +13613,7 @@
      "thicknessFt": 4
     },
     {
-     "id": "ground-w-533",
+     "id": "ground-w-530",
      "a": [
       226.213,
       190.0
@@ -13459,7 +13629,7 @@
      "thicknessFt": 4
     },
     {
-     "id": "ground-w-534",
+     "id": "ground-w-531",
      "a": [
       230.0,
       193.787
@@ -13475,7 +13645,7 @@
      "thicknessFt": 4
     },
     {
-     "id": "ground-w-535",
+     "id": "ground-w-532",
      "a": [
       221.21300000000002,
       215.0
@@ -13491,7 +13661,7 @@
      "thicknessFt": 4
     },
     {
-     "id": "ground-w-538",
+     "id": "ground-w-535",
      "a": [
       200.0,
       206.21300000000002
@@ -13507,7 +13677,7 @@
      "thicknessFt": 4
     },
     {
-     "id": "ground-w-540",
+     "id": "ground-w-537",
      "a": [
       200.0,
       193.787
@@ -13523,7 +13693,7 @@
      "thicknessFt": 4
     },
     {
-     "id": "ground-w-542",
+     "id": "ground-w-539",
      "a": [
       196.21300000000002,
       215.0
@@ -13539,10 +13709,26 @@
      "thicknessFt": 4
     },
     {
-     "id": "ground-w-543",
+     "id": "ground-w-540",
      "a": [
       205.0,
       223.78699999999998
+     ],
+     "b": [
+      205.0,
+      236.21300000000002
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "thicknessFt": 4
+    },
+    {
+     "id": "ground-w-541",
+     "a": [
+      196.21300000000002,
+      245.0
      ],
      "b": [
       205.0,
@@ -13557,22 +13743,6 @@
     {
      "id": "ground-w-544",
      "a": [
-      196.21300000000002,
-      245.0
-     ],
-     "b": [
-      205.0,
-      236.21300000000002
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar",
-     "thicknessFt": 4
-    },
-    {
-     "id": "ground-w-547",
-     "a": [
       175.0,
       236.21300000000002
      ],
@@ -13587,7 +13757,7 @@
      "thicknessFt": 4
     },
     {
-     "id": "ground-w-550",
+     "id": "ground-w-547",
      "a": [
       175.0,
       223.78699999999998
@@ -13603,7 +13773,7 @@
      "thicknessFt": 4
     },
     {
-     "id": "ground-w-551",
+     "id": "ground-w-548",
      "a": [
       170.0,
       230.0
@@ -13620,56 +13790,56 @@
      "offsetFt": -2.5
     },
     {
+     "id": "ground-w-552",
+     "a": [
+      172.7515,
+      127.5
+     ],
+     "b": [
+      187.2485,
+      127.5
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "thicknessFt": 4
+    },
+    {
+     "id": "ground-w-553",
+     "a": [
+      187.2485,
+      127.5
+     ],
+     "b": [
+      197.5,
+      137.7515
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "thicknessFt": 4
+    },
+    {
+     "id": "ground-w-554",
+     "a": [
+      197.5,
+      137.7515
+     ],
+     "b": [
+      197.5,
+      152.2485
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "thicknessFt": 4
+    },
+    {
      "id": "ground-w-555",
      "a": [
-      172.7515,
-      127.5
-     ],
-     "b": [
-      187.2485,
-      127.5
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar",
-     "thicknessFt": 4
-    },
-    {
-     "id": "ground-w-556",
-     "a": [
-      187.2485,
-      127.5
-     ],
-     "b": [
-      197.5,
-      137.7515
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar",
-     "thicknessFt": 4
-    },
-    {
-     "id": "ground-w-557",
-     "a": [
-      197.5,
-      137.7515
-     ],
-     "b": [
-      197.5,
-      152.2485
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar",
-     "thicknessFt": 4
-    },
-    {
-     "id": "ground-w-558",
-     "a": [
       187.2485,
       162.5
      ],
@@ -13684,7 +13854,7 @@
      "thicknessFt": 4
     },
     {
-     "id": "ground-w-562",
+     "id": "ground-w-559",
      "a": [
       162.5,
       152.2485
@@ -13700,7 +13870,7 @@
      "thicknessFt": 4
     },
     {
-     "id": "ground-w-566",
+     "id": "ground-w-563",
      "a": [
       162.5,
       137.7515
@@ -13716,7 +13886,7 @@
      "thicknessFt": 4
     },
     {
-     "id": "ground-w-567",
+     "id": "ground-w-564",
      "a": [
       205.0,
       155.0
@@ -13733,7 +13903,7 @@
      "offsetFt": -2.5
     },
     {
-     "id": "ground-w-571",
+     "id": "ground-w-568",
      "a": [
       215.0,
       120.0
@@ -13766,7 +13936,7 @@
      "thicknessFt": 2
     },
     {
-     "id": "ground-w-573",
+     "id": "ground-w-570",
      "a": [
       230.0,
       120.0
@@ -13782,7 +13952,7 @@
      "thicknessFt": 2
     },
     {
-     "id": "ground-w-574",
+     "id": "ground-w-571",
      "a": [
       240.0,
       140.0
@@ -13799,7 +13969,7 @@
      "offsetFt": -2.5
     },
     {
-     "id": "ground-w-585",
+     "id": "ground-w-582",
      "a": [
       205.0,
       100.0
@@ -13934,7 +14104,43 @@
      "thicknessFt": 4
     },
     {
-     "id": "ground-w-214",
+     "id": "ground-w-171",
+     "a": [
+      20.0,
+      180.0
+     ],
+     "b": [
+      20.0,
+      190.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 100,
+     "thicknessFt": 5,
+     "offsetFt": 2.5
+    },
+    {
+     "id": "ground-w-173",
+     "a": [
+      20.0,
+      150.0
+     ],
+     "b": [
+      20.0,
+      160.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 100,
+     "thicknessFt": 5,
+     "offsetFt": 2.5
+    },
+    {
+     "id": "ground-w-212",
      "a": [
       250.0,
       20.0
@@ -13952,7 +14158,7 @@
      "offsetFt": -10.0
     },
     {
-     "id": "ground-w-239-s2",
+     "id": "ground-w-237-s2",
      "a": [
       300.0,
       140.0
@@ -13969,7 +14175,7 @@
      "offsetFt": 2.5
     },
     {
-     "id": "ground-w-249",
+     "id": "ground-w-247",
      "a": [
       240.0,
       140.0
@@ -13986,7 +14192,7 @@
      "offsetFt": 2.5
     },
     {
-     "id": "ground-w-252",
+     "id": "ground-w-250",
      "a": [
       240.0,
       120.0
@@ -14003,7 +14209,7 @@
      "offsetFt": 2.5
     },
     {
-     "id": "ground-w-256",
+     "id": "ground-w-254",
      "a": [
       240.0,
       105.0
@@ -14020,7 +14226,7 @@
      "offsetFt": 2.5
     },
     {
-     "id": "ground-w-258",
+     "id": "ground-w-256",
      "a": [
       240.0,
       90.0
@@ -14037,7 +14243,7 @@
      "offsetFt": 2.5
     },
     {
-     "id": "ground-w-321",
+     "id": "ground-w-319",
      "a": [
       310.0,
       20.0
@@ -14055,7 +14261,7 @@
      "offsetFt": -10.0
     },
     {
-     "id": "ground-w-327",
+     "id": "ground-w-325",
      "a": [
       360.0,
       20.0
@@ -14073,7 +14279,7 @@
      "offsetFt": -10.0
     },
     {
-     "id": "ground-w-329",
+     "id": "ground-w-327",
      "a": [
       360.0,
       50.0
@@ -14091,7 +14297,7 @@
      "offsetFt": -10.0
     },
     {
-     "id": "ground-w-330",
+     "id": "ground-w-328",
      "a": [
       360.0,
       170.0
@@ -14109,7 +14315,7 @@
      "offsetFt": -10.0
     },
     {
-     "id": "ground-w-380",
+     "id": "ground-w-377",
      "a": [
       88.787,
       135.0
@@ -14125,7 +14331,7 @@
      "thicknessFt": 4
     },
     {
-     "id": "ground-w-383",
+     "id": "ground-w-380",
      "a": [
       80.0,
       113.787
@@ -14141,7 +14347,7 @@
      "thicknessFt": 4
     },
     {
-     "id": "ground-w-390",
+     "id": "ground-w-387",
      "a": [
       88.787,
       250.0
@@ -14157,7 +14363,7 @@
      "thicknessFt": 4
     },
     {
-     "id": "ground-w-393",
+     "id": "ground-w-390",
      "a": [
       80.0,
       228.78699999999998
@@ -14173,7 +14379,7 @@
      "thicknessFt": 4
     },
     {
-     "id": "ground-w-425",
+     "id": "ground-w-422",
      "a": [
       130.858,
       165.0
@@ -14189,7 +14395,7 @@
      "thicknessFt": 4
     },
     {
-     "id": "ground-w-428",
+     "id": "ground-w-425",
      "a": [
       125.0,
       150.858
@@ -14205,7 +14411,7 @@
      "thicknessFt": 4
     },
     {
-     "id": "ground-w-450",
+     "id": "ground-w-447",
      "a": [
       125.0,
       190.0
@@ -14222,7 +14428,7 @@
      "offsetFt": 1.25
     },
     {
-     "id": "ground-w-458",
+     "id": "ground-w-455",
      "a": [
       170.0,
       195.0
@@ -14239,7 +14445,7 @@
      "offsetFt": 2.5
     },
     {
-     "id": "ground-w-507",
+     "id": "ground-w-504",
      "a": [
       250.0,
       140.0
@@ -14256,7 +14462,7 @@
      "offsetFt": 2.5
     },
     {
-     "id": "ground-w-513",
+     "id": "ground-w-510",
      "a": [
       155.0,
       225.0
@@ -14273,7 +14479,7 @@
      "offsetFt": 1.25
     },
     {
-     "id": "ground-w-516",
+     "id": "ground-w-513",
      "a": [
       140.0,
       225.0
@@ -14290,7 +14496,7 @@
      "offsetFt": 2.5
     },
     {
-     "id": "ground-w-528",
+     "id": "ground-w-525",
      "a": [
       200.0,
       195.0
@@ -14306,7 +14512,7 @@
      "thicknessFt": 4
     },
     {
-     "id": "ground-w-532",
+     "id": "ground-w-529",
      "a": [
       185.0,
       195.0
@@ -14323,7 +14529,7 @@
      "offsetFt": -2.5
     },
     {
-     "id": "ground-w-536",
+     "id": "ground-w-533",
      "a": [
       208.78699999999998,
       215.0
@@ -14339,7 +14545,7 @@
      "thicknessFt": 4
     },
     {
-     "id": "ground-w-545",
+     "id": "ground-w-542",
      "a": [
       183.78699999999998,
       245.0
@@ -14355,7 +14561,7 @@
      "thicknessFt": 4
     },
     {
-     "id": "ground-w-548",
+     "id": "ground-w-545",
      "a": [
       175.0,
       223.78699999999998
@@ -14371,7 +14577,7 @@
      "thicknessFt": 4
     },
     {
-     "id": "ground-w-554",
+     "id": "ground-w-551",
      "a": [
       155.0,
       245.0
@@ -14388,7 +14594,7 @@
      "offsetFt": 2.5
     },
     {
-     "id": "ground-w-561",
+     "id": "ground-w-558",
      "a": [
       172.7515,
       162.5
@@ -14404,7 +14610,7 @@
      "thicknessFt": 4
     },
     {
-     "id": "ground-w-565",
+     "id": "ground-w-562",
      "a": [
       162.5,
       137.7515
@@ -14420,7 +14626,7 @@
      "thicknessFt": 4
     },
     {
-     "id": "ground-w-570",
+     "id": "ground-w-567",
      "a": [
       205.0,
       155.0
@@ -14437,7 +14643,7 @@
      "offsetFt": 2.5
     },
     {
-     "id": "ground-w-586",
+     "id": "ground-w-583",
      "a": [
       205.0,
       120.0
@@ -14454,7 +14660,7 @@
      "offsetFt": 2.5
     },
     {
-     "id": "ground-w-246",
+     "id": "ground-w-244",
      "a": [
       260.0,
       130.0
@@ -14471,24 +14677,79 @@
      "offsetFt": 2.5
     },
     {
-     "id": "ground-w-372",
+     "id": "ground-w-356",
      "a": [
-      -55.0,
-      160.0
+      -10.0,
+      180.0
      ],
      "b": [
-      -55.0,
+      20.0,
       180.0
      ],
      "flags": [
       "normal"
      ],
      "material": "ashlar",
-     "thicknessFt": 3,
-     "offsetFt": 1.5
+     "heightFt": 100,
+     "thicknessFt": 5,
+     "offsetFt": 2.5
     },
     {
-     "id": "ground-w-397",
+     "id": "ground-w-359",
+     "a": [
+      -10.0,
+      140.0
+     ],
+     "b": [
+      -10.0,
+      160.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 100,
+     "thicknessFt": 5,
+     "offsetFt": -2.5
+    },
+    {
+     "id": "ground-w-367",
+     "a": [
+      -10.0,
+      200.0
+     ],
+     "b": [
+      20.0,
+      200.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 100,
+     "thicknessFt": 5,
+     "offsetFt": -2.5
+    },
+    {
+     "id": "ground-w-369",
+     "a": [
+      -10.0,
+      180.0
+     ],
+     "b": [
+      -10.0,
+      200.0
+     ],
+     "flags": [
+      "normal"
+     ],
+     "material": "ashlar",
+     "heightFt": 100,
+     "thicknessFt": 5,
+     "offsetFt": -2.5
+    },
+    {
+     "id": "ground-w-394",
      "a": [
       120.0,
       125.0
@@ -14505,7 +14766,7 @@
      "offsetFt": 2.5
     },
     {
-     "id": "ground-w-437",
+     "id": "ground-w-434",
      "a": [
       145.0,
       125.0
@@ -14522,7 +14783,7 @@
      "offsetFt": 2.5
     },
     {
-     "id": "ground-w-441",
+     "id": "ground-w-438",
      "a": [
       145.0,
       95.0
@@ -14539,7 +14800,7 @@
      "offsetFt": 2.5
     },
     {
-     "id": "ground-w-473",
+     "id": "ground-w-470",
      "a": [
       205.0,
       170.0
@@ -14555,7 +14816,7 @@
      "thicknessFt": 2
     },
     {
-     "id": "ground-w-474",
+     "id": "ground-w-471",
      "a": [
       185.0,
       170.0
@@ -14572,7 +14833,7 @@
      "offsetFt": -2.5
     },
     {
-     "id": "ground-w-491",
+     "id": "ground-w-488",
      "a": [
       230.0,
       210.0
@@ -14589,7 +14850,7 @@
      "offsetFt": 2.5
     },
     {
-     "id": "ground-w-504",
+     "id": "ground-w-501",
      "a": [
       260.0,
       240.0
@@ -14606,7 +14867,7 @@
      "offsetFt": 2.5
     },
     {
-     "id": "ground-w-575",
+     "id": "ground-w-572",
      "a": [
       215.0,
       145.0
@@ -14623,7 +14884,7 @@
      "offsetFt": 2.5
     },
     {
-     "id": "ground-w-580",
+     "id": "ground-w-577",
      "a": [
       215.0,
       120.0
@@ -14640,7 +14901,7 @@
      "offsetFt": 2.5
     },
     {
-     "id": "ground-w-588",
+     "id": "ground-w-585",
      "a": [
       205.0,
       100.0
@@ -14674,7 +14935,7 @@
      "offsetFt": 2.5
     },
     {
-     "id": "ground-w-341",
+     "id": "ground-w-339",
      "a": [
       380.0,
       180.0
@@ -14691,24 +14952,7 @@
      "offsetFt": 1.5
     },
     {
-     "id": "ground-w-361",
-     "a": [
-      -55.0,
-      180.0
-     ],
-     "b": [
-      0.0,
-      180.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar",
-     "thicknessFt": 3,
-     "offsetFt": 1.5
-    },
-    {
-     "id": "ground-w-407",
+     "id": "ground-w-404",
      "a": [
       110.0,
       240.0
@@ -14742,10 +14986,10 @@
      "offsetFt": 2.5
     },
     {
-     "id": "ground-w-169",
+     "id": "ground-w-161",
      "a": [
       20.0,
-      175.0
+      200.0
      ],
      "b": [
       20.0,
@@ -14760,14 +15004,14 @@
      "offsetFt": 10.0
     },
     {
-     "id": "ground-w-198",
+     "id": "ground-w-193",
      "a": [
       20.0,
       20.0
      ],
      "b": [
       20.0,
-      165.0
+      140.0
      ],
      "flags": [
       "normal"
@@ -14778,7 +15022,7 @@
      "offsetFt": 10.0
     },
     {
-     "id": "ground-w-304",
+     "id": "ground-w-302",
      "a": [
       240.0,
       320.0
@@ -14815,6 +15059,28 @@
     }
    ],
    "lights": [
+    {
+     "id": "ground-l-tunnel161",
+     "pos": [
+      15.0,
+      8,
+      161.0
+     ],
+     "preset": "torch",
+     "bright": 10,
+     "dim": 25
+    },
+    {
+     "id": "ground-l-tunnel179",
+     "pos": [
+      15.0,
+      8,
+      179.0
+     ],
+     "preset": "torch",
+     "bright": 10,
+     "dim": 25
+    },
     {
      "id": "ground-l-K7-torch-a",
      "pos": [
@@ -14931,9 +15197,9 @@
      "id": "ground-J-chasm",
      "kind": "chasm",
      "pos": [
-      -27.5,
+      -35.0,
       0,
-      170
+      170.0
      ],
      "vis": "player",
      "key": "K1-bridge",
@@ -14944,71 +15210,441 @@
      }
     },
     {
-     "id": "ground-J-drawbridge",
-     "kind": "drawbridge",
+     "id": "ground-gate-arch",
+     "kind": "k-gate-arch",
      "pos": [
-      -27.5,
+      5.0,
       0,
-      170
+      170.0
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "K1-g",
+     "dims": {
+      "w": 20,
+      "t": 30,
+      "y0": 18,
+      "h": 90,
+      "slot": 2
+     }
+    },
+    {
+     "id": "ground-gate-head-n",
+     "kind": "k-tower-head",
+     "pos": [
+      5.0,
+      0,
+      150.0
+     ],
+     "vis": "player",
+     "key": "K1-tn",
+     "dims": {
+      "w": 30,
+      "d": 20,
+      "y": 100,
+      "t": 5
+     }
+    },
+    {
+     "id": "ground-gate-head-s",
+     "kind": "k-tower-head",
+     "pos": [
+      5.0,
+      0,
+      190.0
+     ],
+     "vis": "player",
+     "key": "K1-ts",
+     "dims": {
+      "w": 30,
+      "d": 20,
+      "y": 100,
+      "t": 5
+     }
+    },
+    {
+     "id": "ground-portcullis",
+     "kind": "rotten-portcullis",
+     "pos": [
+      -8.0,
+      13,
+      170.0
+     ],
+     "vis": "player",
+     "rotY": 90,
+     "key": "K1-g",
+     "dims": {
+      "w": 20,
+      "h": 14
+     },
+     "label": "Rotting portcullis",
+     "desc": "A wooden portcullis, rotten and furred green, hangs drawn up in the tunnel mouth.",
+     "dm": "Raised. The patch of green slime on its underside does not fall on anyone entering; it drops on the first creature to leave the castle this way (DC 20 Wisdom (Perception) to spot)."
+    },
+    {
+     "id": "ground-green-slime",
+     "kind": "green-slime",
+     "pos": [
+      -7.6,
+      13,
+      174.0
+     ],
+     "vis": "hidden-object",
+     "key": "K1-g",
+     "label": "Green slime under the portcullis",
+     "playerLabel": "Green ooze",
+     "dm": "Green slime (DMG). DC 20 Wisdom (Perception) to spot. It ignores those coming in and drops on the first creature to leave by this tunnel."
+    },
+    {
+     "id": "ground-hinge-sill",
+     "kind": "j-hinge-sill",
+     "pos": [
+      -10.0,
+      0,
+      170.0
+     ],
+     "vis": "player",
+     "key": "K1-bridge"
+    },
+    {
+     "id": "ground-drawbridge",
+     "kind": "j-drawbridge",
+     "pos": [
+      -10.8,
+      0,
+      170.0
      ],
      "vis": "player",
      "key": "K1-bridge",
      "dims": {
-      "len": 56,
-      "w": 18
-     }
+      "len": 51.2,
+      "w": 20,
+      "up": 0,
+      "seed": 3
+     },
+     "label": "The drawbridge",
+     "desc": "Fifty-odd feet of old beams and planks, patched and shored up, spanning the fog on two rusty chains; boards are missing here and there."
     },
     {
-     "id": "ground-J-tower-1",
-     "kind": "gate-tower",
+     "id": "ground-chain-1",
+     "kind": "k-chain",
      "pos": [
-      -8.0,
-      0,
-      147.0
+      -60.7,
+      1.25,
+      160.4
      ],
      "vis": "player",
+     "key": "K1-bridge",
      "dims": {
-      "r": 7,
-      "h": 100
-     }
+      "dx": 50.3,
+      "rise": 58.8,
+      "dz": -5.4,
+      "sag": 3,
+      "up": 0
+     },
+     "label": "Drawbridge chain",
+     "desc": "A rust-eaten chain runs from the bridge's end up to a slot sixty feet up the wall, creaking in the wind."
     },
     {
-     "id": "ground-J-tower1",
-     "kind": "gate-tower",
+     "id": "ground-chain-slot-1",
+     "kind": "k-chain-slot",
      "pos": [
-      -8.0,
-      0,
-      193.0
+      -10.0,
+      60.05,
+      155.0
      ],
      "vis": "player",
+     "key": "K1-bridge",
      "dims": {
-      "r": 7,
-      "h": 100
+      "seed": 155
      }
     },
     {
-     "id": "ground-J-portcullis",
-     "kind": "portcullis",
+     "id": "ground-slot-iron-1",
+     "kind": "j-slot-iron",
+     "pos": [
+      -10.4,
+      59.4,
+      155.0
+     ],
+     "vis": "hidden-object",
+     "key": "K1-bridge",
+     "label": "Greased iron in the chain slot",
+     "playerLabel": "Bright iron in the slot",
+     "dm": "DC 15 Wisdom (Perception) from the bridge's far end: the iron inside the slot is bright and greased while all round it rusts. Someone keeps the mechanism, and not by hand."
+    },
+    {
+     "id": "ground-chain1",
+     "kind": "k-chain",
+     "pos": [
+      -60.7,
+      1.25,
+      179.6
+     ],
+     "vis": "player",
+     "key": "K1-bridge",
+     "dims": {
+      "dx": 50.3,
+      "rise": 58.8,
+      "dz": 5.4,
+      "sag": 3,
+      "up": 0
+     },
+     "label": "Drawbridge chain",
+     "desc": "A rust-eaten chain runs from the bridge's end up to a slot sixty feet up the wall, creaking in the wind."
+    },
+    {
+     "id": "ground-chain-slot1",
+     "kind": "k-chain-slot",
+     "pos": [
+      -10.0,
+      60.05,
+      185.0
+     ],
+     "vis": "player",
+     "key": "K1-bridge",
+     "dims": {
+      "seed": 185
+     }
+    },
+    {
+     "id": "ground-slot-iron1",
+     "kind": "j-slot-iron",
+     "pos": [
+      -10.4,
+      59.4,
+      185.0
+     ],
+     "vis": "hidden-object",
+     "key": "K1-bridge",
+     "label": "Greased iron in the chain slot",
+     "playerLabel": "Bright iron in the slot",
+     "dm": "DC 15 Wisdom (Perception) from the bridge's far end: the iron inside the slot is bright and greased while all round it rusts. Someone keeps the mechanism, and not by hand."
+    },
+    {
+     "id": "ground-weak-board0",
+     "kind": "j-weak-board",
+     "pos": [
+      -56.0,
+      0,
+      170.0
+     ],
+     "vis": "hidden-object",
+     "key": "K1-bridge",
+     "label": "Rotten board",
+     "dims": {
+      "hx": 45.2,
+      "up": 0
+     },
+     "playerLabel": "A rotten board",
+     "dm": "House rule: DC 12 Perception or Investigation along the deck picks out the four worst boards. Stepping over them still rolls for a break, but the DM may grant advantage on the Dexterity save."
+    },
+    {
+     "id": "ground-weak-board1",
+     "kind": "j-weak-board",
+     "pos": [
+      -42.0,
+      0,
+      170.0
+     ],
+     "vis": "hidden-object",
+     "key": "K1-bridge",
+     "label": "Rotten board",
+     "dims": {
+      "hx": 31.2,
+      "up": 0
+     },
+     "playerLabel": "A rotten board",
+     "dm": "House rule: DC 12 Perception or Investigation along the deck picks out the four worst boards. Stepping over them still rolls for a break, but the DM may grant advantage on the Dexterity save."
+    },
+    {
+     "id": "ground-weak-board2",
+     "kind": "j-weak-board",
+     "pos": [
+      -29.0,
+      0,
+      170.0
+     ],
+     "vis": "hidden-object",
+     "key": "K1-bridge",
+     "label": "Rotten board",
+     "dims": {
+      "hx": 18.2,
+      "up": 0
+     },
+     "playerLabel": "A rotten board",
+     "dm": "House rule: DC 12 Perception or Investigation along the deck picks out the four worst boards. Stepping over them still rolls for a break, but the DM may grant advantage on the Dexterity save."
+    },
+    {
+     "id": "ground-weak-board3",
+     "kind": "j-weak-board",
+     "pos": [
+      -19.0,
+      0,
+      170.0
+     ],
+     "vis": "hidden-object",
+     "key": "K1-bridge",
+     "label": "Rotten board",
+     "dims": {
+      "hx": 8.2,
+      "up": 0
+     },
+     "playerLabel": "A rotten board",
+     "dm": "House rule: DC 12 Perception or Investigation along the deck picks out the four worst boards. Stepping over them still rolls for a break, but the DM may grant advantage on the Dexterity save."
+    },
+    {
+     "id": "ground-bats",
+     "kind": "j-bat-swarm",
+     "pos": [
+      -36.0,
+      0.5,
+      189.0
+     ],
+     "vis": "hidden-creature",
+     "key": "K1-bridge",
+     "label": "Swarm of bats (optional)",
+     "size": "medium",
+     "playerLabel": "Bats",
+     "dm": "Optional, not in the book here: at dusk or when a board breaks a column of bats boils up out of the fog past whoever is mid-bridge. A distraction, not a fight."
+    },
+    {
+     "id": "ground-latch-K1-tn",
+     "kind": "j-latch",
+     "pos": [
+      5.0,
+      0,
+      150.0
+     ],
+     "vis": "hidden-object",
+     "rotY": 90,
+     "key": "K1-tn",
+     "label": "Latch mechanism (bridge and portcullis)",
+     "playerLabel": "A winch and ratchet",
+     "dm": "Both latches must be released (Strahd's command word, or dispel magic DC 14 on each) before the bridge or the portcullis moves."
+    },
+    {
+     "id": "ground-latch-K1-ts",
+     "kind": "j-latch",
+     "pos": [
+      5.0,
+      0,
+      190.0
+     ],
+     "vis": "hidden-object",
+     "rotY": 90,
+     "key": "K1-ts",
+     "label": "Latch mechanism (bridge and portcullis)",
+     "playerLabel": "A winch and ratchet",
+     "dm": "Both latches must be released (Strahd's command word, or dispel magic DC 14 on each) before the bridge or the portcullis moves."
+    },
+    {
+     "id": "ground-gargoyle0",
+     "kind": "k-wall-gargoyle",
      "pos": [
       1.5,
-      0,
-      170
+      90.6,
+      35.0
      ],
      "vis": "player",
-     "rotY": 90,
-     "key": "K1-g"
+     "rotY": 180,
+     "key": "K1",
+     "label": "Stone gargoyle",
+     "desc": "A hollow-eyed stone gargoyle leans out from the wall top over the chasm, grinning down at the bridge."
+    },
+    {
+     "id": "ground-gargoyle1",
+     "kind": "k-wall-gargoyle",
+     "pos": [
+      1.5,
+      90.6,
+      95.0
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "key": "K1",
+     "label": "Stone gargoyle",
+     "desc": "A hollow-eyed stone gargoyle leans out from the wall top over the chasm, grinning down at the bridge."
+    },
+    {
+     "id": "ground-gargoyle2",
+     "kind": "k-wall-gargoyle",
+     "pos": [
+      1.5,
+      90.6,
+      125.0
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "key": "K1",
+     "label": "Stone gargoyle",
+     "desc": "A hollow-eyed stone gargoyle leans out from the wall top over the chasm, grinning down at the bridge."
+    },
+    {
+     "id": "ground-gargoyle3",
+     "kind": "k-wall-gargoyle",
+     "pos": [
+      1.5,
+      90.6,
+      215.0
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "key": "K1",
+     "label": "Stone gargoyle",
+     "desc": "A hollow-eyed stone gargoyle leans out from the wall top over the chasm, grinning down at the bridge."
+    },
+    {
+     "id": "ground-gargoyle4",
+     "kind": "k-wall-gargoyle",
+     "pos": [
+      1.5,
+      90.6,
+      245.0
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "key": "K1",
+     "label": "Stone gargoyle",
+     "desc": "A hollow-eyed stone gargoyle leans out from the wall top over the chasm, grinning down at the bridge."
+    },
+    {
+     "id": "ground-gargoyle5",
+     "kind": "k-wall-gargoyle",
+     "pos": [
+      1.5,
+      90.6,
+      305.0
+     ],
+     "vis": "player",
+     "rotY": 180,
+     "key": "K1",
+     "label": "Stone gargoyle",
+     "desc": "A hollow-eyed stone gargoyle leans out from the wall top over the chasm, grinning down at the bridge."
     },
     {
      "id": "ground-J-bridge-note",
      "kind": "note",
      "pos": [
-      -30,
+      -30.0,
       0,
-      155
+      155.0
      ],
      "vis": "dm-note",
      "key": "K1-bridge",
      "label": "The drawbridge: 5% chance a board breaks under any crosser but Strahd and his horses; DC 10 Dexterity save or fall 1,000 ft (advantage if a companion within 5 ft grabs you)."
+    },
+    {
+     "id": "ground-bridge-raised",
+     "kind": "note",
+     "pos": [
+      -40.0,
+      0,
+      186.0
+     ],
+     "vis": "dm-note",
+     "key": "K1-bridge",
+     "label": "Raised bridge (after K10): set \"up\" to 1 on the drawbridge, on both chains and on the four rotten boards (nothing needs moving); the deck then stands against the gate, the chains run short and taut to their slots, and the road ends at the far lip."
     },
     {
      "id": "ground-spawn",
@@ -15822,11 +16458,11 @@
        150
       ],
       [
-       -55,
+       -60,
        150
       ],
       [
-       -55,
+       -60,
        190
       ],
       [
@@ -15843,11 +16479,11 @@
        110
       ],
       [
-       -55,
+       -60,
        110
       ],
       [
-       -55,
+       -60,
        230
       ],
       [
@@ -15856,6 +16492,27 @@
       ]
      ],
      "floor": "grass"
+    },
+    {
+     "polygon": [
+      [
+       -10,
+       0
+      ],
+      [
+       0,
+       0
+      ],
+      [
+       0,
+       340
+      ],
+      [
+       -10,
+       340
+      ]
+     ],
+     "floor": "dirt"
     },
     {
      "polygon": [
