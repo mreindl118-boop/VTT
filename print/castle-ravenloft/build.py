@@ -28,7 +28,7 @@ LEVEL_ORDER = ['dungeon', 'larders', 'ground', 'landing', 'court', 'weeping', 's
                'north-peak', 'north-roof', 'high-peak']
 SUBLEVELS = ('dungeon', 'larders')
 CURTAIN_FT = (0, 0, 380, 340)   # the curtain wall's outer face, in castle feet (x0, z0, x1, z1)
-COURTYARD_KEYS = {'K1', 'K3', 'K3-s', 'K4', 'K5', 'K5-p', 'K6', 'K1-g', 'K1-bridge'}
+COURTYARD_KEYS = {'K1', 'K3', 'K3-s', 'K4', 'K5', 'K5-p', 'K6', 'K1-g', 'K1-bridge', 'K1-tn', 'K1-ts'}   # (the gate towers: the curtain's, not the keep's)
 TOWER_KEYS = ('K18', 'K20', 'K21', 'K83', 'K12-n', 'K12-s', 'K48', 'K57', 'K59', 'K60', 'K60a')
 
 GROUPS = OrderedDict([   # group -> (hex colour, what it is, four-colour AMS slot)
@@ -462,8 +462,8 @@ class LevelBuild:
                 rbox(10, 5, 5 * f, 'wood')
             elif k == 'wheel':
                 self.parts['metal'].append(Manifold.cylinder(3 * f, 0.5 * f, 0.5 * f, 8).translate([x, y, z0]))
-            elif k == 'portcullis':
-                self.portcullis(x, y, rot)
+            elif k in ('portcullis', 'rotten-portcullis'):     # (the gate's own is as wide as its tunnel)
+                self.portcullis(x, y, rot, d.get('w'))
             elif k == 'crystal-orb':
                 r = min(d.get('r', 2) * f, (cfg.clear - 1.0) / 2)
                 grp = 'heart' if d.get('r', 2) > 3 else 'stone'
@@ -488,6 +488,10 @@ class LevelBuild:
                 m = Manifold.cube([w * f, dd * f, 0.5]).translate([-w * f / 2, -dd * f / 2, z0]); self.parts['water'].append(m.translate([x, y, 0]))
             elif k == 'drawbridge':
                 rbox(d.get('len', 56), d.get('w', 18), 1.2, 'wood', cap=False)
+            elif k == 'j-drawbridge':      # the castle's drawbridge: its hinge at the piece, its deck running `len` ft west
+                L, W = d.get('len', 56), d.get('w', 15)
+                m = Manifold.cube([L * f, W * f, 1.2]).translate([-L * f, -W * f / 2, z0])
+                self.parts['wood'].append(m.rotate([0, 0, -rot]).translate([x, y, 0]))
             # creatures, notes, cobwebs, chains, rugs, hidden markers, niches, refuse: not printed
 
     def stairs_straight(self, o, x, y):
@@ -538,9 +542,9 @@ class LevelBuild:
             steps.append(slab(cs([pts]), cfg.slab + i * h, cfg.slab + (i + 2) * h))
         self.parts['stairs'].append(union(steps).translate([x, y, 0]))
 
-    def portcullis(self, x, y, rot):
+    def portcullis(self, x, y, rot, w_ft=None):
         cfg = self.cfg; f = cfg.f
-        w = 2 * cfg.cell; h = cfg.clear - cfg.lintel - 0.4
+        w = w_ft * f if w_ft else 2 * cfg.cell; h = cfg.clear - cfg.lintel - 0.4
         bars = [Manifold.cube([w, 1.0, 1.2]).translate([-w / 2, -0.5, cfg.slab]), Manifold.cube([w, 1.0, 1.2]).translate([-w / 2, -0.5, cfg.slab + h - 1.2])]
         n = int(w // 3.5)
         for i in range(n + 1):

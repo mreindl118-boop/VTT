@@ -101,20 +101,29 @@ def main():
     for y in np.arange(-337.5, 0, 10):
         merlons.append(box(0, y, H, 5, y + 5, H + 6)); merlons.append(box(375, y, H, 380, y + 5, H + 6))
     curtain = union([curtain] + merlons)
-    # the gate: a 15-ft arch through the west wall at the drawbridge, and the two gate towers
-    gate_cut = box(-2, -177.5, 0, 22, -162.5, 22)
-    curtain = curtain - gate_cut
-    towers = []
-    for o in g['objects']:
-        if o['kind'] == 'gate-tower':
-            x, y = P(o['pos'][0], o['pos'][2]); r = o['dims'].get('r', 7); h = o['dims'].get('h', 100)
-            towers.append(cone(x, y, r + 1, 0, h, 16)); towers.append(cone(x, y, r + 3, h - 2, h + 1, 16)); towers.append(cone(x, y, r + 3, h + 1, h + 1 + 1.3 * (r + 3), 16, 0.0))
-    castle = union([keep, curtain] + towers)
+    # the gate (item 2g-1, the castle's own front): the gatehouse stands forward of the wall to the chasm's lip and rises to
+    # the gate towers' heads, battlemented; the vaulted tunnel runs through it and the wall. Read off the scene: the
+    # gatehouse's walls are the ground's walls standing higher than the curtain (their lines are its faces), the tunnel is
+    # the room K1-g, the drawbridge the j-drawbridge piece (its hinge at the piece, its deck running `len` ft west)
+    gh = [w for w in g['walls'] if w.get('heightFt', 0) > H]
+    gx = [p[0] for w in gh for p in (w['a'], w['b'])]; gz = [p[1] for w in gh for p in (w['a'], w['b'])]
+    GX0, GX1, GZ0, GZ1, GH = min(gx), max(gx), min(gz), max(gz), max(w['heightFt'] for w in gh)
+    gatehouse = [box(GX0, -GZ1, 0, GX1, -GZ0, GH)]
+    for x in np.arange(GX0 + 1.25, GX1 - 2, 5):
+        gatehouse += [box(x, -GZ1, GH, x + 2.5, -GZ1 + 2.5, GH + 4), box(x, -GZ0 - 2.5, GH, x + 2.5, -GZ0, GH + 4)]
+    for y in np.arange(-GZ1 + 6.25, -GZ0 - 6, 5):
+        gatehouse.append(box(GX0, y, GH, GX0 + 2.5, y + 2.5, GH + 4))
+    tun = next(r for r in g['rooms'] if r['key'] == 'K1-g')
+    tx = [p[0] for p in tun['polygon']]; tz = [p[1] for p in tun['polygon']]
+    tunnel = box(min(tx) - 2, -max(tz), 0, max(tx) + 2, -min(tz), tun.get('ceilingFt') or 18)
+    castle = union([keep, curtain] + gatehouse) - tunnel
 
     # ---------------------------------------------------------------- the drawbridge and the approach
-    deck = box(-58, -181, -3, 2, -159, 0)                  # the bridge deck: planks 22 ft wide from the ridge to the gate
-    rails = union([box(-58, -181, 0, 2, -179, 3), box(-58, -161, 0, 2, -159, 3)])
-    piers = union([box(-40, -179, -60, -32, -161, -2), box(-18, -179, -60, -10, -161, -2)])
+    db = next(o for o in g['objects'] if o['kind'] == 'j-drawbridge')
+    hx, bz, bl, bw = db['pos'][0], db['pos'][2], db['dims']['len'], db['dims']['w']
+    deck = box(hx - bl, -bz - bw / 2, -3, hx + 1, -bz + bw / 2, 0)          # the bridge deck: planks from the ridge to the gate
+    rails = union([box(hx - bl, -bz - bw / 2, 0, hx + 1, -bz - bw / 2 + 2, 3), box(hx - bl, -bz + bw / 2 - 2, 0, hx + 1, -bz + bw / 2, 3)])
+    piers = union([box(hx - bl * 0.66, -bz - bw / 2 + 2, -60, hx - bl * 0.66 + 8, -bz + bw / 2 - 2, -2), box(hx - bl * 0.3, -bz - bw / 2 + 2, -60, hx - bl * 0.3 + 8, -bz + bw / 2 - 2, -2)])
     arches = union([slab(cs([[(-40, 0), (-32, 0), (-36, 14)]]), 0, 1), ])   # unused shape kept simple: solid piers
     bridge = union([deck, rails])
 
