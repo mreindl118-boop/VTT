@@ -783,7 +783,9 @@ def write_readme(a, cfg, summary, manifest, levels):
     L.append('- Pegs are 3 mm × 2.4 mm with 0.5 mm socket clearance; sand them if your printer runs tight.')
     L.append('- The mountain pieces print as they are (open bottom, 3-mm skin); their top rim is where the courtyard tray lands.')
     L.append('- `heart` is the Heart of Sorrow: translucent red filament, or clear resin.')
-    L.append('- Everything is manifold (checked); `manifest.json` lists every file with its size, volume and triangle count.\n')
+    L.append("- Every file passes manifold3d's check (`manifold` in `manifest.json`, which lists every file with its size, volume and "
+             'triangle count). A tile can hold two solids of one colour that touch along an edge; a slicer that merges their '
+             'shared points may report those edges as non-manifold.\n')
     L.append('## Regenerate\n')
     L.append('```\npython3 scripts/authoring/castle-ravenloft.py          # the scene (never hand-edit the JSON)\n'
              'python3 print/castle-ravenloft/build.py --out print/out  # the stack\n'

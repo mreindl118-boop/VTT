@@ -15,6 +15,13 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from build import GROUPS
 
 
+def title_of(lid, info):
+    """A preview's title: the level, its name and how many tiles it is cut into; the mountain base, its pieces."""
+    if lid == 'base':
+        return f"base  the mountain  ({info.get('pieces', '')} pieces)"
+    return f"{lid}  {info.get('name', '')}  ({info.get('tiles', '')} tiles)"
+
+
 def read_stl(path):
     with open(path, 'rb') as f:
         f.seek(80); n = struct.unpack('<I', f.read(4))[0]
@@ -84,8 +91,7 @@ def main():
     for lid in want:
         files = [(f['group'], os.path.join(a.out, f['file']), 0.0) for f in by_level.get(lid, [])]
         info = man['levels'].get(lid, {})
-        title = f"{lid}  {info.get('name', '')}  ({info.get('tiles', '')} tiles)"
-        render(files, os.path.join(pdir, f'{lid}_{a.view}.png'), title, a.view)
+        render(files, os.path.join(pdir, f'{lid}_{a.view}.png'), title_of(lid, info), a.view)
         print('preview', lid)
     if a.stack:
         files = []
