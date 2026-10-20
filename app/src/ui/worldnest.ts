@@ -257,14 +257,18 @@ export class NestedWorldMap {
     const el = this.h.app.world.renderer.domElement; el.setPointerCapture(e.pointerId);
     this.tip.hidden = true; this.closeCard();
   }
-  /** The place the party would snap to at a page point: within 22 px of its mark, or a third of a mile of it. */
+  /** The place the party would snap to at a page point: within 22 px of its mark, or a third of a mile of it. A place
+   *  whose mark is hidden under another's (the declutter: the Gates of Ravenloft under the castle's disc at valley fit)
+   *  is not a target, as a tap does not pick it either (worldstage.ts hitLabel). */
   private snapAt(x: number, y: number, miles: P | null): Pin | undefined {
     const st = this.stage!; let best: Pin | undefined, bd = Infinity;
     for (const p of worldPins()) {
       if (!this.shown(p)) continue;
+      const lbl = document.querySelector(`.lbl.place[data-key="${CSS.escape(p.key)}"]`);
+      if (lbl?.classList.contains('declutter')) continue;
       const [wx, wz] = worldOfMiles(st.data, p.pos as Vec2), s = st.screenOfAbs(new THREE.Vector3(wx, st.groundAt(wx, wz), wz));
       // the place's mark on the page: its land point, or its disc where the label shows (the symbol stands over it)
-      const disc = document.querySelector(`.lbl.place[data-key="${CSS.escape(p.key)}"] .pk`)?.getBoundingClientRect();
+      const disc = lbl?.querySelector('.pk')?.getBoundingClientRect();
       const onDisc = disc && disc.width ? Math.hypot((disc.left + disc.right) / 2 - x, (disc.top + disc.bottom) / 2 - y) : Infinity;
       const px = Math.min(onDisc, s.behind ? Infinity : Math.hypot(s.x - x, s.y - y)), mi = miles ? dist(miles, p.pos as P) : Infinity;
       if ((px <= SNAP_PX || mi < SNAP_MI) && Math.min(px / SNAP_PX, mi / SNAP_MI) < bd) { bd = Math.min(px / SNAP_PX, mi / SNAP_MI); best = p; }
