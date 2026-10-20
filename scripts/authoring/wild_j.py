@@ -4,7 +4,9 @@
 The book prints no battle map for J; this is the inferred design of the site brief. The Count's old road comes down
 from the north-west through a cut in the crag, swings round a rock knob at the hairpin, turns due east and runs out
 over old cobbles onto the Neck, a tongue of rock with fog on three sides, between two broken turrets to the lip of a
-50-ft chasm, where the castle's drawbridge comes down on a worn stone sill. 540 x 400 ft, 5-ft cells, x east, z south.
+50-ft chasm, where the castle's drawbridge comes down on a worn stone sill. The ground is 400 x 400 ft, ending at the
+chasm's near lip (x 400); the site keeps its 540-ft frame (the far lip at x 450, the castle's stand-in beyond) so every
+piece keeps its place and its id. 5-ft cells, x east, z south.
 
 The gate is the castle's (item 2g-1; owner 2026-10-19: "this looks cool but it's supposed to be attached to and part of
 Ravenloft and the new improved 3D model"): the drawbridge on its chains, the west wall with its gate tunnel, the
