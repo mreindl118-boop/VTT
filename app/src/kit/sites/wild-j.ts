@@ -622,9 +622,11 @@ export function cleft(d: Dims): THREE.Group {
   const fused = fuse(depths); fused.traverse((c) => { c.renderOrder = -3; }); out.add(fused);
   // mist hanging in the depths, the deeper layer thicker
   for (const [f, op, ro, c] of [[0.55, 0.36, -2.9, C.deep2]] as const) { const v = plate(pts, -D * f, depthVeil(c, op)); v.renderOrder = ro; out.add(v); }
-  // the lid: depth only, a hair above the floor slabs (their tops lie at 0.07 at most)
+  // the lid: depth only, a hair above the floor slabs (their tops lie at 0.07 at most). A marker, as a cobweb is: a
+  // ghost of the map (drawn beside the active castle) hides it instead of giving it a colour (render/ghost.ts copies a
+  // material's colour, not its colorWrite), so no white plate lies over the cleft there; the ghost's ground covers it
   const lid = plate(pts, 0.09, new THREE.MeshBasicMaterial({ colorWrite: false }));
-  lid.renderOrder = -2; lid.raycast = () => {}; out.add(lid);
+  lid.renderOrder = -2; lid.raycast = () => {}; lid.userData.role = 'marker'; out.add(lid);
   return out;
 }
 

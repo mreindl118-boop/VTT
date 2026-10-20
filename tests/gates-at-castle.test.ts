@@ -15,6 +15,10 @@ import { buildLand } from '../app/src/render/worldland';
 import { buildBackdrop } from '../app/src/render/backdrop';
 import { bounds } from '../app/src/core/geometry';
 import { CAMPAIGNS, worldOf } from '../app/src/campaigns';
+import { buildLevel } from '../app/src/render/build';
+import { Ghost } from '../app/src/render/ghost';
+import '../app/src/kit/sites';
+import type { GridFile } from '../app/src/core/schema';
 import type { Atlas } from '../scripts/world-atlas';
 import type { Level, SceneFile, SceneObject } from '../app/src/core/schema';
 import type { Theme, WorldData } from '../app/src/campaigns';
@@ -152,6 +156,30 @@ describe('the Gates of Ravenloft where the continuous world is off', () => {
     for (const path of ['ch03/E', 'ch02/I']) {
       const b = backdropOf(path);
       try { expect(!!b.getObjectByName('castle-ravenloft'), path).toBe(true); } finally { dispose(b); }
+    }
+  });
+});
+
+describe('the Gates of Ravenloft drawn beside the castle', () => {
+  it('drawn as a ghost (the castle active beside them), no depth-only piece of their map turns into a coloured surface', () => {
+    // the North Gully's lid writes depth only, opening the ground over the gully's depths; a ghost's plain copy of it
+    // would draw a white plate over the gully (the sail seen from the castle on a phone)
+    stubCanvas();
+    for (const path of ['ch02/J', 'ch04/K']) {
+      const sc = scene(path), lv = ground(sc), grid = JSON.parse(readFileSync(`locations/${path}/grid.json`, 'utf8')) as GridFile;
+      const built = buildLevel(lv, grid.levels[lv.id]), root = new THREE.Group(); root.add(built.root);
+      const ghost = new Ghost(new THREE.Color('#c6ccd6'));
+      ghost.apply({ scene: sc, root, levels: new Map([[lv.id, built]]), labels: [], tokens: new Map() }, { level: lv.id, shown: new Set([lv.id]), cutFt: null, lowWalls: false, revealed: new Set(), restricted: false });
+      const coloured: string[] = [];
+      root.traverse((o) => {
+        const m = o as THREE.Mesh, live = m.userData.liveMat as THREE.Material | undefined;
+        if (!m.isMesh || !live) return;
+        let shown = true; for (let q: THREE.Object3D | null = m; q; q = q.parent) if (!q.visible) shown = false;
+        const now = (Array.isArray(m.material) ? m.material : [m.material]) as THREE.Material[], was = (Array.isArray(live) ? live : [live]) as THREE.Material[];
+        if (shown && was.some((x, i) => x.colorWrite === false && now[i]?.colorWrite !== false)) { let id: string | undefined; for (let q: THREE.Object3D | null = m; q && !id; q = q.parent) id = q.userData.objectId; coloured.push(`${path} ${id ?? m.name}`); }
+      });
+      expect(coloured, path).toEqual([]);
+      dispose(root);
     }
   });
 });
