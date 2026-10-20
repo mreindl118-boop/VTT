@@ -276,6 +276,22 @@ describe('the fog remembers a seen wall\'s whole top', () => {
     for (const z of [18.5, 19.5, 20.5, 21.5]) expect(v(10.5, z), `wall top at z ${z}`).toBe(1);
     expect(v(10.5, 22.5)).toBe(0); expect(v(10.5, 30.5)).toBe(0);
   });
+  it('a shut door\'s doorway is lit up to its leaf, not behind it; open, the next room shows', () => {
+    // a 4-ft wall (z 18 to 22) with a 4-ft door in it, its leaf at z 20; the doorway is floor, as the castle's are
+    const doorway: Polygon = [[8, 18], [12, 18], [12, 22], [8, 22]];
+    const see = (open: boolean) => {
+      const walls = [W('w1', [0, 20], [8, 20], 4), { ...W('d', [8, 20], [12, 20], 4, ['door']), open }, W('w2', [12, 20], [20, 20], 4)];
+      const cov = CoverageMap.forPolygons([room, beyond, doorway]);
+      cov.updateVision([{ pos: [10, 9], darkvisionFt: 0 }], [room, beyond, doorway], walls, [], 'barovian-overcast');
+      return (x: number, z: number) => cov.visible[cov.idx(x, z)];
+    };
+    const shut = see(false);
+    expect(shut(10.5, 18.5)).toBe(1); expect(shut(10.5, 19.5)).toBe(1);
+    expect(shut(10.5, 21.5), 'behind the leaf').toBe(0); expect(shut(10.5, 30.5)).toBe(0);
+    expect(shut(4.5, 21.5), 'the wall beside it is seen whole').toBe(1);
+    const open = see(true);
+    expect(open(10.5, 21.5)).toBe(1); expect(open(10.5, 30.5)).toBe(1);
+  });
   it('a map without thicknessFt keeps its one-foot rim', () => {
     const v = run(undefined);
     expect(v(10.5, 18.5)).toBe(1); expect(v(10.5, 19.5)).toBe(0);
