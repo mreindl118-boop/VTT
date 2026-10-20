@@ -170,8 +170,14 @@ describe('thick walls join with no gap and no overlap', () => {
     const fp = wallFootprints([W('A', [-30, 0], [0, 0], 5, ['normal'], 2.5), W('B', [0, 0], [10, -10], 0.5, ['normal'], 0.25)]) as Polygon[];
     const c = cover(fp, samples(-29.9, 0.03, -0.03, 4.97, () => true));
     expect(c.length).toBeGreaterThan(2000); expect(c.filter((k) => k !== 1)).toEqual([]);
-    // the corner beyond the thick wall's end, between its end and the chamfer's outer face, is the chamfer's, once
-    once(fp, samples(0.03, -6, 6, 0, ([x, z]) => x + z > 0.03 && x + z < Math.SQRT2 * 0.5 - 0.03 && x - z > 0.05 && x < 5));
+    // the thick wall ends square on its joint's line, x = 0
+    expect(Math.max(...fp[0].map((p) => p[0]))).toBeCloseTo(0, 6);
+    // the chamfer's band, from its joint to its far end, is the chamfer's, once
+    once(fp, samples(0.03, -10, 10, 0, ([x, z]) => x + z > 0.03 && x + z < Math.SQRT2 * 0.5 - 0.03 && x - z > 0.05 && x < 9.6));
+    // and the corner between the thick wall's square end and the chamfer's outer face (the little triangle behind the
+    // chamfer's start) is filled, once: no hole where the two meet
+    const corner = cover(fp, samples(0, -0.1, 0.4, 0.75, ([x, z]) => x > 0.02 && x - z < -0.02 && x + z < Math.SQRT2 * 0.5 - 0.02));
+    expect(corner.length).toBeGreaterThan(3); expect(corner.filter((k) => k !== 1)).toEqual([]);
   });
 
   it('a wall split in two in one line, and a door between pieces, are cut square where the pieces meet', () => {

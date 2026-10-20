@@ -203,11 +203,31 @@ function compute(walls: readonly Wall[], grow: number): (Polygon | null)[] {
     // no wall runs through: mitre round the joint, each pair of neighbours sharing the meeting of their faces
     const S = E.slice().sort((x, y) => Math.atan2(x.d[1], x.d[0]) - Math.atan2(y.d[1], y.d[0]));
     const k = S.length, Lp: Vec2[] = [], Rp: Vec2[] = [];
+    // A pair whose faces meet behind one wall's end and inside the other's stretch (a thin wall turning off a thick
+    // one's end, the thick wall's face reaching far past the thin one's) cannot be mitred without cutting into the wall
+    // the meeting lies in: that wall keeps its square end and the other closes on that end's line, when it can do so
+    // without losing any of its own stretch. If any such pair cannot, the joint is mitred as usual.
+    const pairs: { el: Vec2; fr: Vec2; q: Vec2 | null; lim: number; sq: [Vec2, Vec2] | null; mixed: boolean }[] = [];
+    let square = true;
     for (let i = 0; i < k; i++) {
       const e = S[i], f = S[(i + 1) % k];   // f is e's neighbour on e's left
       const el = leftFace(e), fr = rightFace(f);
-      const q = meet(el, e.d, fr, f.d);
-      if (q && len(sub(q, p)) <= MITRE_LIMIT * Math.max(e.hl, e.hr, f.hl, f.hr) * 2) { Lp[i] = q; Rp[(i + 1) % k] = q; }
+      const q = meet(el, e.d, fr, f.d), lim = MITRE_LIMIT * Math.max(e.hl, e.hr, f.hl, f.hr) * 2;
+      const se = q ? dot(sub(q, p), e.d) : 0, sf = q ? dot(sub(q, p), f.d) : 0;
+      const mixed = !!q && ((se > 1e-6 && sf < -1e-6) || (se < -1e-6 && sf > 1e-6));
+      let sq: [Vec2, Vec2] | null = null;
+      if (mixed) {
+        // e ahead: e square at el, f's face closes on e's end line; f ahead: the other way round
+        const x = se > 0 ? meet(fr, f.d, p, left(e.d)) : meet(el, e.d, p, left(f.d)), behind = se > 0 ? f : e;
+        if (x && len(sub(x, p)) <= lim && dot(sub(x, p), behind.d) <= 1e-6) sq = se > 0 ? [el, x] : [x, fr];
+        else square = false;
+      }
+      pairs.push({ el, fr, q, lim, sq, mixed });
+    }
+    for (let i = 0; i < k; i++) {
+      const { el, fr, q, lim, sq, mixed } = pairs[i];
+      if (mixed && square && sq) { Lp[i] = sq[0]; Rp[(i + 1) % k] = sq[1]; }
+      else if (q && len(sub(q, p)) <= lim) { Lp[i] = q; Rp[(i + 1) % k] = q; }
       else { Lp[i] = el; Rp[(i + 1) % k] = fr; }
     }
     for (let i = 0; i < k; i++) {

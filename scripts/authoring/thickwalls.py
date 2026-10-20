@@ -504,11 +504,29 @@ def footprints(walls, grow=0.0, short=None):
             continue
         S = sorted(E, key=lambda e: math.atan2(e['d'][1], e['d'][0]))
         k = len(S); Lp, Rp = [None] * k, [None] * k
+        # a pair meeting behind one end and inside the other wall's stretch: that wall keeps its square end and the
+        # other closes on its end's line, unless that would cut the other's own stretch; then the joint is mitred
+        # (as wallBody.ts)
+        pairs, square = [], True
         for i in range(k):
             e, f = S[i], S[(i + 1) % k]
             el, fr = lface(e), rface(f)
-            q = meet(el, e['d'], fr, f['d'])
-            if q and math.hypot(q[0] - p[0], q[1] - p[1]) <= MITRE_LIMIT * max(e['hl'], e['hr'], f['hl'], f['hr']) * 2: Lp[i] = q; Rp[(i + 1) % k] = q
+            q = meet(el, e['d'], fr, f['d']); lim = MITRE_LIMIT * max(e['hl'], e['hr'], f['hl'], f['hr']) * 2
+            se, sf = (dot(sub(q, p), e['d']), dot(sub(q, p), f['d'])) if q else (0, 0)
+            mixed = bool(q) and ((se > 1e-6 and sf < -1e-6) or (se < -1e-6 and sf > 1e-6))
+            sq = None
+            if mixed:
+                x = meet(fr, f['d'], p, left(e['d'])) if se > 0 else meet(el, e['d'], p, left(f['d']))
+                behind = f if se > 0 else e
+                if x and math.hypot(x[0] - p[0], x[1] - p[1]) <= lim and dot(sub(x, p), behind['d']) <= 1e-6:
+                    sq = (el, x) if se > 0 else (x, fr)
+                else:
+                    square = False
+            pairs.append((el, fr, q, lim, sq, mixed))
+        for i in range(k):
+            el, fr, q, lim, sq, mixed = pairs[i]
+            if mixed and square and sq: Lp[i], Rp[(i + 1) % k] = sq
+            elif q and math.hypot(q[0] - p[0], q[1] - p[1]) <= lim: Lp[i] = q; Rp[(i + 1) % k] = q
             else: Lp[i] = el; Rp[(i + 1) % k] = fr
         for i in range(k):
             e = S[i]
