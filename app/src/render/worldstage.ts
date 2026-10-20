@@ -500,21 +500,29 @@ export class WorldStage {
   /** The party's last moves (miles, at most 12), drawn dashed on the land in the valley and road bands: each move along
    *  the roads between its two ends (render/worldroads.ts), or straight where an end is off the roads. */
   trail: Vec2[] = [];
-  /** Each move's road route, by its two ends (at most 11 moves show; the cache is emptied when it outgrows them). */
-  private routes = new Map<string, Vec2[]>();
+  /** Each move's way on the land, by its two ends: the road route's points (or the two ends, straight) in absolute
+   *  feet on the ground, worked out once (the route and the land's height) and then only projected each frame. At most
+   *  11 moves show; the cache is emptied when it outgrows them. */
+  private routes = new Map<string, THREE.Vector3[]>();
   private drawTrail(on: boolean): void {
     const path = this.trailEl.firstElementChild as SVGPathElement, band = document.body.dataset.band;
     if (!on || this.trail.length < 2 || (band !== 'valley' && band !== 'road')) { if (path.getAttribute('d')) path.setAttribute('d', ''); return; }
-    const host = this.trailEl.getBoundingClientRect(), g = graphOf(this.data);
-    if (this.routes.size > 64) this.routes.clear();
-    const pts: Vec2[] = [this.trail[0]];
+    const w = this.world, host = this.trailEl.getBoundingClientRect(), r = w.renderer.domElement.getBoundingClientRect(), v = new THREE.Vector3();
+    let d = '';
     for (let i = 1; i < this.trail.length; i++) {
       const a = this.trail[i - 1], b = this.trail[i], key = `${a[0]},${a[1]}>${b[0]},${b[1]}`;
-      let r = this.routes.get(key);
-      if (!r) { r = route(g, a, b) ?? [a, b]; this.routes.set(key, r); }
-      for (let k = 1; k < r.length; k++) pts.push(r[k]);
+      let pts = this.routes.get(key);
+      if (!pts) {
+        if (this.routes.size > 64) this.routes.clear();
+        pts = (route(graphOf(this.data), a, b) ?? [a, b]).map((t) => { const [x, z] = worldOfMiles(this.data, t); return new THREE.Vector3(x, this.groundAt(x, z), z); });
+        this.routes.set(key, pts);
+      }
+      // (as screenOfAbs, with the canvas measured once a frame)
+      for (let k = d ? 1 : 0; k < pts.length; k++) {
+        w.toAnchored(pts[k], v).project(w.camera);
+        d += `${d ? 'L' : 'M'}${(r.left + ((v.x + 1) / 2) * r.width - host.left).toFixed(1)} ${(r.top + ((1 - v.y) / 2) * r.height - host.top).toFixed(1)}`;
+      }
     }
-    const d = pts.map((t, i) => { const [x, z] = worldOfMiles(this.data, t), s = this.screenOfAbs(new THREE.Vector3(x, this.groundAt(x, z), z)); return `${i ? 'L' : 'M'}${(s.x - host.left).toFixed(1)} ${(s.y - host.top).toFixed(1)}`; }).join('');
     if (path.getAttribute('d') !== d) path.setAttribute('d', d);
   }
   /** The inked map follows the camera: feet per CSS pixel at the target decides how far it is drawn (fully above
