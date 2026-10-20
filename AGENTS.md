@@ -89,6 +89,7 @@ editing the same thing at once:
 |---|---|---|---|---|
 | `scripts/authoring/barovia-world.py`, `locations/ch02/barovia-region/world.json`, a new `tests/world-roads.test.ts`; for the lakes (2f-1c) `app/src/render/worldland.ts` (the lake functions only), `app/src/render/worldcarto.ts` (the lakes only), `app/src/ui/worldmap.ts` (the lakes only), `scripts/world-atlas.ts` and `tests/atlas.test.ts` (the shore rule only) (item 2f-1a/c) | Claude, cloud | 2026-10-19 14:25 | the region's roads, rivers and lakes as measured shapes, on `claude/wip/item2f-1-roads` | 2026-10-19/20, with 2f-1b as one release |
 | `app/src/app.ts` (only `activate`'s `travel` flag and `moveWorld`), `app/src/render/worldstage.ts` (only `drawTrail`), a new `app/src/render/worldroads.ts` (item 2f-1b) | Claude, cloud | 2026-10-19 14:25 | the trail recorded on explicit travel only and drawn along the road graph, on `claude/wip/item2f-1-roads` | with 2f-1a |
+| For 2f-1's fix pass: `app/src/app.ts` (`tap` only: a place's tap cancels the hover still waiting for its frame), `app/src/ui/worldnest.ts` (the card's click only: its Travel button; not `snapAt`), `app/src/ui/worldmap.ts` (the sheet's `drawTrail`, the card's Travel button, the lakes), a new `app/src/render/worldlakes.ts`, `app/src/render/worldland.ts` (the lakes, and the rivers' channels in `ground`), `app/src/render/backdrop.ts` (the lakes only; not `site()`), `scripts/authoring/site-continuity.py`, `scripts/authoring/barovia-cover.py` (its roads and rivers only), the tests `world-lakes`, `world-roads`, `worldroads`, a new `world-rivers`, the e2e `trail` (item 2f-1) | Claude, cloud | 2026-10-20 22:25 | the review's fixes for 2f-1, on `claude/wip/item2f-1-roads` | with 2f-1 |
 | `scripts/authoring/castle-ravenloft.py`, `locations/ch04/K`, `print/castle-ravenloft/` (item 2g) | Claude, cloud (castle session) | 2026-10-18 21:08 | the playable castle + print set on `claude/wip/castle-playable`; waiting for Matt's approval, then build/tests on a machine with npm | after Matt approves and 0.3.3 lands |
 
 ## Running things (Matt's Windows laptop, PowerShell)
@@ -591,6 +592,11 @@ may still be running** its check-in routine; Matt decides whether it carries on 
 
 ## Questions for Matt
 
+- **The Tser Pool (2026-10-20, item 2f-1):** the regional map draws the pool about half a mile east of the camp's own
+  water (the 180-ft pool at the camp's north edge, your 0.3.1 request), so the valley keeps the camp's pool and the
+  traced outline is only recorded (`TIED` in `barovia-world.py`); the River Ivlis runs through the page's pool position
+  and a short outlet joins the camp's pool to it. Move the camp onto the pool's west shore so the pool can be its
+  measured outline, or keep the pool where the camp is?
 - **The valley's roads (2026-10-19, your screenshots):** may the cloud (a) re-digitise the region's roads and rivers
   in `world.json` as one connected graph through the places, with a test that keeps it so (claim on `world.json`,
   `barovia-world.py`, the test; the renderers unchanged except a guard against hooks), and (b) stop a map-open from
