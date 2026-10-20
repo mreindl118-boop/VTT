@@ -128,6 +128,40 @@ describe('the road graph of Barovia', () => {
   });
 });
 
+describe('the road graph on drawn nets', () => {
+  const net = (roads: { name: string; pts: Vec2[] }[]) => roadGraph({ roads: roads.map((r) => ({ ...r, kind: 'road' })) } as unknown as WorldData);
+  it('goes round a ring road the short way, across the node where the ring closes on itself', () => {
+    // a square ring of 4 miles, its ends one point (one edge whose two ends are one node), and a spur off that node
+    const ring: Vec2[] = [[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]], spur: Vec2[] = [[0, 0], [-1, -1]];
+    const g = net([{ name: 'ring', pts: ring }, { name: 'spur', pts: spur }]);
+    expect(components(g).length).toBe(1);
+    expect(g.edges.filter((e) => e.a === e.b).length).toBe(1);
+    const onNet = (r: Vec2[]) => onRoads(r, [{ pts: ring }, { pts: spur }] as unknown as WorldData['roads']);
+    // just before the closing node to just after it: 0.2 miles through [0, 0], not 3.8 back round the ring
+    const a: Vec2 = [0, 0.1], b: Vec2 = [0.1, 0];
+    for (const [p, q] of [[a, b], [b, a]] as [Vec2, Vec2][]) {
+      const r = route(g, p, q)!;
+      expect(r).not.toBeNull();
+      expect(routeLength(r)).toBeCloseTo(0.2, 9);
+      expect(r.some((x) => dist(x, [0, 0]) < ON)).toBe(true);
+      expect(onNet(r)).toBe(true);
+    }
+    // from the spur's end onto the ring, by the nearer way round from the node: [0, 0], [0, 1], then half a mile east
+    const r = route(g, [-1, -1], [0.5, 1])!;
+    expect(routeLength(r)).toBeCloseTo(Math.SQRT2 + 1.5, 9);
+    expect(onNet(r)).toBe(true);
+    expect(r.some((x) => dist(x, [0, 1]) < ON)).toBe(true);
+  });
+  it('joins two polylines at a shared vertex and leaves two apart as two parts', () => {
+    const joined = net([{ name: 'a', pts: [[0, 0], [1, 0], [2, 0]] }, { name: 'b', pts: [[1, 0.005], [1, 1]] }]);
+    expect(components(joined).length).toBe(1); // (within JOIN of a's middle vertex: a junction)
+    expect(joined.nodes.length).toBe(4);
+    const apart = net([{ name: 'a', pts: [[0, 0], [1, 0]] }, { name: 'b', pts: [[0, 2], [1, 2]] }]);
+    expect(components(apart).length).toBe(2);
+    expect(route(apart, [0, 0], [1, 2])).toBeNull(); // no way along the roads from one to the other
+  });
+});
+
 describe('the road graph of the Sheep Chase country', () => {
   it('builds from its four short roads as one net', () => {
     const s = roadGraph(S);

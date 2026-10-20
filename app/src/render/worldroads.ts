@@ -127,19 +127,20 @@ export function route(g: RoadGraph, a: Vec2, b: Vec2, radius = OFF_ROAD): Vec2[]
   let best: { len: number; pts: Vec2[] } | null = null;
   // along one edge, directly
   if (sa.edge === sb.edge) best = { len: Math.abs(sb.along - sa.along), pts: slice(ea, sa.along, sb.along) };
-  // through the net: from either end of a's edge to either end of b's edge
+  // through the net: from either end of a's edge to either end of b's edge (each end by how far along its edge it
+  // lies, so an edge that closes on itself, both ends one node, leaves and arrives by the nearer way)
   const { d, prev, via } = dijkstra(g, [[ea.a, sa.along], [ea.b, ea.len - sa.along]]);
-  for (const [node, tail] of [[eb.a, sb.along], [eb.b, eb.len - sb.along]] as [number, number][]) {
+  for (const [node, tail, at] of [[eb.a, sb.along, 0], [eb.b, eb.len - sb.along, eb.len]] as [number, number, number][]) {
     if (d[node] === Infinity) continue;
     const len = d[node] + tail;
     if (best && len >= best.len - EPS) continue;
     // the chain of nodes back to the source it was reached from
     const chain: number[] = [node]; for (let u = node; prev[u] !== undefined; u = prev[u]!) chain.push(prev[u]!);
     chain.reverse();
-    const start = chain[0];
-    const pts: Vec2[] = slice(ea, sa.along, start === ea.a ? 0 : ea.len);
+    const start = chain[0], leave = start === ea.a && (ea.a !== ea.b || sa.along <= ea.len - sa.along) ? 0 : ea.len;
+    const pts: Vec2[] = slice(ea, sa.along, leave);
     for (let i = 1; i < chain.length; i++) { const e = g.edges[via[chain[i]]!], seg = e.a === chain[i - 1] ? e.pts : [...e.pts].reverse(); pts.push(...seg.slice(1)); }
-    pts.push(...slice(eb, node === eb.a ? 0 : eb.len, sb.along).slice(1));
+    pts.push(...slice(eb, at, sb.along).slice(1));
     best = { len, pts };
   }
   if (!best) return null;
