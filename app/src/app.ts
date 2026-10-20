@@ -878,9 +878,10 @@ export class App {
     this.world.fogScale = outdoor ? Math.min(1, 900 / span) : 1;
     this.world.setOutdoor(outdoor);
     this.applySky();
-    // the party's place on the world map: an explicit travel, or its first place (never the camera looking at a map)
+    // the party's place on the world map: an explicit travel, or its first place when an open finds it has none yet
+    // (never the camera looking at a map)
     const travel = opts.travel ?? false, token = opts.token ?? true;
-    if (pin && (travel || !this.state.world) && this.state.world?.key !== pin.key) this.moveWorld([...pin.pos] as Vec2, pin.key, this.state.world ? Math.hypot(this.state.world.pos[0] - pin.pos[0], this.state.world.pos[1] - pin.pos[1]) : 0, false);
+    if (pin && (travel || (token && !this.state.world)) && this.state.world?.key !== pin.key) this.moveWorld([...pin.pos] as Vec2, pin.key, this.state.world ? Math.hypot(this.state.world.pos[0] - pin.pos[0], this.state.world.pos[1] - pin.pos[1]) : 0, false);
     if (token) this.ensureDefaultToken();
     const id = levelId && levels.has(levelId) ? levelId : scene.entry && levels.has(scene.entry) ? scene.entry : scene.levels[0].id;
     this.setLevel(id, opts.frame === true);
