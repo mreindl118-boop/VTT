@@ -172,3 +172,19 @@ describe('the road graph of the Sheep Chase country', () => {
     expect(onRoads(r, S.roads)).toBe(true);
   });
 });
+
+describe('the place card offers the DM a travel, as the drag does', () => {
+  it('Travel here shows for the DM when the party is elsewhere, beside Open; never for players or where the party stands', async () => {
+    const { useWorld, worldCardHtml } = await import('../app/src/ui/worldmap');
+    useWorld(W, 'gothic', 'ch02/barovia-region');
+    const N = W.pins.find((p) => p.key === 'N')!, o = { dm: true, revealed: true, pace: 'normal' as const, canOpen: true, labels: ['Town of Vallaki'] };
+    const card = (miles: number, canTravel: boolean, dm = true) => worldCardHtml(N, N.pos as Vec2, miles, { ...o, dm, canTravel });
+    expect(card(8.6, true)).toMatch(/<div class="wc-actions"><button data-travel>Travel here<\/button><button class="primary" data-scene="ch05\/N">Open Town of Vallaki<\/button><\/div>/);
+    expect(card(0, true)).not.toContain('data-travel'); // the party is there
+    expect(card(8.6, false, false)).not.toContain('data-travel'); // the players' card
+    expect(card(8.6, false)).toContain('data-scene="ch05/N"');
+    // a place with no map: Travel here and the no-map note
+    const C = W.pins.find((p) => !p.scenes?.length)!, none = worldCardHtml(C, C.pos as Vec2, 3, { ...o, labels: [], canTravel: true });
+    expect(none).toContain('<button data-travel>Travel here</button>'); expect(none).toContain('No battle map here yet');
+  });
+});

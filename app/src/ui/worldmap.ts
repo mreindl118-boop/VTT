@@ -60,13 +60,19 @@ export function pinTipHtml(p: Pin, o: { dm: boolean; revealed: boolean; canOpen:
   return `<b>${esc(keyOf(p))} · ${esc(p.name)}</b>${p.blurb ? `<div>${pinText(p, 'blurb', seen)}</div>` : ''}${o.dm && p.dm ? `<div class="dm">${pinText(p, 'dm', seen)}</div>` : ''}${o.dm ? `<div class="vis">${o.revealed ? 'Players can see this place' : 'Hidden from players'}</div>` : ''}${p.scenes?.length ? `<div class="vis">${o.canOpen ? 'Tap to open the map' : 'Tap for its card'}</div>` : ''}`;
 }
 /** The place card: where (a place, or the wilderness near the nearest name), the blurb, the DM's note and reveal
- *  chip, the distance from the party and the time at a pace, and an Open button per map (or the no-map note). */
-export function worldCardHtml(pin: Pin | undefined, to: P, miles: number, o: { dm: boolean; known?: ReadonlySet<string>; revealed: boolean; pace: Pace; canOpen: boolean; labels: string[] }): string {
+ *  chip, the distance from the party and the time at a pace, the DM's Travel here (`canTravel`: the party goes there,
+ *  a move on its trail, as its drag does; opening a map is only looking) and an Open button per map (or the no-map
+ *  note). */
+export function worldCardHtml(pin: Pin | undefined, to: P, miles: number, o: { dm: boolean; known?: ReadonlySet<string>; revealed: boolean; pace: Pace; canOpen: boolean; canTravel?: boolean; labels: string[] }): string {
   const speed = PACES[o.pace].mph, hours = miles / speed;
   const where = pin ? `<b>${esc(keyOf(pin))}</b> ${esc(pin.name)}` : (() => { const n = nearestName(to, o.dm ? undefined : (o.known ?? new Set())); return `Wilderness · ${n.mi.toFixed(1)} mi from ${esc(n.name)}`; })();
   const scenes = pin?.scenes ?? [], seen = new Set<string>();
   return `<div class="wc-where">${where}${pin && o.dm ? `<button class="chip-btn" data-reveal="${pin.key}" aria-pressed="${o.revealed}">${o.revealed ? 'Shown to players' : 'Hidden from players'}</button>` : ''}</div>${pin?.blurb ? `<div class="wc-blurb">${pinText(pin, 'blurb', seen)}</div>` : ''}${pin?.dm && o.dm ? `<div class="wc-dm">${pinText(pin, 'dm', seen)}</div>` : ''}<div class="wc-travel">${miles.toFixed(1)} mi as the crow flies · about ${fmtHours(hours)} at a ${o.pace} pace (${speed} mph)</div>
-      ${scenes.length && o.canOpen ? `<div class="wc-actions">${scenes.map((s, i) => `<button class="primary" data-scene="${s}">Open ${esc(o.labels[i] ?? s)}</button>`).join('')}</div>` : scenes.length ? '' : '<div class="wc-note">No battle map here yet; run it theatre-of-the-mind or pick a nearby place.</div>'}`;
+      ${(() => {
+        const travel = o.canTravel && miles >= 0.05 ? '<button data-travel>Travel here</button>' : '';
+        const open = scenes.length && o.canOpen ? scenes.map((s, i) => `<button class="primary" data-scene="${s}">Open ${esc(o.labels[i] ?? s)}</button>`).join('') : '';
+        return `${travel || open ? `<div class="wc-actions">${travel}${open}</div>` : ''}${scenes.length ? '' : '<div class="wc-note">No battle map here yet; run it theatre-of-the-mind or pick a nearby place.</div>'}`;
+      })()}`;
 }
 
 // ---------------------------------------------------------------- the painted base layer
@@ -400,11 +406,15 @@ export function openWorldMap(host: WorldHost): void {
 
   async function showCard(pin: Pin | undefined, to: P, miles: number): Promise<void> {
     const labels = await Promise.all((pin?.scenes ?? []).map((s) => host.sceneName(s)));
-    card.innerHTML = worldCardHtml(pin, to, miles, { dm: host.dm, known: host.revealed(), revealed: pin ? host.revealed().has(pin.key) : false, pace, canOpen: host.canMove, labels });
+    card.innerHTML = worldCardHtml(pin, to, miles, { dm: host.dm, known: host.revealed(), revealed: pin ? host.revealed().has(pin.key) : false, pace, canOpen: host.canMove, canTravel: host.canMove, labels });
     card.hidden = false;
+    shown = { pin, to };
   }
+  let shown: { pin: Pin | undefined; to: P } | null = null;
   card.addEventListener('click', (e) => {
     const t = e.target as HTMLElement, s = t.closest<HTMLElement>('[data-scene]')?.dataset.scene; if (s) { host.enter(s); back.remove(); return; }
+    // Travel here: the party goes to the card's place (as a drag there would), and the card shows it arrived
+    if (t.closest('[data-travel]') && host.canMove && shown) { const { pin, to } = shown, miles = dist(at, to); if (miles < 0.05) return; host.move([...to] as P, pin?.key, miles); at = [...to] as P; place(at); drawTrail(); refreshKnown(); void showCard(pin, to, 0); return; }
     const rv = t.closest<HTMLElement>('[data-reveal]'); if (rv) { const p = W.pins.find((x) => x.key === rv.dataset.reveal)!; host.reveal(p.key, !host.revealed().has(p.key)); refreshKnown(); void showCard(p, p.pos, dist(at, p.pos)); }
   });
   back.querySelector('.pace')!.addEventListener('click', (e) => { const b2 = (e.target as HTMLElement).closest<HTMLElement>('[data-pace]'); if (!b2) return; pace = b2.dataset.pace as Pace; back.querySelectorAll('[data-pace]').forEach((x) => x.setAttribute('aria-selected', String(x === b2))); });

@@ -3,7 +3,8 @@
 // map's disc, a crumb, the library, a reload); and the trail is drawn along the roads between its places
 // (render/worldroads.ts, render/worldstage.ts drawTrail), not as a straight ray across the valley. Both tests failed
 // on the build before: every open moved the party, and the trail was straight lines between the places. The flat sheet
-// (the continuous world off, ui/worldmap.ts) draws its trail the same way.
+// (the continuous world off, ui/worldmap.ts) draws its trail the same way. The place card's Travel here is the other
+// explicit travel (a move, as the drag is); its Open is a look.
 import { expect, test } from '@playwright/test';
 import { boot, SCENES, quiet } from './helpers';
 
@@ -105,4 +106,32 @@ test('the flat sheet (the continuous world off) draws the trail along the roads 
   for (const ft of r.offRoadFt) expect(ft).toBeLessThan(60);
   expect(r.ends[0]).toBeLessThan(1); expect(r.ends[1]).toBeLessThan(1); // from the village's place to Vallaki's
   expect(r.drawnMi).toBeGreaterThan(r.straightMi * 1.3);
+});
+
+test('the card\'s Travel here records one move on the trail; its Open records none', async ({ page }) => {
+  test.setTimeout(400_000);
+  await boot(page, '', VILLAGE);
+  const world = () => page.evaluate(() => { const w = (window as any).__mistlab.app.state.world; return { key: w.key, trail: w.trail.length }; });
+  const card = async () => {
+    // the world map, Places, Vallaki's row: it flies there and shows Vallaki's card
+    await page.click('[data-act="world"]');
+    await page.waitForFunction(() => !(window as any).__mistlab.app.world.flying, undefined, { timeout: 120_000 });
+    if ((await page.locator('.nestbar [data-places]').getAttribute('aria-pressed')) !== 'true') await page.click('.nestbar [data-places]');
+    await page.click('.nestkey li[data-key="N"] .place-action');
+    await expect(page.locator('.nestcard')).toBeVisible({ timeout: 60_000 });
+  };
+  expect(await world()).toEqual({ key: 'E', trail: 1 });
+  await card();
+  await expect(page.locator('.nestcard [data-travel]')).toHaveText('Travel here');
+  // Open: the town's map opens, and the party stays at the village
+  await page.click('.nestcard [data-scene="ch05/N"]');
+  await page.waitForFunction(() => { const a = (window as any).__mistlab.app; return a.cur?.path === 'ch05/N' && !a.world.flying; }, undefined, { timeout: 180_000 });
+  expect(await world()).toEqual({ key: 'E', trail: 1 });
+  // Travel here: the party goes to Vallaki, one move on its trail, and the card shows it there (no Travel any more)
+  await card();
+  await page.click('.nestcard [data-travel]');
+  expect(await world()).toEqual({ key: 'N', trail: 2 });
+  await expect(page.locator('.nestcard')).toBeVisible();
+  await expect(page.locator('.nestcard [data-travel]')).toHaveCount(0);
+  await expect(page.locator('.nestcard .wc-travel')).toContainText('0.0 mi');
 });
