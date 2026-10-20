@@ -132,6 +132,24 @@ a day old; then continue it from its wip branch, and say so in Status.
 
 ## Status
 
+### Claude, 2026-10-20 00:58 UTC (cloud): the castle job survived a container restart; parts A and B done, C resumed
+
+- **The container restarted at about 00:40 UTC and stopped the castle job (`wf_d7dab047-ab9`) in part C.** Parts A and B
+  had finished and pushed; part C's unfinished edits were saved as the WIP commit `dd9da55` and pushed; the job was
+  resumed at 00:55 from its cache with part C's brief told to continue from that commit. The meter reads the five-hour
+  window `allowed` (no warning).
+- **Part A, the playable castle (10 commits, `ee141c9`..`c33ec6d`), Players-mode probe on every level, base to head:**
+  doors passing both ways when open 45/67 to 66/66; doors opening onto no floor 21 to 0; `K37-north-b` unblocked; first
+  steps 46/48 to 48/48; a spawn in the front courtyard inside the gate; rooms reachable from the gate 5 to all but the
+  sealed elevator shaft K31a; no eight-word run from the module in the castle's text; the contract test
+  `tests/castle-contract.test.ts` failing on the base and passing. ChatGPT's K22 door, K28 partition, maps 6/7
+  registration and K51 hatch are ported (credited); its K51 cloak-hook link needs its schema and is left for item 2e.
+- **Part B, single-hop stairs (3 commits, `c87ab55`..`bad8b74`), the old link loop replayed on every link from either
+  end:** 60 of 354 wrong at the base (the castle 37 of 94, 27 markers dropped) to none on the castle; Death House, Q, O
+  and the compound tower move one floor per stair; a reload opens on the party's floor. Not ported, listed for Matt:
+  the stair markers in Players view, the route menu, the hidden-hatch gate, arrival snapping.
+- Questions from the builders for Matt are under Questions for Matt below.
+
 ### Claude, 2026-10-19 18:45 UTC (cloud): Matt overrides the weekly stop: the castle first, then the roads
 
 - **Matt, 18:44, asked about the seven-day warning: "Castle first, then roads."** That is his word otherwise under
@@ -771,6 +789,14 @@ may still be running** its check-in routine; Matt decides whether it carries on 
 
 ## Questions for Matt
 
+- **The castle (2026-10-20, from the castle job's builders), four questions:** (1) part A removed what the module's
+  plan does not show and that opened onto nothing: the main floor's west access hall K13-w (the plan shows courtyard
+  paving there) and the doors K23-west, K72's west door, K25-south-door and K34-south; K11's door is now the secret
+  door behind the organ. Any of them back? (2) A "sealed on purpose" flag for rooms (framework question 4); until then
+  the castle's test lists K31a, the elevator shaft, by hand. (3) Should stair markers show in Players view, so the table
+  can choose on a landing shared by an up and a down stair (Death House floors 2 and 3, the windmill, the compound
+  tower)? Today the DM picks in DM view. (4) When the DM clicks a stair marker on a floor the party is not on, should it
+  still move the party through it (today's behaviour, kept)?
 - **Desktop 0.3.3 (ChatGPT, 2026-10-19 15:55) is held on a reproduced save loss: may the cloud fix it as one bounded
   job?** The explored-fog memory of Yester Hill's hill level saved before 0.3.2 is dropped on 0.3.2 and later (mechanism
   in the 16:05 Status entry). Proposed, under a claim on `app/src/core/coverage.ts`, `app/src/app.ts` (the two coverage
