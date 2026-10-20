@@ -19,6 +19,12 @@ import { LandField, SHORE, buildLand, lakeOutline, ringCentroid, ringSd } from '
 import { MAX_EDGE_MI, lakeRing } from '../app/src/render/worldlakes';
 import { CARTO_STYLES, bakeLand, cartoUniforms } from '../app/src/render/worldcarto';
 import { inLake, useWorld } from '../app/src/ui/worldmap';
+import { buildBackdrop } from '../app/src/render/backdrop';
+import { CAMPAIGNS, worldOf } from '../app/src/campaigns';
+import { bounds } from '../app/src/core/geometry';
+import { inLakeShape } from '../app/src/render/worldlakes';
+import type { SceneFile } from '../app/src/core/schema';
+import { readFileSync } from 'node:fs';
 
 type Vec2 = [number, number];
 const data = barovia as unknown as WorldData, sheep = wsc as unknown as WorldData;
@@ -199,5 +205,50 @@ describe('the flat sheet reads the outlines', () => {
     expect(inLake([z.center[0] - z.r[0] * 0.98, z.center[1] - z.r[1] * 0.9]), 'the bounding ellipse\'s corner is land').toBe(false);
     const t = data.lakes.find((l) => l.name === 'Tser Pool')!;
     expect(inLake(t.center)).toBe(true); expect(inLake([t.center[0] + t.r[0] * 1.01, t.center[1]])).toBe(false);
+  });
+});
+
+/** The page canvas the backdrop's textures paint on, stubbed for node. */
+function stubCanvas(): void {
+  const g = globalThis as unknown as { document?: unknown };
+  if (g.document) return;
+  const ctx: unknown = new Proxy({}, { get: (_t, k) => (k === 'createRadialGradient' || k === 'createLinearGradient' ? () => ({ addColorStop() {} }) : () => {}), set: () => true });
+  g.document = { createElement: () => ({ width: 0, height: 0, style: {}, getContext: () => ctx }) };
+}
+
+describe('the legacy backdrop (the continuous world off) draws the same shore', () => {
+  it('Tsolenka Pass stands on its snow beside Luna Lake, not in the lake its bounding ellipse would draw', () => {
+    stubCanvas();
+    const camp = CAMPAIGNS.find((c) => c.prefixes.includes('ch09'))!, world = worldOf(camp);
+    const scene = JSON.parse(readFileSync('locations/ch09/T/scene.json', 'utf8')) as SceneFile, pass = scene.levels.find((l) => l.id === 'pass')!;
+    const pin = world.pins.find((p) => p.scenes?.includes('ch09/T'))!, luna = world.lakes.find((l) => l.name === 'Luna Lake')!;
+    // the trap: the pass lies inside the lake's bounding ellipse, outside the lake as it is drawn
+    expect(((pin.pos[0] - luna.center[0]) / luna.r[0]) ** 2 + ((pin.pos[1] - luna.center[1]) / luna.r[1]) ** 2).toBeLessThan(1);
+    expect(inLakeShape(luna, pin.pos as Vec2)).toBe(false);
+    const bb = bounds([...pass.rooms.map((r) => r.polygon), ...(pass.terrain ?? []).map((t) => t.polygon)]);
+    const bd = buildBackdrop({ ground: 'snow', center: [(bb.minX + bb.maxX) / 2, (bb.minZ + bb.maxZ) / 2], radius: Math.hypot(bb.maxX - bb.minX, bb.maxZ - bb.minZ) / 2, elevation: pass.elevationFt, pin: pin.pos as Vec2, world, theme: camp.theme, bounds: bb, north: pass.north, roads: [], crag: pin.heightFt ?? 0 });
+    try {
+      bd.updateMatrixWorld(true);
+      // the lakes' water (merged by colour with nothing else): unlit, the lake blue hazed toward the mist
+      const blue = new THREE.Color('#5e7d94'), mist = new THREE.Color(camp.theme.mist);
+      const water = (m: THREE.Mesh) => {
+        const mat = m.material as THREE.MeshBasicMaterial; if (!(mat instanceof THREE.MeshBasicMaterial) || mat.vertexColors) return false;
+        const d = [mist.r - blue.r, mist.g - blue.g, mist.b - blue.b], c = [mat.color.r - blue.r, mat.color.g - blue.g, mat.color.b - blue.b];
+        const t = Math.max(0, Math.min(1, (c[0] * d[0] + c[1] * d[1] + c[2] * d[2]) / (d[0] ** 2 + d[1] ** 2 + d[2] ** 2)));
+        return Math.hypot(c[0] - d[0] * t, c[1] - d[1] * t, c[2] - d[2] * t) < 0.01;
+      };
+      const lakes: THREE.Mesh[] = []; bd.traverse((o) => { if (o instanceof THREE.Mesh && water(o)) lakes.push(o); });
+      const land = bd.getObjectByName('land')!, ray = new THREE.Raycaster();
+      expect(lakes.length).toBeGreaterThan(0);
+      const down = (x: number, z: number, o: THREE.Object3D | THREE.Object3D[]) => { ray.set(new THREE.Vector3(x, 1e5, z), new THREE.Vector3(0, -1, 0)); return Array.isArray(o) ? ray.intersectObjects(o) : ray.intersectObject(o); };
+      // round the pass, 300 ft out from each side: snow, no water, and the land not cut down to a lake
+      const cx = (bb.minX + bb.maxX) / 2, cz = (bb.minZ + bb.maxZ) / 2;
+      for (const [x, z] of [[cx, cz], [bb.minX - 300, cz], [bb.maxX + 300, cz], [cx, bb.minZ - 300], [cx, bb.maxZ + 300]]) {
+        expect(down(x, z, lakes), `water at ${x},${z}`).toHaveLength(0);
+        if (x !== cx || z !== cz) expect(Math.abs(down(x, z, land)[0].point.y - pass.elevationFt), `land at ${x},${z}`).toBeLessThan(60);
+      }
+    } finally {
+      bd.traverse((o) => { if (o instanceof THREE.Mesh) { o.geometry.dispose(); for (const m of Array.isArray(o.material) ? o.material : [o.material]) m.dispose(); } });
+    }
   });
 });

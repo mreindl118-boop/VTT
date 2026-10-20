@@ -11,11 +11,22 @@ import { markShared } from './dispose';
 import { surfaceOf, type Surface } from '../kit/surfaces';
 import { terrainOf } from '../core/terrain';
 import RAVENLOFT from '../../../locations/ch04/K/exterior.json';
+import { inLakeShape, lakeRing, lakeShorePoints, ringCentroid } from './worldlakes';
 
 type P = [number, number];
 let MIST = new THREE.Color('#2b2733');
 
 const blend = (hex: string, t: number) => new THREE.Color(hex).lerp(MIST, Math.min(1, Math.max(0, t)));
+/** A lake's middle (miles): its drawn shore's centroid, else its ellipse's centre. */
+const lakeCentre = (l: WorldData['lakes'][number]): P => { const r = lakeRing(l); return r ? ringCentroid(r) : [l.center[0], l.center[1]]; };
+/** A flat sheet filling a ring of plan points at height y, facing up. */
+function sheetOf(ring: P[], y: number): THREE.BufferGeometry {
+  const tris = THREE.ShapeUtils.triangulateShape(ring.map(([x, z]) => new THREE.Vector2(x, z)), []), idx: number[] = [];
+  for (const [a, b, c] of tris) { const [ax, az] = ring[a], [bx, bz] = ring[b], [qx, qz] = ring[c]; if ((bz - az) * (qx - ax) - (bx - ax) * (qz - az) >= 0) idx.push(a, b, c); else idx.push(a, c, b); }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(ring.flatMap(([x, z]) => [x, y, z]), 3)); g.setAttribute('normal', new THREE.Float32BufferAttribute(ring.flatMap(() => [0, 1, 0]), 3)); g.setIndex(idx);
+  return g;
+}
 /** A landmark's material: lit, its colour hazed toward the mist, its grain the surface its own colour is made of. */
 const lambert = (c: THREE.Color, surf: Surface = 'generic') => { const m = new THREE.MeshLambertMaterial({ color: c, fog: false, flatShading: true }); setSurface(m, surf); return patchFog(m, true); };
 
@@ -147,13 +158,14 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
     const held = crag > 0 ? yTop - crag + (h - yTop + crag) * smooth(320, 1400, d) : yTop + (h - yTop) * smooth(120, 900, d);
     return shaper?.height ? shaper.height(x, z, held, h, d) : held;
   };
+  // each lake by its shore as every view draws it (render/worldlakes.ts: the measured outline rounded, else the ellipse)
   const lakeLevel = new Map<object, number>();
   if (HF) for (const l of W.lakes) {
     let lo = Infinity;
-    for (let k = 0; k < 32; k++) { const a = (k / 32) * Math.PI * 2, [px, pz] = toPlan([l.center[0] + Math.cos(a) * l.r[0], l.center[1] + Math.sin(a) * l.r[1]]); lo = Math.min(lo, yAt(cx + px, cz + pz)); }
+    for (const q of lakeShorePoints(l, 32)) { const [px, pz] = toPlan(q); lo = Math.min(lo, yAt(cx + px, cz + pz)); }
     // a lake whose shore reaches this map lies at the map's own ground (the town stands on its shore)
-    let touches = false; for (let k = 0; k < 64 && !touches; k++) { const a = (k / 64) * Math.PI * 2, [px, pz] = toPlan([l.center[0] + Math.cos(a) * l.r[0], l.center[1] + Math.sin(a) * l.r[1]]); touches = mapDist(cx + px, cz + pz) < 700; }
-    const [qx, qz] = toPlan(l.center); lakeLevel.set(l, touches ? yTop - 2.5 : Math.min(lo, yAt(cx + qx, cz + qz)) - 4);
+    const touches = lakeShorePoints(l, 64).some((q) => { const [px, pz] = toPlan(q); return mapDist(cx + px, cz + pz) < 700; });
+    const [qx, qz] = toPlan(lakeCentre(l)); lakeLevel.set(l, touches ? yTop - 2.5 : Math.min(lo, yAt(cx + qx, cz + qz)) - 4);
   }
   if (HF) {
     // a polar mesh: fine near the site, coarse toward the horizon
@@ -175,7 +187,7 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
     for (let ri = 0; ri < radii.length; ri++) for (let k = 0; k < SEG; k++) {
       const a = (k / SEG) * Math.PI * 2, r = radii[ri], x = cx + Math.cos(a) * r, z = cz + Math.sin(a) * r;
       let y = yAt(x, z) - (mapDist(x, z) < 150 ? 0.4 : 3); // flush where the land meets the map
-      for (const l of W.lakes) { const [mx, my] = toMiles(x, z); if (((mx - l.center[0]) / l.r[0]) ** 2 + ((my - l.center[1]) / l.r[1]) ** 2 < 1) y = Math.min(y, (lakeLevel.get(l) ?? y) - 6); }
+      for (const l of W.lakes) if (inLakeShape(l, toMiles(x, z))) y = Math.min(y, (lakeLevel.get(l) ?? y) - 6);
       P3.push(x, y, z); const c = colAt(x, z, y, r); C.push(c.r, c.g, c.b);
     }
     for (let ri = 0; ri + 1 < radii.length; ri++) for (let k = 0; k < SEG; k++) { const k1 = (k + 1) % SEG, a0 = ri * SEG + k, a1 = ri * SEG + k1, b0 = (ri + 1) * SEG + k, b1 = (ri + 1) * SEG + k1; idx.push(a0, b1, b0, a0, a1, b1); }
@@ -329,18 +341,21 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
     if (h < 2000) c.visible = false;
     g.add(m, c);
   }
-  // Lakes at true size and position.
+  // Lakes at true size and position: a measured lake as its drawn shore, an ellipse as a disc.
   for (const l of W.lakes) {
-    const t = toWorld(l.center); if (t.d > 80000) continue;
-    const m = new THREE.Mesh(new THREE.CircleGeometry(1, 48), new THREE.MeshBasicMaterial({ color: blend('#5e7d94', haze(t.d)), fog: false }));
-    m.rotation.x = -Math.PI / 2; m.scale.set(l.r[0] * FT, l.r[1] * FT, 1); m.position.set(t.x, HF ? lakeLevel.get(l)! : y0 - 2.6, t.z); g.add(m);
+    const t = toWorld(lakeCentre(l)); if (t.d > 80000) continue;
+    const y = HF ? lakeLevel.get(l)! : y0 - 2.6, mat = new THREE.MeshBasicMaterial({ color: blend('#5e7d94', haze(t.d)), fog: false }), ring = lakeRing(l);
+    let m: THREE.Mesh;
+    if (ring) m = new THREE.Mesh(sheetOf(ring.map((q) => { const [px, pz] = toPlan(q); return [cx + px, cz + pz] as P; }), y), mat);
+    else { m = new THREE.Mesh(new THREE.CircleGeometry(1, 48), mat); m.rotation.x = -Math.PI / 2; m.scale.set(l.r[0] * FT, l.r[1] * FT, 1); m.position.set(t.x, y, t.z); }
+    g.add(m);
     // Bluto Krogarov's rowboat on Lake Zarovich, a few hundred yards off the shore nearest this map: a man fishing,
     // a sack at his feet (the module's encounter at Vallaki's lakeside)
     // (a map of the lake itself carries its own boat, so it is left out there)
     const lakeSite = W.pins.some((q) => q.type === 'lake' && Math.hypot(q.pos[0] - o.pin[0], q.pos[1] - o.pin[1]) < 1e-6);
     if (/Zarovich/.test(l.name) && t.d < 30000 && !lakeSite) {
       let best = { x: t.x, z: t.z, d: Infinity };
-      for (let k = 0; k < 48; k++) { const a = (k / 48) * Math.PI * 2, [px, pz] = toPlan([l.center[0] + Math.cos(a) * l.r[0] * 0.82, l.center[1] + Math.sin(a) * l.r[1] * 0.82]); const d = Math.hypot(cx + px - cx, cz + pz - cz); if (d < best.d) best = { x: cx + px, z: cz + pz, d }; }
+      for (const q of lakeShorePoints(l, 48, 0.82)) { const [px, pz] = toPlan(q), d = Math.hypot(px, pz); if (d < best.d) best = { x: cx + px, z: cz + pz, d }; }
       const boat = new THREE.Group(); boat.name = 'blutos-boat';
       const hull = new THREE.CylinderGeometry(2.4, 1.6, 13, 8, 1, false, 0, Math.PI); hull.rotateZ(Math.PI / 2); hull.rotateX(Math.PI); hull.scale(1, 0.75, 1);
       const hm = new THREE.Mesh(hull, lambert(blend('#5a4632', haze(best.d) * 0.5))); hm.position.y = 1.4; boat.add(hm);
