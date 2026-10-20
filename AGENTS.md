@@ -132,6 +132,27 @@ a day old; then continue it from its wip branch, and say so in Status.
 
 ## Status
 
+### Claude, 2026-10-20 19:35 UTC (cloud): the Gates job is done; J meets the drawbridge, but on the castle's rock; Matt decides the approach
+
+- **`claude/wip/castle-playable` at `4d98fbe`** (11 commits on `0a05ffb`; `6ff75e2` reverted by `4d98fbe` because J as
+  a crag took the whole-valley frame over its 300,000-triangle budget). Done: J's sill under the drawbridge's free end
+  (0 ft apart), one chasm, J's road exit fixed at J-local (40, 0); with the continuous world off, the castle alone has a
+  stand-in of J's sill and ridge, and J alone no longer shows the backdrop's pillar rising out of its map
+  (`backdrop.ts` `site()`); a drop on the castle's disc on the World map lands at the castle (`worldnest.ts` `snapAt`
+  skips hidden places, as a tap does); the white plate from J's gully lid on the castle's phone frame is gone. 665 unit
+  tests pass; world, continuity, nest and worldmap-safety specs pass; the castle probe as before (94/94 stairs);
+  Death House, Vallaki and the Sheep Chase street pixel-identical with the continuous world on and off.
+- **Left, and why it waits on Matt:** standing on the castle's thousand-foot rock, J is out of the road's reach (the
+  valley road ends 1.0 mi away and about 690 ft lower, under a face of about 58 degrees); the chasm is a 395-ft
+  trench with square ends in level ground; from J the castle, drawn as J's neighbour, is cut at 49.5 ft so it does not
+  loom (`app.ts` `ghostLook`); from J's sill looking across, J folds to its proxy (`streamer.ts` `inView`); in Players
+  view nothing of the castle shows at the Gates until its pin is revealed; the castle takes 2-3 minutes to appear
+  beside J under software rendering (not measured on a GPU). The first two are the land's shape (a spur the road
+  climbs, the chasm's ends), which framework release 7 (2f-6) carries; the next two are small render fixes outside the
+  claim. Question for Matt below.
+- **Next: item 2f-1 (the roads) resumes now, on Matt's order ("Castle first, then roads").** The seven-day meter reads
+  `allowed_warning` again; Matt's word stands; the cloud stops at once if a limit is refused.
+
 ### Claude, 2026-10-20 16:15 UTC (cloud): a third container restart (about 16:03); J stands at the castle's drawbridge; reviews resumed
 
 - **The Gates job (`wf_d2ca9c56-9ff`) built and pushed J beside the castle before the restart** (`6131969`, `603e536`,
@@ -838,6 +859,13 @@ may still be running** its check-in routine; Matt decides whether it carries on 
 
 ## Questions for Matt
 
+- **The Gates of Ravenloft beside the castle (2026-10-20 19:35):** J now meets the drawbridge, but on the castle's
+  thousand-foot rock, where the valley road cannot climb. Which: (a) shape the land into a spur the road climbs to the
+  Gates, and give the chasm natural ends, before the castle releases (part of framework release 7, pulled forward);
+  (b) release the castle with the Gates beside it and close the road and the land in the roads job and release 7;
+  (c) put the Gates back on the road below for this release, joining them later. With any of them: two small render
+  fixes so the castle looms from the Gates (drawn uncut as a neighbour) and the Gates stay drawn from their own sill;
+  and should reaching the Gates reveal the castle to Players?
 - **The castle, more questions from its reviewers (2026-10-20):** (5) the wall thicknesses above, right? (6) the
   gatehouse 10 ft out on the chasm edge, a 20-ft tunnel (the module's map 2), gate towers hollow to their battlements?
   (7) the print set: thick walls double the solid volume (41.5 to 81.1 L), and the default ground tray (keep + 20-ft
