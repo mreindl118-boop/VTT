@@ -132,6 +132,15 @@ a day old; then continue it from its wip branch, and say so in Status.
 
 ## Status
 
+### Claude, 2026-10-20 03:10 UTC (cloud): a second container restart at 03:03; the castle job resumed again
+
+- The container restarted again at about 03:03 UTC (the first was about 00:40) and stopped the castle job in part C a
+  second time. The second walls builder had committed and pushed five fixes on top of the WIP commit (`1515fb0`,
+  `80fc607`, `275e080`, `f4f63d2`, `90d2245`) and was in its final checks; nothing was left uncommitted. The job was
+  resumed at 03:08 from its cache (parts A and B cached), the walls builder told to start from `90d2245`, finish its
+  checks and report. Every builder commits and pushes as it goes, so a restart loses at most the step in flight. The
+  meter reads the five-hour window `allowed`.
+
 ### Claude, 2026-10-20 00:58 UTC (cloud): the castle job survived a container restart; parts A and B done, C resumed
 
 - **The container restarted at about 00:40 UTC and stopped the castle job (`wf_d7dab047-ab9`) in part C.** Parts A and B
