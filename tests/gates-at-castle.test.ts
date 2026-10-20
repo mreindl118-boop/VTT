@@ -136,6 +136,35 @@ describe('the Gates of Ravenloft stand at the castle\'s gate in the valley', () 
   });
 });
 
+describe('the Gates of Ravenloft stand on the castle\'s rock', () => {
+  it('as the castle does: the land round them held level and then falling as round the castle, no steeper, the crag\'s rock round them', () => {
+    // J is placed on the castle's rock, as the castle is: a crag site (its land held level farther out, then falling to
+    // the valley, the crag's rock round it), not an ordinary site whose land drops a thousand feet in a few hundred
+    expect(J.crag, 'J stands on a crag, as the castle does').toBe(true);
+    expect(K.crag).toBe(true);
+    const data = world as unknown as WorldData;
+    const sites = Object.values(atlas.scenes).filter((e) => e.campaign === 'cos' && e.worldBounds).map(siteOf);
+    stubCanvas();
+    const land = buildLand(data, sites, campaigns.campaigns[0].theme as unknown as Theme);
+    land.group.updateMatrixWorld(true);
+    try {
+      expect(land.group.children.some((m) => m.name === 'crag:J'), 'the crag\'s rock round J').toBe(true);
+      const f = land.field, wj = J.worldBounds!, wk = K.worldBounds!;
+      // out from J's three outer sides and corners and from the castle's far sides, to the crag's foot (1,500 ft): the
+      // land beside J falls no steeper than beside the castle
+      const steepest = (pts: [number, number][]) => { let m = 0; for (let i = 1; i < pts.length; i++) m = Math.max(m, (f.height(...pts[i - 1]) - f.height(...pts[i])) / Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1])); return m; };
+      const ray = (ox: number, oz: number, dx: number, dz: number) => Array.from({ length: 31 }, (_, k) => [ox + dx * k * 50, oz + dz * k * 50] as [number, number]);
+      const jc = [(wj.minX + wj.maxX) / 2, (wj.minZ + wj.maxZ) / 2], kc = [(wk.minX + wk.maxX) / 2, (wk.minZ + wk.maxZ) / 2];
+      const jRays = [ray(wj.minX, jc[1], -1, 0), ray(jc[0], wj.minZ, 0, -1), ray(jc[0], wj.maxZ, 0, 1), ray(wj.minX, wj.minZ, -Math.SQRT1_2, -Math.SQRT1_2), ray(wj.minX, wj.maxZ, -Math.SQRT1_2, Math.SQRT1_2)];
+      const kRays = [ray(wk.maxX, kc[1], 1, 0), ray(kc[0], wk.minZ, 0, -1), ray(kc[0], wk.maxZ, 0, 1)];
+      const castle = Math.max(...kRays.map(steepest)), gates = Math.max(...jRays.map(steepest));
+      expect(gates, `the land beside J falls ${gates.toFixed(2)} ft a foot at its steepest, beside the castle ${castle.toFixed(2)}`).toBeLessThanOrEqual(castle * 1.1);
+    } finally {
+      land.group.traverse((o) => { if (o instanceof THREE.Mesh) { o.geometry.dispose(); for (const m of Array.isArray(o.material) ? o.material : [o.material]) m.dispose(); } });
+    }
+  });
+});
+
 /** A map's backdrop as app.ts builds it where the continuous world is off: its open-air level's extent, its pin, its
  *  crag, the land beyond it, the other places on the world map. */
 function backdropOf(path: string): THREE.Group {
