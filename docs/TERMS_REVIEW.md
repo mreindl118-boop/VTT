@@ -11,7 +11,7 @@ covers (our own wording). "Rule" is what made it a link: the books' name, a cue 
 a key reference, a hidden-creature slot), the gazetteer, or an override. "Review" is blank once the scene's list in
 the overrides file accepts the link.
 
-Fields read: 6115. Links: 5882 in 2368 rows (accepted 5836, by override 46, unreviewed 0).
+Fields read: 6118. Links: 5882 in 2368 rows (accepted 5836, by override 46, unreviewed 0).
 
 By kind: monster 1514, area 1344, person 1130, check 538, dice 404, rule 277, spell 276, gear 129, magic-item 76, condition 60, damage 54, sense 46, ability 22, skill 10, feature 2.
 

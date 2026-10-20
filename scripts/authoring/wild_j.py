@@ -10,9 +10,13 @@ The gate is the castle's (item 2g-1; owner 2026-10-19: "this looks cool but it's
 Ravenloft and the new improved 3D model"): the drawbridge on its chains, the west wall with its gate tunnel, the
 portcullis, the gate towers with their latches and the gargoyles on the wall top are Castle Ravenloft's own front
 (scripts/authoring/castle-ravenloft.py, ch04/K: K1-bridge, K1-g, K1-tn, K1-ts). J is the road gate on the approach: the
-road's end, the turrets, the chasm's near lip and its sill. Across the chasm, where the continuous world is off, a
-stand-in of the castle (its wall and gate, the lowered bridge, the keep beyond) closes the view; in the continuous world
-the castle itself stands at its own pin and the stand-in is hidden.
+road's end, the turrets, the chasm's near lip and its sill. In the continuous world (the default) the two maps meet at
+the chasm: J's pin is set so this sill lies under the free end of the castle's drawbridge, at the castle's ground level
+(scripts/authoring/barovia-world.py, TIES), so this map's ground ends at the chasm's near lip (x 400) and the castle's map
+begins there; the chasm is the castle's (castle-ravenloft.py's 'chasm', cut in the valley's land by core/siteInterfaces.ts)
+and the North Gully is J's own side-cleft off it. Where the continuous world is off, J stands alone and stand-ins close
+the view across the chasm: the chasm itself, the castle (its wall and gate, the lowered bridge, the keep beyond) and the
+chasm's walls seen from the ledge; the continuous world hides them (core/siteInterfaces.ts WORLD_STANDINS).
 
 Levels (stacked): the spur at road level (0) and a ledge on the mainland face of the chasm under the sill (-35). Only
 keys, names, pages, distances and placements come from the book; every description is our own words. Positions below
@@ -44,6 +48,9 @@ def build():
     s = Site('J', 'Gates of Ravenloft', 108, 80, 707)
     s.lv.id, s.lv.name, s.lv.ceiling = 'ground', 'The Spur (road level)', 93   # (the section's height, as when the castle's wall stood here)
     L = s.lv
+    # the map's ground ends at the chasm's near lip: past it the chasm and the castle are the castle's map, which meets this
+    # one there in the continuous world (the site keeps its 540-ft frame, so every scattered piece stands where it stood)
+    L.terrain[0] = (rect(0, 0, CHASM[0] / 5, s.H), 'grass')
 
     def prism(poly, h, color, y=0.0, label=None, key=None):
         """A flat-topped plate of the given plan (feet): bare rock, a fog floor, a terrace."""
@@ -112,16 +119,23 @@ def build():
     prism(brink2, 0.09, ROCK3)
 
     # ============================================================== the drops: the chasm, the North Gully, the Brink
-    # the chasm runs north-south off both edges; its fog fills it a few yards down
-    # the chasm and the North Gully, one cut: sheer faces dropping from every lip into the fog, the gully biting back
-    # north-west from the chasm behind the north turret to the foot of the crag and running on north off the map
-    cut = [(400, 720), (400, 120)] + GULLY_RIM[::-1][1:] + [(324, 18), (321, -30), (342, -92), (380, -150), (400, -200), (400, -340), (450, -340), (450, 720)]
-    cx_, cz_ = 425, AXIS
-    cd = {'n': len(cut), 'depth': 36, 'nx0': -140, 'nx1': 140, 'nz0': -260, 'nz1': 260}
-    for i, (x, z) in enumerate(cut):
-        cd[f'x{i}'] = rnd(x - cx_, 2); cd[f'z{i}'] = rnd(z - cz_, 2)
-    o = fp('j-cleft', cx_, cz_, dims=cd, label='The chasm and the North Gully', desc='A fifty-foot cleft between the spur and the castle\'s rock, sheer and slick, and a side-cleft of it biting back behind the north turret; both drop into fog a few yards down.')
-    o['vis'] = 'explored'   # its own pieces, drawn in order (the depths, then the lid over them): never merged into the scatter
+    # the chasm runs north-south off both edges; its fog fills it a few yards down. In the continuous world it is the
+    # castle's (castle-ravenloft.py's 'chasm', from the castle's north face to this map's south edge, cut in the land): this
+    # map draws only the North Gully, sheer faces dropping from every lip into the fog, biting back north-west from the
+    # chasm behind the north turret to the foot of the crag and running on north off the map; a rib of rock at the lip
+    # parts it from the chasm. Where the continuous world is off, the chasm is a stand-in of its own, as it was drawn here.
+    def cleft(kind, poly, cx_, cz_, **kw):
+        cd = {'n': len(poly), 'depth': 36, 'nx0': -140, 'nx1': 140, 'nz0': -260, 'nz1': 260}
+        for i, (x, z) in enumerate(poly):
+            cd[f'x{i}'] = rnd(x - cx_, 2); cd[f'z{i}'] = rnd(z - cz_, 2)
+        o = fp(kind, cx_, cz_, dims=cd, **kw)
+        o['vis'] = 'explored'   # its own pieces, drawn in order (the depths, then the lid over them): never merged into the scatter
+        return o
+    cleft('j-cleft', [(CHASM[0], 120)] + GULLY_RIM[::-1][1:] + [(324, 18), (321, -30), (342, -92), (380, -150), (CHASM[0], -200)], 370, 40, label='The North Gully',
+          desc='A side-cleft of the chasm biting back behind the north turret, sheer and slick, dropping into fog a few yards down.')
+    # (its own id, not the next in the count, so every piece after it keeps its id: a save names what it has revealed by id)
+    cleft('j-chasm-standin', [(CHASM[0], -340), (CHASM[1], -340), (CHASM[1], 720), (CHASM[0], 720)], 425, AXIS, id='j-chasm', label='The chasm',
+          desc='A fifty-foot cleft between the spur and the castle\'s rock, sheer and slick, dropping into fog a few yards down.')
     # the North Gully: a side-cleft biting back north-west to the crag foot, as fog-filled as the chasm
     gully = [(335, 45), (352, 70), (372, 92), (388, 110), (400, 120), (402, 0), (402, -40), (330, -40), (326, 20)]
     # the Brink: below the cliff only fog, and through it, far down, the valley
@@ -220,7 +234,8 @@ def build():
     s.clear(*F(392, 250), 3)
 
     # ============================================================== the bridge and its fittings
-    fp('j-bridge-sill', 394, AXIS, label='Mainland sill', desc='A squared stone abutment on the lip with an iron-shod rest worn into a trough by centuries of lowering.')
+    # (28 ft across the road, its iron rest as wide as the castle's twenty-foot deck: the deck's free end lies on its middle)
+    fp('j-bridge-sill', 394, AXIS, dims={'len': 28, 'rest': 20.8}, label='Mainland sill', desc='A squared stone abutment on the lip with an iron-shod rest worn into a trough by centuries of lowering.')
     gone(6)   # the hinge, the drawbridge, its chains and their slots: the castle's (ch04/K)
     s.keep.append((rect(*F(382, 160), *F(400, 190)), 0.3))
 
@@ -290,9 +305,8 @@ def build():
     s.note(F(40, 18), 'North-west: the road back round the mountain to the fork at I, about 2 miles. There is no road up from the village: the valley floor is 1,000 ft straight down off the Brink.')
     s.note(F(398, 104), 'The North Gully\'s rim is undercut and unfenced: a shove or a fumble here is the same 1,000-ft fall as the chasm.', key='J')
     s.note(F(392, 150), 'The drawbridge is the castle\'s (ch04/K, K1-bridge). Mercy for a creature that falls from it near this side: it snags on the ledge 35 ft below the sill (ledge level).', key='J')
-    # the chasm's far lip: a broken margin of bare rock like the near one (the castle stands at its own pin, ch04/K; where
-    # the continuous world is off the stand-in's wall stands on it). Placed last, so no other piece's id moves.
-    prism([(CHASM[1], 0), (CHASM[1], 400)] + ragged([(CHASM[1] + 12, 400), (CHASM[1] + 10, 290), (CHASM[1] + 14, 175), (CHASM[1] + 11, 60), (CHASM[1] + 12, 0)], 3), 0.08, ROCK2)
+    # (the chasm's far lip is the castle's: its wall's footing in the continuous world, the stand-in's rock top where the
+    # world is off; this map draws nothing past the near lip)
     s.spawn(F(252, 176))
 
     # ============================================================== the chasm ledge (-35)
@@ -300,6 +314,8 @@ def build():
     lg.room('J-ledge', 'Chasm ledge', FP([(400, 165), (412, 165), (412, 195), (400, 195)]), 'dirt', page=38)
     s.desc['J-ledge'] = ('A shelf of wet rock thirty-five feet down the chasm wall under the sill where the drawbridge comes down, fog swirling just below it. Broken boards have jammed into a drift here around old bones in rusted mail.',
                          'Reachable only by rope from the sill; the chasm walls are slick and sheer (climber\'s kit and DC 15 Athletics, or magic). A character who falls from the bridge near this side may snag here if the DM is merciful. Below, the fog fills everything and the map stops.')
+    # the chasm's walls round the ledge: a stand-in, as the chasm itself is (in the continuous world the castle's chasm and
+    # the land cut there are its walls, the ledge jutting from the near one)
     lg.prop('shaft', 'j-chasm-shaft', F(425, AXIS), 'J-ledge', dims={'w': 50, 'len': 200, 'top': 35, 'fog': 10})
     lg.objects[-1]['vis'] = 'explored'; lg.objects[-1]['label'] = 'The chasm walls'
     lg.prop('drift', 'j-board-drift', F(406, 180), 'J-ledge')

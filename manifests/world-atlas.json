@@ -1479,11 +1479,11 @@
    "bbox": {
     "minX": 0,
     "minZ": 0,
-    "maxX": 540,
+    "maxX": 400,
     "maxZ": 400
    },
    "centre": [
-    270,
+    200,
     200
    ],
    "levels": [
@@ -1513,7 +1513,7 @@
    ],
    "placement": {
     "position": [
-     19107.6,
+     19177.6,
      1549.185,
      539.2
     ],
@@ -1523,9 +1523,9 @@
    "units": 1,
    "pin": "J",
    "worldBounds": {
-    "minX": 19107.6,
+    "minX": 19177.6,
     "minZ": 539.2,
-    "maxX": 19647.6,
+    "maxX": 19577.6,
     "maxZ": 939.2
    },
    "bandFt": 900
@@ -1974,13 +1974,13 @@
    "north": "-z",
    "elevationFt": 0,
    "bbox": {
-    "minX": -310,
+    "minX": -60,
     "minZ": 0,
     "maxX": 430,
     "maxZ": 340
    },
    "centre": [
-    60,
+    185,
     170
    ],
    "levels": [
@@ -2063,7 +2063,7 @@
    "roadExits": [],
    "placement": {
     "position": [
-     23752.8,
+     23627.8,
      2133,
      1783.6
     ],
@@ -2073,9 +2073,9 @@
    "units": 1,
    "pin": "K",
    "worldBounds": {
-    "minX": 23442.8,
+    "minX": 23567.8,
     "minZ": 1783.6,
-    "maxX": 24182.8,
+    "maxX": 24057.8,
     "maxZ": 2123.6
    },
    "bandFt": 1400,
@@ -2086,7 +2086,7 @@
       "minX": -60,
       "maxX": -10,
       "minZ": 0,
-      "maxZ": 340
+      "maxZ": 395
      },
      "floor": -400,
      "featherX": 0,

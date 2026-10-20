@@ -251,15 +251,17 @@ export function rimNotch(d: Dims): THREE.Group {
 }
 
 // ---------------------------------------------------------------- the bridge and its fittings
-/** The mainland sill: a squared stone abutment on the lip (local +x faces the chasm), 24 ft long across the road, an
- *  iron-shod rest worn into a trough where the bridge's end lands, ruts across it, and two worn bollards. */
-export function bridgeSill(): THREE.Group {
-  const g = grp(box(12, 1.2, 24, C.wall, 0, -0.3, 0), box(12.4, 0.3, 24.4, C.wallDeep, 0, 0.12, 0));
-  g.add(box(1.4, 9, 24, C.wallDeep, 6.3, -4.2, 0));                                         // its face going down into the chasm
-  g.add(box(6.2, 0.18, 15.8, C.iron, 3, 0.36, 0), box(6.2, 0.4, 0.5, C.rust, 3, 0.45, -8), box(6.2, 0.4, 0.5, C.rust, 3, 0.45, 8));   // the shod rest
+/** The mainland sill: a squared stone abutment on the lip (local +x faces the chasm), `len` (24) ft long across the
+ *  road, an iron-shod rest `rest` (15.8) ft wide worn into a trough where the bridge's end lands, ruts across it, and two
+ *  worn bollards just inside its ends. */
+export function bridgeSill(d: Dims = {}): THREE.Group {
+  const L = d.len ?? 24, R = d.rest ?? 15.8;
+  const g = grp(box(12, 1.2, L, C.wall, 0, -0.3, 0), box(12.4, 0.3, L + 0.4, C.wallDeep, 0, 0.12, 0));
+  g.add(box(1.4, 9, L, C.wallDeep, 6.3, -4.2, 0));                                          // its face going down into the chasm
+  g.add(box(6.2, 0.18, R, C.iron, 3, 0.36, 0), box(6.2, 0.4, 0.5, C.rust, 3, 0.45, -(R / 2 + 0.1)), box(6.2, 0.4, 0.5, C.rust, 3, 0.45, R / 2 + 0.1));   // the shod rest
   for (const z of [-3.05, 3.05]) g.add(box(6, 0.05, 0.75, C.rut, -3, 0.3, z));
-  for (const z of [-10.6, 10.6]) g.add(cyl(0.9, 1.1, 3, C.wallDeep, 1.5, 1.5, z, 8), cyl(1.0, 1.0, 0.3, C.wall, 1.5, 3.1, z, 8));
-  for (let i = 0; i < 8; i++) g.add(box(0.8 + hash(i, 1), 0.05, 0.3, C.moss, -5 + hash(i, 2) * 10, 0.29, -11 + hash(i, 3) * 22));
+  for (const z of [-(L / 2 - 1.4), L / 2 - 1.4]) g.add(cyl(0.9, 1.1, 3, C.wallDeep, 1.5, 1.5, z, 8), cyl(1.0, 1.0, 0.3, C.wall, 1.5, 3.1, z, 8));
+  for (let i = 0; i < 8; i++) g.add(box(0.8 + hash(i, 1), 0.05, 0.3, C.moss, -5 + hash(i, 2) * 10, 0.29, -(L / 2 - 1) + hash(i, 3) * (L - 2)));
   return g;
 }
 /** The castle-side pivot: a stone threshold at the tunnel mouth, the bridge's hinge beam on two iron pintles. */
@@ -720,7 +722,7 @@ Object.assign(PROPS_V1, {
   'j-bridge-sill': bridgeSill, 'j-hinge-sill': hingeSill, 'j-drawbridge': drawbridge, 'j-chain': chain, 'j-chain-slot': chainSlot, 'j-weak-board': (d: Dims) => fuse(weakBoard(d)),
   'j-gate-tower': gateTower, 'j-latch': () => fuse(latch()), 'j-slot-iron': () => fuse(slotIron()), 'j-lit-doorway': litDoorway, 'j-castle-mass': castleMass,
   'j-turret': turret, 'j-brazier-bracket': () => fuse(brazierBracket()), 'j-fallen-gargoyle': (d: Dims) => (d.detail ? fuse(fallenGargoyle(d)) : fallenGargoyle(d)),
-  'j-wall-gargoyle': wallGargoyle, 'j-fog-boil': fogBoil, 'j-cleft': cleft, 'j-chasm-shaft': chasmShaft, 'j-board-drift': (d: Dims) => (d.part ? fuse(boardDrift(d)) : boardDrift(d)),
+  'j-wall-gargoyle': wallGargoyle, 'j-fog-boil': fogBoil, 'j-cleft': cleft, 'j-chasm-standin': cleft, 'j-chasm-shaft': chasmShaft, 'j-board-drift': (d: Dims) => (d.part ? fuse(boardDrift(d)) : boardDrift(d)),
   'j-carriage': (d: Dims) => fuse(blackCarriage(d)),
 } as Record<string, (d: Dims) => THREE.Object3D>);
 Object.assign(CREATURES, { 'j-watcher': (d) => watcher(d), 'j-bat-swarm': (d) => batSwarm(d) } as Record<string, (d: Dims) => THREE.Group>);

@@ -91,9 +91,10 @@ arch(g, (76, 32), (76, 34))   # the postern through the curtain's outer face
 
 # --- the castle's front (item 2g-1; owner 2026-10-19, of the Gates of Ravenloft map: "this looks cool but it's supposed
 # to be attached to and part of Ravenloft and the new improved 3D model"). The gate is the castle's own, one model with
-# the keep, the courtyard and the bridge; the Gates of Ravenloft (wild_j.py) are now the road's end on the far side of
-# the chasm. From the ridge the road crosses the fifty-foot chasm on the drawbridge of old shored-up beams, hung on two
-# chains that run up into slots sixty feet up the wall; the gate tunnel, twenty feet wide and vaulted, runs through the
+# the keep, the courtyard and the bridge; the Gates of Ravenloft (wild_j.py) are the road's end on the near lip of the
+# chasm, their map meeting this one there (J's pin is set so: scripts/authoring/barovia-world.py, TIES). From the Gates'
+# sill the road crosses the fifty-foot chasm on the drawbridge of old shored-up beams, hung on two chains that run up
+# into slots sixty feet up the wall; the gate tunnel, twenty feet wide and vaulted, runs through the
 # west wall under its rotting portcullis. The gatehouse stands forward of the wall's outer face onto the chasm's lip,
 # ten feet, and either side of the tunnel a squared gate tower runs back through the wall to the courtyard, hollow to
 # its battlements ten feet over the walk, the latches for the bridge and the portcullis on its flagstone floor, an
@@ -105,11 +106,15 @@ GATE_H = 100                        # the gate towers' heads, ten feet over the 
 GATE_Z = 170                        # the gate's axis (ft): the road, the bridge, the tunnel
 FRONT = -10                         # the gatehouse's face, ten feet forward of the curtain's outer face: the chasm's lip
 HINGE = FRONT - 0.8                 # the drawbridge's hinge, just off the gatehouse's face (ft)
-DECK_END = FRONT - 52               # its free end, resting on the ridge's lip across the fifty-foot chasm (ft)
+DECK_END = FRONT - 56               # its free end, across the fifty-foot chasm, on the middle of the Gates' sill (wild_j.py's
+                                    # j-bridge-sill: a 12-ft abutment whose chasm face is the near lip), six feet back from it
 DECK_W = 20                         # as wide as the tunnel
+CHASM_Z = (0, GATE_Z + 225)         # the chasm along the wall: from the curtain's north face (north of it the Gates' North
+                                    # Gully bites back from the chasm) south past the castle's corner the length of the Gates'
+                                    # lip, to the south edge of their map, 225 ft south of the gate's axis (wild_j.py)
 f5 = lambda x, z: (x / 5, z / 5)    # feet to cells, for the authoring helpers
-g.terrain.append(([(-62, 30), (-12, 30), (-12, 38), (-62, 38)], 'cobble'))                  # the road on the ridge
-g.terrain.append(([(-62, 22), (-12, 22), (-12, 46), (-62, 46)], 'grass'))                   # the ridge's crown either side
+# (the road's ground west of the chasm is the Gates of Ravenloft's map, which meets this one at the chasm's near lip: the
+# castle draws no ridge of its own there, so no ground is drawn twice)
 g.terrain.append(([(-2, 0), (0, 0), (0, 68), (-2, 68)], 'flagstone'))                       # the wall's footing out to the lip
 g.room('K1-bridge', 'Drawbridge', [(-12, 32), (-2, 32), (-2, 36), (-12, 36)], 'plank', ceilingFt=None)
 g.room('K1-g', 'Gate Tunnel', rect(-2, 32, 4, 36), 'flagstone', page=pg('K1'), ceilingFt=18)
@@ -122,7 +127,7 @@ g.opening((-2, 32), (-2, 36)); g.opening((4, 32), (4, 36))
 arch(g, (-2, 32), (-2, 36))
 g.door((4, 29), (4, 30), id='K1-tn-door', locked=True)                  # the gate towers' ironbound doors, locked
 g.door((4, 38), (4, 39), id='K1-ts-door', locked=True)
-g.prop('J-chasm', 'chasm', f5(FRONT - 25, GATE_Z), 'K1-bridge', dims={'w': 50, 'len': 340, 'depth': 1000})
+g.prop('J-chasm', 'chasm', f5(FRONT - 25, sum(CHASM_Z) / 2), 'K1-bridge', dims={'w': 50, 'len': CHASM_Z[1] - CHASM_Z[0], 'depth': 1000})
 # the masonry over the tunnel, its vault and the portcullis's slot; the towers' battlemented heads
 g.prop('gate-arch', 'k-gate-arch', f5(5, GATE_Z), 'K1-g', rotY=90, dims={'w': 20, 't': 30, 'y0': 18, 'h': WALL_H, 'slot': 2})
 g.prop('gate-head-n', 'k-tower-head', f5(5, 150), 'K1-tn', dims={'w': 30, 'd': 20, 'y': GATE_H, 't': 5})
@@ -135,7 +140,7 @@ g.objects[-1]['dm'] = 'Raised. The patch of green slime on its underside does no
 g.obj('green-slime', 'green-slime', f5(FRONT + 2.4, GATE_Z + 4), 'hidden-object', 'K1-g', 'Green slime under the portcullis', y=13)
 g.objects[-1]['playerLabel'] = 'Green ooze'
 g.objects[-1]['dm'] = 'Green slime (DMG). DC 20 Wisdom (Perception) to spot. It ignores those coming in and drops on the first creature to leave by this tunnel.'
-# the drawbridge on its hinge at the tunnel's mouth, its free end on the ridge; the chains from the eyes at its free end
+# the drawbridge on its hinge at the tunnel's mouth, its free end on the Gates' sill; the chains from the eyes at its free end
 # up to their slots in the wall's face, either side of the gate; the four worst boards
 g.prop('hinge-sill', 'j-hinge-sill', f5(FRONT, GATE_Z), 'K1-bridge')
 g.prop('drawbridge', 'j-drawbridge', f5(HINGE, GATE_Z), 'K1-bridge', dims={'len': round(HINGE - DECK_END, 2), 'w': DECK_W, 'up': 0, 'seed': 3})
