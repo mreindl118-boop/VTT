@@ -65,6 +65,18 @@ for (const device of [{name:'desktop',touch:false,width:1366,height:768},{name:'
   });
 });
 
+test('Castle Ravenloft: its larders and dungeon stand in the mist under the valley, its ground and upper floors keep it',async({page},info)=>{
+  // a root map, not a nested one: its floors below the courtyard were buried under the valley's land at its own framing
+  test.setTimeout(120_000); await open(page,'ch04/K');
+  for(const view of ['dm','players']) for(const level of ['dungeon','larders','ground','court']) {
+    const state=await page.evaluate(({view,level})=>{const a=(window as any).__mistlab.app;a.setView(view);a.setLevel(level,true);return {under:a.underground,stage:a.stage.root.layers.isEnabled(0),map:a.cur.root.layers.isEnabled(0),mist:a.world.mistFloor.visible};},{view,level});
+    const below=level==='dungeon'||level==='larders';
+    expect(state,`${view}/${level}`).toEqual({under:below,stage:!below,map:true,mist:below});
+    await page.waitForFunction(()=>!(window as any).__mistlab.app.world.flying);
+    await page.screenshot({path:info.outputPath(`K-${view}-${level}.png`)});
+  }
+});
+
 test('nested Gates hides the distant castle substitute through view changes',async({page})=>{
   await open(page,'ch02/J');
   for(const view of ['dm','players','dm']) {

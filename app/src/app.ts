@@ -601,12 +601,13 @@ export class App {
   }
   /** A child's floor below the ground it stands on (Death House's dungeon) would lie buried under its town and the
    *  land: while one is shown the valley and the other maps are left out of the frame, the mist floor under it, as
-   *  the legacy way hides the surroundings. */
+   *  the legacy way hides the surroundings. A root map does the same where its interface asks (excavate, or
+   *  underground: Castle Ravenloft's larders and dungeon under its courtyard). */
   underground = false;
   private syncUnderground(): void {
     const c = this.cur, e = c ? this.stageEntry(c.path) : undefined;
     const lv = c && c.levels.has(this.levelId) ? c.scene.levels.find((l) => l.id === this.levelId) : undefined;
-    const under = !!(c && lv && e && (e.depth || SITE_INTERFACES[c.path]?.excavate) && this.staged && lv.elevationFt < groundOf(c.scene).elevationFt - 1);
+    const under = !!(c && lv && e && (e.depth || SITE_INTERFACES[c.path]?.excavate || SITE_INTERFACES[c.path]?.underground) && this.staged && lv.elevationFt < groundOf(c.scene).elevationFt - 1);
     if (!under && !this.underground) return;
     this.underground = under;
     if (this.stage) veil(this.stage.root, 'under', under);

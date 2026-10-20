@@ -9,6 +9,10 @@ export const SITE_INTERFACES: Record<string, {
   roads?: { road: string; x: number; z: number }[];
   lake?: string;
   excavate?: boolean;
+  /** A root map with floors below its ground and no ground cut over them (Castle Ravenloft's larders and dungeon under
+   *  the courtyard): while one of those floors is shown, the valley is left out of the frame and the mist floor lies
+   *  under it, as a nested map's floor below its town does (app.ts syncUnderground). */
+  underground?: boolean;
 }> = {
   'ch09/T': {
     // The bridge's two abutments remain on the z=135 and z=205 lips. The narrow
@@ -18,6 +22,8 @@ export const SITE_INTERFACES: Record<string, {
   },
   'ch02/G': { lake: 'Tser Pool', roads: [{ road: 'Tser camp path', x: 0, z: 135 }] },
   'ch13/X': { excavate: true, roads: [{ road: 'Tsolenka road', x: 100.5, z: 460 }] },
+  // Castle Ravenloft: the larders and the dungeon stand in the mist, not under the land.
+  'ch04/K': { underground: true },
 };
 
 /** These are distant scenery substitutes, not the miniature inside the Amber Temple.
