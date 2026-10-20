@@ -6,7 +6,10 @@ art in the app is painted from this data, nothing of the page is copied.
 
 Run after `scripts/authoring/barovia-world.py` (the hand-measured base: names, types, scenes, heights); this
 script refines positions from the page and adds what the base lacks. Needs reference/module/curse-of-strahd.pdf
-(gitignored) and pdftoppm."""
+(gitignored) and pdftoppm. A base whose roads carry a kind holds the measured net (item 2f-1a: the roads and rivers as
+one connected graph through the places): its roads and rivers are kept as they are, not traced again over it, and
+the grid's water follows them; `barovia-world.py`, run again after `heightfield.py` and `site-continuity.py`, lays them
+onto the pins as refined here."""
 import json, os, subprocess, sys
 from collections import OrderedDict
 import numpy as np
@@ -223,7 +226,10 @@ for mask, kind in ((solid, 'road'), (dotted, 'trail')):
     for name, l in name_by(ls, base['roads'], 'Old Svalich Road' if kind == 'road' else 'Trail'):
         if kind == 'trail' and 'trail' not in name.lower() and 'Trail' != name: name = name if name == 'Trail' else name
         roads.append(OrderedDict(name=name if kind == 'road' or name != 'Trail' else 'Trail', kind=kind, pts=[mi(*p) for p in simplify(l, 5)]))
-print('roads', len(roads), sorted({r['name'] for r in roads}))
+# a base with the measured net (its roads carry a kind) keeps its own roads: the traced ribbons are fragments of them
+MEASURED = bool(base['roads']) and all('kind' in r for r in base['roads'])
+if MEASURED: roads = [OrderedDict(r) for r in base['roads']]
+print('roads', len(roads), sorted({r['name'] for r in roads}), '(the measured net kept)' if MEASURED else '')
 
 # ------------------------------------------------------------------ water: lakes and rivers
 wm = ndi.binary_closing(water_m, iterations=2)
@@ -246,7 +252,8 @@ print('lakes', [(l['name'], l['r']) for l in lake_out])
 print('river mask px', int(river_mask.sum()), 'water px', int(wm.sum()), 'bodies', len(lakes))
 rsk = thin(ndi.binary_closing(river_mask, iterations=6)); print('river skeleton px', int(rsk.sum()))
 # the hand-measured courses stay (they run the whole way); the traced ribbons add the bends the page shows
-rivers = [OrderedDict(r) for r in base['rivers']] + [OrderedDict(name=name, pts=[mi(*p) for p in simplify(l, 6)]) for name, l in name_by(chains(rsk, 120, 90), base['rivers'], 'stream', 0.3) if name != 'stream']
+# (the measured net's rivers are one polyline each, already through every bend: nothing traced is added to them)
+rivers = [OrderedDict(r) for r in base['rivers']] + ([] if MEASURED else [OrderedDict(name=name, pts=[mi(*p) for p in simplify(l, 6)]) for name, l in name_by(chains(rsk, 120, 90), base['rivers'], 'stream', 0.3) if name != 'stream'])
 lake_out = base['lakes']  # the named bodies, hand-measured; the grid below carries their shapes
 # water for the grid: only what lies along a named river or lake (the pale hex-fill of the mountains reads blue too)
 from PIL import ImageDraw as _ID

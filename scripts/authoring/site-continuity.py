@@ -1,9 +1,18 @@
 #!/usr/bin/env python3
-"""Reconcile the retained regional tracing with detailed T, G and X survey ties.
+"""Reconcile the regional data with the detailed survey ties of the local maps.
 
-Run after barovia-world/heightfield and the site generators. Idempotent; preserves
-pins, unrelated roads and the surveyed height lattice. Sources: CoS pp.36,158–159,183.
-No book prose or image data is written.
+Run after barovia-world/heightfield and the site generators, then run barovia-world.py once more: it lays the
+measured roads and rivers (item 2f-1a) and keeps what this writes. Idempotent; preserves pins, roads, rivers and the
+surveyed height lattice. Sources: CoS pp.36,158–159,183. No book prose or image data is written.
+
+What is tied here: the Tser Pool. The camp's own water (ch02/G) continues into a pool at its north edge (the owner's
+0.3.1 request), so the regional pool is the camp's 180-ft disc there; barovia-world.py keeps it (its TIED) and gives
+it its outlet to the River Ivlis.
+
+Retired by the measured net (barovia-world.py since item 2f-1a), which runs after this and lays its own: the Tsolenka
+road's two pieces cut to Tsolenka's authored road (the measured road runs through the pass, and the world's roads meet a
+map's roads at its edge), the Tser camp path, the Luna's last reach along the Tsolenka bridge's axis, and the Tser
+Pool's outlet with the duplicated tributary (each river is one polyline there, and `outlets` joins the pool).
 """
 import json
 import math
@@ -25,38 +34,11 @@ def point(path, x, z):
     return [round(pin['pos'][0] + (math.cos(angle)*dx + math.sin(angle)*dz)/5280, 8),
             round(pin['pos'][1] + (-math.sin(angle)*dx + math.cos(angle)*dz)/5280, 8)]
 
-def same(a,b): return math.dist(a,b) < 1e-6
-
-# Regional pieces terminate inside the authored road, so the runtime can join at
-# the exact edge of its 10-ft track. Keep the rest of the surveyed route intact.
-west = next(r for r in w['roads'] if r['name']=='Tsolenka road' and same(r['pts'][0],[2.95,7.81]))
-west['pts'] = west['pts'][:next(i for i,p in enumerate(west['pts']) if same(p,[3.22,9.53]))+1] + [point('ch09/T',227.5,490)]
-east = next(r for r in w['roads'] if r['name']=='Tsolenka road' and [3.79,9.6] in r['pts'])
-i = east['pts'].index([3.79,9.6]); j = east['pts'].index([5.23,10.89])
-east['pts'] = [point('ch09/T',225,55), [3.48,9.57]] + east['pts'][i:j+1] + [point('ch13/X',100.5,455)]
-w['roads'] = [r for r in w['roads'] if r['name'] != 'Tser camp path']
-w['roads'].append({'name':'Tser camp path','kind':'trail','pts':[[11.06,7.97],point('ch02/G',0,135),point('ch02/G',40,110)]})
-
 # Match the local north shoreline at x=100, z=30. The pool is several hundred
 # feet across, while the old regional ellipse was almost half a mile wide.
 pool = next(l for l in w['lakes'] if l['name']=='Tser Pool')
 pool['center'] = point('ch02/G',100,-150)
 pool['r'] = [180/5280, 180/5280]
 
-# The final surveyed Luna reach meets the bridge axis, rather than stopping
-# 2,189 ft beside it. Follow that axis across the narrow gorge before Lake Luna.
-luna = next(r for r in w['rivers'] if r['name']=='Luna River')
-last = luna['pts'].index([4.69,9.09])
-luna['pts'] = luna['pts'][:last+1] + [point('ch09/T',-700,170),point('ch09/T',155,170),point('ch09/T',900,170),[2.84,10.11]]
-
-# Connect the local pool to the existing Ivlis network. The previously duplicated
-# traced tributary is retained once; unrelated river geometry is untouched.
-seen = set(); rivers = []
-for r in w['rivers']:
-    if r['name']=='Tser Pool outlet': continue
-    key = json.dumps(r,sort_keys=True)
-    if key not in seen: rivers.append(r); seen.add(key)
-rivers.append({'name':'Tser Pool outlet','pts':[point('ch02/G',100,-150),[11.71,7.6]]})
-w['rivers'] = rivers
 PATH.write_text(json.dumps(w,indent=1,ensure_ascii=False)+'\n',encoding='utf-8',newline='\n')
-print('Reconciled Tsolenka, Tser Pool and Amber Temple regional ties; pins unchanged.')
+print('Tied the Tser Pool to the camp; roads, rivers and pins unchanged (barovia-world.py lays the measured net next).')

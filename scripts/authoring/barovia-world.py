@@ -8,8 +8,11 @@ Two files come from here. Run alone, this writes the base world.json (schema 1) 
 (the laptop: it needs the PDF; it refines the pins from the 400-dpi page and adds the land-cover grid, then
 `heightfield.py` adds the height lattice). Run on a machine where that refined file (schema 2) is already on disk,
 this keeps all of it and lays in only what is measured here: the roads, rivers and lakes below, bent onto the pins as
-the file places them (see `lay_roads` and `lay_lakes`). So it runs anywhere, and runs last: after the cover pass too,
-whose own traced road ribbons it replaces, and after `site-continuity.py` (whose Tser Pool it keeps: see TIED)."""
+the file places them (see `lay_roads` and `lay_lakes`). So it runs anywhere, and runs last: after the cover pass too
+(which keeps this net as the base holds it and refines the pins it is laid onto), and after `site-continuity.py`
+(whose Tser Pool it keeps: see TIED). `site-continuity.py` then this, run again, reproduce the file byte for byte.
+`heightfield.py` is not part of that loop: it surveys the lattice once after the cover pass, and a re-run would move
+the ground under most of the maps (up to 380 ft)."""
 import json, math, os
 from collections import OrderedDict
 
