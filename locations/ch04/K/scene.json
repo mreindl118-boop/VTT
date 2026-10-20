@@ -126,6 +126,18 @@
        146.314
       ],
       [
+       132.828,
+       149.142
+      ],
+      [
+       135.0,
+       149.142
+      ],
+      [
+       135.0,
+       151.314
+      ],
+      [
        136.686,
        153.0
       ],
@@ -148,6 +160,18 @@
       [
        136.686,
        137.0
+      ],
+      [
+       135.0,
+       138.686
+      ],
+      [
+       135.0,
+       140.858
+      ],
+      [
+       132.828,
+       140.858
       ],
       [
        130.0,
@@ -2071,8 +2095,8 @@
       "normal"
      ],
      "material": "rubble",
-     "thicknessFt": 0.5,
-     "offsetFt": -0.25
+     "thicknessFt": 5,
+     "offsetFt": -2.5
     },
     {
      "id": "dungeon-w-28",
@@ -3169,8 +3193,8 @@
       "normal"
      ],
      "material": "rubble",
-     "thicknessFt": 0.5,
-     "offsetFt": -0.25
+     "thicknessFt": 5,
+     "offsetFt": -2.5
     },
     {
      "id": "dungeon-w-198",
@@ -4452,7 +4476,7 @@
      "vis": "player",
      "key": "K83-d",
      "dims": {
-      "r": 8,
+      "r": 6.25,
       "rise": 40
      }
     },
@@ -9469,8 +9493,24 @@
        228.787
       ],
       [
+       78.586,
+       227.373
+      ],
+      [
+       80.0,
+       225.959
+      ],
+      [
        80.0,
        220.0
+      ],
+      [
+       85.959,
+       220.0
+      ],
+      [
+       87.373,
+       218.586
       ],
       [
        88.787,
@@ -9904,12 +9944,36 @@
        107.0
       ],
       [
+       85.0,
+       111.615
+      ],
+      [
+       85.0,
+       113.787
+      ],
+      [
+       82.828,
+       113.787
+      ],
+      [
        82.0,
        114.615
       ],
       [
        82.0,
        125.385
+      ],
+      [
+       82.828,
+       126.213
+      ],
+      [
+       85.0,
+       126.213
+      ],
+      [
+       85.0,
+       128.385
       ],
       [
        89.615,
@@ -9920,6 +9984,18 @@
        133.0
       ],
       [
+       105.0,
+       128.385
+      ],
+      [
+       105.0,
+       126.213
+      ],
+      [
+       107.172,
+       126.213
+      ],
+      [
        108.0,
        125.385
       ],
@@ -9928,12 +10004,8 @@
        125.0
       ],
       [
-       108.385,
-       125.0
-      ],
-      [
        110.0,
-       123.385
+       125.0
       ]
      ],
      "floor": "flagstone",
@@ -9982,6 +10054,18 @@
        248.0
       ],
       [
+       101.213,
+       247.172
+      ],
+      [
+       101.213,
+       245.0
+      ],
+      [
+       103.385,
+       245.0
+      ],
+      [
        108.385,
        240.0
       ],
@@ -10001,18 +10085,18 @@
      "polygon": [
       [
        110.0,
+       125.0
+      ],
+      [
+       145.0,
+       125.0
+      ],
+      [
+       145.0,
        115.0
       ],
       [
        110.0,
-       125.0
-      ],
-      [
-       145.0,
-       125.0
-      ],
-      [
-       145.0,
        115.0
       ]
      ],
@@ -10546,22 +10630,6 @@
      "polygon": [
       [
        230.0,
-       193.787
-      ],
-      [
-       232.0,
-       193.787
-      ],
-      [
-       232.0,
-       195.0
-      ],
-      [
-       230.0,
-       195.0
-      ],
-      [
-       230.0,
        205.0
       ],
       [
@@ -10575,6 +10643,14 @@
       [
        230.0,
        206.213
+      ],
+      [
+       231.414,
+       207.627
+      ],
+      [
+       230.0,
+       209.041
       ],
       [
        230.0,
@@ -10605,8 +10681,28 @@
        191.0
       ],
       [
-       230.0,
+       230.041,
        191.0
+      ],
+      [
+       231.414,
+       192.373
+      ],
+      [
+       230.0,
+       193.787
+      ],
+      [
+       232.0,
+       193.787
+      ],
+      [
+       232.0,
+       195.0
+      ],
+      [
+       230.0,
+       195.0
       ]
      ],
      "floor": "flagstone",
@@ -10696,16 +10792,8 @@
        240.0
       ],
       [
-       299.5,
-       230.5
-      ],
-      [
-       299.5,
-       230.0
-      ],
-      [
        295.0,
-       230.0
+       235.0
       ],
       [
        295.0,
@@ -10959,7 +11047,15 @@
      "polygon": [
       [
        230.0,
-       196.615
+       195.0
+      ],
+      [
+       228.787,
+       195.0
+      ],
+      [
+       228.586,
+       195.201
       ],
       [
        228.385,
@@ -11007,11 +11103,19 @@
       ],
       [
        228.385,
+       205.0
+      ],
+      [
+       228.586,
+       204.799
+      ],
+      [
+       228.787,
        205.0
       ],
       [
        230.0,
-       203.385
+       205.0
       ]
      ],
      "floor": "flagstone",
@@ -11115,14 +11219,6 @@
      "page": 59,
      "polygon": [
       [
-       173.58,
-       129.5
-      ],
-      [
-       164.5,
-       138.58
-      ],
-      [
        164.5,
        151.42
       ],
@@ -11145,6 +11241,14 @@
       [
        186.42,
        129.5
+      ],
+      [
+       173.58,
+       129.5
+      ],
+      [
+       164.5,
+       138.58
       ]
      ],
      "floor": "flagstone",
@@ -11354,8 +11458,8 @@
       "normal"
      ],
      "material": "ashlar",
-     "thicknessFt": 0.5,
-     "offsetFt": -0.25
+     "thicknessFt": 5,
+     "offsetFt": -2.5
     },
     {
      "id": "ground-w-81-q",
@@ -11371,8 +11475,8 @@
       "normal"
      ],
      "material": "ashlar",
-     "thicknessFt": 0.5,
-     "offsetFt": -0.25
+     "thicknessFt": 5,
+     "offsetFt": -2.5
     },
     {
      "id": "ground-w-82",
@@ -11557,8 +11661,8 @@
       "normal"
      ],
      "material": "ashlar",
-     "thicknessFt": 0.5,
-     "offsetFt": 0.25
+     "thicknessFt": 1,
+     "offsetFt": 0.5
     },
     {
      "id": "ground-w-95",
@@ -11591,8 +11695,8 @@
       "normal"
      ],
      "material": "ashlar",
-     "thicknessFt": 0.5,
-     "offsetFt": -0.25
+     "thicknessFt": 1,
+     "offsetFt": -0.5
     },
     {
      "id": "ground-w-96-q",
@@ -11608,8 +11712,8 @@
       "normal"
      ],
      "material": "ashlar",
-     "thicknessFt": 0.5,
-     "offsetFt": -0.25
+     "thicknessFt": 1,
+     "offsetFt": -0.5
     },
     {
      "id": "ground-w-97",
@@ -11625,8 +11729,8 @@
       "normal"
      ],
      "material": "ashlar",
-     "thicknessFt": 0.5,
-     "offsetFt": -0.25
+     "thicknessFt": 1,
+     "offsetFt": -0.5
     },
     {
      "id": "ground-w-97-q",
@@ -11642,8 +11746,8 @@
       "normal"
      ],
      "material": "ashlar",
-     "thicknessFt": 0.5,
-     "offsetFt": -0.25
+     "thicknessFt": 5,
+     "offsetFt": -2.5
     },
     {
      "id": "ground-w-97-q-s1",
@@ -11794,8 +11898,8 @@
       "normal"
      ],
      "material": "ashlar",
-     "thicknessFt": 0.5,
-     "offsetFt": 0.25
+     "thicknessFt": 5,
+     "offsetFt": 2.5
     },
     {
      "id": "ground-w-241",
@@ -12061,8 +12165,8 @@
       "normal"
      ],
      "material": "ashlar",
-     "thicknessFt": 0.5,
-     "offsetFt": 0.25
+     "thicknessFt": 1,
+     "offsetFt": 0.5
     },
     {
      "id": "ground-w-386-b-s1",
@@ -12194,8 +12298,8 @@
       "normal"
      ],
      "material": "ashlar",
-     "thicknessFt": 0.5,
-     "offsetFt": 0.25
+     "thicknessFt": 5,
+     "offsetFt": 2.5
     },
     {
      "id": "ground-w-405",
@@ -12440,8 +12544,8 @@
       "normal"
      ],
      "material": "ashlar",
-     "thicknessFt": 0.858,
-     "offsetFt": 0.429
+     "thicknessFt": 1,
+     "offsetFt": 0.5
     },
     {
      "id": "ground-w-436",
@@ -12457,8 +12561,8 @@
       "normal"
      ],
      "material": "ashlar",
-     "thicknessFt": 0.858,
-     "offsetFt": 0.429
+     "thicknessFt": 1,
+     "offsetFt": 0.5
     },
     {
      "id": "ground-w-445",
@@ -12573,8 +12677,8 @@
       "normal"
      ],
      "material": "ashlar",
-     "thicknessFt": 0.858,
-     "offsetFt": -0.429
+     "thicknessFt": 1,
+     "offsetFt": -0.5
     },
     {
      "id": "ground-w-454",
@@ -12821,8 +12925,8 @@
       "normal"
      ],
      "material": "ashlar",
-     "thicknessFt": 0.5,
-     "offsetFt": 0.25
+     "thicknessFt": 5,
+     "offsetFt": 2.5
     },
     {
      "id": "ground-w-480",
@@ -12886,8 +12990,8 @@
       "normal"
      ],
      "material": "ashlar",
-     "thicknessFt": 0.5,
-     "offsetFt": 0.25
+     "thicknessFt": 1,
+     "offsetFt": 0.5
     },
     {
      "id": "ground-w-483-s1",
@@ -13018,8 +13122,8 @@
       "normal"
      ],
      "material": "ashlar",
-     "thicknessFt": 0.5,
-     "offsetFt": 0.25
+     "thicknessFt": 1,
+     "offsetFt": 0.5
     },
     {
      "id": "ground-w-497",
@@ -13051,8 +13155,8 @@
       "normal"
      ],
      "material": "ashlar",
-     "thicknessFt": 0.5,
-     "offsetFt": 0.25
+     "thicknessFt": 1,
+     "offsetFt": 0.5
     },
     {
      "id": "ground-w-499",
@@ -13068,8 +13172,8 @@
       "normal"
      ],
      "material": "ashlar",
-     "thicknessFt": 0.5,
-     "offsetFt": 0.25
+     "thicknessFt": 5,
+     "offsetFt": 2.5
     },
     {
      "id": "ground-w-506",
@@ -13395,22 +13499,6 @@
      "b": [
       208.78699999999998,
       215.0
-     ],
-     "flags": [
-      "normal"
-     ],
-     "material": "ashlar",
-     "thicknessFt": 4
-    },
-    {
-     "id": "ground-w-539",
-     "a": [
-      200.0,
-      193.787
-     ],
-     "b": [
-      200.0,
-      195.0
      ],
      "flags": [
       "normal"
@@ -16131,6 +16219,18 @@
        133.0
       ],
       [
+       105.0,
+       128.385
+      ],
+      [
+       105.0,
+       126.213
+      ],
+      [
+       107.172,
+       126.213
+      ],
+      [
        108.0,
        125.385
       ],
@@ -16139,12 +16239,8 @@
        124.0
       ],
       [
-       108.923,
-       124.462
-      ],
-      [
        110.0,
-       123.385
+       125.0
       ]
      ],
      "floor": "flagstone",
@@ -16222,34 +16318,34 @@
      "polygon": [
       [
        110.0,
+       125.0
+      ],
+      [
+       120.0,
+       125.0
+      ],
+      [
+       120.0,
+       124.0
+      ],
+      [
+       149.0,
+       124.0
+      ],
+      [
+       149.0,
+       125.0
+      ],
+      [
+       150.0,
+       125.0
+      ],
+      [
+       150.0,
        115.0
       ],
       [
        110.0,
-       125.0
-      ],
-      [
-       120.0,
-       125.0
-      ],
-      [
-       120.0,
-       124.0
-      ],
-      [
-       149.0,
-       124.0
-      ],
-      [
-       149.0,
-       125.0
-      ],
-      [
-       150.0,
-       125.0
-      ],
-      [
-       150.0,
        115.0
       ]
      ],
@@ -16581,8 +16677,8 @@
      "page": 85,
      "polygon": [
       [
-       127.0,
-       158.314
+       130.858,
+       162.172
       ],
       [
        131.686,
@@ -16593,12 +16689,36 @@
        163.0
       ],
       [
+       139.142,
+       162.172
+      ],
+      [
+       139.142,
+       160.0
+      ],
+      [
+       141.314,
+       160.0
+      ],
+      [
        143.0,
        158.314
       ],
       [
        143.0,
        151.686
+      ],
+      [
+       141.314,
+       150.0
+      ],
+      [
+       139.142,
+       150.0
+      ],
+      [
+       139.142,
+       147.828
       ],
       [
        138.314,
@@ -16609,8 +16729,32 @@
        147.0
       ],
       [
+       130.858,
+       147.828
+      ],
+      [
+       130.858,
+       150.0
+      ],
+      [
+       128.686,
+       150.0
+      ],
+      [
        127.0,
        151.686
+      ],
+      [
+       127.0,
+       158.314
+      ],
+      [
+       128.686,
+       160.0
+      ],
+      [
+       130.858,
+       160.0
       ]
      ],
      "floor": "flagstone",
@@ -16900,6 +17044,14 @@
        185.0
       ],
       [
+       205.959,
+       185.0
+      ],
+      [
+       207.373,
+       183.586
+      ],
+      [
        208.787,
        185.0
       ],
@@ -16913,6 +17065,14 @@
       ],
       [
        221.213,
+       185.0
+      ],
+      [
+       222.627,
+       183.586
+      ],
+      [
+       224.041,
        185.0
       ],
       [
@@ -17570,8 +17730,8 @@
       "normal"
      ],
      "material": "ashlar",
-     "thicknessFt": 0.5,
-     "offsetFt": 0.25
+     "thicknessFt": 5,
+     "offsetFt": 2.5
     },
     {
      "id": "court-w-31",
@@ -17684,8 +17844,8 @@
       "normal"
      ],
      "material": "ashlar",
-     "thicknessFt": 0.5,
-     "offsetFt": 0.25
+     "thicknessFt": 5,
+     "offsetFt": 2.5
     },
     {
      "id": "court-w-47-s2",
@@ -17783,8 +17943,8 @@
       "normal"
      ],
      "material": "ashlar",
-     "thicknessFt": 0.5,
-     "offsetFt": 0.25
+     "thicknessFt": 1,
+     "offsetFt": 0.5
     },
     {
      "id": "court-w-53",
@@ -17817,8 +17977,8 @@
       "normal"
      ],
      "material": "ashlar",
-     "thicknessFt": 0.5,
-     "offsetFt": 0.25
+     "thicknessFt": 1,
+     "offsetFt": 0.5
     },
     {
      "id": "court-w-60-q",
@@ -17834,8 +17994,8 @@
       "normal"
      ],
      "material": "ashlar",
-     "thicknessFt": 0.5,
-     "offsetFt": -0.25
+     "thicknessFt": 1,
+     "offsetFt": -0.5
     },
     {
      "id": "court-w-64",
@@ -18245,8 +18405,8 @@
       "normal"
      ],
      "material": "ashlar",
-     "thicknessFt": 0.5,
-     "offsetFt": 0.25
+     "thicknessFt": 5,
+     "offsetFt": 2.5
     },
     {
      "id": "court-w-99",
@@ -18310,8 +18470,8 @@
       "normal"
      ],
      "material": "ashlar",
-     "thicknessFt": 0.5,
-     "offsetFt": -0.25
+     "thicknessFt": 5,
+     "offsetFt": -2.5
     },
     {
      "id": "court-w-104",
@@ -18359,8 +18519,8 @@
       "normal"
      ],
      "material": "ashlar",
-     "thicknessFt": 0.5,
-     "offsetFt": -0.25
+     "thicknessFt": 5,
+     "offsetFt": -2.5
     },
     {
      "id": "court-w-109",
@@ -18508,8 +18668,8 @@
       "secret-door"
      ],
      "material": "ashlar",
-     "thicknessFt": 0.5,
-     "offsetFt": 0.25
+     "thicknessFt": 5,
+     "offsetFt": 2.5
     },
     {
      "id": "court-w-122",
@@ -18726,8 +18886,8 @@
       "normal"
      ],
      "material": "ashlar",
-     "thicknessFt": 0.5,
-     "offsetFt": 0.25
+     "thicknessFt": 1,
+     "offsetFt": 0.5
     },
     {
      "id": "court-w-138",
@@ -18743,8 +18903,8 @@
       "normal"
      ],
      "material": "ashlar",
-     "thicknessFt": 0.5,
-     "offsetFt": 0.25
+     "thicknessFt": 1,
+     "offsetFt": 0.5
     },
     {
      "id": "court-w-139",
@@ -18860,8 +19020,8 @@
       "normal"
      ],
      "material": "ashlar",
-     "thicknessFt": 0.5,
-     "offsetFt": -0.25
+     "thicknessFt": 5,
+     "offsetFt": -2.5
     },
     {
      "id": "court-w-187",
@@ -18877,8 +19037,8 @@
       "normal"
      ],
      "material": "ashlar",
-     "thicknessFt": 0.5,
-     "offsetFt": 0.25
+     "thicknessFt": 1,
+     "offsetFt": 0.5
     },
     {
      "id": "court-w-191",
@@ -18944,8 +19104,8 @@
       "normal"
      ],
      "material": "ashlar",
-     "thicknessFt": 0.5,
-     "offsetFt": -0.25
+     "thicknessFt": 1,
+     "offsetFt": -0.5
     },
     {
      "id": "court-w-196",
@@ -19841,7 +20001,7 @@
      "vis": "player",
      "key": "K83-c",
      "dims": {
-      "r": 8,
+      "r": 6.25,
       "rise": 40
      }
     },
@@ -20297,6 +20457,18 @@
        128.079
       ],
       [
+       166.5,
+       136.58
+      ],
+      [
+       166.5,
+       137.751
+      ],
+      [
+       165.328,
+       137.751
+      ],
+      [
        162.5,
        140.58
       ]
@@ -20322,12 +20494,36 @@
        187.0
       ],
       [
+       204.0,
+       192.615
+      ],
+      [
+       204.0,
+       193.787
+      ],
+      [
+       202.828,
+       193.787
+      ],
+      [
        202.0,
        194.615
       ],
       [
        202.0,
        205.385
+      ],
+      [
+       202.828,
+       206.213
+      ],
+      [
+       204.0,
+       206.213
+      ],
+      [
+       204.0,
+       207.385
       ],
       [
        209.615,
@@ -20397,11 +20593,11 @@
       ],
       [
        139.142,
-       164.5
+       164.0
       ],
       [
-       136.814,
-       164.5
+       137.314,
+       164.0
       ],
       [
        143.0,
@@ -21698,8 +21894,8 @@
       "normal"
      ],
      "material": "ashlar",
-     "thicknessFt": 0.5,
-     "offsetFt": -0.25
+     "thicknessFt": 4,
+     "offsetFt": -2.0
     },
     {
      "id": "weeping-w-21",
@@ -21931,8 +22127,8 @@
       "normal"
      ],
      "material": "ashlar",
-     "thicknessFt": 0.5,
-     "offsetFt": -0.25
+     "thicknessFt": 1,
+     "offsetFt": -0.5
     },
     {
      "id": "weeping-w-40",
@@ -22029,8 +22225,8 @@
       "normal"
      ],
      "material": "ashlar",
-     "thicknessFt": 0.5,
-     "offsetFt": -0.25
+     "thicknessFt": 4,
+     "offsetFt": -2.0
     },
     {
      "id": "weeping-w-45-s2",
@@ -22079,8 +22275,8 @@
       "normal"
      ],
      "material": "ashlar",
-     "thicknessFt": 0.5,
-     "offsetFt": 0.25
+     "thicknessFt": 1,
+     "offsetFt": 0.5
     },
     {
      "id": "weeping-w-53",
@@ -22179,8 +22375,8 @@
       "normal"
      ],
      "material": "ashlar",
-     "thicknessFt": 0.5,
-     "offsetFt": -0.25
+     "thicknessFt": 1,
+     "offsetFt": -0.5
     },
     {
      "id": "weeping-w-65",
@@ -22281,8 +22477,8 @@
       "normal"
      ],
      "material": "ashlar",
-     "thicknessFt": 0.858,
-     "offsetFt": 0.429
+     "thicknessFt": 1,
+     "offsetFt": 0.5
     },
     {
      "id": "K42-east",
@@ -22418,8 +22614,8 @@
       "normal"
      ],
      "material": "ashlar",
-     "thicknessFt": 0.5,
-     "offsetFt": 0.25
+     "thicknessFt": 1,
+     "offsetFt": 0.5
     },
     {
      "id": "weeping-w-90-b",
@@ -22435,8 +22631,8 @@
       "normal"
      ],
      "material": "ashlar",
-     "thicknessFt": 0.5,
-     "offsetFt": 0.25
+     "thicknessFt": 1,
+     "offsetFt": 0.5
     },
     {
      "id": "weeping-w-95",
@@ -22821,8 +23017,8 @@
       "normal"
      ],
      "material": "ashlar",
-     "thicknessFt": 0.5,
-     "offsetFt": -0.25
+     "thicknessFt": 1,
+     "offsetFt": -0.5
     },
     {
      "id": "weeping-w-159",
@@ -23138,8 +23334,8 @@
       "normal"
      ],
      "material": "ashlar",
-     "thicknessFt": 0.5,
-     "offsetFt": -0.25
+     "thicknessFt": 4,
+     "offsetFt": -2.0
     },
     {
      "id": "weeping-w-205",
@@ -23223,8 +23419,8 @@
       "normal"
      ],
      "material": "ashlar",
-     "thicknessFt": 1.716,
-     "offsetFt": -0.858
+     "thicknessFt": 3,
+     "offsetFt": -1.5
     },
     {
      "id": "weeping-w-277",
@@ -23308,8 +23504,8 @@
       "normal"
      ],
      "material": "ashlar",
-     "thicknessFt": 0.5,
-     "offsetFt": -0.25
+     "thicknessFt": 1,
+     "offsetFt": -0.5
     },
     {
      "id": "weeping-w-296",
@@ -23714,9 +23910,9 @@
      "offsetFt": 1.5
     },
     {
-     "id": "weeping-w-259",
+     "id": "weeping-w-257",
      "a": [
-      162.5,
+      165.0,
       120.0
      ],
      "b": [
@@ -24676,6 +24872,18 @@
        205.385
       ],
       [
+       208.615,
+       212.0
+      ],
+      [
+       208.787,
+       212.0
+      ],
+      [
+       208.787,
+       212.172
+      ],
+      [
        209.615,
        213.0
       ],
@@ -25533,8 +25741,8 @@
       "normal"
      ],
      "material": "ashlar",
-     "thicknessFt": 0.5,
-     "offsetFt": -0.25
+     "thicknessFt": 3,
+     "offsetFt": -1.5
     },
     {
      "id": "spires-w-32",
@@ -26498,6 +26706,18 @@
       [
        202.0,
        205.385
+      ],
+      [
+       208.615,
+       212.0
+      ],
+      [
+       208.787,
+       212.0
+      ],
+      [
+       208.787,
+       212.172
       ]
      ],
      "floor": "flagstone",
@@ -26995,8 +27215,8 @@
       "normal"
      ],
      "material": "ashlar",
-     "thicknessFt": 0.5,
-     "offsetFt": -0.25
+     "thicknessFt": 3,
+     "offsetFt": -1.5
     },
     {
      "id": "south-tower-w-23",

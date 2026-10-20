@@ -777,6 +777,7 @@ import thickwalls as TW
 from shapely.geometry import Point as _Pt, Polygon as _Poly, LineString as _Ln
 
 T_CURTAIN, T_TOWER, T_YARD, T_RAIL, T_FREE = 20, 4, 3, 0.75, 2
+T_MIN = 1                           # the thinnest wall that stands between a room and anything (a panelled partition)
 T_KEEP = {'dungeon': 5, 'larders': 5, 'ground': 5, 'landing': 5, 'court': 5, 'weeping': 4}   # 3 ft above
 T_PART = {'paneling': 1, 'paneling-dusty': 1}                                                 # 2 ft for stone
 OPEN_AIR = {'K1', 'K1-bridge', 'K3', 'K3-s', 'K5', 'K6', 'K46-w', 'K46-n', 'K46-s', 'K46-e', 'K53-w', 'K53-n', 'K53-s', 'K57', 'K58', 'K60a'}
@@ -934,22 +935,40 @@ def _plan_walls(lvj, keys):
         if 0.5 <= t <= G_FILL: fill[wid] = round(t, 3)
     for wid, t in fill.items(): plan[wid] = (t, plan[wid][1])
     # a wall borrows only the void that is free: where a room lies closer on that side (a sliver of void between a
-    # rectangle's corner and a tower's side), the body stops short of it, so no body ever stands in another room
+    # rectangle and a tower's side), the body stops short of it. On a long wall the free depth is read along its stretch
+    # clear of its two joints: a room that only touches the wall's end (an octagonal tower's corner on the keep's wall,
+    # where the plan splits the wall) is the joint's business, where the two bodies meet as one masonry, and must not
+    # thin the whole keep wall to a sheet. A short wall (no longer than twice its thickness: a scrap between a tower and
+    # a room's corner) keeps clear of every room beside it. Never below T_MIN.
     allrooms = [poly for poly, k, r in rooms]
     for wid, sgn in void_side.items():
         t, s_ = plan[wid]
         a, b, L, u, n = TW.seg(by_id[wid])
-        band = _Poly([a, b, (b[0] + n[0] * sgn * t, b[1] + n[1] * sgn * t), (a[0] + n[0] * sgn * t, a[1] + n[1] * sgn * t)])
         free = t
-        for poly in allrooms:
-            x = band.intersection(poly)
-            if x.area > 0.01:
-                for g_ in getattr(x, 'geoms', [x]):
-                    if g_.area > 0.01:
-                        free = min(free, min(((q[0] - a[0]) * n[0] + (q[1] - a[1]) * n[1]) * sgn for q in g_.exterior.coords))
+        def depth_of(geom):
+            d = t
+            for g_ in getattr(geom, 'geoms', [geom]):
+                if g_.is_empty: continue
+                cs_ = g_.exterior.coords if g_.geom_type == 'Polygon' else g_.coords
+                d = min(d, min(((q[0] - a[0]) * n[0] + (q[1] - a[1]) * n[1]) * sgn for q in cs_))
+            return d
+        if L <= 2 * t:
+            band = _Poly([a, b, (b[0] + n[0] * sgn * t, b[1] + n[1] * sgn * t), (a[0] + n[0] * sgn * t, a[1] + n[1] * sgn * t)])
+            for poly in allrooms:
+                x = band.intersection(poly)
+                for g_ in (getattr(x, 'geoms', [x]) if x.area > 0.01 else []):
+                    if g_.geom_type == 'Polygon' and g_.area > 0.01: free = min(free, depth_of(g_))
+        else:
+            for k in range(9):
+                s = t + (L - 2 * t) * k / 8
+                o = (a[0] + u[0] * s + n[0] * sgn * 0.02, a[1] + u[1] * s + n[1] * sgn * 0.02)
+                ray = _Ln([o, (o[0] + n[0] * sgn * t, o[1] + n[1] * sgn * t)])
+                for poly in allrooms:
+                    x = ray.intersection(poly)
+                    if not x.is_empty: free = min(free, depth_of(x))
         if free < t - 0.01:
-            plan[wid] = (max(round(free, 3), 0.5), s_)
-            notes.append(f"{wid}: only {free:.2f} ft of void free beside it, its body takes {max(free, 0.5):.2f}")
+            plan[wid] = (max(round(free, 3), T_MIN), s_)
+            notes.append(f"{wid}: only {free:.2f} ft of void free beside it, its body takes {max(free, T_MIN):.2f}")
     return plan, notes, bounds_, ring_ids
 
 def thicken(lvj, keys):
