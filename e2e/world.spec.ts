@@ -337,13 +337,18 @@ test('ground meets every map: the land is flush with each placed map and 3 ft un
       // what is drawn there: a ray straight down onto the land and the aprons
       R.set(new V(cx - w.anchor.x, 30000, cz - w.anchor.z), new V(0, -1, 0));
       const hit = R.intersectObjects(land, false)[0];
-      // 2,000 ft out on a side where this map is the nearest, no other map's band reaches and no lake's shore
-      const i = st.sites.findIndex((s: any) => s.path === e.path);
+      // 2,000 ft out on a side where this map is the nearest, no other map's band reaches and no lake's shore. Maps that
+      // meet edge to edge (the atlas's band overlaps with no gap: the Gates of Ravenloft on the castle's chasm) stand as
+      // one footprint here: out from the two together, where one of them is the nearest and no third map reaches.
+      const mates = new Set([e.path, ...m.atlas.bandOverlaps.filter((o: any) => Math.abs(o.gapFt) === 0 && o.scenes.includes(e.path)).flatMap((o: any) => o.scenes)]);
+      const grp = st.sites.map((s: any, k: number) => (mates.has(s.path) ? k : -1)).filter((k: number) => k >= 0);
+      const B = grp.map((k: number) => st.sites[k].bounds).reduce((u: any, q: any) => ({ minX: Math.min(u.minX, q.minX), minZ: Math.min(u.minZ, q.minZ), maxX: Math.max(u.maxX, q.maxX), maxZ: Math.max(u.maxZ, q.maxZ) }), b);
+      const dist = (q: any, x: number, z: number) => Math.max(0, q.minX - x, x - q.maxX, q.minZ - z, z - q.maxZ);
       let outside: any = null;
       for (const [dx, dz] of [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [-1, 1], [1, -1], [-1, -1]]) {
-        const x = dx > 0 ? b.maxX + 2000 : dx < 0 ? b.minX - 2000 : cx, z = dz > 0 ? b.maxZ + 2000 : dz < 0 ? b.minZ - 2000 : cz;
-        const n = f.nearest(x, z);
-        if (n.i !== i || n.other < 2600 || f.lakeNear(x, z).i >= 0) continue;
+        const x = dx > 0 ? B.maxX + 2000 : dx < 0 ? B.minX - 2000 : (B.minX + B.maxX) / 2, z = dz > 0 ? B.maxZ + 2000 : dz < 0 ? B.minZ - 2000 : (B.minZ + B.maxZ) / 2;
+        const n = f.nearest(x, z), other = Math.min(...st.sites.map((s: any, k: number) => (grp.includes(k) ? Infinity : dist(s.bounds, x, z))));
+        if (!grp.includes(n.i) || other < 2600 || f.lakeNear(x, z).i >= 0) continue;
         outside = { x, z, got: st.groundAt(x, z), want: f.ground(x, z) - 3, survey: m.frames.groundY(st.data, m.frames.milesOfWorld(st.data, [x, z])) };
         break;
       }
