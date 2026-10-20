@@ -2079,7 +2079,20 @@
     "maxZ": 2123.6
    },
    "bandFt": 1400,
-   "crag": true
+   "crag": true,
+   "groundCuts": [
+    {
+     "bounds": {
+      "minX": -60,
+      "maxX": -10,
+      "minZ": 0,
+      "maxZ": 340
+     },
+     "floor": -400,
+     "featherX": 0,
+     "featherZ": 0
+    }
+   ]
   },
   "ch05/N": {
    "path": "ch05/N",

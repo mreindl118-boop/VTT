@@ -22,8 +22,10 @@ export const SITE_INTERFACES: Record<string, {
   },
   'ch02/G': { lake: 'Tser Pool', roads: [{ road: 'Tser camp path', x: 0, z: 135 }] },
   'ch13/X': { excavate: true, roads: [{ road: 'Tsolenka road', x: 100.5, z: 460 }] },
-  // Castle Ravenloft: the larders and the dungeon stand in the mist, not under the land.
-  'ch04/K': { underground: true },
+  // The chasm before the castle's gate (castle-ravenloft.py, the 'chasm' prop: 50 ft across the road, the castle's
+  // length along the wall, its faces drawn 400 ft down): the land flattened round the castle falls away there under
+  // the drawbridge, a sheer cut with no feather. The larders and the dungeon stand in the mist, not under the land.
+  'ch04/K': { underground: true, cuts: [{ bounds: { minX: -60, maxX: -10, minZ: 0, maxZ: 340 }, floor: -400, featherX: 0, featherZ: 0 }] },
 };
 
 /** These are distant scenery substitutes, not the miniature inside the Amber Temple.

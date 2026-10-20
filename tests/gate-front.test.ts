@@ -90,6 +90,22 @@ describe('Castle Ravenloft: the gate is the castle\'s own front', () => {
     }
   });
 
+  it('in the continuous world the chasm is open under the drawbridge: the valley\'s land drops away there, not paved level with the deck', () => {
+    // the atlas (scripts/world-atlas.ts, from core/siteInterfaces.ts) hands the land a ground cut over the chasm the scene
+    // draws (its 'chasm' prop: 50 ft across the road, the castle's length along the wall, faces drawn 400 ft down)
+    const atlas = JSON.parse(readFileSync('manifests/world-atlas.json', 'utf8')) as { scenes: Record<string, { groundCuts?: { bounds: { minX: number; maxX: number; minZ: number; maxZ: number }; floor: number }[] }> };
+    const chasm = kindsIn(g, 'chasm');
+    expect(chasm.length).toBe(1);
+    const c = chasm[0], x0 = c.pos[0] - c.dims!.w / 2, x1 = c.pos[0] + c.dims!.w / 2, z0 = c.pos[2] - c.dims!.len / 2, z1 = c.pos[2] + c.dims!.len / 2;
+    const under = (atlas.scenes['ch04/K'].groundCuts ?? []).filter((k) => k.bounds.minX <= c.pos[0] && k.bounds.maxX >= c.pos[0] && k.bounds.minZ <= c.pos[2] && k.bounds.maxZ >= c.pos[2]);
+    expect(under.length, 'a ground cut where the road crosses the chasm').toBe(1);
+    const cut = under[0];
+    expect([cut.bounds.minX, cut.bounds.maxX, cut.bounds.minZ, cut.bounds.maxZ], 'the chasm\'s own span').toEqual([x0, x1, z0, z1]);
+    const deck = kindsIn(g, 'j-drawbridge')[0];
+    expect(deck.pos[0] - deck.dims!.len <= x0 && deck.pos[0] >= x1 - 1, 'the drawbridge spans it, from the far lip to the gatehouse').toBe(true);
+    expect(cut.floor, 'far below the deck, as deep as the chasm\'s faces are drawn').toBeLessThanOrEqual(g.elevationFt - 400);
+  });
+
   it('the rotting portcullis hangs over the tunnel with its slime, the latches stand in the towers, the gargoyles lean from the wall top', () => {
     const tunnel = roomOf(g, 'K1-g')!, t = boxOf(tunnel.polygon);
     const port = kindsIn(g, 'rotten-portcullis');
