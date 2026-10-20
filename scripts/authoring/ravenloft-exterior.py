@@ -4,10 +4,11 @@ silhouette on the valley's skyline is the module's own plan and not a sketch: ev
 to the top of the highest room above it (the courtyards stay open), the curtain walls stand at their own height
 with battlements, every stair tower is a round tower to its top with a conical cap, and windows are lit along the
 outer faces at each storey. Writes a compact massing file the backdrop reads: locations/ch04/K/exterior.json."""
-import json, math, os
+import json, math, os, sys
 from collections import OrderedDict
 
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..')
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 S = json.load(open(os.path.join(ROOT, 'locations/ch04/K/scene.json')))
 C = 5.0
 OPEN = {'cobble', 'grass', 'dirt'}
@@ -25,16 +26,28 @@ xs = [p[0] for w in ground['walls'] for p in (w['a'], w['b'])]; zs = [p[1] for w
 cx, cz = (min(xs) + max(xs)) / 2, (min(zs) + max(zs)) / 2
 X0, X1, Z0, Z1 = math.floor(min(xs) / C), math.ceil(max(xs) / C), math.floor(min(zs) / C), math.ceil(max(zs) / C)
 
-# 1. the roofline: for every cell, the top of the highest roofed room over it
+# 1. the roofline: for every cell, the top of the highest roofed room over it. The rooms' floors stop at the faces of
+#    the walls round them (walls with a body, thickwalls.py), so a cell under a storey-high wall beside a roofed room is
+#    part of that room's block too: the massing is the building, walls included, as the castle scene draws it
+from thickwalls import footprints
 top = {}
+def cells_in(poly):
+    bx = [p[0] for p in poly]; bz = [p[1] for p in poly]
+    for i in range(math.floor(min(bx) / C), math.ceil(max(bx) / C)):
+        for k in range(math.floor(min(bz) / C), math.ceil(max(bz) / C)):
+            if inside((i + 0.5) * C, (k + 0.5) * C, poly): yield i, k
 for lv in levels:
+    mine = {}
     for r in lv['rooms']:
         if r['floor'] in OPEN: continue
         h = lv['elevationFt'] + (r.get('ceilingFt') or lv['ceilingFt'])
-        poly = r['polygon']; bx = [p[0] for p in poly]; bz = [p[1] for p in poly]
-        for i in range(math.floor(min(bx) / C), math.ceil(max(bx) / C)):
-            for k in range(math.floor(min(bz) / C), math.ceil(max(bz) / C)):
-                if inside((i + 0.5) * C, (k + 0.5) * C, poly): top[(i, k)] = max(top.get((i, k), 0), h)
+        for c in cells_in(r['polygon']): mine[c] = max(mine.get(c, 0), h)
+    for w, f in zip(lv['walls'], footprints(lv['walls'])):
+        if not f or w.get('heightFt') is not None: continue
+        for i, k in cells_in(f):
+            h = max([mine.get(c, 0) for c in ((i, k), (i - 1, k), (i + 1, k), (i, k - 1), (i, k + 1))])
+            if h and (i, k) not in mine: mine[(i, k)] = h
+    for c, h in mine.items(): top[c] = max(top.get(c, 0), h)
 # runs along x of equal height → boxes (x, z, w, d, h) in castle-centred feet
 blocks = []
 for k in range(Z0, Z1 + 1):
