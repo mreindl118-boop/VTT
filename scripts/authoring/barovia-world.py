@@ -73,10 +73,13 @@ ROADS = [  # name, kind, points (script px)
   ('Trail to the Werewolf Den', 'trail', [(107, 269), (111, 247), (119, 230), (119, 215), (119, 200), (126, 185)]),
   ('River Ivlis bank path', 'trail', [(963, 602), (978, 607), (992, 611)]),
 ]
+# Each river is one polyline through the lakes it passes: the River Ivlis from its head (a pool west of Tser Falls the
+# data does not carry) past the falls and the camp, through the Tser Pool where the page draws it (its middle at
+# (845, 567)), and east out of the valley. A river's end at a lake is laid onto the lake's drawn shore (`mouths`), and a
+# lake the file keeps apart from every river (the camp's pool, TIED) gets its outlet to the nearest one (`outlets`).
 RIVERS = [
   ('Luna River', [(417, 253), (415, 274), (413, 294), (411, 314), (409, 335), (407, 356), (405, 376), (407, 390), (409, 404), (414, 420), (420, 437), (425, 453), (425, 473), (421, 483), (411, 499), (400, 515), (389, 532), (379, 548), (369, 564), (358, 580), (349, 588), (340, 595), (324, 605), (308, 614), (292, 624), (277, 639), (262, 655), (246, 670), (226, 677), (226, 688), (226, 698), (216, 701), (205, 707), (193, 713), (179, 718), (165, 722), (149, 723), (135, 720), (122, 718), (104, 710), (86, 701), (69, 692), (51, 684), (33, 676), (15, 667), (-4, 660), (-23, 654), (-42, 647), (-60, 640), (-79, 633), (-98, 627), (-117, 620)]),
-  ('River Ivlis (above the falls)', [(469, 496), (487, 493), (504, 490), (521, 486), (539, 483), (559, 486), (579, 489), (599, 492), (614, 490), (629, 489), (651, 490), (674, 492), (693, 496), (711, 499), (725, 506), (739, 513), (759, 519), (778, 526), (798, 532), (809, 537), (819, 542), (825, 548)]),
-  ('River Ivlis', [(863, 598), (875, 606), (893, 611), (909, 608), (925, 598), (933, 597), (951, 602), (967, 611), (983, 620), (1002, 623), (1022, 626), (1041, 630), (1060, 633), (1080, 636), (1099, 639), (1120, 636), (1140, 634), (1161, 631), (1178, 622), (1195, 613), (1212, 604), (1222, 602), (1235, 601), (1249, 600), (1266, 602), (1283, 604), (1300, 606)]),
+  ('River Ivlis', [(469, 496), (487, 493), (504, 490), (521, 486), (539, 483), (559, 486), (579, 489), (599, 492), (614, 490), (629, 489), (651, 490), (674, 492), (693, 496), (711, 499), (725, 506), (739, 513), (759, 519), (778, 526), (798, 532), (809, 537), (819, 542), (825, 548), (836, 557), (845, 567), (854, 582), (863, 598), (875, 606), (893, 611), (909, 608), (925, 598), (933, 597), (951, 602), (967, 611), (983, 620), (1002, 623), (1022, 626), (1041, 630), (1060, 633), (1080, 636), (1099, 639), (1120, 636), (1140, 634), (1161, 631), (1178, 622), (1195, 613), (1212, 604), (1222, 602), (1235, 601), (1249, 600), (1266, 602), (1283, 604), (1300, 606)]),
   ('Raven River', [(200, 270), (192, 282), (183, 288), (173, 295), (161, 300), (149, 302), (136, 304), (116, 305), (96, 306), (75, 307), (55, 308), (35, 309), (20, 309), (4, 308), (-11, 308), (-32, 305), (-53, 302), (-75, 298), (-96, 295), (-117, 292)]),
 ]
 # LAKES were traced on 2026-10-19 from the same page render as the roads: the water colour, closed and filled, the river
@@ -226,11 +229,85 @@ def clip(pts, b):
         if end: pts.reverse()
     return pts
 
-def paths(pins, bounds):
-    """roads and rivers for the file: laid against `pins` (key -> px), cut at `bounds` (px), in miles."""
+MOUTH_REACH = 0.25  # miles: a river's end this near a lake's shore is its mouth (or the lake's outflow)
+MOUTH_IN = 0.03     # miles: the river runs on this far past the drawn shore, under the water
+
+def rounded(ring, passes=2):
+    """A lake's shore as every view draws it (render/worldlakes.ts `lakeRing`: Chaikin's corner cutting, two passes;
+    the edges it splits there do not change the shape), in the ring's own units."""
+    for _ in range(passes):
+        out = []
+        for i in range(len(ring)):
+            a, b = ring[i], ring[(i + 1) % len(ring)]
+            out += [[a[0] * 0.75 + b[0] * 0.25, a[1] * 0.75 + b[1] * 0.25], [a[0] * 0.25 + b[0] * 0.75, a[1] * 0.25 + b[1] * 0.75]]
+        ring = out
+    return ring
+
+def _inside(p, ring):
+    inside, j = False, len(ring) - 1
+    for i in range(len(ring)):
+        (xi, yi), (xj, yj) = ring[i], ring[j]
+        if (yi > p[1]) != (yj > p[1]) and p[0] < (xj - xi) * (p[1] - yi) / (yj - yi) + xi: inside = not inside
+        j = i
+    return inside
+
+def shore_of(lake):
+    """A lake's drawn shore in miles: its outline rounded, or its ellipse."""
+    if 'pts' in lake: return rounded(lake['pts'])
+    (cx, cy), (rx, ry) = lake['center'], lake['r']
+    return [[cx + math.cos(k / 64 * math.tau) * rx, cy + math.sin(k / 64 * math.tau) * ry] for k in range(64)]
+
+def _turn(a, b, c):
+    """The turn (degrees) a path a -> b -> c makes at b."""
+    u, v = (b[0] - a[0], b[1] - a[1]), (c[0] - b[0], c[1] - b[1])
+    return abs(math.degrees(math.atan2(u[0] * v[1] - u[1] * v[0], u[0] * v[0] + u[1] * v[1])))
+
+def mouths(rivers, lakes):
+    """Each river end within MOUTH_REACH of a lake's drawn shore runs on to that shore and MOUTH_IN past it, so the
+    water meets the river with no strip of dry land between (the Raven at Lake Baratok, the Luna at Lake Zarovich). An
+    end the run to the shore would turn back from by more than 60 degrees (a hook) gives way to the point before it."""
+    shores = [shore_of(l) for l in lakes]
+    for rv in rivers:
+        pts = rv['pts']
+        for end in (0, -1):
+            e = pts[end]
+            if any(_inside(e, sh) for sh in shores): continue
+            near = [(_dist(e, q), q, sh) for sh in shores for _, _, q in [_nearest_on_ring(sh, e)]]
+            d, q, sh = min(near, key=lambda n: n[0])
+            if d > MOUTH_REACH or d < 1e-9: continue
+            for _ in range(2):
+                nxt = pts[1] if end == 0 else pts[-2]
+                if len(pts) < 3 or _turn(q, e, nxt) <= 60: break
+                pts.pop(end); e = pts[end]
+                d, q, sh = min(((_dist(e, q2), q2, sh2) for sh2 in shores for _, _, q2 in [_nearest_on_ring(sh2, e)]), key=lambda n: n[0])
+            u = [(q[0] - e[0]) / d, (q[1] - e[1]) / d]
+            inner = next(([q[0] + u[0] * MOUTH_IN * k, q[1] + u[1] * MOUTH_IN * k] for k in (1, 2, 3) if _inside([q[0] + u[0] * MOUTH_IN * k, q[1] + u[1] * MOUTH_IN * k], sh)), None)
+            if inner is None: continue
+            run = [[round(v, 4) for v in q], [round(v, 4) for v in inner]]
+            if end == 0: pts[:0] = run[::-1]
+            else: pts.extend(run)
+    return rivers
+
+def outlets(rivers, lakes):
+    """A lake the file keeps as a disc (TIED) that no river reaches gets an outlet: from its middle out through its
+    shore to the nearest point of the nearest river (the camp's pool to the River Ivlis)."""
+    def on_river(p): return min(_dist(p, _nearest_on_ring(r['pts'] + r['pts'][-2:0:-1], p)[2]) for r in rivers)
+    for l in lakes:
+        if l['name'] not in TIED or 'pts' in l: continue
+        sh = shore_of(l)
+        if any(_inside(p, sh) for r in rivers for p in r['pts']) or min(on_river(p) for p in sh) < 1e-6: continue
+        c = l['center']
+        q = min((_nearest_on_ring(r['pts'] + r['pts'][-2:0:-1], c)[2] for r in rivers), key=lambda q: _dist(c, q))
+        _, _, s = _nearest_on_ring(sh, q)
+        rivers.append(OrderedDict(name=l['name'] + ' outlet', pts=[[round(v, 4) for v in p] for p in (c, s, q)]))
+    return rivers
+
+def paths(pins, bounds, lakes):
+    """roads and rivers for the file: laid against `pins` (key -> px), cut at `bounds` (px), in miles; the rivers met
+    by the file's `lakes` (`mouths`, `outlets`)."""
     roads = [OrderedDict(name=n, kind=k, pts=[m(*p) for p in clip(pts, bounds)]) for n, k, pts in lay_roads(ROADS, pins)]
     rivers = [OrderedDict(name=n, pts=[m(*p) for p in clip(pts, bounds)]) for n, pts in RIVERS]
-    return roads, rivers
+    return roads, outlets(mouths(rivers, lakes), lakes)
 
 def lakes_for(pins, kept=None):
     """The lakes for the file: each traced outline laid against `pins`, in miles, with the bounding ellipse (`center`,
@@ -275,12 +352,12 @@ if old is not None and 'cover' in old:
     # the cover pass's refined file: everything it holds stays; the roads and rivers are this script's
     b = old['bounds']; px = lambda p: (p[0] * PX_PER_MILE, p[1] * PX_PER_MILE)
     pins = {p['key']: px(p['pos']) for p in old['pins']}
-    old['roads'], old['rivers'] = paths(pins, (*px((b['minX'], b['minY'])), *px((b['maxX'], b['maxY']))))
     old['lakes'] = lakes_for(pins, {l['name']: l for l in old.get('lakes', [])})
+    old['roads'], old['rivers'] = paths(pins, (*px((b['minX'], b['minY'])), *px((b['maxX'], b['maxY']))), old['lakes'])
     world, which = old, 'the refined world.json (cover kept)'
 else:
-    out['roads'], out['rivers'] = paths({k: p for k, _, p, _, _ in PINS}, BOUNDS)
     out['lakes'] = lakes_for({k: p for k, _, p, _, _ in PINS})
+    out['roads'], out['rivers'] = paths({k: p for k, _, p, _, _ in PINS}, BOUNDS, out['lakes'])
     keep_notes(out, PATH)
     world, which = out, 'the base world.json'
 with open(PATH, 'w') as f: json.dump(world, f, indent=1); f.write('\n')
