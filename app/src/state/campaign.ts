@@ -81,6 +81,8 @@ export interface CampaignState {
   roster: Sheet[];
   /** The running encounter, if any. */
   encounter?: Encounter;
+  /** Maps whose party this version has checked against the start an earlier release gave it (state/partyStart.ts). */
+  settledStarts?: string[];
   updatedAt: number;
 }
 

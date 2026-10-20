@@ -9,6 +9,7 @@ import { moveBlockers } from './core/light';
 import { canWalk } from './core/movement';
 import { chosenRoute, enteredRoute, linkMarkers, routeOf, type LinkEnd, type LinkRoute } from './core/verticalLinks';
 import { SITE_INTERFACES } from './core/siteInterfaces';
+import { partyStart, settleParty } from './state/partyStart';
 import { classOpacity, fogCurve, hiddenCurve, labelCurve } from './core/slider';
 import { baseRingFt, CELL_FT } from './core/units';
 import { baseRing } from './kit/pieces';
@@ -284,12 +285,16 @@ export class App {
     }
     if (!inValley) this.releaseAll();
     this.place(next, ups);
+    // a party a release has moved the start from (where 0.3.x placed it itself on the castle, the Wachterhaus), or one on
+    // a floor the map no longer has, goes to the map's start first (state/partyStart.ts); saved below
+    const settled = this.mode === 'dm' && settleParty(this.state, next.scene);
     // the DM opens a map the party is on at the party's floor (a reload, a return to it), unless a floor is asked for
     if (levelId === undefined && this.mode === 'dm') levelId = this.partyFloor(next);
     // the Player Display's camera is the DM's (camera messages): it never frames a map it follows the DM onto
     const follow = this.mode === 'player' && !!prev;
     this.home = path; // the party's map (the camera alone never changes it)
     this.activate(next, { levelId, frame: follow ? false : fly ? 'fly' : true });
+    if (settled) this.commit();
     // it resolves when the camera has arrived (a glide across the valley), or at once
     if (fly) await this.world.settled();
     this.streamer.tick(); // what the camera has come to: the place left behind folds into its proxy
@@ -1178,20 +1183,11 @@ export class App {
   private ensureDefaultToken(): void {
     const loc = this.cur!.scene.location;
     if (this.state.tokens.some((t) => t.location === loc)) return;
-    // Prefer an authored spawn point; otherwise the cell under the first room's centroid.
-    let level = this.cur!.scene.levels[0];
-    let pos: Vec2 | null = null;
-    for (const l of this.cur!.scene.levels) {
-      const sp = l.objects.find((o) => o.kind === 'spawn');
-      if (sp) { level = l; pos = [sp.pos[0], sp.pos[2]]; break; }
-    }
-    if (!pos) {
-      const b = bounds([level.rooms[0].polygon]);
-      pos = [(b.minX + b.maxX) / 2, (b.minZ + b.maxZ) / 2];
-    }
-    const c = squareCellCenter(squareCellAt(pos));
+    // An authored spawn point; otherwise the cell under the first room's centroid on the floor the map opens on
+    // (state/partyStart.ts: the DM reopens a map at the party's floor, so a party made elsewhere would open it there).
+    const { level, pos } = partyStart(this.cur!.scene);
     // The party carries a torch (PHB 20/40) so unlit maps are playable out of the box.
-    this.state.tokens.push({ id: `pc-${loc}`, name: 'Party', location: loc, level: level.id, pos: c, size: 'medium', darkvisionFt: 0, color: PARTY_RED, light: { bright: 20, dim: 40 }, role: 'party' });
+    this.state.tokens.push({ id: `pc-${loc}`, name: 'Party', location: loc, level, pos, size: 'medium', darkvisionFt: 0, color: PARTY_RED, light: { bright: 20, dim: 40 }, role: 'party' });
   }
 
   /** The floor the party stands on in a loaded map, if it is there (a saved token on one of the map's levels). */

@@ -251,6 +251,37 @@ test('a reload opens the map on the party\'s floor; a floor asked for wins; a fi
   expect(first).toEqual({ visible: 'ground', entry: 'ground', party: 'ground' });
 });
 
+test('a map without a spawn starts the party on the floor it opens on, so it reopens there; a 0.3.x castle party is put inside the gate', async ({ page }) => {
+  // the Wachterhaus (ch05/N4) has no spawn and lists its secret cellar first: the party started there while the map
+  // opened on its ground floor, and from the second visit on the DM landed on the cellar
+  await open(page, 'ch05/N4');
+  expect(await pose(page).then((p) => [p.level, p.visible])).toEqual(['ground', 'ground']);
+  await page.evaluate(async () => { await (window as any).__mistlab.flush(); });
+  await page.reload();
+  await page.waitForFunction(() => (window as any).__mistlab?.ready);
+  await page.evaluate(() => (window as any).__mistlab.ready);
+  expect(await pose(page).then((p) => [p.level, p.visible]), 'reopened on its ground floor').toEqual(['ground', 'ground']);
+  // a save from 0.3.x: the castle's party where that release put it (no spawn then: the dungeon's first room), and the
+  // Wachterhaus's in its cellar; both open where their maps now start the party
+  await page.evaluate(async () => {
+    const a = (window as any).__mistlab.app;
+    a.state.tokens = a.state.tokens.filter((t: any) => t.location !== 'K' && t.location !== 'N4');
+    a.state.tokens.push({ id: 'pc-K', name: 'Party', location: 'K', level: 'dungeon', pos: [217.5, 202.5], size: 'medium', darkvisionFt: 0, color: '#b3261e', role: 'party' });
+    a.state.tokens.push({ id: 'pc-N4', name: 'Party', location: 'N4', level: 'cellar', pos: [37.5, 72.5], size: 'medium', darkvisionFt: 0, color: '#b3261e', role: 'party' });
+    delete a.state.settledStarts;
+    await (window as any).__mistlab.flush();
+  });
+  await page.reload();
+  await page.waitForFunction(() => (window as any).__mistlab?.ready);
+  await page.evaluate(() => (window as any).__mistlab.ready);
+  expect(await pose(page), 'the Wachterhaus').toMatchObject({ level: 'ground', visible: 'ground' });
+  const castle = await page.evaluate(async () => { const a = (window as any).__mistlab.app; await a.open('ch04/K'); return { level: a.party.level, visible: a.levelId, pos: a.party.pos }; });
+  expect(castle, 'the castle, inside its gate').toEqual({ level: 'ground', visible: 'ground', pos: [37.5, 172.5] });
+  // the table moves the party into the dungeon afterwards: it stays there, and the castle reopens on it
+  const kept = await page.evaluate(async () => { const m = (window as any).__mistlab, a = m.app; m.moveParty('dungeon', 217.5, 202.5); await m.flush(); await a.open('ch05/N4'); await a.open('ch04/K'); return { level: a.party.level, visible: a.levelId }; });
+  expect(kept).toEqual({ level: 'dungeon', visible: 'dungeon' });
+});
+
 test('the Player Display follows the party up a stair and takes none of its own', async ({ page, context }) => {
   await open(page);
   const player = await context.newPage();
