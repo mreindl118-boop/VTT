@@ -14,8 +14,11 @@ walls thickness uses this module to take that thickness out of the plan's space 
 Every coordinate is in feet, x east and z south, as in the scene. Needs shapely (as van-richten-tower.py does)."""
 import math
 from collections import OrderedDict
-from shapely.geometry import LineString, Point, Polygon as SPoly
-from shapely.ops import unary_union
+try:
+    from shapely.geometry import LineString, Point, Polygon as SPoly
+    from shapely.ops import unary_union
+except ImportError:   # the print set (print/castle-ravenloft/build.py) reads only footprints(), which needs no shapely
+    LineString = Point = SPoly = unary_union = None
 
 EPS = 0.05          # ft: ends this close meet; a point this close to a line lies on it
 DOORISH = ('door', 'secret-door')

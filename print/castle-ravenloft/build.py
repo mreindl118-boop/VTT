@@ -18,6 +18,8 @@ from collections import OrderedDict, defaultdict
 import numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..', 'scripts', 'authoring'))
+from thickwalls import footprints as wall_footprints   # the wall bodies exactly as mistLAB draws them
 from geom import (Manifold, CrossSection, JoinType, cs, rect_cs, box, slab, segment_box, regular, cone, union, bbox,
                   clip, value_noise, write_stl, write_3mf, check, poly_area)
 
@@ -104,40 +106,15 @@ def wall_mm(cfg, w):
     return t * cfg.cell / 5.0 if t else cfg.wall
 
 
-def joint_reach(walls, cfg):
-    """How far each end of each wall with a body runs past its end point so its joints close in the union (mm): nothing
-    at a free end (a door's jamb, an arch) or where a wall runs on in its line or ends on another's side; at a corner,
-    to the meeting of the outer faces (an L: the other wall's half-thickness; an octagon's corner much less), never a
-    spike past the faces. Walls without a body keep the default half-thickness lengthening."""
-    E = 0.05 * cfg.f
-    segs = []
-    for w in walls:
-        if not w.get('thicknessFt') or 'invisible' in w['flags'] or 'ethereal' in w['flags']:
-            segs.append(None); continue
-        a, b = P(cfg, *w['a']), P(cfg, *w['b']); L = math.hypot(b[0] - a[0], b[1] - a[1])
-        segs.append(None if L < 1e-6 else (a, b, L, ((b[0] - a[0]) / L, (b[1] - a[1]) / L), wall_mm(cfg, w) / 2))
-    out = {}
-    for i, s in enumerate(segs):
-        if s is None: continue
-        a, b, L, u, h = s
-        for end, p, d in ((0, a, (-u[0], -u[1])), (1, b, u)):   # d: along the wall, out past this end
-            reach, run_on = 0.0, False
-            for j, o in enumerate(segs):
-                if j == i or o is None: continue
-                oa, ob, oL, ou, oh = o
-                if math.hypot(p[0] - oa[0], p[1] - oa[1]) <= E: e = ou            # o leaves this joint along +ou
-                elif math.hypot(p[0] - ob[0], p[1] - ob[1]) <= E: e = (-ou[0], -ou[1])
-                else:
-                    rx, ry = p[0] - oa[0], p[1] - oa[1]; along = rx * ou[0] + ry * ou[1]
-                    if abs(rx * ou[1] - ry * ou[0]) <= E and E < along < oL - E: run_on = True   # ends on o's side
-                    continue
-                cos_t = d[0] * e[0] + d[1] * e[1]                                   # 1: o runs on in this wall's line
-                if cos_t > math.cos(math.radians(10)): run_on = True; continue
-                sin_t = math.sqrt(max(0.0, 1 - cos_t * cos_t))
-                if sin_t < 1e-3: continue
-                reach = max(reach, min(max(0.0, (oh - h * cos_t) / sin_t), 2 * max(h, oh)))
-            out[(i, end)] = 0.0 if run_on and reach == 0.0 else reach
-    return out
+def body_line_ft(w):
+    """The line down the middle of a wall's body (ft): a->b, moved by the wall's offsetFt to its left (+) or right."""
+    o = w.get('offsetFt', 0) or 0
+    (ax, az), (bx, bz) = w['a'], w['b']
+    if not o:
+        return (ax, az), (bx, bz)
+    L = math.hypot(bx - ax, bz - az) or 1
+    nx, nz = -(bz - az) / L * o, (bx - ax) / L * o
+    return (ax + nx, az + nz), (bx + nx, bz + nz)
 
 
 # ------------------------------------------------------------------ one level
@@ -150,6 +127,8 @@ class LevelBuild:
         self.rooms = [r for r in lv['rooms'] if self.room_in_region(r)]
         self.towers = []                                   # (centre mm, mid radius mm, key)
         self.thick = any(w.get('thicknessFt') for w in lv['walls'])   # walls with a body (thicknessFt)
+        # each wall's body in plan (ft), its joints closed against its neighbours, as mistLAB draws it (None: no body)
+        self.bodies = wall_footprints(lv['walls']) if self.thick else [None] * len(lv['walls'])
         self.door_cells = []                               # cut lines must avoid these (mm boxes)
 
     # --- region
@@ -266,39 +245,59 @@ class LevelBuild:
 
     def walls(self):
         cfg = self.cfg
-        reach = joint_reach(self.lv['walls'], cfg)
         for i, w in enumerate(self.lv['walls']):
+            flags = w['flags']
+            low = w.get('heightFt', 99) <= 5
+            top = cfg.slab + (5.0 if low else cfg.clear)
+            if w.get('thicknessFt'):
+                # a wall with a body: its footprint as mistLAB draws it (its own thickness at mm = ft x cell_mm / 5, standing
+                # off its line by its offsetFt, its joints closed), clipped to the region; a door's is its lintel
+                body = self.body_cs(i)
+                if body is None:
+                    continue
+                if 'door' in flags:
+                    seg = self.clip_seg(*[P(cfg, *q) for q in body_line_ft(w)])
+                    if seg is not None:
+                        self.door(*seg, w, top, lintel=body)
+                    continue
+                self.parts['walls'].append(slab(body, cfg.slab, top))
+                continue
             a = P(cfg, *w['a']); b = P(cfg, *w['b'])
             seg = self.clip_seg(a, b)
             if seg is None:
                 continue
             a, b = seg
-            flags = w['flags']
-            low = w.get('heightFt', 99) <= 5
-            top = cfg.slab + (5.0 if low else cfg.clear)
             if 'door' in flags:
                 self.door(a, b, w, top)
                 continue
-            if not w.get('thicknessFt'):
-                self.parts['walls'].append(segment_box(a, b, cfg.wall, cfg.slab, top, extend=cfg.wall / 2))
-                continue
-            # a wall with a body: its own thickness, lengthened at each end only as far as its joint needs
-            L = math.hypot(b[0] - a[0], b[1] - a[1])
-            if L < 1e-6:
-                continue
-            ux, uy = (b[0] - a[0]) / L, (b[1] - a[1]) / L
-            ra, rb = reach.get((i, 0), 0.0), reach.get((i, 1), 0.0)
-            self.parts['walls'].append(segment_box((a[0] - ux * ra, a[1] - uy * ra), (b[0] + ux * rb, b[1] + uy * rb), wall_mm(cfg, w), cfg.slab, top))
+            self.parts['walls'].append(segment_box(a, b, cfg.wall, cfg.slab, top, extend=cfg.wall / 2))
 
-    def door(self, a, b, w, top):
+    def body_cs(self, i):
+        """Wall i's body in plan (mm), clipped to the region; None when it has none there."""
+        f = self.bodies[i]
+        if not f:
+            return None
+        c = cs([poly_mm(self.cfg, f)])
+        reg = self.region_cs()
+        if reg is not None:
+            c = c ^ reg
+        return None if c.is_empty() else c
+
+    def door(self, a, b, w, top, lintel=None):
+        """A door from a to b (mm, the middle of the wall's body), with `lintel` the opening's plan (a wall with a body)."""
         cfg = self.cfg
         L = math.hypot(b[0] - a[0], b[1] - a[1])
+        if L < 1e-6:
+            return
         ux, uy = (b[0] - a[0]) / L, (b[1] - a[1]) / L
         nx, ny = -uy, ux
         mid = ((a[0] + b[0]) / 2, (a[1] + b[1]) / 2)
         self.door_cells.append((mid, L))
         # lintel across the gap, flush with the wall tops, through the wall's whole depth
-        self.parts['walls'].append(segment_box(a, b, wall_mm(cfg, w), top - cfg.lintel, top, extend=cfg.wall if not w.get('thicknessFt') else 0.2))
+        if lintel is not None:
+            self.parts['walls'].append(slab(lintel, top - cfg.lintel, top))
+        else:
+            self.parts['walls'].append(segment_box(a, b, cfg.wall, top - cfg.lintel, top, extend=cfg.wall))
         locked = 'locked' in w['flags']
         if w['id'].endswith('-bars'):
             # cell bars: a frame and vertical bars, in metal
@@ -324,16 +323,7 @@ class LevelBuild:
 
     def walls_cs(self):
         """The plan of every drawn wall with a body (mm), to lay the plate under the walls."""
-        cfg = self.cfg; out = []
-        for w in self.lv['walls']:
-            if not w.get('thicknessFt') or 'invisible' in w['flags'] or 'ethereal' in w['flags']:
-                continue
-            (ax, ay), (bx, by) = P(cfg, *w['a']), P(cfg, *w['b']); L = math.hypot(bx - ax, by - ay)
-            if L < 1e-6:
-                continue
-            h = wall_mm(cfg, w) / 2; nx, ny = -(by - ay) / L * h, (bx - ax) / L * h; ux, uy = (bx - ax) / L * h, (by - ay) / L * h
-            out.append([(ax - ux + nx, ay - uy + ny), (ax - ux - nx, ay - uy - ny), (bx + ux - nx, by + uy - ny), (bx + ux + nx, by + uy + ny)])
-        c = cs(out)
+        c = cs([poly_mm(self.cfg, f) for f in self.bodies if f])
         reg = self.region_cs()
         return c ^ reg if reg is not None else c
 
@@ -757,8 +747,9 @@ def write_readme(a, cfg, summary, manifest, levels):
     L = []
     L.append('# Castle Ravenloft, floor by floor\n')
     L.append(f'Generated {time.strftime("%Y-%m-%d")} from mistLAB\'s castle scene by `print/castle-ravenloft/build.py`. '
-             f'One 5-ft cell = {cfg.cell} mm; every level is {cfg.pitch} mm tall (slab {cfg.slab} mm + {cfg.clear:.1f} mm clear), walls {cfg.wall} mm, '
-             f'tower rings {cfg.tower_wall} mm, tiles cut for a {cfg.bed:.0f} mm bed with 4-mm half-laps. Axes: X east, Y north, Z up. '
+             f'One 5-ft cell = {cfg.cell} mm; every level is {cfg.pitch} mm tall (slab {cfg.slab} mm + {cfg.clear:.1f} mm clear), walls '
+             f'as thick as the scene sets them (thicknessFt x {cfg.cell / 5:.2f} mm per ft: the curtain {20 * cfg.cell / 5:.0f} mm, the keep {5 * cfg.cell / 5:.0f} mm, '
+             f'the towers {4 * cfg.cell / 5:.1f} mm, partitions {2 * cfg.cell / 5:.1f} mm; {cfg.wall} mm and {cfg.tower_wall}-mm tower rings where it sets none), tiles cut for a {cfg.bed:.0f} mm bed with 4-mm half-laps. Axes: X east, Y north, Z up. '
              f'Ground tray: {"the whole courtyard" if cfg.courtyard == "full" else "keep + apron, reaching over the sub-levels"}; sub-level trays: {cfg.sub_tray}; masonry: {cfg.masonry}.\n')
     L.append('## How the stack goes together\n')
     L.append('1. **Mountain** (`base/mountain_*.stl`): the rock plinth, hollow, open underneath, two levels tall. Its cavity takes the two sub-level trays; its flat top carries the courtyard tray.')
