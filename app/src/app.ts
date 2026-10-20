@@ -2054,6 +2054,8 @@ export class App {
 
   private hoverEvt?: PointerEvent;
   private hoverRaf = 0;
+  /** Forget the hover still waiting for its frame. */
+  private dropHover(): void { this.hoverEvt = undefined; if (this.hoverRaf) cancelAnimationFrame(this.hoverRaf); this.hoverRaf = 0; }
   onHover?: (tip: { title: string; sub?: string; enter?: string } | null, x: number, y: number) => void;
   /** Mouse hover: name what is under the cursor. The DM sees everything; players only what they can see. */
   private hover(e: PointerEvent): void {
@@ -2158,10 +2160,12 @@ export class App {
     const tokHit = this.pick(e), fp = this.floorPoint(e);
     if (this.placing && !this.restricted) { if (fp) { this.addCreature(this.placing, fp); this.placed++; this.setStatus(`${this.placed} placed · tap for more · Esc to stop`); } return; }
     // a place over the valley: the world map's (fly there and open its map, or its card), else fly there
+    // (a mouse's click comes with its own move, whose hover waits for the next frame: a tap the world map or a name
+    // takes drops it, or it would show the place's tip again after the tap hid it, and keep it through the flight)
     const pin = this.pinAt(e);
-    if (pin && this.onPinTap?.(pin.key, pin.path)) return;
+    if (pin && this.onPinTap?.(pin.key, pin.path)) { this.dropHover(); return; }
     const place = this.placeAt(e);
-    if (place) { this.stage!.onPick?.(place.path); return; }
+    if (place) { this.dropHover(); this.stage!.onPick?.(place.path); return; }
     // The figure is small from above: a tap anywhere on its base ring picks it up too.
     const tokId = (tokHit && findUp(tokHit.object, 'tokenId')) || (fp && this.tokensHere().filter((t) => this.playerSees(t) || !this.restricted).find((t) => Math.hypot(t.pos[0] - fp[0], t.pos[1] - fp[1]) <= baseRingFt(t.size) / 2 + 1)?.id);
     if (tokId) {
