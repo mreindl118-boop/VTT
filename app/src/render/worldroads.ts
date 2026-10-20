@@ -6,8 +6,9 @@
 //  - `snap` finds the nearest point on any road; `route` the shortest way along the roads between two points, from
 //    and to where each meets the road (null when either is more than OFF_ROAD from any road: the caller draws a
 //    straight line); `components` says whether the net is one.
-// A polyline's end that lies on another road's segment, away from its vertices, is not a junction here: the data
-// test (tests/world-roads.test.ts) holds every end to a place, a shared vertex or the map's frame.
+// A polyline's end that lies on another road's segment, away from its vertices, is not a junction here: the measured
+// net shares a vertex wherever two roads meet, and tests/worldroads.test.ts holds the graph built from it to one
+// connected part (tests/world-roads.test.ts holds every end to a place, another road or the map's frame).
 import type { WorldData } from '../campaigns';
 import type { Vec2 } from '../core/geometry';
 
