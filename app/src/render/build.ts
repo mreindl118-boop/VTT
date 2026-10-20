@@ -215,7 +215,7 @@ export function* buildLevelSteps(level: Level, grid: GridLevel): Generator<void,
       slab.visible = !w.open;
       doors.set(w.id, slab);
       wallsGroup.add(slab);
-      labels.push({ id: `door:${w.id}`, text: f.has('locked') ? 'locked' : 'door', pos: new THREE.Vector3((w.a[0] + w.b[0]) / 2, y0 + doorTop + 0.5, (w.a[1] + w.b[1]) / 2), vis: 'player', kind: 'door', wallId: w.id });
+      labels.push({ id: `door:${w.id}`, text: f.has('locked') ? 'locked' : 'door', pos: new THREE.Vector3((wa[0] + wb[0]) / 2, y0 + doorTop + 0.5, (wa[1] + wb[1]) / 2), vis: 'player', kind: 'door', wallId: w.id });
       continue;
     }
     if (f.has('invisible') || f.has('ethereal')) continue;

@@ -223,6 +223,23 @@ describe('the party and sight meet the drawn body', () => {
     expect(canWalk([12.5, -6], [12.5, -1.25], moveBlockers(walls(false)), hall)).toBe(true);   // up to the shut leaf, in the reveal
     expect(hasLineOfSight([12.5, -6], [12.5, 6], sightBlockers(walls(true)))).toBe(true);
   });
+  it('a shut door in a wall standing off its line stops the party and sight at its leaf, in the body\'s middle', () => {
+    // the wall takes its 4 ft from its left (+z): its body runs from z 0 (its line) to z 4, the leaf hangs at z 2
+    const walls = (open: boolean) => [W('w1', [0, 0], [10, 0], 4, ['normal'], 2), { ...W('d', [10, 0], [15, 0], 4, ['door'], 2), open }, W('w2', [15, 0], [30, 0], 4, ['normal'], 2)];
+    const built = buildLevel(level(walls(false)), GRID);
+    const leaf = built.wallsGroup.children.find((o) => o.userData.role === 'door' && o.userData.wallId === 'd') as THREE.Mesh;
+    const lb = new THREE.Box3().setFromBufferAttribute(leaf.geometry.attributes.position as THREE.BufferAttribute);
+    expect((lb.min.z + lb.max.z) / 2).toBeCloseTo(2, 5);
+    expect(built.labels.find((l) => l.id === 'door:d')!.pos.z).toBeCloseTo(2, 5);   // its icon over the leaf
+    const hall: Polygon[] = [[[1, -10], [29, -10], [29, 10], [1, 10]]], shut = moveBlockers(walls(false)), seen = sightBlockers(walls(false));
+    expect(canWalk([12.5, -6], [12.5, 1], shut, hall)).toBe(true);    // into the reveal from the line's side, up to the leaf
+    expect(canWalk([12.5, -6], [12.5, 3], shut, hall)).toBe(false);   // and not past it
+    expect(canWalk([12.5, 8], [12.5, 3], shut, hall)).toBe(true);     // from the far side, up to the leaf
+    expect(canWalk([12.5, 8], [12.5, 1], shut, hall)).toBe(false);    // and not through it
+    expect(hasLineOfSight([12.5, 1], [12.5, 8], seen)).toBe(false);   // the leaf cuts sight, not the face behind it
+    expect(hasLineOfSight([12.5, 3], [12.5, 8], seen)).toBe(true);
+    expect(canWalk([12.5, -6], [12.5, 8], moveBlockers(walls(true)), hall)).toBe(true);
+  });
   it('a map without thicknessFt blocks with its centrelines only, as before', () => {
     const walls = [W('w', [0, 0], [20, 0]), W('d', [20, 0], [25, 0], undefined, ['door'])];
     expect(moveBlockers(walls)).toEqual([{ a: [0, 0], b: [20, 0] }, { a: [20, 0], b: [25, 0] }]);
