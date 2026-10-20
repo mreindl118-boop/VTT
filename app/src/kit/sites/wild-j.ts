@@ -454,7 +454,9 @@ export function castleMass(d: Dims): THREE.Group {
   }
   // the castle's own outer wall round the far side of the courtyard
   for (const [x, z, len, rot] of [[320, 0, 1040, Math.PI / 2], [160, -R + 4, 320, 0], [160, R - 4, 320, 0]] as const) { const w = box(len, 60, 14, C.keepDeep, x, 30, z); w.rotation.y = rot; g.add(w); }
-  return root;
+  // one mesh per material: with the castle's front on it the stand-in is over a thousand small pieces (the wall's merlons
+  // and slits, the deck's boards, the chains' links), drawn on its own as a stand-in is, never merged with the map's props
+  return fuse(root);
 }
 
 // ---------------------------------------------------------------- the turrets and what lies by them
