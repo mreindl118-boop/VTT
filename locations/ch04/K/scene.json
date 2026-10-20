@@ -26258,8 +26258,8 @@
       "normal"
      ],
      "material": "ashlar",
-     "thicknessFt": 0.5,
-     "offsetFt": 0.25
+     "thicknessFt": 1,
+     "offsetFt": 0.5
     },
     {
      "id": "spires-w-53-s1",

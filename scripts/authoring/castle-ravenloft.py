@@ -932,7 +932,8 @@ def _plan_walls(lvj, keys):
         mutual = v['id'] in void_side and void_side[v['id']] == toward_me and gap(v, toward_me) is not None
         reach = 0 if mutual else tv if sv == toward_me else tv / 2 if sv == 0 else 0
         t = g / 2 if mutual else g - reach
-        if 0.5 <= t <= G_FILL: fill[wid] = round(t, 3)
+        # (a slot narrower than T_MIN: the filler still takes T_MIN, running on into the other wall's body, one masonry)
+        if 0.5 <= t <= G_FILL: fill[wid] = max(round(t, 3), T_MIN)
     for wid, t in fill.items(): plan[wid] = (t, plan[wid][1])
     # a wall borrows only the void that is free: where a room lies closer on that side (a sliver of void between a
     # rectangle and a tower's side), the body stops short of it. On a long wall the free depth is read along its stretch

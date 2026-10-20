@@ -44,6 +44,9 @@ describe('Castle Ravenloft: walls with a body', () => {
     expect(Math.max(...all.filter(({ w }) => w.heightFt !== 90).map(({ w }) => w.thicknessFt!))).toBeLessThan(20);
     // railings and balustrades are thin
     expect(all.filter(({ w }) => (w.heightFt ?? 99) <= 4).every(({ w }) => w.thicknessFt! <= 1)).toBe(true);
+    // and nothing that stands a storey high is a sheet: a panelled partition (1 ft) is the thinnest wall of the castle,
+    // never the 0.6 ft every other map draws (the keep's wall where a tower's corner touches it stays keep-thick)
+    expect(all.filter(({ w }) => (w.heightFt ?? 99) > 4 && w.thicknessFt! < 1).map(({ l, w }) => `${l.id}/${w.id} (${w.thicknessFt} ft)`)).toEqual([]);
     // the stair towers' rings are 4 ft: the walls along the octagon's sides (the floor's edge, inset from the ring), each
     // parallel to a side within the ring's depth and standing beside it, not running on past its corner
     for (const l of scene.levels) for (const r of l.rooms.filter((r) => /^K(18|20|83)\b/.test(r.key) && r.polygon.length >= 8)) {
