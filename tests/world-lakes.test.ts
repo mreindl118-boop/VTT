@@ -11,7 +11,7 @@ import barovia from '../locations/ch02/barovia-region/world.json';
 import wsc from '../locations/wsc/00-region/world.json';
 import campaigns from '../manifests/campaigns.json';
 import type { Theme, WorldData } from '../app/src/campaigns';
-import { MI_FT } from '../app/src/core/frames';
+import { FLATTEN_IN, MI_FT, mapDist } from '../app/src/core/frames';
 import { pointInPolygon, polygonArea } from '../app/src/core/geometry';
 import { buildAtlas } from '../scripts/world-atlas';
 import { siteOf } from '../app/src/render/worldstage';
@@ -119,6 +119,23 @@ describe('the land draws the outlines', () => {
       expect(field.lakeAt(far[0], far[1])).toBe(-1);
       expect(field.lakeNear(far[0], far[1], SHORE).i).toBe(-1);
     });
+  });
+  it('no drawn shore runs into the flush band of a map without water of its own (the landing and the tower have theirs)', () => {
+    // within FLATTEN_IN of a map's edge the land is not cut to a lake (a map there carries its own water): a shore drawn
+    // into a dry map shows the water sheet through the land as pale wedges (Lake Zarovich's inlets in Vallaki did)
+    const wet = (path: string) => (JSON.parse(readFileSync(`locations/${path}/scene.json`, 'utf8')) as SceneFile).levels.some((lv) => [...lv.rooms, ...(lv.terrain ?? [])].some((r) => /water/.test(r.floor ?? '')));
+    expect(sites.filter((s) => wet(s.path)).map((s) => s.path).sort()).toEqual(expect.arrayContaining(['ch02/L', 'ch11/V']));
+    const bad: string[] = [];
+    for (const l of outlined) {
+      const ring = lakeRing(l)!.map((p) => field.feet(p));
+      for (const s of sites) {
+        if (s.shoreLake === l.name || wet(s.path)) continue;
+        let worst = Infinity;
+        for (let i = 0; i < ring.length; i++) for (let k = 0; k < 8; k++) { const a = ring[i], b = ring[(i + 1) % ring.length], t = k / 8; worst = Math.min(worst, mapDist(s.bounds, a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t)); }
+        if (worst < FLATTEN_IN) bad.push(`${l.name} ${Math.round(worst)} ft from ${s.path}`);
+      }
+    }
+    expect(bad).toEqual([]);
   });
   it('a lake without an outline keeps the ellipse\'s rho (the Tser Pool), and a region without lakes has none', () => {
     const i = data.lakes.findIndex((l) => l.name === 'Tser Pool'), l = data.lakes[i], [cx, cz] = field.feet(l.center);
