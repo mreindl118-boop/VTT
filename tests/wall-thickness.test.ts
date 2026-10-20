@@ -240,6 +240,22 @@ describe('the party and sight meet the drawn body', () => {
     expect(hasLineOfSight([12.5, 3], [12.5, 8], seen)).toBe(true);
     expect(canWalk([12.5, -6], [12.5, 8], moveBlockers(walls(true)), hall)).toBe(true);
   });
+  it('the blockers of bodies that meet are the solid\'s outline: no seam where they join, no centreline inside', () => {
+    // two 4-ft walls in one line and a third turning off the end (an L): one solid; every wall line lies inside it
+    const walls = [W('a', [0, 0], [10, 0], 4), W('b', [10, 0], [20, 0], 4), W('c', [20, 0], [20, 15], 4)];
+    const fp = wallFootprints(walls) as Polygon[];
+    const edges = fp.reduce((n, p) => n + p.length, 0);   // 4 + 4 + 4, two seams shared by two bodies each
+    expect(sightBlockers(walls)).toHaveLength(edges - 4); expect(moveBlockers(walls)).toHaveLength(edges - 4);
+    // and they block as before: into the body from outside, along the joint, across the corner
+    expect(hasLineOfSight([10, -5], [10, 5], sightBlockers(walls))).toBe(false);
+    expect(hasLineOfSight([15, -5], [25, 5], sightBlockers(walls))).toBe(false);
+    expect(canWalk([10, -5], [10, -1], moveBlockers(walls), [[[-10, -10], [30, -10], [30, 20], [-10, 20]]])).toBe(false);
+    expect(hasLineOfSight([5, -5], [15, -5], sightBlockers(walls))).toBe(true);
+    // a door between two bodies: its jambs (the bodies' ends at it) stay, the doorway is open when the door is
+    const door = [W('a', [0, 0], [10, 0], 4), { ...W('d', [10, 0], [15, 0], 4, ['door']), open: true }, W('b', [15, 0], [25, 0], 4)];
+    expect(hasLineOfSight([12.5, -5], [12.5, 5], sightBlockers(door))).toBe(true);
+    expect(hasLineOfSight([9, -5], [11, 5], sightBlockers(door))).toBe(false);
+  });
   it('a map without thicknessFt blocks with its centrelines only, as before', () => {
     const walls = [W('w', [0, 0], [20, 0]), W('d', [20, 0], [25, 0], undefined, ['door'])];
     expect(moveBlockers(walls)).toEqual([{ a: [0, 0], b: [20, 0] }, { a: [20, 0], b: [25, 0] }]);

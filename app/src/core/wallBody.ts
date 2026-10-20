@@ -78,13 +78,25 @@ export function wallFootprints(walls: readonly Wall[], grow = 0): (Polygon | nul
   return out;
 }
 
-/** The sides of every wall body, as segments (for blockers). Walls `keep` turns down are left out. */
+/** The sides of every wall body, as segments (for blockers). Walls `keep` turns down are left out. A side two kept
+ *  bodies share, one on each side of it (every footprint runs round the same way, so they run along it in opposite
+ *  directions), is a seam inside the solid: a line between two points outside the bodies that crosses it crosses the
+ *  solid's outline too, so it is left out and sight and movement test fewer segments. */
 export function bodyOutlines(walls: readonly Wall[], keep: (w: Wall) => boolean): Segment[] {
   const fp = wallFootprints(walls), out: Segment[] = [];
+  const pt = (p: Vec2) => `${Math.round(p[0] * 1000)},${Math.round(p[1] * 1000)}`, run = new Set<string>();
   for (let i = 0; i < walls.length; i++) {
     const p = fp[i];
     if (!p || !keep(walls[i])) continue;
-    for (let k = 0; k < p.length; k++) out.push({ a: p[k], b: p[(k + 1) % p.length] });
+    for (let k = 0; k < p.length; k++) run.add(`${pt(p[k])}>${pt(p[(k + 1) % p.length])}`);
+  }
+  for (let i = 0; i < walls.length; i++) {
+    const p = fp[i];
+    if (!p || !keep(walls[i])) continue;
+    for (let k = 0; k < p.length; k++) {
+      const a = p[k], b = p[(k + 1) % p.length];
+      if (!run.has(`${pt(b)}>${pt(a)}`)) out.push({ a, b });
+    }
   }
   return out;
 }

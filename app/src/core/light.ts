@@ -1,7 +1,7 @@
 // 5e light & vision model (PHB ch. 8). See docs §5.
 import { dist, segmentsIntersect, type Segment, type Vec2 } from './geometry';
 import type { Ambient, LightSource, Wall } from './schema';
-import { anyThick, bodyLine, bodyOutlines } from './wallBody';
+import { anyThick, bodyLine, bodyOutlines, hasBody } from './wallBody';
 
 export const enum Illum { Dark = 0, Dim = 1, Bright = 2 }
 
@@ -36,14 +36,17 @@ export interface Blocker extends Segment { terrain: boolean }
 export function sightBlockers(walls: Wall[], revealedSecretDoors: ReadonlySet<string> = new Set()): Blocker[] {
   const out: Blocker[] = [];
   const isDoor = (w: Wall) => w.flags.includes('door') || (w.flags.includes('secret-door') && revealedSecretDoors.has(w.id));
+  // the walls whose body blocks along its outline: their own line, inside the body or on its face, adds nothing
+  const solid = (w: Wall) => hasBody(w) && !isDoor(w) && !w.flags.includes('window') && !w.flags.includes('terrain');
   for (const w of walls) {
     const f = new Set(w.flags);
     if (f.has('window') || f.has('invisible')) continue;
     if (isDoor(w) && w.open) continue;
+    if (solid(w)) continue;
     const [a, b] = isDoor(w) ? bodyLine(w) : [w.a, w.b];
     out.push({ a, b, terrain: f.has('terrain') });
   }
-  if (anyThick(walls)) for (const s of bodyOutlines(walls, (w) => !isDoor(w) && !w.flags.includes('window') && !w.flags.includes('terrain'))) out.push({ ...s, terrain: false });
+  if (anyThick(walls)) for (const s of bodyOutlines(walls, solid)) out.push({ ...s, terrain: false });
   return out;
 }
 
@@ -51,11 +54,13 @@ export function sightBlockers(walls: Wall[], revealedSecretDoors: ReadonlySet<st
  *  (thicknessFt) also blocks along its faces, so the party stops at the face it sees; a shut door stops it at its leaf,
  *  in the body's middle, from either side. */
 export function moveBlockers(walls: Wall[]): Segment[] {
-  const out = walls.filter((w) => !w.flags.includes('ethereal') && !((w.flags.includes('door')) && w.open)).map((w) => {
+  // the walls whose body blocks along its outline: their own line, inside the body or on its face, adds nothing
+  const solid = (w: Wall) => hasBody(w) && !w.flags.includes('door');
+  const out = walls.filter((w) => !w.flags.includes('ethereal') && !((w.flags.includes('door')) && w.open) && !solid(w)).map((w) => {
     const [a, b] = w.flags.includes('door') ? bodyLine(w) : [w.a, w.b];
     return { a, b };
   });
-  if (anyThick(walls)) out.push(...bodyOutlines(walls, (w) => !w.flags.includes('door')));
+  if (anyThick(walls)) out.push(...bodyOutlines(walls, solid));
   return out;
 }
 
