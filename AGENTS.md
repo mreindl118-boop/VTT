@@ -89,7 +89,7 @@ editing the same thing at once:
 |---|---|---|---|---|
 | `scripts/authoring/barovia-world.py`, `locations/ch02/barovia-region/world.json`, a new `tests/world-roads.test.ts`; for the lakes (2f-1c) `app/src/render/worldland.ts` (the lake functions only), `app/src/render/worldcarto.ts` (the lakes only), `app/src/ui/worldmap.ts` (the lakes only), `scripts/world-atlas.ts` and `tests/atlas.test.ts` (the shore rule only) (item 2f-1a/c) | Claude, cloud | 2026-10-19 14:25 | the region's roads, rivers and lakes as measured shapes, on `claude/wip/item2f-1-roads` | 2026-10-19/20, with 2f-1b as one release |
 | `app/src/app.ts` (only `activate`'s `travel` flag and `moveWorld`), `app/src/render/worldstage.ts` (only `drawTrail`), a new `app/src/render/worldroads.ts` (item 2f-1b) | Claude, cloud | 2026-10-19 14:25 | the trail recorded on explicit travel only and drawn along the road graph, on `claude/wip/item2f-1-roads` | with 2f-1a |
-| `scripts/authoring/castle-ravenloft.py`, `scripts/authoring/ravenloft-exterior.py`, `locations/ch04/K`, `print/castle-ravenloft/`; for 2g-1 `scripts/authoring/wild_j.py` and `locations/ch02/J`; for the walls' thickness `app/src/core/schema.ts` (the `Wall` type's new optional `thicknessFt` only) and `app/src/render/build.ts` (the wall, door and window boxes reading it only); for the stairs, `app/src/app.ts` (the vertical-link functions only: the move's link check, `takeLink` and the link markers; not `activate` or `moveWorld`, which 2f-1 holds) with item 11's single-hop tests, ported from `claude/wip/item11-vertical-transitions-cloud`; new castle tests (items 2g, 2g-1, and item 11's single-hop stairs, which the castle's twelve levels need) | Claude, cloud (main session; taken over from the castle session, whose claim was stale) | 2026-10-19 18:45 | finishing the castle on `claude/wip/castle-playable` (Matt: "finish the castle") | its own release after Matt looks at it |
+| `scripts/authoring/castle-ravenloft.py`, `scripts/authoring/ravenloft-exterior.py`, a new `scripts/authoring/thickwalls.py`, `locations/ch04/K`, `print/castle-ravenloft/`; for 2g-1 `scripts/authoring/wild_j.py`, `locations/ch02/J`, `app/src/kit/sites/k.ts`, `app/src/kit/sites/wild-j.ts`, `app/src/kit/sites/index.ts` and, for J's pin and placement beside the castle only, `scripts/authoring/barovia-world.py` and `world.json` (the 2f-1 row's files: the same agent; merged there by re-running); the walls' thickness: `app/src/core/schema.ts` (`Wall.thicknessFt`), a new `app/src/core/wallBody.ts`, `app/src/core/light.ts` (the blockers), `app/src/core/coverage.ts` (wall bodies; `load` reading only a record that fits its grid, the rest kept aside), `app/src/render/build.ts` (wall, door, window boxes, section caps); the stairs and starts: `app/src/app.ts` (the vertical-link functions, `open`'s party floor, `ensureDefaultToken`, `loadSteps`' restore, `syncUnderground`, the section-cap hook; not `activate` or `moveWorld`), a new `app/src/core/verticalLinks.ts`, a new `app/src/state/partyStart.ts`, `app/src/state/campaign.ts` (settled starts), `app/src/core/siteInterfaces.ts` (ch04/K's underground flag and chasm cut), `app/src/main.ts`, `app/src/styles.css`; the manifests; new tests `castle-contract`, `castle-walls`, `gate-front`, `vertical-links`, `wall-thickness` and the e2e `vertical-links` and `continuity` cases (items 2g, 2g-1, the owner's walls request, item 11's single-hop stairs) | Claude, cloud (main session; taken over from the castle session, whose claim was stale) | 2026-10-19 18:45 | finishing the castle on `claude/wip/castle-playable` (Matt: "finish the castle"); ChatGPT: the save migration you proposed would build on `coverage.ts`'s kept-aside records here | its own release after Matt looks at it |
 
 ## Running things (Matt's Windows laptop, PowerShell)
 
@@ -131,6 +131,31 @@ Do not start an item that the Status section says another agent has in flight un
 a day old; then continue it from its wip branch, and say so in Status.
 
 ## Status
+
+### Claude, 2026-10-20 12:45 UTC (cloud): the castle job is done (A-D, verify, two reviews, one fix pass); J's placement next
+
+- **`claude/wip/castle-playable` at `0a05ffb`, 39 commits on `a8419a6`.** Part C (walls, 12 commits): every castle wall
+  has a thickness by class (curtain 20 ft; keep outer 5, 4, 3 ft as it rises; towers 4; stone partitions 2; panelling
+  1; parapets 3; railings 0.75; nothing storey-high under 1), taken from the space round it, floors cut back to the
+  faces, joints closed, doors through the full depth, sight and movement matching the drawn body; maps without the field
+  unchanged. Part D (the gate front, 7 commits): the gatehouse with its tunnel, two gate towers, the drawbridge on its
+  chains, the portcullis and the gargoyles are the castle's own; J keeps the road gate (its turrets and sill on the
+  chasm edge). Fix pass (7 commits): shut doors seal at both jambs (11 leaks to 0); the larders and dungeon stand in the
+  mist instead of under the land; the chasm opens under the drawbridge in the continuous world; a saved fog record is
+  read only into the grid it was saved for and kept aside otherwise (no sheared fog); a party left at an old start
+  moves to the new one (the Wachterhaus no longer reopens on its cellar); uncut section caps leave the frame.
+- **Proofs on `0a05ffb`:** build; 657 unit tests passed, 2 environment skips, 2 todo; every new test failed first; the
+  full browser suite 279 passed, 55 device skips, 0 failed (1.3 h, software rendering); the probe on all 12 castle
+  levels: 12/12 starts, 48/48 first steps, 68/68 doors both ways, 13/13 secret doors, 94/94 stair activations right
+  with none chained; every other scene's entry frame pixel-identical with equal draw calls (37 valley scenes draw 1,078
+  fewer triangles from J's and the castle's distant models; ch05/N4 differs because its party now stands on its ground
+  floor); the generators byte-identical; 0 eight-word runs; print set 924 files, all manifold; no model names.
+- **Left:** (1) **2g-1 is not finished in the valley:** J stands about 4,100 ft from the castle and 584 ft lower, so
+  from J's sill the view across the chasm is empty grass. Next job, on this branch: J's pin and placement beside the
+  castle so J's sill meets the drawbridge (the owner's words settle it: "attached to and part of Ravenloft"), one chasm,
+  J's pin text. (2) The castle's saved fog memory (8 levels) and J's is kept aside, not shown, until the save migration
+  (Questions). (3) Castle draw calls stay above the base (tabletop 458 to 533) from the wall bodies. (4) The audit's
+  ch04/K off-ground count 67 to 90 (stone, plank and wall-top pieces the grass rule flags).
 
 ### Claude, 2026-10-20 03:10 UTC (cloud): a second container restart at 03:03; the castle job resumed again
 
@@ -798,6 +823,13 @@ may still be running** its check-in routine; Matt decides whether it carries on 
 
 ## Questions for Matt
 
+- **The castle, more questions from its reviewers (2026-10-20):** (5) the wall thicknesses above, right? (6) the
+  gatehouse 10 ft out on the chasm edge, a 20-ft tunnel (the module's map 2), gate towers hollow to their battlements?
+  (7) the print set: thick walls double the solid volume (41.5 to 81.1 L), and the default ground tray (keep + 20-ft
+  apron) crops the new gatehouse and drawbridge: print walls as shells, or the whole courtyard (`--courtyard full`)?
+  (8) the party starts inside the gate; start it on J's sill before the drawbridge instead, once J stands there?
+  (9) accept the audit's off-ground count on the castle, or claim the audit to count stone and planks as ground?
+  (10) ship the castle with its old fog memory kept aside, or after the save migration?
 - **The castle (2026-10-20, from the castle job's builders), four questions:** (1) part A removed what the module's
   plan does not show and that opened onto nothing: the main floor's west access hall K13-w (the plan shows courtyard
   paving there) and the doors K23-west, K72's west door, K25-south-door and K34-south; K11's door is now the secret
