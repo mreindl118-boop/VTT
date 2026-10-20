@@ -30,8 +30,10 @@ export const SITE_INTERFACES: Record<string, {
   // The Gates of Ravenloft end on the near lip of that chasm, their sill under the drawbridge's free end (J's pin:
   // barovia-world.py TIES). The same cut in J's own feet (J's lip at x 400; the castle's frame is J's less 460 ft east
   // and 5 ft south), so J's apron is laid with the chasm's lips as its own edges and drops sheer there too, not in a
-  // slope across the cut from J's edge.
-  'ch02/J': { cuts: [{ bounds: { minX: 400, maxX: 450, minZ: 5, maxZ: 400 }, floor: -400, featherX: 0, featherZ: 0 }] },
+  // slope across the cut from J's edge. The valley's Road to Ravenloft meets J's own road where it leaves the map's north
+  // edge (wild_j.py's dirt track, x 30-48), at this exit (item 2f-1 routes the road to it); the castle has no road of its
+  // own, its only way in the drawbridge from here.
+  'ch02/J': { cuts: [{ bounds: { minX: 400, maxX: 450, minZ: 5, maxZ: 400 }, floor: -400, featherX: 0, featherZ: 0 }], roads: [{ road: 'Road to Ravenloft', x: 40, z: 0 }] },
 };
 
 /** These are distant scenery substitutes, not the miniature inside the Amber Temple.

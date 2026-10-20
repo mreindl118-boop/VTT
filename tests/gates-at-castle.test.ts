@@ -165,6 +165,21 @@ describe('the Gates of Ravenloft stand on the castle\'s rock', () => {
   });
 });
 
+describe('the road to the Gates of Ravenloft', () => {
+  it('the valley\'s road is to meet J\'s own road where it leaves J\'s north edge, and no world road runs into the castle', () => {
+    // J's road (wild_j.py: the dirt track) leaves the map's north edge between x 30 and 48; the world's Road to Ravenloft
+    // ends there (item 2f-1 routes it), at an exact exit, not wherever the road happens to pass; the castle's only way
+    // in is the drawbridge from J
+    const dirt = gj.terrain!.find((t) => t.floor === 'dirt')!.polygon.filter((q) => q[1] === 0).map((q) => q[0]);
+    expect(J.exactRoadExits, 'J\'s road exit is fixed').toBe(true);
+    expect(J.roadExits.map((r) => r.road)).toEqual(['Road to Ravenloft']);
+    const [ex] = J.roadExits;
+    expect(ex.z, 'on J\'s north edge').toBe(0);
+    expect(ex.x).toBeGreaterThanOrEqual(Math.min(...dirt)); expect(ex.x).toBeLessThanOrEqual(Math.max(...dirt));
+    expect(K.roadExits, 'no world road into the castle').toEqual([]);
+  });
+});
+
 /** A map's backdrop as app.ts builds it where the continuous world is off: its open-air level's extent, its pin, its
  *  crag, the land beyond it, the other places on the world map. */
 function backdropOf(path: string): THREE.Group {

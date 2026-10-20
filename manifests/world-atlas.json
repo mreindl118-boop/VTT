@@ -1504,7 +1504,14 @@
    "stacked": true,
    "outdoor": true,
    "interior": false,
-   "roadExits": [],
+   "roadExits": [
+    {
+     "road": "Road to Ravenloft",
+     "x": 40,
+     "z": 0,
+     "bearing": -2.245537
+    }
+   ],
    "placement": {
     "position": [
      23167.8,
@@ -1536,7 +1543,8 @@
      "featherX": 0,
      "featherZ": 0
     }
-   ]
+   ],
+   "exactRoadExits": true
   },
   "ch02/L": {
    "path": "ch02/L",
