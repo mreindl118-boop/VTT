@@ -9,7 +9,8 @@
 //    whose weight grows with the slope and on the shadow side.
 //  - Forest: stippled crowns, lit from the NW with dark gaps (gothic) or paper between (pastoral); an edge shadow.
 //  - Water: a pale wash, a shore ink line with a light casing, concentric ripples spaced wider toward the middle; the
-//    shore is the lakes' measured outlines, baked once as a signed-distance texture (data with ellipses only: analytic).
+//    shore is the lakes' drawn shores (worldlakes.ts, the measured outlines rounded), baked once as a signed-distance
+//    texture (data with ellipses only: analytic).
 //  - Roads, trails, rivers: ribbons whose width is held in screen pixels (rivers taper from source to mouth).
 //  - The hex grid at the map's own scale, under the canopy; a mist edge round the region.
 //  - Massing (the places' proxies, the crags) becomes pale blocks with ink shadow sides.

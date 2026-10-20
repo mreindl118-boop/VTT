@@ -6,6 +6,7 @@ import barovia from '../locations/ch02/barovia-region/world.json';
 import { buildAtlas, scenePaths, serialize, REPO, type Atlas } from '../scripts/world-atlas.ts';
 import { pinY, worldOfMiles } from '../app/src/core/frames';
 import { pointInPolygon } from '../app/src/core/geometry';
+import { lakeRing } from '../app/src/render/worldlakes';
 import type { WorldData } from '../app/src/campaigns';
 import { join } from 'node:path';
 
@@ -84,8 +85,9 @@ describe('world atlas', () => {
     // both maps' bases agree, so the land between them is one level
     expect(Math.abs(L.placement.position[1] + L.elevationFt - (N.placement.position[1] + N.elevationFt))).toBeLessThan(0.5);
     // the map's shore line (its water room's south edge, ~185 ft south of its centre) lies on the lake's drawn shore:
-    // the measured outline's southmost crossing of the pin's meridian (barovia-world.py bows the outline onto it)
-    const lake = w.lakes.find((l) => /Zarovich/.test(l.name))!, [mx, my] = pin.pos, ring = (lake as { pts?: [number, number][] }).pts!;
+    // the shore every view draws (render/worldlakes.ts, the measured outline rounded; barovia-world.py bows the outline
+    // onto the map), at its southmost crossing of the pin's meridian
+    const lake = w.lakes.find((l) => /Zarovich/.test(l.name))!, [mx, my] = pin.pos, ring = lakeRing(lake)!;
     expect(ring, 'Lake Zarovich has a measured outline').toBeDefined();
     let shoreY = -Infinity;
     for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) { const a = ring[j], b = ring[i]; if ((a[0] - mx) * (b[0] - mx) <= 0 && a[0] !== b[0]) shoreY = Math.max(shoreY, a[1] + ((mx - a[0]) / (b[0] - a[0])) * (b[1] - a[1])); }

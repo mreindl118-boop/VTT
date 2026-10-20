@@ -4,8 +4,8 @@
 //
 //  - LandField: the surface as a function. The heightfield (RELIEF-steepened) flattened to each map's base near its
 //    footprint (frames.flattenWeight: 120–900 ft, a crag 320–1400 ft; overlapping bands are normalised), lakes cut
-//    to their level inside their shore (the measured outline where the data has one, else the bounding ellipse; see
-//    `lakeNear`), and the layering backdrop.ts uses: flush with the map (−0.4 ft) within 150 ft of its edge, 3 ft
+//    to their level inside their shore (the drawn shore every view shares, worldlakes.ts: the measured outline rounded,
+//    else the bounding ellipse; see `lakeNear`), and the layering backdrop.ts uses: flush with the map (−0.4 ft) within 150 ft of its edge, 3 ft
 //    under the ground beyond.
 //  - The land lattice (the world lattice subdivided ×2, plus a coarse skirt fading into the mist) carries the region;
 //    round every footprint it is cut away and a fine apron (backdrop's rings, laid as rounded-rectangle offsets of
@@ -16,12 +16,13 @@ import * as THREE from 'three';
 import type { Theme, WorldData } from '../campaigns';
 import { terrainOf, type Terrain } from '../core/terrain';
 import { MI_FT, RELIEF, CRAG_IN, CRAG_OUT, FLATTEN_IN, FLATTEN_OUT, mapDist, smooth, type Bounds } from '../core/frames';
-import { pointInPolygon, polygonArea, type Vec2 } from '../core/geometry';
+import { pointInPolygon, type Vec2 } from '../core/geometry';
 import { FLOOR_COLOR } from '../kit/palette';
 import { merge } from '../kit/pieces';
 import { matClone, patchFog, setSurface } from './materials';
 import type { GroundCut } from '../core/siteInterfaces';
 import { mistTexture } from './backdrop';
+import { lakeRing, ringCentroid, ringSd } from './worldlakes';
 
 /** A placed root map as the land sees it: its footprint and base in W, and what its edges are made of. */
 export interface LandSite {
@@ -65,29 +66,10 @@ const HILL_LIGHT = (() => { const el = THREE.MathUtils.degToRad(40), h = Math.co
 /** Where the high ground turns white (ft). */
 const SNOW_LINE = 4200;
 
-/** A lake as the data draws it: its bounding ellipse (`center`, `r`, miles) and, where the data was measured, its
- *  outline (`pts`, miles, a closed ring). */
-export type Lake = WorldData['lakes'][number] & { pts?: Vec2[] };
-/** The lake's measured outline, or undefined for data that carries only the ellipse. */
-export const lakeOutline = (l: WorldData['lakes'][number]): Vec2[] | undefined => { const p = (l as Lake).pts; return p && p.length >= 3 ? p : undefined; };
-/** Signed distance from a point to a closed ring's edge: negative inside, positive outside. */
-export function ringSd(ring: Vec2[], x: number, z: number): number {
-  let best = Infinity;
-  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
-    const [ax, az] = ring[j], [bx, bz] = ring[i], dx = bx - ax, dz = bz - az, L2 = dx * dx + dz * dz || 1e-12;
-    const t = Math.max(0, Math.min(1, ((x - ax) * dx + (z - az) * dz) / L2)), ex = x - ax - dx * t, ez = z - az - dz * t;
-    const d = ex * ex + ez * ez; if (d < best) best = d;
-  }
-  return pointInPolygon([x, z], ring) ? -Math.sqrt(best) : Math.sqrt(best);
-}
-/** A ring's area centroid (its vertex mean when degenerate). */
-export function ringCentroid(ring: Vec2[]): Vec2 {
-  const A = polygonArea(ring);
-  if (Math.abs(A) < 1e-9) return [ring.reduce((s, p) => s + p[0], 0) / ring.length, ring.reduce((s, p) => s + p[1], 0) / ring.length];
-  let cx = 0, cz = 0;
-  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) { const [ax, az] = ring[j], [bx, bz] = ring[i], c = ax * bz - bx * az; cx += (ax + bx) * c; cz += (az + bz) * c; }
-  return [cx / (6 * A), cz / (6 * A)];
-}
+/** A lake as the data draws it, and its shore as every view draws it (render/worldlakes.ts: the traced outline with its
+ *  corners rounded; the land, the water, the inked map's baked shore and the sheets all read that one ring). */
+export type { Lake } from './worldlakes';
+export { lakeOutline, lakeRing, ringCentroid, ringSd } from './worldlakes';
 /** A lake's shape as the land samples it, in W: the ellipse's centre and radii, or the outline with its centroid. */
 interface LakeShape {
   cx: number; cz: number; rx: number; rz: number;
@@ -110,7 +92,7 @@ export class LandField {
     this.lakeLevels = world.lakes.map((_, i) => this.levelOf(i));
   }
   private shapeOf(l: WorldData['lakes'][number]): LakeShape {
-    const [cx, cz] = this.feet(l.center), rx = l.r[0] * MI_FT, rz = l.r[1] * MI_FT, pts = lakeOutline(l);
+    const [cx, cz] = this.feet(l.center), rx = l.r[0] * MI_FT, rz = l.r[1] * MI_FT, pts = lakeRing(l);
     if (!pts) return { cx, cz, rx, rz, minX: cx - rx, maxX: cx + rx, minZ: cz - rz, maxZ: cz + rz, reach: Math.max(rx, rz) };
     const ring = pts.map((p) => this.feet(p)), [px, pz] = ringCentroid(ring);
     // the centroid is the pole the shore is measured from; a shape that leaves it outside (a crescent) uses the ellipse's centre
@@ -558,7 +540,7 @@ function ringSheet(ring: Vec2[], y: number): THREE.BufferGeometry {
 function buildWater(field: LandField): THREE.Object3D[] {
   const W = field.world, gs: THREE.BufferGeometry[] = [], out: THREE.Object3D[] = [];
   W.lakes.forEach((l, i) => {
-    const ring = lakeOutline(l);
+    const ring = lakeRing(l);
     if (ring) { gs.push(ringSheet(ring.map((p) => field.feet(p)), field.lakeLevel(i))); return; }
     const g = new THREE.CircleGeometry(1, field.sites.some(s=>s.shoreLake===l.name)?128:64); g.rotateX(-Math.PI / 2); g.scale(l.r[0] * MI_FT, 1, l.r[1] * MI_FT); const [x, z] = field.feet(l.center); g.translate(x, field.lakeLevel(i), z); gs.push(g);
   });

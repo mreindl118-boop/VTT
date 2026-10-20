@@ -3,7 +3,7 @@
 // compass, and the party marker that mirrors campaign state. The DM drags the party to a place (enter a
 // built scene there) or into the wilderness; the card gives straight-line distance and travel time.
 import type { WorldData } from '../campaigns';
-import { pointInPolygon } from '../core/geometry';
+import { inLakeShape, lakeRing } from '../render/worldlakes';
 import { PACES, type Pace } from '../core/travel';
 import { ICON } from './icons';
 import { rich } from './rich';
@@ -23,10 +23,9 @@ export const worldPins = (): Pin[] => W.pins;
 
 /** The party's drag snaps onto a place this close (miles). */
 export const SNAP_MI = 0.35;
-/** A lake's measured outline (miles, a closed ring; render/worldland.ts's Lake), where the data has one. */
-const lakeRing = (l: WorldData['lakes'][number]): P[] | undefined => { const p = (l as { pts?: P[] }).pts; return p && p.length >= 3 ? p : undefined; };
-/** Whether a point (miles) lies in a lake as the data draws it: inside its outline, else inside its ellipse. */
-export const inLake = (p: P): boolean => W.lakes.some((l) => { const ring = lakeRing(l); return ring ? pointInPolygon(p, ring) : ((p[0] - l.center[0]) / l.r[0]) ** 2 + ((p[1] - l.center[1]) / l.r[1]) ** 2 < 1; });
+/** Whether a point (miles) lies in a lake as every view draws it (render/worldlakes.ts: inside its rounded shore, else
+ *  inside its ellipse). */
+export const inLake = (p: P): boolean => W.lakes.some((l) => inLakeShape(l, p));
 export const dist = (a: P, b: P) => Math.hypot(a[0] - b[0], a[1] - b[1]);
 const NS = 'http://www.w3.org/2000/svg';
 const el = <K extends keyof SVGElementTagNameMap>(tag: K, attrs: Record<string, string | number>, parent?: Element): SVGElementTagNameMap[K] => {
