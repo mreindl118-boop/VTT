@@ -2,7 +2,7 @@
 import * as THREE from 'three';
 import type { CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
 import { bounds, pointInPolygon, type Vec2 } from './core/geometry';
-import { CoverageMap, Cov } from './core/coverage';
+import { CoverageMap, Cov, restoreSeen } from './core/coverage';
 import { squareCellAt, squareCellCenter, squareDistanceFt, worldToHex, hexToWorld, hexDistanceFt, hexSizeFromWidth, type DiagonalRule } from './core/grid';
 import { OPENABLE_KINDS, type Container, type GridFile, type Level, type LightSource, type SceneFile, type SceneObject, type Room, type Wall, type Ambient } from './core/schema';
 import { moveBlockers } from './core/light';
@@ -391,8 +391,8 @@ export class App {
       root.add(b.root);
       yield;
       const cov = CoverageMap.forPolygons([...l.rooms.map((r) => r.polygon), ...grid.levels[l.id].floorPolygons]);
-      const seen = ctx.state.seen[`${scene.location}/${l.id}`];
-      if (seen) cov.load({ seen, paint: '' });
+      // (a record saved for another grid of this level, the map regenerated since, is kept aside, not read sheared)
+      restoreSeen(cov, ctx.state.seen, `${scene.location}/${l.id}`);
       coverage.set(l.id, cov);
       const tex = new THREE.DataTexture(cov.toTexture() as Uint8Array<ArrayBuffer>, cov.width, cov.height, THREE.RGBAFormat);
       tex.magFilter = THREE.LinearFilter;

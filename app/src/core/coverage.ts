@@ -186,11 +186,41 @@ export class CoverageMap {
     const tag = this.cell === 1 ? '' : `c${this.cell}:`;
     return { seen: tag + rle(this.seen), paint: tag + rle(this.paint) };
   }
-  /** A record saved at another cell size is for another map: it is left alone. */
-  load(s: { seen: string; paint: string }): void {
-    const take = (v: string) => { const m = /^c(\d+):/.exec(v); const c = m ? Number(m[1]) : 1; return c === this.cell ? v.slice(m ? m[0].length : 0) : ''; };
-    unrle(take(s.seen), this.seen); unrle(take(s.paint), this.paint);
+  /** Read a saved record. One saved at another cell size, or for another extent of the level at this cell size (its
+   *  map regenerated since: the floor grew or moved, so the grid's origin or width changed), is for another grid and
+   *  is not read: a run-length record read into another width lands sheared, row by row, showing what was never seen
+   *  and hiding what was. False then (nothing is read), and the caller keeps the record (restoreSeen). */
+  load(s: { seen: string; paint: string }): boolean {
+    const take = (v: string): string | null => {
+      const m = /^c(\d+):/.exec(v), c = m ? Number(m[1]) : 1, body = v.slice(m ? m[0].length : 0);
+      return !v ? '' : c === this.cell && runTotal(body) === this.width * this.height ? body : null;
+    };
+    const seen = take(s.seen), paint = take(s.paint);
+    if (seen === null || paint === null) return false;
+    unrle(seen, this.seen); unrle(paint, this.paint);
+    return true;
   }
+}
+
+/** Where a level's saved explored memory that no longer fits its grid is kept: under the level's key with this suffix
+ *  and the record's own cell size and cell count, as it was saved, for a migration that knows the old grid to place. */
+export const KEPT = '#kept:';
+
+/** Read a level's saved explored memory (`store` is the campaign's `seen`, `key` the level's) into its coverage map.
+ *  A record saved for another grid of the level is not read, and is kept beside the level's new memory, never
+ *  overwritten: the next save writes the new grid's record under the level's own key. */
+export function restoreSeen(cov: CoverageMap, store: Record<string, string>, key: string): void {
+  const rec = store[key];
+  if (!rec || cov.load({ seen: rec, paint: '' })) return;
+  const m = /^c(\d+):/.exec(rec), kept = `${key}${KEPT}c${m ? m[1] : 1}x${runTotal(rec.slice(m ? m[0].length : 0))}`;
+  store[kept] ??= rec;
+}
+
+/** How many cells a run-length record covers. */
+function runTotal(s: string): number {
+  let n = 0;
+  for (const run of s.split(',')) { if (!run) continue; n += Number(run.split('x')[1]); }
+  return n;
 }
 
 function rle(a: Uint8Array): string {
