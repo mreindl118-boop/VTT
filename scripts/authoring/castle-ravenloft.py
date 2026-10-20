@@ -114,7 +114,8 @@ CHASM_Z = (0, GATE_Z + 225)         # the chasm along the wall: from the curtain
                                     # lip, to the south edge of their map, 225 ft south of the gate's axis (wild_j.py)
 f5 = lambda x, z: (x / 5, z / 5)    # feet to cells, for the authoring helpers
 # (the road's ground west of the chasm is the Gates of Ravenloft's map, which meets this one at the chasm's near lip: the
-# castle draws no ridge of its own there, so no ground is drawn twice)
+# castle draws no ridge of its own there, so no ground is drawn twice. Where the continuous world is off and the castle
+# stands alone, a stand-in of the Gates' sill and the ridge's road takes its place: 'ridge-standin' below)
 g.terrain.append(([(-2, 0), (0, 0), (0, 68), (-2, 68)], 'flagstone'))                       # the wall's footing out to the lip
 g.room('K1-bridge', 'Drawbridge', [(-12, 32), (-2, 32), (-2, 36), (-12, 36)], 'plank', ceilingFt=None)
 g.room('K1-g', 'Gate Tunnel', rect(-2, 32, 4, 36), 'flagstone', page=pg('K1'), ceilingFt=18)
@@ -128,6 +129,10 @@ arch(g, (-2, 32), (-2, 36))
 g.door((4, 29), (4, 30), id='K1-tn-door', locked=True)                  # the gate towers' ironbound doors, locked
 g.door((4, 38), (4, 39), id='K1-ts-door', locked=True)
 g.prop('J-chasm', 'chasm', f5(FRONT - 25, sum(CHASM_Z) / 2), 'K1-bridge', dims={'w': 50, 'len': CHASM_Z[1] - CHASM_Z[0], 'depth': 1000})
+# the ridge the road comes along, west of the chasm's near lip, and the Gates' sill under the deck's free end: a stand-in
+# (core/siteInterfaces.ts WORLD_STANDINS), drawn only where the continuous world is off; in the valley the Gates' own map
+# lies there (as the castle drew it before the Gates came to its chasm: 250 ft of ridge, its crown 120 ft across)
+g.prop('ridge-standin', 'j-ridge-standin', f5(FRONT - 50, GATE_Z), 'K1-bridge', dims={'len': 250, 'w': 120, 'road': 40, 'depth': 400})
 # the masonry over the tunnel, its vault and the portcullis's slot; the towers' battlemented heads
 g.prop('gate-arch', 'k-gate-arch', f5(5, GATE_Z), 'K1-g', rotY=90, dims={'w': 20, 't': 30, 'y0': 18, 'h': WALL_H, 'slot': 2})
 g.prop('gate-head-n', 'k-tower-head', f5(5, 150), 'K1-tn', dims={'w': 30, 'd': 20, 'y': GATE_H, 't': 5})

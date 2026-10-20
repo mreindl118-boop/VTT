@@ -15210,6 +15210,23 @@
      }
     },
     {
+     "id": "ground-ridge-standin",
+     "kind": "j-ridge-standin",
+     "pos": [
+      -60.0,
+      0,
+      170.0
+     ],
+     "vis": "player",
+     "key": "K1-bridge",
+     "dims": {
+      "len": 250,
+      "w": 120,
+      "road": 40,
+      "depth": 400
+     }
+    },
+    {
      "id": "ground-gate-arch",
      "kind": "k-gate-arch",
      "pos": [

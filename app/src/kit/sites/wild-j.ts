@@ -9,7 +9,7 @@ import * as THREE from 'three';
 import { PROPS_V1 } from '../props';
 import { CREATURES, humanoid } from '../creatures';
 import { mat, matClone } from '../../render/materials';
-import { PALETTE } from '../palette';
+import { FLOOR_COLOR, PALETTE } from '../palette';
 import { surfaceFor } from '../surfaces';
 import { merge } from '../pieces';
 import { blackCarriage, curtainWall, gargoyleStatue, rottenPortcullis } from './wild';
@@ -262,6 +262,19 @@ export function bridgeSill(d: Dims = {}): THREE.Group {
   for (const z of [-3.05, 3.05]) g.add(box(6, 0.05, 0.75, C.rut, -3, 0.3, z));
   for (const z of [-(L / 2 - 1.4), L / 2 - 1.4]) g.add(cyl(0.9, 1.1, 3, C.wallDeep, 1.5, 1.5, z, 8), cyl(1.0, 1.0, 0.3, C.wall, 1.5, 3.1, z, 8));
   for (let i = 0; i < 8; i++) g.add(box(0.8 + hash(i, 1), 0.05, 0.3, C.moss, -5 + hash(i, 2) * 10, 0.29, -(L / 2 - 1) + hash(i, 3) * (L - 2)));
+  return g;
+}
+/** The Gates of Ravenloft's end of the road, standing in for their map on the castle's side where the continuous world
+ *  is off (castle-ravenloft.py; core/siteInterfaces.ts WORLD_STANDINS hides it in the valley, where the Gates' own map
+ *  lies there): the ridge's crown `w` ft across and `len` ft long running back (local -x) from the chasm's near lip at
+ *  the origin, the road `road` ft wide along its middle, the Gates' sill on the lip under the drawbridge's free end, and
+ *  the ridge's flanks and end falling `depth` ft into the fog. */
+export function ridgeStandin(d: Dims): THREE.Group {
+  const L = d.len ?? 250, w = d.w ?? 120, rw = d.road ?? 40, D = d.depth ?? 400, g = grp();
+  g.add(plate([[-L, -w / 2], [0, -w / 2], [0, w / 2], [-L, w / 2]], 0.02, FLOOR_COLOR.grass), plate([[-L, -rw / 2], [-12, -rw / 2], [-12, rw / 2], [-L, rw / 2]], 0.05, FLOOR_COLOR.cobble));
+  g.add(place(bridgeSill({ len: 28, rest: 20.8 }), -6, 0, 0));
+  // the flanks: rock faces from the crown's edge down into the fog, roughened as the chasm's are
+  for (const [cx, cz, sx, sz] of [[-L / 2, -w / 2 - 3, L, 6], [-L / 2, w / 2 + 3, L, 6], [-L - 3, 0, 6, w + 12]] as const) g.add(box(sx, D, sz, C.rockDeep, cx, -D / 2, cz));
   return g;
 }
 /** The castle-side pivot: a stone threshold at the tunnel mouth, the bridge's hinge beam on two iron pintles. */
@@ -724,7 +737,7 @@ Object.assign(PROPS_V1, {
   'j-bridge-sill': bridgeSill, 'j-hinge-sill': hingeSill, 'j-drawbridge': drawbridge, 'j-chain': chain, 'j-chain-slot': chainSlot, 'j-weak-board': (d: Dims) => fuse(weakBoard(d)),
   'j-gate-tower': gateTower, 'j-latch': () => fuse(latch()), 'j-slot-iron': () => fuse(slotIron()), 'j-lit-doorway': litDoorway, 'j-castle-mass': castleMass,
   'j-turret': turret, 'j-brazier-bracket': () => fuse(brazierBracket()), 'j-fallen-gargoyle': (d: Dims) => (d.detail ? fuse(fallenGargoyle(d)) : fallenGargoyle(d)),
-  'j-wall-gargoyle': wallGargoyle, 'j-fog-boil': fogBoil, 'j-cleft': cleft, 'j-chasm-standin': cleft, 'j-chasm-shaft': chasmShaft, 'j-board-drift': (d: Dims) => (d.part ? fuse(boardDrift(d)) : boardDrift(d)),
+  'j-wall-gargoyle': wallGargoyle, 'j-fog-boil': fogBoil, 'j-cleft': cleft, 'j-chasm-standin': cleft, 'j-ridge-standin': ridgeStandin, 'j-chasm-shaft': chasmShaft, 'j-board-drift': (d: Dims) => (d.part ? fuse(boardDrift(d)) : boardDrift(d)),
   'j-carriage': (d: Dims) => fuse(blackCarriage(d)),
 } as Record<string, (d: Dims) => THREE.Object3D>);
 Object.assign(CREATURES, { 'j-watcher': (d) => watcher(d), 'j-bat-swarm': (d) => batSwarm(d) } as Record<string, (d: Dims) => THREE.Group>);

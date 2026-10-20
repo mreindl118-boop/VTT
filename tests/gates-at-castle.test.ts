@@ -15,7 +15,7 @@ import { buildLand } from '../app/src/render/worldland';
 import { buildBackdrop } from '../app/src/render/backdrop';
 import { bounds } from '../app/src/core/geometry';
 import { CAMPAIGNS, worldOf } from '../app/src/campaigns';
-import { buildLevel } from '../app/src/render/build';
+import { buildLevel, buildSceneObject } from '../app/src/render/build';
 import { Ghost } from '../app/src/render/ghost';
 import '../app/src/kit/sites';
 import type { GridFile } from '../app/src/core/schema';
@@ -192,6 +192,23 @@ function backdropOf(path: string): THREE.Group {
 function dispose(g: THREE.Object3D): void { g.traverse((o) => { if (o instanceof THREE.Mesh) { o.geometry.dispose(); for (const m of Array.isArray(o.material) ? o.material : [o.material]) m.dispose(); } }); }
 
 describe('the Gates of Ravenloft where the continuous world is off', () => {
+  it('the castle open alone: its drawbridge comes down on a stand-in of the Gates\' sill and the road\'s ridge, hidden in the valley', () => {
+    // the ground west of the chasm is the Gates' map in the continuous world; alone, the castle stands in for it
+    const st = gk.objects.filter((o) => WORLD_STANDINS.has(o.kind));
+    expect(st.map((o) => o.kind), 'a stand-in on the castle\'s ground level').not.toEqual([]);
+    stubCanvas();
+    const root = new THREE.Group();
+    for (const o of st) { const b = buildSceneObject(o); b.position.set(o.pos[0], o.pos[1], o.pos[2]); b.rotation.y = ((o.rotY ?? 0) * Math.PI) / 180; root.add(b); }
+    root.updateMatrixWorld(true);
+    const a = ((deck.rotY ?? 0) * Math.PI) / 180, endK: Vec2 = [deck.pos[0] - deck.dims!.len * Math.cos(a), deck.pos[2] + deck.dims!.len * Math.sin(a)];
+    const top = (x: number, z: number) => { const h = new THREE.Raycaster(new THREE.Vector3(x, 500, z), new THREE.Vector3(0, -1, 0)).intersectObject(root, true); return h.length ? h[0].point.y : -Infinity; };
+    try {
+      const y = top(...endK); expect(y, `under the deck\'s free end at ${endK.map(Math.round)}`).toBeGreaterThanOrEqual(-0.5); expect(y).toBeLessThanOrEqual(1.5);
+      // and the ridge's road runs on west from the lip, as the castle drew it before the Gates came to its chasm
+      for (const dx of [20, 100, 200, 240]) { const r = top(endK[0] - dx, endK[1]); expect(r, `the ridge ${dx} ft west of the deck\'s end`).toBeGreaterThanOrEqual(-0.5); expect(r).toBeLessThanOrEqual(1.5); }
+    } finally { dispose(root); }
+  });
+
   it('the backdrop draws no castle on its rock over the Gates\' own map: the Gates\' stand-in closes the view', () => {
     expect(gj.objects.some((o) => o.kind === 'j-castle-mass'), 'J carries the castle\'s stand-in').toBe(true);
     const j = backdropOf('ch02/J');

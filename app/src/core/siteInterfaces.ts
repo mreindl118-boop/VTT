@@ -38,5 +38,7 @@ export const SITE_INTERFACES: Record<string, {
 
 /** These are distant scenery substitutes, not the miniature inside the Amber Temple.
  * The continuous world already owns the real Castle Ravenloft at K, and its chasm before the gate: the Gates of
- * Ravenloft's own chasm and the chasm's walls round their ledge stand in for it only where the continuous world is off. */
-export const WORLD_STANDINS = new Set(['j-castle-mass', 'm-castle-glimpse', 'j-chasm-standin', 'j-chasm-shaft']);
+ * Ravenloft's own chasm and the chasm's walls round their ledge stand in for it only where the continuous world is off.
+ * The other way round, the castle's stand-in of the Gates' sill and the road's ridge west of its chasm (the Gates' map
+ * lies there in the valley). */
+export const WORLD_STANDINS = new Set(['j-castle-mass', 'm-castle-glimpse', 'j-chasm-standin', 'j-chasm-shaft', 'j-ridge-standin']);
