@@ -6,12 +6,13 @@ import type { Polygon } from '../core/geometry';
 import { baseRingFt, DEFAULT_CEILING_FT } from '../core/units';
 import { FLOOR_COLOR, PALETTE, WALL_COLOR } from '../kit/palette';
 import { baseRing, merge, pawn, planeGeometry, PROP_BUILDERS, segmentBox, slabGeometry, stairsStraight, WALL_T } from '../kit/pieces';
-import { mat, matClone, patchFog, wallMat } from './materials';
+import { mat, matClone, patchFog, WALL_CLIP, wallMat } from './materials';
 import { PROPS_V1 } from '../kit/props';
 import { CREATURES } from '../kit/creatures';
 import '../kit/sites';
 import { buildGridOverlay } from './gridOverlay';
 import { WORLD_STANDINS } from '../core/siteInterfaces';
+import { bodyLine, wallFootprints } from '../core/wallBody';
 
 /** Kinds whose meshes carry a role of their own (stairs, raised ground, plates): built and placed one by one. */
 const UNMERGED = new Set(['stairs-straight', 'prism', 'pressure-plate']);
@@ -162,35 +163,53 @@ export function* buildLevelSteps(level: Level, grid: GridLevel): Generator<void,
   const doorTop = Math.min(7, ceiling);
   const FRAME = '#3a2c22';
   const COPING: Record<string, string> = { ashlar: PALETTE.stoneDeep, rubble: PALETTE.stoneDeep, brick: PALETTE.stoneDeep, plaster: '#5d5852', 'half-timber': FRAME, earth: '#4d5a3f' };
+  // A wall that sets a thickness has a body (core/wallBody.ts): it is drawn as its footprint, its joints closed against
+  // its neighbours, and its frames and coping stand proud of its own faces. Any other wall is the kit's box, closing
+  // its corners by its half-thickness, exactly as before.
+  const bodies = wallFootprints(level.walls), copings = bodies.some(Boolean) ? wallFootprints(level.walls, 0.35) : bodies;
+  const wallIndex = new Map(level.walls.map((w, k) => [w.id, k]));
+  const span = (k: number, w: Wall, ya: number, yb: number) => { const p = bodies[k]; return p ? slabGeometry(p, yb, yb - ya) : segmentBox(w.a, w.b, ya, yb); };
+  const thick = (w: Wall) => w.thicknessFt ?? WALL_T;
+  // (the frames, leaves and glass stand in the middle of a body that stands off its line, offsetFt; a->b otherwise)
+  // A body a foot or more thick that the section plane cuts shows its cut face, not its hollow inside: a cap the shape
+  // of its footprints, one mesh per colour and span, that rides just under the plane (sectionCap below).
+  const caps = new Map<string, { color: string; ya: number; yb: number; polys: Polygon[] }>();
+  const capSpan = (k: number, w: Wall, color: string, ya: number, yb: number) => {
+    const p = bodies[k]; if (!p || thick(w) < 1 || yb - ya < 0.5) return;
+    const key = `${color}|${ya}|${yb}`, c = caps.get(key) ?? { color, ya, yb, polys: [] };
+    c.polys.push(p); caps.set(key, c);
+  };
 
   let wi = 0;
-  for (const w of level.walls) {
+  for (let k = 0; k < level.walls.length; k++) {
+    const w = level.walls[k];
     if (++wi % 64 === 0) yield;
     const f = new Set(w.flags);
     const h = w.heightFt ?? ceiling;
     const color = wallColor(w);
     if (f.has('secret-door')) continue; // handled below with its object
+    const [wa, wb] = bodyLine(w);
     if (f.has('window')) {
-      pushWall(color, segmentBox(w.a, w.b, y0, y0 + 3));
-      pushWall(color, segmentBox(w.a, w.b, y0 + 7, y0 + h));
-      panes.push(segmentBox(w.a, w.b, y0 + 3, y0 + 7, 0.2, false));   // the glass: one mesh for every window of the level
+      pushWall(color, span(k, w, y0, y0 + 3)); capSpan(k, w, color, y0, y0 + 3);
+      pushWall(color, span(k, w, y0 + 7, y0 + h)); capSpan(k, w, color, y0 + 7, y0 + h);
+      panes.push(segmentBox(wa, wb, y0 + 3, y0 + 7, 0.2, false));   // the glass: one mesh for every window of the level
       // the window's frame: a sill proud of the wall, a head, and leaded mullions across the glass
-      pushWall(FRAME, segmentBox(w.a, w.b, y0 + 2.7, y0 + 3.05, WALL_T + 0.5, false));
-      pushWall(FRAME, segmentBox(w.a, w.b, y0 + 6.95, y0 + 7.25, WALL_T + 0.3, false));
-      pushWall(FRAME, segmentBox(w.a, w.b, y0 + 4.9, y0 + 5.1, 0.32, false));
-      { const mx = (w.a[0] + w.b[0]) / 2, mz = (w.a[1] + w.b[1]) / 2, L = Math.hypot(w.b[0] - w.a[0], w.b[1] - w.a[1]) || 1, ux = (w.b[0] - w.a[0]) / L * 0.12, uz = (w.b[1] - w.a[1]) / L * 0.12;
+      pushWall(FRAME, segmentBox(wa, wb, y0 + 2.7, y0 + 3.05, thick(w) + 0.5, false));
+      pushWall(FRAME, segmentBox(wa, wb, y0 + 6.95, y0 + 7.25, thick(w) + 0.3, false));
+      pushWall(FRAME, segmentBox(wa, wb, y0 + 4.9, y0 + 5.1, 0.32, false));
+      { const mx = (wa[0] + wb[0]) / 2, mz = (wa[1] + wb[1]) / 2, L = Math.hypot(wb[0] - wa[0], wb[1] - wa[1]) || 1, ux = (wb[0] - wa[0]) / L * 0.12, uz = (wb[1] - wa[1]) / L * 0.12;
         pushWall(FRAME, segmentBox([mx - ux, mz - uz], [mx + ux, mz + uz], y0 + 3, y0 + 7, 0.32, false)); }
       continue;
     }
     if (f.has('door')) {
-      pushWall(color, segmentBox(w.a, w.b, y0 + doorTop, y0 + h));
-      const slab = new THREE.Mesh(segmentBox(w.a, w.b, y0, y0 + doorTop, 0.5, false), wallMat(f.has('locked') ? PALETTE.iron : '#9a6a3a'));
-      if (f.has('locked')) { const band = new THREE.Mesh(segmentBox(w.a, w.b, y0 + 3, y0 + 3.6, 0.6, false), wallMat(PALETTE.wine)); band.userData.role = 'door'; band.userData.wallId = w.id; wallsGroup.add(band); }
+      pushWall(color, span(k, w, y0 + doorTop, y0 + h)); capSpan(k, w, color, y0 + doorTop, y0 + h);
+      const slab = new THREE.Mesh(segmentBox(wa, wb, y0, y0 + doorTop, 0.5, false), wallMat(f.has('locked') ? PALETTE.iron : '#9a6a3a'));
+      if (f.has('locked')) { const band = new THREE.Mesh(segmentBox(wa, wb, y0 + 3, y0 + 3.6, 0.6, false), wallMat(PALETTE.wine)); band.userData.role = 'door'; band.userData.wallId = w.id; wallsGroup.add(band); }
       // the door's frame (jambs and lintel) stays with the wall; iron straps and a ring ride on the leaf
-      { const L = Math.hypot(w.b[0] - w.a[0], w.b[1] - w.a[1]) || 1, ux = (w.b[0] - w.a[0]) / L, uz = (w.b[1] - w.a[1]) / L;
-        if (L > 1.5) for (const [p, q] of [[w.a, [w.a[0] + ux * 0.45, w.a[1] + uz * 0.45]], [[w.b[0] - ux * 0.45, w.b[1] - uz * 0.45], w.b]] as const) pushWall(FRAME, segmentBox(p as [number, number], q as [number, number], y0, y0 + doorTop, WALL_T + 0.35, false));
-        pushWall(FRAME, segmentBox(w.a, w.b, y0 + doorTop - 0.05, y0 + doorTop + 0.55, WALL_T + 0.35, false));
-        if (!f.has('locked')) { const strap = new THREE.Mesh(merge([1.4, doorTop - 1.4].map((y) => segmentBox(w.a, w.b, y0 + y, y0 + y + 0.3, 0.62, false))), wallMat(PALETTE.iron)); strap.userData.role = 'door'; slab.add(strap); } }
+      { const L = Math.hypot(wb[0] - wa[0], wb[1] - wa[1]) || 1, ux = (wb[0] - wa[0]) / L, uz = (wb[1] - wa[1]) / L;
+        if (L > 1.5) for (const [p, q] of [[wa, [wa[0] + ux * 0.45, wa[1] + uz * 0.45]], [[wb[0] - ux * 0.45, wb[1] - uz * 0.45], wb]] as const) pushWall(FRAME, segmentBox(p as [number, number], q as [number, number], y0, y0 + doorTop, thick(w) + 0.35, false));
+        pushWall(FRAME, segmentBox(wa, wb, y0 + doorTop - 0.05, y0 + doorTop + 0.55, thick(w) + 0.35, false));
+        if (!f.has('locked')) { const strap = new THREE.Mesh(merge([1.4, doorTop - 1.4].map((y) => segmentBox(wa, wb, y0 + y, y0 + y + 0.3, 0.62, false))), wallMat(PALETTE.iron)); strap.userData.role = 'door'; slab.add(strap); } }
       slab.userData.role = 'door';
       slab.userData.wallId = w.id;
       slab.visible = !w.open;
@@ -200,9 +219,12 @@ export function* buildLevelSteps(level: Level, grid: GridLevel): Generator<void,
       continue;
     }
     if (f.has('invisible') || f.has('ethereal')) continue;
-    pushWall(color, segmentBox(w.a, w.b, y0, y0 + h));
+    pushWall(color, span(k, w, y0, y0 + h)); capSpan(k, w, color, y0, y0 + h);
     // a free-standing wall (garden, yard, parapet) is capped with a coping a little proud of its faces
-    if (h < ceiling - 1 && h <= 12 && (w.material ?? 'ashlar') !== 'log') pushWall(COPING[w.material ?? 'ashlar'] ?? color, segmentBox(w.a, w.b, y0 + h, y0 + h + 0.35, WALL_T + 0.35));
+    if (h < ceiling - 1 && h <= 12 && (w.material ?? 'ashlar') !== 'log') {
+      const cap = copings[k];
+      pushWall(COPING[w.material ?? 'ashlar'] ?? color, cap ? slabGeometry(cap, y0 + h + 0.35, 0.35) : segmentBox(w.a, w.b, y0 + h, y0 + h + 0.35, WALL_T + 0.35));
+    }
   }
   if (panes.length) {
     const pane = new THREE.Mesh(merge(panes), wallMat(PALETTE.stone, { emissive: '#1b2530' }));
@@ -214,6 +236,7 @@ export function* buildLevelSteps(level: Level, grid: GridLevel): Generator<void,
     m.userData.role = 'wall';
     wallsGroup.add(m);
   }
+  for (const c of caps.values()) wallsGroup.add(sectionCap(c.polys, c.color, c.ya, c.yb));
   root.add(wallsGroup);
   yield;
 
@@ -226,20 +249,22 @@ export function* buildLevelSteps(level: Level, grid: GridLevel): Generator<void,
       const w = wallById.get(o.wall!)!;
       const h = w.heightFt ?? ceiling;
       const color = wallColor(w);
-      const geo = segmentBox(w.a, w.b, y0, y0 + h);
+      const geo = span(wallIndex.get(w.id)!, w, y0, y0 + h);
       const panel = new THREE.Mesh(geo, wallMat(color));
       panel.userData.role = 'wall';
       panel.userData.secretDoor = o.id;
       wallsGroup.add(panel);
+      { const fp = bodies[wallIndex.get(w.id)!]; if (fp && thick(w) >= 1) panel.add(sectionCap([fp], color, y0, y0 + h)); }
       const asWall = new THREE.Mesh(geo, wallMat(color));
       asWall.userData.role = 'wall';
       asWall.visible = false;
       wallsGroup.add(asWall);
       secretAsWall.push(asWall);
-      const door = new THREE.Mesh(segmentBox(w.a, w.b, y0, y0 + doorTop, WALL_T + 0.3, false), wallMat(PALETTE.wood));
+      const [wa, wb] = bodyLine(w);
+      const door = new THREE.Mesh(segmentBox(wa, wb, y0, y0 + doorTop, thick(w) + 0.3, false), wallMat(PALETTE.wood));
       door.userData.role = 'door';
       wallsGroup.add(door);
-      const marker = new THREE.Mesh(segmentBox(w.a, w.b, y0 + h, y0 + h + 0.3, WALL_T + 0.6, false), new THREE.MeshBasicMaterial({ color: PALETTE.violet, transparent: true, opacity: 0 }));
+      const marker = new THREE.Mesh(segmentBox(wa, wb, y0 + h, y0 + h + 0.3, thick(w) + 0.6, false), new THREE.MeshBasicMaterial({ color: PALETTE.violet, transparent: true, opacity: 0 }));
       marker.userData.role = 'marker';
       wallsGroup.add(marker);
       secretDoors.push({ objectId: o.id, wallId: w.id, panel, door, doorMaterials: [door.material as THREE.Material], marker });
@@ -341,6 +366,27 @@ export function* buildLevelSteps(level: Level, grid: GridLevel): Generator<void,
 }
 
 /** A piece as merge() wants it: un-indexed, with only a position and a normal. */
+/** The cut face of thick walls standing from ya to yb (drawn y, the level's own frame). While the section plane
+ *  (WALL_CLIP) cuts them it rides 0.02 ft under the plane, so the cut reads as solid stone; otherwise it shrinks to
+ *  nothing inside the solid, so a translucent ghost or a fading wall never shows it. */
+function sectionCap(polys: Polygon[], color: string, ya: number, yb: number): THREE.Mesh {
+  const m = new THREE.Mesh(merge(polys.map((p) => planeGeometry(p, 0))), wallMat(color));
+  m.userData.role = 'wall';
+  m.userData.sectionCap = true;
+  m.frustumCulled = false;
+  const place = () => {
+    m.parent?.updateWorldMatrix(true, false);
+    const py = m.parent ? m.parent.matrixWorld.elements[13] : 0, cut = WALL_CLIP.constant;
+    const cuts = cut > ya + py + 0.05 && cut < yb + py;
+    m.position.y = cuts ? cut - 0.02 - py : (ya + yb) / 2;
+    m.scale.setScalar(cuts ? 1 : 0);
+    m.updateMatrixWorld();
+  };
+  m.onBeforeRender = place;
+  place();
+  return m;
+}
+
 function flat(g: THREE.BufferGeometry): THREE.BufferGeometry {
   const n = g.index ? g.toNonIndexed() : g;
   if (n !== g) g.dispose();

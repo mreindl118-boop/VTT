@@ -43,6 +43,14 @@ export interface Wall {
   flags: WallFlag[];
   material?: WallMaterial;
   heightFt?: number;
+  /** The wall's thickness in feet (opt-in; without it the wall is drawn the kit's 0.6 ft and blocks as a line). A wall
+   *  that sets it is drawn as a solid body with its joints closed against its neighbours, and blocks movement and sight
+   *  along its faces (core/wallBody.ts); the rooms' floors should stop at its faces. */
+  thicknessFt?: number;
+  /** With thicknessFt: how far the body's middle stands off a->b, to the wall's left (+, toward (-(b-a).z, (b-a).x))
+   *  or right (-); at most half the thickness. Default 0, centred. A wall taking all its thickness from one side (a
+   *  corridor's wall borrowing from the room beyond) is offset by half its thickness, a->b staying on its plan line. */
+  offsetFt?: number;
   /** Doors only. */
   open?: boolean;
 }
@@ -202,6 +210,8 @@ export function validateScene(s: SceneFile, g?: GridFile): string[] {
     for (const w of l.walls) {
       need(!ids.has(w.id), `duplicate id ${w.id}`); ids.add(w.id);
       need(w.flags.length > 0 && w.flags.every((f) => (WALL_FLAGS as readonly string[]).includes(f)), `wall ${w.id} bad flags`);
+      if (w.thicknessFt !== undefined) need(Number.isFinite(w.thicknessFt) && w.thicknessFt > 0 && w.thicknessFt <= 40, `wall ${w.id} thicknessFt must be a positive number of feet (at most 40)`);
+      if (w.offsetFt !== undefined) need(w.thicknessFt !== undefined && Number.isFinite(w.offsetFt) && Math.abs(w.offsetFt) <= w.thicknessFt / 2 + 1e-6, `wall ${w.id} offsetFt needs thicknessFt and at most half of it`);
     }
     for (const o of l.objects) {
       need(!ids.has(o.id), `duplicate id ${o.id}`); ids.add(o.id);

@@ -55,8 +55,13 @@ for b in blocks:
         m[1] = round(m[1] + b[3] / 2, 1); m[3] = round(m[3] + b[3], 1)
     else: merged.append(list(b))
 
-# 2. the curtain walls: ground walls with their own height, collinear pieces joined
-segs = [(tuple(w['a']), tuple(w['b']), w['heightFt']) for w in ground['walls'] if w.get('heightFt', 0) >= 30]
+# 2. the curtain walls: ground walls with their own height, collinear pieces joined, each along the middle of its body
+#    (a wall with a body may stand off its line: the curtain's line is the courtyard's face, its body 20 ft out)
+def body_line(w):
+    o = w.get('offsetFt', 0); (ax, az), (bx, bz) = w['a'], w['b']; L = math.hypot(bx - ax, bz - az) or 1
+    nx, nz = -(bz - az) / L * o, (bx - ax) / L * o
+    return (round(ax + nx, 3), round(az + nz, 3)), (round(bx + nx, 3), round(bz + nz, 3))
+segs = [(*body_line(w), w['heightFt']) for w in ground['walls'] if w.get('heightFt', 0) >= 30]
 def join(segs):
     segs = [list(s) for s in segs]; changed = True
     while changed:

@@ -1,6 +1,7 @@
 // 5e light & vision model (PHB ch. 8). See docs §5.
 import { dist, segmentsIntersect, type Segment, type Vec2 } from './geometry';
 import type { Ambient, LightSource, Wall } from './schema';
+import { anyThick, bodyOutlines } from './wallBody';
 
 export const enum Illum { Dark = 0, Dim = 1, Bright = 2 }
 
@@ -29,22 +30,28 @@ export const isSunlight = (_a: Ambient) => false;
 
 export interface Blocker extends Segment { terrain: boolean }
 
-/** Walls that block sight. Doors block when closed; windows and invisible walls never do. */
+/** Walls that block sight. Doors block when closed; windows and invisible walls never do. A wall with a body
+ *  (thicknessFt) also blocks along its faces, as drawn; a door's body is its opening, which a shut leaf blocks at its
+ *  centreline. */
 export function sightBlockers(walls: Wall[], revealedSecretDoors: ReadonlySet<string> = new Set()): Blocker[] {
   const out: Blocker[] = [];
+  const isDoor = (w: Wall) => w.flags.includes('door') || (w.flags.includes('secret-door') && revealedSecretDoors.has(w.id));
   for (const w of walls) {
     const f = new Set(w.flags);
     if (f.has('window') || f.has('invisible')) continue;
-    const isDoor = f.has('door') || (f.has('secret-door') && revealedSecretDoors.has(w.id));
-    if (isDoor && w.open) continue;
+    if (isDoor(w) && w.open) continue;
     out.push({ a: w.a, b: w.b, terrain: f.has('terrain') });
   }
+  if (anyThick(walls)) for (const s of bodyOutlines(walls, (w) => !isDoor(w) && !w.flags.includes('window') && !w.flags.includes('terrain'))) out.push({ ...s, terrain: false });
   return out;
 }
 
-/** Walls that block movement. Ethereal walls never do; windows and closed doors do. */
+/** Walls that block movement. Ethereal walls never do; windows and closed doors do. A wall with a body
+ *  (thicknessFt) also blocks along its faces, so the party stops at the face it sees. */
 export function moveBlockers(walls: Wall[]): Segment[] {
-  return walls.filter((w) => !w.flags.includes('ethereal') && !((w.flags.includes('door')) && w.open)).map((w) => ({ a: w.a, b: w.b }));
+  const out = walls.filter((w) => !w.flags.includes('ethereal') && !((w.flags.includes('door')) && w.open)).map((w) => ({ a: w.a, b: w.b }));
+  if (anyThick(walls)) out.push(...bodyOutlines(walls, (w) => !w.flags.includes('door')));
+  return out;
 }
 
 export function hasLineOfSight(from: Vec2, to: Vec2, blockers: Blocker[]): boolean {

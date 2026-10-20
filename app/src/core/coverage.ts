@@ -3,6 +3,7 @@
 import { bounds, pointInPolygon, type Polygon } from './geometry';
 import { canSee, sightBlockers, type Viewer } from './light';
 import type { Ambient, LightSource, Wall } from './schema';
+import { anyThick, wallFootprints } from './wallBody';
 
 export const enum Cov { Unexplored = 0, Explored = 1, Visible = 2 }
 
@@ -15,6 +16,10 @@ export class CoverageMap {
   /** The floor polygons the last vision pass ran over, and the cells inside them (recomputed only when they change). */
   private floorKey: Polygon[] = [];
   private floorMask: Uint8Array | null = null;
+  /** The thick walls' bodies the last vision pass ran over, and for each cell under one how far (in cells) the fog
+   *  reaches into it from a seen side: the thickness of the thickest body over it, plus one. */
+  private bodyKey: (Polygon | null)[] | null = null;
+  private bodyReach: Uint8Array | null = null;
 
   constructor(readonly originX: number, readonly originZ: number, readonly width: number, readonly height: number, readonly cell = 1) {
     const n = width * height;
@@ -105,6 +110,9 @@ export class CoverageMap {
     // Grow only what is seen now (the 1-ft wall rim), then add it to memory once. Growing the accumulated memory
     // itself crept one cell further through walls on every update, revealing whole floors with no movement.
     this.dilateInto(this.visible);
+    // A wall with a body is seen whole from either side: the rim runs on through the cells under its body, as far as
+    // the body is thick, and never out of it (the floor past the wall stays as it was).
+    if (anyThick(walls)) this.throughBodies(walls);
     for (let k = 0; k < this.visible.length; k++) if (this.visible[k]) this.seen[k] = 1;
   }
 
@@ -115,6 +123,35 @@ export class CoverageMap {
     for (const p of floor) for (const k of this.cellsIn(p)) m[k] = 1;
     this.floorKey = floor.slice(); this.floorMask = m;
     return m;
+  }
+
+  /** Spread what is seen through the cells under thick walls' bodies (core/wallBody.ts), each as far as its body is
+   *  thick: breadth-first from the seen cells, entering only body cells. */
+  private throughBodies(walls: Wall[]): void {
+    const fps = wallFootprints(walls);
+    if (fps !== this.bodyKey) {
+      const reach = new Uint8Array(this.width * this.height);
+      fps.forEach((p, i) => {
+        if (!p) return;
+        const r = Math.min(255, Math.ceil(walls[i].thicknessFt! / this.cell) + 1);
+        for (const k of this.cellsIn(p)) if (reach[k] < r) reach[k] = r;
+      });
+      this.bodyKey = fps; this.bodyReach = reach;
+    }
+    const reach = this.bodyReach!, W = this.width, H = this.height, v = this.visible;
+    const dist = new Uint8Array(W * H), queue = new Int32Array(W * H);
+    let head = 0, tail = 0;
+    for (let k = 0; k < v.length; k++) if (v[k]) queue[tail++] = k;
+    while (head < tail) {
+      const k = queue[head++], i = k % W, j = (k - i) / W, d = dist[k] + 1;
+      for (let dj = -1; dj <= 1; dj++) for (let di = -1; di <= 1; di++) {
+        const a = i + di, b = j + dj;
+        if (a < 0 || b < 0 || a >= W || b >= H) continue;
+        const m = b * W + a;
+        if (v[m] || !reach[m] || d > reach[m]) continue;
+        v[m] = 1; dist[m] = d; queue[tail++] = m;
+      }
+    }
   }
 
   /** Grow a mask by one texel (so wall tops adjacent to seen floor show). */

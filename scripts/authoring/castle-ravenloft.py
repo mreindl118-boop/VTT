@@ -71,9 +71,11 @@ g.room('K3', "Servants' Courtyard", [(50, 4), (62, 4), (62, 10), (72, 10), (72, 
 g.room('K3-s', "Servants' Courtyard (south)", [(48, 50), (60, 50), (60, 36), (72, 36), (72, 64), (48, 64)], 'cobble', page=pg('K3'))
 g.room('K4', 'Carriage House', rect(62, 4, 72, 10), 'flagstone', page=pg('K4'), ceilingFt=15)
 g.room('K5', 'Chapel Garden', rect(60, 30, 72, 36), 'grass', page=pg('K5'))
-g.room('K5-p', 'Postern', rect(72, 31, 76, 35), 'flagstone', page=pg('K5'))
+# the postern and the gate passage are tunnels through the solid curtain wall, as wide as their openings (10 ft), so
+# the wall stands whole either side of them (walls with a body, below)
+g.room('K5-p', 'Postern', rect(72, 32, 76, 34), 'flagstone', page=pg('K5'))
 g.room('K6', 'Overlook', [(76, 30), (84, 30), (86, 32), (86, 34), (84, 36), (76, 36)], 'flagstone', page=pg('K6'))
-g.room('K1-g', 'Gatehouse Passage', rect(0, 32, 4, 36), 'flagstone', page=pg('K1'))
+g.room('K1-g', 'Gatehouse Passage', rect(0, 33, 4, 35), 'flagstone', page=pg('K1'))
 # gates in K2's walls and the passages
 g.door((50, 10), (50, 12), id='K2-north-gate', double=True)
 g.door((48, 56), (48, 58), id='K2-south-gate', double=True)
@@ -585,6 +587,30 @@ d.light('K78-brazier', m12(12.5, 23), 'torch', 20, 40, y=4); d.light('K85-glow',
 cobwebs(d, R(m12, 20, 15, 34, 34), 'K84', y=18, n=4)
 
 levels = [d, la, g, L, c, w, sp, st, tr, np_, nr, hp]
+ORIG_KEYS = {lv.id: [r[0] for r in lv.rooms] for lv in levels}   # each room's key before the per-floor renaming below
+
+# Rooms the plates register over a tower's octagon (the K18 tower over K14's strip, over the shafts K31a/K31b and the
+# trapworks K31, over the wine cellar K63; the K83 turret over the bedchamber's corner): the tower stands, the room
+# stops at its side, so no wall of the room runs through the tower. A room that holds a tower whole (the catacombs round
+# the K18 stair's foot) keeps its outline. The hall of bones and the guards' quarters overlap by one 5-ft corner: the
+# quarters give it up.
+from shapely.geometry import Polygon as _SP
+def carve(lv, tower_keys):
+    towers_ = [_SP(poly) for key, _, poly, _, _ in lv.rooms if key in tower_keys]
+    for i, (key, name, poly, floor, extra) in enumerate(lv.rooms):
+        if key in tower_keys: continue
+        P = _SP(poly)
+        for T in towers_:
+            if P.intersection(T).area > 0.01 and not P.contains(T):
+                Q = P.difference(T)
+                if Q.geom_type == 'Polygon' and not Q.interiors:
+                    P = Q.simplify(1e-6)
+        if not P.equals(_SP(poly)):
+            lv.rooms[i] = (key, name, [(round(x, 4), round(z, 4)) for x, z in list(P.exterior.coords)[:-1]], floor, extra)
+for lv in levels: carve(lv, {'K12-n', 'K12-s', 'K18', 'K20', 'K21', 'K83'})
+_i = next(i for i, r in enumerate(la.rooms) if r[0] == 'K69')
+_k = next(r for r in la.rooms if r[0] == 'K67')
+la.rooms[_i] = la.rooms[_i][:2] + ([(round(x, 4), round(z, 4)) for x, z in list(_SP(la.rooms[_i][2]).difference(_SP(_k[2])).exterior.coords)[:-1]],) + la.rooms[_i][3:]
 CODE = {'ground': '', 'dungeon': 'd', 'larders': 'l', 'landing': 'g', 'court': 'c', 'weeping': 'w', 'spires': 'p', 'south-tower': 't', 'tower-roofs': 'r', 'north-peak': 'k', 'north-roof': 'o', 'high-peak': 'h'}
 seen = set()
 for lv in [g] + [x for x in levels if x is not g]:
@@ -688,10 +714,11 @@ def lk(id, kind, a_level, a, b_level, b): return OrderedDict(id=id, kind=kind, *
 # landing may stand on another link's end, and the cell the party lands in must leave a step that takes no stair. So
 # each end sits on a cell corner (the landing cell lies to its south-east, a step on leaves it 7.9 ft behind), and a
 # tower stair on a floor it passes keeps its way down (where the party arrives from below) apart from its way up: west
-# and east of the K20 and K21 wells, south and east of K18's; in the small K64 and K83 rooms, opposite corners.
+# and east of the K20 and K21 wells, north-east and south-west of K18's (5 ft in from its wall, which takes 2 ft of the
+# well: walls with a body, below); in the small K64 and K83 rooms, opposite corners.
 UP20, DN20, SIDE20 = (38, 29), (34, 29), (36, 31)    # K20: the stair up, the landing from below, the K34 ladder's door
-UP18, DN18 = (45, 40), (43, 42)                      # K18
-UP21, DN21, UP21g, DN21g = (40, 47), (36, 47), (40, 46), (36, 46)   # K21 (smaller on the main floor)
+UP18, DN18 = (44, 39), (42, 41)                      # K18: 5 ft in from the tower's 4-ft wall
+UP21, DN21, UP21g, DN21g = (40, 47), (36, 47), (39, 45), (36, 46)   # K21 (smaller on the main floor: its way up 5 ft in from the wall)
 UP64, DN64 = (31, 48), (33, 46)                      # K64's room, 15 ft square
 UP83, DN83 = (26, 32), (28, 30)                      # K83's turret
 scene['links'] = [
@@ -732,9 +759,352 @@ scene['links'] = [
 ]
 scene['nonSpatialKeys'] = []
 
+# ------------------------------------------------------------------ walls with a body (owner 2026-10-19)
+# "Notice how the walls in Ravenloft as they are are like 0 mm thin. That shouldn't be the case. They should be
+# proportionately sized walls where possible. Borrowing from the space around them and kind of distorting the place just
+# slightly to make it logical." Every wall the castle draws gets a thickness by what it is, and takes it from the space
+# that can spare it (thickwalls.py does the plan work; the app draws, joins and blocks the bodies, core/wallBody.ts):
+#   the curtain wall: 20 ft, the whole band the plates draw between the courtyard's face and the outer face, solid;
+#   the keep's outer walls: 5 ft from the dungeon to the court of the count, 4 ft on the rooms of weeping, 3 ft above
+#     (a wall thins as it rises); the carriage house's walls 3 ft; each takes all of its thickness from the open side
+#     (the void outside the keep, the courtyard, the parapet walk, the rock round the cellars), never from the room;
+#   the stair towers and the turrets: 4 ft, centred on their octagons (the stairs inside keep their 5-ft treads);
+#   partitions between two rooms: 2 ft of stone, 1 ft of panelling on the panelled floors, centred, except where a
+#     corridor or a stair beside it would fall below one clear 5-ft cell: there the wall takes all of its thickness from
+#     the room on the other side and the narrow way keeps its width;
+#   the courtyard's own walls (K2's gate walls), the open roofs' and the overlook's parapets: 3 ft; railings 0.75 ft.
+import thickwalls as TW
+from shapely.geometry import Point as _Pt, Polygon as _Poly, LineString as _Ln
+
+T_CURTAIN, T_TOWER, T_YARD, T_RAIL, T_FREE = 20, 4, 3, 0.75, 2
+T_KEEP = {'dungeon': 5, 'larders': 5, 'ground': 5, 'landing': 5, 'court': 5, 'weeping': 4}   # 3 ft above
+T_PART = {'paneling': 1, 'paneling-dusty': 1}                                                 # 2 ft for stone
+OPEN_AIR = {'K1', 'K1-bridge', 'K3', 'K3-s', 'K5', 'K6', 'K46-w', 'K46-n', 'K46-s', 'K46-e', 'K53-w', 'K53-n', 'K53-s', 'K57', 'K58', 'K60a'}
+TOWER_KEYS = {'K12-n', 'K12-s', 'K18', 'K20', 'K21', 'K83', 'K57', 'K59', 'K60', 'K60a'}
+OUTBUILDING = {'K4'}
+CURTAIN_OUT = (0, 0, 380, 340)      # the curtain's outer face (ft); its inner face is the courtyard's edge, 20 ft in
+CLEAR = 5                           # one clear cell: no corridor or stair is left narrower
+
+def _stairs(lvj):
+    """Where the level's stairs stand in plan: straight flights as rectangles, spirals as discs (shapely)."""
+    out = []
+    for o in lvj['objects']:
+        d = o.get('dims') or {}
+        if o['kind'] == 'stairs-straight' and d.get('rise', 0) >= 1:
+            w2 = d.get('w', 5) / 2
+            if 'fromX' in d: out.append(_Poly([(d['fromX'], o['pos'][2] - w2), (d['toX'], o['pos'][2] - w2), (d['toX'], o['pos'][2] + w2), (d['fromX'], o['pos'][2] + w2)]))
+            elif 'fromZ' in d: out.append(_Poly([(o['pos'][0] - w2, d['fromZ']), (o['pos'][0] + w2, d['fromZ']), (o['pos'][0] + w2, d['toZ']), (o['pos'][0] - w2, d['toZ'])]))
+        elif o['kind'] == 'spiral-stair' and d.get('rise', 0) >= 1:
+            out.append(_Pt(o['pos'][0], o['pos'][2]).buffer(d.get('r', 6), 16))
+    return out
+
+COURTYARD = {'K1', 'K3', 'K3-s', 'K5'}   # the keep's edge on them is the keep's outer wall
+G_FILL = 12                             # a slot of void this narrow between two walls is masonry: their bodies meet in it
+CURTAIN_IN = (20, 20, 360, 320)         # the courtyard's face of the curtain wall (ft)
+
+def on_curtain(w):
+    x0, z0, x1, z1 = CURTAIN_IN
+    (ax, az), (bx, bz) = w['a'], w['b']
+    return (ax == bx and ax in (x0, x1) and z0 <= min(az, bz) and max(az, bz) <= z1) or (az == bz and az in (z0, z1) and x0 <= min(ax, bx) and max(ax, bx) <= x1)
+
+def _plan_walls(lvj, keys):
+    """Each drawn wall's thickness and side: (t, 0) centred, (t, +1) all on its left, (t, -1) all on its right."""
+    rooms = [(_Poly(r['polygon']).buffer(0), keys[i], r) for i, r in enumerate(lvj['rooms'])]
+    stairs = _stairs(lvj)
+    ext = T_KEEP.get(lvj['id'], 3)
+    def room_at(p):
+        hit = [(poly.area, k, r, poly) for poly, k, r in rooms if poly.contains(_Pt(p))]
+        return min(hit, key=lambda h: h[0])[1:] if hit else None
+    def on_edge(w, key):
+        for poly, k, r in rooms:
+            if k != key: continue
+            ring_ = list(poly.exterior.coords)
+            for q0, q1 in zip(ring_, ring_[1:]):
+                e = {'a': q0, 'b': q1}
+                if TW.seg(e)[2] > 1e-6 and all(TW.on_line(p, e)[0] and -TW.EPS <= TW.on_line(p, e)[1] <= TW.seg(e)[2] + TW.EPS for p in (w['a'], w['b'])):
+                    return True
+        return False
+    plan, notes, void_side, bounds_, ring_ids = {}, [], {}, {}, set()
+    def roomy(key):
+        """A stair tower with space inside for its ring: the octagon's flat sides less the ring's thickness still clear
+        its spiral stair."""
+        poly = next(p for p, k, r in rooms if k == key)
+        c = poly.centroid
+        inner = min(_Ln([q0, q1]).distance(c) for q0, q1 in zip(list(poly.exterior.coords), list(poly.exterior.coords)[1:])) - T_TOWER
+        rs = [o['dims'].get('r', 6) for o in lvj['objects'] if o['kind'] == 'spiral-stair' and (o.get('dims') or {}).get('rise', 0) >= 1 and poly.contains(_Pt(o['pos'][0], o['pos'][2]))]
+        return bool(rs) and all(inner >= r - 0.01 for r in rs)   # a stair tower; the turrets (no stair) stay centred
+    def narrow(w, sgn, t, key, need=None):
+        """The room on that side would fall below one clear cell if its walls took `need` (default t) of its depth, or
+        a stair stands in the band of depth t the wall would take beside it."""
+        a, b, L, u, n = TW.seg(w)
+        poly = next(p for p, k, r in rooms if k == key)
+        deep = min(TW.depth(poly, (a[0] + u[0] * L * f + n[0] * sgn * 0.3, a[1] + u[1] * L * f + n[1] * sgn * 0.3), (n[0] * sgn, n[1] * sgn)) + 0.3 for f in (0.25, 0.5, 0.75))
+        band = _Poly([a, b, (b[0] + n[0] * sgn * (t + 0.25), b[1] + n[1] * sgn * (t + 0.25)), (a[0] + n[0] * sgn * (t + 0.25), a[1] + n[1] * sgn * (t + 0.25))])
+        return deep < CLEAR + (t if need is None else need) - 0.01 or any(st.intersection(band).area > 0.25 for st in stairs)
+    for w in lvj['walls']:
+        if not TW.drawn(w) or TW.seg(w)[2] < 1e-6: continue
+        a, b, L, u, n = TW.seg(w)
+        h = w.get('heightFt')
+        # what lies either side: the room under points just off the wall's middle stretch (its left, then its right)
+        side = {}
+        for sgn in (1, -1):
+            hits = [room_at((a[0] + u[0] * L * f + n[0] * sgn * 0.3, a[1] + u[1] * L * f + n[1] * sgn * 0.3)) for f in (0.25, 0.5, 0.75)]
+            hits = [x for x in hits if x]
+            side[sgn] = max(hits, key=lambda x: sum(1 for y in hits if y[0] == x[0])) if len(hits) >= 2 else None
+        kind = {s: ('void' if side[s] is None else 'open' if side[s][0] in OPEN_AIR else 'room') for s in (1, -1)}
+        bounds_[w['id']] = {next(i for i, x in enumerate(rooms) if x[2] is side[s][1]) for s in (1, -1) if side[s]}
+        if h is not None and h <= 4:
+            plan[w['id']] = (T_RAIL, 0); continue
+        tower = next((side[s][0] for s in (1, -1) if side[s] and side[s][0] in TOWER_KEYS and len(side[s][1]['polygon']) >= 8 and on_edge(w, side[s][0])), None)
+        towards = lambda want: next(s for s in (1, -1) if kind[s] == want)
+        ks = sorted(kind.values())
+        if lvj['id'] == 'ground' and on_curtain(w):
+            plan[w['id']] = (T_CURTAIN, towards('void') if 'void' in ks else 0); continue
+        if tower:
+            # the plan's octagon is a stair tower's outer face: the ring takes its thickness from the tower where the stair
+            # inside keeps its treads clear (K21 above the main floor), and is centred on the octagon where it would not
+            # (K18, K20, K83) and on the turrets
+            s_in = next(s for s in (1, -1) if side[s] and side[s][0] == tower)
+            plan[w['id']] = (T_TOWER, s_in if roomy(tower) else 0); ring_ids.add(w['id']); continue
+        if ks == ['room', 'void']:
+            key = next(side[s][0] for s in (1, -1) if kind[s] == 'room')
+            plan[w['id']] = (T_YARD if key in OUTBUILDING else ext, towards('void'))
+        elif ks == ['open', 'room']:
+            # the open side (courtyard, parapet walk, roof) keeps a flat face on its plan line, as the stretches backed
+            # by void do: the wall takes its thickness from the room, unless that would leave the room too narrow
+            key = next(side[s][0] for s in (1, -1) if kind[s] == 'room')
+            t = T_YARD if key in OUTBUILDING else ext
+            plan[w['id']] = (t, towards('open') if narrow(w, towards('room'), t, key) else towards('room'))
+        elif ks == ['open', 'void']:
+            yard = next(side[s][0] for s in (1, -1) if kind[s] == 'open')
+            plan[w['id']] = (ext if yard in COURTYARD else T_YARD, towards('void'))
+        elif ks == ['open', 'open']:
+            plan[w['id']] = (T_YARD, 0)
+        elif ks == ['void', 'void']:
+            plan[w['id']] = (T_FREE, 0)
+        else:   # a partition between two rooms (or inside one)
+            t = T_PART.get(w.get('material'), 2)
+            nar = {sgn: narrow(w, sgn, t / 2, side[sgn][0], need=t) for sgn in (1, -1)}   # a corridor's two walls take t
+            if nar[1] and not nar[-1]: plan[w['id']] = (t, -1)
+            elif nar[-1] and not nar[1]: plan[w['id']] = (t, 1)
+            else:
+                plan[w['id']] = (t, 0)
+                if nar[1]: notes.append(f"{w['id']} between {side[1][0]} and {side[-1][0]}: both sides narrow, centred")
+        t_, s_ = plan[w['id']]
+        if s_ and kind[s_] == 'void': void_side[w['id']] = s_
+    # a narrow slot of void between two walls is solid: each wall whose body goes into it takes it up to the other's body
+    # (half each when both grow into it), so the plates' thin gaps between rooms and the keep's face close up
+    by_id = {w['id']: w for w in lvj['walls']}
+    cells = {}
+    for w in lvj['walls']:
+        if w['id'] in plan:
+            for c in TW._cells(w): cells.setdefault(c, []).append(w['id'])
+    def gap(w, sgn):
+        a, b, L, u, n = TW.seg(w)
+        hits = []
+        for f in (0.2, 0.5, 0.8):
+            o = (a[0] + u[0] * L * f, a[1] + u[1] * L * f)
+            ray = _Ln([o, (o[0] + n[0] * sgn * G_FILL, o[1] + n[1] * sgn * G_FILL)])
+            near = {i for c in TW._cells({'a': ray.coords[0], 'b': ray.coords[1]}) for i in cells.get(c, ())}
+            best = None
+            for vid in near:
+                v = by_id[vid]
+                if v is w: continue
+                x = ray.intersection(_Ln([tuple(v['a']), tuple(v['b'])]))
+                if x.is_empty or x.geom_type != 'Point': continue
+                dd = _Pt(o).distance(x)
+                if dd > 0.05 and (best is None or dd < best[0]): best = (dd, vid)
+            if best is None: return None
+            hits.append(best)
+        if max(h[0] for h in hits) - min(h[0] for h in hits) > 0.5 or len({h[1] for h in hits}) > 1 and False: return None
+        v = by_id[hits[1][1]]
+        if abs(TW.seg(v)[4][0] * TW.seg(w)[4][0] + TW.seg(v)[4][1] * TW.seg(w)[4][1]) < 0.98: return None
+        return sum(h[0] for h in hits) / 3, v
+    fill = {}
+    for wid, sgn in void_side.items():
+        g_ = gap(by_id[wid], sgn)
+        if not g_: continue
+        g, v = g_
+        tv, sv = plan[v['id']]
+        # how far the other wall's own body reaches into the slot
+        toward_me = TW.side_of(v, TW.seg(by_id[wid])[0]) if TW.seg(v)[2] else 0
+        mutual = v['id'] in void_side and void_side[v['id']] == toward_me and gap(v, toward_me) is not None
+        reach = 0 if mutual else tv if sv == toward_me else tv / 2 if sv == 0 else 0
+        t = g / 2 if mutual else g - reach
+        if 0.5 <= t <= G_FILL: fill[wid] = round(t, 3)
+    for wid, t in fill.items(): plan[wid] = (t, plan[wid][1])
+    # a wall borrows only the void that is free: where a room lies closer on that side (a sliver of void between a
+    # rectangle's corner and a tower's side), the body stops short of it, so no body ever stands in another room
+    allrooms = [poly for poly, k, r in rooms]
+    for wid, sgn in void_side.items():
+        t, s_ = plan[wid]
+        a, b, L, u, n = TW.seg(by_id[wid])
+        band = _Poly([a, b, (b[0] + n[0] * sgn * t, b[1] + n[1] * sgn * t), (a[0] + n[0] * sgn * t, a[1] + n[1] * sgn * t)])
+        free = t
+        for poly in allrooms:
+            x = band.intersection(poly)
+            if x.area > 0.01:
+                for g_ in getattr(x, 'geoms', [x]):
+                    if g_.area > 0.01:
+                        free = min(free, min(((q[0] - a[0]) * n[0] + (q[1] - a[1]) * n[1]) * sgn for q in g_.exterior.coords))
+        if free < t - 0.01:
+            plan[wid] = (max(round(free, 3), 0.5), s_)
+            notes.append(f"{wid}: only {free:.2f} ft of void free beside it, its body takes {max(free, 0.5):.2f}")
+    return plan, notes, bounds_, ring_ids
+
+def thicken(lvj, keys):
+    """Give the level's walls their bodies and its rooms their clear floors. Returns the floor pieces a wall cut off
+    a room (plain walkable floor) and a short report."""
+    if lvj['id'] == 'ground':   # the whole courtyard face of the curtain is 90 ft (authorlib's cell keys miss a few)
+        for w in lvj['walls']:
+            if on_curtain(w) and not set(w['flags']) & TW.UNCUT: w['heightFt'] = WALL_H
+    # a stretch two walls share keeps the one that matters: a door's, the curtain's, a tower's side, then a room's edge
+    towers_ = [_Poly(r['polygon']) for i, r in enumerate(lvj['rooms']) if keys[i] in TOWER_KEYS and len(r['polygon']) >= 8]   # the octagons
+    ring_ = lambda w: any(_Ln(list(T.exterior.coords)).buffer(0.3).contains(_Ln([tuple(w['a']), tuple(w['b'])])) for T in towers_)
+    rank = lambda w: 4 if set(w['flags']) & TW.UNCUT else 3 if (lvj['id'] == 'ground' and on_curtain(w)) else 2 if ring_(w) else 0
+    lvj['walls'], dup = TW.dedupe(lvj['walls'], rank, tol=0.3)
+    if lvj['id'] == 'ground':
+        # the curtain is one 20-ft body from the courtyard's face to its outer face: the outer face's own wall goes, and so
+        # do the walls the plan draws inside the band (the gate passage's and the postern's sides, the bridge's and the
+        # overlook's ends against the outer face): the curtain's body is their wall
+        x0, z0, x1, z1 = CURTAIN_OUT
+        X0, Z0, X1, Z1 = CURTAIN_IN
+        in_band = lambda p: x0 - 0.01 <= p[0] <= x1 + 0.01 and z0 - 0.01 <= p[1] <= z1 + 0.01 and not (X0 + 0.01 < p[0] < X1 - 0.01 and Z0 + 0.01 < p[1] < Z1 - 0.01)
+        band = lambda w: not on_curtain(w) and not set(w['flags']) & TW.UNCUT and in_band(w['a']) and in_band(w['b']) and in_band(((w['a'][0] + w['b'][0]) / 2, (w['a'][1] + w['b'][1]) / 2))
+        lvj['walls'] = [w for w in lvj['walls'] if not band(w)]
+    lvj['walls'], stubs = TW.absorb_stubs(lvj['walls'])
+    pts = [tuple(q) for r in lvj['rooms'] for q in r['polygon']] + [tuple(w[e]) for w in lvj['walls'] for e in ('a', 'b')]
+    lvj['walls'], split = TW.split_at(lvj['walls'], pts)
+    plan, notes, bounds_, ring_ids = _plan_walls(lvj, keys)
+    off = TW.apply(lvj['walls'], plan)
+    # where the plan's rectangles and a tower's octagon nearly meet, the joints settle onto the walls they stand in: a
+    # room's corner inside a ring runs on to the ring's line, and an octagon's side left too short for its two corners
+    # goes, its neighbours meeting at one mitred corner
+    lvj['walls'], gone0 = TW.swallowed(lvj['walls'])   # (a scrap inside a thicker body would hold a joint apart)
+    lvj['walls'], met, scraps = TW.meet_bodies(lvj['walls'])
+    lvj['walls'], collapsed = TW.collapse_stubs(lvj['walls'])
+    if met or collapsed: notes.append(f"{met} wall ends run on to the wall they stood in ({scraps} scraps left inside it gone), {collapsed} short corner pieces taken into their neighbours")
+    # no body may stand in a room it does not bound (a corner's mitre reaching past a tower's side): reported
+    fps_ = TW.footprints(lvj['walls'])
+    for i, r in enumerate(lvj['rooms']):
+        P = _Poly(r['polygon']).buffer(0)
+        for w, f in zip(lvj['walls'], fps_):
+            bd = _Poly(f).buffer(0) if f else None
+            if bd is None or set(w['flags']) & set(TW.DOORISH) or i in bounds_.get(w['id'], ()): continue
+            x = bd.intersection(P).area
+            if x > 0.5: notes.append(f"{w['id']} ({w['thicknessFt']} ft) stands {x:.1f} sq ft into {r['key']}, which it does not bound")
+    same = lambda v, w: v['flags'] == w['flags'] == ['normal'] and all(v.get(k) == w.get(k) for k in ('heightFt', 'material', 'thicknessFt', 'offsetFt'))
+    lvj['walls'], fused = TW.merge_runs(lvj['walls'], same)
+    lvj['walls'], gone = TW.swallowed(lvj['walls'])
+    gone += gone0
+    doors_take_their_walls(lvj['walls'], ring_ids)
+    lvj['walls'] = [w for w in lvj['walls'] if TW.seg(w)[2] >= 0.1]   # no wall of no length
+    extra = TW.inset_rooms(lvj['rooms'], lvj['walls'])
+    notes += fit_stairs(lvj)
+    notes += props_out_of_walls(lvj)
+    return extra, f"{lvj['id']}: {len(plan)} walls with a body ({split} split where their neighbours change, {stubs} stubs taken into a door), {dup} cut free of a wall in their line, {off} standing off their line, {fused} fused, {gone} inside a thicker body dropped" + ''.join('\n  ' + x for x in notes)
+
+def doors_take_their_walls(walls, ring_ids):
+    """A door, window or secret door is an opening in the wall it stands in: it takes that wall's body and its stone (the
+    thickest wall left running on from it in its line), so it cuts through the whole depth and the masonry over it is
+    the wall's own. A tower's door is its ring's: the ring's thickness, of the ring's stone."""
+    touching = lambda w, v: any(math.hypot(p[0] - q[0], p[1] - q[1]) <= TW.EPS for p in (w['a'], w['b']) for q in (v['a'], v['b']))
+    plain = [v for v in walls if not set(v['flags']) & TW.UNCUT and TW.drawn(v) and v.get('thicknessFt')]
+    for w in walls:
+        if not set(w['flags']) & TW.UNCUT or not w.get('thicknessFt'): continue
+        if w['id'] in ring_ids:
+            ring = [v for v in plain if v['id'] in ring_ids and touching(w, v)]
+            if ring: w['material'] = ring[0].get('material', w.get('material'))
+            continue
+        on = [v for v in plain if TW.collinear(w, v) and touching(w, v)]
+        if not on: continue
+        v = max(on, key=lambda v: v['thicknessFt'])
+        u, uv = TW.seg(w)[3], TW.seg(v)[3]
+        side = (1 if uv[0] * u[0] + uv[1] * u[1] > 0 else -1)
+        w['thicknessFt'] = v['thicknessFt']
+        w.pop('offsetFt', None)
+        if v.get('offsetFt'): w['offsetFt'] = round(v['offsetFt'] * side, 3)
+        if v.get('material'): w['material'] = v['material']
+
+def fit_stairs(lvj):
+    """A stair a body still reaches into (a flight running along a tower's side, a spiral wider than its tower's clear
+    well) is fitted to the clear space: a flight narrows from the side or shortens from the end the wall stands on, a
+    spiral's treads end at the wall's face and its well shrinks to keep 5-ft treads. Never below one clear cell."""
+    from shapely.ops import unary_union as _uu
+    fps = TW.footprints(lvj['walls'])
+    solid = _uu([_Poly(f).buffer(0) for w, f in zip(lvj['walls'], fps) if f and not set(w['flags']) & set(TW.DOORISH)])
+    notes = []
+    for o in lvj['objects']:
+        d = o.get('dims') or {}
+        if o['kind'] == 'spiral-stair' and d.get('rise', 0) >= 1:
+            c = _Pt(o['pos'][0], o['pos'][2]); r = d.get('r', 6)
+            if solid.intersection(c.buffer(r, 32)).area < 0.25: continue
+            clear = math.floor(solid.boundary.distance(c) * 4) / 4 if not solid.contains(c) else 0
+            if clear < CLEAR / 2: notes.append(f"{o['id']}: a wall stands within {clear} ft of the spiral's axis"); continue
+            d['r'] = clear
+            if d.get('r0', 0) > clear - CLEAR: d['r0'] = max(0, clear - CLEAR)
+            notes.append(f"{o['id']}: spiral fitted to its clear well, r {r} -> {clear}" + (f", well {d['r0']}" if 'r0' in d else ''))
+        elif o['kind'] == 'stairs-straight' and d.get('rise', 0) >= 1:
+            ax = 'X' if 'fromX' in d else 'Z'
+            lo, hi = sorted((d['from' + ax], d['to' + ax])); c = o['pos'][2] if ax == 'X' else o['pos'][0]; w2 = d.get('w', 5) / 2
+            rect = lambda lo, hi, c0, c1: _Poly([(lo, c0), (hi, c0), (hi, c1), (lo, c1)]) if ax == 'X' else _Poly([(c0, lo), (c1, lo), (c1, hi), (c0, hi)])
+            box = [lo, hi, c - w2, c + w2]
+            if solid.intersection(rect(*box)).area < 0.25: continue
+            for _ in range(4):
+                x = solid.intersection(rect(*box))
+                if x.area < 0.25: break
+                parts = [g_ for g_ in getattr(x, 'geoms', [x]) if g_.area > 0.01]     # not the slivers a wall only touches
+                bx = (min(g_.bounds[0] for g_ in parts), min(g_.bounds[1] for g_ in parts), max(g_.bounds[2] for g_ in parts), max(g_.bounds[3] for g_ in parts))
+                along = (bx[0], bx[2]) if ax == 'X' else (bx[1], bx[3]); across = (bx[1], bx[3]) if ax == 'X' else (bx[0], bx[2])
+                # cut back the side the wall stands on, whichever loses least
+                opts = [(along[1] - box[0], 0), (box[1] - along[0], 1), (across[1] - box[2], 2), (box[3] - across[0], 3)]
+                cost = lambda k, a: a * ((box[3] - box[2]) if k < 2 else (box[1] - box[0]))
+                k, a = min(((k, a) for a, k in opts), key=lambda t: cost(*t))
+                box[k] += a + 0.01 if k in (0, 2) else -(a + 0.01)
+            if box[1] - box[0] < CLEAR or box[3] - box[2] < CLEAR or solid.intersection(rect(*box)).area >= 0.25:
+                notes.append(f"{o['id']}: could not be fitted clear of the walls"); continue
+            if box != [lo, hi, c - w2, c + w2]:
+                fwd = d['to' + ax] >= d['from' + ax]
+                d['from' + ax], d['to' + ax] = (round(box[0], 3), round(box[1], 3)) if fwd else (round(box[1], 3), round(box[0], 3))
+                d['w'] = round(box[3] - box[2], 3); mid = round((box[2] + box[3]) / 2, 3)
+                if ax == 'X': o['pos'][2] = mid
+                else: o['pos'][0] = mid
+                notes.append(f"{o['id']}: flight fitted clear of the walls, {hi - lo:.1f} x {2 * w2:.1f} -> {box[1] - box[0]:.1f} x {box[3] - box[2]:.1f} ft")
+    return notes
+
+ON_THE_FACE = {'bricked-window': 0.15, 'niche': 0.3}   # wall-mounted: set on the face; anything else stands clear of it
+
+def props_out_of_walls(lvj):
+    """A prop the plan set against a wall's line (statues along a hall, a suit of armour in its alcove, a bricked
+    window, a hatch in a room's corner) now stands inside the wall's body: it moves out to the face on its own room's
+    side, so it stands in front of the wall as the plan meant."""
+    from shapely.ops import nearest_points
+    fps = TW.footprints(lvj['walls'])
+    solid = [_Poly(f).buffer(0) for w, f in zip(lvj['walls'], fps) if f and not set(w['flags']) & set(TW.DOORISH)]
+    floor = [(_Poly(r['polygon']).buffer(0), r['key']) for r in lvj['rooms']]
+    notes = []
+    for o in lvj['objects']:
+        if o['vis'] == 'secret-door' or o['kind'] in ('note', 'spawn'): continue
+        p = _Pt(o['pos'][0], o['pos'][2])
+        body = next((b for b in solid if b.buffer(-0.05).contains(p)), None)
+        if body is None: continue
+        mine = [poly for poly, k in floor if k == o.get('key')] or [poly for poly, k in floor]
+        # the nearest clear floor of its own room (else any room): just in front of the face
+        best = min((nearest_points(poly, p)[0] for poly in mine), key=lambda q: q.distance(p))
+        dx, dz = best.x - p.x, best.y - p.y; L = math.hypot(dx, dz) or 1
+        m = ON_THE_FACE.get(o['kind'], 1.0)
+        o['pos'][0] = round(best.x + dx / L * m, 3); o['pos'][2] = round(best.y + dz / L * m, 3)
+        notes.append(f"{o['id']} stood in a wall; now in front of its face, {L + m:.1f} ft over")
+    return notes
+
+FLOOR_EXTRA = {}
+for lvj in scene['levels']:
+    FLOOR_EXTRA[lvj['id']], rep_ = thicken(lvj, ORIG_KEYS[lvj['id']])
+    print(rep_)
+
 grid = OrderedDict(schema=1, levels=OrderedDict())
-for lv in levels:
-    grid['levels'][lv.id] = OrderedDict(floorPolygons=[[[x * 5, z * 5] for x, z in p] for p in lv.floor_polys], type='square', hexOrientation='pointy', origin=[0, 0], color='#1d1b22', opacity=0.55)
+for lvj in scene['levels']:
+    grid['levels'][lvj['id']] = OrderedDict(floorPolygons=[r['polygon'] for r in lvj['rooms']] + FLOOR_EXTRA[lvj['id']], type='square', hexOrientation='pointy', origin=[0, 0], color='#1d1b22', opacity=0.55)
 
 os.makedirs(OUT, exist_ok=True)
 json.dump(scene, open(os.path.join(OUT, 'scene.json'), 'w'), indent=1)

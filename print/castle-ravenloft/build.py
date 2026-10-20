@@ -91,6 +91,55 @@ def snap5(v, up):
     return (math.ceil(v / 5) if up else math.floor(v / 5)) * 5
 
 
+def seg_dist(p, a, b):
+    dx, dy = b[0] - a[0], b[1] - a[1]; L2 = dx * dx + dy * dy
+    s = 0.0 if L2 < 1e-12 else max(0.0, min(1.0, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / L2))
+    return math.hypot(p[0] - a[0] - s * dx, p[1] - a[1] - s * dy)
+
+
+def wall_mm(cfg, w):
+    """A wall's print thickness: its own (thicknessFt, the body mistLAB draws) at mm = ft x cell_mm / 5, or the default
+    --wall-mm for a wall that sets none."""
+    t = w.get('thicknessFt')
+    return t * cfg.cell / 5.0 if t else cfg.wall
+
+
+def joint_reach(walls, cfg):
+    """How far each end of each wall with a body runs past its end point so its joints close in the union (mm): nothing
+    at a free end (a door's jamb, an arch) or where a wall runs on in its line or ends on another's side; at a corner,
+    to the meeting of the outer faces (an L: the other wall's half-thickness; an octagon's corner much less), never a
+    spike past the faces. Walls without a body keep the default half-thickness lengthening."""
+    E = 0.05 * cfg.f
+    segs = []
+    for w in walls:
+        if not w.get('thicknessFt') or 'invisible' in w['flags'] or 'ethereal' in w['flags']:
+            segs.append(None); continue
+        a, b = P(cfg, *w['a']), P(cfg, *w['b']); L = math.hypot(b[0] - a[0], b[1] - a[1])
+        segs.append(None if L < 1e-6 else (a, b, L, ((b[0] - a[0]) / L, (b[1] - a[1]) / L), wall_mm(cfg, w) / 2))
+    out = {}
+    for i, s in enumerate(segs):
+        if s is None: continue
+        a, b, L, u, h = s
+        for end, p, d in ((0, a, (-u[0], -u[1])), (1, b, u)):   # d: along the wall, out past this end
+            reach, run_on = 0.0, False
+            for j, o in enumerate(segs):
+                if j == i or o is None: continue
+                oa, ob, oL, ou, oh = o
+                if math.hypot(p[0] - oa[0], p[1] - oa[1]) <= E: e = ou            # o leaves this joint along +ou
+                elif math.hypot(p[0] - ob[0], p[1] - ob[1]) <= E: e = (-ou[0], -ou[1])
+                else:
+                    rx, ry = p[0] - oa[0], p[1] - oa[1]; along = rx * ou[0] + ry * ou[1]
+                    if abs(rx * ou[1] - ry * ou[0]) <= E and E < along < oL - E: run_on = True   # ends on o's side
+                    continue
+                cos_t = d[0] * e[0] + d[1] * e[1]                                   # 1: o runs on in this wall's line
+                if cos_t > math.cos(math.radians(10)): run_on = True; continue
+                sin_t = math.sqrt(max(0.0, 1 - cos_t * cos_t))
+                if sin_t < 1e-3: continue
+                reach = max(reach, min(max(0.0, (oh - h * cos_t) / sin_t), 2 * max(h, oh)))
+            out[(i, end)] = 0.0 if run_on and reach == 0.0 else reach
+    return out
+
+
 # ------------------------------------------------------------------ one level
 class LevelBuild:
     def __init__(self, cfg, scene, lv, region_ft):
@@ -100,6 +149,7 @@ class LevelBuild:
         self.notes = []
         self.rooms = [r for r in lv['rooms'] if self.room_in_region(r)]
         self.towers = []                                   # (centre mm, mid radius mm, key)
+        self.thick = any(w.get('thicknessFt') for w in lv['walls'])   # walls with a body (thicknessFt)
         self.door_cells = []                               # cut lines must avoid these (mm boxes)
 
     # --- region
@@ -140,7 +190,8 @@ class LevelBuild:
             self.parts['walls'].append(slab(between ^ curtain, cfg.slab, cfg.slab + (cfg.clear if cfg.masonry == 'full' else 2.0)))
             self.parts['rock'].append(slab(between - curtain, cfg.slab, cfg.slab + 2.0))
         else:
-            footprint = fill_holes(rooms_cs)
+            # the rooms' clear floors stop at the walls' faces (walls with a body): the plate runs on under the walls
+            footprint = fill_holes(rooms_cs + self.walls_cs()) if self.thick else fill_holes(rooms_cs)
             if reg is not None:
                 footprint = footprint ^ reg
             between = footprint - rooms_cs
@@ -215,7 +266,8 @@ class LevelBuild:
 
     def walls(self):
         cfg = self.cfg
-        for w in self.lv['walls']:
+        reach = joint_reach(self.lv['walls'], cfg)
+        for i, w in enumerate(self.lv['walls']):
             a = P(cfg, *w['a']); b = P(cfg, *w['b'])
             seg = self.clip_seg(a, b)
             if seg is None:
@@ -227,7 +279,16 @@ class LevelBuild:
             if 'door' in flags:
                 self.door(a, b, w, top)
                 continue
-            self.parts['walls'].append(segment_box(a, b, cfg.wall, cfg.slab, top, extend=cfg.wall / 2))
+            if not w.get('thicknessFt'):
+                self.parts['walls'].append(segment_box(a, b, cfg.wall, cfg.slab, top, extend=cfg.wall / 2))
+                continue
+            # a wall with a body: its own thickness, lengthened at each end only as far as its joint needs
+            L = math.hypot(b[0] - a[0], b[1] - a[1])
+            if L < 1e-6:
+                continue
+            ux, uy = (b[0] - a[0]) / L, (b[1] - a[1]) / L
+            ra, rb = reach.get((i, 0), 0.0), reach.get((i, 1), 0.0)
+            self.parts['walls'].append(segment_box((a[0] - ux * ra, a[1] - uy * ra), (b[0] + ux * rb, b[1] + uy * rb), wall_mm(cfg, w), cfg.slab, top))
 
     def door(self, a, b, w, top):
         cfg = self.cfg
@@ -236,8 +297,8 @@ class LevelBuild:
         nx, ny = -uy, ux
         mid = ((a[0] + b[0]) / 2, (a[1] + b[1]) / 2)
         self.door_cells.append((mid, L))
-        # lintel across the gap, flush with the wall tops
-        self.parts['walls'].append(segment_box(a, b, cfg.wall, top - cfg.lintel, top, extend=cfg.wall))
+        # lintel across the gap, flush with the wall tops, through the wall's whole depth
+        self.parts['walls'].append(segment_box(a, b, wall_mm(cfg, w), top - cfg.lintel, top, extend=cfg.wall if not w.get('thicknessFt') else 0.2))
         locked = 'locked' in w['flags']
         if w['id'].endswith('-bars'):
             # cell bars: a frame and vertical bars, in metal
@@ -261,8 +322,25 @@ class LevelBuild:
             leaf = leaf.rotate([0, 0, base_ang]).translate([hinge[0], hinge[1], 0])
             self.parts['doors'].append(leaf)
 
+    def walls_cs(self):
+        """The plan of every drawn wall with a body (mm), to lay the plate under the walls."""
+        cfg = self.cfg; out = []
+        for w in self.lv['walls']:
+            if not w.get('thicknessFt') or 'invisible' in w['flags'] or 'ethereal' in w['flags']:
+                continue
+            (ax, ay), (bx, by) = P(cfg, *w['a']), P(cfg, *w['b']); L = math.hypot(bx - ax, by - ay)
+            if L < 1e-6:
+                continue
+            h = wall_mm(cfg, w) / 2; nx, ny = -(by - ay) / L * h, (bx - ax) / L * h; ux, uy = (bx - ax) / L * h, (by - ay) / L * h
+            out.append([(ax - ux + nx, ay - uy + ny), (ax - ux - nx, ay - uy - ny), (bx + ux - nx, by + uy - ny), (bx + ux + nx, by + uy + ny)])
+        c = cs(out)
+        reg = self.region_cs()
+        return c ^ reg if reg is not None else c
+
     def tower_rings(self):
         cfg = self.cfg
+        if self.thick:
+            return self.thick_towers()
         for r in self.rooms:
             if not is_tower(r):
                 continue
@@ -289,6 +367,26 @@ class LevelBuild:
                     covered.append(i)
             self.parts['walls'].append(m)
             self.towers.append((c, rad + cfg.tower_wall / 2, r['key'].split('-')[0], covered, poly))
+
+    def thick_towers(self):
+        """Walls with a body are the towers' rings already: only the towers are found (a tower room whose outline is an
+        octagon, its clear floor notched by its doorways), for the pegs, at the middle of the ring's body."""
+        cfg = self.cfg
+        for r in self.rooms:
+            if r['key'].split('-')[0] not in TOWER_KEYS and r['key'] not in TOWER_KEYS:
+                continue
+            room = cs([poly_mm(cfg, r['polygon'])])
+            hull = [tuple(q) for q in room.hull().to_polygons()[0]]
+            if len(hull) < 8:
+                continue
+            # the tower's axis: its spiral stair's, else the middle of its outline
+            stair = [P(cfg, o['pos'][0], o['pos'][2]) for o in self.lv['objects'] if o['kind'] == 'spiral-stair' and not (room ^ rect_cs(*P(cfg, o['pos'][0] - 0.1, o['pos'][2] + 0.1), *P(cfg, o['pos'][0] + 0.1, o['pos'][2] - 0.1))).is_empty()]
+            hb = room.hull().bounds()
+            c = stair[0] if stair else ((hb[0] + hb[2]) / 2, (hb[1] + hb[3]) / 2)
+            inner = min(seg_dist(c, hull[i], hull[(i + 1) % len(hull)]) for i in range(len(hull)))
+            t = max([wall_mm(cfg, w) for w in self.lv['walls'] if w.get('thicknessFt') and
+                     inner - 1 <= seg_dist(c, P(cfg, *w['a']), P(cfg, *w['b'])) <= inner + wall_mm(cfg, w) + 1] or [cfg.tower_wall])
+            self.towers.append((c, inner + t / 2, r['key'].split('-')[0], [], hull))
 
     def wall_at(self, p, tol=1.5):
         for w in self.lv['walls']:
@@ -474,7 +572,7 @@ class LevelBuild:
             return 0
         n = 0
         for (c, rmid, key, covered, poly) in self.towers:
-            match = [t for t in above.towers if math.hypot(t[0][0] - c[0], t[0][1] - c[1]) < cfg.cell]
+            match = [t for t in above.towers if math.hypot(t[0][0] - c[0], t[0][1] - c[1]) < cfg.cell + 0.01]
             if not match:
                 continue
             for vi in (0, 3, 5):
