@@ -274,7 +274,7 @@ describe('a window, a coping and a secret door in a wall with a body stand round
     const walls = [W('s', [0, 0], [5, 0], 4, ['secret-door'], -2)];   // the body on the wall's right (-z), z -4 to 0
     const l: Level = { ...level(walls), objects: [{ id: 'sd', kind: 'secret-panel', pos: [2.5, 0, 0], vis: 'secret-door', wall: 's' }] };
     const [sd] = buildLevel(l, GRID).secretDoors;
-    const box = (m: THREE.Mesh) => new THREE.Box3().setFromBufferAttribute(m.geometry.attributes.position as THREE.BufferAttribute);
+    const box = (o: THREE.Object3D) => new THREE.Box3().setFromBufferAttribute((o as THREE.Mesh).geometry.attributes.position as THREE.BufferAttribute);
     expect(box(sd.panel).min.z).toBeCloseTo(-4, 5); expect(box(sd.panel).max.z).toBeCloseTo(0, 5);
     expect(box(sd.door).min.z).toBeCloseTo(-4.15, 5); expect(box(sd.door).max.z).toBeCloseTo(0.15, 5);
     expect(box(sd.marker).min.z).toBeCloseTo(-4.3, 5); expect(box(sd.marker).max.z).toBeCloseTo(0.3, 5);
