@@ -492,11 +492,22 @@ export function worldPaths(field: LandField): { roads: Path[]; rivers: Path[] } 
     }
     if (cur.length > 1) roads.push({ pts: densify(cur), w, hex, lift: 0.8 });
   }
+  // a river's ribbon stops one step past a lake's shore, as its ink does on the inked map: the lake's water covers it
+  // there (drawn on at the water's own level it would only fight the water sheet), and a river through a lake comes out
+  // of it again on the far shore
   for (const river of W.rivers) {
     const pts = densify(river.pts.map((p) => field.feet(p)));
-    let cur: Vec2[] = [];
-    for (const p of pts) { if (field.sites.some((q) => !q.cuts?.length && !q.shoreLake && inside(q, p, 10))) { if (cur.length > 1) rivers.push({ pts: cur, w: 40, hex: '#5e7d94', lift: 0.6, water: true }); cur = []; } else cur.push(p); }
-    if (cur.length > 1) rivers.push({ pts: cur, w: 40, hex: '#5e7d94', lift: 0.6, water: true });
+    let cur: Vec2[] = [], wet = false;
+    const flush = () => { if (cur.length > 1) rivers.push({ pts: cur, w: 40, hex: '#5e7d94', lift: 0.6, water: true }); cur = []; };
+    for (const p of pts) {
+      if (field.sites.some((q) => !q.cuts?.length && !q.shoreLake && inside(q, p, 10))) { flush(); wet = false; continue; }
+      const inLake = field.lakeAt(p[0], p[1]) >= 0;
+      if (inLake && wet) { cur = [p]; continue; } // under the water: only the last point is kept, to come out from
+      cur.push(p);
+      if (inLake) { flush(); cur = [p]; }
+      wet = inLake;
+    }
+    flush();
   }
   return { roads, rivers };
 }
@@ -520,6 +531,9 @@ function buildRibbons(field: LandField, paths: Path[]): THREE.Mesh {
   const material = matClone('#ffffff', true); material.vertexColors = true; material.side = THREE.DoubleSide;
   const m = new THREE.Mesh(g, material); m.name = 'ribbons'; return m;
 }
+
+/** Feet: Bluto's boat is drawn only this near the eye (it is under a pixel beyond). */
+export const BOAT_SEEN = 30000;
 
 /** A flat sheet filling a ring at height y, facing up. */
 function ringSheet(ring: Vec2[], y: number): THREE.BufferGeometry {
@@ -558,8 +572,13 @@ function buildWater(field: LandField): THREE.Object3D[] {
     parts.push([new THREE.CylinderGeometry(0.05, 0.08, 10, 4).rotateZ(-1.0).translate(4.5, 6, 0), '#2b2420']);
     parts.push([new THREE.SphereGeometry(1.1, 8, 6).scale(1, 0.7, 0.8).translate(-2.5, 2.1, 0), '#8a7a5a']);
     const boat = new THREE.Mesh(colourMerge(parts), vertexLambert()); boat.name = 'blutos-boat';
-    boat.scale.setScalar(3); boat.position.set(best[0], field.lakeLevel(zi) + 0.3, best[1]); boat.rotation.y = 0.7;
-    out.push(boat);
+    boat.scale.setScalar(3); boat.rotation.y = 0.7;
+    // drawn only within BOAT_SEEN of the eye: farther out the 40-ft boat is under a pixel, and the whole valley's frame
+    // keeps its triangles for the lakes' rounded shores
+    const near = new THREE.LOD(); near.name = 'blutos-boat-lod';
+    near.addLevel(boat, 0); near.addLevel(new THREE.Object3D(), BOAT_SEEN);
+    near.position.set(best[0], field.lakeLevel(zi) + 0.3, best[1]);
+    out.push(near);
   }
   return out;
 }

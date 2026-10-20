@@ -15,8 +15,8 @@ import { FLATTEN_IN, MI_FT, mapDist } from '../app/src/core/frames';
 import { pointInPolygon, polygonArea } from '../app/src/core/geometry';
 import { buildAtlas } from '../scripts/world-atlas';
 import { siteOf } from '../app/src/render/worldstage';
-import { LandField, SHORE, buildLand, lakeOutline, ringCentroid, ringSd } from '../app/src/render/worldland';
-import { MAX_EDGE_MI, lakeRing } from '../app/src/render/worldlakes';
+import { BOAT_SEEN, LandField, SHORE, buildLand, lakeOutline, ringCentroid, ringSd } from '../app/src/render/worldland';
+import { MAX_EDGE_MI, SIMPLIFY_MI, chaikin, lakeRing } from '../app/src/render/worldlakes';
 import { CARTO_STYLES, bakeLand, cartoUniforms } from '../app/src/render/worldcarto';
 import { inLake, useWorld } from '../app/src/ui/worldmap';
 import { buildBackdrop } from '../app/src/render/backdrop';
@@ -79,11 +79,11 @@ function cutCorner(l: WorldData['lakes'][number]): Vec2 {
 const turns = (r: Vec2[]) => r.map((b, i) => { const a = r[(i + r.length - 1) % r.length], c = r[(i + 1) % r.length]; let d = Math.abs(Math.atan2(c[1] - b[1], c[0] - b[0]) - Math.atan2(b[1] - a[1], b[0] - a[0])) * 180 / Math.PI; if (d > 180) d = 360 - d; return d; });
 
 describe('the drawn shore: one rounded ring for every view', () => {
-  it('each drawn shore is the outline with its corners rounded: simple, clockwise, no edge over 0.15 mi, no hard corner', () => {
+  it('each drawn shore is the outline with its corners rounded: simple, clockwise, no edge over 0.15 mi, no hard corner, no point it does not need', () => {
     for (const l of outlined) {
       const o = lakeOutline(l)! as Vec2[], r = lakeRing(l)! as Vec2[], n = r.length;
       expect(lakeRing(l), 'worked out once').toBe(r);
-      expect(n, l.name).toBeGreaterThan(o.length * 3);
+      expect(n, `${l.name}: each traced corner a curve`).toBeGreaterThanOrEqual(o.length * 2);
       expect(polygonArea(r), `${l.name} clockwise (y down)`).toBeGreaterThan(0);
       for (let i = 0; i < n; i++) expect(Math.hypot(r[(i + 1) % n][0] - r[i][0], r[(i + 1) % n][1] - r[i][1]), `${l.name} edge ${i}`).toBeLessThanOrEqual(MAX_EDGE_MI + 1e-9);
       for (let i = 0; i < n; i++) for (let j = i + 2; j < n; j++) { if (i === 0 && j === n - 1) continue; expect(cross(r[i], r[(i + 1) % n], r[j], r[(j + 1) % n]), `${l.name}: drawn segments ${i} and ${j} cross`).toBe(false); }
@@ -91,6 +91,8 @@ describe('the drawn shore: one rounded ring for every view', () => {
       expect(Math.max(...turns(r)), l.name).toBeLessThan(100);
       // and it keeps to the traced one: no drawn point farther than 0.06 mi from it
       for (const p of r) expect(Math.abs(ringSd(o, p[0], p[1])), l.name).toBeLessThan(0.06);
+      // the points left out of the rounding lie within SIMPLIFY_MI of the drawn shore
+      for (const p of chaikin(o)) expect(Math.abs(ringSd(r, p[0], p[1])), `${l.name} rounding`).toBeLessThan(SIMPLIFY_MI + 1e-9);
     }
     expect(Math.max(...outlined.map((l) => Math.max(...turns(lakeOutline(l)! as Vec2[]))))).toBeGreaterThan(140);
   });
@@ -175,6 +177,38 @@ describe('the land draws the outlines', () => {
   });
 });
 const SHORE_UP_FOR_TEST = 1.8;
+
+describe('the water in 3-D: rivers end at the shore, the boat only near', () => {
+  const atlas = buildAtlas(), sites = Object.values(atlas.scenes).filter((e) => e.campaign === 'cos' && e.worldBounds).map(siteOf).map((s) => ({ ...s, crag: false }));
+  it('a river\'s ribbon reaches one step past a lake\'s shore and no farther (the Luna through Luna Lake comes out again)', () => {
+    const land = buildLand(data, sites, theme), field = new LandField(data, sites);
+    try {
+      const rib = land.group.children.find((o) => o.name === 'ribbons') as THREE.Mesh, pos = rib.geometry.attributes.position, col = rib.geometry.attributes.color;
+      const blue = new THREE.Color('#5e7d94');
+      let wet = 0, deep: string[] = [];
+      for (let k = 0; k < pos.count; k++) {
+        if (Math.abs(col.getX(k) - blue.r) > 1e-3 || Math.abs(col.getY(k) - blue.g) > 1e-3 || Math.abs(col.getZ(k) - blue.b) > 1e-3) continue; // a road's
+        const x = pos.getX(k), z = pos.getZ(k), i = field.lakeAt(x, z); if (i < 0) continue;
+        wet++;
+        // densified every 160 ft, 40 ft wide: a ribbon point past the shore is within one step and a half-width of it
+        const d = -field.lakeSd(i, x, z); if (d > 160 + 20 + 1) deep.push(`${data.lakes[i].name} ${Math.round(d)} ft in at ${Math.round(x)},${Math.round(z)}`);
+      }
+      expect(wet).toBeGreaterThan(0); // the mouths reach under the water
+      expect(deep.slice(0, 5), `${deep.length} river points deep in a lake`).toEqual([]);
+    } finally { land.group.traverse((o) => { if (o instanceof THREE.Mesh) { o.geometry.dispose(); for (const m of Array.isArray(o.material) ? o.material : [o.material]) m.dispose(); } }); }
+  });
+  it('Bluto\'s boat is drawn near the eye only: within BOAT_SEEN, not from the whole valley', () => {
+    const land = buildLand(data, sites, theme);
+    try {
+      const lod = land.group.getObjectByName('blutos-boat-lod') as THREE.LOD, boat = land.group.getObjectByName('blutos-boat')!;
+      expect(lod).toBeInstanceOf(THREE.LOD); expect(lod.levels.map((l) => l.distance)).toEqual([0, BOAT_SEEN]);
+      land.group.updateMatrixWorld(true);
+      const cam = new THREE.PerspectiveCamera(), at = lod.getWorldPosition(new THREE.Vector3());
+      cam.position.copy(at).add(new THREE.Vector3(0, 2000, 2000)); cam.updateMatrixWorld(); lod.update(cam); expect(boat.visible).toBe(true);
+      cam.position.copy(at).add(new THREE.Vector3(0, 60000, 0)); cam.updateMatrixWorld(); lod.update(cam); expect(boat.visible).toBe(false);
+    } finally { land.group.traverse((o) => { if (o instanceof THREE.Mesh) { o.geometry.dispose(); for (const m of Array.isArray(o.material) ? o.material : [o.material]) m.dispose(); } }); }
+  });
+});
 
 describe('the inked map bakes the shore', () => {
   it('bakes a signed-distance texture of the outlines (negative in the water, zero on the shore) and reads it instead of the ellipses', () => {

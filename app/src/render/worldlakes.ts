@@ -2,8 +2,8 @@
 // (`pts`, miles, 20-40 points: scripts/authoring/barovia-world.py) beside its bounding ellipse (`center`, `r`). Drawn
 // raw, an outline is a cut polygon: shore edges up to a mile long meeting at hard corners. So every view draws one
 // shore made from it, `lakeRing`: the outline's corners rounded by two passes of Chaikin's corner cutting (each edge
-// keeps its middle half; the shore stays inside the traced one and never crosses itself), and no edge longer than
-// MAX_EDGE_MI. The land, its water and the shore the inked map bakes (render/worldland.ts, render/worldcarto.ts through
+// keeps its middle half; the shore never crosses itself), no edge longer than MAX_EDGE_MI, and the points its gentle
+// stretches do not need (within SIMPLIFY_MI of the line without them) left out. The land, its water and the shore the inked map bakes (render/worldland.ts, render/worldcarto.ts through
 // LandField), the flat sheet (ui/worldmap.ts) and the legacy per-map backdrop (render/backdrop.ts) all read it, so the
 // shore is the same in every style. A lake the data draws as an ellipse only keeps the ellipse.
 // barovia-world.py puts a river's mouth on this same rounded shore (its `rounded`, the same two passes).
@@ -17,6 +17,9 @@ export type Lake = WorldData['lakes'][number] & { pts?: Vec2[] };
 export const SMOOTH_PASSES = 2;
 /** Miles: the longest edge of a drawn shore. */
 export const MAX_EDGE_MI = 0.15;
+/** Miles: a drawn shore's point is left out where the shore runs within this of a straight line without it (the
+ *  rounding's points on its gentle stretches; the whole valley's frame has a triangle budget, e2e/world.spec.ts). */
+export const SIMPLIFY_MI = 0.005;
 
 /** The lake's traced outline as the data holds it, or undefined for a lake drawn as an ellipse. */
 export const lakeOutline = (l: WorldData['lakes'][number]): Vec2[] | undefined => { const p = (l as Lake).pts; return p && p.length >= 3 ? p : undefined; };
@@ -44,13 +47,30 @@ export function densify(ring: readonly Vec2[], max: number): Vec2[] {
   return out;
 }
 
+/** A closed ring with the points it does not need left out: every other point, while the ring without it stays within
+ *  `tol` of it and the edge that replaces its two stays no longer than `max`, until none goes. */
+export function simplify(ring: readonly Vec2[], tol: number, max: number): Vec2[] {
+  let pts = ring.slice() as Vec2[], changed = true;
+  while (changed && pts.length > 8) {
+    changed = false; const out: Vec2[] = [];
+    for (let i = 0; i < pts.length; i++) {
+      const a = out.length ? out[out.length - 1] : pts[pts.length - 1], b = pts[i], c = pts[(i + 1) % pts.length];
+      const dx = c[0] - a[0], dz = c[1] - a[1], L = Math.hypot(dx, dz), off = Math.abs((b[0] - a[0]) * dz - (b[1] - a[1]) * dx) / (L || 1);
+      if (i % 2 === 1 && off < tol && L <= max) { changed = true; continue; }
+      out.push(b);
+    }
+    pts = out;
+  }
+  return pts;
+}
+
 const rings = new WeakMap<object, Vec2[]>();
 /** The lake's shore as every view draws it (miles, a closed ring in the outline's winding), or undefined for a lake
  *  drawn as an ellipse. Worked out once per lake. */
 export function lakeRing(l: WorldData['lakes'][number]): Vec2[] | undefined {
   const pts = lakeOutline(l); if (!pts) return undefined;
   let r = rings.get(pts);
-  if (!r) { r = densify(chaikin(pts), MAX_EDGE_MI); rings.set(pts, r); }
+  if (!r) { r = simplify(densify(chaikin(pts), MAX_EDGE_MI), SIMPLIFY_MI, MAX_EDGE_MI); rings.set(pts, r); }
   return r;
 }
 
