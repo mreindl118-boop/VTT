@@ -15,7 +15,7 @@ import { baseRingFt, CELL_FT } from './core/units';
 import { baseRing } from './kit/pieces';
 import { adventurer } from './kit/creatures';
 import { PALETTE } from './kit/palette';
-import { buildLevel, buildLevelSteps, hitObjectId, mergeByMaterial, type BuiltLevel, type LabelSpec } from './render/build';
+import { buildLevel, buildLevelSteps, hitObjectId, mergeByMaterial, placeSectionCaps, type BuiltLevel, type LabelSpec } from './render/build';
 import { gridUniforms } from './render/gridOverlay';
 import { fogUniforms, sectionClip, setOpacity, setWallCut, WALL_CLIP } from './render/materials';
 const WALL_CUT_FT = 5;
@@ -193,6 +193,7 @@ export class App {
 
   constructor(host: HTMLElement, readonly mode: Mode) {
     this.world = new World(host);
+    this.world.beforeRender.add(placeSectionCaps); // the thick walls' cut faces follow the section plane, drawn only where it cuts
     this.channel = new Channel((m) => this.onMsg(m));
     this.world.onCamera = () => { this.followGround(); this.sendCamera(); this.labelDensity(); this.onCameraUi?.(); this.streamer.poke(); };
     this.onCameraUi = null;

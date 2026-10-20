@@ -11,6 +11,7 @@ import { PROPS_V1 } from '../kit/props';
 import { CREATURES } from '../kit/creatures';
 import '../kit/sites';
 import { buildGridOverlay } from './gridOverlay';
+import { veil } from './hideUnder';
 import { WORLD_STANDINS } from '../core/siteInterfaces';
 import { bodyLine, wallFootprints } from '../core/wallBody';
 
@@ -365,14 +366,24 @@ export function* buildLevelSteps(level: Level, grid: GridLevel): Generator<void,
   return { level, root, grid: gridMesh, floors, targets, secretDoors, labels, lights, lightRings, secretAsWall, wallsGroup, doors, openables };
 }
 
+/** Every section cap built and not yet freed, with how it places itself (placeSectionCaps). */
+const CAPS = new Map<THREE.Mesh, () => void>();
+
+/** Place every section cap where the section plane stands now; run before each frame is drawn (App adds it to
+ *  World.beforeRender). A cap the plane does not cut is left out of the frame by its layers (render/hideUnder.ts veil,
+ *  reason 'uncut'), so it costs no draw, and a cap out of the frame never runs its own onBeforeRender: this pass is what
+ *  brings it back when the plane comes down to it. */
+export function placeSectionCaps(): void { for (const place of CAPS.values()) place(); }
+
 /** The cut face of thick walls standing from ya to yb (drawn y, the level's own frame). While the section plane
  *  (WALL_CLIP) cuts them it rides 0.02 ft under the plane, so the cut reads as solid stone; otherwise it shrinks to
- *  nothing inside the solid, so a translucent ghost or a fading wall never shows it. */
+ *  nothing inside the solid, so a translucent ghost or a fading wall never shows it, and it is left out of the frame. */
 function sectionCap(polys: Polygon[], color: string, ya: number, yb: number): THREE.Mesh {
   const m = new THREE.Mesh(merge(polys.map((p) => planeGeometry(p, 0))), wallMat(color));
   m.userData.role = 'wall';
   m.userData.sectionCap = true;
   m.frustumCulled = false;
+  let drawn: boolean | undefined;
   const place = () => {
     m.parent?.updateWorldMatrix(true, false);
     const py = m.parent ? m.parent.matrixWorld.elements[13] : 0, cut = WALL_CLIP.constant;
@@ -380,8 +391,11 @@ function sectionCap(polys: Polygon[], color: string, ya: number, yb: number): TH
     m.position.y = cuts ? cut - 0.02 - py : (ya + yb) / 2;
     m.scale.setScalar(cuts ? 1 : 0);
     m.updateMatrixWorld();
+    if (drawn !== cuts) { drawn = cuts; veil(m, 'uncut', !cuts); }
   };
   m.onBeforeRender = place;
+  CAPS.set(m, place);
+  m.geometry.addEventListener('dispose', () => CAPS.delete(m));
   place();
   return m;
 }

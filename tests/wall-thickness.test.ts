@@ -4,7 +4,8 @@
 // remembers a seen wall's whole top. A map without the field is drawn, walked and seen exactly as before.
 import { describe, expect, it } from 'vitest';
 import * as THREE from 'three';
-import { buildLevel } from '../app/src/render/build';
+import { buildLevel, placeSectionCaps } from '../app/src/render/build';
+import { veil } from '../app/src/render/hideUnder';
 import { merge, segmentBox, WALL_T } from '../app/src/kit/pieces';
 import { WALL_COLOR } from '../app/src/kit/palette';
 import { wallFootprints } from '../app/src/core/wallBody';
@@ -104,6 +105,32 @@ describe('a wall with a body cut by the section plane shows its cut face', () =>
   });
   it('a map without thicknessFt has no caps', () => {
     expect(caps(level([W('w', [0, 0], [20, 0])]))).toEqual([]);
+  });
+  it('a cap the plane does not cut is left out of the frame by its layers, so it costs no draw; it comes back when the plane comes down to it', () => {
+    const [cap] = caps(level([W('w', [0, 0], [20, 0], 4)]));
+    at(cap, 100);
+    expect(cap.layers.isEnabled(0), 'above the wall\'s top: not drawn').toBe(false);
+    // the frame's own pass places every cap (World.beforeRender), drawn or not: a cap left out of the frame never runs
+    // its onBeforeRender, so the pass is what brings it back
+    setWallCut(8); placeSectionCaps();
+    expect(cap.layers.isEnabled(0)).toBe(true);
+    expect(cap.position.y).toBeCloseTo(8 - 0.02, 5);
+    setWallCut(null); placeSectionCaps();
+    expect(cap.layers.isEnabled(0)).toBe(false);
+    // and a reason of its own: a map veiled under the valley and unveiled leaves an uncut cap out of the frame
+    const root = cap.parent!;
+    veil(root, 'under', true); veil(root, 'under', false);
+    expect(cap.layers.isEnabled(0)).toBe(false);
+    setWallCut(8); placeSectionCaps(); veil(root, 'under', true);
+    expect(cap.layers.isEnabled(0), 'veiled whatever the cut').toBe(false);
+    veil(root, 'under', false);
+    expect(cap.layers.isEnabled(0)).toBe(true);
+    setWallCut(null); placeSectionCaps();
+    // a freed level's caps leave the pass
+    cap.geometry.dispose();
+    setWallCut(8); placeSectionCaps();
+    expect(cap.layers.isEnabled(0), 'freed: no longer placed').toBe(false);
+    setWallCut(null);
   });
 });
 
