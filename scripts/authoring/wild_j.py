@@ -4,12 +4,19 @@
 The book prints no battle map for J; this is the inferred design of the site brief. The Count's old road comes down
 from the north-west through a cut in the crag, swings round a rock knob at the hairpin, turns due east and runs out
 over old cobbles onto the Neck, a tongue of rock with fog on three sides, between two broken turrets to the lip of a
-50-ft chasm. The drawbridge spans it on two rusty chains to the gate in Castle Ravenloft's 90-ft west wall; through the
-tunnel the keep's doors stand open on the one warm light on the map. 540 x 400 ft, 5-ft cells, x east, z south.
+50-ft chasm, where the castle's drawbridge comes down on a worn stone sill. 540 x 400 ft, 5-ft cells, x east, z south.
 
-Levels (stacked): the spur at road level (0), the curtain wall's walk and gate-tower heads (+90), and a ledge on the
-mainland face of the chasm under the bridge's outer end (-35). Only keys, names, pages, distances and placements come
-from the book; every description is our own words. Positions below are in feet and turned into cells by F()."""
+The gate is the castle's (item 2g-1; owner 2026-10-19: "this looks cool but it's supposed to be attached to and part of
+Ravenloft and the new improved 3D model"): the drawbridge on its chains, the west wall with its gate tunnel, the
+portcullis, the gate towers with their latches and the gargoyles on the wall top are Castle Ravenloft's own front
+(scripts/authoring/castle-ravenloft.py, ch04/K: K1-bridge, K1-g, K1-tn, K1-ts). J is the road gate on the approach: the
+road's end, the turrets, the chasm's near lip and its sill. Across the chasm, where the continuous world is off, a
+stand-in of the castle (its wall and gate, the lowered bridge, the keep beyond) closes the view; in the continuous world
+the castle itself stands at its own pin and the stand-in is hidden.
+
+Levels (stacked): the spur at road level (0) and a ledge on the mainland face of the chasm under the sill (-35). Only
+keys, names, pages, distances and placements come from the book; every description is our own words. Positions below
+are in feet and turned into cells by F()."""
 import sys, os
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from wildlib import *  # noqa: F401,F403
@@ -25,7 +32,6 @@ def FP(pts):
 
 AXIS = 175                       # the z of the focal axis: road, turrets, bridge, tunnel, doors
 CHASM = (400, 450)               # the chasm's two lips
-WALL = (450, 470)                # the curtain wall, 20 ft thick
 GATE = (165, 185)                # the gate tunnel's sides
 
 # the mainland's walkable ground: the crag foot along the north, the North Gully's rim, the chasm lip, the Brink's cliff
@@ -36,7 +42,7 @@ CLIFF = 370
 
 def build():
     s = Site('J', 'Gates of Ravenloft', 108, 80, 707)
-    s.lv.id, s.lv.name, s.lv.ceiling = 'ground', 'The Spur (road level)', 93   # the wall-walk at +90 stands on this level's ceiling
+    s.lv.id, s.lv.name, s.lv.ceiling = 'ground', 'The Spur (road level)', 93   # (the section's height, as when the castle's wall stood here)
     L = s.lv
 
     def prism(poly, h, color, y=0.0, label=None, key=None):
@@ -50,6 +56,11 @@ def build():
     def fp(kind, x, z, **kw):
         return s.prop(kind, F(x, z), **kw)
 
+    def gone(n):
+        """The castle's pieces that stood here took `n` ids: keep them taken, so every piece left keeps its own (a save
+        names the hidden things it has revealed by id)."""
+        s.n += n
+
     # ============================================================== ground: the road, the cobbles, the bare rock
     road_ft = [(38, -8), (46, 20), (64, 46), (88, 72), (116, 92), (146, 104), (172, 120), (192, 140), (203, 160), (214, 174), (236, 177), (262, 176), (296, 175)]
     road = s.road(FP(road_ft), 1.6)
@@ -58,9 +69,6 @@ def build():
     s.patch(FP(apron), 'cobble')
     s.patch(FP([(382, 166), (394, 165), (394, 185), (382, 186)]), 'cobble')                                  # the cobbles run out onto the sill
     s.keep.append((FP(apron), 1.0))
-    # the castle side: the gate tunnel and the courtyard's flagstones
-    s.patch(FP([(WALL[0], GATE[0]), (WALL[1], GATE[0]), (WALL[1], GATE[1]), (WALL[0], GATE[1])]), 'flagstone')
-    s.patch(FP([(WALL[1], 0), (540, 0), (540, 400), (WALL[1], 400)]), 'flagstone')
 
     # bare rock: the chasm rim and the Neck's lip, under the crag, the terraces of the Brink
     ROCK, ROCK2, ROCK3 = 0x66635d, 0x5a5853, 0x4e4c48
@@ -213,32 +221,17 @@ def build():
 
     # ============================================================== the bridge and its fittings
     fp('j-bridge-sill', 394, AXIS, label='Mainland sill', desc='A squared stone abutment on the lip with an iron-shod rest worn into a trough by centuries of lowering.')
-    fp('j-hinge-sill', 450, AXIS, label='Bridge hinge')
-    fp('j-drawbridge', 449.2, AXIS, dims={'len': 55.2, 'w': 15, 'up': 0, 'seed': 3}, label='The drawbridge', desc='Fifty-six feet of old shored-up beams and planks, three squares wide, boards missing; it groans under every step.')
-    for dz, sz in ((-7.1, 160), (7.1, 190)):
-        fp('j-chain', 395.3, AXIS + dz, dims={'dx': 450 - 395.3 - 0.4, 'rise': 58.8, 'dz': rnd(sz - AXIS - dz, 2), 'sag': 3, 'up': 0}, y=1.25, label='Drawbridge chain', desc='A rust-eaten chain runs from the bridge\'s end up to a slot sixty feet up the wall, creaking in the wind.')
-        fp('j-chain-slot', 450, sz, dims={'seed': sz}, y=60.05, label='Chain slot', desc='A dark slot high in the wall face where the chain runs in, rust streaking the stone below it.')
+    gone(6)   # the hinge, the drawbridge, its chains and their slots: the castle's (ch04/K)
     s.keep.append((rect(*F(382, 160), *F(400, 190)), 0.3))
 
-    # ============================================================== the castle: wall, gate, towers, courtyard, the doors
-    for z0, z1 in ((-150, GATE[0]), (GATE[1], 610)):      # (the castle's massing piece carries it on off the map)
-        o = fp('curtain-wall', 460, (z0 + z1) / 2, rot=90, dims={'len': z1 - z0, 't': 20, 'h': 89.8}, label='Curtain wall', desc='Castle Ravenloft\'s west wall rises ninety feet sheer from the far lip of the chasm.')
-    fp('curtain-wall', 460, AXIS, rot=90, dims={'len': 20, 't': 20, 'h': 71.8}, y=18, label='Gate arch')
-    for a, b in [((450, -340), (450, GATE[0])), ((450, GATE[1]), (450, 700)), ((470, -340), (470, GATE[0])), ((470, GATE[1]), (470, 700)), ((450, GATE[0]), (470, GATE[0])), ((450, GATE[1]), (470, GATE[1]))]:
-        a_, b_ = F(max(min(a[0], 540), 0), max(min(a[1], 400), 0)), F(max(min(b[0], 540), 0), max(min(b[1], 400), 0))
-        L.wall(a_, b_, flags=['invisible']); L.wall(a_, b_, flags=['ethereal'])
-    o = fp('rotten-portcullis', 452, AXIS, rot=90, dims={'w': 20, 'h': 14}, y=13, label='Rotting portcullis', desc='A wooden portcullis, rotten and furred green, hangs drawn up in the tunnel mouth.')
-    o['dm'] = 'Raised. The patch of green slime on its underside does not fall on anyone entering; it drops on the first creature to leave the castle this way (DC 20 Wisdom (Perception) to spot).'
-    for i, (z, mir) in enumerate(((148, 1), (202, 0))):
-        fp('j-gate-tower', 470, z, dims={'h': 100, 'mirror': mir}, label='Gate tower', desc='A squared tower straddling the wall\'s inner face, an ironbound door on its courtyard side.')
-        for a, b in [((462, z - 8), (478, z - 8)), ((478, z - 8), (478, z - 3.5)), ((478, z + 3.5), (478, z + 8)), ((478, z + 8), (462, z + 8))]:
-            L.wall(F(*a), F(*b), flags=['invisible']); L.wall(F(*a), F(*b), flags=['ethereal'])
-    fp('j-lit-doorway', 536, AXIS, rot=-90, dims={'w': 104, 'h': 66}, label='The keep\'s open doors', desc='Across the courtyard the keep\'s great doors stand open, torches guttering either side and warm light spilling down the steps; high above, a round window of broken glass shows no light.')
-    fp('j-castle-mass', 539, AXIS, dims={'ox': 1, 'ex': 70, 'z0': -AXIS, 'z1': 400 - AXIS, 'r': 520, 'wn': -150 - AXIS, 'ws': 610 - AXIS}, label='Castle Ravenloft', desc='Beyond the courtyard the keep\'s dark bulk and towers rise over the lit doors, the castle\'s inner ranges black on either side.')
-    for z in (166, 184):
-        L.light(f'tunnel{z}', F(467, z), 'torch', 10, 25, y=8)
-    for z in (163.5, 186.5):
-        L.light(f'door{z}', F(532, z), 'torch', 20, 40, y=14)
+    # ============================================================== across the chasm: the castle, as a stand-in
+    # The castle's west wall, its gate and towers, the drawbridge on its chains and the gargoyles are the castle's own
+    # front (ch04/K). Here the castle is a stand-in that shows only where the continuous world is off (the world draws
+    # the castle itself at its pin): its wall with the gate, the lowered bridge from the gate to the sill, the keep's lit
+    # doors beyond the courtyard (kit/sites/wild-j.ts castleMass `front`).
+    gone(7)   # the wall's three pieces, the portcullis, the gate towers and the lit doors: the castle's (ch04/K), or the stand-in's
+    fp('j-castle-mass', 539, AXIS, dims={'ox': 1, 'ex': 70, 'z0': 0, 'z1': 0, 'r': 520, 'wn': GATE[0] - AXIS, 'ws': GATE[1] - AXIS, 'front': 1, 'sill': 394 - 540}, label='Castle Ravenloft',
+       desc='Across the chasm Castle Ravenloft\'s west wall rises ninety feet sheer, the drawbridge lowered from its gate on rusty chains; beyond the courtyard the keep\'s doors stand open on warm light under its dark towers.')
 
     # ============================================================== the knoll's dwarf pines and its stones
     s.clear(*F(392, 250), 4); s.clear(*F(330, 215), 9)
@@ -259,8 +252,8 @@ def build():
     # ============================================================== rooms (keyed areas)
     neck = [(286, 146), (330, 134), (362, 122), (388, 116), (400, 122), (400, 238), (372, 244), (340, 242), (300, 236), (284, 206)]
     s.room('J', 'Gates of Ravenloft', FP(neck), 'grass',
-           'The road runs out onto a tongue of rock with fog on three sides. Two broken stone turrets flank its end; beyond them an old drawbridge on rusty chains spans a fifty-foot chasm of boiling fog to a gate in the castle\'s towering west wall. Hollow-eyed gargoyles lean out from the battlements, and through the tunnel the keep\'s doors stand open on warm light.',
-           'The carriage from I halts on the cobbles before the turrets and its door swings open by itself; its horses cannot be turned. The bridge is lowered when the party arrives; after the illusion at K10 it rises and the portcullis drops (see J-bridge).')
+           'The road runs out onto a tongue of rock with fog on three sides. Two broken stone turrets flank its end on the lip of a fifty-foot chasm of boiling fog; on the lip a worn stone sill waits for the castle\'s drawbridge, and across the chasm Castle Ravenloft fills the sky.',
+           'The carriage from I halts on the cobbles before the turrets and its door swings open by itself; its horses cannot be turned. The drawbridge, the gate with its portcullis, the gate towers and the gargoyles on the wall are the castle\'s own front: Castle Ravenloft (ch04/K), K1-bridge, K1-g, K1-tn and K1-ts. The bridge is down when the party arrives; after the illusion at K10 it rises and the portcullis drops.')
     s.room('J-cut', 'The Cut', FP([(104, 74), (126, 64), (204, 112), (214, 138), (196, 150), (174, 134), (112, 104)]), 'grass',
            'The road squeezes through a notch between the crag and a rock knob; a seep from the crag face has frozen across it into a sheet of black ice hung with icicles.',
            'Thirty feet of ice: anyone moving faster than a walk, or a horse, makes a DC 10 Dexterity save or falls prone. Loose scree lies on the inner verge.')
@@ -270,21 +263,6 @@ def build():
     s.room('J-notch', 'The Widow\'s Notch', FP([(384, 240), (400, 240), (400, 260), (384, 260)]), 'grass',
            'A worn bite in the chasm rim, the turf scuffed to bare rock and the lip scored with marks like fingernails.',
            'Where the ghost from the wilderness tables walks its possessed host and throws the body into the chasm (p.30). DC 10 Wisdom (Survival): several people were walked here and went over without a struggle.')
-    s.room('J-bridge', 'The Drawbridge', FP([(394, 167.5), (450, 167.5), (450, 182.5), (394, 182.5)]), 'plank',
-           'Old beams and planks shored up and patched, three squares wide and fifty-six feet across the fog, boards missing here and there. It groans under every step and the chains creak overhead.',
-           'Each creature crossing (not Strahd, not his carriage horses): roll d20, on a 1 a board gives way, DC 10 Dexterity save or fall 1,000 ft; advantage if a companion within 5 ft grabs. A Large carriage fills the deck. Fog lightly obscures the deck beyond 30 ft. Raised (after K10): the deck stands against the gate and the chains hang taut.')
-    s.room('J-gate', 'Gate tunnel', FP([(WALL[0], GATE[0]), (WALL[1], GATE[0]), (WALL[1], GATE[1]), (WALL[0], GATE[1])]), 'flagstone',
-           'A tunnel twenty feet wide and eighteen high through the wall, a rotting green portcullis hanging over its mouth, warm light at its far end.',
-           'Green slime clings under the portcullis (DC 20 Wisdom (Perception)); it falls on the first creature to leave the castle this way.')
-    s.room('J-ntower', 'North gate tower', FP([(462, 140), (478, 140), (478, 156), (462, 156)]), 'flagstone',
-           'A squared tower against the wall\'s inner face, its ironbound door shut and locked.',
-           'Hollow, flagstone floor: one of the two latches for the bridge and portcullis. Both must be released, by Strahd\'s command word or dispel magic (DC 14) on each, before either moves.')
-    s.room('J-stower', 'South gate tower', FP([(462, 194), (478, 194), (478, 210), (462, 210)]), 'flagstone',
-           'The second gate tower, twin of the first, its ironbound door shut and locked.',
-           'The other latch. Both latches together, or neither moves.')
-    s.room('J-court', 'Front courtyard (K1)', FP([(478, 0), (540, 0), (540, 400), (478, 400)]), 'flagstone',
-           'A strip of the castle\'s front courtyard inside the gate; across it the keep\'s doors stand open and lit.',
-           'This is K1 of Castle Ravenloft (ch04, p.52): the weather turns as the party enters, drizzle becoming a downpour within the hour, lightning on the ridge behind them.')
     s.room('J-brink', 'The Brink', FP(brink1[:-1] + [(376, 352), (373, 362), (372, CLIFF + 2), (300, CLIFF - 2), (220, CLIFF + 3), (140, CLIFF - 1), (60, CLIFF + 2), (0, CLIFF)]), 'grass',
            'The spur\'s south edge steps down over two broken rock terraces and ends at a sheer drop; through breaks in the fog the valley and the roofs of Barovia show far below.',
            'Each terrace drops 10 to 15 ft (1d6 bludgeoning per 10 ft fallen). Past the cliff edge the fall is 1,000 ft.')
@@ -292,13 +270,7 @@ def build():
     # ============================================================== hidden things and DM notes
     def hid(kind, x, z, label, player, **kw):
         return s.hidden(kind, F(x, z), label, player, **kw)
-    hid('green-slime', 452.4, 179, 'Green slime under the portcullis', 'Green ooze', y=13, dm='Green slime (DMG). DC 20 Wisdom (Perception) to spot. It ignores those coming in and drops on the first creature to leave by this tunnel.')
-    for x, z in ((470, 148), (470, 202)):
-        hid('j-latch', x - 2, z, 'Latch mechanism (bridge and portcullis)', 'A winch and ratchet', dm='Both latches must be released (Strahd\'s command word, or dispel magic DC 14 on each) before the bridge or portcullis moves. The tower door is ironbound and locked.')
-    for z in (160, 190):
-        hid('j-slot-iron', 449.6, z, 'Greased iron in the chain slot', 'Bright iron in the slot', y=59.4, rot=0, dm='DC 15 Wisdom (Perception) from the sill: the iron inside the slot is bright and greased while all round it rusts. Someone keeps the mechanism, and not by hand.')
-    for x in (404, 418, 431, 441):
-        hid('j-weak-board', x, AXIS, 'Rotten board', 'A rotten board', dims={'hx': rnd(449.2 - x, 2), 'up': 0}, dm='House rule: DC 12 Perception or Investigation along the deck picks out the four worst boards. Stepping over them still rolls the d20, but the DM may grant advantage on the Dexterity save.')
+    gone(9)   # the green slime, the latches, the greased iron in the slots and the rotten boards: the castle's (ch04/K)
     hid('j-rim-notch', 396, 250, 'Finger-scores and a dropped boot', 'Scratches and a boot', dims={'evidence': 1}, dm='DC 10 Wisdom (Survival): several people were walked to this spot and went over without a struggle.')
     hid('j-turning-loop', 330, 216, 'Fresh ruts, one vehicle only', 'Fresh wheel ruts', dims={'w': 72, 'd': 40, 'fresh': 1}, dm='DC 10 Survival: fresh ruts, no dung, no hoofprints off the cobbles, no foot traffic; the same carriage turns here and goes back. Only one vehicle ever uses this road.')
     hid('j-brazier-bracket', 383.9, 152, 'Signal-brazier bracket', 'A rusted bracket', rot=-90, dm='DC 12 Intelligence (Investigation): a bracket for a signal fire, charcoal in the rubble, the old way of calling for the bridge before the latches answered to one voice.')
@@ -311,35 +283,23 @@ def build():
     for dz in (-3.2, 3.2):
         s.mob('black-horse', F(337, AXIS + dz), "Black draft horse (Strahd's)", 'A black horse', size='large', dm='Under Strahd\'s control: no teamster can turn, stop or frighten it.')
     s.mob('ghost', F(374, 262), 'Ghost leading its host to the notch', 'A pale, drifting figure', dm='Only if the wilderness ghost (p.30) possessed a character: it walks the body to the Widow\'s Notch and throws it into the chasm. The party has the walk to stop it.')
-    s.mob('j-bat-swarm', F(424, 194), 'Swarm of bats (optional)', 'Bats', y=0.5, dm='Optional, not in the book here: at dusk or when a board breaks a column of bats boils up out of the fog past whoever is mid-bridge. A distraction, not a fight.')
+    gone(1)   # the bats over the bridge: the castle's (ch04/K)
     s.mob('swarm-of-ravens', F(372, 204), 'Swarm of ravens (Keepers of the Feather)', 'Ravens', y=22, dm='Keepers of the Feather watching the gate; they scatter when the carriage arrives and never attack. They may carry word of the party.')
 
     s.note(F(330, 128), 'Weather: the moment the party passes the gate the first cold drizzle starts; within the hour a torrent, lightning on the crag behind them and thunder that shakes the deck.')
     s.note(F(40, 18), 'North-west: the road back round the mountain to the fork at I, about 2 miles. There is no road up from the village: the valley floor is 1,000 ft straight down off the Brink.')
     s.note(F(398, 104), 'The North Gully\'s rim is undercut and unfenced: a shove or a fumble here is the same 1,000-ft fall as the chasm.', key='J')
-    s.note(F(422, 150), 'Crossing on foot: d20 per creature per crossing, a board breaks on a 1; DC 10 Dexterity save or fall 1,000 ft (20d6 at the cap). Mercy: the faller snags on the ledge 35 ft down (ledge level).', key='J-bridge')
-    s.note(F(460, 232), 'Raised bridge (after K10): set "up" to 1 on the drawbridge, on both chains and on the four rotten boards (nothing needs moving); the deck then stands against the gate, the chains run short and taut to their slots, and the road ends between the turrets.', key='J-bridge')
+    s.note(F(392, 150), 'The drawbridge is the castle\'s (ch04/K, K1-bridge). Mercy for a creature that falls from it near this side: it snags on the ledge 35 ft below the sill (ledge level).', key='J')
+    # the chasm's far lip: a broken margin of bare rock like the near one (the castle stands at its own pin, ch04/K; where
+    # the continuous world is off the stand-in's wall stands on it). Placed last, so no other piece's id moves.
+    prism([(CHASM[1], 0), (CHASM[1], 400)] + ragged([(CHASM[1] + 12, 400), (CHASM[1] + 10, 290), (CHASM[1] + 14, 175), (CHASM[1] + 11, 60), (CHASM[1] + 12, 0)], 3), 0.08, ROCK2)
     s.spawn(F(252, 176))
-
-    # ============================================================== the wall-walk (+90)
-    ww = Level('wall-walk', 'Curtain wall top and gate-tower heads', 90, 10, ambient=AMB, interior='ashlar', exterior='ashlar', north='-z')
-    walk = [(451, 0), (469, 0), (469, 140), (478, 140), (478, 156), (469, 156), (469, 194), (478, 194), (478, 210), (469, 210), (469, 400), (451, 400)]
-    ww.room('J-walk', 'Wall-walk and tower heads', FP(walk), 'flagstone', page=52)
-    s.desc['J-walk'] = ('A crenellated walk along the top of the ninety-foot wall, the gate-tower heads either side of the gate; from here the whole spur lies open, and the chasm\'s fog far below.',
-                        'Reached by the stairs inside the gate towers. A cloaked figure here is Strahd\'s choice of welcome; no stat block is needed. The gargoyles are stone; the living ones are inside.')
-    for i, z in enumerate((40, 100, 130, 220, 250, 310)):
-        ww.prop(f'gargoyle{i}', 'j-wall-gargoyle', F(451.5, z), 'J-walk', rotY=180, y=4.2)
-        ww.objects[-1]['label'] = 'Stone gargoyle'; ww.objects[-1]['desc'] = 'A hollow-eyed stone gargoyle leans out from the battlements over the chasm, grinning down at the bridge.'
-    ww.obj('watcher', 'j-watcher', F(458, 172), 'hidden-creature', 'J-walk', 'Cloaked figure on the wall (Strahd, if he chooses)', rotY=-90, size='medium')
-    ww.objects[-1]['playerLabel'] = 'A cloaked figure'
-    ww.objects[-1]['dm'] = 'Strahd watching the carriage arrive, if he likes; he is gone before anyone reaches the wall.'
-    ww.note('walk-note', F(460, 120), 'J-walk', 'Vantage: the whole spur, the hairpin and the chasm both ways. Wall 90 ft high; the merlons give half cover.')
 
     # ============================================================== the chasm ledge (-35)
     lg = Level('ledge', 'Chasm ledge', -35, 35, ambient=AMB, interior='cave-rock', exterior='cave-rock', north='-z')
     lg.room('J-ledge', 'Chasm ledge', FP([(400, 165), (412, 165), (412, 195), (400, 195)]), 'dirt', page=38)
-    s.desc['J-ledge'] = ('A shelf of wet rock thirty-five feet down the chasm wall under the bridge\'s outer end, fog swirling just below it. Broken boards have jammed into a drift here around old bones in rusted mail.',
-                         'Reachable only by rope from the sill; the chasm walls are slick and sheer (climber\'s kit and DC 15 Athletics, or magic). A character who falls from the bridge may snag here if the DM is merciful. Below, the fog fills everything and the map stops.')
+    s.desc['J-ledge'] = ('A shelf of wet rock thirty-five feet down the chasm wall under the sill where the drawbridge comes down, fog swirling just below it. Broken boards have jammed into a drift here around old bones in rusted mail.',
+                         'Reachable only by rope from the sill; the chasm walls are slick and sheer (climber\'s kit and DC 15 Athletics, or magic). A character who falls from the bridge near this side may snag here if the DM is merciful. Below, the fog fills everything and the map stops.')
     lg.prop('shaft', 'j-chasm-shaft', F(425, AXIS), 'J-ledge', dims={'w': 50, 'len': 200, 'top': 35, 'fog': 10})
     lg.objects[-1]['vis'] = 'explored'; lg.objects[-1]['label'] = 'The chasm walls'
     lg.prop('drift', 'j-board-drift', F(406, 180), 'J-ledge')
@@ -348,15 +308,13 @@ def build():
     lg.objects[-1]['playerLabel'] = 'Bones in rusted mail'
     lg.objects[-1]['dm'] = 'A former adventurer; his companions may be vampire spawn in the castle now. Purse: 23 sp.'
 
-    # links: the gate towers' stairs to the wall-walk; a rope from the sill down to the ledge
+    # links: a rope from the sill down to the ledge
     lk = lambda id, kind, al, ap, bl, bp: OrderedDict(id=id, kind=kind, **{'from': OrderedDict(level=al, pos=[rnd(ap[0] * 5, 2), rnd(ap[1] * 5, 2)]), 'to': OrderedDict(level=bl, pos=[rnd(bp[0] * 5, 2), rnd(bp[1] * 5, 2)])})
-    links = [lk('J-stair-n', 'spiral', 'ground', F(470, 148), 'wall-walk', F(472, 148)), lk('J-stair-s', 'spiral', 'ground', F(470, 202), 'wall-walk', F(472, 202)),
-             lk('J-rope', 'ladder', 'ground', F(392, 180), 'ledge', F(404, 180))]
+    links = [lk('J-rope', 'ladder', 'ground', F(392, 180), 'ledge', F(404, 180))]
 
-    # the walkable ground for the grid: the mainland to the cliff, the tunnel and the courtyard (the bridge is a room)
-    s.walk = [FP(CRAG_FOOT + GULLY_RIM[1:] + [(400, CLIFF + 2), (0, CLIFF + 2)]),
-              FP([(WALL[0], GATE[0]), (WALL[1], GATE[0]), (WALL[1], 0), (540, 0), (540, 400), (WALL[1], 400), (WALL[1], GATE[1]), (WALL[0], GATE[1])])]
-    s.write('Gates of Ravenloft', {'valley': True, 'stacked': True, 'entry': 'ground'}, levels=[ww, lg], links=links)
+    # the walkable ground for the grid: the mainland to the cliff (the bridge and the gate are the castle's)
+    s.walk = [FP(CRAG_FOOT + GULLY_RIM[1:] + [(400, CLIFF + 2), (0, CLIFF + 2)])]
+    s.write('Gates of Ravenloft', {'valley': True, 'stacked': True, 'entry': 'ground'}, levels=[lg], links=links)
 
 
 if __name__ == '__main__':

@@ -12,7 +12,7 @@ import { mat, matClone } from '../../render/materials';
 import { PALETTE } from '../palette';
 import { surfaceFor } from '../surfaces';
 import { merge } from '../pieces';
-import { blackCarriage, curtainWall, gargoyleStatue } from './wild';
+import { blackCarriage, curtainWall, gargoyleStatue, rottenPortcullis } from './wild';
 import { box, cone, cyl, flat as plate, grp, hash, lump, place } from '../shapes';
 import { veil } from '../mist';
 
@@ -407,7 +407,10 @@ export function litDoorway(d: Dims): THREE.Group {
  *  south of the courtyard, the courtyard's flagstones running on to the keep and round it, and past the castle's rock
  *  the fog that fills the valley a thousand feet below, so no meadow shows at road level. `ex` is how far west the
  *  courtyard sliver of the map runs from the origin, `z0`/`z1` its north and south ends (local z); the flagstones here
- *  leave that patch to the map. */
+ *  leave that patch to the map. `front` 1 draws the castle's front as well, the way it stands across the chasm from the
+ *  Gates of Ravenloft (it is the castle's own, ch04/K, so the map no longer draws it): the wall's gate between `wn` and
+ *  `ws`, its arch, the rotting portcullis, the two gate towers, the keep's lit doors, and the drawbridge lowered from the
+ *  gate to the sill at local x `sill` on two chains, the gargoyles leaning from the wall top. */
 export function castleMass(d: Dims): THREE.Group {
   const ex = d.ex ?? 70, z0 = d.z0 ?? -175, z1 = d.z1 ?? 225, R = d.r ?? 520, g = grp(), root = grp(g); g.position.x = d.ox ?? 0;
   // the curtain wall running on north and south past the map's own pieces of it (`wn`/`ws`: where those end, local z)
@@ -429,6 +432,19 @@ export function castleMass(d: Dims): THREE.Group {
   for (const z of [-30, 32]) g.add(box(4, 20, 2.2, C.slit, KX0 - 0.2, KH * 0.8, z));                                                           // dark lancets high on its face
   g.add(cyl(11, 12, 230, C.keep, 96, 115, -20, 10), cone(12.5, 60, C.slate, 96, 260, -20, 10), box(3, 16, 2, C.slit, 85, 190, -20));          // the high tower behind
   g.add(cyl(8, 9, 180, C.keepDeep, 120, 90, 46, 10), cone(9.5, 40, C.slate, 120, 200, 46, 10));
+  if (d.front) {
+    const X = -ex - 10, face = X - 10, hinge = face - 0.8, sill = d.sill ?? -146;   // the wall's middle, its outer face
+    const arch = curtainWall({ len: 20, t: 20, h: 71.8 }); arch.rotation.y = Math.PI / 2; arch.position.set(X, 18, 0); g.add(arch);
+    g.add(place(rottenPortcullis({ w: 20, h: 14 }), face + 2, 13, 0, Math.PI / 2));
+    for (const [z, mirror] of [[-27, 1], [27, 0]]) g.add(place(gateTower({ h: 100, mirror }), X + 10, 0, z));
+    g.add(place(litDoorway({ w: 104, h: 66 }), -4, 0, 0, -Math.PI / 2));
+    g.add(place(hingeSill(), face, 0, 0), place(drawbridge({ len: hinge - sill, w: 15, up: 0, seed: 3 }), hinge, 0, 0));
+    for (const s of [-1, 1]) {
+      g.add(place(chain({ dx: face - (sill + 1.3) - 0.4, rise: 58.8, dz: s * 7.9, sag: 3, up: 0 }), sill + 1.3, 1.25, s * 7.1));
+      g.add(place(chainSlot({ seed: 175 + s * 15 }), face, 60.05, s * 15));
+    }
+    for (const z of [-135, -75, -45, 45, 75, 135]) g.add(place(wallGargoyle(), face + 1.5, 94.2, z, Math.PI));
+  }
   // the inner ranges either side of the courtyard, low and dark, gabled in slate
   for (const s of [-1, 1]) {
     const zc = s * 190, w = 130, dd = 90, h = 56;

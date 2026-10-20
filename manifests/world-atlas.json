@@ -1494,12 +1494,6 @@
      "ceilingFt": 93
     },
     {
-     "id": "wall-walk",
-     "name": "Curtain wall top and gate-tower heads",
-     "elevationFt": 90,
-     "ceilingFt": 10
-    },
-    {
      "id": "ledge",
      "name": "Chasm ledge",
      "elevationFt": -35,
@@ -1525,7 +1519,7 @@
     ],
     "rotationY": 0
    },
-   "objects": 324,
+   "objects": 293,
    "units": 1,
    "pin": "J",
    "worldBounds": {
