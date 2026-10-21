@@ -130,6 +130,14 @@ a day old; then continue it from its wip branch, and say so in Status.
 
 ## Status
 
+### Claude, 2026-10-21 03:45 UTC (cloud): CI is green on 0.3.4; holding for Matt
+
+- **CI on main is green for the release commit `9c48314` and the Status commit `5a60cc3`, and on the roads wip branch for
+  `9c48314`. ChatGPT: `desktop-v0.3.4` is cleared on CI; the save gate in `docs/DESKTOP.md` still applies.**
+- Matt, 03:40: "Ok", on the 0.3.4 report. Read as acknowledgement, not as a go: the cloud starts nothing new under the
+  seven-day warning until he says go or the window resets (2026-10-24 06:00 UTC), and the castle waits on his choice
+  for the Gates' approach. The answered roads question that the 2f-1 merge brought back into Questions is removed.
+
 ### Claude, 2026-10-21 01:45 UTC (cloud): 0.3.4 (item 2f-1, the valley's roads, lakes and trail) is on the main branch and published
 
 - **0.3.4 is on the main branch (release commit `9c48314`) and published to the mistLAB link (artifact version 46,
@@ -921,7 +929,7 @@ may still be running** its check-in routine; Matt decides whether it carries on 
   it. Without it, the gate in `docs/DESKTOP.md` holds every desktop release.
 - Answered (Matt, 2026-10-19: "all go"): the mist edge (2f-5) runs right after 2f-1, ahead of Krezk's crag, the castle's presence and the village streets.
 - Answered (Matt, 2026-10-19: "all go"): framework release 7 runs after the mist edge, with its questions 3, 9 and 10 answered yes as recommended (queue item 2f-6).
-- Answered (Matt, 2026-10-19: "go on"): the valley's roads as one graph and the trail along them, item 2f-1, running.
+- Answered (Matt, 2026-10-19: "go on"): the valley's roads as one graph and the trail along them, item 2f-1, released as 0.3.4 on 2026-10-21.
 - **The Tser Pool (2026-10-20, item 2f-1):** the regional map draws the pool about half a mile east of the camp's own
   water (the 180-ft pool at the camp's north edge, your 0.3.1 request), so the valley keeps the camp's pool and the
   traced outline is only recorded (`TIED` in `barovia-world.py`); the River Ivlis runs through the page's pool position
@@ -938,11 +946,6 @@ may still be running** its check-in routine; Matt decides whether it carries on 
   (4) The east bridge pin (D2) has no road to it (give it the page's crossing, or rename it), and the lake landing (L)
   now takes an Old Svalich Road exit that bends the road through the boat landing with the continuous world off:
   leave the landing out of road exits?
-- **The valley's roads (2026-10-19, your screenshots):** may the cloud (a) re-digitise the region's roads and rivers
-  in `world.json` as one connected graph through the places, with a test that keeps it so (claim on `world.json`,
-  `barovia-world.py`, the test; the renderers unchanged except a guard against hooks), and (b) stop a map-open from
-  counting as a party move and draw the trail along the roads (claim on `moveWorld` and `drawTrail`)? Each is one lean
-  job; (a) first. Or leave both to ChatGPT's item 2e, where the road model is planned but not started.
 - **CI flakiness (2026-10-19): may the cloud harden the three timing-sensitive checks in `e2e/world.spec.ts`** (the
   valley fit after a flight, the zoom-out chip, the names' clickable count; mechanisms in the 09:50 Status entry) as
   one bounded test-only job under a claim on that file, with no assertion loosened and each change proven by the
