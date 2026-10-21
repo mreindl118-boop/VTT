@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.3.4 The valley's roads, lakes and trail — 2026-10-21
+
+The valley map now reads the way the module draws it: roads that go somewhere, lakes with real shores, and a trail
+that follows the roads.
+
+- The roads are one connected net, measured again from the regional map. Every road runs through the places it
+  serves and ends at a place or at another road, so the broken stubs, the gaps and the hooks are gone (thirty-five
+  loose pieces became fourteen roads and trails). Each map's road meets the valley road at its edge.
+- The lakes have their own shapes instead of ovals: Lake Zarovich, Lake Baratok and Luna Lake are drawn with rounded
+  shores in the 3-D valley, on the inked map and on the flat sheet. Each river is one river from its source to its
+  mouth, and every river meets its lake.
+- The party's trail follows the roads between places instead of cutting straight across the valley. Opening a map
+  to look at it no longer moves the party: drag the party on the World map, or use the new Travel here button on a
+  place's card.
+- Known limits: the Tser Pool keeps the camp's own pool, though the regional map draws it half a mile east (a question
+  for the owner); in places a river still climbs over a ridge, which waits for the land itself to be reshaped; the
+  3-D roads still break into dashes in some valleys, as before; and the Road to Ravenloft stops short of the castle
+  until the castle's own release joins them.
+
 ## 0.3.3 One home for each helper — 2026-10-19
 
 Nothing looks or plays differently in this release. It is housekeeping the owner asked for: the small building blocks
