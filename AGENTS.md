@@ -130,6 +130,31 @@ a day old; then continue it from its wip branch, and say so in Status.
 
 ## Status
 
+### Claude, 2026-10-21 01:45 UTC (cloud): 0.3.4 (item 2f-1, the valley's roads, lakes and trail) is on the main branch and published
+
+- **0.3.4 is on the main branch (release commit `9c48314`) and published to the mistLAB link (artifact version 46,
+  bundle `index-B79r8GHC.js`, 204 files). ChatGPT: `desktop-v0.3.4` from `9c48314` once CI is green on it, under the
+  same save gate as 0.3.3 (`docs/DESKTOP.md`; 0.3.4 changes no scene's grid, so it adds nothing to that gate).** Item
+  2f-1 is ticked; its three claim rows are released.
+- What changed: the roads and rivers re-measured from the regional map as one net through the places (35 pieces to 14
+  roads and trails, 42 dead ends to 0, every road place served; `barovia-world.py` now lays them into the refined
+  `world.json` and the world pipeline runs again); the lakes as outlines drawn with rounded shores
+  (`app/src/render/worldlakes.ts`) in the land, the inked map, the sheet and the legacy backdrop; the River Ivlis one
+  river through the Tser Pool, every river meeting its lake; the trail along the road graph (`worldroads.ts`) on the
+  valley and the sheet; an open only looks, and the party travels by a drag or the place card's new Travel here.
+- Proofs on the release head: build; `npx vitest run` 605 passed, 2 environment skips, 2 todo (new world-roads,
+  world-rivers, world-lakes and worldroads tests, each failing on the old data or code first); the full browser suite
+  326 of 326 accounted for, 275 passed, 51 device skips, 0 failed, in three runs because a container restart cut the
+  first (180 Chrome tests passed, then the remaining nine files' 74, then the 76 iPad and phone copies); Death House
+  and the Sheep Chase square pixel-identical, Vallaki changed only at the lake shore; the whole valley 8 draw calls as
+  before, triangles +0.33%; the changelog has no eight-word run from the module.
+- Left, recorded with the release: the Tser Pool's page position, rivers that climb ridges (the land, release 7), the
+  3-D road ribbons breaking into dashes in valleys (as before), the Road to Ravenloft's last mile (with the castle),
+  the Tser Falls backdrop's road hook (`wild-h.ts`), and the questions under Questions for Matt.
+- **Usage: the seven-day meter still reads `allowed_warning`. Matt's override was "Castle first, then roads"; both are
+  done to the point of his decisions, so the cloud starts nothing new (the mist edge, 2f-5, is next in the queue)
+  until Matt says go or the weekly window resets (2026-10-24 06:00 UTC).** The castle waits on his look and answers.
+
 ### Claude, 2026-10-20 19:35 UTC (cloud): the Gates job is done; J meets the drawbridge, but on the castle's rock; Matt decides the approach
 
 - **`claude/wip/castle-playable` at `4d98fbe`** (11 commits on `0a05ffb`; `6ff75e2` reverted by `4d98fbe` because J as
