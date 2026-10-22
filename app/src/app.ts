@@ -8,7 +8,7 @@ import { OPENABLE_KINDS, type Container, type GridFile, type Level, type LightSo
 import { moveBlockers } from './core/light';
 import { canWalk } from './core/movement';
 import { chosenRoute, enteredRoute, linkMarkers, routeOf, type LinkEnd, type LinkRoute } from './core/verticalLinks';
-import { SITE_INTERFACES } from './core/siteInterfaces';
+import { knownOnArrival, SITE_INTERFACES } from './core/siteInterfaces';
 import { partyStart, settleParty } from './state/partyStart';
 import { classOpacity, fogCurve, hiddenCurve, labelCurve } from './core/slider';
 import { baseRingFt, CELL_FT } from './core/units';
@@ -1718,7 +1718,8 @@ export class App {
   moveWorld(pos: Vec2, key: string | undefined, miles: number, save = true): void {
     const w = this.state.world, trail = [...(w?.trail ?? (w ? [{ pos: w.pos, key: w.key, miles: 0, at: Date.now() }] : [])), { pos, key, miles: Math.round(miles * 100) / 100, at: Date.now() }].slice(-50);
     this.state.world = { pos, key, trail };
-    if (key) this.revealPin(key, true, false); // a place the party has been to is known to the players
+    // a place the party has been to is known to the players, and what is in plain sight from it
+    if (key) for (const k of knownOnArrival(key)) this.revealPin(k, true, false);
     this.syncStage();
     if (save) this.commit();
   }

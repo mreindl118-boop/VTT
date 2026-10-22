@@ -40,6 +40,13 @@ export const SITE_INTERFACES: Record<string, {
   'ch02/J': { cuts: [{ bounds: { minX: 400, maxX: 450, minZ: 5, maxZ: 400 }, floor: -400, featherX: 0, featherZ: 0 }], roads: [{ road: 'Road to Ravenloft', x: 40, z: 0 }] },
 };
 
+/** World-map places in plain sight from a place (pin keys): when the party reaches it they are known to the players
+ *  too, as the place itself is (app.ts moveWorld). The castle looms across the chasm from the Gates of Ravenloft
+ *  (owner 2026-10-22). */
+const IN_SIGHT: Record<string, string[]> = { J: ['K'] };
+/** The places the players know once the party reaches `key`: it, and what can be seen from it. */
+export const knownOnArrival = (key: string): string[] => [key, ...(IN_SIGHT[key] ?? [])];
+
 /** These are distant scenery substitutes, not the miniature inside the Amber Temple.
  * The continuous world already owns the real Castle Ravenloft at K, and its chasm before the gate: the Gates of
  * Ravenloft's own chasm and the chasm's walls round their ledge stand in for it only where the continuous world is off.

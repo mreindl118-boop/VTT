@@ -8,7 +8,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import * as THREE from 'three';
 import { boundsInParent, rotate, toWorld, toWorld3, type Bounds } from '../app/src/core/frames';
-import { SITE_INTERFACES, WORLD_STANDINS } from '../app/src/core/siteInterfaces';
+import { knownOnArrival, SITE_INTERFACES, WORLD_STANDINS } from '../app/src/core/siteInterfaces';
 import { pointInPolygon, type Polygon, type Vec2 } from '../app/src/core/geometry';
 import { siteOf } from '../app/src/render/worldstage';
 import { buildLand } from '../app/src/render/worldland';
@@ -146,6 +146,13 @@ describe('the castle seen from the Gates', () => {
     expect(ghostCutFt(sk, gk, gk.elevationFt + 5, whole), 'with the walls low').toBe(gk.elevationFt + 5);
     // and no other map is drawn whole
     expect(Object.entries(SITE_INTERFACES).filter(([, t]) => t.whole).map(([p]) => p)).toEqual(['ch04/K']);
+  });
+  it('reaching the Gates makes the castle known to the players: it looms across the chasm', () => {
+    // a place the party reaches is known to the players (app.ts moveWorld); from the Gates the castle is in plain sight,
+    // so its pin is revealed with theirs and Players view draws it (owner 2026-10-22)
+    expect(knownOnArrival('J')).toEqual(['J', 'K']);
+    expect(knownOnArrival('K'), 'the castle reveals nothing more').toEqual(['K']);
+    expect(knownOnArrival('E'), 'any other place: itself').toEqual(['E']);
   });
 });
 
