@@ -159,4 +159,8 @@ describe('Streamer.views: what is in view', () => {
   it('a place behind the eye, beside it, is not', () => {
     expect(view([420, 6, 175], [560, 40, 175]).inView).toBe(false);
   });
+  it('nor one the eye flies high over, looking far away: standing over it means within its own size of its ground', () => {
+    // 2,000 ft over the Gates (their footprint is 530 ft across), looking out over the valley to the east
+    expect(view([200, 2000, 175], [20000, 0, 175]).inView).toBe(false);
+  });
 });
