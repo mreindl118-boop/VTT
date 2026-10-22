@@ -910,19 +910,27 @@ may still be running** its check-in routine; Matt decides whether it carries on 
 
 ## Questions for Matt
 
-- **The Gates of Ravenloft beside the castle (2026-10-20 19:35):** J now meets the drawbridge, but on the castle's
-  thousand-foot rock, where the valley road cannot climb. Which: (a) shape the land into a spur the road climbs to the
-  Gates, and give the chasm natural ends, before the castle releases (part of framework release 7, pulled forward);
-  (b) release the castle with the Gates beside it and close the road and the land in the roads job and release 7;
-  (c) put the Gates back on the road below for this release, joining them later. With any of them: two small render
-  fixes so the castle looms from the Gates (drawn uncut as a neighbour) and the Gates stay drawn from their own sill;
-  and should reaching the Gates reveal the castle to Players?
+- **The castle's draw calls (2026-10-22, the castle-finish session):** the brief's bar, "the playable castle must not be
+  slower than the castle on main", is not met. Its entry frame draws 534 calls to main's 458 (DM, 1366x768; 468 to 427
+  in Players view; 540 to 462 and 474 to 431 on the phone), and under software rendering takes 3.9 s to 2.9 s on the
+  desktop (1.42 s to 1.34 s on the phone). The valley adds 11-12 calls on both; the castle's own map draws 522 to 447.
+  The extra: the new gate front (gatehouse, towers, drawbridge parts, about 30-40), the thick walls' section caps and
+  door hardware (about 35-40), and the roofs merged into 25 meshes to 12. Which: (a) release as it is and take the
+  castle's budget in framework release 6 (level of detail, instancing, per-map budgets); (b) a bounded pass before the
+  release that merges each level's section caps per colour and the gate front's fixed parts, judged against main's
+  count; (c) something else?
+- Answered (Matt, 2026-10-22): the Gates beside the castle, (b): the castle releases with the Gates beside the
+  drawbridge as they stand; the road's climb and the chasm's ends go with framework release 7. The Road to Ravenloft
+  stays as 0.3.4 has it (gates-at-castle's "no world road into the castle" is a to-do for release 7). Both render fixes
+  in (`6db7c97`, `0b23332`, `c276c1a`); reaching the Gates reveals the castle to Players (`75ed183`); the trinket stays
+  90 mm.
 - **The castle, more questions from its reviewers (2026-10-20):** (5) the wall thicknesses above, right? (6) the
   gatehouse 10 ft out on the chasm edge, a 20-ft tunnel (the module's map 2), gate towers hollow to their battlements?
   (7) the print set: thick walls double the solid volume (41.5 to 81.1 L), and the default ground tray (keep + 20-ft
   apron) crops the new gatehouse and drawbridge: print walls as shells, or the whole courtyard (`--courtyard full`)?
   (8) the party starts inside the gate; start it on J's sill before the drawbridge instead, once J stands there?
-  (9) accept the audit's off-ground count on the castle, or claim the audit to count stone and planks as ground?
+  (9) the audit now finds nothing on the castle (main: 67), and 5 off-ground on the Gates: the chasm stand-in, three fog
+  plumes over the chasm and the distant castle's stand-in, past J's lip where its ground now ends; accept them?
   (10) ship the castle with its old fog memory kept aside, or after the save migration?
 - **The castle (2026-10-20, from the castle job's builders), four questions:** (1) part A removed what the module's
   plan does not show and that opened onto nothing: the main floor's west access hall K13-w (the plan shows courtyard
