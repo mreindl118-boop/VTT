@@ -38,6 +38,16 @@ export interface GhostLook {
   restricted: boolean;
 }
 
+/** Where a ghost is cut (scene feet), or null for not at all, as the active map would be on its ground level `lv`: an
+ *  open stack above its top, a stacked site at that level's ceiling, an open-air map at `lowCut` (the low-wall height
+ *  when the DM has the walls low, else null). A landmark drawn whole as a neighbour (siteInterfaces `whole`: Castle
+ *  Ravenloft across its chasm from the Gates) is cut only at `lowCut`. */
+export function ghostCutFt(sc: SceneFile, lv: Level, lowCut: number | null, whole = false): number | null {
+  if (whole) return lowCut;
+  const top = Math.max(...sc.levels.map((x) => x.elevationFt + (x.ceilingFt ?? 10)));
+  return sc.stacked === 'open' ? top + 12 : sc.stacked ? lv.elevationFt + (lv.ceilingFt ?? 10) - 0.5 : lowCut;
+}
+
 export class Ghost {
   /** Source material → its ghost. */
   private mats = new Map<THREE.Material, THREE.MeshLambertMaterial | THREE.MeshBasicMaterial>();

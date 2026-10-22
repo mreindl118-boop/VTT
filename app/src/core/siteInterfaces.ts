@@ -13,6 +13,10 @@ export const SITE_INTERFACES: Record<string, {
    *  the courtyard): while one of those floors is shown, the valley is left out of the frame and the mist floor lies
    *  under it, as a nested map's floor below its town does (app.ts syncUnderground). */
   underground?: boolean;
+  /** A landmark drawn whole when it stands beside the active map as its neighbour (render/ghost.ts ghostCutFt): not cut
+   *  at its ground floor's ceiling as a stacked map's ghost is, so Castle Ravenloft looms across its chasm from the
+   *  Gates (owner 2026-10-22). */
+  whole?: boolean;
 }> = {
   'ch09/T': {
     // The bridge's two abutments remain on the z=135 and z=205 lips. The narrow
@@ -25,14 +29,14 @@ export const SITE_INTERFACES: Record<string, {
   // The chasm before the castle's gate (castle-ravenloft.py, the 'chasm' prop: 50 ft across the road, from the castle's
   // north face south past its corner the length of the Gates' lip, its faces drawn 400 ft down): the land flattened round
   // the castle falls away there under the drawbridge, a sheer cut with no feather. The larders and the dungeon stand in
-  // the mist, not under the land.
-  'ch04/K': { underground: true, cuts: [{ bounds: { minX: -60, maxX: -10, minZ: 0, maxZ: 395 }, floor: -400, featherX: 0, featherZ: 0 }] },
+  // the mist, not under the land. Beside the Gates the castle is drawn whole, looming across the chasm.
+  'ch04/K': { underground: true, whole: true, cuts: [{ bounds: { minX: -60, maxX: -10, minZ: 0, maxZ: 395 }, floor: -400, featherX: 0, featherZ: 0 }] },
   // The Gates of Ravenloft end on the near lip of that chasm, their sill under the drawbridge's free end (J's pin:
   // barovia-world.py TIES). The same cut in J's own feet (J's lip at x 400; the castle's frame is J's less 460 ft east
   // and 5 ft south), so J's apron is laid with the chasm's lips as its own edges and drops sheer there too, not in a
   // slope across the cut from J's edge. The valley's Road to Ravenloft meets J's own road where it leaves the map's north
-  // edge (wild_j.py's dirt track, x 30-48), at this exit (item 2f-1 routes the road to it); the castle has no road of its
-  // own, its only way in the drawbridge from here.
+  // edge (wild_j.py's dirt track, x 30-48), at this exit; the castle's only way in is the drawbridge from here (0.3.4's
+  // road still runs on to the castle's pin: its last mile and climb are framework release 7's, owner 2026-10-22).
   'ch02/J': { cuts: [{ bounds: { minX: 400, maxX: 450, minZ: 5, maxZ: 400 }, floor: -400, featherX: 0, featherZ: 0 }], roads: [{ road: 'Road to Ravenloft', x: 40, z: 0 }] },
 };
 

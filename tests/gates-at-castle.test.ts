@@ -8,7 +8,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import * as THREE from 'three';
 import { boundsInParent, rotate, toWorld, toWorld3, type Bounds } from '../app/src/core/frames';
-import { WORLD_STANDINS } from '../app/src/core/siteInterfaces';
+import { SITE_INTERFACES, WORLD_STANDINS } from '../app/src/core/siteInterfaces';
 import { pointInPolygon, type Polygon, type Vec2 } from '../app/src/core/geometry';
 import { siteOf } from '../app/src/render/worldstage';
 import { buildLand } from '../app/src/render/worldland';
@@ -16,7 +16,7 @@ import { buildBackdrop } from '../app/src/render/backdrop';
 import { bounds } from '../app/src/core/geometry';
 import { CAMPAIGNS, worldOf } from '../app/src/campaigns';
 import { buildLevel, buildSceneObject } from '../app/src/render/build';
-import { Ghost } from '../app/src/render/ghost';
+import { Ghost, ghostCutFt } from '../app/src/render/ghost';
 import '../app/src/kit/sites';
 import type { GridFile } from '../app/src/core/schema';
 import type { Atlas } from '../scripts/world-atlas';
@@ -133,6 +133,19 @@ describe('the Gates of Ravenloft stand at the castle\'s gate in the valley', () 
     } finally {
       land.group.traverse((o) => { if (o instanceof THREE.Mesh) { o.geometry.dispose(); for (const m of Array.isArray(o.material) ? o.material : [o.material]) m.dispose(); } });
     }
+  });
+});
+
+describe('the castle seen from the Gates', () => {
+  it('the castle beside the Gates is drawn whole: its ghost is not cut at its courtyard floor\'s ceiling', () => {
+    // a stacked map's ghost is cut as the active map would be on its ground level (render/ghost.ts); the castle, the
+    // Gates' neighbour across the chasm, looms whole instead (owner 2026-10-22), unless the DM has the walls low
+    const sk = scene('ch04/K'), whole = SITE_INTERFACES['ch04/K']?.whole;
+    expect(ghostCutFt(sk, gk, null), 'a stacked map\'s ghost, as before').toBe(gk.elevationFt + (gk.ceilingFt ?? 10) - 0.5);
+    expect(ghostCutFt(sk, gk, null, whole), 'the castle as a neighbour').toBeNull();
+    expect(ghostCutFt(sk, gk, gk.elevationFt + 5, whole), 'with the walls low').toBe(gk.elevationFt + 5);
+    // and no other map is drawn whole
+    expect(Object.entries(SITE_INTERFACES).filter(([, t]) => t.whole).map(([p]) => p)).toEqual(['ch04/K']);
   });
 });
 

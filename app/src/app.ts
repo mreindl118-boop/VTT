@@ -61,7 +61,7 @@ import { idbGet, idbSet } from './state/idb';
 import { boundsInParent, compose, covBasisOf, grow, worldOfMiles, type Bounds, type Placement } from './core/frames';
 import { ATLAS, WorldStage } from './render/worldstage';
 import { disposeTree } from './render/dispose';
-import { Ghost, GHOST_TINT, type GhostLook } from './render/ghost';
+import { Ghost, GHOST_TINT, ghostCutFt, type GhostLook } from './render/ghost';
 import { enterPx, leavePx, STREAM, Streamer, type StreamHost } from './render/streamer';
 import { hideUnder, restoreUnder, veil, type NestMask } from './render/hideUnder';
 import type { AtlasScene } from '../../scripts/world-atlas';
@@ -627,8 +627,7 @@ export class App {
   /** What a ghost of this map shows: its ground level and the floors on it, cut as the active map would be. */
   private ghostLook(l: Loaded): GhostLook {
     const sc = l.scene, lv = groundOf(sc), shown = sc.stacked ? this.stackOf(lv.id, sc) : new Set([lv.id]);
-    const top = Math.max(...sc.levels.map((x) => x.elevationFt + (x.ceilingFt ?? 10)));
-    const cutFt = sc.stacked === 'open' ? top + 12 : sc.stacked ? lv.elevationFt + (lv.ceilingFt ?? 10) - 0.5 : this.lowWalls ? lv.elevationFt + WALL_CUT_FT : null;
+    const cutFt = ghostCutFt(sc, lv, this.lowWalls ? lv.elevationFt + WALL_CUT_FT : null, SITE_INTERFACES[l.path]?.whole);
     return { level: lv.id, shown, cutFt, lowWalls: this.lowWalls, revealed: revealSets(this.state, sc.location).objects, restricted: this.restricted };
   }
   /** Draw a map as a ghost (render/ghost.ts), at a tint (0 looks exactly as active). */
