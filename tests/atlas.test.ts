@@ -5,6 +5,8 @@ import committed from '../manifests/world-atlas.json';
 import barovia from '../locations/ch02/barovia-region/world.json';
 import { buildAtlas, scenePaths, serialize, REPO, type Atlas } from '../scripts/world-atlas.ts';
 import { pinY, worldOfMiles } from '../app/src/core/frames';
+import { pointInPolygon } from '../app/src/core/geometry';
+import { lakeRing } from '../app/src/render/worldlakes';
 import type { WorldData } from '../app/src/campaigns';
 import { join } from 'node:path';
 
@@ -90,10 +92,16 @@ describe('world atlas', () => {
     expect(L.placement.position[1]).toBeCloseTo(pin.groundFt!, 6);
     // both maps' bases agree, so the land between them is one level
     expect(Math.abs(L.placement.position[1] + L.elevationFt - (N.placement.position[1] + N.elevationFt))).toBeLessThan(0.5);
-    // the map's shore line (its water room's south edge, ~185 ft south of its centre) lies on the lake's drawn shore
-    const lake = w.lakes.find((l) => /Zarovich/.test(l.name))!, [mx, my] = pin.pos;
-    const shoreY = lake.center[1] + lake.r[1] * Math.sqrt(1 - ((mx - lake.center[0]) / lake.r[0]) ** 2);
+    // the map's shore line (its water room's south edge, ~185 ft south of its centre) lies on the lake's drawn shore:
+    // the shore every view draws (render/worldlakes.ts, the measured outline rounded; barovia-world.py bows the outline
+    // onto the map), at its southmost crossing of the pin's meridian
+    const lake = w.lakes.find((l) => /Zarovich/.test(l.name))!, [mx, my] = pin.pos, ring = lakeRing(lake)!;
+    expect(ring, 'Lake Zarovich has a measured outline').toBeDefined();
+    let shoreY = -Infinity;
+    for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) { const a = ring[j], b = ring[i]; if ((a[0] - mx) * (b[0] - mx) <= 0 && a[0] !== b[0]) shoreY = Math.max(shoreY, a[1] + ((mx - a[0]) / (b[0] - a[0])) * (b[1] - a[1])); }
     expect(Math.abs(my + 185 / 5280 - shoreY) * 5280).toBeLessThan(60);
+    // and the landing stands on that shore: its north half in the water, its south half on land
+    expect(pointInPolygon([mx, my - 0.05], ring)).toBe(true); expect(pointInPolygon([mx, my + 0.06], ring)).toBe(false);
   });
   it('blowouts more than 1.5× their plot are listed as warnings (the Vallaki buildings, the church, Death House)', () => {
     const big = scenes.filter((s) => (s.blowout ?? 0) > 1.5).map((s) => s.path).sort();
@@ -108,7 +116,9 @@ describe('world atlas', () => {
     // Yester Hill weighs two since item 7: the whole hill, its trail, cairns and trees are over 2,000 objects
     expect(scenes.filter((s) => s.units > 1).map((s) => s.path).sort()).toEqual(['ch05/N', 'ch08/S', 'ch14/Y']);
     expect(atlas.scenes['ch03/E'].roadExits.length).toBeGreaterThan(0); // the Old Svalich Road leaves the village
-    expect(atlas.scenes['ch05/N'].roadExits).toEqual([]); // the world's roads stop at Vallaki's 1.7-mile map, as the backdrop finds today
+    // the Old Svalich Road runs through Vallaki (item 2f-1a): its 1.7-mile map has the road leaving west and east
+    expect(atlas.scenes['ch05/N'].roadExits.map((e) => e.road)).toEqual(['Old Svalich Road', 'Old Svalich Road']);
+    expect(atlas.scenes['ch05/N'].roadExits.map((e) => Math.sign(Math.cos(e.bearing)))).toEqual([-1, 1]);
     expect(atlas.constants).toEqual({ MI_FT: 5280, RELIEF: 1.25, NEST_LIFT: 0.2 });
   });
 });

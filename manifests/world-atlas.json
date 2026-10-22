@@ -937,7 +937,13 @@
    "roadExits": [
     {
      "road": "Old Svalich Road",
-     "bearing": -0.9724,
+     "bearing": -2.1948,
+     "x": 4.17,
+     "z": 197.4
+    },
+    {
+     "road": "Old Svalich Road",
+     "bearing": -0.4487,
      "x": 636.83,
      "z": 195.03
     }
@@ -1007,9 +1013,15 @@
    "roadExits": [
     {
      "road": "Old Svalich Road",
-     "bearing": 1.5708,
-     "x": 166.09,
-     "z": 397.85
+     "bearing": 2.9105,
+     "x": 152.38,
+     "z": 393.2
+    },
+    {
+     "road": "Old Svalich Road",
+     "bearing": 0.2985,
+     "x": 600,
+     "z": 185
     }
    ],
    "placement": {
@@ -1068,9 +1080,15 @@
    "roadExits": [
     {
      "road": "Old Svalich Road",
-     "bearing": -1.8314,
+     "bearing": 1.9513,
      "x": 0,
-     "z": 65
+     "z": 85
+    },
+    {
+     "road": "Old Svalich Road",
+     "bearing": -1.4121,
+     "x": 87,
+     "z": 0
     }
    ],
    "placement": {
@@ -1138,9 +1156,15 @@
    "roadExits": [
     {
      "road": "Old Svalich Road",
-     "bearing": -1.8998,
-     "x": 197.64,
-     "z": -392.4
+     "bearing": -2.8274,
+     "x": 0,
+     "z": -59.95
+    },
+    {
+     "road": "River Ivlis bank path",
+     "bearing": -2.8501,
+     "x": 0,
+     "z": -51.2
     }
    ],
    "placement": {
@@ -1216,16 +1240,16 @@
    "interior": false,
    "roadExits": [
     {
-     "road": "Ravenloft/Vallaki road",
-     "bearing": 3.0727,
+     "road": "Old Svalich Road",
+     "bearing": 3.1416,
      "x": 1.77,
      "z": 357.07
     },
     {
      "road": "Old Svalich Road",
-     "bearing": -1.7295,
-     "x": 95.63,
-     "z": 2.31
+     "bearing": -1.0839,
+     "x": 600,
+     "z": 56
     }
    ],
    "placement": {
@@ -1354,15 +1378,21 @@
    "roadExits": [
     {
      "road": "Old Svalich Road",
-     "bearing": -1.956,
-     "x": 0,
+     "bearing": -0.5667,
+     "x": 600,
      "z": 0
     },
     {
-     "road": "Ravenloft/Vallaki road",
-     "bearing": 0.2692,
-     "x": 598.2,
-     "z": 519.42
+     "road": "Old Svalich Road",
+     "bearing": 1.8925,
+     "x": 0,
+     "z": 520
+    },
+    {
+     "road": "Tser camp path",
+     "bearing": 1.5338,
+     "x": 596.63,
+     "z": 518.38
     }
    ],
    "placement": {
@@ -1424,27 +1454,21 @@
    "roadExits": [
     {
      "road": "Old Svalich Road",
-     "bearing": 2.9362,
+     "bearing": -1.5422,
+     "x": 21.29,
+     "z": 0.9
+    },
+    {
+     "road": "Old Svalich Road",
+     "bearing": 2.8501,
      "x": 14.93,
      "z": 2.03
     },
     {
-     "road": "Old Svalich Road",
-     "bearing": -2.0813,
-     "x": 17.22,
-     "z": 0.6
-    },
-    {
      "road": "Road to Ravenloft",
-     "bearing": -0.9828,
+     "bearing": -0.9003,
      "x": 597.16,
      "z": 219.93
-    },
-    {
-     "road": "Ravenloft/Vallaki road",
-     "bearing": 1.5458,
-     "x": 253.47,
-     "z": 499.17
     }
    ],
    "placement": {
@@ -1581,7 +1605,14 @@
    "stacked": false,
    "outdoor": true,
    "interior": false,
-   "roadExits": [],
+   "roadExits": [
+    {
+     "road": "Old Svalich Road",
+     "bearing": 1.6746,
+     "x": 267.08,
+     "z": 748.45
+    }
+   ],
    "placement": {
     "position": [
      -9934.6,
@@ -1716,15 +1747,27 @@
    "roadExits": [
     {
      "road": "Old Svalich Road",
-     "bearing": -1.2611,
-     "x": 1298.25,
-     "z": 77.75
+     "bearing": 2.6135,
+     "x": 2.35,
+     "z": 563
     },
     {
-     "road": "Road to Argynvostholt",
-     "bearing": -2.9442,
+     "road": "Old Svalich Road",
+     "bearing": 0,
+     "x": 1299.13,
+     "z": 87.6
+    },
+    {
+     "road": "Trail to the Luna crossroads",
+     "bearing": -2.4038,
      "x": 0,
      "z": 170
+    },
+    {
+     "road": "Trail to Berez",
+     "bearing": 0.7854,
+     "x": 1300,
+     "z": 97.45
     }
    ],
    "placement": {
@@ -1798,21 +1841,33 @@
    "roadExits": [
     {
      "road": "Old Svalich Road",
-     "bearing": 2.7828,
+     "bearing": -3.0419,
      "x": 0.63,
      "z": 104.88
     },
     {
-     "road": "Road to Argynvostholt",
-     "bearing": 0.2742,
+     "road": "Old Svalich Road",
+     "bearing": 0.2141,
      "x": 620,
      "z": 309.46
     },
     {
      "road": "Tsolenka road",
-     "bearing": 1.1619,
-     "x": 514.94,
-     "z": 540
+     "bearing": 0.6823,
+     "x": 520.43,
+     "z": 536.59
+    },
+    {
+     "road": "Trail to the tower",
+     "bearing": 0.245,
+     "x": 620,
+     "z": 309.46
+    },
+    {
+     "road": "Trail to the vineyard",
+     "bearing": 2.9534,
+     "x": 0.63,
+     "z": 104.88
     }
    ],
    "placement": {
@@ -1868,9 +1923,15 @@
    "roadExits": [
     {
      "road": "Old Svalich Road",
-     "bearing": 1.4142,
-     "x": 245,
+     "bearing": 2.2083,
+     "x": 200,
      "z": 727.5
+    },
+    {
+     "road": "Old Svalich Road",
+     "bearing": 0.0322,
+     "x": 528.9,
+     "z": 427.8
     }
    ],
    "placement": {
@@ -2074,7 +2135,14 @@
    "stacked": true,
    "outdoor": true,
    "interior": false,
-   "roadExits": [],
+   "roadExits": [
+    {
+     "road": "Road to Ravenloft",
+     "bearing": -2.4756,
+     "x": 20,
+     "z": 20
+    }
+   ],
    "placement": {
     "position": [
      23627.8,
@@ -2140,7 +2208,20 @@
    "outdoor": true,
    "interior": false,
    "clearingFt": 900,
-   "roadExits": [],
+   "roadExits": [
+    {
+     "road": "Old Svalich Road",
+     "bearing": 2.5735,
+     "x": -586.1,
+     "z": 2650.3
+    },
+    {
+     "road": "Old Svalich Road",
+     "bearing": 0.2861,
+     "x": 8505,
+     "z": 2650.3
+    }
+   ],
    "placement": {
     "position": [
      -15205.45,
@@ -2944,21 +3025,15 @@
    "roadExits": [
     {
      "road": "Old Svalich Road",
-     "bearing": 0.5042,
+     "bearing": -0.3488,
+     "x": 240,
+     "z": 76.36
+    },
+    {
+     "road": "Old Bonegrinder lane",
+     "bearing": 0.6132,
      "x": 130,
      "z": 240
-    },
-    {
-     "road": "Old Svalich Road",
-     "bearing": -0.7378,
-     "x": 240,
-     "z": 10.91
-    },
-    {
-     "road": "Old Svalich Road",
-     "bearing": -0.2247,
-     "x": 240,
-     "z": 92.57
     }
    ],
    "placement": {
@@ -3044,7 +3119,7 @@
    "roadExits": [
     {
      "road": "Road to Argynvostholt",
-     "bearing": -2.2896,
+     "bearing": -2.3108,
      "x": -120,
      "z": 103
     }
@@ -3115,9 +3190,15 @@
    "roadExits": [
     {
      "road": "Old Svalich Road",
-     "bearing": 1.5042,
-     "x": 1313.75,
-     "z": 1288.8
+     "bearing": 3.1183,
+     "x": -380.05,
+     "z": 834.6
+    },
+    {
+     "road": "Old Svalich Road",
+     "bearing": 0.6288,
+     "x": 1317.5,
+     "z": 1289.5
     }
    ],
    "placement": {
@@ -3395,7 +3476,14 @@
    "outdoor": true,
    "interior": false,
    "clearingFt": 500,
-   "roadExits": [],
+   "roadExits": [
+    {
+     "road": "Trail to Berez",
+     "bearing": -0.6832,
+     "x": 2860,
+     "z": 0
+    }
+   ],
    "placement": {
     "position": [
      -20609.6,
@@ -3549,7 +3637,20 @@
    "stacked": true,
    "outdoor": true,
    "interior": true,
-   "roadExits": [],
+   "roadExits": [
+    {
+     "road": "Trail to the tower",
+     "bearing": 1.7682,
+     "x": 290.25,
+     "z": 620
+    },
+    {
+     "road": "Trail to the Luna crossroads",
+     "bearing": 1.7921,
+     "x": 282.5,
+     "z": 620
+    }
+   ],
    "placement": {
     "position": [
      -27861.05,
@@ -3620,10 +3721,10 @@
    "interior": false,
    "roadExits": [
     {
-     "road": "Road to the vineyard",
-     "bearing": -1.3654,
-     "x": 409.75,
-     "z": -72.5
+     "road": "Trail to the vineyard",
+     "bearing": -1.9937,
+     "x": -20.12,
+     "z": -160
     }
    ],
    "placement": {
@@ -4433,7 +4534,14 @@
    "stacked": false,
    "outdoor": true,
    "interior": false,
-   "roadExits": [],
+   "roadExits": [
+    {
+     "road": "Trail to Yester Hill",
+     "bearing": -0.8642,
+     "x": 1718,
+     "z": 25
+    }
+   ],
    "placement": {
     "position": [
      -48432.8,
@@ -4490,7 +4598,14 @@
    "stacked": false,
    "outdoor": true,
    "interior": false,
-   "roadExits": [],
+   "roadExits": [
+    {
+     "road": "Trail to the Werewolf Den",
+     "bearing": 2.0152,
+     "x": 198,
+     "z": 480
+    }
+   ],
    "placement": {
     "position": [
      -35498.2,

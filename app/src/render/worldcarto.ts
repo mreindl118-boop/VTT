@@ -8,7 +8,9 @@
 //  - Relief: contour lines (125 ft · 2^n by zoom, index lines heavier) and hachures, short strokes down the fall line
 //    whose weight grows with the slope and on the shadow side.
 //  - Forest: stippled crowns, lit from the NW with dark gaps (gothic) or paper between (pastoral); an edge shadow.
-//  - Water: a pale wash, a shore ink line with a light casing, concentric ripples spaced wider toward the middle.
+//  - Water: a pale wash, a shore ink line with a light casing, concentric ripples spaced wider toward the middle; the
+//    shore is the lakes' drawn shores (worldlakes.ts, the measured outlines rounded), baked once as a signed-distance
+//    texture (data with ellipses only: analytic).
 //  - Roads, trails, rivers: ribbons whose width is held in screen pixels (rivers taper from source to mouth).
 //  - The hex grid at the map's own scale, under the canopy; a mist edge round the region.
 //  - Massing (the places' proxies, the crags) becomes pale blocks with ink shadow sides.
@@ -21,7 +23,7 @@ import type { WorldData } from '../campaigns';
 import { MI_FT } from '../core/frames';
 import type { Vec2 } from '../core/geometry';
 import { fogUniforms, surfaceUniforms } from './materials';
-import type { LandField } from './worldland';
+import { lakeOutline, type LandField } from './worldland';
 
 export type CartoStyleId = 'gothic' | 'pastoral';
 /** A map's palette (sRGB hex) and its line weights. */
@@ -51,8 +53,11 @@ export const CARTO_STYLES: Record<CartoStyleId, CartoStyle> = {
 const TEX_FT = MI_FT / 32;
 /** The bake reaches this far past the region (the mist edge fades out inside it). */
 const MARGIN_FT = MI_FT;
-/** Up to this many lakes are drawn analytically (world.json's ellipses). */
+/** Up to this many lakes are drawn analytically (world.json's ellipses) when no lake has a measured outline. */
 const MAX_LAKES = 8;
+/** The lakes' shore texture is baked at this many texels per land texel, and holds the signed distance to the nearest
+ *  shore (ft, negative in the water) out to LAKE_FAR ft, beyond which it reads LAKE_FAR. */
+const LAKE_SUB = 2, LAKE_FAR = 2000;
 
 const col = (hex: string) => new THREE.Color(hex);
 /** A phone: a coarse pointer and a small screen (its shorter side at most 900 px). */
@@ -87,6 +92,9 @@ export function cartoUniforms(field: LandField, style: CartoStyle) {
     uPhone: { value: phoneTier() ? 1 : 0 },
     uLakes: { value: lakes },
     uLakeN: { value: Math.min(MAX_LAKES, W.lakes.length) },
+    /** 1 once the shore texture is baked (bakeLand): the shader reads it instead of uLakes. */
+    uLakeTex: { value: 0 },
+    tLake: { value: null as THREE.Texture | null },
     tLand: { value: null as THREE.Texture | null },
     tCover: { value: null as THREE.Texture | null },
     tGrain: surfaceUniforms.uNoise,
@@ -118,8 +126,9 @@ export function band(ftPerPx: number, hi: number, lo: number): number {
 }
 
 /** Bake the land once: RGBA half floats (height as drawn, its x and z gradient, the placed maps' clearings) and RGBA bytes of cover
- *  (forest, hills, mountains, water), at 1/32 mile, over the region and a mile round it. A generator: it yields every
- *  few rows, so its caller spreads it over frames (the page never stalls). */
+ *  (forest, hills, mountains, water), at 1/32 mile, over the region and a mile round it; and, when the data draws its
+ *  lakes as outlines, their shore as a signed-distance half-float texture at twice that resolution (disposed with the
+ *  land texture). A generator: it yields every few rows, so its caller spreads it over frames (the page never stalls). */
 export function* bakeLand(field: LandField, u: CartoUniforms): Generator<void, { land: THREE.DataTexture; cover: THREE.DataTexture; ms: number }> {
   /** 1 on a placed map's footprint and its felled clearing, falling to 0 a little beyond. */
   const site = (x: number, z: number): number => {
@@ -157,7 +166,26 @@ export function* bakeLand(field: LandField, u: CartoUniforms): Generator<void, {
   }
   const land = new THREE.DataTexture(half, nx, nz, THREE.RGBAFormat, THREE.HalfFloatType);
   const cover = new THREE.DataTexture(cov, nx, nz, THREE.RGBAFormat, THREE.UnsignedByteType);
-  for (const tx of [land, cover]) { tx.magFilter = THREE.LinearFilter; tx.minFilter = THREE.LinearFilter; tx.wrapS = tx.wrapT = THREE.ClampToEdgeWrapping; tx.generateMipmaps = false; tx.needsUpdate = true; }
+  const textures = [land, cover];
+  if (field.world.lakes.some(lakeOutline)) {
+    // the shore: every lake's signed distance, exact to the outline (an ellipse among them by its estimate), only within
+    // LAKE_FAR of each lake's extent; the rest of the sheet reads LAKE_FAR (dry, far)
+    const lx = nx * LAKE_SUB, lz = nz * LAKE_SUB, step = TEX_FT / LAKE_SUB, S = new Float32Array(lx * lz).fill(LAKE_FAR);
+    for (let i = 0; i < field.world.lakes.length; i++) {
+      const b = field.lakeBox(i);
+      const k0 = Math.max(0, Math.floor((b.minX - LAKE_FAR - o.x) / step)), k1 = Math.min(lx - 1, Math.ceil((b.maxX + LAKE_FAR - o.x) / step));
+      const r0 = Math.max(0, Math.floor((b.minZ - LAKE_FAR - o.y) / step)), r1 = Math.min(lz - 1, Math.ceil((b.maxZ + LAKE_FAR - o.y) / step));
+      for (let r = r0; r <= r1; r++) {
+        for (let k = k0; k <= k1; k++) { const j = r * lx + k, d = field.lakeSd(i, o.x + (k + 0.5) * step, o.y + (r + 0.5) * step); if (d < S[j]) S[j] = d; }
+        if ((r - r0) % 16 === 15) { ms += performance.now() - t0; yield; t0 = performance.now(); }
+      }
+    }
+    const sh = new Uint16Array(lx * lz); for (let j = 0; j < S.length; j++) sh[j] = toHalf(Math.max(-LAKE_FAR * 4, Math.min(LAKE_FAR, S[j])));
+    const lake = new THREE.DataTexture(sh, lx, lz, THREE.RedFormat, THREE.HalfFloatType);
+    textures.push(lake); u.tLake.value = lake; u.uLakeTex.value = 1;
+    land.addEventListener('dispose', () => lake.dispose());
+  }
+  for (const tx of textures) { tx.magFilter = THREE.LinearFilter; tx.minFilter = THREE.LinearFilter; tx.wrapS = tx.wrapT = THREE.ClampToEdgeWrapping; tx.generateMipmaps = false; tx.needsUpdate = true; }
   u.tLand.value = land; u.tCover.value = cover;
   return { land, cover, ms: ms + performance.now() - t0 };
 }
@@ -169,9 +197,10 @@ uniform float uCarto, uPxK, uDpr, uHexFt, uHexOn, uIndexFt, uSnowFt, uCrownPx, u
 uniform vec3 uAnchor;
 uniform vec2 uOrigin, uSize, uHexOrigin;
 uniform vec4 uRegion;
-uniform sampler2D tLand, tCover, tGrain;
+uniform sampler2D tLand, tCover, tGrain, tLake;
 uniform vec4 uLakes[${MAX_LAKES}];
 uniform int uLakeN;
+uniform float uLakeTex;
 uniform vec3 cPaper, cPaper2, cInk, cForest, cForest2, cHill, cRock, cSnow, cWater, cWaterInk, cMist, cMeadow, cMeadow2, cDeckle;
 varying vec3 vCartoW;
 varying float vCartoDepth;
@@ -231,8 +260,10 @@ vec3 cCrowns(vec2 p, float ftpx, float dens) {
   if (uPhone > 0.5) return cCrownPair(p, s0, dens, aa);
   return mix(cCrownPair(p, s0, dens, aa), cCrownPair(p, 2.0 * s0, dens, aa), t);
 }
-// signed distance (ft) to the nearest lake's shore (negative in the water), from world.json's ellipses
+// signed distance (ft) to the nearest lake's shore (negative in the water): the baked shore texture (the measured
+// outlines), else world.json's ellipses
 float cLakeSd(vec2 p) {
+  if (uLakeTex > 0.5) return texture(tLake, (p - uOrigin) / uSize).r;
   float sd = 1e9;
   for (int i = 0; i < ${MAX_LAKES}; i++) {
     if (i >= uLakeN) break;
@@ -359,7 +390,7 @@ vec3 cartoLand(vec3 col3d) {
     c = mix(c, mix(vec3(0.490, 0.608, 0.298), vec3(0.663, 0.769, 0.427), hb2.z), hb2.y * hw * 0.85);
     c = mix(c, cInk, hb2.x * hw * 0.8);
   }
-  // L9 water: lakes from their ellipses (wash, casing, shore ink, ripples), the cover's wet cells as a wash
+  // L9 water: lakes from their shore (wash, casing, shore ink, ripples), the cover's wet cells as a wash
   float sd = cLakeSd(p), sdp = sd / ftpx;
   float wet = max(1.0 - smoothstep(-0.6, 0.6, sd / ftdev), smoothstep(0.45, 0.7, C.a) * 0.8);
   float u = max(0.0, -sd) / (ftpx * 4.5), k = sqrt(2.0 * u + 0.25) - 0.5;
@@ -448,17 +479,20 @@ const INK_FRAG = /* glsl */ `
 uniform float uCarto, uDpr;
 uniform vec3 uAnchor;
 uniform vec2 uOrigin, uSize;
-uniform sampler2D tLand;
+uniform sampler2D tLand, tLake;
 uniform vec4 uLakes[${MAX_LAKES}];
 uniform int uLakeN;
+uniform float uLakeTex;
 uniform vec3 cRoad, cRoadCase, cWater, cWaterInk;
 varying float vSide, vU, vKind, vT, vFpp;
 varying vec3 vW;
 void main() {
   #include <logdepthbuf_fragment>
   vec2 p = vW.xz + uAnchor.xz;
+  // a river's ink stops at a lake's shore (the baked outlines, else the ellipses)
   float sd = 1e9;
-  for (int i = 0; i < ${MAX_LAKES}; i++) { if (i >= uLakeN) break; vec4 L = uLakes[i]; vec2 d = (p - L.xy) / L.zw; float rho = max(length(d), 1e-4); sd = min(sd, (rho - 1.0) / max(length(d / (L.zw * rho)), 1e-9)); }
+  if (uLakeTex > 0.5) sd = texture2D(tLake, (p - uOrigin) / uSize).r;
+  else for (int i = 0; i < ${MAX_LAKES}; i++) { if (i >= uLakeN) break; vec4 L = uLakes[i]; vec2 d = (p - L.xy) / L.zw; float rho = max(length(d), 1e-4); sd = min(sd, (rho - 1.0) / max(length(d / (L.zw * rho)), 1e-9)); }
   float s = abs(vSide), aa = fwidth(vSide) * 1.2;
   vec3 c; float a;
   if (vKind > 2.5) { c = cRoadCase; a = 1.0; }

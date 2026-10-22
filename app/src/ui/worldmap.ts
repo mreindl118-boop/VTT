@@ -3,6 +3,8 @@
 // compass, and the party marker that mirrors campaign state. The DM drags the party to a place (enter a
 // built scene there) or into the wilderness; the card gives straight-line distance and travel time.
 import type { WorldData } from '../campaigns';
+import { inLakeShape, lakeRing } from '../render/worldlakes';
+import { graphOf, route } from '../render/worldroads';
 import { PACES, type Pace } from '../core/travel';
 import { ICON } from './icons';
 import { rich } from './rich';
@@ -22,6 +24,9 @@ export const worldPins = (): Pin[] => W.pins;
 
 /** The party's drag snaps onto a place this close (miles). */
 export const SNAP_MI = 0.35;
+/** Whether a point (miles) lies in a lake as every view draws it (render/worldlakes.ts: inside its rounded shore, else
+ *  inside its ellipse). */
+export const inLake = (p: P): boolean => W.lakes.some((l) => inLakeShape(l, p));
 export const dist = (a: P, b: P) => Math.hypot(a[0] - b[0], a[1] - b[1]);
 const NS = 'http://www.w3.org/2000/svg';
 const el = <K extends keyof SVGElementTagNameMap>(tag: K, attrs: Record<string, string | number>, parent?: Element): SVGElementTagNameMap[K] => {
@@ -55,13 +60,19 @@ export function pinTipHtml(p: Pin, o: { dm: boolean; revealed: boolean; canOpen:
   return `<b>${esc(keyOf(p))} · ${esc(p.name)}</b>${p.blurb ? `<div>${pinText(p, 'blurb', seen)}</div>` : ''}${o.dm && p.dm ? `<div class="dm">${pinText(p, 'dm', seen)}</div>` : ''}${o.dm ? `<div class="vis">${o.revealed ? 'Players can see this place' : 'Hidden from players'}</div>` : ''}${p.scenes?.length ? `<div class="vis">${o.canOpen ? 'Tap to open the map' : 'Tap for its card'}</div>` : ''}`;
 }
 /** The place card: where (a place, or the wilderness near the nearest name), the blurb, the DM's note and reveal
- *  chip, the distance from the party and the time at a pace, and an Open button per map (or the no-map note). */
-export function worldCardHtml(pin: Pin | undefined, to: P, miles: number, o: { dm: boolean; known?: ReadonlySet<string>; revealed: boolean; pace: Pace; canOpen: boolean; labels: string[] }): string {
+ *  chip, the distance from the party and the time at a pace, the DM's Travel here (`canTravel`: the party goes there,
+ *  a move on its trail, as its drag does; opening a map is only looking) and an Open button per map (or the no-map
+ *  note). */
+export function worldCardHtml(pin: Pin | undefined, to: P, miles: number, o: { dm: boolean; known?: ReadonlySet<string>; revealed: boolean; pace: Pace; canOpen: boolean; canTravel?: boolean; labels: string[] }): string {
   const speed = PACES[o.pace].mph, hours = miles / speed;
   const where = pin ? `<b>${esc(keyOf(pin))}</b> ${esc(pin.name)}` : (() => { const n = nearestName(to, o.dm ? undefined : (o.known ?? new Set())); return `Wilderness · ${n.mi.toFixed(1)} mi from ${esc(n.name)}`; })();
   const scenes = pin?.scenes ?? [], seen = new Set<string>();
   return `<div class="wc-where">${where}${pin && o.dm ? `<button class="chip-btn" data-reveal="${pin.key}" aria-pressed="${o.revealed}">${o.revealed ? 'Shown to players' : 'Hidden from players'}</button>` : ''}</div>${pin?.blurb ? `<div class="wc-blurb">${pinText(pin, 'blurb', seen)}</div>` : ''}${pin?.dm && o.dm ? `<div class="wc-dm">${pinText(pin, 'dm', seen)}</div>` : ''}<div class="wc-travel">${miles.toFixed(1)} mi as the crow flies · about ${fmtHours(hours)} at a ${o.pace} pace (${speed} mph)</div>
-      ${scenes.length && o.canOpen ? `<div class="wc-actions">${scenes.map((s, i) => `<button class="primary" data-scene="${s}">Open ${esc(o.labels[i] ?? s)}</button>`).join('')}</div>` : scenes.length ? '' : '<div class="wc-note">No battle map here yet; run it theatre-of-the-mind or pick a nearby place.</div>'}`;
+      ${(() => {
+        const travel = o.canTravel && miles >= 0.05 ? '<button data-travel>Travel here</button>' : '';
+        const open = scenes.length && o.canOpen ? scenes.map((s, i) => `<button class="primary" data-scene="${s}">Open ${esc(o.labels[i] ?? s)}</button>`).join('') : '';
+        return `${travel || open ? `<div class="wc-actions">${travel}${open}</div>` : ''}${scenes.length ? '' : '<div class="wc-note">No battle map here yet; run it theatre-of-the-mind or pick a nearby place.</div>'}`;
+      })()}`;
 }
 
 // ---------------------------------------------------------------- the painted base layer
@@ -104,8 +115,7 @@ function paint(cv: HTMLCanvasElement, vb: { x: number; y: number; w: number; h: 
   const cover = coverSampler();
   const woodDensity = cover ? (p: P) => cover.at('f', p) * 0.85 : (p: P) => (near(p, woodPts, kw) / Math.max(1, W.woods.length / 5)) * 0.6;
   const highDensity = cover ? (p: P) => cover.at('h', p) * 0.75 + cover.at('m', p) * 1.5 + near(p, W.peaks.map((q) => q.pos), 0.9) * 0.6 : (p: P) => near(p, highPts, kh) * (W.high.length > 40 ? 0.35 : 1);
-  const inLake = (p: P) => W.lakes.some((l) => ((p[0] - l.center[0]) / l.r[0]) ** 2 + ((p[1] - l.center[1]) / l.r[1]) ** 2 < 1);
-  const inWater = cover ? (p: P) => cover.at('w', p) > 0.5 : inLake;
+  const inWater = cover ? (p: P) => cover.at('w', p) > 0.5 || inLake(p) : inLake;
   // 1. ground: two-tone noise
   ctx.fillStyle = C.ground[0]; ctx.fillRect(0, 0, cv.width, cv.height);
   const cell = Math.max(4, Math.round(S * 0.08));
@@ -153,21 +163,45 @@ function paint(cv: HTMLCanvasElement, vb: { x: number; y: number; w: number; h: 
     ctx.strokeStyle = C.ink; ctx.lineWidth = Math.max(0.6, s * 0.06); ctx.globalAlpha = 0.5; ctx.beginPath(); ctx.moveTo(x - s, y + s * 0.55); ctx.quadraticCurveTo(x - s * 0.3, y - s * (mountain ? 1.3 : 0.6), x, y - s * (mountain ? 1.3 : 0.6)); ctx.stroke(); ctx.globalAlpha = 1;
     if (h > 1.7) { ctx.fillStyle = C.snow; ctx.beginPath(); ctx.moveTo(x, y - s * 1.3); ctx.lineTo(x - s * 0.28, y - s * 0.75); ctx.lineTo(x - s * 0.1, y - s * 0.85); ctx.lineTo(x + 0.05 * s, y - s * 0.7); ctx.lineTo(x + s * 0.28, y - s * 0.75); ctx.closePath(); ctx.fill(); }
   }
-  // 4. water: lakes and rivers with a darker bank. With a cover grid the lakes take their real shapes from it.
+  // 4. water: lakes and rivers with a darker bank. With a cover grid the water takes its shape from the grid's wet cells;
+  //    a lake with a measured outline is then drawn over them as that outline (its bank an offset copy and a shore line,
+  //    its ripples the outline shrunk toward its centre, on the far shore); without a grid the outline, else the
+  //    ellipse, is all there is.
+  const ringPath = (ring: P[], ox = 0, oy = 0) => { ctx.beginPath(); ring.forEach(([x, y], i) => { if (i) ctx.lineTo(X(x) + ox, Y(y) + oy); else ctx.moveTo(X(x) + ox, Y(y) + oy); }); ctx.closePath(); };
+  const centreOf = (ring: P[]): P => [ring.reduce((s, p) => s + p[0], 0) / ring.length, ring.reduce((s, p) => s + p[1], 0) / ring.length];
+  const ripples = (l: WorldData['lakes'][number], alpha: string) => {
+    ctx.strokeStyle = alpha; ctx.lineWidth = Math.max(0.8, S * 0.02);
+    const ring = lakeRing(l);
+    for (let k = 0; k < 3; k++) {
+      if (!ring) { ctx.beginPath(); ctx.ellipse(X(l.center[0]), Y(l.center[1]), l.r[0] * S * (0.3 + k * 0.2), l.r[1] * S * (0.25 + k * 0.2), 0, Math.PI * 1.1, Math.PI * 1.9); ctx.stroke(); continue; }
+      // the outline shrunk toward its centre, drawn where it faces north-ish (the ellipse's arc from 1.1π to 1.9π)
+      const c = centreOf(ring), f = 0.3 + k * 0.2; let on = false; ctx.beginPath();
+      for (const [x, y] of [...ring, ring[0]]) {
+        const a = (Math.atan2(y - c[1], x - c[0]) + Math.PI * 2) % (Math.PI * 2), px = X(c[0] + (x - c[0]) * f), py = Y(c[1] + (y - c[1]) * f);
+        if (a > Math.PI * 1.1 && a < Math.PI * 1.9) { if (on) ctx.lineTo(px, py); else ctx.moveTo(px, py); on = true; } else on = false;
+      }
+      ctx.stroke();
+    }
+  };
   if (cover) {
     const r0 = cover.cell * 0.78 * S;
     for (const pass of [0, 1]) for (const [p, v] of cover.cells('w')) {
       if (v < 0.5) continue;
       ctx.fillStyle = pass ? C.water : C.waterEdge; ctx.beginPath(); ctx.arc(X(p[0]) + (pass ? 0 : S * 0.02), Y(p[1]) + (pass ? 0 : S * 0.03), pass ? r0 : r0 * 1.18, 0, Math.PI * 2); ctx.fill();
     }
-    for (const l of W.lakes) if (l.r[0] > 0.5) { ctx.strokeStyle = 'rgba(255,255,255,.3)'; ctx.lineWidth = Math.max(0.8, S * 0.02);
-      for (let k = 0; k < 3; k++) { ctx.beginPath(); ctx.ellipse(X(l.center[0]), Y(l.center[1]), l.r[0] * S * (0.3 + k * 0.2), l.r[1] * S * (0.25 + k * 0.2), 0, Math.PI * 1.1, Math.PI * 1.9); ctx.stroke(); } }
   }
-  for (const l of cover ? [] : W.lakes) {
-    ctx.fillStyle = C.waterEdge; ctx.beginPath(); ctx.ellipse(X(l.center[0]) + S * 0.03, Y(l.center[1]) + S * 0.04, l.r[0] * S, l.r[1] * S, 0, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = C.water; ctx.beginPath(); ctx.ellipse(X(l.center[0]), Y(l.center[1]), l.r[0] * S * 0.96, l.r[1] * S * 0.94, 0, 0, Math.PI * 2); ctx.fill();
-    ctx.strokeStyle = 'rgba(255,255,255,.35)'; ctx.lineWidth = Math.max(0.8, S * 0.02);
-    for (let k = 0; k < 3; k++) { ctx.beginPath(); ctx.ellipse(X(l.center[0]), Y(l.center[1]), l.r[0] * S * (0.3 + k * 0.2), l.r[1] * S * (0.25 + k * 0.2), 0, Math.PI * 1.1, Math.PI * 1.9); ctx.stroke(); }
+  for (const l of W.lakes) {
+    const ring = lakeRing(l);
+    if (!ring && cover) { if (l.r[0] > 0.5) ripples(l, 'rgba(255,255,255,.3)'); continue; }
+    if (ring) {
+      ctx.fillStyle = ctx.strokeStyle = C.waterEdge; ctx.lineWidth = Math.max(1, S * 0.03); ctx.lineJoin = 'round';
+      ringPath(ring, S * 0.03, S * 0.04); ctx.fill(); ringPath(ring); ctx.stroke();
+      ctx.fillStyle = C.water; ringPath(ring); ctx.fill();
+    } else {
+      ctx.fillStyle = C.waterEdge; ctx.beginPath(); ctx.ellipse(X(l.center[0]) + S * 0.03, Y(l.center[1]) + S * 0.04, l.r[0] * S, l.r[1] * S, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = C.water; ctx.beginPath(); ctx.ellipse(X(l.center[0]), Y(l.center[1]), l.r[0] * S * 0.96, l.r[1] * S * 0.94, 0, 0, Math.PI * 2); ctx.fill();
+    }
+    if (!cover || l.r[0] > 0.5) ripples(l, cover ? 'rgba(255,255,255,.3)' : 'rgba(255,255,255,.35)');
   }
   const stroke = (pts: P[], color: string, w: number, dash?: number[]) => { ctx.strokeStyle = color; ctx.lineWidth = w; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.setLineDash(dash ?? []); ctx.beginPath(); pts.forEach((p, i) => (i ? ctx.lineTo(X(p[0]), Y(p[1])) : ctx.moveTo(X(p[0]), Y(p[1])))); ctx.stroke(); ctx.setLineDash([]); };
   for (const r of W.rivers) { stroke(r.pts, C.waterEdge, Math.max(2, S * 0.2)); stroke(r.pts, C.water, Math.max(1.2, S * 0.12)); }
@@ -356,7 +390,15 @@ export function openWorldMap(host: WorldHost): void {
     at = to; place(at); drawTrail(); refreshKnown();
     void showCard(near, to, miles);
   });
-  const drawTrail = () => { const t = host.get(); const pts = (t as { trail?: { pos: P }[] } | undefined)?.trail?.map((x) => x.pos) ?? []; trail.setAttribute('d', pts.length > 1 ? path(pts.slice(-12)) : ''); };
+  // the party's last moves (at most 11), each along the roads between its two ends, or straight where an end is off
+  // them: the way the valley's trail is drawn (render/worldroads.ts, render/worldstage.ts drawTrail)
+  const drawTrail = () => {
+    const t = host.get(), pts = ((t as { trail?: { pos: P }[] } | undefined)?.trail?.map((x) => x.pos) ?? []).slice(-12);
+    if (pts.length < 2) { trail.setAttribute('d', ''); return; }
+    const g = graphOf(W), way: P[] = [pts[0]];
+    for (let i = 1; i < pts.length; i++) way.push(...((route(g, pts[i - 1], pts[i]) ?? [pts[i - 1], pts[i]]) as P[]).slice(1));
+    trail.setAttribute('d', path(way));
+  };
   drawTrail();
   const focus = host.focus ? W.pins.find((p) => p.key === host.focus) : undefined;
   if (focus) { view.w = Math.max(1.5, vb.w * 0.45); view.h = (view.w / vb.w) * vb.h; view.x = focus.pos[0] - view.w / 2; view.y = focus.pos[1] - view.h / 2; apply(); }
@@ -364,11 +406,15 @@ export function openWorldMap(host: WorldHost): void {
 
   async function showCard(pin: Pin | undefined, to: P, miles: number): Promise<void> {
     const labels = await Promise.all((pin?.scenes ?? []).map((s) => host.sceneName(s)));
-    card.innerHTML = worldCardHtml(pin, to, miles, { dm: host.dm, known: host.revealed(), revealed: pin ? host.revealed().has(pin.key) : false, pace, canOpen: host.canMove, labels });
+    card.innerHTML = worldCardHtml(pin, to, miles, { dm: host.dm, known: host.revealed(), revealed: pin ? host.revealed().has(pin.key) : false, pace, canOpen: host.canMove, canTravel: host.canMove, labels });
     card.hidden = false;
+    shown = { pin, to };
   }
+  let shown: { pin: Pin | undefined; to: P } | null = null;
   card.addEventListener('click', (e) => {
     const t = e.target as HTMLElement, s = t.closest<HTMLElement>('[data-scene]')?.dataset.scene; if (s) { host.enter(s); back.remove(); return; }
+    // Travel here: the party goes to the card's place (as a drag there would), and the card shows it arrived
+    if (t.closest('[data-travel]') && host.canMove && shown) { const { pin, to } = shown, miles = dist(at, to); if (miles < 0.05) return; host.move([...to] as P, pin?.key, miles); at = [...to] as P; place(at); drawTrail(); refreshKnown(); void showCard(pin, to, 0); return; }
     const rv = t.closest<HTMLElement>('[data-reveal]'); if (rv) { const p = W.pins.find((x) => x.key === rv.dataset.reveal)!; host.reveal(p.key, !host.revealed().has(p.key)); refreshKnown(); void showCard(p, p.pos, dist(at, p.pos)); }
   });
   back.querySelector('.pace')!.addEventListener('click', (e) => { const b2 = (e.target as HTMLElement).closest<HTMLElement>('[data-pace]'); if (!b2) return; pace = b2.dataset.pace as Pace; back.querySelectorAll('[data-pace]').forEach((x) => x.setAttribute('aria-selected', String(x === b2))); });

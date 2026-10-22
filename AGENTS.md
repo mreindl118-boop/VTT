@@ -87,9 +87,7 @@ editing the same thing at once:
 
 | What | Who | Since (UTC) | Doing | Expected on main |
 |---|---|---|---|---|
-| `scripts/authoring/barovia-world.py`, `locations/ch02/barovia-region/world.json`, a new `tests/world-roads.test.ts`; for the lakes (2f-1c) `app/src/render/worldland.ts` (the lake functions only), `app/src/render/worldcarto.ts` (the lakes only), `app/src/ui/worldmap.ts` (the lakes only), `scripts/world-atlas.ts` and `tests/atlas.test.ts` (the shore rule only) (item 2f-1a/c) | Claude, cloud | 2026-10-19 14:25 | the region's roads, rivers and lakes as measured shapes, on `claude/wip/item2f-1-roads` | 2026-10-19/20, with 2f-1b as one release |
-| `app/src/app.ts` (only `activate`'s `travel` flag and `moveWorld`), `app/src/render/worldstage.ts` (only `drawTrail`), a new `app/src/render/worldroads.ts` (item 2f-1b) | Claude, cloud | 2026-10-19 14:25 | the trail recorded on explicit travel only and drawn along the road graph, on `claude/wip/item2f-1-roads` | with 2f-1a |
-| `scripts/authoring/castle-ravenloft.py`, `locations/ch04/K`, `print/castle-ravenloft/` (item 2g) | Claude, cloud (castle session) | 2026-10-18 21:08 | the playable castle + print set on `claude/wip/castle-playable`; waiting for Matt's approval, then build/tests on a machine with npm | after Matt approves and 0.3.3 lands |
+| `scripts/authoring/castle-ravenloft.py`, `scripts/authoring/ravenloft-exterior.py`, a new `scripts/authoring/thickwalls.py`, `locations/ch04/K`, `print/castle-ravenloft/`; for 2g-1 `scripts/authoring/wild_j.py`, `locations/ch02/J`, `app/src/kit/sites/k.ts`, `app/src/kit/sites/wild-j.ts`, `app/src/kit/sites/index.ts` and, for J's pin and placement beside the castle only, `scripts/authoring/barovia-world.py` and `world.json` (the 2f-1 row's files: the same agent; merged there by re-running); the walls' thickness: `app/src/core/schema.ts` (`Wall.thicknessFt`), a new `app/src/core/wallBody.ts`, `app/src/core/light.ts` (the blockers), `app/src/core/coverage.ts` (wall bodies; `load` reading only a record that fits its grid, the rest kept aside), `app/src/render/build.ts` (wall, door, window boxes, section caps); the stairs and starts: `app/src/app.ts` (the vertical-link functions, `open`'s party floor, `ensureDefaultToken`, `loadSteps`' restore, `syncUnderground`, the section-cap hook; not `activate` or `moveWorld`), a new `app/src/core/verticalLinks.ts`, a new `app/src/state/partyStart.ts`, `app/src/state/campaign.ts` (settled starts), `app/src/core/siteInterfaces.ts` (ch04/K's underground flag and chasm cut), `app/src/main.ts`, `app/src/styles.css`; for J beside the castle, `app/src/render/backdrop.ts` (`site()`'s landmark choice only: no backdrop castle rising out of J's map with the continuous world off) and `app/src/ui/worldnest.ts` (`snapAt` only: a drop on a place skips hidden places, as a tap does); the browser specs `world.spec.ts` (touching maps) and `continuity.spec.ts` (the castle's budget); the manifests; new tests `castle-contract`, `castle-walls`, `gate-front`, `vertical-links`, `wall-thickness` and the e2e `vertical-links` and `continuity` cases (items 2g, 2g-1, the owner's walls request, item 11's single-hop stairs) | Claude, cloud (main session; taken over from the castle session, whose claim was stale) | 2026-10-19 18:45 | finishing the castle on `claude/wip/castle-playable` (Matt: "finish the castle"); ChatGPT: the save migration you proposed would build on `coverage.ts`'s kept-aside records here | its own release after Matt looks at it |
 
 ## Running things (Matt's Windows laptop, PowerShell)
 
@@ -131,6 +129,142 @@ Do not start an item that the Status section says another agent has in flight un
 a day old; then continue it from its wip branch, and say so in Status.
 
 ## Status
+
+### Claude, 2026-10-21 03:45 UTC (cloud): CI is green on 0.3.4; holding for Matt
+
+- **CI on main is green for the release commit `9c48314` and the Status commit `5a60cc3`, and on the roads wip branch for
+  `9c48314`. ChatGPT: `desktop-v0.3.4` is cleared on CI; the save gate in `docs/DESKTOP.md` still applies.**
+- Matt, 03:40: "Ok", on the 0.3.4 report. Read as acknowledgement, not as a go: the cloud starts nothing new under the
+  seven-day warning until he says go or the window resets (2026-10-24 06:00 UTC), and the castle waits on his choice
+  for the Gates' approach. The answered roads question that the 2f-1 merge brought back into Questions is removed.
+
+### Claude, 2026-10-21 01:45 UTC (cloud): 0.3.4 (item 2f-1, the valley's roads, lakes and trail) is on the main branch and published
+
+- **0.3.4 is on the main branch (release commit `9c48314`) and published to the mistLAB link (artifact version 46,
+  bundle `index-B79r8GHC.js`, 204 files). ChatGPT: `desktop-v0.3.4` from `9c48314` once CI is green on it, under the
+  same save gate as 0.3.3 (`docs/DESKTOP.md`; 0.3.4 changes no scene's grid, so it adds nothing to that gate).** Item
+  2f-1 is ticked; its three claim rows are released.
+- What changed: the roads and rivers re-measured from the regional map as one net through the places (35 pieces to 14
+  roads and trails, 42 dead ends to 0, every road place served; `barovia-world.py` now lays them into the refined
+  `world.json` and the world pipeline runs again); the lakes as outlines drawn with rounded shores
+  (`app/src/render/worldlakes.ts`) in the land, the inked map, the sheet and the legacy backdrop; the River Ivlis one
+  river through the Tser Pool, every river meeting its lake; the trail along the road graph (`worldroads.ts`) on the
+  valley and the sheet; an open only looks, and the party travels by a drag or the place card's new Travel here.
+- Proofs on the release head: build; `npx vitest run` 605 passed, 2 environment skips, 2 todo (new world-roads,
+  world-rivers, world-lakes and worldroads tests, each failing on the old data or code first); the full browser suite
+  326 of 326 accounted for, 275 passed, 51 device skips, 0 failed, in three runs because a container restart cut the
+  first (180 Chrome tests passed, then the remaining nine files' 74, then the 76 iPad and phone copies); Death House
+  and the Sheep Chase square pixel-identical, Vallaki changed only at the lake shore; the whole valley 8 draw calls as
+  before, triangles +0.33%; the changelog has no eight-word run from the module.
+- Left, recorded with the release: the Tser Pool's page position, rivers that climb ridges (the land, release 7), the
+  3-D road ribbons breaking into dashes in valleys (as before), the Road to Ravenloft's last mile (with the castle),
+  the Tser Falls backdrop's road hook (`wild-h.ts`), and the questions under Questions for Matt.
+- **Usage: the seven-day meter still reads `allowed_warning`. Matt's override was "Castle first, then roads"; both are
+  done to the point of his decisions, so the cloud starts nothing new (the mist edge, 2f-5, is next in the queue)
+  until Matt says go or the weekly window resets (2026-10-24 06:00 UTC).** The castle waits on his look and answers.
+
+### Claude, 2026-10-20 19:35 UTC (cloud): the Gates job is done; J meets the drawbridge, but on the castle's rock; Matt decides the approach
+
+- **`claude/wip/castle-playable` at `4d98fbe`** (11 commits on `0a05ffb`; `6ff75e2` reverted by `4d98fbe` because J as
+  a crag took the whole-valley frame over its 300,000-triangle budget). Done: J's sill under the drawbridge's free end
+  (0 ft apart), one chasm, J's road exit fixed at J-local (40, 0); with the continuous world off, the castle alone has a
+  stand-in of J's sill and ridge, and J alone no longer shows the backdrop's pillar rising out of its map
+  (`backdrop.ts` `site()`); a drop on the castle's disc on the World map lands at the castle (`worldnest.ts` `snapAt`
+  skips hidden places, as a tap does); the white plate from J's gully lid on the castle's phone frame is gone. 665 unit
+  tests pass; world, continuity, nest and worldmap-safety specs pass; the castle probe as before (94/94 stairs);
+  Death House, Vallaki and the Sheep Chase street pixel-identical with the continuous world on and off.
+- **Left, and why it waits on Matt:** standing on the castle's thousand-foot rock, J is out of the road's reach (the
+  valley road ends 1.0 mi away and about 690 ft lower, under a face of about 58 degrees); the chasm is a 395-ft
+  trench with square ends in level ground; from J the castle, drawn as J's neighbour, is cut at 49.5 ft so it does not
+  loom (`app.ts` `ghostLook`); from J's sill looking across, J folds to its proxy (`streamer.ts` `inView`); in Players
+  view nothing of the castle shows at the Gates until its pin is revealed; the castle takes 2-3 minutes to appear
+  beside J under software rendering (not measured on a GPU). The first two are the land's shape (a spur the road
+  climbs, the chasm's ends), which framework release 7 (2f-6) carries; the next two are small render fixes outside the
+  claim. Question for Matt below.
+- **Next: item 2f-1 (the roads) resumes now, on Matt's order ("Castle first, then roads").** The seven-day meter reads
+  `allowed_warning` again; Matt's word stands; the cloud stops at once if a limit is refused.
+
+### Claude, 2026-10-20 16:15 UTC (cloud): a third container restart (about 16:03); J stands at the castle's drawbridge; reviews resumed
+
+- **The Gates job (`wf_d2ca9c56-9ff`) built and pushed J beside the castle before the restart** (`6131969`, `603e536`,
+  `5e20ca9`): the drawbridge's free end lies on J's sill (0 ft apart in plan and height, from 4,369 ft and 584 ft); one
+  chasm, the castle's, under the whole span; the castle's ridge stub gone (that ground is J's); J's pin tied to the
+  castle's by `barovia-world.py --ties` (the full world pipeline no longer reproduces the committed `world.json`, so the
+  tie writes only J's position, ground and blurb); the new `tests/gates-at-castle.test.ts` failed on `0a05ffb` and
+  passes. The two reviews were cut by the restart and resume now, then one fix pass, which also fixes the two things the
+  builder found outside its files: with the continuous world off the backdrop's castle and pillar rise out of J's map
+  (`backdrop.ts` `site()`), and a party dropped on the castle's disc on the World map lands at J, whose disc is hidden
+  under it (`worldnest.ts` `snapAt` skips hidden places, as a tap does; `e2e/worldmap-safety.spec.ts:124` holds it).
+- For item 2f-1 (recorded by the builder): the Road to Ravenloft must run on about 0.96 mi from its end to J's road exit
+  (J-local (40, 0), world (12.8755, 6.6469) mi, arriving from about N 16 W at 2,133 ft); no world road to the castle
+  itself, whose only way in is the drawbridge from J.
+
+### Claude, 2026-10-20 12:45 UTC (cloud): the castle job is done (A-D, verify, two reviews, one fix pass); J's placement next
+
+- **`claude/wip/castle-playable` at `0a05ffb`, 39 commits on `a8419a6`.** Part C (walls, 12 commits): every castle wall
+  has a thickness by class (curtain 20 ft; keep outer 5, 4, 3 ft as it rises; towers 4; stone partitions 2; panelling
+  1; parapets 3; railings 0.75; nothing storey-high under 1), taken from the space round it, floors cut back to the
+  faces, joints closed, doors through the full depth, sight and movement matching the drawn body; maps without the field
+  unchanged. Part D (the gate front, 7 commits): the gatehouse with its tunnel, two gate towers, the drawbridge on its
+  chains, the portcullis and the gargoyles are the castle's own; J keeps the road gate (its turrets and sill on the
+  chasm edge). Fix pass (7 commits): shut doors seal at both jambs (11 leaks to 0); the larders and dungeon stand in the
+  mist instead of under the land; the chasm opens under the drawbridge in the continuous world; a saved fog record is
+  read only into the grid it was saved for and kept aside otherwise (no sheared fog); a party left at an old start
+  moves to the new one (the Wachterhaus no longer reopens on its cellar); uncut section caps leave the frame.
+- **Proofs on `0a05ffb`:** build; 657 unit tests passed, 2 environment skips, 2 todo; every new test failed first; the
+  full browser suite 279 passed, 55 device skips, 0 failed (1.3 h, software rendering); the probe on all 12 castle
+  levels: 12/12 starts, 48/48 first steps, 68/68 doors both ways, 13/13 secret doors, 94/94 stair activations right
+  with none chained; every other scene's entry frame pixel-identical with equal draw calls (37 valley scenes draw 1,078
+  fewer triangles from J's and the castle's distant models; ch05/N4 differs because its party now stands on its ground
+  floor); the generators byte-identical; 0 eight-word runs; print set 924 files, all manifold; no model names.
+- **Left:** (1) **2g-1 is not finished in the valley:** J stands about 4,100 ft from the castle and 584 ft lower, so
+  from J's sill the view across the chasm is empty grass. Next job, on this branch: J's pin and placement beside the
+  castle so J's sill meets the drawbridge (the owner's words settle it: "attached to and part of Ravenloft"), one chasm,
+  J's pin text. (2) The castle's saved fog memory (8 levels) and J's is kept aside, not shown, until the save migration
+  (Questions). (3) Castle draw calls stay above the base (tabletop 458 to 533) from the wall bodies. (4) The audit's
+  ch04/K off-ground count 67 to 90 (stone, plank and wall-top pieces the grass rule flags).
+
+### Claude, 2026-10-20 03:10 UTC (cloud): a second container restart at 03:03; the castle job resumed again
+
+- The container restarted again at about 03:03 UTC (the first was about 00:40) and stopped the castle job in part C a
+  second time. The second walls builder had committed and pushed five fixes on top of the WIP commit (`1515fb0`,
+  `80fc607`, `275e080`, `f4f63d2`, `90d2245`) and was in its final checks; nothing was left uncommitted. The job was
+  resumed at 03:08 from its cache (parts A and B cached), the walls builder told to start from `90d2245`, finish its
+  checks and report. Every builder commits and pushes as it goes, so a restart loses at most the step in flight. The
+  meter reads the five-hour window `allowed`.
+
+### Claude, 2026-10-20 00:58 UTC (cloud): the castle job survived a container restart; parts A and B done, C resumed
+
+- **The container restarted at about 00:40 UTC and stopped the castle job (`wf_d7dab047-ab9`) in part C.** Parts A and B
+  had finished and pushed; part C's unfinished edits were saved as the WIP commit `dd9da55` and pushed; the job was
+  resumed at 00:55 from its cache with part C's brief told to continue from that commit. The meter reads the five-hour
+  window `allowed` (no warning).
+- **Part A, the playable castle (10 commits, `ee141c9`..`c33ec6d`), Players-mode probe on every level, base to head:**
+  doors passing both ways when open 45/67 to 66/66; doors opening onto no floor 21 to 0; `K37-north-b` unblocked; first
+  steps 46/48 to 48/48; a spawn in the front courtyard inside the gate; rooms reachable from the gate 5 to all but the
+  sealed elevator shaft K31a; no eight-word run from the module in the castle's text; the contract test
+  `tests/castle-contract.test.ts` failing on the base and passing. ChatGPT's K22 door, K28 partition, maps 6/7
+  registration and K51 hatch are ported (credited); its K51 cloak-hook link needs its schema and is left for item 2e.
+- **Part B, single-hop stairs (3 commits, `c87ab55`..`bad8b74`), the old link loop replayed on every link from either
+  end:** 60 of 354 wrong at the base (the castle 37 of 94, 27 markers dropped) to none on the castle; Death House, Q, O
+  and the compound tower move one floor per stair; a reload opens on the party's floor. Not ported, listed for Matt:
+  the stair markers in Players view, the route menu, the hidden-hatch gate, arrival snapping.
+- Questions from the builders for Matt are under Questions for Matt below.
+
+### Claude, 2026-10-19 18:45 UTC (cloud): Matt overrides the weekly stop: the castle first, then the roads
+
+- **Matt, 18:44, asked about the seven-day warning: "Castle first, then roads."** That is his word otherwise under
+  USAGE.md; the cloud works on, one multi-agent job at a time, and stops at once if the five-hour window warns or a
+  limit is refused. The castle claim is taken over (row above; the castle session's was past twelve hours with no
+  commit): castle session, please stand down on item 2g. Main was merged into `claude/wip/castle-playable` (`a8419a6`);
+  the generators reproduce the committed scene unchanged. Item 2f-1 stays set aside at `31dff94` until the castle job
+  ends, then resumes from its cache.
+- **Running from 18:50: the castle job, workflow `wf_d7dab047-ab9`** on `claude/wip/castle-playable` from `a8419a6`, in
+  the worktree `.claude/worktrees/castle`: four builders in sequence (A the playable pass with a generator contract test;
+  B item 11's single-hop stairs ported from the cloud's item 11 branch; C the opt-in wall thickness; D the gate front),
+  a verifier (build, unit tests, audit, the probe on every level, every scene's frame against main, screenshots, the
+  print set, the copied-text check), two reviewers and one fix pass. Then Matt looks at it; nothing merges before his
+  yes. Each builder pushes its commits to the wip branch as it goes.
 
 ### Claude, 2026-10-19 18:40 UTC (cloud; PAUSED under USAGE.md: the seven-day meter shows a limit warning)
 
@@ -756,6 +890,28 @@ may still be running** its check-in routine; Matt decides whether it carries on 
 
 ## Questions for Matt
 
+- **The Gates of Ravenloft beside the castle (2026-10-20 19:35):** J now meets the drawbridge, but on the castle's
+  thousand-foot rock, where the valley road cannot climb. Which: (a) shape the land into a spur the road climbs to the
+  Gates, and give the chasm natural ends, before the castle releases (part of framework release 7, pulled forward);
+  (b) release the castle with the Gates beside it and close the road and the land in the roads job and release 7;
+  (c) put the Gates back on the road below for this release, joining them later. With any of them: two small render
+  fixes so the castle looms from the Gates (drawn uncut as a neighbour) and the Gates stay drawn from their own sill;
+  and should reaching the Gates reveal the castle to Players?
+- **The castle, more questions from its reviewers (2026-10-20):** (5) the wall thicknesses above, right? (6) the
+  gatehouse 10 ft out on the chasm edge, a 20-ft tunnel (the module's map 2), gate towers hollow to their battlements?
+  (7) the print set: thick walls double the solid volume (41.5 to 81.1 L), and the default ground tray (keep + 20-ft
+  apron) crops the new gatehouse and drawbridge: print walls as shells, or the whole courtyard (`--courtyard full`)?
+  (8) the party starts inside the gate; start it on J's sill before the drawbridge instead, once J stands there?
+  (9) accept the audit's off-ground count on the castle, or claim the audit to count stone and planks as ground?
+  (10) ship the castle with its old fog memory kept aside, or after the save migration?
+- **The castle (2026-10-20, from the castle job's builders), four questions:** (1) part A removed what the module's
+  plan does not show and that opened onto nothing: the main floor's west access hall K13-w (the plan shows courtyard
+  paving there) and the doors K23-west, K72's west door, K25-south-door and K34-south; K11's door is now the secret
+  door behind the organ. Any of them back? (2) A "sealed on purpose" flag for rooms (framework question 4); until then
+  the castle's test lists K31a, the elevator shaft, by hand. (3) Should stair markers show in Players view, so the table
+  can choose on a landing shared by an up and a down stair (Death House floors 2 and 3, the windmill, the compound
+  tower)? Today the DM picks in DM view. (4) When the DM clicks a stair marker on a floor the party is not on, should it
+  still move the party through it (today's behaviour, kept)?
 - **Desktop 0.3.3 (ChatGPT, 2026-10-19 15:55) is held on a reproduced save loss: may the cloud fix it as one bounded
   job?** The explored-fog memory of Yester Hill's hill level saved before 0.3.2 is dropped on 0.3.2 and later (mechanism
   in the 16:05 Status entry). Proposed, under a claim on `app/src/core/coverage.ts`, `app/src/app.ts` (the two coverage
@@ -773,7 +929,23 @@ may still be running** its check-in routine; Matt decides whether it carries on 
   it. Without it, the gate in `docs/DESKTOP.md` holds every desktop release.
 - Answered (Matt, 2026-10-19: "all go"): the mist edge (2f-5) runs right after 2f-1, ahead of Krezk's crag, the castle's presence and the village streets.
 - Answered (Matt, 2026-10-19: "all go"): framework release 7 runs after the mist edge, with its questions 3, 9 and 10 answered yes as recommended (queue item 2f-6).
-- Answered (Matt, 2026-10-19: "go on"): the valley's roads as one graph and the trail along them, item 2f-1, running.
+- Answered (Matt, 2026-10-19: "go on"): the valley's roads as one graph and the trail along them, item 2f-1, released as 0.3.4 on 2026-10-21.
+- **The Tser Pool (2026-10-20, item 2f-1):** the regional map draws the pool about half a mile east of the camp's own
+  water (the 180-ft pool at the camp's north edge, your 0.3.1 request), so the valley keeps the camp's pool and the
+  traced outline is only recorded (`TIED` in `barovia-world.py`); the River Ivlis runs through the page's pool position
+  and a short outlet joins the camp's pool to it. Move the camp onto the pool's west shore so the pool can be its
+  measured outline, or keep the pool where the camp is?
+- **The valley's roads, rivers and trail (2026-10-20, item 2f-1's review), four choices:** (1) the measured rivers run
+  over the land's ridges (the height lattice was raised from the land-cover grid, whose water followed the old
+  courses): re-running `heightfield.py` does not mend it and moves the ground under most maps by up to 380 ft, and
+  making every river run downhill by cutting channels would cut canyons up to 4,000 ft deep. Recommended: the land
+  rebuilt round the measured water in framework release 7 (2f-6), the cover grid's water drawn from the measured rivers
+  first. Yes? (2) Opening a map only to look still puts the party's token on it, so the party stands on that map while
+  its place on the world map stays where it was: keep that, or give a look no token? (3) The trail on the inked map is a
+  red dash over dark-red roads and hard to see from the whole valley: a contrasting colour or a light casing under it?
+  (4) The east bridge pin (D2) has no road to it (give it the page's crossing, or rename it), and the lake landing (L)
+  now takes an Old Svalich Road exit that bends the road through the boat landing with the continuous world off:
+  leave the landing out of road exits?
 - **CI flakiness (2026-10-19): may the cloud harden the three timing-sensitive checks in `e2e/world.spec.ts`** (the
   valley fit after a flight, the zoom-out chip, the names' clickable count; mechanisms in the 09:50 Status entry) as
   one bounded test-only job under a claim on that file, with no assertion loosened and each change proven by the

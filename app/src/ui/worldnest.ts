@@ -6,7 +6,8 @@
 //    the map itself): the travel pace, the hex grid (one setting with the sheet's), Places, zoom in and out, and back to the open map;
 //  - Places: the key panel, one row per place (a name used twice lists once), the DM's reveal eye per row; a row
 //    flies there and shows its card;
-//  - the place card (distance from the party and the time at the pace, the DM's note and reveal chip, Open per map)
+//  - the place card (distance from the party and the time at the pace, the DM's note and reveal chip, the DM's Travel
+//    here (the party goes there: a move on its trail, as its drag is), Open per map)
 //    and the hover tip (players: the name and the blurb only);
 //  - the party's '&' dragged over the land to a place (it snaps within 22 px or a third of a mile) or into the
 //    wilderness (its trail, the last 12 moves dashed on the land, is the stage's: both screens draw it);
@@ -85,6 +86,12 @@ export class NestedWorldMap {
     this.card.addEventListener('click', (e) => {
       const t = e.target as HTMLElement, s = t.closest<HTMLElement>('[data-scene]')?.dataset.scene;
       if (s) { if (app.restricted || this.card.hidden || !this.cardFor?.pin || !this.shown(this.cardFor.pin) || !this.cardFor.pin.scenes?.includes(s)) return; this.closeCard(); this.h.enter(s); return; }
+      // Travel here: the party goes to the card's place (a move on its trail, as its drag there is), and the card shows it arrived
+      if (t.closest('[data-travel]')) {
+        const c = this.cardFor; if (!c || this.card.hidden || !this.canDrag() || (c.pin && !this.shown(c.pin))) return;
+        const miles = dist(this.at(), c.to); if (miles < 0.05) return;
+        app.moveWorld([...c.to] as P, c.pin?.key, miles); this.refresh(); void this.showCard(c.pin, c.to, 0); return;
+      }
       const rv = t.closest<HTMLElement>('[data-reveal]');
       if (rv) { if (app.playersSide || this.card.hidden) return; const p = this.pin(rv.dataset.reveal!); if (p && p === this.cardFor?.pin) { app.revealPin(p.key, !app.pinsRevealed.has(p.key)); this.refresh(); void this.showCard(p, p.pos as P, dist(this.at(), p.pos as P)); } }
     });
@@ -233,7 +240,7 @@ export class NestedWorldMap {
     this.card.hidden = true; this.card.replaceChildren();
     const labels = await Promise.all((pin?.scenes ?? []).map((s) => this.h.sceneName(s).catch(() => s)));
     if (this.cardFor !== request || campaign !== a.campaign.id || !this.stage || (pin && !this.shown(pin))) return;
-    this.card.innerHTML = worldCardHtml(pin, to, miles, { dm: !a.playersSide, known: a.pinsRevealed, revealed: pin ? a.pinsRevealed.has(pin.key) : false, pace: this.pace, canOpen: !a.restricted, labels });
+    this.card.innerHTML = worldCardHtml(pin, to, miles, { dm: !a.playersSide, known: a.pinsRevealed, revealed: pin ? a.pinsRevealed.has(pin.key) : false, pace: this.pace, canOpen: !a.restricted, canTravel: this.canDrag(), labels });
     this.card.hidden = false;
   }
 
