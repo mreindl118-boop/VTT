@@ -251,7 +251,10 @@ export class Streamer {
       const tx = THREE.MathUtils.clamp(tgt.x, b.minX, b.maxX), tz = THREE.MathUtils.clamp(tgt.z, b.minZ, b.maxZ), dT = Math.hypot(tgt.x - tx, tgt.z - tz);
       // the mist between the eye and its nearest point (FogExp2: what shows through is exp(-(density × d)²))
       const misted = density > 0 && Math.exp(-((density * near) ** 2)) < STREAM.mistSeen;
-      const inView = !misted && (dT < 0.5 * dist || ndcIn(cx, y, cz) || ndcIn(b.minX, y, b.minZ) || ndcIn(b.maxX, y, b.minZ) || ndcIn(b.minX, y, b.maxZ) || ndcIn(b.maxX, y, b.maxZ));
+      // a place the eye stands over is in view: its ground fills the foot of the screen though neither its middle nor a
+      // corner may be on it (the Gates of Ravenloft seen from their own sill, looking across the chasm at the castle)
+      const over = eye.x >= b.minX && eye.x <= b.maxX && eye.z >= b.minZ && eye.z <= b.maxZ;
+      const inView = !misted && (over || dT < 0.5 * dist || ndcIn(cx, y, cz) || ndcIn(b.minX, y, b.minZ) || ndcIn(b.maxX, y, b.minZ) || ndcIn(b.minX, y, b.maxZ) || ndcIn(b.maxX, y, b.maxZ));
       const r = h.residentState(e.path), st = this.last.get(e.path) ?? { lastWanted: 0 };
       const s: SiteView = {
         path: e.path, units: Math.max(1, e.units), px, inView, inside: dT <= STREAM.insidePadFt, area: (b.maxX - b.minX) * (b.maxZ - b.minZ), dTarget: dT,

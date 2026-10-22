@@ -1,7 +1,9 @@
 // The streaming rule (app/src/render/streamer.ts planStream): which maps of the valley are built, drawn, folded into
 // their proxies, freed, and which one the camera makes active.
 import { describe, expect, it } from 'vitest';
-import { DEPTHS, enterPx, leavePx, planStream, STREAM, unitsAfter, type SiteView } from '../app/src/render/streamer';
+import * as THREE from 'three';
+import { DEPTHS, enterPx, leavePx, planStream, STREAM, Streamer, unitsAfter, type SiteView, type StreamHost } from '../app/src/render/streamer';
+import type { AtlasScene } from '../scripts/world-atlas';
 
 const site = (path: string, o: Partial<SiteView> = {}): SiteView => ({
   path, units: 1, px: 0, inView: true, inside: false, area: 1e6, dTarget: 5000, resident: false, drawn: false, loading: false, pinned: false, lastWanted: 0, ...o,
@@ -134,3 +136,27 @@ describe('planStream: nesting (the buildings and area maps of a town)', () => {
   });
 });
 
+
+describe('Streamer.views: what is in view', () => {
+  /** One place (a 400 x 350 ft map at ground 0, the Gates of Ravenloft's size) seen from `eye` looking at `target`. */
+  const view = (eye: [number, number, number], target: [number, number, number]): SiteView => {
+    const camera = new THREE.PerspectiveCamera(50, 1366 / 768, 1, 1e6);
+    camera.position.set(...eye); camera.lookAt(...target); camera.updateMatrixWorld();
+    const world = {
+      camera, anchor: new THREE.Vector3(), scene: { fog: null }, controls: { target: new THREE.Vector3(...target) },
+      renderer: { domElement: { getBoundingClientRect: () => ({ height: 768 }) } },
+      toAbsolute: (v: THREE.Vector3, out = new THREE.Vector3()) => out.copy(v),
+    };
+    const gates = { path: 'ch02/J', units: 1, elevationFt: 0, worldBounds: { minX: 0, maxX: 400, minZ: 0, maxZ: 350 }, placement: { position: [0, 0, 0], rotationY: 0 } } as unknown as AtlasScene;
+    const host = { world, sites: () => [gates], residentState: () => ({ drawn: true }), loading: () => false, pinned: () => new Set<string>(), activePath: () => 'ch02/J' } as unknown as StreamHost;
+    return new Streamer(host).views(0)[0];
+  };
+  it('a place the eye stands over is in view, though neither its middle nor a corner is on screen', () => {
+    // on the Gates' sill at their east edge, looking east across the chasm at the castle: the Gates' ground fills the
+    // foot of the screen, and the active map must not fold into its proxy (owner 2026-10-22)
+    expect(view([380, 6, 175], [520, 40, 175]).inView).toBe(true);
+  });
+  it('a place behind the eye, beside it, is not', () => {
+    expect(view([420, 6, 175], [560, 40, 175]).inView).toBe(false);
+  });
+});
