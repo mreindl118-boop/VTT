@@ -252,6 +252,9 @@ test('a reload opens the map on the party\'s floor; a floor asked for wins; a fi
 });
 
 test('a map without a spawn starts the party on the floor it opens on, so it reopens there; a 0.3.x castle party is put inside the gate', async ({ page }) => {
+  // four opens of the Wachterhaus in Vallaki (three of them reloads) and two of the castle: about the default 60 s of
+  // work on a hosted runner since 0.3.4, so the test has the time the suite's other castle and valley cases have
+  test.setTimeout(240_000);
   // the Wachterhaus (ch05/N4) has no spawn and lists its secret cellar first: the party started there while the map
   // opened on its ground floor, and from the second visit on the DM landed on the cellar
   await open(page, 'ch05/N4');
