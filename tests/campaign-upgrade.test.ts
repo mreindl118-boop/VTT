@@ -40,13 +40,21 @@ describe('the fixtures', () => {
 });
 
 describe('upgradeCampaign', () => {
-  it('keeps every 0.3.4 field deep-equal, adds only the table settings with their defaults, and changes nothing it was given', () => {
+  it('keeps every 0.3.4 field deep-equal and adds nothing: no table key, whose settings read as their defaults; the save it was given is unchanged', () => {
     for (const name of FIXTURES) {
       const saved = fixture(name), before = clone(saved), up = load(saved);
       for (const k of Object.keys(saved) as (keyof CampaignState)[]) expect(up[k], `${name}.${k}`).toEqual(saved[k]);
-      expect(Object.keys(up).filter((k) => !(k in saved) && !(k in newCampaign()))).toEqual(['table']);
-      expect(up.table).toEqual(TABLE_DEFAULTS);
+      expect(up, name).toEqual({ ...newCampaign(saved.id), ...saved });
+      expect(Object.keys(up).filter((k) => !(k in saved) && !(k in newCampaign())), name).toEqual([]);
+      expect('table' in up, name).toBe(false);
+      expect(tableSettings(up), name).toEqual(TABLE_DEFAULTS);
       expect(saved).toEqual(before);
+    }
+  });
+  it('writes no default into a save: a default changed later reaches every campaign, and nothing reads as the DM\'s choice', () => {
+    for (const name of FIXTURES) {
+      const text = JSON.stringify(load(fixture(name)));
+      for (const k of Object.keys(TABLE_DEFAULTS)) expect(text, `${name}: ${k}`).not.toContain(`"${k}"`);
     }
   });
   it('is idempotent', () => {
@@ -56,21 +64,23 @@ describe('upgradeCampaign', () => {
       expect(JSON.stringify(upgradeCampaign(upgradeCampaign(once))), name).toBe(JSON.stringify(once));
     }
   });
-  it('never deletes, renames or overwrites: unknown keys stay, a table it holds keeps its values and gains only what it lacks', () => {
-    const saved = { ...fixture('save-0.3.4-markers'), fromLater: { a: [1, 2] }, table: { apart: true, award: 'xp', someLaterSetting: 3 } } as CampaignState;
+  it('never deletes, renames or overwrites: unknown keys stay, and a table it holds is kept exactly as it stands, gaining nothing', () => {
+    const saved = { ...fixture('save-0.3.4-markers'), fromLater: { a: [1, 2] }, table: { apart: true, someLaterSetting: 3 } } as CampaignState;
     const up = upgradeCampaign(saved);
     expect((up as unknown as { fromLater: unknown }).fromLater).toEqual({ a: [1, 2] });
-    expect(up.table).toEqual({ ...TABLE_DEFAULTS, apart: true, award: 'xp', someLaterSetting: 3 });
+    expect((up as { table?: unknown }).table).toEqual({ apart: true, someLaterSetting: 3 });
+    expect(tableSettings(up)).toEqual({ ...TABLE_DEFAULTS, apart: true });
     expect(up.tokens).toEqual(saved.tokens);
     // a value this build does not know is kept as it stands, and read as its default
-    const odd = upgradeCampaign({ ...fixture('save-0.3.4-markers'), table: { apart: 'yes', surprise: '2014' } } as unknown as CampaignState);
-    expect(odd.table).toMatchObject({ apart: 'yes', surprise: '2014' });
+    const odd = upgradeCampaign({ ...fixture('save-0.3.4-markers'), table: { apart: 'yes', playersEndTurns: 0 } } as unknown as CampaignState);
+    expect((odd as { table?: unknown }).table).toEqual({ apart: 'yes', playersEndTurns: 0 });
     expect(tableSettings(odd)).toEqual(TABLE_DEFAULTS);
-    expect(tableSettings({ table: { apart: true, surprise: '2024', award: 'xp', doorsWithin5Ft: true } })).toEqual({ ...TABLE_DEFAULTS, apart: true, surprise: '2024', award: 'xp', doorsWithin5Ft: true });
+    expect(tableSettings({ table: { apart: true, playersEndTurns: false } })).toEqual({ apart: true, playersEndTurns: false });
+    expect(tableSettings({ table: [true] })).toEqual(TABLE_DEFAULTS);
     expect(tableSettings({})).toEqual(TABLE_DEFAULTS);
   });
-  it('the defaults keep today\'s game: together, no pause, no 5-ft rule for doors, the Player map takes no input', () => {
-    expect(TABLE_DEFAULTS).toEqual({ apart: false, playersEndTurns: true, doorsWithin5Ft: false, paused: false, playerMapInput: false, surprise: 'edition', award: 'milestone', difficultFlags: false });
+  it('the defaults keep today\'s game (together), and Done ends the turn at once, the plan\'s answer to decision 9 until Matt\'s', () => {
+    expect(TABLE_DEFAULTS).toEqual({ apart: false, playersEndTurns: true });
   });
 });
 
