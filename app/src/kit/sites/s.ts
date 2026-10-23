@@ -142,10 +142,16 @@ export function heightfield(d: Dims): THREE.Group {
   const g = grp();
   for (const [color, v] of bins) {
     const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(v, 3)); geo.computeVertexNormals();
-    const m = matClone(color); m.side = THREE.DoubleSide;
-    g.add(new THREE.Mesh(geo, m));
+    g.add(new THREE.Mesh(geo, hfMat(color)));
   }
   return g;
+}
+
+const HF_MATS = new Map<string, THREE.MeshLambertMaterial>();
+function hfMat(color: string): THREE.MeshLambertMaterial {
+  let m = HF_MATS.get(color);
+  if (!m) { m = matClone(color); m.side = THREE.DoubleSide; HF_MATS.set(color, m); }
+  return m;
 }
 
 /** A road ribbon through the points (x{i}, y{i}, z{i}), `w` ft wide: a gravel bed with a lip of stones on both edges. */

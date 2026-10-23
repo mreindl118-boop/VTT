@@ -35,7 +35,7 @@ ABBEY_LEVELS = {'ground': 0.0, 'upper': 15.0, 'loft': 23.0, 'cellar': -20.0}
 FRAME = (-260.0, -430.0, 1160.0, 1260.0)
 COARSE_CELL, FINE_CELL = 10.0, 5.0
 FINE = (330.0, 110.0, 460.0, 480.0)       # x, z, w, d: the switchbacks, the ledge's rock and its cliffs, on a 5-ft lattice
-REGION_BLEND = 320.0                      # how far inside the frame's edge the land turns toward the region's height
+REGION_BLEND = 360.0                      # how far inside the frame's edge the land turns toward the region's height
 
 # ------------------------------------------------------------------ the ledge (abbey cells): its rim, and where the
 # mountain rises behind it (north of the gate road, east of the outer wall, north of the gardens)
@@ -72,7 +72,7 @@ FLOOR = VF[:13] + [(615, 585), (800, 625), (1300, 660), (1300, 1400), (-300, 140
 # corner; the gate road runs on along the rim to the north gate (S6)
 ROAD_PTS = [(452, 447), (430, 441), (406, 431), (386, 412), (373, 384), (368, 346), (368, 300), (371, 254), (378, 213), (394, 192), (418, 183), (440, 170),
             (460, 154), (478, 156), (481, 180), (467, 204), (451, 228), (436, 252), (423, 284), (415, 318), (411, 355), (411, 392), (417, 418), (430, 432),
-            (444, 430), (449, 412), (446, 392), (441, 360), (439, 320), (439, 290), (443, 270), (449, 258), (458, 251), (468.5, 249), (482, 247)]
+            (444, 430), (443, 412), (440, 392), (441, 360), (439, 320), (439, 290), (443, 270), (449, 258), (458, 251), (468.5, 249), (482, 247)]
 LEG_APEX = [(480, 168), (440, 432)]       # where the road doubles back (the ends of the first and second legs)
 ROAD_ON_LEDGE = [(482, 247), (500, 248), (515, 249), (527, 254), (533.5, 266)]   # on the rock top, to the north gate
 ROAD_W = 10.0
@@ -265,13 +265,14 @@ def edge_dist(p):
 
 def land(p):
     """The land as the maps sample it: the local ground with the road cut in, turned toward the region's own height within
-    REGION_BLEND ft of the frame's edge (never dropped below the mountain's own height: the backdrop carries the edge on)."""
+    REGION_BLEND ft of the frame's edge so the mountain shoulders fall to the backdrop instead of ending in a skirt wall."""
     h = height(p)
     e = edge_dist(p)
     if e < REGION_BLEND:
         r = region_rel(p)
-        if r is not None and r > h: h += (r - h) * (1 - smooth(0, REGION_BLEND, e))
-    return h
+        target = max(0.0, r) if r is not None else 0.0
+        h = target + (h - target) * smooth(0, REGION_BLEND, e)
+    return max(0.0, h)
 
 # ------------------------------------------------------------------ the heightfield prop's data (see kit/sites/s.ts)
 HOLE = 4095
@@ -298,7 +299,10 @@ def land_lattices(off=(0.0, 0.0), frost=None):
     """The two heightfield props of the shared land for a map whose frame is Krezk ft minus `off` (the abbey: OFF): a 10-ft
     lattice over the whole Krezk frame with a 5-ft patch laid into it round the ledge and the switchbacks. Each entry is
     (id, x, z, dims) in that map's feet."""
-    def fn(x, z): return LEDGE - 1.0 if inside((x, z), RIM) else land((x, z))
+    def on_climb(x, z):
+        rn = _road_near((x, z))
+        return rn is not None and rn[0] <= ROAD_W / 2 + 6.0 and rn[1] < LEDGE - 1.0
+    def fn(x, z): return LEDGE - 1.0 if (inside((x, z), RIM) and not on_climb(x, z)) else land((x, z))
     def fine_hole(x, z):
         if inside((x, z), RIM) and poly_dist((x, z), RIM) > 6: return True
         return land((x, z)) <= 0.6
@@ -310,6 +314,7 @@ def land_lattices(off=(0.0, 0.0), frost=None):
     nx, nz = int((FRAME[2] - FRAME[0]) / COARSE_CELL), int((FRAME[3] - FRAME[1]) / COARSE_CELL)
     coarse = heightfield_dims(FRAME[0], FRAME[1], nx, nz, COARSE_CELL, fn, hole=coarse_hole)
     fine = heightfield_dims(FINE[0], FINE[1], int(FINE[2] / FINE_CELL), int(FINE[3] / FINE_CELL), FINE_CELL, fn, hole=fine_hole)
+    coarse['drop'] = 14
     fine['drop'] = 14
     if frost is not None: coarse['frost'] = frost; fine['frost'] = frost
     return [('land-mountain', FRAME[0] - off[0], FRAME[1] - off[1], coarse), ('land-cliff', FINE[0] - off[0], FINE[1] - off[1], fine)]

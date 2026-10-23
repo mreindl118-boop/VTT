@@ -217,7 +217,7 @@ GZ = (240.0, 185.0)      # the gazebo on the pool's west shore, the statue reach
 obj('S4-gazebo', 'gazebo', *GZ, key='S4', dims={'r': 6.5})
 obj('S4-statue', 'morninglord-statue', GZ[0], GZ[1], y=1.2, key='S4', rotY=0)
 obj('S4-treasure', 'niche', GZ[0], GZ[1] + 2, vis='hidden-object', key='S4', label='A card-reading treasure lies under the gazebo: it must be torn down, and the villagers take it ill (disadvantage on Charisma checks with them until it is repaired)')
-for i, (x, z) in enumerate([(292, 150), (318, 139), (392, 151), (404, 182), (300, 192), (262, 176)]): obj(f'S4-rock{i}', 'boulder', x, z, dims={'r': 1.6 + (i % 3) * 0.5})
+for i, (x, z) in enumerate([(292, 150), (318, 139), (392, 151), (384, 182), (300, 192), (262, 176)]): obj(f'S4-rock{i}', 'boulder', x, z, dims={'r': 1.6 + (i % 3) * 0.5})
 
 # ================================================================== people
 for i, (cx, cz) in enumerate([(12.6, 19.6), (9.3, 21.2), (15.4, 21.3), (11.6, 9.9), (13.2, 24.4), (7.4, 23.0)]):
@@ -285,9 +285,9 @@ for _ in range(40000):
     p = (rng.uniform(KL.FRAME[0], KL.FRAME[2]), rng.uniform(KL.FRAME[1], KL.FRAME[3]))
     if KL.inside(p, KL.RIM) or KL.inside(p, KL.VF) or p[1] > 700: continue
     if any(KL.seg_dist(p, (a[0], a[1]), (b[0], b[1]))[0] < 9 for a, b in zip(KL.ROAD[:-1], KL.ROAD[1:])): continue
-    if not tree_ok(p, 18): continue
     h, s = KL.slope_at(p); y = land_y(p)
-    if y is None or h < 2 or s > 1.3: _cells[(int(p[0] // 30), int(p[1] // 30))].remove(p); continue
+    if y is None or h < 2 or s > 1.3: continue
+    if not tree_ok(p, 40 if y >= FROST else 22): continue
     mtrees.append(p); obj(f'pine-m{len(mtrees)}', 'pine', p[0], p[1], y=round(y - 0.6, 1), dims={'scale': round(0.8 + rng.random() * 0.5, 2)})
 # rocks at the cliff's foot and along the escarpment outside the walls
 for i in range(40):
