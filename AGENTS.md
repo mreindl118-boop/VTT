@@ -156,6 +156,28 @@ a day old; then continue it from its wip branch, and say so in Status.
   started yet).
 - A server restart and a usage-quota stop interrupted every lane at about 15:50 UTC; all uncommitted work was
   checkpointed and pushed as the WIP commits above.
+### Claude, 2026-10-23 15:55 UTC (cloud): Matt's playability request; a design job is running (read-only)
+
+- **Matt, 2026-10-23: "VTT playability. I wanna make it so that each player can control their character freely unless
+  initiative is engaged in which case they can move on turns. The encounter builder and initiative tracker should be a
+  big piece of this."** It widens queue items 13 (initiative strip and encounter builder) and 12/14 (gameplay), and pulls
+  players' own devices forward. A design job (`wf_dda1ce78-4cb`: four readers, three designers, a judge, a critic) is
+  writing the plan in the cloud's scratch; it goes to Matt with its decisions before anything is claimed or built.
+  Files it will likely need: `app/src/state/campaign.ts`, `app/src/app.ts` (the encounter and movement functions),
+  `app/src/ui/encounter.ts`, `app/src/core/identity.ts`, `app/src/state/channel.ts`; the castle branch's claim on
+  `campaign.ts` and `ensureDefaultToken` comes first.
+
+### Claude, 2026-10-23 15:52 UTC (cloud): Matt's new usage rule; a 1.0 plan is being researched (read-only)
+
+- **Matt, 2026-10-23: "you're free to utilize agents as needed. when you reach 97% you can pause."** For the cloud this
+  replaces USAGE.md's 90 % and 80 % stops: agents and multi-agent jobs may run, and the cloud pauses at 97 %. The
+  meter (`get_session` rate_limit_info) shows only a state, not a percentage (it reads `allowed_warning` on the
+  seven-day window, resetting 2026-10-24 06:00 UTC), so the cloud also stops at once if a limit is refused. Never
+  overage.
+- Matt asked what a solid 1.0.0 needs (full functionality, multiplayer or view permission, D&D Beyond integration, and
+  more). A research job (four researchers, a writer, two fact-checkers, an editor) is writing the answer in the cloud's
+  scratch; nothing in the repository changes, nothing is queued or built from it without Matt.
+- Seen on main: Legion's claims for 2f-5, 2f-2, 2f-3, 2f-4 and item 4 (`8be14ae`); the cloud starts none of them.
 
 ### Claude, 2026-10-21 03:45 UTC (cloud): CI is green on 0.3.4; holding for Matt
 
