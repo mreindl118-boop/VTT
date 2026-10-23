@@ -14,11 +14,7 @@
     { "id": "cr-E-wolf-mgw1k2a-1", "name": "Wolf", "location": "E", "level": "village", "pos": [287.5, 597.5], "size": "medium", "darkvisionFt": 60, "color": "#6f6a63", "role": "creature", "creatureId": "wolf", "hidden": true, "playerName": "Grey shape", "hp": { "cur": 11, "max": 11 } },
     { "id": "pc-N", "name": "Party", "location": "N", "level": "town", "pos": [1102.5, 847.5], "size": "medium", "darkvisionFt": 0, "color": "#c0392b", "light": { "bright": 20, "dim": 40 }, "role": "party" }
   ],
-  "seen": {
-    "death-house/f1": "c5:0x412,1x36,0x18,1x36,0x900",
-    "E/village": "c5:0x5120,1x44,0x2400",
-    "N/town": "c5:0x20000"
-  },
+  "seen": {},
   "doorsOpen": { "death-house/door-3": true, "death-house/door-4": false },
   "opened": { "death-house/chest-a": true },
   "world": {

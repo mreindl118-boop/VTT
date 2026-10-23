@@ -10,10 +10,7 @@
     { "id": "cr-death-house-wolf-mgw3b7c-1", "name": "Wolf", "location": "death-house", "level": "f1", "pos": [47.5, 22.5], "size": "medium", "darkvisionFt": 60, "color": "#6f6a63", "role": "creature", "creatureId": "wolf", "hidden": false, "playerName": "Grey shape", "hp": { "cur": 11, "max": 11 } },
     { "id": "cr-death-house-ghoul-mgw3b9d-1", "name": "Ghoul", "location": "death-house", "level": "f1", "pos": [37.5, 27.5], "size": "medium", "darkvisionFt": 60, "color": "#5b6b4f", "role": "creature", "creatureId": "ghoul", "hidden": true, "playerName": "Thing in the dark", "hp": { "cur": 0, "max": 22 }, "sheetId": "cr:ghoul" }
   ],
-  "seen": {
-    "death-house/f1": "c5:0x412,1x36,0x18,1x36,0x900",
-    "E/village": "c5:0x5120,1x44,0x2400"
-  },
+  "seen": {},
   "doorsOpen": { "death-house/door-3": true },
   "opened": {},
   "world": {

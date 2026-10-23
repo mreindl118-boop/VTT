@@ -34,6 +34,10 @@ describe('the fixtures', () => {
       for (const t of s.tokens) expect(['party', 'member', 'creature'], `${name} ${t.id}`).toContain(t.role);
       if (s.encounter) expect(s.encounter.partyPos, name).toHaveLength(2);
       expect((s as { table?: unknown }).table, name).toBeUndefined();
+      // No explored memory: a record is tied to its map's geometry and cell size (core/coverage.ts load ignores one
+      // that does not fit, and the castle branch keeps it aside), which this plan does not touch and other lanes
+      // regenerate; an invented record would not load as it stands.
+      expect(s.seen, name).toEqual({});
     }
     expect(fixture('save-0.3.4-mid-fight').encounter).toBeDefined();
   });

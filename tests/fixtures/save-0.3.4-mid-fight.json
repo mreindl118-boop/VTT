@@ -12,10 +12,7 @@
     { "id": "tok-death-house-pc-2", "name": "Rogue", "location": "death-house", "level": "f1", "pos": [27.5, 17.5], "size": "medium", "darkvisionFt": 60, "color": "#7b5ea7", "role": "member", "sheetId": "pc-2", "light": { "bright": 20, "dim": 40 } },
     { "id": "tok-death-house-pc-1", "name": "Fighter", "location": "death-house", "level": "f1", "pos": [32.5, 22.5], "size": "medium", "darkvisionFt": 0, "color": "#d9822b", "role": "member", "sheetId": "pc-1" }
   ],
-  "seen": {
-    "death-house/f1": "c5:0x412,1x36,0x18,1x36,0x900",
-    "E/village": "c5:0x5120,1x44,0x2400"
-  },
+  "seen": {},
   "doorsOpen": { "death-house/door-3": true },
   "opened": {},
   "world": {
