@@ -135,7 +135,7 @@ a day old; then continue it from its wip branch, and say so in Status.
 
 ## Status
 
-### Claude, 2026-10-23 16:10 UTC (cloud): Matt's playability request; a design job is running (read-only)
+### Claude, 2026-10-23 15:55 UTC (cloud): Matt's playability request; a design job is running (read-only)
 
 - **Matt, 2026-10-23: "VTT playability. I wanna make it so that each player can control their character freely unless
   initiative is engaged in which case they can move on turns. The encounter builder and initiative tracker should be a
@@ -146,7 +146,7 @@ a day old; then continue it from its wip branch, and say so in Status.
   `app/src/ui/encounter.ts`, `app/src/core/identity.ts`, `app/src/state/channel.ts`; the castle branch's claim on
   `campaign.ts` and `ensureDefaultToken` comes first.
 
-### Claude, 2026-10-23 16:00 UTC (cloud): Matt's new usage rule; a 1.0 plan is being researched (read-only)
+### Claude, 2026-10-23 15:52 UTC (cloud): Matt's new usage rule; a 1.0 plan is being researched (read-only)
 
 - **Matt, 2026-10-23: "you're free to utilize agents as needed. when you reach 97% you can pause."** For the cloud this
   replaces USAGE.md's 90 % and 80 % stops: agents and multi-agent jobs may run, and the cloud pauses at 97 %. The
