@@ -896,12 +896,12 @@
     "dTheta": -1.570796
    },
    "footprintInParent": {
-    "minX": 499.4,
-    "minZ": 331.9,
-    "maxX": 520.6,
-    "maxZ": 353.1
+    "minX": 497.5,
+    "minZ": 327.5,
+    "maxX": 522.5,
+    "maxZ": 357.5
    },
-   "blowout": 2.09
+   "blowout": 1.6
   },
   "ch02/A": {
    "path": "ch02/A",
@@ -5024,7 +5024,7 @@
   }
  ],
  "warnings": [
-  "appB/death-house: its map (30 × 55 ft) is 2.09× the plot room E7 gives it in ch03/E (21 × 21 ft): neighbours inside that extent are hidden under it",
+  "appB/death-house: its map (30 × 55 ft) is 1.6× the plot room E7 gives it in ch03/E (25 × 30 ft): neighbours inside that extent are hidden under it",
   "ch03/E5: its map (85 × 75 ft) is 2× the plot room E5 gives it in ch03/E (40 × 40 ft): neighbours inside that extent are hidden under it",
   "ch05/N1: its map (380 × 270 ft) is 8.24× the plot room N1 gives it in ch05/N (40 × 40 ft): neighbours inside that extent are hidden under it",
   "ch05/N2: its map (220 × 145 ft) is 3.57× the plot room N2 gives it in ch05/N (62 × 40 ft): neighbours inside that extent are hidden under it",
