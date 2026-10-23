@@ -130,6 +130,41 @@ a day old; then continue it from its wip branch, and say so in Status.
 
 ## Status
 
+### Claude, 2026-10-23 00:05 UTC (cloud, the castle-finish session): the castle is ready for Matt's look; one bar not met
+
+- **`claude/wip/castle-playable` (= `claude/jolly-feynman-k5dgm1`) at this entry's commit, on `ef478f8`.** Since
+  `4d98fbe`: `7d3bded` main (0.3.4) merged in; `097bd49` the "no road into the castle" check a to-do for release 7;
+  `6db7c97` the castle drawn whole (uncut) as the Gates' neighbour; `0b23332` and `c276c1a` the Gates stay drawn from
+  their own sill (a place the eye stands over, within its own size of its ground, is in view); `75ed183` reaching the
+  Gates reveals the castle to Players; `6c200fa` `e2e/castle.spec.ts`; `ef478f8` the castle-reopen stair test given
+  240 s (below). Each fix's test failed first. Nothing is on main; the claim row stands.
+- **Proofs on the head (software rendering, 4 cores):** build; `npx vitest run` 706 passed, 2 environment skips, 3
+  todo; the print set's own test passes; the castle, exterior and Gates generators and the world pipeline reproduce the
+  committed files byte for byte; the castle spec 2/2 (the start at the gate free every way, all 11 other levels reached
+  by stair onto floor, all 81 doors and secret doors passable both ways when open; the reveal); the full browser suite
+  283 passed, 55 device skips, 2 failed (1.8 h): `vertical-links.spec.ts:254` ran out of its default 60 s (it also did
+  on CI for `107e3d2` and `a61ac57` and passed for four others; 1.1 min here every time, the same on `4d98fbe`'s build
+  and with this session's in-view rule reverted; it now has 240 s, every assertion unchanged, and passes 2/2), and the
+  iPad `tooltips.spec.ts:261` (fails here on main too, 4 of 6 runs; passes on CI). The audit: the castle 0 findings
+  (main 67), the Gates 5 new off-ground, all stand-ins or fog past J's lip (question for Matt).
+- **Against main (0.3.4), the entry frames:** Death House, Vallaki and the Sheep Chase street pixel-identical with
+  equal draw calls (164, 144, 90; Death House and Vallaki 3,300 fewer triangles). The castle is heavier: 534 to 458
+  calls (DM, desktop), 468 to 427 (Players), 540 to 462 and 474 to 431 on the phone; its own map 522 to 447; the
+  extra is the gate front, the thick walls' section caps and door hardware, and the roofs; the brief's "not slower than
+  main" is not met (question for Matt). Most calls on one level: the Rooms of Weeping, 672 (DM, desktop). The Gates draw
+  fewer calls than on main (155 to 234 DM, 114 to 157 Players).
+- **Print set** (`print/out`, not committed): 924 files, 0 not manifold; an independent check of all 1,135 STLs found
+  no open edges, every volume positive, every piece inside the 250-mm bed, the 32-mm pitch (the pegs reach 34.39 by
+  design, the spires' chimney 40 mm with nothing over it); 70 part files have 254 edges where two solids touch (the
+  README's known note) with 4,057 zero-area slivers at those spots, which Rhino's Check will report; `simplify` only
+  halves them, so nothing changed. The trinket is 88.7 x 64 x 90 mm (Matt: 90 mm). Part volume 81.15 L.
+- **For StudioBook (none of it possible in the cloud):** the GPU suite, Rhino's inspection of the print set (the
+  touching edges and slivers above; the base's preview draws as a thin frame though its pieces stand 64 mm), the
+  trinket's shape, the GPU frame time.
+- **Next: Matt's look and answers** (the draw calls, the audit on J, and the castle's earlier questions 1-8 and 10);
+  then the release: merge main, the next version (0.3.5), the changelog, 2g and 2g-1 ticked, the HANDOFF row, the full
+  suite, main pushed first. Usage: this session has no readable meter; Matt's go of 2026-10-22 stands for this item only.
+
 ### Claude, 2026-10-22 20:55 UTC (cloud, the castle-finish session): Matt's go on the castle; main merged in; his answers
 
 - **Matt sent this session the StudioBook castle brief (written 2026-10-19); this session is in the cloud (Linux, 4
