@@ -59,6 +59,7 @@ uniform vec3 uFogColor;
 uniform vec3 uMistColor;
 uniform float uTime;
 uniform float uMistDrift;
+uniform float uOutdoorFog;
 uniform float uCovEnabled;
 uniform mat3 uCovBasis;
 uniform float uFogExempt;
@@ -181,26 +182,30 @@ vec3 mistSurface(vec3 P, vec3 N) {
   return mix(vec3(1.0), tint * m, uSurfAmt);
 #endif
 }
-float mistCoverage() {
+vec2 mistCoverage() {
   vec2 q = (uCovBasis * vec3(vMistWorld.x, vMistWorld.z, 1.0)).xy;
   vec2 uv = (q - uCovOrigin) / uCovSize;
-  if (uv.x < 0.0 || uv.y < 0.0 || uv.x > 1.0 || uv.y > 1.0) return 0.0;
-  vec2 d = 1.5 / max(uCovSize, vec2(1.0));
-  return 0.25 * (
-    texture2D(uCovTex, uv + vec2(-d.x, -d.y)).r +
-    texture2D(uCovTex, uv + vec2( d.x, -d.y)).r +
-    texture2D(uCovTex, uv + vec2(-d.x,  d.y)).r +
+  if (uv.x < 0.0 || uv.y < 0.0 || uv.x > 1.0 || uv.y > 1.0) return vec2(0.0);
+  vec2 d = 0.5 / max(uCovSize, vec2(1.0));
+  vec4 s = vec4(
+    texture2D(uCovTex, uv + vec2(-d.x, -d.y)).r,
+    texture2D(uCovTex, uv + vec2( d.x, -d.y)).r,
+    texture2D(uCovTex, uv + vec2(-d.x,  d.y)).r,
     texture2D(uCovTex, uv + vec2( d.x,  d.y)).r
   );
+  vec4 v4 = smoothstep(0.65, 0.9, s);
+  vec4 e4 = smoothstep(0.15, 0.45, s) * (1.0 - v4);
+  return 0.25 * vec2(v4.x + v4.y + v4.z + v4.w, e4.x + e4.y + e4.z + e4.w);
 }
 vec3 mistApply(vec3 c) {
   if (uCovEnabled < 0.5 || uFogExempt > 0.5) return c;
-  float cov = mistCoverage();
-  float vis = smoothstep(0.55, 0.9, cov);
-  float expl = smoothstep(0.1, 0.45, cov) * (1.0 - vis);
+  vec2 ve = mistCoverage();
+  float vis = ve.x;
+  float expl = ve.y;
   float g = dot(c, vec3(0.299, 0.587, 0.114));
   c = mix(c, mix(c, vec3(g) * 0.55, uMemory), expl);
-  return mix(c, uFogColor, (1.0 - vis - expl) * uFog);
+  vec3 fogC = mix(uFogColor, uMistColor, uOutdoorFog);
+  return mix(c, fogC, max(0.0, 1.0 - vis - expl) * uFog);
 }
 `;
 
@@ -248,10 +253,11 @@ export function patchFog<T extends THREE.Material>(m: T, exempt = false): T {
   const exemptU = { value: exempt ? 1 : 0 };
   m.userData.fogExempt = exemptU;
   const driftU = (m.userData.mistDrift ??= { value: 0 }) as { value: number };
+  const outFogU = (m.userData.outdoorFog ??= { value: 0 }) as { value: number };
   const lit = m.type === 'MeshLambertMaterial';
   const surfU = (m.userData.surf ??= { value: lit ? SURF.generic : 0 }) as { value: number };
   m.onBeforeCompile = (sh) => {
-    Object.assign(sh.uniforms, fogUniforms, { uFogExempt: exemptU, uMistDrift: driftU, uSurfAmt: surfaceUniforms.uSurfAmt, uNoise: surfaceUniforms.uNoise });
+    Object.assign(sh.uniforms, fogUniforms, { uFogExempt: exemptU, uMistDrift: driftU, uOutdoorFog: outFogU, uSurfAmt: surfaceUniforms.uSurfAmt, uNoise: surfaceUniforms.uNoise });
     if (sh.fragmentShader.includes('#include <color_fragment>')) sh.fragmentShader = sh.fragmentShader.replace('#include <color_fragment>', '#include <color_fragment>\n diffuseColor.rgb *= mistSurface(vMistWorld, normalize(vMistN));\n diffuseColor.rgb = mix(diffuseColor.rgb, uMistColor, 0.32 * uMistDrift);');
     sh.vertexShader = VERT_DECL + sh.vertexShader.replace('#include <project_vertex>', VERT_BODY.replace('MIST_NORMAL', lit ? 'objectNormal' : 'vec3(0.0, 1.0, 0.0)') + '\n#include <project_vertex>');
     sh.fragmentShader = `#define SURF ${surfU.value}\n` + FRAG_DECL + sh.fragmentShader.replace('#include <opaque_fragment>', '#include <opaque_fragment>\n gl_FragColor.rgb = mistApply(gl_FragColor.rgb);\n gl_FragColor.rgb = cartoWash(gl_FragColor.rgb);');

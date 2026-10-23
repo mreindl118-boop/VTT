@@ -5,6 +5,7 @@ import * as THREE from 'three';
 import { PROPS_V1 } from '../app/src/kit/props';
 import '../app/src/kit/sites';
 import { mist, mistBank, mistWall, fogWall, mistWisp, updatePerimeterMist } from '../app/src/kit/mist';
+import { isShared } from '../app/src/render/dispose';
 import { fogUniforms, mat } from '../app/src/render/materials';
 import { buildLevel } from '../app/src/render/build';
 import type { GridLevel, Level } from '../app/src/core/schema';
@@ -56,11 +57,21 @@ describe('shared mist piece (kit/mist.ts)', () => {
         expect(mt.depthWrite, `${kind} depthWrite`).toBe(false);
         expect(mt.userData.fogExempt?.value, `${kind} fogExempt`).toBe(1);
         expect(m.renderOrder, `${kind} renderOrder`).toBeGreaterThanOrEqual(2);
+        expect(isShared(mt), `${kind} material marked shared`).toBe(true);
         const col = m.geometry.attributes.color;
         expect(col?.itemSize, `${kind} per-vertex RGBA`).toBe(4);
+        const hits: THREE.Intersection[] = [];
+        m.raycast(new THREE.Raycaster(new THREE.Vector3(0, 2, -50), new THREE.Vector3(0, 0, 1)), hits);
+        expect(hits.length, `${kind} noop raycast`).toBe(0);
       });
       expect(meshes, `${kind} mesh count`).toBeGreaterThan(0);
     }
+
+    // Small room/courtyard mist-bank with radius `r` respects its radius and opacity without inflating.
+    const smallBank = PROPS_V1['mist-bank']({ r: 4, h: 3, n: 3, o: 0.3 });
+    const box = new THREE.Box3().setFromObject(smallBank);
+    expect(box.max.x - box.min.x).toBeLessThanOrEqual(12);
+    expect(box.max.y - box.min.y).toBeLessThanOrEqual(4.5);
 
     // Chasm fog in props.ts also routes through the kit instead of raw MeshBasicMaterial.
     const ch = PROPS_V1['chasm']({ w: 50, len: 120, depth: 400 });
@@ -144,6 +155,23 @@ describe('outdoor perimeter mist and role-based fog exemption (render/build.ts)'
     };
     const built = buildLevel(interiorLevel, grid);
     expect(built.root.getObjectByName('perimeter-mist')).toBeUndefined();
+  });
+
+  it('detects landform-backed outdoor levels (e.g. hill-land summit) as outdoor and marks outdoor floor materials', () => {
+    const summitLevel: Level = {
+      id: 'summit',
+      name: 'Hilltop',
+      elevationFt: 200,
+      ceilingFt: 40,
+      ambient: 'barovian-overcast',
+      rooms: [{ key: 'Y3', name: 'Druids Circle', polygon: rect, floor: 'flagstone' }],
+      walls: [],
+      objects: [{ id: 'hl', kind: 'hill-land', pos: [0, 0, 0], vis: 'player', dims: { w: 4, h: 4, cell: 10 } }],
+      lights: [],
+    };
+    const built = buildLevel(summitLevel, grid);
+    expect(built.root.getObjectByName('perimeter-mist')).toBeDefined();
+    expect((built.floors[0].material as THREE.Material).userData.outdoorFog?.value).toBe(1);
   });
 });
 

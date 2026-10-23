@@ -1,5 +1,6 @@
 // The Mists of Barovia: shared fog materials + unified mist builder (`bank`, `wall`, `wisp`) and outdoor perimeter ring.
 import * as THREE from 'three';
+import { markShared } from '../render/dispose';
 import { matClone, patchFog, setSurface } from '../render/materials';
 
 export type MistMode = 'bank' | 'wall' | 'wisp';
@@ -14,6 +15,8 @@ function rng(seed = 1): () => number {
   };
 }
 
+const NOOP_RAYCAST = () => {};
+
 const fogMats = new Map<string, THREE.MeshLambertMaterial>();
 export function fogMat(color: string, opacity = 0.95, far = true): THREE.MeshLambertMaterial {
   const o = Math.min(0.98, opacity);
@@ -27,6 +30,7 @@ export function fogMat(color: string, opacity = 0.95, far = true): THREE.MeshLam
     m.side = THREE.DoubleSide;
     setSurface(m, 'none');
     (m.userData.mistDrift ??= { value: 1 }).value = 1;
+    markShared(m);
     fogMats.set(k, m);
   }
   return m;
@@ -45,6 +49,7 @@ export function veil(color: string, opacity = 0.5): THREE.MeshLambertMaterial {
     m.side = THREE.DoubleSide;
     setSurface(m, 'none');
     (m.userData.mistDrift ??= { value: 1 }).value = 1;
+    markShared(m);
     veils.set(k, m);
   }
   return m;
@@ -64,6 +69,7 @@ export function mistVertMat(color = '#c4c2ca', opacity = 0.95): THREE.MeshLamber
     m.side = THREE.DoubleSide;
     setSurface(m, 'none');
     (m.userData.mistDrift ??= { value: 1 }).value = 1;
+    markShared(m);
     vertMats.set(k, m);
   }
   return m;
@@ -74,10 +80,11 @@ function tagMistMesh(m: THREE.Mesh): THREE.Mesh {
   m.userData.role = 'mist';
   m.castShadow = false;
   m.receiveShadow = false;
+  m.raycast = NOOP_RAYCAST;
   return m;
 }
 
-/** Build a ribbon curtain of `NL` layered sheets with 4-component RGBA vertex colours that fade to 0 at foot & crest. */
+/** Build a ribbon curtain of `NL` layered sheets in one mesh with 4-component RGBA vertex colours fading to 0 at foot & crest. */
 function buildMistLayers(opts: {
   len: number;
   h: number;
@@ -91,8 +98,9 @@ function buildMistLayers(opts: {
   color: string;
   opacity: number;
   seed: number;
+  frontLow?: boolean;
 }): THREE.Group {
-  const { len, h, d, ext, layers, cols, axis, peakAlpha, footY, color, opacity, seed } = opts;
+  const { len, h, d, ext, layers, cols, axis, peakAlpha, footY, color, opacity, seed, frontLow } = opts;
   const g = new THREE.Group();
   g.userData.role = 'mist';
   const R = rng(seed);
@@ -107,17 +115,17 @@ function buildMistLayers(opts: {
   const rFrac = [0, 0.16, 0.44, 0.72, 1.0];
   const rAlpha = [0, 1.0, 0.82, 0.42, 0];
 
+  const verts: number[] = [];
+  const cols4: number[] = [];
+
   for (let li = 0; li < layers; li++) {
     const lf = layers > 1 ? li / (layers - 1) : 0;
     const ph1 = R() * Math.PI * 2;
     const ph2 = R() * Math.PI * 2;
     const ph3 = R() * Math.PI * 2;
-    const layerH = h * (0.58 + lf * 0.42);
+    const layerH = frontLow ? h * (0.12 + 0.88 * Math.pow(lf, 0.85)) : h * (0.58 + lf * 0.42);
     const layerPeak = peakAlpha * (li === 0 ? 0.55 : li === layers - 1 ? 0.65 : 0.9);
     const layerTint = darkC.clone().lerp(crestC, 0.25 + 0.65 * (1 - lf * 0.6));
-
-    const verts: number[] = [];
-    const cols4: number[] = [];
 
     const sampleAt = (ci: number, ri: number): [number, number, number, number, number, number, number] => {
       const u = ci / cols;
@@ -170,26 +178,28 @@ function buildMistLayers(opts: {
         emit(p00); emit(p11); emit(p01);
       }
     }
-
-    const geo = new THREE.BufferGeometry();
-    geo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
-    geo.setAttribute('color', new THREE.Float32BufferAttribute(cols4, 4));
-    geo.computeVertexNormals();
-    const mesh = tagMistMesh(new THREE.Mesh(geo, mt));
-    g.add(mesh);
   }
+
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(verts, 3));
+  geo.setAttribute('color', new THREE.Float32BufferAttribute(cols4, 4));
+  geo.computeVertexNormals();
+  const mesh = tagMistMesh(new THREE.Mesh(geo, mt));
+  g.add(mesh);
   return g;
 }
 
-/** Ground-hugging mist bank (`mist-bank`, `mist` in bank mode). */
+/** Ground-hugging mist bank (`mist-bank`, `mist` in bank mode). Supports radius `d.r` (courtyard / room banks) or `l`/`len`/`w`. */
 export function mistBank(d: D = {}): THREE.Group {
-  const len = d.l ?? d.len ?? d.w ?? 90;
-  const depth = d.d ?? (d.l !== undefined || d.len !== undefined ? (d.w ?? 28) : Math.max(24, len * 0.65));
+  const r = typeof d.r === 'number' ? d.r : 0;
+  const len = typeof (d.l ?? d.len ?? d.w) === 'number' ? (d.l ?? d.len ?? d.w)! : r > 0 ? r * 2 : 90;
+  const depth = typeof d.d === 'number' ? d.d : r > 0 ? r * 2 : (d.l !== undefined || d.len !== undefined ? (d.w ?? 28) : Math.max(12, len * 0.65));
   const h = d.h ?? 8;
-  const layers = Math.min(5, Math.max(3, d.n ?? 4));
-  const cols = Math.min(8, Math.max(5, Math.round(len / 90)));
-  const ext = d.ext ?? Math.min(24, len * 0.12);
-  const peakAlpha = Math.min(0.75, Math.max(0.28, (d.o ?? 0.36) * 1.25));
+  const layers = 2;
+  const cols = 4;
+  const ext = d.ext ?? (r > 0 ? 0 : Math.min(24, len * 0.12));
+  const o = d.o ?? 0.36;
+  const peakAlpha = Math.min(0.85, Math.max(0.08, o));
   return buildMistLayers({
     len,
     h,
@@ -199,9 +209,9 @@ export function mistBank(d: D = {}): THREE.Group {
     cols,
     axis: 0,
     peakAlpha,
-    footY: -0.6,
+    footY: r > 0 ? 0 : -0.6,
     color: typeof d.c === 'string' ? d.c : '#9a9ca4',
-    opacity: d.o !== undefined ? Math.min(0.98, Math.max(0.65, d.o)) : 0.92,
+    opacity: Math.min(0.98, Math.max(0.1, o)),
     seed: d.seed ?? d.s ?? 17,
   });
 }
@@ -227,6 +237,7 @@ export function mistWall(d: D = {}): THREE.Group {
     color: typeof d.c === 'string' ? d.c : '#94909a',
     opacity: 0.95,
     seed: d.seed ?? d.s ?? 31,
+    frontLow: true,
   });
 }
 
@@ -256,7 +267,12 @@ export function fogWall(d: D = {}): THREE.Group {
       color: typeof d.c === 'string' ? d.c : '#94909a',
       opacity: 0.95,
       seed: d.seed ?? 1,
+      frontLow: true,
     });
+    for (const ch of proto.children) {
+      const m = ch as THREE.Mesh;
+      if (m.isMesh && m.geometry) markShared(m.geometry);
+    }
     fogWallCache.set(k, proto);
   }
   const clone = new THREE.Group();
@@ -298,26 +314,28 @@ export function mist(d: D = {}): THREE.Group {
   return mistBank(d);
 }
 
-const NOOP_RAYCAST = () => {};
-
-/** Automatic perimeter mist ring enclosing an outdoor level's playable bounds. */
+/** Automatic perimeter mist ring enclosing an outdoor level's playable bounds (single merged mesh). */
 export function perimeterMist(
   bounds: { x0: number; z0: number; x1: number; z1: number },
   y0 = 0,
+  skipWest = false,
 ): THREE.Group {
   const g = new THREE.Group();
   g.name = 'perimeter-mist';
-  g.userData.role = 'mist';
+  // Role 'marker' on the wrapper group so Ghost.apply hides the active-only perimeter ring when the map steps down to a valley ghost.
+  g.userData.role = 'marker';
   g.userData.perimeterMist = true;
 
   const wx = Math.max(80, bounds.x1 - bounds.x0);
   const wz = Math.max(80, bounds.z1 - bounds.z0);
   const cx = (bounds.x0 + bounds.x1) * 0.5;
   const cz = (bounds.z0 + bounds.z1) * 0.5;
-  const span = Math.min(wx, wz);
-  const pad = Math.min(60, Math.max(18, span * 0.06));
-  const h = Math.min(85, Math.max(28, span * 0.12));
-  const depth = Math.min(65, Math.max(20, span * 0.08));
+  const minSpan = Math.min(wx, wz);
+  const maxSpan = Math.max(wx, wz);
+  g.userData.span = maxSpan;
+  const pad = Math.min(60, Math.max(18, minSpan * 0.06));
+  const h = Math.min(85, Math.max(28, minSpan * 0.12));
+  const depth = Math.min(65, Math.max(20, minSpan * 0.08));
 
   // Private material for this level's perimeter ring so zoom fade never mutates shared mist materials.
   const pmMat = matClone('#ffffff', true);
@@ -335,9 +353,16 @@ export function perimeterMist(
   const sides: { x: number; z: number; len: number; rot: number; seed: number }[] = [
     { x: cx, z: bounds.z0 - pad, len: wx + pad * 2, rot: 0, seed: 101 },
     { x: cx, z: bounds.z1 + pad, len: wx + pad * 2, rot: Math.PI, seed: 102 },
-    { x: bounds.x0 - pad, z: cz, len: wz + pad * 2, rot: Math.PI * 0.5, seed: 103 },
     { x: bounds.x1 + pad, z: cz, len: wz + pad * 2, rot: -Math.PI * 0.5, seed: 104 },
   ];
+  if (!skipWest) sides.push({ x: bounds.x0 - pad, z: cz, len: wz + pad * 2, rot: Math.PI * 0.5, seed: 103 });
+
+  const allPos: number[] = [];
+  const allCol: number[] = [];
+  const mat4 = new THREE.Matrix4();
+  const rotM = new THREE.Matrix4();
+  const trnM = new THREE.Matrix4();
+  const v3 = new THREE.Vector3();
 
   for (const s of sides) {
     const wall = buildMistLayers({
@@ -345,8 +370,8 @@ export function perimeterMist(
       h,
       d: depth,
       ext: Math.min(45, s.len * 0.1),
-      layers: 4,
-      cols: 6,
+      layers: 1,
+      cols: 2,
       axis: 0,
       peakAlpha: 0.42,
       footY: -1.5,
@@ -354,17 +379,34 @@ export function perimeterMist(
       opacity: 0.85,
       seed: s.seed,
     });
-    wall.position.set(s.x, y0, s.z);
-    wall.rotation.y = s.rot;
+    rotM.makeRotationY(s.rot);
+    trnM.makeTranslation(s.x, y0, s.z);
+    mat4.multiplyMatrices(trnM, rotM);
     wall.traverse((o) => {
       const m = o as THREE.Mesh;
-      if (m.isMesh) {
-        m.material = pmMat;
-        m.raycast = NOOP_RAYCAST;
+      if (!m.isMesh) return;
+      const pos = m.geometry.attributes.position as THREE.BufferAttribute;
+      const col = m.geometry.attributes.color as THREE.BufferAttribute;
+      for (let i = 0; i < pos.count; i++) {
+        v3.fromBufferAttribute(pos, i).applyMatrix4(mat4);
+        allPos.push(v3.x, v3.y, v3.z);
+        allCol.push(col.getX(i), col.getY(i), col.getZ(i), col.getW(i));
       }
+      m.geometry.dispose();
     });
-    g.add(wall);
   }
+
+  const ringGeo = new THREE.BufferGeometry();
+  ringGeo.setAttribute('position', new THREE.Float32BufferAttribute(allPos, 3));
+  ringGeo.setAttribute('color', new THREE.Float32BufferAttribute(allCol, 4));
+  ringGeo.computeVertexNormals();
+  // Collapse boundingBox to the finite level centre so Box3.setFromObject(root) is neither ±Infinity nor inflated by mist padding.
+  const centerPt = new THREE.Vector3(cx, y0, cz);
+  ringGeo.boundingBox = new THREE.Box3(centerPt.clone(), centerPt.clone());
+  ringGeo.computeBoundingBox = () => { ringGeo.boundingBox = new THREE.Box3(centerPt.clone(), centerPt.clone()); };
+  const ringMesh = tagMistMesh(new THREE.Mesh(ringGeo, pmMat));
+  ringMesh.frustumCulled = false;
+  g.add(ringMesh);
   return g;
 }
 
@@ -372,9 +414,13 @@ export function perimeterMist(
 export function updatePerimeterMist(root: THREE.Object3D, cameraDist: number, folded = false): number {
   const pm = root.getObjectByName('perimeter-mist');
   if (!pm) return 0;
-  const t = Math.max(0, Math.min(1, (cameraDist - 600) / (3600 - 600)));
+  const isFolded = folded || !!root.userData.folded || (root.parent != null && !root.parent.visible);
+  const span = (pm.userData.span as number | undefined) ?? 300;
+  const fadeStart = Math.max(500, span * 1.35);
+  const fadeEnd = Math.max(2200, span * 2.2);
+  const t = Math.max(0, Math.min(1, (cameraDist - fadeStart) / (fadeEnd - fadeStart)));
   const smooth = t * t * (3 - 2 * t);
-  const fade = folded ? 0 : 1 - smooth;
+  const fade = isFolded ? 0 : 1 - smooth;
   pm.visible = fade > 0.01;
   const mt = pm.userData.mistMat as THREE.MeshLambertMaterial | undefined;
   const base = (pm.userData.baseOpacity as number | undefined) ?? 0.85;

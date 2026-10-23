@@ -6,6 +6,7 @@ import type { Polygon } from '../core/geometry';
 import { baseRingFt, DEFAULT_CEILING_FT } from '../core/units';
 import { FLOOR_COLOR, PALETTE, WALL_COLOR } from '../kit/palette';
 import { baseRing, merge, pawn, planeGeometry, PROP_BUILDERS, segmentBox, slabGeometry, stairsStraight, WALL_T } from '../kit/pieces';
+import { markShared } from './dispose';
 import { fogUniforms, mat, matClone, patchFog, wallMat } from './materials';
 import { perimeterMist, updatePerimeterMist } from '../kit/mist';
 import { PROPS_V1 } from '../kit/props';
@@ -17,7 +18,19 @@ import { WORLD_STANDINS } from '../core/siteInterfaces';
 /** Kinds whose meshes carry a role of their own (stairs, raised ground, plates, mist, landforms): built and placed one by one. */
 const MIST_KINDS = new Set(['mist', 'mist-bank', 'mist-wall', 'fog-wall', 'a-mist-wall', 'a-ground-fog']);
 const LANDFORM_KINDS = new Set(['hill-land', 'heightfield', 'crag', 'gorge']);
-const UNMERGED = new Set(['stairs-straight', 'prism', 'pressure-plate', ...MIST_KINDS, ...LANDFORM_KINDS]);
+const UNMERGED = new Set(['stairs-straight', 'prism', 'pressure-plate', ...MIST_KINDS, 'hill-land', 'heightfield']);
+const _mistWorldPos = new THREE.Vector3();
+const outdoorMats = new Map<string, THREE.MeshLambertMaterial>();
+function outdoorMat(color: string): THREE.MeshLambertMaterial {
+  let m = outdoorMats.get(color);
+  if (!m) {
+    m = matClone(color);
+    (m.userData.outdoorFog ??= { value: 1 }).value = 1;
+    markShared(m);
+    outdoorMats.set(color, m);
+  }
+  return m;
+}
 /** Building shells: their roof, walls and chimney are cut by the section plane like a wall. */
 const ROOF_KINDS = new Set(['roof-gable', 'roof-cone', 'onion-dome', 'mill-sails', 'chimney', 'house', 'church-building', 'temple', 'big-tent']);
 
@@ -127,6 +140,11 @@ export function* buildLevelSteps(level: Level, grid: GridLevel): Generator<void,
   const openables = new Map<string, OpenHandle>();
   const scatter: { obj: THREE.Object3D; o: SceneObject; p: THREE.Vector3 }[] = [];
 
+  const isOutdoor =
+    (!!level.terrain?.length || level.objects.some((o) => LANDFORM_KINDS.has(o.kind))) &&
+    level.ambient !== 'darkness' &&
+    level.ambient !== 'interior-dim';
+
   // Floors: one merged mesh per floor material.
   const floors: THREE.Mesh[] = [];
   const byFloor = new Map<string, THREE.BufferGeometry[]>();
@@ -147,7 +165,9 @@ export function* buildLevelSteps(level: Level, grid: GridLevel): Generator<void,
     // Open ground receives the stage's geographic paint. A private kit material keeps that stage-specific shader
     // off other maps' shared palette and is freed with this map by disposeTree.
     const color = FLOOR_COLOR[f as keyof typeof FLOOR_COLOR];
-    const m = new THREE.Mesh(merge(gs), /^(grass|snow|marsh)$/.test(f) ? matClone(color) : mat(color));
+    const fm = /^(grass|snow|marsh)$/.test(f) ? matClone(color) : isOutdoor ? outdoorMat(color) : mat(color);
+    if (isOutdoor) (fm.userData.outdoorFog ??= { value: 1 }).value = 1;
+    const m = new THREE.Mesh(merge(gs), fm);
     m.userData.role = 'floor';
     m.name = `floor:${f}`;
     floors.push(m);
@@ -361,7 +381,6 @@ export function* buildLevelSteps(level: Level, grid: GridLevel): Generator<void,
   }
 
   yield;
-  const isOutdoor = !!level.terrain?.length && level.ambient !== 'darkness';
   let x0 = Infinity, z0 = Infinity, x1 = -Infinity, z1 = -Infinity;
   for (const r of level.rooms) for (const [px, pz] of r.polygon) { if (px < x0) x0 = px; if (px > x1) x1 = px; if (pz < z0) z0 = pz; if (pz > z1) z1 = pz; }
   for (const t of level.terrain ?? []) for (const [px, pz] of t.polygon) { if (px < x0) x0 = px; if (px > x1) x1 = px; if (pz < z0) z0 = pz; if (pz > z1) z1 = pz; }
@@ -372,10 +391,8 @@ export function* buildLevelSteps(level: Level, grid: GridLevel): Generator<void,
     z1 = 100;
   }
   if (isOutdoor) {
-    root.add(perimeterMist({ x0, z0, x1, z1 }, y0));
-    fogUniforms.uFogColor.value.copy(fogUniforms.uMistColor.value);
-  } else {
-    fogUniforms.uFogColor.value.set(PALETTE.fog);
+    const hasFogWall = level.objects.some((o) => o.kind === 'fog-wall');
+    root.add(perimeterMist({ x0, z0, x1, z1 }, y0, hasFogWall));
   }
 
   const gridMesh = buildGridOverlay(grid, y0, !!level.terrain?.length || level.elevationFt <= 0);
@@ -385,15 +402,13 @@ export function* buildLevelSteps(level: Level, grid: GridLevel): Generator<void,
   anchor.onBeforeRender = (_renderer, scene, camera) => {
     const scFog = (scene as THREE.Scene)?.fog as THREE.FogExp2 | THREE.Fog | null | undefined;
     if (scFog?.color) fogUniforms.uMistColor.value.copy(scFog.color);
-    if (isOutdoor) {
-      fogUniforms.uFogColor.value.copy(fogUniforms.uMistColor.value);
-      if (camera) {
-        const cx = (x0 + x1) * 0.5, cz = (z0 + z1) * 0.5;
-        const dist = Math.hypot(camera.position.x - cx, camera.position.y - y0, camera.position.z - cz);
-        updatePerimeterMist(root, dist, !!root.userData.folded);
-      }
-    } else {
-      fogUniforms.uFogColor.value.set(PALETTE.fog);
+    if (isOutdoor && camera) {
+      const cx = (x0 + x1) * 0.5, cz = (z0 + z1) * 0.5;
+      const wp = root.localToWorld(_mistWorldPos.set(cx, y0, cz));
+      const dist = camera.position.distanceTo(wp);
+      const maxSpan = Math.max(80, x1 - x0, z1 - z0);
+      const offAnchor = Math.hypot(wp.x, wp.z) > maxSpan * 0.85 + 600;
+      updatePerimeterMist(root, dist, !!root.userData.folded || offAnchor);
     }
   };
 
