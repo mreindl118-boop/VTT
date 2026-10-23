@@ -81,9 +81,9 @@ export function heightfield(d: Dims): THREE.Group {
     let ny = uz * vx - ux * vz; const nxv = uy * vz - uz * vy, nzv = ux * vy - uy * vx;
     if (ny < 0) { const t = B; B = C; C = t; ny = -ny; }
     const len = Math.hypot(nxv, ny, nzv) || 1, k = ny / len, y = (A[1] + B[1] + C[1]) / 3, x = (A[0] + B[0] + C[0]) / 3, z = (A[2] + B[2] + C[2]) / 3;
-    // steep faces are banded like bedded rock (the beds wander a little), mid slopes are scree, the rest turf or frost
-    const band = Math.floor((y + 6 * Math.sin(x * 0.045) + 5 * Math.cos(z * 0.06)) / 18) % 3;
-    const color = k < 0.62 ? (band === 0 ? ROCK_DK : band === 1 ? ROCK : ROCK_MID) : k < 0.8 ? SCREE : y >= frost ? FROST : turf;
+    // steep faces vary across vertical crag ribs and normal aspect (never horizontal y-stripes), mid slopes are scree, the rest turf or frost
+    const patch = Math.sin(x * 0.022 + z * 0.019) + 0.7 * Math.cos(x * 0.041 - z * 0.037) + 0.5 * ((nxv - nzv) / len);
+    const color = k < 0.62 ? (patch < -0.35 ? ROCK_DK : patch > 0.35 ? ROCK_MID : ROCK) : k < 0.8 ? SCREE : y >= frost ? FROST : turf;
     push(color, ...A, ...B, ...C);
   };
   for (let j = 0; j < nz; j++) for (let i = 0; i < nx; i++) {

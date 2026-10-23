@@ -220,15 +220,15 @@ obj('S1-sign', 'signpost', S1P[0] + 14, S1P[1] - 10, key='S1', rotY=20)
 for i, (dx, dz) in enumerate([(-30, -25), (40, -30), (-60, -50), (70, -60), (20, -70)]): obj(f'S1-rock{i}', 'boulder', S1P[0] + dx, S1P[1] + dz, dims={'r': 2 + (i % 3)})
 
 # ================================================================== the cliff, the mountain and the switchback road (S5)
-HILL_LEDGE = 62.0
-HILL_RISE = 44.0
+HILL_LEDGE = KL.LEDGE
+HILL_RISE = 55.0
 HILL_SCALE = HILL_LEDGE / KL.LEDGE
 HILL_ROAD = [(x, z, h * HILL_SCALE) for x, z, h in KL.ROAD]
 
 def hill_ground(p):
     if KL.inside(p, KL.RIM): return HILL_LEDGE
     d = KL.poly_dist(p, KL.RIM)
-    cliff = max(0.0, HILL_LEDGE - 0.95 * d)
+    cliff = max(0.0, HILL_LEDGE - KL._cliff_k(p) * d)
     if KL.inside(p, KL.VF):
         dv = KL.poly_dist(p, KL.VF)
         cliff *= (1.0 - KL.smooth(0.0, 22.0, dv))
@@ -238,10 +238,10 @@ def hill_ground(p):
     if KL.inside(p, KL.MZ):
         f = KL._flank(p)
         if f > 0:
-            up = HILL_LEDGE + HILL_RISE * (1.0 - math.exp(-du / 250.0)) + 3.0 * (KL.noise(p[0] / 150.0, p[1] / 150.0) - 0.5) * 2.0 * KL.smooth(0.0, 60.0, du)
+            up = HILL_LEDGE + HILL_RISE * (1.0 - math.exp(-du / 250.0)) + 8.0 * (KL.noise(p[0] / 150.0, p[1] / 150.0) - 0.5) * 2.0 * KL.smooth(0.0, 60.0, du)
             h = cliff * (1.0 - f) + up * f
-    if 0.0 < h < HILL_LEDGE:
-        h += 2.0 * (1.0 - 0.7 * f) * KL.rugged(p) * KL.smooth(2.0, 18.0, d) * KL.smooth(0.0, 12.0, h)
+    if 0.0 < h < HILL_LEDGE + HILL_RISE:
+        h += 10.0 * (1.0 - 0.7 * f) * KL.rugged(p) * KL.smooth(2.0, 18.0, d) * KL.smooth(0.0, 25.0, h)
     return max(0.0, h)
 
 def hill_height(p):
@@ -251,13 +251,13 @@ def hill_height(p):
     for (x0, z0, h0), (x1, z1, h1) in zip(HILL_ROAD[:-1], HILL_ROAD[1:]):
         d, t = KL.seg_dist(p, (x0, z0), (x1, z1))
         if d < d_min: d_min = d
-        if d < 24.0:
+        if d < 26.0:
             w = 1.0 / ((d + 3.0) ** 3)
             w_sum += w
             rh_sum += w * (h0 + (h1 - h0) * t)
-    if w_sum > 0.0 and d_min < 20.0:
+    if w_sum > 0.0 and d_min < 22.0:
         rh = rh_sum / w_sum
-        b = 1.0 - KL.smooth(3.0, 20.0, d_min)
+        b = 1.0 - KL.smooth(3.0, 22.0, d_min)
         h = h * (1.0 - b) + rh * b
     return h
 
@@ -273,30 +273,29 @@ def hf_hole(x, z):
     return hill_height((x, z)) <= 0.5
 FINE = (340.0, 130.0, 430.0, 440.0)     # the switchbacks, the abbey's rock and its cliffs: a 5-ft lattice laid into the 10-ft one
 def coarse_hole(x, z):
-    if FINE[0] + 10.0 < x < FINE[0] + FINE[2] - 10.0 and FINE[1] + 10.0 < z < FINE[1] + FINE[3] - 10.0: return True     # the fine patch's own ground
+    if FINE[0] < x < FINE[0] + FINE[2] and FINE[1] < z < FINE[1] + FINE[3]: return True     # the fine patch's own ground
     return hf_hole(x, z)
 CX0, CZ0, CNX, CNZ, CC = 330.0, -430.0, 83, 108, 10.0
 def taper(x, z, h):
     # the mountain slopes away toward the map's edge (the land beyond is the region's own) instead of ending in a wall
     e = min(x - CX0, CX0 + CNX * CC - x, z - CZ0, CZ0 + CNZ * CC - z)
     return h * (0.15 + 0.85 * KL.smooth(0, 320, e)) * KL.smooth(0, 40, e) if e < 320 else h
-hfc = KL.heightfield_dims(CX0, CZ0, CNX, CNZ, CC, hf_fn, hole=coarse_hole, taper=taper); hfc['frost'] = 98
+hfc = KL.heightfield_dims(CX0, CZ0, CNX, CNZ, CC, hf_fn, hole=coarse_hole, taper=taper); hfc['frost'] = 430
 obj('land-mountain', 'heightfield', CX0, CZ0, dims=hfc)
 
-def smooth_fine_heightfield(x0, z0, nx, nz, cell, max_step=8.5):
+def smooth_fine_heightfield(x0, z0, nx, nz, cell, max_step=28.0):
     H = [[hf_fn(x0 + i * cell, z0 + j * cell) for i in range(nx + 1)] for j in range(nz + 1)]
     fixed = [[KL.inside((x0 + i * cell, z0 + j * cell), KL.RIM) for i in range(nx + 1)] for j in range(nz + 1)]
     for _ in range(45):
         for j in range(nz + 1):
             for i in range(nx + 1):
                 if fixed[j][i]: continue
-                s_lim = 3.5 if H[j][i] > HILL_LEDGE - 1.0 else max_step
                 lo, hi = 0.0, 1e9
                 for di, dj in ((-1, 0), (1, 0), (0, -1), (0, 1)):
                     ni, nj = i + di, j + dj
                     if 0 <= ni <= nx and 0 <= nj <= nz:
-                        lo = max(lo, H[nj][ni] - s_lim)
-                        hi = min(hi, H[nj][ni] + s_lim)
+                        lo = max(lo, H[nj][ni] - max_step)
+                        hi = min(hi, H[nj][ni] + max_step)
                 H[j][i] = max(lo, min(hi, H[j][i])) if lo <= hi else 0.5 * (lo + hi)
     def fn_smooth(x, z):
         i = max(0, min(nx, int(round((x - x0) / cell))))
@@ -307,9 +306,9 @@ def smooth_fine_heightfield(x0, z0, nx, nz, cell, max_step=8.5):
         return fn_smooth(x, z) <= 0.5
     return KL.heightfield_dims(x0, z0, nx, nz, cell, fn_smooth, hole=hole_smooth)
 
-hff = smooth_fine_heightfield(FINE[0], FINE[1], int(FINE[2] / 5), int(FINE[3] / 5), 5.0, max_step=8.5); hff['frost'] = 98; hff['skirt'] = 0
+hff = smooth_fine_heightfield(FINE[0], FINE[1], int(FINE[2] / 5), int(FINE[3] / 5), 5.0, max_step=28.0); hff['frost'] = 430; hff['drop'] = 14
 obj('land-cliff', 'heightfield', FINE[0], FINE[1], dims=hff)
-obj('S5-road', 'road-ribbon', 0, 0, key='S5', dims=KL.ribbon_dims([p for p in HILL_ROAD if p[2] < HILL_LEDGE - 0.1], KL.ROAD_W))
+obj('S5-road', 'road-ribbon', 0, 0, key='S5', dims=KL.ribbon_dims([p for p in HILL_ROAD if p[2] < HILL_LEDGE - 0.5], KL.ROAD_W))
 for i, (x, z, r) in enumerate([(640, 540, 90), (790, 600, 110)]):
     obj(f'low-mist{i}', 'mist-bank', x, z, y=18, dims={'r': r, 'h': 7, 'n': 8, 'o': 0.07})
 

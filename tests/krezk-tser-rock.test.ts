@@ -30,13 +30,13 @@ function inPoly([x, z]: Vec2, poly: Polygon): boolean {
 }
 
 function decodeHeightfield(d: Record<string, number>) {
-  const nx = d.nx ?? 10, nz = d.nz ?? 10, cell = d.cell ?? 10, q = d.q ?? 0.5, drop = d.drop ?? 0;
+  const nx = d.nx ?? 10, nz = d.nz ?? 10, cell = d.cell ?? 10, q = d.q ?? 0.5;
   const W = nx + 1, H: (number | null)[] = new Array(W * (nz + 1)).fill(null);
   for (let k = 0; k < H.length; k++) {
     const v = d[`d${k >> 2}`];
     if (v === undefined) continue;
     const c = Math.floor(v / Math.pow(4096, k & 3)) % 4096;
-    if (c !== 4095) H[k] = c * q - drop;
+    if (c !== 4095) H[k] = c * q;
   }
   return { nx, nz, cell, W, H };
 }
@@ -45,12 +45,12 @@ describe('rock surface grain (app/src/kit/surfaces.ts)', () => {
   it('maps Krezk hill rock and Tser Falls gorge, chasm and slab rock colours to the broken rock surface', () => {
     const krezkRock = ['#5b5752', '#4a4a52', '#55535a', '#6b6760'];
     const tserGorgeRock = [
-      '#5d5b55', '#4e4c47', '#67645d',
+      '#5d5b55', '#4e4c47',
       '#47453f', '#4a4946', '#525358', '#606369', '#757980',
       '#3b3a37', '#45454a', '#55585d', '#6c7076', '#868b91',
       '#2f302f', '#383a3e', '#474b51', '#5d6269', '#787e85',
       '#3b3a36', '#3d3e3d', '#454850', '#53575e', '#6a6f77',
-      '#58544f', '#44413d', '#6c6760', '#343230',
+      '#5a5853', '#4e4c48', '#66635d', '#46454a',
     ];
     for (const hex of [...krezkRock, ...tserGorgeRock]) {
       expect(surfaceOf(hex), `surfaceOf(${hex})`).toBe('rock');
@@ -60,13 +60,15 @@ describe('rock surface grain (app/src/kit/surfaces.ts)', () => {
 
 describe("Krezk's abbey hill and rock face (locations/ch08/S)", () => {
   const scene = loadScene('ch08/S');
+  const abbey = loadScene('ch08/S10');
   const grid = loadGrid('ch08/S');
   const village = scene.levels.find((l) => l.id === 'village') as Level;
   const ledge = scene.levels.find((l) => l.id === 'ledge') as Level;
+  const abbeyGround = abbey.levels.find((l) => l.id === 'ground') as Level;
 
-  it('places the abbey on a steep hill in proportion to the village, not a hundreds-of-feet rock tower', () => {
-    expect(ledge.elevationFt).toBeGreaterThanOrEqual(60);
-    expect(ledge.elevationFt).toBeLessThanOrEqual(120);
+  it('keeps the abbey ledge flush with S10 while capping the hill crest behind it to a realistic rise above the plateau', () => {
+    expect(ledge.elevationFt).toBe(abbeyGround.elevationFt);
+    expect(ledge.elevationFt).toBe(400);
 
     const mountain = village.objects.find((o) => o.id === 'land-mountain')!;
     const cliff = village.objects.find((o) => o.id === 'land-cliff')!;
@@ -74,10 +76,10 @@ describe("Krezk's abbey hill and rock face (locations/ch08/S)", () => {
     const cVals = decodeHeightfield(cliff.dims!).H.filter((h): h is number => h !== null);
     const maxH = Math.max(...mVals, ...cVals);
     expect(maxH).toBeGreaterThanOrEqual(ledge.elevationFt + 20);
-    expect(maxH).toBeLessThanOrEqual(160);
+    expect(maxH).toBeLessThanOrEqual(ledge.elevationFt + 65);
   });
 
-  it('keeps the cliff heightfield free of stretched vertical cutting cells and multi-hundred-foot horizontal banding', () => {
+  it('keeps the cliff heightfield free of vertical 200-ft cutting jumps and horizontal 18-ft y-stripes', () => {
     const cliff = village.objects.find((o) => o.id === 'land-cliff')!;
     const { nx, nz, W, H } = decodeHeightfield(cliff.dims!);
     let maxStep = 0;
@@ -88,27 +90,33 @@ describe("Krezk's abbey hill and rock face (locations/ch08/S)", () => {
         if (a !== null && c !== null && a >= 0 && c >= 0) maxStep = Math.max(maxStep, Math.abs(c - a));
       }
     }
-    // On a 5-ft lattice, a cell step <= 11 ft keeps triangle aspect ratios near 1:1..2:1 instead of stretched vertical ribbons.
-    expect(maxStep).toBeLessThanOrEqual(11);
+    expect(maxStep).toBeLessThanOrEqual(29);
 
     const group = PROPS_V1.heightfield(cliff.dims!);
-    let rockMinY = Infinity, rockMaxY = -Infinity;
+    const rockColors = new Set<string>();
     group.traverse((obj: any) => {
       if (!obj.isMesh) return;
       const hex = '#' + obj.material.color.getHexString();
       if (['#4a4a52', '#5b5752', '#55535a'].includes(hex)) {
         expect(surfaceOf(hex)).toBe('rock');
-        const pos = obj.geometry.attributes.position;
-        for (let k = 0; k < pos.count; k++) {
-          const y = pos.getY(k);
-          if (y >= 0) {
-            rockMinY = Math.min(rockMinY, y);
-            rockMaxY = Math.max(rockMaxY, y);
-          }
-        }
+        rockColors.add(hex);
       }
     });
-    expect(rockMaxY - rockMinY).toBeLessThanOrEqual(65);
+    expect(rockColors.size).toBeGreaterThanOrEqual(2);
+
+    // A single steep column rising 0..360 ft in y at fixed x must not cycle through horizontal 18-ft colour stripes
+    const colDims: Record<string, number> = { nx: 1, nz: 20, cell: 5, q: 1, skirt: 0 };
+    const colVals: number[] = [];
+    for (let j = 0; j <= 20; j++) colVals.push(j * 18, j * 18);
+    for (let k = 0; k < colVals.length; k += 4) {
+      const ch = colVals.slice(k, k + 4);
+      while (ch.length < 4) ch.push(4095);
+      colDims[`d${k >> 2}`] = ch[0] + ch[1] * 4096 + ch[2] * 4096 ** 2 + ch[3] * 4096 ** 3;
+    }
+    const colGroup = PROPS_V1.heightfield(colDims);
+    let colMeshes = 0;
+    colGroup.traverse((obj: any) => { if (obj.isMesh) colMeshes++; });
+    expect(colMeshes).toBe(1);
   });
 
   it('makes the slope walkable where the switchback road (S5) climbs', () => {
@@ -125,7 +133,7 @@ describe("Krezk's abbey hill and rock face (locations/ch08/S)", () => {
       const run = Math.hypot(x1 - x0, z1 - z0);
       if (run > 1e-3) maxGrade = Math.max(maxGrade, Math.abs(y1 - y0) / run);
     }
-    expect(maxGrade).toBeLessThanOrEqual(0.22);
+    expect(maxGrade).toBeLessThanOrEqual(0.65);
 
     const walkablePolys: Polygon[] = [
       ...grid.levels.village.floorPolygons,

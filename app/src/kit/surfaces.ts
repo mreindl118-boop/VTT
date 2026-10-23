@@ -15,7 +15,7 @@ const norm = (c: string) => c.toLowerCase();
 export function surfaceFor(colors: string | string[], s: Surface): void {
   for (const c of Array.isArray(colors) ? colors : [colors]) {
     const k = norm(c);
-    if ((s === 'generic' || BY_COLOR.get(k) === 'rock') && BY_COLOR.has(k)) continue;
+    if (s === 'generic' && BY_COLOR.has(k)) continue;
     BY_COLOR.set(k, s);
   }
 }
@@ -50,7 +50,7 @@ surfaceFor(['#3e5566', '#1e2a33'], 'water');
 surfaceFor([
   '#45454d', '#47474f', '#4a4a52', '#44444c', '#3f3f47', '#4f5560',
   '#5b5752', '#55535a', '#6b6760', '#58544f', '#44413d', '#6c6760', '#343230', '#25272b', '#1c1e22',
-  '#5d5b55', '#4e4c47', '#67645d', '#47453f', '#4a4946', '#525358', '#606369', '#757980',
+  '#5d5b55', '#4e4c47', '#47453f', '#4a4946', '#525358', '#606369', '#757980',
   '#3b3a37', '#45454a', '#55585d', '#6c7076', '#868b91', '#2f302f', '#383a3e', '#474b51', '#5d6269', '#787e85',
   '#3b3a36', '#3d3e3d', '#454850', '#53575e', '#6a6f77', '#6a6d74', '#3a3a42', '#33373a', '#5d5e60',
   '#5c5c64', '#6b6660', '#7a756e', '#3b3f44',
