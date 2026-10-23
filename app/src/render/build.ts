@@ -54,13 +54,14 @@ function isStatic(o: SceneObject): boolean {
  *  a group with userData.tier; untagged pieces whose two smallest extents are under 0.7 ft are 'near'. */
 type Tier = 'near' | 'far' | 'both';
 const NEAR_FT = 0.7;
+const NEAR_MAX_FT = 3.0;
 const TILE_FT = 1000;
 function tierOf(m: THREE.Mesh, root: THREE.Object3D): Tier {
   for (let o: THREE.Object3D | null = m; o && o !== root; o = o.parent) { const t = o.userData.tier; if (t === 'near' || t === 'far') return t; }
   const g = m.geometry; if (!g.boundingBox) g.computeBoundingBox();
   const bb = g.boundingBox!, e = m.matrixWorld.elements;
   const ext = [(bb.max.x - bb.min.x) * Math.hypot(e[0], e[1], e[2]), (bb.max.y - bb.min.y) * Math.hypot(e[4], e[5], e[6]), (bb.max.z - bb.min.z) * Math.hypot(e[8], e[9], e[10])].sort((a, b) => a - b);
-  return ext[1] < NEAR_FT ? 'near' : 'both';
+  return ext[1] < NEAR_FT && ext[2] < NEAR_MAX_FT && ext[1] * ext[2] < 1.5 ? 'near' : 'both';
 }
 /** The distance at which a foot is about 1.5 px for this screen (fov 40°, pixel ratio capped like the renderer's). */
 function lodDistance(): number {
@@ -114,6 +115,15 @@ function centroid(p: Polygon): [number, number] {
   return [x / p.length, z / p.length];
 }
 
+function polyArea(p: Polygon): number {
+  let a = 0;
+  for (let i = 0; i < p.length; i++) {
+    const [x0, z0] = p[i], [x1, z1] = p[(i + 1) % p.length];
+    a += x0 * z1 - x1 * z0;
+  }
+  return Math.abs(a) * 0.5;
+}
+
 /** Replace every mesh material under `o` with a private copy (so opacity can change per object): one copy per material
  *  of the object, not per mesh (a bookshelf of sixty books takes six, not sixty), keeping emissive and surface. */
 function privatize(o: THREE.Object3D, tint?: THREE.Color): THREE.Material[] {
@@ -154,13 +164,20 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
   // Floors: one merged mesh per floor material.
   const floors: THREE.Mesh[] = [];
   const byFloor = new Map<string, THREE.BufferGeometry[]>();
+  const bestRoomForKey = new Map<string, { r: Level['rooms'][number]; area: number }>();
   for (const r of level.rooms) {
     const arr = byFloor.get(r.floor) ?? [];
     arr.push(slabGeometry(r.polygon, y0, 1));
     byFloor.set(r.floor, arr);
+    const baseKey = r.key.replace(/-[a-z]+$/, '');
+    const area = polyArea(r.polygon);
+    const prev = bestRoomForKey.get(baseKey);
+    if (!prev || area > prev.area) bestRoomForKey.set(baseKey, { r, area });
+  }
+  for (const [baseKey, { r }] of bestRoomForKey) {
     const [cx, cz] = centroid(r.polygon);
-    // a room split into parts (K12-n, N4a-west) is labelled with the area key alone
-    labels.push({ id: `key:${r.key}`, text: r.key.replace(/-[a-z]+$/, ''), sub: r.name, page: r.page, pos: new THREE.Vector3(cx, y0 + 0.5, cz), vis: 'dm-note', kind: 'key' });
+    // a room split into parts (K12-n, N4a-west, Y2-northwest) is labelled once on its largest part
+    labels.push({ id: `key:${r.key}`, text: baseKey, sub: r.name, page: r.page, pos: new THREE.Vector3(cx, y0 + 0.5, cz), vis: 'dm-note', kind: 'key' });
   }
   for (const t of level.terrain ?? []) {
     const arr = byFloor.get(t.floor) ?? [];
@@ -278,6 +295,9 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
     const openMode = OPENABLE_KINDS[o.kind];
     if (openMode && o.kind !== 'claw-chest-skeleton') openables.set(o.id, makeOpenable(obj, openMode, !!o.container?.open));
     if (isStatic(o)) { scatter.push({ obj, o, p }); continue; }
+    const farDrop: THREE.Object3D[] = [];
+    obj.traverse((c) => { if (c.userData.tier === 'far') farDrop.push(c); });
+    for (const c of farDrop) c.removeFromParent();
     obj.position.copy(p);
     if (o.kind === 'stairs-straight' || (o.kind === 'prism' && o.polygon)) obj.position.set(0, y0, 0);
     obj.rotation.y = ((o.rotY ?? 0) * Math.PI) / 180;

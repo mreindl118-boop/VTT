@@ -152,8 +152,10 @@ vec3 mistSurface(vec3 P, vec3 N) {
     // still water: slow ripples
     m = 1.0 + (sin((P.x + P.z) * 0.7 + sfbm(P.xz * 0.2) * 6.0) * 0.5) * 0.08 * mid;
 #elif SURF == 18
-    // snow: drifts shade the surface, a faint wind ripple runs across it
-    m = 1.0 + (sfbm(uv * 0.3) - 0.5) * 0.08 + (sfbm(uv * 0.08) - 0.5) * 0.16 * broad + (snoise(vec2(uv.x * 0.25 + uv.y * 0.08, uv.y * 1.6)) - 0.5) * 0.06 * mid;
+    // snow: drifts shade the surface, a faint wind ripple runs across it; cool trough tint survives bright midday light
+    float drift = sfbm(uv * 0.08) - 0.5;
+    m = 1.0 + (sfbm(uv * 0.3) - 0.5) * 0.08 + drift * 0.22 * broad - max(0.0, -drift) * 0.14 * broad + (snoise(vec2(uv.x * 0.25 + uv.y * 0.08, uv.y * 1.6)) - 0.5) * 0.08 * mid;
+    tint = mix(vec3(1.0), vec3(0.88, 0.92, 0.98), clamp(-drift * 2.2, 0.0, 1.0) * broad);
 #elif SURF == 19
     // foliage: clumps of needles and leaves
     vec3 c = scell(uv * 1.3);
