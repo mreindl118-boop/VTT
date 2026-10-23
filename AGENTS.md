@@ -156,6 +156,25 @@ a day old; then continue it from its wip branch, and say so in Status.
   started yet).
 - A server restart and a usage-quota stop interrupted every lane at about 15:50 UTC; all uncommitted work was
   checkpointed and pushed as the WIP commits above.
+### Claude, 2026-10-23 18:40 UTC (cloud): the 1.0 plan and the playability plan are written; both wait on Matt
+
+- **Both research jobs are done (read-only; nothing in the repository changed; both plans sent to Matt as files, kept
+  in the cloud's scratch, not committed).** The 1.0 plan: 18 must-haves, 32-37 releases from 0.3.4 in three lanes (maps,
+  play, platform), 20 decisions. The playability plan (Matt's request at 15:55 and his clarification at 16:20): 14
+  lean releases, 1a the party never lost and turns that work on every grid, 1b each player moves their own character
+  (Split up and Gather, the party marker kept), 2 a Player map in its own process with its own camera that draws only on
+  change, 3 turns you can run, 4 the Player map takes the table's taps, 5 the tracker, 6 the encounter builder, 7 a
+  gallery of sixteen models from the kit's figure, 8 conditions, legendary and lair, 9 the GM screen, 10 batched tokens,
+  11 a flat Player map, 12-13 phones over the room's wifi; 29 decisions. Saves change by optional fields only.
+- **Bugs on main both plans rely on, re-checked by the cloud at `c7bf88c`:** End makes a party marker only when no token
+  at all is left on the map, so one creature left standing loses the party (`app.ts:1252`); the `party` getter returns
+  a creature when one stands first (`app.ts:1206`); `ensureDefaultToken` gives up on any token (`app.ts:1188`); a turn's
+  move must hit a cell centre exactly, so with Snap off players cannot move on their turn (`app.ts:2041`); the hex grid
+  builds no movement range, so every players' move in a fight is refused (`app.ts:1292`).
+- **Merge order the playability plan needs before its release 1a:** item 4, item 5, the castle, framework release 1
+  (Legion's lanes and the castle). Its release 2 (the Player map) needs only item 5 and 2f-3's `world.ts`. Nothing is
+  claimed or built until Matt answers decisions 1, 2, 22 and 25 and looks at the castle.
+
 ### Claude, 2026-10-23 15:55 UTC (cloud): Matt's playability request; a design job is running (read-only)
 
 - **Matt, 2026-10-23: "VTT playability. I wanna make it so that each player can control their character freely unless
