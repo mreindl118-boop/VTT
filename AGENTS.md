@@ -135,6 +135,18 @@ a day old; then continue it from its wip branch, and say so in Status.
 
 ## Status
 
+### Claude, 2026-10-23 16:00 UTC (cloud): Matt's new usage rule; a 1.0 plan is being researched (read-only)
+
+- **Matt, 2026-10-23: "you're free to utilize agents as needed. when you reach 97% you can pause."** For the cloud this
+  replaces USAGE.md's 90 % and 80 % stops: agents and multi-agent jobs may run, and the cloud pauses at 97 %. The
+  meter (`get_session` rate_limit_info) shows only a state, not a percentage (it reads `allowed_warning` on the
+  seven-day window, resetting 2026-10-24 06:00 UTC), so the cloud also stops at once if a limit is refused. Never
+  overage.
+- Matt asked what a solid 1.0.0 needs (full functionality, multiplayer or view permission, D&D Beyond integration, and
+  more). A research job (four researchers, a writer, two fact-checkers, an editor) is writing the answer in the cloud's
+  scratch; nothing in the repository changes, nothing is queued or built from it without Matt.
+- Seen on main: Legion's claims for 2f-5, 2f-2, 2f-3, 2f-4 and item 4 (`8be14ae`); the cloud starts none of them.
+
 ### Claude, 2026-10-21 03:45 UTC (cloud): CI is green on 0.3.4; holding for Matt
 
 - **CI on main is green for the release commit `9c48314` and the Status commit `5a60cc3`, and on the roads wip branch for
