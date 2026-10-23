@@ -11,6 +11,7 @@ import { mat, matClone } from '../../render/materials';
 import { FLOOR_COLOR, PALETTE } from '../palette';
 import { surfaceFor } from '../surfaces';
 import { PROPS_V1, pine, deadTree } from '../props';
+import { fogWall as kitFogWall } from '../mist';
 import { CREATURES, humanoid } from '../creatures';
 import { SITE_SHAPERS } from '../../render/backdrop';
 import { box, compact, cone, cylWith, grp, ico, smoothstep, V } from '../shapes';
@@ -635,7 +636,7 @@ const once = (kind: string, make: (d: Dims) => THREE.Group) => (d: Dims): THREE.
 };
 Object.assign(PROPS_V1, {
   'strahd-effigy': openable(strahdEffigy), cairn: openable(cairn), 'black-boulder': openable(blackBoulder), 'gulthias-tree': openable(gulthiasTree),
-  'dead-shrub': openable(deadShrub), 'fog-wall': once('fog-wall', fogWall), 'hill-land': once('hill-land', hillLand), 'hill-track': hillTrack, 'hill-patch': hillPatch,
+  'dead-shrub': openable(deadShrub), 'fog-wall': kitFogWall, 'hill-land': once('hill-land', hillLand), 'hill-track': hillTrack, 'hill-patch': hillPatch,
   'hill-pine': (d: Dims) => opened(pine(d)), 'hill-dead-tree': (d: Dims) => opened(deadTree(d)),
 } as Record<string, (d: Dims) => THREE.Object3D>);
 

@@ -8,7 +8,7 @@ import { mat } from '../../render/materials';
 import { FLOOR_COLOR, PALETTE } from '../palette';
 import { surfaceFor } from '../surfaces';
 import { box, cone, cyl, grp, hash, lump, place } from '../shapes';
-import { fogMat, veil } from '../mist';
+import { fogMat, mist as kitMist, veil } from '../mist';
 
 type Dims = Record<string, number>;
 
@@ -578,7 +578,7 @@ export function madMage(d: Dims): THREE.Group {
 }
 
 Object.assign(PROPS_V1, {
-  mist, 'barovia-gate': baroviaGate, 'headless-statue': headlessStatue, 'statue-head': statueHead, gallows, 'hanged-figure': hangedFigure, 'field-wall': fieldWall,
+  mist: kitMist, 'barovia-gate': baroviaGate, 'headless-statue': headlessStatue, 'statue-head': statueHead, gallows, 'hanged-figure': hangedFigure, 'field-wall': fieldWall,
   'black-carriage': blackCarriage, 'curtain-wall': curtainWall, 'ruined-turret': ruinedTurret, 'gargoyle-statue': gargoyleStatue, 'rotten-portcullis': rottenPortcullis, 'green-slime': greenSlime,
   'stone-bridge': stoneBridge, gorge, waterfall, crag, paving, fingerpost, rowboat, 'net-shed': netShed, reeds, weeds, log, 'shimmer-door': shimmerDoor,
 } as Record<string, (d: Dims) => THREE.Object3D>);

@@ -12,7 +12,7 @@ import { PALETTE } from '../palette';
 import { surfaceFor } from '../surfaces';
 import { SITE_SHAPERS } from '../../render/backdrop';
 import { box, cone, cyl, grp, hash, lump, place } from '../shapes';
-import { fogMat } from '../mist';
+import { fogMat, mistWall as kitMistWall } from '../mist';
 
 type Dims = Record<string, number>;
 
@@ -530,7 +530,7 @@ Object.assign(PROPS_V1, {
   'a-giant-pine': giantPine, 'a-raven-snag': ravenSnag, 'a-fallen-giant': fallenGiant, 'a-black-pool': blackPool, 'a-turning-circle': turningCircle,
   'a-wagon-ruts': wagonRuts, 'a-seep-rill': seepRill, 'a-root-bank': rootBank, 'a-ground-fog': groundFog, 'a-pipe-smoke': () => pipeSmoke(),
   'a-skull-blaze': skullBlaze, 'a-wolf-carcass': () => wolfCarcass(), 'a-grave': grave, 'a-wolf-trap': () => wolfTrap(), 'a-leather-bundle': () => leatherBundle(),
-  'a-pit-tarp': pitTarp, 'a-paw-prints': pawPrints, 'a-boot-tracks': bootTracks, 'a-trinket': () => trinket(), 'a-mist-wall': mistWall, 'a-vardo': vardoMerged,
+  'a-pit-tarp': pitTarp, 'a-paw-prints': pawPrints, 'a-boot-tracks': bootTracks, 'a-trinket': () => trinket(), 'a-mist-wall': kitMistWall, 'a-vardo': vardoMerged,
   'a-tunnel-roof': tunnelRoof, 'a-buttress-root': buttressRoot,
 } as Record<string, (d: Dims) => THREE.Object3D>);
 Object.assign(CREATURES, {

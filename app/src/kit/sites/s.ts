@@ -4,6 +4,7 @@
 // golem workshop, the wine cellar). Original geometry in the kit's grammar: plinths, frames, ridge beams, one palette.
 import * as THREE from 'three';
 import { PROPS_V1 } from '../props';
+import { mistBank as kitMistBank } from '../mist';
 import { CREATURES, humanoid, type HumanoidOpts } from '../creatures';
 import { mat } from '../../render/materials';
 import { surfaceFor } from '../surfaces';
@@ -572,7 +573,7 @@ export function bottles(d: Dims): THREE.Group {
 export function hangingLantern(d: Dims): THREE.Group { const y = d.y ?? 9; return grp(box(0.08, 2, 0.08, PALETTE.iron, 0, y + 1, 0), box(0.7, 0.9, 0.7, '#2b2a2e', 0, y - 0.4, 0), box(0.5, 0.6, 0.5, '#6b6a5a', 0, y - 0.4, 0)); }
 
 Object.assign(PROPS_V1, {
-  heightfield, 'road-ribbon': roadRibbon, 'mist-bank': mistBank,
+  heightfield, 'road-ribbon': roadRibbon, 'mist-bank': kitMistBank,
   cottage, 'thatch-roof': thatchRoof, woodpile, 'krezk-wall': krezkWall, 'square-tower': squareTower, 'tower-cap': towerCap, 'krezk-gatehouse': krezkGatehouse, gazebo, 'morninglord-statue': morninglordStatue,
   belfry, merlons, buttress, 'scarecrow-stand': scarecrowStand, 'garden-plot': gardenPlot, 'tether-post': tetherPost, 'old-trough': oldTrough,
   'hearth-cauldron': hearthCauldron, 'sun-disk': sunDisk, candelabra, 'iron-bed': ironBed, 'crib-wreck': cribWreck, 'bunk-ruin': bunkRuin,

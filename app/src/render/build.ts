@@ -6,15 +6,18 @@ import type { Polygon } from '../core/geometry';
 import { baseRingFt, DEFAULT_CEILING_FT } from '../core/units';
 import { FLOOR_COLOR, PALETTE, WALL_COLOR } from '../kit/palette';
 import { baseRing, merge, pawn, planeGeometry, PROP_BUILDERS, segmentBox, slabGeometry, stairsStraight, WALL_T } from '../kit/pieces';
-import { mat, matClone, patchFog, wallMat } from './materials';
+import { fogUniforms, mat, matClone, patchFog, wallMat } from './materials';
+import { perimeterMist, updatePerimeterMist } from '../kit/mist';
 import { PROPS_V1 } from '../kit/props';
 import { CREATURES } from '../kit/creatures';
 import '../kit/sites';
 import { buildGridOverlay } from './gridOverlay';
 import { WORLD_STANDINS } from '../core/siteInterfaces';
 
-/** Kinds whose meshes carry a role of their own (stairs, raised ground, plates): built and placed one by one. */
-const UNMERGED = new Set(['stairs-straight', 'prism', 'pressure-plate']);
+/** Kinds whose meshes carry a role of their own (stairs, raised ground, plates, mist, landforms): built and placed one by one. */
+const MIST_KINDS = new Set(['mist', 'mist-bank', 'mist-wall', 'fog-wall', 'a-mist-wall', 'a-ground-fog']);
+const LANDFORM_KINDS = new Set(['hill-land', 'heightfield', 'crag', 'gorge']);
+const UNMERGED = new Set(['stairs-straight', 'prism', 'pressure-plate', ...MIST_KINDS, ...LANDFORM_KINDS]);
 /** Building shells: their roof, walls and chimney are cut by the section plane like a wall. */
 const ROOF_KINDS = new Set(['roof-gable', 'roof-cone', 'onion-dome', 'mill-sails', 'chimney', 'house', 'church-building', 'temple', 'big-tent']);
 
@@ -252,9 +255,23 @@ export function* buildLevelSteps(level: Level, grid: GridLevel): Generator<void,
     }
     const obj = buildObject(o, y0, labels);
     const ROOF = ROOF_KINDS.has(o.kind);
+    const isMistKind = MIST_KINDS.has(o.kind);
+    const isLandformKind = LANDFORM_KINDS.has(o.kind);
     // A roof piece raised on top of authored walls (a cap): it goes when the walls are cut down, or it floats.
     const CAP = (o.kind === 'roof-gable' || o.kind === 'roof-cone' || o.kind === 'onion-dome' || o.kind === 'mill-sails' || o.kind === 'chimney') && (o.dims?.y ?? 10) >= 6;
     if (ROOF) obj.traverse((c) => { c.userData.role = 'roof'; if (CAP) c.userData.cap = true; });
+    if (isMistKind || isLandformKind) {
+      const role = isMistKind ? 'mist' : 'landform';
+      obj.traverse((c) => {
+        c.userData.role = role;
+        const m = c as THREE.Mesh;
+        if (m.isMesh && m.material) {
+          for (const mt of Array.isArray(m.material) ? m.material : [m.material]) {
+            (mt.userData.fogExempt ??= { value: 1 }).value = 1;
+          }
+        }
+      });
+    }
     const openMode = OPENABLE_KINDS[o.kind];
     if (openMode && o.kind !== 'claw-chest-skeleton') openables.set(o.id, makeOpenable(obj, openMode, !!o.container?.open));
     if (isStatic(o)) { scatter.push({ obj, o, p }); continue; }
@@ -263,7 +280,17 @@ export function* buildLevelSteps(level: Level, grid: GridLevel): Generator<void,
     obj.rotation.y = ((o.rotY ?? 0) * Math.PI) / 180;
     obj.userData.objectId = o.id;
     if (WORLD_STANDINS.has(o.kind)) obj.userData.worldStandin = true;
-    obj.traverse((c) => { if (!c.userData.role) c.userData.role = o.size ? 'token' : 'prop'; });
+    obj.traverse((c) => {
+      if (!c.userData.role) c.userData.role = o.size ? 'token' : 'prop';
+      if (c.userData.role === 'mist' || c.userData.role === 'landform') {
+        const m = c as THREE.Mesh;
+        if (m.isMesh && m.material) {
+          for (const mt of Array.isArray(m.material) ? m.material : [m.material]) {
+            (mt.userData.fogExempt ??= { value: 1 }).value = 1;
+          }
+        }
+      }
+    });
     root.add(obj);
     if (o.vis !== 'player' && o.vis !== 'explored' && o.vis !== 'unexplored') {
       const tint = o.vis === 'dm-note' ? undefined : new THREE.Color(PALETTE.violet);
@@ -334,8 +361,41 @@ export function* buildLevelSteps(level: Level, grid: GridLevel): Generator<void,
   }
 
   yield;
+  const isOutdoor = !!level.terrain?.length && level.ambient !== 'darkness';
+  let x0 = Infinity, z0 = Infinity, x1 = -Infinity, z1 = -Infinity;
+  for (const r of level.rooms) for (const [px, pz] of r.polygon) { if (px < x0) x0 = px; if (px > x1) x1 = px; if (pz < z0) z0 = pz; if (pz > z1) z1 = pz; }
+  for (const t of level.terrain ?? []) for (const [px, pz] of t.polygon) { if (px < x0) x0 = px; if (px > x1) x1 = px; if (pz < z0) z0 = pz; if (pz > z1) z1 = pz; }
+  if (!Number.isFinite(x0)) {
+    x0 = -100;
+    z0 = -100;
+    x1 = 100;
+    z1 = 100;
+  }
+  if (isOutdoor) {
+    root.add(perimeterMist({ x0, z0, x1, z1 }, y0));
+    fogUniforms.uFogColor.value.copy(fogUniforms.uMistColor.value);
+  } else {
+    fogUniforms.uFogColor.value.set(PALETTE.fog);
+  }
+
   const gridMesh = buildGridOverlay(grid, y0, !!level.terrain?.length || level.elevationFt <= 0);
   root.add(gridMesh);
+
+  const anchor = floors[0] ?? gridMesh;
+  anchor.onBeforeRender = (_renderer, scene, camera) => {
+    const scFog = (scene as THREE.Scene)?.fog as THREE.FogExp2 | THREE.Fog | null | undefined;
+    if (scFog?.color) fogUniforms.uMistColor.value.copy(scFog.color);
+    if (isOutdoor) {
+      fogUniforms.uFogColor.value.copy(fogUniforms.uMistColor.value);
+      if (camera) {
+        const cx = (x0 + x1) * 0.5, cz = (z0 + z1) * 0.5;
+        const dist = Math.hypot(camera.position.x - cx, camera.position.y - y0, camera.position.z - cz);
+        updatePerimeterMist(root, dist, !!root.userData.folded);
+      }
+    } else {
+      fogUniforms.uFogColor.value.set(PALETTE.fog);
+    }
+  };
 
   return { level, root, grid: gridMesh, floors, targets, secretDoors, labels, lights, lightRings, secretAsWall, wallsGroup, doors, openables };
 }

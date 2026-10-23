@@ -1,6 +1,7 @@
 // Kit v1 props for Death House and the general interiors. All in feet, origin at floor centre, +Z = plan south.
 import * as THREE from 'three';
 import { mat } from '../render/materials';
+import { fogMat, fogWall, mist, mistBank, mistWall } from './mist';
 import { PALETTE } from './palette';
 import { merge, regularPolygonGeometry } from './pieces';
 
@@ -772,8 +773,8 @@ export function chasm(d: Dims): THREE.Group {
     const pv = face.attributes.position; for (let i = 0; i < pv.count; i++) if (Math.sign(pv.getX(i)) === -sx || Math.abs(pv.getX(i)) < w / 2 + 3) pv.setX(i, pv.getX(i) - sx * (((i * 7919) % 11) / 11) * 3);
     face.computeVertexNormals(); g.add(new THREE.Mesh(face, mat('#3d3d45')));
   }
-  const fog = new THREE.Mesh(new THREE.PlaneGeometry(w + 6, L), new THREE.MeshBasicMaterial({ color: '#8a90a0', transparent: true, opacity: 0.85 })); fog.rotation.x = -Math.PI / 2; fog.position.y = -60; g.add(fog);
-  const fog2 = new THREE.Mesh(new THREE.PlaneGeometry(w + 6, L), new THREE.MeshBasicMaterial({ color: '#5e6270' })); fog2.rotation.x = -Math.PI / 2; fog2.position.y = -140; g.add(fog2);
+  const fog = new THREE.Mesh(new THREE.PlaneGeometry(w + 6, L), fogMat('#8a90a0', 0.85, true)); fog.rotation.x = -Math.PI / 2; fog.position.y = -60; fog.renderOrder = 2; fog.userData.role = 'mist'; g.add(fog);
+  const fog2 = new THREE.Mesh(new THREE.PlaneGeometry(w + 6, L), fogMat('#5e6270', 0.96, true)); fog2.rotation.x = -Math.PI / 2; fog2.position.y = -140; fog2.renderOrder = 2; fog2.userData.role = 'mist'; g.add(fog2);
   return g;
 }
 /** The drawbridge: old shored-up beams across `len` ft (local x), `w` wide, a few boards missing, chains up to the gate. */
@@ -815,4 +816,4 @@ export function roofCone(d: Dims): THREE.Group {
 }
 /** A stone chimney stack rising `h` ft from `y`. */
 export function chimney(d: Dims): THREE.Group { const h = d.h ?? 8, y = d.y ?? 10; return g_(box(2.6, h, 2.6, '#6a6560', 0, y + h / 2, 0), box(3.2, 0.8, 3.2, '#4d4845', 0, y + h + 0.4, 0)); }
-Object.assign(PROPS_V1, { 'roof-gable': roofGable, 'roof-cone': roofCone, chimney, stump, anvil, pillory, chasm, drawbridge, 'gate-tower': gateTower, palisade, watchtower, millstone, 'gear-shaft': gearShaft, 'onion-dome': onionDome, 'mill-sails': millSails, 'standing-stone': standingStone, vardo, campfire, 'big-tent': bigTent, mound, washline } as Record<string, (d: Dims) => THREE.Object3D>);
+Object.assign(PROPS_V1, { 'roof-gable': roofGable, 'roof-cone': roofCone, chimney, stump, anvil, pillory, chasm, drawbridge, 'gate-tower': gateTower, palisade, watchtower, millstone, 'gear-shaft': gearShaft, 'onion-dome': onionDome, 'mill-sails': millSails, 'standing-stone': standingStone, vardo, campfire, 'big-tent': bigTent, mound, washline, mist, 'mist-bank': mistBank, 'mist-wall': mistWall, 'fog-wall': fogWall } as Record<string, (d: Dims) => THREE.Object3D>);

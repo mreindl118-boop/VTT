@@ -14,6 +14,10 @@ export const fogUniforms = {
   /** 1 − hidden(t): how strongly explored-memory is desaturated. */
   uMemory: { value: 1 },
   uFogColor: { value: new THREE.Color(PALETTE.fog) },
+  /** The hour's outdoor mist colour (skyAt(clock).mist); feeds outdoor unexplored fog and tints mist pieces. */
+  uMistColor: { value: new THREE.Color('#5e5c68') },
+  /** Seconds on the world clock (0 when frozen by ?t=0): drives slow mist drift. */
+  uTime: { value: 0 },
   uCovEnabled: { value: 1 },
   /** World xz → the active scene's plan xz (2D affine, rows (x, z, 1)): the coverage map is in scene feet. Identity
    *  while the active scene stands at the origin unturned; App.setLevel writes it from the scene's placement. */
@@ -24,8 +28,17 @@ export const fogUniforms = {
   uWashPaper: { value: new THREE.Color('#d9cfb4') },
 };
 
-const VERT_DECL = 'varying vec3 vMistWorld;\nvarying vec3 vMistN;\n';
+export const uMistColor = fogUniforms.uMistColor;
+export const uTime = fogUniforms.uTime;
+
+const VERT_DECL = 'uniform float uTime;\nuniform float uMistDrift;\nvarying vec3 vMistWorld;\nvarying vec3 vMistN;\n';
 const VERT_BODY = `
+  if (uMistDrift > 0.5 && uTime != 0.0) {
+    vec3 wp0 = (modelMatrix * vec4(transformed, 1.0)).xyz;
+    float ph = uTime * 0.18 + wp0.x * 0.035 + wp0.z * 0.029 + wp0.y * 0.02;
+    transformed.x += sin(ph) * 0.65;
+    transformed.z += cos(ph * 0.83 + 1.3) * 0.65;
+  }
   vec4 mistP = vec4(transformed, 1.0);
   vec3 mistN = MIST_NORMAL;
   #ifdef USE_INSTANCING
@@ -43,6 +56,9 @@ uniform vec2 uCovSize;
 uniform float uFog;
 uniform float uMemory;
 uniform vec3 uFogColor;
+uniform vec3 uMistColor;
+uniform float uTime;
+uniform float uMistDrift;
 uniform float uCovEnabled;
 uniform mat3 uCovBasis;
 uniform float uFogExempt;
@@ -169,13 +185,19 @@ float mistCoverage() {
   vec2 q = (uCovBasis * vec3(vMistWorld.x, vMistWorld.z, 1.0)).xy;
   vec2 uv = (q - uCovOrigin) / uCovSize;
   if (uv.x < 0.0 || uv.y < 0.0 || uv.x > 1.0 || uv.y > 1.0) return 0.0;
-  return texture2D(uCovTex, uv).r;
+  vec2 d = 1.5 / max(uCovSize, vec2(1.0));
+  return 0.25 * (
+    texture2D(uCovTex, uv + vec2(-d.x, -d.y)).r +
+    texture2D(uCovTex, uv + vec2( d.x, -d.y)).r +
+    texture2D(uCovTex, uv + vec2(-d.x,  d.y)).r +
+    texture2D(uCovTex, uv + vec2( d.x,  d.y)).r
+  );
 }
 vec3 mistApply(vec3 c) {
   if (uCovEnabled < 0.5 || uFogExempt > 0.5) return c;
   float cov = mistCoverage();
-  float vis = step(0.75, cov);
-  float expl = step(0.25, cov) * (1.0 - vis);
+  float vis = smoothstep(0.55, 0.9, cov);
+  float expl = smoothstep(0.1, 0.45, cov) * (1.0 - vis);
   float g = dot(c, vec3(0.299, 0.587, 0.114));
   c = mix(c, mix(c, vec3(g) * 0.55, uMemory), expl);
   return mix(c, uFogColor, (1.0 - vis - expl) * uFog);
@@ -225,12 +247,13 @@ export function patchFog<T extends THREE.Material>(m: T, exempt = false): T {
   m.userData.mist = true;
   const exemptU = { value: exempt ? 1 : 0 };
   m.userData.fogExempt = exemptU;
+  const driftU = (m.userData.mistDrift ??= { value: 0 }) as { value: number };
   const lit = m.type === 'MeshLambertMaterial';
   const surfU = (m.userData.surf ??= { value: lit ? SURF.generic : 0 }) as { value: number };
   m.onBeforeCompile = (sh) => {
-    Object.assign(sh.uniforms, fogUniforms, { uFogExempt: exemptU, uSurfAmt: surfaceUniforms.uSurfAmt, uNoise: surfaceUniforms.uNoise });
-    if (sh.fragmentShader.includes('#include <color_fragment>')) sh.fragmentShader = sh.fragmentShader.replace('#include <color_fragment>', '#include <color_fragment>\n diffuseColor.rgb *= mistSurface(vMistWorld, normalize(vMistN));');
-    sh.vertexShader = VERT_DECL + sh.vertexShader.replace('#include <project_vertex>', '#include <project_vertex>\n' + VERT_BODY.replace('MIST_NORMAL', lit ? 'objectNormal' : 'vec3(0.0, 1.0, 0.0)'));
+    Object.assign(sh.uniforms, fogUniforms, { uFogExempt: exemptU, uMistDrift: driftU, uSurfAmt: surfaceUniforms.uSurfAmt, uNoise: surfaceUniforms.uNoise });
+    if (sh.fragmentShader.includes('#include <color_fragment>')) sh.fragmentShader = sh.fragmentShader.replace('#include <color_fragment>', '#include <color_fragment>\n diffuseColor.rgb *= mistSurface(vMistWorld, normalize(vMistN));\n diffuseColor.rgb = mix(diffuseColor.rgb, uMistColor, 0.32 * uMistDrift);');
+    sh.vertexShader = VERT_DECL + sh.vertexShader.replace('#include <project_vertex>', VERT_BODY.replace('MIST_NORMAL', lit ? 'objectNormal' : 'vec3(0.0, 1.0, 0.0)') + '\n#include <project_vertex>');
     sh.fragmentShader = `#define SURF ${surfU.value}\n` + FRAG_DECL + sh.fragmentShader.replace('#include <opaque_fragment>', '#include <opaque_fragment>\n gl_FragColor.rgb = mistApply(gl_FragColor.rgb);\n gl_FragColor.rgb = cartoWash(gl_FragColor.rgb);');
   };
   m.customProgramCacheKey = () => 'mist' + surfU.value;
