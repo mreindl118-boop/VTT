@@ -7,6 +7,7 @@ import {
 } from '../app/src/core/encounter';
 import { tacticalRange } from '../app/src/core/range';
 import { moveBlockers, sightBlockers } from '../app/src/core/light';
+import { canMove, WORDS } from '../app/src/core/permissions';
 import { rect, type Vec2 } from '../app/src/core/geometry';
 import { hexSizeFromWidth, hexToWorld, squareCellAt, squareCellCenter, worldToHex } from '../app/src/core/grid';
 import type { Wall } from '../app/src/core/schema';
@@ -211,17 +212,19 @@ describe('moveCellAt (a tap anywhere inside a green square counts)', () => {
   // A 40×20 room split by a wall at x = 20 with a closed door: 15 ft of movement from the corner square.
   const floor = [rect(0, 0, 20, 20), rect(20, 0, 20, 20)];
   const walls: Wall[] = [{ id: 'w1', a: [20, 0], b: [20, 5], flags: ['normal'] }, { id: 'd', a: [20, 5], b: [20, 10], flags: ['door'], open: false }, { id: 'w2', a: [20, 10], b: [20, 20], flags: ['normal'] }];
-  const range = (origin: Vec2 = [0, 0]) => tacticalRange({ start: [2.5 + origin[0], 2.5 + origin[1]], speedFt: 15, reachFt: 5, floor, moveBlockers: moveBlockers(walls), sightBlockers: sightBlockers(walls), occupied: [], origin });
-  const at = (moves: ReturnType<typeof range>['move'], x: number, z: number) => moveCellAt(moves, [x, z])?.cell;
+  const input = (origin: Vec2 = [0, 0], w: Wall[] = walls) => ({ start: [2.5 + origin[0], 2.5 + origin[1]] as Vec2, speedFt: 15, reachFt: 5, floor, moveBlockers: moveBlockers(w), sightBlockers: sightBlockers(w), occupied: [], origin });
+  const ground = input();
+  const range = (origin: Vec2 = [0, 0]) => tacticalRange(input(origin));
+  const at = (moves: ReturnType<typeof range>['move'], x: number, z: number) => moveCellAt(moves, [x, z], ground)?.cell;
   const todayCell = (moves: ReturnType<typeof range>['move'], to: Vec2) => moves.find((m) => m.cell[0] === to[0] && m.cell[1] === to[1]);
   it('every green centre is its own square', () => {
     const r = range();
-    for (const m of r.move) expect(moveCellAt(r.move, m.cell)).toBe(m);
+    for (const m of r.move) expect(moveCellAt(r.move, m.cell, ground)).toBe(m);
   });
   it('Snap off: a point inside a square, off its centre, takes that square and its cost (today: refused)', () => {
     const r = range();
     expect(at(r.move, 9.2, 0.3)).toEqual([7.5, 2.5]);
-    expect(moveCellAt(r.move, [9.2, 0.3])?.costFt).toBe(5);
+    expect(moveCellAt(r.move, [9.2, 0.3], ground)?.costFt).toBe(5);
     expect(at(r.move, 16.4, 13.9)).toEqual([17.5, 12.5]);
     expect(todayCell(r.move, [9.2, 0.3])).toBeUndefined();
   });
@@ -229,27 +232,86 @@ describe('moveCellAt (a tap anywhere inside a green square counts)', () => {
     const r = range();
     for (const p of [[5, 2.5], [10, 7.5], [5, 5], [12.5, 10]] as Vec2[]) expect(at(r.move, ...p)).toEqual(squareCellCenter(squareCellAt(p)));
   });
-  it('on the outer edge of the last green square: that square; just past it, or behind the closed door: none', () => {
+  it('on a wall line or a closed door: none (the token would stand in the wall, and its next squares start behind it)', () => {
     const r = range();
-    expect(at(r.move, 20, 2.5)).toEqual([17.5, 2.5]); // on the wall line, the far edge of the 15-ft reach
-    expect(at(r.move, 7.5, 20)).toEqual([7.5, 17.5]); // on the room's edge
+    expect(at(r.move, 20, 2.5)).toBeUndefined(); // on the wall, the far edge of the 15-ft reach
+    expect(at(r.move, 20, 7.5)).toBeUndefined(); // on the closed door
+    expect(at(r.move, 20, 5)).toBeUndefined(); // the door's jamb, where the wall and the door meet
+    expect(at(r.move, 19.99, 7.5)).toEqual([17.5, 7.5]); // just before it
+    // The door open: its line is floor like any other, and the green square beside it holds it.
+    const open = walls.map((w) => (w.id === 'd' ? { ...w, open: true } : w)), g = input([0, 0], open), ro = tacticalRange(g);
+    expect(moveCellAt(ro.move, [20, 7.5], g)?.cell).toEqual([17.5, 7.5]);
+  });
+  it('off the floor, just past the last green square, or behind the closed door: none', () => {
+    const r = range();
+    expect(at(r.move, 7.5, 20)).toBeUndefined(); // on the room's outer edge: off the floor
+    expect(at(r.move, 7.5, 19.99)).toEqual([7.5, 17.5]);
     expect(at(r.move, 20.01, 2.5)).toBeUndefined();
     expect(at(r.move, 2.5, 20.01)).toBeUndefined();
     expect(at(r.move, 22.5, 7.5)).toBeUndefined(); // behind the closed door
   });
-  it('on a grid with its own origin, and under the hex grid\'s snapped centres (the square underneath counts)', () => {
+  it('a wall off the 5-ft lines cuts a green square: the near side counts, the far side and the wall itself do not; and a turn there is refused', () => {
+    // Floor 13 ft deep beside a 5-ft corridor beyond a wall at x = 13 (off the grid's lines, as 25 of 45 scenes have).
+    const f = [rect(0, 0, 13, 10), rect(13, 0, 17, 5)], w: Wall[] = [{ id: 'cut', a: [13, 0], b: [13, 10], flags: ['normal'] }];
+    const g = { start: [2.5, 2.5] as Vec2, speedFt: 15, reachFt: 5, floor: f, moveBlockers: moveBlockers(w), sightBlockers: sightBlockers(w), occupied: [] };
+    const r = tacticalRange(g), cell = (x: number, z: number) => moveCellAt(r.move, [x, z], g);
+    expect(r.move.map((m) => m.cell)).toContainEqual([12.5, 2.5]);
+    expect(cell(12.8, 2.5)?.cell).toEqual([12.5, 2.5]);
+    expect(cell(14.5, 2.5)).toBeUndefined(); // across the wall, inside the same 5-ft square
+    expect(cell(13, 2.5)).toBeUndefined(); // on the wall
+    expect(cell(14.5, 7.5)).toBeUndefined(); // off the floor, across the wall
+    const turn = { actor: 'players', phase: 'running', kind: 'character', name: 'Vex', inOrder: true, current: true } as const;
+    expect(canMove({ ...turn, moveCell: cell(14.5, 2.5) })).toEqual({ ok: false, reason: WORDS.outOfRange });
+    expect(canMove({ ...turn, moveCell: cell(12.8, 2.5) })).toEqual({ ok: true, spendFt: 10 });
+    // Off the floor with no wall at all: none either.
+    const open = { ...g, floor: [rect(0, 0, 13, 10)], moveBlockers: [] }, ro = tacticalRange(open);
+    expect(moveCellAt(ro.move, [14, 2.5], open)).toBeUndefined();
+    expect(moveCellAt(ro.move, [12.9, 2.5], open)?.cell).toEqual([12.5, 2.5]);
+  });
+  it('on a grid with its own origin, a wall off its lines included', () => {
     const origin: Vec2 = [1.5, -0.5], r = range(origin);
-    expect(at(r.move, 1.5 + 9.2, -0.5 + 0.3)).toEqual([1.5 + 7.5, -0.5 + 2.5]);
+    expect(at(r.move, 1.5 + 9.2, -0.5 + 1.3)).toEqual([1.5 + 7.5, -0.5 + 2.5]);
+    expect(at(r.move, 1.5 + 9.2, -0.5 + 0.3)).toBeUndefined(); // z = -0.2: off the room's floor, which starts at 0
     expect(at(r.move, 1.5 + 5, -0.5 + 2.5)).toEqual(squareCellCenter(squareCellAt([1.5 + 5, -0.5 + 2.5], origin), origin));
+    // A wall at x = 15.5 cuts the square centred on x = 14 (it spans 11.5 to 16.5).
+    const f = [rect(0, -1, 40, 12)], w: Wall[] = [{ id: 'cut', a: [15.5, -1], b: [15.5, 11], flags: ['normal'] }];
+    const g = { start: [4, 2] as Vec2, speedFt: 15, reachFt: 5, floor: f, moveBlockers: moveBlockers(w), sightBlockers: sightBlockers(w), occupied: [], origin }, rg = tacticalRange(g);
+    expect(moveCellAt(rg.move, [15, 2], g)?.cell).toEqual([14, 2]);
+    expect(moveCellAt(rg.move, [16, 2], g)).toBeUndefined();
+    expect(moveCellAt(rg.move, [15.5, 2], g)).toBeUndefined();
+  });
+  it('under the hex grid\'s snapped centres, pointy and flat, with and without an origin: the square underneath counts, never across a wall', () => {
     const flat = range(), s = hexSizeFromWidth(5);
     for (const tap of [[8, 3], [13, 8], [3, 12]] as Vec2[]) {
-      const hex = hexToWorld(worldToHex(tap, s, 'pointy'), s, 'pointy'), m = moveCellAt(flat.move, hex);
+      const hex = hexToWorld(worldToHex(tap, s, 'pointy'), s, 'pointy'), m = moveCellAt(flat.move, hex, ground);
       expect(m, `hex centre ${hex}`).toBeDefined();
       expect(Math.max(Math.abs(hex[0] - m!.cell[0]), Math.abs(hex[1] - m!.cell[1]))).toBeLessThanOrEqual(2.5 + 1e-6);
       expect(todayCell(flat.move, hex)).toBeUndefined(); // no square's centre: today's exact match refuses it
     }
+    // Every hex centre over a room cut by a wall 0.25 ft past a row of green squares' centres (across the hexes' columns
+    // for flat ones, across their rows for pointy ones, where their centres fall between the wall and the squares' far
+    // edge): on the start's side of the wall it takes the green square under it; across the wall, inside the same
+    // green squares, none.
+    for (const [orient, origin] of [['flat', [0, 0]], ['flat', [1.5, -0.5]], ['pointy', [0, 0]], ['pointy', [1.5, -0.5]]] as const) {
+      const o: Vec2 = [origin[0], origin[1]], cut: Wall = orient === 'flat'
+        ? { id: 'cut', a: [o[0] + 12.75, o[1]], b: [o[0] + 12.75, o[1] + 20], flags: ['normal'] }
+        : { id: 'cut', a: [o[0], o[1] + 12.75], b: [o[0] + 30, o[1] + 12.75], flags: ['normal'] };
+      const g = { start: [o[0] + 2.5, o[1] + 2.5] as Vec2, speedFt: 20, reachFt: 5, floor: [rect(o[0], o[1], 30, 20)], moveBlockers: moveBlockers([cut]), sightBlockers: sightBlockers([cut]), occupied: [], origin: o };
+      const r = tacticalRange(g), side = (p: Vec2) => Math.sign((cut.b[0] - cut.a[0]) * (p[1] - cut.a[1]) - (cut.b[1] - cut.a[1]) * (p[0] - cut.a[0]));
+      let near = 0, far = 0;
+      for (let q = -16; q <= 16; q++) for (let rr = -16; rr <= 16; rr++) {
+        const c = hexToWorld({ q, r: rr }, s, orient, o);
+        if (c[0] <= o[0] || c[0] >= o[0] + 30 || c[1] <= o[1] || c[1] >= o[1] + 20 || side(c) === 0) continue;
+        const under = squareCellCenter(squareCellAt(c, o), o), green = todayCell(r.move, under), m = moveCellAt(r.move, c, g);
+        if (!green) continue;
+        if (side(c) === side(g.start)) { expect(m?.cell, `${orient} ${o} ${c}`).toEqual(under); near++; }
+        else { expect(m, `${orient} ${o} ${c} across the wall`).toBeUndefined(); far++; }
+      }
+      expect(near, `${orient} ${o}`).toBeGreaterThan(0);
+      expect(far, `${orient} ${o}: hex centres across the wall inside a green square`).toBeGreaterThan(0);
+    }
   });
   it('no green squares: none', () => {
-    expect(moveCellAt([], [2.5, 2.5])).toBeUndefined();
+    expect(moveCellAt([], [2.5, 2.5], ground)).toBeUndefined();
   });
 });

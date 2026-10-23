@@ -3,7 +3,7 @@
 // turn's bookkeeping and the green square a tap falls in. Pure: nothing here mutates its input; app.ts applies what these
 // return (docs/PLAYABILITY.md 4.2, release 1a).
 import type { Combatant, Encounter, Sheet, Token } from '../state/campaign';
-import type { Vec2 } from './geometry';
+import { pointInPolygon, segmentsIntersect, type Polygon, type Segment, type Vec2 } from './geometry';
 import type { RangeResult } from './range';
 import { CELL_FT } from './units';
 
@@ -109,21 +109,47 @@ export function advanceTurn(e: Encounter, dir: 1 | -1 = 1): Encounter {
   return { ...e, order: [...e.order], turn, round, movedFt: 0 };
 }
 
+/** The ground a range was worked out on (core/range.ts RangeInput's `floor` and `moveBlockers`: a RangeInput itself
+ *  fits), so a tap inside a green square is held to the same walls and floor as the square. */
+export interface MoveGround {
+  floor: readonly Polygon[];
+  moveBlockers: readonly Segment[];
+}
+
+/** How close to a wall a point counts as on it (ft). */
+const ON_WALL_FT = 1e-6;
+
+function distToSegment(p: Vec2, a: Vec2, b: Vec2): number {
+  const dx = b[0] - a[0], dz = b[1] - a[1], l2 = dx * dx + dz * dz;
+  const t = l2 <= 1e-12 ? 0 : Math.max(0, Math.min(1, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dz) / l2));
+  return Math.hypot(p[0] - (a[0] + t * dx), p[1] - (a[1] + t * dz));
+}
+
 /**
  * The move cell of a range result (core/range.ts tacticalRange) whose square holds a point, so a tap anywhere inside a
  * green square counts, with Snap on or off and under a hex grid's snapped centre (today the point must be a cell centre
- * exactly, app.ts:2041). Range cells are 5-ft squares given by their centres; a square holds its edges. A point on an
- * edge two green squares share goes to the square that owns it on the grid (`squareCellAt` floors: the square to its
- * right or below), else to the cheaper of the two.
+ * exactly, app.ts:2041). Range cells are 5-ft squares given by their centres; a square holds its edges. The token lands
+ * on the point itself, so the point must be somewhere the square's own move could reach: on the floor, on no wall or
+ * closed door (a token standing on a wall line would start its next turn's squares on the far side, where `squareCellAt`
+ * floors it), and a straight step from the square's centre that crosses no wall or closed door and stays on the floor,
+ * as `ground` (the range's own floor and blockers) has them. A point on an edge two green squares share goes to the
+ * square that owns it on the grid (`squareCellAt` floors: the square to its right or below), else to the cheaper of the
+ * others it can be reached from. None: the point is off every green square, or across a wall from the one it is in.
  */
-export function moveCellAt(moves: RangeResult['move'], point: Vec2, cellFt = CELL_FT): RangeResult['move'][number] | undefined {
+export function moveCellAt(moves: RangeResult['move'], point: Vec2, ground: MoveGround, cellFt = CELL_FT): RangeResult['move'][number] | undefined {
+  const onFloor = (p: Vec2) => ground.floor.some((poly) => pointInPolygon(p, poly));
+  if (!onFloor(point) || ground.moveBlockers.some((w) => distToSegment(point, w.a, w.b) <= ON_WALL_FT)) return undefined;
   const half = cellFt / 2, eps = 1e-6;
-  let owner: RangeResult['move'][number] | undefined, edge: RangeResult['move'][number] | undefined;
+  const owners: RangeResult['move'] = [], edges: RangeResult['move'] = [];
   for (const m of moves) {
     const dx = point[0] - m.cell[0], dz = point[1] - m.cell[1];
     if (Math.abs(dx) > half + eps || Math.abs(dz) > half + eps) continue;
-    if (dx < half - eps && dz < half - eps) { if (!owner || m.costFt < owner.costFt) owner = m; }
-    else if (!edge || m.costFt < edge.costFt) edge = m;
+    (dx < half - eps && dz < half - eps ? owners : edges).push(m);
   }
-  return owner ?? edge;
+  // From the square's centre to the point: no wall or closed door crossed (a wall's end point counts), and the floor
+  // under the step (its middle, as the walk lattice's straight steps are checked, core/walkField.ts attach).
+  const reaches = (m: RangeResult['move'][number]) => onFloor([(m.cell[0] + point[0]) / 2, (m.cell[1] + point[1]) / 2])
+    && !ground.moveBlockers.some((w) => segmentsIntersect(m.cell, point, w.a, w.b));
+  const byCost = (a: RangeResult['move'][number], b: RangeResult['move'][number]) => a.costFt - b.costFt;
+  return owners.sort(byCost).find(reaches) ?? edges.sort(byCost).find(reaches);
 }

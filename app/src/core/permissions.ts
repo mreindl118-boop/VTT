@@ -62,7 +62,8 @@ export interface MoveQuery extends ActingToken {
   phase: Phase;
   /** Outside a fight, the players' walk check (walls and closed doors stop it). The DM is never walk-checked. */
   walk?: Check;
-  /** On a turn, the current combatant's green square the destination falls in (encounter.ts moveCellAt), if any. */
+  /** On a turn, the current combatant's green square that holds the destination and reaches it, walls and floor
+   *  checked (encounter.ts moveCellAt with the range's own ground), if any. */
   moveCell?: { costFt: number };
   /** The token's own floor and the destination's: the players' side moves a token on its own floor only. */
   tokenLevel?: string;
