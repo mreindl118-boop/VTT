@@ -220,24 +220,96 @@ obj('S1-sign', 'signpost', S1P[0] + 14, S1P[1] - 10, key='S1', rotY=20)
 for i, (dx, dz) in enumerate([(-30, -25), (40, -30), (-60, -50), (70, -60), (20, -70)]): obj(f'S1-rock{i}', 'boulder', S1P[0] + dx, S1P[1] + dz, dims={'r': 2 + (i % 3)})
 
 # ================================================================== the cliff, the mountain and the switchback road (S5)
-def hf_fn(x, z): return KL.LEDGE - 1.0 if KL.inside((x, z), KL.RIM) else KL.height((x, z))
+HILL_LEDGE = 62.0
+HILL_RISE = 44.0
+HILL_SCALE = HILL_LEDGE / KL.LEDGE
+HILL_ROAD = [(x, z, h * HILL_SCALE) for x, z, h in KL.ROAD]
+
+def hill_ground(p):
+    if KL.inside(p, KL.RIM): return HILL_LEDGE
+    d = KL.poly_dist(p, KL.RIM)
+    cliff = max(0.0, HILL_LEDGE - 0.95 * d)
+    if KL.inside(p, KL.VF):
+        dv = KL.poly_dist(p, KL.VF)
+        cliff *= (1.0 - KL.smooth(0.0, 22.0, dv))
+    h = cliff
+    f = 0.0
+    du = KL.poly_dist(p, KL.UP, closed=False)
+    if KL.inside(p, KL.MZ):
+        f = KL._flank(p)
+        if f > 0:
+            up = HILL_LEDGE + HILL_RISE * (1.0 - math.exp(-du / 250.0)) + 3.0 * (KL.noise(p[0] / 150.0, p[1] / 150.0) - 0.5) * 2.0 * KL.smooth(0.0, 60.0, du)
+            h = cliff * (1.0 - f) + up * f
+    if 0.0 < h < HILL_LEDGE:
+        h += 2.0 * (1.0 - 0.7 * f) * KL.rugged(p) * KL.smooth(2.0, 18.0, d) * KL.smooth(0.0, 12.0, h)
+    return max(0.0, h)
+
+def hill_height(p):
+    if KL.inside(p, KL.RIM): return HILL_LEDGE
+    h = hill_ground(p)
+    w_sum = 0.0; rh_sum = 0.0; d_min = 1e9
+    for (x0, z0, h0), (x1, z1, h1) in zip(HILL_ROAD[:-1], HILL_ROAD[1:]):
+        d, t = KL.seg_dist(p, (x0, z0), (x1, z1))
+        if d < d_min: d_min = d
+        if d < 24.0:
+            w = 1.0 / ((d + 3.0) ** 3)
+            w_sum += w
+            rh_sum += w * (h0 + (h1 - h0) * t)
+    if w_sum > 0.0 and d_min < 20.0:
+        rh = rh_sum / w_sum
+        b = 1.0 - KL.smooth(3.0, 20.0, d_min)
+        h = h * (1.0 - b) + rh * b
+    return h
+
+def hill_slope(p, e=5.0):
+    h = hill_height(p)
+    gx = (hill_height((p[0] + e, p[1])) - hill_height((p[0] - e, p[1]))) / (2.0 * e)
+    gz = (hill_height((p[0], p[1] + e)) - hill_height((p[0], p[1] - e))) / (2.0 * e)
+    return h, math.hypot(gx, gz)
+
+def hf_fn(x, z): return HILL_LEDGE - 1.0 if KL.inside((x, z), KL.RIM) else hill_height((x, z))
 def hf_hole(x, z):
     if KL.inside((x, z), KL.RIM) and KL.poly_dist((x, z), KL.RIM) > 12: return True
-    return KL.height((x, z)) <= 0.6
+    return hill_height((x, z)) <= 0.5
 FINE = (340.0, 130.0, 430.0, 440.0)     # the switchbacks, the abbey's rock and its cliffs: a 5-ft lattice laid into the 10-ft one
 def coarse_hole(x, z):
-    if FINE[0] < x < FINE[0] + FINE[2] and FINE[1] < z < FINE[1] + FINE[3]: return True     # the fine patch's own ground
+    if FINE[0] + 10.0 < x < FINE[0] + FINE[2] - 10.0 and FINE[1] + 10.0 < z < FINE[1] + FINE[3] - 10.0: return True     # the fine patch's own ground
     return hf_hole(x, z)
 CX0, CZ0, CNX, CNZ, CC = 330.0, -430.0, 83, 108, 10.0
 def taper(x, z, h):
     # the mountain slopes away toward the map's edge (the land beyond is the region's own) instead of ending in a wall
     e = min(x - CX0, CX0 + CNX * CC - x, z - CZ0, CZ0 + CNZ * CC - z)
     return h * (0.15 + 0.85 * KL.smooth(0, 320, e)) * KL.smooth(0, 40, e) if e < 320 else h
-hfc = KL.heightfield_dims(CX0, CZ0, CNX, CNZ, CC, hf_fn, hole=coarse_hole, taper=taper); hfc['frost'] = 430
+hfc = KL.heightfield_dims(CX0, CZ0, CNX, CNZ, CC, hf_fn, hole=coarse_hole, taper=taper); hfc['frost'] = 98
 obj('land-mountain', 'heightfield', CX0, CZ0, dims=hfc)
-hff = KL.heightfield_dims(FINE[0], FINE[1], int(FINE[2] / 5), int(FINE[3] / 5), 5.0, hf_fn, hole=hf_hole); hff['frost'] = 430; hff['drop'] = 14
+
+def smooth_fine_heightfield(x0, z0, nx, nz, cell, max_step=8.5):
+    H = [[hf_fn(x0 + i * cell, z0 + j * cell) for i in range(nx + 1)] for j in range(nz + 1)]
+    fixed = [[KL.inside((x0 + i * cell, z0 + j * cell), KL.RIM) for i in range(nx + 1)] for j in range(nz + 1)]
+    for _ in range(45):
+        for j in range(nz + 1):
+            for i in range(nx + 1):
+                if fixed[j][i]: continue
+                s_lim = 3.5 if H[j][i] > HILL_LEDGE - 1.0 else max_step
+                lo, hi = 0.0, 1e9
+                for di, dj in ((-1, 0), (1, 0), (0, -1), (0, 1)):
+                    ni, nj = i + di, j + dj
+                    if 0 <= ni <= nx and 0 <= nj <= nz:
+                        lo = max(lo, H[nj][ni] - s_lim)
+                        hi = min(hi, H[nj][ni] + s_lim)
+                H[j][i] = max(lo, min(hi, H[j][i])) if lo <= hi else 0.5 * (lo + hi)
+    def fn_smooth(x, z):
+        i = max(0, min(nx, int(round((x - x0) / cell))))
+        j = max(0, min(nz, int(round((z - z0) / cell))))
+        return H[j][i]
+    def hole_smooth(x, z):
+        if KL.inside((x, z), KL.RIM) and KL.poly_dist((x, z), KL.RIM) > 12: return True
+        return fn_smooth(x, z) <= 0.5
+    return KL.heightfield_dims(x0, z0, nx, nz, cell, fn_smooth, hole=hole_smooth)
+
+hff = smooth_fine_heightfield(FINE[0], FINE[1], int(FINE[2] / 5), int(FINE[3] / 5), 5.0, max_step=8.5); hff['frost'] = 98; hff['skirt'] = 0
 obj('land-cliff', 'heightfield', FINE[0], FINE[1], dims=hff)
-obj('S5-road', 'road-ribbon', 0, 0, key='S5', dims=KL.ribbon_dims([p for p in KL.ROAD if p[2] < KL.LEDGE - 0.5], KL.ROAD_W))
+obj('S5-road', 'road-ribbon', 0, 0, key='S5', dims=KL.ribbon_dims([p for p in HILL_ROAD if p[2] < HILL_LEDGE - 0.1], KL.ROAD_W))
 for i, (x, z, r) in enumerate([(640, 540, 90), (790, 600, 110)]):
     obj(f'low-mist{i}', 'mist-bank', x, z, y=18, dims={'r': r, 'h': 7, 'n': 8, 'o': 0.07})
 
@@ -268,7 +340,7 @@ nv = len(trees)
 for _ in range(30000):
     p = (rng.uniform(GX0 + 10, GX1 - 10), rng.uniform(GZ0 + 10, GZ1 - 10))
     if KL.inside(p, KL.WALL) or near_road(p, 18): continue
-    if KL.height(p) > 0.5: continue                          # the mountain has its own trees
+    if hill_height(p) > 0.5: continue                          # the mountain has its own trees
     clear = 150 + 110 * KL.smooth(650, 900, p[1]) - 60 * KL.smooth(500, 700, p[0])
     if wall_dist(p) < clear and not (p[1] > 1060): continue
     if not tree_ok(p, 20 if wall_dist(p) < 400 else 26): continue
@@ -279,9 +351,9 @@ mtrees = []
 for _ in range(26000):
     p = (rng.uniform(CX0, CX0 + CNX * CC), rng.uniform(CZ0, CZ0 + CNZ * CC))
     if KL.inside(p, KL.RIM) or KL.inside(p, KL.VF): continue
-    h, s = KL.slope_at(p)
+    h, s = hill_slope(p)
     if h < 2 or s > 1.3: continue
-    if any(KL.seg_dist(p, (a[0], a[1]), (b[0], b[1]))[0] < 9 for a, b in zip(KL.ROAD[:-1], KL.ROAD[1:])): continue
+    if any(KL.seg_dist(p, (a[0], a[1]), (b[0], b[1]))[0] < 9 for a, b in zip(HILL_ROAD[:-1], HILL_ROAD[1:])): continue
     if not tree_ok(p, 16): continue
     h = taper(p[0], p[1], h)
     if h < 2: continue
@@ -289,7 +361,7 @@ for _ in range(26000):
 # rocks at the cliff's foot and along the escarpment outside the walls
 for i in range(40):
     a = rng.random() * math.pi * 2; p = (330 + math.cos(a) * rng.uniform(300, 380), 450 + math.sin(a) * rng.uniform(330, 400))
-    if KL.inside(p, KL.WALL) or near_road(p, 6) or KL.height(p) > 0.5: continue
+    if KL.inside(p, KL.WALL) or near_road(p, 6) or hill_height(p) > 0.5: continue
     obj(f'scarp-rock{i}', 'boulder', *p, dims={'r': round(1.5 + rng.random() * 2.5, 1)})
 
 # ================================================================== rooms of the village floor
@@ -440,15 +512,15 @@ for r in rooms + ledge_rooms + wl_rooms:
     d = DESC[r['key']]; r['desc'] = d[0]; r['dm'] = d[1]
 
 village = OrderedDict(id='village', name='Village of Krezk', elevationFt=0, ceilingFt=30, ambient='barovian-overcast', north='-z', terrain=terrain, rooms=rooms, walls=walls, lights=lights, objects=objects)
-ledge = OrderedDict(id='ledge', name='Abbey ledge (400 ft up)', elevationFt=KL.LEDGE, ceilingFt=40, ambient='barovian-overcast', north='-z', rooms=ledge_rooms, walls=ledge_walls, lights=[], objects=ledge_objs)
+ledge = OrderedDict(id='ledge', name='Abbey ledge (400 ft up)', elevationFt=HILL_LEDGE, ceilingFt=40, ambient='barovian-overcast', north='-z', rooms=ledge_rooms, walls=ledge_walls, lights=[], objects=ledge_objs)
 scene = OrderedDict(schema=1, location='S', chapter='ch08', name='The Village of Krezk', mapPage=144, bookScaleFt=5, ambient='barovian-overcast', placementFt=50, kind='placement', stacked='open', entry='village', clearingFt=600,
                     levels=[village, walls_level, ledge], links=[OrderedDict(id='lk-switchback', kind='stairs', **{'from': OrderedDict(level='village', pos=[452, 447]), 'to': OrderedDict(level='ledge', pos=[533.5, 262])})] + wl_links, frame='measured-p144-300dpi')
 grid = OrderedDict(schema=1, levels=OrderedDict(village=OrderedDict(floorPolygons=[terrain[0]['polygon']], type='square', hexOrientation='pointy', origin=[0, 0], color='#1d1b22', opacity=0),
                                                 walls=OrderedDict(floorPolygons=[r['polygon'] for r in wl_rooms if min(p[1] for p in r['polygon']) > 740], type='square', hexOrientation='pointy', origin=[0, 0], color='#1d1b22', opacity=0.55),
                                                 ledge=OrderedDict(floorPolygons=[r['polygon'] for r in ledge_rooms], type='square', hexOrientation='pointy', origin=[0, 0], color='#1d1b22', opacity=0)))
 os.makedirs(OUT, exist_ok=True)
-json.dump(scene, open(os.path.join(OUT, 'scene.json'), 'w'), indent=1)
-json.dump(grid, open(os.path.join(OUT, 'grid.json'), 'w'), indent=1)
+json.dump(scene, open(os.path.join(OUT, 'scene.json'), 'w', newline='\n'), indent=1)
+json.dump(grid, open(os.path.join(OUT, 'grid.json'), 'w', newline='\n'), indent=1)
 print('krezk:', len(houses), 'cottages,', nv, 'village pines,', nf, 'forest pines,', len(mtrees), 'mountain pines,', len(walls), 'wall pieces,', len(rooms) + len(ledge_rooms), 'keyed areas')
 
 # ================================================================== the village below the abbey's cliff, on the abbey's land level
@@ -467,5 +539,6 @@ for o in objects:
 # the burgomaster's cottage is built as rooms on the village map; on the abbey's land level it stands as one piece
 bq = OrderedDict(id='kz-burgomaster', kind='cottage', pos=[round(o_b['pos'][0] - KL.OFF[0], 2), 0, round(o_b['pos'][2] - KL.OFF[1], 2)], vis='player', rotY=o_b.get('rotY', 0), dims=OrderedDict(o_b['dims']))
 val['objects'].append(bq)
-json.dump(AB, open(ab_path, 'w'), indent=1)
+if '--sync-abbey' in sys.argv:
+    json.dump(AB, open(ab_path, 'w', newline='\n'), indent=1)
 print('abbey land level: +', sum(1 for o in val['objects'] if o['id'].startswith('kz-')), 'village pieces')

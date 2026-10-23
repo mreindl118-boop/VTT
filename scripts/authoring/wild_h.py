@@ -275,22 +275,23 @@ def build():
              desc='A rusted iron pin driven into a crack, a frayed rope knotted to it, running to the edge and down the wall.',
              dm='DC 15 Perception from the road. The only line a climber\'s kit can use: pins down the wall to the ledge 580 ft below (DC 15 Athletics per 100 ft, a failure drops 25 ft for 2d6 before the anchor holds).')
 
-    # ---------------------------------------------------------- crags: the mountain on the west, the cut to the north
-    # x, z, w, d, h, seed: the massif on the west (tiered, highest at the edge), the cut's two crags, low rock to the north;
-    # a gap is left on the line from the top of the falls north-west to Vallaki, so the town shows on the horizon
+    # ---------------------------------------------------------- crags: the two gorge rock masses north and south of the falls and chasm
+    # x, z, w, d, h, seed: two massive shoulders of rock that the falls and chasm cut between (north mass along the tarn and north lip;
+    # south mass along the south head of the falls and the south gorge rib), plus the two crags framing the north road exit
     crags = [
-        (18, 22, 96, 76, 118, 1), (82, 14, 72, 52, 84, 2), (20, 100, 84, 74, 104, 3), (88, 82, 62, 50, 62, 4), (78, 136, 66, 34, 34, 5), (138, 126, 40, 34, 30, 6),
-        (128, 52, 46, 40, 46, 19),
-        (24, 334, 74, 60, 82, 7), (86, 352, 62, 52, 56, 8), (18, 418, 84, 74, 116, 9), (92, 432, 62, 52, 74, 10), (34, 500, 96, 62, 106, 11), (118, 500, 52, 40, 48, 12),
-        (148, 398, 34, 28, 24, 13), (150, 462, 30, 26, 20, 21), (60, 290, 40, 26, 22, 22),
-        (232, 58, 44, 36, 48, 14), (334, 66, 50, 40, 56, 15), (205, 20, 44, 32, 40, 16), (368, 18, 54, 30, 30, 17),
-        (372, 118, 40, 30, 9, 18),
+        (52, 148, 68, 52, 52, 1), (105, 138, 58, 44, 46, 2), (148, 134, 46, 36, 36, 3), (82, 172, 52, 34, 32, 4), (138, 168, 38, 30, 26, 5), (235, 138, 46, 36, 42, 6),
+        (248, 175, 42, 32, 34, 19),
+        (54, 328, 68, 52, 50, 7), (104, 344, 56, 44, 42, 8), (62, 378, 64, 50, 48, 9), (118, 382, 52, 42, 38, 10), (305, 324, 34, 24, 28, 11), (348, 342, 36, 24, 26, 12),
+        (154, 338, 38, 30, 26, 13), (395, 364, 34, 24, 24, 21), (445, 388, 34, 24, 22, 22),
+        (334, 176, 46, 36, 44, 14), (385, 205, 44, 34, 38, 15), (435, 228, 42, 32, 30, 16), (215, 28, 42, 30, 32, 17),
+        (318, 28, 44, 30, 34, 18),
     ]
     # kept inside the map's edge (what lies past it is never explored, so it would stay under the fog of war)
     crags = [(min(max(x, w * 0.62 + 2), W_FT - w * 0.62 - 2), min(max(z, d * 0.62 + 2), H_FT - d * 0.62 - 2), w, d, h, sd) for x, z, w, d, h, sd in crags]
     for x, z, w, d, h, sd in crags:
         s.prop('crag', c((x, z)), rot=s.rng.uniform(-25, 25), dims={'w': w, 'd': d, 'h': h, 'seed': sd})
-        s.keep.append(([c((x - w * 0.42, z - d * 0.42)), c((x + w * 0.42, z - d * 0.42)), c((x + w * 0.42, z + d * 0.42)), c((x - w * 0.42, z + d * 0.42))], 0.3))
+        if x < 280:
+            s.keep.append(([c((x - w * 0.32, z - d * 0.32)), c((x + w * 0.32, z - d * 0.32)), c((x + w * 0.32, z + d * 0.32)), c((x - w * 0.32, z + d * 0.32))], 0.2))
 
     # ---------------------------------------------------------- bare rock of the saddle: slabs, boulders, the anvil, the bent pines
     roads_ft = [catmull(south_ctrl, 6), catmull(north_ctrl, 6)]
@@ -301,7 +302,7 @@ def build():
         if any(line_dist(p, ln) < r + 10 for ln in roads_ft): return False
         if ((p[0] - 80) / (70 + r)) ** 2 + ((p[1] - 240) / (50 + r)) ** 2 < 1: return False      # the tarn
         if math.hypot(p[0] - 200, p[1] - 168) < r + 34: return False                              # the precipice
-        if any(abs(p[0] - x) < w * 0.45 + r * 0.6 and abs(p[1] - z) < d * 0.45 + r * 0.6 for x, z, w, d, h, sd in crags): return False
+        if any(x < 280 and abs(p[0] - x) < w * 0.35 + r * 0.4 and abs(p[1] - z) < d * 0.35 + r * 0.4 for x, z, w, d, h, sd in crags): return False
         return True
     def jagged(r, sx, seed):
         rr = random.Random(seed); n = 14
@@ -323,17 +324,17 @@ def build():
         rot = s.rng.uniform(0, 180)
         pts = [(rnd(x, 2), rnd(z, 2)) for x, z in (turn(px, pz, rot) for px, pz in jagged(r, s.rng.uniform(1.1, 1.7), int(p[0] * 7 + p[1])))]
         s.prop('h-slab', c(p), dims=dict(line_dims(pts), h=rnd(0.03 + s.rng.random() * 0.03, 3), tone=s.rng.randrange(3)))
-    s.prop('h-anvil-block', c((420, 230)), rot=heading(0.42, -1), dims={'scale': 1.0}, label='The anvil block',
+    s.prop('h-anvil-block', c((420, 230)), rot=heading(0.42, -1), dims={'scale': 0.65}, label='The anvil block',
            desc='A wagon-sized slab split cleanly in two, the halves a foot apart, standing near the lip east of the bridge: a perch to watch the bridge from, and cover.')
-    for x, z, r in ((500, 62, 4.6), (532, 82, 5.2), (562, 100, 4.4)):
-        for k in range(3): s.prop('boulder', c((x + (k - 1) * 3.2, z + 2 + (k % 2) * 2)), dims={'r': 1.2})
-        s.prop('boulder', c((x, z)), y=1.2, dims={'r': r}, label='Perched boulder', desc='A cart-sized boulder perched on smaller stones, as if set down there.')
+    for x, z, r in ((500, 62, 1.9), (532, 82, 2.2), (562, 100, 1.8)):
+        for k in range(3): s.prop('boulder', c((x + (k - 1) * 2.2, z + 1.4 + (k % 2) * 1.4)), dims={'r': 0.7})
+        s.prop('boulder', c((x, z)), y=0.7, dims={'r': r}, label='Perched boulder', desc='A cart-sized boulder perched on smaller stones, as if set down there.')
     pines = [(340, 120, 1.05), (365, 95, 1.25), (395, 140, 1.0), (480, 180, 1.3), (530, 250, 1.1), (225, 75, 1.15), (229, 433, 0.9)]
     for x, z, sc in pines:
         ax, az = away_from_chasm((x, z)) if (x, z) != (229, 433) else (1, 0.25)
         s.prop('h-bent-pine', c((x, z)), rot=heading(ax, az), dims={'scale': sc, 'lean': 18}, label='Wind-bent pine')
     # scree and broken rock: east of the road down toward the valley, under the crags on the west
-    s.scatter('boulder', 26, lambda x, z: 1.0 if (x * FT > 280 and z * FT > 300) or (x * FT > 330 and z * FT < 300) else (0.5 if x * FT < 160 else 0.0), margin=0.8, gap=2.2, dims=lambda g: {'r': rnd(0.9 + g.random() * 2.2)})
+    s.scatter('boulder', 26, lambda x, z: 1.0 if (x * FT > 280 and z * FT > 300) or (x * FT > 330 and z * FT < 300) else (0.5 if x * FT < 160 else 0.0), margin=0.8, gap=2.2, dims=lambda g: {'r': rnd(0.7 + g.random() * 1.1)})
     s.scatter('rubble', 18, lambda x, z: 1.0 if (x * FT > 260 and z * FT > 320) else (0.6 if x * FT < 170 else 0.0), margin=0.6, gap=1.8, dims={'n': 6})
     s.scatter('bush', 12, lambda x, z: 0.7 if x * FT > 300 else 0.3, margin=0.6, gap=2.5, dims=lambda g: {'scale': rnd(0.5 + g.random() * 0.4)})
 
@@ -402,11 +403,11 @@ def build():
            'About 380 ft above the pool and 580 ft below the deck: where a fallen or levitating character might fetch up, and the only rest on a climber\'s-kit descent. The Vistana came this way after the duel looking for valuables. From here, the gully to the pool needs DC 12 Acrobatics or a tumble (2d6) every 100 ft.')
     wall_front = [(470, 300), (400, 268), (330, 238), (290, 228), (259, 226), (230, 229), (200, 227), (175, 224), (150, 226), (110, 228), (60, 236), (20, 250)]
     wall_back = [(470, 300), (400, 268), (330, 238), (290, 228), (266, 214), (257, 189), (225, 181), (195, 182), (170, 189), (165, 210), (150, 222), (110, 226), (60, 234), (20, 248)]
-    s.prop('h-cauldron-wall', c((215, 205)), dims=dict(line_dims(wall_front, origin=(215, 205)), cut=0, below=380, h=0.5, over=0), label='The north wall')
-    s.prop('h-cauldron-wall', c((215, 205)), dims=dict(line_dims(wall_back, origin=(215, 205)), cut=0, below=0, h=580, over=12))
+    s.prop('h-cauldron-wall', c((215, 205)), dims=dict(line_dims(wall_front, origin=(215, 205)), cut=42, below=55, h=56, over=4), label='The north wall')
+    s.prop('h-cauldron-wall', c((215, 205)), dims=dict(line_dims(wall_back, origin=(215, 205)), cut=48, below=0, h=68, over=8))
     s.prop('h-slab', c((215, 205)), dims=dict(line_dims(shelf, origin=(215, 205)), h=0.02, tone=1))
     for i, (x, z) in enumerate(shelf[4:9]):
-        s.prop('boulder', c((x, z + 1)), dims={'r': rnd(0.9 + (i % 3) * 0.5)})
+        s.prop('boulder', c((x, z + 1)), dims={'r': rnd(0.8 + (i % 3) * 0.4)})
     s.prop('h-bent-pine', c((238, 198)), rot=heading(0.3, 1), dims={'scale': 0.42, 'lean': 26}, label='Stunted pine', desc='A stunted pine growing out of a crack in the shelf, bent out over the drop.')
     s.prop('h-climb-rope', c((214, 186)), dims={'run': 0, 'len': 580, 'top': 580, 'lean': 0}, label='Iron pins and a frayed rope',
            desc='A line of rusted iron pins down the wall from far above, a frayed rope tied to them; its end lies coiled on the shelf.')
@@ -438,10 +439,17 @@ def build():
            'A dry hollow behind the curtain of the falls: a dead fire ring, mud-caked hides, the smell of old smoke.',
            'Hidden from the path, the bar and the south-west shore; found only by wading the north wall through the spray. Mountain folk (berserkers caked in grey mud, p.30) shelter here.')
     cw_o = (300, 290)
-    s.prop('h-cauldron-wall', c(cw_o), dims=dict(line_dims(canyon_floor(False, notch=True), origin=cw_o),
-           **line_dims(canyon_floor(False), prefix='u', origin=cw_o), cut=30, h=DECK_Y - 30, over=46,
-           mx0=BOX[0] - cw_o[0], mx1=BOX[1] - cw_o[0], mz0=BOX[2] - cw_o[1], mz1=BOX[3] - cw_o[1]),
+    cave_pts = cave_world()
+    north_foot = list(N_WALL) + [cave_pts[-1 - k] for k in range(len(cave_pts))] + CAULDRON[:3]
+    north_up = list(N_WALL) + CAULDRON[:3]
+    south_foot = CAULDRON[4:] + list(S_WALL)
+    s.prop('h-cauldron-wall', c(cw_o), dims=dict(line_dims(north_foot, origin=cw_o),
+           **line_dims(north_up, prefix='u', origin=cw_o), cut=68, h=86, over=10,
+           mx0=BOX[0] - cw_o[0], mx1=BOX[1] - cw_o[0], mz0=BOX[2] - cw_o[1], mz1=255 - cw_o[1]),
            label='The Cauldron walls', desc='Sheer, wet, black-streaked rock going up and up into the cloud, leaning in at the top so the sky is a ragged oval.')
+    s.prop('h-cauldron-wall', c(cw_o), id='pool-h-cauldron-wall-south', dims=dict(line_dims(south_foot, origin=cw_o),
+           **line_dims(south_foot, prefix='u', origin=cw_o), cut=68, h=86, over=10,
+           mx0=BOX[0] - cw_o[0], mx1=BOX[1] - cw_o[0], mz0=265 - cw_o[1], mz1=BOX[3] - cw_o[1]))
     s.prop('h-plunge-pool', c((160, 255)), dims={'rx': 75, 'rz': 60, 'ix': 3, 'iz': -3, 'seed': 6, 'cut': 1}, label='The plunge pool',
            desc='Grey-green water, white and heaving where the falls hit it, ringed by a standing wave; cold enough to take the breath.')
     s.prop('h-falls-column', c((162, 252)), dims={'w': 45, 'h': DECK_Y - 4, 'drift': 8, 'focus': 0}, label='Tser Falls',
@@ -468,7 +476,7 @@ def build():
            desc='Looking straight up: a hair-thin dark arch across the ragged oval of sky, nearly a thousand feet overhead.')
     # the shore: wet boulders under the walls, the pines of the valley closing in from the south-east, fog lying in them
     for i, (x, z) in enumerate([(60, 290), (78, 335), (110, 357), (150, 370), (200, 366), (58, 232), (90, 207), (128, 201), (300, 332), (345, 258), (395, 281)]):
-        s.prop('boulder', c((x, z)), dims={'r': rnd(1.8 + (i % 4) * 0.9)})
+        s.prop('boulder', c((x, z)), dims={'r': rnd(0.9 + (i % 4) * 0.35)})
     for i, (x, z) in enumerate([(84, 320), (118, 340), (196, 345), (232, 336), (70, 260)]):
         s.prop('rubble', c((x, z)), dims={'n': 6})
     s.prop('log', c((365, 330)), rot=heading(1, 0.4), dims={'len': 26, 'r': 1.1})
@@ -485,6 +493,7 @@ def build():
     # fog lying in the pines and over the river as the canyon opens on the valley
     for x, z, r, L, rot in ((470, 430, 26, 140, -30), (520, 360, 22, 120, -30), (600, 480, 34, 200, -28), (760, 560, 50, 260, -30), (900, 640, 60, 200, -35)):
         s.prop('h-spray-cloud', c((x, z)), rot=rot, dims={'r': r, 'len': L, 'h': 9, 'n': 12, 'op': 0.2})
+    s.n = 288
     s.hidden('h-wolf-trap', c((430, 382)), 'Rusted wolf trap under the needles', 'A rusted trap', rot=30,
              desc='A rusted iron wolf trap half hidden under pine needles on the path.', dm='Hunting trap (p.31): DC 15 Survival for the front rank to spot it.')
 

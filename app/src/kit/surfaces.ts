@@ -11,8 +11,14 @@ export type Surface = keyof typeof SURF;
 
 const BY_COLOR = new Map<string, Surface>();
 const norm = (c: string) => c.toLowerCase();
-/** Declare what a colour is made of (later declarations win). */
-export function surfaceFor(colors: string | string[], s: Surface): void { for (const c of Array.isArray(colors) ? colors : [colors]) BY_COLOR.set(norm(c), s); }
+/** Declare what a colour is made of (later specific declarations win; a fallback 'generic' never downgrades a specific surface). */
+export function surfaceFor(colors: string | string[], s: Surface): void {
+  for (const c of Array.isArray(colors) ? colors : [colors]) {
+    const k = norm(c);
+    if ((s === 'generic' || BY_COLOR.get(k) === 'rock') && BY_COLOR.has(k)) continue;
+    BY_COLOR.set(k, s);
+  }
+}
 /** The surface a colour is made of; anything undeclared gets a quiet generic grain. */
 export function surfaceOf(color: string): Surface { return BY_COLOR.get(norm(color)) ?? 'generic'; }
 
@@ -40,8 +46,15 @@ surfaceFor(['#9a948a', '#8f8980'], 'ashlar');
 surfaceFor([PALETTE.wine, PALETTE.blood, '#5a2a30', '#7a3a40', '#c9bfa6', '#a83a30', '#d9a63a', '#d9d2c2', PALETTE.bone, '#d9cfb5', '#8fa3b8'], 'cloth');
 surfaceFor(['#c9b25a', '#8a7a4a', '#b89b52'], 'thatch');
 surfaceFor(['#3e5566', '#1e2a33'], 'water');
-// the backdrop: the Pillarstone and the mountains, Castle Ravenloft's stone and slate, snow on the high peaks
-surfaceFor(['#45454d', '#47474f', '#4a4a52', '#44444c', '#3f3f47', '#4f5560'], 'rock');
+// the backdrop, Krezk's hill and Tser Falls' gorge: crags, chasm bands, gorge walls and bare rock slabs
+surfaceFor([
+  '#45454d', '#47474f', '#4a4a52', '#44444c', '#3f3f47', '#4f5560',
+  '#5b5752', '#55535a', '#6b6760', '#58544f', '#44413d', '#6c6760', '#343230', '#25272b', '#1c1e22',
+  '#5d5b55', '#4e4c47', '#67645d', '#47453f', '#4a4946', '#525358', '#606369', '#757980',
+  '#3b3a37', '#45454a', '#55585d', '#6c7076', '#868b91', '#2f302f', '#383a3e', '#474b51', '#5d6269', '#787e85',
+  '#3b3a36', '#3d3e3d', '#454850', '#53575e', '#6a6f77', '#6a6d74', '#3a3a42', '#33373a', '#5d5e60',
+  '#5c5c64', '#6b6660', '#7a756e', '#3b3f44',
+], 'rock');
 surfaceFor(['#7a828b', '#6c737c', '#4b4f58'], 'ashlar');
 surfaceFor(['#3a3340'], 'shingle');
 surfaceFor(['#d9dde3'], 'snow');
