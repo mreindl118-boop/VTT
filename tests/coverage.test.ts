@@ -34,3 +34,33 @@ describe('coverage / explored memory', () => {
     expect([m.width, m.height]).toEqual([10, 10]);
   });
 });
+
+describe('explored memory does not grow without movement (bug 16)', () => {
+  const a = rect(0, 0, 20, 20), b = rect(20, 0, 20, 20);
+  const walls: Wall[] = [{ id: 'mid', a: [20, 0], b: [20, 20], flags: ['door'] }];
+  const ones = (m: Uint8Array) => m.reduce((s, v) => s + v, 0);
+
+  it('fifty identical updates leave explored memory as the first one left it', () => {
+    const m = CoverageMap.forPolygons([a, b]);
+    const viewer = [{ pos: [10, 10] as [number, number], darkvisionFt: 0 }];
+    m.updateVision(viewer, [a, b], walls, [], 'barovian-overcast');
+    const first = ones(m.seen);
+    for (let n = 0; n < 49; n++) m.updateVision(viewer, [a, b], walls, [], 'barovian-overcast');
+    expect(ones(m.seen)).toBe(first);
+  });
+
+  it('the room behind a closed door stays unexplored however often vision is recomputed', () => {
+    const m = CoverageMap.forPolygons([a, b]);
+    for (let n = 0; n < 50; n++) m.updateVision([{ pos: [10, 10], darkvisionFt: 0 }], [a, b], walls, [], 'barovian-overcast');
+    expect(m.state(30, 10)).toBe(Cov.Unexplored);
+    expect(m.state(21.5, 10)).toBe(Cov.Unexplored);
+  });
+
+  it('the wall rim next to what was seen is still remembered', () => {
+    const m = CoverageMap.forPolygons([a, b]);
+    m.updateVision([{ pos: [10, 10], darkvisionFt: 0 }], [a, b], walls, [], 'barovian-overcast');
+    m.updateVision([], [a, b], walls, [], 'barovian-overcast'); // the viewer leaves: only memory remains
+    expect(m.state(10, 10)).toBe(Cov.Explored);
+    expect(m.state(19.5, 10)).toBe(Cov.Explored);
+  });
+});

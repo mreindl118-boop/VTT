@@ -4,25 +4,28 @@ import type { CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js'
 import { bounds, pointInPolygon, type Vec2 } from './core/geometry';
 import { CoverageMap, Cov } from './core/coverage';
 import { squareCellAt, squareCellCenter, squareDistanceFt, worldToHex, hexToWorld, hexDistanceFt, hexSizeFromWidth, type DiagonalRule } from './core/grid';
-import { OPENABLE_KINDS, type Container, type GridFile, type Level, type LightSource, type SceneFile, type SceneObject, type Wall, type Ambient } from './core/schema';
+import { OPENABLE_KINDS, type Container, type GridFile, type Level, type LightSource, type SceneFile, type SceneObject, type Room, type Wall, type Ambient } from './core/schema';
 import { moveBlockers } from './core/light';
 import { canWalk } from './core/movement';
+import { SITE_INTERFACES } from './core/siteInterfaces';
 import { classOpacity, fogCurve, hiddenCurve, labelCurve } from './core/slider';
 import { baseRingFt, CELL_FT } from './core/units';
 import { baseRing } from './kit/pieces';
 import { adventurer } from './kit/creatures';
 import { PALETTE } from './kit/palette';
-import { buildLevel, hitObjectId, mergeByMaterial, type BuiltLevel, type LabelSpec } from './render/build';
+import { buildLevel, buildLevelSteps, hitObjectId, mergeByMaterial, type BuiltLevel, type LabelSpec } from './render/build';
 import { gridUniforms } from './render/gridOverlay';
 import { fogUniforms, sectionClip, setOpacity, setWallCut, WALL_CLIP } from './render/materials';
 const WALL_CUT_FT = 5;
-import { setGridType } from './render/gridOverlay';
+import { clipGrid, fadeGridBelow, setGridType } from './render/gridOverlay';
 import { World, type CameraPreset } from './render/world';
-import { loadLocation } from './data';
+import { builtPaths, loadLocation } from './data';
+import { kindName, playerDesc, playerLabel } from './core/objectText';
+export { KIND_DESC, kindName, playerDesc, playerLabel } from './core/objectText';
 import { ICON } from './ui/icons';
 import { pinForScene, useWorld } from './ui/worldmap';
 import { campaignOf, worldOf, type Campaign } from './campaigns';
-import { buildBackdrop } from './render/backdrop';
+import { buildBackdrop, cutLand, landHole, underBox } from './render/backdrop';
 import { BAROVIAN_GRASS, setGrass } from './kit/surfaces';
 import { Channel, type Msg } from './state/channel';
 import { newCampaign, revealSets, type CampaignState, type Combatant, type Encounter, type Reveal, type Sheet, type Token } from './state/campaign';
@@ -31,15 +34,51 @@ import { buildRangeOverlay } from './render/rangeOverlay';
 import { SHELL_ROLES } from './render/materials';
 import { skyAt, type Sky } from './core/sky';
 const PARTY_RED = '#c0392b';
+/** How far round an area map its parent's surroundings are drawn, past the map's own half-extent (ft). */
+const CONTEXT_FT = 450;
+const northVec = (n?: string): [number, number] => (n === '+z' ? [0, 1] : n === '-x' ? [-1, 0] : n === '+x' ? [1, 0] : [0, -1]);
+/** The turn that carries a parent level's north onto a child level's north (plan angle, radians). */
+const northTurn = (child?: string, parent?: string) => { const nb = northVec(child), np = northVec(parent); return Math.atan2(nb[1], nb[0]) - Math.atan2(np[1], np[0]); };
+const centroidOf = (poly: Vec2[]): Vec2 => [poly.reduce((a, p) => a + p[0], 0) / poly.length, poly.reduce((a, p) => a + p[1], 0) / poly.length];
+/** A map's open-air level (the one with terrain, else the first) and its extent: rooms and terrain. */
+const groundOf = (scene: SceneFile): Level => scene.levels.find((l) => l.terrain?.length) ?? scene.levels[0];
+const extentOf = (l: Level) => bounds([...l.rooms.map((r) => r.polygon), ...(l.terrain ?? []).map((t) => t.polygon)]);
+/** Every level's rooms and terrain together (a building's whole stack). */
+const wholes = new WeakMap<SceneFile, Bounds>();
+const wholeExtent = (s: SceneFile): Bounds => {
+  let b = wholes.get(s);
+  if (!b) { const lv = s.levels.filter((l) => l.rooms.length || l.terrain?.length); b = bounds(lv.flatMap((l) => [...l.rooms.map((r) => r.polygon), ...(l.terrain ?? []).map((t) => t.polygon)])); wholes.set(s, b); }
+  return b;
+};
+/** Where the DM came in: the room of the parent map whose Enter opened the child. */
+export interface EnteredFrom { parent: string; level: string; key: string; child: string }
 import { creatureById, figureFor, aliasFor, seenAs, statsOf, speedFtOf, colorOf } from './bestiary';
+import { playerFacing } from './core/identity';
 import { sightBlockers } from './core/light';
 import { idbGet, idbSet } from './state/idb';
 import { storeKey } from './state/backup';
 import { projectState } from './core/playersView';
+import { boundsInParent, compose, covBasisOf, grow, worldOfMiles, type Bounds, type Placement } from './core/frames';
+import { ATLAS, WorldStage } from './render/worldstage';
+import { disposeTree } from './render/dispose';
+import { Ghost, GHOST_TINT, type GhostLook } from './render/ghost';
+import { enterPx, leavePx, STREAM, Streamer, type StreamHost } from './render/streamer';
+import { hideUnder, restoreUnder, veil, type NestMask } from './render/hideUnder';
+import type { AtlasScene } from '../../scripts/world-atlas';
+
+/** The continuous world (maps stand in one 3-D valley) is on unless `?nested=0`, or the device was told so
+ *  (localStorage mistlab.nested = '0'); `?nested=1` forces it on. */
+export function nestedPref(): boolean {
+  const q = new URLSearchParams(location.search).get('nested');
+  if (q === '0' || q === '1') return q === '1';
+  try { return localStorage.getItem('mistlab.nested') !== '0'; } catch { return true; }
+}
 
 export type Mode = 'dm' | 'player';
 export type Tool = 'none' | 'reveal' | 'brush-reveal' | 'brush-fog' | 'measure';
 export type GridMode = 'off' | 'square' | 'hex';
+/** A finished measurement: the distance, its squares and the rule the maths used (the readout's rules card names it). */
+export interface MeasureResult { ft: number; squares: number; rule: 'five' | 'five-ten-five' | 'hex' }
 export interface TapHit {
   room?: { key: string; name: string; revealed: boolean; desc?: string; dm?: string; page?: number; enter?: string };
   pos: Vec2;
@@ -47,7 +86,7 @@ export interface TapHit {
   secretDoor?: { id: string; revealed: boolean };
   object?: { id: string; label: string; playerLabel?: string; container?: { locked: boolean; open: boolean; contents?: string }; vis: string; revealed: boolean; kind: string; desc?: string; dm?: string; page?: number; visibleToPlayers: boolean };
   /** A creature the players can see: what they call it and what they make of it. */
-  token?: { id: string; name: string; desc?: string };
+  token?: { id: string; name: string; desc?: string; seenAsOf?: string };
 }
 
 interface Loaded {
@@ -59,10 +98,28 @@ interface Loaded {
   covTex: Map<string, THREE.DataTexture>;
   labels: { obj: CSS2DObject; spec: LabelSpec; level: string }[];
   tokens: Map<string, THREE.Group>;
+  /** The scene's own frame: its levels, backdrop and surroundings hang from it, and it hangs from the world root at the
+   *  scene's absolute placement (identity until the continuous world places it). */
+  root: THREE.Group;
+  /** In the valley: drawn (not folded into its proxy). */
+  drawn: boolean;
+  /** In the valley and not the active map: drawn as a ghost (render/ghost.ts). */
+  ghost?: Ghost;
+  /** A child map drawn in its parent: what the parent hid under it (render/hideUnder.ts). */
+  nest?: NestMask;
 }
 
+/** A breadcrumb back out to a town frames at least this much of it round the place left (ft). */
+const CRUMB_TOWN_FT = 1400;
 export class App {
   readonly world: World;
+  /** The continuous world: pin maps open in place inside the valley (see render/worldstage.ts). The View menu's
+   *  'Continuous world' switches it (setNestedMode); the Player Display follows the DM's. */
+  nested = nestedPref();
+  /** The campaign's valley, built the first time one of its pin maps opens in the continuous world. */
+  stage?: WorldStage;
+  /** The open map stands in the valley (placed at its pin), rather than alone in the mist with its own backdrop. */
+  staged = false;
   t = 1; // the DM starts at the DM end of the view slider: the whole map, every secret
   state: CampaignState = newCampaign();
   cur: Loaded | null = null;
@@ -90,6 +147,8 @@ export class App {
   backdrop?: THREE.Group;
   /** The parent map's surroundings drawn round an area map. */
   context?: THREE.Object3D;
+  /** The room the DM last used Enter from: Back, zooming out and the surroundings of the map it opened go by it. */
+  enteredFrom?: EnteredFrom;
   /** Section height (ft, absolute) on a stacked site; undefined follows the current level, null = none. */
   cutFt: number | null | undefined = undefined;
   private keepCut = false;
@@ -119,20 +178,24 @@ export class App {
     return { min: Math.min(...ls.map((l) => l.elevationFt)) - 2, max: Math.max(...ls.map((l) => l.elevationFt + (l.ceilingFt ?? 10))) + 12 };
   }
   status = '';
-  onStatus: ((s: string) => void) | null = null;
+  onStatus: ((s: string, measure?: MeasureResult) => void) | null = null;
   onChange: (() => void) | null = null;
   private channel: Channel;
   private saveTimer = 0;
   private camTimer = 0;
   private maskSwap = new Map<THREE.Mesh, THREE.Material | THREE.Material[]>();
   private maskHidden: THREE.Object3D[] = [];
+  private maskMats: THREE.Material[] = [];
   private raycaster = new THREE.Raycaster();
 
   constructor(host: HTMLElement, readonly mode: Mode) {
     this.world = new World(host);
     this.channel = new Channel((m) => this.onMsg(m));
-    this.world.onCamera = () => { this.sendCamera(); this.labelDensity(); this.onCameraUi?.(); };
+    this.world.onCamera = () => { this.followGround(); this.sendCamera(); this.labelDensity(); this.onCameraUi?.(); this.streamer.poke(); };
     this.onCameraUi = null;
+    // the floating origin moved: the scene's drawn placement, the coverage basis and the clip plane follow
+    // (while a new map is being placed the level is still the old map's: the slider waits for setLevel)
+    this.world.onReanchor = () => { this.syncPlacement(); if (this.cur?.levels.has(this.levelId)) this.applySlider(); for (const r of this.resident.values()) r.ghost?.place(r.root); };
     this.installPointer();
   }
 
@@ -140,23 +203,26 @@ export class App {
   get T(): number { return this.mode === 'player' || this.view === 'players' ? 0 : this.t; }
 
   campaign: Campaign = campaignOf('appB/death-house');
-  /** Load the saved state of the campaign a path belongs to (each campaign has its own save). */
-  private async loadCampaign(path: string): Promise<void> {
-    const c = campaignOf(path);
-    if (this.cur && c.id === this.campaign.id) return;
-    if (this.cur) await this.flush();
-    this.campaign = c;
+  /** Read the saved state of a campaign (each campaign has its own save); nothing changes until useCampaign. */
+  private async readCampaign(c: Campaign): Promise<CampaignState> {
     const saved = await idbGet<CampaignState>(storeKey(c.id)).catch(() => undefined);
     // The display keeps only the players' share of the save (DM-only keys never sit in its memory) until the DM's
     // window broadcasts.
     const mine = saved && this.mode === 'player' ? (projectState(saved) as Partial<CampaignState>) : saved;
-    this.state = mine ? { ...newCampaign(c.id), ...mine } : newCampaign(c.id); // older saves lack newer fields
-    useWorld(worldOf(c), c.theme.id === 'pastoral' ? 'pastoral' : 'gothic');
+    return mine ? { ...newCampaign(c.id), ...mine } : newCampaign(c.id); // older saves lack newer fields
+  }
+  /** Switch to a campaign and its save (only the authoritative DM saves the old campaign). */
+  private useCampaign(c: Campaign, state: CampaignState): void {
+    if (this.mode === 'dm' && this.cur && c.id !== this.campaign.id) { clearTimeout(this.saveTimer); void idbSet(storeKey(this.campaign.id), this.state).catch(() => {}); }
+    this.campaign = c;
+    // another campaign, another valley: the old one goes, the new one is built when one of its maps opens in it
+    if (this.stage && this.stage.campaign.id !== c.id) { this.stage.dispose(); this.stage = undefined; }
+    this.state = state;
+    useWorld(worldOf(c), c.theme.id === 'pastoral' ? 'pastoral' : 'gothic', c.world);
     this.world.setTheme(c.theme);
     document.body.dataset.campaign = c.id;
   }
   async init(path: string): Promise<void> {
-    await this.loadCampaign(path);
     await this.open(path);
     if (this.mode === 'player') this.channel.send({ kind: 'hello' });
     else this.broadcast();
@@ -164,31 +230,167 @@ export class App {
 
   // ------------------------------------------------------------------ loading
 
-  async open(path: string, levelId?: string): Promise<void> {
-    await this.loadCampaign(path);
-    if (this.cur) {
-      // Labels are page elements: detach each one, or they linger over the next location.
-      for (const lb of this.cur.labels) { lb.obj.removeFromParent(); lb.obj.element.remove(); }
-      // Token markers and their name tags are page elements too: they would follow the party into the next map.
-      for (const g of this.cur.tokens.values()) { g.traverse((c) => { const e = (c as CSS2DObject).element; if (e instanceof HTMLElement) e.remove(); }); g.removeFromParent(); }
-      this.cur.tokens.clear();
-      this.select(null);
-      this.onLeave?.();
-      for (const b of this.cur.levels.values()) this.world.scene.remove(b.root);
-      for (const tx of this.cur.covTex.values()) tx.dispose();
+  /** Every open() takes a number; only the latest may change the world (the latest request wins). */
+  private navSeq = 0;
+  /** The map the party was last taken to by an open (and its level): the camera making another map active does not
+   *  change it. The Player Display stays on it while the players' camera is unlocked. */
+  private home?: string;
+  private homeLevel?: string;
+  /** Open a map: the new one is read and built first, while the old one stays on screen; then, in one step, the old
+   *  one is released and the new one placed (at its pin in the valley, or alone in the mist with its backdrop, the
+   *  legacy way) and made active. In the valley the camera glides to it from wherever it was.
+   *  Atomic: an open overtaken by a later one is dropped (its build freed) and changes nothing; one that fails (a
+   *  scene that cannot be fetched offline) keeps the open map, its campaign and its save, and says so. Resolves to
+   *  whether this map opened; it never rejects. */
+  async open(path: string, levelId?: string): Promise<boolean> {
+    const seq = ++this.navSeq, c = campaignOf(path), switching = !this.cur || c.id !== this.campaign.id;
+    this.cancelSwitch();
+    // in the valley a map comes with the maps it hangs in (a building with its town), the root first; any of them the
+    // valley already holds (streamed in, or the one left a moment ago) is used as it stands, without a build
+    const chain = this.stageEntry(path, c.id) ? [...this.chainOf(path)].reverse() : [];
+    const holding = (p: string) => (!switching && this.staged && this.stageEntry(p) ? this.resident.get(p) : undefined);
+    const built: Loaded[] = [], ups: Loaded[] = [];
+    let state = this.state;
+    const take = async (p: string): Promise<Loaded> => {
+      const h = holding(p); if (h) return h;
+      const l = await this.load(p, { campaign: c, state });
+      // the streamer stood its own copy of this map in the valley meanwhile: that one opens, this build is freed
+      const streamed = holding(p); if (streamed) { this.dispose(l); return streamed; }
+      built.push(l); return l;
+    };
+    let next: Loaded;
+    try {
+      if (switching) state = await this.readCampaign(c);
+      if (seq !== this.navSeq) return false;
+      for (const p of chain) { ups.push(await take(p)); if (seq !== this.navSeq) break; }
+      next = await take(path);
+    } catch (err) {
+      for (const b of built) this.dispose(b);
+      if (seq === this.navSeq) this.openFailed(path, err);
+      return false;
     }
-    const { scene, grid } = await loadLocation(path);
+    // overtaken, or a map it holds went meanwhile (the streamer freed it): nothing changes
+    const gone = [...ups, next].some((l) => !built.includes(l) && this.resident.get(l.path) !== l);
+    if (seq !== this.navSeq || gone) { for (const b of built) this.dispose(b); return false; }
+    // from here on nothing waits: the swap happens between two frames
+    this.cancelSwitch(); // (one the streamer began while this map was read)
+    if (switching) { this.releaseAll(); this.useCampaign(c, state); }
+    const inValley = !!this.stageEntry(path), fly = !switching && this.staged && inValley; // already in the valley: glide to the next place
+    const prev = this.cur;
+    if (prev && prev !== next) {
+      // in the valley the map left behind stays as a ghost (the streamer folds and frees it as the camera leaves);
+      // anything else is freed now
+      if (inValley && this.staged && this.resident.get(prev.path) === prev) this.leaveActive(prev);
+      else this.release(prev);
+    }
+    if (!inValley) this.releaseAll();
+    this.place(next, ups);
+    // the Player Display's camera is the DM's (camera messages): it never frames a map it follows the DM onto
+    const follow = this.mode === 'player' && !!prev;
+    this.home = path; // the party's map (the camera alone never changes it)
+    this.activate(next, { levelId, frame: follow ? false : fly ? 'fly' : true });
+    // it resolves when the camera has arrived (a glide across the valley), or at once
+    if (fly) await this.world.settled();
+    this.streamer.tick(); // what the camera has come to: the place left behind folds into its proxy
+    return this.cur === next;
+  }
+  /** A map could not be opened: the open one stays, and the status line says why for a while. */
+  private openFailed(path: string, err: unknown): void {
+    console.warn(`mistLAB: could not open ${path}`, err);
+    const name = ATLAS.scenes[path]?.name ?? path;
+    this.setStatus(`Couldn't open ${name} (offline?)`);
+    clearTimeout(this.flashT); this.flashT = window.setTimeout(() => { if (this.status.startsWith("Couldn't open")) this.setStatus(''); }, 6000);
+  }
+
+  /** Switch the continuous world on or off (the View menu's 'Continuous world'; remembered on this device): the open
+   *  map opens again the other way, on the same level. Off disposes the valley. */
+  async setNestedMode(on: boolean, remember = true): Promise<void> {
+    if (remember) try { localStorage.setItem('mistlab.nested', on ? '1' : '0'); } catch { /* private mode: this session only */ }
+    if (on === this.nested) return;
+    this.nested = on;
+    if (this.cur) await this.open(this.cur.path, this.levelId);
+    this.dropStage();
+    this.layoutChanged();
+  }
+  /** With the continuous world off, the valley goes (its GPU buffers, its labels). */
+  private dropStage(): void {
+    if (this.nested || !this.stage || this.staged) return;
+    this.stage.dispose(); this.stage = undefined;
+  }
+
+  /** The atlas entry a map is placed by in the continuous world: a pin's root map of the open campaign (or of the one
+   *  given), or a map that hangs in one (a building, an area map, a dungeon: atlas `parent`, at any depth). Orphans
+   *  (dev/*) open the legacy way. */
+  stageEntry(path: string, campaignId = this.campaign.id): AtlasScene | undefined {
+    if (!this.nested) return undefined;
+    const e = ATLAS.scenes[path];
+    if (!e || e.orphan || e.campaign !== campaignId) return undefined;
+    if (!e.depth) return e.pin && e.worldBounds ? e : undefined;
+    return e.parent && e.placement && e.enterRoom && this.stageEntry(e.parent, campaignId) ? e : undefined;
+  }
+  /** The maps a map hangs in, nearest first (the atlas's parents): the inn's is [Vallaki]. */
+  chainOf(path: string): string[] {
+    const out: string[] = [];
+    for (let p = ATLAS.scenes[path]?.parent; p && !out.includes(p); p = ATLAS.scenes[p]?.parent) out.push(p);
+    return out;
+  }
+  /** The maps that hang in a map (its buildings and area maps), by the atlas. */
+  private childrenOf(path: string): AtlasScene[] {
+    let list = this.kids.get(path);
+    if (!list) { list = Object.values(ATLAS.scenes).filter((e) => e.parent === path && !e.orphan && !!e.placement && !!e.enterRoom); this.kids.set(path, list); }
+    return list;
+  }
+  private kids = new Map<string, AtlasScene[]>();
+  /** A map's placement in W: a root's at its pin, a child's composed through the maps it hangs in. */
+  private placementInW(path: string): Placement | undefined {
+    let pl = this.placedW.get(path);
+    if (pl) return pl;
+    const e = ATLAS.scenes[path]; if (!e) return undefined;
+    if (!e.depth) pl = (this.stage && e.pin ? this.stage.rootPlacementOf(e) : e.placement);
+    else { const up = e.parent ? this.placementInW(e.parent) : undefined; pl = up ? compose(up, e.placement) : undefined; }
+    if (pl) this.placedW.set(path, pl);
+    return pl;
+  }
+  private placedW = new Map<string, Placement>();
+  /** A child as the streamer measures it: its footprint and floor in W (composed through its parents). */
+  private streamSite(e: AtlasScene): AtlasScene | undefined {
+    let s = this.siteCache.get(e.path);
+    if (s) return s;
+    const pl = this.placementInW(e.path); if (!pl) return undefined;
+    s = { ...e, placement: pl, worldBounds: boundsInParent(pl, e.extent ?? e.bbox) }; // (its whole stack)
+    this.siteCache.set(e.path, s);
+    return s;
+  }
+  private siteCache = new Map<string, AtlasScene>();
+  /** Where a placed map's root stands (absolute feet), however deep it hangs. */
+  private absOf(l: Loaded): THREE.Vector3 {
+    if (l.root.parent === this.world.root) return l.root.position.clone(); // a root stands in W (exactly)
+    l.root.updateWorldMatrix(true, false);
+    return this.world.toAbsolute(new THREE.Vector3().setFromMatrixPosition(l.root.matrixWorld));
+  }
+
+  /** Build a map: its levels, coverage maps and textures, and its labels; nothing is added to the world yet. The
+   *  campaign and save it is built for (its grass, what the party has seen) are the open one's unless given. */
+  async load(path: string, ctx: { campaign: Campaign; state: CampaignState } = { campaign: this.campaign, state: this.state }): Promise<Loaded> {
+    const files = await loadLocation(path), it = this.loadSteps(path, files, ctx);
+    for (;;) { const r = it.next(); if (r.done) return r.value; }
+  }
+  /** load() in small steps (render/build.ts buildLevelSteps): the streamer spreads a map's build over frames. */
+  private *loadSteps(path: string, { scene, grid }: { scene: SceneFile; grid: GridFile }, ctx: { campaign: Campaign; state: CampaignState }): Generator<void, Loaded> {
     const levels = new Map<string, BuiltLevel>();
     const coverage = new Map<string, CoverageMap>();
     const covTex = new Map<string, THREE.DataTexture>();
     const labels: Loaded['labels'] = [];
+    const root = new THREE.Group();
+    root.name = `scene:${path}`;
     for (const l of scene.levels) {
-      setGrass(this.campaign.theme.grass ?? BAROVIAN_GRASS);
-      const b = buildLevel(l, grid.levels[l.id]);
+      setGrass(ctx.campaign.theme.grass ?? BAROVIAN_GRASS);
+      const b = yield* buildLevelSteps(l, grid.levels[l.id]);
       levels.set(l.id, b);
-      this.world.scene.add(b.root);
+      root.add(b.root);
+      yield;
       const cov = CoverageMap.forPolygons([...l.rooms.map((r) => r.polygon), ...grid.levels[l.id].floorPolygons]);
-      const seen = this.state.seen[`${scene.location}/${l.id}`];
+      const seen = ctx.state.seen[`${scene.location}/${l.id}`];
       if (seen) cov.load({ seen, paint: '' });
       coverage.set(l.id, cov);
       const tex = new THREE.DataTexture(cov.toTexture() as Uint8Array<ArrayBuffer>, cov.width, cov.height, THREE.RGBAFormat);
@@ -196,6 +398,7 @@ export class App {
       tex.minFilter = THREE.LinearFilter;
       tex.needsUpdate = true;
       covTex.set(l.id, tex);
+      yield;
       const linkSpots: [number, number][] = [];
       for (const k of scene.links) for (const [end, other] of [[k.from, k.to], [k.to, k.from]] as const) {
         if (end.level !== l.id) continue;
@@ -227,14 +430,424 @@ export class App {
         labels.push({ obj, spec, level: l.id });
       }
     }
-    this.cur = { path, scene, grid, levels, coverage, covTex, labels, tokens: new Map() };
-    // The world-map marker follows the party into whichever pin this scene belongs to.
+    return { path, scene, grid, levels, coverage, covTex, labels, tokens: new Map(), root, drawn: true };
+  }
+
+  /** Take a map out of the world and free it: its page elements (labels, token tags), its graph, its geometries,
+   *  private materials and textures (render/dispose.ts); its proxy shows again. */
+  release(loaded: Loaded): void {
+    // the maps that hang in it go first (they are drawn inside its root); a child gives its parent's massing back
+    for (const r of [...this.resident.values()]) if (r !== loaded && ATLAS.scenes[r.path]?.parent === loaded.path && this.resident.get(loaded.path) === loaded) this.release(r);
+    if (loaded.nest) { this.unnestAll(); }
+    if (loaded === this.cur) {
+      this.select(null); this.onLeave?.(); this.clearRuler();
+      // the app's own markers outlive the map: take them off it before it is freed
+      this.ghost?.removeFromParent(); this.selRing?.removeFromParent();
+      this.rangeMesh = undefined; this.rangeFor = undefined;
+    }
+    const inside = (o?: THREE.Object3D) => { for (let p = o?.parent; p; p = p.parent) if (p === loaded.root) return true; return false; };
+    if (inside(this.backdrop)) this.backdrop = undefined;
+    if (inside(this.context)) this.context = undefined;
+    this.fades.delete(loaded);
+    if (this.resident.get(loaded.path) === loaded) this.resident.delete(loaded.path);
+    this.dispose(loaded);
+    this.stage?.showProxy(loaded.path, true);
+    this.syncNest();
+  }
+  /** Free a built map (placed or not): everything under its root, its coverage textures, its token figures, its ghost. */
+  private dispose(loaded: Loaded): void {
+    if (this.freed.has(loaded)) return;
+    this.freed.add(loaded);
+    disposeTree(loaded.root);
+    loaded.ghost?.dispose(); loaded.ghost = undefined;
+    for (const tx of loaded.covTex.values()) tx.dispose();
+    loaded.tokens.clear();
+  }
+  private freed = new WeakSet<Loaded>();
+  /** Leaving the valley (a legacy map, another campaign): every map it holds is freed, every build in flight dropped. */
+  private releaseAll(): void {
+    for (const t of this.streams.values()) t.cancelled = true;
+    this.streams.clear();
+    for (const r of [...this.resident.values()]) if (r !== this.cur) this.release(r);
+    this.resident.clear();
+    this.streamer.stop();
+  }
+
+  // ------------------------------------------------------------------ streaming: the valley's maps come and go
+
+  /** The maps standing in the valley, by path: the active one and the ghosts (render/streamer.ts decides which). */
+  readonly resident = new Map<string, Loaded>();
+  /** Builds in flight (the streamer's), by path. */
+  private streams = new Map<string, { cancelled: boolean }>();
+  /** A place whose map could not be read (offline) is not tried again for a while; its proxy stays. */
+  private streamFailed = new Map<string, number>();
+  /** Scenes whose files were asked for ahead of a build (once each). */
+  private prefetched = new Set<string>();
+  /** What each streamed build cost: total ms, slices, the longest slice (tests and the HUD read it). */
+  readonly streamLog: { path: string; ms: number; slices: number; longest: number; flying: number; uploads?: number }[] = [];
+  /** Crossfades in flight: a ghost's opacity and tint gliding to a target, then a callback. */
+  private fades = new Map<Loaded, { from: number; to: number; tint0: number; tint1: number; t0: number; dur: number; done?: () => void; switch?: boolean }>();
+  private fadeRaf = 0;
+  readonly streamer: Streamer = new Streamer(this.streamHost());
+
+  private streamHost(): StreamHost {
+    // the open campaign's pin roots: the maps that stand in the valley by themselves
+    let sites: { id: string; list: AtlasScene[] } | undefined;
+    const app = this; // eslint-disable-line @typescript-eslint/no-this-alias
+    return {
+      get world() { return app.world; }, // (the field is set in the constructor, after this host is made)
+      streaming: () => this.nested && this.staged && !!this.stage && this.renderMode === 'normal',
+      sites: () => {
+        if (sites?.id !== this.campaign.id) sites = { id: this.campaign.id, list: Object.values(ATLAS.scenes).filter((e) => e.campaign === this.campaign.id && e.depth === 0 && !e.orphan && !!e.pin && !!e.worldBounds) };
+        const now = performance.now(), ok = (e: AtlasScene) => !((this.streamFailed.get(e.path) ?? -Infinity) > now);
+        // and the buildings and area maps of every map the valley holds (measured where they hang, in W)
+        const kids: AtlasScene[] = [];
+        for (const r of this.resident.values()) if (!this.streams.has(r.path)) for (const k of this.childrenOf(r.path)) { const e = ok(k) ? this.streamSite(k) : undefined; if (e) kids.push(e); }
+        return [...sites.list.filter(ok), ...kids];
+      },
+      chainOf: (p) => this.chainOf(p),
+      // a map still being got ready (its buffers going up) counts as loading, not resident
+      residentState: (p) => { const r = this.resident.get(p); return r && !this.streams.has(p) ? { drawn: r.drawn } : undefined; },
+      loading: (p) => this.streams.has(p),
+      // the active map is kept (the party's map is not: it is built again when the camera comes back to it)
+      // (and the maps it hangs in: a building's town stays while the building is active)
+      pinned: () => new Set(this.cur ? [this.cur.path, ...this.chainOf(this.cur.path)] : []),
+      activePath: () => this.cur?.path,
+      autoActivate: () => this.mode === 'dm',
+      busy: () => this.world.userMoving,
+      measured: (list) => { const st = this.stage; if (st) for (const s of list) st.viewDetail(s.path, s.inView ? s.px / s.units : 0); },
+      cancel: (p) => { const t = this.streams.get(p); if (t) t.cancelled = true; },
+      // a scene's files are read once ahead of its build; one that cannot be read (offline) is left for a while, like
+      // a failed build (the proxy stays)
+      prefetch: (p) => {
+        if (this.prefetched.has(p)) return;
+        this.prefetched.add(p);
+        loadLocation(p).catch(() => { this.prefetched.delete(p); this.streamFailed.set(p, performance.now() + 20000); });
+      },
+      streamIn: (p) => { void this.streamIn(p); },
+      fold: (p, on) => this.fold(p, on),
+      unload: (p) => { const r = this.resident.get(p); if (r && r !== this.cur) this.release(r); this.syncStage(); },
+      activateStreamed: (p) => { const r = this.resident.get(p); if (r) this.switchActive(r); },
+    };
+  }
+
+  /** Stand a built map at its pin in the valley (it joins the resident maps; its grid stays on its own floors). */
+  private standInValley(l: Loaded, entry: AtlasScene): boolean {
+    if (!entry.depth) this.stage!.placeRoot(l, entry);
+    else {
+      // a child hangs in its parent's root, at the room that opens it (its own placement is in the parent's frame)
+      const up = entry.parent ? this.resident.get(entry.parent) : undefined;
+      if (!up) return false;
+      this.stage!.placeChild(l, entry, up);
+    }
+    // the grid stays on the map, not over the valley, and goes as the camera pulls back to the town and road bands
+    l.root.traverse((o) => { if (o.userData.role === 'grid') { clipGrid(o as THREE.Mesh, 10); fadeGridBelow(o as THREE.Mesh, 0.6); } });
+    l.root.traverse((o) => { if (o.userData.worldStandin) veil(o, 'world-standin', true); });
+    this.resident.set(l.path, l);
+    return true;
+  }
+  /** Each place's proxy shows exactly while its map is not drawn whole (a crossfade keeps it until the map is in). */
+  private syncProxies(): void {
+    const st = this.stage; if (!st) return;
+    for (const id of st.proxies.keys()) {
+      if (id.includes('@')) continue;
+      const r = this.resident.get(id), f = r && this.fades.get(r);
+      st.showProxy(id, !(r && r.drawn && !(f && f.to > f.from)));
+    }
+    this.syncSecrets();
+    this.syncNest();
+  }
+  /** A child drawn whole in its parent hides the parent's own model of it (its house, its yard: render/hideUnder.ts),
+   *  exactly while it is drawn (a crossfade keeps the model until the child is in; folding brings it back at once).
+   *  Overlapping children are undone and redone together, so every face comes back exactly. */
+  private syncNest(): void {
+    const want: Loaded[] = [];
+    for (const r of this.resident.values()) {
+      const e = ATLAS.scenes[r.path], up = e?.depth && e.parent ? this.resident.get(e.parent) : undefined;
+      const f = this.fades.get(r);
+      if (up && r.drawn && r.root.visible && !(f && f.to > f.from)) want.push(r);
+    }
+    const key = want.map((r) => r.path).sort().join('|');
+    if (key !== this.nestKey) {
+      this.unnestAll();
+      for (const r of want) {
+        const e = ATLAS.scenes[r.path], up = this.resident.get(e.parent!)!;
+        r.nest = { child: r.path, faces: [], objects: [], labels: [] };
+        for (const [id, box] of this.nestBoxes(e, up)) {
+          const m = hideUnder(up, id, grow(boundsInParent(e.placement, box), 8), r.path);
+          r.nest.faces.push(...m.faces); r.nest.objects.push(...m.objects); r.nest.labels.push(...m.labels);
+        }
+        this.nests.push(r);
+      }
+      this.nestKey = key;
+      this.world.invalidate();
+    }
+    this.syncUnderground();
+  }
+  /** What a child covers on each level of its parent (in the child's frame): the child's levels that stand within that
+   *  level's height (its floor up to its ceiling), so a building hides the town's model of it on the street and an
+   *  abbey the village's model of it on the ledge 400 ft up; the room that opens it is always covered. */
+  private nestBoxes(e: AtlasScene, up: Loaded): Map<string, Bounds> {
+    const out = new Map<string, Bounds>(), dy = e.placement.position[1];
+    const add = (id: string, b: Bounds) => { const o = out.get(id); out.set(id, o ? { minX: Math.min(o.minX, b.minX), minZ: Math.min(o.minZ, b.minZ), maxX: Math.max(o.maxX, b.maxX), maxZ: Math.max(o.maxZ, b.maxZ) } : b); };
+    if (e.enterRoom) add(e.enterRoom.level, e.bbox);
+    for (const pl of up.scene.levels) {
+      const lo = pl.elevationFt - 2, hi = pl.elevationFt + Math.max(2, pl.ceilingFt ?? 10);
+      for (const cl of e.levels) { const y = cl.elevationFt + dy; if (cl.bbox && y >= lo && y < hi) add(pl.id, cl.bbox); }
+    }
+    return out;
+  }
+  private nests: Loaded[] = [];
+  private nestKey = '';
+  /** Every parent's massing back (latest first). */
+  private unnestAll(): void {
+    for (const r of this.nests.reverse()) if (r.nest) { restoreUnder(r.nest); r.nest = undefined; }
+    this.nests = []; this.nestKey = '';
+  }
+  /** A child's floor below the ground it stands on (Death House's dungeon) would lie buried under its town and the
+   *  land: while one is shown the valley and the other maps are left out of the frame, the mist floor under it, as
+   *  the legacy way hides the surroundings. */
+  underground = false;
+  private syncUnderground(): void {
+    const c = this.cur, e = c ? this.stageEntry(c.path) : undefined;
+    const lv = c && c.levels.has(this.levelId) ? c.scene.levels.find((l) => l.id === this.levelId) : undefined;
+    const under = !!(c && lv && e && (e.depth || SITE_INTERFACES[c.path]?.excavate) && this.staged && lv.elevationFt < groundOf(c.scene).elevationFt - 1);
+    if (!under && !this.underground) return;
+    this.underground = under;
+    if (this.stage) veil(this.stage.root, 'under', under);
+    // every map in the valley goes (or comes back), then the active one, which may hang inside one of them (Death
+    // House in its village), comes back whole: no root is skipped, so nothing keeps a reason from a scope left behind
+    for (const r of this.resident.values()) if (r.root.parent === this.world.root) veil(r.root, 'under', under && r !== c);
+    if (c) veil(c.root, 'under', false);
+    this.world.mistFloor.visible = ((!this.backdrop && !this.staged) || under) && this.world.fogOn && this.renderMode === 'normal';
+    this.world.invalidate();
+  }
+  /** What a ghost of this map shows: its ground level and the floors on it, cut as the active map would be. */
+  private ghostLook(l: Loaded): GhostLook {
+    const sc = l.scene, lv = groundOf(sc), shown = sc.stacked ? this.stackOf(lv.id, sc) : new Set([lv.id]);
+    const top = Math.max(...sc.levels.map((x) => x.elevationFt + (x.ceilingFt ?? 10)));
+    const cutFt = sc.stacked === 'open' ? top + 12 : sc.stacked ? lv.elevationFt + (lv.ceilingFt ?? 10) - 0.5 : this.lowWalls ? lv.elevationFt + WALL_CUT_FT : null;
+    return { level: lv.id, shown, cutFt, lowWalls: this.lowWalls, revealed: revealSets(this.state, sc.location).objects, restricted: this.restricted };
+  }
+  /** Draw a map as a ghost (render/ghost.ts), at a tint (0 looks exactly as active). */
+  private ghostify(l: Loaded, tint: number): void {
+    const g = (l.ghost ??= new Ghost(new THREE.Color(this.world.theme.mist)));
+    g.apply(l, this.ghostLook(l)); g.set(g.opacity, tint); g.place(l.root);
+    // players never see inside a place they are not in (an interior's ghost is hidden on their side)
+    l.root.visible = l.drawn && !(this.restricted && ATLAS.scenes[l.path]?.interior);
+  }
+  /** The active map steps down to a ghost: what only the active map has (selection, ruler, range, tokens) goes. */
+  private leaveActive(l: Loaded): void {
+    this.select(null); this.onLeave?.(); this.clearRuler();
+    this.ghost?.removeFromParent(); this.selRing?.removeFromParent();
+    if (this.rangeMesh) disposeTree(this.rangeMesh); this.rangeMesh = undefined; this.rangeFor = undefined;
+    for (const g of l.tokens.values()) disposeTree(g);
+    l.tokens.clear();
+    this.ghostify(l, 0);
+    this.fadeTo(l, l.drawn ? 1 : 0, GHOST_TINT); // the mist's tint comes on gently
+  }
+  /** The camera's target settled in another drawn map: it becomes the active one (no flight, no travel: the party
+   *  stays where it is). The tint glides off first, so the swap to its live materials does not show. */
+  private switchActive(next: Loaded): void {
+    const old = this.cur;
+    if (!old || old === next || !this.staged || this.resident.get(next.path) !== next || this.switching === next) return;
+    const seq = this.navSeq; // an open or a climb meanwhile (Enter on a building, Back, a crumb) wins over this
+    const swap = () => {
+      if (seq !== this.navSeq || this.cur === next || this.resident.get(next.path) !== next || !this.staged) return;
+      const prev = this.cur;
+      if (prev) this.leaveActive(prev);
+      this.cur = next;
+      if (next.drawn) next.ghost?.restore(next);
+      this.world.reanchor(this.absOf(next));
+      // looking is not travelling: the map a reload opens (mistlab.scene) stays the one the party was taken to, and a
+      // map the camera alone made active gets no party token
+      this.activate(next, { levelId: groundOf(next.scene).id, travel: false, token: false });
+      this.broadcast();
+      this.syncStage();
+      this.syncNest();
+    };
+    // folded away (the camera is out over the valley): nothing to fade, it takes the role as it is; it takes its own
+    // materials when it is drawn again
+    if (!next.drawn) { swap(); return; }
+    this.switching = next;
+    this.fadeTo(next, 1, 0, true, () => {
+      this.switching = undefined;
+      if (!next.drawn) return;
+      swap();
+    });
+  }
+  private switching?: Loaded;
+  /** A navigation (an open, a climb) takes over: a camera activation still fading in is dropped, its map stays a
+   *  ghost where it is (the streamer may make it active again later, if the camera settles on it). */
+  private cancelSwitch(): void {
+    const left = [...this.fades].filter(([, f]) => f.switch).map(([l]) => l);
+    this.switching = undefined;
+    // (its tint was gliding off to take the role: it glides back on, a ghost among the others)
+    for (const l of left) { this.fades.get(l)!.switch = false; this.fades.get(l)!.done = undefined; if (l !== this.cur) this.fadeTo(l, l.drawn ? 1 : 0, GHOST_TINT); }
+  }
+  /** Fold a map into its proxy (the proxy shows, the map fades out and goes) or bring it back (it fades in over the
+   *  proxy, which then goes). The active map folds too at valley zoom (it stays active: tokens, tools and minimap). */
+  private fold(path: string, on: boolean): void {
+    const l = this.resident.get(path); if (!l) return;
+    if (on) {
+      if (!l.drawn) return;
+      l.drawn = false;
+      if (!l.ghost?.on) this.ghostify(l, 0); // the active map: a ghost that looks exactly like it, to fade
+      l.root.visible = true;
+      this.fadeTo(l, 0, l.ghost!.tint);
+    } else {
+      if (l.drawn) return;
+      const tint = l === this.cur ? 0 : GHOST_TINT;
+      if (!l.root.visible) l.ghost?.set(0);
+      l.drawn = true;
+      if (!l.ghost?.on) this.ghostify(l, tint); else l.root.visible = !(this.restricted && ATLAS.scenes[l.path]?.interior);
+      this.fadeTo(l, 1, tint);
+    }
+    this.syncProxies();
+    this.syncStage();
+  }
+  /** Glide a ghost's opacity and tint (render/streamer.ts STREAM.fadeMs); a later glide takes over from where this
+   *  one is. At the end: a map faded out goes, a proxy shows exactly while its map is not drawn whole, the active map
+   *  faded back in takes its own materials again; `done` (a camera activation) runs only if not overtaken. */
+  private fadeTo(l: Loaded, to: number, tint: number, isSwitch = false, done?: () => void): void {
+    const g = l.ghost; if (!g) { done?.(); return; }
+    if (this.fades.get(l)?.switch) this.switching = undefined; // an activation overtaken (the camera moved on)
+    this.fades.set(l, { from: g.opacity, to, tint0: g.tint, tint1: tint, t0: performance.now(), dur: STREAM.fadeMs, done, switch: isSwitch });
+    if (!this.fadeRaf) this.fadeRaf = requestAnimationFrame(this.stepFades);
+  }
+  private fadeEnded(l: Loaded): void {
+    const g = l.ghost;
+    if (g && !l.drawn && g.opacity < 0.001) l.root.visible = false;
+    if (g?.on && l === this.cur && l.drawn && g.opacity >= 0.999 && this.resident.get(l.path) === l) { g.restore(l); this.setLevel(this.levelId); }
+    this.syncProxies();
+  }
+  private stepFades = (): void => {
+    this.fadeRaf = 0;
+    const now = performance.now();
+    for (const [l, f] of [...this.fades]) {
+      const k = Math.min(1, (now - f.t0) / f.dur), e = k * k * (3 - 2 * k);
+      l.ghost?.set(f.from + (f.to - f.from) * e, f.tint0 + (f.tint1 - f.tint0) * e);
+      if (k >= 1) { this.fades.delete(l); this.fadeEnded(l); f.done?.(); }
+    }
+    this.world.invalidate();
+    if (this.fades.size) this.fadeRaf = requestAnimationFrame(this.stepFades);
+  };
+  /** Stream a map in: read it, build it a slice per frame (never during a glide), stand it at its pin as a ghost and
+   *  crossfade it in over its proxy. A map that cannot be read keeps its proxy, and the status line says so once. */
+  private async streamIn(path: string): Promise<void> {
+    if (this.streams.has(path) || this.resident.has(path)) return;
+    const token = { cancelled: false }, campaign = this.campaign, state = this.state, name = ATLAS.scenes[path]?.name ?? path;
+    this.streams.set(path, token);
+    const t0 = performance.now(); let slices = 0, longest = 0, flying = 0;
+    let next: Loaded | undefined;
+    // the DM sees what is on its way (the title still names the active map until the camera makes this one active)
+    const loadingNote = `Loading ${name}…`;
+    if (this.mode === 'dm') this.setStatus(loadingNote);
+    try {
+      const files = await loadLocation(path);
+      const it = this.loadSteps(path, files, { campaign, state });
+      let r: IteratorResult<void, Loaded> | undefined;
+      while (!r?.done) {
+        await new Promise<void>((go) => requestAnimationFrame(() => setTimeout(go, 0))); // after a frame is drawn
+        if (token.cancelled || this.campaign !== campaign) { it.return(undefined as never); return; }
+        if (this.world.flying) { flying++; continue; }
+        const s0 = performance.now();
+        do r = it.next(); while (!r.done && performance.now() - s0 < STREAM.sliceMs);
+        longest = Math.max(longest, performance.now() - s0); slices++;
+      }
+      next = r.value;
+      const entry = this.stageEntry(path);
+      if (token.cancelled || this.campaign !== campaign || !this.staged || !this.stage || !entry || this.resident.has(path)) return;
+      if (entry.depth && !(entry.parent && this.resident.get(entry.parent)?.drawn)) return; // its town folded or went meanwhile
+      this.streamLog.push({ path, ms: Math.round(performance.now() - t0), slices, longest: Math.round(longest * 10) / 10, flying });
+      if (this.streamLog.length > 50) this.streamLog.shift();
+      next.drawn = false;
+      this.standInValley(next, entry);
+      this.ghostify(next, GHOST_TINT);
+      // its shaders and buffers on the GPU a little at a time, so its first frame does not stall: as a ghost (how it
+      // fades in) and with its own materials (how it draws once the camera makes it active)
+      const g = next.ghost!, built = next, live = () => this.resident.get(path) === built && this.staged && !token.cancelled && this.cur !== built;
+      const pause = () => this.world.flying;
+      g.set(1);
+      const up = await this.world.upload(next.root, STREAM.sliceMs, pause, () => !live());
+      if (!live()) return;
+      g.set(0.5); // half faded: how it draws during the crossfade
+      await this.world.upload(next.root, STREAM.sliceMs, pause, () => !live() || !g.on);
+      if (!live()) return;
+      g.set(0);
+      const look = this.ghostLook(next);
+      g.restore(next); this.liveLook(next, look);
+      await this.world.upload(next.root, STREAM.sliceMs, pause, () => !live() || g.on);
+      if (this.cur !== built && !g.on) this.ghostify(built, GHOST_TINT); // (unless an open() made it the active map meanwhile)
+      if (!live()) return;
+      g.set(0);
+      this.streamLog[this.streamLog.length - 1].uploads = up;
+      this.fold(path, false); // in it comes, over its proxy
+    } catch (err) {
+      console.warn(`mistLAB: could not stream ${path}`, err);
+      this.streamFailed.set(path, performance.now() + 20000);
+      if (this.mode === 'dm') this.flashStatus(`Couldn't load ${name} (offline?)`);
+    } finally {
+      if (this.streams.get(path) === token) this.streams.delete(path);
+      // a build that will not be drawn is freed: dropped, overtaken by an open() of its own map, or the valley gone
+      if (next && this.cur !== next) {
+        const placed = this.resident.get(path) === next;
+        if (placed && (token.cancelled || !this.staged)) this.release(next);
+        else if (!placed) this.dispose(next);
+      }
+      if (this.status === loadingNote) this.setStatus('');
+      this.streamer.poke();
+    }
+  }
+  /** A ghost's map with its own materials, levels shown and cut as it will be when active (the warm-up before its
+   *  first frame as the active map; its root stays hidden). */
+  private liveLook(l: Loaded, look: GhostLook): void {
+    for (const [lid, b] of l.levels) b.root.visible = look.shown.has(lid);
+  }
+
+  /** Make a built map the current one and stand it in the world: at its pin inside the valley (the continuous world),
+   *  or alone at the origin with its backdrop and, for an area map, its parent's surroundings (the legacy way). */
+  private place(loaded: Loaded, ups: Loaded[] = []): void {
+    this.cur = loaded;
+    // (a map the valley already holds stays where it stands: a building streamed in hangs in its town's root)
+    if (this.resident.get(loaded.path) !== loaded) this.world.root.add(loaded.root);
+    if (this.backdrop) disposeTree(this.backdrop); this.backdrop = undefined;
+    if (this.context) disposeTree(this.context); this.context = undefined;
+    const entry = this.stageEntry(loaded.path);
+    if (entry) {
+      if (!this.stage) {
+        this.stage = new WorldStage(this.world, this.campaign, worldOf(this.campaign)); this.world.root.add(this.stage.root);
+        this.stage.onPick = (p) => { if (this.mode === 'dm' && !this.restricted) this.onPlacePick?.(p); };
+        this.stage.onCartoHalf = () => { if (this.staged) this.stage?.setParty(this.partyMark()); };
+      }
+      this.stage.root.visible = this.renderMode === 'normal';
+      this.staged = true;
+      this.world.setNested(true);
+      // the maps it hangs in stand first (root first), drawn as ghosts round it
+      for (const u of ups) {
+        if (this.resident.get(u.path) !== u) { this.standInValley(u, this.stageEntry(u.path)!); u.drawn = true; this.fades.delete(u); this.ghostify(u, GHOST_TINT); }
+        else if (!u.drawn) this.fold(u.path, false); // folded away: it comes back round the map that opens in it
+      }
+      if (this.resident.get(loaded.path) !== loaded) this.standInValley(loaded, entry);
+      // the map comes alive: drawn whole, with its own materials
+      this.fades.delete(loaded); loaded.root.visible = true; loaded.drawn = true;
+      if (loaded.ghost?.on) { loaded.ghost.restore(loaded); loaded.ghost.set(1, 0); }
+      this.syncProxies();
+      this.stage.fitCamera(); // the far limit frames the whole valley
+      // the floating origin moves onto the map: it is drawn where it always was, the valley round it
+      this.world.reanchor(this.absOf(loaded));
+      return;
+    }
+    if (this.stage) { this.stage.root.visible = false; this.stage.detachLabels(); } // (hidden names never stay in the page)
+    this.staged = false;
+    loaded.root.traverse((o) => { if (o.userData.worldStandin) veil(o, 'world-standin', false); });
+    if (this.world.nested) this.world.setNested(false);
+    this.world.reanchor(new THREE.Vector3());
+    const { scene } = loaded, path = loaded.path;
     const pin = pinForScene(path) ?? (scene.parent ? pinForScene(scene.parent) : undefined);
-    // Outdoors: the land, forest, mountains and the castle continue to the horizon.
-    this.backdrop?.removeFromParent(); this.backdrop = undefined;
-    this.context?.removeFromParent(); this.context = undefined;
     // The level that meets the open air (the one with terrain: a courtyard, a street) decides outdoor fog and the backdrop.
     const l0 = scene.levels.find((l) => l.terrain?.length) ?? scene.levels[0], outdoor = !!pin && !!l0.terrain?.length && (l0.ambient ?? scene.ambient) !== 'darkness';
+    // Outdoors: the land, forest, mountains and the castle continue to the horizon.
     if (outdoor) {
       const bb = bounds([...l0.rooms.map((r) => r.polygon), ...(l0.terrain ?? []).map((t) => t.polygon)]);
       const roadLike = (f: string | undefined, name = '') => f === 'cobble' || f === 'dirt' || /road|street|lane|square|path|trail|track/i.test(name);
@@ -243,23 +856,231 @@ export class App {
       const area = (poly: Vec2[]) => Math.abs(poly.reduce((a, [x, z], i) => { const [x2, z2] = poly[(i + 1) % poly.length]; return a + x * z2 - x2 * z; }, 0)) / 2;
       const byFloor = new Map<string, number>(); for (const t of l0.terrain ?? []) if (['grass', 'snow', 'marsh', 'dirt', 'shallow-water'].includes(t.floor)) byFloor.set(t.floor, (byFloor.get(t.floor) ?? 0) + area(t.polygon as Vec2[]));
       const ground = [...byFloor.entries()].sort((a, b) => b[1] - a[1])[0]?.[0];
+      this.groundFt = l0.elevationFt;
       this.backdrop = buildBackdrop({ ground: ground === 'shallow-water' || ground === 'dirt' ? undefined : ground, center: [(bb.minX + bb.maxX) / 2, (bb.minZ + bb.maxZ) / 2], radius: Math.hypot(bb.maxX - bb.minX, bb.maxZ - bb.minZ) / 2, elevation: l0.elevationFt, pin: pin!.pos as Vec2, world: worldOf(this.campaign), theme: this.campaign.theme, valley: !!scene.valley, bounds: bb, north: l0.north, roads, crag: pin!.heightFt ?? 0, clearing: scene.clearingFt ?? (scene.parent ? 1100 : undefined) }); // an area map inside a town keeps the town's ground clear
-      this.world.scene.add(this.backdrop);
+      loaded.root.add(this.backdrop); // the land round the map is in the map's own frame
     }
     // An area map stands in its surroundings: the parent map's streets, houses and trees round it, as scenery.
     if (scene.parent) void this.buildContext(path, scene, l0);
+  }
+
+  /** The current map comes alive: fog and light for where it stands, the party's place on the world map, its tokens,
+   *  its level; framed (or flown to) if asked. Looking is not travelling: an open (a place's name, the world map's
+   *  disc, a crumb, the library, a reload) moves the camera and gives the map the party's token (`token`), but the
+   *  party's place on the world map and its trail change only on an explicit travel (`travel`; the drag of the
+   *  party's '&' in ui/worldnest.ts and ui/worldmap.ts calls moveWorld itself), or when the party has no place yet
+   *  (a new campaign starts where its first map is, with no trail behind it). */
+  activate(loaded: Loaded, opts: { levelId?: string; frame?: boolean | 'fly'; travel?: boolean; token?: boolean } = {}): void {
+    this.cur = loaded;
+    const { scene, levels } = loaded, path = loaded.path, levelId = opts.levelId;
+    // The world-map marker follows the party into whichever pin this scene belongs to.
+    const pin = pinForScene(path) ?? (scene.parent ? pinForScene(scene.parent) : undefined);
+    const l0 = scene.levels.find((l) => l.terrain?.length) ?? scene.levels[0], outdoor = !!pin && !!l0.terrain?.length && (l0.ambient ?? scene.ambient) !== 'darkness';
     const span = Math.hypot(bounds(l0.rooms.map((r) => r.polygon).concat((l0.terrain ?? []).map((t) => t.polygon))).maxX - bounds(l0.rooms.map((r) => r.polygon).concat((l0.terrain ?? []).map((t) => t.polygon))).minX, 1);
     this.world.fogScale = outdoor ? Math.min(1, 900 / span) : 1;
     this.world.setOutdoor(outdoor);
     this.applySky();
-    if (pin && this.state.world?.key !== pin.key) this.moveWorld([...pin.pos] as Vec2, pin.key, this.state.world ? Math.hypot(this.state.world.pos[0] - pin.pos[0], this.state.world.pos[1] - pin.pos[1]) : 0, false);
-    this.ensureDefaultToken();
-    this.setLevel(levelId && levels.has(levelId) ? levelId : scene.entry && levels.has(scene.entry) ? scene.entry : scene.levels[0].id, true);
+    // the party's place on the world map: an explicit travel, or its first place when an open finds it has none yet
+    // (never the camera looking at a map)
+    const travel = opts.travel ?? false, token = opts.token ?? true;
+    if (pin && (travel || (token && !this.state.world)) && this.state.world?.key !== pin.key) this.moveWorld([...pin.pos] as Vec2, pin.key, this.state.world ? Math.hypot(this.state.world.pos[0] - pin.pos[0], this.state.world.pos[1] - pin.pos[1]) : 0, false);
+    if (token) this.ensureDefaultToken();
+    const id = levelId && levels.has(levelId) ? levelId : scene.entry && levels.has(scene.entry) ? scene.entry : scene.levels[0].id;
+    this.setLevel(id, opts.frame === true);
+    if (opts.frame === 'fly') this.frameLevel(this.camPreset, true);
+    this.syncStage();
     this.onChange?.();
+  }
+
+  /** A place's name was tapped in the valley (the DM's view): main.ts opens its map, which flies there. */
+  onPlacePick: ((path: string) => void) | null = null;
+
+  /** In the valley the camera's target rides on the ground: off the open map it follows the land (a pan onto a
+   *  mountain lifts it), so zooming in there comes down onto the ground and never under it. On the map the level's
+   *  floor holds it, as always. */
+  followGround(): void {
+    const st = this.stage, c = this.cur; if (!st || !this.staged || !c || this.world.flying || this.renderMode !== 'normal') return;
+    // (the whole map: a building's every floor, an abbey's ledge 400 ft over the foot of its cliff)
+    const w = this.world, t = w.controls.target, p = this.toLocal3(t), e = wholeExtent(c.scene);
+    if (p.x >= e.minX - 20 && p.x <= e.maxX + 20 && p.z >= e.minZ - 20 && p.z <= e.maxZ + 20) return;
+    // off a building but over its town: the town's ground holds it
+    let y = NaN;
+    for (const up of this.chainOf(c.path)) {
+      const u = this.resident.get(up); if (!u) continue;
+      const g = groundOf(u.scene), b = extentOf(g), q = u.root.worldToLocal(t.clone());
+      if (q.x >= b.minX - 20 && q.x <= b.maxX + 20 && q.z >= b.minZ - 20 && q.z <= b.maxZ + 20) { y = u.root.localToWorld(new THREE.Vector3(q.x, g.elevationFt, q.z)).y; break; }
+    }
+    if (!Number.isFinite(y)) { const abs = w.toAbsolute(t); y = st.groundAt(abs.x, abs.z) - w.anchor.y; }
+    if (!Number.isFinite(y) || Math.abs(y - t.y) < 1) return;
+    w.camera.position.y += y - t.y; t.y = y;
+    w.camera.updateMatrixWorld(); w.invalidate();
+  }
+
+  /** The valley follows the table: labels by what the players know, the party's marker where it stands. */
+  syncStage(): void {
+    const st = this.stage; if (!st || !this.staged) return;
+    st.setParty(this.partyMark());
+    st.trail = (this.state.world?.trail ?? []).slice(-12).map((t) => t.pos);
+    st.onView({ restricted: this.playersSide, revealed: this.pinsRevealed });
+    this.syncSecrets();
+  }
+  /** The players' side never sees a place it does not know: a map the valley holds (streamed in as the camera passed)
+   *  whose place is not revealed is not drawn for them, unless it is the open map or one it stands in. The DM sees
+   *  them all. (Its proxy, its label and its symbol go too: worldstage.ts.) */
+  private syncSecrets(): void {
+    const rev = this.pinsRevealed, keep = new Set(this.cur ? [this.cur.path, ...this.chainOf(this.cur.path)] : []);
+    for (const r of this.resident.values()) {
+      if (r.root.parent !== this.world.root) continue; // (a building hangs in its town and goes with it)
+      const key = ATLAS.scenes[r.path]?.pin, secret = this.playersSide && !!key && !rev.has(key) && !keep.has(r.path);
+      if (!!r.root.userData.secret !== secret) { r.root.userData.secret = secret; veil(r.root, 'secret', secret); this.world.invalidate(); }
+    }
+  }
+  /** Where the party's '&' stands on the land (absolute feet), or null where the party's own token shows: on the active
+   *  map while it is drawn. On a ghost (the party's map drawn but not active) it stands on the party token's spot;
+   *  otherwise on the party's place on the world map. */
+  private partyMark(): { at: Vec2; y?: number } | null {
+    const w = this.state.world; if (!w) return null;
+    const root = w.key ? ATLAS.pins.find((p) => p.campaign === this.campaign.id && p.key === w.key)?.root : undefined;
+    // the map the party was taken to, if the valley holds it (a building of the town), else the town
+    const path = this.home && this.resident.get(this.home) && (this.home === root || this.chainOf(this.home).includes(root ?? '')) ? this.home : root;
+    const r = path ? this.resident.get(path) : undefined;
+    // (far out, where the land is drawn as the world map, the '&' stands on the party's token: the token is too small to see)
+    if (r && r === this.cur && r.drawn && (this.stage?.carto.k ?? 0) < 0.5) return null;
+    const tok = r?.drawn ? this.state.tokens.find((t) => t.location === r.scene.location && t.role === 'party') : undefined;
+    const lv = tok && r ? r.scene.levels.find((l) => l.id === tok.level) : undefined;
+    if (r && tok && lv) {
+      const v = r.root.localToWorld(new THREE.Vector3(tok.pos[0], lv.elevationFt, tok.pos[1])), a = this.world.toAbsolute(v);
+      return { at: [a.x, a.z], y: a.y };
+    }
+    return { at: worldOfMiles(worldOf(this.campaign), w.pos) };
+  }
+
+  // ------------------------------------------------------------------ nesting: in and out of a town's buildings
+
+  /** The map this one belongs to: its parent, else the town its world-map place opens first (Death House and the
+   *  church stand in the village). Undefined on a top-level map. */
+  get parentPath(): string | undefined {
+    const c = this.cur; if (!c) return undefined;
+    // in the valley: the map it hangs in, by the atlas (a pin's root map hangs in the valley itself: the breadcrumb)
+    if (this.staged) { const e = ATLAS.scenes[c.path]; return e?.depth && e.parent && this.resident.has(e.parent) ? e.parent : undefined; }
+    if (c.scene.parent) return builtPaths.has(c.scene.parent) ? c.scene.parent : undefined;
+    const first = pinForScene(c.path)?.scenes?.[0];
+    return first && first !== c.path && builtPaths.has(first) ? first : undefined;
+  }
+
+  /** Enter: open the map a room of this one opens, remembering that room. */
+  async enter(path: string, fromKey: string): Promise<void> {
+    if (this.cur) this.enteredFrom = { parent: this.cur.path, level: this.levelId, key: fromKey, child: path };
+    await this.open(path);
+  }
+
+  /** The room of a parent map that opens a child map: the one the DM entered from, else one on the level that stands
+   *  at the height of the child's ground floor (Krezk's ledge for the abbey), else the first that opens it. */
+  anchorIn(par: SceneFile, parPath: string, path: string, scene: SceneFile): { level: Level; room: Room } | undefined {
+    const e = this.enteredFrom;
+    if (e && e.parent === parPath && e.child === path) {
+      const l = par.levels.find((x) => x.id === e.level), r = l?.rooms.find((x) => x.key === e.key && x.enter === path);
+      if (l && r) return { level: l, room: r };
+    }
+    const ground = (scene.levels.find((l) => l.id === scene.entry) ?? scene.levels[0]).elevationFt;
+    const opens = par.levels.flatMap((l) => l.rooms.filter((r) => r.enter === path).map((room) => ({ level: l, room })));
+    const pick = (xs: typeof opens) => xs.find((x) => x.room.key === scene.location) ?? xs[0];
+    return pick(opens.filter((x) => Math.abs(x.level.elevationFt - ground) < 1)) ?? pick(opens);
+  }
+
+  /** Up one level: open the map this one belongs to, framed on the room that opens this one, at about this map's span,
+   *  on that room's level, with the same compass heading. Without such a room the parent opens as usual. */
+  async openParent(): Promise<boolean> {
+    const cur = this.cur, up = this.parentPath; if (!cur || !up) return false;
+    if (this.staged) return this.climb(up); // in the valley: the camera pulls back and the town takes over
+    const par = await loadLocation(up).catch(() => undefined);
+    const at = par && this.anchorIn(par.scene, up, cur.path, cur.scene);
+    const l0 = groundOf(cur.scene), ext = extentOf(l0);
+    const heading = this.world.controls.getAzimuthalAngle() + northTurn(l0.north, at?.level.north);
+    await this.open(up, at?.level.id);
+    if (!at || this.cur?.path !== up) return true;
+    const [cx, cz] = centroidOf(at.room.polygon), hw = (ext.maxX - ext.minX) / 2, hd = (ext.maxZ - ext.minZ) / 2;
+    this.frameBox({ minX: cx - hw, minZ: cz - hd, maxX: cx + hw, maxZ: cz + hd }, at.level.elevationFt, this.camPreset, false, heading - this.world.controls.getAzimuthalAngle());
+    this.onChange?.();
+    return true;
+  }
+
+  /** Up the nesting in the valley, without opening anything: the camera glides out to a map this one hangs in and
+   *  that map becomes the active one (looking is not travelling: the party stays). `keep` frames it on the place left
+   *  (the building stays drawn, small, in its street: Back); otherwise it frames the whole of its open-air level (a
+   *  breadcrumb). Resolves once the map is active. */
+  async climb(path: string, keep = true): Promise<boolean> {
+    const cur = this.cur, up = this.resident.get(path);
+    if (!cur || !up || !this.staged || cur === up) return cur === up;
+    const g = groundOf(up.scene), seq = ++this.navSeq; // (the latest request wins: an open still loading is dropped)
+    this.cancelSwitch();
+    if (keep) {
+      // over the place just left, pulled back until it is half way between taking the role and giving it back
+      // (render/streamer.ts enterPx, leavePx): it stays drawn in its street, small, and the town is the active map
+      const f = extentOf(groundOf(cur.scene)), y = groundOf(cur.scene).elevationFt, w = this.world;
+      const mid = up.root.worldToLocal(cur.root.localToWorld(new THREE.Vector3((f.minX + f.maxX) / 2, y, (f.minZ + f.maxZ) / 2)));
+      const at = up.root.localToWorld(new THREE.Vector3(mid.x, g.elevationFt, mid.z));
+      const rc = w.renderer.domElement.getBoundingClientRect(), scr = Math.min(rc.width, rc.height) || 768;
+      const focal = (rc.height || 768) / 2 / Math.tan(THREE.MathUtils.degToRad(w.camera.fov / 2));
+      const site = { depth: ATLAS.scenes[cur.path]?.depth ?? 1, units: 1 }, px = (enterPx(site, scr) + leavePx(site, scr)) / 2;
+      const x = ATLAS.scenes[cur.path]?.extent ?? f; // (the streamer measures a child by its whole stack)
+      w.flyTo(at, Math.hypot(x.maxX - x.minX, x.maxZ - x.minZ) * focal / px);
+    } else {
+      // its open-air level whole, or, when that is much bigger than a town (Vallaki's level runs out over its fields
+      // for a mile and more), the town round the place just left, at a span its streets read at
+      let box: Bounds = extentOf(g);
+      const x = ATLAS.scenes[cur.path]?.extent ?? extentOf(groundOf(cur.scene));
+      const span = Math.max(CRUMB_TOWN_FT, 6 * Math.hypot(x.maxX - x.minX, x.maxZ - x.minZ));
+      if (Math.max(box.maxX - box.minX, box.maxZ - box.minZ) > 2 * span) {
+        const m = up.root.worldToLocal(cur.root.localToWorld(new THREE.Vector3((x.minX + x.maxX) / 2, 0, (x.minZ + x.maxZ) / 2)));
+        box = { minX: m.x - span / 2, minZ: m.z - span / 2, maxX: m.x + span / 2, maxZ: m.z + span / 2 };
+      }
+      const c = up.root.localToWorld(new THREE.Vector3((box.minX + box.maxX) / 2, g.elevationFt, (box.minZ + box.maxZ) / 2)), hw = (box.maxX - box.minX) / 2, hd = (box.maxZ - box.minZ) / 2;
+      this.world.frame({ minX: c.x - hw, minZ: c.z - hd, maxX: c.x + hw, maxZ: c.z + hd }, c.y, this.camPreset, 'fly');
+    }
+    await this.world.settled();
+    if (seq !== this.navSeq || this.resident.get(path) !== up) return false;
+    if (!up.drawn) this.fold(path, false);
+    this.switchActive(up);
+    // the role changes once the town's tint has glided off (render/ghost.ts)
+    const end = performance.now() + 3000;
+    while (this.cur !== up && performance.now() < end && seq === this.navSeq) await new Promise((r) => setTimeout(r, 40));
+    this.streamer.tick();
+    return this.cur === up;
+  }
+  /** Where the active map hangs, from the whole valley down to the floor shown: the breadcrumb. */
+  crumbs(): { label: string; path?: string; level?: string; kind: 'valley' | 'map' | 'level' }[] {
+    const c = this.cur; if (!c) return [];
+    // the legacy way: one map alone in the mist, its name as the title always showed it
+    if (!this.staged) return [{ label: c.scene.name, path: c.path, kind: 'map' }];
+    const short = (n: string) => n.replace(/^The /, '');
+    const out: ReturnType<App['crumbs']> = [];
+    {
+      out.push({ label: short(worldOf(this.campaign).name).replace(/^Lands of /, ''), kind: 'valley' });
+      for (const p of [...this.chainOf(c.path)].reverse()) { const u = this.resident.get(p); out.push({ label: short(u?.scene.name ?? ATLAS.scenes[p]?.name ?? p), path: p, kind: 'map' }); }
+    }
+    out.push({ label: short(c.scene.name), path: c.path, kind: 'map' });
+    // (a level named as its map, Krezk's 'Village of Krezk', is the map itself: no second crumb)
+    const same = (a: string, b: string) => short(a).toLowerCase() === short(b).toLowerCase();
+    if (c.scene.levels.length > 1 && !same(this.level.name, c.scene.name)) out.push({ label: this.level.name, path: c.path, level: this.levelId, kind: 'level' });
+    return out;
+  }
+  /** A breadcrumb was tapped: frame that scope (the whole valley, a map the active one hangs in, the active map, its
+   *  floor), flying there; a map up the chain becomes the active one. */
+  async goCrumb(i: number): Promise<void> {
+    const k = this.crumbs()[i]; if (!k) return;
+    if (k.kind === 'valley') { this.stage?.frameWorld('fly'); return; }
+    if (k.path && k.path !== this.cur?.path) { await this.climb(k.path, false); return; }
+    if (k.kind === 'level') { this.frameLevel(this.camPreset, true); return; }
+    // the map itself: its open-air level whole
+    const g = groundOf(this.cur!.scene);
+    if (g.id !== this.levelId && !this.cur!.scene.stacked) this.setLevel(g.id);
+    this.frameBox(extentOf(g), g.elevationFt, this.camPreset, 'fly');
   }
 
   setLevel(id: string, frame = false): void {
     if (!this.cur) return;
+    if (this.cur.path === this.home) this.homeLevel = id;
     if (this.levelId !== id && this.cutFt !== undefined && !this.keepCut) this.cutFt = undefined;
     this.levelId = id;
     // Stacked sites (a house, a treehouse, a tower) show every level at once; the section cut hides what is above.
@@ -271,19 +1092,29 @@ export class App {
     fogUniforms.uCovTex.value = this.cur.covTex.get(id)!;
     fogUniforms.uCovOrigin.value.set(cov.originX, cov.originZ);
     fogUniforms.uCovSize.value.set(cov.widthFt, cov.heightFt);
-    this.world.mistFloor.position.y = this.level.elevationFt - 1.2;
-    this.world.mistFloor.visible = !this.backdrop && this.world.fogOn;
+    this.syncPlacement();
+    this.world.mistFloor.position.copy(this.toWorld3(0, this.level.elevationFt - 1.2, 0));
+    this.world.mistFloor.visible = !this.backdrop && !this.staged && this.world.fogOn; // in the valley the land is the floor
+    this.syncUnderground(); // (but not under it: a dungeon below its town stands in the mist)
+    this.syncContext();
     this.syncTokens();
     this.recompute();
     if (frame) this.frameLevel();
     this.onChange?.();
   }
 
+  /** The height of the ground the land beyond the map is drawn at (the level that meets the open air). */
+  private groundFt = 0;
+  /** The plan box of the current stack's floors below that ground (render/backdrop.ts, underBox). */
+  private belowGround(): { minX: number; minZ: number; maxX: number; maxZ: number } | null {
+    const stack = this.stackOf(this.levelId);
+    return underBox(this.cur!.scene.levels.filter((l) => stack.has(l.id)), this.groundFt);
+  }
   /** The floors that stand on one another around a level: each one's ceiling meets the next one's floor.
    *  A house and the dungeon dug under its garden are two stacks; an open site (a tower) is one. */
-  stackOf(id: string): Set<string> {
-    const ls = this.cur!.scene.levels, out = new Set<string>([id]);
-    if (this.cur!.scene.stacked === 'open') { for (const l of ls) out.add(l.id); return out; }
+  stackOf(id: string, scene: SceneFile = this.cur!.scene): Set<string> {
+    const ls = scene.levels, out = new Set<string>([id]);
+    if (scene.stacked === 'open') { for (const l of ls) out.add(l.id); return out; }
     const top = (l: Level) => l.elevationFt + (l.ceilingFt ?? 10);
     const meets = (a: Level, b: Level) => Math.abs(top(a) - b.elevationFt) <= 3 || Math.abs(top(b) - a.elevationFt) <= 3;
     for (let grew = true; grew;) { grew = false; for (const l of ls) if (!out.has(l.id) && ls.some((o) => out.has(o.id) && meets(o, l))) { out.add(l.id); grew = true; } }
@@ -293,7 +1124,7 @@ export class App {
   get level(): Level { return this.cur!.scene.levels.find((l) => l.id === this.levelId)!; }
   get built(): BuiltLevel { return this.cur!.levels.get(this.levelId)!; }
 
-  frameLevel(preset = this.camPreset): void {
+  frameLevel(preset = this.camPreset, fly = false): void {
     this.camPreset = preset;
     const l = this.level;
     // A stacked site frames the current floor's footprint: the floors above and below share it (a tower,
@@ -302,8 +1133,54 @@ export class App {
     const whole = this.cur!.scene.stacked && this.cutFt !== undefined && this.cutFt !== null && this.sectionRange && this.cutFt >= this.sectionRange.max - 1;
     const polys = whole ? [...this.stackOf(l.id)].flatMap((id) => this.cur!.scene.levels.find((x) => x.id === id)!.rooms.map((r) => r.polygon)) : l.rooms.map((r) => r.polygon);
     const b = bounds(polys);
-    this.world.controls.maxDistance = Math.max(400, Math.hypot(b.maxX - b.minX, b.maxZ - b.minZ) * 2.5);
-    this.world.frame(b, l.elevationFt, preset);
+    if (!this.world.nested) {
+      // An area map pulls back far enough to show some of the parent's surroundings drawn round it (buildContext's reach).
+      const e = extentOf(l), reach = this.cur!.scene.parent ? (Math.max(e.maxX - e.minX, e.maxZ - e.minZ) / 2 + CONTEXT_FT) * 1.25 : 0;
+      this.world.controls.maxDistance = Math.max(400, Math.hypot(b.maxX - b.minX, b.maxZ - b.minZ) * 2.5, reach);
+    }
+    this.frameBox(b, l.elevationFt, preset, fly ? 'fly' : false);
+  }
+
+  // ------------------------------------------------------------------ the scene's placement in the world
+
+  /** Scene → drawn (anchored world) coordinates: the active scene root's matrixWorld, and its inverse. Every
+   *  conversion between what the table works in (scene feet, per level) and what the camera sees goes through these. */
+  readonly placement = new THREE.Matrix4();
+  readonly placementInv = new THREE.Matrix4();
+  /** Re-read the active scene's placement and hand the shaders the matching coverage basis. */
+  syncPlacement(): void {
+    const r = this.cur?.root;
+    if (r) { r.updateWorldMatrix(true, false); this.placement.copy(r.matrixWorld); } else this.placement.identity();
+    this.placementInv.copy(this.placement).invert();
+    covBasisOf(this.placement, fogUniforms.uCovBasis.value);
+  }
+  /** A scene plan point as drawn (anchored world xz). */
+  toWorld(p: Vec2): Vec2 { const v = new THREE.Vector3(p[0], 0, p[1]).applyMatrix4(this.placement); return [v.x, v.z]; }
+  /** A drawn (anchored world) xz point in scene feet. */
+  toLocal(p: Vec2): Vec2 { const v = new THREE.Vector3(p[0], 0, p[1]).applyMatrix4(this.placementInv); return [v.x, v.z]; }
+  toWorld3(x: number, y: number, z: number): THREE.Vector3 { return new THREE.Vector3(x, y, z).applyMatrix4(this.placement); }
+  toLocal3(v: THREE.Vector3): THREE.Vector3 { return v.clone().applyMatrix4(this.placementInv); }
+  /** How far the scene's floor 0 is lifted in the drawn frame (placements only turn about y, so planes stay level). */
+  get placementY(): number { return this.placement.elements[13]; }
+  /** The horizontal plane of a scene height, as drawn. */
+  private planeAt(y: number): THREE.Plane { return new THREE.Plane(new THREE.Vector3(0, 1, 0), -(y + this.placementY)); }
+  /** Frame a box given in scene feet: its centre is placed, its size (what the fit reads) does not change with a turn. */
+  frameBox(b: { minX: number; minZ: number; maxX: number; maxZ: number }, y: number, preset: CameraPreset, animate: boolean | 'fly' = false, azimuthDelta = 0): void {
+    const c = this.toWorld3((b.minX + b.maxX) / 2, y, (b.minZ + b.maxZ) / 2), hw = (b.maxX - b.minX) / 2, hd = (b.maxZ - b.minZ) / 2;
+    this.world.frame({ minX: c.x - hw, minZ: c.z - hd, maxX: c.x + hw, maxZ: c.z + hd }, c.y, preset, animate, azimuthDelta);
+  }
+  /** Test hook: stand the active scene at an absolute world position, turned about y, and (by default) anchor the
+   *  floating origin on it, as the continuous world will. The camera keeps its view of the scene. */
+  setPlacement(abs: [number, number, number], rotationY: number, reanchor = true): void {
+    if (!this.cur) return;
+    const look = this.toLocal3(this.world.controls.target), eye = this.toLocal3(this.world.camera.position);
+    this.cur.root.position.set(...abs); this.cur.root.rotation.set(0, rotationY, 0);
+    this.syncPlacement(); // before the reanchor: the root moved even if the origin does not
+    if (reanchor) this.world.reanchor(new THREE.Vector3(...abs)); else this.world.reanchor(new THREE.Vector3());
+    this.world.controls.target.copy(this.toWorld3(look.x, look.y, look.z)); this.world.camera.position.copy(this.toWorld3(eye.x, eye.y, eye.z));
+    this.world.camera.lookAt(this.world.controls.target); this.world.controls.update();
+    this.setLevel(this.levelId);
+    this.applySlider();
   }
 
   // ------------------------------------------------------------------ tokens
@@ -389,7 +1266,7 @@ export class App {
     const cur = this.current;
     if (cur && cur.token.level !== this.levelId) this.setLevel(cur.token.level);
     this.commit();
-    if (cur && this.follow) this.world.moveTo(new THREE.Vector3(cur.token.pos[0], this.level.elevationFt, cur.token.pos[1]), Math.min(this.world.camera.position.distanceTo(this.world.controls.target), 66), true);
+    if (cur && this.follow) this.world.moveTo(this.toWorld3(cur.token.pos[0], this.level.elevationFt, cur.token.pos[1]), Math.min(this.world.camera.position.distanceTo(this.world.controls.target), 66), true);
   }
   /** Tactical range of a combatant token from where it stands, with the movement it has left. */
   rangeOf(tokenId: string): RangeResult | undefined {
@@ -409,7 +1286,7 @@ export class App {
   private rangeFor?: RangeResult;
   /** Show the current combatant's ranges (per turn, in initiative only). */
   refreshRange(): void {
-    this.rangeMesh?.removeFromParent(); this.rangeMesh = undefined; this.rangeFor = undefined;
+    if (this.rangeMesh) disposeTree(this.rangeMesh); this.rangeMesh = undefined; this.rangeFor = undefined;
     const cur = this.current;
     // In initiative the current combatant's ranges show every turn; outside it the helper shows the picked-up token's.
     const tokenId = cur ? cur.token.id : this.rangeHelper && this.selected && !this.restricted ? this.selected : undefined;
@@ -423,6 +1300,10 @@ export class App {
   }
 
   roomAt(level: Level, p: Vec2) { return level.rooms.find((r) => pointInPolygon(p, r.polygon)); }
+  /** The room an object of the current level belongs to: its area key, else the room it stands in (a shaped piece by its outline). */
+  roomOf(o: SceneObject): Room | undefined { return (o.key ? this.level.rooms.find((r) => r.key === o.key) : undefined) ?? this.roomAt(this.level, o.polygon?.length ? centroidOf(o.polygon as Vec2[]) : [o.pos[0], o.pos[2]]); }
+  /** The map a room opens with Enter, when it is built: offered to the DM only. */
+  enterOf(room: Pick<Room, 'enter'> | undefined): string | undefined { return !this.restricted && room?.enter && builtPaths.has(room.enter) ? room.enter : undefined; }
 
   /** Rooms across levels matching a key or name fragment. */
   findRooms(q: string): { level: Level; room: Level['rooms'][number] }[] {
@@ -441,7 +1322,7 @@ export class App {
     const b = bounds([hit.room.polygon]);
     // On a placement layer a "room" is one 40-ft square: frame it with its neighbourhood, not its doorstep.
     const pad = this.cur!.scene.placementFt ? this.cur!.scene.placementFt * 1.5 : 0;
-    this.world.frame({ minX: b.minX - pad, minZ: b.minZ - pad, maxX: b.maxX + pad, maxZ: b.maxZ + pad }, hit.level.elevationFt, this.camPreset, true);
+    this.frameBox({ minX: b.minX - pad, minZ: b.minZ - pad, maxX: b.maxX + pad, maxZ: b.maxZ + pad }, hit.level.elevationFt, this.camPreset, true);
     this.flashKey = hit.room.key;
     this.onChange?.();
     return true;
@@ -456,7 +1337,7 @@ export class App {
     const l = this.level;
     // Close working distance: the party's room and its neighbours fill the screen.
     const dist = Math.min(this.world.camera.position.distanceTo(this.world.controls.target), 66); // ~same on-screen size as before at the wider 40° lens
-    this.world.moveTo(new THREE.Vector3(t.pos[0], l.elevationFt, t.pos[1]), dist, animate);
+    this.world.moveTo(this.toWorld3(t.pos[0], l.elevationFt, t.pos[1]), dist, animate);
   }
 
   /** Is this object currently shown to players (class + reveals + coverage)? */
@@ -523,7 +1404,10 @@ export class App {
 
   private syncTokens(): void {
     const b = this.built;
-    for (const [id, g] of this.cur!.tokens) { g.traverse((c) => { const e = (c as CSS2DObject).element; if (e instanceof HTMLElement) e.remove(); }); g.parent?.remove(g); this.cur!.tokens.delete(id); }
+    // the old figures are freed (their geometry and materials are their own); the selection ring rides on and comes back
+    const ringOn = this.selRing?.parent?.userData.tokenId as string | undefined;
+    this.selRing?.removeFromParent();
+    for (const [id, g] of this.cur!.tokens) { disposeTree(g); this.cur!.tokens.delete(id); }
     for (const t of this.tokensHere()) {
       if (t.role === 'creature' && t.hidden && this.restricted) continue; // not yet shown to the players
       const base = baseRingFt(t.size);
@@ -533,8 +1417,13 @@ export class App {
       g.add(baseRing(base, t.role === 'party' ? PARTY_RED : t.color), fig);
       if (t.role === 'party') { const amp = this.world.label('&', undefined, 'token party-amp'); amp.position.set(0, 7.6, 0); g.add(amp); }
       if (t.role === 'member' || t.role === 'creature') {
-        const lb = this.world.label(this.restricted ? (t.playerName ?? t.name) : t.name, undefined, `token${t.role === 'creature' ? ' creature' : ''}${t.hidden ? ' hidden' : ''}`);
-        lb.position.set(0, 7.2, 0); lb.element.style.setProperty('--tok', t.color); g.add(lb);
+        // The name goes through the players' projection (core/identity.ts): a hidden creature has no tag on the players'
+        // side, a revealed one its own alias, never its real or sheet name.
+        const f = playerFacing(t, { restricted: this.playersSide });
+        if (f.visible) {
+          const lb = this.world.label(f.name ?? t.name, undefined, `token${t.role === 'creature' ? ' creature' : ''}${t.hidden ? ' hidden' : ''}`);
+          lb.position.set(0, 7.2, 0); lb.element.style.setProperty('--tok', t.color); g.add(lb);
+        }
       }
       const ghostly = t.role === 'creature' && !!t.hidden; // the DM sees an unrevealed creature faintly
       g.traverse((c) => {
@@ -550,6 +1439,8 @@ export class App {
       b.root.add(g);
       this.cur!.tokens.set(t.id, g);
     }
+    const back = ringOn && this.selected === ringOn ? this.cur!.tokens.get(ringOn) : undefined;
+    if (back && this.selRing) back.add(this.selRing);
   }
 
   // ------------------------------------------------------------------ vision + slider
@@ -646,10 +1537,15 @@ export class App {
     const followCut = this.cur.scene.stacked === 'open' ? this.sectionRange!.max : this.level.elevationFt + (this.level.ceilingFt ?? 10) - 0.5;
     const cut = this.cur.scene.stacked ? (this.cutFt ?? followCut) : this.lowWalls ? this.level.elevationFt + WALL_CUT_FT : null;
     this.followCutFt = followCut;
-    setWallCut(cut);
+    setWallCut(cut === null ? null : cut + this.placementY); // the cut is a scene height; the clip plane is drawn space
+    // the land cut over the floors below ground: its planes are scene space too, and the land hangs in the placed frame
+    if (this.backdrop && this.cur.scene.stacked && this.cur.scene.landCut) cutLand(this.backdrop, landHole(this.belowGround(), cut !== null && cut < this.groundFt - 0.3 ? cut : null)?.map((pl) => pl.applyMatrix4(this.placement)) ?? null);
     // Roofs raised over authored walls (a shop's gable, a tower's cone) go whenever the walls are cut down to a cutaway,
     // and come back with full walls; on stacked sites the section plane slices them instead.
     if (!this.cur.scene.stacked) for (const b2 of this.cur.levels.values()) b2.root.traverse((o) => { if (o.userData.cap) o.visible = !this.lowWalls; });
+    // a map that is not stacked slices only its walls: the shared materials a stacked map's section plane took (a
+    // building that was active a moment ago, in its town) come back whole, or the town's houses would be cut open
+    if (!this.cur.scene.stacked) for (const b2 of this.cur.levels.values()) sectionClip(b2.root, false);
     this.declutter();
     if (this.cur.scene.stacked) for (const [lid, b] of this.cur.levels) {
       sectionClip(b.root, true);
@@ -667,6 +1563,10 @@ export class App {
     gridUniforms.uPxPerFt.value = px;
     const z = px < 2.8 ? 'far' : px < 6.4 ? 'mid' : 'near';
     if (document.body.dataset.zoom !== z) document.body.dataset.zoom = z;
+    // the continuous world's zoom bands (a separate attribute, so the far/mid/near rules keep matching)
+    const band = px < 0.02 ? 'valley' : px < 0.1 ? 'road' : px < 1 ? 'town' : 'map';
+    if (document.body.dataset.band !== band) document.body.dataset.band = band;
+    if (this.staged && this.stage) { this.stage.onView({ restricted: this.playersSide, revealed: this.pinsRevealed }); this.stage.setParty(this.partyMark()); }
     this.declutter();
   }
 
@@ -690,8 +1590,13 @@ export class App {
       }
     }));
   }
-  setT(t: number): void { this.t = t; this.applySlider(); }
-  setView(v: 'dm' | 'players'): void { this.view = v; this.tool = 'none'; this.clearRuler(); this.stopPlacing(); this.select(null); if (this.cur) { this.syncTokens(); this.recompute(); } this.applySlider(); this.onChange?.(); }
+  setT(t: number): void {
+    const was = this.playersSide;
+    this.t = t; this.applySlider();
+    // Into or out of the players' preview: token names follow the players' projection (or the DM's names again).
+    if (this.cur && was !== this.playersSide) { this.syncTokens(); this.syncStage(); }
+  }
+  setView(v: 'dm' | 'players'): void { this.view = v; this.tool = 'none'; this.clearRuler(); this.stopPlacing(); this.select(null); if (this.cur) { this.syncTokens(); this.recompute(); } this.applySlider(); this.restyleGhosts(); this.syncStage(); this.onChange?.(); }
 
   // ------------------------------------------------------------------ reveals
 
@@ -782,6 +1687,11 @@ export class App {
   }
   /** Players' side (Players view or the Player Display) is bound by walls; the DM moves freely. */
   get restricted(): boolean { return this.mode === 'player' || this.view === 'players'; }
+  /** What the players' side reads (cards, tips, the turn bar, token names): Players view, the Player Display, and the
+   *  slider at its players' end (t = 0, 'safe to point at players'). Moving and acting still follow `restricted`. */
+  get playersSide(): boolean { return this.restricted || this.t <= 0; }
+  /** The DM's stat line for a creature token from its one source (ui/creature.ts, cached once loaded). */
+  statLine?: (t: Token) => string | undefined;
   canWalkTo(from: Vec2, to: Vec2): boolean {
     if (!this.restricted) return true;
     const floor = this.cur!.grid.levels[this.levelId].floorPolygons.concat(this.level.rooms.map((r) => r.polygon));
@@ -794,11 +1704,13 @@ export class App {
     this.state.doorsOpen[k] = !(this.state.doorsOpen[k] ?? w?.open ?? false);
     this.commit();
   }
-  /** Move the party on the world map (miles); keeps a short trail of moves. */
+  /** Move the party on the world map (miles): an explicit travel (the drag of its '&' on the valley or the flat
+   *  sheet), never an open. Keeps a short trail of moves, drawn along the roads (render/worldstage.ts, drawTrail). */
   moveWorld(pos: Vec2, key: string | undefined, miles: number, save = true): void {
     const w = this.state.world, trail = [...(w?.trail ?? (w ? [{ pos: w.pos, key: w.key, miles: 0, at: Date.now() }] : [])), { pos, key, miles: Math.round(miles * 100) / 100, at: Date.now() }].slice(-50);
     this.state.world = { pos, key, trail };
     if (key) this.revealPin(key, true, false); // a place the party has been to is known to the players
+    this.syncStage();
     if (save) this.commit();
   }
   /** World-map places the players know. */
@@ -807,6 +1719,7 @@ export class App {
     const set = this.pinsRevealed; if (set.has(key) === on) return;
     if (on) set.add(key); else set.delete(key);
     this.state.worldRevealed = [...set];
+    this.syncStage();
     if (save) this.commit();
   }
   undo(): void { if (this.state.reveals.pop()) this.commit(); }
@@ -832,8 +1745,9 @@ export class App {
   applySky(): void {
     if (!this.cur) return;
     const l0 = this.cur.scene.levels.find((l) => l.terrain?.length) ?? this.cur.scene.levels[0];
-    this.world.setSky(this.sky, this.openAir(l0) && !!this.backdrop);
+    this.world.setSky(this.sky, this.openAir(l0) && (!!this.backdrop || this.staged));
     (this.backdrop?.userData.setMoon as ((p: number, n: boolean, h: number) => void) | undefined)?.(this.sky.phase, this.sky.night, this.clock.hour);
+    if (this.staged) this.stage?.setMoon(this.sky.phase, this.sky.night, this.clock.hour);
   }
 
   // ------------------------------------------------------------------ creatures: the repository on the map
@@ -843,7 +1757,7 @@ export class App {
   startPlacing(creatureId: string): void {
     this.placing = creatureId; this.placed = 0; this.select(null);
     const e = creatureById(creatureId);
-    this.setStatus(`Tap the map to place ${e?.name ?? 'it'} · Esc to stop`);
+    this.setStatus(this.playersSide ? 'Tap the map to place it · Esc to stop' : `Tap the map to place ${e?.name ?? 'it'} · Esc to stop`);
     this.onChange?.();
   }
   stopPlacing(): void { if (!this.placing) return; this.placing = null; this.setStatus(''); this.onChange?.(); }
@@ -905,34 +1819,37 @@ export class App {
   private floorPoint(e: PointerEvent): Vec2 | null {
     this.raycaster.setFromCamera(this.ndc(e), this.world.camera);
     const p = new THREE.Vector3();
-    const hit = this.raycaster.ray.intersectPlane(new THREE.Plane(new THREE.Vector3(0, 1, 0), -this.level.elevationFt), p);
-    return hit ? [p.x, p.z] : null;
+    const hit = this.raycaster.ray.intersectPlane(this.planeAt(this.level.elevationFt), p);
+    return hit ? this.toLocal([p.x, p.z]) : null;
   }
   /** The parent map's surroundings round an area map: what stands within a few hundred feet of the room that opens
-   *  this map, moved into this map's frame (offset and north), skipping whatever lies inside this map's own extent.
+   *  this map (the one the DM entered from: anchorIn), moved into this map's frame (offset and north) on this map's
+   *  level at that room's height, skipping whatever lies inside this map's own extent.
    *  Built with the same kit, muted a little toward the mist, never picked, never fogged, never cut. */
   private async buildContext(path: string, scene: SceneFile, l0: Level): Promise<void> {
     const par = await loadLocation(scene.parent!).catch(() => undefined);
     if (!par || this.cur?.path !== path) return;
     const KINDS = new Set(['house', 'church-building', 'temple', 'pine', 'oak', 'stump', 'well', 'fence', 'wagon', 'vardo', 'big-tent', 'mound', 'dais', 'pillory', 'brazier', 'campfire', 'trough', 'signpost', 'roof-gable', 'washline', 'bush', 'boulder', 'gravestone']);
-    const nvec = (n?: string): [number, number] => (n === '+z' ? [0, 1] : n === '-x' ? [-1, 0] : n === '+x' ? [1, 0] : [0, -1]);
-    for (const pl of par.scene.levels) {
-      const room = pl.rooms.find((r) => r.enter === path && r.key === scene.location) ?? pl.rooms.find((r) => r.enter === path);
-      if (!room) continue;
-      const pc: Vec2 = [room.polygon.reduce((a, p) => a + p[0], 0) / room.polygon.length, room.polygon.reduce((a, p) => a + p[1], 0) / room.polygon.length];
-      const bb = bounds([...l0.rooms.map((r) => r.polygon), ...(l0.terrain ?? []).map((t) => t.polygon)]);
+    const at = this.anchorIn(par.scene, scene.parent!, path, scene);
+    if (at) {
+      const { level: pl, room } = at;
+      // the surroundings stand at the room's height, round the level of this map that stands there (the abbey's ground floor on Krezk's ledge)
+      const cl = scene.levels.find((l) => Math.abs(l.elevationFt - pl.elevationFt) < 1) ?? l0;
+      const pc: Vec2 = centroidOf(room.polygon);
+      const bb = extentOf(cl);
       const bc: Vec2 = [(bb.minX + bb.maxX) / 2, (bb.minZ + bb.maxZ) / 2], pad = 8;
-      const np = nvec(pl.north), nb = nvec(l0.north), th = Math.atan2(nb[1], nb[0]) - Math.atan2(np[1], np[0]), c = Math.cos(th), sn = Math.sin(th);
+      const th = northTurn(cl.north, pl.north), c = Math.cos(th), sn = Math.sin(th);
       const tf = (p: number[]): [number, number] => { const x = p[0] - pc[0], z = p[1] - pc[1]; return [bc[0] + x * c - z * sn, bc[1] + x * sn + z * c]; };
       const inside = (p: [number, number]) => p[0] > bb.minX - pad && p[0] < bb.maxX + pad && p[1] > bb.minZ - pad && p[1] < bb.maxZ + pad;
-      const R = Math.max(bb.maxX - bb.minX, bb.maxZ - bb.minZ) / 2 + 450, near = (p: [number, number]) => Math.hypot(p[0] - bc[0], p[1] - bc[1]) < R;
+      const R = Math.max(bb.maxX - bb.minX, bb.maxZ - bb.minZ) / 2 + CONTEXT_FT, near = (p: [number, number]) => Math.hypot(p[0] - bc[0], p[1] - bc[1]) < R;
       const objects = pl.objects.filter((o) => KINDS.has(o.kind)).map((o) => { const q = tf([o.pos[0], o.pos[2]]); return { ...o, id: `ctx-${o.id}`, key: undefined, label: undefined, vis: 'player' as const, pos: [q[0], o.pos[1], q[1]] as [number, number, number], rotY: (o.rotY ?? 0) - (th * 180) / Math.PI }; })
         .filter((o) => { const q: [number, number] = [o.pos[0], o.pos[2]]; return near(q) && !inside(q); });
       const terrain = (pl.terrain ?? []).filter((t) => t.floor !== 'grass').map((t) => ({ ...t, polygon: t.polygon.map(tf) }))
         .filter((t) => { const cx = t.polygon.reduce((a, p) => a + p[0], 0) / t.polygon.length, cz = t.polygon.reduce((a, p) => a + p[1], 0) / t.polygon.length; return near([cx, cz]) && !t.polygon.every((p) => inside(p as [number, number])); });
       terrain.unshift({ polygon: [[bc[0] - R, bc[1] - R], [bc[0] + R, bc[1] - R], [bc[0] + R, bc[1] + R], [bc[0] - R, bc[1] + R]], floor: 'grass' } as (typeof terrain)[number]);
-      const lvl = { id: 'context', name: 'Surroundings', elevationFt: l0.elevationFt - 0.05, ceilingFt: 10, north: l0.north, rooms: [], walls: [], lights: [], objects, terrain } as unknown as Level;
+      const lvl = { id: 'context', name: 'Surroundings', elevationFt: cl.elevationFt - 0.05, ceilingFt: 10, north: cl.north, rooms: [], walls: [], lights: [], objects, terrain } as unknown as Level;
       const built = buildLevel(lvl, { floorPolygons: [], type: 'square', hexOrientation: 'pointy', origin: [0, 0], color: '#000000', opacity: 0 });
+      built.root.userData.anchor = { level: pl.id, key: room.key };
       const mist = new THREE.Color(this.world.theme.mist);
       built.root.traverse((o) => {
         const m = o as THREE.Mesh; if (!m.isMesh) return;
@@ -942,15 +1859,23 @@ export class App {
         o.userData.role = 'context';
       });
       built.root.name = 'context';
-      if (this.cur?.path !== path) return;
-      this.context = built.root; this.world.scene.add(built.root); this.world.invalidate();
+      if (this.cur?.path !== path) { disposeTree(built.root); return; } // the DM moved on while it was read
+      built.root.userData.groundFt = lvl.elevationFt;
+      this.context = built.root; this.cur.root.add(built.root); this.syncContext(); this.world.invalidate(); // in the area map's own frame
       return;
     }
   }
 
+  /** The surroundings stand on the parent's ground: a floor below it (a cellar, a dungeon) would be buried under the
+   *  parent's grass and houses, so they hide while such a floor is shown, and in the floor-mask render like the backdrop. */
+  private syncContext(): void {
+    if (!this.context || !this.cur) return;
+    this.context.visible = this.renderMode === 'normal' && this.level.elevationFt >= (this.context.userData.groundFt as number) - 1;
+  }
+
   private pick(e: PointerEvent): THREE.Intersection | undefined {
     this.raycaster.setFromCamera(this.ndc(e), this.world.camera);
-    const cut = this.lowWalls ? this.level.elevationFt + WALL_CUT_FT : Infinity;
+    const cut = (this.lowWalls ? this.level.elevationFt + WALL_CUT_FT : Infinity) + this.placementY; // hits are in drawn space
     return this.raycaster.intersectObject(this.built.root, true).find((h) => h.object.visible && (h.object as THREE.Mesh).isMesh && h.object.userData.role !== 'grid' && h.object.userData.role !== 'marker' && isShown(h.object)
       // The cutaway clips walls visually; ignore hits on the clipped-away part.
       && !((h.object.userData.role === 'wall' || h.object.userData.role === 'door') && h.point.y > cut + 0.01));
@@ -966,8 +1891,11 @@ export class App {
   private ruler?: { a: Vec2; b?: Vec2; line: THREE.Line; label: CSS2DObject };
   measureTap(p: Vec2): void {
     const at: Vec2 = [Math.round(p[0] * 2) / 2, Math.round(p[1] * 2) / 2];
-    if (!this.ruler || this.ruler.b) { this.clearRuler(); const geo = new THREE.BufferGeometry(); const line = new THREE.Line(geo, new THREE.LineBasicMaterial({ color: '#f2b35b', linewidth: 2 })); line.userData.role = 'marker'; line.renderOrder = 6; const label = this.world.label('', undefined, 'ruler'); this.world.scene.add(line, label); this.ruler = { a: at, line, label }; this.setStatus('Tap the other end'); this.rulerTo(at); return; }
-    this.ruler.b = at; this.rulerTo(at); this.setStatus(`${this.distanceFt(this.ruler.a, at)} ft · ${Math.round(this.distanceFt(this.ruler.a, at) / 5)} squares · tap to measure again`);
+    if (!this.ruler || this.ruler.b) { this.clearRuler(); const geo = new THREE.BufferGeometry(); const line = new THREE.Line(geo, new THREE.LineBasicMaterial({ color: '#f2b35b', linewidth: 2 })); line.userData.role = 'marker'; line.renderOrder = 6; const label = this.world.label('', undefined, 'ruler'); this.cur!.root.add(line, label); this.ruler = { a: at, line, label }; this.setStatus('Tap the other end'); this.rulerTo(at); return; }
+    this.ruler.b = at; this.rulerTo(at);
+    const ft = this.distanceFt(this.ruler.a, at), squares = Math.round(ft / 5);
+    // The readout's distance is a rules chip (main.ts) whose card names the diagonal rule the maths used.
+    this.setStatus(`${ft} ft · ${squares} squares · tap to measure again`, { ft, squares, rule: this.gridMode === 'hex' ? 'hex' : this.measureDiagonal() });
   }
   /** Stretch the ruler to a point (the preview end, or the fixed second end). */
   rulerTo(p: Vec2): void {
@@ -977,16 +1905,24 @@ export class App {
     const ft = this.distanceFt(a, p); r.label.position.set((a[0] + p[0]) / 2, y + 1.5, (a[1] + p[1]) / 2); r.label.element.textContent = `${ft} ft`; r.label.visible = ft > 0;
     this.world.invalidate();
   }
-  clearRuler(): void { if (!this.ruler) return; this.ruler.line.removeFromParent(); this.ruler.line.geometry.dispose(); this.ruler.label.element.remove(); this.ruler.label.removeFromParent(); this.ruler = undefined; this.world.invalidate(); }
+  clearRuler(): void { if (!this.ruler) return; this.ruler.line.removeFromParent(); this.ruler.line.geometry.dispose(); (this.ruler.line.material as THREE.Material).dispose(); this.ruler.label.element.remove(); this.ruler.label.removeFromParent(); this.ruler = undefined; this.world.invalidate(); }
   distanceFt(a: Vec2, b: Vec2): number {
     const g = this.cur!.grid.levels[this.levelId];
     if (this.gridMode === 'hex') { const s = hexSizeFromWidth(CELL_FT); return hexDistanceFt(worldToHex(a, s, g.hexOrientation, g.origin), worldToHex(b, s, g.hexOrientation, g.origin)); }
-    return squareDistanceFt(squareCellAt(a, g.origin), squareCellAt(b, g.origin), (localStorage.getItem('mistlab.diagonal') as 'five' | 'five-ten-five') ?? 'five');
+    return squareDistanceFt(squareCellAt(a, g.origin), squareCellAt(b, g.origin), this.measureDiagonal());
   }
+  /** The diagonal rule the measure tool uses (the setting 'mistlab.diagonal', 5 ft per diagonal by default). */
+  measureDiagonal(): 'five' | 'five-ten-five' { let v: string | null = null; try { v = localStorage.getItem('mistlab.diagonal'); } catch { /* no storage */ } return v === null || v === 'five' ? 'five' : 'five-ten-five'; }
 
   private installPointer(): void {
     const el = this.world.renderer.domElement;
     let drag: { kind: 'brush'; pts: Vec2[] } | { kind: 'tap'; x: number; y: number } | null = null;
+    // A gesture with a second finger (a pinch, a twist) is never a tap, even where one finger stayed put: on a place's
+    // name that would fly away mid-pinch.
+    const down = new Set<number>(); let multi = false;
+    const lifted = (e: PointerEvent) => { down.delete(e.pointerId); if (!down.size) setTimeout(() => { if (!down.size) multi = false; }); };
+    el.addEventListener('pointerdown', (e) => { down.add(e.pointerId); if (down.size > 1) multi = true; }, { capture: true });
+    el.addEventListener('pointerup', lifted); el.addEventListener('pointercancel', lifted);
     el.addEventListener('pointerdown', (e) => {
       if (this.mode === 'player' || !this.cur || e.button > 0) return;
       if (this.view === 'players' && this.tool !== 'none') this.tool = 'none';
@@ -1025,7 +1961,7 @@ export class App {
       if (d.kind === 'brush') {
         if (d.pts.length) this.state.reveals.push({ type: 'brush', location: this.cur!.scene.location, level: this.levelId, mode: this.tool === 'brush-fog' ? 'fog' : 'reveal', r: 3, pts: d.pts.map(([x, z]) => [Math.round(x * 10) / 10, Math.round(z * 10) / 10]) });
         this.commit();
-      } else if (Math.hypot(e.clientX - d.x, e.clientY - d.y) < 6) {
+      } else if (!multi && Math.hypot(e.clientX - d.x, e.clientY - d.y) < 6) {
         this.tap(e);
       }
     };
@@ -1055,10 +1991,17 @@ export class App {
   onSelect?: (id: string | null) => void;
   /** The compass and scale bar follow the camera. */
   onCameraUi: (() => void) | null = null;
+  /** A level's north includes its nested placement, just as the compass read-out does. */
+  alignNorth(): void {
+    const n = northVec(this.cur ? this.level.north : undefined);
+    this.world.alignNorth(new THREE.Vector3(n[0], 0, n[1]).transformDirection(this.placement));
+  }
   /** Where north points on screen (radians, 0 = up, clockwise) and how many pixels a foot covers at the target. */
   cameraFrame(): { north: number; pxPerFt: number } {
     const l = this.cur ? this.level : undefined, n = l?.north ?? '-z';
-    const nv = n === '+z' ? [0, 1] : n === '-x' ? [-1, 0] : n === '+x' ? [1, 0] : [0, -1];
+    const n0 = n === '+z' ? [0, 1] : n === '-x' ? [-1, 0] : n === '+x' ? [1, 0] : [0, -1];
+    // the level's north as drawn: the scene's placement turns it
+    const nd = new THREE.Vector3(n0[0], 0, n0[1]).transformDirection(this.placement), nv = [nd.x, nd.z];
     const az = this.world.controls.getAzimuthalAngle();
     // screen up is the direction from camera to target in plan: (-sin az, -cos az); north's screen angle is measured from it
     const upx = -Math.sin(az), upz = -Math.cos(az);
@@ -1078,14 +2021,14 @@ export class App {
   }
   /** Where the camera looks on the ground: the four screen corners dropped onto the level's floor plane (null where a corner sees sky). */
   cameraGround(): (Vec2 | null)[] {
-    const y = this.cur ? this.level.elevationFt : 0, plane = new THREE.Plane(new THREE.Vector3(0, 1, 0), -y), ray = new THREE.Raycaster();
+    const y = this.cur ? this.level.elevationFt : 0, plane = this.planeAt(y), ray = new THREE.Raycaster();
     return ([[-1, 1], [1, 1], [1, -1], [-1, -1]] as [number, number][]).map(([x, yy]) => {
       ray.setFromCamera(new THREE.Vector2(x, yy), this.world.camera); const hit = new THREE.Vector3();
-      return ray.ray.intersectPlane(plane, hit) ? [hit.x, hit.z] as Vec2 : null;
+      return ray.ray.intersectPlane(plane, hit) ? this.toLocal([hit.x, hit.z]) : null;
     });
   }
   /** Look at a plan point without changing height or heading. */
-  lookAt(p: Vec2): void { const t = this.world.controls.target; this.world.moveTo(new THREE.Vector3(p[0], t.y, p[1]), undefined, true); }
+  lookAt(p: Vec2): void { const t = this.world.controls.target, w = this.toWorld(p); this.world.moveTo(new THREE.Vector3(w[0], t.y, w[1]), undefined, true); }
   /** Called before a location closes, so menus, cards and tooltips can go too. */
   onLeave?: () => void;
   private makeRing(color: string, opacity: number): THREE.Mesh {
@@ -1102,7 +2045,7 @@ export class App {
     if (g.userData.at?.[0] === s[0] && g.userData.at?.[1] === s[1]) return;
     g.userData.at = s;
     const ok = this.canWalkTo(t.pos, s);
-    if (!g.parent) this.world.scene.add(g);
+    if (g.parent !== this.cur!.root) this.cur!.root.add(g); // in scene feet, like the tokens
     g.visible = true; g.position.set(s[0], this.level.elevationFt + 0.12, s[1]);
     (g.material as THREE.MeshBasicMaterial).color.set(ok ? PALETTE.amber : '#c0392b');
     this.setStatus(ok ? `${this.distanceFt(t.pos, s)} ft` : 'No way through');
@@ -1116,7 +2059,7 @@ export class App {
     const inInitiative = !!e && e.order.some((c) => c.tokenId === id);
     if (!inInitiative && t.role !== 'party' && !this.restricted) { /* the DM places people and monsters where the story needs them */ }
     else if (e && inInitiative) {
-      if (cur?.token.id !== id) { this.flashStatus(`Not ${t.name}'s turn`); return false; }
+      if (cur?.token.id !== id) { this.flashStatus(this.playersSide ? 'Not your turn' : `Not ${t.name}'s turn`); return false; }
       const cell = this.rangeFor?.move.find((m) => m.cell[0] === to[0] && m.cell[1] === to[1]);
       if (cell) e.movedFt += cell.costFt;
       else if (this.restricted) { this.flashStatus('Out of movement range'); return false; }
@@ -1133,24 +2076,50 @@ export class App {
 
   private hoverEvt?: PointerEvent;
   private hoverRaf = 0;
-  onHover?: (tip: { title: string; sub?: string } | null, x: number, y: number) => void;
+  /** Forget the hover still waiting for its frame. */
+  private dropHover(): void { this.hoverEvt = undefined; if (this.hoverRaf) cancelAnimationFrame(this.hoverRaf); this.hoverRaf = 0; }
+  onHover?: (tip: { title: string; sub?: string; enter?: string } | null, x: number, y: number) => void;
   /** Mouse hover: name what is under the cursor. The DM sees everything; players only what they can see. */
   private hover(e: PointerEvent): void {
     if (!this.cur || !this.onHover) return;
+    // a place's name over the valley: it lights up (the DM's) and its world-map tip shows (what it is; for the DM, the
+    // note, whether the players know it and where a tap goes)
+    const pin = this.pinAt(e), place = this.placeAt(e);
+    this.stage?.hoverLabel(place?.el ?? null);
+    this.world.renderer.domElement.style.cursor = pin && (place || this.onPinTap) ? 'pointer' : '';
+    if (pin && this.onPinHover) { this.onHover(null, e.clientX, e.clientY); this.onPinHover(pin.key, e.clientX, e.clientY); return; }
+    this.onPinHover?.(null, e.clientX, e.clientY);
+    if (place) { this.onHover({ title: place.el.dataset.tip ?? place.name, sub: place.el.dataset.tipSub }, e.clientX, e.clientY); return; }
     this.onHover(this.describe(e), e.clientX, e.clientY);
   }
-  describe(e: PointerEvent): { title: string; sub?: string } | null {
+  /** The world map's place tip (main.ts: the nested world map, ui/worldnest.ts): key null hides it. */
+  onPinHover: ((key: string | null, x: number, y: number) => void) | null = null;
+  /** A tap on a place in the valley (either side): the world map decides (fly in, or its card). Returns false to let
+   *  the app's own tap go on. */
+  onPinTap: ((key: string, path: string | undefined) => boolean) | null = null;
+  /** Any shown place (a pin's label) under a point, on either side, in the valley. */
+  pinAt(e: { clientX: number; clientY: number; pointerType?: string }): ReturnType<WorldStage['pinAt']> {
+    if (!this.stage || !this.staged || this.renderMode !== 'normal') return null;
+    return this.stage.pinAt(e.clientX, e.clientY, !!e.pointerType && e.pointerType !== 'mouse');
+  }
+  /** The place name a tap or the mouse is on, in the valley, for the DM (players' names fly nowhere). */
+  placeAt(e: { clientX: number; clientY: number; pointerType?: string }): ReturnType<WorldStage['labelAt']> {
+    if (!this.stage || !this.staged || this.mode !== 'dm' || this.restricted || this.renderMode !== 'normal') return null;
+    return this.stage.labelAt(e.clientX, e.clientY, !!e.pointerType && e.pointerType !== 'mouse');
+  }
+  describe(e: PointerEvent): { title: string; sub?: string; enter?: string } | null {
     const hit = this.pick(e), o = hit?.object, loc = this.cur!.scene.location, p = this.floorPoint(e);
     const room = p ? this.roomAt(this.level, p) : undefined;
     const where = room ? `${room.key} · ${room.name}` : undefined;
-    const players = this.restricted;
+    const players = this.playersSide;
     const tokId = o && findUp(o, 'tokenId');
     if (tokId) {
       const t = this.state.tokens.find((x) => x.id === tokId); if (!t) return null;
       if (t.role === 'creature') {
-        const en = t.creatureId ? creatureById(t.creatureId) : undefined, st = en && statsOf(en);
-        if (players) return t.hidden ? null : { title: t.playerName ?? t.name, sub: en ? seenAs(en) : undefined };
-        return { title: t.name, sub: [t.hidden ? 'Hidden from players' : `Players see: ${t.playerName ?? t.name}`, st ? `AC ${st.ac}` : '', t.hp ? `${t.hp.cur}/${t.hp.max} hp` : '', 'tap to pick up'].filter(Boolean).join(' · ') };
+        const en = t.creatureId ? creatureById(t.creatureId) : undefined;
+        if (players) { const f = playerFacing(t, { restricted: true }); return f.visible ? { title: f.name!, sub: en ? seenAs(en) : undefined } : null; }
+        // The DM's stat line comes from the creature's one source (the books' entry, else the module's numbers).
+        return { title: t.name, sub: [t.hidden ? 'Hidden from players' : `Players see: ${t.playerName ?? t.name}`, this.statLine?.(t) ?? '', t.hp ? `${t.hp.cur}/${t.hp.max} hp` : '', 'tap to pick up'].filter(Boolean).join(' · ') };
       }
       return { title: t.name, sub: this.selected === tokId ? 'Tap where it goes' : 'Tap to pick up and move' };
     }
@@ -1158,14 +2127,18 @@ export class App {
     const obj0 = oid ? this.level.objects.find((x) => x.id === oid) : undefined;
     // roofs and chimneys are scenery: hovering one describes the room beneath, not the roof
     const obj = obj0 && !['roof-gable', 'roof-cone', 'chimney'].includes(obj0.kind) ? obj0 : undefined;
-    if (obj0 && !obj) return room ? { title: players ? room.name : `${room.key} · ${room.name}` } : null;
+    // a thing names the room it stands in (as its tap card does), and the DM is told when that room can be entered
+    const own = obj0 ? this.roomOf(obj0) ?? room : room;
+    // at the slider's players' end a room the players have not found keeps its name to itself (as the tap menu does)
+    const enter = own && this.enterOf(own) ? (players && !this.isRevealed(own.key) ? 'Enter this place' : `Enter ${own.name}`) : undefined;
+    if (obj0 && !obj) return own ? { title: players ? own.name : `${own.key} · ${own.name}`, enter } : null;
     if (obj) {
       const ci = this.containerInfo(obj, players);
       const cs = ci ? (ci.open ? 'Open' : ci.locked ? (players ? 'Locked' : 'Locked · closed') : 'Closed · tap to open') : undefined;
       if (players) return this.playerCanSee(obj) ? { title: playerLabel(obj), sub: cs } : null;
       const rs = revealSets(this.state, loc);
       const vis = obj.vis === 'player' || !obj.vis ? undefined : `${obj.vis.replace('-', ' ')} · ${rs.objects.has(obj.id) ? 'revealed' : 'hidden from players'}`;
-      return { title: obj.label ?? kindName(obj.kind), sub: [cs, vis, where].filter(Boolean).join(' · ') || undefined };
+      return { title: obj.label ?? kindName(obj.kind), sub: [cs, vis, own ? `${own.key} · ${own.name}` : undefined].filter(Boolean).join(' · ') || undefined, enter };
     }
     const role = o?.userData.role as string | undefined;
     const wallId = o?.userData.wallId as string | undefined;
@@ -1187,8 +2160,20 @@ export class App {
       const glass = o?.userData.window;
       return { title: glass ? 'Window' : 'Wall', sub: where };
     }
-    if (room && (!players || this.isRevealed(room.key))) return { title: players ? room.name : `${room.key} · ${room.name}`, sub: players ? undefined : `${this.isRevealed(room.key) ? 'Revealed' : 'Not revealed'}${room.page ? ` · p.${room.page}` : ''}` };
+    if (room && (!players || this.isRevealed(room.key))) return { title: players ? room.name : `${room.key} · ${room.name}`, sub: players ? undefined : `${this.isRevealed(room.key) ? 'Revealed' : 'Not revealed'}${room.page ? ` · p.${room.page}` : ''}`, enter };
     return null;
+  }
+
+  /** What a tap tells the card about an object: the players' version (their label, no DM note) or the DM's. */
+  tapObject(obj: SceneObject, players: boolean): NonNullable<TapHit['object']> {
+    if (players) return { id: obj.id, label: playerLabel(obj), container: this.containerInfo(obj, true), vis: obj.vis, revealed: true, kind: obj.kind, desc: playerDesc(obj), visibleToPlayers: true };
+    const rs = revealSets(this.state, this.cur!.scene.location);
+    return { id: obj.id, label: obj.label ?? kindName(obj.kind), playerLabel: playerLabel(obj), container: this.containerInfo(obj, false), vis: obj.vis, revealed: rs.objects.has(obj.id), kind: obj.kind, desc: playerDesc(obj), dm: obj.dm, page: this.level.rooms.find((r) => r.key === obj.key)?.page, visibleToPlayers: this.playerCanSee(obj) };
+  }
+  /** What a tap tells the card about a room (the players' version carries no DM note and no page). */
+  tapRoom(room: Room, players: boolean): NonNullable<TapHit['room']> {
+    return players ? { key: room.key, name: room.name, revealed: true, desc: room.desc, enter: room.enter }
+      : { key: room.key, name: room.name, revealed: this.isRevealed(room.key), desc: room.desc, dm: room.dm, page: room.page, enter: room.enter };
   }
 
   private lastTap = 0;
@@ -1196,16 +2181,24 @@ export class App {
     // Moving is two deliberate taps: the token, then where it goes. A swipe never moves anyone.
     const tokHit = this.pick(e), fp = this.floorPoint(e);
     if (this.placing && !this.restricted) { if (fp) { this.addCreature(this.placing, fp); this.placed++; this.setStatus(`${this.placed} placed · tap for more · Esc to stop`); } return; }
+    // a place over the valley: the world map's (fly there and open its map, or its card), else fly there
+    // (a mouse's click comes with its own move, whose hover waits for the next frame: a tap the world map or a name
+    // takes drops it, or it would show the place's tip again after the tap hid it, and keep it through the flight)
+    const pin = this.pinAt(e);
+    if (pin && this.onPinTap?.(pin.key, pin.path)) { this.dropHover(); return; }
+    const place = this.placeAt(e);
+    if (place) { this.dropHover(); this.stage!.onPick?.(place.path); return; }
     // The figure is small from above: a tap anywhere on its base ring picks it up too.
     const tokId = (tokHit && findUp(tokHit.object, 'tokenId')) || (fp && this.tokensHere().filter((t) => this.playerSees(t) || !this.restricted).find((t) => Math.hypot(t.pos[0] - fp[0], t.pos[1] - fp[1]) <= baseRingFt(t.size) / 2 + 1)?.id);
     if (tokId) {
       const tk = this.state.tokens.find((x) => x.id === tokId)!;
       if (this.restricted && tk.role === 'creature') { // players may look, not move
-        const en = tk.creatureId ? creatureById(tk.creatureId) : undefined;
-        this.onTap?.({ pos: fp ?? tk.pos, token: { id: tk.id, name: tk.playerName ?? tk.name, desc: en ? seenAs(en) : undefined } }, e.clientX, e.clientY); return;
+        const en = tk.creatureId ? creatureById(tk.creatureId) : undefined, f = playerFacing(tk, { restricted: true });
+        if (!f.visible) return;
+        this.onTap?.({ pos: fp ?? tk.pos, token: { id: tk.id, name: f.name!, desc: en ? seenAs(en) : undefined, seenAsOf: en?.id } }, e.clientX, e.clientY); return;
       }
       const cur = this.current;
-      if (this.encounter && this.restricted && cur && cur.token.id !== tokId) { this.flashStatus(`Not ${this.state.tokens.find((x) => x.id === tokId)?.name ?? 'their'}'s turn`); return; }
+      if (this.encounter && this.restricted && cur && cur.token.id !== tokId) { this.flashStatus('Not your turn'); return; }
       this.select(this.selected === tokId ? null : tokId); return;
     }
     if (this.selected) {
@@ -1222,10 +2215,10 @@ export class App {
       // Players may look at what they can see: a description card, nothing else.
       const oid = hitObjectId(hit);
       const obj = oid ? this.level.objects.find((o) => o.id === oid) : undefined;
-      if (obj && this.onTap && this.playerCanSee(obj)) { this.onTap({ pos: [0, 0], object: { id: obj.id, label: playerLabel(obj), container: this.containerInfo(obj, true), vis: obj.vis, revealed: true, kind: obj.kind, desc: playerDesc(obj), visibleToPlayers: true } }, e.clientX, e.clientY); return; }
+      if (obj && this.onTap && this.playerCanSee(obj)) { this.onTap({ pos: [0, 0], object: this.tapObject(obj, true) }, e.clientX, e.clientY); return; }
       // A revealed room: its name and what the party notices there.
       const fp = this.floorPoint(e), room = fp && this.roomAt(this.level, fp);
-      if (room && this.onTap && this.isRevealed(room.key)) this.onTap({ pos: fp!, room: { key: room.key, name: room.name, revealed: true, desc: room.desc, enter: room.enter } }, e.clientX, e.clientY);
+      if (room && this.onTap && this.isRevealed(room.key)) this.onTap({ pos: fp!, room: this.tapRoom(room, true) }, e.clientX, e.clientY);
       return;
     }
     const sd = hit && (findUp(hit.object, 'secretDoor') ?? (hit.object.userData.role === 'door' ? this.built.secretDoors.find((s) => s.door === hit.object)?.objectId : undefined));
@@ -1234,14 +2227,16 @@ export class App {
     if (this.tool === 'none' && this.onTap) {
       const oid = hitObjectId(hit);
       const p = this.floorPoint(e);
-      const room = p && this.roomAt(this.level, p);
       const obj = oid ? this.level.objects.find((o) => o.id === oid) : undefined;
+      // A thing belongs to the room it stands in (its key, else its footing), not to the ground the ray meets behind it:
+      // a tap on a tall roof still names its site, and the card can offer that site's Enter.
+      const room = (obj && this.roomOf(obj)) || (p && this.roomAt(this.level, p));
       const pos = p ? ([p[0], p[1]] as Vec2) : ([0, 0] as Vec2);
       const rs = revealSets(this.state, this.cur!.scene.location);
-      const info: TapHit = { room: room ? { key: room.key, name: room.name, revealed: this.isRevealed(room.key), desc: room.desc, dm: room.dm, page: room.page, enter: room.enter } : undefined, pos,
+      const info: TapHit = { room: room ? this.tapRoom(room, false) : undefined, pos,
         door: wallId ? { wallId, open: !!(this.state.doorsOpen[`${this.cur!.scene.location}/${wallId}`] ?? this.level.walls.find((w) => w.id === wallId)?.open) } : undefined,
         secretDoor: sd ? { id: sd, revealed: rs.secretDoors.has(sd) } : undefined,
-        object: obj ? { id: obj.id, label: obj.label ?? kindName(obj.kind), playerLabel: playerLabel(obj), container: this.containerInfo(obj, false), vis: obj.vis, revealed: rs.objects.has(obj.id), kind: obj.kind, desc: playerDesc(obj), dm: obj.dm, page: this.level.rooms.find((r) => r.key === obj.key)?.page, visibleToPlayers: this.playerCanSee(obj) } : undefined };
+        object: obj ? this.tapObject(obj, false) : undefined };
       this.onTap(info, e.clientX, e.clientY);
       return;
     }
@@ -1264,23 +2259,28 @@ export class App {
   /** A status line that clears itself after a moment. */
   flashStatus(s: string): void { this.setStatus(s); clearTimeout(this.flashT); this.flashT = window.setTimeout(() => { if (this.status === s) this.setStatus(""); }, 2600); }
 
-  setStatus(s: string): void { this.status = s; this.onStatus?.(s); }
+  setStatus(s: string, measure?: MeasureResult): void { this.status = s; this.onStatus?.(s, measure); }
 
   // ------------------------------------------------------------------ Player Display sync
 
   private broadcast(): void {
     if (this.mode !== 'dm' || !this.cur) return;
-    this.channel.send({ kind: 'state', state: this.state, location: this.cur.path, level: this.levelId, ...(this.fresh ? { fresh: true } : {}) });
+    // the room the DM entered from travels too, so the display draws the surroundings round the same spot
+    const look = this.home && this.cur.path !== this.home ? { home: this.home, level: this.homeLevel } : undefined;
+    this.channel.send({ kind: 'state', state: this.state, location: this.cur.path, level: this.levelId, ...(this.fresh ? { fresh: true } : {}), from: this.enteredFrom?.child === this.cur.path ? this.enteredFrom : undefined, nested: this.nested, camLocked: this.lockPlayerCamera, look });
     this.fresh = false;
-    this.channel.send({ kind: 'layout', grid: this.gridMode === 'hex' ? 'hex' : 'square', gridOn: this.gridMode !== 'off', lowWalls: this.lowWalls, cut: this.cutFt ?? undefined, fog: this.world.fogOn });
+    this.channel.send({ kind: 'layout', grid: this.gridMode === 'hex' ? 'hex' : 'square', gridOn: this.gridMode !== 'off', lowWalls: this.lowWalls, cut: this.cutFt ?? undefined, fog: this.world.fogOn, nested: this.nested });
     this.sendCamera(true);
   }
-  layoutChanged(): void { this.applySlider(); this.broadcast(); }
+  layoutChanged(): void { this.applySlider(); this.restyleGhosts(); this.broadcast(); }
+  /** The ghosts follow what the active map would show (low or full walls; Players view hides interiors). */
+  private restyleGhosts(): void { for (const r of this.resident.values()) if (r !== this.cur && r.ghost?.on) this.ghostify(r, r.ghost.tint); this.syncNest(); }
 
   private sendCamera(now = false): void {
     if (this.mode !== 'dm' || !this.lockPlayerCamera) return;
     const send = () => {
-      const c = this.world.camera.position, t = this.world.controls.target;
+      // absolute world feet: each end draws round its own anchor
+      const c = this.world.toAbsolute(this.world.camera.position), t = this.world.toAbsolute(this.world.controls.target);
       this.channel.send({ kind: 'camera', pos: [c.x, c.y, c.z], target: [t.x, t.y, t.z], locked: true });
     };
     if (now) return send();
@@ -1288,21 +2288,58 @@ export class App {
     this.camTimer = window.setTimeout(() => { this.camTimer = 0; send(); }, 40);
   }
 
+  private displayStateSeq = 0;
+  private displayPending?: { cur: Loaded | null; nested: boolean; from?: EnteredFrom };
+  /** A failed or superseded load must not leave its provisional display settings behind. */
+  private restoreDisplayPending(): void {
+    const p = this.displayPending;
+    if (p && this.cur === p.cur) { this.nested = p.nested; this.enteredFrom = p.from; }
+    this.displayPending = undefined;
+  }
+
   private async onMsg(m: Msg): Promise<void> {
     if (this.mode === 'dm') { if (m.kind === 'hello') this.broadcast(); return; }
     if (m.kind === 'state') {
-      const fresh = !!m.fresh && this.cur?.path === m.location; // a replaced campaign: rebuild from its explored memory
+      const seq = ++this.displayStateSeq;
+      // Even a message for the current map supersedes a pending open of another campaign.
+      ++this.navSeq;
+      this.cancelSwitch();
+      this.restoreDisplayPending();
+      const previous = { cur: this.cur, nested: this.nested, from: this.enteredFrom };
+      // the display stands in the same world as the DM (camera messages are absolute feet): the valley or the old way
+      const flip = m.nested !== undefined && m.nested !== this.nested;
+      if (flip) this.nested = !!m.nested;
+      // the DM's camera came to another map: with the players' camera locked to the DM's the display follows it; with
+      // it unlocked the players stay on the party's map (looking is not travelling)
+      const stay = m.camLocked === false && m.look;
+      const location = stay ? stay.home : m.location;
+      let level = stay ? (this.cur?.path === stay.home ? this.levelId : stay.level) : m.level;
+      const fresh = !!m.fresh && this.cur?.path === location; // a replaced campaign: rebuild from its explored memory
       if (fresh) this.state = { ...newCampaign(this.campaign.id), ...m.state };
-      if (!this.cur || this.cur.path !== m.location || fresh) await this.open(m.location, m.level);
+      if (!this.cur || this.cur.path !== location || flip || fresh) {
+        this.displayPending = previous;
+        this.enteredFrom = stay ? undefined : m.from;
+        const opened = await this.open(location, level);
+        if (seq !== this.displayStateSeq) return;
+        if (!opened) { this.restoreDisplayPending(); return; }
+        this.displayPending = undefined;
+      }
+      if (seq !== this.displayStateSeq || this.cur?.path !== location) return;
+      this.dropStage();
+      if (!this.cur) return;
+      if (!level || !this.cur.levels.has(level)) level = this.levelId;
       this.state = { ...newCampaign(this.campaign.id), ...m.state };
       this.applySky();
-      if (this.levelId !== m.level) this.setLevel(m.level);
+      this.syncStage(); // the places the players know, the party's marker
+      if (this.levelId !== level) this.setLevel(level);
       else { this.syncTokens(); this.recompute(); }
     } else if (m.kind === 'camera' && m.locked) {
-      this.world.camera.position.set(...m.pos);
-      this.world.controls.target.set(...m.target);
+      this.world.toAnchored(new THREE.Vector3(...m.pos), this.world.camera.position);
+      this.world.toAnchored(new THREE.Vector3(...m.target), this.world.controls.target);
       this.world.camera.lookAt(this.world.controls.target);
       this.world.invalidate();
+      this.labelDensity(); // the zoom band, the valley's forest and names follow the DM's camera here too
+      this.streamer.poke(); // and the maps the DM's camera streams in
     } else if (m.kind === 'layout') {
       this.gridMode = m.gridOn ? m.grid : 'off';
       this.lowWalls = m.lowWalls; this.cutFt = m.cut; if (m.fog !== undefined) this.world.setFog(m.fog);
@@ -1324,6 +2361,7 @@ export class App {
       const stacked = !!this.cur!.scene.stacked;
       const blackCut = new THREE.MeshBasicMaterial({ color: '#000000', clippingPlanes: [WALL_CLIP] });
       const whiteCut = new THREE.MeshBasicMaterial({ color: '#ffffff', clippingPlanes: [WALL_CLIP], polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -2 });
+      this.maskMats = [white, black, blackWall, blackCut, whiteCut];
       for (const [lid, b] of this.cur!.levels) { if (!b.root.visible) continue; const here = lid === this.levelId; b.root.traverse((o) => {
         if (o.userData.role === 'grid') return;
         const m = o as THREE.Mesh;
@@ -1340,13 +2378,15 @@ export class App {
         this.maskSwap.set(m, m.material);
         m.material = stacked ? (o.userData.role === 'floor' && here ? whiteCut : blackCut) : o.userData.role === 'floor' ? white : o.userData.role === 'wall' || o.userData.role === 'door' ? blackWall : black;
       }); }
-      this.world.scene.background = new THREE.Color('#000000'); this.world.mistFloor.visible = false; this.world.scene.fog = null; if (this.backdrop) this.backdrop.visible = false;
+      this.world.scene.background = new THREE.Color('#000000'); this.world.mistFloor.visible = false; this.world.scene.fog = null; if (this.backdrop) this.backdrop.visible = false; if (this.stage) this.stage.root.visible = false; this.syncContext();
+      for (const r of this.resident.values()) if (r !== this.cur && r.root.visible) { r.root.visible = false; this.maskHidden.push(r.root); } // the other maps of the valley
     } else {
       for (const [m, mat] of this.maskSwap) m.material = mat;
       this.maskSwap.clear();
+      for (const m of this.maskMats) m.dispose(); this.maskMats = [];
       for (const o of this.maskHidden) o.visible = true;
       this.maskHidden = [];
-      this.world.scene.background = null; this.world.mistFloor.visible = !this.backdrop; this.world.scene.fog = new THREE.FogExp2(this.world.theme.mist, this.world.fogDensity); if (this.backdrop) this.backdrop.visible = true;
+      this.world.scene.background = null; this.world.mistFloor.visible = (!this.backdrop && !this.staged) || this.underground; this.world.scene.fog = new THREE.FogExp2(this.world.theme.mist, this.world.fogDensity); if (this.backdrop) this.backdrop.visible = true; if (this.stage) this.stage.root.visible = this.staged; this.syncContext();
       this.applySlider();
     }
     this.world.invalidate();
@@ -1362,35 +2402,3 @@ function isShown(o: THREE.Object3D | null): boolean {
   return true;
 }
 
-/** Generic player-facing descriptions by kind, used when an object has none of its own. Original wording. */
-export const KIND_DESC: Record<string, string> = {
-  table: 'A wooden table.', chair: 'A wooden chair.', bed: 'A bed with a straw mattress.', 'bed-plain': 'A plain wood-framed bed.', 'four-poster-bed': 'A four-poster bed hung with curtains.',
-  'child-bed': 'A small bed, sized for a child.', chest: 'A wooden chest.', trunk: 'A wooden trunk.', 'crate-chest': 'A wooden chest with an iron padlock.', 'claw-chest-skeleton': 'A heavy chest on clawed iron feet. A skeleton in leather armor hangs half out of it.',
-  coffin: 'A wooden coffin.', 'bier-coffin': 'A stone bier with a coffin resting on it.', 'stone-slab': 'A heavy stone slab.', column: 'A stone pillar.', post: 'A thick wooden post with a crossbeam.',
-  fireplace: 'A fireplace, unlit.', chandelier: 'A chandelier hangs from the ceiling.', drapes: 'Heavy drapes cover the window.', 'shield-of-arms': 'A shield painted with a coat of arms: a golden windmill on a red field.',
-  portrait: 'A framed portrait.', 'stag-head': "A stag's head mounted above the mantel.", 'stuffed-wolf': 'A stuffed wolf, posed mid-snarl.', 'cloak-hooks': 'Cloaks hang from hooks on the wall; a top hat sits on the shelf above.',
-  shelves: 'Shelves stacked with wares.', bookshelf: 'Shelves of books.', desk: 'A writing desk.', wardrobe: 'A tall wardrobe.', stove: 'A small iron stove.', oven: 'A domed stone oven with a bent stovepipe.',
-  crib: 'A crib draped in a black shroud.', harpsichord: 'A harpsichord with a bench.', harp: 'A tall standing harp.', 'armor-suit': 'A suit of armor with a wolf-shaped visor, holding a spear.', 'glass-hanging': 'A stained-glass hanging of figures singing and playing.',
-  tub: 'A wooden tub on clawed feet.', 'barrel-spigot': 'A barrel beneath a spigot in the wall.', 'standing-mirror': 'A full-length mirror in a carved frame.', nightstand: 'A small bedside table.', 'rocking-chair': 'A rocking chair.',
-  candlestick: 'An iron candlestick.', 'oil-lamp': 'An oil lamp, unlit.', lamp: 'An oil lamp.', tapestry: 'A tapestry of riders and hounds at the hunt.', bench: 'A long wooden bench.', 'torch-crate': 'An open crate of torches.',
-  doll: 'A smiling doll in a lacy yellow dress, draped in cobwebs.', bones: 'Moldy bones scattered on the floor.', skeleton: 'Skeletal remains.', 'shackled-skeleton': 'A skeleton hangs from rusted shackles on the wall.', 'small-skeletons': 'Two small skeletons in tattered clothes; the smaller cradles a stuffed doll.',
-  'strahd-statue': 'A painted wooden statue of a gaunt, pale man in a black cloak, one hand resting on the head of a wolf. He holds a smoky crystal orb.', 'ghoul-altar': 'A stone altar carved with grasping ghouls, stained dark with old blood.',
-  chains: 'Rusty chains and shackles hang from the ceiling.', 'planks-ceiling': 'A low ceiling of close-fitting planks.', 'pit-open': 'An open pit lined with sharpened stakes.', 'pit-cover': 'The earthen floor.', well: 'A stone-lipped well; a bucket hangs from a rope and pulley.',
-  pallet: 'A moldy straw pallet.', niche: 'A wall niche holding a small object.', dais: 'An octagonal stone dais rising from the water.', ledge: 'A dry stone ledge above the water.', altar: 'A stone altar.', wheel: 'A wooden wheel half-embedded in the wall.',
-  refuse: 'A half-submerged heap of refuse.', portcullis: 'A rusty iron portcullis.', gate: 'A wrought-iron gate on shrieking hinges.', 'timber-brace': 'Timber braces shore up the tunnel.', cobweb: 'Thick cobwebs.', sheeted: 'Old furniture draped in dusty white sheets.',
-  'wine-cask': 'A small cask of wine.', 'dumbwaiter-shaft': 'A small door in the wall opens onto a dumbwaiter shaft.', dumbwaiter: 'A dumbwaiter door.', trapdoor: 'A trapdoor set into the floor.', 'toy-chest-windmills': 'A toy chest painted with windmills.', 'dollhouse-replica': 'A dollhouse: an exact replica of this house.',
-  'toy-chest': 'A small box.', 'spiral-stair': 'A spiral staircase.', 'stairs-straight': 'A staircase.', cabinet: 'A wooden cabinet.', 'secret-panel': 'A section of wall.', 'pressure-plate': 'The floor.',
-  ghoul: 'A hunched, gray-skinned corpse with long claws.', ghast: 'A gaunt, robed corpse that reeks of the grave.', shadow: 'A patch of darkness shaped like a person.', ghost: 'A translucent figure drifting above the floor.', specter: 'A skeletally thin, translucent woman, screaming silently.',
-  'animated-armor': 'A suit of black plate armor draped in cobwebs.', mimic: 'A wooden door.', 'shambling-mound': 'A mound of rotting vegetation and refuse.', grick: 'A worm-like thing with a beak ringed by tentacles.', 'swarm-of-insects': 'A boiling mass of centipedes.', 'broom-of-animated-attack': 'A cobweb-covered broom leaning against the wall.',
-};
-export function kindName(kind: string): string { return kind.replace(/-/g, ' ').replace(/^./, (c) => c.toUpperCase()); }
-
-/** What players call a thing: never the DM label of something hidden or disguised. */
-export function playerLabel(o: SceneObject): string {
-  if (o.playerLabel) return o.playerLabel;
-  return o.vis === 'player' || !o.vis ? o.label ?? kindName(o.kind) : kindName(o.kind);
-}
-/** What players read: the authored description, else a generic one for plainly visible things. */
-export function playerDesc(o: SceneObject): string | undefined {
-  return o.desc ?? (o.vis === 'player' || !o.vis || o.vis === 'hidden-creature' ? KIND_DESC[o.kind] : undefined);
-}

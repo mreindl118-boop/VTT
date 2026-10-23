@@ -1,0 +1,20 @@
+mistLAB bundled assets. Licence texts retrieved 2026-10-04 from each project's own repository.
+
+TYPE. SIL Open Font License 1.1. Subset to Latin and instanced; none of these fonts declares a Reserved Font Name.
+- Atkinson Hyperlegible Next (atkinson-next-400-700.woff2). Copyright 2020-2024 The Atkinson Hyperlegible Next Project Authors.
+  Licence: fonts/OFL-atkinsonhyperlegiblenext.txt, from https://github.com/googlefonts/atkinson-hyperlegible-next/blob/main/OFL.txt
+- Alegreya (alegreya-400-700.woff2, alegreya-italic-400-700.woff2). Copyright 2011 The Alegreya Project Authors.
+  Licence: fonts/OFL-alegreya.txt, from https://github.com/huertatipografica/Alegreya/blob/master/OFL.txt
+- Alegreya SC (alegreya-sc-700.woff2). Copyright 2011 The Alegreya Project Authors.
+  Licence: fonts/OFL-alegreyasc.txt, from https://github.com/google/fonts/blob/main/ofl/alegreyasc/OFL.txt (identical to the Alegreya project's licence text).
+- Grenze Gotisch (grenze-gotisch-600.woff2). Copyright 2020 The Grenze Gotisch Project Authors.
+  Licence: fonts/OFL-grenzegotisch.txt, from https://github.com/Omnibus-Type/Grenze-Gotisch/blob/master/OFL.txt
+- Fraunces (fraunces-wonk-soft-700.woff2). Copyright 2018 The Fraunces Project Authors.
+  Licence: fonts/OFL-fraunces.txt, from https://github.com/undercasetype/Fraunces/blob/master/OFL.txt
+
+ICONS. Creative Commons Attribution 3.0 (https://creativecommons.org/licenses/by/3.0/), from https://game-icons.net.
+  Licence: fonts/game-icons-license.txt, from https://github.com/game-icons/icons/blob/master/license.txt
+  Paths rounded to whole units and drawn in the current text colour; no other changes. Bundled as icons/emblems.svg (18 symbols).
+Icons made by Delapouite (game-icons.net/1x1/delapouite/): dice-twenty-faces-twenty, position-marker, rolling-dices, rule-book, sheep.
+Icons made by Lorc (game-icons.net/1x1/lorc/): bleeding-wound, boot-prints, checked-shield, crossed-swords, evil-bat, hood, hourglass, magic-swirl, open-book, semi-closed-eye, skull-crossed-bones, swap-bag, wolf-head.
+Icons made by Skoll (game-icons.net/1x1/skoll/): hearts, knockout.

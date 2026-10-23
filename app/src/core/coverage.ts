@@ -98,13 +98,14 @@ export class CoverageMap {
           if (canSee(v, [x, z], lights, blockers, ambient)) {
             const k = j * this.width + i;
             this.visible[k] = 1;
-            this.seen[k] = 1;
             break;
           }
         }
       }
+    // Grow only what is seen now (the 1-ft wall rim), then add it to memory once. Growing the accumulated memory
+    // itself crept one cell further through walls on every update, revealing whole floors with no movement.
     this.dilateInto(this.visible);
-    this.dilateInto(this.seen);
+    for (let k = 0; k < this.visible.length; k++) if (this.visible[k]) this.seen[k] = 1;
   }
 
   /** Which cells lie on the given floor polygons; the same polygons as last time reuse the cached answer. */

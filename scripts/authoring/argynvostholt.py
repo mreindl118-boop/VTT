@@ -24,16 +24,13 @@ from collections import OrderedDict
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from authorlib import ROOT, Level, rect, unit_edges, seg_key, cobwebs  # noqa: F401
+from geomlib import ov
 
 _M = json.load(open(os.path.join(ROOT, 'manifests', 'locations.json')))
 PAGE = {a['key']: a['page'] for l in _M['locations'] if l['id'] == 'Q' for a in l['areas']}
 def pg(k): return PAGE.get(k.split('-')[0])
 
 # ------------------------------------------------------------------ helpers
-def ov(lv, a, b, **kw):
-    """Override one exact wall segment (diagonals and fractional edges, which _stamp would split)."""
-    k = seg_key(a, b)
-    lv.overrides[k] = dict(lv.overrides.get(k, {}), **kw)
 
 def door_edge(lv, a, b, id, locked=False, open=False):
     lv.n += 1
@@ -152,7 +149,7 @@ g.door((36, 10), (38, 10), id='Q8-gate', locked=True)
 g.opening((42, 12), (44, 12))                                                  # the curtained arch, servants' quarters to kitchen
 win(g, (52, 18), (52, 19)); win(g, (52, 27), (52, 28))                         # slit windows up the chapel stairs
 g.opening((50, 20), (51, 20)); g.opening((50, 26), (51, 26))                    # narrow arches to the chapel stairs
-g.secret((36, 12), (36, 13), 'Q6-Q11', 'A secret door at the north end of the den\'s east wall, into the wine store (pushes open from the den, pulls from the store)', 'Q6')
+g.secret((36, 12), (36, 13), 'Q6-Q11', 'Near the northeast corner of the den, a concealed doorway in its east wall opens into the wine store. Push from the den; pull from the store.', 'Q6')
 for a, b in [((33, 10), (34, 10)), ((40, 10), (41, 10)), ((30, 13), (30, 14)), ((30, 16), (30, 17)), ((44, 13), (44, 14)), ((44, 16), (44, 17)),
              ((45, 18), (46, 18)), ((46, 18), (46, 19)), ((45, 28), (46, 28)), ((46, 27), (46, 28)), ((46, 21), (46, 22)), ((46, 24), (46, 25)),
              ((56, 22), (56, 23)), ((56, 23), (56, 24)), ((30, 33), (30, 34)), ((44, 33), (44, 34)), ((28, 6), (29, 6)), ((29, 6), (30, 6)),
@@ -202,7 +199,7 @@ for i, (x, z, r) in enumerate([(59, 8.3, 90), (61.7, 11, 0), (59, 13.7, -90), (5
     g.prop(f'Q16-wyrm{i}', 'wyrmling-statue', (x, z), 'Q16', rotY=r, dims={'y': 12.4})
 for i, (x, z, w, d) in enumerate([(59, 8.5, 9, 4.5), (61.5, 11, 4.5, 9), (59, 13.5, 9, 4.5), (56.5, 11, 4.5, 9)]):
     g.prop(f'Q16-alcove{i}', 'ledge', (x, z), 'Q16', dims={'w': w, 'd': d, 'h': 1.2})
-g.note('Q16-verse', (60.2, 10), 'Q16', 'Draconic on the far (north-east) wall: here lie the bones and treasures of Argynvost, lord of Argynvostholt and founder of the Order of the Silver Dragon.')
+g.note('Q16-verse', (60.2, 10), 'Q16', 'Draconic writing on the northeast wall identifies this as the resting place for Argynvost and his treasure. It names him ruler of Argynvostholt and credits him with establishing the Order of the Silver Dragon.')
 # --- the mansion: foyer
 g.prop('Q3-mosaic', 'floor-inlay', (33, 23), 'Q3', dims={'w': 22, 'd': 22})
 g.prop('Q3-flight', 'stair-flight', (37, 23), 'Q3', dims={'len': 10, 'w': 10, 'rise': 10, 'rail': 1})
@@ -291,7 +288,7 @@ for i in range(46):
     g.prop(f'pine{i}', 'pine', (round(x, 2), round(z, 2)), None, dims={'scale': 1.0 + (i % 4) * 0.15})
 for i, (x, z) in enumerate([(4, 6), (66, 4), (72, 30), (68, 52), (4, 52), (-4, 34), (62, 46)]): g.prop(f'deadtree{i}', 'dead-tree', (x, z), None, dims={'scale': 1 + (i % 3) * 0.15})
 for i, (x, z, r) in enumerate([(2, 14, 3), (6, 32, 2.4), (26, 4, 2.6), (64, 22, 3.2), (56, 40, 2.4), (20, 50, 3), (48, 52, 2.6), (-8, 18, 3.4)]): g.prop(f'boulder{i}', 'boulder', (x, z), None, dims={'r': r})
-g.note('promontory', (66, 60), None, 'The promontory drops away to the Svalich Woods and the Luna River valley; wolves howl below.')
+g.note('promontory', (66, 60), None, 'Wolves howl far below this promontory. Beyond the drop lie Svalich Woods and the valley carved by the Luna River.')
 
 # ================================================================== SECOND (20 ft)
 s = Level('second', 'Second floor (Q17-Q29)', 20, 20, ambient='interior-dim', interior='plaster', exterior='ashlar', north='-z')
@@ -572,7 +569,7 @@ finish(p)
 p.prop('Q53-rafters', 'rafters-ravens', (53, 23), 'Q53', dims={'y': 13, 'w': 28, 'n': 11})
 p.prop('Q53-roof', 'tower-roof', (53, 23), 'Q53', dims={'r': 16, 'h': 12.5, 'y': 14})
 p.hidden('Q53-sill', 'niche', (50.5, 23), 'Q53', 'The west windowsill: where a treasure rests if the card reading places it here')
-p.note('Q53-beacon', (53, 21.6), 'Q53', 'When the skull is sealed in the mausoleum (Q16), the dragon\'s spirit becomes a light that fills this room and flashes across the valley.')
+p.note('Q53-beacon', (53, 21.6), 'Q53', "Sealing the skull inside Q16 releases the dragon's spirit as radiance throughout this chamber, followed by a bright flash over the valley.")
 
 # ================================================================== descriptions (our own words)
 DESC = {
@@ -586,7 +583,7 @@ DESC = {
          "Nine giant spiders nest here and attack anyone who comes too near. If anyone walks the creaking floor of Q19 above, they climb up after them."),
   'Q5': ("Only a stone footing and charred timbers remain of the stable. Above it, the mansion's fallen south end shows all three floors open to wind and rain.", "Nothing of value."),
   'Q6': ("A wood-panelled den torn apart: rotten divans, broken chairs, upturned footstools and smashed lamps. A cold hearth fills the west wall between narrow windows; a black wooden sarcophagus with a carved queen stands on end by the north wall.",
-         "The sarcophagus was the dragon's wine cabinet (only broken glass remains). Secret door at the north end of the east wall to Q11. Unless the beacon is lit, a fire-dragon flares in the hearth on first approach (see note)."),
+         "The sarcophagus was the dragon's wine cabinet (only broken glass remains). A concealed doorway near the northeast corner opens through the east wall into Q11. Unless the beacon is lit, a fire-dragon flares in the hearth on first approach (see note)."),
   'Q7': ("Moth-eaten velvet hangs at the narrow windows all round this parlor. Furniture lies tumbled under dust and webs; a bent brass chandelier hangs beneath a faded painted sky of gleaming dragons and bright birds.", "Nothing of value."),
   'Q8': ("A tall arch in the north front is shut by an iron gate, chained and padlocked. Inside, stone steps climb left and right to doors.",
          "Pick the lock (DC 20, thieves' tools) or smash it (DC 15 Str with a bludgeoning or slashing weapon). The flights rise 10 ft to landings with doors to Q7 and Q9."),
@@ -594,12 +591,12 @@ DESC = {
   'Q10': ("Looters have been through this kitchen: tables on their sides, rusty tools and shards of pottery underfoot. In the black hearth between two slit windows, an iron pot jiggles and clanks on its hook.",
           "An ordinary bat is trapped in the pot and bursts out when someone comes close."),
   'Q11': ("Damp and dark; old barrels rest on timber cradles against the walls.",
-          "Five barrels. Savid, a dusk elf scout with 4 hp left, hides behind them; he wants healing, was searching for the missing Vistani girl Arabelle when needle blights drove him in, and tells what he knows of Argynvost and the Order. The barrels (Wizard of Wines, long dry) hide nothing. Secret door at the north end of the west wall to Q6."),
+          'Five barrels. Savid, a dusk elf scout with 4 hp left, hides behind them; he wants healing, was searching for the missing Vistani girl Arabelle when needle blights drove him in, and tells what he knows of Argynvost and the Order. The barrels (Wizard of Wines, long dry) hide nothing. A concealed doorway near the northwest corner opens through the west wall into Q6.'),
   'Q12': ("Chairs carved with folded wings stand, lie or lie broken round a long table held up by carved dragons. Soft white light falls from a crystal chandelier; two stone knights wait in window bays; rain seeps down the west wall into a pool. To the east, cracked glass doors hang open on a foggy chapel.",
           "The chandelier carries a continual flame. The statues are only stone. Five sets of doors; the pair from the foyer's north-east corner hangs open. Stained glass of flying silver dragons flanks the glass doors."),
   'Q13': ("A gallery of dark timber runs round three sides of this stone chapel on split wooden posts. Iron candle stands flank a sunrise-carved altar at the east end under tall stained windows, one of them smashed so that fog rolls in over the coloured shards. A beam holds the north door shut.",
           "Beacon unlit: three revenants (chain as leather; two longsword attacks of 15 (2d10+4)) kneel at the altar and attack on sight; lit, three armoured corpses. DC 10 Religion: a dawn god, the Morninglord. The hollow beacon tower rises over the altar (Q50 at 60 ft, Q51 at 80 ft). The bar lifts easily; steps beyond lead down to the cemetery."),
-  'Q14': ("A tight spiral stair, dimly lit through slits in the wall.", "From the chapel up 20 ft to the balcony (Q24), then 20 ft more to a small empty room with a window over the chapel."),
+  'Q14': ("A tight spiral stair, dimly lit through slits in the wall.", 'From the chapel, stairs rise 20 ft to Q24 and another 20 ft to a bare little chamber overlooking the chapel through a window.'),
   'Q15': ("Graves crowd the fog behind the house inside a tall wrought-iron fence; a mausoleum stands in the far corner.",
           "Beacon unlit, first crossing: a well-dressed man with a great mane of pale, wispy hair watches from a high window (Q42) and draws the curtain (an apparition). DC 10 Perception: five graves were dug open from below; the fence is unbroken. On the revenant table, a 12 rises here."),
   'Q15-steps': ("Stone steps wind up round the outside of a turret to a flagged landing before a stout door.", "Barred from the chapel side (Q13)."),

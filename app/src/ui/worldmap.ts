@@ -3,21 +3,31 @@
 // compass, and the party marker that mirrors campaign state. The DM drags the party to a place (enter a
 // built scene there) or into the wilderness; the card gives straight-line distance and travel time.
 import type { WorldData } from '../campaigns';
+import { inLakeShape, lakeRing } from '../render/worldlakes';
+import { graphOf, route } from '../render/worldroads';
 import { PACES, type Pace } from '../core/travel';
 import { ICON } from './icons';
+import { rich } from './rich';
+import { esc } from './text';
 
 type P = [number, number];
 interface Pin { key: string; name: string; pos: P; type: string; scenes?: string[]; blurb?: string; dm?: string; heightFt?: number }
 let W: WorldData & { milesPerHex?: number } = { name: '', bounds: { minX: 0, minY: 0, maxX: 1, maxY: 1 }, pins: [], roads: [], rivers: [], lakes: [], peaks: [], woods: [], high: [] };
 let STYLE: 'gothic' | 'pastoral' = 'gothic';
+/** The world's path ('ch02/barovia-region'): the rules links read its pins under it. */
+let WORLD_PATH = '';
 /** Point the world map at the active campaign's data and look. */
-export function useWorld(w: WorldData, style: 'gothic' | 'pastoral' = 'gothic'): void { W = w; STYLE = style; }
+export function useWorld(w: WorldData, style: 'gothic' | 'pastoral' = 'gothic', path = ''): void { W = w; STYLE = style; WORLD_PATH = path; }
 /** The pin a built scene belongs to (the party marker jumps there when that scene opens). */
 export const pinForScene = (path: string): Pin | undefined => W.pins.find((p) => p.scenes?.includes(path));
 export const worldPins = (): Pin[] => W.pins;
 
-const SNAP_MI = 0.35;
-const dist = (a: P, b: P) => Math.hypot(a[0] - b[0], a[1] - b[1]);
+/** The party's drag snaps onto a place this close (miles). */
+export const SNAP_MI = 0.35;
+/** Whether a point (miles) lies in a lake as every view draws it (render/worldlakes.ts: inside its rounded shore, else
+ *  inside its ellipse). */
+export const inLake = (p: P): boolean => W.lakes.some((l) => inLakeShape(l, p));
+export const dist = (a: P, b: P) => Math.hypot(a[0] - b[0], a[1] - b[1]);
 const NS = 'http://www.w3.org/2000/svg';
 const el = <K extends keyof SVGElementTagNameMap>(tag: K, attrs: Record<string, string | number>, parent?: Element): SVGElementTagNameMap[K] => {
   const e = document.createElementNS(NS, tag);
@@ -26,8 +36,44 @@ const el = <K extends keyof SVGElementTagNameMap>(tag: K, attrs: Record<string, 
   return e;
 };
 const path = (pts: P[]) => pts.map((p, i) => `${i ? 'L' : 'M'}${p[0]},${p[1]}`).join(' ');
-const fmtHours = (h: number) => { const hh = Math.floor(h), mm = Math.round((h - hh) * 60); return hh ? `${hh} h${mm ? ` ${mm} min` : ''}` : `${mm} min`; };
-const keyOf = (p: Pin) => p.key.replace(/\d+$/, '');
+export const fmtHours = (h: number) => { const hh = Math.floor(h), mm = Math.round((h - hh) * 60); return hh ? `${hh} h${mm ? ` ${mm} min` : ''}` : `${mm} min`; };
+/** The letter a place shows: its key without a number after letters (B2 shows B, M3 shows M); a key that is all
+ *  digits (A Wild Sheep Chase's 1 to 5) shows whole. */
+export const keyOf = (p: { key: string }) => p.key.replace(/(\D)\d+$/, '$1');
+/** The world's scale as the sheet says it: '1 hex = ¼ mile · north up'. */
+export const hexScale = () => { const mph = W.milesPerHex ?? 1; return `1 hex = ${mph === 0.25 ? '¼ mile' : mph === 0.5 ? '½ mile' : `${mph} mile${mph > 1 ? 's' : ''}`} · north up`; };
+/** The world's name ('The Lands of Barovia', 'The Country Round the Town'). */
+export const worldName = () => W.name;
+/** One setting for the hex grid, shared by the flat sheet and the nested world map (on unless switched off). */
+export const hexPref = (): boolean => { try { return localStorage.getItem('mistlab.worldHex') !== '0'; } catch { return true; } };
+export const setHexPref = (on: boolean): void => { try { localStorage.setItem('mistlab.worldHex', on ? '1' : '0'); } catch { /* no storage */ } };
+/** The nearest named thing (a place, a wood, a peak) to a point, and how far (miles). */
+export const nearestName = (p: P, known?: ReadonlySet<string>) => { const all = [...W.pins.filter((x) => !known || known.has(x.key)).map((x) => ({ name: x.name, pos: x.pos })), ...W.woods, ...W.peaks]; const n = all.reduce((a, c) => (dist(c.pos, p) < dist(a.pos, p) ? c : a)); return { name: n.name, mi: dist(n.pos, p) }; };
+/** A pin's words with their rules links: the blurb is what players are told, so it reads with the players' audience
+ *  (rules kinds only) on both sides; the DM note is the DM's only (people, monsters and places link there). The
+ *  gazetteer keeps place names whole. */
+const pinText = (p: Pin, field: 'blurb' | 'dm', seen: Set<string>) => rich(field === 'blurb' ? p.blurb : p.dm, { audience: field === 'dm' ? 'dm' : 'player', field, scenePath: WORLD_PATH, entityId: `pin:${p.key}` }, seen);
+/** A place's hover tip: its key and name and its blurb; for the DM its note and whether the players know it; and
+ *  what a tap does (the DM's tap opens its map; the players' shows its card). */
+export function pinTipHtml(p: Pin, o: { dm: boolean; revealed: boolean; canOpen: boolean }): string {
+  const seen = new Set<string>();
+  return `<b>${esc(keyOf(p))} · ${esc(p.name)}</b>${p.blurb ? `<div>${pinText(p, 'blurb', seen)}</div>` : ''}${o.dm && p.dm ? `<div class="dm">${pinText(p, 'dm', seen)}</div>` : ''}${o.dm ? `<div class="vis">${o.revealed ? 'Players can see this place' : 'Hidden from players'}</div>` : ''}${p.scenes?.length ? `<div class="vis">${o.canOpen ? 'Tap to open the map' : 'Tap for its card'}</div>` : ''}`;
+}
+/** The place card: where (a place, or the wilderness near the nearest name), the blurb, the DM's note and reveal
+ *  chip, the distance from the party and the time at a pace, the DM's Travel here (`canTravel`: the party goes there,
+ *  a move on its trail, as its drag does; opening a map is only looking) and an Open button per map (or the no-map
+ *  note). */
+export function worldCardHtml(pin: Pin | undefined, to: P, miles: number, o: { dm: boolean; known?: ReadonlySet<string>; revealed: boolean; pace: Pace; canOpen: boolean; canTravel?: boolean; labels: string[] }): string {
+  const speed = PACES[o.pace].mph, hours = miles / speed;
+  const where = pin ? `<b>${esc(keyOf(pin))}</b> ${esc(pin.name)}` : (() => { const n = nearestName(to, o.dm ? undefined : (o.known ?? new Set())); return `Wilderness · ${n.mi.toFixed(1)} mi from ${esc(n.name)}`; })();
+  const scenes = pin?.scenes ?? [], seen = new Set<string>();
+  return `<div class="wc-where">${where}${pin && o.dm ? `<button class="chip-btn" data-reveal="${pin.key}" aria-pressed="${o.revealed}">${o.revealed ? 'Shown to players' : 'Hidden from players'}</button>` : ''}</div>${pin?.blurb ? `<div class="wc-blurb">${pinText(pin, 'blurb', seen)}</div>` : ''}${pin?.dm && o.dm ? `<div class="wc-dm">${pinText(pin, 'dm', seen)}</div>` : ''}<div class="wc-travel">${miles.toFixed(1)} mi as the crow flies · about ${fmtHours(hours)} at a ${o.pace} pace (${speed} mph)</div>
+      ${(() => {
+        const travel = o.canTravel && miles >= 0.05 ? '<button data-travel>Travel here</button>' : '';
+        const open = scenes.length && o.canOpen ? scenes.map((s, i) => `<button class="primary" data-scene="${s}">Open ${esc(o.labels[i] ?? s)}</button>`).join('') : '';
+        return `${travel || open ? `<div class="wc-actions">${travel}${open}</div>` : ''}${scenes.length ? '' : '<div class="wc-note">No battle map here yet; run it theatre-of-the-mind or pick a nearby place.</div>'}`;
+      })()}`;
+}
 
 // ---------------------------------------------------------------- the painted base layer
 const PALETTES = {
@@ -57,7 +103,9 @@ function coverSampler(): { cell: number; at: (c: string, p: P) => number; cells:
   return { cell, at, cells };
 }
 
-function paint(cv: HTMLCanvasElement, vb: { x: number; y: number; w: number; h: number }): void {
+/** Paint the base. `known`: the places whose symbols are painted (the players' side paints only the places it knows:
+ *  an unknown castle or village leaves no mark; the land, rivers, roads and mountains are everyone's). */
+function paint(cv: HTMLCanvasElement, vb: { x: number; y: number; w: number; h: number }, known: (p: Pin) => boolean = () => true): void {
   const C = PALETTES[STYLE], ctx = cv.getContext('2d')!, S = cv.width / vb.w; // px per mile
   const X = (x: number) => (x - vb.x) * S, Y = (y: number) => (y - vb.y) * S;
   const hash = (x: number, y: number) => { const h = Math.sin(x * 127.1 + y * 311.7) * 43758.5453; return h - Math.floor(h); };
@@ -67,8 +115,7 @@ function paint(cv: HTMLCanvasElement, vb: { x: number; y: number; w: number; h: 
   const cover = coverSampler();
   const woodDensity = cover ? (p: P) => cover.at('f', p) * 0.85 : (p: P) => (near(p, woodPts, kw) / Math.max(1, W.woods.length / 5)) * 0.6;
   const highDensity = cover ? (p: P) => cover.at('h', p) * 0.75 + cover.at('m', p) * 1.5 + near(p, W.peaks.map((q) => q.pos), 0.9) * 0.6 : (p: P) => near(p, highPts, kh) * (W.high.length > 40 ? 0.35 : 1);
-  const inLake = (p: P) => W.lakes.some((l) => ((p[0] - l.center[0]) / l.r[0]) ** 2 + ((p[1] - l.center[1]) / l.r[1]) ** 2 < 1);
-  const inWater = cover ? (p: P) => cover.at('w', p) > 0.5 : inLake;
+  const inWater = cover ? (p: P) => cover.at('w', p) > 0.5 || inLake(p) : inLake;
   // 1. ground: two-tone noise
   ctx.fillStyle = C.ground[0]; ctx.fillRect(0, 0, cv.width, cv.height);
   const cell = Math.max(4, Math.round(S * 0.08));
@@ -116,21 +163,45 @@ function paint(cv: HTMLCanvasElement, vb: { x: number; y: number; w: number; h: 
     ctx.strokeStyle = C.ink; ctx.lineWidth = Math.max(0.6, s * 0.06); ctx.globalAlpha = 0.5; ctx.beginPath(); ctx.moveTo(x - s, y + s * 0.55); ctx.quadraticCurveTo(x - s * 0.3, y - s * (mountain ? 1.3 : 0.6), x, y - s * (mountain ? 1.3 : 0.6)); ctx.stroke(); ctx.globalAlpha = 1;
     if (h > 1.7) { ctx.fillStyle = C.snow; ctx.beginPath(); ctx.moveTo(x, y - s * 1.3); ctx.lineTo(x - s * 0.28, y - s * 0.75); ctx.lineTo(x - s * 0.1, y - s * 0.85); ctx.lineTo(x + 0.05 * s, y - s * 0.7); ctx.lineTo(x + s * 0.28, y - s * 0.75); ctx.closePath(); ctx.fill(); }
   }
-  // 4. water: lakes and rivers with a darker bank. With a cover grid the lakes take their real shapes from it.
+  // 4. water: lakes and rivers with a darker bank. With a cover grid the water takes its shape from the grid's wet cells;
+  //    a lake with a measured outline is then drawn over them as that outline (its bank an offset copy and a shore line,
+  //    its ripples the outline shrunk toward its centre, on the far shore); without a grid the outline, else the
+  //    ellipse, is all there is.
+  const ringPath = (ring: P[], ox = 0, oy = 0) => { ctx.beginPath(); ring.forEach(([x, y], i) => { if (i) ctx.lineTo(X(x) + ox, Y(y) + oy); else ctx.moveTo(X(x) + ox, Y(y) + oy); }); ctx.closePath(); };
+  const centreOf = (ring: P[]): P => [ring.reduce((s, p) => s + p[0], 0) / ring.length, ring.reduce((s, p) => s + p[1], 0) / ring.length];
+  const ripples = (l: WorldData['lakes'][number], alpha: string) => {
+    ctx.strokeStyle = alpha; ctx.lineWidth = Math.max(0.8, S * 0.02);
+    const ring = lakeRing(l);
+    for (let k = 0; k < 3; k++) {
+      if (!ring) { ctx.beginPath(); ctx.ellipse(X(l.center[0]), Y(l.center[1]), l.r[0] * S * (0.3 + k * 0.2), l.r[1] * S * (0.25 + k * 0.2), 0, Math.PI * 1.1, Math.PI * 1.9); ctx.stroke(); continue; }
+      // the outline shrunk toward its centre, drawn where it faces north-ish (the ellipse's arc from 1.1π to 1.9π)
+      const c = centreOf(ring), f = 0.3 + k * 0.2; let on = false; ctx.beginPath();
+      for (const [x, y] of [...ring, ring[0]]) {
+        const a = (Math.atan2(y - c[1], x - c[0]) + Math.PI * 2) % (Math.PI * 2), px = X(c[0] + (x - c[0]) * f), py = Y(c[1] + (y - c[1]) * f);
+        if (a > Math.PI * 1.1 && a < Math.PI * 1.9) { if (on) ctx.lineTo(px, py); else ctx.moveTo(px, py); on = true; } else on = false;
+      }
+      ctx.stroke();
+    }
+  };
   if (cover) {
     const r0 = cover.cell * 0.78 * S;
     for (const pass of [0, 1]) for (const [p, v] of cover.cells('w')) {
       if (v < 0.5) continue;
       ctx.fillStyle = pass ? C.water : C.waterEdge; ctx.beginPath(); ctx.arc(X(p[0]) + (pass ? 0 : S * 0.02), Y(p[1]) + (pass ? 0 : S * 0.03), pass ? r0 : r0 * 1.18, 0, Math.PI * 2); ctx.fill();
     }
-    for (const l of W.lakes) if (l.r[0] > 0.5) { ctx.strokeStyle = 'rgba(255,255,255,.3)'; ctx.lineWidth = Math.max(0.8, S * 0.02);
-      for (let k = 0; k < 3; k++) { ctx.beginPath(); ctx.ellipse(X(l.center[0]), Y(l.center[1]), l.r[0] * S * (0.3 + k * 0.2), l.r[1] * S * (0.25 + k * 0.2), 0, Math.PI * 1.1, Math.PI * 1.9); ctx.stroke(); } }
   }
-  for (const l of cover ? [] : W.lakes) {
-    ctx.fillStyle = C.waterEdge; ctx.beginPath(); ctx.ellipse(X(l.center[0]) + S * 0.03, Y(l.center[1]) + S * 0.04, l.r[0] * S, l.r[1] * S, 0, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = C.water; ctx.beginPath(); ctx.ellipse(X(l.center[0]), Y(l.center[1]), l.r[0] * S * 0.96, l.r[1] * S * 0.94, 0, 0, Math.PI * 2); ctx.fill();
-    ctx.strokeStyle = 'rgba(255,255,255,.35)'; ctx.lineWidth = Math.max(0.8, S * 0.02);
-    for (let k = 0; k < 3; k++) { ctx.beginPath(); ctx.ellipse(X(l.center[0]), Y(l.center[1]), l.r[0] * S * (0.3 + k * 0.2), l.r[1] * S * (0.25 + k * 0.2), 0, Math.PI * 1.1, Math.PI * 1.9); ctx.stroke(); }
+  for (const l of W.lakes) {
+    const ring = lakeRing(l);
+    if (!ring && cover) { if (l.r[0] > 0.5) ripples(l, 'rgba(255,255,255,.3)'); continue; }
+    if (ring) {
+      ctx.fillStyle = ctx.strokeStyle = C.waterEdge; ctx.lineWidth = Math.max(1, S * 0.03); ctx.lineJoin = 'round';
+      ringPath(ring, S * 0.03, S * 0.04); ctx.fill(); ringPath(ring); ctx.stroke();
+      ctx.fillStyle = C.water; ringPath(ring); ctx.fill();
+    } else {
+      ctx.fillStyle = C.waterEdge; ctx.beginPath(); ctx.ellipse(X(l.center[0]) + S * 0.03, Y(l.center[1]) + S * 0.04, l.r[0] * S, l.r[1] * S, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = C.water; ctx.beginPath(); ctx.ellipse(X(l.center[0]), Y(l.center[1]), l.r[0] * S * 0.96, l.r[1] * S * 0.94, 0, 0, Math.PI * 2); ctx.fill();
+    }
+    if (!cover || l.r[0] > 0.5) ripples(l, cover ? 'rgba(255,255,255,.3)' : 'rgba(255,255,255,.35)');
   }
   const stroke = (pts: P[], color: string, w: number, dash?: number[]) => { ctx.strokeStyle = color; ctx.lineWidth = w; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; ctx.setLineDash(dash ?? []); ctx.beginPath(); pts.forEach((p, i) => (i ? ctx.lineTo(X(p[0]), Y(p[1])) : ctx.moveTo(X(p[0]), Y(p[1])))); ctx.stroke(); ctx.setLineDash([]); };
   for (const r of W.rivers) { stroke(r.pts, C.waterEdge, Math.max(2, S * 0.2)); stroke(r.pts, C.water, Math.max(1.2, S * 0.12)); }
@@ -138,6 +209,7 @@ function paint(cv: HTMLCanvasElement, vb: { x: number; y: number; w: number; h: 
   for (const r of W.roads) { const p = r.kind === 'trail' || /path|trail/i.test(r.name); stroke(r.pts, C.roadCase, Math.max(2.4, S * 0.13)); stroke(r.pts, C.road, Math.max(1.4, S * 0.08), p ? [S * 0.2, S * 0.12] : undefined); }
   // 6. settlements and landmarks as symbols under the pins
   for (const p of W.pins) {
+    if (!known(p)) continue;
     const x = X(p.pos[0]), y = Y(p.pos[1]), u = Math.max(3, S * 0.09);
     if (p.type === 'settlement') {
       const n = p.name.match(/Town|Village/i) ? 7 : 4;
@@ -171,18 +243,20 @@ export interface WorldHost {
   move(pos: P, key: string | undefined, miles: number): void;
   enter(scene: string): void;
   sceneName(path: string): Promise<string>;
+  /** Open centred on this place, a little closer than the whole region (zooming out of its map). */
+  focus?: string;
 }
 
 export function openWorldMap(host: WorldHost): void {
   const back = document.createElement('div');
   back.className = 'sheet-backdrop worldmap';
-  const mph = W.milesPerHex ?? 1;
-  back.innerHTML = `<div class="sheet world"><header><div class="wm-title"><h2>${W.name}</h2><span>1 hex = ${mph === 0.25 ? '¼ mile' : mph === 0.5 ? '½ mile' : `${mph} mile${mph > 1 ? 's' : ''}`} · north up</span></div>
-      <div class="seg pace" role="tablist" aria-label="Travel pace">${(['slow', 'normal', 'fast'] as Pace[]).map((p) => `<button role="tab" data-pace="${p}" aria-selected="${p === 'normal'}">${p[0].toUpperCase() + p.slice(1)}</button>`).join('')}</div>
-      <button class="icon" data-hex aria-label="Hex grid" aria-pressed="false" title="Hex grid">${ICON.grid ?? ICON.walls}</button>
-      <button class="icon" data-z="in" aria-label="Zoom in">${ICON.zoomIn}</button><button class="icon" data-z="out" aria-label="Zoom out">${ICON.zoomOut}</button>
-      <button class="icon close" aria-label="Close">${ICON.close}</button></header>
-    <div class="world-main"><div class="world-body"><canvas class="world-paint"></canvas><div class="world-card" hidden></div><div class="world-scale"></div><div class="world-compass">N</div></div>
+  const mph = W.milesPerHex ?? 1, hexOn = hexPref();
+  back.innerHTML = `<div class="sheet world"><header><div class="wm-title"><h2>${esc(W.name)}</h2><span>${hexScale()}</span></div>
+      <div class="seg pace" role="tablist" aria-label="Travel pace">${(['slow', 'normal', 'fast'] as Pace[]).map((p) => `<button role="tab" data-pace="${p}" aria-selected="${p === 'normal'}" data-tip="${p[0].toUpperCase() + p.slice(1)} pace">${p[0].toUpperCase() + p.slice(1)}</button>`).join('')}</div>
+      <button class="icon" data-hex aria-label="Hex grid" aria-pressed="${hexOn}" data-tip="Hex grid">${ICON.grid ?? ICON.walls}</button>
+      <button class="icon" data-z="in" aria-label="Zoom in" data-tip="Zoom in">${ICON.zoomIn}</button><button class="icon" data-z="out" aria-label="Zoom out" data-tip="Zoom out">${ICON.zoomOut}</button>
+      <button class="icon close" aria-label="Close" data-tip="Close">${ICON.close}</button></header>
+    <div class="world-main"><div class="world-body"><canvas class="world-paint"></canvas><div class="world-card page" hidden></div><div class="world-scale"></div><div class="world-compass">N</div></div>
     <aside class="world-key"><h3>Places</h3><ol></ol></aside></div></div>`;
   document.body.appendChild(back);
   const body = back.querySelector<HTMLElement>('.world-body')!, card = back.querySelector<HTMLElement>('.world-card')!, keyList = back.querySelector<HTMLElement>('.world-key ol')!;
@@ -196,7 +270,10 @@ export function openWorldMap(host: WorldHost): void {
   body.insertBefore(svg, card);
   // painted base: fixed resolution, blitted under the SVG with the same view transform
   const PX = 2600; paintCv.width = PX; paintCv.height = Math.round((PX * vb.h) / vb.w);
-  paint(paintCv, vb);
+  // Players see only the places the DM has revealed (and wherever the party has been); the DM sees all. The painted
+  // symbols follow the same rule: an unknown place leaves no mark on the players' sheet.
+  const known = (p: Pin) => host.dm || host.revealed().has(p.key);
+  paint(paintCv, vb, known);
   const view = { ...vb };
   const screen = document.createElement('canvas'); screen.className = 'world-screen'; body.insertBefore(screen, svg);
   paintCv.hidden = true;
@@ -216,7 +293,7 @@ export function openWorldMap(host: WorldHost): void {
   new ResizeObserver(blit).observe(body);
 
   // hex grid at the map's scale (pointy hexes, flat-to-flat = milesPerHex)
-  const hexes = el('g', { class: 'wm-hex', visibility: 'hidden' }, svg);
+  const hexes = el('g', { class: 'wm-hex', visibility: hexOn ? 'visible' : 'hidden' }, svg);
   { const f = mph, hh = (2 * f) / Math.sqrt(3), d: string[] = [];
     for (let row = Math.floor(vb.y / (0.75 * hh)) - 1; row * 0.75 * hh < vb.y + vb.h + hh; row++) for (let col = Math.floor(vb.x / f) - 1; col * f < vb.x + vb.w + f; col++) {
       const cx = col * f + (row % 2 ? f / 2 : 0), cy = row * 0.75 * hh, pts: P[] = [];
@@ -236,8 +313,6 @@ export function openWorldMap(host: WorldHost): void {
   // pins
   const pins = el('g', { class: 'wm-pins' }, svg);
   const major = (p: Pin) => ['settlement', 'castle', 'camp', 'tower', 'temple', 'ruin', 'pass', 'den', 'hill', 'landmark'].includes(p.type);
-  // Players see only the places the DM has revealed (and wherever the party has been); the DM sees all.
-  const known = (p: Pin) => host.dm || host.revealed().has(p.key);
   const pinEls = new Map<string, { g: SVGGElement; li: HTMLLIElement }>();
   for (const p of W.pins) {
     const g = el('g', { class: `wm-pin t-${p.type}${p.scenes ? ' has-scene' : ''}${major(p) ? ' major' : ''}`, transform: `translate(${p.pos[0]},${p.pos[1]})`, 'data-key': p.key }, pins);
@@ -245,7 +320,7 @@ export function openWorldMap(host: WorldHost): void {
     const t = el('text', { y: 0.09 }, g); t.textContent = keyOf(p);
     const n = el('text', { class: 'wm-pin-name', y: 0.62 }, g); n.textContent = p.name;
     const li = document.createElement('li'); li.dataset.key = p.key;
-    li.innerHTML = `<b>${keyOf(p)}</b><span>${p.name}</span>${p.scenes ? '<i>map</i>' : ''}${host.dm ? `<button class="icon eye" data-reveal="${p.key}" aria-label="Reveal to players" title="Reveal to players">${ICON.eye ?? '◉'}</button>` : ''}`;
+    li.innerHTML = `<b>${keyOf(p)}</b><span>${p.name}</span>${p.scenes ? '<i>map</i>' : ''}${host.dm ? `<button class="icon eye" data-reveal="${p.key}" aria-label="Reveal to players" data-tip="Reveal to players">${ICON.eye ?? '◉'}</button>` : ''}`;
     // a name lettered more than once on the map (the Mount Baratok markers) lists once
     if (!W.pins.some((q) => q !== p && q.name === p.name && q.key < p.key)) keyList.appendChild(li);
     pinEls.set(p.key, { g, li });
@@ -258,12 +333,12 @@ export function openWorldMap(host: WorldHost): void {
     view.x = p.pos[0] - view.w / 2; view.y = p.pos[1] - view.h / 2; apply(); void showCard(p, p.pos, dist(at, p.pos));
   });
   // hover: a tooltip with the place's blurb (and, for the DM, the DM note and whether players can see it)
-  const tip = document.createElement('div'); tip.className = 'world-tip'; tip.hidden = true; body.appendChild(tip);
+  const tip = document.createElement('div'); tip.className = 'world-tip page'; tip.hidden = true; body.appendChild(tip);
   svg.addEventListener('pointermove', (e) => {
     const g = (e.target as Element).closest<SVGGElement>('.wm-pin'); const p = g && W.pins.find((x) => x.key === g.dataset.key);
     if (!p || !known(p) || drag) { tip.hidden = true; return; }
     const r = body.getBoundingClientRect();
-    tip.innerHTML = `<b>${keyOf(p)} · ${p.name}</b>${p.blurb ? `<div>${p.blurb}</div>` : ''}${host.dm && p.dm ? `<div class="dm">${p.dm}</div>` : ''}${host.dm ? `<div class="vis">${host.revealed().has(p.key) ? 'Players can see this place' : 'Hidden from players'}</div>` : ''}${p.scenes?.length ? '<div class="vis">Tap to open the map</div>' : ''}`;
+    tip.innerHTML = pinTipHtml(p, { dm: host.dm, revealed: host.revealed().has(p.key), canOpen: host.canMove });
     tip.style.left = `${Math.min(e.clientX - r.left + 14, r.width - 280)}px`; tip.style.top = `${e.clientY - r.top + 14}px`; tip.hidden = false;
   });
   svg.addEventListener('pointerleave', () => { tip.hidden = true; });
@@ -315,23 +390,31 @@ export function openWorldMap(host: WorldHost): void {
     at = to; place(at); drawTrail(); refreshKnown();
     void showCard(near, to, miles);
   });
-  const drawTrail = () => { const t = host.get(); const pts = (t as { trail?: { pos: P }[] } | undefined)?.trail?.map((x) => x.pos) ?? []; trail.setAttribute('d', pts.length > 1 ? path(pts.slice(-12)) : ''); };
+  // the party's last moves (at most 11), each along the roads between its two ends, or straight where an end is off
+  // them: the way the valley's trail is drawn (render/worldroads.ts, render/worldstage.ts drawTrail)
+  const drawTrail = () => {
+    const t = host.get(), pts = ((t as { trail?: { pos: P }[] } | undefined)?.trail?.map((x) => x.pos) ?? []).slice(-12);
+    if (pts.length < 2) { trail.setAttribute('d', ''); return; }
+    const g = graphOf(W), way: P[] = [pts[0]];
+    for (let i = 1; i < pts.length; i++) way.push(...((route(g, pts[i - 1], pts[i]) ?? [pts[i - 1], pts[i]]) as P[]).slice(1));
+    trail.setAttribute('d', path(way));
+  };
   drawTrail();
+  const focus = host.focus ? W.pins.find((p) => p.key === host.focus) : undefined;
+  if (focus) { view.w = Math.max(1.5, vb.w * 0.45); view.h = (view.w / vb.w) * vb.h; view.x = focus.pos[0] - view.w / 2; view.y = focus.pos[1] - view.h / 2; apply(); }
   requestAnimationFrame(blit);
 
-  const nearestName = (p: P) => { const all = [...W.pins.map((x) => ({ name: x.name, pos: x.pos })), ...W.woods, ...W.peaks]; const n = all.reduce((a, c) => (dist(c.pos, p) < dist(a.pos, p) ? c : a)); return { name: n.name, mi: dist(n.pos, p) }; };
   async function showCard(pin: Pin | undefined, to: P, miles: number): Promise<void> {
-    const speed = PACES[pace].mph, hours = miles / speed;
-    const where = pin ? `<b>${keyOf(pin)}</b> ${pin.name}` : (() => { const n = nearestName(to); return `Wilderness · ${n.mi.toFixed(1)} mi from ${n.name}`; })();
-    const scenes = pin?.scenes ?? [];
-    const labels = await Promise.all(scenes.map((s) => host.sceneName(s)));
-    const rev = pin ? host.revealed().has(pin.key) : false;
-    card.innerHTML = `<div class="wc-where">${where}${pin && host.dm ? `<button class="chip-btn" data-reveal="${pin.key}" aria-pressed="${rev}">${rev ? 'Shown to players' : 'Hidden from players'}</button>` : ''}</div>${pin?.blurb ? `<div class="wc-blurb">${pin.blurb}</div>` : ''}${pin?.dm && host.dm ? `<div class="wc-dm">${pin.dm}</div>` : ''}<div class="wc-travel">${miles.toFixed(1)} mi as the crow flies · about ${fmtHours(hours)} at a ${pace} pace (${speed} mph)</div>
-      ${scenes.length ? `<div class="wc-actions">${scenes.map((s, i) => `<button class="primary" data-scene="${s}">Open ${labels[i]}</button>`).join('')}</div>` : '<div class="wc-note">No battle map here yet; run it theatre-of-the-mind or pick a nearby place.</div>'}`;
+    const labels = await Promise.all((pin?.scenes ?? []).map((s) => host.sceneName(s)));
+    card.innerHTML = worldCardHtml(pin, to, miles, { dm: host.dm, known: host.revealed(), revealed: pin ? host.revealed().has(pin.key) : false, pace, canOpen: host.canMove, canTravel: host.canMove, labels });
     card.hidden = false;
+    shown = { pin, to };
   }
+  let shown: { pin: Pin | undefined; to: P } | null = null;
   card.addEventListener('click', (e) => {
     const t = e.target as HTMLElement, s = t.closest<HTMLElement>('[data-scene]')?.dataset.scene; if (s) { host.enter(s); back.remove(); return; }
+    // Travel here: the party goes to the card's place (as a drag there would), and the card shows it arrived
+    if (t.closest('[data-travel]') && host.canMove && shown) { const { pin, to } = shown, miles = dist(at, to); if (miles < 0.05) return; host.move([...to] as P, pin?.key, miles); at = [...to] as P; place(at); drawTrail(); refreshKnown(); void showCard(pin, to, 0); return; }
     const rv = t.closest<HTMLElement>('[data-reveal]'); if (rv) { const p = W.pins.find((x) => x.key === rv.dataset.reveal)!; host.reveal(p.key, !host.revealed().has(p.key)); refreshKnown(); void showCard(p, p.pos, dist(at, p.pos)); }
   });
   back.querySelector('.pace')!.addEventListener('click', (e) => { const b2 = (e.target as HTMLElement).closest<HTMLElement>('[data-pace]'); if (!b2) return; pace = b2.dataset.pace as Pace; back.querySelectorAll('[data-pace]').forEach((x) => x.setAttribute('aria-selected', String(x === b2))); });
@@ -339,7 +422,10 @@ export function openWorldMap(host: WorldHost): void {
     const t = e.target as HTMLElement;
     if (t === back || t.closest('.close')) back.remove();
     const z = t.closest<HTMLElement>('[data-z]')?.dataset.z; if (z) zoom(z === 'in' ? 0.75 : 1.33);
-    const hx = t.closest<HTMLElement>('[data-hex]'); if (hx) { const on = hx.getAttribute('aria-pressed') !== 'true'; hx.setAttribute('aria-pressed', String(on)); hexes.setAttribute('visibility', on ? 'visible' : 'hidden'); }
+    const hx = t.closest<HTMLElement>('[data-hex]'); if (hx) { const on = hx.getAttribute('aria-pressed') !== 'true'; hx.setAttribute('aria-pressed', String(on)); hexes.setAttribute('visibility', on ? 'visible' : 'hidden'); setHexPref(on); }
   });
-  addEventListener('keydown', function esc(e) { if (e.key === 'Escape') { back.remove(); removeEventListener('keydown', esc); } });
+  // Escape closes the sheet; the listener goes with it however the sheet closes (no listener piles up per open)
+  const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') back.remove(); };
+  addEventListener('keydown', onKey);
+  new MutationObserver((_m, o) => { if (!back.isConnected) { removeEventListener('keydown', onKey); o.disconnect(); } }).observe(document.body, { childList: true });
 }

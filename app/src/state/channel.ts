@@ -5,12 +5,14 @@ import { projectState, type PlayersState } from '../core/playersView';
 
 export type Msg =
   | { kind: 'hello' }
-  | { kind: 'state'; state: PlayersState; location: string; level: string; fresh?: boolean }
+  // `look`: the DM's active map is one the camera came to (no travel); `home` is the map the party was taken to. With
+  // the players' camera unlocked (`camLocked` false) the display stays on the party's map.
+  | { kind: 'state'; state: PlayersState; location: string; level: string; fresh?: boolean; from?: { parent: string; level: string; key: string; child: string }; nested?: boolean; camLocked?: boolean; look?: { home: string; level?: string } }
   | { kind: 'camera'; pos: [number, number, number]; target: [number, number, number]; locked: boolean }
-  | { kind: 'layout'; grid: 'square' | 'hex'; gridOn: boolean; lowWalls: boolean; cut?: number; fog?: boolean };
+  | { kind: 'layout'; grid: 'square' | 'hex'; gridOn: boolean; lowWalls: boolean; cut?: number; fog?: boolean; nested?: boolean };
 
 /** What a caller may hand to send(): a 'state' message may carry the full campaign; it is projected here. */
-export type OutMsg = Exclude<Msg, { kind: 'state' }> | { kind: 'state'; state: CampaignState | PlayersState; location: string; level: string; fresh?: boolean };
+export type OutMsg = Exclude<Msg, { kind: 'state' }> | { kind: 'state'; state: CampaignState | PlayersState; location: string; level: string; fresh?: boolean; from?: { parent: string; level: string; key: string; child: string }; nested?: boolean; camLocked?: boolean; look?: { home: string; level?: string } };
 
 export class Channel {
   private bc: BroadcastChannel | null;

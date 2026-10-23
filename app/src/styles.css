@@ -1,3 +1,113 @@
+/* ==== THEME TOKENS (docs/THEME.md 'Tokens', 'Type'): the rules families, the item rarities, the page surface per
+   campaign, the type roles and the bundled fonts. Cards, tips, stat blocks and Books use these; the rest of the chrome
+   keeps the applefy tokens below until queue item 15. ==== */
+@font-face { font-family: 'Atkinson Next'; src: url(/fonts/atkinson-next-400-700.woff2) format('woff2'); font-weight: 400 700; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Alegreya SC'; src: url(/fonts/alegreya-sc-700.woff2) format('woff2'); font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Grenze Gotisch'; src: url(/fonts/grenze-gotisch-600.woff2) format('woff2'); font-weight: 600; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Fraunces Soft'; src: url(/fonts/fraunces-wonk-soft-700.woff2) format('woff2'); font-weight: 700; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Alegreya'; src: url(/fonts/alegreya-400-700.woff2) format('woff2'); font-weight: 400 700; font-style: normal; font-display: swap; }
+@font-face { font-family: 'Alegreya'; src: url(/fonts/alegreya-italic-400-700.woff2) format('woff2'); font-weight: 400 700; font-style: italic; font-display: swap; }
+:root {
+  --font-ui: 'Atkinson Next', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-head: 'Alegreya SC', 'Alegreya', Georgia, serif;
+  --font-book: 'Alegreya', Georgia, serif;
+  --t-1: 13px; --t-2: 14px; --t-3: 16px; --t-4: 18px; --t-5: 22px; --t-6: 28px; --t-kicker: 16px;
+  --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px; --sp-5: 24px; --sp-6: 32px;
+  --hit: 44px; --emblem-min: 20px;
+  /* rules families: -l on light pages, -d on dark pages; each family has its own underline style */
+  --k-condition-l: #81520d; --k-condition-d: #e9d973;   /* ochre / straw, dashed */
+  --k-magic-l:     #3b367d; --k-magic-d:     #b1a8ee;   /* violet: spells and magic items, double */
+  --k-monster-l:   #9a2865; --k-monster-d:   #ed85b3;   /* raspberry, wavy */
+  --k-rules-l:     #01647a; --k-rules-d:     #9ed8e7;   /* slate-teal: rule, action, sense, damage, gear, dotted */
+  /* item rarity: only a magic item's kicker word and name */
+  --r-common-l:    #55504a; --r-common-d:    #c9c2b8;
+  --r-uncommon-l:  #2e6b2a; --r-uncommon-d:  #8fd08a;
+  --r-rare-l:      #1f4f8a; --r-rare-d:      #8fb6ea;
+  --r-veryrare-l:  #74297f; --r-veryrare-d:  #d79be6;
+  --r-legendary-l: #8f4300; --r-legendary-d: #f5a65a;
+  --r-artifact-l:  #6e3a1e; --r-artifact-d:  #e0a982;
+  --k-condition: var(--k-condition-l); --k-magic: var(--k-magic-l); --k-monster: var(--k-monster-l); --k-rules: var(--k-rules-l);
+}
+/* Barovia: cool grey parchment, wine accents (also the default before a campaign loads) */
+:root, [data-campaign='cos'] {
+  --font-display: 'Grenze Gotisch', 'Alegreya SC', Georgia, serif;
+  --r-1: 4px; --r-2: 6px; --r-3: 10px;
+  --p-bg: #ebe2cc; --p-raise: #f4eddc; --p-sunk: #dfd4b9; --p-edge: #b2a07c; --p-hair: rgba(70, 46, 22, .22);
+  --p-ink: #2a1d14; --p-ink-2: #5c4b3a; --p-accent: #7a1f2b; --p-focus: #7a1f2b;
+  --p-grad: linear-gradient(180deg, #efe7d3 0%, #e7ddc5 100%);
+  --p-shadow: inset 0 1px 0 rgba(255,255,255,.55), 0 1px 0 rgba(40, 20, 10, .25), 0 12px 32px rgba(8, 4, 12, .45);
+  --p-danger: #9b2c1c;
+  --rule-col: #7a1f2b;
+  --seal: radial-gradient(circle at 38% 30%, #a83a46 0%, #7a1f2b 55%, #4d1119 100%); --seal-ink: #f6e3d0;
+}
+/* A Wild Sheep Chase: warm paper, pine accents */
+[data-campaign='wsc'] {
+  --font-display: 'Fraunces Soft', 'Alegreya SC', Georgia, serif;
+  --r-1: 6px; --r-2: 10px; --r-3: 14px;
+  --p-bg: #fdf7e8; --p-raise: #fffcf3; --p-sunk: #f2e7cc; --p-edge: #cdb88c; --p-hair: rgba(80, 60, 25, .2);
+  --p-ink: #2a2016; --p-ink-2: #66563f; --p-accent: #2f5a3a; --p-focus: #2f5a3a;
+  --p-grad: linear-gradient(180deg, #fffaf0 0%, #fbf3df 100%);
+  --p-shadow: inset 0 1px 0 rgba(255,255,255,.7), 0 1px 0 rgba(90, 70, 30, .2), 0 10px 26px rgba(60, 45, 20, .22);
+  --p-danger: #9b2c1c;
+  --rule-col: #9a6b2e;
+  --seal: radial-gradient(circle at 38% 30%, #3d6e48 0%, #2f5a3a 55%, #1e3128 100%); --seal-ink: #f3f0dc;
+}
+/* dark scheme: Barovia's pages go to night vellum, the Sheep Chase's to walnut */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) { --k-condition: var(--k-condition-d); --k-magic: var(--k-magic-d); --k-monster: var(--k-monster-d); --k-rules: var(--k-rules-d); }
+  :root:not([data-theme='light']), :root:not([data-theme='light']) [data-campaign='cos'] {
+    --p-bg: #2a2430; --p-raise: #332c3a; --p-sunk: #211c26; --p-edge: #5a4f63; --p-hair: rgba(237, 229, 211, .16);
+    --p-ink: #ede5d3; --p-ink-2: #b8ad9e; --p-accent: #f2b35b; --p-focus: #f2b35b;
+    --p-grad: linear-gradient(180deg, #2e2834 0%, #27212d 100%);
+    --p-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 12px 32px rgba(0,0,0,.5);
+    --p-danger: #f19a8a; --rule-col: #b24a55;
+  }
+  :root:not([data-theme='light']) [data-campaign='wsc'] {
+    --p-bg: #2f2820; --p-raise: #382f26; --p-sunk: #251f18; --p-edge: #66553c; --p-hair: rgba(243, 234, 214, .16);
+    --p-ink: #f3ead6; --p-ink-2: #c2b59c; --p-accent: #8fc79c; --p-focus: #e6c27a;
+    --p-grad: linear-gradient(180deg, #332b22 0%, #2c251d 100%);
+    --p-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 12px 32px rgba(0,0,0,.5);
+    --p-danger: #f19a8a; --rule-col: #c9a052;
+  }
+}
+:root[data-theme='dark'] { --k-condition: var(--k-condition-d); --k-magic: var(--k-magic-d); --k-monster: var(--k-monster-d); --k-rules: var(--k-rules-d); }
+:root[data-theme='dark'], :root[data-theme='dark'] [data-campaign='cos'] {
+  --p-bg: #2a2430; --p-raise: #332c3a; --p-sunk: #211c26; --p-edge: #5a4f63; --p-hair: rgba(237, 229, 211, .16);
+  --p-ink: #ede5d3; --p-ink-2: #b8ad9e; --p-accent: #f2b35b; --p-focus: #f2b35b;
+  --p-grad: linear-gradient(180deg, #2e2834 0%, #27212d 100%);
+  --p-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 12px 32px rgba(0,0,0,.5);
+  --p-danger: #f19a8a; --rule-col: #b24a55;
+}
+:root[data-theme='dark'] [data-campaign='wsc'] {
+  --p-bg: #2f2820; --p-raise: #382f26; --p-sunk: #251f18; --p-edge: #66553c; --p-hair: rgba(243, 234, 214, .16);
+  --p-ink: #f3ead6; --p-ink-2: #c2b59c; --p-accent: #8fc79c; --p-focus: #e6c27a;
+  --p-grad: linear-gradient(180deg, #332b22 0%, #2c251d 100%);
+  --p-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 12px 32px rgba(0,0,0,.5);
+  --p-danger: #f19a8a; --rule-col: #c9a052;
+}
+/* page scope: inside a page surface the legacy names and the families resolve to the page */
+.page, .rt, .statblock, .tip, .tt-tip {
+  --bg: var(--p-bg); --panel: var(--p-bg); --ink: var(--p-ink); --ink-2: var(--p-ink-2); --hair: var(--p-hair); --accent: var(--p-accent);
+  /* the DM-only block's wash: light enough that every family link keeps 4.5:1 on it (12% took teal and ochre below) */
+  --dm-tint: color-mix(in srgb, var(--p-accent) 6%, var(--p-bg));
+  --r-common: var(--r-common-l); --r-uncommon: var(--r-uncommon-l); --r-rare: var(--r-rare-l); --r-veryrare: var(--r-veryrare-l);
+  --r-legendary: var(--r-legendary-l); --r-artifact: var(--r-artifact-l);
+  color: var(--p-ink);
+  /* glyph advances unsnapped: the small-cap faces keep their spacing at 13-16 px */
+  text-rendering: geometricPrecision;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) :is(.page, .rt, .statblock, .tip, .tt-tip) {
+    --r-common: var(--r-common-d); --r-uncommon: var(--r-uncommon-d); --r-rare: var(--r-rare-d); --r-veryrare: var(--r-veryrare-d);
+    --r-legendary: var(--r-legendary-d); --r-artifact: var(--r-artifact-d);
+  }
+}
+:root[data-theme='dark'] :is(.page, .rt, .statblock, .tip, .tt-tip) {
+  --r-common: var(--r-common-d); --r-uncommon: var(--r-uncommon-d); --r-rare: var(--r-rare-d); --r-veryrare: var(--r-veryrare-d);
+  --r-legendary: var(--r-legendary-d); --r-artifact: var(--r-artifact-d);
+}
+/* ==== end of the theme tokens ==== */
+
 /* applefy: light, quiet, one type family, hairlines, line icons. */
 :root {
   --bg: #f5f5f7;
@@ -33,6 +143,22 @@ button.icon[aria-pressed='true'] { background: var(--ink); color: var(--bg); }
 .title { display: flex; flex-direction: column; padding: 0 8px; min-width: 0; }
 .title .loc { font-weight: 600; font-size: 15px; white-space: nowrap; }
 .title .sub { font-size: 12px; color: var(--ink-2); white-space: nowrap; }
+/* the breadcrumb (continuous world): Barovia › Town of Vallaki › Blue Water Inn › Ground floor; each crumb frames its scope */
+.title .loc.crumbs { display: flex; align-items: baseline; min-width: 0; overflow: hidden; }
+.title .loc.crumbs .ck { display: inline-flex; align-items: baseline; min-width: 0; flex: 0 1 auto; }
+.title .loc.crumbs .ck > i { font-style: normal; color: var(--ink-2); padding: 0 5px; flex: none; }
+.title .loc.crumbs .crumb { font: inherit; padding: 0; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--ink-2); font-weight: 500; }
+.title .loc.crumbs .ck:last-child .crumb, .title .loc.crumbs .ck.map:nth-last-child(2):has(+ .ck.level) .crumb { color: var(--ink); font-weight: 600; }
+/* on touch each crumb is a finger-sized target (the extra height reaches over the bar's padding, not the layout), and
+   the separators keep neighbouring crumbs apart */
+@media (pointer: coarse) {
+  .title .loc.crumbs { padding-block: 12px; margin-block: -12px; }
+  .title .loc.crumbs .crumb { padding-block: 12px; margin-block: -12px; }
+  .title .loc.crumbs .ck > i { padding: 0 8px; }
+  .title .loc.crumbs + .sub { pointer-events: none; } /* (plain text: a finger landing on it presses the crumb above) */
+}
+.title .loc.crumbs button.crumb:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+.lbl.nest-hidden { display: none !important; }
 .seg { display: flex; gap: 2px; padding: 2px; border-radius: 10px; background: var(--hair); }
 .seg button:not(.icon) { padding: 6px 12px; border-radius: 8px; font-size: 13px; }
 .seg button[aria-selected='true'] { background: var(--bg); box-shadow: 0 1px 2px rgba(0,0,0,.12); }
@@ -53,8 +179,10 @@ button.icon[aria-pressed='true'] { background: var(--ink); color: var(--bg); }
 .vs-peek { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; color: var(--ink); border: var(--hairline, 1px) solid var(--hair); }
 .vs-peek:active { background: var(--ink); color: var(--bg); }
 
-.status { position: absolute; left: 50%; bottom: calc(env(safe-area-inset-bottom) + 16px); transform: translateX(-50%); padding: 6px 14px; border-radius: 999px; background: var(--panel); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: var(--hairline, 1px) solid var(--hair); font-size: 13px; font-variant-numeric: tabular-nums; opacity: 0; transition: opacity .15s; pointer-events: none !important; }
+.status { position: absolute; z-index: 5; left: 50%; bottom: calc(env(safe-area-inset-bottom) + 16px); transform: translateX(-50%); padding: 6px 14px; border-radius: 999px; background: var(--panel); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: var(--hairline, 1px) solid var(--hair); font-size: 13px; font-variant-numeric: tabular-nums; opacity: 0; transition: opacity .15s; pointer-events: none !important; }
 .status.on { opacity: 1; }
+/* The measure readout's distance chip opens the diagonal-rule card: the only part of the status line that takes a tap. */
+.status.on .rl { pointer-events: auto !important; }
 
 .lbl { font: 600 11px/1.2 var(--font); color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.8); white-space: nowrap; text-align: center; transition: none; }
 .lbl span { display: block; font-weight: 400; font-size: 11px; opacity: .85; }
@@ -108,13 +236,30 @@ body[data-view='players'] .lbl.key { display: none; }
 .room { display: flex; align-items: center; border-top: var(--hairline, 1px) solid var(--hair); }
 .room .go { flex: 1; display: grid; grid-template-columns: 44px 1fr auto; gap: 8px; align-items: baseline; padding: 8px 12px; text-align: left; min-width: 0; }
 .room .go span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.room .go em { font-style: normal; font-size: 11px; color: var(--ink-2); }
+.room .go { grid-template-columns: 44px 1fr; }
+.room > em { flex: none; font-style: normal; font-size: 13px; padding: 0 4px; }
 .room .eye { margin-right: 6px; color: var(--ink-2); }
 .room.on .eye { color: var(--accent); }
 .room.here { background: color-mix(in srgb, var(--amber) 14%, transparent); }
 .sheet.help dl { margin: 0; padding: 8px 16px 16px; }
 .sheet.help dt { font-weight: 600; margin-top: 12px; }
 .sheet.help dd { margin: 2px 0 0; color: var(--ink-2); }
+/* The attribution statements carry long licence URLs: they wrap rather than run off a phone's edge. */
+.sheet.help dd.attrib { overflow-wrap: anywhere; }
+.sheet.help .version { margin: 0; padding: 0 16px 16px; color: var(--ink-2); font-size: 12px; }
+.sheet.help .version .link { background: none; border: 0; padding: 0; font: inherit; color: var(--accent, var(--ink)); text-decoration: underline; cursor: pointer; }
+/* "What's new": the newest changelog entry, once after each update (ui/whatsnew.ts). */
+.sheet.whatsnew { width: min(560px, calc(100vw - 24px)); }
+.sheet.whatsnew header { align-items: flex-start; }
+.sheet.whatsnew .eyebrow { display: block; font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--amber, var(--ink-2)); }
+.sheet.whatsnew h2 { margin-top: 2px; }
+.sheet.whatsnew .sheet-body { padding: 12px 16px 4px; font-size: 14px; line-height: 1.45; }
+.sheet.whatsnew .sheet-body p { margin: 0 0 10px; }
+.sheet.whatsnew .sheet-body ul { margin: 0 0 10px; padding-left: 20px; }
+.sheet.whatsnew .sheet-body li { margin: 4px 0; }
+.sheet.whatsnew .sheet-body code { font-size: 12.5px; padding: 0 4px; border-radius: 4px; background: color-mix(in srgb, var(--ink) 8%, transparent); }
+.sheet.whatsnew footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 16px 14px; border-top: var(--hairline, 1px) solid var(--hair); font-size: 12px; color: var(--ink-2); }
+.sheet.whatsnew footer .primary { font-size: 14px; padding: 8px 18px; border-radius: 999px; border: 0; background: var(--ink); color: var(--bg); cursor: pointer; }
 .lbl.key { font-size: 11px; padding: 1px 6px; }
 
 
@@ -145,7 +290,7 @@ body[data-view='players'] .lbl.link { display: none; }
 .infocard .where { font-size: 12px; color: var(--ink-2); }
 .infocard .body { padding: 10px 16px 6px; display: grid; gap: 8px; }
 .infocard .desc { font-size: 14px; }
-.infocard .dm { font-size: 13px; color: var(--ink); background: color-mix(in srgb, var(--accent) 12%, transparent); border-left: 3px solid var(--accent); padding: 6px 10px; border-radius: 0 8px 8px 0; }
+.infocard .dm { font-size: 13px; color: var(--ink); background: var(--dm-tint, color-mix(in srgb, var(--accent) 12%, transparent)); border-left: 3px solid var(--accent); padding: 6px 10px; border-radius: 0 8px 8px 0; }
 .infocard .dm-tag { display: flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); margin-bottom: 3px; }
 .infocard .dm-tag svg { width: 12px; height: 12px; }
 .infocard .seen-as { font-size: 12px; color: var(--ink-2); }
@@ -153,10 +298,6 @@ body[data-view='players'] .lbl.link { display: none; }
 .infocard .actions { display: flex; flex-wrap: wrap; gap: 6px; padding: 6px 12px 12px; }
 .infocard .actions button { font-size: 13px; padding: 7px 12px; border-radius: 999px; border: var(--hairline, 1px) solid var(--hair); }
 .infocard .actions button.primary { background: var(--ink); color: var(--bg); border-color: transparent; }
-.tip { position: fixed; z-index: 7; pointer-events: none; max-width: 260px; padding: 6px 10px; border-radius: 10px; background: var(--bg); box-shadow: 0 6px 24px rgba(0,0,0,.28); border: var(--hairline, 1px) solid var(--hair); font-size: 13px; display: grid; gap: 1px; }
-.tip b { font-weight: 600; }
-.tip span { font-size: 11px; color: var(--ink-2); }
-.tip[hidden] { display: none; }
 
 /* Top bar: one row when it fits; otherwise title and tools on top, floor tabs centred below. Never overlaps. */
 .topbar { display: grid; grid-template-columns: auto 1fr auto; grid-template-areas: 'left center right'; align-items: start; }
@@ -168,17 +309,22 @@ body[data-view='players'] .lbl.link { display: none; }
 }
 @media (max-width: 820px) {
   .topbar .title .loc { max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; }
+  /* narrow: the breadcrumb keeps its last two crumbs (the map and its floor, or the town and the building) */
+  .topbar .title .loc.crumbs { display: flex; max-width: calc(100vw - 128px); font-size: 14px; }
+  .topbar .title .loc.crumbs .ck:not(.near) { display: none; }
+  .topbar .title .loc.crumbs .ck.near0 > i { display: none; }
   .topbar .group.right .divider { display: none; }
   .topbar .group.right button.icon { width: 34px; }
 }
 @media (max-width: 760px) { .topbar { grid-template-columns: 1fr; grid-template-areas: 'left' 'right' 'center'; } .topbar .group.left, .topbar .group.right { justify-self: start; } }
-body[data-view='players'] .topbar { grid-template-columns: auto 1fr; grid-template-areas: 'left center'; }
-@media (max-width: 820px) { body[data-view='players'] .topbar { grid-template-columns: 1fr; grid-template-areas: 'left' 'center'; } }
+body[data-view='players'] .topbar { grid-template-columns: auto minmax(0, 1fr); grid-template-areas: 'left center'; }
+/* (the floor picker and the section slider do not fit beside the title on an iPad: they go under it) */
+@media (max-width: 1100px) { body[data-view='players'] .topbar { grid-template-columns: minmax(0, 1fr); grid-template-areas: 'left' 'center'; } }
 .tapmenu.withroom { width: min(340px, calc(100vw - 16px)); }
 .tapmenu .roomhead { padding: 8px 10px 8px; margin-bottom: 4px; border-bottom: var(--hairline, 1px) solid var(--hair); display: grid; gap: 6px; }
 .tapmenu .rh-title { font-size: 15px; } .tapmenu .rh-title i { font-style: normal; font-size: 12px; color: var(--ink-2); }
 .tapmenu .roomhead .desc { font-size: 13px; line-height: 1.4; }
-.tapmenu .roomhead .dm { font-size: 12.5px; line-height: 1.4; background: color-mix(in srgb, var(--accent) 12%, transparent); border-left: 3px solid var(--accent); padding: 6px 10px; border-radius: 0 8px 8px 0; }
+.tapmenu .roomhead .dm { font-size: 12.5px; line-height: 1.4; background: var(--dm-tint, color-mix(in srgb, var(--accent) 12%, transparent)); border-left: 3px solid var(--accent); padding: 6px 10px; border-radius: 0 8px 8px 0; }
 .tapmenu .dm-tag { display: flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); margin-bottom: 3px; }
 .tapmenu .dm-tag svg { width: 12px; height: 12px; }
 .infocard .inside { font-size: 13px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
@@ -212,11 +358,11 @@ body[data-view='players'] .topbar { grid-template-columns: auto 1fr; grid-templa
 .wm-party .halo { fill: #e0a44a; opacity: .25; stroke: none; }
 .wm-party .glyph { fill: none; stroke: #3a2610; stroke-width: .05; stroke-linecap: round; }
 .wm-party.movable { cursor: move; } .wm-party.snap .halo { opacity: .55; }
-.world-card { position: absolute; left: 16px; bottom: 16px; max-width: min(420px, calc(100% - 32px)); background: var(--bg); border-radius: 14px; box-shadow: 0 12px 40px rgba(0,0,0,.35); padding: 12px 14px; display: grid; gap: 6px; font-size: 14px; z-index: 2; }
-.world-card[hidden] { display: none; }
-.world-card .wc-travel, .world-card .wc-note { font-size: 12.5px; color: var(--ink-2); }
-.world-card .wc-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 2px; }
-.world-card .wc-actions button { font-size: 13px; padding: 7px 12px; border-radius: 999px; background: var(--ink); color: var(--bg); }
+:is(.world-card, .nestcard) { position: absolute; left: 16px; bottom: 16px; max-width: min(420px, calc(100% - 32px)); background: var(--bg); border-radius: 14px; box-shadow: 0 12px 40px rgba(0,0,0,.35); padding: 12px 14px; display: grid; gap: 6px; font-size: 14px; z-index: 2; }
+:is(.world-card, .nestcard)[hidden] { display: none; }
+:is(.world-card, .nestcard) .wc-travel, :is(.world-card, .nestcard) .wc-note { font-size: 12.5px; color: var(--ink-2); }
+:is(.world-card, .nestcard) .wc-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 2px; }
+:is(.world-card, .nestcard) .wc-actions button { font-size: 13px; padding: 7px 12px; border-radius: 999px; background: var(--ink); color: var(--bg); }
 .world-scale { position: absolute; right: 16px; bottom: 16px; display: grid; gap: 3px; justify-items: start; font: 11px -apple-system, system-ui, sans-serif; color: #2a2420; background: rgba(255,250,240,.82); padding: 6px 10px; border-radius: 8px; pointer-events: none; }
 .world-scale i { display: block; height: 6px; border: 1.5px solid #2a2420; border-top: 0; background: linear-gradient(90deg, #2a2420 0 50%, transparent 50%); }
 .world-compass { position: absolute; right: 22px; top: 14px; width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font: 700 13px Georgia, serif; color: #2a2420; background: rgba(255,250,240,.85); box-shadow: 0 1px 4px rgba(0,0,0,.25); pointer-events: none; }
@@ -263,6 +409,7 @@ body[data-view='players'] .topbar { grid-template-columns: auto 1fr; grid-templa
 .sheet.library .campaigns button { flex: 1; display: grid; gap: 2px; text-align: left; padding: 10px 12px; border-radius: 12px; border: var(--hairline, 1px) solid var(--hair); background: var(--bg); }
 .sheet.library .campaigns button[aria-selected='true'] { background: var(--ink); color: var(--bg); border-color: transparent; }
 .sheet.library .campaigns b { font-size: 14px; } .sheet.library .campaigns span { font-size: 11.5px; opacity: .75; }
+@media (max-width: 560px) { .sheet.library .campaigns { flex-wrap: wrap; } .sheet.library .campaigns button[data-books] { flex-basis: 100%; } }
 .sheet.library .pointer { display: flex; gap: 10px; align-items: baseline; padding: 6px 12px; font-size: 13px; color: var(--ink-2); }
 .sheet.library .pointer .k { min-width: 40px; font-weight: 600; } .sheet.library .pointer .meta { margin-left: auto; font-size: 11px; }
 
@@ -275,13 +422,13 @@ body[data-view='players'] .topbar { grid-template-columns: auto 1fr; grid-templa
 .section button.icon { width: 28px; height: 28px; }
 
 /* world map: tooltips, reveal state */
-.world-tip { position: absolute; z-index: 3; pointer-events: none; max-width: 270px; background: var(--bg); color: var(--ink); border-radius: 10px; box-shadow: 0 8px 28px rgba(0,0,0,.3); padding: 8px 10px; font-size: 12.5px; display: grid; gap: 3px; }
-.world-tip[hidden] { display: none; }
-.world-tip b { font-size: 13px; }
-.world-tip .dm, .world-card .wc-dm { color: #7b2d26; }
-.world-tip .vis { color: var(--ink-2); font-size: 11.5px; }
-.world-card .wc-blurb { font-size: 13px; }
-.world-card .wc-where { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+:is(.world-tip, .nesttip) { position: absolute; z-index: 3; pointer-events: none; max-width: 270px; background: var(--bg); color: var(--ink); border-radius: 10px; box-shadow: 0 8px 28px rgba(0,0,0,.3); padding: 8px 10px; font-size: 12.5px; display: grid; gap: 3px; }
+:is(.world-tip, .nesttip)[hidden] { display: none; }
+:is(.world-tip, .nesttip) b { font-size: 13px; }
+:is(.world-tip, .nesttip) .dm, :is(.world-card, .nestcard) .wc-dm { color: var(--p-accent, #7b2d26); }
+:is(.world-tip, .nesttip) .vis { color: var(--ink-2); font-size: 11.5px; }
+:is(.world-card, .nestcard) .wc-blurb { font-size: 13px; }
+:is(.world-card, .nestcard) .wc-where { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .chip-btn { font: 600 11px/1 -apple-system, system-ui, sans-serif; padding: 5px 8px; border-radius: 999px; border: 1px solid var(--hair); background: var(--bg-2, transparent); color: var(--ink-2); cursor: pointer; }
 .chip-btn[aria-pressed="true"] { background: #2f6b3a; color: #fff; border-color: transparent; }
 .world-key li .eye { margin-left: auto; width: 26px; height: 26px; opacity: .45; }
@@ -301,7 +448,9 @@ body[data-zoom='mid'] .lbl.link { font-size: 10px; }
 .clist { display: grid; gap: 4px; }
 .crow { display: flex; align-items: center; gap: 10px; padding: 6px 8px; border-radius: 10px; }
 .crow:hover { background: rgba(127,127,127,.08); }
-.crow .chip, .roster .chip { width: 12px; height: 12px; border-radius: 50%; background: var(--tok, #999); flex: none; display: inline-block; }
+.crow .chip, .roster .chip { box-sizing: border-box; width: 12px; height: 12px; padding: 0; border-radius: 50%; border: 1px solid color-mix(in srgb, var(--ink) 35%, transparent); background: var(--tok, #999); flex: none; display: inline-block; }
+/* the token's own colour, beside the name it belongs to (the generic .chip padding had drawn it as a stray oval) */
+.crow .chip { align-self: flex-start; margin-top: 5px; }
 .crow .cname { flex: 1; min-width: 0; display: grid; }
 .crow .cname span { font-size: 12px; color: var(--ink-2); }
 .crow button { display: inline-flex; align-items: center; gap: 6px; }
@@ -347,8 +496,26 @@ button.clock.night .ck-time { color: #9fb0d8; }
 /* the map frame: compass and scale bar */
 .mapframe { position: absolute; right: 10px; bottom: calc(env(safe-area-inset-bottom) + 12px); z-index: 5; display: flex; align-items: center; gap: 12px; padding: 6px 10px; background: var(--panel); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); border: var(--hairline, 1px) solid var(--hair); border-radius: var(--radius); pointer-events: none; }
 body.world-open .mapframe { display: none; }
-.compass { position: relative; width: 34px; height: 34px; } .compass svg { width: 34px; height: 34px; transition: transform .15s; } .compass b { position: absolute; top: -1px; left: 50%; transform: translateX(-50%); font-size: 9px; color: var(--ink-2); }
+.compass { position: relative; width: 44px; height: 44px; padding: 5px; border: 0; background: transparent; border-radius: 50%; pointer-events: auto; } .compass svg { display: block; width: 34px; height: 34px; } .compass b { position: absolute; top: 1px; left: 50%; transform: translateX(-50%); font-size: 9px; color: var(--ink-2); }
+:is(.compass, .carto-rose):focus-visible { outline: 2px solid var(--p-focus); outline-offset: 2px; }
 .scalebar { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; min-width: 60px; } .scalebar i { display: block; height: 6px; border: 2px solid var(--ink); border-top: none; width: 70px; transition: width .15s; } .scalebar span { font-size: 10px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+/* The frame's empty space passes taps through; only its compass takes input. On a narrow screen the frame stands
+   clear of the camera row and under any card. */
+#ui > .mapframe { pointer-events: none; }
+@media (max-width: 700px) { .mapframe { bottom: calc(env(safe-area-inset-bottom) + 64px); z-index: 2; } }
+.camcluster button > svg { pointer-events: none; } /* a press anywhere on a camera button lands on the button itself */
+/* nesting: Back shows only on a map that belongs to another ([hidden] alone loses to button.icon's display) */
+.topbar .back[hidden] { display: none; }
+/* the way up: a zoom out past the far limit offers the map one level up; the chip fades and never goes by itself */
+.zoomchip { position: absolute; left: 50%; bottom: calc(env(safe-area-inset-bottom) + 64px); transform: translateX(-50%); z-index: 6; display: flex; align-items: center; gap: 8px; min-height: 44px; max-width: calc(100vw - 24px); padding: 0 16px 0 12px; border-radius: 999px; background: var(--ink); color: var(--bg); font-size: 14px; font-weight: 600; white-space: nowrap; box-shadow: 0 8px 24px rgba(0,0,0,.3); opacity: 0; transition: opacity .25s; }
+.zoomchip.on { opacity: 1; }
+.zoomchip[hidden] { display: none; }
+.zoomchip svg { width: 20px; height: 20px; flex: none; }
+.zoomchip span { overflow: hidden; text-overflow: ellipsis; }
+@media (max-width: 700px) { .zoomchip { bottom: calc(env(safe-area-inset-bottom) + 150px); } }
+.tip em { display: flex; align-items: center; gap: 4px; margin-top: 2px; font-style: normal; font-size: 11px; font-weight: 600; color: var(--p-accent, var(--accent)); }
+.tip em svg { width: 14px; height: 14px; flex: none; }
+.tip em i { font-style: normal; }
 .lbl.ruler { font: 700 12px var(--font); color: #f2b35b; background: rgba(20,18,24,.78); padding: 2px 7px; border-radius: 6px; text-shadow: none; }
 button.icon[data-tool='measure'][aria-pressed='true'] { background: var(--accent); color: #fff; }
 
@@ -377,3 +544,206 @@ body[data-view='players'] .minimap { display: none; }
 .topbar .group.center:not(:has(.levels-pick:not([style*="none"]))):not(:has(.section:not([hidden]))) { display: none; }
 .levels-pick .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
 select.levels { max-width: min(46vw, 320px); padding: 6px 28px 6px 10px; border-radius: 10px; border: var(--hairline, 1px) solid var(--hair); background: var(--bg); color: var(--ink); font: 600 13px var(--font); text-overflow: ellipsis; }
+
+/* The continuous world: place labels over the valley, the party's mark on the road; a map's own labels wait until
+   the camera comes down to it (zoom bands on body[data-band]: valley, road, town, map). */
+.lbl.place { font: 600 12px/1.2 var(--font); color: #efe6d2; background: rgba(24, 20, 30, .62); border: 1px solid rgba(239, 230, 210, .25); padding: 2px 8px; border-radius: 7px; text-shadow: none; letter-spacing: .01em; }
+/* the names take no pointer (a wheel or a pinch over one zooms like anywhere else); the canvas's tap and hover find
+   them (WorldStage.labelAt), and the hovered one lights up */
+body:not([data-view='players']):not([data-mode='player']) #stage .labels .lbl.place.hover { background: rgba(60, 46, 70, .85); border-color: rgba(239, 230, 210, .6); }
+.lbl.place b { font-weight: 700; } .lbl.place em { font-style: normal; }
+/* crowded out or near the edge: the key alone, a small tag on the place */
+.lbl.place.dot { padding: 1px 5px; border-radius: 999px; font-size: 11px; } .lbl.place.dot em { display: none; }
+.lbl.world-party { font: 700 24px Georgia, serif; color: #c0392b; text-shadow: 0 1px 2px rgba(0,0,0,.7), 0 0 6px rgba(255,255,255,.35); }
+body:not([data-band='valley']):not([data-band='road']) .lbl.place { display: none !important; }
+body[data-band='valley'] #stage .labels .lbl:not(.place):not(.world-party):not(.carto), body[data-band='road'] #stage .labels .lbl:not(.place):not(.world-party):not(.carto) { display: none !important; }
+.lbl.place .mark { display: none; }
+
+/* The inked map (render/worldcarto.ts, worldletters.ts, worldglyphs.ts). While the land is drawn as the map
+   (body[data-carto], --carto its strength 0..1) the land's names are lettered on it in the bundled faces with paper
+   halos, each place label cross-fades from the app's chip to the map's pin (its symbol, a keyed disc, its name; over
+   --carto .45 → .57), and at region fit the sheet carries its title, a rose and a vignette. --pd scales it all on the
+   Player Display (a television across the room). */
+body { --carto: 0; --cx: clamp(0, calc((var(--carto) - .45) / .12), 1); --pd: 1;
+  --carto-ink: #2c241c; --carto-paper: #e6dec8; --carto-red: #7b2d26; --carto-disc: #f7f1e3; --carto-water: #2c4752; --carto-wood: #1f2a20;
+  --carto-vignette: rgba(20, 14, 18, .45); --carto-title: 600 calc(40px * var(--pd)) / 1 'Grenze Gotisch', 'Alegreya SC', Georgia, serif;
+  --g-wall: #cfc2a4; --g-roof: #38323d; --g-stone: #9b9690; --g-stone2: #625e5b; --g-shade: #7d7466; --g-banner: #7a1f2b; --g-ink: #2c241c; --g-fire: #e0782c; }
+body[data-carto-style='pastoral'] { --carto-ink: #4a3a28; --carto-paper: #f8f0d8; --carto-red: #9a3b22; --carto-disc: #fffaf0; --carto-water: #355f78; --carto-wood: #3c5f2c;
+  --carto-vignette: rgba(120, 96, 60, .28); --carto-title: 700 calc(34px * var(--pd)) / 1 'Fraunces Soft', 'Alegreya SC', Georgia, serif;
+  --g-wall: #f1e6c8; --g-roof: #b5523a; --g-stone: #c2b7a4; --g-stone2: #8c8170; --g-shade: #c9b99a; --g-banner: #9a3b22; --g-ink: #5a4630; }
+body[data-mode='player'] { --pd: max(1.25, calc(1.6 * 100vh / 1080px)); }
+.lbl.carto { display: none; opacity: var(--carto); color: var(--carto-ink); font: 400 calc(12px * var(--pd))/1.1 'Alegreya', Georgia, serif; white-space: nowrap; pointer-events: none;
+  text-shadow: 0 0 2px var(--carto-paper), 0 0 2px var(--carto-paper), 0 0 4px var(--carto-paper), 0 0 6px var(--carto-paper); }
+body[data-carto] .lbl.carto { display: block; }
+.lbl.carto span { display: inline-block; font: inherit; opacity: 1; }
+body[data-mode='player'] .lbl.carto span { font-size: max(1em, clamp(18px, calc(100vh / 45), 24px)); }
+.lbl.carto.peak { font: italic 600 calc(13px * var(--pd))/1.05 'Alegreya', Georgia, serif; letter-spacing: .02em; text-align: center; }
+.lbl.carto.peak span::before { content: ''; display: block; margin: 0 auto 2px; width: 0; height: 0; border: 5px solid transparent; border-bottom: 9px solid var(--carto-ink); border-top: 0; }
+.lbl.carto.wood { font: 700 calc(14px * var(--pd))/1 'Alegreya SC', Georgia, serif; letter-spacing: .32em; color: var(--carto-wood); opacity: calc(var(--carto) * .9); }
+.lbl.carto.lake { font: italic 600 calc(15px * var(--pd))/1 'Alegreya', Georgia, serif; letter-spacing: .12em; color: var(--carto-water); }
+.lbl.carto.river { font: italic 600 calc(13px * var(--pd))/1 'Alegreya', Georgia, serif; letter-spacing: .1em; color: var(--carto-water); }
+/* the place label: the element stops being the pill; its chip carries the pill and fades out as the pin fades in */
+/* the label's own box is the disc, centred on the place: the symbol stands over it and the name runs to its right,
+   both outside the box (the declutter measures the disc and the name: worldstage.ts) */
+body[data-carto] .lbl.place { display: block; background: none; border-color: transparent; padding: 0; }
+body[data-carto] .lbl.place .chip { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); white-space: nowrap; opacity: calc(1 - var(--cx)); background: rgba(24, 20, 30, .62); border: 1px solid rgba(239, 230, 210, .25); padding: 2px 8px; border-radius: 7px; }
+body[data-carto] .lbl.place.dot .chip { padding: 1px 5px; border-radius: 999px; }
+body[data-carto] .lbl.place .mark { display: block; opacity: var(--cx); }
+.lbl.place .glyph { position: absolute; left: 50%; bottom: calc(100% - 3px); transform: translateX(-50%); display: block; width: calc(var(--gw) * var(--pd)); height: auto; overflow: visible; filter: drop-shadow(0 0 1.5px var(--carto-paper)); pointer-events: none; }
+.lbl.place .pd { position: relative; display: flex; }
+.lbl.place .pn { position: absolute; left: calc(100% + 5px); top: 50%; transform: translateY(-50%); }
+.lbl.place .pk { display: inline-grid; place-items: center; flex: none; box-sizing: border-box; width: calc(30px * var(--pd)); height: calc(30px * var(--pd)); border-radius: 50%;
+  background: var(--carto-disc); border: 1.5px solid var(--carto-red); color: var(--carto-red); font: 700 calc(16px * var(--pd))/1 'Alegreya SC', Georgia, serif; text-shadow: none;
+  box-shadow: 0 0 0 1.5px var(--carto-paper), 0 1px 3px rgba(0, 0, 0, .35); }
+.lbl.place.has-scene .pk { box-shadow: 0 0 0 3px #f2b35b, 0 1px 3px rgba(0, 0, 0, .35); }
+.lbl.place.unknown .pk { border-style: dashed; color: color-mix(in srgb, var(--carto-red) 70%, transparent); }
+.lbl.place .pn { font: italic 600 calc(15px * var(--pd))/1.1 'Alegreya', Georgia, serif; color: var(--carto-ink); letter-spacing: .01em; white-space: nowrap;
+  text-shadow: 0 0 2px var(--carto-paper), 0 0 2px var(--carto-paper), 0 0 4px var(--carto-paper), 0 0 6px var(--carto-paper); }
+.lbl.place.dot .pn { display: none; }
+body:not([data-view='players']):not([data-mode='player']) #stage .labels .lbl.place.hover .pk { background: #fff8e6; transform: scale(1.08); }
+@media (max-width: 700px) { .lbl.place .glyph { width: calc(var(--gw) * .75); } .lbl.place .pk { width: 24px; height: 24px; font-size: 13px; } .lbl.place .pn, .lbl.carto.lake { font-size: 13px; } .lbl.carto.wood { font-size: 12px; } .lbl.carto.river, .lbl.carto.peak { font-size: 12px; } }
+/* the party's & stands over every place's disc, a little up and to the right of its spot (so a place's letter stays legible) */
+body[data-carto] .lbl.world-party { z-index: 100000 !important; margin: -14px 0 0 16px; font: 700 calc(34px * var(--pd))/44px 'Atkinson Next', system-ui, sans-serif; width: 44px; height: 44px; text-align: center; color: #c0392b;
+  text-shadow: 0 0 2px #f3ead6, 0 0 2px #f3ead6, 0 0 4px #f3ead6, 0 0 7px #f3ead6; }
+/* the sheet's frame */
+.carto-frame { position: absolute; inset: 0; pointer-events: none; visibility: hidden; opacity: 0; color: var(--carto-ink); z-index: 1; }
+.carto-vignette { position: absolute; inset: 0; background: radial-gradient(ellipse at center, transparent 62%, var(--carto-vignette) 100%); }
+.carto-title { position: absolute; top: var(--safe-top, 72px); left: var(--safe-left, 16px); max-width: calc(100% - var(--safe-left, 16px) - var(--safe-right, 16px)); box-sizing: border-box; display: grid; justify-items: start; gap: 4px; padding: 0 2px; }
+.carto-title .ct-name { font: var(--carto-title); letter-spacing: .015em; white-space: nowrap; text-shadow: 0 0 3px var(--carto-paper), 0 0 6px var(--carto-paper), 0 0 10px var(--carto-paper); }
+.carto-frame.gothic .ct-name { padding-bottom: 6px; background: linear-gradient(currentColor, currentColor) 0 calc(100% - 3px) / 70% 1px no-repeat, linear-gradient(currentColor, currentColor) 0 100% / 70% .5px no-repeat; }
+.carto-title .ct-note { font: 700 calc(13px * var(--pd))/1.2 'Alegreya SC', Georgia, serif; letter-spacing: .04em; text-shadow: 0 0 3px var(--carto-paper), 0 0 6px var(--carto-paper); }
+.carto-frame.pastoral .carto-title { padding: 10px 34px 12px; justify-items: center; }
+.carto-frame.pastoral .ct-name { white-space: normal; text-align: center; min-width: 0; }
+.carto-frame.pastoral .carto-title .scroll { position: absolute; inset: 0; width: 100%; height: 100%; z-index: -1; overflow: visible; }
+.carto-rose { position: absolute; right: var(--safe-right, 16px); bottom: var(--safe-bottom, 16px); width: calc(96px * var(--pd)); height: calc(96px * var(--pd)); margin: 0 16px 16px 0; padding: 0; border: 0; background: transparent; color: inherit; border-radius: 50%; pointer-events: auto; filter: drop-shadow(0 0 3px var(--carto-paper)); }
+.carto-rose:disabled { pointer-events: none; }
+.carto-rose svg { width: 100%; height: 100%; overflow: visible; font-family: 'Alegreya SC', Georgia, serif; font-weight: 700; }
+.carto-rose text { fill: currentColor; }
+body[data-carto-frame] .mapframe .compass { display: none; }
+@media (max-width: 700px) { .carto-title .ct-name { font-size: 26px; } .carto-frame.pastoral .carto-title .ct-name { font-size: 24px; } .carto-rose { width: 64px; height: 64px; } }
+/* the scale bar in miles while the map is drawn: alternating ink and paper */
+.scalebar.miles i { height: 6px; border: 1px solid var(--carto-ink, #2c241c); background: repeating-linear-gradient(90deg, var(--carto-ink, #2c241c) 0 25%, var(--carto-paper, #e6dec8) 25% 50%); }
+
+/* ---- tips, toggletips and rules links (docs/CLARITY.md 'The shared tooltip component', docs/THEME.md '.rt and .rl').
+   Tips and cards render in #tips, above #ui. Every surface here is an opaque page: nothing shows through. */
+#tips { position: fixed; inset: 0; z-index: 40; pointer-events: none; }
+#tips > * { pointer-events: auto; }
+#tips > .tip.hover, .tip.canvas { pointer-events: none; }
+.tip { position: fixed; z-index: 41; max-width: 260px; padding: 7px 11px 8px; background-color: var(--p-bg); background-image: var(--p-grad); border: 1px solid var(--p-edge); border-radius: var(--r-2); box-shadow: var(--p-shadow); font: 400 var(--t-1)/1.3 var(--font-ui); display: grid; gap: 2px; overflow-wrap: anywhere; }
+.tip[hidden] { display: none; }
+.tip b { font: 700 var(--t-3)/1.2 var(--font-ui); color: var(--p-ink); }
+.tip .sub, .tip > span { font-size: var(--t-1); color: var(--p-ink-2); }
+.tip kbd { display: inline-block; margin-left: 8px; padding: 1px 6px; border: 1px solid var(--p-edge); border-bottom-width: 2px; border-radius: 4px; background: var(--p-raise); font: 700 var(--t-1)/1.2 var(--font-ui); color: var(--p-ink); vertical-align: 1px; }
+.tip.pinned { padding-right: 40px; }
+.tip .x { position: absolute; right: 0; top: 0; width: var(--hit); height: var(--hit); display: grid; place-items: center; color: var(--p-ink-2); border-radius: var(--r-1); }
+.tip .x svg { width: 16px; height: 16px; }
+button.tt { position: relative; display: inline-flex; align-items: center; gap: 4px; min-height: 32px; padding: 0 10px; border-radius: 999px; border: 1px solid var(--hair); font-size: 13px; color: var(--ink); -webkit-touch-callout: none; user-select: none; -webkit-user-select: none; }
+button.tt::after { content: ''; position: absolute; inset: -6px 0; }
+button.tt[aria-expanded='true'] { background: var(--hair); }
+button.icon, summary.icon { -webkit-touch-callout: none; }
+/* inline rules link: family colour, weight 600 and the family's own underline (dotted, dashed, double, wavy, solid) */
+button.rl { position: relative; display: inline; padding: 0; margin: 0; border: 0; background: none; font: inherit; font-weight: 600; line-height: inherit; text-align: inherit; color: var(--k-rules); text-decoration: underline dotted 1.5px; text-underline-offset: 3px; cursor: help; -webkit-touch-callout: none; user-select: none; -webkit-user-select: none; }
+button.rl::after { content: ''; position: absolute; left: -2px; right: -2px; top: 50%; height: 32px; transform: translateY(-50%); }
+.rl-keep { white-space: nowrap; }
+.rl.condition { color: var(--k-condition); text-decoration-style: dashed; }
+.rl:is(.spell, .magic) { color: var(--k-magic); text-decoration-style: double; text-decoration-thickness: 1px; text-underline-offset: 2px; }
+.rl.monster { color: var(--k-monster); text-decoration-style: wavy; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.rl.pageref { color: var(--p-ink); text-decoration: underline solid 1px; text-underline-offset: 3px; cursor: pointer; }
+/* a standalone link (stat chips, sheet meta): a 44 px box with a 30 px raised pill drawn inside, the emblem and the word */
+button.rl.pill { display: inline-flex; align-items: center; gap: 4px; min-height: var(--hit); padding: 0 9px 0 6px; text-decoration-line: none; isolation: isolate; }
+button.rl.pill::before { content: ''; position: absolute; inset: 7px 0; z-index: -1; border-radius: var(--r-1); background: var(--p-raise); border: 1px solid var(--p-hair); }
+button.rl.pill::after { display: none; }
+button.rl.pill span { text-decoration: underline 1px; text-decoration-style: inherit; text-underline-offset: 3px; }
+button.rl.pill svg.e { width: 20px; height: 20px; }
+svg.e { width: 22px; height: 22px; fill: currentColor; flex: none; }
+/* motif: rule. Barovia: a double hairline with a lozenge; the Sheep Chase: a brass lozenge swell. */
+.taper { position: relative; height: 9px; margin: var(--sp-2) 0; border: 0; }
+[data-campaign='cos'] .taper, .taper { background: linear-gradient(var(--rule-col), var(--rule-col)) 0 2px / 100% 1px no-repeat, linear-gradient(var(--rule-col), var(--rule-col)) 0 6px / 100% 1px no-repeat; }
+[data-campaign='cos'] .taper::after { content: ''; position: absolute; left: 50%; top: 50%; width: 7px; height: 7px; transform: translate(-50%, -50%) rotate(45deg); background: var(--rule-col); box-shadow: 0 0 0 2.5px var(--p-bg); }
+[data-campaign='wsc'] .taper { height: 5px; margin: 10px 0; background: var(--rule-col); clip-path: polygon(0 50%, 50% 0, 100% 50%, 50% 100%); }
+/* motif: wax seal, the one DM-only marker */
+.seal { --sz: 30px; width: var(--sz); height: var(--sz); flex: none; display: inline-grid; place-items: center; background: var(--seal); color: var(--seal-ink);
+  clip-path: polygon(50.0% 0.0%, 55.9% 5.4%, 62.9% 1.7%, 67.2% 8.4%, 75.0% 6.7%, 77.4% 14.3%, 85.4% 14.6%, 85.7% 22.6%, 93.3% 25.0%, 91.6% 32.8%, 98.3% 37.1%, 94.6% 44.1%, 100.0% 50.0%, 94.6% 55.9%, 98.3% 62.9%, 91.6% 67.2%, 93.3% 75.0%, 85.7% 77.4%, 85.4% 85.4%, 77.4% 85.7%, 75.0% 93.3%, 67.2% 91.6%, 62.9% 98.3%, 55.9% 94.6%, 50.0% 100.0%, 44.1% 94.6%, 37.1% 98.3%, 32.8% 91.6%, 25.0% 93.3%, 22.6% 85.7%, 14.6% 85.4%, 14.3% 77.4%, 6.7% 75.0%, 8.4% 67.2%, 1.7% 62.9%, 5.4% 55.9%, 0.0% 50.0%, 5.4% 44.1%, 1.7% 37.1%, 8.4% 32.8%, 6.7% 25.0%, 14.3% 22.6%, 14.6% 14.6%, 22.6% 14.3%, 25.0% 6.7%, 32.8% 8.4%, 37.1% 1.7%, 44.1% 5.4%);
+  font: 700 13px/1 var(--font-head); letter-spacing: .02em; }
+.sr-live { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+@media (prefers-reduced-motion: no-preference) { #tips > * { animation: tipfade .12s ease-out; } #tips > .rt.swap { animation: none; } }
+@keyframes tipfade { from { opacity: 0; } }
+
+/* ---- surfaces that hold rules links (the tooltip pass, step 3): page surfaces, the token panel (THEME T4), the
+   creature sheet's pills, the initiative headers, the clock's links, Help's colour key. Sizes and layout elsewhere
+   are unchanged until queue item 15. */
+.page .rl:focus-visible { outline: 2px solid var(--p-focus); outline-offset: 2px; border-radius: 2px; }
+.tokpanel { color: var(--p-ink); }
+.tokpanel header { align-items: center; }
+.tokpanel .tp-name { flex: 1; min-width: 0; font: 700 var(--t-5)/1.15 var(--font-head); }
+.tokpanel .tp-name b { font: inherit; }
+.tokpanel .tp-name .rl { font-weight: 700; }
+.tokpanel header span.tag { flex: none; font: 600 var(--t-1)/1 var(--font-ui); color: var(--p-ink-2); padding: 3px 7px; border: 1px dashed var(--p-edge); border-radius: 999px; }
+.tokpanel .tp-stats { display: flex; flex-wrap: wrap; align-items: center; gap: 0 4px; margin: -6px 0; min-height: var(--hit); }
+.tokpanel .tp-stats .rl.pill, .crow .cpills .rl.pill { font: 600 var(--t-1)/1 var(--font-ui); }
+.tokpanel .tp-src, .crow .csrc { font: italic 400 var(--t-1)/1.3 var(--font-book); color: var(--p-ink-2); }
+.tokpanel .seen { font: italic 400 var(--t-2)/1.35 var(--font-book); color: var(--p-ink-2); display: flex; align-items: center; gap: 6px; }
+.tokpanel .seen .tt { font: 700 var(--t-1)/1 var(--font-head); min-width: 32px; justify-content: center; color: var(--p-ink); border-color: var(--p-edge); }
+.tokpanel .hp { gap: 10px; }
+.tokpanel .hp button { width: var(--hit); height: var(--hit); border-radius: var(--r-1); border: 1px solid var(--p-edge); background: var(--p-raise); font: 700 var(--t-4)/1 var(--font-ui); }
+.tokpanel .hp-v { flex: 1; display: grid; gap: 4px; text-align: center; font: 400 var(--t-2)/1 var(--font-ui); font-variant-numeric: lining-nums tabular-nums; }
+.tokpanel .hp-v b { font-size: var(--t-3); }
+.tokpanel .hp-v i { display: block; height: 8px; border-radius: 4px; background: linear-gradient(90deg, var(--p-accent) calc(var(--f) * 100%), var(--p-sunk) 0); border: 1px solid var(--p-hair); }
+.tokpanel .acts button { min-height: 40px; padding: 0 12px; border-radius: var(--r-1); border: 1px solid var(--p-hair); }
+.tokpanel .acts button.primary { background: var(--p-ink); color: var(--p-bg); border-color: transparent; }
+.tokpanel .acts button.danger, .btn.danger { color: var(--p-danger); border-color: color-mix(in srgb, var(--p-danger) 45%, transparent); }
+.tokpanel .acts button.danger:hover { background: color-mix(in srgb, var(--p-danger) 10%, transparent); }
+.crow .cname .rl.monster { justify-self: start; font-size: 15px; }
+.crow .cmeta { display: flex; flex-wrap: wrap; align-items: center; gap: 0 6px; font-size: 13px; color: var(--p-ink-2); }
+.crow .cmeta .ckind, .crow .cmeta i { font-size: 13px; }
+.crow .cpills { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 0 2px; }
+.crow .cname .rl.pill span, .crow .cname .ctags .rl { font-size: 13px; color: inherit; }
+.crow .ctags .rl.pageref { color: var(--p-ink); }
+.crow { flex-wrap: wrap; }
+.crow .cblock { flex-basis: 100%; padding: 4px 4px 8px 22px; }
+.crow .cblock .statblock { width: min(400px, 100%); }
+.crow button[data-a='block'][aria-expanded='true'] { background: var(--p-sunk); }
+.roster th .rl.pill { font: 600 var(--t-1)/1 var(--font-ui); padding: 0 6px 0 2px; }
+.roster th .rl.pill svg.e { color: var(--p-ink-2); }
+.clockpop .ck-pace { font-size: 13px; }
+.clockpop .ck-note { color: var(--p-ink); }
+.sheet.help dd.colours { line-height: 1.5; }
+.sheet.help dd.colours ul.key { list-style: none; margin: 0 0 4px; padding: 0; display: grid; grid-template-columns: max-content max-content; gap: 6px 14px; align-items: baseline; }
+.sheet.help dd.colours ul.key li { display: contents; }
+.sheet.help dd.colours ul.key i { color: var(--p-ink-2); }
+.sheet.help dd.colours .hint { color: var(--p-ink-2); }
+@media (max-width: 520px) { .sheet.help dd.colours ul.key { grid-template-columns: 1fr max-content; } }
+.infocard.page h2, .tapmenu.page .rh-title { color: var(--p-ink); }
+.infocard .inside .in-text { flex: 1 1 12em; min-width: 0; }
+
+/* The nested world map's own panels (ui/worldnest.ts): the bar under the top bar while a good part of the region is in
+   view, the Places key, the place card, the hover tip, the party's trail, the minimap folded to its clock. */
+.nestbar { position: absolute; left: 50%; transform: translateX(-50%); top: 64px; z-index: 6; display: flex; align-items: center; gap: 6px; padding: 5px 6px; border-radius: var(--r-3, 10px); max-width: calc(100vw - 32px); }
+.nestbar[hidden] { display: none; }
+.nestbar, .nestkey, .nestcard { background-color: var(--p-bg); background-image: var(--p-grad); border: 1px solid var(--p-edge); box-shadow: var(--p-shadow); }
+.nestbar .nb-title { display: grid; margin-right: 6px; min-width: 0; } .nestbar .nb-title b { font: 600 15px/1.1 var(--font-display); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .nestbar .nb-title span { font-size: 11px; color: var(--p-ink-2); white-space: nowrap; }
+.nestbar .seg { background: var(--p-hair); } .nestbar .seg button { min-height: 36px; } .nestbar button.icon { min-width: 40px; min-height: 40px; }
+.nestbar [aria-pressed='true'] { background: var(--p-sunk); box-shadow: inset 0 0 0 1px var(--p-edge); border-radius: 8px; }
+.nestkey { position: absolute; right: 76px; top: 120px; bottom: 76px; width: 270px; z-index: 6; overflow: auto; padding: 10px 10px 12px; border-radius: var(--r-3, 10px); }
+.nestkey[hidden] { display: none; }
+.nestkey h3 { margin: 0 0 6px 6px; font: 700 13px/1.2 'Alegreya SC', Georgia, serif; letter-spacing: .08em; color: var(--p-ink-2); }
+.nestkey ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 1px; }
+.nestkey li { display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 4px 0 6px; border-radius: 8px; cursor: pointer; font-size: 14px; }
+.nestkey li:hover { background: var(--p-hair); }
+.nestkey .place-action { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; min-height: 44px; padding: 0; border: 0; background: transparent; color: inherit; font: inherit; text-align: left; }
+.nestkey li b { flex: none; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font: 700 13px/1 'Alegreya SC', Georgia, serif; background: #f7f1e3; color: #7b2d26; border: 1.5px solid #7b2d26; }
+.nestkey li:not(.revealed) b { border-style: dashed; }
+.nestkey li span { flex: 1; min-width: 0; } .nestkey li i { font-style: normal; font-size: 10px; color: #b0652a; text-transform: uppercase; letter-spacing: .05em; }
+.nestkey li .eye { min-width: 40px; min-height: 40px; opacity: .45; } .nestkey li .eye[aria-pressed='true'] { opacity: 1; color: var(--p-accent); }
+.nestcard { position: fixed; left: 16px; bottom: 76px; z-index: 7; max-width: min(420px, calc(100vw - 32px)); }
+.nesttip { position: fixed; z-index: 41; }
+.nesttrail { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; z-index: 0; }
+.nesttrail path { fill: none; stroke: #c0392b; stroke-width: 2; stroke-dasharray: 6 5; stroke-linecap: round; opacity: .7; }
+.lbl.world-party.movable { cursor: move; } .lbl.world-party.snap { text-shadow: 0 0 3px #f2b35b, 0 0 6px #f2b35b, 0 0 10px #f2b35b; }
+.minimap.folded { aspect-ratio: auto; height: auto; } .minimap.folded canvas, .minimap.folded .mm-north { display: none; } .minimap.folded .clock { position: static; }
+@media (max-width: 700px) {
+  .nestbar { left: 8px; right: 68px; transform: none; flex-wrap: wrap; justify-content: center; padding: 4px; gap: 4px; max-width: none; } .nestbar .seg button { padding: 6px 9px; }
+  .nestbar .nb-title, .nestbar [data-z] { display: none; } /* the sheet's title is on the map; the camera buttons zoom */
+  .nestkey { left: 8px; right: 8px; width: auto; top: auto; bottom: 64px; max-height: 40vh; }
+  .nestcard { left: 8px; right: 8px; bottom: 64px; max-width: none; }
+}

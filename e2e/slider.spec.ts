@@ -5,6 +5,7 @@ import { DM_KEYS, KEY_CLASS } from '../app/src/core/playersView';
 
 for (const sc of SCENES) {
   test(`${sc.scene}/${sc.level}: t = 0 renders a secret door pixel-identical to plain wall`, async ({ page }) => {
+    test.setTimeout(240_000); // Death House stands in its village in the valley: ten full frames on a software renderer
     await boot(page, '', sc);
     for (const view of ['tabletop', 'top'] as const)
       for (const low of [true, false]) {

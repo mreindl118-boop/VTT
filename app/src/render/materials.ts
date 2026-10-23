@@ -2,6 +2,7 @@
 import * as THREE from 'three';
 import { PALETTE } from '../kit/palette';
 import { SURF, surfaceOf, type Surface } from '../kit/surfaces';
+import { markShared } from './dispose';
 
 /** Uniforms shared by all patched materials; one level is active at a time. */
 export const fogUniforms = {
@@ -14,6 +15,13 @@ export const fogUniforms = {
   uMemory: { value: 1 },
   uFogColor: { value: new THREE.Color(PALETTE.fog) },
   uCovEnabled: { value: 1 },
+  /** World xz → the active scene's plan xz (2D affine, rows (x, z, 1)): the coverage map is in scene feet. Identity
+   *  while the active scene stands at the origin unturned; App.setLevel writes it from the scene's placement. */
+  uCovBasis: { value: new THREE.Matrix3() },
+  /** The world's inked map (render/worldcarto.ts): how far the maps are washed toward its ink and paper (0 = not). */
+  uCartoWash: { value: 0 },
+  uWashInk: { value: new THREE.Color('#2c241c') },
+  uWashPaper: { value: new THREE.Color('#d9cfb4') },
 };
 
 const VERT_DECL = 'varying vec3 vMistWorld;\nvarying vec3 vMistN;\n';
@@ -36,9 +44,23 @@ uniform float uFog;
 uniform float uMemory;
 uniform vec3 uFogColor;
 uniform float uCovEnabled;
+uniform mat3 uCovBasis;
 uniform float uFogExempt;
+uniform float uCartoWash;
+uniform vec3 uWashInk;
+uniform vec3 uWashPaper;
 
 varying vec3 vMistN;
+// far out, a map is drawn in the inked map's ink and paper, so it reads as part of the one sheet
+// (ground and roofs in the paper, lit from the NW; the sides away from the light in ink; dark things a shade darker)
+vec3 cartoWash(vec3 c) {
+  if (uCartoWash <= 0.001) return c;
+  float l = dot(c, vec3(0.299, 0.587, 0.114));
+  vec3 n = normalize(vMistN);
+  float lam = max(dot(n, normalize(vec3(-0.6, 0.75, -0.6))) / 0.62, abs(n.y) * 0.95); // ground faces up either way
+  vec3 s = mix(uWashInk, uWashPaper, clamp(0.15 + 0.85 * lam, 0.0, 1.0)) * (0.82 + 0.3 * smoothstep(0.0, 0.25, l));
+  return mix(c, s, uCartoWash);
+}
 uniform float uSurfAmt;
 uniform sampler2D uNoise;
 float sh21(vec2 p) { p = fract(p * vec2(123.34, 456.21)); p += dot(p, p + 45.32); return fract(p.x * p.y); }
@@ -144,7 +166,8 @@ vec3 mistSurface(vec3 P, vec3 N) {
 #endif
 }
 float mistCoverage() {
-  vec2 uv = (vMistWorld.xz - uCovOrigin) / uCovSize;
+  vec2 q = (uCovBasis * vec3(vMistWorld.x, vMistWorld.z, 1.0)).xy;
+  vec2 uv = (q - uCovOrigin) / uCovSize;
   if (uv.x < 0.0 || uv.y < 0.0 || uv.x > 1.0 || uv.y > 1.0) return 0.0;
   return texture2D(uCovTex, uv).r;
 }
@@ -208,7 +231,7 @@ export function patchFog<T extends THREE.Material>(m: T, exempt = false): T {
     Object.assign(sh.uniforms, fogUniforms, { uFogExempt: exemptU, uSurfAmt: surfaceUniforms.uSurfAmt, uNoise: surfaceUniforms.uNoise });
     if (sh.fragmentShader.includes('#include <color_fragment>')) sh.fragmentShader = sh.fragmentShader.replace('#include <color_fragment>', '#include <color_fragment>\n diffuseColor.rgb *= mistSurface(vMistWorld, normalize(vMistN));');
     sh.vertexShader = VERT_DECL + sh.vertexShader.replace('#include <project_vertex>', '#include <project_vertex>\n' + VERT_BODY.replace('MIST_NORMAL', lit ? 'objectNormal' : 'vec3(0.0, 1.0, 0.0)'));
-    sh.fragmentShader = `#define SURF ${surfU.value}\n` + FRAG_DECL + sh.fragmentShader.replace('#include <opaque_fragment>', '#include <opaque_fragment>\n gl_FragColor.rgb = mistApply(gl_FragColor.rgb);');
+    sh.fragmentShader = `#define SURF ${surfU.value}\n` + FRAG_DECL + sh.fragmentShader.replace('#include <opaque_fragment>', '#include <opaque_fragment>\n gl_FragColor.rgb = mistApply(gl_FragColor.rgb);\n gl_FragColor.rgb = cartoWash(gl_FragColor.rgb);');
   };
   m.customProgramCacheKey = () => 'mist' + surfU.value;
   return m;
@@ -224,6 +247,7 @@ export function mat(color: string, opts: { emissive?: string; surface?: Surface 
     m = new THREE.MeshLambertMaterial({ color, flatShading: true, emissive: opts.emissive ?? '#000000' });
     setSurface(m, opts.emissive && opts.emissive !== '#000000' ? 'none' : surf);
     patchFog(m);
+    markShared(m); // every map draws with it: render/dispose.ts never frees it
     cache.set(k, m);
   }
   return m;

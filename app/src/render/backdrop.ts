@@ -7,14 +7,26 @@ import { merge } from '../kit/pieces';
 import { pineTier } from '../kit/props';
 import { FLOOR_COLOR } from '../kit/palette';
 import { patchFog, setSurface } from './materials';
+import { markShared } from './dispose';
 import { surfaceOf, type Surface } from '../kit/surfaces';
 import { terrainOf } from '../core/terrain';
 import RAVENLOFT from '../../../locations/ch04/K/exterior.json';
+import { inLakeShape, lakeRing, lakeShorePoints, ringCentroid } from './worldlakes';
 
 type P = [number, number];
 let MIST = new THREE.Color('#2b2733');
 
 const blend = (hex: string, t: number) => new THREE.Color(hex).lerp(MIST, Math.min(1, Math.max(0, t)));
+/** A lake's middle (miles): its drawn shore's centroid, else its ellipse's centre. */
+const lakeCentre = (l: WorldData['lakes'][number]): P => { const r = lakeRing(l); return r ? ringCentroid(r) : [l.center[0], l.center[1]]; };
+/** A flat sheet filling a ring of plan points at height y, facing up. */
+function sheetOf(ring: P[], y: number): THREE.BufferGeometry {
+  const tris = THREE.ShapeUtils.triangulateShape(ring.map(([x, z]) => new THREE.Vector2(x, z)), []), idx: number[] = [];
+  for (const [a, b, c] of tris) { const [ax, az] = ring[a], [bx, bz] = ring[b], [qx, qz] = ring[c]; if ((bz - az) * (qx - ax) - (bx - ax) * (qz - az) >= 0) idx.push(a, b, c); else idx.push(a, c, b); }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(ring.flatMap(([x, z]) => [x, y, z]), 3)); g.setAttribute('normal', new THREE.Float32BufferAttribute(ring.flatMap(() => [0, 1, 0]), 3)); g.setIndex(idx);
+  return g;
+}
 /** A landmark's material: lit, its colour hazed toward the mist, its grain the surface its own colour is made of. */
 const lambert = (c: THREE.Color, surf: Surface = 'generic') => { const m = new THREE.MeshLambertMaterial({ color: c, fog: false, flatShading: true }); setSurface(m, surf); return patchFog(m, true); };
 
@@ -30,6 +42,62 @@ export interface BackdropOpts {
   ground?: string;
   /** Felled ground: no forest within this many feet of the map (a walled town keeps its approaches clear). */
   clearing?: number;
+}
+
+/** A site that reshapes the land drawn round its own map (a cliff it stands on, a valley it looks down into) and says
+ *  where the world's roads meet its map. A site's prop module registers one; the backdrop finds it by the site's pin. */
+export interface SiteShaper {
+  /** The site's world-map pin (miles). */
+  pin: P;
+  /** The land's height at plan (x, z) ft: `h` is the backdrop's own (held to the map's level near it), `raw` the surveyed
+   *  height there at the backdrop's scale, `d` the distance past the map's edge. */
+  height?(x: number, z: number, h: number, raw: number, d: number): number;
+  /** A world road leaving the site (`pts` in plan ft, from the point nearest the site outward): the line to draw
+   *  instead, starting at the map's own road exit, or undefined to keep the default. */
+  road?(name: string, pts: P[]): P[] | undefined;
+  /** More running water in plan ft (the river below the site's falls), drawn like the world's rivers. */
+  rivers?: { pts: P[]; w: number }[];
+  /** The colour the land beside the map blends into, when the map's ground is not one the land knows (bare rock). */
+  ground?: string;
+  /** Recolour the land at plan (x, z), height `y`, `d` ft past the map's edge (`c`, the backdrop's own colour, in place). */
+  tint?(x: number, z: number, y: number, d: number, c: THREE.Color): void;
+  /** How thickly the forest stands at plan (x, z), `d` ft past the map's edge, 0..1; undefined keeps the land cover's. */
+  forest?(x: number, z: number, d: number): number | undefined;
+  /** Extra rings (ft from the map's centre) for the land's mesh, where the site's own landform needs a finer grain. */
+  rings?: number[];
+  /** Split a world road through the site at the foot of the perpendicular from the pin, not at the road's nearest
+   *  vertex, and ease each half's first mile across onto the pin. For a site whose road's nearest vertex lies well past
+   *  it (a long straight run), so that the default split would send both halves off the same way. Other maps keep the
+   *  default, which their own maps' roads were laid out against. */
+  splitAtFoot?: boolean;
+}
+export const SITE_SHAPERS: SiteShaper[] = [];
+
+/** On a stacked site whose floors go down below the ground (a cellar, a temple carved into a mountain), the land drawn
+ *  beyond the map lies at the ground's own height over the map too, and would bury those floors whenever the section
+ *  cut drops to them. The land is cut away there as the map's own ground is: over `box` (plan ft: the floors below
+ *  the ground, with a margin), above the cut. The planes clip only where every one of them agrees (clipIntersection),
+ *  so the land elsewhere, the mountains round the map included, stays whole. Null: nothing to cut. */
+export function landHole(box: { minX: number; minZ: number; maxX: number; maxZ: number } | null, cut: number | null): THREE.Plane[] | null {
+  if (!box || cut === null) return null;
+  return [new THREE.Plane(new THREE.Vector3(0, -1, 0), cut), new THREE.Plane(new THREE.Vector3(-1, 0, 0), box.minX), new THREE.Plane(new THREE.Vector3(1, 0, 0), -box.maxX),
+    new THREE.Plane(new THREE.Vector3(0, 0, -1), box.minZ), new THREE.Plane(new THREE.Vector3(0, 0, 1), -box.maxZ)];
+}
+/** The plan box (ft) of the floors among `levels` that lie below the ground at `groundFt`, wide enough that the camera's
+ *  usual tilt sees the deepest of them past the edge of the land round it (half as wide again as they lie deep); null
+ *  if none does. */
+export function underBox(levels: readonly { elevationFt: number; rooms: readonly { polygon: readonly (readonly number[])[] }[] }[], groundFt: number): { minX: number; minZ: number; maxX: number; maxZ: number } | null {
+  const under = levels.filter((l) => l.elevationFt < groundFt - 0.5), pts = under.flatMap((l) => l.rooms.flatMap((r) => r.polygon));
+  if (!pts.length) return null;
+  const xs = pts.map((p) => p[0]), zs = pts.map((p) => p[1]), pad = Math.max(2, (groundFt - Math.min(...under.map((l) => l.elevationFt))) * 1.6);
+  return { minX: Math.min(...xs) - pad, minZ: Math.min(...zs) - pad, maxX: Math.max(...xs) + pad, maxZ: Math.max(...zs) + pad };
+}
+/** Cut the backdrop's land (or close it again with null): see landHole. */
+export function cutLand(backdrop: THREE.Object3D, planes: THREE.Plane[] | null): void {
+  const land = backdrop.getObjectByName('land') as THREE.Mesh | undefined;
+  if (!land) return;
+  const m = land.material as THREE.Material;
+  m.clippingPlanes = planes; m.clipIntersection = !!planes;
 }
 
 export function buildBackdrop(o: BackdropOpts): THREE.Group {
@@ -66,6 +134,7 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
   // Distant landmarks are drawn nearer than surveyed (a painter's foreshortening): true distance up to 3,000 ft, then
   // under half of the rest, so the castle and the towns impose on the skyline at their true size.
   const pull = (d: number) => (d <= 3000 ? 1 : (3000 + (d - 3000) * 0.42) / d);
+  const shaper = SITE_SHAPERS.find((s) => Math.hypot(s.pin[0] - o.pin[0], s.pin[1] - o.pin[1]) < 0.02);
   const kPin = W.pins.find((q) => q.key === 'K' && q.type === 'castle' && Math.hypot(q.pos[0] - o.pin[0], q.pos[1] - o.pin[1]) > 0.3);
   // a sheltered place (the Tser Pool camp, in the gorge at the foot of the falls) is spared the castle's gaze
   const here = W.pins.find((q) => Math.hypot(q.pos[0] - o.pin[0], q.pos[1] - o.pin[1]) < 0.05) as { sheltered?: boolean } | undefined;
@@ -86,28 +155,31 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
     }
     // a site on its crag: the map's own floors are its rock top; under and past them the land falls away at once (so a
     // chasm left open in the map shows its depth), then the valley carries on from the foot of the cliff
-    if (crag > 0) { const cliff = yTop - crag; return cliff + (h - cliff) * smooth(320, 1400, d); }
-    return yTop + (h - yTop) * smooth(120, 900, d);
+    const held = crag > 0 ? yTop - crag + (h - yTop + crag) * smooth(320, 1400, d) : yTop + (h - yTop) * smooth(120, 900, d);
+    return shaper?.height ? shaper.height(x, z, held, h, d) : held;
   };
+  // each lake by its shore as every view draws it (render/worldlakes.ts: the measured outline rounded, else the ellipse)
   const lakeLevel = new Map<object, number>();
   if (HF) for (const l of W.lakes) {
     let lo = Infinity;
-    for (let k = 0; k < 32; k++) { const a = (k / 32) * Math.PI * 2, [px, pz] = toPlan([l.center[0] + Math.cos(a) * l.r[0], l.center[1] + Math.sin(a) * l.r[1]]); lo = Math.min(lo, yAt(cx + px, cz + pz)); }
+    for (const q of lakeShorePoints(l, 32)) { const [px, pz] = toPlan(q); lo = Math.min(lo, yAt(cx + px, cz + pz)); }
     // a lake whose shore reaches this map lies at the map's own ground (the town stands on its shore)
-    let touches = false; for (let k = 0; k < 64 && !touches; k++) { const a = (k / 64) * Math.PI * 2, [px, pz] = toPlan([l.center[0] + Math.cos(a) * l.r[0], l.center[1] + Math.sin(a) * l.r[1]]); touches = mapDist(cx + px, cz + pz) < 700; }
-    const [qx, qz] = toPlan(l.center); lakeLevel.set(l, touches ? yTop - 2.5 : Math.min(lo, yAt(cx + qx, cz + qz)) - 4);
+    const touches = lakeShorePoints(l, 64).some((q) => { const [px, pz] = toPlan(q); return mapDist(cx + px, cz + pz) < 700; });
+    const [qx, qz] = toPlan(lakeCentre(l)); lakeLevel.set(l, touches ? yTop - 2.5 : Math.min(lo, yAt(cx + qx, cz + qz)) - 4);
   }
   if (HF) {
     // a polar mesh: fine near the site, coarse toward the horizon
-    const radii: number[] = [0]; for (let r = 90; r <= 3000; r += 130) radii.push(r); for (let r = 3400; r <= 16000; r += 450) radii.push(r); for (let r = 18500; r <= 90000; r += 2500) radii.push(r);
+    let radii: number[] = [0]; for (let r = 90; r <= 3000; r += 130) radii.push(r); for (let r = 3400; r <= 16000; r += 450) radii.push(r); for (let r = 18500; r <= 90000; r += 2500) radii.push(r);
+    if (shaper?.rings) radii = [...new Set([...radii, ...shaper.rings])].sort((a, b) => a - b);
     const SEG = 96, P3: number[] = [], C: number[] = [], idx: number[] = [];
-    const snowLine = 4200, GRASS = new THREE.Color(FLOOR_COLOR[(o.ground ?? 'grass') as keyof typeof FLOOR_COLOR] ?? FLOOR_COLOR.grass), rock = new THREE.Color('#6a6d74'), hillC = new THREE.Color('#66705f'), forestC = new THREE.Color(T.forest[0]), waterC = new THREE.Color('#5e7d94'), snowC = new THREE.Color('#e4e6ea'), apronC = new THREE.Color(T.forest[1]).lerp(new THREE.Color(T.apron), 0.35);
+    const snowLine = 4200, GRASS = new THREE.Color(shaper?.ground ?? FLOOR_COLOR[(o.ground ?? 'grass') as keyof typeof FLOOR_COLOR] ?? FLOOR_COLOR.grass), rock = new THREE.Color('#6a6d74'), hillC = new THREE.Color('#66705f'), forestC = new THREE.Color(T.forest[0]), waterC = new THREE.Color('#5e7d94'), snowC = new THREE.Color('#e4e6ea'), apronC = new THREE.Color(T.forest[1]).lerp(new THREE.Color(T.apron), 0.35);
     const colAt = (x: number, z: number, y: number, d: number) => {
       const [mx, my] = toMiles(x, z), f = terrain.cover('f', mx, my), m = terrain.cover('m', mx, my), hl = terrain.cover('h', mx, my), w = terrain.cover('w', mx, my), mist = terrain.cover('x', mx, my);
       const c = apronC.clone(); if (terrain.hasCover) { c.lerp(forestC, Math.min(1, f * 1.2)); c.lerp(hillC, hl); c.lerp(rock, Math.min(1, m * 1.1 + mist * 0.8)); c.lerp(waterC, Math.min(1, w * 1.5)); }
       for (const q of W.pins) if (q.heightFt) { const [qx, qz] = toPlan(q.pos); const dd = Math.hypot(x - cx - qx, z - cz - qz) / FT; if (dd < 0.3) c.lerp(rock, 1 - dd / 0.3); }
       // the first few hundred feet past the map are the map's own ground, fading into the land's cover beyond
       c.lerp(GRASS, 1 - smooth(120, 1400, mapDist(x, z)));
+      shaper?.tint?.(x, z, y, mapDist(x, z), c);
       const above = y - yTop + hPin; if (above > snowLine) c.lerp(snowC, Math.min(1, (above - snowLine) / 1200));
       // the high peaks stand clear of the haze: the higher the ground, the less mist between it and the eye
       return c.lerp(MIST, haze(d) * Math.max(0.35, 1 - Math.max(0, above - 1500) / 5000));
@@ -115,7 +187,7 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
     for (let ri = 0; ri < radii.length; ri++) for (let k = 0; k < SEG; k++) {
       const a = (k / SEG) * Math.PI * 2, r = radii[ri], x = cx + Math.cos(a) * r, z = cz + Math.sin(a) * r;
       let y = yAt(x, z) - (mapDist(x, z) < 150 ? 0.4 : 3); // flush where the land meets the map
-      for (const l of W.lakes) { const [mx, my] = toMiles(x, z); if (((mx - l.center[0]) / l.r[0]) ** 2 + ((my - l.center[1]) / l.r[1]) ** 2 < 1) y = Math.min(y, (lakeLevel.get(l) ?? y) - 6); }
+      for (const l of W.lakes) if (inLakeShape(l, toMiles(x, z))) y = Math.min(y, (lakeLevel.get(l) ?? y) - 6);
       P3.push(x, y, z); const c = colAt(x, z, y, r); C.push(c.r, c.g, c.b);
     }
     for (let ri = 0; ri + 1 < radii.length; ri++) for (let k = 0; k < SEG; k++) { const k1 = (k + 1) % SEG, a0 = ri * SEG + k, a1 = ri * SEG + k1, b0 = (ri + 1) * SEG + k, b1 = (ri + 1) * SEG + k1; idx.push(a0, b1, b0, a0, a1, b1); }
@@ -153,23 +225,39 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
   for (const road of W.roads) {
     const path = /path|trail|track/i.test(road.name), w = path ? 9 : 16, hex = path ? '#6d6150' : '#7a6c5a';
     const ds = road.pts.map((p) => toWorld(p).d);
-    const near = ds.indexOf(Math.min(...ds));
-    if (ds[near] > 0.5 * FT) { // passes elsewhere: draw it whole
+    if (Math.min(...ds) > 0.5 * FT) { // passes elsewhere: draw it whole
       const pts = road.pts.map(toWorld).filter((t) => t.d < 70000); if (pts.length > 1) roadPaths.push({ pts, w, hex });
       continue;
     }
+    // By default the road splits at its vertex nearest the pin. A site that asks for it (splitAtFoot) splits it instead
+    // at the foot of the perpendicular from the pin, and eases each half's first mile across onto the pin: the world
+    // map may draw a pin a little off its road's line, while the map's own road runs through the map.
+    let near = ds.indexOf(Math.min(...ds)), foot: P | undefined;
+    if (shaper?.splitAtFoot) {
+      let nd = Infinity;
+      for (let i = 0; i + 1 < road.pts.length; i++) {
+        const [ax, az] = road.pts[i], [bx, bz] = road.pts[i + 1], dx = bx - ax, dz = bz - az;
+        const t = Math.max(0, Math.min(1, ((o.pin[0] - ax) * dx + (o.pin[1] - az) * dz) / (dx * dx + dz * dz || 1e-12)));
+        const q: P = [ax + dx * t, az + dz * t], dd = Math.hypot(o.pin[0] - q[0], o.pin[1] - q[1]);
+        if (dd < nd) { nd = dd; near = i; foot = q; }
+      }
+    }
+    const ease = (pts: P[]) => { if (!foot) return pts; const [fx, fz] = foot; let s = 0; return pts.map((p, i): P => { if (i) s += Math.hypot(p[0] - pts[i - 1][0], p[1] - pts[i - 1][1]); const u = Math.min(1, s), f = 1 - u * u * (3 - 2 * u); return [p[0] + (o.pin[0] - fx) * f, p[1] + (o.pin[1] - fz) * f]; }); };
+    const halves = foot ? [ease([foot, ...road.pts.slice(0, near + 1).reverse()]), ease([foot, ...road.pts.slice(near + 1)])] : [road.pts.slice(0, near + 1).reverse(), road.pts.slice(near)];
     // Through this site: each half leaves from the map's own road in that direction.
-    for (const half of [road.pts.slice(0, near + 1).reverse(), road.pts.slice(near)]) {
+    for (const half of halves) {
       const out = half.map(toWorld).filter((t) => t.d > R + 150 && t.d < 70000);
       if (!out.length) continue;
       const bearing = Math.atan2(out[0].z - cz, out[0].x - cx);
       roadBearings.push(bearing);
-      roadPaths.push({ pts: [exitFor(bearing), ...out], w, hex });
+      const alt = shaper?.road?.(road.name, half.map((p) => { const t = toWorld(p); return [t.x, t.z] as P; }));
+      roadPaths.push({ pts: alt ? alt.map(([x, z]) => ({ x, z, d: Math.hypot(x - cx, z - cz) })) : [exitFor(bearing), ...out], w, hex });
     }
   }
   for (const river of W.rivers) {
     const pts = river.pts.map(toWorld).filter((t) => t.d < 70000); if (pts.length > 1) riverPaths.push({ pts, w: 40, hex: '#5e7d94' });
   }
+  for (const r of shaper?.rivers ?? []) riverPaths.push({ pts: r.pts.map(([x, z]) => ({ x, z, d: Math.hypot(x - cx, z - cz) })), w: r.w, hex: '#5e7d94' });
   const nearRoad = (x: number, z: number, within: number) => roadPaths.some((r) => { for (let i = 0; i + 1 < r.pts.length; i++) { const a = r.pts[i], b = r.pts[i + 1]; const dx = b.x - a.x, dz = b.z - a.z, L2 = dx * dx + dz * dz || 1; const t = Math.max(0, Math.min(1, ((x - a.x) * dx + (z - a.z) * dz) / L2)); if (Math.hypot(x - a.x - dx * t, z - a.z - dz * t) < within + r.w / 2) return true; } return false; });
 
   // 1b. A site on a crag stands on its pillar of rock; the land below is the valley floor.
@@ -200,7 +288,9 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
     const d = edge + off, k = 1.25 * (0.75 + rnd() * 0.7) * (1 + off / 6000); // old growth: a quarter taller
     const tx = (bbm.minX + bbm.maxX) / 2 + ca * d, tz = (bbm.minZ + bbm.maxZ) / 2 + sa * d;
     let drop = nearRoad(tx, tz, 14) || mapDist(tx, tz) < Math.max(30, o.clearing ?? 0); // a ride through the wood for the road; nothing on the map or its felled approaches
-    if (terrain.hasCover && !drop) { const [mx, my] = toMiles(tx, tz); const f = terrain.cover('f', mx, my), w = terrain.cover('w', mx, my), m = terrain.cover('m', mx, my); drop = w > 0.3 || m > 0.6 || f + (near ? 0.35 : 0) < 0.4 + rnd() * 0.3; }
+    const fs = drop ? undefined : shaper?.forest?.(tx, tz, mapDist(tx, tz));
+    if (fs !== undefined) drop = rnd() > fs;
+    else if (terrain.hasCover && !drop) { const [mx, my] = toMiles(tx, tz); const f = terrain.cover('f', mx, my), w = terrain.cover('w', mx, my), m = terrain.cover('m', mx, my); drop = w > 0.3 || m > 0.6 || f + (near ? 0.35 : 0) < 0.4 + rnd() * 0.3; }
     if (drop) { s.set(0, 0, 0); p.set(tx, y0 - 50, tz); m4.compose(p, q, s); trees.setMatrixAt(i, m4); continue; }
     p.set(tx, yAt(tx, tz) - 1, tz); s.set(k, k * (0.9 + rnd() * 0.4), k); m4.compose(p, q, s);
     trees.setMatrixAt(i, m4); trees.setColorAt(i, blend(i % 3 ? T.forest[0] : T.forest[1], haze(off) * 0.9));
@@ -251,16 +341,21 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
     if (h < 2000) c.visible = false;
     g.add(m, c);
   }
-  // Lakes at true size and position.
+  // Lakes at true size and position: a measured lake as its drawn shore, an ellipse as a disc.
   for (const l of W.lakes) {
-    const t = toWorld(l.center); if (t.d > 80000) continue;
-    const m = new THREE.Mesh(new THREE.CircleGeometry(1, 48), new THREE.MeshBasicMaterial({ color: blend('#5e7d94', haze(t.d)), fog: false }));
-    m.rotation.x = -Math.PI / 2; m.scale.set(l.r[0] * FT, l.r[1] * FT, 1); m.position.set(t.x, HF ? lakeLevel.get(l)! : y0 - 2.6, t.z); g.add(m);
+    const t = toWorld(lakeCentre(l)); if (t.d > 80000) continue;
+    const y = HF ? lakeLevel.get(l)! : y0 - 2.6, mat = new THREE.MeshBasicMaterial({ color: blend('#5e7d94', haze(t.d)), fog: false }), ring = lakeRing(l);
+    let m: THREE.Mesh;
+    if (ring) m = new THREE.Mesh(sheetOf(ring.map((q) => { const [px, pz] = toPlan(q); return [cx + px, cz + pz] as P; }), y), mat);
+    else { m = new THREE.Mesh(new THREE.CircleGeometry(1, 48), mat); m.rotation.x = -Math.PI / 2; m.scale.set(l.r[0] * FT, l.r[1] * FT, 1); m.position.set(t.x, y, t.z); }
+    g.add(m);
     // Bluto Krogarov's rowboat on Lake Zarovich, a few hundred yards off the shore nearest this map: a man fishing,
     // a sack at his feet (the module's encounter at Vallaki's lakeside)
-    if (/Zarovich/.test(l.name) && t.d < 30000) {
+    // (a map of the lake itself carries its own boat, so it is left out there)
+    const lakeSite = W.pins.some((q) => q.type === 'lake' && Math.hypot(q.pos[0] - o.pin[0], q.pos[1] - o.pin[1]) < 1e-6);
+    if (/Zarovich/.test(l.name) && t.d < 30000 && !lakeSite) {
       let best = { x: t.x, z: t.z, d: Infinity };
-      for (let k = 0; k < 48; k++) { const a = (k / 48) * Math.PI * 2, [px, pz] = toPlan([l.center[0] + Math.cos(a) * l.r[0] * 0.82, l.center[1] + Math.sin(a) * l.r[1] * 0.82]); const d = Math.hypot(cx + px - cx, cz + pz - cz); if (d < best.d) best = { x: cx + px, z: cz + pz, d }; }
+      for (const q of lakeShorePoints(l, 48, 0.82)) { const [px, pz] = toPlan(q), d = Math.hypot(px, pz); if (d < best.d) best = { x: cx + px, z: cz + pz, d }; }
       const boat = new THREE.Group(); boat.name = 'blutos-boat';
       const hull = new THREE.CylinderGeometry(2.4, 1.6, 13, 8, 1, false, 0, Math.PI); hull.rotateZ(Math.PI / 2); hull.rotateX(Math.PI); hull.scale(1, 0.75, 1);
       const hm = new THREE.Mesh(hull, lambert(blend('#5a4632', haze(best.d) * 0.5))); hm.position.y = 1.4; boat.add(hm);
@@ -466,7 +561,7 @@ export function buildBackdrop(o: BackdropOpts): THREE.Group {
  *  or is picked, so every opaque solid-coloured mesh folds into one mesh per material look. Instanced forest, the
  *  vertex-coloured apron and ribbons, and the translucent mists keep their own draw. */
 /** The moon's face in a phase (0 new, 0.5 full): the lit part bright and mottled with maria, the dark part a faint earthshine. */
-function drawMoon(c: HTMLCanvasElement, phase: number): void {
+export function drawMoon(c: HTMLCanvasElement, phase: number): void {
   const x = c.getContext('2d')!, S = c.width, r = S * 0.46, o = S / 2;
   x.clearRect(0, 0, S, S);
   x.fillStyle = 'rgba(70,74,92,0.55)'; x.beginPath(); x.arc(o, o, r, 0, Math.PI * 2); x.fill();          // earthshine
@@ -481,21 +576,21 @@ function drawMoon(c: HTMLCanvasElement, phase: number): void {
   for (const [a, b, rr] of [[-0.25, -0.2, 0.22], [0.15, -0.3, 0.16], [0.05, 0.1, 0.26], [-0.3, 0.25, 0.14], [0.3, 0.3, 0.12]]) { l.beginPath(); l.arc(o + a * r, o + b * r, rr * r, 0, Math.PI * 2); l.fill(); }
   x.drawImage(lit, 0, 0);
 }
-function moonTexture(phase: number): THREE.CanvasTexture { const c = document.createElement('canvas'); c.width = c.height = 256; drawMoon(c, phase); return new THREE.CanvasTexture(c); }
-function haloTexture(): THREE.CanvasTexture {
+export function moonTexture(phase: number): THREE.CanvasTexture { const c = document.createElement('canvas'); c.width = c.height = 256; drawMoon(c, phase); return new THREE.CanvasTexture(c); }
+export function haloTexture(): THREE.CanvasTexture {
   const c = document.createElement('canvas'); c.width = c.height = 128; const x = c.getContext('2d')!;
   const g = x.createRadialGradient(64, 64, 10, 64, 64, 64); g.addColorStop(0, 'rgba(255,255,255,0.9)'); g.addColorStop(0.35, 'rgba(255,255,255,0.25)'); g.addColorStop(1, 'rgba(255,255,255,0)');
   x.fillStyle = g; x.fillRect(0, 0, 128, 128); return new THREE.CanvasTexture(c);
 }
 let MIST_TEX: THREE.CanvasTexture | null = null;
 /** A soft ring of mist: clear at the centre (the rock stands there), densest a third of the way out, fading to nothing at the rim. */
-function mistTexture(): THREE.CanvasTexture {
+export function mistTexture(): THREE.CanvasTexture {
   if (MIST_TEX) return MIST_TEX;
   const c = document.createElement('canvas'); c.width = c.height = 128; const x = c.getContext('2d')!;
   const g = x.createRadialGradient(64, 64, 0, 64, 64, 64); g.addColorStop(0, 'rgba(255,255,255,0)'); g.addColorStop(0.28, 'rgba(255,255,255,0.15)'); g.addColorStop(0.45, 'rgba(255,255,255,1)'); g.addColorStop(1, 'rgba(255,255,255,0)');
-  x.fillStyle = g; x.fillRect(0, 0, 128, 128); MIST_TEX = new THREE.CanvasTexture(c); return MIST_TEX;
+  x.fillStyle = g; x.fillRect(0, 0, 128, 128); MIST_TEX = markShared(new THREE.CanvasTexture(c)); return MIST_TEX; // every crag's: never freed
 }
-function collapse(g: THREE.Group): void {
+export function collapse(g: THREE.Group): void {
   const buckets = new Map<string, { material: THREE.Material; gs: THREE.BufferGeometry[] }>();
   const drop: THREE.Object3D[] = [];
   g.updateMatrixWorld(true);
@@ -517,7 +612,7 @@ function collapse(g: THREE.Group): void {
 
 /** The mountains the castle is tucked into: a horseshoe of peaks behind and beside it, open only on the bearing of
  *  the steep valley that runs down to the village, whose two walls are rows of ridges flanking that line. */
-function cradle(g: THREE.Group, at: { x: number; z: number }, towardX: number, towardZ: number, dist: number, y0: number, mat: (hex: string, d: number) => THREE.Material, d0: number, S = 1): void {
+export function cradle(g: THREE.Group, at: { x: number; z: number }, towardX: number, towardZ: number, dist: number, y0: number, mat: (hex: string, d: number) => THREE.Material, d0: number, S = 1): void {
   const b0 = Math.atan2(towardZ - at.z, towardX - at.x);
   let seed = 11; const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
   const peak = (x: number, z: number, h: number, r: number) => { const c = new THREE.ConeGeometry(r, h, 7); c.translate(0, h / 2, 0); const m = new THREE.Mesh(c, mat('#4f5560', d0)); m.position.set(x, y0 - 40, z); m.rotation.y = rnd() * Math.PI; g.add(m); if (h > 1800) { const sn = new THREE.ConeGeometry(r * 0.28, h * 0.26, 7); sn.translate(0, h * 0.87, 0); const sm = new THREE.Mesh(sn, mat('#d9dde3', d0)); sm.position.copy(m.position); sm.rotation.y = m.rotation.y; g.add(sm); } };
@@ -535,7 +630,7 @@ function cradle(g: THREE.Group, at: { x: number; z: number }, towardX: number, t
 
 /** Castle Ravenloft as it stands on the Pillarstone: the plan of `scripts/authoring/castle-ravenloft.py` (x east,
  *  z south, centred on the courtyard) raised to the heights of its levels. Lit windows pick it out at night. */
-function ravenloft(s: THREE.Group, mat: (hex: string) => THREE.Material): void {
+export function ravenloft(s: THREE.Group, mat: (hex: string) => THREE.Material): void {
   // Built from the castle's own plans (scripts/authoring/ravenloft-exterior.py): every column of the castle rises to its
   // highest roofed room, the curtain walls stand at their height with battlements, every stair tower is a round tower
   // with a conical cap, and windows burn along the outer faces.

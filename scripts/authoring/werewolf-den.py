@@ -16,6 +16,7 @@ import json, math, os, sys
 from collections import OrderedDict
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from authorlib import ROOT, Level, seg_key  # noqa: F401
+from geomlib import exact
 
 _M = json.load(open(os.path.join(ROOT, 'manifests', 'locations.json')))
 PAGE = {a['key']: a['page'] for l in _M['locations'] if l['id'] == 'Z' for a in l['areas']}
@@ -24,9 +25,6 @@ AMB = 'barovian-overcast'
 WALL_H = 6          # cave walls stand a little proud of the rock slab (5.6 ft): the cutaway of a carved diorama
 ROCK_H = 5.6
 
-
-def exact(lv, a, b, **kw):
-    k = seg_key(a, b); lv.overrides[k] = dict(lv.overrides.get(k, {}), **kw)
 
 def open_edges(lv, poly, a, b):
     """Open (no wall) every edge of `poly` from vertex a to vertex b, walking forward."""
@@ -357,7 +355,7 @@ for i, (x, z, r) in enumerate([(48.7, 12.8, 80), (49.2, 15.6, 120), (54.8, 11.6,
 r8.prop('Z8-bones', 'bones', (52.2, 13.9), 'Z8', rotY=30)
 for i, (x, z) in enumerate([(46.0, 18.6), (48.2, 18.0), (50.4, 17.2)]):
     r8.creature(f'Z8-flank{i}', 'werewolf', (x, z), 'Z8', 'Leader of the Pack: one of the three hybrid werewolves Kiril sends up here to come into the den from above')
-r8.note('Z8-note', (52.0, 17.0), 'Z8', 'The pack watches its young prisoners fight here with spears; the last child standing is bitten and turned, the dead eaten. Scaling the slope from the mouth needs no kit or check.')
+r8.note('Z8-note', (52.0, 17.0), 'Z8', 'The pack makes its young captives duel with spears here. They devour those who die and infect the remaining child with a bite. The slope above the entrance can be climbed without equipment or a check.')
 
 # ================================================================== descriptions (our own words)
 DESC = {

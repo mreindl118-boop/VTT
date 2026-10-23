@@ -1,0 +1,1309 @@
+{
+ "about": "Queue item 6 (map smoothing: finished maps). One entry per map group from the 2026-10 smoothing audits: the files the group owns, its maps, the brief, the issues, the fixer's result on its branch, and the review where one ran. Written by Claude Code from its own audits (no book text).",
+ "groups": [
+  {
+   "name": "krezk",
+   "branch": "claude/wip/item6-krezk",
+   "commit": "966a0f2",
+   "files": [
+    "scripts/authoring/krezk_land.py",
+    "scripts/authoring/krezk-village.py",
+    "scripts/authoring/krezk-abbey.py",
+    "app/src/kit/sites/s.ts",
+    "locations/ch08/S/**",
+    "locations/ch08/S10/**"
+   ],
+   "maps": [
+    "ch08/S",
+    "ch08/S10"
+   ],
+   "brief": "Repo /home/user/VTT. You own ONLY: scripts/authoring/krezk_land.py, krezk-village.py, krezk-abbey.py, app/src/kit/sites/s.ts and the generated locations/ch08/S/** and locations/ch08/S10/**. Do not edit any other file (backdrop.ts, materials.ts, surfaces.ts, world.json, heightfield.py are being changed in parallel by other clusters); if you need something there, say so in your final report. Run scripts from the repo root with python3 (krezk-village.py, then krezk-abbey.py, which imports krezk_land). Typecheck the app with `npm run typecheck` at the repo root; `npm run preview` serves :4173 (one may already be running). Screenshots: a Playwright harness exists at /tmp/claude-0/-home-user-VTT/3e57a1ac-07da-5111-aa9e-cccc471b7481/scratchpad/smooth/audit/shoot.cjs (reuse or write your own).\n\nGOAL (the user's words): in Krezk the mountain looks all open and the trail to the abbey is practically vertical; make the world's logic hold and things feel real. Favour realism over the book's literal 400 ft: keep '400 ft above the village' only as a DM-note string (S5/S7 notes in krezk-village.py and krezk-abbey.py).\n\nMEASURED NOW: krezk_land.py LEDGE = 400, MOUNT_RISE = 320; ROAD (chaikin of ROAD_PTS) is 651-725 ft long for a 400-ft rise, each leg 55-61% grade (~30 deg). ground() makes a mesa: profiles from the rim centre W 400,400,400,348,55,0 and N 400,431,426,379,203,67,0 (74-82 deg faces, _cliff_k = 6 ft/ft); only the NE rises (to 675-695 in frame). krezk-village.py taper() scales the heightfield to 15% within 320 ft of the lattice edge (lattice x 330..1160, z -430..650), so the mountain is a lone dome ringed by flat forest. s.ts heightfield() colours steep faces by `floor((y + 6 sin(x*0.045) + 5 cos(z*0.06)) / 18) % 3` into ROCK_DK/ROCK/ROCK_MID, which reads as horizontal zig-zag stripes at every distance; its materials are single-sided (camera inside the mass sees through it). tower-e (565,0,536) stands where the land is 34 ft; pine-m235/253/259 are sunk 33/9/2.7 ft (y sampled with KL.slope_at before taper). 2,211 pines (forest 20/26-ft spacing, 17 ft inside the walls) hide the cottages. s.ts declares CHAIN = '#5a5d63' as metal, which is PALETTE.mist3 (stone) and recolours 244 gravestones/33 statues/church walls on E, N, U, Z with the iron grain; SACK '#a8956f' collides with a wood declaration. krezk-abbey.py line 27 hard-codes LEDGE = 400 with levels 400/415/420/380 (loft 420 is inside upper's 415-423).\n\nREGION CONTEXT (read-only, locations/ch02/barovia-region/world.json; sample with the same bilinear scheme as app/src/core/terrain.ts, backdrop draws it x1.25): pin S at ~420-440 ft; today the rows rise only W/NW (460-570 at 0.5-0.75 mi) and fall NE/E/S. The 'region' cluster is adding a ridge N/NE of Krezk so rows read ~650-760 ft at 0.75-1.25 mi NE of the pin. The 'backdrop' cluster is making backdrop.ts continue the map's own edge height into the land beyond (today it flattens to the village elevation within 900 ft). Build to meet both: your lattice edge heights should go toward the region x1.25 height at that point (sampled from world.json at run time), NOT toward 0.\n\nDO:\n1. krezk_land.py: LEDGE -> ~230 (200-250). Rebuild ROAD_PTS as three (or more) switchback legs totalling >= 1,050 ft so no segment exceeds 22% (compute and print the max grade; target 20-22%): e.g. first leg from the foot by the S3 lane (~(452,447)) north ~380 ft along the whole west face (extend SZ to z 150-470), hairpin, ~380 ft back south, hairpin, ~330 ft north to the rim; re-derive LEG_APEX, LEGS, _benches, and the lk-switchback link positions in krezk-village.py. Make ground() a continuous mountainside: NE/N/E keep rising above the ledge (MOUNT_RISE ~250, summit beyond the frame, ~480-500 ft in frame), W/S fall at <=45 deg (lower _cliff_k from 6 to ~2.5 on the faces that are not true cliffs) reaching the village floor over 300-500 ft; rotate RAY_W/RAY_E so the mass continues N/NE rather than fading at the flanks. rugged(): amplitude ~30 ft, wavelength ~60 ft so real buttresses and gullies show in the silhouette. Keep heightfield_dims()/ribbon_dims() output format unchanged (nx, nz, cell, q, d#, frost, skirt, drop; you may ADD optional keys) because yester-hill.py copies this encoder and s.ts heightfield() is also used by Yester Hill.\n2. krezk-village.py: replace taper() with a blend toward the region height at the lattice edge; set tower-e's y (and every mountainside pine's y) from the same hf_fn+taper the heightfield uses; in-wall tree spacing 17 -> 24 ft with 14 ft clear along each cottage's long sides and 8 ft along lanes (near_road(p, 8)); forest spacing 20/26 -> 24/32 ft. Keep 'about 400 ft' as the DM note.\n3. krezk-abbey.py: LEDGE = KL.LEDGE, derive all level elevations from it (ground/upper/loft/cellar), fix loft stacking (loft at the upper ceiling or upper ceilingFt 5), keep the valley level's FOOT where the road starts, make the ~70 valley cottages/towers static props (vis 'player', no size) so build.ts merges them. Regenerate S then S10.\n4. s.ts heightfield(): drop the %3 band colouring; colour steep faces (k < 0.62) by plan-space value noise (same idea as krezk_land.rugged/noise, ~22-ft cells) and the face normal's azimuth: ROCK on ribs, ROCK_DK on flanks facing away from the key light (the sun is roughly south-east: see World.key in app/src/render/world.ts), ROCK_MID on gully floors; a thin SCREE band only within ~12 ft of a face's local foot; mid slopes scree, gentle turf/frost as now. Build with matClone(color) and side THREE.DoubleSide. Make sure every colour used (ROCK, ROCK_DK, ROCK_MID, SCREE, FROST, turf) has a surfaceFor() declaration with the right material (rock, rock, rock, rubble or dirt, snow, grass) and unique hexes. CHAIN -> own hex (e.g. '#55585e') in the metal list; SACK -> own hex kept as cloth. Share one module-level mist material in mistBank (patchFog'd, from materials.ts helpers) instead of a new MeshBasicMaterial per bank. Cheap nit: woodpile as one box body plus a single merged log-ends geometry tagged userData.tier='near'.\n\nVERIFY: print road length and max grade (<= 22%), max/min heightfield heights at the lattice edge vs region x1.25 at those points (difference < 30 ft), tower/pine y vs ground (|dy| < 1 ft); `npm run typecheck`; `npm test` if scene tests exist; screenshots of S from the tabletop default, from the east at ~900 ft (no dome on a plain, no stripes), the road foot, and S10's valley level. Do not remove detail that reads at close range; counts you thin must be invisible at the table view.",
+   "issues": [
+    {
+     "map": "ch08/S",
+     "severity": "block",
+     "what": "Switchback road S5 is practically vertical: three legs 287/201/163 ft (651-725 ft total) for a 400-ft rise, 55-61% grade (29-32 deg).",
+     "evidence": "krezk_land.py ROAD_PTS/ROAD; shots ch08_S-low.png, close/krezk-roadfoot.png: ribbon climbing the cliff at ~30 deg.",
+     "fix": "krezk_land.py: LEDGE 400 -> ~230; lengthen legs so run >= 230/0.22 ~ 1050 ft (three legs ~380/380/330 ft, 20-22%), extend SZ down the whole west face, re-derive LEG_APEX/_benches/LEGS from the new legs; keep '400 ft' only as the DM-note string in krezk-village.py/krezk-abbey.py.",
+     "files": [
+      "scripts/authoring/krezk_land.py",
+      "scripts/authoring/krezk-village.py",
+      "scripts/authoring/krezk-abbey.py"
+     ]
+    },
+    {
+     "map": "ch08/S",
+     "severity": "block",
+     "what": "The abbey ledge is a free-standing 400-ft plug/mesa (74-82 deg sides) on flat green land; the local mountain (MOUNT_RISE 320) tapers to 15% at the lattice edge instead of continuing into rising ground NE.",
+     "evidence": "krezk-village.py taper(): h*(0.15+0.85*smooth(0,320,e)); profiles W 400,400,400,348,55,0; N 400,431,426,379,203,67,0; shots ch08_S-default.png, close/krezk-abbey-nw.png, s-krezk-back.png.",
+     "fix": "ground() a continuous mountainside: NE/N/E rise above the ledge, W/S fall at <=45 deg over 300-500 ft; MOUNT_RISE ~250 with the summit beyond the frame; replace taper() with a blend toward the region's own height (world.json rows x1.25, sampled read-only at the lattice edge) so the lattice edge meets the backdrop; rotate RAY_W/RAY_E so the mass continues N/NE.",
+     "files": [
+      "scripts/authoring/krezk_land.py",
+      "scripts/authoring/krezk-village.py"
+     ]
+    },
+    {
+     "map": "ch08/S",
+     "severity": "fix",
+     "what": "Cliff faces read as three-tone horizontal zig-zag stripes (18-ft height bands) and the heightfield is single-sided (camera inside the mass sees through it).",
+     "evidence": "s.ts heightfield(): band = floor((y+6sin+5cos)/18)%3; shots s-krezk-wide.png, close/krezk-cliff.png, s-krezk-cliff-face.png.",
+     "fix": "s.ts: colour steep faces by plan-space noise + normal azimuth (buttress ribs lit, gullies ROCK_MID, shaded flanks ROCK_DK), thin scree band only at the foot of a face; DoubleSide materials. krezk_land.py rugged(): amplitude 16 -> ~30 ft at ~60-ft wavelength so buttresses/gullies show in silhouette.",
+     "files": [
+      "app/src/kit/sites/s.ts",
+      "scripts/authoring/krezk_land.py"
+     ]
+    },
+    {
+     "map": "ch08/S10",
+     "severity": "fix",
+     "what": "krezk-abbey.py hard-codes LEDGE = 400 (line 27) and levels 400/415/420/380; it will drift from the village once the ledge is lowered. Loft at 420 sits inside upper's 415-423 span.",
+     "evidence": "krezk-abbey.py line 27; probe seam: ground floor 400-421 ft above the backdrop at every edge.",
+     "fix": "LEDGE = KL.LEDGE; derive G_EL/U_EL/L_EL/C_EL from it; loft elevation = upper ceiling (423) or upper ceilingFt 5; regenerate S then S10.",
+     "files": [
+      "scripts/authoring/krezk-abbey.py",
+      "scripts/authoring/krezk_land.py"
+     ]
+    },
+    {
+     "map": "ch08/S",
+     "severity": "fix",
+     "what": "East wall tower and several mountainside pines are sunk into the rock (tower-e 34 ft buried; pine-m235 -33 ft, m253 -9, m259 -2.7).",
+     "evidence": "probe: tower-e (565,0,536) on heightfield 33.9 ft; pines sampled with KL.slope_at before taper.",
+     "fix": "krezk-village.py: tower y from the same hf_fn+taper the heightfield uses (or move TOWER_E 40 ft west onto the village floor); mountain pines' y sampled AFTER taper with the same function.",
+     "files": [
+      "scripts/authoring/krezk-village.py",
+      "scripts/authoring/krezk_land.py"
+     ]
+    },
+    {
+     "map": "ch08/S, ch03/E, ch05/N, ch10/U, ch15/Z",
+     "severity": "fix",
+     "what": "Hex collisions declared in s.ts: CHAIN '#5a5d63' re-declares PALETTE.mist3 as metal (244 gravestones, 33 statues, church walls in E/N render with the iron grain); SACK '#a8956f' is also declared wood in surfaces.ts/u.ts.",
+     "evidence": "census '#5a5d63 surf=metal kinds gravestone:244 statue:33 church-building:2'; s.ts line 18/32.",
+     "fix": "s.ts: CHAIN -> own hex (e.g. '#55585e') kept in the metal list; SACK -> own hex kept as cloth. Never reuse a PALETTE key's hex for a different material.",
+     "files": [
+      "app/src/kit/sites/s.ts"
+     ]
+    },
+    {
+     "map": "ch08/S",
+     "severity": "fix",
+     "what": "Rock/scree/turf grains do not read on the land prop at close range; 2,211 pines (forest 20/26-ft spacing, in-wall 17 ft) make the village a wall of pines with cottages hidden under crowns.",
+     "evidence": "close/krezk-cliff.png; shots ch08_S-default.png; krezk-village.py line 272 (17), 282 (20/26).",
+     "fix": "Make sure every heightfield colour (ROCK, ROCK_DK, ROCK_MID, SCREE, FROST, turf) is declared with the right surface ('rock','rock','rock','rubble' or 'dirt','snow','grass'); spacing in-wall 17 -> 24 ft with a 14-ft clear band along cottages and 8 ft along lanes; forest 20/26 -> 24/32 ft.",
+     "files": [
+      "app/src/kit/sites/s.ts",
+      "scripts/authoring/krezk-village.py"
+     ]
+    },
+    {
+     "map": "ch08/S10, ch08/S",
+     "severity": "nit",
+     "what": "mistBank allocates a MeshBasicMaterial per bank (separate draw calls, unlit); woodpile is 32 six-sided cylinders (792 tris) per 6-ft pile; the abbey's 70 valley cottages/towers in the context are per-object props (686 meshes on one level).",
+     "evidence": "s.ts line 147; kinds.json woodpile 792 tris/34 meshes; S10 789 draw calls.",
+     "fix": "s.ts: one module-level shared mist material (patchFog'd); woodpile as a stacked box body + one merged log-ends geometry tagged userData.tier='near'; krezk-abbey.py: valley cottages/walls as static props (vis 'player', no size) so build.ts merges them.",
+     "files": [
+      "app/src/kit/sites/s.ts",
+      "scripts/authoring/krezk-abbey.py"
+     ]
+    }
+   ],
+   "fixer": {
+    "fixed": [
+     "ch08/S block: switchback road no longer vertical. krezk_land.py LEDGE 400 -> 200 (BOOK_LEDGE_FT = 400 kept for the DM-note strings; S5/S7/S18 DM texts still say 400 ft). ROAD_PTS rebuilt as three benches on the west face (foot (452,447) by the S3 lane, north past the NE tower to a hairpin at ~(480,168), south to a hairpin above the foot at ~(440,432), north to the rim's NW corner (482,247)): 912 ft of climb for 200 ft, legs 410/289/211 ft, max grade 21.9% (printed by krezk-village.py). LEG_APEX/LEGS/benches re-derived; lk-switchback foot taken from KL.ROAD[0].",
+     "ch08/S block: the ledge is now a shelf on a mountainside, not a plug. ground() = inverse-distance weighting (k 2.2) between the rim (LEDGE), the road's benches and a FLOOR polygon (brow at the lip, sheer face, scree apron; the SE shoulder runs ~220 ft to the forest), the mountain rising N/NNE of the ledge (MOUNT_RISE 250, summit beyond the frame: 459 ft max in frame at the NE corner, E edge ~300 ft, N shoulder ~240), RAY_W now NNW from the ledge's NW corner and RAY_E ESE from the gardens' SE corner with slower fades so the mass continues N/NE; UP includes the rim's whole north edge. The land lattice covers the whole map frame (-260..1160 x -430..1260, 10 ft) plus the 5-ft patch (330..790 x 110..590); taper() removed and replaced by KL.land(): at the frame's edge the land is turned toward the region's x1.25 height sampled from world.json at run time (edge_dist < 320 ft), never dropped below the local mountain.",
+     "ch08/S fix: cliff colouring and sidedness. s.ts heightfield(): the %3 height bands are gone; steep faces (k < 0.62) are coloured by plan-space value noise (22-ft and 9-ft cells, same hash as krezk_land.noise) and the face normal's azimuth against the key light (-40,90,50): ROCK on lit ribs, ROCK_DK on flanks facing away, ROCK_MID in gully floors, SCREE only within 12 ft above the face's local foot (gentle vertices in a 5x5 window); mid slopes scree, gentle turf/frost as before. All bins built with matClone(color) and side = DoubleSide. krezk_land.rugged(): amplitude 16 -> 30 ft at ~60-ft wavelength (noise cells 30 and 12 ft), kept off the rim lip, the foot and within 22 ft of the road; half amplitude on the mountain's slopes.",
+     "ch08/S10 fix: krezk-abbey.py LEDGE = KL.LEDGE; G_EL/U_EL/L_EL/C_EL derived from KL.ABBEY_LEVELS (ground 0, upper +15, loft +23 = the upper floor's ceiling, cellar -20); the hall's walls and the second stair run (rise L_EL - G_EL - 7) follow; the valley level's ceiling LEDGE - 2; FOOT unchanged (centred on the S5 box where the road starts). krezk-village.py copies the loft at KL.ABBEY_LEVELS['loft'] and the hall walls at loft + 12. Regenerated S10 then S (the order the scripts need: the village script patches S10's valley).",
+     "ch08/S fix: tower-e and the mountain pines stand on the land as drawn. krezk_land.lattice_sampler() decodes the heightfield dims and interpolates with the same triangle split as s.ts; towers and every mountain pine take y from it (pines sunk 0.6 ft on purpose). Playwright probe: 1 of 444 sampled objects off the ground (the low-mist bank, which floats 12 ft by design); tower-e y 0.0 on ground 0.2; tower-ne 0.0.",
+     "ch08/S, E, N, U, Z fix: hex collisions. CHAIN '#5a5d63' (PALETTE.mist3) -> '#55585e' (metal); SACK '#a8956f' (declared wood elsewhere) -> '#aa9670' (cloth). Every heightfield colour now has its own hex and the right surface: ROCK '#5c5853', ROCK_DK '#4a4951', ROCK_MID '#55535a' as rock; SCREE '#6b6760' as rubble; FROST '#7f8a80' as snow; turf = FLOOR_COLOR.grass (grass). Verified unique across app/src.",
+     "ch08/S fix: pines no longer hide the cottages. In-wall spacing 17 -> 24 ft with a 14-ft clear band round every cottage (oriented rect +28) and 8 ft along lanes (near_road(p, 8)); forest 20/26 -> 24/32 ft. Counts: 166 village pines (was more), 429 forest, 1444 mountain pines (the lattice now covers the whole N/NE mountain). Frost line raised to LEDGE + 110 so the slopes round the ledge are turf and rock and only the upper mountain is frosted.",
+     "nit: mistBank shares one patchFog'd MeshBasicMaterial per opacity (module-level cache) instead of a new material per bank; woodpile is a bark-coloured box body plus one merged CircleGeometry piece of log ends tagged userData.tier = 'near' (about 420 tris / 4 meshes per pile, was 792 tris / 34 meshes)."
+    ],
+    "skipped": [
+     {
+      "what": "Frame-edge heights within 30 ft of the region's x1.25 height",
+      "why": "Today's world.json puts the region BELOW the village at every edge of the Krezk frame (region x1.25 relative to the pin: -126..+49 ft along the edge; -124 at the NE corner, -73 N, -96 E), i.e. toward 0, which the brief forbids. KL.land() therefore blends the edge toward the region only where the region is higher (sampled at run time, so re-running krezk-abbey.py then krezk-village.py after the 'region' cluster lands its N/NE ridge picks it up with no code change). Measured now: land along the edge 0..459 ft, region -126..49, max |land - region| 556 ft at the NE corner. Until the 'backdrop' cluster continues the map's edge height outward, the lattice's rock skirt shows as a wall at the N and E edges from outside the frame (see fix-krezk/s2-east.png, s2-back.png)."
+     },
+     {
+      "what": "Valley cottages/towers in S10 as static props",
+      "why": "They already are: every kz- piece is vis 'player' with no size, so build.ts merges them (S10 valley level measures 43 meshes, 202 draw calls). The 686 meshes / 807 calls in the probe belong to the abbey's 'ground' level (73 mongrelfolk tokens, openables, hidden objects), not to the valley level, and are outside this cluster's scope."
+     },
+     {
+      "what": "Rock/rubble grain scale at close range (the cobble-like cells seen 10-25 ft from a face)",
+      "why": "That is the shared shader's rock/rubble grain in materials.ts/surfaces.ts, owned by other clusters; the land colours are now declared with the right surfaces so whatever those clusters do applies."
+     },
+     {
+      "what": "The ledge's east-wing wall height (23) in krezk-village.py",
+      "why": "Still a literal (upper + 8-ft ceiling); harmless, left as is."
+     }
+    ],
+    "notes": [
+     "Re-run order: python3 scripts/authoring/krezk-abbey.py then python3 scripts/authoring/krezk-village.py (the village script copies the abbey's ledge objects and then writes the village pieces into S10's valley). Both must be re-run once the region cluster's world.json lands, because the frame-edge heights are baked at authoring time.",
+     "Verification: npm run build (tsc + vite) clean; npx vitest run 15 files / 155 tests pass; scripts/authoring/audit-outdoor.py clean for S and S10; Playwright shots under /tmp/claude-0/-home-user-VTT/3e57a1ac-07da-5111-aa9e-cccc471b7481/scratchpad/smooth/fix-krezk/ (shots/ch08_S-default|low|top.png, shots/ch08_S10-*.png, s-cliff.png, s-abbey-nw.png, s2-east.png, s2-back.png, s2-hairpin.png, s2-foot-wide.png, s3-lane.png, s10-valley*.png, probe.json). Draw calls: S village level 434 calls / 407k tris (173 meshes); S10 valley level 202 calls, 43 meshes.",
+     "Realism choices: LEDGE 200 rather than 230 because three legs on the 110-ft-wide west face give at most ~920 ft of road; 230 ft at 22% would need a fourth leg or legs over the south face, where the lanes hug the cliff's foot. The village floor's NE edge was moved ~35 ft west between z 220 and 430 (VF) so the lowest bench has a scree apron below it; no cottage or lane is touched. The south face under the SW curtain wall stays sheer (the book's drop), ~60 ft of run for 200 ft.",
+     "Heights of the mountain in frame: ledge 200, N shoulder ~240, NE corner 459, E edge ~300 falling to 0 by z 650; W and S faces 0 at the village. ROCK_DK is also used for the lattice skirt as before. heightfield_dims()/ribbon_dims() keep their output format (nx, nz, cell, q, d#, frost, drop); land_lattices()/lattice_sampler()/road_stats()/edge_report()/region_rel() are additions.",
+     "krezk_land.ground() now returns (height, mountain weight, rim distance); height() and land() return plain floats (land() is what the maps sample; slope_at() uses it)."
+    ]
+   },
+   "review": {
+    "pass": false,
+    "unfixed": [
+     {
+      "map": "ch08/S, ch08/S10",
+      "severity": "block",
+      "area": "frame-edge seam / nested zoom",
+      "what": "Block issue #2 is only half fixed. Inside the frame, the ledge is now a shelf on a mountainside. But the lattice edge does not meet the backdrop. The mountain holds 430-459 ft right up to the N and E frame edges, and the skirt drops straight down there as one flat ROCK_DK wall about 450 ft high. When you zoom out, Krezk reads as a square-cut block of land sitting on flat green backdrop. The fixer skipped this as 'region lower than village'. But the cliff is produced by krezk_land.land(), which this cluster owns, and the base build tapered the edge to about 15% (about 60 ft).",
+      "evidence": "KL.edge_report(): max |land - region| 556 ft at (1160,-390) (land 430, region -126); 86 of 314 edge samples are more than 100 ft above the region. Screenshots S-far-NE.png and S-far-E.png show a giant flat dark wall along the N/E frame edges. S-far-SW.png shows the frame's NE quarter as a box-shaped massif with straight sides. The base build (base-S-far-NE.png) had no such wall. S10 uses the same lattices (KL.land_lattices), so it has the same seam.",
+      "fix": "krezk_land.py land(): when region_rel(p) < h, still bring the land down toward max(region, 0) over the outer REGION_BLEND (about 320 ft) at 45 degrees or less, so the mountain shoulders fall to the backdrop instead of ending in a skirt wall. Or add an outer apron lattice beyond FRAME (about 600 ft wide) that ramps from the edge height down to region_rel, so the heightfield continues outward and the 'summit beyond the frame' shows as rising ground. Keep the skirt 'drop' short (about 14 ft) on the coarse lattice. Then re-run krezk-abbey.py and then krezk-village.py.",
+      "files": [
+       "scripts/authoring/krezk_land.py",
+       "locations/ch08/S/scene.json",
+       "locations/ch08/S10/scene.json"
+      ]
+     }
+    ],
+    "regressions": [
+     {
+      "map": "ch08/S, ch08/S10",
+      "severity": "block",
+      "area": "backdrop seam",
+      "what": "A new rock wall, up to about 460 ft high, appears at the N and E frame edges when zooming out. Before the fix the edge tapered to about 60 ft. This bears directly on the user's 'zoom in / zoom out nesting' complaint, because the map no longer blends into the region around it.",
+      "evidence": "S-far-NE.png and S-far-E.png against base-S-far-NE.png. edge_report max diff 556 ft.",
+      "fix": "The fix in 'unfixed' above: a blend or an apron in krezk_land.land() / land_lattices().",
+      "files": [
+       "scripts/authoring/krezk_land.py"
+      ]
+     },
+     {
+      "map": "ch08/S",
+      "severity": "nit",
+      "area": "performance",
+      "what": "Draw calls went up at every measured view, with triangles up 3-7%. This is mostly the full-frame mountain lattice plus 1444 mountain pines. Each land colour bin also gets its own cloned material.",
+      "evidence": "Same procedure on both builds, steady over 4 renders. Default view 375 -> 434 calls (396k -> 407k tris). Cliff view 65 -> 110. Village view 198 -> 225. Far view 433 -> 439.",
+      "fix": "s.ts heightfield(): cache one DoubleSide clone per colour at module level instead of matClone per bin. krezk_land.land_lattices(): consider one lattice prop with the fine patch merged by colour. Thin the mountain pines above LEDGE+110 (frost zone), for example 40-ft spacing.",
+      "files": [
+       "app/src/kit/sites/s.ts",
+       "scripts/authoring/krezk_land.py",
+       "scripts/authoring/krezk-village.py"
+      ]
+     },
+     {
+      "map": "ch08/S",
+      "severity": "nit",
+      "area": "road / cliff",
+      "what": "Where the third leg passes the rim's SW corner (Krezk ft x 445-448, z 387-404), the 10-ft ribbon runs inside the RIM polygon. The rim lip (LEDGE-1) is interpolated over it, so rock pinches the road's uphill half.",
+      "evidence": "lattice_sampler at the road centre: road y 159.7 vs land 182.4 at (448,404), and 160.8 vs 177.0 at (447,400). S-leg3-along.png shows rock overlapping the road's right edge mid-leg.",
+      "fix": "krezk_land.py: shift ROAD_PTS of leg 3 about 6 ft west near z 385-410, or exclude the road corridor from the RIM-inside LEDGE-1 rule in land_lattices.fn.",
+      "files": [
+       "scripts/authoring/krezk_land.py"
+      ]
+     },
+     {
+      "map": "ch08/S",
+      "severity": "nit",
+      "area": "placement",
+      "what": "Boulder S4-rock3 at (404,182) is buried 68 ft inside the cliff. It was buried 38 ft before the fix, so this is an existing fault that the new land makes worse.",
+      "evidence": "lattice_sampler: land 67.8 at (404,182), boulder y 0.",
+      "fix": "krezk-village.py line 220: set y from land_y, or move it about 20 ft west onto the village floor.",
+      "files": [
+       "scripts/authoring/krezk-village.py"
+      ]
+     }
+    ],
+    "summary": "Verdict: fail. Seven of the eight issues check out. The plug-to-mountainside block fix only works inside the frame: a new wall about 450 ft high now stands at the N and E frame edges, and you see it whenever you zoom out from Krezk. That ties directly to the user's complaint that zoom in / zoom out nesting is not working as intended.\n\nSetup: worktree HEAD is 966a0f2b; I modified no files. The diff against 6a8324d touches only the 6 allowed paths (krezk_land.py, krezk-village.py, krezk-abbey.py, s.ts, ch08/S and ch08/S10 scene.json). I rebuilt dist because it was older than the commit, and the build is clean. vitest passed 155/155 on one run; on two other runs one test failed, tests/bestiary.test.ts, with a 5 s timeout under machine load. That test has nothing to do with this cluster. audit-outdoor.py reports nothing for S or S10, and its output is identical to main.\n\nConfirmed fixed:\n1. Switchback road (block): measured from the regenerated S5-road ribbon, it runs 910 ft of plan length for a 199.4-ft rise. The average grade is 21.9%, the steepest single segment is 22.2%, and the steepest 30-ft window is 21.9%. Legs are 410/289/211 ft. LEDGE is 200 rather than the suggested 230; the fixer's reason is that three legs fit on the west face. In S-westface.png the benches and hairpins sit on shelves.\n2. Cliff colouring and sidedness (fix): the 18-ft height bands are gone; faces are coloured by noise and light direction instead (S-westface.png, S-cliff-close.png). At runtime every land material has side = 2 (DoubleSide), and rugged() uses an amplitude of 30.\n3. S10 levels (fix): ground 200, upper 215, loft 223 (the upper floor's ceiling), cellar 180. Hall walls are 23 ft, and the S10 valley ceiling is 198.\n4. Tower and pines (fix): in a lattice_sampler check of every S village object, only 4 are off the ground: S4-rock3, the S1 signpost, and the two low-mist banks (the fixer's note says the low-mist bank floats by design). tower-e and tower-ne stand on the village floor. Mountain pines sit on the land.\n5. Hex collisions (fix): '#55585e' and '#aa9670' now appear only in s.ts. At runtime the surface codes read rock 16 for ROCK/ROCK_DK/ROCK_MID, rubble 3 for SCREE and snow 18 for FROST.\n6. Pines (fix): 166 village, 429 forest and 1444 mountain pines (2039 in total, down from 2211). No pine stands within 14 ft of a cottage centre. Spacing is 24 ft in the walls and 24/32 ft in the forest, and cottages read clearly in S-default.png.\n7. Nit: mist banks share one material per opacity (2 materials at runtime), and the woodpile is a box plus a merged mesh of log ends.\n\nNot fixed (block issue #2): the ledge is a real shelf on a mountainside in the close views. But KL.land() never brings the edge down toward the region, so the coarse lattice ends in a skirt up to about 460 ft high along the N and E frame edges (edge_report: largest gap 556 ft; 86 of 314 edge samples sit more than 100 ft above the region). In S-far-NE.png and S-far-E.png it is a flat dark wall; from the SW (S-far-SW.png) the frame's NE quarter is a box-shaped massif. The base build tapered the edge to about 60 ft and had no wall. The fixer skipped this as waiting on the region data. I don't accept that skip: the fix belongs in krezk_land.py, which this cluster owns, either by blending the edge down or by adding an apron outside the frame. S10 shares the same land, so it shows the same seam.\n\nSmaller regressions (nits):\n- Draw calls are up at every measured view: 375 to 434 at the default view, 65 to 110 at the cliff close-up.\n- On the road's third leg, rock pinches the road where it passes the rim's SW corner (land 182 vs road 160 at (448,404)).\n- Boulder S4-rock3 is now buried 68 ft in the cliff; it was 38 ft before.\n\nScreenshots are in /tmp/claude-0/-home-user-VTT/3e57a1ac-07da-5111-aa9e-cccc471b7481/scratchpad/smooth/verify-krezk/ (base-*.png are the main build for comparison). I stopped both of my preview servers (ports 4731 and 4732)."
+   }
+  },
+  {
+   "name": "render",
+   "branch": "claude/wip/item6-render",
+   "commit": "92dcd69",
+   "files": [
+    "app/src/render/materials.ts",
+    "app/src/render/build.ts",
+    "app/src/kit/surfaces.ts",
+    "app/src/kit/props.ts",
+    "app/src/kit/pieces.ts",
+    "app/src/kit/creatures.ts",
+    "app/src/kit/palette.ts",
+    "app/src/kit/sites/x.ts"
+   ],
+   "maps": [
+    "all",
+    "ch13/X",
+    "ch09/T",
+    "ch14/Y",
+    "ch10/U",
+    "ch04/K",
+    "appB/death-house",
+    "ch08/S10",
+    "ch07/Q"
+   ],
+   "brief": "Repo /home/user/VTT (TypeScript three.js r180 app under app/, `npm run typecheck`, `npm run build`, `npm run preview` on :4173; Playwright harnesses for screenshots/census exist under /tmp/claude-0/-home-user-VTT/3e57a1ac-07da-5111-aa9e-cccc471b7481/scratchpad/smooth/audit/ (collect.mjs, shoot.cjs) and .../smooth/measure/). You own ONLY app/src/render/materials.ts, app/src/render/build.ts, app/src/kit/surfaces.ts, props.ts, pieces.ts, creatures.ts, palette.ts and app/src/kit/sites/x.ts. app.ts, backdrop.ts, gridOverlay.ts, world.ts and the other site kits (q,s,t,u,w,wild*.ts) and all Python/scene files belong to other parallel clusters: do not touch them; put requests in your final report. Read docs/STYLE.md first (grain is tonal, quiet, in the palette's own tones; no textures/UVs: the shared shader draws world-space grain selected by a per-material surface id via setSurface/surfaceFor).\n\nGOAL (user): all textures must work everywhere and read at close range; debloat and smooth WITHOUT removing detail at close range (LOD at scale, never deletion).\n\nWHAT IS WRONG (measured):\n- Amber (ch13/X): WALL_COLOR.amber '#c9822e' is WALL_SURF 'generic' and x.ts line ~20 declares AMBER_DK/AMBER_LT 'generic' too, so 104 amber wall runs, 21 sarcophagi, 6 statues are flat orange slabs next to crisp ashlar. Add SURF.amber in materials.ts (broad cloudy variation sfbm(uv*0.5) \u00b10.22, fine flow streaks snoise(vec2(uv.x*0.9, uv.y*6.0)) \u00b10.08, sparse dark inclusions from the cell hash, tint toward PALETTE.amberDeep inside dark clouds); set WALL_SURF.amber = 'amber' in surfaces.ts; in x.ts give the temple's amber its own hexes (not PALETTE.amber '#f2b35b' which is the harp/brass/flame colour: those stay generic/emissive) and declare them 'amber'.\n- 'rock' (SURF 16, materials.ts ~lines 70-74): 2.2-ft Voronoi cells with 0.38-dark joints read as crazy-paving cobbles on cliffs and cave walls (Tsolenka flank at 90 ft, Krezk cliff); the 0.14 strata only read from a mile away. Joints 0.38 -> ~0.18 faded with `fine` (not `mid`); cells larger (uv*0.3) with cracks biased vertical (stretch the cell lookup in y); strata 0.14 -> ~0.26 with a slow wobble snoise(vec2(uv.x*0.2 + sfbm(uv*0.1)*2.0, uv.y*2.2)); add an fbm tone layer at 8-12 ft. Leave 'rubble' (SURF 3) alone.\n- Dark colours show no grain because the grain is multiplicative (line ~209 `diffuseColor.rgb *= mistSurface(...)`): black boulders, cairns, slate, gatehouse ashlar read as flat facets at 20 ft. Use `vec3 s = mistSurface(...); diffuseColor.rgb = clamp(diffuseColor.rgb * s + (s - 1.0) * 0.035, 0.0, 1.0);`.\n- Ground surfaces read flat at table distance (lines ~103-111, 130-131): dirt add a 2-3 ft mottle (sfbm(P.xz*0.5)-0.5)*0.16*mid and stronger pebbles; grass pb 0.12 -> 0.2 plus a ~1-ft tussock cell term; snow add drift shading (sfbm(P.xz*0.08)-0.5)*0.12 and a faint wind ripple; give marsh its own SURF ('marsh': grass drifts + standing-water sheen) and map FLOOR_SURF.marsh to it. Keep it tonal.\n- Window glass gets the stone grain: wallMat() (~252-257) sets the surface from the colour before applying emissive, unlike mat() (~225). In wallMat, when opts.emissive is set, setSurface(m,'none').\n- surfaceFor() silently lets later files overwrite a colour's surface (later declarations win): add a dev console.warn when a colour is re-declared with a different surface, naming old and new. The site kits fix their own colliding hexes in parallel.\n- Debloat (build.ts): (a) creatures with vis 'player' are excluded from the static merge (isStatic() line ~40 excludes CREATURES kinds) and privatize() (line ~90) clones one material per MESH, so 73 mongrelfolk in the abbey cost ~365 draw calls and S10 draws 794 calls, X 718, K 453, Q 407. Let creatures that are not draggable/initiative tokens (no size, vis 'player' or hidden-creature) join the scatter merge by material while keeping userData.ranges so picking still names them, and make privatize() clone one material per colour per object, shared across hidden creatures of the same kind in the same room. (b) Two-tier static scatter so sub-pixel detail stops costing at the table view but is identical close up: bucket static pieces by (material, role, tier) where tier='near' when the piece's two smallest extents are < ~0.7 ft (rails, braces, mullions, shutters, straps, stalks, wires, pickets, twigs) or when a builder tags userData.tier='near'/'far'; merge near buckets per ~500-ft tile and wrap each tile in THREE.LOD (near mesh within the distance where 1 ft >= ~1.5 px for the current pixel ratio, far mesh beyond) so it needs no per-frame hook in app.ts and offscreen tiles frustum-cull. Measured payoff: Vallaki houses x1047 = 546k tris (44 meshes each), palisade x582 = 335k (14 cylinder trunks per 20-ft piece), Yester Hill oaks x273 = 170k (six ico(1) blobs = 628 tris each), Berez reeds 78% sub-foot, winery vines 61%. In props.ts: oak() canopy ico(0) tagged 'far' + ico(1) 'near'; palisade() one solid box body 'far' + trunk cylinders 'near'; house() posts/rails/braces/window frames/straps 'near'. The tag must be harmless if a builder sets it before the engine supports it (other clusters tag w.ts cairn, u.ts reeds, s.ts woodpile in parallel).\n- props.ts cobweb() (~line 248) allocates a MeshBasicMaterial per call: 61 of Death House's 133 draw calls, unlit so they glow in dark rooms. One module-level shared transparent material (patchFog'd) so cobwebs merge per level.\n- props.ts spiralStair(): large radii render as solid fans (K18/K20/K21 r 13-16 ft, treads from the axis). Support dims.r0 (inner radius, default today's behaviour), annular wedge treads r0..r with a railing; column height = rise (not rise+8) or role 'wall' so the section slicer clips it; treads mat(PALETTE.wine,{surface:'wood'}) (wine/blood are declared cloth for banners; pieces.ts pressurePlate -> {surface:'stone'}, baseRing -> {surface:'none'}). castle-ravenloft.py sets r0 in parallel.\n- Cheap declaration nits (surfaces.ts block for shared kit colours; explicit surface in builders): chimney '#6a6560' stone; COPING '#5d5852' (build.ts) stone; onion-dome '#7d6a55' shingle; mill-sails '#bfb49c' cloth; WSC temple roof '#2a2a3a' shingle; stone-flight/dais '#565b64','#6a6f78' and ledge '#5a606a' (props.ts:122,133; x.ts:444) stone; menhir '#6f6e66' (props.ts:757) rock; house/cottage window glass '#1d1916', church lancets '#1d1b22', well hole '#07070a' -> none; candlestick/brazier/oil-lamp flames (PALETTE.amber) emissive not lit+generic; K chasm lower plane '#5e6270' (props.ts:769) -> mat() not MeshBasic; build.ts room labels: strip part suffixes (r.key.replace(/-[a-z]+$/,'')) so K12-n, N4a-west do not show.\n- Optional nit: pieces.ts mergeByMaterial keeps indexed geometry when inputs are indexed (today non-indexed triples vertex buffers; flatShading in r180 derives normals in the fragment shader so indexed is safe). Verify flat shading still reads.\n\nDO NOT: change the heightfield dims format consumed by s.ts, remove any geometry that reads close up, change app.ts/backdrop.ts (the 'backdrop' cluster handles context/token material patching, lights, ribbons, forest instances, grid overlay), or refactor SURF into a uniform (dropped: too risky for this pass).\n\nVERIFY: `npm run typecheck` and `npm run build`; open ch13/X lower (amber veining at 26-35 ft), ch09/T flank (rock bedding, no cobbles), ch14/Y boulders at 22 ft (grain visible on dark), ch10/U reeds at 80 ft (marsh mottle), a window at close range (no courses in the glass); draw calls at the default framing before/after on S10 (794), X (718), K (453), Q (407), death-house (133) via renderer.info; confirm close-up screenshots of a Vallaki house, a palisade run, an oak and a reed clump are unchanged when the camera is near. Report any warnings the new surfaceFor guard prints (they belong to the site clusters).",
+   "issues": [
+    {
+     "map": "ch13/X",
+     "severity": "fix",
+     "what": "Amber reads flat: WALL_COLOR.amber '#c9822e' and x.ts AMBER_DK/AMBER_LT are 'generic' (a 0.1 whisper); 104 wall runs, 21 sarcophagi, 6 statues are plain orange slabs beside crisp ashlar.",
+     "evidence": "x-amber-lower.png, x-amber-x8-wall.png; surfaces.ts WALL_SURF amber:'generic'; x.ts line 20.",
+     "fix": "materials.ts: new SURF.amber (broad cloudy sfbm(uv*0.5) \u00b10.22, flow streaks snoise(uv.x*0.9, uv.y*6) \u00b10.08, dark inclusions from cell hash, tint toward amberDeep in clouds); surfaces.ts WALL_SURF.amber='amber'; x.ts declares AMBER/AMBER_DK/AMBER_LT 'amber' with hexes distinct from PALETTE.amber/amberDeep (harp/brass stay generic).",
+     "files": [
+      "app/src/render/materials.ts",
+      "app/src/kit/surfaces.ts",
+      "app/src/kit/sites/x.ts"
+     ]
+    },
+    {
+     "map": "ch09/T, ch08/S, ch04/K, ch13/X",
+     "severity": "fix",
+     "what": "'rock' surface (SURF 16) reads as crazy-paving masonry: 2.2-ft cells with 0.38-dark joints dominate, strata at 0.14 barely show.",
+     "evidence": "t-rockflank.png (90 ft): polygonal cobbles with dark joints; materials.ts lines 70-74.",
+     "fix": "materials.ts rock branch: joints 0.38 -> 0.18 faded with `fine`; larger cells (uv*0.3) with cracks biased vertical (y-stretched Voronoi); strata 0.14 -> 0.26 with slow wobble snoise(uv.x*0.2 + sfbm(uv*0.1)*2, uv.y*2.2); fbm tone layer at 8-12 ft; keep rubble (SURF 3).",
+     "files": [
+      "app/src/render/materials.ts"
+     ]
+    },
+    {
+     "map": "ch14/Y, ch09/T, ch13/X, ch12/W",
+     "severity": "fix",
+     "what": "Grain is purely multiplicative so dark colours (#2e2f33 boulders, #26272b cairns, slate roofs, obsidian) show none and read as flat facets at 20 ft.",
+     "evidence": "y-boulder-close.png (22 ft), t-tsolenka-snow.png; materials.ts line 209.",
+     "fix": "materials.ts line ~209: `vec3 s = mistSurface(...); diffuseColor.rgb = clamp(diffuseColor.rgb * s + (s - 1.0) * 0.035, 0.0, 1.0);`.",
+     "files": [
+      "app/src/render/materials.ts"
+     ]
+    },
+    {
+     "map": "ch10/U, ch14/Y, ch08/S, ch09/T",
+     "severity": "fix",
+     "what": "Dirt, grass, marsh and snow read nearly flat at tabletop distance while stone reads strongly.",
+     "evidence": "u-berez-reeds.png (80 ft) uniform dark green; t-tsolenka-snow.png white plane; materials.ts lines 103-111, 130-131.",
+     "fix": "dirt: add (sfbm(P.xz*0.5)-0.5)*0.16*mid mottle and raise pebble contrast; grass: pb 0.12 -> 0.2 plus a 1-ft tussock cell term; snow: drift shading (sfbm(P.xz*0.08)-0.5)*0.12 plus faint wind ripple; marsh: its own SURF (grass drifts + standing-water sheen), FLOOR_SURF.marsh -> 'marsh'. Tonal only (docs/STYLE.md).",
+     "files": [
+      "app/src/render/materials.ts",
+      "app/src/kit/surfaces.ts"
+     ]
+    },
+    {
+     "map": "all (17 maps with windows)",
+     "severity": "fix",
+     "what": "Window glass carries the worked-stone grain: wallMat(PALETTE.stone,{emissive}) sets the surface from the colour before the emissive is applied (mat() forces 'none').",
+     "evidence": "census '#6f7b86 em:#1b2530 surf:stone' 44 meshes/4,008 tris; materials.ts wallMat 252-257 vs mat 225.",
+     "fix": "materials.ts wallMat(): when opts.emissive is set, setSurface(m,'none').",
+     "files": [
+      "app/src/render/materials.ts"
+     ]
+    },
+    {
+     "map": "all",
+     "severity": "fix",
+     "what": "No guard against hex collisions between declaration files (later surfaceFor wins): boulders->metal, mist3->metal, '#3b3a3f'->shingle, '#a8956f'->wood, '#4a3a2c'->cloth.",
+     "evidence": "surfaces.ts surfaceFor() silently overwrites; sites/index.ts import order q,s,x,w,t,u,wild.",
+     "fix": "surfaces.ts surfaceFor(): when a colour is re-declared with a DIFFERENT surface, console.warn (dev) naming both; the site clusters fix their own hexes in parallel (s.ts, t.ts, w.ts, u.ts).",
+     "files": [
+      "app/src/kit/surfaces.ts"
+     ]
+    },
+    {
+     "map": "ch08/S10, ch07/Q, ch04/K",
+     "severity": "fix",
+     "what": "Debloat: scene creatures with vis 'player' are merged only per figure (one draw per material per figure): 536 token meshes in the abbey (73 mongrelfolk), 99 in Argynvostholt; privatize() clones a material per mesh. S10 794 draw calls, X 718, K 453, Q 407.",
+     "evidence": "build.ts isStatic() excludes CREATURES kinds; buildObject -> mergeByMaterial per figure; privatize() per mesh.",
+     "fix": "build.ts: creatures that are not draggable/initiative tokens (vis 'player' or hidden-creature, no size/token role) join the scatter merge by material (keep userData.ranges so picking still names them); privatize(): one clone per colour per object, shared across hidden creatures of the same kind in the same room (the slider sets the same opacity on all).",
+     "files": [
+      "app/src/render/build.ts"
+     ]
+    },
+    {
+     "map": "appB/death-house, ch04/K, ch07/Q, ch13/X",
+     "severity": "fix",
+     "what": "cobweb() allocates a fresh MeshBasicMaterial per call (61 draw calls of 133 in Death House; 19 in K); cobwebs are unlit and glow in dark rooms.",
+     "evidence": "census MeshBasicMaterial #e8e4dc transp0.35 cobweb:134 separate meshes; props.ts line 248.",
+     "fix": "props.ts: one module-level shared transparent cobweb material (patchFog'd Lambert or Basic) so all cobwebs of a level merge.",
+     "files": [
+      "app/src/kit/props.ts"
+     ]
+    },
+    {
+     "map": "ch05/N, ch14/Y, ch10/U, ch12/W",
+     "severity": "fix",
+     "what": "Debloat without losing close-range detail: Vallaki 1.0-1.17M tris (house x1047 = 546k, 44 meshes each: posts, rails, braces, shutters, mullions; palisade x582 = 335k as 14 cylinder trunks per 20-ft piece); Yester Hill oak x273 = 170k (628 tris each, six ico(1) canopy blobs); Berez reeds 78% sub-foot stalks; winery vine-rows 61% wires/struts/grapes. All sub-pixel at the table view.",
+     "evidence": "fine.json/kinds.json: ch05/N outTris 1,040,642; ch14/Y 355,944; ch10/U fine 262,560 of 337,084.",
+     "fix": "build.ts: two-tier static scatter: bucket by (material, role, tier), tier 'near' for pieces whose two smallest extents are < ~0.7 ft or tagged userData.tier='near'/'far' by builders; merge near buckets into ~500-ft tiles and switch with THREE.LOD per tile (near mesh shown within a distance where 1 ft >= ~1.5 px, far mesh beyond) so no app.ts hook is needed and offscreen tiles frustum-cull. props.ts: oak() canopy as ico(0) 'far' + ico(1) 'near'; palisade() one solid box body 'far' + trunk cylinders 'near'; house() posts/rails/braces/window frames/straps 'near'. Site kits (w.ts cairn, u.ts reeds, s.ts woodpile) tag their own pieces in parallel; the tag must be harmless if unsupported.",
+     "files": [
+      "app/src/render/build.ts",
+      "app/src/kit/props.ts"
+     ]
+    },
+    {
+     "map": "ch04/K",
+     "severity": "fix",
+     "what": "Spiral stairs with large radius render as solid red fans (wedges from the axis to r 13-16 ft); the stair column pokes above the section cut (rise+8).",
+     "evidence": "shots-k ch04_K__landing.png; props.ts spiralStair; ch06_O__O1L.png.",
+     "fix": "props.ts spiralStair(): support dims.r0 (inner radius), treads as annular wedges r0..r with a railing; column height = rise (not rise+8) or role 'wall' so the section clips it; treads mat(PALETTE.wine,{surface:'wood'}) instead of inheriting 'cloth'. castle-ravenloft.py sets r0 in parallel.",
+     "files": [
+      "app/src/kit/props.ts"
+     ]
+    },
+    {
+     "map": "all",
+     "severity": "nit",
+     "what": "Specific materials falling to 'generic' or wrong surfaces: chimney '#6a6560' -> stone; COPING '#5d5852' -> stone (build.ts); onion-dome '#7d6a55' -> shingle; mill-sails '#bfb49c' -> cloth; WSC temple roof '#2a2a3a' -> shingle; stone-flight/dais '#565b64','#6a6f78' and ledge '#5a606a' -> stone (props.ts, x.ts:444); menhir '#6f6e66' -> rock; window glass '#1d1916', lancets '#1d1b22', well hole '#07070a' -> none; flames PALETTE.amber on candlestick/brazier/oil-lamp -> emissive; pressure plates (wine) -> stone, token baseRing (blood) -> none; K chasm floor '#5e6270' MeshBasic -> mat(); label text shows part keys (K12-n, N4a-west).",
+     "evidence": "census section 3 (report.txt); props.ts:810,735,626,122,133,757,769; pieces.ts pressurePlate/baseRing; build.ts labels use r.key verbatim.",
+     "fix": "One declaration block in surfaces.ts for shared kit colours; explicit {surface} on the pieces named; build.ts label text = r.key.replace(/-[a-z]+$/,'') for parts.",
+     "files": [
+      "app/src/kit/surfaces.ts",
+      "app/src/kit/props.ts",
+      "app/src/kit/pieces.ts",
+      "app/src/render/build.ts",
+      "app/src/kit/sites/x.ts"
+     ]
+    },
+    {
+     "map": "all",
+     "severity": "nit",
+     "what": "pieces.ts merge() emits non-indexed geometry (BoxGeometry 24 indexed verts -> 36), tripling vertex buffers (Vallaki ~3M verts, ~72 MB).",
+     "evidence": "perf engine note; three r180 flatShading derives normals in the fragment shader so indexed is fine.",
+     "fix": "pieces.ts mergeByMaterial: keep indexed geometry when all inputs are indexed; verify flat shading still reads.",
+     "files": [
+      "app/src/kit/pieces.ts"
+     ]
+    }
+   ],
+   "fixer": {
+    "fixed": [
+     "Amber (ch13/X): new SURF.amber (23) in materials.ts (sfbm(uv*0.5) clouds +/-0.22, flow streaks snoise(uv.x*0.9, uv.y*6) +/-0.08, sparse dark inclusions from the cell hash, tint toward deep amber inside dark clouds); WALL_SURF.amber='amber'; WALL_COLOR.amber moved to its own hex '#c4802f' (palette.ts) so PALETTE.amberDeep (harp/brass/sword hilts) stays generic; x.ts declares AMBER=WALL_COLOR.amber, AMBER_DK, AMBER_LT as 'amber'. Verified at 26-35 ft (view-amberwall, view-amberx8, view-sarc) and from the table (ch13_X-default).",
+     "'rock' (SURF 16) split from rubble: joints 0.38->0.18 faded with `fine`, cells at (uv.x*0.3, uv.y*0.13) so the cracks run mostly vertical, strata 0.26 with a slow wobble snoise(uv.x*0.2 + sfbm(uv*0.1)*2, uv.y*2.2), and an 8-12 ft fbm tone layer. Tsolenka flank at 90 ft now reads as bedded rock, no cobbles (close-rockflank before/after). Rubble (SURF 3) untouched.",
+     "Dark colours show grain: color_fragment now does `vec3 s = mistSurface(...); diffuseColor.rgb = clamp(diffuseColor.rgb * s + (s - 1.0) * 0.035, 0, 1)`; Yester Hill black boulders at 22 ft show cracks/strata (close-boulder before/after).",
+     "Ground surfaces: dirt gets a 2-3 ft mottle (sfbm(P.xz*0.5)-0.5)*0.16*mid and stronger pebbles (0.26); grass pb 0.12->0.2 plus a ~1-ft tussock cell term (softened after a first pass read as gravel); snow gets drift shading (sfbm(uv*0.08)-0.5)*0.16*broad and a faint wind ripple; new SURF.marsh (24: grass drifts sinking into pools with a faint sheen, tonal) mapped from FLOOR_SURF.marsh. Berez reeds at 80 ft show the marsh mottle (close-reeds80 before/after).",
+     "Window glass: wallMat() sets surface 'none' when opts.emissive is given; Death House window at close range shows plain glass, no brick courses (view-window).",
+     "surfaceFor() guard: a colour re-declared with a different surface logs console.warn in dev (import.meta.env.DEV) naming old and new surface.",
+     "Shared kit colour declarations in surfaces.ts: chimney '#6a6560', COPING '#5d5852', dais/flight '#565b64' '#6a6f78', ledge '#5a606a' -> stone; menhir '#6f6e66' -> rock; onion dome '#7d6a55' and WSC temple roof '#2a2a3a' -> shingle; mill sails '#bfb49c' -> cloth; house glass '#1d1916', church lancets '#1d1b22', well hole '#07070a', chasm fog floor '#5e6270' -> none. pieces.ts pressurePlate -> {surface:'stone'} (and build.ts pressure-plate), baseRing -> {surface:'none'}.",
+     "Flames: candlestick, chandelier candles, nightstand candle, brazier, lamp and oil-lamp amber pieces now mat(PALETTE.amber,{emissive:'#b8661c'}) (lit + glowing, no grain); campfire/watchtower MeshBasic '#f2a03a' flames -> mat('#f2a03a',{emissive}) so they are fogged and merge; K chasm lower plane -> mat('#5e6270').",
+     "cobweb(): one module-level shared transparent MeshLambertMaterial (patchFog'd, surface none) so a level's cobwebs merge into one mesh and dim with the room instead of glowing; verified lit pale triangle in the Death House attic corner (view-cobwebcorner). Every light's flame octahedron of a level is now one merged mesh with one shared basic material.",
+     "Debloat: two-tier static scatter in build.ts. Pieces are bucketed by (role, cap, tier, tile, material); tier 'near' when userData.tier='near' on the mesh or an ancestor, or untagged with two smallest world extents < 0.7 ft; 'far' only when tagged; everything else 'both'. Near/far buckets merge per 1000-ft tile inside a THREE.LOD (level 0 near, level 1 far at D + half tile diagonal, D = viewport px / (3 tan 20deg) i.e. where 1 ft ~ 1.5 px at the capped pixel ratio) so the renderer switches on its own and offscreen tiles frustum-cull; userData.ranges kept on every merged mesh so picking still names objects. Tiers are only enabled on levels whose room-bounds diagonal exceeds D (small interiors would only gain meshes). props.ts: oak canopy ico(1) tagged near + ico(0) far; palisade trunks+tips near + one solid box body far; house posts, window frames and shutters near (dark pane stays). Tags are plain userData so builders in other clusters can set them safely.",
+     "Debloat: visible scene creatures (vis 'player', any size) join the static merge (they are scenery; draggable/initiative figures are campaign tokens built separately); privatize() clones one material per material of the object (not per mesh) via new matCloneOf() that keeps emissive and surface (fixes hidden flames turning black).",
+     "Measured at the default framing (before -> after, calls / tris): N 154/1,174k -> 130/433k; U 212/500k -> 172/236k; Y 54/489k -> 66/386k (6 LOD tiles add far stand-ins; w.ts cairn/boulder tags will cut more); K 453 -> 413; X 718 -> 668; Q 409 -> 400; S10 796 -> 784; death-house 133 -> 135 (+2: flames now a distinct emissive material); T unchanged 109. Close-up (90 ft) Vallaki house/palisade, Yester oak and Berez reed clump screenshots are identical to the baseline at the near view (near tier shown).",
+     "spiralStair(): supports dims.r0 (inner radius, default 1.2 = today's look); treads are annular wedges r0..r whose outer edge follows the arc; wide stairs (r0 > 1.3) get a central cylindrical pier and a railing (posts every other tread, handrail between); the newel/pier height is now `rise` (was rise+3) so it never pokes through the section cut; treads mat(PALETTE.wine,{surface:'wood'}). Verified with a temporary r0 patch of K21 (view-spiralk21top: annular treads round the pier, railing) then reverted; castle-ravenloft.py sets r0 for real.",
+     "merge() in pieces.ts keeps indexed geometry when every input is indexed (boxes 24 verts instead of 36); flat shading unchanged on screen (house/palisade/stair close-ups).",
+     "Room labels strip part suffixes: r.key.replace(/-[a-z]+$/, '') (Y2-northwest -> Y2 confirmed on Yester Hill)."
+    ],
+    "skipped": [
+     {
+      "what": "Sharing one privatized material across hidden creatures of the same kind in the same room (and merging them), i.e. the S10 mongrelfolk draw-call win (S10 stays ~784)",
+      "why": "Reveal is per object (App.toggleObject / revealSets.objects / playerCanSee by id): classOpacity returns 1 for a revealed object and hiddenCurve(T) for the rest, so two creatures sharing a material or a merged mesh could not take different opacities and revealing one mongrelfolk would reveal the whole room's group to players. Needs an app.ts change (group targets with per-member reveal, or a per-object opacity attribute) that belongs to another cluster. privatize() still drops to one clone per material of the object."
+     },
+     {
+      "what": "Castle spiral stairs still render as red fans in K (K18/K20/K21)",
+      "why": "Builder support for dims.r0 is in; the scene values come from scripts/authoring/castle-ravenloft.py (owned by the castle cluster). Verified the builder with a temporary r0 on K21, then reverted the scene file."
+     },
+     {
+      "what": "Cairn (w.ts), reeds (u.ts) and woodpile (s.ts) tiering",
+      "why": "Site kits are owned by other clusters; the engine honours userData.tier='near'/'far' on a mesh or any ancestor group as soon as they tag them. Untagged sub-0.7-ft stalks already fall into the near tier automatically (Berez U 500k -> 236k tris)."
+     },
+     {
+      "what": "Snow drift shading reads faintly on Tsolenka at 14:00",
+      "why": "The drift term is in (0.16 at 12 ft) but the midday lighting pushes the white floor near saturation; light rig belongs to the backdrop cluster."
+     }
+    ],
+    "notes": [
+     "surfaceFor collision warnings printed by the new guard (all from site kits, in import order q,s,x,w,t,u,wild): '#5a5d63' (PALETTE.mist3) stone -> metal; '#a8956f' wood -> cloth -> wood; '#1f1a18' generic -> none; '#4a3a2c' wood -> cloth; '#2e2f33' rock -> metal (the black boulders); '#3a1218' none -> wood; '#3b3a3f' ashlar -> shingle. Each loser should get its own hex in its site file.",
+     "Requests for other clusters: castle-ravenloft.py set dims.r0 (~0.45*r) on the K18/K20/K21 stair towers; w.ts tag cairn tiers (ico blobs far / stones near), u.ts tag reed stalks near with a far clump, s.ts woodpile; app.ts (if the S10 mongrelfolk win is wanted) group hidden-creature SliderTargets per (kind, room) with per-member reveal, after which build.ts can merge them; backdrop lights: the Tsolenka snow saturates at midday.",
+     "WALL_COLOR.amber changed from '#c9822e' (=PALETTE.amberDeep) to '#c4802f' so only the temple stone takes the amber grain; anything that baked the old hex (GLB atlas) will see a hair-different amber.",
+     "LOD switch distance is computed once at build time from window.innerHeight and devicePixelRatio (capped 1.5, matching world.ts) for a 40-degree camera; a resize moves the exact switch point slightly but nothing is ever missing close up. Raycasts through a THREE.LOD also test the hidden level's meshes (three's LOD.raycast does not stop propagation); both carry the same object ranges so picking is unaffected.",
+     "Verification: npm run typecheck, npm run build, npx vitest run (155 passed, 2 todo), python3 scripts/authoring/audit-outdoor.py (no scene files touched; findings unchanged). Playwright e2e not run. Screenshots and stats under /tmp/claude-0/-home-user-VTT/3e57a1ac-07da-5111-aa9e-cccc471b7481/scratchpad/smooth/fix-render/ (before/, after1..4/, final/, measure.cjs harness, surface-warnings.txt). Preview on 4601 and the dev server on 4602 were started and killed (PIDs only mine); the other agents' servers on 4173/5000 untouched. node_modules symlink left in the worktree (untracked, gitignored)."
+    ]
+   },
+   "review": {
+    "pass": false,
+    "unfixed": [
+     {
+      "map": "ch09/T",
+      "area": "snow surface",
+      "severity": "nit",
+      "what": "The snow drift shading is in the shader (materials.ts SURF 18), but I can't see it on the Tsolenka pass floor at 14:00. The floor still reads as a flat white plane.",
+      "evidence": "T-snow-base.png vs T-snow-fix.png (48 ft): the floor looks the same in both. The rock wall in the same frame did change. The fixer skipped this: midday light pushes the white floor near saturation, and the light rig belongs to the backdrop cluster.",
+      "fix": "Backdrop cluster: lower the key light on snow-floored levels. Alternatively, in materials.ts SURF 18, add a small additive darkening term like the dark-colour one, so the drifts survive a clamped bright floor.",
+      "files": [
+       "app/src/render/materials.ts",
+       "app/src/render/backdrop.ts"
+      ]
+     },
+     {
+      "map": "ch08/S10",
+      "area": "draw calls",
+      "severity": "nit",
+      "what": "The mongrelfolk debloat (one shared material per kind and room for hidden creatures) is not done. S10 drops only from 798 to 786 draw calls.",
+      "evidence": "S10-default: base 798 calls, fix 786. Skipped legitimately: reveal is per object in app.ts, which another cluster owns.",
+      "fix": "app.ts: group hidden-creature SliderTargets by (kind, room) with per-member reveal, or use a per-object opacity attribute. After that, build.ts can merge them.",
+      "files": [
+       "app/src/app.ts",
+       "app/src/render/build.ts"
+      ]
+     },
+     {
+      "map": "ch04/K",
+      "area": "spiral stairs",
+      "severity": "nit",
+      "what": "The K18/K20/K21 stairs still render as solid fans, because the scene sets no dims.r0. The builder side is done: tested with r0=6, treads are annular (min radius 6.00), there is a pier, and the treads use the wood surface (5).",
+      "evidence": "Scratch test: spiralStair({rise:30,r:15,r0:6}) gives tread min radius 6.00, a cylinder pier topping at 30 (= rise) and 45 children including the railing. The default stair's newel tops at the rise (20), no longer rise+3.",
+      "fix": "castle-ravenloft.py (castle cluster): set dims.r0 to about 0.45*r on the K18/K20/K21 stairs.",
+      "files": [
+       "scripts/authoring/castle-ravenloft.py"
+      ]
+     }
+    ],
+    "regressions": [
+     {
+      "map": "ch10/U (and every tiered map with fence, berez-iron-fence, skull-fence, dead-tree or signpost: N, S, W, E, wsc)",
+      "area": "two-tier LOD heuristic: detail lost at table scale, pops on zoom",
+      "severity": "fix",
+      "what": "tierOf() automatically puts an untagged piece in the 'near' tier when its two smallest extents are under 0.7 ft. That catches long or tall pieces (fence posts 0.4-0.6 ft by 3.5-6.5 ft, rails 0.2-0.3 ft by 10 ft, dead-tree limbs) which still cover several pixels at the switch distance, and they get no far stand-in. Past the switch (about 1,530 ft from the tile centre at a 900-px viewport), whole fences disappear and dead trees lose their branches. Zooming in and out makes them pop in and out, which fits the user's report that zoom in and out 'doesn't seem to be functioning as intended'.",
+      "evidence": "cmp-U-pen-1700.png (camera 1,855 ft from the U2 pen): the base shows the ring of posts and rails clearly, the fix shows only faint skull dots. Same in U-z050 (1,938 ft) and crop-Upen-base/fix.png. At about 1,900 ft a 6.5-ft post is still about 4 px tall. In the same views dead trees drop to bare sticks (crop-Ueast). At 500 and 1,000 ft the near tier shows, and the fence matches the base (cmp-pen1000.png). Gains: U 500k to 237k tris, N 1.17M to 433k.",
+      "fix": "build.ts tierOf(): only auto-tag 'near' when the piece is small in every direction, e.g. ext[1] < 0.7 && ext[2] < ~3 ft (or projected area ext[1]*ext[2] < ~1.5 sq ft). Long rails, tall posts and limbs then stay 'both'. Alternatively give fence() and deadTree() in props.ts explicit far stand-ins (one thin box per fence run, a coarse crown for the dead tree) and tag their pieces near/far. Re-check that U2-pen and Vallaki fences read at 1,800-2,000 ft.",
+      "files": [
+       "app/src/render/build.ts",
+       "app/src/kit/props.ts"
+      ]
+     },
+     {
+      "map": "ch14/Y, ch10/U, ch08/S10",
+      "area": "room labels",
+      "severity": "nit",
+      "what": "Stripping part suffixes with r.key.replace(/-[a-z]+$/,'') leaves duplicate key labels: six 'Y2' around Yester Hill's ring, three 'U2' and two 'U4' in Berez, five 'S12c' in the abbey. The parts' directional names (Y2-northwest, U2-pen) are gone from the plan.",
+      "evidence": "Y-default-fix.png vs base (six 'Y2'); U-z050 crops; cmp-S10-default.png.",
+      "fix": "build.ts: emit one key label per stripped key, placed on the largest part, or keep the stripped key but show the part (e.g. 'pen') as the sub-line.",
+      "files": [
+       "app/src/render/build.ts"
+      ]
+     },
+     {
+      "map": "none today (latent)",
+      "area": "tier tags outside the scatter merge",
+      "severity": "nit",
+      "what": "oak() and palisade() now hold both a 'near' group and a 'far' group. Only the scatter merge honours the tags. An oak or palisade built through the non-static path (hidden vis, size, or the context/backdrop builders) would draw both tiers on top of each other: the palisade's far box would poke between the trunks and over the tips.",
+      "evidence": "No scene has a non-player oak, palisade or house today (checked every scene.json). buildObject() adds the group as-is.",
+      "fix": "build.ts: on the non-static path, remove userData.tier==='far' children (keep near) before adding the object.",
+      "files": [
+       "app/src/render/build.ts"
+      ]
+     }
+    ],
+    "summary": "Not passing. Most issues are fixed and confirmed, but the two-tier LOD heuristic causes a fix-level regression: fences and dead-tree branches disappear at table distance and pop in and out on zoom. That is close to what the user reported.\n\nSetup: HEAD is 92dcd69. The diff from 6a8324d touches only the 7 allowed files. The build is fresh. Vitest: 155 passed, 2 todo. audit-outdoor.py findings are unchanged; no scene files changed. I compared the fix build (port 4701) against a baseline build of 6a8324d (port 4702, extracted to scratch), with the same camera scripts on both. Both servers are killed and the worktree is clean.\n\nConfirmed fixed:\n- **Amber:** X wall and sarcophagus now cloudy, streaked and flecked (X-amberwall, X-sarc30). surfaceOf: amber wall and its shades map to amber; PALETTE.amberDeep stays generic.\n- **Rock:** the Tsolenka flank went from crazy-paving cells to bedded strata (T-snow).\n- **Dark grain:** Yester Hill black boulders at 22 ft now show faint grain (Y-boulder22).\n- **Marsh, dirt, grass:** Berez marsh shows wet/dry mottle at 80 ft and from the table (U-reeds80, U-z050). Dirt and grass are more varied in N-house90.\n- **Window glass:** census shows surface 22 in the base and 0 in the fix; the window close-up is plain glass.\n- **surfaceFor guard:** prints the 8 collision warnings in dev (scratch vitest run).\n- **Shared kit colours:** chimney, coping, dais and ledge map to stone, menhir to rock, onion dome and WSC roof to shingle, sails to cloth, glass/well/chasm to none.\n- **Cobwebs:** Death House attic went from 22 separate basic materials to 1 shared lit material; the corner cobweb shows lit.\n- **Flames:** now emissive lit materials with no grain.\n- **Indexed merge:** N vertices 3.12M to 2.13M, Death House 30.8k to 23.9k, with no visible change.\n- **Draw calls and triangles:** N 154 calls / 1.17M tris to 130 / 433k; U 210 / 500k to 170 / 237k; Y 486k to 383k tris; K 451 to 411; Q 410 to 401; X 702 to 652.\n- **Close-ups match the baseline:** house at 90 ft, palisade at 60 ft and oak at 45 ft.\n- **Spiral stair builder:** annular treads, a pier at the rise height, wood surface (scratch test).\n\nLegitimately skipped (other clusters own the files): the stair r0 values in the castle scene, the S10 mongrelfolk merge (needs app.ts), the tags in other site kits, and the snow lighting (the drift shading is in but not visible).\n\nRegressions:\n- **Fix: the LOD heuristic drops long and tall pieces.** build.ts tierOf() puts any untagged piece whose two smallest extents are under 0.7 ft into the near tier, with no far stand-in. Fence posts, rails and dead-tree limbs are caught even though a 6.5-ft post is still about 4 px tall there. Evidence: at 1,855 ft the Berez U2 pen fence ring is gone (only skull dots remain) and dead trees are bare sticks (cmp-U-pen-1700.png, crop-Upen). At 500 and 1,000 ft it matches the baseline. The `fence` kind (98 placements in N, S, W, E and the Sheep Chase maps) is near-only for the same reason.\n- **Nit: duplicate labels.** Stripping part suffixes leaves six 'Y2' labels on Yester Hill, three 'U2' in Berez and five 'S12c' in the abbey.\n- **Nit: latent double draw.** An oak or palisade built outside the scatter merge would draw both tiers; no scene does this today.\n\nScreenshots and stats are in /tmp/claude-0/-home-user-VTT/3e57a1ac-07da-5111-aa9e-cccc471b7481/scratchpad/smooth/verify-render/shots/. The harness is h.cjs in the same folder. A few screenshots of heavy scenes (X-default, K-spiral21, K-spiraltop) timed out under swiftshader; their stats were still recorded."
+   }
+  },
+  {
+   "name": "backdrop",
+   "branch": "claude/wip/item6-backdrop",
+   "commit": "a50e5b0",
+   "files": [
+    "app/src/app.ts",
+    "app/src/render/backdrop.ts",
+    "app/src/render/gridOverlay.ts",
+    "app/src/render/world.ts"
+   ],
+   "maps": [
+    "all outdoor",
+    "ch13/X",
+    "ch05/N4",
+    "ch10/U",
+    "ch12/W",
+    "ch04/K",
+    "ch08/S",
+    "ch09/T",
+    "ch14/Y",
+    "ch06/O",
+    "ch05/N8",
+    "ch05/N1-N9",
+    "ch08/S10",
+    "ch10/U3",
+    "wsc/03-compound",
+    "ch07/Q",
+    "ch15/Z"
+   ],
+   "brief": "Repo /home/user/VTT (TypeScript three.js r180 under app/; `npm run typecheck`, `npm run build`, `npm run preview` :4173; Playwright harnesses in /tmp/claude-0/-home-user-VTT/3e57a1ac-07da-5111-aa9e-cccc471b7481/scratchpad/smooth/audit/ (shoot.cjs with probe numbers in shots/probe.json, collect.mjs census) and .../smooth/measure/). You own ONLY app/src/app.ts, app/src/render/backdrop.ts, app/src/render/gridOverlay.ts and app/src/render/world.ts. materials.ts/build.ts/surfaces.ts/props.ts/pieces.ts/x.ts belong to the 'render' cluster, kit/sites/*.ts and every Python/scene/world.json file to site clusters: do not edit them; use the helpers materials.ts already exports (matClone, setSurface, patchFog, surfaceOf from kit/surfaces.ts) and put any request for other files in your final report.\n\nGOAL (user): the world's logic must hold: a map's land must continue into the region beyond it (Krezk's mountain must not be a lone dome on a plain, Tsolenka's gorge must not end in a wall, Berez's marsh must not meet a mountain cliff), interiors must not be buried by the backdrop, textures (grain) must work on every material including context and tokens, and the backdrop must be debloated without losing anything visible.\n\nWHAT IS WRONG (measured):\n1. backdrop.ts yAt() (~line 90) flattens the land to the level's elevation: `yTop + (h - yTop) * smooth(120, 900, d)`. Consequences: Krezk (ch08/S) has its own 'heightfield' prop reaching 485 ft at the NE corner while the backdrop 900 ft beyond is at -138; Tsolenka (ch09/T) cuts a 420-ft gorge that ends at the map edge against land at -0.4; Berez (ch10/U) meets +963 ft within 900 ft SE, Old Bonegrinder (ch06/O) +439 at 2,640 ft E, the Amber Temple (ch13/X) +671 at 900 ft SE with the road ribbon rising at ~60 deg. FIX: in app.ts after buildLevel, raycast the built level (floors AND land props; use the built group's bounding box, which for Krezk is the heightfield lattice x 330..1160, z -430..650, not just the floor polygons) at ~64 points per side, plus a fallback to the level's elevation where nothing is hit, and pass `edgeHeights` (or an edgeY(x,z) sampler) to buildBackdrop. In yAt(): edge = interpolated nearest edge sample; grade cap h' = edge + clamp(h - edge, -0.25*d, +0.25*d) for the first 2,000 ft; return edge + (h' - edge) * smooth(120, 900, d). Keep the castle crag/pillar logic for K working. The 'krezk' cluster is rebuilding its mountain so the lattice edge meets the region x1.25 height, and the 'region' cluster is raising world.json rows NE of Krezk, so with this change the land will continue smoothly; the 'yester-wines' cluster adds a heightfield dome to ch14/Y which also relies on it.\n2. Interiors buried (block): app.ts buildBackdrop takes the elevation from the first level with terrain, and the land is flush at yTop-0.4 over the whole map footprint, so the Amber Temple's upper (+30) and lower (0) levels render as a white snow plane with floating labels (shots x-tabletop-upper/lower.png), and N4/U/W cellars 10-12 ft under their open-air level get the same. FIX in setLevel(): when the current level has no terrain and elevationFt < l0.elevationFt - 1, hide backdrop.getObjectByName('land') (and mist rings) for that level, and/or in yAt() return min(level elevations) - 3 inside the footprint (mapDist == 0) or cut a hole over bounds padded ~10 ft. Related: backdrop.ts line ~176 `if (crag > 0 && !HF)` skips the crag pillar whenever a heightfield exists, so Castle Ravenloft's dungeon/larder boxes (-40/-80 ft) hang in open air with grass behind them (shots-k ch04_K__ground.png). Draw a rock plinth under the map bounds from yTop-2 down to yAt() when HF && crag > 0, and the same plinth for any stacked scene whose minimum level elevation is below the backdrop ground (Death House dungeon, N4 cellar, W cellar, X).\n3. Grain missing: (a) context level materials (app.ts ~line 917) are cloned with mm.clone(); three r180 Material.copy() does not carry onBeforeCompile/customProgramCacheKey but DOES copy userData.mist=true, so the clone is a bare Lambert and patchFog no-ops: 57k tris of '#211d1f' context with no surface and never fogged on every area map. Build the context material with matClone('#'+src.color.getHexString(), true) then lerp its colour toward the mist, or after cloning `delete k.userData.mist; setSurface(k, surfaceOf(hex)); patchFog(k, true)`. (b) Token figures (app.ts ~541, 'tokens are never fogged') are rebuilt with bare `new THREE.MeshLambertMaterial(...)`: keep the private material but call setSurface(m, surfaceOf(hex)); patchFog(m, true) (exempt=true keeps them unfogged).\n4. Backdrop debloat (backdrop.ts): ribbon() (~442-459) makes one Mesh + new MeshBasicMaterial per road/river (74-100 meshes, 43-56k tris per outdoor map; unlit so they ignore day/night; ungrained; a village's grey cobble road turns into a bright tan ribbon at the map edge, e-village-horizon.png). Accumulate all roads into one geometry and all rivers into another, MeshLambertMaterial({vertexColors:true, flatShading:true}) with setSurface 'dirt' (rivers 'water') and patchFog(m, true); seed the first segment's colour from the FLOOR_COLOR of the map road it leaves (exitFor()). Also sample ribbon heights along the heightfield at intermediate points and, when a segment's grade exceeds 25%, insert switchback points instead of a straight climb. The instanced forest (lines ~192-207) submits n = 9500 with dropped trees as zero-scale matrices: write only kept trees and set trees.count = kept. hazed() (line ~59) bakes a distance colour per site material so collapse() cannot merge sites: bake haze into a vertex colour attribute and use one vertexColors Lambert per surface so the ~85-117 backdrop meshes collapse to a few. The settlement/landmark shadow discs (line ~406, '#2d3332' etc.) are MeshBasic and ignore night: lambert(blend(...)) with patchFog exempt, or drop them on heightfield maps.\n5. app.ts applySlider(): on non-stacked maps `o.userData.cap -> visible = !lowWalls` hides EVERY roof cap, so the N8 square's four shops and N7/N5 stand roofless beside roofed context houses. Hide a cap only when the party token (or the selected room) is inside that cap's building footprint; otherwise keep caps and clip walls only.\n6. app.ts buildContext: the neighbour test uses the house centre so context houses intersect interiors (N6 vallaki-h57b inside the shop): test the footprint (pos \u00b115 ft for houses) against the interior bbox with an 8-ft pad. Radius R = half extent + 450 ft draws 158-176 houses round a 70x55 shop (Blinsky's 232k tris, church as N1 221k vs 5k as E5): use 250 ft for interiors (450 only for placement maps) and drop pines/stumps beyond 150 ft. Add 'ruin', 'cottage', 'reeds' to the context KINDS so U3's mire shows Berez's ruins.\n7. Light budget: Castle Ravenloft renders 27 PointLights in one view (every stacked level's lights). In setLevel() for stacked sites keep PointLights visible only for the current level and the one directly above/below (or the 12 nearest the camera target). Lights of the floor you look at stay as authored.\n8. gridOverlay.ts buildGridOverlay(): for ground=false the grid is one plane over the bbox (pad 1.5), so lines hang in the air beside octagon towers (wsc/03-compound L3), across the abbey courtyard at the wall-walk height (S10 upper), Argynvostholt's roof terrace and the Z8 shelf. Build from the union of g.floorPolygons (one plane per polygon, or a coverage mask in the shader).\n9. Cheap nits: labelDensity merges keys whose anchors are < 8 ft apart on screen (K ground piles 25 keys); frameLevel excludes rooms farther than ~1,000 ft from the others' bbox (Vallaki's N9 camp 2,500 ft west makes the town a sliver; the camp stays reachable by its label).\n\nVERIFY: `npm run typecheck`, `npm run build`, `npm test`; screenshots: ch13/X upper and lower (rooms visible, no snow sheet), ch04/K ground from below the slab (dungeon inside rock), ch09/T default (gorge continues past the edge, no white mound), ch10/U low (no green wall S/SE), ch06/O low, ch08/S from the east at 900 ft (land continues the lattice edge, no step), N8 square (shops keep roofs), N6 (no house through the shop), wsc/03-compound L3 (no floating grid), a village horizon (road colour continuous at the edge); page check that context and token materials have onBeforeCompile replaced; backdrop mesh count and draw calls before/after on ch05/N and ch06/O; count visible PointLights on K <= 12.",
+   "issues": [
+    {
+     "map": "ch13/X (also ch05/N4, ch10/U, ch12/W cellars, appB/death-house)",
+     "severity": "block",
+     "what": "The backdrop's land mesh buries every level below the open-air level: X's facade is at +40 ft, land flush at 39.6 over the whole footprint, so upper (+30) and lower (0) render as a snow sheet with floating labels; N4/U/W cellars same.",
+     "evidence": "shots x-tabletop-upper/lower.png; page check backdrop land=true levelY=30/0; scene.json X stacked, facade the only level with terrain.",
+     "fix": "app.ts setLevel(): when the current level has no terrain and elevationFt < l0.elevationFt-1, hide backdrop 'land' (+ mist rings) for that level; AND/OR backdrop.ts yAt(): inside the map footprint return min(level elevations)-3 or cut a hole over bounds; draw a rock plinth under stacked scenes whose min elevation is below the backdrop ground (K dungeon/larders hang in open air because the crag pillar is skipped when a heightfield is present: backdrop.ts line ~176 `if (crag > 0 && !HF)`).",
+     "files": [
+      "app/src/app.ts",
+      "app/src/render/backdrop.ts"
+     ]
+    },
+    {
+     "map": "all (ch08/S, ch09/T, ch14/Y, ch10/U, ch06/O, ch13/X)",
+     "severity": "block",
+     "what": "No map hands its edge height to the backdrop: yAt() flattens the land to the level's elevationFt within 120-900 ft (`yTop + (h - yTop) * smooth(120, 900, d)`), so Krezk's mountain ends in a step (NE corner 485 ft on the map vs -138 ft 900 ft beyond), Tsolenka's gorge/precipices end in a wall (-296 vs -0.4), and flat maps meet mountain walls (Berez SE +963 at 900 ft, Bonegrinder E +439 at 2640 ft, Amber Temple SE +671 at 900 ft).",
+     "evidence": "backdrop.ts yAt() line ~90; probe.json seam/relief numbers; shots ch09_T-default.png, ch10_U-low.png, ch06_O-low.png, ch13_X-low.png, s-krezk-back.png.",
+     "fix": "app.ts: after buildLevel raycast the built level (floors + land props such as 'heightfield') at ~64 points per side around the geometry's bounding box and pass edgeHeights to buildBackdrop; backdrop.ts yAt(): edge = nearest edge sample, h' = edge + clamp(h - edge, -0.25 d, +0.25 d) for d < 2000 ft (25% grade cap), then edge + (h' - edge) * smooth(120, 900, d). Keep the crag/pillar logic for K.",
+     "files": [
+      "app/src/app.ts",
+      "app/src/render/backdrop.ts"
+     ]
+    },
+    {
+     "map": "all outdoor maps",
+     "severity": "fix",
+     "what": "Backdrop roads/rivers are 74-100 separate unlit MeshBasic vertex-coloured meshes per map (43-56k tris), ungrained, not following day/night, and a different colour from the map's own road at the edge; the 9,500-instance forest submits dropped instances as zero-scale matrices; hazed() bakes distance colour per site so collapse() cannot merge; shadow discs are MeshBasic.",
+     "evidence": "census MeshBasicMaterial vertexColors 2,304 meshes/1.36M tris over 30 maps; e-village-horizon.png; backdrop.ts ribbon() 442-459, lines 192-207, 406, 59.",
+     "fix": "ribbon(): accumulate all roads into one geometry and all rivers into another, MeshLambertMaterial({vertexColors:true, flatShading:true}) with setSurface 'dirt'/'water' and patchFog(m,true), seed the first segment colour from the map's road FLOOR_COLOR; sample ribbon y from the heightfield at intermediate points and insert zigzag points when a segment exceeds 25%; compact instances (trees.count = kept); bake haze into vertex colours so sites collapse to ~3 meshes; discs -> lambert with patchFog exempt.",
+     "files": [
+      "app/src/render/backdrop.ts"
+     ]
+    },
+    {
+     "map": "ch05/N1-N9, ch08/S10, ch03/E5, ch10/U3 (every area map with surroundings)",
+     "severity": "fix",
+     "what": "The 'context' level (parent map's houses/trees around an area map) has no grain and is never fogged: app.ts (~line 917) clones with mm.clone(); three r180 Material.copy() drops onBeforeCompile/customProgramCacheKey but copies userData.mist=true so patchFog no-ops.",
+     "evidence": "in-page check `context|MeshLambertMaterial|UNPATCHED: 12` on ch08/S10; '#211d1f' context 57,120 tris with no surface.",
+     "fix": "app.ts: build the context material with matClone('#'+src.color.getHexString(), true) then lerp toward the mist; or after clone `delete k.userData.mist; setSurface(k, surfaceOf(hex)); patchFog(k, true)`.",
+     "files": [
+      "app/src/app.ts"
+     ]
+    },
+    {
+     "map": "all",
+     "severity": "fix",
+     "what": "Token figures are rebuilt with bare new MeshLambertMaterial (app.ts ~541 'tokens are never fogged') and lose the grain: the only flat-shaded figures on every map.",
+     "evidence": "page check `token|MeshLambertMaterial|UNPATCHED: 8` on every map.",
+     "fix": "app.ts: keep the private material but `setSurface(m, surfaceOf(hex)); patchFog(m, true)` (exempt keeps them unfogged).",
+     "files": [
+      "app/src/app.ts"
+     ]
+    },
+    {
+     "map": "ch05/N8, ch05/N7, ch05/N5",
+     "severity": "fix",
+     "what": "On non-stacked outdoor maps the 5-ft cutaway hides every roof cap, so the four square shops stand roofless beside full context houses.",
+     "evidence": "shots ch05_N8__square.png, ch05_N5__yard.png; app.ts applySlider `if (!stacked) ... o.userData.cap -> visible = !lowWalls`.",
+     "fix": "applySlider(): hide a cap only when the party token (or selected room) is inside that cap's building footprint; otherwise keep caps and clip walls only.",
+     "files": [
+      "app/src/app.ts"
+     ]
+    },
+    {
+     "map": "ch05/N2-N7, ch08/S10, ch10/U3",
+     "severity": "fix",
+     "what": "buildContext: neighbour overlap is tested by centre (so context houses intersect interiors), radius = half extent + 450 ft draws 158-176 houses round a 70x55 shop (232k tris for Blinsky's), U3's mire shows no Berez ruins because 'ruin'/'cottage'/'reeds' kinds are not in the context KINDS.",
+     "evidence": "N6 context house vallaki-h57b intersects the shop; shots/log.json render stats; ch10_U3__WHOLE.png.",
+     "fix": "buildContext: test the neighbour's footprint (pos \u00b115 ft for houses) against the interior bbox with an 8-ft pad; radius 250 ft for interiors (450 only for placement maps), drop pines/stumps beyond 150 ft; add 'ruin','cottage','reeds' kinds.",
+     "files": [
+      "app/src/app.ts"
+     ]
+    },
+    {
+     "map": "ch04/K, ch13/X, ch15/Z",
+     "severity": "fix",
+     "what": "Stacked sites render every level's PointLights at once: 27 lights active in one Castle Ravenloft view (the real GPU cost in a Lambert forward renderer).",
+     "evidence": "results.json ch04/K lights in scene 30, levelLights 10.",
+     "fix": "app.ts setLevel(): for stacked sites keep PointLights visible only for the current level and the one directly above/below (or the 12 nearest the camera target).",
+     "files": [
+      "app/src/app.ts"
+     ]
+    },
+    {
+     "map": "wsc/03-compound, ch08/S10, ch07/Q, ch15/Z",
+     "severity": "fix",
+     "what": "Raised levels draw the grid as one bounding-box plane, so grid lines hang in the air outside non-rectangular floors (octagon tower, abbey courtyard at +15, Argynvostholt roof terrace, Z8 shelf).",
+     "evidence": "shots wsc_03-compound__L3.png, ch08_S10__upper.png, ch07_Q__roof.png; gridOverlay.ts buildGridOverlay planeGeometry over the bbox with pad 1.5.",
+     "fix": "gridOverlay.ts: for ground=false build from the union of g.floorPolygons (one plane per polygon or a coverage-mask in the shader).",
+     "files": [
+      "app/src/render/gridOverlay.ts"
+     ]
+    },
+    {
+     "map": "ch04/K, ch05/N",
+     "severity": "nit",
+     "what": "Label pile-up (25 keys clustered on K ground; anchors < 8 ft apart); Vallaki's default framing includes the Vistani camp 2,500 ft west so the town is a sliver.",
+     "evidence": "shots-k ch04_K__ground.png; ch05_N.png default view; app.ts frameLevel frames l.rooms.",
+     "fix": "app.ts labelDensity: merge keys whose anchors are < 8 ft apart on screen; frameLevel: exclude rooms farther than ~1,000 ft from the others' bbox (the camp stays reachable by label).",
+     "files": [
+      "app/src/app.ts"
+     ]
+    }
+   ],
+   "fixer": {
+    "fixed": [
+     "Edge continuation (block): app.ts raycasts the built open-air level (floors plus land props such as heightfield, precipice, shelf and mound, over the built group's bounding box) at 64 points per side. Where a ray hits nothing, the height is filled in from the neighbouring samples, falling back to the level's elevation. The samples go to buildBackdrop as edgeHeights. yAt() now starts from the interpolated edge height and caps the eased rise to a quarter grade for the first 2,000 ft. The crag path for K is unchanged. Probes: Tsolenka's gorge carries on past the edge (t-default); Berez (u-low) and Bonegrinder (o-low) have no wall near the map; Krezk's edge goes 0 \u2192 -1 at 150 ft \u2192 -195 at 900 ft east, with no step. Where an edge leaves the level's own height, the ground grid is fitted to the floors.",
+     "Buried interiors (block): when a site has levels below its open-air level, the backdrop land is cut away over them. A lid ('land-lid') covers the hole and setLevel hides it while a buried level is viewed, and a rock plinth runs from just under the lid down to below the lowest floor. On K (heightfield and crag) the castle's whole footprint gets this plinth, so the dungeon and larders sit inside rock. Screenshots: x-upper and x-lower show the rooms in a rock pit with no snow sheet; k-ground-below shows the dungeon inside rock. The context ground is now four strips that leave the map's own extent open.",
+     "Context grain: cloned context materials have userData.mist and fogExempt deleted, then are re-patched with patchFog(k, true). The page check shows unpatched = {} on N6, N8 and every other map shot.",
+     "Token grain: tokens keep a private material, carry the source's surface (or setSurface(surfaceOf(hex))), and are patched with patchFog(pm, true), so they stay unfogged.",
+     "Backdrop debloat: all roads now go into one geometry ('roads') and all rivers into another ('rivers'). Each uses a lit, flat-shaded vertex-colour Lambert grained as 'dirt' or 'water' and patched exempt from fog. A road leaving the map blends from that map road's FLOOR_COLOR (via exitFor and roadColors) into the world road's colour. On heightfields the ribbon height is sampled every 200 ft, and stretches steeper than 25% get switchback legs, kept only where they lower the grade. The forest writes only kept trees (trees.count = kept). collapse() bakes each mesh's hazed colour into vertex colours and shares one material per surface/lit/side key. Backdrop meshes: Vallaki 115 \u2192 19, Bonegrinder 120 \u2192 19, K 88 \u2192 16, X 113 \u2192 21. Draw calls on Vallaki's default view: 153 \u2192 101. Lakes are lit. On flat aprons the shadow discs are Lambert; on heightfields they are dropped.",
+     "Roof caps (N8/N7/N5): applySlider no longer hides every cap. applyCaps hides only the caps over the building a party or member token stands in, using per-face geometry groups on merged caps. It also clears any section plane that a stacked site opened earlier left on shared materials. The n8-square screenshot shows all four shops with roofs.",
+     "buildContext: a neighbour is now tested by its footprint (at least \u00b115 ft for buildings) against the interior bbox plus pad. The radius is half extent + 250 ft for interiors (450 for open-air or placement maps), and trees, stumps and bushes are kept only within 150 ft of an interior. Added the kinds cottage, ruin, ruined-cottage, ruin-arches, berez-rubble, berez-iron-fence, skull-fence, reeds, marsh-reeds, marsh-scarecrow and dead-tree. N6 shows no house through the shop, and its context is 25.7k tris.",
+     "Light budget: on stacked sites budgetLights() keeps the current level's lights as authored, plus the lights of the levels directly above and below, nearest first, up to 12 in all. K ground now shows 12 of 28 lights.",
+     "gridOverlay: a raised level (ground=false) draws its grid over its floor polygons only (merged ShapeGeometry), plus fitGridToFloors for ground levels whose edge leaves their own height. The wsc/03-compound L3 octagon shows no floating grid.",
+     "Nits: labelDensity declutters area keys whose anchors are within 8 ft of one another (world space). frameLevel frames mainRooms(), which drops rooms more than 1,000 ft from the cluster's extent (Vallaki's N9 camp)."
+    ],
+    "skipped": [
+     {
+      "what": "Krezk (ch08/S): the mountain still reads as a lone dome",
+      "why": "The current heightfield lattice (x 330..1160) sits inside the map's terrain extent (-382..1320), and the map edge is flat terrain at 0. The new edge sampling continues the land correctly from 0 (probe: E 0 \u2192 -1 at 150 ft \u2192 -45 at 400 ft \u2192 -195 at 900 ft), but the dome itself is data that the 'krezk' cluster is rebuilding, and the rows NE of it belong to the 'region' cluster. Once their lattice reaches the map edge, this code carries it on with no change needed here."
+     },
+     {
+      "what": "Merging cutaway caps by footprint for the 'selected room' case",
+      "why": "Caps are hidden over party or member tokens, and over a token's room. No separate 'selected room' trigger was added, because the token test already covers the shots that showed the problem."
+     },
+     {
+      "what": "Grid coverage where floor polygons overlap",
+      "why": "Raised-level grids use one plane per polygon, so where two polygons overlap the lines are drawn twice. A coverage-mask shader would avoid this, but it needs no file outside gridOverlay.ts and is a separate polish. Not visible in compound-l3."
+     }
+    ],
+    "notes": [
+     "Continued from three WIP commits left by interrupted fixers. I reviewed the full diff, kept it, and squashed it into one commit, a50e5b0, on top of 47b4294. Only app/src/app.ts, app/src/render/backdrop.ts and app/src/render/gridOverlay.ts changed. world.ts was not touched. No data or locations files changed, so nothing needed regenerating.",
+     "Verification: `npm run typecheck` passes, `npx vitest run` passes (15 files, 155 tests plus 2 todo), and `npm run build` passes. audit-outdoor.py only reports data findings, and this commit changes no data.",
+     "Screenshots are in /tmp/claude-0/-home-user-VTT/3e57a1ac-07da-5111-aa9e-cccc471b7481/scratchpad/smooth/fix-backdrop/after5 (x-upper, x-lower, k-ground-below, t-default, u-low, compound-l3, s-east, n6-default) and after6 (o-low, n8-square). Stats are in after5.log, after6.log and after7.log. Before/after perf numbers are in perf-base.log and perf-fix.log. The page check shows unpatched Lambert = {} on every map shot.",
+     "The machine was heavily loaded (load average around 60), so several Playwright screenshots hit the 120 s timeout. shoot2.cjs is the same harness with a 900 s screenshot timeout.",
+     "The e-road-edge view in after5 looks out from the first roads-geometry vertex, which can land off the map now that the ribbons are merged, so that view is not meaningful. The earlier after3/ch03_E-roadedge.png shows the cobble-to-dirt colour blend at the edge.",
+     "The preview server (port 4637) has been stopped."
+    ]
+   },
+   "review": "not reviewed yet"
+  },
+  {
+   "name": "region",
+   "branch": "claude/wip/item6-region",
+   "commit": "5a572e3",
+   "files": [
+    "scripts/authoring/heightfield.py",
+    "scripts/authoring/barovia-world.py",
+    "locations/ch02/barovia-region/world.json"
+   ],
+   "maps": [
+    "ch02/barovia-region",
+    "ch08/S",
+    "ch09/T",
+    "ch10/U",
+    "ch11/V",
+    "ch13/X",
+    "ch06/O",
+    "ch05/N"
+   ],
+   "brief": "Repo /home/user/VTT. You own ONLY scripts/authoring/heightfield.py, scripts/authoring/barovia-world.py and locations/ch02/barovia-region/world.json (the Barovia region: pins, lakes, rivers, roads, cover lattice and the `height` rows that heightfield.py writes). Do NOT touch locations/wsc/00-region/world.json (owned by 'sheep-chase'), any scene under locations/ch*/, backdrop.ts, krezk_land.py or any other authoring script; do not run old-bonegrinder.py or wire-sites.py (they rewrite world.json). Pipeline: barovia-world.py regenerates world.json's features (it preserves notes via keep_notes); heightfield.py <world.json> recomputes the `height` rows from the cover lattice, rivers, lakes and named peaks (CLASS_FT, PEAK_FT, the Ghakis shoulders list at line ~75). Check what barovia-world.py preserves before running it (height rows, cover) so you do not lose work; run heightfield.py last. Sample results the way the app does (bilinear over the rows, see app/src/core/terrain.ts; the backdrop draws height x1.25); a sampler already exists at /tmp/claude-0/-home-user-VTT/3e57a1ac-07da-5111-aa9e-cccc471b7481/scratchpad/smooth/audit/region.py.\n\nGOAL (user): the world's logic must hold; favour realism. Every outdoor map stands in this topography through the backdrop, so the region must be physically plausible: lakes level, rivers flowing downhill, towns on valley floors or benches not under cliffs, and Krezk's abbey mountain actually present.\n\nMEASURED NOW:\n- Lake Zarovich's rows span -220..3160 ft inside its ellipse (rim -220..3620); Luna Lake -70..3490; Lake Baratok similar. Rivers are non-monotonic: Ivlis 0,-70,120,390,450,180,1680 along its points; Luna -40,170,350,0,1670,1750,3300. The backdrop draws Lake Zarovich as a blue slab climbing Mount Baratok (ch05/N) and the Luna River climbing the mountain above Berez (ch10/U).\n- Krezk (pin S, cell ~(6,29), ~420-440 ft): rows rise only W/NW (460-570 at 0.5-0.75 mi) and fall NE/E/S (-337/-328/-438 at 1 mi). The 'krezk' cluster is rebuilding the abbey's mountain so its lattice edge meets the region x1.25 height and continues N/NE; it needs rows ~650-760 ft at 0.75-1.25 mi N/NE of the pin, with the pin cell itself staying ~420-440 and the village bowl W/S still falling.\n- Tsolenka Pass (pin T at (3.19, 9.78)): the shoulder (3.3, 10.0, 3400 ft, sigma 0.5) is 0.25 mi south, so the region rises +323/+363 ft within 0.17-0.25 mi south of the map where the map drops 320-420 ft into the Luna gorge; the Luna River's nearest point is 0.43 mi away at bearing 123 deg instead of under the T8 bridge.\n- Berez (U): cover 'm' 0.17 mi E/SE of the pin; relief +605/+963 ft at 900 ft S/SE. Old Bonegrinder (O): +439/+1033 at 0.5/1 mi E. Amber Temple (X): the shoulder (4.2, 10.6, 4300, 0.65) makes +671 at 900 ft and +1274 at 1500 ft SE (47-60% grades) right beside the ledge.\n- Van Richten's Tower (V): Lake Baratok's centre is 0.64 mi NW (bearing 296) and its shore 4 ft below the map; the map's own water is on its east side, so the causeway crosses a lake that is not the lake on the horizon. Berez's N-S river is 0.58 mi from the Luna River.\n\nDO (heightfield.py build(), after the peaks/shoulders pass, in this order):\n1. Rivers monotonic: for each river walk its points from the upstream end (choose the end with the higher terrain as upstream, or follow the lakes: Ivlis flows to Lake Zarovich? check the module's geography in world.json notes) and set the profile H_i = min(H_0..H_i); blend a 0.25-mi-wide gaussian valley toward that profile. 2. Lakes level: inside each lake ellipse H = min(H[rim]) - 5 (rim = the ellipse's 1.0-1.15 band); do rivers first so a lake's rim is already its lowest. 3. Settlement apron: within 0.6 mi of any pin of type settlement/ruin/camp (O, U, N, E, S, V, G ...) clamp H <= pin height + 150 ft per 0.5 mi (6%), keeping the pin cell's height. 4. Krezk ridge: add a 'ridges' entry (hard-coded like the Ghakis shoulders or a list in world.json) centred ~(1.35, 3.05) mi +450 ft sigma 0.45 mi plus (1.0, 3.35) +300 sigma 0.3 (tune so the N/NE rows read 650-760 at 0.75-1.25 mi and the apron does not flatten it: exclude the ridge from the apron or apply the apron before the ridge). 5. Ghakis shoulders: move (3.3, 10.0, 3400, 0.5) to the east/south-east of the pass (~(3.75, 10.15)) so the land SW of T falls toward Luna Lake (-900 ft) and the gorge cut (the river carve) runs through the pass; pull (4.2, 10.6, 4300, 0.65) ~0.3 mi south of the X pin and lower the ridge the Tsolenka road follows so the land along the road between T and X climbs <= 20%.\nbarovia-world.py / world.json: route the Luna River's points under the T8 bridge (through the T pin) and through the U pin on Berez's west side; move the V pin to Lake Baratok's SE shore (~(3.0, 3.05)) and enlarge the lake's r to ~[0.5, 0.36] so its shore is within 700 ft NW of the map edge (the 'berez-tower' cluster will orient the V level so its water faces NW); keep every pin's existing scene link and notes.\nThen rerun heightfield.py on locations/ch02/barovia-region/world.json.\n\nVERIFY (print a table): every lake's inside rows within \u00b15 ft and below its rim; every river's heights non-increasing downstream; Krezk rows at 0.75/1.0/1.25 mi N and NE (650-760), pin cell unchanged within 20 ft; T: land 0.25 mi S lower than the pin, Luna River passing within 0.1 mi of the T pin; U, O, N, E: max relief within 0.6 mi <= pin + 180 ft; X: grade along the Tsolenka road between T and X <= 20%; V: lake shore within 700 ft NW. Run `npm test` (manifests/scene tests may read world.json). POST-MERGE NOTE for the integrator: krezk-village.py and krezk-abbey.py read world.json at build time, so after this cluster and 'krezk' both land, rerun those two scripts once.",
+   "issues": [
+    {
+     "map": "ch02/barovia-region/world.json",
+     "severity": "block",
+     "what": "Lakes are not level and rivers run uphill: Lake Zarovich rows span -220..3160 ft (rim -220..3620), Luna Lake -70..3490; River Ivlis heights along its points 0,-70,120,390,450,180,1680; Luna River -40,170,350,0,1670,1750,3300. The backdrop draws Lake Zarovich as a tilted blue slab climbing Mount Baratok and the Luna River climbing the mountain above Berez.",
+     "evidence": "shots ch05_N-default.png, ch05_N-low.png (lake as a blue cliff NW of Vallaki); ch10_U-low.png (river ribbon up the mountainside).",
+     "fix": "heightfield.py build(): after the peaks pass flatten every lake to min(H[rim]) - 5 inside its ellipse, and carve each river monotonic downstream (H at each point = running min from the upstream end; blend a 0.25-mi gaussian valley toward that profile); rerun on world.json.",
+     "files": [
+      "scripts/authoring/heightfield.py",
+      "locations/ch02/barovia-region/world.json"
+     ]
+    },
+    {
+     "map": "ch08/S",
+     "severity": "block",
+     "what": "There is no mountain NE of Krezk in the region rows (pin 420-440 ft, ground FALLING NE/E/S -337/-328/-438 at 1 mi, rising only W/NW 460-570), so the abbey's mountain has nothing to join.",
+     "evidence": "world.json height rows round the S pin; region.py sampling.",
+     "fix": "heightfield.py: add a named ridge for the abbey's mountain (like the Ghakis shoulders): e.g. centre (1.35, 3.05) mi +450 ft sigma 0.45 mi plus (1.0, 3.35) +300 sigma 0.3, so rows N/NE of the pin read ~650-760 ft within 0.75-1.25 mi while the pin cell itself stays ~420-440 and the village bowl W/S keeps falling.",
+     "files": [
+      "scripts/authoring/heightfield.py",
+      "locations/ch02/barovia-region/world.json"
+     ]
+    },
+    {
+     "map": "ch09/T",
+     "severity": "block",
+     "what": "Tsolenka Pass sits on top of a Mount Ghakis shoulder: the region rises +323/+363 ft within 0.17-0.25 mi south of the T pin where the map's precipices drop 320-420 ft; shoulder (3.3, 10.0, 3400, 0.5) is 0.25 mi south of the pin (3.19, 9.78).",
+     "evidence": "heightfield.py line ~75 shoulders list; probe seam south edge -296 vs -0.4; shots ch09_T-default.png white mound over the gorge.",
+     "fix": "Move the westernmost shoulder east/south-east of the pass (e.g. (3.75, 10.15, 3400, 0.5)) and let the Luna gorge carve fall south-west toward Luna Lake from the pass; route the Luna River's points under the T8 bridge (currently nearest 0.43 mi at bearing 123 deg) so the backdrop ribbon runs in the gorge.",
+     "files": [
+      "scripts/authoring/heightfield.py",
+      "scripts/authoring/barovia-world.py",
+      "locations/ch02/barovia-region/world.json"
+     ]
+    },
+    {
+     "map": "ch10/U, ch06/O, ch13/X",
+     "severity": "fix",
+     "what": "Settlements and ruins meet mountain walls: Berez +605/+963 ft within 900 ft S/SE (cover 'm' 0.17 mi E/SE of the pin); Bonegrinder +439 at 0.5 mi E; the Amber Temple's road climbs 47-60% beside the ledge (shoulder (4.2, 10.6, 4300, 0.65)).",
+     "evidence": "probe relief beyond edges; shots ch10_U-low.png, ch06_O-low.png, ch13_X-low.png.",
+     "fix": "heightfield.py: clamp H within 0.6 mi of settlement/ruin/camp pins to <= pin height + 150 ft per 0.5 mi (a 6% apron); pull the (4.2,10.6) shoulder ~0.3 mi south of the X pin and lower the ridge the Tsolenka road follows so the land between T and X climbs <= 20%.",
+     "files": [
+      "scripts/authoring/heightfield.py",
+      "locations/ch02/barovia-region/world.json"
+     ]
+    },
+    {
+     "map": "ch11/V, ch10/U",
+     "severity": "fix",
+     "what": "Van Richten's tower is not in Lake Baratok: the lake is 0.64 mi NW at bearing 296 deg while the map's water is on its east side; Berez's N-S river is 0.58 mi from the Luna River (bearing 122 deg).",
+     "evidence": "region.py for V and U; shots ch11_V-low.png lake as a band on the horizon.",
+     "fix": "barovia-world.py: move the V pin to the lake's SE shore (~(3.0, 3.05)) and enlarge Lake Baratok's r to ~[0.5, 0.36] so the shore comes within 700 ft of the map edge NW of the pin (the 'berez-tower' cluster sets the V level's north so the map's water faces NW); move the U pin or the Luna River's points so the river passes through the U pin on the map's west side.",
+     "files": [
+      "scripts/authoring/barovia-world.py",
+      "locations/ch02/barovia-region/world.json"
+     ]
+    }
+   ],
+   "fixer": {
+    "fixed": [
+     "Kept the interrupted fixer's WIP hydrology pass in heightfield.py after checking it. Rivers now run downhill from source to mouth in valleys, with falls through the Tsolenka gorge. Settlements, ruins, camps, the tower and O sit on 6% aprons, the Amber Temple has a shelf, and the road from T to X is cut at an even grade. Krezk's ridge is raised after the valleys are cut, and the Ghakis shoulders no longer sit on the pass.",
+     "Lakes now use their real outline from the land-cover grid, not just the ellipse. Lake Zarovich's traced bays used to show as water up Mount Baratok's foot at up to 2980 ft. They now sit at lake level (no higher than -170 ft against a lake at -180), and the shore rises gradually instead of jumping 3000 ft in one cell. In the Vallaki (N) low view the blue slab is gone and the lake lies flat.",
+     "Lakes are set to their water level before any river leaves them. Before this, the Raven River's outlet was cut from the dry lake bed and pulled Lake Baratok about 100 ft below its own shore. That also changed which town counts as zero height and moved every height by about 20 ft. Vallaki is the zero point again and Krezk stays at 437 ft.",
+     "barovia-world.py now writes the moved or resized lakes (Lake Baratok, Luna Lake) into the land-cover grid. The region map and the backdrops use that grid to colour water and clear trees, so the old water cells on the slopes below Tsolenka Pass are now land. It also removes river bends and roads that were stored twice (5 river bends were drawn twice).",
+     "Verification table, all passing. Lakes: each is flat inside and below its rim (Zarovich -180, Baratok -200, Tser Pool -130, Luna Lake -1000). Rivers: every main river falls downstream, and bends rise at most 10 ft where they cross. Krezk: N at 0.75/1.0/1.25 mi is 753/734/665 ft and NE is 701/698/728 ft; the pin is still 437 ft. T: 0.25 mi south is 353 ft below the pin, and the Luna River passes 0.014 mi from the pin. U, O, N, E: highest ground within 0.6 mi is +175/+179/+136/+175 ft (limit 180). X: steepest stretch of the T-to-X road is 18.7%. V: the pin stands inside Lake Baratok (0.88 of the way to the shore), the shore is 282 ft to the SE, and there is open water for 3900 ft to the NW.",
+     "U: the region's Luna River runs exactly along Berez's own river channel, through the middle of the map from NE to SW (0.073 mi from the pin), not up the mountain. T: the river passes under the T7-T9 bridge.",
+     "Checks: npm run build passes (tsc). npx vitest run passes 155 tests (one bestiary test timed out once while the machine was loaded and passed on rerun). audit-outdoor.py finds nothing new: it does not read world.json and no scene changed. Rerunning barovia-world.py and then heightfield.py gives a byte-identical world.json. The commit holds the WIP and my fixes squashed into one."
+    ],
+    "skipped": [
+     {
+      "what": "T map: the region's Luna River ribbon now runs under the bridge, but inside the T map it is drawn at road level across the fog-side snow plain.",
+      "why": "backdrop.ts flattens the land to the map's own ground within 120-900 ft of the map and draws ribbons on it. Unless the scene sets a crag depth, the ribbon cannot follow the map's 320-420 ft drop into the fog. The region rows themselves fall 350 ft within 0.25 mi south of the pin. Fixing this needs backdrop.ts or tsolenka-pass.py, which other fixers own."
+     },
+     {
+      "what": "The Vallaki low view still shows a steep hazed mountain flank on the far (north) side of Lake Zarovich.",
+      "why": "This is Mount Baratok's real rise from the lake's north shore: forest cover with no water, climbing about 2000 ft within a mile. The water-coloured slab is gone. Softening the mountain itself was not in this brief."
+     },
+     {
+      "what": "Comparing draw calls or frame times before and after.",
+      "why": "No geometry changed. The only render-side change is dropping 5 river ribbons that were drawn twice."
+     }
+    ],
+    "notes": [
+     "IMPORTANT for anyone screenshotting on port 4603: that port is held by another agent's preview serving a BASE checkout (cwd .../scratchpad/smooth/fix-backdrop/base). My first --strictPort preview there failed silently, and my first set of shots showed the old world. Final shots came from my own preview on port 4633, which is now stopped. I did not kill the other agent's server.",
+     "Pin heights after the fix (ft above Vallaki): Krezk 437, Vallaki 3, Barovia 325, Wizard of Wines 52, Berez -275, Old Bonegrinder 331, Van Richten's Tower -200 (Lake Baratok's level), Tsolenka Pass -573, Amber Temple 1585, Luna Lake -1000. The pass sits in the Luna gorge below Lake Zarovich (-180) so the river can run downhill through it into Luna Lake.",
+     "V pin is at (3.05, 3.10), inside Lake Baratok's SE edge (lake centre (2.7, 2.91), radii (0.5, 0.36)). Almost the whole V map is water, so the 'berez-tower' cluster should turn it so the map's land strip faces SE toward the shore 282 ft away.",
+     "POST-MERGE for the integrator: krezk-village.py and krezk-abbey.py read world.json at build time, so rerun them once after this cluster and 'krezk' both land. Do not run old-bonegrinder.py or wire-sites.py on top without rerunning barovia-world.py and then heightfield.py, because they rewrite world.json.",
+     "Scratch tools are in /tmp/claude-0/-home-user-VTT/3e57a1ac-07da-5111-aa9e-cccc471b7481/scratchpad/: smooth/fix-region/verify.py (the verification table), hfdebug.py (prints lake levels and the zero-height reference), aerial.cjs (aerial view, with river ribbons painted red). Screenshots are in smooth/fix-region/shots4/ (N, T, U, X, O, S, V aerial; U and T painted aerials show the river path)."
+    ]
+   },
+   "review": "not reviewed yet"
+  },
+  {
+   "name": "vallaki",
+   "branch": "claude/wip/item6-vallaki",
+   "commit": "16f40ae",
+   "files": [
+    "scripts/authoring/vallaki-town.py",
+    "scripts/authoring/vallaki-sites.py",
+    "scripts/authoring/vallaki-square.py",
+    "locations/ch05/**"
+   ],
+   "maps": [
+    "ch05/N",
+    "ch05/N1",
+    "ch05/N2",
+    "ch05/N3",
+    "ch05/N4",
+    "ch05/N5",
+    "ch05/N6",
+    "ch05/N7",
+    "ch05/N8",
+    "ch05/N9"
+   ],
+   "brief": "Repo /home/user/VTT. You own ONLY scripts/authoring/vallaki-town.py, vallaki-sites.py, vallaki-square.py and the generated locations/ch05/** (N and N1-N9). Run from the repo root with python3: vallaki-town.py (writes ch05/N and N9), vallaki-sites.py (N1-N7; it copies ch03/E5/scene.json for N1), vallaki-square.py (N8). Do not edit authorlib.py, settle.py (shared helpers), app/src/** or import-ml.py (the 'village-castle' cluster is fixing E5's buried doors; after both land, rerun vallaki-sites.py so N1 inherits). Typecheck/preview: `npm run typecheck`, `npm run preview` (:4173). Screenshots: Playwright harnesses under /tmp/claude-0/-home-user-VTT/3e57a1ac-07da-5111-aa9e-cccc471b7481/scratchpad/smooth/ (interiors/audit.py and shots/, audit/shoot.cjs).\n\nGOAL (user): shrink and scale things so they feel real; debloat without removing close-range detail; the world's logic must hold.\n\nMEASURED NOW:\n- Interiors are 2.4-4x the footprint the town map gives them: parent room vs interior ground bbox N2 62x40 ft vs 185x110 (13,256 sq ft); N3 52x42 vs 170x92; N4 36x46 vs 145x90; N5 44x30 vs 160x140; N6 38x38 vs 90x145; N7 24x30 vs 70x55; only N1 matches (40x40 vs 35x42). Neighbouring context houses crowd and intersect the interiors (N6: vallaki-h57b intersects the shop by 36 sq ft); roofs float: N2's four gables sit at base 33 ft (dims y default 10 on an attic at 23) over walls topping at 25, covering 42% of the footprint (ch05_N2__WHOLE.png shows beds from above). N3's attic is a 20-ft ashlar box with one narrow gable (walls 10 ft above the eaves, 63% unroofed); N6 has one 36x58 gable on a 90x145 upper floor (82% open). N2's attic elevation 23 lies inside the upper floor's 15-25 span.\n- Door leaves are buried in walls: the room polygons use half-cell vertices, so coincident room edges yield two overlapping wall sets with different unit segmentation; the door stamp replaces only one set, and a plain wall still runs through the doorway (the 0.5-ft leaf hides inside the 0.6-ft wall; only frame and straps show). N6 ground-w-51 runs 45->95 at z=100 through door N6b-a (60-65); N2 ground-w-50 77.5->105 through N2d-kitchen (85-90). Counts: N6 2, N2 11 (incl. 2 windows, 2 secret doors), N3 6, N4 4.\n- The town map's terrain is a 7,100 x 3,500-ft flat grass rectangle (x 58..7155, z 748..4250) against a palisade of 1992..6735 x 867..3412: BELT=420 is applied to the keyed marks (N9 camp 2,500 ft west, lake road) instead of just the wall, so the town stands on a green table 2.5x its size while the region rises 100-250 ft S and E.\n- Bloat: 1,047 houses (vallaki-town.py line ~92: 'a house every thirty feet along both sides of every street'), 582 palisade pieces, 438 stumps, 1.18 M triangles (3x any other map), 13 s to build. The book's plate shows a few hundred buildings.\n- Small placements: N4j-chair7 at (75,94) is centred on wall ground-w-116; vallaki-n10-trough (6060,2500) and vallaki-n10-hay (6025,2498) sit inside N10's 70x30 house footprint.\n\nDO:\n1. vallaki-sites.py: rescale each interior to the book plan at 5 ft per square (inn ~90x60 ft, mansion ~60x45, Wachterhaus ~45x45, stockyard buildings small with a yard, coffin shop ~40x40, Blinsky ~30x25; check each plan's square count in the module page cited by the script's PAGE map), keeping every room, door, stair and object in proportion. Roofs: one roof-gable per wing, w/d = wing bbox + 4 ft eaves, dims y = 0 on the attic level (eaves at the attic floor), attic elevationFt = the upper ceiling (N2 25, not 23); N3 attic ceilingFt 6-8 with knee walls; N6 one roof over the whole (shrunk) footprint based at the upper ceiling. Use wsc/01-tavern (scripts/authoring/wsc-town.py) as the model of a roof that reads right.\n2. vallaki-town.py: size each `enter` room and its house prop from the child's level-0 bbox (read locations/ch05/N*/scene.json after step 1, as vallaki-sites.py already does for E5) so the town's footprints and the interiors agree; compute GX0..GZ1 from the palisade plus the 420-ft BELT only and let the camp track and lake road leave the plate as narrow dirt strips (N9 keeps its own map); thin infill to a house every 45-50 ft on main streets and 60 ft on lanes, keep the traced roof blobs; drop stumps beyond 300 ft of the wall (~150 kept so the felled ring reads); move the N10 trough/hay into the fenced paddock (dz +30..+45 from the mark). Keep the kit untouched (houses stay merged; the 'render' cluster is adding LOD).\n3. Door fix without touching authorlib.py: after each Level's walls are built in vallaki-sites.py, add a post-pass that (a) splits every room edge at the projections of other rooms' vertices lying on the same line before unit keying (or rasterises to a 0.5-cell lattice) so shared edges yield identical keys and dedupe, and (b) as a guard drops any plain wall segment whose overlap with a door/window/secret-door segment exceeds 1 ft. Write an 'inwall' check (prop footprint crossing a solid wall) and move N4j-chair7 1.5 ft into the room.\n4. Regenerate N1-N7, N8, N and N9.\n\nVERIFY: a script that prints, per interior, parent room bbox vs interior bbox (ratio 0.8-1.2), roof coverage of the top floor (>= 95%), count of plain wall segments overlapping door segments (0), props crossing walls (0), objects inside building footprints on N (0); `npm test` (scene schema tests); screenshots of N default (town fills the frame, no plinth), N2/N3/N6 whole-stack (roofs cover, no floating gables), N6 door N6b-a and N2 kitchen door close-ups (leaf visible).",
+   "issues": [
+    {
+     "map": "ch05/N2 (N3-N7)",
+     "severity": "block",
+     "what": "Vallaki interiors are 2.4-4x larger than the footprint the town map gives them: N2 62x40 ft room vs 185x110 interior; N3 52x42 vs 170x92; N4 36x46 vs 145x90; N5 44x30 vs 160x140; N6 38x38 vs 90x145; N7 24x30 vs 70x55 (N1 matches). Context houses crowd/intersect the interiors; roofs float 8 ft above walls covering < half the building.",
+     "evidence": "shots ch05_N2__WHOLE.png (four gables floating, beds visible from above); N6 context house vallaki-h57b intersects the shop.",
+     "fix": "vallaki-sites.py: scale interiors to the book plan at 5 ft/square (inn ~90x60, shop 40x40), or vallaki-town.py sizes each `enter` room and its house prop from the child's level-0 bbox; roofs: one roof-gable per wing sized wing bbox + 4 ft eaves, dims y = 0 on the attic level, N2 attic elevationFt 25 (not 23).",
+     "files": [
+      "scripts/authoring/vallaki-sites.py",
+      "scripts/authoring/vallaki-town.py"
+     ]
+    },
+    {
+     "map": "ch05/N6, N2, N3, N4",
+     "severity": "fix",
+     "what": "Door leaves buried inside solid walls: half-cell room vertices produce coincident room edges with different unit segmentation, so a plain wall still runs through the doorway (N6 2 doors, N2 11 incl. windows/secret doors, N3 6, N4 4).",
+     "evidence": "spots N6-door-N6b-a.png, N2-door-kitchen.png (plaster-coloured leaf); N6 ground-w-51 runs 45->95 at z=100 through door N6b-a (60-65).",
+     "fix": "Since authorlib.py is shared and off-limits, add a local post-pass in vallaki-sites.py after build_walls: split room edges at other rooms' vertex projections before keying, or drop any plain wall segment whose overlap with a door/window/secret-door segment exceeds 1 ft.",
+     "files": [
+      "scripts/authoring/vallaki-sites.py"
+     ]
+    },
+    {
+     "map": "ch05/N3, N6",
+     "severity": "fix",
+     "what": "Mansion attic is a 20-ft ashlar box with one narrow gable (walls 10 ft above the eaves, 63% unroofed); N6 one 36x58 gable on a 90x145 upper floor (82% open).",
+     "evidence": "shots ch05_N3__WHOLE.png, ch05_N6__WHOLE.png.",
+     "fix": "vallaki-sites.py: N3 attic ceilingFt 6-8 with knee walls (paneling), roof-gable per wing sized to the wing bbox, y=0 on the attic level; N6 upper roof sized to the (shrunk) footprint with base at the upper ceiling.",
+     "files": [
+      "scripts/authoring/vallaki-sites.py"
+     ]
+    },
+    {
+     "map": "ch05/N",
+     "severity": "fix",
+     "what": "The town map carries a 7,100 x 3,500-ft flat grass plain far beyond the palisade (terrain x 58..7155, z 748..4250 vs palisade 1992..6735 x 867..3412) while the region rises 100-250 ft S and E: the town sits on a green table 2.5x its size.",
+     "evidence": "shots ch05_N-default.png.",
+     "fix": "vallaki-town.py: compute GX0..GZ1 from the palisade plus the 420-ft BELT only; let the camp track and lake road leave as narrow dirt strips over the region's own ground (N9 has its own map).",
+     "files": [
+      "scripts/authoring/vallaki-town.py"
+     ]
+    },
+    {
+     "map": "ch05/N",
+     "severity": "fix",
+     "what": "Bloat/realism: 1,047 houses ('a house every thirty feet along both sides of every street'), 582 palisade pieces, 438 stumps, 1.18M triangles (3x any other map), 13 s to build; the book draws a few hundred buildings.",
+     "evidence": "geo.py counts; probe 1,183,700 tris; vallaki-town.py line 92.",
+     "fix": "vallaki-town.py: infill a house every 45-50 ft on main streets, 60 ft on lanes (keep traced roof blobs); drop stumps beyond 300 ft of the wall (~150 kept for the felled ring). The engine's LOD handles the rest.",
+     "files": [
+      "scripts/authoring/vallaki-town.py"
+     ]
+    },
+    {
+     "map": "ch05/N4, ch05/N",
+     "severity": "nit",
+     "what": "Dining chair N4j-chair7 is centred on wall ground-w-116; the livery's trough and hay (vallaki-n10-trough/hay) sit inside N10's 70x30 house footprint.",
+     "evidence": "spots N4-chair7.png; static audit insideBuildings ch05/N {'trough':1,'hay':1}; vallaki-town.py lines 319-321.",
+     "fix": "Move chair7 1.5 ft into the room; offset trough and hay into the fenced paddock (dz +30..+45 from the N10 mark).",
+     "files": [
+      "scripts/authoring/vallaki-sites.py",
+      "scripts/authoring/vallaki-town.py"
+     ]
+    }
+   ],
+   "fixer": {
+    "fixed": [
+     "BLOCK (interiors 2.4-4x too big): I measured the book plates (p.99, 104, 111, 116 at 5 ft per square). The authored plan units turned out to be about 0.57 of a square, so vallaki-sites.py now draws each site at S squares per unit: inn 0.58, mansion 0.58, Wachterhaus 0.56, coffin shop 0.57. Blinsky (0.45) and the stockyard (0.5) have no plan and are scaled from their text. Every room, door and object keeps its proportions. Furniture keeps its real size, while tables, rugs, shelves and the bar scale with the room. Doors are at least 4 ft wide (double doors 6 ft), windows 3 ft and secret doors 3.5 ft. Stairs are lengthened toward about 40 degrees where the room has space. New ground-floor sizes: N2 107x64 ft (the 64 includes the well yard and porch), N3 99x54, N4 81x50, N5 80x70, N6 51x83, N7 32x25, N1 35x42.",
+     "Town footprints now match the interiors: vallaki-town.py reads each child's ground-floor room bounding box. The keyed room on the town map equals that box exactly (ratio 1.00 for N1-N7). The house prop on it is the roofed part of the building, laid square to the map like the blowout. Each site is slid clear of streets, the palisade and other keyed sites, and anything standing on it (plus a 5-ft margin) is removed, so context houses no longer intersect the interiors. The N6 screenshot confirms this.",
+     "Roofs: one roof-gable per wing, sized to the wing bbox plus 4 ft of eaves, with the ridge along the long side. N2's attic is now at 25 ft (it was 23). The main block, south range, guest wing and stair head have roofs at y=0 on the attic level, and the stable has its own roof on the loft floor. The secret attic is resized to about 10x35 ft (the text's figure) and sits under the west slope; its west knee wall is 5.9 ft and its chimney runs up through the roof. N3's attic is now 7 ft tall with panelling walls, under one roof over the whole house, and its rooms are recentred under the ridge (the book's roof bands lie on both sides). N6 has one roof over the shrunk footprint, based at the upper ceiling. N4, N7, N5 (warehouse and shed row) and N1 are also roofed, plus small porch roofs on N2 and N3. Roof coverage of the top storey is 100% for every site, and no roof floats above or below its walls.",
+     "FIX (doors buried in walls): I could not touch authorlib.py, so vallaki-sites.py has its own VLevel wall builder. It splits every room edge at every vertex and stamp end on the same line, so edges two rooms share produce identical segments and dedupe. A door, window or secret door replaces the whole run of wall behind it. A guard pass (cut_doorways) then cuts any plain wall out of an opening's span. Plain walls overlapping an opening: 0 on every map. Close-ups of N6b-a and N2d-kitchen show the door leaf with its frame and straps.",
+     "Other wall logic: yards, porches and the outside stair (open rooms) no longer get walls of their own. Counters and railings that are not on a room edge become free half walls (the bar counter and the loft railing, which the shared builder used to drop). The stockyard yard gets a 6-ft fence and 8-ft sheds, and the wagon's key box has invisible walls. The N3 gallery railing no longer replaces Izek's wall, and the N2 balcony railing no longer replaces the guest room's wall. I removed two interior windows in N2 and moved the N4 bay windows onto the bay walls.",
+     "Furniture in walls: a fit_furniture pass moves any piece whose footprint crosses a wall back into its room. My verify script counts 0 pieces crossing walls (inwall check). N4j-chair7 is moved 1.4 ft into the room, and the N4 dining room no longer overlaps the west closet (the N4j polygon now leaves out the closet). Stair links run from the foot of the flight to its head, and N2's crossed trapdoor links are fixed.",
+     "FIX (town plate): the grass plate is now the palisade plus the 420-ft belt only (x 1571..7155, z 748..3834), down from 58..7155 x 748..4250. Every road and the camp track is clipped to the plate edge, where the region's roads take over. The Vistani camp keeps its own map and is entered from a trailhead room with a signpost where the camp track leaves the plate (the book puts it 'in the woods south-west'). The camp dressing that sat 2,500 ft out is gone. clearingFt drops from 900 to 60, so the region's forest starts at the plate rim.",
+     "FIX (bloat): infill is now a house every 45-50 ft on main streets and 60 ft on lanes, keeping 36 ft from the traced roof blobs (the blobs are kept). Houses dropped from 1047 to 778. Stumps went from 438 to 150, all within 300 ft of the wall, and pines from 366 to 300, at the plate's rim. Objects on N went from 2587 to 1947. Measured in swiftshader under heavy machine load: before 154 draw calls, 1.17M triangles, 4609 ms per frame; after 131 calls, 1.00M triangles, 2910 ms per frame.",
+     "NIT (N10): the livery's trough, hay and horses now sit in a fenced paddock placed against the barn's south wall, measured from the barn because settle moves it. The N10 room covers barn and paddock. Objects inside building footprints on N: 0.",
+     "I regenerated N1-N7, N8 (no change), N9 (no change) and N. npm run build passes (tsc clean), npx vitest run gives 155 passed and 2 todo, and audit-outdoor.py reports locations/ch05/N clean. The interior audit is clean apart from nits: two label pile-ups, the N5 wagon box overlapping the yard by design, and the N7 dollhouse y=3."
+    ],
+    "skipped": [
+     {
+      "what": "Ridge heights on N4 and N6 are capped at 12 ft (about a 24-degree pitch), N2's main roof at 20 ft and N3's at 19 ft",
+      "why": "In the app (app/src/app.ts, not mine to edit), sectionRange.max is the top storey's ceiling plus 12 ft, and the whole-house view slices any roof taller than that. A steeper roof would need sectionRange to include roof props, which belongs to the app/render owners."
+     },
+     {
+      "what": "Section cutaway hides the near wall tops and roof caps in the default view",
+      "why": "This is how the app renders the section view. The roof data is correct: the whole-stack screenshots show full coverage."
+     },
+     {
+      "what": "House count is 778, not 'a few hundred'",
+      "why": "I followed the brief's spacing (45-50 ft on main streets, 60 ft on lanes, traced roof blobs kept). Fewer houses would need wider spacing or fewer traced blobs, which is a design call."
+     },
+     {
+      "what": "Palisade piece count (582) unchanged",
+      "why": "This was not in the brief. The pieces are merged static geometry, and longer pieces would make the gates too wide."
+     },
+     {
+      "what": "Re-running vallaki-sites.py after the village-castle cluster's E5 fix lands",
+      "why": "That has to happen after both branches merge. N1 already goes through the new wall builder, so it will inherit E5's walls cleanly."
+     },
+     {
+      "what": "Flat land beyond the plate (the region heightfield is flattened 120-900 ft past the map's bounds)",
+      "why": "That flattening lives in app/src/render/backdrop.ts, which I don't own. The plate itself is now palisade plus belt."
+     }
+    ],
+    "notes": [
+     "The book plates do not match the brief's guesses for every site. At 5 ft per square the mansion is about 92x55 ft (not 60x45), Wachterhaus about 80x50 with its bay (not 45x45) and the coffin shop about 52x82 (not 40x40). I went with the measured plates, using one uniform scale per site.",
+     "The town's footprints come from the children, so the order matters: run vallaki-sites.py, then vallaki-town.py, then vallaki-square.py (independent). vallaki-town.py takes about 2 minutes under the current machine load.",
+     "In the worktree I symlinked reference/imports and reference/ocr to /home/user/VTT/reference/... and node_modules to /home/user/VTT/node_modules. All are gitignored and none is committed. Without reference/imports the town loses its 252 traced roof blobs.",
+     "Verification script: scratchpad/fix-vallaki/verify.py. It reports town box vs interior ratio, roof coverage, floating roofs, buried doors, furniture in walls and objects inside houses on N, and currently reports FAILS 0. Interior audit copy: scratchpad/fix-vallaki/audit.py.",
+     "Screenshots are in /tmp/claude-0/-home-user-VTT/3e57a1ac-07da-5111-aa9e-cccc471b7481/scratchpad/fix-vallaki/: after/, after2/ and after3/ (N2/N3/N4/N6 whole stack, N5/N7/N1 default, the N6b-a and N2 kitchen door close-ups, N4 chair7, N default/top/low-west, N6 with its town context). The before and after N measurements are in before/measure.txt and after3/measure.txt. I could not save a 'before' screenshot of N because it timed out under load.",
+     "The preview on port 4604 has been stopped. The harness is scratchpad/smooth/fixv-shoot.mjs."
+    ]
+   },
+   "review": "not reviewed yet"
+  },
+  {
+   "name": "village-castle",
+   "branch": "claude/wip/item6-village-castle",
+   "commit": "a9a7a62",
+   "files": [
+    "scripts/authoring/village-map.py",
+    "scripts/authoring/village-roads.py",
+    "scripts/authoring/import-ml.py",
+    "scripts/authoring/castle-ravenloft.py",
+    "scripts/authoring/ravenloft-exterior.py",
+    "locations/ch03/E/**",
+    "locations/ch03/E5/**",
+    "locations/ch04/K/**"
+   ],
+   "maps": [
+    "ch03/E",
+    "ch03/E5",
+    "ch04/K"
+   ],
+   "brief": "Repo /home/user/VTT. You own ONLY scripts/authoring/import-ml.py, village-map.py, village-roads.py, castle-ravenloft.py, ravenloft-exterior.py and the generated locations/ch03/E/**, ch03/E5/**, ch04/K/** (incl. K/exterior.json). Run from the repo root with python3. IMPORTANT: import-ml.py also converts ch02/G and ch02/C (lines 168-169), which another workflow owns: add an argv filter so `python3 scripts/authoring/import-ml.py <ml.json> E5 E` converts only the named ids, and never commit changes under locations/ch02/**. Its seed is /tmp/claude-0/-home-user-VTT/3e57a1ac-07da-5111-aa9e-cccc471b7481/scratchpad/ml.json (exists; the script defaults to it). Order for the village: import-ml.py (E5, E) then village-map.py then village-roads.py (they post-process ch03/E). For the castle: castle-ravenloft.py then ravenloft-exterior.py (writes K/exterior.json which backdrop.ts imports). Do not edit authorlib.py/settle.py (shared), app/src/** (the 'render' cluster adds dims.r0 to spiralStair and the 'backdrop' cluster fixes the dungeon hanging under the castle) or vallaki-sites.py (the 'vallaki' cluster; it copies E5 for N1 and will rerun after you land). `npm run typecheck`, `npm run preview` (:4173); screenshots via the harness in /tmp/claude-0/-home-user-VTT/3e57a1ac-07da-5111-aa9e-cccc471b7481/scratchpad/smooth/interiors/ (shots-k for the castle).\n\nGOAL (user): textures/doors/stairs must work, logic must hold, things feel real.\n\nMEASURED NOW:\n- ch03/E5 (church): all 11 doors are buried in walls because import-ml.py convert() (~line 86, 'doors not on a room edge') appends a door as a standalone wall over room-edge segments that straddle two unit cells, so a plain wall (e.g. ground-w-30 20-25 and ground-w-31 15-20) still runs through the doorway ground-w-52 (17.5-22.5 at z=42.5); spots/E5-door-w52.png shows an ashlar-coloured leaf. The undercroft link lk-ground-undercroft lands at [35,38], 8 ft outside room E5g; stairs undercroft-p7 at (40,15) has no link within 20 ft and no stair mesh shows. Pine p24 at (52.5,45) (and p23) stands 12-15 ft from the SE corner and fills the default tabletop view.\n- ch04/K (Castle Ravenloft): spiral stairs K20 (r 16, rise 50, turns 0.9), K21 (r 16), K18 (r 13) have no inner radius so their treads are wedges from the axis and render as solid red fans ~30 ft wide. South-tower walls at x=195: K54-door starts at z=220, nothing from 215 to 220 (a 5-ft gap next to the door). south-tower-trap-k51-top at z=256 lies outside K55 (should be ~252). Six door/bar/secret-door leaves are buried in walls (K74c/d bars, 4 secret doors) from the same coincident-edge problem as Vallaki (half-cell vertices -> two overlapping wall sets). Labels pile up: K21-d 5 ft from K74h, K83-c 5 ft from K25, K54 2.5 ft from K48-t.\n- ch03/E (village): streets exit N and S as cobbles and W as a dirt trail, while the region's Old Svalich Road passes 0.38 mi south running E-W; backdrop.ts exitFor() joins map exits to world roads, so the south exit should be the Svalich road.\n\nDO:\n1. import-ml.py: when a door override is not a unit edge, split the underlying wall segments at the door's ends and flag the middle piece as the door instead of appending a standalone wall; in the church recipe put the undercroft stair at the trapdoor's position under E5d and set the link 'to' inside E5g at the stair foot (and from/to for the matching stairs object); move p23/p24 to >= 30 ft from the building or swap for stump/bush. Add the argv id filter. Regenerate E5 (and E only if you change its recipe).\n2. castle-ravenloft.py: set dims r0 = r - 5 on K18/K20/K21 (open well for the Heart of Sorrow; the engine support lands in parallel and the key is ignored until then); add the wall (195,215)-(195,220) on the south-tower level; move south-tower-trap-k51-top to z=252; add a local post-pass after build_walls that drops plain wall segments overlapping any door/window/secret-door segment by more than 1 ft (do not modify authorlib.py); nudge the K21-d/K74h, K83-c/K25, K54/K48-t polygons' centroids apart by >= 10 ft where the plan allows (or give the smaller part no label). Rerun ravenloft-exterior.py afterwards so exterior.json matches.\n3. village-roads.py (cheap nit): make the south exit the Old Svalich Road (dirt beyond the last house) and end the north street at the church.\n\nVERIFY: a check printing plain-wall/door overlaps (0) on E5 and every K level, link endpoints inside rooms, stair objects within 20 ft of a link; `npm test`; screenshots: E5 door w52 close-up (leaf visible), E5 undercroft, K landing/court (stairs with open wells, no fans), E top view (road exits). State in your report that vallaki-sites.py must be rerun after merge so N1 picks up the church fixes.",
+   "issues": [
+    {
+     "map": "ch03/E5",
+     "severity": "fix",
+     "what": "All eleven church doors are buried in walls: import-ml.py adds a door as a standalone wall over room-edge segments straddling two unit cells; the undercroft stair/link are misplaced (link lands 8 ft outside E5g; stairs undercroft-p7 has no link within 20 ft).",
+     "evidence": "ground-w-52 (door 17.5-22.5 at z=42.5) overlaps ground-w-30/31; spots E5-door-w52.png ashlar-coloured leaf; shots ch03_E5__undercroft.png.",
+     "fix": "import-ml.py convert() (~line 86 'doors not on a room edge'): split the underlying wall segments at the door's ends and flag the middle piece instead of appending a standalone wall; church recipe: undercroft stair under the E5d trapdoor with the link 'to' inside E5g at the stair foot; move pines p23/p24 >= 30 ft from the building (they block the default view).",
+     "files": [
+      "scripts/authoring/import-ml.py"
+     ]
+    },
+    {
+     "map": "ch04/K",
+     "severity": "fix",
+     "what": "Spiral stairs K18/K20/K21 (r 13-16, no inner radius) render as solid red fans filling the tower rooms; K54/K55 partition has a 5-ft gap at x=195 z 215-220; trap south-tower-trap-k51-top at z=256 is outside K55; 6 doors/bars buried in walls (K74c/d, 4 secret doors); label keys K21-d/K74h, K83-c/K25, K54/K48-t within 5 ft.",
+     "evidence": "shots-k ch04_K__landing.png, __court.png; audit 'door end [195,220] touches no wall'.",
+     "fix": "castle-ravenloft.py: dims r0 = r-5 on K18/K20/K21 (the 'render' cluster adds r0 support to props.ts spiralStair; harmless until then); add wall (195,215)-(195,220); move the trap to z=252; local wall post-pass dropping plain segments overlapping door/secret segments > 1 ft; nudge the three colliding room centroids.",
+     "files": [
+      "scripts/authoring/castle-ravenloft.py"
+     ]
+    },
+    {
+     "map": "ch03/E",
+     "severity": "nit",
+     "what": "Village roads leave N and S as cobbles and W as dirt while the region's Old Svalich Road passes 0.38 mi south running E-W (exits both at 171 deg).",
+     "evidence": "region.py for E; shots ch03_E-top.png.",
+     "fix": "village-roads.py: make the south exit the Old Svalich Road (dirt beyond the last house), end the north street at the church.",
+     "files": [
+      "scripts/authoring/village-roads.py",
+      "scripts/authoring/village-map.py"
+     ]
+    }
+   ],
+   "fixer": {
+    "fixed": [
+     "Church E5 doors (import-ml.py): any door, window or arch that does not sit on a single unit edge now cuts the room-edge walls under it at its ends and takes the middle piece. Plain-wall/door overlaps went from 11 to 0, and the w52 front door close-up shows a wooden leaf with its frame.",
+     "E5 undercroft: the stair now climbs from inside E5g (foot at z 24, where the link lands at [35,22]) up through a 5-ft stairwell under the E5d trapdoor (z 40, trapdoor at 38). One pillar that stood in the stair's path moved a pace west. Every link endpoint is inside a room and every stair is within 20 ft of a link.",
+     "E5 pines p23/p24, which filled the default view east of the nave, are now low churchyard bushes.",
+     "import-ml.py takes ids after the seed path, e.g. `python3 scripts/authoring/import-ml.py <ml.json> E5 E`, and converts only those (E5, G, C, E, recipes). Nothing under locations/ch02 changed or was committed.",
+     "Castle K: spiral stairs K18, K20 and K21 have dims r0 = r - 5 on every level. The spiral() helper is used for tower stairs and the top-level props are hand-set.",
+     "K south tower: the K48 offstair is now an open stair inside K54 instead of a keyed octagon, so K54's west wall at x=195 is whole from 215 to 220 (wall south-tower-w-23). This also removes the K54/K48-t label collision.",
+     "K51 trapdoor moved to z=252, inside K55; link lk-k51 updated to match.",
+     "K local post-pass free_openings() after the walls are built: plain walls lying along a door, window or secret door for more than 1 ft are cut around it. Four walls were cut (dungeon 1, court 2, weeping 1), and every K level now has 0 overlaps. authorlib.py is untouched.",
+     "K label pile-ups: K83's turret inside K25 on the court level is walls only, with no keyed room. K21's dungeon foot is the slot between the cells and the catacombs (195,235) instead of overlapping K74h. No room centroids are within 10 ft except K83-l/K83a on the larders level (9 ft).",
+     "K straight stairs: the fromX/toX/fromZ/toZ values were written in 5-ft cells but the mesh reads feet. They are now converted, so the flights are no longer drawn near the north-west corner.",
+     "ravenloft-exterior.py was rerun. It skips stair feet below ground and merges stair shafts within 5 ft into one tower; exterior.json now has 5 towers instead of 7 with duplicates.",
+     "Village E roads (village-roads.py): past the last house the main street becomes the Old Svalich Road, packed earth that bends south and leaves by the map's south edge. The west end is a dirt cart track. The cobbles stop at the church, and the cemetery path is 8-ft dirt.",
+     "Village E tavern (village-map.py): the three overlapping roof blobs of the Blood of the Vine become one 20 x 40 ft two-storey hall that fits between Church street and the North loop. audit-outdoor.py for ch03/E is now clean; the base had 1 building on a street and 1 building overlap."
+    ],
+    "skipped": [
+     {
+      "what": "User request: Yester Hill is flat, and the fog wall looks like cotton",
+      "why": "Neither touches my files. Yester Hill is scripts/authoring/yester-hill.py and the fog wall is in app/src (backdrop/fog), both owned by other fixers. Whoever owns them should take this up."
+     },
+     {
+      "what": "Making the open wells visible in the K spiral stairs (they still render as fans from a 1.2-ft core)",
+      "why": "The data now carries r0, but app/src/kit/props.ts spiralStair ignores it until the 'render' cluster lands its change. Once that merges, the wells should open with no data change."
+     },
+     {
+      "what": "Joining the region's world road to the map's south exit",
+      "why": "backdrop.ts exitFor() is owned by the backdrop cluster. The map's dirt road now reaches the south edge at (586,806). But the brief says both world-road exits sit at a bearing of 171 deg, so exitFor may still join them to the west cart track; I have not checked this."
+     },
+     {
+      "what": "K83-l / K83a labels 9 ft apart on the larders level",
+      "why": "Not in the issue list, and only just under the 10-ft threshold, so I left it."
+     }
+    ],
+    "notes": [
+     "The two earlier WIP commits are squashed into one clean commit a9a7a62 on top of 3d8c751. Rerunning castle-ravenloft.py, ravenloft-exterior.py, import-ml.py (E5 E), village-map.py and village-roads.py reproduces the committed outputs. The WIP's shots-fix.mjs is not in the commit; it was moved to the scratchpad.",
+     "Checks: plain-wall/door overlaps are 0 on both E5 levels and all 12 K levels. All link endpoints are inside rooms. Every stair is within 20 ft of a link except the 70-ft K8 grand stair, whose midpoint is 30 ft from its link; its foot is 2.5 ft from it. Check script: scratchpad/smooth/fix-village-castle/check.py.",
+     "`npm run build` passes (tsc clean), `npx vitest run` gives 155 passed and 2 todo, and audit-outdoor.py shows no new findings (E clean; K has the same 67 pre-existing off-ground approach objects as the base).",
+     "Screenshots in /tmp/claude-0/-home-user-VTT/3e57a1ac-07da-5111-aa9e-cccc471b7481/scratchpad/smooth/fix-village-castle/: E5-door-w52.png, E5-default.png, E5-undercroft.png, K-court-towers.png, K-landing-k20.png, K-south-tower-top.png, E-top.png, E-tavern.png.",
+     "Before/after draw-call and frame-time numbers were not measured; this cluster had no debloat work. The host was at load around 32 on 4 cores, and the castle took 17 s to render a frame under swiftshader. The castle's default whole-map view timed out twice, so the K shots are close-ups.",
+     "vallaki-sites.py must be rerun after this merges so that N1, which copies E5, picks up the church door and undercroft fixes.",
+     "The preview server I started on port 4605 has been stopped."
+    ]
+   },
+   "review": "not reviewed yet"
+  },
+  {
+   "name": "tsolenka-werewolf",
+   "branch": "claude/wip/item6-tsolenka-werewolf",
+   "commit": "6753748",
+   "files": [
+    "scripts/authoring/tsolenka-pass.py",
+    "scripts/authoring/werewolf-den.py",
+    "app/src/kit/sites/t.ts",
+    "locations/ch09/T/**",
+    "locations/ch15/Z/**"
+   ],
+   "maps": [
+    "ch09/T",
+    "ch15/Z"
+   ],
+   "brief": "Repo /home/user/VTT. You own ONLY scripts/authoring/tsolenka-pass.py, werewolf-den.py, app/src/kit/sites/t.ts and the generated locations/ch09/T/** and locations/ch15/Z/**. Run scripts from the repo root with python3. Do not edit heightfield.py/world.json (the 'region' cluster is moving the Mount Ghakis shoulder off the pass and routing the Luna River under the T8 bridge), backdrop.ts (the 'backdrop' cluster makes the land beyond the map continue the map's own edge heights, so your gorge will open onto a matching drop once both land), s.ts, materials.ts or wild.ts. `npm run typecheck`, `npm run preview` (:4173); screenshot harnesses under /tmp/claude-0/-home-user-VTT/3e57a1ac-07da-5111-aa9e-cccc471b7481/scratchpad/smooth/.\n\nGOAL (user): the world's logic must hold and things feel real: Tsolenka Pass is a bridge over a gorge; the Werewolf Den is a cave in a hillside, not a plaza.\n\nMEASURED NOW:\n- ch09/T: the bridge T8 stands on a flat gridded snow plain between the two arches; the 42 'precipice' objects cut nothing (the terrain is 3 snow + 4 dirt polygons with no hole), the grid runs under the bridge; the precipice props are 320/420 ft deep but the backdrop land is at map level right outside, so today the trench is closed at both ends. The T-stair link 'to' [253,360] is 1.7 ft outside T5. t.ts GATE_TOP '#3b3a3f' (ashlar) is re-declared 'shingle' by wild.ts, and '#4a3a2c' in t.ts's fur list (cloth) overrides a 'wood' declaration so Yester Hill's dead shrubs and twigs get the cloth weave; the rock surface itself (crazy-paving cells) is being fixed in materials.ts by 'render'.\n- ch15/Z: the den's rock mass is a flat rectangular slab ~6 ft thick with straight edges, 270 x 360 ft, grey flagstone at ground level with pines round it; the cave rooms are trenches in that tile; 71 scree props at y 5.6; the +100 ft ring level's mountain pieces (rock-flank 'mtn-w/mtn-head/mtn-n') exist only on the ring level, so at the den's tabletop cut no hillside stands over the chambers; the ring level's grid floats past the dirt shelf (the grid fix is engine-side).\n\nDO:\n1. tsolenka-pass.py: cut the gorge polygon (between T7 and T9, ~40 ft wide, running off both the N and S map edges) out of the snow terrain polygons and the grid floorPolygons; add a 'chasm' prism (negative depth ~400 ft, rock colour) with the fog-sea at its floor; keep bridge-span as the only floor across; move the precipice rows to the gorge lip; snap the stair link endpoint inside T5. Scale check: the gatehouse, bridge and arches at the book's 10-ft squares.\n2. werewolf-den.py: replace the slab with a hill: an irregular outline 25-40 ft thick tapering to the forest floor (stacked prisms with ragged polygons, or a 'heightfield' object: see app/src/kit/sites/s.ts heightfield() for the packed format and scripts/authoring/krezk_land.py heightfield_dims() for the encoder; COPY the encoder into werewolf-den.py rather than importing krezk_land, which is being edited in parallel); make the Z8 shelf part of the same hill; place rock-flank pieces (h 60-80) on the den level round the cave outline so the hillside stands over the chambers at the tabletop cut; give the den's outer floor polygon a dirt/scree floor instead of flagstone. Keep every room, link and object; drop scree/boulders to the new ground.\n3. t.ts: give GATE_TOP and the fur colour '#4a3a2c' unique hexes (e.g. '#3b3a40', '#4a3a2d') with their intended surfaces; optionally let 'rock-flank' accept larger h/d so the 'amber' cluster can use it behind the temple facade (do not change existing defaults).\n\nVERIFY: `npm run typecheck`, `npm test`; screenshots: T default and close on T8 (gorge visible under the bridge, grid stops at the lip), Z default (a hill with a cave mouth, no plaza), Z ring level; confirm no object floats (y vs ground) with a small raycast or static check.",
+   "issues": [
+    {
+     "map": "ch09/T",
+     "severity": "fix",
+     "what": "No gorge under the stone bridge: T8 sits on a flat gridded snow plain between the arches; 42 'precipice' pieces do not cut a chasm (terrain is 3 snow + 4 dirt polygons with no hole); the T-stair link 'to' [253,360] is 1.7 ft outside T5.",
+     "evidence": "shots ch09_T__pass__close-T8.png (grid squares continue under the bridge), __pass.png.",
+     "fix": "tsolenka-pass.py: cut the gorge polygon (between T7 and T9, ~40 ft wide, running off both map edges) out of the snow terrain and grid floorPolygons; add a chasm prism (negative depth, rock colour) with the fog-sea at its floor; keep bridge-span as the only floor across; move the precipice rows to the gorge lip; snap the stair link inside T5.",
+     "files": [
+      "scripts/authoring/tsolenka-pass.py"
+     ]
+    },
+    {
+     "map": "ch15/Z",
+     "severity": "fix",
+     "what": "The den's rock mass is a flat rectangular slab ~6 ft thick with straight edges (a grey flagstone plaza 270x360 ft in the forest); the cave rooms are trenches in a floating tile; the +100 ring level's mountain pieces are only on the ring level.",
+     "evidence": "shots ch15_Z__den.png, ch15_Z-default.png, ch15_Z__ring.png.",
+     "fix": "werewolf-den.py: replace the slab with a mound of irregular outline 25-40 ft thick tapering to the forest floor (prisms or a 'heightfield' object: see s.ts heightfield and krezk_land.heightfield_dims for the packed format; copy the encoder locally), make the Z8 shelf part of the same hill, put rock-flank 'mtn-w/mtn-head/mtn-n' copies (h 60-80) on the den level round the cave outline, give the outer floor polygon dirt/scree instead of flagstone.",
+     "files": [
+      "scripts/authoring/werewolf-den.py"
+     ]
+    },
+    {
+     "map": "ch09/T, ch14/Y",
+     "severity": "nit",
+     "what": "Hex collisions in t.ts: GATE_TOP '#3b3a3f' (ashlar) is re-declared shingle by wild.ts shedRoof; '#4a3a2c' in the fur list (cloth) overrides a wood declaration so Yester Hill twigs/dead shrubs get the cloth weave.",
+     "evidence": "census '#4a3a2c' cloth (dead-shrub:32), '#3b3a3f' shingle (gatehouse:2).",
+     "fix": "t.ts: unique hexes for GATE_TOP and the fur colour (wild.ts is off-limits).",
+     "files": [
+      "app/src/kit/sites/t.ts"
+     ]
+    }
+   ],
+   "fixer": {
+    "fixed": [
+     "ch09/T gorge: tsolenka-pass.py now cuts the Luna River gorge (about 45 ft wide between T7 and T9) out of the snow terrain and the grid floorPolygons. It runs off the north map edge and opens south onto the drop into the fog. Precipice rows are moved to both lips, with no rim stones under the deck. A 400 ft deep rock floor prism (pass-gorge-floor) and a shaded fog-sea strip fill the gorge, and bridge-span/T8 is the only floor across. A grid-lid stops the ground grid at the lips. Screenshots: close-T8, wide-s and north-from-e all show the gorge open under the arch with the grid stopping at the lips.",
+     "ch09/T stair link: T-stair 'to' is now (51.1,71.5) cells = [255.5,357.5] ft, inside T5 (checked with a point-in-polygon test). The rail now has a gap at the stair head.",
+     "ch09/T scale: gatehouse 10-ft piers and passage, bridge 10 x 70 ft between two arches that are 30 ft wide and 10 ft deep (90 ft end to end, as in the book).",
+     "ch15/Z hill: the flat slab is replaced by a heightfield hill (encoder copied into werewolf-den.py). A ragged rock terrace surrounds the caves at the cutaway, the hillside rises from it to the scarp under the Z8 shelf (about 13 ft over the mouth, near 40 ft behind), and it tapers to the forest floor east and west. The ring level uses the same hill uncut, so Z8 sits on a shelf of that hill. Copies of mtn-w/mtn-head/mtn-n rock-flank (h 60-80) stand on the den level at +100, so the mountain stands over the chambers at the tabletop cut. All rooms, links and objects are kept. The 71 scree props and the boulders now sit on the new ground (static check against the decoded heightfield: 0 floating objects on either level).",
+     "t.ts hex collisions: GATE_TOP is now '#3b3a40' (ashlar) and the hybrid werewolf cloth is now '#4a3a2d' (cloth). wild.ts's '#3b3a3f' shingle and w.ts's '#4a3a2c' twig wood keep their own surfaces.",
+     "t.ts support: precipice/bridge-span/sheet take a `lid` option so the gorge shows through the land drawn just under the map (custom depth in the shader, keyed in the program cache). fog-sea can be a w x len strip with a shaded variant. New 'grid-lid' prop. Precipice gets `rim:0` and `snow:0`. rockMass and grid-lid share one loopsOf() decoder. rock-flank already takes any h/d, so no default changed.",
+     "Squashed the WIP into one clean commit. Removed the stray .probe.mjs/.shoot.mjs harness files from the repo (copies are in the scratchpad)."
+    ],
+    "skipped": [
+     {
+      "what": "User's direct request: 'yester hill is flat' and 'the fog wall looks terrible like cotton'",
+      "why": "Yester Hill (ch14/Y) lives in scripts/authoring/yester-hill.py, and the fog-wall prop is fogWall() in app/src/kit/sites/w.ts. This cluster does not own either file, and other fixers are editing them in parallel. Editing them here would risk conflicts. The orchestrator should send these two items to whichever fixer owns yester-hill.py and w.ts, or to a new one. The only Yester Hill item I could touch was the twig/dead-shrub cloth-weave hex collision in t.ts, and that is fixed."
+     },
+     {
+      "what": "Den ledges (Z3-ledge, Z4-ledge rooms; the Z2 and Z4-north ledge terrain) are still 'flagstone'",
+      "why": "There is no outer flagstone floor polygon in the den level: the grey plaza was the rock-mass slab, which is now a hill. The ledges stay grey so they read as raised rock shelves (there is no 'rock' floor material). They can be switched to dirt cheaply if wanted."
+     },
+     {
+      "what": "Ring-level grid floating past the Z8 shelf; grid over the backdrop",
+      "why": "This is engine-side (gridOverlay draws one plane over the level's bounding box) and belongs to another cluster, as the brief says."
+     },
+     {
+      "what": "Backdrop pines floating in the gorge beyond the map's north edge (x < 8 cells)",
+      "why": "These are trees that backdrop.ts plants on land at map height beyond the map. The 'backdrop' cluster's change (land beyond the map continues the map's edge heights) is meant to drop the land along the gorge line. backdrop.ts is off-limits to me."
+     }
+    ],
+    "notes": [
+     "Verified in the worktree: both authoring scripts regenerate byte-identical output; `tsc --noEmit` passes; `vite build` OK; `npx vitest run` 155 passed, 2 todo.",
+     "audit-outdoor.py: the only finding type is 'off-ground', which is also present at base. New items are landform pieces only. T: gorge lip precipices, the extended flank-rim/flank-er rock flanks, the gorge floor, fog and lid (61 in all). Z: the 14 mtn-* rock flanks at +100 and the hill heightfield (15). No creatures or props are off the ground.",
+     "Performance (swiftshader, so ms is noisy): T draw calls 103 -> 128, triangles 156k -> 178k, objects 154 -> 217 (the gorge walls run 300 ft past the map edge). Z draw calls 42 -> 45, triangles 136k -> 139k.",
+     "Screenshots are in /tmp/claude-0/-home-user-VTT/3e57a1ac-07da-5111-aa9e-cccc471b7481/scratchpad/smooth/fix-tsolenka-werewolf/: b1/ (Z default, low, nw, top, ring), b2/ (T default, close-T8, wide-s, top, close-side), b3/ (T north gorge top and obliques); before/ holds the pre-fix shots. Note: T-close-side and T-wide-nw put the camera inside the mountain flank, so their dark gridded patches are a camera artefact, not a map fault.",
+     "Preview: my own `vite preview --port 4606` failed to start because the paused fixer's preview from this same worktree was still holding the port. All shots came from that server, which serves this worktree's freshly rebuilt dist. I killed it afterwards since it belonged to this cluster's worktree, so nothing is left on 4606.",
+     "Hex note for s.ts's owner: s.ts uses '#4a3a2c' as humanoid cloth (lines 597, 631) without declaring it. Now that t.ts no longer declares that hex as cloth, it falls back to w.ts's 'wood'. s.ts should declare its own cloth hex.",
+     "The gorge relies on t.ts's `lid` depth hack, because the backdrop land runs under the whole map a hair below ground. Once the backdrop cluster's edge-height change lands, the gorge should open onto a matching drop beyond the map edge as planned."
+    ]
+   },
+   "review": "not reviewed yet"
+  },
+  {
+   "name": "argynvostholt",
+   "branch": "claude/wip/item6-argynvostholt",
+   "commit": "8a19a24",
+   "files": [
+    "scripts/authoring/argynvostholt.py",
+    "app/src/kit/sites/q.ts",
+    "locations/ch07/Q/**"
+   ],
+   "maps": [
+    "ch07/Q"
+   ],
+   "brief": "Repo /home/user/VTT. You own ONLY scripts/authoring/argynvostholt.py, app/src/kit/sites/q.ts and the generated locations/ch07/Q/**. Run `python3 scripts/authoring/argynvostholt.py` from the repo root. Do not edit app/src/render/**, props.ts, surfaces.ts, authorlib.py or other site files. `npm run typecheck`, `npm run preview` (:4173); screenshot harness /tmp/claude-0/-home-user-VTT/3e57a1ac-07da-5111-aa9e-cccc471b7481/scratchpad/smooth/interiors/.\n\nGOAL (user): the world's logic holds and buildings read as real; textures work; debloat.\n\nMEASURED NOW: the south-west wing has no exterior walls on 138 ft of the ground-floor boundary (Q2 west 27.5 ft, Q4 south 47.5 ft, the Q14/Q15 diagonal 47.5 ft) and 105 ft on the second floor (Q19 south 72.5 ft), so Q4's pink floor and pillars are exposed on the SW facade with the floors above cantilevered (ch07_Q__WHOLE.png, __roof.png). q.ts webSheet (lines ~212-214) creates a new MeshBasicMaterial per sheet: 17 separate unlit draw calls. The dirt road leaves the W edge while the region's 'Road to Argynvostholt' arrives from bearing 319 (NW); the manor's promontory is flat (backdrop rises W +653 at 900 ft). 99 token-like creature meshes come from the engine's per-figure merging ('render' cluster fixes that).\n\nDO: 1. argynvostholt.py: add the missing exterior walls (ashlar; tall windows where the book's facade has them) along those edges on both floors; where broken ruin is intended, use half-height walls (heightFt 6) plus rubble so the massing still reads. Add a wall-coverage check (every room edge on the building's outer boundary has a wall or door) and print it. 2. q.ts: one module-level shared transparent web-sheet material (use materials.ts helpers so it is patchFog'd) so all sheets merge; grep q.ts hexes against surfaces.ts/other site files for collisions. 3. Cheap nit: curve the entrance road to leave at the NW corner (so backdrop.ts exitFor() joins it to the world road); optionally a low 30-40-ft 'heightfield' falling from the house toward N and E (format in app/src/kit/sites/s.ts heightfield(); copy the encoder from krezk_land.heightfield_dims rather than importing).\nVERIFY: `npm run typecheck`, `npm test`; screenshots: Q whole-stack from the SW (closed facade), Q roof level, Q top view (road exits NW).",
+   "issues": [
+    {
+     "map": "ch07/Q",
+     "severity": "fix",
+     "what": "The south-west wing has no exterior walls on 138 ft of ground-floor boundary (Q2 west 27.5 ft, Q4 south 47.5 ft, Q14/Q15 diagonal 47.5 ft) and 105 ft on the second floor (Q19 south 72.5 ft): the chapel reads as an open dollhouse.",
+     "evidence": "wall-coverage check; shots ch07_Q__WHOLE.png, __roof.png (Q4's floor and pillars exposed, floors above cantilevered).",
+     "fix": "argynvostholt.py: add the missing exterior walls (ashlar, tall windows where the facade has them); where ruin is intended use half-height walls (heightFt 6) plus rubble so the massing reads.",
+     "files": [
+      "scripts/authoring/argynvostholt.py"
+     ]
+    },
+    {
+     "map": "ch07/Q",
+     "severity": "fix",
+     "what": "q.ts webSheet allocates a MeshBasicMaterial per sheet (17 separate draw calls, unlit).",
+     "evidence": "q.ts lines 212-214; census.",
+     "fix": "One module-level shared transparent material (patchFog'd) for all web sheets.",
+     "files": [
+      "app/src/kit/sites/q.ts"
+     ]
+    },
+    {
+     "map": "ch07/Q",
+     "severity": "nit",
+     "what": "The entrance road leaves west while the region road arrives from the north-west (319 deg); the promontory is flat.",
+     "evidence": "geo.py: dirt road touches W edge; region.py bearing 319.",
+     "fix": "Curve the road to leave at the NW corner; optionally a low (30-40 ft) heightfield falling from the house toward N and E.",
+     "files": [
+      "scripts/authoring/argynvostholt.py"
+     ]
+    }
+   ],
+   "fixer": {
+    "fixed": [
+     "ch07/Q open south facade (fix): the ballroom's south front (Q4, 34-44 at z=35) is no longer an opening. It is now 14 broken ashlar wall segments 4-15 ft high, tallest at the corners. The ragged south ends of Q19/Q19-east (second floor) and Q32/Q32-east (third floor) were open walls. They are now broken ashlar walls 3.5-14 ft high, highest by the side walls, plus low stubs at the corridor ends and new 'rubble' props at their foot. Screenshots whole-SW, whole-SW-low, whole-S, second-SW and roof-SW now show a closed ruined facade instead of a cutaway.",
+     "Wall-coverage check added to argynvostholt.py and printed on every run. A level's footprint is its indoor rooms, plus lower rooms tall enough to rise through it, plus VOIDS (the roof hole and the beacon stair well). Before: ground 50 ft open, second 77.1, third 75.3, roof 110 and beacon 20 (the last two were false positives from the voids). After: 0 ft open on every level. Q48's broken roof lip (74.4 ft) is listed explicitly as open by design.",
+     "q.ts webSheet (fix): the per-sheet MeshBasicMaterials are replaced by two shared module-level patchFog'd materials (WEB_SHEET, WEB_STRAND), so the static-prop merge draws all sheets in 2 calls instead of 8. Draw calls with Q open: whole stack 710 to 702, ground level 409 to 401, Q4 close-up 328 to 320, second 508 to 501, roof 691 to 689 (the new walls add a few back).",
+     "q.ts colour check: compared its hexes against surfaces.ts (including the WALL_COLOR rubble entry for #6d6860) and every other site/kit file; found no collisions. Declared the colours only q.ts uses that were previously undeclared: #4a3a32 as cloth, #4f3c2c/#1a1412/#30282a as wood, #5a4a3e/#1a1c20 as metal.",
+     "Entrance road (nit): it now runs as a 17-ft dirt ribbon on a curve from the drive, bending north-west to leave at the map's NW corner. The top views show the world road from the region joining it there instead of making an elbow at the W edge. The pine-exclusion rule, the spawn point and the Arrigal note now follow the new road."
+    ],
+    "skipped": [
+     {
+      "what": "Optional 30-40 ft heightfield falling from the house toward N and E",
+      "why": "Near the map, backdrop.ts holds the region land flush to the map's own ground (y0). The level's flat grass terrain also covers the whole map. A heightfield that drops 30-40 ft at the N/E edges would leave a visible step or gap against the backdrop land at the seam, unless backdrop.ts is changed, and I don't own that file. Since this was an optional nit, I left the promontory flat."
+     },
+     {
+      "what": "Reviewer's 'Q2 west 27.5 ft' and 'Q14/Q15 diagonal 47.5 ft' gaps",
+      "why": "Neither is a building-boundary gap. Q2 is the outdoor entrance landing: its west side is where the steps come down to the drive, and it has balustrades N and S. Q15/Q15-steps are the outdoor cemetery and turret stair; every edge they share with the chapel turret (Q14) is already an exterior ashlar wall. The new coverage check treats Q1, Q2, Q5, Q15 and Q15-steps as outdoor and finds 0 ft open on the real boundary."
+     },
+     {
+      "what": "99 token-like creature meshes from per-figure merging",
+      "why": "This belongs to the render cluster (app/src/render/**), which I don't own."
+     }
+    ],
+    "notes": [
+     "The user's relayed request ('zoom in zoom out nesting doesn't seem to be functioning as intended') concerns the region-to-site-to-room nesting, which lives in app.ts and render/backdrop.ts. None of those files are mine. The only nesting-related change here is that Q's road now meets the region road at the NW corner, where exitFor() picks it up.",
+     "Checks run: `npm run build` (tsc passes), `npx vitest run` (15 files, 155 passed, 2 todo), and `python3 scripts/authoring/audit-outdoor.py`, which reports no findings for ch07/Q. Running the authoring script again gives the same output every time.",
+     "Screenshots are in /tmp/claude-0/-home-user-VTT/3e57a1ac-07da-5111-aa9e-cccc471b7481/scratchpad/smooth/fix-argynvostholt/{before,after}/. They include whole-SW, whole-SW-low, whole-S, whole-W, whole-top, whole-top-wide, roof-SW, second-SW and ground-Q4-close. Draw-call stats are in before/stats.json and after/stats-inc.json; the screenshot script is shots.mjs in the same folder.",
+     "The ms-per-frame numbers are not reliable: the machine was at load average around 60 on swiftshader, and identical views ranged from 3 to 7600 ms. Draw calls are the meaningful before/after metric.",
+     "Preview on port 4610 was started by me and stopped by me (PIDs 26852/26869). The node_modules symlink and the screenshot script are not committed."
+    ]
+   },
+   "review": "not reviewed yet"
+  },
+  {
+   "name": "death-house",
+   "branch": "claude/wip/item6-death-house",
+   "commit": "3541588",
+   "files": [
+    "scripts/authoring/death-house.py",
+    "locations/appB/death-house/**"
+   ],
+   "maps": [
+    "appB/death-house"
+   ],
+   "brief": "Repo /home/user/VTT. You own ONLY scripts/authoring/death-house.py and the generated locations/appB/death-house/**. Run `python3 scripts/authoring/death-house.py` from the repo root. Do not edit authorlib.py, props.ts (the 'render' cluster is sharing the cobweb material so the 61 cobweb draw calls merge) or app/src/**. `npm run typecheck`, `npm run preview` (:4173); harness /tmp/claude-0/-home-user-VTT/3e57a1ac-07da-5111-aa9e-cccc471b7481/scratchpad/smooth/interiors/.\n\nGOAL (user): buildings read as real; logic holds.\n\nMEASURED NOW: the whole-stack view ends in a flat-topped brick box: attic rooms 16-21 are roofless with 12.9-ft walls open to the sky (appB_death-house__WHOLE.png). On f3, room 11's polygon includes the strip x15-25, z35-40 where f3-attic-stair runs; the only walls there are the secret doors f3-sd-attic-a (z=35) and f3-sd-attic-b (z=40), so both stand as free panels inside room 11 (spots/DH-f3-secret-attic.png; audit: 'door inside a room', both ends touch no wall).\n\nDO: add an f3 room '11-stair' (x15-25, z35-40, plank) so build_walls encloses the closet, and stamp the two secret doors on its north/south edges (removing the strip from room 11's polygon); give the attic level ceilingFt 8 and roof-gable pieces over the main block and the wing (dims from the attic bbox + eaves, y=0 on the attic level, h ~12, slate/shingle colour from the palette) so the section cut slices them like walls; check that the roof's cap behaves with the slider (userData.cap from role roof). Keep every room, trap, note and creature.\nVERIFY: `npm test`; screenshots: whole-stack (roofed), f3 at the closet (enclosed, secret doors in walls), attic level (roof clipped by the cut).",
+   "issues": [
+    {
+     "map": "appB/death-house",
+     "severity": "fix",
+     "what": "No roof: the whole-stack view ends in a flat-topped brick box with 13-ft attic walls open to the sky; the attic-stair closet is not enclosed so its two secret doors stand as free panels inside room 11.",
+     "evidence": "shots appB_death-house__WHOLE.png; f3 room 11 includes x15-25,z35-40 where f3-attic-stair runs; audit 'door inside a room'.",
+     "fix": "death-house.py: f3 room '11-stair' (x15-25, z35-40, plank) so build_walls encloses it, stamp the secrets on its N/S edges; attic ceilingFt 8 with roof-gable pieces over the main block and the wing (dims from the attic bbox, y=0 on the attic level, h ~12).",
+     "files": [
+      "scripts/authoring/death-house.py"
+     ]
+    }
+   ],
+   "fixer": {
+    "fixed": [
+     "Floor 3 attic-stair closet: added the room '11-stair' (Attic stair (hidden), page from 11, plank) and took the strip out of room 11's polygon. build_walls now encloses the closet. The secret doors f3-sd-attic-a (z=35, from 11) and f3-sd-attic-b (z=40, behind 15A's mirror) are now part of its north and south walls. The old extra-wall approach (secret door with extra=True plus f3.wall) is gone. The stairs-straight prop's key is now '11-stair'. The audit's 3 door findings for this map are gone ('door inside a room' and both 'touches no other wall'); it went from 22 to 19 findings with nothing new. Screenshots v2-f3-closet.png and v2-f3-closet-b.png show the closet walled in, with both secret doors set in its walls.",
+     "The closet runs x15-30, not x15-25. The 5x5 cell at x25-30, z35-40 was a void in no room and had no east exterior wall, so it left a hole in the house front where the stair tops out. Taking the closet out to the east wall closes that hole.",
+     "Attic roofed: the attic level's ceilingFt goes from 13 to 8, which means 8-ft walls up to the eaves. The book's 13-ft figure is kept in a DM note, attic-headroom. Three slate roof-gable pieces sit at y=8 on the attic level: the main block (x0-25, z0-45, h 11), a lower front wing over 17 (h 6, ridge running back under the main slope) and a cross-gable over 16's landing bay (h 7, same pitch, inner end hidden inside the main roof). Two chimney stacks stand over the west-wall hearths.",
+     "Floor 3's east strips that the attic does not cover (x25-30, z10-25 and z40-55) get low slate roof-gables (h 2.5) on its 8-ft walls, plus the den's chimney. The balconies 12C and 15C stay open.",
+     "Section cut and slider: roof-gable and chimney pieces get role 'roof', which is in SHELL_ROLES, so on this stacked site the section plane cuts through them like walls. The cap flag only switches visibility on non-stacked sites, so it has no effect here. Checked in screenshots. Whole stack (cut 50): fully roofed (v1-whole.png, v2-whole-low-sw/ne.png, v1-whole-top.png). Attic follow cut (37.5): roof cut away, attic rooms readable, the floor 3 strip roofs visible below (v2-attic.png). Cut at 44: roof cut through partway (v2-attic-cut44.png). sectionRange.max went from 55 to 50 and the ridge beam tops out at 49.35, so the whole view never clips it.",
+     "Added a ROOM_DESC entry for '11-stair', in our own wording. Every room, trap, note and creature is kept: the map now has 58 rooms (one new) and 481 objects."
+    ],
+    "skipped": [
+     {
+      "what": "A stairwell hole in the attic floor over the attic stair (x15-25, z35-40)",
+      "why": "Cutting it would put 17's door (16 to 17, at x15-20 on z=40) inside the stairwell, and would need railings and openings in room 16. That means moving a door from the book's map. The repo's convention elsewhere (the spiral stairs on f1 to f3) is that floors are not cut for stairs, so I kept that convention."
+     },
+     {
+      "what": "Roof colour from the palette and gable ends in brick",
+      "why": "roof-gable's slate colour (#3d3a3e, declared as shingle in surfaces.ts) and its solid prism ends are fixed in props.ts, which I do not own. The colour is already the slate tone."
+     },
+     {
+      "what": "Draw-call before/after comparison",
+      "why": "This was not debloat work. After the change: whole stack 364-368 calls, about 26k triangles; attic 355; f3 276. The roofs merge into the 'merged-roofs' scatter meshes, one per material, so they add only a handful of draw calls."
+     }
+    ],
+    "notes": [
+     "The user's relayed request was about zoom in/out nesting. Nothing in this cluster's files (death-house.py and the generated scene) controls zoom nesting, so that request is not addressed here. It belongs to whoever owns app/src (task #45, nested world).",
+     "Checks: python3 scripts/authoring/death-house.py regenerates the scene (6 levels, 58 rooms, 404 walls, 481 objects). npm run build passes, including tsc. npx vitest run: 15 files and 155 tests pass. One run earlier timed out in tests/bestiary.test.ts because the machine was busy; it passes alone and in the full re-run. audit-outdoor.py reports nothing for death-house. Interiors audit diff: before 22 findings, after 19, nothing new (audit-before.txt and audit-after.txt in the fix-death-house folder).",
+     "Screenshots are in /tmp/claude-0/-home-user-VTT/3e57a1ac-07da-5111-aa9e-cccc471b7481/scratchpad/smooth/fix-death-house/ (v1-*.png, v2-*.png), made by shoot.mjs from the worktree preview on port 4611. That preview (PID 10412) has been stopped.",
+     "Room key '11-stair' maps back to '11' through sceneAreaKeys' -part convention, so the manifest key-parity test still holds.",
+     "Nothing was committed beyond the script and the generated locations/appB/death-house files. The node_modules symlink is gitignored and was not committed."
+    ]
+   },
+   "review": "not reviewed yet"
+  },
+  {
+   "name": "sheep-chase",
+   "branch": "claude/wip/item6-sheep-chase",
+   "commit": "314af3f",
+   "files": [
+    "scripts/authoring/import-mapset.py",
+    "scripts/authoring/wsc-town.py",
+    "scripts/authoring/noke-tower.py",
+    "locations/wsc/**",
+    "manifests/wsc-locations.json"
+   ],
+   "maps": [
+    "wsc/03b-path",
+    "wsc/02-street",
+    "wsc/03-compound"
+   ],
+   "brief": "Repo /home/user/VTT. You own ONLY scripts/authoring/import-mapset.py, wsc-town.py, noke-tower.py, locations/wsc/** (incl. wsc/00-region/world.json that import-mapset.py writes) and manifests/wsc-locations.json. Run from the repo root with python3 in the order import-mapset.py, wsc-town.py, noke-tower.py (the later two update the manifest); check what import-mapset.py needs as input (the uploaded mapset JSON under reference/ or the scratchpad) before running, and if it needs heightfield.py afterwards (wsc-cover.py's docstring says 'run heightfield.py after'), run it on locations/wsc/00-region/world.json only, without editing heightfield.py (the 'region' cluster owns it and the Barovia world.json). Do not edit authorlib.py or app/src/**. `npm run typecheck`, `npm run preview` (:4173); screenshots via /tmp/claude-0/-home-user-VTT/3e57a1ac-07da-5111-aa9e-cccc471b7481/scratchpad/smooth/audit/shoot.cjs.\n\nGOAL (user): things feel real; textures work.\n\nMEASURED NOW: wsc/03b-path: oaks 03b-path-L0-oak_1/3/5/15/20 sit at y 0 on raised undergrowth prisms whose tops are at 5 ft (trunks buried 5 ft; wsc_03b-path-default.png); the patches (patch1/patch2, h 5.0) are sheer vertical blocks with flat tops, which undergrowth is not. wsc/02-street: the temple's signpost L0-temple-sign at (75,153) stands inside the temple's 30 x 45 footprint and never shows. Prism dims.color '#3f5a34', '#4a5e3a' (meant as grass) and '#8f7a58' (dirt) in wsc-town.py have no surface declaration so they get the generic whisper instead of grass/dirt grain.\n\nDO: import-mapset.py (~line 122): when an oak's centre lies inside a raised patch set its y to the patch top (dz_ft); build raised patches as two stacked prisms (h 3 + h 2, the upper inset 2 ft) or lower them to 2.5 ft, keeping the 'difficult terrain' note. wsc-town.py: move the sign 4-6 ft outside the temple's door face; use FLOOR_COLOR.grass/dirt hexes from app/src/kit/palette.ts for those prisms (the Sheep Chase grass is set by setGrass at runtime: check app/src/campaigns for the WSC grass hex and use that). Regenerate wsc/** and verify nothing else in the output changed unexpectedly (git diff).\nVERIFY: `npm test`; screenshots of 03b-path (oaks standing on the terraces) and 02-street (sign visible by the door).",
+   "issues": [
+    {
+     "map": "wsc/03b-path",
+     "severity": "fix",
+     "what": "Oaks on the 5-ft raised undergrowth terraces are sunk 5 ft (trunks buried): 03b-path-L0-oak_1/3/5/15/20 at y 0 on prism tops at 5 ft; the terraces are sheer vertical 5-ft blocks with flat tops.",
+     "evidence": "probe dy -5; shots wsc_03b-path-default.png, -low.png.",
+     "fix": "import-mapset.py line ~122: set the oak's y to the containing raised patch's top; build raised patches as two stacked prisms (h 3 + h 2, upper inset 2 ft) or lower to 2.5 ft; keep the 'difficult terrain' note.",
+     "files": [
+      "scripts/authoring/import-mapset.py"
+     ]
+    },
+    {
+     "map": "wsc/02-street",
+     "severity": "nit",
+     "what": "The temple's signpost L0-temple-sign (75,153) stands inside the temple's 30x45 footprint; prism dims.color '#3f5a34','#4a5e3a' (grass) and '#8f7a58' (dirt) fall to the generic grain.",
+     "evidence": "static audit insideBuildings wsc/02-street {'signpost':1}; census section 3.",
+     "fix": "wsc-town.py: move the sign 4-6 ft outside the temple's door face; use FLOOR_COLOR grass/dirt hexes (app/src/kit/palette.ts) for the prisms.",
+     "files": [
+      "scripts/authoring/wsc-town.py"
+     ]
+    }
+   ],
+   "fixer": {
+    "fixed": [
+     "wsc/03b-path (fix): the five oaks on the wooded banks (03b-path-L0-oak_1/3/5/15/20) were buried 5 ft. They now stand on the bank tops: oak_3/5/15/20 at y 5 and oak_1 at y 3 (it sits on the lower step, 1.15 ft from the edge). The oaks on the 0.5-ft undergrowth patches (oak_4/6/8/13/19) were each buried 0.5 ft and now sit on top too. The probe went from 5 of 20 trees off the ground to 0 of 20. The fix is in import-mapset.py: it now works out the raised patches before the posts, and a ground_at() lookup lifts any tree or post onto the top of the patch it stands in.",
+     "wsc/03b-path (fix): the two 5-ft woodland banks were sheer blocks. Each is now two steps: a 3-ft step on the full outline plus a 2-ft step set back 2 ft (patchN and patchNb). The DM note keeps the export's 5-ft figure, says how the banks are built, and keeps the 'difficult terrain' line for the undergrowth.",
+     "Textures (nit): the raised-patch colours 0x3f5a34, 0x4a5e3a and 0x8f7a58 had no surface declared, so they fell back to the generic grain. They came from import-mapset.py, not wsc-town.py as the brief said. They are now colours the shader knows: Sheep Chase grass #5d7d4a (theme.grass in manifests/campaigns.json, declared at runtime by setGrass) for the wooded banks, the declared turf colour #4d5a3f for undergrowth (darker, so the difficult ground still reads), FLOOR_COLOR.dirt #66584a for the road crown, and the declared #6d6a66 for rock. This changes wsc/03a-road (road and undergrowth patch colours) and wsc/03b-path.",
+     "wsc/02-street (nit): the signpost L0-temple-sign was inside the temple. The temple's door was on its south face, facing away from the square, so I turned the temple 180 degrees to face the square and moved it 10 ft south so its front no longer sits on the ring road. The sign now stands at (67, 150): 5 ft out from the door face and 8 ft to the side of the door. Side effect: audit-outdoor.py no longer reports the temple as 'building-on-street' (that finding was already there before this change).",
+     "import-mapset.py now keeps the region map's land data when re-run. Before, every run cut about 6,700 lines from locations/wsc/00-region/world.json: the land cover from wsc-cover.py and the heightfield from heightfield.py. It also swapped the order of the roads. A new keep_land() keeps cellMiles, cover, labels and height when the bounds have not changed, and the roads are written in their committed order. Re-running import-mapset.py, wsc-town.py and noke-tower.py now leaves world.json and manifests/wsc-locations.json byte-for-byte unchanged, so I did not need to run wsc-cover.py or heightfield.py."
+    ],
+    "skipped": [
+     {
+      "what": "The user's request: 'zoom in zoom out nesting doesn't seem to be functioning as intended'",
+      "why": "This is the region-to-room zoom (task #45, still in progress). That behaviour lives in app/src (the camera and world/backdrop code), which this cluster may not edit. Nothing in my files controls zoom, so I could not fix it here. The pin-to-scene links in wsc/00-region/world.json are unchanged and still point to every wsc scene. Whoever owns app/src should look at the zoom behaviour directly."
+     },
+     {
+      "what": "Remaining audit findings in wsc/02-street: L0-tavern-facade 'building-on-street' and three 'wall-through-building'",
+      "why": "These were there before this change. The tavern facade deliberately sits over the walls of the tavern's ground floor (it is a shell), so these are a design choice rather than something this cluster was asked to fix. My changes added no new findings."
+     },
+     {
+      "what": "Making the bank side faces read as earth rather than grass",
+      "why": "A prism takes only one colour for the top and sides. Different side faces would need a change to the prism builder in app/src/render/build.ts, which I do not own."
+     }
+    ],
+    "notes": [
+     "Checks: npm run build passes (tsc and vite). npx vitest run: 15 files, 155 tests passed, 2 todo. python3 scripts/authoring/audit-outdoor.py: no new findings for wsc maps; the temple's old building-on-street finding is gone.",
+     "Draw calls in the default view: wsc/03b-path went from 37 to 39 (the two upper bank steps; ms-per-frame not measured, the change is two prisms); wsc/02-street stayed at 91.",
+     "Screenshots are in /tmp/claude-0/-home-user-VTT/3e57a1ac-07da-5111-aa9e-cccc471b7481/scratchpad/smooth/fix-sheep-chase/: wsc_03b-path-{default,low,top}.png, wsc_03b-path-bank-close.png, wsc_03b-path-bank-west.png, wsc_02-street-{default,low,top}.png and wsc_02-street-temple-door.png. I looked at them: the oaks stand on the stepped banks, and the temple door faces the square with the signpost beside it. The probe is in probe.json there; the copied shoot.cjs has longer timeouts because machine load was about 65 on 4 CPUs, and close.cjs is the close-up script.",
+     "import-mapset.py reads reference/imports/wsc/mapset.json, which only exists in /home/user/VTT/reference. To run it I made a temporary symlink at reference/imports in the worktree; it is removed, as is the node_modules symlink. To re-run the scripts in a worktree, recreate both links.",
+     "Preview on port 4612 (npx PID 31510 and its vite child 31571) is stopped; 31571 shows as defunct (stopped) until its parent cleans it up.",
+     "Re-running the three authoring scripts changes only the five committed files: import-mapset.py, wsc-town.py and the scene.json of wsc/02-street, 03a-road and 03b-path. wsc/03-compound, 01-tavern, world.json and the manifest come out byte-for-byte the same."
+    ]
+   },
+   "review": "not reviewed yet"
+  }
+ ]
+}

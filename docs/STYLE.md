@@ -31,5 +31,21 @@
   desaturated, no hard shadows.
 - **Readability**: every piece must read from a 45° tabletop camera and from straight down. Floors are a
   step darker than walls so the grid reads.
-- **UI** (applefy): light, quiet, one type family (system UI / SF Pro), hairline dividers
-  (`0.5px` on retina), SF-Symbols-style 1.5 px line icons, no RPG chrome, no parchment.
+- **UI: cards and tips** (docs/THEME.md; the rest of the chrome keeps its quiet look until queue item 15):
+  - Two surfaces. Chrome is what you press (toolbars, sliders, the turn bar). Pages are what you read: rules cards,
+    tips and stat blocks are opaque parchment pages (Barovia: cool grey parchment by day, night vellum in the dark
+    scheme; the Sheep Chase: warm paper, walnut in the dark). Nothing shows through a page.
+  - Five rules families, each with a colour and its own underline, so a link's kind reads without colour too:
+    condition (ochre, dashed), magic for spells and magic items (violet, double), monster (raspberry, wavy), rules for
+    rules, actions, senses, damage types and gear (slate-teal, dotted), and module page references (the page's own ink,
+    solid). A magic item's kicker and name take its rarity colour; rarity colour appears nowhere else.
+  - A card is a page with a 5 px stripe in its family colour, a 20 px game-icons emblem beside a small-caps kicker word
+    that names the exact type ('spell · 1st level · enchantment', 'monster · CR 1/4'), the title in Alegreya SC, a ruled
+    divider (Barovia: a double hairline with a lozenge; the Sheep Chase: a brass lozenge), the body in Alegreya, and the
+    source on a hairline footer. DM-only content carries a wax seal 'DM'. Emblems are never smaller than 20 px.
+  - Type roles in cards: Alegreya SC for titles and kickers, Alegreya for body and stat text (lining tabular numbers),
+    Atkinson Hyperlegible Next for numbers in tiles and for tips. All fonts are bundled (SIL OFL) and work offline.
+  - Trade dress: we keep the 5e reading order of a stat block (name, meta, AC, HP, speed, abilities, senses, actions)
+    but not the official look. The official look is a red small-caps name, red labels, a red tapered wedge and orange
+    bars; ours has the name and labels in ink, our own divider, a tile row and an ability grid, and the accent only on
+    the Actions hairline.

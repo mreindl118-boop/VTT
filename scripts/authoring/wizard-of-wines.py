@@ -13,6 +13,7 @@ import json, math, os, sys
 from collections import OrderedDict
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from authorlib import ROOT, Level, rect, unit_edges, seg_key  # noqa: F401
+from geomlib import ov, band, H
 
 _M = json.load(open(os.path.join(ROOT, 'manifests', 'locations.json')))
 PAGE = {a['key']: a['page'] for l in _M['locations'] if l['id'] == 'W' for a in l['areas']}
@@ -30,11 +31,6 @@ def arc(cx, cz, r, a0, a1, step=30):
     return out
 
 
-def ov(lv, a, b, **kw):
-    """Override one edge exactly as the wall builder splits it (diagonals whole, straight runs per cell)."""
-    k = seg_key(a, b); lv.overrides[k] = dict(lv.overrides.get(k, {}), **kw)
-
-
 def stamp_edges(lv, poly, **kw):
     """Override every unit edge of a polygon (open it, give it a material or a height)."""
     for a, b in unit_edges(poly):
@@ -43,19 +39,6 @@ def stamp_edges(lv, poly, **kw):
 
 def seg(lv, a, b, **kw):
     lv._stamp(a, b, **kw)
-
-
-def band(points, w):
-    """A strip `w` cells wide along a polyline (for paths and trails)."""
-    left, right = [], []
-    for i, (x, z) in enumerate(points):
-        if i == 0: dx, dz = points[1][0] - x, points[1][1] - z
-        elif i == len(points) - 1: dx, dz = x - points[i - 1][0], z - points[i - 1][1]
-        else: dx, dz = points[i + 1][0] - points[i - 1][0], points[i + 1][1] - points[i - 1][1]
-        L = math.hypot(dx, dz) or 1
-        nx, nz = -dz / L * w / 2, dx / L * w / 2
-        left.append((round(x + nx, 2), round(z + nz, 2))); right.append((round(x - nx, 2), round(z - nz, 2)))
-    return left + right[::-1]
 
 
 def along(points, step):
@@ -70,16 +53,12 @@ def along(points, step):
     return out
 
 
-def H(i, k=0):
-    """A deterministic 0..1 jitter."""
-    s = math.sin(i * 127.1 + k * 311.7) * 43758.5453
-    return s - math.floor(s)
-
-
 AMB = 'barovian-overcast'
 
 # ================================================================== ground floor (W1-W12) and the grounds
-g = Level('ground', 'Ground floor', 0, 15, ambient=AMB, interior='ashlar', exterior='rubble', north='-z')
+# The ground floor is a 15-ft storey, but its level ends 10 ft up where the vat balcony's floor begins, so the section cut
+# at the ground floor shows the vats under the balcony; its walls keep their full 15 ft (set after they are built).
+g = Level('ground', 'Ground floor', 0, 10, ambient=AMB, interior='ashlar', exterior='rubble', north='-z')
 # --- the grounds: one sweep of turf (slit open over the stairwell in W10, so the stair down shows through); the yard
 #     paths; the trail in from the east between its fences
 g.terrain.append(([(-46, -32), (82, -32), (82, 66), (11, 66), (11, 24), (12, 24), (12, 23), (10, 23), (10, 24), (11, 24), (11, 66), (-46, 66)], 'grass'))
@@ -263,6 +242,7 @@ for side in (-1, 1):
         L = math.hypot(nx, nz) or 1
         pts.append((x - nz / L * 2.6 * side, z + nx / L * 2.6 * side))
     for i, (x, z, hd) in enumerate(along(pts, 2.0)):
+        if x > 82: continue                                    # the map's ground ends at its east edge (410 ft)
         g.prop(f'fence{side}-{i}', 'fence', (x, z), None, rotY=-hd, dims={'w': 10})
 # the stand of trees north of the trail (oak, pine) where the wereravens wait
 for i in range(46):
@@ -318,13 +298,16 @@ W11U = [(3, 18), (4, 18)] + A11
 u.room('W11-upper', 'Spiral Staircase (head)', W11U, 'flagstone', page=pg('W11'), ceilingFt=10)
 u.room('W9-west', 'Fermentation Vats: west landing', rect(4, 19, 5, 20), 'plank', page=pg('W9'), ceilingFt=10)
 u.room('W9-east', 'Fermentation Vats: east landing', rect(14, 19, 15, 20), 'plank', page=pg('W9'), ceilingFt=10)
-W16P = [(15, 15), (19, 15), (19, 20), (17, 20), (17, 19), (18, 19), (18, 17), (16, 17), (16, 19), (17, 19), (17, 20), (15, 20)]
+# W16 rings the 10-ft hole in its floor: a U round the hole's north, east and west sides and the strip south of it (two
+# simple polygons, one keyed area)
+W16P = [(15, 15), (19, 15), (19, 19), (18, 19), (18, 17), (16, 17), (16, 19), (15, 19)]
 u.room('W16', 'Loading Winch', W16P, 'plank', page=pg('W16'), ceilingFt=10)
+u.room('W16-s', 'Loading Winch', rect(15, 19, 19, 20), 'plank', page=pg('W16'), ceilingFt=10)
 u.room('W12-upper', 'Ramp (head)', [(15, 20), (16, 20)] + A12, 'plank', page=pg('W12'), ceilingFt=10)
 # openings, railings, the hole in W16's floor
 seg(u, (4, 18), (4, 19), open_wall=True)
 seg(u, (15, 20), (16, 20), open_wall=True)
-seg(u, (17, 19), (17, 20), open_wall=True)
+for a, c in [((15, 19), (16, 19)), ((18, 19), (19, 19))]: seg(u, a, c, open_wall=True)   # W16 and its south strip are one room
 for a, c in [((16, 17), (18, 17)), ((18, 17), (18, 19)), ((16, 19), (18, 19)), ((16, 17), (16, 19))]: seg(u, a, c, open_wall=True)
 for a, c in [((4, 20), (5, 20)), ((14, 20), (15, 20))]: seg(u, a, c, open_wall=True)
 for a, c in [((5, 19), (5, 20)), ((14, 19), (14, 20))]: seg(u, a, c, flags=['normal'], heightFt=3.5, wall=True, material='paneling')
@@ -445,7 +428,7 @@ c.note('W14-note', (6.5, 22.5), 'W14-a', 'Ice-cold cellar, 10-ft ceiling on wood
 # ================================================================== descriptions (own words)
 DESC = {
   'W1': ("A newer plank stable built onto the winery's east end: a big sliding door, an aisle, and two stalls bedded with straw.", "The family's two draft horses, which haul the wine wagon."),
-  'W2': ("An open-fronted dock: a flatbed wagon carrying three braced barrels, a raised plank walk round three sides, and overhead an opening where a crane's arm and hooks hang down.", "Barrels roll up the ramp (W12) to the winch (W16) and drop onto the wagon. All three hold Purple Grapemash No. 3. The south door was forced; it no longer shuts, only barricades."),
+  'W2': ("An open-fronted dock: a flatbed wagon carrying three braced barrels, a raised plank walk round three sides, and overhead an opening where a crane's arm and hooks hang down.", 'Barrels roll up the ramp (W12) to the winch (W16) and drop onto the wagon. Purple Grapemash No. 3 fills all three barrels. Someone forced the southern door; it no longer shuts, only barricades.'),
   'W3': ("The cooper's shop: stacked oak staves and iron hoops, tools hung all over the walls, two workbenches along the east side.", "The outer (north) door is barred on the inside."),
   'W4': ("A store crowded with rows of new barrels; a tight stone stair winds up from the south-west corner.", "Thirteen barrels, all empty. The stair comes out in the upper hall."),
   'W5': ("A paved porch under stone arches: three big tubs stained purple with juice, each with a little ladder and a basin set beneath its spout.", "The grapes are trodden here. The big sliding doors are chained and the small door barred from inside; forcing either takes a DC 20 Strength check."),
@@ -468,8 +451,8 @@ DESC = {
   'W14-a': ("A freezing cellar of timber posts and beams, mist curling over the floor; a tall rack stands empty; one bottle lies on the flags.", "A hidden door at the south end of the brick wall leads to W15."),
   'W14-b': ("The colder half of the cellar: rime-crusted barrels along the north wall and a tall rack half full of bottles.", "An antlered druid and five needle blights wait behind the rack. The bottles are Red Dragon Crush."),
   'W15': ("A bitter-cold passage through the brick wall to an arch and a low cave, every surface furred with brown mold.", "Ten patches of brown mold; stay well back."),
-  'W16': ("A plank floor with a square drop to the dock below and a timber winch standing over it; a wild man squats on top, brandishing a crooked black staff.", "The druid holds the Gulthias staff. A hidden door at the north end of the west wall leads to W17."),
-  'W17': ("A four-poster carved with a great raven, a black fur rug, two narrow wardrobes either side of a hanging that shows a church, a carved cradle, a plain desk under the window, a chest and a tall mirror.", "Stefania and Dag sleep here for now. The chest is locked (its key is in a bedpost); shipping records in the desk; a hidden door at the north end of the east wall leads to W16."),
+  'W16': ("A plank floor with a square drop to the dock below and a timber winch standing over it; a wild man squats on top, brandishing a crooked black staff.", 'The druid holds the Gulthias staff. Near the northwest corner, a concealed opening through the west wall leads into W17.'),
+  'W17': ("A four-poster carved with a great raven, a black fur rug, two narrow wardrobes either side of a hanging that shows a church, a carved cradle, a plain desk under the window, a chest and a tall mirror.", 'Stefania and Dag sleep here for now. The chest is locked (its key is in a bedpost); shipping records in the desk; a doorway concealed near the northeast corner opens through the east wall into W16.'),
   'W18': ("A long table and its eight chairs, a corner cupboard, a tall pantry closet and a small iron stove.", "Crockery in the cupboard; food and stores in the pantry."),
   'W19-west': ("Four bunks in two stacks, and four matching footlockers along the west wall.", "Where Davian and his two sons sleep."),
   'W19-east': ("Four bunks in two stacks, four footlockers and toys strewn about, a flame-maned black rocking horse among them.", "The grandsons' room. The toy horse is a Blinsky piece called Beucephalus."),
@@ -481,13 +464,15 @@ links = [
     L5('W11-up', 'spiral', 'ground', (3.35, 23.3), 'upper', (3.35, 23.3)), L5('W11-down', 'spiral', 'ground', (2.6, 23.3), 'cellar', (2.6, 23.3)),
     L5('W12-up', 'stairs', 'ground', (16.35, 23.3), 'upper', (16.35, 23.3)), L5('W12-down', 'stairs', 'ground', (15.6, 23.4), 'cellar', (15.6, 23.4)),
     L5('W4-up', 'spiral', 'ground', (10.6, 18.4), 'upper', (10.6, 18.4)),
-    L5('W13', 'stairs', 'ground', (10.4, 23.5), 'cellar', (13.5, 23.5)),
+    L5('W13', 'stairs', 'ground', (9.6, 23.5), 'cellar', (13.5, 23.5)),                 # from W10's floor at the stair head
     L5('W9-stair', 'stairs', 'ground', (9.5, 20.3), 'balcony', (9.5, 22.5)),
     L5('W9-west', 'stairs', 'balcony', (4.5, 20.6), 'upper', (4.5, 19.5)), L5('W9-east', 'stairs', 'balcony', (14.5, 20.6), 'upper', (14.5, 19.5)),
-    L5('W16-hole', 'shaft', 'upper', (17, 18), 'ground', (17, 18)),
+    L5('W16-hole', 'shaft', 'upper', (18.5, 18), 'ground', (17, 18)),                  # from W16's floor at the hole's east edge
 ]
-scene = OrderedDict(schema=1, location='W', chapter='ch12', name='The Wizard of Wines', mapPage=175, bookScaleFt=5, ambient=AMB, stacked=True, entry='ground',
+# landCut: the land drawn round the map is cut open over the cellar while the section shows it
+scene = OrderedDict(schema=1, location='W', chapter='ch12', name='The Wizard of Wines', mapPage=175, bookScaleFt=5, ambient=AMB, stacked=True, landCut=True, entry='ground',
                     levels=[lv.to_json() for lv in levels], links=links)
+for w in scene['levels'][levels.index(g)]['walls']: w.setdefault('heightFt', 14.9)   # the storey's walls, 15 ft
 for lv in scene['levels']:
     for r in lv['rooms']:
         d = DESC.get(r['key'])
