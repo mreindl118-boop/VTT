@@ -135,6 +135,17 @@ a day old; then continue it from its wip branch, and say so in Status.
 
 ## Status
 
+### Claude, 2026-10-23 16:10 UTC (cloud): Matt's playability request; a design job is running (read-only)
+
+- **Matt, 2026-10-23: "VTT playability. I wanna make it so that each player can control their character freely unless
+  initiative is engaged in which case they can move on turns. The encounter builder and initiative tracker should be a
+  big piece of this."** It widens queue items 13 (initiative strip and encounter builder) and 12/14 (gameplay), and pulls
+  players' own devices forward. A design job (`wf_dda1ce78-4cb`: four readers, three designers, a judge, a critic) is
+  writing the plan in the cloud's scratch; it goes to Matt with its decisions before anything is claimed or built.
+  Files it will likely need: `app/src/state/campaign.ts`, `app/src/app.ts` (the encounter and movement functions),
+  `app/src/ui/encounter.ts`, `app/src/core/identity.ts`, `app/src/state/channel.ts`; the castle branch's claim on
+  `campaign.ts` and `ensureDefaultToken` comes first.
+
 ### Claude, 2026-10-23 16:00 UTC (cloud): Matt's new usage rule; a 1.0 plan is being researched (read-only)
 
 - **Matt, 2026-10-23: "you're free to utilize agents as needed. when you reach 97% you can pause."** For the cloud this
