@@ -140,6 +140,24 @@ a day old; then continue it from its wip branch, and say so in Status.
 
 ## Status
 
+### Claude, 2026-10-23 22:07 UTC (cloud): release 1a's pure modules are built and reviewed on `claude/wip/play-1a`
+
+- **`claude/wip/play-1a` at `cac3ffe`, 9 commits on `6ff4121`, 11 new files and no existing file changed:**
+  `core/encounter.ts` (the party is never a creature; End always gives the party back; removing a combatant keeps the
+  turn; a tap anywhere inside a green square counts, never across a wall or a closed door), `core/permissions.ts` (who
+  may move, open, take a stair or use "Move party here", by actor, phase, token kind and turn, with today's words),
+  `core/party.ts` (free squares, exactly today's search; Split up and Gather), `state/upgrade.ts` (old saves load
+  unchanged; it writes nothing new into a save in 1a). Three invented 0.3.4 fixtures pass item 5's `stateError`.
+- **Proofs, re-run by the cloud on the pushed head:** `npx vitest run` 691 passed, 2 environment skips, 2 todo (86 new);
+  `npm run build` passes and the bundle is still 0.3.4's `index-B79r8GHC.js`, because nothing imports the modules yet.
+  Two reviewers (the plan and today's behaviour; the fit with the castle, framework release 1 and item 5): 1 blocking
+  (a tap inside a green square could cross a wall) and 6 should-fix findings, all fixed in one pass, each with a test.
+- **Next for 5a:** the wiring (the rest of release 1a) after items 4 and 5, the castle and framework release 1 merge;
+  release 2 (the Player map) after item 5. Two small questions for Matt below. Notes for the wiring, from the builders:
+  the fixtures use made-up room keys and door ids; after the castle merges, its `partyFloor` still copies the old party
+  getter and should use `partyOf`; item 5 adds load paths (`readCampaign`, `replaceState`, `parseCampaignFile`) that
+  `upgradeCampaign` must run on too.
+
 ### Claude, 2026-10-23 21:13 UTC (cloud): Matt approved the playability plan (queue item 5a); its first pure modules start
 
 - **Matt, 2026-10-23: yes to the playability plan's decisions 1, 2, 22 and 25 as recommended; Legion resumes its own
@@ -978,6 +996,13 @@ may still be running** its check-in routine; Matt decides whether it carries on 
 
 ## Questions for Matt
 
+- **Playability, release 1a's modules (2026-10-23), two small questions:** (1) the DM's slider preview (DM view with
+  the slider at the players' end) today refuses a combatant moved out of turn with "Not your turn" and lets everything
+  else through; the modules keep exactly that (`e2e/surfaces.spec.ts:190` unchanged). Keep it, or should the preview show
+  the players' rules in full (it would change that test)? Recommended: keep it. (2) Five new short messages, for your
+  look: "Rolling for initiative" (the players' side while initiative is called), "Only the DM moves this" (players on a
+  creature or a foe), "Only the DM can do that" ("Move party here" on the players' side), "Too far: stand within 5 ft"
+  (a door or container out of reach in a fight), "Vex is on another floor". Recommended: as written.
 - Answered (Matt, 2026-10-23, on the playability plan): yes to decisions 1, 2, 22 and 25 as recommended (queue item 5a, `docs/PLAYABILITY.md`); Legion resumes its own lanes (items 4 and 5, framework release 1 and the map lanes) rather than the cloud taking them over. The plan's other decisions are asked when their release starts.
 - **The Gates of Ravenloft beside the castle (2026-10-20 19:35):** J now meets the drawbridge, but on the castle's
   thousand-foot rock, where the valley road cannot climb. Which: (a) shape the land into a spur the road climbs to the
