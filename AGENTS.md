@@ -166,6 +166,13 @@ a day old; then continue it from its wip branch, and say so in Status.
   Files it will likely need: `app/src/state/campaign.ts`, `app/src/app.ts` (the encounter and movement functions),
   `app/src/ui/encounter.ts`, `app/src/core/identity.ts`, `app/src/state/channel.ts`; the castle branch's claim on
   `campaign.ts` and `ensureDefaultToken` comes first.
+- **Matt, 16:20, clarifying: "the app shouldn't care who is what class/race etc. it should have a selection of character
+  models for players to choose but it's only a game board. the important part is the ability for players to operate the
+  game. The DM should have a GM screen and a Player map that could be shown locally without interference of GPU
+  strain."** So: no class, race or sheet rules beyond what the board needs; a gallery of character models; players
+  operating the game; a GM screen and a Player map shown locally (a TV, a second monitor or another device) that does not
+  slow the GM screen's GPU (today's Player Display builds a second 3-D renderer on the same GPU). Both running jobs carry
+  his words from their designers and writers on; their readers' finished work is kept.
 
 ### Claude, 2026-10-23 15:52 UTC (cloud): Matt's new usage rule; a 1.0 plan is being researched (read-only)
 
