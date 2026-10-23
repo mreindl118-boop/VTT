@@ -98,7 +98,7 @@ describe('a 0.3.4 save with no fight: markers on three maps', () => {
     for (const loc of ['death-house', 'E', 'N']) {
       expect(up.tokens.filter((t) => t.location === loc && isMarker(t)), loc).toHaveLength(1);
       expect(partyOf(up.tokens, up.roster, loc)?.id, loc).toBe(`pc-${loc}`);
-      expect(needsPartyMarker(up.tokens, loc), loc).toBe(false);
+      expect(needsPartyMarker(up.tokens, up.roster, loc, up.encounter), loc).toBe(false);
     }
     expect(partyOf(up.tokens, up.roster, 'E')?.role).toBe('party'); // not the hidden wolf standing on the same map
   });
@@ -123,7 +123,12 @@ describe('a 0.3.4 save in the middle of a fight', () => {
   });
   it('the party is a character, never the ghoul standing first; the map needs no marker while the fight runs', () => {
     expect(partyOf(up.tokens, up.roster, 'death-house')?.id).toBe('tok-death-house-pc-2');
-    expect(needsPartyMarker(up.tokens, 'death-house')).toBe(false);
+    expect(needsPartyMarker(up.tokens, up.roster, 'death-house', e)).toBe(false);
+  });
+  it('the DM removed both characters (today Remove deletes their tokens): no marker at the map\'s start mid-fight; End puts it where the party stood', () => {
+    const left = up.tokens.filter((t) => t.role !== 'member'), ghoulOnly = { ...e, order: e.order.filter((c) => c.tokenId === ghoul.id), turn: 0 };
+    expect(needsPartyMarker(left, up.roster, 'death-house', ghoulOnly)).toBe(false);
+    expect(foldAtEnd(left, ghoulOnly, up.roster).marker).toEqual(partyMarker('death-house', 'f1', [32.5, 17.5]));
   });
   it('End (it began together) gives one marker and leaves the wolf and the ghoul as they were; today it loses the party', () => {
     expect(startedAs(e)).toBe('together');
@@ -139,9 +144,9 @@ describe('a 0.3.4 save whose map lost its party', () => {
   it('the map needs a marker (today ensureDefaultToken gives up on the creatures standing there); the other map does not', () => {
     const up = load(fixture('save-0.3.4-lost-party'));
     expect(up.tokens.filter((t) => t.location === 'death-house').every((t) => t.role === 'creature')).toBe(true);
-    expect(needsPartyMarker(up.tokens, 'death-house')).toBe(true);
+    expect(needsPartyMarker(up.tokens, up.roster, 'death-house', up.encounter)).toBe(true);
     expect(partyOf(up.tokens, up.roster, 'death-house')).toBeUndefined();
     expect(up.tokens.some((t) => t.location === 'death-house')).toBe(true); // today's test: "a token stands there", so no marker
-    expect(needsPartyMarker(up.tokens, 'E')).toBe(false);
+    expect(needsPartyMarker(up.tokens, up.roster, 'E', up.encounter)).toBe(false);
   });
 });

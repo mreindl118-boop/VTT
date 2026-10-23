@@ -84,15 +84,32 @@ describe('partyOf (plan N1: the party is never a creature)', () => {
 
 describe('needsPartyMarker', () => {
   it('true when the map holds only creatures (today ensureDefaultToken gives up on any token) or nothing', () => {
-    expect(needsPartyMarker([ghoul, wolf], LOC)).toBe(true);
-    expect(needsPartyMarker([], LOC)).toBe(true);
-    expect(needsPartyMarker([{ ...marker, location: 'ch05/N' }], LOC)).toBe(true);
+    expect(needsPartyMarker([ghoul, wolf], roster, LOC, undefined)).toBe(true);
+    expect(needsPartyMarker([], roster, LOC, undefined)).toBe(true);
+    expect(needsPartyMarker([{ ...marker, location: 'ch05/N' }], roster, LOC, undefined)).toBe(true);
   });
-  it('false with a marker (a legacy one too) or a member token standing', () => {
-    expect(needsPartyMarker([wolf, marker], LOC)).toBe(false);
-    expect(needsPartyMarker([tok({ id: `pc-${LOC}` })], LOC)).toBe(false);
-    expect(needsPartyMarker([ghoul, vex], LOC)).toBe(false);
-    expect(needsPartyMarker([foe], LOC)).toBe(false);
+  it('false with a marker (a legacy one too) or a character\'s own token standing', () => {
+    expect(needsPartyMarker([wolf, marker], roster, LOC, undefined)).toBe(false);
+    expect(needsPartyMarker([tok({ id: `pc-${LOC}` })], roster, LOC, undefined)).toBe(false);
+    expect(needsPartyMarker([ghoul, vex], roster, LOC, undefined)).toBe(false);
+  });
+  it('a foe row\'s token is not the party: with creatures, or alone, the map still needs its marker, as partyOf agrees', () => {
+    for (const tokens of [[foe], [ghoul, foe], [foe, wolf], [tok({ role: 'member', sheetId: 'pc-gone' })]]) {
+      expect(needsPartyMarker(tokens, roster, LOC, undefined), tokens.map((t) => t.id).join()).toBe(true);
+      expect(partyOf(tokens, roster, LOC)).toBeUndefined();
+    }
+  });
+  it('never while a fight on this map holds the party\'s place: End puts the marker back where the party stood', () => {
+    // Start took the marker; the order holds only creatures (the characters were removed, or never ticked).
+    const e = enc({ order: [{ sheetId: 'cr:ghoul', tokenId: ghoul.id, init: 14 }], partyPos: [32.5, 12.5], level: 'f2' }), tokens = [ghoul, wolf];
+    expect(needsPartyMarker(tokens, roster, LOC, e)).toBe(false);
+    expect(needsPartyMarker(tokens, roster, LOC, undefined)).toBe(true);
+    expect(foldAtEnd(tokens, e, roster).marker).toEqual(partyMarker(LOC, 'f2', [32.5, 12.5])); // at End, where it stood
+    // A marker made at the map's start in the meantime would have kept End from gathering at partyPos.
+    const start = partyMarker(LOC, 'f1', [2.5, 2.5]);
+    expect(foldAtEnd([...tokens, start], e, roster).marker).toBeUndefined();
+    // A fight on another map changes nothing here.
+    expect(needsPartyMarker(tokens, roster, LOC, { ...e, location: 'ch05/N' })).toBe(true);
   });
 });
 

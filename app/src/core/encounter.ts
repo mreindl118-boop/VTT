@@ -48,11 +48,17 @@ export function partyOf(tokens: readonly Token[], roster: readonly Sheet[], loca
   return character;
 }
 
-/** True when a map has lost its party: no marker and no member token stands there (only creatures, or nothing). A member
- *  token stands only while a fight runs on its map, or the party is apart (release 1b), so any member counts; today's
- *  ensureDefaultToken gives up on any token at all, a creature included (app.ts:1188). */
-export function needsPartyMarker(tokens: readonly Token[], location: string): boolean {
-  return !tokens.some((t) => t.location === location && (isMarker(t) || t.role === 'member'));
+/**
+ * True when a map has lost its party and its start should get a marker: neither a marker nor a character's own token
+ * stands there (only creatures or foe rows' tokens, or nothing), the same tokens partyOf reads (plan 5.2: the new
+ * ensureDefaultToken counts only party and character tokens; today's gives up on any token at all, a creature included,
+ * app.ts:1188). Never while a fight on this map holds the party's place (`fight`, the campaign's one encounter): End
+ * puts the marker back where the party stood (foldAtEnd, at `partyPos`), so a marker made at the map's start now would
+ * stand in its way. A fight whose order has emptied is ended by the caller as End does (removeFromOrder's `ended`).
+ */
+export function needsPartyMarker(tokens: readonly Token[], roster: readonly Sheet[], location: string, fight: Pick<Encounter, 'location'> | undefined): boolean {
+  if (fight?.location === location) return false;
+  return !tokens.some((t) => { if (t.location !== location) return false; const k = tokenKind(t, roster); return k === 'marker' || k === 'character'; });
 }
 
 /** The combatant whose turn it is, its row and its token: what today's `current` getter returns (app.ts:1211-1215),
