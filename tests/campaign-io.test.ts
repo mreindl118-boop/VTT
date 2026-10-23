@@ -5,7 +5,7 @@ import { readFileSync } from 'node:fs';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { newCampaign, type CampaignState } from '../app/src/state/campaign';
 import { addSnapshot, exportCampaign, exportName, listSnapshots, loadSaved, parseCampaignFile, replaceSaved, saveState, SCHEMA_VERSION, SNAPSHOT_EVERY, SNAPSHOT_KEEP, SnapshotSchedule, snapshotState, storeKey } from '../app/src/state/backup';
-import { idbDel } from '../app/src/state/idb';
+import { idbDel, idbSet } from '../app/src/state/idb';
 
 const FIXTURE_TEXT = readFileSync('tests/fixtures/campaign-cos-v1.json', 'utf8');
 /** A campaign with every key filled: reveals of each kind, doors, opened, tokens, roster, an encounter, clock and world. */
@@ -114,6 +114,23 @@ describe('export, reset, import', () => {
   it('names exports mistlab-<campaign>-<date>-<time>.json', () => {
     expect(exportName('cos', new Date(2026, 0, 2, 3, 4))).toBe('mistlab-cos-2026-01-02-0304.json');
   });
+
+  it('N4: idbSet rejects when the IndexedDB transaction aborts instead of hanging forever', async () => {
+    const proto = IDBDatabase.prototype;
+    const origTx = proto.transaction;
+    proto.transaction = function (...args: Parameters<typeof origTx>) {
+      const tx = origTx.apply(this, args);
+      queueMicrotask(() => {
+        if (typeof tx.onabort === 'function') tx.onabort.call(tx, new Event('abort'));
+      });
+      return tx;
+    };
+    try {
+      await expect(idbSet('abort-test', { ok: true })).rejects.toBeDefined();
+    } finally {
+      proto.transaction = origTx;
+    }
+  });
 });
 
 describe('rolling snapshots', () => {
@@ -178,5 +195,22 @@ describe('rolling snapshots', () => {
     await addSnapshot('cos', s, 'auto');
     s.reveals.length = 0;
     expect((await listSnapshots('cos'))[0].state.reveals.length).toBe(rich().reveals.length);
+  });
+
+  it('N4: idbSet rejects when the IndexedDB transaction aborts instead of hanging forever', async () => {
+    const proto = IDBDatabase.prototype;
+    const origTx = proto.transaction;
+    proto.transaction = function (...args: Parameters<typeof origTx>) {
+      const tx = origTx.apply(this, args);
+      queueMicrotask(() => {
+        if (typeof tx.onabort === 'function') tx.onabort.call(tx, new Event('abort'));
+      });
+      return tx;
+    };
+    try {
+      await expect(idbSet('abort-test', { ok: true })).rejects.toBeDefined();
+    } finally {
+      proto.transaction = origTx;
+    }
   });
 });

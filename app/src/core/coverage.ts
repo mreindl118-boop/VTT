@@ -6,6 +6,44 @@ import type { Ambient, LightSource, Wall } from './schema';
 
 export const enum Cov { Unexplored = 0, Explored = 1, Visible = 2 }
 
+interface GridGeometry {
+  readonly cell: number;
+  readonly originX: number;
+  readonly originZ: number;
+  readonly width: number;
+  readonly height: number;
+}
+
+/**
+ * Historical pre-header grid geometries from 0.3.1 and earlier builds whose map bounds or cell size
+ * subsequently changed. Each entry has a distinct (cell, width * height) pair so legacy `c<cell>:<rle>`
+ * and bare `<rle>` strings can be placed and conservatively resampled onto regenerated maps.
+ */
+const LEGACY_GEOMETRIES: readonly GridGeometry[] = [
+  // ch14/Y/hill (Yester Hill)
+  { cell: 4, originX: -2, originZ: -2, width: 201, height: 201 },
+  { cell: 4, originX: -2, originZ: -2, width: 437, height: 564 },
+  { cell: 4, originX: -2, originZ: -2, width: 433, height: 564 },
+  // ch14/Y/summit
+  { cell: 2, originX: 553, originZ: 853, width: 342, height: 410 },
+  { cell: 1, originX: 595, originZ: 1026, width: 426, height: 502 },
+  // ch10/U3/mire (Berez mire)
+  { cell: 1, originX: -2, originZ: -2, width: 59, height: 59 },
+  // ch02/A/day, ch02/B/day, ch02/D/river, ch02/F/day (and I/day), ch03/E/village, ch04/K/ground, ch05/N/town, ch08/R/river
+  { cell: 1, originX: -2, originZ: -2, width: 604, height: 324 },
+  { cell: 1, originX: -2, originZ: -2, width: 504, height: 354 },
+  { cell: 1, originX: -35, originZ: 77, width: 749, height: 282 },
+  { cell: 1, originX: -2, originZ: -2, width: 504, height: 404 },
+  { cell: 1, originX: -2, originZ: -2, width: 360, height: 422 },
+  { cell: 2, originX: -154, originZ: -107, width: 330, height: 413 },
+  { cell: 2, originX: -2, originZ: -2, width: 415, height: 452 },
+  { cell: 1, originX: -2, originZ: 18, width: 434, height: 304 },
+  { cell: 10, originX: 56, originZ: 728, width: 712, height: 353 },
+  { cell: 10, originX: 56, originZ: 428, width: 712, height: 383 },
+  { cell: 10, originX: -2, originZ: -2, width: 736, height: 459 },
+  { cell: 10, originX: -654, originZ: -1560, width: 807, height: 621 },
+];
+
 export class CoverageMap {
   readonly seen: Uint8Array;
   readonly visible: Uint8Array;
@@ -51,11 +89,12 @@ export class CoverageMap {
 
   *cellsIn(poly: Polygon): Generator<number> {
     const b = bounds([poly]), c = this.cell;
-    for (let z = Math.floor(b.minZ / c) * c; z < Math.ceil(b.maxZ); z += c)
-      for (let x = Math.floor(b.minX / c) * c; x < Math.ceil(b.maxX); x += c) {
-        if (!pointInPolygon([x + c / 2, z + c / 2], poly)) continue;
-        const k = this.idx(x, z);
-        if (k >= 0) yield k;
+    const i0 = Math.max(0, Math.floor((b.minX - this.originX) / c)), i1 = Math.min(this.width, Math.ceil((b.maxX - this.originX) / c));
+    const j0 = Math.max(0, Math.floor((b.minZ - this.originZ) / c)), j1 = Math.min(this.height, Math.ceil((b.maxZ - this.originZ) / c));
+    for (let j = j0; j < j1; j++)
+      for (let i = i0; i < i1; i++) {
+        if (!pointInPolygon([this.originX + (i + 0.5) * c, this.originZ + (j + 0.5) * c], poly)) continue;
+        yield j * this.width + i;
       }
   }
 
@@ -71,11 +110,12 @@ export class CoverageMap {
 
   brush(cx: number, cz: number, r: number, mode: 'reveal' | 'fog' | 'clear'): void {
     const c = this.cell;
-    for (let z = Math.floor((cz - r) / c) * c; z <= cz + r; z += c)
-      for (let x = Math.floor((cx - r) / c) * c; x <= cx + r; x += c) {
-        if (Math.hypot(x + c / 2 - cx, z + c / 2 - cz) > r + c / 2) continue;
-        const k = this.idx(x, z);
-        if (k < 0) continue;
+    const i0 = Math.max(0, Math.floor((cx - r - this.originX) / c)), i1 = Math.min(this.width - 1, Math.floor((cx + r - this.originX) / c));
+    const j0 = Math.max(0, Math.floor((cz - r - this.originZ) / c)), j1 = Math.min(this.height - 1, Math.floor((cz + r - this.originZ) / c));
+    for (let j = j0; j <= j1; j++)
+      for (let i = i0; i <= i1; i++) {
+        if (Math.hypot(this.originX + (i + 0.5) * c - cx, this.originZ + (j + 0.5) * c - cz) > r + c / 2) continue;
+        const k = j * this.width + i;
         this.paint[k] = mode === 'reveal' ? 1 : mode === 'fog' ? 2 : 0;
         if (mode === 'fog') this.seen[k] = 0;
       }
@@ -140,14 +180,123 @@ export class CoverageMap {
   }
 
   serialize(): { seen: string; paint: string } {
-    const tag = this.cell === 1 ? '' : `c${this.cell}:`;
+    const tag = `c${this.cell}@${this.originX},${this.originZ}/${this.width}x${this.height}:`;
     return { seen: tag + rle(this.seen), paint: tag + rle(this.paint) };
   }
-  /** A record saved at another cell size is for another map: it is left alone. */
-  load(s: { seen: string; paint: string }): void {
-    const take = (v: string) => { const m = /^c(\d+):/.exec(v); const c = m ? Number(m[1]) : 1; return c === this.cell ? v.slice(m ? m[0].length : 0) : ''; };
-    unrle(take(s.seen), this.seen); unrle(take(s.paint), this.paint);
+
+  /** Whether a serialized coverage string can be placed onto this map (directly or via legacy lookup). */
+  canPlace(raw: string): boolean {
+    return decodeField(raw, this).kind !== 'unplaceable';
   }
+
+  /**
+   * Load serialized `seen` and `paint` strings, conservatively resampling in world space when the saved
+   * cell size, origin, or dimensions differ from this map. If a legacy `seen` record lacks geometry metadata
+   * and matches neither this map nor the known legacy geometry table, it is preserved untouched under
+   * `legacyOut[\`${key}@legacy\`]` and `load()` returns `false`.
+   */
+  load(s: { seen: string; paint: string }, legacyOut?: Record<string, string>, key?: string): boolean {
+    const dSeen = decodeField(s.seen, this);
+    const dPaint = decodeField(s.paint, this);
+    if (dSeen.kind === 'unplaceable') {
+      this.seen.fill(0);
+      if (legacyOut && key && s.seen) legacyOut[`${key}@legacy`] = s.seen;
+      return false;
+    }
+    if (dSeen.kind === 'empty') this.seen.fill(0);
+    else this.applyPlaced(dSeen, this.seen, 'seen');
+
+    if (dPaint.kind === 'placed') this.applyPlaced(dPaint, this.paint, 'paint');
+    else this.paint.fill(0);
+    return true;
+  }
+
+  private applyPlaced(src: PlacedField, into: Uint8Array, mode: 'seen' | 'paint'): void {
+    const { cell: sc, originX: sox, originZ: soz, width: sw, height: sh, data } = src;
+    if (sc === this.cell && sox === this.originX && soz === this.originZ && sw === this.width && sh === this.height) {
+      into.set(data);
+      return;
+    }
+    into.fill(0);
+    const tc = this.cell;
+    for (let tj = 0; tj < this.height; tj++) {
+      const tz0 = this.originZ + tj * tc, tz1 = tz0 + tc;
+      const sj0 = Math.floor((tz0 - soz) / sc), sj1 = Math.ceil((tz1 - soz) / sc) - 1;
+      for (let ti = 0; ti < this.width; ti++) {
+        const tx0 = this.originX + ti * tc, tx1 = tx0 + tc;
+        const si0 = Math.floor((tx0 - sox) / sc), si1 = Math.ceil((tx1 - sox) / sc) - 1;
+        const tk = tj * this.width + ti;
+        if (mode === 'paint') {
+          const csi0 = Math.max(0, si0), csi1 = Math.min(sw - 1, si1);
+          const csj0 = Math.max(0, sj0), csj1 = Math.min(sh - 1, sj1);
+          let forcedFog = false;
+          for (let sj = csj0; sj <= csj1 && !forcedFog; sj++)
+            for (let si = csi0; si <= csi1; si++)
+              if (data[sj * sw + si] === 2) { forcedFog = true; break; }
+          if (forcedFog) { into[tk] = 2; continue; }
+        }
+        // Conservative coverage: target cell [tx0, tx1] x [tz0, tz1] is marked covered (1) only when its
+        // entire footprint lies within the source bounds and every overlapping source cell is covered (1).
+        if (si0 < 0 || si1 >= sw || sj0 < 0 || sj1 >= sh) continue;
+        let full = true;
+        for (let sj = sj0; sj <= sj1 && full; sj++)
+          for (let si = si0; si <= si1; si++)
+            if (data[sj * sw + si] !== 1) { full = false; break; }
+        if (full) into[tk] = 1;
+      }
+    }
+  }
+}
+
+interface PlacedField extends GridGeometry {
+  readonly kind: 'placed';
+  readonly data: Uint8Array;
+}
+type DecodedField = { readonly kind: 'empty' } | { readonly kind: 'unplaceable' } | PlacedField;
+
+function decodeField(raw: string, target: GridGeometry): DecodedField {
+  if (!raw) return { kind: 'empty' };
+  const full = /^c(\d+)@(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)\/(\d+)x(\d+):/.exec(raw);
+  if (full) {
+    const cell = Number(full[1]), originX = Number(full[2]), originZ = Number(full[3]);
+    const width = Number(full[4]), height = Number(full[5]);
+    const body = raw.slice(full[0].length);
+    const n = width * height;
+    if (n <= 0 || rleLength(body) !== n) return { kind: 'unplaceable' };
+    const data = new Uint8Array(n);
+    unrle(body, data);
+    return { kind: 'placed', cell, originX, originZ, width, height, data };
+  }
+  const leg = /^c(\d+):/.exec(raw);
+  const cell = leg ? Number(leg[1]) : 1;
+  const body = leg ? raw.slice(leg[0].length) : raw;
+  const total = rleLength(body);
+  if (total <= 0) return { kind: 'unplaceable' };
+  if (cell === target.cell && total === target.width * target.height) {
+    const data = new Uint8Array(total);
+    unrle(body, data);
+    return { kind: 'placed', cell, originX: target.originX, originZ: target.originZ, width: target.width, height: target.height, data };
+  }
+  const hit = LEGACY_GEOMETRIES.find((g) => g.cell === cell && g.width * g.height === total);
+  if (hit) {
+    const data = new Uint8Array(total);
+    unrle(body, data);
+    return { kind: 'placed', ...hit, data };
+  }
+  return { kind: 'unplaceable' };
+}
+
+function rleLength(s: string): number {
+  let total = 0;
+  for (const run of s.split(',')) {
+    if (!run) continue;
+    const parts = run.split('x');
+    if (parts.length !== 2) return -1;
+    const v = Number(parts[0]), n = Number(parts[1]);
+    if (!Number.isFinite(v) || !Number.isFinite(n) || n <= 0) return -1;
+    total += n;
+  }
+  return total;
 }
 
 function rle(a: Uint8Array): string {

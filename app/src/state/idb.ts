@@ -17,7 +17,8 @@ async function tx<T>(mode: IDBTransactionMode, fn: (s: IDBObjectStore) => IDBReq
     const t = db.transaction(STORE, mode);
     const req = fn(t.objectStore(STORE));
     t.oncomplete = () => { db.close(); res(req.result); };
-    t.onerror = () => { db.close(); rej(t.error); };
+    t.onerror = () => { db.close(); rej(t.error ?? req.error ?? new Error('IndexedDB transaction failed')); };
+    t.onabort = () => { db.close(); rej(t.error ?? req.error ?? new Error('IndexedDB transaction aborted')); };
   });
 }
 

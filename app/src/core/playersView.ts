@@ -2,6 +2,7 @@
 // Player Display, 'dm' keys never leave the DM's window. The record is typed against CampaignState, so a new key
 // without a classification fails the build (tsc), and tests/player-safety.test.ts checks the source as well.
 import type { CampaignState } from '../state/campaign';
+import { playerFacing } from './identity';
 
 export type KeyClass = 'player' | 'dm';
 
@@ -36,6 +37,20 @@ export function unclassifiedKeys(state: object): string[] {
 /** Copy only the 'player' keys. Unknown keys are dropped: a field reaches the players only once it is classified. */
 export function projectState(state: CampaignState): PlayersState {
   const out: Record<string, unknown> = {};
-  for (const k of PLAYER_KEYS) if (state[k] !== undefined) out[k] = state[k];
+  for (const k of PLAYER_KEYS) {
+    if (state[k] === undefined) continue;
+    if (k === 'tokens') {
+      out[k] = state.tokens.map((t) => {
+        if (t.role !== 'creature') return t;
+        const { hp: _hp, ...rest } = t;
+        const f = playerFacing(t, { restricted: true });
+        return { ...rest, name: f.visible ? (f.name ?? '') : '' };
+      });
+    } else if (k === 'roster') {
+      out[k] = state.roster.map((s) => (s.kind === 'npc' || s.id.startsWith('cr:') ? { ...s, name: '' } : s));
+    } else {
+      out[k] = state[k];
+    }
+  }
   return out as PlayersState;
 }

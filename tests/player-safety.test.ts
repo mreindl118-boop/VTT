@@ -62,9 +62,22 @@ describe('players\' state projection', () => {
     const s = { ...FULL(), notes: { E4: 'secret' } } as CampaignState;
     const p = projectState(s) as Record<string, unknown>;
     for (const k of DM_KEYS) expect(k in p, k).toBe(false);
-    for (const k of PLAYER_KEYS) expect(p[k], k).toEqual(s[k]);
+    for (const k of PLAYER_KEYS) {
+      if (k === 'tokens' || k === 'roster') expect(k in p, k).toBe(true);
+      else expect(p[k], k).toEqual(s[k]);
+    }
     expect('notes' in p).toBe(false);
     expect(Object.keys(p).every((k) => KEY_CLASS[k as keyof typeof KEY_CLASS] === 'player')).toBe(true);
+  });
+
+  it('N8: projectState() strips hidden creature canonical names and hit points from tokens and roster', () => {
+    const s = FULL();
+    const p = projectState(s);
+    const json = JSON.stringify(p);
+    expect(json).not.toContain('Wolf');
+    for (const t of p.tokens) {
+      if (t.role === 'creature') expect(t.hp).toBeUndefined();
+    }
   });
 
   it('the channel\'s state message carries only the projection', async () => {
