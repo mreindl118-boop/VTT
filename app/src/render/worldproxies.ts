@@ -4,8 +4,10 @@
 // the camera like bodies at infinity) and the place labels.
 import * as THREE from 'three';
 import type { Bounds } from '../core/frames';
-import { colourMerge, vertexLambert, type LandField } from './worldland';
-import { drawMoon, haloTexture, moonTexture, ravenloft } from './backdrop';
+import { colourMerge, type LandField } from './worldland';
+import { drawMoon, haloTexture, moonTexture } from './backdrop';
+import { matClone, setSurface } from './materials';
+import { exemptLandmarkFog } from './world';
 import RAVENLOFT from '../../../locations/ch04/K/exterior.json';
 
 export interface ProxySite {
@@ -20,6 +22,177 @@ export interface ProxySite {
 }
 
 type Part = [THREE.BufferGeometry, string];
+
+const castleWindowMats = new Set<THREE.MeshLambertMaterial>();
+let castleWindowIntensity = 0.55;
+
+function castleGlowIntensity(night: boolean, hour = 14): number {
+  const h = ((hour % 24) + 24) % 24;
+  const day = night ? 0 : h < 5.5 || h > 20.5 ? 0 : h < 7.5 ? (h - 5.5) / 2 : h > 18.5 ? (20.5 - h) / 2 : 1;
+  return 0.55 + (1 - day) * 1.15;
+}
+
+/** Update the warm amber window glow on Castle Ravenloft's valley landmark for the current hour and night state. */
+export function setCastleWindowGlow(night: boolean, hour = 14): void {
+  castleWindowIntensity = castleGlowIntensity(night, hour);
+  for (const m of castleWindowMats) m.emissiveIntensity = castleWindowIntensity;
+}
+
+function proxyLambert(surf: Parameters<typeof setSurface>[1] = 'generic', landmark = false): THREE.MeshLambertMaterial {
+  const m = matClone('#ffffff', true);
+  m.vertexColors = true;
+  setSurface(m, surf);
+  return landmark ? exemptLandmarkFog(m) : m;
+}
+
+function proxyGlow(color = '#ffd36b', landmark = false): THREE.MeshLambertMaterial {
+  const m = matClone(color, true);
+  m.vertexColors = true;
+  m.emissive.set(color);
+  m.emissiveIntensity = castleWindowIntensity;
+  setSurface(m, 'none');
+  if (landmark) {
+    exemptLandmarkFog(m);
+    castleWindowMats.add(m);
+    m.addEventListener('dispose', () => castleWindowMats.delete(m));
+  }
+  return m;
+}
+
+/** Castle Ravenloft's always-resident valley landmark proxy: the keep, spires, curtain walls, gatehouse and chasm
+ *  bridge atop the thousand-foot Pillarstone rock mass, with warm amber windows that brighten at dusk and night. */
+function buildCastleLandmark(s: ProxySite, field: LandField, hx: number, hz: number): THREE.Group {
+  const inner = new THREE.Group();
+  inner.name = 'castle-ravenloft';
+  const E = RAVENLOFT as {
+    centre?: number[];
+    blocks: number[][];
+    walls: number[][];
+    towers: number[][];
+    windows: number[][];
+    approach?: { gate: number[]; chasm: number; bridgeW: number; towers: number[][] };
+  };
+  const c = E.centre ?? s.centre, ox = c[0] - s.centre[0], oz = c[1] - s.centre[1];
+  const cos = Math.cos(s.rotationY), sin = Math.sin(s.rotationY), px = ox * cos + oz * sin, pz = -ox * sin + oz * cos;
+  const STONE = '#282a35', STONE2 = '#21232d', SLATE = '#15141d', DARK = '#1b1c25', BRIDGE = '#342922', GLOW = '#ffd36b';
+  const litParts: Part[] = [], glowParts: Part[] = [];
+  const planM = new THREE.Matrix4().makeRotationY(s.rotationY).setPosition(px, 0, pz);
+  const placeInPlan = (g: THREE.BufferGeometry, x: number, y: number, z: number, ry = 0): THREE.BufferGeometry => {
+    if (ry) g.rotateY(ry);
+    g.translate(x, y, z);
+    return g.applyMatrix4(planM);
+  };
+  const cBox = (w: number, h: number, d: number, x: number, z: number, y: number, hex: string, ry = 0) => {
+    litParts.push([placeInPlan(new THREE.BoxGeometry(w, h, d).translate(0, h / 2, 0), x, y, z, ry), hex]);
+  };
+  // 1. Castle massing blocks & slate roof caps
+  for (const [x, z, w, d, h] of E.blocks) {
+    cBox(w, h, d, x, z, 0, h > 180 ? DARK : h > 110 ? STONE2 : STONE);
+    if (w >= 15 && d >= 15) cBox(w + 0.8, 1.8, d + 0.8, x, z, h, SLATE);
+  }
+  // 2. Curtain walls and battlements
+  for (const [x0, z0, x1, z1, h] of E.walls) {
+    const L = Math.hypot(x1 - x0, z1 - z0), ry = -Math.atan2(z1 - z0, x1 - x0), mx = (x0 + x1) / 2, mz = (z0 + z1) / 2;
+    cBox(L + 10, h, 11, mx, mz, 0, STONE, ry);
+    const n = Math.floor(L / 32), ux = (x1 - x0) / L, uz = (z1 - z0) / L;
+    for (let i = 0; i <= n; i++) {
+      const t = -L / 2 + i * 32;
+      cBox(10, 5, 11, mx + ux * t, mz + uz * t, h, STONE, ry);
+    }
+  }
+  // 3. Keep and stair towers with tall conical spires and finials
+  for (const [x, z, r, top] of E.towers) {
+    litParts.push([placeInPlan(new THREE.CylinderGeometry(r * 0.94, r, top, 8, 1, true).translate(0, top / 2, 0), x, 0, z), DARK]);
+    litParts.push([placeInPlan(new THREE.CylinderGeometry(r + 1.8, r + 1.8, 3.5, 8, 1, true).translate(0, 1.75, 0), x, top - 3.5, z), STONE2]);
+    litParts.push([placeInPlan(new THREE.ConeGeometry(r + 2.2, r * 3.8, 8, 1, true).translate(0, r * 1.9, 0), x, top, z), SLATE]);
+    litParts.push([placeInPlan(new THREE.CylinderGeometry(0.5, 0.9, 12, 4, 1, true).translate(0, 6, 0), x, top + r * 3.8 - 1, z), DARK]);
+  }
+  // 4. Gate towers, drawbridge, viaduct arch and eastern overlook
+  const A = E.approach;
+  if (A) {
+    for (const [x, z] of A.towers) {
+      litParts.push([placeInPlan(new THREE.CylinderGeometry(7.5, 8, 104, 8, 1, true).translate(0, 52, 0), x, 0, z), DARK]);
+      litParts.push([placeInPlan(new THREE.ConeGeometry(10, 32, 8, 1, true).translate(0, 16, 0), x, 104, z), SLATE]);
+    }
+    const bx = A.gate[0] - A.chasm / 2 - 3, bz = A.gate[1];
+    cBox(A.chasm + 8, 3, A.bridgeW + 2, bx, bz, -2.5, BRIDGE);
+    cBox(A.chasm + 10, 22, A.bridgeW * 0.85, bx, bz, -24.5, STONE2);
+    for (const s2 of [-1, 1]) {
+      const ch = new THREE.BoxGeometry(0.8, 0.8, Math.hypot(A.chasm, 24));
+      ch.rotateX(-Math.atan2(24, A.chasm));
+      ch.rotateY(Math.PI / 2);
+      litParts.push([placeInPlan(ch, A.gate[0] - A.chasm / 2, 12, A.gate[1] + s2 * (A.bridgeW / 2)), DARK]);
+    }
+  }
+  cBox(42, 7, 32, 200, 0, -1, STONE);
+  cBox(32, 24, 24, 190, 0, -110, DARK);
+
+  // 5. The thousand-foot Pillarstone rock mass beneath the castle (y = -1000..0)
+  let sd = 97;
+  const r1 = () => ((sd = (sd * 16807) % 2147483647) / 2147483647);
+  const rockColumn = (x: number, z: number, rBase: number, rTop: number, top: number, bottom: number, lean: number, hex: string, segs = 6, inPlan = false) => {
+    const h = Math.max(10, top - bottom), g = new THREE.CylinderGeometry(rTop, rBase, h, segs, 1);
+    g.translate(0, h / 2, 0);
+    const rib = Array.from({ length: segs + 1 }, () => 1 + (r1() - 0.5) * 0.45);
+    rib[segs] = rib[0];
+    const pv = g.attributes.position;
+    for (let i = 0; i < pv.count; i++) {
+      const ang = Math.atan2(pv.getZ(i), pv.getX(i)), si = Math.round(((ang + Math.PI) / (Math.PI * 2)) * segs) % (segs + 1);
+      const k = rib[si];
+      pv.setX(i, pv.getX(i) * k);
+      pv.setZ(i, pv.getZ(i) * k);
+    }
+    g.rotateX(lean * (r1() - 0.5));
+    g.rotateY(r1() * Math.PI);
+    g.rotateZ(lean * (r1() - 0.5));
+    if (inPlan) litParts.push([placeInPlan(g, x, bottom, z), hex]);
+    else litParts.push([g.translate(x, bottom, z), hex]);
+  };
+  // Core fluted rock mass directly under the castle and the western chasm spur
+  rockColumn(0, 0, 275, 235, 0, -480, 0.02, '#202029', 9, true);
+  rockColumn(10, -8, 350, 268, -460, -1000, 0.02, '#1b1b24', 9, true);
+  if (A) rockColumn(A.gate[0] - A.chasm - 45, A.gate[1], 82, 54, 0, -1000, 0.02, '#202029', 7, true);
+  // Perimeter crag buttresses around the plateau brow, proud of the sloping land apron down to the valley floor
+  const nSpurs = 18;
+  for (let i = 0; i < nSpurs; i++) {
+    const a = (i / nSpurs) * Math.PI * 2 + r1() * 0.12, ca = Math.cos(a), sa = Math.sin(a);
+    const edge = Math.min(Math.abs(ca) > 1e-6 ? hx / Math.abs(ca) : Infinity, Math.abs(sa) > 1e-6 ? hz / Math.abs(sa) : Infinity);
+    const d = edge + 350 + r1() * 320, x = ca * d, z = sa * d;
+    const bottom = Math.min(-960, field.ground(s.x + x, s.z + z) - 40 - s.y);
+    const top = -2 - r1() * 75, r = 115 + r1() * 95;
+    rockColumn(x, z, r, r * (0.48 + r1() * 0.28), top, bottom, 0.07, i % 3 === 0 ? '#1b1b24' : i % 3 === 1 ? '#24242f' : '#202029', 6, false);
+  }
+
+  // 6. Warm amber windows (deduplicated exterior windows + high spire/keep lancets visible from every valley bearing)
+  const keptWins: number[][] = [];
+  for (const w of E.windows) {
+    const [x, z, y, alongZ] = w;
+    if (keptWins.some(([kx, kz, ky, ka]) => ka === alongZ && Math.abs(ky - y) < 4 && Math.hypot(kx - x, kz - z) < 18)) continue;
+    keptWins.push(w);
+    const g = new THREE.BoxGeometry(alongZ ? 3.4 : 6.5, 10.5, alongZ ? 6.5 : 3.4).translate(0, 5.25, 0);
+    glowParts.push([placeInPlan(g, x, y, z), GLOW]);
+  }
+  const spireLancets: [number, number, number, number[]][] = [
+    [27.5, 30.0, 17, [205, 250, 292]],
+    [-7.5, -25.0, 20, [175, 220]],
+    [2.5, 65.0, 20, [142, 168]],
+  ];
+  for (const [tx, tz, r, ys] of spireLancets) {
+    for (const y of ys) {
+      for (const [dx, dz, alongZ] of [[r - 0.4, 0, 1], [-(r - 0.4), 0, 1], [0, r - 0.4, 0], [0, -(r - 0.4), 0]] as const) {
+        const g = new THREE.BoxGeometry(alongZ ? 3.6 : 5.5, 13, alongZ ? 5.5 : 3.6).translate(0, 6.5, 0);
+        glowParts.push([placeInPlan(g, tx + dx, y, tz + dz), GLOW]);
+      }
+    }
+  }
+
+  const silMesh = new THREE.Mesh(colourMerge(litParts), proxyLambert('rock', true));
+  silMesh.name = 'castle-silhouette';
+  const winMesh = new THREE.Mesh(colourMerge(glowParts), proxyGlow(GLOW, true));
+  winMesh.name = 'castle-windows';
+  inner.add(silMesh, winMesh);
+  return inner;
+}
 
 /** One place's massing as a group at its pin: a lit vertex-coloured mesh (and an unlit one for what glows). */
 export function siteMassing(s: ProxySite, field: LandField): THREE.Group {
@@ -59,19 +232,7 @@ export function siteMassing(s: ProxySite, field: LandField): THREE.Group {
       break;
     case 'castle':
       if (s.key === 'K') {
-        // Castle Ravenloft from its own plans (locations/ch04/K/exterior.json, centred on the castle; `centre` is where
-        // that is in the map's frame), its lit windows glowing through the mist
-        const c = (RAVENLOFT as { centre?: number[] }).centre ?? s.centre, ox = c[0] - s.centre[0], oz = c[1] - s.centre[1];
-        const cos = Math.cos(s.rotationY), sin = Math.sin(s.rotationY), px = ox * cos + oz * sin, pz = -ox * sin + oz * cos;
-        const tmp = new THREE.Group(), mats = new Map<string, THREE.Material>();
-        ravenloft(tmp, (hex) => { let m = mats.get(hex); if (!m) { m = new THREE.MeshLambertMaterial({ color: hex }); mats.set(hex, m); } return m; });
-        tmp.rotation.y = s.rotationY; tmp.position.set(px, 0, pz); tmp.updateMatrixWorld(true);
-        tmp.traverse((o) => {
-          const m = o as THREE.Mesh; if (!m.isMesh) return;
-          const mat = m.material as THREE.MeshBasicMaterial, part: Part = [m.geometry.clone().applyMatrix4(m.matrixWorld), `#${mat.color.getHexString()}`];
-          (mat.type === 'MeshBasicMaterial' ? glow : lit).push(part);
-        });
-        for (const m of mats.values()) m.dispose();
+        g.add(buildCastleLandmark(s, field, hx, hz));
       } else {
         // Argynvostholt: a ruined manor of grey stone, one wing taller, and the slender beacon tower at its west end
         box(120, 34, 60, 0, 0, 0, '#5d5c62'); box(60, 46, 50, 50, -10, 0, '#57565c'); box(40, 26, 40, -70, 18, 0, '#5d5c62');
@@ -108,9 +269,8 @@ export function siteMassing(s: ProxySite, field: LandField): THREE.Group {
       box(1.4, 18, 1.4, 6, 0, 0, '#3b2d24');
     }
   }
-  if (lit.length) { const m = new THREE.Mesh(colourMerge(lit), vertexLambert()); m.name = 'massing'; g.add(m); }
-  if (glow.length) { const m = new THREE.Mesh(colourMerge(glow), new THREE.MeshBasicMaterial({ vertexColors: true, fog: true })); m.name = 'glow'; g.add(m); }
-  if (s.key === 'K') { const inner = new THREE.Group(); inner.name = 'castle-ravenloft'; g.add(inner); }
+  if (lit.length) { const m = new THREE.Mesh(colourMerge(lit), proxyLambert()); m.name = 'massing'; g.add(m); }
+  if (glow.length) { const m = new THREE.Mesh(colourMerge(glow), proxyGlow()); m.name = 'glow'; g.add(m); }
   g.traverse((o) => { o.userData.role = 'stage'; });
   return g;
 }
@@ -146,6 +306,7 @@ export function buildSky(): { node: THREE.Group; setMoon: (phase: number, night:
     const lit = 1 - Math.abs(phase - 0.5) * 2, mp = arc(hour, 18, 12, 1.15), sp = arc(hour, 6.5, 13, 0.75);
     dir.set(moon, mp); dir.set(halo, mp); dir.set(sun, sp);
     (halo.material as THREE.SpriteMaterial).opacity = (night ? 0.55 : 0.2) * (0.25 + lit * 0.75); mm.opacity = night ? 1 : 0.55;
+    setCastleWindowGlow(night, hour);
     place();
   };
   const follow = (eye: THREE.Vector3, d: number) => { node.position.copy(eye); dist = d; place(); node.updateMatrixWorld(true); };

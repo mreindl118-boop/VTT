@@ -8,6 +8,47 @@ export type CameraPreset = 'tabletop' | 'iso' | 'top';
 const TILT: Record<CameraPreset, number> = { tabletop: 0, top: 1, iso: 2 };
 const ISO_PITCH = Math.PI / 2 - Math.atan(Math.SQRT1_2); // 35.26° above the horizon: true isometric
 
+/** Distance-fog scale and ceiling for valley-wide landmarks (Castle Ravenloft on the Pillarstone): ordinary scene fog
+ *  stays unchanged, while a landmark exempted with `exemptLandmarkFog` attenuates far more slowly and caps below full
+ *  whiteout so its dark silhouette reads against the sky from every map in the valley. */
+export const LANDMARK_FOG_SCALE = 0.04;
+export const LANDMARK_FOG_MAX = 0.28;
+
+/** Effective exponential-squared fog factor (0..LANDMARK_FOG_MAX) for a landmark at `depth` feet under scene `density`. */
+export function landmarkFogFactor(depth: number, density: number, scale = LANDMARK_FOG_SCALE, maxFog = LANDMARK_FOG_MAX): number {
+  if (density <= 0 || depth <= 0) return 0;
+  const d = density * scale * depth;
+  return Math.min(maxFog, 1 - Math.exp(-(d * d)));
+}
+
+/** Exempt a material from ordinary distance fog by scaling its fog density down and capping its maximum haze. */
+export function exemptLandmarkFog<T extends THREE.Material>(m: T, scale = LANDMARK_FOG_SCALE, maxFog = LANDMARK_FOG_MAX): T {
+  if (m.userData.landmarkFogExempt) return m;
+  m.userData.landmarkFogExempt = true;
+  m.userData.landmarkFogScale = scale;
+  m.userData.landmarkFogMax = maxFog;
+  const prevCompile = m.onBeforeCompile, prevKey = m.customProgramCacheKey;
+  const scaleU = { value: scale }, maxU = { value: maxFog };
+  m.onBeforeCompile = (sh, r) => {
+    prevCompile?.call(m, sh, r);
+    Object.assign(sh.uniforms, { uLandmarkFogScale: scaleU, uLandmarkFogMax: maxU });
+    sh.fragmentShader = `uniform float uLandmarkFogScale;\nuniform float uLandmarkFogMax;\n` + sh.fragmentShader.replace(
+      '#include <fog_fragment>',
+      `#ifdef USE_FOG
+        #ifdef FOG_EXP2
+          float landmarkFogD = fogDensity * uLandmarkFogScale;
+          float fogFactor = min(uLandmarkFogMax, 1.0 - exp( - landmarkFogD * landmarkFogD * vFogDepth * vFogDepth ));
+        #else
+          float fogFactor = min(uLandmarkFogMax, smoothstep( fogNear, fogFar, vFogDepth ));
+        #endif
+        gl_FragColor.rgb = mix( gl_FragColor.rgb, fogColor, fogFactor );
+      #endif`,
+    );
+  };
+  m.customProgramCacheKey = () => `${prevKey ? prevKey.call(m) : m.type}:landmark:${scale}:${maxFog}`;
+  return m;
+}
+
 export class World {
   readonly renderer: THREE.WebGLRenderer;
   readonly labelRenderer: CSS2DRenderer;
@@ -142,6 +183,12 @@ export class World {
     const pullBack = THREE.MathUtils.clamp(260 / Math.max(1, d), this.nested ? 0.0008 : 0.12, 1);
     return this.fogOn ? (this.outdoor ? this.theme.fogOut : this.theme.fogIn) * this.fogScale * pullBack * (1 - this.cartoK) : 0;
   }
+  static readonly LANDMARK_FOG_SCALE = LANDMARK_FOG_SCALE;
+  static readonly LANDMARK_FOG_MAX = LANDMARK_FOG_MAX;
+  /** Reduced fog density seen by valley-wide landmarks such as Castle Ravenloft. */
+  get landmarkFogDensity(): number { return this.fogDensity * World.LANDMARK_FOG_SCALE; }
+  /** Effective landmark fog factor (0..LANDMARK_FOG_MAX) at `depth` feet under the current scene fog. */
+  landmarkFogAt(depth: number): number { return landmarkFogFactor(depth, this.fogDensity); }
   setFog(on: boolean): void { this.fogOn = on; if (this.scene.fog instanceof THREE.FogExp2) this.scene.fog.density = this.fogDensity; this.mistFloor.visible = on && this.mistFloor.visible; this.invalidate(); }
   /** A campaign's look: mist colour, page gradient, light colours and strengths. */
   setTheme(t: Theme): void {
