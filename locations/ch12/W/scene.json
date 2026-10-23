@@ -7,6 +7,7 @@
  "bookScaleFt": 5,
  "ambient": "barovian-overcast",
  "stacked": true,
+ "landCut": true,
  "entry": "ground",
  "levels": [
   {
@@ -1794,7 +1795,7 @@
    "id": "ground",
    "name": "Ground floor",
    "elevationFt": 0,
-   "ceilingFt": 15,
+   "ceilingFt": 10,
    "ambient": "barovian-overcast",
    "north": "-z",
    "rooms": [
@@ -1904,7 +1905,7 @@
      "floor": "cobble",
      "ceilingFt": 15,
      "desc": "An open-fronted dock: a flatbed wagon carrying three braced barrels, a raised plank walk round three sides, and overhead an opening where a crane's arm and hooks hang down.",
-     "dm": "Barrels roll up the ramp (W12) to the winch (W16) and drop onto the wagon. All three hold Purple Grapemash No. 3. The south door was forced; it no longer shuts, only barricades."
+     "dm": "Barrels roll up the ramp (W12) to the winch (W16) and drop onto the wagon. Purple Grapemash No. 3 fills all three barrels. Someone forced the southern door; it no longer shuts, only barricades."
     },
     {
      "key": "W1",
@@ -2225,7 +2226,8 @@
      "flags": [
       "normal"
      ],
-     "material": "ashlar"
+     "material": "ashlar",
+     "heightFt": 14.9
     },
     {
      "id": "W5-door",
@@ -2242,7 +2244,8 @@
       "locked"
      ],
      "material": "ashlar",
-     "open": false
+     "open": false,
+     "heightFt": 14.9
     },
     {
      "id": "ground-w-2",
@@ -2257,7 +2260,8 @@
      "flags": [
       "normal"
      ],
-     "material": "ashlar"
+     "material": "ashlar",
+     "heightFt": 14.9
     },
     {
      "id": "W5-sliding",
@@ -2274,7 +2278,8 @@
       "locked"
      ],
      "material": "ashlar",
-     "open": false
+     "open": false,
+     "heightFt": 14.9
     },
     {
      "id": "ground-w-4",
@@ -2289,7 +2294,8 @@
      "flags": [
       "normal"
      ],
-     "material": "ashlar"
+     "material": "ashlar",
+     "heightFt": 14.9
     },
     {
      "id": "ground-w-5",
@@ -2304,7 +2310,8 @@
      "flags": [
       "normal"
      ],
-     "material": "ashlar"
+     "material": "ashlar",
+     "heightFt": 14.9
     },
     {
      "id": "ground-w-6",
@@ -2319,7 +2326,8 @@
      "flags": [
       "normal"
      ],
-     "material": "ashlar"
+     "material": "ashlar",
+     "heightFt": 14.9
     },
     {
      "id": "ground-w-7",
@@ -2334,7 +2342,8 @@
      "flags": [
       "normal"
      ],
-     "material": "rubble"
+     "material": "rubble",
+     "heightFt": 14.9
     },
     {
      "id": "ground-w-8",
@@ -2349,7 +2358,8 @@
      "flags": [
       "normal"
      ],
-     "material": "ashlar"
+     "material": "ashlar",
+     "heightFt": 14.9
     },
     {
      "id": "W3-W4",
@@ -2365,7 +2375,8 @@
       "door"
      ],
      "material": "ashlar",
-     "open": false
+     "open": false,
+     "heightFt": 14.9
     },
     {
      "id": "ground-w-10",
@@ -2380,7 +2391,8 @@
      "flags": [
       "normal"
      ],
-     "material": "ashlar"
+     "material": "ashlar",
+     "heightFt": 14.9
     },
     {
      "id": "W4-W9",
@@ -2396,7 +2408,8 @@
       "door"
      ],
      "material": "ashlar",
-     "open": false
+     "open": false,
+     "heightFt": 14.9
     },
     {
      "id": "ground-w-12",
@@ -2411,7 +2424,8 @@
      "flags": [
       "normal"
      ],
-     "material": "ashlar"
+     "material": "ashlar",
+     "heightFt": 14.9
     },
     {
      "id": "ground-w-13",
@@ -2426,7 +2440,8 @@
      "flags": [
       "normal"
      ],
-     "material": "ashlar"
+     "material": "ashlar",
+     "heightFt": 14.9
     },
     {
      "id": "W3-north",
@@ -2443,7 +2458,8 @@
       "locked"
      ],
      "material": "rubble",
-     "open": false
+     "open": false,
+     "heightFt": 14.9
     },
     {
      "id": "ground-w-15",
@@ -2458,7 +2474,8 @@
      "flags": [
       "normal"
      ],
-     "material": "rubble"
+     "material": "rubble",
+     "heightFt": 14.9
     },
     {
      "id": "ground-w-16",
@@ -2473,7 +2490,8 @@
      "flags": [
       "normal"
      ],
-     "material": "ashlar"
+     "material": "ashlar",
+     "heightFt": 14.9
     },
     {
      "id": "ground-w-17",
@@ -2488,7 +2506,8 @@
      "flags": [
       "normal"
      ],
-     "material": "ashlar"
+     "material": "ashlar",
+     "heightFt": 14.9
     },
     {
      "id": "ground-w-18",
@@ -2503,7 +2522,8 @@
      "flags": [
       "normal"
      ],
-     "material": "ashlar"
+     "material": "ashlar",
+     "heightFt": 14.9
     },
     {
      "id": "ground-w-19",
@@ -2518,7 +2538,8 @@
      "flags": [
       "normal"
      ],
-     "material": "rubble"
+     "material": "rubble",
+     "heightFt": 14.9
     },
     {
      "id": "ground-w-20",
@@ -2533,7 +2554,8 @@
      "flags": [
       "normal"
      ],
-     "material": "ashlar"
+     "material": "ashlar",
+     "heightFt": 14.9
     },
     {
      "id": "W2-east",
@@ -2549,7 +2571,8 @@
       "door"
      ],
      "material": "rubble",
-     "open": false
+     "open": false,
+     "heightFt": 14.9
     },
     {
      "id": "ground-w-22",
@@ -2564,7 +2587,8 @@
      "flags": [
       "normal"
      ],
-     "material": "rubble"
+     "material": "rubble",
+     "heightFt": 14.9
     },
     {
      "id": "ground-w-23",
@@ -2579,7 +2603,8 @@
      "flags": [
       "normal"
      ],
-     "material": "rubble"
+     "material": "rubble",
+     "heightFt": 14.9
     },
     {
      "id": "ground-w-24",
@@ -2594,7 +2619,8 @@
      "flags": [
       "normal"
      ],
-     "material": "rubble"
+     "material": "rubble",
+     "heightFt": 14.9
     },
     {
      "id": "ground-w-25",
@@ -2609,7 +2635,8 @@
      "flags": [
       "normal"
      ],
-     "material": "rubble"
+     "material": "rubble",
+     "heightFt": 14.9
     },
     {
      "id": "W2-south",
@@ -2625,7 +2652,8 @@
       "door"
      ],
      "material": "ashlar",
-     "open": true
+     "open": true,
+     "heightFt": 14.9
     },
     {
      "id": "W9-W2",
@@ -2642,7 +2670,8 @@
       "locked"
      ],
      "material": "ashlar",
-     "open": false
+     "open": false,
+     "heightFt": 14.9
     },
     {
      "id": "ground-w-28",
@@ -2657,7 +2686,8 @@
      "flags": [
       "normal"
      ],
-     "material": "paneling"
+     "material": "paneling",
+     "heightFt": 14.9
     },
     {
      "id": "W1-sliding",
@@ -2673,7 +2703,8 @@
       "door"
      ],
      "material": "paneling",
-     "open": false
+     "open": false,
+     "heightFt": 14.9
     },
     {
      "id": "ground-w-30",
@@ -2688,7 +2719,8 @@
      "flags": [
       "normal"
      ],
-     "material": "paneling"
+     "material": "paneling",
+     "heightFt": 14.9
     },
     {
      "id": "ground-w-31",
@@ -2703,7 +2735,8 @@
      "flags": [
       "normal"
      ],
-     "material": "paneling"
+     "material": "paneling",
+     "heightFt": 14.9
     },
     {
      "id": "ground-w-32",
@@ -2718,7 +2751,8 @@
      "flags": [
       "normal"
      ],
-     "material": "paneling"
+     "material": "paneling",
+     "heightFt": 14.9
     },
     {
      "id": "ground-w-33",
@@ -2733,7 +2767,8 @@
      "flags": [
       "normal"
      ],
-     "material": "paneling"
+     "material": "paneling",
+     "heightFt": 14.9
     },
     {
      "id": "ground-w-34",
@@ -2748,7 +2783,8 @@
      "flags": [
       "normal"
      ],
-     "material": "paneling"
+     "material": "paneling",
+     "heightFt": 14.9
     },
     {
      "id": "ground-w-35",
@@ -2763,7 +2799,8 @@
      "flags": [
       "normal"
      ],
-     "material": "paneling"
+     "material": "paneling",
+     "heightFt": 14.9
     },
     {
      "id": "W8-W9",
@@ -2779,7 +2816,8 @@
       "door"
      ],
      "material": "ashlar",
-     "open": true
+     "open": true,
+     "heightFt": 14.9
     },
     {
      "id": "ground-w-37",
@@ -2794,7 +2832,8 @@
      "flags": [
       "normal"
      ],
-     "material": "ashlar"
+     "material": "ashlar",
+     "heightFt": 14.9
     },
     {
      "id": "ground-w-38",
@@ -2809,7 +2848,8 @@
      "flags": [
       "normal"
      ],
-     "material": "ashlar"
+     "material": "ashlar",
+     "heightFt": 14.9
     },
     {
      "id": "ground-w-39",
@@ -2824,7 +2864,8 @@
      "flags": [
       "normal"
      ],
-     "material": "rubble"
+     "material": "rubble",
+     "heightFt": 14.9
     },
     {
      "id": "W8-west",
@@ -2840,7 +2881,8 @@
       "door"
      ],
      "material": "rubble",
-     "open": true
+     "open": true,
+     "heightFt": 14.9
     },
     {
      "id": "ground-w-41",
@@ -2855,7 +2897,8 @@
      "flags": [
       "normal"
      ],
-     "material": "ashlar"
+     "material": "ashlar",
+     "heightFt": 14.9
     },
     {
      "id": "W9-W12",
@@ -2871,7 +2914,8 @@
       "door"
      ],
      "material": "ashlar",
-     "open": true
+     "open": true,
+     "heightFt": 14.9
     },
     {
      "id": "ground-w-43",
@@ -2886,7 +2930,8 @@
      "flags": [
       "normal"
      ],
-     "material": "ashlar"
+     "material": "ashlar",
+     "heightFt": 14.9
     },
     {
      "id": "ground-w-44",
@@ -3078,7 +3123,8 @@
      "flags": [
       "normal"
      ],
-     "material": "ashlar"
+     "material": "ashlar",
+     "heightFt": 14.9
     },
     {
      "id": "W9-W11",
@@ -3094,7 +3140,8 @@
       "door"
      ],
      "material": "ashlar",
-     "open": true
+     "open": true,
+     "heightFt": 14.9
     },
     {
      "id": "ground-w-57",
@@ -3143,7 +3190,8 @@
       "locked"
      ],
      "material": "rubble",
-     "open": false
+     "open": false,
+     "heightFt": 14.9
     },
     {
      "id": "ground-w-60",
@@ -3158,7 +3206,8 @@
      "flags": [
       "normal"
      ],
-     "material": "rubble"
+     "material": "rubble",
+     "heightFt": 14.9
     },
     {
      "id": "ground-w-61",
@@ -3173,7 +3222,8 @@
      "flags": [
       "normal"
      ],
-     "material": "rubble"
+     "material": "rubble",
+     "heightFt": 14.9
     },
     {
      "id": "ground-w-62",
@@ -3188,7 +3238,8 @@
      "flags": [
       "normal"
      ],
-     "material": "rubble"
+     "material": "rubble",
+     "heightFt": 14.9
     },
     {
      "id": "ground-w-63",
@@ -3203,7 +3254,8 @@
      "flags": [
       "window"
      ],
-     "material": "rubble"
+     "material": "rubble",
+     "heightFt": 14.9
     },
     {
      "id": "ground-w-64",
@@ -3218,7 +3270,8 @@
      "flags": [
       "normal"
      ],
-     "material": "rubble"
+     "material": "rubble",
+     "heightFt": 14.9
     },
     {
      "id": "ground-w-65",
@@ -3233,7 +3286,8 @@
      "flags": [
       "normal"
      ],
-     "material": "rubble"
+     "material": "rubble",
+     "heightFt": 14.9
     },
     {
      "id": "ground-w-66",
@@ -3248,7 +3302,8 @@
      "flags": [
       "normal"
      ],
-     "material": "rubble"
+     "material": "rubble",
+     "heightFt": 14.9
     },
     {
      "id": "ground-w-67",
@@ -3263,7 +3318,8 @@
      "flags": [
       "normal"
      ],
-     "material": "rubble"
+     "material": "rubble",
+     "heightFt": 14.9
     },
     {
      "id": "ground-w-68",
@@ -3278,7 +3334,8 @@
      "flags": [
       "window"
      ],
-     "material": "rubble"
+     "material": "rubble",
+     "heightFt": 14.9
     },
     {
      "id": "ground-w-69",
@@ -3293,7 +3350,8 @@
      "flags": [
       "normal"
      ],
-     "material": "rubble"
+     "material": "rubble",
+     "heightFt": 14.9
     },
     {
      "id": "ground-w-70",
@@ -3308,7 +3366,8 @@
      "flags": [
       "normal"
      ],
-     "material": "rubble"
+     "material": "rubble",
+     "heightFt": 14.9
     },
     {
      "id": "ground-w-71",
@@ -3323,7 +3382,8 @@
      "flags": [
       "normal"
      ],
-     "material": "rubble"
+     "material": "rubble",
+     "heightFt": 14.9
     },
     {
      "id": "ground-w-72",
@@ -3338,7 +3398,8 @@
      "flags": [
       "normal"
      ],
-     "material": "rubble"
+     "material": "rubble",
+     "heightFt": 14.9
     },
     {
      "id": "ground-w-73",
@@ -3353,7 +3414,8 @@
      "flags": [
       "normal"
      ],
-     "material": "rubble"
+     "material": "rubble",
+     "heightFt": 14.9
     },
     {
      "id": "ground-w-74",
@@ -3368,7 +3430,8 @@
      "flags": [
       "window"
      ],
-     "material": "rubble"
+     "material": "rubble",
+     "heightFt": 14.9
     },
     {
      "id": "ground-w-75",
@@ -3383,7 +3446,8 @@
      "flags": [
       "normal"
      ],
-     "material": "rubble"
+     "material": "rubble",
+     "heightFt": 14.9
     },
     {
      "id": "ground-w-76",
@@ -3398,7 +3462,8 @@
      "flags": [
       "normal"
      ],
-     "material": "rubble"
+     "material": "rubble",
+     "heightFt": 14.9
     },
     {
      "id": "ground-w-77",
@@ -3413,7 +3478,8 @@
      "flags": [
       "normal"
      ],
-     "material": "rubble"
+     "material": "rubble",
+     "heightFt": 14.9
     },
     {
      "id": "ground-w-78",
@@ -3428,7 +3494,8 @@
      "flags": [
       "normal"
      ],
-     "material": "rubble"
+     "material": "rubble",
+     "heightFt": 14.9
     },
     {
      "id": "ground-w-79",
@@ -3443,7 +3510,8 @@
      "flags": [
       "normal"
      ],
-     "material": "rubble"
+     "material": "rubble",
+     "heightFt": 14.9
     },
     {
      "id": "ground-w-80",
@@ -3458,7 +3526,8 @@
      "flags": [
       "normal"
      ],
-     "material": "rubble"
+     "material": "rubble",
+     "heightFt": 14.9
     },
     {
      "id": "ground-w-81",
@@ -3473,7 +3542,8 @@
      "flags": [
       "window"
      ],
-     "material": "rubble"
+     "material": "rubble",
+     "heightFt": 14.9
     },
     {
      "id": "ground-w-82",
@@ -3488,7 +3558,8 @@
      "flags": [
       "normal"
      ],
-     "material": "rubble"
+     "material": "rubble",
+     "heightFt": 14.9
     },
     {
      "id": "ground-w-83",
@@ -3503,7 +3574,8 @@
      "flags": [
       "normal"
      ],
-     "material": "rubble"
+     "material": "rubble",
+     "heightFt": 14.9
     },
     {
      "id": "ground-w-84",
@@ -3518,7 +3590,8 @@
      "flags": [
       "window"
      ],
-     "material": "rubble"
+     "material": "rubble",
+     "heightFt": 14.9
     },
     {
      "id": "ground-w-85",
@@ -3533,7 +3606,8 @@
      "flags": [
       "normal"
      ],
-     "material": "rubble"
+     "material": "rubble",
+     "heightFt": 14.9
     },
     {
      "id": "ground-w-86",
@@ -3613,7 +3687,8 @@
      "flags": [
       "normal"
      ],
-     "material": "ashlar"
+     "material": "ashlar",
+     "heightFt": 14.9
     },
     {
      "id": "ground-x-1",
@@ -8748,20 +8823,6 @@
      "rotY": 403
     },
     {
-     "id": "ground-fence-1-0",
-     "kind": "fence",
-     "pos": [
-      410.406,
-      0,
-      -52.006
-     ],
-     "vis": "player",
-     "rotY": -178.2282905903374,
-     "dims": {
-      "w": 10
-     }
-    },
-    {
      "id": "ground-fence-1-1",
      "kind": "fence",
      "pos": [
@@ -11893,7 +11954,7 @@
      "floor": "plank",
      "ceilingFt": 10,
      "desc": "A four-poster carved with a great raven, a black fur rug, two narrow wardrobes either side of a hanging that shows a church, a carved cradle, a plain desk under the window, a chest and a tall mirror.",
-     "dm": "Stefania and Dag sleep here for now. The chest is locked (its key is in a bedpost); shipping records in the desk; a hidden door at the north end of the east wall leads to W16."
+     "dm": "Stefania and Dag sleep here for now. The chest is locked (its key is in a bedpost); shipping records in the desk; a doorway concealed near the northeast corner opens through the east wall into W16."
     },
     {
      "key": "W11-hall",
@@ -12050,14 +12111,6 @@
       ],
       [
        95,
-       100
-      ],
-      [
-       85,
-       100
-      ],
-      [
-       85,
        95
       ],
       [
@@ -12077,11 +12130,30 @@
        95
       ],
       [
-       85,
+       75,
+       95
+      ]
+     ],
+     "floor": "plank",
+     "ceilingFt": 10,
+     "desc": "A plank floor with a square drop to the dock below and a timber winch standing over it; a wild man squats on top, brandishing a crooked black staff.",
+     "dm": "The druid holds the Gulthias staff. Near the northwest corner, a concealed opening through the west wall leads into W17."
+    },
+    {
+     "key": "W16-s",
+     "name": "Loading Winch",
+     "page": 178,
+     "polygon": [
+      [
+       75,
        95
       ],
       [
-       85,
+       95,
+       95
+      ],
+      [
+       95,
        100
       ],
       [
@@ -12090,9 +12162,7 @@
       ]
      ],
      "floor": "plank",
-     "ceilingFt": 10,
-     "desc": "A plank floor with a square drop to the dock below and a timber winch standing over it; a wild man squats on top, brandishing a crooked black staff.",
-     "dm": "The druid holds the Gulthias staff. A hidden door at the north end of the west wall leads to W17."
+     "ceilingFt": 10
     },
     {
      "key": "W12-upper",
@@ -14605,7 +14675,7 @@
    "from": {
     "level": "ground",
     "pos": [
-     52.0,
+     48.0,
      117.5
     ]
    },
@@ -14677,7 +14747,7 @@
    "from": {
     "level": "upper",
     "pos": [
-     85,
+     92.5,
      90
     ]
    },

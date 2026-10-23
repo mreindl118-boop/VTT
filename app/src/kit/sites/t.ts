@@ -13,6 +13,8 @@ import { mat, matClone, patchFog } from '../../render/materials';
 import { surfaceFor } from '../surfaces';
 import { PALETTE } from '../palette';
 import { merge } from '../pieces';
+import { opened } from './w';
+import { box, cone, cyl, grp, ico } from '../shapes';
 
 type Dims = Record<string, number>;
 
@@ -38,11 +40,6 @@ surfaceFor([BLOOM, SKIN, SKIN_DK, ROT], 'cloth');
 surfaceFor([FUR_GREY, FUR_DK, FUR_WHITE, FUR_BROWN, '#5a4a3c', '#4f4636', '#5a4a52', '#4a3a2c', '#5a4030', '#5a4a40', '#6b4a3a'], 'cloth');
 
 // ---------------------------------------------------------------- helpers
-const box = (w: number, h: number, d: number, color: string, x = 0, y = 0, z = 0) => { const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat(color)); m.position.set(x, y, z); return m; };
-const cyl = (rt: number, rb: number, h: number, color: string, x = 0, y = 0, z = 0, seg = 8) => { const m = new THREE.Mesh(new THREE.CylinderGeometry(rt, rb, h, seg), mat(color)); m.position.set(x, y, z); return m; };
-const cone = (r: number, h: number, color: string, x = 0, y = 0, z = 0, seg = 6) => { const m = new THREE.Mesh(new THREE.ConeGeometry(r, h, seg), mat(color)); m.position.set(x, y, z); return m; };
-const ico = (r: number, color: string, x = 0, y = 0, z = 0, detail = 0) => { const m = new THREE.Mesh(new THREE.IcosahedronGeometry(r, detail), mat(color)); m.position.set(x, y, z); return m; };
-const grp = (...m: THREE.Object3D[]) => { const g = new THREE.Group(); if (m.length) g.add(...m); return g; };
 const hash = (a: number, b: number, c = 0) => { const s = Math.sin(a * 12.9898 + b * 78.233 + c * 37.719) * 43758.5453; return s - Math.floor(s); };
 /** A figure as few meshes as it has colours (one draw call each): hidden creatures are drawn mesh by mesh. */
 function compact(g: THREE.Group): THREE.Group {
@@ -83,32 +80,43 @@ function sheet(rows: [number, number, number][][], side: string, top: string | n
 
 // ================================================================ Tsolenka Pass
 /** The mountain rising beside the road: a steep, broken rock face from the shelf's edge (local z = 0) climbing to `h` ft
- *  over `d` ft back (toward local -z), `len` ft along local x. Snow lies on every ledge flat enough to hold it. */
+ *  over `d` ft back (toward local -z), `len` ft along local x. Snow lies on every ledge flat enough to hold it.
+ *  `foot` (0..1, when given) sets how thickly boulders and drifts lie along the foot, scattered unevenly (0: none);
+ *  without it, one of each every 14 ft. `open`: never under the fog of war (a mountain seen from outside the rooms).
+ *  `slope` (0..1, default 0) eases the face from a cliff toward an even slope of broken rock and snow. `dh` and `de`
+ *  change the height and the slope evenly along the piece (from its -x end to its +x end), so that neighbouring pieces
+ *  meet at the same height and grade. */
 function rockFlank(d: Dims): THREE.Group {
-  const L = d.len ?? 30, H = d.h ?? 90, D = d.d ?? 120, s = d.seed ?? 1, nx = Math.max(3, Math.round(L / 7));
-  const prof: [number, number][] = [[0, 0], [0.025, 0.22], [0.07, 0.46], [0.15, 0.64], [0.3, 0.77], [0.55, 0.88], [0.8, 0.95], [1, 1]];
+  const L = d.len ?? 30, H0 = d.h ?? 90, D = d.d ?? 120, s = d.seed ?? 1, nx = Math.max(3, Math.round(L / 7));
+  const CLIFF: [number, number][] = [[0, 0], [0.025, 0.22], [0.07, 0.46], [0.15, 0.64], [0.3, 0.77], [0.55, 0.88], [0.8, 0.95], [1, 1]];
+  const RAMP: [number, number][] = [[0, 0], [0.08, 0.12], [0.2, 0.3], [0.34, 0.47], [0.5, 0.64], [0.66, 0.79], [0.83, 0.91], [1, 1]];
   const rows: [number, number, number][][] = [];
-  for (let j = 0; j < prof.length; j++) {
+  for (let j = 0; j < CLIFF.length; j++) {
     const row: [number, number, number][] = [];
     for (let i = 0; i <= nx; i++) {
-      const t = i / nx, edge = i === 0 || i === nx;
+      const t = i / nx, edge = i === 0 || i === nx, H = H0 + (d.dh ?? 0) * (t - 0.5), e = Math.min(1, Math.max(0, (d.slope ?? 0) + (d.de ?? 0) * (t - 0.5)));
+      const prof = (k: number): [number, number] => (e ? [CLIFF[k][0] + (RAMP[k][0] - CLIFF[k][0]) * e, CLIFF[k][1] + (RAMP[k][1] - CLIFF[k][1]) * e] : CLIFF[k]);
       const face = j <= 3, x = -L / 2 + t * L + (edge || !face ? 0 : (hash(i, j, s) - 0.5) * (L / nx) * 0.35);
       // the cliff face is broken; the snowfield above it lies smooth (so neighbouring pieces meet in one surface)
-      const y = j === 0 ? -0.5 : prof[j][1] * H * (face ? 0.9 + 0.18 * hash(i, j + 9, s) : 1) * (edge && face ? 0.95 : 1);
-      const z = j === 0 ? 0 : -prof[j][0] * D - (face ? (hash(i + 3, j, s) - 0.4) * 2.5 : 0);
+      const y = j === 0 ? -0.5 : prof(j)[1] * H * (face ? 0.9 + 0.18 * hash(i, j + 9, s) : 1) * (edge && face ? 0.95 : 1);
+      const z = j === 0 ? 0 : -prof(j)[0] * D - (face ? (hash(i + 3, j, s) - 0.4) * 2.5 : 0);
       row.push([x, y, z]);
     }
     rows.push(row);
   }
   const g = sheet(rows, ROCK, d.snow === 0 ? null : SNOW, 0.5, true);
   // boulders fallen at the foot of the face, and drifted snow against it
-  const nb = Math.max(1, Math.round(L / 14));
+  const scatter = d.foot !== undefined, nb = scatter ? Math.round((L / 14) * d.foot) : Math.max(1, Math.round(L / 14));
   for (let k = 0; k < nb; k++) {
-    const r = 1.2 + hash(k, 5, s) * 1.6, x = -L / 2 + (k + 0.5) * (L / nb);
+    const r = 1.2 + hash(k, 5, s) * 1.6, x = -L / 2 + (k + 0.5 + (scatter ? (hash(k, 11, s) - 0.5) * 0.8 : 0)) * (L / nb);
     const b = ico(r, ROCK_DK, x, r * 0.3, -1.2 - hash(k, 7, s) * 1.5, 0); b.scale.y = 0.6; g.add(b);
-    if (d.snow !== 0) { const dr = new THREE.Mesh(new THREE.IcosahedronGeometry(1, 1), mat(SNOW)); dr.scale.set(L / nb * 0.45, 1.2, 2.6); dr.position.set(x + L / nb * 0.3, 0.1, -1.4); g.add(dr); }
+    if (d.snow !== 0) {
+      const dr = new THREE.Mesh(new THREE.IcosahedronGeometry(1, 1), mat(SNOW)), w = scatter ? 0.5 + hash(k, 12, s) : 1;
+      dr.scale.set(scatter ? Math.min((L / nb) * 0.45 * w, 9) : (L / nb) * 0.45, 1.2 * (scatter ? 0.7 + 0.6 * hash(k, 13, s) : 1), 2.6 * (scatter ? 0.8 + 0.5 * hash(k, 14, s) : 1));
+      dr.position.set(x + (L / nb) * (scatter ? (hash(k, 15, s) - 0.5) * 0.6 : 0.3), 0.1, -1.4); dr.rotation.y = scatter ? (hash(k, 16, s) - 0.5) * 0.5 : 0; g.add(dr);
+    }
   }
-  return g;
+  return d.open ? opened(g) : g;
 }
 /** The drop beside the road: from the shelf's lip (local z = 0) the rock falls `depth` ft, stepping out `d` ft toward local +z,
  *  lost in the fog below. A rim of snow-crusted stones marks the lip. */

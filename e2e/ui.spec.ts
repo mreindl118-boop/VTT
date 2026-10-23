@@ -1,8 +1,8 @@
 // UI hygiene: opening another location clears the previous one's labels; hover names things on the DM side.
 import { expect, test } from '@playwright/test';
-import { boot, SCENES } from './helpers';
+import { boot, SCENES, quiet } from './helpers';
 
-test.beforeEach(async ({ page }) => { await page.addInitScript(() => localStorage.setItem('mistlab.helpSeen', '1')); });
+test.beforeEach(async ({ page }) => { await quiet(page); });
 
 test('a new location wipes the old labels and door icons', async ({ page }) => {
   await boot(page, '', SCENES[1]); // Death House
@@ -40,7 +40,7 @@ test('containers: players cannot open locked ones; the DM can, and opening revea
 });
 
 test('world map: the party marker follows the scene, drags to a pin, and opens that pin\'s map', async ({ page }) => {
-  await boot(page, '', SCENES[1]); // Death House lies in the village (pin E)
+  await boot(page, '&nested=0', SCENES[1]); // the flat sheet (the nested world map: worldmap.spec.ts) // Death House lies in the village (pin E)
   expect(await page.evaluate(() => (window as any).__mistlab.app.state.world?.key)).toBe('E');
   await page.click('[data-act="world"]');
   const from = (await page.locator('.wm-party').boundingBox())!, to = (await page.locator('.wm-pin.t-camp').boundingBox())!;
@@ -77,7 +77,7 @@ test('initiative: tokens per combatant, green/red ranges on the current turn, mo
 });
 
 test('campaigns: opening another module switches its manifest, world map and saved state', async ({ page }) => {
-  await boot(page, '', SCENES[0]);
+  await boot(page, '&nested=0', SCENES[0]); // the flat sheet's title (the nested map's: worldmap.spec.ts)
   await page.evaluate(() => { const a = (window as any).__mistlab.app; a.state.roster[0].name = 'Strahd-side fighter'; a.commit(); return a.flush(); });
   await page.evaluate(() => (window as any).__mistlab.app.open('wsc/01-tavern'));
   await page.waitForTimeout(300);
@@ -92,7 +92,7 @@ test('campaigns: opening another module switches its manifest, world map and sav
 });
 
 test('world map: places carry tooltips, the DM reveals them, and a tap on a place opens its map', async ({ page }) => {
-  await boot(page, '', SCENES[1]);
+  await boot(page, '&nested=0', SCENES[1]); // the flat sheet (the nested world map: worldmap.spec.ts)
   await page.click('[data-act="world"]');
   await page.locator('.wm-pin[data-key="G"]').hover();
   await expect(page.locator('.world-tip')).toContainText('Tser Pool Encampment');
@@ -144,7 +144,8 @@ test('creatures: placed from the repository, hidden until revealed, moved freely
   await page.evaluate((id) => { const a = (window as any).__mistlab.app; a.setRangeHelper(true); a.select(id); }, id);
   expect(await page.evaluate(() => !!(window as any).__mistlab.app.rangeFor)).toBe(true);
   await expect(page.locator('.tokpanel')).toBeVisible();
-  await expect(page.locator('.tokpanel header b')).toHaveText('Dire wolf');
+  // the name is the creature's stat-block link now (the rules tooltip pass)
+  await expect(page.locator('.tokpanel header .tp-name .rl.monster')).toHaveText('Dire wolf');
   await page.locator('.tokpanel [data-a="remove"]').click();
   expect(await page.evaluate(() => (window as any).__mistlab.app.state.tokens.filter((t: any) => t.role === 'creature').length)).toBe(1);
 });

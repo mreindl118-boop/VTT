@@ -15,6 +15,7 @@ import json, math, os, sys
 from collections import OrderedDict
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from authorlib import ROOT, Level, rect, seg_key  # noqa: F401
+from geomlib import exact, lerp
 
 _M = json.load(open(os.path.join(ROOT, 'manifests', 'locations.json')))
 PAGE = {a['key']: a['page'] for l in _M['locations'] if l['id'] == 'T' for a in l['areas']}
@@ -23,10 +24,6 @@ AMB = 'barovian-overcast'
 
 
 # ------------------------------------------------------------------ helpers
-def exact(lv, a, b, **kw):
-    """Override one exact polygon edge (a whole diagonal, or a sub-edge made by inserted vertices)."""
-    k = seg_key(a, b)
-    lv.overrides[k] = dict(lv.overrides.get(k, {}), **kw)
 
 def insert(poly, *pts):
     """Insert points that lie on a polygon's edges (to make a door or window its own edge)."""
@@ -40,8 +37,6 @@ def insert(poly, *pts):
         else:
             raise ValueError(f'{p} is on no edge')
     return out
-
-def lerp(a, b, t): return (round(a[0] + (b[0] - a[0]) * t, 4), round(a[1] + (b[1] - a[1]) * t, 4))
 
 def octagon(cx, cz, r=3, c=1.25):
     """A regular-ish octagon on the lattice: flat faces 2c long at distance r (cells), clockwise from the north-west corner."""
@@ -222,7 +217,7 @@ for i, (x, z) in enumerate(OCT):
 for i, (x, z, rot) in enumerate([(51.4, 69.4, 30), (54.8, 70, 110), (52, 73, 200), (54.4, 73.2, 300)]):
     r6.prop(f'T6-skel{i}', 'skeleton', (x, z), 'T6', rotY=rot)
     r6.prop(f'T6-drift{i}', 'snow-drift', (x + 0.3, z + 0.2), 'T6', rotY=rot, dims={'r': 2.6, 'h': 0.9})
-r6.hidden('T6-gear', 'gear-pile', (52, 73), 'T6', 'Under the snow, four guards\' remains: tattered cloth, broken longbows and arrows, rusted blades in ruined sheaths, rusty chain mail')
+r6.hidden('T6-gear', 'gear-pile', (52, 73), 'T6', 'Snow covers the bodies of four guards, their clothing in shreds. Broken bows, loose arrows, corroded swords, torn scabbards and rusty chain mail surround them.')
 for i in range(6):
     a = i / 6 * 2 * math.pi
     r6.creature(f'maiden{i}', 'snow-maiden', (TOWER[0] + math.cos(a) * 1.9, TOWER[1] + math.sin(a) * 1.9), 'T6', 'Snow maiden (specter; cold immune, cold Life Drain): only if the card reading puts a treasure here; it appears in the snow when the last falls')
@@ -273,6 +268,7 @@ for lv in scene['levels']:
             if d[1]: r['dm'] = d[1]
 grid = OrderedDict(schema=1, levels=OrderedDict((lv.id, OrderedDict(floorPolygons=[[[round(x * 5, 3), round(z * 5, 3)] for x, z in p] for p in lv.floor_polys] + [[[round(x * 5, 3), round(z * 5, 3)] for x, z in p] for p, _ in lv.terrain],
                                                                      type='square', hexOrientation='pointy', origin=[0, 0], color='#1d1b22', opacity=0.55)) for lv in levels))
+grid['levels']['pass']['clipToFloors'] = True
 out = os.path.join(ROOT, 'locations', 'ch09', 'T'); os.makedirs(out, exist_ok=True)
 json.dump(scene, open(os.path.join(out, 'scene.json'), 'w'), indent=1)
 json.dump(grid, open(os.path.join(out, 'grid.json'), 'w'), indent=1)

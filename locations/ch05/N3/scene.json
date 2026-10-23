@@ -1859,7 +1859,7 @@
      ],
      "vis": "hidden-object",
      "key": "N3a",
-     "label": "A vestibule packed with fine cloaks, coats and boots"
+     "label": "Expensive outerwear fills the vestibule: boots, coats and cloaks"
     },
     {
      "id": "ground-N3a-portraits",
@@ -5474,7 +5474,7 @@
      ],
      "vis": "hidden-object",
      "key": "N3k",
-     "label": "A full-length mirror in a wooden frame across from the door"
+     "label": "Opposite the doorway stands a tall mirror edged in wood"
     },
     {
      "id": "upper-N3j-bed",
@@ -5709,7 +5709,7 @@
      ],
      "floor": "plank",
      "ceilingFt": 20,
-     "desc": "A study of mismatched furniture, parchment diagrams on the tables, a shelf of bones, three small children standing with their backs to the door.",
+     "desc": "An assortment of unmatched furnishings crowds the study. Tables carry diagrams on parchment, and bones line a shelf. Three small children face away from anyone entering.",
      "dm": "Victor practises teleportation; the children are his failures. Six cat skeletons. The circle is deadly."
     }
    ],

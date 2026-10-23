@@ -57,7 +57,7 @@
      ],
      "floor": "flagstone",
      "ceilingFt": 8,
-     "desc": "A filthy makeshift kitchen: baskets and dishes everywhere, a peddler's cart, a chicken coop, a heavy trunk, a cabinet painted with flowers, a warm brick oven, an open barrel reeking of something foul. Small bones on the flagstones.",
+     "desc": "This improvised kitchen is filthy. A brick oven gives off heat beside scattered dishes and baskets, a cart used for peddling, a chicken coop and a stout trunk. Flowers decorate a cabinet; an uncovered barrel stinks. Tiny bones litter the flagstones.",
      "dm": "Dream pastries in the oven; the barrel is demon ichor (scrying font, dretches); the cabinet holds three elixirs; the trunk holds a hundred toads."
     }
    ],
@@ -1158,7 +1158,7 @@
      ],
      "vis": "hidden-creature",
      "key": "O2",
-     "label": "Morgantha, a night hag in the guise of a heavyset old woman, sweeping bone dust",
+     "label": "Morgantha sweeps up powdered bone, her night hag nature disguised as a stout elderly woman",
      "size": "medium"
     }
    ]

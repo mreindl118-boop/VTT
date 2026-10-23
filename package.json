@@ -1,18 +1,24 @@
 {
   "name": "mistlab",
   "private": true,
-  "version": "0.0.1",
+  "version": "0.3.4",
   "type": "module",
   "description": "Curse of Strahd 3D tabletop PWA (iPad-first)",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && vite build",
+    "build": "npm run atlas && npm run massing && tsc --noEmit && vite build",
     "preview": "vite preview --port 4173 --strictPort",
     "typecheck": "tsc --noEmit",
+    "atlas": "node --experimental-transform-types --disable-warning=ExperimentalWarning scripts/world-atlas.ts",
+    "massing": "node --experimental-transform-types --disable-warning=ExperimentalWarning scripts/world-massing.ts",
     "test": "vitest run",
     "test:e2e": "playwright test",
+    "test:desktop": "node --test scripts/desktop/*.test.mjs",
     "ocr": "bash scripts/ocr.sh",
-    "manifests:check": "vitest run tests/manifests.test.ts"
+    "manifests:check": "vitest run tests/manifests.test.ts",
+    "books": "node --experimental-strip-types --no-warnings=ExperimentalWarning scripts/books/build.ts",
+    "books:check": "node --experimental-strip-types --no-warnings=ExperimentalWarning scripts/books/build.ts --check",
+    "terms:review": "node scripts/terms-review.mjs"
   },
   "dependencies": {
     "three": "^0.180.0"

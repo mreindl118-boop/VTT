@@ -4,9 +4,11 @@
 import * as THREE from 'three';
 import { PROPS_V1 } from '../props';
 import { CREATURES, horse, humanoid } from '../creatures';
-import { mat, matClone } from '../../render/materials';
+import { mat } from '../../render/materials';
 import { FLOOR_COLOR, PALETTE } from '../palette';
-import { surfaceFor, type Surface } from '../surfaces';
+import { surfaceFor } from '../surfaces';
+import { box, cone, cyl, grp, hash, lump, place } from '../shapes';
+import { fogMat, veil } from '../mist';
 
 type Dims = Record<string, number>;
 
@@ -42,30 +44,6 @@ surfaceFor([C.deep0, C.deep1], 'rock');
 surfaceFor([C.letter, C.slime, C.corpseSkin, C.corpseTrim, C.corpseHair, C.horseBlack, C.maneBlack, C.harness, C.elk, C.elkPale, C.elkDark, C.antler, C.mageHair, C.beard], 'generic');
 
 // ---------------------------------------------------------------- helpers
-const grp = (...m: THREE.Object3D[]) => { const g = new THREE.Group(); if (m.length) g.add(...m); return g; };
-const place = <T extends THREE.Object3D>(o: T, x: number, y: number, z: number, ry = 0, rx = 0, rz = 0): T => { o.position.set(x, y, z); o.rotation.set(rx, ry, rz); return o; };
-const box = (w: number, h: number, d: number, c: string, x = 0, y = 0, z = 0, ry = 0) => place(new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat(c)), x, y, z, ry);
-const cyl = (rt: number, rb: number, h: number, c: string, x = 0, y = 0, z = 0, seg = 8) => place(new THREE.Mesh(new THREE.CylinderGeometry(rt, rb, h, seg), mat(c)), x, y, z);
-const cone = (r: number, h: number, c: string, x = 0, y = 0, z = 0, seg = 6) => place(new THREE.Mesh(new THREE.ConeGeometry(r, h, seg), mat(c)), x, y, z);
-const hash = (i: number, s = 0) => { const x = Math.sin(i * 127.1 + s * 311.7 + 0.5) * 43758.5453; return x - Math.floor(x); };
-/** A faceted lump (rock, billow, sack): an icosahedron with its vertices pushed in and out, then squashed. */
-function lump(r: number, color: string, seed: number, sx = 1, sy = 1, sz = 1, detail = 1, surface?: Surface): THREE.Mesh {
-  const geo = new THREE.IcosahedronGeometry(r, detail), pv = geo.attributes.position;
-  for (let i = 0; i < pv.count; i++) {
-    const x = pv.getX(i), y = pv.getY(i), z = pv.getZ(i), k = 0.82 + 0.3 * Math.abs(Math.sin(x * 2.9 + y * 1.7 + z * 2.3 + seed * 1.37));
-    pv.setXYZ(i, x * k * sx, y * k * sy, z * k * sz);
-  }
-  geo.computeVertexNormals();
-  return new THREE.Mesh(geo, mat(color, surface ? { surface } : {}));
-}
-/** Unlit see-through material (cached), drawn without depth writes like the kit's chasm fog: for what glows of itself. */
-const veils = new Map<string, THREE.MeshBasicMaterial>();
-function veil(color: string, opacity: number): THREE.MeshBasicMaterial {
-  const k = color + opacity;
-  let m = veils.get(k);
-  if (!m) { m = new THREE.MeshBasicMaterial({ color, transparent: true, opacity, depthWrite: false, side: THREE.DoubleSide }); veils.set(k, m); }
-  return m;
-}
 /** A soft-edged flat blob (a wisp of fog lying on the ground), radius r, in the xz plane. */
 function wisp(r: number, seed: number, color: string, opacity: number): THREE.Mesh {
   const pts: THREE.Vector2[] = [];
@@ -73,7 +51,7 @@ function wisp(r: number, seed: number, color: string, opacity: number): THREE.Me
   const geo = new THREE.ShapeGeometry(new THREE.Shape(pts)); geo.rotateX(-Math.PI / 2);
   return new THREE.Mesh(geo, fogMat(color, opacity));
 }
-function weedTuft(x: number, z: number, s: number, seed: number): THREE.Group {
+export function weedTuft(x: number, z: number, s: number, seed: number): THREE.Group {
   const g = grp();
   for (let i = 0; i < 5; i++) { const b = cone(0.16 * s, (1.2 + hash(i, seed) * 0.9) * s, i % 2 ? C.weedDry : C.weed, x + (hash(i, seed + 1) - 0.5) * 0.7 * s, (0.6 + hash(i, seed) * 0.45) * s, z + (hash(i, seed + 2) - 0.5) * 0.7 * s, 4); b.rotation.z = (hash(i, seed + 3) - 0.5) * 0.6; b.rotation.x = (hash(i, seed + 4) - 0.5) * 0.6; g.add(b); }
   return g;
@@ -82,13 +60,6 @@ function weedTuft(x: number, z: number, s: number, seed: number): THREE.Group {
 // ---------------------------------------------------------------- the Mists
 /** Fog: the palette's mist grey, lit like everything else (it darkens at night) but see-through, drawn without depth
  *  writes. Cached per colour and opacity so a map's fog merges into a handful of meshes. */
-const fogMats = new Map<string, THREE.MeshLambertMaterial>();
-function fogMat(color: string, opacity: number): THREE.MeshLambertMaterial {
-  const k = color + opacity;
-  let m = fogMats.get(k);
-  if (!m) { m = matClone(color); m.transparent = true; m.opacity = opacity; m.depthWrite = false; m.side = THREE.DoubleSide; fogMats.set(k, m); }
-  return m;
-}
 /** A ragged-edged sheet `L` × `D` in the xz plane (a layer of fog seen from above). */
 function fogSheet(L: number, D: number, seed: number, mat_: THREE.Material): THREE.Mesh {
   const pts: THREE.Vector2[] = [], n = Math.max(4, Math.round(L / 7)), m = Math.max(2, Math.round(D / 7));

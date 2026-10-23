@@ -10,6 +10,8 @@ import { PALETTE } from '../palette';
 import { surfaceFor } from '../surfaces';
 import { PROPS_V1 } from '../props';
 import { CREATURES, humanoid } from '../creatures';
+import { box, coneWith, cyl, grp, ico, rot } from '../shapes';
+const cone = coneWith(8);
 
 type Dims = Record<string, number>;
 
@@ -26,12 +28,6 @@ surfaceFor([PALEWOOD], 'wood');
 surfaceFor([SOOT, VOID], 'none');
 
 const m_ = (geo: THREE.BufferGeometry, color: string, x = 0, y = 0, z = 0) => { const m = new THREE.Mesh(geo, mat(color)); m.position.set(x, y, z); return m; };
-const box = (w: number, h: number, d: number, color: string, x = 0, y = 0, z = 0) => m_(new THREE.BoxGeometry(w, h, d), color, x, y, z);
-const cyl = (rt: number, rb: number, h: number, color: string, x = 0, y = 0, z = 0, seg = 8) => m_(new THREE.CylinderGeometry(rt, rb, h, seg), color, x, y, z);
-const ico = (r: number, color: string, x = 0, y = 0, z = 0, detail = 0) => m_(new THREE.IcosahedronGeometry(r, detail), color, x, y, z);
-const cone = (r: number, h: number, color: string, x = 0, y = 0, z = 0, seg = 8) => m_(new THREE.ConeGeometry(r, h, seg), color, x, y, z);
-const grp = (...o: THREE.Object3D[]) => { const g = new THREE.Group(); if (o.length) g.add(...o); return g; };
-const rot = <T extends THREE.Object3D>(o: T, x: number, y: number, z: number): T => { o.rotation.set(x, y, z); return o; };
 const glow = (geo: THREE.BufferGeometry, color: string, emissive: string, x = 0, y = 0, z = 0) => { const m = new THREE.Mesh(geo, mat(color, { emissive })); m.position.set(x, y, z); return m; };
 /** A small deterministic hash: the same piece is roughened the same way every time it is built. */
 const hash = (a: number, b = 0, c = 0) => { const s = Math.sin(a * 127.1 + b * 311.7 + c * 74.7) * 43758.5453; return s - Math.floor(s); };

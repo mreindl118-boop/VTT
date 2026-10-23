@@ -1,0 +1,2731 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-10-14T00:42:39.550045+00:00",
+  "scope": "Thirteen Chapter 2 scene maps, narrative spatial relationships against authorized OCR; read-only source audit lane.",
+  "baselineCommit": "785421cb45ad3b7a5467a14f6e696074efb9bd27",
+  "workingTreeNote": "G scene differs from the committed baseline as root corrects its shoreline/entry. Root also changes runtime terrain/stand-in behavior. This report does not certify those uncommitted fixes.",
+  "coverage": {
+    "requestedMaps": 13,
+    "mapsWithNarrativeReadAndCompared": 13,
+    "sceneLevelsInventoried": 34,
+    "relationshipComparisons": 47,
+    "fullySourceCheckedMaps": 0,
+    "renderedReviewedMaps": 0,
+    "movementReviewedMaps": 0,
+    "regionalPosterArtChecked": false
+  },
+  "sourceLimits": [
+    "Only authorized OCR was used; no external book text was retrieved.",
+    "Map-image verification is pending. Root subsequently located the authorized PDF in Downloads and began local rendering; no map images or book prose are committed.",
+    "Exact dimensions absent from the source are labelled authored interpretation. Approximate dimensions are not converted into arbitrary strict tolerances.",
+    "No source prose or map art is transcribed into these deliverables.",
+    "Confirmed findings concern the committed baseline unless explicitly marked as an inspected worktree snapshot."
+  ],
+  "statusCounts": {
+    "supported": 3,
+    "unresolved scale": 1,
+    "unresolved continuity": 5,
+    "unresolved runtime": 1,
+    "confirmed mismatch": 2,
+    "supported with width qualification": 1,
+    "unresolved depth": 1,
+    "confirmed elevation mismatch": 1,
+    "supported locally": 11,
+    "confirmed baseline mismatch; correction in progress": 1,
+    "confirmed mismatch at inspected snapshot": 1,
+    "confirmed baseline elevation mismatch": 2,
+    "supported in authored route intent": 1,
+    "supported locally; runtime condition pending": 1,
+    "unresolved conditional presentation": 1,
+    "confirmed continuity mismatch": 1,
+    "unresolved depth representation": 1,
+    "confirmed ownership risk; fix in progress": 1,
+    "supported numerically": 1,
+    "unresolved contextual shoreline": 1,
+    "supported broadly": 1,
+    "measured discrepancy": 2,
+    "unresolved duplicate backdrop": 1,
+    "partly supported; grade unresolved": 1,
+    "unresolved network": 1,
+    "unresolved grade": 1,
+    "confirmed continuation gap in authored intent": 1,
+    "supported local separation; global flow unresolved": 1
+  },
+  "maps": [
+    {
+      "key": "A",
+      "path": "ch02/A",
+      "name": "Old Svalich Road",
+      "baselineCommit": "785421cb45ad3b7a5467a14f6e696074efb9bd27",
+      "workingSceneEqualsBaselineAtAudit": true,
+      "levels": [
+        {
+          "id": "day",
+          "elevationFt": 0,
+          "north": "-z",
+          "roomCount": 6,
+          "terrainMaterials": [
+            "dirt",
+            "grass",
+            "marsh"
+          ]
+        }
+      ],
+      "sourceCoverage": {
+        "areaNarrativeRead": true,
+        "spatialStatementsComparedToData": true,
+        "allApplicableSourceRelationshipsChecked": false,
+        "regionalPosterMapVisuallyChecked": false,
+        "renderedChecked": false,
+        "movementChecked": false,
+        "zoomChecked": false,
+        "reasonFullSourceCheckIncomplete": "Authorized OCR covers narrative, but regional poster/map art has not been inspected in this lane and physical joins, occlusion, visibility and runtime movement remain unverified. This is a bounded narrative-to-data audit, not a complete source sign-off."
+      },
+      "relationships": [
+        {
+          "id": "CH02-A-01",
+          "criterion": "biomeMaterialSeams",
+          "status": "supported",
+          "sourceRelationship": "The entry road is muddy, contains standing water and passes through dense tall woodland.",
+          "observed": "One dirt road crosses the scene; twelve black-pool pieces, fourteen giant-pine pieces and forest scatter support that composition.",
+          "sourceEvidence": [
+            {
+              "printedPage": 33,
+              "ocrFile": "C:\\Users\\mrein\\Documents\\Codex\\2026-10-13\\task-10\\mistlab\\.worktrees\\item2\\reference\\ocr\\page-034.txt",
+              "section": "A. Old Svalich Road",
+              "sha256": "afe28b2e748d25834bb50cc4d2fabbd46bcee44416ae2e191c642a3e17339835"
+            }
+          ],
+          "implementationEvidence": [
+            {
+              "file": "locations/ch02/A/scene.json",
+              "fields": "levels.day.terrain / objects.kind",
+              "measurement": {
+                "blackPools": 12,
+                "giantPines": 14
+              }
+            }
+          ],
+          "fixStatus": "No change by audit agent; triage with implementation owner",
+          "renderedValidation": "pending"
+        },
+        {
+          "id": "CH02-A-02",
+          "criterion": "transformElevationScale",
+          "status": "unresolved scale",
+          "sourceRelationship": "Reaching the eastern gate from this approach takes a substantial journey, with walking and wagon travel distinguished.",
+          "observed": "The text gives five hours on foot and half that by wagon. A-to-B pins are only 0.729 miles apart in a straight line; this is a scale/travel consistency signal, not proof of road length or travel speed.",
+          "sourceEvidence": [
+            {
+              "printedPage": 33,
+              "ocrFile": "C:\\Users\\mrein\\Documents\\Codex\\2026-10-13\\task-10\\mistlab\\.worktrees\\item2\\reference\\ocr\\page-034.txt",
+              "section": "A. Old Svalich Road",
+              "sha256": "afe28b2e748d25834bb50cc4d2fabbd46bcee44416ae2e191c642a3e17339835"
+            }
+          ],
+          "implementationEvidence": [
+            {
+              "file": "locations/ch02/barovia-region/world.json",
+              "fields": "pins[A,B].pos",
+              "measurement": {
+                "straightLineMiles": 0.72862885
+              }
+            }
+          ],
+          "fixStatus": "No change by audit agent; triage with implementation owner",
+          "renderedValidation": "pending"
+        },
+        {
+          "id": "CH02-A-03",
+          "criterion": "roadAccessGradeConnectivity",
+          "status": "unresolved continuity",
+          "sourceRelationship": "The road carries onward to B.",
+          "observed": "The committed atlas road exit is 1,154 ft from the raw regional road polyline. Final generated joins and the actual A-to-B route require runtime inspection.",
+          "sourceEvidence": [
+            {
+              "printedPage": 33,
+              "ocrFile": "C:\\Users\\mrein\\Documents\\Codex\\2026-10-13\\task-10\\mistlab\\.worktrees\\item2\\reference\\ocr\\page-034.txt",
+              "section": "A. Old Svalich Road",
+              "sha256": "afe28b2e748d25834bb50cc4d2fabbd46bcee44416ae2e191c642a3e17339835"
+            }
+          ],
+          "implementationEvidence": [
+            {
+              "file": "manifests/world-atlas.json",
+              "fields": "scenes.ch02/A.roadExits"
+            },
+            {
+              "file": "allmap-probe-data.json",
+              "fields": "scenes[ch02/A].roadExits"
+            }
+          ],
+          "fixStatus": "No change by audit agent; triage with implementation owner",
+          "renderedValidation": "pending"
+        }
+      ],
+      "criteria": {
+        "canonicalRelationships": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "transformElevationScale": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [
+            "CH02-A-02"
+          ],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "terrainFoundationUnderground": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "roadAccessGradeConnectivity": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [
+            "CH02-A-03"
+          ],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "waterFlowBridgeClearance": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "biomeMaterialSeams": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [
+            "CH02-A-01"
+          ],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "duplicateProxyLodStructures": {
+          "sourceAuditStatus": "source has no duplicated-state requirement; runtime check pending",
+          "relationshipIds": [],
+          "reason": "A narrative cannot validate LOD/streaming ownership.",
+          "renderedStatus": "pending"
+        }
+      },
+      "constraints": [
+        "No battle-plan dimensions are supplied by this area narrative. The 640 Ã— 420 ft local footprint, extra shelf, hollow and encounter staging are authored interpretation; they are not source-verified measurements.",
+        "Standing pools do not by themselves require an outlet or a sloping river. No bridge or underground structure is specified."
+      ],
+      "confirmedFindingIds": []
+    },
+    {
+      "key": "B",
+      "path": "ch02/B",
+      "name": "Gates of Barovia",
+      "baselineCommit": "785421cb45ad3b7a5467a14f6e696074efb9bd27",
+      "workingSceneEqualsBaselineAtAudit": true,
+      "levels": [
+        {
+          "id": "day",
+          "elevationFt": 0,
+          "north": "-z",
+          "roomCount": 4,
+          "terrainMaterials": [
+            "dirt",
+            "grass",
+            "marsh"
+          ]
+        },
+        {
+          "id": "piers",
+          "elevationFt": 34,
+          "north": "-z",
+          "roomCount": 2,
+          "terrainMaterials": []
+        },
+        {
+          "id": "crags",
+          "elevationFt": 14,
+          "north": "-z",
+          "roomCount": 2,
+          "terrainMaterials": []
+        }
+      ],
+      "sourceCoverage": {
+        "areaNarrativeRead": true,
+        "spatialStatementsComparedToData": true,
+        "allApplicableSourceRelationshipsChecked": false,
+        "regionalPosterMapVisuallyChecked": false,
+        "renderedChecked": false,
+        "movementChecked": false,
+        "zoomChecked": false,
+        "reasonFullSourceCheckIncomplete": "Authorized OCR covers narrative, but regional poster/map art has not been inspected in this lane and physical joins, occlusion, visibility and runtime movement remain unverified. This is a bounded narrative-to-data audit, not a complete source sign-off."
+      },
+      "relationships": [
+        {
+          "id": "CH02-B-01",
+          "criterion": "canonicalRelationships",
+          "status": "supported",
+          "sourceRelationship": "There are distinct eastern and western gate locations, each using large stone supports and a pair of headless guardians.",
+          "observed": "The region has B and B2; the detailed scene has two gate piers and two headless-statue pieces. The atlas deliberately places the detailed scene at B and leaves B2 proxy-only.",
+          "sourceEvidence": [
+            {
+              "printedPage": 33,
+              "ocrFile": "C:\\Users\\mrein\\Documents\\Codex\\2026-10-13\\task-10\\mistlab\\.worktrees\\item2\\reference\\ocr\\page-034.txt",
+              "section": "B. Gates of Barovia",
+              "sha256": "afe28b2e748d25834bb50cc4d2fabbd46bcee44416ae2e191c642a3e17339835"
+            },
+            {
+              "printedPage": 34,
+              "ocrFile": "C:\\Users\\mrein\\Documents\\Codex\\2026-10-13\\task-10\\mistlab\\.worktrees\\item2\\reference\\ocr\\page-035.txt",
+              "section": "B continuation",
+              "sha256": "6fc8f3e0654a502feb7d0160ce5ca501298e41e16ae8f472bed22eccb7415c88"
+            }
+          ],
+          "implementationEvidence": [
+            {
+              "file": "locations/ch02/B/scene.json",
+              "fields": "levels.day.objects.kind",
+              "measurement": {
+                "gatePiers": 2,
+                "headlessStatues": 2
+              }
+            },
+            {
+              "file": "manifests/world-atlas.json",
+              "fields": "scenes.ch02/B.alsoAt / pins[B2].proxyOnly"
+            }
+          ],
+          "fixStatus": "No change by audit agent; triage with implementation owner",
+          "renderedValidation": "pending"
+        },
+        {
+          "id": "CH02-B-02",
+          "criterion": "roadAccessGradeConnectivity",
+          "status": "unresolved runtime",
+          "sourceRelationship": "Both gates are physical obstructions on the road and their state changes as travellers pass.",
+          "observed": "Four gate-leaf objects appear to encode alternative open/closed render states. Data alone cannot establish that only one state is shown or that crossing works at both pins.",
+          "sourceEvidence": [
+            {
+              "printedPage": 33,
+              "ocrFile": "C:\\Users\\mrein\\Documents\\Codex\\2026-10-13\\task-10\\mistlab\\.worktrees\\item2\\reference\\ocr\\page-034.txt",
+              "section": "B. Gates of Barovia",
+              "sha256": "afe28b2e748d25834bb50cc4d2fabbd46bcee44416ae2e191c642a3e17339835"
+            },
+            {
+              "printedPage": 34,
+              "ocrFile": "C:\\Users\\mrein\\Documents\\Codex\\2026-10-13\\task-10\\mistlab\\.worktrees\\item2\\reference\\ocr\\page-035.txt",
+              "section": "B continuation",
+              "sha256": "6fc8f3e0654a502feb7d0160ce5ca501298e41e16ae8f472bed22eccb7415c88"
+            }
+          ],
+          "implementationEvidence": [
+            {
+              "file": "locations/ch02/B/scene.json",
+              "fields": "levels.day.objects[kind=b-gate-leaf] / walls"
+            },
+            {
+              "file": "manifests/world-atlas.json",
+              "fields": "pins[B,B2]"
+            }
+          ],
+          "fixStatus": "No change by audit agent; triage with implementation owner",
+          "renderedValidation": "pending"
+        },
+        {
+          "id": "CH02-B-03",
+          "criterion": "terrainFoundationUnderground",
+          "status": "unresolved continuity",
+          "sourceRelationship": "The roadway passes between the supports and continues through forest.",
+          "observed": "Road and gate axes are authored together, but the atlas exit remains 1,393 ft from the raw regional road. Grounds, gate thresholds and the western proxy need rendered review.",
+          "sourceEvidence": [
+            {
+              "printedPage": 33,
+              "ocrFile": "C:\\Users\\mrein\\Documents\\Codex\\2026-10-13\\task-10\\mistlab\\.worktrees\\item2\\reference\\ocr\\page-034.txt",
+              "section": "B. Gates of Barovia",
+              "sha256": "afe28b2e748d25834bb50cc4d2fabbd46bcee44416ae2e191c642a3e17339835"
+            }
+          ],
+          "implementationEvidence": [
+            {
+              "file": "locations/ch02/B/scene.json",
+              "fields": "levels.day.terrain / objects[b-gate-pier,b-threshold-sill]"
+            },
+            {
+              "file": "allmap-probe-data.json",
+              "fields": "scenes[ch02/B].roadExits"
+            }
+          ],
+          "fixStatus": "No change by audit agent; triage with implementation owner",
+          "renderedValidation": "pending"
+        }
+      ],
+      "criteria": {
+        "canonicalRelationships": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [
+            "CH02-B-01"
+          ],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "transformElevationScale": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "terrainFoundationUnderground": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [
+            "CH02-B-03"
+          ],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "roadAccessGradeConnectivity": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [
+            "CH02-B-02"
+          ],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "waterFlowBridgeClearance": {
+          "sourceAuditStatus": "N/A to explicit area narrative; incidental local water still needs physical review",
+          "relationshipIds": [],
+          "reason": "No required flowing-water or bridge relationship in the area narrative.",
+          "renderedStatus": "pending"
+        },
+        "biomeMaterialSeams": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "duplicateProxyLodStructures": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        }
+      },
+      "constraints": [
+        "The source supplies no exact pier height, keeper lodge, crag elevation or battle-map footprint. The +34 ft pier tops and +14 ft crags are authored choices, not confirmed source dimensions.",
+        "No canonical river/bridge feature is specified here; incidental puddles are compatible."
+      ],
+      "confirmedFindingIds": []
+    },
+    {
+      "key": "C",
+      "path": "ch02/C",
+      "name": "Svalich Woods road",
+      "baselineCommit": "785421cb45ad3b7a5467a14f6e696074efb9bd27",
+      "workingSceneEqualsBaselineAtAudit": false,
+      "levels": [
+        {
+          "id": "day",
+          "elevationFt": 0,
+          "north": "-z",
+          "roomCount": 1,
+          "terrainMaterials": [
+            "grass"
+          ]
+        }
+      ],
+      "sourceCoverage": {
+        "areaNarrativeRead": true,
+        "spatialStatementsComparedToData": true,
+        "allApplicableSourceRelationshipsChecked": false,
+        "regionalPosterMapVisuallyChecked": false,
+        "renderedChecked": false,
+        "movementChecked": false,
+        "zoomChecked": false,
+        "reasonFullSourceCheckIncomplete": "Authorized OCR covers narrative, but regional poster/map art has not been inspected in this lane and physical joins, occlusion, visibility and runtime movement remain unverified. This is a bounded narrative-to-data audit, not a complete source sign-off."
+      },
+      "relationships": [
+        {
+          "id": "CH02-C-01",
+          "criterion": "biomeMaterialSeams",
+          "status": "supported",
+          "sourceRelationship": "Dense woodland surrounds the route that proceeds toward the village.",
+          "observed": "C has a road strip with surrounding grass/forest scatter; E lies west of C in the region.",
+          "sourceEvidence": [
+            {
+              "printedPage": 34,
+              "ocrFile": "C:\\Users\\mrein\\Documents\\Codex\\2026-10-13\\task-10\\mistlab\\.worktrees\\item2\\reference\\ocr\\page-035.txt",
+              "section": "C. Svalich Woods",
+              "sha256": "6fc8f3e0654a502feb7d0160ce5ca501298e41e16ae8f472bed22eccb7415c88"
+            }
+          ],
+          "implementationEvidence": [
+            {
+              "file": "locations/ch02/C/scene.json",
+              "fields": "levels.day.rooms[C] / terrain / objects.kind"
+            },
+            {
+              "file": "locations/ch02/barovia-region/world.json",
+              "fields": "pins[C,E].pos"
+            }
+          ],
+          "fixStatus": "No change by audit agent; triage with implementation owner",
+          "renderedValidation": "pending"
+        },
+        {
+          "id": "CH02-C-02",
+          "criterion": "canonicalRelationships",
+          "status": "confirmed mismatch",
+          "sourceRelationship": "The keyed scene includes a body in undergrowth approximately fifteen feet from the road, carrying the warning letter.",
+          "observed": "The available C scene is explicitly a generic encounter stage. It contains no corpse/body or letter object, keyed off-road area or matching clue; its sole note identifies encounter tables. The required spatial clue is absent from this map.",
+          "sourceEvidence": [
+            {
+              "printedPage": 34,
+              "ocrFile": "C:\\Users\\mrein\\Documents\\Codex\\2026-10-13\\task-10\\mistlab\\.worktrees\\item2\\reference\\ocr\\page-035.txt",
+              "section": "C. Svalich Woods",
+              "sha256": "6fc8f3e0654a502feb7d0160ce5ca501298e41e16ae8f472bed22eccb7415c88"
+            }
+          ],
+          "implementationEvidence": [
+            {
+              "file": "locations/ch02/C/scene.json",
+              "fields": "all levels.day.objects / rooms / sole note"
+            }
+          ],
+          "fixStatus": "No change by audit agent; triage with implementation owner",
+          "renderedValidation": "pending"
+        },
+        {
+          "id": "CH02-C-03",
+          "criterion": "roadAccessGradeConnectivity",
+          "status": "unresolved continuity",
+          "sourceRelationship": "The woodland road connects the gates to E.",
+          "observed": "C has no scene-parent relationship and its atlas exit is 1,708 ft from the raw regional road. The continuous journey is not established by this source pass.",
+          "sourceEvidence": [
+            {
+              "printedPage": 34,
+              "ocrFile": "C:\\Users\\mrein\\Documents\\Codex\\2026-10-13\\task-10\\mistlab\\.worktrees\\item2\\reference\\ocr\\page-035.txt",
+              "section": "C. Svalich Woods",
+              "sha256": "6fc8f3e0654a502feb7d0160ce5ca501298e41e16ae8f472bed22eccb7415c88"
+            }
+          ],
+          "implementationEvidence": [
+            {
+              "file": "allmap-probe-data.json",
+              "fields": "scenes[ch02/C].roadExits"
+            },
+            {
+              "file": "manifests/world-atlas.json",
+              "fields": "scenes.ch02/C"
+            }
+          ],
+          "fixStatus": "No change by audit agent; triage with implementation owner",
+          "renderedValidation": "pending"
+        }
+      ],
+      "criteria": {
+        "canonicalRelationships": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [
+            "CH02-C-02"
+          ],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "transformElevationScale": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "terrainFoundationUnderground": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "roadAccessGradeConnectivity": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [
+            "CH02-C-03"
+          ],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "waterFlowBridgeClearance": {
+          "sourceAuditStatus": "N/A to explicit area narrative; incidental local water still needs physical review",
+          "relationshipIds": [],
+          "reason": "No required flowing-water or bridge relationship in the area narrative.",
+          "renderedStatus": "pending"
+        },
+        "biomeMaterialSeams": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [
+            "CH02-C-01"
+          ],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "duplicateProxyLodStructures": {
+          "sourceAuditStatus": "source has no duplicated-state requirement; runtime check pending",
+          "relationshipIds": [],
+          "reason": "A narrative cannot validate LOD/streaming ownership.",
+          "renderedStatus": "pending"
+        }
+      },
+      "constraints": [
+        "No bridge, river, building, cellar or fixed level difference is required by this narrative. Exact road paving and the 150 ft stage footprint are not specified.",
+        "Confirm whether the generic encounter stage was intentionally substituted for the keyed C story scene before planning a change."
+      ],
+      "confirmedFindingIds": [
+        "CH02-C-02"
+      ]
+    },
+    {
+      "key": "D",
+      "path": "ch02/D",
+      "name": "River Ivlis",
+      "baselineCommit": "785421cb45ad3b7a5467a14f6e696074efb9bd27",
+      "workingSceneEqualsBaselineAtAudit": true,
+      "levels": [
+        {
+          "id": "river",
+          "elevationFt": -7,
+          "north": "-z",
+          "roomCount": 2,
+          "terrainMaterials": [
+            "grass",
+            "shallow-water"
+          ]
+        },
+        {
+          "id": "ground",
+          "elevationFt": 0,
+          "north": "-z",
+          "roomCount": 2,
+          "terrainMaterials": [
+            "dirt",
+            "grass"
+          ]
+        },
+        {
+          "id": "bridge",
+          "elevationFt": 8,
+          "north": "-z",
+          "roomCount": 1,
+          "terrainMaterials": []
+        }
+      ],
+      "sourceCoverage": {
+        "areaNarrativeRead": true,
+        "spatialStatementsComparedToData": true,
+        "allApplicableSourceRelationshipsChecked": false,
+        "regionalPosterMapVisuallyChecked": false,
+        "renderedChecked": false,
+        "movementChecked": false,
+        "zoomChecked": false,
+        "reasonFullSourceCheckIncomplete": "Authorized OCR covers narrative, but regional poster/map art has not been inspected in this lane and physical joins, occlusion, visibility and runtime movement remain unverified. This is a bounded narrative-to-data audit, not a complete source sign-off."
+      },
+      "relationships": [
+        {
+          "id": "CH02-D-01",
+          "criterion": "waterFlowBridgeClearance",
+          "status": "supported with width qualification",
+          "sourceRelationship": "Ivlis has roughly a fifty-foot channel, with a stone arch crossing near the village and another crossing near H.",
+          "observed": "The local village crossing is a stone-arch kit with a 60 ft body and 16 ft deck; river half-width controls produce widths of 50â€“90 ft. The width at the bridge is near the stated scale, but the much wider reaches are an interpretation.",
+          "sourceEvidence": [
+            {
+              "printedPage": 35,
+              "ocrFile": "C:\\Users\\mrein\\Documents\\Codex\\2026-10-13\\task-10\\mistlab\\.worktrees\\item2\\reference\\ocr\\page-036.txt",
+              "section": "D. River Ivlis",
+              "sha256": "1b89405c66239f8023adf4684c9aaba48265dbef6062f1d7153104ba4b9ed6aa"
+            }
+          ],
+          "implementationEvidence": [
+            {
+              "file": "locations/ch02/D/scene.json",
+              "fields": "levels.bridge.objects[bridge-arch].dims"
+            },
+            {
+              "file": "scripts/authoring/wild_d.py",
+              "fields": "CTRL / HWS / river width interpolation",
+              "measurement": {
+                "widthControlRangeFt": [
+                  50,
+                  90
+                ]
+              }
+            }
+          ],
+          "fixStatus": "No change by audit agent; triage with implementation owner",
+          "renderedValidation": "pending"
+        },
+        {
+          "id": "CH02-D-02",
+          "criterion": "terrainFoundationUnderground",
+          "status": "unresolved depth",
+          "sourceRelationship": "The river is deep enough that a lower river surface cannot be treated as the riverbed.",
+          "observed": "The river level is -7 ft, ground is 0, bridge is +8. The -7 ft level and bridge wy=15 describe bank/deck clearance, not the required 5â€“10 ft water depth. Bed rendering and movement/swimming are unverified.",
+          "sourceEvidence": [
+            {
+              "printedPage": 35,
+              "ocrFile": "C:\\Users\\mrein\\Documents\\Codex\\2026-10-13\\task-10\\mistlab\\.worktrees\\item2\\reference\\ocr\\page-036.txt",
+              "section": "D. River Ivlis",
+              "sha256": "1b89405c66239f8023adf4684c9aaba48265dbef6062f1d7153104ba4b9ed6aa"
+            }
+          ],
+          "implementationEvidence": [
+            {
+              "file": "locations/ch02/D/scene.json",
+              "fields": "levels[river,ground,bridge].elevationFt / bridge-arch.dims.wy"
+            },
+            {
+              "file": "app/src/kit/sites/wild-d.ts",
+              "fields": "archBridge"
+            }
+          ],
+          "fixStatus": "No change by audit agent; triage with implementation owner",
+          "renderedValidation": "pending"
+        },
+        {
+          "id": "CH02-D-03",
+          "criterion": "waterFlowBridgeClearance",
+          "status": "confirmed elevation mismatch",
+          "sourceRelationship": "Water leaving the falls must continue downstream through the camp area toward the village reach.",
+          "observed": "The committed placements put H pool at world Yâ‰ˆ336 ft, G water at â‰ˆ366.55 ft and D river at 487 ft, before thin surface offsets. The downstream sequence rises 30.55 then 120.45 ft. These simultaneous sites do not form a downhill water route.",
+          "sourceEvidence": [
+            {
+              "printedPage": 35,
+              "ocrFile": "C:\\Users\\mrein\\Documents\\Codex\\2026-10-13\\task-10\\mistlab\\.worktrees\\item2\\reference\\ocr\\page-036.txt",
+              "section": "D. River Ivlis",
+              "sha256": "1b89405c66239f8023adf4684c9aaba48265dbef6062f1d7153104ba4b9ed6aa"
+            },
+            {
+              "printedPage": 36,
+              "ocrFile": "C:\\Users\\mrein\\Documents\\Codex\\2026-10-13\\task-10\\mistlab\\.worktrees\\item2\\reference\\ocr\\page-037.txt",
+              "section": "G. Tser Pool Encampment",
+              "sha256": "b1a360802281dac74794d8c818c80a89316fbfde309969b5464a1eb394459081"
+            },
+            {
+              "printedPage": 37,
+              "ocrFile": "C:\\Users\\mrein\\Documents\\Codex\\2026-10-13\\task-10\\mistlab\\.worktrees\\item2\\reference\\ocr\\page-038.txt",
+              "section": "H. Tser Falls",
+              "sha256": "2363ac3b025864784f1f1e33e2d3e936ac999793964423c7b3f489351e746ca1"
+            }
+          ],
+          "implementationEvidence": [
+            {
+              "file": "manifests/world-atlas.json",
+              "fields": "scenes[ch02/H,ch02/G,ch02/D].placement / levels",
+              "measurement": {
+                "H_poolDatumFt": 336,
+                "G_waterDatumFt": 366.55,
+                "D_riverDatumFt": 487
+              }
+            }
+          ],
+          "fixStatus": "No change by audit agent; triage with implementation owner",
+          "renderedValidation": "pending"
+        }
+      ],
+      "criteria": {
+        "canonicalRelationships": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "transformElevationScale": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "terrainFoundationUnderground": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [
+            "CH02-D-02"
+          ],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "roadAccessGradeConnectivity": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "waterFlowBridgeClearance": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [
+            "CH02-D-01",
+            "CH02-D-03"
+          ],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "biomeMaterialSeams": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "duplicateProxyLodStructures": {
+          "sourceAuditStatus": "source has no duplicated-state requirement; runtime check pending",
+          "relationshipIds": [],
+          "reason": "A narrative cannot validate LOD/streaming ownership.",
+          "renderedStatus": "pending"
+        }
+      },
+      "constraints": [
+        "Seven invalid authored polygons and three link-landing candidates are separately recorded in the structural ledger; they need runtime triage.",
+        "Water elevation mismatch is a regional/topography issue, not evidence that a single local bridge adjustment can fix the river."
+      ],
+      "confirmedFindingIds": [
+        "CH02-D-03"
+      ]
+    },
+    {
+      "key": "F",
+      "path": "ch02/F",
+      "name": "River Ivlis Crossroads",
+      "baselineCommit": "785421cb45ad3b7a5467a14f6e696074efb9bd27",
+      "workingSceneEqualsBaselineAtAudit": true,
+      "levels": [
+        {
+          "id": "low",
+          "elevationFt": -25,
+          "north": "-z",
+          "roomCount": 1,
+          "terrainMaterials": [
+            "dirt",
+            "grass"
+          ]
+        },
+        {
+          "id": "day",
+          "elevationFt": 0,
+          "north": "-z",
+          "roomCount": 2,
+          "terrainMaterials": [
+            "dirt"
+          ]
+        },
+        {
+          "id": "knoll",
+          "elevationFt": 8,
+          "north": "-z",
+          "roomCount": 1,
+          "terrainMaterials": []
+        },
+        {
+          "id": "deck",
+          "elevationFt": 13,
+          "north": "-z",
+          "roomCount": 1,
+          "terrainMaterials": []
+        }
+      ],
+      "sourceCoverage": {
+        "areaNarrativeRead": true,
+        "spatialStatementsComparedToData": true,
+        "allApplicableSourceRelationshipsChecked": false,
+        "regionalPosterMapVisuallyChecked": false,
+        "renderedChecked": false,
+        "movementChecked": false,
+        "zoomChecked": false,
+        "reasonFullSourceCheckIncomplete": "Authorized OCR covers narrative, but regional poster/map art has not been inspected in this lane and physical joins, occlusion, visibility and runtime movement remain unverified. This is a bounded narrative-to-data audit, not a complete source sign-off."
+      },
+      "relationships": [
+        {
+          "id": "CH02-F-01",
+          "criterion": "roadAccessGradeConnectivity",
+          "status": "supported locally",
+          "sourceRelationship": "The junction sends travellers toward the village, downhill toward G to the northwest, and uphill toward H by the southwest branch.",
+          "observed": "The three f-road curves leave the junction generally east, northwest and southwest. Their far ends are approximately -24.8, -19.98 and +23.75 ft relative to the junction; the northwest and southwest grade signs agree with the narrative.",
+          "sourceEvidence": [
+            {
+              "printedPage": 35,
+              "ocrFile": "C:\\Users\\mrein\\Documents\\Codex\\2026-10-13\\task-10\\mistlab\\.worktrees\\item2\\reference\\ocr\\page-036.txt",
+              "section": "F. River Ivlis Crossroads",
+              "sha256": "1b89405c66239f8023adf4684c9aaba48265dbef6062f1d7153104ba4b9ed6aa"
+            }
+          ],
+          "implementationEvidence": [
+            {
+              "file": "locations/ch02/F/scene.json",
+              "fields": "levels.day.objects[kind=f-road].dims",
+              "measurement": {
+                "NW_endYFt": -19.98,
+                "SW_endYFt": 23.75,
+                "east_endYFt": -24.8
+              }
+            }
+          ],
+          "fixStatus": "No change by audit agent; triage with implementation owner",
+          "renderedValidation": "pending"
+        },
+        {
+          "id": "CH02-F-02",
+          "criterion": "terrainFoundationUnderground",
+          "status": "supported locally",
+          "sourceRelationship": "The gallows platform stands five feet above its footing, with graves across the junction and a partial enclosure.",
+          "observed": "The knoll is +8 ft and platform +13 ft, a five-foot difference. Six sunken graves, four gravestones and one open grave total eleven; field-wall pieces surround the grave plot.",
+          "sourceEvidence": [
+            {
+              "printedPage": 35,
+              "ocrFile": "C:\\Users\\mrein\\Documents\\Codex\\2026-10-13\\task-10\\mistlab\\.worktrees\\item2\\reference\\ocr\\page-036.txt",
+              "section": "F. River Ivlis Crossroads",
+              "sha256": "1b89405c66239f8023adf4684c9aaba48265dbef6062f1d7153104ba4b9ed6aa"
+            }
+          ],
+          "implementationEvidence": [
+            {
+              "file": "locations/ch02/F/scene.json",
+              "fields": "levels[knoll,deck].elevationFt / day.objects.kind",
+              "measurement": {
+                "platformRiseFt": 5,
+                "graveRepresentations": 11
+              }
+            }
+          ],
+          "fixStatus": "No change by audit agent; triage with implementation owner",
+          "renderedValidation": "pending"
+        },
+        {
+          "id": "CH02-F-03",
+          "criterion": "transformElevationScale",
+          "status": "unresolved continuity",
+          "sourceRelationship": "The three local branches must reach G, H and the village bridge route.",
+          "observed": "The source destination signs and local directions are present, but atlas exits remain over 1,000 ft from raw regional lines. The terrain base is taken from the -25 ft low level; all cross-map grades and joins require runtime review.",
+          "sourceEvidence": [
+            {
+              "printedPage": 35,
+              "ocrFile": "C:\\Users\\mrein\\Documents\\Codex\\2026-10-13\\task-10\\mistlab\\.worktrees\\item2\\reference\\ocr\\page-036.txt",
+              "section": "F. River Ivlis Crossroads",
+              "sha256": "1b89405c66239f8023adf4684c9aaba48265dbef6062f1d7153104ba4b9ed6aa"
+            }
+          ],
+          "implementationEvidence": [
+            {
+              "file": "manifests/world-atlas.json",
+              "fields": "scenes.ch02/F.l0 / roadExits"
+            },
+            {
+              "file": "allmap-probe-data.json",
+              "fields": "scenes[ch02/F].roadExits"
+            }
+          ],
+          "fixStatus": "No change by audit agent; triage with implementation owner",
+          "renderedValidation": "pending"
+        }
+      ],
+      "criteria": {
+        "canonicalRelationships": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "transformElevationScale": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [
+            "CH02-F-03"
+          ],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "terrainFoundationUnderground": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [
+            "CH02-F-02"
+          ],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "roadAccessGradeConnectivity": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [
+            "CH02-F-01"
+          ],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "waterFlowBridgeClearance": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "biomeMaterialSeams": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "duplicateProxyLodStructures": {
+          "sourceAuditStatus": "source has no duplicated-state requirement; runtime check pending",
+          "relationshipIds": [],
+          "reason": "A narrative cannot validate LOD/streaming ownership.",
+          "renderedStatus": "pending"
+        }
+      },
+      "constraints": [
+        "The rise signs and five-foot platform match; this does not validate the two flagged stair landings or actual traversability.",
+        "The eastward bridge is a destination beyond the junction; its absence as a second bridge object inside F is not itself a defect."
+      ],
+      "confirmedFindingIds": []
+    },
+    {
+      "key": "G",
+      "path": "ch02/G",
+      "name": "Tser Pool Encampment",
+      "baselineCommit": "785421cb45ad3b7a5467a14f6e696074efb9bd27",
+      "workingSceneEqualsBaselineAtAudit": false,
+      "levels": [
+        {
+          "id": "camp",
+          "elevationFt": 0,
+          "north": "-z",
+          "roomCount": 1,
+          "terrainMaterials": [
+            "grass"
+          ]
+        }
+      ],
+      "sourceCoverage": {
+        "areaNarrativeRead": true,
+        "spatialStatementsComparedToData": true,
+        "allApplicableSourceRelationshipsChecked": false,
+        "regionalPosterMapVisuallyChecked": false,
+        "renderedChecked": false,
+        "movementChecked": false,
+        "zoomChecked": false,
+        "reasonFullSourceCheckIncomplete": "Authorized OCR covers narrative, but regional poster/map art has not been inspected in this lane and physical joins, occlusion, visibility and runtime movement remain unverified. This is a bounded narrative-to-data audit, not a complete source sign-off."
+      },
+      "relationships": [
+        {
+          "id": "CH02-G-01",
+          "criterion": "canonicalRelationships",
+          "status": "confirmed mismatch",
+          "sourceRelationship": "The camp has five small circular tents, a larger shore tent, four wagons and eight draft horses.",
+          "observed": "Baseline and the inspected in-progress G scene each contain one tent, six wagons and two horses. The one tent has radius 6 ft. This does not implement the source camp composition or its small/large tent distinction.",
+          "sourceEvidence": [
+            {
+              "printedPage": 36,
+              "ocrFile": "C:\\Users\\mrein\\Documents\\Codex\\2026-10-13\\task-10\\mistlab\\.worktrees\\item2\\reference\\ocr\\page-037.txt",
+              "section": "G. Tser Pool Encampment",
+              "sha256": "b1a360802281dac74794d8c818c80a89316fbfde309969b5464a1eb394459081"
+            }
+          ],
+          "implementationEvidence": [
+            {
+              "file": "locations/ch02/G/scene.json",
+              "fields": "levels.camp.objects.kind / tent.dims",
+              "measurement": {
+                "tentCount": 1,
+                "wagonCount": 6,
+                "horseCount": 2,
+                "soleTentRadiusFt": 6
+              }
+            }
+          ],
+          "fixStatus": "No change by audit agent; triage with implementation owner",
+          "renderedValidation": "pending"
+        },
+        {
+          "id": "CH02-G-02",
+          "criterion": "waterFlowBridgeClearance",
+          "status": "confirmed baseline mismatch; correction in progress",
+          "sourceRelationship": "The camp occupies a clearing at a river widening into a lake a few hundred feet across.",
+          "observed": "Baseline region Tser Pool is about 3,924.6 ft from G, with ellipse diameters about 2,429 Ã— 1,795 ft. Baseline local water is only a disconnected rectangular patch. Root has changed the G shoreline/entry in the worktree; those changes are not validated by this baseline result.",
+          "sourceEvidence": [
+            {
+              "printedPage": 36,
+              "ocrFile": "C:\\Users\\mrein\\Documents\\Codex\\2026-10-13\\task-10\\mistlab\\.worktrees\\item2\\reference\\ocr\\page-037.txt",
+              "section": "G. Tser Pool Encampment",
+              "sha256": "b1a360802281dac74794d8c818c80a89316fbfde309969b5464a1eb394459081"
+            }
+          ],
+          "implementationEvidence": [
+            {
+              "file": "locations/ch02/barovia-region/world.json",
+              "fields": "pins[G].pos / lakes[Tser Pool]",
+              "measurement": {
+                "centerDistanceFt": 3924.642149,
+                "diametersFt": [
+                  2428.8,
+                  1795.2
+                ]
+              }
+            },
+            {
+              "file": "locations/ch02/G/scene.json",
+              "fields": "baseline camp-p1 / camp-p2"
+            }
+          ],
+          "fixStatus": "No change by audit agent; triage with implementation owner",
+          "renderedValidation": "pending"
+        },
+        {
+          "id": "CH02-G-03",
+          "criterion": "roadAccessGradeConnectivity",
+          "status": "confirmed mismatch at inspected snapshot",
+          "sourceRelationship": "A footpath continues north out of camp between water and forest and leads toward the base of H.",
+          "observed": "Baseline G has no dirt path polygon. The inspected worktree adds a southwest entry ribbon but still no northern riverside continuation. The north exit is not yet represented as a route.",
+          "sourceEvidence": [
+            {
+              "printedPage": 36,
+              "ocrFile": "C:\\Users\\mrein\\Documents\\Codex\\2026-10-13\\task-10\\mistlab\\.worktrees\\item2\\reference\\ocr\\page-037.txt",
+              "section": "G. Tser Pool Encampment",
+              "sha256": "b1a360802281dac74794d8c818c80a89316fbfde309969b5464a1eb394459081"
+            },
+            {
+              "printedPage": 37,
+              "ocrFile": "C:\\Users\\mrein\\Documents\\Codex\\2026-10-13\\task-10\\mistlab\\.worktrees\\item2\\reference\\ocr\\page-038.txt",
+              "section": "H. Tser Falls",
+              "sha256": "2363ac3b025864784f1f1e33e2d3e936ac999793964423c7b3f489351e746ca1"
+            }
+          ],
+          "implementationEvidence": [
+            {
+              "file": "locations/ch02/G/scene.json",
+              "fields": "levels.camp.terrain",
+              "measurement": {
+                "currentEntryRibbon": [
+                  [
+                    0,
+                    131
+                  ],
+                  [
+                    38,
+                    106
+                  ],
+                  [
+                    68,
+                    86
+                  ],
+                  [
+                    73,
+                    93
+                  ],
+                  [
+                    42,
+                    114
+                  ],
+                  [
+                    0,
+                    140
+                  ]
+                ]
+              }
+            }
+          ],
+          "fixStatus": "No change by audit agent; triage with implementation owner",
+          "renderedValidation": "pending"
+        },
+        {
+          "id": "CH02-G-04",
+          "criterion": "transformElevationScale",
+          "status": "confirmed baseline elevation mismatch",
+          "sourceRelationship": "The river leaving H passes the poolside camp and continues downstream.",
+          "observed": "G water datum is about 30.55 ft higher than H pool and about 120.45 ft lower than D. The source route therefore encounters uphill water transitions in the baseline world.",
+          "sourceEvidence": [
+            {
+              "printedPage": 36,
+              "ocrFile": "C:\\Users\\mrein\\Documents\\Codex\\2026-10-13\\task-10\\mistlab\\.worktrees\\item2\\reference\\ocr\\page-037.txt",
+              "section": "G. Tser Pool Encampment",
+              "sha256": "b1a360802281dac74794d8c818c80a89316fbfde309969b5464a1eb394459081"
+            },
+            {
+              "printedPage": 37,
+              "ocrFile": "C:\\Users\\mrein\\Documents\\Codex\\2026-10-13\\task-10\\mistlab\\.worktrees\\item2\\reference\\ocr\\page-038.txt",
+              "section": "H. Tser Falls",
+              "sha256": "2363ac3b025864784f1f1e33e2d3e936ac999793964423c7b3f489351e746ca1"
+            }
+          ],
+          "implementationEvidence": [
+            {
+              "file": "manifests/world-atlas.json",
+              "fields": "scenes[ch02/H,ch02/G,ch02/D].placement / levels"
+            }
+          ],
+          "fixStatus": "No change by audit agent; triage with implementation owner",
+          "renderedValidation": "pending"
+        }
+      ],
+      "criteria": {
+        "canonicalRelationships": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [
+            "CH02-G-01"
+          ],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "transformElevationScale": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [
+            "CH02-G-04"
+          ],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "terrainFoundationUnderground": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "roadAccessGradeConnectivity": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [
+            "CH02-G-03"
+          ],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "waterFlowBridgeClearance": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [
+            "CH02-G-02"
+          ],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "biomeMaterialSeams": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "duplicateProxyLodStructures": {
+          "sourceAuditStatus": "source has no duplicated-state requirement; runtime check pending",
+          "relationshipIds": [],
+          "reason": "A narrative cannot validate LOD/streaming ownership.",
+          "renderedStatus": "pending"
+        }
+      },
+      "constraints": [
+        "G is actively edited by root. Treat the shoreline and entry findings as baseline evidence; retest the final candidate.",
+        "The source plan image at p36 has not been inspected; exact illustrated tent positions were not compared. Narrative counts and path direction are independently explicit."
+      ],
+      "confirmedFindingIds": [
+        "CH02-G-01",
+        "CH02-G-02",
+        "CH02-G-03",
+        "CH02-G-04"
+      ]
+    },
+    {
+      "key": "H",
+      "path": "ch02/H",
+      "name": "Tser Falls",
+      "baselineCommit": "785421cb45ad3b7a5467a14f6e696074efb9bd27",
+      "workingSceneEqualsBaselineAtAudit": true,
+      "levels": [
+        {
+          "id": "deck",
+          "elevationFt": 960,
+          "north": "-z",
+          "roomCount": 2,
+          "terrainMaterials": [
+            "dirt"
+          ]
+        },
+        {
+          "id": "ledge",
+          "elevationFt": 380,
+          "north": "-z",
+          "roomCount": 1,
+          "terrainMaterials": []
+        },
+        {
+          "id": "pool",
+          "elevationFt": 0,
+          "north": "-z",
+          "roomCount": 2,
+          "terrainMaterials": [
+            "dirt",
+            "marsh",
+            "shallow-water"
+          ]
+        }
+      ],
+      "sourceCoverage": {
+        "areaNarrativeRead": true,
+        "spatialStatementsComparedToData": true,
+        "allApplicableSourceRelationshipsChecked": false,
+        "regionalPosterMapVisuallyChecked": false,
+        "renderedChecked": false,
+        "movementChecked": false,
+        "zoomChecked": false,
+        "reasonFullSourceCheckIncomplete": "Authorized OCR covers narrative, but regional poster/map art has not been inspected in this lane and physical joins, occlusion, visibility and runtime movement remain unverified. This is a bounded narrative-to-data audit, not a complete source sign-off."
+      },
+      "relationships": [
+        {
+          "id": "CH02-H-01",
+          "criterion": "transformElevationScale",
+          "status": "supported locally",
+          "sourceRelationship": "An upper road bridge crosses the canyon roughly one thousand feet above the waterfall basin.",
+          "observed": "Deck is +960 ft and pool is 0. The bridge and waterfall pieces preserve this approximate vertical relationship; the pool-level distant bridge is a separate view representation of the same crossing.",
+          "sourceEvidence": [
+            {
+              "printedPage": 37,
+              "ocrFile": "C:\\Users\\mrein\\Documents\\Codex\\2026-10-13\\task-10\\mistlab\\.worktrees\\item2\\reference\\ocr\\page-038.txt",
+              "section": "H. Tser Falls",
+              "sha256": "2363ac3b025864784f1f1e33e2d3e936ac999793964423c7b3f489351e746ca1"
+            }
+          ],
+          "implementationEvidence": [
+            {
+              "file": "locations/ch02/H/scene.json",
+              "fields": "levels[deck,pool].elevationFt / h-bridge / h-sky-bridge / h-falls-column",
+              "measurement": {
+                "deckToPoolFt": 960
+              }
+            }
+          ],
+          "fixStatus": "No change by audit agent; triage with implementation owner",
+          "renderedValidation": "pending"
+        },
+        {
+          "id": "CH02-H-02",
+          "criterion": "roadAccessGradeConnectivity",
+          "status": "supported in authored route intent",
+          "sourceRelationship": "The high road runs south toward F and north toward I; the low path reaches G along the outgoing water.",
+          "observed": "Deck dirt ribbons reach south and north edges; pool terrain includes a southeast outlet/path. The authored location notes carry those destinations. Their world joins are not yet validated.",
+          "sourceEvidence": [
+            {
+              "printedPage": 37,
+              "ocrFile": "C:\\Users\\mrein\\Documents\\Codex\\2026-10-13\\task-10\\mistlab\\.worktrees\\item2\\reference\\ocr\\page-038.txt",
+              "section": "H. Tser Falls",
+              "sha256": "2363ac3b025864784f1f1e33e2d3e936ac999793964423c7b3f489351e746ca1"
+            }
+          ],
+          "implementationEvidence": [
+            {
+              "file": "locations/ch02/H/scene.json",
+              "fields": "levels.deck.terrain / levels.pool.terrain"
+            },
+            {
+              "file": "scripts/authoring/wild_h.py",
+              "fields": "deck and pool route descriptions / notes"
+            }
+          ],
+          "fixStatus": "No change by audit agent; triage with implementation owner",
+          "renderedValidation": "pending"
+        },
+        {
+          "id": "CH02-H-03",
+          "criterion": "terrainFoundationUnderground",
+          "status": "supported locally; runtime condition pending",
+          "sourceRelationship": "The canyon sides demand climbing equipment or magic; the bridge itself is usable and decorated with inert gargoyle carvings.",
+          "observed": "Four gargoyle-statue objects flank the span. Authored rope/gully notes describe conditional descent, but the ladder/slide link records themselves do not encode the equipment prerequisite.",
+          "sourceEvidence": [
+            {
+              "printedPage": 37,
+              "ocrFile": "C:\\Users\\mrein\\Documents\\Codex\\2026-10-13\\task-10\\mistlab\\.worktrees\\item2\\reference\\ocr\\page-038.txt",
+              "section": "H. Tser Falls",
+              "sha256": "2363ac3b025864784f1f1e33e2d3e936ac999793964423c7b3f489351e746ca1"
+            }
+          ],
+          "implementationEvidence": [
+            {
+              "file": "locations/ch02/H/scene.json",
+              "fields": "levels.deck.objects[gargoyle-statue] / links[H-rope,H-gully,H-fall]"
+            },
+            {
+              "file": "scripts/authoring/wild_h.py",
+              "fields": "climb-route notes"
+            }
+          ],
+          "fixStatus": "No change by audit agent; triage with implementation owner",
+          "renderedValidation": "pending"
+        },
+        {
+          "id": "CH02-H-04",
+          "criterion": "waterFlowBridgeClearance",
+          "status": "confirmed baseline elevation mismatch",
+          "sourceRelationship": "Water from the basin continues toward G.",
+          "observed": "H pool datum is 336 ft while G water datum is 366.55 ft. The downstream camp sits above the falls basin in the baseline continuous world.",
+          "sourceEvidence": [
+            {
+              "printedPage": 37,
+              "ocrFile": "C:\\Users\\mrein\\Documents\\Codex\\2026-10-13\\task-10\\mistlab\\.worktrees\\item2\\reference\\ocr\\page-038.txt",
+              "section": "H. Tser Falls",
+              "sha256": "2363ac3b025864784f1f1e33e2d3e936ac999793964423c7b3f489351e746ca1"
+            }
+          ],
+          "implementationEvidence": [
+            {
+              "file": "manifests/world-atlas.json",
+              "fields": "scenes[ch02/H,ch02/G].placement / levels"
+            }
+          ],
+          "fixStatus": "No change by audit agent; triage with implementation owner",
+          "renderedValidation": "pending"
+        }
+      ],
+      "criteria": {
+        "canonicalRelationships": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "transformElevationScale": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [
+            "CH02-H-01"
+          ],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "terrainFoundationUnderground": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [
+            "CH02-H-03"
+          ],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "roadAccessGradeConnectivity": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [
+            "CH02-H-02"
+          ],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "waterFlowBridgeClearance": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [
+            "CH02-H-04"
+          ],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "biomeMaterialSeams": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "duplicateProxyLodStructures": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        }
+      },
+      "constraints": [
+        "Near-one-thousand-foot source wording supports the 960 ft local separation; do not classify the 40 ft difference as a defect.",
+        "The intermediate +380 ft ledge and route staging are authored interpretation. No source text requires them, and their existence is not automatically a mismatch.",
+        "The sky-bridge and deck bridge need cross-level LOD/visibility review before calling them duplicate structures."
+      ],
+      "confirmedFindingIds": [
+        "CH02-H-04"
+      ]
+    },
+    {
+      "key": "I",
+      "path": "ch02/I",
+      "name": "Black Carriage",
+      "baselineCommit": "785421cb45ad3b7a5467a14f6e696074efb9bd27",
+      "workingSceneEqualsBaselineAtAudit": true,
+      "levels": [
+        {
+          "id": "day",
+          "elevationFt": 0,
+          "north": "-z",
+          "roomCount": 4,
+          "terrainMaterials": [
+            "cobble",
+            "dirt",
+            "grass",
+            "marsh"
+          ]
+        },
+        {
+          "id": "crest",
+          "elevationFt": 55,
+          "north": "-z",
+          "roomCount": 1,
+          "terrainMaterials": []
+        }
+      ],
+      "sourceCoverage": {
+        "areaNarrativeRead": true,
+        "spatialStatementsComparedToData": true,
+        "allApplicableSourceRelationshipsChecked": false,
+        "regionalPosterMapVisuallyChecked": false,
+        "renderedChecked": false,
+        "movementChecked": false,
+        "zoomChecked": false,
+        "reasonFullSourceCheckIncomplete": "Authorized OCR covers narrative, but regional poster/map art has not been inspected in this lane and physical joins, occlusion, visibility and runtime movement remain unverified. This is a bounded narrative-to-data audit, not a complete source sign-off."
+      },
+      "relationships": [
+        {
+          "id": "CH02-I-01",
+          "criterion": "roadAccessGradeConnectivity",
+          "status": "supported locally",
+          "sourceRelationship": "The fork has an eastern, formerly paved route to J, a northwest route through the western gate and a southern route to H.",
+          "observed": "Local dirt ribbons run northwest/south and a cobble branch runs east. Region destination positions are directionally compatible at broad scale; path connectivity remains unverified.",
+          "sourceEvidence": [
+            {
+              "printedPage": 37,
+              "ocrFile": "C:\\Users\\mrein\\Documents\\Codex\\2026-10-13\\task-10\\mistlab\\.worktrees\\item2\\reference\\ocr\\page-038.txt",
+              "section": "I. Black Carriage",
+              "sha256": "2363ac3b025864784f1f1e33e2d3e936ac999793964423c7b3f489351e746ca1"
+            },
+            {
+              "printedPage": 38,
+              "ocrFile": "C:\\Users\\mrein\\Documents\\Codex\\2026-10-13\\task-10\\mistlab\\.worktrees\\item2\\reference\\ocr\\page-039.txt",
+              "section": "I continuation",
+              "sha256": "adb26315d268ed145a474f84d54dc22f691ced242a701ec8d643e5a22bfc18e5"
+            }
+          ],
+          "implementationEvidence": [
+            {
+              "file": "locations/ch02/I/scene.json",
+              "fields": "levels.day.terrain"
+            },
+            {
+              "file": "locations/ch02/barovia-region/world.json",
+              "fields": "pins[I,J,B2,H]"
+            }
+          ],
+          "fixStatus": "No change by audit agent; triage with implementation owner",
+          "renderedValidation": "pending"
+        },
+        {
+          "id": "CH02-I-02",
+          "criterion": "canonicalRelationships",
+          "status": "supported locally",
+          "sourceRelationship": "When staged, the carriage and its two horses face toward the castle branch.",
+          "observed": "The carriage is at [330,0,288]; both horses are farther east at x=345.5. This matches the east-facing arrangement.",
+          "sourceEvidence": [
+            {
+              "printedPage": 38,
+              "ocrFile": "C:\\Users\\mrein\\Documents\\Codex\\2026-10-13\\task-10\\mistlab\\.worktrees\\item2\\reference\\ocr\\page-039.txt",
+              "section": "I continuation",
+              "sha256": "adb26315d268ed145a474f84d54dc22f691ced242a701ec8d643e5a22bfc18e5"
+            }
+          ],
+          "implementationEvidence": [
+            {
+              "file": "locations/ch02/I/scene.json",
+              "fields": "levels.day.objects[black-carriage,black-horse]",
+              "measurement": {
+                "horseCount": 2
+              }
+            }
+          ],
+          "fixStatus": "No change by audit agent; triage with implementation owner",
+          "renderedValidation": "pending"
+        },
+        {
+          "id": "CH02-I-03",
+          "criterion": "duplicateProxyLodStructures",
+          "status": "unresolved conditional presentation",
+          "sourceRelationship": "The carriage is conditional on Strahd directing the party there.",
+          "observed": "The scenario is authored as a carriage encounter; this pass does not establish whether campaign state controls its display or whether the DM is expected to reveal it manually.",
+          "sourceEvidence": [
+            {
+              "printedPage": 38,
+              "ocrFile": "C:\\Users\\mrein\\Documents\\Codex\\2026-10-13\\task-10\\mistlab\\.worktrees\\item2\\reference\\ocr\\page-039.txt",
+              "section": "I continuation",
+              "sha256": "adb26315d268ed145a474f84d54dc22f691ced242a701ec8d643e5a22bfc18e5"
+            }
+          ],
+          "implementationEvidence": [
+            {
+              "file": "locations/ch02/I/scene.json",
+              "fields": "levels.day.objects[black-carriage,black-horse].vis"
+            }
+          ],
+          "fixStatus": "No change by audit agent; triage with implementation owner",
+          "renderedValidation": "pending"
+        },
+        {
+          "id": "CH02-I-04",
+          "criterion": "terrainFoundationUnderground",
+          "status": "unresolved continuity",
+          "sourceRelationship": "The fork and both approach roads must meet the mountain terrain and surrounding map.",
+          "observed": "Three invalid terrain polygons exist and every atlas exit is over 1,100 ft from raw regional road geometry. No physical seam or grade pass is credited.",
+          "sourceEvidence": [
+            {
+              "printedPage": 37,
+              "ocrFile": "C:\\Users\\mrein\\Documents\\Codex\\2026-10-13\\task-10\\mistlab\\.worktrees\\item2\\reference\\ocr\\page-038.txt",
+              "section": "I. Black Carriage",
+              "sha256": "2363ac3b025864784f1f1e33e2d3e936ac999793964423c7b3f489351e746ca1"
+            },
+            {
+              "printedPage": 38,
+              "ocrFile": "C:\\Users\\mrein\\Documents\\Codex\\2026-10-13\\task-10\\mistlab\\.worktrees\\item2\\reference\\ocr\\page-039.txt",
+              "section": "I continuation",
+              "sha256": "adb26315d268ed145a474f84d54dc22f691ced242a701ec8d643e5a22bfc18e5"
+            }
+          ],
+          "implementationEvidence": [
+            {
+              "file": "allmap-audit-inventory.json",
+              "fields": "maps[ch02/I].polygonValidity / placement.roadExits"
+            }
+          ],
+          "fixStatus": "No change by audit agent; triage with implementation owner",
+          "renderedValidation": "pending"
+        }
+      ],
+      "criteria": {
+        "canonicalRelationships": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [
+            "CH02-I-02"
+          ],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "transformElevationScale": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "terrainFoundationUnderground": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [
+            "CH02-I-04"
+          ],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "roadAccessGradeConnectivity": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [
+            "CH02-I-01"
+          ],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "waterFlowBridgeClearance": {
+          "sourceAuditStatus": "N/A to explicit area narrative; incidental local water still needs physical review",
+          "relationshipIds": [],
+          "reason": "No required flowing-water or bridge relationship in the area narrative.",
+          "renderedStatus": "pending"
+        },
+        "biomeMaterialSeams": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "duplicateProxyLodStructures": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [
+            "CH02-I-03"
+          ],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        }
+      },
+      "constraints": [
+        "The +55 ft crest, guard-post shell and lookout are local interpretation; no exact elevations are supplied by the encounter text.",
+        "No flowing-water or bridge requirement is specified at the fork. Incidental runoff does not establish a canonical river."
+      ],
+      "confirmedFindingIds": []
+    },
+    {
+      "key": "J",
+      "path": "ch02/J",
+      "name": "Gates of Ravenloft",
+      "baselineCommit": "785421cb45ad3b7a5467a14f6e696074efb9bd27",
+      "workingSceneEqualsBaselineAtAudit": true,
+      "levels": [
+        {
+          "id": "ground",
+          "elevationFt": 0,
+          "north": "-z",
+          "roomCount": 10,
+          "terrainMaterials": [
+            "cobble",
+            "dirt",
+            "flagstone",
+            "grass"
+          ]
+        },
+        {
+          "id": "wall-walk",
+          "elevationFt": 90,
+          "north": "-z",
+          "roomCount": 1,
+          "terrainMaterials": []
+        },
+        {
+          "id": "ledge",
+          "elevationFt": -35,
+          "north": "-z",
+          "roomCount": 1,
+          "terrainMaterials": []
+        }
+      ],
+      "sourceCoverage": {
+        "areaNarrativeRead": true,
+        "spatialStatementsComparedToData": true,
+        "allApplicableSourceRelationshipsChecked": false,
+        "regionalPosterMapVisuallyChecked": false,
+        "renderedChecked": false,
+        "movementChecked": false,
+        "zoomChecked": false,
+        "reasonFullSourceCheckIncomplete": "Authorized OCR covers narrative, but regional poster/map art has not been inspected in this lane and physical joins, occlusion, visibility and runtime movement remain unverified. This is a bounded narrative-to-data audit, not a complete source sign-off."
+      },
+      "relationships": [
+        {
+          "id": "CH02-J-01",
+          "criterion": "waterFlowBridgeClearance",
+          "status": "supported locally",
+          "sourceRelationship": "The approach turns east between two damaged turrets, then a lowered wooden drawbridge spans a fifty-foot gap into the entrance tunnel.",
+          "observed": "The local authoring constants set lips at x=400 and x=450; the 55.2 ft deck includes overlap at the banks. Turrets, chains, portcullis and tunnel are aligned on z=175.",
+          "sourceEvidence": [
+            {
+              "printedPage": 38,
+              "ocrFile": "C:\\Users\\mrein\\Documents\\Codex\\2026-10-13\\task-10\\mistlab\\.worktrees\\item2\\reference\\ocr\\page-039.txt",
+              "section": "J. Gates of Ravenloft",
+              "sha256": "adb26315d268ed145a474f84d54dc22f691ced242a701ec8d643e5a22bfc18e5"
+            }
+          ],
+          "implementationEvidence": [
+            {
+              "file": "scripts/authoring/wild_j.py",
+              "fields": "AXIS / CHASM / WALL / GATE"
+            },
+            {
+              "file": "locations/ch02/J/scene.json",
+              "fields": "j-turret / j-drawbridge / j-chain / rotten-portcullis"
+            }
+          ],
+          "fixStatus": "No change by audit agent; triage with implementation owner",
+          "renderedValidation": "pending"
+        },
+        {
+          "id": "CH02-J-02",
+          "criterion": "terrainFoundationUnderground",
+          "status": "supported locally",
+          "sourceRelationship": "The courtyard walls rise ninety feet and the entry leads directly into the castle courtyard.",
+          "observed": "J wall-walk is +90 ft, matching p52. Local J-court is labelled K1, but it is not a parent/enter link to the independently placed K scene.",
+          "sourceEvidence": [
+            {
+              "printedPage": 38,
+              "ocrFile": "C:\\Users\\mrein\\Documents\\Codex\\2026-10-13\\task-10\\mistlab\\.worktrees\\item2\\reference\\ocr\\page-039.txt",
+              "section": "J. Gates of Ravenloft",
+              "sha256": "adb26315d268ed145a474f84d54dc22f691ced242a701ec8d643e5a22bfc18e5"
+            },
+            {
+              "printedPage": 52,
+              "ocrFile": "C:\\Users\\mrein\\Documents\\Codex\\2026-10-13\\task-10\\mistlab\\.worktrees\\item2\\reference\\ocr\\page-053.txt",
+              "section": "K1. Front Courtyard",
+              "sha256": "c3eb4ce869f7ab6a98472346270164e55b29ae705df301e4ebc52f4a6e440ca9"
+            }
+          ],
+          "implementationEvidence": [
+            {
+              "file": "locations/ch02/J/scene.json",
+              "fields": "levels.wall-walk.elevationFt / room J-court / parent"
+            },
+            {
+              "file": "manifests/world-atlas.json",
+              "fields": "scenes[ch02/J,ch04/K]"
+            }
+          ],
+          "fixStatus": "No change by audit agent; triage with implementation owner",
+          "renderedValidation": "pending"
+        },
+        {
+          "id": "CH02-J-03",
+          "criterion": "transformElevationScale",
+          "status": "confirmed continuity mismatch",
+          "sourceRelationship": "J is the immediate exterior entrance to Ravenloft, not a separate castle nearly a mile away.",
+          "observed": "The true J and K world pins are 4,598.45 ft apart; bases differ by 583.815 ft. J provides its own courtyard/keep stand-in. Suppressing that stand-in does not itself connect J to the true K entrance.",
+          "sourceEvidence": [
+            {
+              "printedPage": 38,
+              "ocrFile": "C:\\Users\\mrein\\Documents\\Codex\\2026-10-13\\task-10\\mistlab\\.worktrees\\item2\\reference\\ocr\\page-039.txt",
+              "section": "J. Gates of Ravenloft",
+              "sha256": "adb26315d268ed145a474f84d54dc22f691ced242a701ec8d643e5a22bfc18e5"
+            },
+            {
+              "printedPage": 52,
+              "ocrFile": "C:\\Users\\mrein\\Documents\\Codex\\2026-10-13\\task-10\\mistlab\\.worktrees\\item2\\reference\\ocr\\page-053.txt",
+              "section": "K1. Front Courtyard",
+              "sha256": "c3eb4ce869f7ab6a98472346270164e55b29ae705df301e4ebc52f4a6e440ca9"
+            }
+          ],
+          "implementationEvidence": [
+            {
+              "file": "locations/ch02/barovia-region/world.json",
+              "fields": "pins[J,K].pos"
+            },
+            {
+              "file": "manifests/world-atlas.json",
+              "fields": "scenes[ch02/J,ch04/K].placement",
+              "measurement": {
+                "pinDistanceFt": 4598.452609,
+                "baseDifferenceFt": 583.815
+              }
+            }
+          ],
+          "fixStatus": "No change by audit agent; triage with implementation owner",
+          "renderedValidation": "pending"
+        },
+        {
+          "id": "CH02-J-04",
+          "criterion": "terrainFoundationUnderground",
+          "status": "unresolved depth representation",
+          "sourceRelationship": "A fall from the crossing continues about one thousand feet down the cliffs.",
+          "observed": "The local ledge is -35 ft. The near cleft uses depth 36 and fog/depth masking; this is a visual proxy, not a modeled thousand-foot bottom. Source consistency depends on the surrounding world cliff and fall handling, neither checked in this lane.",
+          "sourceEvidence": [
+            {
+              "printedPage": 38,
+              "ocrFile": "C:\\Users\\mrein\\Documents\\Codex\\2026-10-13\\task-10\\mistlab\\.worktrees\\item2\\reference\\ocr\\page-039.txt",
+              "section": "J. Gates of Ravenloft",
+              "sha256": "adb26315d268ed145a474f84d54dc22f691ced242a701ec8d643e5a22bfc18e5"
+            }
+          ],
+          "implementationEvidence": [
+            {
+              "file": "locations/ch02/J/scene.json",
+              "fields": "j-cleft.dims.depth / levels.ledge / j-chasm-shaft"
+            },
+            {
+              "file": "app/src/kit/sites/wild-j.ts",
+              "fields": "cleft / chasmShaft"
+            }
+          ],
+          "fixStatus": "No change by audit agent; triage with implementation owner",
+          "renderedValidation": "pending"
+        },
+        {
+          "id": "CH02-J-05",
+          "criterion": "duplicateProxyLodStructures",
+          "status": "confirmed ownership risk; fix in progress",
+          "sourceRelationship": "Only one actual Castle Ravenloft should occupy this entrance relationship.",
+          "observed": "J authors j-castle-mass while K exists as a world scene/proxy. Root is implementing stand-in ownership; rendered checks are needed to prove removal and identify the remaining spatial gap.",
+          "sourceEvidence": [
+            {
+              "printedPage": 38,
+              "ocrFile": "C:\\Users\\mrein\\Documents\\Codex\\2026-10-13\\task-10\\mistlab\\.worktrees\\item2\\reference\\ocr\\page-039.txt",
+              "section": "J. Gates of Ravenloft",
+              "sha256": "adb26315d268ed145a474f84d54dc22f691ced242a701ec8d643e5a22bfc18e5"
+            }
+          ],
+          "implementationEvidence": [
+            {
+              "file": "locations/ch02/J/scene.json",
+              "fields": "levels.ground.objects[kind=j-castle-mass]"
+            },
+            {
+              "file": "manifests/world-atlas.json",
+              "fields": "scenes.ch04/K"
+            }
+          ],
+          "fixStatus": "No change by audit agent; triage with implementation owner",
+          "renderedValidation": "pending"
+        }
+      ],
+      "criteria": {
+        "canonicalRelationships": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "transformElevationScale": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [
+            "CH02-J-03"
+          ],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "terrainFoundationUnderground": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [
+            "CH02-J-02",
+            "CH02-J-04"
+          ],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "roadAccessGradeConnectivity": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "waterFlowBridgeClearance": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [
+            "CH02-J-01"
+          ],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "biomeMaterialSeams": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "duplicateProxyLodStructures": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [
+            "CH02-J-05"
+          ],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        }
+      },
+      "constraints": [
+        "Do not move or resize Ravenloft from narrative alone. Reconcile the separate encounter-stage design with the continuous-world placement explicitly.",
+        "The extra ledge does not contradict a deeper chasm; do not mistake it for the required bottom."
+      ],
+      "confirmedFindingIds": [
+        "CH02-J-03",
+        "CH02-J-05"
+      ]
+    },
+    {
+      "key": "L",
+      "path": "ch02/L",
+      "name": "Lake Zarovich",
+      "baselineCommit": "785421cb45ad3b7a5467a14f6e696074efb9bd27",
+      "workingSceneEqualsBaselineAtAudit": true,
+      "levels": [
+        {
+          "id": "shore",
+          "elevationFt": 0,
+          "north": "-z",
+          "roomCount": 4,
+          "terrainMaterials": [
+            "dirt",
+            "grass"
+          ]
+        },
+        {
+          "id": "lakebed",
+          "elevationFt": -40,
+          "north": "-z",
+          "roomCount": 1,
+          "terrainMaterials": []
+        }
+      ],
+      "sourceCoverage": {
+        "areaNarrativeRead": true,
+        "spatialStatementsComparedToData": true,
+        "allApplicableSourceRelationshipsChecked": false,
+        "regionalPosterMapVisuallyChecked": false,
+        "renderedChecked": false,
+        "movementChecked": false,
+        "zoomChecked": false,
+        "reasonFullSourceCheckIncomplete": "Authorized OCR covers narrative, but regional poster/map art has not been inspected in this lane and physical joins, occlusion, visibility and runtime movement remain unverified. This is a bounded narrative-to-data audit, not a complete source sign-off."
+      },
+      "relationships": [
+        {
+          "id": "CH02-L-01",
+          "criterion": "canonicalRelationships",
+          "status": "supported locally",
+          "sourceRelationship": "The arrival is on the lakeâ€™s southern bank, north of Vallaki, with three boats on land and a fourth farther out.",
+          "observed": "The map places three hauled boats at zâ‰ˆ556 and one fishing boat at z=150; N-to-L region vector is broadly north. Four boat objects are present.",
+          "sourceEvidence": [
+            {
+              "printedPage": 38,
+              "ocrFile": "C:\\Users\\mrein\\Documents\\Codex\\2026-10-13\\task-10\\mistlab\\.worktrees\\item2\\reference\\ocr\\page-039.txt",
+              "section": "L. Lake Zarovich",
+              "sha256": "adb26315d268ed145a474f84d54dc22f691ced242a701ec8d643e5a22bfc18e5"
+            }
+          ],
+          "implementationEvidence": [
+            {
+              "file": "locations/ch02/L/scene.json",
+              "fields": "levels.shore.objects[kind=rowboat]"
+            },
+            {
+              "file": "locations/ch02/barovia-region/world.json",
+              "fields": "pins[N,L].pos"
+            }
+          ],
+          "fixStatus": "No change by audit agent; triage with implementation owner",
+          "renderedValidation": "pending"
+        },
+        {
+          "id": "CH02-L-02",
+          "criterion": "transformElevationScale",
+          "status": "supported numerically",
+          "sourceRelationship": "The fishing boat is four hundred feet from the nearest shore.",
+          "observed": "Distance from [360,150] to the actual authored southern shoreline polyline is 400.351 ft. Map bounding-box edges were excluded because they are clipping edges, not shore.",
+          "sourceEvidence": [
+            {
+              "printedPage": 38,
+              "ocrFile": "C:\\Users\\mrein\\Documents\\Codex\\2026-10-13\\task-10\\mistlab\\.worktrees\\item2\\reference\\ocr\\page-039.txt",
+              "section": "L. Lake Zarovich",
+              "sha256": "adb26315d268ed145a474f84d54dc22f691ced242a701ec8d643e5a22bfc18e5"
+            }
+          ],
+          "implementationEvidence": [
+            {
+              "file": "locations/ch02/L/scene.json",
+              "fields": "room L polygon shoreline / fishing rowboat position",
+              "measurement": {
+                "nearestAuthoredShoreFt": 400.3510399
+              }
+            }
+          ],
+          "fixStatus": "No change by audit agent; triage with implementation owner",
+          "renderedValidation": "pending"
+        },
+        {
+          "id": "CH02-L-03",
+          "criterion": "waterFlowBridgeClearance",
+          "status": "unresolved contextual shoreline",
+          "sourceRelationship": "The lake is continuous beyond the local landing and remains beneath the surrounding mountains.",
+          "observed": "A broad regional lake ellipse and local custom shoreline both exist. Local text and placement do not prove that their elevations, boundaries and materials meet smoothly.",
+          "sourceEvidence": [
+            {
+              "printedPage": 38,
+              "ocrFile": "C:\\Users\\mrein\\Documents\\Codex\\2026-10-13\\task-10\\mistlab\\.worktrees\\item2\\reference\\ocr\\page-039.txt",
+              "section": "L. Lake Zarovich",
+              "sha256": "adb26315d268ed145a474f84d54dc22f691ced242a701ec8d643e5a22bfc18e5"
+            }
+          ],
+          "implementationEvidence": [
+            {
+              "file": "locations/ch02/barovia-region/world.json",
+              "fields": "lakes[Lake Zarovich] / pins[L].groundFt"
+            },
+            {
+              "file": "locations/ch02/L/scene.json",
+              "fields": "l-lake-mirror / shore terrain"
+            }
+          ],
+          "fixStatus": "No change by audit agent; triage with implementation owner",
+          "renderedValidation": "pending"
+        }
+      ],
+      "criteria": {
+        "canonicalRelationships": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [
+            "CH02-L-01"
+          ],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "transformElevationScale": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [
+            "CH02-L-02"
+          ],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "terrainFoundationUnderground": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "roadAccessGradeConnectivity": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "waterFlowBridgeClearance": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [
+            "CH02-L-03"
+          ],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "biomeMaterialSeams": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "duplicateProxyLodStructures": {
+          "sourceAuditStatus": "source has no duplicated-state requirement; runtime check pending",
+          "relationshipIds": [],
+          "reason": "A narrative cannot validate LOD/streaming ownership.",
+          "renderedStatus": "pending"
+        }
+      },
+      "constraints": [
+        "The -40 ft lakebed is authored gameplay interpretation; the area narrative gives no such bottom depth.",
+        "No bridge is required by the area narrative; the small brook crossing is optional local detail. Visibility of the hidden child and interaction timing require runtime review."
+      ],
+      "confirmedFindingIds": []
+    },
+    {
+      "key": "M",
+      "path": "ch02/M",
+      "name": "Mount Baratok",
+      "baselineCommit": "785421cb45ad3b7a5467a14f6e696074efb9bd27",
+      "workingSceneEqualsBaselineAtAudit": true,
+      "levels": [
+        {
+          "id": "fog",
+          "elevationFt": -40,
+          "north": "-z",
+          "roomCount": 1,
+          "terrainMaterials": [
+            "dirt",
+            "grass",
+            "shallow-water"
+          ]
+        },
+        {
+          "id": "shelf",
+          "elevationFt": 0,
+          "north": "-z",
+          "roomCount": 5,
+          "terrainMaterials": [
+            "dirt",
+            "grass",
+            "shallow-water"
+          ]
+        },
+        {
+          "id": "spur",
+          "elevationFt": 25,
+          "north": "-z",
+          "roomCount": 1,
+          "terrainMaterials": []
+        },
+        {
+          "id": "ledge",
+          "elevationFt": 120,
+          "north": "-z",
+          "roomCount": 1,
+          "terrainMaterials": []
+        }
+      ],
+      "sourceCoverage": {
+        "areaNarrativeRead": true,
+        "spatialStatementsComparedToData": true,
+        "allApplicableSourceRelationshipsChecked": false,
+        "regionalPosterMapVisuallyChecked": false,
+        "renderedChecked": false,
+        "movementChecked": false,
+        "zoomChecked": false,
+        "reasonFullSourceCheckIncomplete": "Authorized OCR covers narrative, but regional poster/map art has not been inspected in this lane and physical joins, occlusion, visibility and runtime movement remain unverified. This is a bounded narrative-to-data audit, not a complete source sign-off."
+      },
+      "relationships": [
+        {
+          "id": "CH02-M-01",
+          "criterion": "terrainFoundationUnderground",
+          "status": "supported broadly",
+          "sourceRelationship": "The encounter is on rocky mountain slopes north of the lake, reached by climbing beyond the valley fog.",
+          "observed": "M is north/northeast of L. Four levels (-40, 0, +25, +120) and rocky cliff/scree props create an ascent; exact spot and elevations are authored because the encounter can occur at different locations around the mountain base.",
+          "sourceEvidence": [
+            {
+              "printedPage": 39,
+              "ocrFile": "C:\\Users\\mrein\\Documents\\Codex\\2026-10-13\\task-10\\mistlab\\.worktrees\\item2\\reference\\ocr\\page-040.txt",
+              "section": "M. Mad Mage of Mount Baratok",
+              "sha256": "f5d68e094a5e9e135cae2614f792c78c1a815f29b8788c4db497c7432a03a5e1"
+            }
+          ],
+          "implementationEvidence": [
+            {
+              "file": "locations/ch02/barovia-region/world.json",
+              "fields": "pins[L,M].pos"
+            },
+            {
+              "file": "locations/ch02/M/scene.json",
+              "fields": "levels / m-headwall / m-scree"
+            }
+          ],
+          "fixStatus": "No change by audit agent; triage with implementation owner",
+          "renderedValidation": "pending"
+        },
+        {
+          "id": "CH02-M-02",
+          "criterion": "transformElevationScale",
+          "status": "measured discrepancy",
+          "sourceRelationship": "The first view puts the elk roughly sixty feet away on a rocky projection.",
+          "observed": "The actual authored spawn [392,0,346] is 78.87 ft horizontally and 82.74 ft in 3D from the elk [442.3,25,285.25]. A nearby note at [400,330] is closer, but it is not the spawn. The source approximation needs an owner tolerance decision.",
+          "sourceEvidence": [
+            {
+              "printedPage": 39,
+              "ocrFile": "C:\\Users\\mrein\\Documents\\Codex\\2026-10-13\\task-10\\mistlab\\.worktrees\\item2\\reference\\ocr\\page-040.txt",
+              "section": "M. Mad Mage of Mount Baratok",
+              "sha256": "f5d68e094a5e9e135cae2614f792c78c1a815f29b8788c4db497c7432a03a5e1"
+            }
+          ],
+          "implementationEvidence": [
+            {
+              "file": "locations/ch02/M/scene.json",
+              "fields": "shelf spawn / elk positions",
+              "measurement": {
+                "planDistanceFt": 78.8711132,
+                "spatialDistanceFt": 82.7384584
+              }
+            }
+          ],
+          "fixStatus": "No change by audit agent; triage with implementation owner",
+          "renderedValidation": "pending"
+        },
+        {
+          "id": "CH02-M-03",
+          "criterion": "canonicalRelationships",
+          "status": "supported locally",
+          "sourceRelationship": "The hidden mansion entrance is farther uphill from the encounter terrace.",
+          "observed": "The shimmer-door is authored at local Y=120 on the upper ledge, higher than the shelf/spur; it is hidden-object rather than a visible freestanding house.",
+          "sourceEvidence": [
+            {
+              "printedPage": 39,
+              "ocrFile": "C:\\Users\\mrein\\Documents\\Codex\\2026-10-13\\task-10\\mistlab\\.worktrees\\item2\\reference\\ocr\\page-040.txt",
+              "section": "The Mad Mageâ€™s Mansion",
+              "sha256": "f5d68e094a5e9e135cae2614f792c78c1a815f29b8788c4db497c7432a03a5e1"
+            }
+          ],
+          "implementationEvidence": [
+            {
+              "file": "locations/ch02/M/scene.json",
+              "fields": "shimmer-door.pos / vis / ledge elevation"
+            }
+          ],
+          "fixStatus": "No change by audit agent; triage with implementation owner",
+          "renderedValidation": "pending"
+        },
+        {
+          "id": "CH02-M-04",
+          "criterion": "duplicateProxyLodStructures",
+          "status": "unresolved duplicate backdrop",
+          "sourceRelationship": "A distant view should refer to the same Ravenloft present in the continuous world.",
+          "observed": "M has m-castle-glimpse while K is independently rendered. Rootâ€™s ownership fix must suppress only the stand-in when the true world site exists. Multiple hidden mage figures are intentional mirror-image staging, not duplicate castle defects.",
+          "sourceEvidence": [
+            {
+              "printedPage": 39,
+              "ocrFile": "C:\\Users\\mrein\\Documents\\Codex\\2026-10-13\\task-10\\mistlab\\.worktrees\\item2\\reference\\ocr\\page-040.txt",
+              "section": "M. Mad Mage of Mount Baratok",
+              "sha256": "f5d68e094a5e9e135cae2614f792c78c1a815f29b8788c4db497c7432a03a5e1"
+            }
+          ],
+          "implementationEvidence": [
+            {
+              "file": "locations/ch02/M/scene.json",
+              "fields": "m-castle-glimpse / mad-mage vis and labels"
+            },
+            {
+              "file": "manifests/world-atlas.json",
+              "fields": "scenes.ch04/K"
+            }
+          ],
+          "fixStatus": "No change by audit agent; triage with implementation owner",
+          "renderedValidation": "pending"
+        }
+      ],
+      "criteria": {
+        "canonicalRelationships": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [
+            "CH02-M-03"
+          ],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "transformElevationScale": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [
+            "CH02-M-02"
+          ],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "terrainFoundationUnderground": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [
+            "CH02-M-01"
+          ],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "roadAccessGradeConnectivity": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "waterFlowBridgeClearance": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "biomeMaterialSeams": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "duplicateProxyLodStructures": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [
+            "CH02-M-04"
+          ],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        }
+      },
+      "constraints": [
+        "The local cascade, pools, log bridge and specific trail loops are authored interpretation; the source does not establish their dimensions or water source.",
+        "No external mansion interior scene exists here. An extradimensional door need not create a physical building footprint."
+      ],
+      "confirmedFindingIds": []
+    },
+    {
+      "key": "P",
+      "path": "ch02/P",
+      "name": "Luna River Crossroads",
+      "baselineCommit": "785421cb45ad3b7a5467a14f6e696074efb9bd27",
+      "workingSceneEqualsBaselineAtAudit": true,
+      "levels": [
+        {
+          "id": "ground",
+          "elevationFt": 0,
+          "north": "-z",
+          "roomCount": 10,
+          "terrainMaterials": [
+            "dirt",
+            "grass",
+            "marsh"
+          ]
+        },
+        {
+          "id": "crown",
+          "elevationFt": 18,
+          "north": "-z",
+          "roomCount": 1,
+          "terrainMaterials": []
+        },
+        {
+          "id": "river",
+          "elevationFt": -10.0,
+          "north": "-z",
+          "roomCount": 2,
+          "terrainMaterials": [
+            "marsh"
+          ]
+        }
+      ],
+      "sourceCoverage": {
+        "areaNarrativeRead": true,
+        "spatialStatementsComparedToData": true,
+        "allApplicableSourceRelationshipsChecked": false,
+        "regionalPosterMapVisuallyChecked": false,
+        "renderedChecked": false,
+        "movementChecked": false,
+        "zoomChecked": false,
+        "reasonFullSourceCheckIncomplete": "Authorized OCR covers narrative, but regional poster/map art has not been inspected in this lane and physical joins, occlusion, visibility and runtime movement remain unverified. This is a bounded narrative-to-data audit, not a complete source sign-off."
+      },
+      "relationships": [
+        {
+          "id": "CH02-P-01",
+          "criterion": "canonicalRelationships",
+          "status": "supported locally",
+          "sourceRelationship": "Four branches form an X; the broken directional marker stands on the east side and its detached top lies nearby.",
+          "observed": "The four local paths have the expected quadrants. Signpost stub is [300,432], detached top [330,445], both east of the junction [250,430].",
+          "sourceEvidence": [
+            {
+              "printedPage": 40,
+              "ocrFile": "C:\\Users\\mrein\\Documents\\Codex\\2026-10-13\\task-10\\mistlab\\.worktrees\\item2\\reference\\ocr\\page-041.txt",
+              "section": "P. Luna River Crossroads",
+              "sha256": "db993d36424a4b747ce30269d2289f07640b1bb7e88b1e78f89677c53e744c30"
+            }
+          ],
+          "implementationEvidence": [
+            {
+              "file": "locations/ch02/P/scene.json",
+              "fields": "p-signpost-stub / p-signpost-crown / terrain"
+            },
+            {
+              "file": "scripts/authoring/wild_p.py",
+              "fields": "X / NE / NW / SE / SW"
+            }
+          ],
+          "fixStatus": "No change by audit agent; triage with implementation owner",
+          "renderedValidation": "pending"
+        },
+        {
+          "id": "CH02-P-02",
+          "criterion": "transformElevationScale",
+          "status": "measured discrepancy",
+          "sourceRelationship": "The northeast route reaches a stone river crossing at approximately a quarter mile.",
+          "observed": "The authored northeast road curve plus the distance to the main arch measures about 1,050.26 ft (0.199 mi), versus the sourceâ€™s approximate 1,320 ft. This is a 20% difference, not automatically a strict failure for approximate wording.",
+          "sourceEvidence": [
+            {
+              "printedPage": 40,
+              "ocrFile": "C:\\Users\\mrein\\Documents\\Codex\\2026-10-13\\task-10\\mistlab\\.worktrees\\item2\\reference\\ocr\\page-041.txt",
+              "section": "P. Luna River Crossroads",
+              "sha256": "db993d36424a4b747ce30269d2289f07640b1bb7e88b1e78f89677c53e744c30"
+            }
+          ],
+          "implementationEvidence": [
+            {
+              "file": "scripts/authoring/wild_p.py",
+              "fields": "NE / BR / MAIN_X"
+            },
+            {
+              "file": "locations/ch02/P/scene.json",
+              "fields": "p-road-verge path / p-luna-bridge",
+              "measurement": {
+                "approxRouteLengthFt": 1050.256934,
+                "sourceApproxFt": 1320
+              }
+            }
+          ],
+          "fixStatus": "No change by audit agent; triage with implementation owner",
+          "renderedValidation": "pending"
+        },
+        {
+          "id": "CH02-P-03",
+          "criterion": "roadAccessGradeConnectivity",
+          "status": "partly supported; grade unresolved",
+          "sourceRelationship": "The main northeast/southwest road is mostly level, the northwest track climbs gently, and the southeast route descends beside the river toward Berez.",
+          "observed": "The main road level is 0 and the river is -10. However, all local road terrain is on the same ground level, so the branch rise/fall is described but not demonstrated by its floor polygons. Regional continuation and grade need a rendered/field check.",
+          "sourceEvidence": [
+            {
+              "printedPage": 40,
+              "ocrFile": "C:\\Users\\mrein\\Documents\\Codex\\2026-10-13\\task-10\\mistlab\\.worktrees\\item2\\reference\\ocr\\page-041.txt",
+              "section": "P. Luna River Crossroads",
+              "sha256": "db993d36424a4b747ce30269d2289f07640b1bb7e88b1e78f89677c53e744c30"
+            }
+          ],
+          "implementationEvidence": [
+            {
+              "file": "locations/ch02/P/scene.json",
+              "fields": "levels.ground.terrain / river.elevationFt"
+            },
+            {
+              "file": "scripts/authoring/wild_p.py",
+              "fields": "level-datum design comment / NW / SE"
+            }
+          ],
+          "fixStatus": "No change by audit agent; triage with implementation owner",
+          "renderedValidation": "pending"
+        },
+        {
+          "id": "CH02-P-04",
+          "criterion": "waterFlowBridgeClearance",
+          "status": "unresolved network",
+          "sourceRelationship": "The northwest track reconnects to the main road farther on and has a branch to V; the southeast route eventually reaches U.",
+          "observed": "Local and custom extension geometry point in those directions, but end-to-end regional graph connectivity and water alignment have not been proved.",
+          "sourceEvidence": [
+            {
+              "printedPage": 40,
+              "ocrFile": "C:\\Users\\mrein\\Documents\\Codex\\2026-10-13\\task-10\\mistlab\\.worktrees\\item2\\reference\\ocr\\page-041.txt",
+              "section": "P. Luna River Crossroads",
+              "sha256": "db993d36424a4b747ce30269d2289f07640b1bb7e88b1e78f89677c53e744c30"
+            }
+          ],
+          "implementationEvidence": [
+            {
+              "file": "scripts/authoring/wild_p.py",
+              "fields": "region extension lines / NW / SE"
+            },
+            {
+              "file": "locations/ch02/barovia-region/world.json",
+              "fields": "roads / pins[P,V,U]"
+            }
+          ],
+          "fixStatus": "No change by audit agent; triage with implementation owner",
+          "renderedValidation": "pending"
+        }
+      ],
+      "criteria": {
+        "canonicalRelationships": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [
+            "CH02-P-01"
+          ],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "transformElevationScale": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [
+            "CH02-P-02"
+          ],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "terrainFoundationUnderground": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "roadAccessGradeConnectivity": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [
+            "CH02-P-03"
+          ],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "waterFlowBridgeClearance": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [
+            "CH02-P-04"
+          ],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "biomeMaterialSeams": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "duplicateProxyLodStructures": {
+          "sourceAuditStatus": "source has no duplicated-state requirement; runtime check pending",
+          "relationshipIds": [],
+          "reason": "A narrative cannot validate LOD/streaming ownership.",
+          "renderedStatus": "pending"
+        }
+      },
+      "constraints": [
+        "The approximate distance warrants review, not an automatic rescale of the whole map.",
+        "The local 10 ft river drop, 18 ft knoll, flood gully and two-arch detail are authoring choices. The source only requires the stone crossing and route relationships."
+      ],
+      "confirmedFindingIds": []
+    },
+    {
+      "key": "R",
+      "path": "ch02/R",
+      "name": "Raven River Crossroads",
+      "baselineCommit": "785421cb45ad3b7a5467a14f6e696074efb9bd27",
+      "workingSceneEqualsBaselineAtAudit": true,
+      "levels": [
+        {
+          "id": "river",
+          "elevationFt": -6,
+          "north": "-z",
+          "roomCount": 2,
+          "terrainMaterials": [
+            "dirt",
+            "grass",
+            "marsh",
+            "shallow-water"
+          ]
+        },
+        {
+          "id": "bench",
+          "elevationFt": 0,
+          "north": "-z",
+          "roomCount": 1,
+          "terrainMaterials": [
+            "dirt",
+            "grass"
+          ]
+        },
+        {
+          "id": "bridge",
+          "elevationFt": 10,
+          "north": "-z",
+          "roomCount": 1,
+          "terrainMaterials": []
+        },
+        {
+          "id": "notch",
+          "elevationFt": 12,
+          "north": "-z",
+          "roomCount": 2,
+          "terrainMaterials": []
+        }
+      ],
+      "sourceCoverage": {
+        "areaNarrativeRead": true,
+        "spatialStatementsComparedToData": true,
+        "allApplicableSourceRelationshipsChecked": false,
+        "regionalPosterMapVisuallyChecked": false,
+        "renderedChecked": false,
+        "movementChecked": false,
+        "zoomChecked": false,
+        "reasonFullSourceCheckIncomplete": "Authorized OCR covers narrative, but regional poster/map art has not been inspected in this lane and physical joins, occlusion, visibility and runtime movement remain unverified. This is a bounded narrative-to-data audit, not a complete source sign-off."
+      },
+      "relationships": [
+        {
+          "id": "CH02-R-01",
+          "criterion": "roadAccessGradeConnectivity",
+          "status": "supported locally",
+          "sourceRelationship": "The main junction directs Krezk north across a visible stone bridge, Vallaki east and the winery southwest; nearby branches go north toward V and south toward T.",
+          "observed": "The generator creates these five paths with the expected initial directions; the bridge is north/northwest of the signpost and east-west main route. The winery route narrows into a gravel trail.",
+          "sourceEvidence": [
+            {
+              "printedPage": 40,
+              "ocrFile": "C:\\Users\\mrein\\Documents\\Codex\\2026-10-13\\task-10\\mistlab\\.worktrees\\item2\\reference\\ocr\\page-041.txt",
+              "section": "R. Raven River Crossroads",
+              "sha256": "db993d36424a4b747ce30269d2289f07640b1bb7e88b1e78f89677c53e744c30"
+            }
+          ],
+          "implementationEvidence": [
+            {
+              "file": "scripts/authoring/wild_r.py",
+              "fields": "J / EJ / vallaki / to_bridge / krezk / winery / tower / tsolenka"
+            },
+            {
+              "file": "locations/ch02/R/scene.json",
+              "fields": "r-signpost / r-arch-bridge"
+            }
+          ],
+          "fixStatus": "No change by audit agent; triage with implementation owner",
+          "renderedValidation": "pending"
+        },
+        {
+          "id": "CH02-R-02",
+          "criterion": "transformElevationScale",
+          "status": "unresolved grade",
+          "sourceRelationship": "The Vallaki side climbs gently and the winery side descends gently.",
+          "observed": "Both local road floors sit at bench elevation 0. Gravel pieces decorate those surfaces but do not demonstrate the required graded continuation. The regionâ€™s heightfield/road joins need direct review.",
+          "sourceEvidence": [
+            {
+              "printedPage": 40,
+              "ocrFile": "C:\\Users\\mrein\\Documents\\Codex\\2026-10-13\\task-10\\mistlab\\.worktrees\\item2\\reference\\ocr\\page-041.txt",
+              "section": "R. Raven River Crossroads",
+              "sha256": "db993d36424a4b747ce30269d2289f07640b1bb7e88b1e78f89677c53e744c30"
+            }
+          ],
+          "implementationEvidence": [
+            {
+              "file": "locations/ch02/R/scene.json",
+              "fields": "levels.bench.elevationFt / terrain"
+            },
+            {
+              "file": "scripts/authoring/wild_r.py",
+              "fields": "road() / gravel_on()"
+            }
+          ],
+          "fixStatus": "No change by audit agent; triage with implementation owner",
+          "renderedValidation": "pending"
+        },
+        {
+          "id": "CH02-R-03",
+          "criterion": "roadAccessGradeConnectivity",
+          "status": "confirmed continuation gap in authored intent",
+          "sourceRelationship": "The winery and tower branches must continue to their destinations, not stop outside the encounter stage.",
+          "observed": "The generator explicitly extends these two paths only to the local skirt and states no corresponding regional road is present there. The closest named vineyard control-point route is about 11,589 ft from R. This establishes an unfinished route connection; exact rendered endpoint gaps remain to be measured.",
+          "sourceEvidence": [
+            {
+              "printedPage": 40,
+              "ocrFile": "C:\\Users\\mrein\\Documents\\Codex\\2026-10-13\\task-10\\mistlab\\.worktrees\\item2\\reference\\ocr\\page-041.txt",
+              "section": "R. Raven River Crossroads",
+              "sha256": "db993d36424a4b747ce30269d2289f07640b1bb7e88b1e78f89677c53e744c30"
+            }
+          ],
+          "implementationEvidence": [
+            {
+              "file": "scripts/authoring/wild_r.py",
+              "fields": "road/skirt continuation comment near lines 241â€“244"
+            },
+            {
+              "file": "locations/ch02/barovia-region/world.json",
+              "fields": "roads[Road to the vineyard].pts"
+            }
+          ],
+          "fixStatus": "No change by audit agent; triage with implementation owner",
+          "renderedValidation": "pending"
+        },
+        {
+          "id": "CH02-R-04",
+          "criterion": "waterFlowBridgeClearance",
+          "status": "supported local separation; global flow unresolved",
+          "sourceRelationship": "The visible stone arch spans a river beneath the road.",
+          "observed": "The river level is -6 and bridge crown +10, a 16 ft separation. That is plausible authored geometry, but riverbed depth, flow gradient and five invalid river/bench polygons need further review.",
+          "sourceEvidence": [
+            {
+              "printedPage": 40,
+              "ocrFile": "C:\\Users\\mrein\\Documents\\Codex\\2026-10-13\\task-10\\mistlab\\.worktrees\\item2\\reference\\ocr\\page-041.txt",
+              "section": "R. Raven River Crossroads",
+              "sha256": "db993d36424a4b747ce30269d2289f07640b1bb7e88b1e78f89677c53e744c30"
+            }
+          ],
+          "implementationEvidence": [
+            {
+              "file": "locations/ch02/R/scene.json",
+              "fields": "levels[river,bridge].elevationFt / r-arch-bridge.dims"
+            },
+            {
+              "file": "allmap-audit-inventory.json",
+              "fields": "maps[ch02/R].polygonValidity"
+            }
+          ],
+          "fixStatus": "No change by audit agent; triage with implementation owner",
+          "renderedValidation": "pending"
+        }
+      ],
+      "criteria": {
+        "canonicalRelationships": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "transformElevationScale": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [
+            "CH02-R-02"
+          ],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "terrainFoundationUnderground": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "roadAccessGradeConnectivity": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [
+            "CH02-R-01",
+            "CH02-R-03"
+          ],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "waterFlowBridgeClearance": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [
+            "CH02-R-04"
+          ],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "biomeMaterialSeams": {
+          "sourceAuditStatus": "narrative compared; full validation pending",
+          "relationshipIds": [],
+          "reason": "Relevant explicit statements were compared, but render/movement and pending map-art inspection prevent a full sign-off.",
+          "renderedStatus": "pending"
+        },
+        "duplicateProxyLodStructures": {
+          "sourceAuditStatus": "source has no duplicated-state requirement; runtime check pending",
+          "relationshipIds": [],
+          "reason": "A narrative cannot validate LOD/streaming ownership.",
+          "renderedStatus": "pending"
+        }
+      },
+      "constraints": [
+        "The source supplies no exact channel depth, arch height, ford, waterfall or notch; these details must not be presented as sourced dimensions.",
+        "A branchâ€™s initial direction is distinct from the straight-line bearing to its ultimate destination. The later westward turn toward Krezk is not a contradiction."
+      ],
+      "confirmedFindingIds": [
+        "CH02-R-03"
+      ]
+    }
+  ],
+  "releaseBoundary": "Keep the bounded 0.3.1 corrective work progressing. Camp composition, C keyed-clue staging, regional water elevations, Ravenloft entrance placement and broader route repairs are now explicit audit findings, not silent completion claims or automatic authority for a redesign."
+}

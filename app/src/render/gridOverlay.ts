@@ -4,7 +4,7 @@ import * as THREE from 'three';
 import type { GridLevel } from '../core/schema';
 import { CELL_FT } from '../core/units';
 import { hexSizeFromWidth } from '../core/grid';
-import { planeGeometry } from '../kit/pieces';
+import { merge, planeGeometry } from '../kit/pieces';
 import { fogUniforms } from './materials';
 
 // The renderer uses a logarithmic depth buffer: without its chunks this shader would write plain z and lose the depth
@@ -36,7 +36,11 @@ uniform vec2 uCovOrigin;
 uniform vec2 uCovSize;
 uniform float uFog;
 uniform float uCovEnabled;
+uniform mat3 uCovBasis;   // world xz → the active scene's plan xz (the grid and the coverage are in scene feet)
 uniform float uPxPerFt;   // what a foot is worth on screen: decides which grid orders show
+uniform vec4 uClip;       // plan box the grid stays inside (minX, minZ, maxX, maxZ); unbounded unless the map stands in the valley
+uniform float uFadeBelow; // in the valley: the grid fades out as a foot drops under this many pixels (0: never)
+uniform float uCartoWash; // the world's inked map has taken over (render/worldcarto.ts): the map's own grid steps aside
 
 // A line of a given spacing (feet): 1 on the line, 0 off it; bold widens it.
 float lineAt(vec2 p, float spacing, float bold) {
@@ -76,11 +80,15 @@ float hexLine(vec2 p) {
 
 void main() {
   #include <logdepthbuf_fragment>
-  vec2 p = vW.xz - uOrigin;
+  vec2 sp = (uCovBasis * vec3(vW.x, vW.z, 1.0)).xy;
+  if (sp.x < uClip.x || sp.y < uClip.y || sp.x > uClip.z || sp.y > uClip.w) discard;
+  vec2 p = sp - uOrigin;
   float line = uHex > 0.5 ? hexLine(p) : squareLine(p);
   float a = line * uOpacity;
+  if (uFadeBelow > 0.0) a *= smoothstep(0.5 * uFadeBelow, uFadeBelow, uPxPerFt);
+  a *= 1.0 - smoothstep(0.05, 0.4, uCartoWash);
   if (uCovEnabled > 0.5) {
-    vec2 uv = (vW.xz - uCovOrigin) / uCovSize;
+    vec2 uv = (sp - uCovOrigin) / uCovSize;
     float cov = (uv.x < 0.0 || uv.y < 0.0 || uv.x > 1.0 || uv.y > 1.0) ? 0.0 : texture2D(uCovTex, uv).r;
     a *= mix(1.0, step(0.25, cov), uFog);
   }
@@ -100,7 +108,9 @@ export function buildGridOverlay(g: GridLevel, elevation: number, ground = true)
   const minX = Math.min(...xs), maxX = Math.max(...xs), minZ = Math.min(...zs), maxZ = Math.max(...zs);
   // the ground level's grid runs well past the map; an upper floor's stays within its own walls
   const pad = ground ? Math.max(30, 0.12 * Math.max(maxX - minX, maxZ - minZ)) : 1.5, y = elevation + GRID_LIFT_FT;
-  const geo = planeGeometry([[minX - pad, minZ - pad], [maxX + pad, minZ - pad], [maxX + pad, maxZ + pad], [minX - pad, maxZ + pad]], y);
+  // a clipped grid lies on the floor polygons themselves (they do not overlap, so no line is drawn twice)
+  const geo = g.clipToFloors ? merge(g.floorPolygons.map((p) => planeGeometry(p, y)))
+    : planeGeometry([[minX - pad, minZ - pad], [maxX + pad, minZ - pad], [maxX + pad, maxZ + pad], [minX - pad, maxZ + pad]], y);
   const m = new THREE.ShaderMaterial({
     vertexShader: vert,
     fragmentShader: frag,
@@ -119,16 +129,36 @@ export function buildGridOverlay(g: GridLevel, elevation: number, ground = true)
       uCovSize: fogUniforms.uCovSize,
       uFog: fogUniforms.uFog,
       uCovEnabled: fogUniforms.uCovEnabled,
+      uCovBasis: fogUniforms.uCovBasis,
       uPxPerFt: gridUniforms.uPxPerFt,
+      uClip: { value: new THREE.Vector4(-1e9, -1e9, 1e9, 1e9) },
+      uFadeBelow: { value: 0 },
+      uCartoWash: fogUniforms.uCartoWash,
     },
   });
   const mesh = new THREE.Mesh(geo, m);
   mesh.name = 'grid-overlay';
   mesh.userData.role = 'grid';
+  mesh.userData.floorBox = { minX, minZ, maxX, maxZ };
   mesh.renderOrder = 1;
   return mesh;
 }
 
+/** Keep a grid within its own floors (plus a margin, feet), or let it run its full pad again. In the continuous world
+ *  the land carries on past the map, and a grid running out over it reads as part of the valley. */
+export function clipGrid(mesh: THREE.Mesh, margin: number | null): void {
+  const b = mesh.userData.floorBox as { minX: number; minZ: number; maxX: number; maxZ: number } | undefined, u = (mesh.material as THREE.ShaderMaterial).uniforms.uClip;
+  if (!b || !u) return;
+  if (margin === null) u.value.set(-1e9, -1e9, 1e9, 1e9); else u.value.set(b.minX - margin, b.minZ - margin, b.maxX + margin, b.maxZ + margin);
+}
+
 export function setGridType(mesh: THREE.Mesh, type: 'square' | 'hex'): void {
   (mesh.material as THREE.ShaderMaterial).uniforms.uHex.value = type === 'hex' ? 1 : 0;
+}
+
+/** In the valley a map's grid is a tool of the map band: it fades out as a foot drops under `px` pixels (the town and
+ *  road bands, where the camera looks at the land, not at squares), so a town seen from the road is not netted. 0
+ *  keeps it at every zoom (the legacy way). */
+export function fadeGridBelow(mesh: THREE.Mesh, px: number): void {
+  const u = (mesh.material as THREE.ShaderMaterial).uniforms.uFadeBelow; if (u) u.value = px;
 }

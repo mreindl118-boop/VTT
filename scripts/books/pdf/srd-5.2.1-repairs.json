@@ -1,0 +1,58 @@
+{
+ "book": "srd-5.2.1",
+ "attribution": "This work includes material from the System Reference Document 5.2.1 (“SRD 5.2.1”) by Wizards of the Coast LLC, available at https://www.dndbeyond.com/srd. The SRD 5.2.1 is licensed under the Creative Commons Attribution 4.0 International License, available at https://creativecommons.org/licenses/by/4.0/legalcode.",
+ "note": "What the Markdown lost against the official PDF, found by scripts/books/vocab.ts (see docs/BOOKS.md): words it printed joined that the PDF prints with a hyphen, and dashes it dropped where the PDF breaks a line after one.",
+ "hyphens": {
+  "footby": "foot-by",
+  "foothigh": "foot-high",
+  "footlong": "foot-long",
+  "footsquare": "foot-square",
+  "footwide": "foot-wide",
+  "longdead": "long-dead",
+  "longterm": "long-term",
+  "realworld": "real-world",
+  "shapeshifting": "shape-shifting"
+ },
+ "dashes": [
+  {
+   "find": "only one of them the higher one",
+   "replace": "only one of them — the higher one"
+  },
+  {
+   "find": "whether creatures or objects count squares from",
+   "replace": "whether creatures or objects — count squares from"
+  },
+  {
+   "find": "Blow at a time the most recent",
+   "replace": "Blow at a time — the most recent"
+  },
+  {
+   "find": "Dim Light and Darkness both magical and",
+   "replace": "Dim Light and Darkness — both magical and"
+  },
+  {
+   "find": "a character special traits unique characteristics based",
+   "replace": "a character special traits — unique characteristics based"
+  },
+  {
+   "find": "belongings on your person look different until",
+   "replace": "belongings on your person — look different until"
+  },
+  {
+   "find": "Celestial, Fey, or Fiend which determines certain",
+   "replace": "Celestial, Fey, or Fiend — which determines certain"
+  },
+  {
+   "find": "integral for its survival its head, for",
+   "replace": "integral for its survival — its head, for"
+  },
+  {
+   "find": "such as a wall is between the",
+   "replace": "such as a wall — is between the"
+  },
+  {
+   "find": "table — player or GM whose turn it",
+   "replace": "table — player or GM — whose turn it"
+  }
+ ]
+}

@@ -11,6 +11,8 @@ the river's banks were traced by hand on that render. Only positions, sizes and 
 wording are ours. The marsh is the floor everywhere; the cellar under the mansion is a second level."""
 import json, math, os, random, sys
 from collections import OrderedDict
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from geomlib import inside
 
 ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..')
 OUT = os.path.join(ROOT, 'locations', 'ch10', 'U')
@@ -21,12 +23,6 @@ rng = random.Random(10)
 R1 = lambda v: round(v, 1)
 
 # ------------------------------------------------------------------ geometry helpers
-def inside(p, poly):
-    x, z = p; c = False; n = len(poly)
-    for i in range(n):
-        (x0, z0), (x1, z1) = poly[i], poly[(i + 1) % n]
-        if (z0 > z) != (z1 > z) and x < (x1 - x0) * (z - z0) / (z1 - z0) + x0: c = not c
-    return c
 
 def seg_dist(p, a, b):
     dx, dz = b[0] - a[0], b[1] - a[1]; L2 = dx * dx + dz * dz or 1
@@ -153,7 +149,7 @@ DESC = {
   'U5': ('A little raised plot, ten feet square, inside a broken iron fence: a weathered statue of a kneeling peasant girl holding a rose.',
          'The epitaph reads "Marina, Taken by the Mists". Found only by searching the square (DC 15 Wisdom (Perception), 10 minutes) or by Ulrich\'s directions. A card-reading treasure lies in a cavity under the statue (DC 15 Strength). Disturbing it raises seven bloated corpses from the mire 60 ft west.'),
   'U6': ('Twelve mossy menhirs, 15 to 18 ft tall, stand in a ring a hundred feet across; two lean inward. A lantern flickers behind the tallest.',
-         'Muriel Vinshaw, a wereraven, signals with her lantern and warns the party about Berez. The four tall stones face the compass points; the eight others bear worn glyphs of bear, elk, hawk, goat, owl, panther, raven and wolf. No divination reaches inside the circle; a druid who wild-shapes here gains maximum hit points.'),
+         'Muriel Vinshaw, a wereraven, signals with her lantern and warns the party about Berez. The four tall stones face the compass points; the eight others bear worn glyphs of wolf and raven, panther and owl, goat and hawk, elk and bear. No divination reaches inside the circle; a druid who wild-shapes here gains maximum hit points.'),
   'U2-cellar': ('A 30-ft-square cellar of mortared stone under rotting ceiling beams, ankle-deep in stagnant water; rotted casks stand in rows.',
                 'Two dozen empty, rotted Wizard of Wines casks labelled Champagne du le Stomp.'),
 }
@@ -346,6 +342,7 @@ terrain.append(OrderedDict(polygon=[[x, z] for x, z in RIVER], floor='shallow-wa
 terrain.append(OrderedDict(polygon=[[x, z] for x, z in STREAM], floor='shallow-water'))
 
 n_reed = n_tree = n_bush = 0
+reed_spots = []
 for i in range(30000):
     p = (rng.uniform(10, W - 10), rng.uniform(10, H - 10))
     # reeds crowd the pool edges and the river bank; elsewhere they stand in clumps
@@ -353,8 +350,17 @@ for i in range(30000):
     if rng.random() > (0.5 if near_water else 0.07): continue
     if not clear(p, 6) or in_pool(p): continue
     if any(inside(p, d) for d in (DRY_N, DRY_E)) and rng.random() < 0.7: continue
-    obj(f'reed{n_reed}', 'marsh-reeds', p[0], p[1], rot=rng.random() * 360, dims=OrderedDict(s=0.8 + rng.random() * 0.9)); n_reed += 1
-    if n_reed >= 900: break
+    reed_spots.append((p, near_water, rng.random() * 360, 0.8 + rng.random() * 0.9))
+    if len(reed_spots) >= 900: break
+# Thin the clumps to about 700 where they matter least: the lone clumps on the rising, drier ground round the two
+# cottage clusters go (reeds want standing water), then a few of the scattered ones out in the open marsh; every
+# clump at a pool's edge or on the river bank stays. A cull of its own, so the trees and brush keep their places.
+cull = random.Random(12)
+for p, wet, rot, s in reed_spots:
+    if not wet:
+        by_dry = min(poly_dist(p, DRY_N), poly_dist(p, DRY_E)) < 400
+        if cull.random() < (0.9 if by_dry else 0.18): continue
+    obj(f'reed{n_reed}', 'marsh-reeds', p[0], p[1], rot=rot, dims=OrderedDict(s=s)); n_reed += 1
 for i in range(6000):
     p = (rng.uniform(20, W - 20), rng.uniform(20, H - 20))
     if not clear(p, 14) or in_pool(p, 4): continue

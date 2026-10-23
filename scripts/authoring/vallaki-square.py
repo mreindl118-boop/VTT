@@ -65,7 +65,7 @@ for key, (cx, cz, w, d, rot) in {'N8a': (21, 4, 50, 30, 0), 'N8b': (42, 4, 30, 3
     g.prop(f'{key}-roof', 'roof-gable', (cx, cz), None, rotY=rot, dims={'w': w, 'd': d, 'h': 9, 'y': 10})
 
 DESC = {
-  'N8': ('The town square of Vallaki: the stage for the Festival of the Blazing Sun, the stocks, the dry well, the shops along its sides.', "Izek Strazni's guards keep an eye on the square; anyone who mutters about the festival ends in the stocks."),
+  'N8': ('Vallaki holds its Festival of the Blazing Sun here. Shops border the square around a dry well, stocks and a stage.', "Izek Strazni's guards keep an eye on the square; anyone who mutters about the festival ends in the stocks."),
   'N8a': ('Smithy and armourer on the north side of the square.', 'Dimitri. Arms and mail to order, slowly; he reports strangers who buy weapons to the Baron.'),
   'N8b': ("The jeweller's, round the corner up the east lane.", 'Mila buys gems without questions. The strongbox is her nest egg; she is no fool.'),
   'N8c': ("The alchemist's potion shop on the west side.", 'Varushka. Two potions of healing (50 gp each), basic poison, the sleeping draught the Baron buys for his own nights.'),

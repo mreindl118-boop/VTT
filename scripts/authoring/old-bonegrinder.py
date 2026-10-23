@@ -58,7 +58,7 @@ m.prop('O2-millstone', 'millstone', (CX + 0.6, CY - 0.4), 'O2', dims={'r': 3.2})
 m.prop('O2-shaft', 'gear-shaft', (CX + 0.6, CY - 0.4), 'O2', dims={'h': 29})
 m.prop('O2-stair', 'spiral-stair', STAIR, 'O2', dims={'r': 4, 'rise': 10})
 m.prop('O2-bones', 'bones', (CX - 1.2, CY - 1.6), 'O2')
-m.creature('O2-morgantha', 'commoner', (CX + 1.6, CY + 1.4), 'O2', 'Morgantha, a night hag in the guise of a heavyset old woman, sweeping bone dust')
+m.creature('O2-morgantha', 'commoner', (CX + 1.6, CY + 1.4), 'O2', 'Morgantha sweeps up powdered bone, her night hag nature disguised as a stout elderly woman')
 
 # ---------------------------------------------------------------- O3 bedroom
 b = Level('O3L', 'Bedroom (O3)', 20, 9, ambient='interior-dim', interior='brick', exterior='brick', north='-z')
@@ -85,7 +85,7 @@ a.prop('O4-dome', 'onion-dome', (CX, CY), None, dims={'r': 12, 'y': 9})
 a.prop('O4-sails', 'mill-sails', (CX, CY - 2.6), None, rotY=0, dims={'len': 30, 'a': 22}, y=5)
 
 DESC = {
-  'O1': ('A filthy makeshift kitchen: baskets and dishes everywhere, a peddler\'s cart, a chicken coop, a heavy trunk, a cabinet painted with flowers, a warm brick oven, an open barrel reeking of something foul. Small bones on the flagstones.', 'Dream pastries in the oven; the barrel is demon ichor (scrying font, dretches); the cabinet holds three elixirs; the trunk holds a hundred toads.'),
+  'O1': ('This improvised kitchen is filthy. A brick oven gives off heat beside scattered dishes and baskets, a cart used for peddling, a chicken coop and a stout trunk. Flowers decorate a cabinet; an uncovered barrel stinks. Tiny bones litter the flagstones.', 'Dream pastries in the oven; the barrel is demon ichor (scrying font, dretches); the cabinet holds three elixirs; the trunk holds a hundred toads.'),
   'O2': ('A dusty chamber taken up by a great millstone on a gear shaft that rises through the ceiling. Dirt-caked windows.', 'Morgantha sweeps here; she sells dream pastries at 1 gp and calls her daughters if attacked.'),
   'O3': ('A cramped round room: a thick gear shaft, a rotting closet with three stacked crates, a heap of children\'s clothes, a ladder to a trapdoor, a mouldy canopied bed.', 'Bella and Offalia; Freek and Myrtle in the crates; jewellery in the mattress.'),
   'O4': ('The domed peak, full of old machinery; light through small holes in the walls.', 'Old bird\'s nests.'),

@@ -5,12 +5,13 @@ import { makeOpenable, type OpenHandle } from './openable';
 import type { Polygon } from '../core/geometry';
 import { baseRingFt, DEFAULT_CEILING_FT } from '../core/units';
 import { FLOOR_COLOR, PALETTE, WALL_COLOR } from '../kit/palette';
-import { baseRing, merge, pawn, PROP_BUILDERS, segmentBox, slabGeometry, stairsStraight, WALL_T } from '../kit/pieces';
+import { baseRing, merge, pawn, planeGeometry, PROP_BUILDERS, segmentBox, slabGeometry, stairsStraight, WALL_T } from '../kit/pieces';
 import { mat, matClone, patchFog, wallMat } from './materials';
 import { PROPS_V1 } from '../kit/props';
 import { CREATURES } from '../kit/creatures';
 import '../kit/sites';
 import { buildGridOverlay } from './gridOverlay';
+import { WORLD_STANDINS } from '../core/siteInterfaces';
 
 /** Kinds whose meshes carry a role of their own (stairs, raised ground, plates): built and placed one by one. */
 const UNMERGED = new Set(['stairs-straight', 'prism', 'pressure-plate']);
@@ -37,7 +38,7 @@ export function hitObjectId(h: THREE.Intersection | undefined): string | undefin
 /** Static things a player can always see and never operate (houses, trees, fences, furniture that does not open):
  *  one mesh per material per level instead of thousands of small ones. Anything interactive stays its own object. */
 function isStatic(o: SceneObject): boolean {
-  if (o.vis !== 'player' || o.size || UNMERGED.has(o.kind) || OPENABLE_KINDS[o.kind] || CREATURES[o.kind]) return false;
+    if (o.vis !== 'player' || o.size || UNMERGED.has(o.kind) || WORLD_STANDINS.has(o.kind) || OPENABLE_KINDS[o.kind] || CREATURES[o.kind]) return false;
   return !!(PROP_BUILDERS[o.kind] || PROPS_V1[o.kind]);
 }
 
@@ -102,6 +103,14 @@ function privatize(o: THREE.Object3D, tint?: THREE.Color): THREE.Material[] {
 }
 
 export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
+  const it = buildLevelSteps(level, grid);
+  for (;;) { const r = it.next(); if (r.done) return r.value; }
+}
+
+/** buildLevel in small steps: it yields between objects, merged pieces and parts, so a caller can spread a big map's
+ *  build over many frames (the continuous world streams a town in while the camera moves, render/streamer.ts) with no
+ *  step longer than one object or one concatenation. The result is the same graph as buildLevel's. */
+export function* buildLevelSteps(level: Level, grid: GridLevel): Generator<void, BuiltLevel> {
   const root = new THREE.Group();
   root.name = `level:${level.id}`;
   const y0 = level.elevationFt;
@@ -132,12 +141,16 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
     byFloor.set(t.floor, arr);
   }
   for (const [f, gs] of byFloor) {
-    const m = new THREE.Mesh(merge(gs), mat(FLOOR_COLOR[f as keyof typeof FLOOR_COLOR]));
+    // Open ground receives the stage's geographic paint. A private kit material keeps that stage-specific shader
+    // off other maps' shared palette and is freed with this map by disposeTree.
+    const color = FLOOR_COLOR[f as keyof typeof FLOOR_COLOR];
+    const m = new THREE.Mesh(merge(gs), /^(grass|snow|marsh)$/.test(f) ? matClone(color) : mat(color));
     m.userData.role = 'floor';
     m.name = `floor:${f}`;
     floors.push(m);
     root.add(m);
   }
+  yield;
 
   // Walls: merged per material; doors, windows and secret doors are their own pieces.
   const wallsGroup = new THREE.Group();
@@ -150,7 +163,9 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
   const FRAME = '#3a2c22';
   const COPING: Record<string, string> = { ashlar: PALETTE.stoneDeep, rubble: PALETTE.stoneDeep, brick: PALETTE.stoneDeep, plaster: '#5d5852', 'half-timber': FRAME, earth: '#4d5a3f' };
 
+  let wi = 0;
   for (const w of level.walls) {
+    if (++wi % 64 === 0) yield;
     const f = new Set(w.flags);
     const h = w.heightFt ?? ceiling;
     const color = wallColor(w);
@@ -200,10 +215,12 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
     wallsGroup.add(m);
   }
   root.add(wallsGroup);
+  yield;
 
   // Objects.
   const wallById = new Map(level.walls.map((w) => [w.id, w]));
   for (const o of level.objects) {
+    yield;
     const p = new THREE.Vector3(o.pos[0], y0 + o.pos[1], o.pos[2]);
     if (o.vis === 'secret-door') {
       const w = wallById.get(o.wall!)!;
@@ -245,6 +262,7 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
     if (o.kind === 'stairs-straight' || (o.kind === 'prism' && o.polygon)) obj.position.set(0, y0, 0);
     obj.rotation.y = ((o.rotY ?? 0) * Math.PI) / 180;
     obj.userData.objectId = o.id;
+    if (WORLD_STANDINS.has(o.kind)) obj.userData.worldStandin = true;
     obj.traverse((c) => { if (!c.userData.role) c.userData.role = o.size ? 'token' : 'prop'; });
     root.add(obj);
     if (o.vis !== 'player' && o.vis !== 'explored' && o.vis !== 'unexplored') {
@@ -261,6 +279,7 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
     type Bucket = { gs: THREE.BufferGeometry[]; ranges: MergedRange[]; faces: number };
     const byMat = new Map<string, { material: THREE.Material; role: string; cap: boolean; b: Bucket }>();
     for (const { obj, o, p } of scatter) {
+      yield;
       obj.position.copy(p);
       obj.rotation.y = ((o.rotY ?? 0) * Math.PI) / 180;
       obj.updateMatrixWorld(true);
@@ -272,8 +291,9 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
         const key = `${role}:${cap}:${material.uuid}`;
         let e = byMat.get(key);
         if (!e) { e = { material, role, cap, b: { gs: [], ranges: [], faces: 0 } }; byMat.set(key, e); }
-        const g = m.geometry.clone().applyMatrix4(m.matrixWorld);
-        const n = (g.index ? g.index.count : g.attributes.position.count) / 3;
+        // un-indexed, position and normal only, now (one object at a time) rather than all at once in merge()
+        const g = flat(m.geometry.clone().applyMatrix4(m.matrixWorld));
+        const n = g.attributes.position.count / 3;
         const last = e.b.ranges[e.b.ranges.length - 1];
         if (last && last.id === o.id && last.end === e.b.faces) last.end += n; else e.b.ranges.push({ start: e.b.faces, end: e.b.faces + n, id: o.id });
         e.b.faces += n;
@@ -281,6 +301,7 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
       });
     }
     for (const { material, role, cap, b } of byMat.values()) {
+      yield;
       const m = new THREE.Mesh(merge(b.gs), material);
       m.userData.role = role; if (cap) m.userData.cap = true;
       m.userData.ranges = b.ranges;
@@ -312,13 +333,30 @@ export function buildLevel(level: Level, grid: GridLevel): BuiltLevel {
     }
   }
 
+  yield;
   const gridMesh = buildGridOverlay(grid, y0, !!level.terrain?.length || level.elevationFt <= 0);
   root.add(gridMesh);
 
   return { level, root, grid: gridMesh, floors, targets, secretDoors, labels, lights, lightRings, secretAsWall, wallsGroup, doors, openables };
 }
 
+/** A piece as merge() wants it: un-indexed, with only a position and a normal. */
+function flat(g: THREE.BufferGeometry): THREE.BufferGeometry {
+  const n = g.index ? g.toNonIndexed() : g;
+  if (n !== g) g.dispose();
+  for (const k of Object.keys(n.attributes)) if (k !== 'position' && k !== 'normal') n.deleteAttribute(k);
+  if (!n.attributes.normal) n.computeVertexNormals();
+  return n;
+}
+
+/** One scene object as the map builds it, unplaced (the proxies of the continuous world borrow it for big pieces). */
+export function buildSceneObject(o: SceneObject): THREE.Object3D { return buildObject(o, 0, []); }
+/** Whether a kind has a kit piece of its own (else buildObject draws a creature figure or a pawn). */
+export const hasKit = (kind: string): boolean => kind === 'prism' || kind === 'stairs-straight' || kind === 'pressure-plate' || !!PROP_BUILDERS[kind] || !!PROPS_V1[kind];
 function buildObject(o: SceneObject, y0: number, labels: LabelSpec[]): THREE.Object3D {
+  if (o.kind === 'water' && o.polygon) {
+    return new THREE.Mesh(planeGeometry(o.polygon, 0.051), mat(FLOOR_COLOR['shallow-water'], {surface:'water'}));
+  }
   if (o.kind === 'stairs-straight') {
     const { mesh, treadLabels } = stairsStraight(o.dims ?? {}, [o.pos[0], o.pos[2]]);
     mesh.userData.role = 'stairs';
