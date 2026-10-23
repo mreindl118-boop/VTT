@@ -96,6 +96,7 @@ editing the same thing at once:
 | `app/src/core/coverage.ts`, `app/src/state/backups.ts` (or backup/storage/display state modules), `tests/coverage.test.ts`, `tests/backups.test.ts` (on `claude/wip/item5-backups`) | Legion (subagent `item5`) | 2026-10-23 15:21 | item 5 (`docs/QUEUE.md` item 5) + `coverage.ts` save-migration resampling gate on `claude/wip/item5-backups` | item 5 release |
 | `app/src/render/dollhouse.ts`, `app/src/render/build.ts` (wall/roof tagging for dollhouse cutaway), `app/src/app.ts` (dollhouse toggle & orbit update), `tests/dollhouse.test.ts`, `e2e/dollhouse.spec.ts` | Legion (subagent `item3`) | 2026-10-23 15:37 | item 3: Dollhouse cutaway view (The Sims-style camera-side wall cutaway & roof lift, player-safety gated to revealed/explored rooms) on `claude/wip/item3-dollhouse` | item 3 release |
 | `app/src/render/build.ts`, `app/src/render/materials.ts`, `app/src/kit/props.ts`, `tests/item6-render.test.ts` (on `claude/wip/item6-render`); `scripts/authoring/krezk_land.py`, `scripts/authoring/krezk-village.py`, `scripts/authoring/krezk-abbey.py`, `app/src/kit/sites/s.ts`, `locations/ch08/S/**`, `locations/ch08/S10/**`, `tests/item6-krezk.test.ts` (on `claude/wip/item6-krezk`) | Legion (subagent `item6`) | 2026-10-23 15:42 | item 6: review fix pass on `claude/wip/item6-render` and `claude/wip/item6-krezk` per `docs/handoff/item6-map-groups.json` | item 6 release |
+| new `app/src/core/permissions.ts`, `app/src/core/encounter.ts`, `app/src/core/party.ts`, `app/src/state/upgrade.ts`, and their new tests `tests/permissions.test.ts`, `tests/encounter.test.ts`, `tests/party.test.ts`, `tests/campaign-upgrade.test.ts` with fixtures under `tests/fixtures/` (on `claude/wip/play-1a`; no existing file changes until items 4 and 5, the castle and framework release 1 have merged, and then their wiring in `app.ts`, `main.ts`, `campaign.ts` and `ui/encounter.ts` is claimed here first) | Claude, cloud | 2026-10-23 21:13 | item 5a, release 1a's pure modules (`docs/PLAYABILITY.md` 4.1) | release 1a, after those four |
 | `scripts/authoring/castle-ravenloft.py`, `scripts/authoring/ravenloft-exterior.py`, a new `scripts/authoring/thickwalls.py`, `locations/ch04/K`, `print/castle-ravenloft/`; for 2g-1 `scripts/authoring/wild_j.py`, `locations/ch02/J`, `app/src/kit/sites/k.ts`, `app/src/kit/sites/wild-j.ts`, `app/src/kit/sites/index.ts` and, for J's pin and placement beside the castle only, `scripts/authoring/barovia-world.py` and `world.json` (the 2f-1 row's files: the same agent; merged there by re-running); the walls' thickness: `app/src/core/schema.ts` (`Wall.thicknessFt`), a new `app/src/core/wallBody.ts`, `app/src/core/light.ts` (the blockers), `app/src/core/coverage.ts` (wall bodies; `load` reading only a record that fits its grid, the rest kept aside), `app/src/render/build.ts` (wall, door, window boxes, section caps); the stairs and starts: `app/src/app.ts` (the vertical-link functions, `open`'s party floor, `ensureDefaultToken`, `loadSteps`' restore, `syncUnderground`, the section-cap hook; not `activate` or `moveWorld`), a new `app/src/core/verticalLinks.ts`, a new `app/src/state/partyStart.ts`, `app/src/state/campaign.ts` (settled starts), `app/src/core/siteInterfaces.ts` (ch04/K's underground flag and chasm cut), `app/src/main.ts`, `app/src/styles.css`; for J beside the castle, `app/src/render/backdrop.ts` (`site()`'s landmark choice only: no backdrop castle rising out of J's map with the continuous world off) and `app/src/ui/worldnest.ts` (`snapAt` only: a drop on a place skips hidden places, as a tap does); the browser specs `world.spec.ts` (touching maps) and `continuity.spec.ts` (the castle's budget); the manifests; new tests `castle-contract`, `castle-walls`, `gate-front`, `vertical-links`, `wall-thickness` and the e2e `vertical-links` and `continuity` cases (items 2g, 2g-1, the owner's walls request, item 11's single-hop stairs) | Claude, cloud (main session; taken over from the castle session, whose claim was stale) | 2026-10-19 18:45 | finishing the castle on `claude/wip/castle-playable` (Matt: "finish the castle"); ChatGPT: the save migration you proposed would build on `coverage.ts`'s kept-aside records here | its own release after Matt looks at it |
 
 ## Running things (Matt's Windows laptop, PowerShell)
@@ -138,6 +139,18 @@ Do not start an item that the Status section says another agent has in flight un
 a day old; then continue it from its wip branch, and say so in Status.
 
 ## Status
+
+### Claude, 2026-10-23 21:13 UTC (cloud): Matt approved the playability plan (queue item 5a); its first pure modules start
+
+- **Matt, 2026-10-23: yes to the playability plan's decisions 1, 2, 22 and 25 as recommended; Legion resumes its own
+  lanes.** The plan is now `docs/PLAYABILITY.md`; queue item 5a sits after item 5 and ahead of items 6 to 12 and carries
+  item 13. Its release 1a waits on items 4 and 5, the castle and framework release 1; its release 2 (the Player map)
+  waits on item 5 only.
+- **Started now, claimed above, on `claude/wip/play-1a` from main:** release 1a's new pure modules and their unit tests
+  (`core/permissions.ts`, `core/encounter.ts`, `core/party.ts`, `state/upgrade.ts`). No existing file is changed, so
+  nothing collides with the castle or Legion's claims; the wiring follows when those four lanes have merged.
+- **Legion:** your lanes have been quiet since about 16:00 UTC; Matt's answer is that you resume them. The cloud does
+  not touch their files.
 
 ### Legion laptop, 2026-10-23 16:05 UTC: Matt said go ("all at once"); parallel lanes in worktrees, nothing merged to main yet
 
@@ -965,6 +978,7 @@ may still be running** its check-in routine; Matt decides whether it carries on 
 
 ## Questions for Matt
 
+- Answered (Matt, 2026-10-23, on the playability plan): yes to decisions 1, 2, 22 and 25 as recommended (queue item 5a, `docs/PLAYABILITY.md`); Legion resumes its own lanes (items 4 and 5, framework release 1 and the map lanes) rather than the cloud taking them over. The plan's other decisions are asked when their release starts.
 - **The Gates of Ravenloft beside the castle (2026-10-20 19:35):** J now meets the drawbridge, but on the castle's
   thousand-foot rock, where the valley road cannot climb. Which: (a) shape the land into a spur the road climbs to the
   Gates, and give the chasm natural ends, before the castle releases (part of framework release 7, pulled forward);
