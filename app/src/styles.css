@@ -597,19 +597,19 @@ select.levels { max-width: min(46vw, 320px); padding: 6px 28px 6px 10px; border-
 @media (max-width: 760px) { .topbar .group.center { justify-self: start; } .topbar .group.right { max-width: 100%; } }
 @media (max-width: 480px) {
   .camcluster { gap: 0; } .camcluster button.icon { width: 34px; } .camcluster .divider { margin: 6px 2px; }
-  .topbar .group.left button.icon { width: 34px; } .seg.mode button[role='tab'] { padding: 6px 10px; } .topbar .title .loc { max-width: 84px; } .title { padding: 0 4px; }
+  .topbar .group.left button.icon { width: 34px; } .seg.mode button[role='tab'] { padding: 6px 10px; } .topbar .title .loc, .topbar .title .loc.crumbs { max-width: 84px; } .title { padding: 0 4px; }
   .mapframe { bottom: calc(env(safe-area-inset-bottom) + 64px); }
   .minimap { width: min(300px, 60vw); bottom: calc(env(safe-area-inset-bottom) + 122px); }
 }
 /* the hide-panels tab: a sliver on the left edge that always stays; H does the same */
-.pn-toggle { position: fixed; left: 0; top: 50%; transform: translateY(-50%); width: 22px; height: 44px; display: grid; place-items: center; border-radius: 0 10px 10px 0; background: var(--panel); border: var(--hairline, 1px) solid var(--hair); border-left: 0; color: var(--ink-2); opacity: .45; z-index: 8; transition: opacity .15s; }
+.pn-toggle { position: fixed; left: 0; top: 50%; transform: translateY(-50%); width: 22px; height: 44px; display: grid; place-items: center; border-radius: 0 10px 10px 0; background: var(--panel); border: var(--hairline, 1px) solid var(--hair); border-left: 0; color: var(--ink-2); opacity: .45; z-index: 1; transition: opacity .15s; }
 .pn-toggle svg { width: 14px; height: 14px; }
 .pn-toggle:hover, body[data-ui-hidden] .pn-toggle { opacity: .9; }
-body[data-ui-hidden] .pn-toggle { color: var(--accent); }
+body[data-ui-hidden] .pn-toggle { color: var(--accent); z-index: 8; }
 body[data-ui-hidden] .panel { display: none !important; }
-/* Fix round 3: the view rail and its peek button stay above the top bar groups and the frame; the hide tab sits below the panels; the floors bar wraps on phones */
-.vslider, .vslider.panel[data-placed] { z-index: 6; }
-.pn-toggle { z-index: 4; }
+/* Fix round 3: the view rail stays above unplaced top bar groups; the compass frame stays above the unplaced view rail; any placed panel stays above unplaced panels; the hide tab sits below the panels; the floors bar wraps on phones */
+.vslider { z-index: 3; }
+.mapframe { z-index: 4; }
 @media (max-width: 760px) { .topbar .group.center { flex-wrap: wrap; overflow-x: visible; max-width: calc(100vw - 20px); row-gap: 6px; } }
 /* The continuous world: place labels over the valley, the party's mark on the road; a map's own labels wait until
    the camera comes down to it (zoom bands on body[data-band]: valley, road, town, map). */

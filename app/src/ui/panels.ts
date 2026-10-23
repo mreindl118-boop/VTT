@@ -64,11 +64,11 @@ export class Panels {
     el.dataset.panel = opts.id;
     const handle = document.createElement('div');
     handle.className = 'pn-handle';
-    handle.innerHTML = `<button class="pn-grip" aria-label="Move the ${opts.name} panel (drag, or arrow keys)" title="Move">${ICON.grip}</button><button class="pn-fold" aria-label="Fold the ${opts.name} panel" title="Fold">${ICON.chevron}</button>`;
+    handle.innerHTML = `<button class="pn-grip" aria-label="Move the ${opts.name} panel (drag, or arrow keys)" data-tip="Move">${ICON.grip}</button><button class="pn-fold" aria-label="Fold the ${opts.name} panel" data-tip="Fold">${ICON.chevron}</button>`;
     const icon = document.createElement('button');
     icon.className = 'pn-icon';
     icon.setAttribute('aria-label', `Unfold the ${opts.name} panel`);
-    icon.title = opts.name;
+    icon.dataset.tip = opts.name;
     icon.innerHTML = opts.icon;
     el.prepend(handle, icon);
     const grip = handle.querySelector<HTMLButtonElement>('.pn-grip')!, fold = handle.querySelector<HTMLButtonElement>('.pn-fold')!;
@@ -126,7 +126,7 @@ export class Panels {
     if (c) p.el.dataset.collapsed = '1'; else delete p.el.dataset.collapsed;
     p.fold.setAttribute('aria-expanded', String(!c));
     p.fold.setAttribute('aria-label', `${c ? 'Unfold' : 'Fold'} the ${p.opts.name} panel`);
-    p.fold.title = c ? 'Unfold' : 'Fold';
+    p.fold.dataset.tip = c ? 'Unfold' : 'Fold';
     p.el.toggleAttribute('data-front', this.layout.front === p.opts.id);
     this.place(p);
   }
@@ -135,7 +135,7 @@ export class Panels {
     document.body.toggleAttribute('data-ui-hidden', !!this.layout.hidden);
     this.toggle.setAttribute('aria-pressed', String(!!this.layout.hidden));
     this.toggle.setAttribute('aria-label', this.layout.hidden ? 'Show the panels (H)' : 'Hide the panels (H)');
-    this.toggle.title = this.layout.hidden ? 'Show the panels (H)' : 'Hide the panels (H)';
+    this.toggle.dataset.tip = this.layout.hidden ? 'Show the panels (H)' : 'Hide the panels (H)';
   }
 
   /** Put a panel where its saved offsets say, clamped into the viewport; or back to its CSS place when it has none. */

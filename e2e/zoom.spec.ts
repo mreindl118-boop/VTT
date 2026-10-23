@@ -249,7 +249,7 @@ test.describe('phone', () => {
     // At the default framing and pulled back (where the scale bar is widest), each button is what lies at its centre.
     for (const k of [1, 3, 6]) {
       await page.evaluate((k) => { const w = (window as any).__mistlab.app.world; w.moveTo(w.controls.target.clone(), w.controls.maxDistance / k, false); }, k);
-      const hits = await page.evaluate(() => [...document.querySelectorAll<HTMLElement>('.camcluster button')].map((b) => {
+      const hits = await page.evaluate(() => [...document.querySelectorAll<HTMLElement>('.camcluster button[data-cam]')].map((b) => {
         const r = b.getBoundingClientRect();
         return { cam: b.dataset.cam, top: document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2) === b };
       }));

@@ -1,7 +1,7 @@
 // Movable panels: every floating piece of the DM UI drags by its grip, folds to a pill, hides with the tab or H,
 // and the arrangement is kept per viewport class (phone / desktop) across reloads. Reset layout restores the defaults.
 import { expect, test, type Page } from '@playwright/test';
-import { boot, SCENES } from './helpers';
+import { boot, quiet, SCENES } from './helpers';
 
 const PANELS = ['title', 'floors', 'tools', 'view', 'camera', 'minimap', 'compass'];
 const box = async (page: Page, id: string) => (await page.locator(`[data-panel="${id}"]`).boundingBox())!;
@@ -80,7 +80,7 @@ async function expectMenusOnScreen(page: Page, where: string): Promise<void> {
   }
 }
 
-test.beforeEach(async ({ page }) => { await page.addInitScript(() => localStorage.setItem('mistlab.helpSeen', '1')); });
+test.beforeEach(async ({ page }) => { await quiet(page); });
 
 test('every panel has a focusable, labelled grip and chevron, and the old selectors still resolve', async ({ page }) => {
   await boot(page, '', SCENES[1]);
@@ -239,11 +239,11 @@ test('a wrapping panel parked at the right edge keeps its shape through hide and
   expect(again.x + again.width).toBeCloseTo(900, 0); expect(again.width).toBeCloseTo(tools.width, 0);
 });
 
-test('the compass panel\'s controls are exposed to assistive tech: only the compass and scale bar are decorative', async ({ page }) => {
+test('the compass panel\'s controls are exposed to assistive tech: only the compass graphic and scale bar are decorative', async ({ page }) => {
   await boot(page, '', SCENES[1]);
   const hiddenAncestor = await page.evaluate(() => [...document.querySelectorAll('[data-panel="compass"] button')].map((b) => !!b.closest('[aria-hidden="true"]')));
-  expect(hiddenAncestor).toEqual([false, false, false]);
-  await expect(page.locator('.mapframe .compass')).toHaveAttribute('aria-hidden', 'true');
+  expect(hiddenAncestor).toEqual([false, false, false, false]);
+  await expect(page.locator('.mapframe .compass svg')).toHaveAttribute('aria-hidden', 'true');
   await expect(page.locator('.mapframe .scalebar')).toHaveAttribute('aria-hidden', 'true');
 });
 

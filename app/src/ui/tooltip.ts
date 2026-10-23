@@ -13,7 +13,7 @@ import { ICON } from './icons';
 
 /** Press-and-hold and pointer-capture controls: never a long-press tip (tests/tooltip.test.ts checks every
  *  setPointerCapture site is covered). */
-export const HOLD_EXCLUDE = '.vs-peek, .vs-track, canvas.gl, .world-svg, .mm-canvas, input[type=range], [data-hold]';
+export const HOLD_EXCLUDE = '.vs-peek, .vs-track, .pn-grip, canvas.gl, .world-svg, .mm-canvas, input[type=range], [data-hold]';
 /** Trigger guard on the players' side: nothing under these opens a tip. */
 const GUARD = '.dm-only, .dm-note, .lbl.key';
 const TRIGGER = '[data-tip], button.tt, .rl';

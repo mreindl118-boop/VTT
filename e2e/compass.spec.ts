@@ -21,6 +21,7 @@ async function open(page: Page, nested = true): Promise<void> {
   await quiet(page);
   await page.goto(`/?nosw&scene=appB/death-house${nested ? '' : '&nested=0'}`);
   await page.evaluate(() => (window as any).__mistlab.ready);
+  await page.evaluate(() => document.querySelector<HTMLElement>('[data-panel="compass"][data-collapsed] .pn-icon')?.click());
   await settle(page);
 }
 const camera = (page: Page) => page.evaluate(() => {
