@@ -1,0 +1,34 @@
+{
+  "id": "cos",
+  "name": "cos",
+  "reveals": [
+    { "type": "room", "location": "death-house", "key": "1", "mode": "explored" },
+    { "type": "room", "location": "death-house", "key": "3", "mode": "explored" }
+  ],
+  "tokens": [
+    { "id": "pc-E", "name": "Party", "location": "E", "level": "village", "pos": [252.5, 607.5], "size": "medium", "darkvisionFt": 0, "color": "#c0392b", "light": { "bright": 20, "dim": 40 }, "role": "party" },
+    { "id": "cr-death-house-wolf-mgw3b7c-1", "name": "Wolf", "location": "death-house", "level": "f1", "pos": [47.5, 22.5], "size": "medium", "darkvisionFt": 60, "color": "#6f6a63", "role": "creature", "creatureId": "wolf", "hidden": false, "playerName": "Grey shape", "hp": { "cur": 11, "max": 11 } },
+    { "id": "cr-death-house-ghoul-mgw3b9d-1", "name": "Ghoul", "location": "death-house", "level": "f1", "pos": [37.5, 27.5], "size": "medium", "darkvisionFt": 60, "color": "#5b6b4f", "role": "creature", "creatureId": "ghoul", "hidden": true, "playerName": "Thing in the dark", "hp": { "cur": 0, "max": 22 }, "sheetId": "cr:ghoul" }
+  ],
+  "seen": {
+    "death-house/f1": "c5:0x412,1x36,0x18,1x36,0x900",
+    "E/village": "c5:0x5120,1x44,0x2400"
+  },
+  "doorsOpen": { "death-house/door-3": true },
+  "opened": {},
+  "world": {
+    "pos": [7.88, 10.12],
+    "key": "E",
+    "trail": [{ "pos": [7.88, 10.12], "key": "E", "miles": 0, "at": 1760990400000 }]
+  },
+  "worldRevealed": ["E"],
+  "clock": { "day": 1, "hour": 22.5 },
+  "roster": [
+    { "id": "pc-1", "name": "Fighter", "color": "#d9822b", "speedFt": 30, "reachFt": 5, "rangeFt": 0, "initMod": 1, "size": "medium", "darkvisionFt": 0, "kind": "pc" },
+    { "id": "pc-2", "name": "Rogue", "color": "#7b5ea7", "speedFt": 30, "reachFt": 5, "rangeFt": 80, "initMod": 3, "size": "medium", "darkvisionFt": 60, "kind": "pc" },
+    { "id": "pc-3", "name": "Cleric", "color": "#c9b458", "speedFt": 30, "reachFt": 5, "rangeFt": 0, "initMod": 0, "size": "medium", "darkvisionFt": 0, "kind": "pc" },
+    { "id": "pc-4", "name": "Wizard", "color": "#3b8ea5", "speedFt": 30, "reachFt": 5, "rangeFt": 120, "initMod": 2, "size": "medium", "darkvisionFt": 0, "kind": "pc" },
+    { "id": "cr:ghoul", "name": "Ghoul", "color": "#5b6b4f", "speedFt": 30, "reachFt": 5, "rangeFt": 0, "initMod": 0, "size": "medium", "darkvisionFt": 60, "kind": "npc" }
+  ],
+  "updatedAt": 1760994600000
+}
