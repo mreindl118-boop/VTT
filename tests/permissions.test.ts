@@ -111,6 +111,26 @@ describe('table 2.4: on a turn (a running fight on this map)', () => {
   });
 });
 
+describe('the DM\'s slider preview (DM view, slider at the players\' end): today\'s preview, unchanged', () => {
+  // e2e/surfaces.spec.ts:189-190 moves a character out of its turn at t = 0 and reads 'Not your turn' (app.ts:2040);
+  // the rest of today's preview is the DM's (app.ts:2037-2045: not `restricted`, so placements, free moves, no walls).
+  const now = { inOrder: true, current: true }, waiting = { inOrder: true, current: false }, outside = { inOrder: false, current: false };
+  const preview = { preview: true } as const;
+  it('a combatant out of its turn is refused in the players\' words, a character or a creature; without the flag the DM places it', () => {
+    expect(move('dm', 'running', { ...vex, ...waiting }, { ...preview, moveCell: GREEN })).toEqual(refused('Not your turn'));
+    expect(move('dm', 'running', { ...ghoul, ...waiting }, preview)).toEqual(refused('Not your turn'));
+    expect(move('dm', 'running', { ...vex, ...waiting }, { moveCell: GREEN })).toEqual({ ok: true, note: WORDS.placedByDm });
+  });
+  it('everything else stays the DM\'s: the current one spends or is placed, a token outside the order and the marker move freely, through walls', () => {
+    expect(move('dm', 'running', { ...vex, ...now }, { ...preview, moveCell: GREEN })).toEqual({ ok: true, spendFt: 10 });
+    expect(move('dm', 'running', { ...vex, ...now }, preview)).toEqual({ ok: true, note: WORDS.placedByDm });
+    expect(move('dm', 'running', { ...ghoul, ...outside }, preview)).toEqual({ ok: true });
+    expect(move('dm', 'running', { ...party, ...outside }, { ...preview, walk: WALK_NO })).toEqual({ ok: true });
+    expect(move('dm', 'exploring', { ...party, ...outside }, { ...preview, walk: WALK_NO })).toEqual({ ok: true });
+    expect(move('dm', 'called', { ...vex, ...waiting }, preview)).toEqual({ ok: true });
+  });
+});
+
 describe('Called and Paused (release 3), every kind', () => {
   const kinds = [party, vex, vexHeld, ghoul, foe];
   it('Called: the players\' side freezes at once; the DM still moves anyone, to set up an ambush, spending nothing', () => {

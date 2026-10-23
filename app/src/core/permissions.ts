@@ -2,7 +2,8 @@
 // These are the decision tables of docs/PLAYABILITY.md 2.2 (exploring) and 2.4 (on a turn), by actor, phase, token kind,
 // the "DM runs" hold, the order and whose turn it is. Pure: the walk and range checks are inputs the caller computes
 // (core/movement.ts or walkField, core/range.ts with encounter.ts moveCellAt), so a walk check's own refusal words pass
-// through unchanged. The DM is never refused (from release 1a, not even a combatant out of its turn).
+// through unchanged. The DM is never refused (from release 1a, not even a combatant out of its turn), except for that
+// one move in the slider preview, as today (MoveQuery `preview`).
 import type { FightPhase, TokenKind } from './encounter';
 
 export { tokenKind, type TokenKind } from './encounter';
@@ -20,7 +21,7 @@ export type Check = { ok: true } | { ok: false; reason: string };
 
 /** The words the players' side and the DM read. The first four are today's (app.ts moveTokenTo, toggleDoor). */
 export const WORDS = {
-  notYourTurn: 'Not your turn', // pinned by e2e/surfaces.spec.ts:190
+  notYourTurn: 'Not your turn', // pinned by e2e/surfaces.spec.ts:190 (the slider preview and Players view)
   outOfRange: 'Out of movement range',
   placedByDm: 'Placed by the DM: no movement spent',
   locked: 'Locked',
@@ -68,6 +69,14 @@ export interface MoveQuery extends ActingToken {
   /** The token's own floor and the destination's: the players' side moves a token on its own floor only. */
   tokenLevel?: string;
   targetLevel?: string;
+  /**
+   * The DM's slider preview: DM view with the slider at its players' end (app.ts `playersSide` without `restricted`).
+   * The DM still acts, with one exception kept from today: a combatant moved out of its turn is refused in the players'
+   * words, "Not your turn" (app.ts:2040, pinned by e2e/surfaces.spec.ts:189-190). Everything else stays the DM's: the
+   * current combatant off its green squares is placed, a token outside the order and the marker move freely. Whether
+   * the preview should show the players' rules in full instead is Matt's call; this keeps today's preview.
+   */
+  preview?: boolean;
 }
 
 /** The players' side frozen by the phase. */
@@ -89,13 +98,16 @@ function playersMay(phase: Phase, t: ActingToken): { ok: false; reason: string }
 /**
  * Moving a token. The DM moves anything anywhere, through walls; on a turn, a combatant's move onto the current one's
  * green squares spends its movement, and any other combatant's move is a placement ("Placed by the DM: no movement
- * spent"). The players' side walks the party marker or a character (not one the DM runs) outside a fight, and on a turn
- * moves only the current character, only onto its green squares; it never moves a creature or a foe row's token.
+ * spent"), except in the slider preview, where a combatant out of its turn is refused as today (`preview`). The
+ * players' side walks the party marker or a character (not one the DM runs) outside a fight, and on a turn moves only
+ * the current character, only onto its green squares; it never moves a creature or a foe row's token.
  */
 export function canMove(q: MoveQuery): MoveVerdict {
   if (q.actor === 'dm') {
     if (q.phase === 'exploring' || q.phase === 'called' || !q.inOrder) return { ok: true };
-    return q.current && q.moveCell ? { ok: true, spendFt: q.moveCell.costFt } : { ok: true, note: WORDS.placedByDm };
+    if (q.current && q.moveCell) return { ok: true, spendFt: q.moveCell.costFt };
+    if (q.preview && !q.current) return no(WORDS.notYourTurn);
+    return { ok: true, note: WORDS.placedByDm };
   }
   const held = playersMay(q.phase, q); if (held) return held;
   if (q.tokenLevel !== undefined && q.targetLevel !== undefined && q.tokenLevel !== q.targetLevel) return no(otherFloor(q.name));
