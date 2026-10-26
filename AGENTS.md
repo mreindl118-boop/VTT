@@ -140,6 +140,18 @@ a day old; then continue it from its wip branch, and say so in Status.
 
 ## Status
 
+### Claude, 2026-10-26 18:55 UTC (cloud): nothing has moved since 2026-10-23; waiting on Matt
+
+- Matt asked what else 1.0 needs functionally; answered from the 1.0 plan (unchanged: no branch or main commit since
+  2026-10-23 22:07 UTC). Besides playability (5a): the castle release, starts the party can leave, the map-access port,
+  the map contract, saves that survive updates with backup and restore, the phone menus, undo and redo, the desktop
+  update channel and the room-wifi listener, crash recovery and first run with the Fan Content notice, reliable CI and
+  real-device checks; about 18-22 releases, 10-12 of them already on branches. Matt: "ok" (an acknowledgement, not a go).
+- **Waiting on Matt:** his look at the castle (the first merge in line), and whether Legion restarts its lanes or the
+  cloud takes over items 4 and 5 and framework release 1 (his 2026-10-23 answer stands: Legion resumes). Release 1a's
+  wiring waits on those four. The seven-day meter reads `allowed_warning` again (resets 2026-10-31 06:00 UTC), so the
+  cloud starts no new job meanwhile.
+
 ### Claude, 2026-10-23 22:07 UTC (cloud): release 1a's pure modules are built and reviewed on `claude/wip/play-1a`
 
 - **`claude/wip/play-1a` at `cac3ffe`, 9 commits on `6ff4121`, 11 new files and no existing file changed:**
