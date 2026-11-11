@@ -34,7 +34,7 @@ export function openEncounterSheet(app: App, onStart: () => void): void {
         <table class="roster"><thead><tr><th></th><th>Name</th><th>Kind</th><th>${head('rule:speed', 'Speed', 'boot-prints')}</th><th>${head('rule:reach', 'Reach', 'crossed-swords')}</th><th>${head('rule:range', 'Range', 'position-marker')}</th><th>${head('rule:darkvision', 'Darkvision', 'semi-closed-eye', 'sense')}</th><th>Init mod</th><th>${head('rule:initiative', 'Initiative', 'dice-twenty-faces-twenty')}</th><th></th></tr></thead><tbody>${rows}</tbody></table>
         ${creatures.length ? `<h3>Creatures on this map</h3><table class="roster creatures"><thead><tr><th></th><th>Name</th><th>Players see</th><th>Hit points</th><th>Initiative</th></tr></thead><tbody>${creatures.map((t) => `<tr data-tok="${esc(t.id)}"><td><span class="chip" style="--tok:${esc(t.color)}"></span></td><td>${esc(t.name)}${t.hidden ? ' <i>(hidden)</i>' : ''}</td><td>${esc(t.playerName ?? t.name)}</td><td>${t.hp ? `${t.hp.cur}/${t.hp.max}` : '—'}</td>
           <td><label class="init"><input type="checkbox" data-f="cin" ${cinits.has(t.id) ? 'checked' : ''} aria-label="In this encounter"><input type="number" value="${cinits.get(t.id) ?? ''}" data-f="cinit" placeholder="—" aria-label="Initiative"></label></td></tr>`).join('')}</tbody></table>` : ''}
-        <div class="row"><button data-a="add">${ICON.party} Add character</button><button data-a="npc">Add foe</button><span class="spacer"></span><button data-a="roll">Roll initiative</button><button class="primary" data-a="start">Start encounter</button></div>
+        <div class="row"><button data-a="add">${ICON.party} Add character</button><button data-a="npc">Add foe</button><button data-a="packs" data-tip="Encounter packs" data-tip-sub="Stage a prepared fight">${ICON.swords} Encounter packs…</button><span class="spacer"></span><button data-a="roll">Roll initiative</button><button class="primary" data-a="start">Start encounter</button></div>
       </div></div>`;
     // The headers' emblems (their own chunk, DM only).
     void import('./emblems').then((m) => { m.ensureEmblems(); back.querySelectorAll<HTMLElement>('i[data-e]').forEach((i) => { i.outerHTML = m.emblem(i.dataset.e as Parameters<typeof m.emblem>[0]); }); }).catch(() => {});
@@ -61,6 +61,7 @@ export function openEncounterSheet(app: App, onStart: () => void): void {
     const t = e.target as HTMLElement;
     if (t === back || t.closest('.close')) return back.remove();
     const a = t.closest<HTMLElement>('[data-a]')?.dataset.a; if (!a) return;
+    if (a === 'packs') { back.remove(); void import('./encounterPacks').then((m) => m.openEncounterPacks(app, () => openEncounterSheet(app, onStart))); return; }
     if (a === 'del') { const s = sheetOf(t); app.state.roster = app.state.roster.filter((x) => x !== s); inits.delete(s.id); app.commit(); render(); }
     if (a === 'add' || a === 'npc') {
       const n = app.state.roster.length + 1, npc = a === 'npc';
