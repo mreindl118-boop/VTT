@@ -157,6 +157,7 @@ function buildDmUi(): void {
       </div></details>
       <button class="icon" data-act="creatures" aria-label="Creatures" data-tip="Creatures" data-tip-sub="People, monsters and beasts to place">${ICON.paw}</button>
       <button class="icon" data-act="encounter" aria-label="Initiative" data-tip="Initiative" data-tip-sub="Roll, ranges, turns">${ICON.swords}</button>
+      <button class="icon" data-act="initclock" aria-label="Initiative clock" data-tip="Initiative clock" data-tip-sub="The 1–30 dial, reminders, encounter builder"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3v2M21 12h-2M12 21v-2M3 12h2M12 12l4-5"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/></svg></button>
       <button class="icon" data-act="search" aria-label="Go to area (/)" data-tip="Go to area" data-key="search">${ICON.search}</button>
       <button class="icon" data-act="rooms" aria-label="Rooms" data-tip="Rooms">${ICON.list}</button>
       <details class="menu" data-menu="view"><summary class="icon" aria-label="View options" data-tip="View">${ICON.grid}</summary><div class="menu-panel">
@@ -450,6 +451,7 @@ function buildDmUi(): void {
       case 'world': if (!(app.nested && nest.open())) openWorld(); break;
       case 'encounter': app.encounter ? bar.update() : openEncounterSheet(app, refresh); break;
       case 'creatures': openBestiary(app, refresh); break;
+      case 'initclock': void import('./ui/initClock').then((m) => m.openInitClock(app)); break;
       case 'undo': app.undo(); break;
       case 'sec-follow': app.setCut(undefined); break;
       case 'whole': if (app.sectionRange) { app.setCut(app.sectionRange.max); app.frameLevel(); } break;
