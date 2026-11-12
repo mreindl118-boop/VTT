@@ -1703,7 +1703,7 @@ export class App {
   undo(): void { if (this.state.reveals.pop()) this.commit(); }
 
   // ------------------------------------------------------------------ the clock: day, hour, sun and moon
-  get clock(): { day: number; hour: number } { return this.state.clock ?? { day: 1, hour: 14 }; }
+  get clock(): { day: number; hour: number; newMoon?: number } { return this.state.clock ?? { day: 1, hour: 14 }; }
   get sky(): Sky { return skyAt(this.clock, this.campaign.theme.id === 'pastoral' ? 'pastoral' : 'gothic', this.cur?.scene.ambient ?? 'barovian-overcast'); }
   /** Is this level under the open sky? (It has terrain and is not a cave or cellar.) */
   private openAir(l: Level): boolean { return !!l.terrain?.length && (l.ambient ?? this.cur!.scene.ambient) !== 'darkness'; }
@@ -1716,10 +1716,16 @@ export class App {
   }
   setClock(day: number, hour: number): void {
     const h = ((hour % 24) + 24) % 24;
-    this.state.clock = { day: Math.max(1, Math.round(day)), hour: Math.round(h * 4) / 4 };
+    const nm = this.state.clock?.newMoon;
+    this.state.clock = { day: Math.max(0, Math.round(day)), hour: Math.round(h * 4) / 4, ...(nm !== undefined ? { newMoon: nm } : {}) };
     this.applySky(); this.recompute(); this.commit(); this.onChange?.();
   }
-  advance(hours: number): void { const c = this.clock; let h = c.hour + hours, d = c.day; while (h >= 24) { h -= 24; d++; } while (h < 0) { h += 24; d = Math.max(1, d - 1); } this.setClock(d, h); }
+  advance(hours: number): void { const c = this.clock; let h = c.hour + hours, d = c.day; while (h >= 24) { h -= 24; d++; } while (h < 0) { h += 24; d = Math.max(0, d - 1); } this.setClock(d, h); }
+  /** The calendar's new moon (the day whose night is new), then the clock as the calendar has it. */
+  setCalendar(newMoon: number, now?: { day: number; hour: number }): void {
+    this.state.clock = { ...this.clock, newMoon };
+    if (now) this.setClock(now.day, now.hour); else { this.applySky(); this.recompute(); this.commit(); this.onChange?.(); }
+  }
   applySky(): void {
     if (!this.cur) return;
     const l0 = this.cur.scene.levels.find((l) => l.terrain?.length) ?? this.cur.scene.levels[0];

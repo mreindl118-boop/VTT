@@ -7,6 +7,7 @@ import { NestedWorldMap } from './ui/worldnest';
 import { band as cartoBand } from './render/worldcarto';
 import { buildMinimap } from './ui/minimap';
 import { dayFromHarptos, harptosParts, MONTH_NAMES, FESTIVALS } from './core/sky';
+import { dayEntry, parseCalendar, type Calendar } from './core/calendar';
 import { PACES, paceNote, type Pace } from './core/travel';
 import { openBestiary } from './ui/bestiary';
 import { markSeen, seenThisVersion, showWhatsNew } from './ui/whatsnew';
@@ -312,6 +313,9 @@ function buildDmUi(): void {
   });
   // The clock popover: an hour dial, a day stepper, the date and the moon.
   let clockEl: HTMLElement | null = null;
+  // The session notes' calendar (calendar.json): kept on the DM's device per campaign; its new moon goes to the clock.
+  const calKey = () => `mistlab.calendar.${app.campaign.id}`;
+  const calendar = (): Calendar | undefined => { try { const r = parseCalendar(localStorage.getItem(calKey()) ?? ''); return r.ok ? r.cal : undefined; } catch { return undefined; } };
   // openClock is defined below; the minimap's clock button calls it through this hook.
   function openClock(): void {
     if (clockEl) { clockEl.remove(); clockEl = null; return; }
@@ -333,9 +337,11 @@ function buildDmUi(): void {
       const months = [...MONTH_NAMES.map((m, i) => `<option value="${i}"${hp.month === i ? ' selected' : ''}>${m}</option>`), ...FESTIVALS.map((f, i) => `<option value="${12 + i}"${hp.month === 12 + i ? ' selected' : ''}>${f.name}</option>`)].join('');
       el.innerHTML = `<div class="ck-head"><b>${s.label.split(' · ').slice(1).join(' · ')}</b><button class="icon close" aria-label="Close" data-tip="Close">${ICON.close}</button></div>
         <label>Hour <input type="range" min="0" max="23.75" step="0.25" value="${c.hour}" data-f="hour"><span class="ck-val">${s.label.split(' · ')[1]}</span></label>
-        <div class="ck-row"><button data-a="day-">−1 day</button><label class="ck-field">Day <input type="number" min="1" value="${c.day}" data-f="day" aria-label="Day of the campaign"></label><button data-a="day+">+1 day</button><span class="spacer"></span><button data-a="h-1">−1 h</button><button data-a="h+1">+1 h</button><button data-a="h+8">+8 h</button></div>
+        <div class="ck-row"><button data-a="day-">−1 day</button><label class="ck-field">Day <input type="number" min="0" value="${c.day}" data-f="day" aria-label="Day of the campaign"></label><button data-a="day+">+1 day</button><span class="spacer"></span><button data-a="h-1">−1 h</button><button data-a="h+1">+1 h</button><button data-a="h+8">+8 h</button></div>
         <div class="ck-row"><label class="ck-field">Date <select data-f="month" aria-label="Month">${months}</select><input type="number" min="1" max="30" value="${hp.dom}" data-f="dom" aria-label="Day of the month"${hp.month >= 12 ? ' disabled' : ''}></label></div>
         <div class="ck-row ck-moon"><span class="moon" style="--lit:${s.moonLit.toFixed(2)}"></span><span>${s.moonName}${s.night ? ' · night' : s.ambient === 'fog' ? ' · dusk light' : ' · daylight'}</span></div>
+        ${(() => { const cal = calendar(), d = dayEntry(cal, c.day); return `<div class="ck-cal">${d ? `<div class="ck-calday"><b>${esc(d.title ?? `Day ${c.day}`)}</b>${d.session !== undefined ? ` <small>Session ${esc(String(d.session))}</small>` : ''}${d.note ? `<p>${esc(d.note)}</p>` : ''}</div>` : ''}
+          <div class="ck-row"><span class="ck-out">${cal ? `${esc(cal.title ?? 'Calendar')} · new moon on day ${cal.newMoonDay}` : 'No calendar loaded: the moon is new on the night of day 1.'}</span><button data-a="cal-load" data-tip="Load calendar" data-tip-sub="calendar.json from the session notes: the day reached and the new moon">Load calendar</button>${cal?.now ? `<button data-a="cal-now" data-tip="Go to the notes' day" data-tip-sub="Day ${cal.now.day}, where the last session ended">Day ${cal.now.day}</button>` : ''}</div></div>`; })()}
         <div class="ck-travel"><b>Travel</b>
           <div class="ck-row"><label class="ck-field"><input type="number" min="0" step="0.5" value="${travel.miles}" data-t="miles" aria-label="Miles"> mi</label>
             <select data-t="pace" aria-label="Pace">${(['slow', 'normal', 'fast'] as Pace[]).map((p) => `<option value="${p}"${travel.pace === p ? ' selected' : ''}>${p[0].toUpperCase() + p.slice(1)} · ${PACES[p].mph} mph · ${PACES[p].milesPerDay} mi/day</option>`).join('')}</select>
@@ -347,7 +353,7 @@ function buildDmUi(): void {
     render();
     el.addEventListener('change', (e) => {
       const t = e.target as HTMLInputElement | HTMLSelectElement, c = app.clock;
-      if (t.dataset.f === 'day') { app.setClock(Math.max(1, Math.round(Number(t.value)) || 1), c.hour); render(); refresh(); }
+      if (t.dataset.f === 'day') { app.setClock(Math.max(0, Math.round(Number(t.value)) || 0), c.hour); render(); refresh(); }
       if (t.dataset.f === 'month' || t.dataset.f === 'dom') { const m = Number(el.querySelector<HTMLSelectElement>('[data-f="month"]')!.value), d = Number(el.querySelector<HTMLInputElement>('[data-f="dom"]')!.value) || 1; app.setClock(dayFromHarptos(m, d), c.hour); render(); refresh(); }
       if (t.dataset.t === 'miles') travel.miles = Math.max(0, Number(t.value) || 0);
       if (t.dataset.t === 'pace') travel.pace = t.value as Pace;
@@ -363,6 +369,19 @@ function buildDmUi(): void {
       if (a === 'day-') app.setClock(c.day - 1, c.hour); if (a === 'day+') app.setClock(c.day + 1, c.hour);
       if (a === 'h-1') app.advance(-1); if (a === 'h+1') app.advance(1); if (a === 'h+8') app.advance(8);
       if (a === 'travel') app.advance(elapsed(travelHours()));
+      if (a === 'cal-now') { const cal = calendar(); if (cal) app.setCalendar(cal.newMoonDay, cal.now); }
+      if (a === 'cal-load') {
+        const inp = Object.assign(document.createElement('input'), { type: 'file', accept: '.json,application/json' });
+        inp.addEventListener('change', () => { const f = inp.files?.[0]; if (!f) return; void f.text().then((txt) => {
+          const r = parseCalendar(txt);
+          if (!r.ok) { app.onStatus?.(r.error); return; }
+          try { localStorage.setItem(calKey(), txt); } catch { /* this visit only */ }
+          app.setCalendar(r.cal.newMoonDay, r.cal.now);
+          app.onStatus?.(`Calendar loaded: day ${app.clock.day}, ${app.sky.moonName}`);
+          if (clockEl === el) render(); refresh();
+        }); });
+        inp.click();
+      }
       render(); refresh();
     });
     ui.appendChild(el);
