@@ -24,7 +24,9 @@ export interface ClockHost {
   /** The storage namespace (the VTT's campaign id). */
   key: string;
   /** Characters to seed the party with. */
-  roster(): { id: string; name: string; color: string; initMod: number }[];
+  roster(): { id: string; name: string; color: string; initMod: number; player?: string; level?: number }[];
+  /** Changes when the host's party seed changes; a different stored version re-seeds the party (names, players, levels). */
+  partyVersion?: string;
   /** The SRD monsters for a rules edition. */
   monsters(ed: Rules): Promise<MonsterRecord[]>;
   edition(): Rules;
@@ -63,7 +65,7 @@ const EXTRA_CONDITIONS = ['Blessed', 'Baned', 'Hasted', 'Slowed', 'Hexed', "Hunt
 function seedParty(host: ClockHost): PartyMember[] {
   const pcs = host.roster();
   const base = pcs.length ? pcs : [{ id: 'pc-1', name: 'Character 1', color: PARTY_COLORS[0], initMod: 0 }];
-  return base.map((s, i) => ({ id: s.id, name: s.name, player: '', level: 1, ac: 12, pp: 10, mod: s.initMod ?? 0, maxHp: 10, color: s.color ?? PARTY_COLORS[i % PARTY_COLORS.length] }));
+  return base.map((s, i) => ({ id: s.id, name: s.name, player: ('player' in s && s.player) || '', level: ('level' in s && s.level) || 1, ac: 12, pp: 10, mod: s.initMod ?? 0, maxHp: 10, color: s.color ?? PARTY_COLORS[i % PARTY_COLORS.length] }));
 }
 
 // ------------------------------------------------------------------ the monster catalog
@@ -98,6 +100,12 @@ export function openClock(host: ClockHost): void {
   let clock: Clock = get(K(host, 'clock'), newClock());
   let party: PartyMember[] = get(K(host, 'party'), [] as PartyMember[]);
   if (!party.length) party = seedParty(host);
+  if (host.partyVersion && get(K(host, 'partyVersion'), '') !== host.partyVersion) {
+    // A new party from the host (new names or levels): keep each character's numbers the DM already set, by id.
+    const old = new Map(party.map((m) => [m.id, m]));
+    party = seedParty(host).map((m) => { const o = old.get(m.id); return o ? { ...o, name: m.name, player: m.player, level: m.level } : m; });
+    put(K(host, 'partyVersion'), host.partyVersion);
+  }
   let library: CustomBlock[] = get(K(host, 'library'), [] as CustomBlock[]);
   let saved: Saved[] = get(K(host, 'saved'), [] as Saved[]);
   let stage: StageItem[] = get(K(host, 'stage'), [] as StageItem[]);

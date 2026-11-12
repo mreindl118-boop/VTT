@@ -12,7 +12,7 @@ interface PageData {
   monsters: Record<Rules, MonsterRecord[]>;
   conditions: Record<Rules, { id: string; name: string; html: string }[]>;
   attribution: Record<Rules, string>;
-  party?: { name: string; color?: string }[];
+  party?: { name: string; player?: string; level?: number; color?: string }[];
 }
 const data = JSON.parse(document.getElementById('srd-data')!.textContent!) as PageData;
 const EDITION_KEY = 'initclock.rulesEdition', EVENT = 'initclock:edition';
@@ -21,7 +21,8 @@ const COLORS = ['#d9822b', '#7b5ea7', '#c9b458', '#3b8ea5', '#4f9a5b', '#c0607a'
 
 const host: ClockHost = {
   key: 'standalone',
-  roster: () => (data.party?.length ? data.party : [1, 2, 3, 4].map((n): { name: string; color?: string } => ({ name: `Character ${n}` }))).map((p, i) => ({ id: `pc-${i + 1}`, name: p.name, color: p.color ?? COLORS[i % COLORS.length], initMod: 0 })),
+  roster: () => (data.party?.length ? data.party : [1, 2, 3, 4].map((n): NonNullable<PageData['party']>[number] => ({ name: `Character ${n}` }))).map((p, i) => ({ id: `pc-${i + 1}`, name: p.name, player: p.player, level: p.level, color: p.color ?? COLORS[i % COLORS.length], initMod: 0 })),
+  partyVersion: JSON.stringify(data.party ?? []),
   monsters: async (ed) => data.monsters[ed] ?? [],
   edition,
   setEdition: (ed) => { try { localStorage.setItem(EDITION_KEY, ed); } catch { /* this visit only */ } dispatchEvent(new CustomEvent(EVENT, { detail: ed })); },

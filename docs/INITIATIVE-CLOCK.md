@@ -73,7 +73,7 @@ Sources: [arcaneeye's tracker comparison](https://arcaneeye.com/dm-tools-5e/best
 ## On its own page
 
 The same clock also runs outside the VTT, as one HTML file with the SRD 5.1 and 5.2.1 monsters and conditions
-inside it (and their CC-BY attribution in the footer): `npm run initclock:page -- <out.html> "Name,Name,…"`. The
+inside it (and their CC-BY attribution in the footer): `npm run initclock:page -- <out.html> "Character|Player|level,…"`. The
 names seed the party and are only in the output file, which is never committed. On that page monster and condition
 names open a stat-block card of its own; there is no map, so "from this map" is not offered.
 

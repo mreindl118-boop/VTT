@@ -1,6 +1,6 @@
 // Builds the initiative clock as one self-contained HTML page (app/src/standalone/initClockPage.ts): the clock's code
 // and styles, the theme tokens and fonts, and the SRD 5.1 and 5.2.1 monsters and conditions (CC-BY-4.0, with their
-// attribution). Usage: node scripts/initclock/build.mjs <out.html> [party names, comma separated]
+// attribution). Usage: node scripts/initclock/build.mjs <out.html> ["Character|Player|level,…"]
 // The output is for the DM's own use and is not committed (party names in particular stay out of the repo).
 import { build } from 'vite';
 import { mkdtempSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
@@ -10,7 +10,8 @@ import { join, resolve } from 'node:path';
 const root = resolve(import.meta.dirname, '../..');
 const out = process.argv[2];
 if (!out) { console.error('usage: node scripts/initclock/build.mjs <out.html> [names]'); process.exit(1); }
-const party = (process.argv[3] ?? '').split(',').map((s) => s.trim()).filter(Boolean).map((name) => ({ name }));
+// Each party member: "Character|Player|level" (player and level optional), comma separated.
+const party = (process.argv[3] ?? '').split(',').map((s) => s.trim()).filter(Boolean).map((x) => { const [name, player, level] = x.split('|').map((v) => v.trim()); return { name, ...(player ? { player } : {}), ...(level ? { level: Number(level) } : {}) }; });
 
 const tmp = mkdtempSync(join(tmpdir(), 'initclock-'));
 await build({
