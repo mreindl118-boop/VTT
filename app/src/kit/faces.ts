@@ -45,6 +45,9 @@ export interface FaceSpec {
   veins?: string; shadow?: string; blush?: string; spectacles?: string; lashes?: boolean;
   /** No hair cap on the head. */
   bald?: boolean;
+  /** The ears: longer (1) or shorter (-1); and how far they stand out from the head, from lying back along it (0) to
+   *  sticking straight out sideways through the hair (1), as an elf's or a fairy's often do in their art. */
+  earLen?: number; earOut?: number;
 }
 
 export interface FaceLook { skin: string; hair?: string; eyes?: string; lips?: string; detail?: FaceDetail; /** Sculpted on the feminine frame (a softer jaw and brow, fuller lips, larger eyes). */ fem?: boolean; /** Crossed-out eyes. */ dead?: boolean }

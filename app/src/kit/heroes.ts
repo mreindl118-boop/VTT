@@ -270,13 +270,13 @@ function drape(rTop: number, rBot: number, h: number, c: string, o: { folds: num
 /** Faces are painted onto a clean head (the stylised look); false brings back the sculpted standard face below. */
 /** An elf's ear: a long leaf of a shell from a small lobe up to a point that sweeps up and back, its outer face dished
  *  into a hollow inside a rolled rim. Built in the ear's own frame (x out from the head, y up, z forward), `s` units. */
-function pointedEar(s: number, skin: string, detail: number): THREE.Group {
+function pointedEar(s: number, skin: string, detail: number, wide = 1): THREE.Group {
   const g = new THREE.Group(), T = detail < 2 ? 9 : 18, K = detail < 2 ? 8 : 16, pos: number[] = [], idx: number[] = [];
   const C = (t: number) => new THREE.Vector3(0, -0.07 + 0.36 * t, -0.13 * t ** 1.6);
   for (let i = 0; i <= T; i++) {
     const t = i / T, c = C(t), along = C(Math.min(1, t + 0.01)).sub(C(Math.max(0, t - 0.01))).normalize();
     const across = new THREE.Vector3(1, 0, 0).cross(along).normalize();              // in the ear's plane, toward its front edge
-    const w = 0.06 * Math.sqrt(Math.sin(Math.PI / 2 * Math.min(1, t / 0.12))) * (1 - t ** 1.5) + 0.002, th = 0.024 * (1 - 0.6 * t) + 0.002;
+    const w = 0.06 * wide * Math.sqrt(Math.sin(Math.PI / 2 * Math.min(1, t / 0.12))) * (1 - t ** 1.5) + 0.002, th = 0.024 * Math.sqrt(wide) * (1 - 0.6 * t) + 0.002;
     for (let k = 0; k < K; k++) {
       const ph = (k / K) * Math.PI * 2, v = Math.cos(ph), out = Math.sin(ph);
       // the outer face sinks between the edges: the hollow, with the rim standing round it (fuller along the back edge)
@@ -288,9 +288,23 @@ function pointedEar(s: number, skin: string, detail: number): THREE.Group {
   const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); geo.setIndex(idx);
   g.add(sm(weld(geo), skin));
   if (detail >= 2) { // the hollow's shadow, so it reads at the table
-    const bowl = sph(0.05, tone(skin, '#4a1e22', 0.2), 12, 8); bowl.scale.set(0.16, 1.6, 0.42); bowl.position.set(-0.004, 0.035, -0.014); bowl.rotation.x = 0.28; g.add(bowl);
+    const bowl = sph(0.05, tone(skin, '#4a1e22', 0.2), 12, 8); bowl.scale.set(0.16, 1.6, 0.42 * wide); bowl.position.set(-0.004, 0.035, -0.014); bowl.rotation.x = 0.28; g.add(bowl);
   }
   g.scale.setScalar(s); return g;
+}
+/** How an elf's ear turns on the head (`sx` the side, -1 the figure's right): at 0 its point sweeps up and back along the
+ *  head, as the ear has always stood; at 1 it sticks straight out sideways, a little up and back, its hollow turned
+ *  forward to show from the front, as in TB's and PG's art. In between the turn is eased from one to the other. */
+function elfEarTurn(sx: number, out: number): THREE.Quaternion {
+  const q = new THREE.Quaternion().setFromEuler(new THREE.Euler(-0.12, -sx * 0.42, -sx * 0.3));
+  if (out <= 0) return q;
+  // the left ear's axes out sideways: its length (y) out and up, its hollow (x) forward and a little out, its front edge
+  // (z) the upper edge; the right ear is the mirror (the ear's own x is mirrored by its scale)
+  const L = new THREE.Vector3(0.78, 0.6, -0.14).normalize(), N = new THREE.Vector3(0.35, 0.12, 1);
+  N.addScaledVector(L, -N.dot(L)).normalize();
+  const F = new THREE.Vector3().crossVectors(N, L), m = new THREE.Matrix4();
+  if (sx > 0) m.makeBasis(N, L, F); else m.makeBasis(new THREE.Vector3(N.x, -N.y, -N.z), new THREE.Vector3(-L.x, L.y, L.z), new THREE.Vector3(-F.x, F.y, F.z));
+  return q.slerp(new THREE.Quaternion().setFromRotationMatrix(m), out);
 }
 const PAINTED_FACES = true as boolean;
 /** The head, sculpted like a miniature's: one shaped skull (temples, cheekbones over hollow cheeks, a brow over deep-set
@@ -307,11 +321,13 @@ function buildFace(head: THREE.Group, s: number, hy: number, f: HeroFigure, fem 
     const fg = faceFeatures({ ...f.face, gaze: f.face?.gaze ?? gaze }, { skin, hair: f.hair, eyes: f.eyes, lips: f.lips, detail: f.detail ?? 2, fem, dead }); fg.scale.setScalar(0.4 * s); fg.position.set(0, hy, 0); head.add(fg);
     // ears, standing a little off the head behind: an elf's from the same root as a person's, its point sweeping up and
     // back; a person's a rim (the helix) curling over the top and down the back to the lobe, round a hollow
+    const earLen = Math.max(-1, Math.min(1, f.face?.earLen ?? 0)), earOut = Math.max(0, Math.min(1, f.face?.earOut ?? 0));
     if (f.ears === 'pointed') for (const sx of [-1, 1]) {
-      const ear = pointedEar(s, skin, f.detail ?? 2); ear.position.set(sx * 0.318 * s, hy - 0.035 * s, -0.035 * s); ear.rotation.set(-0.12, -sx * 0.42, -sx * 0.3); ear.scale.x *= sx; head.add(ear);
+      const ear = pointedEar(s, skin, f.detail ?? 2, 1 + 0.5 * earOut); ear.position.set(sx * (0.318 + 0.012 * earOut) * s, hy - (0.035 + 0.01 * earOut) * s, (-0.035 + 0.012 * earOut) * s);
+      ear.quaternion.copy(elfEarTurn(sx, earOut)); ear.scale.x *= sx; ear.scale.y *= 1 + 0.6 * earLen; ear.scale.z *= 1 + 0.2 * earLen; head.add(ear);
     }
     if (f.ears !== 'pointed') for (const sx of [-1, 1]) {
-      const ear = new THREE.Group(); ear.position.set(sx * 0.322 * s, hy - 0.04 * s, -0.03 * s); ear.rotation.set(-0.2, -sx * 0.3, 0); head.add(ear);
+      const ear = new THREE.Group(); ear.position.set(sx * 0.322 * s, hy - 0.04 * s, -0.03 * s); ear.rotation.set(-0.2, -sx * (0.3 + 0.55 * earOut), 0); ear.scale.setScalar(1 + 0.3 * earLen); head.add(ear);
       if ((f.detail ?? 2) < 2) { const e = sph(0.075 * s, skin); e.scale.set(0.42, 1.1, 0.65); ear.add(e); continue; }
       const ep = new THREE.Group(); ep.scale.set(1, 1.32, 1); ear.add(ep);
       const rim = sm(new THREE.TorusGeometry(0.056 * s, 0.017 * s, 8, 22, Math.PI * 1.6), skin); rim.rotation.set(0, Math.PI / 2, Math.PI * 1.2); ep.add(rim);
@@ -393,6 +409,15 @@ function buildHair(head: THREE.Group, s: number, hy: number, f: HeroFigure, fem:
   if (style === 'short') { let h = 7; for (const ch of H + (f.skin ?? '') + (f.cloth ?? '')) h = (h * 31 + ch.charCodeAt(0)) >>> 0; head.add(buildHairdo({ style: 'crop', part: [0.4, -0.4, 0.15, -0.2][h % 4], length: 0.35 + (h >> 3) % 5 * 0.08 }, H, s, hy, f.detail ?? 2, f.face)); return; }
   const cr = craniumShape(f.face), lift0 = browLift(f.face);
   let seed = 11; const rnd = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; };
+  // ears that stand out (buildFace) part the hair: the side locks are tucked behind them and no coil grows over their
+  // roots, so the ear comes out of the hair whole, as in the art, instead of its point poking through
+  const earOut = f.ears === 'pointed' ? Math.max(0, Math.min(1, f.face?.earOut ?? 0)) : 0, earAz = Math.atan2(0.318 + 0.012 * earOut, -0.035 + 0.012 * earOut);
+  const tuckK = Math.max(0, Math.min(1, (earOut - 0.2) / 0.4));
+  const tuck = (az: number) => {
+    const an = Math.atan2(Math.sin(az), Math.cos(az)), a = Math.abs(an), lo = earAz - 0.55, hi = earAz + 0.3;
+    return tuckK === 0 || a < lo || a > hi ? az : Math.sign(an) * (a + (hi + (a - lo) * 0.2 - a) * tuckK);
+  };
+  const overEar = (az: number, el: number) => earOut >= 0.3 && el < 0.5 && Math.abs(Math.abs(Math.atan2(Math.sin(az), Math.cos(az))) - earAz) < 0.42;
   // a point on the scalp: azimuth from the front round through +x, elevation, and a lift off the skull
   const scalp = (az: number, el: number, lift = 1.06) => { const c = Math.cos(el), dz = Math.cos(az) * c, [x, y, z] = cr(Math.sin(az) * c * 0.84 * lift, Math.sin(el) * 1.14 * lift, dz * (dz < 0 ? 0.99 : 0.94) * lift); return new THREE.Vector3(x * R * s, hy + y * R * s, z * R * s); };
   // the hairline: how low the hair comes at each azimuth (an elevation)
@@ -418,9 +443,9 @@ function buildHair(head: THREE.Group, s: number, hy: number, f: HeroFigure, fem:
     const n = 26;
     for (let layer = 0; layer < 2; layer++) for (let i = 0; i < n; i++) {
       const az = 0.62 + (i + layer * 0.5) / n * (Math.PI * 2 - 1.24) + (rnd() - 0.5) * 0.05, back = Math.abs(Math.atan2(Math.sin(az), Math.cos(az))) / Math.PI;
-      const pts = [crown(az), scalp(az, 1.05, 1.09 + layer * 0.03), scalp(az, 0.55, 1.12 + layer * 0.03), scalp(az, 0.1, 1.13 + layer * 0.03)];
+      const low = style === 'long' ? tuck(az) : az, pts = [crown(az), scalp(az, 1.05, 1.09 + layer * 0.03), scalp(az, 0.55, 1.12 + layer * 0.03), scalp(low, 0.1, 1.13 + layer * 0.03)];
       if (style === 'long') {
-        const len = (0.95 + back * 0.55 - layer * 0.18 + rnd() * 0.15) * (fem ? 1 : 0.62), base = scalp(az, -0.25, 1.14 + layer * 0.03), wave = (rnd() - 0.5) * 0.08;
+        const len = (0.95 + back * 0.55 - layer * 0.18 + rnd() * 0.15) * (fem ? 1 : 0.62), base = scalp(low, -0.25, 1.14 + layer * 0.03), wave = (rnd() - 0.5) * 0.08;
         pts.push(base);
         for (let k = 1; k <= 3; k++) { const t = k / 3; pts.push(new THREE.Vector3(base.x * (1 + 0.12 * t) + Math.sin(t * 5 + i) * wave * s, base.y - len * t * s, base.z * (1 + 0.1 * t) - (0.14 * (1 - back) + back * 0.12) * Math.sin(t * Math.PI / 2) * s - (1 - back) * 0.3 * t * s)); }
         lock(pts, 0.062, 0.018, i + layer, streakAt(az));
@@ -443,6 +468,7 @@ function buildHair(head: THREE.Group, s: number, hy: number, f: HeroFigure, fem:
     for (let i = 0; i < 60; i++) {
       const az = i * 2.39996 + rnd() * 0.3, el = Math.max(line(az) + 0.02, 1.45 - (i / 60) * 1.75), root = scalp(az, el, 1.05), out = root.clone().sub(new THREE.Vector3(0, hy, 0)).normalize();
       const side = new THREE.Vector3(-out.z, 0, out.x).normalize(), upv = new THREE.Vector3().crossVectors(out, side), len = (0.16 + rnd() * 0.12) * (el < 0.3 ? 1.5 : 1), rr = 0.045 + rnd() * 0.02, turns = 2.2 + rnd();
+      if (overEar(az, el)) continue;
       const pts: THREE.Vector3[] = []; for (let k = 0; k <= 14; k++) { const t = k / 14, ph = t * turns * Math.PI * 2 + i; pts.push(root.clone().addScaledVector(out, len * t * s).addScaledVector(side, Math.cos(ph) * rr * s).addScaledVector(upv, Math.sin(ph) * rr * s).add(new THREE.Vector3(0, -len * 0.35 * t * t * s, 0))); }
       lock(pts, 0.04, 0.02, i, streakAt(az), 0.8);
     }
