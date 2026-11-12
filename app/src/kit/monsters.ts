@@ -291,3 +291,11 @@ export function heartOfSorrow(hover = 6): THREE.Group {
 }
 /** A tree that drinks blood: a stump of black wood with bare, clawing limbs and weeping sap. */
 export function gulthiasTree(): THREE.Group { const g = blight('tree', { scale: 1.9, bark: '#1c1814', leaf: '#1c1814', eyes: '#c8202a' }); for (let i = 0; i < 6; i++) { const d = ball(0.35, '#7a1420', 6, 5); d.scale.y = 2.2; g.add(at(d, Math.sin(i * 1.1) * 2.6, 7 + 5 * hash(i), Math.cos(i * 1.1) * 2.6)); } return g; }
+
+/** A vampire gone to mist: a low drifting bank, thicker at the heart, with two red points where the eyes would be. */
+export function mistForm(c = '#b8b4c4', eyes = '#e02a2a'): THREE.Group {
+  const g = grp();
+  for (let i = 0; i < 22; i++) { const a = i * 2.39996, r = 0.25 + 1.9 * hash(i, 1), y = 0.5 + 4.6 * Math.pow(hash(i, 2), 1.4), m = lit(ball(0.75 + 0.9 * hash(i, 3) * (1 - y / 7), c, 10, 8), c, 0.2 + 0.14 * hash(i, 4), 0.25); m.scale.set(1.3, 0.75, 1.3); g.add(at(m, Math.cos(a) * r * (1 - y / 9), y, Math.sin(a) * r * (1 - y / 9))); }
+  for (const x of [-0.16, 0.16]) g.add(at(lit(ball(0.07, eyes, 8, 6), eyes, 1, 1.5), x, 4.9, 0.55));
+  return g;
+}

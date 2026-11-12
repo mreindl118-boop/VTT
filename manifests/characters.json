@@ -47,8 +47,6 @@
     },
     "eyes": "#c8202a",
     "pendant": "#b8952e",
-    "weapon": "sword",
-    "stance": "cast",
     "glow": "#8a1a2a",
     "face": {
      "headL": 0.3,
@@ -83,8 +81,142 @@
       "gem": "#c8202a",
       "guard": "curved"
      }
-    }
+    },
+    "pose": "regal",
+    "battlePose": "vampire-lord"
    },
+   "importance": 81.9
+  },
+  {
+   "id": "strahd-blade-drawn",
+   "name": "Strahd, blade drawn",
+   "tier": 2,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "K"
+   ],
+   "kind": "creature",
+   "figure": {
+    "skin": "#d8d4d6",
+    "cloth": "#1a1720",
+    "accent": "#4d1119",
+    "hair": "#141114",
+    "cloak": true,
+    "weapon": "sword"
+   },
+   "role": "hostile",
+   "importance": 81.9
+  },
+  {
+   "id": "strahd-mounted",
+   "name": "Strahd on Beucephalus",
+   "tier": 2,
+   "size": "large",
+   "baseIn": 2,
+   "visibility": "hidden-creature",
+   "tags": [
+    "K"
+   ],
+   "kind": "creature",
+   "figure": {
+    "skin": "#d8d4d6",
+    "cloth": "#1a1720",
+    "accent": "#4d1119",
+    "hair": "#141114",
+    "cloak": true,
+    "weapon": "sword"
+   },
+   "role": "hostile",
+   "importance": 81.9
+  },
+  {
+   "id": "strahd-mounted-charging",
+   "name": "Strahd on Beucephalus, charging",
+   "tier": 2,
+   "size": "large",
+   "baseIn": 2,
+   "visibility": "hidden-creature",
+   "tags": [
+    "K"
+   ],
+   "kind": "creature",
+   "figure": {
+    "skin": "#d8d4d6",
+    "cloth": "#1a1720",
+    "accent": "#4d1119",
+    "hair": "#141114",
+    "cloak": true,
+    "weapon": "sword"
+   },
+   "role": "hostile",
+   "importance": 81.9
+  },
+  {
+   "id": "strahd-bat-form",
+   "name": "Strahd, bat form",
+   "tier": 2,
+   "size": "tiny",
+   "baseIn": 0.5,
+   "visibility": "hidden-creature",
+   "tags": [
+    "K"
+   ],
+   "kind": "creature",
+   "figure": {
+    "skin": "#d8d4d6",
+    "cloth": "#1a1720",
+    "accent": "#4d1119",
+    "hair": "#141114",
+    "cloak": true,
+    "weapon": "sword"
+   },
+   "role": "hostile",
+   "importance": 81.9
+  },
+  {
+   "id": "strahd-wolf-form",
+   "name": "Strahd, wolf form",
+   "tier": 2,
+   "size": "large",
+   "baseIn": 2,
+   "visibility": "hidden-creature",
+   "tags": [
+    "K"
+   ],
+   "kind": "creature",
+   "figure": {
+    "skin": "#d8d4d6",
+    "cloth": "#1a1720",
+    "accent": "#4d1119",
+    "hair": "#141114",
+    "cloak": true,
+    "weapon": "sword"
+   },
+   "role": "hostile",
+   "importance": 81.9
+  },
+  {
+   "id": "strahd-mist-form",
+   "name": "Strahd, mist form",
+   "tier": 2,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "K"
+   ],
+   "kind": "creature",
+   "figure": {
+    "skin": "#d8d4d6",
+    "cloth": "#1a1720",
+    "accent": "#4d1119",
+    "hair": "#141114",
+    "cloak": true,
+    "weapon": "sword"
+   },
+   "role": "hostile",
    "importance": 81.9
   },
   {
@@ -120,8 +252,6 @@
     "cloak": "#8e1c24",
     "hood": false,
     "shirt": "#e8e2d8",
-    "weapon": "sword",
-    "stance": "two-handed",
     "eyes": "#4a5a3a",
     "face": {
      "headW": -0.1,
@@ -147,7 +277,9 @@
       "fittings": "#c8ccd4",
       "grip": "#7a1c22"
      }
-    }
+    },
+    "pose": "rest",
+    "battlePose": "duelist"
    },
    "importance": 20.4
   },
@@ -183,8 +315,6 @@
      "color": "#4a4a4e"
     },
     "shirt": "#5a4a3a",
-    "weapon": "sword",
-    "stance": "shield",
     "offhand": {
      "kind": "shield",
      "color": "#5a3a24",
@@ -215,7 +345,9 @@
      "back": {
       "kind": "crossbow"
      }
-    }
+    },
+    "pose": "hands-on-hips",
+    "battlePose": "shield"
    },
    "importance": 12.2
   },
@@ -274,8 +406,6 @@
     "cloakTrim": "#e8e4e0",
     "shirt": "#5a4a6a",
     "eyes": "#8a8aa0",
-    "weapon": "sword",
-    "stance": "two-handed",
     "face": {
      "headL": 0.4,
      "jaw": -0.3,
@@ -308,7 +438,9 @@
       "kind": "dagger",
       "fittings": "#4a4656"
      }
-    }
+    },
+    "pose": "behind-back",
+    "battlePose": "slash"
    },
    "importance": 12.1
   },
@@ -347,11 +479,6 @@
     "sleeves": "#c0461e",
     "bracers": "#6a4a2a",
     "earrings": "#d8b040",
-    "weapon": "sword",
-    "stance": "shield",
-    "offhand": {
-     "kind": "none"
-    },
     "face": {
      "jaw": 0.1,
      "cheekbones": 0.5,
@@ -382,7 +509,9 @@
       "metal": "#eef2f8",
       "fittings": "#c8ccd4"
      }
-    }
+    },
+    "pose": "hands-on-hips",
+    "battlePose": "duelist"
    },
    "importance": 15.2
   },
@@ -427,8 +556,6 @@
      "kind": "book",
      "color": "#7a1e1e"
     },
-    "weapon": "staff",
-    "stance": "cast",
     "face": {
      "headL": 0.2,
      "jaw": -0.1,
@@ -453,7 +580,9 @@
       "fittings": "#b8952e",
       "grip": "#2a1a12"
      }
-    }
+    },
+    "pose": "leaning",
+    "battlePose": "duelist"
    },
    "importance": 17.1
   },
@@ -476,7 +605,44 @@
     "hat": "hood"
    },
    "role": "neutral",
-   "importance": 21.4
+   "importance": 21.4,
+   "hero": {
+    "skin": "#c99a72",
+    "hair": "#d9d9d9",
+    "hairStyle": "long",
+    "cloth": "#5a2a4a",
+    "trim": "#c9a227",
+    "boots": "#3a2420",
+    "skirt": "#6a2a3a",
+    "cloak": "#4a2240",
+    "cloakTrim": "#c9a227",
+    "hood": true,
+    "earrings": "#c9a227",
+    "pendant": "#c9a227",
+    "eyes": "#2a1e18",
+    "height": 0.88,
+    "glow": "#c08aff",
+    "face": {
+     "headW": 0.3,
+     "jaw": -0.2,
+     "jowls": 0.5,
+     "cheekbones": 0.4,
+     "noseLen": 0.5,
+     "noseW": 0.4,
+     "noseHook": 0.4,
+     "browThick": -0.4,
+     "browAngle": 0.2,
+     "eyeSize": -0.2,
+     "hooded": 0.8,
+     "bags": 0.7,
+     "lipFull": -0.5,
+     "smile": 0.2,
+     "age": 1,
+     "mole": "L"
+    },
+    "pose": "hunched",
+    "battlePose": "curse"
+   }
   },
   {
    "id": "the-abbot",
@@ -490,13 +656,42 @@
    ],
    "kind": "npc",
    "figure": {
-    "skin": "#d9b899",
+    "skin": "#e0c4a4",
     "cloth": "#e8e2d2",
     "accent": "#c9a227",
     "hair": "#8a5a2a"
    },
    "role": "neutral",
-   "importance": 22.0
+   "importance": 22.0,
+   "hero": {
+    "skin": "#e0c4a4",
+    "hair": "#8a5a2a",
+    "hairStyle": "short",
+    "cloth": "#e8e2d2",
+    "trim": "#c9a227",
+    "boots": "#6a5a3a",
+    "skirt": "#e8e2d2",
+    "cloak": "#d8d0bc",
+    "hood": true,
+    "pendant": "#c9a227",
+    "eyes": "#e8c860",
+    "height": 1.05,
+    "glow": "#ffe8a0",
+    "face": {
+     "jaw": 0.3,
+     "chin": 0.3,
+     "cheekbones": 0.5,
+     "noseLen": 0.1,
+     "noseW": -0.2,
+     "browAngle": -0.2,
+     "eyeSize": 0.2,
+     "lipFull": 0.3,
+     "smile": 0.3,
+     "lashes": true
+    },
+    "pose": "behind-back",
+    "battlePose": "rebuke"
+   }
   },
   {
    "id": "vasilka",
@@ -551,8 +746,6 @@
     "hood": true,
     "tattered": true,
     "markings": "#3a4a2a",
-    "weapon": "staff",
-    "stance": "conjure",
     "wisp": "#a8c86a",
     "glow": "#9ac860",
     "face": {
@@ -586,7 +779,9 @@
       "fittings": "#5a4a2a",
       "length": 0.9
      }
-    }
+    },
+    "pose": "hunched",
+    "battlePose": "curse"
    },
    "importance": 24.1
   },
@@ -620,8 +815,6 @@
     "ears": "pointed",
     "cloak": "#3a3e56",
     "hood": true,
-    "weapon": "staff",
-    "stance": "cast",
     "wisp": "#8a9ad8",
     "face": {
      "headL": 0.3,
@@ -643,8 +836,14 @@
       "kind": "dagger",
       "fittings": "#8a9ad8",
       "grip": "#1e2230"
+     },
+     "handR": {
+      "kind": "quarterstaff",
+      "grip": "#3a2e22"
      }
-    }
+    },
+    "pose": "leaning",
+    "battlePose": "spellcast"
    },
    "importance": 10.1
   },
@@ -685,8 +884,6 @@
     "cloak": "#3a3a40",
     "tattered": true,
     "eyes": "#c8d0e0",
-    "weapon": "sword",
-    "stance": "two-handed",
     "markings": "#4a4a4a",
     "face": {
      "jaw": 0.8,
@@ -711,7 +908,9 @@
       "metal": "#aab0ba",
       "wear": 0.4
      }
-    }
+    },
+    "pose": "arms-folded",
+    "battlePose": "overhead"
    },
    "importance": 11.9
   },
@@ -749,8 +948,6 @@
     },
     "eyes": "#c8c8d8",
     "markings": "#6a5a5a",
-    "weapon": "sword",
-    "stance": "shield",
     "offhand": {
      "kind": "shield",
      "color": "#c0c0c8",
@@ -775,7 +972,9 @@
       "fittings": "#c8c8d0",
       "wear": 0.5
      }
-    }
+    },
+    "pose": "rest",
+    "battlePose": "shield"
    },
    "importance": 3.7
   },
@@ -811,7 +1010,6 @@
     "gauntlets": "#7a1a1a",
     "glow": "#e86a20",
     "markings": "#5a4a3a",
-    "stance": "conjure",
     "face": {
      "headW": 0.4,
      "jaw": 0.9,
@@ -838,7 +1036,9 @@
       "grip": "#2a1a12",
       "wear": 0.5
      }
-    }
+    },
+    "pose": "arms-folded",
+    "battlePose": "windup"
    },
    "importance": 10.4
   },
@@ -892,12 +1092,14 @@
      "age": 0.5
     },
     "gear": {
-     "beltL": {
+     "handR": {
       "kind": "rapier",
       "fittings": "#c8a040",
       "grip": "#2a1a1a"
      }
-    }
+    },
+    "pose": "hands-on-hips",
+    "battlePose": "duelist"
    },
    "importance": 15.0
   },
@@ -944,7 +1146,9 @@
      "age": 0.45,
      "lashes": true,
      "blush": "#c87a7a"
-    }
+    },
+    "pose": "wringing",
+    "battlePose": "wringing"
    },
    "importance": 5.3
   },
@@ -1024,7 +1228,9 @@
       "grip": "#2a0e12",
       "length": 0.85
      }
-    }
+    },
+    "pose": "behind-back",
+    "battlePose": "rebuke"
    },
    "importance": 15.5
   },
@@ -1133,7 +1339,9 @@
       "kind": "shortbow",
       "grip": "#3a2a20"
      }
-    }
+    },
+    "pose": "arms-folded",
+    "battlePose": "menace"
    },
    "importance": 9.5
   },
@@ -1178,7 +1386,9 @@
       "kind": "shortbow",
       "grip": "#3a2a20"
      }
-    }
+    },
+    "pose": "hands-on-hips",
+    "battlePose": "menace"
    },
    "importance": 4.0
   },
@@ -1210,7 +1420,9 @@
      "eyeSize": 0.7,
      "cheekbones": -0.3,
      "smile": 0.4
-    }
+    },
+    "pose": "rest",
+    "battlePose": "cower"
    },
    "figure": {
     "cloth": "#3a3a3e",
@@ -1248,7 +1460,9 @@
      "cheekbones": -0.3,
      "smile": -0.1,
      "mole": "R"
-    }
+    },
+    "pose": "rest",
+    "battlePose": "cower"
    },
    "figure": {
     "cloth": "#4a3e36",
@@ -1284,8 +1498,6 @@
     "height": 0.95,
     "cloak": "#2a4440",
     "hood": true,
-    "weapon": "staff",
-    "stance": "cast",
     "face": {
      "headL": 0.2,
      "jaw": 0.2,
@@ -1310,7 +1522,9 @@
       "kind": "shortbow",
       "grip": "#2e4a46"
      }
-    }
+    },
+    "pose": "leaning",
+    "battlePose": "staff-raised"
    },
    "importance": 11.8
   },
@@ -1340,8 +1554,6 @@
     "trim": "#3a2e22",
     "boots": "#2a2218",
     "cloak": "#7a6a52",
-    "weapon": "spear",
-    "stance": "two-handed",
     "face": {
      "jaw": 0.4,
      "noseLen": 0.3,
@@ -1361,7 +1573,9 @@
       "kind": "longbow",
       "grip": "#5a4a32"
      }
-    }
+    },
+    "pose": "arms-folded",
+    "battlePose": "slash"
    },
    "importance": 3.0
   },
@@ -1392,8 +1606,6 @@
     "boots": "#2a2218",
     "height": 1.08,
     "cloak": "#6a5a42",
-    "weapon": "spear",
-    "stance": "two-handed",
     "face": {
      "headW": 0.3,
      "jaw": 0.8,
@@ -1413,7 +1625,9 @@
       "kind": "longbow",
       "grip": "#4a4232"
      }
-    }
+    },
+    "pose": "behind-back",
+    "battlePose": "slash"
    }
   },
   {
@@ -1439,7 +1653,45 @@
     "hat": "hood"
    },
    "role": "hostile",
-   "importance": 17.3
+   "importance": 17.3,
+   "hero": {
+    "skin": "#8a9a7c",
+    "hair": "#7a7a7a",
+    "hairStyle": "long",
+    "cloth": "#2a3a2a",
+    "trim": "#55603a",
+    "boots": "#2a2a22",
+    "skirt": "#33402e",
+    "cloak": "#2a3024",
+    "hood": true,
+    "tattered": true,
+    "satchel": "#6a5a3a",
+    "eyes": "#e8c040",
+    "height": 0.92,
+    "glow": "#8a40c0",
+    "face": {
+     "jaw": -0.2,
+     "chin": 0.7,
+     "chinPoint": 0.9,
+     "cheekbones": 0.6,
+     "gaunt": 0.7,
+     "noseLen": 1,
+     "noseHook": 1,
+     "noseTip": 0.7,
+     "browRidge": 0.6,
+     "browAngle": 0.5,
+     "sunken": 0.7,
+     "bags": 0.9,
+     "mouthW": 0.7,
+     "lipFull": -0.8,
+     "smile": 0.5,
+     "teeth": true,
+     "age": 1,
+     "warts": true
+    },
+    "pose": "hunched",
+    "battlePose": "curse"
+   }
   },
   {
    "id": "bella-sunbane",
@@ -1555,11 +1807,13 @@
      "moustache": "droop"
     },
     "gear": {
-     "beltR": {
+     "handR": {
       "kind": "club",
       "length": 0.7
      }
-    }
+    },
+    "pose": "wringing",
+    "battlePose": "brawl"
    },
    "importance": 6.5
   },
@@ -1592,8 +1846,6 @@
     "shirt": "#e8e0d0",
     "sleeves": "#e8e0d0",
     "earrings": "#d8b040",
-    "weapon": "sword",
-    "stance": "two-handed",
     "face": {
      "headW": 0.3,
      "jaw": 0.6,
@@ -1616,7 +1868,9 @@
       "kind": "dagger",
       "fittings": "#d8b040"
      }
-    }
+    },
+    "pose": "hands-on-hips",
+    "battlePose": "slash"
    },
    "importance": 8.3
   },
@@ -1651,8 +1905,6 @@
      "lapel": "#7a1e22"
     },
     "earrings": "#d8b040",
-    "weapon": "sword",
-    "stance": "two-handed",
     "face": {
      "headL": 0.2,
      "jaw": 0.2,
@@ -1678,7 +1930,9 @@
       "kind": "crossbow",
       "length": 0.8
      }
-    }
+    },
+    "pose": "arms-folded",
+    "battlePose": "duelist"
    },
    "importance": 6.0
   },
@@ -1780,7 +2034,9 @@
       "grip": "#4a3424",
       "wear": 0.3
      }
-    }
+    },
+    "pose": "leaning",
+    "battlePose": "thrust"
    },
    "importance": 8.3
   },
@@ -1835,7 +2091,9 @@
       "kind": "spear",
       "grip": "#5a3a26"
      }
-    }
+    },
+    "pose": "leaning",
+    "battlePose": "thrust"
    },
    "importance": 6.3
   },
@@ -1911,8 +2169,6 @@
     "boots": "#1e1616",
     "cloak": "#3a1e1e",
     "hood": false,
-    "weapon": "staff",
-    "stance": "cast",
     "wisp": "#c84a3a",
     "face": {
      "headL": 0.1,
@@ -1929,8 +2185,14 @@
      "beltR": {
       "kind": "dagger",
       "grip": "#3a1e1e"
+     },
+     "handR": {
+      "kind": "quarterstaff",
+      "grip": "#3a2e22"
      }
-    }
+    },
+    "pose": "leaning",
+    "battlePose": "spellcast"
    },
    "importance": 2.4
   },
@@ -1981,7 +2243,9 @@
       "length": 0.6,
       "grip": "#6a1e2a"
      }
-    }
+    },
+    "pose": "rest",
+    "battlePose": "brawl"
    },
    "importance": 2.6
   },
@@ -2034,7 +2298,9 @@
      "smile": -0.3,
      "fangs": true,
      "lashes": true
-    }
+    },
+    "pose": "hands-on-hips",
+    "battlePose": "feral"
    }
   },
   {
@@ -2081,7 +2347,9 @@
      "fangs": true,
      "lashes": true,
      "shadow": "#5a4a6a"
-    }
+    },
+    "pose": "regal",
+    "battlePose": "feral"
    }
   },
   {
@@ -2131,7 +2399,9 @@
      "fangs": true,
      "lashes": true,
      "shadow": "#c8a850"
-    }
+    },
+    "pose": "hands-on-hips",
+    "battlePose": "feral"
    }
   },
   {
@@ -2182,7 +2452,9 @@
      "lashes": true,
      "shadow": "#1a1a1a",
      "veins": "#3a3a4a"
-    }
+    },
+    "pose": "arms-folded",
+    "battlePose": "feral"
    }
   },
   {
@@ -2270,7 +2542,9 @@
      "lipFull": 0.5,
      "smile": -0.2,
      "lashes": true
-    }
+    },
+    "pose": "wringing",
+    "battlePose": "wringing"
    },
    "importance": 10.6
   },
@@ -2405,7 +2679,9 @@
       "kind": "club",
       "length": 0.6
      }
-    }
+    },
+    "pose": "kneel",
+    "battlePose": "cower"
    },
    "importance": 5.7
   },
@@ -2446,7 +2722,9 @@
      "fangs": true,
      "smile": -0.5,
      "veins": "#6a6a8a"
-    }
+    },
+    "pose": "hunched",
+    "battlePose": "feral"
    },
    "importance": 5.4
   },
@@ -2486,7 +2764,9 @@
      "eyeSize": 0.5,
      "smile": -0.8,
      "age": 0.5
-    }
+    },
+    "pose": "wringing",
+    "battlePose": "cower"
    },
    "importance": 3.8
   },
@@ -2532,7 +2812,9 @@
      "smile": 0.3,
      "blush": "#d88a8a",
      "lashes": true
-    }
+    },
+    "pose": "rest",
+    "battlePose": "wringing"
    },
    "importance": 4.4
   },
@@ -2615,7 +2897,9 @@
       "kind": "shovel",
       "wear": 0.5
      }
-    }
+    },
+    "pose": "leaning",
+    "battlePose": "brawl"
    },
    "importance": 5.6
   },
@@ -2670,8 +2954,6 @@
      "color": "#8a8a92",
      "trim": "#c8a060"
     },
-    "weapon": "sword",
-    "stance": "shield",
     "face": {
      "headW": 0.2,
      "jaw": 0.6,
@@ -2692,7 +2974,9 @@
       "fittings": "#c8a060",
       "grip": "#3a2a2a"
      }
-    }
+    },
+    "pose": "behind-back",
+    "battlePose": "duelist"
    },
    "importance": 10.7
   },
@@ -2719,8 +3003,6 @@
      "color": "#7a7a84",
      "trim": "#c8c8d0"
     },
-    "weapon": "axe",
-    "stance": "two-handed",
     "face": {
      "jaw": 0.2,
      "cheekbones": 0.6,
@@ -2737,7 +3019,9 @@
       "fittings": "#c8c8d0",
       "grip": "#3a3a42"
      }
-    }
+    },
+    "pose": "hands-on-hips",
+    "battlePose": "duelist"
    },
    "figure": {
     "cloth": "#4a4a52",
@@ -2791,7 +3075,9 @@
       "kind": "dagger",
       "wear": 0.6
      }
-    }
+    },
+    "pose": "hunched",
+    "battlePose": "menace"
    },
    "importance": 3.2
   },
@@ -2847,7 +3133,6 @@
     "boots": "#2a2018",
     "height": 0.85,
     "markings": "#5a4a3a",
-    "weapon": "torch",
     "face": {
      "headW": 0.2,
      "headL": -0.2,
@@ -2872,7 +3157,9 @@
       "kind": "dagger",
       "wear": 0.8
      }
-    }
+    },
+    "pose": "hunched",
+    "battlePose": "cower"
    },
    "importance": 3.2
   },

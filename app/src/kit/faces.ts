@@ -36,6 +36,8 @@ export interface FaceSpec {
   scars?: Scar[]; eyepatch?: 'L' | 'R'; warts?: boolean; mole?: 'L' | 'R';
   /** Colours: veins at the temples, shadow on the lids, a flush on the cheeks, spectacle rims, lashes. */
   veins?: string; shadow?: string; blush?: string; spectacles?: string; lashes?: boolean;
+  /** No hair cap on the head. */
+  bald?: boolean;
 }
 
 export interface FaceLook { skin: string; hair?: string; eyes?: string; lips?: string; detail?: FaceDetail }

@@ -5,6 +5,8 @@
 import * as THREE from 'three';
 import { mat, matClone } from '../render/materials';
 import type { CreatureSize } from '../core/units';
+import { faceFeatures, type FaceSpec, type FaceDetail } from './faces';
+import { weapon as gearWeapon, scabbard, type WeaponSpec } from './weapons';
 
 export type HeroWeapon = 'none' | 'sword' | 'axe' | 'mace' | 'staff' | 'spear' | 'torch';
 export type HeroOffhand = 'none' | 'shield' | 'book' | 'orb';
@@ -98,6 +100,11 @@ export interface HeroFigure {
   pose?: PoseName | HeroPose; battlePose?: PoseName | HeroPose;
   /** A beard (its colour), fangs, and a tall standing collar behind the head (its colour). */
   beard?: string; fangs?: boolean; collar?: string;
+  /** The character's own face (kit/faces.ts) in place of the standard one, and how finely it is modelled (1 to 4). */
+  face?: FaceSpec; detail?: FaceDetail;
+  /** Gear on the body's mounts (kit/weapons.ts): in either hand, sheathed or hung at the belt, slung on the back. A hand
+   *  with gear replaces `weapon` (right) or `offhand` (left); an empty mount carries no geometry. */
+  gear?: { handR?: WeaponSpec; handL?: WeaponSpec; beltR?: WeaponSpec; beltL?: WeaponSpec; back?: WeaponSpec };
 }
 
 const SIZE_SCALE: Record<CreatureSize, number> = { tiny: 0.45, small: 0.68, medium: 1, large: 1.6, huge: 2.4, gargantuan: 3.2 };
@@ -159,6 +166,14 @@ function buildFace(head: THREE.Group, s: number, hy: number, f: HeroFigure): (x:
   // cheekbones and shallow eye sockets. Proportions: the eyes on the midline, one eye's width apart; the brow, the base
   // of the nose and the chin split the face in thirds; the mouth a third of the way from the nose to the chin.
   const skin = f.skin ?? '#d9b899', shade = tone(skin, '#2a1a1a', 0.12), lip = f.lips ?? tone(skin, '#a8404a', 0.38), hair = f.hair ?? '#3a2a1a';
+  if (f.face) {
+    // the character's own face: the whole head from its recipe, with this figure's ears and hair cap on it
+    const fg = faceFeatures(f.face, { skin, hair: f.hair, eyes: f.eyes, lips: f.lips, detail: f.detail ?? 2 }); fg.scale.setScalar(0.4 * s); fg.position.set(0, hy, 0); head.add(fg);
+    const put = (m: M, x: number, y: number, z: number) => head.add(at(m, x * s, hy + y * s, z * s));
+    if (f.ears !== 'pointed') for (const sx of [-1, 1]) { const e = sph(0.075 * s, skin); e.scale.set(0.42, 1, 0.65); put(e, sx * 0.345, -0.02, -0.01); }
+    if (f.hair && !f.face.bald) { const hc = sm(new THREE.SphereGeometry(0.43 * s, 24, 14, 0, Math.PI * 2, 0, Math.PI * 0.58), hair, true); hc.scale.set(0.9, 1.06, 0.97); hc.rotation.x = -0.5; put(hc, 0, 0.06, -0.03); }
+    return (x: number, y: number) => 0.345 - 1.4 * x * x - (y > 0 ? 1.0 : 0.45) * y * y;
+  }
   const R = 0.4, g = new THREE.SphereGeometry(1, 40, 30), p = g.attributes.position as THREE.BufferAttribute;
   const bump = (x: number, y: number, cx: number, cy: number, w: number) => Math.exp(-((x - cx) ** 2 + (y - cy) ** 2) / w);
   for (let i = 0; i < p.count; i++) {
@@ -329,10 +344,11 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', battle 
   // a group in each hand for what it holds: upright while the forearm hangs at rest
   const holder = (l: Limb) => { const g = new THREE.Group(); g.position.set(0, -0.14 * s, 0.05 * s); g.rotation.set(-(l.root.rotation.x + l.mid.rotation.x), 0, -Math.sign(l.root.position.x) * 0.08); l.end.add(g); return g; };
   const gR = holder(R), gL = holder(Lf); gR.name = 'handR'; gL.name = 'handL';
-  if (f.weapon === 'sword') gR.add(at(box(0.12 * s, 2.6 * s, 0.32 * s, '#c8ccd2'), 0, 1.45 * s, 0), at(box(0.7 * s, 0.12 * s, 0.14 * s, '#a07a3a'), 0, 0.15 * s, 0), at(box(0.12 * s, 0.5 * s, 0.12 * s, '#3b2a20'), 0, -0.15 * s, 0));
-  if (f.weapon === 'spear') gR.add(at(box(0.12 * s, 7 * s, 0.12 * s, '#3b2a20'), 0, 0.85 * s, 0), at(cone(0.2 * s, 0.8 * s, '#c8ccd2'), 0, 4.75 * s, 0));
-  if (f.weapon === 'staff') gR.add(at(box(0.14 * s, 6 * s, 0.14 * s, '#3b2a20'), 0, 0.45 * s, 0));
-  if (f.weapon === 'torch') gR.add(at(box(0.14 * s, 1.6 * s, 0.14 * s, '#3b2a20'), 0, 0.55 * s, 0), at(sph(0.32 * s, '#f0a040'), 0, 1.55 * s, 0));
+  const wpn = f.gear?.handR ? 'none' : f.weapon;
+  if (wpn === 'sword') gR.add(at(box(0.12 * s, 2.6 * s, 0.32 * s, '#c8ccd2'), 0, 1.45 * s, 0), at(box(0.7 * s, 0.12 * s, 0.14 * s, '#a07a3a'), 0, 0.15 * s, 0), at(box(0.12 * s, 0.5 * s, 0.12 * s, '#3b2a20'), 0, -0.15 * s, 0));
+  if (wpn === 'spear') gR.add(at(box(0.12 * s, 7 * s, 0.12 * s, '#3b2a20'), 0, 0.85 * s, 0), at(cone(0.2 * s, 0.8 * s, '#c8ccd2'), 0, 4.75 * s, 0));
+  if (wpn === 'staff') gR.add(at(box(0.14 * s, 6 * s, 0.14 * s, '#3b2a20'), 0, 0.45 * s, 0));
+  if (wpn === 'torch') gR.add(at(box(0.14 * s, 1.6 * s, 0.14 * s, '#3b2a20'), 0, 0.55 * s, 0), at(sph(0.32 * s, '#f0a040'), 0, 1.55 * s, 0));
 
   // face extras
   if (f.earrings) for (const sx of [-1, 1]) { const e = sph(0.05 * s, f.earrings, 8, 6); e.scale.y = 1.8; up.add(at(e, sx * 0.36 * s, hy - 0.2 * s, 0.02 * s)); up.add(at(sph(0.025 * s, '#c9c2b0', 6, 4), sx * 0.36 * s, hy - 0.1 * s, 0.02 * s)); }
@@ -450,7 +466,7 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', battle 
   }
 
   // what the right hand holds
-  if (f.weapon === 'axe') {
+  if (wpn === 'axe') {
     gR.add(at(box(0.13 * s, 5.2 * s, 0.13 * s, '#4a3626'), 0, 1.6 * s, 0));
     for (let i = 0; i < 6; i++) gR.add(at(cyl(0.085 * s, 0.085 * s, 0.05 * s, '#2a1c14', 6), 0, (0.3 + i * 0.12) * s, 0)); // the grip's wrap
     for (const dx of [1, -1]) {
@@ -461,7 +477,7 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', battle 
     gR.add(at(box(0.2 * s, 0.5 * s, 0.24 * s, '#5c626c'), 0, 3.75 * s, 0));
     gR.add(at(cone(0.08 * s, 0.3 * s, '#5c626c', 6), 0, 4.35 * s, 0));
   }
-  if (f.weapon === 'mace') {
+  if (wpn === 'mace') {
     gR.add(at(box(0.13 * s, 2.0 * s, 0.13 * s, '#3b2a20'), 0, 0.6 * s, 0));
     gR.add(at(sph(0.08 * s, '#8e939b', 8, 6), 0, -0.42 * s, 0));
     gR.add(at(sph(0.26 * s, '#8e939b', 12, 8), 0, 1.75 * s, 0));
@@ -469,7 +485,7 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', battle 
   }
 
   // what the left hand holds
-  const o = f.offhand;
+  const o = f.gear?.handL ? undefined : f.offhand;
   if (o?.kind === 'shield') {
     // one group, so the face, the rim, the boss and the emblem turn together and the emblem sits on the face
     const sg = new THREE.Group(); sg.position.set(-0.15 * s, 0.95 * s, 0.25 * s); sg.rotation.y = -0.35; gL.add(sg);
@@ -563,6 +579,28 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', battle 
 
   // what sits on the head (hair, ears, crown, halo, earrings, markings) turns with it
   for (const c of [...up.children]) if (c !== neck && c.position.y > headAt + 0.05 * s) head.attach(c);
+
+  // gear on the mounts: held weapons by the grip, blades sheathed at the belt, bows and great weapons slung on the back
+  if (f.gear) {
+    const G = f.gear, mount = (name: string) => body.getObjectByName(name);
+    for (const [slot, g] of [['handR', gR], ['handL', gL]] as const) { const w = G[slot]; if (!w) continue; const m = gearWeapon(w); m.scale.setScalar(s); g.add(m); }
+    const BLADE: Record<string, [number, number]> = { longsword: [2.9, 0.43], shortsword: [1.9, 0.34], rapier: [3.2, 0.36], dagger: [0.95, 0.27], scimitar: [2.5, 0.42], greatsword: [4.1, 0.76], 'sword-cane': [2.7, 0.36], sunsword: [3.0, 0.43], 'dragon-greatsword': [4.2, 0.76] };
+    for (const slot of ['beltR', 'beltL'] as const) {
+      const w = G[slot], mt = mount(slot); if (!w || !mt) continue;
+      const sx = slot === 'beltR' ? 1 : -1, hang = new THREE.Group(); hang.scale.setScalar(s); hang.position.set(sx * 0.12 * s, 0.05 * s, 0); hang.rotation.set(0.45, 0, sx * 0.12); mt.add(hang);
+      const m = gearWeapon(w), bl = BLADE[w.kind];
+      if (bl) { const L = bl[0] * (w.length ?? 1); if (w.kind !== 'sword-cane') hang.add(scabbard(L + 0.08, tone(w.grip ?? '#2a2420', '#000000', 0.2), w.fittings)); m.rotation.x = Math.PI; m.position.y = bl[1]; hang.add(m); }
+      else { m.rotation.x = Math.PI; m.position.y = 0.2; hang.rotation.x = 0.15; hang.add(m); const loop = sm(new THREE.TorusGeometry(0.09, 0.02, 5, 10), '#2a2420'); loop.rotation.x = Math.PI / 2; hang.add(loop); }
+    }
+    const bk = G.back, bm = mount('back');
+    if (bk && bm) {
+      const m = gearWeapon(bk), sl = new THREE.Group(); sl.scale.setScalar(s); sl.position.set(0, 0, -0.12 * s); bm.add(sl);
+      if (bk.kind === 'crossbow') { m.rotation.set(Math.PI / 2, 0, 0.5); m.position.set(0, -0.5, -0.05); }
+      else if (bk.kind === 'longbow' || bk.kind === 'shortbow') { m.rotation.set(0, Math.PI, 0.45); m.position.set(0.1, 0.1, -0.05); }
+      else { m.rotation.set(Math.PI, 0, 0.55); m.position.set(-0.5, 1.4, -0.05); }
+      sl.add(m);
+    }
+  }
 
   // the pose: out of initiative its rest pose (on a gown, weight on the right leg, the left knee forward in the slit); in
   // initiative its battle pose; every joint from the recipe's angles or a named preset

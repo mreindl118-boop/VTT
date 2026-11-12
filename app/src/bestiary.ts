@@ -5,7 +5,12 @@ import characters from '../../manifests/characters.json';
 import { CREATURES, humanoid, horse, bear, ape, sheep, swarm, vampireSpawn, gargoyle, scarecrow, animatedArmor, skeletonStanding, ghost, specter, shadow, ghoul, ghast, cultist, broom, type HumanoidOpts } from './kit/creatures';
 import { pawn } from './kit/pieces';
 import { heroFigure, type HeroFigure } from './kit/heroes';
-import type { FaceSpec, FaceDetail } from './kit/faces';
+import { detailFor } from './kit/faces';
+import { posed } from './kit/poses';
+import { FOLK, MENAGERIE, folk, mounted, seedFace, type Folk } from './kit/menagerie';
+import { beast, BEASTS, BEUCEPHALUS } from './kit/beasts';
+import { flyer, FLYERS, mistForm } from './kit/monsters';
+import type { WeaponSpec } from './kit/weapons';
 import { baseRingFt, type CreatureSize } from './core/units';
 import { PALETTE } from './kit/palette';
 
@@ -15,7 +20,7 @@ export interface CreatureEntry {
   kind: 'npc' | 'creature' | 'monster-manual' | 'generic' | 'pc' | 'token'; figure?: Figure; role?: string; variants?: string[];
   /** A named NPC's own miniature (kit/heroes.ts), styled after the character's art: colours, hair, dress and what they carry.
    *  When present it replaces the generic humanoid; `figure` still gives the token colour and the bestiary's look. */
-  hero?: HeroFigure & { face?: FaceSpec; detail?: FaceDetail };
+  hero?: HeroFigure;
   /** How much the character matters at the table (the relationship web's power and ties). It sets the detail of the
    *  figure's face (kit/faces.ts detailFor); raise it as a character grows in the story. */
   importance?: number;
@@ -93,8 +98,52 @@ export function searchCreatures(q: string, limit = 60): CreatureEntry[] {
 export function colorOf(e: CreatureEntry): string { return e.figure?.cloth ?? e.figure?.skin ?? (e.kind === 'npc' ? '#8a6a9a' : '#8a2b2b'); }
 
 /** A figure for the map: the characterised humanoid when the manifest gives one, else the kit creature by figure kind or id. */
+/** What a figure carries in its right hand is drawn only in a fight: at rest a blade goes to a free place on the belt and
+ *  a great weapon to the back (staffs, spears, canes, tools and torches stay in the hand). The gear is the same either
+ *  way; only its mount changes. */
+function stowed<T extends { gear?: HeroFigure['gear'] }>(f: T): T {
+  const w: WeaponSpec | undefined = f.gear?.handR; if (!w) return f;
+  const belt = ['longsword', 'shortsword', 'rapier', 'scimitar', 'dagger', 'handaxe', 'mace', 'club', 'sunsword'].includes(w.kind), back = ['greatsword', 'greataxe', 'battleaxe', 'dragon-greatsword'].includes(w.kind);
+  const g = { ...f.gear }; delete g.handR;
+  if (belt && !g.beltL) g.beltL = w; else if (belt && !g.beltR) g.beltR = w; else if (back && !g.back) g.back = w; else return f;
+  return { ...f, gear: g };
+}
+/** A named character's recipe, ready for the rig: named poses resolved, the face's detail from the character's importance. */
+function recipeOf(e: CreatureEntry, battle: boolean, over: Partial<HeroFigure> = {}): HeroFigure {
+  const h = { ...e.hero!, ...over }, f = posed(battle ? h : stowed(h));
+  return f.face && !f.detail ? { ...f, detail: detailFor(e.importance ?? 0) } : f;
+}
+/** Strahd's other shapes, built from his own recipe so they change when he does. */
+const STRAHD_FORMS: Record<string, (s: CreatureEntry, battle: boolean) => THREE.Group> = {
+  'strahd-blade-drawn': (s, battle) => heroFigure(recipeOf(s, true, { gear: { handR: s.hero!.gear?.beltL }, pose: 'duelist' as never, battlePose: 'slash' as never }), 'medium', battle),
+  'strahd-mounted': (s, battle) => mounted(BEUCEPHALUS, battle ? 'rear' : 'walk', recipeOf(s, false, { pose: (battle ? 'ride-rear' : 'ride') as never })),
+  'strahd-mounted-charging': (s) => mounted(BEUCEPHALUS, 'gallop', recipeOf(s, true, { gear: { handR: s.hero!.gear?.beltL }, pose: 'ride-charge' as never })),
+  'strahd-bat-form': (_s, battle) => flyer({ ...FLYERS.bat, body: 0.8, span: 3.6, coat: '#17121a', under: '#3a1a22', eyes: '#e02a2a' }, battle ? 'dive' : 'flap', 3),
+  'strahd-wolf-form': (_s, battle) => beast({ ...BEASTS['dire-wolf'], coat: '#141216', under: '#2a2228', eyes: '#e02a2a', glow: true }, battle ? 'pounce' : 'snarl'),
+  'strahd-mist-form': () => mistForm(),
+};
+/** A figure for someone the module names but never drew: the jointed body in the entry's colours, with a face of its own. */
+function plainFolk(e: CreatureEntry): Folk {
+  const f = (e.figure ?? {}) as Figure & { hat?: string; ghost?: boolean; undead?: boolean };
+  const old = /elder|old/.test(e.tags.join(' ')) || f.hair === '#7a7a7a' || f.hair === '#d9d9d9';
+  return {
+    skin: f.skin, cloth: f.cloth, trim: f.accent, hair: f.hair ?? undefined, hood: f.hat === 'hood', cloak: f.hat === 'hood' || f.cloak ? f.cloth : undefined, skirt: f.robe ? f.cloth : undefined,
+    armor: f.hat === 'helm' ? { kind: 'mail', color: '#6a6e76' } : undefined, eyes: f.undead ? '#d8e0c0' : undefined,
+    face: seedFace(e.id, { ...(old ? { age: 0.8 } : {}), ...(f.undead ? { gaunt: 0.8, sunken: 0.8 } : {}), ...(f.hair === null ? { bald: true } : {}) }),
+    gear: f.weapon === 'staff' ? { handR: { kind: 'quarterstaff' } } : f.weapon === 'axe' ? { handR: { kind: 'battleaxe' } } : f.weapon === 'sword' ? { handR: { kind: 'longsword' } } : undefined,
+    pose: f.ghost ? 'haunt' : f.weapon === 'staff' ? 'leaning' : 'rest', battlePose: f.ghost ? 'haunt' : f.weapon === 'staff' ? 'spellcast' : f.weapon === 'axe' ? 'windup' : f.weapon === 'sword' ? 'two-handed' : e.role === 'hostile' ? 'menace' : 'cower',
+    extra: f.ghost ? { ghost: '#b8d0e8', opacity: 0.45 } : undefined,
+  };
+}
+
+/** The miniature for a creature: at rest, or in its battle pose when it is in the initiative order. */
 export function figureFor(e: CreatureEntry, battle = false): THREE.Group {
-  if (e.hero) return heroFigure(e.hero, e.size, battle);
+  const strahd = STRAHD_FORMS[e.id] && creatureById('strahd-von-zarovich');
+  if (strahd && strahd.hero) return STRAHD_FORMS[e.id](strahd, battle);
+  if (e.hero) return heroFigure(recipeOf(e, battle), e.size, battle);
+  if (MENAGERIE[e.id]) return MENAGERIE[e.id](battle);
+  if (FOLK[e.id]) return folk(battle ? FOLK[e.id] : stowed(FOLK[e.id]), e.size, battle);
+  if ((e.kind === 'npc' || e.kind === 'generic') && !e.figure?.kind) { const r = plainFolk(e); return folk(battle ? r : stowed(r), e.size, battle); }
   const f = e.figure ?? {}, scale = ({ tiny: 0.5, small: 0.75, medium: 1, large: 1, huge: 1.2, gargantuan: 1.4 } as Record<string, number>)[e.size] ?? 1;
   const byId: Record<string, () => THREE.Group> = {
     'vampire-spawn': vampireSpawn, gargoyle, scarecrow, 'animated-armor': animatedArmor, skeleton: skeletonStanding, ghost: () => ghost(), specter, shadow, ghoul, ghast, cultist,
