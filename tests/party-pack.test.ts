@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 import * as THREE from 'three';
 import { applyPartyPack, isUntouchedDefault, sheetOf, validatePartyPack, type PartyContext } from '../app/src/core/partyPack';
 import { newCampaign } from '../app/src/state/campaign';
-import { gazeOf, heroFigure, heroOptions, POSES } from '../app/src/kit/heroes';
+import { AT_EASE, gazeOf, heroFigure, heroOptions, POSES } from '../app/src/kit/heroes';
 import { Jiggle } from '../app/src/render/jiggle';
 import type { Vec2 } from '../app/src/core/geometry';
 
@@ -225,5 +225,63 @@ describe('heroFigure', () => {
     expect(gazeOf({ gaze: [0.3, -0.2], neck: [0, 1, 0] }, false)).toEqual([0.3, -0.2]);
     expect(gazeOf({ neck: [0, 0.2, 0] }, false)[0]).toBeGreaterThan(0.3);     // at ease the eyes lead the head's turn
     expect(gazeOf({ neck: [0.3, 0, 0] }, false)[1]).toBeGreaterThan(0.2);     // a dipped chin looks up from under the brows
+  });
+  it('hangs an empty hand at ease with the palm to the thigh and the thumb forward', () => {
+    const g = heroFigure({}), J = g.userData.joints as Record<string, THREE.Object3D>; g.updateMatrixWorld(true);
+    for (const [sd, sx] of [['R', 1], ['L', -1]] as const) {
+      const w = J[`wrist${sd}`], parts = w.children.filter((c) => (c as THREE.Mesh).isMesh), z = (o: THREE.Object3D) => o.getWorldPosition(new THREE.Vector3()).z;
+      const palm = new THREE.Vector3(0, 0, 1).transformDirection(w.matrixWorld);
+      expect(palm.x * sx, sd).toBeLessThan(-0.6);                       // the palm turned in toward the leg, the knuckles out
+      expect(z(parts[9]) - z(parts[7]), sd).toBeGreaterThan(0.05);      // the thumb ahead of the little finger
+    }
+  });
+  it('stands at ease over the foot that takes the weight, the other heel raised', () => {
+    const g = heroFigure({ pose: { ...AT_EASE[0] } }), J = g.userData.joints as Record<string, THREE.Object3D>; g.updateMatrixWorld(true);
+    const x = (n: string) => J[n].getWorldPosition(new THREE.Vector3()).x, toe = (n: string) => new THREE.Vector3(0, 0, 1).transformDirection(J[n].matrixWorld).y;
+    expect(Math.abs(x('neck') - x('ankleR'))).toBeLessThan(Math.abs(x('neck') - x('ankleL')));  // the right knee is the straight one
+    expect(Math.abs(x('neck') - (0.85 * x('ankleR') + 0.15 * x('ankleL')))).toBeLessThan(0.08);
+    expect(Math.abs(toe('ankleR'))).toBeLessThan(0.05);                // the standing sole flat
+    expect(toe('ankleL')).toBeLessThan(-0.12);                         // the free foot on its ball
+  });
+  it('closes the hand round the weapon, the haft across the palm, and the second hand round a two-handed haft', () => {
+    const g = heroFigure({ weapon: 'axe', stance: 'two-handed' }, 'medium', 'battle'), J = g.userData.joints as Record<string, THREE.Object3D>; g.updateMatrixWorld(true);
+    const curl = (sd: string) => J[`wrist${sd}`].children.filter((c) => (c as THREE.Mesh).isMesh).slice(1, 9).filter((_, i) => i % 2 === 0).map((k) => k.rotation.x);
+    for (const sd of ['R', 'L']) expect(curl(sd).every((a) => a < -1.2), sd).toBe(true);   // every finger folded at the knuckle
+    const haft = new THREE.Vector3(0, 1, 0).transformDirection(J.handR.matrixWorld), arm = new THREE.Vector3(0, -1, 0).transformDirection(J.elbowR.matrixWorld);
+    expect(haft.angleTo(arm)).toBeGreaterThan(0.9); expect(haft.angleTo(arm)).toBeLessThan(2.35);  // across the hand, never along the forearm
+    const palm = J.wristR.children[0] as THREE.Mesh, r = (palm.geometry as THREE.SphereGeometry).parameters.radius;
+    expect(J.handR.getWorldPosition(new THREE.Vector3()).distanceTo(palm.getWorldPosition(new THREE.Vector3()))).toBeLessThan(r);  // held in the fist
+  });
+  it('makes a fist of a hand the pose names, and leaves the other open', () => {
+    const J = heroFigure({ pose: { fist: ['L'] } }).userData.joints as Record<string, THREE.Object3D>;
+    const k1 = (sd: string) => J[`wrist${sd}`].children.filter((c) => (c as THREE.Mesh).isMesh)[1].rotation.x;
+    expect(k1('L')).toBeLessThan(-1.2); expect(k1('R')).toBeGreaterThan(-0.8);
+  });
+  it('rides plate pauldrons on the shoulder joint, so they lift with the arm, and rolls a shirt sleeve to the elbow', () => {
+    const plate = '#26272d', colour = (m: THREE.Mesh) => '#' + (m.material as THREE.MeshLambertMaterial).color.getHexString();
+    const J = heroFigure({ armor: { kind: 'plate', color: plate } }).userData.joints as Record<string, THREE.Object3D>;
+    for (const sd of ['R', 'L']) {
+      let n = 0; J[`shoulder${sd}`].traverse((c) => { const m = c as THREE.Mesh; let up = c.parent; while (up && up !== J[`elbow${sd}`]) up = up.parent; if (m.isMesh && !up && colour(m) === plate) n++; });
+      expect(n, sd).toBeGreaterThanOrEqual(2);                          // the cap and its lames, above the elbow
+    }
+    const forearm = (f: Parameters<typeof heroFigure>[0]) => { const c = new Set<string>(); for (const m of (heroFigure(f).userData.joints.elbowR as THREE.Object3D).children) if ((m as THREE.Mesh).isMesh) c.add(colour(m as THREE.Mesh)); return c; };
+    const skin = '#c08a62', shirt = '#e8e2d0';
+    expect(forearm({ skin, sleeves: shirt, rolled: true }).has(skin)).toBe(true);
+    expect(forearm({ skin, sleeves: shirt, rolled: true }).has(shirt)).toBe(true);   // the cuff
+    expect(forearm({ skin, sleeves: shirt }).has(skin)).toBe(false);
+  });
+  it('carries a book shut out of a fight, close by the hand, and opens it in one', () => {
+    const book = (battle: boolean, pose?: { book: 'open' }) => {
+      const g = heroFigure({ offhand: { kind: 'book' }, pose }, 'medium', battle ? 'battle' : undefined), J = g.userData.joints as Record<string, THREE.Object3D>; g.updateMatrixWorld(true);
+      const bk = J.handL.children.find((c) => (c as THREE.Group).isGroup)!, box = new THREE.Box3();
+      for (const c of bk.children) { const m = c as THREE.Mesh; if (!m.isMesh) continue; m.geometry.computeBoundingBox(); m.updateMatrix(); box.union(m.geometry.boundingBox!.clone().applyMatrix4(m.matrix)); }
+      const size = box.getSize(new THREE.Vector3()), at = new THREE.Box3().setFromObject(bk).getCenter(new THREE.Vector3());
+      return { size, far: at.distanceTo(J.wristL.children[0].getWorldPosition(new THREE.Vector3())) };
+    };
+    const shut = book(false), open = book(true), read = book(false, { book: 'open' });
+    expect(shut.size.y).toBeGreaterThan(shut.size.x);                 // carried by its foot, standing up
+    expect(open.size.x).toBeGreaterThan(open.size.y * 2);             // spread across both hands' worth
+    expect(read.size.x).toBeGreaterThan(read.size.y * 2);             // a pose that reads holds it open at rest
+    expect(shut.far).toBeLessThan(0.6);
   });
 });
