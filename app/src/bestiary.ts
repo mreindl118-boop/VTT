@@ -101,12 +101,17 @@ export function colorOf(e: CreatureEntry): string { return e.figure?.cloth ?? e.
 /** What a figure carries in its right hand is drawn only in a fight: at rest a blade goes to a free place on the belt and
  *  a great weapon to the back (staffs, spears, canes, tools and torches stay in the hand). The gear is the same either
  *  way; only its mount changes. */
-function stowed<T extends { gear?: HeroFigure['gear'] }>(f: T): T {
-  const w: WeaponSpec | undefined = f.gear?.handR; if (!w) return f;
-  const belt = ['longsword', 'shortsword', 'rapier', 'scimitar', 'dagger', 'handaxe', 'mace', 'club', 'sunsword'].includes(w.kind), back = ['greatsword', 'greataxe', 'battleaxe', 'dragon-greatsword'].includes(w.kind);
-  const g = { ...f.gear }; delete g.handR;
-  if (belt && !g.beltL) g.beltL = w; else if (belt && !g.beltR) g.beltR = w; else if (back && !g.back) g.back = w; else return f;
-  return { ...f, gear: g };
+function stowed<T extends { gear?: HeroFigure['gear']; offhand?: HeroFigure['offhand']; concealed?: boolean }>(f: T): T {
+  const WALK = ['quarterstaff', 'torch', 'shovel'], BACK = ['greatsword', 'greataxe', 'battleaxe', 'dragon-greatsword', 'spear'];
+  const g = { ...f.gear }, w: WeaponSpec | undefined = g.handR;
+  // nothing drawn at rest: a hand weapon goes to the belt, a great one to the back, and where there is no room it is put
+  // away out of sight; a staff or cane stays in the hand as a walking stick, a tool or torch as what it is
+  if (w && !WALK.includes(w.kind)) { delete g.handR; if (BACK.includes(w.kind)) { if (!g.back) g.back = w; } else if (!g.beltL && w.kind !== 'sword-cane') g.beltL = w; else if (w.kind === 'sword-cane') { if (!g.beltR) g.beltR = w; } else if (!g.beltR) g.beltR = w; }
+  // a character who keeps their arms hidden shows none of them until the fight
+  if (f.concealed) for (const k of ['handR', 'beltL', 'beltR', 'back'] as const) if (g[k] && !WALK.includes(g[k]!.kind)) delete g[k];
+  const out = { ...f, gear: g };
+  if (out.offhand && (out.offhand as { kind?: string }).kind === 'shield') delete out.offhand;
+  return out;
 }
 /** A named character's recipe, ready for the rig: named poses resolved, the face's detail from the character's importance. */
 function recipeOf(e: CreatureEntry, battle: boolean, over: Partial<HeroFigure> = {}): HeroFigure {

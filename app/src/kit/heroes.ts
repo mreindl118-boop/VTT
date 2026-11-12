@@ -134,6 +134,8 @@ export interface HeroFigure {
   pose?: PoseName | HeroPose; battlePose?: PoseName | HeroPose; deadPose?: PoseName | HeroPose;
   /** A beard (its colour), fangs, and a tall standing collar behind the head (its colour). */
   beard?: string; fangs?: boolean; collar?: string;
+  /** Keeps their weapons out of sight until a fight: none are shown at rest (the bestiary puts them away). */
+  concealed?: boolean;
   /** The character's own face (kit/faces.ts) in place of the standard one, and how finely it is modelled (1 to 4). */
   face?: FaceSpec; detail?: FaceDetail;
   /** A hairdo of the character's own (kit/hair.ts) in place of the standard `hairStyle`. */
@@ -195,6 +197,8 @@ function drape(rTop: number, rBot: number, h: number, c: string, o: { folds: num
   return sm(g, c, true);
 }
 
+/** Faces are painted onto a clean head (the stylised look); false brings back the sculpted standard face below. */
+const PAINTED_FACES = true as boolean;
 /** The head, sculpted like a miniature's: one shaped skull (temples, cheekbones over hollow cheeks, a brow over deep-set
  *  eyes, a jaw that is square on a masculine frame and tapered on a feminine one, a chin), a wedge of a nose, small
  *  shadowed eyes under lids, brows, lips with a philtrum, and ears. The eyes sit on the midline; brow, nose and chin
@@ -202,10 +206,11 @@ function drape(rTop: number, rBot: number, h: number, c: string, o: { folds: num
 function buildFace(head: THREE.Group, s: number, hy: number, f: HeroFigure, fem = false, dead = false): (x: number, y: number) => number {
   const skin = f.skin ?? '#d9b899', shade = tone(skin, '#1e1216', 0.3), deep = tone(skin, '#1e1216', 0.5), hair = f.hair ?? '#3a2a1a';
   const lip = f.lips ?? tone(skin, '#8a3038', fem ? 0.4 : 0.2);
-  if (f.face) {
+  if (f.face || PAINTED_FACES) {
+    // the painted face (kit/faces.ts + kit/facepaint.ts), every figure's default; `face` gives a character its own
     // the character's own face (kit/faces.ts): the whole head from its recipe, with this figure's ears on it; the hair is
     // buildHair's, as for every other head
-    const fg = faceFeatures(f.face, { skin, hair: f.hair, eyes: f.eyes, lips: f.lips, detail: f.detail ?? 2, fem }); fg.scale.setScalar(0.4 * s); fg.position.set(0, hy, 0); head.add(fg);
+    const fg = faceFeatures(f.face ?? {}, { skin, hair: f.hair, eyes: f.eyes, lips: f.lips, detail: f.detail ?? 2, fem, dead }); fg.scale.setScalar(0.4 * s); fg.position.set(0, hy, 0); head.add(fg);
     if (f.ears !== 'pointed') for (const sx of [-1, 1]) { const e = sph(0.075 * s, skin); e.scale.set(0.42, 1, 0.65); head.add(at(e, sx * 0.345 * s, hy - 0.02 * s, -0.01 * s)); }
     return (x: number, y: number) => 0.345 - 1.4 * x * x - (y > 0 ? 1.0 : 0.45) * y * y;
   }
