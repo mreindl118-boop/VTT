@@ -31,18 +31,19 @@ export const scaleRings = (rings: Ring[], kw: number, kd = kw, ky = 1): Ring[] =
 
 /** The surface through a stack of rings, closed at both ends. `bump(th, y)` swells it (a fraction of its size);
  *  `warp` moves each point of it (before scaling), for a form the rings cannot carry. */
-export function loftGeometry(rings: Ring[], s: number, o: { seg?: number; rows?: number; k?: number; bump?: (th: number, y: number) => number; warp?: (p: [number, number, number]) => [number, number, number] } = {}): THREE.BufferGeometry {
+export function loftGeometry(rings: Ring[], s: number, o: { seg?: number; rows?: number; k?: number; bump?: (th: number, y: number) => number; warp?: (p: [number, number, number]) => [number, number, number]; jig?: (p: [number, number, number]) => number } = {}): THREE.BufferGeometry {
   const seg = o.seg ?? 24, rows = o.rows ?? Math.max(8, (rings.length - 1) * 5), y0 = rings[0].y, y1 = rings[rings.length - 1].y, k = o.k ?? 1;
-  const pos: number[] = [], idx: number[] = [];
+  const pos: number[] = [], idx: number[] = [], jig: number[] = [];
   for (let i = 0; i <= rows; i++) {
     const y = y0 + (y1 - y0) * i / rows, r = ringAt(rings, y);
-    for (let j = 0; j < seg; j++) { const th = (j / seg) * Math.PI * 2, [x, z] = ringPoint(r, th, k * (1 + (o.bump?.(th, y) ?? 0))), q = o.warp ? o.warp([x, y, z]) : [x, y, z]; pos.push(q[0] * s, q[1] * s, q[2] * s); }
+    for (let j = 0; j < seg; j++) { const th = (j / seg) * Math.PI * 2, [x, z] = ringPoint(r, th, k * (1 + (o.bump?.(th, y) ?? 0))), q = o.warp ? o.warp([x, y, z]) : [x, y, z]; pos.push(q[0] * s, q[1] * s, q[2] * s); if (o.jig) jig.push(o.jig([x, y, z]) * s); }
   }
   for (let i = 0; i < rows; i++) for (let j = 0; j < seg; j++) { const a = i * seg + j, b = i * seg + (j + 1) % seg, c = a + seg, d = b + seg; idx.push(a, b, c, b, d, c); }
   const lo = ringAt(rings, y0), hi = ringAt(rings, y1), base = pos.length / 3;
   pos.push((lo.x ?? 0) * s, y0 * s, (lo.z ?? 0) * s, (hi.x ?? 0) * s, y1 * s, (hi.z ?? 0) * s);
   for (let j = 0; j < seg; j++) { idx.push(base, (j + 1) % seg, j); idx.push(base + 1, rows * seg + j, rows * seg + (j + 1) % seg); }
   const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setIndex(idx); g.computeVertexNormals();
+  if (o.jig) { jig.push(0, 0); g.setAttribute('jig', new THREE.Float32BufferAttribute(jig, 1)); } // how far each point swings when the figure jiggles
   return g;
 }
 

@@ -406,7 +406,7 @@ export function mergeByMaterial<T extends THREE.Object3D>(root: T): T {
   const drop: THREE.Object3D[] = [];
   root.traverse((c) => {
     const m = c as THREE.Mesh;
-    if (!m.isMesh || Array.isArray(m.material) || (m as THREE.InstancedMesh).isInstancedMesh || m.geometry.attributes.color) return;
+    if (!m.isMesh || Array.isArray(m.material) || (m as THREE.InstancedMesh).isInstancedMesh || m.geometry.attributes.color || m.geometry.attributes.jig) return;
     const mt = m.material as THREE.MeshLambertMaterial;
     const key = [mt.type, mt.color?.getHexString(), mt.emissive?.getHexString(), mt.transparent, mt.opacity, mt.side, (mt.userData.surf as { value: number } | undefined)?.value].join('|');
     let b = buckets.get(key); if (!b) { b = { material: mt, gs: [] }; buckets.set(key, b); }
