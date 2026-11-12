@@ -1,0 +1,173 @@
+# Party packs
+
+Matt, 2026-11-12: *"create player tokens and 3d models for the VTT and place them accurately in the save state based on
+module information and latest session notes"*. A party pack carries the table's player characters into mistLAB: their
+roster numbers, a round portrait token, their own low-poly miniature, and where they stand when the next session opens.
+
+The pack is the table's own file and lives outside this public repo (names, players and portraits belong to the
+table). The code here only knows the generic parts a miniature can wear.
+
+## The flow
+
+1. **The pack** is a JSON file `{"schema": 1, "kind": "party", "characters": [...], "placement": {...}}`. In this
+   campaign it lives in the project's files as `vtt-party/party.json`.
+2. **Open it:** Initiative (crossed swords) → *Party…* → *Open party file…*. Each character shows as a card: portrait,
+   player, level, size, the numbers the range overlay uses, and the prep's notes. Problems are listed above the cards.
+3. **Apply to this campaign** writes, as ticked:
+   - **Roster:** each character's sheet added or updated by id (portrait and miniature included). The starting
+     Fighter, Rogue, Cleric and Wizard sheets go if they were never renamed; anything the DM renamed or added stays.
+   - **Place on the map:** each character stands in their own token (role `pc`) at the placement's position. Their
+     old standing tokens elsewhere are taken up, and so is the plain party marker on that map. Refused while a fight
+     runs on that map.
+   - **World map:** the party's mark moves through the `via` pins to `pin` (a short trail), and the `reveal` pins
+     become known to the players.
+   The map opens on the party. Applying twice is safe: nothing doubles.
+4. **Miniatures or round tokens:** the switch at the top of the Party sheet. Miniatures stand on a portrait base; round
+   tokens are the portrait alone, flat on the floor. It is a per-device view choice (localStorage), not campaign state.
+
+## Standing tokens and fights
+
+A character's standing token is the one they fight with: *Start encounter* uses it where it stands instead of putting a
+new one beside the party marker, and *End* leaves it there. Outside a fight the DM moves each character freely; on the
+players' side they walk (walls and closed doors stop them). The first character placed counts as "the party" for the
+camera's follow, the stairs and the minimap.
+
+## Record fields
+
+| Field | Required | Meaning |
+|---|---|---|
+| `id` | yes | Slug, also the roster sheet id (e.g. `pc-tb`). |
+| `name` | yes | Shown on the token and in the roster. |
+| `color` | yes | `#rrggbb`: the token's rim and name tag. |
+| `player`, `short`, `level`, `notes` | | DM-side card details. |
+| `size` | | `tiny` … `gargantuan` (default `medium`). |
+| `speedFt`, `reachFt`, `rangeFt`, `darkvisionFt`, `initMod` | | The roster numbers (defaults 30, 5, 0, 0, 0). |
+| `light` | | `{bright, dim}` in feet: a light the character carries or casts. |
+| `portrait` | | A PNG, JPEG or WebP data URL; the token shows its inscribed circle. |
+| `figure` | | The miniature recipe, below. |
+
+`placement`: `scene` (path under `locations/`), `level`, `at` (`{id: [x, z]}` in scene feet; anyone left out stands
+beside the first), `world` (`{pin, via?}`), `reveal` (pin keys), `note`.
+
+### Miniature recipe (`figure`)
+
+Built by `app/src/kit/heroes.ts` on the kit's humanoid, original geometry and flat colours:
+`skin`, `hair`, `hairStyle` (`short` `long` `braids` `curly`), `hairStreak`, `cloth`, `trim`, `boots`, `height`
+(relative), `ears` (`pointed`), `armor` (`{kind: plate|mail, color, trim}`), `cloak`, `hood`, `skirt`, `underskirt`,
+`weapon` (`sword` `axe` `mace` `staff` `spear` `torch`), `offhand` (`{kind: shield|book|orb, color, rim, mark}`),
+`wings` (`{color, opacity, count: 2|4}`, see-through), `halo`, `crown` (`{color, flower}`: a thorn crown), `wisp`
+(a glowing spell wisp), `hoverFt`.
+
+Detail: `eyes` (a bright colour reads as a glow), `shirt` (collar and placket), `sleeves`, `bracers`, `pendant`,
+`buckle`, `earrings`, `markings` (marks on the face), `cloakTrim` (hem band and front edges), `tattered` (a ragged
+cloak hem), `satchel` (bag on a strap), `coat` (`{tails, lapel}`), `vials` (up to four colours at the belt), `sparkles`
+(motes drifting around the figure), `rolled` (shirt sleeves rolled to the elbow: bare forearms below a rolled cuff).
+Plate armour also gets layered pauldrons (a domed cap and two lames shaped to the upper arm, riding the shoulder joint
+so they lift and swing with the arm), a gorget, tassets, knee guards and greaves; mail is a shirt with short sleeves
+over the deltoid. A satchel's strap runs over the left shoulder down to the bag on the right hip; an orb is held out on
+the palm; a wisp rises from the top of a book carried shut.
+
+Faces are smooth (cranium, jaw, cheekbones, a nose with a tip, eyes with whites, irises and pupils under a lid, brows
+and lips; `lips` sets their colour) and hair is a smooth cap with its style on top. More parts: `gauntlets`, `clasps`
+(cloak brooches), `bodice` (`{color, lacing}`), `puffSleeves`, `wingRim`, `gownTrim` (with `skirt` and `underskirt`,
+the gown hangs open over the underskirt in folds with a pointed hem and embroidered edges), and `glow` (the spell a
+battle stance holds).
+
+### Body, joints and poses
+
+Every figure is sculpted like a miniature (`kit/anatomy.ts`): the torso, pelvis and limbs are lofted through rings, so
+a chest is deep in front, a calf full behind and a shoulder line flat. The deltoid is part of the upper arm, so the
+shoulder runs from the trapezius into the arm without a ball at the joint. `frame` picks the feminine or masculine frame
+(default: feminine for a curvy build or a gown, otherwise masculine) and `build` its weight: `lean` (the default),
+`broad`, or `curvy`. The feminine frame has narrower shoulders, a defined waist, wider hips, a bust and slimmer limbs;
+the masculine one a deeper chest, a square jaw and a heavier brow. Hands have fingers; boots have a heel and a sole.
+
+The head is one sculpted skull (temples, cheekbones over hollow cheeks, a brow over deep-set eyes, the jaw and chin)
+with a wedge nose, small shadowed eyes under lids, brows and lips; nothing is stuck on as a ball. Hair is laid in
+tapering locks from a parting over a close under-layer cut at the hairline: `short` (tousled), `long` (past the
+shoulders, locks framing the face), `braids` (swept back to two roped braids), `curly` (a mass of coils). `hairStreak`
+colours a few locks at the right temple.
+
+The bust is part of the body: two mounds sculpted into the chest itself, so a gown's neckline shows skin above it
+and cloth lies over it below; `body.bust` sizes it.
+
+Jiggle (the Party sheet's switch, on by default): the bust bounces on a damped spring when a miniature is picked up
+or moved. It costs nothing while nothing is moving; switched off, figures are built without the weights.
+
+Faces are painted, storybook style, on a clean head (kit/faces.ts, kit/facepaint.ts): large eyes with lids, lashes
+and a catch-light, brows, lips, blush. `face` gives a character its own (sliders from -1 to 1 such as `eyeSize`,
+`jaw`, `smile`, `browAngle`, plus `scars`, `lashes`, `shadow`); `detail` 1 to 4 sets how finely it is drawn. The eyes
+look somewhere: a pose's `gaze` ([across, up]), or worked out from the pose, so in a fight they stay on the foe ahead
+however the head is turned, and at ease they lead the way the head is tilted and turning.
+
+Whatever the pose, a standing figure keeps its soles flat and both feet on the ground (the higher foot comes down,
+or the hips sink onto the standing leg; a foot the pose lifts well clear stays in the air) and stands over the middle
+of its base. At ease it balances: the pit of the neck over the foot that takes the weight (the straighter leg), the
+free foot on its ball with the heel a little raised when the feet are level. Balancing never takes a foot off the
+floor, so a fighting pose used out of a fight keeps its stance. An empty hand at ease hangs with its palm to the
+thigh and the thumb forward. A hand with a weapon in it closes into a fist round the haft, the haft across the palm,
+its head out above the thumb; in a two-handed stance the free hand takes the haft low, below the weapon hand, turned
+the same way, the arm solved so the haft lies in the curl of its fingers. A shield hand is a fist on the grip, and at
+rest the shield hangs plumb from it, its face turned out. A book carried shut is held by its foot, the fingers curled
+up over the cover; a pose's `holdL` turns the wrist, so the book stays in the fist. A dead hand lets go: the weapon
+lies on the floor beside it, flat side down and pointing away, clear of the body. A rest pose in a gown keeps the slit
+leg behind the slit, so it shows through the opening rather than pushing through the cloth; in a fight the right leg
+stays straight under the cloth and the left steps forward through the slit, never out past its edge.
+
+Out of a fight a weapon is put away, never carried drawn: an axe, sword or spear slung across the back, a mace hung
+at the belt with its head swung out clear of the thigh (a staff or torch stays in hand); in initiative it is in hand. `"stow": false` keeps it in hand always.
+
+`body` fits the frame to the character's art with multipliers (1 = the frame's own): `shoulders`, `chest`, `waist`,
+`hips`, `bust`, `arms`, `legs` (girth) and `neck`. A brawny fighter might take `{ "shoulders": 1.12, "waist": 1.2,
+"arms": 1.3 }`; a slight one `{ "shoulders": 0.95, "waist": 0.9, "arms": 0.88 }`.
+
+A figure takes `pose` out of initiative (default `rest`), `battlePose` in it (default its `stance`) and `deadPose` when
+it is down (default `dead`). Each is a name or joint angles:
+
+- Names: `rest` (standing at ease: weight on one leg, hips and shoulders tilted against each other, the head
+  turned; one of three variants picked by the recipe: the arms hanging, a fist on the right hip, or the left hand on
+  the belt; or a gown's own with the knee in the slit), `two-handed` (a deep lunge, a great weapon cocked over the
+  right shoulder, the free hand low on the haft), `shield` (the shield side leading in a lunge, the shield across the
+  body, the weapon arm cocked back at the shoulder),
+  `cast` (book raised, the free hand thrust out with a spell, the flier rising), `conjure` (the casting hand forward
+  round a gathering spell, the book in the other), `ride` (seated astride, hands on the reins), `lunge`, `menace`
+  (arms spread, hands clawed), `cower`, `kneel`, `staff-raised`, and the dead: `dead` (sprawled on the back),
+  `dead-prone` (face down, an arm folded behind the back, a leg hitched out), `dead-comic` (face-planted, rump in
+  the air), `dead-swoon`, `dead-curled` (on its side, knees drawn up). The dead have crossed-out eyes.
+- Angles (radians): `spine`, `neck`, `pelvis`, `shoulderR/L`, `wristR/L`, `hipR/L`, `ankleR/L` as `[x, y, z]`;
+  `elbowR/L`, `kneeR/L` and `collarR/L` (the shoulder's lift; automatic when an arm goes up) as numbers; `holdR/L`
+  (`upright`, `tilt`); `lift` (feet); `seated`; `lie` (`back`, `front` or `side`: the posed figure laid on the floor);
+  `spell` (`right` or `between`); `fist` (`["R"]`, `["L"]` or both: those hands clenched into closed fists, say on a hip;
+  only `R` and `L` count); `hipHand` (`["R"]` or `["L"]`: the hand set on the hip, the arm solved to reach the side of
+  the waist above the belt, elbow out; a fist there with `fist`); `beltHand` (the open hand laid flat on the front of
+  the belt toward its own side, fingers down; a hand that holds something keeps it instead); `book`
+  (`open` to read at rest; otherwise a book is carried shut out of a fight and opened in one); `gaze`. On x a negative angle swings forward; a negative elbow bends the forearm up, a
+  positive knee bends the shin back. On the limbs y and z are mirrored, so positive turns outward on either side. On
+  the spine and neck x > 0 leans forward (a dipped chin); on the spine, pelvis and neck, y > 0 turns toward the figure's right and z > 0 raises its right side (a hip or a
+  shoulder); a `gaze` across > 0 looks to its right. (A recipe's `face.gaze` overrides the pose's and keeps the face's
+  own convention, across > 0 to the figure's left.)
+  Ankles add to an automatic flat-foot correction. The figure is set down with its lowest sole on the floor; a seated
+  pose puts the hips at the origin.
+
+`heroFigure(recipe, size, state)`: `state` is `'rest'`, `'battle'` or `'dead'` (`true` still means battle). A dead
+figure loses its halo, wisp, sparkles, hover and spell. In the app a character is down when its token is marked Down
+(Initiative, Party…, the Down button on its card) or its hit points are 0.
+
+R and L are always the figure's own right and left: it faces +z, so its right side is at -x (`SIDE_X` in
+kit/heroes.ts). A weapon goes in the right hand, a shield or book in the left.
+
+The built group names its joints (`getObjectByName`, or `userData.joints`): `hips` (the pelvis: it carries the legs
+and the chest), `chest`, `neck`, `head`, `collarR/L`, `shoulderR/L`, `elbowR/L`, `wristR/L`, `handR/L` (what a hand
+holds: +y up the grip, +z forward), `hipR/L`, `kneeR/L`, `ankleR/L`, `footR/L`, and empty mounts for gear: `beltR/L`
+and `back`. Nothing is built for an empty hand.
+
+A gown (`skirt` with `underskirt`) is fitted: it hugs the hips and thighs, is tight at the knee and flares to a
+mermaid hem with a short train, slit up the left leg; above a sweetheart line the shoulders are bare, and puffed
+sleeves become an off-the-shoulder band with a ruffle. A cloak on a gown hangs from the elbows as a wrap.
+
+Other parts: `beard` (a colour), `fangs`, `collar` (a tall standing collar, its colour).
+
+## Both rule sets
+
+Nothing in a pack depends on the edition: speed, darkvision, size and light come from the species and are written as
+numbers, so a 2014 and a 2024 character load the same way.

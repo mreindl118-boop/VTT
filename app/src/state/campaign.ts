@@ -1,6 +1,7 @@
 // Campaign state: reveal log (undoable), tokens, per-level explored memory. The DM window is authoritative.
 import type { Vec2 } from '../core/geometry';
 import type { CreatureSize } from '../core/units';
+import type { HeroFigure } from '../kit/heroes';
 
 export type Reveal =
   | { type: 'room'; location: string; key: string; mode: 'reveal' | 'fog' | 'explored' }
@@ -19,14 +20,17 @@ export interface Token {
   color: string;
   /** Light carried by the token, if any. */
   light?: { bright: number; dim: number };
-  /** The party marker, one combatant's own token during an encounter, or a creature the DM placed. */
-  role?: 'party' | 'member' | 'creature';
+  /** The party marker, one combatant's own token during an encounter, a creature the DM placed, or a player character
+   *  standing on the map in their own token (a party pack's placement; it stays through fights). */
+  role?: 'party' | 'member' | 'creature' | 'pc';
   sheetId?: string;
   /** A placed creature: its repository entry, whether players can see it yet, what they call it, its hit points. */
   creatureId?: string;
   hidden?: boolean;
   playerName?: string;
   hp?: { cur: number; max: number };
+  /** Down: dead or dying. A character's miniature lies in its dead pose. */
+  down?: boolean;
 }
 
 /** A character sheet's tactical essentials: what the range overlay needs. */
@@ -43,6 +47,12 @@ export interface Sheet {
   size: CreatureSize;
   darkvisionFt: number;
   kind: 'pc' | 'npc';
+  /** From a party pack (core/partyPack.ts): the player's name (DM only), the level, the round token's picture and the
+   *  character's own miniature. */
+  player?: string;
+  level?: number;
+  portrait?: string;
+  figure?: HeroFigure;
 }
 
 export interface Combatant { sheetId: string; tokenId: string; init: number }
