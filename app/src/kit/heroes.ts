@@ -4,7 +4,7 @@
 // a halo, a thorn crown, a shield, an axe, a book ...) and the pack says which a character wears, in what colours.
 import * as THREE from 'three';
 import { mat, matClone } from '../render/materials';
-import { HIP, SHIN, THIGH, clipRings, forearmRings, frameOf, loftGeometry, lockGeometry, neckRings, pelvisRings, ringAt, shinRings, thighRings, torsoRings, upperArmRings, type Frame } from './anatomy';
+import { HIP, SHIN, THIGH, clipRings, forearmRings, frameOf, loftGeometry, lockGeometry, neckRings, pelvisRings, ringAt, shinRings, thighRings, torsoRings, upperArmRings, type Frame, type Measures } from './anatomy';
 import type { CreatureSize } from '../core/units';
 import { faceFeatures, type FaceSpec, type FaceDetail } from './faces';
 import { hairdo as buildHairdo, type Hairdo } from './hair';
@@ -123,6 +123,8 @@ export interface HeroFigure {
   gownTrim?: string;
   /** The body's line: lean (the default), broad, or curvy (a defined waist, hips and bust). */
   build?: 'lean' | 'broad' | 'curvy';
+  /** The character's own measures over the frame, from its art (multipliers; see `Measures`). */
+  body?: Measures;
   /** The frame the body is sculpted on (default: feminine for a curvy build or a gown, otherwise masculine). */
   frame?: 'feminine' | 'masculine';
   /** The battle stance the figure takes in initiative. */
@@ -383,7 +385,7 @@ function sheath(prof: [number, number][], c: string, o: { zs: number; slitAt: nu
   return { mesh: sm(g, c, true), point };
 }
 
-export const frameFor = (f: HeroFigure): Frame => frameOf(f.frame ? f.frame === 'feminine' : f.build === 'curvy' || !!(f.skirt && f.underskirt), f.build);
+export const frameFor = (f: HeroFigure): Frame => frameOf(f.frame ? f.frame === 'feminine' : f.build === 'curvy' || !!(f.skirt && f.underskirt), f.build, f.body);
 
 /** The body, sculpted: a lofted torso and pelvis on a feminine or masculine frame, a neck, and limbs with their
  *  muscle (deltoid, biceps, forearm, thigh, calf), jointed at the collar, shoulder, elbow and wrist, and the hip, knee
