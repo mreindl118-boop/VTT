@@ -260,13 +260,13 @@
     "skin": "#e6c9b0",
     "hair": "#7a2416",
     "hairStyle": "long",
-    "cloth": "#9aa0aa",
-    "trim": "#7a1c22",
+    "cloth": "#7a1c22",
+    "trim": "#3a2a24",
     "boots": "#3a2a24",
     "armor": {
      "kind": "plate",
-     "color": "#a8acb4",
-     "trim": "#7a1c22"
+     "color": "#aeb2ba",
+     "trim": "#d4d8e0"
     },
     "cloak": "#8e1c24",
     "hood": false,
@@ -299,7 +299,7 @@
      }
     },
     "pose": "demure easy R:skirt L:chest look:L",
-    "battlePose": "retreat recoil R:guard L:ward",
+    "battlePose": "ready intent R:lowguard L:balance eyes:glare",
     "frame": "feminine",
     "build": "curvy"
    },
@@ -1088,7 +1088,6 @@
     "height": 1.12,
     "cloak": "#e8e8ec",
     "cloakTrim": "#c8c8d0",
-    "gauntlets": "#7a1a1a",
     "glow": "#e86a20",
     "markings": "#5a4a3a",
     "face": {
@@ -1112,7 +1111,7 @@
      "eyeShape": "narrow"
     },
     "gear": {
-     "handR": {
+     "handL": {
       "kind": "battleaxe",
       "metal": "#8a8a90",
       "grip": "#2a1a12",
@@ -1120,9 +1119,14 @@
      }
     },
     "pose": "wide intent R:folded L:foldedLow",
-    "battlePose": "braced turnR R:cocked L:brace two",
+    "battlePose": "lunge turnR R:cast L:raised spell eyes:glare",
     "frame": "masculine",
-    "build": "broad"
+    "build": "broad",
+    "fiendArm": {
+     "side": "R",
+     "color": "#7a1c1a",
+     "claws": "#1c0c0a"
+    }
    },
    "importance": 10.4
   },

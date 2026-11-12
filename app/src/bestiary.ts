@@ -7,7 +7,7 @@ import { pawn } from './kit/pieces';
 import { heroFigure, type HeroFigure } from './kit/heroes';
 import { detailFor } from './kit/faces';
 import { posed } from './kit/poses';
-import { FOLK, creature, folk, staked, withDeadPose, mounted, type Folk, type FigState } from './kit/menagerie';
+import { FOLK, creature, folk, staked, withDeadPose, mounted, fiendishArm, type Folk, type FigState, type FiendArm } from './kit/menagerie';
 import { beast, BEASTS, BEUCEPHALUS } from './kit/beasts';
 import { flyer, FLYERS, mistForm, effigy, branches, felled } from './kit/monsters';
 import type { WeaponSpec } from './kit/weapons';
@@ -20,7 +20,7 @@ export interface CreatureEntry {
   kind: 'npc' | 'creature' | 'monster-manual' | 'generic' | 'pc' | 'token'; figure?: Figure; role?: string; variants?: string[];
   /** A named NPC's own miniature (kit/heroes.ts), styled after the character's art: colours, hair, dress and what they carry.
    *  When present it replaces the generic humanoid; `figure` still gives the token colour and the bestiary's look. */
-  hero?: HeroFigure;
+  hero?: HeroFigure & { fiendArm?: FiendArm };
   /** How much the character matters at the table (the relationship web's power and ties). It sets the detail of the
    *  figure's face (kit/faces.ts detailFor); raise it as a character grows in the story. */
   importance?: number;
@@ -103,10 +103,13 @@ export function colorOf(e: CreatureEntry): string { return e.figure?.cloth ?? e.
  *  way; only its mount changes. */
 function stowed<T extends { gear?: HeroFigure['gear']; offhand?: HeroFigure['offhand']; concealed?: boolean }>(f: T): T {
   const WALK = ['quarterstaff', 'torch', 'shovel'], BACK = ['greatsword', 'greataxe', 'battleaxe', 'dragon-greatsword', 'spear'];
-  const g = { ...f.gear }, w: WeaponSpec | undefined = g.handR;
+  const g = { ...f.gear };
   // nothing drawn at rest: a hand weapon goes to the belt, a great one to the back, and where there is no room it is put
   // away out of sight; a staff or cane stays in the hand as a walking stick, a tool or torch as what it is
-  if (w && !WALK.includes(w.kind)) { delete g.handR; if (BACK.includes(w.kind)) { if (!g.back) g.back = w; } else if (!g.beltL && w.kind !== 'sword-cane') g.beltL = w; else if (w.kind === 'sword-cane') { if (!g.beltR) g.beltR = w; } else if (!g.beltR) g.beltR = w; }
+  for (const hand of ['handR', 'handL'] as const) {
+    const w: WeaponSpec | undefined = g[hand];
+    if (w && !WALK.includes(w.kind)) { delete g[hand]; if (BACK.includes(w.kind)) { if (!g.back) g.back = w; } else if (!g.beltL && w.kind !== 'sword-cane') g.beltL = w; else if (w.kind === 'sword-cane') { if (!g.beltR) g.beltR = w; } else if (!g.beltR) g.beltR = w; }
+  }
   // a character who keeps their arms hidden shows none of them until the fight
   if (f.concealed) for (const k of ['handR', 'beltL', 'beltR', 'back'] as const) if (g[k] && !WALK.includes(g[k]!.kind)) delete g[k];
   const out = { ...f, gear: g };
@@ -160,8 +163,8 @@ export function figureFor(e: CreatureEntry, state: FigState = false, seed = ''):
   const dead = state === 'dead' || e.variants?.includes('corpse') === true, battle = !dead && (state === true || state === 'battle');
   const strahd = STRAHD_FORMS[e.id] && creatureById('strahd-von-zarovich');
   if (strahd && strahd.hero) { if (dead && /mounted|blade/.test(e.id)) return figureFor(strahd, 'dead'); return STRAHD_FORMS[e.id](strahd, battle, dead); }
-  if (e.hero && dead) { const vamp = !!(e.hero.fangs || e.hero.face?.fangs), g = heroFigure(recipeOf({ ...e, hero: withDeadPose(vamp && !e.hero.deadPose ? { ...e.hero, deadPose: 'laid-out' } : e.hero, e.id) as HeroFigure }, false), e.size, 'dead'); return vamp ? staked(g) : g; }
-  if (e.hero) return heroFigure(recipeOf(e, battle), e.size, battle);
+  if (e.hero && dead) { const vamp = !!(e.hero.fangs || e.hero.face?.fangs), g = heroFigure(recipeOf({ ...e, hero: withDeadPose(vamp && !e.hero.deadPose ? { ...e.hero, deadPose: 'laid-out' } : e.hero, e.id) as HeroFigure }, false), e.size, 'dead'); if (e.hero.fiendArm) fiendishArm(g, e.hero.fiendArm); return vamp ? staked(g) : g; }
+  if (e.hero) { const g = heroFigure(recipeOf(e, battle), e.size, battle); return e.hero.fiendArm ? fiendishArm(g, e.hero.fiendArm) : g; }
   const made = creature(e.id, dead ? 'dead' : battle); if (made) return made;
   const st: FigState = dead ? 'dead' : battle;
   if (FOLK[e.id]) return folk(battle ? FOLK[e.id] : stowed(FOLK[e.id]), e.size, st, seed, e.id);

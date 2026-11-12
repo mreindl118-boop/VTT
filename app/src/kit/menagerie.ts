@@ -44,6 +44,36 @@ export function staked(g: THREE.Group): THREE.Group {
   const st = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.02, 1.5, 6), (mon.horn(0.1, 0.01, '#6a4a2a').material as THREE.Material)); st.rotation.z = 0.12; st.position.set(p.x, p.y + 0.6, p.z); g.add(st);
   return g;
 }
+/** An arm unlike the other, grown in place of a lost one: from the elbow down bare and dark, thicker, barbed along the
+ *  back of the forearm, the hand long in the fingers with claws at their tips. Applied to a built figure by its joints,
+ *  so it follows whatever pose the arm is in. */
+export interface FiendArm { side: 'R' | 'L'; color: string; claws?: string }
+export function fiendishArm(g: THREE.Group, arm: FiendArm): THREE.Group {
+  const j = (g.userData.joints ?? {}) as Record<string, THREE.Object3D>, el = j['elbow' + arm.side], wr = j['wrist' + arm.side];
+  if (!el || !wr) return g;
+  const s = Math.abs(wr.position.y) / 1.04, sx = arm.side === 'R' ? 1 : -1, claw = arm.claws ?? '#1c0c0a';
+  const recolor = (m: THREE.Mesh, c: string) => { const src = m.material as THREE.MeshLambertMaterial, k = src.clone(); k.color.set(c); k.userData = { ...src.userData }; m.material = k; };
+  const meshes = (o: THREE.Object3D) => o.children.filter((c) => (c as THREE.Mesh).isMesh) as THREE.Mesh[];
+  const dark = (c: string, k: number) => '#' + new THREE.Color(c).lerp(new THREE.Color('#000000'), k).getHexString();
+  for (const m of meshes(el)) { recolor(m, arm.color); if (m.geometry.type !== 'SphereGeometry') m.scale.set(1.14, 1, 1.14); }
+  for (const m of meshes(wr)) recolor(m, arm.color);
+  // longer fingers: the hand drawn out along its length (anything it holds keeps its own proportions)
+  wr.scale.y *= 1.2; for (const c of wr.children) if (!(c as THREE.Mesh).isMesh) c.scale.y /= 1.2;
+  // a claw at each fingertip and on the thumb (the finger's far joint, the thumb last)
+  const hm = meshes(wr);
+  for (const i of [2, 4, 6, 8, 9]) {
+    const f = hm[i], prm = (f?.geometry as THREE.CapsuleGeometry | undefined)?.parameters; if (!f || !prm) continue;
+    const c = new THREE.Mesh(new THREE.ConeGeometry(prm.radius * 0.8, prm.radius * 3.2, 6), (f.material as THREE.Material).clone());
+    (c.material as THREE.MeshLambertMaterial).color.set(claw); c.rotation.x = Math.PI; c.position.y = -(prm.height / 2 + prm.radius * 1.9); f.add(c);
+  }
+  // barbs down the back of the forearm, swept toward the elbow
+  for (let i = 0; i < 5; i++) {
+    const y = -(0.2 + i * 0.16) * s, r = (0.15 - 0.045 * i / 4) * 1.14 * s, a = -Math.PI / 2 - sx * (0.45 + 0.12 * (i % 2)), b = new THREE.Mesh(new THREE.ConeGeometry(0.042 * s, (0.24 - 0.02 * i) * s, 5), (meshes(el)[0].material as THREE.Material).clone());
+    (b.material as THREE.MeshLambertMaterial).color.set(dark(arm.color, 0.55));
+    b.position.set(Math.cos(a) * r * 0.92, y, Math.sin(a) * r * 0.92); b.lookAt(new THREE.Vector3(Math.cos(a) * 3, y + 1.6 * s, Math.sin(a) * 3)); b.rotateX(Math.PI / 2); el.add(b);
+  }
+  return g;
+}
 /** A recipe with its dead pose resolved (kit/poses.ts names, the rig's own presets, or one picked by the seed). */
 export function withDeadPose<T extends { deadPose?: unknown }>(r: T, seed: string): Omit<T, 'deadPose'> & { deadPose: HeroFigure['deadPose'] } {
   return { ...r, deadPose: deadPose(r.deadPose, seed) as HeroFigure['deadPose'] };
