@@ -1429,7 +1429,7 @@ export class App {
       const sheet = t.sheetId && t.role !== 'creature' ? this.state.roster.find((x) => x.id === t.sheetId) : undefined;
       const flat = !!sheet?.portrait && this.pieceStyle === 'token';
       if (!flat) {
-        const fig = mergeByMaterial(sheet?.figure ? heroFigure(sheet.figure, t.size, !!this.state.encounter?.order.some((c) => c.tokenId === t.id)) : entry ? figureFor(entry) : adventurer(t.role === 'member' ? { cloth: t.color } : undefined)); fig.position.y = 0.3;
+        const fig = mergeByMaterial(sheet?.figure ? heroFigure(sheet.figure, t.size, t.down || (t.hp && t.hp.cur <= 0) ? 'dead' : !!this.state.encounter?.order.some((c) => c.tokenId === t.id)) : entry ? figureFor(entry) : adventurer(t.role === 'member' ? { cloth: t.color } : undefined)); fig.position.y = 0.3;
         g.add(fig);
       }
       if (sheet?.portrait) g.add(portraitDisc(sheet.portrait, t.color, flat ? base * 0.48 : (base * 0.62) / 2 + 0.25, () => this.world.invalidate(), 0.3));
@@ -1794,6 +1794,8 @@ export class App {
   }
   setTokenHidden(id: string, hidden: boolean): void { const t = this.state.tokens.find((x) => x.id === id); if (!t) return; t.hidden = hidden; this.syncTokens(); this.recompute(); this.commit(); this.onChange?.(); }
   setPlayerName(id: string, name: string): void { const t = this.state.tokens.find((x) => x.id === id); if (!t) return; t.playerName = name.trim() || t.playerName; this.syncTokens(); this.commit(); }
+  /** Mark a token down (dead or dying) or back up: a character's miniature lies in its dead pose. */
+  setDown(id: string, down: boolean): void { const t = this.state.tokens.find((x) => x.id === id); if (!t) return; if (down) t.down = true; else delete t.down; this.commit(); this.refreshTokens(); this.onChange?.(); }
   adjustHp(id: string, delta: number): void { const t = this.state.tokens.find((x) => x.id === id); if (!t?.hp) return; t.hp.cur = Math.max(0, Math.min(t.hp.max, t.hp.cur + delta)); this.commit(); this.onChange?.(); }
   /** The sheet an initiative needs for a placed creature: one per creature kind, shared by every copy. */
   creatureSheet(t: Token): Sheet | undefined {

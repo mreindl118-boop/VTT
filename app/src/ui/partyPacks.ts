@@ -56,7 +56,7 @@ export function openPartyPacks(app: App, onDone: () => void): void {
         <p class="pp-sub">${c.player ? `${esc(c.player)} · ` : ''}${c.level ? `level ${c.level} · ` : ''}${esc(c.size ?? 'medium')}${c.figure ? ' · own miniature' : ''}</p>
         <p class="pp-stats">${stat('Speed', c.speedFt ?? 30)}${stat('Darkvision', c.darkvisionFt ?? 0)}${stat('Reach', c.reachFt ?? 5)}${c.rangeFt ? stat('Range', c.rangeFt) : ''}${stat('Init', c.initMod ?? 0, '')}${c.light ? `<span><b>Light</b> ${c.light.bright}/${c.light.dim} ft</span>` : ''}</p>
         ${c.notes ? `<p class="pp-note">${esc(c.notes)}</p>` : ''}
-        <p class="pp-state">${inRoster ? 'In the roster' : 'Not in the roster yet'}${standing ? ` · standing on ${esc(standing.location)}` : ''}</p></div>
+        <p class="pp-state">${inRoster ? 'In the roster' : 'Not in the roster yet'}${standing ? ` · ${standing.down ? 'down' : 'standing'} on ${esc(standing.location)} <button data-a="down" data-tok="${esc(standing.id)}" aria-pressed="${!!standing.down}">${standing.down ? 'Stand up' : 'Down'}</button>` : ''}</p></div>
     </article>`;
   };
 
@@ -85,6 +85,7 @@ export function openPartyPacks(app: App, onDone: () => void): void {
     const t = ev.target as HTMLElement;
     if (t === back || t.closest('.close')) return back.remove();
     const btn = t.closest<HTMLElement>('[data-a]'), a = btn?.dataset.a; if (!a) return;
+    if (a === 'down') { const tok = app.state.tokens.find((x) => x.id === btn!.dataset.tok); if (tok) { app.setDown(tok.id, !tok.down); render(); } return; }
     if (a === 'clear') { put(PACK, null); void load(null); return; }
     if (a === 'style') { app.setPieceStyle(btn!.dataset.v === 'token' ? 'token' : 'mini'); back.querySelectorAll<HTMLElement>('[data-a="style"]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.v === app.pieceStyle))); return; }
     if (a === 'apply') void applyPack(app, pack, opt).then((ok) => { if (ok) { back.remove(); onDone(); } else render(); });

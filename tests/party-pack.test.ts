@@ -156,6 +156,24 @@ describe('heroFigure', () => {
     const custom = heroFigure({ pose: { elbowR: -1.5, kneeL: 0.9 } });
     expect(custom.userData.joints.elbowR.rotation.x).toBeCloseTo(-1.5); expect(custom.userData.joints.kneeL.rotation.x).toBeCloseTo(0.9);
   });
+  it('lies down dead: laid on the floor in its dead pose, the halo, wisp, sparkles and spell gone', () => {
+    const f = { halo: '#f0c860', wisp: '#8ff0b8', sparkles: '#d9b8ff', glow: '#b06ad0', stance: 'cast' as const, hoverFt: 1, wings: { color: '#cbb4f2', count: 2 as const } };
+    const alive = heroFigure(f, 'medium', 'battle'), dead = heroFigure(f, 'medium', 'dead');
+    const glassy = (g: THREE.Object3D) => { let n = 0; g.traverse((c) => { const m = c as THREE.Mesh; if (m.isMesh && (m.material as THREE.Material).userData.keepLook) n++; }); return n; };
+    expect(glassy(dead)).toBe(4); expect(glassy(alive)).toBeGreaterThan(20); // only the wings' membranes and rims stay
+    const flat = heroFigure({ ...f, wings: undefined }, 'medium', 'dead'); flat.updateMatrixWorld(true); // (wings would prop the body up)
+    const j = flat.userData.joints as Record<string, THREE.Object3D>, y = (n: string) => j[n].getWorldPosition(new THREE.Vector3()).y;
+    expect(y('head')).toBeLessThan(1.2); expect(y('hips')).toBeLessThan(1.2); expect(y('hips')).toBeGreaterThan(0);
+    for (const p of ['dead-prone', 'dead-comic', 'dead-swoon'] as const) expect(height(heroFigure({ deadPose: p }, 'medium', 'dead'))).toBeLessThan(height(heroFigure({})) * 0.6);
+    expect(height(heroFigure({}, 'medium', true))).toBeGreaterThan(5); // true still means battle
+  });
+  it('sculpts a feminine and a masculine frame: narrower shoulders and waist, wider hips', () => {
+    const x = (g: THREE.Object3D, n: string) => { g.updateMatrixWorld(true); return Math.abs((g.userData.joints as Record<string, THREE.Object3D>)[n].getWorldPosition(new THREE.Vector3()).x); };
+    const fem = heroFigure({ frame: 'feminine' }), masc = heroFigure({ frame: 'masculine' });
+    expect(x(fem, 'shoulderR')).toBeLessThan(x(masc, 'shoulderR') - 0.1); expect(x(fem, 'hipR')).toBeGreaterThan(x(masc, 'hipR'));
+    expect(x(heroFigure({ frame: 'masculine', build: 'broad' }), 'shoulderR')).toBeGreaterThan(x(masc, 'shoulderR'));
+    expect(heroFigure({ skirt: '#5e1f3a', underskirt: '#efe3c8' }).userData.joints.collarR).toBeDefined(); // a gown is feminine by default, and every frame has its collar joints
+  });
   it('builds nothing for an empty hand', () => {
     expect((heroFigure({}).userData.joints.handR as THREE.Object3D).children).toHaveLength(0);
   });
