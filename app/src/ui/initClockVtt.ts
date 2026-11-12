@@ -6,8 +6,10 @@ import { BESTIARY, colorOf, statsOf } from '../bestiary';
 import { EDITION_EVENT, rulesEdition, setRulesEdition } from '../books/lookup';
 import { loadEntries } from '../books/store';
 import { BOOK_OF, type MonsterSummary } from '../books/types';
-import { xpForCr } from '../core/initClock';
+import { fightsFromPack, xpForCr, type PreparedFight } from '../core/initClock';
 import { openClock, type CatItem, type ClockHost } from './initClock';
+
+let packRaw: string | null | undefined, packFights: PreparedFight[] = [];
 
 export function openInitClock(app: App): void {
   const host: ClockHost = {
@@ -32,6 +34,14 @@ export function openInitClock(app: App): void {
         return { id: t.id, name: t.name, alias: t.playerName, color: t.color ?? (ent ? colorOf(ent) : undefined), hidden: t.hidden, hp: t.hp, creatureId: t.creatureId };
       });
     },
+    // The encounter pack the DM opened under Initiative → Encounter packs (kept on this device, never in the repo).
+    fights: () => {
+      let raw: string | null = null;
+      try { raw = localStorage.getItem('mistlab.encounterPack'); } catch { /* no storage */ }
+      if (raw !== packRaw) { packRaw = raw; try { packFights = raw ? fightsFromPack(JSON.parse(raw), (id) => BESTIARY.find((b) => b.id === id)?.name) : []; } catch { packFights = []; } }
+      return packFights;
+    },
+    fightsLabel: 'the encounter pack',
     rosterLabel: 'the VTT roster',
   };
   openClock(host);

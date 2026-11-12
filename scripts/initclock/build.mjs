@@ -1,6 +1,7 @@
 // Builds the initiative clock as one self-contained HTML page (app/src/standalone/initClockPage.ts): the clock's code
 // and styles, the theme tokens and fonts, and the SRD 5.1 and 5.2.1 monsters and conditions (CC-BY-4.0, with their
-// attribution). Usage: node scripts/initclock/build.mjs <out.html> ["Character|Player|level,…"]
+// attribution). Usage: node scripts/initclock/build.mjs <out.html> ["Character|Player|level,…"] [encounters.json]
+// The optional encounter pack (the DM's scenario notes) is built into the page as its prepared fights.
 // The output is for the DM's own use and is not committed (party names in particular stay out of the repo).
 import { build } from 'vite';
 import { mkdtempSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
@@ -36,11 +37,21 @@ const rules = (b) => JSON.parse(readFileSync(resolve(root, `app/public/books/${b
 const attribution = (b) => /## Attribution\s+([\s\S]*?)\n\n/.exec(readFileSync(resolve(root, `app/public/books/${b}/ATTRIBUTION.md`), 'utf8'))[1].trim();
 const mons = (b) => Object.values(book(b).entries).map((e) => ({ id: e.id, name: e.name, s: e.s, html: e.html }));
 const conds = (b) => Object.values(rules(b).entries).filter((e) => e.type === 'condition').map((e) => ({ id: e.id, name: e.name, html: e.html }));
+// The DM's encounter pack, if given, with the display names of its creatures from the manifest.
+const packPath = process.argv[4];
+const pack = packPath ? JSON.parse(readFileSync(resolve(packPath), 'utf8')) : undefined;
+const names = {};
+if (pack) {
+  const chars = JSON.parse(readFileSync(resolve(root, 'manifests/characters.json'), 'utf8')).characters ?? [];
+  const used = new Set((pack.encounters ?? []).flatMap((e) => (e.creatures ?? []).map((c) => c.id)));
+  for (const c of chars) if (used.has(c.id)) names[c.id] = c.name;
+}
 const data = {
   monsters: { 2014: mons('srd-5.1'), 2024: mons('srd-5.2.1') },
   conditions: { 2014: conds('srd-5.1'), 2024: conds('srd-5.2.1') },
   attribution: { 2014: attribution('srd-5.1'), 2024: attribution('srd-5.2.1') },
   party,
+  ...(pack ? { pack: { encounters: pack.encounters }, names } : {}),
 };
 
 const page = `<title>Initiative Clock</title>

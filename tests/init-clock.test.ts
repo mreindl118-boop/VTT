@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import {
   addCondition, angleOf, applyHp, combatant, concentrationDc, deathSave, delay, difficulty, initAt, multiplier2014, newClock, next, numbered,
-  ordered, parseBlock, prev, prompts, reminder, resume, rollExpr, roundsLeft, setInit, nudgeTie, TOP, avgExpr, type Clock,
+  ordered, parseBlock, prev, prompts, reminder, resume, rollExpr, roundsLeft, setInit, nudgeTie, TOP, avgExpr, type Clock, fightCount, fightGroups, fightsFromPack,
 } from '../app/src/core/initClock';
 
 const fight = (): Clock => {
@@ -148,5 +148,34 @@ describe('the dial', () => {
     expect(angleOf(30)).toBe(6); expect(angleOf(1)).toBe(354); expect(angleOf(15)).toBe(186); expect(angleOf(TOP)).toBe(0);
     for (let v = 1; v <= 30; v++) expect(initAt(angleOf(v))).toBe(v);
     expect(initAt(0)).toBe(TOP);
+  });
+});
+
+describe('prepared fights from an encounter pack', () => {
+  const pack = { schema: 1, encounters: [
+    { id: 'early', title: 'A stranger on the road', scene: 'x/town', creatures: [{ id: 'wolf', count: '3d6' }] },
+    { id: 'a', title: 'Old House: ghouls in the cellar', scene: 'x/house', area: '29', trigger: 'Reaching the middle', creatures: [{ id: 'ghoul', count: 4, note: 'former cultists' }] },
+    { id: 'b', title: 'Old House: the owners', scene: 'x/house', creatures: [{ id: 'mister-owner', count: 1, cr: '2', note: 'ghast' }, { id: 'ghoul', count: 2 }] },
+    { id: 'c', title: 'Town: rats', scene: 'x/town', creatures: [{ id: 'swarm-of-rats', count: '2d4' }] },
+    { id: 'bad', title: 'No creatures', scene: 'x/house', creatures: [] },
+  ] };
+  const fights = fightsFromPack(pack, (id) => (id === 'ghoul' ? 'Ghoul' : undefined));
+  it('groups by the dungeon in the title, and by scene when the title has none', () => {
+    expect(fights.map((f) => [f.id, f.group, f.title])).toEqual([['a', 'Old House', 'Ghouls in the cellar'], ['b', 'Old House', 'The owners'], ['c', 'Town', 'Rats'], ['early', 'Town', 'A stranger on the road']]);
+    expect(fights[1].creatures[0]).toMatchObject({ name: 'Mister Owner', cr: '2', note: 'ghast' });
+  });
+  it('counts the creatures out per dungeon, dice left for the DM to roll', () => {
+    const g = fightGroups(fights);
+    expect(g.map((x) => x.group)).toEqual(['Old House', 'Town']);
+    expect(g[0]).toMatchObject({ creatures: 7, totals: [{ name: 'Ghoul', count: 6, dice: [] }, { name: 'Mister Owner', count: 1, dice: [] }] });
+    expect(g[1].totals).toEqual([{ name: 'Swarm of Rats', count: 0, dice: ['2d4'] }, { name: 'Wolf', count: 0, dice: ['3d6'] }]);
+  });
+  it('takes a fixed count as it is and a dice count only with a roll in range', () => {
+    expect(fightCount(4)).toBe(4);
+    expect(fightCount('2d4')).toBeNull();
+    expect(fightCount('2d4', 5)).toBe(5);
+    expect(fightCount('2d4', 9)).toBeNull();
+    expect(fightCount('1d4+1', 5)).toBe(5);
+    expect(fightsFromPack({ nope: 1 })).toEqual([]);
   });
 });

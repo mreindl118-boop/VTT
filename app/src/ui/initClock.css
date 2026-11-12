@@ -306,3 +306,27 @@
   .ic-dock *, .ic-dock *::before { animation: none !important; transition: none !important; }
   .ic-banner.show { animation: none !important; opacity: 1; }
 }
+
+/* ---- prepared fights: the pack's fights by dungeon, creatures counted out */
+.ic-dock h4 small { font: 12px var(--font-ui, sans-serif); color: var(--p-ink-2); font-weight: 400; margin-left: 6px; }
+.ic-fgroup { border: 1px solid var(--p-hair); border-radius: 12px; margin: 6px 0; background: color-mix(in srgb, var(--p-raise) 60%, transparent); }
+.ic-fgroup > summary { display: flex; align-items: baseline; gap: 8px; padding: 8px 12px; cursor: pointer; list-style: none; border-radius: 12px; }
+.ic-fgroup > summary::-webkit-details-marker { display: none; }
+.ic-fgroup > summary::before { content: '▸'; color: var(--ic-gold-lo); transition: transform .2s var(--ic-ease); display: inline-block; }
+.ic-fgroup[open] > summary::before { transform: rotate(90deg); }
+.ic-fgroup > summary b { font: 700 16px var(--font-head, serif); flex: 1; }
+.ic-fgroup > summary small { color: var(--p-ink-2); font-size: 12px; }
+.ic-fgroup > summary:hover { background: color-mix(in srgb, var(--ic-gold) 12%, transparent); }
+.ic-ftotal { margin: 0 12px 6px; display: flex; flex-wrap: wrap; gap: 4px 6px; font-size: 12px; }
+.ic-ftotal span { padding: 2px 8px; border-radius: 999px; background: var(--p-raise); border: 1px solid var(--p-hair); white-space: nowrap; }
+.ic-ftotal b { font-variant-numeric: tabular-nums; }
+.ic-dock .ic-fights { margin: 0 8px 8px; }
+.ic-fights li { align-items: flex-start; }
+.ic-f-what { flex: 1 1 220px; min-width: 0; display: grid; gap: 1px; }
+.ic-fights .ic-f-what b { font-family: var(--font-head, serif); }
+.ic-fights .ic-f-what b i { font-style: normal; font: 700 11px var(--font-ui, sans-serif); padding: 1px 6px; border-radius: 6px; background: var(--ic-leather); color: var(--ic-gold-hi); margin-right: 4px; vertical-align: 2px; }
+.ic-fights .ic-f-mon { color: var(--p-ink); font-size: 13px; }
+.ic-fights .ic-f-mon em { color: var(--p-ink-2); font-size: 12px; }
+.ic-f-more > summary { cursor: pointer; color: var(--p-ink-2); font-size: 12px; width: fit-content; }
+.ic-f-more small { display: block; margin-top: 2px; color: var(--p-ink-2); font-size: 12px; }
+.ic-dock input.ic-roll { width: 52px; padding: 1px 6px; text-align: center; }

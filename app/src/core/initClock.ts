@@ -548,3 +548,60 @@ export const REMINDER_PRESETS: Preset[] = [
   { id: 'inspiration', group: 'Table', label: 'Inspiration', text: 'Hand out inspiration?', mode: 'interval', init: TOP, n: 3, help: 'A prompt to reward good play.' },
   { id: 'break', group: 'Table', label: 'Check the table', text: 'Check in with the table', mode: 'interval', init: TOP, n: 4, help: 'Pacing: time a recap, a break, or a look at the clock.' },
 ];
+
+// ------------------------------------------------------------------ prepared fights (the DM's encounter pack)
+
+/** A fight prepared ahead of time (the scenario notes' encounter pack), listed in Build under its dungeon. */
+export interface FightCreature { id: string; name: string; count: number | string; cr?: string; note?: string; alias?: string }
+export interface PreparedFight { id: string; title: string; group: string; area?: string; trigger?: string; notes?: string; page?: number; source?: string; creatures: FightCreature[] }
+
+const titleCase = (id: string) => id.split('-').map((w, i) => (i === 0 || w.length > 3 ? w[0].toUpperCase() + w.slice(1) : w)).join(' ');
+/** Read an encounter pack ({schema: 1, encounters: [...]}) into prepared fights, grouped by dungeon: the part of
+ * the title before the colon ("Death House: …"), or failing that the group of another fight in the same scene. */
+export function fightsFromPack(raw: unknown, nameOf?: (id: string) => string | undefined): PreparedFight[] {
+  const list = Array.isArray(raw) ? raw : (raw as { encounters?: unknown })?.encounters;
+  if (!Array.isArray(list)) return [];
+  const str = (v: unknown) => (typeof v === 'string' && v.trim() ? v.trim() : undefined);
+  const rows: { f: PreparedFight; scene?: string; prefixed: boolean }[] = [];
+  for (const r of list as Record<string, unknown>[]) {
+    const id = str(r?.id), full = str(r?.title);
+    if (!id || !full || !Array.isArray(r.creatures)) continue;
+    const creatures: FightCreature[] = [];
+    for (const c of r.creatures as Record<string, unknown>[]) {
+      const cid = str(c?.id), count = typeof c?.count === 'number' ? c.count : str(c?.count);
+      if (!cid || count === undefined) continue;
+      creatures.push({ id: cid, name: nameOf?.(cid) ?? titleCase(cid), count, ...(str(c.cr) ? { cr: str(c.cr) } : {}), ...(str(c.note) ? { note: str(c.note) } : {}), ...(str(c.alias) ? { alias: str(c.alias) } : {}) });
+    }
+    if (!creatures.length) continue;
+    const cut = full.indexOf(': '), prefixed = cut > 0 && cut < 40;
+    const title = prefixed ? full.slice(cut + 2) : full;
+    rows.push({ scene: str(r.scene), prefixed, f: { id, title: title[0].toUpperCase() + title.slice(1), group: prefixed ? full.slice(0, cut) : '', ...(str(r.area) ? { area: str(r.area) } : {}), ...(str(r.trigger) ? { trigger: str(r.trigger) } : {}), ...(str(r.notes) ? { notes: str(r.notes) } : {}), ...(typeof r.page === 'number' ? { page: r.page } : {}), ...(str(r.source) ? { source: str(r.source) } : {}), creatures } });
+  }
+  for (const row of rows) if (!row.prefixed) row.f.group = rows.find((o) => o.prefixed && o.scene && o.scene === row.scene)?.f.group ?? 'Other fights';
+  // fights whose title names no dungeon come last, so the dungeons keep the pack's order
+  return [...rows.filter((r) => r.prefixed), ...rows.filter((r) => !r.prefixed)].map((r) => r.f);
+}
+/** The fights by dungeon, in the pack's order of dungeons, each with its creatures counted out: fixed counts are
+ * summed per creature; dice counts are listed as they are written (the DM rolls them). */
+export function fightGroups(fights: PreparedFight[]): { group: string; fights: PreparedFight[]; totals: { name: string; count: number; dice: string[] }[]; creatures: number }[] {
+  const groups: { group: string; fights: PreparedFight[] }[] = [];
+  for (const f of fights) { let g = groups.find((x) => x.group === f.group); if (!g) groups.push(g = { group: f.group, fights: [] }); g.fights.push(f); }
+  return groups.map((g) => {
+    const totals: { name: string; count: number; dice: string[] }[] = [];
+    for (const f of g.fights) for (const c of f.creatures) {
+      let t = totals.find((x) => x.name === c.name); if (!t) totals.push(t = { name: c.name, count: 0, dice: [] });
+      const n = typeof c.count === 'number' ? c.count : /^\d+$/.test(c.count) ? Number(c.count) : null;
+      if (n === null) t.dice.push(String(c.count)); else t.count += n;
+    }
+    totals.sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+    return { ...g, totals, creatures: totals.reduce((a, t) => a + t.count, 0) };
+  });
+}
+/** The number to place for a count: itself, or the DM's typed roll for dice (within the dice's range). */
+export function fightCount(count: number | string, rolled?: number): number | null {
+  if (typeof count === 'number') return count >= 0 ? Math.round(count) : null;
+  if (/^\s*\d+\s*$/.test(count)) return Number(count);
+  const m = /^\s*(\d*)d(\d+)\s*(?:([+-])\s*(\d+))?\s*$/i.exec(count); if (!m) return null;
+  const n = Number(m[1] || 1), mod = m[4] ? Number(m[4]) * (m[3] === '-' ? -1 : 1) : 0;
+  return rolled !== undefined && Number.isInteger(rolled) && rolled >= Math.max(0, n + mod) && rolled <= n * Number(m[2]) + mod ? rolled : null;
+}

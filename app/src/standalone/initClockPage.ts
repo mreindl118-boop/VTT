@@ -2,7 +2,7 @@
 // SRD monsters and conditions embedded in the page, and a small stat-block card for monster and condition links
 // (inside the VTT the app's rules cards do that). Built into one HTML file by scripts/initclock/build.mjs.
 import type { MonsterSummary } from '../books/types';
-import type { Rules } from '../core/initClock';
+import { fightsFromPack, type PreparedFight, type Rules } from '../core/initClock';
 import { openClock, type ClockHost, type MonsterRecord } from '../ui/initClock';
 import { ensureEmblems } from '../ui/emblems';
 import { statblockHtml } from '../ui/statblock';
@@ -13,10 +13,14 @@ interface PageData {
   conditions: Record<Rules, { id: string; name: string; html: string }[]>;
   attribution: Record<Rules, string>;
   party?: { name: string; player?: string; level?: number; color?: string }[];
+  /** An encounter pack built into the page, and the names of its creatures. */
+  pack?: unknown;
+  names?: Record<string, string>;
 }
 const data = JSON.parse(document.getElementById('srd-data')!.textContent!) as PageData;
 const EDITION_KEY = 'initclock.rulesEdition', EVENT = 'initclock:edition';
 const edition = (): Rules => { try { return localStorage.getItem(EDITION_KEY) === '2014' ? '2014' : '2024'; } catch { return '2024'; } };
+const fights: PreparedFight[] = data.pack ? fightsFromPack(data.pack, (id) => data.names?.[id]) : [];
 const COLORS = ['#d9822b', '#7b5ea7', '#c9b458', '#3b8ea5', '#4f9a5b', '#c0607a'];
 
 const host: ClockHost = {
@@ -27,6 +31,7 @@ const host: ClockHost = {
   edition,
   setEdition: (ed) => { try { localStorage.setItem(EDITION_KEY, ed); } catch { /* this visit only */ } dispatchEvent(new CustomEvent(EVENT, { detail: ed })); },
   editionEvent: EVENT,
+  ...(fights.length ? { fights: () => fights, fightsLabel: 'the scenario notes' } : {}),
 };
 
 document.documentElement.classList.add('ic-standalone-page');

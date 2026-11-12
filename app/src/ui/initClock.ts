@@ -9,7 +9,7 @@ import type { MonsterSummary } from '../books/types';
 import {
   abilityMod, addCondition, angleOf, applyHp, avgExpr, combatant, d, deathSave, delay, difficulty, DIAL_MAX, gameTime, initAt, jump, newClock,
   next, nudgeTie, numbered, ordered, parseBlock, prev, prompts, REMINDER_PRESETS, reminder, resume, rollExpr, rollInit, roundsLeft, setInit,
-  start, takesTurn, TOP, uid, xpForCr, type Clock, type Entry, type ParsedBlock, type Preset, type ReminderMode, type Rules, type Side,
+  fightCount, fightGroups, start, takesTurn, TOP, uid, xpForCr, type PreparedFight, type Clock, type Entry, type ParsedBlock, type Preset, type ReminderMode, type Rules, type Side,
 } from '../core/initClock';
 import { esc } from './text';
 
@@ -37,6 +37,10 @@ export interface ClockHost {
   modules?(): CatItem[];
   /** The SRD entry a module creature maps to, if any. */
   resolveModule?(id: string, ed: Rules): Promise<{ id: string; edition: Rules } | undefined>;
+  /** Fights prepared ahead (the DM's encounter pack), listed in Build by dungeon. */
+  fights?(): PreparedFight[];
+  /** Where the prepared fights come from, e.g. "the encounter pack". */
+  fightsLabel?: string;
   /** Creatures on the open map (the VTT only). */
   mapCreatures?(): MapCreature[];
   /** Where "copy names" reads the roster from, e.g. "the VTT roster". */
@@ -48,7 +52,7 @@ export interface ClockHost {
 interface PartyMember { id: string; name: string; player: string; level: number; ac: number; pp: number; mod: number; maxHp: number; color: string }
 interface CustomBlock { id: string; name: string; text: string; p: ParsedBlock }
 type Ref = { type: 'srd'; id: string; edition: Rules } | { type: 'module'; id: string } | { type: 'custom'; id: string };
-interface StageItem { key: string; ref: Ref; name: string; count: number; cr?: string; side: Side }
+interface StageItem { key: string; ref: Ref; name: string; count: number; cr?: string; side: Side; /** Hit points the fight's note gives, over the stat block's. */ hp?: number }
 interface Saved { id: string; name: string; items: StageItem[]; notes?: string }
 interface Prefs { mode: 'full' | 'mini'; tab: Tab; hp: 'avg' | 'roll'; group: boolean; adv: 'normal' | 'adv' | 'dis'; hidden: boolean; pos?: { x: number; y: number } }
 type Tab = 'order' | 'build' | 'remind' | 'party' | 'log';
@@ -118,7 +122,46 @@ export function openClock(host: ClockHost): void {
   let remDraft: (Preset & { n?: number; at?: string }) | null = null;
   let tick = 0;
   const rules = (): Rules => host.edition();
-  const moduleCatalog = (): CatItem[] => host.modules?.() ?? [];
+  // The module's creatures, plus any creature a prepared fight names that neither the books nor the module know
+  // (it joins by name and CR; paste its stat block to give it numbers).
+  const fightRolls: Record<string, string> = {};
+  const openGroups = new Set<string>();
+  let groupsSeen = false;
+  const moduleCatalog = (): CatItem[] => {
+    const base = host.modules?.() ?? [], have = new Set(base.map((c) => c.key));
+    for (const f of host.fights?.() ?? []) for (const c of f.creatures) {
+      const key = `module:${c.id}`; if (have.has(key)) continue; have.add(key);
+      base.push({ key, ref: { type: 'module', id: c.id }, name: c.name, cr: c.cr, xp: xpForCr(c.cr), mod: 0, tag: 'Prepared fight' });
+    }
+    return base;
+  };
+  /** A prepared fight as things to stage: the books' stat block where one fits (by id, or named at the head of
+   * the creature's note, e.g. "ghast"), else the module's or the fight's own name and CR. Null when a dice count has no roll yet. */
+  const fightItems = async (f: PreparedFight): Promise<StageItem[] | string> => {
+    const cat = await srdCatalog(host, rules()), out: StageItem[] = [];
+    for (const c of f.creatures) {
+      const n = fightCount(c.count, fightRolls[`${f.id}:${c.id}`]?.trim() ? Number(fightRolls[`${f.id}:${c.id}`]) : undefined);
+      if (n === null) return `Type your roll for ${c.count} ${c.name} first.`;
+      if (!n) continue;
+      const head = c.note?.split(/[,;(]/)[0].trim().toLowerCase();
+      const direct = cat.find((x) => x.ref.type === 'srd' && x.ref.id === `monster:${c.id}`), named = direct ? undefined : cat.find((x) => x.name.toLowerCase() === head);
+      if (direct) out.push({ key: direct.key, ref: direct.ref, name: direct.name, count: n, cr: direct.cr, side: 'foe' });
+      else if (named) { const hp = /\b(\d+)\s*HP\b/i.exec(c.note ?? ''); out.push({ key: `fight:${c.id}`, ref: named.ref, name: c.name, count: n, cr: c.cr ?? named.cr, side: 'foe', ...(hp ? { hp: Number(hp[1]) } : {}) }); }
+      else out.push({ key: `module:${c.id}`, ref: { type: 'module', id: c.id }, name: c.name, count: n, cr: c.cr ?? moduleCatalog().find((m) => m.key === `module:${c.id}`)?.cr, side: 'foe' });
+    }
+    return out;
+  };
+  const fightsHtml = (): string => {
+    const groups = fightGroups(host.fights?.() ?? []);
+    if (!groups.length) return '';
+    if (!groupsSeen) { groupsSeen = true; openGroups.add(groups[0].group); }
+    const cnt = (c: PreparedFight['creatures'][number], f: PreparedFight) => fightCount(c.count) !== null ? `${c.count} ` : `<input class="ic-roll" data-f="fight-roll" data-k="${esc(`${f.id}:${c.id}`)}" value="${esc(fightRolls[`${f.id}:${c.id}`] ?? '')}" placeholder="${esc(String(c.count))}" inputmode="numeric" aria-label="Your roll for ${esc(String(c.count))} ${esc(c.name)}"> `;
+    return `<h4>Prepared fights <small>from ${esc(host.fightsLabel ?? 'your notes')}</small></h4>${groups.map((g) => `<details class="ic-fgroup" data-g="${esc(g.group)}"${openGroups.has(g.group) ? ' open' : ''}>
+        <summary><b>${esc(g.group)}</b><small>${g.fights.length} fight${g.fights.length === 1 ? '' : 's'}${g.creatures ? ` · ${g.creatures} creature${g.creatures === 1 ? '' : 's'}` : ''}${g.totals.some((t) => t.dice.length) ? `${g.creatures ? ' plus' : ' ·'} your rolls` : ''}</small></summary>
+        <p class="ic-ftotal">${g.totals.map((t) => `<span>${t.count ? `<b>${t.count}</b> ` : ''}${t.dice.length ? `<b>${t.count ? '+ ' : ''}${esc(t.dice.join(' + '))}</b> ` : ''}${esc(t.name)}</span>`).join('')}</p>
+        <ul class="ic-saved ic-fights">${g.fights.map((f) => `<li><span class="ic-f-what"><b>${f.area ? `<i>${esc(f.area)}</i> ` : ''}${esc(f.title)}</b><small class="ic-f-mon">${f.creatures.map((c) => `${cnt(c, f)}${esc(c.name)}${c.note ? ` <em>(${esc(c.note)})</em>` : ''}`).join(', ')}</small>${f.trigger || f.notes ? `<details class="ic-f-more"><summary>When and notes</summary>${f.trigger ? `<small>When: ${esc(f.trigger)}</small>` : ''}${f.notes ? `<small>${esc(f.notes)}</small>` : ''}</details>` : ''}</span><button data-a="fight-load" data-id="${esc(f.id)}">Load</button><button class="primary" data-a="fight-go" data-id="${esc(f.id)}">Add to the clock</button></li>`).join('')}</ul>
+      </details>`).join('')}`;
+  };
 
   const save = () => { put(K(host, 'clock'), clock); put(K(host, 'party'), party); put(K(host, 'library'), library); put(K(host, 'saved'), saved); put(K(host, 'stage'), stage); put(K(host, 'prefs'), prefs); };
   /** Every change to the fight goes through here: undo snapshot, change, save, draw. */
@@ -155,7 +198,7 @@ export function openClock(host: ClockHost): void {
       const group = prefs.group && it.count > 1 ? uid('g') : undefined;
       const groupInit = group ? rollInit(cat.mod, prefs.adv) : undefined;
       names.forEach((name, i) => {
-        const maxHp = prefs.hp === 'roll' && cat.hpDice ? (rollExpr(cat.hpDice) ?? cat.hp ?? 10) : (cat.hp ?? (cat.hpDice ? avgExpr(cat.hpDice) : null) ?? 10);
+        const maxHp = it.hp ? it.hp : prefs.hp === 'roll' && cat.hpDice ? (rollExpr(cat.hpDice) ?? cat.hp ?? 10) : (cat.hp ?? (cat.hpDice ? avgExpr(cat.hpDice) : null) ?? 10);
         const e = combatant({
           name, side: it.side, color: it.side === 'ally' ? '#3f7f6a' : FOE_COLORS[(clock.entries.length + i) % FOE_COLORS.length], mod: cat.mod, init: groupInit ?? rollInit(cat.mod, prefs.adv),
           ac: cat.ac, pp: cat.pp, cr: cat.cr, xp: cat.xp, hp: { cur: Math.max(1, maxHp), max: Math.max(1, maxHp), temp: 0 }, hidden: prefs.hidden, group,
@@ -390,6 +433,8 @@ export function openClock(host: ClockHost): void {
     const dd = difficulty(crs, levels);
     const meter = (label: string, steps: string[]) => `<span class="ic-meter">${steps.map((s) => `<i class="${s === label ? 'on' : ''} ${s.replace(/\s/g, '-')}">${s}</i>`).join('')}</span>`;
     return `<div class="ic-build">
+      ${fightsHtml()}
+      ${host.fights?.().length ? '<h4>Build your own</h4>' : ''}
       <div class="ic-search"><input type="search" data-f="q" value="${esc(query)}" placeholder="Search ${ed === '2024' ? 'SRD 5.2.1' : 'SRD 5.1'} monsters, the module's creatures, your stat blocks… (name, type or CR)" aria-label="Search monsters"><span class="ic-sub">Rules for stat blocks: <span class="seg"><button data-a="ed" data-e="2014" aria-pressed="${ed === '2014'}">2014</button><button data-a="ed" data-e="2024" aria-pressed="${ed === '2024'}">2024</button></span></span></div>
       <ul class="ic-results">${hits.map((c) => `<li><span class="ic-r-name">${c.ref.type === 'srd' ? `<button type="button" class="rl monster" data-kind="monster" data-term="${esc(c.ref.id)}" data-edition="${c.ref.edition}" aria-expanded="false">${esc(c.name)}</button>` : c.ref.type === 'module' ? `<button type="button" class="rl monster" data-kind="monster" data-creature="${esc(c.ref.id)}" data-name="${esc(c.name)}" aria-expanded="false">${esc(c.name)}</button>` : `<button class="ic-custom" data-a="custom-card" data-id="${esc(c.ref.id)}">${esc(c.name)}</button>`}<small>${esc(c.tag)}</small></span><span class="ic-r-num">${c.cr !== undefined ? `CR ${esc(c.cr)}` : ''}${c.ac ? ` · AC ${c.ac}` : ''}${c.hp ? ` · HP ${c.hp}` : ''}</span><button data-a="stage-add" data-k="${esc(c.key)}" data-s="foe" aria-label="Add ${esc(c.name)} as a foe">+ Foe</button><button data-a="stage-add" data-k="${esc(c.key)}" data-s="ally" aria-label="Add ${esc(c.name)} as an ally">+ Ally</button></li>`).join('') || '<li class="ic-empty">Nothing matches. Paste your own stat block below.</li>'}</ul>
       <h4>This fight</h4>
@@ -546,6 +591,7 @@ export function openClock(host: ClockHost): void {
 
   // -------------------------------------------------------------- clicks
 
+  dock.addEventListener('toggle', (ev) => { const dt = ev.target as HTMLDetailsElement; if (dt.matches?.('.ic-fgroup') && dt.isConnected) { if (dt.open) openGroups.add(dt.dataset.g!); else openGroups.delete(dt.dataset.g!); } }, true);
   dock.addEventListener('click', (ev) => {
     const t = ev.target as HTMLElement;
     const b = t.closest<HTMLElement>('[data-a]'); if (!b || (b as HTMLButtonElement).disabled) return;
@@ -595,6 +641,12 @@ export function openClock(host: ClockHost): void {
       case 'stage-go': void goStage(stage); break;
       case 'stage-save': { const name = (dock.querySelector('[data-f="save-name"]') as HTMLInputElement).value.trim() || `Fight ${saved.length + 1}`; saved.push({ id: uid('s'), name, items: structuredClone(stage) }); save(); render(); flash(`Saved "${name}"`); break; }
       case 'saved-load': { const s = saved.find((x) => x.id === id); if (s) { stage = structuredClone(s.items); save(); render(); } break; }
+      case 'fight-load': case 'fight-go': { const f = host.fights?.().find((x) => x.id === id); if (f) void fightItems(f).then((items) => {
+        if (typeof items === 'string') return flash(items);
+        if (!items.length) return flash('Nothing to add for that roll.');
+        if (a === 'fight-load') { stage = items; save(); render(); flash(`${f.title}: loaded under “Build your own”.`); dock.querySelector('.ic-stage')?.scrollIntoView({ block: 'center', behavior: 'smooth' }); }
+        else void goStage(items).then(() => { say(`Fight: ${f.title}${f.area ? ` (area ${f.area})` : ''}`); save(); });
+      }); break; }
       case 'saved-go': { const s = saved.find((x) => x.id === id); if (s) void goStage(s.items); break; }
       case 'saved-del': if (confirm('Delete this saved fight?')) { saved = saved.filter((x) => x.id !== id); save(); render(); } break;
       case 'paste-read': { const text = (dock.querySelector('[data-f="paste"]') as HTMLTextAreaElement).value; if (!text.trim()) return flash('Paste a stat block first.'); parsedDraft = { text, p: parseBlock(text) }; render(); break; }
@@ -698,6 +750,7 @@ export function openClock(host: ClockHost): void {
   let qTimer = 0;
   dock.addEventListener('input', (ev) => {
     const el = ev.target as HTMLInputElement;
+    if (el.dataset.f === 'fight-roll') { fightRolls[el.dataset.k!] = el.value; return; }
     if (el.dataset.f === 'q') { query = el.value; clearTimeout(qTimer); qTimer = window.setTimeout(render, 140); }
   });
   dock.addEventListener('keydown', (ev) => {

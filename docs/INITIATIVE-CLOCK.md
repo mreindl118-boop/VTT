@@ -19,6 +19,7 @@ It opens from the clock button beside Initiative in the DM's top bar. It is DM o
 | The order | Every entry with its count, AC, hit points (type 7 for damage, +7 to heal, t7 for temporary, =7 to set), passive Perception, legendary action and resistance pips, recharge and once-a-day buttons, concentration, conditions with rounds left and whose turn ends them, death saves, and tie-break arrows. "More" opens name, what the players call it, side, colour, numbers, concentration, a readied action, a turn note, conditions, hide, reaction, delay, its turn now, reroll, duplicate, down, remove. |
 | Reminders | 22 presets in five groups (below) plus your own text: in N rounds, on round N, every round or every N rounds; at the top of the round, on a count, or right after a combatant. They stop the clock only when due and count down by themselves. |
 | Build | Search the SRD monsters for the chosen rules (330 in 5.2.1, 317 in 5.1), the module's creatures and your own stat blocks; add as foe or ally with counts; difficulty under 2014 (adjusted XP, easy to deadly) and 2024 (low, moderate, high budgets) for your party's levels; average or rolled hit points; one roll per kind or each; roll with advantage or disadvantage; start hidden; save and reload named fights; "from this map" brings in the creatures placed on the open map. |
+| Prepared fights | At the top of Build: the fights from the DM's encounter pack (the scenario notes' `encounters.json`), listed by dungeon with the creatures counted out (Death House: 12 fights, 21 creatures). "Add to the clock" brings one in with the books' stat block where one fits (by id, or the one named at the head of the creature's note, e.g. "ghast"; a note's "35 HP" is used); dice counts wait for the DM's typed roll; "Load" puts it in the builder to check the difficulty first. In the VTT the list is the pack opened under Initiative → Encounter packs; on the standalone page the pack is built in. |
 | Your own stat blocks | Paste a stat block from a book you own (the Monster Manual, the module, D&D Beyond). The clock reads AC, hit points and dice, initiative, CR and XP, passive Perception, legendary actions, Legendary Resistance, recharges, once-a-day abilities and regeneration; you check the numbers and save it to this device. It never goes into the repo. |
 | Party | Character, player, level, AC, passive Perception, initiative bonus, hit points and colour. Levels feed the difficulty. |
 | Log | Every change, the round, game time (six seconds a round), time at the table, time spent on each combatant's turns, export and import. |
@@ -68,12 +69,12 @@ Sources: [arcaneeye's tracker comparison](https://arcaneeye.com/dm-tools-5e/best
 - A players' view of the dial on the Player Display (hidden creatures left out, aliases shown).
 - Linking clock entries to map tokens both ways (today "from this map" copies them in once; the map's own
   Initiative and turn bar still run separately).
-- Loading the "Encounter packs" from the scenario notes (draft PR #4) straight into Build.
 
 ## On its own page
 
 The same clock also runs outside the VTT, as one HTML file with the SRD 5.1 and 5.2.1 monsters and conditions
-inside it (and their CC-BY attribution in the footer): `npm run initclock:page -- <out.html> "Character|Player|level,…"`. The
+inside it (and their CC-BY attribution in the footer): `npm run initclock:page -- <out.html> "Character|Player|level,…" [encounters.json]`. The
+optional encounter pack becomes the page's prepared fights. The
 names seed the party and are only in the output file, which is never committed. On that page monster and condition
 names open a stat-block card of its own; there is no map, so "from this map" is not offered.
 
