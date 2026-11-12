@@ -384,20 +384,35 @@ function rig(f: HeroFigure, s: number, gown: boolean) {
   // the chest's own shape: on a masculine frame the pectorals; the shoulder blades behind
   const chestBump = (th: number, y: number) => (fr.fem ? 0 : 0.07 * Math.exp(-((y - 1.62) ** 2) / 0.035) * Math.max(0, Math.cos(th)) ** 1.5 * (0.55 + 0.45 * Math.abs(Math.sin(th * 1.6))))
     + 0.04 * Math.exp(-((y - 1.7) ** 2) / 0.05) * Math.max(0, -Math.cos(th)) ** 2 * Math.abs(Math.sin(th * 2));
+  // the bust is the body's own: two full mounds sculpted into the chest (rounder below than above, a valley between),
+  // so skin shows their upper slope above a neckline and cloth lies over them below it
+  const R = fr.bust, bcx = Math.max(ringAt(tr, 1.5).w * 0.47, R * 0.62), bcy = 1.53 - 0.32 * R, brx = R * 0.82, bdn = R * 0.9, bupr = R * 2.0, bH = R * 0.9;
+  const bustWarp = (p: [number, number, number]): [number, number, number] => {
+    if (!R || p[2] <= 0) return p;
+    let h = 0, side = 0;
+    for (const sx of [-1, 1]) {
+      const u = (p[0] - sx * bcx) / brx, v = (p[1] - bcy) / (p[1] > bcy ? bupr : bdn); if (Math.abs(u) >= 1 || Math.abs(v) >= 1) continue;
+      const hh = v > 0 ? Math.sqrt(1 - u * u) * Math.cos(v * Math.PI / 2) ** 1.6 : Math.sqrt(Math.max(0, 1 - u * u - v * v));
+      if (hh > h) { h = hh; side = sx; }
+    }
+    if (!h) return p;
+    const d = bH * h * Math.min(1, p[2] / 0.12); // fading out round the side of the ribs
+    return [p[0] + side * 0.22 * d, p[1] - 0.12 * d, p[2] + d];
+  };
   if (gown) {
     // the dress to just under the bust, bare skin above (shoulders and the chest), the bust in the dress: a sweetheart line
-    up.add(loft(clipRings(tr, tr[0].y, 1.6), torsoC, { seg: 32 }));
-    up.add(loft(clipRings(tr, 1.48, 2.3), skin, { seg: 32, k: 0.985, bump: chestBump }));
+    up.add(loft(clipRings(tr, tr[0].y, 1.57), torsoC, { seg: 80, rows: 64, warp: bustWarp }));
+    up.add(loft(clipRings(tr, 1.3, 2.3), skin, { seg: 80, rows: 48, k: 0.985, bump: chestBump, warp: bustWarp }));
+    if (R > 0.3) { const z = (y: number) => bustWarp([0, y, ringAt(tr, y).f])[2] * 0.985 + 0.004; up.add(tube([1.58, 1.68, 1.78, 1.86].map((y) => new THREE.Vector3(0, y * s, z(y) * s)), 0.012 * s, tone(skin, '#3a1418', 0.35))); } // the cleft
     for (const sx of [-1, 1]) up.add(tube([0.05, 0.2, 0.36, 0.5].map((x, i) => new THREE.Vector3(sx * x * s, (2.0 + [0, 0.025, 0.035, 0.06][i]) * s, (ringAt(tr, 2.0).f * [1.0, 0.98, 0.9, 0.72][i] + 0.004) * s)), 0.02 * s, tone(skin, '#ffffff', 0.07))); // collarbones
   } else {
-    up.add(loft(tr, torsoC, { seg: 32, bump: chestBump }));
+    up.add(loft(tr, torsoC, fr.bust ? { seg: 80, rows: 90, bump: chestBump, warp: bustWarp } : { seg: 32, bump: chestBump }));
     const br = ringAt(tr, 0.42); up.add(sm(loftGeometry([{ ...br, y: 0.32 }, { ...br, y: 0.52 }], s, { seg: 32, k: 1.05, rows: 2 }), trim));
     if (!f.skirt) { const hem = drape(0.6 * s, 0.78 * s, 0.75 * s, cloth, { folds: 6, amp: 0.05, jag: 0.03 * s, seed: 0.2 }); hem.scale.z = 0.66; up.add(at(hem, 0, 0.0, 0)); }
     up.add(band(tr, 2.13, 0.07, 1.07, trim, 24));                                                      // the neckband
     const tail = box(0.1 * s, 0.5 * s, 0.03 * s, trim); tail.rotation.z = 0.12; up.add(at(tail, -0.2 * s, 0.17 * s, (br.f * 1.05 + 0.03) * s)); // the belt's tail
     up.add(at(box(0.11 * s, 0.05 * s, 0.035 * s, tone(trim, '#ffffff', 0.25)), -0.235 * s, -0.06 * s, (br.f * 1.05 + 0.032) * s));
   }
-  if (fr.bust) for (const sx of [-1, 1]) { const b = sph(fr.bust * s, torsoC, 20, 14); b.scale.set(1, 0.98, 0.92); b.rotation.x = 0.25; up.add(at(b, sx * (0.13 + fr.bust * 0.42) * s, 1.54 * s, (ringAt(tr, 1.54).f - fr.bust * 0.42) * s)); }
   const neck = new THREE.Group(); neck.position.y = 2.24 * s; neck.name = 'neck'; up.add(neck);
   neck.add(loft(neckRings(fr), skin, { seg: 16 }));
   if (!fr.fem) neck.add(at(sph(0.035 * s, skin, 8, 6), 0, 0.2 * s, 0.155 * s)); // the larynx
@@ -459,7 +474,7 @@ function rig(f: HeroFigure, s: number, gown: boolean) {
     ankle.add(at(box(0.2 * fl * s, 0.1 * s, 0.16 * fl * s, tone(boot, '#000000', 0.45)), 0, -0.44 * s, -0.1 * fl * s)); // the heel
     leg.push({ root: hip, mid: knee, end: ankle, upper: thigh, lower: shin, hand: foot });
   }
-  return { body, pel, up, neck, head, arm, leg, soles, fr, tr };
+  return { body, pel, up, neck, head, arm, leg, soles, fr, tr, bustWarp };
 }
 
 /** A hero's miniature: origin at the floor centre, feet in world units, facing +z. `battle` puts it in its stance. */
@@ -467,7 +482,7 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
   const battle = state === true || state === 'battle', dead = state === 'dead';
   const s = (SIZE_SCALE[size] ?? 1) * (f.height ?? 1);
   const gown = !!(f.skirt && f.underskirt);
-  const { body, pel, up, neck, head, arm, leg, soles, fr, tr } = rig(f, s, gown);
+  const { body, pel, up, neck, head, arm, leg, soles, fr, tr, bustWarp } = rig(f, s, gown);
   const hy = 2.82 * s; // the head's centre, in the upper body's frame
   const skin = f.skin ?? '#d9b899';
   const headAt = neck.position.y + head.position.y; // the head joint, in the upper body's frame
@@ -487,13 +502,18 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
 
   // collar, pendant, buckle
   if (f.shirt) { const c = cyl(0.24 * s, 0.32 * s, 0.32 * s, f.shirt, 7); up.add(at(c, 0, 2.2 * s, 0.08 * s)); up.add(at(box(0.3 * s, 0.5 * s, 0.06 * s, f.shirt), 0, 1.85 * s, 0.4 * s)); for (let i = 0; i < 3; i++) up.add(at(sph(0.025 * s, '#c9c2b0', 6, 4), 0, (1.95 - i * 0.15) * s, 0.44 * s)); }
-  if (f.pendant) { const chain = tube([new THREE.Vector3(-0.22 * s, 2.25 * s, 0.25 * s), new THREE.Vector3(-0.1 * s, 1.85 * s, 0.42 * s), new THREE.Vector3(0, 1.75 * s, 0.45 * s), new THREE.Vector3(0.1 * s, 1.85 * s, 0.42 * s), new THREE.Vector3(0.22 * s, 2.25 * s, 0.25 * s)], 0.012 * s, '#b8bec8'); up.add(chain); const g = sm(new THREE.OctahedronGeometry(0.08 * s), f.pendant); g.scale.y = 1.7; up.add(at(g, 0, 1.62 * s, 0.46 * s)); }
+  if (f.pendant) {
+    const fz = (x: number, y: number) => bustWarp([x, y, ringAt(tr, y).f * Math.sqrt(Math.max(0, 1 - (x / ringAt(tr, y).w) ** 2))])[2] + 0.025; // the chest's front at a point
+    const v = (x: number, y: number) => new THREE.Vector3(x * s, y * s, fz(x, y) * s);
+    up.add(tube([new THREE.Vector3(-0.22 * s, 2.25 * s, 0.25 * s), v(-0.1, 1.9), v(0, 1.78), v(0.1, 1.9), new THREE.Vector3(0.22 * s, 2.25 * s, 0.25 * s)], 0.012 * s, '#b8bec8'));
+    const g = sm(new THREE.OctahedronGeometry(0.08 * s), f.pendant); g.scale.y = 1.7; up.add(at(g, 0, 1.66 * s, (fz(0, 1.66) + 0.03) * s));
+  }
   if (f.buckle) { up.add(at(box(0.24 * s, 0.2 * s, 0.06 * s, f.buckle), 0, 0.42 * s, 0.63 * s)); up.add(at(box(0.12 * s, 0.1 * s, 0.07 * s, f.trim ?? '#2b2420'), 0, 0.42 * s, 0.64 * s)); }
 
   // a laced bodice: a corset that follows the torso's line, the lacing crossing down its front
   if (f.bodice) {
-    const lo = 0.45, hi = gown ? 1.4 : 1.3, lc = f.bodice.lacing ?? '#b08a4a';
-    up.add(sm(loftGeometry(clipRings(tr, lo, hi), s, { seg: 32, k: 1.07 }), f.bodice.color));
+    const lo = 0.45, hi = fr.bust ? Math.min(1.3, 1.53 - 0.85 * fr.bust) : gown ? 1.4 : 1.3, lc = f.bodice.lacing ?? '#b08a4a';
+    up.add(sm(loftGeometry(clipRings(tr, lo, hi), s, { seg: fr.bust ? 72 : 32, rows: fr.bust ? 36 : undefined, k: 1.07, warp: bustWarp }), f.bodice.color));
     for (const y of [lo, hi]) { const r = ringAt(tr, y); up.add(sm(loftGeometry([{ ...r, y: y - 0.025 }, { ...r, y: y + 0.025 }], s, { seg: 32, k: 1.1, rows: 1 }), tone(f.bodice.color, '#000000', 0.3))); }
     for (let i = 0; i < 5; i++) { const y = lo + 0.08 + i * (hi - lo - 0.16) / 4, z = ringAt(tr, y).f * 1.07 + 0.012; for (const sx of [-1, 1]) { const x = box(0.2 * s, 0.025 * s, 0.025 * s, lc); x.rotation.z = sx * 0.5; up.add(at(x, 0, y * s, z * s)); } }
     for (const sx of [-1, 1]) for (let i = 0; i < 6; i++) { const y = lo + 0.06 + i * (hi - lo - 0.12) / 5; up.add(at(sph(0.018 * s, lc, 6, 4), sx * 0.08 * s, y * s, (ringAt(tr, y).f * 1.07 + 0.01) * s)); }
@@ -530,7 +550,7 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
         body.add(tube(edge, 0.02 * s, f.gownTrim));
         for (let i = 1; i < 10; i += 2) { const q = edge[i], leaf = sph(0.045 * s, f.gownTrim, 6, 4); leaf.scale.set(0.5, 1, 0.25); leaf.rotation.z = (u ? 1 : -1) * (i % 4 === 1 ? 0.7 : -0.7); body.add(at(leaf, q.x, q.y, q.z + 0.02 * s)); }
       }
-      { const r = ringAt(tr, 1.6); up.add(sm(loftGeometry([{ ...r, y: 1.575 }, { ...r, y: 1.615 }], s, { seg: 32, k: 1.03, rows: 1 }), f.gownTrim)); } // the neckline's edge
+      { const r = ringAt(tr, 1.57); up.add(sm(loftGeometry([{ ...r, y: 1.55 }, { ...r, y: 1.585 }], s, { seg: 80, k: 1.015, rows: 1, warp: bustWarp }), f.gownTrim)); } // the neckline's edge
       const belt: THREE.Vector3[] = []; for (let i = 0; i <= 32; i++) belt.push(g.point(3.72 * GK * s, i / 32, 1.02));
       body.add(tube(belt, 0.022 * s, f.gownTrim, false));
     }
@@ -550,8 +570,7 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
     up.add(at(box(0.9 * s, 0.08 * s, 0.08 * s, t), 0, 1.5 * s, 0.42 * s));                       // breastplate edge
     for (const sx of [-1, 1]) { const p2 = ball(0.42 * s, f.armor.color, 1); p2.scale.set(1, 0.5, 0.95); up.add(at(p2, sx * 0.86 * s, 1.78 * s, 0)); up.add(at(box(0.5 * s, 0.06 * s, 0.62 * s, t), sx * 0.88 * s, 1.62 * s, 0)); }
     up.add(at(box(0.5 * s, 0.06 * s, 0.06 * s, t), 0, 0.95 * s, 0.4 * s));                         // a second band
-    up.add(sm(loftGeometry(clipRings(tr, 0.62, 1.95), s, { seg: 32, k: 1.09, bump: (th, y) => 0.05 * Math.exp(-((y - 1.5) ** 2) / 0.08) * Math.max(0, Math.cos(th)) ** 2 + 0.03 * Math.max(0, Math.cos(th)) ** 12 }), f.armor.color)); // the breastplate, ridged down its centre
-    if (fr.bust) for (const sx of [-1, 1]) { const b = sph(fr.bust * 1.12 * s, f.armor.color, 20, 14); b.scale.set(1, 0.98, 0.92); b.rotation.x = 0.25; up.add(at(b, sx * (0.13 + fr.bust * 0.42) * s, 1.54 * s, (ringAt(tr, 1.54).f - fr.bust * 0.36) * s)); }
+    up.add(sm(loftGeometry(clipRings(tr, 0.62, 1.95), s, { seg: fr.bust ? 72 : 32, rows: fr.bust ? 60 : undefined, k: 1.09, warp: bustWarp, bump: (th, y) => 0.05 * Math.exp(-((y - 1.5) ** 2) / 0.08) * Math.max(0, Math.cos(th)) ** 2 + 0.03 * Math.max(0, Math.cos(th)) ** 12 }), f.armor.color)); // the breastplate, ridged down its centre
     for (let i = 0; i < 3; i++) { const y = 0.5 - i * 0.2, r = ringAt(tr, Math.max(0.1, y)); up.add(sm(loftGeometry([{ ...r, y: y - 0.11 }, { ...r, y: y + 0.1 }], s, { seg: 28, k: 1.12 + i * 0.07, rows: 1 }), i % 2 ? tone(f.armor.color, '#ffffff', 0.06) : f.armor.color)); } // the fauld
     for (const sx of [-1, 1]) for (let i = 0; i < 5; i++) { const a = -0.9 + i * 0.45; up.add(at(sph(0.028 * s, t, 6, 4), sx * (0.8 + Math.cos(a) * 0.28) * s, 1.96 * s, Math.sin(a) * 0.36 * s)); } // rivets on the pauldrons' rims
     const knot = sm(new THREE.TorusKnotGeometry(0.1 * s, 0.022 * s, 48, 6, 2, 3), t); up.add(at(knot, 0, 1.25 * s, 0.44 * s)); // a knotwork boss

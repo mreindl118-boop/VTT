@@ -83,6 +83,9 @@ tapering locks from a parting over a close under-layer cut at the hairline: `sho
 shoulders, locks framing the face), `braids` (swept back to two roped braids), `curly` (a mass of coils). `hairStreak`
 colours a few locks at the right temple.
 
+The bust is part of the body: two mounds sculpted into the chest itself, so a gown's neckline shows skin above it
+and cloth lies over it below; `body.bust` sizes it.
+
 `body` fits the frame to the character's art with multipliers (1 = the frame's own): `shoulders`, `chest`, `waist`,
 `hips`, `bust`, `arms`, `legs` (girth) and `neck`. A brawny fighter might take `{ "shoulders": 1.12, "waist": 1.2,
 "arms": 1.3 }`; a slight one `{ "shoulders": 0.95, "waist": 0.9, "arms": 0.88 }`.

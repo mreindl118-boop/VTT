@@ -29,13 +29,14 @@ export function clipRings(rings: Ring[], lo: number, hi: number): Ring[] {
 }
 export const scaleRings = (rings: Ring[], kw: number, kd = kw, ky = 1): Ring[] => rings.map((r) => ({ ...r, y: r.y * ky, w: r.w * kw, f: r.f * kd, b: r.b * kd, z: (r.z ?? 0) * kd, x: (r.x ?? 0) * kw }));
 
-/** The surface through a stack of rings, closed at both ends. `bump(th, y)` swells it (a fraction of its size). */
-export function loftGeometry(rings: Ring[], s: number, o: { seg?: number; rows?: number; k?: number; bump?: (th: number, y: number) => number } = {}): THREE.BufferGeometry {
+/** The surface through a stack of rings, closed at both ends. `bump(th, y)` swells it (a fraction of its size);
+ *  `warp` moves each point of it (before scaling), for a form the rings cannot carry. */
+export function loftGeometry(rings: Ring[], s: number, o: { seg?: number; rows?: number; k?: number; bump?: (th: number, y: number) => number; warp?: (p: [number, number, number]) => [number, number, number] } = {}): THREE.BufferGeometry {
   const seg = o.seg ?? 24, rows = o.rows ?? Math.max(8, (rings.length - 1) * 5), y0 = rings[0].y, y1 = rings[rings.length - 1].y, k = o.k ?? 1;
   const pos: number[] = [], idx: number[] = [];
   for (let i = 0; i <= rows; i++) {
     const y = y0 + (y1 - y0) * i / rows, r = ringAt(rings, y);
-    for (let j = 0; j < seg; j++) { const th = (j / seg) * Math.PI * 2, [x, z] = ringPoint(r, th, k * (1 + (o.bump?.(th, y) ?? 0))); pos.push(x * s, y * s, z * s); }
+    for (let j = 0; j < seg; j++) { const th = (j / seg) * Math.PI * 2, [x, z] = ringPoint(r, th, k * (1 + (o.bump?.(th, y) ?? 0))), q = o.warp ? o.warp([x, y, z]) : [x, y, z]; pos.push(q[0] * s, q[1] * s, q[2] * s); }
   }
   for (let i = 0; i < rows; i++) for (let j = 0; j < seg; j++) { const a = i * seg + j, b = i * seg + (j + 1) % seg, c = a + seg, d = b + seg; idx.push(a, b, c, b, d, c); }
   const lo = ringAt(rings, y0), hi = ringAt(rings, y1), base = pos.length / 3;
@@ -60,8 +61,8 @@ export function frameOf(fem: boolean, build: Build = 'lean', measures: Measures 
   return { ...fr, m, shoulderX: fr.shoulderX * (0.35 + 0.65 * m.shoulders), hipX: fr.hipX * (0.5 + 0.5 * m.hips), arm: fr.arm * m.arms, leg: fr.leg * m.legs, hand: fr.hand * (0.7 + 0.3 * m.arms), bust: fr.bust * m.bust };
 }
 function baseFrame(fem: boolean, build: Build): Omit<Frame, 'm'> {
-  if (fem) return { fem, build, shoulderX: build === 'broad' ? 0.78 : 0.7, hipX: build === 'curvy' ? 0.35 : 0.33, arm: build === 'broad' ? 0.9 : 0.78, leg: build === 'broad' ? 1 : 0.94, hand: 0.84, bust: build === 'curvy' ? 0.26 : build === 'broad' ? 0.215 : 0.2 };
-  return { fem, build, shoulderX: build === 'broad' ? 0.98 : 0.9, hipX: 0.3, arm: build === 'broad' ? 1.18 : 1, leg: build === 'broad' ? 1.1 : 1, hand: build === 'broad' ? 1.1 : 1, bust: 0 };
+  if (fem) return { fem, build, shoulderX: build === 'broad' ? 0.78 : 0.7, hipX: build === 'curvy' ? 0.35 : 0.33, arm: build === 'broad' ? 0.97 : 0.87, leg: build === 'broad' ? 1.1 : 1.04, hand: 0.84, bust: build === 'curvy' ? 0.26 : build === 'broad' ? 0.215 : 0.2 };
+  return { fem, build, shoulderX: build === 'broad' ? 0.98 : 0.9, hipX: 0.3, arm: build === 'broad' ? 1.2 : 1.05, leg: build === 'broad' ? 1.2 : 1.1, hand: build === 'broad' ? 1.1 : 1, bust: 0 };
 }
 
 /** The torso, waist to the base of the neck, in the upper body's frame (the hips at 0). */
@@ -91,7 +92,7 @@ function basePelvis(fr: Frame): Ring[] {
   return [{ y: -0.42, w: 0.22, f: 0.18, b: 0.2 }, { y: -0.15, w: 0.54, f: 0.3, b: 0.37 }, { y: 0.15, w: 0.56, f: 0.3, b: 0.33 }, { y: 0.5, w: 0.5, f: 0.28, b: 0.27 }];
 }
 /** Limbs hang from their joint at 0: the upper arm (to −1.12), forearm (−1.04), thigh (−THIGH), shin (−SHIN). */
-export const upperArmRings = (fr: Frame): Ring[] => scaleRings([{ y: -1.12, w: 0.135, f: 0.14, b: 0.15 }, { y: -0.85, w: 0.15, f: 0.16, b: 0.16 }, { y: -0.5, w: fr.fem ? 0.17 : 0.185, f: fr.fem ? 0.175 : 0.22, b: fr.fem ? 0.175 : 0.2 }, { y: -0.2, w: 0.19, f: 0.19, b: 0.19 }, { y: -0.04, w: 0.17, f: 0.17, b: 0.17 }, { y: 0.1, w: 0.06, f: 0.06, b: 0.06 }], fr.arm);
+export const upperArmRings = (fr: Frame): Ring[] => scaleRings([{ y: -1.12, w: 0.135, f: 0.14, b: 0.15 }, { y: -0.85, w: 0.15, f: 0.16, b: 0.16 }, { y: -0.5, w: fr.fem && fr.m.arms < 1.2 ? 0.17 : 0.19, f: fr.fem && fr.m.arms < 1.2 ? 0.175 : 0.235, b: fr.fem && fr.m.arms < 1.2 ? 0.175 : 0.21 }, { y: -0.2, w: 0.19, f: 0.19, b: 0.19 }, { y: -0.04, w: 0.17, f: 0.17, b: 0.17 }, { y: 0.1, w: 0.06, f: 0.06, b: 0.06 }], fr.arm);
 export const forearmRings = (fr: Frame): Ring[] => scaleRings([{ y: -1.04, w: 0.098, f: 0.075, b: 0.08 }, { y: -0.7, w: 0.115, f: 0.1, b: 0.11 }, { y: -0.28, w: 0.16, f: 0.15, b: 0.16 }, { y: 0.0, w: 0.14, f: 0.14, b: 0.15 }, { y: 0.05, w: 0.13, f: 0.13, b: 0.14 }], fr.arm);
 export function thighRings(fr: Frame): Ring[] {
   const top = (fr.fem ? (fr.build === 'curvy' ? 1.18 : 1.1) : 1) * (0.5 + 0.5 * fr.m.hips);
