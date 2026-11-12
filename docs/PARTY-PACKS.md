@@ -130,13 +130,18 @@ it is down (default `dead`). Each is a name or joint angles:
   (`upright`, `tilt`); `lift` (feet); `seated`; `lie` (`back`, `front` or `side`: the posed figure laid on the floor);
   `spell` (`right` or `between`); `fist` (`["R"]`, `["L"]` or both: those hands clenched into closed fists, say on a hip); `book`
   (`open` to read at rest; otherwise a book is carried shut out of a fight and opened in one); `gaze`. On x a negative angle swings forward; a negative elbow bends the forearm up, a
-  positive knee bends the shin back. On the limbs y and z are mirrored, so positive turns outward on either side.
+  positive knee bends the shin back. On the limbs y and z are mirrored, so positive turns outward on either side. On
+  the spine, pelvis and neck, y > 0 turns toward the figure's right and z > 0 raises its right side (a hip or a
+  shoulder); a `gaze` across > 0 looks to its right.
   Ankles add to an automatic flat-foot correction. The figure is set down with its lowest sole on the floor; a seated
   pose puts the hips at the origin.
 
 `heroFigure(recipe, size, state)`: `state` is `'rest'`, `'battle'` or `'dead'` (`true` still means battle). A dead
 figure loses its halo, wisp, sparkles, hover and spell. In the app a character is down when its token is marked Down
 (Initiative, Party…, the Down button on its card) or its hit points are 0.
+
+R and L are always the figure's own right and left: it faces +z, so its right side is at -x (`SIDE_X` in
+kit/heroes.ts). A weapon goes in the right hand, a shield or book in the left.
 
 The built group names its joints (`getObjectByName`, or `userData.joints`): `hips` (the pelvis: it carries the legs
 and the chest), `chest`, `neck`, `head`, `collarR/L`, `shoulderR/L`, `elbowR/L`, `wristR/L`, `handR/L` (what a hand

@@ -228,12 +228,23 @@ describe('heroFigure', () => {
   });
   it('hangs an empty hand at ease with the palm to the thigh and the thumb forward', () => {
     const g = heroFigure({}), J = g.userData.joints as Record<string, THREE.Object3D>; g.updateMatrixWorld(true);
-    for (const [sd, sx] of [['R', 1], ['L', -1]] as const) {
+    for (const sd of ['R', 'L']) {
       const w = J[`wrist${sd}`], parts = w.children.filter((c) => (c as THREE.Mesh).isMesh), z = (o: THREE.Object3D) => o.getWorldPosition(new THREE.Vector3()).z;
-      const palm = new THREE.Vector3(0, 0, 1).transformDirection(w.matrixWorld);
+      const palm = new THREE.Vector3(0, 0, 1).transformDirection(w.matrixWorld), sx = Math.sign(w.getWorldPosition(new THREE.Vector3()).x);
       expect(palm.x * sx, sd).toBeLessThan(-0.6);                       // the palm turned in toward the leg, the knuckles out
       expect(z(parts[9]) - z(parts[7]), sd).toBeGreaterThan(0.05);      // the thumb ahead of the little finger
     }
+  });
+  it('is right-handed: R and L are the figure\'s own sides, the weapon in its right hand and the shield on its left arm', () => {
+    const g = heroFigure({ weapon: 'mace', offhand: { kind: 'shield' } }, 'medium', 'battle'), J = g.userData.joints as Record<string, THREE.Object3D>; g.updateMatrixWorld(true);
+    const x = (n: string) => J[n].getWorldPosition(new THREE.Vector3()).x;
+    // the figure faces +z, so its own right is at -x
+    expect(x('shoulderR')).toBeLessThan(0); expect(x('hipR')).toBeLessThan(0); expect(x('beltR')).toBeLessThan(0); expect(x('shoulderL')).toBeGreaterThan(0);
+    expect(J.handR.children.length).toBeGreaterThan(0); expect(J.handL.children.length).toBeGreaterThan(0);
+    // a pose's turns follow the sides: at ease on the right leg, the right hip is the higher and the right shoulder the lower
+    const e = heroFigure({ pose: { ...AT_EASE[0] } }), K = e.userData.joints as Record<string, THREE.Object3D>; e.updateMatrixWorld(true);
+    const y = (n: string) => K[n].getWorldPosition(new THREE.Vector3()).y;
+    expect(y('hipR')).toBeGreaterThan(y('hipL')); expect(y('shoulderR')).toBeLessThan(y('shoulderL'));
   });
   it('stands at ease over the foot that takes the weight, the other heel raised', () => {
     const g = heroFigure({ pose: { ...AT_EASE[0] } }), J = g.userData.joints as Record<string, THREE.Object3D>; g.updateMatrixWorld(true);

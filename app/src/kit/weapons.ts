@@ -246,8 +246,9 @@ export function scabbard(len: number, c = '#2a2420', fit = '#b08a3a'): THREE.Gro
  *  the palm with the blade leaving on the thumb's side, so the wrist is turned until the hand's own grip line lies along
  *  the weapon, the weapon stays exactly where the pose aimed it, and the fingers and thumb are wrapped into a fist
  *  around the haft. `hand` is the rig's wrist group (palm, eight finger joints, thumb, then the holder), `held` the
- *  holder inside it, `sx` 1 for the right hand and -1 for the left; `limit` false for a staff or spear planted or
- *  couched along the arm. */
+ *  holder inside it, `sx` the hand's handedness, 1 for a right hand and -1 for a left (the rig builds the right hand at
+ *  -x with its thumb outward, so this is the opposite sign of heroes.ts SIDE_X); `limit` false for a staff or spear
+ *  planted or couched along the arm. */
 export function closeGrip(hand: THREE.Object3D, held: THREE.Object3D, sx: number, limit = true): void {
   const meshes = hand.children.filter((c) => (c as THREE.Mesh).isMesh) as THREE.Mesh[];
   if (meshes.length < 10) return;
@@ -289,7 +290,8 @@ export function secondHandAt(kind: string): number | undefined {
   return ({ greatsword: -0.5, 'dragon-greatsword': -0.5, longsword: -0.32, greataxe: 1.1, battleaxe: 0.9, spear: 1.3, quarterstaff: 1.2, shovel: 1.1, pitchfork: 1.2, club: undefined } as Record<string, number | undefined>)[kind];
 }
 /** Bring the other hand onto the weapon: the arm (shoulder `root`, elbow `mid`, wrist `end`) is solved to reach the
- *  point `off` along the weapon in `held`, the wrist is turned to the haft and the hand closed on it. */
+ *  point `off` along the weapon in `held`, the wrist is turned to the haft and the hand closed on it. `sx` is the hand's
+ *  handedness, as for closeGrip. */
 export function secondHand(root: THREE.Object3D, mid: THREE.Object3D, end: THREE.Object3D, held: THREE.Object3D, off: number, sx: number): void {
   const top = root.parent; if (!top) return;
   let r: THREE.Object3D = top; while (r.parent) r = r.parent; r.updateMatrixWorld(true);
@@ -299,7 +301,7 @@ export function secondHand(root: THREE.Object3D, mid: THREE.Object3D, end: THREE
   mid.rotation.set(-(Math.PI - phi), 0, 0);
   const v0 = mid.position.clone().add(end.position.clone().applyEuler(mid.rotation)).normalize();
   // turned inward first, so the elbow drops outward and down rather than across the chest
-  const pre = new THREE.Quaternion().setFromEuler(new THREE.Euler(0, -sx * 0.9, 0)), v1 = v0.clone().applyQuaternion(pre);
+  const pre = new THREE.Quaternion().setFromEuler(new THREE.Euler(0, sx * 0.9, 0)), v1 = v0.clone().applyQuaternion(pre);
   root.quaternion.setFromUnitVectors(v1, T.clone().normalize()).multiply(pre);
   r.updateMatrixWorld(true);
   const meshes = end.children.filter((c) => (c as THREE.Mesh).isMesh) as THREE.Mesh[]; if (meshes.length < 10) return;
