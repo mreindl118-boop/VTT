@@ -893,7 +893,7 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
   for (const c of [...up.children]) if (c !== neck && c.position.y > headAt + 0.05 * s) head.attach(c);
 
   // gear on the mounts: held weapons by the grip, blades sheathed at the belt, bows and great weapons slung on the back
-  const belted: Partial<Record<'beltR' | 'beltL', THREE.Object3D>> = {};
+  const belted: Partial<Record<'beltR' | 'beltL', THREE.Object3D>> = {}, hangs: THREE.Object3D[] = [];
   if (f.gear) {
     const G = f.gear, mount = (name: string) => body.getObjectByName(name);
     for (const [slot, g] of [['handR', gR], ['handL', gL]] as const) { const w = G[slot]; if (!w) continue; const m = gearWeapon(w); m.scale.setScalar(s); g.add(m); }
@@ -901,7 +901,7 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
     const BLADE: Record<string, [number, number]> = { longsword: [2.9, 0.43], shortsword: [1.9, 0.34], rapier: [3.2, 0.36], dagger: [0.95, 0.27], scimitar: [2.5, 0.42], greatsword: [4.1, 0.76], 'sword-cane': [2.7, 0.36], sunsword: [3.0, 0.43], 'dragon-greatsword': [4.2, 0.76] };
     for (const slot of ['beltR', 'beltL'] as const) {
       const w = G[slot], mt = mount(slot); if (!w || !mt) continue;
-      const sx = slot === 'beltR' ? RX : LX, hang = new THREE.Group(); hang.scale.setScalar(s); hang.position.set(sx * 0.12 * s, 0.05 * s, 0); hang.rotation.set(0.45, 0, sx * 0.12); mt.add(hang);
+      const sx = slot === 'beltR' ? RX : LX, hang = new THREE.Group(); hang.scale.setScalar(s); hang.position.set(sx * 0.18 * s, 0.05 * s, 0); hang.rotation.set(0.5, 0, sx * 0.12); mt.add(hang); hangs.push(hang);
       const m = gearWeapon(w), bl = BLADE[w.kind];
       if (bl) { const L = bl[0] * (w.length ?? 1); if (w.kind !== 'sword-cane') hang.add(scabbard(L + 0.08, tone(w.grip ?? '#2a2420', '#000000', 0.2), w.fittings)); m.rotation.x = Math.PI; m.position.y = bl[1]; hang.add(m); belted[slot] = m; }
       else { m.rotation.x = Math.PI; m.position.y = 0.2; hang.rotation.x = 0.15; hang.add(m); const loop = sm(new THREE.TorusGeometry(0.09, 0.02, 5, 10), '#2a2420'); loop.rotation.x = Math.PI / 2; hang.add(loop); }
@@ -909,7 +909,7 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
     const bk = G.back, bm = mount('back');
     if (bk && bm) {
       const m = gearWeapon(bk), sl = new THREE.Group(); sl.scale.setScalar(s); sl.position.set(0, 0, -0.12 * s); bm.add(sl);
-      if (bk.kind === 'crossbow') { m.rotation.set(Math.PI / 2, 0, 0.5); m.position.set(0, -0.5, -0.05); }
+      if (bk.kind === 'crossbow') { m.rotation.set(-Math.PI / 2, 0, 0.35); m.position.set(0, -0.6, -0.12); } // the prod up behind the shoulders, the stock down the back, clear of the legs
       else if (bk.kind === 'longbow' || bk.kind === 'shortbow') { m.rotation.set(0, Math.PI, 0.45); m.position.set(0.1, 0.1, -0.05); }
       else { m.rotation.set(Math.PI, 0, 0.55); m.position.set(-0.5, 1.4, -0.05); }
       sl.add(m);
@@ -919,6 +919,7 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
   // the pose: out of initiative its rest pose (on a gown, weight on the right leg, the left knee forward in the slit); in
   // initiative its battle pose; every joint from the recipe's angles or a named preset
   const P = poseOf(f, battle, dead, gown);
+  if (P.seated) for (const h of hangs) h.rotation.x = 1.3; // in the saddle a sheath swings back along the horse, clear of the thigh
   const mir = (e: Euler3 | undefined, sx: number, d: Euler3): Euler3 => e ? [e[0], e[1] * sx, e[2] * sx] : [d[0], d[1] * sx, d[2] * sx];
   if (P.spine) up.rotation.set(...trunk(P.spine));
   if (P.pelvis) pel.rotation.set(...trunk(P.pelvis));

@@ -290,26 +290,57 @@ export function secondHandAt(kind: string): number | undefined {
   return ({ greatsword: -0.5, 'dragon-greatsword': -0.5, longsword: -0.32, greataxe: 1.1, battleaxe: 0.9, spear: 1.3, quarterstaff: 1.2, shovel: 1.1, pitchfork: 1.2, club: undefined } as Record<string, number | undefined>)[kind];
 }
 /** Bring a hand onto a weapon (the second hand on a haft, or a hand laid on a belted hilt): the arm (shoulder `root`,
- *  elbow `mid`, wrist `end`) is solved to reach the point `off` along the weapon in `held`, the wrist is turned to the
- *  haft and the hand closed on it. `sx` is the hand's handedness, as for closeGrip. */
+ *  elbow `mid`, wrist `end`) is solved so the middle of the closed fist (where closeGrip holds a haft) lands on the point
+ *  `off` along the weapon in `held`, the wrist turned so the hand's breadth runs along the haft. Of the ways the elbow can
+ *  swing round the line from shoulder to hand, it takes the one nearest a dropped, outward elbow that keeps the arm out
+ *  of the chest and the head. `sx` is the hand's handedness, as for closeGrip. */
 export function secondHand(root: THREE.Object3D, mid: THREE.Object3D, end: THREE.Object3D, held: THREE.Object3D, off: number, sx: number): void {
   const top = root.parent; if (!top) return;
   let r: THREE.Object3D = top; while (r.parent) r = r.parent; r.updateMatrixWorld(true);
-  const T = top.worldToLocal(held.localToWorld(new THREE.Vector3(0, off, 0))).sub(root.position);
-  const L1 = mid.position.length(), L2 = end.position.length(), d = Math.max(0.2 * (L1 + L2), Math.min(T.length(), (L1 + L2) * 0.985));
-  const phi = Math.acos(Math.max(-1, Math.min(1, (L1 * L1 + L2 * L2 - d * d) / (2 * L1 * L2))));
-  mid.rotation.set(-(Math.PI - phi), 0, 0);
-  const v0 = mid.position.clone().add(end.position.clone().applyEuler(mid.rotation)).normalize();
-  // turned inward first, so the elbow drops outward and down rather than across the chest
-  const pre = new THREE.Quaternion().setFromEuler(new THREE.Euler(0, sx * 0.9, 0)), v1 = v0.clone().applyQuaternion(pre);
-  root.quaternion.setFromUnitVectors(v1, T.clone().normalize()).multiply(pre);
-  r.updateMatrixWorld(true);
-  const meshes = end.children.filter((c) => (c as THREE.Mesh).isMesh) as THREE.Mesh[]; if (meshes.length < 10) return;
-  const u = ((meshes[0].geometry as THREE.SphereGeometry).parameters?.radius ?? 0.105) / 0.105;
-  const axisW = new THREE.Vector3(0, 1, 0).transformDirection(held.matrixWorld);
-  const dF = axisW.clone().transformDirection(mid.matrixWorld.clone().invert());
-  const h = new THREE.Vector3(-sx, 0, 0).applyQuaternion(end.quaternion);
-  if (h.dot(dF) < 0) dF.negate();
-  end.quaternion.premultiply(new THREE.Quaternion().setFromUnitVectors(h, dF));
-  fist(meshes, sx, u);
+  const meshes = end.children.filter((c) => (c as THREE.Mesh).isMesh) as THREE.Mesh[];
+  const u = meshes.length >= 10 ? ((meshes[0].geometry as THREE.SphereGeometry).parameters?.radius ?? 0.105) / 0.105 : 1;
+  const W = held.localToWorld(new THREE.Vector3(0, off, 0)), axisW = new THREE.Vector3(0, 1, 0).transformDirection(held.matrixWorld);
+  const L1 = mid.position.length(), L2 = end.position.length(), q0 = end.quaternion.clone(), grip = new THREE.Vector3(0, -0.15 * u, 0.085 * u);
+  const wp = new THREE.Vector3();
+  // reach for the haft with the elbow swung by `swing` round the shoulder-to-hand line: the fist's middle sits off the
+  // wrist, and which way depends on the wrist's turn, which depends on the arm, so a few rounds of reaching, turning the
+  // hand to the haft and moving the aim by the fist's offset settle it
+  const reach = (swing: number) => {
+    const aim = W.clone();
+    for (let it = 0; it < 5; it++) {
+      const T = top.worldToLocal(aim.clone()).sub(root.position);
+      const d = Math.max(0.2 * (L1 + L2), Math.min(T.length(), (L1 + L2) * 0.985));
+      const phi = Math.acos(Math.max(-1, Math.min(1, (L1 * L1 + L2 * L2 - d * d) / (2 * L1 * L2))));
+      mid.rotation.set(-(Math.PI - phi), 0, 0);
+      const v0 = mid.position.clone().add(end.position.clone().applyEuler(mid.rotation)).normalize();
+      // turned inward first, so the elbow drops outward and down rather than across the chest
+      const pre = new THREE.Quaternion().setFromEuler(new THREE.Euler(0, sx * 0.9, 0)), v1 = v0.clone().applyQuaternion(pre), n = T.clone().normalize();
+      root.quaternion.setFromUnitVectors(v1, n).multiply(pre).premultiply(new THREE.Quaternion().setFromAxisAngle(n, swing));
+      end.quaternion.copy(q0); r.updateMatrixWorld(true);
+      const dF = axisW.clone().transformDirection(mid.matrixWorld.clone().invert());
+      const h = new THREE.Vector3(-sx, 0, 0).applyQuaternion(end.quaternion);
+      if (h.dot(dF) < 0) dF.negate();
+      end.quaternion.premultiply(new THREE.Quaternion().setFromUnitVectors(h, dF));
+      r.updateMatrixWorld(true);
+      aim.copy(W).sub(end.localToWorld(grip.clone()).sub(end.getWorldPosition(wp)));
+    }
+  };
+  // how far the arm runs into the body: the chest as an upright elliptic column under the shoulders, the head a ball
+  const chest = top.parent, neck = chest?.getObjectByName('neck');
+  const into = (): number => {
+    if (!chest || !neck) return 0;
+    const k = neck.position.y / 2.24, sh = chest.worldToLocal(root.getWorldPosition(new THREE.Vector3())), a = Math.abs(sh.x) * 0.8, b = a * 0.55, rad = 0.15 * k;
+    const head = new THREE.Vector3(0, neck.position.y + 0.58 * k, 0.04 * k), A = root.getWorldPosition(new THREE.Vector3()), B = mid.getWorldPosition(new THREE.Vector3()), C = end.getWorldPosition(new THREE.Vector3());
+    let sum = 0;
+    for (let i = 1; i <= 8; i++) {
+      const p = chest.worldToLocal(i <= 4 ? A.clone().lerp(B, i / 4) : B.clone().lerp(C, (i - 4) / 4));
+      if (p.y > 0.1 * k && p.y < neck.position.y) { const v = Math.hypot(p.x / (a + rad), p.z / (b + rad)); if (v < 1) sum += (1 - v) * a; }
+      const dh = p.distanceTo(head) - (0.45 * k + rad); if (dh < 0) sum -= dh;
+    }
+    return sum;
+  };
+  let best = 0, bestCost = Infinity;
+  for (const swing of [0, 0.3, -0.3, 0.6, -0.6, 0.9, -0.9, 1.2, -1.2]) { reach(swing); const c = into() + 0.02 * Math.abs(swing); if (c < bestCost - 1e-6) { bestCost = c; best = swing; } }
+  reach(best);
+  if (meshes.length >= 10) fist(meshes, sx, u);
 }
