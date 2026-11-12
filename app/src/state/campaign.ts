@@ -75,8 +75,8 @@ export interface CampaignState {
   world?: WorldPos;
   /** World-map places the DM has revealed to the players (pin keys). */
   worldRevealed?: string[];
-  /** The campaign clock: day 1 at the start, hours 0–24. */
-  clock?: { day: number; hour: number };
+  /** The campaign clock: day 1 at the start (day 0 the night before), hours 0–24; newMoon from the calendar. */
+  clock?: { day: number; hour: number; newMoon?: number };
   /** Player characters and recurring foes, for initiative and ranges. */
   roster: Sheet[];
   /** The running encounter, if any. */

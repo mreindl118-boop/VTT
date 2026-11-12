@@ -5,7 +5,9 @@
 // which the characters would reckon by, and Selûne's cycle of 30 days and 10½ hours for the moon's phase.
 import type { Ambient } from './schema';
 
-export interface Clock { day: number; hour: number }
+export interface Clock { day: number; hour: number; /** The campaign day whose night has the new moon (from the calendar). */ newMoon?: number }
+/** The hour of the new moon's night: the moon is darkest at 21:00 on its day. */
+export const NEW_MOON_HOUR = 21;
 export interface Sky {
   /** Sun (or moon, at night) direction as azimuth (radians, 0 = east, clockwise seen from above) and elevation. */
   azimuth: number; elevation: number;
@@ -59,11 +61,17 @@ export function moonPhase(day: number, hour: number, fullDay = 1): number {
   const t = day + hour / 24 - fullDay;
   return (((t / SYNODIC) + 0.5) % 1 + 1) % 1;
 }
+/** Moon phase 0..1 counted from a new moon at nightfall on `newMoonDay`. */
+export function moonPhaseFromNew(day: number, hour: number, newMoonDay: number): number {
+  const t = day + hour / 24 - (newMoonDay + NEW_MOON_HOUR / 24);
+  return ((t / SYNODIC) % 1 + 1) % 1;
+}
+/** The phase's name. The four principal phases are named only within half a day of their moment (so one night
+ * each, matching the notes' web timeline); the nights between are crescents and gibbous moons. */
 export function moonName(phase: number): string {
-  const p = phase;
-  if (p < 0.03 || p > 0.97) return 'new moon';
-  if (p < 0.22) return 'waxing crescent'; if (p < 0.28) return 'first quarter'; if (p < 0.47) return 'waxing gibbous';
-  if (p < 0.53) return 'full moon'; if (p < 0.72) return 'waning gibbous'; if (p < 0.78) return 'last quarter'; return 'waning crescent';
+  const p = phase, near = (x: number) => Math.min(Math.abs(p - x), 1 - Math.abs(p - x)) * SYNODIC <= 0.5;
+  if (near(0)) return 'new moon'; if (near(0.25)) return 'first quarter'; if (near(0.5)) return 'full moon'; if (near(0.75)) return 'last quarter';
+  return p < 0.25 ? 'waxing crescent' : p < 0.5 ? 'waxing gibbous' : p < 0.75 ? 'waning gibbous' : 'waning crescent';
 }
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 const hex = (c: string) => [parseInt(c.slice(1, 3), 16), parseInt(c.slice(3, 5), 16), parseInt(c.slice(5, 7), 16)];
@@ -80,7 +88,8 @@ export function skyAt(clock: Clock, style: SkyStyle, authored: Ambient = 'barovi
   const elevation = day > 0 ? Math.max(0.05, Math.sin(Math.PI * Math.max(0, Math.min(1, (h - sunrise) / (2 * span)))) * 1.1) : 0.5;
   const azimuth = day > 0 ? Math.PI * ((h - sunrise) / (2 * span)) : Math.PI * (((h + 24 - sunset) % 24) / (24 - 2 * span));
   const golden = day > 0 && day < 1 ? 1 - day : 0; // the shoulders are amber
-  const phase = moonPhase(clock.day, h), moonLit = 1 - Math.abs(phase - 0.5) * 2; // 1 at full
+  // Barovia: the new moon is the party's first night (day 1) unless the calendar says otherwise
+  const phase = clock.newMoon !== undefined || style === 'gothic' ? moonPhaseFromNew(clock.day, h, clock.newMoon ?? 1) : moonPhase(clock.day, h), moonLit = 1 - Math.abs(phase - 0.5) * 2; // 1 at full
   const night = day === 0;
   const P = style === 'gothic'
     ? { // Barovia: a sun that never gets through, grey-amber days, black nights with a wan moon
@@ -99,7 +108,9 @@ export function skyAt(clock: Clock, style: SkyStyle, authored: Ambient = 'barovi
   const page0 = mix(P.page0Night, P.page0Day, day), page1 = mix(P.page1Night, P.page1Day, day);
   // what the rules see: by day the authored ambient (overcast still counts as bright light); after dusk, night
   const ambient: Ambient = day >= 0.5 ? authored : day > 0 ? 'fog' : 'night';
-  const mn = moonName(phase);
+  // with a calendar the moon is named by its night, as the notes' timeline does: 06:00 to 06:00, taken at 21:00
+  const byNight = clock.newMoon !== undefined || style === 'gothic';
+  const mn = byNight ? moonName(moonPhaseFromNew(h < 6 ? clock.day - 1 : clock.day, NEW_MOON_HOUR, clock.newMoon ?? 1)) : moonName(phase);
   return { azimuth, elevation, key, keyColor, hemi, skyLight, groundLight, mist, page0, page1, ambient, phase, moonName: mn, moonLit, night,
     label: `Day ${clock.day} · ${fmtHour(h)} · ${harptos(clock.day)} · ${mn}` };
 }
