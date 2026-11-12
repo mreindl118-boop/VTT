@@ -114,7 +114,7 @@ export function faceFeatures(spec: FaceSpec, look: FaceLook): THREE.Group {
     { y: ny(0.03), w: 0.03 * nw, f: 0.018 + 0.012 * Math.max(0, hook), b: 0.02 }, { y: 0.07, w: 0.03, f: 0.004, b: 0.02 }], 1, { seg: 12, rows: 14 }), soft(skin));
   nose.position.set(0, 0, nz - 0.012); g.add(nose);
   const tip = V(0, ny(-0.135) + up, nz - 0.012 + 0.07 * nf * (1 + 0.3 * tipK)), wing = 0.046 * nw;
-  for (const sx of [-1, 1]) { const al = sph(0.022 * nw, skin, 10, 8); al.scale.set(1.1, 0.8, 1); add(al, sx * 0.042 * nw, ny(-0.158) + up, nz + 0.016); if (d >= 2) add(sph(0.008, deep, 8, 6), sx * 0.022 * nw, ny(-0.177) + up, nz + 0.03); }
+  for (const sx of [-1, 1]) { const al = sph(0.021 * nw, skin, 12, 8); al.scale.set(1, 0.72, 1.15); add(al, sx * 0.036 * nw, ny(-0.156) + up, nz + 0.004); if (d >= 2) add(sph(0.009, deep, 8, 6), sx * 0.02 * nw, ny(-0.172) + up, nz + 0.012).scale.set(1.2, 0.45, 1.3); }
   if (spec.warts) { const w = tone(skin, '#3a3020', 0.35); add(sph(0.014, w, 8, 6), 0.03, tip.y + 0.04, tip.z - 0.012); add(sph(0.012, w, 8, 6), -0.06, chinY + 0.05, surf(-0.06, chinY + 0.05)); add(sph(0.011, w, 8, 6), 0.2, cby + 0.01, surf(0.2, cby + 0.01)); }
 
   // ---- the eyes: small and set deep, almond-shaped; a sliver of white, the iris and pupil, a heavy upper lid, a lower
@@ -148,9 +148,9 @@ export function faceFeatures(spec: FaceSpec, look: FaceLook): THREE.Group {
   }
 
   // ---- the mouth: a bowed upper lip under the philtrum, a fuller lower one, the line between them
-  const full = n(spec.lipFull), smile = n(spec.smile), lw = (fem ? 1 : 0.92) * (1 + 0.25 * n(spec.mouthW)), my = -0.262, mz = surf(0, -0.265), half = 0.058 * lw;
+  const full = n(spec.lipFull), smile = n(spec.smile), lw = (fem ? 1.4 : 1.34) * (1 + 0.2 * n(spec.mouthW)), my = -0.262, mz = surf(0, -0.265), half = 0.058 * lw;
   for (const sx of [-1, 1]) { const u = add(sph(0.034, lip, 12, 8), sx * 0.026 * lw, my + 0.016 + 0.004 * smile, mz + 0.004); u.scale.set(1.25 * lw, (fem ? 0.46 : 0.38) * (1 + 0.45 * full), 0.55); u.rotation.z = sx * (0.16 + 0.2 * smile); }
-  add(sph(0.048 * lw, tone(lip, '#ffffff', 0.08), 16, 10), 0, my - 0.014, mz + 0.001).scale.set(1.05, (fem ? 0.52 : 0.4) * (1 + 0.5 * full), 0.56);
+  add(sph(0.05, tone(lip, '#ffffff', 0.08), 16, 10), 0, my - 0.014, mz + 0.001).scale.set(1.08 * lw, (fem ? 0.52 : 0.4) * (1 + 0.5 * full), 0.56);
   line([-0.058, -0.02, 0.02, 0.058].map((x) => V(x * lw, my + 0.003 - Math.abs(x) * 0.08 + Math.abs(x) * 0.55 * smile, mz + 0.014 - Math.abs(x) * 0.25)), 0.004, deep);
   if (spec.teeth) { const t = new THREE.Mesh(new THREE.BoxGeometry(half * 1.3, 0.014, 0.012), soft('#e8e0cc')); add(t, 0, my + 0.002, mz + 0.012); }
   if (spec.fangs) for (const sx of [-1, 1]) { const f = new THREE.Mesh(new THREE.ConeGeometry(0.008, 0.036, 6), soft('#f2ece0')); f.rotation.x = Math.PI; add(f, sx * 0.024, my - 0.012, mz + 0.02); }
