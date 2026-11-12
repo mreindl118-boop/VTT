@@ -123,7 +123,22 @@ describe('heroFigure', () => {
       cloakTrim: '#ccc', satchel: '#3e2c22', coat: { tails: '#3e1846' }, vials: ['#f00', '#0f0'], sparkles: '#d9b8ff', earrings: '#c9a8ff', markings: '#5a2a5a', tattered: true });
     expect(count(rich)).toBeGreaterThan(plain + 40);
     let glassy = 0; rich.traverse((c) => { const m = c as THREE.Mesh; if (m.isMesh && (m.material as THREE.Material).userData.keepLook) glassy++; });
-    expect(glassy).toBe(12);
+    expect(glassy).toBe(16);
+  });
+  it('takes its battle stance only in initiative: the arms rise and a spell gathers', () => {
+    const f = { stance: 'conjure' as const, glow: '#b06ad0', skirt: '#5e1f3a', underskirt: '#efe3c8', gownTrim: '#b08a4a', crown: { color: '#3a2a1c', flower: '#fff' } };
+    const armAngles = (g: THREE.Object3D) => { const out: number[] = []; g.traverse((c) => { if ((c as THREE.Group).isGroup && Math.abs(Math.abs(c.position.x) - 0.86) < 0.01) out.push(c.rotation.x); }); return out; };
+    expect(armAngles(heroFigure(f)).every((x) => x > -0.5)).toBe(true);
+    expect(armAngles(heroFigure(f, 'medium', true)).every((x) => x < -1)).toBe(true);
+    const glows = (g: THREE.Object3D) => { let n = 0; g.traverse((c) => { const m = c as THREE.Mesh; if (m.isMesh && (m.material as THREE.Material).userData.keepLook) n++; }); return n; };
+    expect(glows(heroFigure(f, 'medium', true))).toBe(glows(heroFigure(f)) + 2);
+  });
+  it('keeps the shield emblem on the shield face, turning with it', () => {
+    const g = heroFigure({ offhand: { kind: 'shield', color: '#1f2f66', mark: '#e6e6e6' } });
+    let face: THREE.Object3D | undefined; g.traverse((c) => { const m = c as THREE.Mesh; if (m.isMesh && m.geometry.type === 'CylinderGeometry' && (m.geometry as THREE.CylinderGeometry).parameters.radiusTop === 1) face = m; });
+    const marks = face!.parent!.children.filter((c) => (c as THREE.Mesh).isMesh && (c as THREE.Mesh).geometry.type === 'TorusGeometry' && ((c as THREE.Mesh).geometry as THREE.TorusGeometry).parameters.radius < 0.3);
+    expect(marks).toHaveLength(2);
+    for (const m of marks) expect(m.position.z).toBeGreaterThan(0.07); // in front of the face (half its thickness), never inside it
   });
   it('recolours the gown and the underskirt', () => {
     const colours = new Set<string>(); heroFigure({ skirt: '#5e1f3a', underskirt: '#efe3c8' }).traverse((c) => { const m = c as THREE.Mesh; if (m.isMesh) colours.add('#' + (m.material as THREE.MeshLambertMaterial).color.getHexString()); });

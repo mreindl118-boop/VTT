@@ -63,6 +63,18 @@ Detail: `eyes` (a bright colour reads as a glow), `shirt` (collar and placket), 
 cloak hem), `satchel` (bag on a strap), `coat` (`{tails, lapel}`), `vials` (up to four colours at the belt), `sparkles`
 (motes drifting around the figure). Plate armour also gets layered pauldrons, tassets, knee guards and greaves.
 
+Faces are smooth (cranium, jaw, cheekbones, a nose with a tip, eyes with whites, irises and pupils under a lid, brows
+and lips; `lips` sets their colour) and hair is a smooth cap with its style on top. More parts: `gauntlets`, `clasps`
+(cloak brooches), `bodice` (`{color, lacing}`), `puffSleeves`, `wingRim`, `gownTrim` (with `skirt` and `underskirt`,
+the gown hangs open over the underskirt in folds with a pointed hem and embroidered edges), and `glow` (the spell a
+battle stance holds).
+
+### Battle stances
+
+`stance`: `two-handed` (a great weapon raised across the body), `shield` (shield up, weapon high), `cast` (book forward,
+the free hand thrust out with a spell, the flier rising), `conjure` (both hands forward round a gathering spell). A
+character takes the stance while they are in the initiative order, and stands at rest again when the fight ends.
+
 ## Both rule sets
 
 Nothing in a pack depends on the edition: speed, darkvision, size and light come from the species and are written as

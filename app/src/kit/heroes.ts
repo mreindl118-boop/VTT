@@ -10,6 +10,9 @@ import type { CreatureSize } from '../core/units';
 export type HeroWeapon = 'none' | 'sword' | 'axe' | 'mace' | 'staff' | 'spear' | 'torch';
 export type HeroOffhand = 'none' | 'shield' | 'book' | 'orb';
 export type HeroHair = 'short' | 'long' | 'braids' | 'curly';
+/** two-handed: a great weapon raised across the body; shield: shield up, weapon raised high; cast: the book forward, the
+ *  free hand thrust out with a spell; conjure: both hands forward round a gathering spell. */
+export type HeroStance = 'two-handed' | 'shield' | 'cast' | 'conjure';
 
 /** A character's miniature, as the party pack writes it. Colours are CSS hex strings. */
 export interface HeroFigure {
@@ -40,6 +43,14 @@ export interface HeroFigure {
   cloakTrim?: string; satchel?: string; coat?: { tails: string; lapel?: string }; vials?: string[]; sparkles?: string;
   /** Drop earrings, marks on the face (veins, scars, freckles of colour), and a ragged hem on the cloak. */
   earrings?: string; markings?: string; tattered?: boolean;
+  /** Lip colour (default: the skin warmed toward rose); gauntlets (the hands in metal); cloak clasps; a laced bodice; puffed
+   *  sleeves; the wings' rim tint; a spell glow the hands hold in a battle stance. */
+  lips?: string; gauntlets?: string; clasps?: string; bodice?: { color: string; lacing?: string }; puffSleeves?: boolean;
+  wingRim?: string; glow?: string;
+  /** A flowing gown: the gown open at the front over the underskirt, with folds, a pointed hem and embroidered edges. */
+  gownTrim?: string;
+  /** The battle stance the figure takes in initiative. */
+  stance?: HeroStance;
 }
 
 const SIZE_SCALE: Record<CreatureSize, number> = { tiny: 0.45, small: 0.68, medium: 1, large: 1.6, huge: 2.4, gargantuan: 3.2 };
@@ -50,84 +61,191 @@ const box = (w: number, h: number, d: number, c: string) => new THREE.Mesh(new T
 const cyl = (rt: number, rb: number, h: number, c: string, seg = 8) => new THREE.Mesh(new THREE.CylinderGeometry(rt, rb, h, seg), mat(c));
 const ball = (r: number, c: string, detail = 0) => new THREE.Mesh(new THREE.IcosahedronGeometry(r, detail), mat(c));
 const cone = (r: number, h: number, c: string, seg = 6) => new THREE.Mesh(new THREE.ConeGeometry(r, h, seg), mat(c));
-const ring = (r: number, tube: number, c: string) => new THREE.Mesh(new THREE.TorusGeometry(r, tube, 6, 28), mat(c));
 /** A see-through part (wings, a wisp): its own material, flagged so the token pass keeps the look. */
 function glassy(m: M, c: string, opacity: number): M {
   const nm = matClone(c); nm.transparent = true; nm.opacity = opacity; nm.depthWrite = false; nm.side = THREE.DoubleSide;
+  nm.flatShading = false;
   nm.userData = { ...nm.userData, keepLook: true }; // on the material too: merging by material keeps it
   m.material = nm; m.userData.keepLook = true;
   return m;
 }
+/** A smooth-shaded palette colour (faces, hair, draped cloth). Its faint emissive keeps it in its own bucket when a token
+ *  merges its meshes by material, and the token pass reads `smooth` to keep the shading soft. */
+function soft(c: string, double = false): THREE.MeshLambertMaterial {
+  const m = mat(c, { emissive: double ? '#020302' : '#030303' });
+  m.userData.smooth = true; if (double) m.side = THREE.DoubleSide;
+  return m;
+}
+const sm = (g: THREE.BufferGeometry, c: string, double = false) => new THREE.Mesh(g, soft(c, double));
+const sph = (r: number, c: string, w = 16, h = 12) => sm(new THREE.SphereGeometry(r, w, h), c);
+const cap = (r: number, len: number, c: string) => sm(new THREE.CapsuleGeometry(r, len, 4, 10), c);
+const tone = (c: string, to: string, k: number) => '#' + new THREE.Color(c).lerp(new THREE.Color(to), k).getHexString();
 
-/** A hero's miniature: origin at the floor centre, feet in world units, facing +z. */
-export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium'): THREE.Group {
+/** A tube along points (embroidery, braided twigs). */
+function tube(pts: THREE.Vector3[], r: number, c: string, closed = false): M {
+  return sm(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts, closed), Math.max(12, pts.length * 4), r, 6, closed), c);
+}
+
+/** Cloth that hangs: an open cone with folds that deepen toward the hem, a pointed (handkerchief) hem, and a sway.
+ *  `gap` leaves the front open (radians). Angles run from +z (the front) round through +x. */
+function drape(rTop: number, rBot: number, h: number, c: string, o: { folds: number; amp: number; jag: number; sway?: number; seed?: number; gap?: number }): M {
+  const gap = o.gap ?? 0;
+  const g = new THREE.CylinderGeometry(rTop, rBot, h, 56, 12, true, gap / 2, Math.PI * 2 - gap);
+  const p = g.attributes.position as THREE.BufferAttribute, seed = o.seed ?? 0;
+  for (let i = 0; i < p.count; i++) {
+    let x = p.getX(i), y = p.getY(i), z = p.getZ(i);
+    const t = (h / 2 - y) / h, th = Math.atan2(x, z);
+    const k = 1 + o.amp * t * (0.7 * Math.sin(o.folds * th + seed) + 0.3 * Math.sin(o.folds * 2.3 * th + seed * 2));
+    x *= k; z *= k;
+    y -= o.jag * t ** 4 * Math.abs(Math.sin(o.folds * 0.5 * th + seed));
+    z += (o.sway ?? 0) * t * t * rBot;
+    p.setXYZ(i, x, y, z);
+  }
+  g.computeVertexNormals();
+  return sm(g, c, true);
+}
+
+/** The face: a smooth head (cranium, jaw, chin, cheekbones), a nose with a tip, eyes with whites, irises and pupils under a
+ *  lid, brows, and lips. Replaces the kit's faceted head, its block nose and its hair cap. */
+function buildFace(up: THREE.Group, s: number, hy: number, f: HeroFigure): void {
+  for (const c of [...up.children]) {
+    const m = c as M; if (!m.isMesh) continue;
+    const g = m.geometry as THREE.IcosahedronGeometry;
+    if (g.type === 'IcosahedronGeometry' && g.parameters.radius > 0.41 * s && g.parameters.radius < 0.44 * s && Math.abs(m.position.y - hy) < 0.15 * s) up.remove(m);
+    if (g.type === 'BoxGeometry' && Math.abs(m.position.y - (hy - 0.05 * s)) < 0.01 * s && m.position.z > 0.4 * s) up.remove(m);
+  }
+  const skin = f.skin ?? '#d9b899', shade = tone(skin, '#2a1a1a', 0.22), lip = f.lips ?? tone(skin, '#a8404a', 0.38), hair = f.hair ?? '#3a2a1a';
+  const add = (m: M, x: number, y: number, z: number) => up.add(at(m, x * s, hy + y * s, z * s));
+  const cr = sph(0.4 * s, skin, 24, 18); cr.scale.set(0.9, 1, 0.86); add(cr, 0, 0.05, 0);
+  const jaw = sph(0.31 * s, skin, 20, 14); jaw.scale.set(0.88, 0.9, 0.92); add(jaw, 0, -0.15, 0.07);
+  const chin = sph(0.11 * s, skin); chin.scale.set(1.1, 0.8, 0.8); add(chin, 0, -0.36, 0.22);
+  for (const sx of [-1, 1]) add(sph(0.11 * s, skin), sx * 0.19, -0.05, 0.22);
+  const ridge = cap(0.05 * s, 0.22 * s, skin); ridge.rotation.z = Math.PI / 2; add(ridge, 0, 0.12, 0.3);
+  const bridge = cap(0.045 * s, 0.12 * s, skin); bridge.rotation.x = -0.35; add(bridge, 0, -0.02, 0.35);
+  add(sph(0.055 * s, skin), 0, -0.11, 0.39);
+  for (const sx of [-1, 1]) add(sph(0.035 * s, shade), sx * 0.045, -0.125, 0.36);
+  for (const sx of [-1, 1]) {
+    const white = sph(0.058 * s, '#efe8de'); white.scale.set(1.25, 0.72, 0.55); add(white, sx * 0.135, 0.035, 0.33);
+    add(sph(0.036 * s, f.eyes ?? '#4a3a2a', 12, 10), sx * 0.135, 0.035, 0.355);
+    add(sph(0.017 * s, '#141014', 8, 6), sx * 0.135, 0.035, 0.385);
+    const lid = cap(0.024 * s, 0.09 * s, shade); lid.rotation.z = Math.PI / 2; add(lid, sx * 0.135, 0.075, 0.33);
+    const brow = cap(0.019 * s, 0.12 * s, hair); brow.rotation.z = Math.PI / 2 - sx * 0.18; add(brow, sx * 0.14, 0.14, 0.345);
+    if (f.ears !== 'pointed') { const e = sph(0.08 * s, skin); e.scale.set(0.45, 1, 0.7); add(e, sx * 0.37, 0, 0); }
+  }
+  const upper = cap(0.026 * s, 0.08 * s, lip); upper.rotation.z = Math.PI / 2; add(upper, 0, -0.205, 0.315);
+  const lower = cap(0.032 * s, 0.06 * s, lip); lower.rotation.z = Math.PI / 2; add(lower, 0, -0.245, 0.31);
+  // hair: a smooth cap whose front edge rises above the brow and whose back falls to the nape
+  if (f.hair) { const hc = sm(new THREE.SphereGeometry(0.43 * s, 24, 14, 0, Math.PI * 2, 0, Math.PI * 0.58), hair, true); hc.scale.set(0.93, 1, 0.95); hc.rotation.x = -0.5; add(hc, 0, 0.06, -0.03); }
+}
+
+/** A hero's miniature: origin at the floor centre, feet in world units, facing +z. `battle` puts it in its stance. */
+export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', battle = false): THREE.Group {
   const s = (SIZE_SCALE[size] ?? 1) * (f.height ?? 1);
+  const gown = !!(f.skirt && f.underskirt);
   const base: HumanoidOpts = {
     skin: f.skin, cloth: f.armor?.color ?? f.cloth, trim: f.trim, hair: f.hair, scale: s,
     weapon: f.weapon === 'sword' || f.weapon === 'staff' || f.weapon === 'spear' || f.weapon === 'torch' ? f.weapon : 'none',
-    skirt: !!f.skirt && !f.underskirt, robe: !!f.underskirt,
+    skirt: !!f.skirt && !f.underskirt, robe: false,
   };
   const body = humanoid(base);
   const up = body.userData.upper as THREE.Group;
   const hy = 2.82 * s; // the head's centre, in the upper body's frame
-  const hand = (side: 1 | -1) => new THREE.Vector3(side * 0.9 * s, -0.12 * s, 0.38 * s);
+  const skin = f.skin ?? '#d9b899';
+  buildFace(up, s, hy, f);
 
-  // sleeves and bracers: the arms' upper and lower parts recoloured
+  // the arms: sleeves, bracers, puffed sleeves, smooth hands (or gauntlets), and a group in each hand for what it holds
   const arms = up.children.filter((c) => (c as THREE.Group).isGroup && Math.abs(Math.abs(c.position.x) - 0.86 * s) < 0.01 * s) as THREE.Group[];
+  const armR = arms.find((a) => a.position.x > 0)!, armL = arms.find((a) => a.position.x < 0)!;
   for (const a of arms) {
     const parts = a.children.filter((c) => (c as M).isMesh && (c as M).geometry.type === 'CylinderGeometry') as M[];
     if (f.sleeves && parts[0]) parts[0].material = mat(f.sleeves);
     if (f.sleeves && parts[1] && !f.bracers) parts[1].material = mat(f.sleeves);
-    if (f.bracers && parts[1]) { parts[1].material = mat(f.bracers); const cuff = cyl(0.2 * s, 0.2 * s, 0.14 * s, f.bracers); cuff.position.copy(parts[1].position); cuff.position.y -= 0.42 * s; a.add(cuff); }
+    if (f.bracers && parts[1]) { parts[1].material = mat(f.bracers); const cuff = cyl(0.2 * s, 0.2 * s, 0.14 * s, f.bracers); cuff.position.copy(parts[1].position); cuff.position.y -= 0.42 * s; a.add(cuff); const band = cyl(0.19 * s, 0.19 * s, 0.06 * s, tone(f.bracers, '#000000', 0.3)); band.position.copy(parts[1].position); band.position.y += 0.2 * s; a.add(band); }
+    if (f.puffSleeves && f.sleeves) { const puff = sph(0.3 * s, f.sleeves); puff.scale.set(1, 1.25, 1); a.add(at(puff, 0, -0.5 * s, 0)); const ruff = sm(new THREE.TorusGeometry(0.2 * s, 0.06 * s, 6, 16), f.sleeves); ruff.rotation.x = Math.PI / 2; a.add(at(ruff, 0, -1.1 * s, 0.05 * s)); }
+    for (const c of [...a.children]) { const m = c as M; if (m.isMesh && m.geometry.type === 'IcosahedronGeometry') { const hnd = sph(0.16 * s, f.gauntlets ?? skin, 12, 10); hnd.scale.set(0.85, 1.15, 0.75); hnd.position.copy(m.position); a.remove(m); a.add(hnd); if (!f.gauntlets) { const th = cap(0.045 * s, 0.1 * s, skin); th.rotation.z = (a.position.x > 0 ? 1 : -1) * 0.6; a.add(at(th, m.position.x - (a.position.x > 0 ? 0.1 : -0.1) * s, m.position.y + 0.05 * s, m.position.z + 0.08 * s)); } } }
   }
+  const holder = (arm: THREE.Group) => { const g = new THREE.Group(); g.position.set(0, -2.25 * s, 0.1 * s); g.rotation.set(0.12, 0, -Math.sign(arm.position.x) * 0.08); arm.add(g); return g; };
+  const gR = holder(armR), gL = holder(armL);
 
-  // the face: eyes (a bright colour reads as a glow), and a brow line
-  if (f.eyes) for (const sx of [-1, 1]) { up.add(at(box(0.11 * s, 0.07 * s, 0.05 * s, f.eyes), sx * 0.15 * s, hy + 0.06 * s, 0.39 * s)); up.add(at(box(0.16 * s, 0.04 * s, 0.05 * s, f.hair ?? '#3a2a1a'), sx * 0.15 * s, hy + 0.15 * s, 0.38 * s)); }
-
-  if (f.earrings) for (const sx of [-1, 1]) { const e = ball(0.06 * s, f.earrings, 0); e.scale.y = 1.8; up.add(at(e, sx * 0.43 * s, hy - 0.2 * s, 0.02 * s)); }
-  if (f.markings) for (const [x, y, rz] of [[0.24, -0.08, 0.6], [0.3, 0.06, -0.3], [-0.26, -0.12, -0.5]]) { const m = box(0.03 * s, 0.2 * s, 0.03 * s, f.markings); m.rotation.z = rz; up.add(at(m, x * s, hy + y * s, 0.36 * s)); }
+  // face extras
+  if (f.earrings) for (const sx of [-1, 1]) { const e = sph(0.05 * s, f.earrings, 8, 6); e.scale.y = 1.8; up.add(at(e, sx * 0.36 * s, hy - 0.2 * s, 0.02 * s)); up.add(at(sph(0.025 * s, '#c9c2b0', 6, 4), sx * 0.36 * s, hy - 0.1 * s, 0.02 * s)); }
+  if (f.markings) for (const [x, y, rz] of [[0.2, -0.1, 0.6], [0.24, 0.04, -0.3], [-0.22, -0.12, -0.5], [0.12, -0.2, 0.9]]) { const m = cap(0.012 * s, 0.13 * s, f.markings); m.rotation.z = rz; up.add(at(m, x * s, hy + y * s, 0.315 * s)); }
 
   // collar, pendant, buckle
-  if (f.shirt) { const c = cyl(0.24 * s, 0.32 * s, 0.32 * s, f.shirt, 7); up.add(at(c, 0, 2.2 * s, 0.08 * s)); up.add(at(box(0.3 * s, 0.5 * s, 0.06 * s, f.shirt), 0, 1.85 * s, 0.4 * s)); }
-  if (f.pendant) { up.add(at(box(0.03 * s, 0.4 * s, 0.03 * s, '#b8bec8'), 0, 1.95 * s, 0.43 * s)); const g = ball(0.09 * s, f.pendant, 0); g.scale.y = 1.6; up.add(at(g, 0, 1.68 * s, 0.45 * s)); }
-  if (f.buckle) up.add(at(box(0.24 * s, 0.2 * s, 0.06 * s, f.buckle), 0, 0.42 * s, 0.63 * s));
+  if (f.shirt) { const c = cyl(0.24 * s, 0.32 * s, 0.32 * s, f.shirt, 7); up.add(at(c, 0, 2.2 * s, 0.08 * s)); up.add(at(box(0.3 * s, 0.5 * s, 0.06 * s, f.shirt), 0, 1.85 * s, 0.4 * s)); for (let i = 0; i < 3; i++) up.add(at(sph(0.025 * s, '#c9c2b0', 6, 4), 0, (1.95 - i * 0.15) * s, 0.44 * s)); }
+  if (f.pendant) { const chain = tube([new THREE.Vector3(-0.22 * s, 2.25 * s, 0.25 * s), new THREE.Vector3(-0.1 * s, 1.85 * s, 0.42 * s), new THREE.Vector3(0, 1.75 * s, 0.45 * s), new THREE.Vector3(0.1 * s, 1.85 * s, 0.42 * s), new THREE.Vector3(0.22 * s, 2.25 * s, 0.25 * s)], 0.012 * s, '#b8bec8'); up.add(chain); const g = sm(new THREE.OctahedronGeometry(0.08 * s), f.pendant); g.scale.y = 1.7; up.add(at(g, 0, 1.62 * s, 0.46 * s)); }
+  if (f.buckle) { up.add(at(box(0.24 * s, 0.2 * s, 0.06 * s, f.buckle), 0, 0.42 * s, 0.63 * s)); up.add(at(box(0.12 * s, 0.1 * s, 0.07 * s, f.trim ?? '#2b2420'), 0, 0.42 * s, 0.64 * s)); }
+
+  // a laced bodice
+  if (f.bodice) {
+    const b = cyl(0.69 * s, 0.64 * s, 1.0 * s, f.bodice.color, 12); b.scale.z = 0.66; up.add(at(b, 0, 0.8 * s, 0));
+    const lc = f.bodice.lacing ?? '#b08a4a';
+    for (let i = 0; i < 4; i++) for (const sx of [-1, 1]) { const x = box(0.24 * s, 0.03 * s, 0.03 * s, lc); x.rotation.z = sx * 0.5; up.add(at(x, 0, (0.45 + i * 0.22) * s, 0.45 * s)); }
+  }
 
   // a coat: tails behind, lapels in front
   if (f.coat) {
-    const tails = box(1.1 * s, 1.5 * s, 0.12 * s, f.coat.tails); tails.rotation.x = 0.12; up.add(at(tails, 0, -0.45 * s, -0.42 * s));
-    for (const sx of [-1, 1]) { const lp = box(0.16 * s, 0.9 * s, 0.05 * s, f.coat.lapel ?? f.coat.tails); lp.rotation.z = sx * 0.25; up.add(at(lp, sx * 0.24 * s, 1.75 * s, 0.42 * s)); }
+    const tails = drape(0.62 * s, 0.75 * s, 1.6 * s, f.coat.tails, { folds: 5, amp: 0.08, jag: 0.25 * s, gap: Math.PI * 1.2 }); up.add(at(tails, 0, -0.55 * s, 0));
+    for (const sx of [-1, 1]) { const lp = box(0.16 * s, 0.9 * s, 0.05 * s, f.coat.lapel ?? f.coat.tails); lp.rotation.z = sx * 0.25; up.add(at(lp, sx * 0.24 * s, 1.75 * s, 0.42 * s)); up.add(at(box(0.07 * s, 0.32 * s, 0.05 * s, '#c9c2b0'), sx * 0.45 * s, 1.0 * s, 0.4 * s)); }
   }
 
   // a satchel on a strap across the chest, and vials at the belt
   if (f.satchel) {
-    const strap = box(0.1 * s, 2.5 * s, 0.05 * s, f.satchel); strap.rotation.z = -0.62; up.add(at(strap, 0.05 * s, 1.15 * s, 0.43 * s));
-    up.add(at(box(0.62 * s, 0.5 * s, 0.24 * s, f.satchel), 0.72 * s, -0.12 * s, 0.38 * s));
-    up.add(at(box(0.64 * s, 0.16 * s, 0.26 * s, f.buckle ?? f.satchel), 0.72 * s, 0.08 * s, 0.4 * s));
+    const strap = box(0.1 * s, 2.5 * s, 0.05 * s, f.satchel); strap.rotation.z = -0.62; up.add(at(strap, 0.05 * s, 1.15 * s, 0.45 * s));
+    const bag = sm(new THREE.CapsuleGeometry(0.22 * s, 0.25 * s, 3, 8), f.satchel); bag.rotation.z = Math.PI / 2; bag.scale.z = 0.55; up.add(at(bag, 0.72 * s, -0.12 * s, 0.38 * s));
+    up.add(at(box(0.5 * s, 0.22 * s, 0.05 * s, tone(f.satchel, '#000000', 0.25)), 0.72 * s, 0.0 * s, 0.52 * s));
+    up.add(at(box(0.08 * s, 0.1 * s, 0.03 * s, f.buckle ?? '#9a9ea6'), 0.72 * s, -0.08 * s, 0.56 * s));
   }
-  (f.vials ?? []).slice(0, 4).forEach((c, i) => { up.add(at(cyl(0.06 * s, 0.07 * s, 0.26 * s, c, 6), -0.5 * s + i * 0.15 * s, 0.25 * s, 0.6 * s)); up.add(at(box(0.07 * s, 0.07 * s, 0.07 * s, '#8a6a4a'), -0.5 * s + i * 0.15 * s, 0.42 * s, 0.6 * s)); });
+  (f.vials ?? []).slice(0, 4).forEach((c, i) => { const x = -0.5 * s + i * 0.15 * s; const v = sph(0.075 * s, c, 10, 8); v.scale.y = 1.3; up.add(at(v, x, 0.2 * s, 0.6 * s)); up.add(at(cyl(0.03 * s, 0.03 * s, 0.12 * s, c, 6), x, 0.34 * s, 0.6 * s)); up.add(at(cyl(0.035 * s, 0.035 * s, 0.06 * s, '#8a6a4a', 6), x, 0.42 * s, 0.6 * s)); });
 
-  // boots in their own colour
-  if (f.boots) body.children.forEach((c) => { const m = c as M; if (m.isMesh && m.geometry.type === 'BoxGeometry' && m.position.y < 0.5 * s) m.material = mat(f.boots!); });
+  // boots: their own colour, a turned cuff and a sole
+  for (const c of [...body.children]) { const m = c as M; if (m.isMesh && m.geometry.type === 'BoxGeometry' && m.position.y < 0.5 * s) {
+    if (f.boots) m.material = mat(f.boots);
+    const bc = f.boots ?? '#2b2420';
+    body.add(at(cyl(0.27 * s, 0.25 * s, 0.22 * s, tone(bc, '#ffffff', 0.08), 7), m.position.x, 0.62 * s, 0));
+    body.add(at(box(0.5 * s, 0.08 * s, 0.84 * s, tone(bc, '#000000', 0.45)), m.position.x, 0.04 * s, m.position.z));
+  } }
 
-  // gown and underskirt: the kit's long robe (or knee skirt) recoloured, and the gown over the underskirt
-  const isSkirt = (c: THREE.Object3D) => { const m = c as M; return m.isMesh && m.geometry.type === 'CylinderGeometry' && (m.geometry as THREE.CylinderGeometry).parameters.radiusBottom > 1.0 * s; };
-  const skirtColor = f.underskirt ?? f.skirt;
-  if (skirtColor) body.children.filter(isSkirt).forEach((c) => { (c as M).material = mat(skirtColor); });
-  if (f.skirt && f.underskirt) body.add(at(cyl(0.86 * s, 1.2 * s, 2.9 * s, f.skirt, 8), 0, 1.95 * s, 0));
+  // the knee skirt recoloured; or the flowing gown over its underskirt, with embroidered edges
+  if (f.skirt && !gown) body.children.forEach((c) => { const m = c as M; if (m.isMesh && m.geometry.type === 'CylinderGeometry' && (m.geometry as THREE.CylinderGeometry).parameters.radiusBottom > 1.0 * s) m.material = mat(f.skirt!); });
+  if (gown) {
+    body.add(at(drape(0.72 * s, 1.32 * s, 4.3 * s, f.underskirt!, { folds: 11, amp: 0.1, jag: 0.12 * s, seed: 1 }), 0, 2.3 * s, 0));
+    const ruffle = drape(1.3 * s, 1.42 * s, 0.35 * s, f.underskirt!, { folds: 18, amp: 0.25, jag: 0.1 * s, seed: 2 }); body.add(at(ruffle, 0, 0.3 * s, 0));
+    const gap = Math.PI * 0.42;
+    body.add(at(drape(0.8 * s, 1.5 * s, 3.5 * s, f.skirt!, { folds: 7, amp: 0.18, jag: 0.7 * s, sway: 0.1, seed: 0.6, gap }), 0, 2.7 * s, 0));
+    if (f.gownTrim) {
+      for (const side of [-1, 1]) {
+        const pts: THREE.Vector3[] = [];
+        for (let i = 0; i <= 12; i++) { const t = i / 12, th = side * (gap / 2 + 0.03 + 0.04 * Math.sin(t * 9)), r = (0.8 + (1.5 - 0.8) * t) * s * 1.04; pts.push(new THREE.Vector3(Math.sin(th) * r, (4.45 - t * 3.3) * s, Math.cos(th) * r + 0.1 * t * t * 1.5 * s)); }
+        body.add(tube(pts, 0.022 * s, f.gownTrim));
+        for (let i = 1; i < 12; i += 2) { const q = pts[i], leaf = sph(0.05 * s, f.gownTrim, 6, 4); leaf.scale.set(0.5, 1, 0.25); leaf.rotation.z = side * (i % 4 ? 0.7 : -0.7); body.add(at(leaf, q.x + side * 0.06 * s, q.y, q.z + 0.02 * s)); }
+      }
+      const hem: THREE.Vector3[] = [];
+      for (let i = 0; i <= 40; i++) { const th = gap / 2 + (Math.PI * 2 - gap) * (i / 40), r = 1.5 * s * 1.02 * (1 + 0.18 * (0.7 * Math.sin(7 * th + 0.6) + 0.3 * Math.sin(16.1 * th + 1.2))); hem.push(new THREE.Vector3(Math.sin(th) * r, 1.25 * s - 0.55 * s * Math.abs(Math.sin(3.5 * th + 0.6)), Math.cos(th) * r + 0.15 * s)); }
+      body.add(tube(hem, 0.025 * s, f.gownTrim));
+    }
+  }
 
-  // ears
-  if (f.ears === 'pointed') for (const sx of [-1, 1]) { const e = cone(0.1 * s, 0.55 * s, f.skin ?? '#d9b899', 4); e.position.set(sx * 0.42 * s, hy + 0.08 * s, -0.02 * s); e.rotation.z = -sx * 1.05; e.rotation.x = -0.35; up.add(e); }
+  // pointed ears
+  if (f.ears === 'pointed') for (const sx of [-1, 1]) { const e = sm(new THREE.ConeGeometry(0.09 * s, 0.5 * s, 8), skin); e.scale.z = 0.45; e.position.set(sx * 0.36 * s, hy + 0.06 * s, -0.02 * s); e.rotation.z = -sx * 1.05; e.rotation.x = -0.35; up.add(e); }
 
   // hair
   if (f.hair) {
-    if (f.hairStyle === 'long' || f.hairStyle === 'braids') { const back = box(0.78 * s, 1.5 * s, 0.22 * s, f.hair); up.add(at(back, 0, hy - 0.65 * s, -0.36 * s)); }
-    if (f.hairStyle === 'long') for (const sx of [-1, 1]) { const lock = box(0.2 * s, 1.1 * s, 0.2 * s, f.hair); lock.rotation.z = sx * 0.1; up.add(at(lock, sx * 0.4 * s, hy - 0.55 * s, 0.08 * s)); }
-    if (f.hairStyle === 'braids') for (const sx of [-1, 1]) {
-      const b = cyl(0.09 * s, 0.07 * s, 1.6 * s, f.hair, 5); b.rotation.x = 0.12; up.add(at(b, sx * 0.4 * s, hy - 1.0 * s, 0.18 * s));
-      for (const dy of [-0.55, -1.25]) { const bead = cyl(0.1 * s, 0.1 * s, 0.1 * s, '#b8bec8', 6); up.add(at(bead, sx * 0.4 * s, hy + dy * s, 0.18 * s - dy * 0.1 * s)); }
+    const H = f.hair;
+    if (f.hairStyle === 'long') {
+      const back = cap(0.3 * s, 1.0 * s, H); back.scale.set(1.25, 1, 0.45); up.add(at(back, 0, hy - 0.75 * s, -0.3 * s));
+      for (const sx of [-1, 1]) { const lock = cap(0.09 * s, 0.85 * s, H); lock.rotation.z = sx * 0.12; up.add(at(lock, sx * 0.34 * s, hy - 0.5 * s, 0.1 * s)); }
+      for (let i = 0; i < 5; i++) { const w = cap(0.07 * s, 1.1 * s, tone(H, '#000000', (i % 2) * 0.12)); w.rotation.z = (i - 2) * 0.08; up.add(at(w, (i - 2) * 0.15 * s, hy - 0.95 * s, -0.4 * s)); }
     }
-    if (f.hairStyle === 'curly') for (let i = 0; i < 9; i++) { const a = (i / 9) * Math.PI * 2; up.add(at(ball(0.17 * s, f.hair), Math.cos(a) * 0.36 * s, hy + 0.25 * s + (i % 2) * 0.08 * s, Math.sin(a) * 0.33 * s - 0.04 * s)); }
-    if (f.hairStreak) up.add(at(box(0.1 * s, 1.2 * s, 0.12 * s, f.hairStreak), 0.3 * s, hy - 0.35 * s, 0.22 * s));
+    if (f.hairStyle === 'braids') {
+      const back = cap(0.26 * s, 0.4 * s, H); back.scale.set(1.3, 1, 0.5); up.add(at(back, 0, hy - 0.35 * s, -0.3 * s));
+      for (const sx of [-1, 1]) for (let i = 0; i < 9; i++) {
+        const y = hy - 0.3 * s - i * 0.19 * s, k = sph((0.095 - i * 0.004) * s, i % 2 ? H : tone(H, '#000000', 0.12), 8, 6); k.scale.y = 1.2; up.add(at(k, sx * (0.36 + i * 0.01) * s, y, (0.12 + i * 0.02) * s));
+        if (i === 3 || i === 7) up.add(at(cyl(0.1 * s, 0.1 * s, 0.08 * s, '#b8bec8', 8), sx * (0.36 + i * 0.01) * s, y, (0.12 + i * 0.02) * s));
+      }
+    }
+    if (f.hairStyle === 'curly') for (let i = 0; i < 16; i++) { const a = i * 2.39996, ring2 = i < 9 ? 0 : 1; up.add(at(sph((0.14 + (i % 3) * 0.025) * s, i % 3 ? H : tone(H, '#ffffff', 0.2), 10, 8), Math.cos(a) * (0.32 - ring2 * 0.1) * s, hy + (0.22 + ring2 * 0.16 + (i % 2) * 0.05) * s, Math.sin(a) * (0.3 - ring2 * 0.1) * s - 0.05 * s)); }
+    if (f.hairStreak) { const st = cap(0.05 * s, 1.0 * s, f.hairStreak); st.rotation.z = 0.08; up.add(at(st, 0.3 * s, hy - 0.4 * s, 0.17 * s)); }
   }
 
   // armour
@@ -138,6 +256,7 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium'): THREE.
     up.add(at(box(0.9 * s, 0.08 * s, 0.08 * s, t), 0, 1.5 * s, 0.42 * s));                       // breastplate edge
     for (const sx of [-1, 1]) { const p2 = ball(0.42 * s, f.armor.color, 1); p2.scale.set(1, 0.5, 0.95); up.add(at(p2, sx * 0.86 * s, 1.78 * s, 0)); up.add(at(box(0.5 * s, 0.06 * s, 0.62 * s, t), sx * 0.88 * s, 1.62 * s, 0)); }
     up.add(at(box(0.5 * s, 0.06 * s, 0.06 * s, t), 0, 0.95 * s, 0.4 * s));                         // a second band
+    const knot = sm(new THREE.TorusKnotGeometry(0.1 * s, 0.022 * s, 48, 6, 2, 3), t); up.add(at(knot, 0, 1.25 * s, 0.44 * s)); // a knotwork boss
     for (const sx of [-1, 1]) {                                                                         // knees and greaves
       body.add(at(ball(0.22 * s, f.armor.color, 0), sx * 0.3 * s, 1.55 * s, 0.14 * s));
       body.add(at(cyl(0.22 * s, 0.2 * s, 0.9 * s, f.armor.color, 7), sx * 0.3 * s, 0.95 * s, 0.02 * s));
@@ -145,75 +264,141 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium'): THREE.
     }
     for (const [x, z] of [[-0.42, 0.3], [0.42, 0.3], [-0.5, -0.1], [0.5, -0.1]]) { const ts = box(0.42 * s, 0.75 * s, 0.08 * s, f.armor.color); ts.rotation.x = z > 0 ? -0.15 : 0.15; ts.rotation.y = x * 0.6; up.add(at(ts, x * s, -0.45 * s, z * s)); up.add(at(box(0.42 * s, 0.06 * s, 0.09 * s, t), x * s, -0.78 * s, z * s + 0.02 * s)); } // tassets
   }
-  if (f.armor?.kind === 'mail') { const m = cyl(0.7 * s, 0.75 * s, 1.0 * s, f.armor.trim ?? f.armor.color, 7); m.scale.z = 0.66; up.add(at(m, 0, 0.55 * s, 0)); }
-
-  // cloak (with a hood folded on the shoulders)
-  if (f.cloak) {
-    const c = cyl(0.8 * s, 1.2 * s, 4.7 * s, f.cloak, 8); c.scale.z = 0.42; up.add(at(c, 0, -0.1 * s, -0.36 * s));
-    up.add(at(cyl(0.82 * s, 0.82 * s, 0.3 * s, f.cloak, 8), 0, 2.2 * s, -0.06 * s));
-    if (f.cloakTrim) { const hem = cyl(0.81 * s, 1.215 * s, 0.22 * s, f.cloakTrim, 8); hem.scale.z = 0.43; up.add(at(hem, 0, -2.3 * s, -0.36 * s)); for (const sx of [-1, 1]) up.add(at(box(0.08 * s, 3.8 * s, 0.06 * s, f.cloakTrim), sx * 0.78 * s, 0.0 * s, -0.05 * s)); }
-    if (f.tattered) for (let i = 0; i < 9; i++) { const a = Math.PI * (0.2 + 0.6 * (i / 8)) + Math.PI, x = Math.cos(a) * 1.15 * s, z = -0.36 * s + Math.sin(a) * 1.15 * 0.42 * s; const t = cone(0.12 * s, (0.35 + (i % 3) * 0.15) * s, f.cloak, 3); t.rotation.x = Math.PI; up.add(at(t, x, -2.6 * s, z)); }
-    if (f.hood) { const h = ball(0.5 * s, f.cloak, 1); h.scale.set(1, 0.55, 0.8); up.add(at(h, 0, 2.38 * s, -0.42 * s)); }
+  if (f.armor?.kind === 'mail') {
+    const m = cyl(0.7 * s, 0.75 * s, 1.0 * s, f.armor.trim ?? f.armor.color, 7); m.scale.z = 0.66; up.add(at(m, 0, 0.55 * s, 0));
+    for (let i = 0; i < 5; i++) { const r = sm(new THREE.TorusGeometry(0.66 * s - i * 0.004 * s, 0.018 * s, 4, 28), tone(f.armor.color, '#ffffff', 0.15)); r.rotation.x = Math.PI / 2; r.scale.y = 0.66; up.add(at(r, 0, (0.2 + i * 0.4) * s, 0)); }
   }
 
-  // weapons in the right hand
-  const r = hand(1);
+  // cloak (with a hood folded on the shoulders): it hangs in folds
+  if (f.cloak) {
+    const c = drape(0.78 * s, 1.25 * s, 4.7 * s, f.cloak, { folds: 6, amp: 0.12, jag: f.tattered ? 0.45 * s : 0.05 * s, seed: 0.3, gap: Math.PI * 1.15 }); c.scale.z = 0.55; up.add(at(c, 0, -0.1 * s, -0.12 * s));
+    const mantle = drape(0.36 * s, 0.95 * s, 0.75 * s, f.cloak, { folds: 9, amp: 0.08, jag: 0.06 * s, seed: 0.9 }); mantle.scale.z = 0.72; up.add(at(mantle, 0, 2.02 * s, -0.04 * s));
+    if (f.cloakTrim) {
+      const hem: THREE.Vector3[] = [];
+      for (let i = 0; i <= 24; i++) { const th = Math.PI * 1.15 / 2 + (Math.PI * 2 - Math.PI * 1.15) * (i / 24), r = 1.25 * s * (1 + 0.12 * (0.7 * Math.sin(6 * th + 0.3) + 0.3 * Math.sin(13.8 * th + 0.6))); hem.push(new THREE.Vector3(Math.sin(th) * r, -2.3 * s - (f.tattered ? 0.45 * s * Math.abs(Math.sin(3 * th + 0.3)) : 0), Math.cos(th) * r * 0.55 - 0.12 * s)); }
+      up.add(tube(hem, 0.03 * s, f.cloakTrim));
+      for (const sx of [-1, 1]) up.add(at(box(0.08 * s, 3.8 * s, 0.06 * s, f.cloakTrim), sx * 0.78 * s, 0.0 * s, -0.05 * s));
+    }
+    if (f.clasps) for (const sx of [-1, 1]) { const d = cyl(0.12 * s, 0.12 * s, 0.05 * s, f.clasps, 12); d.rotation.x = Math.PI / 2; up.add(at(d, sx * 0.55 * s, 2.1 * s, 0.4 * s)); up.add(at(cap(0.015 * s, 0.12 * s, tone(f.clasps, '#000000', 0.4)), sx * 0.55 * s, 2.1 * s, 0.43 * s)); }
+    if (f.hood) { const h = sph(0.5 * s, f.cloak, 16, 10); h.scale.set(1, 0.55, 0.8); up.add(at(h, 0, 2.38 * s, -0.42 * s)); }
+  }
+
+  // what the right hand holds
   if (f.weapon === 'axe') {
-    const haft = box(0.13 * s, 5.2 * s, 0.13 * s, '#4a3626'); up.add(at(haft, r.x, r.y + 1.6 * s, r.z));
-    // a double-bitted head: two flared bits either side of the haft
-    for (const dx of [1, -1]) { const bit = cyl(0.62 * s, 0.62 * s, 0.08 * s, '#9aa0aa', 3); bit.rotation.x = Math.PI / 2; bit.rotation.y = dx > 0 ? 0 : Math.PI; up.add(at(bit, r.x + dx * 0.45 * s, r.y + 3.75 * s, r.z)); }
-    up.add(at(box(0.2 * s, 0.5 * s, 0.24 * s, '#5c626c'), r.x, r.y + 3.75 * s, r.z));
+    gR.add(at(box(0.13 * s, 5.2 * s, 0.13 * s, '#4a3626'), 0, 1.6 * s, 0));
+    for (let i = 0; i < 6; i++) gR.add(at(cyl(0.085 * s, 0.085 * s, 0.05 * s, '#2a1c14', 6), 0, (0.3 + i * 0.12) * s, 0)); // the grip's wrap
+    for (const dx of [1, -1]) {
+      const sh = new THREE.Shape(); sh.moveTo(0, -0.18); sh.quadraticCurveTo(0.35, -0.2, 0.62, -0.62); sh.quadraticCurveTo(0.52, 0, 0.62, 0.62); sh.quadraticCurveTo(0.35, 0.2, 0, 0.18); sh.lineTo(0, -0.18);
+      const bit = sm(new THREE.ExtrudeGeometry(sh, { depth: 0.06, bevelEnabled: true, bevelSize: 0.02, bevelThickness: 0.02, bevelSegments: 1 }), '#9aa0aa');
+      bit.scale.set(dx * s, s, s); gR.add(at(bit, dx * 0.08 * s, 3.75 * s, -0.04 * s));
+    }
+    gR.add(at(box(0.2 * s, 0.5 * s, 0.24 * s, '#5c626c'), 0, 3.75 * s, 0));
+    gR.add(at(cone(0.08 * s, 0.3 * s, '#5c626c', 6), 0, 4.35 * s, 0));
   }
   if (f.weapon === 'mace') {
-    up.add(at(box(0.13 * s, 2.0 * s, 0.13 * s, '#3b2a20'), r.x, r.y + 0.6 * s, r.z));
-    up.add(at(ball(0.3 * s, '#8e939b', 0), r.x, r.y + 1.75 * s, r.z));
-    for (let i = 0; i < 6; i++) { const a = (i / 6) * Math.PI * 2, k = cone(0.08 * s, 0.3 * s, '#8e939b', 4); k.position.set(r.x + Math.cos(a) * 0.3 * s, r.y + 1.75 * s, r.z + Math.sin(a) * 0.3 * s); k.rotation.z = -Math.cos(a) * Math.PI / 2; k.rotation.x = Math.sin(a) * Math.PI / 2; up.add(k); }
+    gR.add(at(box(0.13 * s, 2.0 * s, 0.13 * s, '#3b2a20'), 0, 0.6 * s, 0));
+    gR.add(at(sph(0.08 * s, '#8e939b', 8, 6), 0, -0.42 * s, 0));
+    gR.add(at(sph(0.26 * s, '#8e939b', 12, 8), 0, 1.75 * s, 0));
+    for (let i = 0; i < 6; i++) { const a = (i / 6) * Math.PI * 2, fl = box(0.06 * s, 0.5 * s, 0.22 * s, '#a3a8b0'); fl.rotation.y = -a; gR.add(at(fl, Math.cos(a) * 0.24 * s, 1.75 * s, Math.sin(a) * 0.24 * s)); }
   }
 
-  // the off hand
-  const l = hand(-1), o = f.offhand;
+  // what the left hand holds
+  const o = f.offhand;
   if (o?.kind === 'shield') {
-    const face = cyl(1.0 * s, 1.0 * s, 0.14 * s, o.color ?? '#2a3f7a', 20); face.rotation.x = Math.PI / 2; face.rotation.y = -0.35;
-    up.add(at(face, l.x - 0.15 * s, l.y + 0.95 * s, l.z + 0.25 * s));
-    const rim = ring(1.0 * s, 0.07 * s, o.rim ?? '#a9adb6'); rim.rotation.y = -0.35; up.add(at(rim, l.x - 0.15 * s, l.y + 0.95 * s, l.z + 0.27 * s));
-    if (o.mark) for (const dx of [-0.17, 0.17]) { const m = ring(0.24 * s, 0.035 * s, o.mark); m.rotation.y = -0.35; up.add(at(m, l.x - 0.15 * s + dx * s * 0.94, l.y + 0.95 * s, l.z + 0.36 * s + dx * s * 0.3)); }
+    // one group, so the face, the rim, the boss and the emblem turn together and the emblem sits on the face
+    const sg = new THREE.Group(); sg.position.set(-0.15 * s, 0.95 * s, 0.25 * s); sg.rotation.y = -0.35; gL.add(sg);
+    const face = sm(new THREE.CylinderGeometry(1.0 * s, 1.0 * s, 0.14 * s, 32), o.color ?? '#2a3f7a'); face.rotation.x = Math.PI / 2; sg.add(face);
+    const rim = sm(new THREE.TorusGeometry(1.0 * s, 0.07 * s, 8, 40), o.rim ?? '#a9adb6'); sg.add(rim);
+    for (let i = 0; i < 12; i++) { const a = (i / 12) * Math.PI * 2; sg.add(at(sph(0.04 * s, o.rim ?? '#a9adb6', 6, 4), Math.cos(a) * 0.9 * s, Math.sin(a) * 0.9 * s, 0.08 * s)); }
+    if (o.mark) {
+      for (const dx of [-0.15, 0.15]) sg.add(at(sm(new THREE.TorusGeometry(0.22 * s, 0.03 * s, 6, 24), o.mark), dx * s, 0.1 * s, 0.085 * s));
+      for (const side of [-1, 1]) for (let i = 0; i < 6; i++) {
+        const a = -Math.PI / 2 + side * (0.35 + i * 0.2), r = 0.6 * s, leaf = sph(0.055 * s, o.mark, 6, 4);
+        leaf.scale.set(0.45, 1, 0.25); leaf.rotation.z = a + Math.PI / 2 + side * 0.5; sg.add(at(leaf, Math.cos(a) * r * 0.85, Math.sin(a) * r * 0.7 - 0.05 * s, 0.08 * s));
+      }
+    } else sg.add(at(sph(0.14 * s, o.rim ?? '#a9adb6', 12, 8), 0, 0, 0.08 * s));
   }
   if (o?.kind === 'book') {
-    const b = box(0.85 * s, 0.12 * s, 0.62 * s, o.color ?? '#4a3020'); b.rotation.x = -0.5; up.add(at(b, l.x * 0.75, l.y + 1.0 * s, l.z + 0.75 * s));
-    const pages = box(0.78 * s, 0.13 * s, 0.56 * s, o.rim ?? '#e8dfc8'); pages.rotation.x = -0.5; up.add(at(pages, l.x * 0.75, l.y + 1.07 * s, l.z + 0.73 * s));
+    const bk = new THREE.Group(); bk.position.set(0.225 * s, 1.0 * s, 0.37 * s); bk.rotation.x = -0.5; gL.add(bk);
+    for (const sx of [-1, 1]) { const cover = box(0.42 * s, 0.05 * s, 0.6 * s, o.color ?? '#4a3020'); cover.rotation.z = sx * 0.18; bk.add(at(cover, sx * 0.21 * s, 0, 0)); const pg = box(0.38 * s, 0.07 * s, 0.55 * s, o.rim ?? '#e8dfc8'); pg.rotation.z = sx * 0.18; bk.add(at(pg, sx * 0.2 * s, 0.05 * s, 0)); }
+    bk.add(at(box(0.02 * s, 0.02 * s, 0.4 * s, '#6a5a4a'), 0.2 * s, 0.1 * s, 0));
   }
-  if (o?.kind === 'orb') up.add(at(ball(0.3 * s, o.color ?? '#9b7bd0', 1), l.x, l.y + 0.35 * s, l.z + 0.1 * s));
+  if (o?.kind === 'orb') gL.add(at(sph(0.3 * s, o.color ?? '#9b7bd0'), 0, 0.47 * s, -0.28 * s));
   if (f.wisp) {
-    const w = glassy(ball(0.32 * s, f.wisp, 1), f.wisp, 0.7); up.add(at(w, l.x * 0.7, l.y + 1.75 * s, l.z + 0.35 * s));
-    up.add(at(glassy(cone(0.2 * s, 0.7 * s, f.wisp, 5), f.wisp, 0.45), l.x * 0.7, l.y + 1.3 * s, l.z + 0.35 * s));
+    // a ghostly skull rising from the book
+    const wg = new THREE.Group(); wg.position.set(0.27 * s, 1.75 * s, 0.35 * s); gL.add(wg);
+    wg.add(glassy(sph(0.2 * s, f.wisp, 14, 10), f.wisp, 0.75));
+    const jaw = glassy(box(0.22 * s, 0.1 * s, 0.16 * s, f.wisp), f.wisp, 0.65); wg.add(at(jaw, 0, -0.17 * s, 0.05 * s));
+    for (const sx of [-1, 1]) wg.add(at(sph(0.045 * s, '#1a3a2a', 8, 6), sx * 0.07 * s, 0.02 * s, 0.17 * s));
+    const trail = glassy(sm(new THREE.ConeGeometry(0.16 * s, 0.75 * s, 10), f.wisp), f.wisp, 0.4); trail.rotation.x = Math.PI; wg.add(at(trail, 0, -0.55 * s, 0));
   }
 
   // wings, halo, crown
   if (f.wings) {
-    const n = f.wings.count ?? 4, op = f.wings.opacity ?? 0.42;
+    const n = f.wings.count ?? 4, op = f.wings.opacity ?? 0.42, rimC = f.wingRim ?? f.wings.color;
     const pairs = n === 4 ? [{ w: 2.3, h: 2.6, y: 2.1, tilt: 0.5 }, { w: 1.7, h: 1.8, y: 0.8, tilt: -0.35 }] : [{ w: 2.6, h: 3.0, y: 1.8, tilt: 0.35 }];
     for (const p of pairs) for (const sx of [-1, 1]) {
       const g = new THREE.Group(); g.position.set(sx * 0.18 * s, p.y * s, -0.42 * s); g.rotation.y = sx * 0.45; g.rotation.z = -sx * p.tilt;
-      const wing = glassy(new THREE.Mesh(new THREE.CircleGeometry(1, 14), mat(f.wings.color)), f.wings.color, op);
+      const wing = glassy(new THREE.Mesh(new THREE.CircleGeometry(1, 24), mat(f.wings.color)), f.wings.color, op);
       wing.scale.set(p.w * s / 2, p.h * s / 2, 1); wing.position.x = sx * p.w * s / 2; g.add(wing);
-      for (const ang of [-0.45, 0, 0.45]) { const vein = box(p.w * s * 0.95, 0.04 * s, 0.03 * s, f.wings.color); vein.geometry.translate(sx * p.w * s * 0.475, 0, 0); vein.rotation.z = ang * (p.h / p.w); g.add(vein); }
-      const edge = glassy(new THREE.Mesh(new THREE.RingGeometry(0.93, 1, 20), mat(f.wings.color)), f.wings.color, Math.min(1, op + 0.35)); edge.scale.copy(wing.scale); edge.position.copy(wing.position); g.add(edge);
+      for (const ang of [-0.5, -0.2, 0.1, 0.4]) { const vein = box(p.w * s * 0.95, 0.03 * s, 0.02 * s, rimC); vein.geometry.translate(sx * p.w * s * 0.475, 0, 0); vein.rotation.z = ang * (p.h / p.w); g.add(vein); }
+      const edge = glassy(new THREE.Mesh(new THREE.RingGeometry(0.94, 1, 32), mat(rimC)), rimC, Math.min(1, op + 0.4)); edge.scale.copy(wing.scale); edge.position.copy(wing.position); g.add(edge);
       up.add(g);
     }
   }
-  if (f.halo) { const h = ring(0.62 * s, 0.045 * s, f.halo); h.position.set(0, hy + 0.3 * s, -0.42 * s); up.add(h); }
+  if (f.halo) {
+    const h = sm(new THREE.TorusGeometry(0.62 * s, 0.04 * s, 8, 40), f.halo); h.position.set(0, hy + 0.3 * s, -0.42 * s); up.add(h);
+    const glow = glassy(new THREE.Mesh(new THREE.TorusGeometry(0.62 * s, 0.11 * s, 8, 40), mat(f.halo)), f.halo, 0.25); glow.position.copy(h.position); up.add(glow);
+    for (let i = 0; i < 8; i++) { const a = (i / 8) * Math.PI * 2, ray = glassy(cone(0.03 * s, 0.25 * s, f.halo, 4), f.halo, 0.5); ray.rotation.z = a - Math.PI / 2; up.add(at(ray, Math.cos(a) * 0.82 * s, hy + 0.3 * s + Math.sin(a) * 0.82 * s, -0.44 * s)); }
+  }
   if (f.crown) {
-    for (let i = 0; i < 10; i++) {
-      const a = (i / 10) * Math.PI * 2, t = cone(0.05 * s, 0.32 * s, f.crown.color, 4);
-      t.position.set(Math.cos(a) * 0.42 * s, hy + 0.32 * s, Math.sin(a) * 0.4 * s); t.rotation.z = -Math.cos(a) * 0.6; t.rotation.x = Math.sin(a) * 0.6; up.add(t);
-      if (f.crown.flower && i % 3 === 0) up.add(at(ball(0.11 * s, f.crown.flower), Math.cos(a) * 0.44 * s, hy + 0.27 * s, Math.sin(a) * 0.42 * s));
+    const cg = new THREE.Group(); cg.position.set(0, hy + 0.2 * s, -0.03 * s); cg.rotation.x = -0.12; up.add(cg);
+    const C = f.crown.color, R = 0.41 * s;
+    for (let k = 0; k < 3; k++) {             // three twisted strands of thorny branch
+      const pts: THREE.Vector3[] = [];
+      for (let i = 0; i < 24; i++) { const a = (i / 24) * Math.PI * 2, rr = R * (1 + 0.05 * Math.sin(5 * a + k * 2.1)); pts.push(new THREE.Vector3(Math.cos(a) * rr, 0.035 * s * Math.sin(3 * a + k * 2.1), Math.sin(a) * rr)); }
+      cg.add(tube(pts, 0.022 * s, k === 1 ? tone(C, '#000000', 0.2) : C, true));
     }
-    const band = ring(0.42 * s, 0.04 * s, f.crown.color); band.rotation.x = Math.PI / 2; up.add(at(band, 0, hy + 0.24 * s, 0));
+    let seed = 7; const rnd = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; };
+    for (let i = 0; i < 30; i++) {            // thorns
+      const a = rnd() * Math.PI * 2, t = cone(0.016 * s, 0.11 * s, tone(C, '#000000', 0.3), 4);
+      t.position.set(Math.cos(a) * R * 1.04, (rnd() - 0.5) * 0.06 * s, Math.sin(a) * R * 1.04);
+      t.rotation.z = -Math.cos(a) * (0.9 + rnd() * 0.6); t.rotation.x = Math.sin(a) * (0.9 + rnd() * 0.6); cg.add(t);
+    }
+    for (let i = 0; i < 8; i++) {             // twigs reaching up and out, some forked
+      const a = (i / 8) * Math.PI * 2 + 0.3, b0 = new THREE.Vector3(Math.cos(a) * R, 0, Math.sin(a) * R);
+      const b1 = b0.clone().add(new THREE.Vector3(Math.cos(a) * 0.12 * s, (0.22 + (i % 3) * 0.08) * s, Math.sin(a) * 0.12 * s));
+      const b2 = b1.clone().add(new THREE.Vector3(Math.cos(a + 0.4) * 0.1 * s, 0.12 * s, Math.sin(a + 0.4) * 0.1 * s));
+      cg.add(tube([b0, b1, b2], 0.014 * s, C));
+      if (i % 2 === 0) { const f2 = b1.clone().add(new THREE.Vector3(Math.cos(a - 0.6) * 0.12 * s, 0.06 * s, Math.sin(a - 0.6) * 0.12 * s)); cg.add(tube([b1.clone().lerp(b0, 0.3), b1, f2], 0.01 * s, C)); }
+    }
+    if (f.crown.flower) {                     // five-petal flowers, gathered on the right, with leaves
+      const spots = [-0.2, 0.25, 0.7, 1.15, 2.9, -0.65];
+      spots.forEach((a, n) => {
+        const fl = new THREE.Group(); fl.position.set(Math.cos(a) * R * 1.08, 0.03 * s + (n % 2) * 0.04 * s, Math.sin(a) * R * 1.08); fl.rotation.y = Math.atan2(fl.position.x, fl.position.z); fl.rotation.x = -0.4;
+        const big = n < 4 ? 1 : 0.7;
+        for (let p = 0; p < 5; p++) { const pa = (p / 5) * Math.PI * 2, petal = sph(0.06 * s * big, f.crown!.flower!, 8, 6); petal.scale.set(0.6, 1, 0.28); petal.rotation.z = pa; fl.add(at(petal, Math.sin(pa) * -0.06 * s * big, Math.cos(pa) * 0.06 * s * big, 0)); }
+        fl.add(at(sph(0.028 * s * big, '#e0b84a', 8, 6), 0, 0, 0.02 * s));
+        for (const sx of [-1, 1]) { const lf = sph(0.06 * s, '#5a7a3a', 8, 4); lf.scale.set(0.4, 1, 0.18); lf.rotation.z = sx * 1.1; fl.add(at(lf, sx * 0.1 * s * big, -0.05 * s, -0.02 * s)); }
+        cg.add(fl);
+      });
+    }
+  }
+
+  // the battle stance (in initiative): arms, lean, feet and a spell between the hands
+  if (battle && f.stance) {
+    const legs = body.children.filter((c) => Math.abs(Math.abs(c.position.x) - 0.3 * s) < 0.06 * s && c.position.y < 2.5 * s);
+    const spread = (dx: number, fwd: number) => legs.forEach((c) => { const sx = Math.sign(c.position.x); c.position.x += sx * dx * s; c.position.z += (sx > 0 ? -fwd : fwd) * s; });
+    const glowAt = (g: THREE.Object3D, x: number, y: number, z: number, r: number) => { const c = f.glow ?? f.wisp ?? '#c9b3ff'; g.add(at(glassy(sph(r * s, c, 16, 12), c, 0.7), x * s, y * s, z * s)); g.add(at(glassy(sph(r * 1.8 * s, c, 16, 12), c, 0.18), x * s, y * s, z * s)); };
+    if (f.stance === 'two-handed') { armR.rotation.set(-1.05, 0, -0.15); armL.rotation.set(-1.3, 0, 0.75); gR.rotation.z += 0.55; gR.rotation.x += 0.3; up.rotation.y = 0.32; spread(0.22, 0.35); }
+    if (f.stance === 'shield') { armL.rotation.set(-1.35, 0, 0.25); armR.rotation.set(-2.6, 0, -0.25); up.rotation.x = 0.1; up.rotation.y = -0.15; spread(0.2, 0.4); }
+    if (f.stance === 'cast') { armL.rotation.set(-0.85, 0, 0.12); armR.rotation.set(-1.45, 0, 0.6); glowAt(gR, 0, 0.0, 0.35, 0.16); body.position.y += 0.8; spread(0.08, 0.2); }
+    if (f.stance === 'conjure') { armR.rotation.set(-1.25, 0, 0.32); armL.rotation.set(-1.25, 0, -0.32); up.rotation.x = 0.06; glowAt(up, 0, 1.25, 2.15, 0.24); spread(0.15, 0.3); }
   }
 
   const out = new THREE.Group(); out.add(body);
-  if (f.sparkles) for (let i = 0; i < 12; i++) { const a = i * 2.39996, r = (1.1 + (i % 3) * 0.35) * s, y = (0.8 + ((i * 7) % 11) * 0.42) * s + (f.hoverFt ?? 0); out.add(at(glassy(ball(0.07 * s, f.sparkles, 0), f.sparkles, 0.85), Math.cos(a) * r, y, Math.sin(a) * r)); }
-  if (f.hoverFt) body.position.y = f.hoverFt;
+  if (f.sparkles) for (let i = 0; i < 16; i++) { const a = i * 2.39996, r = (1.1 + (i % 3) * 0.35) * s, y = (0.8 + ((i * 7) % 11) * 0.42) * s + (f.hoverFt ?? 0); out.add(at(glassy(sph((0.05 + (i % 3) * 0.02) * s, f.sparkles, 6, 4), f.sparkles, 0.85), Math.cos(a) * r, y, Math.sin(a) * r)); }
+  if (f.hoverFt) body.position.y += f.hoverFt;
   return out;
 }
 

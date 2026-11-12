@@ -1429,7 +1429,7 @@ export class App {
       const sheet = t.sheetId && t.role !== 'creature' ? this.state.roster.find((x) => x.id === t.sheetId) : undefined;
       const flat = !!sheet?.portrait && this.pieceStyle === 'token';
       if (!flat) {
-        const fig = mergeByMaterial(sheet?.figure ? heroFigure(sheet.figure, t.size) : entry ? figureFor(entry) : adventurer(t.role === 'member' ? { cloth: t.color } : undefined)); fig.position.y = 0.3;
+        const fig = mergeByMaterial(sheet?.figure ? heroFigure(sheet.figure, t.size, !!this.state.encounter?.order.some((c) => c.tokenId === t.id)) : entry ? figureFor(entry) : adventurer(t.role === 'member' ? { cloth: t.color } : undefined)); fig.position.y = 0.3;
         g.add(fig);
       }
       if (sheet?.portrait) g.add(portraitDisc(sheet.portrait, t.color, flat ? base * 0.48 : (base * 0.62) / 2 + 0.25, () => this.world.invalidate(), 0.3));
@@ -1450,7 +1450,7 @@ export class App {
         if (!m.isMesh) return;
         const src = m.material as THREE.MeshLambertMaterial;
         if (m.userData.keepLook || (m.material as THREE.Material).userData?.keepLook) { m.userData.role = 'token'; m.userData.tokenId = t.id; return; } // a hero's wings, a portrait: their own look
-        m.material = new THREE.MeshLambertMaterial({ color: src.color, flatShading: true, transparent: ghostly, opacity: ghostly ? 0.45 : 1 }); // tokens are never fogged
+        m.material = new THREE.MeshLambertMaterial({ color: src.color, flatShading: !src.userData?.smooth, side: src.side, transparent: ghostly, opacity: ghostly ? 0.45 : 1 }); // tokens are never fogged (a hero's face and drapes keep their soft shading)
         m.userData.role = 'token';
         m.userData.tokenId = t.id;
       });
