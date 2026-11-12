@@ -38,7 +38,8 @@ export function spectral<T extends THREE.Object3D>(g: T, c?: string, opacity = 0
   g.traverse((o) => {
     const m = o as M; if (!m.isMesh) return; const src = m.material as THREE.MeshLambertMaterial; lit(m, c ?? '#' + src.color.getHexString(), opacity, 0.35);
     // a painted face stays on a ghost's head, faint through its glow, so the spirit is still who it was
-    if (src.map) { const n = m.material as THREE.MeshLambertMaterial; n.map = src.map; n.emissiveIntensity = 0.18; }
+    // the painted face keeps its paint, and hides what is behind it (the back of its own hair) so the face still reads
+    if (src.map) { const n = m.material as THREE.MeshLambertMaterial; n.map = src.map; n.emissiveIntensity = 0.18; n.depthWrite = true; m.renderOrder = -1; }
   });
   return g;
 }
@@ -124,14 +125,30 @@ export const FLYERS: Record<string, FlyerSpec> = {
   roc: { kind: 'bird', body: 9, span: 44, coat: '#4a3a2a', under: '#c8b890', beak: '#c8a040', eyes: '#e0b030' },
 };
 /** A swarm: many small flyers or crawlers in a loose cloud over its space. */
-export function swarmOf(kind: 'bats' | 'ravens' | 'rats' | 'insects', count = 9, radius = 2.2): THREE.Group {
+export function swarmOf(kind: 'bats' | 'ravens' | 'rats' | 'insects' | 'centipedes', count = 9, radius = 2.2, battle = false): THREE.Group {
   const g = grp();
   for (let i = 0; i < count; i++) {
     const a = i * 2.399, r = radius * Math.sqrt((i + 0.5) / count), x = Math.cos(a) * r, z = Math.sin(a) * r; let one: THREE.Object3D;
-    if (kind === 'bats' || kind === 'ravens') { one = flyer(FLYERS[kind === 'bats' ? 'bat' : 'raven'], (['flap', 'glide', 'dive'] as const)[i % 3], 1.2 + 3.4 * hash(i, 3)); }
+    if (kind === 'centipedes') { one = centipede(1.5 + 0.7 * hash(i, 9), i % 3 ? '#5a2a18' : '#3a1e14', battle && i % 3 === 0 ? 0.7 : hash(i, 4) > 0.7 ? 0.25 : 0, i); one.position.y = hash(i, 6) > 0.6 ? 0.12 + 0.25 * hash(i, 8) : 0; }
+    else if (kind === 'bats' || kind === 'ravens') { one = flyer(FLYERS[kind === 'bats' ? 'bat' : 'raven'], (['flap', 'glide', 'dive'] as const)[i % 3], 1.2 + 3.4 * hash(i, 3)); }
     else if (kind === 'rats') { one = beast({ ...BEASTS['black-cat'], len: 0.55, height: 0.34, chest: 0.13, loin: 0.13, width: 0.12, neck: 0.12, skull: 0.18, skullW: 0.09, muzzle: 0.14, muzzleD: 0.045, leg: 0.03, ears: 'round', tailLen: 0.7, coat: i % 3 ? '#4a4038' : '#2a2420', eyes: '#c8202a', glow: false }, i % 2 ? 'stand' : 'walk'); }
     else { const b = grp(); const body = ball(0.09, i % 2 ? '#2a2a1a' : '#4a3a1a', 6, 5); body.scale.set(0.8, 0.7, 1.6); b.add(body); for (const sx of [-1, 1]) { const w = ball(0.1, '#c8d0d8', 6, 4); lit(w, '#c8d0d8', 0.45, 0.1); w.scale.set(1.3, 0.1, 0.6); b.add(at(w, sx * 0.1, 0.05, 0)); } b.position.y = 0.6 + 3.6 * hash(i, 5); one = b; }
     one.position.x = x; one.position.z = z; one.rotation.y = a * 1.7; g.add(one);
+  }
+  return g;
+}
+
+/** A centipede, `len` long: a flat run of plated segments snaking over the floor, a pair of legs to each, feelers and
+ *  poison claws at the head; `rear` lifts the front segments off the floor to strike. */
+export function centipede(len = 1.2, c = '#5a2a18', rear = 0, seed = 0): THREE.Group {
+  const g = grp(), n = 13, seg = len / n, leg = tone(c, '#c8904a', 0.45), path: THREE.Vector3[] = [];
+  for (let i = 0; i <= n; i++) { const t = i / n, front = Math.max(0, 1 - t / 0.32); path.push(V(0.18 * len * Math.sin(t * 5.5 + seed), 0.05 + rear * len * 0.55 * front * front, -t * len)); }
+  for (let i = 0; i < n; i++) {
+    const p = path[i].clone().lerp(path[i + 1], 0.5), d = path[i + 1].clone().sub(path[i]).normalize(), w = (i === 0 ? 0.75 : 1 - 0.4 * (i / n) ** 2) * seg * 0.85;
+    const b = ball(w, i % 2 ? c : tone(c, '#000000', 0.25), 8, 6); b.scale.set(1.25, 0.55, 0.9); b.position.copy(p); b.quaternion.setFromUnitVectors(V(0, 0, -1), d); g.add(b);
+    const side = V(-d.z, 0, d.x).normalize();
+    if (i > 0) for (const sx of [-1, 1]) { const knee = p.clone().addScaledVector(side, sx * w * 1.9).add(V(0, w * 0.9, 0)), foot = p.clone().addScaledVector(side, sx * w * 3.1).addScaledVector(d, -w * 0.6); foot.y = Math.min(foot.y, 0.01 + Math.max(0, p.y - 0.05) * 0.4); g.add(bone(p, knee, w * 0.16, w * 0.12, leg, 4), bone(knee, foot, w * 0.12, w * 0.05, leg, 4)); }
+    if (i === 0) for (const sx of [-1, 1]) { const tip = p.clone().addScaledVector(d, -seg * 2.6).addScaledVector(side, sx * seg * 1.6).add(V(0, seg * 0.6, 0)); g.add(bone(p, tip, w * 0.08, w * 0.03, leg, 4)); g.add(bone(p.clone().addScaledVector(side, sx * w * 0.5), p.clone().addScaledVector(d, -w * 1.3).addScaledVector(side, sx * w * 0.25), w * 0.14, w * 0.04, '#1a0e0a', 4)); }
   }
   return g;
 }
@@ -251,7 +268,12 @@ export function flyingSword(hover = 3): THREE.Group { const g = grp(), w = weapo
 /** A broom that sweeps at intruders. */
 export function broom(battle = false): THREE.Group { const g = grp(), b = grp('body'); b.rotation.x = battle ? -0.7 : -0.12; b.position.y = battle ? 1.2 : 0.3; g.add(b); b.add(at(cyl(0.06, 0.07, 4.6, '#5a4028', 7), 0, 2.9, 0)); for (let i = 0; i < 14; i++) { const a = i * 2.4, s = cone(0.09, 1.3, i % 2 ? '#b89a4a' : '#9a7e3a', 4); s.rotation.set(Math.PI + 0.22 * Math.cos(a), 0, 0.22 * Math.sin(a)); b.add(at(s, Math.sin(a) * 0.16, 0.25, Math.cos(a) * 0.16)); } b.add(at(cyl(0.22, 0.2, 0.22, '#3a2a1e', 8), 0, 0.82, 0)); return g; }
 /** A chest that is not a chest: lid agape, teeth, a tongue, a reaching pseudopod. */
-export function mimic(battle = true): THREE.Group {
+/** A mimic, in the shape it holds until something touches it. The module's one (Death House) is a door: planks in a
+ *  frame, strap hinges, a ring to pull; in a fight the door gapes into a mouth across its middle, the lower half dropping
+ *  forward as a jaw over rows of teeth and a lolling tongue, two yellow eyes opening in the wood, pseudopods reaching
+ *  from its edges. `chest` is the treasure chest of the old stories. */
+export function mimic(battle = true, form: 'door' | 'chest' = 'door'): THREE.Group {
+  if (form === 'door') return mimicDoor(battle);
   const g = grp(), wood = '#5a3e26', band = '#8a7a4a';
   g.add(at(new THREE.Mesh(new THREE.BoxGeometry(3, 1.5, 2), hard(wood)), 0, 0.75, 0)); for (const x of [-1.1, 1.1]) g.add(at(new THREE.Mesh(new THREE.BoxGeometry(0.22, 1.56, 2.06), hard(band)), x, 0.75, 0));
   const lid = grp('jaw'); lid.position.set(0, 1.5, -1); lid.rotation.x = battle ? -0.85 : -0.05; g.add(lid);
@@ -259,19 +281,89 @@ export function mimic(battle = true): THREE.Group {
   if (battle) { for (let i = 0; i < 9; i++) { const x = (i - 4) * 0.33; const t = cone(0.1, 0.42, '#f2ece0', 4); g.add(at(t, x, 1.68, 0.92)); const u = cone(0.1, 0.42, '#f2ece0', 4); u.rotation.x = Math.PI; lid.add(at(u, x, -0.18, 1.92)); } g.add(at(ball(0.9, '#5a1a2a', 10, 8), 0, 1.35, 0.1)).scale.set(1.5, 0.4, 1); g.add(tailOf([V(0, 1.5, 0.4), V(0.3, 1.9, 1.6), V(-0.2, 1.2, 2.6), V(0.1, 1.5, 3.3)], 0.3, '#a04058')); for (const sx of [-1, 1]) g.add(at(lit(ball(0.12, '#e8e040', 6, 4), '#e8e040', 1), sx * 0.6, 0.3, 1.02)); g.add(tailOf([V(1.5, 0.6, 0.2), V(2.4, 1.2, 0.8), V(2.9, 0.9, 1.9)], 0.3, tone(wood, '#a04058', 0.4))); }
   return g;
 }
-/** A grick: a pale worm with a beak in a nest of four barbed tentacles. */
-export function grick(c = '#8a8a78'): THREE.Group {
-  const g = grp(); g.add(tailOf([V(0, 0.45, -3.2), V(0.6, 0.45, -2.0), V(-0.4, 0.5, -0.8), V(0, 1.0, 0.2), V(0, 2.1, 0.9)].reverse(), 0.55, c));
-  const head = grp('head'); head.position.set(0, 2.1, 0.9); head.rotation.x = 0.5; g.add(head); head.add(ball(0.5, c, 10, 8));
-  const bk = cone(0.2, 0.6, '#2a2420', 5); bk.rotation.x = Math.PI / 2; head.add(at(bk, 0, 0, 0.6));
-  for (let i = 0; i < 4; i++) { const a = i * Math.PI / 2 + Math.PI / 4; head.add(tailOf([V(Math.cos(a) * 0.3, Math.sin(a) * 0.3, 0.2), V(Math.cos(a) * 0.9, Math.sin(a) * 0.9, 1.0), V(Math.cos(a) * 0.7, Math.sin(a) * 0.7, 2.1)], 0.15, tone(c, '#5a3a3a', 0.3), 'spike')); }
+function mimicDoor(battle: boolean): THREE.Group {
+  const g = grp(), wood = '#5e4028', post = '#3e2a1a', iron = '#2c2a28', flesh = '#a04058', mouth = '#3a0e18', W = 3.0, H = 6.6, T = 0.26, my = 2.7;
+  const box = (w: number, h: number, d: number, c: string) => new THREE.Mesh(new THREE.BoxGeometry(w, h, d), hard(c));
+  for (const sx of [-1, 1]) g.add(at(box(0.34, H + 0.34, 0.52, post), sx * (W / 2 + 0.17), (H + 0.34) / 2, 0));   // the frame
+  g.add(at(box(W + 0.68, 0.34, 0.52, post), 0, H + 0.17, 0)); g.add(at(box(W + 0.9, 0.08, 0.8, tone(post, '#7a7a70', 0.3)), 0, 0.04, 0.05));
+  if (battle) { const throat = box(W - 0.05, H - 0.4, 0.3, mouth); g.add(at(throat, 0, H / 2, -0.2)); }
+  // the leaf in two halves split at the mouth's line: the jaw hinged at the floor, the top hung from the lintel
+  const jaw = grp('jaw'), lid = grp('lid'); jaw.position.set(0, 0.08, 0); lid.position.set(0, H, 0); g.add(jaw, lid);
+  const planks = (parent: THREE.Group, y0: number, y1: number) => { for (let i = 0; i < 5; i++) { const pw = W / 5, b = box(pw - 0.035, y1 - y0, T, i % 2 ? wood : tone(wood, '#2a1a10', 0.18)); parent.add(at(b, -W / 2 + pw * (i + 0.5), (y0 + y1) / 2, 0)); } };
+  planks(jaw, 0, my - 0.08); planks(lid, my - H, 0);
+  for (const [parent, y] of [[jaw, 0.9], [lid, 5.5 - H]] as const) { parent.add(at(box(W * 0.68, 0.16, 0.05, iron), -W / 2 + W * 0.34, y, T / 2 + 0.02)); const knob = cyl(0.12, 0.12, 0.06, iron, 10); knob.rotation.x = Math.PI / 2; parent.add(at(knob, -W / 2 + W * 0.68, y, T / 2 + 0.03)); }   // strap hinges
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(0.2, 0.035, 6, 16), hard(iron)); lid.add(at(box(0.3, 0.4, 0.04, iron), W * 0.32, 3.4 - H, T / 2 + 0.02)); lid.add(at(ring, W * 0.32, 3.2 - H, T / 2 + 0.06));
+  lid.add(at(box(W, 0.14, 0.05, tone(wood, '#000000', 0.3)), 0, -0.1, T / 2 + 0.02));                 // the batten over the seam
+  if (battle) {
+    jaw.rotation.x = 0.42; lid.rotation.x = 0.06;
+    for (let i = 0; i < 9; i++) { const x = (i - 4) * 0.32, up = cone(0.11, 0.42 + 0.12 * (i % 2), '#ece4d2', 4); jaw.add(at(up, x, my - 0.02, 0.02)); const dn = cone(0.11, 0.48 + 0.1 * ((i + 1) % 2), '#ece4d2', 4); dn.rotation.x = Math.PI; lid.add(at(dn, x + 0.16, my - H - 0.16, 0.02)); }
+    g.add(tailOf([V(0, my - 0.2, -0.2), V(0.25, my - 0.1, 0.9), V(-0.2, 1.3, 1.9), V(0.15, 0.2, 2.6), V(-0.1, 0.15, 3.3)], 0.36, flesh));
+    for (const sx of [-1, 1]) { const e = lit(ball(0.17, '#f0d040', 8, 6), '#f0d040', 1); lid.add(at(e, sx * 0.62, 4.9 - H, T / 2 + 0.04)); const lidRim = new THREE.Mesh(new THREE.TorusGeometry(0.22, 0.05, 6, 14), hard(flesh)); lid.add(at(lidRim, sx * 0.62, 4.9 - H, T / 2 + 0.05)); }
+    for (const sx of [-1, 1]) g.add(tailOf([V(sx * (W / 2 + 0.2), sx > 0 ? 3.8 : 2.2, 0.2), V(sx * (W / 2 + 1.1), sx > 0 ? 4.6 : 2.8, 1.0), V(sx * (W / 2 + 0.9), sx > 0 ? 3.6 : 1.6, 2.3), V(sx * (W / 2 + 0.4), sx > 0 ? 3.9 : 1.1, 2.9)], 0.3, tone(wood, flesh, 0.28)));
+    for (let i = 0; i < 4; i++) { const d = cone(0.035, 0.5 + 0.3 * hash(i, 2), '#c8d0b8', 4); d.rotation.x = Math.PI; lid.add(at(d, (i - 1.5) * 0.7, my - H - 0.6, 0.05)); }   // drool off the teeth
+  }
   return g;
 }
-/** A shambling mound: a heap of rotting vegetation with two heavy vine arms. */
-export function shamblingMound(scale = 1, c = '#3a4a2a'): THREE.Group {
-  const g = ooze(c, 1.25 * scale, { shine: '#5a6a3a' }); g.children[0].scale.y = 3.2; const k = scale;
-  for (const sx of [-1, 1]) { g.add(tailOf([V(sx * 1.4 * k, 4.2 * k, 0.2 * k), V(sx * 2.6 * k, 4.6 * k, 1.2 * k), V(sx * 2.4 * k, 2.6 * k, 2.6 * k), V(sx * 1.8 * k, 1.6 * k, 3.2 * k)], 0.6 * k, tone(c, '#2a2a1a', 0.3))); g.add(at(lit(ball(0.14 * k, '#e8c040', 6, 4), '#e8c040', 1), sx * 0.4 * k, 4.6 * k, 1.5 * k)); }
-  for (let i = 0; i < 14; i++) { const a = i * 2.4, l = ball(0.5 * k, i % 2 ? '#4a5a2a' : '#5a4a2a', 6, 4); l.scale.set(1.3, 0.25, 0.8); l.rotation.set(0.5 * Math.sin(i), a, 0.4); g.add(at(l, Math.sin(a) * 1.7 * k, (0.8 + 4.2 * hash(i)) * k, Math.cos(a) * 1.7 * k)); }
+/** A grick: a pale worm with a beak in a nest of four barbed tentacles. */
+export function grick(c = '#8a8a78', battle = false): THREE.Group {
+  // at rest it lies coiled with its head down and the tentacles folded shut over the beak; to strike it rears, the
+  // tentacles flaring open round a gaping beak
+  const g = grp(), hy = battle ? 3.3 : 1.25, hz = battle ? 1.1 : 0.7;
+  const body = battle ? [V(0, hy, hz), V(0, 1.9, 0.45), V(-0.35, 0.65, -0.5), V(0.55, 0.45, -1.7), V(-0.2, 0.45, -2.8)] : [V(0, hy, hz), V(0.1, 0.7, 0.35), V(-0.6, 0.45, -0.6), V(0.3, 0.45, -1.6), V(1.3, 0.45, -1.0), V(1.0, 0.45, 0.2)];
+  g.add(tailOf(body, 0.55, c));
+  for (let i = 1; i < 6; i++) { const t = i / 6, p = body[Math.min(body.length - 1, Math.round(t * (body.length - 1)))], r = ball(0.48 * (1 - 0.35 * t), tone(c, '#ffffff', 0.08), 8, 6); r.scale.set(1.1, 0.35, 1.1); g.add(at(r, p.x, p.y + 0.12, p.z)); }   // the ridges of its hide
+  const head = grp('head'); head.position.set(0, hy, hz); head.rotation.x = battle ? 0.2 : 1.05; g.add(head); head.add(ball(0.5, c, 10, 8));
+  const open = battle ? 0.42 : 0.05;
+  for (const sy of [1, -1]) { const bk = cone(0.2, 0.62, '#2a2420', 5); bk.rotation.x = Math.PI / 2 - sy * open; head.add(at(bk, 0, sy * 0.07, 0.6)); }
+  if (battle) head.add(at(ball(0.16, '#3a0e14', 8, 6), 0, 0, 0.48));
+  for (let i = 0; i < 4; i++) {
+    const a = i * Math.PI / 2 + Math.PI / 4, ca = Math.cos(a), sa = Math.sin(a), spread = battle ? 1.55 : 0.45, reach = battle ? 2.3 : 1.5;
+    head.add(tailOf([V(ca * 0.3, sa * 0.3, 0.2), V(ca * 0.55 * spread + ca * 0.2, sa * 0.55 * spread + sa * 0.2, 0.9), V(ca * 0.5 * spread, sa * 0.5 * spread, reach), V(ca * (battle ? 0.2 : 0.05), sa * (battle ? 0.2 : 0.05), reach + (battle ? 0.5 : 0.25))], 0.15, tone(c, '#5a3a3a', 0.3), 'spike'));
+  }
+  return g;
+}
+/** A shambling mound: a heap of rotting vegetation. Asleep it is only a low, lumpy heap, matted with leaves and moss,
+ *  sticks and roots poking out of it, fungus on it, moss hanging off it; roused, it heaves up into a hunched mass with a
+ *  dark hollow for a face, two dim eyes deep in it, and two heavy arms each of three vines wound round one another, the
+ *  ends splaying into tendrils. `refuse` mixes in what a heap in a cellar gathers: bones, rags, a split stave
+ *  (Lorghoth the Decayer, in the pit under Death House). */
+export function shamblingMound(scale = 1, c = '#3a4a2a', battle = false, refuse = false): THREE.Group {
+  const g = grp(), k = scale, R = 2.3 * k, Hh = (battle ? 5.4 : 1.9) * k, rot = tone(c, '#3a2a1a', 0.45), moss = tone(c, '#6a7a3a', 0.35);
+  const noise = (x: number, y: number, z: number) => 0.55 * Math.sin(3.1 * x + 1.7 * y + 0.4) * Math.cos(2.3 * z - 1.1 * y) + 0.3 * Math.sin(5.3 * y + 2.9 * z + 1.3) * Math.cos(4.1 * x - 0.7) + 0.15 * Math.sin(9.1 * x + 7.3 * z);
+  /** The heap's surface in a direction (from its centre at the floor): lumpy, flattest underneath, and when it stands
+   *  narrowing to hunched shoulders and leaning forward. */
+  const surf = (d: THREE.Vector3, lift = 1) => { const y = Math.max(-0.02, d.y), r = (1 + 0.2 * noise(d.x * 2, d.y * 2, d.z * 2)) * lift, nar = battle ? 1 - 0.38 * y * y : 1; return V(d.x * R * r * nar, y * Hh * r, d.z * R * r * nar + (battle ? 0.5 * k * y * y : 0)); };
+  const geo = new THREE.SphereGeometry(1, 30, 20), p = geo.attributes.position as THREE.BufferAttribute;
+  for (let i = 0; i < p.count; i++) { const q = surf(V(p.getX(i), p.getY(i), p.getZ(i))); p.setXYZ(i, q.x, q.y, q.z); }
+  geo.computeVertexNormals(); g.add(new THREE.Mesh(geo, soft(c)));
+  const dirs = (n: number, s0: number) => Array.from({ length: n }, (_, i) => { const a = i * 2.39996 + s0, y = 0.08 + 0.9 * hash(i, s0); return V(Math.cos(a) * Math.sqrt(1 - y * y), y, Math.sin(a) * Math.sqrt(1 - y * y)); });
+  // matted leaves, lying on it
+  for (const [i, d] of dirs(34, 1).entries()) { const l = ball(0.42 * k, i % 3 === 0 ? rot : i % 3 === 1 ? moss : tone(c, '#8a7a3a', 0.3), 6, 4); l.scale.set(1.3, 0.22, 0.85); l.position.copy(surf(d, 1.01)); l.lookAt(surf(d, 2)); l.rotateX(Math.PI / 2); g.add(l); }
+  // sticks and roots poking out, fungus caps
+  for (const [i, d] of dirs(12, 2).entries()) { const a = surf(d, 0.85), b = surf(d, 1.25).add(V(0.3 * k * Math.sin(i * 3.1), 0.25 * k, 0.3 * k * Math.cos(i * 1.7))); g.add(bone(a, b, 0.07 * k, 0.03 * k, i % 2 ? '#4a3a26' : '#3a2e20', 5)); }
+  for (const [i, d] of dirs(9, 3).entries()) { const q = surf(d, 1.02), cap = ball(0.17 * k * (0.7 + 0.6 * hash(i, 5)), i % 2 ? '#c8b890' : '#a89870', 8, 5); cap.scale.y = 0.45; g.add(at(cap, q.x, q.y + 0.04 * k, q.z)); g.add(at(cyl(0.05 * k, 0.06 * k, 0.12 * k, '#d8ccb0', 5), q.x, q.y - 0.02 * k, q.z)); }
+  // moss hanging off its flanks
+  for (const [i, d] of dirs(14, 4).entries()) { if (d.y < 0.25 || d.y > 0.75) continue; const q = surf(d, 1.02), o = V(d.x, 0, d.z).normalize(); g.add(tailOf([q, q.clone().addScaledVector(o, 0.12 * k).add(V(0, -0.35 * k, 0)), q.clone().addScaledVector(o, 0.1 * k).add(V(0, -(0.7 + 0.5 * hash(i, 6)) * k, 0))], 0.07 * k, moss)); }
+  if (refuse) {   // what the heap gathered: bones, rags, a split stave
+    for (const [i, d] of dirs(5, 7).entries()) { const a = surf(d, 0.95), b = surf(d, 1.1).add(V(0.5 * k * Math.cos(i * 2), 0.1 * k, 0.5 * k * Math.sin(i * 2))); g.add(bone(a, b, 0.06 * k, 0.06 * k, '#d8d0bc', 6)); g.add(at(ball(0.09 * k, '#d8d0bc', 6, 5), b.x, b.y, b.z)); }
+    for (const [i, d] of dirs(4, 8).entries()) { const q = surf(d, 1.01), rag = new THREE.Mesh(new THREE.PlaneGeometry(0.7 * k, 0.5 * k), soft(['#5a4a5a', '#6a5a40', '#3a3a4a', '#5a3a2a'][i], true)); rag.position.copy(q); rag.lookAt(surf(d, 2)); g.add(rag); }
+    const sd = dirs(1, 9)[0], sq = surf(sd, 1.0), stave = new THREE.Mesh(new THREE.BoxGeometry(0.3 * k, 1.6 * k, 0.08 * k), soft('#6a5032')); stave.position.copy(sq); stave.lookAt(surf(sd, 2)); stave.rotateZ(0.6); g.add(stave);
+  }
+  if (battle) {
+    // the face: a dark hollow and two dim eyes deep in it
+    const fd = V(0, 0.72, 0.69).normalize(), fq = surf(fd, 0.97), hollow = ball(0.65 * k, '#120e08', 10, 8); hollow.scale.set(1.2, 0.8, 0.5); g.add(at(hollow, fq.x, fq.y, fq.z));
+    for (const sx of [-1, 1]) g.add(at(lit(ball(0.17 * k, '#e0b840', 8, 6), '#e0b840', 1), fq.x + sx * 0.36 * k, fq.y + 0.1 * k, fq.z + 0.3 * k));
+    // two arms, each of three vines wound round one another, reaching forward and splaying into tendrils
+    for (const sx of [-1, 1]) {
+      const sh = surf(V(sx * 0.8, 0.62, 0.2).normalize(), 0.9), path = [sh, sh.clone().add(V(sx * 1.2 * k, 0.6 * k, 0.6 * k)), sh.clone().add(V(sx * 1.5 * k, -0.6 * k, 2.0 * k)), sh.clone().add(V(sx * 0.9 * k, -2.0 * k, 3.0 * k))];
+      const curve = new THREE.CatmullRomCurve3(path);
+      for (let v = 0; v < 3; v++) { const pts: THREE.Vector3[] = []; for (let i = 0; i <= 16; i++) { const t = i / 16, q = curve.getPoint(t), tan = curve.getTangent(t), side = V(0, 1, 0).cross(tan).normalize(), up = tan.clone().cross(side).normalize(), ph = t * 9 + v * 2.09, rr = 0.28 * k * (1 - 0.4 * t); pts.push(q.clone().addScaledVector(side, Math.cos(ph) * rr).addScaledVector(up, Math.sin(ph) * rr)); } g.add(tailOf(pts, 0.24 * k, v === 1 ? rot : c)); }
+      const end = path[3]; for (let i = 0; i < 5; i++) { const a = (i - 2) * 0.5; g.add(tailOf([end, end.clone().add(V(Math.sin(a) * 0.5 * k, -0.4 * k, 0.4 * k + Math.cos(a) * 0.3 * k)), end.clone().add(V(Math.sin(a) * 0.9 * k, -1.0 * k + 0.2 * k * (i % 2), 0.7 * k))], 0.09 * k, moss)); }
+    }
+  } else {
+    // asleep: the arms lie coiled on the heap
+    for (const sx of [-1, 1]) { const pts: THREE.Vector3[] = []; for (let i = 0; i <= 10; i++) { const t = i / 10, a = sx * (0.6 + 2.2 * t), d = V(Math.sin(a) * 0.8, 0.35 + 0.25 * Math.sin(t * Math.PI), Math.cos(a) * 0.8).normalize(); pts.push(surf(d, 1.06)); } g.add(tailOf(pts, 0.3 * k, rot)); }
+  }
   return g;
 }
 /** The hut that walks: a ruined cabin on a tangle of giant roots. */

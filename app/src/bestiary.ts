@@ -5,7 +5,7 @@ import characters from '../../manifests/characters.json';
 import { CREATURES, humanoid, horse, bear, ape, sheep, swarm, vampireSpawn, gargoyle, scarecrow, animatedArmor, skeletonStanding, ghost, specter, shadow, ghoul, ghast, cultist, broom, type HumanoidOpts } from './kit/creatures';
 import { pawn } from './kit/pieces';
 import { heroFigure, type HeroFigure } from './kit/heroes';
-import { detailFor } from './kit/faces';
+import { detailFor, type FaceSpec } from './kit/faces';
 import { posed } from './kit/poses';
 import { FOLK, creature, folk, staked, withDeadPose, mounted, fiendishArm, furMantle, carried, type Folk, type FigState, type FiendArm, type Mantle, type Carry } from './kit/menagerie';
 import { beast, BEASTS, BEUCEPHALUS } from './kit/beasts';
@@ -20,7 +20,7 @@ export interface CreatureEntry {
   kind: 'npc' | 'creature' | 'monster-manual' | 'generic' | 'pc' | 'token'; figure?: Figure; role?: string; variants?: string[];
   /** A named NPC's own miniature (kit/heroes.ts), styled after the character's art: colours, hair, dress and what they carry.
    *  When present it replaces the generic humanoid; `figure` still gives the token colour and the bestiary's look. */
-  hero?: HeroFigure & { fiendArm?: FiendArm; mantle?: Mantle; carry?: Carry; ghost?: Ghost };
+  hero?: HeroFigure & { fiendArm?: FiendArm; mantle?: Mantle; carry?: Carry; ghost?: Ghost; battleFace?: FaceSpec };
   /** How much the character matters at the table (the relationship web's power and ties). It sets the detail of the
    *  figure's face (kit/faces.ts detailFor); raise it as a character grows in the story. */
   importance?: number;
@@ -129,7 +129,7 @@ function fallen<T extends { gear?: HeroFigure['gear']; offhand?: HeroFigure['off
 }
 /** A named character's recipe, ready for the rig: named poses resolved, the face's detail from the character's importance. */
 function recipeOf(e: CreatureEntry, battle: boolean, over: Partial<HeroFigure> = {}, dead = false): HeroFigure {
-  const h = { ...e.hero!, ...over }, f = posed(dead ? fallen(h) : battle ? h : stowed(h));
+  const { battleFace, ...h0 } = { ...e.hero!, ...over }, h = battle && battleFace ? { ...h0, face: { ...h0.face, ...battleFace } } : h0, f = posed(dead ? fallen(h) : battle ? h : stowed(h));
   return f.face && !f.detail ? { ...f, detail: detailFor(e.importance ?? 0) } : f;
 }
 /** Strahd's other shapes, and the things made in his image, built from his own recipe so they change when he does. */
@@ -179,17 +179,18 @@ function dressed(g: THREE.Group, h: NonNullable<CreatureEntry['hero']>, battle: 
 }
 
 /** The miniature for a creature: at rest, in its battle pose when it is in the initiative order, or dead. `seed` (the
- *  token's id) gives each token of a common creature its own look. */
-export function figureFor(e: CreatureEntry, state: FigState = false, seed = ''): THREE.Group {
+ *  token's id) gives each token of a common creature its own look; `hint` (what the players are told they see, the
+ *  token's alias) picks a look the module describes, so the Death House door is the mimic. */
+export function figureFor(e: CreatureEntry, state: FigState = false, seed = '', hint = ''): THREE.Group {
   const dead = state === 'dead' || e.variants?.includes('corpse') === true, battle = !dead && (state === true || state === 'battle');
   const strahd = STRAHD_FORMS[e.id] && creatureById('strahd-von-zarovich');
   if (strahd && strahd.hero) { if (dead && /mounted|blade/.test(e.id)) return figureFor(strahd, 'dead'); return STRAHD_FORMS[e.id](strahd, battle, dead); }
   if (e.hero?.ghost && dead) return dressed(heroFigure(recipeOf(e, false), e.size, 'rest'), e.hero, false, true);
   if (e.hero && dead) { const vamp = !!(e.hero.fangs || e.hero.face?.fangs), g = heroFigure(recipeOf({ ...e, hero: withDeadPose(vamp && !e.hero.deadPose ? { ...e.hero, deadPose: 'laid-out' } : e.hero, e.id) as HeroFigure }, false, {}, true), e.size, 'dead'); dressed(g, e.hero, false); return vamp ? staked(g) : g; }
   if (e.hero) return dressed(heroFigure(recipeOf(e, battle, battle && e.hero.ghost?.hover ? { hoverFt: e.hero.ghost.hover } : {}), e.size, battle), e.hero, battle);
-  const made = creature(e.id, dead ? 'dead' : battle); if (made) return made;
+  const made = creature(e.id, dead ? 'dead' : battle, hint); if (made) return made;
   const st: FigState = dead ? 'dead' : battle;
-  if (FOLK[e.id]) return folk(battle ? FOLK[e.id] : dead ? fallen(FOLK[e.id]) : stowed(FOLK[e.id]), e.size, st, seed, e.id);
+  if (FOLK[e.id]) return folk(battle ? FOLK[e.id] : dead ? fallen(FOLK[e.id]) : stowed(FOLK[e.id]), e.size, st, seed, e.id, hint);
   if ((e.kind === 'npc' || e.kind === 'generic') && !e.figure?.kind) { const r = plainFolk(e); return folk(battle ? r : dead ? fallen(r) : stowed(r), e.size, st, seed, e.id); }
   const f = e.figure ?? {}, scale = ({ tiny: 0.5, small: 0.75, medium: 1, large: 1, huge: 1.2, gargantuan: 1.4 } as Record<string, number>)[e.size] ?? 1;
   const byId: Record<string, () => THREE.Group> = {

@@ -161,6 +161,10 @@ export const ARMS: Record<string, Arm> = {
   grip2: { sh: [-1.8, -0.55, -0.05], el: -1.35 },
   shaft: { sh: [-0.9, -0.5, 0], el: -0.6 },
   brace: { sh: [-1.0, -0.3, 0.2], el: -1.1 },
+  // bare fists, for a brawler or a thing that fights with its gauntlets: one raised high to hammer down, one held up
+  // before the face to guard
+  slam: { sh: [-1.85, 0, 0.55], el: -1.55, fist: true },
+  jab: { sh: [-1.05, -0.2, 0.18], el: -1.75, fist: true },
 };
 const LOOKS: Record<string, [number, number, number]> = { L: [0, 0.35, 0], R: [0, -0.35, 0], up: [-0.22, 0, 0], down: [0.22, 0, 0], tilt: [0, 0, 0.16], tiltL: [0, 0, 0.16], tiltR: [0, 0, -0.16], ahead: [0, 0, 0] };
 /** Where the eyes go when the pose says so (`eyes:`): otherwise they follow the head (heroes.ts eyeLine). */

@@ -2914,9 +2914,8 @@
     "eyes": "#f0a040",
     "build": "lean",
     "detail": 2,
-    "cloth": "#3a2e36",
-    "trim": "#2a2026",
-    "shirt": "#8a8270",
+    "cloth": "#1e1a20",
+    "trim": "#141216",
     "boots": "#1e1a1a",
     "tattered": true,
     "face": {
@@ -2938,7 +2937,11 @@
      "age": 0.5
     },
     "pose": "stand stoop R:claw L:hang look:up eyes:glare",
-    "battlePose": "lunge low R:claw L:grasp eyes:glare"
+    "battlePose": "lunge low R:claw L:grasp eyes:glare",
+    "skirt": "#1e1a20",
+    "battleFace": {
+     "gape": 0.55
+    }
    }
   },
   {
@@ -2968,9 +2971,9 @@
     "eyes": "#f0a040",
     "frame": "feminine",
     "detail": 2,
-    "cloth": "#3e2030",
-    "trim": "#2a2026",
-    "skirt": "#3e2030",
+    "cloth": "#1e1a20",
+    "trim": "#141216",
+    "skirt": "#1e1a20",
     "boots": "#1e1a1a",
     "tattered": true,
     "pendant": "#8a7a4a",
@@ -2990,7 +2993,10 @@
      "smile": -0.5
     },
     "pose": "weightL stoop R:claw L:wring look:tilt eyes:glare",
-    "battlePose": "lunge intent R:grasp L:claw eyes:glare"
+    "battlePose": "lunge intent R:grasp L:claw eyes:glare",
+    "battleFace": {
+     "gape": 0.55
+    }
    }
   },
   {
