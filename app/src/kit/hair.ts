@@ -22,6 +22,12 @@ export interface Hairdo {
 
 const soft = (c: string, double = false): THREE.MeshLambertMaterial => { const m = mat(c, { emissive: double ? '#020302' : '#030303' }); m.userData.smooth = true; if (double) m.side = THREE.DoubleSide; return m; };
 const tone = (c: string, to: string, k: number) => '#' + new THREE.Color(c).lerp(new THREE.Color(to), k).getHexString();
+/** A lighter strand, mixed toward white in display space: a mix in linear space lifts dark colours far more than light ones,
+ *  which turned every third lock of black hair grey; this keeps a faint sheen at every shade. */
+export const sheen = (c: string, k: number): string => {
+  const o = { r: 0, g: 0, b: 0 }; new THREE.Color(c).getRGB(o, THREE.SRGBColorSpace);
+  return '#' + new THREE.Color().setRGB(o.r + (1 - o.r) * k, o.g + (1 - o.g) * k, o.b + (1 - o.b) * k, THREE.SRGBColorSpace).getHexString();
+};
 const R = 0.4;
 
 /** The hairdo as a group to add to the head joint: `s` is the figure's scale, `hy` the head centre's height in the joint,
@@ -50,7 +56,7 @@ if (h.style !== 'crop' && h.style !== 'swept') {
   const src = cg.index!, idx: number[] = []; for (let i = 0; i < src.count; i += 3) { const a = src.getX(i), b = src.getX(i + 1), c = src.getX(i + 2); if (keep[a] && keep[b] && keep[c]) idx.push(a, b, c); }
   cg.setIndex(idx); cg.computeVertexNormals(); g.add(new THREE.Mesh(cg, soft(tone(color, '#000000', 0.2), true)));
   }
-  const shade = (i: number) => i % 3 === 0 ? tone(color, '#ffffff', 0.09) : i % 3 === 1 ? color : tone(color, '#000000', 0.16);
+  const shade = (i: number) => i % 3 === 0 ? sheen(color, 0.09) : i % 3 === 1 ? color : tone(color, '#000000', 0.16);
   const lock = (pts: THREE.Vector3[], r0: number, r1: number, i: number, c?: string, flat = 0.45) => g.add(new THREE.Mesh(lockGeometry(pts, r0 * s, r1 * s, flat, 6, 0.3), soft(c ?? shade(i), true)));
   /** A lock laid over the skull from one direction to another along the shortest way round, with a little body. */
   const laid = (from: THREE.Vector3, to: THREE.Vector3, n: number, body: number): THREE.Vector3[] => {

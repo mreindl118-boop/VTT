@@ -7,7 +7,7 @@ import { mat, matClone } from '../render/materials';
 import { HIP, SHIN, THIGH, clipRings, forearmRings, frameOf, loftGeometry, lockGeometry, neckLift, neckRings, pelvisRings, ringAt, ringPoint, shinRings, thighRings, torsoRings, upperArmRings, type Frame, type Measures, type Ring } from './anatomy';
 import type { CreatureSize } from '../core/units';
 import { faceFeatures, hairSkull, browLift, weld, type FaceSpec, type FaceDetail } from './faces';
-import { hairdo as buildHairdo, type Hairdo } from './hair';
+import { hairdo as buildHairdo, sheen, type Hairdo } from './hair';
 import { weapon as gearWeapon, scabbard, closeGrip, secondHand, secondHandAt, type WeaponSpec } from './weapons';
 
 export type HeroWeapon = 'none' | 'sword' | 'axe' | 'mace' | 'staff' | 'spear' | 'torch';
@@ -432,7 +432,7 @@ function buildHair(head: THREE.Group, s: number, hy: number, f: HeroFigure, fem:
   }
   const src = cg.index!, idx: number[] = []; for (let i = 0; i < src.count; i += 3) { const a = src.getX(i), b = src.getX(i + 1), c = src.getX(i + 2); if (keep[a] && keep[b] && keep[c]) idx.push(a, b, c); }
   cg.setIndex(idx); cg.computeVertexNormals(); head.add(at(sm(cg, tone(H, '#000000', 0.18), true), 0, hy, 0));
-  const shadeOf = (i: number) => i % 3 === 0 ? tone(H, '#ffffff', 0.1) : i % 3 === 1 ? H : tone(H, '#000000', 0.14);
+  const shadeOf = (i: number) => i % 3 === 0 ? sheen(H, 0.1) : i % 3 === 1 ? H : tone(H, '#000000', 0.14);
   const lock = (pts: THREE.Vector3[], r0: number, r1: number, i: number, c?: string, flat = 0.5) => head.add(sm(lockGeometry(pts, r0 * s, r1 * s, flat, 6), c ?? shadeOf(i), true));
   const part = fem ? 0.05 : 0.0; // the parting sits a little to one side
   const crownY = cr(0, 1.14 * 1.07, 0)[1] * R * s, crown = (az: number) => new THREE.Vector3(Math.sin(az) * 0.03 * s + part * s, hy + crownY, -0.02 * s + Math.cos(az) * 0.03 * s);
@@ -527,7 +527,7 @@ function drapeBraids(up: THREE.Object3D, neck: THREE.Object3D, head: THREE.Objec
     const at2 = (t: number) => { const f = t * (path.length - 1), i = Math.min(path.length - 2, Math.floor(f)); return path[i].clone().lerp(path[i + 1], f - i); };
     for (let k = 0; k < 2; k++) { const pts: THREE.Vector3[] = []; for (let i = 0; i <= 28; i++) { const t = i / 28, c = path[i], ph = t * 20 + k * Math.PI; pts.push(new THREE.Vector3(c.x + Math.cos(ph) * rr(t), c.y, c.z + Math.sin(ph) * rr(t))); } up.add(sm(lockGeometry(pts, 0.05 * s, 0.03 * s, 0.9, 7, 0), k ? H : tone(H, '#000000', 0.14), true)); }
     for (const t of [0.42, 0.9]) { const c = at2(t), band = sm(new THREE.TorusGeometry(0.075 * (1 - 0.3 * t) * s, 0.018 * s, 6, 16), '#b8bec8'); band.rotation.x = Math.PI / 2; up.add(at(band, c.x, c.y, c.z)); }
-    const e = path[path.length - 1], shade = (i: number) => i % 3 === 0 ? tone(H, '#ffffff', 0.1) : i % 3 === 1 ? H : tone(H, '#000000', 0.14);
+    const e = path[path.length - 1], shade = (i: number) => i % 3 === 0 ? sheen(H, 0.1) : i % 3 === 1 ? H : tone(H, '#000000', 0.14);
     for (let k = 0; k < 5; k++) up.add(sm(lockGeometry([e, new THREE.Vector3(e.x + (k - 2) * 0.02 * s, e.y - 0.1 * s, e.z + 0.01 * s), new THREE.Vector3(e.x + (k - 2) * 0.035 * s, e.y - 0.2 * s, e.z)], 0.03 * s, 0.006 * s, 0.5, 6), shade(k), true));
   }
 }
