@@ -181,4 +181,10 @@ describe('heroFigure', () => {
     const colours = new Set<string>(); heroFigure({ skirt: '#5e1f3a', underskirt: '#efe3c8' }).traverse((c) => { const m = c as THREE.Mesh; if (m.isMesh) colours.add('#' + (m.material as THREE.MeshLambertMaterial).color.getHexString()); });
     expect(colours.has('#5e1f3a')).toBe(true); expect(colours.has('#efe3c8')).toBe(true);
   });
+  it('fits the body to the character with its own measures', () => {
+    const width = (g: THREE.Object3D) => { const b = new THREE.Box3().setFromObject((g.userData.joints as Record<string, THREE.Object3D>).chest); return b.max.x - b.min.x; };
+    const plain = heroFigure({ pose: {} }), brawny = heroFigure({ pose: {}, body: { shoulders: 1.15, chest: 1.1, waist: 1.2, arms: 1.3 } }), slight = heroFigure({ pose: {}, body: { shoulders: 0.9, chest: 0.9, waist: 0.9, arms: 0.85 } });
+    expect(width(brawny)).toBeGreaterThan(width(plain) * 1.05);
+    expect(width(slight)).toBeLessThan(width(plain) * 0.97);
+  });
 });

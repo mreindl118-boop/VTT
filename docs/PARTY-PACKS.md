@@ -83,6 +83,10 @@ tapering locks from a parting over a close under-layer cut at the hairline: `sho
 shoulders, locks framing the face), `braids` (swept back to two roped braids), `curly` (a mass of coils). `hairStreak`
 colours a few locks at the right temple.
 
+`body` fits the frame to the character's art with multipliers (1 = the frame's own): `shoulders`, `chest`, `waist`,
+`hips`, `bust`, `arms`, `legs` (girth) and `neck`. A brawny fighter might take `{ "shoulders": 1.12, "waist": 1.2,
+"arms": 1.3 }`; a slight one `{ "shoulders": 0.95, "waist": 0.9, "arms": 0.88 }`.
+
 A figure takes `pose` out of initiative (default `rest`), `battlePose` in it (default its `stance`) and `deadPose` when
 it is down (default `dead`). Each is a name or joint angles:
 

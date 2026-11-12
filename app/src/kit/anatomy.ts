@@ -49,14 +49,29 @@ export function loftGeometry(rings: Ring[], s: number, o: { seg?: number; rows?:
 export const THIGH = 1.38, SHIN = 1.26, HIP = THIGH + SHIN + 0.47;
 
 /** A body's measures: a feminine or masculine frame, in a lean, broad or curvy build. */
-export interface Frame { fem: boolean; build: Build; shoulderX: number; hipX: number; arm: number; leg: number; hand: number; bust: number }
-export function frameOf(fem: boolean, build: Build = 'lean'): Frame {
+export interface Frame { fem: boolean; build: Build; shoulderX: number; hipX: number; arm: number; leg: number; hand: number; bust: number; m: Required<Measures> }
+/** A character's own measures over its frame, each a multiplier (1 = the frame's): the width of the shoulders, the
+ *  chest, the waist and the hips, the bust, the girth of the arms and the legs, and the neck. Taken from the
+ *  character's art: a brawny fighter is wide in the shoulders, waist and arms; a slight one narrow everywhere. */
+export interface Measures { shoulders?: number; chest?: number; waist?: number; hips?: number; bust?: number; arms?: number; legs?: number; neck?: number }
+export function frameOf(fem: boolean, build: Build = 'lean', measures: Measures = {}): Frame {
+  const m = { shoulders: 1, chest: 1, waist: 1, hips: 1, bust: 1, arms: 1, legs: 1, neck: 1, ...measures };
+  const fr = baseFrame(fem, build);
+  return { ...fr, m, shoulderX: fr.shoulderX * (0.35 + 0.65 * m.shoulders), hipX: fr.hipX * (0.5 + 0.5 * m.hips), arm: fr.arm * m.arms, leg: fr.leg * m.legs, hand: fr.hand * (0.7 + 0.3 * m.arms), bust: fr.bust * m.bust };
+}
+function baseFrame(fem: boolean, build: Build): Omit<Frame, 'm'> {
   if (fem) return { fem, build, shoulderX: build === 'broad' ? 0.78 : 0.7, hipX: build === 'curvy' ? 0.35 : 0.33, arm: build === 'broad' ? 0.9 : 0.78, leg: build === 'broad' ? 1 : 0.94, hand: 0.84, bust: build === 'curvy' ? 0.26 : build === 'broad' ? 0.215 : 0.2 };
   return { fem, build, shoulderX: build === 'broad' ? 0.98 : 0.9, hipX: 0.3, arm: build === 'broad' ? 1.18 : 1, leg: build === 'broad' ? 1.1 : 1, hand: build === 'broad' ? 1.1 : 1, bust: 0 };
 }
 
 /** The torso, waist to the base of the neck, in the upper body's frame (the hips at 0). */
 export function torsoRings(fr: Frame): Ring[] {
+  // the character's measures by height: hips below, the waist, the chest, the shoulders at the top
+  const m = fr.m, waistY = fr.fem ? 0.9 : 0.6, stops: [number, number][] = [[0.1, m.hips], [waistY, m.waist], [1.5, m.chest], [1.9, m.shoulders], [2.1, m.shoulders], [2.3, m.neck]];
+  const k = (y: number) => { for (let i = 1; i < stops.length; i++) if (y <= stops[i][0]) { const [y0, a] = stops[i - 1], [y1, b] = stops[i]; return a + (b - a) * Math.max(0, (y - y0) / (y1 - y0)); } return m.neck; };
+  return baseTorso(fr).map((r) => { const q = k(r.y), d = 0.5 + 0.5 * q; return { ...r, w: r.w * q, f: r.f * d, b: r.b * d }; });
+}
+function baseTorso(fr: Frame): Ring[] {
   if (fr.fem) {
     const h = fr.build === 'curvy' ? 1.08 : 1, wst = fr.build === 'curvy' ? 0.95 : fr.build === 'broad' ? 1.1 : 1, sh = fr.build === 'broad' ? 1.1 : 1;
     return [{ y: 0.1, w: 0.67 * h, f: 0.3, b: 0.36 * h }, { y: 0.5, w: 0.54 * h, f: 0.27, b: 0.27 }, { y: 0.9, w: 0.375 * wst, f: 0.235 * wst, b: 0.215 * wst }, { y: 1.3, w: 0.46 * sh, f: 0.28, b: 0.25 },
@@ -68,6 +83,10 @@ export function torsoRings(fr: Frame): Ring[] {
 }
 /** The pelvis: hips and seat, the hips at 0. */
 export function pelvisRings(fr: Frame): Ring[] {
+  const h = fr.m.hips, d = 0.5 + 0.5 * h;
+  return basePelvis(fr).map((r, i) => i === 0 ? r : { ...r, w: r.w * h, f: r.f * d, b: r.b * d });
+}
+function basePelvis(fr: Frame): Ring[] {
   if (fr.fem) { const h = fr.build === 'curvy' ? 1.08 : 1; return [{ y: -0.42, w: 0.24, f: 0.18, b: 0.24 }, { y: -0.15, w: 0.68 * h, f: 0.3, b: 0.47 * h }, { y: 0.15, w: 0.7 * h, f: 0.3, b: 0.4 * h }, { y: 0.5, w: 0.54 * h, f: 0.27, b: 0.27 }]; }
   return [{ y: -0.42, w: 0.22, f: 0.18, b: 0.2 }, { y: -0.15, w: 0.54, f: 0.3, b: 0.37 }, { y: 0.15, w: 0.56, f: 0.3, b: 0.33 }, { y: 0.5, w: 0.5, f: 0.28, b: 0.27 }];
 }
@@ -75,11 +94,12 @@ export function pelvisRings(fr: Frame): Ring[] {
 export const upperArmRings = (fr: Frame): Ring[] => scaleRings([{ y: -1.12, w: 0.135, f: 0.14, b: 0.15 }, { y: -0.85, w: 0.15, f: 0.16, b: 0.16 }, { y: -0.5, w: fr.fem ? 0.17 : 0.185, f: fr.fem ? 0.175 : 0.22, b: fr.fem ? 0.175 : 0.2 }, { y: -0.2, w: 0.19, f: 0.19, b: 0.19 }, { y: -0.04, w: 0.17, f: 0.17, b: 0.17 }, { y: 0.1, w: 0.06, f: 0.06, b: 0.06 }], fr.arm);
 export const forearmRings = (fr: Frame): Ring[] => scaleRings([{ y: -1.04, w: 0.098, f: 0.075, b: 0.08 }, { y: -0.7, w: 0.115, f: 0.1, b: 0.11 }, { y: -0.28, w: 0.16, f: 0.15, b: 0.16 }, { y: 0.0, w: 0.14, f: 0.14, b: 0.15 }, { y: 0.05, w: 0.13, f: 0.13, b: 0.14 }], fr.arm);
 export function thighRings(fr: Frame): Ring[] {
-  const top = fr.fem ? (fr.build === 'curvy' ? 1.18 : 1.1) : 1;
+  const top = (fr.fem ? (fr.build === 'curvy' ? 1.18 : 1.1) : 1) * (0.5 + 0.5 * fr.m.hips);
   return scaleRings([{ y: -1.24, w: 0.185, f: 0.2, b: 0.17 }, { y: -0.9, w: 0.21, f: 0.22, b: 0.2 }, { y: -0.45, w: 0.27 * top, f: 0.28, b: 0.26 * top }, { y: -0.1, w: 0.3 * top, f: 0.27, b: 0.3 * top }, { y: 0.1, w: 0.26 * top, f: 0.23, b: 0.26 }], fr.leg, fr.leg, THIGH / 1.24);
 }
 export const shinRings = (fr: Frame): Ring[] => scaleRings([{ y: -1.14, w: 0.105, f: 0.11, b: 0.12 }, { y: -0.8, w: 0.125, f: 0.13, b: 0.15 }, { y: -0.35, w: 0.18, f: 0.16, b: 0.24 }, { y: -0.05, w: 0.175, f: 0.19, b: 0.18 }, { y: 0.06, w: 0.17, f: 0.19, b: 0.16 }], fr.leg, fr.leg, SHIN / 1.14);
-export const neckRings = (fr: Frame): Ring[] => fr.fem ? [{ y: -0.08, w: 0.16, f: 0.14, b: 0.16 }, { y: 0.2, w: 0.125, f: 0.125, b: 0.135 }, { y: 0.55, w: 0.125, f: 0.13, b: 0.135 }]
+export const neckRings = (fr: Frame): Ring[] => scaleRings(baseNeck(fr), fr.m.neck);
+const baseNeck = (fr: Frame): Ring[] => fr.fem ? [{ y: -0.08, w: 0.16, f: 0.14, b: 0.16 }, { y: 0.2, w: 0.125, f: 0.125, b: 0.135 }, { y: 0.55, w: 0.125, f: 0.13, b: 0.135 }]
   : [{ y: -0.08, w: fr.build === 'broad' ? 0.25 : 0.21, f: 0.18, b: 0.21 }, { y: 0.2, w: fr.build === 'broad' ? 0.19 : 0.165, f: 0.165, b: 0.18 }, { y: 0.55, w: 0.16, f: 0.16, b: 0.17 }];
 
 /** A lock of hair, a ribbon of cloth, a tail: a tapering tube along a path, flattened across `flat` (1 is round). */
