@@ -83,7 +83,9 @@
      }
     },
     "pose": "regal",
-    "battlePose": "vampire-lord"
+    "battlePose": "vampire-lord",
+    "frame": "masculine",
+    "build": "broad"
    },
    "importance": 81.9
   },
@@ -279,7 +281,9 @@
      }
     },
     "pose": "rest",
-    "battlePose": "duelist"
+    "battlePose": "duelist",
+    "frame": "feminine",
+    "build": "curvy"
    },
    "importance": 20.4
   },
@@ -347,7 +351,9 @@
      }
     },
     "pose": "hands-on-hips",
-    "battlePose": "shield"
+    "battlePose": "shield",
+    "frame": "masculine",
+    "build": "broad"
    },
    "importance": 12.2
   },
@@ -440,7 +446,9 @@
      }
     },
     "pose": "behind-back",
-    "battlePose": "slash"
+    "battlePose": "slash",
+    "frame": "masculine",
+    "build": "broad"
    },
    "importance": 12.1
   },
@@ -511,7 +519,9 @@
      }
     },
     "pose": "hands-on-hips",
-    "battlePose": "duelist"
+    "battlePose": "duelist",
+    "frame": "feminine",
+    "build": "curvy"
    },
    "importance": 15.2
   },
@@ -582,7 +592,8 @@
      }
     },
     "pose": "leaning",
-    "battlePose": "duelist"
+    "battlePose": "duelist",
+    "frame": "masculine"
    },
    "importance": 17.1
   },
@@ -641,7 +652,8 @@
      "mole": "L"
     },
     "pose": "hunched",
-    "battlePose": "curse"
+    "battlePose": "curse",
+    "frame": "feminine"
    }
   },
   {
@@ -690,7 +702,9 @@
      "lashes": true
     },
     "pose": "behind-back",
-    "battlePose": "rebuke"
+    "battlePose": "rebuke",
+    "frame": "masculine",
+    "build": "broad"
    }
   },
   {
@@ -781,7 +795,8 @@
      }
     },
     "pose": "hunched",
-    "battlePose": "curse"
+    "battlePose": "curse",
+    "frame": "feminine"
    },
    "importance": 24.1
   },
@@ -843,7 +858,8 @@
      }
     },
     "pose": "leaning",
-    "battlePose": "staff-cast"
+    "battlePose": "staff-cast",
+    "frame": "masculine"
    },
    "importance": 10.1
   },
@@ -910,7 +926,9 @@
      }
     },
     "pose": "arms-folded",
-    "battlePose": "overhead"
+    "battlePose": "overhead",
+    "frame": "masculine",
+    "build": "broad"
    },
    "importance": 11.9
   },
@@ -974,7 +992,9 @@
      }
     },
     "pose": "rest",
-    "battlePose": "shield"
+    "battlePose": "shield",
+    "frame": "masculine",
+    "build": "broad"
    },
    "importance": 3.7
   },
@@ -1038,7 +1058,9 @@
      }
     },
     "pose": "arms-folded",
-    "battlePose": "windup"
+    "battlePose": "windup",
+    "frame": "masculine",
+    "build": "broad"
    },
    "importance": 10.4
   },
@@ -1099,7 +1121,8 @@
      }
     },
     "pose": "hands-on-hips",
-    "battlePose": "duelist"
+    "battlePose": "duelist",
+    "frame": "masculine"
    },
    "importance": 15.0
   },
@@ -1148,7 +1171,9 @@
      "blush": "#c87a7a"
     },
     "pose": "wringing",
-    "battlePose": "wringing"
+    "battlePose": "wringing",
+    "frame": "feminine",
+    "build": "curvy"
    },
    "importance": 5.3
   },
@@ -1230,7 +1255,9 @@
      }
     },
     "pose": "behind-back",
-    "battlePose": "rebuke"
+    "battlePose": "rebuke",
+    "frame": "feminine",
+    "build": "curvy"
    },
    "importance": 15.5
   },
@@ -1341,7 +1368,9 @@
      }
     },
     "pose": "arms-folded",
-    "battlePose": "menace"
+    "battlePose": "menace",
+    "frame": "masculine",
+    "build": "broad"
    },
    "importance": 9.5
   },
@@ -1388,7 +1417,9 @@
      }
     },
     "pose": "hands-on-hips",
-    "battlePose": "menace"
+    "battlePose": "menace",
+    "frame": "feminine",
+    "build": "curvy"
    },
    "importance": 4.0
   },
@@ -1422,7 +1453,8 @@
      "smile": 0.4
     },
     "pose": "rest",
-    "battlePose": "cower"
+    "battlePose": "cower",
+    "frame": "masculine"
    },
    "figure": {
     "cloth": "#3a3a3e",
@@ -1462,7 +1494,8 @@
      "mole": "R"
     },
     "pose": "rest",
-    "battlePose": "cower"
+    "battlePose": "cower",
+    "frame": "masculine"
    },
    "figure": {
     "cloth": "#4a3e36",
@@ -1524,7 +1557,8 @@
      }
     },
     "pose": "leaning",
-    "battlePose": "staff-raised"
+    "battlePose": "staff-raised",
+    "frame": "masculine"
    },
    "importance": 11.8
   },
@@ -1575,7 +1609,9 @@
      }
     },
     "pose": "arms-folded",
-    "battlePose": "slash"
+    "battlePose": "slash",
+    "frame": "masculine",
+    "build": "broad"
    },
    "importance": 3.0
   },
@@ -1627,7 +1663,9 @@
      }
     },
     "pose": "behind-back",
-    "battlePose": "slash"
+    "battlePose": "slash",
+    "frame": "masculine",
+    "build": "broad"
    }
   },
   {
@@ -1690,7 +1728,8 @@
      "warts": true
     },
     "pose": "hunched",
-    "battlePose": "curse"
+    "battlePose": "curse",
+    "frame": "feminine"
    }
   },
   {
@@ -1813,7 +1852,8 @@
      }
     },
     "pose": "wringing",
-    "battlePose": "brawl"
+    "battlePose": "brawl",
+    "frame": "masculine"
    },
    "importance": 6.5
   },
@@ -1870,7 +1910,9 @@
      }
     },
     "pose": "hands-on-hips",
-    "battlePose": "slash"
+    "battlePose": "slash",
+    "frame": "masculine",
+    "build": "broad"
    },
    "importance": 8.3
   },
@@ -1932,7 +1974,9 @@
      }
     },
     "pose": "arms-folded",
-    "battlePose": "duelist"
+    "battlePose": "duelist",
+    "frame": "masculine",
+    "build": "broad"
    },
    "importance": 6.0
   },
@@ -2036,7 +2080,9 @@
      }
     },
     "pose": "leaning",
-    "battlePose": "thrust"
+    "battlePose": "thrust",
+    "frame": "masculine",
+    "build": "broad"
    },
    "importance": 8.3
   },
@@ -2093,7 +2139,9 @@
      }
     },
     "pose": "leaning",
-    "battlePose": "thrust"
+    "battlePose": "thrust",
+    "frame": "feminine",
+    "build": "curvy"
    },
    "importance": 6.3
   },
@@ -2192,7 +2240,8 @@
      }
     },
     "pose": "leaning",
-    "battlePose": "staff-cast"
+    "battlePose": "staff-cast",
+    "frame": "masculine"
    },
    "importance": 2.4
   },
@@ -2245,7 +2294,8 @@
      }
     },
     "pose": "rest",
-    "battlePose": "brawl"
+    "battlePose": "brawl",
+    "frame": "masculine"
    },
    "importance": 2.6
   },
@@ -2300,7 +2350,9 @@
      "lashes": true
     },
     "pose": "hands-on-hips",
-    "battlePose": "feral"
+    "battlePose": "feral",
+    "frame": "masculine",
+    "build": "broad"
    }
   },
   {
@@ -2349,7 +2401,9 @@
      "shadow": "#5a4a6a"
     },
     "pose": "regal",
-    "battlePose": "feral"
+    "battlePose": "feral",
+    "frame": "feminine",
+    "build": "curvy"
    }
   },
   {
@@ -2401,7 +2455,9 @@
      "shadow": "#c8a850"
     },
     "pose": "hands-on-hips",
-    "battlePose": "feral"
+    "battlePose": "feral",
+    "frame": "feminine",
+    "build": "curvy"
    }
   },
   {
@@ -2454,7 +2510,9 @@
      "veins": "#3a3a4a"
     },
     "pose": "arms-folded",
-    "battlePose": "feral"
+    "battlePose": "feral",
+    "frame": "feminine",
+    "build": "curvy"
    }
   },
   {
@@ -2544,7 +2602,9 @@
      "lashes": true
     },
     "pose": "wringing",
-    "battlePose": "wringing"
+    "battlePose": "wringing",
+    "frame": "feminine",
+    "build": "curvy"
    },
    "importance": 10.6
   },
@@ -2681,7 +2741,8 @@
      }
     },
     "pose": "kneel",
-    "battlePose": "cower"
+    "battlePose": "cower",
+    "frame": "masculine"
    },
    "importance": 5.7
   },
@@ -2724,7 +2785,8 @@
      "veins": "#6a6a8a"
     },
     "pose": "hunched",
-    "battlePose": "feral"
+    "battlePose": "feral",
+    "frame": "masculine"
    },
    "importance": 5.4
   },
@@ -2766,7 +2828,8 @@
      "age": 0.5
     },
     "pose": "wringing",
-    "battlePose": "cower"
+    "battlePose": "cower",
+    "frame": "feminine"
    },
    "importance": 3.8
   },
@@ -2814,7 +2877,9 @@
      "lashes": true
     },
     "pose": "rest",
-    "battlePose": "wringing"
+    "battlePose": "wringing",
+    "frame": "feminine",
+    "build": "curvy"
    },
    "importance": 4.4
   },
@@ -2899,7 +2964,8 @@
      }
     },
     "pose": "leaning",
-    "battlePose": "brawl"
+    "battlePose": "brawl",
+    "frame": "masculine"
    },
    "importance": 5.6
   },
@@ -2976,7 +3042,9 @@
      }
     },
     "pose": "behind-back",
-    "battlePose": "duelist"
+    "battlePose": "duelist",
+    "frame": "masculine",
+    "build": "broad"
    },
    "importance": 10.7
   },
@@ -3021,7 +3089,9 @@
      }
     },
     "pose": "hands-on-hips",
-    "battlePose": "duelist"
+    "battlePose": "duelist",
+    "frame": "feminine",
+    "build": "curvy"
    },
    "figure": {
     "cloth": "#4a4a52",
@@ -3077,7 +3147,8 @@
      }
     },
     "pose": "hunched",
-    "battlePose": "menace"
+    "battlePose": "menace",
+    "frame": "masculine"
    },
    "importance": 3.2
   },
@@ -3159,7 +3230,8 @@
      }
     },
     "pose": "hunched",
-    "battlePose": "cower"
+    "battlePose": "cower",
+    "frame": "masculine"
    },
    "importance": 3.2
   },
