@@ -1,3 +1,4 @@
+import * as THREE from 'three';
 import { describe, expect, it } from 'vitest';
 import { heroFigure, type HeroFigure, type HeroPose } from '../app/src/kit/heroes';
 import { describeClips, findClips, type ClipHit, type ClipOptions } from '../app/src/kit/clipcheck';
@@ -7,7 +8,15 @@ const clips = (f: HeroFigure, o?: ClipOptions) => findClips(heroFigure(f, 'mediu
 const pairs = (h: ClipHit[]) => h.map((x) => `${x.part}>${x.into}`);
 const STAND: HeroPose = { shoulderR: [0, 0, 0.18], elbowR: -0.2, shoulderL: [0, 0, 0.18], elbowL: -0.2, hipR: [0, 0, 0.08], hipL: [0, 0, 0.08] };
 const CROSSED: HeroPose = { hipR: [0, 0, -0.3], hipL: [0, 0, -0.3] };
-const sword = { kind: 'longsword' } as const;
+/** The figure with a 2.6 ft blade fixed to one of its mounts (a hand's holder, a belt), running from it along `dir`
+ *  (world; the figure faces +z and its right side is at -x). */
+function bladed(f: HeroFigure, mount: string, dir: [number, number, number]) {
+  const g = heroFigure(f, 'medium', 'rest'); g.updateMatrixWorld(true);
+  const m = g.getObjectByName(mount)!, d = new THREE.Vector3(...dir).normalize(), b = new THREE.Mesh(new THREE.BoxGeometry(0.1, 2.6, 0.1), new THREE.MeshBasicMaterial());
+  b.position.copy(m.getWorldPosition(new THREE.Vector3()).addScaledVector(d, 1.3)); b.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), d);
+  g.add(b); g.updateMatrixWorld(true); m.attach(b);
+  return findClips(g, f);
+}
 
 describe('clip check', () => {
   it('finds nothing on a figure standing clear, on either frame, or lying flat', () => {
@@ -40,11 +49,11 @@ describe('clip check', () => {
   });
 
   it('finds a held blade run through the body, and a scabbard through a thigh', () => {
-    const hang: HeroPose = { ...STAND, shoulderR: [0, 0, 0.1], elbowR: -0.1 };
-    expect(clips({ gear: { handR: sword }, pose: { ...hang, holdR: { upright: true, tilt: [0, 0, -1.57] } } }).filter((h) => h.part === 'gearR')).toEqual([]);
-    expect(clips({ gear: { handR: sword }, pose: { ...hang, holdR: { upright: true, tilt: [0, 0, 1.57] } } }).some((h) => h.part === 'gearR' && /pelvis|thigh/.test(h.into))).toBe(true);
-    expect(clips({ gear: { beltR: sword }, pose: STAND }).filter((h) => h.part === 'stowedR')).toEqual([]);
-    expect(pairs(clips({ gear: { beltR: sword }, pose: { ...STAND, hipR: [0.3, 0, 0.6], kneeR: 0.2 } }))).toContain('stowedR>thighR');
+    const hang: HeroFigure = { pose: { ...STAND, shoulderR: [0, 0, 0.1], elbowR: -0.1 } };
+    expect(bladed(hang, 'handR', [-1, 0, 0]).filter((h) => h.part === 'gearR')).toEqual([]);
+    expect(bladed(hang, 'handR', [1, 0, 0]).some((h) => h.part === 'gearR' && /pelvis|thigh|torso/.test(h.into))).toBe(true);
+    expect(bladed({ pose: STAND }, 'beltR', [-0.3, 0, -1]).filter((h) => h.part === 'stowedR')).toEqual([]);
+    expect(pairs(bladed({ pose: STAND }, 'beltR', [0.3, -1, 0]))).toContain('stowedR>thighR');
   });
 
   it('leaves out legs pressed together inside a gown', () => {

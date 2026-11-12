@@ -40,11 +40,18 @@ function ringDepth(rings: Ring[], p: THREE.Vector3): [number, number] {
   return [Math.min((1 - v ** (1 / n)) * t, p.y - lo, hi - p.y), t];
 }
 
-/** Vertices of a mesh in world space, at most `cap` of them (evenly strided). */
-function samples(m: THREE.Mesh, cap = 260): THREE.Vector3[] {
-  const pos = m.geometry.getAttribute('position') as THREE.BufferAttribute | undefined; if (!pos) return [];
-  const step = Math.max(1, Math.floor(pos.count / cap)), out: THREE.Vector3[] = [];
-  for (let i = 0; i < pos.count; i += step) out.push(new THREE.Vector3().fromBufferAttribute(pos, i).applyMatrix4(m.matrixWorld));
+/** Points on a mesh in world space: its vertices (at most `cap`, evenly strided), and on a mesh of few faces (a box
+ *  blade, a haft of one segment) points along every edge longer than `step` too, which its corners alone would miss. */
+function samples(m: THREE.Mesh, step: number, cap = 260): THREE.Vector3[] {
+  const geo = m.geometry, pos = geo.getAttribute('position') as THREE.BufferAttribute | undefined; if (!pos) return [];
+  const at = (i: number) => new THREE.Vector3().fromBufferAttribute(pos, i).applyMatrix4(m.matrixWorld);
+  const out: THREE.Vector3[] = [], every = Math.max(1, Math.floor(pos.count / cap));
+  for (let i = 0; i < pos.count; i += every) out.push(at(i));
+  const idx = geo.index, tris = (idx ? idx.count : pos.count) / 3;
+  if (tris <= 96) for (let t = 0; t < tris; t++) {
+    const v = [0, 1, 2].map((k) => at(idx ? idx.getX(t * 3 + k) : t * 3 + k));
+    for (let k = 0; k < 3; k++) { const a = v[k], b = v[(k + 1) % 3], n = Math.floor(a.distanceTo(b) / step); for (let j = 1; j < n; j++) out.push(a.clone().lerp(b, j / n)); }
+  }
   return out;
 }
 const solid = (m: THREE.Object3D): m is THREE.Mesh => (m as THREE.Mesh).isMesh && !((m as THREE.Mesh).material as THREE.Material).transparent;
@@ -58,6 +65,7 @@ export function findClips(figure: THREE.Object3D, recipe: HeroFigure, o: ClipOpt
   const neck = J.neck, head = J.head; if (!J.chest || !neck || !head) return [];
   const s = neck.position.y / 2.24, fr = frameFor(recipe), tol = (o.tolerance ?? 0.04) * s, give = o.give ?? 0.25, skip = new Set(o.ignore ?? []);
   const local = (obj: THREE.Object3D, p: THREE.Vector3) => obj.worldToLocal(p.clone()).divideScalar(s);
+  const pts = (m: THREE.Mesh, cap?: number) => samples(m, 0.1 * s, cap);
   const stack = (name: string, obj: THREE.Object3D | undefined, rings: Ring[]): Volume[] => obj ? [{ name, inside: (p) => { const [d, t] = ringDepth(rings, local(obj, p)); return [d * s, t * s]; } }] : [];
   // the skull: an ellipsoid round the head's centre (0.37 above the head joint), a little inside the painted surface
   const skull = (p: THREE.Vector3): [number, number] => {
@@ -82,27 +90,27 @@ export function findClips(figure: THREE.Object3D, recipe: HeroFigure, o: ClipOpt
   const sheathed = !!(recipe.skirt && recipe.underskirt);
   for (const sd of ['R', 'L'] as const) {
     const ot = sd === 'R' ? 'L' : 'R', otherArm = [`upperArm${ot}`, `forearm${ot}`], legs = ['thighR', 'thighL', 'shinR', 'shinL'], otherLeg = sheathed ? [] : [`thigh${ot}`, `shin${ot}`];
-    const hand = direct(J['wrist' + sd]).flatMap((m) => samples(m)), fore = direct(J['elbow' + sd]).flatMap((m) => samples(m));
-    const upper = below(direct(J['shoulder' + sd]).flatMap((m) => samples(m)), J['shoulder' + sd], -0.45);
+    const hand = direct(J['wrist' + sd]).flatMap((m) => pts(m)), fore = direct(J['elbow' + sd]).flatMap((m) => pts(m));
+    const upper = below(direct(J['shoulder' + sd]).flatMap((m) => pts(m)), J['shoulder' + sd], -0.45);
     parts.push({ name: 'hand' + sd, pts: hand, into: [...body, ...legs, ...otherArm, `upperArm${sd}`] });
     parts.push({ name: 'hand' + sd, pts: away(hand, J['wrist' + sd], 0.16), into: [`forearm${sd}`] });
     parts.push({ name: 'forearm' + sd, pts: fore, into: [...body, ...legs, ...otherArm] });
     parts.push({ name: 'forearm' + sd, pts: away(fore, J['elbow' + sd], 0.3), into: [`upperArm${sd}`], soft: [`upperArm${sd}`] });
     parts.push({ name: 'upperArm' + sd, pts: upper, into: [...body, ...legs, ...otherArm] });
-    const thigh = below(direct(J['hip' + sd]).flatMap((m) => samples(m)), J['hip' + sd], -0.4), shin = direct(J['knee' + sd]).flatMap((m) => samples(m));
-    const foot = [...direct(J['ankle' + sd]), ...deep(J['foot' + sd])].flatMap((m) => samples(m));
+    const thigh = below(direct(J['hip' + sd]).flatMap((m) => pts(m)), J['hip' + sd], -0.4), shin = direct(J['knee' + sd]).flatMap((m) => pts(m));
+    const foot = [...direct(J['ankle' + sd]), ...deep(J['foot' + sd])].flatMap((m) => pts(m));
     parts.push({ name: 'thigh' + sd, pts: thigh, into: ['torso', 'head', 'neck', ...otherLeg], soft: ['torso', ...otherLeg] });
     parts.push({ name: 'shin' + sd, pts: shin, into: ['torso', 'pelvis', 'head', 'neck', ...otherLeg], soft: otherLeg });
     parts.push({ name: 'shin' + sd, pts: away(shin, J['knee' + sd], 0.32), into: [`thigh${sd}`], soft: [`thigh${sd}`] });
     parts.push({ name: 'foot' + sd, pts: foot, into: ['torso', 'pelvis', 'head', 'neck', ...otherLeg] });
     // what the hand holds: never into the body or a limb, except where the hands close on it
-    const held = J['hand' + sd]; let gear = deep(held).flatMap((m) => samples(m, 400));
+    const held = J['hand' + sd]; let gear = deep(held).flatMap((m) => pts(m, 400));
     if (held) { gear = away(gear, held, 0.2); for (const w of ['wristR', 'wristL']) gear = away(gear, J[w], 0.22); }
     parts.push({ name: 'gear' + sd, pts: gear, into: [...body, ...legs, 'upperArmR', 'upperArmL', 'forearmR', 'forearmL'] });
   }
   // weapons put away: a scabbard at the belt, a weapon slung on the back, never through a limb or the head
   for (const [name, n] of [['stowedR', 'beltR'], ['stowedL', 'beltL'], ['stowedBack', 'back'], ['stowedBack', 'stowed']] as const) {
-    const pts = deep(J[n]).flatMap((m) => samples(m, 300)); if (pts.length) parts.push({ name, pts, into: ['head', 'neck', 'upperArmR', 'upperArmL', 'forearmR', 'forearmL', 'thighR', 'thighL', 'shinR', 'shinL'] });
+    const put = deep(J[n]).flatMap((m) => pts(m, 300)); if (put.length) parts.push({ name, pts: put, into: ['head', 'neck', 'upperArmR', 'upperArmL', 'forearmR', 'forearmL', 'thighR', 'thighL', 'shinR', 'shinL'] });
   }
   const hits = new Map<string, ClipHit>();
   for (const part of parts) {
