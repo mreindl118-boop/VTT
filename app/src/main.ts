@@ -451,7 +451,7 @@ function buildDmUi(): void {
       case 'world': if (!(app.nested && nest.open())) openWorld(); break;
       case 'encounter': app.encounter ? bar.update() : openEncounterSheet(app, refresh); break;
       case 'creatures': openBestiary(app, refresh); break;
-      case 'initclock': void import('./ui/initClock').then((m) => m.openInitClock(app)); break;
+      case 'initclock': void import('./ui/initClockVtt').then((m) => m.openInitClock(app)); break;
       case 'undo': app.undo(); break;
       case 'sec-follow': app.setCut(undefined); break;
       case 'whole': if (app.sectionRange) { app.setCut(app.sectionRange.max); app.frameLevel(); } break;

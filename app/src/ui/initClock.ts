@@ -5,17 +5,41 @@
 // monsters, the module's creatures and the DM's own pasted stat blocks, with difficulty under both rule sets.
 // Everything is kept on the DM's device (localStorage), per campaign; nothing goes into the repo or to the players.
 import './initClock.css';
-import type { App } from '../app';
-import { BESTIARY, statsOf, colorOf } from '../bestiary';
-import { EDITION_EVENT, rulesEdition, setRulesEdition } from '../books/lookup';
-import { loadEntries } from '../books/store';
-import { BOOK_OF, type MonsterSummary } from '../books/types';
+import type { MonsterSummary } from '../books/types';
 import {
   abilityMod, addCondition, angleOf, applyHp, avgExpr, combatant, d, deathSave, delay, difficulty, DIAL_MAX, gameTime, initAt, jump, newClock,
   next, nudgeTie, numbered, ordered, parseBlock, prev, prompts, REMINDER_PRESETS, reminder, resume, rollExpr, rollInit, roundsLeft, setInit,
   start, takesTurn, TOP, uid, xpForCr, type Clock, type Entry, type ParsedBlock, type Preset, type ReminderMode, type Rules, type Side,
 } from '../core/initClock';
 import { esc } from './text';
+
+// ------------------------------------------------------------------ the host: the VTT (ui/initClockVtt.ts) or the standalone page
+
+/** One SRD monster as the books store it. */
+export interface MonsterRecord { id: string; name: string; s: MonsterSummary; html: string }
+/** A creature placed on the open map, to copy into the clock. */
+export interface MapCreature { id: string; name: string; alias?: string; color?: string; hidden?: boolean; hp?: { cur: number; max: number }; creatureId?: string }
+/** What the clock needs from wherever it runs. */
+export interface ClockHost {
+  /** The storage namespace (the VTT's campaign id). */
+  key: string;
+  /** Characters to seed the party with. */
+  roster(): { id: string; name: string; color: string; initMod: number }[];
+  /** The SRD monsters for a rules edition. */
+  monsters(ed: Rules): Promise<MonsterRecord[]>;
+  edition(): Rules;
+  setEdition(ed: Rules): void;
+  /** Fired on window when the edition changes. */
+  editionEvent: string;
+  /** The module's own creatures (the VTT only). */
+  modules?(): CatItem[];
+  /** The SRD entry a module creature maps to, if any. */
+  resolveModule?(id: string, ed: Rules): Promise<{ id: string; edition: Rules } | undefined>;
+  /** Creatures on the open map (the VTT only). */
+  mapCreatures?(): MapCreature[];
+  /** Where "copy names" reads the roster from, e.g. "the VTT roster". */
+  rosterLabel?: string;
+}
 
 // ------------------------------------------------------------------ device-local stores
 
@@ -27,7 +51,7 @@ interface Saved { id: string; name: string; items: StageItem[]; notes?: string }
 interface Prefs { mode: 'full' | 'mini'; tab: Tab; hp: 'avg' | 'roll'; group: boolean; adv: 'normal' | 'adv' | 'dis'; hidden: boolean; pos?: { x: number; y: number } }
 type Tab = 'order' | 'build' | 'remind' | 'party' | 'log';
 
-const K = (app: App, k: string) => `mistlab.initClock.${app.state.id}.${k}`;
+const K = (host: ClockHost, k: string) => `mistlab.initClock.${host.key}.${k}`;
 const get = <T>(key: string, dflt: T): T => { try { const v = localStorage.getItem(key); return v ? (JSON.parse(v) as T) : dflt; } catch { return dflt; } };
 const put = (key: string, v: unknown) => { try { localStorage.setItem(key, JSON.stringify(v)); } catch { /* private mode: this session only */ } };
 
@@ -36,31 +60,26 @@ const FOE_COLORS = ['#8a2b2b', '#9a4a1f', '#6b2f5a', '#7a3a2a', '#5a3a6b', '#8a5
 const CONDITIONS = ['Blinded', 'Charmed', 'Deafened', 'Exhaustion', 'Frightened', 'Grappled', 'Incapacitated', 'Invisible', 'Paralyzed', 'Petrified', 'Poisoned', 'Prone', 'Restrained', 'Stunned', 'Unconscious'];
 const EXTRA_CONDITIONS = ['Blessed', 'Baned', 'Hasted', 'Slowed', 'Hexed', "Hunter's Mark", 'Dodging', 'Hidden', 'Raging', 'Burning', 'Bleeding', 'Marked', 'Cover (half)', 'Cover (three-quarters)'];
 
-function seedParty(app: App): PartyMember[] {
-  const pcs = app.state.roster.filter((s) => s.kind === 'pc');
+function seedParty(host: ClockHost): PartyMember[] {
+  const pcs = host.roster();
   const base = pcs.length ? pcs : [{ id: 'pc-1', name: 'Character 1', color: PARTY_COLORS[0], initMod: 0 }];
   return base.map((s, i) => ({ id: s.id, name: s.name, player: '', level: 1, ac: 12, pp: 10, mod: s.initMod ?? 0, maxHp: 10, color: s.color ?? PARTY_COLORS[i % PARTY_COLORS.length] }));
 }
 
 // ------------------------------------------------------------------ the monster catalog
 
-interface CatItem { key: string; ref: Ref; name: string; cr?: string; xp?: number; ac?: number; hp?: number; hpDice?: string; mod: number; pp?: number; html?: string; p?: ParsedBlock; tag: string; size?: string; type?: string }
-const srdCache = new Map<Rules, Promise<CatItem[]>>();
-function srdCatalog(ed: Rules): Promise<CatItem[]> {
-  let p = srdCache.get(ed);
-  if (!p) srdCache.set(ed, (p = loadEntries(BOOK_OF[ed], 'monsters').then((f) => Object.values(f.entries).map((e) => {
+export interface CatItem { key: string; ref: Ref; name: string; cr?: string; xp?: number; ac?: number; hp?: number; hpDice?: string; mod: number; pp?: number; html?: string; p?: ParsedBlock; tag: string; size?: string; type?: string }
+const srdCache = new Map<string, Promise<CatItem[]>>();
+function srdCatalog(host: ClockHost, ed: Rules): Promise<CatItem[]> {
+  const ck = `${host.key}|${ed}`;
+  let p = srdCache.get(ck);
+  if (!p) srdCache.set(ck, (p = host.monsters(ed).then((list) => list.map((e) => {
     const s = e.s as MonsterSummary;
     const im = /^([+-]?\d+)/.exec(s.initiative ?? '');
     const pp = /passive Perception (\d+)/i.exec(s.senses ?? '');
     return { key: `srd:${ed}:${e.id}`, ref: { type: 'srd', id: e.id, edition: ed }, name: e.name, cr: String(s.cr), xp: s.xp ?? xpForCr(String(s.cr)), ac: s.ac, hp: s.hp, hpDice: s.hpDice?.replace(/\s+/g, ''), mod: im ? Number(im[1]) : abilityMod(s.abilities?.dex ?? 10), pp: pp ? Number(pp[1]) : undefined, html: e.html, tag: ed === '2024' ? 'SRD 5.2.1' : 'SRD 5.1', size: s.size, type: s.creatureType } satisfies CatItem;
   })).catch(() => [] as CatItem[])));
   return p;
-}
-function moduleCatalog(): CatItem[] {
-  return BESTIARY.filter((e) => e.kind === 'npc' || e.kind === 'creature').map((e) => {
-    const st = statsOf(e);
-    return { key: `module:${e.id}`, ref: { type: 'module', id: e.id }, name: e.name, cr: st?.cr, xp: xpForCr(st?.cr), ac: st?.ac, hp: st?.hp, mod: 0, tag: e.kind === 'npc' ? 'Module person' : 'Module creature' } satisfies CatItem;
-  });
 }
 const customItem = (b: CustomBlock): CatItem => ({ key: `custom:${b.id}`, ref: { type: 'custom', id: b.id }, name: b.name, cr: b.p.cr, xp: b.p.xp ?? xpForCr(b.p.cr), ac: b.p.ac, hp: b.p.hp, hpDice: b.p.hpDice, mod: b.p.initMod ?? (b.p.dex ? abilityMod(b.p.dex) : 0), pp: b.p.pp, p: b.p, tag: 'My stat block' });
 
@@ -69,20 +88,20 @@ const customItem = (b: CustomBlock): CatItem => ({ key: `custom:${b.id}`, ref: {
 let open: { el: HTMLElement; close: () => void } | null = null;
 
 /** Open the clock, or bring it forward if it is open. */
-export function openInitClock(app: App): void {
+export function openClock(host: ClockHost): void {
   if (open) { open.el.classList.add('flash'); setTimeout(() => open?.el.classList.remove('flash'), 400); return; }
   const dock = document.createElement('section');
   dock.className = 'ic-dock page';
   dock.setAttribute('aria-label', 'Initiative clock');
   document.body.appendChild(dock);
 
-  let clock: Clock = get(K(app, 'clock'), newClock());
-  let party: PartyMember[] = get(K(app, 'party'), [] as PartyMember[]);
-  if (!party.length) party = seedParty(app);
-  let library: CustomBlock[] = get(K(app, 'library'), [] as CustomBlock[]);
-  let saved: Saved[] = get(K(app, 'saved'), [] as Saved[]);
-  let stage: StageItem[] = get(K(app, 'stage'), [] as StageItem[]);
-  const prefs: Prefs = { mode: 'full', tab: 'order', hp: 'avg', group: false, adv: 'normal', hidden: true, ...get(K(app, 'prefs'), {}) };
+  let clock: Clock = get(K(host, 'clock'), newClock());
+  let party: PartyMember[] = get(K(host, 'party'), [] as PartyMember[]);
+  if (!party.length) party = seedParty(host);
+  let library: CustomBlock[] = get(K(host, 'library'), [] as CustomBlock[]);
+  let saved: Saved[] = get(K(host, 'saved'), [] as Saved[]);
+  let stage: StageItem[] = get(K(host, 'stage'), [] as StageItem[]);
+  const prefs: Prefs = { mode: 'full', tab: 'order', hp: 'avg', group: false, adv: 'normal', hidden: true, ...get(K(host, 'prefs'), {}) };
   let undo: string[] = [], redo: string[] = [];
   let selected: string | null = null;
   let query = '';
@@ -90,9 +109,10 @@ export function openInitClock(app: App): void {
   let parsedDraft: { text: string; p: ParsedBlock } | null = null;
   let remDraft: (Preset & { n?: number; at?: string }) | null = null;
   let tick = 0;
-  const rules = (): Rules => rulesEdition();
+  const rules = (): Rules => host.edition();
+  const moduleCatalog = (): CatItem[] => host.modules?.() ?? [];
 
-  const save = () => { put(K(app, 'clock'), clock); put(K(app, 'party'), party); put(K(app, 'library'), library); put(K(app, 'saved'), saved); put(K(app, 'stage'), stage); put(K(app, 'prefs'), prefs); };
+  const save = () => { put(K(host, 'clock'), clock); put(K(host, 'party'), party); put(K(host, 'library'), library); put(K(host, 'saved'), saved); put(K(host, 'stage'), stage); put(K(host, 'prefs'), prefs); };
   /** Every change to the fight goes through here: undo snapshot, change, save, draw. */
   const act = (f: () => void) => { undo.push(JSON.stringify(clock)); if (undo.length > 80) undo.shift(); redo = []; f(); save(); render(); };
   const say = (text: string) => { clock.log.push({ round: clock.round, text, at: Date.now() }); };
@@ -108,13 +128,13 @@ export function openInitClock(app: App): void {
   };
   const resolveItem = async (it: StageItem | CatItem): Promise<CatItem | undefined> => {
     const ref = it.ref;
-    if (ref.type === 'srd') return (await srdCatalog(ref.edition)).find((c) => c.ref.type === 'srd' && c.ref.id === ref.id);
+    if (ref.type === 'srd') return (await srdCatalog(host, ref.edition)).find((c) => c.ref.type === 'srd' && c.ref.id === ref.id);
     if (ref.type === 'custom') { const b = library.find((x) => x.id === ref.id); return b && customItem(b); }
     const m = moduleCatalog().find((c) => c.key === `module:${ref.id}`);
     // A module creature the books also have (a ghoul, a wolf) takes the books' numbers for the Rules edition.
     try {
-      const cs = await import('./creature').then((x) => x.creatureSource(ref.id, rules()));
-      if (cs.kind === 'srd') { const s = (await srdCatalog(cs.entry.edition)).find((c) => c.ref.type === 'srd' && c.ref.id === cs.entry.id); if (s) return { ...s, key: m?.key ?? s.key, ref, name: m?.name ?? s.name, tag: 'Module · ' + s.tag }; }
+      const cs = await host.resolveModule?.(ref.id, rules());
+      if (cs) { const s = (await srdCatalog(host, cs.edition)).find((c) => c.ref.type === 'srd' && c.ref.id === cs.id); if (s) return { ...s, key: m?.key ?? s.key, ref, name: m?.name ?? s.name, tag: 'Module · ' + s.tag }; }
     } catch { /* books offline: the module's numbers */ }
     return m;
   };
@@ -143,14 +163,12 @@ export function openInitClock(app: App): void {
     return made;
   };
   const fromMap = () => {
-    const loc = app.cur?.scene.location;
-    const toks = app.state.tokens.filter((t) => t.role === 'creature' && t.location === loc);
+    const toks = host.mapCreatures?.() ?? [];
     if (!toks.length) return flash('No creatures placed on this map yet (the paw button places them).');
     act(() => {
       for (const t of toks) {
         if (clock.entries.some((e) => e.note === `token:${t.id}`)) continue;
-        const ent = BESTIARY.find((b) => b.id === t.creatureId);
-        clock.entries.push(combatant({ name: t.name, alias: t.playerName, side: 'foe', color: t.color ?? (ent ? colorOf(ent) : '#8a2b2b'), init: rollInit(0, prefs.adv), hidden: t.hidden, hp: t.hp ? { ...t.hp, temp: 0 } : undefined, src: t.creatureId ? { type: 'module', creatureId: t.creatureId } : undefined, note: `token:${t.id}` }));
+        clock.entries.push(combatant({ name: t.name, alias: t.alias, side: 'foe', color: t.color ?? '#8a2b2b', init: rollInit(0, prefs.adv), hidden: t.hidden, hp: t.hp ? { ...t.hp, temp: 0 } : undefined, src: t.creatureId ? { type: 'module', creatureId: t.creatureId } : undefined, note: `token:${t.id}` }));
       }
       say(`${toks.length} creature${toks.length === 1 ? '' : 's'} from the map`);
     });
@@ -327,7 +345,7 @@ export function openInitClock(app: App): void {
   function orderTab(): string {
     const list = ordered(clock);
     return `${turnCard()}<ol class="ic-order">${list.map(row).join('') || '<li class="ic-empty">Nobody in the order yet.</li>'}</ol>
-      <div class="ic-btns"><button data-a="roll-foes">Roll for foes</button><button data-a="party-all">Whole party in</button><button data-a="from-map">From this map</button><button data-a="quick-foe">+ Quick foe</button><button data-a="tab" data-t="remind">+ Reminder</button></div>`;
+      <div class="ic-btns"><button data-a="roll-foes">Roll for foes</button><button data-a="party-all">Whole party in</button>${host.mapCreatures ? '<button data-a="from-map">From this map</button>' : ''}<button data-a="quick-foe">+ Quick foe</button><button data-a="tab" data-t="remind">+ Reminder</button></div>`;
   }
 
   function buildTab(): string {
@@ -394,7 +412,7 @@ export function openInitClock(app: App): void {
     return `<div class="ic-party"><p class="ic-sub">Your players' characters are always in the tray under the dial: drag one onto its number, or type it. Levels set the encounter difficulty.</p>
       <table><thead><tr><th></th><th>Character</th><th>Player</th><th>Lvl</th><th>AC</th><th>PP</th><th>Init</th><th>HP</th><th></th></tr></thead><tbody>
       ${party.map((m, i) => `<tr data-i="${i}"><td><input type="color" data-f="p-color" value="${esc(m.color)}" aria-label="Colour"></td><td><input data-f="p-name" value="${esc(m.name)}" aria-label="Character"></td><td><input data-f="p-player" value="${esc(m.player)}" aria-label="Player"></td><td><input type="number" min="1" max="20" data-f="p-level" value="${m.level}" aria-label="Level"></td><td><input type="number" data-f="p-ac" value="${m.ac}" aria-label="AC"></td><td><input type="number" data-f="p-pp" value="${m.pp}" aria-label="Passive Perception"></td><td><input type="number" data-f="p-mod" value="${m.mod}" aria-label="Initiative bonus"></td><td><input type="number" data-f="p-hp" value="${m.maxHp}" aria-label="Max HP"></td><td><button data-a="p-del" data-i="${i}" aria-label="Remove">×</button></td></tr>`).join('')}
-      </tbody></table><div class="ic-btns"><button data-a="p-add">+ Character</button><button data-a="p-roster">Copy names from the VTT roster</button><button data-a="party-all">Whole party in</button></div></div>`;
+      </tbody></table><div class="ic-btns"><button data-a="p-add">+ Character</button>${host.rosterLabel ? `<button data-a="p-roster">Copy names from ${esc(host.rosterLabel)}</button>` : ''}<button data-a="party-all">Whole party in</button></div></div>`;
   }
 
   function logTab(): string {
@@ -440,7 +458,7 @@ export function openInitClock(app: App): void {
       <div class="ic-toast" role="status" aria-live="polite"></div>`;
     const side = dock.querySelector<HTMLElement>('.ic-side'); if (side) side.scrollTop = scroll;
     if (focus) { const sel = `[data-f="${focus}"]`; const el = (focusId ? dock.querySelector(`[data-id="${CSS.escape(focusId)}"] ${sel}`) : null) ?? dock.querySelector<HTMLElement>(sel); if (el instanceof HTMLInputElement && focus === 'q') { el.focus(); el.setSelectionRange(el.value.length, el.value.length); } }
-    if (prefs.tab === 'build' && !catalog.length) void srdCatalog(rules()).then((c) => { if (g === tick || prefs.tab === 'build') { catalog = c; if (c.length) render(); } });
+    if (prefs.tab === 'build' && !catalog.length) void srdCatalog(host, rules()).then((c) => { if (g === tick || prefs.tab === 'build') { catalog = c; if (c.length) render(); } });
     if (prefs.pos) { dock.style.left = `${Math.max(0, Math.min(innerWidth - 120, prefs.pos.x))}px`; dock.style.top = `${Math.max(0, Math.min(innerHeight - 60, prefs.pos.y))}px`; dock.style.right = 'auto'; }
   }
 
@@ -493,7 +511,7 @@ export function openInitClock(app: App): void {
       case 'party-all': act(() => { for (const m of party) if (!clock.entries.some((x) => x.src?.type === 'pc' && x.src.partyId === m.id)) addPc(m, null); }); break;
       case 'from-map': fromMap(); break;
       case 'quick-foe': act(() => { const [n] = numbered(clock, 'Foe', 1); clock.entries.push(combatant({ name: n, init: rollInit(0, prefs.adv), hp: { cur: 10, max: 10, temp: 0 }, ac: 12, color: FOE_COLORS[clock.entries.length % FOE_COLORS.length] })); selected = clock.entries[clock.entries.length - 1].id; }); break;
-      case 'ed': setRulesEdition(b.dataset.e as Rules); catalog = []; render(); break;
+      case 'ed': host.setEdition(b.dataset.e as Rules); catalog = []; render(); break;
       case 'stage-add': { const k = b.dataset.k!; const pool = [...library.map(customItem), ...catalog, ...moduleCatalog()]; const c = pool.find((x) => x.key === k); if (!c) return; const side = b.dataset.s as Side; const have = stage.find((s) => s.key === k && s.side === side); if (have) have.count += 1; else stage.push({ key: k, ref: c.ref, name: c.name, count: 1, cr: c.cr, side }); save(); render(); break; }
       case 'stage-n': { const s = stage[Number(b.dataset.i)]; s.count = Math.max(1, s.count + Number(b.dataset.d)); save(); render(); break; }
       case 'stage-del': stage.splice(Number(b.dataset.i), 1); save(); render(); break;
@@ -513,7 +531,7 @@ export function openInitClock(app: App): void {
       case 'rem-shift': if (e?.rem) act(() => { e.rem!.atRound = Math.max(clock.round, (e.rem!.atRound ?? clock.round) + Number(b.dataset.d)); }); break;
       case 'p-add': party.push({ id: uid('pc'), name: `Character ${party.length + 1}`, player: '', level: party[0]?.level ?? 1, ac: 12, pp: 10, mod: 0, maxHp: 10, color: PARTY_COLORS[party.length % PARTY_COLORS.length] }); save(); render(); break;
       case 'p-del': if (confirm('Remove this character from the party?')) { party.splice(Number(b.dataset.i), 1); save(); render(); } break;
-      case 'p-roster': { const pcs = app.state.roster.filter((s) => s.kind === 'pc'); pcs.forEach((s, i) => { const m = party.find((x) => x.id === s.id) ?? party[i]; if (m) m.name = s.name; else party.push({ id: s.id, name: s.name, player: '', level: 1, ac: 12, pp: 10, mod: s.initMod, maxHp: 10, color: s.color }); }); save(); render(); break; }
+      case 'p-roster': { const pcs = host.roster(); pcs.forEach((s, i) => { const m = party.find((x) => x.id === s.id) ?? party[i]; if (m) m.name = s.name; else party.push({ id: s.id, name: s.name, player: '', level: 1, ac: 12, pp: 10, mod: s.initMod, maxHp: 10, color: s.color }); }); save(); render(); break; }
       case 'export': { const blob = new Blob([JSON.stringify({ clock, party, saved }, null, 1)], { type: 'application/json' }); const u = URL.createObjectURL(blob); const l = document.createElement('a'); l.href = u; l.download = `initiative-${new Date().toISOString().slice(0, 10)}.json`; l.click(); setTimeout(() => URL.revokeObjectURL(u), 1000); break; }
     }
   });
@@ -696,13 +714,13 @@ export function openInitClock(app: App): void {
   };
   addEventListener('keydown', onKey, true);
   const onEdition = () => { catalog = []; render(); };
-  addEventListener(EDITION_EVENT, onEdition);
+  addEventListener(host.editionEvent, onEdition);
   const timer = window.setInterval(() => { if (prefs.tab === 'log' && !drag) render(); }, 5000);
 
   const close = () => {
     save(); dock.remove(); document.querySelector('.ic-card')?.remove();
     removeEventListener('pointermove', onMove); removeEventListener('pointerup', onUp); removeEventListener('pointercancel', onUp);
-    removeEventListener('keydown', onKey, true); removeEventListener(EDITION_EVENT, onEdition); clearInterval(timer);
+    removeEventListener('keydown', onKey, true); removeEventListener(host.editionEvent, onEdition); clearInterval(timer);
     open = null;
   };
   open = { el: dock, close };

@@ -70,7 +70,16 @@ Sources: [arcaneeye's tracker comparison](https://arcaneeye.com/dm-tools-5e/best
   Initiative and turn bar still run separately).
 - Loading the "Encounter packs" from the scenario notes (draft PR #4) straight into Build.
 
+## On its own page
+
+The same clock also runs outside the VTT, as one HTML file with the SRD 5.1 and 5.2.1 monsters and conditions
+inside it (and their CC-BY attribution in the footer): `npm run initclock:page -- <out.html> "Name,Name,…"`. The
+names seed the party and are only in the output file, which is never committed. On that page monster and condition
+names open a stat-block card of its own; there is no map, so "from this map" is not offered.
+
 ## Files
 
-`app/src/core/initClock.ts` (pure rules engine), `app/src/ui/initClock.ts` and `initClock.css` (the dock),
-`tests/init-clock.test.ts`; one button and one line in `app/src/main.ts`.
+`app/src/core/initClock.ts` (pure rules engine), `app/src/ui/initClock.ts` and `initClock.css` (the clock, given a
+host), `app/src/ui/initClockVtt.ts` (the VTT's host), `app/src/standalone/initClockPage.ts` and
+`scripts/initclock/build.mjs` (the standalone page), `tests/init-clock.test.ts`; one button and one line in
+`app/src/main.ts`, one script in `package.json`.
