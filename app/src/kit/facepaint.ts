@@ -5,6 +5,21 @@
 import * as THREE from 'three';
 import type { FaceSpec } from './faces';
 
+/** The cut of the eye. Each reads as a temperament: almond (level, watchful), round (open, innocent), doe (large and
+ *  soft), narrow (cold, measuring), cat (upswept, sly), heavy (half-lidded, smouldering or weary), droop (sad, tired),
+ *  wide (startled or mad: the whole iris showing). */
+export type EyeShape = 'almond' | 'round' | 'doe' | 'narrow' | 'cat' | 'heavy' | 'droop' | 'wide';
+const EYES: Record<EyeShape, { w: number; h: number; up: number; lo: number; peak: number; tilt: number; iris: number; wing: number; brow: number }> = {
+  almond: { w: 1, h: 1, up: 1, lo: 0.85, peak: 0.1, tilt: 0, iris: 1, wing: 0, brow: 0 },
+  round: { w: 0.94, h: 1.32, up: 1.05, lo: 1.15, peak: 0, tilt: -0.03, iris: 1.12, wing: 0, brow: 0.008 },
+  doe: { w: 1.04, h: 1.2, up: 1.05, lo: 1.0, peak: 0.05, tilt: 0.03, iris: 1.12, wing: 0.04, brow: 0.006 },
+  narrow: { w: 1.08, h: 0.62, up: 0.9, lo: 0.8, peak: 0.15, tilt: 0.05, iris: 0.95, wing: 0, brow: -0.012 },
+  cat: { w: 1.08, h: 0.9, up: 1, lo: 0.75, peak: 0.25, tilt: 0.2, iris: 1, wing: 0.14, brow: 0 },
+  heavy: { w: 1.04, h: 0.82, up: 0.72, lo: 0.95, peak: 0.1, tilt: 0.02, iris: 1.08, wing: 0.03, brow: 0 },
+  droop: { w: 1, h: 0.95, up: 0.92, lo: 0.95, peak: -0.15, tilt: -0.2, iris: 1, wing: -0.08, brow: 0.004 },
+  wide: { w: 0.98, h: 1.4, up: 1.1, lo: 1.25, peak: 0, tilt: 0, iris: 0.66, wing: 0, brow: 0.014 },
+};
+
 export interface PaintLook { skin: string; hair?: string; eyes?: string; lips?: string; fem?: boolean; /** Crossed-out eyes. */ dead?: boolean; size?: number }
 
 /** The picture covers this much of the head (in the face builder's units, skull radius 0.4), centred on the eye line. */
@@ -48,8 +63,12 @@ export function paintFace(spec: FaceSpec, look: PaintLook): THREE.Texture | null
 
   // ---- colour under the drawing: the hollow under the cheekbone, the temples, warmth on the cheeks and nose, the
   // shade the brow throws over the eyes
-  const ex = 0.128 * (1 + 0.12 * n(spec.eyeSpace)), ew = (fem ? 0.072 : 0.064) * (1 + 0.16 * n(spec.eyeSize));
-  const eh = ew * (fem ? 0.5 : 0.4) * (1 - 0.28 * Math.max(0, n(spec.hooded))), tilt = (fem ? 0.14 : 0.08) + 0.2 * n(spec.eyeSlant);
+  // the eye's cut, storybook fashion: each shape is a character in itself
+  const hoodK = Math.max(0, n(spec.hooded));
+  const shapeName: EyeShape = spec.eyeShape ?? (hoodK > 0.45 ? 'heavy' : n(spec.eyeSize) > 0.55 ? 'round' : n(spec.eyeSlant) > 0.45 ? 'cat' : n(spec.eyeSize) < -0.25 ? 'narrow' : fem ? 'doe' : 'almond');
+  const E = EYES[shapeName];
+  const ex = 0.136 * (1 + 0.12 * n(spec.eyeSpace)), ew = (fem ? 0.084 : 0.075) * E.w * (1 + 0.14 * n(spec.eyeSize));
+  const ehBase = ew / E.w * (fem ? 0.56 : 0.46), eh = ehBase * E.h * (1 - 0.2 * hoodK), tilt = (fem ? 0.1 : 0.05) + E.tilt + 0.2 * n(spec.eyeSlant);
   for (const sx of [-1, 1]) {
     blob(sx * 0.215, -0.17, 0.085, 0.05, shade, 0.15 + 0.2 * Math.max(0, gaunt) + 0.1 * n(spec.cheekbones), sx * -0.5);
     blob(sx * 0.3, 0.1, 0.05, 0.12, shade, 0.16);
@@ -73,34 +92,41 @@ export function paintFace(spec: FaceSpec, look: PaintLook): THREE.Texture | null
       for (const k of [-1, 1]) stroke([[-ew * 0.7, k * eh * 1.1], [ew * 0.7, -k * eh * 1.1]], 0.013, deep);
       c.restore(); continue;
     }
+    const up = E.up, lo = E.lo, lashy = fem || !!spec.lashes;
     const almond = () => {
-      c.beginPath(); c.moveTo(-ew, -eh * 0.15);
-      c.bezierCurveTo(-ew * 0.55, eh * 1.2, ew * 0.4, eh * 1.25, ew, eh * 0.3);
-      c.bezierCurveTo(ew * 0.55, -eh * 0.95, -ew * 0.45, -eh * 0.9, -ew, -eh * 0.15); c.closePath();
+      c.beginPath(); c.moveTo(-ew, -eh * 0.1);
+      c.bezierCurveTo(-ew * 0.6, eh * 1.25 * up, ew * (0.3 + E.peak), eh * 1.35 * up, ew, eh * 0.35);
+      c.bezierCurveTo(ew * 0.6, -eh * lo, -ew * 0.45, -eh * lo * 0.95, -ew, -eh * 0.1); c.closePath();
     };
-    almond(); c.fillStyle = '#f3eee6'; c.fill();
+    almond(); c.fillStyle = '#f6f1ea'; c.fill();
     c.save(); almond(); c.clip();
-    const ir = eh * 1.02, iy = eh * 0.12;
-    c.beginPath(); c.arc(0, iy, ir, 0, Math.PI * 2); c.fillStyle = mix(eyeC, '#000000', 0.35); c.fill();
-    const ig = c.createRadialGradient(0, iy - ir * 0.3, ir * 0.1, 0, iy, ir * 0.92); ig.addColorStop(0, mix(eyeC, '#ffffff', 0.35)); ig.addColorStop(0.7, eyeC); ig.addColorStop(1, mix(eyeC, '#000000', 0.3));
-    c.beginPath(); c.arc(0, iy, ir * 0.9, 0, Math.PI * 2); c.fillStyle = ig; c.fill();
-    c.beginPath(); c.arc(0, iy, ir * 0.42, 0, Math.PI * 2); c.fillStyle = '#0b080c'; c.fill();
-    const lg = c.createLinearGradient(0, eh * 1.25, 0, eh * 0.2); lg.addColorStop(0, 'rgba(20,10,16,0.55)'); lg.addColorStop(1, 'rgba(20,10,16,0)');
-    c.fillStyle = lg; c.fillRect(-ew, eh * 0.2, ew * 2, eh * 1.1);                      // the lid's shade on the eye
-    c.beginPath(); c.arc(-ir * 0.36 * sx, iy + ir * 0.4, ir * 0.2, 0, Math.PI * 2); c.fillStyle = 'rgba(255,255,255,0.95)'; c.fill();
-    c.beginPath(); c.arc(ir * 0.3 * sx, iy - ir * 0.4, ir * 0.1, 0, Math.PI * 2); c.fillStyle = 'rgba(255,255,255,0.5)'; c.fill();
+    // a large iris, cut by the lid above (and by the lower lid on a narrowed eye): a dark rim, colour deepening upward,
+    // a lit crescent below, a wide pupil, two lights
+    const ir = ehBase * E.iris, iy = eh * 0.08 + (E.iris < 0.8 ? 0 : ehBase * 0.06), gx = (spec.gaze ?? 0) * ew * 0.22 * sx;
+    c.beginPath(); c.arc(gx, iy, ir, 0, Math.PI * 2); c.fillStyle = mix(eyeC, '#06040a', 0.55); c.fill();
+    const ig = c.createLinearGradient(0, iy + ir, 0, iy - ir); ig.addColorStop(0, mix(eyeC, '#06040a', 0.45)); ig.addColorStop(0.45, eyeC); ig.addColorStop(1, mix(eyeC, '#ffffff', 0.45));
+    c.beginPath(); c.arc(gx, iy, ir * 0.88, 0, Math.PI * 2); c.fillStyle = ig; c.fill();
+    c.beginPath(); c.arc(gx, iy + ir * 0.04, ir * 0.46, 0, Math.PI * 2); c.fillStyle = '#08060a'; c.fill();
+    c.beginPath(); c.arc(gx, iy - ir * 0.5, ir * 0.3, Math.PI * 1.1, Math.PI * 1.9); c.lineWidth = ir * 0.16; c.strokeStyle = rgba(mix(eyeC, '#ffffff', 0.7), 0.7); c.stroke();
+    const lg = c.createLinearGradient(0, eh * 1.35 * up, 0, eh * 0.15); lg.addColorStop(0, 'rgba(24,12,20,0.6)'); lg.addColorStop(1, 'rgba(24,12,20,0)');
+    c.fillStyle = lg; c.fillRect(-ew, eh * 0.15, ew * 2, eh * 1.3);                     // the lid's shade on the eye
+    c.beginPath(); c.arc(gx - ir * 0.34 * sx, iy + ir * 0.36, ir * 0.24, 0, Math.PI * 2); c.fillStyle = 'rgba(255,255,255,0.97)'; c.fill();
+    c.beginPath(); c.arc(gx + ir * 0.32 * sx, iy - ir * 0.32, ir * 0.11, 0, Math.PI * 2); c.fillStyle = 'rgba(255,255,255,0.75)'; c.fill();
     c.restore();
-    // the lid line, heavier toward the outer corner and carried past it; the crease above; the lower lashes
-    const lw = (fem || spec.lashes ? 0.017 : 0.012);
-    stroke([[-ew, -eh * 0.15], [-ew * 0.55, eh * 1.2], [ew * 0.4, eh * 1.25], [ew, eh * 0.3]], lw, lashC);
-    stroke([[ew * 0.55, eh * 0.95], [ew * 0.95, eh * 0.55], [ew * (fem || spec.lashes ? 1.32 : 1.12), eh * (fem || spec.lashes ? 0.85 : 0.4)]], lw * 0.8, lashC);
-    stroke([[-ew * 0.8, eh * 1.25], [-ew * 0.2, eh * 2.05], [ew * 0.5, eh * 1.95], [ew * 1.05, eh * 1.05]], 0.005, shade, 0.55 + 0.3 * Math.max(0, n(spec.hooded)));
-    stroke([[ew, eh * 0.3], [ew * 0.55, -eh * 0.95], [-ew * 0.1, -eh * 0.95]], 0.005, lashC, fem ? 0.6 : 0.4);
+    // the lid line, drawn like a brush stroke: thin at the nose, full over the eye, carried out past the corner; lashes;
+    // the crease above; a soft lower line
+    const lw = lashy ? 0.019 : 0.013;
+    stroke([[-ew, -eh * 0.1], [-ew * 0.6, eh * 1.25 * up], [ew * (0.3 + E.peak), eh * 1.35 * up], [ew, eh * 0.35]], lw * 0.7, lashC);
+    stroke([[-ew * 0.35, eh * 0.98 * up], [ew * 0.1, eh * 1.22 * up], [ew * (0.45 + E.peak), eh * 1.2 * up], [ew, eh * 0.35]], lw * 1.25, lashC);
+    stroke([[ew * 0.6, eh * 0.95 * up], [ew * 0.98, eh * 0.5], [ew * (lashy ? 1.36 : 1.14), eh * (lashy ? 0.95 : 0.45) + ew * E.wing]], lw * 0.9, lashC);
+    if (lashy) for (const k of [0.25, 0.55, 0.85]) stroke([[ew * (0.35 + k * 0.6), eh * (1.2 - k * 0.55) * up], [ew * (0.5 + k * 0.72), eh * (1.55 - k * 0.5) * up + ew * E.wing * k]], 0.007, lashC);
+    stroke([[-ew * 0.85, eh * 1.3 * up + 0.012], [-ew * 0.2, eh * 2.0 * up + 0.014], [ew * 0.5, eh * 1.95 * up + 0.014], [ew * 1.05, eh * 1.0 + 0.01]], 0.005, shade, 0.5 + 0.35 * hoodK);
+    stroke([[ew, eh * 0.35], [ew * 0.6, -eh * lo], [-ew * 0.15, -eh * lo * 0.97]], 0.0055, lashC, lashy ? 0.7 : 0.5);
     c.restore();
   }
 
   // ---- the brows: full at the nose, arched, tapering out
-  const bt = n(spec.browAngle), th = (fem ? 0.02 : 0.032) * (1 + 0.5 * n(spec.browThick)), by = eh + 0.062 + 0.008 * n(spec.browRidge);
+  const bt = n(spec.browAngle), th = (fem ? 0.02 : 0.032) * (1 + 0.5 * n(spec.browThick)), by = eh * 1.35 * E.up + 0.05 + 0.008 * n(spec.browRidge) + E.brow;
   for (const sx of [-1, 1]) {
     const x0 = 0.04, x1 = ex + ew * 0.25, x2 = ex + ew * 1.2;
     const y0 = by - 0.006 - 0.03 * bt, y1 = by + 0.016 + 0.004 * bt, y2 = by - 0.004 + 0.016 * bt + 0.012 * n(spec.eyeSlant);

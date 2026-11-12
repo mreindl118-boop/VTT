@@ -8,7 +8,7 @@ import { HIP, SHIN, THIGH, clipRings, forearmRings, frameOf, loftGeometry, lockG
 import type { CreatureSize } from '../core/units';
 import { faceFeatures, type FaceSpec, type FaceDetail } from './faces';
 import { hairdo as buildHairdo, type Hairdo } from './hair';
-import { weapon as gearWeapon, scabbard, type WeaponSpec } from './weapons';
+import { weapon as gearWeapon, scabbard, closeGrip, secondHand, secondHandAt, type WeaponSpec } from './weapons';
 
 export type HeroWeapon = 'none' | 'sword' | 'axe' | 'mace' | 'staff' | 'spear' | 'torch';
 export type HeroOffhand = 'none' | 'shield' | 'book' | 'orb';
@@ -31,6 +31,8 @@ export interface HeroPose {
   shoulderR?: Euler3; elbowR?: number; wristR?: Euler3; shoulderL?: Euler3; elbowL?: number; wristL?: Euler3;
   hipR?: Euler3; kneeR?: number; ankleR?: Euler3; hipL?: Euler3; kneeL?: number; ankleL?: Euler3;
   holdR?: { upright?: boolean; tilt?: Euler3 }; holdL?: { upright?: boolean; tilt?: Euler3 };
+  /** The left hand comes onto the weapon the right hand holds (solved by kit/weapons.ts; the left arm's own angles are then ignored). */
+  twoHand?: boolean;
   lift?: number; seated?: boolean; spell?: 'right' | 'between';
   /** Laid out on the floor (a body): on its back, its front or its side. */
   lie?: 'back' | 'front' | 'side';
@@ -790,6 +792,10 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
     if (hold?.upright) g.rotation.x = -(l.root.rotation.x + l.mid.rotation.x + l.end.rotation.x);
     if (hold?.tilt) { g.rotation.x += hold.tilt[0]; g.rotation.y += hold.tilt[1] * sx; g.rotation.z += hold.tilt[2] * sx; }
   });
+  // a hand with a weapon in it closes on the haft (kit/weapons.ts)
+  if (f.gear?.handR || wpn && wpn !== 'none') closeGrip(R.end, gR, 1);
+  if (f.gear?.handL) closeGrip(Lf.end, gL, -1);
+  if (P.twoHand && f.gear?.handR && !f.gear.handL && !f.offhand) { const off = secondHandAt(f.gear.handR.kind); if (off !== undefined) secondHand(Lf.root, Lf.mid, Lf.end, gR, off * s, -1); }
   leg.forEach((l, k) => {
     const sx = k === 0 ? 1 : -1, sd = k === 0 ? 'R' : 'L', hip = mir(P[`hip${sd}`], sx, [0, 0, gown ? 0 : 0.04]), knee = P[`knee${sd}`] ?? 0, an = P[`ankle${sd}`] ?? [0, 0, 0];
     l.root.rotation.set(...hip); l.mid.rotation.x = knee;

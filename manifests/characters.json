@@ -71,7 +71,8 @@
      "fangs": true,
      "age": 0.25,
      "veins": "#8a8aa8",
-     "shadow": "#6a5a70"
+     "shadow": "#6a5a70",
+     "eyeShape": "heavy"
     },
     "gear": {
      "beltL": {
@@ -281,7 +282,8 @@
      "lipFull": 0.5,
      "smile": 0.1,
      "lashes": true,
-     "blush": "#c86a6a"
+     "blush": "#c86a6a",
+     "eyeShape": "doe"
     },
     "gear": {
      "handR": {
@@ -344,7 +346,8 @@
      "browAngle": 0.2,
      "beard": "stubble",
      "smile": -0.2,
-     "age": 0.2
+     "age": 0.2,
+     "eyeShape": "almond"
     },
     "gear": {
      "handR": {
@@ -441,7 +444,8 @@
      "age": 0.3,
      "scars": [
       "cheekR"
-     ]
+     ],
+     "eyeShape": "narrow"
     },
     "gear": {
      "handR": {
@@ -514,7 +518,8 @@
      "lipFull": 0.5,
      "smile": 0.3,
      "lashes": true,
-     "mole": "L"
+     "mole": "L",
+     "eyeShape": "cat"
     },
     "gear": {
      "handR": {
@@ -597,7 +602,8 @@
      "moustache": "thick",
      "beard": "goatee",
      "spectacles": "#b8952e",
-     "lipFull": -0.4
+     "lipFull": -0.4,
+     "eyeShape": "droop"
     },
     "gear": {
      "handR": {
@@ -669,7 +675,8 @@
      "lipFull": -0.5,
      "smile": 0.2,
      "age": 1,
-     "mole": "L"
+     "mole": "L",
+     "eyeShape": "heavy"
     },
     "pose": "old stoop R:offer L:hang",
     "battlePose": "old stoop R:claw L:ward spell",
@@ -722,7 +729,8 @@
      "eyeSize": 0.2,
      "lipFull": 0.3,
      "smile": 0.3,
-     "lashes": true
+     "lashes": true,
+     "eyeShape": "doe"
     },
     "pose": "stand proud R:offer L:offer",
     "battlePose": "rebuke",
@@ -807,7 +815,8 @@
      "smile": -0.5,
      "teeth": true,
      "age": 1,
-     "warts": true
+     "warts": true,
+     "eyeShape": "wide"
     },
     "gear": {
      "handR": {
@@ -871,7 +880,8 @@
      "sunken": 0.3,
      "lipFull": -0.3,
      "smile": -0.5,
-     "age": 0.4
+     "age": 0.4,
+     "eyeShape": "droop"
     },
     "gear": {
      "beltR": {
@@ -944,7 +954,8 @@
      "age": 0.6,
      "scars": [
       "across"
-     ]
+     ],
+     "eyeShape": "narrow"
     },
     "gear": {
      "handR": {
@@ -1009,7 +1020,8 @@
      "noseLen": 0.1,
      "beard": "full",
      "age": 0.6,
-     "smile": -0.1
+     "smile": -0.1,
+     "eyeShape": "droop"
     },
     "gear": {
      "handR": {
@@ -1075,7 +1087,8 @@
       "browL",
       "cheekR"
      ],
-     "beard": "stubble"
+     "beard": "stubble",
+     "eyeShape": "narrow"
     },
     "gear": {
      "handR": {
@@ -1086,7 +1099,7 @@
      }
     },
     "pose": "wide intent R:folded L:foldedLow",
-    "battlePose": "braced intent R:raised L:brace",
+    "battlePose": "braced turnR R:cocked L:brace two",
     "frame": "masculine",
     "build": "broad"
    },
@@ -1139,7 +1152,8 @@
      "beard": "goatee",
      "smile": 0.6,
      "teeth": true,
-     "age": 0.5
+     "age": 0.5,
+     "eyeShape": "wide"
     },
     "gear": {
      "handR": {
@@ -1201,7 +1215,9 @@
      "smile": 0.7,
      "age": 0.45,
      "lashes": true,
-     "blush": "#c87a7a"
+     "blush": "#c87a7a",
+     "eyeShape": "round",
+     "gaze": -0.4
     },
     "pose": "wringing",
     "battlePose": "wringing",
@@ -1276,7 +1292,9 @@
      "smile": -0.4,
      "age": 0.55,
      "shadow": "#4a2a3a",
-     "lashes": true
+     "lashes": true,
+     "eyeShape": "narrow",
+     "gaze": -0.6
     },
     "gear": {
      "beltR": {
@@ -1396,7 +1414,8 @@
      "browThick": 0.4,
      "smile": 0.3,
      "beard": "full",
-     "age": 0.35
+     "age": 0.35,
+     "eyeShape": "almond"
     },
     "gear": {
      "back": {
@@ -1445,7 +1464,8 @@
      "eyeSize": 0.2,
      "smile": 0.2,
      "browAngle": 0.2,
-     "age": 0.3
+     "age": 0.3,
+     "eyeShape": "cat"
     },
     "gear": {
      "back": {
@@ -1487,7 +1507,8 @@
      "noseHook": -0.5,
      "eyeSize": 0.7,
      "cheekbones": -0.3,
-     "smile": 0.4
+     "smile": 0.4,
+     "eyeShape": "round"
     },
     "pose": "stand easy R:hang L:hang look:up",
     "battlePose": "cower",
@@ -1528,7 +1549,8 @@
      "eyeSize": 0.6,
      "cheekbones": -0.3,
      "smile": -0.1,
-     "mole": "R"
+     "mole": "R",
+     "eyeShape": "round"
     },
     "pose": "stand easy R:hang L:chest look:up",
     "battlePose": "cower",
@@ -1580,7 +1602,8 @@
      "bags": 0.4,
      "beard": "full",
      "age": 0.85,
-     "smile": -0.4
+     "smile": -0.4,
+     "eyeShape": "narrow"
     },
     "gear": {
      "handR": {
@@ -1633,7 +1656,8 @@
      "scars": [
       "cheekL"
      ],
-     "age": 0.3
+     "age": 0.3,
+     "eyeShape": "almond"
     },
     "gear": {
      "handR": {
@@ -1686,7 +1710,8 @@
      "browRidge": 0.6,
      "browThick": 0.6,
      "beard": "stubble",
-     "smile": -0.3
+     "smile": -0.3,
+     "eyeShape": "narrow"
     },
     "gear": {
      "handR": {
@@ -1762,7 +1787,9 @@
      "smile": 0.5,
      "teeth": true,
      "age": 1,
-     "warts": true
+     "warts": true,
+     "eyeShape": "cat",
+     "gaze": 0.5
     },
     "pose": "old stoop R:offer L:skirt",
     "battlePose": "old stoop R:claw L:claw spell",
@@ -1884,7 +1911,8 @@
      "sunken": 0.4,
      "age": 0.7,
      "smile": -0.6,
-     "moustache": "droop"
+     "moustache": "droop",
+     "eyeShape": "droop"
     },
     "gear": {
      "handR": {
@@ -1937,7 +1965,8 @@
      "moustache": "handlebar",
      "beard": "stubble",
      "smile": 0.2,
-     "age": 0.45
+     "age": 0.45,
+     "eyeShape": "almond"
     },
     "gear": {
      "handR": {
@@ -2000,7 +2029,9 @@
      "eyeSize": -0.2,
      "moustache": "thin",
      "beard": "goatee",
-     "smile": 0.4
+     "smile": 0.4,
+     "eyeShape": "cat",
+     "gaze": 0.7
     },
     "gear": {
      "handR": {
@@ -2112,7 +2143,8 @@
      "scars": [
       "cheekR"
      ],
-     "smile": -0.5
+     "smile": -0.5,
+     "eyeShape": "narrow"
     },
     "gear": {
      "handR": {
@@ -2172,7 +2204,8 @@
      "smile": -0.3,
      "scars": [
       "browL"
-     ]
+     ],
+     "eyeShape": "doe"
     },
     "gear": {
      "handR": {
@@ -2269,7 +2302,9 @@
      "sunken": 0.4,
      "bags": 0.5,
      "smile": -0.5,
-     "beard": "goatee"
+     "beard": "goatee",
+     "eyeShape": "narrow",
+     "gaze": 0.6
     },
     "gear": {
      "beltR": {
@@ -2327,7 +2362,8 @@
      "eyeSpace": 0.3,
      "mouthW": 0.8,
      "smile": 1,
-     "blush": "#c84a4a"
+     "blush": "#c84a4a",
+     "eyeShape": "wide"
     },
     "gear": {
      "handR": {
@@ -2390,7 +2426,9 @@
      "lipFull": 0.2,
      "smile": -0.3,
      "fangs": true,
-     "lashes": true
+     "lashes": true,
+     "eyeShape": "heavy",
+     "gaze": -0.5
     },
     "pose": "weightL sway R:hip L:hang look:tilt",
     "battlePose": "feral",
@@ -2441,7 +2479,8 @@
      "smile": -0.4,
      "fangs": true,
      "lashes": true,
-     "shadow": "#5a4a6a"
+     "shadow": "#5a4a6a",
+     "eyeShape": "cat"
     },
     "pose": "weightR haughty R:chest L:skirt",
     "battlePose": "ready intent R:cast L:claw spell",
@@ -2495,7 +2534,8 @@
      "smile": 0.3,
      "fangs": true,
      "lashes": true,
-     "shadow": "#c8a850"
+     "shadow": "#c8a850",
+     "eyeShape": "heavy"
     },
     "pose": "weightL sway R:skirt L:hip",
     "battlePose": "ready intent R:claw L:claw",
@@ -2550,7 +2590,8 @@
      "teeth": true,
      "lashes": true,
      "shadow": "#1a1a1a",
-     "veins": "#3a3a4a"
+     "veins": "#3a3a4a",
+     "eyeShape": "wide"
     },
     "pose": "stride intent R:claw L:hang look:tilt",
     "battlePose": "ready low R:claw L:claw look:tilt",
@@ -2642,7 +2683,8 @@
      "browAngle": -0.4,
      "lipFull": 0.5,
      "smile": -0.2,
-     "lashes": true
+     "lashes": true,
+     "eyeShape": "doe"
     },
     "pose": "demure bowed R:chest L:skirt",
     "battlePose": "retreat recoil R:ward L:chest",
@@ -2775,7 +2817,8 @@
      "noseLen": 0.3,
      "age": 0.65,
      "beard": "stubble",
-     "smile": -0.7
+     "smile": -0.7,
+     "eyeShape": "droop"
     },
     "gear": {
      "beltR": {
@@ -2826,7 +2869,8 @@
      "eyeSize": 0.3,
      "fangs": true,
      "smile": -0.5,
-     "veins": "#6a6a8a"
+     "veins": "#6a6a8a",
+     "eyeShape": "droop"
     },
     "pose": "hunched",
     "battlePose": "feral",
@@ -2869,7 +2913,8 @@
      "browAngle": -0.9,
      "eyeSize": 0.5,
      "smile": -0.8,
-     "age": 0.5
+     "age": 0.5,
+     "eyeShape": "wide"
     },
     "pose": "wringing",
     "battlePose": "cower",
@@ -2918,7 +2963,8 @@
      "lipFull": 0.4,
      "smile": 0.3,
      "blush": "#d88a8a",
-     "lashes": true
+     "lashes": true,
+     "eyeShape": "round"
     },
     "pose": "demure easy R:skirt L:skirt look:up",
     "battlePose": "wringing",
@@ -2999,7 +3045,8 @@
      "noseW": 0.2,
      "browAngle": 0.5,
      "browThick": 0.3,
-     "smile": -0.4
+     "smile": -0.4,
+     "eyeShape": "almond"
     },
     "gear": {
      "handR": {
@@ -3008,7 +3055,7 @@
      }
     },
     "pose": "weightL bowed R:staff L:hang",
-    "battlePose": "brawl",
+    "battlePose": "braced turnR R:cocked L:brace two",
     "frame": "masculine"
    },
    "importance": 5.6
@@ -3076,7 +3123,8 @@
      "beard": "full",
      "bags": 0.3,
      "age": 0.7,
-     "smile": -0.3
+     "smile": -0.3,
+     "eyeShape": "almond"
     },
     "gear": {
      "handR": {
@@ -3123,7 +3171,8 @@
      "eyeSize": 0.1,
      "lipFull": 0.6,
      "smile": -0.2,
-     "age": 0.55
+     "age": 0.55,
+     "eyeShape": "almond"
     },
     "gear": {
      "handR": {
@@ -3182,7 +3231,8 @@
      "eyeSpace": 0.4,
      "mouthW": 0.5,
      "teeth": true,
-     "smile": 0.2
+     "smile": 0.2,
+     "eyeShape": "wide"
     },
     "gear": {
      "beltR": {
@@ -3263,7 +3313,8 @@
      "smile": 0.6,
      "teeth": true,
      "warts": true,
-     "age": 0.7
+     "age": 0.7,
+     "eyeShape": "round"
     },
     "gear": {
      "handR": {

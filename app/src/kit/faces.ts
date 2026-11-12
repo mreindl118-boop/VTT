@@ -30,6 +30,8 @@ export interface FaceSpec {
   browRidge?: number; browThick?: number; browAngle?: number; browColor?: string;
   /** The eyes: size, spacing, slant (outer corners up at 1), how deep they sit, hooded lids, bags beneath. */
   eyeSize?: number; eyeSpace?: number; eyeSlant?: number; sunken?: number; hooded?: number; bags?: number;
+  /** The cut of the eye (kit/facepaint.ts EyeShape; picked from the sliders when left out), and where the eyes look: -1 to the figure's right, 1 to its left. */
+  eyeShape?: import('./facepaint').EyeShape; gaze?: number;
   /** The mouth: width, fullness, and its set from a frown (-1) to a smile (1); fangs; bared teeth. */
   mouthW?: number; lipFull?: number; smile?: number; fangs?: boolean; teeth?: boolean;
   beard?: Beard; moustache?: Moustache; beardColor?: string;

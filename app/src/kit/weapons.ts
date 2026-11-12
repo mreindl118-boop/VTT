@@ -241,3 +241,57 @@ export function scabbard(len: number, c = '#2a2420', fit = '#b08a3a'): THREE.Gro
   const g = new THREE.Group(); const b = box(0.07, len, 0.17, c); g.add(at(b, 0, -len / 2, 0));
   g.add(at(box(0.085, 0.14, 0.19, fit), 0, -0.07, 0), at(box(0.085, 0.2, 0.15, fit), 0, -len + 0.08, 0)); return g;
 }
+
+/** Close a hand on what it holds. The rig turns a held weapon freely (upright, tilted); a real hand holds a haft across
+ *  the palm with the blade leaving on the thumb's side, so the wrist is turned until the hand's own grip line lies along
+ *  the weapon, the weapon stays exactly where the pose aimed it, and the fingers and thumb are wrapped into a fist
+ *  around the haft. `hand` is the rig's wrist group (palm, eight finger joints, thumb, then the holder), `held` the
+ *  holder inside it, `sx` 1 for the right hand and -1 for the left. */
+export function closeGrip(hand: THREE.Object3D, held: THREE.Object3D, sx: number): void {
+  const meshes = hand.children.filter((c) => (c as THREE.Mesh).isMesh) as THREE.Mesh[];
+  if (meshes.length < 10) return;
+  const palm = meshes[0], u = ((palm.geometry as THREE.SphereGeometry).parameters?.radius ?? 0.105) / 0.105;
+  const aim = hand.quaternion.clone().multiply(held.quaternion);                         // where the pose pointed the weapon, in the forearm's frame
+  const d = new THREE.Vector3(0, 1, 0).applyQuaternion(aim), h = new THREE.Vector3(-sx, 0, 0).applyQuaternion(hand.quaternion);
+  hand.quaternion.premultiply(new THREE.Quaternion().setFromUnitVectors(h, d));
+  held.quaternion.copy(hand.quaternion.clone().invert().multiply(aim));
+  held.position.set(0, -0.15 * u, 0.085 * u);
+  fist(meshes, sx, u);
+}
+/** Wrap the fingers and thumb of a rig hand round a haft lying across the palm. */
+function fist(meshes: THREE.Mesh[], sx: number, u: number): void {
+  for (let i = 0; i < 4; i++) {
+    const k1 = meshes[1 + i * 2], k2 = meshes[2 + i * 2], x = k1.position.x;
+    k1.rotation.x = -1.5; k1.position.set(x, -0.255 * u, 0.06 * u);
+    k2.rotation.x = -3.3; k2.position.set(x, -0.2 * u, 0.16 * u);
+  }
+  const th = meshes[9]; th.rotation.set(-0.2, 0, -sx * 1.35); th.position.set(-sx * 0.045 * u, -0.085 * u, 0.15 * u);
+}
+/** How far along a weapon from the leading hand the second hand takes hold (ft; negative = toward the pommel), or
+ *  undefined for a weapon carried in one hand. */
+export function secondHandAt(kind: string): number | undefined {
+  return ({ greatsword: -0.5, 'dragon-greatsword': -0.5, longsword: -0.32, greataxe: 1.1, battleaxe: 0.9, spear: 1.3, quarterstaff: 1.2, shovel: 1.1, pitchfork: 1.2, club: undefined } as Record<string, number | undefined>)[kind];
+}
+/** Bring the other hand onto the weapon: the arm (shoulder `root`, elbow `mid`, wrist `end`) is solved to reach the
+ *  point `off` along the weapon in `held`, the wrist is turned to the haft and the hand closed on it. */
+export function secondHand(root: THREE.Object3D, mid: THREE.Object3D, end: THREE.Object3D, held: THREE.Object3D, off: number, sx: number): void {
+  const top = root.parent; if (!top) return;
+  let r: THREE.Object3D = top; while (r.parent) r = r.parent; r.updateMatrixWorld(true);
+  const T = top.worldToLocal(held.localToWorld(new THREE.Vector3(0, off, 0))).sub(root.position);
+  const L1 = mid.position.length(), L2 = end.position.length(), d = Math.max(0.2 * (L1 + L2), Math.min(T.length(), (L1 + L2) * 0.985));
+  const phi = Math.acos(Math.max(-1, Math.min(1, (L1 * L1 + L2 * L2 - d * d) / (2 * L1 * L2))));
+  mid.rotation.set(-(Math.PI - phi), 0, 0);
+  const v0 = mid.position.clone().add(end.position.clone().applyEuler(mid.rotation)).normalize();
+  // turned inward first, so the elbow drops outward and down rather than across the chest
+  const pre = new THREE.Quaternion().setFromEuler(new THREE.Euler(0, -sx * 0.9, 0)), v1 = v0.clone().applyQuaternion(pre);
+  root.quaternion.setFromUnitVectors(v1, T.clone().normalize()).multiply(pre);
+  r.updateMatrixWorld(true);
+  const meshes = end.children.filter((c) => (c as THREE.Mesh).isMesh) as THREE.Mesh[]; if (meshes.length < 10) return;
+  const u = ((meshes[0].geometry as THREE.SphereGeometry).parameters?.radius ?? 0.105) / 0.105;
+  const axisW = new THREE.Vector3(0, 1, 0).transformDirection(held.matrixWorld);
+  const dF = axisW.clone().transformDirection(mid.matrixWorld.clone().invert());
+  const h = new THREE.Vector3(-sx, 0, 0).applyQuaternion(end.quaternion);
+  if (h.dot(dF) < 0) dF.negate();
+  end.quaternion.premultiply(new THREE.Quaternion().setFromUnitVectors(h, dF));
+  fist(meshes, sx, u);
+}

@@ -28,13 +28,13 @@ export const NPC_POSES = {
   /** En garde: side on, the point forward, the off hand high behind. */
   duelist: { pelvis: [0, 0.15, 0], spine: [0.08, 0.3, 0], neck: [0, -0.4, 0], shoulderR: [-0.95, 0, 0.12], elbowR: -0.95, holdR: { upright: true, tilt: [1.15, 0, 0] }, shoulderL: [0.3, 0, 0.55], elbowL: -1.1, ...LUNGE },
   /** A great blade heaved overhead in both hands. */
-  'overhead': { spine: [-0.04, -0.25, 0], neck: [0.02, 0.22, 0], shoulderR: [-1.85, 0, 0.45], elbowR: -1.55, shoulderL: [-1.8, -0.55, -0.05], elbowL: -1.35, holdR: { upright: true, tilt: [-0.55, 0, -0.2] }, ...BRACED },
+  'overhead': { twoHand: true, spine: [-0.04, -0.25, 0], neck: [0.02, 0.22, 0], shoulderR: [-1.85, 0, 0.45], elbowR: -1.55, shoulderL: [-1.8, -0.55, -0.05], elbowL: -1.35, holdR: { upright: true, tilt: [-0.55, 0, -0.2] }, ...BRACED },
   /** An axe wound back over the shoulder, the other arm thrust out. */
-  windup: { spine: [0.06, -0.4, 0], neck: [0, 0.35, 0], shoulderR: [-0.65, 0, 0.9], elbowR: -1.9, holdR: { upright: true, tilt: [-0.7, 0, 0.3] }, shoulderL: [-1.05, -0.25, 0.2], elbowL: -0.75, ...BRACED },
+  windup: { twoHand: true, spine: [0.06, -0.4, 0], neck: [0, 0.35, 0], shoulderR: [-0.65, 0, 0.9], elbowR: -1.9, holdR: { upright: true, tilt: [-0.7, 0, 0.3] }, shoulderL: [-1.05, -0.25, 0.2], elbowL: -0.75, ...BRACED },
   /** A curved blade drawn back across the body for a slash. */
   slash: { spine: [0.08, -0.3, 0], neck: [0, 0.25, 0], shoulderR: [-0.9, 0, 0.5], elbowR: -2.0, holdR: { upright: true, tilt: [-0.4, 0, 0.3] }, shoulderL: [-1.0, -0.3, 0.2], elbowL: -1.1, ...BRACED },
   /** A spear or pitchfork levelled in both hands. */
-  thrust: { spine: [0.18, -0.45, 0], neck: [-0.08, 0.4, 0], shoulderR: [0.25, 0, 0.25], elbowR: -1.2, holdR: { upright: true, tilt: [1.45, 0, 0] }, shoulderL: [-0.9, -0.5, 0], elbowL: -0.6, hipL: [-0.65, 0, 0.12], kneeL: 0.75, hipR: [0.4, 0.35, 0.2], kneeR: 0.3 },
+  thrust: { twoHand: true, spine: [0.18, -0.45, 0], neck: [-0.08, 0.4, 0], shoulderR: [0.25, 0, 0.25], elbowR: -1.2, holdR: { upright: true, tilt: [1.45, 0, 0] }, shoulderL: [-0.9, -0.5, 0], elbowL: -0.6, hipL: [-0.65, 0, 0.12], kneeL: 0.75, hipR: [0.4, 0.35, 0.2], kneeR: 0.3 },
   /** A hag's curse: bent double over her staff, a clawed hand raised. */
   curse: { spine: [0.4, 0.1, 0], neck: [-0.36, 0, 0], shoulderR: [-0.8, 0, 0.2], elbowR: -1.0, holdR: { upright: true }, shoulderL: [-1.5, 0, 0.3], elbowL: -1.2, wristL: [0.7, 0, 0], hipL: [-0.4, 0, 0.15], kneeL: 0.8, hipR: [-0.3, 0, 0.15], kneeR: 0.7 },
   /** A spell thrown from the right hand, feet planted. */
@@ -155,7 +155,9 @@ const ARMS: Record<string, Arm> = {
   shaft: { sh: [-0.9, -0.5, 0], el: -0.6 },
   brace: { sh: [-1.0, -0.3, 0.2], el: -1.1 },
 };
-const LOOKS: Record<string, [number, number, number]> = { L: [0, 0.35, 0], R: [0, -0.35, 0], up: [-0.25, 0, 0], down: [0.25, 0, 0], tilt: [0, 0, 0.14] };
+const LOOKS: Record<string, [number, number, number]> = { L: [0, 0.35, 0], R: [0, -0.35, 0], up: [-0.22, 0, 0], down: [0.22, 0, 0], tilt: [0, 0, 0.16], tiltL: [0, 0, 0.16], tiltR: [0, 0, -0.16], ahead: [0, 0, 0] };
+/** Arms that draw the eye: the head turns a little toward the hand that is doing something. */
+const POINTED = ['beckon', 'offer', 'command', 'cast', 'claw', 'guard', 'point', 'lowguard', 'ward', 'high', 'staff'];
 /** Put a pose together from its words: a stance, a carriage, `R:` and `L:` arms, `look:` for the head, `spell` for a
  *  lit hand, `float` to hang above the floor. An arm may also be given raw as `R:@x,y,z,elbow` while a new one is tried. */
 export function compose(words: string): HeroPose {
@@ -166,6 +168,7 @@ export function compose(words: string): HeroPose {
     else if (w === 'spell') out.spell = 'right';
     else if (w === 'spellL') out.spell = 'left';
     else if (w === 'float') out.lift = 0.9;
+    else if (w === 'two') out.twoHand = true;
     else if (/^look:/.test(w)) { const k = LOOKS[w.slice(5)], n = (out.neck as number[] | undefined) ?? [0, 0, 0]; if (k) out.neck = [n[0] + k[0], n[1] + k[1], n[2] + k[2]]; }
     else if (/^[RL]:/.test(w)) {
       const side = w[0], name = w.slice(2);
@@ -174,12 +177,21 @@ export function compose(words: string): HeroPose {
       out['shoulder' + side] = a.sh; out['elbow' + side] = a.el; if (a.wr) out['wrist' + side] = a.wr; if (a.hold) out['hold' + side] = a.hold;
     }
   }
+  // no head is ever held dead level: unless the pose says where to look, the head tips toward the standing leg and turns
+  // a little toward the working hand
+  if (!/look:/.test(words)) {
+    const nk = ((out.neck as number[] | undefined) ?? [0, 0, 0]).slice() as [number, number, number];
+    if (/\bweightR\b|\blunge\b|\bready\b/.test(words)) nk[2] -= 0.1; else if (/\bweightL\b|\bbraced\b|\bretreat\b/.test(words)) nk[2] += 0.1; else nk[2] += 0.06;
+    const r = /R:(\w+)/.exec(words)?.[1], l = /L:(\w+)/.exec(words)?.[1];
+    if (r && POINTED.includes(r) && !(l && POINTED.includes(l))) nk[1] -= 0.18; else if (l && POINTED.includes(l) && !(r && POINTED.includes(r))) nk[1] += 0.18;
+    out.neck = nk;
+  }
   return out as HeroPose;
 }
 
 /** Whether every word of a composed pose is one this file knows (the test's check on the manifest). */
 export function composedOk(words: string): boolean {
-  return words.trim().split(/\s+/).every((w) => !!STANCES[w] || !!TORSOS[w] || ['spell', 'spellL', 'float'].includes(w) || (/^look:/.test(w) && w.slice(5) in LOOKS) || (/^[RL]:/.test(w) && (w[2] === '@' || w.slice(2) in ARMS)));
+  return words.trim().split(/\s+/).every((w) => !!STANCES[w] || !!TORSOS[w] || ['spell', 'spellL', 'float', 'two'].includes(w) || (/^look:/.test(w) && w.slice(5) in LOOKS) || (/^[RL]:/.test(w) && (w[2] === '@' || w.slice(2) in ARMS)));
 }
 export function posed<T extends { pose?: unknown; battlePose?: unknown }>(f: T): T {
   const fix = (p: unknown) => (typeof p !== 'string' ? p : p in NPC_POSES ? NPC_POSES[p as NpcPoseName] : /[ :]/.test(p) ? compose(p) : p);
