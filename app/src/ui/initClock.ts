@@ -197,25 +197,36 @@ export function openClock(host: ClockHost): void {
   function dialSvg(): string {
     const list = ordered(clock), active = byId(clock.active ?? '');
     let s = `<svg class="ic-dial" viewBox="0 0 560 560" role="img" aria-label="Initiative dial, round ${clock.round}">`;
-    s += `<defs><filter id="ic-glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>`;
-    s += `<circle class="ic-rim" cx="${C}" cy="${C}" r="276"/>`;
-    // Six blocks of five, alternating, with the top of the round between 1 and 30.
-    for (let b = 0; b < 6; b++) s += `<path class="ic-block b${b % 2}" d="${arc(b * 60 + 0.6, (b + 1) * 60 - 0.6, 108, 176)}"/>`;
-    s += `<path class="ic-crown" d="${arc(-5.4, 5.4, 176, 270)}"/>`;
-    // Round progress: from the top to the active count.
-    if (active && clock.started) { const a = angleOf(active.init); if (a > 0) s += `<path class="ic-progress" d="${arc(0.2, a, 176, 182)}"/>`; }
-    if (active && active.init !== null) { const a = angleOf(active.init); s += `<path class="ic-now" d="${arc(a - 6, a + 6, 108, 182)}" filter="url(#ic-glow)"/>`; }
+    s += `<defs>
+      <filter id="ic-glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      <filter id="ic-drop" x="-40%" y="-40%" width="180%" height="180%"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity=".45"/></filter>
+      <radialGradient id="ic-g-leather" cx="50%" cy="45%" r="60%"><stop offset="0%" style="stop-color:var(--ic-leather-hi)"/><stop offset="100%" style="stop-color:var(--ic-leather)"/></radialGradient>
+      <linearGradient id="ic-g-gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" style="stop-color:var(--ic-gold-hi)"/><stop offset="50%" style="stop-color:var(--ic-gold)"/><stop offset="100%" style="stop-color:var(--ic-gold-lo)"/></linearGradient>
+      <linearGradient id="ic-g-iron" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#e4e4ea"/><stop offset="55%" stop-color="#8d8f99"/><stop offset="100%" stop-color="#4b4d55"/></linearGradient>
+      <linearGradient id="ic-g-bronze" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f0c79a"/><stop offset="55%" stop-color="#a86b3c"/><stop offset="100%" stop-color="#5e3a1e"/></linearGradient>
+      <linearGradient id="ic-g-die" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" style="stop-color:var(--ic-red-hi)"/><stop offset="100%" style="stop-color:var(--ic-red-lo)"/></linearGradient>
+      <radialGradient id="ic-g-shine" cx="35%" cy="30%" r="60%"><stop offset="0%" stop-color="#fff" stop-opacity=".55"/><stop offset="60%" stop-color="#fff" stop-opacity="0"/></radialGradient>
+    </defs>`;
+    // The leather dial with a stitched edge and a gold bezel.
+    s += `<circle class="ic-rim" cx="${C}" cy="${C}" r="276" fill="url(#ic-g-leather)"/><circle class="ic-stitch" cx="${C}" cy="${C}" r="268"/><circle class="ic-bezel" cx="${C}" cy="${C}" r="186"/>`;
+    // Six blocks of five on parchment, the top of the round between 1 and 30.
+    for (let b = 0; b < 6; b++) s += `<path class="ic-block b${b % 2}" d="${arc(b * 60 + 0.6, (b + 1) * 60 - 0.6, 108, 182)}"/>`;
+    s += `<path class="ic-crown" d="${arc(-5.6, 5.6, 108, 274)}"/>`;
+    const [sx, sy] = pol(0, 236); s += `<path class="ic-star" d="M${sx} ${sy - 11}l3.2 7.8 8.3.6-6.4 5.3 2 8.1-7.1-4.4-7.1 4.4 2-8.1-6.4-5.3 8.3-.6z"/>`;
+    // Round progress and the lit count.
+    if (active && clock.started) { const a = angleOf(active.init); if (a > 0) s += `<path class="ic-progress" d="${arc(0.2, a, 182, 188)}"/>`; }
+    if (active && active.init !== null) { const a = angleOf(active.init); s += `<path class="ic-now" d="${arc(a - 6, a + 6, 108, 188)}" filter="url(#ic-glow)"/>`; }
     for (let v = 1; v <= DIAL_MAX; v++) {
-      const a = angleOf(v), five = v % 5 === 0, [x1, y1] = pol(a, five ? 168 : 172), [x2, y2] = pol(a, 182), [tx, ty] = pol(a, five ? 144 : 150);
+      const a = angleOf(v), five = v % 5 === 0, [x1, y1] = pol(a, five ? 170 : 175), [x2, y2] = pol(a, 182), [tx, ty] = pol(a, five ? 145 : 151);
       const on = active?.init === v;
       s += `<line class="ic-tick${five ? ' five' : ''}" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`;
       s += `<text class="ic-n${five ? ' five' : ''}${on ? ' on' : ''}" data-n="${v}" x="${tx}" y="${ty}">${v}</text>`;
-      if (v < DIAL_MAX && v % 5 === 0) { const [bx1, by1] = pol(a - 6, 108), [bx2, by2] = pol(a - 6, 186); s += `<line class="ic-split" x1="${bx1}" y1="${by1}" x2="${bx2}" y2="${by2}"/>`; }
+      if (v < DIAL_MAX && v % 5 === 0) { const [bx1, by1] = pol(a - 6, 108), [bx2, by2] = pol(a - 6, 182); s += `<line class="ic-split" x1="${bx1}" y1="${by1}" x2="${bx2}" y2="${by2}"/>`; }
     }
-    const [cx, cy] = pol(0, 128); s += `<text class="ic-n top" data-n="${TOP}" x="${cx}" y="${cy + 4}">TOP</text>`;
-    // The hand.
-    if (active && active.init !== null) { const [hx, hy] = pol(angleOf(active.init), 170); s += `<line class="ic-hand" x1="${C}" y1="${C}" x2="${hx}" y2="${hy}"/><circle class="ic-hand-tip" cx="${hx}" cy="${hy}" r="5"/>`; }
-    // The chips, stacked outwards on a shared count (a group rolled together is one chip with a count).
+    const [cx, cy] = pol(0, 132); s += `<text class="ic-n top" data-n="${TOP}" x="${cx}" y="${cy + 3}">TOP</text>`;
+    // The hand: a little sword from the die to the lit count (rotated, so it can sweep).
+    if (active && active.init !== null) s += `<g class="ic-hand-g" style="transform: rotate(${angleOf(active.init)}deg)"><path class="ic-blade" d="M${C - 5} ${C - 96}L${C} ${C - 178}L${C + 5} ${C - 96}Z"/><path class="ic-guard" d="M${C - 15} ${C - 96}h30v6h-30z"/><circle class="ic-pommel" cx="${C}" cy="${C - 84}" r="5"/></g>`;
+    // The chips: tokens on their count, ties stacked outwards; a group rolled together is one token with a count.
     const stacks = new Map<number, number>();
     const shown = new Set<string>();
     for (const e of list) {
@@ -224,23 +235,35 @@ export function openClock(host: ClockHost): void {
       mates.forEach((x) => shown.add(x.id));
       const slot = e.init > DIAL_MAX ? TOP : Math.max(1, e.init);
       const k = stacks.get(slot) ?? 0; stacks.set(slot, k + 1);
-      if (k > 2) { if (k === 3) { const [ox, oy] = pol(angleOf(slot), 268); s += `<text class="ic-more" x="${ox}" y="${oy}">+</text>`; } continue; }
-      const r = 206 + k * 30, [x, y] = pol(angleOf(slot), r);
+      if (k > 2) { if (k === 3) { const [ox, oy] = pol(angleOf(slot), 270); s += `<text class="ic-more" x="${ox}" y="${oy}">+</text>`; } continue; }
+      const r = 210 + k * 28, [x, y] = pol(angleOf(slot), r);
       const isNow = mates.some((x) => x.id === clock.active), acted = mates.every((x) => clock.acted.includes(x.id)) && !isNow;
       const off = e.kind === 'combatant' && !takesTurn(e, clock.round);
       const rad = isNow ? 17 : 14;
       const cls = ['ic-chip', e.kind, e.side, isNow && 'now', acted && 'acted', off && 'off', e.hidden && 'hidden', selected === e.id && 'sel'].filter(Boolean).join(' ');
       const tip = esc(`${mates.length > 1 ? `${mates.length} × ` : ''}${e.kind === 'reminder' ? e.rem?.text ?? e.name : e.name} · ${e.init >= TOP ? 'top of the round' : `initiative ${e.init}`}${e.hp ? ` · HP ${e.hp.cur}/${e.hp.max}` : ''}${e.ac ? ` · AC ${e.ac}` : ''}`);
+      const at = `data-drag="entry:${e.id}" data-chip="${e.id}" data-tip="${tip}" style="transform: translate(${x.toFixed(1)}px, ${y.toFixed(1)}px)"`;
       if (e.kind === 'reminder') {
         const left = roundsLeft(e, clock.round);
-        s += `<g class="${cls}" data-drag="entry:${e.id}" data-tip="${tip}" transform="translate(${x} ${y})"><rect x="-13" y="-13" width="26" height="26" rx="4" transform="rotate(45)" fill="${esc(e.color)}"/><text y="5">${left === undefined ? '!' : left}</text></g>`;
+        s += `<g class="${cls}" ${at}><g class="ic-chip-in"><rect x="-13" y="-13" width="26" height="26" rx="5" transform="rotate(45)" fill="${esc(e.color)}" stroke="url(#ic-g-gold)" stroke-width="3" filter="url(#ic-drop)"/><text y="5">${left === undefined ? '!' : left}</text></g></g>`;
       } else {
-        const f = mates.reduce((a, m) => a + hpFrac(m), 0) / mates.length, circ = 2 * Math.PI * (rad + 3);
-        s += `<g class="${cls}" data-drag="entry:${e.id}" data-tip="${tip}" transform="translate(${x} ${y})">${e.hp ? `<circle class="ic-hpring" r="${rad + 3}" stroke="${hpColor(f)}" stroke-dasharray="${(circ * f).toFixed(1)} ${circ.toFixed(1)}" transform="rotate(-90)"/>` : ''}<circle r="${rad}" fill="${esc(e.color)}"/><text y="4">${esc(initials(e.name))}</text>${mates.length > 1 ? `<g class="ic-badge" transform="translate(${rad - 2} ${-rad + 2})"><circle r="8"/><text y="3">${mates.length}</text></g>` : ''}${e.conditions.length ? `<circle class="ic-cond-dot" cx="${-rad + 2}" cy="${-rad + 2}" r="4"/>` : ''}${e.conc ? `<circle class="ic-conc-dot" cx="${-rad + 2}" cy="${rad - 2}" r="4"/>` : ''}</g>`;
+        const f = mates.reduce((a, m) => a + hpFrac(m), 0) / mates.length, circ = 2 * Math.PI * (rad + 4.5);
+        const metal = e.side === 'pc' ? 'ic-g-gold' : e.side === 'ally' ? 'ic-g-bronze' : 'ic-g-iron';
+        s += `<g class="${cls}" ${at}><g class="ic-chip-in">${e.hp ? `<circle class="ic-hpring-bg" r="${rad + 4.5}"/><circle class="ic-hpring" r="${rad + 4.5}" stroke="${hpColor(f)}" stroke-dasharray="${(circ * f).toFixed(1)} ${circ.toFixed(1)}" transform="rotate(-90)"/>` : ''}<circle r="${rad + 1.5}" fill="url(#${metal})" filter="url(#ic-drop)"/><circle class="ic-face" r="${rad - 1.5}" fill="${esc(e.color)}"/><circle r="${rad - 1.5}" fill="url(#ic-g-shine)"/><text y="4">${esc(initials(e.name))}</text>${mates.length > 1 ? `<g class="ic-badge" transform="translate(${rad - 1} ${-rad + 1})"><circle r="8"/><text y="3">${mates.length}</text></g>` : ''}${e.conditions.length ? `<circle class="ic-cond-dot" cx="${-rad + 2}" cy="${-rad + 2}" r="4"/>` : ''}${e.conc ? `<circle class="ic-conc-dot" cx="${-rad + 2}" cy="${rad - 2}" r="4"/>` : ''}</g></g>`;
       }
     }
-    // The hub: the round, game time, and Next.
-    s += `<g class="ic-hub" data-a="next" role="button" aria-label="${clock.started ? 'Next turn' : 'Start the fight'}"><circle cx="${C}" cy="${C}" r="92"/><text class="ic-hub-k" x="${C}" y="${C - 38}">${clock.started ? 'ROUND' : 'READY'}</text><text class="ic-hub-r" x="${C}" y="${C + 14}">${clock.started ? clock.round : '▶'}</text><text class="ic-hub-t" x="${C}" y="${C + 40}">${clock.started ? esc(gameTime(clock.round)) : 'tap to start'}</text><text class="ic-hub-n" x="${C}" y="${C + 64}">${clock.started ? 'NEXT ▸' : ''}</text></g>`;
+    // The hub: a d20 with the round on its face. Tap it for the next turn.
+    const hx = (deg: number, r: number) => pol(deg, r).map((n) => n.toFixed(1)).join(' ');
+    const hex = [0, 60, 120, 180, 240, 300].map((a) => hx(a, 96)), tri = [0, 120, 240].map((a) => hx(a, 60));
+    s += `<g class="ic-hub" data-a="next" role="button" aria-label="${clock.started ? 'Next turn' : 'Start the fight'}"><g class="ic-die">
+      <polygon class="ic-die-body" points="${hex.join(' ')}" fill="url(#ic-g-die)"/>
+      <polygon class="ic-die-face" points="${tri.join(' ')}"/>
+      ${[[0, 0], [0, 60], [0, 300], [120, 60], [120, 120], [120, 180], [240, 180], [240, 240], [240, 300]].map(([t, h]) => `<line class="ic-die-edge" x1="${hx(t, 60).split(' ')[0]}" y1="${hx(t, 60).split(' ')[1]}" x2="${hx(h, 96).split(' ')[0]}" y2="${hx(h, 96).split(' ')[1]}"/>`).join('')}
+      <polygon class="ic-die-rim" points="${hex.join(' ')}"/>
+      <text class="ic-hub-k" x="${C}" y="${C - 14}">${clock.started ? 'ROUND' : 'ROLL'}</text>
+      <text class="ic-hub-r" x="${C}" y="${C + 22}">${clock.started ? clock.round : '20'}</text>
+      <text class="ic-hub-t" x="${C}" y="${C + 42}">${clock.started ? esc(gameTime(clock.round)) : 'tap to begin'}</text>
+      <text class="ic-hub-n" x="${C}" y="${C + 80}">${clock.started ? 'NEXT ▸' : 'START ▸'}</text></g></g>`;
     return s + '</svg>';
   }
 
@@ -435,15 +458,59 @@ export function openClock(host: ClockHost): void {
 
   // -------------------------------------------------------------- the whole dock
 
+  // -------------------------------------------------------------- motion: the hand sweeps, tokens glide, a banner names the turn
+
+  let lastActive: string | null = clock.active, lastRound = clock.round, lastAngle: number | null = null, drawn = false;
+  const calm = () => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const posOf = (g: Element): [number, number] | null => { const m = /translate\(([-\d.]+)px,\s*([-\d.]+)px\)/.exec((g as SVGElement).style.transform); return m ? [Number(m[1]), Number(m[2])] : null; };
+  const capture = () => { const m = new Map<string, [number, number]>(); dock.querySelectorAll<SVGElement>('[data-chip]').forEach((g) => { const p = posOf(g); if (p) m.set(g.dataset.chip!, p); }); return m; };
+  function animateDial(before: Map<string, [number, number]>): void {
+    const active = byId(clock.active ?? '');
+    const to = active && active.init !== null ? angleOf(active.init) : null;
+    const turned = clock.started && clock.active !== lastActive && !!active;
+    if (!calm() && drawn) {
+      const hand = dock.querySelector<SVGElement>('.ic-hand-g');
+      if (hand && to !== null && lastAngle !== null && lastAngle !== to) {
+        // Always sweep clockwise when the turn moves on (past the top into a new round).
+        const forward = clock.round > lastRound || (clock.round === lastRound && to > lastAngle);
+        const end = forward && to < lastAngle ? to + 360 : to;
+        hand.animate([{ transform: `rotate(${lastAngle}deg)` }, { transform: `rotate(${end}deg)` }], { duration: 650, easing: 'cubic-bezier(.34,1.45,.64,1)' });
+      }
+      dock.querySelectorAll<SVGElement>('[data-chip]').forEach((g) => {
+        const p = posOf(g), old = before.get(g.dataset.chip!);
+        if (!p) return;
+        if (old && (old[0] !== p[0] || old[1] !== p[1])) g.animate([{ transform: `translate(${old[0]}px, ${old[1]}px)` }, { transform: `translate(${p[0]}px, ${p[1]}px)` }], { duration: 520, easing: 'cubic-bezier(.34,1.35,.64,1)' });
+        else if (!old) g.querySelector('.ic-chip-in')?.animate([{ transform: 'scale(0) rotate(-90deg)' }, { transform: 'scale(1.18) rotate(8deg)', offset: 0.7 }, { transform: 'scale(1) rotate(0)' }], { duration: 460, easing: 'ease-out' });
+      });
+      if (turned) {
+        dock.querySelector<SVGElement>('.ic-die')?.animate([{ transform: 'rotate(0) scale(1)' }, { transform: 'rotate(200deg) scale(.92)', offset: 0.55 }, { transform: 'rotate(360deg) scale(1)' }], { duration: 620, easing: 'cubic-bezier(.3,.7,.3,1)' });
+        dock.querySelector('.ic-chip.now .ic-chip-in')?.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.35)' }, { transform: 'scale(1)' }], { duration: 500, delay: 250, easing: 'ease-out' });
+      }
+    }
+    if (turned && drawn && active) {
+      const b = dock.querySelector<HTMLElement>('.ic-banner');
+      if (b) {
+        const newRound = clock.round !== lastRound;
+        b.style.setProperty('--c', active.color);
+        b.innerHTML = active.kind === 'reminder'
+          ? `<small>${newRound ? `Round ${clock.round} · ` : ''}Reminder</small><b>${esc(active.rem?.text ?? active.name)}</b>`
+          : `<small>${newRound ? `Round ${clock.round} · ` : ''}${active.side === 'pc' ? 'Your turn' : active.side === 'ally' ? 'Ally' : 'Foe'}</small><b>${esc(active.name)}</b>`;
+        b.classList.remove('show'); void b.offsetWidth; b.classList.add('show');
+      }
+    }
+    lastActive = clock.active; lastRound = clock.round; lastAngle = to; drawn = true;
+  }
+
   function render(): void {
     const g = ++tick;
+    const before = capture();
     const tabs: [Tab, string][] = [['order', 'Order'], ['build', 'Build'], ['remind', 'Reminders'], ['party', 'Party'], ['log', 'Log']];
     const delayed = clock.entries.filter((e) => e.delayed);
     const scroll = dock.querySelector('.ic-side')?.scrollTop ?? 0;
     const focus = (document.activeElement as HTMLElement | null)?.dataset?.f, focusId = document.activeElement?.closest<HTMLElement>('[data-id]')?.dataset.id;
     dock.dataset.mode = prefs.mode;
     dock.innerHTML = `<header class="ic-head" data-drag-dock>
-        <h2>Initiative <span>clock</span></h2>
+        <h2><svg class="ic-logo" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.5 21.5 7v10L12 22.5 2.5 17V7z"/><path d="M12 1.5 7 9h10zM7 9l-4.5 8M17 9l4.5 8M7 9l5 13.5M17 9l-5 13.5M7 9h10" fill="none"/></svg>Initiative <span>clock</span></h2>
         <div class="ic-tools">
           <button data-a="prev" aria-label="Previous turn" data-tip="Previous turn" data-tip-sub="P">◂</button>
           <button class="primary" data-a="next" data-tip="${clock.started ? 'Next turn' : 'Start'}" data-tip-sub="N or Space">${clock.started ? 'Next ▸' : 'Start ▸'}</button>
@@ -454,7 +521,7 @@ export function openClock(host: ClockHost): void {
           <button data-a="close" aria-label="Close" data-tip="Close" data-tip-sub="The fight is kept">×</button>
         </div></header>
       <div class="ic-body">
-        <div class="ic-wheel">${dialSvg()}
+        <div class="ic-wheel"><div class="ic-dialwrap">${dialSvg()}<div class="ic-banner" aria-hidden="true"></div></div>
           <div class="ic-tray" aria-label="Party">${party.map((m) => { const e = clock.entries.find((x) => x.src?.type === 'pc' && x.src.partyId === m.id); return `<span class="ic-pc${e?.init != null ? ' in' : ''}${e && e.id === clock.active ? ' now' : ''}" style="--c:${esc(m.color)}"><span class="ic-pcname" data-drag="party:${m.id}" data-tip="${esc(m.name)}${m.player ? ` (${esc(m.player)})` : ''}" data-tip-sub="Drag onto the dial, or type a number">${esc(m.name)}</span><input data-f="pc-init" data-p="${m.id}" value="${e?.init ?? ''}" placeholder="#" aria-label="${esc(m.name)}'s initiative" inputmode="numeric"></span>`; }).join('')}
             ${delayed.map((e) => `<span class="ic-pc delayed" style="--c:${esc(e.color)}"><span class="ic-pcname">${esc(e.name)}</span><button data-a="resume" data-id="${e.id}" data-tip="Act now">▶</button></span>`).join('')}</div>
           ${prefs.mode === 'mini' ? `<div class="ic-mini-now">${byId(clock.active ?? '') ? esc(byId(clock.active!)!.name) : 'Ready'}</div>` : ''}
@@ -465,6 +532,7 @@ export function openClock(host: ClockHost): void {
         </div></div>
       <div class="ic-toast" role="status" aria-live="polite"></div>`;
     const side = dock.querySelector<HTMLElement>('.ic-side'); if (side) side.scrollTop = scroll;
+    animateDial(before);
     if (focus) { const sel = `[data-f="${focus}"]`; const el = (focusId ? dock.querySelector(`[data-id="${CSS.escape(focusId)}"] ${sel}`) : null) ?? dock.querySelector<HTMLElement>(sel); if (el instanceof HTMLInputElement && focus === 'q') { el.focus(); el.setSelectionRange(el.value.length, el.value.length); } }
     if (prefs.tab === 'build' && !catalog.length) void srdCatalog(host, rules()).then((c) => { if (g === tick || prefs.tab === 'build') { catalog = c; if (c.length) render(); } });
     if (prefs.pos) { dock.style.left = `${Math.max(0, Math.min(innerWidth - 120, prefs.pos.x))}px`; dock.style.top = `${Math.max(0, Math.min(innerHeight - 60, prefs.pos.y))}px`; dock.style.right = 'auto'; }
