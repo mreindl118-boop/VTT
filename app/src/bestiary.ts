@@ -4,6 +4,7 @@ import * as THREE from 'three';
 import characters from '../../manifests/characters.json';
 import { CREATURES, humanoid, horse, bear, ape, sheep, swarm, vampireSpawn, gargoyle, scarecrow, animatedArmor, skeletonStanding, ghost, specter, shadow, ghoul, ghast, cultist, broom, type HumanoidOpts } from './kit/creatures';
 import { pawn } from './kit/pieces';
+import { heroFigure, type HeroFigure } from './kit/heroes';
 import { baseRingFt, type CreatureSize } from './core/units';
 import { PALETTE } from './kit/palette';
 
@@ -11,6 +12,9 @@ export interface Figure { kind?: string; skin?: string; cloth?: string; accent?:
 export interface CreatureEntry {
   id: string; name: string; tier: number; size: CreatureSize; visibility: string; tags: string[];
   kind: 'npc' | 'creature' | 'monster-manual' | 'generic' | 'pc' | 'token'; figure?: Figure; role?: string; variants?: string[];
+  /** A named NPC's own miniature (kit/heroes.ts), styled after the character's art: colours, hair, dress and what they carry.
+   *  When present it replaces the generic humanoid; `figure` still gives the token colour and the bestiary's look. */
+  hero?: HeroFigure;
 }
 /** The DM's numbers for the open-content creatures: armour class, hit points, speed, challenge. */
 export interface Stats { ac: number; hp: number; speed: string; cr: string }
@@ -85,7 +89,8 @@ export function searchCreatures(q: string, limit = 60): CreatureEntry[] {
 export function colorOf(e: CreatureEntry): string { return e.figure?.cloth ?? e.figure?.skin ?? (e.kind === 'npc' ? '#8a6a9a' : '#8a2b2b'); }
 
 /** A figure for the map: the characterised humanoid when the manifest gives one, else the kit creature by figure kind or id. */
-export function figureFor(e: CreatureEntry): THREE.Group {
+export function figureFor(e: CreatureEntry, battle = false): THREE.Group {
+  if (e.hero) return heroFigure(e.hero, e.size, battle);
   const f = e.figure ?? {}, scale = ({ tiny: 0.5, small: 0.75, medium: 1, large: 1, huge: 1.2, gargantuan: 1.4 } as Record<string, number>)[e.size] ?? 1;
   const byId: Record<string, () => THREE.Group> = {
     'vampire-spawn': vampireSpawn, gargoyle, scarecrow, 'animated-armor': animatedArmor, skeleton: skeletonStanding, ghost: () => ghost(), specter, shadow, ghoul, ghast, cultist,

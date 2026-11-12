@@ -21,4 +21,13 @@ describe('creature repository', () => {
     expect(speedFtOf(BESTIARY.find((e) => e.id === 'dire-wolf')!)).toBe(50);
     expect(speedFtOf(BESTIARY.find((e) => e.id === 'rahadin')!)).toBe(30);
   });
+  it('gives named NPCs with a recipe their own miniature, standing and in a battle stance', () => {
+    const heroes = BESTIARY.filter((e) => e.hero);
+    expect(heroes.length).toBeGreaterThan(30);
+    expect(heroes.every((e) => e.kind === 'npc' && e.tier === 1)).toBe(true);
+    for (const e of heroes) {
+      expect(figureFor(e).children.length).toBeGreaterThan(0);
+      expect(figureFor(e, true).children.length).toBeGreaterThan(0);
+    }
+  });
 });
