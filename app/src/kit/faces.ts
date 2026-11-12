@@ -30,8 +30,8 @@ export interface FaceSpec {
   browRidge?: number; browThick?: number; browAngle?: number; browColor?: string;
   /** The eyes: size, spacing, slant (outer corners up at 1), how deep they sit, hooded lids, bags beneath. */
   eyeSize?: number; eyeSpace?: number; eyeSlant?: number; sunken?: number; hooded?: number; bags?: number;
-  /** The cut of the eye (kit/facepaint.ts EyeShape; picked from the sliders when left out), and where the eyes look: -1 to the figure's right, 1 to its left. */
-  eyeShape?: import('./facepaint').EyeShape; gaze?: number;
+  /** The cut of the eye (kit/facepaint.ts EyeShape; picked from the sliders when left out), and where the eyes look: -1 to the figure's right, 1 to its left (or [across, up], up from -1 to 1). */
+  eyeShape?: import('./facepaint').EyeShape; gaze?: number | [number, number];
   /** The mouth: width, fullness, and its set from a frown (-1) to a smile (1); fangs; bared teeth. */
   mouthW?: number; lipFull?: number; smile?: number; fangs?: boolean; teeth?: boolean;
   beard?: Beard; moustache?: Moustache; beardColor?: string;
@@ -44,7 +44,7 @@ export interface FaceSpec {
   bald?: boolean;
 }
 
-export interface FaceLook { skin: string; hair?: string; eyes?: string; lips?: string; detail?: FaceDetail; /** Sculpted on the feminine frame (a softer jaw and brow, fuller lips, larger eyes). */ fem?: boolean; /** Crossed-out eyes. */ dead?: boolean; /** Where the eyes look, [across, up], from the pose. */ gaze?: [number, number] }
+export interface FaceLook { skin: string; hair?: string; eyes?: string; lips?: string; detail?: FaceDetail; /** Sculpted on the feminine frame (a softer jaw and brow, fuller lips, larger eyes). */ fem?: boolean; /** Crossed-out eyes. */ dead?: boolean }
 
 type M = THREE.Mesh;
 const soft = (c: string): THREE.MeshLambertMaterial => { const m = mat(c, { emissive: '#030303' }); m.userData.smooth = true; return m; };
@@ -99,7 +99,7 @@ export function faceFeatures(spec: FaceSpec, look: FaceLook): THREE.Group {
     geo.computeVertexNormals(); const m = new THREE.Mesh(geo, soft(c)); g.add(m); return m;
   };
   const headMesh = shaped(new THREE.SphereGeometry(1, d >= 3 ? 64 : 48, d >= 3 ? 48 : 36), skin);
-  const paint = paintFace(spec, { skin, hair: look.hair, eyes: look.eyes, lips: look.lips, fem, dead: look.dead, gaze: look.gaze, size: d >= 3 ? 512 : 256 });
+  const paint = paintFace(spec, { skin, hair: look.hair, eyes: look.eyes, lips: look.lips, fem, dead: look.dead, size: d >= 3 ? 512 : 256 });
   if (paint) { wearFace(headMesh.geometry); const pm = soft('#ffffff').clone(); pm.map = paint; pm.flatShading = false; pm.userData = { ...pm.userData, smooth: true, keepLook: true }; headMesh.material = pm; headMesh.userData.keepLook = true; }
   const hp = headMesh.geometry.attributes.position as THREE.BufferAttribute, frontPts: [number, number, number][] = [];
   for (let i = 0; i < hp.count; i += d >= 3 ? 2 : 1) if (hp.getZ(i) > 0.1) frontPts.push([hp.getX(i), hp.getY(i), hp.getZ(i)]);

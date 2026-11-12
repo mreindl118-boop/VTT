@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 import * as THREE from 'three';
 import { applyPartyPack, isUntouchedDefault, sheetOf, validatePartyPack, type PartyContext } from '../app/src/core/partyPack';
 import { newCampaign } from '../app/src/state/campaign';
-import { heroFigure, heroOptions } from '../app/src/kit/heroes';
+import { gazeOf, heroFigure, heroOptions, POSES } from '../app/src/kit/heroes';
 import { Jiggle } from '../app/src/render/jiggle';
 import type { Vec2 } from '../app/src/core/geometry';
 
@@ -197,5 +197,32 @@ describe('heroFigure', () => {
     for (let i = 0; i < 400 && moving; i++) { moving = Jiggle.advance(b, 1 / 60); peak = Math.max(peak, Math.abs(b.y)); }
     expect(peak).toBeGreaterThan(0.1);
     expect(moving).toBe(false);
+  });
+  it('puts the weapon away out of a fight and draws it in one', () => {
+    const j = (g: THREE.Object3D) => g.userData.joints as Record<string, THREE.Object3D>;
+    const rest = heroFigure({ weapon: 'axe', stance: 'two-handed' }), fight = heroFigure({ weapon: 'axe', stance: 'two-handed' }, 'medium', 'battle'), kept = heroFigure({ weapon: 'axe', stow: false });
+    expect(j(rest).handR.children.length).toBe(0);
+    expect(j(rest).stowed.parent).toBe(j(rest).back);
+    expect(j(fight).handR.children.length).toBeGreaterThan(0);
+    expect(j(kept).handR.children.length).toBeGreaterThan(0);
+    const m = heroFigure({ weapon: 'mace' }); expect(j(m).stowed.parent).toBe(j(m).beltR);
+  });
+  it('stands on both feet in a fighting stance, over the middle of its base, with both hands on a long weapon', () => {
+    for (const f of [{ weapon: 'axe' as const, stance: 'two-handed' as const }, { weapon: 'mace' as const, stance: 'shield' as const, offhand: { kind: 'shield' as const } }]) {
+      const g = heroFigure(f, 'medium', 'battle'), J = g.userData.joints as Record<string, THREE.Object3D>; g.updateMatrixWorld(true);
+      const a = new THREE.Box3().setFromObject(J.footR), b = new THREE.Box3().setFromObject(J.footL);
+      expect(Math.abs(a.min.y - b.min.y)).toBeLessThan(0.08);                                  // both soles down
+      expect(Math.abs((Math.min(a.min.x, b.min.x) + Math.max(a.max.x, b.max.x)) / 2)).toBeLessThan(0.15); // centred
+    }
+    const g = heroFigure({ weapon: 'axe', stance: 'two-handed' }, 'medium', 'battle'), J = g.userData.joints as Record<string, THREE.Object3D>; g.updateMatrixWorld(true);
+    const grip = J.handR.localToWorld(new THREE.Vector3(0, 1, 0)), other = J.handR.localToWorld(new THREE.Vector3(0, -0.75, 0)), hand = J.handL.getWorldPosition(new THREE.Vector3());
+    expect(Math.min(hand.distanceTo(grip), hand.distanceTo(other))).toBeLessThan(0.25);        // the free hand is on the haft
+  });
+  it('looks somewhere: on the foe in a fight however the head is turned, the pose\'s own gaze when it has one', () => {
+    const turned = gazeOf({ spine: [0, 0.4, 0], neck: [0, 0.1, 0] }, true);
+    expect(turned[0]).toBeLessThan(-0.5);                                   // body turned one way, the eyes come back the other
+    expect(gazeOf(POSES['two-handed'], true)[0]).toBeGreaterThan(0);         // the body is wound away from the foe, the eyes come back
+    expect(gazeOf({ gaze: [0.3, -0.2], neck: [0, 1, 0] }, false)).toEqual([0.3, -0.2]);
+    expect(gazeOf({ neck: [0, 0.2, 0] }, false)[0]).toBeGreaterThan(0.3);     // at ease the eyes lead the head's turn
   });
 });

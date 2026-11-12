@@ -28,27 +28,26 @@ export type Euler3 = [number, number, number];
  *  the right hand or between both. Fields left out stay at rest. */
 export interface HeroPose {
   spine?: Euler3; neck?: Euler3; pelvis?: Euler3; collarR?: number; collarL?: number;
-  /** Where the eyes look, [across, up], each -1 to 1 (across runs toward the figure's left). Left out, the eyes follow
-   *  the head's carriage: see `eyeLine`. */
-  gaze?: [number, number];
   shoulderR?: Euler3; elbowR?: number; wristR?: Euler3; shoulderL?: Euler3; elbowL?: number; wristL?: Euler3;
   hipR?: Euler3; kneeR?: number; ankleR?: Euler3; hipL?: Euler3; kneeL?: number; ankleL?: Euler3;
   holdR?: { upright?: boolean; tilt?: Euler3 }; holdL?: { upright?: boolean; tilt?: Euler3 };
   /** The left hand comes onto the weapon the right hand holds (solved by kit/weapons.ts; the left arm's own angles are then ignored). */
   twoHand?: boolean;
   lift?: number; seated?: boolean; spell?: 'right' | 'between';
+  /** Where the eyes look, [across, up] from -1 to 1 (default: worked out from the pose, see gazeOf). */
+  gaze?: [number, number];
   /** Laid out on the floor (a body): on its back, its front or its side. */
   lie?: 'back' | 'front' | 'side';
 }
 /** Standing at ease, never square: weight on one leg, the hips and shoulders tilted against each other, the head
  *  turned, each arm hanging its own way. A character without a pose of its own takes one by its recipe. */
 export const AT_EASE: HeroPose[] = [
-  { pelvis: [0, 0.08, -0.11], spine: [0.03, -0.12, 0.17], neck: [0.03, 0.22, -0.07], hipR: [0.04, 0, 0.1], kneeR: 0.03, hipL: [-0.3, 0.3, 0.1], kneeL: 0.55, shoulderR: [-0.14, 0, 0.14], elbowR: -0.5, wristR: [0.15, 0, 0], shoulderL: [0.1, 0, 0.2], elbowL: -0.3 },
-  { pelvis: [0, -0.1, 0.11], spine: [0.03, 0.14, -0.16], neck: [0.02, -0.24, 0.07], hipL: [0.05, 0, 0.1], kneeL: 0.03, hipR: [-0.3, 0.26, 0.1], kneeR: 0.58, shoulderR: [-0.25, 0, 0.16], elbowR: -0.65, shoulderL: [0.08, 0, 0.18], elbowL: -0.38, wristL: [0.15, 0, 0] },
-  { pelvis: [0.02, 0.14, -0.09], spine: [-0.03, -0.2, 0.14], neck: [0.05, 0.3, -0.04], hipR: [0.06, 0.1, 0.12], kneeR: 0.04, hipL: [-0.38, 0.35, 0.02], kneeL: 0.5, shoulderR: [-0.2, 0, 0.18], elbowR: -0.7, wristR: [0.1, 0, 0], shoulderL: [0.12, 0, 0.24], elbowL: -0.5 },
+  { pelvis: [0, 0.08, -0.11], spine: [0.03, -0.12, 0.17], neck: [0.04, 0.26, -0.13], hipR: [0.04, 0, 0.1], kneeR: 0.03, hipL: [-0.3, 0.3, 0.1], kneeL: 0.55, shoulderR: [-0.14, 0, 0.14], elbowR: -0.5, wristR: [0.15, 0, 0], shoulderL: [0.1, 0, 0.2], elbowL: -0.3 },
+  { pelvis: [0, -0.1, 0.11], spine: [0.03, 0.14, -0.16], neck: [0.03, -0.28, 0.12], hipL: [0.05, 0, 0.1], kneeL: 0.03, hipR: [-0.3, 0.26, 0.1], kneeR: 0.58, shoulderR: [-0.25, 0, 0.16], elbowR: -0.65, shoulderL: [0.08, 0, 0.18], elbowL: -0.38, wristL: [0.15, 0, 0] },
+  { pelvis: [0.02, 0.14, -0.09], spine: [-0.03, -0.2, 0.14], neck: [-0.04, 0.32, -0.1], hipR: [0.06, 0.1, 0.12], kneeR: 0.04, hipL: [-0.38, 0.35, 0.02], kneeL: 0.5, shoulderR: [-0.2, 0, 0.18], elbowR: -0.7, wristR: [0.1, 0, 0], shoulderL: [0.12, 0, 0.24], elbowL: -0.5 },
 ];
 /** A gown's ease: weight on the right leg, the left knee forward in the slit, the hip thrown out. */
-const GOWN_EASE: HeroPose = { pelvis: [0, 0.04, -0.1], spine: [0.0, 0.08, 0.16], neck: [0.02, -0.1, -0.06], hipL: [-0.2, 0.1, -0.06], kneeL: 0.42, hipR: [0.03, 0, 0.12], kneeR: 0.02, shoulderR: [-0.08, 0, 0.2], elbowR: -0.4, wristR: [0.2, 0, 0], shoulderL: [-0.1, 0, 0.12], elbowL: -0.3 };
+const GOWN_EASE: HeroPose = { pelvis: [0, 0.04, -0.1], spine: [0.0, 0.08, 0.16], neck: [0.05, -0.24, -0.13], hipL: [-0.2, 0.1, -0.06], kneeL: 0.42, hipR: [0.03, 0, 0.12], kneeR: 0.02, shoulderR: [-0.08, 0, 0.2], elbowR: -0.4, wristR: [0.2, 0, 0], shoulderL: [-0.1, 0, 0.12], elbowL: -0.3 };
 export const POSES: Record<PoseName, HeroPose> = {
   rest: {},
   // a deep fighting lunge: the lead knee bent over its foot, the rear leg driven back, the body coiled over the weapon
@@ -89,6 +88,20 @@ export const POSES: Record<PoseName, HeroPose> = {
     shoulderR: [-2.7, 0, 0.2], elbowR: -0.3, shoulderL: [-1.0, 0, 0.3], elbowL: -0.6, wristL: [0.8, 0, 0] },
 };
 
+/** The pose a figure takes: dead its dead pose, in initiative its battle pose, otherwise its own or one at ease. */
+function poseOf(f: HeroFigure, battle: boolean, dead: boolean, gown: boolean): HeroPose {
+  const named = (p: PoseName | HeroPose | undefined) => typeof p === 'string' ? POSES[p] ?? POSES.rest : p;
+  let P: HeroPose = dead ? named(f.deadPose) ?? POSES.dead : (battle ? named(f.battlePose ?? f.stance) : undefined) ?? named(f.pose) ?? POSES.rest;
+  if (P === POSES.rest) { let h = 0; for (const ch of (f.skin ?? '') + (f.hair ?? '') + (f.cloth ?? '') + (f.weapon ?? '')) h = (h * 31 + ch.charCodeAt(0)) >>> 0; P = gown ? GOWN_EASE : AT_EASE[h % AT_EASE.length]; }
+  return P;
+}
+/** Where the eyes look in a pose (its own `gaze`, or worked out): in a fight they stay on the foe ahead however the
+ *  head and body are turned; at ease they lead the way the head is turning, a little down. */
+export function gazeOf(P: HeroPose, battle: boolean): [number, number] {
+  if (P.gaze) return P.gaze;
+  const clamp = (v: number) => Math.max(-1, Math.min(1, v)), yaw = (P.neck?.[1] ?? 0) + (P.spine?.[1] ?? 0) + (P.pelvis?.[1] ?? 0), pitch = (P.neck?.[0] ?? 0) + (P.spine?.[0] ?? 0);
+  return battle ? [clamp(-yaw / 0.45), clamp(pitch / 0.5)] : [clamp((P.neck?.[1] ?? 0) * 3), clamp(-0.15 - (P.neck?.[0] ?? 0) * 2)];
+}
 /** A character's miniature, as the party pack writes it. Colours are CSS hex strings. */
 export interface HeroFigure {
   skin?: string; hair?: string; hairStyle?: HeroHair; hairStreak?: string;
@@ -132,6 +145,8 @@ export interface HeroFigure {
   body?: Measures;
   /** The frame the body is sculpted on (default: feminine for a curvy build or a gown, otherwise masculine). */
   frame?: 'feminine' | 'masculine';
+  /** Out of a fight the weapon is put away (slung on the back or hung at the belt); false keeps it in hand. */
+  stow?: boolean;
   /** The battle stance the figure takes in initiative. */
   stance?: HeroStance;
   /** The pose out of initiative (default rest), in it (default the stance), and dead (default `dead`); a name or joint
@@ -208,18 +223,6 @@ function drape(rTop: number, rBot: number, h: number, c: string, o: { folds: num
 
 /** Faces are painted onto a clean head (the stylised look); false brings back the sculpted standard face below. */
 const PAINTED_FACES = true as boolean;
-/** Where a posed figure's eyes look, [across, up]. The eyes are never parked dead centre in a turned or tipped head.
- *  At rest they lead the head: a head turned aside has the eyes a little further that way. In a fight they stay on the
- *  foe in front, so a head carried round by the body's twist gives a sidelong look back. A dipped chin (or a stooped
- *  back) looks up from under the brows; a raised chin looks down the nose. */
-export function eyeLine(P: HeroPose, battle: boolean): [number, number] {
-  if (P.gaze) return P.gaze;
-  const c = (v: number) => Math.max(-1, Math.min(1, v));
-  const yawHead = P.neck?.[1] ?? 0, yawBody = (P.spine?.[1] ?? 0) + (P.pelvis?.[1] ?? 0);
-  const pitch = (P.neck?.[0] ?? 0) + 0.6 * (P.spine?.[0] ?? 0);
-  const across = battle ? -(yawHead + yawBody) * 1.5 : Math.abs(yawHead) > 0.12 ? yawHead * 1.6 : -yawBody * 1.2;
-  return [c(across), c(pitch * 2.2)];
-}
 /** The head, sculpted like a miniature's: one shaped skull (temples, cheekbones over hollow cheeks, a brow over deep-set
  *  eyes, a jaw that is square on a masculine frame and tapered on a feminine one, a chin), a wedge of a nose, small
  *  shadowed eyes under lids, brows, lips with a philtrum, and ears. The eyes sit on the midline; brow, nose and chin
@@ -231,7 +234,7 @@ function buildFace(head: THREE.Group, s: number, hy: number, f: HeroFigure, fem 
     // the painted face (kit/faces.ts + kit/facepaint.ts), every figure's default; `face` gives a character its own
     // the character's own face (kit/faces.ts): the whole head from its recipe, with this figure's ears on it; the hair is
     // buildHair's, as for every other head
-    const fg = faceFeatures(f.face ?? {}, { skin, hair: f.hair, eyes: f.eyes, lips: f.lips, detail: f.detail ?? 2, fem, dead, gaze }); fg.scale.setScalar(0.4 * s); fg.position.set(0, hy, 0); head.add(fg);
+    const fg = faceFeatures({ ...f.face, gaze: f.face?.gaze ?? gaze }, { skin, hair: f.hair, eyes: f.eyes, lips: f.lips, detail: f.detail ?? 2, fem, dead }); fg.scale.setScalar(0.4 * s); fg.position.set(0, hy, 0); head.add(fg);
     if (f.ears !== 'pointed') for (const sx of [-1, 1]) { const e = sph(0.075 * s, skin); e.scale.set(0.42, 1, 0.65); head.add(at(e, sx * 0.345 * s, hy - 0.02 * s, -0.01 * s)); }
     return (x: number, y: number) => 0.345 - 1.4 * x * x - (y > 0 ? 1.0 : 0.45) * y * y;
   }
@@ -375,7 +378,7 @@ function buildHair(head: THREE.Group, s: number, hy: number, f: HeroFigure, fem:
 
 /** A limb: the shoulder or hip (root), the elbow or knee (mid), the wrist or ankle (end). Angles about x: negative swings
  *  forward; a positive mid bends a knee, a negative one an elbow. */
-export interface Limb { root: THREE.Group; mid: THREE.Group; end: THREE.Group; upper: M; lower: M; hand: M; collar?: THREE.Group }
+export interface Limb { root: THREE.Group; mid: THREE.Group; end: THREE.Group; upper: M; lower: M; hand: M; collar?: THREE.Group; hs?: number }
 
 /** The torso's line, waist to shoulders: [height, radius] in the upper body's frame (feet at scale 1, before the
  *  front-to-back squash). */
@@ -423,7 +426,10 @@ function rig(f: HeroFigure, s: number, gown: boolean) {
   const skin = f.skin ?? '#d9b899', cloth = f.armor?.color ?? f.cloth ?? '#2c3a2e', trim = f.trim ?? '#3a2a1c', boot = f.boots ?? '#2b2420';
   const tr = torsoRings(fr), torsoC = gown ? f.skirt! : cloth;
   const loft = (rings: Parameters<typeof loftGeometry>[0], c: string, o: Parameters<typeof loftGeometry>[2] = {}) => sm(loftGeometry(rings, s, o), c);
-  pel.add(loft(pelvisRings(fr), gown ? f.skirt! : trim, { seg: 28 }));
+  // the seat: two full cheeks at the back of the hips, fuller on a feminine or curvy frame and with wider hips
+  const seat = (fr.fem ? (fr.build === 'curvy' ? 0.62 : 0.48) : 0.26) * (0.4 + 0.6 * fr.m.hips);
+  const seatBump = (th: number, y: number) => { const t = th > Math.PI ? th - 2 * Math.PI : th, back = Math.PI - Math.abs(t), dy = y + 0.1; return seat * Math.exp(-(dy * dy) / (dy > 0 ? 0.09 : 0.03)) * Math.exp(-((back - 0.42) ** 2) / 0.1); };
+  pel.add(loft(pelvisRings(fr), gown ? f.skirt! : trim, { seg: 48, rows: 28, bump: seatBump }));
   // a band round a lofted part at a height (a strap, a fold, a hem), a little proud of it
   const band = (rings: Parameters<typeof loftGeometry>[0], y: number, h: number, k: number, c: string, seg = 16) => { const r = ringAt(rings, y); return sm(loftGeometry([{ ...r, y: y - h / 2 }, { ...r, y: y + h / 2 }], s, { seg, k, rows: 1 }), c); };
   // the chest's own shape: on a masculine frame the pectorals; the shoulder blades behind
@@ -473,47 +479,45 @@ function rig(f: HeroFigure, s: number, gown: boolean) {
     // the collar carries the shoulder: it lifts when the arm goes up
     const collar = new THREE.Group(); collar.position.set(sx * 0.12 * s, 1.98 * s, 0); collar.name = 'collar' + side; up.add(collar);
     const root = new THREE.Group(); root.position.set(sx * (fr.shoulderX - 0.12) * s, 0.02 * s, 0); root.rotation.set(-0.08, 0, sx * 0.1); root.name = 'shoulder' + side; collar.add(root);
-    const delt = sph(0.2 * a * s, upperC, 16, 12); delt.scale.set(1.02, 1.25, 1.04); root.add(at(delt, 0, -0.1 * s, 0));
+    const delt = sph(0.185 * a * s, upperC, 16, 12); delt.scale.set(1.3, 1.2, 1.02); root.add(at(delt, -sx * 0.07 * s, -0.1 * s, 0)); // the deltoid, run in toward the collar so the arm grows out of the shoulder
     const upper = loft(upperArmRings(fr), upperC, { seg: 14 }); root.add(upper);
-    if (upperC !== skin) for (const y of [-0.9, -0.99]) root.add(band(upperArmRings(fr), y, 0.035, 1.07, tone(upperC, '#000000', 0.22), 14)); // folds above the elbow
     if (f.puffSleeves && f.sleeves) {
       if (gown) { // off the shoulder: a gathered band round the upper arm with a ruffle below it
         const band = sm(new THREE.TorusGeometry(0.2 * s * a, 0.045 * s, 8, 20), f.sleeves); band.rotation.x = Math.PI / 2; root.add(at(band, 0, -0.36 * s, 0));
         const ruf = drape(0.2 * s * a, 0.3 * s * a, 0.3 * s, f.sleeves, { folds: 9, amp: 0.25, jag: 0.04 * s, seed: 1.3 }); root.add(at(ruf, 0, -0.52 * s, 0));
-      } else { const puff = sph(0.3 * s * a, f.sleeves); puff.scale.set(1, 1.25, 1); root.add(at(puff, 0, -0.42 * s, 0)); }
+      } else { const puff = sph(0.25 * s * a, f.sleeves); puff.scale.set(1.05, 1.3, 1.05); root.add(at(puff, -sx * 0.04 * s, -0.36 * s, 0)); }
     }
     const mid = new THREE.Group(); mid.position.set(0, -1.12 * s, 0); mid.rotation.x = -0.22; mid.name = 'elbow' + side; root.add(mid);
-    mid.add(sph(0.145 * a * s, upperC, 12, 8));
+    { const el = sph(0.128 * a * s, upperC, 12, 8); el.scale.y = 1.25; mid.add(el); }
     const lower = loft(forearmRings(fr), lowerC, { seg: 14 }); mid.add(lower);
     if (f.bracers) { mid.add(at(cyl(0.125 * s * a, 0.105 * s * a, 0.12 * s, f.bracers, 12), 0, -0.96 * s, 0)); mid.add(at(cyl(0.17 * s * a, 0.17 * s * a, 0.05 * s, tone(f.bracers, '#000000', 0.3), 12), 0, -0.3 * s, 0)); }
     const end = new THREE.Group(); end.position.set(0, -1.04 * s, 0); end.rotation.x = 0.06; end.name = 'wrist' + side; mid.add(end);
     // the hand: a palm, four fingers a little curled, and the thumb
-    const hand = sph(0.105 * hs * s, handC, 12, 10); hand.scale.set(0.9, 1.15, 0.42); end.add(at(hand, 0, -0.12 * s, 0.005 * s));
+    const hand = sph(0.105 * hs * s, handC, 12, 10); hand.scale.set(0.9, 1.15, 0.42); end.add(at(hand, 0, (-0.03 - 0.1 * hs) * s, 0.005 * s));
     for (let i = 0; i < 4; i++) {
       const len = [0.08, 0.095, 0.09, 0.07][i] * hs, x = (i - 1.5) * 0.047 * hs * -sx;
-      const k1 = cap(0.024 * hs * s, len * s, handC); k1.rotation.x = -0.4; end.add(at(k1, x * s, (-0.235 - len * 0.3) * hs * s, 0.02 * s));
-      const k2 = cap(0.021 * hs * s, len * 0.7 * s, handC); k2.rotation.x = -1.15; end.add(at(k2, x * s, (-0.3 - len * 0.5) * hs * s, 0.075 * hs * s));
+      const k1 = cap(0.024 * hs * s, len * s, handC); k1.rotation.x = -0.4; end.add(at(k1, x * s, (-0.03 - 0.205 * hs - len * 0.3) * s, 0.02 * s));
+      const k2 = cap(0.021 * hs * s, len * 0.7 * s, handC); k2.rotation.x = -1.15; end.add(at(k2, x * s, (-0.03 - 0.27 * hs - len * 0.5) * s, 0.075 * hs * s));
     }
-    const th = cap(0.029 * hs * s, 0.09 * hs * s, handC); th.rotation.z = -sx * 0.55; th.rotation.x = -0.5; end.add(at(th, -sx * 0.1 * hs * s, -0.13 * s, 0.05 * s));
-    arm.push({ root, mid, end, upper, lower, hand, collar });
+    const th = cap(0.029 * hs * s, 0.09 * hs * s, handC); th.rotation.z = -sx * 0.55; th.rotation.x = -0.5; end.add(at(th, -sx * 0.1 * hs * s, (-0.03 - 0.1 * hs) * s, 0.05 * s));
+    arm.push({ root, mid, end, upper, lower, hand, collar, hs });
 
     const hx = gown ? 0.21 : fr.hipX, legC = gown ? skin : trim;
     const hip = new THREE.Group(); hip.position.set(sx * hx * s, 0, 0); hip.rotation.z = sx * 0.04; hip.name = 'hip' + side; pel.add(hip);
     const thigh = loft(thighRings(fr), legC, { seg: 16 }); hip.add(thigh);
-    if (!gown) for (const y of [-THIGH + 0.2, -THIGH + 0.31]) hip.add(band(thighRings(fr), y, 0.04, 1.05, tone(legC, '#000000', 0.22))); // folds above the knee
     const knee = new THREE.Group(); knee.position.set(0, -THIGH * s, 0); knee.name = 'knee' + side; hip.add(knee);
-    knee.add(at(sph(0.185 * fr.leg * s, legC, 12, 10), 0, 0, 0.01 * s));
+    { const kn = sph(0.17 * fr.leg * s, legC, 12, 10); kn.scale.y = 1.3; knee.add(at(kn, 0, 0, 0.01 * s)); }
     const shin = loft(shinRings(fr), legC, { seg: 14 }); knee.add(shin);
     // boots: the shaft to below the knee with a turned cuff, the foot, a heel and a sole
     knee.add(loft(clipRings(shinRings(fr), -SHIN, -0.55), boot, { seg: 14, k: 1.13 }));
     const cuffR = ringAt(shinRings(fr), -0.55); knee.add(sm(loftGeometry([{ ...cuffR, y: -0.65 }, { ...cuffR, y: -0.47 }], s, { seg: 14, k: 1.28, rows: 2 }), tone(boot, '#ffffff', 0.08)));
-    for (const y of [-SHIN + 0.3, -SHIN + 0.52]) { // boot straps, buckled on the outside
+    for (const y of [-SHIN + 0.4]) { // a boot strap, buckled on the outside
       knee.add(band(shinRings(fr), y, 0.05, 1.2, tone(boot, '#000000', 0.4), 14));
       knee.add(at(box(0.03 * s, 0.07 * s, 0.07 * s, '#a9adb6'), sx * ringAt(shinRings(fr), y).w * 1.22 * s, y * s, 0.02 * s));
     }
     const ankle = new THREE.Group(); ankle.position.set(0, -SHIN * s, 0); ankle.name = 'ankle' + side; knee.add(ankle);
-    ankle.add(sph(0.14 * fr.leg * s, boot, 12, 8));
-    const fl = fr.fem ? 0.86 : 1; // the foot: instep, toe and heel
+    ankle.add(sph(0.115 * fr.leg * s, boot, 12, 8));
+    const fl = fr.fem ? 1.02 : 1.18; // the foot: instep, toe and heel
     const foot = sm(loftGeometry([{ y: -0.42, w: 0.15 * fl, f: 0.52 * fl, b: 0.2 * fl, z: 0.02 }, { y: -0.3, w: 0.165 * fl, f: 0.5 * fl, b: 0.21 * fl, z: 0.02 }, { y: -0.16, w: 0.14 * fl, f: 0.3 * fl, b: 0.17 * fl }, { y: -0.02, w: 0.125 * fl, f: 0.15 * fl, b: 0.14 * fl }], s, { seg: 16 }), boot);
     foot.name = 'foot' + side; ankle.add(foot);
     const sole = sm(loftGeometry([{ y: -0.47, w: 0.16 * fl, f: 0.53 * fl, b: 0.21 * fl, z: 0.02 }, { y: -0.41, w: 0.16 * fl, f: 0.53 * fl, b: 0.21 * fl, z: 0.02 }], s, { seg: 16, rows: 1 }), tone(boot, '#000000', 0.45)); ankle.add(sole); soles.push(sole);
@@ -532,17 +536,13 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
   const hy = 2.82 * s; // the head's centre, in the upper body's frame
   const skin = f.skin ?? '#d9b899';
   const headAt = neck.position.y + head.position.y; // the head joint, in the upper body's frame
-  // the pose: out of initiative its rest pose (on a gown, weight on the right leg, the left knee forward in the slit); in
-  // initiative its battle pose; every joint from the recipe's angles or a named preset
-  const named = (p: PoseName | HeroPose | undefined) => typeof p === 'string' ? POSES[p] ?? POSES.rest : p;
-  let P: HeroPose = dead ? named(f.deadPose) ?? POSES.dead : (battle ? named(f.battlePose ?? f.stance) : undefined) ?? named(f.pose) ?? POSES.rest;
-  if (P === POSES.rest) { let h = 0; for (const ch of (f.skin ?? '') + (f.hair ?? '') + (f.cloth ?? '') + (f.weapon ?? '')) h = (h * 31 + ch.charCodeAt(0)) >>> 0; P = gown ? GOWN_EASE : AT_EASE[h % AT_EASE.length]; }
   if (f.headSize) head.scale.setScalar(f.headSize);
-  const surf = buildFace(head, s, hy - headAt, f, fr.fem, dead, eyeLine(P, battle));
+  const surf = buildFace(head, s, hy - headAt, f, fr.fem, dead, gazeOf(poseOf(f, battle, dead, gown), battle));
   const [R, Lf] = arm;
   // a group in each hand for what it holds: upright while the forearm hangs at rest
-  const holder = (l: Limb) => { const g = new THREE.Group(); g.position.set(0, -0.14 * s, 0.05 * s); g.rotation.set(-(l.root.rotation.x + l.mid.rotation.x), 0, -Math.sign(l.root.position.x) * 0.08); l.end.add(g); return g; };
+  const holder = (l: Limb) => { const g = new THREE.Group(); g.position.set(0, (-0.03 - 0.12 * (l.hs ?? 1)) * s, 0.05 * s); g.rotation.set(-(l.root.rotation.x + l.mid.rotation.x), 0, -Math.sign(l.root.position.x) * 0.08); l.end.add(g); return g; };
   const gR = holder(R), gL = holder(Lf); gR.name = 'handR'; gL.name = 'handL';
+  const joints0: Record<string, THREE.Object3D> = {}; body.traverse((o) => { if (o.name) joints0[o.name] = o; });
   const wpn = f.gear?.handR ? 'none' : f.weapon;
   if (wpn === 'sword') gR.add(at(box(0.12 * s, 2.6 * s, 0.32 * s, '#c8ccd2'), 0, 1.45 * s, 0), at(box(0.7 * s, 0.12 * s, 0.14 * s, '#a07a3a'), 0, 0.15 * s, 0), at(box(0.12 * s, 0.5 * s, 0.12 * s, '#3b2a20'), 0, -0.15 * s, 0));
   if (wpn === 'spear') gR.add(at(box(0.12 * s, 7 * s, 0.12 * s, '#3b2a20'), 0, 0.85 * s, 0), at(cone(0.2 * s, 0.8 * s, '#c8ccd2'), 0, 4.75 * s, 0));
@@ -675,6 +675,14 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
     for (let i = 0; i < 6; i++) { const a = (i / 6) * Math.PI * 2, fl = box(0.06 * s, 0.5 * s, 0.22 * s, '#a3a8b0'); fl.rotation.y = -a; gR.add(at(fl, Math.cos(a) * 0.24 * s, 1.75 * s, Math.sin(a) * 0.24 * s)); }
   }
 
+  // out of a fight a weapon is put away, never carried drawn: a long one slung across the back, a short one at the belt
+  if (!battle && !dead && f.stow !== false && f.weapon && f.weapon !== 'none' && f.weapon !== 'staff' && f.weapon !== 'torch') {
+    const long = f.weapon === 'axe' || f.weapon === 'spear' || f.weapon === 'sword', st = new THREE.Group(); st.name = 'stowed';
+    for (const c of [...gR.children]) st.add(c);
+    if (long) { st.rotation.set(0, Math.PI, 0.5); st.position.set(-0.55 * s, -(f.weapon === 'sword' ? 1.0 : 1.5) * s, -0.08 * s); joints0.back.add(st); }
+    else { st.rotation.set(Math.PI + 0.12, 0, 0.1); st.position.set(0.24 * s, 0.55 * s, 0.12 * s); joints0.beltR.add(st); }
+  }
+
   // what the left hand holds
   const o = f.gear?.handL ? undefined : f.offhand;
   if (o?.kind === 'shield') {
@@ -796,6 +804,9 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
     }
   }
 
+  // the pose: out of initiative its rest pose (on a gown, weight on the right leg, the left knee forward in the slit); in
+  // initiative its battle pose; every joint from the recipe's angles or a named preset
+  const P = poseOf(f, battle, dead, gown);
   const mir = (e: Euler3 | undefined, sx: number, d: Euler3): Euler3 => e ? [e[0], e[1] * sx, e[2] * sx] : [d[0], d[1] * sx, d[2] * sx];
   if (P.spine) up.rotation.set(...P.spine);
   if (P.pelvis) pel.rotation.set(...P.pelvis);
@@ -814,15 +825,71 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
   if (f.gear?.handR || wpn && wpn !== 'none') closeGrip(R.end, gR, 1);
   if (f.gear?.handL) closeGrip(Lf.end, gL, -1);
   if (P.twoHand && f.gear?.handR && !f.gear.handL && !f.offhand) { const off = secondHandAt(f.gear.handR.kind); if (off !== undefined) secondHand(Lf.root, Lf.mid, Lf.end, gR, off * s, -1); }
-  leg.forEach((l, k) => {
-    const sx = k === 0 ? 1 : -1, sd = k === 0 ? 'R' : 'L', hip = mir(P[`hip${sd}`], sx, [0, 0, gown ? 0 : 0.04]), knee = P[`knee${sd}`] ?? 0, an = P[`ankle${sd}`] ?? [0, 0, 0];
-    l.root.rotation.set(...hip); l.mid.rotation.x = knee;
-    l.end.rotation.set(-(hip[0] + knee) + an[0], an[1] * sx, -hip[2] + an[2] * sx);
+  // an empty hand at ease hangs with its palm to the thigh, not turned out to the front
+  if (!P.lie && !battle) arm.forEach((l, k) => { const sd = k === 0 ? 'R' : 'L', g = k === 0 ? gR : gL; if (!P[`wrist${sd}`]?.[1] && !g.children.length) l.end.rotation.y = (k === 0 ? 1 : -1) * 1.25; });
+  const standing = !P.lie && !P.seated && !P.lift;
+  const legSet = leg.map((l, k) => {
+    const sx = k === 0 ? 1 : -1, sd = k === 0 ? 'R' : 'L', hip = mir(P[`hip${sd}`], sx, [0, 0, gown ? 0 : 0.04]), an = P[`ankle${sd}`];
+    l.root.rotation.set(...hip); l.mid.rotation.x = P[`knee${sd}`] ?? 0;
+    return { l, sx, an };
   });
-  // on the floor (or, seated, the hips at the origin), then lifted
-  body.updateMatrixWorld(true);
+  // feet: a standing figure's soles lie flat on the floor whatever the hips and spine are doing, the toes following
+  // the leg's own turn; a lying, seated or lifted one takes its ankles from the pose
+  const pq = new THREE.Quaternion(), fwd = new THREE.Vector3();
+  const setFeet = () => {
+    body.updateMatrixWorld(true);
+    for (const { l, sx, an } of legSet) {
+      const a = an ?? [0, 0, 0];
+      if (!standing || an) { l.end.rotation.set(-(l.root.rotation.x + l.mid.rotation.x) + a[0], a[1] * sx, -l.root.rotation.z + a[2] * sx); continue; }
+      l.root.getWorldQuaternion(pq); fwd.set(0, 0, 1).applyQuaternion(pq); const yaw = Math.atan2(fwd.x, fwd.z);
+      l.mid.getWorldQuaternion(pq); l.end.quaternion.copy(pq.invert()).multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), yaw));
+    }
+    body.updateMatrixWorld(true);
+  };
+  const soleY = (k: number) => new THREE.Box3().setFromObject(soles[k]).min.y;
+  setFeet();
+  // both feet on the ground: the higher foot comes down by straightening its knee; when that is not enough the
+  // standing leg bends and the hips sink onto it (a foot the pose lifts well clear is left in the air)
+  if (standing && !gown && soles.length === 2 && !legSet.some((x) => x.an)) {
+    const p0 = new THREE.Vector3(), p1 = new THREE.Vector3();
+    // move one ankle up or down by dy, holding its place over the floor, by the hip's swing and the knee's bend
+    const shift = (k: number, dy: number) => {
+      const L = leg[k]; L.end.getWorldPosition(p0); const ty = p0.y + dy;
+      const cost = () => { setFeet(); L.end.getWorldPosition(p1); return (p1.y - ty) ** 2 + 0.3 * ((p1.x - p0.x) ** 2 + (p1.z - p0.z) ** 2); };
+      let best = cost();
+      for (let st = 0.2; st > 0.004; st *= 0.6) for (let pass = 0; pass < 3; pass++) for (const [o, lo, hi] of [[L.root.rotation, -2.2, 1.2], [L.mid.rotation, 0, 2.4]] as [THREE.Euler, number, number][]) for (const d of [st, -st]) {
+        const was = o.x; o.x = Math.max(lo, Math.min(hi, was + d)); const c = cost(); if (c < best - 1e-9) best = c; else o.x = was;
+      }
+      setFeet();
+    };
+    const gapOf = () => { const y0 = soleY(0), y1 = soleY(1); return { hi: y0 > y1 ? 0 : 1, gap: Math.abs(y0 - y1) }; };
+    let g = gapOf();
+    if (g.gap > 0.012 * s && g.gap < 0.4 * s) {
+      shift(g.hi, -g.gap); g = gapOf();
+      if (g.gap > 0.012 * s) { shift(1 - g.hi, g.gap); }
+    }
+  }
+  // a second hand on a long weapon: the free hand reaches for the haft and takes hold of it
+  if (battle && !dead && !gL.children.length && gR.children.length && (f.weapon === 'axe' || f.weapon === 'spear' || f.weapon === 'staff') && (f.battlePose ?? f.stance) === 'two-handed') {
+    const A = arm[1], want = new THREE.Vector3(), at0 = new THREE.Vector3();
+    const reach = (ty: number, apply: boolean) => {
+      const keep: [number, number, number, number] = [A.root.rotation.x, A.root.rotation.y, A.root.rotation.z, A.mid.rotation.x];
+      body.updateMatrixWorld(true); want.set(0, ty * s, 0); gR.localToWorld(want);
+      const err = () => { A.collar!.updateMatrixWorld(true); return gL.getWorldPosition(at0).distanceTo(want); };
+      let best = err();
+      for (let st = 0.4; st > 0.01; st *= 0.6) for (let pass = 0; pass < 4; pass++) for (const [o, key, lo, hi] of [[A.root.rotation, 'x', -3, 0.6], [A.root.rotation, 'z', -1.7, 1.2], [A.root.rotation, 'y', -1.2, 1.2], [A.mid.rotation, 'x', -2.4, 0]] as [THREE.Euler, 'x' | 'y' | 'z', number, number][]) for (const d of [st, -st]) {
+        const was = o[key]; o[key] = Math.max(lo, Math.min(hi, was + d)); const e = err(); if (e < best) best = e; else o[key] = was;
+      }
+      if (!apply) { A.root.rotation.set(keep[0], keep[1], keep[2]); A.mid.rotation.x = keep[3]; A.collar!.updateMatrixWorld(true); }
+      return best;
+    };
+    reach(reach(1.0, false) <= reach(-0.75, false) ? 1.0 : -0.75, true);
+    body.updateMatrixWorld(true);
+  }
+  // on the floor (or, seated, the hips at the origin), over the middle of its base, then lifted
   if (P.seated) body.position.y -= HIP * s;
   else { let floor = Infinity; for (const m of soles) floor = Math.min(floor, new THREE.Box3().setFromObject(m).min.y); if (Number.isFinite(floor)) body.position.y -= floor; }
+  if (standing && soles.length) { const bb = new THREE.Box3(); for (const m of soles) bb.expandByObject(m); body.position.x -= (bb.min.x + bb.max.x) / 2; body.position.z -= (bb.min.z + bb.max.z) / 2; }
   body.position.y += P.lift ?? 0;
   const glowAt = (g: THREE.Object3D, p: THREE.Vector3, r: number) => { const c = f.glow ?? f.wisp ?? '#c9b3ff'; g.add(at(glassy(sph(r * s, c, 16, 12), c, 0.7), p.x, p.y, p.z)); g.add(at(glassy(sph(r * 1.8 * s, c, 16, 12), c, 0.18), p.x, p.y, p.z)); };
   if (P.spell === 'right' && !dead) glowAt(gR, new THREE.Vector3(0, 0, 0.35 * s), 0.16);

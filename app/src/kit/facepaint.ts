@@ -20,7 +20,7 @@ const EYES: Record<EyeShape, { w: number; h: number; up: number; lo: number; pea
   wide: { w: 1, h: 1.14, up: 1.08, lo: 0.98, peak: 0, tilt: 0, iris: 0.9, wing: 0, brow: 0.012 },
 };
 
-export interface PaintLook { skin: string; hair?: string; eyes?: string; lips?: string; fem?: boolean; /** Crossed-out eyes. */ dead?: boolean; /** Where the eyes look, [across, up], -1 to 1. */ gaze?: [number, number]; size?: number }
+export interface PaintLook { skin: string; hair?: string; eyes?: string; lips?: string; fem?: boolean; /** Crossed-out eyes. */ dead?: boolean; size?: number }
 
 /** The picture covers this much of the head (in the face builder's units, skull radius 0.4), centred on the eye line. */
 const SPAN_X = 0.9, SPAN_Y = 1.0;
@@ -102,7 +102,7 @@ export function paintFace(spec: FaceSpec, look: PaintLook): THREE.Texture | null
     c.save(); almond(); c.clip();
     // a large iris, cut by the lid above (and by the lower lid on a narrowed eye): a dark rim, colour deepening upward,
     // a lit crescent below, a wide pupil, two lights
-    const ir = ehBase * E.iris, iy = eh * 0.08 + (E.iris < 0.8 ? 0 : ehBase * 0.06), gzx = Math.max(-1, Math.min(1, (spec.gaze ?? 0) + (look.gaze?.[0] ?? 0))), gzy = look.gaze?.[1] ?? 0;
+    const ir = ehBase * E.iris, iy = eh * 0.08 + (E.iris < 0.8 ? 0 : ehBase * 0.06), gz = Array.isArray(spec.gaze) ? spec.gaze : [spec.gaze ?? 0, 0], gzx = Math.max(-1, Math.min(1, gz[0])), gzy = Math.max(-1, Math.min(1, gz[1]));
     const gx = gzx * ew * 0.3 * sx, gy = gzy * eh * 0.28;
     c.beginPath(); c.arc(gx, (iy + gy), ir, 0, Math.PI * 2); c.fillStyle = mix(eyeC, '#06040a', 0.55); c.fill();
     const ig = c.createLinearGradient(0, (iy + gy) + ir, 0, (iy + gy) - ir); ig.addColorStop(0, mix(eyeC, '#06040a', 0.45)); ig.addColorStop(0.45, eyeC); ig.addColorStop(1, mix(eyeC, '#ffffff', 0.45));
