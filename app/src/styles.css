@@ -766,3 +766,19 @@ svg.e { width: 22px; height: 22px; fill: currentColor; flex: none; }
 .encounter-packs .ep-roll input { width: 4.5em; }
 .encounter-packs .ep-problems li.error { color: var(--danger, #b33); }
 .encounter-packs .ep-staged { font-size: 12px; }
+
+/* Party packs: the table's characters, their portraits and where they stand (ui/partyPacks.ts). */
+.party-packs .pp-tools { flex-wrap: wrap; gap: 10px; align-items: center; }
+.party-packs .pp-tools label.button { cursor: pointer; white-space: nowrap; padding: 6px 12px; border-radius: 10px; border: 1px solid var(--hair); }
+.party-packs .pp-tools .seg { display: inline-flex; border: 1px solid var(--hair); border-radius: 999px; overflow: hidden; }
+.party-packs .pp-tools .seg button { border: 0; border-radius: 0; padding: 6px 12px; }
+.party-packs .pp-tools .seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.party-packs .pp-card { display: grid; grid-template-columns: 72px 1fr; gap: 12px; align-items: start; border: 1px solid var(--hair); border-left: 4px solid var(--tok); border-radius: 12px; padding: 10px 12px; margin: 10px 0; }
+.party-packs .pp-face { width: 72px; height: 72px; border-radius: 50%; object-fit: cover; border: 3px solid var(--tok); box-sizing: border-box; }
+.party-packs .pp-face.none { display: block; background: var(--tok); }
+.party-packs .pp-card h3 { margin: 0; font-size: 1em; }
+.party-packs .pp-card h3 small { font-weight: normal; color: var(--ink-2); margin-left: 4px; }
+.party-packs .pp-sub, .party-packs .pp-note, .party-packs .pp-state { margin: 2px 0; font-size: 12px; color: var(--ink-2); }
+.party-packs .pp-stats { margin: 4px 0; font-size: 12px; display: flex; flex-wrap: wrap; gap: 4px 12px; }
+.party-packs .pp-place { margin: 12px 0 0; font-size: 13px; }
+.party-packs .pp-problems li.error { color: var(--danger, #b33); }

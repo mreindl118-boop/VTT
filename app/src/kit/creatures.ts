@@ -31,6 +31,7 @@ export function humanoid(o: HumanoidOpts = {}): THREE.Group {
   if (o.robe || o.skirt) g.add(cyl(0.72 * s, 1.08 * s, (o.robe ? 4.6 : 2.6) * s, cloth, 0, (o.robe ? 2.3 : 1.7) * s, 0, 7));
   // the upper body hangs from the hips
   const up = grp(); up.position.y = 2.85 * s; up.rotation.x = hunch * 0.6; g.add(up);
+  g.userData.upper = up; // hero figures (kit/heroes.ts) hang their extras on the upper body
   up.add(box(1.2 * s, 0.55 * s, 0.72 * s, trim, 0, 0.05 * s, 0));                                       // hips
   const torso = cyl(0.72 * s, 0.6 * s, 2.15 * s, cloth, 0, 1.15 * s, 0, 7); torso.scale.z = 0.62; up.add(torso);
   if (!o.robe) { const hem = cyl(0.64 * s, 0.82 * s, 0.75 * s, cloth, 0, 0.0, 0, 7); hem.scale.z = 0.7; up.add(hem); }

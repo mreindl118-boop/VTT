@@ -12,6 +12,7 @@ import { classOpacity, fogCurve, hiddenCurve, labelCurve } from './core/slider';
 import { baseRingFt, CELL_FT } from './core/units';
 import { baseRing } from './kit/pieces';
 import { adventurer } from './kit/creatures';
+import { heroFigure, portraitDisc } from './kit/heroes';
 import { PALETTE } from './kit/palette';
 import { buildLevel, buildLevelSteps, hitObjectId, mergeByMaterial, type BuiltLevel, type LabelSpec } from './render/build';
 import { gridUniforms } from './render/gridOverlay';
@@ -138,6 +139,9 @@ export class App {
   follow = true;
   /** Entering a room reveals and remembers it for the players. */
   autoReveal = true;
+  /** How player characters with a party pack's picture stand: their miniature on a portrait base, or a flat round token. */
+  pieceStyle: 'mini' | 'token' = (() => { try { return localStorage.getItem('mistlab.pieceStyle') === 'token' ? 'token' : 'mini'; } catch { return 'mini'; } })();
+  setPieceStyle(v: 'mini' | 'token'): void { this.pieceStyle = v; try { localStorage.setItem('mistlab.pieceStyle', v); } catch { /* no storage */ } if (this.cur) { this.syncTokens(); this.world.invalidate(); } }
   /** One-screen play: 'players' hides every DM affordance and pins t = 0. */
   view: 'dm' | 'players' = 'dm';
   lowWalls = true;
@@ -1203,7 +1207,11 @@ export class App {
   }
 
   /** The party token for the loaded location. */
-  get party(): Token | undefined { const here = this.state.tokens.filter((t) => t.location === this.cur?.scene.location); return here.find((t) => t.role !== 'member') ?? here[0]; }
+  get party(): Token | undefined {
+    // the party marker; else the first character standing in their own token (a party pack's placement); else as before
+    const here = this.state.tokens.filter((t) => t.location === this.cur?.scene.location);
+    return here.find((t) => t.role === 'party' || !t.role) ?? here.find((t) => t.role === 'pc') ?? here.find((t) => t.role !== 'member') ?? here[0];
+  }
 
   // ------------------------------------------------------------------ encounters: initiative, turns, ranges
 
@@ -1232,11 +1240,14 @@ export class App {
     entries.slice().sort((a, b) => b.init - a.init).forEach((en, i) => {
       const sh = this.state.roster.find((x) => x.id === en.sheetId); if (!sh) return;
       if (en.tokenId) { const t = this.state.tokens.find((x) => x.id === en.tokenId); if (!t) return; t.sheetId = sh.id; order.push({ sheetId: sh.id, tokenId: t.id, init: en.init }); return; }
+      // a character already standing here in their own token fights from where they stand
+      const own = this.state.tokens.find((x) => x.role === 'pc' && x.sheetId === sh.id && x.location === loc);
+      if (own) { order.push({ sheetId: sh.id, tokenId: own.id, init: en.init }); return; }
       const id = `tok-${loc}-${sh.id}`;
       this.state.tokens.push({ id, name: sh.name, location: loc, level, pos: free[i] ?? at, size: sh.size, darkvisionFt: sh.darkvisionFt, color: sh.color, role: 'member', sheetId: sh.id, light: sh.kind === 'pc' && i === 0 ? { bright: 20, dim: 40 } : undefined });
       order.push({ sheetId: sh.id, tokenId: id, init: en.init });
     });
-    if (party) this.state.tokens = this.state.tokens.filter((t) => t !== party);
+    if (party && party.role !== 'pc') this.state.tokens = this.state.tokens.filter((t) => t !== party);
     this.state.encounter = { location: loc, level, round: 1, order, turn: 0, movedFt: 0, partyPos: party?.pos ?? at };
     this.select(null);
     if (level !== this.levelId) this.setLevel(level); else this.syncTokens();
@@ -1398,6 +1409,9 @@ export class App {
     if (this.follow) this.findParty(true);
   }
 
+  /** Redraw the tokens and what they see (after the roster or the tokens changed outside a move). */
+  refreshTokens(): void { if (!this.cur) return; this.syncTokens(); this.recompute(); this.world.invalidate(); }
+
   tokensHere(): Token[] { return this.state.tokens.filter((t) => t.location === this.cur?.scene.location && t.level === this.levelId); }
 
   private syncTokens(): void {
@@ -1411,16 +1425,23 @@ export class App {
       const base = baseRingFt(t.size);
       const g = new THREE.Group();
       const entry = t.creatureId ? creatureById(t.creatureId) : undefined;
-      const fig = mergeByMaterial(entry ? figureFor(entry) : adventurer(t.role === 'member' ? { cloth: t.color } : undefined)); fig.position.y = 0.3;
-      g.add(baseRing(base, t.role === 'party' ? PARTY_RED : t.color), fig);
+      // a party pack's character: their own miniature, standing on their portrait (or the portrait alone, flat)
+      const sheet = t.sheetId && t.role !== 'creature' ? this.state.roster.find((x) => x.id === t.sheetId) : undefined;
+      const flat = !!sheet?.portrait && this.pieceStyle === 'token';
+      if (!flat) {
+        const fig = mergeByMaterial(sheet?.figure ? heroFigure(sheet.figure, t.size) : entry ? figureFor(entry) : adventurer(t.role === 'member' ? { cloth: t.color } : undefined)); fig.position.y = 0.3;
+        g.add(fig);
+      }
+      if (sheet?.portrait) g.add(portraitDisc(sheet.portrait, t.color, flat ? base * 0.48 : (base * 0.62) / 2 + 0.25, () => this.world.invalidate(), 0.3));
+      else g.add(baseRing(base, t.role === 'party' ? PARTY_RED : t.color));
       if (t.role === 'party') { const amp = this.world.label('&', undefined, 'token party-amp'); amp.position.set(0, 7.6, 0); g.add(amp); }
-      if (t.role === 'member' || t.role === 'creature') {
+      if (t.role === 'member' || t.role === 'creature' || t.role === 'pc') {
         // The name goes through the players' projection (core/identity.ts): a hidden creature has no tag on the players'
         // side, a revealed one its own alias, never its real or sheet name.
         const f = playerFacing(t, { restricted: this.playersSide });
         if (f.visible) {
           const lb = this.world.label(f.name ?? t.name, undefined, `token${t.role === 'creature' ? ' creature' : ''}${t.hidden ? ' hidden' : ''}`);
-          lb.position.set(0, 7.2, 0); lb.element.style.setProperty('--tok', t.color); g.add(lb);
+          lb.position.set(0, flat ? 2.2 : 7.2, 0); lb.element.style.setProperty('--tok', t.color); g.add(lb);
         }
       }
       const ghostly = t.role === 'creature' && !!t.hidden; // the DM sees an unrevealed creature faintly
@@ -1428,6 +1449,7 @@ export class App {
         const m = c as THREE.Mesh;
         if (!m.isMesh) return;
         const src = m.material as THREE.MeshLambertMaterial;
+        if (m.userData.keepLook || (m.material as THREE.Material).userData?.keepLook) { m.userData.role = 'token'; m.userData.tokenId = t.id; return; } // a hero's wings, a portrait: their own look
         m.material = new THREE.MeshLambertMaterial({ color: src.color, flatShading: true, transparent: ghostly, opacity: ghostly ? 0.45 : 1 }); // tokens are never fogged
         m.userData.role = 'token';
         m.userData.tokenId = t.id;
@@ -2046,7 +2068,7 @@ export class App {
     t.pos = to;
     this.cur!.tokens.get(id)?.position.set(to[0], this.level.elevationFt, to[1]);
     if (id === this.party?.id) this.afterPartyMove();
-    else if (this.encounter) this.afterMemberMove(t);
+    else if (this.encounter || t.role === 'pc') this.afterMemberMove(t);
     else if (this.rangeHelper) this.refreshRange();
     this.commit();
     return true;
