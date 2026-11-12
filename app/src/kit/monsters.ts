@@ -35,7 +35,11 @@ function lit(m: M, c: string, opacity = 0.8, glow = 0.9): M {
 }
 /** Make a whole figure ghostly: every part see-through and faintly lit. */
 export function spectral<T extends THREE.Object3D>(g: T, c?: string, opacity = 0.5): T {
-  g.traverse((o) => { const m = o as M; if (!m.isMesh) return; const src = m.material as THREE.MeshLambertMaterial; lit(m, c ?? '#' + src.color.getHexString(), opacity, 0.35); });
+  g.traverse((o) => {
+    const m = o as M; if (!m.isMesh) return; const src = m.material as THREE.MeshLambertMaterial; lit(m, c ?? '#' + src.color.getHexString(), opacity, 0.35);
+    // a painted face stays on a ghost's head, faint through its glow, so the spirit is still who it was
+    if (src.map) { const n = m.material as THREE.MeshLambertMaterial; n.map = src.map; n.emissiveIntensity = 0.18; }
+  });
   return g;
 }
 function ground<T extends THREE.Object3D>(g: T, lift = 0): THREE.Group { g.updateMatrixWorld(true); const b = new THREE.Box3().setFromObject(g), out = grp(); out.add(g); g.position.y += -b.min.y + lift; out.userData.joints = g.userData.joints; return out; }

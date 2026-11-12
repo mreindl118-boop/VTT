@@ -2756,7 +2756,59 @@
     "frame": "feminine"
    },
    "role": "neutral",
-   "importance": 7.5
+   "importance": 7.5,
+   "hero": {
+    "skin": "#ead9cc",
+    "hair": "#8a5a2a",
+    "hairStyle": "long",
+    "eyes": "#6a8a9a",
+    "frame": "feminine",
+    "height": 1.06,
+    "headSize": 1.42,
+    "detail": 3,
+    "body": {
+     "bust": 0,
+     "shoulders": 0.8,
+     "chest": 0.84,
+     "waist": 0.9,
+     "hips": 0.76,
+     "arms": 0.78,
+     "legs": 0.8,
+     "neck": 0.82,
+     "neckLen": 0.88
+    },
+    "cloth": "#6a5470",
+    "trim": "#d9d0bf",
+    "skirt": "#6a5470",
+    "boots": "#3a2a24",
+    "face": {
+     "noseLen": -0.7,
+     "noseW": -0.5,
+     "noseTip": -0.3,
+     "jaw": -0.7,
+     "chin": -0.5,
+     "cheekbones": -0.4,
+     "faceLen": -0.7,
+     "headL": -0.15,
+     "mouthW": -0.3,
+     "browThick": -0.4,
+     "lashes": false,
+     "blush": "#e0a4a4",
+     "eyeSize": 0.75,
+     "chinPoint": 0.1,
+     "headW": 0.15,
+     "lipFull": 0.1,
+     "smile": -0.2,
+     "browAngle": -0.35
+    },
+    "pose": "stand intent R:chin L:offer look:L eyes:L",
+    "battlePose": "stride intent R:grasp L:claw eyes:glare",
+    "ghost": {
+     "fight": true,
+     "opacity": 0.5,
+     "hover": 0.5
+    }
+   }
   },
   {
    "id": "thorn-durst",
@@ -2779,7 +2831,61 @@
     "hair": "#3a2a1a",
     "ghost": true
    },
-   "role": "neutral"
+   "role": "neutral",
+   "hero": {
+    "skin": "#ead9cc",
+    "hair": "#3a2a1a",
+    "hairStyle": "short",
+    "eyes": "#5a4a3a",
+    "height": 0.92,
+    "headSize": 1.5,
+    "detail": 3,
+    "body": {
+     "shoulders": 0.76,
+     "chest": 0.8,
+     "waist": 0.92,
+     "hips": 0.86,
+     "arms": 0.76,
+     "legs": 0.8,
+     "neck": 0.78,
+     "neckLen": 0.82
+    },
+    "cloth": "#5a6a7a",
+    "trim": "#4a3a2c",
+    "boots": "#3a2a24",
+    "face": {
+     "noseLen": -0.8,
+     "noseW": -0.5,
+     "noseTip": -0.2,
+     "jaw": -0.7,
+     "chin": -0.6,
+     "cheekbones": -0.5,
+     "faceLen": -0.8,
+     "headL": -0.2,
+     "mouthW": -0.3,
+     "browThick": -0.4,
+     "lashes": false,
+     "blush": "#e0a0a0",
+     "eyeSize": 0.85,
+     "headW": 0.25,
+     "lipFull": 0.2,
+     "smile": -0.8,
+     "browAngle": -0.9
+    },
+    "pose": "demure bowed R:wring L:wring look:down eyes:down",
+    "battlePose": "stride intent R:grasp L:wring eyes:glare",
+    "carry": {
+     "kind": "doll",
+     "side": "L",
+     "color": "#8a4a4a",
+     "hair": "#c8a050"
+    },
+    "ghost": {
+     "fight": true,
+     "opacity": 0.5,
+     "hover": 0.5
+    }
+   }
   },
   {
    "id": "gustav-durst",
@@ -2793,14 +2899,47 @@
    ],
    "kind": "npc",
    "figure": {
-    "skin": "#cfcfd6",
-    "cloth": "#cfd6e8",
-    "accent": "#cfd6e8",
+    "skin": "#7a8670",
+    "cloth": "#3a2e36",
+    "accent": "#2a2026",
     "hair": "#7a7a7a",
-    "ghost": true
+    "undead": true
    },
    "role": "hostile",
-   "importance": 5.1
+   "importance": 5.1,
+   "hero": {
+    "skin": "#7a8670",
+    "hair": "#8a8a84",
+    "hairStyle": "short",
+    "eyes": "#f0a040",
+    "build": "lean",
+    "detail": 2,
+    "cloth": "#3a2e36",
+    "trim": "#2a2026",
+    "shirt": "#8a8270",
+    "boots": "#1e1a1a",
+    "tattered": true,
+    "face": {
+     "gaunt": 0.85,
+     "sunken": 0.8,
+     "teeth": true,
+     "veins": "#4a5640",
+     "blush": false,
+     "cheekbones": 0.9,
+     "jaw": 0.3,
+     "chin": 0.4,
+     "noseLen": 0.3,
+     "noseHook": 0.4,
+     "browRidge": 0.6,
+     "browAngle": 0.9,
+     "mouthW": 0.5,
+     "lipFull": -0.6,
+     "smile": -0.6,
+     "age": 0.5
+    },
+    "pose": "stand stoop R:claw L:hang look:up eyes:glare",
+    "battlePose": "lunge low R:claw L:grasp eyes:glare"
+   }
   },
   {
    "id": "elisabeth-durst",
@@ -2814,14 +2953,45 @@
    ],
    "kind": "npc",
    "figure": {
-    "skin": "#cfcfd6",
-    "cloth": "#cfd6e8",
-    "accent": "#cfd6e8",
+    "skin": "#7a8670",
+    "cloth": "#3e2030",
+    "accent": "#2a2026",
     "hair": "#1a1a1a",
-    "ghost": true,
-    "frame": "feminine"
+    "frame": "feminine",
+    "undead": true
    },
-   "role": "hostile"
+   "role": "hostile",
+   "hero": {
+    "skin": "#7a8670",
+    "hair": "#1a1a1a",
+    "hairStyle": "long",
+    "eyes": "#f0a040",
+    "frame": "feminine",
+    "detail": 2,
+    "cloth": "#3e2030",
+    "trim": "#2a2026",
+    "skirt": "#3e2030",
+    "boots": "#1e1a1a",
+    "tattered": true,
+    "pendant": "#8a7a4a",
+    "face": {
+     "gaunt": 0.8,
+     "sunken": 0.75,
+     "teeth": true,
+     "veins": "#4a5640",
+     "blush": false,
+     "cheekbones": 1,
+     "jaw": -0.2,
+     "chinPoint": 0.4,
+     "noseLen": 0.1,
+     "browAngle": 0.8,
+     "mouthW": 0.4,
+     "lipFull": 0.1,
+     "smile": -0.5
+    },
+    "pose": "weightL stoop R:claw L:wring look:tilt eyes:glare",
+    "battlePose": "lunge intent R:grasp L:claw eyes:glare"
+   }
   },
   {
    "id": "donavich",

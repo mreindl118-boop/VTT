@@ -177,6 +177,29 @@ export function furMantle(g: THREE.Group, recipe: HeroFigure, o: Mantle): THREE.
   if (o.straps) for (const y of [0.78, 1.0, 1.22]) { const r = ringAt(tr, y); up.add(new THREE.Mesh(loftGeometry([{ ...r, y: y - 0.035 }, { ...r, y: y + 0.035 }], s, { seg: 32, k: 1.035, rows: 1 }), mat(o.straps))); }
   return g;
 }
+/** Something carried that is neither a weapon nor a book: a child's rag doll (Thorn's, in the street outside Death
+ *  House). It sits at the hand, upright against the chest whatever the hand's turn, so a hugging pose holds it to the
+ *  body: a stuffed body in a dress, floppy arms and legs, a round head with button eyes under a cap of yarn hair. */
+export interface Carry { kind: 'doll'; side?: 'L' | 'R'; color?: string; hair?: string }
+export function carried(g: THREE.Group, c: Carry): THREE.Group {
+  const j = (g.userData.joints ?? {}) as Record<string, THREE.Object3D>, side = c.side ?? 'L', hand = j['hand' + side], wr = j['wrist' + side], up = j.chest;
+  if (!hand || !wr || !up) return g;
+  g.updateMatrixWorld(true);
+  const s = Math.abs(wr.position.y) / 1.04 * 1.5, d = new THREE.Group(), cloth = c.color ?? '#9a4a48', rag = '#e6dac2', yarn = c.hair ?? '#c8a050', ink = '#2a1e1a';
+  const blob = (r: number, col: string, k: [number, number, number], x: number, y: number, z: number, rz = 0) => { const m = new THREE.Mesh(new THREE.SphereGeometry(r * s, 12, 9), smooth(col)); m.scale.set(...k); m.position.set(x * s, y * s, z * s); m.rotation.z = rz; d.add(m); return m; };
+  blob(0.12, cloth, [1, 1.3, 0.75], 0, 0, 0);                                   // the stuffed body in its dress
+  blob(0.1, rag, [1, 0.98, 0.9], 0, 0.24, 0.01);                                // the head
+  blob(0.106, yarn, [1.04, 0.62, 0.98], 0, 0.285, -0.005);                      // the yarn hair
+  for (const sx of [-1, 1]) {
+    blob(0.014, ink, [1, 1, 0.5], sx * 0.036, 0.245, 0.095);                     // button eyes
+    blob(0.036, cloth, [1, 2.5, 1], sx * 0.13, 0.02, 0, sx * 0.55);             // floppy arms
+    blob(0.038, rag, [1, 2.6, 1], sx * 0.055, -0.21, 0.02, sx * 0.12);          // and legs
+  }
+  // at the palm, a little in front of it, standing up in the chest's frame and turned to face out
+  d.position.copy(up.worldToLocal(hand.getWorldPosition(new THREE.Vector3()))).add(new THREE.Vector3(0, 0.03 * s, 0.1 * s));
+  up.add(d);
+  return g;
+}
 /** A recipe with its dead pose resolved (kit/poses.ts names, the rig's own presets, or one picked by the seed). */
 export function withDeadPose<T extends { deadPose?: unknown }>(r: T, seed: string): Omit<T, 'deadPose'> & { deadPose: HeroFigure['deadPose'] } {
   return { ...r, deadPose: deadPose(r.deadPose, seed) as HeroFigure['deadPose'] };

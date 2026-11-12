@@ -7,9 +7,9 @@ import { pawn } from './kit/pieces';
 import { heroFigure, type HeroFigure } from './kit/heroes';
 import { detailFor } from './kit/faces';
 import { posed } from './kit/poses';
-import { FOLK, creature, folk, staked, withDeadPose, mounted, fiendishArm, furMantle, type Folk, type FigState, type FiendArm, type Mantle } from './kit/menagerie';
+import { FOLK, creature, folk, staked, withDeadPose, mounted, fiendishArm, furMantle, carried, type Folk, type FigState, type FiendArm, type Mantle, type Carry } from './kit/menagerie';
 import { beast, BEASTS, BEUCEPHALUS } from './kit/beasts';
-import { flyer, FLYERS, mistForm, effigy, branches, felled } from './kit/monsters';
+import { flyer, FLYERS, mistForm, effigy, branches, felled, spectral } from './kit/monsters';
 import type { WeaponSpec } from './kit/weapons';
 import { baseRingFt, type CreatureSize } from './core/units';
 import { PALETTE } from './kit/palette';
@@ -20,11 +20,15 @@ export interface CreatureEntry {
   kind: 'npc' | 'creature' | 'monster-manual' | 'generic' | 'pc' | 'token'; figure?: Figure; role?: string; variants?: string[];
   /** A named NPC's own miniature (kit/heroes.ts), styled after the character's art: colours, hair, dress and what they carry.
    *  When present it replaces the generic humanoid; `figure` still gives the token colour and the bestiary's look. */
-  hero?: HeroFigure & { fiendArm?: FiendArm; mantle?: Mantle };
+  hero?: HeroFigure & { fiendArm?: FiendArm; mantle?: Mantle; carry?: Carry; ghost?: Ghost };
   /** How much the character matters at the table (the relationship web's power and ties). It sets the detail of the
    *  figure's face (kit/faces.ts detailFor); raise it as a character grows in the story. */
   importance?: number;
 }
+/** A named character who is a ghost: see-through and faintly lit (in its own colours unless `color` tints it all), at
+ *  `opacity`. `fight`: only in a fight, so a ghost first met as the living person it was (Rose and Thorn in the street)
+ *  looks it until the fight; `hover` lifts it off the floor in a fight. Dead, a ghost does not fall: it pools and thins. */
+export interface Ghost { color?: string; opacity?: number; fight?: boolean; hover?: number }
 /** The DM's numbers for the open-content creatures: armour class, hit points, speed, challenge. */
 export interface Stats { ac: number; hp: number; speed: string; cr: string }
 
@@ -166,9 +170,11 @@ function plainFolk(e: CreatureEntry): Folk {
 
 /** What a named character wears or has grown that the shared figure does not make: a fur mantle, a fiend's arm (its
  *  fingers lit with the character's glow in a fight). */
-function dressed(g: THREE.Group, h: NonNullable<CreatureEntry['hero']>, battle: boolean): THREE.Group {
+function dressed(g: THREE.Group, h: NonNullable<CreatureEntry['hero']>, battle: boolean, dead = false): THREE.Group {
   if (h.mantle) furMantle(g, h, h.mantle);
   if (h.fiendArm) fiendishArm(g, h.fiendArm, battle ? h.glow : undefined);
+  if (h.carry) carried(g, h.carry);
+  if (h.ghost && (battle || dead || !h.ghost.fight)) { spectral(g, h.ghost.color, (h.ghost.opacity ?? 0.5) * (dead ? 0.5 : 1)); if (dead) return felled(g, 'flat'); }
   return g;
 }
 
@@ -178,8 +184,9 @@ export function figureFor(e: CreatureEntry, state: FigState = false, seed = ''):
   const dead = state === 'dead' || e.variants?.includes('corpse') === true, battle = !dead && (state === true || state === 'battle');
   const strahd = STRAHD_FORMS[e.id] && creatureById('strahd-von-zarovich');
   if (strahd && strahd.hero) { if (dead && /mounted|blade/.test(e.id)) return figureFor(strahd, 'dead'); return STRAHD_FORMS[e.id](strahd, battle, dead); }
+  if (e.hero?.ghost && dead) return dressed(heroFigure(recipeOf(e, false), e.size, 'rest'), e.hero, false, true);
   if (e.hero && dead) { const vamp = !!(e.hero.fangs || e.hero.face?.fangs), g = heroFigure(recipeOf({ ...e, hero: withDeadPose(vamp && !e.hero.deadPose ? { ...e.hero, deadPose: 'laid-out' } : e.hero, e.id) as HeroFigure }, false, {}, true), e.size, 'dead'); dressed(g, e.hero, false); return vamp ? staked(g) : g; }
-  if (e.hero) return dressed(heroFigure(recipeOf(e, battle), e.size, battle), e.hero, battle);
+  if (e.hero) return dressed(heroFigure(recipeOf(e, battle, battle && e.hero.ghost?.hover ? { hoverFt: e.hero.ghost.hover } : {}), e.size, battle), e.hero, battle);
   const made = creature(e.id, dead ? 'dead' : battle); if (made) return made;
   const st: FigState = dead ? 'dead' : battle;
   if (FOLK[e.id]) return folk(battle ? FOLK[e.id] : dead ? fallen(FOLK[e.id]) : stowed(FOLK[e.id]), e.size, st, seed, e.id);
