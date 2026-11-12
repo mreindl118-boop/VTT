@@ -3,7 +3,9 @@
 // gear (kit/weapons.ts) and poses (kit/poses.ts), plus the parts a person lacks (wings, horns, a tail, a beast's head).
 // Everything else comes from kit/beasts.ts and kit/monsters.ts. Original geometry; no book text or numbers here.
 import * as THREE from 'three';
-import { heroFigure, type HeroFigure, type HeroPose } from './heroes';
+import { frameFor, heroFigure, SIDE_X, type HeroFigure, type HeroPose } from './heroes';
+import { clipRings, loftGeometry, neckLift, neckRings, ringAt, ringPoint, torsoRings } from './anatomy';
+import { mat } from '../render/materials';
 import { posed, deadPose } from './poses';
 import type { FaceSpec } from './faces';
 import type { WeaponSpec } from './weapons';
@@ -44,34 +46,135 @@ export function staked(g: THREE.Group): THREE.Group {
   const st = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.02, 1.5, 6), (mon.horn(0.1, 0.01, '#6a4a2a').material as THREE.Material)); st.rotation.z = 0.12; st.position.set(p.x, p.y + 0.6, p.z); g.add(st);
   return g;
 }
-/** An arm unlike the other, grown in place of a lost one: from the elbow down bare and dark, thicker, barbed along the
- *  back of the forearm, the hand long in the fingers with claws at their tips. Applied to a built figure by its joints,
- *  so it follows whatever pose the arm is in. */
-export interface FiendArm { side: 'R' | 'L'; color: string; claws?: string }
-export function fiendishArm(g: THREE.Group, arm: FiendArm): THREE.Group {
-  const j = (g.userData.joints ?? {}) as Record<string, THREE.Object3D>, el = j['elbow' + arm.side], wr = j['wrist' + arm.side];
-  if (!el || !wr) return g;
-  const s = Math.abs(wr.position.y) / 1.04, sx = arm.side === 'R' ? 1 : -1, claw = arm.claws ?? '#1c0c0a';
-  const recolor = (m: THREE.Mesh, c: string) => { const src = m.material as THREE.MeshLambertMaterial, k = src.clone(); k.color.set(c); k.userData = { ...src.userData }; m.material = k; };
+/** A smooth-shaded palette colour (flesh, fur), as the figure's own soft parts are. */
+const smooth = (c: string): THREE.MeshLambertMaterial => { const m = mat(c, { emissive: '#030303' }); m.userData.smooth = true; return m; };
+/** A hooked thorn: a cone standing on its base at the origin along +y, bent toward +z as it rises (`hook` of its length). */
+function thorn(len: number, r: number, c: string, hook = 0.3, seg = 5): THREE.Mesh {
+  const geo = new THREE.ConeGeometry(r, len, seg, 4); geo.translate(0, len / 2, 0);
+  const p = geo.attributes.position as THREE.BufferAttribute;
+  for (let i = 0; i < p.count; i++) { const t = p.getY(i) / len; p.setZ(i, p.getZ(i) + hook * len * t * t); }
+  geo.computeVertexNormals(); return new THREE.Mesh(geo, mat(c));
+}
+/** Set a part on a limb's surface: base at `at`, standing out along `out` and curling toward `toward`. */
+function setOn(m: THREE.Object3D, at: THREE.Vector3, out: THREE.Vector3, toward: THREE.Vector3): void {
+  const Y = out.clone().normalize(), Z = toward.clone().addScaledVector(Y, -toward.dot(Y)).normalize(), X = Y.clone().cross(Z);
+  m.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(X, Y, Z)); m.position.copy(at);
+}
+/** A self-lit part (an ember), its own material, flagged so the token pass keeps the look. */
+function ember(m: THREE.Mesh, c: string): THREE.Mesh {
+  const n = new THREE.MeshLambertMaterial({ color: c, emissive: c, emissiveIntensity: 1.1 }); n.userData = { keepLook: true, smooth: true }; m.material = n; m.userData.keepLook = true; return m;
+}
+
+/** An arm unlike the other, grown in place of a lost one: bare from the shoulder, its flesh dark, knotted and lumpy, far
+ *  thicker than the arm it replaced, barbed along its back and spurred at the elbow, the hand huge, long in the fingers,
+ *  with hooked nails. Applied to a built figure by its joints, so it follows whatever pose the arm is in; `lit` (a
+ *  colour) sets embers at the fingertips (fire at the snap of the fingers). The joints say how much thicker the arm is
+ *  (userData.girth), so the clip check (kit/clipcheck.ts) measures the arm it really is. */
+export interface FiendArm { side: 'R' | 'L'; color: string; claws?: string; /** Its girth against the other arm (default 1.5). */ size?: number }
+export function fiendishArm(g: THREE.Group, arm: FiendArm, lit?: string): THREE.Group {
+  const j = (g.userData.joints ?? {}) as Record<string, THREE.Object3D>, sh = j['shoulder' + arm.side], el = j['elbow' + arm.side], wr = j['wrist' + arm.side];
+  if (!sh || !el || !wr) return g;
+  const s = Math.abs(wr.position.y) / 1.04, ox = SIDE_X[arm.side], claw = arm.claws ?? '#1c0c0a', kF = arm.size ?? 1.5, kU = 1 + (kF - 1) * 0.85, kH = 1 + (kF - 1) * 0.8;
   const meshes = (o: THREE.Object3D) => o.children.filter((c) => (c as THREE.Mesh).isMesh) as THREE.Mesh[];
-  const dark = (c: string, k: number) => '#' + new THREE.Color(c).lerp(new THREE.Color('#000000'), k).getHexString();
-  for (const m of meshes(el)) { recolor(m, arm.color); if (m.geometry.type !== 'SphereGeometry') m.scale.set(1.14, 1, 1.14); }
-  for (const m of meshes(wr)) recolor(m, arm.color);
-  // longer fingers: the hand drawn out along its length (anything it holds keeps its own proportions)
-  wr.scale.y *= 1.2; for (const c of wr.children) if (!(c as THREE.Mesh).isMesh) c.scale.y /= 1.2;
-  // a claw at each fingertip and on the thumb (the finger's far joint, the thumb last)
-  const hm = meshes(wr);
+  const tint = (c: string, to: string, k: number) => '#' + new THREE.Color(c).lerp(new THREE.Color(to), k).getHexString();
+  const recolor = (m: THREE.Mesh, c: string) => { const src = m.material as THREE.MeshLambertMaterial, k = src.clone(); k.color.set(c); k.userData = { ...src.userData }; m.material = k; };
+  const loft = (m: THREE.Mesh) => m.geometry.type === 'BufferGeometry';
+  // knotted flesh: the limb's skin pushed in and out round its length (ridges of muscle, knots and lumps), never smooth
+  // (`girth` swells it by height: the upper arm narrows into the shoulder, under the coat and the fur)
+  const knots = (m: THREE.Mesh, seed: number, bumps: [number, number, number][], girth: (y: number) => number = () => 1) => {
+    const geo = m.geometry = m.geometry.clone(), p = geo.attributes.position as THREE.BufferAttribute;
+    for (let i = 0; i < p.count; i++) {
+      const x = p.getX(i), z = p.getZ(i), y = p.getY(i) / s, th = Math.atan2(x, z);
+      let n = 0.07 * Math.sin(5 * th + 9 * y + seed) + 0.05 * Math.sin(9 * th - 6 * y + 2 * seed) + 0.035 * Math.sin(15 * th + 19 * y + seed);
+      for (const [bt, by, k] of bumps) { let d = th - bt; d = Math.atan2(Math.sin(d), Math.cos(d)); n += k * Math.exp(-((d / 0.55) ** 2) - ((y - by) / 0.13) ** 2); }
+      const k = (1 + n) * girth(y); p.setX(i, x * k); p.setZ(i, z * k);
+    }
+    geo.computeVertexNormals();
+  };
+  // a point on a lofted part's skin (in its joint's frame), at angle `th` (0 the front, round through +x) and height y
+  const skin = (m: THREE.Mesh, th: number, y: number) => {
+    const p = m.geometry.attributes.position as THREE.BufferAttribute, v = new THREE.Vector3(); let best = Infinity;
+    for (let i = 0; i < p.count; i++) {
+      const vx = p.getX(i), vy = p.getY(i), vz = p.getZ(i); if (Math.abs(vy - y * s) > 0.07 * s || Math.hypot(vx, vz) < 1e-6) continue;
+      let d = Math.atan2(vx, vz) - th; d = Math.abs(Math.atan2(Math.sin(d), Math.cos(d))) + Math.abs(vy - y * s) / s;
+      if (d < best) { best = d; v.set(vx, vy, vz); }
+    }
+    return v.multiply(m.scale).add(m.position);
+  };
+  const back = Math.PI - ox * 0.55, outer = ox * Math.PI / 2;   // the arm's back-outer line, and its outer side
+  const upper = meshes(sh).find(loft), fore = meshes(el).find(loft), elbow = meshes(el).find((m) => m.geometry.type === 'SphereGeometry');
+  for (const m of [...meshes(sh), ...meshes(el), ...meshes(wr)]) recolor(m, arm.color);
+  if (upper) knots(upper, 0.7, [[back, -0.6, 0.12], [outer, -0.3, 0.1], [0.4 * ox, -0.75, 0.08]], (y) => 1.12 + (kU - 1.12) * Math.min(1, Math.max(0, (-y - 0.15) / 0.45)));
+  if (fore) { knots(fore, 2.1, [[back, -0.32, 0.16], [ox * 1.1, -0.55, 0.1], [-ox * 0.5, -0.25, 0.09], [Math.PI, -0.8, 0.07]]); fore.scale.set(kF, 1, kF); }
+  if (elbow) elbow.scale.set(kF, elbow.scale.y * 1.1, kF);
+  sh.userData.girth = kU; el.userData.girth = kF;
+  // lumps grown out of it: knobs of darker flesh half sunk into the arm
+  const lump = tint(arm.color, '#2a0a10', 0.35);
+  for (const [m, th, y, r] of [[upper, outer + ox * 0.3, -0.48, 0.09], [upper, back - ox * 0.5, -0.86, 0.07], [fore, ox * 1.45, -0.42, 0.075], [fore, -0.35 * ox, -0.62, 0.06], [fore, back + ox * 0.35, -0.15, 0.08]] as [THREE.Mesh | undefined, number, number, number][]) {
+    if (!m) continue; const b = new THREE.Mesh(new THREE.IcosahedronGeometry(r * s * kF, 1), smooth(lump)); b.position.copy(skin(m, th, y)); b.scale.set(1, 1.4, 0.8); b.rotation.set(0, th, 0); m.parent!.add(b);
+  }
+  // barbs down the back of the forearm and the upper arm, hooked back toward the shoulder; spurs at the point of the elbow
+  const barb = tint(arm.color, '#000000', 0.6), up = new THREE.Vector3(0, 1, 0);
+  const spines = (m: THREE.Mesh | undefined, ys: number[], len: number, r: number) => { if (!m) return; ys.forEach((y, i) => {
+    const th = back + ox * (i % 2 ? 0.28 : -0.22), at = skin(m, th, y), out = new THREE.Vector3(Math.sin(th), 0, Math.cos(th)), t = thorn((len - 0.025 * i) * s, r * s, barb, 0.45);
+    setOn(t, at.addScaledVector(out, -0.02 * s), out.clone().addScaledVector(up, 0.9), up); m.parent!.add(t);
+  }); };
+  spines(fore, [-0.2, -0.36, -0.52, -0.67, -0.81, -0.93], 0.3, 0.05);
+  spines(upper, [-0.45, -0.62, -0.79, -0.95], 0.26, 0.045);
+  if (elbow) for (const [dx, k] of [[0, 1], [ox * 0.07, 0.7]] as const) { const t = thorn(0.38 * k * s, 0.065 * k * s, barb, 0.35); setOn(t, new THREE.Vector3(dx * s, 0.02 * s, -0.12 * s * kF), new THREE.Vector3(ox * 0.2, -0.35, -1), new THREE.Vector3(0, -1, 0)); el.add(t); }
+  // the hand: half again as big, the fingers drawn out longer still, a hooked nail at every tip, knuckle spurs
+  const held = wr.children.filter((c) => !(c as THREE.Mesh).isMesh);
+  wr.scale.multiplyScalar(kH); for (const c of held) c.scale.divideScalar(kH);
+  const hm = meshes(wr), dirOf = (m: THREE.Mesh) => new THREE.Vector3(0, -1, 0).applyQuaternion(m.quaternion), lenOf = (m: THREE.Mesh) => { const q = (m.geometry as THREE.CapsuleGeometry).parameters; return q.height + 2 * q.radius; };
+  const longer = 1.3;
+  for (let i = 0; i < 4; i++) {
+    const k1 = hm[1 + 2 * i], k2 = hm[2 + 2 * i]; if (!k1 || !k2 || k1.geometry.type !== 'CapsuleGeometry' || k2.geometry.type !== 'CapsuleGeometry') continue;
+    const d1 = dirOf(k1).multiplyScalar((longer - 1) * lenOf(k1)); k1.position.addScaledVector(d1, 0.5); k1.scale.y *= longer;
+    k2.position.add(d1).addScaledVector(dirOf(k2), (longer - 1) * lenOf(k2) * 0.5); k2.scale.y *= longer;
+  }
+  const thumb = hm[9]; if (thumb?.geometry.type === 'CapsuleGeometry') { thumb.position.addScaledVector(dirOf(thumb), (longer - 1) * lenOf(thumb) * 0.5); thumb.scale.y *= longer; }
   for (const i of [2, 4, 6, 8, 9]) {
-    const f = hm[i], prm = (f?.geometry as THREE.CapsuleGeometry | undefined)?.parameters; if (!f || !prm) continue;
-    const c = new THREE.Mesh(new THREE.ConeGeometry(prm.radius * 0.8, prm.radius * 3.2, 6), (f.material as THREE.Material).clone());
-    (c.material as THREE.MeshLambertMaterial).color.set(claw); c.rotation.x = Math.PI; c.position.y = -(prm.height / 2 + prm.radius * 1.9); f.add(c);
+    const f = hm[i], prm = (f?.geometry as THREE.CapsuleGeometry | undefined)?.parameters; if (!f || !prm || f.geometry.type !== 'CapsuleGeometry') continue;
+    const len = prm.radius * 6, c = thorn(len, prm.radius * 0.85, claw, 0.35, 6); c.rotation.x = Math.PI; c.position.y = -(prm.height / 2 + prm.radius * 0.6); c.scale.y = 1 / f.scale.y; f.add(c);
+    if (lit) { const e = ember(new THREE.Mesh(new THREE.ConeGeometry(prm.radius * 0.9, prm.radius * 3.2, 5), mat(lit)), lit); e.position.set(0, -len * 0.9, prm.radius * 0.5); c.add(e); }
   }
-  // barbs down the back of the forearm, swept toward the elbow
-  for (let i = 0; i < 5; i++) {
-    const y = -(0.2 + i * 0.16) * s, r = (0.15 - 0.045 * i / 4) * 1.14 * s, a = -Math.PI / 2 - sx * (0.45 + 0.12 * (i % 2)), b = new THREE.Mesh(new THREE.ConeGeometry(0.042 * s, (0.24 - 0.02 * i) * s, 5), (meshes(el)[0].material as THREE.Material).clone());
-    (b.material as THREE.MeshLambertMaterial).color.set(dark(arm.color, 0.55));
-    b.position.set(Math.cos(a) * r * 0.92, y, Math.sin(a) * r * 0.92); b.lookAt(new THREE.Vector3(Math.cos(a) * 3, y + 1.6 * s, Math.sin(a) * 3)); b.rotateX(Math.PI / 2); el.add(b);
+  const palm = hm[0], pr = (palm?.geometry as THREE.SphereGeometry | undefined)?.parameters.radius;
+  if (palm && pr) for (let i = 0; i < 4; i++) { const t = thorn(pr * 0.5, pr * 0.13, barb, 0.2, 4); setOn(t, new THREE.Vector3(palm.position.x + (i - 1.5) * 0.45 * pr * -ox, palm.position.y - pr * 0.75, palm.position.z - pr * 0.36), new THREE.Vector3(0, -0.4, -1), new THREE.Vector3(0, 1, 0)); wr.add(t); }
+  return g;
+}
+/** A great fur mantle over the shoulders, deep and shaggy: heaped on the shoulders and up round the neck, hanging down
+ *  the upper back and over the tops of the arms, parted down the front over the coat; optionally a high band collar
+ *  round the neck and straps across the coat below it. Fitted to the figure's own torso (its rings), so it sits on any
+ *  frame. */
+export interface Mantle { fur: string; collar?: string; straps?: string }
+export function furMantle(g: THREE.Group, recipe: HeroFigure, o: Mantle): THREE.Group {
+  const j = (g.userData.joints ?? {}) as Record<string, THREE.Object3D>, up = j.chest, neck = j.neck; if (!up || !neck) return g;
+  const s = neck.position.y / 2.24, fr = frameFor(recipe), tr = torsoRings(fr), nr = neckRings(fr), lift = neckLift(fr);
+  const ramp = (t: number) => { const u = Math.max(0, Math.min(1, t)); return u * u * (3 - 2 * u); }, wrap = (a: number) => Math.atan2(Math.sin(a), Math.cos(a));
+  // the torso from below the shoulder blades to the root of the neck, then up the neck (in the chest's frame)
+  const top = 2.48 + lift * 0.5, rings = [...clipRings(tr, 1.18, 2.3), ...[2.38, top].map((y) => ({ ...ringAt(nr, y - 2.24), y }))];
+  // the fur lies in three rows of locks, each row over the one below like shingles: every lock a rounded ridge running
+  // down to a point, no two the same length, the rows staggered, the whole lower behind than in front
+  const hash = (i: number) => { const x = Math.sin(i * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); };
+  const ROWS = [{ y: 1.34, n: 23, d: 0.36, L: 0.2 }, { y: 1.64, n: 20, d: 0.44, L: 0.18 }, { y: 1.94, n: 17, d: 0.5, L: 0.16 }];
+  const opening = (y: number) => 0.42 + 0.45 * (1 - ramp((y - 1.4) / 0.8));
+  const depth = (th: number, y: number) => {
+    let d = 0;
+    ROWS.forEach((r, k) => {
+      const v = (th / (Math.PI * 2)) * r.n + k * 0.37 + 0.15 * Math.sin(3 * th + k), i = Math.floor(v), u = v - i, tip = (1 - Math.abs(2 * u - 1)) ** 0.8;
+      const lo = r.y + (0.12 - 0.03 * k) * Math.cos(th) - r.L * (0.6 + 0.8 * hash(i * 7 + k)) * tip;
+      d = Math.max(d, r.d * ramp((y - lo) / 0.1) * (0.82 + 0.18 * Math.sin(Math.PI * u)) * (1 + 0.05 * Math.sin(6 * Math.PI * u) + 0.08 * Math.sin(9 * y + 5 * th)));
+    });
+    return d * (1 - 0.45 * ramp((y - 2.12) / 0.3)) * ramp((Math.abs(wrap(th)) - opening(y)) / 0.3);
+  };
+  // where there is no fur its skin sinks just under the coat, out of sight
+  const shell = loftGeometry(rings, s, { seg: 208, rows: 60, bump: (th, y) => { const r = ringAt(rings, y), [px, pz] = ringPoint(r, th, 1); return (depth(th, y) - 0.03) / Math.hypot(px - (r.x ?? 0), pz - (r.z ?? 0)); } });
+  up.add(new THREE.Mesh(shell, smooth(o.fur)));
+  if (o.collar) { // a high band collar standing close round the neck, inside the fur
+    const c = ringAt(nr, 0.05), band = { ...c, w: c.w * 1.18, f: c.f * 1.18, b: c.b * 1.18 };
+    up.add(new THREE.Mesh(loftGeometry([{ ...band, y: 2.14 }, { ...band, y: 2.5 + lift * 0.5 }], s, { seg: 28, rows: 2 }), smooth(o.collar)));
   }
+  if (o.straps) for (const y of [0.78, 1.0, 1.22]) { const r = ringAt(tr, y); up.add(new THREE.Mesh(loftGeometry([{ ...r, y: y - 0.035 }, { ...r, y: y + 0.035 }], s, { seg: 32, k: 1.035, rows: 1 }), mat(o.straps))); }
   return g;
 }
 /** A recipe with its dead pose resolved (kit/poses.ts names, the rig's own presets, or one picked by the seed). */

@@ -1081,15 +1081,11 @@
    "hero": {
     "skin": "#c8a888",
     "hair": "#2a2420",
-    "hairStyle": "short",
-    "cloth": "#3a3a42",
-    "trim": "#2a2a30",
-    "boots": "#1e1e22",
-    "height": 1.12,
-    "cloak": "#e8e8ec",
-    "cloakTrim": "#c8c8d0",
+    "cloth": "#33343c",
+    "trim": "#24252b",
+    "boots": "#1a1a1e",
+    "height": 1.2,
     "glow": "#e86a20",
-    "markings": "#5a4a3a",
     "face": {
      "headW": 0.4,
      "jaw": 0.9,
@@ -1103,12 +1099,8 @@
      "sunken": 0.3,
      "lipFull": -0.3,
      "smile": -0.8,
-     "scars": [
-      "browL",
-      "cheekR"
-     ],
-     "beard": "stubble",
-     "eyeShape": "narrow"
+     "eyeShape": "narrow",
+     "bald": true
     },
     "gear": {
      "handL": {
@@ -1118,15 +1110,33 @@
       "wear": 0.5
      }
     },
-    "pose": "wide intent R:folded L:foldedLow",
-    "battlePose": "lunge turnR R:cast L:raised spell eyes:glare",
+    "pose": "wide loom R:heavy L:fist eyes:glare",
+    "battlePose": "braced loom R:high L:lowguard spell eyes:glare",
     "frame": "masculine",
     "build": "broad",
     "fiendArm": {
      "side": "R",
-     "color": "#7a1c1a",
-     "claws": "#1c0c0a"
-    }
+     "color": "#6e1a1c",
+     "claws": "#140808",
+     "size": 1.5
+    },
+    "headSize": 0.9,
+    "body": {
+     "shoulders": 1.42,
+     "chest": 1.38,
+     "waist": 1.22,
+     "hips": 1.08,
+     "arms": 1.35,
+     "legs": 1.25,
+     "neck": 1.5,
+     "neckLen": 1.1
+    },
+    "mantle": {
+     "fur": "#e6e1d8",
+     "collar": "#2a2b32",
+     "straps": "#1c1c22"
+    },
+    "deadPose": "dead"
    },
    "importance": 10.4
   },
