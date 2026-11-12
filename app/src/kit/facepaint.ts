@@ -171,16 +171,26 @@ export function paintFace(spec: FaceSpec, look: PaintLook): THREE.Texture | null
   const full = n(spec.lipFull), smile = n(spec.smile) + (fem ? 0.15 : 0.05), my = -0.262 * (1 + 0.06 * flen);
   const hw = (fem ? 0.068 : 0.074) * (1 + 0.2 * n(spec.mouthW)), uh = (fem ? 0.022 : 0.016) * (1 + 0.35 * full), lh = (fem ? 0.032 : 0.026) * (1 + 0.35 * full);
   const cy = my + 0.016 * smile, midY = my - 0.004 * smile;
-  c.beginPath(); c.moveTo(-hw, cy);
-  c.bezierCurveTo(-hw * 0.55, my + uh * 0.7, -hw * 0.38, my + uh * 1.15, -hw * 0.2, my + uh);
-  c.quadraticCurveTo(0, my + uh * 0.55, hw * 0.2, my + uh);
-  c.bezierCurveTo(hw * 0.38, my + uh * 1.15, hw * 0.55, my + uh * 0.7, hw, cy);
-  c.quadraticCurveTo(0, midY - 0.004, -hw, cy); c.closePath(); c.fillStyle = mix(lipC, '#2a0c14', 0.22); c.fill();
-  c.beginPath(); c.moveTo(-hw, cy); c.quadraticCurveTo(0, midY - 0.004, hw, cy);
-  c.bezierCurveTo(hw * 0.6, my - lh * 1.25, -hw * 0.6, my - lh * 1.25, -hw, cy); c.closePath(); c.fillStyle = lipC; c.fill();
-  blob(0, my - lh * 0.5, hw * 0.45, lh * 0.4, '#ffffff', fem ? 0.3 : 0.14);
-  stroke([[-hw * 1.04, cy + 0.002 * smile], [0, midY - 0.005], [hw * 1.04, cy + 0.002 * smile]], 0.0065, mix(lipC, '#12060a', 0.75));
-  if (spec.teeth) { c.fillStyle = '#ebe4d2'; c.fillRect(-hw * 0.55, my - 0.012, hw * 1.1, 0.012); }
+  // open (a snarl, a scream), the mouth narrows and the lower lip drops away from the upper, a dark mouth between them
+  // with teeth along its edges where they are bared
+  const gape = Math.max(0, Math.min(1, spec.gape ?? 0)), mw = hw * (1 - 0.22 * gape), drop = 0.11 * gape, top = midY - 0.004, bot = top - 2 * drop;
+  if (gape > 0) {
+    c.save(); c.beginPath(); c.moveTo(-mw, cy); c.quadraticCurveTo(0, top, mw, cy); c.quadraticCurveTo(0, bot, -mw, cy); c.closePath(); c.fillStyle = '#2a0a12'; c.fill(); c.clip();
+    blob(0, (cy + bot) / 2 - drop * 0.1, mw * 0.55, drop * 0.45 + 0.004, '#0c0205', 0.85);
+    if (spec.teeth || spec.fangs) { c.fillStyle = '#ebe4d2'; c.fillRect(-mw, (cy + top) / 2 - 0.013, mw * 2, 0.04); if (spec.teeth && gape > 0.3) c.fillRect(-mw, (cy + bot) / 2 - 0.004, mw * 2, -0.04); }
+    c.restore();
+  }
+  c.beginPath(); c.moveTo(-mw, cy);
+  c.bezierCurveTo(-mw * 0.55, my + uh * 0.7, -mw * 0.38, my + uh * 1.15, -mw * 0.2, my + uh);
+  c.quadraticCurveTo(0, my + uh * 0.55, mw * 0.2, my + uh);
+  c.bezierCurveTo(mw * 0.38, my + uh * 1.15, mw * 0.55, my + uh * 0.7, mw, cy);
+  c.quadraticCurveTo(0, top, -mw, cy); c.closePath(); c.fillStyle = mix(lipC, '#2a0c14', 0.22); c.fill();
+  const low = (cy + bot) / 2 - lh * 0.95, lc = (4 * low - cy) / 3;   // the lower lip's outer edge, its depth under the inner one
+  c.beginPath(); c.moveTo(-mw, cy); c.quadraticCurveTo(0, bot, mw, cy);
+  c.bezierCurveTo(mw * 0.6, gape > 0 ? lc : my - lh * 1.25, -mw * 0.6, gape > 0 ? lc : my - lh * 1.25, -mw, cy); c.closePath(); c.fillStyle = lipC; c.fill();
+  blob(0, (gape > 0 ? low + lh * 0.45 : my - lh * 0.5), mw * 0.45, lh * 0.4, '#ffffff', fem ? 0.3 : 0.14);
+  if (gape < 0.15) stroke([[-hw * 1.04, cy + 0.002 * smile], [0, midY - 0.005], [hw * 1.04, cy + 0.002 * smile]], 0.0065, mix(lipC, '#12060a', 0.75));
+  if (spec.teeth && gape === 0) { c.fillStyle = '#ebe4d2'; c.fillRect(-hw * 0.55, my - 0.012, hw * 1.1, 0.012); }
 
   // ---- years and marks
   // the first faint lines (from 0.15): short smile lines, then a crow's foot at each eye

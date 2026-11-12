@@ -35,8 +35,9 @@ export interface FaceSpec {
   eyeSize?: number; eyeSpace?: number; eyeSlant?: number; sunken?: number; hooded?: number; bags?: number;
   /** The cut of the eye (kit/facepaint.ts EyeShape; picked from the sliders when left out), and where the eyes look: -1 to the figure's right, 1 to its left (or [across, up], up from -1 to 1). */
   eyeShape?: import('./facepaint').EyeShape; gaze?: number | [number, number];
-  /** The mouth: width, fullness, and its set from a frown (-1) to a smile (1); fangs; bared teeth. */
-  mouthW?: number; lipFull?: number; smile?: number; fangs?: boolean; teeth?: boolean;
+  /** The mouth: width, fullness, and its set from a frown (-1) to a smile (1); fangs; bared teeth; and how far it hangs
+   *  open (0 shut, 1 a scream), painted. */
+  mouthW?: number; lipFull?: number; smile?: number; fangs?: boolean; teeth?: boolean; gape?: number;
   beard?: Beard; moustache?: Moustache; beardColor?: string;
   /** 0 = young, 1 = very old: lines on the forehead, beside the mouth and at the eyes. Up to 0.3 they are only the first
    *  faint lines, short smile lines and a crow's foot at each eye, for a face that has seen weather or laughed a lot. */
