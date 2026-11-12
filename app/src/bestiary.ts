@@ -116,9 +116,16 @@ function stowed<T extends { gear?: HeroFigure['gear']; offhand?: HeroFigure['off
   if (out.offhand && (out.offhand as { kind?: string }).kind === 'shield') delete out.offhand;
   return out;
 }
+/** What the dead carry: nothing slung or belted (a scabbard or a bow on the back would only cut through a body lying in
+ *  a heap); the weapon they fought with goes in the right hand, which lets it go, so it lies on the floor beside them. */
+function fallen<T extends { gear?: HeroFigure['gear']; offhand?: HeroFigure['offhand'] }>(f: T): T {
+  const g = f.gear ?? {}, main = g.handR ?? g.handL ?? g.beltL ?? g.beltR ?? g.back, out = { ...f, gear: main ? { handR: main } : {} };
+  if (out.offhand && (out.offhand as { kind?: string }).kind === 'shield') delete out.offhand;
+  return out;
+}
 /** A named character's recipe, ready for the rig: named poses resolved, the face's detail from the character's importance. */
-function recipeOf(e: CreatureEntry, battle: boolean, over: Partial<HeroFigure> = {}): HeroFigure {
-  const h = { ...e.hero!, ...over }, f = posed(battle ? h : stowed(h));
+function recipeOf(e: CreatureEntry, battle: boolean, over: Partial<HeroFigure> = {}, dead = false): HeroFigure {
+  const h = { ...e.hero!, ...over }, f = posed(dead ? fallen(h) : battle ? h : stowed(h));
   return f.face && !f.detail ? { ...f, detail: detailFor(e.importance ?? 0) } : f;
 }
 /** Strahd's other shapes, and the things made in his image, built from his own recipe so they change when he does. */
@@ -163,12 +170,12 @@ export function figureFor(e: CreatureEntry, state: FigState = false, seed = ''):
   const dead = state === 'dead' || e.variants?.includes('corpse') === true, battle = !dead && (state === true || state === 'battle');
   const strahd = STRAHD_FORMS[e.id] && creatureById('strahd-von-zarovich');
   if (strahd && strahd.hero) { if (dead && /mounted|blade/.test(e.id)) return figureFor(strahd, 'dead'); return STRAHD_FORMS[e.id](strahd, battle, dead); }
-  if (e.hero && dead) { const vamp = !!(e.hero.fangs || e.hero.face?.fangs), g = heroFigure(recipeOf({ ...e, hero: withDeadPose(vamp && !e.hero.deadPose ? { ...e.hero, deadPose: 'laid-out' } : e.hero, e.id) as HeroFigure }, false), e.size, 'dead'); if (e.hero.fiendArm) fiendishArm(g, e.hero.fiendArm); return vamp ? staked(g) : g; }
+  if (e.hero && dead) { const vamp = !!(e.hero.fangs || e.hero.face?.fangs), g = heroFigure(recipeOf({ ...e, hero: withDeadPose(vamp && !e.hero.deadPose ? { ...e.hero, deadPose: 'laid-out' } : e.hero, e.id) as HeroFigure }, false, {}, true), e.size, 'dead'); if (e.hero.fiendArm) fiendishArm(g, e.hero.fiendArm); return vamp ? staked(g) : g; }
   if (e.hero) { const g = heroFigure(recipeOf(e, battle), e.size, battle); return e.hero.fiendArm ? fiendishArm(g, e.hero.fiendArm) : g; }
   const made = creature(e.id, dead ? 'dead' : battle); if (made) return made;
   const st: FigState = dead ? 'dead' : battle;
-  if (FOLK[e.id]) return folk(battle ? FOLK[e.id] : stowed(FOLK[e.id]), e.size, st, seed, e.id);
-  if ((e.kind === 'npc' || e.kind === 'generic') && !e.figure?.kind) { const r = plainFolk(e); return folk(battle ? r : stowed(r), e.size, st, seed, e.id); }
+  if (FOLK[e.id]) return folk(battle ? FOLK[e.id] : dead ? fallen(FOLK[e.id]) : stowed(FOLK[e.id]), e.size, st, seed, e.id);
+  if ((e.kind === 'npc' || e.kind === 'generic') && !e.figure?.kind) { const r = plainFolk(e); return folk(battle ? r : dead ? fallen(r) : stowed(r), e.size, st, seed, e.id); }
   const f = e.figure ?? {}, scale = ({ tiny: 0.5, small: 0.75, medium: 1, large: 1, huge: 1.2, gargantuan: 1.4 } as Record<string, number>)[e.size] ?? 1;
   const byId: Record<string, () => THREE.Group> = {
     'vampire-spawn': vampireSpawn, gargoyle, scarecrow, 'animated-armor': animatedArmor, skeleton: skeletonStanding, ghost: () => ghost(), specter, shadow, ghoul, ghast, cultist,

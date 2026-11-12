@@ -11,12 +11,12 @@ export const NPC_POSES = {
   regal: { spine: [-0.04, 0.1, 0], neck: [-0.1, -0.15, 0], shoulderR: [-0.35, 0, 0.12], elbowR: -1.5, wristR: [0.3, 0, 0], shoulderL: [0.12, 0, 0.3], elbowL: -0.75, hipL: [-0.12, 0, 0.06], kneeL: 0.2 },
   /** Bent with age or malice: the back curved, the head thrust forward, the knees soft. */
   hunched: { spine: [0.42, 0, 0], neck: [-0.38, 0, 0], shoulderR: [-0.5, 0, 0.1], elbowR: -0.9, holdR: { upright: true }, shoulderL: [-0.3, 0, 0.1], elbowL: -1.1, wristL: [0.5, 0, 0], hipL: [-0.35, 0, 0.1], kneeL: 0.7, hipR: [-0.3, 0, 0.1], kneeR: 0.6 },
-  /** Fists on the hips, chest out. */
-  'hands-on-hips': { spine: [-0.06, 0, 0], neck: [-0.05, 0, 0], shoulderR: [0.55, -1.15, 0.8], elbowR: -1.25, wristR: [0.4, 0, 0], shoulderL: [0.55, -1.15, 0.8], elbowL: -1.25, wristL: [0.4, 0, 0], hipL: [0, 0, 0.14], hipR: [0, 0, 0.14] },
-  /** Hands clasped behind the back, watchful. */
-  'behind-back': { spine: [-0.04, 0, 0], neck: [0.04, 0.25, 0], shoulderR: [0.45, -1.5, 0.12], elbowR: -1.25, shoulderL: [0.45, -1.5, 0.12], elbowL: -1.25, hipL: [0, 0, 0.06], hipR: [0, 0, 0.06] },
+  /** Fists on the hips, chest out (the rig sets each fist on the waist, outside it). */
+  'hands-on-hips': { spine: [-0.06, 0, 0], neck: [-0.05, 0, 0], shoulderR: [0.55, -1.15, 0.8], elbowR: -1.25, wristR: [0.4, 0, 0], shoulderL: [0.55, -1.15, 0.8], elbowL: -1.25, wristL: [0.4, 0, 0], hipL: [0, 0, 0.14], hipR: [0, 0, 0.14], hipHand: ['R', 'L'], fist: ['R', 'L'] },
+  /** Hands clasped behind the back, watchful (one wrist over the other, so the hands do not pass through each other). */
+  'behind-back': { spine: [-0.04, 0, 0], neck: [0.04, 0.25, 0], shoulderR: [0.76, -1.5, 0.12], elbowR: -1.25, wristR: [0, 0.01, 0], shoulderL: [0.51, -1.5, 0.12], elbowL: -1.25, wristL: [0, 0.01, 0], hipL: [0, 0, 0.06], hipR: [0, 0, 0.06] },
   /** Arms folded, weight on one leg. */
-  'arms-folded': { spine: [0.03, 0, 0.04], neck: [0, 0.15, 0], shoulderR: [-0.5, -1.05, 0.1], elbowR: -1.75, shoulderL: [-0.38, -1.05, 0.1], elbowL: -1.85, hipL: [-0.1, 0, 0.1], kneeL: 0.2 },
+  'arms-folded': { spine: [0.03, 0, 0.04], neck: [0, 0.15, 0], shoulderR: [-0.39, -1.04, 0.1], elbowR: -1.75, shoulderL: [-0.38, -1.05, 0.1], elbowL: -1.85, hipL: [-0.1, 0, 0.1], kneeL: 0.2 },
   /** Hands wrung together at the chest, shoulders in: grief or worry. */
   wringing: { spine: [0.16, 0, 0], neck: [0.22, 0, 0.1], shoulderR: [-0.6, -0.75, 0.05], elbowR: -1.8, shoulderL: [-0.6, -0.75, 0.05], elbowL: -1.8, hipL: [-0.06, 0, 0.03], kneeL: 0.15 },
   /** Leaning on a staff or a cane held upright. */
@@ -28,17 +28,17 @@ export const NPC_POSES = {
   /** En garde: side on, the point forward, the off hand high behind. */
   duelist: { pelvis: [0, 0.15, 0], spine: [0.08, 0.3, 0], neck: [0, -0.4, 0], shoulderR: [-0.95, 0, 0.12], elbowR: -0.95, holdR: { upright: true, tilt: [1.15, 0, 0] }, shoulderL: [0.3, 0, 0.55], elbowL: -1.1, ...LUNGE },
   /** A great blade heaved overhead in both hands. */
-  'overhead': { twoHand: true, spine: [-0.04, -0.25, 0], neck: [0.02, 0.22, 0], shoulderR: [-1.85, 0, 0.45], elbowR: -1.55, shoulderL: [-1.8, -0.55, -0.05], elbowL: -1.35, holdR: { upright: true, tilt: [-0.55, 0, -0.2] }, ...BRACED },
+  'overhead': { twoHand: true, spine: [-0.04, -0.25, 0], neck: [0.02, 0.22, 0], shoulderR: [-1.85, 0, 0.55], elbowR: -1.55, shoulderL: [-1.8, -0.55, -0.05], elbowL: -1.35, holdR: { upright: true, tilt: [-0.8, 0, -0.2] }, ...BRACED },
   /** An axe wound back over the shoulder, the other arm thrust out. */
   windup: { twoHand: true, spine: [0.06, -0.4, 0], neck: [0, 0.35, 0], shoulderR: [-0.65, 0, 0.9], elbowR: -1.9, holdR: { upright: true, tilt: [-0.7, 0, 0.3] }, shoulderL: [-1.05, -0.25, 0.2], elbowL: -0.75, ...BRACED },
   /** A curved blade drawn back across the body for a slash. */
   slash: { spine: [0.08, -0.3, 0], neck: [0, 0.25, 0], shoulderR: [-0.9, 0, 0.5], elbowR: -2.0, holdR: { upright: true, tilt: [-0.4, 0, 0.3] }, shoulderL: [-1.0, -0.3, 0.2], elbowL: -1.1, ...BRACED },
   /** A spear or pitchfork levelled in both hands. */
-  thrust: { twoHand: true, spine: [0.18, -0.45, 0], neck: [-0.08, 0.4, 0], shoulderR: [0.25, 0, 0.25], elbowR: -1.2, holdR: { upright: true, tilt: [1.45, 0, 0] }, shoulderL: [-0.9, -0.5, 0], elbowL: -0.6, hipL: [-0.65, 0, 0.12], kneeL: 0.75, hipR: [0.4, 0.35, 0.2], kneeR: 0.3 },
+  thrust: { twoHand: true, spine: [0.18, -0.45, 0], neck: [-0.08, 0.4, 0], shoulderR: [0, 0, 0.25], elbowR: -1.45, holdR: { upright: true, tilt: [1.45, 0, 0] }, shoulderL: [-1.03, -0.5, 0], elbowL: -0.6, hipL: [-0.65, 0, 0.12], kneeL: 0.75, hipR: [0.4, 0.35, 0.2], kneeR: 0.3 },
   /** A hag's curse: bent double over her staff, a clawed hand raised. */
   curse: { spine: [0.4, 0.1, 0], neck: [-0.36, 0, 0], shoulderR: [-0.8, 0, 0.2], elbowR: -1.0, holdR: { upright: true }, shoulderL: [-1.5, 0, 0.3], elbowL: -1.2, wristL: [0.7, 0, 0], hipL: [-0.4, 0, 0.15], kneeL: 0.8, hipR: [-0.3, 0, 0.15], kneeR: 0.7 },
   /** A spell thrown from the right hand, feet planted. */
-  spellcast: { spine: [0.06, 0.3, 0], neck: [0, -0.25, 0], shoulderR: [-1.35, 0, 0.15], elbowR: -0.45, wristR: [0.6, 0, 0], shoulderL: [-0.3, -0.4, 0.25], elbowL: -1.7, hipR: [-0.45, 0, 0.1], kneeR: 0.5, hipL: [0.3, 0.3, 0.15], kneeL: 0.2, spell: 'right' },
+  spellcast: { spine: [0.06, 0.3, 0], neck: [0, -0.25, 0], shoulderR: [-1.35, 0, 0.15], elbowR: -0.45, wristR: [0.6, 0, 0], shoulderL: [-0.3, -0.4, 0.35], elbowL: -1.45, hipR: [-0.45, 0, 0.1], kneeR: 0.5, hipL: [0.3, 0.3, 0.15], kneeL: 0.2, spell: 'right' },
   /** A caster with a staff: the staff planted in the right hand, the left hand thrown forward with the spell. */
   'staff-cast': { spine: [0.08, -0.25, 0], neck: [0, 0.2, 0], shoulderR: [-0.7, 0, 0.3], elbowR: -0.9, holdR: { upright: true }, shoulderL: [-1.45, 0, 0.15], elbowL: -0.25, wristL: [0.9, 0, 0], hipR: [-0.35, 0, 0.1], kneeR: 0.45, hipL: [0.25, 0, 0.1], kneeL: 0.1 },
   /** Holy symbol or open hand thrust up, the other warding. */
@@ -66,15 +66,15 @@ export const DEAD_POSES = {
   /** Face down, one arm reaching for something it never got to, one leg crooked. */
   prone: { lie: 'front', neck: [0.1, -0.8, 0], shoulderR: [-2.7, 0, 0.35], elbowR: -0.3, shoulderL: [0.1, 0, 0.5], elbowL: -0.9, hipR: [0, 0, 0.15], kneeR: 0.15, hipL: [-0.5, 0.5, 0.5], kneeL: 1.2 },
   /** Curled on its side around the wound. */
-  curled: { lie: 'side', spine: [0.55, 0, 0], neck: [0.35, 0, 0], shoulderR: [-0.9, 0, -0.3], elbowR: -1.6, shoulderL: [-0.8, 0, -0.3], elbowL: -1.5, hipR: [-1.2, 0, 0], kneeR: 1.6, hipL: [-0.9, 0, 0], kneeL: 1.4 },
+  curled: { lie: 'side', spine: [0.55, 0, 0], neck: [0.35, 0, 0], shoulderR: [-0.97, 0, -0.3], elbowR: -1.6, shoulderL: [-0.98, 0, -0.3], elbowL: -1.5, hipR: [-1.2, 0, 0], kneeR: 1.57, hipL: [-0.9, 0, 0], kneeL: 1.4 },
   /** Face-planted with the rump in the air and the arms trailing behind. */
-  comic: { lie: 'front', spine: [0.9, 0, 0], neck: [-0.5, 0.6, 0], shoulderR: [0.9, 0, 0.5], elbowR: -0.2, shoulderL: [0.8, 0, 0.6], elbowL: -0.3, hipR: [-1.9, 0, 0.3], kneeR: 2.0, hipL: [-1.9, 0, 0.3], kneeL: 2.0 },
+  comic: { lie: 'front', spine: [0.4, 0, 0], neck: [-0.5, 0.6, 0], shoulderR: [0.9, 0, 0.5], elbowR: -0.2, shoulderL: [0.8, 0, 0.6], elbowL: -0.3, hipR: [-1.9, 0, 0.37], kneeR: 1.57, hipL: [-1.77, 0, 0.3], kneeL: 1.57 },
   /** The classic: crumpled on its side in a heap, knees drawn up, one arm folded under, the other flopped out, the face in the dirt. */
   crumpled: { lie: 'side', spine: [0.35, 0.3, 0.15], neck: [0.3, 0.7, 0.2], shoulderR: [-0.5, 0, 0.2], elbowR: -1.9, wristR: [0.6, 0, 0], shoulderL: [-1.5, 0, 0.6], elbowL: -0.5, wristL: [0.8, 0, 0], hipR: [-0.9, 0, 0.1], kneeR: 1.5, hipL: [-0.45, 0, 0.25], kneeL: 1.0, ankleL: [0.5, 0, 0] },
   /** On the back with the back of one hand to the brow: a swoon held a little too long. */
   swoon: { lie: 'back', neck: [-0.15, -0.3, 0], shoulderR: [-2.6, 0, 0.5], elbowR: -2.0, shoulderL: [0, 0, 0.4], elbowL: -0.3, hipR: [0, 0, 0.06], hipL: [-0.4, 0, 0.1], kneeL: 0.8 },
   /** Laid out straight, the hands folded on the chest: a body prepared, or a vampire finally at rest. */
-  'laid-out': { lie: 'back', shoulderR: [-0.75, 0, -0.45], elbowR: -1.75, shoulderL: [-0.7, 0, -0.45], elbowL: -1.7, hipR: [0, 0, 0.03], hipL: [0, 0, 0.03] },
+  'laid-out': { lie: 'back', shoulderR: [-0.15, -0.99, 0.12], elbowR: -1.75, wristR: [0, 0.01, 0], shoulderL: [-0.33, -1.1, 0.12], elbowL: -1.85, wristL: [0, 0.01, 0], hipR: [0, 0, 0.03], hipL: [0, 0, 0.03] },
   /** Thrown on the back mid-snarl, clawed hands still raised, the knees drawn up. */
   slain: { lie: 'back', neck: [-0.4, 0.3, 0], shoulderR: [-1.3, 0, 0.6], elbowR: -1.3, wristR: [0.7, 0, 0], shoulderL: [-1.0, 0, 0.8], elbowL: -1.5, wristL: [0.7, 0, 0], hipR: [-0.9, 0, 0.3], kneeR: 1.5, hipL: [-0.4, 0, 0.35], kneeL: 0.9 },
 } satisfies Record<string, DeadPose>;
@@ -94,7 +94,7 @@ export function deadPose(name: unknown, seed = ''): HeroPose | string {
 // A character's pose is written in the manifest as a few words: how they stand, how they carry their back and head, and
 // what each arm is doing, e.g. "weightR haughty R:beckon L:hilt". Each word is one checked piece, so every character can
 // have a pose of their own without a hand-tuned set of angles apiece.
-type Arm = { sh: [number, number, number]; el: number; wr?: [number, number, number]; hold?: HeroPose['holdR']; talon?: boolean; hilt?: boolean };
+export type Arm = { sh: [number, number, number]; el: number; wr?: [number, number, number]; hold?: HeroPose['holdR']; talon?: boolean; hilt?: boolean; onHip?: boolean; fist?: boolean };
 const STANCES: Record<string, HeroPose> = {
   stand: { hipR: [0, 0, 0.05], hipL: [0, 0, 0.05] },
   weightR: { pelvis: [0, 0, -0.05], hipR: [0.03, 0, 0.02], hipL: [-0.18, 0, 0.12], kneeL: 0.32 },
@@ -122,15 +122,20 @@ const TORSOS: Record<string, HeroPose> = {
   low: { spine: [0.5, 0, 0], neck: [-0.5, 0, 0] },
   loom: { spine: [0.2, -0.22, 0], neck: [-0.04, 0.22, 0] },
 };
-const ARMS: Record<string, Arm> = {
+export const ARMS: Record<string, Arm> = {
   hang: { sh: [0.05, 0, 0.1], el: -0.15 },
+  fist: { sh: [0.04, 0, 0.16], el: -0.3, fist: true },
+  // a heavy arm carried a little forward and out from the body, the hand hooked into a claw (a brute's, a fiend's)
+  heavy: { sh: [-0.2, 0, 0.32], el: -0.6, wr: [0.2, 0.01, 0], talon: true },
   hilt: { sh: [0.12, 0, 0.3], el: -0.75, hilt: true },
   chest: { sh: [-0.55, -0.7, 0.08], el: -2.0 },
   behind: { sh: [0.45, -1.5, 0.12], el: -1.25 },
-  folded: { sh: [-0.3, -1.5, 0.3], el: -1.65 },
-  foldedLow: { sh: [-0.18, -1.5, 0.3], el: -1.7 },
+  // folded arms: the right forearm laid over the left, a little higher, so neither hand sinks into the other arm (a
+  // wrist given, so the hand keeps its turn instead of hanging palm to thigh)
+  folded: { sh: [-0.5, -1.5, 0.3], el: -1.65, wr: [0, 0.01, 0] },
+  foldedLow: { sh: [-0.21, -1.5, 0.33], el: -1.73, wr: [0, 0.01, 0] },
   wring: { sh: [-0.6, -0.75, 0.05], el: -1.8 },
-  hip: { sh: [0.9, -0.6, 0.6], el: -1.6 },
+  hip: { sh: [0.9, -0.6, 0.6], el: -1.6, onHip: true, fist: true },  // (the rig solves the arm so the fist sits on the waist, outside it)
   staff: { sh: [-0.75, 0, 0.15], el: -0.95, hold: { upright: true } },
   offer: { sh: [-0.5, 0, 0.25], el: -0.9, wr: [-0.4, 0, 0] },
   beckon: { sh: [-0.7, 0, 0.3], el: -1.1, wr: [-0.7, 0, 0] },
@@ -150,9 +155,9 @@ const ARMS: Record<string, Arm> = {
   lowguard: { sh: [-0.35, 0, 0.2], el: -0.55, hold: { upright: true, tilt: [1.9, 0, 0] } },
   cocked: { sh: [-0.65, 0, 0.9], el: -1.9, hold: { upright: true, tilt: [-0.7, 0, 0.3] } },
   drawn: { sh: [-0.9, 0, 0.5], el: -2.0, hold: { upright: true, tilt: [-0.4, 0, 0.3] } },
-  overhead: { sh: [-1.85, 0, 0.45], el: -1.55, hold: { upright: true, tilt: [-0.55, 0, -0.2] } },
+  overhead: { sh: [-1.85, 0, 0.55], el: -1.55, hold: { upright: true, tilt: [-0.8, 0, -0.2] } },
   raised: { sh: [-2.0, 0, 0.55], el: -1.35, hold: { upright: true, tilt: [-0.75, 0, 0.2] } },
-  level: { sh: [0.25, 0, 0.25], el: -1.2, hold: { upright: true, tilt: [1.45, 0, 0] } },
+  level: { sh: [0, 0, 0.25], el: -1.45, hold: { upright: true, tilt: [1.45, 0, 0] } },
   grip2: { sh: [-1.8, -0.55, -0.05], el: -1.35 },
   shaft: { sh: [-0.9, -0.5, 0], el: -0.6 },
   brace: { sh: [-1.0, -0.3, 0.2], el: -1.1 },
@@ -182,6 +187,8 @@ export function compose(words: string): HeroPose {
       out['shoulder' + side] = a.sh; out['elbow' + side] = a.el; if (a.wr) out['wrist' + side] = a.wr; if (a.hold) out['hold' + side] = a.hold;
       if (a.talon) out.talon = [...((out.talon as string[] | undefined) ?? []), side];
       if (a.hilt) out.hilt = [...((out.hilt as string[] | undefined) ?? []), side];
+      if (a.onHip) out.hipHand = [...((out.hipHand as string[] | undefined) ?? []), side];
+      if (a.fist) out.fist = [...((out.fist as string[] | undefined) ?? []), side];
     }
   }
   // no head is ever held dead level: unless the pose says where to look, the head tips toward the standing leg and turns

@@ -535,16 +535,16 @@
       "metal": "#e6ecf4"
      },
      "beltL": {
-      "kind": "handaxe",
-      "fittings": "#e8c070"
-     },
-     "beltR": {
       "kind": "shortsword",
       "metal": "#eef2f8",
       "fittings": "#c8ccd4"
+     },
+     "beltR": {
+      "kind": "handaxe",
+      "fittings": "#e8c070"
      }
     },
-    "pose": "weightL sway R:hip L:hang look:L",
+    "pose": "weightL sway R:hip L:hilt look:L",
     "battlePose": "duelist",
     "frame": "feminine",
     "build": "curvy"
@@ -848,7 +848,7 @@
      "hips": 1.7,
      "bust": 1.3,
      "arms": 1.35,
-     "legs": 1.5,
+     "legs": 1.2,
      "neck": 1.5
     },
     "eyes": "#c8e04a",
@@ -3213,7 +3213,7 @@
       "grip": "#3a3a42"
      }
     },
-    "pose": "weightL proud R:hip L:hang",
+    "pose": "weightL proud R:hip L:hilt",
     "battlePose": "duelist",
     "frame": "feminine",
     "build": "curvy"
