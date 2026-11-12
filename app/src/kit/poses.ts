@@ -94,7 +94,7 @@ export function deadPose(name: unknown, seed = ''): HeroPose | string {
 // A character's pose is written in the manifest as a few words: how they stand, how they carry their back and head, and
 // what each arm is doing, e.g. "weightR haughty R:beckon L:hilt". Each word is one checked piece, so every character can
 // have a pose of their own without a hand-tuned set of angles apiece.
-type Arm = { sh: [number, number, number]; el: number; wr?: [number, number, number]; hold?: HeroPose['holdR'] };
+type Arm = { sh: [number, number, number]; el: number; wr?: [number, number, number]; hold?: HeroPose['holdR']; talon?: boolean; hilt?: boolean };
 const STANCES: Record<string, HeroPose> = {
   stand: { hipR: [0, 0, 0.05], hipL: [0, 0, 0.05] },
   weightR: { pelvis: [0, 0, -0.05], hipR: [0.03, 0, 0.02], hipL: [-0.18, 0, 0.12], kneeL: 0.32 },
@@ -120,10 +120,11 @@ const TORSOS: Record<string, HeroPose> = {
   turnR: { spine: [0.05, -0.3, 0], neck: [0, 0.3, 0] },
   recoil: { spine: [-0.14, 0.15, 0], neck: [0.1, -0.1, 0] },
   low: { spine: [0.5, 0, 0], neck: [-0.5, 0, 0] },
+  loom: { spine: [0.2, -0.22, 0], neck: [-0.04, 0.22, 0] },
 };
 const ARMS: Record<string, Arm> = {
   hang: { sh: [0.05, 0, 0.1], el: -0.15 },
-  hilt: { sh: [0.12, 0, 0.3], el: -0.75 },
+  hilt: { sh: [0.12, 0, 0.3], el: -0.75, hilt: true },
   chest: { sh: [-0.55, -0.7, 0.08], el: -2.0 },
   behind: { sh: [0.45, -1.5, 0.12], el: -1.25 },
   folded: { sh: [-0.3, -1.5, 0.3], el: -1.65 },
@@ -135,6 +136,7 @@ const ARMS: Record<string, Arm> = {
   beckon: { sh: [-0.7, 0, 0.3], el: -1.1, wr: [-0.7, 0, 0] },
   command: { sh: [-1.25, 0, 0.1], el: -0.25, wr: [0.3, 0, 0] },
   claw: { sh: [-1.0, 0, 0.5], el: -1.4, wr: [0.7, 0, 0] },
+  grasp: { sh: [-1.45, 0, 0.25], el: -0.45, wr: [-1.25, 2.8, 0], talon: true },
   high: { sh: [-2.3, 0, 0.3], el: -0.5 },
   ward: { sh: [-0.9, -0.3, 0.15], el: -1.5, wr: [-0.6, 0, 0] },
   cloak: { sh: [0.2, -0.6, 0.4], el: -0.9 },
@@ -159,7 +161,7 @@ const LOOKS: Record<string, [number, number, number]> = { L: [0, 0.35, 0], R: [0
 /** Where the eyes go when the pose says so (`eyes:`): otherwise they follow the head (heroes.ts eyeLine). */
 const EYELINES: Record<string, [number, number]> = { L: [0.8, 0], R: [-0.8, 0], up: [0, 0.8], down: [0, -0.8], ahead: [0, 0], glare: [0, 0.7], sideL: [0.9, 0.15], sideR: [-0.9, 0.15], awayL: [0.7, -0.5], awayR: [-0.7, -0.5] };
 /** Arms that draw the eye: the head turns a little toward the hand that is doing something. */
-const POINTED = ['beckon', 'offer', 'command', 'cast', 'claw', 'guard', 'point', 'lowguard', 'ward', 'high', 'staff'];
+const POINTED = ['beckon', 'offer', 'command', 'cast', 'claw', 'grasp', 'guard', 'point', 'lowguard', 'ward', 'high', 'staff'];
 /** Put a pose together from its words: a stance, a carriage, `R:` and `L:` arms, `look:` for the head, `spell` for a
  *  lit hand, `float` to hang above the floor. An arm may also be given raw as `R:@x,y,z,elbow` while a new one is tried. */
 export function compose(words: string): HeroPose {
@@ -178,6 +180,8 @@ export function compose(words: string): HeroPose {
       const a: Arm | undefined = name[0] === '@' ? (() => { const v = name.slice(1).split(',').map(Number); return { sh: [v[0], v[1], v[2]] as [number, number, number], el: v[3] }; })() : ARMS[name];
       if (!a) continue;
       out['shoulder' + side] = a.sh; out['elbow' + side] = a.el; if (a.wr) out['wrist' + side] = a.wr; if (a.hold) out['hold' + side] = a.hold;
+      if (a.talon) out.talon = [...((out.talon as string[] | undefined) ?? []), side];
+      if (a.hilt) out.hilt = [...((out.hilt as string[] | undefined) ?? []), side];
     }
   }
   // no head is ever held dead level: unless the pose says where to look, the head tips toward the standing leg and turns

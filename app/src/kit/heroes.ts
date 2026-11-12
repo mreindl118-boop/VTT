@@ -37,6 +37,10 @@ export interface HeroPose {
   twoHand?: boolean;
   /** Hands made into fists (an empty hand on the hip, say). */
   fist?: ('R' | 'L')[];
+  /** Empty hands hooked into talons: the fingers fanned and curled hard at the middle joints (a grasping reach). */
+  talon?: ('R' | 'L')[];
+  /** Hands laid on the hilt of a belted blade, the arm solved to reach it (the angles stand when no blade is belted). */
+  hilt?: ('R' | 'L')[];
   /** An off-hand book held open (read from, or cast from) rather than carried shut; a fight always opens it. */
   book?: 'open' | 'shut';
   lift?: number; seated?: boolean; spell?: 'right' | 'between';
@@ -869,15 +873,17 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
   for (const c of [...up.children]) if (c !== neck && c.position.y > headAt + 0.05 * s) head.attach(c);
 
   // gear on the mounts: held weapons by the grip, blades sheathed at the belt, bows and great weapons slung on the back
+  const belted: Partial<Record<'beltR' | 'beltL', THREE.Object3D>> = {};
   if (f.gear) {
     const G = f.gear, mount = (name: string) => body.getObjectByName(name);
     for (const [slot, g] of [['handR', gR], ['handL', gL]] as const) { const w = G[slot]; if (!w) continue; const m = gearWeapon(w); m.scale.setScalar(s); g.add(m); }
+    // (a belted blade's grip is where a hand laid on the hilt goes)
     const BLADE: Record<string, [number, number]> = { longsword: [2.9, 0.43], shortsword: [1.9, 0.34], rapier: [3.2, 0.36], dagger: [0.95, 0.27], scimitar: [2.5, 0.42], greatsword: [4.1, 0.76], 'sword-cane': [2.7, 0.36], sunsword: [3.0, 0.43], 'dragon-greatsword': [4.2, 0.76] };
     for (const slot of ['beltR', 'beltL'] as const) {
       const w = G[slot], mt = mount(slot); if (!w || !mt) continue;
       const sx = slot === 'beltR' ? RX : LX, hang = new THREE.Group(); hang.scale.setScalar(s); hang.position.set(sx * 0.12 * s, 0.05 * s, 0); hang.rotation.set(0.45, 0, sx * 0.12); mt.add(hang);
       const m = gearWeapon(w), bl = BLADE[w.kind];
-      if (bl) { const L = bl[0] * (w.length ?? 1); if (w.kind !== 'sword-cane') hang.add(scabbard(L + 0.08, tone(w.grip ?? '#2a2420', '#000000', 0.2), w.fittings)); m.rotation.x = Math.PI; m.position.y = bl[1]; hang.add(m); }
+      if (bl) { const L = bl[0] * (w.length ?? 1); if (w.kind !== 'sword-cane') hang.add(scabbard(L + 0.08, tone(w.grip ?? '#2a2420', '#000000', 0.2), w.fittings)); m.rotation.x = Math.PI; m.position.y = bl[1]; hang.add(m); belted[slot] = m; }
       else { m.rotation.x = Math.PI; m.position.y = 0.2; hang.rotation.x = 0.15; hang.add(m); const loop = sm(new THREE.TorusGeometry(0.09, 0.02, 5, 10), '#2a2420'); loop.rotation.x = Math.PI / 2; hang.add(loop); }
     }
     const bk = G.back, bm = mount('back');
@@ -915,10 +921,20 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
   if (P.twoHand && f.gear?.handR && gR.children.length && !f.gear.handL && !f.offhand) { const off = secondHandAt(f.gear.handR.kind); if (off !== undefined) secondHand(Lf.root, Lf.mid, Lf.end, gR, off * s, -LX); }
   // an empty hand at ease hangs with its palm to the thigh and the thumb forward, the fingers curling in toward the leg
   if (!P.lie && !battle) arm.forEach((l, k) => { const sd = k === 0 ? 'R' : 'L', g = k === 0 ? gR : gL; if (!P[`wrist${sd}`]?.[1] && !g.children.length) l.end.rotation.y = -(k === 0 ? RX : LX) * 1.3; });
+  // a hand laid on a hilt reaches the blade belted on its own side, or else across the body to the other
+  for (const sd of P.hilt ?? []) {
+    const l = sd === 'R' ? R : Lf, w = sd === 'R' ? belted.beltR ?? belted.beltL : belted.beltL ?? belted.beltR;
+    if (w && !dead && !(sd === 'R' ? gR : gL).children.length) secondHand(l.root, l.mid, l.end, w, 0, sd === 'R' ? -RX : -LX);
+  }
   // a hand the pose clenches makes a closed fist; one with something in it (a shield's grip, a shut book's foot) closes round it
   for (const sd of new Set([...(P.fist ?? []), ...(o?.kind === 'shield' || shutBook ? ['L' as const] : [])])) {
     const l = sd === 'R' ? R : Lf, held = (sd === 'R' ? gR : gL).children.length > 0, ms = l.end.children.filter((c) => (c as M).isMesh) as M[];
     if (ms.length >= 10) (held ? fistOf : clenchOf)(ms, sd === 'R' ? RX : LX, ((ms[0].geometry as THREE.SphereGeometry).parameters?.radius ?? 0.105) / 0.105);
+  }
+  // an empty hand the pose hooks into a talon
+  for (const sd of P.talon ?? []) {
+    const l = sd === 'R' ? R : Lf, ms = l.end.children.filter((c) => (c as M).isMesh) as M[];
+    if (ms.length >= 10 && !(sd === 'R' ? gR : gL).children.length) talonOf(ms, sd === 'R' ? RX : LX, ((ms[0].geometry as THREE.SphereGeometry).parameters?.radius ?? 0.105) / 0.105);
   }
   // a hand with the rig's own weapon in it makes a fist round the haft (the same grip the named gear takes)
   if (!dead && f.weapon && f.weapon !== 'none' && gR.children.length) holdFast(R.end, gR, RX);
@@ -1078,6 +1094,25 @@ function clenchOf(meshes: THREE.Mesh[], sx: number, u: number): void {
   // the thumb from the side of the palm across the front of the first two fingers
   const th = meshes[9], base = new THREE.Vector3(sx * 0.09 * u, cy - 0.04 * u, zf + 0.02 * u), tip = new THREE.Vector3(-sx * 0.01 * u, yk + 0.03 * u, zf + 0.1 * u);
   th.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), tip.clone().sub(base).normalize()); th.position.copy(base.add(tip).multiplyScalar(0.5));
+}
+/** A hand hooked into a talon: the fingers fanned apart, bent a little at the knuckle and hard at the middle joint, the
+ *  thumb spread out to the side and down. `sx` is the hand's side of the figure (SIDE_X). */
+function talonOf(meshes: THREE.Mesh[], sx: number, u: number): void {
+  const palm = meshes[0], cy = palm.position.y, yk = cy - 0.09 * u, z0 = palm.position.z + 0.012 * u, down = new THREE.Vector3(0, -1, 0);
+  const qx = (a: number) => new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), a), qz = (a: number) => new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 0, 1), a);
+  // lay a capsule from a joint along a direction; returns the next joint
+  const seg = (m: THREE.Mesh, from: THREE.Vector3, q: THREE.Quaternion) => {
+    const g = (m.geometry as THREE.CapsuleGeometry).parameters, L = g.height + g.radius, d = down.clone().applyQuaternion(q);
+    m.quaternion.copy(q); m.position.copy(from).addScaledVector(d, L / 2); return from.clone().addScaledVector(d, L);
+  };
+  for (let i = 0; i < 4; i++) {
+    const k1 = meshes[1 + i * 2], k2 = meshes[2 + i * 2], fan = qz(0.16 * (i - 1.5) * -sx), a1 = 0.4 + 0.06 * i, a2 = a1 + 1.3 + 0.08 * i;
+    const knuckle = new THREE.Vector3(k1.position.x * 1.12, yk, z0);
+    seg(k2, seg(k1, knuckle, fan.clone().multiply(qx(-a1))), fan.clone().multiply(qx(-a2)));
+  }
+  const th = meshes[9], base = new THREE.Vector3(sx * 0.08 * u, cy - 0.02 * u, palm.position.z + 0.03 * u), d = new THREE.Vector3(sx * 0.62, -0.5, 0.6).normalize();
+  const g = (th.geometry as THREE.CapsuleGeometry).parameters, L = g.height + g.radius;
+  th.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), d); th.position.copy(base).addScaledVector(d, L / 2);
 }
 function fistOf(meshes: THREE.Mesh[], sx: number, u: number): void {
   for (let i = 0; i < 4; i++) {

@@ -289,9 +289,9 @@ function fist(meshes: THREE.Mesh[], sx: number, u: number): void {
 export function secondHandAt(kind: string): number | undefined {
   return ({ greatsword: -0.5, 'dragon-greatsword': -0.5, longsword: -0.32, greataxe: 1.1, battleaxe: 0.9, spear: 1.3, quarterstaff: 1.2, shovel: 1.1, pitchfork: 1.2, club: undefined } as Record<string, number | undefined>)[kind];
 }
-/** Bring the other hand onto the weapon: the arm (shoulder `root`, elbow `mid`, wrist `end`) is solved to reach the
- *  point `off` along the weapon in `held`, the wrist is turned to the haft and the hand closed on it. `sx` is the hand's
- *  handedness, as for closeGrip. */
+/** Bring a hand onto a weapon (the second hand on a haft, or a hand laid on a belted hilt): the arm (shoulder `root`,
+ *  elbow `mid`, wrist `end`) is solved to reach the point `off` along the weapon in `held`, the wrist is turned to the
+ *  haft and the hand closed on it. `sx` is the hand's handedness, as for closeGrip. */
 export function secondHand(root: THREE.Object3D, mid: THREE.Object3D, end: THREE.Object3D, held: THREE.Object3D, off: number, sx: number): void {
   const top = root.parent; if (!top) return;
   let r: THREE.Object3D = top; while (r.parent) r = r.parent; r.updateMatrixWorld(true);

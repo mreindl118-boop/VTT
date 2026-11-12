@@ -128,7 +128,9 @@ it is down (default `dead`). Each is a name or joint angles:
 - Angles (radians): `spine`, `neck`, `pelvis`, `shoulderR/L`, `wristR/L`, `hipR/L`, `ankleR/L` as `[x, y, z]`;
   `elbowR/L`, `kneeR/L` and `collarR/L` (the shoulder's lift; automatic when an arm goes up) as numbers; `holdR/L`
   (`upright`, `tilt`); `lift` (feet); `seated`; `lie` (`back`, `front` or `side`: the posed figure laid on the floor);
-  `spell` (`right` or `between`); `fist` (`["R"]`, `["L"]` or both: those hands clenched into closed fists, say on a hip); `book`
+  `spell` (`right` or `between`); `fist` (`["R"]`, `["L"]` or both: those hands clenched into closed fists, say on a hip); `talon` (likewise: empty
+  hands hooked into claws, the fingers fanned and curled); `hilt` (likewise: a hand laid on the grip of a belted blade,
+  the arm solved to reach it, on its own hip or across the body); `book`
   (`open` to read at rest; otherwise a book is carried shut out of a fight and opened in one); `gaze`. On x a negative angle swings forward; a negative elbow bends the forearm up, a
   positive knee bends the shin back. On the limbs y and z are mirrored, so positive turns outward on either side. On
   the spine, pelvis and neck, y > 0 turns toward the figure's right and z > 0 raises its right side (a hip or a

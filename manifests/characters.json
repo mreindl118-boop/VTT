@@ -88,7 +88,7 @@
      }
     },
     "pose": "weightR haughty R:chest L:hilt",
-    "battlePose": "vampire-lord",
+    "battlePose": "stride intent R:grasp L:hilt spell look:down eyes:glare",
     "frame": "masculine",
     "build": "broad",
     "hairdo": {
