@@ -4,7 +4,8 @@ import { describe, expect, it } from 'vitest';
 import * as THREE from 'three';
 import { applyPartyPack, isUntouchedDefault, sheetOf, validatePartyPack, type PartyContext } from '../app/src/core/partyPack';
 import { newCampaign } from '../app/src/state/campaign';
-import { heroFigure } from '../app/src/kit/heroes';
+import { heroFigure, heroOptions } from '../app/src/kit/heroes';
+import { Jiggle } from '../app/src/render/jiggle';
 import type { Vec2 } from '../app/src/core/geometry';
 
 const PNG = 'data:image/png;base64,iVBORw0KGgo=';
@@ -186,5 +187,15 @@ describe('heroFigure', () => {
     const plain = heroFigure({ pose: {} }), brawny = heroFigure({ pose: {}, body: { shoulders: 1.15, chest: 1.1, waist: 1.2, arms: 1.3 } }), slight = heroFigure({ pose: {}, body: { shoulders: 0.9, chest: 0.9, waist: 0.9, arms: 0.85 } });
     expect(width(brawny)).toBeGreaterThan(width(plain) * 1.05);
     expect(width(slight)).toBeLessThan(width(plain) * 0.97);
+  });
+  it('gives soft parts jiggle weights only when the switch is on, and the spring settles', () => {
+    const weighted = (g: THREE.Object3D) => { let n = 0; g.traverse((c) => { const m = c as THREE.Mesh; if (m.isMesh && m.geometry.attributes.jig) n++; }); return n; };
+    expect(weighted(heroFigure({ frame: 'feminine' }))).toBe(0);
+    heroOptions.jiggle = true;
+    try { expect(weighted(heroFigure({ frame: 'feminine' }))).toBeGreaterThan(0); expect(weighted(heroFigure({ frame: 'masculine' }))).toBe(0); } finally { heroOptions.jiggle = false; }
+    const b = { y: 0, v: 4, x: 0, vx: 1 }; let peak = 0, moving = true;
+    for (let i = 0; i < 400 && moving; i++) { moving = Jiggle.advance(b, 1 / 60); peak = Math.max(peak, Math.abs(b.y)); }
+    expect(peak).toBeGreaterThan(0.1);
+    expect(moving).toBe(false);
   });
 });

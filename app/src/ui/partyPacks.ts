@@ -72,7 +72,8 @@ export function openPartyPacks(app: App, onDone: () => void): void {
   back.innerHTML = `<div class="sheet encounter party-packs page"><header><h2>Party</h2><button class="icon close" aria-label="Close" data-tip="Close">${ICON.close}</button></header>
     <div class="sheet-body">
       <div class="row pp-tools"><label class="button"><input type="file" accept=".json,application/json" hidden data-f="file">Open party file…</label><button data-a="clear">Forget file</button><span class="spacer"></span>
-        <span class="seg" role="group" aria-label="How characters stand"><button data-a="style" data-v="mini" aria-pressed="${app.pieceStyle === 'mini'}">Miniatures</button><button data-a="style" data-v="token" aria-pressed="${app.pieceStyle === 'token'}">Round tokens</button></span></div>
+        <span class="seg" role="group" aria-label="How characters stand"><button data-a="style" data-v="mini" aria-pressed="${app.pieceStyle === 'mini'}">Miniatures</button><button data-a="style" data-v="token" aria-pressed="${app.pieceStyle === 'token'}">Round tokens</button></span>
+        <button data-a="jiggle" aria-pressed="${app.jiggleOn}" data-tip="Soft parts bounce when a miniature is picked up or moved">Jiggle</button></div>
       <p class="hint">Applying adds each character to the roster (the starting Fighter, Rogue, Cleric and Wizard go if you never renamed them), puts their own token where the file says, and moves the party's mark on the world map. Characters keep their tokens through fights.</p>
       <div class="pp-body"></div></div></div>`;
 
@@ -87,6 +88,7 @@ export function openPartyPacks(app: App, onDone: () => void): void {
     const btn = t.closest<HTMLElement>('[data-a]'), a = btn?.dataset.a; if (!a) return;
     if (a === 'down') { const tok = app.state.tokens.find((x) => x.id === btn!.dataset.tok); if (tok) { app.setDown(tok.id, !tok.down); render(); } return; }
     if (a === 'clear') { put(PACK, null); void load(null); return; }
+    if (a === 'jiggle') { app.setJiggle(!app.jiggleOn); btn!.setAttribute('aria-pressed', String(app.jiggleOn)); return; }
     if (a === 'style') { app.setPieceStyle(btn!.dataset.v === 'token' ? 'token' : 'mini'); back.querySelectorAll<HTMLElement>('[data-a="style"]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.v === app.pieceStyle))); return; }
     if (a === 'apply') void applyPack(app, pack, opt).then((ok) => { if (ok) { back.remove(); onDone(); } else render(); });
   });

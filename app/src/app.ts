@@ -12,7 +12,7 @@ import { classOpacity, fogCurve, hiddenCurve, labelCurve } from './core/slider';
 import { baseRingFt, CELL_FT } from './core/units';
 import { baseRing } from './kit/pieces';
 import { adventurer } from './kit/creatures';
-import { heroFigure, portraitDisc } from './kit/heroes';
+import { heroFigure, heroOptions, portraitDisc } from './kit/heroes';
 import { PALETTE } from './kit/palette';
 import { buildLevel, buildLevelSteps, hitObjectId, mergeByMaterial, type BuiltLevel, type LabelSpec } from './render/build';
 import { gridUniforms } from './render/gridOverlay';
@@ -53,6 +53,7 @@ const wholeExtent = (s: SceneFile): Bounds => {
 };
 /** Where the DM came in: the room of the parent map whose Enter opened the child. */
 export interface EnteredFrom { parent: string; level: string; key: string; child: string }
+import { Jiggle } from './render/jiggle';
 import { creatureById, figureFor, aliasFor, seenAs, statsOf, speedFtOf, colorOf } from './bestiary';
 import { playerFacing } from './core/identity';
 import { sightBlockers } from './core/light';
@@ -141,6 +142,10 @@ export class App {
   autoReveal = true;
   /** How player characters with a party pack's picture stand: their miniature on a portrait base, or a flat round token. */
   pieceStyle: 'mini' | 'token' = (() => { try { return localStorage.getItem('mistlab.pieceStyle') === 'token' ? 'token' : 'mini'; } catch { return 'mini'; } })();
+  /** Jiggle: the soft parts of a miniature bounce when it is picked up or moved (a table joke; off spares the work). */
+  jiggleOn = (() => { let on = true; try { on = localStorage.getItem('mistlab.jiggle') !== '0'; } catch { /* no storage */ } heroOptions.jiggle = on; return on; })();
+  private jiggle = new Jiggle(() => this.world.invalidate());
+  setJiggle(on: boolean): void { this.jiggleOn = heroOptions.jiggle = on; try { localStorage.setItem('mistlab.jiggle', on ? '1' : '0'); } catch { /* no storage */ } if (this.cur) { this.syncTokens(); this.world.invalidate(); } }
   setPieceStyle(v: 'mini' | 'token'): void { this.pieceStyle = v; try { localStorage.setItem('mistlab.pieceStyle', v); } catch { /* no storage */ } if (this.cur) { this.syncTokens(); this.world.invalidate(); } }
   /** One-screen play: 'players' hides every DM affordance and pins t = 0. */
   view: 'dm' | 'players' = 'dm';
@@ -1419,6 +1424,7 @@ export class App {
     // the old figures are freed (their geometry and materials are their own); the selection ring rides on and comes back
     const ringOn = this.selRing?.parent?.userData.tokenId as string | undefined;
     this.selRing?.removeFromParent();
+    this.jiggle.clear();
     for (const [id, g] of this.cur!.tokens) { disposeTree(g); this.cur!.tokens.delete(id); }
     for (const t of this.tokensHere()) {
       if (t.role === 'creature' && t.hidden && this.restricted) continue; // not yet shown to the players
@@ -1432,6 +1438,7 @@ export class App {
         const figState = t.down || (t.hp && t.hp.cur <= 0) ? 'dead' as const : !!this.state.encounter?.order.some((c) => c.tokenId === t.id);
         const fig = mergeByMaterial(sheet?.figure ? heroFigure(sheet.figure, t.size, figState) : entry ? figureFor(entry, figState, t.id) : adventurer(t.role === 'member' ? { cloth: t.color } : undefined)); fig.position.y = 0.3;
         g.add(fig);
+        if (this.jiggleOn) this.jiggle.track(t.id, fig);
       }
       if (sheet?.portrait) g.add(portraitDisc(sheet.portrait, t.color, flat ? base * 0.48 : (base * 0.62) / 2 + 0.25, () => this.world.invalidate(), 0.3));
       else g.add(baseRing(base, t.role === 'party' ? PARTY_RED : t.color));
@@ -1983,6 +1990,7 @@ export class App {
     const t = id ? this.state.tokens.find((x) => x.id === id) : undefined;
     const obj = id ? this.cur?.tokens.get(id) : undefined;
     if (t && obj) {
+      this.jiggle.kick(t.id, 5, 1.5);
       const r = baseRingFt(t.size) * 0.31 + 0.6; ring.scale.setScalar(r); ghost.scale.setScalar(r);
       obj.add(ring);
       this.setStatus(this.restricted ? 'Tap where the party goes' : 'Tap where it goes · tap the token again to cancel');
@@ -2070,6 +2078,7 @@ export class App {
     } else if (!this.canWalkTo(t.pos, to)) { this.flashStatus('No way through: walls block the party. Open a door first.'); return false; }
     t.pos = to;
     this.cur!.tokens.get(id)?.position.set(to[0], this.level.elevationFt, to[1]);
+    this.jiggle.kick(id, 8, 3);
     if (id === this.party?.id) this.afterPartyMove();
     else if (this.encounter || t.role === 'pc') this.afterMemberMove(t);
     else if (this.rangeHelper) this.refreshRange();
