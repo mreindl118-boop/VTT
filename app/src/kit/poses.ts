@@ -12,7 +12,7 @@ export const NPC_POSES = {
   /** Bent with age or malice: the back curved, the head thrust forward, the knees soft. */
   hunched: { spine: [0.42, 0, 0], neck: [-0.38, 0, 0], shoulderR: [-0.5, 0, 0.1], elbowR: -0.9, holdR: { upright: true }, shoulderL: [-0.3, 0, 0.1], elbowL: -1.1, wristL: [0.5, 0, 0], hipL: [-0.35, 0, 0.1], kneeL: 0.7, hipR: [-0.3, 0, 0.1], kneeR: 0.6 },
   /** Fists on the hips, chest out. */
-  'hands-on-hips': { spine: [-0.06, 0, 0], neck: [-0.05, 0, 0], shoulderR: [0.4, -0.7, 0.95], elbowR: -2.0, shoulderL: [0.4, -0.7, 0.95], elbowL: -2.0, hipL: [0, 0, 0.14], hipR: [0, 0, 0.14] },
+  'hands-on-hips': { spine: [-0.06, 0, 0], neck: [-0.05, 0, 0], shoulderR: [0.55, -1.15, 0.8], elbowR: -1.25, wristR: [0.4, 0, 0], shoulderL: [0.55, -1.15, 0.8], elbowL: -1.25, wristL: [0.4, 0, 0], hipL: [0, 0, 0.14], hipR: [0, 0, 0.14] },
   /** Hands clasped behind the back, watchful. */
   'behind-back': { spine: [-0.04, 0, 0], neck: [0.04, 0.25, 0], shoulderR: [0.45, -1.5, 0.12], elbowR: -1.25, shoulderL: [0.45, -1.5, 0.12], elbowL: -1.25, hipL: [0, 0, 0.06], hipR: [0, 0, 0.06] },
   /** Arms folded, weight on one leg. */
