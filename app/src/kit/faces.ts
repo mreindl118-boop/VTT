@@ -157,7 +157,7 @@ export function faceFeatures(spec: FaceSpec, look: FaceLook): THREE.Group {
     for (let i = 0; i < p.count; i++) { v.fromBufferAttribute(p, i).normalize(); const q = skullAt(v.x, v.y, v.z, puff); p.setXYZ(i, q.x, q.y, q.z); }
     geo.computeVertexNormals(); const m = new THREE.Mesh(geo, soft(c)); g.add(m); return m;
   };
-  const headMesh = shaped(new THREE.SphereGeometry(1, d >= 3 ? 64 : 48, d >= 3 ? 48 : 36), skin);
+  const headMesh = shaped(new THREE.SphereGeometry(1, d >= 3 ? 64 : 48, d >= 3 ? 48 : 36).rotateZ(Math.PI / 2), skin);
   const paint = paintFace(spec, { skin, hair: look.hair, eyes: look.eyes, lips: look.lips, fem, dead: look.dead, size: d >= 3 ? 512 : 256 });
   if (paint) { wearFace(headMesh.geometry); const pm = soft('#ffffff').clone(); pm.map = paint; pm.flatShading = false; pm.userData = { ...pm.userData, smooth: true, keepLook: true }; headMesh.material = pm; headMesh.userData.keepLook = true; }
   const hp = headMesh.geometry.attributes.position as THREE.BufferAttribute, frontPts: [number, number, number][] = [];

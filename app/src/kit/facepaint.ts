@@ -238,12 +238,31 @@ export function paintFace(spec: FaceSpec, look: PaintLook): THREE.Texture | null
   cache.set(key, tex); return tex;
 }
 
-/** Give a shaped head geometry the picture's coordinates: the front reads the face, the back reads plain skin. */
+/** Give a shaped head geometry the picture's coordinates: the front reads the face; the back reads the plain skin at
+ *  the picture's side edges, the figure's left half one edge and its right half the other, at the height each point
+ *  sits. The back is cut down its middle (its vertices there doubled, each twin with the same position and normal), so
+ *  no triangle runs from one edge to the other; and a triangle where the front meets the back reads only plain skin
+ *  along the picture's edge (at the crown, the sides and under the jaw alike) instead of a streak drawn across the
+ *  whole face. Wants the shaped (indexed) geometry with its normals. */
 export function wearFace(geo: THREE.BufferGeometry): void {
+  const p0 = geo.attributes.position as THREE.BufferAttribute, n0 = geo.attributes.normal as THREE.BufferAttribute | undefined, eps = 1e-5;
+  const onSeam = (i: number) => Math.abs(p0.getX(i)) < eps && p0.getZ(i) <= 0.02, twins = new Set<number>();
+  if (geo.index) {
+    const P = Array.from(p0.array as ArrayLike<number>), N = n0 ? Array.from(n0.array as ArrayLike<number>) : null, ix = Array.from(geo.index.array as ArrayLike<number>), twin = new Map<number, number>();
+    for (let t = 0; t < ix.length; t += 3) {
+      if (p0.getX(ix[t]) + p0.getX(ix[t + 1]) + p0.getX(ix[t + 2]) >= 0) continue;     // the figure's right half takes the twins
+      for (let k = t; k < t + 3; k++) {
+        const v = ix[k]; if (!onSeam(v)) continue;
+        let w = twin.get(v);
+        if (w === undefined) { w = P.length / 3; P.push(p0.getX(v), p0.getY(v), p0.getZ(v)); if (N && n0) N.push(n0.getX(v), n0.getY(v), n0.getZ(v)); twin.set(v, w); twins.add(w); }
+        ix[k] = w;
+      }
+    }
+    if (twin.size) { geo.setAttribute('position', new THREE.Float32BufferAttribute(P, 3)); if (N) geo.setAttribute('normal', new THREE.Float32BufferAttribute(N, 3)); geo.setIndex(ix); }
+  }
   const p = geo.attributes.position as THREE.BufferAttribute, uv = new Float32Array(p.count * 2);
   for (let i = 0; i < p.count; i++) {
-    const x = p.getX(i), y = p.getY(i), front = p.getZ(i) > 0.02;
-    const [u, v] = front ? faceUV(x, y) : [x < 0 ? 0.01 : 0.99, 0.01];
+    const x = p.getX(i), y = p.getY(i), [fu, v] = faceUV(x, y), u = p.getZ(i) > 0.02 ? fu : x < -eps || twins.has(i) ? 0.01 : 0.99;
     uv[i * 2] = Math.max(0.005, Math.min(0.995, u)); uv[i * 2 + 1] = Math.max(0.005, Math.min(0.995, v));
   }
   geo.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
