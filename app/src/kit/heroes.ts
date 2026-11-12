@@ -6,7 +6,7 @@ import * as THREE from 'three';
 import { mat, matClone } from '../render/materials';
 import { HIP, SHIN, THIGH, clipRings, forearmRings, frameOf, loftGeometry, lockGeometry, neckLift, neckRings, pelvisRings, ringAt, ringPoint, shinRings, thighRings, torsoRings, upperArmRings, type Frame, type Measures, type Ring } from './anatomy';
 import type { CreatureSize } from '../core/units';
-import { faceFeatures, craniumShape, browLift, weld, type FaceSpec, type FaceDetail } from './faces';
+import { faceFeatures, hairSkull, browLift, weld, type FaceSpec, type FaceDetail } from './faces';
 import { hairdo as buildHairdo, type Hairdo } from './hair';
 import { weapon as gearWeapon, scabbard, closeGrip, secondHand, secondHandAt, type WeaponSpec } from './weapons';
 
@@ -407,7 +407,7 @@ function buildHair(head: THREE.Group, s: number, hy: number, f: HeroFigure, fem:
   const H = f.hair, R = 0.4, style = f.hairStyle ?? 'short';
   // short hair is the sculpted crop (kit/hair.ts), its parting and fullness varied by the character's colours
   if (style === 'short') { let h = 7; for (const ch of H + (f.skin ?? '') + (f.cloth ?? '')) h = (h * 31 + ch.charCodeAt(0)) >>> 0; head.add(buildHairdo({ style: 'crop', part: [0.4, -0.4, 0.15, -0.2][h % 4], length: 0.35 + (h >> 3) % 5 * 0.08 }, H, s, hy, f.detail ?? 2, f.face)); return; }
-  const cr = craniumShape(f.face), lift0 = browLift(f.face);
+  const cr = hairSkull(f.face), lift0 = browLift(f.face);
   let seed = 11; const rnd = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; };
   // ears that stand out (buildFace) part the hair: the side locks are tucked behind them and no coil grows over their
   // roots, so the ear comes out of the hair whole, as in the art, instead of its point poking through
@@ -435,7 +435,7 @@ function buildHair(head: THREE.Group, s: number, hy: number, f: HeroFigure, fem:
   const shadeOf = (i: number) => i % 3 === 0 ? tone(H, '#ffffff', 0.1) : i % 3 === 1 ? H : tone(H, '#000000', 0.14);
   const lock = (pts: THREE.Vector3[], r0: number, r1: number, i: number, c?: string, flat = 0.5) => head.add(sm(lockGeometry(pts, r0 * s, r1 * s, flat, 6), c ?? shadeOf(i), true));
   const part = fem ? 0.05 : 0.0; // the parting sits a little to one side
-  const crown = (az: number) => new THREE.Vector3(Math.sin(az) * 0.03 * s + part * s, hy + 1.14 * R * 1.07 * s, -0.02 * s + Math.cos(az) * 0.03 * s);
+  const crownY = cr(0, 1.14 * 1.07, 0)[1] * R * s, crown = (az: number) => new THREE.Vector3(Math.sin(az) * 0.03 * s + part * s, hy + crownY, -0.02 * s + Math.cos(az) * 0.03 * s);
   let streaks = 0; const streakAt = (az: number) => { const a = RX * Math.atan2(Math.sin(az), Math.cos(az)); return f.hairStreak && a > 0.6 && a < 1.2 && streaks++ < 3 ? f.hairStreak : undefined; }; // a streak: a few locks at the right temple (RX)
 
   if (style === 'long' || style === 'braids') {

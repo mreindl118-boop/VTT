@@ -79,6 +79,14 @@ export function craniumShape(spec: Pick<FaceSpec, 'skullDepth' | 'foreheadH' | '
     return [x * (1 - k), y, zc + (z - zc) * (1 - k)];
   };
 }
+/** The cranium as the hair sees it (kit/hair.ts, heroes.ts buildHair): the face's own proportions first, as the head is
+ *  built (wider or narrower, longer, longer below the eyes), then craniumShape. Takes and returns skull units like
+ *  craniumShape, so hair laid over any head fits it however far its sliders go. */
+export function hairSkull(spec: Pick<FaceSpec, 'headW' | 'headL' | 'faceLen' | 'skullDepth' | 'foreheadH' | 'jawAngle'> = {}): (x: number, y: number, z: number) => [number, number, number] {
+  const n = (v: number | undefined) => Math.max(-1, Math.min(1, v ?? 0)), cr = craniumShape(spec);
+  const w = 1 + 0.07 * n(spec.headW), l = 1 + 0.05 * n(spec.headL), f = 1 + 0.08 * n(spec.faceLen);
+  return (x, y, z) => cr(x * w, y * l * (y < 0 ? f : 1), z);
+}
 /** How far a recipe's forehead lifts the hairline at the brow (radians of elevation on the scalp). */
 export const browLift = (spec?: Pick<FaceSpec, 'foreheadH'>): number => 0.12 * Math.max(-1, Math.min(1, spec?.foreheadH ?? 0));
 /** A shaped sphere's geometry with its repeated vertices (the seam, the poles) made one and its normals recomputed, so a

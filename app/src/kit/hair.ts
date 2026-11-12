@@ -4,7 +4,7 @@
 import * as THREE from 'three';
 import { mat } from '../render/materials';
 import { lockGeometry } from './anatomy';
-import { craniumShape, browLift, weld, type FaceSpec } from './faces';
+import { hairSkull, browLift, weld, type FaceSpec } from './faces';
 
 export interface Hairdo {
   /** swept: combed straight back from the brow to the collar. bun: drawn back to a knot at the crown. tonsure: a ring
@@ -27,7 +27,7 @@ const R = 0.4;
 /** The hairdo as a group to add to the head joint: `s` is the figure's scale, `hy` the head centre's height in the joint,
  *  `detail` (1 to 4) how many locks it is combed into. */
 export function hairdo(h: Hairdo, color: string, s: number, hy: number, detail = 2, face: FaceSpec = {}): THREE.Group {
-  const g = new THREE.Group(), V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z), cr = craniumShape(face), lift0 = browLift(face);
+  const g = new THREE.Group(), V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z), cr = hairSkull(face), lift0 = browLift(face);
   let seed = 7; const rnd = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; };
   const dir = (az: number, el: number) => { const c = Math.cos(el); return V(Math.sin(az) * c, Math.sin(el), Math.cos(az) * c); };
   const onScalp = (d: THREE.Vector3, lift = 1.06) => { const [x, y, z] = cr(d.x * 0.84 * lift, d.y * 1.14 * lift, d.z * (d.z < 0 ? 0.99 : 0.94) * lift); return V(x * R * s, hy + y * R * s, z * R * s); };
@@ -109,14 +109,14 @@ if (h.style !== 'crop' && h.style !== 'swept') {
     const vol = h.length ?? 0.5;
     sculpt({ part: (h.part ?? 0.35) * 0.45, scallop: 0.05, base: 0.03, top: 0.085 * vol, brow: 0.06 * vol, freq: 8.5, groove: 0.022 + 0.012 * vol, grooveFrom: 0 });
   } else if (h.style === 'voodoo') {
-    const tall = (h.length ?? 1.3) * R * 2.3 * s, tip = V(0, hy + 1.14 * R * s + tall, -0.2 * s), bone = '#d8d0b4', cord = '#6a2420';
+    const tall = (h.length ?? 1.3) * R * 2.3 * s, tip = V(0, onScalp(V(0, 1, 0), 1).y + tall, -0.2 * s), bone = '#d8d0b4', cord = '#6a2420';
     // the spire: matted ropes drawn up from all round the hairline to a point, bulging where the cord bites
     for (let i = 0; i < N; i++) {
       const az = (i / N) * Math.PI * 2 + 0.15 * rnd(), from = dir(az, Math.max(line(az), -0.25) + 0.04), root = onScalp(from, 1.08), crown = onScalp(dir(az, 1.0), 1.22);
       const sw = 0.5 + 0.2 * rnd(), mid = V(crown.x * (1.02 + 0.14 * rnd()), crown.y + tall * 0.28, crown.z * 1.05 - 0.06 * s), hi = V(crown.x * sw, crown.y + tall * 0.62, crown.z * sw - 0.14 * s);
       lock([root, onScalp(dir(az, 0.55), 1.14), crown, mid, hi, V(tip.x + (rnd() - 0.5) * 0.05 * s, tip.y - 0.1 * tall * rnd(), tip.z)], 0.075 + 0.02 * rnd(), 0.02, i, undefined, 0.7);
     }
-    for (const [t, r] of [[0.14, 0.33], [0.5, 0.23], [0.8, 0.11]]) { const ring = new THREE.Mesh(new THREE.TorusGeometry(r * s, 0.022 * s, 6, 18), soft(cord)); ring.rotation.x = Math.PI / 2 - 0.12; ring.position.set(0, hy + 1.14 * R * s + tall * t, -(0.02 + 0.18 * t) * s); g.add(ring); }
+    for (const [t, r] of [[0.14, 0.33], [0.5, 0.23], [0.8, 0.11]]) { const ring = new THREE.Mesh(new THREE.TorusGeometry(r * s, 0.022 * s, 6, 18), soft(cord)); ring.rotation.x = Math.PI / 2 - 0.12; ring.position.set(0, onScalp(V(0, 1, 0), 1).y + tall * t, -(0.02 + 0.18 * t) * s); g.add(ring); }
     // tufts that got away from the cord, bristling out and up at the foot of the spire
     for (let i = 0; i < Math.round(N * 0.7); i++) {
       const az = (i / Math.round(N * 0.7)) * Math.PI * 2 + 0.3 * rnd(), a = Math.abs(Math.atan2(Math.sin(az), Math.cos(az))); if (a < 0.5) continue;
