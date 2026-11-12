@@ -19,7 +19,8 @@
     "books": "node --experimental-strip-types --no-warnings=ExperimentalWarning scripts/books/build.ts",
     "books:check": "node --experimental-strip-types --no-warnings=ExperimentalWarning scripts/books/build.ts --check",
     "terms:review": "node scripts/terms-review.mjs",
-    "initclock:page": "node scripts/initclock/build.mjs"
+    "initclock:page": "node scripts/initclock/build.mjs",
+    "encounters:check": "node --experimental-strip-types --no-warnings=ExperimentalWarning scripts/encounters/check.ts"
   },
   "dependencies": {
     "three": "^0.180.0"

@@ -748,3 +748,22 @@ svg.e { width: 22px; height: 22px; fill: currentColor; flex: none; }
   .nestkey { left: 8px; right: 8px; width: auto; top: auto; bottom: 64px; max-height: 40vh; }
   .nestcard { left: 8px; right: 8px; bottom: 64px; max-width: none; }
 }
+
+/* Encounter packs: prepared fights the DM stages on the map (ui/encounterPacks.ts). */
+.sheet.encounter-packs header input.csearch { flex: 1; margin: 0 10px; font: inherit; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--hair); background: var(--bg-2, #fff); color: var(--ink); }
+.encounter-packs .ep-tools { flex-wrap: wrap; gap: 10px; align-items: center; }
+.encounter-packs .ep-tools label.button { cursor: pointer; white-space: nowrap; padding: 6px 12px; border-radius: 10px; border: 1px solid var(--hair); }
+.encounter-packs .ep-card { border: 1px solid var(--hair); border-radius: 12px; padding: 10px 12px; margin: 10px 0; display: grid; gap: 4px; }
+.encounter-packs .ep-card.staged { border-color: color-mix(in srgb, var(--accent, #a33) 60%, var(--hair)); }
+.encounter-packs .ep-card header { display: flex; align-items: baseline; gap: 10px; padding: 0; border: 0; }
+.encounter-packs .ep-card h3 { margin: 0; flex: 1; font-size: 1em; }
+.encounter-packs .ep-src { font-size: 12px; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--hair); white-space: nowrap; }
+.encounter-packs .ep-src.reloaded { border-style: dashed; }
+.encounter-packs .ep-src.generative { border-style: dotted; font-style: italic; }
+.encounter-packs .ep-where, .encounter-packs .ep-diff, .encounter-packs .ep-note { font-size: 12px; color: var(--ink-2); margin: 0; }
+.encounter-packs .ep-diff { display: block; }
+.encounter-packs .ep-trigger { margin: 0; }
+.encounter-packs .ep-foes { margin: 0; padding-left: 18px; }
+.encounter-packs .ep-roll input { width: 4.5em; }
+.encounter-packs .ep-problems li.error { color: var(--danger, #b33); }
+.encounter-packs .ep-staged { font-size: 12px; }
