@@ -786,37 +786,37 @@
     "cloth": "#2e3a26",
     "trim": "#1e2a1a",
     "boots": "#1a1e14",
-    "height": 0.9,
+    "height": 0.72,
     "cloak": "#2a3622",
-    "hood": true,
+    "hood": false,
     "tattered": true,
     "markings": "#3a4a2a",
-    "wisp": "#a8c86a",
     "glow": "#9ac860",
     "face": {
-     "headW": 0.2,
-     "jaw": -0.2,
-     "chin": 0.6,
-     "chinPoint": 0.8,
-     "cheekbones": 0.5,
-     "gaunt": 0.8,
-     "noseLen": 0.9,
+     "headW": 1,
+     "jaw": 0.8,
+     "chin": -0.2,
+     "chinPoint": 0,
+     "cheekbones": 0.2,
+     "gaunt": -0.7,
+     "noseLen": 0.7,
      "noseHook": 1,
      "noseTip": 0.6,
-     "noseW": 0.3,
-     "browRidge": 0.6,
-     "browAngle": 0.5,
-     "browThick": -0.5,
-     "eyeSize": -0.3,
+     "noseW": 0.9,
+     "browRidge": 1,
+     "browAngle": 1,
+     "browThick": 0.8,
+     "eyeSize": -0.2,
      "sunken": 0.8,
      "bags": 0.8,
-     "mouthW": 0.5,
-     "lipFull": -0.8,
-     "smile": -0.5,
+     "mouthW": 1,
+     "lipFull": -0.6,
+     "smile": 0.9,
      "teeth": true,
      "age": 1,
      "warts": true,
-     "eyeShape": "wide"
+     "eyeShape": "narrow",
+     "blush": "#5c6a3e"
     },
     "gear": {
      "handR": {
@@ -826,13 +826,27 @@
       "length": 0.9
      }
     },
-    "pose": "old stoop R:staff L:claw",
+    "pose": "wide stoop R:staff L:claw eyes:glare",
     "battlePose": "curse",
     "frame": "feminine",
     "hairdo": {
-     "style": "wild",
-     "length": 1.5
-    }
+     "style": "voodoo",
+     "length": 1.2
+    },
+    "build": "broad",
+    "body": {
+     "shoulders": 1.25,
+     "chest": 1.5,
+     "waist": 2.0,
+     "hips": 1.7,
+     "bust": 1.3,
+     "arms": 1.35,
+     "legs": 1.5,
+     "neck": 1.5
+    },
+    "eyes": "#c8e04a",
+    "headSize": 1.3,
+    "skirt": "#263220"
    },
    "importance": 24.1
   },

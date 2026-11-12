@@ -246,13 +246,29 @@ export function scabbard(len: number, c = '#2a2420', fit = '#b08a3a'): THREE.Gro
  *  the palm with the blade leaving on the thumb's side, so the wrist is turned until the hand's own grip line lies along
  *  the weapon, the weapon stays exactly where the pose aimed it, and the fingers and thumb are wrapped into a fist
  *  around the haft. `hand` is the rig's wrist group (palm, eight finger joints, thumb, then the holder), `held` the
- *  holder inside it, `sx` 1 for the right hand and -1 for the left. */
-export function closeGrip(hand: THREE.Object3D, held: THREE.Object3D, sx: number): void {
+ *  holder inside it, `sx` 1 for the right hand and -1 for the left; `limit` false for a staff or spear planted or
+ *  couched along the arm. */
+export function closeGrip(hand: THREE.Object3D, held: THREE.Object3D, sx: number, limit = true): void {
   const meshes = hand.children.filter((c) => (c as THREE.Mesh).isMesh) as THREE.Mesh[];
   if (meshes.length < 10) return;
   const palm = meshes[0], u = ((palm.geometry as THREE.SphereGeometry).parameters?.radius ?? 0.105) / 0.105;
-  const aim = hand.quaternion.clone().multiply(held.quaternion);                         // where the pose pointed the weapon, in the forearm's frame
-  const d = new THREE.Vector3(0, 1, 0).applyQuaternion(aim), h = new THREE.Vector3(-sx, 0, 0).applyQuaternion(hand.quaternion);
+  let aim = hand.quaternion.clone().multiply(held.quaternion);                           // where the pose pointed the weapon, in the forearm's frame
+  let d = new THREE.Vector3(0, 1, 0).applyQuaternion(aim);
+  const h = new THREE.Vector3(-sx, 0, 0).applyQuaternion(hand.quaternion);
+  // a fist holds a haft across the palm, so a blade can never run on in line with the forearm like a pencil (nor fold
+  // back along it): it stands off the forearm by at least MIN and at most MAX. A pose that asks for less is opened out,
+  // upward by preference, the way a wrist cocks a sword in guard.
+  if (limit) {
+    const fore = new THREE.Vector3(0, -1, 0), ang = d.angleTo(fore), MIN = 0.95, MAX = 2.3;
+    if (ang < MIN || ang > MAX) {
+      let root: THREE.Object3D = hand; while (root.parent) root = root.parent; root.updateMatrixWorld(true);
+      const upF = hand.parent ? new THREE.Vector3(0, 1, 0).transformDirection(hand.parent.matrixWorld.clone().invert()) : new THREE.Vector3(0, 0, 1);
+      const perp = d.clone().addScaledVector(fore, -d.dot(fore)); perp.addScaledVector(upF.addScaledVector(fore, -upF.dot(fore)), 0.6);
+      if (perp.lengthSq() < 1e-6) perp.set(0, 0, 1); perp.normalize();
+      const want = ang < MIN ? MIN : MAX, d2 = fore.clone().multiplyScalar(Math.cos(want)).addScaledVector(perp, Math.sin(want)).normalize();
+      aim = new THREE.Quaternion().setFromUnitVectors(d, d2).multiply(aim); d = d2;
+    }
+  }
   hand.quaternion.premultiply(new THREE.Quaternion().setFromUnitVectors(h, d));
   held.quaternion.copy(hand.quaternion.clone().invert().multiply(aim));
   held.position.set(0, -0.15 * u, 0.085 * u);

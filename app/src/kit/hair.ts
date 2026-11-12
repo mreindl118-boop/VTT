@@ -7,8 +7,9 @@ import { lockGeometry } from './anatomy';
 
 export interface Hairdo {
   /** swept: combed straight back from the brow to the collar. bun: drawn back to a knot at the crown. tonsure: a ring
-   *  round a bald pate. wild: long, uncombed, hanging in ropes. */
-  style: 'swept' | 'bun' | 'tonsure' | 'wild';
+   *  round a bald pate. wild: long, uncombed, hanging in ropes. voodoo: matted hair bound up into a tall leaning spire
+   *  with cord, tufts bristling from its foot, and heavy braids hung with bone charms. */
+  style: 'swept' | 'bun' | 'tonsure' | 'wild' | 'voodoo';
   /** A peak at the centre of the hairline, and how far the temples have receded (0 to 1). */
   peak?: boolean; recede?: number;
   /** Streaks at the temples (a colour); how far the hair falls past the nape, in head heights (swept, wild). */
@@ -63,6 +64,32 @@ export function hairdo(h: Hairdo, color: string, s: number, hy: number, detail =
     if (h.style === 'bun') { const c = onScalp(dir(Math.PI, 0.45), 1.3); for (let i = 0; i < Math.max(8, N / 2); i++) { const a0 = i * 0.8, pts: THREE.Vector3[] = []; for (let k = 0; k <= 6; k++) { const a = a0 + k * 0.55, rr = (0.12 - 0.008 * k) * s; pts.push(V(c.x + Math.cos(a) * rr, c.y + Math.sin(a) * rr, c.z - (0.02 + 0.012 * k) * s + 0.03 * s * Math.sin(a * 2))); } lock(pts, 0.045, 0.03, i, undefined, 0.6); } }
   } else if (h.style === 'tonsure') {
     for (let i = 0; i < N; i++) { const az = 0.9 + (i / (N - 1)) * (2 * Math.PI - 1.8), from = dir(az, 0.9), to = dir(az + 0.15, Math.max(line(az) - 0.02, -0.3)); lock(laid(from, to, 4, 0.03), 0.05, 0.02, i); }
+  } else if (h.style === 'voodoo') {
+    const tall = (h.length ?? 1.3) * R * 2.3 * s, tip = V(0, hy + 1.14 * R * s + tall, -0.2 * s), bone = '#d8d0b4', cord = '#6a2420';
+    // the spire: matted ropes drawn up from all round the hairline to a point, bulging where the cord bites
+    for (let i = 0; i < N; i++) {
+      const az = (i / N) * Math.PI * 2 + 0.15 * rnd(), from = dir(az, Math.max(line(az), -0.25) + 0.04), root = onScalp(from, 1.08), crown = onScalp(dir(az, 1.0), 1.22);
+      const sw = 0.5 + 0.2 * rnd(), mid = V(crown.x * (1.02 + 0.14 * rnd()), crown.y + tall * 0.28, crown.z * 1.05 - 0.06 * s), hi = V(crown.x * sw, crown.y + tall * 0.62, crown.z * sw - 0.14 * s);
+      lock([root, onScalp(dir(az, 0.55), 1.14), crown, mid, hi, V(tip.x + (rnd() - 0.5) * 0.05 * s, tip.y - 0.1 * tall * rnd(), tip.z)], 0.075 + 0.02 * rnd(), 0.02, i, undefined, 0.7);
+    }
+    for (const [t, r] of [[0.14, 0.33], [0.5, 0.23], [0.8, 0.11]]) { const ring = new THREE.Mesh(new THREE.TorusGeometry(r * s, 0.022 * s, 6, 18), soft(cord)); ring.rotation.x = Math.PI / 2 - 0.12; ring.position.set(0, hy + 1.14 * R * s + tall * t, -(0.02 + 0.18 * t) * s); g.add(ring); }
+    // tufts that got away from the cord, bristling out and up at the foot of the spire
+    for (let i = 0; i < Math.round(N * 0.7); i++) {
+      const az = (i / Math.round(N * 0.7)) * Math.PI * 2 + 0.3 * rnd(), a = Math.abs(Math.atan2(Math.sin(az), Math.cos(az))); if (a < 0.5) continue;
+      const b = onScalp(dir(az, 0.5 + 0.4 * rnd()), 1.12), o = 1.5 + 0.5 * rnd(), up = (0.1 + 0.25 * rnd()) * s;
+      lock([b, V(b.x * 1.25, b.y + up * 0.5, b.z * 1.25), V(b.x * o, b.y + up, b.z * o)], 0.035, 0.004, i, undefined, 0.8);
+    }
+    // the braids: thick ropes down past the collar bones, front and back, each ending in a bone
+    const braids: [number, number][] = [[0.95, 1.5], [-0.95, 1.5], [1.3, 1.2], [-1.3, 1.2], [1.9, 1.1], [-1.9, 1.1], [2.6, 1.3], [-2.6, 1.3]];
+    braids.forEach(([az, L], i) => {
+      const b = onScalp(dir(az, Math.max(line(az), -0.1) + 0.12), 1.1), len = L * R * 2.3 * s, fwd = Math.cos(az) > 0 ? 0.1 * s : -0.06 * s, pts = [onScalp(dir(az * 0.8, 0.9), 1.12), b];
+      for (let k = 1; k <= 5; k++) { const t = k / 5; pts.push(V(b.x * (1.12 + 0.22 * t) + 0.012 * s * Math.sin(k * 2.4 + i), b.y - len * t, b.z + fwd * Math.sin(t * Math.PI * 0.6))); }
+      lock(pts, 0.052, 0.03, i, undefined, 0.85);
+      const e = pts[pts.length - 1];
+      for (let k = 1; k <= 3; k++) { const band = new THREE.Mesh(new THREE.TorusGeometry(0.04 * s, 0.012 * s, 5, 10), soft(k === 2 ? bone : cord)); band.rotation.x = Math.PI / 2; const q = pts[1 + k]; band.position.copy(q); g.add(band); }
+      const charm = new THREE.Mesh(new THREE.ConeGeometry(0.035 * s, 0.16 * s, 5), soft(bone)); charm.rotation.x = Math.PI; charm.position.set(e.x, e.y - 0.09 * s, e.z); g.add(charm);
+      const knob = new THREE.Mesh(new THREE.SphereGeometry(0.042 * s, 8, 6), soft(tone(bone, '#000000', 0.12))); knob.position.set(e.x, e.y - 0.005 * s, e.z); g.add(knob);
+    });
   } else {
     const len = (h.length ?? 1.6) * R * 2.3 * s;
     for (let i = 0; i < N; i++) {

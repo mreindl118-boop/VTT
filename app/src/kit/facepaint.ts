@@ -11,16 +11,16 @@ import type { FaceSpec } from './faces';
 export type EyeShape = 'almond' | 'round' | 'doe' | 'narrow' | 'cat' | 'heavy' | 'droop' | 'wide';
 const EYES: Record<EyeShape, { w: number; h: number; up: number; lo: number; peak: number; tilt: number; iris: number; wing: number; brow: number }> = {
   almond: { w: 1, h: 1, up: 1, lo: 0.85, peak: 0.1, tilt: 0, iris: 1, wing: 0, brow: 0 },
-  round: { w: 0.94, h: 1.32, up: 1.05, lo: 1.15, peak: 0, tilt: -0.03, iris: 1.12, wing: 0, brow: 0.008 },
-  doe: { w: 1.04, h: 1.2, up: 1.05, lo: 1.0, peak: 0.05, tilt: 0.03, iris: 1.12, wing: 0.04, brow: 0.006 },
+  round: { w: 0.96, h: 1.12, up: 1.02, lo: 1.0, peak: 0, tilt: -0.02, iris: 1.16, wing: 0, brow: 0.006 },
+  doe: { w: 1.04, h: 1.08, up: 1.02, lo: 0.92, peak: 0.08, tilt: 0.04, iris: 1.14, wing: 0.05, brow: 0.004 },
   narrow: { w: 1.08, h: 0.62, up: 0.9, lo: 0.8, peak: 0.15, tilt: 0.05, iris: 0.95, wing: 0, brow: -0.012 },
   cat: { w: 1.08, h: 0.9, up: 1, lo: 0.75, peak: 0.25, tilt: 0.2, iris: 1, wing: 0.14, brow: 0 },
   heavy: { w: 1.04, h: 0.82, up: 0.72, lo: 0.95, peak: 0.1, tilt: 0.02, iris: 1.08, wing: 0.03, brow: 0 },
   droop: { w: 1, h: 0.95, up: 0.92, lo: 0.95, peak: -0.15, tilt: -0.2, iris: 1, wing: -0.08, brow: 0.004 },
-  wide: { w: 0.98, h: 1.4, up: 1.1, lo: 1.25, peak: 0, tilt: 0, iris: 0.66, wing: 0, brow: 0.014 },
+  wide: { w: 1, h: 1.14, up: 1.08, lo: 0.98, peak: 0, tilt: 0, iris: 0.9, wing: 0, brow: 0.012 },
 };
 
-export interface PaintLook { skin: string; hair?: string; eyes?: string; lips?: string; fem?: boolean; /** Crossed-out eyes. */ dead?: boolean; size?: number }
+export interface PaintLook { skin: string; hair?: string; eyes?: string; lips?: string; fem?: boolean; /** Crossed-out eyes. */ dead?: boolean; /** Where the eyes look, [across, up], -1 to 1. */ gaze?: [number, number]; size?: number }
 
 /** The picture covers this much of the head (in the face builder's units, skull radius 0.4), centred on the eye line. */
 const SPAN_X = 0.9, SPAN_Y = 1.0;
@@ -67,8 +67,8 @@ export function paintFace(spec: FaceSpec, look: PaintLook): THREE.Texture | null
   const hoodK = Math.max(0, n(spec.hooded));
   const shapeName: EyeShape = spec.eyeShape ?? (hoodK > 0.45 ? 'heavy' : n(spec.eyeSize) > 0.55 ? 'round' : n(spec.eyeSlant) > 0.45 ? 'cat' : n(spec.eyeSize) < -0.25 ? 'narrow' : fem ? 'doe' : 'almond');
   const E = EYES[shapeName];
-  const ex = 0.136 * (1 + 0.12 * n(spec.eyeSpace)), ew = (fem ? 0.084 : 0.075) * E.w * (1 + 0.14 * n(spec.eyeSize));
-  const ehBase = ew / E.w * (fem ? 0.56 : 0.46), eh = ehBase * E.h * (1 - 0.2 * hoodK), tilt = (fem ? 0.1 : 0.05) + E.tilt + 0.2 * n(spec.eyeSlant);
+  const ex = 0.136 * (1 + 0.12 * n(spec.eyeSpace)), ew = (fem ? 0.078 : 0.07) * E.w * (1 + 0.14 * n(spec.eyeSize));
+  const ehBase = ew / E.w * (fem ? 0.5 : 0.43), eh = ehBase * E.h * (1 - 0.2 * hoodK), tilt = (fem ? 0.1 : 0.05) + E.tilt + 0.2 * n(spec.eyeSlant);
   for (const sx of [-1, 1]) {
     blob(sx * 0.215, -0.17, 0.085, 0.05, shade, 0.15 + 0.2 * Math.max(0, gaunt) + 0.1 * n(spec.cheekbones), sx * -0.5);
     blob(sx * 0.3, 0.1, 0.05, 0.12, shade, 0.16);
@@ -98,20 +98,21 @@ export function paintFace(spec: FaceSpec, look: PaintLook): THREE.Texture | null
       c.bezierCurveTo(-ew * 0.6, eh * 1.25 * up, ew * (0.3 + E.peak), eh * 1.35 * up, ew, eh * 0.35);
       c.bezierCurveTo(ew * 0.6, -eh * lo, -ew * 0.45, -eh * lo * 0.95, -ew, -eh * 0.1); c.closePath();
     };
-    almond(); c.fillStyle = '#f6f1ea'; c.fill();
+    almond(); c.fillStyle = mix('#efe9e0', skin, 0.12); c.fill();
     c.save(); almond(); c.clip();
     // a large iris, cut by the lid above (and by the lower lid on a narrowed eye): a dark rim, colour deepening upward,
     // a lit crescent below, a wide pupil, two lights
-    const ir = ehBase * E.iris, iy = eh * 0.08 + (E.iris < 0.8 ? 0 : ehBase * 0.06), gx = (spec.gaze ?? 0) * ew * 0.22 * sx;
-    c.beginPath(); c.arc(gx, iy, ir, 0, Math.PI * 2); c.fillStyle = mix(eyeC, '#06040a', 0.55); c.fill();
-    const ig = c.createLinearGradient(0, iy + ir, 0, iy - ir); ig.addColorStop(0, mix(eyeC, '#06040a', 0.45)); ig.addColorStop(0.45, eyeC); ig.addColorStop(1, mix(eyeC, '#ffffff', 0.45));
-    c.beginPath(); c.arc(gx, iy, ir * 0.88, 0, Math.PI * 2); c.fillStyle = ig; c.fill();
-    c.beginPath(); c.arc(gx, iy + ir * 0.04, ir * 0.46, 0, Math.PI * 2); c.fillStyle = '#08060a'; c.fill();
-    c.beginPath(); c.arc(gx, iy - ir * 0.5, ir * 0.3, Math.PI * 1.1, Math.PI * 1.9); c.lineWidth = ir * 0.16; c.strokeStyle = rgba(mix(eyeC, '#ffffff', 0.7), 0.7); c.stroke();
+    const ir = ehBase * E.iris, iy = eh * 0.08 + (E.iris < 0.8 ? 0 : ehBase * 0.06), gzx = Math.max(-1, Math.min(1, (spec.gaze ?? 0) + (look.gaze?.[0] ?? 0))), gzy = look.gaze?.[1] ?? 0;
+    const gx = gzx * ew * 0.3 * sx, gy = gzy * eh * 0.28;
+    c.beginPath(); c.arc(gx, (iy + gy), ir, 0, Math.PI * 2); c.fillStyle = mix(eyeC, '#06040a', 0.55); c.fill();
+    const ig = c.createLinearGradient(0, (iy + gy) + ir, 0, (iy + gy) - ir); ig.addColorStop(0, mix(eyeC, '#06040a', 0.45)); ig.addColorStop(0.45, eyeC); ig.addColorStop(1, mix(eyeC, '#ffffff', 0.45));
+    c.beginPath(); c.arc(gx, (iy + gy), ir * 0.88, 0, Math.PI * 2); c.fillStyle = ig; c.fill();
+    c.beginPath(); c.arc(gx, (iy + gy) + ir * 0.04, ir * 0.46, 0, Math.PI * 2); c.fillStyle = '#08060a'; c.fill();
+    c.beginPath(); c.arc(gx, (iy + gy) - ir * 0.5, ir * 0.3, Math.PI * 1.1, Math.PI * 1.9); c.lineWidth = ir * 0.16; c.strokeStyle = rgba(mix(eyeC, '#ffffff', 0.7), 0.7); c.stroke();
     const lg = c.createLinearGradient(0, eh * 1.35 * up, 0, eh * 0.15); lg.addColorStop(0, 'rgba(24,12,20,0.6)'); lg.addColorStop(1, 'rgba(24,12,20,0)');
     c.fillStyle = lg; c.fillRect(-ew, eh * 0.15, ew * 2, eh * 1.3);                     // the lid's shade on the eye
-    c.beginPath(); c.arc(gx - ir * 0.34 * sx, iy + ir * 0.36, ir * 0.24, 0, Math.PI * 2); c.fillStyle = 'rgba(255,255,255,0.97)'; c.fill();
-    c.beginPath(); c.arc(gx + ir * 0.32 * sx, iy - ir * 0.32, ir * 0.11, 0, Math.PI * 2); c.fillStyle = 'rgba(255,255,255,0.75)'; c.fill();
+    c.beginPath(); c.arc(gx - ir * 0.34 * sx, (iy + gy) + ir * 0.36, ir * 0.17, 0, Math.PI * 2); c.fillStyle = 'rgba(255,255,255,0.92)'; c.fill();
+    c.beginPath(); c.arc(gx + ir * 0.32 * sx, (iy + gy) - ir * 0.32, ir * 0.07, 0, Math.PI * 2); c.fillStyle = 'rgba(255,255,255,0.5)'; c.fill();
     c.restore();
     // the lid line, drawn like a brush stroke: thin at the nose, full over the eye, carried out past the corner; lashes;
     // the crease above; a soft lower line

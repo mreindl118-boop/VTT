@@ -28,6 +28,9 @@ export type Euler3 = [number, number, number];
  *  the right hand or between both. Fields left out stay at rest. */
 export interface HeroPose {
   spine?: Euler3; neck?: Euler3; pelvis?: Euler3; collarR?: number; collarL?: number;
+  /** Where the eyes look, [across, up], each -1 to 1 (across runs toward the figure's left). Left out, the eyes follow
+   *  the head's carriage: see `eyeLine`. */
+  gaze?: [number, number];
   shoulderR?: Euler3; elbowR?: number; wristR?: Euler3; shoulderL?: Euler3; elbowL?: number; wristL?: Euler3;
   hipR?: Euler3; kneeR?: number; ankleR?: Euler3; hipL?: Euler3; kneeL?: number; ankleL?: Euler3;
   holdR?: { upright?: boolean; tilt?: Euler3 }; holdL?: { upright?: boolean; tilt?: Euler3 };
@@ -142,6 +145,8 @@ export interface HeroFigure {
   face?: FaceSpec; detail?: FaceDetail;
   /** A hairdo of the character's own (kit/hair.ts) in place of the standard `hairStyle`. */
   hairdo?: Hairdo;
+  /** The head's size against the body (1 = heroic proportion): larger on a squat, short figure. */
+  headSize?: number;
   /** Gear on the body's mounts (kit/weapons.ts): in either hand, sheathed or hung at the belt, slung on the back. A hand
    *  with gear replaces `weapon` (right) or `offhand` (left); an empty mount carries no geometry. */
   gear?: { handR?: WeaponSpec; handL?: WeaponSpec; beltR?: WeaponSpec; beltL?: WeaponSpec; back?: WeaponSpec };
@@ -203,18 +208,30 @@ function drape(rTop: number, rBot: number, h: number, c: string, o: { folds: num
 
 /** Faces are painted onto a clean head (the stylised look); false brings back the sculpted standard face below. */
 const PAINTED_FACES = true as boolean;
+/** Where a posed figure's eyes look, [across, up]. The eyes are never parked dead centre in a turned or tipped head.
+ *  At rest they lead the head: a head turned aside has the eyes a little further that way. In a fight they stay on the
+ *  foe in front, so a head carried round by the body's twist gives a sidelong look back. A dipped chin (or a stooped
+ *  back) looks up from under the brows; a raised chin looks down the nose. */
+export function eyeLine(P: HeroPose, battle: boolean): [number, number] {
+  if (P.gaze) return P.gaze;
+  const c = (v: number) => Math.max(-1, Math.min(1, v));
+  const yawHead = P.neck?.[1] ?? 0, yawBody = (P.spine?.[1] ?? 0) + (P.pelvis?.[1] ?? 0);
+  const pitch = (P.neck?.[0] ?? 0) + 0.6 * (P.spine?.[0] ?? 0);
+  const across = battle ? -(yawHead + yawBody) * 1.5 : Math.abs(yawHead) > 0.12 ? yawHead * 1.6 : -yawBody * 1.2;
+  return [c(across), c(pitch * 2.2)];
+}
 /** The head, sculpted like a miniature's: one shaped skull (temples, cheekbones over hollow cheeks, a brow over deep-set
  *  eyes, a jaw that is square on a masculine frame and tapered on a feminine one, a chin), a wedge of a nose, small
  *  shadowed eyes under lids, brows, lips with a philtrum, and ears. The eyes sit on the midline; brow, nose and chin
  *  split the face in thirds. Returns the face's depth at (x, y), to seat other features. */
-function buildFace(head: THREE.Group, s: number, hy: number, f: HeroFigure, fem = false, dead = false): (x: number, y: number) => number {
+function buildFace(head: THREE.Group, s: number, hy: number, f: HeroFigure, fem = false, dead = false, gaze?: [number, number]): (x: number, y: number) => number {
   const skin = f.skin ?? '#d9b899', shade = tone(skin, '#1e1216', 0.3), deep = tone(skin, '#1e1216', 0.5), hair = f.hair ?? '#3a2a1a';
   const lip = f.lips ?? tone(skin, '#8a3038', fem ? 0.4 : 0.2);
   if (f.face || PAINTED_FACES) {
     // the painted face (kit/faces.ts + kit/facepaint.ts), every figure's default; `face` gives a character its own
     // the character's own face (kit/faces.ts): the whole head from its recipe, with this figure's ears on it; the hair is
     // buildHair's, as for every other head
-    const fg = faceFeatures(f.face ?? {}, { skin, hair: f.hair, eyes: f.eyes, lips: f.lips, detail: f.detail ?? 2, fem, dead }); fg.scale.setScalar(0.4 * s); fg.position.set(0, hy, 0); head.add(fg);
+    const fg = faceFeatures(f.face ?? {}, { skin, hair: f.hair, eyes: f.eyes, lips: f.lips, detail: f.detail ?? 2, fem, dead, gaze }); fg.scale.setScalar(0.4 * s); fg.position.set(0, hy, 0); head.add(fg);
     if (f.ears !== 'pointed') for (const sx of [-1, 1]) { const e = sph(0.075 * s, skin); e.scale.set(0.42, 1, 0.65); head.add(at(e, sx * 0.345 * s, hy - 0.02 * s, -0.01 * s)); }
     return (x: number, y: number) => 0.345 - 1.4 * x * x - (y > 0 ? 1.0 : 0.45) * y * y;
   }
@@ -515,7 +532,13 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
   const hy = 2.82 * s; // the head's centre, in the upper body's frame
   const skin = f.skin ?? '#d9b899';
   const headAt = neck.position.y + head.position.y; // the head joint, in the upper body's frame
-  const surf = buildFace(head, s, hy - headAt, f, fr.fem, dead);
+  // the pose: out of initiative its rest pose (on a gown, weight on the right leg, the left knee forward in the slit); in
+  // initiative its battle pose; every joint from the recipe's angles or a named preset
+  const named = (p: PoseName | HeroPose | undefined) => typeof p === 'string' ? POSES[p] ?? POSES.rest : p;
+  let P: HeroPose = dead ? named(f.deadPose) ?? POSES.dead : (battle ? named(f.battlePose ?? f.stance) : undefined) ?? named(f.pose) ?? POSES.rest;
+  if (P === POSES.rest) { let h = 0; for (const ch of (f.skin ?? '') + (f.hair ?? '') + (f.cloth ?? '') + (f.weapon ?? '')) h = (h * 31 + ch.charCodeAt(0)) >>> 0; P = gown ? GOWN_EASE : AT_EASE[h % AT_EASE.length]; }
+  if (f.headSize) head.scale.setScalar(f.headSize);
+  const surf = buildFace(head, s, hy - headAt, f, fr.fem, dead, eyeLine(P, battle));
   const [R, Lf] = arm;
   // a group in each hand for what it holds: upright while the forearm hangs at rest
   const holder = (l: Limb) => { const g = new THREE.Group(); g.position.set(0, -0.14 * s, 0.05 * s); g.rotation.set(-(l.root.rotation.x + l.mid.rotation.x), 0, -Math.sign(l.root.position.x) * 0.08); l.end.add(g); return g; };
@@ -773,11 +796,6 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
     }
   }
 
-  // the pose: out of initiative its rest pose (on a gown, weight on the right leg, the left knee forward in the slit); in
-  // initiative its battle pose; every joint from the recipe's angles or a named preset
-  const named = (p: PoseName | HeroPose | undefined) => typeof p === 'string' ? POSES[p] ?? POSES.rest : p;
-  let P: HeroPose = dead ? named(f.deadPose) ?? POSES.dead : (battle ? named(f.battlePose ?? f.stance) : undefined) ?? named(f.pose) ?? POSES.rest;
-  if (P === POSES.rest) { let h = 0; for (const ch of (f.skin ?? '') + (f.hair ?? '') + (f.cloth ?? '') + (f.weapon ?? '')) h = (h * 31 + ch.charCodeAt(0)) >>> 0; P = gown ? GOWN_EASE : AT_EASE[h % AT_EASE.length]; }
   const mir = (e: Euler3 | undefined, sx: number, d: Euler3): Euler3 => e ? [e[0], e[1] * sx, e[2] * sx] : [d[0], d[1] * sx, d[2] * sx];
   if (P.spine) up.rotation.set(...P.spine);
   if (P.pelvis) pel.rotation.set(...P.pelvis);

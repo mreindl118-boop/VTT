@@ -156,6 +156,8 @@ const ARMS: Record<string, Arm> = {
   brace: { sh: [-1.0, -0.3, 0.2], el: -1.1 },
 };
 const LOOKS: Record<string, [number, number, number]> = { L: [0, 0.35, 0], R: [0, -0.35, 0], up: [-0.22, 0, 0], down: [0.22, 0, 0], tilt: [0, 0, 0.16], tiltL: [0, 0, 0.16], tiltR: [0, 0, -0.16], ahead: [0, 0, 0] };
+/** Where the eyes go when the pose says so (`eyes:`): otherwise they follow the head (heroes.ts eyeLine). */
+const EYELINES: Record<string, [number, number]> = { L: [0.8, 0], R: [-0.8, 0], up: [0, 0.8], down: [0, -0.8], ahead: [0, 0], glare: [0, 0.7], sideL: [0.9, 0.15], sideR: [-0.9, 0.15], awayL: [0.7, -0.5], awayR: [-0.7, -0.5] };
 /** Arms that draw the eye: the head turns a little toward the hand that is doing something. */
 const POINTED = ['beckon', 'offer', 'command', 'cast', 'claw', 'guard', 'point', 'lowguard', 'ward', 'high', 'staff'];
 /** Put a pose together from its words: a stance, a carriage, `R:` and `L:` arms, `look:` for the head, `spell` for a
@@ -169,6 +171,7 @@ export function compose(words: string): HeroPose {
     else if (w === 'spellL') out.spell = 'left';
     else if (w === 'float') out.lift = 0.9;
     else if (w === 'two') out.twoHand = true;
+    else if (/^eyes:/.test(w)) { const k = EYELINES[w.slice(5)]; if (k) out.gaze = k; }
     else if (/^look:/.test(w)) { const k = LOOKS[w.slice(5)], n = (out.neck as number[] | undefined) ?? [0, 0, 0]; if (k) out.neck = [n[0] + k[0], n[1] + k[1], n[2] + k[2]]; }
     else if (/^[RL]:/.test(w)) {
       const side = w[0], name = w.slice(2);
@@ -191,7 +194,7 @@ export function compose(words: string): HeroPose {
 
 /** Whether every word of a composed pose is one this file knows (the test's check on the manifest). */
 export function composedOk(words: string): boolean {
-  return words.trim().split(/\s+/).every((w) => !!STANCES[w] || !!TORSOS[w] || ['spell', 'spellL', 'float', 'two'].includes(w) || (/^look:/.test(w) && w.slice(5) in LOOKS) || (/^[RL]:/.test(w) && (w[2] === '@' || w.slice(2) in ARMS)));
+  return words.trim().split(/\s+/).every((w) => !!STANCES[w] || !!TORSOS[w] || ['spell', 'spellL', 'float', 'two'].includes(w) || (/^look:/.test(w) && w.slice(5) in LOOKS) || (/^eyes:/.test(w) && w.slice(5) in EYELINES) || (/^[RL]:/.test(w) && (w[2] === '@' || w.slice(2) in ARMS)));
 }
 export function posed<T extends { pose?: unknown; battlePose?: unknown }>(f: T): T {
   const fix = (p: unknown) => (typeof p !== 'string' ? p : p in NPC_POSES ? NPC_POSES[p as NpcPoseName] : /[ :]/.test(p) ? compose(p) : p);
