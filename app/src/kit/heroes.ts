@@ -435,13 +435,8 @@ function buildHair(head: THREE.Group, s: number, hy: number, f: HeroFigure, fem:
       const az = sx * (0.95 + k * 0.16), top = scalp(az, 0.35, 1.1), len = (fem ? 0.72 : 0.5) - k * 0.15;
       lock([crown(az), scalp(az, 0.85, 1.1), top, new THREE.Vector3(top.x * 1.05, top.y - 0.3 * s, top.z + 0.05 * s), new THREE.Vector3(top.x * 1.0, top.y - len * 0.7 * s, top.z + 0.12 * s), new THREE.Vector3(top.x * 0.92, top.y - len * s, top.z + 0.16 * s)], 0.05, 0.014, k, sx === RX && k === 0 ? f.hairStreak : undefined);
     }
-    if (style === 'braids') for (const sx of [-1, 1]) {
-      // two strands roped round each other down over the shoulder, bound twice, ending in a tuft
-      const a = scalp(sx * 1.9, -0.32, 1.12), path = (t: number) => new THREE.Vector3(a.x + sx * 0.05 * t * s, a.y - 1.25 * t * s, a.z + (0.3 * Math.sin(Math.min(1, t * 1.6) * Math.PI / 2)) * s);
-      for (let k = 0; k < 2; k++) { const pts: THREE.Vector3[] = []; for (let i = 0; i <= 28; i++) { const t = i / 28, c = path(t), ph = t * 20 + k * Math.PI, rr = 0.045 * (1 - 0.35 * t) * s; pts.push(new THREE.Vector3(c.x + Math.cos(ph) * rr, c.y, c.z + Math.sin(ph) * rr)); } head.add(sm(lockGeometry(pts, 0.05 * s, 0.03 * s, 0.9, 7, 0), k ? H : tone(H, '#000000', 0.14), true)); }
-      for (const t of [0.42, 0.9]) { const c = path(t), band = sm(new THREE.TorusGeometry(0.075 * (1 - 0.3 * t) * s, 0.018 * s, 6, 16), '#b8bec8'); band.rotation.x = Math.PI / 2; head.add(at(band, c.x, c.y, c.z)); }
-      const e = path(1); for (let k = 0; k < 5; k++) lock([e, new THREE.Vector3(e.x + (k - 2) * 0.02 * s, e.y - 0.1 * s, e.z + 0.01 * s), new THREE.Vector3(e.x + (k - 2) * 0.035 * s, e.y - 0.2 * s, e.z)], 0.03, 0.006, k);
-    }
+    // the braids themselves hang from behind the ears once the figure is posed (drapeBraids), over whatever it wears
+    if (style === 'braids') head.userData.braids = { color: H, from: [-1, 1].map((sx) => ({ sx, at: scalp(sx * 1.9, -0.32, 1.12) })) };
   }
   if (style === 'curly') {
     // a mass of coils: each a little spiral springing off the scalp, bigger on top, hanging lower behind
@@ -451,6 +446,63 @@ function buildHair(head: THREE.Group, s: number, hy: number, f: HeroFigure, fem:
       const pts: THREE.Vector3[] = []; for (let k = 0; k <= 14; k++) { const t = k / 14, ph = t * turns * Math.PI * 2 + i; pts.push(root.clone().addScaledVector(out, len * t * s).addScaledVector(side, Math.cos(ph) * rr * s).addScaledVector(upv, Math.sin(ph) * rr * s).add(new THREE.Vector3(0, -len * 0.35 * t * t * s, 0))); }
       lock(pts, 0.04, 0.02, i, streakAt(az), 0.8);
     }
+  }
+}
+
+/** Braids hung from behind the ears once the figure is posed: two strands roped round each other down over the
+ *  shoulder, bound twice, ending in a tuft, laid over whatever the chest and neck wear (a gorget, a breastplate, a bust,
+ *  a cloak's mantle) instead of through it. Each point of the hang is cast out from behind the neck and lifted onto the
+ *  outermost surface it would sink under, then the line is smoothed and lifted again. Built in the chest's frame, so
+ *  the braids lie on the body and their tops meet the head however it is turned. */
+function drapeBraids(up: THREE.Object3D, neck: THREE.Object3D, head: THREE.Object3D, s: number): void {
+  const b = head.userData.braids as { color: string; from: { sx: number; at: THREE.Vector3 }[] } | undefined; if (!b) return;
+  up.updateMatrixWorld(true);
+  const H = b.color, rr = (t: number) => 0.045 * (1 - 0.35 * t) * s, room = (t: number) => rr(t) + 0.055 * s, back = -0.6 * s;
+  // the surfaces the braids may lie on, as one list of triangles in the chest's frame: the chest's and the neck's own
+  // parts, only where the braids hang (the front, between the shoulders, from the ears down)
+  const tops = b.from.map(({ at: a0 }) => up.worldToLocal(head.localToWorld(a0.clone())).y), y1 = Math.max(...tops) + 0.1 * s, y0 = Math.min(...tops) - 1.5 * s;
+  const tri: number[] = [], toUp = new THREE.Matrix4().copy(up.matrixWorld).invert(), m4 = new THREE.Matrix4(), v = new THREE.Vector3();
+  for (const m of [...up.children, ...neck.children]) {
+    if (!(m as M).isMesh || ((m as M).material as THREE.Material).transparent) continue;
+    const g = (m as M).geometry, pos = g.getAttribute('position') as THREE.BufferAttribute, idx = g.index, P = new Float32Array(pos.count * 3);
+    m4.multiplyMatrices(toUp, m.matrixWorld);
+    for (let i = 0; i < pos.count; i++) { v.fromBufferAttribute(pos, i).applyMatrix4(m4); P[i * 3] = v.x; P[i * 3 + 1] = v.y; P[i * 3 + 2] = v.z; }
+    const n = idx ? idx.count : pos.count;
+    for (let i = 0; i < n; i += 3) {
+      const A = (idx ? idx.getX(i) : i) * 3, B = (idx ? idx.getX(i + 1) : i + 1) * 3, C = (idx ? idx.getX(i + 2) : i + 2) * 3;
+      if (Math.max(P[A + 1], P[B + 1], P[C + 1]) < y0 || Math.min(P[A + 1], P[B + 1], P[C + 1]) > y1 || Math.max(P[A + 2], P[B + 2], P[C + 2]) < -0.2 * s || Math.min(Math.abs(P[A]), Math.abs(P[B]), Math.abs(P[C])) > 1.1 * s) continue;
+      tri.push(P[A], P[A + 1], P[A + 2], P[B], P[B + 1], P[B + 2], P[C], P[C + 1], P[C + 2]);
+    }
+  }
+  // how far out from the line behind the neck the outermost surface lies, along a level ray at height y toward (dx, dz)
+  const outermost = (y: number, dx: number, dz: number) => {
+    let far = 0;
+    for (let i = 0; i < tri.length; i += 9) {
+      const e1x = tri[i + 3] - tri[i], e1y = tri[i + 4] - tri[i + 1], e1z = tri[i + 5] - tri[i + 2], e2x = tri[i + 6] - tri[i], e2y = tri[i + 7] - tri[i + 1], e2z = tri[i + 8] - tri[i + 2];
+      const px = -dz * e2y, py = dz * e2x - dx * e2z, pz = dx * e2y, det = e1x * px + e1y * py + e1z * pz; if (Math.abs(det) < 1e-12) continue;
+      const tx = -tri[i], ty = y - tri[i + 1], tz = back - tri[i + 2], u = (tx * px + ty * py + tz * pz) / det; if (u < 0 || u > 1) continue;
+      const qx = ty * e1z - tz * e1y, qy = tz * e1x - tx * e1z, qz = tx * e1y - ty * e1x, w = (dx * qx + dz * qz) / det; if (w < 0 || u + w > 1) continue;
+      const d = (e2x * qx + e2y * qy + e2z * qz) / det; if (d > far) far = d;
+    }
+    return far;
+  };
+  // (cast from behind the neck, so a point sunk in the shoulders comes out over the front of them, not off their side)
+  const lift = (path: THREE.Vector3[]) => path.forEach((p, i) => {
+    if (i === 0) return;
+    const dx = p.x, dz = p.z - back, d = Math.hypot(dx, dz); if (d < 1e-6) return;
+    const want = outermost(p.y, dx / d, dz / d) + room(i / (path.length - 1));
+    if (d < want) p.set(dx / d * want, p.y, back + dz / d * want);
+  });
+  for (const { sx, at: a0 } of b.from) {
+    const a = up.worldToLocal(head.localToWorld(a0.clone())), path: THREE.Vector3[] = [];
+    for (let i = 0; i <= 28; i++) { const t = i / 28; path.push(new THREE.Vector3(a.x + sx * 0.05 * t * s, a.y - 1.25 * t * s, a.z + 0.3 * Math.sin(Math.min(1, t * 1.6) * Math.PI / 2) * s)); }
+    lift(path);
+    for (let it = 0; it < 3; it++) { const q = path.map((p) => p.clone()); for (let i = 1; i < path.length - 1; i++) path[i].copy(q[i - 1]).add(q[i + 1]).addScaledVector(q[i], 2).multiplyScalar(0.25); lift(path); }
+    const at2 = (t: number) => { const f = t * (path.length - 1), i = Math.min(path.length - 2, Math.floor(f)); return path[i].clone().lerp(path[i + 1], f - i); };
+    for (let k = 0; k < 2; k++) { const pts: THREE.Vector3[] = []; for (let i = 0; i <= 28; i++) { const t = i / 28, c = path[i], ph = t * 20 + k * Math.PI; pts.push(new THREE.Vector3(c.x + Math.cos(ph) * rr(t), c.y, c.z + Math.sin(ph) * rr(t))); } up.add(sm(lockGeometry(pts, 0.05 * s, 0.03 * s, 0.9, 7, 0), k ? H : tone(H, '#000000', 0.14), true)); }
+    for (const t of [0.42, 0.9]) { const c = at2(t), band = sm(new THREE.TorusGeometry(0.075 * (1 - 0.3 * t) * s, 0.018 * s, 6, 16), '#b8bec8'); band.rotation.x = Math.PI / 2; up.add(at(band, c.x, c.y, c.z)); }
+    const e = path[path.length - 1], shade = (i: number) => i % 3 === 0 ? tone(H, '#ffffff', 0.1) : i % 3 === 1 ? H : tone(H, '#000000', 0.14);
+    for (let k = 0; k < 5; k++) up.add(sm(lockGeometry([e, new THREE.Vector3(e.x + (k - 2) * 0.02 * s, e.y - 0.1 * s, e.z + 0.01 * s), new THREE.Vector3(e.x + (k - 2) * 0.035 * s, e.y - 0.2 * s, e.z)], 0.03 * s, 0.006 * s, 0.5, 6), shade(k), true));
   }
 }
 
@@ -1113,6 +1165,7 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
     const p = new THREE.Vector3(); for (const l of arm) p.add(l.hand.getWorldPosition(new THREE.Vector3())); p.multiplyScalar(0.5);
     const q = up.worldToLocal(p); q.z += 0.35 * s; q.y += 0.15 * s; glowAt(up, q, 0.24);
   }
+  drapeBraids(up, neck, head, s);
   const joints: Record<string, THREE.Object3D> = {};
   body.traverse((o) => { if (o.name) joints[o.name] = o; });
   body.userData.joints = joints;
