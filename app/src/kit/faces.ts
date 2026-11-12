@@ -42,15 +42,24 @@ export interface FaceSpec {
    *  faint lines, short smile lines and a crow's foot at each eye, for a face that has seen weather or laughed a lot. */
   age?: number;
   scars?: Scar[]; eyepatch?: 'L' | 'R'; warts?: boolean; mole?: 'L' | 'R';
-  /** Colours: veins at the temples, shadow on the lids, a flush on the cheeks (false for none: a weathered or a pallid
-   *  face), spectacle rims. Lashes are drawn on a feminine face and not on a masculine one unless this says otherwise. */
-  veins?: string; shadow?: string; blush?: string | false; spectacles?: string; lashes?: boolean;
+  /** Veins: a colour paints them at the temples; a VeinMark (or several) paints a branching pattern on one side or both
+   *  (a hexblood's marks, a curse spreading, an undead's veins). */
+  veins?: string | VeinMark | VeinMark[];
+  /** Colours: shadow on the lids, a flush on the cheeks (false for none: a weathered or a pallid face), spectacle rims.
+   *  Lashes are drawn on a feminine face and not on a masculine one unless this says otherwise. */
+  shadow?: string; blush?: string | false; spectacles?: string; lashes?: boolean;
   /** No hair cap on the head. */
   bald?: boolean;
   /** The ears: longer (1) or shorter (-1); and how far they stand out from the head, from lying back along it (0) to
    *  sticking straight out sideways through the hair (1), as an elf's or a fairy's often do in their art. */
   earLen?: number; earOut?: number;
 }
+
+/** A branching pattern of veins painted on the face: its colour; the side it spreads over, the figure's own ('L', 'R',
+ *  or 'both', the default); where it spreads from (cheek: from the cheekbone down to the jaw, the default; jaw: along
+ *  the jaw toward the chin; temple: from the temple down past the eye; brow: over the brow; eye: out from the eye's
+ *  corner); and how far it spreads, 0 to 1 (0.7 when left out). Each side branches differently. */
+export interface VeinMark { color: string; side?: 'L' | 'R' | 'both'; region?: 'cheek' | 'jaw' | 'temple' | 'brow' | 'eye'; size?: number }
 
 export interface FaceLook { skin: string; hair?: string; eyes?: string; lips?: string; detail?: FaceDetail; /** Sculpted on the feminine frame (a softer jaw and brow, fuller lips, larger eyes). */ fem?: boolean; /** Crossed-out eyes. */ dead?: boolean }
 

@@ -192,7 +192,32 @@ export function paintFace(spec: FaceSpec, look: PaintLook): THREE.Texture | null
   if (age > 0.3) for (const sx of [-1, 1]) stroke([[sx * 0.055, -0.15], [sx * (hw + 0.03), -0.2], [sx * (hw + 0.028), -0.29]], 0.005 + 0.004 * age, shade, 0.35 + 0.4 * age);
   if (age > 0.5) for (let i = 0; i < 3; i++) stroke([[-0.15 + i * 0.02, 0.2 + i * 0.045], [0, 0.208 + i * 0.045], [0.15 - i * 0.02, 0.2 + i * 0.045]], 0.005, shade, 0.3 + 0.35 * age);
   if (age > 0.45) for (const sx of [-1, 1]) for (const k of [-1, 0, 1]) stroke([[sx * (ex + ew * 1.25), k * 0.008], [sx * (ex + ew * 1.25 + 0.03), k * 0.024]], 0.004, shade, 0.5);
-  if (spec.veins) for (const sx of [-1, 1]) stroke([[sx * 0.3, 0.24], [sx * 0.27, 0.16], [sx * 0.285, 0.12], [sx * 0.25, 0.08]], 0.005, spec.veins, 0.7);
+  if (typeof spec.veins === 'string') for (const sx of [-1, 1]) stroke([[sx * 0.3, 0.24], [sx * 0.27, 0.16], [sx * 0.285, 0.12], [sx * 0.25, 0.08]], 0.005, spec.veins, 0.7);
+  else if (spec.veins) {
+    // a branching pattern: a trunk wandering from its root, forking as it goes, each fork finer, over a faint bruise
+    // of its colour; seeded by its region and side, so it is the same every time and each side branches differently
+    const FROM = { cheek: [0.175, -0.04, -1.8, 0.3], jaw: [0.23, -0.18, -2.3, 0.26], temple: [0.28, 0.24, -1.65, 0.24], brow: [0.06, 0.3, 0.3, 0.2], eye: [ex + ew * 1.15, -0.01, -0.55, 0.18] } as const;
+    for (const m of Array.isArray(spec.veins) ? spec.veins : [spec.veins]) {
+      const region = m.region ?? 'cheek', [rx, ry, ra, rl] = FROM[region], size = Math.max(0, Math.min(1, m.size ?? 0.7));
+      const core = mix(m.color, skin, 0.08);
+      for (const sx of m.side === 'L' ? [1] : m.side === 'R' ? [-1] : [-1, 1]) {
+        let seed = 17; for (const ch of region + sx) seed = (seed * 31 + ch.charCodeAt(0)) % 233280;
+        const rnd = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; };
+        const vein = (x: number, y: number, a: number, len: number, w: number, depth: number) => {
+          const n = 6, step = len / n, path: [number, number][] = [[x, y]];
+          for (let i = 0; i < n; i++) {
+            a += (rnd() - 0.5) * 0.8;
+            const [px, py] = path[path.length - 1], nx = px + Math.cos(a) * step * sx, ny = py + Math.sin(a) * step;
+            path.push([nx, ny]);
+            if (depth > 0 && i > 0 && rnd() < 0.45) vein(nx, ny, a + (rnd() < 0.5 ? -1 : 1) * (0.45 + 0.5 * rnd()), len * (0.32 + 0.25 * rnd()), w * (1 - 0.6 * i / n) * 0.75, depth - 1);
+          }
+          if (depth >= 1) { c.beginPath(); c.moveTo(path[0][0], path[0][1]); for (const p of path.slice(1)) c.lineTo(p[0], p[1]); c.lineWidth = w * 3; c.strokeStyle = rgba(m.color, 0.2); c.stroke(); }
+          for (let i = 1; i < path.length; i++) stroke([path[i - 1], path[i]], w * (1 - 0.6 * (i - 1) / n), core, 1);
+        };
+        vein(sx * rx, ry, ra, rl * (0.55 + 0.65 * size), 0.019, size >= 0.5 ? 2 : 1);
+      }
+    }
+  }
   const scarC = mix(skin, '#a04848', 0.55);
   for (const s of spec.scars ?? []) {
     const sx = /L$/.test(s) ? 1 : -1;
