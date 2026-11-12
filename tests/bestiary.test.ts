@@ -32,11 +32,11 @@ describe('creature repository', () => {
   });
   it('every creature builds a miniature at rest, in battle and dead, and the monster registries name real creatures', { timeout: 120000 }, async () => {
     const { FOLK, MENAGERIE } = await import('../app/src/kit/menagerie');
-    const { NPC_POSES } = await import('../app/src/kit/poses');
+    const { NPC_POSES, composedOk } = await import('../app/src/kit/poses');
     const { POSES } = await import('../app/src/kit/heroes');
     const ids = new Set(BESTIARY.map((e) => e.id));
     for (const id of [...Object.keys(FOLK), ...Object.keys(MENAGERIE)]) expect(ids.has(id), id).toBe(true);
-    const known = (p: unknown) => typeof p !== 'string' || p in NPC_POSES || p in POSES;
+    const known = (p: unknown) => typeof p !== 'string' || p in NPC_POSES || p in POSES || (/[ :]/.test(p) && composedOk(p));
     for (const e of BESTIARY) {
       if (e.hero) { expect(known(e.hero.pose), `${e.id} pose`).toBe(true); expect(known(e.hero.battlePose), `${e.id} battle pose`).toBe(true); }
       for (const battle of [false, true, 'dead'] as const) { let n = 0; figureFor(e, battle, 'token-1').traverse((o) => { if ((o as { isMesh?: boolean }).isMesh) n++; }); expect(n, `${e.id} ${battle}`).toBeGreaterThan(0); }

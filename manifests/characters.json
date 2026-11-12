@@ -83,7 +83,7 @@
       "guard": "curved"
      }
     },
-    "pose": "regal",
+    "pose": "weightR haughty R:chest L:hilt",
     "battlePose": "vampire-lord",
     "frame": "masculine",
     "build": "broad",
@@ -290,8 +290,8 @@
       "grip": "#7a1c22"
      }
     },
-    "pose": "rest",
-    "battlePose": "duelist",
+    "pose": "demure easy R:skirt L:chest look:L",
+    "battlePose": "retreat recoil R:guard L:ward",
     "frame": "feminine",
     "build": "curvy"
    },
@@ -360,7 +360,7 @@
       "kind": "crossbow"
      }
     },
-    "pose": "hands-on-hips",
+    "pose": "weightR easy R:hang L:hilt",
     "battlePose": "shield",
     "frame": "masculine",
     "build": "broad"
@@ -533,7 +533,7 @@
       "fittings": "#c8ccd4"
      }
     },
-    "pose": "hands-on-hips",
+    "pose": "weightL sway R:hip L:hang look:L",
     "battlePose": "duelist",
     "frame": "feminine",
     "build": "curvy"
@@ -606,8 +606,8 @@
       "grip": "#2a1a12"
      }
     },
-    "pose": "leaning",
-    "battlePose": "duelist",
+    "pose": "stand easy R:chin L:book",
+    "battlePose": "ready turnL R:guard L:book",
     "frame": "masculine",
     "hairdo": {
      "style": "swept",
@@ -671,8 +671,8 @@
      "age": 1,
      "mole": "L"
     },
-    "pose": "hunched",
-    "battlePose": "curse",
+    "pose": "old stoop R:offer L:hang",
+    "battlePose": "old stoop R:claw L:ward spell",
     "frame": "feminine",
     "hairdo": {
      "style": "bun"
@@ -724,7 +724,7 @@
      "smile": 0.3,
      "lashes": true
     },
-    "pose": "behind-back",
+    "pose": "stand proud R:offer L:offer",
     "battlePose": "rebuke",
     "frame": "masculine",
     "build": "broad"
@@ -817,7 +817,7 @@
       "length": 0.9
      }
     },
-    "pose": "hunched",
+    "pose": "old stoop R:staff L:claw",
     "battlePose": "curse",
     "frame": "feminine",
     "hairdo": {
@@ -884,7 +884,7 @@
       "grip": "#3a2e22"
      }
     },
-    "pose": "leaning",
+    "pose": "weightL bowed R:staff L:hang",
     "battlePose": "staff-cast",
     "frame": "masculine",
     "concealed": true
@@ -953,7 +953,7 @@
       "wear": 0.4
      }
     },
-    "pose": "arms-folded",
+    "pose": "wide proud R:folded L:foldedLow",
     "battlePose": "overhead",
     "frame": "masculine",
     "build": "broad"
@@ -1019,7 +1019,7 @@
       "wear": 0.5
      }
     },
-    "pose": "rest",
+    "pose": "weightR easy R:hang L:hilt",
     "battlePose": "shield",
     "frame": "masculine",
     "build": "broad"
@@ -1085,8 +1085,8 @@
       "wear": 0.5
      }
     },
-    "pose": "arms-folded",
-    "battlePose": "windup",
+    "pose": "wide intent R:folded L:foldedLow",
+    "battlePose": "braced intent R:raised L:brace",
     "frame": "masculine",
     "build": "broad"
    },
@@ -1148,8 +1148,8 @@
       "grip": "#2a1a1a"
      }
     },
-    "pose": "hands-on-hips",
-    "battlePose": "duelist",
+    "pose": "wide haughty R:hip L:hip",
+    "battlePose": "retreat recoil R:point L:balance",
     "frame": "masculine",
     "hairdo": {
      "style": "swept",
@@ -1287,7 +1287,7 @@
       "length": 0.85
      }
     },
-    "pose": "behind-back",
+    "pose": "weightR haughty R:hip L:skirt",
     "battlePose": "rebuke",
     "frame": "feminine",
     "build": "curvy",
@@ -1404,8 +1404,8 @@
       "grip": "#3a2a20"
      }
     },
-    "pose": "arms-folded",
-    "battlePose": "menace",
+    "pose": "weightL easy R:folded L:foldedLow",
+    "battlePose": "ready intent R:claw L:ward",
     "frame": "masculine",
     "build": "broad"
    },
@@ -1453,8 +1453,8 @@
       "grip": "#3a2a20"
      }
     },
-    "pose": "hands-on-hips",
-    "battlePose": "menace",
+    "pose": "weightR easy R:hip L:hang",
+    "battlePose": "ready turnL R:ward L:claw",
     "frame": "feminine",
     "build": "curvy"
    },
@@ -1489,7 +1489,7 @@
      "cheekbones": -0.3,
      "smile": 0.4
     },
-    "pose": "rest",
+    "pose": "stand easy R:hang L:hang look:up",
     "battlePose": "cower",
     "frame": "masculine"
    },
@@ -1530,7 +1530,7 @@
      "smile": -0.1,
      "mole": "R"
     },
-    "pose": "rest",
+    "pose": "stand easy R:hang L:chest look:up",
     "battlePose": "cower",
     "frame": "masculine"
    },
@@ -1593,7 +1593,7 @@
       "grip": "#2e4a46"
      }
     },
-    "pose": "leaning",
+    "pose": "weightL bowed R:staff L:hang",
     "battlePose": "staff-raised",
     "frame": "masculine"
    },
@@ -1645,7 +1645,7 @@
       "grip": "#5a4a32"
      }
     },
-    "pose": "arms-folded",
+    "pose": "weightL easy R:folded L:foldedLow look:L",
     "battlePose": "slash",
     "frame": "masculine",
     "build": "broad"
@@ -1699,8 +1699,8 @@
       "grip": "#4a4232"
      }
     },
-    "pose": "behind-back",
-    "battlePose": "slash",
+    "pose": "stand intent R:hang L:hilt look:R",
+    "battlePose": "ready intent R:lowguard L:brace",
     "frame": "masculine",
     "build": "broad"
    }
@@ -1764,8 +1764,8 @@
      "age": 1,
      "warts": true
     },
-    "pose": "hunched",
-    "battlePose": "curse",
+    "pose": "old stoop R:offer L:skirt",
+    "battlePose": "old stoop R:claw L:claw spell",
     "frame": "feminine",
     "hairdo": {
      "style": "wild",
@@ -1950,7 +1950,7 @@
       "fittings": "#d8b040"
      }
     },
-    "pose": "hands-on-hips",
+    "pose": "wide proud R:hip L:hip",
     "battlePose": "slash",
     "frame": "masculine",
     "build": "broad"
@@ -2014,7 +2014,7 @@
       "length": 0.8
      }
     },
-    "pose": "arms-folded",
+    "pose": "weightR easy R:folded L:foldedLow look:R",
     "battlePose": "duelist",
     "frame": "masculine",
     "build": "broad",
@@ -2121,7 +2121,7 @@
       "wear": 0.3
      }
     },
-    "pose": "leaning",
+    "pose": "weightL intent R:hang L:hip",
     "battlePose": "thrust",
     "frame": "masculine",
     "build": "broad"
@@ -2180,7 +2180,7 @@
       "grip": "#5a3a26"
      }
     },
-    "pose": "leaning",
+    "pose": "weightR easy R:hang L:chest",
     "battlePose": "thrust",
     "frame": "feminine",
     "build": "curvy"
@@ -2281,7 +2281,7 @@
       "grip": "#3a2e22"
      }
     },
-    "pose": "leaning",
+    "pose": "weightL haughty R:staff L:hip",
     "battlePose": "staff-cast",
     "frame": "masculine",
     "concealed": true
@@ -2336,7 +2336,7 @@
       "grip": "#6a1e2a"
      }
     },
-    "pose": "rest",
+    "pose": "stand easy R:offer L:offer look:tilt",
     "battlePose": "brawl",
     "frame": "masculine"
    },
@@ -2392,7 +2392,7 @@
      "fangs": true,
      "lashes": true
     },
-    "pose": "hands-on-hips",
+    "pose": "weightL sway R:hip L:hang look:tilt",
     "battlePose": "feral",
     "frame": "masculine",
     "build": "broad"
@@ -2443,8 +2443,8 @@
      "lashes": true,
      "shadow": "#5a4a6a"
     },
-    "pose": "regal",
-    "battlePose": "feral",
+    "pose": "weightR haughty R:chest L:skirt",
+    "battlePose": "ready intent R:cast L:claw spell",
     "frame": "feminine",
     "build": "curvy"
    }
@@ -2497,8 +2497,8 @@
      "lashes": true,
      "shadow": "#c8a850"
     },
-    "pose": "hands-on-hips",
-    "battlePose": "feral",
+    "pose": "weightL sway R:skirt L:hip",
+    "battlePose": "ready intent R:claw L:claw",
     "frame": "feminine",
     "build": "curvy"
    }
@@ -2552,8 +2552,8 @@
      "shadow": "#1a1a1a",
      "veins": "#3a3a4a"
     },
-    "pose": "arms-folded",
-    "battlePose": "feral",
+    "pose": "stride intent R:claw L:hang look:tilt",
+    "battlePose": "ready low R:claw L:claw look:tilt",
     "frame": "feminine",
     "build": "curvy"
    }
@@ -2644,8 +2644,8 @@
      "smile": -0.2,
      "lashes": true
     },
-    "pose": "wringing",
-    "battlePose": "wringing",
+    "pose": "demure bowed R:chest L:skirt",
+    "battlePose": "retreat recoil R:ward L:chest",
     "frame": "feminine",
     "build": "curvy"
    },
@@ -2920,7 +2920,7 @@
      "blush": "#d88a8a",
      "lashes": true
     },
-    "pose": "rest",
+    "pose": "demure easy R:skirt L:skirt look:up",
     "battlePose": "wringing",
     "frame": "feminine",
     "build": "curvy"
@@ -3007,7 +3007,7 @@
       "wear": 0.5
      }
     },
-    "pose": "leaning",
+    "pose": "weightL bowed R:staff L:hang",
     "battlePose": "brawl",
     "frame": "masculine"
    },
@@ -3085,7 +3085,7 @@
       "grip": "#3a2a2a"
      }
     },
-    "pose": "behind-back",
+    "pose": "weightR proud R:hang L:hilt",
     "battlePose": "duelist",
     "frame": "masculine",
     "build": "broad"
@@ -3132,7 +3132,7 @@
       "grip": "#3a3a42"
      }
     },
-    "pose": "hands-on-hips",
+    "pose": "weightL proud R:hip L:hang",
     "battlePose": "duelist",
     "frame": "feminine",
     "build": "curvy"
@@ -3191,7 +3191,7 @@
      }
     },
     "pose": "hunched",
-    "battlePose": "menace",
+    "battlePose": "crouch intent R:claw L:hang",
     "frame": "masculine",
     "concealed": true
    },

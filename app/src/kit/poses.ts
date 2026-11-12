@@ -90,7 +90,98 @@ export function deadPose(name: unknown, seed = ''): HeroPose | string {
 
 /** A figure recipe whose `pose` and `battlePose` may name one of these poses: the same recipe with those names replaced
  *  by their joint angles, so the shared rig (which knows only its own names) can build it. */
+// ---- poses put together per character -------------------------------------------------------------------------------
+// A character's pose is written in the manifest as a few words: how they stand, how they carry their back and head, and
+// what each arm is doing, e.g. "weightR haughty R:beckon L:hilt". Each word is one checked piece, so every character can
+// have a pose of their own without a hand-tuned set of angles apiece.
+type Arm = { sh: [number, number, number]; el: number; wr?: [number, number, number]; hold?: HeroPose['holdR'] };
+const STANCES: Record<string, HeroPose> = {
+  stand: { hipR: [0, 0, 0.05], hipL: [0, 0, 0.05] },
+  weightR: { pelvis: [0, 0, -0.05], hipR: [0.03, 0, 0.02], hipL: [-0.18, 0, 0.12], kneeL: 0.32 },
+  weightL: { pelvis: [0, 0, 0.05], hipL: [0.03, 0, 0.02], hipR: [-0.18, 0, 0.12], kneeR: 0.32 },
+  wide: { hipR: [0, 0, 0.2], hipL: [0, 0, 0.2] },
+  stride: { hipR: [-0.3, 0, 0.06], kneeR: 0.28, hipL: [0.24, 0, 0.06], kneeL: 0.12 },
+  demure: { hipR: [0, 0, 0.01], hipL: [-0.1, 0, -0.02], kneeL: 0.2 },
+  old: { hipL: [-0.3, 0, 0.1], kneeL: 0.6, hipR: [-0.25, 0, 0.1], kneeR: 0.55 },
+  lunge: LUNGE, braced: BRACED,
+  crouch: { hipL: [-0.8, 0, 0.3], kneeL: 1.2, hipR: [-0.3, 0, 0.3], kneeR: 1.0 },
+  ready: { hipR: [-0.3, 0, 0.14], kneeR: 0.45, hipL: [0.1, 0, 0.16], kneeL: 0.3 },
+  retreat: { hipR: [0.3, 0, 0.1], kneeR: 0.35, hipL: [-0.15, 0, 0.12], kneeL: 0.4 },
+};
+const TORSOS: Record<string, HeroPose> = {
+  proud: { spine: [-0.06, 0, 0], neck: [-0.08, 0, 0] },
+  easy: { spine: [0.02, 0, 0.03], neck: [0, 0.12, 0] },
+  haughty: { spine: [-0.08, 0.12, 0], neck: [-0.14, -0.2, 0.05] },
+  sway: { spine: [0, 0, 0.07], neck: [0, 0.12, -0.08] },
+  stoop: { spine: [0.42, 0, 0], neck: [-0.38, 0, 0] },
+  bowed: { spine: [0.16, 0, 0], neck: [0.2, 0, 0.08] },
+  intent: { spine: [0.18, 0, 0], neck: [-0.15, 0, 0] },
+  turnL: { spine: [0.05, 0.3, 0], neck: [0, -0.3, 0] },
+  turnR: { spine: [0.05, -0.3, 0], neck: [0, 0.3, 0] },
+  recoil: { spine: [-0.14, 0.15, 0], neck: [0.1, -0.1, 0] },
+  low: { spine: [0.5, 0, 0], neck: [-0.5, 0, 0] },
+};
+const ARMS: Record<string, Arm> = {
+  hang: { sh: [0.05, 0, 0.1], el: -0.15 },
+  hilt: { sh: [0.12, 0, 0.3], el: -0.75 },
+  chest: { sh: [-0.55, -0.7, 0.08], el: -2.0 },
+  behind: { sh: [0.45, -1.5, 0.12], el: -1.25 },
+  folded: { sh: [-0.3, -1.5, 0.3], el: -1.65 },
+  foldedLow: { sh: [-0.18, -1.5, 0.3], el: -1.7 },
+  wring: { sh: [-0.6, -0.75, 0.05], el: -1.8 },
+  hip: { sh: [0.9, -0.6, 0.6], el: -1.6 },
+  staff: { sh: [-0.75, 0, 0.15], el: -0.95, hold: { upright: true } },
+  offer: { sh: [-0.5, 0, 0.25], el: -0.9, wr: [-0.4, 0, 0] },
+  beckon: { sh: [-0.7, 0, 0.3], el: -1.1, wr: [-0.7, 0, 0] },
+  command: { sh: [-1.25, 0, 0.1], el: -0.25, wr: [0.3, 0, 0] },
+  claw: { sh: [-1.0, 0, 0.5], el: -1.4, wr: [0.7, 0, 0] },
+  high: { sh: [-2.3, 0, 0.3], el: -0.5 },
+  ward: { sh: [-0.9, -0.3, 0.15], el: -1.5, wr: [-0.6, 0, 0] },
+  cloak: { sh: [0.2, -0.6, 0.4], el: -0.9 },
+  chin: { sh: [-0.55, -0.5, 0.05], el: -2.2 },
+  skirt: { sh: [0.1, 0, 0.2], el: -0.35 },
+  book: { sh: [-0.45, -0.2, 0.1], el: -1.5 },
+  balance: { sh: [0.3, 0, 0.55], el: -1.1 },
+  cast: { sh: [-1.35, 0, 0.15], el: -0.45, wr: [0.6, 0, 0] },
+  guard: { sh: [-0.95, 0, 0.12], el: -0.95, hold: { upright: true, tilt: [1.15, 0, 0] } },
+  point: { sh: [-1.2, 0, 0.1], el: -0.3, hold: { upright: true, tilt: [1.45, 0, 0] } },
+  lowguard: { sh: [-0.35, 0, 0.2], el: -0.55, hold: { upright: true, tilt: [1.9, 0, 0] } },
+  cocked: { sh: [-0.65, 0, 0.9], el: -1.9, hold: { upright: true, tilt: [-0.7, 0, 0.3] } },
+  drawn: { sh: [-0.9, 0, 0.5], el: -2.0, hold: { upright: true, tilt: [-0.4, 0, 0.3] } },
+  overhead: { sh: [-1.85, 0, 0.45], el: -1.55, hold: { upright: true, tilt: [-0.55, 0, -0.2] } },
+  raised: { sh: [-2.0, 0, 0.55], el: -1.35, hold: { upright: true, tilt: [-0.75, 0, 0.2] } },
+  level: { sh: [0.25, 0, 0.25], el: -1.2, hold: { upright: true, tilt: [1.45, 0, 0] } },
+  grip2: { sh: [-1.8, -0.55, -0.05], el: -1.35 },
+  shaft: { sh: [-0.9, -0.5, 0], el: -0.6 },
+  brace: { sh: [-1.0, -0.3, 0.2], el: -1.1 },
+};
+const LOOKS: Record<string, [number, number, number]> = { L: [0, 0.35, 0], R: [0, -0.35, 0], up: [-0.25, 0, 0], down: [0.25, 0, 0], tilt: [0, 0, 0.14] };
+/** Put a pose together from its words: a stance, a carriage, `R:` and `L:` arms, `look:` for the head, `spell` for a
+ *  lit hand, `float` to hang above the floor. An arm may also be given raw as `R:@x,y,z,elbow` while a new one is tried. */
+export function compose(words: string): HeroPose {
+  const out: Record<string, unknown> = {};
+  for (const w of words.trim().split(/\s+/)) {
+    if (STANCES[w]) Object.assign(out, STANCES[w]);
+    else if (TORSOS[w]) Object.assign(out, TORSOS[w]);
+    else if (w === 'spell') out.spell = 'right';
+    else if (w === 'spellL') out.spell = 'left';
+    else if (w === 'float') out.lift = 0.9;
+    else if (/^look:/.test(w)) { const k = LOOKS[w.slice(5)], n = (out.neck as number[] | undefined) ?? [0, 0, 0]; if (k) out.neck = [n[0] + k[0], n[1] + k[1], n[2] + k[2]]; }
+    else if (/^[RL]:/.test(w)) {
+      const side = w[0], name = w.slice(2);
+      const a: Arm | undefined = name[0] === '@' ? (() => { const v = name.slice(1).split(',').map(Number); return { sh: [v[0], v[1], v[2]] as [number, number, number], el: v[3] }; })() : ARMS[name];
+      if (!a) continue;
+      out['shoulder' + side] = a.sh; out['elbow' + side] = a.el; if (a.wr) out['wrist' + side] = a.wr; if (a.hold) out['hold' + side] = a.hold;
+    }
+  }
+  return out as HeroPose;
+}
+
+/** Whether every word of a composed pose is one this file knows (the test's check on the manifest). */
+export function composedOk(words: string): boolean {
+  return words.trim().split(/\s+/).every((w) => !!STANCES[w] || !!TORSOS[w] || ['spell', 'spellL', 'float'].includes(w) || (/^look:/.test(w) && w.slice(5) in LOOKS) || (/^[RL]:/.test(w) && (w[2] === '@' || w.slice(2) in ARMS)));
+}
 export function posed<T extends { pose?: unknown; battlePose?: unknown }>(f: T): T {
-  const fix = (p: unknown) => (typeof p === 'string' && p in NPC_POSES ? NPC_POSES[p as NpcPoseName] : p);
+  const fix = (p: unknown) => (typeof p !== 'string' ? p : p in NPC_POSES ? NPC_POSES[p as NpcPoseName] : /[ :]/.test(p) ? compose(p) : p);
   return f.pose === fix(f.pose) && f.battlePose === fix(f.battlePose) ? f : { ...f, pose: fix(f.pose), battlePose: fix(f.battlePose) };
 }
