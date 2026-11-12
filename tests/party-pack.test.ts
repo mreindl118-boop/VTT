@@ -198,4 +198,13 @@ describe('heroFigure', () => {
     expect(peak).toBeGreaterThan(0.1);
     expect(moving).toBe(false);
   });
+  it('puts the weapon away out of a fight and draws it in one', () => {
+    const j = (g: THREE.Object3D) => g.userData.joints as Record<string, THREE.Object3D>;
+    const rest = heroFigure({ weapon: 'axe', stance: 'two-handed' }), fight = heroFigure({ weapon: 'axe', stance: 'two-handed' }, 'medium', 'battle'), kept = heroFigure({ weapon: 'axe', stow: false });
+    expect(j(rest).handR.children.length).toBe(0);
+    expect(j(rest).stowed.parent).toBe(j(rest).back);
+    expect(j(fight).handR.children.length).toBeGreaterThan(0);
+    expect(j(kept).handR.children.length).toBeGreaterThan(0);
+    const m = heroFigure({ weapon: 'mace' }); expect(j(m).stowed.parent).toBe(j(m).beltR);
+  });
 });

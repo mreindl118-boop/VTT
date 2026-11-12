@@ -89,6 +89,9 @@ and cloth lies over it below; `body.bust` sizes it.
 Jiggle (the Party sheet's switch, on by default): the bust bounces on a damped spring when a miniature is picked up
 or moved. It costs nothing while nothing is moving; switched off, figures are built without the weights.
 
+Out of a fight a weapon is put away, never carried drawn: an axe, sword or spear slung across the back, a mace hung
+at the belt (a staff or torch stays in hand); in initiative it is in hand. `"stow": false` keeps it in hand always.
+
 `body` fits the frame to the character's art with multipliers (1 = the frame's own): `shoulders`, `chest`, `waist`,
 `hips`, `bust`, `arms`, `legs` (girth) and `neck`. A brawny fighter might take `{ "shoulders": 1.12, "waist": 1.2,
 "arms": 1.3 }`; a slight one `{ "shoulders": 0.95, "waist": 0.9, "arms": 0.88 }`.

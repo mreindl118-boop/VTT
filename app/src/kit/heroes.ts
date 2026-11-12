@@ -124,6 +124,8 @@ export interface HeroFigure {
   body?: Measures;
   /** The frame the body is sculpted on (default: feminine for a curvy build or a gown, otherwise masculine). */
   frame?: 'feminine' | 'masculine';
+  /** Out of a fight the weapon is put away (slung on the back or hung at the belt); false keeps it in hand. */
+  stow?: boolean;
   /** The battle stance the figure takes in initiative. */
   stance?: HeroStance;
   /** The pose out of initiative (default rest), in it (default the stance), and dead (default `dead`); a name or joint
@@ -430,17 +432,16 @@ function rig(f: HeroFigure, s: number, gown: boolean) {
     // the collar carries the shoulder: it lifts when the arm goes up
     const collar = new THREE.Group(); collar.position.set(sx * 0.12 * s, 1.98 * s, 0); collar.name = 'collar' + side; up.add(collar);
     const root = new THREE.Group(); root.position.set(sx * (fr.shoulderX - 0.12) * s, 0.02 * s, 0); root.rotation.set(-0.08, 0, sx * 0.1); root.name = 'shoulder' + side; collar.add(root);
-    const delt = sph(0.2 * a * s, upperC, 16, 12); delt.scale.set(1.02, 1.25, 1.04); root.add(at(delt, 0, -0.1 * s, 0));
+    const delt = sph(0.185 * a * s, upperC, 16, 12); delt.scale.set(1.3, 1.2, 1.02); root.add(at(delt, -sx * 0.07 * s, -0.1 * s, 0)); // the deltoid, run in toward the collar so the arm grows out of the shoulder
     const upper = loft(upperArmRings(fr), upperC, { seg: 14 }); root.add(upper);
-    if (upperC !== skin) for (const y of [-0.9, -0.99]) root.add(band(upperArmRings(fr), y, 0.035, 1.07, tone(upperC, '#000000', 0.22), 14)); // folds above the elbow
     if (f.puffSleeves && f.sleeves) {
       if (gown) { // off the shoulder: a gathered band round the upper arm with a ruffle below it
         const band = sm(new THREE.TorusGeometry(0.2 * s * a, 0.045 * s, 8, 20), f.sleeves); band.rotation.x = Math.PI / 2; root.add(at(band, 0, -0.36 * s, 0));
         const ruf = drape(0.2 * s * a, 0.3 * s * a, 0.3 * s, f.sleeves, { folds: 9, amp: 0.25, jag: 0.04 * s, seed: 1.3 }); root.add(at(ruf, 0, -0.52 * s, 0));
-      } else { const puff = sph(0.3 * s * a, f.sleeves); puff.scale.set(1, 1.25, 1); root.add(at(puff, 0, -0.42 * s, 0)); }
+      } else { const puff = sph(0.25 * s * a, f.sleeves); puff.scale.set(1.05, 1.3, 1.05); root.add(at(puff, -sx * 0.04 * s, -0.36 * s, 0)); }
     }
     const mid = new THREE.Group(); mid.position.set(0, -1.12 * s, 0); mid.rotation.x = -0.22; mid.name = 'elbow' + side; root.add(mid);
-    mid.add(sph(0.145 * a * s, upperC, 12, 8));
+    { const el = sph(0.128 * a * s, upperC, 12, 8); el.scale.y = 1.25; mid.add(el); }
     const lower = loft(forearmRings(fr), lowerC, { seg: 14 }); mid.add(lower);
     if (f.bracers) { mid.add(at(cyl(0.125 * s * a, 0.105 * s * a, 0.12 * s, f.bracers, 12), 0, -0.96 * s, 0)); mid.add(at(cyl(0.17 * s * a, 0.17 * s * a, 0.05 * s, tone(f.bracers, '#000000', 0.3), 12), 0, -0.3 * s, 0)); }
     const end = new THREE.Group(); end.position.set(0, -1.04 * s, 0); end.rotation.x = 0.06; end.name = 'wrist' + side; mid.add(end);
@@ -457,19 +458,18 @@ function rig(f: HeroFigure, s: number, gown: boolean) {
     const hx = gown ? 0.21 : fr.hipX, legC = gown ? skin : trim;
     const hip = new THREE.Group(); hip.position.set(sx * hx * s, 0, 0); hip.rotation.z = sx * 0.04; hip.name = 'hip' + side; pel.add(hip);
     const thigh = loft(thighRings(fr), legC, { seg: 16 }); hip.add(thigh);
-    if (!gown) for (const y of [-THIGH + 0.2, -THIGH + 0.31]) hip.add(band(thighRings(fr), y, 0.04, 1.05, tone(legC, '#000000', 0.22))); // folds above the knee
     const knee = new THREE.Group(); knee.position.set(0, -THIGH * s, 0); knee.name = 'knee' + side; hip.add(knee);
-    knee.add(at(sph(0.185 * fr.leg * s, legC, 12, 10), 0, 0, 0.01 * s));
+    { const kn = sph(0.17 * fr.leg * s, legC, 12, 10); kn.scale.y = 1.3; knee.add(at(kn, 0, 0, 0.01 * s)); }
     const shin = loft(shinRings(fr), legC, { seg: 14 }); knee.add(shin);
     // boots: the shaft to below the knee with a turned cuff, the foot, a heel and a sole
     knee.add(loft(clipRings(shinRings(fr), -SHIN, -0.55), boot, { seg: 14, k: 1.13 }));
     const cuffR = ringAt(shinRings(fr), -0.55); knee.add(sm(loftGeometry([{ ...cuffR, y: -0.65 }, { ...cuffR, y: -0.47 }], s, { seg: 14, k: 1.28, rows: 2 }), tone(boot, '#ffffff', 0.08)));
-    for (const y of [-SHIN + 0.3, -SHIN + 0.52]) { // boot straps, buckled on the outside
+    for (const y of [-SHIN + 0.4]) { // a boot strap, buckled on the outside
       knee.add(band(shinRings(fr), y, 0.05, 1.2, tone(boot, '#000000', 0.4), 14));
       knee.add(at(box(0.03 * s, 0.07 * s, 0.07 * s, '#a9adb6'), sx * ringAt(shinRings(fr), y).w * 1.22 * s, y * s, 0.02 * s));
     }
     const ankle = new THREE.Group(); ankle.position.set(0, -SHIN * s, 0); ankle.name = 'ankle' + side; knee.add(ankle);
-    ankle.add(sph(0.14 * fr.leg * s, boot, 12, 8));
+    ankle.add(sph(0.115 * fr.leg * s, boot, 12, 8));
     const fl = fr.fem ? 0.86 : 1; // the foot: instep, toe and heel
     const foot = sm(loftGeometry([{ y: -0.42, w: 0.15 * fl, f: 0.52 * fl, b: 0.2 * fl, z: 0.02 }, { y: -0.3, w: 0.165 * fl, f: 0.5 * fl, b: 0.21 * fl, z: 0.02 }, { y: -0.16, w: 0.14 * fl, f: 0.3 * fl, b: 0.17 * fl }, { y: -0.02, w: 0.125 * fl, f: 0.15 * fl, b: 0.14 * fl }], s, { seg: 16 }), boot);
     foot.name = 'foot' + side; ankle.add(foot);
@@ -494,6 +494,7 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
   // a group in each hand for what it holds: upright while the forearm hangs at rest
   const holder = (l: Limb) => { const g = new THREE.Group(); g.position.set(0, -0.14 * s, 0.05 * s); g.rotation.set(-(l.root.rotation.x + l.mid.rotation.x), 0, -Math.sign(l.root.position.x) * 0.08); l.end.add(g); return g; };
   const gR = holder(R), gL = holder(Lf); gR.name = 'handR'; gL.name = 'handL';
+  const joints0: Record<string, THREE.Object3D> = {}; body.traverse((o) => { if (o.name) joints0[o.name] = o; });
   if (f.weapon === 'sword') gR.add(at(box(0.12 * s, 2.6 * s, 0.32 * s, '#c8ccd2'), 0, 1.45 * s, 0), at(box(0.7 * s, 0.12 * s, 0.14 * s, '#a07a3a'), 0, 0.15 * s, 0), at(box(0.12 * s, 0.5 * s, 0.12 * s, '#3b2a20'), 0, -0.15 * s, 0));
   if (f.weapon === 'spear') gR.add(at(box(0.12 * s, 7 * s, 0.12 * s, '#3b2a20'), 0, 0.85 * s, 0), at(cone(0.2 * s, 0.8 * s, '#c8ccd2'), 0, 4.75 * s, 0));
   if (f.weapon === 'staff') gR.add(at(box(0.14 * s, 6 * s, 0.14 * s, '#3b2a20'), 0, 0.45 * s, 0));
@@ -623,6 +624,14 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
     gR.add(at(sph(0.08 * s, '#8e939b', 8, 6), 0, -0.42 * s, 0));
     gR.add(at(sph(0.26 * s, '#8e939b', 12, 8), 0, 1.75 * s, 0));
     for (let i = 0; i < 6; i++) { const a = (i / 6) * Math.PI * 2, fl = box(0.06 * s, 0.5 * s, 0.22 * s, '#a3a8b0'); fl.rotation.y = -a; gR.add(at(fl, Math.cos(a) * 0.24 * s, 1.75 * s, Math.sin(a) * 0.24 * s)); }
+  }
+
+  // out of a fight a weapon is put away, never carried drawn: a long one slung across the back, a short one at the belt
+  if (!battle && !dead && f.stow !== false && f.weapon && f.weapon !== 'none' && f.weapon !== 'staff' && f.weapon !== 'torch') {
+    const long = f.weapon === 'axe' || f.weapon === 'spear' || f.weapon === 'sword', st = new THREE.Group(); st.name = 'stowed';
+    for (const c of [...gR.children]) st.add(c);
+    if (long) { st.rotation.set(0, Math.PI, 0.5); st.position.set(-0.55 * s, -(f.weapon === 'sword' ? 1.0 : 1.5) * s, -0.08 * s); joints0.back.add(st); }
+    else { st.rotation.set(Math.PI + 0.12, 0, 0.1); st.position.set(0.24 * s, 0.55 * s, 0.12 * s); joints0.beltR.add(st); }
   }
 
   // what the left hand holds
