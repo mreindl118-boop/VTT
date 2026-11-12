@@ -29,6 +29,9 @@ export const faceUV = (x: number, y: number): [number, number] => [x / SPAN_X + 
 
 const mix = (c: string, to: string, k: number) => '#' + new THREE.Color(c).lerp(new THREE.Color(to), k).getHexString();
 const rgba = (c: string, a: number) => { const k = new THREE.Color(c); return `rgba(${Math.round(k.r * 255)},${Math.round(k.g * 255)},${Math.round(k.b * 255)},${a})`; };
+/** A colour exactly as a plain fill of it paints (sRGB), for anything that must match the skin around it. (rgba above
+ *  reads the linear values, a shade darker, which the painted shading was tuned with.) */
+const flat = (c: string, a: number) => { const k = new THREE.Color(c).getRGB({ r: 0, g: 0, b: 0 }, THREE.SRGBColorSpace); return `rgba(${Math.round(k.r * 255)},${Math.round(k.g * 255)},${Math.round(k.b * 255)},${a})`; };
 const cache = new Map<string, THREE.Texture>();
 
 /** Paint a face. Returns null where there is nothing to draw on (no canvas, as in the test runner). */
@@ -36,7 +39,7 @@ export function paintFace(spec: FaceSpec, look: PaintLook): THREE.Texture | null
   if (typeof document === 'undefined') return null;
   const key = JSON.stringify([spec, look]); const hit = cache.get(key); if (hit) return hit;
   const S = look.size ?? 512, cv = document.createElement('canvas'); cv.width = cv.height = S;
-  const c = cv.getContext('2d'); if (!c) return null;
+  let c = cv.getContext('2d') as CanvasRenderingContext2D; if (!c) return null;
   const n = (v: number | undefined) => Math.max(-1, Math.min(1, v ?? 0));
   const fem = !!look.fem, skin = look.skin, shade = mix(skin, '#3a1c22', 0.38), deep = mix(skin, '#160c12', 0.8);
   const lum = new THREE.Color(skin).getHSL({ h: 0, s: 0, l: 0 }).l;
@@ -138,8 +141,34 @@ export function paintFace(spec: FaceSpec, look: PaintLook): THREE.Texture | null
   }
   if (bt > 0.5) for (const sx of [-1, 1]) stroke([[sx * 0.016, by + 0.05], [sx * 0.022, by - 0.01]], 0.006, shade, 0.7);   // the scowl's furrow
 
+  // ---- stubble: a shadow of beard over the jaw, the chin and the upper lip, feathered at its edge and stippled. It stays
+  // clear of the picture's corners, which the back of the head reads.
+  const flen = n(spec.faceLen);
+  if (spec.beard === 'stubble') {
+    const bc = spec.beardColor ?? look.hair ?? '#2a2018', tint = mix(skin, bc, lum > 0.45 ? 0.42 : 0.3);
+    const region = () => {
+      c.beginPath(); c.moveTo(-0.318, 0.035);
+      c.bezierCurveTo(-0.3, -0.08, -0.25, -0.15, -0.155, -0.19); c.bezierCurveTo(-0.11, -0.205, -0.085, -0.2, -0.06, -0.205);
+      c.quadraticCurveTo(0, -0.198, 0.06, -0.205); c.bezierCurveTo(0.085, -0.2, 0.11, -0.205, 0.155, -0.19); c.bezierCurveTo(0.25, -0.15, 0.3, -0.08, 0.318, 0.035);
+      c.bezierCurveTo(0.345, -0.15, 0.33, -0.36, 0.25, -0.44); c.quadraticCurveTo(0, -0.5, -0.25, -0.44); c.bezierCurveTo(-0.33, -0.36, -0.345, -0.15, -0.318, 0.035); c.closePath();
+    };
+    // drawn on a layer of its own, then faded out toward the sides of the jaw (where the picture stops wrapping the head)
+    const layer = document.createElement('canvas'); layer.width = layer.height = S; const lc = layer.getContext('2d');
+    if (lc) {
+      const main = c; c = lc; c.setTransform(S / SPAN_X, 0, 0, -S / SPAN_Y, S / 2, S / 2);
+      c.save(); c.filter = `blur(${Math.round(S * 0.012)}px)`; region(); c.fillStyle = rgba(tint, lum > new THREE.Color(bc).getHSL({ h: 0, s: 0, l: 0 }).l ? 0.75 : 0.45); c.fill(); c.restore();
+      c.save(); region(); c.clip(); let sd = 3; const r = () => { sd = (sd * 9301 + 49297) % 233280; return sd / 233280; };
+      for (let i = 0; i < S * 3; i++) { const x = (r() - 0.5) * 0.66, y = 0.04 - r() * 0.52; c.beginPath(); c.arc(x, y, 0.0022 + r() * 0.0014, 0, Math.PI * 2); c.fillStyle = rgba(mix(bc, '#000000', 0.2), 0.22 + r() * 0.2); c.fill(); }
+      c.restore();
+      const fade = c.createLinearGradient(-SPAN_X / 2, 0, SPAN_X / 2, 0);
+      for (const [t, a] of [[0, 0], [0.18, 0], [0.29, 1], [0.71, 1], [0.82, 0], [1, 0]] as [number, number][]) fade.addColorStop(t, `rgba(0,0,0,${a})`);
+      c.globalCompositeOperation = 'destination-in'; c.fillStyle = fade; c.fillRect(-SPAN_X / 2, -SPAN_Y / 2, SPAN_X, SPAN_Y);
+      c = main; c.save(); c.setTransform(1, 0, 0, 1, 0, 0); c.drawImage(layer, 0, 0); c.restore();
+    }
+  }
+
   // ---- the mouth: a bowed upper lip, a fuller lower one, the line between them
-  const full = n(spec.lipFull), smile = n(spec.smile) + (fem ? 0.15 : 0.05), my = -0.262;
+  const full = n(spec.lipFull), smile = n(spec.smile) + (fem ? 0.15 : 0.05), my = -0.262 * (1 + 0.06 * flen);
   const hw = (fem ? 0.068 : 0.074) * (1 + 0.2 * n(spec.mouthW)), uh = (fem ? 0.022 : 0.016) * (1 + 0.35 * full), lh = (fem ? 0.032 : 0.026) * (1 + 0.35 * full);
   const cy = my + 0.016 * smile, midY = my - 0.004 * smile;
   c.beginPath(); c.moveTo(-hw, cy);
@@ -168,6 +197,12 @@ export function paintFace(spec: FaceSpec, look: PaintLook): THREE.Texture | null
   }
   if (spec.mole) { c.beginPath(); c.arc((spec.mole === 'L' ? 1 : -1) * (hw + 0.035), my + 0.04, 0.008, 0, Math.PI * 2); c.fillStyle = '#2a1a16'; c.fill(); }
 
+  // the sides of the picture settle back to plain skin before the head turns away from it, so nothing painted stops at a
+  // hard edge where the picture ends on the cheek and temple
+  for (const sx of [-1, 1]) {
+    const edge = c.createLinearGradient(sx * 0.255, 0, sx * 0.335, 0); edge.addColorStop(0, flat(skin, 0)); edge.addColorStop(1, flat(skin, 1));
+    c.fillStyle = edge; c.fillRect(sx > 0 ? 0.255 : -SPAN_X / 2, -SPAN_Y / 2, SPAN_X / 2 - 0.255, SPAN_Y);
+  }
   const tex = new THREE.CanvasTexture(cv); tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 4; tex.needsUpdate = true;
   cache.set(key, tex); return tex;
 }

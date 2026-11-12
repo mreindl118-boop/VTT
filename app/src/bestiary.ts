@@ -14,7 +14,7 @@ import type { WeaponSpec } from './kit/weapons';
 import { baseRingFt, type CreatureSize } from './core/units';
 import { PALETTE } from './kit/palette';
 
-export interface Figure { kind?: string; skin?: string; cloth?: string; accent?: string; hair?: string; cloak?: boolean; weapon?: string; robe?: boolean; hunch?: number }
+export interface Figure { kind?: string; skin?: string; cloth?: string; accent?: string; hair?: string; cloak?: boolean; weapon?: string; robe?: boolean; hunch?: number; frame?: 'feminine' | 'masculine' }
 export interface CreatureEntry {
   id: string; name: string; tier: number; size: CreatureSize; visibility: string; tags: string[];
   kind: 'npc' | 'creature' | 'monster-manual' | 'generic' | 'pc' | 'token'; figure?: Figure; role?: string; variants?: string[];
@@ -144,7 +144,7 @@ function plainFolk(e: CreatureEntry): Folk {
   const f = (e.figure ?? {}) as Figure & { hat?: string; ghost?: boolean; undead?: boolean };
   const old = /elder|old/.test(e.tags.join(' ')) || f.hair === '#7a7a7a' || f.hair === '#d9d9d9';
   return {
-    skin: f.skin, cloth: f.cloth, trim: f.accent, hair: f.hair ?? undefined, hood: f.hat === 'hood', cloak: f.hat === 'hood' || f.cloak ? f.cloth : undefined, skirt: f.robe ? f.cloth : undefined,
+    skin: f.skin, cloth: f.cloth, trim: f.accent, hair: f.hair ?? undefined, hood: f.hat === 'hood', frame: f.frame, cloak: f.hat === 'hood' || f.cloak ? f.cloth : undefined, skirt: f.robe ? f.cloth : undefined,
     armor: f.hat === 'helm' ? { kind: 'mail', color: '#6a6e76' } : undefined, eyes: f.undead ? '#d8e0c0' : undefined,
     face: ({ ...(old ? { age: 0.8 } : {}), ...(f.undead ? { gaunt: 0.8, sunken: 0.8 } : {}), ...(f.hair === null ? { bald: true } : {}) }),
     vary: e.kind === 'generic',

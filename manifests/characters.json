@@ -49,12 +49,15 @@
     "pendant": "#b8952e",
     "glow": "#8a1a2a",
     "face": {
-     "headL": 0.25,
-     "jaw": 0.4,
-     "chin": 0.4,
-     "chinPoint": 0.2,
-     "cheekbones": 0.85,
-     "gaunt": 0.45,
+     "headL": 0.3,
+     "headW": -0.2,
+     "faceLen": 0.4,
+     "jaw": 0.1,
+     "jawAngle": 0.6,
+     "chin": 0.5,
+     "chinPoint": 0.45,
+     "cheekbones": 0.9,
+     "gaunt": 0.55,
      "noseLen": 0.3,
      "noseHook": 0.35,
      "noseW": -0.25,
@@ -96,7 +99,10 @@
     },
     "collar": "#5a0f18",
     "bracers": "#2a2a30",
-    "buckle": "#b89a4a"
+    "buckle": "#b89a4a",
+    "body": {
+     "neck": 0.9
+    }
    },
    "importance": 81.9
   },
@@ -754,7 +760,8 @@
     "cloth": "#e8dfc8",
     "accent": "#5b4a6b",
     "hair": "#d9d9d9",
-    "undead": true
+    "undead": true,
+    "frame": "feminine"
    },
    "role": "neutral",
    "importance": 6.5
@@ -1345,7 +1352,8 @@
     "skin": "#d9b899",
     "cloth": "#e8dfc8",
     "accent": "#e8dfc8",
-    "hair": "#3a2a1a"
+    "hair": "#3a2a1a",
+    "frame": "feminine"
    },
    "role": "neutral",
    "importance": 4.4
@@ -1834,7 +1842,8 @@
     "cloth": "#3a2a2a",
     "accent": "#55603a",
     "hair": "#1a1a1a",
-    "hat": "hood"
+    "hat": "hood",
+    "frame": "feminine"
    },
    "role": "hostile",
    "importance": 4.8
@@ -1859,7 +1868,8 @@
     "cloth": "#2a2a3a",
     "accent": "#55603a",
     "hair": "#3a2a1a",
-    "hat": "hood"
+    "hat": "hood",
+    "frame": "feminine"
    },
    "role": "hostile",
    "importance": 4.8
@@ -2083,7 +2093,8 @@
     "skin": "#d9b899",
     "cloth": "#6a3a5a",
     "accent": "#c9a227",
-    "hair": "#1a1a1a"
+    "hair": "#1a1a1a",
+    "frame": "feminine"
    },
    "role": "ally",
    "importance": 4.9
@@ -2630,7 +2641,8 @@
     "accent": "#5b4a6b",
     "hair": "#1a1a1a",
     "undead": true,
-    "weapon": "staff"
+    "weapon": "staff",
+    "frame": "feminine"
    },
    "role": "hostile",
    "importance": 5.5
@@ -2726,7 +2738,8 @@
     "cloth": "#cfd6e8",
     "accent": "#cfd6e8",
     "hair": "#8a5a2a",
-    "ghost": true
+    "ghost": true,
+    "frame": "feminine"
    },
    "role": "neutral",
    "importance": 7.5
@@ -2791,7 +2804,8 @@
     "cloth": "#cfd6e8",
     "accent": "#cfd6e8",
     "hair": "#1a1a1a",
-    "ghost": true
+    "ghost": true,
+    "frame": "feminine"
    },
    "role": "hostile"
   },
@@ -3382,7 +3396,8 @@
     "cloth": "#4a3a4a",
     "accent": "#e8dfc8",
     "hair": "#8a5a2a",
-    "undead": true
+    "undead": true,
+    "frame": "feminine"
    },
    "role": "neutral",
    "importance": 3.2

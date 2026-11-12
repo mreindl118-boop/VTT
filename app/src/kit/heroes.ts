@@ -4,9 +4,9 @@
 // a halo, a thorn crown, a shield, an axe, a book ...) and the pack says which a character wears, in what colours.
 import * as THREE from 'three';
 import { mat, matClone } from '../render/materials';
-import { HIP, SHIN, THIGH, clipRings, forearmRings, frameOf, loftGeometry, lockGeometry, neckRings, pelvisRings, ringAt, shinRings, thighRings, torsoRings, upperArmRings, type Frame, type Measures } from './anatomy';
+import { HIP, SHIN, THIGH, clipRings, forearmRings, frameOf, loftGeometry, lockGeometry, neckLift, neckRings, pelvisRings, ringAt, shinRings, thighRings, torsoRings, upperArmRings, type Frame, type Measures } from './anatomy';
 import type { CreatureSize } from '../core/units';
-import { faceFeatures, type FaceSpec, type FaceDetail } from './faces';
+import { faceFeatures, craniumShape, browLift, weld, type FaceSpec, type FaceDetail } from './faces';
 import { hairdo as buildHairdo, type Hairdo } from './hair';
 import { weapon as gearWeapon, scabbard, closeGrip, secondHand, secondHandAt, type WeaponSpec } from './weapons';
 
@@ -222,6 +222,30 @@ function drape(rTop: number, rBot: number, h: number, c: string, o: { folds: num
 }
 
 /** Faces are painted onto a clean head (the stylised look); false brings back the sculpted standard face below. */
+/** An elf's ear: a long leaf of a shell from a small lobe up to a point that sweeps up and back, its outer face dished
+ *  into a hollow inside a rolled rim. Built in the ear's own frame (x out from the head, y up, z forward), `s` units. */
+function pointedEar(s: number, skin: string, detail: number): THREE.Group {
+  const g = new THREE.Group(), T = detail < 2 ? 9 : 18, K = detail < 2 ? 8 : 16, pos: number[] = [], idx: number[] = [];
+  const C = (t: number) => new THREE.Vector3(0, -0.07 + 0.36 * t, -0.13 * t ** 1.6);
+  for (let i = 0; i <= T; i++) {
+    const t = i / T, c = C(t), along = C(Math.min(1, t + 0.01)).sub(C(Math.max(0, t - 0.01))).normalize();
+    const across = new THREE.Vector3(1, 0, 0).cross(along).normalize();              // in the ear's plane, toward its front edge
+    const w = 0.06 * Math.sqrt(Math.sin(Math.PI / 2 * Math.min(1, t / 0.12))) * (1 - t ** 1.5) + 0.002, th = 0.024 * (1 - 0.6 * t) + 0.002;
+    for (let k = 0; k < K; k++) {
+      const ph = (k / K) * Math.PI * 2, v = Math.cos(ph), out = Math.sin(ph);
+      // the outer face sinks between the edges: the hollow, with the rim standing round it (fuller along the back edge)
+      const x = th * out - 1.25 * th * Math.max(0, out) ** 0.6 * (1 - Math.abs(v)) ** 1.4 * (t < 0.85 ? 1 : (1 - t) / 0.15) + 0.004 * Math.max(0, -v);
+      pos.push(c.x + x, c.y + across.y * v * w, c.z + across.z * v * w);
+    }
+  }
+  for (let i = 0; i < T; i++) for (let k = 0; k < K; k++) { const a = i * K + k, b = i * K + (k + 1) % K, c2 = a + K, d = b + K; idx.push(a, c2, b, b, c2, d); }
+  const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); geo.setIndex(idx);
+  g.add(sm(weld(geo), skin));
+  if (detail >= 2) { // the hollow's shadow, so it reads at the table
+    const bowl = sph(0.05, tone(skin, '#4a1e22', 0.2), 12, 8); bowl.scale.set(0.16, 1.6, 0.42); bowl.position.set(-0.004, 0.035, -0.014); bowl.rotation.x = 0.28; g.add(bowl);
+  }
+  g.scale.setScalar(s); return g;
+}
 const PAINTED_FACES = true as boolean;
 /** The head, sculpted like a miniature's: one shaped skull (temples, cheekbones over hollow cheeks, a brow over deep-set
  *  eyes, a jaw that is square on a masculine frame and tapered on a feminine one, a chin), a wedge of a nose, small
@@ -235,7 +259,19 @@ function buildFace(head: THREE.Group, s: number, hy: number, f: HeroFigure, fem 
     // the character's own face (kit/faces.ts): the whole head from its recipe, with this figure's ears on it; the hair is
     // buildHair's, as for every other head
     const fg = faceFeatures({ ...f.face, gaze: f.face?.gaze ?? gaze }, { skin, hair: f.hair, eyes: f.eyes, lips: f.lips, detail: f.detail ?? 2, fem, dead }); fg.scale.setScalar(0.4 * s); fg.position.set(0, hy, 0); head.add(fg);
-    if (f.ears !== 'pointed') for (const sx of [-1, 1]) { const e = sph(0.075 * s, skin); e.scale.set(0.42, 1, 0.65); head.add(at(e, sx * 0.345 * s, hy - 0.02 * s, -0.01 * s)); }
+    // ears, standing a little off the head behind: an elf's from the same root as a person's, its point sweeping up and
+    // back; a person's a rim (the helix) curling over the top and down the back to the lobe, round a hollow
+    if (f.ears === 'pointed') for (const sx of [-1, 1]) {
+      const ear = pointedEar(s, skin, f.detail ?? 2); ear.position.set(sx * 0.318 * s, hy - 0.035 * s, -0.035 * s); ear.rotation.set(-0.12, -sx * 0.42, -sx * 0.3); ear.scale.x *= sx; head.add(ear);
+    }
+    if (f.ears !== 'pointed') for (const sx of [-1, 1]) {
+      const ear = new THREE.Group(); ear.position.set(sx * 0.322 * s, hy - 0.04 * s, -0.03 * s); ear.rotation.set(-0.2, -sx * 0.3, 0); head.add(ear);
+      if ((f.detail ?? 2) < 2) { const e = sph(0.075 * s, skin); e.scale.set(0.42, 1.1, 0.65); ear.add(e); continue; }
+      const ep = new THREE.Group(); ep.scale.set(1, 1.32, 1); ear.add(ep);
+      const rim = sm(new THREE.TorusGeometry(0.056 * s, 0.017 * s, 8, 22, Math.PI * 1.6), skin); rim.rotation.set(0, Math.PI / 2, Math.PI * 1.2); ep.add(rim);
+      const bowl = sph(0.05 * s, tone(skin, '#4a1e22', 0.22), 12, 10); bowl.scale.set(0.32, 1.02, 0.86); ep.add(at(bowl, -sx * 0.004 * s, 0.002 * s, -0.004 * s));
+      const lobe = sph(0.024 * s, skin, 10, 8); lobe.scale.set(0.7, 1.1, 1); ep.add(at(lobe, 0, -0.05 * s, 0.012 * s));
+    }
     return (x: number, y: number) => 0.345 - 1.4 * x * x - (y > 0 ? 1.0 : 0.45) * y * y;
   }
   const R = 0.4, g = new THREE.SphereGeometry(1, 56, 42), p = g.attributes.position as THREE.BufferAttribute;
@@ -305,20 +341,23 @@ function buildFace(head: THREE.Group, s: number, hy: number, f: HeroFigure, fem 
 function buildHair(head: THREE.Group, s: number, hy: number, f: HeroFigure, fem: boolean): void {
   if (f.face?.bald) return;
   if (!f.hair) return;
-  if (f.hairdo) { head.add(buildHairdo(f.hairdo, f.hair, s, hy, f.detail ?? 2)); return; }
+  if (f.hairdo) { head.add(buildHairdo(f.hairdo, f.hair, s, hy, f.detail ?? 2, f.face)); return; }
   const H = f.hair, R = 0.4, style = f.hairStyle ?? 'short';
+  // short hair is the sculpted crop (kit/hair.ts), its parting and fullness varied by the character's colours
+  if (style === 'short') { let h = 7; for (const ch of H + (f.skin ?? '') + (f.cloth ?? '')) h = (h * 31 + ch.charCodeAt(0)) >>> 0; head.add(buildHairdo({ style: 'crop', part: [0.4, -0.4, 0.15, -0.2][h % 4], length: 0.35 + (h >> 3) % 5 * 0.08 }, H, s, hy, f.detail ?? 2, f.face)); return; }
+  const cr = craniumShape(f.face), lift0 = browLift(f.face);
   let seed = 11; const rnd = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; };
   // a point on the scalp: azimuth from the front round through +x, elevation, and a lift off the skull
-  const scalp = (az: number, el: number, lift = 1.06) => { const c = Math.cos(el), dz = Math.cos(az) * c; return new THREE.Vector3(Math.sin(az) * c * 0.84 * R * lift * s, hy + Math.sin(el) * 1.14 * R * lift * s, dz * (dz < 0 ? 0.99 : 0.94) * R * lift * s); };
+  const scalp = (az: number, el: number, lift = 1.06) => { const c = Math.cos(el), dz = Math.cos(az) * c, [x, y, z] = cr(Math.sin(az) * c * 0.84 * lift, Math.sin(el) * 1.14 * lift, dz * (dz < 0 ? 0.99 : 0.94) * lift); return new THREE.Vector3(x * R * s, hy + y * R * s, z * R * s); };
   // the hairline: how low the hair comes at each azimuth (an elevation)
-  const line = (az: number) => { const a = Math.abs(Math.atan2(Math.sin(az), Math.cos(az))); return a < 0.25 ? 0.8 - 0.06 * (1 - a / 0.25) : a < 0.8 ? 0.8 + 0.07 * Math.sin((a - 0.25) * Math.PI / 0.55) : a < 1.3 ? 0.8 - 0.72 * (a - 0.8) / 0.5 : a < 1.8 ? 0.08 + 0.1 * Math.sin((a - 1.3) * Math.PI / 0.5) : 0.08 - 0.58 * Math.min(1, (a - 1.8) / 0.6); };
+  const line = (az: number) => { const a = Math.abs(Math.atan2(Math.sin(az), Math.cos(az))); return (a < 1.25 ? lift0 * (a < 0.4 ? 1 : 1 - (a - 0.4) / 0.85) : 0) + (a < 0.25 ? 0.8 - 0.06 * (1 - a / 0.25) : a < 0.8 ? 0.8 + 0.07 * Math.sin((a - 0.25) * Math.PI / 0.55) : a < 1.3 ? 0.8 - 0.72 * (a - 0.8) / 0.5 : a < 1.8 ? 0.08 + 0.1 * Math.sin((a - 1.3) * Math.PI / 0.5) : 0.08 - 0.58 * Math.min(1, (a - 1.8) / 0.6)); };
   // the under-layer: the skull's own shape, a little proud, combed in strands, cut at the hairline
   const cg = new THREE.SphereGeometry(1, 48, 28), cp = cg.attributes.position as THREE.BufferAttribute, keep: boolean[] = [];
   for (let i = 0; i < cp.count; i++) {
     const x = cp.getX(i), y = cp.getY(i), z = cp.getZ(i), az = Math.atan2(x, z), el = Math.asin(Math.max(-1, Math.min(1, y)));
     keep.push(el > line(az) - 0.04);
-    const k = 1.045 + 0.012 * Math.sin(az * 26 + el * 5) + 0.006 * Math.sin(az * 61);
-    cp.setXYZ(i, x * 0.84 * R * k * s, y * 1.14 * R * k * s, z * (z < 0 ? 0.99 : 0.94) * R * k * s);
+    const k = 1.045 + 0.012 * Math.sin(az * 26 + el * 5) + 0.006 * Math.sin(az * 61), [qx, qy, qz] = cr(x * 0.84 * k, y * 1.14 * k, z * (z < 0 ? 0.99 : 0.94) * k);
+    cp.setXYZ(i, qx * R * s, qy * R * s, qz * R * s);
   }
   const src = cg.index!, idx: number[] = []; for (let i = 0; i < src.count; i += 3) { const a = src.getX(i), b = src.getX(i + 1), c = src.getX(i + 2); if (keep[a] && keep[b] && keep[c]) idx.push(a, b, c); }
   cg.setIndex(idx); cg.computeVertexNormals(); head.add(at(sm(cg, tone(H, '#000000', 0.18), true), 0, hy, 0));
@@ -328,13 +367,6 @@ function buildHair(head: THREE.Group, s: number, hy: number, f: HeroFigure, fem:
   const crown = (az: number) => new THREE.Vector3(Math.sin(az) * 0.03 * s + part * s, hy + 1.14 * R * 1.07 * s, -0.02 * s + Math.cos(az) * 0.03 * s);
   let streaks = 0; const streakAt = (az: number) => f.hairStreak && az > 0.6 && az < 1.2 && streaks++ < 3 ? f.hairStreak : undefined; // a streak: a few locks at the right temple
 
-  if (style === 'short') {
-    // tousled: three rows of short locks swept back and to the side, the front lifting off the brow
-    for (let row = 0; row < 3; row++) for (let i = 0; i < 16; i++) {
-      const az = (i / 16) * Math.PI * 2 + row * 0.2 + (rnd() - 0.5) * 0.15, e0 = 1.25 - row * 0.38, e1 = Math.max(line(az) + 0.03, e0 - 0.5 - rnd() * 0.15), sw = 0.25 + rnd() * 0.2;
-      lock([scalp(az, e0, 1.08), scalp(az + sw * 0.5, (e0 + e1) / 2, 1.13 + rnd() * 0.03), scalp(az + sw, e1, 1.1 + rnd() * 0.04)], 0.06, 0.014, i + row, streakAt(az));
-    }
-  }
   if (style === 'long' || style === 'braids') {
     // from the parting over the skull: each lock runs down its own meridian
     const n = 26;
@@ -466,9 +498,10 @@ function rig(f: HeroFigure, s: number, gown: boolean) {
     up.add(at(box(0.11 * s, 0.05 * s, 0.035 * s, tone(trim, '#ffffff', 0.25)), -0.235 * s, -0.06 * s, (br.f * 1.05 + 0.032) * s));
   }
   const neck = new THREE.Group(); neck.position.y = 2.24 * s; neck.name = 'neck'; up.add(neck);
-  neck.add(loft(neckRings(fr), skin, { seg: 16 }));
-  if (!fr.fem) neck.add(at(sph(0.035 * s, skin, 8, 6), 0, 0.2 * s, 0.155 * s)); // the larynx
-  const head = new THREE.Group(); head.position.y = 0.21 * s; head.name = 'head'; neck.add(head);
+  // the neck, and on a masculine one the larynx: a soft rise in the front of the throat, not a bead on it
+  const ly = 0.13 + 0.28 * neckLift(fr), larynx = fr.fem ? undefined : (th: number, y: number) => { const t = th > Math.PI ? th - 2 * Math.PI : th; return 0.06 * Math.exp(-((t / 0.26) ** 2) - ((y - ly) / 0.07) ** 2); };
+  neck.add(loft(neckRings(fr), skin, { seg: 32, rows: 24, bump: larynx }));
+  const head = new THREE.Group(); head.position.y = (0.21 + neckLift(fr)) * s; head.name = 'head'; neck.add(head);
   // empty mounts for gear: the belt at each hip (sheaths hang down -y), and between the shoulder blades (+y up the back)
   for (const sx of [1, -1]) { const b = new THREE.Group(); b.name = sx > 0 ? 'beltR' : 'beltL'; b.position.set(sx * ringAt(tr, 0.42).w * s, 0.42 * s, 0.05 * s); up.add(b); }
   const back = new THREE.Group(); back.name = 'back'; back.position.set(0, 1.5 * s, -(ringAt(tr, 1.5).b + 0.12) * s); up.add(back);
@@ -533,8 +566,7 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
   const s = (SIZE_SCALE[size] ?? 1) * (f.height ?? 1);
   const gown = !!(f.skirt && f.underskirt);
   const { body, pel, up, neck, head, arm, leg, soles, fr, tr, bustWarp, bustJig } = rig(f, s, gown);
-  const hy = 2.82 * s; // the head's centre, in the upper body's frame
-  const skin = f.skin ?? '#d9b899';
+  const hy = (2.82 + neckLift(fr)) * s; // the head's centre, in the upper body's frame
   const headAt = neck.position.y + head.position.y; // the head joint, in the upper body's frame
   if (f.headSize) head.scale.setScalar(f.headSize);
   const surf = buildFace(head, s, hy - headAt, f, fr.fem, dead, gazeOf(poseOf(f, battle, dead, gown), battle));
@@ -609,9 +641,6 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
     }
   }
 
-
-  // pointed ears
-  if (f.ears === 'pointed') for (const sx of [-1, 1]) { const e = sm(new THREE.ConeGeometry(0.09 * s, 0.5 * s, 8), skin); e.scale.z = 0.45; e.position.set(sx * 0.36 * s, hy + 0.06 * s, -0.02 * s); e.rotation.z = -sx * 1.05; e.rotation.x = -0.35; up.add(e); }
 
   buildHair(head, s, hy - headAt, f, fr.fem);
 
