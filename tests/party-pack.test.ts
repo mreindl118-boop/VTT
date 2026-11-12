@@ -129,7 +129,9 @@ describe('heroFigure', () => {
     const f = { stance: 'conjure' as const, glow: '#b06ad0', skirt: '#5e1f3a', underskirt: '#efe3c8', gownTrim: '#b08a4a', crown: { color: '#3a2a1c', flower: '#fff' } };
     const armAngles = (g: THREE.Object3D) => { const out: number[] = []; g.traverse((c) => { if ((c as THREE.Group).isGroup && Math.abs(Math.abs(c.position.x) - 0.86) < 0.01) out.push(c.rotation.x); }); return out; };
     expect(armAngles(heroFigure(f)).every((x) => x > -0.5)).toBe(true);
-    expect(armAngles(heroFigure(f, 'medium', true)).every((x) => x < -1)).toBe(true);
+    // conjure: the casting hand thrust forward, the book raised in the other (its elbow bent up)
+    const b = heroFigure(f, 'medium', true).userData.joints as Record<string, THREE.Object3D>;
+    expect(b.shoulderR.rotation.x).toBeLessThan(-1); expect(b.elbowL.rotation.x).toBeLessThan(-0.8);
     const glows = (g: THREE.Object3D) => { let n = 0; g.traverse((c) => { const m = c as THREE.Mesh; if (m.isMesh && (m.material as THREE.Material).userData.keepLook) n++; }); return n; };
     expect(glows(heroFigure(f, 'medium', true))).toBe(glows(heroFigure(f)) + 2);
   });
@@ -139,6 +141,23 @@ describe('heroFigure', () => {
     const marks = face!.parent!.children.filter((c) => (c as THREE.Mesh).isMesh && (c as THREE.Mesh).geometry.type === 'TorusGeometry' && ((c as THREE.Mesh).geometry as THREE.TorusGeometry).parameters.radius < 0.3);
     expect(marks).toHaveLength(2);
     for (const m of marks) expect(m.position.z).toBeGreaterThan(0.07); // in front of the face (half its thickness), never inside it
+  });
+  it('is jointed: named joints, knees and elbows that bend, poses by name or by angle', () => {
+    const g = heroFigure({ weapon: 'axe', stance: 'two-handed' }, 'medium', true), J = g.userData.joints as Record<string, THREE.Object3D>;
+    for (const n of ['hips', 'chest', 'neck', 'head', 'shoulderR', 'elbowL', 'wristR', 'handR', 'handL', 'hipL', 'kneeR', 'ankleL', 'footR', 'beltL', 'back']) expect(J[n], n).toBeDefined();
+    expect(J.kneeL.rotation.x).toBeGreaterThan(0.5); expect(J.elbowR.rotation.x).toBeLessThan(-1);
+    g.updateMatrixWorld(true);
+    let low = Infinity; g.traverse((c) => { if ((c as THREE.Mesh).isMesh) low = Math.min(low, new THREE.Box3().setFromObject(c).min.y); });
+    expect(low).toBeGreaterThan(-0.05); // bent knees, feet still on the floor
+    const kneel = height(heroFigure({ pose: 'kneel' })), stand = height(heroFigure({}));
+    expect(kneel).toBeLessThan(stand * 0.85);
+    const ride = heroFigure({ pose: 'ride' }); ride.updateMatrixWorld(true);
+    expect((ride.userData.joints.hips as THREE.Object3D).getWorldPosition(new THREE.Vector3()).y).toBeCloseTo(0, 5); // seated: the seat at the origin
+    const custom = heroFigure({ pose: { elbowR: -1.5, kneeL: 0.9 } });
+    expect(custom.userData.joints.elbowR.rotation.x).toBeCloseTo(-1.5); expect(custom.userData.joints.kneeL.rotation.x).toBeCloseTo(0.9);
+  });
+  it('builds nothing for an empty hand', () => {
+    expect((heroFigure({}).userData.joints.handR as THREE.Object3D).children).toHaveLength(0);
   });
   it('recolours the gown and the underskirt', () => {
     const colours = new Set<string>(); heroFigure({ skirt: '#5e1f3a', underskirt: '#efe3c8' }).traverse((c) => { const m = c as THREE.Mesh; if (m.isMesh) colours.add('#' + (m.material as THREE.MeshLambertMaterial).color.getHexString()); });
