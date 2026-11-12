@@ -75,7 +75,7 @@ export function paintFace(spec: FaceSpec, look: PaintLook): THREE.Texture | null
   for (const sx of [-1, 1]) {
     blob(sx * 0.215, -0.17, 0.085, 0.05, shade, 0.15 + 0.2 * Math.max(0, gaunt) + 0.1 * n(spec.cheekbones), sx * -0.5);
     blob(sx * 0.3, 0.1, 0.05, 0.12, shade, 0.16);
-    if (!look.dead) blob(sx * 0.19, -0.09, 0.075, 0.055, spec.blush ?? mix(skin, '#d2485a', 0.6), spec.blush ? 0.42 : fem ? 0.24 : 0.1);
+    if (!look.dead && spec.blush !== false) blob(sx * 0.19, -0.09, 0.075, 0.055, spec.blush || mix(skin, '#d2485a', 0.6), spec.blush ? 0.42 : fem ? 0.24 : 0.1);
     blob(sx * ex, 0.02, ew * 1.55, eh * 2.6, spec.shadow ?? shade, (spec.shadow ? 0.6 : 0.3) + 0.25 * Math.max(0, n(spec.sunken)));
     blob(sx * 0.03, -0.02, 0.02, 0.09, shade, 0.22);                                    // the side of the nose's bridge
     if (n(spec.bags) > 0) stroke([[sx * (ex - ew * 0.7), -eh * 1.5], [sx * ex, -eh * 2.3], [sx * (ex + ew * 0.8), -eh * 1.4]], 0.007, shade, 0.35 + 0.4 * n(spec.bags));
@@ -95,7 +95,7 @@ export function paintFace(spec: FaceSpec, look: PaintLook): THREE.Texture | null
       for (const k of [-1, 1]) stroke([[-ew * 0.7, k * eh * 1.1], [ew * 0.7, -k * eh * 1.1]], 0.013, deep);
       c.restore(); continue;
     }
-    const up = E.up, lo = E.lo, lashy = fem || !!spec.lashes;
+    const up = E.up, lo = E.lo, lashy = spec.lashes ?? fem;
     const almond = () => {
       c.beginPath(); c.moveTo(-ew, -eh * 0.1);
       c.bezierCurveTo(-ew * 0.6, eh * 1.25 * up, ew * (0.3 + E.peak), eh * 1.35 * up, ew, eh * 0.35);
@@ -183,6 +183,12 @@ export function paintFace(spec: FaceSpec, look: PaintLook): THREE.Texture | null
   if (spec.teeth) { c.fillStyle = '#ebe4d2'; c.fillRect(-hw * 0.55, my - 0.012, hw * 1.1, 0.012); }
 
   // ---- years and marks
+  // the first faint lines (from 0.15): short smile lines, then a crow's foot at each eye
+  if (age > 0.15 && age <= 0.3) for (const sx of [-1, 1]) {
+    const k = (age - 0.15) / 0.15;
+    stroke([[sx * 0.06, -0.155], [sx * (hw + 0.024), -0.195], [sx * (hw + 0.024), -0.245]], 0.0045, shade, 0.14 + 0.2 * k);
+    if (age > 0.2) stroke([[sx * (ex + ew * 1.25), 0.002], [sx * (ex + ew * 1.25 + 0.027), 0.014]], 0.0035, shade, 0.22 + 0.16 * k);
+  }
   if (age > 0.3) for (const sx of [-1, 1]) stroke([[sx * 0.055, -0.15], [sx * (hw + 0.03), -0.2], [sx * (hw + 0.028), -0.29]], 0.005 + 0.004 * age, shade, 0.35 + 0.4 * age);
   if (age > 0.5) for (let i = 0; i < 3; i++) stroke([[-0.15 + i * 0.02, 0.2 + i * 0.045], [0, 0.208 + i * 0.045], [0.15 - i * 0.02, 0.2 + i * 0.045]], 0.005, shade, 0.3 + 0.35 * age);
   if (age > 0.45) for (const sx of [-1, 1]) for (const k of [-1, 0, 1]) stroke([[sx * (ex + ew * 1.25), k * 0.008], [sx * (ex + ew * 1.25 + 0.03), k * 0.024]], 0.004, shade, 0.5);

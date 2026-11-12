@@ -38,11 +38,13 @@ export interface FaceSpec {
   /** The mouth: width, fullness, and its set from a frown (-1) to a smile (1); fangs; bared teeth. */
   mouthW?: number; lipFull?: number; smile?: number; fangs?: boolean; teeth?: boolean;
   beard?: Beard; moustache?: Moustache; beardColor?: string;
-  /** 0 = young, 1 = very old: lines on the forehead, beside the mouth and at the eyes. */
+  /** 0 = young, 1 = very old: lines on the forehead, beside the mouth and at the eyes. Up to 0.3 they are only the first
+   *  faint lines, short smile lines and a crow's foot at each eye, for a face that has seen weather or laughed a lot. */
   age?: number;
   scars?: Scar[]; eyepatch?: 'L' | 'R'; warts?: boolean; mole?: 'L' | 'R';
-  /** Colours: veins at the temples, shadow on the lids, a flush on the cheeks, spectacle rims, lashes. */
-  veins?: string; shadow?: string; blush?: string; spectacles?: string; lashes?: boolean;
+  /** Colours: veins at the temples, shadow on the lids, a flush on the cheeks (false for none: a weathered or a pallid
+   *  face), spectacle rims. Lashes are drawn on a feminine face and not on a masculine one unless this says otherwise. */
+  veins?: string; shadow?: string; blush?: string | false; spectacles?: string; lashes?: boolean;
   /** No hair cap on the head. */
   bald?: boolean;
   /** The ears: longer (1) or shorter (-1); and how far they stand out from the head, from lying back along it (0) to
