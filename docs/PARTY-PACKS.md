@@ -89,6 +89,11 @@ and cloth lies over it below; `body.bust` sizes it.
 Jiggle (the Party sheet's switch, on by default): the bust bounces on a damped spring when a miniature is picked up
 or moved. It costs nothing while nothing is moving; switched off, figures are built without the weights.
 
+Whatever the pose, a standing figure keeps its soles flat and both feet on the ground (the higher foot comes down,
+or the hips sink onto the standing leg; a foot the pose lifts well clear stays in the air), stands over the middle of
+its base, turns an empty hand's palm to the thigh, and in a two-handed stance takes the haft of a long weapon in its
+free hand.
+
 Out of a fight a weapon is put away, never carried drawn: an axe, sword or spear slung across the back, a mace hung
 at the belt (a staff or torch stays in hand); in initiative it is in hand. `"stow": false` keeps it in hand always.
 

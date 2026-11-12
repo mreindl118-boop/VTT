@@ -207,4 +207,15 @@ describe('heroFigure', () => {
     expect(j(kept).handR.children.length).toBeGreaterThan(0);
     const m = heroFigure({ weapon: 'mace' }); expect(j(m).stowed.parent).toBe(j(m).beltR);
   });
+  it('stands on both feet in a fighting stance, over the middle of its base, with both hands on a long weapon', () => {
+    for (const f of [{ weapon: 'axe' as const, stance: 'two-handed' as const }, { weapon: 'mace' as const, stance: 'shield' as const, offhand: { kind: 'shield' as const } }]) {
+      const g = heroFigure(f, 'medium', 'battle'), J = g.userData.joints as Record<string, THREE.Object3D>; g.updateMatrixWorld(true);
+      const a = new THREE.Box3().setFromObject(J.footR), b = new THREE.Box3().setFromObject(J.footL);
+      expect(Math.abs(a.min.y - b.min.y)).toBeLessThan(0.08);                                  // both soles down
+      expect(Math.abs((Math.min(a.min.x, b.min.x) + Math.max(a.max.x, b.max.x)) / 2)).toBeLessThan(0.15); // centred
+    }
+    const g = heroFigure({ weapon: 'axe', stance: 'two-handed' }, 'medium', 'battle'), J = g.userData.joints as Record<string, THREE.Object3D>; g.updateMatrixWorld(true);
+    const grip = J.handR.localToWorld(new THREE.Vector3(0, 1, 0)), other = J.handR.localToWorld(new THREE.Vector3(0, -0.75, 0)), hand = J.handL.getWorldPosition(new THREE.Vector3());
+    expect(Math.min(hand.distanceTo(grip), hand.distanceTo(other))).toBeLessThan(0.25);        // the free hand is on the haft
+  });
 });
