@@ -33,6 +33,13 @@ export interface HeroFigure {
   wisp?: string;
   /** Feet above the floor (a flier hovering). */
   hoverFt?: number;
+  /** Detail: eye colour (a glow when bright), the shirt at the collar, sleeves, forearm bracers, a pendant, the belt
+   *  buckle, the cloak's hem band, a satchel on a strap, a coat's tails and lapels, vials at the belt, and sparkles
+   *  drifting around the figure. */
+  eyes?: string; shirt?: string; sleeves?: string; bracers?: string; pendant?: string; buckle?: string;
+  cloakTrim?: string; satchel?: string; coat?: { tails: string; lapel?: string }; vials?: string[]; sparkles?: string;
+  /** Drop earrings, marks on the face (veins, scars, freckles of colour), and a ragged hem on the cloak. */
+  earrings?: string; markings?: string; tattered?: boolean;
 }
 
 const SIZE_SCALE: Record<CreatureSize, number> = { tiny: 0.45, small: 0.68, medium: 1, large: 1.6, huge: 2.4, gargantuan: 3.2 };
@@ -65,6 +72,40 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium'): THREE.
   const hy = 2.82 * s; // the head's centre, in the upper body's frame
   const hand = (side: 1 | -1) => new THREE.Vector3(side * 0.9 * s, -0.12 * s, 0.38 * s);
 
+  // sleeves and bracers: the arms' upper and lower parts recoloured
+  const arms = up.children.filter((c) => (c as THREE.Group).isGroup && Math.abs(Math.abs(c.position.x) - 0.86 * s) < 0.01 * s) as THREE.Group[];
+  for (const a of arms) {
+    const parts = a.children.filter((c) => (c as M).isMesh && (c as M).geometry.type === 'CylinderGeometry') as M[];
+    if (f.sleeves && parts[0]) parts[0].material = mat(f.sleeves);
+    if (f.sleeves && parts[1] && !f.bracers) parts[1].material = mat(f.sleeves);
+    if (f.bracers && parts[1]) { parts[1].material = mat(f.bracers); const cuff = cyl(0.2 * s, 0.2 * s, 0.14 * s, f.bracers); cuff.position.copy(parts[1].position); cuff.position.y -= 0.42 * s; a.add(cuff); }
+  }
+
+  // the face: eyes (a bright colour reads as a glow), and a brow line
+  if (f.eyes) for (const sx of [-1, 1]) { up.add(at(box(0.11 * s, 0.07 * s, 0.05 * s, f.eyes), sx * 0.15 * s, hy + 0.06 * s, 0.39 * s)); up.add(at(box(0.16 * s, 0.04 * s, 0.05 * s, f.hair ?? '#3a2a1a'), sx * 0.15 * s, hy + 0.15 * s, 0.38 * s)); }
+
+  if (f.earrings) for (const sx of [-1, 1]) { const e = ball(0.06 * s, f.earrings, 0); e.scale.y = 1.8; up.add(at(e, sx * 0.43 * s, hy - 0.2 * s, 0.02 * s)); }
+  if (f.markings) for (const [x, y, rz] of [[0.24, -0.08, 0.6], [0.3, 0.06, -0.3], [-0.26, -0.12, -0.5]]) { const m = box(0.03 * s, 0.2 * s, 0.03 * s, f.markings); m.rotation.z = rz; up.add(at(m, x * s, hy + y * s, 0.36 * s)); }
+
+  // collar, pendant, buckle
+  if (f.shirt) { const c = cyl(0.24 * s, 0.32 * s, 0.32 * s, f.shirt, 7); up.add(at(c, 0, 2.2 * s, 0.08 * s)); up.add(at(box(0.3 * s, 0.5 * s, 0.06 * s, f.shirt), 0, 1.85 * s, 0.4 * s)); }
+  if (f.pendant) { up.add(at(box(0.03 * s, 0.4 * s, 0.03 * s, '#b8bec8'), 0, 1.95 * s, 0.43 * s)); const g = ball(0.09 * s, f.pendant, 0); g.scale.y = 1.6; up.add(at(g, 0, 1.68 * s, 0.45 * s)); }
+  if (f.buckle) up.add(at(box(0.24 * s, 0.2 * s, 0.06 * s, f.buckle), 0, 0.42 * s, 0.63 * s));
+
+  // a coat: tails behind, lapels in front
+  if (f.coat) {
+    const tails = box(1.1 * s, 1.5 * s, 0.12 * s, f.coat.tails); tails.rotation.x = 0.12; up.add(at(tails, 0, -0.45 * s, -0.42 * s));
+    for (const sx of [-1, 1]) { const lp = box(0.16 * s, 0.9 * s, 0.05 * s, f.coat.lapel ?? f.coat.tails); lp.rotation.z = sx * 0.25; up.add(at(lp, sx * 0.24 * s, 1.75 * s, 0.42 * s)); }
+  }
+
+  // a satchel on a strap across the chest, and vials at the belt
+  if (f.satchel) {
+    const strap = box(0.1 * s, 2.5 * s, 0.05 * s, f.satchel); strap.rotation.z = -0.62; up.add(at(strap, 0.05 * s, 1.15 * s, 0.43 * s));
+    up.add(at(box(0.62 * s, 0.5 * s, 0.24 * s, f.satchel), 0.72 * s, -0.12 * s, 0.38 * s));
+    up.add(at(box(0.64 * s, 0.16 * s, 0.26 * s, f.buckle ?? f.satchel), 0.72 * s, 0.08 * s, 0.4 * s));
+  }
+  (f.vials ?? []).slice(0, 4).forEach((c, i) => { up.add(at(cyl(0.06 * s, 0.07 * s, 0.26 * s, c, 6), -0.5 * s + i * 0.15 * s, 0.25 * s, 0.6 * s)); up.add(at(box(0.07 * s, 0.07 * s, 0.07 * s, '#8a6a4a'), -0.5 * s + i * 0.15 * s, 0.42 * s, 0.6 * s)); });
+
   // boots in their own colour
   if (f.boots) body.children.forEach((c) => { const m = c as M; if (m.isMesh && m.geometry.type === 'BoxGeometry' && m.position.y < 0.5 * s) m.material = mat(f.boots!); });
 
@@ -80,7 +121,11 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium'): THREE.
   // hair
   if (f.hair) {
     if (f.hairStyle === 'long' || f.hairStyle === 'braids') { const back = box(0.78 * s, 1.5 * s, 0.22 * s, f.hair); up.add(at(back, 0, hy - 0.65 * s, -0.36 * s)); }
-    if (f.hairStyle === 'braids') for (const sx of [-1, 1]) { const b = cyl(0.09 * s, 0.07 * s, 1.6 * s, f.hair, 5); b.rotation.x = 0.12; up.add(at(b, sx * 0.4 * s, hy - 1.0 * s, 0.18 * s)); }
+    if (f.hairStyle === 'long') for (const sx of [-1, 1]) { const lock = box(0.2 * s, 1.1 * s, 0.2 * s, f.hair); lock.rotation.z = sx * 0.1; up.add(at(lock, sx * 0.4 * s, hy - 0.55 * s, 0.08 * s)); }
+    if (f.hairStyle === 'braids') for (const sx of [-1, 1]) {
+      const b = cyl(0.09 * s, 0.07 * s, 1.6 * s, f.hair, 5); b.rotation.x = 0.12; up.add(at(b, sx * 0.4 * s, hy - 1.0 * s, 0.18 * s));
+      for (const dy of [-0.55, -1.25]) { const bead = cyl(0.1 * s, 0.1 * s, 0.1 * s, '#b8bec8', 6); up.add(at(bead, sx * 0.4 * s, hy + dy * s, 0.18 * s - dy * 0.1 * s)); }
+    }
     if (f.hairStyle === 'curly') for (let i = 0; i < 9; i++) { const a = (i / 9) * Math.PI * 2; up.add(at(ball(0.17 * s, f.hair), Math.cos(a) * 0.36 * s, hy + 0.25 * s + (i % 2) * 0.08 * s, Math.sin(a) * 0.33 * s - 0.04 * s)); }
     if (f.hairStreak) up.add(at(box(0.1 * s, 1.2 * s, 0.12 * s, f.hairStreak), 0.3 * s, hy - 0.35 * s, 0.22 * s));
   }
@@ -91,6 +136,14 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium'): THREE.
     for (const sx of [-1, 1]) { const p = ball(0.5 * s, f.armor.color, 1); p.scale.set(1.05, 0.62, 1); up.add(at(p, sx * 0.78 * s, 2.12 * s, 0)); up.add(at(box(0.62 * s, 0.08 * s, 0.7 * s, t), sx * 0.8 * s, 1.95 * s, 0)); }
     up.add(at(cyl(0.34 * s, 0.42 * s, 0.3 * s, t), 0, 2.28 * s, 0));                          // gorget
     up.add(at(box(0.9 * s, 0.08 * s, 0.08 * s, t), 0, 1.5 * s, 0.42 * s));                       // breastplate edge
+    for (const sx of [-1, 1]) { const p2 = ball(0.42 * s, f.armor.color, 1); p2.scale.set(1, 0.5, 0.95); up.add(at(p2, sx * 0.86 * s, 1.78 * s, 0)); up.add(at(box(0.5 * s, 0.06 * s, 0.62 * s, t), sx * 0.88 * s, 1.62 * s, 0)); }
+    up.add(at(box(0.5 * s, 0.06 * s, 0.06 * s, t), 0, 0.95 * s, 0.4 * s));                         // a second band
+    for (const sx of [-1, 1]) {                                                                         // knees and greaves
+      body.add(at(ball(0.22 * s, f.armor.color, 0), sx * 0.3 * s, 1.55 * s, 0.14 * s));
+      body.add(at(cyl(0.22 * s, 0.2 * s, 0.9 * s, f.armor.color, 7), sx * 0.3 * s, 0.95 * s, 0.02 * s));
+      body.add(at(box(0.3 * s, 0.05 * s, 0.05 * s, t), sx * 0.3 * s, 1.35 * s, 0.2 * s));
+    }
+    for (const [x, z] of [[-0.42, 0.3], [0.42, 0.3], [-0.5, -0.1], [0.5, -0.1]]) { const ts = box(0.42 * s, 0.75 * s, 0.08 * s, f.armor.color); ts.rotation.x = z > 0 ? -0.15 : 0.15; ts.rotation.y = x * 0.6; up.add(at(ts, x * s, -0.45 * s, z * s)); up.add(at(box(0.42 * s, 0.06 * s, 0.09 * s, t), x * s, -0.78 * s, z * s + 0.02 * s)); } // tassets
   }
   if (f.armor?.kind === 'mail') { const m = cyl(0.7 * s, 0.75 * s, 1.0 * s, f.armor.trim ?? f.armor.color, 7); m.scale.z = 0.66; up.add(at(m, 0, 0.55 * s, 0)); }
 
@@ -98,6 +151,8 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium'): THREE.
   if (f.cloak) {
     const c = cyl(0.8 * s, 1.2 * s, 4.7 * s, f.cloak, 8); c.scale.z = 0.42; up.add(at(c, 0, -0.1 * s, -0.36 * s));
     up.add(at(cyl(0.82 * s, 0.82 * s, 0.3 * s, f.cloak, 8), 0, 2.2 * s, -0.06 * s));
+    if (f.cloakTrim) { const hem = cyl(0.81 * s, 1.215 * s, 0.22 * s, f.cloakTrim, 8); hem.scale.z = 0.43; up.add(at(hem, 0, -2.3 * s, -0.36 * s)); for (const sx of [-1, 1]) up.add(at(box(0.08 * s, 3.8 * s, 0.06 * s, f.cloakTrim), sx * 0.78 * s, 0.0 * s, -0.05 * s)); }
+    if (f.tattered) for (let i = 0; i < 9; i++) { const a = Math.PI * (0.2 + 0.6 * (i / 8)) + Math.PI, x = Math.cos(a) * 1.15 * s, z = -0.36 * s + Math.sin(a) * 1.15 * 0.42 * s; const t = cone(0.12 * s, (0.35 + (i % 3) * 0.15) * s, f.cloak, 3); t.rotation.x = Math.PI; up.add(at(t, x, -2.6 * s, z)); }
     if (f.hood) { const h = ball(0.5 * s, f.cloak, 1); h.scale.set(1, 0.55, 0.8); up.add(at(h, 0, 2.38 * s, -0.42 * s)); }
   }
 
@@ -141,7 +196,8 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium'): THREE.
       const g = new THREE.Group(); g.position.set(sx * 0.18 * s, p.y * s, -0.42 * s); g.rotation.y = sx * 0.45; g.rotation.z = -sx * p.tilt;
       const wing = glassy(new THREE.Mesh(new THREE.CircleGeometry(1, 14), mat(f.wings.color)), f.wings.color, op);
       wing.scale.set(p.w * s / 2, p.h * s / 2, 1); wing.position.x = sx * p.w * s / 2; g.add(wing);
-      const vein = box(p.w * s, 0.05 * s, 0.03 * s, f.wings.color); vein.position.x = sx * p.w * s / 2; g.add(vein);
+      for (const ang of [-0.45, 0, 0.45]) { const vein = box(p.w * s * 0.95, 0.04 * s, 0.03 * s, f.wings.color); vein.geometry.translate(sx * p.w * s * 0.475, 0, 0); vein.rotation.z = ang * (p.h / p.w); g.add(vein); }
+      const edge = glassy(new THREE.Mesh(new THREE.RingGeometry(0.93, 1, 20), mat(f.wings.color)), f.wings.color, Math.min(1, op + 0.35)); edge.scale.copy(wing.scale); edge.position.copy(wing.position); g.add(edge);
       up.add(g);
     }
   }
@@ -156,6 +212,7 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium'): THREE.
   }
 
   const out = new THREE.Group(); out.add(body);
+  if (f.sparkles) for (let i = 0; i < 12; i++) { const a = i * 2.39996, r = (1.1 + (i % 3) * 0.35) * s, y = (0.8 + ((i * 7) % 11) * 0.42) * s + (f.hoverFt ?? 0); out.add(at(glassy(ball(0.07 * s, f.sparkles, 0), f.sparkles, 0.85), Math.cos(a) * r, y, Math.sin(a) * r)); }
   if (f.hoverFt) body.position.y = f.hoverFt;
   return out;
 }

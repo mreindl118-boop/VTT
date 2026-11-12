@@ -116,6 +116,15 @@ describe('heroFigure', () => {
     expect(height(heroFigure({ hoverFt: 1 }, 'small'))).toBeCloseTo(small + 1, 1);
     expect(height(heroFigure({ height: 1.1 }))).toBeGreaterThan(med * 1.05);
   });
+  it('adds the detail parts, each one more mesh, and the sparkles see-through', () => {
+    const count = (g: THREE.Object3D) => { let n = 0; g.traverse((c) => { if ((c as THREE.Mesh).isMesh) n++; }); return n; };
+    const plain = count(heroFigure({ cloak: '#222', armor: { kind: 'plate', color: '#26272d' } }));
+    const rich = heroFigure({ cloak: '#222', armor: { kind: 'plate', color: '#26272d' }, eyes: '#7fb4ff', shirt: '#eee', sleeves: '#111', bracers: '#bbb', pendant: '#c9a8ff', buckle: '#999',
+      cloakTrim: '#ccc', satchel: '#3e2c22', coat: { tails: '#3e1846' }, vials: ['#f00', '#0f0'], sparkles: '#d9b8ff', earrings: '#c9a8ff', markings: '#5a2a5a', tattered: true });
+    expect(count(rich)).toBeGreaterThan(plain + 40);
+    let glassy = 0; rich.traverse((c) => { const m = c as THREE.Mesh; if (m.isMesh && (m.material as THREE.Material).userData.keepLook) glassy++; });
+    expect(glassy).toBe(12);
+  });
   it('recolours the gown and the underskirt', () => {
     const colours = new Set<string>(); heroFigure({ skirt: '#5e1f3a', underskirt: '#efe3c8' }).traverse((c) => { const m = c as THREE.Mesh; if (m.isMesh) colours.add('#' + (m.material as THREE.MeshLambertMaterial).color.getHexString()); });
     expect(colours.has('#5e1f3a')).toBe(true); expect(colours.has('#efe3c8')).toBe(true);

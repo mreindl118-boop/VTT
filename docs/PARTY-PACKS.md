@@ -58,6 +58,11 @@ Built by `app/src/kit/heroes.ts` on the kit's humanoid, original geometry and fl
 `wings` (`{color, opacity, count: 2|4}`, see-through), `halo`, `crown` (`{color, flower}`: a thorn crown), `wisp`
 (a glowing spell wisp), `hoverFt`.
 
+Detail: `eyes` (a bright colour reads as a glow), `shirt` (collar and placket), `sleeves`, `bracers`, `pendant`,
+`buckle`, `earrings`, `markings` (marks on the face), `cloakTrim` (hem band and front edges), `tattered` (a ragged
+cloak hem), `satchel` (bag on a strap), `coat` (`{tails, lapel}`), `vials` (up to four colours at the belt), `sparkles`
+(motes drifting around the figure). Plate armour also gets layered pauldrons, tassets, knee guards and greaves.
+
 ## Both rule sets
 
 Nothing in a pack depends on the edition: speed, darkvision, size and light come from the species and are written as
