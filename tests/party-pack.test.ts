@@ -128,8 +128,8 @@ describe('heroFigure', () => {
   });
   it('takes its battle stance only in initiative: the arms rise and a spell gathers', () => {
     const f = { stance: 'conjure' as const, glow: '#b06ad0', skirt: '#5e1f3a', underskirt: '#efe3c8', gownTrim: '#b08a4a', crown: { color: '#3a2a1c', flower: '#fff' } };
-    const armAngles = (g: THREE.Object3D) => { const out: number[] = []; g.traverse((c) => { if ((c as THREE.Group).isGroup && Math.abs(Math.abs(c.position.x) - 0.86) < 0.01) out.push(c.rotation.x); }); return out; };
-    expect(armAngles(heroFigure(f)).every((x) => x > -0.5)).toBe(true);
+    const armAngles = (g: THREE.Object3D) => { const J = g.userData.joints as Record<string, THREE.Object3D>; return [J.shoulderR, J.shoulderL].map((j) => j.rotation.x); };
+    expect(armAngles(heroFigure(f)).length).toBe(2); expect(armAngles(heroFigure(f)).every((x) => x > -0.5)).toBe(true);
     // conjure: the casting hand thrust forward, the book raised in the other (its elbow bent up)
     const b = heroFigure(f, 'medium', true).userData.joints as Record<string, THREE.Object3D>;
     expect(b.shoulderR.rotation.x).toBeLessThan(-1); expect(b.elbowL.rotation.x).toBeLessThan(-0.8);
@@ -241,7 +241,15 @@ describe('heroFigure', () => {
     // the figure faces +z, so its own right is at -x
     expect(x('shoulderR')).toBeLessThan(0); expect(x('hipR')).toBeLessThan(0); expect(x('beltR')).toBeLessThan(0); expect(x('shoulderL')).toBeGreaterThan(0);
     expect(J.handR.children.length).toBeGreaterThan(0); expect(J.handL.children.length).toBeGreaterThan(0);
-    // a pose's turns follow the sides: at ease on the right leg, the right hip is the higher and the right shoulder the lower
+    expect(x('handR')).toBeLessThan(0); expect(x('handL')).toBeGreaterThan(0);
+    let up: THREE.Object3D | null = J.handR; while (up && up !== J.shoulderR) up = up.parent; expect(up).toBe(J.shoulderR);
+    const holds = (h: THREE.Object3D, test: (m: THREE.Mesh) => boolean) => { let n = 0; h.traverse((c) => { if ((c as THREE.Mesh).isMesh && test(c as THREE.Mesh)) n++; }); return n > 0; };
+    expect(holds(J.handR, (m) => (m.geometry as THREE.SphereGeometry).parameters?.radius === 0.26)).toBe(true);      // the mace's head
+    expect(holds(J.handL, (m) => (m.geometry as THREE.CylinderGeometry).parameters?.radiusTop === 1)).toBe(true);    // the shield's face
+    // a pose's turns follow the sides: the head and the chest turned to the figure's right look toward -x
+    const facing = (pose: Parameters<typeof heroFigure>[0]['pose'], n: string) => { const h = heroFigure({ pose }); h.updateMatrixWorld(true); return new THREE.Vector3(0, 0, 1).transformDirection((h.userData.joints as Record<string, THREE.Object3D>)[n].matrixWorld).x; };
+    expect(facing({ neck: [0, 0.4, 0] }, 'head')).toBeLessThan(-0.2); expect(facing({ spine: [0, 0.4, 0] }, 'chest')).toBeLessThan(-0.2);
+    // at ease on the right leg, the right hip is the higher and the right shoulder the lower
     const e = heroFigure({ pose: { ...AT_EASE[0] } }), K = e.userData.joints as Record<string, THREE.Object3D>; e.updateMatrixWorld(true);
     const y = (n: string) => K[n].getWorldPosition(new THREE.Vector3()).y;
     expect(y('hipR')).toBeGreaterThan(y('hipL')); expect(y('shoulderR')).toBeLessThan(y('shoulderL'));
@@ -262,24 +270,133 @@ describe('heroFigure', () => {
     expect(haft.angleTo(arm)).toBeGreaterThan(0.9); expect(haft.angleTo(arm)).toBeLessThan(2.35);  // across the hand, never along the forearm
     const palm = J.wristR.children[0] as THREE.Mesh, r = (palm.geometry as THREE.SphereGeometry).parameters.radius;
     expect(J.handR.getWorldPosition(new THREE.Vector3()).distanceTo(palm.getWorldPosition(new THREE.Vector3()))).toBeLessThan(r);  // held in the fist
+    // a fist the right way round: the thumb over the fingers from the index side, the weapon's head out of the fist on that side
+    const P = (o: THREE.Object3D) => o.getWorldPosition(new THREE.Vector3()), parts = (sd: string) => J[`wrist${sd}`].children.filter((c) => (c as THREE.Mesh).isMesh);
+    for (const sd of ['R', 'L']) { const m = parts(sd); expect(P(m[9]).distanceTo(P(m[1])), sd).toBeLessThan(P(m[9]).distanceTo(P(m[7]))); }
+    expect(haft.dot(P(parts('R')[1]).sub(P(parts('R')[7])).normalize())).toBeGreaterThan(0.5);
   });
   it('makes a fist of a hand the pose names, and leaves the other open', () => {
-    const J = heroFigure({ pose: { fist: ['L'] } }).userData.joints as Record<string, THREE.Object3D>;
-    const k1 = (sd: string) => J[`wrist${sd}`].children.filter((c) => (c as THREE.Mesh).isMesh)[1].rotation.x;
-    expect(k1('L')).toBeLessThan(-1.2); expect(k1('R')).toBeGreaterThan(-0.8);
+    const g = heroFigure({ pose: { fist: ['L'] } }), J = g.userData.joints as Record<string, THREE.Object3D>; g.updateMatrixWorld(true);
+    const parts = (sd: string) => J[`wrist${sd}`].children.filter((c) => (c as THREE.Mesh).isMesh), P = (o: THREE.Object3D) => o.getWorldPosition(new THREE.Vector3());
+    expect(parts('L')[1].rotation.x).toBeLessThan(-1.2); expect(parts('R')[1].rotation.x).toBeGreaterThan(-0.8);
+    const m = parts('L'); expect(P(m[9]).distanceTo(P(m[1]))).toBeLessThan(P(m[9]).distanceTo(P(m[7])));   // the thumb across from the index side
+    // a shield's grip and a shut book's foot are held the same way round
+    for (const f of [{ offhand: { kind: 'shield' as const } }, { offhand: { kind: 'book' as const } }]) {
+      const h = heroFigure(f), K = h.userData.joints as Record<string, THREE.Object3D>; h.updateMatrixWorld(true);
+      const q = K.wristL.children.filter((c) => (c as THREE.Mesh).isMesh); expect(P(q[9]).distanceTo(P(q[1])), f.offhand.kind).toBeLessThan(P(q[9]).distanceTo(P(q[7])));
+    }
   });
   it('rides plate pauldrons on the shoulder joint, so they lift with the arm, and rolls a shirt sleeve to the elbow', () => {
     const plate = '#26272d', colour = (m: THREE.Mesh) => '#' + (m.material as THREE.MeshLambertMaterial).color.getHexString();
-    const J = heroFigure({ armor: { kind: 'plate', color: plate } }).userData.joints as Record<string, THREE.Object3D>;
+    const J = heroFigure({ armor: { kind: 'plate', color: plate }, sleeves: '#111111' }).userData.joints as Record<string, THREE.Object3D>; // (the arm itself in another colour)
     for (const sd of ['R', 'L']) {
       let n = 0; J[`shoulder${sd}`].traverse((c) => { const m = c as THREE.Mesh; let up = c.parent; while (up && up !== J[`elbow${sd}`]) up = up.parent; if (m.isMesh && !up && colour(m) === plate) n++; });
       expect(n, sd).toBeGreaterThanOrEqual(2);                          // the cap and its lames, above the elbow
     }
-    const forearm = (f: Parameters<typeof heroFigure>[0]) => { const c = new Set<string>(); for (const m of (heroFigure(f).userData.joints.elbowR as THREE.Object3D).children) if ((m as THREE.Mesh).isMesh) c.add(colour(m as THREE.Mesh)); return c; };
+    const forearm = (f: Parameters<typeof heroFigure>[0]) => { const c = new Set<string>(); for (const m of (heroFigure(f).userData.joints.elbowR as THREE.Object3D).children) if ((m as THREE.Mesh).isMesh && (m as THREE.Mesh).geometry.type !== 'SphereGeometry') c.add(colour(m as THREE.Mesh)); return c; }; // (not the elbow's ball)
     const skin = '#c08a62', shirt = '#e8e2d0';
     expect(forearm({ skin, sleeves: shirt, rolled: true }).has(skin)).toBe(true);
     expect(forearm({ skin, sleeves: shirt, rolled: true }).has(shirt)).toBe(true);   // the cuff
     expect(forearm({ skin, sleeves: shirt }).has(skin)).toBe(false);
+  });
+  it('sets a hand on the hip or the belt for every body, the arm solved to reach it', () => {
+    // the nearest body surface (sampled at its vertices) to a point, leaving out the arm on that side
+    const gap = (g: THREE.Object3D, sd: string, p: THREE.Vector3) => {
+      const J = g.userData.joints as Record<string, THREE.Object3D>, skip = [J[`collar${sd}`], J[`shoulder${sd}`]], v = new THREE.Vector3(); let best = Infinity;
+      g.traverse((o) => { const m = o as THREE.Mesh; if (!m.isMesh || (m.material as THREE.Material).transparent) return; for (let q: THREE.Object3D | null = m; q; q = q.parent) if (skip.includes(q)) return;
+        const a = m.geometry.attributes.position; for (let i = 0; i < a.count; i++) { v.fromBufferAttribute(a, i).applyMatrix4(m.matrixWorld); best = Math.min(best, v.distanceTo(p)); } });
+      return best;
+    };
+    for (const f of [{}, { build: 'broad' as const }, { frame: 'feminine' as const }, { frame: 'feminine' as const, build: 'curvy' as const }, { armor: { kind: 'plate' as const, color: '#333333' } }]) {
+      const hip = heroFigure({ ...f, pose: { ...AT_EASE[1] } }), H = hip.userData.joints as Record<string, THREE.Object3D>; hip.updateMatrixWorld(true);
+      const fist = H.wristR.children.filter((c) => (c as THREE.Mesh).isMesh).slice(1, 9).filter((_, i) => i % 2 === 0);
+      expect(fist.every((k) => k.rotation.x < -1.2), JSON.stringify(f)).toBe(true);                                     // a fist
+      expect(Math.min(...fist.map((k) => gap(hip, 'R', k.getWorldPosition(new THREE.Vector3())))), JSON.stringify(f)).toBeLessThan(0.12); // the knuckles on the hip
+      expect(H.elbowR.getWorldPosition(new THREE.Vector3()).x).toBeLessThan(H.wristR.getWorldPosition(new THREE.Vector3()).x - 0.3);  // the elbow out to the side
+      const belt = heroFigure({ ...f, pose: { ...AT_EASE[2] } }), B = belt.userData.joints as Record<string, THREE.Object3D>; belt.updateMatrixWorld(true);
+      const palm = B.wristL.children[0].getWorldPosition(new THREE.Vector3()), n = new THREE.Vector3(0, 0, 1).transformDirection(B.wristL.matrixWorld);
+      expect(gap(belt, 'L', palm), JSON.stringify(f)).toBeLessThan(0.12);                                                 // the palm on the belt
+      expect(n.dot(B.hips.getWorldPosition(new THREE.Vector3()).setY(palm.y).sub(palm).normalize()), JSON.stringify(f)).toBeGreaterThan(0.4); // turned to the body
+    }
+    const shield = heroFigure({ offhand: { kind: 'shield' }, pose: { ...AT_EASE[2] } }), S = shield.userData.joints as Record<string, THREE.Object3D>;
+    expect(S.handL.children.length).toBeGreaterThan(0);                                                                   // a hand that holds something keeps it
+  });
+  it('hangs a resting shield plumb from its grip, facing out, and keeps stowed gear and a satchel where they belong', () => {
+    for (const pose of AT_EASE) {
+      const g = heroFigure({ weapon: 'mace', offhand: { kind: 'shield' }, pose: { ...pose, beltHand: undefined } }), J = g.userData.joints as Record<string, THREE.Object3D>; g.updateMatrixWorld(true);
+      const sg = J.handL.children.find((c) => (c as THREE.Group).isGroup)!, n = new THREE.Vector3(0, 0, 1).transformDirection(sg.matrixWorld);
+      expect(Math.abs(n.y)).toBeLessThan(0.3); expect(n.x).toBeGreaterThan(0.3);                                         // upright, the face to the left side
+      // the stowed mace's head hangs clear of the right thigh
+      let head: THREE.Mesh | undefined; J.stowed.traverse((c) => { const m = c as THREE.Mesh; if (m.isMesh && (m.geometry as THREE.SphereGeometry).parameters?.radius === 0.26) head = m; });
+      const h = head!.getWorldPosition(new THREE.Vector3()), a = J.hipR.getWorldPosition(new THREE.Vector3()), b = J.kneeR.getWorldPosition(new THREE.Vector3());
+      const t = Math.max(0, Math.min(1, h.clone().sub(a).dot(b.clone().sub(a)) / b.distanceToSquared(a)));
+      expect(h.distanceTo(a.clone().lerp(b, t))).toBeGreaterThan(0.45);
+    }
+    const g = heroFigure({ satchel: '#5a3a20' }); g.updateMatrixWorld(true);
+    const parts: THREE.Mesh[] = []; g.traverse((c) => { const m = c as THREE.Mesh; if (m.isMesh && '#' + (m.material as THREE.MeshLambertMaterial).color.getHexString() === '#5a3a20') parts.push(m); });
+    const strap = parts.find((m) => m.geometry.type === 'BoxGeometry')!, bag = parts.find((m) => m.geometry.type === 'CapsuleGeometry')!;
+    const top = strap.localToWorld(new THREE.Vector3(0, 1.25, 0)), low = strap.localToWorld(new THREE.Vector3(0, -1.25, 0)), at = bag.getWorldPosition(new THREE.Vector3());
+    expect(top.x).toBeGreaterThan(0); expect(low.distanceTo(at)).toBeLessThan(0.5);                                       // over the left shoulder, down to the bag on the right hip
+  });
+  it('gives the second hand on a two-handed haft a real grip, low on the haft and clear of the face', () => {
+    for (const f of [{ weapon: 'axe' as const }, { weapon: 'spear' as const, frame: 'feminine' as const }, { weapon: 'staff' as const, build: 'broad' as const }]) {
+      const g = heroFigure({ ...f, stance: 'two-handed' }, 'medium', 'battle'), J = g.userData.joints as Record<string, THREE.Object3D>; g.updateMatrixWorld(true);
+      const o = J.handR.getWorldPosition(new THREE.Vector3()), d = new THREE.Vector3(0, 1, 0).transformDirection(J.handR.matrixWorld);
+      const off = (p: THREE.Vector3) => { const v = p.clone().sub(o); return v.addScaledVector(d, -v.dot(d)).length(); };
+      const palm = J.wristL.children[0] as THREE.Mesh, u = (palm.geometry as THREE.SphereGeometry).parameters.radius / 0.105;
+      const grip = J.wristL.localToWorld(new THREE.Vector3(0, -0.15 * u, 0.085 * u));
+      expect(off(grip), f.weapon).toBeLessThan(0.05);                                                                     // the haft in the curl of the fingers
+      expect(off(palm.getWorldPosition(new THREE.Vector3())), f.weapon).toBeGreaterThan(0.1);                             // not through the palm
+      expect(grip.clone().sub(o).dot(d), f.weapon).toBeLessThan(0);                                                       // below the weapon hand
+      expect(new THREE.Vector3(1, 0, 0).transformDirection(J.wristL.matrixWorld).dot(d), f.weapon).toBeGreaterThan(0.9);  // the thumb and index toward the head
+      const chin = J.head.getWorldPosition(new THREE.Vector3()).y;
+      for (const sd of ['R', 'L']) expect(J[`wrist${sd}`].getWorldPosition(new THREE.Vector3()).y, `${f.weapon} ${sd}`).toBeLessThan(chin);  // the hands below the face
+    }
+  });
+  it('keeps the fingers outside a shut book whatever the pose does with the hand', () => {
+    const g = heroFigure({ offhand: { kind: 'book' }, pose: { shoulderL: [-0.12, -0.25, 0.1], elbowL: -0.75, holdL: { upright: true, tilt: [0, 0.4, 0] } } }), J = g.userData.joints as Record<string, THREE.Object3D>; g.updateMatrixWorld(true);
+    const bk = J.handL.children.find((c) => (c as THREE.Group).isGroup)!, boxes: THREE.Box3[] = [];
+    for (const c of bk.children) { const m = c as THREE.Mesh; if (m.geometry.type !== 'BoxGeometry') continue; m.geometry.computeBoundingBox(); m.updateMatrix(); boxes.push(m.geometry.boundingBox!.clone().applyMatrix4(m.matrix).expandByScalar(-0.01)); }
+    const fingers = J.wristL.children.filter((c) => (c as THREE.Mesh).isMesh).slice(1);
+    for (const k of fingers) { const p = bk.worldToLocal(k.getWorldPosition(new THREE.Vector3())); expect(boxes.some((b) => b.containsPoint(p))).toBe(false); }
+    expect(Math.abs(new THREE.Vector3(0, 1, 0).transformDirection(bk.matrixWorld).y)).toBeGreaterThan(0.9);              // and the book still stands up
+  });
+  it('lets a dead hand drop its weapon on the floor beside it, clear of the body', () => {
+    for (const [weapon, deadPose] of [['sword', 'dead-prone'], ['mace', 'dead-prone'], ['axe', 'dead'], ['spear', 'dead-curled'], ['sword', 'dead-swoon']] as const) {
+      const g = heroFigure({ weapon, deadPose }, 'medium', 'dead'), J = g.userData.joints as Record<string, THREE.Object3D>; g.updateMatrixWorld(true);
+      const w = g.getObjectByName('dropped')!, box = new THREE.Box3().setFromObject(w);
+      expect(J.handR.children.length, weapon).toBe(0);
+      expect(Math.abs(box.min.y), weapon).toBeLessThan(0.02); expect(box.max.y, weapon).toBeLessThan(0.8);               // lying on the floor
+      const head = J.head.getWorldPosition(new THREE.Vector3()), segs = ['R', 'L'].map((sd) => [J[`shoulder${sd}`], J[`elbow${sd}`]].map((o) => o.getWorldPosition(new THREE.Vector3())));
+      const near = (p: THREE.Vector3, [a, b]: THREE.Vector3[]) => { const t = Math.max(0, Math.min(1, p.clone().sub(a).dot(b.clone().sub(a)) / b.distanceToSquared(a))); return p.distanceTo(a.clone().lerp(b, t)); };
+      const lb = new THREE.Box3(); for (const c of w.children) { const m = c as THREE.Mesh; m.geometry.computeBoundingBox(); m.updateMatrix(); lb.union(m.geometry.boundingBox!.clone().applyMatrix4(m.matrix)); }
+      for (let y = lb.min.y; y <= lb.max.y; y += 0.25) {
+        const p = w.localToWorld(new THREE.Vector3(0, y, 0));
+        expect(p.distanceTo(head), `${weapon} ${deadPose}`).toBeGreaterThan(0.5);
+        for (const sg of segs) expect(near(p, sg), `${weapon} ${deadPose}`).toBeGreaterThan(0.2);                          // not through an arm
+      }
+    }
+  });
+  it('holds an orb out on the palm, clear of the forearm', () => {
+    const g = heroFigure({ offhand: { kind: 'orb' } }), J = g.userData.joints as Record<string, THREE.Object3D>; g.updateMatrixWorld(true);
+    const orb = J.handL.children.find((c) => (c as THREE.Mesh).isMesh)!.getWorldPosition(new THREE.Vector3()), palm = J.wristL.children[0].getWorldPosition(new THREE.Vector3());
+    expect(orb.clone().sub(palm).dot(new THREE.Vector3(0, 0, 1).transformDirection(J.wristL.matrixWorld))).toBeGreaterThan(0.2);
+    const a = J.elbowL.getWorldPosition(new THREE.Vector3()), b = J.wristL.getWorldPosition(new THREE.Vector3()), t = Math.max(0, Math.min(1, orb.clone().sub(a).dot(b.clone().sub(a)) / b.distanceToSquared(a)));
+    expect(orb.distanceTo(a.clone().lerp(b, t))).toBeGreaterThan(0.35);
+  });
+  it('keeps both feet on the floor: at ease, and in a fighting pose used out of a fight', () => {
+    for (const pose of [...AT_EASE.map((p) => ({ ...p })), 'lunge' as const, 'two-handed' as const, 'shield' as const]) {
+      const g = heroFigure({ pose }), J = g.userData.joints as Record<string, THREE.Object3D>; g.updateMatrixWorld(true);
+      const y = (n: string) => new THREE.Box3().setFromObject(J[n]).min.y, name = typeof pose === 'string' ? pose : JSON.stringify(pose).slice(0, 40); // (the whole boot: sole and heel)
+      expect(Math.max(y('ankleR'), y('ankleL')), name).toBeLessThan(typeof pose === 'string' ? 0.05 : 0.025);
+    }
+  });
+  it('keeps a gown\'s legs inside it in a fight, and clenches only the hands a pose names R or L', () => {
+    const g = heroFigure({ skirt: '#5a1830', underskirt: '#f0e0d0', stance: 'conjure' }, 'medium', 'battle'), J = g.userData.joints as Record<string, THREE.Object3D>;
+    expect(J.kneeR.rotation.x).toBeLessThanOrEqual(0.081); expect(J.kneeL.rotation.x).toBeLessThanOrEqual(0.401);
+    expect(J.hipL.rotation.x).toBeGreaterThanOrEqual(-0.301);
+    const f = heroFigure({ pose: { fist: ['r' as 'R'] } }), K = f.userData.joints as Record<string, THREE.Object3D>;
+    for (const sd of ['R', 'L']) expect(K[`wrist${sd}`].children.filter((c) => (c as THREE.Mesh).isMesh)[1].rotation.x, sd).toBeGreaterThan(-0.8);
   });
   it('carries a book shut out of a fight, close by the hand, and opens it in one', () => {
     const book = (battle: boolean, pose?: { book: 'open' }) => {

@@ -4,7 +4,7 @@
 // a halo, a thorn crown, a shield, an axe, a book ...) and the pack says which a character wears, in what colours.
 import * as THREE from 'three';
 import { mat, matClone } from '../render/materials';
-import { HIP, SHIN, THIGH, clipRings, forearmRings, frameOf, loftGeometry, lockGeometry, neckRings, pelvisRings, ringAt, shinRings, thighRings, torsoRings, upperArmRings, type Frame, type Measures } from './anatomy';
+import { HIP, SHIN, THIGH, clipRings, forearmRings, frameOf, loftGeometry, lockGeometry, neckRings, pelvisRings, ringAt, ringPoint, shinRings, thighRings, torsoRings, upperArmRings, type Frame, type Measures, type Ring } from './anatomy';
 import type { CreatureSize } from '../core/units';
 import { faceFeatures, type FaceSpec, type FaceDetail } from './faces';
 
@@ -12,15 +12,16 @@ export type HeroWeapon = 'none' | 'sword' | 'axe' | 'mace' | 'staff' | 'spear' |
 export type HeroOffhand = 'none' | 'shield' | 'book' | 'orb';
 export type HeroHair = 'short' | 'long' | 'braids' | 'curly';
 /** two-handed: a great weapon raised across the body; shield: shield up, weapon raised high; cast: the book forward, the
- *  free hand thrust out with a spell; conjure: both hands forward round a gathering spell. */
+ *  free hand thrust out with a spell; conjure: the casting hand forward round a gathering spell, the book in the other. */
 export type HeroStance = 'two-handed' | 'shield' | 'cast' | 'conjure';
 /** Named poses: the four battle stances, and rest, ride (seated astride, hands on the reins), lunge, menace (arms spread,
  *  hands clawed), cower, kneel, and staff-raised (a caster with the staff high). */
 export type PoseName = 'rest' | HeroStance | 'ride' | 'lunge' | 'menace' | 'cower' | 'kneel' | 'staff-raised' | 'dead' | 'dead-prone' | 'dead-comic' | 'dead-swoon' | 'dead-curled';
 export type Euler3 = [number, number, number];
 /** Joint angles, radians. On x a negative angle swings forward; a negative elbow bends the forearm up, a positive knee
- *  bends the shin back. On the limbs y and z are mirrored: positive turns outward on either side. On the spine, pelvis
- *  and neck y > 0 turns toward the figure's right and z > 0 raises its right side. R and L are the figure's own
+ *  bends the shin back. On the limbs y and z are mirrored: positive turns outward on either side. On the spine and
+ *  neck x > 0 leans forward (a dipped chin); on the spine, pelvis and neck y > 0 turns toward the figure's right and
+ *  z > 0 raises its right side. R and L are the figure's own
  *  right and left (see SIDE_X). Ankles add to the
  *  automatic flat-foot correction (positive x points the toes). `hold` turns what a hand holds: upright keeps it
  *  vertical whatever the forearm does; tilt is added (mirrored). The figure is dropped until its lowest sole is on the
@@ -33,6 +34,12 @@ export interface HeroPose {
   holdR?: { upright?: boolean; tilt?: Euler3 }; holdL?: { upright?: boolean; tilt?: Euler3 };
   /** Hands made into fists (an empty hand on the hip, say). */
   fist?: ('R' | 'L')[];
+  /** Hands set on the hip (a fist there when `fist` names it too): the arm is solved so the hand lands on the side of the
+   *  waist above the belt, outside whatever is worn there, the elbow out to the side and the palm turned back. */
+  hipHand?: ('R' | 'L')[];
+  /** Hands resting on the belt: the arm is solved so the open hand lies flat on the front of the belt toward its own
+   *  side, the fingers hanging down and a little in, the elbow back at the side. */
+  beltHand?: ('R' | 'L')[];
   /** An off-hand book held open (read from, or cast from) rather than carried shut; a fight always opens it. */
   book?: 'open' | 'shut';
   lift?: number; seated?: boolean; spell?: 'right' | 'between';
@@ -48,12 +55,12 @@ export const AT_EASE: HeroPose[] = [
   // arms hanging close with soft elbows, the head turned
   { pelvis: [0.0, 0.1, 0.12], spine: [0.02, -0.14, -0.19], neck: [0.05, 0.22, 0.08], hipR: [0.02, 0.08, -0.12], kneeR: 0.03, hipL: [-0.18, 0.28, 0.18], kneeL: 0.4,
     shoulderR: [-0.08, -0.15, 0.05], elbowR: -0.3, shoulderL: [-0.2, -0.25, 0.08], elbowL: -0.6 },
-  // weight on the left leg, a fist on the right hip
+  // weight on the left leg, a fist on the right hip: the elbow out to the side, the forearm running in to the waist
   { pelvis: [0.0, -0.12, -0.12], spine: [0.0, 0.16, 0.19], neck: [0.0, -0.26, -0.06], hipL: [0.02, 0.08, -0.12], kneeL: 0.03, hipR: [-0.15, 0.3, 0.2], kneeR: 0.42,
-    shoulderR: [0.75, -0.55, 0.62], elbowR: -1.65, wristR: [0.25, 0.01, 0], shoulderL: [-0.06, -0.12, 0.06], elbowL: -0.32 },
+    shoulderR: [1.3, -0.61, 1.16], elbowR: -1.82, wristR: [0, -1.54, 0], fist: ['R'], hipHand: ['R'], shoulderL: [-0.06, -0.12, 0.06], elbowL: -0.32 },
   // weight on the right leg, the left hand resting on the belt, glancing aside with the chin down
   { pelvis: [0.02, 0.12, 0.1], spine: [0.03, -0.1, -0.17], neck: [0.12, 0.3, 0.1], hipR: [0.02, 0.1, -0.1], kneeR: 0.04, hipL: [-0.12, 0.35, 0.16], kneeL: 0.38,
-    shoulderR: [-0.05, -0.1, 0.06], elbowR: -0.28, shoulderL: [-0.3, -0.45, 0.12], elbowL: -1.25 },
+    shoulderR: [-0.05, -0.1, 0.06], elbowR: -0.28, shoulderL: [-0.1, -0.3, 0.15], elbowL: -1.5, beltHand: ['L'] },
 ];
 /** A gown's ease: weight on the right leg, the hip thrown out, the left knee eased forward behind the slit (the leg
  *  shows through it; bent further, the knee would push through the cloth). */
@@ -63,7 +70,7 @@ export const POSES: Record<PoseName, HeroPose> = {
   rest: {},
   // a deep fighting lunge: the lead knee bent over its foot, the rear leg driven back, the body coiled over the weapon
   'two-handed': { pelvis: [0.08, -0.35, 0], spine: [0.2, 0.5, -0.05], neck: [-0.12, -0.2, 0.04], hipL: [-0.8, 0.15, 0.12], kneeL: 0.95, hipR: [0.5, 0.35, 0.12], kneeR: 0.3,
-    shoulderR: [-0.9, 0, -0.1], elbowR: -1.5, wristR: [0.1, 0, 0], shoulderL: [-0.75, 0, -0.6], elbowL: -1.0, wristL: [0.2, 0, 0], holdR: { upright: true, tilt: [-0.35, 0, 0.6] } },
+    shoulderR: [0.23, -0.124, -0.626], elbowR: -2.4, wristR: [0.1, 0, 0], shoulderL: [-0.75, 0, -0.6], elbowL: -1.0, wristL: [0.2, 0, 0], holdR: { upright: true, tilt: [-0.45, 0.443, 0.25] } },
   // behind the shield: the shield side leading in a lunge, the shield across the body, the weapon arm cocked back at
   // the shoulder (elbow out, forearm up) with the weapon raised to strike
   shield: { pelvis: [0.06, 0.3, 0], spine: [0.16, -0.25, 0], neck: [-0.1, -0.05, 0], hipL: [-0.7, 0, 0.22], kneeL: 0.85, hipR: [0.45, 0, 0.3], kneeR: 0.25,
@@ -110,7 +117,11 @@ const trunk = (e: Euler3): Euler3 => [e[0], RX * e[1], RX * e[2]];
 function poseOf(f: HeroFigure, battle: boolean, dead: boolean, gown: boolean): HeroPose {
   const named = (p: PoseName | HeroPose | undefined) => typeof p === 'string' ? POSES[p] ?? POSES.rest : p;
   let P: HeroPose = dead ? named(f.deadPose) ?? POSES.dead : (battle ? named(f.battlePose ?? f.stance) : undefined) ?? named(f.pose) ?? POSES.rest;
-  if (P === POSES.rest) { let h = 0; for (const ch of (f.skin ?? '') + (f.hair ?? '') + (f.cloth ?? '') + (f.weapon ?? '')) h = (h * 31 + ch.charCodeAt(0)) >>> 0; P = gown ? GOWN_EASE : AT_EASE[h % AT_EASE.length]; }
+  if (P === POSES.rest) {
+    let h = 0; for (const ch of (f.skin ?? '') + (f.hair ?? '') + (f.cloth ?? '') + (f.weapon ?? '')) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+    let i = h % AT_EASE.length; if (i === 2 && (f.offhand?.kind === 'shield' || f.offhand?.kind === 'book')) i = 0; // a hand carrying a shield or a book does not rest on the belt
+    P = gown ? GOWN_EASE : AT_EASE[i];
+  }
   return P;
 }
 /** Where the eyes look in a pose (its own `gaze`, or worked out): in a fight they stay on the foe ahead however the
@@ -208,6 +219,14 @@ const cap = (r: number, len: number, c: string) => sm(new THREE.CapsuleGeometry(
 const tone = (c: string, to: string, k: number) => '#' + new THREE.Color(c).lerp(new THREE.Color(to), k).getHexString();
 
 /** A tube along points (embroidery, braided twigs). */
+/** An open curved plate following a lofted part: the stack of rings between two heights, round an arc of them (from
+ *  `th0`, `wrap` radians; 0 is the front, round through +x), scaled out from `k0` at the top to `k1` at the bottom. */
+function shellGeometry(rings: Ring[], y0: number, y1: number, th0: number, wrap: number, k0: number, k1: number, s: number, seg = 24, rows = 6): THREE.BufferGeometry {
+  const pos: number[] = [], idx: number[] = [];
+  for (let i = 0; i <= rows; i++) { const t = i / rows, y = y0 + (y1 - y0) * t, r = ringAt(rings, y); for (let j = 0; j <= seg; j++) { const [x, z] = ringPoint(r, th0 + wrap * j / seg, k0 + (k1 - k0) * t); pos.push(x * s, y * s, z * s); } }
+  for (let i = 0; i < rows; i++) for (let j = 0; j < seg; j++) { const a = i * (seg + 1) + j, b = a + 1, c = a + seg + 1, d = c + 1; idx.push(a, c, b, b, c, d); }
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setIndex(idx); g.computeVertexNormals(); return g;
+}
 function tube(pts: THREE.Vector3[], r: number, c: string, closed = false): M {
   return sm(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts, closed), Math.max(12, pts.length * 4), r, 6, closed), c);
 }
@@ -487,8 +506,7 @@ function rig(f: HeroFigure, s: number, gown: boolean) {
     // the collar carries the shoulder: it lifts when the arm goes up
     const collar = new THREE.Group(); collar.position.set(sx * 0.12 * s, 1.98 * s, 0); collar.name = 'collar' + side; up.add(collar);
     const root = new THREE.Group(); root.position.set(sx * (fr.shoulderX - 0.12) * s, 0.02 * s, 0); root.rotation.set(-0.08, 0, sx * 0.1); root.name = 'shoulder' + side; collar.add(root);
-    const delt = sph(0.185 * a * s, upperC, 16, 12); delt.scale.set(1.28, 1.1, 1.02); root.add(at(delt, -sx * 0.05 * s, -0.17 * s, 0)); // the deltoid, run in toward the collar so the arm grows out of the shoulder
-    const upper = loft(upperArmRings(fr), upperC, { seg: 14 }); root.add(upper);
+    const upper = loft(upperArmRings(fr, sx), upperC, { seg: 20 }); root.add(upper);
     if (f.puffSleeves && f.sleeves) {
       if (gown) { // off the shoulder: a gathered band round the upper arm with a ruffle below it
         const band = sm(new THREE.TorusGeometry(0.2 * s * a, 0.045 * s, 8, 20), f.sleeves); band.rotation.x = Math.PI / 2; root.add(at(band, 0, -0.36 * s, 0));
@@ -590,7 +608,7 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
 
   // a satchel on a strap across the chest, and vials at the belt
   if (f.satchel) {
-    const strap = box(0.1 * s, 2.5 * s, 0.05 * s, f.satchel); strap.rotation.z = RX * -0.62; up.add(at(strap, RX * 0.05 * s, 1.15 * s, 0.45 * s));
+    const strap = box(0.1 * s, 2.5 * s, 0.05 * s, f.satchel); strap.rotation.z = RX * 0.62; up.add(at(strap, LX * 0.05 * s, 1.15 * s, 0.45 * s)); // over the left shoulder, down to the bag
     const bag = sm(new THREE.CapsuleGeometry(0.22 * s, 0.25 * s, 3, 8), f.satchel); bag.rotation.z = Math.PI / 2; bag.scale.z = 0.55; up.add(at(bag, RX * 0.72 * s, -0.12 * s, 0.38 * s));
     up.add(at(box(0.5 * s, 0.22 * s, 0.05 * s, tone(f.satchel, '#000000', 0.25)), RX * 0.72 * s, 0.0 * s, 0.52 * s));
     up.add(at(box(0.08 * s, 0.1 * s, 0.03 * s, f.buckle ?? '#9a9ea6'), RX * 0.72 * s, -0.08 * s, 0.56 * s));
@@ -638,14 +656,15 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
       const dome = sm(new THREE.SphereGeometry(cr, 32, 14, 0, Math.PI * 2, 0, 1.5), f.armor!.color, true); dome.scale.set(1, 0.72, 0.92); cap0.add(dome);
       const rimY = cr * 0.72 * Math.cos(1.5), rimR = cr * Math.sin(1.5), rim = trimArc(rimR, Math.PI * 2, 0); rim.position.y = rimY; rim.scale.z = 0.92; cap0.add(rim);
       for (let q = 0; q < 7; q++) { const a = (q / 7) * Math.PI * 2; cap0.add(at(sph(0.02 * s, t, 6, 4), Math.cos(a) * rimR * 0.97, rimY + 0.012 * s, Math.sin(a) * rimR * 0.92 * 0.97)); }
-      // the lames: curved plates round the outer two thirds of the arm, each a little narrower than the one above
-      const wrap = 3.9, mid = sx > 0 ? 0 : Math.PI;
+      // the lames: curved plates round the outer two thirds of the arm, shaped to it (the deltoid swelling under the upper
+      // one), each tucked under the one above and tipped out at its lower edge
+      const rings = upperArmRings(fr, sx), wrap = 3.9, th0 = sx * Math.PI / 2 - wrap / 2;
       for (let i = 0; i < 2; i++) {
-        const top = -0.06 - i * 0.19, h = 0.27, rt = ar * (1.42 - 0.08 * i), rb = rt * 1.07, c = i % 2 ? f.armor!.color : tone(f.armor!.color, '#ffffff', 0.06);
-        const lg = new THREE.Group(); lg.position.set(sx * 0.03 * s, top * s, 0); lg.rotation.z = sx * 0.1; l.root.add(lg);
-        const lm = sm(new THREE.CylinderGeometry(rt, rb, h * s, 30, 1, true, sx * Math.PI / 2 - wrap / 2, wrap), c, true); lm.scale.z = 0.9; lg.add(at(lm, 0, -h / 2 * s, 0));
-        const e = trimArc(rb, wrap, mid); e.position.y = -h * s; e.scale.z = 0.9; lg.add(e);
-        for (const q of [-0.8, 0, 0.8]) lg.add(at(sph(0.018 * s, t, 6, 4), sx * Math.cos(q) * rt * 1.01, -0.05 * s, Math.sin(q) * rt * 0.9));
+        const y0 = -0.06 - i * 0.19, y1 = y0 - 0.27, k0 = 1.17 - 0.02 * i, k1 = k0 + 0.09, c = i % 2 ? f.armor!.color : tone(f.armor!.color, '#ffffff', 0.06);
+        l.root.add(sm(shellGeometry(rings, y0, y1, th0, wrap, k0, k1, s), c, true));
+        const edge: THREE.Vector3[] = []; for (let j = 0; j <= 24; j++) { const [x, z] = ringPoint(ringAt(rings, y1), th0 + wrap * j / 24, k1 + 0.01); edge.push(new THREE.Vector3(x * s, y1 * s, z * s)); }
+        l.root.add(tube(edge, 0.016 * s, t));
+        for (const q of [-0.8, 0, 0.8]) { const [x, z] = ringPoint(ringAt(rings, y0 - 0.05), sx * Math.PI / 2 + q, k0 + 0.03); l.root.add(at(sph(0.018 * s, t, 6, 4), x * s, (y0 - 0.05) * s, z * s)); }
       }
     });
     { const gg = sm(new THREE.CylinderGeometry(0.3 * fr.m.neck * s, 0.44 * fr.m.neck * s, 0.26 * s, 24, 1, true), f.armor.color, true); up.add(at(gg, 0, 2.22 * s, -0.01 * s)); // gorget: a flared collar of plate, edged at the top
@@ -666,10 +685,11 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
     const m = cyl(0.7 * s, 0.75 * s, 1.0 * s, f.armor.trim ?? f.armor.color, 7); m.scale.z = 0.66; up.add(at(m, 0, 0.55 * s, 0));
     for (let i = 0; i < 5; i++) { const r = sm(new THREE.TorusGeometry(0.66 * s - i * 0.004 * s, 0.018 * s, 4, 28), tone(f.armor.color, '#ffffff', 0.15)); r.rotation.x = Math.PI / 2; r.scale.y = 0.66; up.add(at(r, 0, (0.2 + i * 0.4) * s, 0)); }
     const band = (rings: Parameters<typeof loftGeometry>[0], y: number, h: number, k: number, c: string, seg = 16) => { const r = ringAt(rings, y); return sm(loftGeometry([{ ...r, y: y - h / 2 }, { ...r, y: y + h / 2 }], s, { seg, k, rows: 1 }), c); };
-    for (const l of arm) { // short mail sleeves to halfway down the upper arm, with a loose hem
-      l.root.add(sm(loftGeometry(clipRings(upperArmRings(fr), -0.55, 0.06), s, { seg: 14, k: 1.16 }), f.armor.trim ?? f.armor.color));
-      l.root.add(band(upperArmRings(fr), -0.53, 0.05, 1.22, tone(f.armor.color, '#ffffff', 0.15), 14));
-    }
+    arm.forEach((l, k) => { // short mail sleeves to halfway down the upper arm, over the deltoid, with a loose hem
+      const mc = f.armor!.trim ?? f.armor!.color, sx = k === 0 ? RX : LX;
+      l.root.add(sm(loftGeometry(clipRings(upperArmRings(fr, sx), -0.55, 0.0), s, { seg: 20, k: 1.14 }), mc));
+      l.root.add(band(upperArmRings(fr, sx), -0.53, 0.05, 1.2, tone(f.armor!.color, '#ffffff', 0.15), 20));
+    });
   }
 
   // cloak (with a hood folded on the shoulders): it hangs in folds
@@ -713,7 +733,7 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
     const long = f.weapon === 'axe' || f.weapon === 'spear' || f.weapon === 'sword', st = new THREE.Group(); st.name = 'stowed';
     for (const c of [...gR.children]) st.add(c);
     if (long) { st.rotation.set(0, Math.PI, RX * 0.5); st.position.set(RX * -0.55 * s, -(f.weapon === 'sword' ? 1.0 : 1.5) * s, -0.08 * s); joints0.back.add(st); }
-    else { st.rotation.set(Math.PI + 0.12, 0, RX * 0.1); st.position.set(RX * 0.24 * s, 0.55 * s, 0.12 * s); joints0.beltR.add(st); }
+    else { st.rotation.set(Math.PI + 0.12, 0, LX * 0.1); st.position.set(RX * 0.34 * s, 0.55 * s, 0.12 * s); joints0.beltR.add(st); } // the head swung out, clear of the thigh
   }
 
   // what the left hand holds
@@ -744,10 +764,10 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
     for (const sx of [-1, 1]) { const cover = box(0.42 * s, 0.05 * s, 0.6 * s, o.color ?? '#4a3020'); cover.rotation.z = sx * 0.18; bk.add(at(cover, sx * 0.21 * s, 0, 0)); const pg = box(0.38 * s, 0.07 * s, 0.55 * s, o.rim ?? '#e8dfc8'); pg.rotation.z = sx * 0.18; bk.add(at(pg, sx * 0.2 * s, 0.05 * s, 0)); }
     bk.add(at(box(0.02 * s, 0.02 * s, 0.4 * s, '#6a5a4a'), -LX * 0.2 * s, 0.1 * s, 0));
   }
-  if (o?.kind === 'orb') gL.add(at(sph(0.3 * s, o.color ?? '#9b7bd0'), 0, 0.47 * s, -0.28 * s));
+  if (o?.kind === 'orb') gL.add(at(sph(0.3 * s, o.color ?? '#9b7bd0'), 0, 0.05 * s, 0.34 * s)); // held out on the palm, as a spell's glow is
   if (f.wisp && !dead) {
-    // a ghostly skull rising from the book
-    const wg = new THREE.Group(); wg.position.set(-LX * 0.27 * s, 1.75 * s, 0.35 * s); gL.add(wg);
+    // a ghostly skull rising from the book (from the top of it when it is carried shut)
+    const wg = new THREE.Group(); if (shutBook) wg.position.set(0, 1.0 * s, 0.1 * s); else wg.position.set(-LX * 0.27 * s, 1.75 * s, 0.35 * s); gL.add(wg);
     wg.add(glassy(sph(0.2 * s, f.wisp, 14, 10), f.wisp, 0.75));
     const jaw = glassy(box(0.22 * s, 0.1 * s, 0.16 * s, f.wisp), f.wisp, 0.65); wg.add(at(jaw, 0, -0.17 * s, 0.05 * s));
     for (const sx of [-1, 1]) wg.add(at(sph(0.045 * s, '#1a3a2a', 8, 6), sx * 0.07 * s, 0.02 * s, 0.17 * s));
@@ -796,7 +816,7 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
       cg.add(tube([b0, b1, b2], 0.014 * s, C));
       if (i % 2 === 0) { const f2 = b1.clone().add(new THREE.Vector3(Math.cos(a - 0.6) * 0.12 * s, 0.06 * s, Math.sin(a - 0.6) * 0.12 * s)); cg.add(tube([b1.clone().lerp(b0, 0.3), b1, f2], 0.01 * s, C)); }
     }
-    if (f.crown.flower) {                     // five-petal flowers, gathered on the right, with leaves
+    if (f.crown.flower) {                     // five-petal flowers, gathered on the figure's left, with leaves
       const spots = [-0.2, 0.25, 0.7, 1.15, 2.9, -0.65];
       spots.forEach((a, n) => {
         const fl = new THREE.Group(); fl.position.set(Math.cos(a) * R * 1.08, 0.03 * s + (n % 2) * 0.04 * s, Math.sin(a) * R * 1.08); fl.rotation.y = Math.atan2(fl.position.x, fl.position.z); fl.rotation.x = -0.4;
@@ -835,25 +855,76 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
     l.mid.rotation.x = P[`elbow${sd}`] ?? -0.22;
     if (l.collar) l.collar.rotation.z = sx * (P[`collar${sd}`] ?? Math.min(0.4, Math.max(0, (-l.root.rotation.x - 0.9) * 0.28)));
     l.end.rotation.set(...mir(P[`wrist${sd}`], sx, [0.06, 0, 0]));
-    const hold = P[`hold${sd}`], g = k === 0 ? gR : gL;
+    const hold = P[`hold${sd}`] ?? (sd === 'L' && !battle && !dead && o?.kind === 'shield' ? { upright: true, tilt: [0, 0.95, 0] as Euler3 } : undefined), g = k === 0 ? gR : gL; // a shield at rest hangs plumb from its grip, facing out
+    const q = g.quaternion.clone();
     if (hold?.upright) g.rotation.x = -(l.root.rotation.x + l.mid.rotation.x + l.end.rotation.x);
     if (hold?.tilt) { g.rotation.x += hold.tilt[0]; g.rotation.y += hold.tilt[1] * sx; g.rotation.z += hold.tilt[2] * sx; }
+    // a book carried shut is gripped by its foot, so the wrist makes the turn and the book stays in the fist
+    if (hold && sd === 'L' && shutBook) { l.end.quaternion.multiply(g.quaternion.clone().multiply(q.clone().invert())); g.quaternion.copy(q); }
   });
   // an empty hand at ease hangs with its palm to the thigh and the thumb forward, the fingers curling in toward the leg
   if (!P.lie && !battle) arm.forEach((l, k) => { const sd = k === 0 ? 'R' : 'L', g = k === 0 ? gR : gL; if (!P[`wrist${sd}`]?.[1] && !g.children.length) l.end.rotation.y = -(k === 0 ? RX : LX) * 1.3; });
+  // a hand set on the body, the arm solved to reach it (outside anything worn there). On the hip: the side of the waist
+  // just above the belt, the elbow out to the side and a little back, the palm turned back. On the belt: the open hand
+  // flat on the front of the belt toward its own side, the fingers hanging down and in, the elbow back at the side.
+  const onBody = new Map<'R' | 'L', 'hip' | 'belt'>();
+  for (const sd of P.beltHand ?? []) if (sd === 'R' || sd === 'L') onBody.set(sd, 'belt');
+  for (const sd of P.hipHand ?? []) if (sd === 'R' || sd === 'L') onBody.set(sd, 'hip');
+  if (onBody.size && !P.lie && !P.seated) {
+    body.updateMatrixWorld(true);
+    const solid: M[] = [], rc = new THREE.Raycaster(), inArm = (o: THREE.Object3D) => { for (let p: THREE.Object3D | null = o; p; p = p.parent) if (arm.some((l) => p === l.collar || p === l.root)) return true; return false; };
+    body.traverse((o) => { const m = o as M; if (m.isMesh && !inArm(m) && !(m.material as THREE.Material).transparent) solid.push(m); });
+    for (const [sd, where] of onBody) {
+      const k = sd === 'R' ? 0 : 1, A = arm[k], sx = k === 0 ? RX : LX, g = k === 0 ? gR : gL, hs = A.hs ?? 1, belt = where === 'belt';
+      if (g.children.length) continue; // a hand that holds something keeps it
+      const out = belt ? new THREE.Vector3(sx * Math.sin(0.8), 0, Math.cos(0.8)) : new THREE.Vector3(sx, 0, 0);
+      const from = up.localToWorld(out.clone().multiplyScalar(3 * s).setY((belt ? 0.4 : 0.5) * s)), inward = out.clone().negate().transformDirection(up.matrixWorld);
+      rc.set(from, inward); const hit = rc.intersectObjects(solid, false)[0]; if (!hit) continue;
+      let T: THREE.Vector3, E: THREE.Vector3, aim: THREE.Object3D = g, turn: THREE.Quaternion | undefined;
+      if (belt) {
+        // the hand's turn: the palm against the belt, the fingers down and a little in toward the middle
+        const n = hit.face ? hit.face.normal.clone().transformDirection(hit.object.matrixWorld) : inward.clone().negate(); if (n.dot(inward) > 0) n.negate();
+        const fing = new THREE.Vector3(0, -1, 0).addScaledVector(new THREE.Vector3(-sx, 0, 0), 0.45).transformDirection(up.matrixWorld); fing.addScaledVector(n, -fing.dot(n)).normalize();
+        const Z = n.clone().negate(), Y = fing.negate(), X = new THREE.Vector3().crossVectors(Y, Z);
+        turn = new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().makeBasis(X, Y, Z));
+        // the wrist goes where the palm's centre then lies just off the belt
+        T = hit.point.clone().addScaledVector(n, 0.05 * hs * s).sub(new THREE.Vector3(0, (-0.03 - 0.1 * hs) * s, 0.005 * s).applyQuaternion(turn)); aim = A.end;
+        E = up.localToWorld(up.worldToLocal(T.clone()).add(new THREE.Vector3(sx * 0.45 * s, 0.95 * s, -0.6 * s)));
+      } else {
+        T = hit.point.clone().addScaledVector(inward, -0.07 * hs * s);
+        E = up.localToWorld(up.worldToLocal(T.clone()).add(new THREE.Vector3(sx * 0.95 * s, 0.88 * s, -0.38 * s)));
+      }
+      const pw = new THREE.Vector3(), ew = new THREE.Vector3();
+      const cost = () => { A.collar!.updateMatrixWorld(true); return 10 * aim.getWorldPosition(pw).distanceToSquared(T) + A.mid.getWorldPosition(ew).distanceToSquared(E); };
+      let best = cost();
+      for (let st = 0.4; st > 0.003; st *= 0.7) for (let pass = 0; pass < 4; pass++) for (const [o, key, lo, hi] of [[A.root.rotation, 'x', -1, 2], [A.root.rotation, 'y', -1.8, 1.8], [A.root.rotation, 'z', -2.2, 2.2], [A.mid.rotation, 'x', -2.4, 0]] as [THREE.Euler, 'x' | 'y' | 'z', number, number][]) for (const d of [st, -st]) {
+        const was = o[key]; o[key] = Math.max(lo, Math.min(hi, was + d)); const c = cost(); if (c < best) best = c; else o[key] = was;
+      }
+      if (turn) A.end.quaternion.copy(A.mid.getWorldQuaternion(new THREE.Quaternion()).invert().multiply(turn));
+      else A.end.rotation.set(0, -sx * 1.54, 0);
+      body.updateMatrixWorld(true);
+    }
+  }
   // a hand the pose clenches makes a closed fist; one with something in it (a shield's grip, a shut book's foot) closes round it
-  for (const sd of new Set([...(P.fist ?? []), ...(o?.kind === 'shield' || shutBook ? ['L' as const] : [])])) {
+  for (const sd of new Set([...(P.fist ?? []).filter((x) => x === 'R' || x === 'L'), ...(o?.kind === 'shield' || shutBook ? ['L' as const] : [])])) {
     const l = sd === 'R' ? R : Lf, held = (sd === 'R' ? gR : gL).children.length > 0, ms = l.end.children.filter((c) => (c as M).isMesh) as M[];
-    if (ms.length >= 10) (held ? fistOf : clenchOf)(ms, sd === 'R' ? RX : LX, ((ms[0].geometry as THREE.SphereGeometry).parameters?.radius ?? 0.105) / 0.105);
+    if (ms.length >= 10) (held ? fistOf : clenchOf)(ms, -(sd === 'R' ? RX : LX), ((ms[0].geometry as THREE.SphereGeometry).parameters?.radius ?? 0.105) / 0.105);
   }
   // a hand with a weapon in it makes a fist round the haft (the same grip the NPC figures' gear takes)
-  if (!dead && f.weapon && f.weapon !== 'none' && gR.children.length) holdFast(R.end, gR, RX);
+  if (!dead && f.weapon && f.weapon !== 'none' && gR.children.length) holdFast(R.end, gR, -RX);
   const standing = !P.lie && !P.seated && !P.lift;
   // at ease the leg that bears no weight (the more bent knee) rests on the ball of its foot, the heel a little raised
   const kneeGap = (P.kneeL ?? 0) - (P.kneeR ?? 0), freeLeg = standing && !battle && !gown && Math.abs(kneeGap) >= 0.15 ? (kneeGap > 0 ? 1 : 0) : -1;
+  // a gown is a fitted sheath, so in a fight the legs stay inside it: the right leg straight under the cloth, the left
+  // stepping forward through the slit but not out past its edge
+  const gownStep = (sd: 'R' | 'L', e: Euler3 | undefined, kn: number): [Euler3 | undefined, number] => {
+    if (!gown || !battle || dead || P.seated || P.lie) return [e, kn];
+    const h = e ?? [0, 0, 0], c = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
+    return sd === 'L' ? [[c(h[0], -0.3, 0.04), c(h[1], -0.1, 0.1), c(h[2], -0.06, 0)], Math.min(kn, 0.4)] : [[c(h[0], -0.06, 0.06), c(h[1], -0.1, 0.1), c(h[2], -0.04, 0.04)], Math.min(kn, 0.08)];
+  };
   const legSet = leg.map((l, k) => {
-    const sx = k === 0 ? RX : LX, sd = k === 0 ? 'R' : 'L', hip = mir(P[`hip${sd}`], sx, [0, 0, gown ? 0 : 0.04]), an = P[`ankle${sd}`];
-    l.root.rotation.set(...hip); l.mid.rotation.x = P[`knee${sd}`] ?? 0;
+    const sx = k === 0 ? RX : LX, sd = k === 0 ? 'R' : 'L', [he, kn] = gownStep(sd, P[`hip${sd}`], P[`knee${sd}`] ?? 0), hip = mir(he, sx, [0, 0, gown ? 0 : 0.04]), an = P[`ankle${sd}`];
+    l.root.rotation.set(...hip); l.mid.rotation.x = kn;
     return { l, sx, an, heel: 0 };
   });
   // feet: a standing figure's soles lie flat on the floor whatever the hips and spine are doing, the toes following
@@ -886,10 +957,16 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
       for (const l of leg) { l.root.rotation.z += dz; l.root.rotation.x += dx; }
     }
   };
-  balance(true, true);
-  setFeet();
-  // (a foot the pose lifts well clear of the floor stays in the air as posed, its heel not raised)
-  if (freeLeg >= 0 && soles.length === 2 && Math.abs(soleY(0) - soleY(1)) < 0.4 * s) { legSet[freeLeg].heel = 0.24; setFeet(); }
+  // (balancing never takes a foot off the floor: a pose whose feet it would part, a lunge say, keeps its legs)
+  const balanced = (lateral: boolean, fore: boolean, give: number) => {
+    if (soles.length !== 2) { balance(lateral, fore); setFeet(); return; }
+    const keep = leg.map((l) => l.root.rotation.clone()); setFeet(); const g0 = Math.abs(soleY(0) - soleY(1));
+    balance(lateral, fore); setFeet();
+    if (Math.abs(soleY(0) - soleY(1)) > g0 + give * s) { leg.forEach((l, k) => l.root.rotation.copy(keep[k])); setFeet(); }
+  };
+  balanced(true, true, 0.1); // (planting below takes up a small step between the feet)
+  // (only on level feet: a foot the pose lifts, or a stance with one foot well ahead, keeps its sole flat)
+  if (freeLeg >= 0 && soles.length === 2 && Math.abs(soleY(0) - soleY(1)) < 0.12 * s) { legSet[freeLeg].heel = 0.24; setFeet(); }
   // both feet on the ground: the higher foot comes down by straightening its knee; when that is not enough the
   // standing leg bends and the hips sink onto it (a foot the pose lifts well clear is left in the air)
   if (standing && !gown && soles.length === 2 && !legSet.some((x) => x.an)) {
@@ -906,29 +983,31 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
     };
     const gapOf = () => { const y0 = soleY(0), y1 = soleY(1); return { hi: y0 > y1 ? 0 : 1, gap: Math.abs(y0 - y1) }; };
     let g = gapOf();
-    if (g.gap > 0.012 * s && g.gap < 0.4 * s) {
+    if (g.gap > 0.012 * s && g.gap < 0.4 * s) for (let it = 0; it < 4 && g.gap > 0.012 * s; it++) {
       shift(g.hi, -g.gap); g = gapOf();
-      if (g.gap > 0.012 * s) { shift(1 - g.hi, g.gap); }
+      if (g.gap > 0.012 * s) { shift(1 - g.hi, g.gap); g = gapOf(); }
     }
-    balance(true, false); setFeet();
+    balanced(true, false, 0.03);
   }
-  // a second hand on a long weapon: the free hand reaches for the haft and takes hold of it
+  // a second hand on a long weapon: the free hand reaches for the haft and closes round it, its thumb and index toward
+  // the head as on the weapon hand. The reach is solved for the turned hand, so the haft lies in the curl of the fingers.
   if (battle && !dead && !gL.children.length && gR.children.length && (f.weapon === 'axe' || f.weapon === 'spear' || f.weapon === 'staff') && (f.battlePose ?? f.stance) === 'two-handed') {
-    const A = arm[1], want = new THREE.Vector3(), at0 = new THREE.Vector3();
+    const A = arm[1], u = (A.hs ?? 1) * s, q0 = A.end.quaternion.clone(), want = new THREE.Vector3(), grip = new THREE.Vector3();
+    const gripAt = () => { A.end.quaternion.copy(q0); A.collar!.updateMatrixWorld(true); closeOn(A.end, A.mid, gR, -LX, false); A.end.updateMatrixWorld(true); return A.end.localToWorld(grip.set(0, -0.15 * u, 0.085 * u)); };
     const reach = (ty: number, apply: boolean) => {
       const keep: [number, number, number, number] = [A.root.rotation.x, A.root.rotation.y, A.root.rotation.z, A.mid.rotation.x];
       body.updateMatrixWorld(true); want.set(0, ty * s, 0); gR.localToWorld(want);
-      const err = () => { A.collar!.updateMatrixWorld(true); return gL.getWorldPosition(at0).distanceTo(want); };
+      const err = () => gripAt().distanceTo(want);
       let best = err();
-      for (let st = 0.4; st > 0.01; st *= 0.6) for (let pass = 0; pass < 4; pass++) for (const [o, key, lo, hi] of [[A.root.rotation, 'x', -3, 0.6], [A.root.rotation, 'z', -1.7, 1.2], [A.root.rotation, 'y', -1.2, 1.2], [A.mid.rotation, 'x', -2.4, 0]] as [THREE.Euler, 'x' | 'y' | 'z', number, number][]) for (const d of [st, -st]) {
+      for (let st = 0.4; st > 0.005; st *= 0.6) for (let pass = 0; pass < 4; pass++) for (const [o, key, lo, hi] of [[A.root.rotation, 'x', -3, 0.6], [A.root.rotation, 'z', -1.7, 1.2], [A.root.rotation, 'y', -1.2, 1.2], [A.mid.rotation, 'x', -2.4, 0]] as [THREE.Euler, 'x' | 'y' | 'z', number, number][]) for (const d of [st, -st]) {
         const was = o[key]; o[key] = Math.max(lo, Math.min(hi, was + d)); const e = err(); if (e < best) best = e; else o[key] = was;
       }
-      if (!apply) { A.root.rotation.set(keep[0], keep[1], keep[2]); A.mid.rotation.x = keep[3]; A.collar!.updateMatrixWorld(true); }
+      if (!apply) { A.root.rotation.set(keep[0], keep[1], keep[2]); A.mid.rotation.x = keep[3]; A.end.quaternion.copy(q0); A.collar!.updateMatrixWorld(true); }
       return best;
     };
-    reach(reach(1.0, false) <= reach(-0.75, false) ? 1.0 : -0.75, true);
-    body.updateMatrixWorld(true);
-    closeOn(A.end, A.mid, gR, LX);
+    // low on the haft, below the weapon hand, where it can reach (the arms then stay clear of the face)
+    const low = reach(-0.75, false); reach(low < 0.05 * s || low <= reach(1.0, false) ? -0.75 : 1.0, true);
+    gripAt(); closeOn(A.end, A.mid, gR, -LX, true, true);
     body.updateMatrixWorld(true);
   }
   // on the floor (or, seated, the hips at the origin), over the middle of its base, then lifted
@@ -952,13 +1031,37 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
   if (P.lie) {
     // laid out: the whole posed figure turned onto its back, front or side, and rested on the floor
     const lay = new THREE.Group(); lay.add(body); out.add(lay);
+    const wpn = new THREE.Group(); wpn.name = 'dropped'; if (dead) for (const c of [...gR.children]) wpn.add(c); // a dead hand lets go
     if (P.lie === 'side') lay.rotation.z = RX * Math.PI / 2; else lay.rotation.x = P.lie === 'back' ? -Math.PI / 2 : Math.PI / 2;
     out.updateMatrixWorld(true);
     const bb = new THREE.Box3(); body.traverse((c) => { const m = c as M; if (m.isMesh && !(m.material as THREE.Material).transparent) bb.expandByObject(m); });
     lay.position.y -= bb.min.y; lay.position.z -= (bb.min.z + bb.max.z) / 2; lay.position.x -= (bb.min.x + bb.max.x) / 2;
+    if (wpn.children.length) {
+      // the weapon lies on the floor by the open hand, flat side down, pointing away from the body: the nearest spot
+      // (and turn) where nothing of the body lies on it
+      out.updateMatrixWorld(true);
+      const H = gR.getWorldPosition(new THREE.Vector3()).setY(0), upW = new THREE.Vector3(0, 1, 0);
+      const dOut = H.clone(); if (dOut.lengthSq() < 0.01 * s * s) dOut.set(1, 0, 0); dOut.normalize();
+      const ax = new THREE.Vector3(0, 1, 0).transformDirection(gR.matrixWorld).setY(0); if (ax.lengthSq() > 1e-4) ax.normalize();
+      const w0 = dOut.clone().addScaledVector(ax, 0.5).normalize(), flat = f.weapon === 'sword' ? 'x' : 'z';
+      const lb = new THREE.Box3().setFromObject(wpn), half = flat === 'x' ? Math.max(-lb.min.z, lb.max.z) : Math.max(-lb.min.x, lb.max.x);
+      const solid: M[] = [], rc = new THREE.Raycaster(), down = new THREE.Vector3(0, -1, 0), inHand = (o: THREE.Object3D) => { for (let p: THREE.Object3D | null = o; p; p = p.parent) if (p === R.end) return true; return false; };
+      body.traverse((c) => { const m = c as M; if (m.isMesh && !inHand(m) && !(m.material as THREE.Material).transparent) solid.push(m); });
+      const under = (x: number, z: number) => { rc.set(new THREE.Vector3(x, 20 * s, z), down); const h = rc.intersectObjects(solid, false)[0]; return !!h && h.point.y < 0.4 * s; };
+      const fits = (P: THREE.Vector3, w: THREE.Vector3) => { const sd = new THREE.Vector3().crossVectors(w, upW); for (let t = lb.min.y; t <= lb.max.y; t += 0.25 * s) for (const k of [-1, 0, 1]) { const q = P.clone().addScaledVector(w, t).addScaledVector(sd, k * half); if (under(q.x, q.z)) return false; } return true; };
+      let at0 = H.clone().addScaledVector(dOut, 2.5 * s), w = w0;
+      find: for (let push = 0; push <= 2.5 * s; push += 0.25 * s) for (const turn of [0, 0.5, -0.5, 1, -1]) { const ww = w0.clone().applyAxisAngle(upW, turn), P = H.clone().addScaledVector(dOut, push); if (fits(P, ww)) { at0 = P; w = ww; break find; } }
+      wpn.quaternion.setFromRotationMatrix(flat === 'x' ? new THREE.Matrix4().makeBasis(upW, w, new THREE.Vector3().crossVectors(upW, w)) : new THREE.Matrix4().makeBasis(new THREE.Vector3().crossVectors(w, upW), w, upW));
+      wpn.position.copy(at0); out.add(wpn); out.updateMatrixWorld(true);
+      wpn.position.y -= new THREE.Box3().setFromObject(wpn).min.y;
+    }
   } else if (f.hoverFt && !dead) body.position.y += f.hoverFt;
   return out;
 }
+
+// The hand functions below take `sx` as the hand's handedness: +1 for a right hand, -1 for a left, which is -SIDE_X of
+// its arm. The thumb and index finger are on the -sx side of the hand's own frame, so a haft's head comes out of the
+// fist on that side, above the thumb. (kit/weapons.ts closeGrip takes the same.)
 
 /** A fist round a haft lying across the palm: the wrist turns so the haft runs across the hand, and a weapon the pose
  *  pointed along the forearm (like a pencil) or folded back onto it is opened out to stand off it. The same grip as
@@ -983,15 +1086,20 @@ function holdFast(hand: THREE.Object3D, held: THREE.Object3D, sx: number): void 
   held.position.set(0, -0.15 * u, 0.085 * u);
   fistOf(meshes, sx, u);
 }
-/** The second hand on a haft the other hand holds: the wrist turns to lie the haft across the palm and the hand closes. */
-function closeOn(end: THREE.Object3D, mid: THREE.Object3D, held: THREE.Object3D, sx: number): void {
+/** The second hand on a haft the other hand holds: the hand turns, in line with the forearm, to lie the haft across the
+ *  palm with its thumb and index toward the head (as on the weapon hand), and closes. `fist` false only turns it;
+ *  `turned` says the turn is already made. */
+function closeOn(end: THREE.Object3D, mid: THREE.Object3D, held: THREE.Object3D, sx: number, fist = true, turned = false): void {
   const meshes = end.children.filter((c) => (c as THREE.Mesh).isMesh) as THREE.Mesh[]; if (meshes.length < 10) return;
   const u = ((meshes[0].geometry as THREE.SphereGeometry).parameters?.radius ?? 0.105) / 0.105;
-  const dF = new THREE.Vector3(0, 1, 0).transformDirection(held.matrixWorld).transformDirection(mid.matrixWorld.clone().invert());
-  const h = new THREE.Vector3(-sx, 0, 0).applyQuaternion(end.quaternion);
-  if (h.dot(dF) < 0) dF.negate();
-  end.quaternion.premultiply(new THREE.Quaternion().setFromUnitVectors(h, dF));
-  fistOf(meshes, sx, u);
+  if (!turned) {
+    // in the forearm's frame: the hand's thumb side along the haft toward its head, the hand as straight on the
+    // forearm as that allows, the palm where those two put it
+    const X = new THREE.Vector3(0, 1, 0).transformDirection(held.matrixWorld).transformDirection(mid.matrixWorld.clone().invert()).multiplyScalar(-sx);
+    const Y = new THREE.Vector3(0, 1, 0).addScaledVector(X, -X.y); if (Y.lengthSq() < 1e-4) Y.set(0, 0, 1).addScaledVector(X, -X.z); Y.normalize();
+    end.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(X, Y, new THREE.Vector3().crossVectors(X, Y)));
+  }
+  if (fist) fistOf(meshes, sx, u);
 }
 /** A closed fist with nothing in it: the fingers folded down into the palm, the thumb across their middle joints. */
 function clenchOf(meshes: THREE.Mesh[], sx: number, u: number): void {
@@ -1002,9 +1110,10 @@ function clenchOf(meshes: THREE.Mesh[], sx: number, u: number): void {
     k2.rotation.set(-0.7, 0, 0); k2.position.set(x, yk + 0.022 * u, zf + 0.045 * u);
   }
   // the thumb from the side of the palm across the front of the first two fingers
-  const th = meshes[9], base = new THREE.Vector3(sx * 0.09 * u, cy - 0.04 * u, zf + 0.02 * u), tip = new THREE.Vector3(-sx * 0.01 * u, yk + 0.03 * u, zf + 0.1 * u);
+  const th = meshes[9], base = new THREE.Vector3(-sx * 0.09 * u, cy - 0.04 * u, zf + 0.02 * u), tip = new THREE.Vector3(sx * 0.01 * u, yk + 0.03 * u, zf + 0.1 * u);
   th.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), tip.clone().sub(base).normalize()); th.position.copy(base.add(tip).multiplyScalar(0.5));
 }
+/** A fist round a haft (or a shield's grip, a book's foot): the fingers curled round it, the thumb over them from the index side. */
 function fistOf(meshes: THREE.Mesh[], sx: number, u: number): void {
   for (let i = 0; i < 4; i++) {
     const k1 = meshes[1 + i * 2], k2 = meshes[2 + i * 2], x = k1.position.x;

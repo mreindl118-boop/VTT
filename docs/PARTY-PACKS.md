@@ -62,8 +62,10 @@ Detail: `eyes` (a bright colour reads as a glow), `shirt` (collar and placket), 
 `buckle`, `earrings`, `markings` (marks on the face), `cloakTrim` (hem band and front edges), `tattered` (a ragged
 cloak hem), `satchel` (bag on a strap), `coat` (`{tails, lapel}`), `vials` (up to four colours at the belt), `sparkles`
 (motes drifting around the figure), `rolled` (shirt sleeves rolled to the elbow: bare forearms below a rolled cuff).
-Plate armour also gets layered pauldrons (a domed cap and two lames, riding the shoulder joint so they lift and swing
-with the arm), a gorget, tassets, knee guards and greaves; mail is a shirt with short sleeves.
+Plate armour also gets layered pauldrons (a domed cap and two lames shaped to the upper arm, riding the shoulder joint
+so they lift and swing with the arm), a gorget, tassets, knee guards and greaves; mail is a shirt with short sleeves
+over the deltoid. A satchel's strap runs over the left shoulder down to the bag on the right hip; an orb is held out on
+the palm; a wisp rises from the top of a book carried shut.
 
 Faces are smooth (cranium, jaw, cheekbones, a nose with a tip, eyes with whites, irises and pupils under a lid, brows
 and lips; `lips` sets their colour) and hair is a smooth cap with its style on top. More parts: `gauntlets`, `clasps`
@@ -74,7 +76,8 @@ battle stance holds).
 ### Body, joints and poses
 
 Every figure is sculpted like a miniature (`kit/anatomy.ts`): the torso, pelvis and limbs are lofted through rings, so
-a chest is deep in front, a calf full behind and a shoulder line flat. `frame` picks the feminine or masculine frame
+a chest is deep in front, a calf full behind and a shoulder line flat. The deltoid is part of the upper arm, so the
+shoulder runs from the trapezius into the arm without a ball at the joint. `frame` picks the feminine or masculine frame
 (default: feminine for a curvy build or a gown, otherwise masculine) and `build` its weight: `lean` (the default),
 `broad`, or `curvy`. The feminine frame has narrower shoulders, a defined waist, wider hips, a bust and slimmer limbs;
 the masculine one a deeper chest, a square jaw and a heavier brow. Hands have fingers; boots have a heel and a sole.
@@ -100,14 +103,19 @@ however the head is turned, and at ease they lead the way the head is tilted and
 Whatever the pose, a standing figure keeps its soles flat and both feet on the ground (the higher foot comes down,
 or the hips sink onto the standing leg; a foot the pose lifts well clear stays in the air) and stands over the middle
 of its base. At ease it balances: the pit of the neck over the foot that takes the weight (the straighter leg), the
-free foot on its ball with the heel a little raised. An empty hand at ease hangs with its palm to the thigh and the
-thumb forward. A hand with a weapon in it closes into a fist round the haft, the haft across the palm; in a
-two-handed stance the free hand takes the haft too. A shield hand is a fist on the grip, and a book carried shut is
-held by its foot, the fingers curled up over the cover. A rest pose in a gown keeps the slit leg behind the slit, so
-it shows through the opening rather than pushing through the cloth.
+free foot on its ball with the heel a little raised when the feet are level. Balancing never takes a foot off the
+floor, so a fighting pose used out of a fight keeps its stance. An empty hand at ease hangs with its palm to the
+thigh and the thumb forward. A hand with a weapon in it closes into a fist round the haft, the haft across the palm,
+its head out above the thumb; in a two-handed stance the free hand takes the haft low, below the weapon hand, turned
+the same way, the arm solved so the haft lies in the curl of its fingers. A shield hand is a fist on the grip, and at
+rest the shield hangs plumb from it, its face turned out. A book carried shut is held by its foot, the fingers curled
+up over the cover; a pose's `holdL` turns the wrist, so the book stays in the fist. A dead hand lets go: the weapon
+lies on the floor beside it, flat side down and pointing away, clear of the body. A rest pose in a gown keeps the slit
+leg behind the slit, so it shows through the opening rather than pushing through the cloth; in a fight the right leg
+stays straight under the cloth and the left steps forward through the slit, never out past its edge.
 
 Out of a fight a weapon is put away, never carried drawn: an axe, sword or spear slung across the back, a mace hung
-at the belt (a staff or torch stays in hand); in initiative it is in hand. `"stow": false` keeps it in hand always.
+at the belt with its head swung out clear of the thigh (a staff or torch stays in hand); in initiative it is in hand. `"stow": false` keeps it in hand always.
 
 `body` fits the frame to the character's art with multipliers (1 = the frame's own): `shoulders`, `chest`, `waist`,
 `hips`, `bust`, `arms`, `legs` (girth) and `neck`. A brawny fighter might take `{ "shoulders": 1.12, "waist": 1.2,
@@ -117,8 +125,9 @@ A figure takes `pose` out of initiative (default `rest`), `battlePose` in it (de
 it is down (default `dead`). Each is a name or joint angles:
 
 - Names: `rest` (standing at ease: weight on one leg, hips and shoulders tilted against each other, the head
-  turned; one of three variants picked by the recipe, or a gown's own with the knee in the slit), `two-handed` (a deep
-  lunge, a great weapon raised across the body), `shield` (the shield side leading in a lunge, the shield across the
+  turned; one of three variants picked by the recipe: the arms hanging, a fist on the right hip, or the left hand on
+  the belt; or a gown's own with the knee in the slit), `two-handed` (a deep lunge, a great weapon cocked over the
+  right shoulder, the free hand low on the haft), `shield` (the shield side leading in a lunge, the shield across the
   body, the weapon arm cocked back at the shoulder),
   `cast` (book raised, the free hand thrust out with a spell, the flier rising), `conjure` (the casting hand forward
   round a gathering spell, the book in the other), `ride` (seated astride, hands on the reins), `lunge`, `menace`
@@ -128,11 +137,15 @@ it is down (default `dead`). Each is a name or joint angles:
 - Angles (radians): `spine`, `neck`, `pelvis`, `shoulderR/L`, `wristR/L`, `hipR/L`, `ankleR/L` as `[x, y, z]`;
   `elbowR/L`, `kneeR/L` and `collarR/L` (the shoulder's lift; automatic when an arm goes up) as numbers; `holdR/L`
   (`upright`, `tilt`); `lift` (feet); `seated`; `lie` (`back`, `front` or `side`: the posed figure laid on the floor);
-  `spell` (`right` or `between`); `fist` (`["R"]`, `["L"]` or both: those hands clenched into closed fists, say on a hip); `book`
+  `spell` (`right` or `between`); `fist` (`["R"]`, `["L"]` or both: those hands clenched into closed fists, say on a hip;
+  only `R` and `L` count); `hipHand` (`["R"]` or `["L"]`: the hand set on the hip, the arm solved to reach the side of
+  the waist above the belt, elbow out; a fist there with `fist`); `beltHand` (the open hand laid flat on the front of
+  the belt toward its own side, fingers down; a hand that holds something keeps it instead); `book`
   (`open` to read at rest; otherwise a book is carried shut out of a fight and opened in one); `gaze`. On x a negative angle swings forward; a negative elbow bends the forearm up, a
   positive knee bends the shin back. On the limbs y and z are mirrored, so positive turns outward on either side. On
-  the spine, pelvis and neck, y > 0 turns toward the figure's right and z > 0 raises its right side (a hip or a
-  shoulder); a `gaze` across > 0 looks to its right.
+  the spine and neck x > 0 leans forward (a dipped chin); on the spine, pelvis and neck, y > 0 turns toward the figure's right and z > 0 raises its right side (a hip or a
+  shoulder); a `gaze` across > 0 looks to its right. (A recipe's `face.gaze` overrides the pose's and keeps the face's
+  own convention, across > 0 to the figure's left.)
   Ankles add to an automatic flat-foot correction. The figure is set down with its lowest sole on the floor; a seated
   pose puts the hips at the origin.
 
