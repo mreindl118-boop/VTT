@@ -5,6 +5,7 @@ import characters from '../../manifests/characters.json';
 import { CREATURES, humanoid, horse, bear, ape, sheep, swarm, vampireSpawn, gargoyle, scarecrow, animatedArmor, skeletonStanding, ghost, specter, shadow, ghoul, ghast, cultist, broom, type HumanoidOpts } from './kit/creatures';
 import { pawn } from './kit/pieces';
 import { heroFigure, type HeroFigure } from './kit/heroes';
+import type { FaceSpec, FaceDetail } from './kit/faces';
 import { baseRingFt, type CreatureSize } from './core/units';
 import { PALETTE } from './kit/palette';
 
@@ -14,7 +15,10 @@ export interface CreatureEntry {
   kind: 'npc' | 'creature' | 'monster-manual' | 'generic' | 'pc' | 'token'; figure?: Figure; role?: string; variants?: string[];
   /** A named NPC's own miniature (kit/heroes.ts), styled after the character's art: colours, hair, dress and what they carry.
    *  When present it replaces the generic humanoid; `figure` still gives the token colour and the bestiary's look. */
-  hero?: HeroFigure;
+  hero?: HeroFigure & { face?: FaceSpec; detail?: FaceDetail };
+  /** How much the character matters at the table (the relationship web's power and ties). It sets the detail of the
+   *  figure's face (kit/faces.ts detailFor); raise it as a character grows in the story. */
+  importance?: number;
 }
 /** The DM's numbers for the open-content creatures: armour class, hit points, speed, challenge. */
 export interface Stats { ac: number; hp: number; speed: string; cr: string }
