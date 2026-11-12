@@ -224,5 +224,6 @@ describe('heroFigure', () => {
     expect(gazeOf(POSES['two-handed'], true)[0]).toBeGreaterThan(0);         // the body is wound away from the foe, the eyes come back
     expect(gazeOf({ gaze: [0.3, -0.2], neck: [0, 1, 0] }, false)).toEqual([0.3, -0.2]);
     expect(gazeOf({ neck: [0, 0.2, 0] }, false)[0]).toBeGreaterThan(0.3);     // at ease the eyes lead the head's turn
+    expect(gazeOf({ neck: [0.3, 0, 0] }, false)[1]).toBeGreaterThan(0.2);     // a dipped chin looks up from under the brows
   });
 });

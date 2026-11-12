@@ -92,11 +92,11 @@ function poseOf(f: HeroFigure, battle: boolean, dead: boolean, gown: boolean): H
   return P;
 }
 /** Where the eyes look in a pose (its own `gaze`, or worked out): in a fight they stay on the foe ahead however the
- *  head and body are turned; at ease they lead the way the head is turning, a little down. */
+ *  head and body are turned; at ease they lead the way the head is turning, and a dipped chin or a stoop looks up from under the brows. */
 export function gazeOf(P: HeroPose, battle: boolean): [number, number] {
   if (P.gaze) return P.gaze;
   const clamp = (v: number) => Math.max(-1, Math.min(1, v)), yaw = (P.neck?.[1] ?? 0) + (P.spine?.[1] ?? 0) + (P.pelvis?.[1] ?? 0), pitch = (P.neck?.[0] ?? 0) + (P.spine?.[0] ?? 0);
-  return battle ? [clamp(-yaw / 0.45), clamp(pitch / 0.5)] : [clamp((P.neck?.[1] ?? 0) * 3), clamp(-0.15 - (P.neck?.[0] ?? 0) * 2)];
+  return battle ? [clamp(-yaw / 0.45), clamp(pitch / 0.5)] : [clamp((P.neck?.[1] ?? 0) * 3), clamp(-0.05 + pitch * 1.5)];
 }
 /** A character's miniature, as the party pack writes it. Colours are CSS hex strings. */
 export interface HeroFigure {
