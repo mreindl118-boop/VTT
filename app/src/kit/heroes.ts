@@ -7,6 +7,7 @@ import { mat, matClone } from '../render/materials';
 import { clipRings, forearmRings, frameOf, loftGeometry, lockGeometry, neckRings, pelvisRings, ringAt, shinRings, thighRings, torsoRings, upperArmRings, type Frame } from './anatomy';
 import type { CreatureSize } from '../core/units';
 import { faceFeatures, type FaceSpec, type FaceDetail } from './faces';
+import { hairdo as buildHairdo, type Hairdo } from './hair';
 import { weapon as gearWeapon, scabbard, type WeaponSpec } from './weapons';
 
 export type HeroWeapon = 'none' | 'sword' | 'axe' | 'mace' | 'staff' | 'spear' | 'torch';
@@ -117,6 +118,8 @@ export interface HeroFigure {
   beard?: string; fangs?: boolean; collar?: string;
   /** The character's own face (kit/faces.ts) in place of the standard one, and how finely it is modelled (1 to 4). */
   face?: FaceSpec; detail?: FaceDetail;
+  /** A hairdo of the character's own (kit/hair.ts) in place of the standard `hairStyle`. */
+  hairdo?: Hairdo;
   /** Gear on the body's mounts (kit/weapons.ts): in either hand, sheathed or hung at the belt, slung on the back. A hand
    *  with gear replaces `weapon` (right) or `offhand` (left); an empty mount carries no geometry. */
   gear?: { handR?: WeaponSpec; handL?: WeaponSpec; beltR?: WeaponSpec; beltL?: WeaponSpec; back?: WeaponSpec };
@@ -184,7 +187,7 @@ function buildFace(head: THREE.Group, s: number, hy: number, f: HeroFigure, fem 
   if (f.face) {
     // the character's own face (kit/faces.ts): the whole head from its recipe, with this figure's ears on it; the hair is
     // buildHair's, as for every other head
-    const fg = faceFeatures(f.face, { skin, hair: f.hair, eyes: f.eyes, lips: f.lips, detail: f.detail ?? 2 }); fg.scale.setScalar(0.4 * s); fg.position.set(0, hy, 0); head.add(fg);
+    const fg = faceFeatures(f.face, { skin, hair: f.hair, eyes: f.eyes, lips: f.lips, detail: f.detail ?? 2, fem }); fg.scale.setScalar(0.4 * s); fg.position.set(0, hy, 0); head.add(fg);
     if (f.ears !== 'pointed') for (const sx of [-1, 1]) { const e = sph(0.075 * s, skin); e.scale.set(0.42, 1, 0.65); head.add(at(e, sx * 0.345 * s, hy - 0.02 * s, -0.01 * s)); }
     return (x: number, y: number) => 0.345 - 1.4 * x * x - (y > 0 ? 1.0 : 0.45) * y * y;
   }
@@ -251,6 +254,7 @@ function buildFace(head: THREE.Group, s: number, hy: number, f: HeroFigure, fem 
 function buildHair(head: THREE.Group, s: number, hy: number, f: HeroFigure, fem: boolean): void {
   if (f.face?.bald) return;
   if (!f.hair) return;
+  if (f.hairdo) { head.add(buildHairdo(f.hairdo, f.hair, s, hy, f.detail ?? 2)); return; }
   const H = f.hair, R = 0.4, style = f.hairStyle ?? 'short';
   let seed = 11; const rnd = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; };
   // a point on the scalp: azimuth from the front round through +x, elevation, and a lift off the skull

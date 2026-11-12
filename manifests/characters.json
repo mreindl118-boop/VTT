@@ -49,28 +49,29 @@
     "pendant": "#b8952e",
     "glow": "#8a1a2a",
     "face": {
-     "headL": 0.3,
-     "jaw": 0.2,
+     "headL": 0.25,
+     "jaw": 0.4,
      "chin": 0.4,
-     "chinPoint": 0.3,
-     "cheekbones": 0.8,
-     "gaunt": 0.6,
-     "noseLen": 0.4,
-     "noseHook": 0.5,
-     "noseW": -0.3,
-     "browRidge": 0.4,
-     "browThick": 0.3,
-     "browAngle": 0.7,
-     "eyeSlant": 0.2,
-     "eyeSize": -0.1,
-     "sunken": 0.5,
-     "hooded": 0.3,
+     "chinPoint": 0.2,
+     "cheekbones": 0.85,
+     "gaunt": 0.45,
+     "noseLen": 0.3,
+     "noseHook": 0.35,
+     "noseW": -0.25,
+     "browRidge": 0.35,
+     "browThick": 0.2,
+     "browAngle": 0.6,
+     "eyeSlant": 0.25,
+     "eyeSize": 0.1,
+     "sunken": 0.35,
+     "hooded": 0.35,
      "mouthW": 0.1,
-     "lipFull": -0.6,
-     "smile": -0.3,
+     "lipFull": -0.3,
+     "smile": -0.15,
      "fangs": true,
-     "age": 0.35,
-     "veins": "#8a8aa8"
+     "age": 0.25,
+     "veins": "#8a8aa8",
+     "shadow": "#6a5a70"
     },
     "gear": {
      "beltL": {
@@ -85,7 +86,16 @@
     "pose": "regal",
     "battlePose": "vampire-lord",
     "frame": "masculine",
-    "build": "broad"
+    "build": "broad",
+    "hairdo": {
+     "style": "swept",
+     "peak": true,
+     "recede": 0.35,
+     "length": 0.3
+    },
+    "collar": "#5a0f18",
+    "bracers": "#2a2a30",
+    "buckle": "#b89a4a"
    },
    "importance": 81.9
   },
@@ -448,7 +458,12 @@
     "pose": "behind-back",
     "battlePose": "slash",
     "frame": "masculine",
-    "build": "broad"
+    "build": "broad",
+    "hairdo": {
+     "style": "swept",
+     "peak": true,
+     "length": 0.9
+    }
    },
    "importance": 12.1
   },
@@ -593,7 +608,12 @@
     },
     "pose": "leaning",
     "battlePose": "duelist",
-    "frame": "masculine"
+    "frame": "masculine",
+    "hairdo": {
+     "style": "swept",
+     "recede": 0.7,
+     "length": 0.1
+    }
    },
    "importance": 17.1
   },
@@ -653,7 +673,10 @@
     },
     "pose": "hunched",
     "battlePose": "curse",
-    "frame": "feminine"
+    "frame": "feminine",
+    "hairdo": {
+     "style": "bun"
+    }
    }
   },
   {
@@ -796,7 +819,11 @@
     },
     "pose": "hunched",
     "battlePose": "curse",
-    "frame": "feminine"
+    "frame": "feminine",
+    "hairdo": {
+     "style": "wild",
+     "length": 1.5
+    }
    },
    "importance": 24.1
   },
@@ -1122,7 +1149,12 @@
     },
     "pose": "hands-on-hips",
     "battlePose": "duelist",
-    "frame": "masculine"
+    "frame": "masculine",
+    "hairdo": {
+     "style": "swept",
+     "recede": 0.6,
+     "length": 0.15
+    }
    },
    "importance": 15.0
   },
@@ -1257,7 +1289,10 @@
     "pose": "behind-back",
     "battlePose": "rebuke",
     "frame": "feminine",
-    "build": "curvy"
+    "build": "curvy",
+    "hairdo": {
+     "style": "bun"
+    }
    },
    "importance": 15.5
   },
@@ -1729,7 +1764,11 @@
     },
     "pose": "hunched",
     "battlePose": "curse",
-    "frame": "feminine"
+    "frame": "feminine",
+    "hairdo": {
+     "style": "wild",
+     "length": 1.2
+    }
    }
   },
   {

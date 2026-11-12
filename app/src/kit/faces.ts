@@ -6,6 +6,7 @@
 // caller scales it by the head's radius and hangs it on the head (or the head joint). Hair and ears are the figure's own.
 import * as THREE from 'three';
 import { mat } from '../render/materials';
+import { loftGeometry, lockGeometry } from './anatomy';
 
 export type Beard = 'none' | 'stubble' | 'goatee' | 'full' | 'long' | 'chops';
 export type Moustache = 'none' | 'thin' | 'thick' | 'handlebar' | 'droop';
@@ -40,7 +41,7 @@ export interface FaceSpec {
   bald?: boolean;
 }
 
-export interface FaceLook { skin: string; hair?: string; eyes?: string; lips?: string; detail?: FaceDetail }
+export interface FaceLook { skin: string; hair?: string; eyes?: string; lips?: string; detail?: FaceDetail; /** Sculpted on the feminine frame (a softer jaw and brow, fuller lips, larger eyes). */ fem?: boolean }
 
 type M = THREE.Mesh;
 const soft = (c: string): THREE.MeshLambertMaterial => { const m = mat(c, { emissive: '#030303' }); m.userData.smooth = true; return m; };
@@ -66,132 +67,93 @@ export function faceFeatures(spec: FaceSpec, look: FaceLook): THREE.Group {
   const line = (pts: THREE.Vector3[], r: number, c: string): M => { const m = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), Math.max(6, pts.length * 3), r, 5), soft(c)); g.add(m); return m; };
 
   const headW = n(spec.headW), headL = n(spec.headL), jaw = n(spec.jaw), chin = n(spec.chin), point = n(spec.chinPoint), cb = n(spec.cheekbones), gaunt = n(spec.gaunt);
-  const wx = 0.9 * (1 + 0.12 * headW), wz = 0.86;
-  /** The skull's front surface at (x, y), for things drawn on it. */
-  const surf = (x: number, y: number) => wz * Math.sqrt(Math.max(0.0004, R * R - (x / wx) ** 2 - ((y - 0.05) / (1 + 0.06 * headL)) ** 2)) + 0.006;
-
-  // ---- the head: one surface from the crown to the chin. The upper half is the skull; the lower half narrows through
-  // the jaw to the chin and leans forward, and the back of it tucks in toward the neck.
-  const jw = 0.8 + 0.16 * jaw + 0.08 * headW - 0.07 * gaunt, cw = Math.max(0.2, 0.44 + 0.2 * jaw - 0.2 * point);
-  const faceLen = 1.12 + 0.2 * headL + 0.07 * point, lean = 0.4 * (1 + 0.3 * chin);
-  const shape = (dx: number, dy: number, dz: number, puff = 0): THREE.Vector3 => {
-    if (dy >= 0) return V(dx * (R + puff) * wx, 0.05 + dy * (R + puff) * (1 + 0.06 * headL), dz * (R + puff) * wz);
-    const t = -dy, f = Math.max(0, dz), k = t < 0.72 ? wx + (jw - wx) * (t / 0.72) ** 1.5 : jw + (cw - jw) * ((t - 0.72) / 0.28) ** 0.8;
-    const x = dx * (R + puff) * k / Math.max(0.35, Math.sqrt(1 - t * t)) * Math.sqrt(1 - t * t * 0.55);
-    const y = 0.05 - t * (R + puff * 0.6) * (0.62 + (faceLen - 0.62) * Math.min(1, f * 1.6 + t * t * 0.75));
-    const z = dz * (R + puff) * wz * (dz > 0 ? 1 - 0.1 * t * t : 1 - 0.3 * t) + R * lean * t * t * t;
-    return V(x, y, z);
+  const fem = !!look.fem, jowls = Math.max(0, n(spec.jowls)), ridge = n(spec.browRidge), sunk = Math.max(0, n(spec.sunken));
+  // ---- the head: the same sculpted skull the standard figures wear (so hair, ears and hoods fit it), with this face's
+  // proportions pushed into it. Everything is one surface: temples, cheekbones over hollow cheeks, a brow over deep-set
+  // eyes, the jaw's corner, the chin. Coordinates on the unit sphere; the eyes sit on the midline.
+  const kx = 0.84 * (1 + 0.07 * headW), ky = 1.14 * (1 + 0.05 * headL);
+  const bump = (x: number, y: number, cx: number, cy: number, wx: number, wy = wx) => Math.exp(-((x - cx) ** 2 / wx + (y - cy) ** 2 / wy));
+  const skullAt = (ux: number, uy: number, uz: number, puff = 0): THREE.Vector3 => {
+    let x = ux, z = uz; const y = uy, fz = Math.max(0, z), low = Math.max(0, -y), ax = Math.abs(ux);
+    x *= kx * (fem ? 1 - (0.42 - 0.12 * jaw + 0.05 * gaunt) * low ** 1.7 : 1 - (0.31 - 0.11 * jaw + 0.05 * gaunt) * low ** 2.2);
+    z *= 0.94 * (1 - 0.1 * low * low);
+    if (z < 0 && y > -0.3) z *= 1.05;
+    const sx = Math.abs(x);
+    z += fz * (
+      (fem ? 0.07 : 0.1) * (1 + 0.6 * chin + 0.3 * point) * bump(sx, y, 0, -0.84, 0.03 * (1 - 0.55 * Math.max(0, point)), 0.02)
+      + 0.05 * bump(sx, y, 0, -0.52, 0.06, 0.03)
+      + (fem ? 0.05 : 0.045) * (1 + 0.9 * cb) * bump(sx, y, 0.42, -0.1, 0.02, 0.012)
+      - (fem ? 0.035 : 0.06) * (1 + 1.3 * gaunt) * bump(sx, y, 0.36, -0.45, 0.02, 0.03)
+      + (fem ? 0.035 : 0.075) * (1 + 0.8 * ridge) * Math.exp(-((y - 0.2) ** 2) / 0.004) * Math.max(0, z - 0.45) * (1 - 0.5 * bump(sx, y, 0, 0.2, 0.01))
+      - 0.11 * (1 + 0.3 * sunk) * bump(sx, y, 0.3, 0.03, 0.014, 0.008)
+      - 0.03 * bump(sx, y, 0.62, 0.3, 0.02, 0.05)
+      + 0.07 * jowls * bump(sx, y, 0.3, -0.7, 0.03, 0.03));
+    x += Math.sign(x) * (fem ? 0.025 * Math.max(0, jaw) : 0.05 * (1 + 0.8 * jaw)) * bump(ax, y, 0.62, -0.5, 0.02, 0.02) * (z > -0.2 ? 1 : 0);
+    return V(x * (R + puff), y * ky * (R + puff), z * (R + puff));
   };
   const shaped = (geo: THREE.BufferGeometry, c: string, puff = 0): M => {
     const p = geo.attributes.position as THREE.BufferAttribute, v = V(0, 0, 0);
-    for (let i = 0; i < p.count; i++) { v.fromBufferAttribute(p, i).normalize(); const q = shape(v.x, v.y, v.z, puff); p.setXYZ(i, q.x, q.y, q.z); }
+    for (let i = 0; i < p.count; i++) { v.fromBufferAttribute(p, i).normalize(); const q = skullAt(v.x, v.y, v.z, puff); p.setXYZ(i, q.x, q.y, q.z); }
     geo.computeVertexNormals(); const m = new THREE.Mesh(geo, soft(c)); g.add(m); return m;
   };
-  // The face is sculpted into that one surface, never stuck onto it: cheekbones, hollow cheeks, jowls, the chin, the brow
-  // ridge and the eye sockets are soft swells and dips pushed into the head's own skin, so every transition is smooth.
-  const jowls = n(spec.jowls), ridge = n(spec.browRidge), sunkK = Math.max(0, n(spec.sunken));
-  const chinY0 = 0.05 - R * faceLen + 0.07;
-  /** [x (mirrored), y, radius across, radius up, depth]. */
-  const sculpt: [number, number, number, number, number][] = [
-    [0.19, -0.035 + 0.02 * cb, 0.1, 0.06, 0.012 + 0.02 * cb],                   // cheekbones
-    [0.18, -0.19, 0.075, 0.1, -0.008 - 0.03 * Math.max(0, gaunt)],              // the cheeks under them
-    [0.135, 0.04, 0.07, 0.05, -0.016 - 0.022 * sunkK],                          // eye sockets
-    [0.11, 0.125, 0.12, 0.04, 0.012 + 0.028 * ridge],                           // the brow ridge
-    [0, 0.115, 0.06, 0.04, 0.008 + 0.02 * ridge],                               // its meeting over the nose
-    [0.15, chinY0 + 0.1, 0.085, 0.075, 0.03 * Math.max(0, jowls)],              // jowls
-    [0, chinY0 + 0.02, 0.085 - 0.03 * point, 0.06, 0.012 + 0.024 * chin + 0.02 * point],   // the chin
-    [0.07, -0.235 - 0.06 * headL, 0.1, 0.06, 0.008],                            // the muzzle the lips sit on
-  ];
-  const sculpted = (q: THREE.Vector3): THREE.Vector3 => {
-    if (q.z <= 0) return q;
-    let push = 0;
-    for (const [cx, cy, rx, ry, amp] of sculpt) { const dx = (Math.abs(q.x) - cx) / rx, dy = (q.y - cy) / ry, e = dx * dx + dy * dy; if (e < 9) push += amp * Math.exp(-e); }
-    const k = Math.min(1, q.z / 0.12), h = Math.hypot(q.x, q.z) || 1;            // fades out toward the sides of the head
-    q.x += (q.x / h) * push * k; q.z += (q.z / h) * push * k; return q;
-  };
-  {
-    const geo = new THREE.SphereGeometry(1, sw * 2 + 8, sh * 2 + 6), p = geo.attributes.position as THREE.BufferAttribute, v = V(0, 0, 0);
-    for (let i = 0; i < p.count; i++) { v.fromBufferAttribute(p, i).normalize(); const q = sculpted(shape(v.x, v.y, v.z)); p.setXYZ(i, q.x, q.y, q.z); }
-    geo.computeVertexNormals(); g.add(new THREE.Mesh(geo, soft(skin)));
-  }
-  /** The face's front profile: how far forward the surface is at height y on the centre line, eased back toward the sides. */
-  const front = (y: number, x = 0): number => {
-    let best = 0, bd = 1e9;
-    for (let i = 0; i <= 60; i++) { const t = i / 60, q = shape(0, -t, Math.sqrt(1 - t * t)); const e = Math.abs(q.y - y); if (e < bd) { bd = e; best = q.z; } }
-    return best - (x * x) / (2 * R * 0.8);
-  };
-  const jy = -0.15 - 0.05 * headL, jawW = jw / 0.8;
-  const chinY = 0.05 - R * faceLen + 0.07, chinZ = front(chinY);
-  const cby = -0.05 + 0.02 * cb;
+  const headMesh = shaped(new THREE.SphereGeometry(1, d >= 3 ? 64 : 48, d >= 3 ? 48 : 36), skin);
+  const hp = headMesh.geometry.attributes.position as THREE.BufferAttribute, frontPts: [number, number, number][] = [];
+  for (let i = 0; i < hp.count; i += d >= 3 ? 2 : 1) if (hp.getZ(i) > 0.1) frontPts.push([hp.getX(i), hp.getY(i), hp.getZ(i)]);
+  /** The face's depth at (x, y), to seat the features on it. */
+  const surf = (x: number, y: number) => { let best = 0, bw = 0; for (const [vx, vy, vz] of frontPts) { const w = 1 / (1e-4 + (vx - x) ** 2 + (vy - y) ** 2) ** 2; best += vz * w; bw += w; } return best / bw; };
+  const front = (y: number, x = 0) => surf(x, y);
+  const jy = -0.2, jawW = 1 + 0.12 * jaw, chinY = -0.36 * (1 + 0.05 * headL), chinZ = surf(0, chinY), cby = -0.05;
 
-  // ---- the brow and the nose
-  const nl = n(spec.noseLen), nw = n(spec.noseW), hook = n(spec.noseHook), tipK = n(spec.noseTip);
-  const top = V(0, 0.07, 0.335), tip = V(0, -0.11 - 0.05 * nl + (hook < 0 ? -0.025 * hook : 0), 0.39 + 0.045 * nl + (hook < 0 ? 0.01 * hook : 0.012 * hook));
-  // the nose is one lofted surface: narrow at the bridge, widening to the wings, its profile running out to the tip and
-  // curling back under to the lip; a hook swells the bridge, an upturned nose lifts the tip
-  {
-    const rows = d >= 3 ? 18 : 12, colsN = d >= 3 ? 14 : 10, wTop = 0.03 * (1 + 0.25 * nw), wBase = 0.07 * (1 + 0.5 * nw) * (1 + 0.15 * tipK), len = top.y - tip.y, under = 0.045;
-    const pos: number[] = [], idx: number[] = [];
-    for (let i = 0; i <= rows; i++) {
-      const u = i / rows * 1.22, uu = Math.min(1, u), over = Math.max(0, u - 1) / 0.22;                                 // past 1 the surface turns under the tip
-      const y = top.y - len * uu - under * over * over * 0.6 - (over > 0 ? 0.012 * Math.sin(over * Math.PI / 2) : 0);
-      const zf = front(y) - 0.012;
-      const prof = (0.012 + (tip.z - 0.335 + 0.02) * Math.pow(uu, 1.35) + (hook > 0 ? 0.03 * hook : 0.008 * hook) * Math.sin(uu * Math.PI) + 0.012 * tipK * Math.exp(-(((uu - 0.92) / 0.12) ** 2))) * (1 - over * over);
-      const wide = (wTop + (wBase - wTop) * Math.pow(uu, 1.6) + 0.014 * (1 + nw) * Math.exp(-(((uu - 0.9) / 0.1) ** 2))) * (1 - 0.35 * over);
-      for (let j = 0; j <= colsN; j++) { const a = (j / colsN - 0.5) * Math.PI, cs = Math.cos(a); pos.push(Math.sin(a) * wide, y, zf + Math.max(0, prof) * Math.pow(cs, 0.75) + 0.02 * cs); }
-    }
-    for (let i = 0; i < rows; i++) for (let j = 0; j < colsN; j++) { const k = i * (colsN + 1) + j; idx.push(k, k + colsN + 1, k + 1, k + 1, k + colsN + 1, k + colsN + 2); }
-    const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); geo.setIndex(idx); geo.computeVertexNormals();
-    const m = soft(skin); m.side = THREE.DoubleSide; g.add(new THREE.Mesh(geo, m));
-  }
-  const wing = 0.047 * (1 + 0.55 * nw);
-  if (d >= 2) for (const sx of [-1, 1]) add(sph(0.014 + 0.004 * nw, deep, 8, 6), sx * wing * 0.62, tip.y - 0.03, front(tip.y - 0.03) + 0.012).scale.set(1.2, 0.5, 1);   // nostrils, underneath
-  if (spec.warts) { const w = tone(skin, '#3a3020', 0.35); add(sph(0.022, w, 8, 6), 0.035, tip.y + 0.05, tip.z - 0.005); add(sph(0.018, w, 8, 6), -0.06, chinY + 0.05, chinZ + 0.0); add(sph(0.016, w, 8, 6), 0.2, cby + 0.01, 0.31); }
+  // ---- the nose: a wedge from the bridge to the tip, turned under to its base, with the nostrils' wings
+  const nl = n(spec.noseLen), nwS = n(spec.noseW), hook = n(spec.noseHook), tipK = n(spec.noseTip);
+  const nw = (fem ? 0.85 : 1) * (1 + 0.3 * nwS), nk = 1 + 0.22 * nl, nf = (fem ? 0.85 : 1) * (1 + 0.3 * nl), up = hook < 0 ? -0.02 * hook : 0;
+  const ny = (y: number) => 0.07 - (0.07 - y) * nk, nz = surf(0, ny(-0.08));
+  const nose = new THREE.Mesh(loftGeometry([
+    { y: ny(-0.18) + up * 0.5, w: 0.03 * nw, f: 0.012, b: 0.02 }, { y: ny(-0.162) + up, w: 0.046 * nw, f: 0.055 * nf * (1 + 0.25 * tipK), b: 0.02 },
+    { y: ny(-0.135) + up, w: 0.042 * nw * (1 + 0.2 * tipK), f: 0.07 * nf * (1 + 0.3 * tipK), b: 0.02 }, { y: ny(-0.06), w: 0.032 * nw, f: 0.042 * nf + 0.03 * Math.max(0, hook), b: 0.02 },
+    { y: ny(0.03), w: 0.03 * nw, f: 0.018 + 0.012 * Math.max(0, hook), b: 0.02 }, { y: 0.07, w: 0.03, f: 0.004, b: 0.02 }], 1, { seg: 12, rows: 14 }), soft(skin));
+  nose.position.set(0, 0, nz - 0.012); g.add(nose);
+  const tip = V(0, ny(-0.135) + up, nz - 0.012 + 0.07 * nf * (1 + 0.3 * tipK)), wing = 0.046 * nw;
+  for (const sx of [-1, 1]) { const al = sph(0.022 * nw, skin, 10, 8); al.scale.set(1.1, 0.8, 1); add(al, sx * 0.042 * nw, ny(-0.158) + up, nz + 0.016); if (d >= 2) add(sph(0.008, deep, 8, 6), sx * 0.022 * nw, ny(-0.177) + up, nz + 0.03); }
+  if (spec.warts) { const w = tone(skin, '#3a3020', 0.35); add(sph(0.014, w, 8, 6), 0.03, tip.y + 0.04, tip.z - 0.012); add(sph(0.012, w, 8, 6), -0.06, chinY + 0.05, surf(-0.06, chinY + 0.05)); add(sph(0.011, w, 8, 6), 0.2, cby + 0.01, surf(0.2, cby + 0.01)); }
 
-  // ---- the eyes
-  const ek = 1 + 0.3 * n(spec.eyeSize), ex = 0.135 * (1 + 0.2 * n(spec.eyeSpace)), ey = 0.035, sunk = n(spec.sunken), ez = surf(ex, ey) - 0.034 - 0.022 * Math.max(0, sunk);
-  const hooded = n(spec.hooded), slant = n(spec.eyeSlant), bags = n(spec.bags), eyeC = look.eyes ?? '#4a3a2a';
+  // ---- the eyes: small and set deep, almond-shaped; a sliver of white, the iris and pupil, a heavy upper lid, a lower
+  // lid, the lash line. Then the brow: thick at the nose, tapering out along the ridge.
+  const ew = (fem ? 1.3 : 1.16) * (1 + 0.2 * n(spec.eyeSize)), ex = 0.122 * (1 + 0.14 * n(spec.eyeSpace)), ey = 0, ez = surf(ex, 0) - 0.006 - 0.006 * sunk;
+  const hooded = n(spec.hooded), slant = n(spec.eyeSlant), bags = n(spec.bags), eyeC = look.eyes ?? '#4a3a2a', lidC = spec.shadow ?? tone(skin, '#1e1216', 0.14);
   for (const sx of [-1, 1]) {
-    const patch = spec.eyepatch && (spec.eyepatch === 'L' ? 1 : -1) === sx;
-    if (patch) { add(sph(0.085, '#17141a'), sx * ex, ey + 0.005, ez + 0.02).scale.set(1.1, 1, 0.4); continue; }
-    const white = add(sph(0.058 * ek, '#efe8de'), sx * ex, ey, ez); white.scale.set(1.25, 0.72 * (1 - 0.3 * Math.max(0, hooded)), 0.55); white.rotation.z = sx * slant * 0.22;
-    add(sph(0.036 * ek, eyeC, 12, 10), sx * ex, ey, ez + 0.025);
-    if (d >= 2) add(sph(0.017 * ek, '#141014', 8, 6), sx * ex, ey, ez + 0.055);
-    if (d >= 3) add(sph(0.008, '#ffffff', 6, 4), sx * ex + 0.013, ey + 0.013, ez + 0.063);                              // a light in the eye
-    const ly = ey + 0.04 * ek - 0.016 * hooded, a = sx * slant * 0.22, dx = 0.058 * ek;
-    const lidP = (t: number, yy: number, zz: number) => V(sx * ex + t * dx * Math.cos(a), yy + t * dx * Math.sin(a), zz);
-    seg(lidP(-1, ly, ez + 0.004), lidP(1, ly, ez + 0.004), 0.017 * (1 + 0.5 * Math.max(0, hooded)), spec.shadow ?? skin);
-    if (spec.lashes && d >= 3) seg(lidP(-1.05, ly - 0.012, ez + 0.022), lidP(1.2, ly - 0.004, ez + 0.016), 0.008, '#141014');
-    if (d >= 2 && (bags > 0 || d >= 3)) seg(lidP(-0.9, ey - 0.042 * ek, ez - 0.004), lidP(0.9, ey - 0.042 * ek, ez - 0.004), 0.014 + 0.012 * Math.max(0, bags), bags > 0 ? tone(skin, '#3a2a3a', 0.2 + 0.25 * bags) : skin);
-    // the brow hair: scowling drops the inner end
-    const bt = 0.3 * n(spec.browAngle) - 0.1, by = 0.14 + 0.012 * ridge - 0.01 * Math.max(0, n(spec.browAngle)), bz = 0.345 + 0.035 * ridge, bl = 0.075;
-    const inner = V(sx * (ex + 0.005) - sx * bl * Math.cos(bt), by - bl * Math.sin(bt), bz + 0.004), outer = V(sx * (ex + 0.005) + sx * bl * Math.cos(bt), by + bl * Math.sin(bt), bz - 0.02);
-    seg(inner, outer, 0.019 * (1 + 0.7 * n(spec.browThick)), hairC);
-    if (d >= 4 && (spec.age ?? 0) > 0.45) for (const k of [-1, 0, 1]) line([V(sx * (ex + 0.075), ey + k * 0.012, ez - 0.03), V(sx * (ex + 0.115), ey + k * 0.035, ez - 0.075)], 0.005, shade);   // crow's feet
-    if (spec.veins && d >= 3) line([V(sx * 0.3, 0.2, surf(sx * 0.3, 0.2) - 0.02), V(sx * 0.27, 0.13, surf(sx * 0.27, 0.13)), V(sx * 0.235, 0.085, surf(sx * 0.235, 0.085) + 0.01)], 0.006, spec.veins);
+    const px = sx * ex, rz = sx * slant * 0.2;
+    if (spec.eyepatch && (spec.eyepatch === 'L' ? 1 : -1) === sx) { add(sph(0.06, '#17141a'), px, ey + 0.005, ez + 0.012).scale.set(1.2, 1, 0.4); }
+    else {
+      const white = add(sph(0.04 * ew, '#e9e3d8', 16, 12), px, ey, ez); white.scale.set(1.3, 0.62, 0.6); white.rotation.z = rz;
+      add(sph(0.021 * ew, eyeC, 14, 10), px, ey - 0.002, ez + 0.019);
+      add(sph(0.0095 * ew, '#0e0b10', 8, 6), px, ey - 0.002, ez + 0.035);
+      if (d >= 3) add(sph(0.0045, '#ffffff', 6, 4), px + 0.008, ey + 0.006, ez + 0.041);
+      const lid = new THREE.Mesh(new THREE.SphereGeometry(0.044 * ew, 16, 8, 0, Math.PI * 2, 0, Math.PI * (0.46 + 0.1 * Math.max(0, hooded))), soft(lidC)); lid.scale.set(1.32, 0.72, 0.68); lid.rotation.set(0.3 + 0.15 * Math.max(0, hooded), 0, rz); add(lid, px, ey + 0.003, ez);
+      const under = new THREE.Mesh(new THREE.SphereGeometry(0.044 * ew, 16, 6, 0, Math.PI * 2, Math.PI * 0.68, Math.PI * 0.32), soft(bags > 0 ? tone(skin, '#3a2a3a', 0.1 + 0.2 * bags) : tone(skin, '#1e1216', 0.08))); under.scale.set(1.3, 0.7, 0.66); under.rotation.set(-0.15, 0, rz); add(under, px, ey, ez);
+      const lash = [-0.055, -0.02, 0.02, 0.055].map((dx, k) => V(px + dx * ew, ey + 0.012 + (k === 1 || k === 2 ? 0.012 : 0) + (k === 3 && sx > 0 || k === 0 && sx < 0 ? 0.006 + 0.012 * slant : 0), ez + 0.022 + (k === 1 || k === 2 ? 0.006 : 0)));
+      line(lash, fem || spec.lashes ? 0.007 : 0.005, deep);
+    }
+    const bt = n(spec.browAngle), thick = (fem ? 0.017 : 0.026) * (1 + 0.5 * n(spec.browThick));
+    const bp = [0.045, 0.09, 0.14, 0.195].map((ax, k) => V(sx * ax, [0.07, 0.088, 0.094, 0.078][k] + (fem ? 0.012 : 0) + 0.006 * ridge + bt * [-0.016, -0.004, 0.006, 0.012][k], surf(sx * ax, 0.085) + 0.006));
+    g.add(new THREE.Mesh(lockGeometry(bp, thick, 0.005, 0.6, 6, 0.1), soft(hairC)));
+    if (d >= 4 && (spec.age ?? 0) > 0.45) for (const k of [-1, 0, 1]) line([V(sx * (ex + 0.065), ey + k * 0.008, surf(ex + 0.065, ey) + 0.001), V(sx * (ex + 0.095), ey + k * 0.024, surf(ex + 0.095, ey + k * 0.024) + 0.001)], 0.003, shade);   // crow's feet
+    if (spec.veins && d >= 3) line([V(sx * 0.27, 0.22, surf(0.27, 0.22)), V(sx * 0.25, 0.15, surf(0.25, 0.15) + 0.002), V(sx * 0.22, 0.1, surf(0.22, 0.1) + 0.002)], 0.004, spec.veins);
   }
-  if (spec.eyepatch) { const sx = spec.eyepatch === 'L' ? 1 : -1; const t = new THREE.Mesh(new THREE.TorusGeometry(0.385, 0.012, 5, 28), soft('#17141a')); t.rotation.set(Math.PI / 2, sx * 0.35, 0); add(t, 0, 0.1, -0.01).scale.set(wx, 1, wz * 1.02); }
+  if (spec.eyepatch) { const sx = spec.eyepatch === 'L' ? 1 : -1; const t = new THREE.Mesh(new THREE.TorusGeometry(0.385, 0.009, 5, 28), soft('#17141a')); t.rotation.set(Math.PI / 2, sx * 0.35, 0); add(t, 0, 0.08, -0.01).scale.set(kx, 1, 0.98); }
   if (spec.spectacles) {
-    for (const sx of [-1, 1]) add(new THREE.Mesh(new THREE.TorusGeometry(0.062, 0.008, 5, 18), soft(spec.spectacles)), sx * ex, ey, ez + 0.05);
-    seg(V(-ex + 0.062, ey + 0.01, ez + 0.05), V(ex - 0.062, ey + 0.01, ez + 0.05), 0.007, spec.spectacles);
-    for (const sx of [-1, 1]) seg(V(sx * (ex + 0.062), ey + 0.01, ez + 0.05), V(sx * 0.37, ey + 0.03, 0.02), 0.006, spec.spectacles);
+    for (const sx of [-1, 1]) add(new THREE.Mesh(new THREE.TorusGeometry(0.05, 0.006, 5, 18), soft(spec.spectacles)), sx * ex, ey, ez + 0.045);
+    seg(V(-ex + 0.05, ey + 0.01, ez + 0.045), V(ex - 0.05, ey + 0.01, ez + 0.045), 0.005, spec.spectacles);
+    for (const sx of [-1, 1]) seg(V(sx * (ex + 0.05), ey + 0.01, ez + 0.045), V(sx * 0.33, ey + 0.02, 0.02), 0.005, spec.spectacles);
   }
 
-  // ---- the mouth
-  const mw = 1 + 0.4 * n(spec.mouthW), full = n(spec.lipFull), smile = n(spec.smile), my = -0.235 - 0.06 * headL, mz = front(my) + 0.004;
-  const half = 0.092 * mw, cy = my + 0.035 * smile;
-  if (d >= 3) {
-    const curve = (yy: number, zz: number, k: number) => [V(-half, cy + k * 0.2, zz - 0.034), V(-half * 0.5, yy + (cy - my) * 0.3, zz - 0.008), V(0, yy, zz), V(half * 0.5, yy + (cy - my) * 0.3, zz - 0.008), V(half, cy + k * 0.2, zz - 0.034)];
-    line(curve(my + 0.02, mz + 0.004, 0.01), 0.022 * (1 + 0.5 * full), lip);
-    line(curve(my - 0.022, mz, -0.01), 0.027 * (1 + 0.5 * full), lip);
-    line(curve(my, mz + 0.016, 0), 0.007, tone(lip, '#1a0a0c', 0.6));
-  } else {
-    seg(V(-half * 0.75, my + 0.02, mz + 0.004), V(half * 0.75, my + 0.02, mz + 0.004), 0.026 * (1 + 0.5 * full), lip);
-    seg(V(-half * 0.6, my - 0.02, mz), V(half * 0.6, my - 0.02, mz), 0.032 * (1 + 0.5 * full), lip);
-    if (d >= 2 && Math.abs(smile) > 0.2) for (const sx of [-1, 1]) add(sph(0.02, lip, 8, 6), sx * half, cy, mz - 0.02);
-  }
-  if (spec.teeth) { const t = new THREE.Mesh(new THREE.BoxGeometry(half * 1.5, 0.026, 0.02), soft('#e8e0cc')); add(t, 0, my, mz + 0.012); }
-  if (spec.fangs) for (const sx of [-1, 1]) { const f = new THREE.Mesh(new THREE.ConeGeometry(0.013, 0.06, 6), soft('#f2ece0')); f.rotation.x = Math.PI; add(f, sx * 0.032, my - 0.022, mz + 0.03); }
+  // ---- the mouth: a bowed upper lip under the philtrum, a fuller lower one, the line between them
+  const full = n(spec.lipFull), smile = n(spec.smile), lw = (fem ? 1 : 0.92) * (1 + 0.25 * n(spec.mouthW)), my = -0.262, mz = surf(0, -0.265), half = 0.058 * lw;
+  for (const sx of [-1, 1]) { const u = add(sph(0.034, lip, 12, 8), sx * 0.026 * lw, my + 0.016 + 0.004 * smile, mz + 0.004); u.scale.set(1.25 * lw, (fem ? 0.46 : 0.38) * (1 + 0.45 * full), 0.55); u.rotation.z = sx * (0.16 + 0.2 * smile); }
+  add(sph(0.048 * lw, tone(lip, '#ffffff', 0.08), 16, 10), 0, my - 0.014, mz + 0.001).scale.set(1.05, (fem ? 0.52 : 0.4) * (1 + 0.5 * full), 0.56);
+  line([-0.058, -0.02, 0.02, 0.058].map((x) => V(x * lw, my + 0.003 - Math.abs(x) * 0.08 + Math.abs(x) * 0.55 * smile, mz + 0.014 - Math.abs(x) * 0.25)), 0.004, deep);
+  if (spec.teeth) { const t = new THREE.Mesh(new THREE.BoxGeometry(half * 1.3, 0.014, 0.012), soft('#e8e0cc')); add(t, 0, my + 0.002, mz + 0.012); }
+  if (spec.fangs) for (const sx of [-1, 1]) { const f = new THREE.Mesh(new THREE.ConeGeometry(0.008, 0.036, 6), soft('#f2ece0')); f.rotation.x = Math.PI; add(f, sx * 0.024, my - 0.012, mz + 0.02); }
   const age = Math.max(0, Math.min(1, spec.age ?? 0));
   if (d >= 3 && age > 0.3) for (const sx of [-1, 1]) line([V(sx * wing * 1.5, tip.y - 0.0, tip.z - 0.06), V(sx * (half + 0.035), my + 0.05, mz - 0.03), V(sx * (half + 0.03), my - 0.03, mz - 0.045)], 0.006 + 0.005 * age, shade);
   if (d >= 3 && age > 0.5) for (let i = 0; i < (d >= 4 ? 3 : 2); i++) { const y = 0.215 + i * 0.05, w = 0.15 - i * 0.02; line([-1, -0.5, 0, 0.5, 1].map((t) => V(t * w, y + 0.006 * Math.cos(t * 3), surf(t * w, y))), 0.005 + 0.003 * age, shade); }

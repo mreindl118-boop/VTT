@@ -2,8 +2,8 @@
 // figure rig (kit/heroes.ts HeroPose). The manifest names them per character; bestiary.ts resolves the names.
 import type { HeroPose } from './heroes';
 
-const LUNGE: HeroPose = { hipR: [-0.75, 0, 0.1], kneeR: 0.95, hipL: [0.5, 0, 0.2], kneeL: 0.1 };
-const BRACED: HeroPose = { hipL: [-0.5, 0, 0.18], kneeL: 0.7, hipR: [0.4, 0, 0.14], kneeR: 0.3 };
+const LUNGE: HeroPose = { hipR: [-0.55, 0, 0.1], kneeR: 0.65, hipL: [0.35, 0.45, 0.2], kneeL: 0.2 };          // weapon foot leading (a fencer)
+const BRACED: HeroPose = { hipL: [-0.5, 0, 0.14], kneeL: 0.65, hipR: [0.3, 0.35, 0.16], kneeR: 0.35 };       // off foot leading (a swing coming)
 
 export const NPC_POSES = {
   // ---- at rest
@@ -24,27 +24,27 @@ export const NPC_POSES = {
 
   // ---- in a fight
   /** The vampire lord: unhurried, one clawed hand out to command or charm, the other sweeping his cloak back. */
-  'vampire-lord': { spine: [-0.06, -0.3, 0], neck: [-0.1, 0.25, 0], shoulderR: [-1.3, 0, 0.3], elbowR: -0.4, wristR: [-0.45, 0, 0], shoulderL: [0.4, 0, 0.85], elbowL: -0.45, hipL: [-0.3, 0, 0.1], kneeL: 0.35, hipR: [0.2, 0, 0.12], kneeR: 0.05, spell: 'right' },
+  'vampire-lord': { spine: [-0.05, -0.15, 0], neck: [-0.08, 0.12, 0.05], shoulderR: [-0.85, 0, 0.22], elbowR: -1.0, wristR: [-0.5, 0, 0], shoulderL: [0.2, -0.6, 0.4], elbowL: -0.9, hipL: [-0.25, 0, 0.08], kneeL: 0.3, hipR: [0.1, 0.2, 0.1], kneeR: 0.05, spell: 'right' },
   /** En garde: side on, the point forward, the off hand high behind. */
-  duelist: { spine: [0.1, -0.5, 0], neck: [0, 0.45, 0], shoulderR: [-1.35, 0, 0.1], elbowR: -0.25, holdR: { upright: true, tilt: [1.3, 0, 0] }, shoulderL: [0.5, 0, 0.9], elbowL: -1.4, ...LUNGE },
+  duelist: { pelvis: [0, 0.15, 0], spine: [0.08, 0.3, 0], neck: [0, -0.4, 0], shoulderR: [-0.95, 0, 0.12], elbowR: -0.95, holdR: { upright: true, tilt: [1.15, 0, 0] }, shoulderL: [0.3, 0, 0.55], elbowL: -1.1, ...LUNGE },
   /** A great blade heaved overhead in both hands. */
-  'overhead': { spine: [0.1, 0.15, 0], neck: [-0.1, 0, 0], shoulderR: [-2.55, 0, -0.3], elbowR: -0.7, shoulderL: [-2.45, 0, -0.5], elbowL: -0.8, holdR: { upright: true, tilt: [-0.55, 0, 0.15] }, ...BRACED },
+  'overhead': { spine: [-0.04, -0.25, 0], neck: [0.02, 0.22, 0], shoulderR: [-1.85, 0, 0.45], elbowR: -1.55, shoulderL: [-1.8, -0.55, -0.05], elbowL: -1.35, holdR: { upright: true, tilt: [-0.55, 0, -0.2] }, ...BRACED },
   /** An axe wound back over the shoulder, the other arm thrust out. */
-  windup: { spine: [0.1, 0.4, 0], neck: [0, -0.3, 0], shoulderR: [-2.2, 0, 0.5], elbowR: -1.3, holdR: { upright: true, tilt: [-0.9, 0, 0] }, shoulderL: [-1.4, 0, 0.1], elbowL: -0.15, wristL: [0.9, 0, 0], ...BRACED },
+  windup: { spine: [0.06, -0.4, 0], neck: [0, 0.35, 0], shoulderR: [-0.65, 0, 0.9], elbowR: -1.9, holdR: { upright: true, tilt: [-0.7, 0, 0.3] }, shoulderL: [-1.05, -0.25, 0.2], elbowL: -0.75, ...BRACED },
   /** A curved blade drawn back across the body for a slash. */
-  slash: { spine: [0.12, 0.5, 0], neck: [0, -0.4, 0], shoulderR: [-1.7, 0, -0.7], elbowR: -1.2, holdR: { upright: true, tilt: [0.3, 0, 1.0] }, shoulderL: [0.3, 0, 0.6], elbowL: -0.4, ...BRACED },
+  slash: { spine: [0.08, -0.3, 0], neck: [0, 0.25, 0], shoulderR: [-0.9, 0, 0.5], elbowR: -2.0, holdR: { upright: true, tilt: [-0.4, 0, 0.3] }, shoulderL: [-1.0, -0.3, 0.2], elbowL: -1.1, ...BRACED },
   /** A spear or pitchfork levelled in both hands. */
-  thrust: { spine: [0.2, 0.55, 0], neck: [-0.1, -0.5, 0], shoulderR: [-0.3, 0, 0.2], elbowR: -1.3, holdR: { upright: true, tilt: [1.45, 0, 0] }, shoulderL: [-1.2, 0, -0.3], elbowL: -0.4, ...LUNGE },
+  thrust: { spine: [0.18, -0.45, 0], neck: [-0.08, 0.4, 0], shoulderR: [0.25, 0, 0.25], elbowR: -1.2, holdR: { upright: true, tilt: [1.45, 0, 0] }, shoulderL: [-0.9, -0.5, 0], elbowL: -0.6, hipL: [-0.65, 0, 0.12], kneeL: 0.75, hipR: [0.4, 0.35, 0.2], kneeR: 0.3 },
   /** A hag's curse: bent double over her staff, a clawed hand raised. */
-  curse: { spine: [0.42, 0.1, 0], neck: [-0.38, 0, 0], shoulderR: [-0.9, 0, 0.2], elbowR: -0.9, holdR: { upright: true }, shoulderL: [-1.9, 0, 0.5], elbowL: -0.9, wristL: [0.7, 0, 0], hipL: [-0.4, 0, 0.15], kneeL: 0.8, hipR: [-0.3, 0, 0.15], kneeR: 0.7 },
+  curse: { spine: [0.4, 0.1, 0], neck: [-0.36, 0, 0], shoulderR: [-0.8, 0, 0.2], elbowR: -1.0, holdR: { upright: true }, shoulderL: [-1.5, 0, 0.3], elbowL: -1.2, wristL: [0.7, 0, 0], hipL: [-0.4, 0, 0.15], kneeL: 0.8, hipR: [-0.3, 0, 0.15], kneeR: 0.7 },
   /** A spell thrown from the right hand, feet planted. */
-  spellcast: { spine: [0.05, 0.2, 0], shoulderR: [-1.5, 0, 0.3], elbowR: -0.2, wristR: [0.9, 0, 0], shoulderL: [-0.6, 0, 0.5], elbowL: -1.2, hipL: [-0.3, 0, 0.1], kneeL: 0.4, spell: 'right' },
+  spellcast: { spine: [0.06, 0.3, 0], neck: [0, -0.25, 0], shoulderR: [-1.35, 0, 0.15], elbowR: -0.45, wristR: [0.6, 0, 0], shoulderL: [-0.3, -0.4, 0.25], elbowL: -1.7, hipR: [-0.45, 0, 0.1], kneeR: 0.5, hipL: [0.3, 0.3, 0.15], kneeL: 0.2, spell: 'right' },
   /** A caster with a staff: the staff planted in the right hand, the left hand thrown forward with the spell. */
   'staff-cast': { spine: [0.08, -0.25, 0], neck: [0, 0.2, 0], shoulderR: [-0.7, 0, 0.3], elbowR: -0.9, holdR: { upright: true }, shoulderL: [-1.45, 0, 0.15], elbowL: -0.25, wristL: [0.9, 0, 0], hipR: [-0.35, 0, 0.1], kneeR: 0.45, hipL: [0.25, 0, 0.1], kneeL: 0.1 },
   /** Holy symbol or open hand thrust up, the other warding. */
-  rebuke: { spine: [-0.05, 0, 0], neck: [-0.15, 0, 0], shoulderR: [-2.6, 0, 0.25], elbowR: -0.3, shoulderL: [-1.1, 0, 0.3], elbowL: -0.7, wristL: [0.8, 0, 0], hipL: [-0.2, 0, 0.1], kneeL: 0.3, spell: 'right' },
+  rebuke: { spine: [-0.08, 0.1, 0], neck: [-0.1, -0.1, 0], shoulderR: [-1.9, 0, 0.2], elbowR: -0.6, shoulderL: [-0.5, -0.8, 0.05], elbowL: -1.8, hipL: [-0.2, 0, 0.1], kneeL: 0.3, hipR: [0.12, 0.2, 0.1], kneeR: 0.1, spell: 'right' },
   /** A predator's crouch: low, the head up, both clawed hands spread to seize. */
-  feral: { spine: [0.6, 0, 0], neck: [-0.55, 0, 0], shoulderR: [-1.0, 0, 0.75], elbowR: -1.0, wristR: [0.7, 0, 0], shoulderL: [-1.25, 0, 0.6], elbowL: -0.8, wristL: [0.7, 0, 0], hipL: [-0.9, 0, 0.25], kneeL: 1.3, hipR: [-0.45, 0, 0.25], kneeR: 1.1 },
+  feral: { spine: [0.5, 0, 0], neck: [-0.5, 0, 0], shoulderR: [-0.9, 0, 0.55], elbowR: -1.5, wristR: [0.7, 0, 0], shoulderL: [-1.1, 0, 0.45], elbowL: -1.3, wristL: [0.7, 0, 0], hipL: [-0.8, 0, 0.3], kneeL: 1.2, hipR: [-0.3, 0, 0.3], kneeR: 1.0 },
   /** The dead walking: arms out and slack, the head lolling, one foot dragging. */
   shamble: { spine: [0.28, 0, 0.1], neck: [0.15, 0, 0.3], shoulderR: [-1.35, 0, 0], elbowR: -0.2, wristR: [0.5, 0, 0], shoulderL: [-1.0, 0, 0.15], elbowL: -0.45, wristL: [0.6, 0, 0], hipL: [-0.35, 0, 0.05], kneeL: 0.5, hipR: [0.25, 0, 0.1], kneeR: 0.35 },
   /** A club or tool swung up one-handed, the other arm out for balance. */
