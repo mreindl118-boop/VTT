@@ -843,7 +843,7 @@
      }
     },
     "pose": "leaning",
-    "battlePose": "spellcast"
+    "battlePose": "staff-cast"
    },
    "importance": 10.1
   },
@@ -2192,7 +2192,7 @@
      }
     },
     "pose": "leaning",
-    "battlePose": "spellcast"
+    "battlePose": "staff-cast"
    },
    "importance": 2.4
   },

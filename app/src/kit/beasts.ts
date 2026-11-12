@@ -81,6 +81,8 @@ export const BEAST_POSES = {
   gallop: { rear: -0.08, neck: [0.3, 0], head: [-0.25, 0], legFL: [-0.75, -0.2, 0.3], legFR: [-0.4, -0.95, 0.9], legHL: [0.75, 0.35, -0.2], legHR: [0.45, 0.85, -0.6], tail: [-0.9, 0] },
   /** A walk, for a mount carrying its rider at ease. */
   walk: { neck: [-0.05, 0], legFL: [-0.05, -0.3, 0.2], legFR: [0.5, -0.9, 0.5], legHL: [-0.2, 0.75, -0.55], legHR: [-0.6, 1.05, -0.5], tail: [-0.15, 0] },
+  /** Dead on its side: legs stiff and splayed, the neck slack, the jaw hanging. */
+  dead: { neck: [0.5, 0.3], head: [0.4, 0.2], jaw: 0.7, legFL: [-0.5, -0.1, 0.1], legFR: [0.35, -0.2, 0.1], legHL: [0.3, 0.3, -0.2], legHR: [-0.45, 0.5, -0.3], tail: [-1.0, 0] },
 } satisfies Record<string, BeastPose>;
 export type BeastPoseName = keyof typeof BEAST_POSES;
 

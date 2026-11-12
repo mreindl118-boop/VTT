@@ -290,7 +290,56 @@ export function heartOfSorrow(hover = 6): THREE.Group {
   return g;
 }
 /** A tree that drinks blood: a stump of black wood with bare, clawing limbs and weeping sap. */
-export function gulthiasTree(): THREE.Group { const g = blight('tree', { scale: 1.9, bark: '#1c1814', leaf: '#1c1814', eyes: '#c8202a' }); for (let i = 0; i < 6; i++) { const d = ball(0.35, '#7a1420', 6, 5); d.scale.y = 2.2; g.add(at(d, Math.sin(i * 1.1) * 2.6, 7 + 5 * hash(i), Math.cos(i * 1.1) * 2.6)); } return g; }
+/** Bare branches forking from a point: each limb splits in two, thinner and shorter, to `depth`. */
+export function branches(parent: THREE.Object3D, from: THREE.Vector3, dir: THREE.Vector3, len: number, r: number, depth: number, seed: number, c: string): void {
+  const end = from.clone().addScaledVector(dir, len); parent.add(bone(from, end, r, r * 0.62, c, 6));
+  if (depth <= 0) return;
+  for (let i = 0; i < 2; i++) { const d = dir.clone().applyAxisAngle(V(0, 0, 1), (i ? 1 : -1) * (0.4 + 0.35 * hash(seed, i))).applyAxisAngle(V(0, 1, 0), 2.4 * hash(seed, i + 7) - 1.2).normalize(); d.y = Math.max(d.y, -0.1); branches(parent, end, d.normalize(), len * (0.66 + 0.1 * hash(seed, 3)), r * 0.62, depth - 1, seed * 2 + i + 1, c); }
+}
+/** The Gulthias tree: a tree, not a creature. A huge dead trunk rooted in the ground, black and leafless, its bark
+ *  split and weeping red sap. It does not walk, reach or look at anyone. `felled` gives the stump and the fallen trunk. */
+export function gulthiasTree(felled = false): THREE.Group {
+  const g = grp(), bark = '#1c1814', dark = '#120f0c', sap = '#8a1420', H = 26, R = 2.6;
+  const trunk = (h: number) => { const m = new THREE.Mesh(new THREE.CylinderGeometry(R * 0.55, R * 1.25, h, 14, 8), soft(bark)), p = m.geometry.attributes.position as THREE.BufferAttribute;
+    for (let i = 0; i < p.count; i++) { const a = Math.atan2(p.getX(i), p.getZ(i)), y = p.getY(i) / h + 0.5, w = 1 + 0.16 * Math.sin(a * 5 + y * 4) + 0.08 * Math.sin(a * 11) + 0.5 * Math.pow(1 - y, 4); p.setX(i, p.getX(i) * w + 0.5 * Math.sin(y * 3.2)); p.setZ(i, p.getZ(i) * w + 0.35 * Math.sin(y * 2.3 + 1)); }
+    m.geometry.computeVertexNormals(); return m; };
+  // roots: thick buttresses running out and into the ground
+  for (let i = 0; i < 9; i++) { const a = i * 0.7 + 0.3 * hash(i), L = R * (2.2 + 1.6 * hash(i, 2)), pts = [V(Math.sin(a) * R * 0.9, 2.2, Math.cos(a) * R * 0.9), V(Math.sin(a) * R * 1.6, 0.9, Math.cos(a) * R * 1.6), V(Math.sin(a + 0.25) * L, 0.25, Math.cos(a + 0.25) * L), V(Math.sin(a + 0.4) * L * 1.25, -0.2, Math.cos(a + 0.4) * L * 1.25)]; g.add(tailOf(pts, 0.75 + 0.3 * hash(i, 4), i % 2 ? bark : dark)); }
+  const top = grp('crown');
+  if (!felled) { g.add(at(trunk(H * 0.55), 0, H * 0.275, 0)); top.position.set(0.5, H * 0.52, 0.3); g.add(top); }
+  else { g.add(at(trunk(H * 0.12), 0, H * 0.06, 0)); const cut = new THREE.Mesh(new THREE.CylinderGeometry(R * 1.02, R * 1.02, 0.15, 14), soft('#5a3a2a')); g.add(at(cut, 0, H * 0.12, 0)); const sp = cone(R * 0.25, 2.2, '#3a2a1e', 5); g.add(at(sp, R * 0.5, H * 0.12 + 1, -R * 0.3));
+    const fallen = grp(); fallen.add(at(trunk(H * 0.43), 0, H * 0.215, 0)); top.position.set(0.5, H * 0.41, 0.3); fallen.add(top); fallen.rotation.set(Math.PI / 2 - 0.06, 0.5, 0); fallen.position.set(R * 1.6, R * 1.1, R * 1.2); g.add(fallen); }
+  for (let i = 0; i < 7; i++) { const a = i * 0.9 + 0.2, d = V(Math.sin(a) * (0.55 + 0.3 * hash(i, 5)), 0.75, Math.cos(a) * (0.55 + 0.3 * hash(i, 5))).normalize(); branches(top, V(Math.sin(a) * R * 0.3, -H * 0.05 * hash(i, 8), Math.cos(a) * R * 0.3), d, H * (0.2 + 0.07 * hash(i, 6)), R * 0.3, 4, i * 13 + 1, i % 3 ? bark : dark); }
+  // splits in the bark, weeping
+  for (let i = 0; i < 7; i++) { const a = i * 0.95 + 0.4, y = 2.5 + (felled ? 1.2 : 9) * hash(i, 9), rr = R * (1.22 - (felled ? 0.02 : 0.03) * y) * 0.98, w = ball(0.32, sap, 8, 6); w.scale.set(0.55, 2.6 + 2 * hash(i, 3), 0.35); g.add(at(w, Math.sin(a) * rr + 0.5 * Math.sin(y / H * 3.2), y, Math.cos(a) * rr)); }
+  return g;
+}
+/** Carve a finished figure as an effigy: every part turned to wood, faceted like hewn timber, with knots of light for
+ *  eyes. The shape is whatever the figure was; only its substance changes. */
+export function effigy<T extends THREE.Object3D>(g: T, o: { bark?: string; pale?: string; eyes?: string } = {}): T {
+  const dark = new THREE.Color(o.bark ?? '#2e241c'), pale = new THREE.Color(o.pale ?? '#6a543c');
+  g.traverse((n) => { const m = n as M; if (!m.isMesh) return; const src = m.material as THREE.MeshLambertMaterial, hsl = { h: 0, s: 0, l: 0 }; src.color.getHSL(hsl);
+    if (src.userData?.keepLook) { m.visible = false; return; }
+    m.material = hard('#' + dark.clone().lerp(pale, Math.min(1, hsl.l * 1.5 + 0.12 * hash(m.id))).getHexString()); });
+  return g;
+}
+/** What is left of something made of bones: a skull on a heap of ribs and long bones. */
+export function bonePile(k = 1, c = '#d9d2c0'): THREE.Group {
+  const g = grp();
+  for (let i = 0; i < 12; i++) { const a = i * 2.4, r = (0.3 + 1.1 * hash(i)) * k, b = bone(V(0, 0, 0), V(0, (0.9 + 0.7 * hash(i, 2)) * k, 0), 0.07 * k, 0.05 * k, c, 6); b.rotation.set(Math.PI / 2 - 0.25 * hash(i, 3), a, 0); b.add(at(ball(0.1 * k, c, 6, 5), 0, 0.45 * k, 0), at(ball(0.1 * k, c, 6, 5), 0, -0.45 * k, 0)); g.add(at(b, Math.cos(a) * r, (0.1 + 0.25 * hash(i, 4)) * k, Math.sin(a) * r)); }
+  for (let i = 0; i < 5; i++) { const t = new THREE.Mesh(new THREE.TorusGeometry((0.42 - i * 0.03) * k, 0.035 * k, 5, 12, Math.PI * 1.3), soft(c)); t.rotation.set(Math.PI / 2 + 0.3, 0, 0.9 + i * 0.1); g.add(at(t, (-0.3 + i * 0.16) * k, 0.3 * k, -0.2 * k)); }
+  const sk = ball(0.36 * k, c, 12, 10); sk.scale.set(0.9, 1, 1.05); g.add(at(sk, 0.35 * k, 0.5 * k, 0.5 * k)); const jaw = ball(0.2 * k, c, 8, 6); jaw.scale.set(0.9, 0.5, 0.9); g.add(at(jaw, 0.35 * k, 0.22 * k, 0.72 * k));
+  for (const sx of [-1, 1]) g.add(at(ball(0.085 * k, '#17120e', 6, 5), (0.35 + sx * 0.13) * k, 0.55 * k, 0.82 * k));
+  return g;
+}
+/** A thing brought down: tipped onto its side or its back, squashed flat (an ooze, a rug), or scattered low over the
+ *  floor (a swarm). The result rests on the floor. */
+export function felled(g: THREE.Object3D, how: 'side' | 'back' | 'front' | 'flat' | 'scatter' = 'side'): THREE.Group {
+  const inner = grp(); inner.add(g);
+  if (how === 'side') inner.rotation.z = Math.PI / 2 - 0.08; else if (how === 'back') inner.rotation.x = -Math.PI / 2; else if (how === 'front') inner.rotation.x = Math.PI / 2;
+  else if (how === 'flat') inner.scale.set(1.35, 0.22, 1.35); else inner.scale.set(1.2, 0.06, 1.2);
+  const out = ground(inner); const b = new THREE.Box3().setFromObject(out), c = b.getCenter(V(0, 0, 0)); inner.position.x -= c.x; inner.position.z -= c.z; return out;
+}
 
 /** A vampire gone to mist: a low drifting bank, thicker at the heart, with two red points where the eyes would be. */
 export function mistForm(c = '#b8b4c4', eyes = '#e02a2a'): THREE.Group {
