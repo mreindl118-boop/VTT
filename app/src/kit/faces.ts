@@ -6,6 +6,7 @@
 // caller scales it by the head's radius and hangs it on the head (or the head joint). Hair and ears are the figure's own.
 import * as THREE from 'three';
 import { paintFace, wearFace } from './facepaint';
+import { mergeVertices } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { mat } from '../render/materials';
 import { loftGeometry } from './anatomy';
 
@@ -18,10 +19,12 @@ export type FaceDetail = 1 | 2 | 3 | 4;
 
 /** Sliders run from -1 to 1 around a typical face (0); leave a field out for typical. */
 export interface FaceSpec {
-  /** The skull: wider or narrower, longer or shorter. */
-  headW?: number; headL?: number;
-  /** The jaw from narrow to square; the chin from receding to strong; a pointed chin; jowls. */
-  jaw?: number; chin?: number; chinPoint?: number; jowls?: number;
+  /** The skull: wider or narrower, longer or shorter; the back of the head fuller (1) or flatter (-1); the forehead taller
+   *  (1, the hairline higher) or lower; the face below the eyes longer or shorter. */
+  headW?: number; headL?: number; skullDepth?: number; foreheadH?: number; faceLen?: number;
+  /** The jaw from narrow to square; the chin from receding to strong; a pointed chin; jowls; the jaw's line from soft and
+   *  rounded (-1) to a sharp, cut corner (1). */
+  jaw?: number; chin?: number; chinPoint?: number; jowls?: number; jawAngle?: number;
   /** Cheekbones, and how hollow the cheeks under them are. */
   cheekbones?: number; gaunt?: number;
   /** The nose: length, width, the bridge from upturned (-1) to hooked (1), the size of the tip. */
@@ -32,17 +35,32 @@ export interface FaceSpec {
   eyeSize?: number; eyeSpace?: number; eyeSlant?: number; sunken?: number; hooded?: number; bags?: number;
   /** The cut of the eye (kit/facepaint.ts EyeShape; picked from the sliders when left out), and where the eyes look: -1 to the figure's right, 1 to its left (or [across, up], up from -1 to 1). */
   eyeShape?: import('./facepaint').EyeShape; gaze?: number | [number, number];
-  /** The mouth: width, fullness, and its set from a frown (-1) to a smile (1); fangs; bared teeth. */
-  mouthW?: number; lipFull?: number; smile?: number; fangs?: boolean; teeth?: boolean;
+  /** The mouth: width, fullness, and its set from a frown (-1) to a smile (1); fangs; bared teeth; and how far it hangs
+   *  open (0 shut, 1 a scream), painted. */
+  mouthW?: number; lipFull?: number; smile?: number; fangs?: boolean; teeth?: boolean; gape?: number;
   beard?: Beard; moustache?: Moustache; beardColor?: string;
-  /** 0 = young, 1 = very old: lines on the forehead, beside the mouth and at the eyes. */
+  /** 0 = young, 1 = very old: lines on the forehead, beside the mouth and at the eyes. Up to 0.3 they are only the first
+   *  faint lines, short smile lines and a crow's foot at each eye, for a face that has seen weather or laughed a lot. */
   age?: number;
   scars?: Scar[]; eyepatch?: 'L' | 'R'; warts?: boolean; mole?: 'L' | 'R';
-  /** Colours: veins at the temples, shadow on the lids, a flush on the cheeks, spectacle rims, lashes. */
-  veins?: string; shadow?: string; blush?: string; spectacles?: string; lashes?: boolean;
+  /** Veins: a colour paints them at the temples; a VeinMark (or several) paints a branching pattern on one side or both
+   *  (a hexblood's marks, a curse spreading, an undead's veins). */
+  veins?: string | VeinMark | VeinMark[];
+  /** Colours: shadow on the lids, a flush on the cheeks (false for none: a weathered or a pallid face), spectacle rims.
+   *  Lashes are drawn on a feminine face and not on a masculine one unless this says otherwise. */
+  shadow?: string; blush?: string | false; spectacles?: string; lashes?: boolean;
   /** No hair cap on the head. */
   bald?: boolean;
+  /** The ears: longer (1) or shorter (-1); and how far they stand out from the head, from lying back along it (0) to
+   *  sticking straight out sideways through the hair (1), as an elf's or a fairy's often do in their art. */
+  earLen?: number; earOut?: number;
 }
+
+/** A branching pattern of veins painted on the face: its colour; the side it spreads over, the figure's own ('L', 'R',
+ *  or 'both', the default); where it spreads from (cheek: from the cheekbone down to the jaw, the default; jaw: along
+ *  the jaw toward the chin; temple: from the temple down past the eye; brow: over the brow; eye: out from the eye's
+ *  corner); and how far it spreads, 0 to 1 (0.7 when left out). Each side branches differently. */
+export interface VeinMark { color: string; side?: 'L' | 'R' | 'both'; region?: 'cheek' | 'jaw' | 'temple' | 'brow' | 'eye'; size?: number }
 
 export interface FaceLook { skin: string; hair?: string; eyes?: string; lips?: string; detail?: FaceDetail; /** Sculpted on the feminine frame (a softer jaw and brow, fuller lips, larger eyes). */ fem?: boolean; /** Crossed-out eyes. */ dead?: boolean }
 
@@ -54,6 +72,39 @@ const UP = V(0, 1, 0);
 
 /** Skull dimensions before the group is scaled to radius 1 (the figure kit's own head is 0.4 of a foot-unit). */
 const R = 0.4;
+const smooth = (a: number, b: number, v: number) => { const t = Math.max(0, Math.min(1, (v - a) / (b - a))); return t * t * (3 - 2 * t); };
+
+/** The cranium's shape, shared by the head and the hair laid over it (kit/hair.ts, heroes.ts buildHair) so hair always
+ *  fits the skull it sits on. Takes and returns a point in skull units (the radius 0.4 head divided by 0.4: the crown at
+ *  y 1.14, the face at z 0.94, the sides at x 0.84). The back of the skull is fuller or flatter (skullDepth); a taller
+ *  forehead lifts the crown (foreheadH); and below the skull's base, behind the jaw's back edge, the head draws in to
+ *  the top of the neck, so the corner of the jaw shows from the side and the head never hangs round like a ball. */
+export function craniumShape(spec: Pick<FaceSpec, 'skullDepth' | 'foreheadH' | 'jawAngle'> = {}): (x: number, y: number, z: number) => [number, number, number] {
+  const n = (v: number | undefined) => Math.max(-1, Math.min(1, v ?? 0));
+  const back = 0.1 * n(spec.skullDepth), brow = n(spec.foreheadH), jawA = n(spec.jawAngle);
+  return (x, y, z) => {
+    if (z < 0) z *= 1 + back * smooth(-0.75, -0.25, y);
+    if (y > 0.3) y += 0.07 * brow * (y - 0.3);
+    const k = smooth(-0.38, -0.82, y) * smooth(0.22, -0.32, z) * (0.24 + 0.06 * jawA), zc = -0.1;
+    return [x * (1 - k), y, zc + (z - zc) * (1 - k)];
+  };
+}
+/** The cranium as the hair sees it (kit/hair.ts, heroes.ts buildHair): the face's own proportions first, as the head is
+ *  built (wider or narrower, longer, longer below the eyes), then craniumShape. Takes and returns skull units like
+ *  craniumShape, so hair laid over any head fits it however far its sliders go. */
+export function hairSkull(spec: Pick<FaceSpec, 'headW' | 'headL' | 'faceLen' | 'skullDepth' | 'foreheadH' | 'jawAngle'> = {}): (x: number, y: number, z: number) => [number, number, number] {
+  const n = (v: number | undefined) => Math.max(-1, Math.min(1, v ?? 0)), cr = craniumShape(spec);
+  const w = 1 + 0.07 * n(spec.headW), l = 1 + 0.05 * n(spec.headL), f = 1 + 0.08 * n(spec.faceLen);
+  return (x, y, z) => cr(x * w, y * l * (y < 0 ? f : 1), z);
+}
+/** How far a recipe's forehead lifts the hairline at the brow (radians of elevation on the scalp). */
+export const browLift = (spec?: Pick<FaceSpec, 'foreheadH'>): number => 0.12 * Math.max(-1, Math.min(1, spec?.foreheadH ?? 0));
+/** A shaped sphere's geometry with its repeated vertices (the seam, the poles) made one and its normals recomputed, so a
+ *  smooth-shaded surface shows no line where the sphere was joined. Drops the sphere's own uv, which no shaped part uses. */
+export function weld(geo: THREE.BufferGeometry): THREE.BufferGeometry {
+  geo.deleteAttribute('normal'); geo.deleteAttribute('uv');
+  const w = mergeVertices(geo); w.computeVertexNormals(); return w;
+}
 
 export function faceFeatures(spec: FaceSpec, look: FaceLook): THREE.Group {
   const d = look.detail ?? 2, g = new THREE.Group(), n = (v: number | undefined) => Math.max(-1, Math.min(1, v ?? 0));
@@ -75,11 +126,12 @@ export function faceFeatures(spec: FaceSpec, look: FaceLook): THREE.Group {
   // eyes, the jaw's corner, the chin. Coordinates on the unit sphere; the eyes sit on the midline.
   const kx = 0.84 * (1 + 0.07 * headW), ky = 1.14 * (1 + 0.05 * headL);
   const bump = (x: number, y: number, cx: number, cy: number, wx: number, wy = wx) => Math.exp(-((x - cx) ** 2 / wx + (y - cy) ** 2 / wy));
+  const flen = n(spec.faceLen), jawA = n(spec.jawAngle), crShape = craniumShape(spec);
   const skullAt = (ux: number, uy: number, uz: number, puff = 0): THREE.Vector3 => {
     let x = ux, z = uz; const y = uy, fz = Math.max(0, z), low = Math.max(0, -y), ax = Math.abs(ux);
     x *= kx * (fem ? 1 - (0.42 - 0.12 * jaw + 0.05 * gaunt) * low ** 1.7 : 1 - (0.38 - 0.1 * jaw + 0.05 * gaunt) * low ** 1.9);
     z *= 0.94 * (1 - 0.1 * low * low);
-    if (z < 0 && y > -0.3) z *= 1.05;
+    if (z < 0) z *= 1 + 0.05 * smooth(-0.5, -0.15, y);
     const sx = Math.abs(x);
     z += fz * (
       (fem ? 0.07 : 0.1) * (1 + 0.6 * chin + 0.3 * point) * bump(sx, y, 0, -0.84, 0.03 * (1 - 0.55 * Math.max(0, point)), 0.02)
@@ -90,15 +142,23 @@ export function faceFeatures(spec: FaceSpec, look: FaceLook): THREE.Group {
       - 0.05 * (1 + 0.3 * sunk) * bump(sx, y, 0.3, 0.03, 0.02, 0.012)
       - 0.03 * bump(sx, y, 0.62, 0.3, 0.02, 0.05)
       + 0.07 * jowls * bump(sx, y, 0.3, -0.7, 0.03, 0.03));
-    x += Math.sign(x) * (fem ? 0.025 * Math.max(0, jaw) : 0.05 * (1 + 0.8 * jaw)) * bump(ax, y, 0.62, -0.5, 0.02, 0.02) * (z > -0.2 ? 1 : 0);
-    return V(x * (R + puff), y * ky * (R + puff), z * (R + puff));
+    x += Math.sign(x) * (fem ? 0.02 + 0.025 * Math.max(0, jaw) : 0.05 * (1 + 0.8 * jaw)) * (1 + 0.6 * jawA) * bump(ax, y, 0.62, -0.52, 0.025, 0.02) * smooth(-0.35, 0.05, z);
+    // the face's length below the eyes, then the cranium (shared with the hair), then the jaw's underside: a plane from
+    // under the chin back to the throat, rising to the jaw's corners, with the round of the skull below it cut away
+    let yy = y * ky * (y < 0 ? 1 + 0.08 * flen : 1);
+    [x, yy, z] = crShape(x, yy, z);
+    const yJaw = -1.05 * (ky / 1.14) * (1 + 0.08 * flen) + 0.27 * smooth(0.86, 0.3, z) + 0.24 * Math.min(1, (x / 0.6) ** 2), fr = smooth(0.06, 0.3, z);
+    if (yy < yJaw && fr > 0) { const sft = 0.07 - 0.035 * jawA, dd = yJaw - yy; yy += fr * (dd - sft * (1 - Math.exp(-dd / sft))); }
+    return V(x * (R + puff), yy * (R + puff), z * (R + puff));
   };
-  const shaped = (geo: THREE.BufferGeometry, c: string, puff = 0): M => {
-    const p = geo.attributes.position as THREE.BufferAttribute, v = V(0, 0, 0);
+  const shaped = (sphere: THREE.BufferGeometry, c: string, puff = 0): M => {
+    // one vertex wherever the sphere repeats one (its seam down the side of the head, its poles), so the shading runs on
+    // across them instead of breaking in a line
+    const geo = weld(sphere), p = geo.attributes.position as THREE.BufferAttribute, v = V(0, 0, 0);
     for (let i = 0; i < p.count; i++) { v.fromBufferAttribute(p, i).normalize(); const q = skullAt(v.x, v.y, v.z, puff); p.setXYZ(i, q.x, q.y, q.z); }
     geo.computeVertexNormals(); const m = new THREE.Mesh(geo, soft(c)); g.add(m); return m;
   };
-  const headMesh = shaped(new THREE.SphereGeometry(1, d >= 3 ? 64 : 48, d >= 3 ? 48 : 36), skin);
+  const headMesh = shaped(new THREE.SphereGeometry(1, d >= 3 ? 64 : 48, d >= 3 ? 48 : 36).rotateZ(Math.PI / 2), skin);
   const paint = paintFace(spec, { skin, hair: look.hair, eyes: look.eyes, lips: look.lips, fem, dead: look.dead, size: d >= 3 ? 512 : 256 });
   if (paint) { wearFace(headMesh.geometry); const pm = soft('#ffffff').clone(); pm.map = paint; pm.flatShading = false; pm.userData = { ...pm.userData, smooth: true, keepLook: true }; headMesh.material = pm; headMesh.userData.keepLook = true; }
   const hp = headMesh.geometry.attributes.position as THREE.BufferAttribute, frontPts: [number, number, number][] = [];
@@ -106,7 +166,7 @@ export function faceFeatures(spec: FaceSpec, look: FaceLook): THREE.Group {
   /** The face's depth at (x, y), to seat the features on it. */
   const surf = (x: number, y: number) => { let best = 0, bw = 0; for (const [vx, vy, vz] of frontPts) { const w = 1 / (1e-4 + (vx - x) ** 2 + (vy - y) ** 2) ** 2; best += vz * w; bw += w; } return best / bw; };
   const front = (y: number, x = 0) => surf(x, y);
-  const jy = -0.2, jawW = 1 + 0.12 * jaw, chinY = -0.36 * (1 + 0.05 * headL), chinZ = surf(0, chinY), cby = -0.05;
+  const chinY = -0.36 * (1 + 0.05 * headL) * (1 + 0.08 * flen), chinZ = surf(0, chinY), cby = -0.05;
 
   // ---- the nose: a wedge from the bridge to the tip, turned under to its base, with the nostrils' wings
   const nl = n(spec.noseLen), nwS = n(spec.noseW), hook = n(spec.noseHook), tipK = n(spec.noseTip);
@@ -131,19 +191,35 @@ export function faceFeatures(spec: FaceSpec, look: FaceLook): THREE.Group {
   }
 
   // ---- the mouth: a bowed upper lip under the philtrum, a fuller lower one, the line between them
-  const lw = (fem ? 1.4 : 1.34) * (1 + 0.2 * n(spec.mouthW)), my = -0.262, mz = surf(0, -0.265), half = 0.058 * lw;
+  const lw = (fem ? 1.4 : 1.34) * (1 + 0.2 * n(spec.mouthW)), my = -0.262 * (1 + 0.06 * flen), mz = surf(0, my - 0.003), half = 0.058 * lw;
   if (spec.fangs && !look.dead) for (const sx of [-1, 1]) { const f = new THREE.Mesh(new THREE.ConeGeometry(0.007, 0.03, 6), soft('#f2ece0')); f.rotation.x = Math.PI; add(f, sx * 0.024, my - 0.012, mz + 0.004); }
 
   // ---- hair on the face
   const beard = spec.beard ?? 'none', mo = spec.moustache ?? (beard === 'goatee' || beard === 'full' || beard === 'long' ? 'thick' : 'none');
-  const shell = (from: number, puff: number, c: string, spread = 1.75) => shaped(new THREE.SphereGeometry(1, sw, sh, Math.PI / 2 - spread, spread * 2, Math.PI * from, Math.PI * (1 - from)), c, puff);
-  if (beard === 'stubble') shell(0.6, 0.006, tone(skin, beardC, 0.4));
+  /** A full beard: the skull's own surface lifted off the face, cut along a beard line that runs from under the lower lip
+   *  out past the mouth's corners and up the cheeks to the sideburns, ragged at its edge, with body at the chin and jaw
+   *  and thin over the cheeks. (Stubble is painted on the face: kit/facepaint.ts.) */
+  const beardShell = (c: string, chops = false) => {
+    const geo = new THREE.SphereGeometry(1, sw * 2, sh * 2, 0, Math.PI * 2, Math.PI * 0.42, Math.PI * 0.58), p = geo.attributes.position as THREE.BufferAttribute, v = V(0, 0, 0), keep: boolean[] = [];
+    for (let i = 0; i < p.count; i++) {
+      v.fromBufferAttribute(p, i).normalize();
+      const az = Math.abs(Math.atan2(v.x, v.z)), el = Math.asin(Math.max(-1, Math.min(1, v.y)));
+      const line = az < 0.32 ? -0.74 : az < 0.62 ? -0.74 + 0.3 * smooth(0.32, 0.62, az) : az < 1.38 ? -0.44 + 0.48 * smooth(0.62, 1.38, az) : 0.04;
+      // past the line the shell sinks under the skin, so the beard's edge is where the two surfaces cross: a clean ragged
+      // line, not the stair-steps of cut triangles
+      const inside = line + 0.03 * Math.sin(az * 29 + el * 7) + 0.02 * Math.sin(az * 11) - el - (chops ? 0.6 * smooth(0.75, 0.45, az) : 0), on = smooth(-0.025, 0.03, inside) * smooth(1.66, 1.5, az);
+      keep.push(inside > -0.08 && az < 1.7);
+      const body = 0.012 + 0.05 * smooth(-0.5, -0.95, v.y) * smooth(0.9, 0.2, az) + 0.025 * smooth(-0.3, -0.8, v.y);
+      const q = skullAt(v.x, v.y, v.z, -0.012 + (body + 0.012 + 0.006 * Math.sin(az * 40 + el * 12)) * on); p.setXYZ(i, q.x, q.y, q.z);
+    }
+    const src = geo.index!, idx: number[] = []; for (let i = 0; i < src.count; i += 3) { const a = src.getX(i), b = src.getX(i + 1), cc = src.getX(i + 2); if (keep[a] || keep[b] || keep[cc]) idx.push(a, b, cc); }
+    geo.setIndex(idx); const m = new THREE.Mesh(weld(geo), soft(c)); g.add(m); return m;
+  };
   if (beard === 'goatee') add(sph(0.075, beardC), 0, chinY - 0.02, chinZ - 0.005).scale.set(0.85, 1.5, 0.8);
-  if (beard === 'chops') for (const sx of [-1, 1]) add(sph(0.1, beardC), sx * 0.245 * jawW, jy - 0.02, 0.1).scale.set(0.5, 1.6, 1.1);
+  if (beard === 'chops') beardShell(beardC, true);
   if (beard === 'full' || beard === 'long') {
-    shell(0.72, 0.03, beardC);
-    for (const sx of [-1, 1]) add(sph(0.09, beardC), sx * 0.25 * jawW, jy + 0.02, 0.09).scale.set(0.45, 1.7, 1.1);
-    add(sph(0.12, beardC), 0, chinY - 0.03, chinZ - 0.06).scale.set(1.2, 1.0, 0.85);
+    beardShell(beardC);
+    add(sph(0.1, beardC), 0, chinY - 0.035, chinZ - 0.05).scale.set(1.15, 0.95, 0.8);
     if (beard === 'long') { const c = new THREE.Mesh(new THREE.ConeGeometry(0.15, 0.6, d >= 3 ? 12 : 8), soft(beardC)); c.rotation.x = Math.PI; add(c, 0, chinY - 0.33, chinZ - 0.07).scale.set(1, 1, 0.65); }
   }
   const moY = tip.y - 0.062, moZ = front(tip.y - 0.062) + 0.018;

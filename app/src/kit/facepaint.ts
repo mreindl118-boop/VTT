@@ -29,6 +29,9 @@ export const faceUV = (x: number, y: number): [number, number] => [x / SPAN_X + 
 
 const mix = (c: string, to: string, k: number) => '#' + new THREE.Color(c).lerp(new THREE.Color(to), k).getHexString();
 const rgba = (c: string, a: number) => { const k = new THREE.Color(c); return `rgba(${Math.round(k.r * 255)},${Math.round(k.g * 255)},${Math.round(k.b * 255)},${a})`; };
+/** A colour exactly as a plain fill of it paints (sRGB), for anything that must match the skin around it. (rgba above
+ *  reads the linear values, a shade darker, which the painted shading was tuned with.) */
+const flat = (c: string, a: number) => { const k = new THREE.Color(c).getRGB({ r: 0, g: 0, b: 0 }, THREE.SRGBColorSpace); return `rgba(${Math.round(k.r * 255)},${Math.round(k.g * 255)},${Math.round(k.b * 255)},${a})`; };
 const cache = new Map<string, THREE.Texture>();
 
 /** Paint a face. Returns null where there is nothing to draw on (no canvas, as in the test runner). */
@@ -36,7 +39,7 @@ export function paintFace(spec: FaceSpec, look: PaintLook): THREE.Texture | null
   if (typeof document === 'undefined') return null;
   const key = JSON.stringify([spec, look]); const hit = cache.get(key); if (hit) return hit;
   const S = look.size ?? 512, cv = document.createElement('canvas'); cv.width = cv.height = S;
-  const c = cv.getContext('2d'); if (!c) return null;
+  let c = cv.getContext('2d') as CanvasRenderingContext2D; if (!c) return null;
   const n = (v: number | undefined) => Math.max(-1, Math.min(1, v ?? 0));
   const fem = !!look.fem, skin = look.skin, shade = mix(skin, '#3a1c22', 0.38), deep = mix(skin, '#160c12', 0.8);
   const lum = new THREE.Color(skin).getHSL({ h: 0, s: 0, l: 0 }).l;
@@ -72,7 +75,7 @@ export function paintFace(spec: FaceSpec, look: PaintLook): THREE.Texture | null
   for (const sx of [-1, 1]) {
     blob(sx * 0.215, -0.17, 0.085, 0.05, shade, 0.15 + 0.2 * Math.max(0, gaunt) + 0.1 * n(spec.cheekbones), sx * -0.5);
     blob(sx * 0.3, 0.1, 0.05, 0.12, shade, 0.16);
-    if (!look.dead) blob(sx * 0.19, -0.09, 0.075, 0.055, spec.blush ?? mix(skin, '#d2485a', 0.6), spec.blush ? 0.42 : fem ? 0.24 : 0.1);
+    if (!look.dead && spec.blush !== false) blob(sx * 0.19, -0.09, 0.075, 0.055, spec.blush || mix(skin, '#d2485a', 0.6), spec.blush ? 0.42 : fem ? 0.24 : 0.1);
     blob(sx * ex, 0.02, ew * 1.55, eh * 2.6, spec.shadow ?? shade, (spec.shadow ? 0.6 : 0.3) + 0.25 * Math.max(0, n(spec.sunken)));
     blob(sx * 0.03, -0.02, 0.02, 0.09, shade, 0.22);                                    // the side of the nose's bridge
     if (n(spec.bags) > 0) stroke([[sx * (ex - ew * 0.7), -eh * 1.5], [sx * ex, -eh * 2.3], [sx * (ex + ew * 0.8), -eh * 1.4]], 0.007, shade, 0.35 + 0.4 * n(spec.bags));
@@ -92,7 +95,7 @@ export function paintFace(spec: FaceSpec, look: PaintLook): THREE.Texture | null
       for (const k of [-1, 1]) stroke([[-ew * 0.7, k * eh * 1.1], [ew * 0.7, -k * eh * 1.1]], 0.013, deep);
       c.restore(); continue;
     }
-    const up = E.up, lo = E.lo, lashy = fem || !!spec.lashes;
+    const up = E.up, lo = E.lo, lashy = spec.lashes ?? fem;
     const almond = () => {
       c.beginPath(); c.moveTo(-ew, -eh * 0.1);
       c.bezierCurveTo(-ew * 0.6, eh * 1.25 * up, ew * (0.3 + E.peak), eh * 1.35 * up, ew, eh * 0.35);
@@ -138,26 +141,93 @@ export function paintFace(spec: FaceSpec, look: PaintLook): THREE.Texture | null
   }
   if (bt > 0.5) for (const sx of [-1, 1]) stroke([[sx * 0.016, by + 0.05], [sx * 0.022, by - 0.01]], 0.006, shade, 0.7);   // the scowl's furrow
 
+  // ---- stubble: a shadow of beard over the jaw, the chin and the upper lip, feathered at its edge and stippled. It stays
+  // clear of the picture's corners, which the back of the head reads.
+  const flen = n(spec.faceLen);
+  if (spec.beard === 'stubble') {
+    const bc = spec.beardColor ?? look.hair ?? '#2a2018', tint = mix(skin, bc, lum > 0.45 ? 0.42 : 0.3);
+    const region = () => {
+      c.beginPath(); c.moveTo(-0.318, 0.035);
+      c.bezierCurveTo(-0.3, -0.08, -0.25, -0.15, -0.155, -0.19); c.bezierCurveTo(-0.11, -0.205, -0.085, -0.2, -0.06, -0.205);
+      c.quadraticCurveTo(0, -0.198, 0.06, -0.205); c.bezierCurveTo(0.085, -0.2, 0.11, -0.205, 0.155, -0.19); c.bezierCurveTo(0.25, -0.15, 0.3, -0.08, 0.318, 0.035);
+      c.bezierCurveTo(0.345, -0.15, 0.33, -0.36, 0.25, -0.44); c.quadraticCurveTo(0, -0.5, -0.25, -0.44); c.bezierCurveTo(-0.33, -0.36, -0.345, -0.15, -0.318, 0.035); c.closePath();
+    };
+    // drawn on a layer of its own, then faded out toward the sides of the jaw (where the picture stops wrapping the head)
+    const layer = document.createElement('canvas'); layer.width = layer.height = S; const lc = layer.getContext('2d');
+    if (lc) {
+      const main = c; c = lc; c.setTransform(S / SPAN_X, 0, 0, -S / SPAN_Y, S / 2, S / 2);
+      c.save(); c.filter = `blur(${Math.round(S * 0.012)}px)`; region(); c.fillStyle = rgba(tint, lum > new THREE.Color(bc).getHSL({ h: 0, s: 0, l: 0 }).l ? 0.75 : 0.45); c.fill(); c.restore();
+      c.save(); region(); c.clip(); let sd = 3; const r = () => { sd = (sd * 9301 + 49297) % 233280; return sd / 233280; };
+      for (let i = 0; i < S * 3; i++) { const x = (r() - 0.5) * 0.66, y = 0.04 - r() * 0.52; c.beginPath(); c.arc(x, y, 0.0022 + r() * 0.0014, 0, Math.PI * 2); c.fillStyle = rgba(mix(bc, '#000000', 0.2), 0.22 + r() * 0.2); c.fill(); }
+      c.restore();
+      const fade = c.createLinearGradient(-SPAN_X / 2, 0, SPAN_X / 2, 0);
+      for (const [t, a] of [[0, 0], [0.18, 0], [0.29, 1], [0.71, 1], [0.82, 0], [1, 0]] as [number, number][]) fade.addColorStop(t, `rgba(0,0,0,${a})`);
+      c.globalCompositeOperation = 'destination-in'; c.fillStyle = fade; c.fillRect(-SPAN_X / 2, -SPAN_Y / 2, SPAN_X, SPAN_Y);
+      c = main; c.save(); c.setTransform(1, 0, 0, 1, 0, 0); c.drawImage(layer, 0, 0); c.restore();
+    }
+  }
+
   // ---- the mouth: a bowed upper lip, a fuller lower one, the line between them
-  const full = n(spec.lipFull), smile = n(spec.smile) + (fem ? 0.15 : 0.05), my = -0.262;
+  const full = n(spec.lipFull), smile = n(spec.smile) + (fem ? 0.15 : 0.05), my = -0.262 * (1 + 0.06 * flen);
   const hw = (fem ? 0.068 : 0.074) * (1 + 0.2 * n(spec.mouthW)), uh = (fem ? 0.022 : 0.016) * (1 + 0.35 * full), lh = (fem ? 0.032 : 0.026) * (1 + 0.35 * full);
   const cy = my + 0.016 * smile, midY = my - 0.004 * smile;
-  c.beginPath(); c.moveTo(-hw, cy);
-  c.bezierCurveTo(-hw * 0.55, my + uh * 0.7, -hw * 0.38, my + uh * 1.15, -hw * 0.2, my + uh);
-  c.quadraticCurveTo(0, my + uh * 0.55, hw * 0.2, my + uh);
-  c.bezierCurveTo(hw * 0.38, my + uh * 1.15, hw * 0.55, my + uh * 0.7, hw, cy);
-  c.quadraticCurveTo(0, midY - 0.004, -hw, cy); c.closePath(); c.fillStyle = mix(lipC, '#2a0c14', 0.22); c.fill();
-  c.beginPath(); c.moveTo(-hw, cy); c.quadraticCurveTo(0, midY - 0.004, hw, cy);
-  c.bezierCurveTo(hw * 0.6, my - lh * 1.25, -hw * 0.6, my - lh * 1.25, -hw, cy); c.closePath(); c.fillStyle = lipC; c.fill();
-  blob(0, my - lh * 0.5, hw * 0.45, lh * 0.4, '#ffffff', fem ? 0.3 : 0.14);
-  stroke([[-hw * 1.04, cy + 0.002 * smile], [0, midY - 0.005], [hw * 1.04, cy + 0.002 * smile]], 0.0065, mix(lipC, '#12060a', 0.75));
-  if (spec.teeth) { c.fillStyle = '#ebe4d2'; c.fillRect(-hw * 0.55, my - 0.012, hw * 1.1, 0.012); }
+  // open (a snarl, a scream), the mouth narrows and the lower lip drops away from the upper, a dark mouth between them
+  // with teeth along its edges where they are bared
+  const gape = Math.max(0, Math.min(1, spec.gape ?? 0)), mw = hw * (1 - 0.22 * gape), drop = 0.11 * gape, top = midY - 0.004, bot = top - 2 * drop;
+  if (gape > 0) {
+    c.save(); c.beginPath(); c.moveTo(-mw, cy); c.quadraticCurveTo(0, top, mw, cy); c.quadraticCurveTo(0, bot, -mw, cy); c.closePath(); c.fillStyle = '#2a0a12'; c.fill(); c.clip();
+    blob(0, (cy + bot) / 2 - drop * 0.1, mw * 0.55, drop * 0.45 + 0.004, '#0c0205', 0.85);
+    if (spec.teeth || spec.fangs) { c.fillStyle = '#ebe4d2'; c.fillRect(-mw, (cy + top) / 2 - 0.013, mw * 2, 0.04); if (spec.teeth && gape > 0.3) c.fillRect(-mw, (cy + bot) / 2 - 0.004, mw * 2, -0.04); }
+    c.restore();
+  }
+  c.beginPath(); c.moveTo(-mw, cy);
+  c.bezierCurveTo(-mw * 0.55, my + uh * 0.7, -mw * 0.38, my + uh * 1.15, -mw * 0.2, my + uh);
+  c.quadraticCurveTo(0, my + uh * 0.55, mw * 0.2, my + uh);
+  c.bezierCurveTo(mw * 0.38, my + uh * 1.15, mw * 0.55, my + uh * 0.7, mw, cy);
+  c.quadraticCurveTo(0, top, -mw, cy); c.closePath(); c.fillStyle = mix(lipC, '#2a0c14', 0.22); c.fill();
+  const low = (cy + bot) / 2 - lh * 0.95, lc = (4 * low - cy) / 3;   // the lower lip's outer edge, its depth under the inner one
+  c.beginPath(); c.moveTo(-mw, cy); c.quadraticCurveTo(0, bot, mw, cy);
+  c.bezierCurveTo(mw * 0.6, gape > 0 ? lc : my - lh * 1.25, -mw * 0.6, gape > 0 ? lc : my - lh * 1.25, -mw, cy); c.closePath(); c.fillStyle = lipC; c.fill();
+  blob(0, (gape > 0 ? low + lh * 0.45 : my - lh * 0.5), mw * 0.45, lh * 0.4, '#ffffff', fem ? 0.3 : 0.14);
+  if (gape < 0.15) stroke([[-hw * 1.04, cy + 0.002 * smile], [0, midY - 0.005], [hw * 1.04, cy + 0.002 * smile]], 0.0065, mix(lipC, '#12060a', 0.75));
+  if (spec.teeth && gape === 0) { c.fillStyle = '#ebe4d2'; c.fillRect(-hw * 0.55, my - 0.012, hw * 1.1, 0.012); }
 
   // ---- years and marks
+  // the first faint lines (from 0.15): short smile lines, then a crow's foot at each eye
+  if (age > 0.15 && age <= 0.3) for (const sx of [-1, 1]) {
+    const k = (age - 0.15) / 0.15;
+    stroke([[sx * 0.06, -0.155], [sx * (hw + 0.024), -0.195], [sx * (hw + 0.024), -0.245]], 0.0045, shade, 0.14 + 0.2 * k);
+    if (age > 0.2) stroke([[sx * (ex + ew * 1.25), 0.002], [sx * (ex + ew * 1.25 + 0.027), 0.014]], 0.0035, shade, 0.22 + 0.16 * k);
+  }
   if (age > 0.3) for (const sx of [-1, 1]) stroke([[sx * 0.055, -0.15], [sx * (hw + 0.03), -0.2], [sx * (hw + 0.028), -0.29]], 0.005 + 0.004 * age, shade, 0.35 + 0.4 * age);
   if (age > 0.5) for (let i = 0; i < 3; i++) stroke([[-0.15 + i * 0.02, 0.2 + i * 0.045], [0, 0.208 + i * 0.045], [0.15 - i * 0.02, 0.2 + i * 0.045]], 0.005, shade, 0.3 + 0.35 * age);
   if (age > 0.45) for (const sx of [-1, 1]) for (const k of [-1, 0, 1]) stroke([[sx * (ex + ew * 1.25), k * 0.008], [sx * (ex + ew * 1.25 + 0.03), k * 0.024]], 0.004, shade, 0.5);
-  if (spec.veins) for (const sx of [-1, 1]) stroke([[sx * 0.3, 0.24], [sx * 0.27, 0.16], [sx * 0.285, 0.12], [sx * 0.25, 0.08]], 0.005, spec.veins, 0.7);
+  if (typeof spec.veins === 'string') for (const sx of [-1, 1]) stroke([[sx * 0.3, 0.24], [sx * 0.27, 0.16], [sx * 0.285, 0.12], [sx * 0.25, 0.08]], 0.005, spec.veins, 0.7);
+  else if (spec.veins) {
+    // a branching pattern: a trunk wandering from its root, forking as it goes, each fork finer, over a faint bruise
+    // of its colour; seeded by its region and side, so it is the same every time and each side branches differently
+    const FROM = { cheek: [0.175, -0.04, -1.8, 0.3], jaw: [0.23, -0.18, -2.3, 0.26], temple: [0.28, 0.24, -1.65, 0.24], brow: [0.06, 0.3, 0.3, 0.2], eye: [ex + ew * 1.15, -0.01, -0.55, 0.18] } as const;
+    for (const m of Array.isArray(spec.veins) ? spec.veins : [spec.veins]) {
+      const region = m.region ?? 'cheek', [rx, ry, ra, rl] = FROM[region], size = Math.max(0, Math.min(1, m.size ?? 0.7));
+      const core = mix(m.color, skin, 0.08);
+      for (const sx of m.side === 'L' ? [1] : m.side === 'R' ? [-1] : [-1, 1]) {
+        let seed = 17; for (const ch of region + sx) seed = (seed * 31 + ch.charCodeAt(0)) % 233280;
+        const rnd = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; };
+        const vein = (x: number, y: number, a: number, len: number, w: number, depth: number) => {
+          const n = 6, step = len / n, path: [number, number][] = [[x, y]];
+          for (let i = 0; i < n; i++) {
+            a += (rnd() - 0.5) * 0.8;
+            const [px, py] = path[path.length - 1], nx = px + Math.cos(a) * step * sx, ny = py + Math.sin(a) * step;
+            path.push([nx, ny]);
+            if (depth > 0 && i > 0 && rnd() < 0.45) vein(nx, ny, a + (rnd() < 0.5 ? -1 : 1) * (0.45 + 0.5 * rnd()), len * (0.32 + 0.25 * rnd()), w * (1 - 0.6 * i / n) * 0.75, depth - 1);
+          }
+          if (depth >= 1) { c.beginPath(); c.moveTo(path[0][0], path[0][1]); for (const p of path.slice(1)) c.lineTo(p[0], p[1]); c.lineWidth = w * 3; c.strokeStyle = rgba(m.color, 0.2); c.stroke(); }
+          for (let i = 1; i < path.length; i++) stroke([path[i - 1], path[i]], w * (1 - 0.6 * (i - 1) / n), core, 1);
+        };
+        vein(sx * rx, ry, ra, rl * (0.55 + 0.65 * size), 0.019, size >= 0.5 ? 2 : 1);
+      }
+    }
+  }
   const scarC = mix(skin, '#a04848', 0.55);
   for (const s of spec.scars ?? []) {
     const sx = /L$/.test(s) ? 1 : -1;
@@ -168,16 +238,41 @@ export function paintFace(spec: FaceSpec, look: PaintLook): THREE.Texture | null
   }
   if (spec.mole) { c.beginPath(); c.arc((spec.mole === 'L' ? 1 : -1) * (hw + 0.035), my + 0.04, 0.008, 0, Math.PI * 2); c.fillStyle = '#2a1a16'; c.fill(); }
 
+  // the sides of the picture settle back to plain skin before the head turns away from it, so nothing painted stops at a
+  // hard edge where the picture ends on the cheek and temple
+  for (const sx of [-1, 1]) {
+    const edge = c.createLinearGradient(sx * 0.255, 0, sx * 0.335, 0); edge.addColorStop(0, flat(skin, 0)); edge.addColorStop(1, flat(skin, 1));
+    c.fillStyle = edge; c.fillRect(sx > 0 ? 0.255 : -SPAN_X / 2, -SPAN_Y / 2, SPAN_X / 2 - 0.255, SPAN_Y);
+  }
   const tex = new THREE.CanvasTexture(cv); tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 4; tex.needsUpdate = true;
   cache.set(key, tex); return tex;
 }
 
-/** Give a shaped head geometry the picture's coordinates: the front reads the face, the back reads plain skin. */
+/** Give a shaped head geometry the picture's coordinates: the front reads the face; the back reads the plain skin at
+ *  the picture's side edges, the figure's left half one edge and its right half the other, at the height each point
+ *  sits. The back is cut down its middle (its vertices there doubled, each twin with the same position and normal), so
+ *  no triangle runs from one edge to the other; and a triangle where the front meets the back reads only plain skin
+ *  along the picture's edge (at the crown, the sides and under the jaw alike) instead of a streak drawn across the
+ *  whole face. Wants the shaped (indexed) geometry with its normals. */
 export function wearFace(geo: THREE.BufferGeometry): void {
+  const p0 = geo.attributes.position as THREE.BufferAttribute, n0 = geo.attributes.normal as THREE.BufferAttribute | undefined, eps = 1e-5;
+  const onSeam = (i: number) => Math.abs(p0.getX(i)) < eps && p0.getZ(i) <= 0.02, twins = new Set<number>();
+  if (geo.index) {
+    const P = Array.from(p0.array as ArrayLike<number>), N = n0 ? Array.from(n0.array as ArrayLike<number>) : null, ix = Array.from(geo.index.array as ArrayLike<number>), twin = new Map<number, number>();
+    for (let t = 0; t < ix.length; t += 3) {
+      if (p0.getX(ix[t]) + p0.getX(ix[t + 1]) + p0.getX(ix[t + 2]) >= 0) continue;     // the figure's right half takes the twins
+      for (let k = t; k < t + 3; k++) {
+        const v = ix[k]; if (!onSeam(v)) continue;
+        let w = twin.get(v);
+        if (w === undefined) { w = P.length / 3; P.push(p0.getX(v), p0.getY(v), p0.getZ(v)); if (N && n0) N.push(n0.getX(v), n0.getY(v), n0.getZ(v)); twin.set(v, w); twins.add(w); }
+        ix[k] = w;
+      }
+    }
+    if (twin.size) { geo.setAttribute('position', new THREE.Float32BufferAttribute(P, 3)); if (N) geo.setAttribute('normal', new THREE.Float32BufferAttribute(N, 3)); geo.setIndex(ix); }
+  }
   const p = geo.attributes.position as THREE.BufferAttribute, uv = new Float32Array(p.count * 2);
   for (let i = 0; i < p.count; i++) {
-    const x = p.getX(i), y = p.getY(i), front = p.getZ(i) > 0.02;
-    const [u, v] = front ? faceUV(x, y) : [x < 0 ? 0.01 : 0.99, 0.01];
+    const x = p.getX(i), y = p.getY(i), [fu, v] = faceUV(x, y), u = p.getZ(i) > 0.02 ? fu : x < -eps || twins.has(i) ? 0.01 : 0.99;
     uv[i * 2] = Math.max(0.005, Math.min(0.995, u)); uv[i * 2 + 1] = Math.max(0.005, Math.min(0.995, v));
   }
   geo.setAttribute('uv', new THREE.BufferAttribute(uv, 2));

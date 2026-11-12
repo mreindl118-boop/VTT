@@ -55,9 +55,11 @@ export interface Frame { fem: boolean; build: Build; shoulderX: number; hipX: nu
 /** A character's own measures over its frame, each a multiplier (1 = the frame's): the width of the shoulders, the
  *  chest, the waist and the hips, the bust, the girth of the arms and the legs, and the neck. Taken from the
  *  character's art: a brawny fighter is wide in the shoulders, waist and arms; a slight one narrow everywhere. */
-export interface Measures { shoulders?: number; chest?: number; waist?: number; hips?: number; bust?: number; arms?: number; legs?: number; neck?: number }
+export interface Measures { shoulders?: number; chest?: number; waist?: number; hips?: number; bust?: number; arms?: number; legs?: number; neck?: number;
+  /** The neck's length (1 = the frame's; `neck` is its thickness): a longer neck carries the head higher. */
+  neckLen?: number }
 export function frameOf(fem: boolean, build: Build = 'lean', measures: Measures = {}): Frame {
-  const m = { shoulders: 1, chest: 1, waist: 1, hips: 1, bust: 1, arms: 1, legs: 1, neck: 1, ...measures };
+  const m = { shoulders: 1, chest: 1, waist: 1, hips: 1, bust: 1, arms: 1, legs: 1, neck: 1, neckLen: 1, ...measures };
   const fr = baseFrame(fem, build);
   return { ...fr, m, shoulderX: fr.shoulderX * (0.35 + 0.65 * m.shoulders), hipX: fr.hipX * (0.5 + 0.5 * m.hips), arm: fr.arm * m.arms, leg: fr.leg * m.legs, hand: fr.hand * (0.7 + 0.3 * m.arms), bust: fr.bust * m.bust };
 }
@@ -108,9 +110,18 @@ export function thighRings(fr: Frame): Ring[] {
   return scaleRings([{ y: -1.24, w: 0.19, f: 0.2, b: 0.18 }, { y: -0.9, w: 0.225, f: 0.24, b: 0.21 }, { y: -0.45, w: 0.295 * top, f: 0.31, b: 0.28 * top }, { y: -0.1, w: 0.325 * top, f: 0.29, b: 0.33 * top }, { y: 0.1, w: 0.27 * top, f: 0.23, b: 0.28 }], fr.leg, fr.leg, THIGH / 1.24);
 }
 export const shinRings = (fr: Frame): Ring[] => scaleRings([{ y: -1.14, w: 0.115, f: 0.12, b: 0.13 }, { y: -0.8, w: 0.14, f: 0.14, b: 0.17 }, { y: -0.35, w: 0.2, f: 0.165, b: 0.275 }, { y: -0.05, w: 0.185, f: 0.2, b: 0.19 }, { y: 0.06, w: 0.18, f: 0.2, b: 0.17 }], fr.leg, fr.leg, SHIN / 1.14);
-export const neckRings = (fr: Frame): Ring[] => scaleRings(baseNeck(fr), fr.m.neck);
-const baseNeck = (fr: Frame): Ring[] => fr.fem ? [{ y: -0.08, w: 0.16, f: 0.14, b: 0.16 }, { y: 0.2, w: 0.125, f: 0.125, b: 0.135 }, { y: 0.55, w: 0.125, f: 0.13, b: 0.135 }]
-  : [{ y: -0.08, w: fr.build === 'broad' ? 0.25 : 0.21, f: 0.18, b: 0.21 }, { y: 0.2, w: fr.build === 'broad' ? 0.19 : 0.165, f: 0.165, b: 0.18 }, { y: 0.55, w: 0.16, f: 0.16, b: 0.17 }];
+/** How much higher a longer neck carries the head (feet at scale 1); the rig and the figure's head height both add it. */
+export const neckLift = (fr: Frame): number => 0.25 * (fr.m.neckLen - 1);
+/** The neck, in the neck joint's frame (the head's centre sits at 0.58): a column a little forward-leaning, set toward
+ *  the back of the shoulders and under the back half of the skull, so the face carries forward of it and the jaw's
+ *  underside meets its front. Wider at the root where it flares into the shoulders, slimmest at the middle, filling
+ *  again under the jaw. `neck` thickens it; `neckLen` stretches its visible part and lifts the head. */
+export const neckRings = (fr: Frame): Ring[] => { const L = neckLift(fr); return scaleRings(baseNeck(fr), fr.m.neck).map((r) => r.y > 0.06 ? { ...r, y: r.y + Math.min(1, (r.y - 0.06) / 0.25) * L } : r); };
+const baseNeck = (fr: Frame): Ring[] => {
+  if (fr.fem) return [{ y: -0.1, w: 0.205, f: 0.15, b: 0.195, z: -0.045 }, { y: 0.08, w: 0.165, f: 0.14, b: 0.165, z: -0.04 }, { y: 0.28, w: 0.148, f: 0.138, b: 0.15, z: -0.03 }, { y: 0.45, w: 0.154, f: 0.144, b: 0.154, z: -0.022 }, { y: 0.62, w: 0.146, f: 0.138, b: 0.146, z: -0.015 }];
+  const k = fr.build === 'broad' ? 1.1 : 1;
+  return [{ y: -0.1, w: 0.27 * k, f: 0.19, b: 0.25 * k, z: -0.055 }, { y: 0.08, w: 0.215 * k, f: 0.18, b: 0.215 * k, z: -0.05 }, { y: 0.28, w: 0.195 * k, f: 0.175, b: 0.2 * k, z: -0.038 }, { y: 0.45, w: 0.2 * k, f: 0.178, b: 0.2 * k, z: -0.028 }, { y: 0.62, w: 0.185 * k, f: 0.165, b: 0.185 * k, z: -0.02 }];
+};
 
 /** A lock of hair, a ribbon of cloth, a tail: a tapering tube along a path, flattened across `flat` (1 is round). */
 export function lockGeometry(pts: THREE.Vector3[], r0: number, r1: number, flat = 0.55, sides = 6, belly = 0.25): THREE.BufferGeometry {

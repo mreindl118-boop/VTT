@@ -1435,7 +1435,8 @@ export class App {
       const sheet = t.sheetId && t.role !== 'creature' ? this.state.roster.find((x) => x.id === t.sheetId) : undefined;
       const flat = !!sheet?.portrait && this.pieceStyle === 'token';
       if (!flat) {
-        const fig = mergeByMaterial(sheet?.figure ? heroFigure(sheet.figure, t.size, t.down || (t.hp && t.hp.cur <= 0) ? 'dead' : !!this.state.encounter?.order.some((c) => c.tokenId === t.id)) : entry ? figureFor(entry) : adventurer(t.role === 'member' ? { cloth: t.color } : undefined)); fig.position.y = 0.3;
+        const figState = t.down || (t.hp && t.hp.cur <= 0) ? 'dead' as const : !!this.state.encounter?.order.some((c) => c.tokenId === t.id);
+        const fig = mergeByMaterial(sheet?.figure ? heroFigure(sheet.figure, t.size, figState) : entry ? figureFor(entry, figState, t.id, t.playerName) : adventurer(t.role === 'member' ? { cloth: t.color } : undefined)); fig.position.y = 0.3;
         g.add(fig);
         if (this.jiggleOn) this.jiggle.track(t.id, fig);
       }

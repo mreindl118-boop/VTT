@@ -21,14 +21,222 @@
     "mist"
    ],
    "figure": {
-    "skin": "#cfcfd6",
-    "cloth": "#1d1a22",
+    "skin": "#d8d4d6",
+    "cloth": "#1a1720",
     "accent": "#4d1119",
-    "hair": "#1a1a1a",
+    "hair": "#141114",
     "cloak": true,
     "weapon": "sword"
    },
-   "role": "hostile"
+   "role": "hostile",
+   "hero": {
+    "skin": "#d8d4d6",
+    "hair": "#141114",
+    "hairStyle": "short",
+    "cloth": "#1a1720",
+    "trim": "#2b0f16",
+    "boots": "#0f0d10",
+    "height": 1.06,
+    "cloak": "#1a1418",
+    "cloakTrim": "#6e1420",
+    "clasps": "#b89a4a",
+    "shirt": "#e8e2d6",
+    "coat": {
+     "tails": "#1a1720",
+     "lapel": "#4a0f18"
+    },
+    "eyes": "#c8202a",
+    "pendant": "#b8952e",
+    "glow": "#8a1a2a",
+    "face": {
+     "headL": 0.3,
+     "headW": -0.2,
+     "faceLen": 0.4,
+     "jaw": 0.1,
+     "jawAngle": 0.6,
+     "chin": 0.5,
+     "chinPoint": 0.45,
+     "cheekbones": 0.9,
+     "gaunt": 0.55,
+     "noseLen": 0.3,
+     "noseHook": 0.35,
+     "noseW": -0.25,
+     "browRidge": 0.35,
+     "browThick": 0.2,
+     "browAngle": 0.6,
+     "eyeSlant": 0.25,
+     "eyeSize": 0.1,
+     "sunken": 0.35,
+     "hooded": 0.35,
+     "mouthW": 0.1,
+     "lipFull": -0.3,
+     "smile": -0.15,
+     "fangs": true,
+     "age": 0.25,
+     "veins": "#8a8aa8",
+     "shadow": "#6a5a70",
+     "eyeShape": "heavy"
+    },
+    "gear": {
+     "beltL": {
+      "kind": "longsword",
+      "fittings": "#2a2a30",
+      "grip": "#3a0f16",
+      "pommel": "gem",
+      "gem": "#c8202a",
+      "guard": "curved"
+     }
+    },
+    "pose": "weightR haughty R:chest L:hilt",
+    "battlePose": "stride intent R:grasp L:hilt spell look:down eyes:glare",
+    "frame": "masculine",
+    "build": "broad",
+    "hairdo": {
+     "style": "swept",
+     "peak": true,
+     "recede": 0.35,
+     "length": 0.3
+    },
+    "collar": "#5a0f18",
+    "bracers": "#2a2a30",
+    "buckle": "#b89a4a",
+    "body": {
+     "neck": 0.9
+    }
+   },
+   "importance": 81.9
+  },
+  {
+   "id": "strahd-blade-drawn",
+   "name": "Strahd, blade drawn",
+   "tier": 2,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "K"
+   ],
+   "kind": "creature",
+   "figure": {
+    "skin": "#d8d4d6",
+    "cloth": "#1a1720",
+    "accent": "#4d1119",
+    "hair": "#141114",
+    "cloak": true,
+    "weapon": "sword"
+   },
+   "role": "hostile",
+   "importance": 81.9
+  },
+  {
+   "id": "strahd-mounted",
+   "name": "Strahd on Beucephalus",
+   "tier": 2,
+   "size": "large",
+   "baseIn": 2,
+   "visibility": "hidden-creature",
+   "tags": [
+    "K"
+   ],
+   "kind": "creature",
+   "figure": {
+    "skin": "#d8d4d6",
+    "cloth": "#1a1720",
+    "accent": "#4d1119",
+    "hair": "#141114",
+    "cloak": true,
+    "weapon": "sword"
+   },
+   "role": "hostile",
+   "importance": 81.9
+  },
+  {
+   "id": "strahd-mounted-charging",
+   "name": "Strahd on Beucephalus, charging",
+   "tier": 2,
+   "size": "large",
+   "baseIn": 2,
+   "visibility": "hidden-creature",
+   "tags": [
+    "K"
+   ],
+   "kind": "creature",
+   "figure": {
+    "skin": "#d8d4d6",
+    "cloth": "#1a1720",
+    "accent": "#4d1119",
+    "hair": "#141114",
+    "cloak": true,
+    "weapon": "sword"
+   },
+   "role": "hostile",
+   "importance": 81.9
+  },
+  {
+   "id": "strahd-bat-form",
+   "name": "Strahd, bat form",
+   "tier": 2,
+   "size": "tiny",
+   "baseIn": 0.5,
+   "visibility": "hidden-creature",
+   "tags": [
+    "K"
+   ],
+   "kind": "creature",
+   "figure": {
+    "skin": "#d8d4d6",
+    "cloth": "#1a1720",
+    "accent": "#4d1119",
+    "hair": "#141114",
+    "cloak": true,
+    "weapon": "sword"
+   },
+   "role": "hostile",
+   "importance": 81.9
+  },
+  {
+   "id": "strahd-wolf-form",
+   "name": "Strahd, wolf form",
+   "tier": 2,
+   "size": "large",
+   "baseIn": 2,
+   "visibility": "hidden-creature",
+   "tags": [
+    "K"
+   ],
+   "kind": "creature",
+   "figure": {
+    "skin": "#d8d4d6",
+    "cloth": "#1a1720",
+    "accent": "#4d1119",
+    "hair": "#141114",
+    "cloak": true,
+    "weapon": "sword"
+   },
+   "role": "hostile",
+   "importance": 81.9
+  },
+  {
+   "id": "strahd-mist-form",
+   "name": "Strahd, mist form",
+   "tier": 2,
+   "size": "medium",
+   "baseIn": 1,
+   "visibility": "hidden-creature",
+   "tags": [
+    "K"
+   ],
+   "kind": "creature",
+   "figure": {
+    "skin": "#d8d4d6",
+    "cloth": "#1a1720",
+    "accent": "#4d1119",
+    "hair": "#141114",
+    "cloak": true,
+    "weapon": "sword"
+   },
+   "role": "hostile",
+   "importance": 81.9
   },
   {
    "id": "ireena-kolyana",
@@ -42,12 +250,60 @@
    ],
    "kind": "npc",
    "figure": {
-    "skin": "#d9b899",
-    "cloth": "#6d3b4d",
+    "skin": "#e6c9b0",
+    "cloth": "#9aa0aa",
     "accent": "#e8dfc8",
-    "hair": "#a04a2a"
+    "hair": "#7a2416"
    },
-   "role": "ally"
+   "role": "ally",
+   "hero": {
+    "skin": "#e6c9b0",
+    "hair": "#7a2416",
+    "hairStyle": "long",
+    "cloth": "#7a1c22",
+    "trim": "#3a2a24",
+    "boots": "#3a2a24",
+    "armor": {
+     "kind": "plate",
+     "color": "#aeb2ba",
+     "trim": "#d4d8e0"
+    },
+    "cloak": "#8e1c24",
+    "hood": false,
+    "shirt": "#e8e2d8",
+    "eyes": "#4a5a3a",
+    "face": {
+     "headW": -0.1,
+     "jaw": -0.5,
+     "chin": -0.1,
+     "chinPoint": 0.3,
+     "cheekbones": 0.4,
+     "noseLen": -0.2,
+     "noseW": -0.4,
+     "noseHook": -0.3,
+     "noseTip": -0.3,
+     "browThick": -0.4,
+     "browAngle": -0.2,
+     "eyeSize": 0.5,
+     "lipFull": 0.5,
+     "smile": 0.1,
+     "lashes": true,
+     "blush": "#c86a6a",
+     "eyeShape": "doe"
+    },
+    "gear": {
+     "handR": {
+      "kind": "rapier",
+      "fittings": "#c8ccd4",
+      "grip": "#7a1c22"
+     }
+    },
+    "pose": "demure easy R:skirt L:chest look:L",
+    "battlePose": "ready intent R:lowguard L:balance eyes:glare",
+    "frame": "feminine",
+    "build": "curvy"
+   },
+   "importance": 20.4
   },
   {
    "id": "ismark-kolyanovich",
@@ -62,13 +318,63 @@
    ],
    "kind": "npc",
    "figure": {
-    "skin": "#c99a72",
-    "cloth": "#5a4632",
+    "skin": "#d9b899",
+    "cloth": "#2a2622",
     "accent": "#3a3b40",
-    "hair": "#3a2a1a",
+    "hair": "#b8975a",
     "weapon": "sword"
    },
-   "role": "ally"
+   "role": "ally",
+   "hero": {
+    "skin": "#d9b899",
+    "hair": "#b8975a",
+    "hairStyle": "long",
+    "cloth": "#2a2622",
+    "trim": "#3a3028",
+    "boots": "#241e1a",
+    "armor": {
+     "kind": "mail",
+     "color": "#4a4a4e"
+    },
+    "shirt": "#5a4a3a",
+    "offhand": {
+     "kind": "shield",
+     "color": "#5a3a24",
+     "rim": "#8a8a8a"
+    },
+    "face": {
+     "jaw": 0.7,
+     "chin": 0.5,
+     "noseLen": 0.2,
+     "noseW": 0.2,
+     "browRidge": 0.4,
+     "browThick": 0.4,
+     "browAngle": 0.2,
+     "beard": "stubble",
+     "smile": -0.2,
+     "age": 0.2,
+     "eyeShape": "almond"
+    },
+    "gear": {
+     "handR": {
+      "kind": "longsword",
+      "grip": "#3a2a22",
+      "wear": 0.3
+     },
+     "beltL": {
+      "kind": "shortsword",
+      "wear": 0.3
+     },
+     "back": {
+      "kind": "crossbow"
+     }
+    },
+    "pose": "weightR easy R:hang L:hilt",
+    "battlePose": "shield",
+    "frame": "masculine",
+    "build": "broad"
+   },
+   "importance": 12.2
   },
   {
    "id": "kolyan-indirovich",
@@ -90,7 +396,8 @@
     "accent": "#e8dfc8",
     "hair": "#7a7a7a"
    },
-   "role": "neutral"
+   "role": "neutral",
+   "importance": 9.7
   },
   {
    "id": "rahadin",
@@ -104,14 +411,71 @@
    ],
    "kind": "npc",
    "figure": {
-    "skin": "#a67c5b",
-    "cloth": "#3a3f4a",
+    "skin": "#b9b2c0",
+    "cloth": "#2c2a34",
     "accent": "#3a3b40",
-    "hair": "#1a1a1a",
+    "hair": "#141218",
     "cloak": true,
     "weapon": "sword"
    },
-   "role": "hostile"
+   "role": "hostile",
+   "hero": {
+    "skin": "#b9b2c0",
+    "hair": "#141218",
+    "hairStyle": "long",
+    "cloth": "#2c2a34",
+    "trim": "#4a4656",
+    "boots": "#1a181e",
+    "ears": "pointed",
+    "cloak": "#4a4a52",
+    "cloakTrim": "#e8e4e0",
+    "shirt": "#5a4a6a",
+    "eyes": "#8a8aa0",
+    "face": {
+     "headL": 0.4,
+     "jaw": -0.3,
+     "chinPoint": 0.6,
+     "cheekbones": 0.9,
+     "gaunt": 0.5,
+     "noseLen": 0.5,
+     "noseW": -0.5,
+     "noseHook": 0.2,
+     "browAngle": 0.8,
+     "browThick": -0.2,
+     "eyeSlant": 0.7,
+     "eyeSize": -0.3,
+     "sunken": 0.3,
+     "lipFull": -0.7,
+     "smile": -0.6,
+     "age": 0.3,
+     "scars": [
+      "cheekR"
+     ],
+     "eyeShape": "narrow"
+    },
+    "gear": {
+     "handR": {
+      "kind": "scimitar",
+      "metal": "#b8bcc8",
+      "fittings": "#4a4656",
+      "grip": "#1a181e"
+     },
+     "beltR": {
+      "kind": "dagger",
+      "fittings": "#4a4656"
+     }
+    },
+    "pose": "behind-back",
+    "battlePose": "slash",
+    "frame": "masculine",
+    "build": "broad",
+    "hairdo": {
+     "style": "swept",
+     "peak": true,
+     "length": 0.9
+    }
+   },
+   "importance": 12.1
   },
   {
    "id": "ezmerelda-davenir",
@@ -125,14 +489,67 @@
    ],
    "kind": "npc",
    "figure": {
-    "skin": "#c99a72",
-    "cloth": "#4b2b3a",
+    "skin": "#c99a78",
+    "cloth": "#c0461e",
     "accent": "#c9a227",
-    "hair": "#1a1a1a",
+    "hair": "#5a2a18",
     "weapon": "sword",
     "hat": "wide"
    },
-   "role": "ally"
+   "role": "ally",
+   "hero": {
+    "skin": "#c99a78",
+    "hair": "#5a2a18",
+    "hairStyle": "curly",
+    "cloth": "#c0461e",
+    "trim": "#7a2a18",
+    "boots": "#7a5232",
+    "coat": {
+     "tails": "#c0461e",
+     "lapel": "#e8c070"
+    },
+    "shirt": "#e8e0d0",
+    "sleeves": "#c0461e",
+    "bracers": "#6a4a2a",
+    "earrings": "#d8b040",
+    "face": {
+     "jaw": 0.1,
+     "cheekbones": 0.5,
+     "noseW": 0.1,
+     "noseHook": -0.2,
+     "browThick": 0.3,
+     "browAngle": 0.3,
+     "eyeSize": 0.3,
+     "eyeSlant": 0.3,
+     "lipFull": 0.5,
+     "smile": 0.3,
+     "lashes": true,
+     "mole": "L",
+     "eyeShape": "cat"
+    },
+    "gear": {
+     "handR": {
+      "kind": "rapier",
+      "fittings": "#e8c070",
+      "grip": "#7a2a18",
+      "metal": "#e6ecf4"
+     },
+     "beltL": {
+      "kind": "shortsword",
+      "metal": "#eef2f8",
+      "fittings": "#c8ccd4"
+     },
+     "beltR": {
+      "kind": "handaxe",
+      "fittings": "#e8c070"
+     }
+    },
+    "pose": "weightL sway R:hip L:hilt look:L",
+    "battlePose": "duelist",
+    "frame": "feminine",
+    "build": "curvy"
+   },
+   "importance": 15.2
   },
   {
    "id": "rudolph-van-richten",
@@ -149,14 +566,68 @@
     "rictavio"
    ],
    "figure": {
-    "skin": "#d9b899",
-    "cloth": "#3d3b4a",
+    "skin": "#e0c0a0",
+    "cloth": "#a06a2e",
     "accent": "#b08d3a",
-    "hair": "#d9d9d9",
+    "hair": "#e8e4dc",
     "hat": "wide",
     "weapon": "lantern"
    },
-   "role": "ally"
+   "role": "ally",
+   "hero": {
+    "skin": "#e0c0a0",
+    "hair": "#e8e4dc",
+    "hairStyle": "short",
+    "cloth": "#a06a2e",
+    "trim": "#7a5228",
+    "boots": "#6a4a2a",
+    "height": 0.97,
+    "coat": {
+     "tails": "#a86e30",
+     "lapel": "#7a4a1e"
+    },
+    "shirt": "#e8e0c8",
+    "satchel": "#7a2a1e",
+    "offhand": {
+     "kind": "book",
+     "color": "#7a1e1e"
+    },
+    "face": {
+     "headL": 0.2,
+     "jaw": -0.1,
+     "cheekbones": 0.2,
+     "gaunt": 0.3,
+     "noseLen": 0.5,
+     "noseHook": 0.4,
+     "browRidge": 0.2,
+     "browThick": 0.5,
+     "browColor": "#d8d4cc",
+     "bags": 0.6,
+     "hooded": 0.3,
+     "age": 0.8,
+     "moustache": "thick",
+     "beard": "goatee",
+     "spectacles": "#b8952e",
+     "lipFull": -0.4,
+     "eyeShape": "droop"
+    },
+    "gear": {
+     "handR": {
+      "kind": "sword-cane",
+      "fittings": "#b8952e",
+      "grip": "#2a1a12"
+     }
+    },
+    "pose": "stand easy R:chin L:book",
+    "battlePose": "ready turnL R:guard L:book",
+    "frame": "masculine",
+    "hairdo": {
+     "style": "swept",
+     "recede": 0.7,
+     "length": 0.1
+    }
+   },
+   "importance": 17.1
   },
   {
    "id": "madam-eva",
@@ -176,7 +647,50 @@
     "hair": "#d9d9d9",
     "hat": "hood"
    },
-   "role": "neutral"
+   "role": "neutral",
+   "importance": 21.4,
+   "hero": {
+    "skin": "#c99a72",
+    "hair": "#d9d9d9",
+    "hairStyle": "long",
+    "cloth": "#5a2a4a",
+    "trim": "#c9a227",
+    "boots": "#3a2420",
+    "skirt": "#6a2a3a",
+    "cloak": "#4a2240",
+    "cloakTrim": "#c9a227",
+    "hood": true,
+    "earrings": "#c9a227",
+    "pendant": "#c9a227",
+    "eyes": "#2a1e18",
+    "height": 0.88,
+    "glow": "#c08aff",
+    "face": {
+     "headW": 0.3,
+     "jaw": -0.2,
+     "jowls": 0.5,
+     "cheekbones": 0.4,
+     "noseLen": 0.5,
+     "noseW": 0.4,
+     "noseHook": 0.4,
+     "browThick": -0.4,
+     "browAngle": 0.2,
+     "eyeSize": -0.2,
+     "hooded": 0.8,
+     "bags": 0.7,
+     "lipFull": -0.5,
+     "smile": 0.2,
+     "age": 1,
+     "mole": "L",
+     "eyeShape": "heavy"
+    },
+    "pose": "old stoop R:offer L:hang",
+    "battlePose": "old stoop R:claw L:ward spell",
+    "frame": "feminine",
+    "hairdo": {
+     "style": "bun"
+    }
+   }
   },
   {
    "id": "the-abbot",
@@ -190,12 +704,45 @@
    ],
    "kind": "npc",
    "figure": {
-    "skin": "#d9b899",
+    "skin": "#e0c4a4",
     "cloth": "#e8e2d2",
     "accent": "#c9a227",
     "hair": "#8a5a2a"
    },
-   "role": "neutral"
+   "role": "neutral",
+   "importance": 22.0,
+   "hero": {
+    "skin": "#e0c4a4",
+    "hair": "#8a5a2a",
+    "hairStyle": "short",
+    "cloth": "#e8e2d2",
+    "trim": "#c9a227",
+    "boots": "#6a5a3a",
+    "skirt": "#e8e2d2",
+    "cloak": "#d8d0bc",
+    "hood": true,
+    "pendant": "#c9a227",
+    "eyes": "#e8c860",
+    "height": 1.05,
+    "glow": "#ffe8a0",
+    "face": {
+     "jaw": 0.3,
+     "chin": 0.3,
+     "cheekbones": 0.5,
+     "noseLen": 0.1,
+     "noseW": -0.2,
+     "browAngle": -0.2,
+     "eyeSize": 0.2,
+     "lipFull": 0.3,
+     "smile": 0.3,
+     "lashes": true,
+     "eyeShape": "doe"
+    },
+    "pose": "stand proud R:offer L:offer",
+    "battlePose": "rebuke",
+    "frame": "masculine",
+    "build": "broad"
+   }
   },
   {
    "id": "vasilka",
@@ -213,9 +760,11 @@
     "cloth": "#e8dfc8",
     "accent": "#5b4a6b",
     "hair": "#d9d9d9",
-    "undead": true
+    "undead": true,
+    "frame": "feminine"
    },
-   "role": "neutral"
+   "role": "neutral",
+   "importance": 6.5
   },
   {
    "id": "baba-lysaga",
@@ -229,14 +778,84 @@
    ],
    "kind": "npc",
    "figure": {
-    "skin": "#8a9a7c",
-    "cloth": "#2f3a2a",
+    "skin": "#7a8a5a",
+    "cloth": "#2e3a26",
     "accent": "#55603a",
-    "hair": "#7a7a7a",
+    "hair": "#5a6a4a",
     "hat": "hood",
     "weapon": "staff"
    },
-   "role": "hostile"
+   "role": "hostile",
+   "hero": {
+    "skin": "#7a8a5a",
+    "hair": "#5a6a4a",
+    "hairStyle": "long",
+    "cloth": "#2e3a26",
+    "trim": "#1e2a1a",
+    "boots": "#1a1e14",
+    "height": 0.72,
+    "cloak": "#2a3622",
+    "hood": false,
+    "tattered": true,
+    "markings": "#3a4a2a",
+    "glow": "#9ac860",
+    "face": {
+     "headW": 1,
+     "jaw": 0.8,
+     "chin": -0.2,
+     "chinPoint": 0,
+     "cheekbones": 0.2,
+     "gaunt": -0.7,
+     "noseLen": 0.7,
+     "noseHook": 1,
+     "noseTip": 0.6,
+     "noseW": 0.9,
+     "browRidge": 1,
+     "browAngle": 1,
+     "browThick": 0.8,
+     "eyeSize": -0.2,
+     "sunken": 0.8,
+     "bags": 0.8,
+     "mouthW": 1,
+     "lipFull": -0.6,
+     "smile": 0.9,
+     "teeth": true,
+     "age": 1,
+     "warts": true,
+     "eyeShape": "narrow",
+     "blush": "#5c6a3e"
+    },
+    "gear": {
+     "handR": {
+      "kind": "quarterstaff",
+      "grip": "#3a3424",
+      "fittings": "#5a4a2a",
+      "length": 0.9
+     }
+    },
+    "pose": "wide stoop R:staff L:claw eyes:glare",
+    "battlePose": "curse",
+    "frame": "feminine",
+    "hairdo": {
+     "style": "voodoo",
+     "length": 1.2
+    },
+    "build": "broad",
+    "body": {
+     "shoulders": 1.25,
+     "chest": 1.5,
+     "waist": 2.0,
+     "hips": 1.7,
+     "bust": 1.3,
+     "arms": 1.35,
+     "legs": 1.2,
+     "neck": 1.5
+    },
+    "eyes": "#c8e04a",
+    "headSize": 1.3,
+    "skirt": "#263220"
+   },
+   "importance": 24.1
   },
   {
    "id": "kasimir-velikov",
@@ -251,13 +870,57 @@
    ],
    "kind": "npc",
    "figure": {
-    "skin": "#d9b899",
-    "cloth": "#2c2f45",
+    "skin": "#b0aab8",
+    "cloth": "#2a2e3e",
     "accent": "#5b4a6b",
-    "hair": "#7a7a7a",
+    "hair": "#1a1820",
     "weapon": "staff"
    },
-   "role": "neutral"
+   "role": "neutral",
+   "hero": {
+    "skin": "#b0aab8",
+    "hair": "#1a1820",
+    "hairStyle": "short",
+    "cloth": "#2a2e3e",
+    "trim": "#1e2230",
+    "boots": "#16181e",
+    "ears": "pointed",
+    "cloak": "#3a3e56",
+    "hood": true,
+    "wisp": "#8a9ad8",
+    "face": {
+     "headL": 0.3,
+     "jaw": -0.4,
+     "chinPoint": 0.5,
+     "cheekbones": 0.7,
+     "gaunt": 0.4,
+     "noseLen": 0.3,
+     "noseW": -0.4,
+     "eyeSlant": 0.6,
+     "browAngle": -0.4,
+     "sunken": 0.3,
+     "lipFull": -0.3,
+     "smile": -0.5,
+     "age": 0.4,
+     "eyeShape": "droop"
+    },
+    "gear": {
+     "beltR": {
+      "kind": "dagger",
+      "fittings": "#8a9ad8",
+      "grip": "#1e2230"
+     },
+     "handR": {
+      "kind": "quarterstaff",
+      "grip": "#3a2e22"
+     }
+    },
+    "pose": "weightL bowed R:staff L:hang",
+    "battlePose": "staff-cast",
+    "frame": "masculine",
+    "concealed": true
+   },
+   "importance": 10.1
   },
   {
    "id": "vladimir-horngaard",
@@ -271,15 +934,63 @@
    ],
    "kind": "npc",
    "figure": {
-    "skin": "#cfcfd6",
-    "cloth": "#3a3b40",
+    "skin": "#8a8a8a",
+    "cloth": "#6a6a70",
     "accent": "#b8c4d6",
-    "hair": null,
+    "hair": "#5a5a5a",
     "hat": "helm",
     "weapon": "sword",
     "undead": true
    },
-   "role": "hostile"
+   "role": "hostile",
+   "hero": {
+    "skin": "#8a8a8a",
+    "hair": "#5a5a5a",
+    "hairStyle": "long",
+    "cloth": "#6a6a70",
+    "trim": "#4a4a50",
+    "boots": "#3a3a40",
+    "height": 1.1,
+    "armor": {
+     "kind": "plate",
+     "color": "#7a7a80",
+     "trim": "#c0c0c8"
+    },
+    "cloak": "#3a3a40",
+    "tattered": true,
+    "eyes": "#c8d0e0",
+    "markings": "#4a4a4a",
+    "face": {
+     "jaw": 0.8,
+     "chin": 0.6,
+     "cheekbones": 0.6,
+     "gaunt": 0.9,
+     "sunken": 0.9,
+     "browRidge": 0.8,
+     "browAngle": 0.8,
+     "noseLen": 0.2,
+     "lipFull": -0.8,
+     "smile": -0.7,
+     "teeth": true,
+     "age": 0.6,
+     "scars": [
+      "across"
+     ],
+     "eyeShape": "narrow"
+    },
+    "gear": {
+     "handR": {
+      "kind": "dragon-greatsword",
+      "metal": "#aab0ba",
+      "wear": 0.4
+     }
+    },
+    "pose": "wide proud R:folded L:foldedLow",
+    "battlePose": "overhead",
+    "frame": "masculine",
+    "build": "broad"
+   },
+   "importance": 11.9
   },
   {
    "id": "sir-godfrey-gwilym",
@@ -293,14 +1004,60 @@
    ],
    "kind": "npc",
    "figure": {
-    "skin": "#cfcfd6",
-    "cloth": "#3a3b40",
+    "skin": "#b4b0aa",
+    "cloth": "#5a5a62",
     "accent": "#b8c4d6",
-    "hair": "#7a7a7a",
+    "hair": "#e8e6e0",
     "weapon": "sword",
     "undead": true
    },
-   "role": "neutral"
+   "role": "neutral",
+   "hero": {
+    "skin": "#b4b0aa",
+    "hair": "#e8e6e0",
+    "hairStyle": "long",
+    "cloth": "#5a5a62",
+    "trim": "#3a3a42",
+    "boots": "#2a2a30",
+    "armor": {
+     "kind": "plate",
+     "color": "#8a8a92",
+     "trim": "#c8c8d0"
+    },
+    "eyes": "#c8c8d8",
+    "markings": "#6a5a5a",
+    "offhand": {
+     "kind": "shield",
+     "color": "#c0c0c8",
+     "rim": "#8a8a90",
+     "mark": "#d8d8e0"
+    },
+    "face": {
+     "jaw": 0.5,
+     "chin": 0.3,
+     "gaunt": 0.6,
+     "sunken": 0.6,
+     "browAngle": -0.3,
+     "noseLen": 0.1,
+     "beard": "full",
+     "age": 0.6,
+     "smile": -0.1,
+     "eyeShape": "droop"
+    },
+    "gear": {
+     "handR": {
+      "kind": "longsword",
+      "metal": "#b4b8c0",
+      "fittings": "#c8c8d0",
+      "wear": 0.5
+     }
+    },
+    "pose": "weightR easy R:hang L:hilt",
+    "battlePose": "shield",
+    "frame": "masculine",
+    "build": "broad"
+   },
+   "importance": 3.7
   },
   {
    "id": "izek-strazni",
@@ -314,13 +1071,74 @@
    ],
    "kind": "npc",
    "figure": {
-    "skin": "#c99a72",
-    "cloth": "#4a2a2a",
+    "skin": "#c8a888",
+    "cloth": "#3a3a42",
     "accent": "#4d1119",
-    "hair": "#1a1a1a",
+    "hair": "#2a2420",
     "weapon": "axe"
    },
-   "role": "hostile"
+   "role": "hostile",
+   "hero": {
+    "skin": "#c8a888",
+    "hair": "#2a2420",
+    "cloth": "#33343c",
+    "trim": "#24252b",
+    "boots": "#1a1a1e",
+    "height": 1.2,
+    "glow": "#e86a20",
+    "face": {
+     "headW": 0.4,
+     "jaw": 0.9,
+     "chin": 0.7,
+     "noseW": 0.6,
+     "noseHook": 0.3,
+     "browRidge": 0.9,
+     "browAngle": 0.9,
+     "browThick": 0.6,
+     "eyeSize": -0.4,
+     "sunken": 0.3,
+     "lipFull": -0.3,
+     "smile": -0.8,
+     "eyeShape": "narrow",
+     "bald": true
+    },
+    "gear": {
+     "handL": {
+      "kind": "battleaxe",
+      "metal": "#8a8a90",
+      "grip": "#2a1a12",
+      "wear": 0.5
+     }
+    },
+    "pose": "wide loom R:heavy L:fist eyes:glare",
+    "battlePose": "braced loom R:high L:lowguard spell eyes:glare",
+    "frame": "masculine",
+    "build": "broad",
+    "fiendArm": {
+     "side": "R",
+     "color": "#6e1a1c",
+     "claws": "#140808",
+     "size": 1.5
+    },
+    "headSize": 0.9,
+    "body": {
+     "shoulders": 1.42,
+     "chest": 1.38,
+     "waist": 1.22,
+     "hips": 1.08,
+     "arms": 1.35,
+     "legs": 1.25,
+     "neck": 1.5,
+     "neckLen": 1.1
+    },
+    "mantle": {
+     "fur": "#e6e1d8",
+     "collar": "#2a2b32",
+     "straps": "#1c1c22"
+    },
+    "deadPose": "dead"
+   },
+   "importance": 10.4
   },
   {
    "id": "baron-vargas-vallakovich",
@@ -334,13 +1152,61 @@
    ],
    "kind": "npc",
    "figure": {
-    "skin": "#d9b899",
-    "cloth": "#5a2a3a",
+    "skin": "#e0c8b8",
+    "cloth": "#a01e22",
     "accent": "#c9a227",
-    "hair": "#3a2a1a",
+    "hair": "#1a1414",
     "weapon": "sword"
    },
-   "role": "neutral"
+   "role": "neutral",
+   "hero": {
+    "skin": "#e0c8b8",
+    "hair": "#1a1414",
+    "hairStyle": "short",
+    "cloth": "#a01e22",
+    "trim": "#3a1a1a",
+    "boots": "#1a1414",
+    "coat": {
+     "tails": "#a01e22",
+     "lapel": "#2a1a1a"
+    },
+    "shirt": "#e8e0d8",
+    "cloak": "#1a1418",
+    "pendant": "#c8a040",
+    "face": {
+     "headW": 0.3,
+     "jaw": 0.3,
+     "jowls": 0.6,
+     "noseW": 0.3,
+     "noseTip": 0.4,
+     "browAngle": 0.6,
+     "browThick": 0.5,
+     "eyeSize": -0.2,
+     "bags": 0.4,
+     "moustache": "handlebar",
+     "beard": "goatee",
+     "smile": 0.6,
+     "teeth": true,
+     "age": 0.5,
+     "eyeShape": "wide"
+    },
+    "gear": {
+     "handR": {
+      "kind": "rapier",
+      "fittings": "#c8a040",
+      "grip": "#2a1a1a"
+     }
+    },
+    "pose": "wide haughty R:hip L:hip",
+    "battlePose": "retreat recoil R:point L:balance",
+    "frame": "masculine",
+    "hairdo": {
+     "style": "swept",
+     "recede": 0.6,
+     "length": 0.15
+    }
+   },
+   "importance": 15.0
   },
   {
    "id": "baroness-lydia-petrovna",
@@ -354,12 +1220,46 @@
    ],
    "kind": "npc",
    "figure": {
-    "skin": "#d9b899",
-    "cloth": "#7a5a7a",
+    "skin": "#e0c8b8",
+    "cloth": "#2a2026",
     "accent": "#c9a227",
-    "hair": "#8a5a2a"
+    "hair": "#1a1414"
    },
-   "role": "neutral"
+   "role": "neutral",
+   "hero": {
+    "skin": "#e0c8b8",
+    "hair": "#1a1414",
+    "hairStyle": "long",
+    "cloth": "#2a2026",
+    "trim": "#7a1e22",
+    "skirt": "#2a2026",
+    "underskirt": "#a01e22",
+    "gownTrim": "#c8a040",
+    "crown": {
+     "color": "#c8a040"
+    },
+    "face": {
+     "headW": -0.1,
+     "jaw": -0.3,
+     "cheekbones": 0.3,
+     "noseLen": 0.2,
+     "noseW": -0.3,
+     "browAngle": -0.6,
+     "eyeSize": 0.4,
+     "lipFull": 0.2,
+     "smile": 0.7,
+     "age": 0.45,
+     "lashes": true,
+     "blush": "#c87a7a",
+     "eyeShape": "round",
+     "gaze": -0.4
+    },
+    "pose": "wringing",
+    "battlePose": "wringing",
+    "frame": "feminine",
+    "build": "curvy"
+   },
+   "importance": 5.3
   },
   {
    "id": "victor-vallakovich",
@@ -378,7 +1278,8 @@
     "accent": "#5b4a6b",
     "hair": "#1a1a1a"
    },
-   "role": "neutral"
+   "role": "neutral",
+   "importance": 3.8
   },
   {
    "id": "lady-fiona-wachter",
@@ -392,12 +1293,63 @@
    ],
    "kind": "npc",
    "figure": {
-    "skin": "#d9b899",
-    "cloth": "#2a2a3a",
+    "skin": "#d8c0b0",
+    "cloth": "#5a1a22",
     "accent": "#7a1f2b",
-    "hair": "#7a7a7a"
+    "hair": "#8a1e20"
    },
-   "role": "hostile"
+   "role": "hostile",
+   "hero": {
+    "skin": "#d8c0b0",
+    "hair": "#8a1e20",
+    "hairStyle": "long",
+    "cloth": "#5a1a22",
+    "trim": "#2a0e12",
+    "skirt": "#4a141a",
+    "underskirt": "#2a0e12",
+    "gownTrim": "#c8a060",
+    "earrings": "#c8a040",
+    "pendant": "#c8a040",
+    "face": {
+     "headL": 0.3,
+     "jaw": -0.2,
+     "chinPoint": 0.4,
+     "cheekbones": 0.8,
+     "gaunt": 0.4,
+     "noseLen": 0.4,
+     "noseW": -0.4,
+     "noseHook": 0.3,
+     "browAngle": 0.5,
+     "browThick": -0.5,
+     "hooded": 0.5,
+     "eyeSize": -0.2,
+     "lipFull": -0.5,
+     "smile": -0.4,
+     "age": 0.55,
+     "shadow": "#4a2a3a",
+     "lashes": true,
+     "eyeShape": "narrow",
+     "gaze": -0.6
+    },
+    "gear": {
+     "beltR": {
+      "kind": "mace",
+      "fittings": "#c8a060",
+      "metal": "#6a6a72",
+      "grip": "#2a0e12",
+      "length": 0.85
+     }
+    },
+    "pose": "weightR haughty R:hip L:skirt",
+    "battlePose": "rebuke",
+    "frame": "feminine",
+    "build": "curvy",
+    "hairdo": {
+     "style": "bun"
+    },
+    "concealed": true
+   },
+   "importance": 15.5
   },
   {
    "id": "stella-wachter",
@@ -414,9 +1366,11 @@
     "skin": "#d9b899",
     "cloth": "#e8dfc8",
     "accent": "#e8dfc8",
-    "hair": "#3a2a1a"
+    "hair": "#3a2a1a",
+    "frame": "feminine"
    },
-   "role": "neutral"
+   "role": "neutral",
+   "importance": 4.4
   },
   {
    "id": "nikolai-wachter",
@@ -428,7 +1382,8 @@
    "tags": [
     "N4"
    ],
-   "kind": "npc"
+   "kind": "npc",
+   "importance": 3.0
   },
   {
    "id": "karl-wachter",
@@ -459,7 +1414,8 @@
     "accent": "#c9a227",
     "hair": "#7a7a7a"
    },
-   "role": "ally"
+   "role": "ally",
+   "importance": 9.7
   },
   {
    "id": "urwin-martikov",
@@ -473,12 +1429,42 @@
    ],
    "kind": "npc",
    "figure": {
-    "skin": "#c99a72",
-    "cloth": "#5a4632",
+    "skin": "#7a5a44",
+    "cloth": "#2a2a2e",
     "accent": "#6b4a33",
-    "hair": "#1a1a1a"
+    "hair": "#1a1614"
    },
-   "role": "ally"
+   "role": "ally",
+   "hero": {
+    "skin": "#7a5a44",
+    "hair": "#1a1614",
+    "hairStyle": "short",
+    "cloth": "#2a2a2e",
+    "trim": "#3a302a",
+    "boots": "#1e1a18",
+    "cloak": "#1e1e22",
+    "shirt": "#6a5a48",
+    "face": {
+     "jaw": 0.3,
+     "noseW": 0.3,
+     "browThick": 0.4,
+     "smile": 0.3,
+     "beard": "full",
+     "age": 0.35,
+     "eyeShape": "almond"
+    },
+    "gear": {
+     "back": {
+      "kind": "shortbow",
+      "grip": "#3a2a20"
+     }
+    },
+    "pose": "weightL easy R:folded L:foldedLow",
+    "battlePose": "ready intent R:claw L:ward",
+    "frame": "masculine",
+    "build": "broad"
+   },
+   "importance": 9.5
   },
   {
    "id": "danika-martikov",
@@ -492,12 +1478,43 @@
    ],
    "kind": "npc",
    "figure": {
-    "skin": "#d9b899",
-    "cloth": "#5a4a3a",
+    "skin": "#d0b090",
+    "cloth": "#2e2a2e",
     "accent": "#e8dfc8",
-    "hair": "#3a2a1a"
+    "hair": "#1a1614"
    },
-   "role": "ally"
+   "role": "ally",
+   "hero": {
+    "skin": "#d0b090",
+    "hair": "#1a1614",
+    "hairStyle": "braids",
+    "cloth": "#2e2a2e",
+    "trim": "#5a3a2a",
+    "boots": "#2a2220",
+    "skirt": "#3a3236",
+    "cloak": "#1e1e22",
+    "face": {
+     "jaw": -0.2,
+     "cheekbones": 0.3,
+     "noseLen": 0.1,
+     "eyeSize": 0.2,
+     "smile": 0.2,
+     "browAngle": 0.2,
+     "age": 0.3,
+     "eyeShape": "cat"
+    },
+    "gear": {
+     "back": {
+      "kind": "shortbow",
+      "grip": "#3a2a20"
+     }
+    },
+    "pose": "weightR easy R:hip L:hang",
+    "battlePose": "ready turnL R:ward L:claw",
+    "frame": "feminine",
+    "build": "curvy"
+   },
+   "importance": 4.0
   },
   {
    "id": "brom-martikov",
@@ -509,7 +1526,36 @@
    "tags": [
     "N2"
    ],
-   "kind": "npc"
+   "kind": "npc",
+   "hero": {
+    "skin": "#c8a888",
+    "hair": "#2a2420",
+    "hairStyle": "short",
+    "cloth": "#3a3a3e",
+    "trim": "#2a2a2e",
+    "boots": "#1e1e20",
+    "height": 0.8,
+    "face": {
+     "headW": 0.1,
+     "jaw": -0.6,
+     "noseLen": -0.6,
+     "noseTip": 0.2,
+     "noseHook": -0.5,
+     "eyeSize": 0.7,
+     "cheekbones": -0.3,
+     "smile": 0.4,
+     "eyeShape": "round"
+    },
+    "pose": "stand easy R:hang L:hang look:up",
+    "battlePose": "cower",
+    "frame": "masculine"
+   },
+   "figure": {
+    "cloth": "#3a3a3e",
+    "hair": "#2a2420",
+    "skin": "#c8a888"
+   },
+   "importance": 2.6
   },
   {
    "id": "bray-martikov",
@@ -521,7 +1567,36 @@
    "tags": [
     "N2"
    ],
-   "kind": "npc"
+   "kind": "npc",
+   "hero": {
+    "skin": "#c8a888",
+    "hair": "#2a2420",
+    "hairStyle": "short",
+    "cloth": "#4a3e36",
+    "trim": "#2a2a2e",
+    "boots": "#1e1e20",
+    "height": 0.75,
+    "face": {
+     "headW": 0.1,
+     "jaw": -0.6,
+     "noseLen": -0.6,
+     "noseTip": 0.1,
+     "noseHook": -0.5,
+     "eyeSize": 0.6,
+     "cheekbones": -0.3,
+     "smile": -0.1,
+     "mole": "R",
+     "eyeShape": "round"
+    },
+    "pose": "stand easy R:hang L:chest look:up",
+    "battlePose": "cower",
+    "frame": "masculine"
+   },
+   "figure": {
+    "cloth": "#4a3e36",
+    "hair": "#2a2420",
+    "skin": "#c8a888"
+   }
   },
   {
    "id": "davian-martikov",
@@ -535,12 +1610,53 @@
    ],
    "kind": "npc",
    "figure": {
-    "skin": "#c99a72",
-    "cloth": "#5a4632",
+    "skin": "#c8a888",
+    "cloth": "#2e4a46",
     "accent": "#7a1f2b",
-    "hair": "#7a7a7a"
+    "hair": "#c8c8c4"
    },
-   "role": "ally"
+   "role": "ally",
+   "hero": {
+    "skin": "#c8a888",
+    "hair": "#c8c8c4",
+    "hairStyle": "long",
+    "cloth": "#2e4a46",
+    "trim": "#1e3430",
+    "boots": "#1e2220",
+    "height": 0.95,
+    "cloak": "#2a4440",
+    "hood": true,
+    "face": {
+     "headL": 0.2,
+     "jaw": 0.2,
+     "gaunt": 0.3,
+     "noseLen": 0.5,
+     "noseHook": 0.5,
+     "browRidge": 0.4,
+     "browThick": 0.7,
+     "browAngle": 0.5,
+     "bags": 0.4,
+     "beard": "full",
+     "age": 0.85,
+     "smile": -0.4,
+     "eyeShape": "narrow"
+    },
+    "gear": {
+     "handR": {
+      "kind": "quarterstaff",
+      "grip": "#4a3a26",
+      "length": 0.92
+     },
+     "back": {
+      "kind": "shortbow",
+      "grip": "#2e4a46"
+     }
+    },
+    "pose": "weightL bowed R:staff L:hang",
+    "battlePose": "staff-raised",
+    "frame": "masculine"
+   },
+   "importance": 11.8
   },
   {
    "id": "szoldar-szoldarovich",
@@ -554,12 +1670,47 @@
    ],
    "kind": "npc",
    "figure": {
-    "skin": "#c99a72",
-    "cloth": "#5a4632",
+    "skin": "#d0a888",
+    "cloth": "#5a4a32",
     "accent": "#7a6a55",
-    "hair": "#1a1a1a"
+    "hair": "#5a2a1a"
    },
-   "role": "neutral"
+   "role": "neutral",
+   "hero": {
+    "skin": "#d0a888",
+    "hair": "#5a2a1a",
+    "hairStyle": "long",
+    "cloth": "#5a4a32",
+    "trim": "#3a2e22",
+    "boots": "#2a2218",
+    "cloak": "#7a6a52",
+    "face": {
+     "jaw": 0.4,
+     "noseLen": 0.3,
+     "browAngle": 0.3,
+     "beard": "full",
+     "scars": [
+      "cheekL"
+     ],
+     "age": 0.3,
+     "eyeShape": "almond"
+    },
+    "gear": {
+     "handR": {
+      "kind": "shortsword",
+      "wear": 0.2
+     },
+     "back": {
+      "kind": "longbow",
+      "grip": "#5a4a32"
+     }
+    },
+    "pose": "weightL easy R:folded L:foldedLow look:L",
+    "battlePose": "slash",
+    "frame": "masculine",
+    "build": "broad"
+   },
+   "importance": 3.0
   },
   {
    "id": "yevgeni-krushkin",
@@ -573,12 +1724,47 @@
    ],
    "kind": "npc",
    "figure": {
-    "skin": "#c99a72",
-    "cloth": "#5a4632",
+    "skin": "#d0a888",
+    "cloth": "#4a4232",
     "accent": "#7a6a55",
-    "hair": "#3a2a1a"
+    "hair": "#2a2420"
    },
-   "role": "neutral"
+   "role": "neutral",
+   "hero": {
+    "skin": "#d0a888",
+    "hair": "#2a2420",
+    "hairStyle": "short",
+    "cloth": "#4a4232",
+    "trim": "#3a3022",
+    "boots": "#2a2218",
+    "height": 1.08,
+    "cloak": "#6a5a42",
+    "face": {
+     "headW": 0.3,
+     "jaw": 0.8,
+     "noseW": 0.5,
+     "browRidge": 0.6,
+     "browThick": 0.6,
+     "beard": "stubble",
+     "smile": -0.3,
+     "eyeShape": "narrow"
+    },
+    "gear": {
+     "handR": {
+      "kind": "shortsword",
+      "wear": 0.4,
+      "grip": "#2a2218"
+     },
+     "back": {
+      "kind": "longbow",
+      "grip": "#4a4232"
+     }
+    },
+    "pose": "stand intent R:hang L:hilt look:R",
+    "battlePose": "ready intent R:lowguard L:brace",
+    "frame": "masculine",
+    "build": "broad"
+   }
   },
   {
    "id": "morgantha",
@@ -602,7 +1788,53 @@
     "hair": "#7a7a7a",
     "hat": "hood"
    },
-   "role": "hostile"
+   "role": "hostile",
+   "importance": 17.3,
+   "hero": {
+    "skin": "#8a9a7c",
+    "hair": "#7a7a7a",
+    "hairStyle": "long",
+    "cloth": "#2a3a2a",
+    "trim": "#55603a",
+    "boots": "#2a2a22",
+    "skirt": "#33402e",
+    "cloak": "#2a3024",
+    "hood": true,
+    "tattered": true,
+    "satchel": "#6a5a3a",
+    "eyes": "#e8c040",
+    "height": 0.92,
+    "glow": "#8a40c0",
+    "face": {
+     "jaw": -0.2,
+     "chin": 0.7,
+     "chinPoint": 0.9,
+     "cheekbones": 0.6,
+     "gaunt": 0.7,
+     "noseLen": 1,
+     "noseHook": 1,
+     "noseTip": 0.7,
+     "browRidge": 0.6,
+     "browAngle": 0.5,
+     "sunken": 0.7,
+     "bags": 0.9,
+     "mouthW": 0.7,
+     "lipFull": -0.8,
+     "smile": 0.5,
+     "teeth": true,
+     "age": 1,
+     "warts": true,
+     "eyeShape": "cat",
+     "gaze": 0.5
+    },
+    "pose": "old stoop R:offer L:skirt",
+    "battlePose": "old stoop R:claw L:claw spell",
+    "frame": "feminine",
+    "hairdo": {
+     "style": "wild",
+     "length": 1.2
+    }
+   }
   },
   {
    "id": "bella-sunbane",
@@ -624,9 +1856,11 @@
     "cloth": "#3a2a2a",
     "accent": "#55603a",
     "hair": "#1a1a1a",
-    "hat": "hood"
+    "hat": "hood",
+    "frame": "feminine"
    },
-   "role": "hostile"
+   "role": "hostile",
+   "importance": 4.8
   },
   {
    "id": "offalia-wormwiggle",
@@ -648,9 +1882,11 @@
     "cloth": "#2a2a3a",
     "accent": "#55603a",
     "hair": "#3a2a1a",
-    "hat": "hood"
+    "hat": "hood",
+    "frame": "feminine"
    },
-   "role": "hostile"
+   "role": "hostile",
+   "importance": 4.8
   },
   {
    "id": "gadof-blinsky",
@@ -669,7 +1905,8 @@
     "accent": "#c9a227",
     "hair": "#3a2a1a"
    },
-   "role": "neutral"
+   "role": "neutral",
+   "importance": 4.4
   },
   {
    "id": "henrik-van-der-voort",
@@ -683,12 +1920,49 @@
    ],
    "kind": "npc",
    "figure": {
-    "skin": "#d9b899",
-    "cloth": "#4a3a2a",
+    "skin": "#d8b8a0",
+    "cloth": "#5a3a26",
     "accent": "#e8dfc8",
-    "hair": "#d9d9d9"
+    "hair": "#c8c4bc"
    },
-   "role": "neutral"
+   "role": "neutral",
+   "hero": {
+    "skin": "#d8b8a0",
+    "hair": "#c8c4bc",
+    "hairStyle": "short",
+    "cloth": "#5a3a26",
+    "trim": "#3a2a1e",
+    "boots": "#2a2018",
+    "shirt": "#e8e0d0",
+    "coat": {
+     "tails": "#5a3a26"
+    },
+    "face": {
+     "headL": 0.2,
+     "jaw": -0.3,
+     "gaunt": 0.5,
+     "noseLen": 0.4,
+     "noseHook": 0.3,
+     "bags": 0.7,
+     "browAngle": -0.7,
+     "eyeSize": 0.2,
+     "sunken": 0.4,
+     "age": 0.7,
+     "smile": -0.6,
+     "moustache": "droop",
+     "eyeShape": "droop"
+    },
+    "gear": {
+     "handR": {
+      "kind": "club",
+      "length": 0.7
+     }
+    },
+    "pose": "wringing",
+    "battlePose": "brawl",
+    "frame": "masculine"
+   },
+   "importance": 6.5
   },
   {
    "id": "luvash",
@@ -702,13 +1976,53 @@
    ],
    "kind": "npc",
    "figure": {
-    "skin": "#c99a72",
-    "cloth": "#5a2a2a",
+    "skin": "#c8a080",
+    "cloth": "#7a1e22",
     "accent": "#c9a227",
-    "hair": "#1a1a1a",
+    "hair": "#2a1a14",
     "weapon": "sword"
    },
-   "role": "neutral"
+   "role": "neutral",
+   "hero": {
+    "skin": "#c8a080",
+    "hair": "#2a1a14",
+    "hairStyle": "curly",
+    "cloth": "#7a1e22",
+    "trim": "#e8d8b0",
+    "boots": "#3a2a1e",
+    "shirt": "#e8e0d0",
+    "sleeves": "#e8e0d0",
+    "earrings": "#d8b040",
+    "face": {
+     "headW": 0.3,
+     "jaw": 0.6,
+     "jowls": 0.3,
+     "noseW": 0.5,
+     "browThick": 0.8,
+     "browAngle": 0.4,
+     "moustache": "handlebar",
+     "beard": "stubble",
+     "smile": 0.2,
+     "age": 0.45,
+     "eyeShape": "almond"
+    },
+    "gear": {
+     "handR": {
+      "kind": "scimitar",
+      "fittings": "#d8b040",
+      "grip": "#7a1e22"
+     },
+     "beltR": {
+      "kind": "dagger",
+      "fittings": "#d8b040"
+     }
+    },
+    "pose": "wide proud R:hip L:hip",
+    "battlePose": "slash",
+    "frame": "masculine",
+    "build": "broad"
+   },
+   "importance": 8.3
   },
   {
    "id": "arrigal",
@@ -722,13 +2036,60 @@
    ],
    "kind": "npc",
    "figure": {
-    "skin": "#c99a72",
-    "cloth": "#2a2a2a",
+    "skin": "#c8a080",
+    "cloth": "#2a2a2e",
     "accent": "#c9a227",
-    "hair": "#1a1a1a",
+    "hair": "#2a1a14",
     "weapon": "sword"
    },
-   "role": "hostile"
+   "role": "hostile",
+   "hero": {
+    "skin": "#c8a080",
+    "hair": "#2a1a14",
+    "hairStyle": "long",
+    "cloth": "#2a2a2e",
+    "trim": "#7a1e22",
+    "boots": "#2a2018",
+    "coat": {
+     "tails": "#2a2a2e",
+     "lapel": "#7a1e22"
+    },
+    "earrings": "#d8b040",
+    "face": {
+     "headL": 0.2,
+     "jaw": 0.2,
+     "chinPoint": 0.3,
+     "cheekbones": 0.6,
+     "noseLen": 0.3,
+     "noseHook": 0.4,
+     "browAngle": 0.6,
+     "eyeSlant": 0.2,
+     "eyeSize": -0.2,
+     "moustache": "thin",
+     "beard": "goatee",
+     "smile": 0.4,
+     "eyeShape": "cat",
+     "gaze": 0.7
+    },
+    "gear": {
+     "handR": {
+      "kind": "shortsword",
+      "metal": "#8a8f98",
+      "fittings": "#2a2a2e",
+      "grip": "#7a1e22"
+     },
+     "back": {
+      "kind": "crossbow",
+      "length": 0.8
+     }
+    },
+    "pose": "weightR easy R:folded L:foldedLow look:R",
+    "battlePose": "duelist",
+    "frame": "masculine",
+    "build": "broad",
+    "concealed": true
+   },
+   "importance": 6.0
   },
   {
    "id": "arabelle",
@@ -746,9 +2107,11 @@
     "skin": "#d9b899",
     "cloth": "#6a3a5a",
     "accent": "#c9a227",
-    "hair": "#1a1a1a"
+    "hair": "#1a1a1a",
+    "frame": "feminine"
    },
-   "role": "ally"
+   "role": "ally",
+   "importance": 4.9
   },
   {
    "id": "kiril-stoyanovich",
@@ -773,7 +2136,8 @@
     "hair": "#1a1a1a",
     "weapon": "axe"
    },
-   "role": "hostile"
+   "role": "hostile",
+   "importance": 10.1
   },
   {
    "id": "emil-toranescu",
@@ -792,12 +2156,48 @@
     "wolf"
    ],
    "figure": {
-    "skin": "#c99a72",
-    "cloth": "#5a4632",
+    "skin": "#5a3a2a",
+    "cloth": "#c8b8a0",
     "accent": "#7a6a55",
-    "hair": "#3a2a1a"
+    "hair": "#1a1412"
    },
-   "role": "ally"
+   "role": "ally",
+   "hero": {
+    "skin": "#5a3a2a",
+    "hair": "#1a1412",
+    "hairStyle": "short",
+    "cloth": "#c8b8a0",
+    "trim": "#6a5a48",
+    "boots": "#3a2e22",
+    "shirt": "#d8ccb8",
+    "face": {
+     "headW": 0.2,
+     "jaw": 0.8,
+     "chin": 0.5,
+     "noseW": 0.6,
+     "browRidge": 0.8,
+     "browThick": 0.8,
+     "browAngle": 0.7,
+     "beard": "chops",
+     "scars": [
+      "cheekR"
+     ],
+     "smile": -0.5,
+     "eyeShape": "narrow"
+    },
+    "gear": {
+     "handR": {
+      "kind": "spear",
+      "grip": "#4a3424",
+      "wear": 0.3
+     }
+    },
+    "pose": "weightL intent R:hang L:hip",
+    "battlePose": "thrust",
+    "frame": "masculine",
+    "build": "broad"
+   },
+   "importance": 8.3
   },
   {
    "id": "zuleika-toranescu",
@@ -816,12 +2216,48 @@
     "wolf"
    ],
    "figure": {
-    "skin": "#c99a72",
-    "cloth": "#5a4632",
+    "skin": "#7a5038",
+    "cloth": "#4a2a26",
     "accent": "#7a6a55",
-    "hair": "#1a1a1a"
+    "hair": "#2a1a14"
    },
-   "role": "ally"
+   "role": "ally",
+   "hero": {
+    "skin": "#7a5038",
+    "hair": "#2a1a14",
+    "hairStyle": "curly",
+    "cloth": "#4a2a26",
+    "trim": "#6a3a32",
+    "boots": "#2a1a16",
+    "eyes": "#c8a040",
+    "tattered": true,
+    "face": {
+     "jaw": 0.2,
+     "cheekbones": 0.6,
+     "noseW": 0.3,
+     "browThick": 0.4,
+     "browAngle": 0.3,
+     "eyeSize": 0.2,
+     "eyeSlant": 0.3,
+     "lipFull": 0.5,
+     "smile": -0.3,
+     "scars": [
+      "browL"
+     ],
+     "eyeShape": "doe"
+    },
+    "gear": {
+     "handR": {
+      "kind": "spear",
+      "grip": "#5a3a26"
+     }
+    },
+    "pose": "weightR easy R:hang L:chest",
+    "battlePose": "thrust",
+    "frame": "feminine",
+    "build": "curvy"
+   },
+   "importance": 6.3
   },
   {
    "id": "exethanter",
@@ -843,7 +2279,8 @@
     "weapon": "staff",
     "undead": true
    },
-   "role": "neutral"
+   "role": "neutral",
+   "importance": 7.8
   },
   {
    "id": "neferon",
@@ -863,7 +2300,8 @@
     "hair": "#1a1a1a",
     "weapon": "staff"
    },
-   "role": "hostile"
+   "role": "hostile",
+   "importance": 2.6
   },
   {
    "id": "vilnius",
@@ -877,13 +2315,52 @@
    ],
    "kind": "npc",
    "figure": {
-    "skin": "#d9b899",
-    "cloth": "#3a4a5a",
+    "skin": "#7a5440",
+    "cloth": "#3a2a2a",
     "accent": "#5b4a6b",
-    "hair": "#3a2a1a",
+    "hair": "#1a1412",
     "weapon": "staff"
    },
-   "role": "hostile"
+   "role": "hostile",
+   "hero": {
+    "skin": "#7a5440",
+    "hair": "#1a1412",
+    "hairStyle": "short",
+    "cloth": "#3a2a2a",
+    "trim": "#2a1a1a",
+    "boots": "#1e1616",
+    "cloak": "#3a1e1e",
+    "hood": false,
+    "wisp": "#c84a3a",
+    "face": {
+     "headL": 0.1,
+     "jaw": -0.2,
+     "gaunt": 0.4,
+     "noseLen": 0.3,
+     "browAngle": 0.5,
+     "sunken": 0.4,
+     "bags": 0.5,
+     "smile": -0.5,
+     "beard": "goatee",
+     "eyeShape": "narrow",
+     "gaze": 0.6
+    },
+    "gear": {
+     "beltR": {
+      "kind": "dagger",
+      "grip": "#3a1e1e"
+     },
+     "handR": {
+      "kind": "quarterstaff",
+      "grip": "#3a2e22"
+     }
+    },
+    "pose": "weightL haughty R:staff L:hip",
+    "battlePose": "staff-cast",
+    "frame": "masculine",
+    "concealed": true
+   },
+   "importance": 2.4
   },
   {
    "id": "pidlwick-ii",
@@ -897,13 +2374,48 @@
    ],
    "kind": "npc",
    "figure": {
-    "skin": "#cfcfd6",
-    "cloth": "#6a2a5a",
+    "skin": "#c8a0a0",
+    "cloth": "#6a1e2a",
     "accent": "#c9a227",
-    "hair": "#a04a2a",
+    "hair": "#5a1a22",
     "hat": "crown"
    },
-   "role": "neutral"
+   "role": "neutral",
+   "hero": {
+    "skin": "#c8a0a0",
+    "hair": "#5a1a22",
+    "hairStyle": "short",
+    "cloth": "#6a1e2a",
+    "trim": "#2a2a2a",
+    "boots": "#2a1a1a",
+    "height": 0.75,
+    "sleeves": "#2a2a2a",
+    "puffSleeves": true,
+    "eyes": "#1a1a1a",
+    "face": {
+     "headW": 0.3,
+     "jaw": -0.5,
+     "noseLen": -0.5,
+     "noseTip": 0.8,
+     "eyeSize": 0.9,
+     "eyeSpace": 0.3,
+     "mouthW": 0.8,
+     "smile": 1,
+     "blush": "#c84a4a",
+     "eyeShape": "wide"
+    },
+    "gear": {
+     "handR": {
+      "kind": "club",
+      "length": 0.6,
+      "grip": "#6a1e2a"
+     }
+    },
+    "pose": "stand easy R:offer L:offer look:tilt",
+    "battlePose": "brawl",
+    "frame": "masculine"
+   },
+   "importance": 2.6
   },
   {
    "id": "escher",
@@ -917,13 +2429,51 @@
    ],
    "kind": "npc",
    "figure": {
-    "skin": "#cfcfd6",
-    "cloth": "#3a2a3a",
+    "skin": "#d8d0d0",
+    "cloth": "#5a3a7a",
     "accent": "#7a1f2b",
-    "hair": "#8a5a2a",
+    "hair": "#e0d8c8",
     "undead": true
    },
-   "role": "hostile"
+   "role": "hostile",
+   "hero": {
+    "skin": "#d8d0d0",
+    "hair": "#e0d8c8",
+    "hairStyle": "long",
+    "cloth": "#5a3a7a",
+    "trim": "#3a2a52",
+    "boots": "#2a2030",
+    "coat": {
+     "tails": "#5a3a7a",
+     "lapel": "#a07ac0"
+    },
+    "shirt": "#e8e0e8",
+    "eyes": "#c8202a",
+    "earrings": "#c8c0d0",
+    "face": {
+     "headL": 0.2,
+     "jaw": -0.3,
+     "chinPoint": 0.5,
+     "cheekbones": 0.7,
+     "gaunt": 0.3,
+     "noseLen": 0.2,
+     "noseW": -0.5,
+     "browAngle": -0.5,
+     "browThick": -0.3,
+     "eyeSlant": 0.3,
+     "hooded": 0.6,
+     "lipFull": 0.2,
+     "smile": -0.3,
+     "fangs": true,
+     "lashes": true,
+     "eyeShape": "heavy",
+     "gaze": -0.5
+    },
+    "pose": "weightL sway R:hip L:hang look:tilt",
+    "battlePose": "feral",
+    "frame": "masculine",
+    "build": "broad"
+   }
   },
   {
    "id": "ludmilla-vilisevic",
@@ -937,13 +2487,45 @@
    ],
    "kind": "npc",
    "figure": {
-    "skin": "#cfcfd6",
-    "cloth": "#4a1a2a",
+    "skin": "#e0d6d0",
+    "cloth": "#8a6a9a",
     "accent": "#c9a227",
-    "hair": "#1a1a1a",
+    "hair": "#d8b880",
     "undead": true
    },
-   "role": "hostile"
+   "role": "hostile",
+   "hero": {
+    "skin": "#e0d6d0",
+    "hair": "#d8b880",
+    "hairStyle": "long",
+    "cloth": "#8a6a9a",
+    "trim": "#5a4a6a",
+    "skirt": "#7a5a8a",
+    "underskirt": "#5a4a6a",
+    "gownTrim": "#c8b8d8",
+    "eyes": "#c8202a",
+    "face": {
+     "headL": 0.2,
+     "jaw": -0.2,
+     "cheekbones": 0.7,
+     "gaunt": 0.3,
+     "noseLen": 0.3,
+     "noseW": -0.4,
+     "browAngle": 0.6,
+     "browThick": -0.4,
+     "eyeSlant": 0.4,
+     "lipFull": 0.2,
+     "smile": -0.4,
+     "fangs": true,
+     "lashes": true,
+     "shadow": "#5a4a6a",
+     "eyeShape": "cat"
+    },
+    "pose": "weightR haughty R:chest L:skirt",
+    "battlePose": "ready intent R:cast L:claw spell",
+    "frame": "feminine",
+    "build": "curvy"
+   }
   },
   {
    "id": "anastrasya-karelova",
@@ -957,13 +2539,48 @@
    ],
    "kind": "npc",
    "figure": {
-    "skin": "#cfcfd6",
-    "cloth": "#2a1a3a",
+    "skin": "#7a5440",
+    "cloth": "#e8e0d0",
     "accent": "#c9a227",
-    "hair": "#8a5a2a",
+    "hair": "#1a1412",
     "undead": true
    },
-   "role": "hostile"
+   "role": "hostile",
+   "hero": {
+    "skin": "#7a5440",
+    "hair": "#1a1412",
+    "hairStyle": "long",
+    "cloth": "#e8e0d0",
+    "trim": "#c8b070",
+    "skirt": "#ece4d6",
+    "underskirt": "#d8d0c0",
+    "gownTrim": "#c8a850",
+    "crown": {
+     "color": "#c8a040"
+    },
+    "eyes": "#c8202a",
+    "face": {
+     "jaw": -0.3,
+     "chinPoint": 0.2,
+     "cheekbones": 0.8,
+     "noseLen": 0.1,
+     "noseW": -0.2,
+     "browAngle": 0.3,
+     "eyeSize": 0.2,
+     "eyeSlant": 0.5,
+     "hooded": 0.4,
+     "lipFull": 0.7,
+     "smile": 0.3,
+     "fangs": true,
+     "lashes": true,
+     "shadow": "#c8a850",
+     "eyeShape": "heavy"
+    },
+    "pose": "weightL sway R:skirt L:hip",
+    "battlePose": "ready intent R:claw L:claw",
+    "frame": "feminine",
+    "build": "curvy"
+   }
   },
   {
    "id": "volenta-popofsky",
@@ -977,13 +2594,49 @@
    ],
    "kind": "npc",
    "figure": {
-    "skin": "#cfcfd6",
-    "cloth": "#1a1a1a",
+    "skin": "#e8e0dc",
+    "cloth": "#c8b8a0",
     "accent": "#4d1119",
-    "hair": "#1a1a1a",
+    "hair": "#2a2020",
     "undead": true
    },
-   "role": "hostile"
+   "role": "hostile",
+   "hero": {
+    "skin": "#e8e0dc",
+    "hair": "#2a2020",
+    "hairStyle": "curly",
+    "cloth": "#c8b8a0",
+    "trim": "#6a3a2a",
+    "skirt": "#b8a890",
+    "underskirt": "#7a4a3a",
+    "gownTrim": "#3a2a2a",
+    "markings": "#1a1a1a",
+    "eyes": "#c8202a",
+    "face": {
+     "headW": 0.1,
+     "jaw": -0.5,
+     "chinPoint": 0.6,
+     "cheekbones": 0.4,
+     "noseLen": -0.3,
+     "noseHook": -0.4,
+     "eyeSize": 0.7,
+     "eyeSpace": 0.2,
+     "browAngle": -0.3,
+     "mouthW": 0.6,
+     "lipFull": 0.3,
+     "smile": 0.9,
+     "fangs": true,
+     "teeth": true,
+     "lashes": true,
+     "shadow": "#1a1a1a",
+     "veins": "#3a3a4a",
+     "eyeShape": "wide"
+    },
+    "pose": "stride intent R:claw L:hang look:tilt",
+    "battlePose": "ready low R:claw L:claw look:tilt",
+    "frame": "feminine",
+    "build": "curvy"
+   }
   },
   {
    "id": "patrina-velikovna",
@@ -1002,9 +2655,11 @@
     "accent": "#5b4a6b",
     "hair": "#1a1a1a",
     "undead": true,
-    "weapon": "staff"
+    "weapon": "staff",
+    "frame": "feminine"
    },
-   "role": "hostile"
+   "role": "hostile",
+   "importance": 5.5
   },
   {
    "id": "sergei-von-zarovich",
@@ -1027,7 +2682,8 @@
     "hair": "#d9d9d9",
     "ghost": true
    },
-   "role": "ally"
+   "role": "ally",
+   "importance": 11.5
   },
   {
    "id": "tatyana",
@@ -1041,13 +2697,41 @@
    ],
    "kind": "npc",
    "figure": {
-    "skin": "#cfcfd6",
-    "cloth": "#cfd6e8",
+    "skin": "#e8d0c0",
+    "cloth": "#5a3a8a",
     "accent": "#cfd6e8",
-    "hair": "#a04a2a",
+    "hair": "#8a3a1a",
     "ghost": true
    },
-   "role": "neutral"
+   "role": "neutral",
+   "hero": {
+    "skin": "#e8d0c0",
+    "hair": "#8a3a1a",
+    "hairStyle": "long",
+    "cloth": "#5a3a8a",
+    "trim": "#c8a040",
+    "skirt": "#4a2e7a",
+    "underskirt": "#6a4a9a",
+    "gownTrim": "#c8a040",
+    "face": {
+     "jaw": -0.4,
+     "chinPoint": 0.2,
+     "cheekbones": 0.5,
+     "noseLen": -0.1,
+     "noseW": -0.4,
+     "eyeSize": 0.5,
+     "browAngle": -0.4,
+     "lipFull": 0.5,
+     "smile": -0.2,
+     "lashes": true,
+     "eyeShape": "doe"
+    },
+    "pose": "demure bowed R:chest L:skirt",
+    "battlePose": "retreat recoil R:ward L:chest",
+    "frame": "feminine",
+    "build": "curvy"
+   },
+   "importance": 10.6
   },
   {
    "id": "rose-durst",
@@ -1068,9 +2752,63 @@
     "cloth": "#cfd6e8",
     "accent": "#cfd6e8",
     "hair": "#8a5a2a",
-    "ghost": true
+    "ghost": true,
+    "frame": "feminine"
    },
-   "role": "neutral"
+   "role": "neutral",
+   "importance": 7.5,
+   "hero": {
+    "skin": "#ead9cc",
+    "hair": "#8a5a2a",
+    "hairStyle": "long",
+    "eyes": "#6a8a9a",
+    "frame": "feminine",
+    "height": 1.06,
+    "headSize": 1.42,
+    "detail": 3,
+    "body": {
+     "bust": 0,
+     "shoulders": 0.8,
+     "chest": 0.84,
+     "waist": 0.9,
+     "hips": 0.76,
+     "arms": 0.78,
+     "legs": 0.8,
+     "neck": 0.82,
+     "neckLen": 0.88
+    },
+    "cloth": "#6a5470",
+    "trim": "#d9d0bf",
+    "skirt": "#6a5470",
+    "boots": "#3a2a24",
+    "face": {
+     "noseLen": -0.7,
+     "noseW": -0.5,
+     "noseTip": -0.3,
+     "jaw": -0.7,
+     "chin": -0.5,
+     "cheekbones": -0.4,
+     "faceLen": -0.7,
+     "headL": -0.15,
+     "mouthW": -0.3,
+     "browThick": -0.4,
+     "lashes": false,
+     "blush": "#e0a4a4",
+     "eyeSize": 0.75,
+     "chinPoint": 0.1,
+     "headW": 0.15,
+     "lipFull": 0.1,
+     "smile": -0.2,
+     "browAngle": -0.35
+    },
+    "pose": "stand intent R:chin L:offer look:L eyes:L",
+    "battlePose": "stride intent R:grasp L:claw eyes:glare",
+    "ghost": {
+     "fight": true,
+     "opacity": 0.5,
+     "hover": 0.5
+    }
+   }
   },
   {
    "id": "thorn-durst",
@@ -1093,7 +2831,61 @@
     "hair": "#3a2a1a",
     "ghost": true
    },
-   "role": "neutral"
+   "role": "neutral",
+   "hero": {
+    "skin": "#ead9cc",
+    "hair": "#3a2a1a",
+    "hairStyle": "short",
+    "eyes": "#5a4a3a",
+    "height": 0.92,
+    "headSize": 1.5,
+    "detail": 3,
+    "body": {
+     "shoulders": 0.76,
+     "chest": 0.8,
+     "waist": 0.92,
+     "hips": 0.86,
+     "arms": 0.76,
+     "legs": 0.8,
+     "neck": 0.78,
+     "neckLen": 0.82
+    },
+    "cloth": "#5a6a7a",
+    "trim": "#4a3a2c",
+    "boots": "#3a2a24",
+    "face": {
+     "noseLen": -0.8,
+     "noseW": -0.5,
+     "noseTip": -0.2,
+     "jaw": -0.7,
+     "chin": -0.6,
+     "cheekbones": -0.5,
+     "faceLen": -0.8,
+     "headL": -0.2,
+     "mouthW": -0.3,
+     "browThick": -0.4,
+     "lashes": false,
+     "blush": "#e0a0a0",
+     "eyeSize": 0.85,
+     "headW": 0.25,
+     "lipFull": 0.2,
+     "smile": -0.8,
+     "browAngle": -0.9
+    },
+    "pose": "demure bowed R:wring L:wring look:down eyes:down",
+    "battlePose": "stride intent R:grasp L:wring eyes:glare",
+    "carry": {
+     "kind": "doll",
+     "side": "L",
+     "color": "#8a4a4a",
+     "hair": "#c8a050"
+    },
+    "ghost": {
+     "fight": true,
+     "opacity": 0.5,
+     "hover": 0.5
+    }
+   }
   },
   {
    "id": "gustav-durst",
@@ -1107,13 +2899,50 @@
    ],
    "kind": "npc",
    "figure": {
-    "skin": "#cfcfd6",
-    "cloth": "#cfd6e8",
-    "accent": "#cfd6e8",
+    "skin": "#7a8670",
+    "cloth": "#3a2e36",
+    "accent": "#2a2026",
     "hair": "#7a7a7a",
-    "ghost": true
+    "undead": true
    },
-   "role": "hostile"
+   "role": "hostile",
+   "importance": 5.1,
+   "hero": {
+    "skin": "#7a8670",
+    "hair": "#8a8a84",
+    "hairStyle": "short",
+    "eyes": "#f0a040",
+    "build": "lean",
+    "detail": 2,
+    "cloth": "#1e1a20",
+    "trim": "#141216",
+    "boots": "#1e1a1a",
+    "tattered": true,
+    "face": {
+     "gaunt": 0.85,
+     "sunken": 0.8,
+     "teeth": true,
+     "veins": "#4a5640",
+     "blush": false,
+     "cheekbones": 0.9,
+     "jaw": 0.3,
+     "chin": 0.4,
+     "noseLen": 0.3,
+     "noseHook": 0.4,
+     "browRidge": 0.6,
+     "browAngle": 0.9,
+     "mouthW": 0.5,
+     "lipFull": -0.6,
+     "smile": -0.6,
+     "age": 0.5
+    },
+    "pose": "stand stoop R:claw L:hang look:up eyes:glare",
+    "battlePose": "lunge low R:claw L:grasp eyes:glare",
+    "skirt": "#1e1a20",
+    "battleFace": {
+     "gape": 0.55
+    }
+   }
   },
   {
    "id": "elisabeth-durst",
@@ -1127,13 +2956,48 @@
    ],
    "kind": "npc",
    "figure": {
-    "skin": "#cfcfd6",
-    "cloth": "#cfd6e8",
-    "accent": "#cfd6e8",
+    "skin": "#7a8670",
+    "cloth": "#3e2030",
+    "accent": "#2a2026",
     "hair": "#1a1a1a",
-    "ghost": true
+    "frame": "feminine",
+    "undead": true
    },
-   "role": "hostile"
+   "role": "hostile",
+   "hero": {
+    "skin": "#7a8670",
+    "hair": "#1a1a1a",
+    "hairStyle": "long",
+    "eyes": "#f0a040",
+    "frame": "feminine",
+    "detail": 2,
+    "cloth": "#1e1a20",
+    "trim": "#141216",
+    "skirt": "#1e1a20",
+    "boots": "#1e1a1a",
+    "tattered": true,
+    "pendant": "#8a7a4a",
+    "face": {
+     "gaunt": 0.8,
+     "sunken": 0.75,
+     "teeth": true,
+     "veins": "#4a5640",
+     "blush": false,
+     "cheekbones": 1,
+     "jaw": -0.2,
+     "chinPoint": 0.4,
+     "noseLen": 0.1,
+     "browAngle": 0.8,
+     "mouthW": 0.4,
+     "lipFull": 0.1,
+     "smile": -0.5
+    },
+    "pose": "weightL stoop R:claw L:wring look:tilt eyes:glare",
+    "battlePose": "lunge intent R:grasp L:claw eyes:glare",
+    "battleFace": {
+     "gape": 0.55
+    }
+   }
   },
   {
    "id": "donavich",
@@ -1147,12 +3011,45 @@
    ],
    "kind": "npc",
    "figure": {
-    "skin": "#d9b899",
-    "cloth": "#3a3a44",
+    "skin": "#d8c0a8",
+    "cloth": "#3a3430",
     "accent": "#c9a227",
-    "hair": "#7a7a7a"
+    "hair": "#b8b0a8"
    },
-   "role": "neutral"
+   "role": "neutral",
+   "hero": {
+    "skin": "#d8c0a8",
+    "hair": "#b8b0a8",
+    "hairStyle": "short",
+    "cloth": "#3a3430",
+    "trim": "#2a2420",
+    "boots": "#1e1a18",
+    "pendant": "#c8a040",
+    "face": {
+     "headL": 0.2,
+     "jaw": -0.1,
+     "gaunt": 0.7,
+     "sunken": 0.6,
+     "bags": 0.9,
+     "browAngle": -0.8,
+     "noseLen": 0.3,
+     "age": 0.65,
+     "beard": "stubble",
+     "smile": -0.7,
+     "eyeShape": "droop"
+    },
+    "gear": {
+     "beltR": {
+      "kind": "club",
+      "length": 0.6
+     }
+    },
+    "pose": "kneel",
+    "battlePose": "cower",
+    "frame": "masculine",
+    "concealed": true
+   },
+   "importance": 5.7
   },
   {
    "id": "doru",
@@ -1166,13 +3063,38 @@
    ],
    "kind": "npc",
    "figure": {
-    "skin": "#cfcfd6",
-    "cloth": "#2a2a2a",
+    "skin": "#d8d0c8",
+    "cloth": "#4a4038",
     "accent": "#4d1119",
-    "hair": "#1a1a1a",
+    "hair": "#2a2018",
     "undead": true
    },
-   "role": "hostile"
+   "role": "hostile",
+   "hero": {
+    "skin": "#d8d0c8",
+    "hair": "#2a2018",
+    "hairStyle": "curly",
+    "cloth": "#4a4038",
+    "trim": "#2a2420",
+    "boots": "#1e1a18",
+    "eyes": "#c8202a",
+    "face": {
+     "jaw": -0.3,
+     "gaunt": 0.6,
+     "sunken": 0.5,
+     "cheekbones": 0.5,
+     "browAngle": -0.6,
+     "eyeSize": 0.3,
+     "fangs": true,
+     "smile": -0.5,
+     "veins": "#6a6a8a",
+     "eyeShape": "droop"
+    },
+    "pose": "hunched",
+    "battlePose": "feral",
+    "frame": "masculine"
+   },
+   "importance": 5.4
   },
   {
    "id": "mad-mary",
@@ -1186,12 +3108,37 @@
    ],
    "kind": "npc",
    "figure": {
-    "skin": "#d9b899",
-    "cloth": "#3a3a3a",
+    "skin": "#d8b8a0",
+    "cloth": "#5a4a3a",
     "accent": "#e8dfc8",
-    "hair": "#7a7a7a"
+    "hair": "#3a2a20"
    },
-   "role": "neutral"
+   "role": "neutral",
+   "hero": {
+    "skin": "#d8b8a0",
+    "hair": "#3a2a20",
+    "hairStyle": "long",
+    "cloth": "#5a4a3a",
+    "trim": "#3a2e24",
+    "skirt": "#4a3e30",
+    "cloak": "#a89070",
+    "hood": true,
+    "face": {
+     "jaw": -0.1,
+     "gaunt": 0.5,
+     "bags": 0.9,
+     "sunken": 0.4,
+     "browAngle": -0.9,
+     "eyeSize": 0.5,
+     "smile": -0.8,
+     "age": 0.5,
+     "eyeShape": "wide"
+    },
+    "pose": "wringing",
+    "battlePose": "cower",
+    "frame": "feminine"
+   },
+   "importance": 3.8
   },
   {
    "id": "gertruda",
@@ -1206,12 +3153,43 @@
    ],
    "kind": "npc",
    "figure": {
-    "skin": "#d9b899",
-    "cloth": "#6a5a7a",
+    "skin": "#e8d0c0",
+    "cloth": "#7a6a7a",
     "accent": "#e8dfc8",
-    "hair": "#8a5a2a"
+    "hair": "#3a2018"
    },
-   "role": "neutral"
+   "role": "neutral",
+   "hero": {
+    "skin": "#e8d0c0",
+    "hair": "#3a2018",
+    "hairStyle": "curly",
+    "cloth": "#7a6a7a",
+    "trim": "#3a2a3a",
+    "skirt": "#6a5a6a",
+    "underskirt": "#3a2a3a",
+    "puffSleeves": true,
+    "sleeves": "#8a7a8a",
+    "eyes": "#6a8aa8",
+    "face": {
+     "headW": 0.1,
+     "jaw": -0.5,
+     "cheekbones": -0.2,
+     "noseLen": -0.4,
+     "noseHook": -0.4,
+     "eyeSize": 0.8,
+     "browAngle": -0.4,
+     "lipFull": 0.4,
+     "smile": 0.3,
+     "blush": "#d88a8a",
+     "lashes": true,
+     "eyeShape": "round"
+    },
+    "pose": "demure easy R:skirt L:skirt look:up",
+    "battlePose": "wringing",
+    "frame": "feminine",
+    "build": "curvy"
+   },
+   "importance": 4.4
   },
   {
    "id": "bildrath-cantemir",
@@ -1230,7 +3208,8 @@
     "accent": "#b08d3a",
     "hair": "#7a7a7a"
    },
-   "role": "neutral"
+   "role": "neutral",
+   "importance": 3.8
   },
   {
    "id": "parriwimple",
@@ -1249,7 +3228,8 @@
     "accent": "#e8dfc8",
     "hair": "#3a2a1a"
    },
-   "role": "neutral"
+   "role": "neutral",
+   "importance": 2.8
   },
   {
    "id": "milivoj",
@@ -1263,12 +3243,40 @@
    ],
    "kind": "npc",
    "figure": {
-    "skin": "#d9b899",
-    "cloth": "#5a4632",
+    "skin": "#d8b898",
+    "cloth": "#8a7a5a",
     "accent": "#6b4a33",
-    "hair": "#3a2a1a"
+    "hair": "#1a1412"
    },
-   "role": "neutral"
+   "role": "neutral",
+   "hero": {
+    "skin": "#d8b898",
+    "hair": "#1a1412",
+    "hairStyle": "short",
+    "cloth": "#8a7a5a",
+    "trim": "#5a4a32",
+    "boots": "#3a2e22",
+    "shirt": "#a89a7a",
+    "face": {
+     "headW": 0.1,
+     "jaw": 0.3,
+     "noseW": 0.2,
+     "browAngle": 0.5,
+     "browThick": 0.3,
+     "smile": -0.4,
+     "eyeShape": "almond"
+    },
+    "gear": {
+     "handR": {
+      "kind": "shovel",
+      "wear": 0.5
+     }
+    },
+    "pose": "weightL bowed R:staff L:hang",
+    "battlePose": "braced turnR R:cocked L:brace two",
+    "frame": "masculine"
+   },
+   "importance": 5.6
   },
   {
    "id": "bluto-krogarov",
@@ -1287,7 +3295,8 @@
     "accent": "#5a4632",
     "hair": "#3a2a1a"
    },
-   "role": "neutral"
+   "role": "neutral",
+   "importance": 4.3
   },
   {
    "id": "dmitri-krezkov",
@@ -1301,12 +3310,53 @@
    ],
    "kind": "npc",
    "figure": {
-    "skin": "#d9b899",
-    "cloth": "#3a4a5a",
+    "skin": "#d0a888",
+    "cloth": "#5a4a4a",
     "accent": "#c9a227",
-    "hair": "#7a7a7a"
+    "hair": "#e0d8d0"
    },
-   "role": "neutral"
+   "role": "neutral",
+   "hero": {
+    "skin": "#d0a888",
+    "hair": "#e0d8d0",
+    "hairStyle": "short",
+    "cloth": "#5a4a4a",
+    "trim": "#3a2a2a",
+    "boots": "#2a2020",
+    "height": 0.92,
+    "armor": {
+     "kind": "plate",
+     "color": "#8a8a92",
+     "trim": "#c8a060"
+    },
+    "face": {
+     "headW": 0.2,
+     "jaw": 0.6,
+     "noseW": 0.4,
+     "noseLen": 0.2,
+     "browRidge": 0.5,
+     "browThick": 0.6,
+     "browColor": "#e0d8d0",
+     "browAngle": 0.4,
+     "beard": "full",
+     "bags": 0.3,
+     "age": 0.7,
+     "smile": -0.3,
+     "eyeShape": "almond"
+    },
+    "gear": {
+     "handR": {
+      "kind": "rapier",
+      "fittings": "#c8a060",
+      "grip": "#3a2a2a"
+     }
+    },
+    "pose": "weightR proud R:hang L:hilt",
+    "battlePose": "duelist",
+    "frame": "masculine",
+    "build": "broad"
+   },
+   "importance": 10.7
   },
   {
    "id": "anna-krezkov",
@@ -1318,7 +3368,48 @@
    "tags": [
     "S"
    ],
-   "kind": "npc"
+   "kind": "npc",
+   "hero": {
+    "skin": "#7a5440",
+    "hair": "#e8e4e0",
+    "hairStyle": "curly",
+    "cloth": "#4a4a52",
+    "trim": "#3a3a42",
+    "boots": "#2a2a30",
+    "armor": {
+     "kind": "plate",
+     "color": "#7a7a84",
+     "trim": "#c8c8d0"
+    },
+    "face": {
+     "jaw": 0.2,
+     "cheekbones": 0.6,
+     "noseW": 0.4,
+     "browAngle": 0.3,
+     "eyeSize": 0.1,
+     "lipFull": 0.6,
+     "smile": -0.2,
+     "age": 0.55,
+     "eyeShape": "almond"
+    },
+    "gear": {
+     "handR": {
+      "kind": "rapier",
+      "fittings": "#c8c8d0",
+      "grip": "#3a3a42"
+     }
+    },
+    "pose": "weightL proud R:hip L:hilt",
+    "battlePose": "duelist",
+    "frame": "feminine",
+    "build": "curvy"
+   },
+   "figure": {
+    "cloth": "#4a4a52",
+    "hair": "#e8e4e0",
+    "skin": "#7a5440"
+   },
+   "importance": 3.7
   },
   {
    "id": "clovin-belview",
@@ -1332,12 +3423,47 @@
    ],
    "kind": "npc",
    "figure": {
-    "skin": "#a67c5b",
-    "cloth": "#6a5a3a",
+    "skin": "#c89878",
+    "cloth": "#4a2a22",
     "accent": "#55603a",
-    "hair": "#3a2a1a"
+    "hair": "#5a3a2a"
    },
-   "role": "neutral"
+   "role": "neutral",
+   "hero": {
+    "skin": "#c89878",
+    "hair": "#5a3a2a",
+    "hairStyle": "short",
+    "cloth": "#4a2a22",
+    "trim": "#2a1a16",
+    "boots": "#2a1a16",
+    "height": 0.85,
+    "markings": "#7a5a4a",
+    "face": {
+     "headW": 0.3,
+     "jaw": 0.4,
+     "jowls": 0.5,
+     "noseW": 0.8,
+     "noseTip": 0.8,
+     "browRidge": 0.7,
+     "eyeSize": -0.3,
+     "eyeSpace": 0.4,
+     "mouthW": 0.5,
+     "teeth": true,
+     "smile": 0.2,
+     "eyeShape": "wide"
+    },
+    "gear": {
+     "beltR": {
+      "kind": "dagger",
+      "wear": 0.6
+     }
+    },
+    "pose": "hunched",
+    "battlePose": "crouch intent R:claw L:hang",
+    "frame": "masculine",
+    "concealed": true
+   },
+   "importance": 3.2
   },
   {
    "id": "otto-belview",
@@ -1349,7 +3475,8 @@
    "tags": [
     "S10"
    ],
-   "kind": "npc"
+   "kind": "npc",
+   "importance": 4.6
   },
   {
    "id": "zygfrek-belview",
@@ -1375,12 +3502,53 @@
    ],
    "kind": "npc",
    "figure": {
-    "skin": "#a67c5b",
-    "cloth": "#4a4a4a",
+    "skin": "#8a7a5a",
+    "cloth": "#4a3a2a",
     "accent": "#55603a",
-    "hair": null
+    "hair": "#3a2a1a"
    },
-   "role": "neutral"
+   "role": "neutral",
+   "hero": {
+    "skin": "#8a7a5a",
+    "hair": "#3a2a1a",
+    "hairStyle": "short",
+    "cloth": "#4a3a2a",
+    "trim": "#2a2018",
+    "boots": "#2a2018",
+    "height": 0.85,
+    "markings": "#5a4a3a",
+    "face": {
+     "headW": 0.2,
+     "headL": -0.2,
+     "jaw": -0.2,
+     "noseLen": 0.6,
+     "noseHook": 0.7,
+     "browRidge": 0.5,
+     "eyeSize": 0.5,
+     "eyeSpace": -0.3,
+     "sunken": 0.4,
+     "mouthW": 0.6,
+     "smile": 0.6,
+     "teeth": true,
+     "warts": true,
+     "age": 0.7,
+     "eyeShape": "round"
+    },
+    "gear": {
+     "handR": {
+      "kind": "torch"
+     },
+     "beltR": {
+      "kind": "dagger",
+      "wear": 0.8
+     }
+    },
+    "pose": "hunched",
+    "battlePose": "cower",
+    "frame": "masculine",
+    "concealed": true
+   },
+   "importance": 3.2
   },
   {
    "id": "lief-lipsiege",
@@ -1399,7 +3567,8 @@
     "accent": "#b08d3a",
     "hair": "#7a7a7a"
    },
-   "role": "neutral"
+   "role": "neutral",
+   "importance": 3.6
   },
   {
    "id": "helga-ruvak",
@@ -1417,9 +3586,11 @@
     "cloth": "#4a3a4a",
     "accent": "#e8dfc8",
     "hair": "#8a5a2a",
-    "undead": true
+    "undead": true,
+    "frame": "feminine"
    },
-   "role": "neutral"
+   "role": "neutral",
+   "importance": 3.2
   },
   {
    "id": "ernst-larnak",
@@ -1439,7 +3610,8 @@
     "hair": "#3a2a1a",
     "hat": "hood"
    },
-   "role": "hostile"
+   "role": "hostile",
+   "importance": 3.9
   },
   {
    "id": "mordenkainen",
@@ -1463,7 +3635,8 @@
     "weapon": "staff",
     "hat": "hood"
    },
-   "role": "neutral"
+   "role": "neutral",
+   "importance": 10.8
   },
   {
    "id": "argynvost",
@@ -1485,7 +3658,8 @@
     "fill": "#cfd6e8",
     "ghost": true
    },
-   "role": "ally"
+   "role": "ally",
+   "importance": 8.5
   },
   {
    "id": "beucephalus",
@@ -1503,7 +3677,8 @@
     "fur": "#1a1a1a",
     "flaming": true
    },
-   "role": "hostile"
+   "role": "hostile",
+   "importance": 3.2
   },
   {
    "id": "lorghoth-the-decayer",
@@ -1520,7 +3695,8 @@
     "kind": "blob",
     "fill": "#55603a"
    },
-   "role": "hostile"
+   "role": "hostile",
+   "importance": 3.6
   },
   {
    "id": "wintersplinter",
@@ -1537,7 +3713,8 @@
    "figure": {
     "kind": "blight"
    },
-   "role": "hostile"
+   "role": "hostile",
+   "importance": 4.3
   },
   {
    "id": "barovian-witch",
