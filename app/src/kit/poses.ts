@@ -69,6 +69,8 @@ export const DEAD_POSES = {
   curled: { lie: 'side', spine: [0.55, 0, 0], neck: [0.35, 0, 0], shoulderR: [-0.9, 0, -0.3], elbowR: -1.6, shoulderL: [-0.8, 0, -0.3], elbowL: -1.5, hipR: [-1.2, 0, 0], kneeR: 1.6, hipL: [-0.9, 0, 0], kneeL: 1.4 },
   /** Face-planted with the rump in the air and the arms trailing behind. */
   comic: { lie: 'front', spine: [0.9, 0, 0], neck: [-0.5, 0.6, 0], shoulderR: [0.9, 0, 0.5], elbowR: -0.2, shoulderL: [0.8, 0, 0.6], elbowL: -0.3, hipR: [-1.9, 0, 0.3], kneeR: 2.0, hipL: [-1.9, 0, 0.3], kneeL: 2.0 },
+  /** The classic: crumpled on its side in a heap, knees drawn up, one arm folded under, the other flopped out, the face in the dirt. */
+  crumpled: { lie: 'side', spine: [0.35, 0.3, 0.15], neck: [0.3, 0.7, 0.2], shoulderR: [-0.5, 0, 0.2], elbowR: -1.9, wristR: [0.6, 0, 0], shoulderL: [-1.5, 0, 0.6], elbowL: -0.5, wristL: [0.8, 0, 0], hipR: [-0.9, 0, 0.1], kneeR: 1.5, hipL: [-0.45, 0, 0.25], kneeL: 1.0, ankleL: [0.5, 0, 0] },
   /** On the back with the back of one hand to the brow: a swoon held a little too long. */
   swoon: { lie: 'back', neck: [-0.15, -0.3, 0], shoulderR: [-2.6, 0, 0.5], elbowR: -2.0, shoulderL: [0, 0, 0.4], elbowL: -0.3, hipR: [0, 0, 0.06], hipL: [-0.4, 0, 0.1], kneeL: 0.8 },
   /** Laid out straight, the hands folded on the chest: a body prepared, or a vampire finally at rest. */
@@ -77,12 +79,13 @@ export const DEAD_POSES = {
   slain: { lie: 'back', neck: [-0.4, 0.3, 0], shoulderR: [-1.3, 0, 0.6], elbowR: -1.3, wristR: [0.7, 0, 0], shoulderL: [-1.0, 0, 0.8], elbowL: -1.5, wristL: [0.7, 0, 0], hipR: [-0.9, 0, 0.3], kneeR: 1.5, hipL: [-0.4, 0, 0.35], kneeL: 0.9 },
 } satisfies Record<string, DeadPose>;
 export type DeadPoseName = keyof typeof DEAD_POSES;
-/** The dead pose for a name, or one picked from the everyday ones by a seed (so a field of bodies does not match). */
-export function deadPose(name: unknown, seed = ''): DeadPose {
-  if (typeof name === 'string' && name in DEAD_POSES) return DEAD_POSES[name as DeadPoseName];
-  if (name && typeof name === 'object' && 'lie' in name) return name as DeadPose;
+/** The dead pose for a recipe: one of these by name, one of the rig's own presets by name (passed through), joint
+ *  angles as given, or, with nothing set, one picked from the everyday ones by a seed so a field of bodies does not match. */
+export function deadPose(name: unknown, seed = ''): HeroPose | string {
+  if (typeof name === 'string') return name in DEAD_POSES ? DEAD_POSES[name as DeadPoseName] : name;
+  if (name && typeof name === 'object') return name as HeroPose;
   let h = 7; for (const c of seed) h = (h * 31 + c.charCodeAt(0)) >>> 0;
-  return DEAD_POSES[(['sprawl', 'prone', 'curled', 'sprawl', 'prone', 'comic'] as const)[h % 6]];
+  return DEAD_POSES[(['crumpled', 'comic', 'sprawl', 'crumpled', 'prone', 'comic', 'swoon'] as const)[h % 7]];
 }
 
 /** A figure recipe whose `pose` and `battlePose` may name one of these poses: the same recipe with those names replaced

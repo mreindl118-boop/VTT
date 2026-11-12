@@ -4,7 +4,7 @@
 // Everything else comes from kit/beasts.ts and kit/monsters.ts. Original geometry; no book text or numbers here.
 import * as THREE from 'three';
 import { heroFigure, type HeroFigure, type HeroPose } from './heroes';
-import { posed, deadPose, type DeadPose } from './poses';
+import { posed, deadPose } from './poses';
 import type { FaceSpec } from './faces';
 import type { WeaponSpec } from './weapons';
 import { beast, BEASTS, BEUCEPHALUS, type BeastSpec, type BeastPoseName } from './beasts';
@@ -15,8 +15,8 @@ const SCALE: Record<string, number> = { tiny: 0.45, small: 0.68, medium: 1, larg
 const V = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z);
 
 /** A people-shaped monster: a figure recipe (its poses may be named from kit/poses.ts) and what is added to the body. */
-export interface Folk extends Omit<HeroFigure, 'pose' | 'battlePose'> {
-  pose?: string | HeroPose; battlePose?: string | HeroPose; deadPose?: string | DeadPose; size?: CreatureSize;
+export interface Folk extends Omit<HeroFigure, 'pose' | 'battlePose' | 'deadPose'> {
+  pose?: string | HeroPose; battlePose?: string | HeroPose; deadPose?: string | HeroPose; size?: CreatureSize;
   /** One of many: each token of this creature gets its own hair, skin and clothing tones as well as its own face. */
   vary?: boolean;
   extra?: {
@@ -37,16 +37,16 @@ const hashOf = (t: string): number => { let h = 2166136261; for (const c of t) h
 const HAIR = ['#1a1a1a', '#2a2018', '#3a2a1a', '#5a4632', '#7a5a34', '#8a5a2a', '#6a3a22', '#9a8a70', '#7a7a7a', '#c8c0b0'];
 const shift = (c: string | undefined, k: number): string | undefined => c && '#' + new THREE.Color(c).offsetHSL(0.03 * k, 0.05 * k, 0.05 * k).getHexString();
 
-/** Lay a finished figure down the way its dead pose says and rest it on the floor. A vampire gets its stake. */
-export function laid(g: THREE.Group, lie: 'back' | 'front' | 'side', stake = false): THREE.Group {
-  const chest = (g.userData.joints as Record<string, THREE.Object3D> | undefined)?.chest, out = mon.felled(g, lie);
-  if (stake && chest && lie === 'back') { out.updateMatrixWorld(true); const p = chest.getWorldPosition(V(0, 0, 0)); const st = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.02, 1.5, 6), (mon.horn(0.1, 0.01, '#6a4a2a').material as THREE.Material)); st.rotation.z = 0.12; st.position.set(p.x, p.y + 0.75, p.z); out.add(st); }
-  return out;
+/** A stake through the chest of a figure that is already lying on its back: what finally keeps a vampire down. */
+export function staked(g: THREE.Group): THREE.Group {
+  const chest = (g.userData.joints as Record<string, THREE.Object3D> | undefined)?.chest; if (!chest) return g;
+  g.updateMatrixWorld(true); const p = g.worldToLocal(chest.getWorldPosition(V(0, 0, 0)));
+  const st = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.02, 1.5, 6), (mon.horn(0.1, 0.01, '#6a4a2a').material as THREE.Material)); st.rotation.z = 0.12; st.position.set(p.x, p.y + 0.6, p.z); g.add(st);
+  return g;
 }
-/** A recipe as a corpse: no glow, no halo, nothing hovering, in its dead pose. */
-export function deadRecipe<T extends { deadPose?: unknown }>(r: T, seed: string): { recipe: T; lie: DeadPose['lie'] } {
-  const { lie, ...pose } = deadPose(r.deadPose, seed);
-  return { recipe: { ...r, glow: undefined, wisp: undefined, halo: undefined, sparkles: undefined, hoverFt: undefined, pose, battlePose: undefined, stance: undefined }, lie };
+/** A recipe with its dead pose resolved (kit/poses.ts names, the rig's own presets, or one picked by the seed). */
+export function withDeadPose<T extends { deadPose?: unknown }>(r: T, seed: string): Omit<T, 'deadPose'> & { deadPose: HeroFigure['deadPose'] } {
+  return { ...r, deadPose: deadPose(r.deadPose, seed) as HeroFigure['deadPose'] };
 }
 
 /** Build a people-shaped monster and fit its extras to the body's mounts. `seed` (a token's id) picks one of the
@@ -56,9 +56,9 @@ export function folk(base: Folk, size: CreatureSize = 'medium', state: FigState 
   let r: Folk = looks && seed ? { ...base, ...looks[hsh % looks.length], extra: base.extra } : base;
   if (r.face) r = { ...r, face: seedFace(key + seed + (looks && seed ? hsh % looks.length : ''), r.face) };
   if (r.vary && seed) { const k = ((hsh >>> 8) % 7) - 3; r = { ...r, hair: r.face?.bald ? r.hair : (r.face?.age ?? 0) > 0.7 ? r.hair : HAIR[(hsh >>> 4) % HAIR.length], beard: r.beard && HAIR[(hsh >>> 4) % HAIR.length], cloth: shift(r.cloth, k), skirt: shift(r.skirt, k), cloak: shift(r.cloak, -k), hairStyle: r.hairStyle ?? (['short', 'short', 'long', 'curly'] as const)[(hsh >>> 12) % 4], height: (r.height ?? 1) * (0.94 + ((hsh >>> 16) % 13) / 100) }; }
-  let lie: DeadPose['lie'] | undefined; if (dead) { const d = deadRecipe(r, key + seed); r = d.recipe; lie = d.lie; }
-  const { extra, size: own, vary: _v, deadPose: _d, ...recipe } = r, sz = own ?? size, s = (SCALE[sz] ?? 1) * (r.height ?? 1); void _v; void _d;
-  const g = heroFigure(posed(recipe) as HeroFigure, sz, battle), j = (g.userData.joints ?? {}) as Record<string, THREE.Object3D>;
+  const { extra, size: own, vary: _v, ...recipe } = r, sz = own ?? size, s = (SCALE[sz] ?? 1) * (r.height ?? 1), spirit = !!extra?.ghost; void _v;
+  if (dead && key === 'skeleton') return mon.bonePile(s);
+  const g = heroFigure(posed(dead && !spirit ? withDeadPose(recipe, key + seed) : recipe) as HeroFigure, sz, dead ? (spirit ? 'rest' : 'dead') : battle), j = (g.userData.joints ?? {}) as Record<string, THREE.Object3D>;
   if (extra?.head && j.head) {
     const b = beast(extra.head, dead ? 'dead' : battle ? 'snarl' : 'stand'), h = (b.userData.joints as Record<string, THREE.Object3D>).head;
     if (h) { j.head.clear(); const k = (0.62 * s) / extra.head.skull; h.removeFromParent(); h.position.set(0, 0.3 * s, 0.02 * s); h.rotation.set(0.25, 0, 0); h.scale.setScalar(k); j.head.add(h); }
@@ -68,10 +68,9 @@ export function folk(base: Folk, size: CreatureSize = 'medium', state: FigState 
   if (extra?.wings && j.back) { const w = mon.wings(extra.wings.kind, extra.wings.span * s, extra.wings.color, { spread: dead ? 0.9 : extra.wings.spread ?? (battle ? 1 : 0.45), lift: dead ? 0 : battle ? 0.5 : 0.2, membrane: extra.wings.membrane }); w.position.set(0, 0.25 * s, -0.12 * s); j.back.add(w); }
   if (extra?.tail && j.hips) { const L = extra.tail.len * s; j.hips.add(mon.tailOf([V(0, 0, -0.15 * s), V(0, -0.25 * L, -0.4 * L), V(0.1 * L, -0.5 * L, -0.75 * L), V(0.2 * L, -0.3 * L, -L)], 0.07 * s, extra.tail.color, extra.tail.tip)); }
   if (extra?.ghost) mon.spectral(g, extra.ghost, (extra.opacity ?? 0.5) * (dead ? 0.5 : 1));
-  if (!lie) return g;
-  if (extra?.ghost) return mon.felled(g, 'flat');                                                   // a spirit does not fall; it pools and thins
-  if (key === 'skeleton') return mon.bonePile(s);
-  return laid(g, lie, !!(r.fangs || r.face?.fangs) && !extra?.head);
+  if (!dead) return g;
+  if (spirit) return mon.felled(g, 'flat');                                                        // a spirit does not fall; it pools and thins
+  return (r.fangs || r.face?.fangs) && !extra?.head && (posed(withDeadPose(recipe, key + seed)).deadPose as HeroPose | undefined)?.lie === 'back' ? staked(g) : g;
 }
 
 /** A face of its own for someone the module never drew: sliders spread from the id, so no two commoners match. */

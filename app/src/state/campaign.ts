@@ -29,6 +29,8 @@ export interface Token {
   hidden?: boolean;
   playerName?: string;
   hp?: { cur: number; max: number };
+  /** Down: dead or dying. A character's miniature lies in its dead pose. */
+  down?: boolean;
 }
 
 /** A character sheet's tactical essentials: what the range overlay needs. */

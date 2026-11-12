@@ -4,6 +4,7 @@
 // a halo, a thorn crown, a shield, an axe, a book ...) and the pack says which a character wears, in what colours.
 import * as THREE from 'three';
 import { mat, matClone } from '../render/materials';
+import { clipRings, forearmRings, frameOf, loftGeometry, lockGeometry, neckRings, pelvisRings, ringAt, shinRings, thighRings, torsoRings, upperArmRings, type Frame } from './anatomy';
 import type { CreatureSize } from '../core/units';
 import { faceFeatures, type FaceSpec, type FaceDetail } from './faces';
 import { weapon as gearWeapon, scabbard, type WeaponSpec } from './weapons';
@@ -16,7 +17,7 @@ export type HeroHair = 'short' | 'long' | 'braids' | 'curly';
 export type HeroStance = 'two-handed' | 'shield' | 'cast' | 'conjure';
 /** Named poses: the four battle stances, and rest, ride (seated astride, hands on the reins), lunge, menace (arms spread,
  *  hands clawed), cower, kneel, and staff-raised (a caster with the staff high). */
-export type PoseName = 'rest' | HeroStance | 'ride' | 'lunge' | 'menace' | 'cower' | 'kneel' | 'staff-raised';
+export type PoseName = 'rest' | HeroStance | 'ride' | 'lunge' | 'menace' | 'cower' | 'kneel' | 'staff-raised' | 'dead' | 'dead-prone' | 'dead-comic' | 'dead-swoon';
 export type Euler3 = [number, number, number];
 /** Joint angles, radians. On x a negative angle swings forward; a negative elbow bends the forearm up, a positive knee
  *  bends the shin back. On the limbs y and z are mirrored: positive turns outward on either side. Ankles add to the
@@ -25,21 +26,23 @@ export type Euler3 = [number, number, number];
  *  floor, then raised by `lift` (feet); a seated pose puts the hip pivot at the origin instead. `spell` puts a glow in
  *  the right hand or between both. Fields left out stay at rest. */
 export interface HeroPose {
-  spine?: Euler3; neck?: Euler3;
+  spine?: Euler3; neck?: Euler3; pelvis?: Euler3; collarR?: number; collarL?: number;
   shoulderR?: Euler3; elbowR?: number; wristR?: Euler3; shoulderL?: Euler3; elbowL?: number; wristL?: Euler3;
   hipR?: Euler3; kneeR?: number; ankleR?: Euler3; hipL?: Euler3; kneeL?: number; ankleL?: Euler3;
   holdR?: { upright?: boolean; tilt?: Euler3 }; holdL?: { upright?: boolean; tilt?: Euler3 };
   lift?: number; seated?: boolean; spell?: 'right' | 'between';
+  /** Laid out on the floor (a body): on its back, its front or its side. */
+  lie?: 'back' | 'front' | 'side';
 }
 export const POSES: Record<PoseName, HeroPose> = {
   rest: {},
-  'two-handed': { spine: [0.06, 0.35, 0], hipL: [-0.6, 0, 0.18], kneeL: 0.8, hipR: [0.45, 0, 0.14], kneeR: 0.3,
+  'two-handed': { pelvis: [0, -0.12, 0], spine: [0.08, 0.38, 0], neck: [0, -0.25, 0], hipL: [-0.6, 0, 0.18], kneeL: 0.8, hipR: [0.45, 0, 0.14], kneeR: 0.3,
     shoulderR: [-0.55, 0, -0.15], elbowR: -1.15, wristR: [0.1, 0, 0], shoulderL: [-0.75, 0, -0.55], elbowL: -0.95, wristL: [0.2, 0, 0], holdR: { upright: true, tilt: [0, 0, 0.75] } },
-  shield: { spine: [0.1, -0.2, 0], hipL: [-0.55, 0, 0.16], kneeL: 0.75, hipR: [0.4, 0, 0.12], kneeR: 0.3,
+  shield: { pelvis: [0, 0.1, 0], spine: [0.1, -0.25, 0], neck: [0, 0.15, 0], hipL: [-0.55, 0, 0.16], kneeL: 0.75, hipR: [0.4, 0, 0.12], kneeR: 0.3,
     shoulderL: [-0.6, 0, -0.2], elbowL: -1.2, holdL: { upright: true, tilt: [0, 0.3, 0] }, shoulderR: [-2.45, 0, 0.2], elbowR: -0.75, wristR: [0.3, 0, 0], holdR: { upright: true, tilt: [0.55, 0, -0.2] } },
   cast: { spine: [0.08, 0.15, 0], hipR: [0.35, 0, 0.06], kneeR: 1.0, ankleR: [0.7, 0, 0], hipL: [-0.25, 0, 0.06], kneeL: 0.6, ankleL: [0.6, 0, 0],
     shoulderR: [-1.4, 0, 0.45], elbowR: -0.12, wristR: [1.05, 0, 0], shoulderL: [-0.35, 0, 0.15], elbowL: -1.15, holdL: { upright: true, tilt: [-0.3, 0, 0] }, lift: 0.8, spell: 'right' },
-  conjure: { spine: [0.04, 0.12, 0.05], hipL: [-0.2, 0, 0], kneeL: 0.4, hipR: [0.05, 0, 0.03], kneeR: 0.05,
+  conjure: { pelvis: [0, 0, -0.07], spine: [0.02, 0.14, 0.12], neck: [0, -0.1, -0.05], hipL: [-0.2, 0, 0], kneeL: 0.4, hipR: [0.05, 0, 0.03], kneeR: 0.05,
     shoulderR: [-1.3, 0, -0.05], elbowR: -0.55, wristR: [0.85, 0, 0], shoulderL: [-0.3, 0, 0.1], elbowL: -0.9, holdL: { upright: true, tilt: [-0.35, 0, 0] }, spell: 'right' },
   ride: { seated: true, spine: [0.05, 0, 0], hipR: [-1.45, 0, 0.4], kneeR: 1.5, hipL: [-1.45, 0, 0.4], kneeL: 1.5,
     shoulderR: [-0.7, 0, 0.05], elbowR: -0.9, shoulderL: [-0.6, 0, 0.1], elbowL: -0.9 },
@@ -51,6 +54,15 @@ export const POSES: Record<PoseName, HeroPose> = {
     shoulderR: [-1.3, 0, -0.2], elbowR: -1.9, shoulderL: [-1.3, 0, -0.2], elbowL: -1.9 },
   kneel: { spine: [0.05, 0, 0], hipR: [-1.5, 0, 0.05], kneeR: 1.5, hipL: [0.05, 0, 0.05], kneeL: 1.5, ankleL: [0.3, 0, 0],
     shoulderR: [-0.3, 0, 0.05], elbowR: -0.5, shoulderL: [-0.2, 0, 0.1], elbowL: -0.4 },
+  // the dead: sprawled on the back; face down with an arm flung out; face-planted with the rump in the air; a swoon
+  dead: { lie: 'back', neck: [-0.1, 0.5, 0.25], spine: [-0.05, 0, 0.08], shoulderR: [0.1, 0, 1.25], elbowR: -0.5, wristR: [0.3, 0, 0], shoulderL: [0.1, 0, 0.5], elbowL: -1.1,
+    hipR: [-0.1, 0.3, 0.35], kneeR: 0.1, ankleR: [0.5, 0, 0], hipL: [-0.45, 0.5, 0.15], kneeL: 1.0, ankleL: [0.6, 0, 0] },
+  'dead-prone': { lie: 'front', neck: [-0.15, 1.1, 0], spine: [-0.08, 0, -0.06], shoulderR: [-2.6, 0, 0.45], elbowR: -0.35, shoulderL: [0.15, 0, 0.3], elbowL: -0.15,
+    hipR: [0.1, 0, 0.3], kneeR: 0.25, ankleR: [0.9, 0, 0], hipL: [0.05, 0, 0.12], kneeL: 0.05, ankleL: [0.9, 0, 0] },
+  'dead-comic': { lie: 'front', pelvis: [0.95, 0, 0], spine: [-0.75, 0, 0], neck: [-0.2, 1.2, 0], shoulderR: [-0.2, 0, 0.9], elbowR: -0.2, shoulderL: [-0.2, 0, 0.9], elbowL: -0.2,
+    hipR: [-2.05, 0, 0.3], kneeR: 2.1, ankleR: [0.9, 0, 0], hipL: [-2.05, 0, 0.3], kneeL: 2.1, ankleL: [0.9, 0, 0] },
+  'dead-swoon': { lie: 'back', pelvis: [0, 0, 0.1], spine: [-0.1, 0, -0.15], neck: [-0.25, -0.5, 0], shoulderR: [-2.3, 0, 0.5], elbowR: -2.2, wristR: [0.5, 0, 0], shoulderL: [0.05, 0, 0.9], elbowL: -0.3,
+    hipR: [-0.05, 0, 0.1], kneeR: 0.05, ankleR: [0.7, 0, 0], hipL: [-0.4, 0, -0.1], kneeL: 0.75, ankleL: [0.7, 0, 0] },
   'staff-raised': { spine: [-0.05, 0, 0], neck: [-0.15, 0, 0], hipL: [-0.3, 0, 0.1], kneeL: 0.4, hipR: [0.2, 0, 0.1], kneeR: 0.15,
     shoulderR: [-2.7, 0, 0.2], elbowR: -0.3, shoulderL: [-1.0, 0, 0.3], elbowL: -0.6, wristL: [0.8, 0, 0] },
 };
@@ -94,10 +106,13 @@ export interface HeroFigure {
   gownTrim?: string;
   /** The body's line: lean (the default), broad, or curvy (a defined waist, hips and bust). */
   build?: 'lean' | 'broad' | 'curvy';
+  /** The frame the body is sculpted on (default: feminine for a curvy build or a gown, otherwise masculine). */
+  frame?: 'feminine' | 'masculine';
   /** The battle stance the figure takes in initiative. */
   stance?: HeroStance;
-  /** The pose out of initiative (default rest) and in it (default the stance); a name or joint angles. */
-  pose?: PoseName | HeroPose; battlePose?: PoseName | HeroPose;
+  /** The pose out of initiative (default rest), in it (default the stance), and dead (default `dead`); a name or joint
+   *  angles. */
+  pose?: PoseName | HeroPose; battlePose?: PoseName | HeroPose; deadPose?: PoseName | HeroPose;
   /** A beard (its colour), fangs, and a tall standing collar behind the head (its colour). */
   beard?: string; fangs?: boolean; collar?: string;
   /** The character's own face (kit/faces.ts) in place of the standard one, and how finely it is modelled (1 to 4). */
@@ -159,82 +174,166 @@ function drape(rTop: number, rBot: number, h: number, c: string, o: { folds: num
   return sm(g, c, true);
 }
 
-/** The face: a smooth head (cranium, jaw, chin, cheekbones), a nose with a tip, eyes with whites, irises and pupils under a
- *  lid, brows, and lips. Replaces the kit's faceted head, its block nose and its hair cap. */
-function buildFace(head: THREE.Group, s: number, hy: number, f: HeroFigure): (x: number, y: number) => number {
-  // one smooth head, shaped rather than stacked: a taller-than-wide oval, the jaw tapering to the chin, a brow, soft
-  // cheekbones and shallow eye sockets. Proportions: the eyes on the midline, one eye's width apart; the brow, the base
-  // of the nose and the chin split the face in thirds; the mouth a third of the way from the nose to the chin.
-  const skin = f.skin ?? '#d9b899', shade = tone(skin, '#2a1a1a', 0.12), lip = f.lips ?? tone(skin, '#a8404a', 0.38), hair = f.hair ?? '#3a2a1a';
+/** The head, sculpted like a miniature's: one shaped skull (temples, cheekbones over hollow cheeks, a brow over deep-set
+ *  eyes, a jaw that is square on a masculine frame and tapered on a feminine one, a chin), a wedge of a nose, small
+ *  shadowed eyes under lids, brows, lips with a philtrum, and ears. The eyes sit on the midline; brow, nose and chin
+ *  split the face in thirds. Returns the face's depth at (x, y), to seat other features. */
+function buildFace(head: THREE.Group, s: number, hy: number, f: HeroFigure, fem = false): (x: number, y: number) => number {
+  const skin = f.skin ?? '#d9b899', shade = tone(skin, '#1e1216', 0.3), deep = tone(skin, '#1e1216', 0.5), hair = f.hair ?? '#3a2a1a';
+  const lip = f.lips ?? tone(skin, '#8a3038', fem ? 0.4 : 0.2);
   if (f.face) {
-    // the character's own face: the whole head from its recipe, with this figure's ears and hair cap on it
+    // the character's own face (kit/faces.ts): the whole head from its recipe, with this figure's ears on it; the hair is
+    // buildHair's, as for every other head
     const fg = faceFeatures(f.face, { skin, hair: f.hair, eyes: f.eyes, lips: f.lips, detail: f.detail ?? 2 }); fg.scale.setScalar(0.4 * s); fg.position.set(0, hy, 0); head.add(fg);
-    const put = (m: M, x: number, y: number, z: number) => head.add(at(m, x * s, hy + y * s, z * s));
-    if (f.ears !== 'pointed') for (const sx of [-1, 1]) { const e = sph(0.075 * s, skin); e.scale.set(0.42, 1, 0.65); put(e, sx * 0.345, -0.02, -0.01); }
-    if (f.hair && !f.face.bald) { const hc = sm(new THREE.SphereGeometry(0.43 * s, 24, 14, 0, Math.PI * 2, 0, Math.PI * 0.58), hair, true); hc.scale.set(0.9, 1.06, 0.97); hc.rotation.x = -0.5; put(hc, 0, 0.06, -0.03); }
+    if (f.ears !== 'pointed') for (const sx of [-1, 1]) { const e = sph(0.075 * s, skin); e.scale.set(0.42, 1, 0.65); head.add(at(e, sx * 0.345 * s, hy - 0.02 * s, -0.01 * s)); }
     return (x: number, y: number) => 0.345 - 1.4 * x * x - (y > 0 ? 1.0 : 0.45) * y * y;
   }
-  const R = 0.4, g = new THREE.SphereGeometry(1, 40, 30), p = g.attributes.position as THREE.BufferAttribute;
-  const bump = (x: number, y: number, cx: number, cy: number, w: number) => Math.exp(-((x - cx) ** 2 + (y - cy) ** 2) / w);
+  const R = 0.4, g = new THREE.SphereGeometry(1, 56, 42), p = g.attributes.position as THREE.BufferAttribute;
+  const bump = (x: number, y: number, cx: number, cy: number, wx: number, wy = wx) => Math.exp(-((x - cx) ** 2 / wx + (y - cy) ** 2 / wy));
   for (let i = 0; i < p.count; i++) {
     let x = p.getX(i), y = p.getY(i), z = p.getZ(i);
-    const front = Math.max(0, z), low = Math.max(0, -y);
-    x *= 0.86 * (1 - 0.3 * low * low); z *= 0.92 * (1 - 0.08 * low * low);
-    z += front * (0.07 * bump(x, y, 0, -0.82, 0.03) + 0.05 * bump(Math.abs(x), y, 0.45, -0.12, 0.03) + 0.05 * Math.exp(-((y - 0.22) ** 2) / 0.006) * Math.max(0, z - 0.5)
-      - 0.06 * bump(Math.abs(x), y, 0.31, 0.04, 0.012));
-    if (z < 0 && y > -0.2) z *= 1.06; // a fuller back of the skull
-    p.setXYZ(i, x * R * s, y * 1.12 * R * s, z * R * s);
+    const fz = Math.max(0, z), low = Math.max(0, -y), ax = Math.abs(x);
+    // the skull narrows to the jaw: square-cornered on a masculine frame, a soft taper on a feminine one
+    x *= 0.84 * (fem ? 1 - 0.36 * low ** 1.7 : 1 - 0.24 * low ** 2.2);
+    z *= 0.94 * (1 - 0.1 * low * low);
+    if (z < 0 && y > -0.3) z *= 1.05;
+    const sx = Math.abs(x);
+    z += fz * (
+      (fem ? 0.07 : 0.1) * bump(sx, y, 0, -0.84, 0.03, 0.02)                 // chin
+      + 0.05 * bump(sx, y, 0, -0.52, 0.06, 0.03)                              // the mouth's mound
+      + (fem ? 0.05 : 0.045) * bump(sx, y, 0.42, -0.1, 0.02, 0.012)           // cheekbones
+      - (fem ? 0.035 : 0.06) * bump(sx, y, 0.36, -0.45, 0.02, 0.03)           // hollow cheeks
+      + (fem ? 0.035 : 0.075) * Math.exp(-((y - 0.2) ** 2) / 0.004) * Math.max(0, z - 0.45) * (1 - 0.5 * bump(sx, y, 0, 0.2, 0.01)) // brow
+      - 0.11 * bump(sx, y, 0.3, 0.03, 0.014, 0.008)                           // eye sockets
+      - 0.03 * bump(sx, y, 0.62, 0.3, 0.02, 0.05));                           // temples
+    if (!fem) x += Math.sign(x) * 0.05 * bump(ax, y, 0.62, -0.5, 0.02, 0.02) * (z > -0.2 ? 1 : 0); // the jaw's corner
+    p.setXYZ(i, x * R * s, y * 1.14 * R * s, z * R * s);
   }
   g.computeVertexNormals();
   head.add(at(sm(g, skin), 0, hy, 0));
-  // the face's surface depth at (x, y), to seat the features on it
   const front: [number, number, number][] = []; for (let i = 0; i < p.count; i++) if (p.getZ(i) > 0.1 * s) front.push([p.getX(i) / s, p.getY(i) / s, p.getZ(i) / s]);
   const surf = (x: number, y: number) => { let best = 0, bw = 0; for (const [vx, vy, vz] of front) { const w = 1 / (1e-4 + (vx - x) ** 2 + (vy - y) ** 2) ** 2; best += vz * w; bw += w; } return best / bw; };
   const add = (m: M, x: number, y: number, z: number) => head.add(at(m, x * s, hy + y * s, z * s));
-  // nose: the bridge, the tip and the wings of the nostrils
-  const bridge = cap(0.03 * s, 0.12 * s, skin); bridge.rotation.x = -0.28; add(bridge, 0, -0.075, surf(0, -0.075) + 0.018);
-  const tip = sph(0.038 * s, skin); tip.scale.set(1, 0.9, 0.9); add(tip, 0, -0.15, surf(0, -0.15) + 0.04);
-  for (const sx of [-1, 1]) { const al = sph(0.024 * s, skin); al.scale.set(1.1, 0.8, 0.9); add(al, sx * 0.034, -0.162, surf(0.034, -0.162) + 0.016); add(sph(0.012 * s, shade, 8, 6), sx * 0.025, -0.172, surf(0.025, -0.172) + 0.02); }
+  // nose: a wedge from the bridge to the tip, turned under to its base, with the nostrils' wings
+  const nw = fem ? 0.85 : 1, nz = surf(0, -0.08);
+  const nose = sm(loftGeometry([{ y: -0.18, w: 0.03 * nw, f: 0.012, b: 0.02 }, { y: -0.162, w: 0.046 * nw, f: 0.055 * nw, b: 0.02 }, { y: -0.135, w: 0.042 * nw, f: 0.07 * nw, b: 0.02 }, { y: -0.06, w: 0.032 * nw, f: 0.042 * nw, b: 0.02 }, { y: 0.03, w: 0.03 * nw, f: 0.018, b: 0.02 }, { y: 0.07, w: 0.03, f: 0.004, b: 0.02 }], s, { seg: 12, rows: 14 }), skin);
+  head.add(at(nose, 0, hy, (nz - 0.012) * s));
+  for (const sx of [-1, 1]) { const al = sph(0.022 * nw * s, skin, 10, 8); al.scale.set(1.1, 0.8, 1); add(al, sx * 0.042 * nw, -0.158, nz + 0.016); add(sph(0.008 * s, deep, 8, 6), sx * 0.022 * nw, -0.177, nz + 0.03); }
   for (const sx of [-1, 1]) {
-    // the eyes in their sockets, the upper lid over each, lashes, and an arched brow
-    const ex = sx * 0.125, ez = surf(ex, 0) - 0.012;
-    const white = sph(0.048 * s, '#f0ebe2', 16, 12); white.scale.set(1.25, 0.72, 0.6); add(white, ex, 0, ez);
-    add(sph(0.026 * s, f.eyes ?? '#4a3a2a', 14, 10), ex, -0.004, ez + 0.022);
-    add(sph(0.012 * s, '#141014', 8, 6), ex, -0.004, ez + 0.042);
-    const lid = sm(new THREE.SphereGeometry(0.052 * s, 16, 8, 0, Math.PI * 2, 0, Math.PI * 0.42), shade); lid.scale.set(1.25, 0.75, 0.66); lid.rotation.x = 0.25; add(lid, ex, 0.002, ez);
-    head.add(tube([-0.06, -0.02, 0.02, 0.06].map((dx, k) => new THREE.Vector3((ex + dx) * s, hy + (0.018 + (k === 1 || k === 2 ? 0.012 : 0)) * s, (ez + 0.026 + (k === 1 || k === 2 ? 0.006 : 0)) * s)), 0.006 * s, tone(hair, '#000000', 0.5)));
-    head.add(tube([0.05, 0.1, 0.15, 0.2].map((ax, k) => new THREE.Vector3(sx * ax * s, hy + [0.085, 0.105, 0.108, 0.09][k] * s, (surf(sx * ax, 0.1) + 0.008) * s)), 0.014 * s, hair));
-    if (f.ears !== 'pointed') { const e = sph(0.075 * s, skin); e.scale.set(0.42, 1, 0.65); add(e, sx * 0.335, -0.04, -0.01); }
+    // the eyes, small and set deep: a sliver of white, the iris and pupil, a heavy upper lid, a lower lid, the lash line
+    const ew = fem ? 1.08 : 1, ex = sx * 0.122, ez = surf(ex, 0) - 0.006;
+    const white = sph(0.04 * ew * s, '#e9e3d8', 16, 12); white.scale.set(1.3, 0.62, 0.6); add(white, ex, 0, ez);
+    add(sph(0.021 * ew * s, f.eyes ?? '#4a3a2a', 14, 10), ex, -0.002, ez + 0.019);
+    add(sph(0.0095 * ew * s, '#0e0b10', 8, 6), ex, -0.002, ez + 0.035);
+    const lid = sm(new THREE.SphereGeometry(0.044 * ew * s, 16, 8, 0, Math.PI * 2, 0, Math.PI * 0.46), tone(skin, '#1e1216', 0.14)); lid.scale.set(1.32, 0.72, 0.68); lid.rotation.x = 0.3; add(lid, ex, 0.003, ez);
+    const under = sm(new THREE.SphereGeometry(0.044 * ew * s, 16, 6, 0, Math.PI * 2, Math.PI * 0.68, Math.PI * 0.32), tone(skin, '#1e1216', 0.08)); under.scale.set(1.3, 0.7, 0.66); under.rotation.x = -0.15; add(under, ex, 0.0, ez);
+    head.add(tube([-0.055, -0.02, 0.02, 0.055].map((dx, k) => new THREE.Vector3((ex + dx * ew) * s, hy + (0.012 + (k === 1 || k === 2 ? 0.012 : 0) + (k === 3 && sx > 0 || k === 0 && sx < 0 ? 0.006 : 0)) * s, (ez + 0.022 + (k === 1 || k === 2 ? 0.006 : 0)) * s)), (fem ? 0.007 : 0.005) * s, deep));
+    // the brow: thick at the nose, tapering out along the ridge
+    const bp = [0.045, 0.09, 0.14, 0.195].map((ax, k) => new THREE.Vector3(sx * ax * s, hy + ([0.07, 0.088, 0.094, 0.078][k] + (fem ? 0.012 : 0)) * s, (surf(sx * ax, 0.085) + 0.006) * s));
+    head.add(sm(lockGeometry(bp, (fem ? 0.013 : 0.02) * s, 0.005 * s, 0.6, 6, 0.1), hair, true));
+    if (f.ears !== 'pointed') { // the ear: its rim and the hollow inside it
+      const e = sph(0.078 * s, skin, 12, 10); e.scale.set(0.34, 1, 0.62); e.rotation.z = -sx * 0.12; add(e, sx * 0.335, -0.03, -0.02);
+      const hol = sph(0.045 * s, shade, 10, 8); hol.scale.set(0.3, 1, 0.6); add(hol, sx * 0.348, -0.025, -0.01);
+    }
   }
-  // lips: a bowed upper lip and a fuller lower one, the corners tucked in
-  const mz = surf(0, -0.26);
-  const up1 = sph(0.06 * s, lip, 16, 10); up1.scale.set(1, 0.3, 0.4); add(up1, 0, -0.243, mz + 0.004);
-  const lo1 = sph(0.05 * s, lip, 16, 10); lo1.scale.set(1, 0.42, 0.45); add(lo1, 0, -0.272, mz + 0.0);
-  // hair: a smooth cap whose front edge rises above the brow and whose back falls to the nape
-  if (f.hair) { const hc = sm(new THREE.SphereGeometry(0.43 * s, 24, 14, 0, Math.PI * 2, 0, Math.PI * 0.58), hair, true); hc.scale.set(0.9, 1.06, 0.97); hc.rotation.x = -0.5; add(hc, 0, 0.06, -0.03); }
+  // lips: a bowed upper lip under the philtrum, a fuller lower one, the line between them
+  const mz = surf(0, -0.265), lw = fem ? 1 : 0.92;
+  for (const sx of [-1, 1]) { const u = sph(0.034 * s, lip, 12, 8); u.scale.set(1.25 * lw, 0.36, 0.5); u.rotation.z = sx * 0.16; add(u, sx * 0.026 * lw, -0.246, mz + 0.004); }
+  const lo1 = sph(0.048 * lw * s, tone(lip, '#ffffff', 0.08), 16, 10); lo1.scale.set(1.05, fem ? 0.44 : 0.36, 0.5); add(lo1, 0, -0.276, mz + 0.001);
+  head.add(tube([-0.058, -0.02, 0.02, 0.058].map((x) => new THREE.Vector3(x * lw * s, hy + (-0.259 - Math.abs(x) * 0.08) * s, (mz + 0.014 - Math.abs(x) * 0.25) * s)), 0.004 * s, deep));
   return surf;
+}
+
+/** Hair, sculpted in locks: a close under-layer following the hairline (a peak at the brow, back over the ears to the
+ *  nape), then tapering locks laid from the parting, strand by strand. Styles: short (tousled, swept), long (falling
+ *  past the shoulders, locks framing the face), braids (swept back to two roped braids over the shoulders), curly (a
+ *  mass of coils). A streak colours the locks at the right temple. */
+function buildHair(head: THREE.Group, s: number, hy: number, f: HeroFigure, fem: boolean): void {
+  if (f.face?.bald) return;
+  if (!f.hair) return;
+  const H = f.hair, R = 0.4, style = f.hairStyle ?? 'short';
+  let seed = 11; const rnd = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; };
+  // a point on the scalp: azimuth from the front round through +x, elevation, and a lift off the skull
+  const scalp = (az: number, el: number, lift = 1.06) => { const c = Math.cos(el), dz = Math.cos(az) * c; return new THREE.Vector3(Math.sin(az) * c * 0.84 * R * lift * s, hy + Math.sin(el) * 1.14 * R * lift * s, dz * (dz < 0 ? 0.99 : 0.94) * R * lift * s); };
+  // the hairline: how low the hair comes at each azimuth (an elevation)
+  const line = (az: number) => { const a = Math.abs(Math.atan2(Math.sin(az), Math.cos(az))); return a < 0.25 ? 0.8 - 0.06 * (1 - a / 0.25) : a < 0.8 ? 0.8 + 0.07 * Math.sin((a - 0.25) * Math.PI / 0.55) : a < 1.3 ? 0.8 - 0.72 * (a - 0.8) / 0.5 : a < 1.8 ? 0.08 + 0.1 * Math.sin((a - 1.3) * Math.PI / 0.5) : 0.08 - 0.58 * Math.min(1, (a - 1.8) / 0.6); };
+  // the under-layer: the skull's own shape, a little proud, combed in strands, cut at the hairline
+  const cg = new THREE.SphereGeometry(1, 48, 28), cp = cg.attributes.position as THREE.BufferAttribute, keep: boolean[] = [];
+  for (let i = 0; i < cp.count; i++) {
+    const x = cp.getX(i), y = cp.getY(i), z = cp.getZ(i), az = Math.atan2(x, z), el = Math.asin(Math.max(-1, Math.min(1, y)));
+    keep.push(el > line(az) - 0.04);
+    const k = 1.045 + 0.012 * Math.sin(az * 26 + el * 5) + 0.006 * Math.sin(az * 61);
+    cp.setXYZ(i, x * 0.84 * R * k * s, y * 1.14 * R * k * s, z * (z < 0 ? 0.99 : 0.94) * R * k * s);
+  }
+  const src = cg.index!, idx: number[] = []; for (let i = 0; i < src.count; i += 3) { const a = src.getX(i), b = src.getX(i + 1), c = src.getX(i + 2); if (keep[a] && keep[b] && keep[c]) idx.push(a, b, c); }
+  cg.setIndex(idx); cg.computeVertexNormals(); head.add(at(sm(cg, tone(H, '#000000', 0.18), true), 0, hy, 0));
+  const shadeOf = (i: number) => i % 3 === 0 ? tone(H, '#ffffff', 0.1) : i % 3 === 1 ? H : tone(H, '#000000', 0.14);
+  const lock = (pts: THREE.Vector3[], r0: number, r1: number, i: number, c?: string, flat = 0.5) => head.add(sm(lockGeometry(pts, r0 * s, r1 * s, flat, 6), c ?? shadeOf(i), true));
+  const part = fem ? 0.05 : 0.0; // the parting sits a little to one side
+  const crown = (az: number) => new THREE.Vector3(Math.sin(az) * 0.03 * s + part * s, hy + 1.14 * R * 1.07 * s, -0.02 * s + Math.cos(az) * 0.03 * s);
+  let streaks = 0; const streakAt = (az: number) => f.hairStreak && az > 0.6 && az < 1.2 && streaks++ < 3 ? f.hairStreak : undefined; // a streak: a few locks at the right temple
+
+  if (style === 'short') {
+    // tousled: three rows of short locks swept back and to the side, the front lifting off the brow
+    for (let row = 0; row < 3; row++) for (let i = 0; i < 16; i++) {
+      const az = (i / 16) * Math.PI * 2 + row * 0.2 + (rnd() - 0.5) * 0.15, e0 = 1.25 - row * 0.38, e1 = Math.max(line(az) + 0.03, e0 - 0.5 - rnd() * 0.15), sw = 0.25 + rnd() * 0.2;
+      lock([scalp(az, e0, 1.08), scalp(az + sw * 0.5, (e0 + e1) / 2, 1.13 + rnd() * 0.03), scalp(az + sw, e1, 1.1 + rnd() * 0.04)], 0.06, 0.014, i + row, streakAt(az));
+    }
+  }
+  if (style === 'long' || style === 'braids') {
+    // from the parting over the skull: each lock runs down its own meridian
+    const n = 26;
+    for (let layer = 0; layer < 2; layer++) for (let i = 0; i < n; i++) {
+      const az = 0.62 + (i + layer * 0.5) / n * (Math.PI * 2 - 1.24) + (rnd() - 0.5) * 0.05, back = Math.abs(Math.atan2(Math.sin(az), Math.cos(az))) / Math.PI;
+      const pts = [crown(az), scalp(az, 1.05, 1.09 + layer * 0.03), scalp(az, 0.55, 1.12 + layer * 0.03), scalp(az, 0.1, 1.13 + layer * 0.03)];
+      if (style === 'long') {
+        const len = (0.95 + back * 0.55 - layer * 0.18 + rnd() * 0.15) * (fem ? 1 : 0.62), base = scalp(az, -0.25, 1.14 + layer * 0.03), wave = (rnd() - 0.5) * 0.08;
+        pts.push(base);
+        for (let k = 1; k <= 3; k++) { const t = k / 3; pts.push(new THREE.Vector3(base.x * (1 + 0.12 * t) + Math.sin(t * 5 + i) * wave * s, base.y - len * t * s, base.z * (1 + 0.1 * t) - (0.14 * (1 - back) + back * 0.12) * Math.sin(t * Math.PI / 2) * s - (1 - back) * 0.3 * t * s)); }
+        lock(pts, 0.062, 0.018, i + layer, streakAt(az));
+      } else {
+        // braids: swept back and gathered low behind each ear
+        const sx = Math.sin(az) >= 0 ? 1 : -1; pts.push(scalp(az * 0.5 + (sx > 0 ? 1.9 : Math.PI * 2 - 1.9) * 0.5, -0.32, 1.12)); lock(pts, 0.058, 0.03, i + layer, streakAt(az));
+      }
+    }
+    // the fringe: locks from the parting swept across the brow to the temples
+    for (let i = 0; i < 7; i++) { const az = -0.55 + i * 0.18 + part, to = az + (az > part ? 0.55 : -0.55); lock([crown(az), scalp(az, 1.0, 1.1), scalp((az + to) / 2, 0.72, 1.14), scalp(to, 0.66 + (i % 2) * 0.06, 1.1)], 0.055, 0.014, i); }
+    if (style === 'long') for (const sx of [-1, 1]) for (let k = 0; k < 2; k++) { // locks framing the face, over the collarbone
+      const az = sx * (0.95 + k * 0.16), top = scalp(az, 0.35, 1.1), len = (fem ? 0.72 : 0.5) - k * 0.15;
+      lock([crown(az), scalp(az, 0.85, 1.1), top, new THREE.Vector3(top.x * 1.05, top.y - 0.3 * s, top.z + 0.05 * s), new THREE.Vector3(top.x * 1.0, top.y - len * 0.7 * s, top.z + 0.12 * s), new THREE.Vector3(top.x * 0.92, top.y - len * s, top.z + 0.16 * s)], 0.05, 0.014, k, sx > 0 && k === 0 ? f.hairStreak : undefined);
+    }
+    if (style === 'braids') for (const sx of [-1, 1]) {
+      // two strands roped round each other down over the shoulder, bound twice, ending in a tuft
+      const a = scalp(sx * 1.9, -0.32, 1.12), path = (t: number) => new THREE.Vector3(a.x + sx * 0.05 * t * s, a.y - 1.25 * t * s, a.z + (0.3 * Math.sin(Math.min(1, t * 1.6) * Math.PI / 2)) * s);
+      for (let k = 0; k < 2; k++) { const pts: THREE.Vector3[] = []; for (let i = 0; i <= 28; i++) { const t = i / 28, c = path(t), ph = t * 20 + k * Math.PI, rr = 0.045 * (1 - 0.35 * t) * s; pts.push(new THREE.Vector3(c.x + Math.cos(ph) * rr, c.y, c.z + Math.sin(ph) * rr)); } head.add(sm(lockGeometry(pts, 0.05 * s, 0.03 * s, 0.9, 7, 0), k ? H : tone(H, '#000000', 0.14), true)); }
+      for (const t of [0.42, 0.9]) { const c = path(t), band = sm(new THREE.TorusGeometry(0.075 * (1 - 0.3 * t) * s, 0.018 * s, 6, 16), '#b8bec8'); band.rotation.x = Math.PI / 2; head.add(at(band, c.x, c.y, c.z)); }
+      const e = path(1); for (let k = 0; k < 5; k++) lock([e, new THREE.Vector3(e.x + (k - 2) * 0.02 * s, e.y - 0.1 * s, e.z + 0.01 * s), new THREE.Vector3(e.x + (k - 2) * 0.035 * s, e.y - 0.2 * s, e.z)], 0.03, 0.006, k);
+    }
+  }
+  if (style === 'curly') {
+    // a mass of coils: each a little spiral springing off the scalp, bigger on top, hanging lower behind
+    for (let i = 0; i < 60; i++) {
+      const az = i * 2.39996 + rnd() * 0.3, el = Math.max(line(az) + 0.02, 1.45 - (i / 60) * 1.75), root = scalp(az, el, 1.05), out = root.clone().sub(new THREE.Vector3(0, hy, 0)).normalize();
+      const side = new THREE.Vector3(-out.z, 0, out.x).normalize(), upv = new THREE.Vector3().crossVectors(out, side), len = (0.16 + rnd() * 0.12) * (el < 0.3 ? 1.5 : 1), rr = 0.045 + rnd() * 0.02, turns = 2.2 + rnd();
+      const pts: THREE.Vector3[] = []; for (let k = 0; k <= 14; k++) { const t = k / 14, ph = t * turns * Math.PI * 2 + i; pts.push(root.clone().addScaledVector(out, len * t * s).addScaledVector(side, Math.cos(ph) * rr * s).addScaledVector(upv, Math.sin(ph) * rr * s).add(new THREE.Vector3(0, -len * 0.35 * t * t * s, 0))); }
+      lock(pts, 0.04, 0.02, i, streakAt(az), 0.8);
+    }
+  }
 }
 
 /** A limb: the shoulder or hip (root), the elbow or knee (mid), the wrist or ankle (end). Angles about x: negative swings
  *  forward; a positive mid bends a knee, a negative one an elbow. */
-export interface Limb { root: THREE.Group; mid: THREE.Group; end: THREE.Group; upper: M; lower: M; hand: M }
+export interface Limb { root: THREE.Group; mid: THREE.Group; end: THREE.Group; upper: M; lower: M; hand: M; collar?: THREE.Group }
 
 /** The torso's line, waist to shoulders: [height, radius] in the upper body's frame (feet at scale 1, before the
  *  front-to-back squash). */
-export function torsoProfile(build: HeroFigure['build']): [number, number][] {
-  if (build === 'curvy') return [[-0.2, 0.58], [0.15, 0.68], [0.5, 0.58], [0.9, 0.46], [1.25, 0.54], [1.6, 0.62], [1.95, 0.64], [2.15, 0.52], [2.3, 0.3], [2.36, 0.16]];
-  if (build === 'broad') return [[-0.2, 0.62], [0.15, 0.66], [0.6, 0.63], [1.0, 0.65], [1.4, 0.73], [1.8, 0.78], [2.05, 0.72], [2.22, 0.5], [2.32, 0.3], [2.38, 0.16]];
-  return [[-0.2, 0.6], [0.15, 0.63], [0.6, 0.57], [1.0, 0.58], [1.4, 0.64], [1.8, 0.7], [2.05, 0.66], [2.22, 0.48], [2.32, 0.28], [2.38, 0.16]];
+export function torsoProfile(build: HeroFigure['build'], frame?: HeroFigure['frame']): [number, number][] {
+  return torsoRings(frameOf(frame ? frame === 'feminine' : build === 'curvy', build)).map((r) => [r.y, r.w]);
 }
 export const radiusAt = (p: [number, number][], y: number): number => {
   if (y <= p[0][0]) return p[0][1];
   for (let i = 1; i < p.length; i++) if (y <= p[i][0]) { const [y0, r0] = p[i - 1], [y1, r1] = p[i], t = (y - y0) / (y1 - y0); return r0 + (r1 - r0) * (0.5 - 0.5 * Math.cos(Math.PI * t)); }
   return p[p.length - 1][1];
-};
-const smoothLine = (p: [number, number][], n: number, s: number, k = 1): THREE.Vector2[] => {
-  const out: THREE.Vector2[] = [], y0 = p[0][0], y1 = p[p.length - 1][0];
-  for (let i = 0; i <= n; i++) { const y = y0 + (y1 - y0) * i / n; out.push(new THREE.Vector2(radiusAt(p, y) * s * k, y * s)); }
-  return out;
 };
 
 /** The fitted gown's line, body frame, top (the waist) to the hem. */
@@ -259,87 +358,99 @@ function sheath(prof: [number, number][], c: string, o: { zs: number; slitAt: nu
   return { mesh: sm(g, c, true), point };
 }
 
-/** The body: smooth, with a turned torso (lean, broad or curvy), hips, a neck, and jointed arms and legs (shoulder,
- *  elbow, wrist; hip, knee, ankle) in boots. The upper body (`up`) hangs from the hips as the kit's humanoid does, so the
- *  head sits at 2.82 and the shoulders at ±0.86, 2.0 in its frame. On a gown the shoulders, chest and legs are bare. */
+export const frameFor = (f: HeroFigure): Frame => frameOf(f.frame ? f.frame === 'feminine' : f.build === 'curvy' || !!(f.skirt && f.underskirt), f.build);
+
+/** The body, sculpted: a lofted torso and pelvis on a feminine or masculine frame, a neck, and limbs with their
+ *  muscle (deltoid, biceps, forearm, thigh, calf), jointed at the collar, shoulder, elbow and wrist, and the hip, knee
+ *  and ankle; hands with fingers; boots. The pelvis carries the legs and the upper body (`up`), which turns on it at
+ *  the waist; the head sits at 2.82 in `up`'s frame. On a gown the shoulders, chest and legs are bare. */
 function rig(f: HeroFigure, s: number, gown: boolean) {
-  const body = new THREE.Group(), up = new THREE.Group(); up.position.y = 2.85 * s; body.add(up);
+  const fr = frameFor(f);
+  const body = new THREE.Group(), pel = new THREE.Group(), up = new THREE.Group(); pel.position.y = 2.85 * s; pel.name = 'hips'; body.add(pel); pel.add(up); up.name = 'chest';
   const skin = f.skin ?? '#d9b899', cloth = f.armor?.color ?? f.cloth ?? '#2c3a2e', trim = f.trim ?? '#3a2a1c', boot = f.boots ?? '#2b2420';
-  const tp = torsoProfile(f.build), curvy = f.build === 'curvy';
-  const torsoC = gown ? f.skirt! : cloth;
-  const pelvis = sph(0.6 * s, gown ? f.skirt! : trim, 20, 14); pelvis.scale.set(curvy ? 1.14 : 1, 0.6, 0.64); up.add(at(pelvis, 0, 0.08 * s, 0));
+  const tr = torsoRings(fr), torsoC = gown ? f.skirt! : cloth;
+  const loft = (rings: Parameters<typeof loftGeometry>[0], c: string, o: Parameters<typeof loftGeometry>[2] = {}) => sm(loftGeometry(rings, s, o), c);
+  pel.add(loft(pelvisRings(fr), gown ? f.skirt! : trim, { seg: 28 }));
+  // the chest's own shape: on a masculine frame the pectorals; the shoulder blades behind
+  const chestBump = (th: number, y: number) => (fr.fem ? 0 : 0.07 * Math.exp(-((y - 1.62) ** 2) / 0.035) * Math.max(0, Math.cos(th)) ** 1.5 * (0.55 + 0.45 * Math.abs(Math.sin(th * 1.6))))
+    + 0.04 * Math.exp(-((y - 1.7) ** 2) / 0.05) * Math.max(0, -Math.cos(th)) ** 2 * Math.abs(Math.sin(th * 2));
   if (gown) {
     // the dress to just under the bust, bare skin above (shoulders and the chest), the bust in the dress: a sweetheart line
-    const dress = sm(new THREE.LatheGeometry(smoothLine(tp.filter(([y]) => y <= 1.62).concat([[1.62, radiusAt(tp, 1.62)]]), 14, s), 28), torsoC); dress.scale.z = 0.64; up.add(dress);
-    const chest = sm(new THREE.LatheGeometry(smoothLine([[1.5, radiusAt(tp, 1.5)] as [number, number]].concat(tp.filter(([y]) => y > 1.5)), 12, s, 0.985), 28), skin); chest.scale.z = 0.64; up.add(chest);
-    for (const sx of [-1, 1]) { const b = sph(0.235 * s, torsoC, 18, 12); b.scale.set(1, 0.86, 0.82); up.add(at(b, sx * 0.21 * s, 1.56 * s, 0.24 * s)); }
+    up.add(loft(clipRings(tr, tr[0].y, 1.6), torsoC, { seg: 32 }));
+    up.add(loft(clipRings(tr, 1.48, 2.3), skin, { seg: 32, k: 0.985, bump: chestBump }));
   } else {
-    const torso = sm(new THREE.LatheGeometry(smoothLine(tp, 18, s), 28), torsoC); torso.scale.z = 0.64; up.add(torso);
-    if (curvy) for (const sx of [-1, 1]) { const b = sph(0.2 * s, torsoC, 14, 10); b.scale.set(1, 0.85, 0.75); up.add(at(b, sx * 0.2 * s, 1.55 * s, 0.25 * s)); }
-    const belt = cyl(radiusAt(tp, 0.42) * 1.04 * s, radiusAt(tp, 0.42) * 1.04 * s, 0.2 * s, trim, 24); belt.scale.z = 0.66; up.add(at(belt, 0, 0.42 * s, 0));
-    if (!f.skirt) { const hem = drape(0.62 * s, 0.8 * s, 0.75 * s, cloth, { folds: 6, amp: 0.05, jag: 0.03 * s, seed: 0.2 }); hem.scale.z = 0.7; up.add(at(hem, 0, 0.0, 0)); }
+    up.add(loft(tr, torsoC, { seg: 32, bump: chestBump }));
+    const br = ringAt(tr, 0.42); up.add(sm(loftGeometry([{ ...br, y: 0.32 }, { ...br, y: 0.52 }], s, { seg: 32, k: 1.05, rows: 2 }), trim));
+    if (!f.skirt) { const hem = drape(0.6 * s, 0.78 * s, 0.75 * s, cloth, { folds: 6, amp: 0.05, jag: 0.03 * s, seed: 0.2 }); hem.scale.z = 0.66; up.add(at(hem, 0, 0.0, 0)); }
   }
+  if (fr.bust) for (const sx of [-1, 1]) { const b = sph(fr.bust * s, torsoC, 20, 14); b.scale.set(1, 0.98, 0.92); b.rotation.x = 0.25; up.add(at(b, sx * (0.13 + fr.bust * 0.42) * s, 1.54 * s, (ringAt(tr, 1.54).f - fr.bust * 0.42) * s)); }
   const neck = new THREE.Group(); neck.position.y = 2.24 * s; neck.name = 'neck'; up.add(neck);
-  neck.add(at(sm(new THREE.CylinderGeometry(0.15 * s, 0.19 * s, 0.44 * s, 12), skin), 0, 0.16 * s, 0));
+  neck.add(loft(neckRings(fr), skin, { seg: 16 }));
+  if (!fr.fem) neck.add(at(sph(0.035 * s, skin, 8, 6), 0, 0.2 * s, 0.155 * s)); // the larynx
   const head = new THREE.Group(); head.position.y = 0.21 * s; head.name = 'head'; neck.add(head);
-  const hips = new THREE.Group(); hips.position.y = 2.85 * s; hips.name = 'hips'; body.add(hips); up.name = 'chest';
   // empty mounts for gear: the belt at each hip (sheaths hang down -y), and between the shoulder blades (+y up the back)
-  for (const sx of [1, -1]) { const b = new THREE.Group(); b.name = sx > 0 ? 'beltR' : 'beltL'; b.position.set(sx * 0.6 * s, 0.42 * s, 0.05 * s); up.add(b); }
-  const back = new THREE.Group(); back.name = 'back'; back.position.set(0, 1.5 * s, -0.5 * s); up.add(back);
+  for (const sx of [1, -1]) { const b = new THREE.Group(); b.name = sx > 0 ? 'beltR' : 'beltL'; b.position.set(sx * ringAt(tr, 0.42).w * s, 0.42 * s, 0.05 * s); up.add(b); }
+  const back = new THREE.Group(); back.name = 'back'; back.position.set(0, 1.5 * s, -(ringAt(tr, 1.5).b + 0.12) * s); up.add(back);
   const arm: Limb[] = [], leg: Limb[] = [], soles: M[] = [];
-  const upperC = gown ? skin : f.sleeves ?? cloth, lowerC = f.bracers ?? f.sleeves ?? (gown ? skin : cloth);
+  const upperC = gown ? skin : f.sleeves ?? cloth, lowerC = f.bracers ?? f.sleeves ?? (gown ? skin : cloth), handC = f.gauntlets ?? skin, a = fr.arm, hs = fr.hand;
   for (const sx of [1, -1]) {
-    const sw = curvy ? 0.92 : 1, aw = curvy ? 0.8 : 1; // a curvy build: narrower shoulders, slimmer arms
-    const sh = sph(0.3 * s * aw, gown ? skin : cloth, 16, 12); sh.scale.set(1.25, 0.8, 0.95); sh.rotation.z = -sx * 0.25; up.add(at(sh, sx * 0.7 * s * sw, 2.02 * s, 0)); // the deltoid, sloping from the neck
-    const root = new THREE.Group(); root.position.set(sx * 0.86 * s * sw, 2.0 * s, 0); root.rotation.set(-0.08, 0, sx * 0.1); up.add(root);
-    const upper = sm(new THREE.CylinderGeometry(0.19 * s * aw, 0.155 * s * aw, 1.1 * s, 12), upperC); root.add(at(upper, 0, -0.55 * s, 0));
+    const side = sx > 0 ? 'R' : 'L';
+    // the collar carries the shoulder: it lifts when the arm goes up
+    const collar = new THREE.Group(); collar.position.set(sx * 0.12 * s, 1.98 * s, 0); collar.name = 'collar' + side; up.add(collar);
+    const root = new THREE.Group(); root.position.set(sx * (fr.shoulderX - 0.12) * s, 0.02 * s, 0); root.rotation.set(-0.08, 0, sx * 0.1); root.name = 'shoulder' + side; collar.add(root);
+    const delt = sph(0.2 * a * s, upperC, 16, 12); delt.scale.set(1.02, 1.25, 1.04); root.add(at(delt, 0, -0.1 * s, 0));
+    const upper = loft(upperArmRings(fr), upperC, { seg: 14 }); root.add(upper);
     if (f.puffSleeves && f.sleeves) {
       if (gown) { // off the shoulder: a gathered band round the upper arm with a ruffle below it
-        const band = sm(new THREE.TorusGeometry(0.17 * s * aw, 0.05 * s, 8, 20), f.sleeves); band.rotation.x = Math.PI / 2; root.add(at(band, 0, -0.32 * s, 0));
-        const ruf = drape(0.17 * s * aw, 0.26 * s, 0.3 * s, f.sleeves, { folds: 9, amp: 0.25, jag: 0.04 * s, seed: 1.3 }); root.add(at(ruf, 0, -0.48 * s, 0));
-      } else { const puff = sph(0.3 * s, f.sleeves); puff.scale.set(1, 1.25, 1); root.add(at(puff, 0, -0.45 * s, 0)); }
+        const band = sm(new THREE.TorusGeometry(0.2 * s * a, 0.045 * s, 8, 20), f.sleeves); band.rotation.x = Math.PI / 2; root.add(at(band, 0, -0.36 * s, 0));
+        const ruf = drape(0.2 * s * a, 0.3 * s * a, 0.3 * s, f.sleeves, { folds: 9, amp: 0.25, jag: 0.04 * s, seed: 1.3 }); root.add(at(ruf, 0, -0.52 * s, 0));
+      } else { const puff = sph(0.3 * s * a, f.sleeves); puff.scale.set(1, 1.25, 1); root.add(at(puff, 0, -0.42 * s, 0)); }
     }
-    const mid = new THREE.Group(); mid.position.set(0, -1.12 * s, 0); mid.rotation.x = -0.22; root.add(mid);
-    mid.add(sph(0.16 * s * aw, upperC, 12, 8));
-    const lower = sm(new THREE.CylinderGeometry(0.155 * s * aw, 0.115 * s * aw, 1.0 * s, 12), lowerC); mid.add(at(lower, 0, -0.52 * s, 0));
-    if (f.bracers) { mid.add(at(cyl(0.165 * s * aw, 0.155 * s * aw, 0.12 * s, f.bracers, 12), 0, -0.96 * s, 0)); mid.add(at(cyl(0.175 * s * aw, 0.175 * s * aw, 0.05 * s, tone(f.bracers, '#000000', 0.3), 12), 0, -0.3 * s, 0)); }
-    const end = new THREE.Group(); end.position.set(0, -1.04 * s, 0); end.rotation.x = 0.06; mid.add(end);
-    end.add(sph(0.11 * s, f.gauntlets ?? skin, 10, 8));
-    const hand = sph(0.15 * s, f.gauntlets ?? skin, 12, 10); hand.scale.set(0.72, 1.2, 0.5); end.add(at(hand, 0, -0.17 * s, 0.01 * s));
-    const th = cap(0.042 * s, 0.11 * s, f.gauntlets ?? skin); th.rotation.z = -sx * 0.5; th.rotation.x = -0.3; end.add(at(th, -sx * 0.09 * s, -0.1 * s, 0.07 * s));
-    const side = sx > 0 ? 'R' : 'L'; root.name = 'shoulder' + side; mid.name = 'elbow' + side; end.name = 'wrist' + side;
-    arm.push({ root, mid, end, upper, lower, hand });
+    const mid = new THREE.Group(); mid.position.set(0, -1.12 * s, 0); mid.rotation.x = -0.22; mid.name = 'elbow' + side; root.add(mid);
+    mid.add(sph(0.145 * a * s, upperC, 12, 8));
+    const lower = loft(forearmRings(fr), lowerC, { seg: 14 }); mid.add(lower);
+    if (f.bracers) { mid.add(at(cyl(0.125 * s * a, 0.105 * s * a, 0.12 * s, f.bracers, 12), 0, -0.96 * s, 0)); mid.add(at(cyl(0.17 * s * a, 0.17 * s * a, 0.05 * s, tone(f.bracers, '#000000', 0.3), 12), 0, -0.3 * s, 0)); }
+    const end = new THREE.Group(); end.position.set(0, -1.04 * s, 0); end.rotation.x = 0.06; end.name = 'wrist' + side; mid.add(end);
+    // the hand: a palm, four fingers a little curled, and the thumb
+    const hand = sph(0.105 * hs * s, handC, 12, 10); hand.scale.set(0.9, 1.15, 0.42); end.add(at(hand, 0, -0.12 * s, 0.005 * s));
+    for (let i = 0; i < 4; i++) {
+      const len = [0.08, 0.095, 0.09, 0.07][i] * hs, x = (i - 1.5) * 0.047 * hs * -sx;
+      const k1 = cap(0.024 * hs * s, len * s, handC); k1.rotation.x = -0.4; end.add(at(k1, x * s, (-0.235 - len * 0.3) * hs * s, 0.02 * s));
+      const k2 = cap(0.021 * hs * s, len * 0.7 * s, handC); k2.rotation.x = -1.15; end.add(at(k2, x * s, (-0.3 - len * 0.5) * hs * s, 0.075 * hs * s));
+    }
+    const th = cap(0.029 * hs * s, 0.09 * hs * s, handC); th.rotation.z = -sx * 0.55; th.rotation.x = -0.5; end.add(at(th, -sx * 0.1 * hs * s, -0.13 * s, 0.05 * s));
+    arm.push({ root, mid, end, upper, lower, hand, collar });
 
-    const hx = gown ? 0.2 : 0.3, legC = gown ? skin : trim;
-    const hip = new THREE.Group(); hip.position.set(sx * hx * s, 2.85 * s, 0); hip.rotation.z = sx * 0.04; body.add(hip);
-    hip.add(sph(0.25 * s, legC, 12, 10));
-    const thigh = sm(new THREE.CylinderGeometry(0.26 * s, 0.19 * s, 1.2 * s, 12), legC); hip.add(at(thigh, 0, -0.62 * s, 0));
-    const knee = new THREE.Group(); knee.position.set(0, -1.24 * s, 0); hip.add(knee);
-    knee.add(sph(0.195 * s, legC, 12, 10));
-    const calf = sph(0.2 * s, legC, 12, 10); calf.scale.set(0.95, 1.7, 1); knee.add(at(calf, 0, -0.38 * s, -0.03 * s));
-    const shin = sm(new THREE.CylinderGeometry(0.18 * s, 0.13 * s, 1.1 * s, 12), legC); knee.add(at(shin, 0, -0.56 * s, 0));
-    // boots: the shaft to below the knee with a turned cuff, the foot and a sole
-    knee.add(at(cyl(0.215 * s, 0.19 * s, 0.66 * s, boot, 12), 0, -0.82 * s, 0));
-    knee.add(at(cyl(0.25 * s, 0.23 * s, 0.2 * s, tone(boot, '#ffffff', 0.08), 12), 0, -0.52 * s, 0));
-    const ankle = new THREE.Group(); ankle.position.set(0, -1.14 * s, 0); knee.add(ankle);
-    ankle.add(sph(0.18 * s, boot, 12, 8));
-    const foot = sph(0.24 * s, boot, 14, 10); foot.scale.set(0.8, 0.6, 1.55); ankle.add(at(foot, 0, -0.27 * s, 0.17 * s));
-    const sole = box(0.36 * s, 0.06 * s, 0.78 * s, tone(boot, '#000000', 0.45)); ankle.add(at(sole, 0, -0.42 * s, 0.15 * s)); soles.push(sole);
-    hip.name = 'hip' + side; knee.name = 'knee' + side; ankle.name = 'ankle' + side; foot.name = 'foot' + side;
+    const hx = gown ? 0.21 : fr.hipX, legC = gown ? skin : trim;
+    const hip = new THREE.Group(); hip.position.set(sx * hx * s, 0, 0); hip.rotation.z = sx * 0.04; hip.name = 'hip' + side; pel.add(hip);
+    const thigh = loft(thighRings(fr), legC, { seg: 16 }); hip.add(thigh);
+    const knee = new THREE.Group(); knee.position.set(0, -1.24 * s, 0); knee.name = 'knee' + side; hip.add(knee);
+    knee.add(at(sph(0.185 * fr.leg * s, legC, 12, 10), 0, 0, 0.01 * s));
+    const shin = loft(shinRings(fr), legC, { seg: 14 }); knee.add(shin);
+    // boots: the shaft to below the knee with a turned cuff, the foot, a heel and a sole
+    knee.add(loft(clipRings(shinRings(fr), -1.14, -0.5), boot, { seg: 14, k: 1.13 }));
+    const cuffR = ringAt(shinRings(fr), -0.5); knee.add(sm(loftGeometry([{ ...cuffR, y: -0.6 }, { ...cuffR, y: -0.42 }], s, { seg: 14, k: 1.28, rows: 2 }), tone(boot, '#ffffff', 0.08)));
+    const ankle = new THREE.Group(); ankle.position.set(0, -1.14 * s, 0); ankle.name = 'ankle' + side; knee.add(ankle);
+    ankle.add(sph(0.14 * fr.leg * s, boot, 12, 8));
+    const fl = fr.fem ? 0.86 : 1; // the foot: instep, toe and heel
+    const foot = sm(loftGeometry([{ y: -0.42, w: 0.15 * fl, f: 0.52 * fl, b: 0.2 * fl, z: 0.02 }, { y: -0.3, w: 0.165 * fl, f: 0.5 * fl, b: 0.21 * fl, z: 0.02 }, { y: -0.16, w: 0.14 * fl, f: 0.3 * fl, b: 0.17 * fl }, { y: -0.02, w: 0.125 * fl, f: 0.15 * fl, b: 0.14 * fl }], s, { seg: 16 }), boot);
+    foot.name = 'foot' + side; ankle.add(foot);
+    const sole = sm(loftGeometry([{ y: -0.47, w: 0.16 * fl, f: 0.53 * fl, b: 0.21 * fl, z: 0.02 }, { y: -0.41, w: 0.16 * fl, f: 0.53 * fl, b: 0.21 * fl, z: 0.02 }], s, { seg: 16, rows: 1 }), tone(boot, '#000000', 0.45)); ankle.add(sole); soles.push(sole);
     leg.push({ root: hip, mid: knee, end: ankle, upper: thigh, lower: shin, hand: foot });
   }
-  return { body, up, neck, head, arm, leg, soles };
+  return { body, pel, up, neck, head, arm, leg, soles, fr, tr };
 }
 
 /** A hero's miniature: origin at the floor centre, feet in world units, facing +z. `battle` puts it in its stance. */
-export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', battle = false): THREE.Group {
+export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: boolean | 'rest' | 'battle' | 'dead' = false): THREE.Group {
+  const battle = state === true || state === 'battle', dead = state === 'dead';
   const s = (SIZE_SCALE[size] ?? 1) * (f.height ?? 1);
   const gown = !!(f.skirt && f.underskirt);
-  const { body, up, neck, head, arm, leg, soles } = rig(f, s, gown);
+  const { body, pel, up, neck, head, arm, leg, soles, fr, tr } = rig(f, s, gown);
   const hy = 2.82 * s; // the head's centre, in the upper body's frame
   const skin = f.skin ?? '#d9b899';
   const headAt = neck.position.y + head.position.y; // the head joint, in the upper body's frame
-  const surf = buildFace(head, s, hy - headAt, f);
+  const surf = buildFace(head, s, hy - headAt, f, fr.fem);
   const [R, Lf] = arm;
   // a group in each hand for what it holds: upright while the forearm hangs at rest
   const holder = (l: Limb) => { const g = new THREE.Group(); g.position.set(0, -0.14 * s, 0.05 * s); g.rotation.set(-(l.root.rotation.x + l.mid.rotation.x), 0, -Math.sign(l.root.position.x) * 0.08); l.end.add(g); return g; };
@@ -361,12 +472,12 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', battle 
 
   // a laced bodice: a corset that follows the torso's line, the lacing crossing down its front
   if (f.bodice) {
-    const tp = torsoProfile(f.build), lo = 0.45, hi = gown ? 1.42 : 1.3;
-    const pts: THREE.Vector2[] = []; for (let i = 0; i <= 10; i++) { const y = lo + (hi - lo) * i / 10; pts.push(new THREE.Vector2(radiusAt(tp, y) * 1.06 * s, y * s)); }
-    const b = sm(new THREE.LatheGeometry(pts, 24), f.bodice.color); b.scale.z = 0.66; up.add(b);
-    const lc = f.bodice.lacing ?? '#b08a4a';
-    for (let i = 0; i < 5; i++) { const y = lo + 0.08 + i * (hi - lo - 0.16) / 4, z = radiusAt(tp, y) * 1.06 * 0.66 + 0.012; for (const sx of [-1, 1]) { const x = box(0.2 * s, 0.025 * s, 0.025 * s, lc); x.rotation.z = sx * 0.5; up.add(at(x, 0, y * s, z * s)); } }
-    for (const sx of [-1, 1]) for (let i = 0; i < 6; i++) { const y = lo + 0.06 + i * (hi - lo - 0.12) / 5; up.add(at(sph(0.018 * s, lc, 6, 4), sx * 0.08 * s, y * s, (radiusAt(tp, y) * 1.06 * 0.66 + 0.01) * s)); }
+    const lo = 0.45, hi = gown ? 1.4 : 1.3, lc = f.bodice.lacing ?? '#b08a4a';
+    up.add(sm(loftGeometry(clipRings(tr, lo, hi), s, { seg: 32, k: 1.07 }), f.bodice.color));
+    for (const y of [lo, hi]) { const r = ringAt(tr, y); up.add(sm(loftGeometry([{ ...r, y: y - 0.025 }, { ...r, y: y + 0.025 }], s, { seg: 32, k: 1.1, rows: 1 }), tone(f.bodice.color, '#000000', 0.3))); }
+    for (let i = 0; i < 5; i++) { const y = lo + 0.08 + i * (hi - lo - 0.16) / 4, z = ringAt(tr, y).f * 1.07 + 0.012; for (const sx of [-1, 1]) { const x = box(0.2 * s, 0.025 * s, 0.025 * s, lc); x.rotation.z = sx * 0.5; up.add(at(x, 0, y * s, z * s)); } }
+    for (const sx of [-1, 1]) for (let i = 0; i < 6; i++) { const y = lo + 0.06 + i * (hi - lo - 0.12) / 5; up.add(at(sph(0.018 * s, lc, 6, 4), sx * 0.08 * s, y * s, (ringAt(tr, y).f * 1.07 + 0.01) * s)); }
+    for (const a of [-0.9, 0.9, -2.2, 2.2]) { const pts: THREE.Vector3[] = []; for (let i = 0; i <= 6; i++) { const y = lo + (hi - lo) * i / 6, r = ringAt(tr, y), e = 2 / (r.n ?? 2), sn = Math.sin(a), cs = Math.cos(a); pts.push(new THREE.Vector3(Math.sign(sn) * Math.abs(sn) ** e * r.w * 1.08 * s, y * s, Math.sign(cs) * Math.abs(cs) ** e * (cs >= 0 ? r.f : r.b) * 1.08 * s)); } up.add(tube(pts, 0.012 * s, tone(f.bodice.color, '#000000', 0.35))); } // boning
   }
 
   // a coat: tails behind, lapels in front
@@ -408,24 +519,7 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', battle 
   // pointed ears
   if (f.ears === 'pointed') for (const sx of [-1, 1]) { const e = sm(new THREE.ConeGeometry(0.09 * s, 0.5 * s, 8), skin); e.scale.z = 0.45; e.position.set(sx * 0.36 * s, hy + 0.06 * s, -0.02 * s); e.rotation.z = -sx * 1.05; e.rotation.x = -0.35; up.add(e); }
 
-  // hair
-  if (f.hair) {
-    const H = f.hair;
-    if (f.hairStyle === 'long') {
-      const back = cap(0.3 * s, 1.0 * s, H); back.scale.set(1.25, 1, 0.45); up.add(at(back, 0, hy - 0.75 * s, -0.3 * s));
-      for (const sx of [-1, 1]) { const lock = cap(0.09 * s, 0.85 * s, H); lock.rotation.z = sx * 0.12; up.add(at(lock, sx * 0.34 * s, hy - 0.5 * s, 0.1 * s)); }
-      for (let i = 0; i < 5; i++) { const w = cap(0.07 * s, 1.1 * s, tone(H, '#000000', (i % 2) * 0.12)); w.rotation.z = (i - 2) * 0.08; up.add(at(w, (i - 2) * 0.15 * s, hy - 0.95 * s, -0.4 * s)); }
-    }
-    if (f.hairStyle === 'braids') {
-      const back = cap(0.26 * s, 0.4 * s, H); back.scale.set(1.3, 1, 0.5); up.add(at(back, 0, hy - 0.35 * s, -0.3 * s));
-      for (const sx of [-1, 1]) for (let i = 0; i < 9; i++) {
-        const y = hy - 0.3 * s - i * 0.19 * s, k = sph((0.095 - i * 0.004) * s, i % 2 ? H : tone(H, '#000000', 0.12), 8, 6); k.scale.y = 1.2; up.add(at(k, sx * (0.36 + i * 0.01) * s, y, (0.12 + i * 0.02) * s));
-        if (i === 3 || i === 7) up.add(at(cyl(0.1 * s, 0.1 * s, 0.08 * s, '#b8bec8', 8), sx * (0.36 + i * 0.01) * s, y, (0.12 + i * 0.02) * s));
-      }
-    }
-    if (f.hairStyle === 'curly') for (let i = 0; i < 16; i++) { const a = i * 2.39996, ring2 = i < 9 ? 0 : 1; up.add(at(sph((0.14 + (i % 3) * 0.025) * s, i % 3 ? H : tone(H, '#ffffff', 0.2), 10, 8), Math.cos(a) * (0.32 - ring2 * 0.1) * s, hy + (0.22 + ring2 * 0.16 + (i % 2) * 0.05) * s, Math.sin(a) * (0.3 - ring2 * 0.1) * s - 0.05 * s)); }
-    if (f.hairStreak) { const st = cap(0.05 * s, 1.0 * s, f.hairStreak); st.rotation.z = 0.08; up.add(at(st, 0.3 * s, hy - 0.4 * s, 0.17 * s)); }
-  }
+  buildHair(head, s, hy - headAt, f, fr.fem);
 
   // armour
   if (f.armor?.kind === 'plate') {
@@ -437,9 +531,9 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', battle 
     up.add(at(box(0.5 * s, 0.06 * s, 0.06 * s, t), 0, 0.95 * s, 0.4 * s));                         // a second band
     const knot = sm(new THREE.TorusKnotGeometry(0.1 * s, 0.022 * s, 48, 6, 2, 3), t); up.add(at(knot, 0, 1.25 * s, 0.44 * s)); // a knotwork boss
     for (const l of leg) {                                                                              // knees and greaves
-      l.mid.add(at(ball(0.22 * s, f.armor.color, 0), 0, 0.0, 0.14 * s));
-      l.mid.add(at(cyl(0.22 * s, 0.2 * s, 0.9 * s, f.armor.color, 7), 0, -0.6 * s, 0.02 * s));
-      l.mid.add(at(box(0.3 * s, 0.05 * s, 0.05 * s, t), 0, -0.2 * s, 0.2 * s));
+      const cop = sph(0.2 * fr.leg * s, f.armor.color, 12, 8); cop.scale.set(1, 1.1, 0.9); l.mid.add(at(cop, 0, 0.0, 0.1 * s));
+      l.mid.add(sm(loftGeometry(clipRings(shinRings(fr), -0.95, -0.12), s, { seg: 14, k: 1.22 }), f.armor.color));
+      for (const y of [-0.18, -0.9]) { const r = ringAt(shinRings(fr), y); l.mid.add(sm(loftGeometry([{ ...r, y: y - 0.03 }, { ...r, y: y + 0.03 }], s, { seg: 14, k: 1.3, rows: 1 }), t)); }
     }
     for (const [x, z] of [[-0.42, 0.3], [0.42, 0.3], [-0.5, -0.1], [0.5, -0.1]]) { const ts = box(0.42 * s, 0.75 * s, 0.08 * s, f.armor.color); ts.rotation.x = z > 0 ? -0.15 : 0.15; ts.rotation.y = x * 0.6; up.add(at(ts, x * s, -0.45 * s, z * s)); up.add(at(box(0.42 * s, 0.06 * s, 0.09 * s, t), x * s, -0.78 * s, z * s + 0.02 * s)); } // tassets
   }
@@ -506,7 +600,7 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', battle 
     bk.add(at(box(0.02 * s, 0.02 * s, 0.4 * s, '#6a5a4a'), 0.2 * s, 0.1 * s, 0));
   }
   if (o?.kind === 'orb') gL.add(at(sph(0.3 * s, o.color ?? '#9b7bd0'), 0, 0.47 * s, -0.28 * s));
-  if (f.wisp) {
+  if (f.wisp && !dead) {
     // a ghostly skull rising from the book
     const wg = new THREE.Group(); wg.position.set(0.27 * s, 1.75 * s, 0.35 * s); gL.add(wg);
     wg.add(glassy(sph(0.2 * s, f.wisp, 14, 10), f.wisp, 0.75));
@@ -528,7 +622,7 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', battle 
       up.add(g);
     }
   }
-  if (f.halo) {
+  if (f.halo && !dead) {
     const h = sm(new THREE.TorusGeometry(0.62 * s, 0.04 * s, 8, 40), f.halo); h.position.set(0, hy + 0.3 * s, -0.42 * s); up.add(h);
     const glow = glassy(new THREE.Mesh(new THREE.TorusGeometry(0.62 * s, 0.11 * s, 8, 40), mat(f.halo)), f.halo, 0.25); glow.position.copy(h.position); up.add(glow);
     for (let i = 0; i < 8; i++) { const a = (i / 8) * Math.PI * 2, ray = glassy(cone(0.03 * s, 0.25 * s, f.halo, 4), f.halo, 0.5); ray.rotation.z = a - Math.PI / 2; up.add(at(ray, Math.cos(a) * 0.82 * s, hy + 0.3 * s + Math.sin(a) * 0.82 * s, -0.44 * s)); }
@@ -605,15 +699,17 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', battle 
   // the pose: out of initiative its rest pose (on a gown, weight on the right leg, the left knee forward in the slit); in
   // initiative its battle pose; every joint from the recipe's angles or a named preset
   const named = (p: PoseName | HeroPose | undefined) => typeof p === 'string' ? POSES[p] ?? POSES.rest : p;
-  let P: HeroPose = (battle ? named(f.battlePose ?? f.stance) : undefined) ?? named(f.pose) ?? POSES.rest;
-  if (P === POSES.rest && gown) P = { spine: [0, 0, 0.04], hipL: [-0.12, 0, 0], kneeL: 0.3, hipR: [0.02, 0, 0.03], kneeR: 0.02 };
+  let P: HeroPose = dead ? named(f.deadPose) ?? POSES.dead : (battle ? named(f.battlePose ?? f.stance) : undefined) ?? named(f.pose) ?? POSES.rest;
+  if (P === POSES.rest && gown) P = { pelvis: [0, 0, -0.06], spine: [0, 0.06, 0.1], neck: [0, -0.05, -0.04], hipL: [-0.14, 0, -0.04], kneeL: 0.32, hipR: [0.02, 0, 0.08], kneeR: 0.02, shoulderR: [-0.05, 0, 0.16], elbowR: -0.3 };
   const mir = (e: Euler3 | undefined, sx: number, d: Euler3): Euler3 => e ? [e[0], e[1] * sx, e[2] * sx] : [d[0], d[1] * sx, d[2] * sx];
   if (P.spine) up.rotation.set(...P.spine);
+  if (P.pelvis) pel.rotation.set(...P.pelvis);
   if (P.neck) neck.rotation.set(...P.neck);
   arm.forEach((l, k) => {
     const sx = k === 0 ? 1 : -1, sd = k === 0 ? 'R' : 'L';
     l.root.rotation.set(...mir(P[`shoulder${sd}`], sx, [-0.08, 0, 0.1]));
     l.mid.rotation.x = P[`elbow${sd}`] ?? -0.22;
+    if (l.collar) l.collar.rotation.z = sx * (P[`collar${sd}`] ?? Math.min(0.4, Math.max(0, (-l.root.rotation.x - 0.9) * 0.28)));
     l.end.rotation.set(...mir(P[`wrist${sd}`], sx, [0.06, 0, 0]));
     const hold = P[`hold${sd}`], g = k === 0 ? gR : gL;
     if (hold?.upright) g.rotation.x = -(l.root.rotation.x + l.mid.rotation.x + l.end.rotation.x);
@@ -630,8 +726,8 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', battle 
   else { let floor = Infinity; for (const m of soles) floor = Math.min(floor, new THREE.Box3().setFromObject(m).min.y); if (Number.isFinite(floor)) body.position.y -= floor; }
   body.position.y += P.lift ?? 0;
   const glowAt = (g: THREE.Object3D, p: THREE.Vector3, r: number) => { const c = f.glow ?? f.wisp ?? '#c9b3ff'; g.add(at(glassy(sph(r * s, c, 16, 12), c, 0.7), p.x, p.y, p.z)); g.add(at(glassy(sph(r * 1.8 * s, c, 16, 12), c, 0.18), p.x, p.y, p.z)); };
-  if (P.spell === 'right') glowAt(gR, new THREE.Vector3(0, 0, 0.35 * s), 0.16);
-  if (P.spell === 'between') {
+  if (P.spell === 'right' && !dead) glowAt(gR, new THREE.Vector3(0, 0, 0.35 * s), 0.16);
+  if (P.spell === 'between' && !dead) {
     body.updateMatrixWorld(true);
     const p = new THREE.Vector3(); for (const l of arm) p.add(l.hand.getWorldPosition(new THREE.Vector3())); p.multiplyScalar(0.5);
     const q = up.worldToLocal(p); q.z += 0.35 * s; q.y += 0.15 * s; glowAt(up, q, 0.24);
@@ -641,8 +737,15 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', battle 
   body.userData.joints = joints;
 
   const out = new THREE.Group(); out.add(body); out.userData.joints = joints;
-  if (f.sparkles) for (let i = 0; i < 16; i++) { const a = i * 2.39996, r = (1.1 + (i % 3) * 0.35) * s, y = (0.8 + ((i * 7) % 11) * 0.42) * s + (f.hoverFt ?? 0); out.add(at(glassy(sph((0.05 + (i % 3) * 0.02) * s, f.sparkles, 6, 4), f.sparkles, 0.85), Math.cos(a) * r, y, Math.sin(a) * r)); }
-  if (f.hoverFt) body.position.y += f.hoverFt;
+  if (f.sparkles && !dead) for (let i = 0; i < 16; i++) { const a = i * 2.39996, r = (1.1 + (i % 3) * 0.35) * s, y = (0.8 + ((i * 7) % 11) * 0.42) * s + (f.hoverFt ?? 0); out.add(at(glassy(sph((0.05 + (i % 3) * 0.02) * s, f.sparkles, 6, 4), f.sparkles, 0.85), Math.cos(a) * r, y, Math.sin(a) * r)); }
+  if (P.lie) {
+    // laid out: the whole posed figure turned onto its back, front or side, and rested on the floor
+    const lay = new THREE.Group(); lay.add(body); out.add(lay);
+    if (P.lie === 'side') lay.rotation.z = Math.PI / 2; else lay.rotation.x = P.lie === 'back' ? -Math.PI / 2 : Math.PI / 2;
+    out.updateMatrixWorld(true);
+    const bb = new THREE.Box3(); body.traverse((c) => { const m = c as M; if (m.isMesh && !(m.material as THREE.Material).transparent) bb.expandByObject(m); });
+    lay.position.y -= bb.min.y; lay.position.z -= (bb.min.z + bb.max.z) / 2; lay.position.x -= (bb.min.x + bb.max.x) / 2;
+  } else if (f.hoverFt && !dead) body.position.y += f.hoverFt;
   return out;
 }
 

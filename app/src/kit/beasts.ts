@@ -208,5 +208,8 @@ export const BEASTS: Record<string, BeastSpec> = {
   'draft-horse': { ...HORSE, len: 4.7, height: 5.7, chest: 1.25, loin: 1.1, width: 0.95, neckThick: 0.64, leg: 0.26, coat: '#6a5a4a', maneColor: '#d8ccb0' },
   nightmare: { ...HORSE, len: 4.6, height: 5.6, coat: '#141216', under: '#1e1a20', eyes: '#ff7a1a', glow: true, mane: 'flame', maneColor: '#ff6a14', tail: 'flame', fireFeet: '#ff6a14', nose: '#ff8a1a', gaunt: 0.2 },
 };
-/** Strahd's own nightmare, tacked for its rider: black leather, a blood-red saddlecloth, silver fittings. */
-export const BEUCEPHALUS: BeastSpec = { ...BEASTS.nightmare, len: 4.8, height: 5.8, saddle: { seat: '#1a1014', trim: '#c8ccd4', cloth: '#6e1420' }, bridle: '#1a1014', maneColor: '#ff5a10' };
+/** Strahd's own nightmare, and nothing like a riding horse: an enormous war-bred draft animal, a head taller than a man
+ *  at the shoulder, slab-chested and bull-necked, with legs like pillars and fire for feathering at the hooves. Tacked
+ *  for its rider: black leather, a blood-red saddlecloth, silver fittings. */
+export const BEUCEPHALUS: BeastSpec = { ...BEASTS.nightmare, len: 6.6, height: 8.4, chest: 2.15, loin: 1.85, width: 1.6, neck: 3.3, neckThick: 1.15, skull: 1.35, skullW: 0.6, muzzle: 1.45, muzzleD: 0.46, leg: 0.52, tailLen: 4.4,
+  gaunt: 0, saddle: { seat: '#1a1014', trim: '#c8ccd4', cloth: '#6e1420' }, bridle: '#1a1014', maneColor: '#ff5a10' };

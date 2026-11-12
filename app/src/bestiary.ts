@@ -7,7 +7,7 @@ import { pawn } from './kit/pieces';
 import { heroFigure, type HeroFigure } from './kit/heroes';
 import { detailFor } from './kit/faces';
 import { posed } from './kit/poses';
-import { FOLK, creature, folk, laid, deadRecipe, mounted, type Folk, type FigState } from './kit/menagerie';
+import { FOLK, creature, folk, staked, withDeadPose, mounted, type Folk, type FigState } from './kit/menagerie';
 import { beast, BEASTS, BEUCEPHALUS } from './kit/beasts';
 import { flyer, FLYERS, mistForm, effigy, branches, felled } from './kit/monsters';
 import type { WeaponSpec } from './kit/weapons';
@@ -155,7 +155,7 @@ export function figureFor(e: CreatureEntry, state: FigState = false, seed = ''):
   const dead = state === 'dead' || e.variants?.includes('corpse') === true, battle = !dead && (state === true || state === 'battle');
   const strahd = STRAHD_FORMS[e.id] && creatureById('strahd-von-zarovich');
   if (strahd && strahd.hero) { if (dead && /mounted|blade/.test(e.id)) return figureFor(strahd, 'dead'); return STRAHD_FORMS[e.id](strahd, battle, dead); }
-  if (e.hero && dead) { const d = deadRecipe<HeroFigure & { deadPose?: unknown }>(e.hero.fangs || e.hero.face?.fangs ? { deadPose: 'laid-out', ...e.hero } : e.hero, e.id); return laid(heroFigure(recipeOf({ ...e, hero: d.recipe as HeroFigure }, false), e.size, false), d.lie, !!(e.hero.fangs || e.hero.face?.fangs)); }
+  if (e.hero && dead) { const vamp = !!(e.hero.fangs || e.hero.face?.fangs), g = heroFigure(recipeOf({ ...e, hero: withDeadPose(vamp && !e.hero.deadPose ? { ...e.hero, deadPose: 'laid-out' } : e.hero, e.id) as HeroFigure }, false), e.size, 'dead'); return vamp ? staked(g) : g; }
   if (e.hero) return heroFigure(recipeOf(e, battle), e.size, battle);
   const made = creature(e.id, dead ? 'dead' : battle); if (made) return made;
   const st: FigState = dead ? 'dead' : battle;
