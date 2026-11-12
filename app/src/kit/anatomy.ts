@@ -80,12 +80,12 @@ function baseTorso(fr: Frame): Ring[] {
     const h = fr.build === 'curvy' ? 1.08 : 1, wst = fr.build === 'curvy' ? 0.95 : fr.build === 'broad' ? 1.1 : 1, sh = fr.build === 'broad' ? 1.1 : 1;
     return [{ y: 0.1, w: 0.67 * h, f: 0.3, b: 0.36 * h }, { y: 0.5, w: 0.54 * h, f: 0.27, b: 0.27 }, { y: 0.9, w: 0.375 * wst, f: 0.235 * wst, b: 0.215 * wst }, { y: 1.3, w: 0.46 * sh, f: 0.28, b: 0.25 },
       // the shoulders' top runs down from the neck to the shoulder in a slope (the trapezius), deeper behind than in front
-      { y: 1.6, w: 0.54 * sh, f: 0.31, b: 0.28, n: 2.2 }, { y: 1.9, w: 0.61 * sh, f: 0.26, b: 0.28, n: 2.5 }, { y: 2.0, w: 0.57 * sh, f: 0.23, b: 0.265, n: 2.4 }, { y: 2.08, w: 0.48 * sh, f: 0.2, b: 0.25, n: 2.2 },
+      { y: 1.6, w: 0.54 * sh, f: 0.31, b: 0.28, n: 2.2 }, { y: 1.85, w: 0.64 * sh, f: 0.27, b: 0.285, n: 2.5 }, { y: 1.95, w: 0.66 * sh, f: 0.24, b: 0.27, n: 2.5 }, { y: 2.02, w: 0.6 * sh, f: 0.22, b: 0.26, n: 2.4 }, { y: 2.08, w: 0.5 * sh, f: 0.2, b: 0.25, n: 2.2 },
       { y: 2.16, w: 0.36 * sh, f: 0.17, b: 0.23, n: 2.1 }, { y: 2.24, w: 0.24, f: 0.145, b: 0.19 }, { y: 2.32, w: 0.155, f: 0.13, b: 0.16 }];
   }
   const c = fr.build === 'broad' ? 1.12 : 1, d = fr.build === 'broad' ? 1.08 : 1;
   return [{ y: 0.1, w: 0.55, f: 0.3, b: 0.3 }, { y: 0.6, w: 0.49 * d, f: 0.28 * d, b: 0.26 * d }, { y: 1.1, w: 0.58 * c, f: 0.33 * d, b: 0.3 * d }, { y: 1.6, w: 0.72 * c, f: 0.39 * d, b: 0.34 * d, n: 2.3 },
-    { y: 1.9, w: 0.79 * c, f: 0.32 * d, b: 0.34 * d, n: 2.6 }, { y: 2.0, w: 0.74 * c, f: 0.28 * d, b: 0.325 * d, n: 2.5 }, { y: 2.08, w: 0.62 * c, f: 0.24, b: 0.3 * d, n: 2.3 },
+    { y: 1.85, w: 0.83 * c, f: 0.33 * d, b: 0.345 * d, n: 2.6 }, { y: 1.95, w: 0.85 * c, f: 0.3 * d, b: 0.335 * d, n: 2.6 }, { y: 2.02, w: 0.78 * c, f: 0.27 * d, b: 0.32 * d, n: 2.5 }, { y: 2.08, w: 0.645 * c, f: 0.24, b: 0.3 * d, n: 2.3 },
     { y: 2.16, w: 0.47 * c, f: 0.21, b: 0.27 * d, n: 2.1 }, { y: 2.24, w: 0.32, f: 0.18, b: 0.23 }, { y: 2.32, w: 0.21, f: 0.17, b: 0.2 }];
 }
 /** The pelvis: hips and seat, the hips at 0. */
@@ -98,7 +98,12 @@ function basePelvis(fr: Frame): Ring[] {
   return [{ y: -0.42, w: 0.22, f: 0.18, b: 0.2 }, { y: -0.15, w: 0.54, f: 0.3, b: 0.37 }, { y: 0.15, w: 0.56, f: 0.3, b: 0.33 }, { y: 0.5, w: 0.5, f: 0.28, b: 0.27 }];
 }
 /** Limbs hang from their joint at 0: the upper arm (to −1.12), forearm (−1.04), thigh (−THIGH), shin (−SHIN). */
-export const upperArmRings = (fr: Frame): Ring[] => scaleRings([{ y: -1.12, w: 0.135, f: 0.14, b: 0.15 }, { y: -0.85, w: 0.15, f: 0.16, b: 0.16 }, { y: -0.5, w: fr.fem && fr.m.arms < 1.2 ? 0.17 : 0.19, f: fr.fem && fr.m.arms < 1.2 ? 0.175 : 0.235, b: fr.fem && fr.m.arms < 1.2 ? 0.175 : 0.21 }, { y: -0.2, w: 0.19, f: 0.19, b: 0.19 }, { y: -0.04, w: 0.17, f: 0.17, b: 0.17 }, { y: 0.04, w: 0.1, f: 0.1, b: 0.1 }], fr.arm); // a low cap, inside the deltoid, so no knob shows over the shoulder
+/** The upper arm, its deltoid built in: the arm swells on its outside below the joint, rounds over the top and tucks in
+ *  toward the collar, so the shoulder's line runs on into the arm with no knob or seam. `sx` is the arm's side (its
+ *  outside is +sx in x). */
+export const upperArmRings = (fr: Frame, sx = 1): Ring[] => { const lean = fr.fem && fr.m.arms < 1.2; return scaleRings([{ y: -1.12, w: 0.135, f: 0.14, b: 0.15 }, { y: -0.85, w: 0.15, f: 0.16, b: 0.16 },
+  { y: -0.5, w: lean ? 0.17 : 0.19, f: lean ? 0.175 : 0.235, b: lean ? 0.175 : 0.21 }, { y: -0.36, w: lean ? 0.185 : 0.2, f: lean ? 0.18 : 0.215, b: lean ? 0.18 : 0.2, x: 0.012 * sx },
+  { y: -0.22, w: 0.215, f: 0.195, b: 0.2, x: 0.01 * sx }, { y: -0.1, w: 0.2, f: 0.185, b: 0.19, x: -0.005 * sx }, { y: -0.05, w: 0.15, f: 0.15, b: 0.16, x: -0.03 * sx }, { y: 0.0, w: 0.07, f: 0.08, b: 0.08, x: -0.07 * sx }], fr.arm); };
 export const forearmRings = (fr: Frame): Ring[] => scaleRings([{ y: -1.04, w: 0.098, f: 0.075, b: 0.08 }, { y: -0.7, w: 0.115, f: 0.1, b: 0.11 }, { y: -0.28, w: 0.16, f: 0.15, b: 0.16 }, { y: 0.0, w: 0.14, f: 0.14, b: 0.15 }, { y: 0.05, w: 0.13, f: 0.13, b: 0.14 }], fr.arm);
 export function thighRings(fr: Frame): Ring[] {
   const top = (fr.fem ? (fr.build === 'curvy' ? 1.18 : 1.1) : 1) * (0.5 + 0.5 * fr.m.hips);
