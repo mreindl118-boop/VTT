@@ -164,7 +164,7 @@ describe('heroFigure', () => {
     const flat = heroFigure({ ...f, wings: undefined }, 'medium', 'dead'); flat.updateMatrixWorld(true); // (wings would prop the body up)
     const j = flat.userData.joints as Record<string, THREE.Object3D>, y = (n: string) => j[n].getWorldPosition(new THREE.Vector3()).y;
     expect(y('head')).toBeLessThan(1.2); expect(y('hips')).toBeLessThan(1.2); expect(y('hips')).toBeGreaterThan(0);
-    for (const p of ['dead-prone', 'dead-comic', 'dead-swoon'] as const) expect(height(heroFigure({ deadPose: p }, 'medium', 'dead'))).toBeLessThan(height(heroFigure({})) * 0.6);
+    for (const p of ['dead-prone', 'dead-comic', 'dead-swoon', 'dead-curled'] as const) expect(height(heroFigure({ deadPose: p }, 'medium', 'dead'))).toBeLessThan(height(heroFigure({})) * 0.6);
     expect(height(heroFigure({}, 'medium', true))).toBeGreaterThan(5); // true still means battle
   });
   it('sculpts a feminine and a masculine frame: narrower shoulders and waist, wider hips', () => {

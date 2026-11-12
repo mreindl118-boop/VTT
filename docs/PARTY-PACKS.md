@@ -86,11 +86,15 @@ colours a few locks at the right temple.
 A figure takes `pose` out of initiative (default `rest`), `battlePose` in it (default its `stance`) and `deadPose` when
 it is down (default `dead`). Each is a name or joint angles:
 
-- Names: `rest`, `two-handed` (a great weapon raised across the body), `shield` (shield up, weapon cocked high),
+- Names: `rest` (standing at ease: weight on one leg, hips and shoulders tilted against each other, the head
+  turned; one of three variants picked by the recipe, or a gown's own with the knee in the slit), `two-handed` (a deep
+  lunge, a great weapon raised across the body), `shield` (the shield side leading in a lunge, the shield across the
+  body, the weapon arm cocked back at the shoulder),
   `cast` (book raised, the free hand thrust out with a spell, the flier rising), `conjure` (the casting hand forward
   round a gathering spell, the book in the other), `ride` (seated astride, hands on the reins), `lunge`, `menace`
   (arms spread, hands clawed), `cower`, `kneel`, `staff-raised`, and the dead: `dead` (sprawled on the back),
-  `dead-prone` (face down, an arm flung out), `dead-comic` (face-planted, rump in the air), `dead-swoon`.
+  `dead-prone` (face down, an arm folded behind the back, a leg hitched out), `dead-comic` (face-planted, rump in
+  the air), `dead-swoon`, `dead-curled` (on its side, knees drawn up). The dead have crossed-out eyes.
 - Angles (radians): `spine`, `neck`, `pelvis`, `shoulderR/L`, `wristR/L`, `hipR/L`, `ankleR/L` as `[x, y, z]`;
   `elbowR/L`, `kneeR/L` and `collarR/L` (the shoulder's lift; automatic when an arm goes up) as numbers; `holdR/L`
   (`upright`, `tilt`); `lift` (feet); `seated`; `lie` (`back`, `front` or `side`: the posed figure laid on the floor);
