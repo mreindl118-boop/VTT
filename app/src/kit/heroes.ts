@@ -6,6 +6,7 @@ import * as THREE from 'three';
 import { mat, matClone } from '../render/materials';
 import { HIP, SHIN, THIGH, clipRings, forearmRings, frameOf, loftGeometry, lockGeometry, neckRings, pelvisRings, ringAt, shinRings, thighRings, torsoRings, upperArmRings, type Frame, type Measures } from './anatomy';
 import type { CreatureSize } from '../core/units';
+import { faceFeatures, type FaceSpec, type FaceDetail } from './faces';
 
 export type HeroWeapon = 'none' | 'sword' | 'axe' | 'mace' | 'staff' | 'spear' | 'torch';
 export type HeroOffhand = 'none' | 'shield' | 'book' | 'orb';
@@ -29,18 +30,20 @@ export interface HeroPose {
   hipR?: Euler3; kneeR?: number; ankleR?: Euler3; hipL?: Euler3; kneeL?: number; ankleL?: Euler3;
   holdR?: { upright?: boolean; tilt?: Euler3 }; holdL?: { upright?: boolean; tilt?: Euler3 };
   lift?: number; seated?: boolean; spell?: 'right' | 'between';
+  /** Where the eyes look, [across, up] from -1 to 1 (default: worked out from the pose, see gazeOf). */
+  gaze?: [number, number];
   /** Laid out on the floor (a body): on its back, its front or its side. */
   lie?: 'back' | 'front' | 'side';
 }
 /** Standing at ease, never square: weight on one leg, the hips and shoulders tilted against each other, the head
  *  turned, each arm hanging its own way. A character without a pose of its own takes one by its recipe. */
 export const AT_EASE: HeroPose[] = [
-  { pelvis: [0, 0.08, -0.11], spine: [0.03, -0.12, 0.17], neck: [0.03, 0.22, -0.07], hipR: [0.04, 0, 0.1], kneeR: 0.03, hipL: [-0.3, 0.3, 0.1], kneeL: 0.55, shoulderR: [-0.14, 0, 0.14], elbowR: -0.5, wristR: [0.15, 0, 0], shoulderL: [0.1, 0, 0.2], elbowL: -0.3 },
-  { pelvis: [0, -0.1, 0.11], spine: [0.03, 0.14, -0.16], neck: [0.02, -0.24, 0.07], hipL: [0.05, 0, 0.1], kneeL: 0.03, hipR: [-0.3, 0.26, 0.1], kneeR: 0.58, shoulderR: [-0.25, 0, 0.16], elbowR: -0.65, shoulderL: [0.08, 0, 0.18], elbowL: -0.38, wristL: [0.15, 0, 0] },
-  { pelvis: [0.02, 0.14, -0.09], spine: [-0.03, -0.2, 0.14], neck: [0.05, 0.3, -0.04], hipR: [0.06, 0.1, 0.12], kneeR: 0.04, hipL: [-0.38, 0.35, 0.02], kneeL: 0.5, shoulderR: [-0.2, 0, 0.18], elbowR: -0.7, wristR: [0.1, 0, 0], shoulderL: [0.12, 0, 0.24], elbowL: -0.5 },
+  { pelvis: [0, 0.08, -0.11], spine: [0.03, -0.12, 0.17], neck: [0.04, 0.26, -0.13], hipR: [0.04, 0, 0.1], kneeR: 0.03, hipL: [-0.3, 0.3, 0.1], kneeL: 0.55, shoulderR: [-0.14, 0, 0.14], elbowR: -0.5, wristR: [0.15, 0, 0], shoulderL: [0.1, 0, 0.2], elbowL: -0.3 },
+  { pelvis: [0, -0.1, 0.11], spine: [0.03, 0.14, -0.16], neck: [0.03, -0.28, 0.12], hipL: [0.05, 0, 0.1], kneeL: 0.03, hipR: [-0.3, 0.26, 0.1], kneeR: 0.58, shoulderR: [-0.25, 0, 0.16], elbowR: -0.65, shoulderL: [0.08, 0, 0.18], elbowL: -0.38, wristL: [0.15, 0, 0] },
+  { pelvis: [0.02, 0.14, -0.09], spine: [-0.03, -0.2, 0.14], neck: [-0.04, 0.32, -0.1], hipR: [0.06, 0.1, 0.12], kneeR: 0.04, hipL: [-0.38, 0.35, 0.02], kneeL: 0.5, shoulderR: [-0.2, 0, 0.18], elbowR: -0.7, wristR: [0.1, 0, 0], shoulderL: [0.12, 0, 0.24], elbowL: -0.5 },
 ];
 /** A gown's ease: weight on the right leg, the left knee forward in the slit, the hip thrown out. */
-const GOWN_EASE: HeroPose = { pelvis: [0, 0.04, -0.1], spine: [0.0, 0.08, 0.16], neck: [0.02, -0.1, -0.06], hipL: [-0.2, 0.1, -0.06], kneeL: 0.42, hipR: [0.03, 0, 0.12], kneeR: 0.02, shoulderR: [-0.08, 0, 0.2], elbowR: -0.4, wristR: [0.2, 0, 0], shoulderL: [-0.1, 0, 0.12], elbowL: -0.3 };
+const GOWN_EASE: HeroPose = { pelvis: [0, 0.04, -0.1], spine: [0.0, 0.08, 0.16], neck: [0.05, -0.24, -0.13], hipL: [-0.2, 0.1, -0.06], kneeL: 0.42, hipR: [0.03, 0, 0.12], kneeR: 0.02, shoulderR: [-0.08, 0, 0.2], elbowR: -0.4, wristR: [0.2, 0, 0], shoulderL: [-0.1, 0, 0.12], elbowL: -0.3 };
 export const POSES: Record<PoseName, HeroPose> = {
   rest: {},
   // a deep fighting lunge: the lead knee bent over its foot, the rear leg driven back, the body coiled over the weapon
@@ -81,6 +84,20 @@ export const POSES: Record<PoseName, HeroPose> = {
     shoulderR: [-2.7, 0, 0.2], elbowR: -0.3, shoulderL: [-1.0, 0, 0.3], elbowL: -0.6, wristL: [0.8, 0, 0] },
 };
 
+/** The pose a figure takes: dead its dead pose, in initiative its battle pose, otherwise its own or one at ease. */
+function poseOf(f: HeroFigure, battle: boolean, dead: boolean, gown: boolean): HeroPose {
+  const named = (p: PoseName | HeroPose | undefined) => typeof p === 'string' ? POSES[p] ?? POSES.rest : p;
+  let P: HeroPose = dead ? named(f.deadPose) ?? POSES.dead : (battle ? named(f.battlePose ?? f.stance) : undefined) ?? named(f.pose) ?? POSES.rest;
+  if (P === POSES.rest) { let h = 0; for (const ch of (f.skin ?? '') + (f.hair ?? '') + (f.cloth ?? '') + (f.weapon ?? '')) h = (h * 31 + ch.charCodeAt(0)) >>> 0; P = gown ? GOWN_EASE : AT_EASE[h % AT_EASE.length]; }
+  return P;
+}
+/** Where the eyes look in a pose (its own `gaze`, or worked out): in a fight they stay on the foe ahead however the
+ *  head and body are turned; at ease they lead the way the head is turning, a little down. */
+export function gazeOf(P: HeroPose, battle: boolean): [number, number] {
+  if (P.gaze) return P.gaze;
+  const clamp = (v: number) => Math.max(-1, Math.min(1, v)), yaw = (P.neck?.[1] ?? 0) + (P.spine?.[1] ?? 0) + (P.pelvis?.[1] ?? 0), pitch = (P.neck?.[0] ?? 0) + (P.spine?.[0] ?? 0);
+  return battle ? [clamp(-yaw / 0.45), clamp(pitch / 0.5)] : [clamp((P.neck?.[1] ?? 0) * 3), clamp(-0.15 - (P.neck?.[0] ?? 0) * 2)];
+}
 /** A character's miniature, as the party pack writes it. Colours are CSS hex strings. */
 export interface HeroFigure {
   skin?: string; hair?: string; hairStyle?: HeroHair; hairStreak?: string;
@@ -133,6 +150,8 @@ export interface HeroFigure {
   pose?: PoseName | HeroPose; battlePose?: PoseName | HeroPose; deadPose?: PoseName | HeroPose;
   /** A beard (its colour), fangs, and a tall standing collar behind the head (its colour). */
   beard?: string; fangs?: boolean; collar?: string;
+  /** The character's own face (kit/faces.ts) in place of the standard one, and how finely it is modelled (1 to 4). */
+  face?: FaceSpec; detail?: FaceDetail;
 }
 
 const SIZE_SCALE: Record<CreatureSize, number> = { tiny: 0.45, small: 0.68, medium: 1, large: 1.6, huge: 2.4, gargantuan: 3.2 };
@@ -189,13 +208,23 @@ function drape(rTop: number, rBot: number, h: number, c: string, o: { folds: num
   return sm(g, c, true);
 }
 
+/** Faces are painted onto a clean head (the stylised look); false brings back the sculpted standard face below. */
+const PAINTED_FACES = true as boolean;
 /** The head, sculpted like a miniature's: one shaped skull (temples, cheekbones over hollow cheeks, a brow over deep-set
  *  eyes, a jaw that is square on a masculine frame and tapered on a feminine one, a chin), a wedge of a nose, small
  *  shadowed eyes under lids, brows, lips with a philtrum, and ears. The eyes sit on the midline; brow, nose and chin
  *  split the face in thirds. Returns the face's depth at (x, y), to seat other features. */
-function buildFace(head: THREE.Group, s: number, hy: number, f: HeroFigure, fem = false, dead = false): (x: number, y: number) => number {
+function buildFace(head: THREE.Group, s: number, hy: number, f: HeroFigure, fem = false, dead = false, gaze?: [number, number]): (x: number, y: number) => number {
   const skin = f.skin ?? '#d9b899', shade = tone(skin, '#1e1216', 0.3), deep = tone(skin, '#1e1216', 0.5), hair = f.hair ?? '#3a2a1a';
   const lip = f.lips ?? tone(skin, '#8a3038', fem ? 0.4 : 0.2);
+  if (f.face || PAINTED_FACES) {
+    // the painted face (kit/faces.ts + kit/facepaint.ts), every figure's default; `face` gives a character its own
+    // the character's own face (kit/faces.ts): the whole head from its recipe, with this figure's ears on it; the hair is
+    // buildHair's, as for every other head
+    const fg = faceFeatures({ ...f.face, gaze: f.face?.gaze ?? gaze }, { skin, hair: f.hair, eyes: f.eyes, lips: f.lips, detail: f.detail ?? 2, fem, dead }); fg.scale.setScalar(0.4 * s); fg.position.set(0, hy, 0); head.add(fg);
+    if (f.ears !== 'pointed') for (const sx of [-1, 1]) { const e = sph(0.075 * s, skin); e.scale.set(0.42, 1, 0.65); head.add(at(e, sx * 0.345 * s, hy - 0.02 * s, -0.01 * s)); }
+    return (x: number, y: number) => 0.345 - 1.4 * x * x - (y > 0 ? 1.0 : 0.45) * y * y;
+  }
   const R = 0.4, g = new THREE.SphereGeometry(1, 56, 42), p = g.attributes.position as THREE.BufferAttribute;
   const bump = (x: number, y: number, cx: number, cy: number, wx: number, wy = wx) => Math.exp(-((x - cx) ** 2 / wx + (y - cy) ** 2 / wy));
   for (let i = 0; i < p.count; i++) {
@@ -492,7 +521,7 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
   const hy = 2.82 * s; // the head's centre, in the upper body's frame
   const skin = f.skin ?? '#d9b899';
   const headAt = neck.position.y + head.position.y; // the head joint, in the upper body's frame
-  const surf = buildFace(head, s, hy - headAt, f, fr.fem, dead);
+  const surf = buildFace(head, s, hy - headAt, f, fr.fem, dead, gazeOf(poseOf(f, battle, dead, gown), battle));
   const [R, Lf] = arm;
   // a group in each hand for what it holds: upright while the forearm hangs at rest
   const holder = (l: Limb) => { const g = new THREE.Group(); g.position.set(0, (-0.03 - 0.12 * (l.hs ?? 1)) * s, 0.05 * s); g.rotation.set(-(l.root.rotation.x + l.mid.rotation.x), 0, -Math.sign(l.root.position.x) * 0.08); l.end.add(g); return g; };
@@ -738,9 +767,7 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
 
   // the pose: out of initiative its rest pose (on a gown, weight on the right leg, the left knee forward in the slit); in
   // initiative its battle pose; every joint from the recipe's angles or a named preset
-  const named = (p: PoseName | HeroPose | undefined) => typeof p === 'string' ? POSES[p] ?? POSES.rest : p;
-  let P: HeroPose = dead ? named(f.deadPose) ?? POSES.dead : (battle ? named(f.battlePose ?? f.stance) : undefined) ?? named(f.pose) ?? POSES.rest;
-  if (P === POSES.rest) { let h = 0; for (const ch of (f.skin ?? '') + (f.hair ?? '') + (f.cloth ?? '') + (f.weapon ?? '')) h = (h * 31 + ch.charCodeAt(0)) >>> 0; P = gown ? GOWN_EASE : AT_EASE[h % AT_EASE.length]; }
+  const P = poseOf(f, battle, dead, gown);
   const mir = (e: Euler3 | undefined, sx: number, d: Euler3): Euler3 => e ? [e[0], e[1] * sx, e[2] * sx] : [d[0], d[1] * sx, d[2] * sx];
   if (P.spine) up.rotation.set(...P.spine);
   if (P.pelvis) pel.rotation.set(...P.pelvis);

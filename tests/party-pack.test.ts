@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 import * as THREE from 'three';
 import { applyPartyPack, isUntouchedDefault, sheetOf, validatePartyPack, type PartyContext } from '../app/src/core/partyPack';
 import { newCampaign } from '../app/src/state/campaign';
-import { heroFigure, heroOptions } from '../app/src/kit/heroes';
+import { gazeOf, heroFigure, heroOptions, POSES } from '../app/src/kit/heroes';
 import { Jiggle } from '../app/src/render/jiggle';
 import type { Vec2 } from '../app/src/core/geometry';
 
@@ -217,5 +217,12 @@ describe('heroFigure', () => {
     const g = heroFigure({ weapon: 'axe', stance: 'two-handed' }, 'medium', 'battle'), J = g.userData.joints as Record<string, THREE.Object3D>; g.updateMatrixWorld(true);
     const grip = J.handR.localToWorld(new THREE.Vector3(0, 1, 0)), other = J.handR.localToWorld(new THREE.Vector3(0, -0.75, 0)), hand = J.handL.getWorldPosition(new THREE.Vector3());
     expect(Math.min(hand.distanceTo(grip), hand.distanceTo(other))).toBeLessThan(0.25);        // the free hand is on the haft
+  });
+  it('looks somewhere: on the foe in a fight however the head is turned, the pose\'s own gaze when it has one', () => {
+    const turned = gazeOf({ spine: [0, 0.4, 0], neck: [0, 0.1, 0] }, true);
+    expect(turned[0]).toBeLessThan(-0.5);                                   // body turned one way, the eyes come back the other
+    expect(gazeOf(POSES['two-handed'], true)[0]).toBeGreaterThan(0);         // the body is wound away from the foe, the eyes come back
+    expect(gazeOf({ gaze: [0.3, -0.2], neck: [0, 1, 0] }, false)).toEqual([0.3, -0.2]);
+    expect(gazeOf({ neck: [0, 0.2, 0] }, false)[0]).toBeGreaterThan(0.3);     // at ease the eyes lead the head's turn
   });
 });

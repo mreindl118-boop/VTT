@@ -89,6 +89,12 @@ and cloth lies over it below; `body.bust` sizes it.
 Jiggle (the Party sheet's switch, on by default): the bust bounces on a damped spring when a miniature is picked up
 or moved. It costs nothing while nothing is moving; switched off, figures are built without the weights.
 
+Faces are painted, storybook style, on a clean head (kit/faces.ts, kit/facepaint.ts): large eyes with lids, lashes
+and a catch-light, brows, lips, blush. `face` gives a character its own (sliders from -1 to 1 such as `eyeSize`,
+`jaw`, `smile`, `browAngle`, plus `scars`, `lashes`, `shadow`); `detail` 1 to 4 sets how finely it is drawn. The eyes
+look somewhere: a pose's `gaze` ([across, up]), or worked out from the pose, so in a fight they stay on the foe ahead
+however the head is turned, and at ease they lead the way the head is tilted and turning.
+
 Whatever the pose, a standing figure keeps its soles flat and both feet on the ground (the higher foot comes down,
 or the hips sink onto the standing leg; a foot the pose lifts well clear stays in the air), stands over the middle of
 its base, turns an empty hand's palm to the thigh, and in a two-handed stance takes the haft of a long weapon in its
