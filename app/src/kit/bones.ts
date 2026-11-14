@@ -35,6 +35,9 @@ export interface Bony {
   battle?: boolean;
   /** In the saddle: the mail shirt stops at the waist, clear of the thighs. */
   seated?: boolean;
+  /** Fallen (laid out by a dead pose): the skull knocked off, lying on the floor by the shoulders and gaping back at the
+   *  body it came off. */
+  dead?: boolean;
 }
 
 const V = (x = 0, y = 0, z = 0) => new THREE.Vector3(x, y, z);
@@ -370,7 +373,7 @@ export function boneify(g: THREE.Group, f: HeroFigure, o: Bony = {}): THREE.Grou
     for (const sx of [-1, 1]) jaw.push(sweep([V(sx * 0.215, 0.12, -0.0), V(sx * 0.225, 0.2, 0.03), V(sx * 0.232, 0.255, 0.05)], 0.012, (t) => 0.026 * (1 - 0.6 * t), V(sx, 0, 0), { n: 8, seg: 6 }), ball(V(sx * 0.235, 0.275, -0.06), 0.026, 8, 6));
     const low: Geo[] = []; for (let i = 0; i < 10; i++) { const u = (i - 4.5) / 4.5, a = u * 1.15, big = Math.abs(u) > 0.6; low.push(blob(V(Math.sin(a) * 0.106, 0.112, 0.17 + 0.128 * Math.cos(a)), [big ? 0.019 : 0.013, 0.024, big ? 0.019 : 0.01], undefined, new THREE.Quaternion().setFromAxisAngle(UP, a), 8, 6)); }
     // it hangs a little open at rest and gapes in a fight
-    const open = new THREE.Matrix4().makeTranslation(J0.x, J0.y, J0.z).multiply(new THREE.Matrix4().makeRotationX(o.battle ? 0.34 : 0.07)).multiply(new THREE.Matrix4().makeTranslation(-J0.x, -J0.y, -J0.z));
+    const open = new THREE.Matrix4().makeTranslation(J0.x, J0.y, J0.z).multiply(new THREE.Matrix4().makeRotationX(o.dead ? 0.42 : o.battle ? 0.34 : 0.07)).multiply(new THREE.Matrix4().makeTranslation(-J0.x, -J0.y, -J0.z));
     for (const x of [...jaw, ...low]) x.applyMatrix4(open);
     bag.put(head, B, ...arch, ...jaw); bag.put(head, teeth, ...tooth, ...low);
   }
@@ -475,7 +478,99 @@ export function boneify(g: THREE.Group, f: HeroFigure, o: Bony = {}): THREE.Grou
 
   bag.flush(s);
   g.updateMatrixWorld(true);
+  // fallen: the skull comes off first, so the bones settle without it
+  if (o.dead) { g.attach(head); collapse(g, J, s); knockOff(g, up, head, s); }
   return g;
+}
+
+const solid = (m: THREE.Object3D): m is THREE.Mesh => (m as THREE.Mesh).isMesh && !((m as THREE.Mesh).material as THREE.Material).transparent;
+
+/** The nearest patch of floor round `from` (first `toward` it, then a little round either way, then a little farther out)
+ *  with nothing of `g` within `need` of it, seen from above: no bone, rag or dropped weapon lower than a skull's height
+ *  (in `g`'s frame; `skip` leaves out the thing being placed, `fits` rules spots out). Where nothing is that clear, the
+ *  roomiest spot tried. */
+export function clearSpot(g: THREE.Object3D, from: V3, toward: V3, need: number, s: number, skip?: (o: THREE.Object3D) => boolean, fits?: (x: number, z: number) => boolean): V3 {
+  g.updateMatrixWorld(true);
+  const gi = g.matrixWorld.clone().invert(), floor: THREE.Vector2[] = [], step = 0.15 * s, low = 0.9 * s, a = V(), c = V();
+  const keep = (p: V3) => { if (p.y < low) floor.push(new THREE.Vector2(p.x, p.z)); };
+  // vertices, and points along the long edges of a few-faced mesh (a haft) that its corners alone would miss
+  g.traverse((o) => {
+    if (!solid(o) || skip?.(o)) return;
+    const pos = o.geometry.getAttribute('position') as THREE.BufferAttribute | undefined; if (!pos) return;
+    const to = o.matrixWorld.clone().premultiply(gi), pt = (i: number, v: V3) => v.fromBufferAttribute(pos, i).applyMatrix4(to);
+    for (let i = 0, every = Math.max(1, Math.floor(pos.count / 400)); i < pos.count; i += every) keep(pt(i, a).clone());
+    const idx = o.geometry.index, n = idx ? idx.count : pos.count; if (n > 6000) return;
+    for (let t = 0; t < n; t++) { const e = t - (t % 3) + ((t % 3) + 1) % 3; pt(idx ? idx.getX(t) : t, a); pt(idx ? idx.getX(e) : e, c); const k = Math.floor(a.distanceTo(c) / step); for (let j = 1; j < k; j++) keep(a.clone().lerp(c, j / k)); }
+  });
+  const room = (x: number, z: number) => { let d = Infinity; for (const p of floor) d = Math.min(d, (p.x - x) ** 2 + (p.y - z) ** 2); return Math.sqrt(d); };
+  const th0 = Math.atan2(toward.z, toward.x), r0 = Math.hypot(toward.x, toward.z), tries: { x: number; z: number; cost: number }[] = [];
+  for (let r = 0; r <= 1.2; r += 0.2) for (let k = -10; k <= 10; k++) { const th = th0 + k * 0.3, R = r0 + r * s; tries.push({ x: from.x + Math.cos(th) * R, z: from.z + Math.sin(th) * R, cost: Math.abs(k) * 0.18 + r }); }
+  const ok = fits ? tries.filter((t) => fits(t.x, t.z)) : tries; if (ok.length) tries.splice(0, tries.length, ...ok);
+  tries.sort((p, q) => p.cost - q.cost);
+  let best = tries[0], most = -1;
+  for (const t of tries) { const d = room(t.x, t.z); if (d >= need) { best = t; break; } if (d > most) { most = d; best = t; } }
+  return V(best.x, 0, best.z);
+}
+
+/** The lowest point, in `g`'s frame, of the solid meshes under `parts` (or only those hung straight on them). */
+function lowest(g: THREE.Object3D, parts: THREE.Object3D[], own = false): number {
+  g.updateMatrixWorld(true);
+  const gi = g.matrixWorld.clone().invert(), v = V(); let y = Infinity;
+  const one = (m: THREE.Object3D) => { if (!solid(m)) return; const p = m.geometry.getAttribute('position') as THREE.BufferAttribute | undefined; if (!p) return; const to = m.matrixWorld.clone().premultiply(gi); for (let i = 0; i < p.count; i++) y = Math.min(y, v.fromBufferAttribute(p, i).applyMatrix4(to).y); };
+  for (const o of parts) { if (own) o.children.forEach(one); else o.traverse(one); }
+  return y;
+}
+
+/** Bones cannot hold themselves up the way a body's flesh did: laid out by a dead pose, the spine, ribs and pelvis come
+ *  down onto the floor, and each arm or leg that would then go through it swings up at the shoulder or hip, in the
+ *  upright plane along it, until it lies on the floor (a bent knee rises, its foot flat). */
+function collapse(g: THREE.Group, J: Joints, s: number): void {
+  const up = J.chest; let body: THREE.Object3D = up; while (body.parent && body.parent !== g) body = body.parent;
+  if (body === g) return;
+  const trunk = ['hips', 'chest', 'collarR', 'collarL', 'neck'].map((n) => J[n]).filter(Boolean);
+  body.position.y -= lowest(g, trunk, true);
+  const gi = () => { g.updateMatrixWorld(true); return g.matrixWorld.clone().invert(); }, here = (o: THREE.Object3D) => o.getWorldPosition(V()).applyMatrix4(gi());
+  for (const [root, end] of [['shoulderR', 'wristR'], ['shoulderL', 'wristL'], ['hipR', 'ankleR'], ['hipL', 'ankleL']]) {
+    const r = J[root], e = J[end]; if (!r || !e || !r.parent || lowest(g, [r]) >= -0.01 * s) continue;
+    const run = here(e).sub(here(r)).setY(0); if (run.lengthSq() < 1e-6) continue;
+    const axis = run.normalize().cross(UP).normalize(), q0 = r.quaternion.clone(), pq = r.parent.getWorldQuaternion(new THREE.Quaternion()).premultiply(g.getWorldQuaternion(new THREE.Quaternion()).invert());
+    const swing = (t: number) => { r.quaternion.copy(pq.clone().invert().multiply(new THREE.Quaternion().setFromAxisAngle(axis, t)).multiply(pq).multiply(q0)); return lowest(g, [r]); };
+    const lift = (t: number) => { swing(t); return here(e).y; }, way = lift(0.2) > lift(-0.2) ? 1 : -1;
+    let a = 0, b = 1.6;
+    if (swing(way * b) >= 0) for (let i = 0; i < 14; i++) { const m = (a + b) / 2; if (swing(way * m) >= 0) b = m; else a = m; }
+    else b = 0;
+    swing(way * b);
+  }
+  // whatever still goes through the floor (an arm pinned under the ribs) lifts the whole a little
+  const y = lowest(g, [body]); if (y < 0) body.position.y -= y;
+  g.updateMatrixWorld(true);
+}
+
+/** A fallen skeleton's skull knocked off the neck: it lies on its side a stride off the shoulder, well clear of the neck
+ *  (out in front of the chest if the body lies on its side, else on the side the body leans toward), turned to gape back
+ *  at the body, on the nearest clear patch of floor there. */
+function knockOff(g: THREE.Group, up: THREE.Object3D, head: THREE.Object3D, s: number): void {
+  const gi = g.matrixWorld.clone().invert(), at = (o: THREE.Object3D, p = V()) => o.localToWorld(p.clone()).applyMatrix4(gi);
+  const neckTop = at(head), chest = at(up, V(0, 1.6 * s, 0)), along = neckTop.clone().sub(chest).setY(0);
+  if (along.lengthSq() < 1e-6) along.set(0, 0, 1); along.normalize();
+  const side = V(along.z, 0, -along.x), front = at(up, V(0, 1.6 * s, s)).sub(chest).setY(0).divideScalar(s);
+  const away = front.length() > 0.4 ? front.normalize() : side.clone().multiplyScalar(at(up, V(s, 1.6 * s, 0)).sub(chest).dot(side) >= 0 ? 1 : -1);
+  const lean = away.dot(side) >= 0 ? 1 : -1;
+  g.attach(head);
+  const inHead = (o: THREE.Object3D) => { for (let p: THREE.Object3D | null = o; p && p !== g; p = p.parent) if (p === head) return true; return false; };
+  // the skull's middle, in its own frame
+  const box = new THREE.Box3(), b = new THREE.Box3(), into = (m: THREE.Mesh, to: THREE.Matrix4) => { m.geometry.computeBoundingBox(); return b.copy(m.geometry.boundingBox!).applyMatrix4(m.matrixWorld.clone().premultiply(to)); };
+  const hi = head.matrixWorld.clone().invert(); head.traverse((m) => { if (solid(m)) box.union(into(m, hi)); });
+  const mid = box.getCenter(V()).multiply(head.scale);
+  // beside the shoulder, never on from the neck where the head was (from most angles that reads as a head still on)
+  const offAxis = (x: number, z: number) => { const d = V(x - neckTop.x, 0, z - neckTop.z); return d.dot(along) <= 0.26 * d.length(); };
+  const best = clearSpot(g, neckTop, away.clone().addScaledVector(along, -0.3).setLength(1.45 * s), 0.62 * s, s, inHead, offAxis);
+  // on its side (its temple on the floor), the face turned back toward the chest
+  const face = V(chest.x - best.x, 0, chest.z - best.z).normalize(), q = new THREE.Quaternion().setFromUnitVectors(V(0, 0, 1), face);
+  head.quaternion.copy(q.multiply(new THREE.Quaternion().setFromAxisAngle(V(0, 0, 1), lean * 1.25)));
+  const off = mid.applyQuaternion(head.quaternion);
+  head.position.set(best.x - off.x, 0, best.z - off.z);
+  head.position.y -= lowest(g, [head]); head.updateMatrixWorld(true);
 }
 
 // ------------------------------------------------------------------ the horse

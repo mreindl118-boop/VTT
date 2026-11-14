@@ -194,6 +194,34 @@ export function beast(s: BeastSpec, pose: BeastPose | BeastPoseName = 'stand'): 
   return out;
 }
 
+/** A beast fallen on its side lets its head down onto the floor: the neck swung down in the upright plane across it
+ *  until the head rests level with the body's underside (laid on its side, the dead pose would hold the head up off the
+ *  floor). For a beast already laid down (kit/monsters.ts felled), with nothing above it. */
+export function slump(g: THREE.Group): THREE.Group {
+  const J = g.userData.joints as Record<string, THREE.Object3D> | undefined, neck = J?.neck ?? g.getObjectByName('neck'), head = J?.head ?? neck?.getObjectByName('head');
+  if (!neck || !head || !neck.parent) return g;
+  const inNeck = (o: THREE.Object3D) => { for (let p: THREE.Object3D | null = o; p; p = p.parent) if (p === neck) return true; return false; };
+  const v = new THREE.Vector3(), low = (mine: boolean) => {
+    g.updateMatrixWorld(true); let y = Infinity;
+    g.traverse((o) => { const m = o as THREE.Mesh; if (!m.isMesh || inNeck(m) !== mine) return; const p = m.geometry.getAttribute('position'); for (let i = 0; i < p.count; i++) y = Math.min(y, v.fromBufferAttribute(p, i).applyMatrix4(m.matrixWorld).y); });
+    return y;
+  };
+  g.updateMatrixWorld(true);
+  // about the level line through the neck's root square to the way the neck runs, so the head swings straight down
+  const root = neck.getWorldPosition(new THREE.Vector3()), run = head.getWorldPosition(new THREE.Vector3()).sub(root).setY(0);
+  if (run.lengthSq() < 1e-8) return g;
+  const axis = new THREE.Vector3().crossVectors(run.normalize(), new THREE.Vector3(0, 1, 0)).normalize();
+  const pq = neck.parent.getWorldQuaternion(new THREE.Quaternion()), q0 = neck.quaternion.clone(), floor = low(false);
+  const gap = (t: number) => { neck.quaternion.copy(pq.clone().invert().multiply(new THREE.Quaternion().setFromAxisAngle(axis, t)).multiply(pq).multiply(q0)); return low(true) - floor; };
+  if (gap(0) <= 0) return g;
+  // which way the head goes down (the neck's lowest point, by its root, first goes the other way)
+  const headY = (t: number) => { gap(t); return head.getWorldPosition(v).y; }, way = headY(-0.2) < headY(0.2) ? -1 : 1;
+  let a = 0, b = 1.2;
+  if (gap(way * b) <= 0) for (let i = 0; i < 14; i++) { const m = (a + b) / 2; if (gap(way * m) > 0) a = m; else b = m; }
+  gap(way * b); g.updateMatrixWorld(true);
+  return g;
+}
+
 // ---- the kinds
 const WOLF: BeastSpec = { len: 2.5, height: 2.6, chest: 0.62, loin: 0.42, width: 0.5, neck: 0.95, neckThick: 0.36, skull: 0.62, skullW: 0.33, muzzle: 0.55, muzzleD: 0.16, leg: 0.17, ears: 'point', tail: 'brush', tailLen: 1.7, foot: 'paw', mane: 'ridge', coat: '#5a5650', under: '#8a857a', eyes: '#d8b040' };
 const HORSE: BeastSpec = { len: 4.3, height: 5.2, chest: 1.2, loin: 1.05, width: 0.9, neck: 2.4, neckThick: 0.6, skull: 0.95, skullW: 0.38, muzzle: 1.05, muzzleD: 0.29, leg: 0.27, ears: 'horse', tail: 'horse', tailLen: 2.9, foot: 'hoof', mane: 'horse', coat: '#5a3e2a', maneColor: '#1e1614', eyes: '#17120e' };

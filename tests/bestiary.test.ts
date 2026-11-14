@@ -49,6 +49,35 @@ describe('creature repository', () => {
     expect(seeds.some((sd) => staked('vampire-spawn', sd))).toBe(true);
     for (const id of ['ghoul', 'ghast', 'night-hag', 'imp']) for (const sd of seeds) expect(staked(id, sd), id + sd).toBe(false);
   });
+  it('lays a destroyed skeleton flat on the floor as its own bones, its skull knocked off beside it; a fallen beast rests its head on the floor', { timeout: 60000 }, () => {
+    const v = new THREE.Vector3();
+    const low = (parts: THREE.Object3D[], own = false) => { let y = Infinity; const one = (o: THREE.Object3D) => { const m = o as THREE.Mesh; if (!m.isMesh) return; const p = m.geometry.getAttribute('position'); for (let i = 0; i < p.count; i++) y = Math.min(y, v.fromBufferAttribute(p, i).applyMatrix4(m.matrixWorld).y); }; for (const o of parts) { if (own) o.children.forEach(one); else o.traverse(one); } return y; };
+    const fallen = (g: THREE.Group, what: string) => {
+      g.updateMatrixWorld(true);
+      const J = g.userData.joints as Record<string, THREE.Object3D>;
+      expect(J.head.parent, what).not.toBe(J.neck);                          // the skull is off the neck
+      expect(low([J.head]), what).toBeCloseTo(0, 2);                         // and lies on the floor
+      expect(low([J.chest, J.hips], true), what).toBeLessThan(0.02);         // the ribs and pelvis are down on it, not propped up
+      expect(low([g]), what).toBeGreaterThan(-0.01);                         // and nothing goes through it
+      expect(J.head.getWorldPosition(v).distanceTo(J.neck.getWorldPosition(new THREE.Vector3())), what).toBeGreaterThan(0.6);
+    };
+    for (const seed of 'abcdef') fallen(figureFor(BESTIARY.find((x) => x.id === 'skeleton')!, 'dead', seed), 'skeleton ' + seed);
+    const rider = figureFor(BESTIARY.find((x) => x.id === 'skeletal-rider')!, 'dead');
+    fallen(rider.userData.rider as THREE.Group, 'skeletal rider');
+    expect(low([rider])).toBeGreaterThan(-0.01);
+    for (const id of ['wolf', 'riding-horse', 'black-cat', 'beucephalus']) {
+      const g = figureFor(BESTIARY.find((x) => x.id === id)!, 'dead'); g.updateMatrixWorld(true);
+      const neck = g.getObjectByName('neck')!, rest: THREE.Object3D[] = [];
+      g.traverse((o) => { if ((o as THREE.Mesh).isMesh) { let p: THREE.Object3D | null = o; while (p && p !== neck) p = p.parent; if (!p) rest.push(o); } });
+      expect(low([neck]) - low(rest), id).toBeLessThan(0.05);
+    }
+    // a flameskull's remains: its fire out, the skull on the floor
+    const glows = (g: THREE.Object3D) => { let n = 0; g.traverse((o) => { if (o.userData.keepLook) n++; }); return n; };
+    const fs = BESTIARY.find((x) => x.id === 'flameskull')!, out = figureFor(fs, 'dead'); out.updateMatrixWorld(true);
+    expect(glows(figureFor(fs))).toBeGreaterThan(0);
+    expect(glows(out)).toBe(0);
+    expect(low([out])).toBeCloseTo(0, 2);
+  });
   it('gives named NPCs with a recipe their own miniature, standing and in a battle stance', { timeout: 60000 }, () => {
     const heroes = BESTIARY.filter((e) => e.hero);
     expect(heroes.length).toBeGreaterThan(30);

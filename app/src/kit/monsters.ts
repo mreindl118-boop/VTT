@@ -43,7 +43,8 @@ export function spectral<T extends THREE.Object3D>(g: T, c?: string, opacity = 0
   });
   return g;
 }
-function ground<T extends THREE.Object3D>(g: T, lift = 0): THREE.Group { g.updateMatrixWorld(true); const b = new THREE.Box3().setFromObject(g), out = grp(); out.add(g); g.position.y += -b.min.y + lift; out.userData.joints = g.userData.joints; return out; }
+/** Set on the floor by its lowest point (vertex by vertex: a turned part's box would leave it hanging above the floor). */
+function ground<T extends THREE.Object3D>(g: T, lift = 0): THREE.Group { g.updateMatrixWorld(true); const b = new THREE.Box3().setFromObject(g, true), out = grp(); out.add(g); g.position.y += -b.min.y + lift; out.userData.joints = g.userData.joints; return out; }
 
 // ------------------------------------------------------------------------------------------------- wings, horns, tails
 export type WingKind = 'bat' | 'feather';
@@ -239,14 +240,22 @@ export function wisp(c = '#bfe8ff', r = 0.45, hover = 3.2): THREE.Group {
   for (let i = 0; i < 3; i++) { const t = cone(r * 0.25, r * 1.6, c, 5); lit(t, c, 0.4); t.rotation.x = Math.PI; g.add(at(t, Math.sin(i * 2.1) * r * 0.4, hover - r * 1.2, Math.cos(i * 2.1) * r * 0.4)); }
   return g;
 }
-/** A skull wreathed in flame, hovering. */
-export function flameskull(hover = 3.6): THREE.Group {
+/** A skull wreathed in flame, hovering. `out`: destroyed, its fire gone out and the green lights in its sockets with it,
+ *  the skull fallen and tipped on its side on the floor, cracked across the crown. */
+export function flameskull(hover = 3.6, out = false): THREE.Group {
   const g = grp(), s = grp('head'); s.position.y = hover; g.add(s);
   const sk = ball(0.42, '#e0d8c4', 14, 10); sk.scale.set(0.92, 1, 1.05); s.add(sk); const jw = ball(0.28, '#d8d0bc', 10, 8); jw.scale.set(0.9, 0.7, 1); s.add(at(jw, 0, -0.3, 0.12));
-  for (const sx of [-1, 1]) { s.add(at(ball(0.11, '#17110c', 8, 6), sx * 0.16, 0.03, 0.36), at(lit(ball(0.05, '#6ae06a', 6, 4), '#6ae06a', 1), sx * 0.16, 0.03, 0.42)); }
+  // the sockets (sunk a little deeper once the lights in them are out, so they do not stand proud of the bone side on)
+  for (const sx of [-1, 1]) { s.add(at(ball(out ? 0.1 : 0.11, '#17110c', 8, 6), sx * 0.16, 0.03, out ? 0.3 : 0.36)); if (!out) s.add(at(lit(ball(0.05, '#6ae06a', 6, 4), '#6ae06a', 1), sx * 0.16, 0.03, 0.42)); }
   s.add(at(cone(0.05, 0.12, '#17110c', 4), 0, -0.1, 0.42)); for (let i = -2; i <= 2; i++) s.add(at(new THREE.Mesh(new THREE.BoxGeometry(0.045, 0.08, 0.03), hard('#f2ece0')), i * 0.055, -0.27, 0.36));
-  for (let i = 0; i < 9; i++) { const a = i * 0.7, f = cone(0.16 - 0.006 * i, 0.7 + 0.5 * hash(i), i % 2 ? '#8af08a' : '#3ac85a', 5); lit(f, i % 2 ? '#8af08a' : '#3ac85a', 0.6); s.add(at(f, Math.sin(a) * 0.3, 0.45 + 0.1 * hash(i, 2), Math.cos(a) * 0.3 - 0.1)); }
-  return g;
+  if (!out) { for (let i = 0; i < 9; i++) { const a = i * 0.7, f = cone(0.16 - 0.006 * i, 0.7 + 0.5 * hash(i), i % 2 ? '#8af08a' : '#3ac85a', 5); lit(f, i % 2 ? '#8af08a' : '#3ac85a', 0.6); s.add(at(f, Math.sin(a) * 0.3, 0.45 + 0.1 * hash(i, 2), Math.cos(a) * 0.3 - 0.1)); } return g; }
+  // the crack: from the brow up over the crown and down the back, with a fork off to one side, just proud of the bone
+  const on = (x: number, y: number, z: number) => { const d = V(x, y, z).normalize(); return V(d.x * 0.42 * 0.92, d.y * 0.42, d.z * 0.42 * 1.05).multiplyScalar(1.005); };
+  const crack = (pts: number[][]) => { for (let i = 1; i < pts.length; i++) s.add(bone(on(pts[i - 1][0], pts[i - 1][1], pts[i - 1][2]), on(pts[i][0], pts[i][1], pts[i][2]), 0.009, 0.006, '#1c140e', 4)); };
+  crack([[0.04, 0.45, 0.9], [-0.07, 0.72, 0.68], [0.06, 0.9, 0.42], [-0.06, 0.99, 0.1], [0.07, 0.9, -0.38], [-0.03, 0.62, -0.78]]);
+  crack([[0.06, 0.9, 0.42], [0.3, 0.86, 0.38], [0.42, 0.8, 0.5], [0.62, 0.66, 0.42]]);
+  s.position.y = 0; s.rotation.set(-0.35, 0.5, 1.3);
+  return ground(g);
 }
 /** A severed hand that crawls on its fingers. */
 export function crawlingClaw(c = '#b09a80'): THREE.Group {
@@ -417,15 +426,6 @@ export function effigy<T extends THREE.Object3D>(g: T, o: { bark?: string; pale?
   g.traverse((n) => { const m = n as M; if (!m.isMesh) return; const src = m.material as THREE.MeshLambertMaterial, hsl = { h: 0, s: 0, l: 0 }; src.color.getHSL(hsl);
     if (src.userData?.keepLook) { m.visible = false; return; }
     m.material = hard('#' + dark.clone().lerp(pale, Math.min(1, hsl.l * 1.5 + 0.12 * hash(m.id))).getHexString()); });
-  return g;
-}
-/** What is left of something made of bones: a skull on a heap of ribs and long bones. */
-export function bonePile(k = 1, c = '#d9d2c0'): THREE.Group {
-  const g = grp();
-  for (let i = 0; i < 12; i++) { const a = i * 2.4, r = (0.3 + 1.1 * hash(i)) * k, b = bone(V(0, 0, 0), V(0, (0.9 + 0.7 * hash(i, 2)) * k, 0), 0.07 * k, 0.05 * k, c, 6); b.rotation.set(Math.PI / 2 - 0.25 * hash(i, 3), a, 0); b.add(at(ball(0.1 * k, c, 6, 5), 0, 0.45 * k, 0), at(ball(0.1 * k, c, 6, 5), 0, -0.45 * k, 0)); g.add(at(b, Math.cos(a) * r, (0.1 + 0.25 * hash(i, 4)) * k, Math.sin(a) * r)); }
-  for (let i = 0; i < 5; i++) { const t = new THREE.Mesh(new THREE.TorusGeometry((0.42 - i * 0.03) * k, 0.035 * k, 5, 12, Math.PI * 1.3), soft(c)); t.rotation.set(Math.PI / 2 + 0.3, 0, 0.9 + i * 0.1); g.add(at(t, (-0.3 + i * 0.16) * k, 0.3 * k, -0.2 * k)); }
-  const sk = ball(0.36 * k, c, 12, 10); sk.scale.set(0.9, 1, 1.05); g.add(at(sk, 0.35 * k, 0.5 * k, 0.5 * k)); const jaw = ball(0.2 * k, c, 8, 6); jaw.scale.set(0.9, 0.5, 0.9); g.add(at(jaw, 0.35 * k, 0.22 * k, 0.72 * k));
-  for (const sx of [-1, 1]) g.add(at(ball(0.085 * k, '#17120e', 6, 5), (0.35 + sx * 0.13) * k, 0.55 * k, 0.82 * k));
   return g;
 }
 /** A thing brought down: tipped onto its side or its back, squashed flat (an ooze, a rug), or scattered low over the

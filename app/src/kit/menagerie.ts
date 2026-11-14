@@ -9,9 +9,9 @@ import { mat } from '../render/materials';
 import { posed, deadPose, NPC_POSES } from './poses';
 import type { FaceSpec } from './faces';
 import type { WeaponSpec } from './weapons';
-import { beast, BEASTS, BEUCEPHALUS, type BeastSpec, type BeastPoseName } from './beasts';
+import { beast, BEASTS, BEUCEPHALUS, slump, type BeastSpec, type BeastPoseName } from './beasts';
 import * as mon from './monsters';
-import { boneify, boneHorse, type Bony } from './bones';
+import { boneify, boneHorse, clearSpot, type Bony } from './bones';
 import { bareFeet, restOnFloor, tatters, type Tatters } from './costume';
 import type { CreatureSize } from '../core/units';
 
@@ -306,6 +306,16 @@ export function carried(g: THREE.Group, c: Carry): THREE.Group {
 }
 /** A lantern in a hand's frame, hanging plumb in the world from the fist, its bail along the grip so the fist closes on it. */
 function lantern(hand: THREE.Object3D, s: number, rust: string): THREE.Group {
+  const L = lanternBody(s, rust);
+  // plumb in the world, the bail's top along the grip (the hand's y axis laid level), or ahead where the grip stands upright
+  const hq = hand.getWorldQuaternion(new THREE.Quaternion()), grip = new THREE.Vector3(0, 1, 0).applyQuaternion(hq); grip.y = 0;
+  if (grip.lengthSq() < 0.09) grip.set(0, 0, 1).applyQuaternion(hq).setY(0);
+  const X = grip.normalize(), Y = new THREE.Vector3(0, 1, 0), Z = new THREE.Vector3().crossVectors(X, Y);
+  L.quaternion.copy(hq.invert().multiply(new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().makeBasis(X, Y, Z))));
+  return L;
+}
+/** A rusted lantern with blackened panes, in its own frame: hanging from the top of its bail (the origin), its feet 0.65 below. */
+function lanternBody(s: number, rust: string): THREE.Group {
   const L = new THREE.Group(), iron = smooth(rust), dark = '#' + new THREE.Color(rust).lerp(new THREE.Color('#000000'), 0.45).getHexString(), pane = smooth('#14110e');
   const add = (geo: THREE.BufferGeometry, m: THREE.Material, x: number, y: number, z: number, ry = 0) => { const o = new THREE.Mesh(geo, m); o.position.set(x * s, y * s, z * s); o.rotation.y = ry; L.add(o); return o; };
   const bail = new THREE.TorusGeometry(0.09 * s, 0.014 * s, 5, 12, Math.PI); add(bail, smooth(dark), 0, -0.09, 0);
@@ -317,12 +327,22 @@ function lantern(hand: THREE.Object3D, s: number, rust: string): THREE.Group {
   for (const [x, z] of [[0, 1], [0, -1], [1, 0], [-1, 0]]) add(new THREE.BoxGeometry(x ? 0.012 * s : 0.2 * s, 0.012 * s, z ? 0.012 * s : 0.2 * s), smooth(dark), x * 0.112, -0.41, z * 0.112);
   add(new THREE.BoxGeometry(0.27 * s, 0.045 * s, 0.27 * s), iron, 0, -0.6, 0);
   for (const x of [-1, 1]) for (const z of [-1, 1]) add(new THREE.SphereGeometry(0.022 * s, 6, 4), smooth(dark), x * 0.11, -0.63, z * 0.11);
-  // plumb in the world, the bail's top along the grip (the hand's y axis laid level), or ahead where the grip stands upright
-  const hq = hand.getWorldQuaternion(new THREE.Quaternion()), grip = new THREE.Vector3(0, 1, 0).applyQuaternion(hq); grip.y = 0;
-  if (grip.lengthSq() < 0.09) grip.set(0, 0, 1).applyQuaternion(hq).setY(0);
-  const X = grip.normalize(), Y = new THREE.Vector3(0, 1, 0), Z = new THREE.Vector3().crossVectors(X, Y);
-  L.quaternion.copy(hq.invert().multiply(new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().makeBasis(X, Y, Z))));
   return L;
+}
+/** The lantern a fallen figure let go of: on its side on the floor past its open left hand, the bail toward the hand and
+ *  lying flat, wherever nothing of the body or its dropped weapon lies. */
+function droppedLantern(g: THREE.Group, rust = '#6b4428'): THREE.Group {
+  const j = (g.userData.joints ?? {}) as Record<string, THREE.Object3D>, hand = j.handL, wr = j.wristL, up = j.chest;
+  if (!hand || !wr || !up) return g;
+  g.updateMatrixWorld(true);
+  const s = Math.abs(wr.position.y) / 1.04, L = lanternBody(s, rust), gi = g.matrixWorld.clone().invert(), Y = new THREE.Vector3(0, 1, 0);
+  const H = hand.getWorldPosition(new THREE.Vector3()).applyMatrix4(gi).setY(0), C = up.getWorldPosition(new THREE.Vector3()).applyMatrix4(gi).setY(0);
+  const out = H.clone().sub(C); if (out.lengthSq() < 1e-6) out.set(1, 0, 0);
+  const spot = clearSpot(g, H, out.setLength(0.45 * s), 0.42 * s, s), bail = H.clone().sub(spot).normalize();
+  L.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(new THREE.Vector3().crossVectors(bail, Y), bail, Y));
+  L.position.copy(spot).addScaledVector(bail, 0.33 * s); g.add(L); g.updateMatrixWorld(true);
+  L.position.y -= new THREE.Box3().setFromObject(L, true).applyMatrix4(gi).min.y;
+  return g;
 }
 /** A recipe with its dead pose resolved (kit/poses.ts names, the rig's own presets, or one picked by the seed). */
 export function withDeadPose<T extends { deadPose?: unknown }>(r: T, seed: string): Omit<T, 'deadPose'> & { deadPose: HeroFigure['deadPose'] } {
@@ -342,9 +362,9 @@ export function folk(base: Folk, size: CreatureSize = 'medium', state: FigState 
   if (r.face) r = { ...r, face: seedFace(key + seed + (li ?? ''), r.face) };
   if (r.vary && seed) { const k = ((hsh >>> 8) % 7) - 3; r = { ...r, hair: r.face?.bald ? r.hair : (r.face?.age ?? 0) > 0.7 ? r.hair : HAIR[(hsh >>> 4) % HAIR.length], beard: r.beard && HAIR[(hsh >>> 4) % HAIR.length], cloth: shift(r.cloth, k), skirt: shift(r.skirt, k), cloak: shift(r.cloak, -k), hairStyle: r.hairStyle ?? (['short', 'short', 'long', 'curly'] as const)[(hsh >>> 12) % 4], height: (r.height ?? 1) * (0.94 + ((hsh >>> 16) % 13) / 100) }; }
   const { extra, size: own, vary: _v, battleFace: _f, byName: _b, ...recipe } = r, sz = own ?? size, s = (SCALE[sz] ?? 1) * (r.height ?? 1), spirit = !!extra?.ghost; void _v; void _f; void _b;
-  if (dead && key === 'skeleton') return mon.bonePile(s);
-  // a winged body falls on its face, the wings spread over it (on its back it would lie on them, its arms across them)
-  const fell = extra?.wings && !recipe.deadPose ? { ...recipe, deadPose: 'prone' as const } : recipe;
+  // a winged body falls on its face, the wings spread over it (on its back it would lie on them, its arms across them);
+  // a skeleton falls flat, as bones do, on its back or its face (no heap propped on an arm, no rump in the air)
+  const fell = extra?.wings && !recipe.deadPose ? { ...recipe, deadPose: 'prone' as const } : extra?.bony && !recipe.deadPose ? { ...recipe, deadPose: BONY_FALLS[hsh % BONY_FALLS.length] } : recipe;
   const g = heroFigure(posed(dead && !spirit ? withDeadPose(fell, key + seed) : recipe) as HeroFigure, sz, dead ? (spirit ? 'rest' : 'dead') : battle), j = (g.userData.joints ?? {}) as Record<string, THREE.Object3D>;
   if (extra?.bare && !extra.bony) bareFeet(g, recipe as HeroFigure, { claws: extra.bare.claws, seed: hsh % 97 });
   if (extra?.tatters) { tatters(g, recipe as HeroFigure, { ...extra.tatters, seed: hsh % 89 }); if (dead && !spirit) restOnFloor(g); }
@@ -356,7 +376,7 @@ export function folk(base: Folk, size: CreatureSize = 'medium', state: FigState 
   if (extra?.horns && j.head) for (const sx of [-1, 1]) { const h = mon.horn(extra.horns.len * s, 0.045 * s, extra.horns.color, extra.horns.curl ?? 0.6); h.position.set(sx * 0.24 * s, 0.66 * s, 0.02 * s); h.rotation.z = -sx * 0.35; j.head.add(h); }
   if (extra?.wings && j.back) { const w = mon.wings(extra.wings.kind, extra.wings.span * s, extra.wings.color, { spread: dead ? 0.9 : extra.wings.spread ?? (battle ? 1 : 0.45), lift: dead ? 0 : battle ? 0.5 : 0.2, membrane: extra.wings.membrane }); w.position.set(0, 0.25 * s, -0.12 * s); j.back.add(w); }
   if (extra?.tail && j.hips) { const L = extra.tail.len * s; j.hips.add(mon.tailOf([V(0, 0, -0.15 * s), V(0, -0.25 * L, -0.4 * L), V(0.1 * L, -0.5 * L, -0.75 * L), V(0.2 * L, -0.3 * L, -L)], 0.07 * s, extra.tail.color, extra.tail.tip)); }
-  if (extra?.bony && !dead) boneify(g, recipe as HeroFigure, { ...extra.bony, battle });
+  if (extra?.bony) boneify(g, recipe as HeroFigure, { ...extra.bony, battle, dead });
   if (extra?.empty) emptySuit(g, recipe as HeroFigure, extra.empty);
   if (extra?.cobwebs && !dead) cobwebs(g, battle);
   if (extra?.ghost) mon.spectral(g, extra.ghost, (extra.opacity ?? 0.5) * (dead ? 0.5 : 1));
@@ -381,6 +401,8 @@ const HAG: FaceSpec = { jaw: -0.2, chin: 0.7, chinPoint: 0.9, cheekbones: 0.6, g
 const STERN: FaceSpec = { jaw: 0.6, chin: 0.4, browRidge: 0.5, browAngle: 0.6, lipFull: -0.3, smile: -0.4 };
 const w = (kind: WeaponSpec['kind'], o: Partial<WeaponSpec> = {}): WeaponSpec => ({ kind, ...o });
 const RUSTY = { metal: '#6a5a4a', fittings: '#4a3a2a', wear: 0.9 };
+/** How a skeleton falls when it is destroyed (kit/poses.ts DEAD_POSES): flat, as bones do. */
+const BONY_FALLS = ['sprawl', 'prone', 'swoon'] as const;
 const GHOSTLY = '#b8d0e8';
 
 /** People-shaped monsters and the stock townsfolk, by creature id. */
@@ -510,6 +532,26 @@ function skeletalRider(battle: boolean): THREE.Group {
   carried(g.userData.rider as THREE.Group, { kind: 'lantern', side: 'L' });
   return g;
 }
+/** The skeletal rider brought down: the warhorse's bones fallen on their side, the rider thrown clear over its back and
+ *  face down on the floor beyond it along its length, the skull knocked off, the sword fallen from its hand and the lantern
+ *  tipped over. */
+function fallenRider(): THREE.Group {
+  const horse = slump(mon.felled(boneHorse(beast(BONE_HORSE, 'dead'), BONE_HORSE, { mail: '#55504a' }), 'side'));
+  const recipe = { ...FOLK.skeleton, extra: undefined, gear: { handR: w('longsword', RUSTY) } } as HeroFigure;
+  const rider = boneify(heroFigure(posed(withDeadPose({ ...recipe, deadPose: 'prone' }, '')) as HeroFigure, 'medium', 'dead'), recipe, { mail: '#5e5850', dead: true });
+  droppedLantern(rider);
+  // head to hips along the horse, the head toward the horse's head (flung forward over its shoulder)
+  const J = rider.userData.joints as Record<string, THREE.Object3D>, run = J.neck.getWorldPosition(new THREE.Vector3()).sub(J.hips.getWorldPosition(new THREE.Vector3()));
+  rider.rotation.y = Math.atan2(-run.x, run.z);
+  const g = new THREE.Group(); g.add(horse, rider); g.updateMatrixWorld(true);
+  // beyond the horse's back (on its side its spine is toward -x), level with its shoulders
+  const hb = new THREE.Box3().setFromObject(horse, true), rb = new THREE.Box3().setFromObject(rider, true);
+  rider.position.x += hb.min.x - rb.max.x - 0.3; rider.position.z += hb.min.z + 0.6 * (hb.max.z - hb.min.z) - (rb.min.z + rb.max.z) / 2;
+  g.updateMatrixWorld(true);
+  const c = new THREE.Box3().setFromObject(g, true).getCenter(new THREE.Vector3()); for (const o of [horse, rider]) { o.position.x -= c.x; o.position.z -= c.z; }
+  g.userData.rider = rider; g.userData.joints = rider.userData.joints;
+  return g;
+}
 /** The skeletal warhorse: a lean horse's frame for its bones (kit/bones.ts boneHorse), saddled. */
 const BONE_HORSE: BeastSpec = { ...BEASTS['riding-horse'], coat: '#d8d0bc', under: '#c0b8a4', gaunt: 1, mane: 'none', tail: 'whip', saddle: { seat: '#3a2e26', trim: '#6a6a6a' } };
 
@@ -529,7 +571,7 @@ export const MENAGERIE: Record<string, (battle: boolean, dead?: boolean, hint?: 
   'black-cat': b('black-cat', 'stand', 'snarl'), 'saber-toothed-tiger': b('saber-toothed-tiger', 'stand', 'pounce'),
   'riding-horse': b('riding-horse', 'stand', 'rear'), 'draft-horse': b('draft-horse', 'stand', 'rear'), nightmare: b('nightmare', 'walk', 'rear'),
   beucephalus: (battle, dead) => beast(BEUCEPHALUS, dead ? 'dead' : battle ? 'rear' : 'walk'),
-  'skeletal-rider': (battle, dead) => dead ? mon.bonePile(1.6) : skeletalRider(battle),
+  'skeletal-rider': (battle, dead) => dead ? fallenRider() : skeletalRider(battle),
   bat: (battle) => mon.flyer(mon.FLYERS.bat, battle ? 'dive' : 'flap', 2.5), raven: (battle) => mon.flyer(mon.FLYERS.raven, battle ? 'dive' : 'perch', battle ? 2.5 : 0),
   roc: (battle) => mon.flyer(mon.FLYERS.roc, battle ? 'dive' : 'glide', 6),
   'swarm-of-bats': () => mon.swarmOf('bats'), 'swarm-of-ravens': () => mon.swarmOf('ravens'), 'swarm-of-rats': () => mon.swarmOf('rats', 12), 'swarm-of-insects': (battle, _d, hint) => /centipede/i.test(hint ?? '') ? mon.swarmOf('centipedes', 14, 2.2, battle) : mon.swarmOf('insects', 16),
@@ -541,7 +583,7 @@ export const MENAGERIE: Record<string, (battle: boolean, dead?: boolean, hint?: 
   'gulthias-tree': (_b, dead) => mon.gulthiasTree(dead),
   'gray-ooze': (battle) => mon.ooze('#7a7a78', 1, { reach: battle }), mimic: (battle, _d, hint) => mon.mimic(battle, /chest|trunk|coffer|box/i.test(hint ?? '') ? 'chest' : 'door'), grick: (battle) => mon.grick(undefined, battle),
   'shambling-mound': (battle) => mon.shamblingMound(1, undefined, battle), 'lorghoth-the-decayer': (battle) => mon.shamblingMound(1.25, '#4a4630', battle, true),
-  'will-o-wisp': () => mon.wisp(), flameskull: (_b, dead) => dead ? mon.bonePile(0.45) : mon.flameskull(), 'crawling-claw': () => mon.crawlingClaw(),
+  'will-o-wisp': () => mon.wisp(), flameskull: (_b, dead) => mon.flameskull(3.6, dead), 'crawling-claw': () => mon.crawlingClaw(),
   'rug-of-smothering': (battle) => mon.rug('#6a2a2a', '#c8a040', battle ? 0.7 : 0), 'flying-sword': () => mon.flyingSword(), 'broom-of-animated-attack': (battle) => mon.broom(battle),
   'baba-lysagas-creeping-hut': (battle) => mon.creepingHut(battle), 'heart-of-sorrow': () => mon.heartOfSorrow(),
 };
@@ -557,5 +599,5 @@ export function creature(id: string, state: FigState, hint?: string): THREE.Grou
   const make = MENAGERIE[id]; if (!make) return undefined;
   if (state !== 'dead') return make(state === true || state === 'battle', false, hint);
   const how = FALLS[id] ?? 'side', g = make(false, true, hint);
-  return how === 'own' ? g : mon.felled(g, how);
+  return how === 'own' ? g : how === 'side' ? slump(mon.felled(g, how)) : mon.felled(g, how);
 }
