@@ -65,11 +65,15 @@ export function findPokes(figure: THREE.Object3D, o: PokeOptions = {}): Poke[] {
       if (n) parts.push({ name: 'foot' + sd, meshes: feet, bones: [leg[1]!, leg[2]!, mid.divideScalar(n)] });
     }
   }
-  // gear put away (a weapon at the belt, or slung on the back), read along its own length: its haft or its blade
-  if (J.stowed) {
-    const ms = deep('stowed'), inv = J.stowed.matrixWorld.clone().invert(), bb = new THREE.Box3(); let lo = Infinity, hi = -Infinity;
+  // gear put away (a weapon at the belt, or slung on the back), each piece read along its own length: its haft or its
+  // blade. Every group named 'stowed' or flagged userData.stowed is a piece, as the rig hangs cloth over each of them.
+  const stowedOne = (o: THREE.Object3D) => o.name === 'stowed' || !!o.userData.stowed, stows: THREE.Object3D[] = [];
+  figure.traverse((c) => { if (!stowedOne(c)) return; for (let p = c.parent; p; p = p.parent) if (stowedOne(p)) return; stows.push(c); });
+  for (const g of stows) {
+    const ms: THREE.Mesh[] = [], inv = g.matrixWorld.clone().invert(), bb = new THREE.Box3(); let lo = Infinity, hi = -Infinity;
+    g.traverse((c) => { if (flesh(c)) ms.push(c); });
     for (const m of ms) { m.geometry.computeBoundingBox(); bb.copy(m.geometry.boundingBox!).applyMatrix4(inv.clone().multiply(m.matrixWorld)); lo = Math.min(lo, bb.min.y); hi = Math.max(hi, bb.max.y); }
-    if (ms.length) parts.push({ name: 'stowed', meshes: ms, bones: [J.stowed.localToWorld(new THREE.Vector3(0, lo, 0)), J.stowed.localToWorld(new THREE.Vector3(0, hi, 0))] });
+    if (ms.length) parts.push({ name: 'stowed', meshes: ms, bones: [g.localToWorld(new THREE.Vector3(0, lo, 0)), g.localToWorld(new THREE.Vector3(0, hi, 0))] });
   }
   // each surface point against the cloth crossing the line in to its bone
   const stamp = new Int32Array(owner.length).fill(-1), e1 = new THREE.Vector3(), e2 = new THREE.Vector3(), pv = new THREE.Vector3(), tv = new THREE.Vector3(), qv = new THREE.Vector3(), d = new THREE.Vector3();

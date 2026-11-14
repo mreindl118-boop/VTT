@@ -62,6 +62,10 @@ export interface DrapeWorld {
   bones?: Map<string, THREE.Vector3[]>;
   /** Every point of each part's surface (world), where `parts` holds a sample of them: what the cloth is lifted out of. */
   surface?: Map<string, THREE.Vector3[]>;
+  /** A part in separate pieces (gear put away at both hips and on the back): each piece's own bone and surface (world).
+   *  Where a part has pieces they stand for its bone and surface when cloth is lifted out of it, so the cloth is lifted
+   *  out of each piece from its own bone, never along a line from one piece to another. */
+  pieces?: Map<string, { bone: THREE.Vector3[]; surface: THREE.Vector3[] }[]>;
 }
 
 /** The farthest a strip turns from its cut (radians from hanging): a strip swung out over a limb raised high stands up
@@ -373,13 +377,17 @@ function hangOne(g: Garment, w: DrapeWorld, hung: Map<string, THREE.Vector3[]>, 
  *  line from a part's bone out to one of its sample points crosses a triangle, the cloth there lies inside the part, and
  *  the triangle's corners move out along that line to `clear` / 2 past the point. A few passes, as a lifted triangle
  *  can draw its neighbours in. Cloth only ever moves out from its axis, or (on a body laid out, `up` the way off the
- *  floor in the parent's frame) up off the floor: over a hand or an arm lying on the floor, never down under it. */
-function liftOut(P: Float64Array, index: ArrayLike<number>, covers: string[], w: DrapeWorld, toLocal: THREE.Matrix4, clear: number, ax: number, az: number, up?: THREE.Vector3): void {
+ *  floor in the parent's frame) up off the floor: over a hand or an arm lying on the floor, never down under it. A part
+ *  in pieces (`w.pieces`) is lifted out of each piece from that piece's own bone. Exported for tests. */
+export function liftOut(P: Float64Array, index: ArrayLike<number>, covers: string[], w: DrapeWorld, toLocal: THREE.Matrix4, clear: number, ax: number, az: number, up?: THREE.Vector3): void {
   const pts: number[] = [], lines: number[][] = [], owner: number[] = [], v = new THREE.Vector3();
   for (const n of covers) {
-    const b = w.bones!.get(n), ps = w.surface?.get(n) ?? w.parts.get(n); if (!b || b.length < 2 || !ps) continue;
-    lines.push(b.flatMap((p) => v.copy(p).applyMatrix4(toLocal).toArray()));
-    for (const p of ps) { v.copy(p).applyMatrix4(toLocal); pts.push(v.x, v.y, v.z); owner.push(lines.length - 1); }
+    const b = w.bones?.get(n), ps = w.surface?.get(n) ?? w.parts.get(n);
+    for (const { bone, surface } of w.pieces?.get(n) ?? (b && ps ? [{ bone: b, surface: ps }] : [])) {
+      if (bone.length < 2) continue;
+      lines.push(bone.flatMap((p) => v.copy(p).applyMatrix4(toLocal).toArray()));
+      for (const p of surface) { v.copy(p).applyMatrix4(toLocal); pts.push(v.x, v.y, v.z); owner.push(lines.length - 1); }
+    }
   }
   if (!pts.length) return;
   const T = Math.floor(index.length / 3), N = P.length / 3;

@@ -1660,18 +1660,27 @@ function drapeWorld(body: THREE.Group, j: { pel: THREE.Group; up: THREE.Group; n
     part('hand' + sd, meshes(l.end, [held]), 120);
   });
   // gear put away (a weapon at the belt, or slung on the back), for what hangs over it: read as balls along its pieces.
-  // Every mount child named 'stowed' or flagged userData.stowed counts (a figure may carry gear at both hips and the back).
-  const stows = mounts.flatMap((m) => m.children.filter((c) => c.name === 'stowed' || c.userData.stowed)), stowed = stows[0];
+  // Every mount child named 'stowed' or flagged userData.stowed counts (a figure may carry gear at both hips and the back),
+  // each a piece with its own line along its length, so cloth is lifted out of a piece from that piece's own line, never
+  // along a line from one piece across the body to another.
+  const stows = mounts.flatMap((m) => m.children.filter((c) => c.name === 'stowed' || c.userData.stowed)), pieces = new Map<string, { bone: THREE.Vector3[]; surface: THREE.Vector3[] }[]>();
   let stowLine: THREE.Vector3[] | undefined;
-  if (stowed) {
-    const balls = ballsOf(stowed), lo = Math.min(...balls.map(([c, r]) => c.y - r)), hi = Math.max(...balls.map(([c, r]) => c.y + r));
-    const ws = stows.flatMap((g) => ballsOf(g).map(([c, r]) => [g.localToWorld(c.clone()), r] as const));
-    // (the points on its balls, close along a haft whose mesh has points only at its ends)
-    const on: THREE.Vector3[] = [], dirs = [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1], ...[-1, 1].flatMap((x) => [-1, 1].flatMap((y) => [-1, 1].map((z) => [x, y, z])))].map(([x, y, z]) => new THREE.Vector3(x, y, z).normalize());
-    for (const [c, r] of ws) for (const d of dirs) on.push(c.clone().addScaledVector(d, r));
-    parts.set('stowed', on); surface.set('stowed', [...stows.flatMap((g) => every(meshes(g))), ...on]);
-    volumes.set('stowed', (p, out) => { let best = -Infinity; for (const [c, r] of ws) { const d = r - p.distanceTo(c); if (d > best) { best = d; out.copy(p).sub(c); } } if (out.lengthSq() < 1e-12) out.set(0, 0, -1); out.normalize(); return best; });
-    stowLine = [stowed.localToWorld(new THREE.Vector3(0, lo, 0)), stowed.localToWorld(new THREE.Vector3(0, hi, 0))];
+  if (stows.length) {
+    const dirs = [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1], ...[-1, 1].flatMap((x) => [-1, 1].flatMap((y) => [-1, 1].map((z) => [x, y, z])))].map(([x, y, z]) => new THREE.Vector3(x, y, z).normalize());
+    const each = stows.map((g) => {
+      const balls = ballsOf(g), lo = Math.min(...balls.map(([c, r]) => c.y - r)), hi = Math.max(...balls.map(([c, r]) => c.y + r));
+      const ws = balls.map(([c, r]) => [g.localToWorld(c.clone()), r] as const), on: THREE.Vector3[] = [];
+      // (the points on its balls, close along a haft whose mesh has points only at its ends)
+      for (const [c, r] of ws) for (const d of dirs) on.push(c.clone().addScaledVector(d, r));
+      return { ws, on, bone: [g.localToWorld(new THREE.Vector3(0, lo, 0)), g.localToWorld(new THREE.Vector3(0, hi, 0))], surface: [...every(meshes(g)), ...on] };
+    }).filter((e) => e.ws.length); // (a piece with nothing solid in it has no line)
+    if (each.length) {
+      const ws = each.flatMap((e) => e.ws);
+      parts.set('stowed', each.flatMap((e) => e.on)); surface.set('stowed', each.flatMap((e) => e.surface));
+      pieces.set('stowed', each.map((e) => ({ bone: e.bone, surface: e.surface })));
+      volumes.set('stowed', (p, out) => { let best = -Infinity; for (const [c, r] of ws) { const d = r - p.distanceTo(c); if (d > best) { best = d; out.copy(p).sub(c); } } if (out.lengthSq() < 1e-12) out.set(0, 0, -1); out.normalize(); return best; });
+      stowLine = each[0].bone;
+    }
   }
   // a shield on the arm, for the cloth behind it (a mantle's flap, a cloak's front edge), which it lies outside
   const shield = dead ? undefined : j.gL.getObjectByName('shieldFace')?.parent;
@@ -1700,10 +1709,10 @@ function drapeWorld(body: THREE.Group, j: { pel: THREE.Group; up: THREE.Group; n
     const sd = k === 0 ? 'R' : 'L', line = [wp(l.root), wp(l.mid), wp(l.end)], hand = l.end.getObjectByName('hand' + sd);
     bones.set('upperArm' + sd, line); bones.set('forearm' + sd, line); bones.set('hand' + sd, [line[1], line[2], hand ? wp(hand) : line[2]]);
   });
-  if (stowLine) bones.set('stowed', stowLine); // (along its length: a haft, a blade)
+  if (stowLine) bones.set('stowed', stowLine); // (along its length: a haft, a blade; with several pieces, the first one's, as `pieces` holds each)
   // (gear put away moves with the trunk: what of it stands above a cloak's top, the head of a weapon slung on the back, is
   // not under the cloak)
-  return { parts, down, floor, volumes, bones, surface, trunk: ['torso', 'pelvis', 'stowed'], lying: !!P.lie };
+  return { parts, down, floor, volumes, bones, surface, pieces, trunk: ['torso', 'pelvis', 'stowed'], lying: !!P.lie };
 }
 
 // The hand functions below take `sx` as the hand's handedness: +1 for a right hand, -1 for a left, which is -SIDE_X of
