@@ -1659,15 +1659,17 @@ function drapeWorld(body: THREE.Group, j: { pel: THREE.Group; up: THREE.Group; n
     volumes.set('upperArm' + sd, vol(l.root, upperArmRings(fr, k === 0 ? SIDE_X.R : SIDE_X.L))); volumes.set('forearm' + sd, vol(l.mid, forearmRings(fr)));
     part('hand' + sd, meshes(l.end, [held]), 120);
   });
-  // gear put away (a weapon at the belt, or slung on the back), for what hangs over it: read as balls along its pieces
-  const stowed = mounts.flatMap((m) => m.children.filter((c) => c.name === 'stowed'))[0];
+  // gear put away (a weapon at the belt, or slung on the back), for what hangs over it: read as balls along its pieces.
+  // Every mount child named 'stowed' or flagged userData.stowed counts (a figure may carry gear at both hips and the back).
+  const stows = mounts.flatMap((m) => m.children.filter((c) => c.name === 'stowed' || c.userData.stowed)), stowed = stows[0];
   let stowLine: THREE.Vector3[] | undefined;
   if (stowed) {
-    const balls = ballsOf(stowed), lo = Math.min(...balls.map(([c, r]) => c.y - r)), hi = Math.max(...balls.map(([c, r]) => c.y + r)), ws = balls.map(([c, r]) => [stowed.localToWorld(c.clone()), r] as const);
+    const balls = ballsOf(stowed), lo = Math.min(...balls.map(([c, r]) => c.y - r)), hi = Math.max(...balls.map(([c, r]) => c.y + r));
+    const ws = stows.flatMap((g) => ballsOf(g).map(([c, r]) => [g.localToWorld(c.clone()), r] as const));
     // (the points on its balls, close along a haft whose mesh has points only at its ends)
     const on: THREE.Vector3[] = [], dirs = [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1], ...[-1, 1].flatMap((x) => [-1, 1].flatMap((y) => [-1, 1].map((z) => [x, y, z])))].map(([x, y, z]) => new THREE.Vector3(x, y, z).normalize());
     for (const [c, r] of ws) for (const d of dirs) on.push(c.clone().addScaledVector(d, r));
-    parts.set('stowed', on); surface.set('stowed', [...every(meshes(stowed)), ...on]);
+    parts.set('stowed', on); surface.set('stowed', [...stows.flatMap((g) => every(meshes(g))), ...on]);
     volumes.set('stowed', (p, out) => { let best = -Infinity; for (const [c, r] of ws) { const d = r - p.distanceTo(c); if (d > best) { best = d; out.copy(p).sub(c); } } if (out.lengthSq() < 1e-12) out.set(0, 0, -1); out.normalize(); return best; });
     stowLine = [stowed.localToWorld(new THREE.Vector3(0, lo, 0)), stowed.localToWorld(new THREE.Vector3(0, hi, 0))];
   }
