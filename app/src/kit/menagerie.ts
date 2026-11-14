@@ -12,6 +12,7 @@ import type { WeaponSpec } from './weapons';
 import { beast, BEASTS, BEUCEPHALUS, type BeastSpec, type BeastPoseName } from './beasts';
 import * as mon from './monsters';
 import { boneify, boneHorse, type Bony } from './bones';
+import { bareFeet, restOnFloor, tatters, type Tatters } from './costume';
 import type { CreatureSize } from '../core/units';
 
 const SCALE: Record<string, number> = { tiny: 0.45, small: 0.68, medium: 1, large: 1.6, huge: 2.4, gargantuan: 3.2 };   // the figure rig's size scale
@@ -24,6 +25,8 @@ export interface Folk extends Omit<HeroFigure, 'pose' | 'battlePose' | 'deadPose
   vary?: boolean;
   /** The face it pulls in a fight (a snarl, a scream), over its own. */
   battleFace?: FaceSpec;
+  /** A look only an encounter's alias calls up (see NAMED), never one a token's seed picks. */
+  byName?: boolean;
   extra?: {
     wings?: { kind: mon.WingKind; span: number; color: string; membrane?: string; spread?: number };
     horns?: { len: number; color: string; curl?: number };
@@ -41,6 +44,10 @@ export interface Folk extends Omit<HeroFigure, 'pose' | 'battlePose' | 'deadPose
     cobwebs?: boolean;
     /** Nothing but bones (kit/bones.ts): a skeleton on the figure's own joints, and what it wears on them. */
     bony?: Bony;
+    /** No boots: bare feet (kit/costume.ts bareFeet), with claws on the toes in this colour if given. */
+    bare?: { claws?: string };
+    /** A robe worn to rags over its clothes (kit/costume.ts tatters). */
+    tatters?: Tatters;
   };
 }
 
@@ -53,7 +60,7 @@ const shift = (c: string | undefined, k: number): string | undefined => c && '#'
 export function staked(g: THREE.Group): THREE.Group {
   const chest = (g.userData.joints as Record<string, THREE.Object3D> | undefined)?.chest; if (!chest) return g;
   g.updateMatrixWorld(true); const p = g.worldToLocal(chest.getWorldPosition(V(0, 0, 0)));
-  const st = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.02, 1.5, 6), (mon.horn(0.1, 0.01, '#6a4a2a').material as THREE.Material)); st.rotation.z = 0.12; st.position.set(p.x, p.y + 0.6, p.z); g.add(st);
+  const st = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.02, 1.5, 6), (mon.horn(0.1, 0.01, '#6a4a2a').material as THREE.Material)); st.name = 'stake'; st.rotation.z = 0.12; st.position.set(p.x, p.y + 0.6, p.z); g.add(st);
   return g;
 }
 /** A smooth-shaded palette colour (flesh, fur), as the figure's own soft parts are. */
@@ -327,17 +334,20 @@ export function withDeadPose<T extends { deadPose?: unknown }>(r: T, seed: strin
  *  state it is in (at rest its weapons put away, dead the one it fought with let fall), so a look's own gear is put away too. */
 export function folk(base: Folk, size: CreatureSize = 'medium', state: FigState = false, seed = '', key = '', hint = '', dress?: (r: Folk) => Folk): THREE.Group {
   const dead = state === 'dead', battle = state === true || state === 'battle', hsh = hashOf(key + seed), looks = LOOKS[key];
-  const named = looks && hint ? NAMED[key]?.find(([re]) => re.test(hint))?.[1] : undefined, li = named ?? (looks && seed ? hsh % looks.length : undefined);
+  const named = looks && hint ? NAMED[key]?.find(([re]) => re.test(hint))?.[1] : undefined, pool = looks?.flatMap((l, i) => (l.byName ? [] : [i])) ?? [];
+  const li = named ?? (looks && seed && pool.length ? pool[hsh % pool.length] : undefined);
   let r: Folk = looks && li !== undefined ? { ...base, ...looks[li], extra: looks[li].extra ? { ...base.extra, ...looks[li].extra } : base.extra } : base;
   if (dress) r = dress(r);
   if (battle && r.battleFace) r = { ...r, face: { ...r.face, ...r.battleFace } };
   if (r.face) r = { ...r, face: seedFace(key + seed + (li ?? ''), r.face) };
   if (r.vary && seed) { const k = ((hsh >>> 8) % 7) - 3; r = { ...r, hair: r.face?.bald ? r.hair : (r.face?.age ?? 0) > 0.7 ? r.hair : HAIR[(hsh >>> 4) % HAIR.length], beard: r.beard && HAIR[(hsh >>> 4) % HAIR.length], cloth: shift(r.cloth, k), skirt: shift(r.skirt, k), cloak: shift(r.cloak, -k), hairStyle: r.hairStyle ?? (['short', 'short', 'long', 'curly'] as const)[(hsh >>> 12) % 4], height: (r.height ?? 1) * (0.94 + ((hsh >>> 16) % 13) / 100) }; }
-  const { extra, size: own, vary: _v, battleFace: _f, ...recipe } = r, sz = own ?? size, s = (SCALE[sz] ?? 1) * (r.height ?? 1), spirit = !!extra?.ghost; void _v; void _f;
+  const { extra, size: own, vary: _v, battleFace: _f, byName: _b, ...recipe } = r, sz = own ?? size, s = (SCALE[sz] ?? 1) * (r.height ?? 1), spirit = !!extra?.ghost; void _v; void _f; void _b;
   if (dead && key === 'skeleton') return mon.bonePile(s);
   // a winged body falls on its face, the wings spread over it (on its back it would lie on them, its arms across them)
   const fell = extra?.wings && !recipe.deadPose ? { ...recipe, deadPose: 'prone' as const } : recipe;
   const g = heroFigure(posed(dead && !spirit ? withDeadPose(fell, key + seed) : recipe) as HeroFigure, sz, dead ? (spirit ? 'rest' : 'dead') : battle), j = (g.userData.joints ?? {}) as Record<string, THREE.Object3D>;
+  if (extra?.bare && !extra.bony) bareFeet(g, recipe as HeroFigure, { claws: extra.bare.claws, seed: hsh % 97 });
+  if (extra?.tatters) { tatters(g, recipe as HeroFigure, { ...extra.tatters, seed: hsh % 89 }); if (dead && !spirit) restOnFloor(g); }
   if (extra?.head && j.head) {
     const b = beast(extra.head, dead ? 'dead' : battle ? 'snarl' : 'stand'), h = (b.userData.joints as Record<string, THREE.Object3D>).head;
     if (h) { j.head.clear(); const k = (0.62 * s) / extra.head.skull; h.removeFromParent(); h.position.set(0, 0.3 * s, 0.02 * s); h.rotation.set(0.25, 0, 0); h.scale.setScalar(k); j.head.add(h); }
@@ -352,7 +362,8 @@ export function folk(base: Folk, size: CreatureSize = 'medium', state: FigState 
   if (extra?.ghost) mon.spectral(g, extra.ghost, (extra.opacity ?? 0.5) * (dead ? 0.5 : 1));
   if (!dead) return g;
   if (spirit) return mon.felled(g, 'flat');                                                        // a spirit does not fall; it pools and thins
-  return (r.fangs || r.face?.fangs) && !extra?.head && (posed(withDeadPose(fell, key + seed)).deadPose as HeroPose | undefined)?.lie === 'back' ? staked(g) : g;
+  // a stake keeps a vampire down (its own fangs, not a ghoul's or a hag's sharp teeth)
+  return r.fangs && !extra?.head && (posed(withDeadPose(fell, key + seed)).deadPose as HeroPose | undefined)?.lie === 'back' ? staked(g) : g;
 }
 
 /** A face of its own for someone the module never drew: sliders spread from the id, so no two commoners match. */
@@ -377,8 +388,8 @@ export const FOLK: Record<string, Folk> = {
   // ---- the walking dead
   zombie: { skin: '#8a9a7c', cloth: '#4a4238', trim: '#3b352c', boots: '#2a2620', hair: '#5a5a50', tattered: true, markings: '#4a5a44', eyes: '#d8d8c0', face: { ...DEAD, bags: 1 }, pose: 'shamble', battlePose: 'shamble' },
   'strahd-zombie': { skin: '#7f8f84', cloth: '#3a2e2a', trim: '#5a1a22', boots: '#1e1a18', armor: { kind: 'mail', color: '#4a4a50' }, tattered: true, markings: '#3a4a44', eyes: '#c8e0d0', face: { ...DEAD, bald: true, scars: ['across'] }, pose: 'shamble', battlePose: 'menace' },
-  ghoul: { skin: '#8a9a7c', cloth: '#4a4238', trim: '#3b352c', boots: '#8a9a7c', eyes: '#e8e070', build: 'lean', face: { ...FERAL, bald: true, veins: '#4a5a44' }, battleFace: { gape: 0.75 }, pose: 'hunched', battlePose: 'feral' },
-  ghast: { skin: '#6f7f68', cloth: '#2a2420', trim: '#1a171d', boots: '#6f7f68', eyes: '#f0a040', tattered: true, cloak: '#1e1a1e', face: { ...FERAL, bald: true, noseLen: -0.6, veins: '#3a4a34' }, battleFace: { gape: 0.75 }, pose: 'hunched', battlePose: 'feral' },
+  ghoul: { skin: '#8a9a7c', cloth: '#4a4238', trim: '#3b352c', boots: '#8a9a7c', eyes: '#e8e070', build: 'lean', face: { ...FERAL, bald: true, veins: '#4a5a44' }, battleFace: { gape: 0.75 }, pose: 'hunched', battlePose: 'feral', extra: { bare: { claws: '#3a3426' } } },
+  ghast: { skin: '#6f7f68', cloth: '#2a2420', trim: '#1a171d', boots: '#6f7f68', eyes: '#f0a040', tattered: true, cloak: '#1e1a1e', face: { ...FERAL, bald: true, noseLen: -0.6, veins: '#3a4a34' }, battleFace: { gape: 0.75 }, pose: 'hunched', battlePose: 'feral', extra: { bare: { claws: '#2e2a20' } } },
   skeleton: { skin: '#d9d2c0', cloth: '#d9d2c0', trim: '#c8c0ac', boots: '#d9d2c0', eyes: '#17120e', build: 'lean', height: 0.97, face: SKULL, gear: { handR: w('shortsword', RUSTY), back: w('shortbow', { grip: '#4a3a2a' }) }, pose: 'slack', battlePose: 'slash', extra: { bony: { rags: '#4a4238' } } },
   wight: { skin: '#c8ccd2', cloth: '#3a3a4a', trim: '#2a2a34', boots: '#1e1e24', hair: '#9a9aa0', hairStyle: 'long', armor: { kind: 'mail', color: '#5a5a66', trim: '#8a8a94' }, cloak: '#2a2630', tattered: true, eyes: '#9ae0ff', face: { ...DEAD, browAngle: 0.8, age: 0.6 }, gear: { handR: w('longsword', { metal: '#8a9098', fittings: '#4a4a52', wear: 0.6 }), back: w('longbow') }, pose: 'behind-back', battlePose: 'overhead' },
   'vampire-spawn': { skin: '#d8d3d0', cloth: '#2a1a22', trim: '#1a171d', boots: '#141216', hair: '#1a1a1a', hairStyle: 'long', shirt: '#b8b0a8', tattered: true, eyes: '#e02a2a', fangs: true, face: { ...FERAL, age: 0.1 }, pose: 'hunched', battlePose: 'feral' },
@@ -393,30 +404,30 @@ export const FOLK: Record<string, Folk> = {
   'phantom-warrior': { skin: '#cfd6e0', cloth: '#b8c4d8', trim: '#9aa8c0', armor: { kind: 'plate', color: '#c0cce0', trim: '#e0e8f4' }, eyes: '#ffffff', face: { ...STERN, gaunt: 0.5 }, gear: { handR: w('longsword', { metal: '#d8e4f4' }) }, offhand: { kind: 'shield', color: '#b8c4d8', rim: '#e0e8f4' }, pose: 'rest', battlePose: 'shield', extra: { ghost: GHOSTLY, opacity: 0.5 } },
   'invisible-stalker': { skin: '#d8e8f4', cloth: '#d8e8f4', trim: '#d8e8f4', boots: '#d8e8f4', build: 'broad', height: 1.15, face: { bald: true, browAngle: 0.8 }, pose: 'haunt', battlePose: 'menace', extra: { ghost: '#e0f0ff', opacity: 0.12 } },
   // ---- hags, witches, the cursed
-  'night-hag': { skin: '#4a3a5a', cloth: '#2a2420', trim: '#1e1a18', boots: '#4a3a5a', hair: '#1a1620', hairStyle: 'long', tattered: true, skirt: '#2a2420', eyes: '#ffb030', markings: '#2a1e3a', face: { ...HAG, fangs: true }, pose: 'hunched', battlePose: 'curse', glow: '#8a40c0', extra: { horns: { len: 0.55, color: '#2a2030', curl: 0.8 } } },
+  'night-hag': { skin: '#4a3a5a', cloth: '#2a2420', trim: '#1e1a18', boots: '#4a3a5a', hair: '#1a1620', hairStyle: 'long', tattered: true, skirt: '#2a2420', eyes: '#ffb030', markings: '#2a1e3a', face: { ...HAG, fangs: true }, pose: 'hunched', battlePose: 'curse', glow: '#8a40c0', extra: { bare: { claws: '#1e1626' }, horns: { len: 0.55, color: '#2a2030', curl: 0.8 } } },
   'barovian-witch': { vary: true, skin: '#d0b89c', cloth: '#221e24', trim: '#5b4a6b', boots: '#17141a', hair: '#1a1a1a', hairStyle: 'long', skirt: '#221e24', cloak: '#1e1a20', hood: true, tattered: true, eyes: '#7ad060', face: { noseHook: 0.7, noseLen: 0.6, browAngle: 0.6, chinPoint: 0.6, age: 0.5, warts: true }, gear: { handR: w('quarterstaff', { grip: '#3a2e22' }), beltL: w('dagger') }, pose: 'leaning', battlePose: 'curse', glow: '#7ad060' },
-  mongrelfolk: { skin: '#a67c5b', cloth: '#5a4a3a', trim: '#55603a', boots: '#a67c5b', hair: '#3a2a1a', hairStyle: 'curly', tattered: true, eyes: '#d8c040', markings: '#6a8a4a', face: { headW: 0.5, jaw: 0.8, noseW: 0.9, noseLen: -0.5, eyeSpace: 0.9, eyeSize: 0.5, browRidge: 0.9, mouthW: 0.9, teeth: true, fangs: true, warts: true }, gear: { handR: w('club') }, pose: 'hunched', battlePose: 'brawl', extra: { tail: { len: 2.2, color: '#8a6a4a' } } },
-  werewolf: { skin: '#6a5a48', cloth: '#4a3e30', trim: '#3a3026', boots: '#6a5a48', build: 'broad', height: 1.12, tattered: true, eyes: '#f0c030', pose: 'hunched', battlePose: 'feral', extra: { head: { ...BEASTS['dire-wolf'], coat: '#6a5a48', under: '#8a7a64' }, tail: { len: 2.4, color: '#6a5a48' } } },
+  mongrelfolk: { skin: '#a67c5b', cloth: '#5a4a3a', trim: '#55603a', boots: '#a67c5b', hair: '#3a2a1a', hairStyle: 'curly', tattered: true, eyes: '#d8c040', markings: '#6a8a4a', face: { headW: 0.5, jaw: 0.8, noseW: 0.9, noseLen: -0.5, eyeSpace: 0.9, eyeSize: 0.5, browRidge: 0.9, mouthW: 0.9, teeth: true, fangs: true, warts: true }, gear: { handR: w('club') }, pose: 'hunched', battlePose: 'brawl', extra: { bare: { claws: '#4a3a2a' }, tail: { len: 2.2, color: '#8a6a4a' } } },
+  werewolf: { skin: '#6a5a48', cloth: '#4a3e30', trim: '#3a3026', boots: '#6a5a48', build: 'broad', height: 1.12, tattered: true, eyes: '#f0c030', pose: 'hunched', battlePose: 'feral', extra: { bare: { claws: '#2a2420' }, head: { ...BEASTS['dire-wolf'], coat: '#6a5a48', under: '#8a7a64' }, tail: { len: 2.4, color: '#6a5a48' } } },
   wereraven: { skin: '#1e1c24', cloth: '#1a1a22', trim: '#3a3b40', boots: '#2a2a30', hair: '#141218', cloak: '#17161c', eyes: '#e8e0c0', face: { noseLen: 1, noseHook: 0.6, eyeSize: 0.3, browAngle: 0.2 }, gear: { beltL: w('shortsword'), back: w('shortbow') }, pose: 'arms-folded', battlePose: 'menace', extra: { beak: '#2a2a30', wings: { kind: 'feather', span: 3.4, color: '#17161c' } } },
   druid: { vary: true, skin: '#c8a888', cloth: '#4a5a3a', trim: '#2f4a3a', boots: '#3a2e22', hair: '#8a5a2a', hairStyle: 'long', beard: '#8a5a2a', cloak: '#3a4a2e', tattered: true, markings: '#2a4a8a', eyes: '#6ac060', face: { beard: 'long', browThick: 0.8, browAngle: 0.5, gaunt: 0.4 }, gear: { handR: w('quarterstaff', { grip: '#4a3a26' }) }, pose: 'leaning', battlePose: 'staff-raised', glow: '#6ac060' },
   berserker: { vary: true, skin: '#c99a72', cloth: '#7a6a55', trim: '#5a4632', boots: '#4a3a2a', hair: '#3a2a1a', hairStyle: 'braids', beard: '#3a2a1a', build: 'broad', height: 1.08, bracers: '#4a3a2a', markings: '#2a4a8a', cloak: '#6a5a48', face: { jaw: 0.9, browRidge: 0.8, browAngle: 0.9, beard: 'full', teeth: true, scars: ['cheekR'] }, gear: { handR: w('greataxe', { wear: 0.4 }) }, pose: 'hands-on-hips', battlePose: 'overhead' },
   // ---- made things
   scarecrow: { skin: '#a08a5a', cloth: '#6a5a3a', trim: '#5a4a3a', boots: '#8a7a4a', hair: '#c8a850', hairStyle: 'short', tattered: true, eyes: '#ff9a20', build: 'lean', height: 1.05, face: { noseLen: -0.8, eyeSize: 0.6, mouthW: 1, smile: 0.9, teeth: true, scars: ['across'], bald: true }, pose: 'shamble', battlePose: 'menace' },
-  gargoyle: { skin: '#5a6068', cloth: '#5a6068', trim: '#4b5560', boots: '#5a6068', eyes: '#d8c040', build: 'broad', face: { jaw: 0.9, chin: 0.8, browRidge: 1, browAngle: 1, noseW: 0.8, noseHook: 0.6, mouthW: 0.9, fangs: true, teeth: true, bald: true }, pose: 'hunched', battlePose: 'feral', extra: { wings: { kind: 'bat', span: 3.6, color: '#4b5560', membrane: '#5a6068' }, horns: { len: 0.6, color: '#3a424a' }, tail: { len: 2.4, color: '#4b5560', tip: 'spike' } } },
+  gargoyle: { skin: '#5a6068', cloth: '#5a6068', trim: '#4b5560', boots: '#5a6068', eyes: '#d8c040', build: 'broad', face: { jaw: 0.9, chin: 0.8, browRidge: 1, browAngle: 1, noseW: 0.8, noseHook: 0.6, mouthW: 0.9, fangs: true, teeth: true, bald: true }, pose: 'hunched', battlePose: 'feral', extra: { bare: { claws: '#3a424a' }, wings: { kind: 'bat', span: 3.6, color: '#4b5560', membrane: '#5a6068' }, horns: { len: 0.6, color: '#3a424a' }, tail: { len: 2.4, color: '#4b5560', tip: 'spike' } } },
   // the module's suit (Death House) is black plate draped in cobwebs; empty, and it fights with its gauntlets (its stat
   // block's slams), so it carries no weapon
   'animated-armor': { skin: '#0a0a0c', cloth: '#121216', trim: '#2a2b31', boots: '#2a2b31', armor: { kind: 'plate', color: '#2a2b31', trim: '#5c5f68' }, gauntlets: '#2a2b31', eyes: '#050506', face: { bald: true }, pose: 'stand proud R:hang L:hang look:ahead', battlePose: 'lunge intent R:slam L:fist look:down', extra: { empty: {}, cobwebs: true } },
   'shield-guardian': { size: 'large', skin: '#6a5a48', cloth: '#5a4a3a', trim: '#8a6a3a', boots: '#6a6e76', armor: { kind: 'plate', color: '#7a7260', trim: '#b89a4a' }, gauntlets: '#7a7260', pendant: '#c8a040', eyes: '#ffb030', build: 'broad', face: { bald: true, jaw: 1, browRidge: 1, lipFull: -1, noseLen: -0.6 }, pose: 'rest', battlePose: 'brawl' },
-  'amber-golem': { size: 'large', skin: '#c9822e', cloth: '#c9822e', trim: '#a8681e', boots: '#c9822e', eyes: '#fff0a0', build: 'broad', face: { bald: true, jaw: 1, browRidge: 1, noseW: 0.8, noseLen: -0.4, mouthW: 0.8, fangs: true }, pose: 'hands-on-hips', battlePose: 'brawl', glow: '#ffb030' },
-  'flesh-golem-the-abbots': { skin: '#a8a890', cloth: '#5a4a3a', trim: '#3a3026', boots: '#a8a890', hair: '#2a2420', build: 'broad', height: 1.2, tattered: true, markings: '#6a3a3a', eyes: '#d8d8a0', face: { jaw: 1, browRidge: 1, sunken: 0.7, scars: ['across', 'cheekL', 'browR'], lipFull: -0.6, headL: 0.4 }, pose: 'shamble', battlePose: 'brawl' },
-  'clay-golem-van-richtens-tower': { size: 'large', skin: '#9a6a4a', cloth: '#9a6a4a', trim: '#7a5238', boots: '#9a6a4a', build: 'broad', eyes: '#e8d090', face: { bald: true, jaw: 0.8, headW: 0.6, noseLen: -0.8, eyeSize: 0.4, lipFull: -1, browRidge: 0.8 }, pose: 'shamble', battlePose: 'brawl' },
+  'amber-golem': { size: 'large', skin: '#c9822e', cloth: '#c9822e', trim: '#a8681e', boots: '#c9822e', eyes: '#fff0a0', build: 'broad', face: { bald: true, jaw: 1, browRidge: 1, noseW: 0.8, noseLen: -0.4, mouthW: 0.8, fangs: true }, pose: 'hands-on-hips', battlePose: 'brawl', glow: '#ffb030', extra: { bare: {} } },
+  'flesh-golem-the-abbots': { skin: '#a8a890', cloth: '#5a4a3a', trim: '#3a3026', boots: '#a8a890', hair: '#2a2420', build: 'broad', height: 1.2, tattered: true, markings: '#6a3a3a', eyes: '#d8d8a0', face: { jaw: 1, browRidge: 1, sunken: 0.7, scars: ['across', 'cheekL', 'browR'], lipFull: -0.6, headL: 0.4 }, pose: 'shamble', battlePose: 'brawl', extra: { bare: {} } },
+  'clay-golem-van-richtens-tower': { size: 'large', skin: '#9a6a4a', cloth: '#9a6a4a', trim: '#7a5238', boots: '#9a6a4a', build: 'broad', eyes: '#e8d090', face: { bald: true, jaw: 0.8, headW: 0.6, noseLen: -0.8, eyeSize: 0.4, lipFull: -1, browRidge: 0.8 }, pose: 'shamble', battlePose: 'brawl', extra: { bare: {} } },
   // ---- the mighty
   lich: { skin: '#c8c0a8', cloth: '#2a2440', trim: '#c9822e', boots: '#1a1626', cloak: '#1e1a30', cloakTrim: '#c9a227', hood: true, tattered: true, skirt: '#2a2440', eyes: '#40e0c0', pendant: '#c9a227', crown: { color: '#c9a227' }, face: { ...SKULL }, gear: { handR: w('quarterstaff', { grip: '#1a1626', fittings: '#c9a227', gem: '#40e0c0', glow: '#40e0c0' }) }, pose: 'leaning', battlePose: 'staff-raised', glow: '#40e0c0' },
   arcanaloth: { skin: '#a8885a', cloth: '#5a1e2a', trim: '#c9a227', boots: '#2a1a1a', skirt: '#5a1e2a', cloak: '#3a1420', cloakTrim: '#c9a227', eyes: '#ffb030', pendant: '#c9a227', offhand: { kind: 'book', color: '#2a1a3a' }, pose: 'regal', battlePose: 'spellcast', glow: '#c040e0', extra: { head: { ...BEASTS.wolf, coat: '#a8885a', under: '#d8c090', mane: 'none', skull: 0.6, muzzle: 0.7, muzzleD: 0.13 } } },
   deva: { skin: '#e8d8c0', cloth: '#f0ece0', trim: '#c9a227', boots: '#c9a227', hair: '#f0e8c8', hairStyle: 'long', skirt: '#f0ece0', halo: '#ffe8a0', eyes: '#ffe8a0', build: 'broad', height: 1.1, bracers: '#c9a227', face: { jaw: 0.4, chin: 0.4, cheekbones: 0.6, noseLen: 0.2, lipFull: 0.3, browAngle: 0.1, lashes: true }, gear: { handR: w('mace', { metal: '#e8d890', fittings: '#c9a227', glow: '#ffe8a0' }) }, pose: 'regal', battlePose: 'rebuke', glow: '#ffe8a0', extra: { wings: { kind: 'feather', span: 5.2, color: '#f4f0e4' } } },
   vrock: { size: 'large', skin: '#5a5a52', cloth: '#4a4a44', trim: '#3a3a36', boots: '#8a7a4a', build: 'broad', eyes: '#e02a2a', face: { bald: true, noseLen: 1, browRidge: 0.9, browAngle: 1, gaunt: 0.6 }, pose: 'hunched', battlePose: 'feral', extra: { beak: '#c8a040', wings: { kind: 'feather', span: 4.6, color: '#3a3a36' } } },
-  quasit: { size: 'tiny', skin: '#4a7a4a', cloth: '#4a7a4a', trim: '#3a6a3a', boots: '#4a7a4a', eyes: '#ffe040', ears: 'pointed', face: { headW: 0.5, noseHook: 0.8, noseLen: 0.6, mouthW: 1, smile: 0.8, fangs: true, teeth: true, bald: true, browAngle: 1 }, pose: 'hunched', battlePose: 'feral', extra: { horns: { len: 0.5, color: '#2a4a2a', curl: 0.9 }, tail: { len: 2.6, color: '#4a7a4a', tip: 'spike' } } },
-  imp: { size: 'tiny', skin: '#a02a22', cloth: '#a02a22', trim: '#7a1e1a', boots: '#a02a22', eyes: '#ffe040', ears: 'pointed', face: { chinPoint: 1, noseHook: 0.6, mouthW: 0.9, smile: 0.9, fangs: true, bald: true, browAngle: 1 }, pose: 'hands-on-hips', battlePose: 'menace', hoverFt: 1.5, extra: { horns: { len: 0.45, color: '#3a1010' }, wings: { kind: 'bat', span: 3.4, color: '#7a1e1a', spread: 1 }, tail: { len: 2.8, color: '#a02a22', tip: 'spade' } } },
+  quasit: { size: 'tiny', skin: '#4a7a4a', cloth: '#4a7a4a', trim: '#3a6a3a', boots: '#4a7a4a', eyes: '#ffe040', ears: 'pointed', face: { headW: 0.5, noseHook: 0.8, noseLen: 0.6, mouthW: 1, smile: 0.8, fangs: true, teeth: true, bald: true, browAngle: 1 }, pose: 'hunched', battlePose: 'feral', extra: { bare: { claws: '#24301f' }, horns: { len: 0.5, color: '#2a4a2a', curl: 0.9 }, tail: { len: 2.6, color: '#4a7a4a', tip: 'spike' } } },
+  imp: { size: 'tiny', skin: '#a02a22', cloth: '#a02a22', trim: '#7a1e1a', boots: '#a02a22', eyes: '#ffe040', ears: 'pointed', face: { chinPoint: 1, noseHook: 0.6, mouthW: 0.9, smile: 0.9, fangs: true, bald: true, browAngle: 1 }, pose: 'hands-on-hips', battlePose: 'menace', hoverFt: 1.5, extra: { bare: { claws: '#3a1210' }, horns: { len: 0.45, color: '#3a1010' }, wings: { kind: 'bat', span: 3.4, color: '#7a1e1a', spread: 1 }, tail: { len: 2.8, color: '#a02a22', tip: 'spade' } } },
   // ---- stock townsfolk and soldiers
   commoner: { vary: true, skin: '#d9b899', cloth: '#5a5246', trim: '#4a4034', boots: '#3a2e24', hair: '#3a2a1a', shirt: '#b8ac94', face: { bags: 0.5, browAngle: -0.4 }, pose: 'wringing', battlePose: 'cower' },
   'noncombatant-child': { vary: true, size: 'small', skin: '#e0c0a4', cloth: '#6a5a4a', trim: '#4a4034', boots: '#3a2e24', hair: '#5a4632', hairStyle: 'curly', face: { eyeSize: 0.8, noseLen: -0.8, jaw: -0.7, chin: -0.5, lipFull: 0.3, headW: 0.3 }, pose: 'wringing', battlePose: 'cower' },
@@ -467,7 +478,9 @@ export const LOOKS: Record<string, Partial<Folk>[]> = {
     { }, { cloth: '#5a3a3a', skirt: '#5a3a3a', hair: '#8a8478', hairStyle: 'long', face: { ...DEAD, age: 0.8 } }, { cloth: '#3a4a4a', armor: { kind: 'mail', color: '#4a4a44' }, face: { ...DEAD, bald: true, scars: ['across'] }, battlePose: 'menace' },
     { cloth: '#6a5a3a', build: 'broad', hair: '#2a2018', beard: '#2a2018', face: { ...DEAD, beard: 'full', jaw: 0.8 } },
   ],
-  ghoul: [{ }, { skin: '#9a9a8a', hair: '#3a3a30', hairStyle: 'long', face: { ...FERAL } }, { skin: '#7a8a80', build: 'broad', face: { ...FERAL, bald: true, jaw: 0.9, scars: ['lip'] } }],
+  ghoul: [{ }, { skin: '#9a9a8a', hair: '#3a3a30', hairStyle: 'long', face: { ...FERAL } }, { skin: '#7a8a80', build: 'broad', face: { ...FERAL, bald: true, jaw: 0.9, scars: ['lip'] } },
+    // a former cultist (Death House): the cult's black robe in tatters, the legs bare under it
+    { byName: true, cloth: '#1e1a20', trim: '#8a9a7c', hem: false, extra: { tatters: { color: '#1e1a20', belt: '#4d1119', cowl: true } } }],
   'strahd-zombie': [{ }, { armor: { kind: 'plate', color: '#4a4a50', trim: '#5a1a22' }, face: { ...DEAD, bald: true } }, { cloak: '#3a1218', face: { ...DEAD, scars: ['cheekR'], bald: true } }],
   skeleton: [{ }, { gear: { handR: { kind: 'spear', ...RUSTY } }, pose: 'slump', battlePose: 'thrust', extra: { bony: { rags: '#5a4c3c' } } }, { gear: { handR: { kind: 'battleaxe', ...RUSTY } }, battlePose: 'windup', extra: { bony: { rags: undefined } } }],
   mongrelfolk: [
@@ -506,6 +519,7 @@ const BONE_HORSE: BeastSpec = { ...BEASTS['riding-horse'], coat: '#d8d0bc', unde
 export const NAMED: Record<string, [RegExp, number][]> = {
   'animated-armor': [[/black/i, 0], [/steel|silver|bright|polish/i, 1], [/rust/i, 2]],
   specter: [[/woman|maid|nurse|girl|lady|wife/i, 1], [/hood|skull|death/i, 0]],
+  ghoul: [[/robe|cult|hunched/i, 3]],
 };
 
 /** Every creature that is not people-shaped, by id: how it stands, and how it looks in initiative (`hint`, the token's

@@ -9,7 +9,8 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { frameFor, SIDE_X, type HeroFigure } from './heroes';
-import { THIGH, clipRings, loftGeometry, neckRings, pelvisRings, ringAt, ringPoint, thighRings, torsoRings, upperArmRings, type Frame, type Ring } from './anatomy';
+import { THIGH, clipRings, loftGeometry, neckRings, pelvisRings, ringAt, ringPoint, shinRings, thighRings, torsoRings, upperArmRings, type Frame, type Ring } from './anatomy';
+import { ell, mirrorX, nets, seg, smax, smin, type Sdf } from './sdf';
 import { mat } from '../render/materials';
 import { flatLock } from './hair';
 
@@ -172,6 +173,9 @@ const skirtShares = (p: V3): Weights => {
   const wc = ramp(0.1, 0.32, p.y), wb = ramp(1.8, 2.5, Math.abs(Math.atan2(p.x, p.z))), wl = ramp(-0.16, 0.16, p.x), o = 1 - wc;
   return { chest: wc, back: o * wb, thighL: o * (1 - wb) * wl, thighR: o * (1 - wb) * (1 - wl) };
 };
+/** Skirts on a figure laid on the ground: the waist with the chest, everything below it with the thigh it lies over (the
+ *  back too, so nothing stands up off the legs or reaches into the floor). */
+const lyingShares = (p: V3): Weights => { const wc = ramp(0.1, 0.32, p.y), wl = ramp(-0.16, 0.16, p.x), o = 1 - wc; return { chest: wc, thighL: o * wl, thighR: o * (1 - wl) }; };
 /** A cloak's shares: the shoulders carry it, the hips the middle, and below the seat it hangs from the legs' swing. */
 /** Where a cloak's front edges stand, as an angle from the front, down its length (0 the top, 1 the hem): behind the
  *  shoulders at the top, behind the arms below. */
@@ -183,15 +187,16 @@ const cloakShares = (p: V3): Weights => { const wc = ramp(-0.2, 0.9, p.y), wh = 
 /** Solid parts cloth may not pass through, posed, in the hips' frame: the limbs as tapered capsules, and anything long
  *  hung at the belt (a scabbard). */
 type Capsule = { a: V3; b: V3; ra: number; rb: number };
-function solidsOf(j: Joints, fr: Frame, s: number): Capsule[] {
+function solidsOf(j: Joints, fr: Frame, s: number, legsOnly = false): Capsule[] {
   const pel = j.hips, out: Capsule[] = [], P = (o: THREE.Object3D | undefined, at = V()) => o ? pel.worldToLocal(o.localToWorld(at.clone())) : undefined;
   pel.updateMatrixWorld(true);
   for (const sd of ['R', 'L']) {
     const sh = P(j['shoulder' + sd]), el = P(j['elbow' + sd]), wr = P(j['wrist' + sd]), tip = P(j['wrist' + sd], V(0, -0.32 * s, 0));
-    if (sh && el && wr && tip) { out.push({ a: sh, b: el, ra: 0.24 * fr.arm * s, rb: 0.17 * fr.arm * s }, { a: el, b: wr, ra: 0.17 * fr.arm * s, rb: 0.12 * fr.arm * s }, { a: wr, b: tip, ra: 0.13 * s, rb: 0.11 * s }); }
+    if (sh && el && wr && tip && !legsOnly) { out.push({ a: sh, b: el, ra: 0.24 * fr.arm * s, rb: 0.17 * fr.arm * s }, { a: el, b: wr, ra: 0.17 * fr.arm * s, rb: 0.12 * fr.arm * s }, { a: wr, b: tip, ra: 0.13 * s, rb: 0.11 * s }); }
     const hip = P(j['hip' + sd]), kn = P(j['knee' + sd]), an = P(j['ankle' + sd]);
     if (hip && kn && an) out.push({ a: hip, b: kn, ra: 0.38 * fr.leg * s, rb: 0.24 * fr.leg * s }, { a: kn, b: an, ra: 0.24 * fr.leg * s, rb: 0.16 * fr.leg * s });
   }
+  if (legsOnly) return out;
   for (const n of ['beltR', 'beltL']) for (const hang of j[n]?.children ?? []) {
     // the hang's long axis runs down its own -y: from the mouth to the farthest point of what hangs in it
     let lo = 0; hang.updateMatrixWorld(true); const inv = hang.matrixWorld.clone().invert(), box = new THREE.Box3();
@@ -511,5 +516,186 @@ export function restOnFloor(g: THREE.Group): THREE.Group {
   const inv = g.matrixWorld.clone().invert(), box = new THREE.Box3(), b = new THREE.Box3();
   part.traverse((m) => { const mm = m as THREE.Mesh; if (!mm.isMesh || (mm.material as THREE.Material).transparent) return; mm.geometry.computeBoundingBox(); box.union(b.copy(mm.geometry.boundingBox!).applyMatrix4(mm.matrixWorld.clone().premultiply(inv))); });
   if (box.min.y < 0) part.position.y -= box.min.y;
+  return g;
+}
+
+// ---------------------------------------------------------------------------------------------------- a robe in tatters
+/** A robe worn to rags, over the figure's own clothes: its skirt from the waist all the way round, torn up into strips of
+ *  uneven length (longest behind), each torn up its sides and ragged at its end; a rope belt knotted at the front with
+ *  its ends hanging; and a cowl round the neck with the hood fallen on the back. */
+export interface Tatters {
+  color: string;
+  /** The rope belt's colour (none when left out). */
+  belt?: string;
+  /** A cowl round the neck and the hood fallen down the back. */
+  cowl?: boolean;
+  /** Varies the strips (a token's own seed). */
+  seed?: number;
+}
+const TAT_TOP = 0.56, TAT_LOW = -2.05, TAT_ROWS = 110;
+/** The robe's hem round the body (0 the front), as a height in the hips' frame: strips of uneven width and length, the
+ *  longest behind, the shortest in front where the knees wear them away; between two strips a tear runs up to its top. */
+function tatterHem(seed: number): (th: number) => number {
+  const cuts: number[] = []; for (let a = -Math.PI + 0.3 * hash(seed + 1), i = 0; a < Math.PI; i++) { cuts.push(a); a += 0.34 + 0.32 * hash(seed * 7 + i * 3 + 2); }
+  const n = cuts.length, len = cuts.map((a, i) => { const back = ramp(0.6, 2.6, Math.abs(wrapA(a + 0.2))); return -1.12 - 0.42 * back - 0.32 * hash(seed * 13 + i * 5 + 3); });
+  const tear = cuts.map((_, i) => -0.5 - 0.42 * hash(seed * 17 + i * 11 + 4));
+  return (th: number) => {
+    const t = wrapA(th); let k = n - 1; for (let i = 0; i < n; i++) if (t >= cuts[i]) k = i;
+    const a = cuts[k], b = k + 1 < n ? cuts[k + 1] : cuts[0] + Math.PI * 2, tt = t < a ? t + Math.PI * 2 : t, u = (tt - a) / (b - a), w = (b - a) * 0.9;
+    const edge = Math.min(u, 1 - u) * w, top = u < 0.5 ? tear[(k + n - 1) % n] : tear[k];
+    const fray = 0.05 * Math.abs(Math.sin(31 * tt + seed)) + 0.035 * Math.abs(Math.sin(57 * tt + 2 * seed)) + 0.07 * ramp(0.35, 0.5, 1 - Math.abs(u - 0.5)) * hash(seed + k);
+    return top + (len[k] + fray - top) * ramp(0.0, 0.07, edge);
+  };
+}
+/** Dress a built, posed figure in a robe in tatters. `recipe` is the one it was built from. */
+export function tatters(g: THREE.Group, recipe: HeroFigure, o: Tatters): THREE.Group {
+  const j = (g.userData.joints ?? {}) as Joints, up = j.chest, pel = j.hips, neck = j.neck; if (!up || !pel || !neck) return g;
+  g.updateMatrixWorld(true);
+  const s = neck.position.y / 2.24, fr = frameFor(recipe), tr = torsoRings(fr), b = bonesOf(j); if (!b) return g;
+  const lying = Math.abs(V(0, 1, 0).transformDirection(up.matrixWorld).y) < 0.5, seed = o.seed ?? 0, hem = tatterHem(seed);
+  // the skirt, built round the body standing at rest: columns all the way round, each from the waist to its own hem
+  const NU = 150, NV = 34, ths = Array.from({ length: NU + 1 }, (_, i) => -Math.PI + (Math.PI * 2 * i) / NU);
+  const YS = Array.from({ length: TAT_ROWS }, (_, k) => TAT_TOP - ((TAT_TOP - TAT_LOW) * k) / (TAT_ROWS - 1)), { hang } = hanging(fr, ths, YS);
+  const gap = (y: number) => 0.04 + 0.07 * ramp(0.1, -1.3, y), fold = (th: number, y: number) => 0.06 * ramp(0, -1.5, y) * (0.5 + 0.5 * Math.sin(9 * th + 1.3 * Math.sin(3 * th) + seed));
+  const rows = Array.from({ length: NV + 1 }, (_, k) => ths.map((th, i) => {
+    const y = TAT_TOP + (hem(th) - TAT_TOP) * (k / NV) ** 0.9, kk = Math.max(0, Math.min(TAT_ROWS - 1, Math.round((TAT_TOP - y) / ((TAT_TOP - TAT_LOW) / (TAT_ROWS - 1))))), r = hang[kk][i] + gap(y) + fold(th, y);
+    return V(Math.sin(th) * r * s, y * s, Math.cos(th) * r * s);
+  }));
+  // carried by the pose: above the knee as the doublet's skirts are (each side by the thigh it lies over, the back left
+  // hanging), below it hanging plumb from where the knee has taken it; laid on the ground it stays with the legs
+  const gq = g.getWorldQuaternion(new THREE.Quaternion()).invert(), down = V(0, -1, 0).applyQuaternion(gq.multiply(pel.getWorldQuaternion(new THREE.Quaternion())).invert());
+  // (the waist rests on the hips, not the chest: when the back bends the robe stays over the seat, and the body that leans
+  // into it pushes it out)
+  const robeShares = (p: V3): Weights => { const w = (lying ? lyingShares : skirtShares)(p); return { ...w, hips: w.chest, chest: 0 }; };
+  const kneeY = -THIGH * s, q = V();
+  for (const row of rows) for (const p of row) {
+    if (lying || p.y >= kneeY) { carry(b, p, robeShares(p.clone().divideScalar(s)), q); p.copy(q); continue; }
+    const pk = V(p.x, kneeY, p.z), drop = kneeY - p.y; carry(b, pk, robeShares(pk.clone().divideScalar(s)), q); p.copy(q).addScaledVector(down, drop);
+  }
+  if (!lying) {
+    // the trunk above the waist as two upright rods side by side (its oval section), where the pose has put it
+    const trunk: Capsule[] = [];
+    for (const y0 of [0.3]) { const r0 = ringAt(tr, y0 + 0.2), rad = ((r0.f + r0.b) / 2) * 1.05, off = Math.max(0, r0.w * 1.05 - rad);
+      for (const sx of [-1, 1]) trunk.push({ a: V(sx * off * s, y0 * s, 0).applyMatrix4(b.chest), b: V(sx * off * s, (y0 + 0.9) * s, 0).applyMatrix4(b.chest), ra: rad * s, rb: rad * s }); }
+    pushOut(rows, [...solidsOf(j, fr, s, true), ...trunk], 0.03 * s);
+    // never through the floor: what reaches it lies on it
+    const toG = g.matrixWorld.clone().invert().multiply(pel.matrixWorld), fromG = toG.clone().invert(), w = V();
+    for (const row of rows) for (const p of row) { w.copy(p).applyMatrix4(toG); if (w.y < 0.04 * s) { w.y = 0.04 * s; p.copy(w.applyMatrix4(fromG)); } }
+  }
+  const robe = o.color;
+  // the robe covers the body from the neck to the knees: what the figure wore there in its trim (the breeches' seat, the
+  // belt, the band at the neck) is the robe now, so none of it shows where the robe gapes as the body bends
+  const trimHex = recipe.trim ? new THREE.Color(recipe.trim).getHexString() : undefined;
+  if (trimHex) for (const part of [pel, up]) for (const m of part.children) { const mesh = m as THREE.Mesh; if (mesh.isMesh && (mesh.material as THREE.MeshLambertMaterial).color?.getHexString() === trimHex) mesh.material = soft(robe); }
+  const skirt = new THREE.Mesh(grid(rows), soft(robe, true)); skirt.name = 'robe'; pel.add(skirt);
+  pel.add(new THREE.Mesh(cord(rows[NV].map((p) => p.clone()), 0.011 * s, false), soft(tone(o.color, '#000000', 0.4))));
+
+  // the rope belt round the waist, over the robe's top, knotted at the front on the left with its ends hanging
+  if (o.belt) {
+    const yb = 0.5, rb = (th: number) => ringPoint(ringAt(tr, yb), th, 1.1 + pecs(fr, th, yb) + 0.02), loop: V3[] = [];
+    for (let i = 0; i < 48; i++) { const th = (i / 48) * Math.PI * 2, [x, z] = rb(th); loop.push(V(x * s, (yb + 0.012 * Math.sin(6 * th)) * s, z * s)); }
+    up.add(new THREE.Mesh(cord(loop, 0.03 * s, true), soft(o.belt)));
+    const tk = SIDE_X.L * 0.42, [kx, kz] = rb(tk), knot = V(kx * s, yb * s, kz * s), nk = V(Math.sin(tk), 0, Math.cos(tk));
+    up.add(new THREE.Mesh(new THREE.SphereGeometry(0.055 * s, 10, 8).scale(1.1, 1, 0.8).translate(knot.x + nk.x * 0.02 * s, knot.y, knot.z + nk.z * 0.02 * s), soft(tone(o.belt, '#000000', 0.15))));
+    // the ends, over the skirt and carried as it is (from the chest at the knot down the thigh)
+    const ends: THREE.BufferGeometry[] = [];
+    for (const [dx, L] of [[-0.05, 0.75], [0.06, 0.95]] as const) {
+      const pts: V3[] = []; for (let k = 0; k <= 8; k++) { const t = k / 8, y = yb - 0.04 - L * t, th = tk + dx + 0.04 * Math.sin(5 * t), r = (y > 0.3 ? ringPoint(ringAt(tr, y), th, 1.12)[1] / Math.cos(th) : hang[Math.max(0, Math.min(TAT_ROWS - 1, Math.round((TAT_TOP - y) / ((TAT_TOP - TAT_LOW) / (TAT_ROWS - 1)))))][Math.round(((wrapA(th) + Math.PI) / (Math.PI * 2)) * NU)] + gap(y) + 0.05); pts.push(V(Math.sin(th) * r * s, y * s, Math.cos(th) * r * s)); }
+      ends.push(carried(cord(pts, 0.022 * s), b, lying ? lyingShares : skirtShares, s));
+    }
+    pel.add(new THREE.Mesh(merged(ends), soft(o.belt)));
+  }
+
+  // the cowl: a loose roll of cloth round the base of the neck, and the hood fallen on the back below it
+  if (o.cowl) {
+    const ring: V3[] = [], yc = 2.11;
+    for (let i = 0; i < 40; i++) { const th = (i / 40) * Math.PI * 2, [x, z] = ringPoint(ringAt(tr, yc), th, 1.03 + 0.06 * Math.sin(5 * th + seed) + 0.1 * Math.max(0, Math.cos(th)) ** 2); ring.push(V(x * s, (yc + 0.025 * Math.sin(3 * th + seed) - 0.12 * Math.max(0, Math.cos(th)) ** 2) * s, z * s)); }
+    up.add(new THREE.Mesh(cord(ring, 0.1 * s, true), soft(robe)));
+    const back = ringAt(tr, 1.9), hood = new THREE.SphereGeometry(1, 16, 10, 0, Math.PI * 2, 0, Math.PI * 0.62);
+    hood.scale(0.36 * s, 0.32 * s, 0.17 * s).rotateX(Math.PI * 0.62).translate(0, 1.98 * s, -(back.b + 0.1) * s);
+    up.add(new THREE.Mesh(hood, soft(robe, true)));
+  }
+  return g;
+}
+
+// ---------------------------------------------------------------------------------------------------- bare feet
+/** A bare foot (the left; the right is its mirror) in the ankle's frame at unit scale, the sole flat on the floor at
+ *  0.47 below the ankle: the foot of the leg coming out of the shin's own section (so there is no step where they meet),
+ *  the ankle bones either side, the heel tendon down to the heel, the arch and the instep, the ball of the foot and its
+ *  outer edge, sculpted as one piece; then five toes, the big toe on the inside, and claws on them if it has claws.
+ *  Built once for each frame's foot length and leg girth. */
+const FEET = new Map<string, { body: THREE.BufferGeometry; toes: THREE.BufferGeometry; claws: THREE.BufferGeometry }>(), MIRRORED = new WeakMap<THREE.BufferGeometry, THREE.BufferGeometry>();
+function footField(fl: number, leg: number): Sdf {
+  const cw = 0.112 * leg, cd = 0.122 * leg, cz = -0.005 * leg;
+  return (x, y, z) => {
+    // (just inside the shin above its end, so its open end overhangs the foot by a hair, and narrowing to the ankle)
+    const t = Math.min(1, Math.max(0, -y / 0.3)), k = y > 0 ? 0.96 - 1.2 * Math.min(y, 0.05) : 0.96 - 0.2 * t, a = cw * k, b = cd * k;
+    let d = (Math.hypot(x / a, (z - cz) / b) - 1) * Math.min(a, b);                                             // the foot of the leg
+    d = smax(smax(d, y - 0.05, 0.02), -(y + 0.34), 0.04);
+    d = smin(d, ell(x - 0.08 * leg, y + 0.16, z - 0.005, 0.034, 0.045, 0.04), 0.03);                         // the ankle bones
+    d = smin(d, ell(x + 0.075 * leg, y + 0.125, z - 0.01, 0.034, 0.045, 0.04), 0.03);
+    d = smin(d, seg(x, y, z, [0, -0.02, -0.09 * leg], [0, -0.31, -0.115 * fl]) - 0.034, 0.05);                 // the heel's tendon
+    d = smin(d, ell(x, y + 0.385, z + 0.08 * fl, 0.066, 0.085, 0.078), 0.09);                                 // the heel
+    d = smin(d, ell(x + 0.006, y + 0.37, z - 0.1 * fl, 0.088, 0.085, 0.19 * fl), 0.07);                       // the arch
+    d = smin(d, ell(x, y + 0.27, z - 0.03 * fl, 0.08, 0.11, 0.12), 0.06);                                     // the instep
+    d = smin(d, ell(x + 0.004, y + 0.425, z - 0.29 * fl, 0.1, 0.045, 0.07), 0.05);                           // the ball of the foot
+    d = smin(d, ell(x - 0.065, y + 0.435, z - 0.15 * fl, 0.035, 0.032, 0.17 * fl), 0.03);                   // its outer edge
+    return smax(d, -(y + 0.47), 0.01);                                                                          // the sole, flat
+  };
+}
+/** The toes of the left foot as [base, tip, radius], the big toe first. */
+const toesOf = (fl: number): [V3, V3, number][] => [
+  [V(-0.052, -0.43, 0.3 * fl), V(-0.06, -0.44, 0.43 * fl), 0.029],
+  ...[0, 1, 2, 3].map((k): [V3, V3, number] => { const x = -0.016 + 0.029 * k, r = [0.02, 0.018, 0.016, 0.014][k]; return [V(x, -0.428, (0.31 - 0.012 * k) * fl), V(x * 1.15 + 0.004, -0.47 + r + 0.002, (0.405 - 0.023 * k) * fl), r]; }),
+];
+function feetOf(fl: number, leg: number) {
+  const key = fl.toFixed(3) + ':' + leg.toFixed(3); let f = FEET.get(key); if (f) return f;
+  const toes: THREE.BufferGeometry[] = [], claws: THREE.BufferGeometry[] = [], Y = V(0, 1, 0);
+  for (const [a, b, r] of toesOf(fl)) {
+    const dir = b.clone().sub(a), len = dir.length(); dir.normalize();
+    toes.push(new THREE.CapsuleGeometry(r, len, 3, 8).applyQuaternion(new THREE.Quaternion().setFromUnitVectors(Y, dir)).translate((a.x + b.x) / 2, (a.y + b.y) / 2, (a.z + b.z) / 2));
+    const down = dir.clone().setY(dir.y - 0.55).normalize(), at = b.clone().addScaledVector(dir, r * 0.75);
+    claws.push(new THREE.ConeGeometry(r * 0.75, r * 2.4, 6).translate(0, r * 1.1, 0).applyQuaternion(new THREE.Quaternion().setFromUnitVectors(Y, down)).translate(at.x, at.y + r * 0.15, at.z));
+  }
+  f = { body: nets(footField(fl, leg), [-0.17, -0.49, -0.22 * fl], [0.17, 0.07, 0.42 * fl], 0.014), toes: merged(toes), claws: merged(claws) };
+  FEET.set(key, f); return f;
+}
+
+/** A loft (anatomy's loftGeometry) with its end caps taken off (the bottom, the top or both), shaded again without them. */
+function uncapped(geo: THREE.BufferGeometry, bottom: boolean, top: boolean): THREE.BufferGeometry {
+  const ix = geo.index; if (!ix) return geo;
+  const n = geo.attributes.position.count, lo = n - 2, hi = n - 1, keep: number[] = [];
+  for (let i = 0; i < ix.count; i += 3) { const a = ix.getX(i), b = ix.getX(i + 1), c = ix.getX(i + 2); if ((bottom && (a === lo || b === lo || c === lo)) || (top && (a === hi || b === hi || c === hi))) continue; keep.push(a, b, c); }
+  const g = geo.clone(); g.setIndex(keep); g.computeVertexNormals(); return g;
+}
+/** Take the boots off a built, posed figure: bare feet in their place (claws on the toes in that colour, if given), and
+ *  the shins bare under trousers torn off at the calf, unless the legs were bare to begin with: trousers the colour of
+ *  the skin, or a body that wears nothing (its clothes the colour of its skin: a golem, a gargoyle, an imp), whose feet
+ *  are the colour of its legs. `recipe` is the one it was built from. */
+export function bareFeet(g: THREE.Group, recipe: HeroFigure, o: { claws?: string; seed?: number } = {}): THREE.Group {
+  const j = (g.userData.joints ?? {}) as Joints, neck = j.neck; if (!neck) return g;
+  const s = neck.position.y / 2.24, fr = frameFor(recipe), fl = fr.fem ? 1.02 : 1.18, skin = recipe.skin ?? '#d9b899', seed = o.seed ?? 0;
+  const naked = !!recipe.cloth && recipe.cloth.toLowerCase() === skin.toLowerCase(), foot0 = naked ? recipe.trim ?? skin : skin;
+  const pants = !naked && recipe.trim && recipe.trim.toLowerCase() !== skin.toLowerCase() ? recipe.trim : undefined, box = new THREE.Box3();
+  for (const sd of ['R', 'L'] as const) {
+    const sx = SIDE_X[sd], kn = j['knee' + sd], an = j['ankle' + sd]; if (!kn || !an) continue;
+    for (const m of [...kn.children]) {
+      const mesh = m as THREE.Mesh; if (!mesh.isMesh) continue;
+      mesh.geometry.computeBoundingBox(); box.copy(mesh.geometry.boundingBox!).applyMatrix4(mesh.matrix);
+      if (box.max.y < -0.4 * s) kn.remove(mesh);                                                              // the boot: its shaft, cuff, strap and buckle
+      else if (box.min.y < -0.9 * s && box.max.y > -0.2 * s) { // the shin (bare, unless it is the legs' own colour), open at the ankle where the foot comes out of it
+        mesh.geometry = uncapped(mesh.geometry, true, false); if (!naked) mesh.material = soft(skin);
+      }
+    }
+    for (const m of [...an.children]) if ((m as THREE.Mesh).isMesh) an.remove(m);                         // the boot's foot, sole and heel
+    if (pants) { // the trouser leg torn off below the knee, its hem ragged
+      const jag = (th: number) => 0.55 * Math.abs(Math.sin(2.5 * th + seed + sx)) + 0.45 * Math.abs(Math.sin(5.7 * th + 2 * seed)) ** 2, y0 = -0.8, y1 = 0.066;
+      kn.add(new THREE.Mesh(uncapped(loftGeometry(clipRings(shinRings(fr), y0, y1), s, { seg: 18, rows: 12, k: 1.07, warp: ([x, y, z]) => { const h = -0.58 - 0.16 * jag(Math.atan2(x, z)); return [x, h + (y1 - h) * ((y - y0) / (y1 - y0)), z]; } }), true, true), soft(pants)));
+    }
+    const F = feetOf(fl, fr.leg), side = (g0: THREE.BufferGeometry) => (sx > 0 ? g0 : (MIRRORED.get(g0) ?? MIRRORED.set(g0, mirrorX(g0)).get(g0)!));
+    const foot = new THREE.Mesh(side(F.body), soft(foot0)); foot.scale.setScalar(s); foot.name = 'foot' + sd; an.add(foot); j['foot' + sd] = foot;
+    const toes = new THREE.Mesh(side(F.toes), soft(foot0)); toes.scale.setScalar(s); an.add(toes);
+    if (o.claws) { const c = new THREE.Mesh(side(F.claws), soft(o.claws)); c.scale.setScalar(s); an.add(c); }
+  }
   return g;
 }

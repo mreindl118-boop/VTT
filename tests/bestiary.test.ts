@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import * as THREE from 'three';
 import { BESTIARY, searchCreatures, figureFor, aliasFor, seenAs, statsOf, speedFtOf } from '../app/src/bestiary';
 
 describe('creature repository', () => {
@@ -25,6 +26,28 @@ describe('creature repository', () => {
     const e = BESTIARY.find((x) => x.id === 'skeleton')!;
     const hands = (seed: string, battle: boolean) => { const J = figureFor(e, battle, seed).userData.joints as Record<string, { children: unknown[] }>; return J.handR.children.length + J.handL.children.length; };
     for (const seed of 'abcdefgh') { expect(hands(seed, false), seed).toBe(0); expect(hands(seed, true), seed).toBeGreaterThan(0); }
+  });
+  it('dresses the Death House ghouls (former cultists) in the cult\'s robe when their encounter names them so, and no other ghoul', { timeout: 60000 }, () => {
+    const e = BESTIARY.find((x) => x.id === 'ghoul')!;
+    const robed = (seed: string, hint = '', st: boolean | 'dead' = false) => { let r = false; figureFor(e, st, seed, hint).traverse((o) => { if (o.name === 'robe') r = true; }); return r; };
+    for (const st of [false, true, 'dead'] as const) expect(robed('a', 'hunched figures', st), String(st)).toBe(true);
+    for (const seed of 'abcdefghijkl') expect(robed(seed), seed).toBe(false);
+  });
+  it('goes barefoot where it wears no boots, and only a vampire is staked when it falls', { timeout: 60000 }, () => {
+    const box = new THREE.Box3();
+    for (const id of ['ghoul', 'ghast', 'night-hag', 'imp']) {
+      const J = figureFor(BESTIARY.find((x) => x.id === id)!, false, 'a').userData.joints as Record<string, THREE.Object3D>, s = J.neck.position.y / 2.24;
+      for (const sd of ['R', 'L']) {
+        // nothing of a boot left below the knee (its shaft, cuff and strap), and a foot at the ankle
+        const boot = J['knee' + sd].children.filter((m) => { const g = (m as THREE.Mesh).geometry; if (!g) return false; g.computeBoundingBox(); return box.copy(g.boundingBox!).applyMatrix4(m.matrix).max.y < -0.4 * s; });
+        expect(boot.length, `${id} ${sd}`).toBe(0);
+        expect(J['ankle' + sd].children.some((m) => m.name === 'foot' + sd), `${id} ${sd}`).toBe(true);
+      }
+    }
+    const staked = (id: string, seed: string) => { let st = false; figureFor(BESTIARY.find((x) => x.id === id)!, 'dead', seed).traverse((o) => { if (o.name === 'stake') st = true; }); return st; };
+    const seeds = 'abcdefghijklmnop'.split('');
+    expect(seeds.some((sd) => staked('vampire-spawn', sd))).toBe(true);
+    for (const id of ['ghoul', 'ghast', 'night-hag', 'imp']) for (const sd of seeds) expect(staked(id, sd), id + sd).toBe(false);
   });
   it('gives named NPCs with a recipe their own miniature, standing and in a battle stance', { timeout: 60000 }, () => {
     const heroes = BESTIARY.filter((e) => e.hero);
