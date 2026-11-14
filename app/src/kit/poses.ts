@@ -19,6 +19,14 @@ export const NPC_POSES = {
   'arms-folded': { spine: [0.03, 0, 0.04], neck: [0, 0.15, 0], shoulderR: [-0.39, -1.04, 0.1], elbowR: -1.75, shoulderL: [-0.38, -1.05, 0.1], elbowL: -1.85, hipL: [-0.1, 0, 0.1], kneeL: 0.2 },
   /** Hands wrung together at the chest, shoulders in: grief or worry. */
   wringing: { spine: [0.16, 0, 0], neck: [0.22, 0, 0.1], shoulderR: [-0.6, -0.75, 0.05], elbowR: -1.8, shoulderL: [-0.6, -0.75, 0.05], elbowL: -1.8, hipL: [-0.06, 0, 0.03], kneeL: 0.15 },
+  /** The dead standing idle: a little hunched, the head hung and tipped to one side, the arms hanging slack and a touch
+   *  forward from the shoulders, the weight sunk on the right leg and the left knee loose. */
+  slack: { pelvis: [0.02, 0.08, 0.1], spine: [0.2, -0.08, -0.12], neck: [0.04, 0.25, 0.32], hipR: [0.02, 0.06, -0.1], kneeR: 0.08, hipL: [-0.2, 0.22, 0.16], kneeL: 0.45,
+    shoulderR: [0.08, -0.05, 0.08], elbowR: -0.22, wristR: [0.15, 0, 0], shoulderL: [0.02, 0.05, 0.12], elbowL: -0.38, wristL: [0.25, 0, 0] },
+  /** The dead slumped: the weight on the left leg, the right shoulder dropped and that arm dangling, the head hung forward
+   *  and turned aside, the other arm hanging bent. */
+  slump: { pelvis: [0.02, -0.1, -0.12], spine: [0.26, 0.1, 0.16], neck: [0.1, -0.3, -0.22], hipL: [0.02, 0.06, -0.1], kneeL: 0.1, hipR: [-0.18, 0.25, 0.18], kneeR: 0.5,
+    shoulderR: [0.14, 0.05, 0.02], elbowR: -0.12, wristR: [0.1, 0, 0], shoulderL: [-0.05, -0.1, 0.14], elbowL: -0.6, wristL: [0.35, 0, 0] },
   /** Leaning on a staff or a cane held upright. */
   leaning: { spine: [0.16, 0, -0.05], neck: [-0.12, 0, 0], shoulderR: [-0.75, 0, 0.15], elbowR: -0.95, holdR: { upright: true }, hipL: [-0.1, 0, 0.05], kneeL: 0.2 },
 
@@ -63,6 +71,13 @@ export const NPC_POSES = {
   haunt: { spine: [0.2, 0, 0], neck: [-0.2, 0, 0], shoulderR: [-1.5, 0, 0.35], elbowR: -0.35, shoulderL: [-1.2, 0, 0.5], elbowL: -0.6, hipL: [0.15, 0, 0], kneeL: 0.5, hipR: [0.3, 0, 0], kneeR: 0.7, lift: 0.9 },
   /** Mounted at a charge: forward in the saddle, the blade swept out to the right. */
   'ride-charge': { seated: true, spine: [0.28, -0.15, 0], neck: [-0.25, 0, 0], hipR: [-1.3, 0, 0.42], kneeR: 1.45, hipL: [-1.3, 0, 0.42], kneeL: 1.45, shoulderR: [-1.2, 0, 1.0], elbowR: -0.3, holdR: { upright: true, tilt: [0.9, 0, 0.5] }, shoulderL: [-0.75, 0, 0.05], elbowL: -0.9 },
+  /** The skeletal rider at its endless ride: a little hunched in the saddle, the skull hung forward, the left arm raised
+   *  up and forward with the lantern hanging from its fist, the right fist low on the reins. */
+  'ride-lantern': { seated: true, spine: [0.14, 0.05, 0.04], neck: [0.12, -0.12, 0.1], hipR: [-1.45, 0, 0.4], kneeR: 1.5, hipL: [-1.45, 0, 0.4], kneeL: 1.5,
+    shoulderR: [-0.65, 0, 0.08], elbowR: -0.95, shoulderL: [-2.2, 0, 0.28], elbowL: -0.3, fist: ['R', 'L'] },
+  /** The skeletal rider at a charge: forward in the saddle, the blade swept out to the right, the lantern still held up in the left. */
+  'ride-lantern-charge': { seated: true, spine: [0.26, -0.15, 0], neck: [-0.22, 0, 0], hipR: [-1.3, 0, 0.42], kneeR: 1.45, hipL: [-1.3, 0, 0.42], kneeL: 1.45,
+    shoulderR: [-1.2, 0, 1.0], elbowR: -0.3, holdR: { upright: true, tilt: [0.9, 0, 0.5] }, shoulderL: [-2.25, 0, 0.32], elbowL: -0.3, fist: ['L'] },
   /** Mounted and rearing: leaning back on the reins, one arm flung high. */
   'ride-rear': { seated: true, spine: [-0.2, 0, 0], neck: [0.05, 0, 0], hipR: [-1.15, 0, 0.42], kneeR: 1.3, hipL: [-1.15, 0, 0.42], kneeL: 1.3, shoulderR: [-2.5, 0, 0.5], elbowR: -0.35, holdR: { upright: true, tilt: [-0.2, 0, 0] }, shoulderL: [-0.85, 0, 0.05], elbowL: -1.0 },
 } satisfies Record<string, HeroPose>;

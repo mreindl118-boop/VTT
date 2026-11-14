@@ -64,7 +64,9 @@ const deep = (o: THREE.Object3D | undefined) => { const out: THREE.Mesh[] = []; 
 /** Every clip in a posed figure built by heroFigure from `recipe` (rest, battle or dead), deepest first. */
 export function findClips(figure: THREE.Object3D, recipe: HeroFigure, o: ClipOptions = {}): ClipHit[] {
   figure.updateMatrixWorld(true);
-  const J: Record<string, THREE.Object3D> = {}; figure.traverse((c) => { if (c.name && !J[c.name]) J[c.name] = c; });
+  // a mount carrying its rider (kit/menagerie.ts mounted()): the rider is the figure (the mount's own neck and hips are not its)
+  const fig = (figure.userData.rider as THREE.Object3D | undefined) ?? figure;
+  const J: Record<string, THREE.Object3D> = {}; fig.traverse((c) => { if (c.name && !J[c.name]) J[c.name] = c; });
   const neck = J.neck, head = J.head; if (!J.chest || !neck || !head) return [];
   const s = neck.position.y / 2.24, fr = frameFor(recipe), tol = (o.tolerance ?? 0.04) * s, give = o.give ?? 0.25, skip = new Set(o.ignore ?? []);
   const local = (obj: THREE.Object3D, p: THREE.Vector3) => obj.worldToLocal(p.clone()).divideScalar(s);

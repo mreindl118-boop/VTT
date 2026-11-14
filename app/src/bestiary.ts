@@ -197,8 +197,9 @@ export function figureFor(e: CreatureEntry, state: FigState = false, seed = '', 
   if (e.hero) return dressed(heroFigure(recipeOf(e, battle, battle && e.hero.ghost?.hover ? { hoverFt: e.hero.ghost.hover } : {}), e.size, battle), e.hero, battle);
   const made = creature(e.id, dead ? 'dead' : battle, hint); if (made) return made;
   const st: FigState = dead ? 'dead' : battle;
-  if (FOLK[e.id]) return folk(battle ? FOLK[e.id] : dead ? fallen(FOLK[e.id]) : stowed(FOLK[e.id]), e.size, st, seed, e.id, hint);
-  if ((e.kind === 'npc' || e.kind === 'generic') && !e.figure?.kind) { const r = plainFolk(e); return folk(battle ? r : dead ? fallen(r) : stowed(r), e.size, st, seed, e.id); }
+  const dress = battle ? undefined : dead ? fallen : stowed;
+  if (FOLK[e.id]) return folk(FOLK[e.id], e.size, st, seed, e.id, hint, dress);
+  if ((e.kind === 'npc' || e.kind === 'generic') && !e.figure?.kind) return folk(plainFolk(e), e.size, st, seed, e.id, '', dress);
   const f = e.figure ?? {}, scale = ({ tiny: 0.5, small: 0.75, medium: 1, large: 1, huge: 1.2, gargantuan: 1.4 } as Record<string, number>)[e.size] ?? 1;
   const byId: Record<string, () => THREE.Group> = {
     'vampire-spawn': vampireSpawn, gargoyle, scarecrow, 'animated-armor': animatedArmor, skeleton: skeletonStanding, ghost: () => ghost(), specter, shadow, ghoul, ghast, cultist,

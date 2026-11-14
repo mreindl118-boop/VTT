@@ -21,6 +21,11 @@ describe('creature repository', () => {
     expect(speedFtOf(BESTIARY.find((e) => e.id === 'dire-wolf')!)).toBe(50);
     expect(speedFtOf(BESTIARY.find((e) => e.id === 'rahadin')!)).toBe(30);
   });
+  it('puts away what each look of a creature carries until the fight, not only what its first look carries', { timeout: 60000 }, () => {
+    const e = BESTIARY.find((x) => x.id === 'skeleton')!;
+    const hands = (seed: string, battle: boolean) => { const J = figureFor(e, battle, seed).userData.joints as Record<string, { children: unknown[] }>; return J.handR.children.length + J.handL.children.length; };
+    for (const seed of 'abcdefgh') { expect(hands(seed, false), seed).toBe(0); expect(hands(seed, true), seed).toBeGreaterThan(0); }
+  });
   it('gives named NPCs with a recipe their own miniature, standing and in a battle stance', { timeout: 60000 }, () => {
     const heroes = BESTIARY.filter((e) => e.hero);
     expect(heroes.length).toBeGreaterThan(30);

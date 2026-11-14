@@ -6,11 +6,12 @@ import * as THREE from 'three';
 import { frameFor, heroFigure, SIDE_X, type HeroFigure, type HeroPose } from './heroes';
 import { clipRings, loftGeometry, neckLift, neckRings, ringAt, ringPoint, torsoRings } from './anatomy';
 import { mat } from '../render/materials';
-import { posed, deadPose } from './poses';
+import { posed, deadPose, NPC_POSES } from './poses';
 import type { FaceSpec } from './faces';
 import type { WeaponSpec } from './weapons';
 import { beast, BEASTS, BEUCEPHALUS, type BeastSpec, type BeastPoseName } from './beasts';
 import * as mon from './monsters';
+import { boneify, boneHorse, type Bony } from './bones';
 import type { CreatureSize } from '../core/units';
 
 const SCALE: Record<string, number> = { tiny: 0.45, small: 0.68, medium: 1, large: 1.6, huge: 2.4, gargantuan: 3.2 };   // the figure rig's size scale
@@ -38,6 +39,8 @@ export interface Folk extends Omit<HeroFigure, 'pose' | 'battlePose' | 'deadPose
     empty?: { helm?: string; trim?: string };
     /** Draped in cobwebs while it stands still; torn ends in a fight. */
     cobwebs?: boolean;
+    /** Nothing but bones (kit/bones.ts): a skeleton on the figure's own joints, and what it wears on them. */
+    bony?: Bony;
   };
 }
 
@@ -268,14 +271,17 @@ export function cobwebs(g: THREE.Group, battle: boolean): THREE.Group {
   }
   return g;
 }
-/** Something carried that is neither a weapon nor a book: a child's rag doll (Thorn's, in the street outside Death
- *  House). It sits at the hand, upright against the chest whatever the hand's turn, so a hugging pose holds it to the
- *  body: a stuffed body in a dress, floppy arms and legs, a round head with button eyes under a cap of yarn hair. */
-export interface Carry { kind: 'doll'; side?: 'L' | 'R'; color?: string; hair?: string }
+/** Something carried that is neither a weapon nor a book. A child's rag doll (Thorn's, in the street outside Death
+ *  House) sits at the hand, upright against the chest whatever the hand's turn, so a hugging pose holds it to the body:
+ *  a stuffed body in a dress, floppy arms and legs, a round head with button eyes under a cap of yarn hair. A lantern
+ *  hangs plumb from the fist by its bail (so carry it once the figure stands where it will, a rider in the saddle): a
+ *  square cage of rusted iron under a peaked cap, its panes sooty and dark: a lantern long gone out. */
+export interface Carry { kind: 'doll' | 'lantern'; side?: 'L' | 'R'; color?: string; hair?: string }
 export function carried(g: THREE.Group, c: Carry): THREE.Group {
   const j = (g.userData.joints ?? {}) as Record<string, THREE.Object3D>, side = c.side ?? 'L', hand = j['hand' + side], wr = j['wrist' + side], up = j.chest;
   if (!hand || !wr || !up) return g;
-  g.updateMatrixWorld(true);
+  g.updateWorldMatrix(true, true);
+  if (c.kind === 'lantern') { hand.add(lantern(hand, Math.abs(wr.position.y) / 1.04, c.color ?? '#6b4428')); return g; }
   const s = Math.abs(wr.position.y) / 1.04 * 1.5, d = new THREE.Group(), cloth = c.color ?? '#9a4a48', rag = '#e6dac2', yarn = c.hair ?? '#c8a050', ink = '#2a1e1a';
   const blob = (r: number, col: string, k: [number, number, number], x: number, y: number, z: number, rz = 0) => { const m = new THREE.Mesh(new THREE.SphereGeometry(r * s, 12, 9), smooth(col)); m.scale.set(...k); m.position.set(x * s, y * s, z * s); m.rotation.z = rz; d.add(m); return m; };
   blob(0.12, cloth, [1, 1.3, 0.75], 0, 0, 0);                                   // the stuffed body in its dress
@@ -291,17 +297,39 @@ export function carried(g: THREE.Group, c: Carry): THREE.Group {
   up.add(d);
   return g;
 }
+/** A lantern in a hand's frame, hanging plumb in the world from the fist, its bail along the grip so the fist closes on it. */
+function lantern(hand: THREE.Object3D, s: number, rust: string): THREE.Group {
+  const L = new THREE.Group(), iron = smooth(rust), dark = '#' + new THREE.Color(rust).lerp(new THREE.Color('#000000'), 0.45).getHexString(), pane = smooth('#14110e');
+  const add = (geo: THREE.BufferGeometry, m: THREE.Material, x: number, y: number, z: number, ry = 0) => { const o = new THREE.Mesh(geo, m); o.position.set(x * s, y * s, z * s); o.rotation.y = ry; L.add(o); return o; };
+  const bail = new THREE.TorusGeometry(0.09 * s, 0.014 * s, 5, 12, Math.PI); add(bail, smooth(dark), 0, -0.09, 0);
+  add(new THREE.ConeGeometry(0.17 * s, 0.13 * s, 4), iron, 0, -0.165, 0, Math.PI / 4);
+  add(new THREE.TorusGeometry(0.025 * s, 0.01 * s, 4, 8), iron, 0, -0.085, 0);
+  add(new THREE.BoxGeometry(0.25 * s, 0.035 * s, 0.25 * s), iron, 0, -0.245, 0);
+  add(new THREE.BoxGeometry(0.21 * s, 0.3 * s, 0.21 * s), pane, 0, -0.41, 0);
+  for (const x of [-1, 1]) for (const z of [-1, 1]) add(new THREE.BoxGeometry(0.03 * s, 0.34 * s, 0.03 * s), iron, x * 0.11, -0.41, z * 0.11);
+  for (const [x, z] of [[0, 1], [0, -1], [1, 0], [-1, 0]]) add(new THREE.BoxGeometry(x ? 0.012 * s : 0.2 * s, 0.012 * s, z ? 0.012 * s : 0.2 * s), smooth(dark), x * 0.112, -0.41, z * 0.112);
+  add(new THREE.BoxGeometry(0.27 * s, 0.045 * s, 0.27 * s), iron, 0, -0.6, 0);
+  for (const x of [-1, 1]) for (const z of [-1, 1]) add(new THREE.SphereGeometry(0.022 * s, 6, 4), smooth(dark), x * 0.11, -0.63, z * 0.11);
+  // plumb in the world, the bail's top along the grip (the hand's y axis laid level), or ahead where the grip stands upright
+  const hq = hand.getWorldQuaternion(new THREE.Quaternion()), grip = new THREE.Vector3(0, 1, 0).applyQuaternion(hq); grip.y = 0;
+  if (grip.lengthSq() < 0.09) grip.set(0, 0, 1).applyQuaternion(hq).setY(0);
+  const X = grip.normalize(), Y = new THREE.Vector3(0, 1, 0), Z = new THREE.Vector3().crossVectors(X, Y);
+  L.quaternion.copy(hq.invert().multiply(new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().makeBasis(X, Y, Z))));
+  return L;
+}
 /** A recipe with its dead pose resolved (kit/poses.ts names, the rig's own presets, or one picked by the seed). */
 export function withDeadPose<T extends { deadPose?: unknown }>(r: T, seed: string): Omit<T, 'deadPose'> & { deadPose: HeroFigure['deadPose'] } {
   return { ...r, deadPose: deadPose(r.deadPose, seed) as HeroFigure['deadPose'] };
 }
 
 /** Build a people-shaped monster and fit its extras to the body's mounts. `seed` (a token's id) picks one of the
- *  creature's looks and gives that token its own face, so no two of a kind match. */
-export function folk(base: Folk, size: CreatureSize = 'medium', state: FigState = false, seed = '', key = '', hint = ''): THREE.Group {
+ *  creature's looks and gives that token its own face, so no two of a kind match; `dress` then readies the look for the
+ *  state it is in (at rest its weapons put away, dead the one it fought with let fall), so a look's own gear is put away too. */
+export function folk(base: Folk, size: CreatureSize = 'medium', state: FigState = false, seed = '', key = '', hint = '', dress?: (r: Folk) => Folk): THREE.Group {
   const dead = state === 'dead', battle = state === true || state === 'battle', hsh = hashOf(key + seed), looks = LOOKS[key];
   const named = looks && hint ? NAMED[key]?.find(([re]) => re.test(hint))?.[1] : undefined, li = named ?? (looks && seed ? hsh % looks.length : undefined);
-  let r: Folk = looks && li !== undefined ? { ...base, ...looks[li], extra: base.extra } : base;
+  let r: Folk = looks && li !== undefined ? { ...base, ...looks[li], extra: looks[li].extra ? { ...base.extra, ...looks[li].extra } : base.extra } : base;
+  if (dress) r = dress(r);
   if (battle && r.battleFace) r = { ...r, face: { ...r.face, ...r.battleFace } };
   if (r.face) r = { ...r, face: seedFace(key + seed + (li ?? ''), r.face) };
   if (r.vary && seed) { const k = ((hsh >>> 8) % 7) - 3; r = { ...r, hair: r.face?.bald ? r.hair : (r.face?.age ?? 0) > 0.7 ? r.hair : HAIR[(hsh >>> 4) % HAIR.length], beard: r.beard && HAIR[(hsh >>> 4) % HAIR.length], cloth: shift(r.cloth, k), skirt: shift(r.skirt, k), cloak: shift(r.cloak, -k), hairStyle: r.hairStyle ?? (['short', 'short', 'long', 'curly'] as const)[(hsh >>> 12) % 4], height: (r.height ?? 1) * (0.94 + ((hsh >>> 16) % 13) / 100) }; }
@@ -318,6 +346,7 @@ export function folk(base: Folk, size: CreatureSize = 'medium', state: FigState 
   if (extra?.horns && j.head) for (const sx of [-1, 1]) { const h = mon.horn(extra.horns.len * s, 0.045 * s, extra.horns.color, extra.horns.curl ?? 0.6); h.position.set(sx * 0.24 * s, 0.66 * s, 0.02 * s); h.rotation.z = -sx * 0.35; j.head.add(h); }
   if (extra?.wings && j.back) { const w = mon.wings(extra.wings.kind, extra.wings.span * s, extra.wings.color, { spread: dead ? 0.9 : extra.wings.spread ?? (battle ? 1 : 0.45), lift: dead ? 0 : battle ? 0.5 : 0.2, membrane: extra.wings.membrane }); w.position.set(0, 0.25 * s, -0.12 * s); j.back.add(w); }
   if (extra?.tail && j.hips) { const L = extra.tail.len * s; j.hips.add(mon.tailOf([V(0, 0, -0.15 * s), V(0, -0.25 * L, -0.4 * L), V(0.1 * L, -0.5 * L, -0.75 * L), V(0.2 * L, -0.3 * L, -L)], 0.07 * s, extra.tail.color, extra.tail.tip)); }
+  if (extra?.bony && !dead) boneify(g, recipe as HeroFigure, { ...extra.bony, battle });
   if (extra?.empty) emptySuit(g, recipe as HeroFigure, extra.empty);
   if (extra?.cobwebs && !dead) cobwebs(g, battle);
   if (extra?.ghost) mon.spectral(g, extra.ghost, (extra.opacity ?? 0.5) * (dead ? 0.5 : 1));
@@ -350,7 +379,7 @@ export const FOLK: Record<string, Folk> = {
   'strahd-zombie': { skin: '#7f8f84', cloth: '#3a2e2a', trim: '#5a1a22', boots: '#1e1a18', armor: { kind: 'mail', color: '#4a4a50' }, tattered: true, markings: '#3a4a44', eyes: '#c8e0d0', face: { ...DEAD, bald: true, scars: ['across'] }, pose: 'shamble', battlePose: 'menace' },
   ghoul: { skin: '#8a9a7c', cloth: '#4a4238', trim: '#3b352c', boots: '#8a9a7c', eyes: '#e8e070', build: 'lean', face: { ...FERAL, bald: true, veins: '#4a5a44' }, battleFace: { gape: 0.75 }, pose: 'hunched', battlePose: 'feral' },
   ghast: { skin: '#6f7f68', cloth: '#2a2420', trim: '#1a171d', boots: '#6f7f68', eyes: '#f0a040', tattered: true, cloak: '#1e1a1e', face: { ...FERAL, bald: true, noseLen: -0.6, veins: '#3a4a34' }, battleFace: { gape: 0.75 }, pose: 'hunched', battlePose: 'feral' },
-  skeleton: { skin: '#d9d2c0', cloth: '#d9d2c0', trim: '#c8c0ac', boots: '#d9d2c0', eyes: '#17120e', build: 'lean', height: 0.97, face: SKULL, gear: { handR: w('shortsword', RUSTY), back: w('shortbow', { grip: '#4a3a2a' }) }, pose: 'rest', battlePose: 'slash' },
+  skeleton: { skin: '#d9d2c0', cloth: '#d9d2c0', trim: '#c8c0ac', boots: '#d9d2c0', eyes: '#17120e', build: 'lean', height: 0.97, face: SKULL, gear: { handR: w('shortsword', RUSTY), back: w('shortbow', { grip: '#4a3a2a' }) }, pose: 'slack', battlePose: 'slash', extra: { bony: { rags: '#4a4238' } } },
   wight: { skin: '#c8ccd2', cloth: '#3a3a4a', trim: '#2a2a34', boots: '#1e1e24', hair: '#9a9aa0', hairStyle: 'long', armor: { kind: 'mail', color: '#5a5a66', trim: '#8a8a94' }, cloak: '#2a2630', tattered: true, eyes: '#9ae0ff', face: { ...DEAD, browAngle: 0.8, age: 0.6 }, gear: { handR: w('longsword', { metal: '#8a9098', fittings: '#4a4a52', wear: 0.6 }), back: w('longbow') }, pose: 'behind-back', battlePose: 'overhead' },
   'vampire-spawn': { skin: '#d8d3d0', cloth: '#2a1a22', trim: '#1a171d', boots: '#141216', hair: '#1a1a1a', hairStyle: 'long', shirt: '#b8b0a8', tattered: true, eyes: '#e02a2a', fangs: true, face: { ...FERAL, age: 0.1 }, pose: 'hunched', battlePose: 'feral' },
   revenant: { skin: '#8a9a8c', cloth: '#3a3b40', trim: '#4d1119', boots: '#1e1e22', hair: '#6a6a6a', armor: { kind: 'plate', color: '#55585e', trim: '#8a2a2a' }, cloak: '#3a1218', tattered: true, eyes: '#ff5a2a', face: { ...DEAD, ...STERN, scars: ['cheekL', 'browR'] }, gear: { handR: w('longsword', { metal: '#9aa0a8', fittings: '#6a2a2a', wear: 0.5 }) }, pose: 'behind-back', battlePose: 'overhead' },
@@ -440,7 +469,7 @@ export const LOOKS: Record<string, Partial<Folk>[]> = {
   ],
   ghoul: [{ }, { skin: '#9a9a8a', hair: '#3a3a30', hairStyle: 'long', face: { ...FERAL } }, { skin: '#7a8a80', build: 'broad', face: { ...FERAL, bald: true, jaw: 0.9, scars: ['lip'] } }],
   'strahd-zombie': [{ }, { armor: { kind: 'plate', color: '#4a4a50', trim: '#5a1a22' }, face: { ...DEAD, bald: true } }, { cloak: '#3a1218', face: { ...DEAD, scars: ['cheekR'], bald: true } }],
-  skeleton: [{ }, { gear: { handR: { kind: 'spear', ...RUSTY } }, battlePose: 'thrust' }, { gear: { handR: { kind: 'battleaxe', ...RUSTY } }, battlePose: 'windup' }],
+  skeleton: [{ }, { gear: { handR: { kind: 'spear', ...RUSTY } }, pose: 'slump', battlePose: 'thrust', extra: { bony: { rags: '#5a4c3c' } } }, { gear: { handR: { kind: 'battleaxe', ...RUSTY } }, battlePose: 'windup', extra: { bony: { rags: undefined } } }],
   mongrelfolk: [
     { }, { skin: '#8a8a6a', extra: undefined, ears: 'pointed', face: { headW: -0.4, noseLen: 1, noseHook: 0.8, eyeSize: -0.5, eyeSpace: -0.8, mouthW: 0.4, fangs: true }, pose: 'wringing', battlePose: 'cower' },
     { skin: '#b89a7a', build: 'broad', hair: '#c8a850', face: { jaw: 1, browRidge: 1, noseW: 1, eyeSize: 0.9, eyeSpace: 1, teeth: true, bald: true, warts: true }, battlePose: 'menace' },
@@ -455,9 +484,21 @@ const b = (id: string, rest: BeastPoseName, fight: BeastPoseName) => (battle: bo
 export function mounted(mount: BeastSpec, pose: BeastPoseName, rider: HeroFigure, dress?: (g: THREE.Group) => void): THREE.Group {
   const g = beast(mount, pose), saddle = (g.userData.joints as Record<string, THREE.Object3D>).saddle;
   const r = heroFigure(rider, 'medium', false); dress?.(r); (saddle ?? g).add(r); if (!saddle) r.position.y = mount.height;
+  g.userData.rider = r;
   return g;
 }
-const BONE_HORSE: BeastSpec = { ...BEASTS['riding-horse'], coat: '#d8d0bc', under: '#c0b8a4', maneColor: '#8a8478', eyes: '#70e0ff', glow: true, gaunt: 1, mane: 'none', tail: 'whip', saddle: { seat: '#3a2e26', trim: '#6a6a6a' } };
+/** The skeletal rider (a random encounter on Barovia's roads, from the module): what is left of a rider and a warhorse
+ *  who died trying to get out through the mists, both in rotted mail, the rider lifting a rusted lantern that gives no
+ *  light. At rest its sword is slung on its back (at the hip it would lie through the thigh in the saddle); in a fight it
+ *  is drawn and swept out, the lantern still held up. */
+function skeletalRider(battle: boolean): THREE.Group {
+  const rider = { ...FOLK.skeleton, extra: undefined, gear: battle ? { handR: w('longsword', RUSTY) } : { back: w('longsword', RUSTY) }, pose: NPC_POSES[battle ? 'ride-lantern-charge' : 'ride-lantern'] } as HeroFigure;
+  const g = boneHorse(mounted(BONE_HORSE, battle ? 'gallop' : 'walk', rider, (r) => { boneify(r, rider, { mail: '#5e5850', battle, seated: true }); }), BONE_HORSE, { mail: '#55504a' });
+  carried(g.userData.rider as THREE.Group, { kind: 'lantern', side: 'L' });
+  return g;
+}
+/** The skeletal warhorse: a lean horse's frame for its bones (kit/bones.ts boneHorse), saddled. */
+const BONE_HORSE: BeastSpec = { ...BEASTS['riding-horse'], coat: '#d8d0bc', under: '#c0b8a4', gaunt: 1, mane: 'none', tail: 'whip', saddle: { seat: '#3a2e26', trim: '#6a6a6a' } };
 
 /** Looks an encounter can call up by what the players are told they see (a token's alias, given by the encounter): "a
  *  suit of black plate armor" is the black suit, "a starving young woman" the nursemaid's specter. Each names an entry
@@ -474,7 +515,7 @@ export const MENAGERIE: Record<string, (battle: boolean, dead?: boolean, hint?: 
   'black-cat': b('black-cat', 'stand', 'snarl'), 'saber-toothed-tiger': b('saber-toothed-tiger', 'stand', 'pounce'),
   'riding-horse': b('riding-horse', 'stand', 'rear'), 'draft-horse': b('draft-horse', 'stand', 'rear'), nightmare: b('nightmare', 'walk', 'rear'),
   beucephalus: (battle, dead) => beast(BEUCEPHALUS, dead ? 'dead' : battle ? 'rear' : 'walk'),
-  'skeletal-rider': (battle, dead) => dead ? mon.bonePile(1.6) : mounted(BONE_HORSE, battle ? 'gallop' : 'walk', posed({ ...FOLK.skeleton, extra: undefined, gear: { handR: w('longsword', RUSTY) }, pose: battle ? 'ride-charge' : 'ride' }) as HeroFigure),
+  'skeletal-rider': (battle, dead) => dead ? mon.bonePile(1.6) : skeletalRider(battle),
   bat: (battle) => mon.flyer(mon.FLYERS.bat, battle ? 'dive' : 'flap', 2.5), raven: (battle) => mon.flyer(mon.FLYERS.raven, battle ? 'dive' : 'perch', battle ? 2.5 : 0),
   roc: (battle) => mon.flyer(mon.FLYERS.roc, battle ? 'dive' : 'glide', 6),
   'swarm-of-bats': () => mon.swarmOf('bats'), 'swarm-of-ravens': () => mon.swarmOf('ravens'), 'swarm-of-rats': () => mon.swarmOf('rats', 12), 'swarm-of-insects': (battle, _d, hint) => /centipede/i.test(hint ?? '') ? mon.swarmOf('centipedes', 14, 2.2, battle) : mon.swarmOf('insects', 16),
