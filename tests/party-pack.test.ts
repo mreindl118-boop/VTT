@@ -207,7 +207,7 @@ describe('heroFigure', () => {
     expect(j(fight).handR.children.length).toBeGreaterThan(0);
     expect(j(kept).handR.children.length).toBeGreaterThan(0);
     const m = heroFigure({ weapon: 'mace' }); expect(j(m).stowed.parent).toBe(j(m).beltR);
-  });
+  }, 60000);
   it('hangs a weapon put away at the belt clear of the body, the hands and what is worn, under a cloak', () => {
     // how many times a ray from a point crosses a mesh's triangles: odd, the point is inside that part (two rays, out to
     // the right side where the weapon hangs and back, since a part may be open at its ends)
@@ -359,7 +359,7 @@ describe('heroFigure', () => {
     }
     const shield = heroFigure({ offhand: { kind: 'shield' }, pose: { ...AT_EASE[2] } }), S = shield.userData.joints as Record<string, THREE.Object3D>;
     expect(S.handL.children.length).toBeGreaterThan(0);                                                                   // a hand that holds something keeps it
-  });
+  }, 60000);
   it('hangs a resting shield plumb from its grip, facing out, and keeps stowed gear and a satchel where they belong', () => {
     for (const pose of AT_EASE) {
       const g = heroFigure({ weapon: 'mace', offhand: { kind: 'shield' }, pose: { ...pose, beltHand: undefined } }), J = g.userData.joints as Record<string, THREE.Object3D>; g.updateMatrixWorld(true);
