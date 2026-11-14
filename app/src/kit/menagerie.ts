@@ -451,10 +451,10 @@ export const LOOKS: Record<string, Partial<Folk>[]> = {
 
 // ------------------------------------------------------------------------------------- beasts and stranger things
 const b = (id: string, rest: BeastPoseName, fight: BeastPoseName) => (battle: boolean, dead = false) => beast(BEASTS[id], dead ? 'dead' : battle ? fight : rest);
-/** A rider seated on a mount's saddle. */
-export function mounted(mount: BeastSpec, pose: BeastPoseName, rider: HeroFigure): THREE.Group {
+/** A rider seated on a mount's saddle (`dress` adds what the rider wears beyond the figure's own clothes, once seated). */
+export function mounted(mount: BeastSpec, pose: BeastPoseName, rider: HeroFigure, dress?: (g: THREE.Group) => void): THREE.Group {
   const g = beast(mount, pose), saddle = (g.userData.joints as Record<string, THREE.Object3D>).saddle;
-  const r = heroFigure(rider, 'medium', false); (saddle ?? g).add(r); if (!saddle) r.position.y = mount.height;
+  const r = heroFigure(rider, 'medium', false); dress?.(r); (saddle ?? g).add(r); if (!saddle) r.position.y = mount.height;
   return g;
 }
 const BONE_HORSE: BeastSpec = { ...BEASTS['riding-horse'], coat: '#d8d0bc', under: '#c0b8a4', maneColor: '#8a8478', eyes: '#70e0ff', glow: true, gaunt: 1, mane: 'none', tail: 'whip', saddle: { seat: '#3a2e26', trim: '#6a6a6a' } };

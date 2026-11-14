@@ -129,6 +129,8 @@ export const ARMS: Record<string, Arm> = {
   heavy: { sh: [-0.2, 0, 0.32], el: -0.6, wr: [0.2, 0.01, 0], talon: true },
   hilt: { sh: [0.12, 0, 0.3], el: -0.75, hilt: true },
   chest: { sh: [-0.55, -0.7, 0.08], el: -2.0 },
+  // a glass carried up before the chest, the elbow at the side and the forearm raised, the glass upright in the fist
+  goblet: { sh: [-0.3, -0.22, 0.12], el: -1.72, hold: { upright: true } },
   behind: { sh: [0.45, -1.5, 0.12], el: -1.25 },
   // folded arms: the right forearm laid over the left, a little higher, so neither hand sinks into the other arm (a
   // wrist given, so the hand keeps its turn instead of hanging palm to thigh)

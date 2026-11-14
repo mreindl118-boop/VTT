@@ -10,6 +10,7 @@ import { posed } from './kit/poses';
 import { FOLK, creature, folk, staked, withDeadPose, mounted, fiendishArm, furMantle, carried, type Folk, type FigState, type FiendArm, type Mantle, type Carry } from './kit/menagerie';
 import { beast, BEASTS, BEUCEPHALUS } from './kit/beasts';
 import { flyer, FLYERS, mistForm, effigy, branches, felled, spectral } from './kit/monsters';
+import { doublet, plumbHeld, restOnFloor, type Doublet } from './kit/costume';
 import type { WeaponSpec } from './kit/weapons';
 import { baseRingFt, type CreatureSize } from './core/units';
 import { PALETTE } from './kit/palette';
@@ -20,7 +21,7 @@ export interface CreatureEntry {
   kind: 'npc' | 'creature' | 'monster-manual' | 'generic' | 'pc' | 'token'; figure?: Figure; role?: string; variants?: string[];
   /** A named NPC's own miniature (kit/heroes.ts), styled after the character's art: colours, hair, dress and what they carry.
    *  When present it replaces the generic humanoid; `figure` still gives the token colour and the bestiary's look. */
-  hero?: HeroFigure & { fiendArm?: FiendArm; mantle?: Mantle; carry?: Carry; ghost?: Ghost; battleFace?: FaceSpec };
+  hero?: HeroFigure & { fiendArm?: FiendArm; mantle?: Mantle; carry?: Carry; ghost?: Ghost; battleFace?: FaceSpec; doublet?: Doublet; holds?: WeaponSpec };
   /** How much the character matters at the table (the relationship web's power and ties). It sets the detail of the
    *  figure's face (kit/faces.ts detailFor); raise it as a character grows in the story. */
   importance?: number;
@@ -127,23 +128,26 @@ function fallen<T extends { gear?: HeroFigure['gear']; offhand?: HeroFigure['off
   if (out.offhand && (out.offhand as { kind?: string }).kind === 'shield') delete out.offhand;
   return out;
 }
-/** A named character's recipe, ready for the rig: named poses resolved, the face's detail from the character's importance. */
+/** A named character's recipe, ready for the rig: named poses resolved, the face's detail from the character's importance,
+ *  and at rest what they carry about with them (`holds`, a glass of wine) in the right hand, unless the caller sets the
+ *  pose or the gear itself (a rider's reins, an effigy's empty hands). */
 function recipeOf(e: CreatureEntry, battle: boolean, over: Partial<HeroFigure> = {}, dead = false): HeroFigure {
-  const { battleFace, ...h0 } = { ...e.hero!, ...over }, h = battle && battleFace ? { ...h0, face: { ...h0.face, ...battleFace } } : h0, f = posed(dead ? fallen(h) : battle ? h : stowed(h));
+  const { battleFace, holds, ...h0 } = { ...e.hero!, ...over }, h = battle && battleFace ? { ...h0, face: { ...h0.face, ...battleFace } } : h0, f0 = posed(dead ? fallen(h) : battle ? h : stowed(h));
+  const f = holds && !battle && !dead && !('pose' in over) && !('gear' in over) ? { ...f0, gear: { ...f0.gear, handR: holds } } : f0;
   return f.face && !f.detail ? { ...f, detail: detailFor(e.importance ?? 0) } : f;
 }
 /** Strahd's other shapes, and the things made in his image, built from his own recipe so they change when he does. */
 const STRAHD_FORMS: Record<string, (s: CreatureEntry, battle: boolean, dead: boolean) => THREE.Group> = {
-  'strahd-blade-drawn': (s, battle) => heroFigure(recipeOf(s, true, { gear: { handR: s.hero!.gear?.beltL }, pose: 'duelist' as never, battlePose: 'slash' as never }), 'medium', battle),
-  'strahd-mounted': (s, battle) => mounted(BEUCEPHALUS, battle ? 'rear' : 'walk', recipeOf(s, false, { pose: (battle ? 'ride-rear' : 'ride') as never })),
-  'strahd-mounted-charging': (s) => mounted(BEUCEPHALUS, 'gallop', recipeOf(s, true, { gear: { handR: s.hero!.gear?.beltL }, pose: 'ride-charge' as never })),
+  'strahd-blade-drawn': (s, battle) => dressed(heroFigure(recipeOf(s, true, { gear: { handR: s.hero!.gear?.beltL }, pose: 'duelist' as never, battlePose: 'slash' as never }), 'medium', battle), s.hero!, battle),
+  'strahd-mounted': (s, battle) => mounted(BEUCEPHALUS, battle ? 'rear' : 'walk', recipeOf(s, false, { pose: (battle ? 'ride-rear' : 'ride') as never }), (r) => dressed(r, s.hero!, battle)),
+  'strahd-mounted-charging': (s) => mounted(BEUCEPHALUS, 'gallop', recipeOf(s, true, { gear: { handR: s.hero!.gear?.beltL }, pose: 'ride-charge' as never }), (r) => dressed(r, s.hero!, true)),
   'strahd-bat-form': (_s, battle, dead) => { const g = flyer({ ...FLYERS.bat, body: 0.8, span: 3.6, coat: '#17121a', under: '#3a1a22', eyes: '#e02a2a' }, battle ? 'dive' : 'flap', dead ? 0 : 3); return dead ? felled(g, 'back') : g; },
   'strahd-wolf-form': (_s, battle, dead) => { const g = beast({ ...BEASTS['dire-wolf'], coat: '#141216', under: '#2a2228', eyes: '#e02a2a', glow: true }, dead ? 'dead' : battle ? 'pounce' : 'snarl'); return dead ? felled(g, 'side') : g; },
   'strahd-mist-form': (_s, _b, dead) => dead ? felled(mistForm(), 'flat') : mistForm(),
   // Wintersplinter: a giant effigy of Strahd grown from living wood. His figure, his cloak and his bearing, carved huge,
   // with bare branches breaking out of the shoulders and crown and roots for feet.
   wintersplinter: (s, battle, dead) => {
-    const g = heroFigure(recipeOf(s, battle, { gear: undefined, glow: undefined, pendant: undefined, pose: 'regal' as never, battlePose: 'overhead' as never, ...(dead ? { pose: { hipR: [0.2, 0, 0.2], hipL: [-0.3, 0, 0.2], shoulderR: [-2.4, 0, 0.6], shoulderL: [-0.4, 0, 0.9] } } : {}) }), 'huge', battle && !dead);
+    const g = dressed(heroFigure(recipeOf(s, battle, { gear: undefined, glow: undefined, pendant: undefined, pose: 'regal' as never, battlePose: 'overhead' as never, ...(dead ? { pose: { hipR: [0.2, 0, 0.2], hipL: [-0.3, 0, 0.2], shoulderR: [-2.4, 0, 0.6], shoulderL: [-0.4, 0, 0.9] } } : {}) }), 'huge', battle && !dead), s.hero!, battle && !dead);
     const j = g.userData.joints as Record<string, THREE.Object3D>, bark = '#2e241c', V3 = (x: number, y: number, z: number) => new THREE.Vector3(x, y, z);
     for (let i = 0; i < 5; i++) { const a = -1.2 + i * 0.6; branches(j.head, V3(Math.sin(a) * 0.5, 1.6, -0.2), V3(Math.sin(a) * 0.6, 0.8, -0.15).normalize(), 2.2, 0.16, 3, i + 3, bark); }
     for (const [n, sx] of [['shoulderR', -1], ['shoulderL', 1]] as const) for (let i = 0; i < 2; i++) branches(j[n], V3(0, 0.3, -0.2), V3(sx * (0.5 + 0.3 * i), 0.8, -0.3 * i).normalize(), 2.6, 0.2, 3, i * 5 + (sx > 0 ? 11 : 17), bark);
@@ -168,10 +172,13 @@ function plainFolk(e: CreatureEntry): Folk {
   };
 }
 
-/** What a named character wears or has grown that the shared figure does not make: a fur mantle, a fiend's arm (its
- *  fingers lit with the character's glow in a fight). */
+/** What a named character wears or has grown that the shared figure does not make: clothes cut from their portrait
+ *  (kit/costume.ts), a fur mantle, a fiend's arm (its fingers lit with the character's glow in a fight); what they hold
+ *  at rest carried upright. A body laid on the floor is set back down on what it now wears under it. */
 function dressed(g: THREE.Group, h: NonNullable<CreatureEntry['hero']>, battle: boolean, dead = false): THREE.Group {
+  if (h.doublet) doublet(g, h, h.doublet);
   if (h.mantle) furMantle(g, h, h.mantle);
+  if (h.holds && !battle) plumbHeld(g);
   if (h.fiendArm) fiendishArm(g, h.fiendArm, battle ? h.glow : undefined);
   if (h.carry) carried(g, h.carry);
   if (h.ghost && (battle || dead || !h.ghost.fight)) { spectral(g, h.ghost.color, (h.ghost.opacity ?? 0.5) * (dead ? 0.5 : 1)); if (dead) return felled(g, 'flat'); }
@@ -186,7 +193,7 @@ export function figureFor(e: CreatureEntry, state: FigState = false, seed = '', 
   const strahd = STRAHD_FORMS[e.id] && creatureById('strahd-von-zarovich');
   if (strahd && strahd.hero) { if (dead && /mounted|blade/.test(e.id)) return figureFor(strahd, 'dead'); return STRAHD_FORMS[e.id](strahd, battle, dead); }
   if (e.hero?.ghost && dead) return dressed(heroFigure(recipeOf(e, false), e.size, 'rest'), e.hero, false, true);
-  if (e.hero && dead) { const vamp = !!(e.hero.fangs || e.hero.face?.fangs), g = heroFigure(recipeOf({ ...e, hero: withDeadPose(vamp && !e.hero.deadPose ? { ...e.hero, deadPose: 'laid-out' } : e.hero, e.id) as HeroFigure }, false, {}, true), e.size, 'dead'); dressed(g, e.hero, false); return vamp ? staked(g) : g; }
+  if (e.hero && dead) { const vamp = !!(e.hero.fangs || e.hero.face?.fangs), g = heroFigure(recipeOf({ ...e, hero: withDeadPose(vamp && !e.hero.deadPose ? { ...e.hero, deadPose: 'laid-out' } : e.hero, e.id) as HeroFigure }, false, {}, true), e.size, 'dead'); dressed(g, e.hero, false); if (e.hero.doublet) restOnFloor(g); return vamp ? staked(g) : g; }
   if (e.hero) return dressed(heroFigure(recipeOf(e, battle, battle && e.hero.ghost?.hover ? { hoverFt: e.hero.ghost.hover } : {}), e.size, battle), e.hero, battle);
   const made = creature(e.id, dead ? 'dead' : battle, hint); if (made) return made;
   const st: FigState = dead ? 'dead' : battle;

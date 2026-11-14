@@ -29,6 +29,19 @@ export const sheen = (c: string, k: number): string => {
   return '#' + new THREE.Color().setRGB(o.r + (1 - o.r) * k, o.g + (1 - o.g) * k, o.b + (1 - o.b) * k, THREE.SRGBColorSpace).getHexString();
 };
 const R = 0.4;
+/** A lock along a path, wide across and thin through, lying flat on what it grows from (`nrm`, the outward normal where it
+ *  is rooted): domed on top and flatter beneath, swelling a little past its root and narrowing to a point. Laid edge to
+ *  edge and overlapping, such locks make one mass (long hair, a pelt) rather than separate strands. */
+export function flatLock(pts: THREE.Vector3[], nrm: THREE.Vector3, w: number, t: number, sides = 6): THREE.BufferGeometry {
+  const curve = new THREE.CatmullRomCurve3(pts), n = 10, pos: number[] = [], idx: number[] = [], T = new THREE.Vector3(), N = new THREE.Vector3(), A = new THREE.Vector3(), p = new THREE.Vector3();
+  for (let i = 0; i <= n; i++) {
+    const u = i / n, sw = (1 - u) ** 0.85 * (1 + 0.6 * Math.sin(Math.PI * Math.min(1, u * 1.6)));
+    curve.getPointAt(u, p); curve.getTangentAt(u, T); N.copy(nrm).addScaledVector(T, -nrm.dot(T)).normalize(); A.crossVectors(N, T);
+    for (let k = 0; k < sides; k++) { const a = (k / sides) * Math.PI * 2, ca = Math.cos(a) * w * sw, sa = Math.sin(a) * t * sw * (Math.sin(a) > 0 ? 1 : 0.45); pos.push(p.x + A.x * ca + N.x * sa, p.y + A.y * ca + N.y * sa, p.z + A.z * ca + N.z * sa); }
+  }
+  for (let i = 0; i < n; i++) for (let k = 0; k < sides; k++) { const a = i * sides + k, b = i * sides + (k + 1) % sides, c = a + sides, d = b + sides; idx.push(a, b, c, b, d, c); }
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); g.setIndex(idx); g.computeVertexNormals(); return g;
+}
 
 /** The hairdo as a group to add to the head joint: `s` is the figure's scale, `hy` the head centre's height in the joint,
  *  `detail` (1 to 4) how many locks it is combed into. */
@@ -93,10 +106,14 @@ if (h.style !== 'crop' && h.style !== 'swept') {
     // length there is falls from under it at the back and turns out at the collar
     sculpt({ scallop: 0, base: 0.02, top: 0.028, brow: 0.04, freq: 12, groove: 0.013, grooveFrom: -0.55 });
     const len = (h.length ?? 0.25) * R * 2.3 * s, M = Math.max(6, Math.round(N * 0.6));
-    if (len > 0.06 * s) for (let i = 0; i < M; i++) {
+    // (hair cut short at the nape ends at the sculpted mass's own edge, neatly; only real length falls below it)
+    if ((h.length ?? 0.25) >= 0.2) for (let i = 0; i < M; i++) {
       const u = i / (M - 1) * 2 - 1, az = Math.PI + u * 1.35, root = dir(az, line(az) + 0.12), e = onScalp(dir(az, line(az) - 0.02), 1.0 + 0.04 * Math.cos(u * 1.6));
-      const L = len * (0.8 + 0.3 * rnd()) * (1 - 0.35 * Math.abs(u)), out = 1.06 + 0.06 * rnd();
-      lock([onScalp(root, 0.99), e, V(e.x * out, e.y - L * 0.55, e.z * out - 0.02 * s), V(e.x * (out + 0.06), e.y - L, e.z * out - (0.05 + 0.04 * rnd()) * s)], 0.06 + 0.012 * rnd(), 0.016, i);
+      // (shorter hair lies close; longer hair turns out over the collar)
+      const k = Math.min(1, (h.length ?? 0.25) / 0.5), L = len * (0.8 + 0.3 * rnd()) * (1 - 0.35 * Math.abs(u)), out = 1 + (0.06 + 0.06 * rnd()) * k;
+      // each a flat lock lying on the ones beside it, so the length is one mass of hair, not separate strands
+      const pts = [onScalp(root, 0.99), e, V(e.x * out, e.y - L * 0.55, e.z * out - 0.02 * k * s), V(e.x * (out + 0.06 * k), e.y - L, e.z * out - (0.05 + 0.04 * rnd()) * k * s)];
+      g.add(new THREE.Mesh(flatLock(pts, V(e.x, 0, e.z).normalize(), (0.052 + 0.012 * rnd()) * s, 0.026 * s), soft(shade(i), true)));
     }
     if (h.temples) for (const sx of [-1, 1]) for (let k = 0; k < 3; k++) { const az = sx * (0.75 + 0.14 * k), from = dir(az, line(az) + 0.02); lock(laid(from, dir(Math.PI - sx * 0.9, -0.2 - 0.05 * k), 6, 0.02), 0.035, 0.012, k, h.temples); }
   } else if (h.style === 'bun') {

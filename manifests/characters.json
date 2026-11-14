@@ -33,20 +33,11 @@
     "skin": "#d8d4d6",
     "hair": "#141114",
     "hairStyle": "short",
-    "cloth": "#1a1720",
-    "trim": "#2b0f16",
+    "cloth": "#7a1620",
+    "trim": "#16141a",
     "boots": "#0f0d10",
     "height": 1.06,
-    "cloak": "#1a1418",
-    "cloakTrim": "#6e1420",
-    "clasps": "#b89a4a",
-    "shirt": "#e8e2d6",
-    "coat": {
-     "tails": "#1a1720",
-     "lapel": "#4a0f18"
-    },
     "eyes": "#c8202a",
-    "pendant": "#b8952e",
     "glow": "#8a1a2a",
     "face": {
      "headL": 0.3,
@@ -87,7 +78,7 @@
       "guard": "curved"
      }
     },
-    "pose": "weightR haughty R:chest L:hilt",
+    "pose": "weightR haughty R:goblet L:hilt",
     "battlePose": "stride intent R:grasp L:hilt spell look:down eyes:glare",
     "frame": "masculine",
     "build": "broad",
@@ -95,13 +86,48 @@
      "style": "swept",
      "peak": true,
      "recede": 0.35,
-     "length": 0.3
+     "length": 0.7
     },
-    "collar": "#5a0f18",
-    "bracers": "#2a2a30",
-    "buckle": "#b89a4a",
+    "bracers": "#2a2422",
     "body": {
      "neck": 0.9
+    },
+    "sleeves": "#3b322e",
+    "hem": false,
+    "holds": {
+     "kind": "wineglass"
+    },
+    "doublet": {
+     "placket": "#1a1418",
+     "frogs": "#c8ccd4",
+     "collar": {
+      "color": "#7a1620",
+      "edge": "#1a1418"
+     },
+     "sash": {
+      "color": "#9a1c26",
+      "side": "L",
+      "cords": "#c8ccd4"
+     },
+     "pauldron": {
+      "side": "L",
+      "color": "#9aa0a8",
+      "trim": "#4e525a"
+     },
+     "chains": "#b8bcc4",
+     "skirts": {
+      "color": "#1e1b20",
+      "front": "#7a1620",
+      "edge": "#4e525a"
+     },
+     "cloak": {
+      "color": "#1c1c24",
+      "lining": "#5a1018"
+     },
+     "fur": {
+      "color": "#5e5046",
+      "side": "R"
+     }
     }
    },
    "importance": 81.9

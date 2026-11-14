@@ -5,12 +5,14 @@
 // blade, the head of an axe, the top of a staff), and +z is the weapon's edge or face. The figure hangs it on a hand.
 // Lengths are feet at medium size; the figure's own scale carries it to other sizes.
 import * as THREE from 'three';
-import { mat } from '../render/materials';
+import { mat, matClone } from '../render/materials';
 
 export type WeaponKind =
   | 'longsword' | 'greatsword' | 'shortsword' | 'rapier' | 'scimitar' | 'dagger' | 'sword-cane'
   | 'handaxe' | 'battleaxe' | 'greataxe' | 'mace' | 'club' | 'quarterstaff' | 'spear' | 'pitchfork' | 'shovel'
   | 'longbow' | 'shortbow' | 'crossbow' | 'torch'
+  // things carried, not fought with
+  | 'wineglass'
   // the named ones
   | 'sunsword' | 'blood-spear' | 'gulthias-staff' | 'dragon-greatsword' | 'thighbone';
 
@@ -130,8 +132,9 @@ function bow(s: WeaponSpec, len: number): THREE.Group {
   return g;
 }
 
-/** Build one weapon. */
-export function weapon(s: WeaponSpec): THREE.Group {
+/** Build one weapon (its group says which kind it is, in userData.kind). */
+export function weapon(s: WeaponSpec): THREE.Group { const g = build(s); g.userData.kind = s.kind; return g; }
+function build(s: WeaponSpec): THREE.Group {
   const metal = s.metal ?? '#c9ced6', wood = s.grip ?? '#4a3424', fit = s.fittings ?? '#b08a3a', L = s.length ?? 1;
   const g = new THREE.Group();
   switch (s.kind) {
@@ -231,6 +234,19 @@ export function weapon(s: WeaponSpec): THREE.Group {
     case 'torch': {
       g.add(at(cyl(0.055, 0.04, 1.7 * L, wood, 8), 0, 0.5, 0), at(cyl(0.09, 0.07, 0.4, '#2a2420', 8), 0, 1.35, 0));
       const fl = new THREE.Mesh(new THREE.ConeGeometry(0.15, 0.6, 7), soft('#ffb040', '#c86a10')); g.add(at(fl, 0, 1.8, 0), at(ball(0.13, '#ffd070'), 0, 1.6, 0)); return g;
+    }
+    case 'wineglass': {
+      // a glass of wine held by its long stem (the fist round the stem, the foot below it): a tulip bowl of clear glass
+      // with a bright rim and the wine standing in it; the stem and foot in a pale glass that reads at the table.
+      // `metal` tints the glass, `gem` is the wine.
+      const glass = s.metal ?? '#dfe6ee', wine = s.gem ?? '#5c0a16', b0 = 0.22 * L;
+      const clear = matClone(glass); clear.transparent = true; clear.opacity = 0.38; clear.depthWrite = false; clear.side = THREE.DoubleSide; clear.userData = { ...clear.userData, keepLook: true };
+      g.add(at(cyl(0.085, 0.1, 0.022, tone(glass, '#7a8898', 0.25), 16), 0, -0.27 * L, 0), at(cyl(0.013, 0.02, 0.5 * L, tone(glass, '#7a8898', 0.25), 8), 0, -0.02 * L, 0));
+      const lathe = (pts: [number, number][]) => new THREE.LatheGeometry(pts.map(([r, y]) => new THREE.Vector2(r, b0 + y * L)), 18);
+      const bowl = new THREE.Mesh(lathe([[0.02, 0], [0.07, 0.015], [0.115, 0.07], [0.13, 0.14], [0.124, 0.21], [0.108, 0.27]]), clear); bowl.userData.keepLook = true; g.add(bowl);
+      const rim = new THREE.Mesh(new THREE.TorusGeometry(0.108, 0.007, 4, 18), soft(tone(glass, '#ffffff', 0.5))); rim.rotation.x = Math.PI / 2; g.add(at(rim, 0, b0 + 0.27 * L, 0));
+      g.add(new THREE.Mesh(lathe([[0, 0.012], [0.06, 0.02], [0.105, 0.07], [0.122, 0.13], [0, 0.13]]), soft(wine)));
+      return g;
     }
   }
   return g;

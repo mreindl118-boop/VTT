@@ -154,6 +154,9 @@ export interface HeroFigure {
   cloak?: string; hood?: boolean;
   /** A skirt; with an underskirt as well, a fitted gown (see gownTrim). */
   skirt?: string; underskirt?: string;
+  /** false: no tunic hem below the belt and no belt tail hanging from it, for a garment made over the figure that takes
+   *  their place (a doublet's skirts under a sash, kit/costume.ts). */
+  hem?: boolean;
   weapon?: HeroWeapon;
   offhand?: { kind: HeroOffhand; color?: string; rim?: string; mark?: string };
   wings?: { color: string; opacity?: number; count?: 2 | 4 };
@@ -616,10 +619,12 @@ function rig(f: HeroFigure, s: number, gown: boolean) {
   } else {
     up.add(loft(tr, torsoC, fr.bust ? { seg: 80, rows: 90, bump: chestBump, warp: bustWarp, jig: bustJig } : { seg: 32, bump: chestBump }));
     const br = ringAt(tr, 0.42); up.add(sm(loftGeometry([{ ...br, y: 0.32 }, { ...br, y: 0.52 }], s, { seg: 32, k: 1.05, rows: 2 }), trim));
-    if (!f.skirt) { const hem = drape(0.6 * s, 0.78 * s, 0.75 * s, cloth, { folds: 6, amp: 0.05, jag: 0.03 * s, seed: 0.2 }); hem.scale.z = 0.66; up.add(at(hem, 0, 0.0, 0)); }
+    if (!f.skirt && f.hem !== false) { const hem = drape(0.6 * s, 0.78 * s, 0.75 * s, cloth, { folds: 6, amp: 0.05, jag: 0.03 * s, seed: 0.2 }); hem.scale.z = 0.66; up.add(at(hem, 0, 0.0, 0)); }
     up.add(band(tr, 2.13, 0.07, 1.07, trim, 24));                                                      // the neckband
-    const tail = box(0.1 * s, 0.5 * s, 0.03 * s, trim); tail.rotation.z = -LX * 0.12; up.add(at(tail, LX * 0.2 * s, 0.17 * s, (br.f * 1.05 + 0.03) * s)); // the belt's tail, hanging on the left
-    up.add(at(box(0.11 * s, 0.05 * s, 0.035 * s, tone(trim, '#ffffff', 0.25)), LX * 0.235 * s, -0.06 * s, (br.f * 1.05 + 0.032) * s));
+    if (f.hem !== false) {
+      const tail = box(0.1 * s, 0.5 * s, 0.03 * s, trim); tail.rotation.z = -LX * 0.12; up.add(at(tail, LX * 0.2 * s, 0.17 * s, (br.f * 1.05 + 0.03) * s)); // the belt's tail, hanging on the left
+      up.add(at(box(0.11 * s, 0.05 * s, 0.035 * s, tone(trim, '#ffffff', 0.25)), LX * 0.235 * s, -0.06 * s, (br.f * 1.05 + 0.032) * s));
+    }
   }
   const neck = new THREE.Group(); neck.position.y = 2.24 * s; neck.name = 'neck'; up.add(neck);
   // the neck, and on a masculine one the larynx: a soft rise in the front of the throat, not a bead on it
