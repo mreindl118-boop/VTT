@@ -33,9 +33,23 @@ describe('creature repository', () => {
     for (const st of [false, true, 'dead'] as const) expect(robed('a', 'hunched figures', st), String(st)).toBe(true);
     for (const seed of 'abcdefghijkl') expect(robed(seed), seed).toBe(false);
   });
+  it('gives a shadow no face but two pale eyes, and robes and hoods the Death House shrine\'s shadows (the cultists\' spirits) only when their encounter names them so', { timeout: 60000 }, () => {
+    const e = BESTIARY.find((x) => x.id === 'shadow')!;
+    const look = (seed: string, hint = '', st: boolean | 'dead' = false) => {
+      let hood = false, robe = false, eyes = 0, features = -1;
+      figureFor(e, st, seed, hint).traverse((o) => {
+        if (o.name === 'hood') hood = true; if (o.name === 'robe') robe = true; if (o.name === 'eye') eyes++;
+        if (o.userData.skull) features = o.parent!.children.filter((c) => c !== o && c.name !== 'eye').length;
+      });
+      return { hood, robe, eyes, features };
+    };
+    for (const st of [false, true] as const) expect(look('a', 'shadows of the cultists', st), String(st)).toEqual({ hood: true, robe: true, eyes: 2, features: 0 });
+    for (const seed of 'abcdefghijkl') expect(look(seed), seed).toEqual({ hood: false, robe: false, eyes: 2, features: 0 });
+    expect(look('a', '', 'dead').eyes).toBe(0);
+  });
   it('goes barefoot where it wears no boots, and only a vampire is staked when it falls', { timeout: 60000 }, () => {
     const box = new THREE.Box3();
-    for (const id of ['ghoul', 'ghast', 'night-hag', 'imp']) {
+    for (const id of ['ghoul', 'ghast', 'night-hag', 'imp', 'shadow']) {
       const J = figureFor(BESTIARY.find((x) => x.id === id)!, false, 'a').userData.joints as Record<string, THREE.Object3D>, s = J.neck.position.y / 2.24;
       for (const sd of ['R', 'L']) {
         // nothing of a boot left below the knee (its shaft, cuff and strap), and a foot at the ankle

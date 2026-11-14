@@ -48,6 +48,8 @@ export interface Folk extends Omit<HeroFigure, 'pose' | 'battlePose' | 'deadPose
     bare?: { claws?: string };
     /** A robe worn to rags over its clothes (kit/costume.ts tatters). */
     tatters?: Tatters;
+    /** A shadow: no face, only two pale eyes of this colour in the dark of its head (shadeFace). */
+    shade?: { eyes: string };
   };
 }
 
@@ -244,6 +246,34 @@ export function emptySuit(g: THREE.Group, recipe: HeroFigure, o: { helm?: string
   return g;
 }
 
+/** A shadow's face (made after the figure is ghosted): none, only the dark of its head, and two pale eyes in it, faint
+ *  while it lurks and brighter when it reaches for the living. In a hood drawn up they sit back in its dark. */
+export function shadeFace(g: THREE.Group, eyes: string, battle: boolean, dead = false): THREE.Group {
+  const j = (g.userData.joints ?? {}) as Record<string, THREE.Object3D>; if (!j.head) return g;
+  let skull: THREE.Mesh | undefined; j.head.traverse((o) => { if (!skull && o.userData.skull) skull = o as THREE.Mesh; });
+  const face = skull?.parent; if (!skull || !face) return g;
+  // no features: the nose, the eyes and lids, the brows, the mouth and the ears go, and the paint with them
+  for (const o of [...face.children]) if (o !== skull) face.remove(o);
+  const m = skull.material as THREE.MeshLambertMaterial; if (m.map) { m.map = null; m.needsUpdate = true; }
+  // in a hood drawn up the face is a void: darker than the hood round it, unlit
+  if (g.getObjectByName('hood')) { m.color.set('#030205'); m.emissiveIntensity = 0; }
+  if (dead) return g;                                                                     // gone out, as it thins away
+  // the eyes where the face's own would be (kit/faces.ts sets them 0.128 either side of the middle at its height), on
+  // the face: found by looking along the head toward it from in front
+  const ray = new THREE.Raycaster(), lit = new THREE.MeshBasicMaterial({ color: battle ? eyes : '#' + new THREE.Color(eyes).lerp(new THREE.Color('#000000'), 0.45).getHexString() });
+  lit.userData = { keepLook: true };
+  g.updateMatrixWorld(true);
+  for (const sx of [-1, 1]) {
+    const from = face.localToWorld(V(sx * 0.128, 0.0, 2)), to = face.localToWorld(V(sx * 0.128, 0.0, -2)), dir = to.sub(from).normalize();
+    ray.set(from, dir); const hit = ray.intersectObject(skull, false)[0]; if (!hit) continue;
+    // (standing a hair proud of the head, whose dark is drawn over whatever it hides)
+    const at = face.worldToLocal(hit.point.clone()).add(V(0, 0, 0.004));
+    const e = new THREE.Mesh(new THREE.SphereGeometry(0.03, 10, 8), lit); e.scale.set(1.25, 0.62, 0.4); e.rotation.z = -sx * 0.18; e.position.copy(at); e.userData.keepLook = true; e.name = 'eye';
+    face.add(e);
+  }
+  return g;
+}
+
 /** Cobwebs on something that has stood still for years: grey sheets slung from the helm to a shoulder, from an arm to
  *  the body, from a wrist to the thigh and between the knees, each with the threads that hold it, the free edge sagging;
  *  in a fight only torn ends hang. */
@@ -380,6 +410,7 @@ export function folk(base: Folk, size: CreatureSize = 'medium', state: FigState 
   if (extra?.empty) emptySuit(g, recipe as HeroFigure, extra.empty);
   if (extra?.cobwebs && !dead) cobwebs(g, battle);
   if (extra?.ghost) mon.spectral(g, extra.ghost, (extra.opacity ?? 0.5) * (dead ? 0.5 : 1));
+  if (extra?.shade) shadeFace(g, extra.shade.eyes, battle, dead);
   if (!dead) return g;
   if (spirit) return mon.felled(g, 'flat');                                                        // a spirit does not fall; it pools and thins
   // a stake keeps a vampire down (its own fangs, not a ghoul's or a hag's sharp teeth)
@@ -421,7 +452,11 @@ export const FOLK: Record<string, Folk> = {
   specter: { skin: '#aab4c4', cloth: '#8a94a8', trim: '#6a7488', cloak: '#7a8498', hood: true, tattered: true, skirt: '#8a94a8', eyes: '#ffffff', face: { ...SKULL }, battleFace: { gape: 0.7 }, pose: 'haunt', battlePose: 'stand intent R:grasp L:grasp float eyes:glare', extra: { ghost: '#a8b8d0', opacity: 0.4 } },
   poltergeist: { skin: '#c8d0dc', cloth: '#b8c4d8', trim: '#9aa8c0', eyes: '#ffffff', face: { ...DEAD, smile: 0.8, browAngle: 0.8 }, pose: 'haunt', battlePose: 'menace', extra: { ghost: '#c8d8f0', opacity: 0.16 } },
   wraith: { skin: '#141018', cloth: '#141018', trim: '#1e1826', cloak: '#17121c', hood: true, tattered: true, skirt: '#141018', eyes: '#b070ff', face: SKULL, pose: 'haunt', battlePose: 'menace', hoverFt: 0.8, extra: { ghost: '#2a1e3a', opacity: 0.78 } },
-  shadow: { skin: '#0c0a10', cloth: '#0c0a10', trim: '#0c0a10', boots: '#0c0a10', eyes: '#e8e8ff', build: 'lean', face: { gaunt: 0.6, bald: true, lipFull: -1 }, pose: 'hunched', battlePose: 'feral', extra: { ghost: '#0c0a10', opacity: 0.82 } },
+  // the Monster Manual's shadow: a dark exaggeration of a person's shadow, drawn out long and thin, faceless but for its
+  // eyes, barefoot; being the shadow of someone who died, broken free, it keeps their outline (LOOKS)
+  shadow: { skin: '#0c0a10', cloth: '#0c0a10', trim: '#0c0a10', boots: '#0c0a10', build: 'lean', height: 1.12, hem: false, headSize: 0.9,
+    body: { shoulders: 1.06, chest: 0.84, waist: 0.74, hips: 0.8, arms: 0.68, legs: 0.72, neck: 0.8, neckLen: 1.1 },
+    face: { bald: true }, pose: 'hunched', battlePose: 'crouch low R:grasp L:claw eyes:glare', extra: { ghost: '#0c0a10', opacity: 0.82, bare: {}, shade: { eyes: '#d8dcff' } } },
   banshee: { skin: '#c8d8d8', cloth: '#b8d0cc', trim: '#9ab8b4', hair: '#e8f0f0', hairStyle: 'long', ears: 'pointed', skirt: '#b8d0cc', tattered: true, eyes: '#ffffff', build: 'curvy', face: { ...DEAD, mouthW: 0.9, browAngle: -0.9, cheekbones: 0.9 }, pose: 'wringing', battlePose: 'haunt', extra: { ghost: '#b8e8dc', opacity: 0.5 } },
   'phantom-warrior': { skin: '#cfd6e0', cloth: '#b8c4d8', trim: '#9aa8c0', armor: { kind: 'plate', color: '#c0cce0', trim: '#e0e8f4' }, eyes: '#ffffff', face: { ...STERN, gaunt: 0.5 }, gear: { handR: w('longsword', { metal: '#d8e4f4' }) }, offhand: { kind: 'shield', color: '#b8c4d8', rim: '#e0e8f4' }, pose: 'rest', battlePose: 'shield', extra: { ghost: GHOSTLY, opacity: 0.5 } },
   'invisible-stalker': { skin: '#d8e8f4', cloth: '#d8e8f4', trim: '#d8e8f4', boots: '#d8e8f4', build: 'broad', height: 1.15, face: { bald: true, browAngle: 0.8 }, pose: 'haunt', battlePose: 'menace', extra: { ghost: '#e0f0ff', opacity: 0.12 } },
@@ -503,6 +538,15 @@ export const LOOKS: Record<string, Partial<Folk>[]> = {
   ghoul: [{ }, { skin: '#9a9a8a', hair: '#3a3a30', hairStyle: 'long', face: { ...FERAL } }, { skin: '#7a8a80', build: 'broad', face: { ...FERAL, bald: true, jaw: 0.9, scars: ['lip'] } },
     // a former cultist (Death House): the cult's black robe in tatters, the legs bare under it
     { byName: true, cloth: '#1e1a20', trim: '#8a9a7c', hem: false, extra: { tatters: { color: '#1e1a20', belt: '#4d1119', cowl: true } } }],
+  // a shadow is the shadow of someone who died, broken free (Monster Manual), so it keeps their outline: a man's, hunched;
+  // a woman's, her hair loose; one cast long by a low light (our own looks: the module gives shadows none); and the
+  // Death House shrine's, the cultists' spirits (module), robed and hooded as the cult's dead are seen there, which only
+  // their encounter's name calls up
+  shadow: [{ },
+    { frame: 'feminine', hairStyle: 'long', hair: '#0c0a10', face: {}, body: { bust: 0.9, shoulders: 0.9, chest: 0.84, waist: 0.72, hips: 0.92, arms: 0.66, legs: 0.74, neck: 0.78, neckLen: 1.12 },
+      pose: 'weightL sway R:hang L:wring look:down', battlePose: 'ready intent R:grasp L:grasp eyes:glare' },
+    { height: 1.3, headSize: 0.86, body: { shoulders: 1.1, chest: 0.8, waist: 0.7, hips: 0.76, arms: 0.6, legs: 0.66, neck: 0.76, neckLen: 1.2 }, pose: 'stand loom R:heavy L:heavy look:down', battlePose: 'lunge intent R:grasp L:claw' },
+    { byName: true, extra: { tatters: { color: '#0c0a10', cowl: true, hood: true, length: 1.6 } }, pose: 'weightR bowed R:heavy L:hang', battlePose: 'ready intent R:grasp L:grasp eyes:glare' }],
   'strahd-zombie': [{ }, { armor: { kind: 'plate', color: '#4a4a50', trim: '#5a1a22' }, face: { ...DEAD, bald: true } }, { cloak: '#3a1218', face: { ...DEAD, scars: ['cheekR'], bald: true } }],
   skeleton: [{ }, { gear: { handR: { kind: 'spear', ...RUSTY } }, pose: 'slump', battlePose: 'thrust', extra: { bony: { rags: '#5a4c3c' } } }, { gear: { handR: { kind: 'battleaxe', ...RUSTY } }, battlePose: 'windup', extra: { bony: { rags: undefined } } }],
   mongrelfolk: [
@@ -562,6 +606,7 @@ export const NAMED: Record<string, [RegExp, number][]> = {
   'animated-armor': [[/black/i, 0], [/steel|silver|bright|polish/i, 1], [/rust/i, 2]],
   specter: [[/woman|maid|nurse|girl|lady|wife/i, 1], [/hood|skull|death/i, 0]],
   ghoul: [[/robe|cult|hunched/i, 3]],
+  shadow: [[/cult|robe|hood/i, 3]],
 };
 
 /** Every creature that is not people-shaped, by id: how it stands, and how it looks in initiative (`hint`, the token's

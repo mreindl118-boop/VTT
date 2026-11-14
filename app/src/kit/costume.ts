@@ -529,15 +529,19 @@ export interface Tatters {
   belt?: string;
   /** A cowl round the neck and the hood fallen down the back. */
   cowl?: boolean;
+  /** The hood drawn up over the head instead (the cowl's roll round the neck below it): see `hoodUp`. */
+  hood?: boolean;
+  /** How far the strips hang (1 the standard, to the shin; longer reaches the ankles). */
+  length?: number;
   /** Varies the strips (a token's own seed). */
   seed?: number;
 }
 const TAT_TOP = 0.56, TAT_LOW = -2.05, TAT_ROWS = 110;
 /** The robe's hem round the body (0 the front), as a height in the hips' frame: strips of uneven width and length, the
  *  longest behind, the shortest in front where the knees wear them away; between two strips a tear runs up to its top. */
-function tatterHem(seed: number): (th: number) => number {
+function tatterHem(seed: number, long = 1): (th: number) => number {
   const cuts: number[] = []; for (let a = -Math.PI + 0.3 * hash(seed + 1), i = 0; a < Math.PI; i++) { cuts.push(a); a += 0.34 + 0.32 * hash(seed * 7 + i * 3 + 2); }
-  const n = cuts.length, len = cuts.map((a, i) => { const back = ramp(0.6, 2.6, Math.abs(wrapA(a + 0.2))); return -1.12 - 0.42 * back - 0.32 * hash(seed * 13 + i * 5 + 3); });
+  const n = cuts.length, len = cuts.map((a, i) => { const back = ramp(0.6, 2.6, Math.abs(wrapA(a + 0.2))); return (-1.12 - 0.42 * back - 0.32 * hash(seed * 13 + i * 5 + 3)) * long; });
   const tear = cuts.map((_, i) => -0.5 - 0.42 * hash(seed * 17 + i * 11 + 4));
   return (th: number) => {
     const t = wrapA(th); let k = n - 1; for (let i = 0; i < n; i++) if (t >= cuts[i]) k = i;
@@ -552,7 +556,7 @@ export function tatters(g: THREE.Group, recipe: HeroFigure, o: Tatters): THREE.G
   const j = (g.userData.joints ?? {}) as Joints, up = j.chest, pel = j.hips, neck = j.neck; if (!up || !pel || !neck) return g;
   g.updateMatrixWorld(true);
   const s = neck.position.y / 2.24, fr = frameFor(recipe), tr = torsoRings(fr), b = bonesOf(j); if (!b) return g;
-  const lying = Math.abs(V(0, 1, 0).transformDirection(up.matrixWorld).y) < 0.5, seed = o.seed ?? 0, hem = tatterHem(seed);
+  const lying = Math.abs(V(0, 1, 0).transformDirection(up.matrixWorld).y) < 0.5, seed = o.seed ?? 0, hem = tatterHem(seed, o.length);
   // the skirt, built round the body standing at rest: columns all the way round, each from the waist to its own hem
   const NU = 150, NV = 34, ths = Array.from({ length: NU + 1 }, (_, i) => -Math.PI + (Math.PI * 2 * i) / NU);
   const YS = Array.from({ length: TAT_ROWS }, (_, k) => TAT_TOP - ((TAT_TOP - TAT_LOW) * k) / (TAT_ROWS - 1)), { hang } = hanging(fr, ths, YS);
@@ -606,16 +610,77 @@ export function tatters(g: THREE.Group, recipe: HeroFigure, o: Tatters): THREE.G
     pel.add(new THREE.Mesh(merged(ends), soft(o.belt)));
   }
 
-  // the cowl: a loose roll of cloth round the base of the neck, and the hood fallen on the back below it
-  if (o.cowl) {
-    const ring: V3[] = [], yc = 2.11;
-    for (let i = 0; i < 40; i++) { const th = (i / 40) * Math.PI * 2, [x, z] = ringPoint(ringAt(tr, yc), th, 1.03 + 0.06 * Math.sin(5 * th + seed) + 0.1 * Math.max(0, Math.cos(th)) ** 2); ring.push(V(x * s, (yc + 0.025 * Math.sin(3 * th + seed) - 0.12 * Math.max(0, Math.cos(th)) ** 2) * s, z * s)); }
-    up.add(new THREE.Mesh(cord(ring, 0.1 * s, true), soft(robe)));
-    const back = ringAt(tr, 1.9), hood = new THREE.SphereGeometry(1, 16, 10, 0, Math.PI * 2, 0, Math.PI * 0.62);
-    hood.scale(0.36 * s, 0.32 * s, 0.17 * s).rotateX(Math.PI * 0.62).translate(0, 1.98 * s, -(back.b + 0.1) * s);
-    up.add(new THREE.Mesh(hood, soft(robe, true)));
+  // the cowl: a loose roll of cloth round the base of the neck, and the hood fallen on the back below it (or drawn up
+  // over the head, its rim tucked into the roll)
+  if (o.cowl || o.hood) {
+    const ring: V3[] = [], yc = 2.11, rollAt = (th: number) => 1.03 + 0.06 * Math.sin(5 * th + seed) + 0.1 * Math.max(0, Math.cos(th)) ** 2;
+    const dip = (th: number) => 0.025 * Math.sin(3 * th + seed) - 0.12 * Math.max(0, Math.cos(th)) ** 2;
+    for (let i = 0; i < 40; i++) { const th = (i / 40) * Math.PI * 2, [x, z] = ringPoint(ringAt(tr, yc), th, rollAt(th)); ring.push(V(x * s, (yc + dip(th)) * s, z * s)); }
+    // (drawn up, the hood takes up the cloth: a slimmer roll, the hood's rim inside it)
+    up.add(new THREE.Mesh(cord(ring, (o.hood ? 0.072 : 0.1) * s, true), soft(robe)));
+    if (o.hood) hoodUp(j, s, robe, (th) => { const [x, z] = ringPoint(ringAt(tr, yc), th, rollAt(th) - 0.1); return V(x * s, (yc + dip(th) + 0.03) * s, z * s); });
+    else {
+      const back = ringAt(tr, 1.9), hood = new THREE.SphereGeometry(1, 16, 10, 0, Math.PI * 2, 0, Math.PI * 0.62);
+      hood.scale(0.36 * s, 0.32 * s, 0.17 * s).rotateX(Math.PI * 0.62).translate(0, 1.98 * s, -(back.b + 0.1) * s);
+      up.add(new THREE.Mesh(hood, soft(robe, true)));
+    }
   }
   return g;
+}
+
+/** A hood drawn up over the head, in the upper body's frame: roomy over the skull and drawn back to a soft point behind
+ *  the crown, its front open in an arch round the face whose sides and brow stand forward past it, so the face sits back
+ *  in the hood's dark; below the jaw it falls to `rim` (a point of its lower edge round the neck at an angle from the
+ *  front, where the cowl's roll covers it). Built round the head at rest, then carried: the crown and the opening wholly
+ *  by the head, the lower part less and less toward the rim, which stays where the shoulders hold it. */
+function hoodUp(j: Joints, s: number, color: string, rim: (th: number) => V3): void {
+  const up = j.chest, neck = j.neck, head = j.head; if (!up || !neck || !head) return;
+  up.updateMatrixWorld(true);
+  // the head at rest in the upper body's frame (the neck and head unturned), and where the pose has taken it
+  const rest = new THREE.Matrix4().makeTranslation(neck.position.x, neck.position.y, neck.position.z)
+    .multiply(new THREE.Matrix4().compose(head.position, new THREE.Quaternion(), head.scale));
+  const posed = up.matrixWorld.clone().invert().multiply(head.matrixWorld), D = posed.clone().multiply(rest.clone().invert());
+  const box = new THREE.Box3(), b = new THREE.Box3(), toRest = head.matrixWorld.clone().invert().premultiply(rest);
+  head.traverse((m) => { const mm = m as THREE.Mesh; if (!mm.isMesh) return; mm.geometry.computeBoundingBox(); box.union(b.copy(mm.geometry.boundingBox!).applyMatrix4(mm.matrixWorld.clone().premultiply(toRest))); });
+  if (box.isEmpty()) return;
+  const C = box.getCenter(V()), H = box.getSize(V()).multiplyScalar(0.5);
+  const W0 = H.x + 0.1 * s, F0 = H.z + 0.06 * s, B0 = H.z + 0.17 * s, yTop = C.y + H.y + 0.12 * s, yJaw = C.y - 0.8 * H.y, E = 0.08 * s;
+  // the opening's half-width round the face at a height (t: up from the head's middle, in its half-heights): a pointed
+  // arch over the brow, widest across the eyes and cheeks, rounding in under the chin
+  const T0 = -0.12, open = (t: number) => 0.8 * (t > T0 ? Math.max(0, 1 - (t - T0) / (0.68 - T0)) ** 0.62 : Math.sqrt(Math.max(0, 1 - ((t - T0) / (-1.0 - T0)) ** 2)));
+  /** A point of the hood at rest: `az` round from the front (+x the figure's left), at height y. */
+  const P = (az: number, y: number): V3 => {
+    const a = wrapA(az), c = Math.cos(a), t = (y - C.y) / H.y, A = open(t);
+    const at = (yy: number) => {
+      const q = yy > C.y ? (yy - C.y) / (yTop - C.y) : 0, k = Math.sqrt(Math.max(0, 1 - q ** 2.4)), z0 = -0.32 * H.z * q * q;
+      // sides standing forward toward the opening; the opening's edge and the brow over it drawn further forward still
+      const fwd = E * (A > 0.02 ? Math.exp(-Math.max(0, Math.abs(a) - A) / 0.55) * ramp(0, 0.3, A) : 0) + 1.5 * E * Math.max(0, c) ** 4 * Math.exp(-(((yy - C.y) / H.y - 0.62) ** 2) / 0.05);
+      return V(Math.sin(a) * W0 * k, yy, z0 + (c >= 0 ? F0 * c ** 0.75 : B0 * c) * k + fwd * k);
+    };
+    if (y >= yJaw) return at(y);
+    const u = ramp(yJaw, rim(a).y, y), top = at(yJaw), low = rim(a);
+    return top.lerp(low, u).setY(y);
+  };
+  // rows down the hood, each from the opening's left edge round the back to its right (a whole ring where it is closed)
+  const NV = 44, NU = 80, rows: V3[][] = [], yRim = (a: number) => rim(a).y, q = V();
+  const edgeL: V3[] = [], edgeR: V3[] = [];
+  for (let k = 0; k <= NV; k++) {
+    const v = k / NV, row: V3[] = [];
+    // the height runs from the crown to the jaw and on to the rim (which dips toward the front with the roll)
+    const height = (az: number) => (v < 0.72 ? yTop + (yJaw - yTop) * (v / 0.72) : yJaw + (yRim(az) - yJaw) * ((v - 0.72) / 0.28));
+    const A = open((height(0) - C.y) / H.y);
+    for (let i = 0; i <= NU; i++) {
+      const az = A + (Math.PI * 2 - 2 * A) * (i / NU), p = P(az, height(az));
+      // carried: the head takes the crown and the face's opening, the rim stays on the shoulders
+      p.lerp(q.copy(p).applyMatrix4(D), ramp(yRim(az), yJaw, p.y));
+      row.push(p);
+    }
+    rows.push(row);
+    if (row[0].distanceTo(row[NU]) > 0.02 * s) { edgeL.push(row[0].clone()); edgeR.push(row[NU].clone()); }
+  }
+  const hood = new THREE.Mesh(grid(rows), soft(color, true)); hood.name = 'hood'; up.add(hood);
+  // the opening's edge, rolled: down the left side and back up the right, meeting over the brow and under the chin
+  if (edgeL.length > 3) up.add(new THREE.Mesh(cord([...edgeL, ...edgeR.reverse()], 0.022 * s, true), soft(tone(color, '#000000', 0.25))));
 }
 
 // ---------------------------------------------------------------------------------------------------- bare feet
