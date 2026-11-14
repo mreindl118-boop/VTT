@@ -92,8 +92,8 @@ export const DEAD_POSES = {
   prone: { lie: 'front', neck: [0.1, -0.8, 0], shoulderR: [-2.7, 0, 0.35], elbowR: -0.3, shoulderL: [0.1, 0, 0.5], elbowL: -0.9, hipR: [0, 0, 0.15], kneeR: 0.15, hipL: [-0.5, 0.5, 0.5], kneeL: 1.2 },
   /** Curled on its side around the wound. */
   curled: { lie: 'side', spine: [0.55, 0, 0], neck: [0.35, 0, 0], shoulderR: [-0.97, 0, -0.3], elbowR: -1.6, shoulderL: [-0.98, 0, -0.3], elbowL: -1.5, hipR: [-1.2, 0, 0], kneeR: 1.57, hipL: [-0.9, 0, 0], kneeL: 1.4 },
-  /** Face-planted with the rump in the air and the arms trailing behind. */
-  comic: { lie: 'front', spine: [0.4, 0, 0], neck: [-0.5, 0.6, 0], shoulderR: [0.9, 0, 0.5], elbowR: -0.2, shoulderL: [0.8, 0, 0.6], elbowL: -0.3, hipR: [-1.9, 0, 0.37], kneeR: 1.57, hipL: [-1.77, 0, 0.3], kneeL: 1.57 },
+  /** Face-planted with the rump in the air, the knees splayed (clear of a full belly or bust), the arms trailing behind. */
+  comic: { lie: 'front', spine: [0.4, 0, 0], neck: [-0.5, 0.6, 0], shoulderR: [0.9, 0, 0.5], elbowR: -0.2, shoulderL: [0.8, 0, 0.6], elbowL: -0.3, hipR: [-1.9, 0, 0.6], kneeR: 1.57, hipL: [-1.77, 0, 0.55], kneeL: 1.57 },
   /** The classic: crumpled on its side in a heap, knees drawn up, one arm folded under, the other flopped out, the face in the dirt. */
   crumpled: { lie: 'side', spine: [0.35, 0.3, 0.15], neck: [0.3, 0.7, 0.2], shoulderR: [-0.5, 0, 0.2], elbowR: -1.9, wristR: [0.6, 0, 0], shoulderL: [-1.5, 0, 0.6], elbowL: -0.5, wristL: [0.8, 0, 0], hipR: [-0.9, 0, 0.1], kneeR: 1.5, hipL: [-0.45, 0, 0.25], kneeL: 1.0, ankleL: [0.5, 0, 0] },
   /** On the back with the back of one hand to the brow: a swoon held a little too long. */
@@ -152,7 +152,8 @@ export const ARMS: Record<string, Arm> = {
   fist: { sh: [0.04, 0, 0.16], el: -0.3, fist: true },
   // a heavy arm carried a little forward and out from the body, the hand hooked into a claw (a brute's, a fiend's)
   heavy: { sh: [-0.2, 0, 0.32], el: -0.6, wr: [0.2, 0.01, 0], talon: true },
-  hilt: { sh: [0.12, 0, 0.3], el: -0.75, hilt: true },
+  // a hand laid on the hilt of the blade at the hip, the elbow out and bent (where the rig's reach for the grip starts)
+  hilt: { sh: [-0.3, 0, 0.5], el: -1.4, hilt: true },
   chest: { sh: [-0.55, -0.7, 0.08], el: -2.0 },
   // a glass carried up before the chest, the elbow at the side and the forearm raised, the glass upright in the fist
   goblet: { sh: [-0.3, -0.22, 0.12], el: -1.72, hold: { upright: true } },

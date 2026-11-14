@@ -8,7 +8,7 @@ import { HIP, SHIN, THIGH, clipRings, forearmRings, frameOf, loftGeometry, lockG
 import type { CreatureSize } from '../core/units';
 import { faceFeatures, hairSkull, browLift, weld, type FaceSpec, type FaceDetail } from './faces';
 import { hairdo as buildHairdo, sheen, type Hairdo } from './hair';
-import { weapon as gearWeapon, scabbard, closeGrip, secondHandAt, type WeaponSpec } from './weapons';
+import { weapon as gearWeapon, scabbard, closeGrip, secondHandAt, secondHandSlide, type WeaponSpec } from './weapons';
 import { clothPoint, hangGarments, pointsOf, type DrapeWorld, type Garment } from './cloth';
 
 export type HeroWeapon = 'none' | 'sword' | 'axe' | 'mace' | 'staff' | 'spear' | 'torch';
@@ -42,8 +42,9 @@ export interface HeroPose {
   /** `aim` points what the hand holds along a direction in the chest's frame (x mirrored: positive out to the hand's own
    *  side, y up, z forward), its face turned forward; the hand then closes on it as far as the wrist allows. */
   holdR?: { upright?: boolean; tilt?: Euler3; aim?: Euler3 }; holdL?: { upright?: boolean; tilt?: Euler3; aim?: Euler3 };
-  /** The left hand comes onto the weapon the right hand holds, for gear (kit/weapons.ts solves the reach; the left arm's
-   *  own angles are then ignored). A long weapon of the figure's own takes `bothHands`. */
+  /** The left hand comes onto the weapon the right hand holds, for gear, where its kind says (kit/weapons.ts
+   *  secondHandAt); the arm is solved to reach it and the left arm's own angles are ignored. A long weapon of the
+   *  figure's own takes `bothHands`. */
   twoHand?: boolean;
   /** Hands made into fists (an empty hand on the hip, say). */
   fist?: ('R' | 'L')[];
@@ -1260,6 +1261,7 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
 
   // gear on the mounts: held weapons by the grip, blades sheathed at the belt, bows and great weapons slung on the back
   const belted: Partial<Record<'beltR' | 'beltL', THREE.Object3D>> = {}, hangs: THREE.Object3D[] = [];
+  let slung: THREE.Group | undefined;
   if (f.gear) {
     const G = f.gear, mount = (name: string) => body.getObjectByName(name);
     for (const [slot, g] of [['handR', gR], ['handL', gL]] as const) { const w = G[slot]; if (!w) continue; const m = gearWeapon(w); m.scale.setScalar(s); g.add(m); }
@@ -1267,14 +1269,19 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
     const BLADE: Record<string, [number, number]> = { longsword: [2.9, 0.43], shortsword: [1.9, 0.34], rapier: [3.2, 0.36], dagger: [0.95, 0.27], scimitar: [2.5, 0.42], greatsword: [4.1, 0.76], 'sword-cane': [2.7, 0.36], sunsword: [3.0, 0.43], 'dragon-greatsword': [4.2, 0.76] };
     for (const slot of ['beltR', 'beltL'] as const) {
       const w = G[slot], mt = mount(slot); if (!w || !mt) continue;
-      const sx = slot === 'beltR' ? RX : LX, hang = new THREE.Group(); hang.scale.setScalar(s); hang.position.set(sx * 0.18 * s, 0.05 * s, 0); hang.rotation.set(0.5, 0, sx * 0.12); mt.add(hang); hangs.push(hang);
+      // (put away, for the cloth that hangs over it: the hang is flagged `stowed`, unscaled, so the drape reads its pieces
+      // at their true size; what hangs on it sits in a group scaled to the figure)
+      const sx = slot === 'beltR' ? RX : LX, hang = new THREE.Group(), on = new THREE.Group(); hang.userData.stowed = true; on.scale.setScalar(s); hang.add(on);
+      hang.position.set(sx * 0.18 * s, 0.05 * s, 0); hang.rotation.set(0.5, 0, sx * 0.12); mt.add(hang); hangs.push(hang);
       const m = gearWeapon(w), bl = BLADE[w.kind];
-      if (bl) { const L = bl[0] * (w.length ?? 1); if (w.kind !== 'sword-cane') hang.add(scabbard(L + 0.08, tone(w.grip ?? '#2a2420', '#000000', 0.2), w.fittings)); m.rotation.x = Math.PI; m.position.y = bl[1]; hang.add(m); belted[slot] = m; }
-      else { m.rotation.x = Math.PI; m.position.y = 0.2; hang.rotation.x = 0.15; hang.add(m); const loop = sm(new THREE.TorusGeometry(0.09, 0.02, 5, 10), '#2a2420'); loop.rotation.x = Math.PI / 2; hang.add(loop); }
+      if (bl) { const L = bl[0] * (w.length ?? 1); if (w.kind !== 'sword-cane') on.add(scabbard(L + 0.08, tone(w.grip ?? '#2a2420', '#000000', 0.2), w.fittings)); m.rotation.x = Math.PI; m.position.y = bl[1]; on.add(m); belted[slot] = m; }
+      else { m.rotation.x = Math.PI; m.position.y = 0.2; hang.rotation.x = 0.15; on.add(m); const loop = sm(new THREE.TorusGeometry(0.09, 0.02, 5, 10), '#2a2420'); loop.rotation.x = Math.PI / 2; on.add(loop); }
     }
     const bk = G.back, bm = mount('back');
     if (bk && bm) {
-      const m = gearWeapon(bk), sl = new THREE.Group(); sl.scale.setScalar(s); sl.position.set(0, 0, -0.12 * s); bm.add(sl);
+      // (slung, not stowed: cloth hung over a bow's arc or a crossbow's prod balloons out, so it lies over the cloth instead,
+      // once that is hung: see overCloth below)
+      const m = gearWeapon(bk), sl = new THREE.Group(); slung = new THREE.Group(); slung.position.set(0, 0, -0.12 * s); bm.add(slung); sl.scale.setScalar(s); slung.add(sl);
       if (bk.kind === 'crossbow') { m.rotation.set(-Math.PI / 2, 0, 0.35); m.position.set(0, -0.6, -0.12); } // the prod up behind the shoulders, the stock down the back, clear of the legs
       else if (bk.kind === 'longbow' || bk.kind === 'shortbow') { m.rotation.set(0, Math.PI, 0.45); m.position.set(0.1, 0.1, -0.05); }
       else { m.rotation.set(Math.PI, 0, 0.55); m.position.set(-0.5, 1.4, -0.05); }
@@ -1451,6 +1458,8 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
     }
     return out;
   };
+  // the top of the upper arm, below the shoulder's ball, a little inside its skin (where it meets the chest at rest)
+  const armTop = (A: Limb, sx: number): [THREE.Vector3, number][] => { const ur = upperArmRings(fr, sx); return [-0.3, -0.42].map((y) => [A.root.localToWorld(new THREE.Vector3(0, y * s, 0)), 0.75 * ringSize(ringAt(ur, y)) * s]); };
   const sink = (balls: [THREE.Vector3, number][]) => { let c = 0; for (const [p, r] of balls) { const d = guard()(p, r) / s; c += d * d; } return c; };
   // coordinate descent over the shoulder's three turns and the elbow (and whatever else the cost reads, each in its range)
   type Knob = [Record<string, number>, string, number, number];
@@ -1611,7 +1620,9 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
       const off = closeOn(A.end, A.mid, held, -sx, false); A.end.updateMatrixWorld(true);
       const v = A.end.localToWorld(grip.set(0, -0.15 * u, 0.085 * u)).sub(o0), t = v.dot(dir) / s, perp = v.addScaledVector(dir, -t * s).length() / s;
       let c = 400 * perp * perp + 40 * (Math.max(0, lo - t) + Math.max(0, t - hi)) ** 2 + 0.6 * (t - want) ** 2 + 40 * off * off;
-      const balls = armBalls(A, sx); c += 200 * sink(balls);
+      // (and the top of the upper arm, by the armpit, which armBalls leaves to the shoulder's bulk: an arm brought across
+      // to a haft can swing it into the side of the chest)
+      const balls = armBalls(A, sx); c += 200 * sink(balls) + 200 * sink(armTop(A, sx));
       for (const [p, r] of balls) { const d = Math.max(0, r + rU - near(p, wB[0], wB[1]), r + rF - near(p, wB[1], wB[2])) / s; c += 200 * d * d; }
       const w = wristTurnOf(A.end.quaternion, sx); return c + 0.4 * (w.dev - GRIP.dev) ** 2;
     };
@@ -1621,9 +1632,19 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
     body.updateMatrixWorld(true);
   };
   if (twoHanded) onHaft(Lf, LX, gR, 1.8, 1.25, 2.05);
-  // (on gear the second fist keeps clear of the first, which closes round the haft's first fifth of a foot either way)
-  if (gearTwo) { const t = secondHandAt(f.gear!.handR!.kind)!; onHaft(Lf, LX, gR, t, t < 0 ? t - 0.25 : Math.max(0.22, t - 0.15), t < 0 ? Math.min(-0.22, t + 0.15) : t + 0.25); }
-  for (const sd of onHilt) onHaft(sd === 'R' ? R : Lf, sd === 'R' ? RX : LX, (sd === 'R' ? belted.beltR ?? belted.beltL : belted.beltL ?? belted.beltR)!, 0, -0.1, 0.1);
+  // (on gear the second fist keeps clear of the first, which closes round the haft's first fifth of a foot either way; on
+  // a long haft it slides to wherever along it keeps the arm off the body)
+  if (gearTwo) {
+    const k = f.gear!.handR!.kind, t = secondHandAt(k)!, [lo, hi] = secondHandSlide(k) ?? [t < 0 ? t - 0.25 : Math.max(0.22, t - 0.15), t < 0 ? Math.min(-0.22, t + 0.15) : t + 0.25];
+    onHaft(Lf, LX, gR, t, lo, hi);
+  }
+  // (a hand on a belted hilt takes it as a hand hanging at the side closes on an upright handle, the thumb up toward the
+  // pommel: the reach is solved on the blade turned end for end, and the hand may close anywhere from the scabbard's
+  // mouth, the thumb on the guard, to just above the middle of the grip)
+  for (const sd of onHilt) {
+    const h = (sd === 'R' ? belted.beltR ?? belted.beltL : belted.beltL ?? belted.beltR)!, toPommel = new THREE.Object3D(); toPommel.rotation.z = Math.PI; h.add(toPommel);
+    onHaft(sd === 'R' ? R : Lf, sd === 'R' ? RX : LX, toPommel, 0, -0.45, 0.1); h.remove(toPommel);
+  }
   // every wrist ends inside its range; a shield's face turns in its own plane to stand its emblem upright
   arm.forEach((l, k) => limitWrist(l.end, k === 0 ? RX : LX));
   if (o?.kind === 'shield') {
@@ -1753,6 +1774,11 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
   if (laid && garments.length) laid.lift = 0.02 * s; // (it lies on its clothes: what of them is under it lies under it)
   // the cloth hangs on the posed body (on one laid out, the way it lies)
   if (garments.length) hangGarments(garments, drapeWorld(body, { pel, up, neck, arm, leg, gR, gL }, fr, s, P, dead, laid));
+  // a bow or a crossbow slung on the back lies over what hangs there (a cloak, a coat's tails, a mantle), never through it
+  if (slung && garments.length && !P.lie) {
+    const cloth: M[] = []; body.traverse((o) => { const m = o as M; if (m.isMesh && (m.userData.garment || m.userData.cloth) && !(m.material as THREE.Material).transparent) cloth.push(m); });
+    overCloth(slung, cloth, s);
+  }
   // on the floor (or, seated, the hips at the origin), over the middle of its base, then lifted
   if (P.seated) body.position.y -= HIP * s;
   else { let floor = Infinity; for (const m of soles) floor = Math.min(floor, new THREE.Box3().setFromObject(m).min.y); if (Number.isFinite(floor)) body.position.y -= floor; }
@@ -2052,6 +2078,61 @@ function sectionDepth(dx: number, dz: number, w: number, fd: number, bd: number,
   const lv = v ** (1 / n), k = lv / v, gl = Math.hypot(k * ax ** (n - 1) / w, k * az ** (n - 1) / d);
   return Math.min((1 - lv) / gl, w, d);
 }
+/** Lay gear slung on the back (`g`, a group on the back mount: +y up the back, -z out behind) over the cloth hung there:
+ *  every point of it lies behind the cloth at its place across the back, by a hair. The strap holds it at its top: it
+ *  leans back about its highest point and then stands straight back only as far as it must, the pair that clears the
+ *  cloth with the least gap under it, so it rests on the cloth (a cloak flaring below the shoulder blades) rather than
+ *  standing off it. */
+function overCloth(g: THREE.Group, cloth: THREE.Mesh[], s: number): void {
+  const F = g.parent; if (!F || !cloth.length) return;
+  let root: THREE.Object3D = F; while (root.parent) root = root.parent; root.updateMatrixWorld(true);
+  const toF = F.matrixWorld.clone().invert(), v = new THREE.Vector3(), pts: THREE.Vector3[] = [];
+  g.traverse((o) => { const m = o as M; if (!m.isMesh || (m.material as THREE.Material).transparent) return; const to = toF.clone().multiply(m.matrixWorld), pos = m.geometry.getAttribute('position') as THREE.BufferAttribute; for (let i = 0; i < pos.count; i++) pts.push(new THREE.Vector3().fromBufferAttribute(pos, i).applyMatrix4(to)); });
+  if (!pts.length) return;
+  const box = new THREE.Box3().setFromPoints(pts), lo = box.min.clone().addScalar(-0.6 * s), hi = box.max.clone().addScalar(0.6 * s);
+  // the cloth as points across the back (each triangle filled in finely, so a coarse drape reads as a surface), binned by
+  // where they lie across it (x, y)
+  const cell = 0.1 * s, bins = new Map<number, number[]>(), key = (x: number, y: number) => (Math.floor(x / cell) + 512) * 1024 + Math.floor(y / cell) + 512;
+  const a = new THREE.Vector3(), b = new THREE.Vector3(), c = new THREE.Vector3();
+  for (const m of cloth) {
+    const to = toF.clone().multiply(m.matrixWorld), pos = m.geometry.getAttribute('position') as THREE.BufferAttribute, idx = m.geometry.index, n = idx ? idx.count : pos.count;
+    for (let t = 0; t + 2 < n; t += 3) {
+      a.fromBufferAttribute(pos, idx ? idx.getX(t) : t).applyMatrix4(to); b.fromBufferAttribute(pos, idx ? idx.getX(t + 1) : t + 1).applyMatrix4(to); c.fromBufferAttribute(pos, idx ? idx.getX(t + 2) : t + 2).applyMatrix4(to);
+      if (Math.max(a.x, b.x, c.x) < lo.x || Math.min(a.x, b.x, c.x) > hi.x || Math.max(a.y, b.y, c.y) < lo.y || Math.min(a.y, b.y, c.y) > hi.y) continue;
+      const k = Math.max(1, Math.ceil(Math.max(a.distanceTo(b), b.distanceTo(c), c.distanceTo(a)) / (0.04 * s)));
+      for (let i = 0; i <= k; i++) for (let j = 0; i + j <= k; j++) {
+        v.copy(a).multiplyScalar(1 - (i + j) / k).addScaledVector(b, i / k).addScaledVector(c, j / k);
+        const kk = key(v.x, v.y); let l = bins.get(kk); if (!l) bins.set(kk, (l = [])); l.push(v.x, v.y, v.z);
+      }
+    }
+  }
+  if (!bins.size) return;
+  // how far out behind the cloth lies at a place (the furthest back of it within a hair across), or undefined where none
+  const R = 0.05 * s, clear = 0.025 * s;
+  const backOf = (x: number, y: number): number | undefined => {
+    let z: number | undefined; const i0 = Math.floor(x / cell), j0 = Math.floor(y / cell);
+    for (let i = i0 - 1; i <= i0 + 1; i++) for (let j = j0 - 1; j <= j0 + 1; j++) {
+      const l = bins.get((i + 512) * 1024 + j + 512); if (!l) continue;
+      for (let q = 0; q < l.length; q += 3) if (Math.abs(l[q] - x) <= R && Math.abs(l[q + 1] - y) <= R && (z === undefined || l[q + 2] < z)) z = l[q + 2];
+    }
+    return z;
+  };
+  const top = pts.reduce((m, p) => (p.y > m.y ? p : m), pts[0]).clone(), turn = new THREE.Matrix4(), p = new THREE.Vector3();
+  const lean = (th: number) => turn.makeTranslation(top.x, top.y, top.z).multiply(new THREE.Matrix4().makeRotationX(th)).multiply(new THREE.Matrix4().makeTranslation(-top.x, -top.y, -top.z));
+  let best = { th: 0, t: 0, gap: Infinity };
+  for (let th = 0; th <= 0.7001; th += 0.025) {
+    lean(th);
+    const under: number[] = []; let t = 0;
+    for (const q of pts) { p.copy(q).applyMatrix4(turn); const z = backOf(p.x, p.y); if (z === undefined) continue; const need = p.z - (z - clear); under.push(need); if (need > t) t = need; }
+    if (!under.length) { if (th === 0) return; continue; } // nothing hangs behind it
+    if (th === 0 && t <= 0) return; // already clear
+    const gap = under.reduce((sum, need) => sum + (t - need), 0) / under.length;
+    if (gap < best.gap - 1e-6) best = { th, t, gap };
+  }
+  lean(best.th).premultiply(new THREE.Matrix4().makeTranslation(0, 0, -best.t));
+  g.updateMatrix(); g.matrix.premultiply(turn); g.matrix.decompose(g.position, g.quaternion, g.scale); g.updateMatrixWorld(true);
+}
+
 /** The balls a held or stowed piece is read as to keep it clear of the body (in `g`'s own frame, feet): along each of its
  *  meshes, down its length (the frame's y), as wide as the mesh is across. */
 function ballsOf(g: THREE.Object3D): [THREE.Vector3, number][] {
