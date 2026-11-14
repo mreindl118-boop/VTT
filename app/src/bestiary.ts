@@ -9,7 +9,7 @@ import { detailFor, type FaceSpec } from './kit/faces';
 import { posed } from './kit/poses';
 import { FOLK, creature, folk, staked, withDeadPose, mounted, fiendishArm, furMantle, carried, type Folk, type FigState, type FiendArm, type Mantle, type Carry } from './kit/menagerie';
 import { beast, BEASTS, BEUCEPHALUS } from './kit/beasts';
-import { flyer, FLYERS, mistForm, effigy, branches, felled, spectral } from './kit/monsters';
+import { flyer, FLYERS, mistForm, effigy, branches, felled, spectral, veil } from './kit/monsters';
 import { doublet, plumbHeld, restOnFloor, type Doublet } from './kit/costume';
 import type { WeaponSpec } from './kit/weapons';
 import { baseRingFt, type CreatureSize } from './core/units';
@@ -189,9 +189,12 @@ function dressed(g: THREE.Group, h: NonNullable<CreatureEntry['hero']>, battle: 
  *  token's id) gives each token of a common creature its own look; `hint` (what the players are told they see, the
  *  token's alias) picks a look the module describes, so the Death House door is the mimic. */
 export function figureFor(e: CreatureEntry, state: FigState = false, seed = '', hint = ''): THREE.Group {
+  return veil(built(e, state, seed, hint));                                                         // a ghost reads as one veil
+}
+function built(e: CreatureEntry, state: FigState, seed: string, hint: string): THREE.Group {
   const dead = state === 'dead' || e.variants?.includes('corpse') === true, battle = !dead && (state === true || state === 'battle');
   const strahd = STRAHD_FORMS[e.id] && creatureById('strahd-von-zarovich');
-  if (strahd && strahd.hero) { if (dead && /mounted|blade/.test(e.id)) return figureFor(strahd, 'dead'); return STRAHD_FORMS[e.id](strahd, battle, dead); }
+  if (strahd && strahd.hero) { if (dead && /mounted|blade/.test(e.id)) return built(strahd, 'dead', '', ''); return STRAHD_FORMS[e.id](strahd, battle, dead); }
   if (e.hero?.ghost && dead) return dressed(heroFigure(recipeOf(e, false), e.size, 'rest'), e.hero, false, true);
   if (e.hero && dead) { const vamp = !!(e.hero.fangs || e.hero.face?.fangs), g = heroFigure(recipeOf({ ...e, hero: withDeadPose(vamp && !e.hero.deadPose ? { ...e.hero, deadPose: 'laid-out' } : e.hero, e.id) as HeroFigure }, false, {}, true), e.size, 'dead'); dressed(g, e.hero, false); if (e.hero.doublet) restOnFloor(g); return vamp ? staked(g) : g; }
   if (e.hero) return dressed(heroFigure(recipeOf(e, battle, battle && e.hero.ghost?.hover ? { hoverFt: e.hero.ghost.hover } : {}), e.size, battle), e.hero, battle);

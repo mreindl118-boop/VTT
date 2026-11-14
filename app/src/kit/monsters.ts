@@ -37,10 +37,31 @@ function lit(m: M, c: string, opacity = 0.8, glow = 0.9): M {
 export function spectral<T extends THREE.Object3D>(g: T, c?: string, opacity = 0.5): T {
   g.traverse((o) => {
     const m = o as M; if (!m.isMesh) return; const src = m.material as THREE.MeshLambertMaterial; lit(m, c ?? '#' + src.color.getHexString(), opacity, 0.35);
+    (m.material as THREE.Material).userData.ghostly = true;                                        // (veil() finds the ghost's parts by it)
     // a painted face stays on a ghost's head, faint through its glow, so the spirit is still who it was
     // the painted face keeps its paint, and hides what is behind it (the back of its own hair) so the face still reads
     if (src.map) { const n = m.material as THREE.MeshLambertMaterial; n.map = src.map; n.emissiveIntensity = 0.18; n.depthWrite = true; m.renderOrder = -1; }
   });
+  return g;
+}
+/** A ghost as one veil, not a body seen through its clothes: under each see-through part of a spectral() figure a
+ *  colourless twin that only marks how near the part is, drawn before the see-through parts are, so of all the ghost
+ *  only the surface nearest the eye shows (the cloth, not the legs under it; an arm, not the chest behind it). Run it on
+ *  the finished figure (bestiary.figureFor does), so a part taken away after spectral() leaves no twin behind. The
+ *  twins share one material, so the app's merge makes them one draw. */
+export function veil<T extends THREE.Object3D>(g: T): T {
+  const parts: M[] = [], shown = (o: THREE.Object3D | null): boolean => !o || (o.visible && shown(o.parent));
+  g.traverse((o) => { const m = o as M; if (m.isMesh && !m.userData.veiled && (m.material as THREE.Material).userData?.ghostly && shown(m)) parts.push(m); });
+  if (!parts.length) return g;
+  // a hair behind its part, so the part's own surface always shows over its twin
+  const mark = new THREE.MeshDepthMaterial({ colorWrite: false, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 });
+  mark.userData = { keepLook: true };
+  g.updateMatrixWorld(true);
+  for (const m of parts) {
+    // (hung on its part, so it moves with it and the part's own parent keeps the children it had)
+    const t = new THREE.Mesh(m.geometry, mark); t.matrixAutoUpdate = false; t.userData = { keepLook: true, veil: true }; t.raycast = () => {};
+    m.userData.veiled = true; m.add(t);
+  }
   return g;
 }
 /** Set on the floor by its lowest point (vertex by vertex: a turned part's box would leave it hanging above the floor). */
