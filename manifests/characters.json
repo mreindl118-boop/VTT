@@ -645,7 +645,7 @@
      }
     },
     "pose": "stand easy R:chin L:book",
-    "battlePose": "ready turnL R:guard L:book",
+    "battlePose": "ready turnR R:guard L:book shut",
     "frame": "masculine",
     "hairdo": {
      "style": "swept",
@@ -1224,7 +1224,7 @@
      }
     },
     "pose": "wide haughty R:hip L:hip",
-    "battlePose": "retreat recoil R:point L:balance",
+    "battlePose": "retreat recoil R:point L:high",
     "frame": "masculine",
     "hairdo": {
      "style": "swept",
@@ -3299,7 +3299,7 @@
      }
     },
     "pose": "weightL bowed R:staff L:hang",
-    "battlePose": "braced turnR R:cocked L:brace two",
+    "battlePose": "windup",
     "frame": "masculine"
    },
    "importance": 5.6

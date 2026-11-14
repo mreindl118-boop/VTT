@@ -301,9 +301,11 @@ function fist(meshes: THREE.Mesh[], sx: number, u: number): void {
   const th = meshes[9]; th.rotation.set(-0.2, 0, -sx * 1.35); th.position.set(-sx * 0.045 * u, -0.085 * u, 0.15 * u);
 }
 /** How far along a weapon from the leading hand the second hand takes hold (ft; negative = toward the pommel), or
- *  undefined for a weapon carried in one hand. */
+ *  undefined for a weapon carried in one hand. A sword's off hand closes on the pommel below the leading hand; an axe or
+ *  a shovel swung from the shoulder is held the same way, the off hand at the end of the haft, so the leading hand sits
+ *  nearer the head; a spear, a pitchfork or a staff levelled at a foe takes the off hand forward along the shaft. */
 export function secondHandAt(kind: string): number | undefined {
-  return ({ greatsword: -0.5, 'dragon-greatsword': -0.5, longsword: -0.32, greataxe: 1.1, battleaxe: 0.9, spear: 1.3, quarterstaff: 1.2, shovel: 1.1, pitchfork: 1.2, club: undefined } as Record<string, number | undefined>)[kind];
+  return ({ greatsword: -0.5, 'dragon-greatsword': -0.5, longsword: -0.32, greataxe: -1.2, battleaxe: -0.75, spear: 1.3, quarterstaff: 1.2, shovel: -1.5, pitchfork: 1.2, club: undefined } as Record<string, number | undefined>)[kind];
 }
 /** Bring a hand onto a weapon (the second hand on a haft, or a hand laid on a belted hilt): the arm (shoulder `root`,
  *  elbow `mid`, wrist `end`) is solved so the middle of the closed fist (where closeGrip holds a haft) lands on the point

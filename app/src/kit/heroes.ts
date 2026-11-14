@@ -48,7 +48,8 @@ export interface HeroPose {
   /** Hands resting on the belt: the arm is solved so the open hand lies flat on the front of the belt toward its own
    *  side, the fingers hanging down and a little in, the elbow back at the side. */
   beltHand?: ('R' | 'L')[];
-  /** An off-hand book held open (read from, or cast from) rather than carried shut; a fight always opens it. */
+  /** An off-hand book held open (read from, or cast from) or carried shut: out of a fight it is shut unless the pose says
+   *  open, and a fight opens it unless the pose says shut (a scholar who fights with a blade keeps his book closed). */
   book?: 'open' | 'shut';
   lift?: number; seated?: boolean; spell?: 'right' | 'between';
   /** Where the eyes look, [across, up] from -1 to 1, across > 0 to the figure's right (default: worked out from the pose, see gazeOf). */
@@ -885,7 +886,7 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
       }
     } else sg.add(at(sph(0.14 * s, o.rim ?? '#a9adb6', 12, 8), 0, 0, 0.08 * s));
   }
-  const shutBook = o?.kind === 'book' && !battle && poseOf(f, battle, dead, gown).book !== 'open';
+  const bookIs = poseOf(f, battle, dead, gown).book, shutBook = o?.kind === 'book' && (battle ? bookIs === 'shut' : bookIs !== 'open');
   if (shutBook) {
     // out of a fight the book is carried shut, held by its foot with the cover to the front
     const bk = new THREE.Group(); bk.position.set(0, 0.3 * s, 0.13 * s); bk.rotation.x = -0.08; gL.add(bk);
