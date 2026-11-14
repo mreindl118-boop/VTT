@@ -104,18 +104,23 @@ Whatever the pose, a standing figure keeps its soles flat and both feet on the g
 or the hips sink onto the standing leg; a foot the pose lifts well clear stays in the air) and stands over the middle
 of its base. At ease it balances: the pit of the neck over the foot that takes the weight (the straighter leg), the
 free foot on its ball with the heel a little raised when the feet are level. Balancing never takes a foot off the
-floor, so a fighting pose used out of a fight keeps its stance. An empty hand at ease hangs with its palm to the
-thigh and the thumb forward. A hand with a weapon in it closes into a fist round the haft, the haft across the palm,
-its head out above the thumb; in a two-handed stance the free hand takes the haft low, below the weapon hand, turned
-the same way, the arm solved so the haft lies in the curl of its fingers. A shield hand is a fist on the grip, and at
-rest the shield hangs plumb from it, its face turned out. A book carried shut is held by its foot, the fingers curled
-up over the cover; a pose's `holdL` turns the wrist, so the book stays in the fist. A dead hand lets go: the weapon
-lies on the floor beside it, flat side down and pointing away, clear of the body. A rest pose in a gown keeps the slit
+floor, so a fighting pose used out of a fight keeps its stance. The feet turn out: a little at ease, and in a fight
+the front foot points at the foe while the back foot turns out. An empty hand is relaxed, the fingers softly curled,
+more toward the little finger. A hand with a weapon in it closes into a fist round the haft, the haft across the palm,
+its head out above the thumb; in the two-handed guard the weapon fist is low by the hip and the free hand high on the
+haft, the arm solved so the haft lies in the curl of its fingers with both forearms clear of the body. A shield rides
+on the forearm on a strap with its handle in the fist, and at rest it hangs plumb, its face turned out. A book carried
+shut is held by its foot, the fingers curled up over the cover; a pose's `holdL` turns the wrist, so the book stays in
+the fist. An open book lies on the palm, the fingers under it and the thumb on the page. A fist set on the hip or a
+hand on the belt rests on the surface rather than in it. Wrists and elbows stay inside natural limits: a wrist bends
+at most 70 degrees in, 60 back, 20 toward the thumb and 30 toward the little finger, and an elbow folds only as far as
+the arm's thickness allows (less on a heavily muscled arm). A fallen figure lets go of everything: weapon, shield and
+book lie flat on the floor beside it, clear of the body and the head. A rest pose in a gown keeps the slit
 leg behind the slit, so it shows through the opening rather than pushing through the cloth; in a fight the right leg
 stays straight under the cloth and the left steps forward through the slit, never out past its edge.
 
 Out of a fight a weapon is put away, never carried drawn: an axe, sword or spear slung across the back, a mace hung
-at the belt with its head swung out clear of the thigh (a staff or torch stays in hand); in initiative it is in hand. `"stow": false` keeps it in hand always.
+plumb at the belt behind the hip, under the cloak's drape (a staff or torch stays in hand); in initiative it is in hand. `"stow": false` keeps it in hand always.
 
 `body` fits the frame to the character's art with multipliers (1 = the frame's own): `shoulders`, `chest`, `waist`,
 `hips`, `bust`, `arms`, `legs` (girth) and `neck`. A brawny fighter might take `{ "shoulders": 1.12, "waist": 1.2,
@@ -124,16 +129,20 @@ at the belt with its head swung out clear of the thigh (a staff or torch stays i
 A figure takes `pose` out of initiative (default `rest`), `battlePose` in it (default its `stance`) and `deadPose` when
 it is down (default `dead`). Each is a name or joint angles:
 
-- Names: `rest` (standing at ease: weight on one leg, hips and shoulders tilted against each other, the head
-  turned; one of three variants picked by the recipe: the arms hanging, a fist on the right hip, or the left hand on
-  the belt; or a gown's own with the knee in the slit), `two-handed` (a deep lunge, a great weapon cocked over the
-  right shoulder, the free hand low on the haft), `shield` (the shield side leading in a lunge, the shield across the
-  body, the weapon arm cocked back at the shoulder),
-  `cast` (book raised, the free hand thrust out with a spell, the flier rising), `conjure` (the casting hand forward
-  round a gathering spell, the book in the other), `ride` (seated astride, hands on the reins), `lunge`, `menace`
-  (arms spread, hands clawed), `cower`, `kneel`, `staff-raised`, and the dead: `dead` (sprawled on the back),
-  `dead-prone` (face down, an arm folded behind the back, a leg hitched out), `dead-comic` (face-planted, rump in
-  the air), `dead-swoon`, `dead-curled` (on its side, knees drawn up). The dead have crossed-out eyes.
+- Names: `rest` (standing at ease: weight on one leg, hips and shoulders tilted against each other, the chest
+  turned off the hips and the head turned and tilted, no arm hanging straight; one of three variants picked by the
+  recipe: one forearm forward with the hand before the hip, a fist on the right hip, or the left hand resting on the
+  belt; or a gown's own with the knee in the slit), `two-handed` (a high guard across the body: a deep stance, the
+  weapon fist low by the right hip, the other high before the left shoulder, the head of the weapon up past that
+  shoulder), `shield` (the shield side leading in a lunge, the shield on the forearm across the chest with the eyes
+  over its rim, the weapon cocked high behind the head),
+  `cast` (a flying cast: pitched toward the foe, the casting palm thrust out, the book open out to the side), `conjure`
+  (the casting hand forward at shoulder height round a gathering spell, the book open on the other palm), `ride`
+  (seated astride, hands on the reins), `lunge`, `menace` (arms spread, hands clawed), `cower`, `kneel`,
+  `staff-raised`, and the dead, comic sprawls that obey gravity: `dead` (a starfish on the back), `dead-prone` (face
+  down and flopped, one arm flung past the head), `dead-comic` (the dead bug: on the back, one arm bent up by the head
+  like a goal post, one knee fallen out), `dead-swoon` (legs straight, an arm curled over the crown), `dead-curled` (on
+  its side, half curled). The dead have crossed-out eyes.
 - Angles (radians): `spine`, `neck`, `pelvis`, `shoulderR/L`, `wristR/L`, `hipR/L`, `ankleR/L` as `[x, y, z]`;
   `elbowR/L`, `kneeR/L` and `collarR/L` (the shoulder's lift; automatic when an arm goes up) as numbers; `holdR/L`
   (`upright`, `tilt`); `lift` (feet); `seated`; `lie` (`back`, `front` or `side`: the posed figure laid on the floor);
@@ -141,7 +150,8 @@ it is down (default `dead`). Each is a name or joint angles:
   only `R` and `L` count); `hipHand` (`["R"]` or `["L"]`: the hand set on the hip, the arm solved to reach the side of
   the waist above the belt, elbow out; a fist there with `fist`); `beltHand` (the open hand laid flat on the front of
   the belt toward its own side, fingers down; a hand that holds something keeps it instead); `book`
-  (`open` to read at rest; otherwise a book is carried shut out of a fight and opened in one); `gaze`. On x a negative angle swings forward; a negative elbow bends the forearm up, a
+  (`open` to read at rest, `shut` to keep it closed in a fight; otherwise a book is carried shut out of a fight and
+  opened in one); `gaze`. On x a negative angle swings forward; a negative elbow bends the forearm up, a
   positive knee bends the shin back. On the limbs y and z are mirrored, so positive turns outward on either side. On
   the spine and neck x > 0 leans forward (a dipped chin); on the spine, pelvis and neck, y > 0 turns toward the figure's right and z > 0 raises its right side (a hip or a
   shoulder); a `gaze` across > 0 looks to its right. (A recipe's `face.gaze` overrides the pose's and keeps the face's
@@ -150,7 +160,8 @@ it is down (default `dead`). Each is a name or joint angles:
   pose puts the hips at the origin.
 
 `heroFigure(recipe, size, state)`: `state` is `'rest'`, `'battle'` or `'dead'` (`true` still means battle). A dead
-figure loses its halo, wisp, sparkles, hover and spell. In the app a character is down when its token is marked Down
+figure loses its halo, wisp, sparkles, hover and spell, and is laid down as a body falls: it settles onto the floor
+by its own lowest surface, and each limb drops until it rests on the floor or on the body. In the app a character is down when its token is marked Down
 (Initiative, Party…, the Down button on its card) or its hit points are 0.
 
 R and L are always the figure's own right and left: it faces +z, so its right side is at -x (`SIDE_X` in
@@ -164,6 +175,15 @@ and `back`. Nothing is built for an empty hand.
 A gown (`skirt` with `underskirt`) is fitted: it hugs the hips and thighs, is tight at the knee and flares to a
 mermaid hem with a short train, slit up the left leg; above a sweetheart line the shoulders are bare, and puffed
 sleeves become an off-the-shoulder band with a ruffle. A cloak on a gown hangs from the elbows as a wrap.
+`hem: false` leaves out the tunic hem below the belt and the belt's tail, for a garment made over the figure that
+takes their place.
+
+Garments are hung after the pose (kit/cloth.ts): a skirt or gown, the tunic hem, coat tails, mail, a cloak or capelet
+and plate lames re-hang over the posed limbs, swing out over a raised leg or arm, drape over stowed gear, and fall
+along the body to the floor when it lies down. Elbows and knees bend as one continuous surface, with no joint balls.
+Nothing passes through anything else: no limb, hand or piece of gear through the body, another limb or a garment.
+kit/clipcheck.ts and kit/clothcheck.ts measure it, and the tests hold every stance, rest variant and dead pose to it on
+several body types.
 
 Other parts: `beard` (a colour), `fangs`, `collar` (a tall standing collar, its colour).
 

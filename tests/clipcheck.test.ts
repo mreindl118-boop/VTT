@@ -18,6 +18,13 @@ function bladed(f: HeroFigure, mount: string, dir: [number, number, number]) {
   return findClips(g, f);
 }
 
+/** The figure with one joint forced to a turn (x, y, z) that no pose reaches: poses keep every elbow and wrist inside
+ *  its range, so a joint folded through itself is set on the built figure. */
+function forced(f: HeroFigure, joint: string, turn: [number, number, number]) {
+  const g = heroFigure(f, 'medium', 'rest'); (g.userData.joints as Record<string, THREE.Object3D>)[joint].rotation.set(...turn);
+  g.updateMatrixWorld(true); return findClips(g, f);
+}
+
 describe('clip check', () => {
   it('finds nothing on a figure standing clear, on either frame, or lying flat', () => {
     expect(clips({ pose: STAND })).toEqual([]);
@@ -36,16 +43,17 @@ describe('clip check', () => {
   });
 
   it('lets flesh press on flesh a little, but not a joint folded through itself', () => {
-    expect(pairs(clips({ pose: { ...STAND, shoulderR: [-0.4, 0, 0.3], elbowR: -2.2 } }))).not.toContain('forearmR>upperArmR');
-    expect(pairs(clips({ pose: { ...STAND, shoulderR: [-0.4, 0, 0.3], elbowR: -2.95 } }))).toContain('forearmR>upperArmR');
+    expect(pairs(forced({ pose: { ...STAND, shoulderR: [-0.4, 0, 0.3] } }, 'elbowR', [-2.2, 0, 0]))).not.toContain('forearmR>upperArmR');
+    expect(pairs(forced({ pose: { ...STAND, shoulderR: [-0.4, 0, 0.3] } }, 'elbowR', [-2.95, 0, 0]))).toContain('forearmR>upperArmR');
     expect(pairs(clips({ pose: { lie: 'back', hipR: [-1.0, 0, 0.1], kneeR: 1.6 } }))).not.toContain('shinR>thighR');
     expect(pairs(clips({ pose: { lie: 'back', hipR: [-1.0, 0, 0.1], kneeR: 2.6 } }))).toContain('shinR>thighR');
   });
 
   it('finds a hand bent back into its own forearm', () => {
     const arm: HeroPose = { ...STAND, shoulderR: [-0.4, 0, 0.3], elbowR: -0.4 };
-    expect(pairs(clips({ pose: { ...arm, wristR: [1.0, 0, 0] } }))).not.toContain('handR>forearmR');
-    expect(pairs(clips({ pose: { ...arm, wristR: [-2.4, 0, 0] } }))).toContain('handR>forearmR');
+    // (bent back or forward with the hand turned palm-in, as it hangs at ease)
+    expect(pairs(forced({ pose: arm }, 'wristR', [1.0, 1.3, 0]))).not.toContain('handR>forearmR');
+    expect(pairs(forced({ pose: arm }, 'wristR', [-2.4, 1.3, 0]))).toContain('handR>forearmR');
   });
 
   it('finds a held blade run through the body, and a scabbard through a thigh', () => {
