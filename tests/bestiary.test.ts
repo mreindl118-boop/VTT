@@ -47,6 +47,16 @@ describe('creature repository', () => {
     for (const seed of 'abcdefghijkl') expect(look(seed), seed).toEqual({ hood: false, robe: false, eyes: 2, features: 0 });
     expect(look('a', '', 'dead').eyes).toBe(0);
   });
+  it('stands a band staged together no two alike: the risen ghouls of area 29 and the shrine\'s shadows each take their own stance, at rest and in a fight', { timeout: 60000 }, () => {
+    // (a staged token's id ends in its count of the kind where it stands: app.ts addCreature)
+    const stance = (id: string, n: number, hint: string, st: boolean) => {
+      const J = figureFor(BESTIARY.find((x) => x.id === id)!, st, `cr-dungeon-${id}-m3k9-${n}`, hint).userData.joints as Record<string, THREE.Object3D>;
+      return ['chest', 'neck', 'shoulderR', 'elbowR', 'shoulderL', 'elbowL', 'hipR', 'kneeR', 'hipL', 'kneeL'].map((k) => J[k].rotation.toArray().slice(0, 3).map((v) => (v as number).toFixed(2)).join(',')).join(' ');
+    };
+    for (const [id, count, hint] of [['ghoul', 4, 'hunched figures'], ['shadow', 5, 'shadows of the cultists']] as const) for (const st of [false, true]) {
+      expect(new Set(Array.from({ length: count }, (_, i) => stance(id, i + 1, hint, st))).size, `${id} ${st ? 'battle' : 'rest'}`).toBe(count);
+    }
+  });
   it('goes barefoot where it wears no boots, and only a vampire is staked when it falls', { timeout: 60000 }, () => {
     const box = new THREE.Box3();
     for (const id of ['ghoul', 'ghast', 'night-hag', 'imp', 'shadow']) {

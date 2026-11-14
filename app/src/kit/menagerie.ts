@@ -27,6 +27,9 @@ export interface Folk extends Omit<HeroFigure, 'pose' | 'battlePose' | 'deadPose
   battleFace?: FaceSpec;
   /** A look only an encounter's alias calls up (see NAMED), never one a token's seed picks. */
   byName?: boolean;
+  /** One of a band: a pose at rest and one in a fight for each token in turn (see folk), so a band fielded together
+   *  does not stand as one. */
+  stances?: [rest: string, battle: string][];
   extra?: {
     wings?: { kind: mon.WingKind; span: number; color: string; membrane?: string; spread?: number };
     horns?: { len: number; color: string; curl?: number };
@@ -387,11 +390,15 @@ export function folk(base: Folk, size: CreatureSize = 'medium', state: FigState 
   const named = looks && hint ? NAMED[key]?.find(([re]) => re.test(hint))?.[1] : undefined, pool = looks?.flatMap((l, i) => (l.byName ? [] : [i])) ?? [];
   const li = named ?? (looks && seed && pool.length ? pool[hsh % pool.length] : undefined);
   let r: Folk = looks && li !== undefined ? { ...base, ...looks[li], extra: looks[li].extra ? { ...base.extra, ...looks[li].extra } : base.extra } : base;
+  // a token of a band takes the stance its number gives (a token's id ends in its count of the kind where it stands,
+  // so a band staged together stands no two alike), or one its id picks
+  const nth = /(\d+)$/.exec(seed), ns = r.stances?.length ?? 0, si = ns && seed ? ((nth ? Number(nth[1]) - 1 : hashOf('stance' + seed)) % ns + ns) % ns : -1;
+  if (si >= 0) r = { ...r, pose: r.stances![si][0], battlePose: r.stances![si][1] };
   if (dress) r = dress(r);
   if (battle && r.battleFace) r = { ...r, face: { ...r.face, ...r.battleFace } };
   if (r.face) r = { ...r, face: seedFace(key + seed + (li ?? ''), r.face) };
   if (r.vary && seed) { const k = ((hsh >>> 8) % 7) - 3; r = { ...r, hair: r.face?.bald ? r.hair : (r.face?.age ?? 0) > 0.7 ? r.hair : HAIR[(hsh >>> 4) % HAIR.length], beard: r.beard && HAIR[(hsh >>> 4) % HAIR.length], cloth: shift(r.cloth, k), skirt: shift(r.skirt, k), cloak: shift(r.cloak, -k), hairStyle: r.hairStyle ?? (['short', 'short', 'long', 'curly'] as const)[(hsh >>> 12) % 4], height: (r.height ?? 1) * (0.94 + ((hsh >>> 16) % 13) / 100) }; }
-  const { extra, size: own, vary: _v, battleFace: _f, byName: _b, ...recipe } = r, sz = own ?? size, s = (SCALE[sz] ?? 1) * (r.height ?? 1), spirit = !!extra?.ghost; void _v; void _f; void _b;
+  const { extra, size: own, vary: _v, battleFace: _f, byName: _b, stances: _s, ...recipe } = r, sz = own ?? size, s = (SCALE[sz] ?? 1) * (r.height ?? 1), spirit = !!extra?.ghost; void _v; void _f; void _b; void _s;
   // a winged body falls on its face, the wings spread over it (on its back it would lie on them, its arms across them);
   // a skeleton falls flat, as bones do, on its back or its face (no heap propped on an arm, no rump in the air)
   const fell = extra?.wings && !recipe.deadPose ? { ...recipe, deadPose: 'prone' as const } : extra?.bony && !recipe.deadPose ? { ...recipe, deadPose: BONY_FALLS[hsh % BONY_FALLS.length] } : recipe;
@@ -537,7 +544,11 @@ export const LOOKS: Record<string, Partial<Folk>[]> = {
   ],
   ghoul: [{ }, { skin: '#9a9a8a', hair: '#3a3a30', hairStyle: 'long', face: { ...FERAL } }, { skin: '#7a8a80', build: 'broad', face: { ...FERAL, bald: true, jaw: 0.9, scars: ['lip'] } },
     // a former cultist (Death House): the cult's black robe in tatters, the legs bare under it
-    { byName: true, cloth: '#1e1a20', trim: '#8a9a7c', hem: false, extra: { tatters: { color: '#1e1a20', belt: '#4d1119', cowl: true } } }],
+    // (four rise out of the floor together in the module, so each stands its own way: hunched, crouched low from clawing up
+    // out of the ground, a claw lifted as it looks about, nosing at the floor; in a fight each comes on its own way too)
+    { byName: true, cloth: '#1e1a20', trim: '#8a9a7c', hem: false, extra: { tatters: { color: '#1e1a20', belt: '#4d1119', cowl: true } },
+      stances: [['hunched', 'feral'], ['crouch low R:heavy L:heavy', 'lunge low R:grasp L:heavy eyes:glare'], ['crouch stoop R:claw L:heavy look:L', 'crouch intent R:high L:grasp eyes:glare'],
+        ['old low R:hang L:heavy look:down', 'stride intent R:heavy L:grasp eyes:glare']] }],
   // a shadow is the shadow of someone who died, broken free (Monster Manual), so it keeps their outline: a man's, hunched;
   // a woman's, her hair loose; one cast long by a low light (our own looks: the module gives shadows none); and the
   // Death House shrine's, the cultists' spirits (module), robed and hooded as the cult's dead are seen there, which only
@@ -546,7 +557,12 @@ export const LOOKS: Record<string, Partial<Folk>[]> = {
     { frame: 'feminine', hairStyle: 'long', hair: '#0c0a10', face: {}, body: { bust: 0.9, shoulders: 0.9, chest: 0.84, waist: 0.72, hips: 0.92, arms: 0.66, legs: 0.74, neck: 0.78, neckLen: 1.12 },
       pose: 'weightL sway R:hang L:wring look:down', battlePose: 'ready intent R:grasp L:grasp eyes:glare' },
     { height: 1.3, headSize: 0.86, body: { shoulders: 1.1, chest: 0.8, waist: 0.7, hips: 0.76, arms: 0.6, legs: 0.66, neck: 0.76, neckLen: 1.2 }, pose: 'stand loom R:heavy L:heavy look:down', battlePose: 'lunge intent R:grasp L:claw' },
-    { byName: true, extra: { tatters: { color: '#0c0a10', cowl: true, hood: true, length: 1.6 } }, pose: 'weightR bowed R:heavy L:hang', battlePose: 'ready intent R:grasp L:grasp eyes:glare' }],
+    // (five form round Strahd's statue in the module, the cult's dead still at their worship: bowed, arms held out to it,
+    // hands wrung, one arm raised to it, both raised; then they come on, each its own way)
+    { byName: true, extra: { tatters: { color: '#0c0a10', cowl: true, hood: true, length: 1.6 } }, pose: 'weightR bowed R:heavy L:hang', battlePose: 'ready intent R:grasp L:grasp eyes:glare',
+      stances: [['weightR bowed R:heavy L:hang', 'ready intent R:grasp L:grasp eyes:glare'], ['stand bowed R:offer L:offer look:down', 'lunge intent R:grasp L:claw eyes:glare'],
+        ['demure stoop R:wring L:wring look:down', 'stride intent R:grasp L:heavy eyes:glare'], ['weightL easy R:high L:hang look:up', 'weightR intent R:grasp L:high eyes:glare'],
+        ['stand proud R:high L:high look:up', 'lunge low R:high L:grasp eyes:glare']] }],
   'strahd-zombie': [{ }, { armor: { kind: 'plate', color: '#4a4a50', trim: '#5a1a22' }, face: { ...DEAD, bald: true } }, { cloak: '#3a1218', face: { ...DEAD, scars: ['cheekR'], bald: true } }],
   skeleton: [{ }, { gear: { handR: { kind: 'spear', ...RUSTY } }, pose: 'slump', battlePose: 'thrust', extra: { bony: { rags: '#5a4c3c' } } }, { gear: { handR: { kind: 'battleaxe', ...RUSTY } }, battlePose: 'windup', extra: { bony: { rags: undefined } } }],
   mongrelfolk: [
