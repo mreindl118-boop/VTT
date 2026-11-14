@@ -398,7 +398,7 @@ function buildFace(head: THREE.Group, s: number, hy: number, f: HeroFigure, fem 
     const earLen = Math.max(-1, Math.min(1, f.face?.earLen ?? 0)), earOut = Math.max(0, Math.min(1, f.face?.earOut ?? 0));
     if (f.ears === 'pointed') for (const sx of [-1, 1]) {
       const ear = pointedEar(s, skin, f.detail ?? 2, 1 + 0.5 * earOut); ear.position.set(sx * (0.318 + 0.012 * earOut) * s, hy - (0.035 + 0.01 * earOut) * s, (-0.035 + 0.012 * earOut) * s);
-      ear.quaternion.copy(elfEarTurn(sx, earOut)); ear.scale.x *= sx; ear.scale.y *= 1 + 0.6 * earLen; ear.scale.z *= 1 + 0.2 * earLen; head.add(ear);
+      ear.quaternion.copy(elfEarTurn(sx, earOut)); ear.scale.x *= sx; ear.scale.y *= 1 + 0.6 * earLen; ear.scale.z *= 1 + 0.2 * earLen; ear.userData.elfEar = true; head.add(ear);
     }
     if (f.ears !== 'pointed') for (const sx of [-1, 1]) {
       const ear = new THREE.Group(); ear.position.set(sx * 0.322 * s, hy - 0.04 * s, -0.03 * s); ear.rotation.set(-0.2, -sx * (0.3 + 0.55 * earOut), 0); ear.scale.setScalar(1 + 0.3 * earLen); head.add(ear);
@@ -491,23 +491,65 @@ function buildHair(head: THREE.Group, s: number, hy: number, f: HeroFigure, fem:
     const an = Math.atan2(Math.sin(az), Math.cos(az)), a = Math.abs(an), lo = earAz - 0.55, hi = earAz + 0.3;
     return tuckK === 0 || a < lo || a > hi ? az : Math.sign(an) * (a + (hi + (a - lo) * 0.2 - a) * tuckK);
   };
-  const overEar = (az: number, el: number) => earOut >= 0.3 && el < 0.5 && Math.abs(Math.abs(Math.atan2(Math.sin(az), Math.cos(az))) - earAz) < 0.42;
+  // an elf's ears (buildFace has set them on the head), as triangles in the head's frame, within a ball round each:
+  // a coil that would touch one is left out, so the ear comes out of the hair whole and the coils still grow round it
+  const ears: { c: THREE.Vector3; r: number; tris: THREE.Triangle[] }[] = [], m4 = new THREE.Matrix4();
+  for (const e of head.children) if (e.userData.elfEar) {
+    const tris: THREE.Triangle[] = []; e.updateMatrix();
+    for (const m of e.children) if ((m as M).isMesh) {
+      m.updateMatrix(); m4.multiplyMatrices(e.matrix, m.matrix);
+      const g = (m as M).geometry, p = g.getAttribute('position'), ix = g.index, v = (j: number) => new THREE.Vector3().fromBufferAttribute(p, ix ? ix.getX(j) : j).applyMatrix4(m4);
+      for (let i = 0; i < (ix ? ix.count : p.count); i += 3) tris.push(new THREE.Triangle(v(i), v(i + 1), v(i + 2)));
+    }
+    const ball = new THREE.Box3(); for (const t of tris) ball.expandByPoint(t.a).expandByPoint(t.b).expandByPoint(t.c);
+    const c = ball.getCenter(new THREE.Vector3()); ears.push({ c, r: ball.getSize(new THREE.Vector3()).length() / 2, tris });
+  }
+  const touchesEar = (pts: THREE.Vector3[], r: number) => {
+    const q = new THREE.Vector3();
+    return ears.some((e) => pts.some((p) => p.distanceTo(e.c) < e.r + r && e.tris.some((t) => t.closestPointToPoint(p, q).distanceTo(p) < r)));
+  };
   // a point on the scalp: azimuth from the front round through +x, elevation, and a lift off the skull
   const scalp = (az: number, el: number, lift = 1.06) => { const c = Math.cos(el), dz = Math.cos(az) * c, [x, y, z] = cr(Math.sin(az) * c * 0.84 * lift, Math.sin(el) * 1.14 * lift, dz * (dz < 0 ? 0.99 : 0.94) * lift); return new THREE.Vector3(x * R * s, hy + y * R * s, z * R * s); };
   // the hairline: how low the hair comes at each azimuth (an elevation)
-  const line = (az: number) => { const a = Math.abs(Math.atan2(Math.sin(az), Math.cos(az))); return (a < 1.25 ? lift0 * (a < 0.4 ? 1 : 1 - (a - 0.4) / 0.85) : 0) + (a < 0.25 ? 0.8 - 0.06 * (1 - a / 0.25) : a < 0.8 ? 0.8 + 0.07 * Math.sin((a - 0.25) * Math.PI / 0.55) : a < 1.3 ? 0.8 - 0.72 * (a - 0.8) / 0.5 : a < 1.8 ? 0.08 + 0.1 * Math.sin((a - 1.3) * Math.PI / 0.5) : 0.08 - 0.58 * Math.min(1, (a - 1.8) / 0.6)); };
-  // the under-layer: the skull's own shape, a little proud, combed in strands, cut at the hairline
-  const cg = new THREE.SphereGeometry(1, 48, 28), cp = cg.attributes.position as THREE.BufferAttribute, keep: boolean[] = [];
-  for (let i = 0; i < cp.count; i++) {
-    const x = cp.getX(i), y = cp.getY(i), z = cp.getZ(i), az = Math.atan2(x, z), el = Math.asin(Math.max(-1, Math.min(1, y)));
-    keep.push(el > line(az) - 0.04);
-    const k = 1.045 + 0.012 * Math.sin(az * 26 + el * 5) + 0.006 * Math.sin(az * 61), [qx, qy, qz] = cr(x * 0.84 * k, y * 1.14 * k, z * (z < 0 ? 0.99 : 0.94) * k);
-    cp.setXYZ(i, qx * R * s, qy * R * s, qz * R * s);
+  // (round an ear that stands out of the hair, the hair comes down to the middle of its root and, behind it, to the lobe,
+  // so with the coils kept off the ear no bare scalp shows beside it: the ear comes out of the hair)
+  const line = (az: number) => {
+    const a = Math.abs(Math.atan2(Math.sin(az), Math.cos(az)));
+    const el = (a < 1.25 ? lift0 * (a < 0.4 ? 1 : 1 - (a - 0.4) / 0.85) : 0) + (a < 0.25 ? 0.8 - 0.06 * (1 - a / 0.25) : a < 0.8 ? 0.8 + 0.07 * Math.sin((a - 0.25) * Math.PI / 0.55) : a < 1.3 ? 0.8 - 0.72 * (a - 0.8) / 0.5 : a < 1.8 ? 0.08 + 0.1 * Math.sin((a - 1.3) * Math.PI / 0.5) : 0.08 - 0.58 * Math.min(1, (a - 1.8) / 0.6));
+    if (earOut < 0.3) return el;
+    const d = a - earAz, round = d < -0.35 ? Infinity : d < -0.2 ? 0.25 - 0.3 * (d + 0.35) / 0.15 : d < 0 ? -0.05 : d < 0.2 ? -0.05 - 0.3 * d / 0.2 : -0.35;
+    return Math.min(el, round);
+  };
+  // the under-layer: the skull's own shape, a little proud, combed in strands, cut along the hairline (a triangle the
+  // line crosses is cut where it crosses, so the edge follows the line instead of stepping round the sphere's grid)
+  const sg = new THREE.SphereGeometry(1, 48, 28), sp = sg.attributes.position as THREE.BufferAttribute, si = sg.index!, U: THREE.Vector3[] = [], idx: number[] = [];
+  const elOf = (u: THREE.Vector3) => Math.asin(Math.max(-1, Math.min(1, u.y))), over = (u: THREE.Vector3) => elOf(u) - line(Math.atan2(u.x, u.z)) + 0.02;
+  for (let i = 0; i < sp.count; i++) U.push(new THREE.Vector3().fromBufferAttribute(sp, i));
+  const F = U.map(over), cuts = new Map<string, number>();
+  const cut = (a: number, b: number) => { // where the line crosses the edge from a (kept) to b, found by halving
+    const key = a + ',' + b; let i = cuts.get(key);
+    if (i === undefined) {
+      let t0 = 0, t1 = 1; for (let k = 0; k < 10; k++) { const t = (t0 + t1) / 2; if (over(U[a].clone().lerp(U[b], t).normalize()) >= 0) t0 = t; else t1 = t; }
+      i = U.length; U.push(U[a].clone().lerp(U[b], (t0 + t1) / 2).normalize()); cuts.set(key, i);
+    }
+    return i;
+  };
+  for (let i = 0; i < si.count; i += 3) {
+    const t = [si.getX(i), si.getX(i + 1), si.getX(i + 2)], kept = t.map((j) => F[j] >= 0), n = kept.filter(Boolean).length;
+    if (n === 3) { idx.push(t[0], t[1], t[2]); continue; } if (n === 0) continue;
+    // turned so that p is the odd corner out (the one kept, or the one cut off), keeping the winding
+    const o = kept.indexOf(n === 1), p = t[o], q = t[(o + 1) % 3], r = t[(o + 2) % 3];
+    if (n === 1) idx.push(p, cut(p, q), cut(p, r)); else { const rp = cut(r, p), qp = cut(q, p); idx.push(q, r, rp, q, rp, qp); }
   }
-  const src = cg.index!, idx: number[] = []; for (let i = 0; i < src.count; i += 3) { const a = src.getX(i), b = src.getX(i + 1), c = src.getX(i + 2); if (keep[a] && keep[b] && keep[c]) idx.push(a, b, c); }
-  cg.setIndex(idx); cg.computeVertexNormals(); head.add(at(sm(cg, tone(H, '#000000', 0.18), true), 0, hy, 0));
+  const cpos = new Float32Array(U.length * 3);
+  U.forEach((u, i) => {
+    const az = Math.atan2(u.x, u.z), el = elOf(u), k = 1.045 + 0.012 * Math.sin(az * 26 + el * 5) + 0.006 * Math.sin(az * 61), [qx, qy, qz] = cr(u.x * 0.84 * k, u.y * 1.14 * k, u.z * (u.z < 0 ? 0.99 : 0.94) * k);
+    cpos[i * 3] = qx * R * s; cpos[i * 3 + 1] = qy * R * s; cpos[i * 3 + 2] = qz * R * s;
+  });
+  sg.dispose(); const cg = new THREE.BufferGeometry(); cg.setAttribute('position', new THREE.BufferAttribute(cpos, 3)); cg.setIndex(idx); cg.computeVertexNormals();
+  head.add(at(sm(cg, tone(H, '#000000', 0.18), true), 0, hy, 0));
   const shadeOf = (i: number) => i % 3 === 0 ? sheen(H, 0.1) : i % 3 === 1 ? H : tone(H, '#000000', 0.14);
-  const lock = (pts: THREE.Vector3[], r0: number, r1: number, i: number, c?: string, flat = 0.5) => head.add(sm(lockGeometry(pts, r0 * s, r1 * s, flat, 6), c ?? shadeOf(i), true));
+  const lock = (pts: THREE.Vector3[], r0: number, r1: number, i: number, c?: string, flat = 0.5) => { const m = sm(lockGeometry(pts, r0 * s, r1 * s, flat, 6), c ?? shadeOf(i), true); head.add(m); return m; };
   const part = fem ? 0.05 : 0.0; // the parting sits a little to one side
   const crownY = cr(0, 1.14 * 1.07, 0)[1] * R * s, crown = (az: number) => new THREE.Vector3(Math.sin(az) * 0.03 * s + part * s, hy + crownY, -0.02 * s + Math.cos(az) * 0.03 * s);
   let streaks = 0; const streakAt = (az: number) => { const a = RX * Math.atan2(Math.sin(az), Math.cos(az)); return f.hairStreak && a > 0.6 && a < 1.2 && streaks++ < 3 ? f.hairStreak : undefined; }; // a streak: a few locks at the right temple (RX)
@@ -542,9 +584,9 @@ function buildHair(head: THREE.Group, s: number, hy: number, f: HeroFigure, fem:
     for (let i = 0; i < 60; i++) {
       const az = i * 2.39996 + rnd() * 0.3, el = Math.max(line(az) + 0.02, 1.45 - (i / 60) * 1.75), root = scalp(az, el, 1.05), out = root.clone().sub(new THREE.Vector3(0, hy, 0)).normalize();
       const side = new THREE.Vector3(-out.z, 0, out.x).normalize(), upv = new THREE.Vector3().crossVectors(out, side), len = (0.16 + rnd() * 0.12) * (el < 0.3 ? 1.5 : 1), rr = 0.045 + rnd() * 0.02, turns = 2.2 + rnd();
-      if (overEar(az, el)) continue;
       const pts: THREE.Vector3[] = []; for (let k = 0; k <= 14; k++) { const t = k / 14, ph = t * turns * Math.PI * 2 + i; pts.push(root.clone().addScaledVector(out, len * t * s).addScaledVector(side, Math.cos(ph) * rr * s).addScaledVector(upv, Math.sin(ph) * rr * s).add(new THREE.Vector3(0, -len * 0.35 * t * t * s, 0))); }
-      lock(pts, 0.04, 0.02, i, streakAt(az), 0.8);
+      if (touchesEar(pts, 0.055 * s)) continue;
+      lock(pts, 0.04, 0.02, i, streakAt(az), 0.8).userData.coil = true;
     }
   }
 }
