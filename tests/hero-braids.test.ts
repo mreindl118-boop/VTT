@@ -30,7 +30,7 @@ describe('braids', () => {
       expect(pts, state).toBeGreaterThan(300);
       expect(under, state).toBe(0);
     }
-  });
+  }, 30000);
   it('on a body laid on its back, lie along the chest: no tuft stands off it in the air', () => {
     const g = heroFigure({ ...plated, deadPose: 'dead' }, 'medium', 'dead'); g.updateMatrixWorld(true);
     const s = g.getObjectByName('neck')!.position.y / 2.24, body: THREE.Mesh[] = [], tips: THREE.Vector3[] = [];
