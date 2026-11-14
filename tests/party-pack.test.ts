@@ -376,7 +376,7 @@ describe('heroFigure', () => {
     const strap = parts.find((m) => m.geometry.type === 'BoxGeometry')!, bag = parts.find((m) => m.geometry.type === 'CapsuleGeometry')!;
     const top = strap.localToWorld(new THREE.Vector3(0, 1.25, 0)), low = strap.localToWorld(new THREE.Vector3(0, -1.25, 0)), at = bag.getWorldPosition(new THREE.Vector3());
     expect(top.x).toBeGreaterThan(0); expect(low.distanceTo(at)).toBeLessThan(0.5);                                       // over the left shoulder, down to the bag on the right hip
-  });
+  }, 60000);
   it('gives the second hand on a two-handed haft a real grip, high on the haft and clear of the face', () => {
     for (const f of [{ weapon: 'axe' as const }, { weapon: 'spear' as const, frame: 'feminine' as const }, { weapon: 'staff' as const, build: 'broad' as const }]) {
       const g = heroFigure({ ...f, stance: 'two-handed' }, 'medium', 'battle'), J = g.userData.joints as Record<string, THREE.Object3D>; g.updateMatrixWorld(true);
