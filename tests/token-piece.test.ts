@@ -23,14 +23,13 @@ describe('figureKey', () => {
     for (const o of other) expect(o).not.toBe(k);
     expect(new Set(other).size).toBe(other.length);
   });
-  it('changes a creature\'s key with its kind, state, token, the name the players know it by, and the faint look', () => {
+  it('changes a creature\'s key with its kind, state, token, the name the players know it by, the jiggle switch and the faint look', () => {
     const c = { ...tok, role: 'creature' as const }, key = (over: Partial<Parameters<typeof figureKey>[1]> = {}, t = c) => figureKey(t, { entry: 'zombie', state: false, jiggle: false, ghostly: false, ...over });
     const k = key();
-    const other = [key({ entry: 'ghoul' }), key({ state: true }), key({ state: 'dead' }), key({}, { ...c, id: 't2' }), key({}, { ...c, playerName: 'the cook' }), key({ ghostly: true })];
+    // (a creature whose figure is built as a hero's carries the bust's jiggle weights only when built with the switch on)
+    const other = [key({ entry: 'ghoul' }), key({ state: true }), key({ state: 'dead' }), key({}, { ...c, id: 't2' }), key({}, { ...c, playerName: 'the cook' }), key({ jiggle: true }), key({ ghostly: true })];
     for (const o of other) expect(o).not.toBe(k);
     expect(new Set(other).size).toBe(other.length);
-    // (the jiggle switch builds no creature differently)
-    expect(key({ jiggle: true })).toBe(k);
   });
   it('changes a member\'s key with the colour of its cloth, and no one else\'s', () => {
     const key = (role: 'member' | 'party', color: string) => figureKey({ ...tok, role, color }, { state: false, jiggle: false, ghostly: false });

@@ -7,13 +7,13 @@ import type { Token } from '../state/campaign';
 
 /** What a token's miniature is built from, as one string: the same key, the same miniature. A party pack character's
  *  figure, its size, its state (standing, in a fight, down) and the jiggle switch; a creature's entry, its state, its
- *  token (which of its kind's looks it wears) and the name the players know it by; anyone else's role and colour (a
- *  member's cloth). The look the piece wears rides with it too: faint, for a creature the DM sees that the players have
- *  not yet been shown. */
+ *  token (which of its kind's looks it wears), the name the players know it by and the jiggle switch (a creature whose
+ *  figure is built as a hero's reads it too); anyone else's role and colour (a member's cloth). The look the piece
+ *  wears rides with it too: faint, for a creature the DM sees that the players have not yet been shown. */
 export function figureKey(t: Pick<Token, 'id' | 'size' | 'role' | 'color' | 'playerName'>, o: { figure?: HeroFigure; entry?: string; state: 'dead' | boolean; jiggle: boolean; ghostly: boolean }): string {
   return JSON.stringify(
     o.figure ? ['hero', o.figure, t.size, o.state, o.jiggle, o.ghostly]
-    : o.entry ? ['creature', o.entry, o.state, t.id, t.playerName ?? '', o.ghostly]
+    : o.entry ? ['creature', o.entry, o.state, t.id, t.playerName ?? '', o.jiggle, o.ghostly]
     : ['adventurer', t.role === 'member' ? t.color : '', o.ghostly],
   );
 }
