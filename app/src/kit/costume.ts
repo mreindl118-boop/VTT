@@ -9,7 +9,8 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { frameFor, SIDE_X, type HeroFigure } from './heroes';
-import { THIGH, clipRings, loftGeometry, neckRings, pelvisRings, ringAt, ringPoint, shinRings, thighRings, torsoRings, upperArmRings, type Frame, type Ring } from './anatomy';
+import { hangGarments, pointsOf, type DrapeWorld } from './cloth';
+import { THIGH, clipRings, forearmRings, loftGeometry, neckRings, pelvisRings, ringAt, ringPoint, shinRings, thighRings, torsoRings, upperArmRings, type Frame, type Ring } from './anatomy';
 import { ell, mirrorX, nets, seg, smax, smin, type Sdf } from './sdf';
 import { mat } from '../render/materials';
 import { flatLock } from './hair';
@@ -173,9 +174,6 @@ const skirtShares = (p: V3): Weights => {
   const wc = ramp(0.1, 0.32, p.y), wb = ramp(1.8, 2.5, Math.abs(Math.atan2(p.x, p.z))), wl = ramp(-0.16, 0.16, p.x), o = 1 - wc;
   return { chest: wc, back: o * wb, thighL: o * (1 - wb) * wl, thighR: o * (1 - wb) * (1 - wl) };
 };
-/** Skirts on a figure laid on the ground: the waist with the chest, everything below it with the thigh it lies over (the
- *  back too, so nothing stands up off the legs or reaches into the floor). */
-const lyingShares = (p: V3): Weights => { const wc = ramp(0.1, 0.32, p.y), wl = ramp(-0.16, 0.16, p.x), o = 1 - wc; return { chest: wc, thighL: o * wl, thighR: o * (1 - wl) }; };
 /** A cloak's shares: the shoulders carry it, the hips the middle, and below the seat it hangs from the legs' swing. */
 /** Where a cloak's front edges stand, as an angle from the front, down its length (0 the top, 1 the hem): behind the
  *  shoulders at the top, behind the arms below. */
@@ -519,10 +517,70 @@ export function restOnFloor(g: THREE.Group): THREE.Group {
   return g;
 }
 
+// ---------------------------------------------------------------------------------------------------- hanging cloth
+/** What cloth hangs over on a built, posed figure (kit/cloth.ts), read from its joints as the rig reads the body it
+ *  builds when it hangs its own garments (kit/heroes.ts drapeWorld) and as the cloth check reads it (kit/clothcheck.ts):
+ *  each part's points (a sample to hang over, and all of them to be lifted out of), the volume of its ring stack, the
+ *  line of its bones; garments it already wears, as trunk; the figure's own way down and its floor. (Gear put away at
+ *  the belt is not read: nothing that wears cloth from here carries any.) */
+function drapeOf(g: THREE.Group, j: Joints, fr: Frame, s: number, lying: boolean): DrapeWorld | undefined {
+  const pel = j.hips, up = j.chest, neck = j.neck; if (!pel || !up || !neck) return undefined;
+  g.updateMatrixWorld(true);
+  type M = THREE.Mesh;
+  const solid = (o: THREE.Object3D): o is M => (o as M).isMesh && !((o as M).material as THREE.Material).transparent && !o.userData.garment && !o.userData.veil;
+  const meshes = (o: THREE.Object3D | undefined, stop: (THREE.Object3D | undefined)[] = []) => { const out: M[] = []; const walk = (n: THREE.Object3D) => { for (const c of n.children) { if (stop.includes(c)) continue; if (solid(c)) out.push(c); walk(c); } }; if (o) walk(o); return out; };
+  const sample = (ms: M[], cap: number) => { const n = ms.reduce((a, m) => a + m.geometry.getAttribute('position').count, 0); return ms.flatMap((m) => pointsOf(m, Math.max(6, Math.round((cap * m.geometry.getAttribute('position').count) / Math.max(1, n))))); };
+  const every = (ms: M[]) => ms.flatMap((m) => pointsOf(m, m.geometry.getAttribute('position').count));
+  const parts = new Map<string, V3[]>(), surface = new Map<string, V3[]>(), volumes = new Map<string, (p: V3, out: V3) => number>();
+  const part = (n: string, ms: M[], cap: number) => { const p = sample(ms, cap); parts.set(n, p); surface.set(n, every(ms)); return p; };
+  // how deep a point lies in a ring stack lofted in a joint's frame, and the way out of it (radially, in the world)
+  const vol = (o: THREE.Object3D, rings: Ring[]) => {
+    const inv = o.matrixWorld.clone().invert(), q = V(), lo = rings[0].y, hi = rings[rings.length - 1].y;
+    return (p: V3, out: V3) => {
+      q.copy(p).applyMatrix4(inv).divideScalar(s); if (q.y < lo + 0.05 || q.y > hi - 0.05) return -1;
+      const r = ringAt(rings, q.y), n = r.n ?? 2, dx = q.x - (r.x ?? 0), dz = q.z - (r.z ?? 0), dd = dz >= 0 ? r.f : r.b, v = (Math.abs(dx) / r.w) ** n + (Math.abs(dz) / dd) ** n;
+      if (v >= 1) return -1;
+      out.set(dx, 0, dz); if (out.lengthSq() < 1e-12) out.set(0, 0, 1);
+      out.normalize().transformDirection(o.matrixWorld);
+      return (1 - v ** (1 / n)) * Math.min(r.w, dd) * s;
+    };
+  };
+  part('torso', meshes(up, [neck, j.collarR, j.collarL, j.beltR, j.beltL, j.back]), 2400); volumes.set('torso', vol(up, torsoRings(fr)));
+  part('pelvis', meshes(pel, [up, j.hipR, j.hipL]), 1400); volumes.set('pelvis', vol(pel, pelvisRings(fr)));
+  { const nr = neckRings(fr); part('neck', neck.children.filter(solid), 300); volumes.set('neck', vol(neck, [{ ...nr[0], y: nr[0].y - 0.08 }, ...nr])); }
+  const wp = (o: THREE.Object3D) => o.getWorldPosition(V()), bones = new Map<string, V3[]>(), spine = [wp(pel), wp(up), wp(neck)];
+  bones.set('torso', spine); bones.set('pelvis', spine);
+  for (const sd of ['R', 'L'] as const) {
+    const hip = j['hip' + sd], knee = j['knee' + sd], ankle = j['ankle' + sd];
+    if (hip && knee && ankle) {
+      part('thigh' + sd, hip.children.filter(solid), 500); volumes.set('thigh' + sd, vol(hip, thighRings(fr)));
+      part('shin' + sd, meshes(knee, [ankle]), 450); volumes.set('shin' + sd, vol(knee, shinRings(fr)));
+      const feet = part('foot' + sd, meshes(ankle), 600), line = [wp(hip), wp(knee), wp(ankle)], mid = V();
+      bones.set('thigh' + sd, line); bones.set('shin' + sd, line); if (feet.length) { for (const p of feet) mid.add(p); bones.set('foot' + sd, [line[1], line[2], mid.divideScalar(feet.length)]); }
+    }
+    const sh = j['shoulder' + sd], el = j['elbow' + sd], wr = j['wrist' + sd], held = j['hand' + sd];
+    if (sh && el && wr) {
+      // (the point of the elbow is the upper arm's: cloth lying on the arm runs on over it)
+      const fore = part('forearm' + sd, meshes(el, [wr]), 300), e = wp(el);
+      part('upperArm' + sd, meshes(sh, [el]), 400); parts.get('upperArm' + sd)!.push(...fore.filter((p) => p.distanceTo(e) < 0.35 * s));
+      volumes.set('upperArm' + sd, vol(sh, upperArmRings(fr, SIDE_X[sd]))); volumes.set('forearm' + sd, vol(el, forearmRings(fr)));
+      part('hand' + sd, meshes(wr, [held]), 120);
+      const line = [wp(sh), e, wp(wr)]; bones.set('upperArm' + sd, line); bones.set('forearm' + sd, line); bones.set('hand' + sd, [e, line[2], held ? wp(held) : line[2]]);
+    }
+  }
+  // garments it already wears (its own skirts, a cloak): what is hung over them lies outside them
+  const worn: string[] = []; g.traverse((o) => { const m = o as M; if (!m.isMesh || !m.userData.garment || (m.material as THREE.Material).transparent) return; const n = String(m.userData.garment); parts.set(n, [...(parts.get(n) ?? []), ...pointsOf(m, 900)]); if (!worn.includes(n)) worn.push(n); });
+  const skinOf = (o: THREE.Object3D) => every(o.children.filter((c): c is M => solid(c) && !!c.userData.skin));
+  // the way down is the figure's own, its floor the ground it stands or lies on
+  const down = V(0, -1, 0).transformDirection(g.matrixWorld), floor = g.localToWorld(V()).dot(down);
+  return { parts, down, floor, volumes, bones, surface, size: s, skin: lying ? new Map([['torso', skinOf(up)], ['pelvis', skinOf(pel)]]) : undefined, trunk: ['torso', 'pelvis', 'stowed', ...worn], lying };
+}
+
 // ---------------------------------------------------------------------------------------------------- a robe in tatters
 /** A robe worn to rags, over the figure's own clothes: its skirt from the waist all the way round, torn up into strips of
- *  uneven length (longest behind), each torn up its sides and ragged at its end; a rope belt knotted at the front with
- *  its ends hanging; and a cowl round the neck with the hood fallen on the back. */
+ *  uneven length (longest behind), each torn up its sides and ragged at its end; wide sleeves, opening to a bell over
+ *  each hand; a rope belt knotted at the front with its ends hanging; and a cowl round the neck with the hood fallen on
+ *  the back. */
 export interface Tatters {
   color: string;
   /** The rope belt's colour (none when left out). */
@@ -558,54 +616,55 @@ export function tatters(g: THREE.Group, recipe: HeroFigure, o: Tatters): THREE.G
   const s = neck.position.y / 2.24, fr = frameFor(recipe), tr = torsoRings(fr), b = bonesOf(j); if (!b) return g;
   const lying = Math.abs(V(0, 1, 0).transformDirection(up.matrixWorld).y) < 0.5, seed = o.seed ?? 0, hem = tatterHem(seed, o.length);
   // the skirt, built round the body standing at rest: columns all the way round, each from the waist to its own hem
-  const NU = 150, NV = 34, ths = Array.from({ length: NU + 1 }, (_, i) => -Math.PI + (Math.PI * 2 * i) / NU);
+  const NU = 100, NV = 34, ths = Array.from({ length: NU + 1 }, (_, i) => -Math.PI + (Math.PI * 2 * i) / NU);
   const YS = Array.from({ length: TAT_ROWS }, (_, k) => TAT_TOP - ((TAT_TOP - TAT_LOW) * k) / (TAT_ROWS - 1)), { hang } = hanging(fr, ths, YS);
   const gap = (y: number) => 0.04 + 0.07 * ramp(0.1, -1.3, y), fold = (th: number, y: number) => 0.06 * ramp(0, -1.5, y) * (0.5 + 0.5 * Math.sin(9 * th + 1.3 * Math.sin(3 * th) + seed));
   const rows = Array.from({ length: NV + 1 }, (_, k) => ths.map((th, i) => {
     const y = TAT_TOP + (hem(th) - TAT_TOP) * (k / NV) ** 0.9, kk = Math.max(0, Math.min(TAT_ROWS - 1, Math.round((TAT_TOP - y) / ((TAT_TOP - TAT_LOW) / (TAT_ROWS - 1))))), r = hang[kk][i] + gap(y) + fold(th, y);
     return V(Math.sin(th) * r * s, y * s, Math.cos(th) * r * s);
   }));
-  // carried by the pose: above the knee as the doublet's skirts are (each side by the thigh it lies over, the back left
-  // hanging), below it hanging plumb from where the knee has taken it; laid on the ground it stays with the legs
-  const gq = g.getWorldQuaternion(new THREE.Quaternion()).invert(), down = V(0, -1, 0).applyQuaternion(gq.multiply(pel.getWorldQuaternion(new THREE.Quaternion())).invert());
-  // (the waist rests on the hips, not the chest: when the back bends the robe stays over the seat, and the body that leans
-  // into it pushes it out)
-  const robeShares = (p: V3): Weights => { const w = (lying ? lyingShares : skirtShares)(p); return { ...w, hips: w.chest, chest: 0 }; };
-  const kneeY = -THIGH * s, q = V();
-  for (const row of rows) for (const p of row) {
-    if (lying || p.y >= kneeY) { carry(b, p, robeShares(p.clone().divideScalar(s)), q); p.copy(q); continue; }
-    const pk = V(p.x, kneeY, p.z), drop = kneeY - p.y; carry(b, pk, robeShares(pk.clone().divideScalar(s)), q); p.copy(q).addScaledVector(down, drop);
-  }
-  if (!lying) {
-    // the trunk above the waist as two upright rods side by side (its oval section), where the pose has put it
-    const trunk: Capsule[] = [];
-    for (const y0 of [0.3]) { const r0 = ringAt(tr, y0 + 0.2), rad = ((r0.f + r0.b) / 2) * 1.05, off = Math.max(0, r0.w * 1.05 - rad);
-      for (const sx of [-1, 1]) trunk.push({ a: V(sx * off * s, y0 * s, 0).applyMatrix4(b.chest), b: V(sx * off * s, (y0 + 0.9) * s, 0).applyMatrix4(b.chest), ra: rad * s, rb: rad * s }); }
-    pushOut(rows, [...solidsOf(j, fr, s, true), ...trunk], 0.03 * s);
-    // never through the floor: what reaches it lies on it
-    const toG = g.matrixWorld.clone().invert().multiply(pel.matrixWorld), fromG = toG.clone().invert(), w = V();
-    for (const row of rows) for (const p of row) { w.copy(p).applyMatrix4(toG); if (w.y < 0.04 * s) { w.y = 0.04 * s; p.copy(w.applyMatrix4(fromG)); } }
-  }
   const robe = o.color;
   // the robe covers the body from the neck to the knees: what the figure wore there in its trim (the breeches' seat, the
   // belt, the band at the neck) is the robe now, so none of it shows where the robe gapes as the body bends
   const trimHex = recipe.trim ? new THREE.Color(recipe.trim).getHexString() : undefined;
   if (trimHex) for (const part of [pel, up]) for (const m of part.children) { const mesh = m as THREE.Mesh; if (mesh.isMesh && (mesh.material as THREE.MeshLambertMaterial).color?.getHexString() === trimHex) mesh.material = soft(robe); }
-  const skirt = new THREE.Mesh(grid(rows), soft(robe, true)); skirt.name = 'robe'; pel.add(skirt);
+  // hung on the posed body as the figure's own skirts are (kit/cloth.ts): each strip from the waist, plumb where nothing
+  // is in its way, swung out over a thigh or a knee come up under it and drawing its neighbours along, lying on the floor
+  // where it reaches it; on a body laid out it falls, keeping its cut, onto the body and the floor. (The waist rides on
+  // the hips, so when the back bends the robe stays over the seat, riding out over a belly bent down onto it.)
+  const skirt = new THREE.Mesh(grid(rows), soft(robe, true)); skirt.name = 'robe'; skirt.userData.garment = 'robe'; skirt.userData.layer = 1; pel.add(skirt);
+  const world = drapeOf(g, j, fr, s, lying), cut = rows.map((row) => row.map((p) => p.clone()));
+  if (world) {
+    const worn = [...world.parts.keys()].filter((n) => world.trunk?.includes(n) && !['torso', 'pelvis', 'stowed'].includes(n));
+    hangGarments([{ name: 'robe', mesh: skirt, cols: NU + 1, rows: NV + 1, closed: true, axis: V(), covers: ['torso', 'pelvis', 'thighR', 'thighL', 'shinR', 'shinL', 'footR', 'footL', ...worn], outside: ['forearmR', 'forearmL', 'handR', 'handL'], layer: 1, clear: 0.04 * s, spread: 6, hang: 0.9 }], world);
+    const pos = skirt.geometry.getAttribute('position') as THREE.BufferAttribute; rows.forEach((row, k) => row.forEach((p, i) => p.fromBufferAttribute(pos, k * (NU + 1) + i)));
+  }
   pel.add(new THREE.Mesh(cord(rows[NV].map((p) => p.clone()), 0.011 * s, false), soft(tone(o.color, '#000000', 0.4))));
+  robeSleeves(g, j, fr, tr, b, s, { color: robe, seed, lying, skirt: rows });
 
-  // the rope belt round the waist, over the robe's top, knotted at the front on the left with its ends hanging
+  // the rope belt round the waist over the robe's top edge, knotted at the front on the left with its ends hanging down
+  // over the skirt: each point of it lies on the cloth as the robe has hung, wherever that is. (On a body laid out the
+  // robe falls away to the floor, but the belt is tied: it stays round the waist where the robe was cut, its ends short.)
   if (o.belt) {
-    const yb = 0.5, rb = (th: number) => ringPoint(ringAt(tr, yb), th, 1.1 + pecs(fr, th, yb) + 0.02), loop: V3[] = [];
-    for (let i = 0; i < 48; i++) { const th = (i / 48) * Math.PI * 2, [x, z] = rb(th); loop.push(V(x * s, (yb + 0.012 * Math.sin(6 * th)) * s, z * s)); }
-    up.add(new THREE.Mesh(cord(loop, 0.03 * s, true), soft(o.belt)));
-    const tk = SIDE_X.L * 0.42, [kx, kz] = rb(tk), knot = V(kx * s, yb * s, kz * s), nk = V(Math.sin(tk), 0, Math.cos(tk));
-    up.add(new THREE.Mesh(new THREE.SphereGeometry(0.055 * s, 10, 8).scale(1.1, 1, 0.8).translate(knot.x + nk.x * 0.02 * s, knot.y, knot.z + nk.z * 0.02 * s), soft(tone(o.belt, '#000000', 0.15))));
-    // the ends, over the skirt and carried as it is (from the chest at the knot down the thigh)
+    const on = lying ? cut : rows;
+    /** A point stood `off` out from the skirt, at an angle round the body (0 the front) and a row down it (at the top
+     *  edge, where it hangs from the waist, straight out from the waist). */
+    const onRobe = (th: number, k: number, off: number) => {
+      const u = ((wrapA(th) + Math.PI) / (Math.PI * 2)) * NU, i = Math.min(NU - 1, Math.floor(u)), t = u - i, kk = Math.max(0, Math.min(NV - 1, Math.floor(k))), tk = Math.min(1, k - kk);
+      const p = on[kk][i].clone().lerp(on[kk][i + 1], t).lerp(on[kk + 1][i].clone().lerp(on[kk + 1][i + 1], t), tk);
+      const n = k <= 0 ? V(p.x, 0, p.z).normalize() : on[kk + 1][i].clone().sub(on[kk][i]).cross(on[kk][i + 1].clone().sub(on[kk][i])).normalize();
+      return p.addScaledVector(n, off);
+    };
+    /** The row a distance (in the figure's units) down a column from the waist. */
+    const rowAt = (th: number, d: number) => NV * Math.min(1, d / (TAT_TOP - hem(th))) ** (1 / 0.9);
+    const loop: V3[] = []; for (let i = 0; i < 48; i++) loop.push(onRobe((i / 48) * Math.PI * 2, 0, 0.02 * s));
+    pel.add(new THREE.Mesh(cord(loop, 0.03 * s, true), soft(o.belt)));
+    const tk = SIDE_X.L * 0.42, knot = onRobe(tk, 0, 0.06 * s);
+    pel.add(new THREE.Mesh(new THREE.SphereGeometry(0.055 * s, 10, 8).scale(1.1, 1, 0.8).translate(knot.x, knot.y, knot.z), soft(tone(o.belt, '#000000', 0.15))));
     const ends: THREE.BufferGeometry[] = [];
     for (const [dx, L] of [[-0.05, 0.75], [0.06, 0.95]] as const) {
-      const pts: V3[] = []; for (let k = 0; k <= 8; k++) { const t = k / 8, y = yb - 0.04 - L * t, th = tk + dx + 0.04 * Math.sin(5 * t), r = (y > 0.3 ? ringPoint(ringAt(tr, y), th, 1.12)[1] / Math.cos(th) : hang[Math.max(0, Math.min(TAT_ROWS - 1, Math.round((TAT_TOP - y) / ((TAT_TOP - TAT_LOW) / (TAT_ROWS - 1)))))][Math.round(((wrapA(th) + Math.PI) / (Math.PI * 2)) * NU)] + gap(y) + 0.05); pts.push(V(Math.sin(th) * r * s, y * s, Math.cos(th) * r * s)); }
-      ends.push(carried(cord(pts, 0.022 * s), b, lying ? lyingShares : skirtShares, s));
+      const pts: V3[] = []; for (let k = 0; k <= 8; k++) { const t = k / 8, th = tk + dx + 0.04 * Math.sin(5 * t); pts.push(onRobe(th, rowAt(th, 0.1 + L * (lying ? 0.3 : 1) * t), 0.035 * s)); }
+      ends.push(cord(pts, 0.022 * s));
     }
     pel.add(new THREE.Mesh(merged(ends), soft(o.belt)));
   }
@@ -620,12 +679,137 @@ export function tatters(g: THREE.Group, recipe: HeroFigure, o: Tatters): THREE.G
     up.add(new THREE.Mesh(cord(ring, (o.hood ? 0.072 : 0.1) * s, true), soft(robe)));
     if (o.hood) hoodUp(j, s, robe, (th) => { const [x, z] = ringPoint(ringAt(tr, yc), th, rollAt(th) - 0.1); return V(x * s, (yc + dip(th) + 0.03) * s, z * s); });
     else {
+      // (fallen, it lies on the upper back, its crown hanging down and the face's opening turned up under the roll)
       const back = ringAt(tr, 1.9), hood = new THREE.SphereGeometry(1, 16, 10, 0, Math.PI * 2, 0, Math.PI * 0.62);
-      hood.scale(0.36 * s, 0.32 * s, 0.17 * s).rotateX(Math.PI * 0.62).translate(0, 1.98 * s, -(back.b + 0.1) * s);
+      hood.scale(0.36 * s, 0.32 * s, 0.17 * s).rotateX(Math.PI).translate(0, 1.86 * s, -(back.b + 0.08) * s);
       up.add(new THREE.Mesh(hood, soft(robe, true)));
     }
   }
   return g;
+}
+
+/** The robe's sleeves, one down each arm from the shoulder: roomy, widening below the elbow to a bell open over the
+ *  hand, the cuff torn into strips of uneven length. Each is cut round its arm as the pose has put it, from the arm's
+ *  own surface (a thick arm gets a wide sleeve), its loose cloth hanging below the arm (none where the arm hangs
+ *  straight down, most where it is held out level) and slid back down a forearm raised overhead, baring the wrist. It
+ *  is pushed off what it would cut through: the trunk, the legs, the other arm and its sleeve, the robe's skirt (cloth
+ *  lying against cloth) and the floor, and last off its own arm, so nothing of the arm shows through it. Built in the
+ *  hips' frame, like the skirt. */
+function robeSleeves(g: THREE.Group, j: Joints, fr: Frame, tr: Ring[], b: Bones, s: number, o: { color: string; seed: number; lying: boolean; skirt: V3[][] }): void {
+  const pel = j.hips; if (!pel) return;
+  g.updateMatrixWorld(true);
+  const toPel = pel.matrixWorld.clone().invert(), P = (obj: THREE.Object3D, at = V()) => obj.localToWorld(at.clone()).applyMatrix4(toPel);
+  // the figure's own down, in the hips' frame (as the skirt hangs), and its floor
+  const rel = g.getWorldQuaternion(new THREE.Quaternion()).invert().multiply(pel.getWorldQuaternion(new THREE.Quaternion())), down = V(0, -1, 0).applyQuaternion(rel.invert());
+  const toG = g.matrixWorld.clone().invert().multiply(pel.matrixWorld), fromG = toG.clone().invert();
+  const GAP = 0.025 * s, CAP = 0.1 * s, N = 52, NU = 32, NV = 29, CAPROWS = 5;
+  // the trunk, as the rig lofts it (in the chest's frame): a point inside it is moved straight out from its middle
+  const toChest = b.chest.clone().invert(), q = V();
+  const offTrunk = (p: V3) => {
+    q.copy(p).applyMatrix4(toChest).divideScalar(s); if (q.y < tr[0].y || q.y > tr[tr.length - 1].y) return;
+    const r = ringAt(tr, q.y), n = r.n ?? 2, dx = q.x - (r.x ?? 0), dz = q.z - (r.z ?? 0), d = dz >= 0 ? r.f : r.b;
+    const rho = ((Math.abs(dx) / r.w) ** n + (Math.abs(dz) / d) ** n) ** (1 / n), want = 1 + (GAP / s) / Math.min(r.w, d);
+    if (rho >= want) return;
+    const k = want / Math.max(rho, 1e-3); q.set((r.x ?? 0) + dx * k, q.y, (r.z ?? 0) + dz * k); p.copy(q.multiplyScalar(s).applyMatrix4(b.chest));
+  };
+  // the skirt's reach round the body at each height (standing): how far out it lies, by angle and height
+  const TH = 72, YB = 0.05 * s, reachOf = new Map<number, number>(), key = (i: number, k: number) => i * 4096 + k + 2048;
+  const binTh = (x: number, z: number) => ((Math.round((Math.atan2(x, z) / (Math.PI * 2)) * TH) % TH) + TH) % TH;
+  if (!o.lying) for (const row of o.skirt) for (const p of row) { const k = key(binTh(p.x, p.z), Math.round(p.y / YB)), r = Math.hypot(p.x, p.z); if (r > (reachOf.get(k) ?? 0)) reachOf.set(k, r); }
+  const offSkirt = (p: V3) => {
+    const i = binTh(p.x, p.z), k = Math.round(p.y / YB); let r = 0;
+    for (const di of [-1, 0, 1]) for (const dk of [-1, 0, 1]) r = Math.max(r, reachOf.get(key((i + di + TH) % TH, k + dk)) ?? 0);
+    const h = Math.hypot(p.x, p.z); if (!r || h >= r + GAP) return;
+    const f = (r + GAP) / Math.max(h, 1e-6); p.x *= f; p.z *= f;
+  };
+  /** Each arm's line, ring frames and girth, for the sleeves and for keeping each sleeve off the other arm. */
+  const arms = (['R', 'L'] as const).map((sd) => {
+    const sh = j['shoulder' + sd], el = j['elbow' + sd], wr = j['wrist' + sd]; if (!sh || !el || !wr) return undefined;
+    const S = P(sh, V(0, -0.03 * s, 0)), E = P(el), W = P(wr), u1 = E.clone().sub(S), L1 = u1.length(), u2 = W.clone().sub(E), L2 = u2.length();
+    u1.divideScalar(L1); u2.divideScalar(L2);
+    // the line down the sleeve, rounded through the elbow so its rings never cross
+    const bend = Math.acos(Math.max(-1, Math.min(1, u1.dot(u2)))), c = Math.min(0.28 * s, 0.4 * L1, 0.4 * L2) * ramp(0.05, 0.8, bend);
+    // (and from above the shoulder, where the sleeve's top closes over it as a cap)
+    const A = E.clone().addScaledVector(u1, -c), B = E.clone().addScaledVector(u2, c), end = W.clone().addScaledVector(u2, 0.04 * s), top = S.clone().addScaledVector(u1, -CAP), pts: V3[] = [];
+    for (let i = 0; i < 4; i++) pts.push(top.clone().lerp(S, i / 4));
+    for (let i = 0; i <= 20; i++) pts.push(S.clone().lerp(A, i / 20));
+    for (let i = 1; i <= 10; i++) { const t = i / 10; pts.push(V().addScaledVector(A, (1 - t) ** 2).addScaledVector(E, 2 * t * (1 - t)).addScaledVector(B, t * t)); }
+    for (let i = 1; i <= 20; i++) pts.push(B.clone().lerp(end, i / 20));
+    const cum = [0]; for (let i = 1; i < pts.length; i++) cum.push(cum[i - 1] + pts[i].distanceTo(pts[i - 1]));
+    const total = cum[cum.length - 1], C: V3[] = [], T: V3[] = [], E1: V3[] = [], E2: V3[] = [];
+    for (let k = 0; k < N; k++) { const a = (total * k) / (N - 1); let i = 1; while (i < cum.length - 1 && cum[i] < a) i++; const l = cum[i] - cum[i - 1]; C.push(pts[i - 1].clone().lerp(pts[i], l > 1e-9 ? (a - cum[i - 1]) / l : 0)); }
+    for (let k = 0; k < N; k++) T.push(C[Math.min(N - 1, k + 1)].clone().sub(C[Math.max(0, k - 1)]).normalize());
+    // ring frames carried down the line without twisting
+    for (let k = 0; k < N; k++) {
+      const from = k ? E1[k - 1] : Math.abs(T[0].dot(down)) < 0.95 ? down : V(1, 0, 0), e1 = from.clone().addScaledVector(T[k], -from.dot(T[k])).normalize();
+      E1.push(e1); E2.push(T[k].clone().cross(e1));
+    }
+    // the arm's girth along the line: the farthest its surface lies from the line (the hand only at its heel)
+    const R = new Array<number>(N).fill(0.06 * s), step = total / (N - 1), v = V(), d = V(), kS = Math.round((CAP / total) * (N - 1));
+    for (const jt of [sh, el, wr]) for (const m of jt.children as THREE.Mesh[]) {
+      if (!m.isMesh || (m.material as THREE.Material).transparent) continue;
+      const pos = m.geometry.getAttribute('position') as THREE.BufferAttribute, M = m.matrixWorld.clone().premultiply(toPel), wp = jt === wr ? W : undefined;
+      for (let i = 0; i < pos.count; i++) {
+        v.fromBufferAttribute(pos, i).applyMatrix4(M); if (wp && v.distanceTo(wp) > 0.13 * s) continue;
+        let best = Infinity, kb = 0; for (let k = 0; k < N; k++) { const dd = v.distanceToSquared(C[k]); if (dd < best) { best = dd; kb = k; } }
+        const ax = d.copy(v).sub(C[kb]).dot(T[kb]); if ((kb === 0 && ax < -0.5 * step) || (kb === N - 1 && ax > 0.5 * step)) continue;
+        R[kb] = Math.max(R[kb], Math.sqrt(Math.max(0, d.lengthSq() - ax * ax)));
+      }
+    }
+    // (smoothed along the line, so the sleeve does not take the shape of every muscle under it)
+    // (the cap is cut to the arm at the top of the sleeve: the shoulder under it lies inside it)
+    for (let k = 0; k < kS; k++) R[k] = R[kS];
+    const Rm = R.map((_, k) => Math.max(...R.slice(Math.max(0, k - 1), k + 2))), girth = Rm.map((_, k) => (Rm[Math.max(0, k - 1)] + Rm[k] + Rm[Math.min(N - 1, k + 1)]) / 3);
+    let kE = 0; for (let k = 1; k < N; k++) if (C[k].distanceToSquared(E) < C[kE].distanceToSquared(E)) kE = k;
+    return { sd, C, T, E1, E2, girth, kS, aS: kS / (N - 1), aE: kE / (N - 1), rise: Math.max(0, -u2.dot(down)) };
+  });
+  for (const arm of arms) {
+    if (!arm) continue;
+    const { sd, C, T, E1, E2, girth, kS, aS, aE, rise } = arm, other = arms.find((x) => x && x !== arm);
+    const sx = sd === 'R' ? 1 : 2, seed = o.seed * 7 + sx;
+    // how loose it hangs along the arm (a: 0 at the shoulder, 1 past the wrist): easy on the upper arm, opening out
+    // below the elbow; where the forearm is raised the cloth slides down it and gathers at the elbow
+    const fore = (a: number) => Math.max(0, (a - aE) / (1 - aE));
+    const loose = (a: number) => (a < aE ? 0.01 + 0.035 * ramp(aS, aE, a) : 0.045 + 0.16 * fore(a) ** 1.6 + 0.07 * ramp(0.2, 0.9, rise) * (1 - fore(a))) * s;
+    const sag = (a: number) => (a < aE ? 0.06 * ramp(0.2 * aE, aE, a) : 0.06 + 0.2 * fore(a) ** 1.3) * s;
+    const reachA = 1 - (1 - aE) * 0.5 * ramp(0.2, 0.9, rise);
+    // the cuff, torn into strips of uneven length round the wrist
+    const n = 5 + Math.floor(3 * hash(seed + 3)), cuts = Array.from({ length: n }, (_, k) => ((k + 0.3 * (hash(seed * 5 + k * 7) - 0.5)) / n) * Math.PI * 2);
+    const short = Array.from({ length: n }, (_, k) => (0.01 + 0.08 * hash(seed * 11 + k * 13)) * s), total = C[0].distanceTo(C[1]) * (N - 1);
+    const cuff = (th: number) => {
+      const t = ((th % (Math.PI * 2)) + Math.PI * 2) % (Math.PI * 2); let k = n - 1; for (let i = 0; i < n; i++) if (t >= cuts[i]) k = i;
+      const a = cuts[k], b2 = k + 1 < n ? cuts[k + 1] : cuts[0] + Math.PI * 2, tt = t < a ? t + Math.PI * 2 : t, u = (tt - a) / (b2 - a), edge = Math.min(u, 1 - u) * (b2 - a);
+      return short[k] + 0.03 * s * (1 - ramp(0, 0.18, edge));
+    };
+    const ring = (a: number, th: number): V3 => {
+      const x = a * (N - 1), k = Math.max(0, Math.min(N - 2, Math.floor(x))), t = x - k;
+      const c = C[k].clone().lerp(C[k + 1], t), e1 = E1[k].clone().lerp(E1[k + 1], t).normalize(), e2 = E2[k].clone().lerp(E2[k + 1], t).normalize(), tg = T[k].clone().lerp(T[k + 1], t).normalize();
+      const dn = down.clone().addScaledVector(tg, -down.dot(tg)), thd = Math.atan2(dn.dot(e2), dn.dot(e1));
+      // (soft folds down it, deepening toward the cuff; the push off the arm below keeps them clear of it)
+      const dome = a < aS ? Math.sqrt(Math.max(0, 1 - ((aS - a) / aS) ** 2)) : 1, fold = (0.01 + 0.03 * fore(a)) * s * Math.sin(6 * th + 2.5 * a + seed) * ramp(aS, aS + 0.08, a);
+      const r = dome * (girth[k] + (girth[k + 1] - girth[k]) * t + GAP + loose(a)) + fold + sag(a) * dn.length() * Math.max(0, Math.cos(th - thd)) ** 1.5;
+      return c.addScaledVector(e1, Math.cos(th) * r).addScaledVector(e2, -Math.sin(th) * r);
+    };
+    const rows: V3[][] = [];
+    for (let jv = 0; jv <= NV; jv++) { const row: V3[] = []; for (let i = 0; i <= NU; i++) { const th = (i / NU) * Math.PI * 2, a = jv <= CAPROWS ? (aS * jv) / CAPROWS : aS + ((jv - CAPROWS) / (NV - CAPROWS)) * (reachA - cuff(th) / total - aS); row.push(ring(a, th)); } rows.push(row); }
+    // off the trunk and the skirt (where the arm itself lies against them the sleeve stays between, never pushed across
+    // the arm), the legs and the other arm with its sleeve; then off its own arm, which wins
+    const room = (p: V3) => { let m = Infinity; for (let k = kS; k + 1 < N; k++) { const ab = q.subVectors(C[k + 1], C[k]), t = Math.max(0, Math.min(1, V().subVectors(p, C[k]).dot(ab) / Math.max(1e-9, ab.lengthSq()))); m = Math.min(m, p.distanceTo(V().copy(C[k]).addScaledVector(ab, t)) - (girth[k] + (girth[k + 1] - girth[k]) * t + GAP)); } return m; };
+    // (the cap over the shoulder is left where it is: its side toward the body lies inside the body, as a sleeve set in)
+    const was = V(); for (const row of rows.slice(CAPROWS)) for (const p of row) for (const off of o.lying ? [offTrunk] : [offTrunk, offSkirt]) { was.copy(p); off(p); if (room(p) < 0) p.copy(was); }
+    const solids = solidsOf(j, fr, s, true);
+    if (other) for (let k = 0; k + 1 < N; k += 3) { const k2 = Math.min(N - 1, k + 3); solids.push({ a: other.C[k], b: other.C[k2], ra: other.girth[k] + 0.06 * s, rb: other.girth[k2] + 0.06 * s }); }
+    pushOut(rows, solids, GAP);
+    // never through the floor (where an arm lies on it the arm still wins: the body laid out is lifted onto what it wears
+    // under it, restOnFloor)
+    const own: Capsule[] = []; for (let k = kS; k + 1 < N; k++) own.push({ a: C[k], b: C[k + 1], ra: girth[k], rb: girth[k + 1] });
+    const w = V(), floor = () => { for (const row of rows) for (const p of row) { w.copy(p).applyMatrix4(toG); if (w.y < 0.04 * s) { w.y = 0.04 * s; p.copy(w.applyMatrix4(fromG)); } } };
+    const body = rows.slice(CAPROWS - 1);
+    if (o.lying) { floor(); pushOut(body, own, GAP); } else { pushOut(body, own, GAP); floor(); }
+    for (const row of rows) row[NU].copy(row[0]);
+    const sleeve = new THREE.Mesh(grid(rows), soft(o.color, true)); sleeve.name = 'sleeve'; pel.add(sleeve);
+    pel.add(new THREE.Mesh(cord(rows[NV].slice(0, NU).map((p) => p.clone()), 0.011 * s, true), soft(tone(o.color, '#000000', 0.4))));
+  }
 }
 
 /** A hood drawn up over the head, in the upper body's frame: roomy over the skull and drawn back to a soft point behind
