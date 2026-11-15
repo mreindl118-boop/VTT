@@ -13,6 +13,7 @@ import { beast, BEASTS, BEUCEPHALUS, slump, type BeastSpec, type BeastPoseName }
 import * as mon from './monsters';
 import { boneify, boneHorse, clearSpot, type Bony } from './bones';
 import { bareFeet, restOnFloor, tatters, type Tatters } from './costume';
+import { amberStatue, clayBody, stitched, type AmberStatue, type ClayBody, type Stitched } from './golems';
 import type { CreatureSize } from '../core/units';
 
 const SCALE: Record<string, number> = { tiny: 0.45, small: 0.68, medium: 1, large: 1.6, huge: 2.4, gargantuan: 3.2 };   // the figure rig's size scale
@@ -53,6 +54,12 @@ export interface Folk extends Omit<HeroFigure, 'pose' | 'battlePose' | 'deadPose
     tatters?: Tatters;
     /** A shadow: no face, only two pale eyes of this colour in the dark of its head (shadeFace). */
     shade?: { eyes: string };
+    /** An amber statue of a hawk-headed man (kit/golems.ts amberStatue). */
+    amber?: AmberStatue;
+    /** Sculpted from clay, lumpy, with a crude head (kit/golems.ts clayBody). */
+    clay?: ClayBody;
+    /** Put together from the parts of others, the seams stitched (kit/golems.ts stitched). */
+    stitched?: Stitched;
   };
 }
 
@@ -414,6 +421,10 @@ export function folk(base: Folk, size: CreatureSize = 'medium', state: FigState 
   if (extra?.wings && j.back) { const w = mon.wings(extra.wings.kind, extra.wings.span * s, extra.wings.color, { spread: dead ? 0.9 : extra.wings.spread ?? (battle ? 1 : 0.45), lift: dead ? 0 : battle ? 0.5 : 0.2, membrane: extra.wings.membrane }); w.position.set(0, 0.25 * s, -0.12 * s); j.back.add(w); }
   if (extra?.tail && j.hips) { const L = extra.tail.len * s; j.hips.add(mon.tailOf([V(0, 0, -0.15 * s), V(0, -0.25 * L, -0.4 * L), V(0.1 * L, -0.5 * L, -0.75 * L), V(0.2 * L, -0.3 * L, -L)], 0.07 * s, extra.tail.color, extra.tail.tip)); }
   if (extra?.bony) boneify(g, recipe as HeroFigure, { ...extra.bony, battle, dead });
+  if (extra?.amber) amberStatue(g, recipe as HeroFigure, extra.amber);
+  if (extra?.clay) clayBody(g, recipe as HeroFigure, { seed: hsh % 13, ...extra.clay });
+  if (extra?.stitched) stitched(g, recipe as HeroFigure, extra.stitched);
+  if (dead && (extra?.amber || extra?.clay)) restOnFloor(g);                                         // (on the amber or clay over it now)
   if (extra?.empty) emptySuit(g, recipe as HeroFigure, extra.empty);
   if (extra?.cobwebs && !dead) cobwebs(g, battle);
   if (extra?.ghost) mon.spectral(g, extra.ghost, (extra.opacity ?? 0.5) * (dead ? 0.5 : 1));
@@ -482,9 +493,16 @@ export const FOLK: Record<string, Folk> = {
   // block's slams), so it carries no weapon
   'animated-armor': { skin: '#0a0a0c', cloth: '#121216', trim: '#2a2b31', boots: '#2a2b31', armor: { kind: 'plate', color: '#2a2b31', trim: '#5c5f68' }, gauntlets: '#2a2b31', eyes: '#050506', face: { bald: true }, pose: 'stand proud R:hang L:hang look:ahead', battlePose: 'lunge intent R:slam L:fist look:down', extra: { empty: {}, cobwebs: true } },
   'shield-guardian': { size: 'large', skin: '#6a5a48', cloth: '#5a4a3a', trim: '#8a6a3a', boots: '#6a6e76', armor: { kind: 'plate', color: '#7a7260', trim: '#b89a4a' }, gauntlets: '#7a7260', pendant: '#c8a040', eyes: '#ffb030', build: 'broad', face: { bald: true, jaw: 1, browRidge: 1, lipFull: -1, noseLen: -0.6 }, pose: 'rest', battlePose: 'brawl' },
-  'amber-golem': { size: 'large', skin: '#c9822e', cloth: '#c9822e', trim: '#a8681e', boots: '#c9822e', eyes: '#fff0a0', build: 'broad', face: { bald: true, jaw: 1, browRidge: 1, noseW: 0.8, noseLen: -0.4, mouthW: 0.8, fangs: true }, pose: 'hands-on-hips', battlePose: 'brawl', glow: '#ffb030', extra: { bare: {} } },
-  'flesh-golem-the-abbots': { skin: '#a8a890', cloth: '#5a4a3a', trim: '#3a3026', boots: '#a8a890', hair: '#2a2420', build: 'broad', height: 1.2, tattered: true, markings: '#6a3a3a', eyes: '#d8d8a0', face: { jaw: 1, browRidge: 1, sunken: 0.7, scars: ['across', 'cheekL', 'browR'], lipFull: -0.6, headL: 0.4 }, pose: 'shamble', battlePose: 'brawl', extra: { bare: {} } },
-  'clay-golem-van-richtens-tower': { size: 'large', skin: '#9a6a4a', cloth: '#9a6a4a', trim: '#7a5238', boots: '#9a6a4a', build: 'broad', eyes: '#e8d090', face: { bald: true, jaw: 0.8, headW: 0.6, noseLen: -0.8, eyeSize: 0.4, lipFull: -1, browRidge: 0.8 }, pose: 'shamble', battlePose: 'brawl', extra: { bare: {} } },
+  // the treasury's guardian: a ten-foot amber statue of a hawk-headed man (as the module describes it and its art shows;
+  // the Monster Manual's stone golem): it strides with its fists clenched, fights with them, and topples stiff when destroyed
+  'amber-golem': { size: 'large', height: 1.05, skin: '#b84c1c', cloth: '#b84c1c', trim: '#8a3410', boots: '#b84c1c', bracers: '#a8441a', buckle: '#a8441a', build: 'broad', face: { bald: true }, pose: 'stride proud R:fist L:fist look:ahead', battlePose: 'lunge intent R:slam L:jab look:ahead', deadPose: 'toppled', extra: { amber: {} } },
+  // seven feet of human parts put together (the module), sewn and bolted into one heavy brute that walks stiff in the
+  // joints (the Monster Manual): its sleeves pushed up off forearms that came from two different people
+  'flesh-golem-the-abbots': { skin: '#a8a890', cloth: '#5a4a3a', trim: '#3a3026', boots: '#a8a890', hair: '#2a2420', build: 'broad', height: 1.2, tattered: true, rolled: true, markings: '#6a3a3a', eyes: '#d8d8a0', face: { jaw: 1, browRidge: 1, sunken: 0.7, scars: ['across', 'cheekL', 'browR'], lipFull: -0.6, headL: 0.4 }, pose: 'shamble', battlePose: 'braced loom R:slam L:heavy look:ahead', extra: { bare: {}, stitched: { staples: '#5c5c62', grafts: { forearmR: '#8a7660', shinL: '#b4a88c' } } } },
+  // sculpted from clay, a head and shoulders taller than a man, human in shape but with the proportions off (the Monster
+  // Manual; our reading: heavy arms on thinner legs, broad shoulders, the head small on a short thick neck); four of them
+  // stand by the chains of the tower's lift (the module), and they fight with their fists
+  'clay-golem-van-richtens-tower': { size: 'large', height: 0.85, skin: '#94664a', cloth: '#94664a', trim: '#94664a', boots: '#94664a', build: 'broad', hem: false, body: { shoulders: 1.15, arms: 1.16, legs: 0.86, neck: 1.25, neckLen: 0.6 }, face: { bald: true }, pose: 'stand R:hang L:hang look:ahead', battlePose: 'braced loom R:slam L:fist look:ahead', extra: { bare: {}, clay: {} } },
   // ---- the mighty
   lich: { skin: '#c8c0a8', cloth: '#2a2440', trim: '#c9822e', boots: '#1a1626', cloak: '#1e1a30', cloakTrim: '#c9a227', hood: true, tattered: true, skirt: '#2a2440', eyes: '#40e0c0', pendant: '#c9a227', crown: { color: '#c9a227' }, face: { ...SKULL }, gear: { handR: w('quarterstaff', { grip: '#1a1626', fittings: '#c9a227', gem: '#40e0c0', glow: '#40e0c0' }) }, pose: 'leaning', battlePose: 'staff-raised', glow: '#40e0c0' },
   arcanaloth: { skin: '#a8885a', cloth: '#5a1e2a', trim: '#c9a227', boots: '#2a1a1a', skirt: '#5a1e2a', cloak: '#3a1420', cloakTrim: '#c9a227', eyes: '#ffb030', pendant: '#c9a227', offhand: { kind: 'book', color: '#2a1a3a' }, pose: 'regal', battlePose: 'spellcast', glow: '#c040e0', extra: { head: { ...BEASTS.wolf, coat: '#a8885a', under: '#d8c090', mane: 'none', skull: 0.6, muzzle: 0.7, muzzleD: 0.13 } } },

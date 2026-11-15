@@ -510,10 +510,15 @@ export function restOnFloor(g: THREE.Group): THREE.Group {
   const chest = (g.userData.joints as Joints | undefined)?.chest; if (!chest) return g;
   let part: THREE.Object3D = chest; while (part.parent && part.parent !== g) part = part.parent;
   if (part.parent !== g) return g;
+  // (point by point: a box turned with a mesh laid aslant reaches well below it, and the body floated on that)
   g.updateMatrixWorld(true);
-  const inv = g.matrixWorld.clone().invert(), box = new THREE.Box3(), b = new THREE.Box3();
-  part.traverse((m) => { const mm = m as THREE.Mesh; if (!mm.isMesh || (mm.material as THREE.Material).transparent) return; mm.geometry.computeBoundingBox(); box.union(b.copy(mm.geometry.boundingBox!).applyMatrix4(mm.matrixWorld.clone().premultiply(inv))); });
-  if (box.min.y < 0) part.position.y -= box.min.y;
+  const inv = g.matrixWorld.clone().invert(), to = new THREE.Matrix4(), v = new THREE.Vector3(); let low = Infinity;
+  part.traverse((m) => {
+    const mm = m as THREE.Mesh; if (!mm.isMesh || (mm.material as THREE.Material).transparent) return;
+    to.multiplyMatrices(inv, mm.matrixWorld); const p = mm.geometry.getAttribute('position');
+    for (let i = 0; i < p.count; i++) low = Math.min(low, v.fromBufferAttribute(p, i).applyMatrix4(to).y);
+  });
+  if (low < 0) part.position.y -= low;
   return g;
 }
 

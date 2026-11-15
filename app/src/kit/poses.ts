@@ -100,6 +100,9 @@ export const DEAD_POSES = {
   swoon: { lie: 'back', neck: [-0.15, -0.3, 0], shoulderR: [-2.6, 0, 0.5], elbowR: -2.0, shoulderL: [0, 0, 0.4], elbowL: -0.3, hipR: [0, 0, 0.06], hipL: [-0.4, 0, 0.1], kneeL: 0.8 },
   /** Laid out straight, the hands folded on the chest: a body prepared, or a vampire finally at rest. */
   'laid-out': { lie: 'back', shoulderR: [-0.35, -1.05, 0.12], elbowR: -1.75, wristR: [0, 0.01, 0], shoulderL: [-0.53, -1.1, 0.12], elbowL: -1.85, wristL: [0, 0.01, 0], hipR: [0, 0, 0.03], hipL: [0, 0, 0.03] },
+  /** Toppled like a felled statue: rigid and flat on its back, the limbs as they stood, the fists still closed (a figure of
+   *  stone or amber falls stiff; it does not crumple). */
+  toppled: { lie: 'back', shoulderR: [0.04, 0, 0.12], elbowR: -0.12, shoulderL: [0.04, 0, 0.12], elbowL: -0.12, hipR: [0, 0, 0.03], hipL: [-0.12, 0, 0.03], fist: ['R', 'L'] },
   /** Thrown on the back mid-snarl, clawed hands still raised, the knees drawn up. */
   slain: { lie: 'back', neck: [-0.4, 0.3, 0], shoulderR: [-1.3, 0, 0.6], elbowR: -1.3, wristR: [0.7, 0, 0], shoulderL: [-1.0, 0, 0.8], elbowL: -1.5, wristL: [0.7, 0, 0], hipR: [-0.9, 0, 0.3], kneeR: 1.5, hipL: [-0.4, 0, 0.35], kneeL: 0.9 },
 } satisfies Record<string, DeadPose>;

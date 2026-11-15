@@ -11,6 +11,7 @@ import { FOLK, creature, folk, staked, withDeadPose, mounted, fiendishArm, furMa
 import { beast, BEASTS, BEUCEPHALUS } from './kit/beasts';
 import { flyer, FLYERS, mistForm, effigy, branches, felled, spectral, veil } from './kit/monsters';
 import { doublet, plumbHeld, restOnFloor, type Doublet } from './kit/costume';
+import { stitched, type Stitched } from './kit/golems';
 import { walkingStick, type WeaponSpec } from './kit/weapons';
 import { baseRingFt, type CreatureSize } from './core/units';
 import { PALETTE } from './kit/palette';
@@ -21,7 +22,7 @@ export interface CreatureEntry {
   kind: 'npc' | 'creature' | 'monster-manual' | 'generic' | 'pc' | 'token'; figure?: Figure; role?: string; variants?: string[];
   /** A named NPC's own miniature (kit/heroes.ts), styled after the character's art: colours, hair, dress and what they carry.
    *  When present it replaces the generic humanoid; `figure` still gives the token colour and the bestiary's look. */
-  hero?: HeroFigure & { fiendArm?: FiendArm; mantle?: Mantle; carry?: Carry; ghost?: Ghost; battleFace?: FaceSpec; doublet?: Doublet; holds?: WeaponSpec };
+  hero?: HeroFigure & { fiendArm?: FiendArm; mantle?: Mantle; carry?: Carry; ghost?: Ghost; battleFace?: FaceSpec; doublet?: Doublet; holds?: WeaponSpec; stitched?: Stitched };
   /** How much the character matters at the table (the relationship web's power and ties). It sets the detail of the
    *  figure's face (kit/faces.ts detailFor); raise it as a character grows in the story. */
   importance?: number;
@@ -180,6 +181,7 @@ function plainFolk(e: CreatureEntry): Folk {
  *  at rest carried upright. A body laid on the floor is set back down on what it now wears under it. */
 function dressed(g: THREE.Group, h: NonNullable<CreatureEntry['hero']>, battle: boolean, dead = false): THREE.Group {
   if (h.doublet) doublet(g, h, h.doublet);
+  if (h.stitched) stitched(g, h, h.stitched);
   if (h.mantle) furMantle(g, h, h.mantle);
   if (h.holds && !battle) plumbHeld(g);
   if (h.fiendArm) fiendishArm(g, h.fiendArm, battle ? h.glow : undefined);

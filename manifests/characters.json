@@ -782,14 +782,50 @@
    ],
    "kind": "npc",
    "figure": {
-    "skin": "#cfcfd6",
-    "cloth": "#e8dfc8",
-    "accent": "#5b4a6b",
-    "hair": "#d9d9d9",
+    "skin": "#ede3de",
+    "cloth": "#7e1622",
+    "accent": "#4a0c14",
+    "hair": "#1e1418",
     "undead": true,
     "frame": "feminine"
    },
    "role": "neutral",
+   "hero": {
+    "skin": "#ede3de",
+    "hair": "#1e1418",
+    "hairStyle": "long",
+    "cloth": "#7e1622",
+    "trim": "#4a0c14",
+    "skirt": "#7e1622",
+    "underskirt": "#3a0a12",
+    "gownTrim": "#b8a49a",
+    "boots": "#3a0a12",
+    "eyes": "#8a9aa8",
+    "lips": "#a83a48",
+    "face": {
+     "headW": -0.1,
+     "jaw": -0.3,
+     "cheekbones": 0.4,
+     "noseW": -0.2,
+     "eyeSize": 0.5,
+     "lipFull": 0.5,
+     "lashes": true,
+     "blush": "#d8a0a0",
+     "eyeShape": "round"
+    },
+    "battleFace": {
+     "gape": 0.9,
+     "browAngle": 1
+    },
+    "pose": "demure proud R:skirt L:skirt look:ahead",
+    "battlePose": "ready intent R:grasp L:claw look:ahead",
+    "frame": "feminine",
+    "build": "curvy",
+    "stitched": {
+     "fine": true,
+     "shoulders": true
+    }
+   },
    "importance": 6.5
   },
   {
