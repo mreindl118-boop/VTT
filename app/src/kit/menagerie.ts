@@ -54,7 +54,7 @@ export interface Folk extends Omit<HeroFigure, 'pose' | 'battlePose' | 'deadPose
     tatters?: Tatters;
     /** A shadow: no face, only two pale eyes of this colour in the dark of its head (shadeFace). */
     shade?: { eyes: string };
-    /** An amber statue of a hawk-headed man (kit/golems.ts amberStatue). */
+    /** An amber statue of a hawk-headed man, or of a jackal-headed one (kit/golems.ts amberStatue). */
     amber?: AmberStatue;
     /** Sculpted from clay, lumpy, with a crude head (kit/golems.ts clayBody). */
     clay?: ClayBody;
@@ -538,6 +538,9 @@ export const FOLK: Record<string, Folk> = {
 
 /** Several looks for one kind of creature; a token's id picks which. Each replaces part of the creature's recipe. */
 export const LOOKS: Record<string, Partial<Folk>[]> = {
+  // the treasury's hawk-headed statue, and the temple's other amber golem by the north stair, a warrior with a jackal's
+  // head whose amber is cracked (the module): only its encounter's name calls it up
+  'amber-golem': [{ }, { byName: true, extra: { amber: { head: 'jackal', cracked: true } } }],
   // the module's black suit (Death House), a polished steel one, an old one gone to rust
   'animated-armor': [{ }, { armor: { kind: 'plate', color: '#7a7e86', trim: '#b4bac4' }, gauntlets: '#7a7e86', boots: '#7a7e86', trim: '#7a7e86' }, { armor: { kind: 'plate', color: '#5a4436', trim: '#8a6446' }, gauntlets: '#5a4436', boots: '#5a4436', trim: '#5a4436' }],
   // a hooded death's head, and the nursemaid of Death House: a terrified, skeletally thin young woman in her nightdress,
@@ -637,6 +640,7 @@ const BONE_HORSE: BeastSpec = { ...BEASTS['riding-horse'], coat: '#d8d0bc', unde
  *  suit of black plate armor" is the black suit, "a starving young woman" the nursemaid's specter. Each names an entry
  *  in LOOKS. */
 export const NAMED: Record<string, [RegExp, number][]> = {
+  'amber-golem': [[/jackal|crack|damaged/i, 1]],
   'animated-armor': [[/black/i, 0], [/steel|silver|bright|polish/i, 1], [/rust/i, 2]],
   specter: [[/woman|maid|nurse|girl|lady|wife/i, 1], [/hood|skull|death/i, 0]],
   ghoul: [[/robe|cult|hunched/i, 3]],

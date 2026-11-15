@@ -1,7 +1,8 @@
 // Golems with bodies of their own (kit/golems.ts): the Amber Temple's golem is an amber statue of a hawk-headed man (as
-// the module describes it and its art shows), the tower's clay golems are moulded by hand, and the Abbot's
-// flesh golem and Vasilka are sewn together from other people. Whether any of it clips is the NPC clip tests' business
-// (tests/npc-clips-*.test.ts); this is what each is made of, and how a fallen one lies.
+// the module describes it and its art shows) and its other one a cracked statue with a jackal's head, the tower's clay
+// golems are moulded by hand, and the Abbot's flesh golem and Vasilka are sewn together from other people. Whether any
+// of it clips is the NPC clip tests' business (tests/npc-clips-*.test.ts); this is what each is made of, and how a
+// fallen one lies.
 import * as THREE from 'three';
 import { describe, expect, it } from 'vitest';
 import { BESTIARY, figureFor } from '../app/src/bestiary';
@@ -46,6 +47,23 @@ describe('golems', () => {
       expect(own(J['knee' + sd], 'greave'), sd).toHaveLength(1);
       expect(own(J['knee' + sd], 'knee-cop'), sd).toHaveLength(1);
       expect(own(J['elbow' + sd], 'vambrace'), sd).toHaveLength(1);
+    }
+  });
+
+  it('carves the temple\'s other amber golem, which its encounter\'s name calls up, with a jackal\'s head and its amber cracked', () => {
+    const g = build('amber-golem', false, 'a', 'jackal'), J = jointsOf(g), s = scaleOf(g), head = J.head.getObjectByName('jackal') as THREE.Mesh;
+    expect(head).toBeTruthy();
+    expect(J.head.getObjectByName('hawk')).toBeUndefined();
+    const b = boxIn(head, s);
+    expect(b.max.y).toBeGreaterThan(0.85);                                                           // the ears stand tall over the headcloth
+    expect(b.max.z).toBeGreaterThan(0.45);                                                           // and the muzzle runs out long
+    expect(own(J.chest, 'crack').length).toBeGreaterThan(0);                                         // cracked down the chest
+    expect(own(J.shoulderR, 'crack').length).toBeGreaterThan(0);                                     // and down the arm
+    // (the treasury's golem, under any other name, keeps its hawk's head and its amber whole)
+    for (const hint of ['', 'Amber golem']) {
+      const hawk = build('amber-golem', false, 'b', hint);
+      expect(jointsOf(hawk).head.getObjectByName('hawk'), hint).toBeTruthy();
+      expect(meshes(hawk, (m) => m.name === 'crack' || m.name === 'jackal'), hint).toEqual([]);
     }
   });
 
@@ -120,7 +138,7 @@ describe('golems', () => {
   });
 
   it('sets a fallen body down on what was put on it after it fell (amber, clay, a cultist\'s tatters): resting on the floor, not floating', { timeout: 60000 }, () => {
-    for (const [id, hint] of [['amber-golem', ''], ['clay-golem-van-richtens-tower', ''], ['ghoul', 'cult']]) for (const seed of 'abcd') {
+    for (const [id, hint] of [['amber-golem', ''], ['amber-golem', 'jackal'], ['clay-golem-van-richtens-tower', ''], ['ghoul', 'cult']]) for (const seed of 'abcd') {
       expect(Math.abs(lowest(build(id, 'dead', seed, hint))), `${id} ${seed}`).toBeLessThan(0.005);
     }
   });

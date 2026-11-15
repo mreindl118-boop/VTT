@@ -2,7 +2,8 @@
 // (kit/heroes.ts), on its joints, so it keeps every pose, the fall and the clip checks.
 // - amberStatue: the Amber Temple's golem, a ten-foot amber statue of a hawk-headed man (as the module describes it and
 //   its art shows): a falcon's head under a striped headcloth whose lappets fall over a broad collar, guards
-//   over the knees and down the shins, the whole of it one carved piece of amber.
+//   over the knees and down the shins, the whole of it one carved piece of amber. The temple's other golem is the same
+//   statue with a jackal's head (the module), its amber cracked through.
 // - clayBody: Van Richten's clay golems, statues sculpted from clay, human in shape but with the proportions off (the
 //   Monster Manual): every surface pressed into lumps by hand, a crude head with thumbed-in eyes, a pinched nose, a slit
 //   for a mouth and a sigil pressed into the brow.
@@ -70,11 +71,13 @@ function headcloth(x: number, y: number, z: number): number {
   // (the sides a box in plan with its corners well rounded, widening as they fall, and the back rounded over)
   const hw = 0.245 + 0.065 * ramp(0.42, 0.1, y), r = 0.09, qx = Math.abs(x) - hw + r, qz = Math.abs(z + 0.07) - 0.2 + r;
   const plan = Math.hypot(Math.max(qx, 0), Math.max(qz, 0)) + Math.min(Math.max(qx, qz), 0) - r, side = Math.max(plan, y - 0.46, -0.24 - y);
-  let d = smin(dome, side, 0.06);
-  d = smax(d, z - (0.005 + 0.22 * ramp(0.485, 0.54, y)), 0.018);                          // open in front below the brow band
-  return d;
+  // open in front below the brow band, whose edge dips a little toward the temples (the opening a true distance, so the
+  // band's edge rounds as a cast edge does rather than breaking into teeth)
+  const below = y - (0.522 - 0.6 * x * x), front = 0.005 - z;
+  const open = below > 0 && front > 0 ? Math.hypot(below, front) : Math.max(below, front);
+  return smax(smin(dome, side, 0.06), -open, 0.04);
 }
-function hawkField(x: number, y: number, z: number): number { return Math.min(hawkFace(x, y, z), headcloth(x, y, z)); }
+function hawkField(x: number, y: number, z: number): number { return smin(hawkFace(x, y, z), headcloth(x, y, z), 0.03); }
 /** How dark the amber is at a point of the head: the headcloth's stripes in its grooves, the eyes, the falcon's dark mark
  *  under each eye, the beak's gape and nostrils. */
 function hawkShade(x: number, y: number, z: number): number {
@@ -89,6 +92,59 @@ function hawkShade(x: number, y: number, z: number): number {
 }
 let HAWK: Geo | undefined;
 const hawkGeo = () => (HAWK ??= nets(hawkField, [-0.36, -0.26, -0.33], [0.36, 0.7, 0.46], 0.0125, hawkShade));
+
+// ---------------------------------------------------------------------------------------------------- the jackal's head
+// The temple's other amber golem (the module: a jackal-headed warrior, its amber cracked): the skull long and narrow over
+// a long muzzle, the ears tall and pointed, standing up out of the same headcloth; cracks run across it.
+const MUZZLE = [[0, 0.385, 0.11], [0, 0.36, 0.25], [0, 0.338, 0.36], [0, 0.326, 0.43]], MUZZLE_R = [0.095, 0.075, 0.056, 0.042];
+const JAW = [[0, 0.3, 0.1], [0, 0.286, 0.25], [0, 0.284, 0.35]], JAW_R = [0.07, 0.048, 0.03];
+/** An ear (x taken on the figure's left, +x): a tall cone, thin front to back (its depth squeezed by EAR_K), and the
+ *  hollow in its front. */
+const EAR_K = 0.45, EAR = [[0.1, 0.52, 0.024], [0.135, 0.86, -0.05]], EAR_R = [0.095, 0.014], HOLLOW = [[0.103, 0.58, 0.11], [0.132, 0.82, 0.01]], HOLLOW_R = [0.062, 0.006];
+const earHollow = (ax: number, y: number, z: number) => taper(ax, y, (z + 0.03) / EAR_K, HOLLOW, HOLLOW_R) * EAR_K;
+function jackalEar(ax: number, y: number, z: number): number {
+  return smax(taper(ax, y, (z + 0.03) / EAR_K, EAR, EAR_R) * EAR_K, -earHollow(ax, y, z), 0.006);
+}
+function jackalFace(x: number, y: number, z: number): number {
+  const ax = Math.abs(x);
+  let d = ell(x, y - 0.45, z + 0.01, 0.165, 0.16, 0.2);                                    // the skull, long and narrow
+  d = smin(d, ell(x, y - 0.375, z - 0.05, 0.125, 0.105, 0.15), 0.06);                      // the cheeks, narrowing to the muzzle
+  d = smin(d, ell(x, y - 0.17, z + 0.02, 0.12, 0.2, 0.14), 0.07);                          // the throat, into the neck
+  d = smin(d, ell(ax - 0.074, y - 0.442, z - 0.15, 0.06, 0.032, 0.056), 0.035);             // the brows over the eyes
+  d = smin(d, ell(ax - 0.082, y - 0.41, z - 0.17, 0.03, 0.019, 0.034), 0.016);              // the eyes, long and slanting back
+  d = smin(d, taper(x / 0.86, y, z, MUZZLE, MUZZLE_R) * 0.86, 0.05);                        // the muzzle, narrower than deep
+  d = smin(d, taper(x / 0.88, y, z, JAW, JAW_R) * 0.88, 0.03);                              // the lower jaw under it
+  d = smin(d, ell(x, y - 0.345, z - 0.452, 0.036, 0.026, 0.026), 0.014);                    // the nose
+  d = smax(d, -(toLine(ax, y, z, [0.012, 0.306, 0.43], [0.078, 0.302, 0.18]) - 0.01), 0.02);     // the line of the mouth
+  return smin(d, jackalEar(ax, y, z), 0.03);
+}
+function jackalField(x: number, y: number, z: number): number { return smin(jackalFace(x, y, z), headcloth(x, y, z), 0.03); }
+/** How far a point is from a broken line in a plane (the plane's two coordinates given). */
+function toPath(u: number, v: number, P: number[][]): number {
+  let d = Infinity;
+  for (let i = 1; i < P.length; i++) d = Math.min(d, toLine(u, v, 0, [P[i - 1][0], P[i - 1][1], 0], [P[i][0], P[i][1], 0]));
+  return d;
+}
+// cracks over the jackal's head: down the brow, across the muzzle and down the headcloth's left side
+const CRACK_FRONT = [[0.03, 0.66], [0.062, 0.6], [0.04, 0.55], [0.085, 0.5], [0.07, 0.462]];
+const CRACK_MUZZLE = [[-0.05, 0.22], [-0.01, 0.27], [0.022, 0.255], [0.05, 0.31]];
+const CRACK_SIDE = [[-0.12, 0.62], [-0.06, 0.52], [-0.1, 0.42], [-0.04, 0.3], [-0.08, 0.14]];
+/** How dark the amber is at a point of the jackal's head: the headcloth's stripes, the eyes, the nose, the line of the
+ *  mouth, the hollows of the ears, and the cracks. */
+function jackalShade(x: number, y: number, z: number): number {
+  const ax = Math.abs(x), cloth = ramp(0.008, -0.008, headcloth(x, y, z) - jackalFace(x, y, z));
+  const band = y > 0.44 && z > 0.12 ? 0 : ramp(0.3, 0.7, Math.abs(((y + 0.3) / 0.07) % 1 - 0.5) * 2);
+  const ear = ax > 0.05 && y > 0.56 ? 0.5 * ramp(0.01, 0.002, earHollow(ax, y, z)) : 0;                    // (down in the hollow)
+  const face = Math.max(
+    ramp(1.25, 0.8, Math.hypot((ax - 0.082) / 0.03, (y - 0.41) / 0.019, (z - 0.17) / 0.034)),          // the eye
+    0.85 * ramp(0.03, 0.018, Math.hypot(x, y - 0.35, z - 0.465)),                                     // the nose
+    0.7 * ramp(0.02, 0.008, toLine(ax, y, z, [0.012, 0.306, 0.43], [0.078, 0.302, 0.18])),           // the mouth
+    ear);
+  const crack = Math.min(z > 0.05 ? toPath(x, y, CRACK_FRONT) : 1, y > 0.3 && z > 0.18 ? toPath(x, z, CRACK_MUZZLE) : 1, x < -0.12 ? toPath(z, y, CRACK_SIDE) : 1);
+  return Math.max(cloth * 0.42 * band + (1 - cloth) * face, 0.9 * ramp(0.008, 0.003, crack));
+}
+let JACKAL: Geo | undefined;
+const jackalGeo = () => (JACKAL ??= nets(jackalField, [-0.36, -0.26, -0.33], [0.36, 0.92, 0.5], 0.0125, jackalShade));
 
 // ------------------------------------------------------------------------------------------------- laid on the body
 /** The chest's front at a height and across it (the torso's ring there), and its outward normal. */
@@ -158,8 +214,9 @@ function stripBands(up: THREE.Object3D | undefined, s: number, belt: boolean): v
     if (b.max.y - b.min.y < 0.25 * s && b.max.x - b.min.x > 0.5 * s && ((belt && b.max.y < 0.6 * s) || b.min.y > 2.0 * s)) up.remove(m);
   }
 }
-/** Options for the amber statue: its amber, and darker amber for its carved grooves. */
-export interface AmberStatue { amber?: string; groove?: string }
+/** Options for the amber statue: its amber, darker amber for its carved grooves, its head (the treasury's hawk, or the
+ *  jackal of the temple's other golem) and whether its amber is cracked. */
+export interface AmberStatue { amber?: string; groove?: string; head?: 'hawk' | 'jackal'; cracked?: boolean }
 /** Carve a posed figure built by heroFigure from `f` into the Amber Temple's golem (see the head of this file). */
 export function amberStatue(g: THREE.Group, f: HeroFigure, o: AmberStatue = {}): THREE.Group {
   const J = (g.userData.joints ?? {}) as Joints, up = J.chest, neck = J.neck, head = J.head;
@@ -167,10 +224,11 @@ export function amberStatue(g: THREE.Group, f: HeroFigure, o: AmberStatue = {}):
   const s = neck.position.y / 2.24, fr = frameFor(f), tr = torsoRings(fr), A = o.amber ?? f.skin ?? '#c0561e', G = o.groove ?? tone(A, '#2a0c02', 0.6);
   const put = (frame: THREE.Object3D | undefined, geo: Geo, c: string, name: string) => { if (!frame) return; geo.scale(s, s, s); const m = new THREE.Mesh(geo, soft(c)); m.name = name; frame.add(m); };
   stripBands(up, s, false);                                                                       // (the collar takes the neckband's place)
-  // the hawk's head in place of the man's, a little larger as a statue's is: the face, its features and the ears come off
-  // (what the head carries stays)
+  // the beast's head (the hawk's, or the jackal's) in place of the man's, a little larger as a statue's is: the face, its
+  // features and the ears come off (what the head carries stays)
   for (const c of [...head.children]) if (!c.userData.joint && !c.name) head.remove(c);
-  const hm = painted(hawkGeo(), A, G); hm.geometry.scale(1.15 * s, 1.15 * s, 1.15 * s); hm.position.y = -0.1 * s; hm.name = 'hawk'; head.add(hm);   // (set down a little, the headcloth onto the shoulders)
+  const jackal = o.head === 'jackal', hm = painted(jackal ? jackalGeo() : hawkGeo(), A, G);
+  hm.geometry.scale(1.15 * s, 1.15 * s, 1.15 * s); hm.position.y = -0.1 * s; hm.name = jackal ? 'jackal' : 'hawk'; head.add(hm);   // (set down a little, the headcloth onto the shoulders)
   // the broad collar, from the root of the neck out over the chest to the shoulders, in rows; and the headcloth's lappets
   // falling over it, striped as the headcloth is
   const collar = chestSlab(tr, (u, v) => { const k = 2 * u - 1, x = (0.27 + 0.35 * v) * k, y = (2.2 - 0.42 * v) + (0.05 + 0.2 * v) * k * k; return [x, y]; }, 0.012, 0.05, 32, 15,
@@ -188,6 +246,19 @@ export function amberStatue(g: THREE.Group, f: HeroFigure, o: AmberStatue = {}):
     const cap = new THREE.SphereGeometry(1, 20, 12, 0, Math.PI * 2, 0, Math.PI * 0.62); cap.rotateX(Math.PI / 2); cap.scale(0.25, 0.2, 0.07); cap.translate(0, -0.02, ringAt(sr, -0.02).f * 0.98); put(knee, cap, A, 'knee-cop');
     // and over the forearms (over the bracers' bands)
     const elbow = J['elbow' + sd]; if (elbow) put(elbow, limbGuard(forearmRings(fr), -0.26, -0.9, 1.22, 0.01, 1), A, 'vambrace');
+  }
+  // cracks run through damaged amber: dark lines half sunk in its surface, down the chest below the collar, across the
+  // belly, and down the right arm
+  if (o.cracked) {
+    const K = tone(A, '#140400', 0.78), crack = (frame: THREE.Object3D | undefined, pts: THREE.Vector3[]) => {
+      if (!frame) return;
+      const tube = new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), pts.length * 6, 0.008, 5, false); tube.scale(s, s, s);
+      const m = new THREE.Mesh(tube, soft(K)); m.name = 'crack'; frame.add(m);
+    };
+    crack(up, [[0.08, 1.72], [0.16, 1.6], [0.12, 1.48], [0.21, 1.33], [0.17, 1.2]].map(([x, y]) => chestFront(tr, x, y)[0]));
+    crack(up, [[-0.3, 1.25], [-0.2, 1.18], [-0.24, 1.05], [-0.12, 0.95]].map(([x, y]) => chestFront(tr, x, y)[0]));
+    const ua = upperArmRings(fr, SIDE_X.R), onArm = (a: number, y: number) => { const r = ringAt(ua, y), c = Math.cos(a); return new THREE.Vector3((r.x ?? 0) + r.w * Math.sin(a), y, (r.z ?? 0) + (c >= 0 ? r.f : r.b) * c); };
+    crack(J.shoulderR, [[-0.2, -0.3], [-0.5, -0.42], [-0.35, -0.56], [-0.7, -0.72], [-0.55, -0.84]].map(([a, y]) => onArm(a, y)));
   }
   return g;
 }
