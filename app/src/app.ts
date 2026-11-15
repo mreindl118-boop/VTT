@@ -54,6 +54,7 @@ const wholeExtent = (s: SceneFile): Bounds => {
 /** Where the DM came in: the room of the parent map whose Enter opened the child. */
 export interface EnteredFrom { parent: string; level: string; key: string; child: string }
 import { Jiggle } from './render/jiggle';
+import { figureKey, tokenLook } from './render/tokenpiece';
 import { creatureById, figureFor, aliasFor, seenAs, statsOf, speedFtOf, colorOf } from './bestiary';
 import { playerFacing } from './core/identity';
 import { sightBlockers } from './core/light';
@@ -1421,11 +1422,18 @@ export class App {
 
   private syncTokens(): void {
     const b = this.built;
-    // the old figures are freed (their geometry and materials are their own); the selection ring rides on and comes back
+    // The old pieces are freed (their geometry and materials are their own), each token's miniature first taken out of
+    // its piece: while what it is built from is unchanged it stands in the new one, as building one can take a large part
+    // of a second and the players' display passes over every token on each change the DM makes. The selection ring rides
+    // on and comes back.
     const ringOn = this.selRing?.parent?.userData.tokenId as string | undefined;
     this.selRing?.removeFromParent();
-    this.jiggle.clear();
-    for (const [id, g] of this.cur!.tokens) { disposeTree(g); this.cur!.tokens.delete(id); }
+    const kept = new Map<string, { fig: THREE.Object3D; key: string }>(), sprung = new Set<string>();
+    for (const [id, g] of this.cur!.tokens) {
+      const k = g.userData.fig as { fig: THREE.Object3D; key: string } | undefined;
+      if (k) { k.fig.removeFromParent(); kept.set(id, k); }
+      disposeTree(g); this.cur!.tokens.delete(id);
+    }
     for (const t of this.tokensHere()) {
       if (t.role === 'creature' && t.hidden && this.restricted) continue; // not yet shown to the players
       const base = baseRingFt(t.size);
@@ -1434,11 +1442,15 @@ export class App {
       // a party pack's character: their own miniature, standing on their portrait (or the portrait alone, flat)
       const sheet = t.sheetId && t.role !== 'creature' ? this.state.roster.find((x) => x.id === t.sheetId) : undefined;
       const flat = !!sheet?.portrait && this.pieceStyle === 'token';
+      const ghostly = t.role === 'creature' && !!t.hidden; // the DM sees an unrevealed creature faintly
       if (!flat) {
         const figState = t.down || (t.hp && t.hp.cur <= 0) ? 'dead' as const : !!this.state.encounter?.order.some((c) => c.tokenId === t.id);
-        const fig = mergeByMaterial(sheet?.figure ? heroFigure(sheet.figure, t.size, figState) : entry ? figureFor(entry, figState, t.id, t.playerName) : adventurer(t.role === 'member' ? { cloth: t.color } : undefined)); fig.position.y = 0.3;
-        g.add(fig);
-        if (this.jiggleOn) this.jiggle.track(t.id, fig);
+        const key = figureKey(t, { figure: sheet?.figure, entry: entry?.id, state: figState, jiggle: heroOptions.jiggle, ghostly });
+        let k = kept.get(t.id);
+        if (k?.key === key) kept.delete(t.id);
+        else { const fig = mergeByMaterial(sheet?.figure ? heroFigure(sheet.figure, t.size, figState) : entry ? figureFor(entry, figState, t.id, t.playerName) : adventurer(t.role === 'member' ? { cloth: t.color } : undefined)); fig.position.y = 0.3; k = { fig, key }; }
+        g.add(k.fig); g.userData.fig = k;
+        if (this.jiggleOn) { this.jiggle.track(t.id, k.fig); sprung.add(t.id); }
       }
       if (sheet?.portrait) g.add(portraitDisc(sheet.portrait, t.color, flat ? base * 0.48 : (base * 0.62) / 2 + 0.25, () => this.world.invalidate(), 0.3));
       else g.add(baseRing(base, t.role === 'party' ? PARTY_RED : t.color));
@@ -1452,21 +1464,15 @@ export class App {
           lb.position.set(0, flat ? 2.2 : 7.2, 0); lb.element.style.setProperty('--tok', t.color); g.add(lb);
         }
       }
-      const ghostly = t.role === 'creature' && !!t.hidden; // the DM sees an unrevealed creature faintly
-      g.traverse((c) => {
-        const m = c as THREE.Mesh;
-        if (!m.isMesh) return;
-        const src = m.material as THREE.MeshLambertMaterial;
-        if (m.userData.keepLook || (m.material as THREE.Material).userData?.keepLook) { m.userData.role = 'token'; m.userData.tokenId = t.id; return; } // a hero's wings, a portrait: their own look
-        m.material = new THREE.MeshLambertMaterial({ color: src.color, flatShading: !src.userData?.smooth, side: src.side, transparent: ghostly, opacity: ghostly ? 0.45 : 1 }); // tokens are never fogged (a hero's face and drapes keep their soft shading)
-        m.userData.role = 'token';
-        m.userData.tokenId = t.id;
-      });
+      tokenLook(g, t.id, ghostly); // tokens are never fogged
       g.position.set(t.pos[0], this.level.elevationFt, t.pos[1]);
       g.userData.tokenId = t.id;
       b.root.add(g);
       this.cur!.tokens.set(t.id, g);
     }
+    // (the miniatures not taken back: their tokens gone, or built anew)
+    for (const { fig } of kept.values()) disposeTree(fig);
+    this.jiggle.keepOnly(sprung);
     const back = ringOn && this.selected === ringOn ? this.cur!.tokens.get(ringOn) : undefined;
     if (back && this.selRing) back.add(this.selRing);
   }
