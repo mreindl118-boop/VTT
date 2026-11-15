@@ -1663,7 +1663,7 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
   // hand on a weapon held in both, where its kind says (secondHandAt: the end of a sword's grip or an axe's haft, forward
   // along a spear), or a hand laid on the hilt of a blade at the belt. `want` is where along the haft (in the figure's
   // feet from the weapon hand, or the hilt), `lo` and `hi` how far either way it may go.
-  const onHaft = (A: Limb, sx: number, held: THREE.Object3D, want: number, lo: number, hi: number) => {
+  const onHaft = (A: Limb, sx: number, held: THREE.Object3D, want: number, lo: number, hi: number, keepOff: THREE.Vector3[] = []) => {
     body.updateMatrixWorld(true);
     const u = (A.hs ?? 1) * s, o0 = held.getWorldPosition(new THREE.Vector3()), dir = Y_AXIS.clone().transformDirection(held.matrixWorld), grip = new THREE.Vector3();
     const B = A === R ? Lf : R, wB = [B.root, B.mid, B.end].map((j) => j.getWorldPosition(new THREE.Vector3())), rU = 0.2 * fr.arm * s, rF = 0.15 * fr.arm * s;
@@ -1677,6 +1677,9 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
       // to a haft can swing it into the side of the chest)
       const balls = armBalls(A, sx); c += 200 * sink(balls) + 200 * sink(armTop(A, sx));
       for (const [p, r] of balls) { const d = Math.max(0, r + rU - near(p, wB[0], wB[1]), r + rF - near(p, wB[1], wB[2])) / s; c += 200 * d * d; }
+      // (and the forearm and the upper arm off what they must not pass through, away from the fist: a belted sword's
+      // guard and scabbard below a hand on its grip)
+      if (keepOff.length) { const g0 = A.end.localToWorld(grip.set(0, -0.15 * u, 0.085 * u)).clone(); for (const p of keepOff) { if (p.distanceTo(g0) < 0.18 * s) continue; for (let i = 0; i < 8; i++) { const [q, r] = balls[i]; const d = Math.max(0, r + 0.02 * s - p.distanceTo(q)) / s; c += 200 * d * d; } } }
       const w = wristTurnOf(A.end.quaternion, sx); return c + 0.4 * (w.dev - GRIP.dev) ** 2;
     };
     closeOn(A.end, A.mid, held, -sx, true); // (closed first, so the reach is solved for the fist it ends as)
@@ -1691,12 +1694,79 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
     const k = f.gear!.handR!.kind, t = secondHandAt(k)!, [lo, hi] = secondHandSlide(k) ?? [t < 0 ? t - 0.25 : Math.max(0.22, t - 0.15), t < 0 ? Math.min(-0.22, t + 0.15) : t + 0.25];
     onHaft(Lf, LX, gR, t, lo, hi);
   }
+  // gear at the belt hangs outside what is worn under it as that hangs of itself, the belt riding over the cloth: from its
+  // own sweep, its loop stepped out onto the cloth and its bottom swung out, each only as far as it takes to keep clear of
+  // the cloth, the legs, the arms and what else is at the hip, the sweep itself changed least (a hand laid on the hilt
+  // reaches for it where it ends up, below, so its arm is left out of the measure)
+  if (hangs.length && !P.lie && !P.seated) {
+    const hilted = arm.filter((_, k) => onHilt.has(k === 0 ? 'R' : 'L')), mg = 0.02 * s, w = new THREE.Vector3();
+    // (`a` tilts the sweep, `b` swings the bottom out, `c` steps the loop out from the belt, `e` slides it round the belt
+    // toward the back, or the front if less than nothing: along the belt's ring and as far out from it, keeping its own
+    // turn)
+    const br = ringAt(tr, 0.42), bn = br.n ?? 2, pw = (v: number) => Math.sign(v) * Math.abs(v) ** (2 / bn), range = [[-0.15, 0.15], [-0.1, 0.8], [0, 0.45], [-0.45, 0.8]];
+    const solves = hangs.map((st) => {
+      const mount = st.parent!, sx = mount.name === 'beltR' ? RX : LX, own = outermost(ballsAlong(st)), rx0 = st.rotation.x, rz0 = st.rotation.z, p0 = st.position.clone().add(mount.position);
+      const ring = (e: number, o: THREE.Vector3) => {
+        const dz = e >= 0 ? br.b : br.f, x = sx * br.w * pw(Math.cos(e)), z = -dz * pw(Math.sin(e));
+        o.set(x / (br.w * br.w), 0, z / (dz * dz)).normalize(); return new THREE.Vector3((br.x ?? 0) + x, 0, (br.z ?? 0) + z).multiplyScalar(s);
+      };
+      const n0 = new THREE.Vector3(), at0 = ring(0, n0), n = new THREE.Vector3();
+      const put = ([a, b, c, e]: number[]) => {
+        st.position.copy(p0).sub(at0).addScaledVector(n0, -0.18 * s).add(ring(e, n)).addScaledVector(n, (0.18 + c) * s).sub(mount.position);
+        st.rotation.set(rx0 + a, 0, rz0 + sx * b); st.updateMatrix(); st.matrixWorld.multiplyMatrices(mount.matrixWorld, st.matrix);
+      };
+      return { st, own, put };
+    });
+    // (what the gear could reach at all, as a box: its balls wherever the solve could put them, a spread of places across
+    // every range with room to spare; the measure reads nothing of the body or the cloth outside it)
+    const reach = new THREE.Box3();
+    for (const { st, own, put } of solves) {
+      const home = [st.position.clone(), st.rotation.clone()] as const;
+      for (const a of [-0.15, 0, 0.15]) for (const b of [-0.1, 0.1, 0.3, 0.5, 0.65, 0.8]) for (const c of [0, 0.45]) for (const e of [-0.45, -0.15, 0.15, 0.45, 0.8]) {
+        put([a, b, c, e]); for (const [q, r] of own) { w.copy(q).applyMatrix4(st.matrixWorld); reach.expandByPoint(w.clone().addScalar(r)).expandByPoint(w.addScalar(-r)); }
+      }
+      st.position.copy(home[0]); st.rotation.copy(home[1]); st.updateMatrixWorld(true);
+    }
+    reach.expandByScalar(mg + 0.03 * s + 0.15 * s);
+    const pen = beltClear({
+      body, up, pel, neck, head, arm, leg, gR, gL, fr, tr, s, f, P, dead, gown, bust: bustWarp, garments, mg, reach,
+      skip: [head, ...hangs, ...(atBelt ? [atBelt] : []), ...hilted.map((l) => l.collar ?? l.root)], near: hangs.map((h) => h.getWorldPosition(new THREE.Vector3())),
+      arms: arm.flatMap((l, k) => hilted.includes(l) ? [] : [...armBalls(l, k === 0 ? RX : LX), ...armTop(l, k === 0 ? RX : LX)]),
+    });
+    for (const { st, own, put } of solves) {
+      // (a try already worse than `over` is given up as soon as it is)
+      const cost = (k: number[], over = Infinity) => {
+        put(k); const lean = 8 * k[0] ** 2 + 0.5 * k[1] ** 2 + 1.5 * k[2] ** 2 + k[3] ** 2; let c = 0;
+        for (const [b, r] of own) { const d = pen(w.copy(b).applyMatrix4(st.matrixWorld), r) / s; c += d * d; if (lean + 4000 * c > over) return Infinity; }
+        return 4000 * c + lean;
+      };
+      // (from where it hangs and the best few of a spread of starts, each settled by coordinate descent)
+      const starts: [number, number[]][] = [], fifth = () => starts.length < 5 ? Infinity : starts.map((x) => x[0]).sort((x, y) => x - y)[4];
+      for (const b of [0, 0.2, 0.4, 0.6]) for (const c of [0, 0.1, 0.2, 0.3]) for (const e of [-0.35, 0, 0.35, 0.7]) { const k = [0, b, c, e]; starts.push([cost(k, fifth()), k]); }
+      let best = [0, 0, 0, 0], bc = Infinity;
+      for (const [c0, k0] of starts.sort((x, y) => x[0] - y[0]).slice(0, 5)) {
+        let k = k0, kc = c0;
+        for (let stp = 0.2; stp > 0.004; stp *= 0.6) for (let pass = 0, moved = true; pass < 3 && moved; pass++) {
+          moved = false;
+          for (let i = 0; i < 4; i++) for (const dd of [stp, -stp]) {
+            const t = k.slice(); t[i] = clampTo(t[i] + dd, range[i][0], range[i][1]); const c = cost(t, kc); if (c < kc - 1e-12) { kc = c; k = t; moved = true; break; }
+          }
+        }
+        if (kc < bc) { bc = kc; best = k; }
+      }
+      put(best); st.updateMatrixWorld(true);
+    }
+    body.updateMatrixWorld(true);
+  }
   // (a hand on a belted hilt takes it as a hand hanging at the side closes on an upright handle, the thumb up toward the
   // pommel: the reach is solved on the blade turned end for end, and the hand may close anywhere from the scabbard's
   // mouth, the thumb on the guard, to just above the middle of the grip)
   for (const sd of onHilt) {
     const h = (sd === 'R' ? belted.beltR ?? belted.beltL : belted.beltL ?? belted.beltR)!, toPommel = new THREE.Object3D(); toPommel.rotation.z = Math.PI; h.add(toPommel);
-    onHaft(sd === 'R' ? R : Lf, sd === 'R' ? RX : LX, toPommel, 0, -0.45, 0.1); h.remove(toPommel);
+    // (its guard's ends and the scabbard, as points: what of them is near the fist is the fist's own business)
+    const off: THREE.Vector3[] = [], hang = hangs.find((g) => g.getObjectById(h.id))!; body.updateMatrixWorld(true);
+    hang.traverse((o) => { const m = o as M; if (!m.isMesh) return; const pos = m.geometry.getAttribute('position') as THREE.BufferAttribute; for (let i = 0; i < pos.count; i += Math.max(1, Math.floor(pos.count / 60))) off.push(new THREE.Vector3().fromBufferAttribute(pos, i).applyMatrix4(m.matrixWorld)); });
+    onHaft(sd === 'R' ? R : Lf, sd === 'R' ? RX : LX, toPommel, 0, -0.45, 0.1, off); h.remove(toPommel);
   }
   // every wrist ends inside its range; a shield's face turns in its own plane to stand its emblem upright
   arm.forEach((l, k) => limitWrist(l.end, k === 0 ? RX : LX));
@@ -2212,6 +2282,143 @@ function ballsOf(g: THREE.Object3D): [THREE.Vector3, number][] {
     for (let i = 0; i < n; i++) out.push([new THREE.Vector3(c.x, n === 1 ? c.y : b.min.y + r + (2 * h.y - 2 * r) * i / (n - 1), c.z), r]);
   });
   return out;
+}
+
+/** The balls a piece is read as (in `g`'s own frame, feet), each of its meshes along its own longest side, as wide as it
+ *  is across that: a sword's guard is a row of small balls from one end to the other, not one as wide as it is long. */
+function ballsAlong(g: THREE.Object3D): [THREE.Vector3, number][] {
+  const out: [THREE.Vector3, number][] = [];
+  g.updateMatrixWorld(true);
+  const inv = g.matrixWorld.clone().invert(), axes = [new THREE.Vector3(1, 0, 0), new THREE.Vector3(0, 1, 0), new THREE.Vector3(0, 0, 1)];
+  g.traverse((o) => {
+    const m = o as M; if (!m.isMesh || (m.material as THREE.Material).transparent) return;
+    const to = inv.clone().multiply(m.matrixWorld), pos = m.geometry.getAttribute('position') as THREE.BufferAttribute, v = new THREE.Vector3(), b = new THREE.Box3();
+    for (let i = 0; i < pos.count; i++) b.expandByPoint(v.fromBufferAttribute(pos, i).applyMatrix4(to));
+    const c = b.getCenter(new THREE.Vector3()), h = b.getSize(new THREE.Vector3()).multiplyScalar(0.5), k = h.x >= h.y && h.x >= h.z ? 0 : h.y >= h.z ? 1 : 2, ax = axes[k], half = h.getComponent(k);
+    // (as wide as the piece's widest point round that line)
+    let r = 0; for (let i = 0; i < pos.count; i++) { v.fromBufferAttribute(pos, i).applyMatrix4(to).sub(c); r = Math.max(r, v.addScaledVector(ax, -v.dot(ax)).length()); }
+    r *= 1.02; const n = Math.max(1, Math.ceil((2 * half - 2 * r) / Math.max(r, 0.06)) + 1);
+    for (let i = 0; i < n; i++) out.push([c.clone().addScaledVector(ax, n === 1 ? 0 : -half + r + (2 * half - 2 * r) * i / (n - 1)), r]);
+  });
+  return out;
+}
+
+/** Balls with every one that lies wholly inside another left out (of two alike, the first kept): a blade in its
+ *  scabbard is the scabbard. */
+function outermost(balls: [THREE.Vector3, number][]): [THREE.Vector3, number][] {
+  return balls.filter(([c, r], i) => !balls.some(([c2, r2], j) => j !== i && (r2 > r || (r2 === r && j < i)) && c.distanceTo(c2) + r <= r2));
+}
+
+/** How near the nearest of a cloud of points (x, y, z after one another) comes to `p`, looking no further than `R` (and
+ *  `R` if none is nearer): the points kept in a k-d tree, built once, its leaves eight points or fewer. */
+function nearestOf(pts: number[]): (p: THREE.Vector3, R: number) => number {
+  const n = pts.length / 3, X = Float64Array.from(pts), I = new Int32Array(n), A = new Uint8Array(n), LEAF = 8;
+  for (let i = 0; i < n; i++) I[i] = i;
+  // (each range split at its middle across the widest side of its cell, the middle point picked out by quickselect: what
+  // is before it no further along that side, what is after it no less far)
+  const pick = (lo: number, hi: number, m: number, k: number) => {
+    let l = lo, h = hi - 1;
+    while (l < h) {
+      const pv = X[I[(l + h) >> 1] * 3 + k]; let i = l, j = h;
+      while (i <= j) { while (X[I[i] * 3 + k] < pv) i++; while (X[I[j] * 3 + k] > pv) j--; if (i <= j) { const t = I[i]; I[i] = I[j]; I[j] = t; i++; j--; } }
+      if (m <= j) h = j; else if (m >= i) l = i; else break;
+    }
+  };
+  const build = (lo: number, hi: number, cell: number[]) => {
+    if (hi - lo <= LEAF) return;
+    const e0 = cell[3] - cell[0], e1 = cell[4] - cell[1], e2 = cell[5] - cell[2], k = e0 >= e1 && e0 >= e2 ? 0 : e1 >= e2 ? 1 : 2, m = (lo + hi) >> 1;
+    pick(lo, hi, m, k); A[m] = k;
+    const sv = X[I[m] * 3 + k], a = cell.slice(), b = cell.slice(); a[3 + k] = sv; b[k] = sv;
+    build(lo, m, a); build(m + 1, hi, b);
+  };
+  const box = [Infinity, Infinity, Infinity, -Infinity, -Infinity, -Infinity];
+  for (let i = 0; i < n * 3; i++) { const k = i % 3; if (X[i] < box[k]) box[k] = X[i]; if (X[i] > box[3 + k]) box[3 + k] = X[i]; }
+  build(0, n, box);
+  let px = 0, py = 0, pz = 0, best = 0, found = false;
+  const visit = (lo: number, hi: number) => {
+    if (hi - lo <= LEAF) {
+      for (let i = lo; i < hi; i++) { const j = I[i] * 3, dx = px - X[j], dy = py - X[j + 1], dz = pz - X[j + 2], d = dx * dx + dy * dy + dz * dz; if (d < best) { best = d; found = true; } }
+      return;
+    }
+    const m = (lo + hi) >> 1, j = I[m] * 3, dx = px - X[j], dy = py - X[j + 1], dz = pz - X[j + 2], d = dx * dx + dy * dy + dz * dz, k = A[m], off = (k === 0 ? dx : k === 1 ? dy : dz);
+    if (d < best) { best = d; found = true; }
+    // (the side the point is on first, the other only if it could hold a nearer one)
+    if (off < 0) { visit(lo, m); if (off * off < best) visit(m + 1, hi); } else { visit(m + 1, hi); if (off * off < best) visit(lo, m); }
+  };
+  return (p, R) => { px = p.x; py = p.y; pz = p.z; best = R * R; found = false; if (n) visit(0, n); return found ? Math.sqrt(best) : R; };
+}
+
+/** What gear hung at the belt keeps clear of, as a measure: how deep a ball (its centre in world space, its radius in
+ *  feet) sinks into it, `mg` of room kept. That is the bare body and its plate; the thighs and the shins (in plate a
+ *  little out, the shin in its boot, the cuff out most); the `arms` balls; what is worn under the belt (every garment but
+ *  a cloak, a mantle or a coat's tails: a mail shirt, a tunic's skirt, a skirt, a gown, plate on the hips) as it hangs
+ *  of itself, hung here once and put back as it was cut, its trims lying on it; and every other point of the body within
+ *  reach of `near` (the seat, a pouch or a bag at the belt, a gauntlet, a hand on the belt), but what is under `skip`:
+ *  of the cloth and those points, only what is inside `reach`. */
+function beltClear(o: { body: THREE.Group; up: THREE.Group; pel: THREE.Group; neck: THREE.Group; head: THREE.Object3D; arm: Limb[]; leg: Limb[]; gR: THREE.Group; gL: THREE.Group; fr: Frame; tr: Ring[]; s: number; f: HeroFigure; P: HeroPose; dead: boolean; gown: boolean; bust: (p: [number, number, number]) => [number, number, number]; garments: Garment[]; skip: THREE.Object3D[]; near: THREE.Vector3[]; reach: THREE.Box3; arms: [THREE.Vector3, number][]; mg: number }): (p: THREE.Vector3, r: number) => number {
+  // (the cloth's points and the body's, every one kept as far off: see `pen` below)
+  const { body, leg, s, f, mg } = o, cloud: number[] = [], within = (p: THREE.Vector3, d: number) => o.near.some((c) => p.distanceTo(c) <= d);
+  const put = (p: THREE.Vector3) => { if (within(p, 3.5 * s) && o.reach.containsPoint(p)) cloud.push(p.x, p.y, p.z); }, tb = new THREE.Box3();
+  body.updateMatrixWorld(true);
+  const skipped = (x: THREE.Object3D) => { for (let n: THREE.Object3D | null = x; n; n = n.parent) if (o.skip.includes(n)) return true; return false; };
+  body.traverse((x) => {
+    const m = x as M; if (!m.isMesh || (m.material as THREE.Material).transparent || m.userData.garment || m.userData.cloth || skipped(m)) return;
+    const pos = m.geometry.getAttribute('position') as THREE.BufferAttribute, idx = m.geometry.index, v = [0, 1, 2].map(() => new THREE.Vector3());
+    for (let i = 0; i < pos.count; i++) put(new THREE.Vector3().fromBufferAttribute(pos, i).applyMatrix4(m.matrixWorld));
+    // (and across a large face, a buckle's or a strap's, points no further apart than the body's own)
+    for (let t = 0; t + 2 < (idx ? idx.count : pos.count); t += 3) {
+      for (let j = 0; j < 3; j++) v[j].fromBufferAttribute(pos, idx ? idx.getX(t + j) : t + j).applyMatrix4(m.matrixWorld);
+      const n = Math.ceil(Math.max(v[0].distanceTo(v[1]), v[1].distanceTo(v[2]), v[2].distanceTo(v[0])) / (0.05 * s)); if (n < 2 || !within(v[0], 6 * s) || !o.reach.intersectsBox(tb.setFromPoints(v))) continue;
+      for (let i = 0; i <= n; i++) for (let j = 0; i + j <= n; j++) if (i + j > 0 && i < n && j < n) put(v[0].clone().multiplyScalar(1 - (i + j) / n).addScaledVector(v[1], i / n).addScaledVector(v[2], j / n));
+    }
+  });
+  const inner = o.garments.filter((g) => g.name !== 'cloak' && g.name !== 'mantle' && g.name !== 'tails');
+  if (inner.length) {
+    // (all of it hung as it hangs below, a mail shirt over a tunic's skirt; it never reads what is at the belt)
+    const cut = inner.map((g) => (g.mesh.geometry.getAttribute('position').array as Float32Array).slice());
+    hangGarments(inner.map((g) => ({ ...g, after: undefined })), drapeWorld(body, { pel: o.pel, up: o.up, neck: o.neck, arm: o.arm, leg, gR: o.gR, gL: o.gL }, o.fr, s, o.P, o.dead));
+    body.updateMatrixWorld(true);
+    inner.forEach((g, i) => {
+      // (each triangle's corners, the middles of its sides and its middle: the cloth read finely enough that a haft
+      // cannot pass between its points)
+      // (a corner or a side shared by two triangles read once)
+      const geo = g.mesh.geometry, pos = geo.getAttribute('position') as THREE.BufferAttribute, idx = geo.index, v = [0, 1, 2].map(() => new THREE.Vector3()), seen = new Set<number>();
+      const wv = Array.from({ length: pos.count }, (_, i) => new THREE.Vector3().fromBufferAttribute(pos, i).applyMatrix4(g.mesh.matrixWorld));
+      for (let t = 0; idx && t + 2 < idx.count; t += 3) {
+        const ix = [idx.getX(t), idx.getX(t + 1), idx.getX(t + 2)];
+        for (let j = 0; j < 3; j++) v[j].copy(wv[ix[j]]);
+        for (let j = 0; j < 3; j++) {
+          const a = ix[j], b = ix[(j + 1) % 3];
+          if (!seen.has(-1 - a)) { seen.add(-1 - a); put(v[j].clone()); }
+          if (!seen.has(Math.min(a, b) * pos.count + Math.max(a, b))) { seen.add(Math.min(a, b) * pos.count + Math.max(a, b)); put(v[j].clone().lerp(v[(j + 1) % 3], 0.5)); }
+        }
+        put(v[0].clone().add(v[1]).add(v[2]).divideScalar(3));
+      }
+      (pos.array as Float32Array).set(cut[i]); pos.needsUpdate = true; geo.computeVertexNormals(); geo.computeBoundingBox(); geo.computeBoundingSphere();
+    });
+  }
+  const toHip = leg.map((l) => l.root.matrixWorld.clone().invert()), toKnee = leg.map((l) => l.mid.matrixWorld.clone().invert());
+  const thR = thighRings(o.fr), shR = shinRings(o.fr), kTh = f.armor?.kind === 'plate' ? 1.1 : 1.04, kSh = 1.3;
+  const inStack = (rings: Ring[], q: THREE.Vector3, k: number) => {
+    const lo = rings[0].y, hi = rings[rings.length - 1].y; if (q.y < lo || q.y > hi) return -Infinity;
+    const r = ringAt(rings, q.y); return Math.min(sectionDepth(q.x - (r.x ?? 0), q.z - (r.z ?? 0), r.w * k, r.f * k, r.b * k, r.n ?? 2), q.y - lo, hi - q.y);
+  };
+  const bare = bodyGuard({ body, up: o.up, pel: o.pel, neck: o.neck, head: o.head, hips: leg.map((l) => l.root), fr: o.fr, tr: o.tr, s, f, gown: o.gown, bust: o.bust, bare: true });
+  // (the cloth's own trims, a hem band or a mail shirt's rows of rings, lie on it; and the surface of the body runs
+  // between its points, as much as half the way across one of its cells further out: either way a point is kept
+  // `trim` off)
+  const q = new THREE.Vector3(), trim = 0.03 * s, nearest = nearestOf(cloud);
+  const pen = (p: THREE.Vector3, r: number) => {
+    const rr = r + mg; let d = bare(p, rr);
+    for (let k = 0; k < leg.length; k++) {
+      q.copy(p).applyMatrix4(toHip[k]).divideScalar(s); d = Math.max(d, (inStack(thR, q, kTh) + rr / s) * s);
+      q.copy(p).applyMatrix4(toKnee[k]).divideScalar(s); d = Math.max(d, (inStack(shR, q, kSh) + rr / s) * s);
+    }
+    for (const [c, ra] of o.arms) d = Math.max(d, rr + ra - p.distanceTo(c));
+    const R = rr + trim; d = Math.max(d, R - nearest(p, R));
+    return Math.max(0, d);
+  };
+  return pen;
 }
 
 /** How deep a ball (its centre in world space, its radius in feet) sinks into the body: the torso with the bust and what

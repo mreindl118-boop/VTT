@@ -395,7 +395,7 @@
       "kind": "crossbow"
      }
     },
-    "pose": "weightR easy R:hang L:hilt",
+    "pose": "weightR easy R:hilt L:hilt",
     "battlePose": "shield",
     "frame": "masculine",
     "build": "broad"
