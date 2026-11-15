@@ -10,7 +10,7 @@ export const NPC_POSES = {
   /** A lord at ease: chin up, one hand at the chest, the other resting on the hilt at his hip. */
   regal: { spine: [-0.04, 0.1, 0], neck: [-0.1, -0.15, 0], shoulderR: [-0.35, 0, 0.12], elbowR: -1.5, wristR: [0.3, 0, 0], shoulderL: [0.12, 0, 0.3], elbowL: -0.75, hipL: [-0.12, 0, 0.06], kneeL: 0.2 },
   /** Bent with age or malice: the back curved, the head thrust forward, the knees soft. */
-  hunched: { spine: [0.42, 0, 0], neck: [-0.38, 0, 0], shoulderR: [-0.5, 0, 0.1], elbowR: -0.9, holdR: { upright: true }, shoulderL: [-0.3, 0, 0.1], elbowL: -1.1, wristL: [0.5, 0, 0], hipL: [-0.35, 0, 0.1], kneeL: 0.7, hipR: [-0.3, 0, 0.1], kneeR: 0.6 },
+  hunched: { spine: [0.42, 0, 0], neck: [-0.38, 0, 0], shoulderR: [-0.5, 0, 0.1], elbowR: -0.9, holdR: { aim: [-0.05, 1, 0.12], plant: true }, shoulderL: [-0.3, 0, 0.1], elbowL: -1.1, wristL: [0.5, 0, 0], hipL: [-0.35, 0, 0.1], kneeL: 0.7, hipR: [-0.3, 0, 0.1], kneeR: 0.6 },
   /** Fists on the hips, chest out (the rig sets each fist on the waist, outside it). */
   'hands-on-hips': { spine: [-0.06, 0, 0], neck: [-0.05, 0, 0], shoulderR: [0.55, -1.15, 0.8], elbowR: -1.25, wristR: [0.4, 0, 0], shoulderL: [0.55, -1.15, 0.8], elbowL: -1.25, wristL: [0.4, 0, 0], hipL: [0, 0, 0.14], hipR: [0, 0, 0.14], hipHand: ['R', 'L'], fist: ['R', 'L'] },
   /** Hands clasped behind the back, watchful (one wrist over the other, so the hands do not pass through each other). */
@@ -27,8 +27,8 @@ export const NPC_POSES = {
    *  and turned aside, the other arm hanging bent. */
   slump: { pelvis: [0.02, -0.1, -0.12], spine: [0.26, 0.1, 0.16], neck: [0.1, -0.3, -0.22], hipL: [0.02, 0.06, -0.1], kneeL: 0.1, hipR: [-0.18, 0.25, 0.18], kneeR: 0.5,
     shoulderR: [0.14, 0.05, 0.02], elbowR: -0.12, wristR: [0.1, 0, 0], shoulderL: [-0.05, -0.1, 0.14], elbowL: -0.6, wristL: [0.35, 0, 0] },
-  /** Leaning on a staff or a cane held upright. */
-  leaning: { spine: [0.16, 0, -0.05], neck: [-0.12, 0, 0], shoulderR: [-0.75, 0, 0.15], elbowR: -0.95, holdR: { upright: true }, hipL: [-0.1, 0, 0.05], kneeL: 0.2 },
+  /** Leaning on a staff planted beside the foot, the fist round it at the chest (as the arm word `staff`). */
+  leaning: { spine: [0.16, 0, -0.05], neck: [-0.12, 0, 0], shoulderR: [0.2, 0.05, 0.3], elbowR: -1.55, holdR: { aim: [-0.08, 1, 0.08], plant: true }, hipL: [-0.1, 0, 0.05], kneeL: 0.2 },
 
   // ---- in a fight
   /** The vampire lord: unhurried, one clawed hand out to command or charm, the other sweeping his cloak back. */
@@ -164,7 +164,12 @@ export const ARMS: Record<string, Arm> = {
   foldedLow: { sh: [-0.21, -1.5, 0.33], el: -1.73, wr: [0, 0.01, 0] },
   wring: { sh: [-0.6, -0.75, 0.05], el: -1.8 },
   hip: { sh: [0.9, -0.6, 0.6], el: -1.6, onHip: true, fist: true },  // (the rig solves the arm so the fist sits on the waist, outside it)
-  staff: { sh: [-0.75, 0, 0.15], el: -0.95, hold: { upright: true } },
+  // a staff planted at ease beside the foot, the fist round it at the chest and the elbow in at the side (it slides
+  // through the fist till its foot is on the floor: heroes.ts); a shovel stands so on its blade
+  staff: { sh: [0.2, 0.05, 0.3], el: -1.55, hold: { aim: [-0.08, 1, 0.08], plant: true } },
+  // a cane planted ahead of the foot, the fist on its crook before the hip and the arm hanging soft: the shaft leans in to
+  // the hand from a foot set forward and a little out (the arm is solved to stand it on the floor: heroes.ts)
+  cane: { sh: [-0.25, 0, 0.12], el: -0.35, hold: { aim: [-0.06, 1, -0.4], plant: true } },
   offer: { sh: [-0.5, 0, 0.25], el: -0.9, wr: [-0.4, 0, 0] },
   beckon: { sh: [-0.7, 0, 0.3], el: -1.1, wr: [-0.7, 0, 0] },
   command: { sh: [-1.25, 0, 0.1], el: -0.25, wr: [0.3, 0, 0] },

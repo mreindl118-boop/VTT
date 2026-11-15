@@ -644,7 +644,7 @@
       "grip": "#2a1a12"
      }
     },
-    "pose": "stand easy R:chin L:book",
+    "pose": "stand easy R:cane L:book",
     "battlePose": "ready turnR R:guard L:book shut",
     "frame": "masculine",
     "hairdo": {

@@ -31,6 +31,18 @@ export interface WeaponSpec {
   wear?: number;
   /** A glow along the blade or head (a colour). */
   glow?: string;
+  /** A sword cane carried as a cane, its blade hidden in the shaft (see `cane`). */
+  sheathed?: boolean;
+}
+
+/** How a stick carried about at rest stands planted on the floor, by what it is: a staff on its foot, the fist round it
+ *  wherever it falls on the haft; a shovel on its blade, the fist on the haft toward the handle; a cane (a sword cane
+ *  carried sheathed) on its tip, the fist round its crook. Undefined for anything else. */
+export function walkingStick(s: WeaponSpec): 'foot' | 'head' | 'crook' | undefined {
+  if (s.kind === 'quarterstaff' || s.kind === 'gulthias-staff') return 'foot';
+  if (s.kind === 'shovel') return 'head';
+  if (s.kind === 'sword-cane' && s.sheathed) return 'crook';
+  return undefined;
 }
 
 type M = THREE.Mesh;
@@ -147,6 +159,24 @@ function sword(s: WeaponSpec, o: SwordO): THREE.Group {
   return g;
 }
 
+/** A sword cane carried as a cane (its spec `sheathed`), as the module's art shows van Richten's: a wooden shaft that
+ *  hides the blade, shod with a ferrule, under a crook handle of silver that the fist holds. It is built round the crook's
+ *  grip, as a haft is: the grip runs along y, its bend out of the fist on the thumb's side, and from the end of the bend
+ *  the shaft drops along -z, past a collar, to its foot (`caneFoot`). */
+const CANE = { grip: [-0.22, 0.13], r: 0.042, bend: 0.09, drop: 3.3 };
+export function caneFoot(s: WeaponSpec): THREE.Vector3 { return new THREE.Vector3(0, CANE.grip[1] + CANE.bend, -CANE.drop * (s.length ?? 1)); }
+function cane(s: WeaponSpec): THREE.Group {
+  const g = new THREE.Group(), metal = s.metal ?? '#c9ced6', fit = s.fittings ?? '#b08a3a', wood = '#7a5230', [y0, y1] = CANE.grip, R = CANE.bend, foot = caneFoot(s);
+  g.add(at(cyl(CANE.r, CANE.r, y1 - y0, metal, 10), 0, (y0 + y1) / 2, 0), at(ball(CANE.r * 1.2, metal), 0, y0, 0));          // the crook's grip, rounded off at its end
+  const bend = new THREE.Mesh(new THREE.TorusGeometry(R, CANE.r, 8, 8, Math.PI / 2), soft(metal)); bend.rotation.y = -Math.PI / 2; g.add(at(bend, 0, y1, -R));
+  const down = (m: M, z0: number, z1: number) => { m.rotation.x = Math.PI / 2; return at(m, 0, foot.y, (z0 + z1) / 2); };    // (a cylinder stood along the drop)
+  const z0 = -R, zc = z0 - 0.06, zf = foot.z + 0.1;
+  g.add(down(cyl(CANE.r * 1.25, CANE.r * 1.25, 0.06, fit, 12), z0, zc));                                                      // the collar
+  g.add(down(cyl(CANE.r * 1.12, CANE.r * 0.95, zc - zf, wood, 10), zc, zf));                                                // the shaft, tapering a little to its foot
+  g.add(down(cyl(CANE.r, CANE.r * 0.9, 0.1, fit, 10), zf, foot.z));                                                         // the ferrule
+  return g;
+}
+
 function axeHead(w: number, h: number, c: string, beard = 0): M {
   // a wedge that flares from the eye to a curved edge
   const sh = new THREE.Shape(); sh.moveTo(0, h * 0.22); sh.lineTo(w * 0.55, h * 0.5); sh.quadraticCurveTo(w * 1.08, 0, w * 0.6, -h * (0.5 + beard)); sh.lineTo(w * 0.35, -h * (0.3 + beard * 0.4)); sh.lineTo(0, -h * 0.22); sh.closePath();
@@ -177,7 +207,7 @@ function build(s: WeaponSpec): THREE.Group {
   const g = new THREE.Group();
   switch (s.kind) {
     case 'longsword': case 'greatsword': case 'shortsword': case 'dagger': case 'rapier': return sword(s, SWORDS[s.kind]!);
-    case 'sword-cane': return sword({ ...s, guard: 'disc', pommel: s.pommel ?? 'ball' }, SWORDS['sword-cane']!);
+    case 'sword-cane': return s.sheathed ? cane(s) : sword({ ...s, guard: 'disc', pommel: s.pommel ?? 'ball' }, SWORDS['sword-cane']!);
     case 'sunsword': return sword({ fittings: '#dcdce4', grip: '#e8e2d0', gem: '#f6d86a', pommel: 'gem', guard: 'wings', ...s, metal: '#fff4c2', glow: s.glow ?? '#ffd866' }, SWORDS.sunsword!);
     case 'dragon-greatsword': {
       const sw = sword({ fittings: '#c8ccd4', grip: '#2a2c34', guard: 'wings', pommel: 'claw', ...s }, SWORDS['dragon-greatsword']!);

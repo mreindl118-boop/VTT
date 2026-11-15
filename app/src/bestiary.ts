@@ -11,7 +11,7 @@ import { FOLK, creature, folk, staked, withDeadPose, mounted, fiendishArm, furMa
 import { beast, BEASTS, BEUCEPHALUS } from './kit/beasts';
 import { flyer, FLYERS, mistForm, effigy, branches, felled, spectral, veil } from './kit/monsters';
 import { doublet, plumbHeld, restOnFloor, type Doublet } from './kit/costume';
-import type { WeaponSpec } from './kit/weapons';
+import { walkingStick, type WeaponSpec } from './kit/weapons';
 import { baseRingFt, type CreatureSize } from './core/units';
 import { PALETTE } from './kit/palette';
 
@@ -107,16 +107,19 @@ export function colorOf(e: CreatureEntry): string { return e.figure?.cloth ?? e.
  *  a great weapon to the back (staffs, spears, canes, tools and torches stay in the hand). The gear is the same either
  *  way; only its mount changes. */
 function stowed<T extends { gear?: HeroFigure['gear']; offhand?: HeroFigure['offhand']; concealed?: boolean }>(f: T): T {
-  const WALK = ['quarterstaff', 'torch', 'shovel'], BACK = ['greatsword', 'greataxe', 'battleaxe', 'dragon-greatsword', 'spear'];
+  const BACK = ['greatsword', 'greataxe', 'battleaxe', 'dragon-greatsword', 'spear'];
+  // (a sword cane is carried as a cane, its blade in the shaft)
+  const walk = (w: WeaponSpec): WeaponSpec | undefined => (w.kind === 'sword-cane' ? { ...w, sheathed: true } : w.kind === 'torch' || walkingStick(w) ? w : undefined);
   const g = { ...f.gear };
   // nothing drawn at rest: a hand weapon goes to the belt, a great one to the back, and where there is no room it is put
   // away out of sight; a staff or cane stays in the hand as a walking stick, a tool or torch as what it is
   for (const hand of ['handR', 'handL'] as const) {
-    const w: WeaponSpec | undefined = g[hand];
-    if (w && !WALK.includes(w.kind)) { delete g[hand]; if (BACK.includes(w.kind)) { if (!g.back) g.back = w; } else if (!g.beltL && w.kind !== 'sword-cane') g.beltL = w; else if (w.kind === 'sword-cane') { if (!g.beltR) g.beltR = w; } else if (!g.beltR) g.beltR = w; }
+    const w: WeaponSpec | undefined = g[hand], stick = w && walk(w);
+    if (stick) g[hand] = stick;
+    else if (w) { delete g[hand]; if (BACK.includes(w.kind)) { if (!g.back) g.back = w; } else if (!g.beltL) g.beltL = w; else if (!g.beltR) g.beltR = w; }
   }
   // a character who keeps their arms hidden shows none of them until the fight
-  if (f.concealed) for (const k of ['handR', 'beltL', 'beltR', 'back'] as const) if (g[k] && !WALK.includes(g[k]!.kind)) delete g[k];
+  if (f.concealed) for (const k of ['handR', 'beltL', 'beltR', 'back'] as const) if (g[k] && !walk(g[k]!)) delete g[k];
   const out = { ...f, gear: g };
   if (out.offhand && (out.offhand as { kind?: string }).kind === 'shield') delete out.offhand;
   return out;

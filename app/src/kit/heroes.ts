@@ -8,7 +8,7 @@ import { HIP, SHIN, THIGH, clipRings, forearmRings, frameOf, loftGeometry, lockG
 import type { CreatureSize } from '../core/units';
 import { faceFeatures, hairSkull, browLift, weld, type FaceSpec, type FaceDetail } from './faces';
 import { hairdo as buildHairdo, sheen, type Hairdo } from './hair';
-import { weapon as gearWeapon, scabbard, bladeOf, closeGrip, secondHandAt, secondHandSlide, type WeaponSpec } from './weapons';
+import { weapon as gearWeapon, scabbard, bladeOf, closeGrip, secondHandAt, secondHandSlide, walkingStick, caneFoot, type WeaponSpec } from './weapons';
 import { clothPoint, hangGarments, pointsOf, type DrapeWorld, type Garment } from './cloth';
 
 export type HeroWeapon = 'none' | 'sword' | 'axe' | 'mace' | 'staff' | 'spear' | 'torch';
@@ -21,6 +21,8 @@ export type HeroStance = 'two-handed' | 'shield' | 'cast' | 'conjure';
  *  hands clawed), cower, kneel, and staff-raised (a caster with the staff high). */
 export type PoseName = 'rest' | HeroStance | 'ride' | 'lunge' | 'menace' | 'cower' | 'kneel' | 'staff-raised' | 'dead' | 'dead-prone' | 'dead-comic' | 'dead-swoon' | 'dead-curled';
 export type Euler3 = [number, number, number];
+/** How a hand holds what is in it (see HeroPose.holdR). */
+export type Hold = { upright?: boolean; tilt?: Euler3; aim?: Euler3; plant?: boolean };
 /** Joint angles, radians. On x a negative angle swings forward; a negative elbow bends the forearm up, a positive knee
  *  bends the shin back. On the limbs y and z are mirrored: positive turns outward on either side. On the spine and
  *  neck x > 0 leans forward (a dipped chin); on the spine, pelvis and neck y > 0 turns toward the figure's right and
@@ -40,8 +42,11 @@ export interface HeroPose {
   twistR?: number; twistL?: number;
   hipR?: Euler3; kneeR?: number; ankleR?: Euler3; hipL?: Euler3; kneeL?: number; ankleL?: Euler3;
   /** `aim` points what the hand holds along a direction in the chest's frame (x mirrored: positive out to the hand's own
-   *  side, y up, z forward), its face turned forward; the hand then closes on it as far as the wrist allows. */
-  holdR?: { upright?: boolean; tilt?: Euler3; aim?: Euler3 }; holdL?: { upright?: boolean; tilt?: Euler3; aim?: Euler3 };
+   *  side, y up, z forward), its face turned forward; the hand then closes on it as far as the wrist allows. `plant`
+   *  stands a walking stick on the floor (kit/weapons.ts walkingStick): its aim, the way it leans with its top end up,
+   *  is read in the body's frame instead, whatever the chest is doing; a staff slides through the fist till its foot is
+   *  down, a shovel stands so on its blade, and a cane's arm is solved to put its foot down with the fist on its crook. */
+  holdR?: Hold; holdL?: Hold;
   /** The left hand comes onto the weapon the right hand holds, for gear, where its kind says (kit/weapons.ts
    *  secondHandAt); the arm is solved to reach it and the left arm's own angles are ignored. A long weapon of the
    *  figure's own takes `bothHands`. */
@@ -199,8 +204,8 @@ function poseOf(f: HeroFigure, battle: boolean, dead: boolean, gown: boolean): H
   }
   return P;
 }
-/** The right arm on a staff planted at ease (its hold is checked for by identity). */
-const STAFF_AT_EASE: HeroPose = { shoulderR: [-0.5, 0.05, 0.32], elbowR: -1.75, holdR: { aim: [0.05, 1, 0.1] } };
+/** The right arm on a staff planted at ease: leaning a little forward and in, its foot out beside the foot. */
+const STAFF_AT_EASE: HeroPose = { shoulderR: [-0.5, 0.05, 0.32], elbowR: -1.75, holdR: { aim: [-0.08, 1, 0.08], plant: true } };
 /** Where the eyes look in a pose (its own `gaze`, or worked out): in a fight they stay on the foe ahead however the
  *  head and body are turned; at ease they lead the way the head is turning, and a dipped chin or a stoop looks up from under the brows. */
 export function gazeOf(P: HeroPose, battle: boolean): [number, number] {
@@ -1348,7 +1353,11 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
 
   // the pose: out of initiative its rest pose (on a gown, weight on the right leg, the left knee forward in the slit); in
   // initiative its battle pose; every joint from the recipe's angles or a named preset
-  const P = poseOf(f, battle, dead, gown);
+  const P = poseOf(f, battle, dead, gown), standing = !P.lie && !P.seated && !P.lift;
+  // (what a hand holds if it is a walking stick, and how that stands: kit/weapons.ts walkingStick; and whether the pose
+  // plants it, standing)
+  const stickIn = (sd: 'R' | 'L') => { const w = f.gear?.[sd === 'R' ? 'handR' : 'handL']; return w ? walkingStick(w) : sd === 'R' && wpn === 'staff' ? 'foot' : undefined; };
+  const plantedIn = (sd: 'R' | 'L') => !!P[`hold${sd}`]?.plant && standing && !!stickIn(sd);
   if (P.seated) for (const h of hangs) h.rotation.x = 1.3; // in the saddle a sheath swings back along the horse, clear of the thigh
   const mir = (e: Euler3 | undefined, sx: number, d: Euler3): Euler3 => e ? [e[0], e[1] * sx, e[2] * sx] : [d[0], d[1] * sx, d[2] * sx];
   if (P.spine) up.rotation.set(...trunk(P.spine));
@@ -1385,11 +1394,14 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
   // a hold's aim: what the hand holds pointed along a direction in the chest's frame, its face to the front
   body.updateMatrixWorld(true);
   arm.forEach((l, k) => {
-    const sx = k === 0 ? RX : LX, sd = k === 0 ? 'R' : 'L', g = k === 0 ? gR : gL, aim = sd === 'L' && mounted ? undefined : P[`hold${sd}`]?.aim;
+    const sx = k === 0 ? RX : LX, sd = k === 0 ? 'R' : 'L', g = k === 0 ? gR : gL, hd = sd === 'L' && mounted ? undefined : P[`hold${sd}`], aim = hd?.aim;
     if (!aim || !g.children.length) return;
-    // (a staff planted at ease stands up in the world, leaning a little forward and in, its foot out beside the foot,
-    // whatever the chest is doing)
-    const yW = (P[`hold${sd}`] === STAFF_AT_EASE.holdR ? new THREE.Vector3(-sx * 0.08, 1, 0.08).transformDirection(body.matrixWorld) : new THREE.Vector3(aim[0] * sx, aim[1], aim[2]).transformDirection(up.matrixWorld)).normalize(), zW = new THREE.Vector3(0, 0, 1).transformDirection(up.matrixWorld);
+    // (a stick planted at ease stands up in the world, leaning as its aim says, whatever the chest is doing; a shovel
+    // stands on its blade, so it is held end for end, its handle up; a cane is set where its foot will stand, below)
+    const planted = plantedIn(sd), stick = planted ? stickIn(sd) : undefined;
+    if (stick === 'crook') return;
+    if (stick === 'head') g.children[0].rotation.x = Math.PI;
+    const yW = new THREE.Vector3(aim[0] * sx, aim[1], aim[2]).transformDirection((planted ? body : up).matrixWorld).normalize(), zW = new THREE.Vector3(0, 0, 1).transformDirection(up.matrixWorld);
     zW.addScaledVector(yW, -zW.dot(yW)); if (zW.lengthSq() < 1e-4) zW.set(0, 1, 0).addScaledVector(yW, -yW.y); zW.normalize();
     const qW = new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().makeBasis(new THREE.Vector3().crossVectors(yW, zW), yW, zW));
     g.quaternion.copy(l.end.getWorldQuaternion(new THREE.Quaternion()).invert().multiply(qW));
@@ -1411,7 +1423,6 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
   if (!dead && wpn && wpn !== 'none' && gR.children.length) holdFast(R.end, gR, -RX);
   // a hand casting in a fight is spread open, the spell pushed out from the palm
   if (battle && !dead && P.spell) for (const sd of P.spell === 'between' ? ['R', 'L'] as const : ['R'] as const) { const l = sd === 'R' ? R : Lf; if (!(sd === 'R' ? gR : gL).children.length) shapeHand(handMeshes(l.end), -(sd === 'R' ? RX : LX), (l.hs ?? 1) * s, s, SPREAD); }
-  const standing = !P.lie && !P.seated && !P.lift;
   // at ease the leg that bears no weight (the more bent knee) rests on the ball of its foot, the heel a little raised
   const kneeGap = (P.kneeL ?? 0) - (P.kneeR ?? 0), freeLeg = standing && !battle && !gown && Math.abs(kneeGap) >= 0.15 ? (kneeGap > 0 ? 1 : 0) : -1;
   // a gown is a fitted sheath, so in a fight the legs stay inside it: the right leg straight under the cloth, the left
@@ -1535,10 +1546,14 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
   // keeping the weapon pointed and the fist where the pose put them and the arm off the body. (closeGrip first gives the
   // aim: the weapon as the pose points it, in a fist that does not mind the wrist; it takes the hand's handedness, the
   // opposite of SIDE_X.)
-  const gearGrip = (A: Limb, g: THREE.Group, sx: number) => {
-    closeGrip(A.end, g, -sx); body.updateMatrixWorld(true);
-    const q0 = A.end.quaternion.clone(); if (q0.angleTo(wristQ(wristIn(wristTurnOf(q0, sx)), sx)) < 0.03) return;
-    const Wq = g.getWorldQuaternion(new THREE.Quaternion()), Wp = g.getWorldPosition(new THREE.Vector3()), D = Y_AXIS.clone().applyQuaternion(Wq);
+  // (A walking stick planted at ease is held as it stands, its haft along the fist however near the forearm's line it
+  // runs: closeGrip's `limit` off. `want` is where a cane stands, its turn and where its crook is held: the arm is solved
+  // to bring the fist onto the crook there.)
+  const gearGrip = (A: Limb, g: THREE.Group, sx: number, limit = true, want?: { q: THREE.Quaternion; p: THREE.Vector3 }) => {
+    if (want) g.quaternion.copy(A.end.getWorldQuaternion(new THREE.Quaternion()).invert().multiply(want.q));
+    closeGrip(A.end, g, -sx, limit); body.updateMatrixWorld(true);
+    const q0 = A.end.quaternion.clone(); if (!want && q0.angleTo(wristQ(wristIn(wristTurnOf(q0, sx)), sx)) < 0.03) return;
+    const Wq = want?.q ?? g.getWorldQuaternion(new THREE.Quaternion()), Wp = want?.p ?? g.getWorldPosition(new THREE.Vector3()), D = Y_AXIS.clone().applyQuaternion(Wq);
     const r0 = A.root.rotation.clone(), m0 = A.mid.rotation.x, mq = new THREE.Quaternion(), pw = new THREE.Vector3(), dw = new THREE.Vector3();
     const grip = () => { // (the weapon handed back to the hand as the pose aimed it, then gripped as far as the wrist allows)
       A.collar!.updateMatrixWorld(true);
@@ -1552,7 +1567,26 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
     }, 0.3);
     grip(); body.updateMatrixWorld(true);
   };
-  if (!dead) [gR, gL].forEach((g, k) => { if (f.gear?.[k === 0 ? 'handR' : 'handL'] && g.children.length) gearGrip(arm[k], g, k === 0 ? RX : LX); });
+  // where a cane planted at ease stands (kit/weapons.ts caneFoot): its shaft leaning as the hold's aim says (in the body's
+  // frame, its top end up), its crook forward off the top of it, and slid along the shaft from where the fist has it till
+  // its foot is on the floor (the fist goes with it)
+  const caneAt = (A: Limb, spec: WeaponSpec, sx: number, aim: Euler3) => {
+    body.updateMatrixWorld(true);
+    const Z = new THREE.Vector3(aim[0] * sx, aim[1], aim[2]).transformDirection(body.matrixWorld).normalize(), Y = new THREE.Vector3(0, 0, 1).transformDirection(body.matrixWorld);
+    Y.addScaledVector(Z, -Y.dot(Z)).normalize();
+    const q = new THREE.Quaternion().setFromRotationMatrix(new THREE.Matrix4().makeBasis(new THREE.Vector3().crossVectors(Y, Z), Y, Z));
+    const hm = handMeshes(A.end), u = ((hm[0]?.geometry as THREE.SphereGeometry | undefined)?.parameters?.radius ?? 0.105 * s) / 0.105;
+    const p = A.end.localToWorld(new THREE.Vector3(0, -0.15 * u, 0.085 * u)), foot = caneFoot(spec).multiplyScalar(s).applyQuaternion(q).add(p); // (the fist's hole, where closeGrip puts what it holds)
+    let floor = Infinity; for (const m of soles) floor = Math.min(floor, new THREE.Box3().setFromObject(m).min.y);
+    p.addScaledVector(Z, (floor + 0.005 * s - foot.y) / Z.y);
+    return { q, p };
+  };
+  if (!dead) [gR, gL].forEach((g, k) => {
+    const sd = k === 0 ? 'R' : 'L', sx = k === 0 ? RX : LX, spec = f.gear?.[sd === 'R' ? 'handR' : 'handL'], hd = P[`hold${sd}`];
+    if (!spec || !g.children.length) return;
+    const planted = plantedIn(sd) && soles.length > 0;
+    gearGrip(arm[k], g, sx, !planted, planted && stickIn(sd) === 'crook' ? caneAt(arm[k], spec, sx, hd!.aim ?? [0, 1, 0]) : undefined);
+  });
   // an arm the pose sets in a fight that holds nothing pointed (a shield on the forearm, an open book on the palm, an empty
   // or casting hand) is moved out of the body if it sinks in (a full bust, a breastplate), as little as it takes
   if (battle && !dead && !P.lie && !P.seated) arm.forEach((A, k) => {
@@ -1889,13 +1923,29 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
     new THREE.Matrix4().makeBasis(X, Y, Z).setPosition(O).premultiply(mount.matrixWorld.clone().invert()).decompose(st.position, st.quaternion, st.scale);
     body.updateMatrixWorld(true);
   }
-  // a staff planted at ease slides through the hand till its foot is on the floor
-  if (P.holdR === STAFF_AT_EASE.holdR && standing && soles.length && gR.children.length) {
+  // a walking stick planted at ease stands on the floor: a staff (or a shovel, on its blade) slides through the fist till
+  // its foot is down, and a cane, the fist on its crook, turns in it about the grip as little as it takes to set its foot
+  // down (about the level line across the way it leans)
+  if (standing && soles.length) [gR, gL].forEach((g, k) => {
+    const sd = k === 0 ? 'R' : 'L'; if (!plantedIn(sd) || !g.children.length) return;
     body.updateMatrixWorld(true);
     let floor = Infinity; for (const m of soles) floor = Math.min(floor, new THREE.Box3().setFromObject(m).min.y);
-    const st = gR.children[0], a = new THREE.Vector3(0, 1, 0).transformDirection(st.matrixWorld), low = new THREE.Box3().setFromObject(st).min.y;
-    if (a.y > 0.5 && Number.isFinite(floor)) { st.position.y += (floor + 0.01 * s - low) / a.y / gR.getWorldScale(new THREE.Vector3()).y; st.updateMatrixWorld(true); }
-  }
+    const st = g.children[0], low = () => new THREE.Box3().setFromObject(st).min.y, spec = f.gear?.[sd === 'R' ? 'handR' : 'handL'];
+    if (!Number.isFinite(floor)) return;
+    if (spec && stickIn(sd) === 'crook') {
+      const o = g.getWorldPosition(new THREE.Vector3()), gq = new THREE.Quaternion(), pq = new THREE.Quaternion();
+      for (let it = 0; it < 3; it++) {
+        const foot = st.localToWorld(caneFoot(spec)), v = foot.clone().sub(o), h = new THREE.Vector3(v.x, 0, v.z), a = h.length(); if (a < 1e-4) break; h.divideScalar(a);
+        const r = Math.hypot(a, v.y), b = v.y + (floor + 0.005 * s - low()); if (Math.abs(b) >= r) break;
+        const th = Math.atan2(b, Math.sqrt(r * r - b * b)) - Math.atan2(v.y, a); if (Math.abs(th) < 1e-5) break;
+        g.getWorldQuaternion(gq).premultiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3().crossVectors(h, Y_AXIS).normalize(), th));
+        g.quaternion.copy((g.parent as THREE.Object3D).getWorldQuaternion(pq).invert().multiply(gq)); g.updateMatrixWorld(true);
+      }
+    } else {
+      const a = new THREE.Vector3(0, 1, 0).transformDirection(st.matrixWorld);
+      if (Math.abs(a.y) > 0.5) { st.position.addScaledVector(new THREE.Vector3(0, 1, 0).applyQuaternion(st.quaternion), (floor + 0.01 * s - low()) / a.y / g.getWorldScale(new THREE.Vector3()).y); st.updateMatrixWorld(true); }
+    }
+  });
   // a body that lies settles as it would fall (see settleLay); it is turned and put on the floor below
   const laid = P.lie ? settleLay(P.lie, s, { body, up, neck, arm, leg }, own, [gR, gL]) : undefined;
   // (it lies on its clothes: what of them is under it lies under it, each garment worn over another a layer nearer the
