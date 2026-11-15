@@ -368,7 +368,7 @@ function hangOne(g: Garment, w: DrapeWorld, hung: Map<string, THREE.Vector3[]>, 
   // and where it still runs through a part it covers, between the part's bone and its surface (cloth drawn across a
   // toe, or over an elbow between two of its strips), it is lifted out past the surface there
   // (never through the floor: cloth under a limb resting on the floor stays on the floor under it)
-  if (w.bones && !g.stiff && geo.index) { liftOut(P, geo.index.array, g.covers, w, toLocal, clear, ax, az, w.lying ? down.clone().negate() : undefined); onFloor(); }
+  if ((w.bones || w.pieces) && !g.stiff && geo.index) { liftOut(P, geo.index.array, g.covers, w, toLocal, clear, ax, az, w.lying ? down.clone().negate() : undefined); onFloor(); }
   for (let k = 0; k < C * R; k++) pos.setXYZ(k, P[k * 3], P[k * 3 + 1], P[k * 3 + 2]);
   pos.needsUpdate = true; geo.computeVertexNormals(); geo.computeBoundingBox(); geo.computeBoundingSphere();
 }
@@ -383,7 +383,8 @@ export function liftOut(P: Float64Array, index: ArrayLike<number>, covers: strin
   const pts: number[] = [], lines: number[][] = [], owner: number[] = [], v = new THREE.Vector3();
   for (const n of covers) {
     const b = w.bones?.get(n), ps = w.surface?.get(n) ?? w.parts.get(n);
-    for (const { bone, surface } of w.pieces?.get(n) ?? (b && ps ? [{ bone: b, surface: ps }] : [])) {
+    const set = w.pieces?.get(n);
+    for (const { bone, surface } of set?.length ? set : b && ps ? [{ bone: b, surface: ps }] : []) {
       if (bone.length < 2) continue;
       lines.push(bone.flatMap((p) => v.copy(p).applyMatrix4(toLocal).toArray()));
       for (const p of surface) { v.copy(p).applyMatrix4(toLocal); pts.push(v.x, v.y, v.z); owner.push(lines.length - 1); }

@@ -18,7 +18,8 @@ export interface PokeOptions {
   tolerance?: number;
 }
 
-const solid = (m: THREE.Object3D): m is THREE.Mesh => (m as THREE.Mesh).isMesh && !((m as THREE.Mesh).material as THREE.Material).transparent;
+// (a see-through part's depth-only twin, userData.veil, is no surface: kit/monsters.ts)
+const solid = (m: THREE.Object3D): m is THREE.Mesh => (m as THREE.Mesh).isMesh && !((m as THREE.Mesh).material as THREE.Material).transparent && !m.userData.veil;
 const flesh = (m: THREE.Object3D): m is THREE.Mesh => solid(m) && !m.userData.garment && !m.userData.cloth;
 
 /** Every poke in a posed figure built by heroFigure (rest, battle or dead), deepest first. */

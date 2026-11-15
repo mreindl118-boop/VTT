@@ -1574,7 +1574,7 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
     const cut = garments.map((g) => (g.mesh.geometry.getAttribute('position').array as Float32Array).slice());
     if (garments.length) {
       const w = drapeWorld(body, { pel, up, neck, arm, leg, gR, gL }, fr, s, P, dead);
-      for (const sd of onBody.keys()) for (const n of ['upperArm', 'forearm', 'hand']) for (const m of [w.parts, w.surface, w.bones, w.volumes]) m?.delete(n + sd);
+      for (const sd of onBody.keys()) for (const n of ['upperArm', 'forearm', 'hand']) for (const m of [w.parts, w.surface, w.bones, w.volumes, w.pieces]) m?.delete(n + sd);
       hangGarments(garments.map((g) => ({ ...g, after: undefined })), w);
     }
     body.updateMatrixWorld(true);
