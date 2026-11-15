@@ -78,3 +78,45 @@ test('the Player Display never saves received campaign state on a campaign switc
   });
   expect(await page.evaluate(() => (window as any).__puts)).toEqual([]);
 });
+
+test('the Player Display keeps each token\'s miniature from one state message to the next, and builds anew only one that changed', async ({ page }) => {
+  // The DM sends the state on every change (each move): rebuilding every miniature each time stalled the display.
+  const r = await page.evaluate(async () => {
+    const a = (window as any).__mistlab.app;
+    a.setJiggle(true);
+    const loc = a.cur.scene.location, level = a.levelId, at: number[] = a.party?.pos ?? [20, 20], base = structuredClone(a.state);
+    // a character with a miniature of their own (a stand-in, not a table's), and a creature the players have been shown
+    const sheet = { id: 'e2e-pc', name: 'Stand-in', color: '#6b3fa0', speedFt: 30, reachFt: 5, rangeFt: 0, initMod: 0, size: 'medium', darkvisionFt: 0, kind: 'pc', figure: { frame: 'feminine', weapon: 'mace' } };
+    const tok = { location: loc, level, size: 'medium', darkvisionFt: 0, color: '#6b3fa0' };
+    const ghoul = { ...tok, id: 'e2e-ghoul', name: 'Ghoul', pos: [at[0], at[1] + 10], role: 'creature', creatureId: 'ghoul', hidden: false };
+    const send = (hero: object) => a.onMsg({ kind: 'state', location: a.cur.path, nested: a.nested, state: { ...structuredClone(base),
+      roster: [...base.roster, sheet], tokens: [...base.tokens, ghoul, { ...tok, id: 'e2e-hero', name: 'Stand-in', role: 'pc', sheetId: 'e2e-pc', pos: [at[0] + 5, at[1]], ...hero }] } });
+    const figOf = (id: string) => a.cur.tokens.get(id)?.userData.fig?.fig;
+    await send({});
+    const ids = [...a.cur.tokens.keys()] as string[], first = new Map(ids.map((id) => [id, figOf(id)]));
+    let freed = 0;
+    for (const f of first.values()) f?.traverse((o: any) => { if (!o.isMesh) return; o.geometry.addEventListener('dispose', () => freed++); for (const m of [o.material].flat()) m.addEventListener('dispose', () => freed++); });
+    const sprungAtFirst = a.jiggle.bodies.get('e2e-hero')?.root === first.get('e2e-hero');
+    a.jiggle.kick('e2e-hero', 8, 3);
+    // two moves: the same miniatures stand where the tokens now stand, none is freed, and the bounce carries on
+    await send({ pos: [at[0] + 10, at[1]] });
+    await send({ pos: [at[0] + 15, at[1]] });
+    const moved = { kept: ids.filter((id) => !!first.get(id) && figOf(id) === first.get(id)), freed, at: a.cur.tokens.get('e2e-hero').position.x - at[0],
+      follows: a.jiggle.bodies.get('e2e-hero')?.root === first.get('e2e-hero'), bouncing: a.jiggle.bouncing('e2e-hero') };
+    // the character goes down: their miniature alone is built anew, the old one is freed, and the spring follows the new one
+    await send({ pos: [at[0] + 15, at[1]], down: true });
+    const down = { kept: ids.filter((id) => figOf(id) === first.get(id)), freed, follows: a.jiggle.bodies.get('e2e-hero')?.root === figOf('e2e-hero') };
+    return { ids, withFigure: ids.filter((id) => !!first.get(id)), sprungAtFirst, moved, down };
+  });
+  expect(r.ids).toEqual(expect.arrayContaining(['e2e-hero', 'e2e-ghoul']));
+  expect(r.withFigure).toEqual(r.ids);
+  expect(r.sprungAtFirst).toBe(true);
+  expect(r.moved.kept).toEqual(r.ids);
+  expect(r.moved.freed).toBe(0);
+  expect(r.moved.at).toBeCloseTo(15);
+  expect(r.moved.follows).toBe(true);
+  expect(r.moved.bouncing).toBe(true);
+  expect(r.down.kept).toEqual(r.ids.filter((id) => id !== 'e2e-hero'));
+  expect(r.down.freed).toBeGreaterThan(0);
+  expect(r.down.follows).toBe(true);
+});

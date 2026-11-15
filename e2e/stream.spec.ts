@@ -66,7 +66,7 @@ test('range overlays and token figures are disposed when they are rebuilt', asyn
   const r1 = await mem(page);
   expect(r1.geometries - r0.geometries, '100 range refreshes').toBeLessThanOrEqual(2);
   expect(await page.evaluate(() => !!(window as any).__mistlab.app.rangeFor)).toBe(true); // the overlay is still there
-  // every view toggle rebuilds the token figures (the players' names): the old ones go
+  // every view toggle rebuilds the token pieces (the players' names; unchanged miniatures stay): the old ones go
   await page.evaluate(() => { const a = (window as any).__mistlab.app; a.select(null); a.setRangeHelper(false); const g = a.addCreatureNearParty('ghoul'); a.setTokenHidden(g.id, false); a.world.renderNow(); });
   const t0 = await mem(page);
   await page.evaluate(() => { const a = (window as any).__mistlab.app; for (let i = 0; i < 20; i++) { a.setView('players'); a.world.renderNow(); a.setView('dm'); a.world.renderNow(); } });
