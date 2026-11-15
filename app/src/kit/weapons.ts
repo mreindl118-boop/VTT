@@ -84,8 +84,10 @@ function hilt(g: THREE.Group, s: WeaponSpec, o: { grip: number; r: number; guard
     for (const sz of [-1, 1]) { const e = ball(o.r * 1.15, fit); g.add(at(e, 0, top + o.r * 0.6, sz * gw)); }
     if (guard === 'wings') for (const sz of [-1, 1]) { const w = blade([{ y: 0, w: gw * 0.5, t: o.r * 0.5 }, { y: gw * 0.7, w: gw * 0.3, t: o.r * 0.3, off: gw * 0.35 }, { y: gw * 1.1, w: 0.01, t: 0.01, off: gw * 0.75 }], fit); w.rotation.x = sz * 1.9; w.scale.setScalar(0.55); g.add(at(w, 0, top + o.r, sz * gw * 0.5)); }
   } else if (guard === 'curved') {
-    for (const sz of [-1, 1]) { const c = new THREE.Mesh(new THREE.TorusGeometry(gw * 0.7, o.r * 0.7, 6, 10, 1.3), soft(fit)); c.rotation.set(0, Math.PI / 2, sz > 0 ? 0.25 : Math.PI - 0.25 - 1.3); g.add(at(c, 0, top + o.r * 0.6 + gw * 0.7, 0)); g.add(at(ball(o.r, fit), 0, top + o.r * 0.6 + gw * 0.35, sz * gw * 0.95)); }
-    g.add(at(box(o.r * 1.6, o.r * 1.6, gw * 0.6, fit), 0, top + o.r * 0.6, 0));
+    // (each quillon an arc of a circle from the block out to a ball, bending up toward the blade)
+    const y0 = top + o.r * 0.6, rise = gw * 0.35, span = gw * 0.95, R = (rise * rise + span * span) / (2 * rise), arc = Math.asin(span / R);
+    for (const sz of [-1, 1]) { const c = new THREE.Mesh(new THREE.TorusGeometry(R, o.r * 0.7, 6, 10, arc), soft(fit)); c.rotation.set(0, Math.PI / 2, sz > 0 ? -Math.PI / 2 - arc : -Math.PI / 2); g.add(at(c, 0, y0 + R, 0)); g.add(at(ball(o.r, fit), 0, y0 + rise, sz * span)); }
+    g.add(at(box(o.r * 1.6, o.r * 1.6, gw * 0.6, fit), 0, y0, 0));
   } else if (guard === 'ring' || guard === 'basket') {
     g.add(at(box(o.r * 1.4, o.r * 1.3, gw * 1.6, fit), 0, top + o.r * 0.6, 0));
     const ring = new THREE.Mesh(new THREE.TorusGeometry(gw * 0.55, o.r * 0.45, 6, 16), soft(fit)); ring.rotation.x = Math.PI / 2; g.add(at(ring, 0, top + o.r * 1.4, 0));
@@ -99,12 +101,48 @@ function hilt(g: THREE.Group, s: WeaponSpec, o: { grip: number; r: number; guard
   else { g.add(at(ball(o.r * 1.3, fit), 0, py, 0)); for (let i = 0; i < 3; i++) { const c = new THREE.Mesh(new THREE.ConeGeometry(o.r * 0.5, o.r * 2.4, 5), soft(fit)); const a = i * 2.094; c.rotation.set(Math.PI + 0.5 * Math.cos(a), 0, 0.5 * Math.sin(a)); g.add(at(c, Math.sin(a) * o.r, py - o.r * 1.4, Math.cos(a) * o.r)); } }
 }
 
-function sword(s: WeaponSpec, o: { len: number; w: number; t: number; grip: number; guardW: number; guard: Guard; pommel: Pommel; taper?: number; tip?: number; fuller?: boolean; leaf?: number }): THREE.Group {
+/** What makes each straight sword: its blade's length, half-width and half-thickness at the guard, how it tapers, its
+ *  grip, guard and pommel. */
+type SwordO = { len: number; w: number; t: number; grip: number; guardW: number; guard: Guard; pommel: Pommel; taper?: number; tip?: number; fuller?: boolean; leaf?: number };
+const SWORDS: Partial<Record<WeaponKind, SwordO>> = {
+  longsword: { len: 2.9, w: 0.13, t: 0.03, grip: 0.62, guardW: 0.36, guard: 'bar', pommel: 'disc' },
+  greatsword: { len: 4.1, w: 0.17, t: 0.036, grip: 1.15, guardW: 0.52, guard: 'bar', pommel: 'wedge', taper: 0.2 },
+  shortsword: { len: 1.9, w: 0.14, t: 0.03, grip: 0.46, guardW: 0.24, guard: 'bar', pommel: 'ball', leaf: 0.12 },
+  dagger: { len: 0.95, w: 0.085, t: 0.022, grip: 0.36, guardW: 0.16, guard: 'bar', pommel: 'ball', taper: 0.5, tip: 0.3, fuller: false },
+  rapier: { len: 3.2, w: 0.05, t: 0.022, grip: 0.5, guardW: 0.24, guard: 'basket', pommel: 'ball', taper: 0.6, tip: 0.2, fuller: false },
+  'sword-cane': { len: 2.7, w: 0.045, t: 0.02, grip: 0.5, guardW: 0.1, guard: 'disc', pommel: 'ball', taper: 0.5, fuller: false },
+  sunsword: { len: 3.0, w: 0.12, t: 0.035, grip: 0.62, guardW: 0.34, guard: 'wings', pommel: 'gem', taper: 0.15, fuller: false },
+  'dragon-greatsword': { len: 4.2, w: 0.18, t: 0.038, grip: 1.15, guardW: 0.56, guard: 'wings', pommel: 'claw', taper: 0.18 },
+};
+
+/** The scimitar's blade: broadening from the guard toward its tip, which sweeps back off the line of the grip. */
+function scimitarSecs(s: WeaponSpec): Sec[] {
+  const len = 2.5 * (s.length ?? 1), secs: Sec[] = [];
+  for (let i = 0; i <= 10; i++) { const u = i / 10; secs.push({ y: u * len, w: Math.max(0.004, (0.1 + 0.07 * Math.sin(u * 2.6)) * (u > 0.86 ? (1 - u) / 0.14 : 1) * (s.wear && i % 3 === 1 ? 1 - 0.15 * s.wear : 1)), t: 0.028 * (1 - 0.7 * u), off: -0.42 * u * u * len * 0.3 }); }
+  return secs;
+}
+
+/** A sword's blade, for one put away: its cross-sections from the guard to the point, and how far up the weapon from
+ *  where the hand closes it leaves the hilt (feet at medium size). Undefined for a weapon with no blade. */
+export function bladeOf(s: WeaponSpec): { secs: Sec[]; top: number } | undefined {
+  if (s.kind === 'scimitar') return { secs: scimitarSecs(s), top: 0.42 };
+  const o = SWORDS[s.kind]; if (!o) return undefined;
+  const L = o.len * (s.length ?? 1);
+  return { secs: straightBlade(L, o.w, o.t, { taper: o.taper, tip: o.tip, wear: s.wear, leaf: o.leaf, seed: L * 7 }), top: o.grip * 0.62 + 0.05 };
+}
+
+function sword(s: WeaponSpec, o: SwordO): THREE.Group {
   const g = new THREE.Group(), L = o.len * (s.length ?? 1), metal = s.metal ?? '#c9ced6', top = o.grip * 0.62 + 0.05;
   const b = blade(straightBlade(L, o.w, o.t, { taper: o.taper, tip: o.tip, wear: s.wear, leaf: o.leaf, seed: L * 7 }), metal); g.add(at(b, 0, top, 0));
   if (o.fuller !== false) for (const sx of [-1, 1]) g.add(at(box(0.008, L * 0.62, o.w * 0.42, tone(metal, '#20242c', 0.35)), sx * o.t * 0.72, top + L * 0.34, 0));
-  if (s.wear) g.add(at(box(o.t * 0.6, L * 0.5, 0.012, tone(metal, '#3a2a20', 0.5)), 0, top + L * 0.4, o.w * 0.78));
-  if (s.glow) { const gl = blade(straightBlade(L * 1.02, o.w * 1.5, o.t * 2.2, { taper: o.taper, tip: o.tip }), s.glow); const m = (gl.material as THREE.MeshLambertMaterial).clone(); m.transparent = true; m.opacity = 0.35; m.depthWrite = false; m.emissive = new THREE.Color(s.glow); m.userData = { keepLook: true }; gl.material = m; gl.userData.keepLook = true; g.add(at(gl, 0, top - 0.01, 0)); }
+  // (a worn blade's edge darkened from a little above the guard to past the middle, kept the same share of the way out
+  // to the edge as the blade tapers, so it never stands off a narrowing blade)
+  if (s.wear) {
+    const tipAt = 1 - (o.tip ?? 0.14), wAt = (u: number) => 0.78 * o.w * (1 - (o.taper ?? 0.3) * (u / tipAt)) * (1 + (o.leaf ?? 0) * Math.sin(u / tipAt * Math.PI));
+    const y0 = L * 0.15, y1 = L * 0.65, z0 = wAt(0.15), z1 = wAt(0.65), st = box(o.t * 0.6, Math.hypot(y1 - y0, z1 - z0), 0.012, tone(metal, '#3a2a20', 0.5));
+    st.rotation.x = Math.atan2(z1 - z0, y1 - y0); g.add(at(st, 0, top + (y0 + y1) / 2, (z0 + z1) / 2));
+  }
+  if (s.glow) { const gl = blade(straightBlade(L * 1.02, o.w * 1.5, o.t * 2.2, { taper: o.taper, tip: o.tip }), s.glow); const m = (gl.material as THREE.MeshLambertMaterial).clone(); m.transparent = true; m.opacity = 0.35; m.depthWrite = false; m.emissive = new THREE.Color(s.glow); m.userData = { keepLook: true }; gl.material = m; gl.userData.keepLook = true; gl.name = 'bladeGlow'; g.add(at(gl, 0, top - 0.01, 0)); }
   hilt(g, s, { grip: o.grip, r: 0.045, guardW: o.guardW, guard: o.guard, pommel: o.pommel });
   return g;
 }
@@ -138,23 +176,17 @@ function build(s: WeaponSpec): THREE.Group {
   const metal = s.metal ?? '#c9ced6', wood = s.grip ?? '#4a3424', fit = s.fittings ?? '#b08a3a', L = s.length ?? 1;
   const g = new THREE.Group();
   switch (s.kind) {
-    case 'longsword': return sword(s, { len: 2.9, w: 0.13, t: 0.03, grip: 0.62, guardW: 0.36, guard: 'bar', pommel: 'disc' });
-    case 'greatsword': return sword(s, { len: 4.1, w: 0.17, t: 0.036, grip: 1.15, guardW: 0.52, guard: 'bar', pommel: 'wedge', taper: 0.2 });
-    case 'shortsword': return sword(s, { len: 1.9, w: 0.14, t: 0.03, grip: 0.46, guardW: 0.24, guard: 'bar', pommel: 'ball', leaf: 0.12 });
-    case 'dagger': return sword(s, { len: 0.95, w: 0.085, t: 0.022, grip: 0.36, guardW: 0.16, guard: 'bar', pommel: 'ball', taper: 0.5, tip: 0.3, fuller: false });
-    case 'rapier': return sword(s, { len: 3.2, w: 0.05, t: 0.022, grip: 0.5, guardW: 0.24, guard: 'basket', pommel: 'ball', taper: 0.6, tip: 0.2, fuller: false });
-    case 'sword-cane': { const sw = sword({ ...s, guard: 'disc', pommel: s.pommel ?? 'ball' }, { len: 2.7, w: 0.045, t: 0.02, grip: 0.5, guardW: 0.1, guard: 'disc', pommel: 'ball', taper: 0.5, fuller: false }); return sw; }
-    case 'sunsword': { const sw = sword({ fittings: '#dcdce4', grip: '#e8e2d0', gem: '#f6d86a', pommel: 'gem', guard: 'wings', ...s, metal: '#fff4c2', glow: s.glow ?? '#ffd866' }, { len: 3.0, w: 0.12, t: 0.035, grip: 0.62, guardW: 0.34, guard: 'wings', pommel: 'gem', taper: 0.15, fuller: false }); return sw; }
+    case 'longsword': case 'greatsword': case 'shortsword': case 'dagger': case 'rapier': return sword(s, SWORDS[s.kind]!);
+    case 'sword-cane': return sword({ ...s, guard: 'disc', pommel: s.pommel ?? 'ball' }, SWORDS['sword-cane']!);
+    case 'sunsword': return sword({ fittings: '#dcdce4', grip: '#e8e2d0', gem: '#f6d86a', pommel: 'gem', guard: 'wings', ...s, metal: '#fff4c2', glow: s.glow ?? '#ffd866' }, SWORDS.sunsword!);
     case 'dragon-greatsword': {
-      const sw = sword({ fittings: '#c8ccd4', grip: '#2a2c34', guard: 'wings', pommel: 'claw', ...s }, { len: 4.2, w: 0.18, t: 0.038, grip: 1.15, guardW: 0.56, guard: 'wings', pommel: 'claw', taper: 0.18 });
+      const sw = sword({ fittings: '#c8ccd4', grip: '#2a2c34', guard: 'wings', pommel: 'claw', ...s }, SWORDS['dragon-greatsword']!);
       const head = ball(0.1, s.fittings ?? '#c8ccd4'); head.scale.set(0.8, 1.2, 1.5); sw.add(at(head, 0, 0.84, 0));                                       // a dragon's head where the blade leaves the hilt
       for (const sz of [-1, 1]) { const h = new THREE.Mesh(new THREE.ConeGeometry(0.03, 0.2, 5), soft(s.fittings ?? '#c8ccd4')); h.rotation.x = sz * 0.9; sw.add(at(h, 0, 0.95, sz * 0.1)); }
       return sw;
     }
     case 'scimitar': {
-      const len = 2.5 * L, secs: Sec[] = [], top = 0.42;
-      for (let i = 0; i <= 10; i++) { const u = i / 10; secs.push({ y: u * len, w: Math.max(0.004, (0.1 + 0.07 * Math.sin(u * 2.6)) * (u > 0.86 ? (1 - u) / 0.14 : 1) * (s.wear && i % 3 === 1 ? 1 - 0.15 * s.wear : 1)), t: 0.028 * (1 - 0.7 * u), off: -0.42 * u * u * len * 0.3 }); }
-      g.add(at(blade(secs, metal), 0, top, 0)); hilt(g, s, { grip: 0.56, r: 0.045, guardW: 0.2, guard: 'curved', pommel: 'ball' });
+      g.add(at(blade(scimitarSecs(s), metal), 0, 0.42, 0)); hilt(g, s, { grip: 0.56, r: 0.045, guardW: 0.2, guard: 'curved', pommel: 'ball' });
       const hook = ball(0.06, fit); g.add(at(hook, 0, -0.3, 0.06)); return g;
     }
     case 'handaxe': case 'battleaxe': case 'greataxe': {
@@ -252,10 +284,46 @@ function build(s: WeaponSpec): THREE.Group {
   return g;
 }
 
-/** A sheath for a sword at the hip or on the back: origin at its mouth, hanging down -y. */
-export function scabbard(len: number, c = '#2a2420', fit = '#b08a3a'): THREE.Group {
-  const g = new THREE.Group(); const b = box(0.07, len, 0.17, c); g.add(at(b, 0, -len / 2, 0));
-  g.add(at(box(0.085, 0.14, 0.19, fit), 0, -0.07, 0), at(box(0.085, 0.2, 0.15, fit), 0, -len + 0.08, 0)); return g;
+/** One ring of a sheath: how far down it from the mouth, its half-width across the blade's edges (z) and half-thickness
+ *  across its flats (x), and how far toward the edge the curve has carried it. */
+type Ring = { y: number; W: number; T: number; o: number };
+/** A sheath's leather or metal lofted through rings, each a flattened oval of eight sides round the line of the blade
+ *  (built up the blade, +y, as the blade is), shut flat at both ends. */
+function sheathLoft(rings: Ring[], c: string): M {
+  const v: number[] = [], idx: number[] = [], K = 8;
+  for (const r of rings) for (let k = 0; k < K; k++) { const a = (k / K) * Math.PI * 2; v.push(r.T * Math.sin(a), r.y, r.o + r.W * Math.cos(a)); }
+  for (let i = 0; i < rings.length - 1; i++) for (let k = 0; k < K; k++) { const a = i * K + k, b = i * K + (k + 1) % K; idx.push(a, b, b + K, a, b + K, a + K); }
+  // (the ends get their own corners, so they shade flat while the sides shade round)
+  for (const [i, sgn] of [[0, -1], [rings.length - 1, 1]] as const) {
+    const base = v.length / 3, r = rings[i];
+    for (let k = 0; k < K; k++) v.push(v[(i * K + k) * 3], v[(i * K + k) * 3 + 1], v[(i * K + k) * 3 + 2]);
+    v.push(0, r.y, r.o); for (let k = 0; k < K; k++) { const a = base + k, b = base + (k + 1) % K; if (sgn > 0) idx.push(base + K, a, b); else idx.push(base + K, b, a); }
+  }
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(v, 3)); g.setIndex(idx); g.computeVertexNormals();
+  return new THREE.Mesh(g, soft(c));
+}
+
+/** A sheath cut to a sword's own blade, to hang it at the hip: origin at its mouth, hanging down -y as the blade hangs in
+ *  it, turned point down (its edge then toward -z). Round each of the blade's cross-sections a wall's thickness clear of
+ *  it, so it follows the blade's taper and a scimitar's sweep, and runs on past the point; a metal locket at the mouth
+ *  and a chape over the tip. Undefined for a weapon with no blade to sheathe. */
+export function scabbard(s: WeaponSpec, c = '#2a2420', fit = '#b08a3a'): THREE.Group | undefined {
+  const bl = bladeOf(s); if (!bl) return undefined;
+  const secs = bl.secs, len = secs[secs.length - 1].y, WALL = 0.024;
+  const rings: Ring[] = secs.map((q) => ({ y: q.y, W: q.w + WALL, T: Math.max(q.t + 0.016, 0.034 - 0.014 * q.y / len), o: q.off ?? 0 }));
+  // (on past the point along the blade's line or its curve, narrowing to the end)
+  const [p, q] = rings.slice(-2), run = 0.07, k = run / Math.max(1e-6, q.y - p.y);
+  rings.push({ y: len + run, W: Math.max(0.02, q.W * 0.7), T: q.T * 0.8, o: q.o + (q.o - p.o) * k });
+  const ringAt = (y: number): Ring => { const i = Math.max(1, rings.findIndex((r) => r.y >= y)), a = rings[i - 1], b = rings[i], t = (y - a.y) / Math.max(1e-6, b.y - a.y); return { y, W: a.W + (b.W - a.W) * t, T: a.T + (b.T - a.T) * t, o: a.o + (b.o - a.o) * t }; };
+  const over = (r: Ring, d: number): Ring => ({ ...r, W: r.W + d, T: r.T + d });
+  const end = rings[rings.length - 1].y, chapeFrom = end - Math.min(0.24, 0.3 * end);
+  const g = new THREE.Group(), body = sheathLoft(rings, c);
+  // (the locket's lip a hair above the mouth, so the leather's top and the blade's foot are both inside it)
+  const locket = sheathLoft([over({ ...ringAt(0), y: -0.004 }, 0.012), over(ringAt(0.13), 0.012)], fit);
+  // (the chape runs a little past the leather's end, so the two ends never lie in one plane)
+  const chape = sheathLoft([ringAt(chapeFrom), ...rings.filter((r) => r.y > chapeFrom)].map((r, i, rs) => over(i === rs.length - 1 ? { ...r, y: r.y + 0.008 } : r, 0.01)), fit);
+  for (const m of [body, locket, chape]) { m.rotation.x = Math.PI; g.add(m); }
+  return g;
 }
 
 /** Close a hand on what it holds. The rig turns a held weapon freely (upright, tilted); a real hand holds a haft across

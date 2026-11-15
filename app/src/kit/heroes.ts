@@ -8,7 +8,7 @@ import { HIP, SHIN, THIGH, clipRings, forearmRings, frameOf, loftGeometry, lockG
 import type { CreatureSize } from '../core/units';
 import { faceFeatures, hairSkull, browLift, weld, type FaceSpec, type FaceDetail } from './faces';
 import { hairdo as buildHairdo, sheen, type Hairdo } from './hair';
-import { weapon as gearWeapon, scabbard, closeGrip, secondHandAt, secondHandSlide, type WeaponSpec } from './weapons';
+import { weapon as gearWeapon, scabbard, bladeOf, closeGrip, secondHandAt, secondHandSlide, type WeaponSpec } from './weapons';
 import { clothPoint, hangGarments, pointsOf, type DrapeWorld, type Garment } from './cloth';
 
 export type HeroWeapon = 'none' | 'sword' | 'axe' | 'mace' | 'staff' | 'spear' | 'torch';
@@ -1322,16 +1322,16 @@ export function heroFigure(f: HeroFigure, size: CreatureSize = 'medium', state: 
   if (f.gear) {
     const G = f.gear, mount = (name: string) => body.getObjectByName(name);
     for (const [slot, g] of [['handR', gR], ['handL', gL]] as const) { const w = G[slot]; if (!w) continue; const m = gearWeapon(w); m.scale.setScalar(s); g.add(m); }
-    // (a belted blade's grip is where a hand laid on the hilt goes)
-    const BLADE: Record<string, [number, number]> = { longsword: [2.9, 0.43], shortsword: [1.9, 0.34], rapier: [3.2, 0.36], dagger: [0.95, 0.27], scimitar: [2.5, 0.42], greatsword: [4.1, 0.76], 'sword-cane': [2.7, 0.36], sunsword: [3.0, 0.43], 'dragon-greatsword': [4.2, 0.76] };
+    // (a belted blade sits in a scabbard cut to it, the blade's foot at the mouth, and a glowing blade's light stays in
+    // there with it; its grip is where a hand laid on the hilt goes)
     for (const slot of ['beltR', 'beltL'] as const) {
       const w = G[slot], mt = mount(slot); if (!w || !mt) continue;
       // (put away, for the cloth that hangs over it: the hang is flagged `stowed`, unscaled, so the drape reads its pieces
       // at their true size; what hangs on it sits in a group scaled to the figure)
       const sx = slot === 'beltR' ? RX : LX, hang = new THREE.Group(), on = new THREE.Group(); hang.userData.stowed = true; on.scale.setScalar(s); hang.add(on);
       hang.position.set(sx * 0.18 * s, 0.05 * s, 0); hang.rotation.set(0.5, 0, sx * 0.12); mt.add(hang); hangs.push(hang);
-      const m = gearWeapon(w), bl = BLADE[w.kind];
-      if (bl) { const L = bl[0] * (w.length ?? 1); if (w.kind !== 'sword-cane') on.add(scabbard(L + 0.08, tone(w.grip ?? '#2a2420', '#000000', 0.2), w.fittings)); m.rotation.x = Math.PI; m.position.y = bl[1]; on.add(m); belted[slot] = m; }
+      const m = gearWeapon(w), bl = bladeOf(w);
+      if (bl) { if (w.kind !== 'sword-cane') on.add(scabbard(w, tone(w.grip ?? '#2a2420', '#000000', 0.2), w.fittings)!); m.getObjectByName('bladeGlow')?.removeFromParent(); m.rotation.x = Math.PI; m.position.y = bl.top; on.add(m); belted[slot] = m; }
       else { m.rotation.x = Math.PI; m.position.y = 0.2; hang.rotation.x = 0.15; on.add(m); const loop = sm(new THREE.TorusGeometry(0.09, 0.02, 5, 10), '#2a2420'); loop.rotation.x = Math.PI / 2; on.add(loop); }
     }
     const bk = G.back, bm = mount('back');
